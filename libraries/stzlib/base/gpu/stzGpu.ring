@@ -80,6 +80,7 @@ func StzGpuQ()
 class stzGpu from stzObject
 
 	@bTriedInit_ = 0
+	@aRouteFlags_ = [] # GB0: the flags a segmented-reduction rung times with
 
 	# Creates a handle on the GPU plane; the device itself is opened lazily by the first call that needs it.
 	#
@@ -1290,6 +1291,12 @@ class stzGpu from stzObject
 				_aIn_ + ((_i_ * 5) % 7)
 			ok
 		next
+		if pcKey = "segreduce"
+			@aRouteFlags_ = []
+			for _i_ = 1 to pnN
+				@aRouteFlags_ + (_i_ % 64 = 1)
+			next
+		ok
 		_nReps_ = floor(400000 / pnN)
 		if _nReps_ < 3
 			_nReps_ = 3
@@ -1331,6 +1338,12 @@ class stzGpu from stzObject
 				return ring_sort(paIn)
 			ok
 			return This.Sort(paIn)
+		ok
+		if pcKey = "segreduce"
+			if nSide = 0
+				return This._SegReduceCpu(paIn, @aRouteFlags_, "sum")
+			ok
+			return This.SegmentedReduce(paIn, @aRouteFlags_, "sum")
 		ok
 		if nSide = 0
 			return This._CompactWhereCpu(paIn, ">", 2.5)
@@ -1449,6 +1462,137 @@ class stzGpu from stzObject
 			_aIdx_[_i_] = _aIdx_[_i_] + 1
 		next
 		return _aIdx_
+
+	# A running total of a list that starts over at every segment start, computed on the device (GB0).
+	#
+	#   paValues   a non-empty list of numbers
+	#   paFlags    a list of the same length; an entry that is not 0 starts a segment at its place (the first element always starts one)
+	#   pcOp       "sum", "max" or "min"
+	#   returns    a list of the same length: each element holds the operator over its segment up to itself
+	#   note       a sum adds in a fixed tree, not left to right: exact on whole numbers below 2^24, within f32 rounding otherwise; max and min are always exact
+	#   warning    one-shot: it uploads, runs and downloads; raises an error when no GPU device is available
+	#   see        SegmentedReduce, Scan
+	# ---- GB0: segmented scan and reduction -----------------------------------
+	#@ aka  The scan of the library layer with a reset: the pairs (flag, value) are combined as (f1, v1) + (f2, v2) = (f1 or f2, if f2 then v2 else v1 op v2), which is associative, so the three-phase scan applies unchanged; the reduction keeps the last element of each segment through the compaction. One submit for the scan.
+	def SegmentedScan(paValues, paFlags, pcOp)
+		This._RequireDevice()
+		This._SegCheck(paValues, paFlags, "SegmentedScan")
+		_nOp_ = This._SegOpCode(pcOp)
+		_nN_ = ring_len(paValues)
+		_hI_ = StzEngineGpuBufferNew(_nN_ * 4)
+		_hF_ = StzEngineGpuBufferNew(_nN_ * 4)
+		_hO_ = StzEngineGpuBufferNew(_nN_ * 4)
+		if _hI_ = 0 or _hF_ = 0 or _hO_ = 0
+			_FreeIds([_hI_, _hF_, _hO_])
+			StzRaise("SegmentedScan: no device buffer (" + StzEngineGpuLastError() + ")")
+		ok
+		if StzEngineGpuBufferUploadList(_hI_, paValues) != 0 or StzEngineGpuBufferUploadList(_hF_, paFlags) != 0
+			_FreeIds([_hI_, _hF_, _hO_])
+			StzRaise("SegmentedScan: upload refused (" + StzEngineGpuLastError() + ")")
+		ok
+		_nSt_ = StzEngineGpuOpSegScan(_hI_, _hF_, _hO_, _nN_, _nOp_)
+		if _nSt_ != 0
+			_FreeIds([_hI_, _hF_, _hO_])
+			StzRaise("SegmentedScan: the op refused (status " + _nSt_ + ").")
+		ok
+		_aOut_ = StzEngineGpuBufferDownloadList(_hO_, _nN_)
+		_FreeIds([_hI_, _hF_, _hO_])
+		return _aOut_
+
+	# One number per segment of a list: the sum, the largest or the smallest of each stretch between segment starts, computed on the device.
+	#
+	#   paValues   a non-empty list of numbers
+	#   paFlags    a list of the same length; an entry that is not 0 starts a segment (the first element always starts one)
+	#   pcOp       "sum", "max" or "min"
+	#   returns    a list with one number per segment, in order
+	#   note       at most 16,777,216 elements; the segments are counted on the device
+	#   warning    one-shot: it uploads, runs and downloads; raises an error when no GPU device is available
+	#   see        SegmentedScan, SegmentedReduceRouted
+	def SegmentedReduce(paValues, paFlags, pcOp)
+		This._RequireDevice()
+		This._SegCheck(paValues, paFlags, "SegmentedReduce")
+		_nOp_ = This._SegOpCode(pcOp)
+		_nN_ = ring_len(paValues)
+		_hI_ = StzEngineGpuBufferNew(_nN_ * 4)
+		_hF_ = StzEngineGpuBufferNew(_nN_ * 4)
+		_hO_ = StzEngineGpuBufferNew(_nN_ * 4)
+		if _hI_ = 0 or _hF_ = 0 or _hO_ = 0
+			_FreeIds([_hI_, _hF_, _hO_])
+			StzRaise("SegmentedReduce: no device buffer (" + StzEngineGpuLastError() + ")")
+		ok
+		if StzEngineGpuBufferUploadList(_hI_, paValues) != 0 or StzEngineGpuBufferUploadList(_hF_, paFlags) != 0
+			_FreeIds([_hI_, _hF_, _hO_])
+			StzRaise("SegmentedReduce: upload refused (" + StzEngineGpuLastError() + ")")
+		ok
+		_aRes_ = StzEngineGpuOpSegReduce(_hI_, _hF_, _hO_, _nN_, _nOp_)
+		return This._CompactFinish(_aRes_, [_hI_, _hF_, _hO_], _hO_, "SegmentedReduce")
+
+	def _SegCheck(paValues, paFlags, pcName)
+		if NOT isList(paValues) or NOT isList(paFlags) or ring_len(paValues) = 0 or ring_len(paValues) != ring_len(paFlags)
+			StzRaise(pcName + ": give me a non-empty list of numbers and a list of flags of the same length.")
+		ok
+
+	def _SegOpCode(pcOp)
+		if pcOp = "sum"
+			return 0
+		but pcOp = "max"
+			return 1
+		but pcOp = "min"
+			return 2
+		ok
+		StzRaise("the operator is one of sum, max, min, not '" + pcOp + "'.")
+
+	# The same reduction, on the device only where this machine's measurement says the device wins, and in a plain loop everywhere else.
+	#
+	#   paValues   a non-empty list of numbers
+	#   paFlags    a list of the same length; an entry that is not 0 starts a segment
+	#   pcOp       "sum", "max" or "min"
+	#   returns    a list with one number per segment, as SegmentedReduce returns it
+	#   note       with no calibration stored for "segreduce" (or no device) the answer comes from the loop; CalibrateSegmentedReduce stores the line this machine measures
+	#   see        SegmentedReduce, CalibrateSegmentedReduce
+	def SegmentedReduceRouted(paValues, paFlags, pcOp)
+		This._SegCheck(paValues, paFlags, "SegmentedReduceRouted")
+		This._SegOpCode(pcOp)
+		if StzEngineGpuIsAvailable() = 1 and StzEngineGpuCalibRouteShaped("segreduce", ring_len(paValues), 1) = 1
+			return This.SegmentedReduce(paValues, paFlags, pcOp)
+		ok
+		return This._SegReduceCpu(paValues, paFlags, pcOp)
+
+	def _SegReduceCpu(paValues, paFlags, pcOp)
+		_nOp_ = This._SegOpCode(pcOp)
+		_aOut_ = []
+		_nN_ = ring_len(paValues)
+		_nAcc_ = 0
+		for _i_ = 1 to _nN_
+			if _i_ = 1 or paFlags[_i_] != 0
+				if _i_ > 1
+					_aOut_ + _nAcc_
+				ok
+				_nAcc_ = paValues[_i_]
+			else
+				if _nOp_ = 0
+					_nAcc_ += paValues[_i_]
+				but _nOp_ = 1
+					if paValues[_i_] > _nAcc_
+						_nAcc_ = paValues[_i_]
+					ok
+				else
+					if paValues[_i_] < _nAcc_
+						_nAcc_ = paValues[_i_]
+					ok
+				ok
+			ok
+		next
+		_aOut_ + _nAcc_
+		return _aOut_
+
+	# Measures the loop against the device for lists of several sizes and stores, for this adapter, where the device wins at reducing segments.
+	#
+	#   returns    the hashlist CalibrateScan returns, for the key "segreduce" (rungs sum segments of 64 whole numbers 0 to 6)
+	#   warning    writes the calibration file; raises an error when no GPU device is available
+	#   see        CalibrateScan, SegmentedReduceRouted
+	def CalibrateSegmentedReduce()
+		return This._CalibrateRoute("segreduce", [1000, 5000, 20000, 50000, 200000, 1000000])
 
 	# The list sorted on the device only where this machine's measurement says the device wins, and by Ring's own sort everywhere else.
 	#

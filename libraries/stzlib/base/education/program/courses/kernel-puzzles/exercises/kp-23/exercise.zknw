@@ -1,0 +1,18 @@
+knowledge "kp-23"
+
+facts
+    kp-23 | is-a | exercise
+    kp-23 | in-course | kernel-puzzles
+    kp-23 | in-chapter | the-scan
+    kp-23 | puzzle-number | 23
+    kp-23 | teaches | a-total-that-starts-over-at-every-segment
+    kp-23 | starts | red
+
+    kp-23 | elements | 4096
+    kp-23 | input-a | mod13
+    kp-23 | input-b | mod7
+
+    kp-23 | has-mistake | 02-forgets-the-resets
+    kp-23 | has-mistake | 03-compares-the-marks
+    kp-23 | has-mistake | 04-a-start-joins-the-segment-before
+    kp-23 | has-mistake | 05-reads-what-it-writes

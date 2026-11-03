@@ -25,6 +25,7 @@ const gfft = @import("gpu_fft.zig");
 const gscan = @import("gpu_scan.zig");
 const gcompact = @import("gpu_compact.zig");
 const gsort = @import("gpu_sort.zig");
+const gseg = @import("gpu_segscan.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -1072,6 +1073,32 @@ fn ring_OpCompactWhere(p: *anyopaque) callconv(.c) void {
     R.ring_list_adddouble(out, @floatFromInt(st));
     R.ring_list_adddouble(out, cnt);
     R.ring_vm_api_retlist(p, out);
+}
+
+// GB0 (segmented scan): OpSegScan(hIn, hFlags, hOut, n, nOp) -> status; nOp 0 sum, 1 max, 2 min
+fn ring_OpSegScan(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gseg.stz_gpu_op_segscan(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)), gn(p, 4), gn(p, 5))));
+}
+
+// OpSegReduce(hIn, hFlags, hOut, n, nOp) -> [status, segments]; one number per segment, packed
+fn ring_OpSegReduce(p: *anyopaque) callconv(.c) void {
+    var cnt: f64 = 0;
+    const st = gseg.stz_gpu_op_segreduce(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)), gn(p, 4), gn(p, 5), &cnt);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(st));
+    R.ring_list_adddouble(out, cnt);
+    R.ring_vm_api_retlist(p, out);
+}
+
+// SegScanDispatches(n) -> how many dispatches a segmented scan of n elements makes
+fn ring_SegScanDispatches(p: *anyopaque) callconv(.c) void {
+    rn(p, gseg.stz_gpu_segscan_dispatches(gn(p, 1)));
+}
+
+// SegScanRelease() -> frees the scratch a segmented scan keeps between calls
+fn ring_SegScanRelease(p: *anyopaque) callconv(.c) void {
+    gseg.stz_gpu_segscan_release();
+    rn(p, 0);
 }
 
 // GB0 (sort): OpSort(hIn, hOut, n, nDesc) -> status; stable, ascending or descending
@@ -2601,6 +2628,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuopargsort", .func = &ring_OpArgSort },
     .{ .name = "stzenginegpusortdispatches", .func = &ring_SortDispatches },
     .{ .name = "stzenginegpusortrelease", .func = &ring_SortRelease },
+    .{ .name = "stzenginegpuopsegscan", .func = &ring_OpSegScan },
+    .{ .name = "stzenginegpuopsegreduce", .func = &ring_OpSegReduce },
+    .{ .name = "stzenginegpusegscandispatches", .func = &ring_SegScanDispatches },
+    .{ .name = "stzenginegpusegscanrelease", .func = &ring_SegScanRelease },
     .{ .name = "stzenginegpubufferfilllcg", .func = &ring_BufferFillLcg },
     .{ .name = "stzenginegpufoundrypairdist", .func = &ring_FoundryPairdist },
     .{ .name = "stzenginegpufoundrymatmul", .func = &ring_FoundryMatmul },

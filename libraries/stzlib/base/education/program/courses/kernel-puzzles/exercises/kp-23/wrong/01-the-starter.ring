@@ -1,0 +1,11 @@
+# The starter, untouched: no body yet.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.TakesVector(:b)
+k.ReturnsVector(:c)
+k.Shared(:t, 256)
+k.Shared(:s, 256)
+k.Shared(:r, 256)
+k.Stage('{ @t[@l] = @a }')
+k.Stage('{ @s[@l] = when(@b < 2, 1, 0) }')
+? StzKernelPuzzleQ("kp-23").Grade(k)

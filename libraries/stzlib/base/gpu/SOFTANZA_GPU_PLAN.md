@@ -4408,6 +4408,74 @@ has worked it.**
 selection, and a sorted index for the semantic and vector search. Each is a rung
 of its own.
 
+## GB0 STATUS — segmented scan and segmented reduction landed 2026-11-03 (the fourth op of the library layer)
+
+**What it is.** A flags buffer cuts a vector into SEGMENTS: a nonzero flag at `i`
+starts a segment there, and element 0 always starts one (a leading orphan
+segment would have nothing to be). `StzEngineGpuOpSegScan(hIn, hFlags, hOut, n,
+op)` gives every element the operator (0 sum, 1 max, 2 min) over its segment up
+to itself; `OpSegReduce(...)` gives one number per segment, packed, and the
+count (`engine/src/gpu_segscan.zig`). Face: `SegmentedScan`, `SegmentedReduce`,
+`SegmentedReduceRouted`, `CalibrateSegmentedReduce`.
+
+**How.** The scan of gpu_scan.zig carries PAIRS: `(f1, v1) + (f2, v2) = (f1 or
+f2, if f2 then v2 else v1 op v2)`, which is associative, so the three phases
+apply in the same shape and the same `2 * levels - 1` dispatches in ONE submit.
+A block writes each element's value and its CARRIED flag (is there a start at or
+before it in this block?); an element with no start before it takes the scanned
+total of the blocks before it, one that has a start already holds its whole
+segment. The reduction is the scan plus the compaction of gpu_compact.zig: the
+last element of each segment (the one before a flag, and element n - 1) holds its
+total, so a mask of segment ends keeps exactly those. It is two submits and the
+count's read.
+
+**Decisions taken** (each reversible): one scan with an operator in the uniform,
+not three kernels; the flags are a buffer of numbers (nonzero starts a segment),
+not offsets, so the same flags a kernel or a comparison made are the input; the
+reduction's output buffer holds n numbers (the worst case is a segment each) and
+only the first `nseg` are written; the carried flags, the scan and the ends mask
+are SCRATCH kept between calls (`SegScanRelease`), as compaction's is, because
+that was the whole cost there; the reduction is limited to 16,777,216 elements
+(the compaction's counts are f32), the scan alone is not; a sum adds in the fixed
+tree, so it is exact on whole numbers below 2^24 and within f32 rounding
+otherwise, while a max and a min are exact always.
+
+**Criteria, one by one.**
+- *A CPU reference*: the plain loop, in the guard, element for element and
+  segment for segment, for all three operators at 1, 2, 255, 256, 257, 4,096,
+  65,537 and 1,000,003 elements (the reduction at 1, 255, 257, 65,537 and
+  1,000,003, up to 30,928 segments), with no flag at all (the plain scan's own
+  answer, to the bit), with a flag on every element (the input comes back), and
+  with a flag on element 0 left off.
+- *A band where partials round*: 1.7e-7 (100,000 fractional elements).
+- *A roof fraction*: 16,000,000 floats in **4.2 ms**, 1.5 times the plain scan's
+  2.75 ms: it moves two vectors more (the flags in, the carried flags out).
+- *A route*: through the face the loop wins below about 15,000 elements and the
+  device from 20,000 on by 1.3 (ratios 0.10, 0.41, 1.31, 2.27, 2.74, 3.03 at 1k,
+  5k, 20k, 50k, 200k, 1M, with segments of 64). `CalibrateSegmentedReduce` stores
+  the line per adapter and `SegmentedReduceRouted` follows it.
+
+**One thing found in my own op.** A reduction asked for more than 2^24 elements
+answered BAD_ARG, not TOO_LARGE, because the buffer-size checks ran before the
+limit: the guard's own refusal scene caught it. The limit is now a parameter of
+the shared check and runs first, as it does in the compaction and the sort.
+
+**The puzzle**: kp-23, *a running total that starts over*, in the scan chapter:
+every element learns a SEGMENT NUMBER (the count of starts up to itself, the
+scan of puzzle 20 on 1s and 0s) and totals the elements at or before it that
+share it. Two right answers (the count up to and including itself; the count
+strictly before, with the element's own start added back in the comparison),
+four mistakes (forgets the resets, compares the marks and not the segment
+numbers, a start joins the segment before, reads what it writes). The verdicts
+were worked out from the data first: `a[0]` is 0, so the first reset's mistakes
+all differ first at element 6 or 7. Desktop and the Intel iGPU in the browser
+agree on all six. **No person has worked it.**
+
+**What this opens**: a CSR sparse-dense product is a segmented reduction of the
+row-wise products (the segments are the rows, the flags are the row starts),
+which is the next op the graph and neural desks want; top-k by selection per
+row is a segmented sort. Each is a rung of its own.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can

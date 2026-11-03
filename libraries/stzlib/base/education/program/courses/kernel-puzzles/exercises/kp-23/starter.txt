@@ -1,0 +1,8 @@
+in a
+in b
+out c
+shared t 256
+shared s 256
+shared r 256
+stage { @t[@l] = @a }
+stage { @s[@l] = when(@b < 2, 1, 0) }

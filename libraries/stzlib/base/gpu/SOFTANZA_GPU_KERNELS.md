@@ -47,6 +47,7 @@ including the one in a browser.
 | `engine/src/gpu_scan.zig` | GB0's prefix scan: blocks, scanned totals, offsets, in one submit |
 | `engine/src/gpu_compact.zig` | GB0's stream compaction: flags, an exclusive scan of them, a scatter, the count |
 | `engine/src/gpu_sort.zig` | GB0's stable radix sort: keys, key-value pairs and the argsort, four bits a pass |
+| `engine/src/gpu_segscan.zig` | GB0's segmented scan and segmented reduction: the scan over (flag, value) pairs, then the compaction of each segment's last element |
 | `engine/src/neural_backbone.zig` | the resident MiniLM forward on the GPU, with f32 or f16 weights |
 | `engine/src/stz_wasm_entry.zig` | the same grammar compiled for the browser |
 | `base/gpu/stzKernelMaker.ring` | the Ring face over the grammar |
@@ -549,7 +550,7 @@ reported 174% of the copy roof, which is a clock artefact, not speed.
 
 ## 7. The puzzles
 
-Twenty-two puzzles in thirteen chapters teach the GPU from the map to the tiled
+Twenty-three puzzles in thirteen chapters teach the GPU from the map to the tiled
 product, then the branch, the whole number, the vector, the counter, the
 loop, the volume and the running total:
 
@@ -567,7 +568,7 @@ loop, the volume and the running total:
 | the counter | 17 count the votes (GL0: an atomic output, many threads, one counter) |
 | the loop | 18 round up to a power of two (GL0: `iterate`, a state and a stop) |
 | the volume | 19 what changed since the slice before (GL0: `depth` and `@slice`) |
-| the scan | 20 the running total of a group (GB0: the block step of `Scan`, slow and in doubling steps) · 21 pack the large ones (GB0: stream compaction by rank) · 22 sort a group (GB0: the rank of a number, ties broken) |
+| the scan | 20 the running total of a group (GB0: the block step of `Scan`, slow and in doubling steps) · 21 pack the large ones (GB0: stream compaction by rank) · 22 sort a group (GB0: the rank of a number, ties broken) · 23 a running total that starts over (GB0: the segment number of an element) |
 
 An exercise is a folder in the Learning System's shape: `exercise.zknw`,
 `task.<lang>.md` in English, French, Arabic and Hausa, `promise.ring`, a
@@ -596,7 +597,7 @@ desktop produce identical results on every case it holds.
 
 The author worked puzzles 1 to 8. After the page gained a "Your move"
 block and buttons that load a known mistake, the author said those told
-them what to do. Puzzles 9 to 22 are built and checked by instruments;
+them what to do. Puzzles 9 to 23 are built and checked by instruments;
 **no person has worked one yet**.
 
 ## 8. Choices measured into the library
@@ -605,6 +606,7 @@ them what to do. Puzzles 9 to 22 are built and checked by instruments;
 |---|---|---|
 | store the neural model's weights at half precision | kept, **off by default** | it halves the weight memory on the device and moves the forward by about 2%; the embedding stays as close to the CPU as f32 does |
 | merge GELU into the matrix product's store | **removed** | 62 to 56 dispatches per forward, and the clock moved within its own noise |
+| route a list segmented reduction | **stored per adapter**: the loop below about 15,000 elements on the RTX 3050, the device from 20,000 | ratios 0.10 at 1,000, 0.41 at 5,000, 1.3 at 20,000, 2.3 at 50,000, 2.7 at 200,000 and 3.0 at a million (segments of 64): the loop is a compare and an add per element, so the margin is the scan's, not the sort's |
 | route a list sort | **stored per adapter**: Ring's own sort below about 10,000 numbers on the RTX 3050, the device from there | ratios 0.08 at 1,000, 0.58 at 5,000, 2.0 at 20,000, 3.3 at 50,000, 5.1 at 200,000 and 6.3 at a million: Ring's sort costs 0.24 s a million and the device 4 to 6 ms of it, so the face is bound by moving the list |
 | route a list compaction | **stored per adapter**: the loop below about 20,000 elements on the RTX 3050, the device from there | ratios 0.19 at 1,000, 0.61 at 5,000, 1.35 at 20,000, 2.4 at 50,000, 3.4 at 200,000 and 4.5 at a million: the loop pays a compare and an append per element, so the device's margin is wider than the scan's |
 | the flags and the places of a compaction | **kept between calls**, grown when a larger input comes, freed by `StzEngineGpuCompactRelease` or when the device closes | making two 64 MB vectors on every call cost 20.4 ms at 16,000,000 floats; kept, it is 6.3 ms (5.2 scale passes). Measured, not guessed: the suspicion was the allocation and the clock agreed |
@@ -674,6 +676,7 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 | `gpu_int_narrated.ring` | GL0's ints: declarations, typing, refusals in both readers' words, the device at every edge, the fuzz's int kind, puzzle 14 |
 | `gpu_vec_narrated.ring` | GL0's vectors: construction, swizzles, spreading, the vector functions, refusals, the device, the fuzz's vector kind, puzzle 15 |
 | `gpu_buffers_narrated.ring` | GL0's buffers of vectors: declarations, both readers, every host path that makes a buffer, the fuzz's typed-buffer kind, puzzle 16 |
+| `gpu_segscan_narrated.ring` | GB0's segmented scan and reduction: exact against the loop for sum, max and min at every level, no flag and a flag everywhere, the implicit start at element 0, the band where partials round, one submit, what it refuses, the face, the speed against the plain scan, the route, puzzle 23 |
 | `gpu_sort_narrated.ring` | GB0's radix sort: a sort proved by what a sort is (ordered, a permutation, each value beside its key, stable) at every level and both directions, fractions against Ring's sort, the argsort, one submit, the scratch kept and given back, what it refuses, the face, the speed, the route, puzzle 22 |
 | `gpu_compact_narrated.ring` | GB0's stream compaction: exact witnesses across every level, both extremes, the six comparisons, the mask form, a sentinel that must survive, what it refuses (2^24 included), the scratch kept and given back, the face, the speed, the route, puzzle 21 |
 | `gpu_scan_narrated.ring` | GB0's scan: exact witnesses across every level, the shift, the measured band, one submit, what it refuses, the face, the speed against a scale pass, the route, puzzle 20 |

@@ -1,0 +1,13 @@
+# Counts the starts strictly BEFORE an element and compares those: the element that starts a segment then carries the number of the segment before it, and joins it.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.TakesVector(:b)
+k.ReturnsVector(:c)
+k.Shared(:t, 256)
+k.Shared(:s, 256)
+k.Shared(:r, 256)
+k.Stage('{ @t[@l] = @a }')
+k.Stage('{ @s[@l] = when(@b < 2, 1, 0) }')
+k.Stage('{ @r[@l] = sum(j, 0, 256, when(j < @l, @s[j], 0)) }')
+k.ForEachElement('{ @c = sum(j, 0, 256, when(j <= @l and @r[j] == @r[@l], @t[j], 0)) }')
+? StzKernelPuzzleQ("kp-23").Grade(k)

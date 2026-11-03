@@ -1,0 +1,13 @@
+# Totals the elements that have the same MARK as itself, not the same segment number: elements of different segments share a mark, and the ones that do not share it are left out.
+k = StzKernelMakerQ()
+k.TakesVector(:a)
+k.TakesVector(:b)
+k.ReturnsVector(:c)
+k.Shared(:t, 256)
+k.Shared(:s, 256)
+k.Shared(:r, 256)
+k.Stage('{ @t[@l] = @a }')
+k.Stage('{ @s[@l] = when(@b < 2, 1, 0) }')
+k.Stage('{ @r[@l] = sum(j, 0, 256, when(j <= @l, @s[j], 0)) }')
+k.ForEachElement('{ @c = sum(j, 0, 256, when(j <= @l and @s[j] == @s[@l], @t[j], 0)) }')
+? StzKernelPuzzleQ("kp-23").Grade(k)

@@ -37,6 +37,8 @@
 #   StzEngineGpuOpSort(hIn, hOut, n, nDesc)          stable radix sort of f32 keys (GB0)
 #   StzEngineGpuOpSortPairs(hKeys, hVals, hOutK, hOutV, n, nDesc)   the values follow their keys
 #   StzEngineGpuOpArgSort(hKeys, hOutIdx, n, nDesc)  out[k] = the 0-based place of the k-th key
+#   StzEngineGpuOpSegScan(hIn, hFlags, hOut, n, nOp)  running total (nOp 0 sum 1 max 2 min) that starts over at every nonzero flag (GB0)
+#   StzEngineGpuOpSegReduce(hIn, hFlags, hOut, n, nOp) -> [status, segments]   one number per segment, packed; hOut holds n
 # OUT buffers must be distinct from inputs (WebGPU aliasing validation).
 #
 # Kernel binding contract (every kernel compiled through this layer):

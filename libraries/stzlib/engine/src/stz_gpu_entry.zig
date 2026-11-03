@@ -8,6 +8,7 @@ pub const gpu_fft = @import("gpu_fft.zig");
 pub const gpu_scan = @import("gpu_scan.zig");
 pub const gpu_compact = @import("gpu_compact.zig");
 pub const gpu_sort = @import("gpu_sort.zig");
+pub const gpu_segscan = @import("gpu_segscan.zig");
 pub const gpu_surface = @import("gpu_surface.zig");
 pub const ring_bridge = @import("ring_bridge_gpu.zig");
 
@@ -28,5 +29,6 @@ test {
     _ = gpu_scan;
     _ = gpu_compact;
     _ = gpu_sort;
+    _ = gpu_segscan;
     _ = gpu_ops;
 }
