@@ -95,6 +95,16 @@ Scenario("#--> ERROR: is honoured; a label line is not a promise; a prose promis
 	Then("one promise was read, not two", len(aL[:stops][1][:claims]), 1)
 	Then("its value is the standalone line's", aL[:stops][1][:claims][1][:want], "[ 1, 2 ]")
 	Then("and it is kept", aL[:stops][1][:claims][1][:state], "kept")
+	Given("a list WRAPPED over comment lines but printed on one line, and the same wrapped value with a wrong number")
+	oW = TravellerQ().Silent().Timeout(10000).Walk(cTpPlant + "/kept/04_wrapped.ring")
+	Then("the wrapped promise is kept, one claim for the whole block", oW.Records()[1][:run][:stops][1][:claims][1][:state], "kept")
+	Then("a block of lines printed as lines is kept too", oW.Records()[1][:run][:stops][1][:claims][2][:state], "kept")
+	oWl = TravellerQ().Silent().Timeout(10000).Walk(cTpPlant + "/lies/04_wrapped_lie.ring")
+	Then("the same block against a wrong number is diverged", oWl.Records()[1][:run][:stops][1][:claims][1][:state], "diverged")
+	Given("the short form ERR: on a line that raises")
+	oEs = TravellerQ().Silent().Timeout(10000).Walk(cTpPlant + "/kept/05_err_short.ring")
+	Then("an ERR: promise is kept", oEs.Records()[1][:run][:stops][1][:claims][2][:state], "kept")
+	Then("and the tour finished as promised", oEs.Records()[1][:run][:end], "finished")
 	Given("a promise that argues with itself")
 	oP = TravellerQ().Silent().Timeout(10000).Walk(cTpPlant + "/prose/01_prose.ring")
 	aP = oP.Records()[1][:run]
@@ -201,6 +211,18 @@ func _TpPlantAll(cRoot)
 	write(cRoot + "/kept/03_label.ring",
 		'? "[ 1, 2 ]"   #--> Leads to a normal Ring list' + _nl_ +
 		"#--> [ 1, 2 ]" + _nl_)
+	write(cRoot + "/kept/04_wrapped.ring",
+		'? "[ 11, 22, 33 ]"' + _nl_ +
+		"#--> [" + _nl_ + "#" + char(9) + "11, 22," + _nl_ + "#" + char(9) + "33" + _nl_ + "# ]" + _nl_ + _nl_ +
+		'? "["' + _nl_ + '? "1,"' + _nl_ + '? "2"' + _nl_ + '? "]"' + _nl_ +
+		"#--> [" + _nl_ + "# 1," + _nl_ + "# 2" + _nl_ + "# ]" + _nl_)
+	write(cRoot + "/lies/04_wrapped_lie.ring",
+		'? "[ 11, 22, 99 ]"' + _nl_ +
+		"#--> [" + _nl_ + "#" + char(9) + "11, 22," + _nl_ + "#" + char(9) + "33" + _nl_ + "# ]" + _nl_)
+	write(cRoot + "/kept/05_err_short.ring",
+		'? "ok"  #--> ok' + _nl_ +
+		"? Boom()" + _nl_ + "#--> ERR: short form boom" + _nl_ +
+		"func Boom()" + _nl_ + char(9) + 'raise("short form boom")' + _nl_)
 	write(cRoot + "/prose/01_prose.ring",
 		'? "C"  #--> "C" but should be "sm_AS"' + _nl_)
 	write(cRoot + "/nostart/01_syntax.ring",

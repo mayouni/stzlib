@@ -602,6 +602,15 @@ func _TravPromiseAt(pcRaw, pacNorm, pnFrom)
 		next
 		_nW_ = len(_acWant_)
 		if _nW_ = 0  return 0  ok
+		# a value WRAPPED over several comment lines but PRINTED on one:
+		# join the block with spaces and look for it as a single line first
+		# (char/15: "#--> [" "# 1609, 1575," ... "# ]" against "[ 1609, 1575, ... ]")
+		_cJoined_ = _acWant_[1]
+		for _k_ = 2 to _nW_
+			_cJoined_ += " " + _acWant_[_k_]
+		next
+		_nOne_ = _TravPromiseAt(_cJoined_, pacNorm, pnFrom)
+		if _nOne_ > 0  return _nOne_  ok
 		_nFirst_ = _TravPromiseAt(_acWant_[1], pacNorm, pnFrom)
 		if _nFirst_ = 0 or _nW_ = 1  return _nFirst_  ok
 		_nAt_ = _nFirst_

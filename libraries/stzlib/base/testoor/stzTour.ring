@@ -426,7 +426,7 @@ func _TourContinuation(pacL, pnAfter)
 	_j_ = pnAfter + 1
 	_cPrev_ = trim(pacL[pnAfter])
 	while _j_ <= _n_
-		_t_ = trim(pacL[_j_])
+		_t_ = trim(substr(pacL[_j_], char(9), " "))
 		if _t_ = "" or substr(_t_, "#") != 1 or substr(_t_, "#-->") = 1  exit  ok
 		_cPart_ = trim(substr(_t_, 2, len(_t_) - 1))
 		if _cPart_ = ""  exit  ok
