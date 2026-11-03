@@ -45,7 +45,7 @@ def kit():
 def program(checks):
     top, funcs = ['load "stzlib.ring"', ''], []
     for c in checks:
-        code, i = c['code'], c['id']
+        code, i = c['code'], c['n']          # the rank names the function; the id keys the verdict
         for nm in set(re.findall(r'^(?:func|def)\s+(' + NAME + ')', code, re.M)):
             code = re.sub(r'(?<![A-Za-z0-9_@$])' + re.escape(nm) + r'(?![A-Za-z0-9_@$])', '%s_%d' % (nm, i), code, flags=re.I)
         funcs.append(code.rstrip() + '\n')
@@ -130,10 +130,10 @@ def main():
     whole = run([RNXC, prog], STZ_TREE, 'rnxc, compiled whole')
     res = {}
     for c in d['checks']:
-        i = c['id']
+        i = c['n']
         rk, rt = ring.get(i, ('none', ''))
         wk, wt = whole.get(i, ('none', ''))
-        res[str(i)] = {'ring': rk, 'whole': wk, 'ring_said': rt, 'whole_said': wt}
+        res[c['id']] = {'ring': rk, 'whole': wk, 'ring_said': rt, 'whole_said': wt}
     meta = {'taken': time.strftime('%Y-%m-%d %H:%M'), 'checks_from': d.get('commit', 'unknown'),
             'ring': build_of(RING, 'ring'), 'ring_tree': tree_commit(RING_TREE),
             'rnxc': build_of(RNXC, 'ringpp'), 'library': tree_commit(STZ_TREE)}

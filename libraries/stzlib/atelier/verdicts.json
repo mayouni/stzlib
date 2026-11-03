@@ -1,6740 +1,6764 @@
 {
 "meta": {
-"taken": "2026-11-03 19:23",
-"checks_from": "90f2c01b0",
+"taken": "2026-11-04 00:11",
+"checks_from": "74757d462",
 "ring": "ring.exe 515072 bytes, built 2026-09-12 01:29",
 "ring_tree": "0950e246a 2026-10-29",
 "rnxc": "ringpp a8ad844 2026-11-02, installed",
-"library": "90f2c01b0 2026-11-03"
+"library": "74757d462 2026-11-03"
 },
 "verdicts": {
-"1": {
+"adverb/00_adverb_narrated#099386a7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"2": {
+"adverb/00_adverb_narrated#d93767f1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"3": {
+"adverb/00_adverb_narrated#28d6b221": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"4": {
+"adverb/00_adverb_narrated#93648462": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"5": {
+"adverb/00_adverb_narrated#af504016": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"6": {
+"adverb/00_adverb_narrated#e545441f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"7": {
+"adverb/00_adverb_narrated#08003669": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"8": {
+"adverb/00_adverb_narrated#d0ae859b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"9": {
+"adverb/00_adverb_narrated#1bf673f1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"10": {
+"adverb/00_adverb_narrated#ce810ea8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"11": {
+"adverb/00_adverb_narrated#5385be05": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"12": {
+"adverb/00_adverb_narrated#2985d9de": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"13": {
+"adverb/00_adverb_narrated#ed2fc2ff": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"14": {
+"agentic/agenthost_narrated#ca77ff6f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"15": {
+"capstone/restaurant_capstone_narrated#6addc724": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"16": {
+"capstone/restaurant_capstone_narrated#d4d93156": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"17": {
+"capstone/restaurant_capstone_narrated#d7e90fb8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"18": {
+"cluster/d2_location_transparency_narrated#3a461850": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginereactorcreate",
 "whole_said": "\"badtimeout\"\n\"ok\""
 },
-"19": {
+"cluster/d2_location_transparency_narrated#06318439": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"timeout\"\n\"ok\"",
 "whole_said": "\"timeout\"\n\"ok\""
 },
-"20": {
+"cluster/d2_location_transparency_narrated#c127e21d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"21": {
+"cluster/d2_location_transparency_narrated#68969b9a": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"down\"\n\"ok\"",
 "whole_said": "\"down\"\n\"ok\""
 },
-"22": {
+"cluster/d2_location_transparency_narrated#885df964": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"unknown\"\n\"ok\"",
 "whole_said": "\"unknown\"\n\"ok\""
 },
-"23": {
+"cluster/d3_supervision_narrated#c916c53a": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"24": {
+"cluster/d6_semantic_search_node_narrated#09da0f87": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "8\n\"\"",
 "whole_said": "8\n\"\""
 },
-"25": {
+"cluster/fleet_narrated#9b2b8249": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"26": {
+"cluster/hardening_narrated#2ade38d1": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"\"\n\"\r\"",
 "whole_said": "\"\"\n\"\r\""
 },
-"27": {
+"cluster/hardening_narrated#a594002e": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"28": {
+"cluster/mtls_narrated#a208f293": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"29": {
+"cluster/mtls_narrated#6df668ec": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "0\n1",
 "whole_said": "0\n1"
 },
-"30": {
+"cluster/mtls_narrated#87613b8a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"31": {
+"common/hostile_globals_narrated#475eeaf8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"32": {
+"common/hostile_globals_narrated#3ce1a113": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"33": {
+"common/hostile_globals_narrated#3de5e95d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"34": {
+"common/hostile_globals_narrated#953855f2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"35": {
+"common/hostile_globals_narrated#01981a84": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"36": {
+"common/hostile_globals_narrated#8fd1738a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"37": {
+"common/hostile_globals_narrated#833b74bc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"38": {
+"common/hostile_globals_narrated#cd499d0d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"39": {
+"common/hostile_globals_narrated#5a358b79": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"40": {
+"common/hostile_globals_narrated#86c2ec91": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"41": {
+"common/hostile_globals_narrated#0424b309": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"42": {
+"common/hostile_globals_narrated#2d56d20e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"43": {
+"common/hostile_globals_narrated#4ebd7112": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"44": {
+"common/hostile_globals_narrated#52eb6ad6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"45": {
+"common/hostile_globals_narrated#d69da9a5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"46": {
+"common/hostile_globals_narrated#f71dc236": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"47": {
+"common/hostile_globals_narrated#b5e5fb7d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"48": {
+"common/hostile_globals_narrated#ef504c22": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"49": {
+"common/hostile_globals_narrated#385a08a6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"50": {
+"common/hostile_globals_narrated#0e98cafd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"51": {
+"common/hostile_globals_narrated#b4a542ba": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"52": {
+"common/hostile_globals_narrated#08143baa": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"53": {
+"common/hostile_globals_narrated#7c895b5a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"54": {
+"common/hostile_globals_narrated#00e52622": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"55": {
+"common/hostile_globals_narrated#938dca26": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"56": {
+"common/hostile_globals_narrated#2911c186": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"57": {
+"common/hostile_globals_narrated#08f448e6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"58": {
+"common/slice_primitives_narrated#9cafb52e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"59": {
+"common/slice_primitives_narrated#0c7eeb1a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"60": {
+"common/slice_primitives_narrated#a3e14428": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"61": {
+"common/slice_primitives_narrated#f6d5563e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"62": {
+"common/slice_primitives_narrated#3f4697e9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"63": {
+"common/slice_primitives_narrated#1a00fef3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"64": {
+"csv/00_csv_narrated#d9501a93": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"65": {
+"csv/00_csv_narrated#d31bad0a": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\",\"\n\";\"",
 "whole_said": "\",\"\n\";\""
 },
-"66": {
+"csv/00_csv_narrated#2857ec64": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"67": {
+"date/00_date_narrated#c7e784c2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"68": {
+"datetime/dtfix_date_time_args_narrated#20f24c15": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"69": {
+"datetime/dtfix_date_time_args_narrated#9b5c0790": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"70": {
+"datetime/dtfix_date_time_args_narrated#da17a00c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"71": {
+"datetime/dtfix_date_time_args_narrated#8146f577": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"72": {
+"datetime/dtfix_date_time_args_narrated#cec8d411": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"73": {
+"datetime/dtfix_date_time_args_narrated#1fe4d9b6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"74": {
+"datetime/dtfix_date_time_args_narrated#f317ef48": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"75": {
+"datetime/dtfix_date_time_args_narrated#ea460c7c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"76": {
+"datetime/stzCalendar_defects_narrated#94b080ab": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R13) : Object is required",
 "whole_said": "Bad parameter type!"
 },
-"77": {
+"datetime/stzCalendar_defects_narrated#90e4b488": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R13) : Object is required",
 "whole_said": "Bad parameter type!"
 },
-"78": {
+"datetime/stzCalendar_defects_narrated#bc32caa8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"79": {
+"datetime/stzCalendar_defects_narrated#87953d7a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"80": {
+"datetime/stzCalendar_defects_narrated#d9ad1a2c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"81": {
+"datetime/stzCalendar_defects_narrated#bd4cdf1b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"82": {
+"datetime/stzCalendar_defects_narrated#0940966b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"83": {
+"datetime/stzCalendar_defects_narrated#f30dd482": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"84": {
+"datetime/stzCalendar_defects_narrated#12764192": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"85": {
+"datetime/stzCalendar_defects_narrated#b72cdf82": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"86": {
+"datetime/stzDate_defects_narrated#a132c45e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"87": {
+"extercode/stzImageToAscii_defects_narrated#aea2249e": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"88": {
+"extercode/stzImageToAscii_defects_narrated#e933e07c": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"89": {
+"extercode/stzImageToAscii_defects_narrated#932b58d2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"90": {
+"extercode/stzImageToAscii_defects_narrated#7f457a89": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "2\n0",
 "whole_said": "2\n0"
 },
-"91": {
+"extincode/51_extincode_narrated#3db02bbf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"92": {
+"extincode/51_extincode_narrated#47b8c704": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"93": {
+"extincode/51_extincode_narrated#d0991f9e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"94": {
+"extincode/51_extincode_narrated#3ddc9f62": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"95": {
+"extincode/51_extincode_narrated#8de35606": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"96": {
+"extincode/51_extincode_narrated#6320e9b9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"97": {
+"extincode/51_extincode_narrated#1d0281a2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"98": {
+"extincode/51_extincode_narrated#48e55f75": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"99": {
+"extincode/51_extincode_narrated#3438e041": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"100": {
+"extincode/51_extincode_narrated#20db11a2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"101": {
+"extincode/51_extincode_narrated#264a7e06": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"102": {
+"extincode/51_extincode_narrated#dc8d6937": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"103": {
+"faculty/calibration_narrated#4e23aba2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"104": {
+"faculty/faculty_core_narrated#750a3b0d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"105": {
+"faculty/faculty_core_narrated#5bc6519b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"106": {
+"faculty/faculty_core_narrated#cb3b447e": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "0.50\n\"\"",
 "whole_said": "0.50\n\"\""
 },
-"107": {
+"faculty/faculty_core_narrated#f7276fc4": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n\"\"",
 "whole_said": "1\n\"\""
 },
-"108": {
+"faculty/faculty_core_narrated#787fc767": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "0.25\n\"\"",
 "whole_said": "0.25\n\"\""
 },
-"109": {
+"faculty/faculty_core_narrated#6748d1e5": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "0.50\n\"\"",
 "whole_said": "0.50\n\"\""
 },
-"110": {
+"faculty/faculty_core_narrated#f52b12c3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"111": {
+"faculty/faculty_core_narrated#6e67b6d3": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"last-digit\"\n\"\"",
 "whole_said": "\"last-digit\"\n\"\""
 },
-"112": {
+"faculty/faculty_core_narrated#18c3a5a2": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"113": {
+"faculty/faculty_core_narrated#d14c4879": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"better\"\n\"\"",
 "whole_said": "\"better\"\n\"\""
 },
-"114": {
+"faculty/faculty_core_narrated#f6bd0ef8": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"115": {
+"faculty/faculty_core_narrated#93bef620": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R2) : Array Access (Index out of range)",
 "whole_said": "Error (R2) : Array Access (Index out of range)"
 },
-"116": {
+"faculty/faculty_core_narrated#34e311c5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"117": {
+"faculty/faculty_perlang_narrated#b57c023b": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n\"\"",
 "whole_said": "1\n\"\""
 },
-"118": {
+"faculty/flows_narrated#5292e01a": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"119": {
+"faculty/flows_narrated#3250aa30": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R2) : Array Access (Index out of range)",
 "whole_said": "Error (R2) : Array Access (Index out of range)"
 },
-"120": {
+"file/stzZipFile_defects_narrated#3cb4562e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"121": {
+"file/stzZipFile_defects_narrated#0719ff0b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"122": {
+"file/stzZipFile_defects_narrated#c7eb50ed": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"123": {
+"file/stzZipFile_defects_narrated#650c8871": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"124": {
+"file/stzZipFile_defects_narrated#b09139b5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"125": {
+"file/xml_narrated#75ed1ded": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginexmlvalid",
 "whole_said": ""
 },
-"126": {
+"file/xml_narrated#82f354ad": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginexmlvalid",
 "whole_said": ""
 },
-"127": {
+"func/00_func_narrated#8aca9e4c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"128": {
+"func/00_func_narrated#12083cba": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"129": {
+"func/00_func_narrated#628637bd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"130": {
+"func/00_func_narrated#f27050f2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"131": {
+"func/00_func_narrated#943f69ab": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"132": {
+"func/00_func_narrated#ab4c1de0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"133": {
+"func/00_func_narrated#92642c89": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"134": {
+"func/00_func_narrated#91169a21": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"135": {
+"func/00_func_narrated#3ba30708": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"136": {
+"func/00_func_narrated#ab43ee51": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"137": {
+"func/00_func_narrated#2bc3b115": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"138": {
+"func/00_func_narrated#ae4ffa77": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"139": {
+"func/00_func_narrated#43a42f92": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"140": {
+"func/00_func_narrated#4468d759": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"141": {
+"func/00_func_narrated#26e3e419": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"142": {
+"func/00_func_narrated#890f8fa8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"143": {
+"func/00_func_narrated#c76d18b7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"144": {
+"func/00_func_narrated#553db904": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"145": {
+"func/00_func_narrated#2a750aa7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"146": {
+"func/00_func_narrated#356e455a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"147": {
+"func/00_func_narrated#88148478": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"148": {
+"func/00_func_narrated#f387a5b9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"149": {
+"func/00_func_narrated#31ddf10d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"150": {
+"func/00_func_narrated#7f7b446a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"151": {
+"func/00_func_narrated#0ec3751a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"152": {
+"func/00_func_narrated#edeb6abd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"153": {
+"func/00_func_narrated#afcd9bbc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"154": {
+"func/00_func_narrated#e96afb36": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"155": {
+"func/00_func_narrated#e57de010": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"156": {
+"func/00_func_narrated#1d043404": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"157": {
+"func/00_func_narrated#971566a9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"158": {
+"func/00_func_narrated#0dfe31bf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"159": {
+"func/00_func_narrated#57ec0cf2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"160": {
+"func/00_func_narrated#369b51f8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"161": {
+"func/00_func_narrated#2fd68726": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "0\n1",
 "whole_said": "0\n1"
 },
-"162": {
+"func/00_func_narrated#26e4722a": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"163": {
+"func/00_func_narrated#5ff678c8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"164": {
+"func/00_func_narrated#6b1a5337": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"165": {
+"graph/graphrule_object_narrated#8b8061a6": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Inexistant rule!",
 "whole_said": "Inexistant rule!"
 },
-"166": {
+"graph/graphruleset_narrated#c7bc3d20": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"167": {
+"graph/orgrule_narrated#6a0e0b0d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"168": {
+"graph/orgrule_narrated#7751146d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"169": {
+"graph/orgrule_narrated#85717255": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"170": {
+"graph/stzGridNav_defects_narrated#66ffdc35": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"171": {
+"hexnumbert/00_hexnumber_narrated#73cf931d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"172": {
+"hexnumbert/00_hexnumber_narrated#a79efa93": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"173": {
+"i18n/00_i18n_narrated#18b33b8d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"174": {
+"i18n/00_i18n_narrated#7d807d92": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"175": {
+"i18n/00_i18n_narrated#41a6ad48": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"176": {
+"json/00_json_narrated#25f06553": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"177": {
+"json/00_json_narrated#f304c18a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"178": {
+"json/00_json_narrated#d99c67d7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"179": {
+"json/00_json_narrated#eba3133d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"180": {
+"json/00_json_narrated#8c1f2407": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginejsonencodestring",
 "whole_said": ""
 },
-"181": {
+"json/00_json_narrated#438816b1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"182": {
+"list/00_list_narrated#a57e8772": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"183": {
+"list/00_list_narrated#e52c4a85": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"184": {
+"list/00_list_narrated#41190506": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"185": {
+"list/00_list_narrated#27549cfd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"186": {
+"list/00_list_narrated#521ee1c4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"187": {
+"list/00_list_narrated#bf7d1f2e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"188": {
+"list/00_list_narrated#e9196570": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"189": {
+"list/00_list_narrated#93829005": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"190": {
+"list/00_list_narrated#b73db160": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"191": {
+"list/00_list_narrated#54facb48": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"192": {
+"list/00_list_narrated#95410d72": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"193": {
+"list/00_list_narrated#3d881beb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"194": {
+"list/00_list_narrated#a6f08a7a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"195": {
+"list/00_list_narrated#623235a5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"196": {
+"list/00_list_narrated#59a283fb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"197": {
+"list/00_list_narrated#e735fa9e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"198": {
+"list/00_list_narrated#f146cf64": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"199": {
+"list/00_list_narrated#bbe833ed": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"200": {
+"list/00_list_narrated#c6e71cd3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"201": {
+"list/00_list_narrated#a537f6fd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"202": {
+"list/00_list_narrated#bc987fbc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"203": {
+"list/00_list_narrated#41b6b7eb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"204": {
+"list/00_list_narrated#acc1ac4c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"205": {
+"list/00_list_narrated#dcff7af7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"206": {
+"list/00_list_narrated#51a7cf84": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"207": {
+"list/01_deeplist_narrated#6e3bd090": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"208": {
+"list/01_deeplist_narrated#d8a01df2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"209": {
+"list/06_manyremoved#fd445fec": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"210": {
+"list/104_atat_display#9b08b4c4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"211": {
+"list/104_atat_display#afc3761e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"212": {
+"list/104_atat_display#1223c390": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"213": {
+"list/104_atat_display#3daaa12c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"214": {
+"list/104_atat_display#3e64393a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"215": {
+"list/104_atat_display#c4befd1a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"216": {
+"list/10_replacemanybymany#84e05e47": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"217": {
+"list/10_replacemanybymany#50bb5520": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"218": {
+"list/112_containsthese#96fef609": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"219": {
+"list/114_unicode#6d171576": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"220": {
+"list/115_ischar#fa2db674": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"221": {
+"list/115_ischar#2341fc4d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"222": {
+"list/115_ischar#dc0287a7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"223": {
+"list/115_ischar#62ef099a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"224": {
+"list/115_ischar#889e182b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"225": {
+"list/115_ischar#719919cc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"226": {
+"list/115_ischar#f29ac7e7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"227": {
+"list/115_ischar#04870f67": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"228": {
+"list/116_islistofchars#3100bf8c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"229": {
+"list/116_islistofchars#4095ae7b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"230": {
+"list/117_unicodes#78b54fb8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"231": {
+"list/117_unicodes#adc38eb8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"232": {
+"list/117_unicodes#c7472956": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"233": {
+"list/117_unicodes#9f45edbf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"234": {
+"list/117_unicodes#8527eca4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"235": {
+"list/117_unicodes#b60c737e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"236": {
+"list/117_unicodes#14b79ec4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"237": {
+"list/136_sort#90826c5b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"238": {
+"list/16_association#b17cf117": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"239": {
+"list/189_find#0e3ff831": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"240": {
+"list/204_association#15dc63e2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"241": {
+"list/209_executablesection#c80e9cf3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"242": {
+"list/216_repeatedxt#9d9feb82": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"243": {
+"list/216_repeatedxt#1f754595": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"244": {
+"list/216_repeatedxt#341ff8d7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"245": {
+"list/216_repeatedxt#dd1d1d8c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"246": {
+"list/216_repeatedxt#a57af7e4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"247": {
+"list/216_repeatedxt#5208483f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"248": {
+"list/21_intersection#18f487d3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"249": {
+"list/650_operator_q_elevation_narrated#b20f340f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"250": {
+"list/650_operator_q_elevation_narrated#4c062f37": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"251": {
+"list/650_operator_q_elevation_narrated#c1369ea4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"252": {
+"list/650_operator_q_elevation_narrated#faf7e995": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"253": {
+"list/650_operator_q_elevation_narrated#affcbe82": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"254": {
+"list/650_operator_q_elevation_narrated#684d4c7b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"255": {
+"list/650_operator_q_elevation_narrated#07cededb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"256": {
+"list/650_operator_q_elevation_narrated#aa11e07e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"257": {
+"list/650_operator_q_elevation_narrated#b55edccf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"258": {
+"list/650_operator_q_elevation_narrated#6ddd3a29": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"259": {
+"list/650_operator_q_elevation_narrated#1d724fe4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"260": {
+"list/listoflists_defects_narrated#3f3e8434": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"261": {
+"list/listoflists_defects_narrated#a21ad723": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"262": {
+"list/listoflists_defects_narrated#a40d5b4d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"263": {
+"list/listoflists_defects_narrated#264f3710": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"264": {
+"list/listoflists_defects_narrated#74b3ab22": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"265": {
+"list/stzItem_defects_narrated#1810f241": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"266": {
+"list/stzItem_defects_narrated#013baf8b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"267": {
+"list/stzItem_defects_narrated#85fa5e8c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"268": {
+"list/stzItem_defects_narrated#3ab38db5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"269": {
+"list/stzItem_defects_narrated#b7ac7c2d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"270": {
+"list/stzItem_defects_narrated#bee1d774": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"271": {
+"list/stzItem_defects_narrated#5acc292d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"272": {
+"list/stzSetOfSections_defects_narrated#dc7be6da": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"273": {
+"list/stzSetOfSections_defects_narrated#9ea4dae0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"274": {
+"list/stzSetOfSections_defects_narrated#5e5537f4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"275": {
+"list/stzSetOfSections_defects_narrated#81760c07": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"276": {
+"list/stzSetOfSections_defects_narrated#7024a2d9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"277": {
+"list/stzSet_defects_narrated#9c9ddffb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"278": {
+"listoflists/00_listoflists_narrated#e7b84f80": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"279": {
+"listoflists/00_listoflists_narrated#1ffa144f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"280": {
+"listofnumbers/00_listofnumbers_narrated#ee0c795a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"281": {
+"listofnumbers/00_listofnumbers_narrated#9e18fb8c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"282": {
+"listofnumbers/00_listofnumbers_narrated#cff66e1f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"283": {
+"listofnumbers/00_listofnumbers_narrated#5df9aef8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"284": {
+"listofnumbers/00_listofnumbers_narrated#1fd61043": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"285": {
+"locale/01_languagename_narrated#9ae7dfa3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"286": {
+"locale/01_languagename_narrated#c093f963": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: nativenthdayofweek",
 "whole_said": "Error (R3) : Calling Function without definition: nativenthdayofweek"
 },
-"287": {
+"locale/01_languagename_narrated#3c7feef1": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: nativenthdayofweekabbreviation",
 "whole_said": "Error (R3) : Calling Function without definition: nativenthdayofweekabbreviation"
 },
-"288": {
+"locale/01_languagename_narrated#ad6b207a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"289": {
+"matrex/stzMatrex_defects_narrated#ada5f45e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"290": {
+"meta/coderule_narrated#5f285949": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"291": {
+"meta/coderule_narrated#8a88ecec": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"292": {
+"meta/coderule_narrated#46d5ed67": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"293": {
+"meta/coderule_narrated#a6328ec1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"294": {
+"meta/coderule_project_narrated#67116d9a": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "14\n16",
 "whole_said": "14\n16"
 },
-"295": {
+"misc/00_misc_narrated#840d5b37": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"296": {
+"misc/00_misc_narrated#8b1ba335": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"297": {
+"misc/00_misc_narrated#c72597be": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"298": {
+"misc/00_misc_narrated#d0ebe1f8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"299": {
+"misc/00_misc_narrated#1e29144e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"300": {
+"misc/00_misc_narrated#c1f2a3ba": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"301": {
+"misc/00_misc_narrated#f56d3577": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"302": {
+"misc/00_misc_narrated#d6b2c106": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"303": {
+"misc/00_misc_narrated#b24f33c5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"304": {
+"misc/00_misc_narrated#8d7ded4a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"305": {
+"misc/00_misc_narrated#9d647c69": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"306": {
+"misc/00_misc_narrated#d1e663d3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"307": {
+"misc/00_misc_narrated#48e50c6e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"308": {
+"namedvars/00_namedvars_narrated#6ab3e187": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Undefined named variable!",
 "whole_said": "Undefined named variable!"
 },
-"309": {
+"namedvars/00_namedvars_narrated#a9f5428c": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Undefined named variable!",
 "whole_said": "Undefined named variable!"
 },
-"310": {
+"namedvars/00_namedvars_narrated#51895b0a": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Undefined named variable!",
 "whole_said": "Undefined named variable!"
 },
-"311": {
+"namedvars/00_namedvars_narrated#a9fe7aeb": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Undefined named variable!",
 "whole_said": "Undefined named variable!"
 },
-"312": {
+"natural/entity_world_narrated#7df7474b": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error, Couldn't open the directory",
 "whole_said": ""
 },
-"313": {
+"natural/entity_world_narrated#e94375cc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"314": {
+"natural/entity_world_narrated#5375bae2": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error, Couldn't open the directory",
 "whole_said": "'[ \"organization\" ]'\n\"[ ]\""
 },
-"315": {
+"natural/entity_world_narrated#cc7ae8b0": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error, Couldn't open the directory",
 "whole_said": ""
 },
-"316": {
+"natural/entity_world_narrated#9629774b": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error, Couldn't open the directory",
 "whole_said": "'[ \"fruit\" ]'\n\"[ ]\""
 },
-"317": {
+"natural/entity_world_narrated#e9f9b623": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"318": {
+"natural/entity_world_narrated#2375fbfc": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"capital-of\"\n\"\"",
 "whole_said": "\"capital-of\"\n\"\""
 },
-"319": {
+"natural/entity_world_narrated#43ddf056": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"320": {
+"natural/evidentiality_narrated#171fd981": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"321": {
+"natural/evidentiality_narrated#e508f8fc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"322": {
+"natural/evidentiality_narrated#9292349c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"323": {
+"natural/evidentiality_narrated#13090557": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"324": {
+"natural/evidentiality_narrated#2b714326": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"325": {
+"natural/evidentiality_narrated#bc163120": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"326": {
+"natural/evidentiality_narrated#4d271e0d": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"probably\"\n\"certainly\"",
 "whole_said": "\"probably\"\n\"certainly\""
 },
-"327": {
+"natural/evidentiality_narrated#0f36e8cb": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"certainly yes: positive in tone\"\n\"no: nothing relates 'paris' to 'france'\"",
 "whole_said": "\"certainly yes: positive in tone\"\n\"no: nothing relates 'paris' to 'france'\""
 },
-"328": {
+"natural/evidentiality_narrated#39a92bd0": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"apparently\"\n\"certainly\"",
 "whole_said": "\"apparently\"\n\"certainly\""
 },
-"329": {
+"natural/evidentiality_narrated#97c7c2c8": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"apparently not: positive in tone\"\n\"no: nothing relates 'paris' to 'france'\"",
 "whole_said": "\"apparently not: positive in tone\"\n\"no: nothing relates 'paris' to 'france'\""
 },
-"330": {
+"natural/modality_narrated#d28d3809": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"331": {
+"natural/modality_narrated#a33d764a": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"no: -4 is not positive (constraint 2 of 'score')\"\n\"no: nothing is known about being a 'score' (no constraints were declared)\"",
 "whole_said": "\"no: -4 is not positive (constraint 2 of 'score')\"\n\"no: nothing is known about being a 'score' (no constraints were declared)\""
 },
-"332": {
+"natural/modality_narrated#f07f60ec": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"333": {
+"natural/modality_narrated#a2292efb": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"no: 7 is not even (constraint 3 of 'score')\"\n\"no: nothing is known about being a 'score' (no constraints were declared)\"",
 "whole_said": "\"no: 7 is not even (constraint 3 of 'score')\"\n\"no: nothing is known about being a 'score' (no constraints were declared)\""
 },
-"334": {
+"natural/modality_narrated#b006ae38": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"335": {
+"natural/modality_narrated#38132c3f": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"no: nothing constrains a 'score' to be uppercase\"\n\"no: nothing is known about being a 'score' (no constraints were declared)\"",
 "whole_said": "\"no: nothing constrains a 'score' to be uppercase\"\n\"no: nothing is known about being a 'score' (no constraints were declared)\""
 },
-"336": {
+"natural/modality_narrated#bf0caf14": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"[ 1, 1 ]\"\n\"[ 0, 0, 0 ]\"",
 "whole_said": "\"[ 1, 1 ]\"\n\"[ 0, 0, 0 ]\""
 },
-"337": {
+"natural/modality_narrated#66452321": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"338": {
+"natural/modality_narrated#bffed122": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"339": {
+"natural/multilingual_pack_narrated#b351aefa": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"340": {
+"natural/multilingual_pack_narrated#71de5b57": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"341": {
+"natural/multilingual_pack_narrated#ff7d35b3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"342": {
+"natural/multilingual_pack_narrated#f88caeca": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"343": {
+"natural/nnl_narrated#b0a2a508": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"344": {
+"natural/nnl_narrated#0a7f7cf4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"345": {
+"natural/nnl_narrated#44ec5eab": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"346": {
+"natural/nnl_narrated#b1dccef5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"347": {
+"natural/nnl_narrated#54d64a11": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"348": {
+"natural/nnl_narrated#626dac0a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"349": {
+"natural/nnl_narrated#37c419e9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"350": {
+"natural/nnl_narrated#7fdfebd0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"351": {
+"natural/nnl_narrated#53582664": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"352": {
+"natural/nnl_narrated#77a4be3c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"353": {
+"natural/nnl_narrated#3530546b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"354": {
+"natural/nnl_narrated#8a3806cc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"355": {
+"natural/nnl_narrated#28ba74d6": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "'no: firstchar is \"h\", expected \"x\"'\n\"no: expected atmost 2, found 3\"",
 "whole_said": "'no: firstchar is \"h\", expected \"x\"'\n\"no: expected atmost 2, found 3\""
 },
-"356": {
+"natural/nnl_narrated#9aea8842": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "'yes: state 2 (\"RING\") was uppercase'\n\"no: expected atmost 2, found 3\"",
 "whole_said": "'yes: state 2 (\"RING\") was uppercase'\n\"no: expected atmost 2, found 3\""
 },
-"357": {
+"natural/nnl_narrated#6547cf9e": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"no: no history was kept (open the chain with QH)\"\n\"no: expected atmost 2, found 3\"",
 "whole_said": "\"no: no history was kept (open the chain with QH)\"\n\"no: expected atmost 2, found 3\""
 },
-"358": {
+"natural/nnl_narrated#fd21c3b2": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"359": {
+"natural/nnl_narrated#40b7a5a7": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"no: the premise before was already false\"\n\"no: expected atmost 2, found 3\"",
 "whole_said": "\"no: the premise before was already false\"\n\"no: expected atmost 2, found 3\""
 },
-"360": {
+"natural/question_narrated#1d7de581": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"361": {
+"natural/question_narrated#11759ba6": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"no: 8 is not less than 4\"\n\"answered: 1\"",
 "whole_said": "\"no: 8 is not less than 4\"\n\"answered: 1\""
 },
-"362": {
+"natural/stzChainOfTruth_defects_narrated#10af7288": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"363": {
+"natural/stzChainOfTruth_defects_narrated#fa577572": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"364": {
+"natural/stzChainOfTruth_defects_narrated#0706f31c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"365": {
+"natural/stzChainOfTruth_defects_narrated#2dd89513": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"366": {
+"natural/stzChainOfTruth_defects_narrated#ef361c53": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"367": {
+"natural/stzChainOfTruth_defects_narrated#0a40b757": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"368": {
+"natural/stzChainOfTruth_defects_narrated#c835d8af": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"369": {
+"natural/stzChainOfTruth_defects_narrated#3c211799": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"370": {
+"natural/stzChainOfTruth_defects_narrated#037cba0f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"371": {
+"natural/stzChainOfTruth_defects_narrated#c16fe3b9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"372": {
+"natural/stzChainOfTruth_defects_narrated#c74466e3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"373": {
+"natural/stzChainOfTruth_defects_narrated#bfe1a0c5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"374": {
+"natural/stzChainOfTruth_defects_narrated#d8faed85": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"375": {
+"natural/stzChainOfTruth_defects_narrated#e065d185": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"376": {
+"natural/stzChainOfTruth_defects_narrated#a53ad26f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"377": {
+"natural/stzChainOfTruth_defects_narrated#0375fece": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"378": {
+"natural/stzChainOfTruth_defects_narrated#66b57ad7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"379": {
+"natural/stzChainOfTruth_defects_narrated#1e74e125": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"380": {
+"natural/stzChainOfTruth_defects_narrated#493d9d84": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"381": {
+"natural/stzChainOfTruth_defects_narrated#cdb2102f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"382": {
+"natural/stzChainOfTruth_defects_narrated#4a178734": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"383": {
+"natural/stzChainOfTruth_defects_narrated#c4377159": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"384": {
+"natural/stzChainOfTruth_defects_narrated#aa8bca01": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"385": {
+"natural/stzChainOfTruth_defects_narrated#66b45356": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"386": {
+"natural/stzChainOfTruth_defects_narrated#0dded9c9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"387": {
+"natural/stzChainOfTruth_defects_narrated#a9f28ee7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"388": {
+"natural/stzChainOfTruth_defects_narrated#bee81b7b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"389": {
+"natural/stzChainOfTruth_defects_narrated#bf59dbe7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"390": {
+"natural/stzChainOfTruth_defects_narrated#42a85dd0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"391": {
+"natural/stzChainOfTruth_defects_narrated#9b50ddf6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"392": {
+"natural/stzChainOfTruth_defects_narrated#e4cb6ce5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"393": {
+"natural/stzChainOfTruth_defects_narrated#64126c92": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"394": {
+"natural/stzChainOfTruth_defects_narrated#ca9a7cee": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"395": {
+"natural/stzChainOfTruth_defects_narrated#3522102f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"396": {
+"natural/stzChainOfTruth_defects_narrated#3a826b98": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"397": {
+"natural/stzChainOfTruth_defects_narrated#58ca1493": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"398": {
+"natural/stzChainOfTruth_defects_narrated#8406bced": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"399": {
+"natural/stzChainOfTruth_defects_narrated#c738d630": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"400": {
+"natural/stzChainOfTruth_defects_narrated#6d4fcbae": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"401": {
+"natural/stzChainOfTruth_defects_narrated#51c52690": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"402": {
+"natural/stzChainOfTruth_defects_narrated#9a1dbb5c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"403": {
+"natural/stzChainOfTruth_defects_narrated#b1fbffcb": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R11) : Error in class name, class not found: ctdummy",
 "whole_said": "Error (R11) : Error in class name, class not found: ctdummy"
 },
-"404": {
+"natural/stzChainOfTruth_defects_narrated#de0dffe4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"405": {
+"natural/stzChainOfTruth_defects_narrated#85776af8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"406": {
+"natural/truthchain_narrated#42514f55": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "'no: \"ring\" is not (is uppercase)'\n\"answered: 1\"",
 "whole_said": "'no: \"ring\" is not (is uppercase)'\n\"answered: 1\""
 },
-"407": {
+"natural/truthchain_narrated#dba9f247": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"408": {
+"natural/truthchain_narrated#cbd289ff": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"409": {
+"network/57_tcp_hardening_narrated#1f7d9810": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"410": {
+"network/58_pool_hardening_narrated#cdd53ad4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"411": {
+"network/68_outlier_narrated#1d249a3c": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineoutliershouldeject",
 "whole_said": "1\n0"
 },
-"412": {
+"network/68_outlier_narrated#0798cd10": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineoutliershouldeject",
 "whole_said": ""
 },
-"413": {
+"network/68_outlier_narrated#11da165e": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineoutliershouldeject",
 "whole_said": "1\n0"
 },
-"414": {
+"network/68_outlier_narrated#825bfa7f": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineoutliershouldeject",
 "whole_said": ""
 },
-"415": {
+"network/stzWebSocket_narrated#0fba3064": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginewsechoconnections",
 "whole_said": "Error (R3) : Calling Function without definition: stzenginewsechoconnections"
 },
-"416": {
+"network/stzWebSocket_narrated#ae45ebcd": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginewsechopings",
 "whole_said": "Error (R3) : Calling Function without definition: stzenginewsechopings"
 },
-"417": {
+"network/stzWebSocket_narrated#453d1fd1": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginewsechopings",
 "whole_said": "Error (R3) : Calling Function without definition: stzenginewsechopings"
 },
-"418": {
+"neural/engine_granite_narrated#1d34572e": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: _mpload",
 "whole_said": "Error (R3) : Calling Function without definition: _mpload"
 },
-"419": {
+"neural/engine_granite_narrated#aad49e3c": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
 "whole_said": "1\n0"
 },
-"420": {
+"neural/engine_granite_narrated#ee3798f8": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
 "whole_said": ""
 },
-"421": {
+"neural/engine_granite_narrated#476858fe": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
 "whole_said": "1\n0"
 },
-"422": {
+"neural/engine_granite_narrated#563a61d1": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
 "whole_said": ""
 },
-"423": {
+"neural/engine_granite_narrated#fc7903c6": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
 "whole_said": "1\n0"
 },
-"424": {
+"neural/engine_options_narrated#db822894": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: _mpload",
 "whole_said": "Error (R3) : Calling Function without definition: _mpload"
 },
-"425": {
+"neural/engine_options_narrated#54b274c2": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
 "whole_said": ""
 },
-"426": {
+"neural/engine_qwen3_narrated#6ac710bf": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: _mpload",
 "whole_said": "Error (R3) : Calling Function without definition: _mpload"
 },
-"427": {
+"neural/engine_termination_narrated#0623e26c": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: _mpload",
 "whole_said": "Error (R3) : Calling Function without definition: _mpload"
 },
-"428": {
+"neural/engine_termination_narrated#d7aace16": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralstoppedonrepeat",
 "whole_said": ""
 },
-"429": {
+"neural/engine_termination_narrated#a8f6471c": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralstoppedonrepeat",
 "whole_said": "1\n0"
 },
-"430": {
+"neural/engine_termination_narrated#82f1a905": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"431": {
+"neural/engine_window_narrated#5693851a": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: _mpload",
 "whole_said": "Error (R3) : Calling Function without definition: _mpload"
 },
-"432": {
+"neural/engine_window_narrated#874fa60d": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralgentruncated",
 "whole_said": ""
 },
-"433": {
+"neural/engine_window_narrated#cf610553": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralgensetcontextlimit",
 "whole_said": "600\n0"
 },
-"434": {
+"neural/engine_window_narrated#6fb95343": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralgenlasterror",
 "whole_said": "2\n0"
 },
-"435": {
+"neural/engine_window_narrated#cf2a1a2e": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralgenlasterror",
 "whole_said": ""
 },
-"436": {
+"neural/engine_window_narrated#5d256816": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralgentruncated",
 "whole_said": "1\n0"
 },
-"437": {
+"neural/engine_window_narrated#eeb03c68": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralgensetcontextlimit",
 "whole_said": "1\n0"
 },
-"438": {
+"neural/engine_window_narrated#3626e4b6": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
 "whole_said": "1\n0"
 },
-"439": {
+"neural/engine_window_narrated#71166fda": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: _mpfiller",
 "whole_said": "Error (R3) : Calling Function without definition: _mpfiller"
 },
-"440": {
+"neural/generative_narrated#d7e74a11": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
 "whole_said": ""
 },
-"441": {
+"neural/generative_narrated#27995f11": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloaded",
 "whole_said": "1\n0"
 },
-"442": {
+"number/00_number_narrated#da42fcca": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"443": {
+"number/00_number_narrated#09f38501": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"444": {
+"number/00_number_narrated#94e6f862": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"445": {
+"number/00_number_narrated#aac32f21": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"446": {
+"number/00_number_narrated#cf94316b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"447": {
+"number/00_number_narrated#0ecb2a78": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"448": {
+"number/00_number_narrated#6ead4a8e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"449": {
+"number/00_number_narrated#ca275760": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"450": {
+"number/00_number_narrated#853f424a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"451": {
+"number/00_number_narrated#4c3953bb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"452": {
+"number/00_number_narrated#e8eafa59": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"453": {
+"number/00_number_narrated#410d359e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"454": {
+"number/00_number_narrated#8b9a2afd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"455": {
+"number/00_number_narrated#662434e5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"456": {
+"number/listofnumbers_defects_narrated#3072ab3a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"457": {
+"number/listofnumbers_defects_narrated#1f657b78": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"458": {
+"number/listofnumbers_defects_narrated#84b809e8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"459": {
+"number/listofnumbers_defects_narrated#787d690b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"460": {
+"number/money_currency_narrated#44590ef5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"461": {
+"number/money_currency_narrated#e1213ed6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"462": {
+"number/money_currency_narrated#ba938b5d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"463": {
+"number/money_currency_narrated#8264c69c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"464": {
+"number/money_currency_narrated#765df4bc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"465": {
+"number/money_currency_narrated#1356d90d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"466": {
+"number/money_currency_narrated#8de1c42c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"467": {
+"number/money_currency_narrated#c58554f1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"468": {
+"number/money_currency_narrated#6c832960": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"469": {
+"number/money_currency_narrated#36a88333": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"470": {
+"number/money_currency_narrated#e1fcb964": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"471": {
+"number/money_currency_narrated#a94474e7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"472": {
+"number/money_currency_narrated#0636ed8c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"473": {
+"number/money_currency_narrated#e3fdcd80": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"474": {
+"number/money_currency_narrated#42ca599f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"475": {
+"number/number_dead_calls_narrated#acc57f64": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"476": {
+"number/number_dead_calls_narrated#41a574dc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"477": {
+"number/number_dead_calls_narrated#1cdce0cc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"478": {
+"number/number_dead_calls_narrated#272de91f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"479": {
+"number/number_dead_calls_narrated#d9e60102": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"480": {
+"number/number_dead_calls_narrated#2e40a825": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"481": {
+"number/number_dead_calls_narrated#6316f5ba": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"482": {
+"number/number_dead_calls_narrated#afc0eace": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"483": {
+"number/number_dead_calls_narrated#ff74014d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"484": {
+"number/number_dead_calls_narrated#1f7ff5e6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"485": {
+"number/number_dead_calls_narrated#5c816d99": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"486": {
+"number/number_dead_calls_narrated#2c9d264e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"487": {
+"number/number_dead_calls_narrated#e5cd801b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"488": {
+"number/number_dead_calls_narrated#250b9f82": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"489": {
+"number/number_digit_groups_narrated#31af5b62": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"490": {
+"number/number_digit_groups_narrated#6684ac8e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"491": {
+"number/number_digit_groups_narrated#f0fa98e4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"492": {
+"number/numeric_calculable_narrated#1f2ac521": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"493": {
+"number/numeric_calculable_narrated#f408492d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"494": {
+"number/numeric_calculable_narrated#20640b84": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"495": {
+"number/numeric_calculable_narrated#a536a4b4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"496": {
+"number/numeric_calculable_narrated#b4ca1164": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"497": {
+"number/numeric_calculable_narrated#93567bec": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"498": {
+"number/numeric_complex_narrated#14d1e893": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"499": {
+"number/numeric_complex_narrated#aef5344f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"500": {
+"number/numeric_definitions_narrated#1f3138f1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"501": {
+"number/numeric_exactness_narrated#e4b5d8c9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"502": {
+"number/numeric_exactness_narrated#fdbf184d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"503": {
+"number/numeric_exactness_narrated#6440f5d1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"504": {
+"number/numeric_exactness_narrated#ca1d5579": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"505": {
+"number/numeric_exactness_narrated#87f921c9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"506": {
+"number/numeric_exactness_narrated#a8003354": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"507": {
+"number/numeric_exactness_narrated#d19243e3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"508": {
+"number/numeric_exactness_narrated#4e250a5b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"509": {
+"number/numeric_exactness_narrated#0a465c79": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"510": {
+"number/numeric_exactness_narrated#fe0d1e8b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"511": {
+"number/numeric_exactness_narrated#bc4cb088": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"512": {
+"number/numeric_exactness_narrated#dd3da27d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"513": {
+"number/numeric_exactness_narrated#11690737": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"514": {
+"number/numeric_exactness_narrated#d0ab117c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"515": {
+"number/numeric_exactness_narrated#7c90e6b4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"516": {
+"number/numeric_exactness_narrated#3c0b592f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"517": {
+"number/numeric_exactness_narrated#4d04607a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"518": {
+"number/numeric_exactness_narrated#468eb2a9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"519": {
+"number/numeric_exactness_narrated#99b58999": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"520": {
+"number/numeric_handle_table_narrated#e59b0a76": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"521": {
+"number/numeric_handle_table_narrated#7e985570": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"522": {
+"number/numeric_handle_table_narrated#f1d5e6c7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"523": {
+"number/numeric_handle_table_narrated#97dd246e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"524": {
+"number/numeric_handle_table_narrated#bbedab8a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"525": {
+"number/numeric_handle_table_narrated#0565b3de": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"526": {
+"number/numeric_handle_table_narrated#4bcea151": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"527": {
+"number/numeric_handle_table_narrated#c9e90ea8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"528": {
+"number/numeric_handle_table_narrated#c590750c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"529": {
+"number/numeric_handle_table_narrated#1a5d70b7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"530": {
+"number/numeric_handle_table_narrated#99383d88": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"531": {
+"number/numeric_no_loss_narrated#201147e3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"532": {
+"number/numeric_no_loss_narrated#f3cc2261": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"533": {
+"number/numeric_no_loss_narrated#c6f80a78": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"534": {
+"number/numeric_no_loss_narrated#9b6dfada": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"535": {
+"number/numeric_no_loss_narrated#8c5b011a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"536": {
+"number/numeric_no_loss_narrated#8e7cdd17": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"537": {
+"number/numeric_no_loss_narrated#1b55f083": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"538": {
+"number/numeric_no_loss_narrated#54a67716": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"539": {
+"number/numeric_no_loss_narrated#e11f1311": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"540": {
+"number/numeric_no_loss_narrated#07e17317": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"541": {
+"number/numeric_no_loss_narrated#c8cd8a74": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"542": {
+"number/numeric_no_loss_narrated#ca95f849": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"543": {
+"number/numeric_no_loss_narrated#daba92af": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"544": {
+"number/numeric_no_loss_narrated#1f7e09a0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"545": {
+"number/numeric_no_loss_narrated#682646db": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"546": {
+"number/numeric_no_loss_narrated#8f55c95b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"547": {
+"number/numeric_no_loss_narrated#f2e6263d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"548": {
+"number/numeric_no_loss_narrated#2c228bd3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"549": {
+"number/numeric_no_loss_narrated#59f9448b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"550": {
+"number/numeric_no_loss_narrated#66c911da": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"551": {
+"number/numeric_pseudoinverse_narrated#e096ff4e": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginematrixnewfromlist",
 "whole_said": ""
 },
-"552": {
+"number/numeric_pseudoinverse_narrated#df2161f8": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginematrixnewfromlist",
 "whole_said": ""
 },
-"553": {
+"number/numeric_rationals_narrated#d5458ebf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"554": {
+"number/numeric_rationals_narrated#fcdbb652": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"555": {
+"number/numeric_rationals_narrated#8c263800": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"556": {
+"number/numeric_rationals_narrated#8e6029a1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"557": {
+"number/numeric_rationals_narrated#00c447b6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"558": {
+"number/numeric_rationals_narrated#5d14aaaa": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"559": {
+"number/numeric_rationals_narrated#2fe1bfd5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"560": {
+"number/numeric_rationals_narrated#a91f7fa9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"561": {
+"number/numeric_rationals_narrated#cc5bb14f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"562": {
+"number/numeric_rationals_narrated#93a11f86": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"563": {
+"number/numeric_rationals_narrated#ebc7a94f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"564": {
+"number/numeric_rationals_narrated#3838a863": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"565": {
+"number/numeric_rationals_narrated#8a2831bd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"566": {
+"number/numeric_rationals_narrated#85ff9e2d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"567": {
+"number/numeric_rationals_narrated#96759216": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"568": {
+"number/numeric_rationals_narrated#2c7c7bae": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"569": {
+"number/numeric_rationals_narrated#a9724752": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"570": {
+"number/numeric_rationals_narrated#d82c5c7f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"571": {
+"number/numeric_regime_narrated#d76dae4c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"572": {
+"number/numeric_regime_narrated#59c2bbf8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"573": {
+"number/numeric_regime_narrated#696732c8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"574": {
+"number/numeric_rounding_narrated#3b99d09b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"575": {
+"number/numeric_rounding_narrated#62c793fd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"576": {
+"number/numeric_rounding_narrated#b29aece0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"577": {
+"number/numeric_rounding_narrated#e089bc31": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"578": {
+"number/numeric_rounding_narrated#39d45909": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"579": {
+"number/numeric_rounding_narrated#278ba002": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"580": {
+"number/numeric_rounding_narrated#d99ec7b9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"581": {
+"number/numeric_rounding_narrated#7409dbc9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"582": {
+"number/numeric_rounding_narrated#8c9b404c": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"1\"\n\"0\"",
 "whole_said": "\"1\"\n\"0\""
 },
-"583": {
+"number/numeric_rounding_narrated#db4a1d73": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"584": {
+"number/numeric_rounding_narrated#cc8e5ad7": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"3\"\n\"2\"",
 "whole_said": "\"3\"\n\"2\""
 },
-"585": {
+"number/numeric_rounding_narrated#8321b38c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"586": {
+"number/numeric_special_functions_narrated#4ee6033d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"587": {
+"number/numeric_special_functions_narrated#86b1c79d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"588": {
+"number/numeric_special_functions_narrated#0823ef39": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"589": {
+"number/numeric_tie_rule_narrated#e8819f8e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"590": {
+"number/numeric_tie_rule_narrated#6198542d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"591": {
+"number/numeric_tie_rule_narrated#f6a6c03a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"592": {
+"number/numeric_tie_rule_narrated#b7eff186": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"593": {
+"number/numeric_tie_rule_narrated#c43a3e61": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"594": {
+"number/numeric_tie_rule_narrated#6a3e4a67": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"595": {
+"number/numeric_tie_rule_narrated#73da70ba": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"596": {
+"number/numeric_tie_rule_narrated#f4f5e980": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"597": {
+"number/numeric_tie_rule_narrated#8d221a2b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"598": {
+"number/numeric_tie_rule_narrated#9625329e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"599": {
+"number/numeric_tie_rule_narrated#5536035f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"600": {
+"number/numeric_tie_rule_narrated#e1f6155e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"601": {
+"number/numeric_tie_rule_narrated#14323155": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"602": {
+"number/numeric_tie_rule_narrated#13497251": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"603": {
+"number/numeric_tie_rule_narrated#39d06294": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"604": {
+"number/numeric_tie_rule_narrated#200d1dff": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"605": {
+"number/numeric_tie_rule_narrated#d6c277e8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"606": {
+"number/numeric_tie_rule_narrated#a78755b2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"607": {
+"number/numeric_tie_rule_narrated#e780c6d3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"608": {
+"number/numeric_tie_rule_narrated#11e1a8fb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"609": {
+"number/numeric_tie_rule_narrated#0a7232b8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"610": {
+"number/numeric_tie_rule_narrated#986530db": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"611": {
+"number/numeric_tie_rule_narrated#a1905e3e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"612": {
+"number/numeric_tie_rule_narrated#a1162eb0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"613": {
+"number/numeric_tie_rule_narrated#7b95754d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"614": {
+"number/numeric_tie_rule_narrated#f8cd2a6c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"615": {
+"number/numeric_tie_rule_narrated#8190123a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"616": {
+"object/stzObject_defects_narrated#798a6159": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"617": {
+"object/stzObject_defects_narrated#7451f02a": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"618": {
+"object/stzObject_defects_narrated#712de691": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"619": {
+"object/stzObject_defects_narrated#86a5c815": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"620": {
+"object/stzObject_defects_narrated#0858f48c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"621": {
+"object/stzObject_defects_narrated#c6aa8e06": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"stznumber\"\n\"stzfalseobject\"",
 "whole_said": "\"stznumber\"\n\"stzfalseobject\""
 },
-"622": {
+"object/stzObject_defects_narrated#5d48c123": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"623": {
+"object/stzObject_defects_narrated#467619f0": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"stznumber\"\n\"stzfalseobject\"",
 "whole_said": "\"stznumber\"\n\"stzfalseobject\""
 },
-"624": {
+"object/stzObject_defects_narrated#ee27a9a0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"625": {
+"object/stzObject_defects_narrated#97d5108b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"626": {
+"object/stzObject_defects_narrated#4dfb3d1d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"627": {
+"object/stzObject_defects_narrated#9330e734": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"628": {
+"object/stzObject_defects_narrated#daa86d0a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"629": {
+"object/stzObject_defects_narrated#9cd67ed4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"630": {
+"object/stzObject_defects_narrated#cca1563a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"631": {
+"object/stzObject_defects_narrated#809ec39f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"632": {
+"object/stzObject_defects_narrated#177ed0b2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"633": {
+"object/stzObject_defects_narrated#84690c8b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"634": {
+"object/stzObject_defects_narrated#6718c0c2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"635": {
+"object/stzObject_defects_narrated#3c766f8b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"636": {
+"ocr/ocr_model_narrated#2d20deee": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzocrplatformhas",
 "whole_said": ""
 },
-"637": {
+"ocr/ocr_narrated#3d045b4a": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzocrlogicalline",
 "whole_said": ""
 },
-"638": {
+"ocr/ocr_narrated#96e1b19f": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzocrlogicalline",
 "whole_said": ""
 },
-"639": {
+"ocr/ocr_narrated#70581545": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzocrlogicalline",
 "whole_said": ""
 },
-"640": {
+"ocr/ocr_narrated#655ef14a": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzocrlogicalline",
 "whole_said": ""
 },
-"641": {
+"ocr/ocr_narrated#5c9614dc": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzocrlogicallinext",
 "whole_said": ""
 },
-"642": {
+"ocr/ocr_narrated#408e538d": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzocrlogicallinext",
 "whole_said": ""
 },
-"643": {
+"ocr/ocr_narrated#8529d3a4": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzocrlogicallinext",
 "whole_said": ""
 },
-"644": {
+"ocr/ocr_narrated#c3bd7f42": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: _stzocrplatformvisualline",
 "whole_said": ""
 },
-"645": {
+"ocr/ocr_narrated#d7b467b9": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: _stzocrplatformvisualline",
 "whole_said": ""
 },
-"646": {
+"ocr/ocr_narrated#c1e915b5": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: _stzocrplatformvisualline",
 "whole_said": ""
 },
-"647": {
+"ocr/ocr_narrated#cda0d54d": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginestringarabicalefrepaired",
 "whole_said": "Error (R3) : Calling Function without definition: stzenginestringarabicalefrepaired"
 },
-"648": {
+"ocr/ocr_narrated#d152a1ec": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginestringarabicalefrepaired",
 "whole_said": "Error (R3) : Calling Function without definition: stzenginestringarabicalefrepaired"
 },
-"649": {
+"ocr/ocr_narrated#caeec165": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginestringarabicalefrepaired",
 "whole_said": "Error (R3) : Calling Function without definition: stzenginestringarabicalefrepaired"
 },
-"650": {
+"ocr/ocr_narrated#13a6341a": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: _stzocrdigitsbetween",
 "whole_said": ""
 },
-"651": {
+"ocr/ocr_narrated#e37f8bbe": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: _stzocrdigitsbetween",
 "whole_said": ""
 },
-"652": {
+"ocr/ocr_narrated#e0dbb1e2": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: _stzocrdigitsbetween",
 "whole_said": ""
 },
-"653": {
+"ocr/ocr_narrated#6923f828": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzocrlogicalline",
 "whole_said": ""
 },
-"654": {
+"ordinal/00_ordinal_narrated#2cf90c15": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"655": {
+"ordinal/00_ordinal_narrated#d016dcd9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"656": {
+"ordinal/00_ordinal_narrated#4c65d9dc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"657": {
+"ordinal/00_ordinal_narrated#30a7ba6f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"658": {
+"ordinal/00_ordinal_narrated#70343980": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"659": {
+"ordinal/00_ordinal_narrated#69401359": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"660": {
+"ordinal/00_ordinal_narrated#902fa9df": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"661": {
+"ordinal/00_ordinal_narrated#d9230b35": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"662": {
+"ordinal/00_ordinal_narrated#4db8d987": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"663": {
+"ordinal/00_ordinal_narrated#7a6dc5cd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"664": {
+"ordinal/00_ordinal_narrated#1fc628a5": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"1er\"\n\"1st\"",
 "whole_said": "\"1er\"\n\"1st\""
 },
-"665": {
+"ordinal/00_ordinal_narrated#27e14db2": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"2e\"\n\"2nd\"",
 "whole_said": "\"2e\"\n\"2nd\""
 },
-"666": {
+"plural/00_plural_narrated#e2019d1b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"667": {
+"plural/00_plural_narrated#435edade": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"668": {
+"plural/00_plural_narrated#c8df8ca7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"669": {
+"plural/00_plural_narrated#203e8e19": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"670": {
+"plural/00_plural_narrated#1bb831a1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"671": {
+"plural/00_plural_narrated#383d9a5b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"672": {
+"plural/00_plural_narrated#bd817316": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"673": {
+"plural/00_plural_narrated#c1af16ee": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"674": {
+"plural/00_plural_narrated#cca4fab7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"675": {
+"plural/00_plural_narrated#1262e613": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"676": {
+"plural/00_plural_narrated#e9f50823": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"677": {
+"plural/00_plural_narrated#9c32ddd8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"678": {
+"reflect/docgen_narrated#108405c9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"679": {
+"reflect/docgen_narrated#ab66189d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"680": {
+"reflect/docgen_narrated#15b64b26": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"681": {
+"reflect/docgen_narrated#f2d29bbd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"682": {
+"reflect/docgen_narrated#e8384c46": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"683": {
+"reflect/docgen_narrated#39445a39": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"684": {
+"reflect/docgen_narrated#e55c9a4e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"685": {
+"reflect/docgen_narrated#435f62aa": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"686": {
+"reflect/docgen_narrated#27abb727": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"687": {
+"reflect/docgen_narrated#762a6d26": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"688": {
+"reflect/docgen_narrated#f8ca6c6c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"689": {
+"reflect/docgen_narrated#f84752e6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"690": {
+"reflect/docgen_narrated#966b80e0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"691": {
+"reflect/docgen_narrated#7b4a9e8b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"692": {
+"reflect/docgen_narrated#589d74f0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"693": {
+"reflect/docgen_narrated#e56b1d1e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"694": {
+"reflect/docgen_narrated#42d8d4fd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"695": {
+"reflect/docgen_narrated#9626f01c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"696": {
+"reflect/docgen_narrated#f8086e09": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"697": {
+"reflect/docgen_narrated#938e2582": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"698": {
+"reflect/docgen_narrated#e294f7fb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"699": {
+"reflect/docgen_narrated#21a587d4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"700": {
+"reflect/docgen_narrated#befb0bde": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"701": {
+"reflect/docgen_narrated#1f59a645": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"702": {
+"reflect/docrecord_narrated#b162cac8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"703": {
+"reflect/docrecord_narrated#928e0312": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"704": {
+"reflect/docrecord_narrated#aa329cb0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"705": {
+"reflect/docrecord_narrated#a32aa0bc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"706": {
+"reflect/docrecord_narrated#95b97a9d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"707": {
+"reflect/docrecord_narrated#b99523a3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"708": {
+"reflect/docrecord_narrated#5299d63f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"709": {
+"reflect/docrecord_narrated#c979df84": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"710": {
+"reflect/docrecord_narrated#634a190f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"711": {
+"reflect/docrecord_narrated#3be10f9a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"712": {
+"reflect/docrecord_narrated#6b196f89": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"713": {
+"reflect/engine_panics_narrated#c9b8ad6d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"714": {
+"reflect/engine_panics_narrated#0583bf9e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"715": {
+"render/escape_sinks_narrated#c5c1fde9": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginehtmlneutralizebidi",
 "whole_said": ""
 },
-"716": {
+"render/escape_sinks_narrated#c03d5e8d": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginehtmlneutralizebidi",
 "whole_said": ""
 },
-"717": {
+"security/at_rest_crypto_narrated#5410b4a9": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginecryptorandomhex",
 "whole_said": ""
 },
-"718": {
+"security/model_digest_narrated#f48fbbc9": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloadstatus",
 "whole_said": "-2\n0"
 },
-"719": {
+"security/model_digest_narrated#1a8b8e6a": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloadstatus",
 "whole_said": "-3\n0"
 },
-"720": {
+"security/model_digest_narrated#886654a6": {
 "ring": "err",
 "whole": "fail",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloadstatus",
 "whole_said": "-1\n0"
 },
-"721": {
+"security/model_digest_narrated#a652a6f9": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloadstatus",
 "whole_said": ""
 },
-"722": {
+"security/private_file_narrated#41f50da4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"723": {
+"security/prompt_boundary_narrated#084acaa8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"724": {
+"security/prompt_boundary_narrated#37bc3a98": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"725": {
+"security/stale_handle_narrated#1cf171e2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"726": {
+"security/stale_handle_narrated#826e05b6": {
 "ring": "err",
 "whole": "err",
 "ring_said": "Error (R13) : Object is required",
 "whole_said": "Bad parameter type!"
 },
-"727": {
+"security/stale_handle_narrated#717cdf45": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"728": {
+"security/text_condition_not_code_narrated#6592052e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"729": {
+"security/text_condition_not_code_narrated#6e50cc76": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"730": {
+"security/text_condition_not_code_narrated#82dd51f2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"731": {
+"singular/00_singular_narrated#3d9307c5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"732": {
+"singular/00_singular_narrated#6eb9613d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"733": {
+"singular/00_singular_narrated#3f535e83": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"734": {
+"singular/00_singular_narrated#6fec8744": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"735": {
+"singular/00_singular_narrated#d9f10af0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"736": {
+"singular/00_singular_narrated#730f6cf3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"737": {
+"singular/00_singular_narrated#582c9d0f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"738": {
+"stats/plot_engine_parity_narrated#0ea7eed6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"739": {
+"stats/plot_engine_parity_narrated#c0b7751f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"740": {
+"stats/plot_engine_parity_narrated#5cc53368": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"741": {
+"stats/plot_engine_parity_narrated#e2322727": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"742": {
+"stats/plot_engine_parity_narrated#5bbf2c3d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"743": {
+"stats/plot_engine_parity_narrated#935be6e0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"744": {
+"stats/stzCoeffExtractor_defects_narrated#389a1ee3": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "4\n2",
 "whole_said": "4\n2"
 },
-"745": {
+"stats/stzCoeffExtractor_defects_narrated#73505c4f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"746": {
+"stats/stzDataSet_defects_narrated#d8c6f369": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"747": {
+"string/00_string_narrated#dbbdadf0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"748": {
+"string/00_string_narrated#fef3827c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"749": {
+"string/00_string_narrated#68a108ba": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"750": {
+"string/00_string_narrated#8567153f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"751": {
+"string/00_string_narrated#20d19a85": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"752": {
+"string/00_string_narrated#f5f5ef8f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"753": {
+"string/00_string_narrated#0ccdd4cf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"754": {
+"string/00_string_narrated#33d55f31": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"755": {
+"string/00_string_narrated#ea162466": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"756": {
+"string/00_string_narrated#2f3a31f6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"757": {
+"string/00_string_narrated#463a9a8f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"758": {
+"string/00_string_narrated#87ed4de2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"759": {
+"string/00_string_narrated#8bcef13e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"760": {
+"string/00_string_narrated#77c15625": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"761": {
+"string/00_string_narrated#f4a7e37d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"762": {
+"string/00_string_narrated#00d5d57c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"763": {
+"string/00_string_narrated#176e817b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"764": {
+"string/08_write_a#a45c67bf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"765": {
+"string/08_write_a#ab3bb1b7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"766": {
+"string/08_write_a#a08e77ab": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"767": {
+"string/08_write_a#85e6eb05": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"768": {
+"string/08_write_a#bb3d7a82": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"769": {
+"string/105_unicode#08a0a918": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"770": {
+"string/107_hexprefix#a8cfba19": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"771": {
+"string/107_hexprefix#68950170": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"772": {
+"string/107_hexprefix#ec04c73a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"773": {
+"string/108_script#fbe3e607": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"774": {
+"string/109_ishexunicode#1bb8de8b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"775": {
+"string/109_ishexunicode#3f580dd9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"776": {
+"string/109_ishexunicode#636942fb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"777": {
+"string/109_ishexunicode#3df7d446": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"778": {
+"string/109_ishexunicode#dd4bed5a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"779": {
+"string/10_aligncenter#fc491a72": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"780": {
+"string/10_aligncenter#f0a66b4f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"781": {
+"string/10_aligncenter#9d9e3342": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"782": {
+"string/10_aligncenter#2e0e4221": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"783": {
+"string/10_aligncenter#1bc0c6b1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"784": {
+"string/10_aligncenter#f21b5fe9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"785": {
+"string/110_unicode#3befb937": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"786": {
+"string/110_unicode#73522def": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"787": {
+"string/110_unicode#9cc5fa85": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"788": {
+"string/112_repeatedntimes#31a2b15b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"789": {
+"string/112_repeatedntimes#de75ea25": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"790": {
+"string/112_repeatedntimes#1f408c12": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"791": {
+"string/113_localescripts#fb3f090c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"792": {
+"string/113_localescripts#d9f43be0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"793": {
+"string/116_shortenedn#16a31365": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"794": {
+"string/117_shortened#7683b917": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"795": {
+"string/117_shortened#423c9d20": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"796": {
+"string/130_negative_index#4e775743": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"797": {
+"string/134_ispluralofastztype#d5d1eabf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"798": {
+"string/14_isreverseof#4b6d1941": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"799": {
+"string/14_isreverseof#76c7e726": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"800": {
+"string/158_script#afd59518": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"801": {
+"string/158_script#1e5fb197": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineunidatacharname",
 "whole_said": ""
 },
-"802": {
+"string/170_containsat#7654c171": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"803": {
+"string/170_containsat#0dd9a144": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"804": {
+"string/170_containsat#3d026946": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"805": {
+"string/171_containsinsection#058c4bf1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"806": {
+"string/171_containsinsection#e56f9662": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"807": {
+"string/171_containsinsection#c770b343": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"808": {
+"string/172_containsbefore#b58da902": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"809": {
+"string/172_containsbefore#ce409d9a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"810": {
+"string/172_containsbefore#c29ccc8c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"811": {
+"string/172_containsbefore#2831751e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"812": {
+"string/174_containsxt#0899b822": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"813": {
+"string/174_containsxt#39f21de4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"814": {
+"string/175_containsxt#60a0fe48": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"815": {
+"string/175_containsxt#0cc55410": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"816": {
+"string/176_containsxt#3240629b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"817": {
+"string/176_containsxt#3dc61715": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"818": {
+"string/177_containsatpositions#06dca5c9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"819": {
+"string/177_containsatpositions#1e3516fb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"820": {
+"string/178_containsat#01ece70d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"821": {
+"string/178_containsat#42daa90f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"822": {
+"string/243_findlast#7dd7c543": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"823": {
+"string/243_findlast#785c70a7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"824": {
+"string/247_stringcase#1b4bc0c3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"825": {
+"string/247_stringcase#10fb5cae": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"826": {
+"string/247_stringcase#4a673ade": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"827": {
+"string/247_stringcase#ae86dc18": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"828": {
+"string/254_ismadeof#a06d1221": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"829": {
+"string/254_ismadeof#feacd56d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"830": {
+"string/254_ismadeof#e0065a56": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"831": {
+"string/258_issue_in_replacing_empty_substrings#264e17be": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"832": {
+"string/259_block_259#040ae842": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"833": {
+"string/259_block_259#2ab02ce3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"834": {
+"string/28_numberofoccurrenceofcharleftside#bfb41f16": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"835": {
+"string/28_numberofoccurrenceofcharleftside#43d9c0c0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"836": {
+"string/28_numberofoccurrenceofcharleftside#82b11292": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"837": {
+"string/28_numberofoccurrenceofcharleftside#35193c79": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"838": {
+"string/28_numberofoccurrenceofcharleftside#a4bb714b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"839": {
+"string/28_numberofoccurrenceofcharleftside#8660de16": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"840": {
+"string/28_numberofoccurrenceofcharleftside#917fa6b7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"841": {
+"string/28_numberofoccurrenceofcharleftside#e7955b58": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"842": {
+"string/295_unspacified#18dcc215": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"843": {
+"string/295_unspacified#aef36601": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"844": {
+"string/295_unspacified#700d7d4d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"845": {
+"string/295_unspacified#889505e7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"846": {
+"string/295_unspacified#18658785": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"847": {
+"string/295_unspacified#ae921e2f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"848": {
+"string/295_unspacified#ccc5801b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"849": {
+"string/295_unspacified#6b735507": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"850": {
+"string/304_isstringorlist#f74d7e6c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"851": {
+"string/32_section_and_charsinsection#187a6f7e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"852": {
+"string/38_howmany#669763b9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"853": {
+"string/38_howmany#9a7e6b2d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"854": {
+"string/433_basmalah#5c0f548b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"855": {
+"string/433_basmalah#8faa3724": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"856": {
+"string/433_basmalah#b6cd815a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"857": {
+"string/433_basmalah#6dca1d8e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"858": {
+"string/434_heart#9cf062b5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"859": {
+"string/434_heart#2e035a72": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"860": {
+"string/437_isletter#4d0b9769": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"861": {
+"string/437_isletter#36856853": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"862": {
+"string/438_split#7d181ff9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"863": {
+"string/439_splitw#39702b79": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"864": {
+"string/440_splitw#8085109b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"865": {
+"string/440_splitw#c4bf6322": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"866": {
+"string/442_splitatcharsw#795194c2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"867": {
+"string/442_splitatcharsw#ca1e0628": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"868": {
+"string/443_splitw#ffbce3ca": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"869": {
+"string/443_splitw#34922b20": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"870": {
+"string/443_splitw#d19c67c5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"871": {
+"string/444_splitbeforepositions#ac6f770a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"872": {
+"string/445_splitafterpositions#8e574879": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"873": {
+"string/448_pluralofthisstztype#0882a36a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"874": {
+"string/44_5_cases_of_the_many_cheks_softanza_has_for_bounds#36480172": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"875": {
+"string/44_5_cases_of_the_many_cheks_softanza_has_for_bounds#e461eb60": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"876": {
+"string/458_isnumberinstring#01263934": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"877": {
+"string/458_isnumberinstring#374fd94a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"878": {
+"string/461_isnumberinstring#bd001e84": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"879": {
+"string/471_isafunction#f273a8cf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"880": {
+"string/471_isafunction#9d5295cd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"881": {
+"string/476_isastring#f6e46c95": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"882": {
+"string/476_isastring#7e7364c4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"883": {
+"string/477_allcharsare#53290a9d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"884": {
+"string/477_allcharsare#a6353f9f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"885": {
+"string/477_allcharsare#f191f3a5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"886": {
+"string/477_allcharsare#d5b4d871": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"887": {
+"string/477_allcharsare#1d28b1a5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"888": {
+"string/477_allcharsare#de724ef9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"889": {
+"string/477_allcharsare#d82ad276": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"890": {
+"string/478_isanumber#2b39f9a4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"891": {
+"string/478_isanumber#840968c0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"892": {
+"string/478_isanumber#664288e5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"893": {
+"string/479_iscirclednumber#6dbf3deb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"894": {
+"string/480_allcharsare#ec62c4e5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"895": {
+"string/484_repeated#639fcace": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"896": {
+"string/485_repeat#b9a50c79": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"897": {
+"string/490_keepingtime#1a1fcee9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"898": {
+"string/490_keepingtime#b0be4be7": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "1\n0",
 "whole_said": "1\n0"
 },
-"899": {
+"string/502_pr#3170274f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"900": {
+"string/502_pr#3c4fef27": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"901": {
+"string/50_ismarquer#0cc3b7d4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"902": {
+"string/50_ismarquer#53627752": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"903": {
+"string/50_ismarquer#5a6ef3f4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"904": {
+"string/521_section#f89d657c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"905": {
+"string/522_nthtolast#f7e65ba0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"906": {
+"string/523_section#b28c5c20": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"907": {
+"string/523_section#30b514a2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"908": {
+"string/523_section#eac685f6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"909": {
+"string/523_section#266c25a7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"910": {
+"string/523_section#875d303c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"911": {
+"string/523_section#2741d6eb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"912": {
+"string/523_section#c84a7380": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"913": {
+"string/527_identifying_lists_inside_a_string#ddb31c9c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"914": {
+"string/527_identifying_lists_inside_a_string#9e73c66e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"915": {
+"string/527_identifying_lists_inside_a_string#0514e2cb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"916": {
+"string/527_identifying_lists_inside_a_string#bc699c3d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"917": {
+"string/527_identifying_lists_inside_a_string#4d6e7781": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"918": {
+"string/527_identifying_lists_inside_a_string#bb2356c2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"919": {
+"string/527_identifying_lists_inside_a_string#c58c8fd7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"920": {
+"string/527_identifying_lists_inside_a_string#3a0f52da": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"921": {
+"string/527_identifying_lists_inside_a_string#18ff0663": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"922": {
+"string/527_identifying_lists_inside_a_string#69a786ec": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"923": {
+"string/527_identifying_lists_inside_a_string#410f787c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"924": {
+"string/527_identifying_lists_inside_a_string#bbc97f4a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"925": {
+"string/527_identifying_lists_inside_a_string#0a109f7f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"926": {
+"string/527_identifying_lists_inside_a_string#de14a16c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"927": {
+"string/527_identifying_lists_inside_a_string#55ee62b0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"928": {
+"string/527_identifying_lists_inside_a_string#6dfa6602": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"929": {
+"string/527_identifying_lists_inside_a_string#4427b977": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"930": {
+"string/527_identifying_lists_inside_a_string#4156fdff": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"931": {
+"string/602_hascentralchar#4e236e9d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"932": {
+"string/602_hascentralchar#e2daf8df": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"933": {
+"string/602_hascentralchar#df3f1fbf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"934": {
+"string/602_hascentralchar#4d407706": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"935": {
+"string/604_ismultipleof#85a8b84b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"936": {
+"string/604_ismultipleof#7ccc9375": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"937": {
+"string/604_ismultipleof#85f53622": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"938": {
+"string/604_ismultipleof#4d2f8491": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"939": {
+"string/604_ismultipleof#880baa1d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"940": {
+"string/605_marquer#776c862c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"941": {
+"string/605_marquer#8a972d44": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"942": {
+"string/606_working_with_marquers#9071fc4f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"943": {
+"string/606_working_with_marquers#63b631e7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"944": {
+"string/606_working_with_marquers#a8d41b47": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"945": {
+"string/606_working_with_marquers#9b3a137c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"946": {
+"string/60_isrealinstring#1afb2f9c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"947": {
+"string/60_isrealinstring#65ffdf13": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"948": {
+"string/60_isrealinstring#6806de8f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"949": {
+"string/612_dealing_in_emptiness_in_softanza#a8f4b030": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"950": {
+"string/612_dealing_in_emptiness_in_softanza#28072dc8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"951": {
+"string/612_dealing_in_emptiness_in_softanza#6c2abc80": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"952": {
+"string/612_dealing_in_emptiness_in_softanza#b4f2a686": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"953": {
+"string/612_dealing_in_emptiness_in_softanza#c7f79619": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"954": {
+"string/612_dealing_in_emptiness_in_softanza#af3ecb6d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"955": {
+"string/612_dealing_in_emptiness_in_softanza#95233932": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"956": {
+"string/612_dealing_in_emptiness_in_softanza#27990d23": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"957": {
+"string/612_dealing_in_emptiness_in_softanza#0ca79b9c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"958": {
+"string/612_dealing_in_emptiness_in_softanza#2d6f2a20": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"959": {
+"string/612_dealing_in_emptiness_in_softanza#c7b0c37b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"960": {
+"string/612_dealing_in_emptiness_in_softanza#b4a4e8c5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"961": {
+"string/612_dealing_in_emptiness_in_softanza#541ce32e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"962": {
+"string/613_contains#af8b72bd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"963": {
+"string/613_contains#0f5e1e93": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"964": {
+"string/613_contains#834a4afe": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"965": {
+"string/633_sortingorder#ee3ab722": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"966": {
+"string/633_sortingorder#586bc93b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"967": {
+"string/637_reversed#dfd1cb35": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"968": {
+"string/639_issortedinascending#94a20abe": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"969": {
+"string/639_issortedinascending#0c8edc40": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"970": {
+"string/648_ischarname#7ffb44fd": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineunidatacontainsname",
 "whole_said": ""
 },
-"971": {
+"string/648_ischarname#28a1ab5d": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineunidatacontainsname",
 "whole_said": ""
 },
-"972": {
+"string/648_ischarname#f019ba57": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzengineunidatacontainsname",
 "whole_said": ""
 },
-"973": {
+"string/652_islowercase#6aa7d5f9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"974": {
+"string/652_islowercase#1319b6cc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"975": {
+"string/653_script#1a91c46a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"976": {
+"string/653_script#76361cdb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"977": {
+"string/653_script#78dd86c5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"978": {
+"string/653_script#487bdbdb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"979": {
+"string/653_script#b3aff10c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"980": {
+"string/653_script#d5feb5b4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"981": {
+"string/654_script#e35381de": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"982": {
+"string/654_script#74039396": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"983": {
+"string/654_script#41943598": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"984": {
+"string/657_todo_logical_error_in_qt#9439a188": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"985": {
+"string/657_todo_logical_error_in_qt#da30555a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"986": {
+"string/665_isscript#bf6fd09f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"987": {
+"string/665_isscript#a0d97527": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"988": {
+"string/665_isscript#fd3a6fc7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"989": {
+"string/665_isscript#6bf951bf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"990": {
+"string/689_isquietequalto#a319884c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"991": {
+"string/710_lowercased#2561a8aa": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"992": {
+"string/710_lowercased#b936957a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"993": {
+"string/710_lowercased#5acfc1b1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"994": {
+"string/711_islowercased#9e3b8c1b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"995": {
+"string/711_islowercased#5401b0c1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"996": {
+"string/711_islowercased#42f78690": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"997": {
+"string/713_charsw#7260916f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"998": {
+"string/714_containsletters#ec4ef21c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"999": {
+"string/714_containsletters#8a6ceaf4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1000": {
+"string/714_containsletters#b2323d3f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1001": {
+"string/714_containsletters#c1efe941": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1002": {
+"string/714_containsletters#ec93ad9e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1003": {
+"string/714_containsletters#b894c1f9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1004": {
+"string/716_script#1138cd77": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1005": {
+"string/716_script#1b9ae11d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1006": {
+"string/718_isletter#9ef2977c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1007": {
+"string/718_isletter#3eb45ec5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1008": {
+"string/718_isletter#89b349d9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1009": {
+"string/720_stringislowercase#8e586bde": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1010": {
+"string/726_inversed#3d282e17": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1011": {
+"string/726_inversed#6eed29cd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1012": {
+"string/726_inversed#1c697a86": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1013": {
+"string/726_inversed#0877baa9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1014": {
+"string/731_stringcase#c002baf3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1015": {
+"string/731_stringcase#04f285e0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1016": {
+"string/731_stringcase#e8ca537e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1017": {
+"string/746_countcharsw#fe144f1a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1018": {
+"string/746_countcharsw#cbfc1338": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1019": {
+"string/785_pr#9f7536d7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1020": {
+"string/788_section#b30bd106": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1021": {
+"string/805_isboundedby#a713b6b2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1022": {
+"string/832_representsrealnumber#9c53c154": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1023": {
+"string/833_representsnumberinbinaryform#31ac93ab": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1024": {
+"string/838_isscriptname#80f7c437": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1025": {
+"string/842_islocaleabbreviation#4121d84f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1026": {
+"string/845_islatin#f39f2b7f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1027": {
+"string/845_islatin#cd42ba95": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1028": {
+"string/859_numberofchars#b5cc10ad": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1029": {
+"string/859_numberofchars#d75cd932": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1030": {
+"string/859_numberofchars#762c8679": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1031": {
+"string/862_heart#14a253c2": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1032": {
+"string/862_heart#fbf9d6bf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1033": {
+"string/862_heart#6b7585f3": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1034": {
+"string/862_heart#1a273acf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1035": {
+"string/862_heart#a6054317": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1036": {
+"string/862_heart#a03d5bf6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1037": {
+"string/862_heart#47925338": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1038": {
+"string/87_negative_index#3adf1a48": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1039": {
+"string/897_string_comparaision_logic_in_stzstring#e6bd6afa": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1040": {
+"string/897_string_comparaision_logic_in_stzstring#7de5373a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1041": {
+"string/897_string_comparaision_logic_in_stzstring#0616cf62": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1042": {
+"string/924_issortedstring#da02759b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1043": {
+"string/924_issortedstring#212d866c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1044": {
+"string/924_issortedstring#11684d03": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1045": {
+"string/924_issortedstring#d54c5f34": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1046": {
+"string/924_issortedstring#06037cb8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1047": {
+"string/924_issortedstring#88281c98": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1048": {
+"string/958_cardsxt#5d740b41": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1049": {
+"string/95_digits#e8c802f6": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1050": {
+"string/95_digits#ff0b567a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1051": {
+"string/95_digits#d7a41fea": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1052": {
+"string/95_digits#62bcf1c1": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1053": {
+"string/95_digits#a967028d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1054": {
+"string/990_script#472c2557": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1055": {
+"string/991_isarabic#d5127242": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1056": {
+"string/992_type#e5f69a35": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1057": {
+"string/994_ishanscript#c47109f8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1058": {
+"string/from_ttext_is_this_arabic_word_diacriticized#86d8ee08": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1059": {
+"string/from_ttext_stzstringq_6_scriptisarabic_--_true#40940d7f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1060": {
+"string/from_ttext_stzstringq_6_scriptisarabic_--_true#6bb57efe": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1061": {
+"system/52_uuid_engine_narrated#91b984fd": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1062": {
+"system/52_uuid_engine_narrated#ebc4bf98": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1063": {
+"system/auth_saml_narrated#39778c2c": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginecertificatekey",
 "whole_said": ""
 },
-"1064": {
+"system/payments_governance_narrated#2911f999": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1065": {
+"system/payments_live_adapter_narrated#b26a1fa0": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"Plafond de paiement depasse\"\n\"\"",
 "whole_said": "\"Plafond de paiement depasse\"\n\"\""
 },
-"1066": {
+"system/payments_live_adapter_narrated#69206800": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "404\n0",
 "whole_said": "404\n0"
 },
-"1067": {
+"system/payments_live_adapter_narrated#e109f86f": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "429\n0",
 "whole_said": "429\n0"
 },
-"1068": {
+"system/payments_live_adapter_narrated#d7d5285e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1069": {
+"system/payments_live_adapter_narrated#367bb69d": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1070": {
+"system/payments_live_adapter_narrated#4f56264a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1071": {
+"system/payments_live_adapter_narrated#877c38a5": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1072": {
+"system/payments_live_adapter_narrated#17be6011": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1073": {
+"system/payments_live_adapter_narrated#3af654c9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1074": {
+"system/payments_live_adapter_narrated#c0efb62d": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginecryptohexencode",
 "whole_said": ""
 },
-"1075": {
+"system/payments_live_adapter_narrated#6e97f6b9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1076": {
+"system/payments_live_adapter_narrated#251cae6c": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginecryptohexdecode",
 "whole_said": ""
 },
-"1077": {
+"system/payments_live_adapter_narrated#25688764": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1078": {
+"system/payments_qr_narrated#315e67cf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1079": {
+"system/payments_qr_narrated#843b438c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1080": {
+"system/payments_secrets_narrated#68cfc5c4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1081": {
+"system/payments_secrets_narrated#c7c76d00": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1082": {
+"system/payments_secrets_narrated#5be0659b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1083": {
+"system/payments_secrets_narrated#589424b8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1084": {
+"system/payments_secrets_narrated#96f308c0": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1085": {
+"system/payments_secrets_narrated#ddd384f7": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1086": {
+"system/payments_secrets_narrated#a49f840c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1087": {
+"system/pispi_twin_narrated#e0af0a64": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1088": {
+"system/pispi_twin_narrated#a60226d4": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"Impossible d'annuler un paiement deja confirme\"\n\"\"",
 "whole_said": "\"Impossible d'annuler un paiement deja confirme\"\n\"\""
 },
-"1089": {
+"system/pispi_twin_narrated#d10a8291": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"Impossible de confirmer un paiement deja annule\"\n\"\"",
 "whole_said": "\"Impossible de confirmer un paiement deja annule\"\n\"\""
 },
-"1090": {
+"system/pispi_twin_narrated#479ba102": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"Le delai de confirmation de 24 heures a ete depasse\"\n\"\"",
 "whole_said": "\"Le delai de confirmation de 24 heures a ete depasse\"\n\"\""
 },
-"1091": {
+"system/pispi_twin_narrated#3b26d256": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"Impossible de rejeter une demande de paiement deja acceptee\"\n\"\"",
 "whole_said": "\"Impossible de rejeter une demande de paiement deja acceptee\"\n\"\""
 },
-"1092": {
+"system/pispi_twin_narrated#fd5e5403": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"Delai de retour de fonds depasse\"\n\"\"",
 "whole_said": "\"Delai de retour de fonds depasse\"\n\"\""
 },
-"1093": {
+"system/pispi_twin_narrated#ab4a684f": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "\"Transaction non irrevocable\"\n\"\"",
 "whole_said": "\"Transaction non irrevocable\"\n\"\""
 },
-"1094": {
+"system/pispi_twin_narrated#4104092a": {
 "ring": "fail",
 "whole": "fail",
 "ring_said": "403\n0",
 "whole_said": "403\n0"
 },
-"1095": {
+"system/pispi_twin_narrated#e504f0c9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1096": {
+"system/pispi_twin_narrated#e59b43fc": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1097": {
+"system/pispi_twin_narrated#4521fb4b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1098": {
+"system/pispi_twin_narrated#c61a8a12": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1099": {
+"system/pispi_twin_narrated#602d000e": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1100": {
+"system/pispi_twin_narrated#0a635f34": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1101": {
+"system/pispi_twin_narrated#18c8ff93": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1102": {
+"system/sms_port_narrated#5e6b9082": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1103": {
+"system/sms_port_narrated#42526ed9": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1104": {
+"system/sms_port_narrated#7a62806c": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1105": {
+"system/sms_port_narrated#118c3f74": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1106": {
+"system/sms_port_narrated#90fe54ad": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1107": {
+"system/sms_port_narrated#64b43598": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1108": {
+"system/sms_port_narrated#ebe7b0e8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1109": {
+"system/sms_port_narrated#9dcb99e8": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1110": {
+"system/sms_port_narrated#3d7f4c4a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1111": {
+"system/sms_port_narrated#bb34a49b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1112": {
+"system/sms_port_narrated#e7f13c39": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1113": {
+"system/sms_port_narrated#431553cb": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1114": {
+"system/sms_port_narrated#f0db6def": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1115": {
+"system/sms_port_narrated#15e1fa2b": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1116": {
+"system/sms_port_narrated#f57cb724": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1117": {
+"testoor/testoor_clock_narrated#dbe90ae1": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: weatherplan",
+"whole_said": "1\n0"
+},
+"testoor/testoor_clock_narrated#f4705aae": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: weatherdeclared",
+"whole_said": "Error (R2) : Array Access (Index out of range)"
+},
+"testoor/testoor_clock_narrated#c9d820b1": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: weatherplan",
+"whole_said": ""
+},
+"testoor/testoor_routes_narrated#bf78b333": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: route",
+"whole_said": ""
+},
+"time/00_time_narrated#e8fca91f": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1118": {
+"time/00_time_narrated#45a20d5a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1119": {
+"time/00_time_narrated#a2d78e2a": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1120": {
+"time/00_time_narrated#07409edf": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1121": {
+"uuid/00_uuid_narrated#aba1aeb4": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
 },
-"1122": {
+"uuid/00_uuid_narrated#eaa5c7ad": {
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",

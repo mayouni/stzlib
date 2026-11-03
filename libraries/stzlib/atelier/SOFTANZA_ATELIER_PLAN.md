@@ -63,7 +63,8 @@ measured side by side.
 | file | what |
 |---|---|
 | `atelier.ring` | the app: settings, the host loop, the routes, `AtelierThen` and `AtelierShow`, the build facts |
-| `atelier.html` | the page: the checks by domain, the playground |
+| `atelier.html` | the page, under the Zui constitution at v3.13: three sections at three addresses, the domains as a vertical level, search, each check's provenance, the five states apart |
+| `i18n.json` | the page's every string, one dictionary per language (English, French); the code references keys (Rule 122) |
 | `atelierClient.ring` | functions a Ring program uses to boot an Atelier, run checks over HTTP, compare two recordings, write a results file (the guard and the recorder load it after the library) |
 | `record.ring` | maintainer: boots an Atelier, runs every check, writes `results.json`; `rnxc record.ring` from this folder |
 | `tours.ring` | maintainer (A1): boots an Atelier, runs every narrated file of `base/test` WHOLE as one tour each, judged by testoor's judge, writes `tours.json`; `rnxc tours.ring [--topic T]` from this folder |
@@ -133,12 +134,14 @@ every disagreement. **Coverage** is the `Then` lines the reader read that were j
 Coverage tab; the harvested checks are the floor, this is the ceiling. A file that defines
 a class cannot be released and stays (kept code): it runs once per server life.
 
-### A2 -- The experience -- PLANNED
+### A2 -- The experience -- DONE 2026-11-04 (journal below)
 
-The page under StzZui's law at its live version, in French and English like the site.
-Browse by domain, search; each check shows its provenance (file, line, scenario, library
-commit); the playground kept; the five states shown apart; a check's id stable when its
-file changes elsewhere.
+The page under StzZui's law at its live version (v3.13, 123 rules), in French and English
+like the site, from one dictionary file; browse by domain (a vertical level on the left),
+search (Ctrl+K); each check shows its provenance (file, line, scenario, library commit,
+id); the playground kept; the five states shown apart per file; a check's id is its file
+and a digest of its own text, so it stays when the file changes elsewhere. Measured by
+StzZui's own audit tool: 0 violations on 5 pages, light and dark.
 
 ### A3 -- Reach -- PLANNED
 
@@ -310,3 +313,49 @@ The floor was 1,122 checks, 5.5 percent of the Then lines; the ceiling judged to
   1,276 (94), system 1,363 of 1,612 (85), regex 402 of 497 (81), number 1,630 of 2,103
   (78), graph 797 of 1,080 (74), natural 553 of 839 (66), cluster 315 of 493 (64),
   stats 341 of 794 (43), datetime 217 of 582 (37), network 178 of 694 (26).
+
+### A2 -- 2026-11-04 -- the experience
+
+**The id law.** A check's id is `<file without .ring>#<8 hex of SHA-1(description,
+actual, expected, its helpers)>`, never a line or a rank; a second check of one file with
+the same text and another description takes `-2`. The guard plants a file, harvests it,
+adds two lines above its second check and harvests again: both ids unchanged while the
+line moved by two. The results and the verdicts are keyed by that id (re-recorded:
+1,011 / 89 / 26 of 1,126 at 74757d462; Ring 967 / 70 / 89; rnxc whole = resident on all).
+
+**The page under the law**, with the rules named beside the CSS that answers them: one
+reading size (1.3125rem, the site's), mono labels and code at optical parity, nothing
+under 1rem, every colour pair listed with its ratio; paper tones, one teal accent, one
+resting shadow; nothing moves; the top bar sticks and holds its space; a main menu of
+three short labels, the domains turned vertical at 18 percent; a trail rooted at the
+Atelier's own address with the section as its current step; tables that declare their
+columns, numbers right-aligned and tabular, the state the one coloured column and always
+beside its word; a narrow screen sheds the context columns, never the state; a state
+label sits beneath what it classifies; every control 44 px tall; space reserved before
+results arrive; verbs on every button ("Run this domain", "Apply dark mode", "Lire en
+français"); search over click (Ctrl+K); the library's compile told in words with its
+seconds. The page is one file at three addresses (`/atelier`, `/atelier/coverage`,
+`/atelier/playground`), so the menu is real links and the back button holds.
+
+**Measured by StzZui's own instrument** (`tools/ui-audit.html`, Rules 105, 107, 108,
+114-116, through a same-origin front that serves the tool from the stzzui checkout and
+proxies the rest to the Atelier): the first run found 10 violations on 5 pages -- the
+trail's current step lacked the class the tool reads (5) and the disabled button lost
+contrast through its opacity (3.70:1, 5); after marking the step and disabling by colour
+and a dashed border, **0 violations on 5 pages in light and 0 in dark**. The tool is
+stzzui's; the Atelier only reads and runs it.
+
+**Language is data.** 105 keys asked by the page, 100 in each dictionary, French with every
+English key, checked by the guard; the page switches whole, numbers formatted per
+language; the choice is remembered and `?lang=` overrides it. A reader's browser in
+French opens the page in French.
+
+**Guard** `base/test/atelier/atelier_page_narrated.ring`: 24 assertions, about 80 s: the
+id law on a planted harvest (SKIPPED by name when python is not on the path), the three
+files sharing ids, the dictionary whole and every key the page asks for present, the
+three addresses served, the dictionary route, the trail, the menu of three, nothing
+moving, the reading size, what judges a check named.
+
+**Left for A3 and beyond.** The fonts the site loads (Fraunces, IBM Plex) are named first
+and fall back to the system's: the Atelier carries no font files. The old page is gone;
+its comparison with the private server project never came here.

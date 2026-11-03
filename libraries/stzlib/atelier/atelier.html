@@ -1,184 +1,368 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Softanza Atelier</title>
+<meta name="description" content="Softanza's library inside one live program on Ring++: its own assertions run against it, whole test files judged, and code you write runs in it.">
+<script>(function(){try{var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('atelier.theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
 <style>
-:root {
-  color-scheme: light;
-  --surface-0: #f4f3f0;
-  --surface-1: #fcfcfb;
-  --border: #e2e0da;
-  --text-primary: #0b0b0b;
-  --text-secondary: #52514e;
-  --text-muted: #77756f;
-  --good: #0ca30c;
-  --warning: #fab219;
-  --critical: #d03b3b;
-  --code-bg: #f0efec;
-  --accent: #2a78d6;
+/* The Softanza Atelier, written to the Zui constitution (v3.13) and to stzsite's reading
+   of it (assets/css/site.css): the same paper, ink, teal accent, resting shadow, serif titles.
+   The rules it answers are named where they bind.
+
+   Rule 107, 105    ONE reading size (1.3125rem); the hero and the titles are the only others;
+                    mono labels and code at optical parity; nothing under 1rem; every pair below 4.5:1 or better
+   Rule 3, 5, 10    paper tones, one accent (action and selection), one resting shadow, no gradient
+   Rule 112, 17, 1  nothing moves: no transition, no animation, no smooth scroll
+   Rule 13, 110     the top bar sticks and holds its own space; nothing floats over the reading
+   Rule 27, 120     a horizontal main menu of three short labels; the next level (the domains) turns vertical
+   Rule 108, 25     the trail from the root, every ancestor a link, the current step marked
+   Rule 11, 47, 127 tables declare their columns, numbers right-aligned and tabular, text left
+   Rule 14, 129     no container scrolls sideways: a narrow screen sheds the context columns, never the state
+   Rule 117, 3      colour is spent once per table, on the state column, and always beside its word
+   Rule 113         a state label sits beneath what it classifies, and after it in the document
+   Rule 122         every string comes from i18n.json, one dictionary per language
+   Rule 19, 69      every control at least 44px tall
+   Rule 15, 38      space reserved before results arrive, so nothing shoves the reading */
+
+/* contrast: #1B211F | #F1F3F1 | 7 | reading ink on paper, light */
+/* contrast: #3E4744 | #F1F3F1 | 7 | secondary ink on paper, light */
+/* contrast: #1B6B72 | #F1F3F1 | 4.5 | link and selection on paper, light */
+/* contrast: #1B6B72 | #FBFCFB | 4.5 | link on panel, light */
+/* contrast: #0E4E54 | #DEE7E6 | 4.5 | eyebrow on the tinted head, light */
+/* contrast: #F1F3F1 | #1B6B72 | 4.5 | the primary button, light */
+/* contrast: #23664A | #E4F1EA | 4.5 | pass and kept, light */
+/* contrast: #993A25 | #F6E3DD | 4.5 | fail and diverged, light */
+/* contrast: #7A4F0E | #F6ECD9 | 4.5 | error and unreached, light */
+/* contrast: #2F5A86 | #E4ECF4 | 4.5 | unjudged, light */
+/* contrast: #5C3F7A | #EEE7F4 | 4.5 | unperceived, light */
+/* contrast: #EAEEEB | #121614 | 7 | reading ink on paper, dark */
+/* contrast: #B7C1BC | #121614 | 7 | secondary ink on paper, dark */
+/* contrast: #5FB6BC | #121614 | 4.5 | link and selection on paper, dark */
+/* contrast: #121614 | #5FB6BC | 4.5 | the primary button, dark */
+/* contrast: #63B98C | #1B2F26 | 4.5 | pass and kept, dark */
+/* contrast: #DB8069 | #31201B | 4.5 | fail and diverged, dark */
+/* contrast: #D6A559 | #302811 | 4.5 | error and unreached, dark */
+/* contrast: #7BA8D4 | #1B2733 | 4.5 | unjudged, dark */
+/* contrast: #B99AD8 | #27203A | 4.5 | unperceived, dark */
+
+:root{
+  --paper:#F1F3F1; --panel:#FBFCFB; --panel-2:#EAEEEB;
+  --ink:#1B211F; --ink-2:#3E4744;
+  --line:#D5DBD7; --line-2:#C3CAC6;
+  --accent:#1B6B72; --accent-ink:#0E4E54; --on-accent:#F1F3F1;
+  --head-tint:#DEE7E6;
+  --shadow:0 1px 2px rgba(27,33,31,.04),0 6px 18px rgba(27,33,31,.05);
+  --pass:#23664A; --pass-bg:#E4F1EA;
+  --fail:#993A25; --fail-bg:#F6E3DD;
+  --err:#7A4F0E; --err-bg:#F6ECD9;
+  --unj:#2F5A86; --unj-bg:#E4ECF4;
+  --unp:#5C3F7A; --unp-bg:#EEE7F4;
+  --read:1.3125rem; --lh:1.7; --label:1.0625rem; --code:1.125rem;
+  --title:clamp(1.875rem,3.4vw,2.5rem); --hero:clamp(2.5rem,5.2vw,3.75rem);
+  --maxw:1180px; --gutter:24px; --bar:18%;
+  color-scheme:light;
 }
-@media (prefers-color-scheme: dark) {
-  :root:where(:not([data-theme="light"])) {
-    color-scheme: dark;
-    --surface-0: #121211;
-    --surface-1: #1a1a19;
-    --border: #33332f;
-    --text-primary: #f0efec;
-    --text-secondary: #c3c2b7;
-    --text-muted: #9a998f;
-    --code-bg: #24241f;
-    --accent: #3987e5;
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#121614; --panel:#1A201E; --panel-2:#232B28; --ink:#EAEEEB; --ink-2:#B7C1BC;
+    --line:#2C3532; --line-2:#3A443F; --accent:#5FB6BC; --accent-ink:#8FD3D8; --on-accent:#121614; --head-tint:#192423;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 22px rgba(0,0,0,.28);
+    --pass:#63B98C; --pass-bg:#1B2F26; --fail:#DB8069; --fail-bg:#31201B; --err:#D6A559; --err-bg:#302811;
+    --unj:#7BA8D4; --unj-bg:#1B2733; --unp:#B99AD8; --unp-bg:#27203A; color-scheme:dark;
   }
 }
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --surface-0: #121211;
-  --surface-1: #1a1a19;
-  --border: #33332f;
-  --text-primary: #f0efec;
-  --text-secondary: #c3c2b7;
-  --text-muted: #9a998f;
-  --code-bg: #24241f;
-  --accent: #3987e5;
+:root[data-theme="dark"]{
+  --paper:#121614; --panel:#1A201E; --panel-2:#232B28; --ink:#EAEEEB; --ink-2:#B7C1BC;
+  --line:#2C3532; --line-2:#3A443F; --accent:#5FB6BC; --accent-ink:#8FD3D8; --on-accent:#121614; --head-tint:#192423;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 22px rgba(0,0,0,.28);
+  --pass:#63B98C; --pass-bg:#1B2F26; --fail:#DB8069; --fail-bg:#31201B; --err:#D6A559; --err-bg:#302811;
+  --unj:#7BA8D4; --unj-bg:#1B2733; --unp:#B99AD8; --unp-bg:#27203A; color-scheme:dark;
 }
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--surface-0); color: var(--text-primary);
-  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; }
-header h1 { font-size: 28px; margin: 0; letter-spacing: -0.01em; }
-header p { margin: 4px 0 0; color: var(--text-secondary); }
-.status { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 16px 0 8px; color: var(--text-secondary); font-size: 14px; }
-.status b { color: var(--text-primary); font-weight: 600; }
-.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; background: var(--text-muted); }
-.dot.ok { background: var(--good); } .dot.busy { background: var(--warning); } .dot.bad { background: var(--critical); }
-nav { display: flex; gap: 4px; margin: 20px 0 12px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-nav button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 12px; font: inherit;
-  color: var(--text-secondary); cursor: pointer; }
-nav button[aria-selected="true"] { color: var(--text-primary); border-bottom-color: var(--accent); font-weight: 600; }
-section { display: none; } section.on { display: block; }
-.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin: 12px 0; }
-.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-button.act { font: inherit; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border);
-  background: var(--surface-1); color: var(--text-primary); cursor: pointer; }
-button.act.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-button.act:disabled { opacity: .5; cursor: default; }
-select, textarea { font: inherit; color: var(--text-primary); background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; }
-select { padding: 6px 8px; }
-textarea { width: 100%; min-height: 180px; padding: 10px; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 14px; }
-pre, code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
-pre { background: var(--code-bg); padding: 10px; border-radius: 8px; overflow-x: auto; margin: 6px 0; white-space: pre-wrap; word-break: break-word; }
-.muted { color: var(--text-muted); } .small { font-size: 13px; }
-.totals { display: flex; flex-wrap: wrap; gap: 24px; margin: 8px 0; }
-.total .n { font-size: 26px; font-weight: 650; } .total .l { color: var(--text-secondary); font-size: 13px; }
-.bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 10px 0; }
-.bar > div { height: 100%; background: var(--accent); width: 0; transition: width .15s; }
-.st { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; font-size: 13px; white-space: nowrap; }
-.st.pass { color: var(--good); } .st.fail { color: var(--critical); } .st.err { color: var(--text-secondary); }
-.st svg { width: 14px; height: 14px; }
-details.dom { border-top: 1px solid var(--border); padding: 6px 0; }
-details.dom summary { cursor: pointer; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.chk { display: grid; grid-template-columns: 74px 1fr auto; gap: 8px; padding: 6px 0; border-top: 1px dashed var(--border); font-size: 14px; }
-.chk .meta { color: var(--text-muted); font-size: 12px; }
-.chk.changed { background: color-mix(in srgb, var(--warning) 12%, transparent); }
-table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
-th, td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--border); }
-th:first-child, td:first-child { text-align: left; }
-th { color: var(--text-secondary); font-weight: 600; }
-.tablewrap { overflow-x: auto; }
-tr.total td { font-weight: 650; border-top: 2px solid var(--border); }
-@media (max-width: 600px) { .chk { grid-template-columns: 64px 1fr; } .chk .t { grid-column: 2; } }
+*,*::before,*::after{box-sizing:border-box;transition:none!important;animation:none!important;scroll-behavior:auto!important}
+html{font-size:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:var(--read);line-height:var(--lh)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--gutter)}
+a{color:var(--accent)}
+code,pre,kbd,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
+code{font-size:var(--code);background:var(--panel-2);padding:1px 6px;border-radius:5px}
+pre{margin:0;font-size:var(--code);line-height:1.6;background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:14px 18px;white-space:pre-wrap;overflow-wrap:anywhere;overflow:visible}
+.skip{position:absolute;left:-999px;top:0;background:var(--panel);padding:12px 16px}
+.skip:focus{left:16px;top:8px;z-index:60}
+
+/* the bars: they stick and hold their own space */
+.top{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:1px solid var(--line)}
+.topbar{max-width:var(--maxw);margin:0 auto;padding:0 var(--gutter);min-height:64px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.brand{font-family:"Fraunces",Georgia,"Times New Roman",serif;font-size:1.5rem;font-weight:600;color:var(--ink);text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+.menu{display:flex;gap:0 24px;flex-wrap:wrap}
+.menu a{font-size:var(--read);font-weight:500;color:var(--ink-2);text-decoration:none;min-height:44px;display:inline-flex;align-items:center;border-bottom:3px solid transparent}
+.menu a[aria-current="page"]{color:var(--accent-ink);border-bottom-color:var(--accent);font-weight:600}
+.tools{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap}
+.tools a,.tools button{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:var(--label);color:var(--accent-ink);background:var(--panel);border:1px solid var(--line-2);border-radius:8px;padding:0 14px;min-height:44px;display:inline-flex;align-items:center;text-decoration:none;cursor:pointer}
+.trail{background:var(--paper)}
+.trail ol{max-width:var(--maxw);margin:0 auto;padding:0 var(--gutter);list-style:none;display:flex;flex-wrap:wrap;gap:0 12px}
+.trail li{min-height:44px;display:inline-flex;align-items:center;font-size:var(--read)}
+.trail li+li::before{content:"\203A";color:var(--ink-2);margin-right:12px}
+.trail a{color:var(--accent);font-weight:500}
+.trail [aria-current="page"]{font-weight:700;color:var(--ink)}
+
+/* the head of the page: a resting tint, never emphasis */
+.page-head{background:var(--head-tint);padding:32px 0 32px}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:var(--label);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink)}
+h1{font-family:"Fraunces",Georgia,"Times New Roman",serif;font-size:var(--hero);font-weight:600;line-height:1.06;letter-spacing:-.015em;margin:12px 0 0;max-width:24ch}
+h2{font-family:"Fraunces",Georgia,"Times New Roman",serif;font-size:var(--title);font-weight:600;line-height:1.15;margin:0 0 16px}
+h3{font-size:var(--read);font-weight:700;margin:0 0 8px}
+.lead{max-width:72ch;margin:16px 0 0;color:var(--ink-2)}
+.status{margin:24px 0 0;max-width:96ch}
+.status p{margin:4px 0}
+.status b{font-weight:700}
+
+/* the body: a vertical level on the left, the reading on the right */
+.body{padding:32px 0 80px}
+.cols{display:grid;grid-template-columns:var(--bar) minmax(0,1fr);gap:40px;align-items:start}
+.level{border-right:1px solid var(--line);padding-right:16px}
+.level h3{margin-bottom:12px}
+.level ul{list-style:none;margin:0;padding:0}
+.level li{margin:0}
+.level button{display:flex;width:100%;justify-content:space-between;gap:12px;text-align:left;font:inherit;color:var(--ink-2);background:none;border:0;border-left:3px solid transparent;padding:6px 10px;min-height:44px;cursor:pointer;border-radius:0 8px 8px 0}
+.level button[aria-current="true"]{color:var(--accent-ink);border-left-color:var(--accent);background:var(--panel);font-weight:600}
+.level .n{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:var(--label);font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:var(--shadow);margin:0 0 24px}
+.card p:first-child{margin-top:0}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+label{font-weight:600}
+input[type=search],select,textarea{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line-2);border-radius:8px;min-height:44px;padding:6px 12px}
+input[type=search]{width:100%}
+select{padding-right:32px}
+textarea{width:100%;min-height:10rem;font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:var(--code);line-height:1.6;resize:vertical;padding:12px 14px}
+.hint{color:var(--ink-2);margin:8px 0 0}
+button.act{font:inherit;font-weight:600;min-height:44px;padding:0 20px;border-radius:8px;border:1px solid var(--line-2);background:var(--panel);color:var(--ink);cursor:pointer}
+button.act.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+button.act:disabled{color:var(--ink-2);border-style:dashed;cursor:default}
+.progress{height:8px;background:var(--line);border-radius:4px;margin:16px 0 0;overflow:hidden}
+.progress>div{height:100%;background:var(--accent);width:0}
+.summary{display:flex;flex-wrap:wrap;gap:16px 32px;min-height:5.5rem;margin:16px 0 0}
+.summary .k{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:var(--label);color:var(--ink-2)}
+.summary .v{font-size:var(--title);font-weight:650;line-height:1.1;font-variant-numeric:tabular-nums}
+.runinfo{min-height:1.7em;margin:12px 0 0;color:var(--ink-2)}
+
+/* a state word: the one coloured encoding of a fact, always with its text */
+.st{display:inline-block;font-weight:700;padding:2px 12px;border-radius:8px;border:1px solid transparent}
+.st-pass,.st-kept{color:var(--pass);background:var(--pass-bg)}
+.st-fail,.st-diverged{color:var(--fail);background:var(--fail-bg)}
+.st-err,.st-unreached{color:var(--err);background:var(--err-bg)}
+.st-unjudged{color:var(--unj);background:var(--unj-bg)}
+.st-unperceived{color:var(--unp);background:var(--unp-bg)}
+
+/* the domain groups and the checks */
+details.dom{border-top:1px solid var(--line);padding:8px 0}
+details.dom>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;font-weight:600}
+details.dom>summary .n{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:var(--label);font-weight:600;color:var(--ink-2)}
+.chk{padding:16px 0;border-top:1px dashed var(--line)}
+.chk .desc{font-weight:600;margin:0}
+.chk .meta{color:var(--ink-2);margin:4px 0 0;overflow-wrap:anywhere}
+.chk .meta span+span::before{content:" \00B7 ";color:var(--ink-2)}
+.chk .verdict{margin:8px 0 0;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.chk .changed{font-weight:600}
+.chk pre{margin:8px 0 0}
+.chk details{margin:8px 0 0}
+.chk details>summary{cursor:pointer;color:var(--accent);min-height:44px;display:inline-flex;align-items:center;font-weight:500}
+.chk .ring{margin:4px 0 0;color:var(--ink-2)}
+
+/* tables: a ledger */
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;margin:16px 0 0}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th:first-child,td:first-child{text-align:left}
+th{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:var(--label);font-weight:600;color:var(--ink-2);background:var(--panel-2)}
+tr.total td{font-weight:700;border-top:2px solid var(--line-2)}
+td.name{overflow-wrap:anywhere}
+.files{margin:8px 0 16px}
+.files summary{cursor:pointer;color:var(--accent);min-height:44px;display:inline-flex;align-items:center;font-weight:500}
+.files table th:nth-child(2),.files table td:nth-child(2){text-align:left}
+.files table th:nth-child(3),.files table td:nth-child(3){text-align:left}
+
+#playout{min-height:4rem;margin:16px 0 0}
+.playtime{margin:8px 0 0;color:var(--ink-2);min-height:1.7em}
+kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padding:0 8px;background:var(--panel-2)}
+
+/* a narrow screen: the level becomes a row above; context columns leave, the state stays */
+@media (max-width:900px){
+  .cols{grid-template-columns:1fr;gap:24px}
+  .level{border-right:0;border-bottom:1px solid var(--line);padding:0 0 12px}
+  .level ul{display:flex;flex-wrap:wrap;gap:4px 8px}
+  .level button{width:auto;border-left:0;border-bottom:3px solid transparent;border-radius:8px 8px 0 0}
+  .level button[aria-current="true"]{border-bottom-color:var(--accent)}
+  table .ctx{display:none}
+}
 </style>
 </head>
 <body>
-<main>
-<header>
-  <h1>Softanza Atelier</h1>
-  <p>Softanza's library inside one live program on Ring++: its own assertions run against it, and code you write runs in it.</p>
-  <div class="status" id="status">
-    <span><span class="dot busy" id="stzdot"></span>the library: <b id="stzstate">asking...</b></span>
-    <span>requests served <b id="served">-</b></span>
-    <span>functions in the program <b id="funcs">-</b></span>
-    <span>runs released <b id="runs">-</b></span>
+<a class="skip" href="#main" data-t="skip">Skip to content</a>
+<header class="top">
+  <div class="topbar">
+    <a class="brand" href="/atelier" data-t="title">Softanza Atelier</a>
+    <nav class="menu" aria-label="Atelier sections" id="menu">
+      <a href="/atelier" data-view="checks" data-t="menu_checks">Checks</a>
+      <a href="/atelier/coverage" data-view="coverage" data-t="menu_coverage">Coverage</a>
+      <a href="/atelier/playground" data-view="playground" data-t="menu_playground">Playground</a>
+    </nav>
+    <div class="tools">
+      <a id="langlink" href="?lang=fr" lang="fr" hreflang="fr" data-t="switch_lang">Lire en français</a>
+      <button type="button" id="themebtn" data-t="theme_dark">Apply dark mode</button>
+    </div>
   </div>
-  <p class="small muted" id="judged">What judges a check: asking the server...</p>
 </header>
-
-<nav role="tablist">
-  <button role="tab" aria-selected="true" data-tab="checks">Checks</button>
-  <button role="tab" aria-selected="false" data-tab="play">Playground</button>
-  <button role="tab" aria-selected="false" data-tab="cover">Coverage</button>
+<nav class="trail" aria-label="Breadcrumb">
+  <ol>
+    <li><a href="/" data-t="title">Softanza Atelier</a></li>
+    <li><span class="here-crumb" aria-current="page" id="trailhere" data-t="menu_checks">Checks</span></li>
+  </ol>
 </nav>
 
-<section id="checks" class="on">
-  <div class="card">
-    <div class="row">
-      <select id="domain"></select>
-      <button class="act primary" id="runchecks">Run</button>
-      <button class="act" id="runfailed" disabled>Run the failures again</button>
-      <select id="show"><option value="all">show all</option><option value="bad">failures and errors</option><option value="differs">different from Ring</option><option value="changed">changed since the last run</option></select>
+<main id="main">
+<div class="page-head"><div class="wrap">
+  <p class="eyebrow" data-t="eyebrow">The library's own assertions, run live</p>
+  <h1 data-t="title">Softanza Atelier</h1>
+  <p class="lead" data-t="lead"></p>
+  <div class="status" aria-live="polite">
+    <p><b data-t="status_label">The program</b>: <span id="libstate" data-t="lib_asking">asking the server</span></p>
+    <p id="judged"></p>
+    <p id="served"></p>
+  </div>
+</div></div>
+
+<div class="body"><div class="wrap">
+
+<section id="view-checks" hidden aria-labelledby="h-checks">
+  <h2 id="h-checks" data-t="menu_checks">Checks</h2>
+  <div class="cols">
+    <aside class="level" aria-labelledby="h-domains">
+      <h3 id="h-domains" data-t="domains_label">Domains</h3>
+      <ul id="domains"></ul>
+    </aside>
+    <div>
+      <div class="card">
+        <p id="chkinfo"></p>
+        <label for="search" data-t="search_label">Find a check</label>
+        <input type="search" id="search" autocomplete="off">
+        <p class="hint" data-t="search_hint"></p>
+        <div class="row" style="margin-top:16px">
+          <button class="act primary" id="rundomain" data-t="run_domain">Run this domain</button>
+          <button class="act" id="runall" data-t="run_all">Run every check</button>
+          <button class="act" id="runfailed" disabled data-t="run_failed">Run the failures again</button>
+          <label for="show" data-t="show_label">Show</label>
+          <select id="show">
+            <option value="all" data-t="show_all">every check</option>
+            <option value="bad" data-t="show_bad">failures and errors</option>
+            <option value="differs" data-t="show_differs">those that differ from Ring</option>
+            <option value="changed" data-t="show_changed">those that changed since the last run</option>
+          </select>
+        </div>
+        <div class="progress" aria-hidden="true"><div id="prog"></div></div>
+        <p class="runinfo" id="runinfo" aria-live="polite"></p>
+        <div class="summary" id="totals"></div>
+      </div>
+      <div class="card" id="chklist"><p data-t="nothing_run"></p></div>
     </div>
-    <div class="bar"><div id="prog"></div></div>
-    <div class="totals" id="totals"></div>
-    <p class="small muted" id="chkinfo"></p>
   </div>
-  <div class="card" id="chklist"><p class="muted">Each check is one <code>Then(...)</code> from Softanza's narrated suites, run as the suite runs it: admitted into the live program as <code>func Run</code>, called, and released. Press Run.</p></div>
 </section>
 
-<section id="cover">
+<section id="view-coverage" hidden aria-labelledby="h-coverage">
+  <h2 id="h-coverage" data-t="menu_coverage">Coverage</h2>
   <div class="card">
-    <p class="small muted" style="margin-top:0">Whole test files run as one admission each on the resident Atelier (<code>tours.ring</code>, a maintainer's sweep), judged by testoor's judge. A Then line is <b>judged</b> when it is kept or diverged; <b>unreached</b> when its file broke or never started before it; <b>unjudged</b> when the file finished without walking it. The checks tab is the floor; this is the ceiling.</p>
-    <div id="coverhead" class="muted">No sweep recorded yet: run <code>rnxc tours.ring</code> from the Atelier's folder.</div>
+    <p data-t="coverage_intro"></p>
+    <p id="coverhead" data-t="coverage_none"></p>
+    <p id="coverfiles"></p>
   </div>
-  <div class="card" id="covertable" style="display:none"></div>
+  <div class="card" id="covertable" hidden></div>
 </section>
 
-<section id="play">
+<section id="view-playground" hidden aria-labelledby="h-play">
+  <h2 id="h-play" data-t="menu_playground">Playground</h2>
   <div class="card">
-    <p class="small muted" style="margin-top:0">The code is the body of a function: it runs inside the program that holds Softanza, then is released. End it with <code>return</code>; a list or an object is shown as Softanza shows it. Ctrl+Enter runs it.</p>
+    <p data-t="play_intro"></p>
+    <label for="code" data-t="play_label">Code to run</label>
     <textarea id="code" spellcheck="false">oText = Q("Softanza runs in the Atelier")
 return [ oText.Uppercased(), oText.NumberOfWords(), Q(oText.Words()).Reversed() ]</textarea>
-    <div class="row" style="margin-top:8px"><button class="act primary" id="runcode">Run</button><span class="small muted" id="playtime"></span></div>
-    <pre id="playout" class="muted">(the answer appears here)</pre>
+    <div class="row" style="margin-top:12px"><button class="act primary" id="runcode" data-t="play_run">Run the code</button><kbd data-t="play_shortcut">Ctrl+Enter</kbd></div>
+    <p class="playtime" id="playtime"></p>
+    <pre id="playout" data-t="play_empty"></pre>
   </div>
 </section>
+
+</div></div>
 </main>
 
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const ICON = {
-  pass: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
-  fail: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
-  err:  '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.5v4.5M8 11v.5" stroke="currentColor" stroke-width="1.8"/></svg>'
-};
-const LABEL = { pass: 'pass', fail: 'fail', err: 'error' };
-const badge = k => `<span class="st ${k}">${ICON[k]}${LABEL[k]}</span>`;
+const fmtN = n => Number(n).toLocaleString(LANG === 'fr' ? 'fr-FR' : 'en-US');
+const fmt1 = n => Number(n).toLocaleString(LANG === 'fr' ? 'fr-FR' : 'en-US', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
 
-// ---- tabs
-document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
-  document.querySelectorAll('nav button').forEach(x => x.setAttribute('aria-selected', x === b));
-  document.querySelectorAll('section').forEach(s => s.classList.toggle('on', s.id === b.dataset.tab));
-  try { localStorage.setItem('atelier.tab', b.dataset.tab); } catch (e) {}
+// ---- language: every string is a key of i18n.json (Rule 122) ----
+let I18N = {}, LANG = 'en';
+function t(key, vars) {
+  let s = (I18N[LANG] && I18N[LANG][key]) || (I18N.en && I18N.en[key]) || key;
+  if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+function applyLang() {
+  document.documentElement.lang = LANG;
+  document.documentElement.setAttribute('data-lang', LANG);
+  document.title = t('title');
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const k = el.dataset.t;
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.setAttribute('aria-label', t(k)); else el.textContent = t(k);
+  });
+  const other = LANG === 'fr' ? 'en' : 'fr';
+  const ll = $('#langlink');
+  ll.href = location.pathname + '?lang=' + other; ll.lang = other; ll.hreflang = other;
+  $('#themebtn').textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? t('theme_light') : t('theme_dark');
+  renderStatus(); renderDomains(); renderChecks(shown); renderTotals(); renderCoverage();
+}
+function pickLang() {
+  const q = new URLSearchParams(location.search).get('lang');
+  let l = q;
+  try { if (!l) l = localStorage.getItem('atelier.lang'); } catch (e) {}
+  if (!l) l = (navigator.language || 'en').slice(0, 2) === 'fr' ? 'fr' : 'en';
+  LANG = l === 'fr' ? 'fr' : 'en';
+  try { localStorage.setItem('atelier.lang', LANG); } catch (e) {}
+}
+
+// ---- the view: one page, three addresses, the menu tells the truth (Rules 26, 116) ----
+const VIEW = location.pathname.endsWith('/coverage') ? 'coverage' : location.pathname.endsWith('/playground') ? 'playground' : 'checks';
+document.querySelectorAll('#menu a').forEach(a => {
+  if (a.dataset.view === VIEW) a.setAttribute('aria-current', 'page');
+  a.href = a.getAttribute('href') + (location.search || '');
 });
-try { const t = localStorage.getItem('atelier.tab'); if (t) document.querySelector(`nav button[data-tab="${t}"]`)?.click(); } catch (e) {}
+$('#trailhere').dataset.t = 'menu_' + VIEW;
+$('#view-' + VIEW).hidden = false;
 
-// ---- the server's state: where the library stands, and what judges a check
-let stzReady = false, STATE = null;
+// ---- theme: a verb on the button (Rule 106) ----
+$('#themebtn').onclick = () => {
+  const now = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', now);
+  try { localStorage.setItem('atelier.theme', now); } catch (e) {}
+  $('#themebtn').textContent = now === 'dark' ? t('theme_light') : t('theme_dark');
+};
+
+// ---- the server's state: what judges a check is named (Rule 99) ----
+let STATE = null, stzReady = false;
+function renderStatus() {
+  if (!STATE) return;
+  const L = STATE.library, st = L.state;
+  $('#libstate').textContent = st === 'admitted' ? t('lib_admitted', { s: L.seconds }) : st === 'compiling' ? t('lib_compiling', { s: Math.max(0, Math.round((Date.now() - T0) / 1000)) }) : t('lib_refused', { why: L.why });
+  $('#judged').textContent = t('judged_by', { commit: L.commit, rnxc: STATE.rnxc.build, engine: STATE.engine });
+  $('#served').textContent = t('served', { n: fmtN(STATE.served), f: fmtN(STATE.functions), r: fmtN(STATE.runs) });
+}
+const T0 = Date.now();
 async function status() {
   try {
-    const s = await (await fetch('/atelier/state')).json();
-    STATE = s;
-    const st = s.library.state;
-    stzReady = st === 'admitted';
-    $('#stzdot').className = 'dot ' + (st === 'admitted' ? 'ok' : st === 'compiling' ? 'busy' : 'bad');
-    $('#stzstate').textContent = st === 'admitted' ? `admitted in ${s.library.seconds} s` : st === 'compiling' ? 'compiling in the background...' : 'refused: ' + s.library.why.slice(0, 120);
-    $('#served').textContent = Number(s.served).toLocaleString('en-US');
-    $('#funcs').textContent = Number(s.functions).toLocaleString('en-US');
-    $('#runs').textContent = Number(s.runs).toLocaleString('en-US');
-    $('#judged').textContent = `What judges a check: the library at ${s.library.commit} (${s.library.folder}); rnxc ${s.rnxc.build}; the engine: ${s.engine}.`;
-  } catch (e) { $('#stzstate').textContent = 'the server does not answer'; $('#stzdot').className = 'dot bad'; }
+    STATE = await (await fetch('/atelier/state')).json();
+    stzReady = STATE.library.state === 'admitted';
+  } catch (e) { STATE = null; $('#libstate').textContent = t('lib_gone'); }
+  renderStatus();
 }
 (async function poll() { await status(); setTimeout(poll, stzReady ? 5000 : 1000); })();
 
@@ -189,24 +373,10 @@ async function run(code) {
   return { status: r.status, text, ms: performance.now() - t0 };
 }
 
-// ---- the checks
-let CHECKS = [], LAST = {};
+// ---- the checks ----
+let META = null, CHECKS = [], LAST = {}, VERD = null, results = {}, shown = [], DOMAIN = '*', QUERY = '';
 try { LAST = JSON.parse(localStorage.getItem('atelier.last') || '{}'); } catch (e) {}
-const results = {};
-fetch('/atelier/checks').then(r => r.json()).then(d => {
-  CHECKS = d.checks;
-  const doms = {};
-  CHECKS.forEach(c => doms[c.domain] = (doms[c.domain] || 0) + 1);
-  $('#domain').innerHTML = `<option value="*">every domain (${CHECKS.length})</option>` +
-    Object.keys(doms).sort().map(k => `<option value="${esc(k)}">${esc(k)} (${doms[k]})</option>`).join('');
-  $('#chkinfo').textContent = `${CHECKS.length} checks from ${d.files.toLocaleString('en-US')} narrated suites (${d.thens.toLocaleString('en-US')} Then lines; the rest set up variables first, read the clock, a file or a device, or span lines). Harvested from ${d.source}.`;
-});
-
 function kindOf(r) { return r.status !== 200 ? 'err' : r.text.startsWith('PASS') ? 'pass' : 'fail'; }
-
-// Ring's answer to each check (verdicts.py, on the oracle): whose a failure is
-let VERD = null;
-fetch('/atelier/verdicts').then(r => r.json()).then(d => { VERD = d; if (shown.length) renderChecks(shown); }).catch(() => {});
 function ringOf(c) {
   const v = VERD && VERD.verdicts && VERD.verdicts[c.id];
   if (!v) return null;
@@ -224,117 +394,140 @@ function differs(c, r) {
 function ringNote(c, r) {
   const g = ringOf(c);
   if (!g) return '';
-  if (g.kind === 'none') return `on Ring: not measured (the oracle's engine lacks ${esc(g.lacks)})`;
+  if (g.kind === 'none') return t('ring_none', { what: esc(g.lacks) });
   const d = differs(c, r);
-  const what = g.kind === 'pass' ? 'pass' : g.kind === 'fail' ? (d ? 'fails, with another answer' : 'the same failure') : (d ? 'error: ' + esc(g.said.split('\n')[0]) : 'the same error');
-  return `${d ? '<b>different from Ring</b> &middot; ' : ''}on Ring: ${what}`;
+  const what = g.kind === 'pass' ? t('ring_pass') : g.kind === 'fail' ? (d ? t('ring_other_fail') : t('ring_same_fail')) : (d ? t('ring_other_err', { what: esc(g.said.split('\n')[0]) }) : t('ring_same_err'));
+  return (d ? '<b>' + t('ring_differs') + '</b>, ' : '') + what;
 }
-
+function selection() {
+  const q = QUERY.trim().toLowerCase();
+  return CHECKS.filter(c => (DOMAIN === '*' || c.domain === DOMAIN) &&
+    (!q || (c.desc + ' ' + c.file + ' ' + c.scenario + ' ' + c.id).toLowerCase().includes(q)));
+}
+function renderDomains() {
+  if (!CHECKS.length) return;
+  const doms = {};
+  CHECKS.forEach(c => doms[c.domain] = (doms[c.domain] || 0) + 1);
+  const li = (key, label, n) => `<li><button type="button" data-dom="${esc(key)}" ${DOMAIN === key ? 'aria-current="true"' : ''}><span>${esc(label)}</span><span class="n">${fmtN(n)}</span></button></li>`;
+  $('#domains').innerHTML = li('*', t('all_domains'), CHECKS.length) + Object.keys(doms).sort().map(k => li(k, k, doms[k])).join('');
+  document.querySelectorAll('#domains button').forEach(b => b.onclick = () => { DOMAIN = b.dataset.dom; shown = selection(); renderDomains(); renderChecks(shown); renderTotals(); });
+  $('#chkinfo').textContent = META ? t('checks_intro', { n: fmtN(CHECKS.length), files: fmtN(META.files), source: META.source, commit: META.commit }) : '';
+}
+const st = k => `<span class="st st-${k}">${t('state_' + k)}</span>`;
 function renderChecks(list) {
+  if (!CHECKS.length) return;
   const show = $('#show').value;
+  const rows = list.filter(c => {
+    const r = results[c.id];
+    if (show === 'bad') return r && r.kind !== 'pass';
+    if (show === 'differs') return r && differs(c, r);
+    if (show === 'changed') return r && LAST[c.id] && LAST[c.id] !== r.kind;
+    return true;
+  });
+  if (!list.length) { $('#chklist').innerHTML = `<p>${t('filter_empty')}</p>`; return; }
   const byDom = {};
-  list.forEach(c => (byDom[c.domain] = byDom[c.domain] || []).push(c));
+  rows.forEach(c => (byDom[c.domain] = byDom[c.domain] || []).push(c));
   let html = '';
   for (const dom of Object.keys(byDom).sort()) {
-    const cs = byDom[dom].filter(c => results[c.id]);
-    if (!cs.length) continue;
-    const n = { pass: 0, fail: 0, err: 0 };
-    cs.forEach(c => n[results[c.id].kind]++);
-    const rows = cs.filter(c => {
+    const cs = byDom[dom];
+    const n = { pass: 0, fail: 0, err: 0, run: 0 };
+    cs.forEach(c => { const r = results[c.id]; if (r) { n[r.kind]++; n.run++; } });
+    const tally = n.run ? `${fmtN(n.pass)} ${t('sum_pass')}${n.fail ? ', ' + fmtN(n.fail) + ' ' + t('sum_fail') : ''}${n.err ? ', ' + fmtN(n.err) + ' ' + t('sum_err') : ''}` : fmtN(cs.length);
+    const items = cs.map(c => {
       const r = results[c.id];
-      if (show === 'bad') return r.kind !== 'pass';
-      if (show === 'differs') return differs(c, r);
-      if (show === 'changed') return LAST[c.id] && LAST[c.id] !== r.kind;
-      return true;
-    }).map(c => {
-      const r = results[c.id];
-      const changed = LAST[c.id] && LAST[c.id] !== r.kind;
-      const note = r.kind !== 'pass' || differs(c, r) ? ringNote(c, r) : '';
-      let more = '';
-      if (r.kind === 'fail') {
-        const [, exp, got] = r.text.split('\n');
-        more = `<pre>expected: ${esc(exp ?? '')}\ngot:      ${esc(got ?? '')}</pre>`;
-      } else if (r.kind === 'err') more = `<pre>${esc(r.text)}</pre>`;
-      return `<div class="chk${changed ? ' changed' : ''}"><div>${badge(r.kind)}</div>
-        <div>${esc(c.desc)}<div class="meta">${esc(c.file)}:${c.line}${c.scenario ? ' &middot; ' + esc(c.scenario) : ''}${changed ? ' &middot; was ' + LABEL[LAST[c.id]] : ''}</div>${note ? `<div class="meta">${note}</div>` : ''}${more}
-        <details><summary class="small muted">the code</summary><pre>${esc(c.code)}</pre></details></div>
-        <div class="t small muted">${r.ms.toFixed(1)} ms</div></div>`;
+      let verdict = '', more = '', ring = '';
+      if (r) {
+        const changed = LAST[c.id] && LAST[c.id] !== r.kind;
+        verdict = `<div class="verdict">${st(r.kind)}<span>${t('ms', { ms: fmt1(r.ms) })}</span>${changed ? `<span class="changed">${t('was', { state: t('state_' + LAST[c.id]) })}</span>` : ''}</div>`;
+        if (r.kind === 'fail') { const [, exp, got] = r.text.split('\n'); more = `<pre>${t('expected')}: ${esc(exp ?? '')}\n${t('got')}: ${esc(got ?? '')}</pre>`; }
+        else if (r.kind === 'err') more = `<pre>${esc(r.text)}</pre>`;
+        const note = (r.kind !== 'pass' || differs(c, r)) ? ringNote(c, r) : '';
+        if (note) ring = `<p class="ring">${note}</p>`;
+      }
+      return `<article class="chk" id="c-${esc(c.id).replace(/[^A-Za-z0-9_-]/g, '_')}">
+        <p class="desc">${esc(c.desc)}</p>
+        <p class="meta"><span>${t('provenance', { file: esc(c.file), line: c.line })}</span>${c.scenario ? `<span>${t('scenario', { s: esc(c.scenario) })}</span>` : ''}<span>${t('at_commit', { commit: esc(META.commit) })}</span><span class="mono">${t('id_label', { id: esc(c.id) })}</span></p>
+        ${verdict}${more}${ring}
+        <details><summary>${t('show_code')}</summary><pre>${esc(c.code)}</pre></details></article>`;
     }).join('');
-    const bad = n.fail + n.err;
-    html += `<details class="dom" ${bad ? 'open' : ''}><summary><b>${esc(dom)}</b><span class="small">${n.pass} pass${n.fail ? ', ' + n.fail + ' fail' : ''}${n.err ? ', ' + n.err + ' error' : ''}</span></summary>${rows || '<p class="small muted">nothing to show under this filter</p>'}</details>`;
+    html += `<details class="dom" ${n.fail + n.err > 0 || DOMAIN !== '*' || QUERY ? 'open' : ''}><summary><span>${esc(dom)}</span><span class="n">${tally}</span></summary>${items}</details>`;
   }
-  $('#chklist').innerHTML = html || '<p class="muted">Nothing run yet.</p>';
+  $('#chklist').innerHTML = html || `<p>${t('filter_empty')}</p>`;
 }
-
-function totals(list, ms) {
+function renderTotals() {
   const n = { pass: 0, fail: 0, err: 0 }, times = [];
-  list.forEach(c => { const r = results[c.id]; if (r) { n[r.kind]++; times.push(r.ms); } });
-  times.sort((a, b) => a - b);
-  const med = times.length ? times[Math.floor(times.length / 2)] : 0;
-  // whose the failures are: the suite's own (Ring answers the same), Ring++'s (Ring answers otherwise), unmeasured
   let own = 0, diff = 0, none = 0;
-  list.forEach(c => { const r = results[c.id]; if (!r || r.kind === 'pass') return;
-    const g = ringOf(c); if (!g || g.kind === 'none') none++; else if (differs(c, r)) diff++; else own++; });
-  list.forEach(c => { const r = results[c.id]; if (r && r.kind === 'pass' && differs(c, r)) diff++; });
-  $('#totals').innerHTML = [
-    [n.pass, badge('pass')], [n.fail, badge('fail')], [n.err, badge('err')],
-    ...(VERD && VERD.verdicts ? [[own, '<span class="small">not passing, as on Ring: the suite\'s own</span>'], [diff, '<span class="small">different from Ring</span>'], [none, '<span class="small">no answer from Ring to compare</span>']] : []),
-    [med.toFixed(1) + ' ms', '<span class="small">a check, median (admit, call, release, over HTTP)</span>'],
-    [(ms / 1000).toFixed(1) + ' s', '<span class="small">for the run</span>']
-  ].map(([v, l]) => `<div class="total"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('');
+  shown.forEach(c => { const r = results[c.id]; if (!r) return; n[r.kind]++; times.push(r.ms);
+    if (r.kind !== 'pass') { const g = ringOf(c); if (!g || g.kind === 'none') none++; else if (differs(c, r)) diff++; else own++; }
+    else if (differs(c, r)) diff++; });
+  if (!times.length) { $('#totals').innerHTML = ''; return; }
+  const tiles = [[fmtN(n.pass), t('sum_pass')], [fmtN(n.fail), t('sum_fail')], [fmtN(n.err), t('sum_err')]];
+  if (VERD && VERD.verdicts) tiles.push([fmtN(own), t('sum_own')], [fmtN(diff), t('sum_diff')], [fmtN(none), t('sum_none')]);
+  $('#totals').innerHTML = tiles.map(([v, l]) => `<div><div class="v">${v}</div><div class="k">${l}</div></div>`).join('');
 }
-
 let running = false;
 async function runChecks(list) {
-  if (running) return;
-  if (!stzReady) { $('#chkinfo').textContent = 'The library is still compiling; the checks run once it is admitted.'; return; }
-  running = true; $('#runchecks').disabled = true; $('#runfailed').disabled = true;
-  const t0 = performance.now();
+  if (running || !list.length) return;
+  if (!stzReady) { $('#runinfo').textContent = t('play_waiting'); return; }
+  running = true; $('#runall').disabled = $('#rundomain').disabled = $('#runfailed').disabled = true;
+  const t0 = performance.now(), ms = [];
   for (let i = 0; i < list.length; i++) {
     const c = list[i];
     const r = await run(c.code);
-    results[c.id] = { kind: kindOf(r), text: r.text, ms: r.ms };
+    results[c.id] = { kind: kindOf(r), text: r.text, ms: r.ms }; ms.push(r.ms);
     $('#prog').style.width = (100 * (i + 1) / list.length) + '%';
-    if (i % 25 === 24 || i === list.length - 1) { totals(list, performance.now() - t0); renderChecks(list); }
+    if (i % 25 === 24 || i === list.length - 1) { $('#runinfo').textContent = t('running', { i: fmtN(i + 1), n: fmtN(list.length) }); renderTotals(); renderChecks(shown); }
   }
-  renderChecks(list);
-  const now = {};
-  CHECKS.forEach(c => { if (results[c.id]) now[c.id] = results[c.id].kind; });
+  ms.sort((a, b) => a - b);
+  $('#runinfo').textContent = t('run_done', { n: fmtN(list.length), s: fmt1((performance.now() - t0) / 1000), ms: fmt1(ms[Math.floor(ms.length / 2)]) });
+  renderChecks(shown); renderTotals(); renderDomains();
+  const now = {}; CHECKS.forEach(c => { if (results[c.id]) now[c.id] = results[c.id].kind; });
   try { localStorage.setItem('atelier.last', JSON.stringify(Object.assign({}, LAST, now))); } catch (e) {}
-  running = false; $('#runchecks').disabled = false;
-  $('#runfailed').disabled = !list.some(c => results[c.id] && results[c.id].kind !== 'pass');
+  running = false; $('#runall').disabled = $('#rundomain').disabled = false;
+  $('#runfailed').disabled = !shown.some(c => results[c.id] && results[c.id].kind !== 'pass');
 }
-let shown = [];
-$('#runchecks').onclick = () => { const d = $('#domain').value; shown = CHECKS.filter(c => d === '*' || c.domain === d); runChecks(shown); };
+$('#runall').onclick = () => { DOMAIN = '*'; QUERY = ''; $('#search').value = ''; shown = selection(); renderDomains(); runChecks(shown); };
+$('#rundomain').onclick = () => { shown = selection(); runChecks(shown); };
 $('#runfailed').onclick = () => runChecks(shown.filter(c => results[c.id] && results[c.id].kind !== 'pass'));
 $('#show').onchange = () => renderChecks(shown);
+$('#search').oninput = () => { QUERY = $('#search').value; shown = selection(); renderChecks(shown); renderTotals(); };
+document.addEventListener('keydown', e => { if (e.ctrlKey && e.key.toLowerCase() === 'k' && VIEW === 'checks') { e.preventDefault(); $('#search').focus(); } });
 
-// ---- coverage: the last sweep of whole files
-fetch('/atelier/tours').then(r => r.json()).then(T => {
-  if (!T || !T.totals) return;
-  const pct = (a, b) => b ? (100 * a / b).toFixed(1) + '%' : '-';
-  const t = T.totals;
-  $('#coverhead').className = '';
-  $('#coverhead').innerHTML = `<b>${t.judged.toLocaleString('en-US')} of ${t.claims.toLocaleString('en-US')} Then lines judged (${pct(t.judged, t.claims)})</b> across ${t.files.toLocaleString('en-US')} narrated files: ${t.kept.toLocaleString('en-US')} kept, ${t.diverged} diverged, ${t.unreached.toLocaleString('en-US')} unreached, ${t.unjudged.toLocaleString('en-US')} unjudged${t.extra ? '; ' + t.extra.toLocaleString('en-US') + ' verdicts from Then calls the reader had no line for' : ''}. Files: ${t.finished} finished, ${t.broke} broke, ${t.not_started} never started, ${t.hung} hung, ${t.kept_code} kept their code. Taken ${esc(T.taken)}, judged by the library ${esc(T.library)}, rnxc ${esc(T.rnxc)}, the engine ${esc(T.engine)}; ${(t.ms / 1000).toFixed(0)} s of tours.`;
-  const row = (name, d, cls) => `<tr class="${cls}"><td>${esc(name)}</td><td>${d.files}</td><td>${d.finished}</td><td>${d.broke}</td><td>${d.not_started}</td><td>${d.hung}</td><td>${d.claims}</td><td>${d.judged}</td><td>${pct(d.judged, d.claims)}</td><td>${d.kept}</td><td>${d.diverged}</td><td>${d.unreached}</td><td>${d.unjudged}</td><td>${(d.ms / 1000).toFixed(1)}</td></tr>`;
-  let h = `<div class="tablewrap"><table><thead><tr><th>domain</th><th>files</th><th>finished</th><th>broke</th><th>never started</th><th>hung</th><th>Then lines</th><th>judged</th><th>judged %</th><th>kept</th><th>diverged</th><th>unreached</th><th>unjudged</th><th>s</th></tr></thead><tbody>`;
-  Object.keys(T.domains).sort().forEach(k => h += row(k, T.domains[k], ''));
-  h += row('every domain', t, 'total') + '</tbody></table></div>';
-  $('#covertable').innerHTML = h; $('#covertable').style.display = '';
-}).catch(() => {});
+// ---- coverage: the five states apart, per domain and per file ----
+let TOURS = null;
+const pct = (a, b) => b ? fmt1(100 * a / b) : '';
+function renderCoverage() {
+  if (!TOURS || !TOURS.totals) return;
+  const T = TOURS, x = T.totals;
+  $('#coverhead').textContent = t('coverage_head', { judged: fmtN(x.judged), claims: fmtN(x.claims), pct: pct(x.judged, x.claims), files: fmtN(x.files), kept: fmtN(x.kept), diverged: fmtN(x.diverged), unreached: fmtN(x.unreached), unjudged: fmtN(x.unjudged) });
+  $('#coverfiles').textContent = t('coverage_files', { finished: fmtN(x.finished), broke: fmtN(x.broke), notstarted: fmtN(x.not_started), hung: fmtN(x.hung), keptcode: fmtN(x.kept_code), taken: T.taken, library: T.library, rnxc: T.rnxc, engine: T.engine, s: fmtN(Math.round(x.ms / 1000)) });
+  const row = (name, d, cls) => `<tr class="${cls}"><td class="name">${esc(name)}</td><td class="ctx">${fmtN(d.files)}</td><td>${fmtN(d.claims)}</td><td>${fmtN(d.judged)}</td><td>${pct(d.judged, d.claims)}</td><td class="ctx">${fmtN(d.kept)}</td><td class="ctx">${fmtN(d.diverged)}</td><td class="ctx">${fmtN(d.unreached)}</td><td class="ctx">${fmtN(d.unjudged)}</td></tr>`;
+  const head = `<thead><tr><th scope="col">${t('col_domain')}</th><th scope="col" class="ctx">${t('col_files')}</th><th scope="col">${t('col_then')}</th><th scope="col">${t('col_judged')}</th><th scope="col">${t('col_pct')}</th><th scope="col" class="ctx">${t('col_kept')}</th><th scope="col" class="ctx">${t('col_diverged')}</th><th scope="col" class="ctx">${t('col_unreached')}</th><th scope="col" class="ctx">${t('col_unjudged')}</th></tr></thead>`;
+  let h = `<table>${head}<tbody>` + Object.keys(T.domains).sort().map(k => row(k, T.domains[k], '')).join('') + row(t('every_domain'), x, 'total') + '</tbody></table>';
+  const byDom = {};
+  (T.files || []).forEach(f => (byDom[f.domain] = byDom[f.domain] || []).push(f));
+  h += Object.keys(byDom).sort().map(k => `<details class="files"><summary>${t('show_files', { domain: esc(k) })}</summary><table><thead><tr><th scope="col">${t('col_file')}</th><th scope="col">${t('col_end')}</th><th scope="col">${t('col_state')}</th><th scope="col">${t('col_then')}</th><th scope="col">${t('col_kept')}</th><th scope="col">${t('col_diverged')}</th><th scope="col">${t('col_unreached')}</th><th scope="col">${t('col_unjudged')}</th></tr></thead><tbody>` +
+    byDom[k].map(f => `<tr><td class="name mono">${esc(f.file.split('/').slice(1).join('/'))}</td><td>${t('end_' + f.end)}${f.why ? ': ' + esc(f.why.slice(0, 140)) : ''}</td><td>${st(f.state)}</td><td>${fmtN(f.claims)}</td><td>${fmtN(f.kept)}</td><td>${fmtN(f.diverged)}</td><td>${fmtN(f.unreached)}</td><td>${fmtN(f.unjudged)}</td></tr>`).join('') + '</tbody></table></details>').join('');
+  $('#covertable').innerHTML = h; $('#covertable').hidden = false;
+}
 
-// ---- the playground
+// ---- the playground ----
 async function play() {
-  if (!stzReady) { $('#playout').textContent = 'The library is still compiling; try again in a moment.'; return; }
-  const body = $('#code').value;
-  const code = 'func Run cInput\n\treturn AtelierShow(AtelierBody())\n\nfunc AtelierBody\n' + body + '\n';
+  if (!stzReady) { $('#playout').textContent = t('play_waiting'); return; }
+  const code = 'func Run cInput\n\treturn AtelierShow(AtelierBody())\n\nfunc AtelierBody\n' + $('#code').value + '\n';
   const r = await run(code);
-  $('#playout').className = r.status === 200 ? '' : 'muted';
   $('#playout').textContent = (r.status === 200 ? '' : r.status + '  ') + r.text;
-  $('#playtime').textContent = `${r.ms.toFixed(1)} ms, admitted, called and released`;
+  $('#playtime').textContent = t('play_time', { ms: fmt1(r.ms) });
 }
 $('#runcode').onclick = play;
 $('#code').addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); play(); } });
+
+// ---- load: the dictionary first, then the data ----
+pickLang();
+fetch('/atelier/i18n').then(r => r.json()).then(d => { I18N = d; applyLang(); }).catch(() => applyLang());
+fetch('/atelier/checks').then(r => r.json()).then(d => { META = d; CHECKS = d.checks; shown = selection(); renderDomains(); renderChecks(shown); });
+fetch('/atelier/verdicts').then(r => r.json()).then(d => { VERD = d; renderChecks(shown); renderTotals(); }).catch(() => {});
+fetch('/atelier/tours').then(r => r.json()).then(d => { TOURS = d; renderCoverage(); }).catch(() => {});
 </script>
 </body>
 </html>

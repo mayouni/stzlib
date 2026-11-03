@@ -19,7 +19,9 @@
 # admits any code, and Softanza code can read files and start processes.
 #
 # ROUTES
-#   GET  /atelier            the page (GET / too)
+#   GET  /atelier            the page (GET / too); /atelier/coverage and /atelier/playground
+#                            are the same page opened on its other two sections
+#   GET  /atelier/i18n       i18n.json, the page's strings in every language it speaks
 #   GET  /atelier/checks     checks.json
 #   GET  /atelier/results    results.json, the last recording (or null)
 #   GET  /atelier/verdicts   verdicts.json, Ring's answers (or null)
@@ -115,8 +117,11 @@ func AtelierServe
 		$nAtelierServed++
 		cMethod = rpp_http_method()
 		cPath = rpp_http_path()
-		if cMethod = "GET" and (cPath = "/atelier" or cPath = "/" or cPath = "/atelier/")
+		if cMethod = "GET" and (cPath = "/atelier" or cPath = "/" or cPath = "/atelier/" or cPath = "/atelier/coverage" or cPath = "/atelier/playground")
+			# one page, three addresses: the menu is real links and the back button holds
 			rpp_http_reply(200, "text/html; charset=utf-8", read($cAtelierDir + "/atelier.html"))
+		but cMethod = "GET" and cPath = "/atelier/i18n"
+			rpp_http_reply(200, "application/json; charset=utf-8", AtelierJsonFile("i18n.json"))
 		but cMethod = "GET" and cPath = "/atelier/checks"
 			rpp_http_reply(200, "application/json; charset=utf-8", AtelierJsonFile("checks.json"))
 		but cMethod = "GET" and cPath = "/atelier/results"

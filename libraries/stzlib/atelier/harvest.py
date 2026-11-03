@@ -1,6 +1,6 @@
 """THE ATELIER'S CHECKS, harvested from Softanza's own narrated suites.
 
-    python harvest.py [--tests=<folder>]      default: ../base/test, beside this folder
+    python harvest.py [--tests=<folder>] [--out=<file>]      defaults: ../base/test beside this folder; checks.json here
 
 A narrated suite states each assertion as `Then("description", <actual>, <expected>)` and judges it with
 `=` (base/test/_narrated.ring). Every such line whose two expressions stand on their own -- no variable the
@@ -11,18 +11,27 @@ versions across the suites; Chr0xE9 lives in the string suite) is copied from th
 code, transitively, so the check runs with the helper its author wrote. The expected value is the
 author's, never ours.
 
-Writes checks.json beside this file: {source, commit, taken, files, thens, checks: [{id, domain, file,
+Writes checks.json beside this file: {source, commit, taken, files, thens, checks: [{id, n, domain, file,
 line, scenario, desc, code}]}, `code` being the snippet /atelier/run admits. `source` is the tests folder
 relative to the library (never a folder of this machine); `commit` is the checkout's HEAD when git answers.
 Read-only on the test tree.
+
+A check's `id` is STABLE when its file changes elsewhere: the file's path without its extension, a `#`, and
+eight hex digits of the SHA-1 of the check's own text (its description, its two expressions and the helpers it
+carries), never its line number or its rank. Two identical checks in one file (same text, same helpers) are
+one check; a second with the same text but another description takes a `-2` suffix. `n` is the rank in this
+harvest, for a maintainer's tool that names functions after it (verdicts.py).
 """
-import json, os, re, subprocess, sys, time
+import hashlib, json, os, re, subprocess, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TESTS = os.path.normpath(os.path.join(HERE, '..', 'base', 'test'))
+OUT = os.path.join(HERE, 'checks.json')
 for a in sys.argv[1:]:
     if a.startswith('--tests='):
         TESTS = os.path.abspath(a.split('=', 1)[1])
+    elif a.startswith('--out='):
+        OUT = os.path.abspath(a.split('=', 1)[1])
 
 IDENT = re.compile(r'[A-Za-z_@$][A-Za-z0-9_@$]*')
 ALLOWED = {'true', 'false', 'null', 'nl', 'tab', 'cr', 'and', 'or', 'not', 'new'}
@@ -165,7 +174,7 @@ def commit_of(folder):
 
 
 def main():
-    checks, seen = [], set()
+    checks, seen, ids = [], set(), set()
     files = scanned = kept = 0
     why = {}
     for root, dirs, names in os.walk(TESTS):
@@ -226,10 +235,18 @@ def main():
                 for h in [h for h in helpers if h in need]:
                     code += '\n' + helpers[h][0] + '\n'
                 rel = os.path.relpath(p, TESTS).replace(os.sep, '/')
-                checks.append({'id': len(checks) + 1, 'domain': rel.split('/')[0], 'file': rel, 'line': ln,
+                stem = rel[:-5] if rel.endswith('.ring') else rel
+                digest = hashlib.sha1(''.join([desc, actual, expected] + sorted(helpers[h][0] for h in need)).encode('utf-8')).hexdigest()[:8]
+                cid = stem + '#' + digest
+                k2 = 2
+                while cid in ids:
+                    cid = stem + '#' + digest + '-' + str(k2)
+                    k2 += 1
+                ids.add(cid)
+                checks.append({'id': cid, 'n': len(checks) + 1, 'domain': rel.split('/')[0], 'file': rel, 'line': ln,
                                'scenario': scenario, 'desc': desc, 'code': code})
                 kept += 1
-    out = os.path.join(HERE, 'checks.json')
+    out = OUT
     library = os.path.normpath(os.path.join(TESTS, '..', '..'))
     source = os.path.relpath(TESTS, library).replace(os.sep, '/') if os.path.isdir(library) else os.path.basename(TESTS)
     json.dump({'source': source, 'commit': commit_of(TESTS), 'taken': time.strftime('%Y-%m-%d %H:%M'),

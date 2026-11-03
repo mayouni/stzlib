@@ -496,13 +496,16 @@ projections; develop a new section as a standalone probe first.
 resident VM: `rnxc resident atelier.ring` from that folder, then http://127.0.0.1:8650/atelier.
 Plan, law and journal: `atelier/SOFTANZA_ATELIER_PLAN.md`. Never call it a lab.
 
-**FAST PATH: the two guards, one process each, from `base/test/atelier`:**
+**FAST PATH: the three guards, one process each, from `base/test/atelier`:**
 ```bash
-cd libraries/stzlib/base/test/atelier && rnxc atelier_narrated.ring && rnxc atelier_tours_narrated.ring
+cd libraries/stzlib/base/test/atelier && rnxc atelier_narrated.ring && rnxc atelier_tours_narrated.ring && rnxc atelier_page_narrated.ring
 ```
 The checks guard is 36 assertions in about 50 s warm; the tours guard 42 in about 3 minutes
 warm, of which the court's four child rnxc tours pay their compile again after any library
-change (35 s each). Each boots its own Atelier (ports 8660 and 8661) and stops it. The two
+change (35 s each); the page guard 24 in about 80 s (the id law, the dictionary, the three
+addresses). Each boots its own Atelier (ports 8660, 8661, 8662) and stops it. The page is
+audited with StzZui's own tool through a same-origin front (the recipe is in the plan's A2
+journal): 0 violations is the bar, light and dark. The two
 maintainer sweeps -- `rnxc record.ring` (every check, writes results.json) and `rnxc
 tours.ring` (every narrated file whole, writes tours.json) -- are ONE heavy job each, never
 beside another.
