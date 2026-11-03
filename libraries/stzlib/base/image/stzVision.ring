@@ -28,6 +28,16 @@ $cStzVisionObjectModel = "yolox_tiny.gguf"
 $cStzVisionSaliencyModel = "u2netp.gguf"     # IM6: the salient object (SalientMask, BackgroundRemoved)
 $cStzVisionDepthModel = "depth_anything_v2_small.gguf"   # IM6: relative depth (DepthMap)
 $cStzVisionSamEncoder = "mobile_sam_encoder.gguf"   # IM6: the object at a point (MaskAt, MaskInBox, CutOutAt)
+# IM7: a picture in words (Describe, Ask) -- SmolVLM-256M-Instruct, its decoder in the engine's model slot and its
+# SigLIP tower in a slot of its own; the decoder loads only with this digest (models/MODELS.md)
+$cStzVisionVlmDecoder = "smolvlm_256m.gguf"
+$cStzVisionVlmProjector = "smolvlm_256m_mmproj.gguf"
+$cStzVisionVlmDecoderSha256 = "2a31195d3769c0b0fd0a4906201666108834848db768af11de1d2cef7cd35e65"
+$nStzVisionVlmWidth = 576
+$cStzVisionVlmSlot = ""
+# the floor of :describe: a FIXED sentence naming the category that is the main object of the most COCO val2017
+# pictures outside the golden set (_rig/coco_describe.py prints it), so it is not tuned on what judges it
+$cStzVisionDescribeFloor = "A picture of a person."
 $cStzVisionSamDecoder = "mobile_sam_decoder.gguf"
 
 # YuNet's score threshold. OpenCV's default is 0.9; 0.5 was CHOSEN ON A DEV SET kept apart from the
@@ -146,6 +156,12 @@ func StzVisionColor(pColor)
 	                                in the picture, the nearer; model:
 	                                Depth-Anything-V2-Small; judged on
 	                                DIODE's laser scans (diode-v1)
+	:describe     image -> text     (IM7) the picture in words; floor: a
+	                                FIXED sentence, "A picture of a person."
+	                                ($cStzVisionDescribeFloor); model:
+	                                SmolVLM-256M; judged by whether it names
+	                                the main object COCO annotated
+	                                (coco-describe-v1)
 
 	The golden sets come from COCO's own annotations (CC BY 4.0), never
 	from this code: base/test/image/_golden/coco_v1.ring, written by
@@ -206,6 +222,14 @@ func StzVisionDeclare(paGoldens)
 	if len(StzFind("depth-anything-v2-small", _oD_.ImplementationIds())) = 0
 		_oD_.AddImplementation([ :id = "depth-anything-v2-small", :kind = "graph", :fn = "_StzVisionDepthDa2",
 			:needle = "vision/" + $cStzVisionDepthModel, :licence = "apache-2.0", :memory = 400 ])
+	ok
+	# IM7: the picture in words, judged by whether they name the main object COCO annotated
+	_oV_ = StzFacultyQ(:describe)
+	_oV_.SetInputTypeQ(:image).SetOutputTypeQ(:text).SetFloorQ("fixed", "_StzVisionDescribeFixed").
+	     SetGoldenCheckerQ("names-main-object").SetGoldenVersionQ("coco-describe-v1")
+	if len(StzFind("smolvlm-256m", _oV_.ImplementationIds())) = 0
+		_oV_.AddImplementation([ :id = "smolvlm-256m", :kind = "graph", :fn = "_StzVisionDescribeSmolvlm",
+			:needle = "vision/" + $cStzVisionVlmDecoder, :licence = "apache-2.0", :memory = 700 ])
 	ok
 	if len(StzMeasurementOf("faces", "platform", "coco-v1")) = 0 and fexists(StzVisionMeasurementsFile())
 		StzLoadMeasurements(StzVisionMeasurementsFile())
@@ -322,6 +346,9 @@ func _StzVisionDepthPrior(pImage, paParams)
 func _StzVisionLabelPrior(pImage, paParams)
 	return "chair"
 
+func _StzVisionDescribeFixed(pImage, paParams)
+	return $cStzVisionDescribeFloor
+
 # -- the models ---------------------------------------------------------
 
 func _StzVisionFacesYunet(pImage, paParams)
@@ -345,6 +372,48 @@ func _StzVisionObjectAtSam(pInput, paParams)
 	_oM_.Release()
 	_o_.Release()
 	return _a_
+
+func _StzVisionDescribeSmolvlm(pImage, paParams)
+	_o_ = StzImageQ("" + pImage)
+	_c_ = _o_.Describe()
+	_o_.Release()
+	return _c_
+
+# IM7: what SmolVLM says about a picture after a request -- the decoder put in the model slot (only with its
+# recorded digest, and only when the slot holds something else), the picture through the tower, greedy words
+# until the model ends its answer or pnMax tokens are made. Through the door.
+func _StzVisionVlmSay(poImg, pcRequest, pnMax, pcFaculty)
+	_cD_ = _StzVisionModelOrRaise($cStzVisionVlmDecoder, pcFaculty)
+	_cP_ = _StzVisionModelOrRaise($cStzVisionVlmProjector, pcFaculty)
+	if NOT ($cStzVisionVlmSlot = _cD_ and StzEngineNeuralModelLoaded() = 1 and
+	        StzEngineNeuralModelNEmbd() = $nStzVisionVlmWidth)
+		StzExpectModelDigest(_cD_, $cStzVisionVlmDecoderSha256)
+		if StzEngineNeuralModelLoad(_cD_) != 1
+			stzraise("stzImage." + pcFaculty + ": the decoder " + $cStzVisionVlmDecoder + " was refused (status " +
+				StzEngineNeuralModelLoadStatus() + "; -2 is a digest other than the one in models/MODELS.md)")
+		ok
+		$cStzVisionVlmSlot = _cD_
+	ok
+	_c_ = StzEngineNeuralVlmDescribe(_cP_, poImg.Pixels(), poImg.Width(), poImg.Height(), poImg.Channels(),
+		"<|im_start|>User:<fake_token_around_image><global-img>",
+		"<fake_token_around_image>" + pcRequest + "<end_of_utterance>" + char(10) + "Assistant:", pnMax, 4)
+	_a_ = StzEngineNeuralVlmStats()
+	if _c_ = "" and _a_[3] = 0
+		_StzVisionFailed(pcFaculty, $cStzVisionVlmDecoder)
+	ok
+	_c_ = ring_trim(_c_)
+	# an answer cut by the token cap ends at its last whole sentence, when it has one
+	if _a_[3] >= pnMax
+		_n_ = len(_c_)
+		for _i_ = _n_ to 1 step -1
+			if _c_[_i_] = "."
+				_c_ = left(_c_, _i_)
+				exit
+			ok
+		next
+	ok
+	_StzVisionDoor(pcFaculty, $cStzVisionVlmDecoder, "" + _a_[3] + " tokens, the picture " + floor(_a_[1]) + " ms")
+	return _c_
 
 func _StzVisionDepthDa2(pImage, paParams)
 	_o_ = StzImageQ("" + pImage)

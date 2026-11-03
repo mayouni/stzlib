@@ -1118,6 +1118,28 @@ class stzImage from stzObject
 			This.ApplyMask(poMask)
 			return This
 
+	#@ aka  -- 10e. THE PICTURE IN WORDS (IM7: SmolVLM, see stzVision.ring) ------------
+
+	# Returns what the picture shows, in a few sentences of English.
+	#
+	#   note       SmolVLM-256M-Instruct: its SigLIP tower reads the picture at 512 x 512 (squeezed to that
+	#              square, as its own processor does without tiling) and its decoder writes, greedily, so the
+	#              same picture gets the same words. About 2 seconds for the picture and 1 for the words. The
+	#              decoder takes the engine's model slot. Every call is recorded in the security ledger
+	#   example    ? StzImageQ("cat.jpg").Describe()
+	#              #--> The image depicts a close-up view of a cat sitting on a surface, ...
+	def Describe()
+		return This.DescribeXT("Describe this image.", 96)
+
+	# Returns the model's answer to a request about the picture, at most pnMaxTokens long; an answer cut
+	# by that cap ends at its last whole sentence.
+	def DescribeXT(pcRequest, pnMaxTokens)
+		return _StzVisionVlmSay(This, "" + pcRequest, pnMaxTokens, "describe")
+
+	# Returns a short answer to a question about the picture ("How many dogs are there?").
+	def Ask(pcQuestion)
+		return _StzVisionVlmSay(This, "" + pcQuestion + " Answer briefly.", 32, "describe")
+
 	#@ aka  -- 11. DRAWING ON THE PICTURE (IM3) -----------------------------------------
 
 	# Changes the image by drawing a rectangle's outline: [ x, y, w, h ] 1-based, a colour, a thickness.

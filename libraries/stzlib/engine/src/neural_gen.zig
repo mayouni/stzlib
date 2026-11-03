@@ -510,6 +510,7 @@ fn buildDecodeGraph(
     ctx: *c.ggml_context,
     m: ?*c.ggml_context,
     ids: []const i32,
+    embd: ?[]const f32,
     d: Dims,
     fill: bool,
     kouts: *std.ArrayList(*c.ggml_tensor),
@@ -556,7 +557,12 @@ fn buildDecodeGraph(
         }
     }
 
-    var cur = c.ggml_get_rows(ctx, getT(m, "token_embd.weight", .{}, &nb), tokens).?;
+    // the input rows: each token's embedding, or rows the caller gives (a picture's, IM7) in their place
+    var cur = if (embd) |e| blk: {
+        const t = c.ggml_new_tensor_2d(ctx, c.GGML_TYPE_F32, @intCast(n_embd), @intCast(n_new)).?;
+        if (fill) @memcpy(@as([*]f32, @ptrCast(@alignCast(t.*.data)))[0 .. n_embd * n_new], e[0 .. n_embd * n_new]);
+        break :blk t;
+    } else c.ggml_get_rows(ctx, getT(m, "token_embd.weight", .{}, &nb), tokens).?;
     if (d.emb_scale != 1.0) cur = c.ggml_scale(ctx, cur, d.emb_scale).?;
 
     // granite states its attention scale; everything else uses 1/sqrt(head_dim)
@@ -681,6 +687,11 @@ pub export fn neural_gen_last_pool_bytes() callconv(.c) f64 {
 // answer a 40-token prompt, and at 512 tokens the process ended in a
 // GGML_ASSERT. A graph cannot disagree with its own size.
 fn forwardDecode(ids: []const i32) bool {
+    return forwardDecodeX(ids, null);
+}
+
+// forwardDecode with the input rows given (n_embd floats per id) instead of looked up: the embedding entry
+fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
     const m = mctx() orelse return false;
     const n_new = ids.len;
     if (n_new == 0) return false;
@@ -740,7 +751,7 @@ fn forwardDecode(ids: []const i32) bool {
     {
         const meta = c.ggml_init(.{ .mem_size = 64 * 1024 * 1024, .mem_buffer = null, .no_alloc = true }) orelse return false;
         defer c.ggml_free(meta);
-        if (buildDecodeGraph(meta, m, ids, dims_now, false, &kouts, &vouts) == null) return false;
+        if (buildDecodeGraph(meta, m, ids, embd, dims_now, false, &kouts, &vouts) == null) return false;
         pool_bytes = graphPoolBytes(meta);
     }
     kouts.clearRetainingCapacity();
@@ -750,7 +761,7 @@ fn forwardDecode(ids: []const i32) bool {
     // pass 2: the same graph, in a pool of exactly the size pass 1 measured
     const ctx = c.ggml_init(.{ .mem_size = pool_bytes + 64 * 1024, .mem_buffer = null, .no_alloc = false }) orelse return false;
     defer c.ggml_free(ctx);
-    const built = buildDecodeGraph(ctx, m, ids, dims_now, true, &kouts, &vouts) orelse return false;
+    const built = buildDecodeGraph(ctx, m, ids, embd, dims_now, true, &kouts, &vouts) orelse return false;
     const graph = built.graph;
     const logits = built.logits;
 
@@ -1318,6 +1329,85 @@ pub export fn neural_gen_start_x(text: [*c]const u8, len: usize, max_new: c_int,
     }
     g_stream_active = true;
     return 1;
+}
+
+// ---- the embedding entry (IM7: a picture in the prompt) -------------------------------------------------
+//
+// A vision-language model's prompt is text, then a picture's rows, then text: the picture arrives as n_rows
+// embeddings of the decoder's width (vlm.zig makes them), read in place of n_rows <image> tokens at the
+// positions they would hold. Everything after is ordinary generation: neural_gen_next() as for any prompt.
+// A fresh sequence; 1 when the stream is ready, 0 with neural_gen_last_error() set otherwise.
+pub fn startWithRows(before: []const u8, rows: []const f32, n_rows: usize, after: []const u8, max_new: c_int) c_int {
+    g_stream_active = false;
+    g_last_error = GEN_OK;
+    g_truncated = false;
+    g_last_prompt_tokens = 0;
+    resetTermination();
+    if (neural_model_has_generator() == 0 or !buildBpe()) {
+        g_last_error = GEN_NO_GENERATOR;
+        return 0;
+    }
+    const n_embd: usize = @intCast(kvArchInt(".embedding_length", 0));
+    if (n_rows == 0 or rows.len != n_rows * n_embd) {
+        g_last_error = GEN_FORWARD_FAILED;
+        return 0;
+    }
+    resetKv();
+    var a: std.ArrayList(i32) = .{};
+    defer a.clearAndFree(gpa);
+    var b: std.ArrayList(i32) = .{};
+    defer b.clearAndFree(gpa);
+    encode(before, &a);
+    encode(after, &b);
+    // the text after the picture continues the sequence: no second BOS
+    var tail = b.items;
+    if (g_add_bos and tail.len > 0 and tail[0] == g_bos) tail = tail[1..];
+    g_last_prompt_tokens = a.items.len + n_rows + tail.len;
+    if (g_last_prompt_tokens >= contextWindow()) {
+        g_last_error = GEN_PROMPT_TOO_LONG;
+        return 0;
+    }
+    const zeros = gpa.alloc(i32, n_rows) catch return 0;
+    defer gpa.free(zeros);
+    @memset(zeros, 0);
+    if (!prefillIds(a.items) or !forwardDecodeX(zeros, rows) or !prefillIds(tail)) {
+        g_last_error = GEN_FORWARD_FAILED;
+        return 0;
+    }
+    g_stream_max = if (max_new > 0) @intCast(max_new) else 64;
+    g_stream_n = 0;
+    g_stream_temp = 0;
+    g_stream_topp = 1.0;
+    g_stream_topk = 0;
+    g_prng = std.Random.DefaultPrng.init(0);
+    g_stream_active = true;
+    return 1;
+}
+
+// the width of the loaded decoder's rows (0 when none is loaded): what a picture's rows must have
+pub fn embdWidth() usize {
+    return @intCast(@max(0, kvArchInt(".embedding_length", 0)));
+}
+
+// one given token read into the sequence (a guard's teacher forcing: the reference's tokens, one by one)
+pub fn feedToken(id: i32) bool {
+    var one = [1]i32{id};
+    return forwardDecode(one[0..]);
+}
+
+fn prefillIds(ids: []const i32) bool {
+    var off: usize = 0;
+    while (off < ids.len) {
+        const end = @min(off + prefill_chunk, ids.len);
+        if (!forwardDecode(ids[off..end])) return false;
+        off = end;
+    }
+    return true;
+}
+
+// the last position's logits after the latest forward (a guard compares them with the reference's)
+pub fn lastLogits() []const f32 {
+    return g_logits.items;
 }
 
 // ---- reading the model's probabilities for chosen tokens (the DECISION primitive) ------------------------

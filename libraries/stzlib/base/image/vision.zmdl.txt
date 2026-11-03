@@ -13,3 +13,5 @@ object-at|classical|coco-v1|0.133|30|1|02/11/2026 15:00:59|
 object-at|mobilesam|coco-v1|0.633|30|1|02/11/2026 17:48:30|
 depth|lower-is-nearer|diode-v1|0.308|78|1|02/11/2026 17:48:37|
 depth|depth-anything-v2-small|diode-v1|0.615|78|1|02/11/2026 17:50:01|
+describe|fixed|coco-describe-v1|0.444|99|1|03/11/2026 02:59:49|
+describe|smolvlm-256m|coco-describe-v1|0.828|99|1|03/11/2026 02:59:49|scored by the guard with names-main-object, one description per picture

@@ -12,6 +12,7 @@ const gmach = @import("gbnf_machine.zig");
 const R = @import("ring_api.zig");
 const ocrg = @import("ocr_graph.zig"); // O3: PP-OCR graphs on ggml
 const ocrp = @import("ocr_pipeline.zig"); // O3b: an image file in, its text lines out
+const vlm = @import("vlm.zig"); // IM7: the vision half of a vision-language model
 const vis = @import("vision.zig"); // IM3: the image plane's models (classify, faces, objects)
 const ocrw = @import("ocr_winrt.zig"); // O5: the platform engine called in process
 
@@ -1013,6 +1014,202 @@ fn ring_VisionSamFree(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retnumber(p, 1);
 }
 
+// ---- IM7: a picture described in words (vlm.zig + the decoder's embedding entry) --------------------------
+
+var vlm_ms: f64 = 0;
+
+fn vlmRowsBytes(p: *anyopaque, proj: *const vlm.Projector, input: []const f32, th: c_int) void {
+    const rows = std.heap.c_allocator.alloc(f32, proj.tokens() * proj.n_out) catch return R.ring_vm_api_retstring2(p, "", 0);
+    defer std.heap.c_allocator.free(rows);
+    const t0 = std.time.nanoTimestamp();
+    vlm.encode(proj, input, th, rows) catch |e| {
+        ocrg.setError("vlm: {s}", .{@errorName(e)});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    };
+    vlm_ms = @as(f64, @floatFromInt(std.time.nanoTimestamp() - t0)) / 1e6;
+    const b = std.mem.sliceAsBytes(rows);
+    R.ring_vm_api_retstring2(p, b.ptr, @intCast(b.len));
+}
+
+// (cProjector, cPixels, nW, nH, nC, nThreads) -> the picture's rows for the decoder, float32 bytes (tokens x
+// width), "" on failure (StzEngineNeuralOcrGraphError says why)
+fn ring_VlmEmbed(p: *anyopaque) callconv(.c) void {
+    const g = R.ring_vm_api_getnumber;
+    const proj = vlm.load(ocrArg(p, 1)) orelse {
+        ocrg.setError("{s}", .{vlm.lastError()});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    };
+    const w: usize = @intFromFloat(g(p, 3));
+    const h: usize = @intFromFloat(g(p, 4));
+    const ch: usize = @intFromFloat(g(p, 5));
+    const px = ocrArg(p, 2);
+    if (w == 0 or h == 0 or ch == 0 or px.len != w * h * ch) {
+        ocrg.setError("vlm: the pixels are not {d} x {d} x {d}", .{ w, h, ch });
+        return R.ring_vm_api_retstring2(p, "", 0);
+    }
+    const input = std.heap.c_allocator.alloc(f32, 3 * proj.image * proj.image) catch return R.ring_vm_api_retstring2(p, "", 0);
+    defer std.heap.c_allocator.free(input);
+    vlm.pixelsFor(proj, px, w, h, ch, input) catch return R.ring_vm_api_retstring2(p, "", 0);
+    const th: c_int = @intFromFloat(g(p, 6));
+    vlmRowsBytes(p, proj, input, if (th < 1) 4 else th);
+}
+
+// (cProjector, cInputF32, nThreads) -> the rows for a tower input already prepared (3 x S x S float32 bytes,
+// channel-major): parity with a reference's own preprocessing
+fn ring_VlmEmbedInput(p: *anyopaque) callconv(.c) void {
+    const proj = vlm.load(ocrArg(p, 1)) orelse {
+        ocrg.setError("{s}", .{vlm.lastError()});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    };
+    const raw = ocrArg(p, 2);
+    if (raw.len != 3 * proj.image * proj.image * 4) {
+        ocrg.setError("vlm: the input is {d} bytes, not 3 x {d} x {d} floats", .{ raw.len, proj.image, proj.image });
+        return R.ring_vm_api_retstring2(p, "", 0);
+    }
+    const input = std.heap.c_allocator.alloc(f32, 3 * proj.image * proj.image) catch return R.ring_vm_api_retstring2(p, "", 0);
+    defer std.heap.c_allocator.free(input);
+    @memcpy(std.mem.sliceAsBytes(input), raw);
+    const th: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 3));
+    vlmRowsBytes(p, proj, input, if (th < 1) 4 else th);
+}
+
+// (cBefore, cRows, cAfter, nMaxNew) -> 1 when the decoder (the loaded model) has read the text, the picture's
+// rows and the text after it, and generation can go on with StzEngineNeuralGenNext; 0 otherwise
+fn ring_VlmStart(p: *anyopaque) callconv(.c) void {
+    const rows_b = ocrArg(p, 2);
+    const n_embd = gen.embdWidth();
+    if (n_embd == 0 or rows_b.len % (4 * n_embd) != 0) return R.ring_vm_api_retnumber(p, 0);
+    const rows = std.heap.c_allocator.alloc(f32, rows_b.len / 4) catch return R.ring_vm_api_retnumber(p, 0);
+    defer std.heap.c_allocator.free(rows);
+    @memcpy(std.mem.sliceAsBytes(rows), rows_b);
+    const ok = gen.startWithRows(ocrArg(p, 1), rows, rows.len / n_embd, ocrArg(p, 3), @intFromFloat(R.ring_vm_api_getnumber(p, 4)));
+    R.ring_vm_api_retnumber(p, @floatFromInt(ok));
+}
+
+// (nTop) -> [ [ id, logit ], ... ] the decoder's most likely next tokens after the latest forward, best first
+fn ring_VlmTop(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    defer R.ring_vm_api_retlist(p, out);
+    const lg = gen.lastLogits();
+    const n: usize = @min(lg.len, @as(usize, @intFromFloat(@max(0, R.ring_vm_api_getnumber(p, 1)))));
+    var taken: [64]usize = undefined;
+    for (0..@min(n, 64)) |k| {
+        var best: usize = 0;
+        var bv: f32 = -3.4e38;
+        for (lg, 0..) |v, i| {
+            var dup = false;
+            for (taken[0..k]) |t| dup = dup or t == i;
+            if (!dup and v > bv) {
+                bv = v;
+                best = i;
+            }
+        }
+        taken[k] = best;
+        const row = R.ring_list_newlist(out) orelse return;
+        R.ring_list_adddouble(row, @floatFromInt(best));
+        R.ring_list_adddouble(row, bv);
+    }
+}
+
+// (nId) -> 1 when the decoder has read the token after the current sequence (teacher forcing), else 0
+fn ring_VlmFeed(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retnumber(p, if (gen.feedToken(@intFromFloat(R.ring_vm_api_getnumber(p, 1)))) 1 else 0);
+}
+
+// (cProjector, cPixels, nW, nH, nC, cBefore, cAfter, nMaxNew, nThreads) -> what the loaded decoder says about the
+// picture between the two texts, greedy, until its end token or nMaxNew tokens ("" on failure, the error set).
+// StzEngineNeuralVlmStats() then gives [ the picture's ms, the words' ms, the tokens made ]
+var vlm_stats: [3]f64 = .{ 0, 0, 0 };
+
+fn ring_VlmDescribe(p: *anyopaque) callconv(.c) void {
+    const g = R.ring_vm_api_getnumber;
+    const A = std.heap.c_allocator;
+    const proj = vlm.load(ocrArg(p, 1)) orelse {
+        ocrg.setError("{s}", .{vlm.lastError()});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    };
+    const w: usize = @intFromFloat(g(p, 3));
+    const h: usize = @intFromFloat(g(p, 4));
+    const ch: usize = @intFromFloat(g(p, 5));
+    const px = ocrArg(p, 2);
+    const th0: c_int = @intFromFloat(g(p, 9));
+    const th: c_int = if (th0 < 1) 4 else th0;
+    if (w == 0 or h == 0 or ch == 0 or px.len != w * h * ch) {
+        ocrg.setError("vlm: the pixels are not {d} x {d} x {d}", .{ w, h, ch });
+        return R.ring_vm_api_retstring2(p, "", 0);
+    }
+    if (gen.embdWidth() != proj.n_out) {
+        ocrg.setError("vlm: the loaded decoder reads rows of {d}, the projector makes {d}", .{ gen.embdWidth(), proj.n_out });
+        return R.ring_vm_api_retstring2(p, "", 0);
+    }
+    const input = A.alloc(f32, 3 * proj.image * proj.image) catch return R.ring_vm_api_retstring2(p, "", 0);
+    defer A.free(input);
+    const rows = A.alloc(f32, proj.tokens() * proj.n_out) catch return R.ring_vm_api_retstring2(p, "", 0);
+    defer A.free(rows);
+    const t0 = std.time.nanoTimestamp();
+    vlm.pixelsFor(proj, px, w, h, ch, input) catch return R.ring_vm_api_retstring2(p, "", 0);
+    vlm.encode(proj, input, th, rows) catch |e| {
+        ocrg.setError("vlm: {s}", .{@errorName(e)});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    };
+    const t1 = std.time.nanoTimestamp();
+    if (gen.startWithRows(ocrArg(p, 6), rows, proj.tokens(), ocrArg(p, 7), @intFromFloat(g(p, 8))) == 0) {
+        ocrg.setError("vlm: the decoder refused the prompt (error {d})", .{gen.neural_gen_last_error()});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    }
+    var text: std.ArrayList(u8) = .{};
+    defer text.deinit(A);
+    var n: f64 = 0;
+    while (gen.neural_gen_next() == 1) {
+        n += 1;
+        text.appendSlice(A, std.mem.span(gen.neural_gen_chunk())) catch break;
+    }
+    vlm_ms = @as(f64, @floatFromInt(t1 - t0)) / 1e6;
+    vlm_stats = .{ vlm_ms, @as(f64, @floatFromInt(std.time.nanoTimestamp() - t1)) / 1e6, n };
+    vision_ms = vlm_stats[0] + vlm_stats[1];
+    R.ring_vm_api_retstring2(p, text.items.ptr, @intCast(text.items.len));
+}
+
+// () -> [ the picture's ms, the words' ms, tokens made ] of the last StzEngineNeuralVlmDescribe
+fn ring_VlmStats(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (vlm_stats) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
+// (cA, cB) -> [ cosine, largest difference, largest magnitude in cA ] of two float32 buffers of one length
+// ([] otherwise): a guard's parity with a reference's output
+fn ring_F32Compare(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    defer R.ring_vm_api_retlist(p, out);
+    const a = ocrArg(p, 1);
+    const b = ocrArg(p, 2);
+    if (a.len != b.len or a.len == 0 or a.len % 4 != 0) return;
+    var dot: f64 = 0;
+    var na: f64 = 0;
+    var nb: f64 = 0;
+    var dmax: f64 = 0;
+    var amax: f64 = 0;
+    var i: usize = 0;
+    while (i < a.len) : (i += 4) {
+        const x: f64 = std.mem.bytesToValue(f32, a[i..][0..4]);
+        const y: f64 = std.mem.bytesToValue(f32, b[i..][0..4]);
+        dot += x * y;
+        na += x * x;
+        nb += y * y;
+        dmax = @max(dmax, @abs(x - y));
+        amax = @max(amax, @abs(x));
+    }
+    R.ring_list_adddouble(out, if (na > 0 and nb > 0) dot / @sqrt(na * nb) else 0);
+    R.ring_list_adddouble(out, dmax);
+    R.ring_list_adddouble(out, amax);
+}
+
+// () -> the milliseconds the last picture took to become rows
+fn ring_VlmLastMs(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retnumber(p, vlm_ms);
+}
+
 // IM5: (cModel, cText) -> the token ids the text model reads (padded to its fixed length)
 fn ring_VisionTokens(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
@@ -1047,6 +1244,15 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralvisionsammask", .func = &ring_VisionSamMask },
     .{ .name = "stzengineneuralvisionsamlast", .func = &ring_VisionSamLast },
     .{ .name = "stzengineneuralvisionsamfree", .func = &ring_VisionSamFree },
+    .{ .name = "stzengineneuralvlmembed", .func = &ring_VlmEmbed },
+    .{ .name = "stzengineneuralvlmembedinput", .func = &ring_VlmEmbedInput },
+    .{ .name = "stzengineneuralvlmstart", .func = &ring_VlmStart },
+    .{ .name = "stzengineneuralvlmtop", .func = &ring_VlmTop },
+    .{ .name = "stzengineneuralvlmlastms", .func = &ring_VlmLastMs },
+    .{ .name = "stzengineneuralvlmfeed", .func = &ring_VlmFeed },
+    .{ .name = "stzengineneuralvlmdescribe", .func = &ring_VlmDescribe },
+    .{ .name = "stzengineneuralvlmstats", .func = &ring_VlmStats },
+    .{ .name = "stzengineneuralf32compare", .func = &ring_F32Compare },
     .{ .name = "stzengineneuralocrread", .func = &ring_OcrRead },
     .{ .name = "stzengineneuralocrreadwith", .func = &ring_OcrReadWith },
     .{ .name = "stzengineneuralocrstats", .func = &ring_OcrStats },

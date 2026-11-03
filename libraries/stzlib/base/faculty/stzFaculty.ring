@@ -345,12 +345,50 @@ func StzGoldenAgrees(pcChecker, pGot, pExpected)
 		return StzMaskAgree(pGot, pExpected)
 	but pcChecker = "depth-absrel"
 		return StzDepthAgree(pGot, pExpected)
+	but pcChecker = "names-main-object"
+		return StzDescribeAgree(pGot, pExpected)
 	but pcChecker = "first"
 		# a ranking whose best item is the expected one
 		if NOT isList(pGot) or len(pGot) = 0 return 0 ok
 		return lower(trim("" + pGot[1][1])) = lower(trim("" + pExpected))
 	ok
 	return 0
+
+# IM7 -- names-main-object: pGot is a description (text); pExpected the words that name the picture's main
+# object (its COCO category and the category's other words, _rig/coco_describe.py). It agrees when one of the
+# words is in the text as a whole word, alone or with a plural "s" or "es", ignoring case.
+func StzDescribeAgree(pGot, pExpected)
+	if NOT isString(pGot) or NOT isList(pExpected) return 0 ok
+	return len(StzDescribeNamed(pGot, pExpected)) > 0
+
+# the words of paWords a text names (whole words, a plural "s" or "es" allowed, ignoring case)
+func StzDescribeNamed(pcText, paWords)
+	_c_ = " " + _StzDescribeLetters(pcText) + " "
+	_aOut_ = []
+	_n_ = len(paWords)
+	for _i_ = 1 to _n_
+		_w_ = _StzDescribeLetters(paWords[_i_])
+		if len(StzFind(" " + _w_ + " ", _c_)) > 0 or len(StzFind(" " + _w_ + "s ", _c_)) > 0 or
+		   len(StzFind(" " + _w_ + "es ", _c_)) > 0
+			_aOut_ + paWords[_i_]
+		ok
+	next
+	return _aOut_
+
+# lower case, every byte that is not an ASCII letter a space
+func _StzDescribeLetters(pcText)
+	_c_ = StzLower("" + pcText)
+	_o_ = ""
+	_n_ = len(_c_)
+	for _i_ = 1 to _n_
+		_b_ = ascii(_c_[_i_])
+		if _b_ >= 97 and _b_ <= 122
+			_o_ += _c_[_i_]
+		else
+			_o_ += " "
+		ok
+	next
+	return _o_
 
 # IM6 -- depth-absrel: pExpected is the base path of a measured depth -- <base>_depth.npy (float32 metres, rows x
 # columns) and <base>_mask.png (the scanner's valid pixels at 255), as _rig/diode_depth.py writes DIODE's; pGot
