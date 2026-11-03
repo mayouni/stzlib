@@ -260,7 +260,9 @@ not built and nothing here has been tried against Haro. The better reader for it
 Ring++, is the parsed program (`rnxc dump --json`) in place of source-line matching; that is
 untested and is the first thing to try when Haro can be parsed.
 
-### TR5 to TR8 -- after the compass re-rates the plane on TR4 -- PLANNED
+### TR5 to TR8 -- now phase P5 of SOFTANZA_TESTOOR_ROADMAP.md -- PLANNED
+
+**The roadmap of 2026-11-03 supersedes this ladder from here on** (graph-first, refinement-aware, Zig at the core; phase P1 is done, its numbers are in the roadmap). The four rungs below are kept as written and are re-based on the code graph there.
 
 Excursions from the function forms as metamorphic relations; the perception
 registry generalised from `StzSoundSingingVerdict()`; mutation through the engine's

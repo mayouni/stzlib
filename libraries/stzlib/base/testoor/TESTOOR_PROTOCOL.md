@@ -1,6 +1,6 @@
 # Testoor protocol, version 1
 
-*What a tour, a face and the logbook owe each other, written so that no sentence depends on
+*Version 1.1 (2026-11-03: the optional `--testoor-subject`, section 2). What a tour, a face and the logbook owe each other, written so that no sentence depends on
 the language a tour is written in. Ring is the first face. Haro and anything else is the next.
 The Ring code reads this document's contracts and nothing else about a language: the guard
 `base/test/testoor/testoor_protocol_narrated.ring` proves it by running Python tours through
@@ -25,6 +25,11 @@ A tour is a program a face can launch. It is started **by argv, with its own fol
 working directory**, and its argv ends with `--testoor-seed N`. It prints to stdout. Its exit
 code belongs to its virtual machine and is never the runner's verdict (the runner decides 0,
 1 or 2, section 6). A tour reads the seed from that argument, or ignores it.
+
+When the runner is given a **subject** (the program under test, possibly a refined copy of it
+written to a rehearsal path), the child's argv also carries `--testoor-subject PATH`, after the
+seed. A tour that wants to be walked against more than one version of its program reads the path
+back instead of hard-coding the file it loads; a tour that does not simply ignores the argument.
 
 ## 3. What a tour prints
 
@@ -96,7 +101,7 @@ counted against.
 One run, one JSON object, with these keys (`TestoorLogbookKeys()` returns them and the
 conformance guard checks them):
 
-- **run:** `testoor`, `kind`, `by`, `root`, `topic`, `refusal`, `exit`, `owned`, `run`,
+- **run:** `testoor`, `kind`, `by`, `root`, `topic`, `subject`, `refusal`, `exit`, `owned`, `run`,
   `wall_ms`, `timeout_ms`, `seed`, `repeat`, `flaky`, `claims`, `tours_by_end`, `skipped`,
   `topics_skipped`, `tours`.
 - **tour:** `file`, `dialect`, `state`, `end`, `exit`, `wall_ms`, `seed`, `flaky`, `weather`,
@@ -136,4 +141,4 @@ passes at 43, a tour with a plan it does not finish and a tour that declares a r
 written in Python and printing only section 3 lines, and compares the logbook with the key list
 of section 7.
 
-Version 1, 2026-11-03.
+Version 1.1, 2026-11-03.

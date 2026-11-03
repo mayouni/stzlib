@@ -489,7 +489,7 @@ func _TravAdoptProtocol(paRec, paLines)
 # the keys a logbook MUST carry, per level (TESTOOR_PROTOCOL.md section 7), for
 # any program to check a logbook against
 func TestoorLogbookKeys()
-	return [ :run = [ "testoor", "kind", "by", "root", "topic", "refusal", "exit", "owned", "run",
+	return [ :run = [ "testoor", "kind", "by", "root", "topic", "subject", "refusal", "exit", "owned", "run",
 	                  "wall_ms", "timeout_ms", "seed", "repeat", "flaky", "claims", "tours_by_end",
 	                  "skipped", "topics_skipped", "tours" ],
 	         :tour = [ "file", "dialect", "state", "end", "exit", "wall_ms", "seed", "flaky", "weather",
@@ -922,6 +922,7 @@ class stzTraveller from stzObject
 	@bWalked = 0
 	@nSeed = -1               # the seed every child is walked with; chosen once per run, REPORTED
 	@nRepeat = 1              # walks per tour; >1 turns on the flaky check
+	@cSubject = ""            # the file under test, handed to every child as --testoor-subject
 
 	def init()
 		@aRecords = []
@@ -954,6 +955,13 @@ class stzTraveller from stzObject
 	def Repeat(pnTimes)
 		@nRepeat = 0 + pnTimes
 		if @nRepeat < 1  @nRepeat = 1  ok
+		return This
+
+	# What the tours test, handed to each child as --testoor-subject PATH, so a
+	# tour can be walked against a REFINED COPY of the program (TESTOOR_PROTOCOL.md
+	# section 2). The tour reads it back with TestoorSubject().
+	def Subject(pcPath)
+		@cSubject = "" + pcPath
 		return This
 
 	def Silent()
@@ -1064,7 +1072,12 @@ class stzTraveller from stzObject
 		# one the RNXC variable names, else the rnxc running this runner, else
 		# `rnxc` on the path -- TestoorProgram()
 		_oP_ = new stzProcess()
-		_oP_.SpawnIn(_cFolder_, _TravLaunchArgv(_aFace_, _aFD_[2], pnSeed))
+		_aArgv_ = _TravLaunchArgv(_aFace_, _aFD_[2], pnSeed)
+		if @cSubject != ""
+			_aArgv_ + "--testoor-subject"
+			_aArgv_ + @cSubject
+		ok
+		_oP_.SpawnIn(_cFolder_, _aArgv_)
 		@nRun++
 		_nT0_ = clock()
 		_cBuf_ = ""
@@ -1286,7 +1299,7 @@ class stzTraveller from stzObject
 	def Json()
 		_aC_ = This.Counts()
 		_c_ = '{"testoor":"logbook","kind":"run","by":' + _TourJsonStr(@cBy) +
-		      ',"root":' + _TourJsonStr(@cRoot) + ',"topic":' + _TourJsonStr(@cTopic) +
+		      ',"root":' + _TourJsonStr(@cRoot) + ',"topic":' + _TourJsonStr(@cTopic) + ',"subject":' + _TourJsonStr(@cSubject) +
 		      ',"refusal":' + _TourJsonStr(@cRefusal) +
 		      ',"exit":' + This.ExitCode() + ',"owned":' + @nOwned + ',"run":' + @nRun +
 		      ',"wall_ms":' + @nWallMs + ',"timeout_ms":' + @nTimeoutMs +

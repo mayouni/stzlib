@@ -6,6 +6,12 @@
 #   rnxc testoor.ring --topic uuid --json          the logbook as JSON, for a pipe
 #   rnxc testoor.ring --file ../test/uuid/00_uuid_narrated.ring
 #   rnxc testoor.ring --all                        every topic (hours; the gate)
+#   rnxc testoor.ring --impacted-by SUBJECT.ring#Method --topic T [--run] [--json]
+#                                                  GRAPH-FIRST SELECTION: the tours of T that name anything a change to
+#                                                  Method reaches (the closure of its callers in the subject's code
+#                                                  graph); with --run, walk only those. A subject the graph cannot see
+#                                                  all of (eval, call by a name built at run time) selects every tour.
+#   rnxc testoor.ring --topic T --subject PATH     hand every tour PATH as --testoor-subject (a refined copy of the program)
 #   rnxc testoor.ring --topic uuid --seed 42       walk every tour with seed 42 (a tour saying Seed(:run) adopts it);
 #                                                  a failing tour prints its seed, and the same seed walks the same path
 #   rnxc testoor.ring --topic uuid --repeat 2      walk each tour twice with ONE seed; verdicts that differ are FLAKY, exit 1
@@ -39,6 +45,9 @@ bTrJson = 0
 nTrTimeout = 120000
 cTrBy = "shell"
 bTrUsage = 0
+cTrImpact = ""
+cTrSubject = ""
+bTrRun = 0
 nTrSeed = -1
 nTrRepeat = 1
 cTrPlan = ""
@@ -75,6 +84,14 @@ while nTrI <= nTrArgs
 	but cTrA = "--repeat" and nTrI < nTrArgs
 		nTrRepeat = 0 + sysargv[nTrI + 1]
 		nTrI++
+	but cTrA = "--impacted-by" and nTrI < nTrArgs
+		cTrImpact = sysargv[nTrI + 1]
+		nTrI++
+	but cTrA = "--subject" and nTrI < nTrArgs
+		cTrSubject = sysargv[nTrI + 1]
+		nTrI++
+	but cTrA = "--run"
+		bTrRun = 1
 	but cTrA = "--all"
 		bTrAll = 1
 	but cTrA = "--json"
@@ -125,6 +142,51 @@ oTr = TravellerQ().By(cTrBy).Timeout(nTrTimeout)
 if nTrSeed >= 0  oTr.Seed(nTrSeed)  ok
 oTr.Repeat(nTrRepeat)
 if bTrJson  oTr.Silent()  ok
+if cTrSubject != ""  oTr.Subject(cTrSubject)  ok
+
+# IMPACT: which tours a change reaches, from the subject's code graph
+if cTrImpact != ""
+	nTrHash = 0
+	for nTrK = len(cTrImpact) to 1 step -1
+		if cTrImpact[nTrK] = "#"  nTrHash = nTrK  exit  ok
+	next
+	cTrWhy = ""
+	if nTrHash < 2 or nTrHash = len(cTrImpact)  cTrWhy = "give --impacted-by SUBJECT.ring#Method"  ok
+	if cTrWhy = "" and cTrTopic = "" and NOT bTrAll  cTrWhy = "no scope: give --topic NAME or --all with --impacted-by"  ok
+	if cTrWhy = "" and NOT fexists(substr(cTrImpact, 1, nTrHash - 1))  cTrWhy = "no such subject file: " + substr(cTrImpact, 1, nTrHash - 1)  ok
+	if cTrWhy != ""
+		if bTrJson
+			? '{"testoor":"logbook","kind":"impact","refusal":' + _TourJsonStr(cTrWhy) + ',"exit":2}'
+		else
+			? "REFUSED: " + cTrWhy
+			? "exit 2"
+		ok
+		shutdown(2)
+	ok
+	cTrImpDir = cTrRoot
+	if cTrTopic != ""  cTrImpDir = cTrRoot + "/" + cTrTopic  ok
+	cTrImpMethod = substr(cTrImpact, nTrHash + 1, len(cTrImpact) - nTrHash)
+	aTrImp = StzImpactedTours(substr(cTrImpact, 1, nTrHash - 1), cTrImpMethod, _TrFilesOf(cTrImpDir))
+	if bTrRun
+		nTrSel = len(aTrImp[:selected])
+		for nTrK = 1 to nTrSel
+			oTr.Walk(aTrImp[:selected][nTrK])
+		next
+		if bTrJson
+			? oTr.Json()
+		else
+			? StzImpactProse(aTrImp, cTrImpMethod)
+			? oTr.Summary()
+		ok
+		shutdown(oTr.ExitCode())
+	ok
+	if bTrJson
+		? StzImpactJson(aTrImp, cTrImpMethod)
+	else
+		? StzImpactProse(aTrImp, cTrImpMethod)
+	ok
+	shutdown(0)
+ok
 
 if bTrUsage or (cTrTopic = "" and cTrFile = "" and NOT bTrAll)
 	# a refusal, in the logbook's own words, and exit 2
