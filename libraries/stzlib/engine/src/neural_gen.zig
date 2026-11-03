@@ -450,18 +450,88 @@ fn decodeInto(ids: []const i32, out: *std.ArrayList(u8)) void {
 }
 
 // ---- KV cache -----------------------------------------------------------------
-var g_kc: std.ArrayList(std.ArrayList(f32)) = .{}; // per layer, pos-major [p][g*hd+d]
-var g_vc: std.ArrayList(std.ArrayList(f32)) = .{};
+// THE KV CACHE (IM8b). Until 2026-11-03 it was two lists of f32 per layer, position-major, copied on EVERY step into fresh tensors,
+// concatenated with the new K and V (a second copy), V transposed again for the attention (a third), in a pool of up to 166 MB
+// allocated and first-touched each step: the cost of a step GREW WITH THE CONTEXT (27 ms at 82 tokens, 55 ms at 1439, measured by
+// phase). Now each layer owns two persistent tensors in the layout the attention reads: K as [hd, cap, n_kv] and V TRANSPOSED as
+// [cap, hd, n_kv], `cap` the capacity in tokens, doubled when a prompt outgrows it. The graph writes the new K and V into them
+// (ggml_cpy into a view) and attends over views of them: nothing is copied but the new tokens.
+var g_kvctx: ?*c.ggml_context = null;
+var g_kt: std.ArrayList(*c.ggml_tensor) = .{};
+var g_vt: std.ArrayList(*c.ggml_tensor) = .{};
+var g_cap: usize = 0;
+var g_kv_shape: [2]usize = .{ 0, 0 }; // n_kv, hd of the allocated cache
 var g_n_past: usize = 0;
 var g_logits: std.ArrayList(f32) = .{};
 var g_gen_text: std.ArrayList(u8) = .{};
 
 fn resetKv() void {
-    for (g_kc.items) |*a| a.clearAndFree(gpa);
-    for (g_vc.items) |*a| a.clearAndFree(gpa);
-    g_kc.clearAndFree(gpa);
-    g_vc.clearAndFree(gpa);
+    if (g_kvctx) |k| c.ggml_free(k);
+    g_kvctx = null;
+    g_kt.clearAndFree(gpa);
+    g_vt.clearAndFree(gpa);
+    g_cap = 0;
+    g_kv_shape = .{ 0, 0 };
     g_n_past = 0;
+}
+
+/// The cache holds `need` tokens of n_layer layers x n_kv heads x hd: allocated, or grown by doubling with the valid part copied
+/// across (a growth is rare: a prompt outgrows a capacity that doubles). A different model shape starts a new cache.
+fn ensureKv(n_layer: usize, n_kv: usize, hd: usize, need: usize) bool {
+    if (g_kt.items.len == n_layer and g_kv_shape[0] == n_kv and g_kv_shape[1] == hd and g_cap >= need) return true;
+    if (g_kt.items.len != 0 and (g_kt.items.len != n_layer or g_kv_shape[0] != n_kv or g_kv_shape[1] != hd)) resetKv();
+    var cap: usize = if (g_cap == 0) 256 else g_cap;
+    while (cap < need) cap *= 2;
+    const per = hd * cap * n_kv * 4;
+    const bytes = 2 * n_layer * (per + c.ggml_tensor_overhead() + 128) + 65536;
+    const nctx = c.ggml_init(.{ .mem_size = bytes, .mem_buffer = null, .no_alloc = false }) orelse return false;
+    var nk: std.ArrayList(*c.ggml_tensor) = .{};
+    var nv: std.ArrayList(*c.ggml_tensor) = .{};
+    var ok = true;
+    for (0..n_layer) |_| {
+        const kt = c.ggml_new_tensor_3d(nctx, c.GGML_TYPE_F32, @intCast(hd), @intCast(cap), @intCast(n_kv));
+        const vt = c.ggml_new_tensor_3d(nctx, c.GGML_TYPE_F32, @intCast(cap), @intCast(hd), @intCast(n_kv));
+        if (kt == null or vt == null) {
+            ok = false;
+            break;
+        }
+        nk.append(gpa, kt.?) catch {
+            ok = false;
+            break;
+        };
+        nv.append(gpa, vt.?) catch {
+            ok = false;
+            break;
+        };
+    }
+    if (!ok) {
+        nk.clearAndFree(gpa);
+        nv.clearAndFree(gpa);
+        c.ggml_free(nctx);
+        return false;
+    }
+    if (g_kvctx != null and g_n_past > 0 and g_kt.items.len == n_layer) {
+        const np = g_n_past;
+        for (0..n_layer) |L| {
+            const ok_: [*]const f32 = @ptrCast(@alignCast(g_kt.items[L].*.data));
+            const nk_: [*]f32 = @ptrCast(@alignCast(nk.items[L].*.data));
+            const ov: [*]const f32 = @ptrCast(@alignCast(g_vt.items[L].*.data));
+            const nv_: [*]f32 = @ptrCast(@alignCast(nv.items[L].*.data));
+            for (0..n_kv) |g| {
+                @memcpy(nk_[hd * cap * g ..][0 .. hd * np], ok_[hd * g_cap * g ..][0 .. hd * np]);
+                for (0..hd) |d| @memcpy(nv_[cap * (d + hd * g) ..][0..np], ov[g_cap * (d + hd * g) ..][0..np]);
+            }
+        }
+    }
+    if (g_kvctx) |old| c.ggml_free(old);
+    g_kt.deinit(gpa);
+    g_vt.deinit(gpa);
+    g_kt = nk;
+    g_vt = nv;
+    g_kvctx = nctx;
+    g_cap = cap;
+    g_kv_shape = .{ n_kv, hd };
+    return true;
 }
 
 // The model's shape, read once per forward and handed to the graph builder.
@@ -592,36 +662,20 @@ fn buildDecodeGraph(
             K3 = c.ggml_mul(ctx, c.ggml_rms_norm(ctx, K3, eps), kn).?;
         K3 = c.ggml_rope_ext(ctx, K3, positions, null, @intCast(hd), rope_type, n_ctx_train, rope_base, 1.0, 0.0, 1.0, 0.0, 0.0).?;
 
-        // Kcur/Vcur in cache-readout layout [hd, n_new, heads_kv]
+        // Kcur/Vcur [hd, n_new, heads_kv]: written into the persistent cache, in place, K as is and V transposed
         const Kcur = c.ggml_cont(ctx, c.ggml_permute(ctx, K3, 0, 2, 1, 3)).?;
         const V3 = c.ggml_reshape_3d(ctx, V, @intCast(hd), @intCast(n_kv), @intCast(n_new)).?;
         const Vcur = c.ggml_cont(ctx, c.ggml_permute(ctx, V3, 0, 2, 1, 3)).?;
-        kouts.append(gpa, Kcur) catch return null;
-        vouts.append(gpa, Vcur) catch return null;
-
-        // K_all/V_all = cached part (input tensors) ++ current
-        var K_all = Kcur;
-        var V_all = Vcur;
-        if (n_past > 0) {
-            const kpast = c.ggml_new_tensor_3d(ctx, c.GGML_TYPE_F32, @intCast(hd), @intCast(n_past), @intCast(n_kv)).?;
-            const vpast = c.ggml_new_tensor_3d(ctx, c.GGML_TYPE_F32, @intCast(hd), @intCast(n_past), @intCast(n_kv)).?;
-            if (fill) {
-                const kpd: [*]f32 = @ptrCast(@alignCast(kpast.*.data));
-                const vpd: [*]f32 = @ptrCast(@alignCast(vpast.*.data));
-                const kc = g_kc.items[L].items;
-                const vc = g_vc.items[L].items;
-                for (0..n_kv) |g| {
-                    for (0..n_past) |p| {
-                        for (0..hd) |dd| {
-                            kpd[dd + hd * (p + n_past * g)] = kc[p * (n_kv * hd) + g * hd + dd];
-                            vpd[dd + hd * (p + n_past * g)] = vc[p * (n_kv * hd) + g * hd + dd];
-                        }
-                    }
-                }
-            }
-            K_all = c.ggml_concat(ctx, kpast, Kcur, 1).?;
-            V_all = c.ggml_concat(ctx, vpast, Vcur, 1).?;
-        }
+        const kt = g_kt.items[L];
+        const vt = g_vt.items[L];
+        const kview = c.ggml_view_3d(ctx, kt, @intCast(hd), @intCast(n_new), @intCast(n_kv), kt.*.nb[1], kt.*.nb[2], n_past * kt.*.nb[1]).?;
+        const vview = c.ggml_view_3d(ctx, vt, @intCast(n_new), @intCast(hd), @intCast(n_kv), vt.*.nb[1], vt.*.nb[2], n_past * vt.*.nb[0]).?;
+        // the writes are listed in LAYER ORDER, K then V: the graph is built by expanding them first (see the end), so every
+        // layer's attention, which reads the cache through the views below, comes after its own writes
+        kouts.append(gpa, c.ggml_cpy(ctx, Kcur, kview).?) catch return null;
+        kouts.append(gpa, c.ggml_cpy(ctx, c.ggml_permute(ctx, Vcur, 1, 0, 2, 3), vview).?) catch return null;
+        const K_all = c.ggml_view_3d(ctx, kt, @intCast(hd), @intCast(kv_len), @intCast(n_kv), kt.*.nb[1], kt.*.nb[2], 0).?;
+        const Vt = c.ggml_view_3d(ctx, vt, @intCast(kv_len), @intCast(hd), @intCast(n_kv), vt.*.nb[1], vt.*.nb[2], 0).?;
 
         // attention: group-query via the reshape trick (consecutive q-heads share
         // a kv head)
@@ -629,7 +683,6 @@ fn buildDecodeGraph(
         const Qv = c.ggml_reshape_3d(ctx, Qp, @intCast(hd), @intCast(n_new * grp), @intCast(n_kv)).?;
         var KQ = c.ggml_mul_mat(ctx, K_all, Qv).?; // [kv_len, n_new*grp, n_kv]
         KQ = c.ggml_soft_max_ext(ctx, KQ, mask, scale, 0.0).?;
-        const Vt = c.ggml_cont(ctx, c.ggml_permute(ctx, V_all, 1, 0, 2, 3)).?; // [kv_len, hd, n_kv]
         var KQV = c.ggml_mul_mat(ctx, Vt, KQ).?; // [hd, n_new*grp, n_kv]
         KQV = c.ggml_reshape_3d(ctx, KQV, @intCast(hd), @intCast(n_new), @intCast(n_head)).?;
         KQV = c.ggml_cont(ctx, c.ggml_permute(ctx, KQV, 0, 2, 1, 3)).?;
@@ -662,15 +715,28 @@ fn buildDecodeGraph(
     if (d.logit_scale != 1.0 and d.logit_scale > 0.0) logits = c.ggml_scale(ctx, logits, 1.0 / d.logit_scale).?;
 
     const graph = c.ggml_new_graph_custom(ctx, decode_graph_nodes, false) orelse return null;
-    c.ggml_build_forward_expand(graph, logits);
+    // the cache writes FIRST, in layer order: expanding layer L+1's write pulls in layer L's attention and FFN (L+1's input), after
+    // layer L's own writes, and the logits come last, so every read of the cache is ordered after its write
     for (kouts.items) |t| c.ggml_build_forward_expand(graph, t);
-    for (vouts.items) |t| c.ggml_build_forward_expand(graph, t);
+    c.ggml_build_forward_expand(graph, logits);
+    _ = vouts;
     return .{ .graph = graph, .logits = logits };
 }
 
 // The pool the last forward pass asked for, in bytes (0 before any). Exposed so
 // a guard can report what a prompt of a given size costs a given model.
 var g_last_pool_bytes: usize = 0;
+
+// Where the last decoder forward's time went, in ms (IM8b): [0] the shape pass, [1] the pool allocation, [2] the second build
+// and the cache copied into it, [3] the compute, [4] the K/V appended to the cache, [5] the logits read back
+var g_phase: [6]f64 = .{ 0, 0, 0, 0, 0, 0 };
+fn msSince(t: i128) f64 {
+    return @as(f64, @floatFromInt(std.time.nanoTimestamp() - t)) / 1e6;
+}
+pub export fn neural_gen_step_phase(i: c_int) callconv(.c) f64 {
+    if (i < 0 or i > 5) return 0;
+    return g_phase[@intCast(i)];
+}
 
 pub export fn neural_gen_last_pool_bytes() callconv(.c) f64 {
     return @floatFromInt(g_last_pool_bytes);
@@ -728,15 +794,8 @@ fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
         .logit_scale = kvArchF32(".logit_scale", 1.0),
     };
 
-    // grow the per-layer cache lists on first use
-    if (g_kc.items.len != n_layer) {
-        resetKv();
-        for (0..n_layer) |_| {
-            g_kc.append(gpa, .{}) catch return false;
-            g_vc.append(gpa, .{}) catch return false;
-        }
-    }
-    // resetKv() above may have zeroed g_n_past
+    // the persistent cache, sized for this forward (a new model shape starts a new cache, which zeroes g_n_past)
+    if (!ensureKv(n_layer, n_kv, dims.hd, g_n_past + n_new)) return false;
     const n_past = g_n_past;
     var dims_now = dims;
     dims_now.n_past = n_past;
@@ -747,6 +806,7 @@ fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
     defer vouts.clearAndFree(gpa);
 
     // pass 1: the graph's shape, in a context that holds headers and no data
+    var tp = std.time.nanoTimestamp();
     var pool_bytes: usize = 0;
     {
         const meta = c.ggml_init(.{ .mem_size = 64 * 1024 * 1024, .mem_buffer = null, .no_alloc = true }) orelse return false;
@@ -757,14 +817,20 @@ fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
     kouts.clearRetainingCapacity();
     vouts.clearRetainingCapacity();
     g_last_pool_bytes = pool_bytes;
+    g_phase[0] = msSince(tp);
+    tp = std.time.nanoTimestamp();
 
     // pass 2: the same graph, in a pool of exactly the size pass 1 measured
     const ctx = c.ggml_init(.{ .mem_size = pool_bytes + 64 * 1024, .mem_buffer = null, .no_alloc = false }) orelse return false;
     defer c.ggml_free(ctx);
+    g_phase[1] = msSince(tp);
+    tp = std.time.nanoTimestamp();
     const built = buildDecodeGraph(ctx, m, ids, embd, dims_now, true, &kouts, &vouts) orelse return false;
     const graph = built.graph;
     const logits = built.logits;
 
+    g_phase[2] = msSince(tp);
+    tp = std.time.nanoTimestamp();
     var plan = c.ggml_graph_plan(graph, 4, null);
     var wbuf: ?[]u8 = null;
     if (plan.work_size > 0) {
@@ -773,26 +839,12 @@ fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
     }
     defer if (wbuf) |w| gpa.free(w);
     _ = c.ggml_graph_compute(graph, &plan);
+    g_phase[3] = msSince(tp);
+    tp = std.time.nanoTimestamp();
 
-    // append the new K/V ([hd, n_new, n_kv], element (d,t,g)) to the caches
-    const hd = dims.hd;
-    for (0..n_layer) |L| {
-        const kd: [*]const f32 = @ptrCast(@alignCast(kouts.items[L].*.data));
-        const vd: [*]const f32 = @ptrCast(@alignCast(vouts.items[L].*.data));
-        const kc = &g_kc.items[L];
-        const vc = &g_vc.items[L];
-        kc.ensureTotalCapacity(gpa, (n_past + n_new) * n_kv * hd) catch return false;
-        vc.ensureTotalCapacity(gpa, (n_past + n_new) * n_kv * hd) catch return false;
-        for (0..n_new) |t| {
-            for (0..n_kv) |g| {
-                for (0..hd) |d| {
-                    kc.appendAssumeCapacity(kd[d + hd * (t + n_new * g)]);
-                    vc.appendAssumeCapacity(vd[d + hd * (t + n_new * g)]);
-                }
-            }
-        }
-    }
     g_n_past = n_past + n_new;
+    g_phase[4] = msSince(tp);
+    tp = std.time.nanoTimestamp();
 
     // read back the last-token logits
     const n_vocab_t: usize = @intCast(logits.*.ne[0]);
@@ -800,6 +852,7 @@ fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
     g_logits.clearRetainingCapacity();
     g_logits.ensureTotalCapacity(gpa, n_vocab_t) catch return false;
     for (0..n_vocab_t) |i| g_logits.appendAssumeCapacity(ld[i]);
+    g_phase[5] = msSince(tp);
     return true;
 }
 

@@ -1527,6 +1527,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralgentruncated", .func = &ring_NeuralGenTruncated },
     .{ .name = "stzengineneuralgenprompttokens", .func = &ring_NeuralGenPromptTokens },
     .{ .name = "stzengineneuralgenlastpool", .func = &ring_NeuralGenLastPool },
+    .{ .name = "stzengineneuralgenstepphases", .func = &ring_NeuralGenStepPhases },
     .{ .name = "stzengineneuralsettermination", .func = &ring_NeuralSetTermination },
     .{ .name = "stzengineneuralcleartermination", .func = &ring_NeuralClearTermination },
     .{ .name = "stzengineneuralstoppedonrepeat", .func = &ring_NeuralStoppedOnRepeat },
@@ -1699,6 +1700,13 @@ fn ring_NeuralLogitLse(p: *anyopaque) callconv(.c) void {
 // StzEngineNeuralGenLastPool() -> bytes the last forward pass's graph needed
 fn ring_NeuralGenLastPool(p: *anyopaque) callconv(.c) void {
     rn(p, gen.neural_gen_last_pool_bytes());
+}
+
+// IM8b: () -> [ shape pass, pool allocation, build + cache copy-in, compute, cache append, logits read ] ms of the last decoder forward
+fn ring_NeuralGenStepPhases(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (0..6) |i| R.ring_list_adddouble(out, gen.neural_gen_step_phase(@intCast(i)));
+    R.ring_vm_api_retlist(p, out);
 }
 
 pub fn registerAll(pState: *anyopaque) void {

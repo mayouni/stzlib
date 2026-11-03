@@ -455,6 +455,18 @@ pub fn forward(s: Spec, input: []const f32, out: []f32) bool {
         }
         ok = ok and (skipped(8) or nbb.dispatchP(g_kernels[K_ADD], &addp, &.{ bx, bq }, nbb.ceilDiv(n_pat * D, 256), 1));
         if (!ok and g_fail == 0) g_fail = 16;
+        // A SUBMIT EVERY THREE LAYERS, as a precaution. The whole pass in one submit is about 0.45 s on a free GPU and stretched to 1.4 s
+        // while another process held the GPU; Windows resets a device whose submit runs past about 2 s, and a reset kills every client of
+        // the adapter ("Parent device is lost": wgpu panics and the process ends). Two guard runs died that way on 2026-11-03 while another
+        // session's rnxc was on the same GPU and Windows logged NVIDIA driver timeouts in the same minutes; WHICH work crossed the limit is
+        // not established. Four submits of three layers each keep this pass at a fifth of it under the same contention, for a few
+        // milliseconds of sync. The rule that does the rest: one neural job on the GPU at a time
+        if (ok and (L + 1) % 3 == 0 and L + 1 < s.n_layer) {
+            _ = gpu.stz_gpu_batch_end();
+            if (gpu.stz_gpu_sync() != gpu.OK) ok = false;
+            if (ok and gpu.stz_gpu_batch_begin() != gpu.OK) ok = false;
+            if (!ok and g_fail == 0) g_fail = 18;
+        }
     }
     // the post-LayerNorm
     ok = ok and (skipped(2) or nbb.lnStep(g_kernels[K_LN], bx, bx, rid(ctx, "v.post_ln.weight", .{}, false), rid(ctx, "v.post_ln.bias", .{}, false), by, n_pat, D, s.eps, 0));
