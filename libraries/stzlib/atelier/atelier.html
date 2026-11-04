@@ -80,6 +80,7 @@
   --pass:#63B98C; --pass-bg:#1B2F26; --fail:#DB8069; --fail-bg:#31201B; --err:#D6A559; --err-bg:#302811;
   --unj:#7BA8D4; --unj-bg:#1B2733; --unp:#B99AD8; --unp-bg:#27203A; color-scheme:dark;
 }
+[hidden]{display:none!important}
 *,*::before,*::after{box-sizing:border-box;transition:none!important;animation:none!important;scroll-behavior:auto!important}
 html{font-size:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:var(--read);line-height:var(--lh)}
@@ -182,6 +183,10 @@ td.name{overflow-wrap:anywhere}
 .files table th:nth-child(2),.files table td:nth-child(2){text-align:left}
 .files table th:nth-child(3),.files table td:nth-child(3){text-align:left}
 
+.chk .cite{margin:4px 0 0}
+body.embed .top,body.embed .trail,body.embed .page-head{display:none}
+body.embed .body{padding:16px 0}
+body.embed .card{box-shadow:none}
 #playout{min-height:4rem;margin:16px 0 0}
 .playtime{margin:8px 0 0;color:var(--ink-2);min-height:1.7em}
 kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padding:0 8px;background:var(--panel-2)}
@@ -215,7 +220,8 @@ kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padd
 </header>
 <nav class="trail" aria-label="Breadcrumb">
   <ol>
-    <li><a href="/" data-t="title">Softanza Atelier</a></li>
+    <li><a id="trailroot" href="/" data-t="title">Softanza Atelier</a></li>
+    <li id="trailmid" hidden><a id="trailmida" href="/atelier" data-t="menu_checks">Checks</a></li>
     <li><span class="here-crumb" aria-current="page" id="trailhere" data-t="menu_checks">Checks</span></li>
   </ol>
 </nav>
@@ -226,7 +232,7 @@ kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padd
   <h1 data-t="title">Softanza Atelier</h1>
   <p class="lead" data-t="lead"></p>
   <div class="status" aria-live="polite">
-    <p><b data-t="status_label">The program</b>: <span id="libstate" data-t="lib_asking">asking the server</span></p>
+    <p><b id="statuslabel" data-t="status_label">The program</b>: <span id="libstate" data-t="lib_asking">asking the server</span></p>
     <p id="judged"></p>
     <p id="served"></p>
   </div>
@@ -278,6 +284,11 @@ kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padd
   <div class="card" id="covertable" hidden></div>
 </section>
 
+<section id="view-check" hidden aria-labelledby="h-check">
+  <h2 id="h-check" data-t="menu_check">Check</h2>
+  <div class="card" id="onecheck"></div>
+</section>
+
 <section id="view-playground" hidden aria-labelledby="h-play">
   <h2 id="h-play" data-t="menu_playground">Playground</h2>
   <div class="card">
@@ -295,6 +306,7 @@ return [ oText.Uppercased(), oText.NumberOfWords(), Q(oText.Words()).Reversed() 
 </main>
 
 <script>
+const EDITION = null; /*EDITION*/
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmtN = n => Number(n).toLocaleString(LANG === 'fr' ? 'fr-FR' : 'en-US');
@@ -317,9 +329,10 @@ function applyLang() {
   });
   const other = LANG === 'fr' ? 'en' : 'fr';
   const ll = $('#langlink');
-  ll.href = location.pathname + '?lang=' + other; ll.lang = other; ll.hreflang = other;
+  const qs = new URLSearchParams(location.search); qs.set('lang', other);
+  ll.href = location.pathname + '?' + qs.toString(); ll.lang = other; ll.hreflang = other;
   $('#themebtn').textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? t('theme_light') : t('theme_dark');
-  renderStatus(); renderDomains(); renderChecks(shown); renderTotals(); renderCoverage();
+  renderStatus(); renderDomains(); renderChecks(shown); renderTotals(); renderCoverage(); renderOne();
 }
 function pickLang() {
   const q = new URLSearchParams(location.search).get('lang');
@@ -331,13 +344,30 @@ function pickLang() {
 }
 
 // ---- the view: one page, three addresses, the menu tells the truth (Rules 26, 116) ----
-const VIEW = location.pathname.endsWith('/coverage') ? 'coverage' : location.pathname.endsWith('/playground') ? 'playground' : 'checks';
+const P = location.pathname;
+const VIEW = /\/check(\.html)?$/.test(P) ? 'check' : /coverage(\.html)?$/.test(P) ? 'coverage' : (/playground$/.test(P) && !EDITION) ? 'playground' : 'checks';
+const URLS = EDITION
+  ? { checks: 'data/checks.json', results: 'data/results.json', tours: 'data/tours.json', i18n: 'data/i18n.json', verdicts: null, home: 'index.html', coverage: 'coverage.html', one: 'check.html' }
+  : { checks: '/atelier/checks', results: '/atelier/results', tours: '/atelier/tours', i18n: '/atelier/i18n', verdicts: '/atelier/verdicts', home: '/atelier', coverage: '/atelier/coverage', one: '/atelier/check' };
+if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('embed');
 document.querySelectorAll('#menu a').forEach(a => {
-  if (a.dataset.view === VIEW) a.setAttribute('aria-current', 'page');
-  a.href = a.getAttribute('href') + (location.search || '');
+  const v = a.dataset.view;
+  a.href = (v === 'checks' ? URLS.home : v === 'coverage' ? URLS.coverage : '/atelier/playground') + (location.search || '');
+  if (v === VIEW) a.setAttribute('aria-current', 'page');
+  if (EDITION && v === 'playground') a.hidden = true;
 });
+$('.brand').href = URLS.home + (location.search || '');
+$('#trailroot').href = URLS.home;
+$('#trailmida').href = URLS.home;
+if (VIEW === 'check') $('#trailmid').hidden = false;
 $('#trailhere').dataset.t = 'menu_' + VIEW;
 $('#view-' + VIEW).hidden = false;
+if (EDITION) {
+  // read-only: nothing here runs, and the Ring comparison is not part of an edition
+  ['#rundomain', '#runall', '#runfailed', '.progress', '#runinfo'].forEach(q => $(q).hidden = true);
+  document.querySelectorAll('#show option[value="differs"], #show option[value="changed"]').forEach(o => o.remove());
+  $('#statuslabel').dataset.t = 'status_label_edition';
+}
 
 // ---- theme: a verb on the button (Rule 106) ----
 $('#themebtn').onclick = () => {
@@ -350,6 +380,12 @@ $('#themebtn').onclick = () => {
 // ---- the server's state: what judges a check is named (Rule 99) ----
 let STATE = null, stzReady = false;
 function renderStatus() {
+  if (EDITION) {
+    $('#libstate').textContent = t('edition_note');
+    $('#judged').textContent = t('edition_judged', { taken: EDITION.taken, library: EDITION.library, rnxc: EDITION.rnxc, engine: EDITION.engine, n: fmtN(CHECKS.length || EDITION.checks), source: EDITION.source, commit: EDITION.checks_from });
+    $('#served').textContent = '';
+    return;
+  }
   if (!STATE) return;
   const L = STATE.library, st = L.state;
   $('#libstate').textContent = st === 'admitted' ? t('lib_admitted', { s: L.seconds }) : st === 'compiling' ? t('lib_compiling', { s: Math.max(0, Math.round((Date.now() - T0) / 1000)) }) : t('lib_refused', { why: L.why });
@@ -364,7 +400,7 @@ async function status() {
   } catch (e) { STATE = null; $('#libstate').textContent = t('lib_gone'); }
   renderStatus();
 }
-(async function poll() { await status(); setTimeout(poll, stzReady ? 5000 : 1000); })();
+if (!EDITION) (async function poll() { await status(); setTimeout(poll, stzReady ? 5000 : 1000); })();
 
 async function run(code) {
   const t0 = performance.now();
@@ -414,6 +450,42 @@ function renderDomains() {
   $('#chkinfo').textContent = META ? t('checks_intro', { n: fmtN(CHECKS.length), files: fmtN(META.files), source: META.source, commit: META.commit }) : '';
 }
 const st = k => `<span class="st st-${k}">${t('state_' + k)}</span>`;
+// one check as a card: what it says, where it comes from, how to cite it, what is known of it
+let RECORDED = {}, RECINFO = null, RECCOMMIT = '';
+const oneHref = c => URLS.one + '?id=' + encodeURIComponent(c.id) + '&lang=' + LANG;
+function cardHtml(c, r) {
+  let verdict = '', more = '', ring = '';
+  if (r) {
+    const changed = r.ms != null && LAST[c.id] && LAST[c.id] !== r.kind;
+    const how = r.ms != null ? t('ms', { ms: fmt1(r.ms) }) : t('recorded_at', { commit: esc(RECCOMMIT) });
+    verdict = `<div class="verdict">${st(r.kind)}<span>${how}</span>${changed ? `<span class="changed">${t('was', { state: t('state_' + LAST[c.id]) })}</span>` : ''}</div>`;
+    if (r.kind === 'fail') { const [, exp, got] = r.text.split('\n'); more = `<pre>${t('expected')}: ${esc(exp ?? '')}\n${t('got')}: ${esc(got ?? '')}</pre>`; }
+    else if (r.kind === 'err') more = `<pre>${esc(r.text)}</pre>`;
+    const note = (r.kind !== 'pass' || differs(c, r)) ? ringNote(c, r) : '';
+    if (note) ring = `<p class="ring">${note}</p>`;
+  }
+  const cite = (RECCOMMIT || META.commit) + ':' + c.id;
+  return `<article class="chk" id="c-${esc(c.id).replace(/[^A-Za-z0-9_-]/g, '_')}">
+    <p class="desc">${esc(c.desc)}</p>
+    <p class="meta"><span>${t('provenance', { file: esc(c.file), line: c.line })}</span>${c.scenario ? `<span>${t('scenario', { s: esc(c.scenario) })}</span>` : ''}<span>${t('at_commit', { commit: esc(META.commit) })}</span><span class="mono">${t('id_label', { id: esc(c.id) })}</span></p>
+    ${verdict}${more}${ring}
+    <p class="meta cite"><span>${t('cite_label')}</span><span class="mono">${esc(cite)}</span><span><a href="${esc(oneHref(c))}">${t('open_check')}</a></span></p>
+    <details><summary>${t('show_code')}</summary><pre>${esc(c.code)}</pre></details></article>`;
+}
+function recordedOf(c) { return results[c.id] || RECORDED[c.id] || null; }
+function renderOne() {
+  if (VIEW !== 'check' || !CHECKS.length) return;
+  const id = new URLSearchParams(location.search).get('id') || '';
+  const c = CHECKS.find(x => x.id === id);
+  $('#onecheck').innerHTML = c ? cardHtml(c, recordedOf(c)) : `<p>${t('check_missing', { id: esc(id) })}</p>`;
+}
+function loadRecorded(d) {
+  RECINFO = d; RECCOMMIT = String(d.library || '').split(' ')[0];
+  RECORDED = {};
+  const said = d.said || {};
+  Object.keys(d.states || {}).forEach(id => { RECORDED[id] = { kind: d.states[id], text: said[id] || '', ms: null }; });
+  if (EDITION) results = RECORDED;
+}
 function renderChecks(list) {
   if (!CHECKS.length) return;
   const show = $('#show').value;
@@ -433,23 +505,7 @@ function renderChecks(list) {
     const n = { pass: 0, fail: 0, err: 0, run: 0 };
     cs.forEach(c => { const r = results[c.id]; if (r) { n[r.kind]++; n.run++; } });
     const tally = n.run ? `${fmtN(n.pass)} ${t('sum_pass')}${n.fail ? ', ' + fmtN(n.fail) + ' ' + t('sum_fail') : ''}${n.err ? ', ' + fmtN(n.err) + ' ' + t('sum_err') : ''}` : fmtN(cs.length);
-    const items = cs.map(c => {
-      const r = results[c.id];
-      let verdict = '', more = '', ring = '';
-      if (r) {
-        const changed = LAST[c.id] && LAST[c.id] !== r.kind;
-        verdict = `<div class="verdict">${st(r.kind)}<span>${t('ms', { ms: fmt1(r.ms) })}</span>${changed ? `<span class="changed">${t('was', { state: t('state_' + LAST[c.id]) })}</span>` : ''}</div>`;
-        if (r.kind === 'fail') { const [, exp, got] = r.text.split('\n'); more = `<pre>${t('expected')}: ${esc(exp ?? '')}\n${t('got')}: ${esc(got ?? '')}</pre>`; }
-        else if (r.kind === 'err') more = `<pre>${esc(r.text)}</pre>`;
-        const note = (r.kind !== 'pass' || differs(c, r)) ? ringNote(c, r) : '';
-        if (note) ring = `<p class="ring">${note}</p>`;
-      }
-      return `<article class="chk" id="c-${esc(c.id).replace(/[^A-Za-z0-9_-]/g, '_')}">
-        <p class="desc">${esc(c.desc)}</p>
-        <p class="meta"><span>${t('provenance', { file: esc(c.file), line: c.line })}</span>${c.scenario ? `<span>${t('scenario', { s: esc(c.scenario) })}</span>` : ''}<span>${t('at_commit', { commit: esc(META.commit) })}</span><span class="mono">${t('id_label', { id: esc(c.id) })}</span></p>
-        ${verdict}${more}${ring}
-        <details><summary>${t('show_code')}</summary><pre>${esc(c.code)}</pre></details></article>`;
-    }).join('');
+    const items = cs.map(c => cardHtml(c, results[c.id])).join('');
     html += `<details class="dom" ${n.fail + n.err > 0 || DOMAIN !== '*' || QUERY ? 'open' : ''}><summary><span>${esc(dom)}</span><span class="n">${tally}</span></summary>${items}</details>`;
   }
   $('#chklist').innerHTML = html || `<p>${t('filter_empty')}</p>`;
@@ -524,10 +580,11 @@ $('#code').addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey
 
 // ---- load: the dictionary first, then the data ----
 pickLang();
-fetch('/atelier/i18n').then(r => r.json()).then(d => { I18N = d; applyLang(); }).catch(() => applyLang());
-fetch('/atelier/checks').then(r => r.json()).then(d => { META = d; CHECKS = d.checks; shown = selection(); renderDomains(); renderChecks(shown); });
-fetch('/atelier/verdicts').then(r => r.json()).then(d => { VERD = d; renderChecks(shown); renderTotals(); }).catch(() => {});
-fetch('/atelier/tours').then(r => r.json()).then(d => { TOURS = d; renderCoverage(); }).catch(() => {});
+fetch(URLS.i18n).then(r => r.json()).then(d => { I18N = d; applyLang(); }).catch(() => applyLang());
+fetch(URLS.checks).then(r => r.json()).then(d => { META = d; CHECKS = d.checks; shown = selection(); renderDomains(); renderChecks(shown); renderTotals(); renderStatus(); renderOne(); });
+fetch(URLS.results).then(r => r.json()).then(d => { if (d && d.states) { loadRecorded(d); shown = selection(); renderChecks(shown); renderTotals(); renderOne(); } }).catch(() => {});
+if (URLS.verdicts) fetch(URLS.verdicts).then(r => r.json()).then(d => { VERD = d; renderChecks(shown); renderTotals(); }).catch(() => {});
+fetch(URLS.tours).then(r => r.json()).then(d => { TOURS = d; renderCoverage(); }).catch(() => {});
 </script>
 </body>
 </html>

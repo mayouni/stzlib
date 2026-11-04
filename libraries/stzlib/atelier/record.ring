@@ -32,6 +32,7 @@ if $aRecState[:library][:state] != "admitted"
 	$oRec.Kill()
 	shutdown(2)
 ok
+AtelierScrubInit($cRecLibrary, $aRecState[:rnxc][:folder])
 ? "  the library " + $aRecState[:library][:commit] + ", admitted in " + $aRecState[:library][:seconds] + " s; rnxc " + $aRecState[:rnxc][:build] + "; the engine: " + $aRecState[:engine]
 
 $aRecChecks = StzJsonToList(read($cRecDir + "/checks.json"))

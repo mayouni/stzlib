@@ -1,5 +1,5 @@
 {
-"en": {
+ "en": {
   "lang_name": "English",
   "switch_lang": "Lire en français",
   "switch_lang_hreflang": "fr",
@@ -98,9 +98,17 @@
   "play_time": "{ms} ms: admitted, called and released",
   "theme_dark": "Apply dark mode",
   "theme_light": "Apply light mode",
-  "skip": "Skip to content"
-},
-"fr": {
+  "skip": "Skip to content",
+  "menu_check": "Check",
+  "status_label_edition": "This edition",
+  "edition_note": "A static edition: read-only, and nothing here runs. It shows what was recorded when this library commit was judged. To run the checks yourself, start the Atelier from the library with rnxc resident atelier.ring.",
+  "edition_judged": "Recorded {taken}: the library {library}, rnxc {rnxc}, the engine {engine}. {n} checks, harvested from {source} at {commit}.",
+  "recorded_at": "recorded at {commit}",
+  "cite_label": "Citation",
+  "open_check": "Open this check on its own",
+  "check_missing": "No check has the id {id} at this commit."
+ },
+ "fr": {
   "lang_name": "Français",
   "switch_lang": "Read in English",
   "switch_lang_hreflang": "en",
@@ -199,6 +207,14 @@
   "play_time": "{ms} ms : admis, appelé et libéré",
   "theme_dark": "Appliquer le mode sombre",
   "theme_light": "Appliquer le mode clair",
-  "skip": "Aller au contenu"
-}
+  "skip": "Aller au contenu",
+  "menu_check": "Vérification",
+  "status_label_edition": "Cette édition",
+  "edition_note": "Une édition statique : en lecture seule, et rien ici ne s'exécute. Elle montre ce qui a été enregistré quand ce commit de la bibliothèque a été jugé. Pour exécuter les vérifications vous-même, lancez l'Atelier depuis la bibliothèque avec rnxc resident atelier.ring.",
+  "edition_judged": "Enregistré le {taken} : la bibliothèque {library}, rnxc {rnxc}, le moteur {engine}. {n} vérifications, moissonnées dans {source} à {commit}.",
+  "recorded_at": "enregistré à {commit}",
+  "cite_label": "Citation",
+  "open_check": "Ouvrir cette vérification seule",
+  "check_missing": "Aucune vérification n'a l'identifiant {id} à ce commit."
+ }
 }

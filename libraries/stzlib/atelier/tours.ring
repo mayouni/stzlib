@@ -78,6 +78,7 @@ if $aSwState[:library][:state] != "admitted"
 	$oSw.Kill()
 	shutdown(2)
 ok
+AtelierScrubInit($cSwLibrary, $aSwState[:rnxc][:folder])
 ? "  the library " + $aSwState[:library][:commit] + ", admitted in " + $aSwState[:library][:seconds] + " s; rnxc " + $aSwState[:rnxc][:build] + "; the engine: " + $aSwState[:engine]
 
 $aSwTotal = AtelierCountsRow()
@@ -133,11 +134,12 @@ for i = 1 to len($aSwTours)
 	ok
 next
 
-cTestsCommit = "unknown"
-try
-	cTestsCommit = StzJsonToList(read($cSwDir + "/checks.json"))[:commit]
-catch
-done
+# the tests judged are the tree's own (base/test beside the library) unless --root named
+# another folder: then the commit of the tests is not known here and is said so
+cTestsCommit = $aSwState[:library][:commit]
+if $cSwTests != $cSwDir + "/../base/test"
+	cTestsCommit = "a folder named with --root"
+ok
 write($cSwDir + "/tours.json", AtelierToursJson($aSwState, cTestsCommit, $aSwTotal, $aSwDomains, $aSwFiles))
 ? ""
 ? "  " + $aSwTotal[:files] + " tours: " + $aSwTotal[:finished] + " finished, " + $aSwTotal[:broke] + " broke, " + $aSwTotal[:not_started] + " not started, " + $aSwTotal[:hung] + " hung, " + $aSwTotal[:kept_code] + " kept code"

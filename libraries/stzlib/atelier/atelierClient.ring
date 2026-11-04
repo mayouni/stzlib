@@ -22,6 +22,65 @@
 # the log of the last Atelier this process booted (its output goes to a file)
 $cAtelierLastLog = ""
 
+# The folders of THIS machine, replaced by a name in everything a recording keeps: a
+# public tree carries no machine path. [ [ folder, name ] ], both slash forms, longest first
+$aAtelierScrub = []
+
+func AtelierScrubInit(pcLibrary, pcRnxcFolder)
+	_cLib_ = _AtelierNormalize(pcLibrary)
+	_cTree_ = _AtelierUp(_AtelierUp(_cLib_))
+	_cRn_ = _AtelierUp(_AtelierNormalize(pcRnxcFolder))
+	$aAtelierScrub = []
+	_aP_ = [ [ _cLib_, "<library>" ], [ _cTree_, "<tree>" ], [ _cRn_, "<rnxc>" ] ]
+	for _i_ = 1 to len(_aP_)
+		if _aP_[_i_][1] != ""
+			$aAtelierScrub + [ _aP_[_i_][1], _aP_[_i_][2] ]
+			$aAtelierScrub + [ substr(_aP_[_i_][1], "/", "\"), _aP_[_i_][2] ]
+		ok
+	next
+	return $aAtelierScrub
+
+func AtelierScrub(pcText)
+	_c_ = "" + pcText
+	for _i_ = 1 to len($aAtelierScrub)
+		_c_ = StzReplaceCS(_c_, $aAtelierScrub[_i_][1], $aAtelierScrub[_i_][2], FALSE)
+	next
+	return _c_
+
+# a path with its slashes forward and its x/.. steps resolved
+func _AtelierNormalize(pcPath)
+	_cP_ = substr("" + pcPath, "\", "/")
+	_bAbs_ = left(_cP_, 1) = "/"
+	_ac_ = StzSplit(_cP_, "/")
+	_aOut_ = []
+	for _i_ = 1 to len(_ac_)
+		_cS_ = _ac_[_i_]
+		if _cS_ = ".." and len(_aOut_) > 0 and _aOut_[len(_aOut_)] != ".."
+			del(_aOut_, len(_aOut_))
+		but _cS_ != "." and _cS_ != ""
+			_aOut_ + _cS_
+		ok
+	next
+	_c_ = ""
+	for _i_ = 1 to len(_aOut_)
+		if _i_ > 1  _c_ += "/"  ok
+		_c_ += _aOut_[_i_]
+	next
+	if _bAbs_  _c_ = "/" + _c_  ok
+	return _c_
+
+func _AtelierUp(pcPath)
+	_c_ = "" + pcPath
+	while right(_c_, 1) = "/"
+		_c_ = left(_c_, len(_c_) - 1)
+	end
+	for _k_ = len(_c_) to 1 step -1
+		if _c_[_k_] = "/"
+			return left(_c_, _k_ - 1)
+		ok
+	next
+	return _c_
+
 func AtelierRnxc()
 	return TestoorProgram()
 
@@ -35,7 +94,7 @@ func AtelierRnxc()
 # the pid it writes once its library is admitted (_atelier_<port>.pid).
 func AtelierBoot(pcAtelierDir, pnPort, pcLibrary, pcSettingsFile)
 	_cDir_ = substr("" + pcAtelierDir, "\", "/")
-	_cSet_ = '$aAtelierConfig = [ :port = ' + pnPort + ', :library = "' + substr("" + pcLibrary, "\", "/") + '" ]' + char(10)
+	_cSet_ = '$aAtelierConfig = [ :port = ' + pnPort + ', :library = "' + _AtelierNormalize(pcLibrary) + '" ]' + char(10)
 	write(pcSettingsFile, _cSet_)
 	_cLog_ = _cDir_ + "/_atelier_" + pnPort + ".log"
 	_cPid_ = _cDir_ + "/_atelier_" + pnPort + ".pid"
@@ -170,6 +229,7 @@ func AtelierRunCheck(pnPort, pcCode)
 # and the counts and times in :_counts; pnSay > 0 prints a line every pnSay checks
 func AtelierRunChecks(pnPort, paChecks, pnSay)
 	_aStates_ = []
+	_aSaid_ = []
 	_nPass_ = 0  _nFail_ = 0  _nErr_ = 0
 	_aMs_ = []
 	_n_ = len(paChecks)
@@ -177,6 +237,9 @@ func AtelierRunChecks(pnPort, paChecks, pnSay)
 		_aC_ = paChecks[_i_]
 		_aR_ = AtelierRunCheck(pnPort, _aC_[:code])
 		_aStates_ + [ "" + _aC_[:id], _aR_[:kind] ]
+		if _aR_[:kind] != "pass"
+			_aSaid_ + [ "" + _aC_[:id], AtelierScrub(left("" + _aR_[:text], 600)) ]
+		ok
 		_aMs_ + _aR_[:ms]
 		if _aR_[:kind] = "pass"
 			_nPass_++
@@ -198,7 +261,7 @@ func AtelierRunChecks(pnPort, paChecks, pnSay)
 	for _i_ = 1 to len(_aMs_)
 		_nSum_ += _aMs_[_i_]
 	next
-	return [ :states = _aStates_, :pass = _nPass_, :fail = _nFail_, :err = _nErr_, :median_ms = _nMed_, :total_ms = _nSum_ ]
+	return [ :states = _aStates_, :said = _aSaid_, :pass = _nPass_, :fail = _nFail_, :err = _nErr_, :median_ms = _nMed_, :total_ms = _nSum_ ]
 
 # the ids whose state moved between two recordings (hash lists id -> state), and
 # the ids only one of them has: [ [ :id, :was, :now ] ], :was or :now "" when absent
@@ -270,6 +333,18 @@ func AtelierResultsJson(paState, paRun, pcChecksCommit, pnChecks)
 		ok
 		_cJ_ += '"' + _aS_[_i_][1] + '": "' + _aS_[_i_][2] + '"'
 	next
+	_cJ_ += char(10) + "}," + char(10) + '"said": {'
+	if HasKey(paRun, :said)
+		_aD_ = paRun[:said]
+		for _i_ = 1 to len(_aD_)
+			if _i_ > 1
+				_cJ_ += "," + char(10)
+			else
+				_cJ_ += char(10)
+			ok
+			_cJ_ += _AtelierJsonStr(_aD_[_i_][1]) + ": " + _AtelierJsonStr(_aD_[_i_][2])
+		next
+	ok
 	_cJ_ += char(10) + "}" + char(10) + "}" + char(10)
 	return _cJ_
 
@@ -375,7 +450,7 @@ func AtelierRunTour(pnPort, pcPath, pnTimeoutS)
 		if len(_acH_) >= 5
 			_cEnd_ = _acH_[2]
 			_aRec_[:release] = _acH_[4]
-			_aRec_[:why] = _acH_[5]
+			_aRec_[:why] = AtelierScrub(_acH_[5])
 		ok
 		if _cEnd_ = "broke" or _cEnd_ = "not-started"  _nExit_ = 1  ok
 		for _i_ = 2 to len(_acL_)
