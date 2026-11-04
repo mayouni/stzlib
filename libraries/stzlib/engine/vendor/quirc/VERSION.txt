@@ -9,7 +9,7 @@ lib/quirc.h and lib/quirc_internal.h, flat, with LICENSE (ISC). Not one file is 
 programs, the tests, the camera and SDL front ends, the Makefile.
   Built by build.zig addQuirc into stz_image only (needs_quirc), without the UB sanitizer, and called from codes.zig
   through quirc.h (quirc_new, quirc_resize, quirc_begin/end, quirc_extract, quirc_decode, quirc_flip).
-  quirc's own limits, said so a reader is not surprised: QUIRC_MAX_REGIONS is its default 254, QUIRC_MAX_GRIDS 16,
+  quirc's own limits, said so a reader is not surprised: QUIRC_MAX_REGIONS is its default 254, QUIRC_MAX_CAPSTONES 32 (so QUIRC_MAX_GRIDS 64),
   and it reads QR (not Micro QR) of versions 1 to 40.
 
 The archive's sha256 below is the one COMPUTED on download: GitHub publishes no hash for a tag archive, so it cannot
@@ -22,4 +22,4 @@ Source:           https://github.com/dlbeer/quirc/archive/refs/tags/v1.2.tar.gz
 Licence:          ISC
 Purl:             pkg:github/dlbeer/quirc@v1.2
 Archive-SHA-256:  73c12ea33d337ec38fb81218c7674f57dba7ec0570bddd5c7f7a977c0deb64c5
-Tree-Digest:      0000000000000000000000000000000000000000000000000000000000000000
+Tree-Digest:      20ce32e59798f1863632fae3ce056480b42b95f7aff1774ff23145c4729092e6

@@ -277,6 +277,15 @@ func StzVisionDeclare(paGoldens)
 		_oX_.AddImplementation([ :id = "native-plus-granite", :kind = "graph", :fn = "_StzVisionDocCombined",
 			:needle = "vision/" + $cStzVisionDocDecoder, :licence = "apache-2.0", :memory = 900 ])
 	ok
+	# IM9c: the codes in a picture (QR by quirc, EAN-13/8, UPC-A and Code 128 natively), judged by whether the SET of codes it
+	# returns is exactly the set that was encoded (a missed code AND a false one both fail). No model file: nothing to install.
+	_oK_ = StzFacultyQ("codes")
+	_oK_.SetInputTypeQ(:image).SetOutputTypeQ(:record).SetFloorQ("nothing", "_StzVisionCodesNone").
+	     SetGoldenCheckerQ("codes-exact").SetGoldenVersionQ("codes-judge-v2")
+	if len(StzFind("quirc-native1d", _oK_.ImplementationIds())) = 0
+		_oK_.AddImplementation([ :id = "quirc-native1d", :kind = "graph", :fn = "_StzVisionCodesRead",
+			:needle = "", :licence = "isc", :memory = 20 ])
+	ok
 	if len(StzMeasurementOf("faces", "platform", "coco-v1")) = 0 and fexists(StzVisionMeasurementsFile())
 		StzLoadMeasurements(StzVisionMeasurementsFile())
 	ok
@@ -357,6 +366,16 @@ func _StzVisionFaceBridgeScript()
 # the floor that knows no object: it finds nothing, and any model must do better than that
 func _StzVisionObjectsNone(pImage, paParams)
 	return []
+
+# IM9c: the floor of :codes -- no code found; and the reader (stzImage.Codes: quirc for QR, the native 1D readers)
+func _StzVisionCodesNone(pImage, paParams)
+	return []
+
+func _StzVisionCodesRead(pImage, paParams)
+	_o_ = StzImageQ("" + pImage)
+	_a_ = _o_.Codes()
+	_o_.Release()
+	return _a_
 
 # IM6: the classical answer -- what is not the border-coloured background (stzImage.ForegroundMask, IM2)
 func _StzVisionForegroundClassic(pImage, paParams)

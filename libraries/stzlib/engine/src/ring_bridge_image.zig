@@ -9,6 +9,7 @@ const std = @import("std");
 const img = @import("image.zig");
 const ops = @import("image_ops.zig");
 const geom = @import("image_geom.zig");
+const codes = @import("codes.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -94,6 +95,23 @@ fn ring_DecodeKeep(p: *anyopaque) callconv(.c) void {
 
 fn ring_LoadKeep(p: *anyopaque) callconv(.c) void {
     retF(p, img.loadKeep(getStr(p, 1)));
+}
+
+// (image) -> [ [ kind, text, [ x, y, ... ] ] ... ]: every code in the picture, its points 0-based (IM9c); [] for none
+fn ring_Codes(p: *anyopaque) callconv(.c) void {
+    const list = R.ring_vm_api_newlist(p) orelse return rn(p, 0);
+    if (codes.scan(id(p, 1))) |found| {
+        defer codes.freeAll(found);
+        for (found) |cd| {
+            const row = R.ring_list_newlist(list) orelse break;
+            R.ring_list_addstring(row, @ptrCast(cd.kind.ptr));
+            R.ring_list_addstring2(row, cd.text.ptr, @intCast(cd.text.len));
+            const pts = R.ring_list_newlist(row) orelse break;
+            var k: usize = 0;
+            while (k < cd.npts) : (k += 1) R.ring_list_adddouble(pts, cd.pts[k]);
+        }
+    }
+    R.ring_vm_api_retlist(p, list);
 }
 
 // (image) -> the EXIF orientation 1..8 the file carried, 0 for a handle that is not an image
@@ -656,6 +674,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineimageload", .func = &ring_Load },
     .{ .name = "stzengineimagedecodekeep", .func = &ring_DecodeKeep },
     .{ .name = "stzengineimageloadkeep", .func = &ring_LoadKeep },
+    .{ .name = "stzengineimagecodes", .func = &ring_Codes },
     .{ .name = "stzengineimageorientation", .func = &ring_Orientation },
     .{ .name = "stzengineimageorientationapplied", .func = &ring_OrientationApplied },
     .{ .name = "stzengineimagetopng", .func = &ring_ToPng },

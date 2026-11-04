@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:2a5eb1b1-07d1-5ef8-947f-ab232404f503",
+  "serialNumber": "urn:uuid:a7b4b669-0e12-544d-9da9-e2e8b8b1bccf",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-11-03T23:05:39Z",
+    "timestamp": "2026-11-04T00:03:12Z",
     "tools": {
       "components": [
         {
@@ -20,7 +20,7 @@
       "properties": [
         {
           "name": "softanza:generated-from-commit",
-          "value": "05fcd970e9448a0c7eddd1d0a159811700a357c0"
+          "value": "ac16d9598c27f1c38f1a60bd96ca8f8bc6062646"
         }
       ]
     }
@@ -391,6 +391,40 @@
     },
     {
       "type": "library",
+      "bom-ref": "vendor/quirc",
+      "name": "quirc",
+      "version": "1.2",
+      "licenses": [
+        {
+          "expression": "ISC"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/dlbeer/quirc/archive/refs/tags/v1.2.tar.gz"
+        }
+      ],
+      "properties": [
+        {
+          "name": "softanza:vendor-path",
+          "value": "libraries/stzlib/engine/vendor/quirc"
+        },
+        {
+          "name": "softanza:tree-digest",
+          "value": "20ce32e59798f1863632fae3ce056480b42b95f7aff1774ff23145c4729092e6"
+        }
+      ],
+      "purl": "pkg:github/dlbeer/quirc@v1.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "73c12ea33d337ec38fb81218c7674f57dba7ec0570bddd5c7f7a977c0deb64c5"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "bom-ref": "vendor/rmlui",
       "name": "RmlUi",
       "version": "6.2",
@@ -699,6 +733,7 @@
         "vendor/miniaudio",
         "vendor/nghttp2",
         "vendor/pcre2",
+        "vendor/quirc",
         "vendor/rmlui",
         "vendor/sheenbidi",
         "vendor/snowball",

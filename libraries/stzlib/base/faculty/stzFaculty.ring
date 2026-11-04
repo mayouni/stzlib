@@ -353,6 +353,8 @@ func StzGoldenAgrees(pcChecker, pGot, pExpected)
 		return StzDescribeAgree(pGot, pExpected)
 	but pcChecker = "doc-blocks"
 		return StzDocBlocksAgree(pGot, pExpected)
+	but pcChecker = "codes-exact"
+		return StzCodesAgree(pGot, pExpected)
 	but pcChecker = "first"
 		# a ranking whose best item is the expected one
 		if NOT isList(pGot) or len(pGot) = 0 return 0 ok
@@ -512,6 +514,26 @@ func _StzInWidened(pnX, pnY, paBox, pnMargin)
 # boxes-f1: pExpected is rows [ label, x, y, w, h, counted 1|0 ], pGot rows with :label, :box. Each found box is
 # matched greedily (best IoU >= 0.5, same label); a COUNTED object matched is a hit, unmatched a miss; a found box of
 # area >= 32x32 that matches no object at all (counted or not) is a false alarm. It agrees when F1 >= 0.5.
+# IM9c: a codes answer agrees when the SET of codes it returns is exactly the set encoded: pExpected is [ [ kind, text ] ... ],
+# pGot the records [ :kind, :text, :points ] of stzImage.Codes(). A code missed and a code invented both fail.
+func StzCodesAgree(pGot, pExpected)
+	if NOT isList(pGot) or NOT isList(pExpected) return 0 ok
+	if len(pGot) != len(pExpected) return 0 ok
+	_aUsed_ = []
+	for _i_ = 1 to len(pGot) _aUsed_ + 0 next
+	for _j_ = 1 to len(pExpected)
+		_bFound_ = 0
+		for _i_ = 1 to len(pGot)
+			if _aUsed_[_i_] = 0 and pGot[_i_][:kind] = pExpected[_j_][1] and pGot[_i_][:text] = pExpected[_j_][2]
+				_aUsed_[_i_] = 1
+				_bFound_ = 1
+				exit
+			ok
+		next
+		if _bFound_ = 0 return 0 ok
+	next
+	return 1
+
 func StzBoxesAgree(pGot, pExpected)
 	return StzBoxesScore(pGot, pExpected)[:f1] >= 0.5
 

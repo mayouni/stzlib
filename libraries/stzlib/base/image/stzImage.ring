@@ -989,6 +989,33 @@ class stzImage from stzObject
 		_StzVisionDoor("objects", $cStzVisionObjectModel, "" + len(_aOut_) + " object(s)")
 		return _aOut_
 
+	#@ aka  -- 10a2. THE CODES IN A PICTURE (IM9c) ------------------------------------
+
+	# Returns every code the picture holds: [ :kind, :text, :points ] each ([] when there is none).
+	#
+	#   :kind     "qr", "ean13", "ean8", "upca" or "code128"
+	#   :text     the payload: for a QR the bytes of its data (UTF-8 text comes back as it was written); for an EAN-13, EAN-8
+	#             or UPC-A the digits printed under the bars, check digit included (an EAN-13 that begins with 0 is a UPC-A and
+	#             says so, with its 12 digits); for a Code 128 its data, without the start symbol, the check symbol and the stop
+	#   :points   a QR's four corners from the top left, clockwise; a 1D code's two ends of the line it was read along
+	#             -- each [ x, y ], 1-based like every Ring face
+	#   note      a read is a statement: a QR is accepted only when its Reed-Solomon codes decode, a 1D code only when its own
+	#             check digit agrees. A picture with no code answers [], and so does a code too damaged to be read.
+	def Codes()
+		_a_ = StzEngineImageCodes(@nId)
+		_aOut_ = []
+		_n_ = len(_a_)
+		for _i_ = 1 to _n_
+			_r_ = _a_[_i_]
+			_aP_ = []
+			_m_ = len(_r_[3])
+			for _k_ = 1 to _m_ step 2
+				_aP_ + [ _r_[3][_k_] + 1, _r_[3][_k_ + 1] + 1 ]
+			next
+			_aOut_ + [ :kind = _r_[1], :text = _r_[2], :points = _aP_ ]
+		next
+		return _aOut_
+
 	#@ aka  -- 10b. PICTURES AND WORDS IN ONE SPACE (IM5: SigLIP2, see stzImageSearch.ring) --
 
 	# Returns the picture's 768 numbers in the space it shares with texts, L2-normalized.

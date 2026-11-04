@@ -18,6 +18,7 @@ const Domain = struct {
     needs_zlib: bool = false, // vendored zlib compiled in (GR1: the PNG encoder)
     needs_stb: bool = false, // vendored stb_truetype + stb_image (GR1 text/texture)
     needs_webp: bool = false, // vendored libwebp, DECODER ONLY (IM9b) -- SEE addWebp
+    needs_quirc: bool = false, // vendored quirc, the QR reader (IM9c) -- SEE addQuirc
     needs_textshape: bool = false, // vendored HarfBuzz + SheenBidi (GR2 text pipeline)
     needs_glfw: bool = false, // vendored GLFW (GR5 windowing) -- SEE addGlfw
     needs_miniaudio_dec: bool = false, // miniaudio, decoders only (SN1 portable half)
@@ -75,7 +76,7 @@ const base_domains = [_]Domain{
     // WebSocket client (RFC 6455) over the engine socket; wss over mbedTLS, the engine's own TLS path
     .{ .name = "stz_ws", .entry = "src/stz_ws_entry.zig", .needs_ring = true, .needs_mbedtls = true, .needs_zlib = true },
     // the image plane (IM0): one image type, codecs, classical ops -- portable, no GPU (SOFTANZA_IMAGE_INTELLIGENCE.md)
-    .{ .name = "stz_image", .entry = "src/stz_image_entry.zig", .needs_ring = true, .needs_zlib = true, .needs_stb = true, .needs_webp = true },
+    .{ .name = "stz_image", .entry = "src/stz_image_entry.zig", .needs_ring = true, .needs_zlib = true, .needs_stb = true, .needs_webp = true, .needs_quirc = true },
     .{ .name = "stz_fswatch", .entry = "src/stz_fswatch_entry.zig", .needs_ring = true },
     .{ .name = "stz_time", .entry = "src/stz_time_entry.zig", .needs_ring = true },
     .{ .name = "stz_pool", .entry = "src/stz_pool_entry.zig", .needs_ring = true },
@@ -607,6 +608,16 @@ fn addStb(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) v
     lib.addCSourceFiles(.{ .files = &.{"vendor/stb/stz_stb_impl.c"}, .flags = &.{} });
     // stb_image_write (IM1): its JPEG encoder shifts negative ints, so no UB sanitizer here
     lib.addCSourceFiles(.{ .files = &.{"vendor/stb/stz_stb_write_impl.c"}, .flags = &.{"-fno-sanitize=undefined"} });
+}
+
+// quirc, the QR reader (IM9c of SOFTANZA_IMAGE_INTELLIGENCE.md): its four translation units, listed. Not one file is
+// edited. -fno-sanitize=undefined as for libwebp: its fixed-point geometry shifts and converts by design.
+fn addQuirc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path("vendor/quirc"));
+    lib.addCSourceFiles(.{
+        .files = &.{ "vendor/quirc/decode.c", "vendor/quirc/identify.c", "vendor/quirc/quirc.c", "vendor/quirc/version_db.c" },
+        .flags = &.{"-fno-sanitize=undefined"},
+    });
 }
 
 // libwebp, DECODER ONLY (IM9b of SOFTANZA_IMAGE_INTELLIGENCE.md): src/dec, src/dsp and src/utils of vendor/libwebp,
@@ -1249,6 +1260,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_zlib) addZlib(mod, lib, b);
         if (dom.needs_stb) addStb(mod, lib, b);
         if (dom.needs_webp) addWebp(mod, lib, b);
+        if (dom.needs_quirc) addQuirc(mod, lib, b);
         if (dom.needs_textshape) addTextShape(mod, lib, b);
         if (dom.needs_glfw) addGlfw(mod, lib, b, target.result.os.tag);
         if (dom.needs_rmlui) {

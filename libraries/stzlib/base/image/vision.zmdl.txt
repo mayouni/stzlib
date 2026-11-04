@@ -20,3 +20,7 @@ doc-vlm|granite-docling-258m|doc-vlm-v1|0.129032|31|1|03/11/2026 13:21:01|scored
 doc-vlm|native-reader|doc-vlm-v2|0.222222|27|1|03/11/2026 14:37:57|
 doc-vlm|granite-docling-258m|doc-vlm-v2|0.444444|27|1|03/11/2026 14:37:57|scored by the guard with doc-blocks on the predictions stored in results/doc_vlm_v2/
 doc-vlm|native-plus-granite|doc-vlm-v2|0.370370|27|1|03/11/2026 14:37:57|scored by the guard with doc-blocks: StzDocBlocksCombine of the stored floor and model predictions of results/doc_vlm_v2/
+codes|nothing|codes-judge-v1|0|366|1|04/11/2026 01:03:12|
+codes|quirc-native1d|codes-judge-v1|0.956284|366|1|04/11/2026 01:03:12|FIRST reading of the first judging set (seed 777), BEFORE the fix: QR 171/174, 1D 179/192 = 93.2% (bar 95%: MISSED), 12 codes invented (bar 0: MISSED); one defect, an EAN-8 read inside a UPC-A; kept on record
+codes|nothing|codes-judge-v2|0|366|1|04/11/2026 01:03:12|
+codes|quirc-native1d|codes-judge-v2|0.989071|366|1|04/11/2026 01:03:12|second judging set seed 4242, made after the fix and judged once: QR 170/174, 1D 192/192, negatives 0 false of 24, 0 invented; scored by StzCodesAgree (every bar met)
