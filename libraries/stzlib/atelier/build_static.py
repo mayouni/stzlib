@@ -23,11 +23,14 @@ commit of the library, so nothing built here is committed anywhere.
 
 It REFUSES to mix: the checks must be harvested at the commit the recording names, and the sweep taken at
 it, else it names which to record again (`rnxc record.ring`, `rnxc tours.ring`). --allow-mixed builds
-anyway and the page states each file's own commit. No machine path goes out: any folder of the machine that
+anyway and the page states each file's own commit. And when this folder sits in a git checkout it
+REFUSES a recording whose commit is not in that history (a rebase rewrote it, or the recording was taken on a
+branch that never landed): a citation of a commit nobody can check out is not a citation. An install has no
+history and is not asked. No machine path goes out: any folder of the machine that
 took the recording is replaced by <path> and counted, so a recording made without the scrub is mended here
 and the maintainer told. Standard library only; run from anywhere.
 """
-import json, os, re, shutil, sys, time
+import json, os, re, shutil, subprocess, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PATH = re.compile(r'(?<![A-Za-z0-9])[A-Za-z]:[\\/][^\s"\'<>|]*')
@@ -50,6 +53,25 @@ def load(name, required=True):
 def commit_of(text):
     """The commit token of '74757d462 on atelier/a0' or '0950e246a (installed)'."""
     return str(text or '').split(' ')[0]
+
+
+def not_in_history(commit):
+    """[] when the commit is an ancestor of HEAD, or when there is no git history to ask; else the reason."""
+    def git(*a):
+        try:
+            return subprocess.run(['git', '-C', HERE] + list(a), capture_output=True, text=True, timeout=60)
+        except (OSError, subprocess.SubprocessError):
+            return None
+    top = git('rev-parse', '--is-inside-work-tree')
+    if top is None or top.returncode != 0 or top.stdout.strip() != 'true':
+        return []
+    if not re.fullmatch(r'[0-9a-f]{7,40}', commit):
+        return ['the recording names %r, which is not a commit: record again' % commit]
+    r = git('merge-base', '--is-ancestor', commit, 'HEAD')
+    if r is not None and r.returncode == 0:
+        return []
+    return ['the recording names %s, which is not in this history (rebased away, or never landed): '
+            'push the code first, then record at it' % commit]
 
 
 def scrub(obj, counter):
@@ -106,6 +128,8 @@ def main():
     elif commit_of(tours.get('library')) != commit:
         problems.append('the sweep (tours.json) was taken at %s but the recording names %s: run rnxc tours.ring'
                         % (commit_of(tours.get('library')), commit))
+    if SRC == HERE:
+        problems += not_in_history(commit)
     ids = {c['id'] for c in checks['checks']}
     states = set(results.get('states', {}))
     if ids != states:

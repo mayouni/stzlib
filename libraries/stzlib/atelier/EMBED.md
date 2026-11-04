@@ -74,7 +74,9 @@ files above), `edition.json` (what judged it, the counts) and adds the edition t
 `<folder>/editions.json`. Everything is static and relative. **Nothing runs**: no playground, no run
 buttons. **No Ring column**: the page of an edition never carries a comparison with Ring (the
 author's rulings of 2026-10-30: none on a public page until he says so). It refuses to mix: the
-checks, the recording and the sweep must name one commit, else it says which to record again.
+checks, the recording and the sweep must name one commit, else it says which to record again; and,
+inside a git checkout, that commit must be in the checkout's history (a rebase can rewrite it, and a
+citation of a commit nobody can check out is not a citation).
 
 The folder is not committed anywhere: it is derived, from a pinned commit, by one command.
 

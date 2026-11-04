@@ -80,6 +80,14 @@ Scenario("The three files must name one commit, else the build is refused")
 	_AtWrite(cSrc + "/results.json", _AtResults())
 EndScenario()
 
+Scenario("The committed data names a commit that this history has")
+	Given("the Atelier's own checks, recording and sweep, built as they stand")
+	aH = _AtRun([ cPy, "build_static.py", "--out", cAtPlant + "/out5" ], cAtAtelier)
+	if aH[1] != 0  ? "    the builder said: " + trim(aH[2])  ok
+	Then("the real data builds: one commit, in this history", aH[1], 0)
+	Then("the edition is named by that commit", StzFindFirst("build_static: edition ", aH[2]) > 0, TRUE)
+EndScenario()
+
 Scenario("The output may not be placed inside the library, where an install would copy it")
 	aN = _AtRun([ cPy, "build_static.py", "--out", cAtAtelier + "/_x" ], cAtAtelier)
 	Then("refused", aN[1] != 0, TRUE)
