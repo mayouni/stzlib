@@ -35,6 +35,12 @@ $cStzVisionVlmProjector = "smolvlm_256m_mmproj.gguf"
 $cStzVisionVlmDecoderSha256 = "2a31195d3769c0b0fd0a4906201666108834848db768af11de1d2cef7cd35e65"
 $nStzVisionVlmWidth = 576
 $cStzVisionVlmSlot = ""
+# IM9e: the LARGER SmolVLM-500M-Instruct (32 layers, 960 wide) -- measured on the same golden as the 256M model and NOT chosen
+# (86 of 99 against 87); kept as a measured implementation so the registry's rule shows it. The same SigLIP tower, a wider decoder.
+$cStzVisionVlm500Decoder = "smolvlm_500m.gguf"
+$cStzVisionVlm500Projector = "smolvlm_500m_mmproj.gguf"
+$cStzVisionVlm500Sha256 = "9d4612de6a42214499e301494a3ecc2be0abdd9de44e663bda63f1152fad1bf4"
+$nStzVisionVlm500Width = 960
 # the floor of :describe: a FIXED sentence naming the category that is the main object of the most COCO val2017
 # pictures outside the golden set (_rig/coco_describe.py prints it), so it is not tuned on what judges it
 $cStzVisionDescribeFloor = "A picture of a person."
@@ -262,6 +268,10 @@ func StzVisionDeclare(paGoldens)
 	if len(StzFind("smolvlm-256m", _oV_.ImplementationIds())) = 0
 		_oV_.AddImplementation([ :id = "smolvlm-256m", :kind = "graph", :fn = "_StzVisionDescribeSmolvlm",
 			:needle = "vision/" + $cStzVisionVlmDecoder, :licence = "apache-2.0", :memory = 700 ])
+	ok
+	if len(StzFind("smolvlm-500m", _oV_.ImplementationIds())) = 0
+		_oV_.AddImplementation([ :id = "smolvlm-500m", :kind = "graph", :fn = "_StzVisionDescribeSmolvlm500",
+			:needle = "vision/" + $cStzVisionVlm500Decoder, :licence = "apache-2.0", :memory = 1000 ])
 	ok
 	# IM7 2 of 2: a scanned page as structure, judged against the golden documents' expected structure
 	_oX_ = StzFacultyQ("doc-vlm")
@@ -536,6 +546,36 @@ func _StzVisionObjectAtSam(pInput, paParams)
 func _StzVisionDescribeSmolvlm(pImage, paParams)
 	_o_ = StzImageQ("" + pImage)
 	_c_ = _o_.Describe()
+	_o_.Release()
+	return _c_
+
+# IM9e: the larger model in the same slot. The picture-in-words method names its model through four globals; this swaps them for the
+# length of one call and puts them back (the objects faculty does the same with its model file).
+func _StzVisionDescribeSmolvlm500(pImage, paParams)
+	_cD_ = $cStzVisionVlmDecoder
+	_cP_ = $cStzVisionVlmProjector
+	_cS_ = $cStzVisionVlmDecoderSha256
+	_nW_ = $nStzVisionVlmWidth
+	$cStzVisionVlmDecoder = $cStzVisionVlm500Decoder
+	$cStzVisionVlmProjector = $cStzVisionVlm500Projector
+	$cStzVisionVlmDecoderSha256 = $cStzVisionVlm500Sha256
+	$nStzVisionVlmWidth = $nStzVisionVlm500Width
+	_o_ = StzImageQ("" + pImage)
+	_c_ = ""
+	try
+		_c_ = _o_.Describe()
+	catch
+		$cStzVisionVlmDecoder = _cD_
+		$cStzVisionVlmProjector = _cP_
+		$cStzVisionVlmDecoderSha256 = _cS_
+		$nStzVisionVlmWidth = _nW_
+		_o_.Release()
+		stzraise(cCatchError)
+	done
+	$cStzVisionVlmDecoder = _cD_
+	$cStzVisionVlmProjector = _cP_
+	$cStzVisionVlmDecoderSha256 = _cS_
+	$nStzVisionVlmWidth = _nW_
 	_o_.Release()
 	return _c_
 
