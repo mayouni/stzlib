@@ -14,6 +14,7 @@ const ocrg = @import("ocr_graph.zig"); // O3: PP-OCR graphs on ggml
 const ocrp = @import("ocr_pipeline.zig"); // O3b: an image file in, its text lines out
 const vlm = @import("vlm.zig"); // IM7: the vision half of a vision-language model
 const nvit = @import("neural_vit.zig"); // IM8a: that tower, resident on the GPU
+const clip = @import("clip_text.zig"); // IM9f: the CLIP tokenizer and query embedding
 const vis = @import("vision.zig"); // IM3: the image plane's models (classify, faces, objects)
 const ocrw = @import("ocr_winrt.zig"); // O5: the platform engine called in process
 
@@ -1379,6 +1380,36 @@ fn ring_VisionTokens(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// IM9f: (cVocab, cMerges, cText) -> the 16 token ids CLIP reads for a query
+fn ring_ClipIds(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (clip.load(ocrArg(p, 1), ocrArg(p, 2))) |t| {
+        if (clip.encode(t, ocrArg(p, 3))) |ids| {
+            defer std.heap.c_allocator.free(ids);
+            for (ids) |x| R.ring_list_adddouble(out, @floatFromInt(x));
+        } else |e| {
+            ocrg.setError("clip: {s}", .{@errorName(e)});
+        }
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("clip: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// IM9f: (cTextModel, cVocab, cMerges, cText, nThreads) -> the query's embedding, 512 numbers, L2-normalised
+fn ring_ClipEmbed(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const th: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 5));
+    if (clip.embed(ocrArg(p, 1), ocrArg(p, 2), ocrArg(p, 3), ocrArg(p, 4), if (th < 1) 4 else th)) |r| {
+        defer std.heap.c_allocator.free(r.v);
+        vision_ms = r.ms;
+        for (r.v) |x| R.ring_list_adddouble(out, x);
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("clip: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 // the compute time of the last vision call, ms
 fn ring_VisionMs(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retnumber(p, vision_ms);
@@ -1392,6 +1423,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralvisionfaces", .func = &ring_VisionFaces },
     .{ .name = "stzengineneuralvisionobjects", .func = &ring_VisionObjects },
     .{ .name = "stzengineneuralvisionms", .func = &ring_VisionMs },
+    .{ .name = "stzengineneuralclipids", .func = &ring_ClipIds },
+    .{ .name = "stzengineneuralclipembed", .func = &ring_ClipEmbed },
     .{ .name = "stzengineneuralvisionembedimage", .func = &ring_VisionEmbedImage },
     .{ .name = "stzengineneuralvisionembedtext", .func = &ring_VisionEmbedText },
     .{ .name = "stzengineneuralvisiontokens", .func = &ring_VisionTokens },

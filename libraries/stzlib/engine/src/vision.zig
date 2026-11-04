@@ -21,7 +21,7 @@ const gpa = std.heap.c_allocator;
 var cache_paths: std.ArrayList([]u8) = .empty;
 var cache_models: std.ArrayList(*graph.Model) = .empty;
 
-fn modelFor(path: []const u8) !*graph.Model {
+pub fn modelFor(path: []const u8) !*graph.Model {
     for (cache_paths.items, 0..) |p, i| {
         if (std.mem.eql(u8, p, path)) return cache_models.items[i];
     }
