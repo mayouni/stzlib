@@ -37,15 +37,16 @@ aGdIntent = [
 	[ "10_multiline_block",      "diverged",  "finished",       2, 1, 0, 0 ],
 	[ "11_picture",              "diverged",  "finished",       0, 1, 0, 2 ],
 	[ "12_protocol_python",      "diverged",  "finished-timed", 2, 1, 0, 2 ],
-	[ "13_unreadable",           "kept",      "unreadable",     0, 0, 0, 0 ]
+	[ "13_unreadable",           "kept",      "unreadable",     0, 0, 0, 0 ],
+	[ "14_exact_case",           "diverged",  "finished",       2, 1, 0, 0 ]
 ]
 
 #============================================================================
 Scenario("The reference reproduces every committed expected file, byte for byte")
 	nGdSec = clock()
-	Given("the committed inputs of 13 tours and 5 runs")
+	Given("the committed inputs of 14 tours and 5 runs")
 	aGdAll = TestoorGoldenAll(cGdRoot)
-	Then("they produce 41 expected files", len(aGdAll), 41)
+	Then("they produce 43 expected files", len(aGdAll), 43)
 	acGdBad = TestoorGoldenDiff(cGdRoot)
 	for nGd = 1 to len(acGdBad)
 		? "        DIFFERS: " + acGdBad[nGd]
@@ -57,7 +58,7 @@ Scenario("The reference reproduces every committed expected file, byte for byte"
 	for nGd = 1 to len(aGdAll)
 		if right(aGdAll[nGd][1], 13) = "expected.json" and StzJsonIsValid(aGdAll[nGd][2])  nGdValid++  ok
 	next
-	Then("every expected.json is valid JSON", nGdValid, 18)
+	Then("every expected.json is valid JSON", nGdValid, 19)
 EndScenario()
 ? "        [section took " + ((clock() - nGdSec) / clockspersecond()) + "s]"
 

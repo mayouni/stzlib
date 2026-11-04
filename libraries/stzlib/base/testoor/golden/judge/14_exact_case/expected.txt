@@ -1,0 +1,3 @@
+DIVERGED    fixtures/case.ring  1 stops: 2 kept, 1 diverged  seed 5  (0.88 s)
+    diverged  (the file)  (0.63 s)
+        diverged  Hello

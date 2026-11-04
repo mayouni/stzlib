@@ -1,0 +1,3 @@
+250	  [pass] marker in lower case
+500	  [Ok] marker in odd case
+750	HELLO

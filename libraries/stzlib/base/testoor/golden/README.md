@@ -13,7 +13,7 @@
 
 The function under test is `TestoorVerdict(record, lines, stderr, exit, hung, face, wall_ms, seed)` in `stzTraveller.ring`. It is the first thing the Zig core implements (roadmap P3, step 1).
 
-## The thirteen judge cases
+## The fourteen judge cases
 
 | case | what it pins down |
 |---|---|
@@ -30,6 +30,7 @@ The function under test is `TestoorVerdict(record, lines, stderr, exit, hung, fa
 | `11_picture` | `PICTURE DOES NOT MATCH` is one diverged claim naming its row |
 | `12_protocol_python` | a self-describing tour: seed, weather, stops, ok, fail, plan, routes, end |
 | `13_unreadable` | a file the reader could not read |
+| `14_exact_case` | a verdict marker is read in **any case** (`[pass]`, `[Ok]`); a promised value must match **exactly** (`Hello` is not `HELLO`) |
 
 The five logbook cases cover an all-kept run (exit 0), a mixed run with skipped files and topics (exit 1), a run of tours that did not start, broke, hung or could not be read (exit 1), a kept tour found flaky (exit 1), and a run refused because its root is not there (exit 2).
 
@@ -40,6 +41,7 @@ The five logbook cases cover an all-kept run (exit 0), a mixed run with skipped 
 - **Numbers in the prose:** an integer prints without decimals (`5`), any other number with exactly two (`1.50`, `0.88`). This is Ring's own rule and the goldens follow it.
 - **Line endings:** every file is compared with carriage returns removed, and `.gitattributes` here marks the files `-text` so a checkout cannot change a byte.
 - **Text is UTF-8.** `02_diverged` carries non-ASCII text on purpose.
+- **Case.** String equality is exact, byte for byte (measured on Ring 1.27 and Ring++: `"Hello" = "HELLO"` is false). `lower()` folds ASCII letters only (`lower("ÀB")` equals `"Àb"`), so a port lowercases A to Z and nothing else. Verdict markers are the one place case does not matter.
 
 ## How it is used
 
