@@ -14,6 +14,7 @@ const ocrg = @import("ocr_graph.zig"); // O3: PP-OCR graphs on ggml
 const ocrp = @import("ocr_pipeline.zig"); // O3b: an image file in, its text lines out
 const vlm = @import("vlm.zig"); // IM7: the vision half of a vision-language model
 const nvit = @import("neural_vit.zig"); // IM8a: that tower, resident on the GPU
+const owl = @import("owl.zig"); // IM9f: find what words name in a picture
 const clip = @import("clip_text.zig"); // IM9f: the CLIP tokenizer and query embedding
 const vis = @import("vision.zig"); // IM3: the image plane's models (classify, faces, objects)
 const ocrw = @import("ocr_winrt.zig"); // O5: the platform engine called in process
@@ -1410,6 +1411,56 @@ fn ring_ClipEmbed(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// IM9f: (cVision, cText, cVocab, cMerges, cQueries (newline-separated), cPixels, nW, nH, nC, nScore, nNms, nThreads)
+//   -> [ [ x, y, w, h, score, nQuery (1-based) ], ... ] in the picture's pixels
+fn ring_OwlFind(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const g = R.ring_vm_api_getnumber;
+    const th: c_int = @intFromFloat(g(p, 12));
+    if (owl.find(ocrArg(p, 1), ocrArg(p, 2), ocrArg(p, 3), ocrArg(p, 4), ocrArg(p, 5), ocrArg(p, 6), @intFromFloat(g(p, 7)), @intFromFloat(g(p, 8)), @intFromFloat(g(p, 9)), @floatCast(g(p, 10)), @floatCast(g(p, 11)), if (th < 1) 4 else th)) |r| {
+        defer std.heap.c_allocator.free(r.dets);
+        vision_ms = r.ms;
+        for (r.dets) |d| {
+            const row = R.ring_list_newlist(out) orelse break;
+            R.ring_list_adddouble(row, d.x);
+            R.ring_list_adddouble(row, d.y);
+            R.ring_list_adddouble(row, d.w);
+            R.ring_list_adddouble(row, d.h);
+            R.ring_list_adddouble(row, d.score);
+            R.ring_list_adddouble(row, @floatFromInt(d.class + 1));
+        }
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("owl: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// IM9f: (cVision, cText, cVocab, cMerges, cQueries, cPixels, nW, nH, nC, nThreads) -> the logit of every patch for every query, patch by patch
+fn ring_OwlScores(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const g = R.ring_vm_api_getnumber;
+    const th: c_int = @intFromFloat(g(p, 10));
+    if (owl.scores(ocrArg(p, 1), ocrArg(p, 2), ocrArg(p, 3), ocrArg(p, 4), ocrArg(p, 5), ocrArg(p, 6), @intFromFloat(g(p, 7)), @intFromFloat(g(p, 8)), @intFromFloat(g(p, 9)), if (th < 1) 4 else th)) |v| {
+        defer std.heap.c_allocator.free(v);
+        for (v) |x| R.ring_list_adddouble(out, x);
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("owl: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// IM9f: (cPixels, nW, nH, nC) -> the tensor OWL-ViT's graph is fed, as 768 x 768 x 3 little-endian f32 bytes (NCHW): the preprocessing, checkable on its own
+fn ring_OwlPixels(p: *anyopaque) callconv(.c) void {
+    const g = R.ring_vm_api_getnumber;
+    if (owl.pixels(ocrArg(p, 1), @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)))) |t| {
+        defer std.heap.c_allocator.free(t);
+        R.ring_vm_api_retstring2(p, @ptrCast(t.ptr), @intCast(t.len * 4));
+    } else |e| {
+        ocrg.setError("owl: {s}", .{@errorName(e)});
+        R.ring_vm_api_retstring2(p, @constCast(""), 0);
+    }
+}
+
 // the compute time of the last vision call, ms
 fn ring_VisionMs(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retnumber(p, vision_ms);
@@ -1425,6 +1476,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralvisionms", .func = &ring_VisionMs },
     .{ .name = "stzengineneuralclipids", .func = &ring_ClipIds },
     .{ .name = "stzengineneuralclipembed", .func = &ring_ClipEmbed },
+    .{ .name = "stzengineneuralowlfind", .func = &ring_OwlFind },
+    .{ .name = "stzengineneuralowlscores", .func = &ring_OwlScores },
+    .{ .name = "stzengineneuralowlpixels", .func = &ring_OwlPixels },
     .{ .name = "stzengineneuralvisionembedimage", .func = &ring_VisionEmbedImage },
     .{ .name = "stzengineneuralvisionembedtext", .func = &ring_VisionEmbedText },
     .{ .name = "stzengineneuralvisiontokens", .func = &ring_VisionTokens },

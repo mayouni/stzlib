@@ -32,7 +32,7 @@ pub fn modelFor(path: []const u8) !*graph.Model {
 }
 
 /// An RGB (3-channel) copy of any 1/3/4-channel pixel buffer.
-fn toRgb(px: []const u8, w: usize, h: usize, c: usize) ![]u8 {
+pub fn toRgb(px: []const u8, w: usize, h: usize, c: usize) ![]u8 {
     const out = try gpa.alloc(u8, w * h * 3);
     for (0..w * h) |i| {
         const s = px[i * c ..];
@@ -162,7 +162,7 @@ fn byScore(_: void, a: Det, b: Det) bool {
 }
 
 /// Greedy non-maximum suppression, best first; `per_class` keeps boxes of different classes apart.
-fn nms(cands: []Det, thr: f32, per_class: bool) ![]Det {
+pub fn nms(cands: []Det, thr: f32, per_class: bool) ![]Det {
     std.mem.sort(Det, cands, {}, byScore);
     var keep: std.ArrayList(Det) = .empty;
     for (cands) |d| {
