@@ -412,8 +412,8 @@ every data file and source of the Atelier for a drive path (it failed on that ve
 sweep was taken again, then passed). **The three paths remain in the history of main**, at the A1 and
 A2 commits: rewriting a shared public history is not this plane's to do, and is named to the author.
 
-**The recording and the sweep at one commit** (`50671dca8`, the code commit of A3, on the package's
-engine, rnxc a8ad844, the CPU fit to measure): 1,129 checks, 1,014 pass / 89 fail / 26 error; Ring
+**The recording and the sweep at one commit** (`c08f96dee`, on main at both remotes, on the
+package's engine, rnxc a8ad844, the CPU fit to measure): 1,129 checks, 1,014 pass / 89 fail / 26 error; Ring
 (the oracle, its tree older) 967 / 70 / 92, rnxc whole equal to the resident on every check. The
 sweep: 1,418 tours (the Atelier's and testoor's own guards skipped by name), 1,324 finished, 31
 broke, 55 never started (54 the one Rule A refusal), 8 hung, 41 kept their class; **20,287 Then
@@ -421,5 +421,16 @@ lines read, 15,206 judged (74.96 percent): 15,069 kept, 137 diverged**, 4,923 un
 unjudged. The same refusals, the same hung tours as at A1: the coverage moved with the tests, not
 with the Atelier.
 
-**Guards after A3.** Static 39 of 39 (54 s: python spawns), checks 36 of 36 (63 s), page 24 of 24
-(35 s), tours 42 of 42 (128 s), one process each, under rnxc a8ad844.
+**A recording must name a commit that exists.** The first recording of A3 named `50671dca8`, the
+code commit as I had it before the rebase that precedes a push; the rebase made it `23d053b8b`, and
+every citation of `50671dca8` would have pointed at a commit main does not have. Found by reading
+the push's own output against the data, mended three ways: the builder now refuses, inside a git
+checkout, a recording whose commit is not an ancestor of HEAD (naming the cure); the static guard
+builds the Atelier's own committed data and so fails on exactly this; and the order is now written
+down: **push the code, then record at it, then commit the data**, so the recording names a commit
+that is already final. The data was taken again at `c08f96dee` (the commit that carries the check).
+The figures above are that second taking; the first one agreed with it to the digit (the tests
+moved by nothing between the two).
+
+**Guards after A3.** Static 41 of 41 (26 s), checks 36 of 36 (53 s), page 24 of 24 (42 s), tours 42
+of 42 (148 s), one process each, under rnxc a8ad844, the CPU fit to measure.
