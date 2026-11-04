@@ -997,6 +997,47 @@ class stzImage from stzObject
 	def Objects()
 		return This.ObjectsXT(0.3)
 
+	# IM9f: finds what WORDS name -- "a red mug", "traffic cone", or a list of them. Open vocabulary (OWL-ViT): a word does not have
+	# to be one the object detector was trained on. Returns [ [ :query, :score, :box = [ x, y, w, h ] ] ... ], best score first, the box in
+	# 1-based pixels like Objects(); at most 20 boxes per word. The first call about a picture runs the 768 x 768 graph (about 0.7 s on the
+	# CPU); a second call about the SAME pixels pays only for words it has not seen.
+	def FindByWords(pWords)
+		return This.FindByWordsXT(pWords, $nStzVisionFindScore)
+
+	def FindByWordsXT(pWords, pnMinScore)
+		_aW_ = _StzVisionWordList(pWords)
+		if len(_aW_) = 0
+			return []
+		ok
+		_cV_ = _StzVisionModelOrRaise($cStzVisionOwlVision, "FindByWords")
+		_cT_ = _StzVisionModelOrRaise($cStzVisionOwlText, "FindByWords")
+		_cVocab_ = _StzVisionModelOrRaise($cStzVisionOwlVocab, "FindByWords")
+		_cMerges_ = _StzVisionModelOrRaise($cStzVisionOwlMerges, "FindByWords")
+		_cQ_ = ""
+		_n_ = len(_aW_)
+		for _i_ = 1 to _n_
+			if _i_ > 1 _cQ_ += char(10) ok
+			_cQ_ += _aW_[_i_]
+		next
+		_a_ = StzEngineNeuralOwlFind(_cV_, _cT_, _cVocab_, _cMerges_, _cQ_, This.Pixels(), This.Width(), This.Height(),
+			This.Channels(), pnMinScore, $nStzVisionFindNms, 4)
+		_aKept_ = []
+		for _i_ = 1 to _n_
+			_aKept_ + 0
+		next
+		_aOut_ = []
+		_m_ = len(_a_)
+		for _i_ = 1 to _m_
+			_r_ = _a_[_i_]
+			_q_ = floor(_r_[6])
+			if _aKept_[_q_] < $nStzVisionFindMax
+				_aKept_[_q_] = _aKept_[_q_] + 1
+				_aOut_ + [ :query = _aW_[_q_], :score = _r_[5], :box = [ _r_[1] + 1, _r_[2] + 1, _r_[3], _r_[4] ] ]
+			ok
+		next
+		_StzVisionDoor("find", $cStzVisionOwlVision, "" + len(_aOut_) + " box(es) for " + _n_ + " word(s)")
+		return _aOut_
+
 	def ObjectsXT(pnMinScore)
 		return This._Objects(pnMinScore, 0)
 

@@ -45,6 +45,20 @@ $nStzVisionVlm500Width = 960
 # pictures outside the golden set (_rig/coco_describe.py prints it), so it is not tuned on what judges it
 $cStzVisionDescribeFloor = "A picture of a person."
 
+# IM9f: find what WORDS name in a picture (FindByWords) -- OWL-ViT base patch32 (Google, Apache-2.0): a vision graph (a CLIP ViT-B/32 at
+# 768 x 768 with a box head and a class head) and a text graph (the CLIP text tower), each converted by engine/tools/onnx_to_gguf.py, and the
+# model's own vocabulary and merges for the engine's CLIP tokenizer (engine/src/clip_text.zig). The score thresholds were chosen on the DEV
+# pairs of _golden/owl_find_v1.tsv (the first 40 pictures) and nothing else (SOFTANZA_IMAGE_INTELLIGENCE.md, IM9f)
+$cStzVisionOwlVision = "owlvit_vision.gguf"
+$cStzVisionOwlText = "owlvit_text.gguf"
+$cStzVisionOwlVocab = "owlvit_vocab.json"
+$cStzVisionOwlMerges = "owlvit_merges.txt"
+$nStzVisionFindScore = 0.08
+$nStzVisionFindNms = 0.5
+$nStzVisionFindMax = 20
+# the floor of :find: YOLOX's detections whose COCO label IS the word
+$nStzVisionFindFloorScore = 0.2
+
 # IM7 2 of 2: a scanned PAGE as structure (:doc-vlm) -- Granite-Docling-258M, whose projector is the same
 # idefics3 tower as SmolVLM's. The page is read as Idefics3 reads it: resized to 2048 on its long side, cut into
 # 512 x 512 tiles, one more view of the whole page, 64 rows each; the model answers in DocTags (stzDocTags.ring)
@@ -309,6 +323,15 @@ func StzVisionDeclare(paGoldens)
 		_oN_.AddImplementation([ :id = "siglip2-cosine", :kind = "graph", :fn = "_StzVisionDupSiglip",
 			:needle = "vision/" + $cStzVisionImageEmbedder, :licence = "apache-2.0", :memory = 400 ])
 	ok
+	# IM9f: find what WORDS name in a picture. The input is [ picture path, words ]; the answer the boxes [ :query, :score, :box ]. The floor
+	# answers only the words that ARE a COCO class name (YOLOX); owlvit answers any word
+	_oW_ = StzFacultyQ("find")
+	_oW_.SetInputTypeQ(:record).SetOutputTypeQ(:record).SetFloorQ("yolox-by-name", "_StzVisionFindFloor").
+	     SetGoldenCheckerQ("find-f1").SetGoldenVersionQ("find-v1")
+	if len(StzFind("owlvit", _oW_.ImplementationIds())) = 0
+		_oW_.AddImplementation([ :id = "owlvit", :kind = "graph", :fn = "_StzVisionFindOwl",
+			:needle = "vision/" + $cStzVisionOwlVision, :licence = "apache-2.0", :memory = 900 ])
+	ok
 	if len(StzMeasurementOf("faces", "platform", "coco-v1")) = 0 and fexists(StzVisionMeasurementsFile())
 		StzLoadMeasurements(StzVisionMeasurementsFile())
 	ok
@@ -420,6 +443,50 @@ func _StzVisionDupSiglip(pPair, paParams)
 	_oA_.Release()
 	_oB_.Release()
 	return _nSame_
+
+# IM9f: the two answers of :find to [ picture path, words ] -- the floor (YOLOX, by name) and owlvit (the engine's OWL-ViT)
+func _StzVisionFindFloor(pInput, paParams)
+	_oI_ = StzImageQ("" + pInput[1])
+	_aWords_ = _StzVisionWordList(pInput[2])
+	_aObj_ = _oI_.ObjectsXT($nStzVisionFindFloorScore)
+	_oI_.Release()
+	_aOut_ = []
+	_n_ = len(_aObj_)
+	_m_ = len(_aWords_)
+	for _i_ = 1 to _n_
+		for _j_ = 1 to _m_
+			_cW_ = _aWords_[_j_]
+			_cL_ = lower(_aObj_[_i_][:label])
+			if _cL_ = _cW_ or (_cL_ + "s") = _cW_
+				_aOut_ + [ :query = _aWords_[_j_], :score = _aObj_[_i_][:score], :box = _aObj_[_i_][:box] ]
+				exit
+			ok
+		next
+	next
+	return _aOut_
+
+func _StzVisionFindOwl(pInput, paParams)
+	_oI_ = StzImageQ("" + pInput[1])
+	_a_ = _oI_.FindByWords(pInput[2])
+	_oI_.Release()
+	return _a_
+
+# a word or a list of words as a list of trimmed lower-case words, no empty one
+func _StzVisionWordList(pWords)
+	_aOut_ = []
+	if isString(pWords)
+		_aIn_ = [ pWords ]
+	but isList(pWords)
+		_aIn_ = pWords
+	else
+		_aIn_ = []
+	ok
+	_n_ = len(_aIn_)
+	for _i_ = 1 to _n_
+		_c_ = StzLower(trim(StzReplace("" + _aIn_[_i_], char(10), " ")))
+		if len(_c_) > 0 _aOut_ + _c_ ok
+	next
+	return _aOut_
 
 func _StzVisionCodesNone(pImage, paParams)
 	return []

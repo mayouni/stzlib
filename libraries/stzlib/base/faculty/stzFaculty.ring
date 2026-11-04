@@ -355,6 +355,8 @@ func StzGoldenAgrees(pcChecker, pGot, pExpected)
 		return StzDocBlocksAgree(pGot, pExpected)
 	but pcChecker = "codes-exact"
 		return StzCodesAgree(pGot, pExpected)
+	but pcChecker = "find-f1"
+		return StzFindAgree(pGot, pExpected)
 	but pcChecker = "first"
 		# a ranking whose best item is the expected one
 		if NOT isList(pGot) or len(pGot) = 0 return 0 ok
@@ -533,6 +535,69 @@ func StzCodesAgree(pGot, pExpected)
 		if _bFound_ = 0 return 0 ok
 	next
 	return 1
+
+# IM9f -- find-f1: pExpected is [ :w, :h, :boxes = [ [ x, y, w, h ] ... ] ] (1-based, the boxes of ONE word in a picture of w x h; empty when the
+# word was verified absent); pGot the rows [ :query, :score, :box ] of the faculty. Boxes under 2% of the picture are dropped from the answer
+# first. A word that IS present agrees when F1 >= 0.5 (greedy by score, IoU >= 0.5); a word that is ABSENT agrees when nothing is left.
+func StzFindAgree(pGot, pExpected)
+	return StzFindScore(pGot, pExpected)[:agrees]
+
+func StzFindScore(pGot, pExpected)
+	if NOT isList(pGot) or NOT isList(pExpected)
+		return [ :agrees = 0, :hits = 0, :misses = 0, :false = 0 ]
+	ok
+	_nMin_ = 0.02 * pExpected[:w] * pExpected[:h]
+	_aG_ = []
+	_n_ = len(pGot)
+	for _i_ = 1 to _n_
+		_b_ = pGot[_i_][:box]
+		if _b_[3] * _b_[4] >= _nMin_ _aG_ + pGot[_i_] ok
+	next
+	_aT_ = pExpected[:boxes]
+	_nT_ = len(_aT_)
+	if _nT_ = 0
+		_nA_ = 0
+		if len(_aG_) = 0 _nA_ = 1 ok
+		return [ :agrees = _nA_, :hits = 0, :misses = 0, :false = len(_aG_) ]
+	ok
+	# by score, best first (a selection sort: the answers are few)
+	_nG_ = len(_aG_)
+	for _i_ = 1 to _nG_ - 1
+		_nB_ = _i_
+		for _j_ = _i_ + 1 to _nG_
+			if _aG_[_j_][:score] > _aG_[_nB_][:score] _nB_ = _j_ ok
+		next
+		if _nB_ != _i_
+			_t_ = _aG_[_i_]
+			_aG_[_i_] = _aG_[_nB_]
+			_aG_[_nB_] = _t_
+		ok
+	next
+	_aUsed_ = []
+	for _i_ = 1 to _nT_ _aUsed_ + 0 next
+	_nHit_ = 0
+	for _j_ = 1 to _nG_
+		_nBest_ = 0
+		_vBest_ = 0.5
+		for _i_ = 1 to _nT_
+			if _aUsed_[_i_] = 1 loop ok
+			_v_ = _StzIou(_aG_[_j_][:box], _aT_[_i_])
+			if _v_ >= _vBest_
+				_vBest_ = _v_
+				_nBest_ = _i_
+			ok
+		next
+		if _nBest_ > 0
+			_aUsed_[_nBest_] = 1
+			_nHit_++
+		ok
+	next
+	_nFalse_ = _nG_ - _nHit_
+	_nMiss_ = _nT_ - _nHit_
+	_nF1_ = (2 * _nHit_) / (2 * _nHit_ + _nFalse_ + _nMiss_)
+	_nA_ = 0
+	if _nF1_ >= 0.5 _nA_ = 1 ok
+	return [ :agrees = _nA_, :hits = _nHit_, :misses = _nMiss_, :false = _nFalse_ ]
 
 func StzBoxesAgree(pGot, pExpected)
 	return StzBoxesScore(pGot, pExpected)[:f1] >= 0.5
