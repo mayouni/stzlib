@@ -239,6 +239,7 @@ ok
     load "testoor/stzClock.ring"
     load "testoor/stzSubject.ring"
     load "testoor/stzImpact.ring"
+    load "testoor/stzGolden.ring"
 
     load "string/stzWordStream.ring"
 

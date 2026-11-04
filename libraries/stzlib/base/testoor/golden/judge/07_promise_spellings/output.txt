@@ -1,0 +1,11 @@
+250	1
+500	0
+750	13
+1000	number
+1250	[ 6, 28 ]
+1500	a
+1750	b
+2000	
+2250	5
+2500	Executed in almost 0 second(s)
+2750	STOPPED!

@@ -1,0 +1,5 @@
+250	-- Scene 1: first --
+500	  [OK] first holds
+750	-- Scene 2: second --
+1000	Line 12 Error (R1) : Can't divide by zero 
+1250	in file scenes.ring 

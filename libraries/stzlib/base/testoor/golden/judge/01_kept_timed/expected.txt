@@ -1,0 +1,1 @@
+KEPT        fixtures/uuid_narrated.ring  2 stops: 3 kept  (4.13 s, finished, timed)

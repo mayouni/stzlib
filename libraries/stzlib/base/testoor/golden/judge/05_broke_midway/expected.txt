@@ -1,0 +1,4 @@
+BROKE       fixtures/scenes.ring  2 stops: 1 kept, 2 unreached  seed 5  (1.38 s)
+    unreached  -- Scene 2: second --  (0.50 s)
+        unreached  second holds
+        unreached  third holds

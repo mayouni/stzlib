@@ -1,0 +1,1 @@
+KEPT        fixtures/spellings.ring  1 stops: 8 kept  (2.88 s, finished, timed)

@@ -1,0 +1,41 @@
+{
+ "file": "fixtures/lies.ring",
+ "readable": 1,
+ "why": "",
+ "dialect": "promises",
+ "lines": 40,
+ "asserts": 1,
+ "stops": [
+  {
+   "title": "(the file)",
+   "line": 1,
+   "claims": [
+    {
+     "line": 1,
+     "kind": "promise",
+     "claim": "1 + 1",
+     "want": "3"
+    },
+    {
+     "line": 2,
+     "kind": "prose",
+     "claim": "x",
+     "want": "\"C\" but should be \"sm_AS\""
+    },
+    {
+     "line": 3,
+     "kind": "promise",
+     "claim": "3",
+     "want": "6"
+    },
+    {
+     "line": 4,
+     "kind": "promise",
+     "claim": "list",
+     "want": "[ 6, 28 ]"
+    }
+   ]
+  }
+ ],
+ "routes": []
+}

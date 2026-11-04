@@ -1,0 +1,29 @@
+{
+ "file": "fixtures/loop.ring",
+ "readable": 1,
+ "why": "",
+ "dialect": "narrated",
+ "lines": 40,
+ "asserts": 1,
+ "stops": [
+  {
+   "title": "A loop that never ends",
+   "line": 4,
+   "claims": [
+    {
+     "line": 6,
+     "kind": "sees",
+     "claim": "it starts",
+     "want": ""
+    },
+    {
+     "line": 7,
+     "kind": "sees",
+     "claim": "it ends",
+     "want": ""
+    }
+   ]
+  }
+ ],
+ "routes": []
+}

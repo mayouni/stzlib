@@ -1,0 +1,35 @@
+{
+ "file": "fixtures/blocks.ring",
+ "readable": 1,
+ "why": "",
+ "dialect": "promises",
+ "lines": 40,
+ "asserts": 1,
+ "stops": [
+  {
+   "title": "(the file)",
+   "line": 1,
+   "claims": [
+    {
+     "line": 1,
+     "kind": "promise",
+     "claim": "as lines",
+     "want": "[\n1,\n2\n]"
+    },
+    {
+     "line": 2,
+     "kind": "promise",
+     "claim": "wrapped",
+     "want": "[\n11, 22,\n33\n]"
+    },
+    {
+     "line": 3,
+     "kind": "promise",
+     "claim": "wrapped wrong",
+     "want": "[\n11, 22,\n44\n]"
+    }
+   ]
+  }
+ ],
+ "routes": []
+}

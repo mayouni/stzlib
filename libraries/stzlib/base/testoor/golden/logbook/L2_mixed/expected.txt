@@ -1,0 +1,17 @@
+KEPT        fixtures/uuid_narrated.ring  2 stops: 3 kept  (4.13 s, finished, timed)
+DIVERGED    fixtures/format_narrated.ring  1 stops: 2 kept, 1 diverged  seed 5  (2.63 s, finished, timed)
+    diverged  The format holds  (2 s)
+        diverged  b is é à 日本
+UNJUDGED    fixtures/branch.ring  1 stops: 1 kept, 1 unjudged  (0.38 s)
+    unjudged  (the file)  (0.13 s)
+        unjudged  odd path taken
+owned 3 tours, run 3 (two figures, never summed)
+  claims: 6 kept, 1 diverged, 0 unreached, 1 unjudged
+  tours: 1 finished, 2 finished-timed, 0 not-started, 0 broke, 0 hung, 0 unreadable
+  wall: 7.14 s, by golden
+  skipped by name: 1
+    _helper.ring
+  topics not walked (--topic demo): 2
+    alpha
+    beta
+exit 1

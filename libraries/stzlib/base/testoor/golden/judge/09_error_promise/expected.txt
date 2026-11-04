@@ -1,0 +1,1 @@
+KEPT        fixtures/boom.ring  1 stops: 2 kept  (0.88 s)

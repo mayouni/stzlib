@@ -1,0 +1,41 @@
+{
+ "file": "fixtures/scenes.ring",
+ "readable": 1,
+ "why": "",
+ "dialect": "chk",
+ "lines": 40,
+ "asserts": 1,
+ "stops": [
+  {
+   "title": "-- Scene 1: first --",
+   "line": 5,
+   "claims": [
+    {
+     "line": 6,
+     "kind": "sees",
+     "claim": "first holds",
+     "want": ""
+    }
+   ]
+  },
+  {
+   "title": "-- Scene 2: second --",
+   "line": 9,
+   "claims": [
+    {
+     "line": 10,
+     "kind": "sees",
+     "claim": "second holds",
+     "want": ""
+    },
+    {
+     "line": 11,
+     "kind": "sees",
+     "claim": "third holds",
+     "want": ""
+    }
+   ]
+  }
+ ],
+ "routes": []
+}

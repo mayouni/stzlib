@@ -1,0 +1,29 @@
+{
+ "file": "fixtures/boom.ring",
+ "readable": 1,
+ "why": "",
+ "dialect": "promises",
+ "lines": 40,
+ "asserts": 1,
+ "stops": [
+  {
+   "title": "(the file)",
+   "line": 1,
+   "claims": [
+    {
+     "line": 1,
+     "kind": "promise",
+     "claim": "before",
+     "want": "before"
+    },
+    {
+     "line": 2,
+     "kind": "promise",
+     "claim": "Boom()",
+     "want": "ERROR: boom happened"
+    }
+   ]
+  }
+ ],
+ "routes": []
+}

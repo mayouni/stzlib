@@ -1,0 +1,10 @@
+250	
+500	SCENARIO: The format holds
+750	  THEN  a is 1  [PASS]
+1000	  THEN  b is é à 日本  [FAIL]
+1250	    expected: 3
+1500	    got:      4
+1750	  THEN  c is 3  [PASS]
+2000	  -> 2 pass, 1 fail
+2250	STATUS: FAILED
+2500	STOPPED!

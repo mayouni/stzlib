@@ -1,0 +1,7 @@
+KEPT        fixtures/uuid_narrated.ring  2 stops: 3 kept  FLAKY  seed 5  (4.13 s, finished, timed)
+owned 1 tours, run 1 (two figures, never summed)
+  claims: 3 kept, 0 diverged, 0 unreached, 0 unjudged
+  tours: 0 finished, 1 finished-timed, 0 not-started, 0 broke, 0 hung, 0 unreadable
+  wall: 4.13 s, by golden
+  skipped by name: 0
+exit 1

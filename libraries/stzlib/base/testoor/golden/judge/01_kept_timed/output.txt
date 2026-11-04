@@ -1,0 +1,16 @@
+250	
+500	SCENARIO: A generated UUID has the v4 format
+750	  GIVEN a fresh stzUUID
+1000	  THEN  it is 36 chars  [PASS]
+1250	  THEN  it is hyphenated  [PASS]
+1500	  -> 2 pass, 0 fail
+1750	
+2000	SCENARIO: WithoutHyphens drops the dashes
+2250	  THEN  the bare form is 32 chars  [PASS]
+2500	  -> 1 pass, 0 fail
+2750	
+3000	================================================
+3250	TOTAL: 3 assertions, 3 pass, 0 fail
+3500	STATUS: OK
+3750	Executed in almost 0 second(s) in Ring 1.27
+4000	STOPPED!

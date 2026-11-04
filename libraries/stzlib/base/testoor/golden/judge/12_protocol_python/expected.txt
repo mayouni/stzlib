@@ -1,0 +1,5 @@
+DIVERGED    fixtures/selfdescribed.py  2 stops: 2 kept, 1 diverged, 2 unjudged  seed 7  (3.13 s, finished, timed)
+    diverged  second place  (0.75 s)
+        diverged  the bad one
+        unjudged  (planned claim 4)
+        unjudged  (planned claim 5)

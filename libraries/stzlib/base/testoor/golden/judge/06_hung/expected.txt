@@ -1,0 +1,3 @@
+HUNG        fixtures/loop.ring  1 stops: 1 kept, 1 unreached  seed 5  (5 s)
+    unreached  A loop that never ends  (0.25 s)
+        unreached  it ends

@@ -1,0 +1,29 @@
+{
+ "file": "fixtures/plot.ring",
+ "readable": 1,
+ "why": "",
+ "dialect": "promises",
+ "lines": 40,
+ "asserts": 1,
+ "stops": [
+  {
+   "title": "(the file)",
+   "line": 1,
+   "claims": [
+    {
+     "line": 3,
+     "kind": "picture",
+     "claim": "Shows(oPlot, a)",
+     "want": ""
+    },
+    {
+     "line": 9,
+     "kind": "picture",
+     "claim": "Shows(oPlot, b)",
+     "want": ""
+    }
+   ]
+  }
+ ],
+ "routes": []
+}

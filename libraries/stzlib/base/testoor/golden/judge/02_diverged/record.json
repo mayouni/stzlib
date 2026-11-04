@@ -1,0 +1,35 @@
+{
+ "file": "fixtures/format_narrated.ring",
+ "readable": 1,
+ "why": "",
+ "dialect": "narrated",
+ "lines": 40,
+ "asserts": 1,
+ "stops": [
+  {
+   "title": "The format holds",
+   "line": 8,
+   "claims": [
+    {
+     "line": 12,
+     "kind": "sees",
+     "claim": "a is 1",
+     "want": ""
+    },
+    {
+     "line": 13,
+     "kind": "sees",
+     "claim": "b is é à 日本",
+     "want": ""
+    },
+    {
+     "line": 14,
+     "kind": "sees",
+     "claim": "c is 3",
+     "want": ""
+    }
+   ]
+  }
+ ],
+ "routes": []
+}

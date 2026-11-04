@@ -1,0 +1,42 @@
+{
+ "exit": 0,
+ "hung": 0,
+ "stderr": "",
+ "wall_ms": 1630,
+ "seed": 5,
+ "unreadable": 0,
+ "face": {
+  "name": "ring",
+  "ignore": "eval ",
+  "endings": [
+   [
+    "STOPPED!",
+    "finished-timed"
+   ],
+   [
+    "Error (E",
+    "not-started"
+   ],
+   [
+    "Error (C",
+    "not-started"
+   ],
+   [
+    "Error (S",
+    "not-started"
+   ],
+   [
+    "Can't open file",
+    "not-started"
+   ],
+   [
+    "Error (R",
+    "broke"
+   ],
+   [
+    "DOES NOT MATCH",
+    "finished"
+   ]
+  ]
+ }
+}

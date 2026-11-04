@@ -1,0 +1,7 @@
+250	
+500	PICTURE DOES NOT MATCH
+750	  expected 3 rows, got 3
+1000	  first difference at row 2:
+1250	    expected |x|
+1500	    actual   |y|
+1750	

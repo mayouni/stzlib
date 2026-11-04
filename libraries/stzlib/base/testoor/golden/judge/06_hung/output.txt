@@ -1,0 +1,2 @@
+250	SCENARIO: A loop that never ends
+500	  THEN  it starts  [PASS]

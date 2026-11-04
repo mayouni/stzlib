@@ -1,0 +1,4 @@
+NOT-STARTED fixtures/syntax.ring  1 stops: 0 kept, 2 unreached  seed 5  (0.13 s)
+    unreached  (the file)  (0 s)
+        unreached  first
+        unreached  second

@@ -1,0 +1,10 @@
+{
+ "file": "fixtures/missing.ring",
+ "readable": 0,
+ "why": "cannot read: no such file",
+ "dialect": "unknown",
+ "lines": 0,
+ "asserts": 0,
+ "stops": [],
+ "routes": []
+}

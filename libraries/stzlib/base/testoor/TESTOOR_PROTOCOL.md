@@ -112,7 +112,7 @@ conformance guard checks them):
   `wall_ms`, `timeout_ms`, `seed`, `repeat`, `flaky`, `claims`, `tours_by_end`, `skipped`,
   `topics_skipped`, `tours`.
 - **tour:** `file`, `dialect`, `state`, `end`, `exit`, `wall_ms`, `seed`, `flaky`, `weather`,
-  `kept`, `diverged`, `unreached`, `unjudged`, `stops`.
+  `kept`, `diverged`, `unreached`, `unjudged`, `stops`, `routes`.
 - **stop:** `title`, `line`, `state`, `wall_ms`, `seed`, `claims`.
 - **claim:** `claim`, `kind`, `line`, `state`.
 

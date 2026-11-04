@@ -1,0 +1,5 @@
+DIVERGED    fixtures/plot.ring  1 stops: 0 kept, 1 diverged, 2 unjudged  seed 5  (1.88 s)
+    diverged  (the file)  (0 s)
+        unjudged  Shows(oPlot, a)
+        unjudged  Shows(oPlot, b)
+        diverged  PICTURE DOES NOT MATCH -- first difference at row 2:

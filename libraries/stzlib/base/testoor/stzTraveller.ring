@@ -388,6 +388,51 @@ func _TravEndingOf(paLines, pcErr, pnExit, pbHung, paFace)
 	if pnExit != 0  return "broke"  ok
 	return "finished"
 
+# THE VERDICT -- the whole judgement of ONE walked tour, as a pure function of its
+# transcript. This is the contract the Zig core implements first (roadmap P3, step 1)
+# and the one the golden logbooks freeze (base/testoor/golden/): the same record, the
+# same lines, the same exit and the same face rules must give the same verdict byte for
+# byte, in any language.
+#
+#   paRec      the tour record a face read (stzTour.ring, TESTOOR_PROTOCOL.md section 1)
+#   paLines    what the child printed, [ [ text, seconds since it started ] ... ]
+#   pcErr      its error stream
+#   pnExit     its exit code (belongs to its VM; never the runner's verdict)
+#   pbHung     1 when it was killed at the deadline
+#   paFace     the face profile whose ending rules read the error text (section 5)
+#   pnWallMs   how long the walk took
+#   pnSeed     the seed the child was handed (a seed the tour printed wins)
+#
+# Answers the record with :run (state, ending, counts, stops with their claims and
+# times), :output, :stderr and :weather filled in. paRec itself is left alone.
+func TestoorVerdict(paRec, paLines, pcErr, pnExit, pbHung, paFace, pnWallMs, pnSeed)
+	_aRec_ = paRec
+	_aRec_[:flaky] = 0
+	_aRec_[:flaky_why] = ""
+	_aRec_[:weather] = []
+	_cEnd_ = _TravEndingOf(paLines, pcErr, pnExit, pbHung, paFace)
+	_aLines_ = paLines
+	# a self-describing tour has no static record: build it from what it said
+	if _aRec_[:dialect] = "protocol" or (_aRec_[:asserts] = 0 and _TravHasProtocolVerdicts(_aLines_))
+		_aLines_ = _TravAdoptProtocol(_aRec_, _aLines_)
+	ok
+	_aRec_[:run] = _TravJudge(_aRec_, _aLines_, _cEnd_, pnExit, pnWallMs)
+	_aRec_[:output] = _aLines_
+	_aRec_[:stderr] = pcErr
+	# the seed the child walked with: the runner's, unless the tour said Seed(n)
+	# itself and printed it; and the weather it declared
+	_aRec_[:run][:seed] = pnSeed
+	_nLn_ = len(_aLines_)
+	for _i_ = 1 to _nLn_
+		_t_ = trim(_aLines_[_i_][1])
+		if substr(_t_, "[testoor seed ") = 1
+			_aRec_[:run][:seed] = 0 + substr(_t_, 15, len(_t_) - 15)
+		but substr(_t_, "[testoor weather ") = 1 and substr(_t_, "[testoor weather fired ") != 1
+			_aRec_[:weather] + substr(_t_, 18, len(_t_) - 18)
+		ok
+	next
+	return _aRec_
+
 # the argv a face launches a tour with: {program} {file} {seed} filled in. A
 # program of "" is the VM running Testoor itself (TestoorProgram()).
 func _TravLaunchArgv(paFace, pcFile, pnSeed)
@@ -493,7 +538,7 @@ func TestoorLogbookKeys()
 	                  "wall_ms", "timeout_ms", "seed", "repeat", "flaky", "claims", "tours_by_end",
 	                  "skipped", "topics_skipped", "tours" ],
 	         :tour = [ "file", "dialect", "state", "end", "exit", "wall_ms", "seed", "flaky", "weather",
-	                   "kept", "diverged", "unreached", "unjudged", "stops" ],
+	                   "kept", "diverged", "unreached", "unjudged", "stops", "routes" ],
 	         :stop = [ "title", "line", "state", "wall_ms", "seed", "claims" ],
 	         :claim = [ "claim", "kind", "line", "state" ] ]
 
@@ -863,6 +908,13 @@ func _TravRunJson(paRec)
 		next
 		_c_ += "]}"
 	next
+	_c_ += '],"routes":['
+	_nR_ = len(paRec[:routes])
+	for _k_ = 1 to _nR_
+		if _k_ > 1  _c_ += ","  ok
+		_c_ += '{"item":' + _TourJsonStr(paRec[:routes][_k_][:item]) + ',"stop":' + _TourJsonStr(paRec[:routes][_k_][:stop]) +
+		       ',"line":' + paRec[:routes][_k_][:line] + "}"
+	next
 	_c_ += "]}"
 	return _c_
 
@@ -1151,26 +1203,7 @@ class stzTraveller from stzObject
 		_oP_.Close()
 		if _cInstalled_ != "" and fexists(_cInstalled_)  remove(_cInstalled_)  ok
 		@nWallMs += _nWall_
-		_cEnd_ = _TravEndingOf(_aLines_, _cErr_, _nExit_, _bHung_, _aFace_)
-		# a self-describing tour has no static record: build it from what it said
-		if _aRec_[:dialect] = "protocol" or (_aRec_[:asserts] = 0 and _TravHasProtocolVerdicts(_aLines_))
-			_aLines_ = _TravAdoptProtocol(_aRec_, _aLines_)
-		ok
-		_aRec_[:run] = _TravJudge(_aRec_, _aLines_, _cEnd_, _nExit_, _nWall_)
-		_aRec_[:output] = _aLines_
-		_aRec_[:stderr] = _cErr_
-		# the seed the child walked with: the runner's, unless the tour said
-		# Seed(n) itself and printed it; and the weather it declared
-		_aRec_[:run][:seed] = pnSeed
-		_nLn_ = len(_aLines_)
-		for _i_ = 1 to _nLn_
-			_t_ = trim(_aLines_[_i_][1])
-			if substr(_t_, "[testoor seed ") = 1
-				_aRec_[:run][:seed] = 0 + substr(_t_, 15, len(_t_) - 15)
-			but substr(_t_, "[testoor weather ") = 1 and substr(_t_, "[testoor weather fired ") != 1
-				_aRec_[:weather] + substr(_t_, 18, len(_t_) - 18)
-			ok
-		next
+		_aRec_ = TestoorVerdict(_aRec_, _aLines_, _cErr_, _nExit_, _bHung_, _aFace_, _nWall_, pnSeed)
 		return _aRec_
 
 	def _Keep(paRec)
@@ -1186,6 +1219,30 @@ class stzTraveller from stzObject
 			_b_ = 0
 		done
 		return _b_
+
+	#-- adopting a record judged elsewhere (the golden logbooks) -------------
+
+	# A record already judged is kept as if this runner had walked it: counted as
+	# owned, as run unless it was never started, and its wall time added.
+	def AdoptRecord(paRec)
+		@aRecords + paRec
+		@nOwned++
+		if paRec[:run][:end] != "unreadable"  @nRun++  ok
+		@nWallMs += paRec[:run][:wall_ms]
+		return This
+
+	def Scope(pcRoot, pcTopic)
+		@cRoot = "" + pcRoot
+		@cTopic = "" + pcTopic
+		return This
+
+	def SkippedBy(pacNames)
+		@acSkipped = pacNames
+		return This
+
+	def TopicsSkippedBy(pacNames)
+		@acTopicsSkipped = pacNames
+		return This
 
 	#-- the logbook of the run -------------------------------------------
 

@@ -1,0 +1,3 @@
+DIVERGED    fixtures/format_narrated.ring  1 stops: 2 kept, 1 diverged  seed 5  (2.63 s, finished, timed)
+    diverged  The format holds  (2 s)
+        diverged  b is é à 日本

@@ -1,0 +1,18 @@
+{
+ "by": "golden",
+ "root": "fixtures",
+ "topic": "demo",
+ "subject": "",
+ "seed": 5,
+ "repeat": 2,
+ "timeout_ms": 120000,
+ "refuse_root": "",
+ "cases": [
+  "01_kept_timed"
+ ],
+ "skipped": [],
+ "topics_skipped": [],
+ "flaky": [
+  "01_kept_timed"
+ ]
+}

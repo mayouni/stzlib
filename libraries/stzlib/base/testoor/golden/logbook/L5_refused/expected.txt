@@ -1,0 +1,2 @@
+REFUSED: no such root: no/such/root
+exit 2

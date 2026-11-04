@@ -1,0 +1,5 @@
+DIVERGED    fixtures/lies.ring  1 stops: 1 kept, 2 diverged, 1 unjudged  seed 5  (0.88 s)
+    diverged  (the file)  (0 s)
+        unjudged  x
+        diverged  3
+        diverged  list

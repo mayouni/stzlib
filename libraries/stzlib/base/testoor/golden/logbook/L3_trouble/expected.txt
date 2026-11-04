@@ -1,0 +1,18 @@
+NOT-STARTED fixtures/syntax.ring  1 stops: 0 kept, 2 unreached  seed 5  (0.13 s)
+    unreached  (the file)  (0 s)
+        unreached  first
+        unreached  second
+BROKE       fixtures/scenes.ring  2 stops: 1 kept, 2 unreached  seed 5  (1.38 s)
+    unreached  -- Scene 2: second --  (0.50 s)
+        unreached  second holds
+        unreached  third holds
+HUNG        fixtures/loop.ring  1 stops: 1 kept, 1 unreached  seed 5  (5 s)
+    unreached  A loop that never ends  (0.25 s)
+        unreached  it ends
+UNREADABLE  fixtures/missing.ring  0 stops: 0 kept  (0 s)
+owned 4 tours, run 3 (two figures, never summed)
+  claims: 2 kept, 0 diverged, 5 unreached, 0 unjudged
+  tours: 0 finished, 0 finished-timed, 1 not-started, 1 broke, 1 hung, 1 unreadable
+  wall: 6.51 s, by golden
+  skipped by name: 0
+exit 1

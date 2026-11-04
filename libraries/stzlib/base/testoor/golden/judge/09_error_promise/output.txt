@@ -1,0 +1,3 @@
+250	before
+500	Line 5 boom happened 
+750	In raise() in file boom.ring 

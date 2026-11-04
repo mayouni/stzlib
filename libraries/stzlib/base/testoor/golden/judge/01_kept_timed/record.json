@@ -1,0 +1,41 @@
+{
+ "file": "fixtures/uuid_narrated.ring",
+ "readable": 1,
+ "why": "",
+ "dialect": "narrated",
+ "lines": 40,
+ "asserts": 1,
+ "stops": [
+  {
+   "title": "A generated UUID has the v4 format",
+   "line": 10,
+   "claims": [
+    {
+     "line": 14,
+     "kind": "sees",
+     "claim": "it is 36 chars",
+     "want": ""
+    },
+    {
+     "line": 15,
+     "kind": "sees",
+     "claim": "it is hyphenated",
+     "want": ""
+    }
+   ]
+  },
+  {
+   "title": "WithoutHyphens drops the dashes",
+   "line": 23,
+   "claims": [
+    {
+     "line": 27,
+     "kind": "sees",
+     "claim": "the bare form is 32 chars",
+     "want": ""
+    }
+   ]
+  }
+ ],
+ "routes": []
+}

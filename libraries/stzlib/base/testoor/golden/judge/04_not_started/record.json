@@ -1,0 +1,29 @@
+{
+ "file": "fixtures/syntax.ring",
+ "readable": 1,
+ "why": "",
+ "dialect": "markers",
+ "lines": 40,
+ "asserts": 1,
+ "stops": [
+  {
+   "title": "(the file)",
+   "line": 1,
+   "claims": [
+    {
+     "line": 3,
+     "kind": "marker",
+     "claim": "first",
+     "want": ""
+    },
+    {
+     "line": 4,
+     "kind": "marker",
+     "claim": "second",
+     "want": ""
+    }
+   ]
+  }
+ ],
+ "routes": []
+}

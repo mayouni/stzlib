@@ -1,0 +1,11 @@
+KEPT        fixtures/uuid_narrated.ring  2 stops: 3 kept  (4.13 s, finished, timed)
+UNJUDGED    fixtures/branch.ring  1 stops: 1 kept, 1 unjudged  (0.38 s)
+    unjudged  (the file)  (0.13 s)
+        unjudged  odd path taken
+KEPT        fixtures/boom.ring  1 stops: 2 kept  (0.88 s)
+owned 3 tours, run 3 (two figures, never summed)
+  claims: 6 kept, 0 diverged, 0 unreached, 1 unjudged
+  tours: 2 finished, 1 finished-timed, 0 not-started, 0 broke, 0 hung, 0 unreadable
+  wall: 5.39 s, by golden
+  skipped by name: 0
+exit 0

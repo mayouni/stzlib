@@ -1,0 +1,65 @@
+{
+ "file": "fixtures/spellings.ring",
+ "readable": 1,
+ "why": "",
+ "dialect": "promises",
+ "lines": 40,
+ "asserts": 1,
+ "stops": [
+  {
+   "title": "(the file)",
+   "line": 1,
+   "claims": [
+    {
+     "line": 1,
+     "kind": "promise",
+     "claim": "1 = 1",
+     "want": "TRUE"
+    },
+    {
+     "line": 2,
+     "kind": "promise",
+     "claim": "1 = 2",
+     "want": "FALSE (absent)"
+    },
+    {
+     "line": 3,
+     "kind": "promise",
+     "claim": "\"13\"",
+     "want": "\"13\""
+    },
+    {
+     "line": 4,
+     "kind": "promise",
+     "claim": ":Number",
+     "want": ":Number"
+    },
+    {
+     "line": 5,
+     "kind": "promise",
+     "claim": "\"[ 6, 28 ]\"",
+     "want": "[6, 28]"
+    },
+    {
+     "line": 6,
+     "kind": "promise",
+     "claim": "list",
+     "want": "[\"a\", \"b\"]"
+    },
+    {
+     "line": 7,
+     "kind": "promise",
+     "claim": "empty",
+     "want": "''"
+    },
+    {
+     "line": 8,
+     "kind": "promise",
+     "claim": "5",
+     "want": "5  # a note after the value"
+    }
+   ]
+  }
+ ],
+ "routes": []
+}
