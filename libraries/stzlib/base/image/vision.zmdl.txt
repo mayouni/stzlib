@@ -24,3 +24,6 @@ codes|nothing|codes-judge-v1|0|366|1|04/11/2026 01:03:12|
 codes|quirc-native1d|codes-judge-v1|0.956284|366|1|04/11/2026 01:03:12|FIRST reading of the first judging set (seed 777), BEFORE the fix: QR 171/174, 1D 179/192 = 93.2% (bar 95%: MISSED), 12 codes invented (bar 0: MISSED); one defect, an EAN-8 read inside a UPC-A; kept on record
 codes|nothing|codes-judge-v2|0|366|1|04/11/2026 01:03:12|
 codes|quirc-native1d|codes-judge-v2|0.989071|366|1|04/11/2026 01:03:12|second judging set seed 4242, made after the fix and judged once: QR 170/174, 1D 192/192, negatives 0 false of 24, 0 invented; scored by StzCodesAgree (every bar met)
+near-duplicate|identical-pixels|pairs-judge-v1|0.5|780|1|04/11/2026 02:46:21|
+near-duplicate|phash|pairs-judge-v1|0.998718|780|1|04/11/2026 02:46:21|judging pairs from COCO 40 to the end (390 same, 390 different), made after the rule was committed: 779 of 780; one crop missed at 18 bits against the threshold of 17; no different pair called the same
+near-duplicate|siglip2-cosine|pairs-judge-v1|1|780|1|04/11/2026 02:46:21|judging pairs, as above: 780 of 780; a cosine of at least 0.83

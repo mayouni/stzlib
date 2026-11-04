@@ -286,6 +286,19 @@ func StzVisionDeclare(paGoldens)
 		_oK_.AddImplementation([ :id = "quirc-native1d", :kind = "graph", :fn = "_StzVisionCodesRead",
 			:needle = "", :licence = "isc", :memory = 20 ])
 	ok
+	# IM9d: are two files the same photograph? The input is the pair of paths; the answer 1 or 0, judged against pairs MADE as copies or as
+	# different photographs. The floor says "same" only for identical pixels; the perceptual hash looks at the pixels' structure; the
+	# SigLIP2 cosine looks at what the pictures show.
+	_oN_ = StzFacultyQ("near-duplicate")
+	_oN_.SetInputTypeQ(:record).SetOutputTypeQ(:boolean).SetFloorQ("identical-pixels", "_StzVisionDupIdentical").
+	     SetGoldenCheckerQ("exact").SetGoldenVersionQ("pairs-judge-v1")
+	if len(StzFind("phash", _oN_.ImplementationIds())) = 0
+		_oN_.AddImplementation([ :id = "phash", :kind = "graph", :fn = "_StzVisionDupPhash", :needle = "", :licence = "mit", :memory = 5 ])
+	ok
+	if len(StzFind("siglip2-cosine", _oN_.ImplementationIds())) = 0
+		_oN_.AddImplementation([ :id = "siglip2-cosine", :kind = "graph", :fn = "_StzVisionDupSiglip",
+			:needle = "vision/" + $cStzVisionImageEmbedder, :licence = "apache-2.0", :memory = 400 ])
+	ok
 	if len(StzMeasurementOf("faces", "platform", "coco-v1")) = 0 and fexists(StzVisionMeasurementsFile())
 		StzLoadMeasurements(StzVisionMeasurementsFile())
 	ok
@@ -368,6 +381,36 @@ func _StzVisionObjectsNone(pImage, paParams)
 	return []
 
 # IM9c: the floor of :codes -- no code found; and the reader (stzImage.Codes: quirc for QR, the native 1D readers)
+# IM9d: the three answers of :near-duplicate to a pair of paths [ a, b ]
+func _StzVisionDupIdentical(pPair, paParams)
+	_oA_ = StzImageQ("" + pPair[1])
+	_oB_ = StzImageQ("" + pPair[2])
+	_nSame_ = 0
+	if _oA_.Width() = _oB_.Width() and _oA_.Height() = _oB_.Height() and _oA_.Channels() = _oB_.Channels() and _oA_.Pixels() = _oB_.Pixels()
+		_nSame_ = 1
+	ok
+	_oA_.Release()
+	_oB_.Release()
+	return _nSame_
+
+func _StzVisionDupPhash(pPair, paParams)
+	_oA_ = StzImageQ("" + pPair[1])
+	_oB_ = StzImageQ("" + pPair[2])
+	_nSame_ = 0
+	if _oA_.IsNearDuplicateOf(_oB_) _nSame_ = 1 ok
+	_oA_.Release()
+	_oB_.Release()
+	return _nSame_
+
+func _StzVisionDupSiglip(pPair, paParams)
+	_oA_ = StzImageQ("" + pPair[1])
+	_oB_ = StzImageQ("" + pPair[2])
+	_nSame_ = 0
+	if _oA_.SimilarityToImage(_oB_) >= $nStzNearDupCosine _nSame_ = 1 ok
+	_oA_.Release()
+	_oB_.Release()
+	return _nSame_
+
 func _StzVisionCodesNone(pImage, paParams)
 	return []
 

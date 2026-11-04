@@ -33,6 +33,36 @@
 	pixels, once, for every copy.
 */
 
+# IM9d: the thresholds of the quality verdicts, chosen on the DEV slice of the golden set alone (SOFTANZA_IMAGE_INTELLIGENCE.md,
+# IM9d slice 2) and judged once on a disjoint slice. A picture is BLURRY when its RelativeSharpness is below $nStzBlurBelow
+# (dev: defocus blur at sigma 3 and 5 never reached 0.0060, the least sharp original was 0.0107); UNDEREXPOSED when its 99th
+# percentile gray level is below $nStzUnderP99 (dev: gain 0.30 and 0.45 never passed 114, the darkest original had 144);
+# OVEREXPOSED when at least $nStzOverLight of its pixels are at 250 or above (dev: 90% of gain-2.2 pictures reached 0.109,
+# no original passed 0.096). They are knobs a caller may reassign; a verdict is a rule over a number, and the number is Quality().
+$nStzBlurBelow = 0.008
+$nStzUnderP99 = 128
+$nStzOverLight = 0.10
+# IM9d slice 3: two pictures are NEAR-DUPLICATES when their perceptual hashes differ in at most $nStzNearDupBits of 64 bits (chosen on the dev pairs: same 0 to 16 bits, different 18 to 42) -- a copy resized, re-encoded, brightened or slightly cropped differs in few bits, another photograph in about half.
+$nStzNearDupBits = 17
+# ... or, by meaning, when the cosine of their SigLIP2 embeddings is at least $nStzNearDupCosine (chosen on the dev pairs: same 0.886 to 0.999, different 0.290 to 0.773)
+$nStzNearDupCosine = 0.83
+
+# The number of bits in which two 16-digit hex hashes (PerceptualHash) differ: 0 for the same picture, about 32 for two unrelated ones.
+func StzHashDistance(pcHashA, pcHashB)
+	_nBits_ = 0
+	for _i_ = 1 to 16
+		_nA_ = ascii(pcHashA[_i_])
+		_nB_ = ascii(pcHashB[_i_])
+		if _nA_ >= 97 _nA_ -= 87 else _nA_ -= 48 ok
+		if _nB_ >= 97 _nB_ -= 87 else _nB_ -= 48 ok
+		for _k_ = 1 to 4
+			if _nA_ % 2 != _nB_ % 2 _nBits_++ ok
+			_nA_ = floor(_nA_ / 2)
+			_nB_ = floor(_nB_ / 2)
+		next
+	next
+	return _nBits_
+
 func StzImageQ(pImage)
 	return new stzImage(pImage)
 
@@ -1015,6 +1045,137 @@ class stzImage from stzObject
 			_aOut_ + [ :kind = _r_[1], :text = _r_[2], :points = _aP_ ]
 		next
 		return _aOut_
+
+	#@ aka  -- 10a3. QUALITY (IM9d) --------------------------------------------------------
+
+	# Returns the variance of the Laplacian of the gray picture, at its own size: OpenCV's cv2.Laplacian(gray, CV_64F, ksize=1).var().
+	# High where the edges are sharp, low where they are blurred or there are none; -1 for no pixels.
+	def LaplacianVariance()
+		return StzEngineImageLaplacianVar(@nId)
+
+	# Returns the same figure on the picture shrunk (by area) so that its long side is pnLongSide, never enlarged: two pictures of
+	# different sizes then compare. 0 means the picture's own size.
+	def SharpnessAt(pnLongSide)
+		_nW_ = This.Width()
+		_nH_ = This.Height()
+		_nL_ = _nW_
+		if _nH_ > _nL_ _nL_ = _nH_ ok
+		if pnLongSide <= 0 or _nL_ <= pnLongSide
+			return This.LaplacianVariance()
+		ok
+		_nS_ = pnLongSide / _nL_
+		_nW2_ = floor(_nW_ * _nS_ + 0.5)
+		_nH2_ = floor(_nH_ * _nS_ + 0.5)
+		if _nW2_ < 1 _nW2_ = 1 ok
+		if _nH2_ < 1 _nH2_ = 1 ok
+		# the gray FIRST, then the shrink: shrinking the colour and then taking its gray rounds differently (and costs three channels)
+		_oG_ = This.Grayscaled()
+		_oS_ = _oG_.ResizedXT(_nW2_, _nH2_, :area)
+		_oG_.Release()
+		_nV_ = _oS_.LaplacianVariance()
+		_oS_.Release()
+		return _nV_
+
+	# Returns the sharpness the verdicts use: SharpnessAt(512).
+	def Sharpness()
+		return This.SharpnessAt(512)
+
+	# Returns the sharpness relative to the picture's own contrast: Sharpness() / the variance of its gray (at least 1). A picture made
+	# darker or brighter by a gain keeps its value (the Laplacian's variance and the gray's scale by the same square), a blurred one
+	# loses it; this is the figure IsBlurry judges.
+	def RelativeSharpness()
+		_aE_ = This.ExposureStats()
+		_nV_ = _aE_[:std] * _aE_[:std]
+		if _nV_ < 1 _nV_ = 1 ok
+		return This.Sharpness() / _nV_
+
+	# Returns how the picture is exposed, from the histogram of its gray: [ :mean, :std, :p1, :p99, :dark, :light ] -- the mean and
+	# standard deviation of the gray level, its 1st and 99th percentile level, and the FRACTION of pixels at 5 or below (crushed
+	# shadows) and at 250 or above (blown highlights).
+	def ExposureStats()
+		_oH_ = This.Histogram()
+		_aH_ = _oH_.ToList(1)
+		_oH_.Release()
+		_nN_ = 0
+		_nSum_ = 0
+		_nSq_ = 0
+		_nDark_ = 0
+		_nLight_ = 0
+		for _i_ = 1 to 256
+			_nC_ = _aH_[_i_]
+			_nN_ += _nC_
+			_nSum_ += (_i_ - 1) * _nC_
+			_nSq_ += (_i_ - 1) * (_i_ - 1) * _nC_
+			if _i_ - 1 <= 5 _nDark_ += _nC_ ok
+			if _i_ - 1 >= 250 _nLight_ += _nC_ ok
+		next
+		if _nN_ = 0
+			return [ :mean = 0, :std = 0, :p1 = 0, :p99 = 0, :dark = 0, :light = 0 ]
+		ok
+		_nMean_ = _nSum_ / _nN_
+		_nVar_ = _nSq_ / _nN_ - _nMean_ * _nMean_
+		if _nVar_ < 0 _nVar_ = 0 ok
+		# a percentile of a histogram: the first gray level whose cumulative share reaches the fraction
+		_nP1_ = -1
+		_nP99_ = -1
+		_nCum_ = 0
+		for _i_ = 1 to 256
+			_nCum_ += _aH_[_i_]
+			if _nP1_ < 0 and _nCum_ >= 0.01 * _nN_ _nP1_ = _i_ - 1 ok
+			if _nP99_ < 0 and _nCum_ >= 0.99 * _nN_ _nP99_ = _i_ - 1 ok
+		next
+		return [ :mean = _nMean_, :std = sqrt(_nVar_), :p1 = _nP1_, :p99 = _nP99_, :dark = _nDark_ / _nN_, :light = _nLight_ / _nN_ ]
+
+	# Returns the 64-bit perceptual hash of the picture as 16 hex digits (imagehash's phash by definition; see engine/src/image_quality.zig).
+	def PerceptualHash()
+		return StzEngineImagePHash(@nId)
+
+	# TRUE when the picture is blurred: its RelativeSharpness is below $nStzBlurBelow. It finds DEFOCUS blur; a blur in one direction (motion)
+	# leaves detail across it, which an isotropic measure sees, so it is found less often.
+	def IsBlurry()
+		return This.RelativeSharpness() < $nStzBlurBelow
+
+	# TRUE when even the bright end of the picture is dark: its 99th percentile gray level is below $nStzUnderP99.
+	def IsUnderexposed()
+		_aE_ = This.ExposureStats()
+		return _aE_[:p99] < $nStzUnderP99
+
+	# TRUE when much of the picture is blown out: at least $nStzOverLight of its pixels are at 250 or above.
+	def IsOverexposed()
+		_aE_ = This.ExposureStats()
+		return _aE_[:light] >= $nStzOverLight
+
+	# Returns what the three verdicts rest on and what they say: [ :sharpness, :relativeSharpness, :exposure, :isBlurry, :isUnderexposed, :isOverexposed ]
+	# -- the numbers first, so a caller with other thresholds can judge for itself.
+	def Quality()
+		_aE_ = This.ExposureStats()
+		_nSh_ = This.Sharpness()
+		_nV_ = _aE_[:std] * _aE_[:std]
+		if _nV_ < 1 _nV_ = 1 ok
+		_nRs_ = _nSh_ / _nV_
+		return [ :sharpness = _nSh_, :relativeSharpness = _nRs_, :exposure = _aE_, :isBlurry = (_nRs_ < $nStzBlurBelow),
+			 :isUnderexposed = (_aE_[:p99] < $nStzUnderP99), :isOverexposed = (_aE_[:light] >= $nStzOverLight) ]
+
+	# Returns in how many of 64 bits the two pictures' perceptual hashes differ (0 = the same hash; about 32 = unrelated).
+	def HashDistanceTo(poOther)
+		return StzHashDistance(This.PerceptualHash(), poOther.PerceptualHash())
+
+	# TRUE when the other picture is a near-duplicate of this one by its hash: at most $nStzNearDupBits bits apart. A copy of a photograph that was
+	# resized, re-encoded, brightened or slightly cropped is; a different photograph is not (see IM9d for how often this is right).
+	def IsNearDuplicateOf(poOther)
+		return This.HashDistanceTo(poOther) <= $nStzNearDupBits
+
+	# Returns the cosine of the two pictures' SigLIP2 embeddings (the model of IM5): 1 for the same content, near 0 for unrelated ones; the
+	# meaning-level measure, where HashDistanceTo is the pixel-level one.
+	def SimilarityToImage(poOther)
+		_aA_ = This.Embedding()
+		_aB_ = poOther.Embedding()
+		_nDot_ = 0
+		_nN_ = len(_aA_)
+		for _i_ = 1 to _nN_
+			_nDot_ += _aA_[_i_] * _aB_[_i_]
+		next
+		return _nDot_
 
 	#@ aka  -- 10b. PICTURES AND WORDS IN ONE SPACE (IM5: SigLIP2, see stzImageSearch.ring) --
 

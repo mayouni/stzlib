@@ -10,6 +10,7 @@ const img = @import("image.zig");
 const ops = @import("image_ops.zig");
 const geom = @import("image_geom.zig");
 const codes = @import("codes.zig");
+const quality = @import("image_quality.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -95,6 +96,21 @@ fn ring_DecodeKeep(p: *anyopaque) callconv(.c) void {
 
 fn ring_LoadKeep(p: *anyopaque) callconv(.c) void {
     retF(p, img.loadKeep(getStr(p, 1)));
+}
+
+// (image) -> the variance of the Laplacian of its gray (IM9d), -1 for a handle that is not an image
+fn ring_LaplacianVar(p: *anyopaque) callconv(.c) void {
+    rn(p, quality.laplacianVariance(id(p, 1)));
+}
+
+// (image) -> its 64-bit perceptual hash as 16 hex digits, "" for a handle that is not an image (IM9d)
+fn ring_PHash(p: *anyopaque) callconv(.c) void {
+    var ok = false;
+    const h = quality.phash(id(p, 1), &ok);
+    if (!ok) return retBytes(p, "");
+    var buf: [16]u8 = undefined;
+    const t = std.fmt.bufPrint(&buf, "{x:0>16}", .{h}) catch return retBytes(p, "");
+    retBytes(p, t);
 }
 
 // (image) -> [ [ kind, text, [ x, y, ... ] ] ... ]: every code in the picture, its points 0-based (IM9c); [] for none
@@ -675,6 +691,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineimagedecodekeep", .func = &ring_DecodeKeep },
     .{ .name = "stzengineimageloadkeep", .func = &ring_LoadKeep },
     .{ .name = "stzengineimagecodes", .func = &ring_Codes },
+    .{ .name = "stzengineimagelaplacianvar", .func = &ring_LaplacianVar },
+    .{ .name = "stzengineimagephash", .func = &ring_PHash },
     .{ .name = "stzengineimageorientation", .func = &ring_Orientation },
     .{ .name = "stzengineimageorientationapplied", .func = &ring_OrientationApplied },
     .{ .name = "stzengineimagetopng", .func = &ring_ToPng },
