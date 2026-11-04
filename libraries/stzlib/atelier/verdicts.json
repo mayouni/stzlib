@@ -1,11 +1,11 @@
 {
 "meta": {
-"taken": "2026-11-04 00:11",
-"checks_from": "74757d462",
+"taken": "2026-11-04 08:47",
+"checks_from": "50671dca8",
 "ring": "ring.exe 515072 bytes, built 2026-09-12 01:29",
 "ring_tree": "0950e246a 2026-10-29",
 "rnxc": "ringpp a8ad844 2026-11-02, installed",
-"library": "74757d462 2026-11-03"
+"library": "50671dca8 2026-11-04"
 },
 "verdicts": {
 "adverb/00_adverb_narrated#099386a7": {
@@ -6720,6 +6720,24 @@
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: weatherplan",
+"whole_said": ""
+},
+"testoor/testoor_refine_narrated#ff2e0aad": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: testoorresolverefinements",
+"whole_said": ""
+},
+"testoor/testoor_refine_narrated#0541e0b0": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: testoorresolverefinements",
+"whole_said": ""
+},
+"testoor/testoor_refine_narrated#6e6afaba": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: testoorsubject",
 "whole_said": ""
 },
 "testoor/testoor_routes_narrated#bf78b333": {

@@ -505,10 +505,13 @@ projections; develop a new section as a standalone probe first.
 resident VM: `rnxc resident atelier.ring` from that folder, then http://127.0.0.1:8650/atelier.
 Plan, law and journal: `atelier/SOFTANZA_ATELIER_PLAN.md`. Never call it a lab.
 
-**FAST PATH: the three guards, one process each, from `base/test/atelier`:**
+**FAST PATH: the four guards, one process each, from `base/test/atelier`:**
 ```bash
-cd libraries/stzlib/base/test/atelier && rnxc atelier_narrated.ring && rnxc atelier_tours_narrated.ring && rnxc atelier_page_narrated.ring
+cd libraries/stzlib/base/test/atelier && rnxc atelier_narrated.ring && rnxc atelier_tours_narrated.ring && rnxc atelier_page_narrated.ring && rnxc atelier_static_narrated.ring
 ```
+The static guard (39 assertions, about a minute; python for the builder and the resolver, SKIPPED by
+name without it) is the cheap one: it also scans the Atelier for a drive path, because a recording
+made on this machine names this machine unless the scrub is on.
 The checks guard is 36 assertions in about 50 s warm; the tours guard 42 in about 3 minutes
 warm, of which the court's four child rnxc tours pay their compile again after any library
 change (35 s each); the page guard 24 in about 80 s (the id law, the dictionary, the three

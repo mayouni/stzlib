@@ -74,6 +74,9 @@ measured side by side.
 | `results.json` | the last recording: what judged it, the counts, each check's state -- the guard's baseline |
 | `verdicts.json` | Ring's answers, and what they were taken on |
 | `tours.json` | the last sweep of whole files (A1): what judged them, the totals, every domain, every file |
+| `build_static.py` | maintainer (A3): `python build_static.py --out <folder>` writes the static edition of this commit: index, coverage and a one-check page over the data it already carries; read-only, no Ring column, refuses a mixed set, scrubs machine paths |
+| `cite.py` | (A3) `python cite.py <commit>:<id>` resolves a citation to its check, state and what judged it, or refuses with the reason |
+| `EMBED.md` | (A3) the contract: the citation, the id law, what a commit carries, what a citing page owes the reader |
 
 Settings, in this order: a config file admitted before the app
 (`rnxc resident my_settings.ring atelier.ring`, holding
@@ -143,14 +146,15 @@ id); the playground kept; the five states shown apart per file; a check's id is 
 and a digest of its own text, so it stays when the file changes elsewhere. Measured by
 StzZui's own audit tool: 0 violations on 5 pages, light and dark.
 
-### A3 -- Reach -- PLANNED
+### A3 -- Reach -- DONE 2026-11-04 (journal below)
 
-(a) The install already carries `atelier/`; verified on the next package re-lay, which is
-Ring++'s (asked through Central). (b) A static edition per library commit -- the checks,
-their results and the page in read-only mode, built by one command -- for the site, which
-cannot run code, and the books, which pin a commit. (c) An embed contract: how a page or a
-book cites a check (an id at a commit) and shows it; handed to stzsite and ayouni through
-Central.
+(a) The install carries `atelier/`: read in Ring++'s package script, measured by emulation,
+verified for real on the next re-lay, which is Ring++'s job (asked through Central). (b) A
+static edition per library commit -- the checks, their recording and the page in read-only
+mode, built by one command -- for the site, which cannot run code, and the books, which pin a
+commit. (c) An embed contract: how a page or a book cites a check (`<commit>:<id>`) and shows
+it, `EMBED.md`; handed to stzsite and ayouni through Central (prompts 58 and 59), whose
+sessions wire it.
 
 ### A4 -- Haro tours -- WAITS ON HARO
 
@@ -359,3 +363,63 @@ moving, the reading size, what judges a check named.
 **Left for A3 and beyond.** The fonts the site loads (Fraunces, IBM Plex) are named first
 and fall back to the system's: the Atelier carries no font files. The old page is gone;
 its comparison with the private server project never came here.
+
+### A3 -- 2026-11-04 -- reach
+
+**(a) The install carries `atelier/`.** Ring++'s `bench/package.py` copies `libraries/stzlib` whole
+except its skip folders (`.git`, `zig-out`, `archive`, `future` and the like), the engine's
+sources and, unless asked, `base/test`, `max/test`, `core/test`; `atelier/` is none of them, so it
+rides in every install with no change to Ring++: about 1 MB of data and sources. **Measured by
+emulation, without touching the install:** a folder laid out as an install (the real library by
+junction, `PACKAGE.txt` beside, the Atelier's runtime files only in `atelier/`) booted with the
+installed rnxc, named itself `0950e246a (installed)` / `ringpp a8ad844 (installed)`, served the
+page and ran 300 checks (263 pass, 30 fail, 7 error: the install's library is older than the
+checks, as the page says). What an install lacks is `base/test`: the checks carry their own code,
+so the Atelier and its recorder run from an install; the sweep of whole files (`tours.ring`) needs
+the tests and is a maintainer's tool. **Still owed, and Ring++'s:** the same boot from a package
+actually re-laid with a library that carries `atelier/` (the current install, laid at
+`0950e246a`, predates it). Asked through Central.
+
+**(b) The static edition.** `python build_static.py --out <folder>` writes
+`<folder>/<commit>/`: `index.html`, `coverage.html`, `check.html`, `data/` (the four files a commit
+carries), `edition.json`, and appends `editions.json`. Built from this commit's own data: 872 KB, 8
+files, the 1,129 checks, their recording and the sweep, nothing fetched and nothing run. It is derived
+from a pinned commit, so nothing built is committed. It **refuses to mix** (the checks harvested,
+the recording and the sweep must name one commit; the guard plants a sweep at another commit and
+sees it refused with the file to take again), has **no `--out` default** (a folder inside the library
+would ride into an install; the builder refuses one, and the guard tries), carries **no Ring column**
+and no playground, and **replaces any drive path by `<path>`**, counting what it replaced. The page
+in edition mode shows the recorded state with the commit it was recorded at, the answer of every
+check that did not pass (`results.json` keeps it now), and for each check its citation and a link to
+its own page. **Measured with StzZui's own audit tool** (Rules 105, 107, 108, 114 to 116) through a
+same-origin front over the built edition: the index, the coverage page, a check page and the two
+French pages: 0 violations, light and dark.
+
+**(c) The embed contract, `EMBED.md`.** A check is cited as `<commit>:<id>`: the commit the check
+was recorded at and its stable id. `cite.py <commit>:<id>` resolves one from the data a pinned
+commit already carries, or refuses with exit 2 and the reason (another commit, an absent id, not a
+citation); the guard checks all three refusals. `check.html?id=<id>&embed=1` is a card for a frame.
+What a citing page owes the reader is written down: name the commit, never quote a count without
+its edition, show the five states apart, no Ring comparison, a page's stage stays the author's.
+Handed to stzsite (prompt 58) and ayouni (prompt 59) through Central, with the reasoned refusal each
+may give.
+
+**A leak found and mended.** The `tours.json` committed at A1 carried three paths of the machine
+that took it (the sweep's own reason texts named the Atelier's folder and the install's), in a public
+tree whose rule is no machine path. The recorder and the sweep now replace this machine's folders by
+`<library>`, `<tree>` and `<rnxc>` at the source; the builder is a second line; and a guard scans
+every data file and source of the Atelier for a drive path (it failed on that very file until the
+sweep was taken again, then passed). **The three paths remain in the history of main**, at the A1 and
+A2 commits: rewriting a shared public history is not this plane's to do, and is named to the author.
+
+**The recording and the sweep at one commit** (`50671dca8`, the code commit of A3, on the package's
+engine, rnxc a8ad844, the CPU fit to measure): 1,129 checks, 1,014 pass / 89 fail / 26 error; Ring
+(the oracle, its tree older) 967 / 70 / 92, rnxc whole equal to the resident on every check. The
+sweep: 1,418 tours (the Atelier's and testoor's own guards skipped by name), 1,324 finished, 31
+broke, 55 never started (54 the one Rule A refusal), 8 hung, 41 kept their class; **20,287 Then
+lines read, 15,206 judged (74.96 percent): 15,069 kept, 137 diverged**, 4,923 unreached, 158
+unjudged. The same refusals, the same hung tours as at A1: the coverage moved with the tests, not
+with the Atelier.
+
+**Guards after A3.** Static 39 of 39 (54 s: python spawns), checks 36 of 36 (63 s), page 24 of 24
+(35 s), tours 42 of 42 (128 s), one process each, under rnxc a8ad844.

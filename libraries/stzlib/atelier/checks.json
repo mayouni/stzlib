@@ -1,9 +1,9 @@
 {
 "source": "base/test",
-"commit": "74757d462",
-"taken": "2026-11-04 00:09",
-"files": 1493,
-"thens": 20718,
+"commit": "50671dca8",
+"taken": "2026-11-04 08:46",
+"files": 1498,
+"thens": 20893,
 "checks": [
 {
 "id": "adverb/00_adverb_narrated#099386a7",
@@ -11196,8 +11196,38 @@
 "code": "func Run cInput\n\treturn AtelierThen(len(WeatherPlan()), 0)\n"
 },
 {
-"id": "testoor/testoor_routes_narrated#bf78b333",
+"id": "testoor/testoor_refine_narrated#ff2e0aad",
 "n": 1120,
+"domain": "testoor",
+"file": "testoor/testoor_refine_narrated.ring",
+"line": 55,
+"scenario": "The runner hands a tour its subject, and a refined subject becomes a program",
+"desc": "a source with no tag is left alone",
+"code": "func Run cInput\n\treturn AtelierThen(TestoorResolveRefinements(\"x = 1\"), \"x = 1\")\n"
+},
+{
+"id": "testoor/testoor_refine_narrated#0541e0b0",
+"n": 1121,
+"domain": "testoor",
+"file": "testoor/testoor_refine_narrated.ring",
+"line": 56,
+"scenario": "The runner hands a tour its subject, and a refined subject becomes a program",
+"desc": "a tag that never closes is left as it was",
+"code": "func Run cInput\n\treturn AtelierThen(TestoorResolveRefinements('a = <R:PARAM name=\"x\"'), 'a = <R:PARAM name=\"x\"')\n"
+},
+{
+"id": "testoor/testoor_refine_narrated#6e6afaba",
+"n": 1122,
+"domain": "testoor",
+"file": "testoor/testoor_refine_narrated.ring",
+"line": 57,
+"scenario": "The runner hands a tour its subject, and a refined subject becomes a program",
+"desc": "this process was handed no subject",
+"code": "func Run cInput\n\treturn AtelierThen(TestoorSubject(), \"\")\n"
+},
+{
+"id": "testoor/testoor_routes_narrated#bf78b333",
+"n": 1123,
 "domain": "testoor",
 "file": "testoor/testoor_routes_narrated.ring",
 "line": 46,
@@ -11207,7 +11237,7 @@
 },
 {
 "id": "time/00_time_narrated#e8fca91f",
-"n": 1121,
+"n": 1124,
 "domain": "time",
 "file": "time/00_time_narrated.ring",
 "line": 15,
@@ -11217,7 +11247,7 @@
 },
 {
 "id": "time/00_time_narrated#45a20d5a",
-"n": 1122,
+"n": 1125,
 "domain": "time",
 "file": "time/00_time_narrated.ring",
 "line": 33,
@@ -11227,7 +11257,7 @@
 },
 {
 "id": "time/00_time_narrated#a2d78e2a",
-"n": 1123,
+"n": 1126,
 "domain": "time",
 "file": "time/00_time_narrated.ring",
 "line": 34,
@@ -11237,7 +11267,7 @@
 },
 {
 "id": "time/00_time_narrated#07409edf",
-"n": 1124,
+"n": 1127,
 "domain": "time",
 "file": "time/00_time_narrated.ring",
 "line": 35,
@@ -11247,7 +11277,7 @@
 },
 {
 "id": "uuid/00_uuid_narrated#aba1aeb4",
-"n": 1125,
+"n": 1128,
 "domain": "uuid",
 "file": "uuid/00_uuid_narrated.ring",
 "line": 36,
@@ -11257,7 +11287,7 @@
 },
 {
 "id": "uuid/00_uuid_narrated#eaa5c7ad",
-"n": 1126,
+"n": 1129,
 "domain": "uuid",
 "file": "uuid/00_uuid_narrated.ring",
 "line": 37,
