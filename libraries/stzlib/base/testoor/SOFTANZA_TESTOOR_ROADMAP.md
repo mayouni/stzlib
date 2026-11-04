@@ -61,12 +61,13 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
 ### P2 -- Make the gates honest and the core specifiable.
 - **P2a, the Ring++ engine copy. DONE 2026-11-04** (section 7b): all eight guards run under `rnxc`, and a
   tour that loads the library costs 0.07 s warm instead of 4 to 5 s.
-- **P2b, golden logbooks.** Run the Ring reference over a fixed fixture set and commit the JSON logbooks
-  as goldens. The Zig core must reproduce them.
-- **P2c, protocol 2.** Add the graph record, the `[testoor node ID]` line, and the evidence-floor
-  fields. Language-neutral, written before any Zig.
-- **P2d, the Zig core design note.** Module boundaries, the bridge to Ring in the pattern of the other
-  `ring_bridge_*.zig` files, memory model, and the `-j2` build discipline.
+- **P2b, golden logbooks. DONE 2026-11-04** (`golden/`, 14 judge cases and 5 logbooks, 43 expected files; guard
+  `testoor_golden_narrated.ring`, 75 assertions on Ring 1.27 and on Ring++). The Zig core must reproduce them.
+- **P2c, protocol 2. DRAFTED 2026-11-04** (`TESTOOR_PROTOCOL_2.md`, draft d1, four questions for the author). Adds the
+  graph record, the `[testoor node ID]` line, the nodes record, the evidence floor and `refinements`; a version 2 key
+  appears only when it has content, so the goldens stay the acceptance test.
+- **P2d, the Zig core design note. DRAFTED 2026-11-04** (`TESTOOR_ZIG_CORE.md`, draft d1, four decisions for the author).
+  One domain `stz_testoor`; JSON in, JSON out; the bytes that must agree; the Ring files kept as the reference behind a switch.
 - *Exit:* all guards green under rnxc; goldens committed; protocol 2 and the design note read and
   accepted by the author.
 
@@ -240,8 +241,10 @@ cache warm** (0.07 s a tour, the slowest 0.12 s). The first walk after a change 
 ## 8. Decisions the author owes
 
 1. **P2a**, the Ring++ engine copy: done and measured (section 7b); nothing owed.
-2. **P3**, the Zig core: approve the order in section 3 and the goldens as the acceptance test. The second VM
+2. **P2c and P2d**, read the two drafts: `TESTOOR_PROTOCOL_2.md` section 11 (four questions) and
+   `TESTOOR_ZIG_CORE.md` section 9 (four decisions). Each carries a recommended answer.
+3. **P3**, the Zig core: approve the order in section 3 and the goldens as the acceptance test. The second VM
    is now a free conformance check for it.
-3. **P6**, the first two items can start now. Say whether they come before P2.
-4. **P7**, which intelligence feature to build first. The recommendation is *explain a red stop*, because it only
+4. **P6**, the first two items can start now. Say whether they come before P2.
+5. **P7**, which intelligence feature to build first. The recommendation is *explain a red stop*, because it only
    reads and can never change a verdict.
