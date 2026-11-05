@@ -369,6 +369,7 @@ class stzReactor from stzObject
 	#@ aka  ── server side: listen / events / write / close ─────────
 	def Listen(cHost, nPort)
 		This._Ensure()
+		StzNoteListener("stzReactor", cHost, nPort)
 		return StzEngineReactorListen(@pHandle, cHost, nPort, 0)
 
 	# Opens an HTTP/1.1 listener on the loop; each :data event carries one whole request, headers and body.
@@ -380,6 +381,7 @@ class stzReactor from stzObject
 	#@ aka  HTTP/1.1 listener: :data events carry complete requests.
 	def ListenHttp(cHost, nPort)
 		This._Ensure()
+		StzNoteListener("stzReactor.http", cHost, nPort)
 		return StzEngineReactorListen(@pHandle, cHost, nPort, 1)
 
 	# Opens a listener for the STZM message plane; each :data event carries one whole frame, ready for StzmUnpack.
@@ -391,6 +393,7 @@ class stzReactor from stzObject
 	#@ aka  STZM message-plane listener (distribution D0): each :data event is ONE complete STZM frame (header + payload). Unpack with StzmUnpack().
 	def ListenStzm(cHost, nPort)
 		This._Ensure()
+		StzNoteListener("stzReactor.https", cHost, nPort)
 		return StzEngineReactorListen(@pHandle, cHost, nPort, 2)
 
 	# Opens an STZM listener that ends TLS itself, so the frames Ring drains are already decrypted.
@@ -409,6 +412,7 @@ class stzReactor from stzObject
 		This._Ensure()
 		_nReq_ = 0
 		if bRequireClient  _nReq_ = 1  ok
+		StzNoteListener("stzReactor.stzm-tls", cHost, nPort)
 		return StzEngineReactorListenTls(@pHandle, cHost, nPort, 2,
 			"" + cCertPath, "" + cKeyPath, "" + cCaPath, _nReq_)
 
@@ -486,6 +490,7 @@ class stzReactor from stzObject
 		This._Ensure()
 		_nReq_ = 0
 		if bRequireClient  _nReq_ = 1  ok
+		StzNoteListener("stzReactor.https", cHost, nPort)
 		return StzEngineReactorListenTls(@pHandle, cHost, nPort, 1,
 			"" + cCertPath, "" + cKeyPath, "" + cCaPath, _nReq_)
 

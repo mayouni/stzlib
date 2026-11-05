@@ -622,6 +622,11 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     # nobody has ever seen fire is a hypothesis.
     load "security/stzSecurityDrill.ring"
 
+    # What this process RUNS, as data: engine domains, vendored libraries with their
+    # digests, models, listeners, doors -- the inventory an advisory is matched
+    # against (SOFTANZA_ONE_HOUR.md, B1).
+    load "security/stzExposure.ring"
+
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
     # (engine file primitives). The twin holds no reference to reality; disk

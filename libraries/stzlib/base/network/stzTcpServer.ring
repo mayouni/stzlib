@@ -61,7 +61,11 @@ class stzTcpServer from stzNetwork
     #   see        AcceptOne, StopListening, IsListening
     #@ aka  stzNetwork.init takes no args; nothing to wire up here.
     def Listen(nPort, cHost)
-        if cHost = "" cHost = "0.0.0.0" ok
+        # loopback unless told otherwise: a listener another machine can reach is
+        # the caller's decision, never a default (SOFTANZA_ONE_HOUR.md, lesson 4;
+        # this read "0.0.0.0" until 2026-11-05)
+        if cHost = "" cHost = "127.0.0.1" ok
+        StzNoteListener("stzTcpServer", cHost, nPort)
         @hServer = StzEngineTcpListen(cHost, nPort)
         # Engine returns a null-pointer on failure; LastError tells.
         if StzEngineTcpLastError() = ""

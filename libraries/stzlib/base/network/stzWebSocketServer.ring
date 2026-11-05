@@ -359,6 +359,7 @@ class stzWebSocketServer from stzNetwork
 		if @is_listening
 			This.StopListening()
 		ok
+		StzNoteListener("stzWebSocketServer", cHost, nPort)
 		@hServer = StzEngineWsServerListen(cHost, nPort, cCert, cKey)
 		if @hServer = 0
 			@hServer = ""

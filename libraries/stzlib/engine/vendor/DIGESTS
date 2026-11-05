@@ -1,0 +1,24 @@
+# engine/vendor/DIGESTS -- written by engine/tools/vendor_digest.py --write
+# name | version | files | sha256 of the tree (sorted paths and bytes)
+# recorded: 2026-11-05T13:56:32Z
+accesskit | accesskit-c 0.22.3 (official prebuilt, Windows x86_64 MSVC shared release) | 6 | a400f4d366f8d30df583d40f6ee3066c70e9402a7d4d3bd6ef84688d8b9f9ff9
+curl | curl 8.22.0 (libcurl only) | 418 | 02f5009898c7ca6b5c8a1a291311e3b972b190abaff227173fde0b8b1a7a285e
+ggml | ggml unknown (built as 0.0.0-stz) | 96 | fad015fc974654d60fd905ea776adc9d381ccbf15e40ad3d914e65db252d1b9a
+glfw | GLFW 3.4 -- windowing and input (zlib/libpng licence, see LICENSE.md) | 63 | 5e64546b309c72d66e472d53e71cd76f9b84e8b57eb6913bb4842561b5e35eeb
+harfbuzz | HarfBuzz 14.3.0 -- the text SHAPER (MIT-style, see COPYING) | 449 | 8ee14642356a98c4840872dfdc8d149397da7eeb25e812d192f97754775a2022
+libuv | libuv 1.52.1 | 121 | e94438d2cf463d515716bc299898167d35c3c31aacf79a9efb4f1d463753f563
+libwebp | libwebp 1.5.0 -- the DECODER only | 89 | b313a273c631d62f455910472705ca04e4bf948c5a35381e82c6ac335e256887
+mbedtls | Mbed TLS 3.6.7 (the 3.6 LTS line) | 278 | cf2fa54b9fcc6842d58830faa0de49b4427d80e9b57b6191a3ecde7b77142c7c
+miniaudio | miniaudio 0.11.25 -- audio device I/O + wav/flac/mp3 decode | 5 | c73cb986425a200ed90ea7c7c8ba5fedde9e96100fc173b47e44d9e9fe1945c1
+nghttp2 | nghttp2 1.69.0 | 66 | 9647e714cb44809889e2a01810e2e8ab707f9f40651148d6ac68ba07563cc469
+pcre2 | PCRE2 10.47 | 472 | d2437a4f3026f994774859584d8b8b97cf90a8569a5983605eb42a067a538477
+quirc | quirc 1.2 -- the QR-code reader | 8 | 09f7732803e5f91adf7c183dc853044fec32f90736ed60c809c238dac1316b44
+rmlui | RmlUi 6.2 -- the LAYOUT and MARKUP engine (MIT, see LICENSE.txt) | 431 | dc65a8cdefbd58be2f14856855dd0793c108c3c10da78e4ff157375f196955c8
+sheenbidi | SheenBidi 3.0.0 -- UAX#9 bidirectional algorithm (Apache-2.0, see LICENSE) | 100 | 5c0376d528788e634437b4f2bd2e95e76a2f7cb1396c87a646c710df9256ffc0
+snowball | Snowball (libstemmer) unknown | 56 | da103e1d61fd995085cdf13f6ea99bdb2ce70f58e591fef029a0763b4f699d42
+sqlite | SQLite 3.53.4 -- the amalgamation (sqlite3.c + sqlite3.h) | 3 | 4c90dfc9b1677d9ecfb9a6d640da0726445da5f9b1f5a95ad7a4315675b05b79
+stb | stb single-file libraries (public domain / MIT dual license) | 6 | 50db8cf9c421b47b3f272c30addbe6260e3b6214cb188b375beed19bbbf7f371
+tree-sitter | tree-sitter (runtime + python and javascript grammars) runtime ABI 15, versions unknown | 62 | 6044e5095d6bbada4cd050d9c15a65ccfb086539f4be7b2d4f995780eea893df
+utf8proc | utf8proc 2.11.3 | 4 | 41b1dc4e131e876f37da692a23687ce25c452204acc5b209480f188079a8bcdb
+wgpu | wgpu-native v29.0.1.1 (official prebuilt, Windows x86_64 MSVC release) | 5 | ae657d16189bc1f8f1f563e61b023848c0c8f9e40472cf719328238b889a1cec
+zlib | zlib 1.3.1 | 28 | 616c2b221bad7fce71b0d651a1b034ccc30ff17d808e6087b78b115121c1cec6

@@ -15,6 +15,13 @@ load "../../engine/stk_string.ring"
 # --- Helper function (Ring compiles funcs first, so it's callable above) ---
 
 func _stzDiscoverEngineDir()
+	# STZ_ENGINE_DIR names the engine folder outright: the Ring++ copy of the
+	# engine (bench/engine_copy.py builds it beside the official one) is the only
+	# build rnxc loads, and it lives outside this tree -- RING-RETIRED-01, 2026-11-05.
+	_cEnv_ = sysget("STZ_ENGINE_DIR")
+	if _cEnv_ != "" and (fexists(_cEnv_ + "/zig-out/bin/stz_string.dll") or fexists(_cEnv_ + "/zig-out/lib/libstz_string.so"))
+		return _cEnv_
+	ok
 	# Strategy: search upward from currentdir() for engine/zig-out/bin/
 	# This works regardless of where Ring is installed.
 	_cDir_ = currentdir()
