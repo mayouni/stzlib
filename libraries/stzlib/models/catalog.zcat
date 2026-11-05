@@ -1,0 +1,80 @@
+# zcat 1 -- the model catalogue Softanza reads (MP3, SOFTANZA_MODEL_PLACEMENT.md). MODELS.md is the prose beside it; this file is what
+# StzModelCatalog(), StzModelSetupPlan() and StzModelsReport() read. A path is relative to the models directory (StzModelsDir()).
+#
+#   file|<path>|<bytes>|<sha256>|<licence>|<how>|<source url>|<source bytes>|<source sha256>|<steps>
+#        how = download (the published file, renamed) | convert (made here from the source by the steps) | derive (made from another
+#        catalogued file by the steps)
+#   requires|<faculty>|<implementation>|<path>[,<path>...]|<when>       when = "" (always) or lang=<code>[,<code>...]
+#   platform|<faculty>|<implementation>|<os>|<what it needs>|<how to get it>
+#   replayed|<path>|<date>|<result>      a conversion whose steps were re-run on a machine and gave this exact file (or did not)
+#
+# Every row was written from MODELS.md, the commit that made the file, and a sha256 of the file on the machine that measured it.
+
+file|vision/yunet_2023mar.gguf|225856|f98be07de91e64b35beca64776838c3c2d940a89600dcbfd4968cc1e46cc62e7|MIT|convert|https://huggingface.co/opencv/face_detection_yunet/resolve/main/face_detection_yunet_2023mar.onnx|232589|8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4|python engine/tools/onnx_to_gguf.py face_detection_yunet_2023mar.onnx vision/yunet_2023mar.gguf --kind=yunet
+file|vision/yolox_nano.gguf|3649856|71e40dcc100b074b2329710c912f0ba03bc96b503a2b8174d27caf762480894c|Apache-2.0|convert|https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_nano.onnx|3659407|c789161ed43c8269fcd4e67c67eeeb4e80c622da2eb296a20bc6007bd18a0b7d|python engine/tools/onnx_to_gguf.py yolox_nano.onnx vision/yolox_nano.gguf --kind=yolox --labels=coco
+file|vision/yolox_tiny.gguf|20212928|2b9870a6efb8a427d10bce2c563fe261fbf8e6f21f5731207c435a048d000e4b|Apache-2.0|convert|https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.onnx|20219662|427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7|python engine/tools/onnx_to_gguf.py yolox_tiny.onnx vision/yolox_tiny.gguf --kind=yolox --labels=coco
+file|vision/mobilenetv3_large.gguf|21929440|8212129167ce1196121602d9c9756d81c2182ec722453ea4463a2f4283c9b48f|Apache-2.0|convert|https://huggingface.co/onnx-community/mobilenetv3_large_100.ra_in1k/resolve/main/onnx/model.onnx|21949218|a88a7545cb3fbafffeb6f09140d56c88f73cebf6a892cd80cf8c5ce4f2a0293d|python engine/tools/onnx_to_gguf.py model.onnx vision/mobilenetv3_large.gguf --kind=classify --labels=config.json --input=224   (config.json: the same repository's)
+file|vision/u2netp.gguf|4534784|3f17c1f9d27927eec870592edb4988dac18ba0c04d59a43f9a6d62eb4c9c9c07|Apache-2.0|convert|https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx|4574861|309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8|python engine/tools/onnx_to_gguf.py u2netp.onnx vision/u2netp.gguf --kind=saliency --output=1959 --input=320
+file|vision/depth_anything_v2_small.gguf|98874784|6f8fe64f65549d9cb289f42f001383da6e8ac3c2a7eef90cfba1849044c8c0af|Apache-2.0|convert|https://huggingface.co/onnx-community/depth-anything-v2-small/resolve/main/onnx/model.onnx|99060839|afb6a5c28f3b6bf1618c6e43f02073ef9dfdc70e937502d51603e57b0a1df10c|python engine/tools/onnx_to_gguf.py model.onnx vision/depth_anything_v2_small.gguf --kind=depth --output=predicted_depth --input=518 --static
+file|vision/mobile_sam_encoder.gguf|27834464|fc3d5bd50c0163c5e805950531772b500b15d874b5d76e25720ddf675fa17d99|Apache-2.0|convert|https://huggingface.co/Acly/MobileSAM/resolve/main/mobile_sam_image_encoder.onnx|28157093|580f5fb648ea1062c0aabc26217aed56921985f03f0cbbd852bba81d760cc749|python engine/tools/onnx_to_gguf.py mobile_sam_image_encoder.onnx vision/mobile_sam_encoder.gguf --kind=sam-encoder --static-inputs=input_image:1024,1024,3
+file|vision/mobile_sam_decoder.gguf|24644768|e8f88eed79a397cd837b7fea4eea984e978de3f2908d22e7f9b065b97d0b0b04|Apache-2.0|convert|https://huggingface.co/Acly/MobileSAM/resolve/main/sam_mask_decoder_single.onnx|16501323|93915fc7c993ab9d59ab8c9ccd3bce37f7509c81ab4150a74abd4d2abbd8570d|python engine/tools/onnx_to_gguf.py sam_mask_decoder_single.onnx vision/mobile_sam_decoder.gguf --kind=sam-decoder --outputs=/Reshape_5_output_0,/iou_prediction_head/layers.2/Gemm_output_0 --zero-inputs=mask_input,has_mask_input --static-inputs=image_embeddings:1,256,64,64;point_coords:1,2,2;point_labels:1,2 --int-inputs=point_labels
+file|vision/siglip2_vision.gguf|371573184|ebd7fa83451175d2c1f8cbe6ba1c06d2e0638d99b9cad5e1e0a67c11ae0c9e81|Apache-2.0|convert|https://huggingface.co/onnx-community/siglip2-base-patch16-224-ONNX/resolve/main/onnx/vision_model.onnx|371807752|c0573e3f4140c3a7c4e9cc5912bd6b26a033b46a6a8e8af26cbea262b163bcad|python engine/tools/onnx_to_gguf.py vision_model.onnx vision/siglip2_vision.gguf --kind=embed-image --output=pooler_output --input=224
+file|vision/siglip2_text.gguf|1147148448|c8a687c42fcde7ecd0e6dd00181f421b60c2395c4d0cc5a5082c5761196308b3|Apache-2.0|convert|https://huggingface.co/onnx-community/siglip2-base-patch16-224-ONNX/resolve/main/onnx/text_model_fp16.onnx|564862230|711da56ada0a4aa11c7dd3320df741081a3cae4f0ae1b5e5c6d5b294738d0eb0|python engine/tools/onnx_to_gguf.py text_model_fp16.onnx vision/siglip2_text.gguf --kind=embed-text --output=pooler_output --seq=64 --tokenizer=tokenizer.json   (tokenizer.json: the same repository's)
+file|vision/smolvlm_256m.gguf|175054528|2a31195d3769c0b0fd0a4906201666108834848db768af11de1d2cef7cd35e65|Apache-2.0|download|https://huggingface.co/ggml-org/SmolVLM-256M-Instruct-GGUF/resolve/main/SmolVLM-256M-Instruct-Q8_0.gguf|175054528|2a31195d3769c0b0fd0a4906201666108834848db768af11de1d2cef7cd35e65|download, save as vision/smolvlm_256m.gguf
+file|vision/smolvlm_256m_mmproj.gguf|103769856|7e943f7c53f0382a6fc41b6ee0c2def63ba4fded9ab8ed039cc9e2ab905e0edd|Apache-2.0|download|https://huggingface.co/ggml-org/SmolVLM-256M-Instruct-GGUF/resolve/main/mmproj-SmolVLM-256M-Instruct-Q8_0.gguf|103769856|7e943f7c53f0382a6fc41b6ee0c2def63ba4fded9ab8ed039cc9e2ab905e0edd|download, save as vision/smolvlm_256m_mmproj.gguf
+file|vision/smolvlm_500m.gguf|436806912|9d4612de6a42214499e301494a3ecc2be0abdd9de44e663bda63f1152fad1bf4|Apache-2.0|download|https://huggingface.co/ggml-org/SmolVLM-500M-Instruct-GGUF/resolve/main/SmolVLM-500M-Instruct-Q8_0.gguf|436806912|9d4612de6a42214499e301494a3ecc2be0abdd9de44e663bda63f1152fad1bf4|download, save as vision/smolvlm_500m.gguf
+file|vision/smolvlm_500m_mmproj.gguf|108783360|d1eb8b6b23979205fdf63703ed10f788131a3f812c7b1f72e0119d5d81295150|Apache-2.0|download|https://huggingface.co/ggml-org/SmolVLM-500M-Instruct-GGUF/resolve/main/mmproj-SmolVLM-500M-Instruct-Q8_0.gguf|108783360|d1eb8b6b23979205fdf63703ed10f788131a3f812c7b1f72e0119d5d81295150|download, save as vision/smolvlm_500m_mmproj.gguf
+file|vision/granite_docling_258m.gguf|177918144|b687245c212b59da938e411e2d4485596cbaeed1ae52706582ac38ed6a970f76|Apache-2.0|download|https://huggingface.co/ggml-org/granite-docling-258M-GGUF/resolve/main/granite-docling-258M-Q8_0.gguf|177918144|b687245c212b59da938e411e2d4485596cbaeed1ae52706582ac38ed6a970f76|download, save as vision/granite_docling_258m.gguf
+file|vision/granite_docling_258m_mmproj.gguf|103769792|3d440e65a91e640dc0a53897ad7897700c39324802aaff2072232b6f21d0cadb|Apache-2.0|download|https://huggingface.co/ggml-org/granite-docling-258M-GGUF/resolve/main/mmproj-granite-docling-258M-Q8_0.gguf|103769792|3d440e65a91e640dc0a53897ad7897700c39324802aaff2072232b6f21d0cadb|download, save as vision/granite_docling_258m_mmproj.gguf
+file|vision/owlvit_vision.gguf|357800608|8eb60b8af557d99812a3f22744759b113cd56f23694c86df4394b1823e7c93bc|Apache-2.0|convert|https://huggingface.co/google/owlvit-base-patch32/resolve/main/model.safetensors|612983940|4dbe0399f0b7d7c8dddf1535a98769cc30743bebc877aea681998c8d984ce52b|three steps, in an environment with torch and transformers: python base/test/image/_rig/owlvit_reference.py <owlvit dir> <a COCO picture> <ref dir> "a photo of a cat"; python base/test/image/_rig/owlvit_export.py <owlvit dir> <ref dir> owlvit_vision.onnx; python engine/tools/onnx_to_gguf.py owlvit_vision.onnx vision/owlvit_vision.gguf --static --input=768
+file|vision/owlvit_text.gguf|253611360|312d784561684f64061e81b1d66dee8de710ae744d155cc3bfd628cf08d953ab|Apache-2.0|convert|https://huggingface.co/google/owlvit-base-patch32/resolve/main/model.safetensors|612983940|4dbe0399f0b7d7c8dddf1535a98769cc30743bebc877aea681998c8d984ce52b|two steps, with torch and transformers: python base/test/image/_rig/owlvit_text_export.py <owlvit dir> owlvit_text.onnx; python engine/tools/onnx_to_gguf.py owlvit_text.onnx vision/owlvit_text.gguf --static --input=16 --seq=16
+file|vision/owlvit_vocab.json|1059962|e089ad92ba36837a0d31433e555c8f45fe601ab5c221d4f607ded32d9f7a4349|Apache-2.0|download|https://huggingface.co/google/owlvit-base-patch32/resolve/main/vocab.json|1059962|e089ad92ba36837a0d31433e555c8f45fe601ab5c221d4f607ded32d9f7a4349|download, save as vision/owlvit_vocab.json
+file|vision/owlvit_merges.txt|524619|9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a|Apache-2.0|download|https://huggingface.co/google/owlvit-base-patch32/resolve/main/merges.txt|524619|9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a|download, save as vision/owlvit_merges.txt
+file|vision/owlvit_vision_shiftpatch.gguf|357800608|45e95652f5d6af249a101eec2ebfd08296ed6e289eac195a1d90fc219b4d2c63|Apache-2.0|derive|vision/owlvit_vision.gguf|357800608|8eb60b8af557d99812a3f22744759b113cd56f23694c86df4394b1823e7c93bc|StzEngineNeuralPatchRemoveDirection(owlvit_vision.gguf, owlvit_vision_shiftpatch.gguf, "c210", 0, 1, read("base/test/image/_golden/owl_shift_direction.txt"))
+file|ocr/ppocr_det.gguf|9833504|d529164359a42058103ca877b94f4514a0f99a007717564666c0433b7882728e|Apache-2.0|convert|https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv6/det/PP-OCRv6_det_small.onnx||090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f|python engine/tools/onnx_to_gguf.py PP-OCRv6_det_small.onnx ocr/ppocr_det.gguf --kind=det
+file|ocr/ppocr_rec.gguf|21291904|243acf5d162c9239d105b66050ff2116f9d84f4c4c81dc0e4db219cec2c25f02|Apache-2.0|convert|https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv6/rec/PP-OCRv6_rec_small.onnx||6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884|python engine/tools/onnx_to_gguf.py PP-OCRv6_rec_small.onnx ocr/ppocr_rec.gguf --kind=rec
+file|ocr/ppocr_cls.gguf|536480|e97b5b1cd558889cc9029c81a065131aa75f2d3783d0e4841d88ecb88aaf955a|Apache-2.0|convert|https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv4/cls/ch_ppocr_mobile_v2.0_cls_mobile.onnx||e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c|python engine/tools/onnx_to_gguf.py ch_ppocr_mobile_v2.0_cls_mobile.onnx ocr/ppocr_cls.gguf --kind=cls
+file|ocr/ppocr_rec_arabic.gguf|7937728|c1563b1f5f9f412d927c3a48b1b6c9863ed0176efdcaafa9ca658c6a9abae8d3|Apache-2.0|convert|https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv5/rec/arabic_PP-OCRv5_rec_mobile.onnx||c1192e632d0baa9146ae5b756a0e635e3dc63c1733737ebfd1629e87144e9295|python engine/tools/onnx_to_gguf.py arabic_PP-OCRv5_rec_mobile.onnx ocr/ppocr_rec_arabic.gguf --kind=rec --direction=rtl --classifier=off
+file|ocr/ppocr_rec_cyrillic.gguf|7988640|02b1adf6774c19e44bb4851d7eebc63bc9eed9cb3d2f14a42babdcf40f176b01|Apache-2.0|convert|https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv5/rec/cyrillic_PP-OCRv5_rec_mobile.onnx||90f761b4bfcce0c8c561c0cb5c887b0971d3ec01c32164bdf7374a35b0982711|python engine/tools/onnx_to_gguf.py cyrillic_PP-OCRv5_rec_mobile.onnx ocr/ppocr_rec_cyrillic.gguf --kind=rec
+
+requires|faces|yunet|vision/yunet_2023mar.gguf|
+requires|objects|yolox-nano|vision/yolox_nano.gguf|
+requires|objects|yolox-tiny|vision/yolox_tiny.gguf|
+requires|image-label|mobilenetv3|vision/mobilenetv3_large.gguf|
+requires|image-label|siglip2|vision/siglip2_text.gguf,vision/siglip2_vision.gguf|
+requires|foreground|u2netp|vision/u2netp.gguf|
+requires|object-at|mobilesam|vision/mobile_sam_encoder.gguf,vision/mobile_sam_decoder.gguf|
+requires|depth|depth-anything-v2-small|vision/depth_anything_v2_small.gguf|
+requires|describe|smolvlm-256m|vision/smolvlm_256m.gguf,vision/smolvlm_256m_mmproj.gguf|
+requires|describe|smolvlm-500m|vision/smolvlm_500m.gguf,vision/smolvlm_500m_mmproj.gguf|
+requires|doc-vlm|granite-docling-258m|vision/granite_docling_258m.gguf,vision/granite_docling_258m_mmproj.gguf|
+requires|doc-vlm|native-plus-granite|vision/granite_docling_258m.gguf,vision/granite_docling_258m_mmproj.gguf|
+requires|near-duplicate|siglip2-cosine|vision/siglip2_vision.gguf|
+requires|find|yolox-by-name|vision/yolox_tiny.gguf|
+requires|find|owlvit|vision/owlvit_vision.gguf,vision/owlvit_text.gguf,vision/owlvit_vocab.json,vision/owlvit_merges.txt|
+requires|find|owlvit+warm-rule|vision/owlvit_vision.gguf,vision/owlvit_text.gguf,vision/owlvit_vocab.json,vision/owlvit_merges.txt|
+requires|find|owlvit+shift-patch|vision/owlvit_vision_shiftpatch.gguf,vision/owlvit_text.gguf,vision/owlvit_vocab.json,vision/owlvit_merges.txt|
+requires|ocr|ppocr|ocr/ppocr_det.gguf,ocr/ppocr_cls.gguf,ocr/ppocr_rec.gguf|
+requires|ocr|ppocr|ocr/ppocr_rec_arabic.gguf|lang=ar
+requires|ocr|ppocr|ocr/ppocr_rec_cyrillic.gguf|lang=ru,uk,bg
+
+platform|ocr|platform|windows|a Windows OCR language pack for the language read|Settings > Time & language > Language & region > Add a language (with Optical character recognition); or, as administrator: Add-WindowsCapability -Online -Name "Language.OCR~~~<tag>~0.0.1.0" (Get-WindowsCapability -Online -Name "Language.OCR*" lists them)
+platform|faces|platform|windows|Windows.Media.FaceAnalysis, part of Windows 10 and later|nothing to install on Windows; on another system this implementation does not exist
+
+# replayed on 2026-11-05 by base/test/image/_rig/catalog_replay.py (Windows, the Docling environment's python, onnx and numpy)
+replayed|vision/yunet_2023mar.gguf|2026-11-05|reproduced byte for byte
+replayed|vision/yolox_nano.gguf|2026-11-05|reproduced byte for byte
+replayed|vision/yolox_tiny.gguf|2026-11-05|reproduced byte for byte
+replayed|vision/mobilenetv3_large.gguf|2026-11-05|reproduced byte for byte
+replayed|vision/u2netp.gguf|2026-11-05|reproduced byte for byte
+replayed|vision/depth_anything_v2_small.gguf|2026-11-05|reproduced byte for byte
+replayed|vision/mobile_sam_encoder.gguf|2026-11-05|reproduced byte for byte
+replayed|vision/mobile_sam_decoder.gguf|2026-11-05|reproduced byte for byte
+replayed|vision/siglip2_vision.gguf|2026-11-05|reproduced byte for byte
+replayed|ocr/ppocr_det.gguf|2026-11-05|reproduced byte for byte
+replayed|ocr/ppocr_rec.gguf|2026-11-05|reproduced byte for byte (after the steps were corrected from '--kind rec' to '--kind=rec': the converter read the first as no kind at all)
+replayed|ocr/ppocr_cls.gguf|2026-11-05|reproduced byte for byte (the same correction)
+replayed|vision/owlvit_vision.gguf|2026-11-05|not replayed: several stages, torch and transformers needed
+replayed|vision/owlvit_text.gguf|2026-11-05|not replayed: several stages, torch and transformers needed
+replayed|ocr/ppocr_rec_arabic.gguf|2026-11-05|not replayed: its source is not on the replaying machine
+replayed|ocr/ppocr_rec_cyrillic.gguf|2026-11-05|not replayed: its source is not on the replaying machine

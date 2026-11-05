@@ -204,7 +204,24 @@ func StzModelsReportPage(pcPath)
 		next
 		_c_ += "<td>" + _StzHtml(_e_[:reason]) + "</td></tr>"
 	next
-	_c_ += "</table></div><h2>Every faculty, on this machine</h2>"
+	_c_ += "</table></div>"
+	# MP3: what could be installed HERE, from the catalogue and the court (Softanza fetches nothing)
+	_aSP_ = StzModelSetupPlan("")
+	_c_ += "<h2>What you could install here</h2><p class='sub'>From the model catalogue (models/catalog.zcat) and the court. Softanza fetches nothing: " +
+	       "each step is yours to run; check every file against its sha256.</p>"
+	if len(_aSP_) = 0
+		_c_ += "<p>Nothing: every file the faculties need is here, and every platform implementation can run.</p>"
+	else
+		_c_ += "<div class='wrap'><table><tr><th>faculty</th><th>needs</th><th>how</th><th>what it changes here</th></tr>"
+		for _i_ = 1 to len(_aSP_)
+			_s_ = _aSP_[_i_]
+			_cHow_ = _StzHtml(_s_[:steps])
+			if _s_[:kind] = "file" _cHow_ = _StzHtml(_s_[:how] + " (" + _s_[:bytes] + " bytes, " + _s_[:licence] + "): " + _s_[:steps] + " -- sha256 " + _s_[:sha256]) ok
+			_c_ += "<tr><td>:" + _s_[:faculty] + " / " + _StzHtml(_s_[:impl]) + "</td><td>" + _StzHtml(_s_[:what]) + "</td><td><code>" + _cHow_ + "</code></td><td>" + _StzHtml(_s_[:value]) + "</td></tr>"
+		next
+		_c_ += "</table></div>"
+	ok
+	_c_ += "<h2>Every faculty, on this machine</h2>"
 	for _i_ = 1 to len(_aHere_)
 		_e_ = _aHere_[_i_]
 		_cF_ = ":" + _e_[:faculty]

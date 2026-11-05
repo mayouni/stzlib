@@ -205,6 +205,7 @@ ok
     load "faculty/stzModelRegistry.ring"
     load "faculty/stzCalibration.ring"
     load "faculty/stzFlow.ring"
+    load "faculty/stzModelCatalog.ring"    # MP3: the model catalogue (models/catalog.zcat) and the setup plan -- it fetches nothing
     load "faculty/stzModelsReport.ring"    # MP1/MP2: the real picture of the models -- what can run here, what answers, where (SOFTANZA_MODEL_PLACEMENT.md)
 
     # Reflection: self-describing objects -- harvest a class's methods + docs from
