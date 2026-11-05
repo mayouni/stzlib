@@ -251,7 +251,7 @@ class stzExposure from stzObject
 		_n_ = len(_aG_)
 		for _i_ = 1 to _n_
 			_g_ = StzLower(_aG_[_i_])
-			if left(_g_, 4) = "$pst" and right(_g_, 6) = "handle"
+			if left(_g_, 4) = "$pst" and right(_g_, 6) = "handle" and StzIsPlainIdentifier(right(_aG_[_i_], len(_aG_[_i_]) - 1))
 				_v_ = eval("return " + _aG_[_i_])
 				if NOT (isString(_v_) and _v_ = "")
 					if isPointer(_v_) or isNumber(_v_)

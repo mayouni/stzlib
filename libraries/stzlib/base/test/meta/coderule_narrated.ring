@@ -44,7 +44,7 @@ Scenario("FROZEN behaviour: StzCheckCode reproduces the house findings")
 
 	cGood = "class Foo" + nl + "def BazQ()" + nl + "	return This" + nl
 	Then("clean source passes", StzCodeIsClean(cGood), TRUE)
-	Then("StzCodeRuleNames lists the house rules (16 with the knob rules, the raw markup door and the markup concatenation)", len(StzCodeRuleNames()), 16)
+	Then("StzCodeRuleNames lists the house rules (21: the knob rules, the raw markup door, the markup concatenation, and the five bug shapes of 2026-11-05)", len(StzCodeRuleNames()), 21)
 	Then("...including dead-knob", StzFindFirst("dead-knob", StzCodeRuleNames()) > 0, TRUE)
 	Then("...and setter-resets-on-reject", StzFindFirst("setter-resets-on-reject", StzCodeRuleNames()) > 0, TRUE)
 	Then("...and the three shapes learned after them", NNamed(["setter-only-moves-one-way", "misspelled-name", "library-prints"]), 3)

@@ -27,7 +27,11 @@ func StzCodeRuleNames()
 	         "setter-only-moves-one-way", "misspelled-name", "library-prints",
 	         "empty-method-body", "writes-a-mutable-constant",
 	         "value-called-as-function", "raw-markup-door",
-	         "markup-concatenation" ]
+	         "markup-concatenation",
+	         # the autumn's bug shapes (SOFTANZA_ONE_HOUR.md A5 / B3, W2a)
+	         "global-restored-by-hand", "listener-binds-all",
+	         "text-run-as-code", "last-error-read",
+	         "handle-held-across-raise" ]
 
 func StzCheckCodeFile(pcPath)
 	return StzCheckCode(read(pcPath))
@@ -145,7 +149,12 @@ func _StzTextPassFindings(pcSource)
 		_StzCheckRawMarkupDoor(_cClean_),
 		_StzCheckMarkupConcat(_cClean_),
 		_StzCheckValueCalls(_cClean_),
-		_StzCheckForInLoops(_cClean_)
+		_StzCheckForInLoops(_cClean_),
+		_StzCheckGlobalRestoredByHand(_cClean_),
+		_StzCheckListenerBindsAll(_cClean_),
+		_StzCheckTextRunAsCode(_cClean_),
+		_StzCheckLastErrorRead(_cClean_),
+		_StzCheckHandleHeldAcrossRaise(_cClean_)
 	]
 	_nP_ = len(_aPasses_)
 	for _i_ = 1 to _nP_
@@ -2623,3 +2632,213 @@ func _StzWithoutCoverage(pcText)
 	next
 	_cOut_ += _StzBetween(_cT_, _nE_, len(_cT_))
 	return _cOut_
+
+# ---------------------------------------------------------------------------
+# THE AUTUMN'S BUG SHAPES AS RULES (SOFTANZA_ONE_HOUR.md A5 / B3, rung W2a).
+# Five shapes that cost PHP, Linux and Node-RED this autumn, read against Ring.
+# Each is a text pass by function body, each names the measurement behind it,
+# and each has a negative sibling in shape_rules_narrated. The same five go to
+# rnxc check (RINGPP-ONEHOUR-01), so the two tools agree.
+# ---------------------------------------------------------------------------
+
+# the bodies of a source: [ [ name, firstLine, lastLine ], ... ]
+func _StzShapeBodies(pacLines)
+	_aB_ = []
+	_nLen_ = len(pacLines)
+	_cCur_ = ""
+	_nStart_ = 0
+	for _i_ = 1 to _nLen_
+		_cL_ = StzTrim("" + pacLines[_i_])
+		if StzLeft(_cL_, 4) = "def " or StzLeft(_cL_, 5) = "func "
+			if _nStart_ > 0
+				_aB_ + [ _cCur_, _nStart_, _i_ - 1 ]
+			ok
+			_cCur_ = _cL_
+			_nStart_ = _i_
+		ok
+	next
+	if _nStart_ > 0
+		_aB_ + [ _cCur_, _nStart_, _nLen_ ]
+	ok
+	return _aB_
+
+func _StzShapeIsName(pcText)
+	_n_ = len(pcText)
+	if _n_ = 0
+		return 0
+	ok
+	for _i_ = 1 to _n_
+		_c_ = pcText[_i_]
+		if NOT (isAlNum(_c_) or _c_ = "_" or _c_ = "$" or _c_ = "@")
+			return 0
+		ok
+	next
+	return 1
+
+# PHP2Shell's shape (and SECURITY-AMBIENT-01, measured 2026-11-05: 8 sites in
+# the library, 2 unprotected). A body saves a $global into a local and later
+# writes the global back from that local, with no try on the path: a raise in
+# between leaves the global set for whoever runs next.
+func _StzCheckGlobalRestoredByHand(pcSource)
+	_aOut_ = []
+	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
+	_aB_ = _StzShapeBodies(_acLines_)
+	_nB_ = len(_aB_)
+	for _b_ = 1 to _nB_
+		_aSaved_ = []
+		_bTry_ = 0
+		for _i_ = _aB_[_b_][2] to _aB_[_b_][3]
+			_cL_ = StzTrim("" + _acLines_[_i_])
+			if StzLeft(_cL_, 1) = "#"
+				loop
+			ok
+			if _cL_ = "try" or StzLeft(_cL_, 4) = "try "
+				_bTry_ = 1
+			ok
+			_nEq_ = StzFindFirst(" = ", _cL_)
+			if _nEq_ < 2
+				loop
+			ok
+			_cLhs_ = StzTrim(StzLeft(_cL_, _nEq_ - 1))
+			_cRhs_ = StzTrim(StzRight(_cL_, len(_cL_) - _nEq_ - 2))
+			if StzLeft(_cRhs_, 1) = "$" and StzLeft(_cLhs_, 1) != "$" and _StzShapeIsName(_cRhs_) and _StzShapeIsName(_cLhs_)
+				_aSaved_ + [ StzLower(_cLhs_), StzLower(_cRhs_), _i_ ]
+				loop
+			ok
+			if StzLeft(_cLhs_, 1) = "$" and _StzShapeIsName(_cRhs_)
+				_nS_ = len(_aSaved_)
+				for _k_ = 1 to _nS_
+					if _aSaved_[_k_][2] = StzLower(_cLhs_) and _aSaved_[_k_][1] = StzLower(_cRhs_) and _bTry_ = 0
+						_aOut_ + [ :rule = :global_restored_by_hand, :line = _aSaved_[_k_][3],
+							:severity = :warning,
+							:message = _cLhs_ + " is saved here and restored by hand at line " + _i_ +
+								" with no try between: a raise leaves it set for the next caller -- " +
+								"restore it in a catch and raise again (or within, once Ring++ ships it)" ]
+					ok
+				next
+			ok
+		next
+	next
+	return _aOut_
+
+# Node-RED's shape: a listener whose default reaches every interface. A literal
+# "0.0.0.0" or "::" in library code is a finding; a caller may still ask for it.
+func _StzCheckListenerBindsAll(pcSource)
+	_aOut_ = []
+	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
+	_nLen_ = len(_acLines_)
+	_cAll4_ = char(34) + "0.0" + ".0.0" + char(34)     # split, so this rule does not find itself
+	_cAll6_ = char(34) + ":" + ":" + char(34)
+	for _i_ = 1 to _nLen_
+		_cL_ = StzTrim("" + _acLines_[_i_])
+		if StzLeft(_cL_, 1) = "#"
+			loop
+		ok
+		if StzFindFirst(_cAll4_, _cL_) > 0 or StzFindFirst(_cAll6_, _cL_) > 0
+			_aOut_ + [ :rule = :listener_binds_all, :line = _i_, :severity = :warning,
+				:message = "a listener bound to every interface by a literal -- " +
+					"bind 127.0.0.1 unless the caller asked for more" ]
+		ok
+	next
+	return _aOut_
+
+# R17's shape, kept closed: eval( on anything that is not a literal and did not
+# pass StzIsQueryCondition in the same body.
+func _StzCheckTextRunAsCode(pcSource)
+	_aOut_ = []
+	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
+	_aB_ = _StzShapeBodies(_acLines_)
+	_nB_ = len(_aB_)
+	for _b_ = 1 to _nB_
+		_bChecked_ = 0
+		for _i_ = _aB_[_b_][2] to _aB_[_b_][3]
+			# a body that checked its text first: a query condition, or a plain identifier
+			if StzFindFirst("StzIsQueryCondition", "" + _acLines_[_i_]) > 0 or StzFindFirst("StzIsPlainIdentifier", "" + _acLines_[_i_]) > 0
+				_bChecked_ = 1
+			ok
+		next
+		if _bChecked_ = 1
+			loop
+		ok
+		for _i_ = _aB_[_b_][2] to _aB_[_b_][3]
+			_cL_ = StzTrim("" + _acLines_[_i_])
+			if StzLeft(_cL_, 1) = "#"
+				loop
+			ok
+			_nE_ = StzFindFirst("eval(", StzLower(_cL_))
+			if _nE_ = 0
+				loop
+			ok
+			_cArg_ = StzTrim(StzRight(_cL_, len(_cL_) - _nE_ - 4))
+			# a literal is ONE quoted text; a quote followed by a + is text built at run time
+			if (StzLeft(_cArg_, 1) = char(34) or StzLeft(_cArg_, 1) = char(39)) and StzFindFirst("+", _cArg_) = 0
+				loop
+			ok
+			_aOut_ + [ :rule = :text_run_as_code, :line = _i_, :severity = :error,
+				:message = "text runs as code here and nothing in this body checked it -- " +
+					"route a condition through the engine W evaluator or StzIsQueryCondition (R17)" ]
+		next
+	next
+	return _aOut_
+
+# The process-wide last error, read outside the catch that made it: PHP's
+# worker-global shape in one name (ruling 2 retires it once catch e ships).
+func _StzCheckLastErrorRead(pcSource)
+	_aOut_ = []
+	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
+	_nLen_ = len(_acLines_)
+	_bInCatch_ = 0
+	for _i_ = 1 to _nLen_
+		_cL_ = StzTrim("" + _acLines_[_i_])
+		if StzLeft(_cL_, 1) = "#"
+			loop
+		ok
+		if _cL_ = "catch" or StzLeft(_cL_, 6) = "catch "
+			_bInCatch_ = 1
+			loop
+		ok
+		if _cL_ = "done" or StzLeft(_cL_, 5) = "done "
+			_bInCatch_ = 0
+			loop
+		ok
+		if StzFindFirst("ccatch" + "error", StzLower(_cL_)) > 0 and _bInCatch_ = 0
+			_aOut_ + [ :rule = :last_error_read, :line = _i_, :severity = :note,
+				:message = "cCatchError read outside a catch: it is the process's LAST error, " +
+					"whoever raised it -- keep the message in the catch that owns it" ]
+		ok
+	next
+	return _aOut_
+
+# KERN-07's residue: an engine secret cell taken into a LOCAL by a body that never
+# releases it -- a raise loses the handle and the value stays in locked memory. A
+# cell stored in a member (@nCell) is kept on purpose, for Release() to find.
+func _StzCheckHandleHeldAcrossRaise(pcSource)
+	_aOut_ = []
+	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
+	_aB_ = _StzShapeBodies(_acLines_)
+	_nB_ = len(_aB_)
+	for _b_ = 1 to _nB_
+		_nHeld_ = 0
+		_bReleased_ = 0
+		for _i_ = _aB_[_b_][2] to _aB_[_b_][3]
+			_cL_ = StzLower(StzTrim("" + _acLines_[_i_]))
+			if StzLeft(_cL_, 1) = "#"
+				loop
+			ok
+			if StzFindFirst("= stzenginesecrethold", _cL_) > 0 and _nHeld_ = 0
+				_cTo_ = StzTrim(StzLeft(_cL_, StzFindFirst("= stzenginesecrethold", _cL_) - 1))
+				if StzLeft(_cTo_, 1) != "@" and StzLeft(_cTo_, 1) != "$"
+					_nHeld_ = _i_
+				ok
+			ok
+			if StzFindFirst("release(", _cL_) > 0 or StzFindFirst("destroy(", _cL_) > 0 or StzFindFirst("close(", _cL_) > 0
+				_bReleased_ = 1
+			ok
+		next
+		if _nHeld_ > 0 and _bReleased_ = 0
+			_aOut_ + [ :rule = :handle_held_across_raise, :line = _nHeld_, :severity = :warning,
+				:message = "a secret cell is held here and this body never releases it -- " +
+					"Release() on every path (or using, once Ring++ ships it)" ]
+		ok
+	next
+	return _aOut_
