@@ -8,7 +8,9 @@
 # The verdicts are not written by this script: the registry derives them from the counts (StzLoadCourt).
 load "../../stzBase.ring"
 decimals(6)
-$cImg = "D:/GitHub/_wti_models_src/coco/images/"
+# the fresh pictures live in their own folder: coco/images is what "on disk" MEANT for find-v1 and for the fresh set's exclusion, and both
+# generators list it, so mixing them would silently change both sets if either were ever made again
+$cImg = "D:/GitHub/_wti_models_src/coco_fresh/"
 $aImpl = [ "yolox-by-name", "owlvit", "owlvit+warm-rule", "owlvit+shift-patch" ]
 aLines = str2list(read("_golden/owl_find_v2.tsv"))
 aRows = []

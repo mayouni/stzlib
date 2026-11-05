@@ -18,6 +18,7 @@ import json
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # python -I leaves the script's own folder off the path
 from owl_golden import COCO80, MIN_AREA, word_of
 
 N_PICTURES = 300
