@@ -316,8 +316,11 @@ func AtelierCellPlan cSource
 	acL = str2list(substr("" + cSource, char(13), ""))
 	aSees = []
 	cOut = ""
-	nL = len(acL)
-	for i = 1 to nL
+	# nLines, never nL: Ring is case-insensitive, so nL spells the NL global.
+	# Harmless on rnxc, where an assignment in a function makes a local
+	# (measured 2026-11-05), but it reads as a write to NL and is not one.
+	nLines = len(acL)
+	for i = 1 to nLines
 		cLine = acL[i]
 		cT = trim(cLine)
 		if left(cT, 1) = "?" and left(cT, 4) != "?-->"
@@ -330,10 +333,10 @@ func AtelierCellPlan cSource
 			else
 				# the promise on the line under it, and its continuation lines
 				j = i + 1
-				while j <= nL and trim(acL[j]) = ""
+				while j <= nLines and trim(acL[j]) = ""
 					j++
 				end
-				if j <= nL and left(trim(acL[j]), 4) = "#-->"
+				if j <= nLines and left(trim(acL[j]), 4) = "#-->"
 					cPromise = trim(substr(trim(acL[j]), 5)) + _TourContinuation(acL, j)
 				ok
 			ok
