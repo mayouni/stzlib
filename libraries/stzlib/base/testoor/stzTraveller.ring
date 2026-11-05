@@ -1122,7 +1122,7 @@ class stzTraveller from stzObject
 		@bWalked = 1
 		@nOwned++
 		if @nSeed < 0
-			@nSeed = 1 + (floor(clock() * 1000 / clockspersecond()) % 90000)
+			@nSeed = TestoorDrawSeed()   # the draw a tour makes for itself: one formula, stzClock.ring
 		ok
 		_aRec_ = This._WalkOnce("" + pcPath, @nSeed)
 		_k_ = 2

@@ -8,8 +8,10 @@ pub const promises = @import("testoor_promises.zig");
 pub const verdict = @import("testoor_verdict.zig");
 pub const logbook = @import("testoor_logbook.zig");
 pub const api = @import("testoor_api.zig");
+pub const clock = @import("testoor_clock.zig");
 
 test {
+    _ = clock;
     _ = text;
     _ = json;
     _ = promises;

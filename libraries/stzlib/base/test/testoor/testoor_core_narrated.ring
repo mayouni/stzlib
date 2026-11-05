@@ -14,10 +14,16 @@ load "../_narrated.ring"
 # prints a seed or a plan that is not a number makes the reference raise (R41, measured on Ring
 # 1.27 and on Ring++) and the core ignore the line and judge the rest.
 #
+# P3.2 adds the WORLD of a tour -- its seed, its stepped clock, its weather (stzClock.ring, owned by
+# engine/src/testoor_clock.zig): one script of calls is walked on the reference and then on the core and
+# the two transcripts must be the same bytes; and the three differences the core is ALLOWED are each
+# pinned: a weather's tick is picked from the SEED (portable) and not from Ring's rand(), the stepped
+# clock and the weather want numbers, and a runner seed that is not a number is no seed.
+#
 # A machine without the core library (Ring 1.27 with no engine build) runs the first section
 # only and says, by name, what it did not run.
 
-? "TESTOOR P3.1 -- the core beside the reference"
+? "TESTOOR P3.1 + P3.2 -- the core beside the reference"
 nCoStart = clock()
 cCoRoot = currentdir() + "/../../testoor/golden"
 bCoLoaded = $bStzTestoorCore
@@ -37,7 +43,7 @@ EndScenario()
 if NOT bCoLoaded
 	? ""
 	? "SKIPPED by name, because stz_testoor is not loaded on this virtual machine:"
-	? "  every core-versus-reference section (golden tours, run-level calls, live-shaped tour, bad requests, deviations)"
+	? "  every core-versus-reference section (golden tours, run-level calls, live-shaped tour, bad requests, deviations, the world of a tour)"
 else
 
 #============================================================================
@@ -175,10 +181,84 @@ Scenario("The one deviation: a seed or a plan that is not a number")
 EndScenario()
 ? "        [section took " + ((clock() - nCoSec) / clockspersecond()) + "s]"
 
+#============================================================================
+Scenario("P3.2 -- the world of a tour: the core and the reference answer the same script the same way")
+	nCoSec = clock()
+	Given("one script of clock, seed and weather calls, walked on the reference and then on the core")
+	TestoorCore("ring")
+	cCoWorldRef = _CoWorldScript()
+	Then("with the reference the world is held in Ring", _TestoorWorldIsEngine(), FALSE)
+	TestoorCore("engine")
+	Then("with the core the world is held in the engine: the library answers the world call", _TestoorWorldIsEngine(), TRUE)
+	cCoWorldEng = _CoWorldScript()
+	Then("the two transcripts are the same bytes", cCoWorldEng, cCoWorldRef)
+	Then("and say what the script did: refusals, the stepped times, the weather fired once, the plan that is left",
+	     cCoWorldEng,
+	     "mode=live|tick-live=1|advance-live=1|skew-live=1|unknown-weather=1|unknown-mode=1|seed=42|clock=stepped|0=1000|1=1250|2=2000|3=2250|ticks=2|" +
+	     "w1=5|w2=3|skew=0|now=2750|declared=child_killed,child_killed,skew|plan=child_killed/5,child_killed/3,skew/0|" +
+	     "t3=child_killed/w2|t4=-|t5=child_killed/w1|plan-after=skew/0|now-after=3500|" +
+	     "restart=stepped|declared-after-restart=skew|ticks-after-restart=0|now-after-restart=0|frozen=frozen|live=live|reset-declared=|")
+	Given("TestoorDrawSeed and a runner's seed text, on each")
+	TestoorCore("ring")
+	nCoDrawRef = TestoorDrawSeed()
+	TestoorCore("engine")
+	nCoDrawEng = TestoorDrawSeed()
+	Then("the reference draws a seed from 1 to 90000", nCoDrawRef >= 1 and nCoDrawRef <= 90000, TRUE)
+	Then("so does the core", nCoDrawEng >= 1 and nCoDrawEng <= 90000, TRUE)
+	Then("the runner's seed text 42 is adopted", 0 + StzEngineTestoorWorld("seedrun", "42", 5, 0), 42)
+	Then("and a seed of 0 is a seed", 0 + StzEngineTestoorWorld("seedrun", "0", 5, 0), 0)
+	TestoorReset()
+	When("choosing who runs the world is done with weather declared")
+	TestoorCore("engine")
+	ClockTo(:stepped, [ 0, 100 ])
+	Weather(:child_killed, [ "w1", 3 ])
+	Then("the world holds it", len(WeatherDeclared()), 1)
+	TestoorCore("ring")
+	Then("choosing again forgets it, so nothing is left behind in the other place", len(WeatherDeclared()), 0)
+	TestoorCore("engine")
+	Then("and the other place has none either", len(WeatherDeclared()), 0)
+	TestoorReset()
+EndScenario()
+? "        [section took " + ((clock() - nCoSec) / clockspersecond()) + "s]"
+
+#============================================================================
+Scenario("P3.2 -- the differences the world is allowed, each one pinned")
+	nCoSec = clock()
+	Given("a weather with no tick, declared under seeds 42, 43 and 7")
+	TestoorCore("engine")
+	Then("the core picks 2, 5 and 3 -- the same on every machine, and pinned in the Zig tests too",
+	     "" + _CoPick(42) + "," + _CoPick(43) + "," + _CoPick(7), "2,5,3")
+	Then("the same seed picks the same tick twice", _CoPick(42), _CoPick(42))
+	TestoorCore("ring")
+	nCoPickRef = _CoPick(42)
+	Then("the reference picks one of the first six too, from Ring's own generator, which differs by machine",
+	     nCoPickRef >= 1 and nCoPickRef <= 6, TRUE)
+	Then("and the same seed picks it twice on this machine", _CoPick(42), nCoPickRef)
+	Given("a tour that draws between seeding and declaring")
+	TestoorCore("engine")
+	TestoorReset()
+	Seed(42)
+	nCoNoise = random(1000) + random(1000)
+	nCoPicked = Weather(:child_killed, [ "w" ])
+	Then("the core's pick is not moved by the tour's other draws: still 2", nCoPicked, 2)
+	Given("a stepped clock started with a number held as text, and a tick the same way")
+	TestoorCore("ring")
+	Then("the reference took the text and stored it", _CoRefuses("start"), 0)
+	Then("and a tick given as text", _CoRefuses("tick"), 0)
+	TestoorCore("engine")
+	Then("the core wants numbers, and refuses a start given as text", _CoRefuses("start"), 1)
+	Then("and a tick given as text", _CoRefuses("tick"), 1)
+	Given("a runner that passed a seed that is not a number")
+	Then("the core takes it for no seed and draws one: 1 + 123456 mod 90000", 0 + StzEngineTestoorWorld("seedrun", "abc", 123456.7, 0), 33457)
+	Then("and so does a negative one", 0 + StzEngineTestoorWorld("seedrun", "-3", 123456.7, 0), 33457)
+	TestoorReset()
+EndScenario()
+? "        [section took " + ((clock() - nCoSec) / clockspersecond()) + "s]"
+
 ok
 
 ? ""
-? "[P3.1 took " + ((clock() - nCoStart) / clockspersecond()) + "s]"
+? "[P3.1 + P3.2 took " + ((clock() - nCoStart) / clockspersecond()) + "s]"
 Summary()
 
 #============================================================================
@@ -232,3 +312,121 @@ func _CoLiveRecord()
 	                      [ :line = 3, :kind = "sees", :claim = "colour " + char(27) + "[0m done", :want = "" ],
 	                      [ :line = 4, :kind = "sees", :claim = "last", :want = "" ] ] ] ],
 	         :routes = [] ]
+
+#============================================================================
+# P3.2 HELPERS: the world of a tour, walked the same way on whichever implementation TestoorCore() chose
+
+func _CoJoin(paList)
+	_c_ = ""
+	_n_ = len(paList)
+	for _i_ = 1 to _n_
+		if _i_ > 1  _c_ += ","  ok
+		_c_ += "" + paList[_i_]
+	next
+	return _c_
+
+func _CoPlanText(paPlan)
+	_c_ = ""
+	_n_ = len(paPlan)
+	for _i_ = 1 to _n_
+		if _i_ > 1  _c_ += ","  ok
+		_c_ += paPlan[_i_][1] + "/" + paPlan[_i_][2]
+	next
+	return _c_
+
+# the weather that fell due at a tick, by name and by what its spec named; "-" for none
+func _CoFiredText(paFired)
+	if len(paFired) = 0  return "-"  ok
+	_c_ = ""
+	_n_ = len(paFired)
+	for _i_ = 1 to _n_
+		if _i_ > 1  _c_ += ","  ok
+		_c_ += paFired[_i_][1] + "/" + paFired[_i_][2][1]
+	next
+	return _c_
+
+# did the call raise? 1 or 0
+func _CoRaised(pcWhat)
+	_b_ = 0
+	try
+		if pcWhat = "tick"
+			ClockTick()
+		but pcWhat = "advance"
+			ClockAdvance(5)
+		but pcWhat = "skew"
+			Weather(:skew, [ 5 ])
+		but pcWhat = "unknown-weather"
+			Weather(:locusts, [ 1 ])
+		but pcWhat = "unknown-mode"
+			ClockTo(:sideways, "")
+		ok
+	catch
+		_b_ = 1
+	done
+	return _b_
+
+# a start or a tick given as text: refused (1) or taken (0)
+func _CoRefuses(pcWhich)
+	TestoorReset()
+	_b_ = 0
+	try
+		if pcWhich = "start"
+			ClockTo(:stepped, [ "1000", 250 ])
+		else
+			ClockTo(:stepped, [ 0, 100 ])
+			Weather(:child_killed, [ "w", "3" ])
+		ok
+	catch
+		_b_ = 1
+	done
+	TestoorReset()
+	return _b_
+
+# the tick a weather with none gets under a seed
+func _CoPick(pnSeed)
+	TestoorReset()
+	Seed(pnSeed)
+	_n_ = Weather(:child_killed, [ "w" ])
+	TestoorReset()
+	return _n_
+
+# ONE script on whichever implementation is chosen: what it returned, as text. It leaves out what
+# differs on purpose (the pick of a tick; the seed a hand-run draws from the clock).
+func _CoWorldScript()
+	TestoorReset()
+	_c_ = "mode=" + ClockMode() + "|"
+	_c_ += "tick-live=" + _CoRaised("tick") + "|"
+	_c_ += "advance-live=" + _CoRaised("advance") + "|"
+	_c_ += "skew-live=" + _CoRaised("skew") + "|"
+	_c_ += "unknown-weather=" + _CoRaised("unknown-weather") + "|"
+	_c_ += "unknown-mode=" + _CoRaised("unknown-mode") + "|"
+	_c_ += "seed=" + Seed(42) + "|"
+	_c_ += "clock=" + ClockTo(:stepped, [ 1000, 250 ]) + "|"
+	_c_ += "0=" + ClockNow() + "|"
+	ClockTick()
+	_c_ += "1=" + ClockNow() + "|"
+	ClockAdvance(750)
+	_c_ += "2=" + ClockNow() + "|"
+	ClockTick()
+	_c_ += "3=" + ClockNow() + "|"
+	_c_ += "ticks=" + ClockTicks() + "|"
+	_c_ += "w1=" + Weather(:child_killed, [ "w1", 5 ]) + "|"
+	_c_ += "w2=" + Weather(:child_killed, [ "w2", 3 ]) + "|"
+	_c_ += "skew=" + Weather(:skew, [ 500 ]) + "|"
+	_c_ += "now=" + ClockNow() + "|"
+	_c_ += "declared=" + _CoJoin(WeatherDeclared()) + "|"
+	_c_ += "plan=" + _CoPlanText(WeatherPlan()) + "|"
+	_c_ += "t3=" + _CoFiredText(ClockTick()) + "|"
+	_c_ += "t4=" + _CoFiredText(ClockTick()) + "|"
+	_c_ += "t5=" + _CoFiredText(ClockTick()) + "|"
+	_c_ += "plan-after=" + _CoPlanText(WeatherPlan()) + "|"
+	_c_ += "now-after=" + ClockNow() + "|"
+	_c_ += "restart=" + ClockTo(:stepped, [ 0, 10 ]) + "|"
+	_c_ += "declared-after-restart=" + _CoJoin(WeatherDeclared()) + "|"
+	_c_ += "ticks-after-restart=" + ClockTicks() + "|"
+	_c_ += "now-after-restart=" + ClockNow() + "|"
+	_c_ += "frozen=" + ClockTo(:frozen, "2025-09-27 14:30:25") + "|"
+	_c_ += "live=" + ClockTo(:live, "") + "|"
+	TestoorReset()
+	_c_ += "reset-declared=" + _CoJoin(WeatherDeclared()) + "|"
+	return _c_

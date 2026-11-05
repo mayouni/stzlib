@@ -5,6 +5,7 @@
 //! A request the core cannot read raises a Ring error the caller can `try`/`catch`.
 
 const api = @import("testoor_api.zig");
+const clock = @import("testoor_clock.zig");
 const R = @import("ring_api.zig");
 const std = @import("std");
 
@@ -70,7 +71,33 @@ fn ring_TourProse(p: *anyopaque) callconv(.c) void {
     rs2(p, out.ptr, @intCast(out.len));
 }
 
+/// The world of one tour: its seed, its stepped clock and its weather. Ring keeps ONE of these
+/// per virtual machine as a global, so the engine keeps one per thread; the state is in the
+/// engine, never in a Ring object, because Ring copies an object it stores (CLAUDE.md,
+/// "engine-wrapper copy law"). The call is `(cOp, cText, nA, nB)` -> string: see testoor_clock.zig.
+threadlocal var world: clock.World = .{};
+
+fn ring_World(p: *anyopaque) callconv(.c) void {
+    if (R.ring_vm_api_paracount(p) != 4 or R.ring_vm_api_isstring(p, 1) == 0 or R.ring_vm_api_isstring(p, 2) == 0 or
+        R.ring_vm_api_isnumber(p, 3) == 0 or R.ring_vm_api_isnumber(p, 4) == 0)
+    {
+        R.ring_vm_error(p, "Testoor: the world call wants (operation, text, number, number)");
+        return;
+    }
+    const op = gs(p, 1)[0..@as(usize, @intCast(gss(p, 1)))];
+    const text = gs(p, 2)[0..@as(usize, @intCast(gss(p, 2)))];
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    // the weather list lives past the call, so it takes the page allocator, not the arena
+    const out = clock.call(&world, std.heap.page_allocator, arena.allocator(), op, text, R.ring_vm_api_getnumber(p, 3), R.ring_vm_api_getnumber(p, 4)) catch |e| switch (e) {
+        error.UnknownOp => return R.ring_vm_error(p, "Testoor: unknown world operation"),
+        error.OutOfMemory => return R.ring_vm_error(p, "Testoor: out of memory"),
+    };
+    rs2(p, out.ptr, @intCast(out.len));
+}
+
 const regs = [_]R.Reg{
+    .{ .name = "stzenginetestoorworld", .func = ring_World },
     .{ .name = "stzenginetestoorverdict", .func = ring_Verdict },
     .{ .name = "stzenginetestoorrunjson", .func = ring_RunJson },
     .{ .name = "stzenginetestoorrunprose", .func = ring_RunProse },

@@ -33,7 +33,8 @@ A new domain `stz_testoor`, built the way the engine's other domains are (`perf`
 | `src/testoor_protocol.zig` | the `[testoor ...]` lines and their adoption into a record |
 | `src/testoor_verdict.zig` | `verdict(record, output, meta)`: stops, claims, endings, states |
 | `src/testoor_logbook.zig` | the run object, its JSON, its prose, its exit code |
-| later: `testoor_seed.zig`, `testoor_clock.zig`, `testoor_routes.zig`, `testoor_graph.zig`, `testoor_counters.zig` | steps P3.2 to P3.4 |
+| `src/testoor_clock.zig` | the world of a tour: seed, stepped clock, weather and the tick each falls due at (P3.2; the seed is 40 lines that share the weather's pick count, so one file and not `testoor_seed.zig`) |
+| later: `testoor_routes.zig`, `testoor_graph.zig`, `testoor_counters.zig` | steps P3.3 to P3.4 |
 | `src/ring_bridge_testoor.zig` | the `regs` table and the `R.ring_vm_api_*` glue |
 | `src/stz_testoor_entry.zig` | exports `ringlib_init` |
 
@@ -55,6 +56,7 @@ adds nothing.
 | `StzEngineTestoorRunProse(cRequest)` | the same request | the summary a terminal shows |
 | `StzEngineTestoorRunExit(cRequest)` | the same request | 0, 1 or 2 |
 | `StzEngineTestoorTourProse(cTourJson)` | one tour as the logbook writes it | the line a terminal shows for it |
+| `StzEngineTestoorWorld(cOp, cText, nA, nB)` (P3.2) | an operation, a text and two numbers | a string; the operations and their answers are listed above `call` in `testoor_clock.zig` |
 
 Prose and exit are **functions of the run and its tours**, so the three run calls take one request. (Confirmed at
 P3.1: `_TravRunProse` reads nothing the tour JSON does not carry.)
@@ -64,9 +66,10 @@ of the call; the result is copied out through `rs2` (length-aware, so a NUL byte
 cut it). A boundary crossing costs microseconds against a child process that costs 70 ms or more, so the
 JSON round trip is not where the time is.
 
-**The stateful parts (clock, counters, graph) are handles**, under the engine-wrapper copy law of
-`CLAUDE.md`: all mutable state lives in an engine handle, materialised at birth, because Ring copies an
-object it stores and a lazily created handle forks silently.
+**The stateful parts (clock, counters, graph) keep their state in the engine**, under the engine-wrapper copy law of
+`CLAUDE.md`: Ring copies an object it stores, so nothing mutable is left in a Ring object. The world of a tour (P3.2)
+is the simplest case of it: ONE per thread, as Ring keeps one global per virtual machine, so Ring holds no handle and
+nothing can fork. Counters and the graph are many, and will be handles materialised at birth.
 
 ## 4. The bytes that must agree
 
@@ -175,6 +178,36 @@ Not done, and named: the Traveller's own `Json()`, `Prose()` and `ExitCode()` st
 tested against the goldens and from Ring, but not yet called by the runner); the **difference corpus** over recorded
 real tour output (section 8, item 2); the engine copy for rnxc must name `stz_testoor` explicitly when it is made,
 because `bench/engine_copy.py` of the Ring++ checkout does not list a domain it was never told about.
+
+### P3.2, 2026-11-05 -- DONE
+
+The world of a tour moved to the core: `testoor_clock.zig` (seed, stepped clock, weather, the tick each falls due at;
+12 Zig tests), the bridge call `StzEngineTestoorWorld`, and `stzClock.ring` rewritten so every public function asks the
+core when it is there and runs the unchanged reference (`...Ring`) when it is not. What the core keeps is TIMING and
+STATE; a weather's payload (the spec the tour wrote) stays in Ring by ordinal, so no JSON round trip stands between a
+tick and the supervisor it kills a child of. The runner's own seed draw now calls `TestoorDrawSeed()`, one formula
+where there were two. Choosing who runs the world (`TestoorCore(...)`) forgets what was declared, so the state is never
+left behind in the other place. `base/testoor/stzClock.ring` explains who owns what.
+
+**Three differences from the reference, deliberate, each pinned in `testoor_core_narrated.ring`:**
+
+1. A weather declared without a tick gets one from the SEED (splitmix64 over the seed and the picks since it was set),
+   not from Ring's `random(5)`. Ring's is the C runtime's `rand()`, so the same seed picked another tick on each OS and
+   VM, and a tick that moved with every other draw the tour took. The first four picks of seeds 42, 43 and 7 are pinned
+   from a second implementation of the formula, because a change to it changes every replay anyone recorded.
+2. `ClockTo(:stepped, [ s, d ])`, `Weather(:child_killed, [ c, t ])` and `Weather(:skew, [ ms ])` want numbers; the
+   reference took a numeric string and stored it unconverted.
+3. A runner seed that is not a number is no seed (a draw, reported); the reference raised R41.
+
+**Run, 2026-11-05, on rnxc against `engine-stzlib2`:** `zig build test-testoor -j2` 38 of 38 (the 26 of P3.1 and 12 new, 105 ms);
+the core guard 39 (17 + 22); `testoor_clock_narrated.ring` **56 with the core owning the world and 56 with
+`TESTOOR_CORE=ring`**, so the step's exit holds on both paths; and the other eight guards as before: golden 75,
+reader 74, promises 52, routes 44, protocol 55, impact 51, refine 34, runner 80. The first run of the clock guard
+FAILED 12 assertions and took 494 s, and it was not the world: the rnxc prefix (`rnxc prefix stzBase.ring`, run from
+`base/`) was stale after the library edit, so every planted tour compiled the whole library as its own child (230 s
+for one tour on a loaded machine, against a 60 s walk timeout) and four tours read as `unreached`. After the prefix
+(30 MB, 271 s once, under load) the same guard is 7.7 s and a tour starts in 0.7 s. **Build the prefix before any
+guard that walks children.**
 
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 
