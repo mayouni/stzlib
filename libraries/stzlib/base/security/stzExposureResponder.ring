@@ -196,6 +196,7 @@ class stzExposureResponder from stzObject
 	#   pcComponent   the component as the exposure spells it: curl, stz_http, a model file
 	#   pcKind        listener, exposed, fetch, model -- or none, to say no in-process door reaches it
 	#   pcName        the door's name: a class, a host, a model, or *
+	#   returns       the responder, so calls chain
 	def SetReach(pcComponent, pcKind, pcName)
 		@aReach + [ StzLower("" + pcComponent), "" + pcKind, StzLower("" + pcName) ]
 		return This
