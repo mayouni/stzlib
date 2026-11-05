@@ -16,7 +16,8 @@
    Rule 3, 5, 10    paper tones, one accent (action and selection), one resting shadow, no gradient
    Rule 112, 17, 1  nothing moves: no transition, no animation, no smooth scroll
    Rule 13, 110     the top bar sticks and holds its own space; nothing floats over the reading
-   Rule 27, 120     a horizontal main menu of three short labels; the next level (the domains) turns vertical
+   Rule 27          a horizontal main menu of three short labels and NO second level: the domains filter one
+                    page, they are not pages, so they are a selector beside the search, never a menu
    Rule 108, 25     the trail from the root, every ancestor a link, the current step marked
    Rule 11, 47, 127 tables declare their columns, numbers right-aligned and tabular, text left
    Rule 14, 129     no container scrolls sideways: a narrow screen sheds the context columns, never the state
@@ -119,16 +120,8 @@ h3{font-size:var(--read);font-weight:700;margin:0 0 8px}
 .status p{margin:4px 0}
 .status b{font-weight:700}
 
-/* the body: a vertical level on the left, the reading on the right */
+/* the body: one column, the reading */
 .body{padding:32px 0 80px}
-.cols{display:grid;grid-template-columns:var(--bar) minmax(0,1fr);gap:40px;align-items:start}
-.level{border-right:1px solid var(--line);padding-right:16px}
-.level h3{margin-bottom:12px}
-.level ul{list-style:none;margin:0;padding:0}
-.level li{margin:0}
-.level button{display:flex;width:100%;justify-content:space-between;gap:12px;text-align:left;font:inherit;color:var(--ink-2);background:none;border:0;border-left:3px solid transparent;padding:6px 10px;min-height:44px;cursor:pointer;border-radius:0 8px 8px 0}
-.level button[aria-current="true"]{color:var(--accent-ink);border-left-color:var(--accent);background:var(--panel);font-weight:600}
-.level .n{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:var(--label);font-variant-numeric:tabular-nums;color:var(--ink-2)}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:var(--shadow);margin:0 0 24px}
 .card p:first-child{margin-top:0}
 .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
@@ -191,13 +184,8 @@ body.embed .card{box-shadow:none}
 .playtime{margin:8px 0 0;color:var(--ink-2);min-height:1.7em}
 kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padding:0 8px;background:var(--panel-2)}
 
-/* a narrow screen: the level becomes a row above; context columns leave, the state stays */
+/* a narrow screen: context columns leave, the state stays */
 @media (max-width:900px){
-  .cols{grid-template-columns:1fr;gap:24px}
-  .level{border-right:0;border-bottom:1px solid var(--line);padding:0 0 12px}
-  .level ul{display:flex;flex-wrap:wrap;gap:4px 8px}
-  .level button{width:auto;border-left:0;border-bottom:3px solid transparent;border-radius:8px 8px 0 0}
-  .level button[aria-current="true"]{border-bottom-color:var(--accent)}
   table .ctx{display:none}
 }
 </style>
@@ -242,17 +230,16 @@ kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padd
 
 <section id="view-checks" hidden aria-labelledby="h-checks">
   <h2 id="h-checks" data-t="menu_checks">Checks</h2>
-  <div class="cols">
-    <aside class="level" aria-labelledby="h-domains">
-      <h3 id="h-domains" data-t="domains_label">Domains</h3>
-      <ul id="domains"></ul>
-    </aside>
-    <div>
+  <div>
       <div class="card">
         <p id="chkinfo"></p>
         <label for="search" data-t="search_label">Find a check</label>
         <input type="search" id="search" autocomplete="off">
         <p class="hint" data-t="search_hint"></p>
+        <div class="row" style="margin-top:16px">
+          <label for="domain" data-t="domains_label">Domains</label>
+          <select id="domain"></select>
+        </div>
         <div class="row" style="margin-top:16px">
           <button class="act primary" id="rundomain" data-t="run_domain">Run this domain</button>
           <button class="act" id="runall" data-t="run_all">Run every check</button>
@@ -444,9 +431,9 @@ function renderDomains() {
   if (!CHECKS.length) return;
   const doms = {};
   CHECKS.forEach(c => doms[c.domain] = (doms[c.domain] || 0) + 1);
-  const li = (key, label, n) => `<li><button type="button" data-dom="${esc(key)}" ${DOMAIN === key ? 'aria-current="true"' : ''}><span>${esc(label)}</span><span class="n">${fmtN(n)}</span></button></li>`;
-  $('#domains').innerHTML = li('*', t('all_domains'), CHECKS.length) + Object.keys(doms).sort().map(k => li(k, k, doms[k])).join('');
-  document.querySelectorAll('#domains button').forEach(b => b.onclick = () => { DOMAIN = b.dataset.dom; shown = selection(); renderDomains(); renderChecks(shown); renderTotals(); });
+  const opt = (key, label, n) => `<option value="${esc(key)}" ${DOMAIN === key ? 'selected' : ''}>${esc(label)} (${fmtN(n)})</option>`;
+  $('#domain').innerHTML = opt('*', t('all_domains'), CHECKS.length) + Object.keys(doms).sort().map(k => opt(k, k, doms[k])).join('');
+  $('#domain').onchange = () => { DOMAIN = $('#domain').value; shown = selection(); renderChecks(shown); renderTotals(); };
   $('#chkinfo').textContent = META ? t('checks_intro', { n: fmtN(CHECKS.length), files: fmtN(META.files), source: META.source, commit: META.commit }) : '';
 }
 const st = k => `<span class="st st-${k}">${t('state_' + k)}</span>`;
