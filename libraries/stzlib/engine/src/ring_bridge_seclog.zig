@@ -155,7 +155,10 @@ fn ring_SecLogHasCurrent(p: *anyopaque) callconv(.c) void {
 
 fn ring_SecLogCurrent(p: *anyopaque) callconv(.c) void {
     const cur = seclog.seclog_current();
-    if (cur) |sp| rn(p, sp.ring_id) else rn(p, 0);
+    if (cur) |sp| {
+        if (sp.ring_id == 0) sp.ring_id = R.storeHandle(@ptrCast(sp)); // opened by the engine door
+        rn(p, sp.ring_id);
+    } else rn(p, 0);
 }
 
 fn ring_SecLogCurrentAppend(p: *anyopaque) callconv(.c) void {
@@ -165,7 +168,76 @@ fn ring_SecLogCurrentAppend(p: *anyopaque) callconv(.c) void {
     rn(p, 0);
 }
 
+// -- THE ENGINE DOOR (SECURITY-R18b) ------------------------------------------
+//
+// The model doors were Ring functions, so a direct StzEngineNeural* call passed
+// none of them. This is the half that lets another engine DLL write the record
+// itself, before it returns to Ring: stz_seclog exports one C entry point, and
+// seclog_door.zig (imported by the consumer) finds it by name. Each DLL has its
+// own handle table and its own copy of every Zig global, so the ledger can only
+// be reached through THIS DLL's export, never by importing seclog.zig twice.
+//
+// Like the Ring doors, it opens the process ledger when none is open, so no face
+// can switch the record off; the ledger it opens gets a Ring id when Ring
+// first asks for it, so StzSecurityLedgerQ() reads it like any other. The line is the one
+// stzSecurityEvent.CanonicalString writes for an observed fact.
+
+var door_records: f64 = 0;
+
+fn noPipe(out: *std.ArrayList(u8), a: std.mem.Allocator, field: []const u8) !void {
+    for (field) |ch| try out.append(a, if (ch == '|') '/' else ch);
+}
+
+fn doorFact(kind: []const u8, actor: []const u8, subject: []const u8, origin: []const u8, what: []const u8) !void {
+    if (seclog.seclog_current() == null) {
+        // no Ring id here: under Ring++ a DLL the door loaded itself has no host
+        // table until rnxc initialises it, and asking for one crashed (0x50).
+        // ring_SecLogCurrent mints the id the first time Ring asks.
+        const sl = seclog.seclog_create(4096) orelse return error.OutOfMemory;
+        seclog.seclog_set_current(sl);
+    }
+    const a = std.heap.c_allocator;
+    var line: std.ArrayList(u8) = .empty;
+    defer line.deinit(a);
+    const wall = std.time.milliTimestamp();
+    // kind|severity|actor|posture|action|risk|subject|origin|outcome|reason|atWall|traceId
+    try noPipe(&line, a, kind);
+    try line.appendSlice(a, "|info|");
+    try noPipe(&line, a, actor);
+    try line.appendSlice(a, "|||0|");
+    try noPipe(&line, a, subject);
+    try line.append(a, '|');
+    try noPipe(&line, a, origin);
+    try line.appendSlice(a, "|observed|");
+    try noPipe(&line, a, what);
+    try line.writer(a).print("|{d}|", .{wall});
+    seclog.seclog_current_append(line.items.ptr, line.items.len, @floatFromInt(wall), 0);
+    door_records += 1;
+}
+
+/// The exported door: 1 when the record was written, 0 when it could not be.
+fn stz_seclog_door_fact(
+    kind: [*]const u8, kind_len: usize,
+    actor: [*]const u8, actor_len: usize,
+    subject: [*]const u8, subject_len: usize,
+    origin: [*]const u8, origin_len: usize,
+    what: [*]const u8, what_len: usize,
+) callconv(.c) i32 {
+    doorFact(kind[0..kind_len], actor[0..actor_len], subject[0..subject_len], origin[0..origin_len], what[0..what_len]) catch return 0;
+    return 1;
+}
+
+comptime {
+    @export(&stz_seclog_door_fact, .{ .name = "stz_seclog_door_fact" });
+}
+
+// StzEngineSecLogDoorRecords() -> records written through the engine door in this process
+fn ring_SecLogDoorRecords(p: *anyopaque) callconv(.c) void {
+    rn(p, door_records);
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzengineseclogdoorrecords", .func = &ring_SecLogDoorRecords },
     .{ .name = "stzengineseclogsetcurrent", .func = &ring_SecLogSetCurrent },
     .{ .name = "stzengineseclogclearcurrent", .func = &ring_SecLogClearCurrent },
     .{ .name = "stzenginesecloghascurrent", .func = &ring_SecLogHasCurrent },
