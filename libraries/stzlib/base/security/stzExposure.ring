@@ -35,6 +35,8 @@ $aStzListeners = []
 func StzNoteListener(pcClass, pcHost, pnPort)
 	_cH_ = "" + pcHost
 	_bLoop_ = (_cH_ = "127.0.0.1" or _cH_ = "localhost" or _cH_ = "::1")
+	# a shut door (stzExposureResponder, W6) refuses here, before the socket opens
+	StzDoorCheck("listener", pcClass, pcClass, 1 - _bLoop_)
 	$aStzListeners + [ "" + pcClass, _cH_, pnPort, _bLoop_ ]
 
 func StzListeners()

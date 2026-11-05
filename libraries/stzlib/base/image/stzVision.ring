@@ -130,6 +130,8 @@ func _StzVisionModelOrRaise(pcFile, pcFaculty)
 
 # THE DOOR: record the call in the chained ledger before the answer goes back.
 func _StzVisionDoor(pcFaculty, pcFile, pcWhat)
+	# a shut door (stzExposureResponder, W6) withholds the answer here
+	StzDoorCheck("model", pcFile, "stzImage", 0)
 	if NOT StzSecurityLedgerIsOpen()
 		StzOpenSecurityLedger(4096)
 	ok

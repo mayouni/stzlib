@@ -274,7 +274,7 @@ find; it does not prove absence.
 | W3 | A1 `finally`, A2 `within`, A3 `using`, A4 `catch e` (owner moved from ringpp to haro 2026-11-05, SECURITY-HAROVM-01: Haro's VM is a fork, nothing flows into it) | haro | 5 | a VM guard per semantics line of A1; stzlib's 8 restore sites rewritten once stzlib runs on Haro, and the rule reads 0 |
 | W4 | A6 `NEEDS` on a language declaration | haro-charter (design) then haro | charter 1, build after ZC4 | a world in a language without `network` cannot parse a listener |
 | W5 | B6 `harb advisories`, the pin rule, ALGOUT-01, and the pin moved past the TCP fix | harobanda | 1 + the bump | the reference boot proves the fix and the exclusion |
-| W6 | B5 responder; B7 audit agent under the court | stzlib-security + stzlib-intelligence | 2 | the drill shuts a door in under its budget; the audit re-finds a planted bug and leaves a clean file alone |
+| W6 | B5 responder (DONE 2026-11-05: four doors, the drill shuts one in 4 ms; G51); B7 audit agent under the court | stzlib-security + stzlib-intelligence | 2 | the drill shuts a door in under its budget; the audit re-finds a planted bug and leaves a clean file alone |
 
 W0-W2a start now in this plane. W3 is the largest and the most valuable: every future member
 of two bug classes costs zero after it.

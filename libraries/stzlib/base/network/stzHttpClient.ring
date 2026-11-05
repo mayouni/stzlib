@@ -533,6 +533,8 @@ class stzHttpClient from stzNetwork
 	# ── unified perform ──────────────────────────────────────
 
 	def _Perform(nMethodCode, cUrl, cContentType, cBody)
+		# a shut door (stzExposureResponder, W6) refuses here, before any byte leaves
+		StzDoorCheck("fetch", StzUrlHost(cUrl), "stzHttpClient", 0)
 		_cHeaders_ = This._ComposeHeaderBlob()
 		_cOpts_ = This._ComposeOptionsBlob()
 		# Unified path: RequestEx carries timeouts (0 = engine default) AND

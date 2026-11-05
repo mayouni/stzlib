@@ -27,6 +27,8 @@ $bStzNeuralVariantsSynced_ = 0
 # its answer returns. When no ledger is open the door OPENS the process ledger first, so no face
 # can switch the record off. The image plane's door (base/image/stzVision.ring) is the same rule.
 func _StzNeuralDoor(pcFaculty, pcWhat)
+	# a shut door (stzExposureResponder, W6) withholds the answer here
+	StzDoorCheck("model", "" + StzEngineNeuralModelArch(), "stzNeuralModel", 0)
 	if NOT StzSecurityLedgerIsOpen()
 		StzOpenSecurityLedger(4096)
 	ok

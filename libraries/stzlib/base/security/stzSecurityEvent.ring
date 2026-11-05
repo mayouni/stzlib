@@ -110,6 +110,7 @@ func StzSecurityEventKinds()
 		# The ORIGIN field of each carries the advisory id, so the five chain by it.
 		[ "advisory.matched",             "warning", "T1190",     "a published advisory names a component and version this process runs (origin: the advisory id)" ],
 		[ "exposure.closed",              "info",    "",          "the door to an exposed component was shut -- a listener refused, a domain unloaded, a socket family denied -- while the patch is built" ],
+		[ "exposure.reopened",            "info",    "",          "a door shut for an advisory was opened again -- after guard.green, or because the advisory did not apply" ],
 		[ "pin.moved",                    "info",    "",          "a pinned version or digest was changed on purpose: a kernel pin, a vendored record, a model record" ],
 		[ "rebuilt",                      "info",    "",          "the engine or the image was built against the moved pin" ],
 		[ "guard.green",                  "info",    "",          "the gate passed on the rebuilt artefact: the advisory is closed by a patch" ],
