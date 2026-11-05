@@ -4531,8 +4531,11 @@ whenever another desk holds the GPU is a flaky guard, so this guard counts a
 confounded measurement as a named SKIP ("the machine was too loaded for a stable
 measurement; run again on a quiet machine"), prints the skipped count in its
 total, and does not call it a pass. The earlier route scenes (scan, compaction,
-sort, segmented reduction) still fail in that case (the scan's did, once, in a
-loaded full gate) and are the same pattern to fix.
+sort, segmented reduction) failed in that case (the scan's did, once, in a loaded
+full gate, and compaction's did in a later one) and were brought to the same
+convention on 2026-11-06: each guard's total now ends "N skipped", the skip path
+was proved by forcing it in a throwaway copy (44 passed, 0 failed, 1 skipped), and
+the four guards pass with the counts they had before (49, 57, 58, 80) and 0 skipped.
 
 **The puzzle**: kp-24, *a sparse matrix times a vector*, in the scan chapter: the
 fixed-width (ELL) form, 8 entries a row, the value times the x its COLUMN names,

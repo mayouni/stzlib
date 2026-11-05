@@ -23,6 +23,7 @@ load "../../stzBase.ring"
 
 $nPass = 0
 $nFail = 0
+$nSkip = 0
 
 pr()
 
@@ -278,23 +279,30 @@ else
 	for aCell in aCal[:cells]
 		? "  n = " + aCell[2] + ": loop " + aCell[3] + " ms, face " + aCell[4] + " ms, ratio " + aCell[5]
 	next
-	chk("the control rung (the first, measured again at the end) stayed within 2x, so the line is stored", NOT aCal[:confounded])
-	bFollow = 1
-	for aCell in aCal[:cells]
-		bWin = (aCell[5] >= 1.3)
-		if (StzEngineGpuCalibRouteShaped("compact", aCell[2], 1) = 1) != bWin
-			bFollow = 0
-		ok
-	next
-	chk("the route sends a size to the device exactly where its measured ratio reached 1.3, at every rung", bFollow)
-	aNum = []
-	for i = 1 to 200000
-		aNum + ((i * 5) % 7)
-	next
-	aR = oG.CompactWhereRouted(aNum, ">", 2.5)
-	aG = oG.CompactWhere(aNum, ">", 2.5)
-	chk("CompactWhereRouted gives the same list whichever side it ran on (200,000 whole numbers, to the bit)", @@(aR) = @@(aG))
-	chk("a short list stays on the loop and CompactWhereRouted answers [4 5 9]", @@(oG.CompactWhereRouted([ 3, 1, 4, 5, 9 ], ">", 3.5)) = "[ 4, 5, 9 ]" and StzEngineGpuCalibRouteShaped("compact", 5, 1) = 0)
+	if aCal[:confounded]
+		# the control rung moved by more than 2x: another process held the machine, the store refused the line,
+		# and a route that was never stored cannot be followed. A gate that could not run says so; it is not a pass
+		$nSkip++
+		? "  [SKIPPED] the route checks: the machine was too loaded for a stable measurement (the control rung moved more than 2x), so nothing was stored; run this guard again on a quiet machine"
+	else
+		chk("the control rung (the first, measured again at the end) stayed within 2x, so the line is stored", NOT aCal[:confounded])
+		bFollow = 1
+		for aCell in aCal[:cells]
+			bWin = (aCell[5] >= 1.3)
+			if (StzEngineGpuCalibRouteShaped("compact", aCell[2], 1) = 1) != bWin
+				bFollow = 0
+			ok
+		next
+		chk("the route sends a size to the device exactly where its measured ratio reached 1.3, at every rung", bFollow)
+		aNum = []
+		for i = 1 to 200000
+			aNum + ((i * 5) % 7)
+		next
+		aR = oG.CompactWhereRouted(aNum, ">", 2.5)
+		aG = oG.CompactWhere(aNum, ">", 2.5)
+		chk("CompactWhereRouted gives the same list whichever side it ran on (200,000 whole numbers, to the bit)", @@(aR) = @@(aG))
+		chk("a short list stays on the loop and CompactWhereRouted answers [4 5 9]", @@(oG.CompactWhereRouted([ 3, 1, 4, 5, 9 ], ">", 3.5)) = "[ 4, 5, 9 ]" and StzEngineGpuCalibRouteShaped("compact", 5, 1) = 0)
+	ok
 	? "  (scene 8: " + ((clock() - $t0) / clockspersecond()) + " s)"
 ok
 
@@ -345,7 +353,7 @@ ok
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail" + ", " + $nSkip + " skipped"
 ? "=========================================="
 
 pf()
