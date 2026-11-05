@@ -5,14 +5,11 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 43 methods in 35 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 36 methods in 31 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| number/stzHexNumber.ring | stzHexNumber | 2 |
 | number/stzMatrix.ring | stzMatrix | 2 |
-| number/stzNumber.ring | stzNumber | 2 |
-| number/stzOctalNumber.ring | stzOctalNumber | 2 |
 | object/stzListOfNamedObjects.ring | stzListOfNamedObjects | 2 |
 | reactive/stzReactor.ring | stzReactor | 2 |
 | string/stzStringInserter.ring | stzStringInserter | 2 |
@@ -30,7 +27,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 | math/stzTukey.ring | stzTukeyLine | 1 |
 | natural/stzNatural.ring | stzNaturalEngine | 1 |
 | network/stzUrl.ring | stzUrl | 1 |
-| number/stzBinaryNumber.ring | stzBinaryNumber | 1 |
 | optim/stzMultiObjectiveSolver.ring | stzMultiObjectiveSolver | 1 |
 | regex/stzListex.ring | stzListex | 1 |
 | regex/stzListexUter.ring | stzListexuter | 1 |
@@ -97,29 +93,10 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `FromLocalFile` (line 702): Raises error R19 today instead of returning a file URL for the given path. -- Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement
 
-## stzBinaryNumber -- number/stzBinaryNumber.ring (1)
-
-- `ToScientificNotationForm` (line 494): Raises error R14 today instead of returning the number in scientific notation. -- it forwards to a stzNumber method of that name, which does not exist, so every call raises R14
-
-## stzHexNumber -- number/stzHexNumber.ring (2)
-
-- `FractionalPart` (line 264): Raises error R14 today instead of returning the digits after the point. -- it calls HexNumberWithoutPrefix, a method that does not exist, so FractionalPart and FractPart raise for every input; init also refuses a text with a point, so there is never a fraction to return
-- `ToScientificForm` (line 388): Raises error R14 today instead of returning the value in scientific notation. -- it forwards to stzNumber.ToScientificForm, a method that does not exist, and passes an undefined variable; stzNumber itself raises the same R14; confirmed with 0xFF and 0x41
-
 ## stzMatrix -- number/stzMatrix.ring (2)
 
 - `Diagonal1` (line 2961): Returns nothing today instead of the main diagonal, because its body is empty. -- the method exists but has no body, so it answers an empty value for every matrix; Diagonal gives the main diagonal
 - `EigenVectors` (line 4433): Returns the unit eigenvectors as the columns of a matrix, in the same order as the eigenvalues. -- raises an error unless the matrix is square, for a defective matrix, and when an eigenvector is complex
-
-## stzNumber -- number/stzNumber.ring (2)
-
-- `SetDefaultFormat` (line 8937): Raises an unsupported-feature error today instead of setting the default number format. -- the call raises an unsupported-feature error today
-- `ApplyLocale` (line 8946): Raises an unsupported-feature error today instead of applying a locale to the number. -- the call raises an unsupported-feature error today
-
-## stzOctalNumber -- number/stzOctalNumber.ring (2)
-
-- `ToBaseNForm` (line 228): Raises error R14 today instead of writing the value in another base. -- it forwards to ToBaseNForm on stzNumber, a method that does not exist there (stzNumber has IntegerPartToBaseNForm), so every base raises R14; confirmed with 0o377 and 17
-- `ToScientificNotationForm` (line 242): Raises error R14 today instead of writing the value in scientific notation. -- it forwards to ToScientificNotationForm on stzNumber, a method that does not exist there; stzNumber raises the same R14 on its own
 
 ## stzListOfNamedObjects -- object/stzListOfNamedObjects.ring (2)
 

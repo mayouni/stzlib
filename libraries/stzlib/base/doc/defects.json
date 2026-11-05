@@ -1,5 +1,5 @@
 {
- "count": 43,
+ "count": 36,
  "defects": [
   {
    "class": "stzEngineTimeline",
@@ -106,30 +106,6 @@
    "cause": "Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement"
   },
   {
-   "class": "stzBinaryNumber",
-   "file": "number/stzBinaryNumber.ring",
-   "method": "ToScientificNotationForm",
-   "line": 494,
-   "symptom": "Raises error R14 today instead of returning the number in scientific notation.",
-   "cause": "it forwards to a stzNumber method of that name, which does not exist, so every call raises R14"
-  },
-  {
-   "class": "stzHexNumber",
-   "file": "number/stzHexNumber.ring",
-   "method": "FractionalPart",
-   "line": 264,
-   "symptom": "Raises error R14 today instead of returning the digits after the point.",
-   "cause": "it calls HexNumberWithoutPrefix, a method that does not exist, so FractionalPart and FractPart raise for every input; init also refuses a text with a point, so there is never a fraction to return"
-  },
-  {
-   "class": "stzHexNumber",
-   "file": "number/stzHexNumber.ring",
-   "method": "ToScientificForm",
-   "line": 388,
-   "symptom": "Raises error R14 today instead of returning the value in scientific notation.",
-   "cause": "it forwards to stzNumber.ToScientificForm, a method that does not exist, and passes an undefined variable; stzNumber itself raises the same R14; confirmed with 0xFF and 0x41"
-  },
-  {
    "class": "stzMatrix",
    "file": "number/stzMatrix.ring",
    "method": "Diagonal1",
@@ -144,38 +120,6 @@
    "line": 4433,
    "symptom": "Returns the unit eigenvectors as the columns of a matrix, in the same order as the eigenvalues.",
    "cause": "raises an error unless the matrix is square, for a defective matrix, and when an eigenvector is complex"
-  },
-  {
-   "class": "stzNumber",
-   "file": "number/stzNumber.ring",
-   "method": "SetDefaultFormat",
-   "line": 8937,
-   "symptom": "Raises an unsupported-feature error today instead of setting the default number format.",
-   "cause": "the call raises an unsupported-feature error today"
-  },
-  {
-   "class": "stzNumber",
-   "file": "number/stzNumber.ring",
-   "method": "ApplyLocale",
-   "line": 8946,
-   "symptom": "Raises an unsupported-feature error today instead of applying a locale to the number.",
-   "cause": "the call raises an unsupported-feature error today"
-  },
-  {
-   "class": "stzOctalNumber",
-   "file": "number/stzOctalNumber.ring",
-   "method": "ToBaseNForm",
-   "line": 228,
-   "symptom": "Raises error R14 today instead of writing the value in another base.",
-   "cause": "it forwards to ToBaseNForm on stzNumber, a method that does not exist there (stzNumber has IntegerPartToBaseNForm), so every base raises R14; confirmed with 0o377 and 17"
-  },
-  {
-   "class": "stzOctalNumber",
-   "file": "number/stzOctalNumber.ring",
-   "method": "ToScientificNotationForm",
-   "line": 242,
-   "symptom": "Raises error R14 today instead of writing the value in scientific notation.",
-   "cause": "it forwards to ToScientificNotationForm on stzNumber, a method that does not exist there; stzNumber raises the same R14 on its own"
   },
   {
    "class": "stzListOfNamedObjects",
