@@ -147,6 +147,8 @@ Scenario("The registry measures both on golden set v2, per language, and chooses
 	Then("and its text holds a Russian key sentence", StzFindFirst("Настоящее руководство описывает подключение устройства и настройку его параметров.", o2.Text()) > 0, 1)
 	StzSaveMeasurements("results/ocr.zmdl.txt")
 	Then("the measurements are filed", fexists("results/ocr.zmdl.txt"), 1)
+	StzSaveCourt("results/ocr.court.txt")
+	Then("and the court's evidence beside them (the default gate)", fexists("results/ocr.court.txt"), 1)
 EndScenario()
 
 if StzOcrPlatformHas("ar-SA")

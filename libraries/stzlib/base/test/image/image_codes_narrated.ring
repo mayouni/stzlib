@@ -95,6 +95,12 @@ nHit = aJ2[:qrRead] + aJ2[:oneRead]
 StzRecordMeasurement("codes", "nothing", "codes-judge-v2", 0, nAll, 1, "")
 StzRecordMeasurement("codes", "quirc-native1d", "codes-judge-v2", nHit / nAll, nAll, 1,
 	"judging set seed 4242 (the second; the first, seed 777, showed a defect that is fixed): QR " + aJ2[:qrRead] + "/" + aJ2[:qrTot] + ", 1D " + aJ2[:oneRead] + "/" + aJ2[:oneTot] + ", negatives " + aJ2[:negFalse] + " false of " + aJ2[:negTot] + "; scored by StzCodesAgree")
+# THE COURT'S EVIDENCE (the default gate). The floor answers nothing on EVERY item, so on every item it is wrong and the reader's verdict
+# alone decides the pair: the reader's gains are exactly the codes it read, its losses none -- the counts ARE the item-by-item comparison
+StzRecordCourtVerdict("codes", "codes-judge-v2", "quirc-native1d", "nothing", nHit, 0, "the floor reads nothing on every item")
+StzRecordCourtVerdict("codes", "codes-judge-v2", "nothing", "quirc-native1d", 0, nHit, "the floor reads nothing on every item")
+if NOT StzDirExists("results") StzDirCreatePath("results") ok
+StzSaveCourt("results/court_im9c.txt")
 cChosen = StzModelRegistryQ().ResolveQ(StzRequirementQ("codes")).Chosen()
 chk("with the measurement recorded the registry chooses '" + cChosen + "' over the floor", cChosen = "quirc-native1d")
 cQrFile = aJ2[:sampleQr]

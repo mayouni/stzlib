@@ -1,0 +1,12 @@
+# zcourt 1 -- the court's evidence per faculty and golden set (SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8; the default gate)
+# faculty|golden|challenger|other|gains|losses   -- recomputed into a verdict on load: upheld when gains > losses and
+# P(X >= gains | gains + losses, 1/2) <= 0.05. Every count was checked by _rig/court_merge.py: (gains - losses) / n = score(a) - score(b)
+# incumbent|faculty|golden|impl   -- who holds the faculty when the court sits; the burden is on every other implementation
+ocr|v2|platform|ppocr|5|0
+ocr|v2|ppocr|platform|0|5
+ocr|v2/ar|platform|ppocr|5|0
+ocr|v2/ar|ppocr|platform|0|5
+ocr|v2/fr|platform|ppocr|0|0
+ocr|v2/fr|ppocr|platform|0|0
+ocr|v2/ru|platform|ppocr|0|0
+ocr|v2/ru|ppocr|platform|0|0

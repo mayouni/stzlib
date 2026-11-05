@@ -164,6 +164,12 @@ StzRecordMeasurement("near-duplicate", "phash", "pairs-judge-v1", aPJ[:hashOk] /
 	"judging pairs from COCO 40 to the end, made after the rule was committed: " + aPJ[:hashOk] + " of " + nPairs + "; at most " + $nStzNearDupBits + " of 64 bits apart")
 StzRecordMeasurement("near-duplicate", "siglip2-cosine", "pairs-judge-v1", aPJ[:cosOk] / nPairs, nPairs, 1,
 	"judging pairs, as above: " + aPJ[:cosOk] + " of " + nPairs + "; a cosine of at least " + $nStzNearDupCosine)
+# THE COURT'S EVIDENCE (the default gate): the three verdicts of every judging pair
+StzRecordCourtFromVerdicts("near-duplicate", "pairs-judge-v1", [ [ "identical-pixels", aPJ[:vfloor], [] ], [ "phash", aPJ[:vhash], [] ], [ "siglip2-cosine", aPJ[:vcos], [] ] ])
+if NOT StzDirExists("results") StzDirCreatePath("results") ok
+StzSaveCourt("results/court_im9d.txt")
+aCt = StzCourtVerdictOf("near-duplicate", "pairs-judge-v1", "phash", "siglip2-cosine")
+? "      the court: phash over the incumbent siglip2-cosine " + aCt[:gains] + " gains, " + aCt[:losses] + " losses -> " + aCt[:verdict]
 cChosen = StzModelRegistryQ().ResolveQ(StzRequirementQ("near-duplicate")).Chosen()
 cBest = "phash"
 if aPJ[:cosOk] > aPJ[:hashOk] cBest = "siglip2-cosine" ok
@@ -284,6 +290,9 @@ func RunPairs(cDir)
 	nHashMiss = 0
 	nCosMiss = 0
 	aDist = []
+	aVF = []    # the verdict of each implementation on every pair, in file order: the court's evidence
+	aVH = []
+	aVC = []
 	for i = 1 to len(aLines)
 		if len(aLines[i]) = 0 loop ok
 		aF = StzSplit(aLines[i], char(9))
@@ -315,6 +324,9 @@ func RunPairs(cDir)
 		if bFloor = bSameTruth nFloorOk++ ok
 		if bHash = bSameTruth nHashOk++ ok
 		if bCos = bSameTruth nCosOk++ ok
+		aVF + (bFloor = bSameTruth)
+		aVH + (bHash = bSameTruth)
+		aVC + (bCos = bSameTruth)
 		if bHash and NOT bSameTruth nHashFalse++ ok
 		if bCos and NOT bSameTruth nCosFalse++ ok
 		if NOT bHash and bSameTruth nHashMiss++ ok
@@ -324,7 +336,7 @@ func RunPairs(cDir)
 		ok
 	next
 	return [ :same = nSame, :diff = nDiff, :floorOk = nFloorOk, :hashOk = nHashOk, :cosOk = nCosOk, :hashFalse = nHashFalse, :cosFalse = nCosFalse,
-		 :hashMiss = nHashMiss, :cosMiss = nCosMiss ]
+		 :hashMiss = nHashMiss, :cosMiss = nCosMiss, :vfloor = aVF, :vhash = aVH, :vcos = aVC ]
 
 func PairBars(cLabel, aR)
 	nAll = aR[:same] + aR[:diff]

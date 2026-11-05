@@ -40,6 +40,9 @@ $nStzOcrDarkBandsRead = 0
 # what the model's last page cost, as the engine reported it: [ boxes, ms detect, ms classify, ms recognise, ms total,
 # lines voted upside down ]
 $aStzOcrModelLastStats = []
+# MP0: the platform's language packs, read once per process (asking the platform spawns PowerShell: about a second)
+$aStzOcrPackCache = []
+$bStzOcrPackCached = 0
 
 # Declares the :ocr faculty: an image in (a path, a list of page paths, or a record [ :pages, :lang ]), a text out.
 #
@@ -55,6 +58,9 @@ func StzOcrDeclare(paGolden)
 	_o_.SetInputTypeQ(:image).SetOutputTypeQ(:text).SetParamsQ([ :lang = "" ]).
 	    SetFloorQ("platform", "_StzOcrFloor").SetGoldenCheckerQ("contains").SetGoldenVersionQ("v2").
 	    SetGoldenLanguageKeyQ(:lang)
+	# MP0 (SOFTANZA_MODEL_PLACEMENT.md): the floor is the OPERATING SYSTEM's engine -- Windows only, and only in the languages whose pack
+	# that machine has. The registry sets it aside where it cannot run, instead of measuring its absence as a score of zero
+	_o_.SetAvailability("platform", [ "windows" ], "_StzOcrPlatformProbe")
 	# measured PER LANGUAGE from golden set v2 on (the author's ruling of 2026-10-30, OCR-PERLANG-01): a call in
 	# Russian is judged on the Russian items, so the model may answer it while the floor answers Arabic
 	# the model: PP-OCR on the engine, installed when its graphs are in the models directory; it answers
@@ -70,6 +76,10 @@ func StzOcrDeclare(paGolden)
 	# filed measurement must outlive the process that made it, or the per-language choice exists only in a guard
 	if len(StzMeasurementOf("ocr", "platform", _o_.GoldenVersion())) = 0 and fexists(StzOcrMeasurementsFile())
 		StzLoadMeasurements(StzOcrMeasurementsFile())
+	ok
+	# and the court's evidence beside them (the default gate): without it the model is not chosen, whatever its score
+	if len(StzCourtVerdictOf("ocr", _o_.GoldenVersion(), "ppocr", "platform")) = 0 and fexists(StzOcrCourtFile())
+		StzLoadCourt(StzOcrCourtFile())
 	ok
 	if isList(paGolden) and len(_o_.Goldens()) = 0
 		_nG_ = len(paGolden)
@@ -88,6 +98,11 @@ func StzOcrMeasurementsFile()
 		return left(_e_, len(_e_) - 7) + "/base/ocr/ocr.zmdl.txt"
 	ok
 	return ""
+
+# The court's evidence for :ocr shipped with the library (base/ocr/ocr.court.txt): the gains and losses of each implementation against the
+# other, on the whole set and per language, copied from the model guard's filed result with the measurements.
+func StzOcrCourtFile()
+	return StzReplace(StzOcrMeasurementsFile(), "ocr.zmdl.txt", "ocr.court.txt")
 
 # Reads an image through the :ocr faculty and returns its text (the lines joined by spaces, pages in order).
 #
@@ -115,6 +130,24 @@ func StzOcrPlatformLanguages()
 		ok
 	next
 	return _aRes_
+
+# MP0: [ 1|0, reason ] -- can the platform engine read pcLang (two letters, or "" for any) on this machine? The packs are read once
+func _StzOcrPlatformProbe(pcLang)
+	if $bStzOcrPackCached = 0
+		$aStzOcrPackCache = StzOcrPlatformLanguages()
+		$bStzOcrPackCached = 1
+	ok
+	_a_ = $aStzOcrPackCache
+	if len(_a_) = 0 return [ 0, "the platform OCR engine has no language pack here" ] ok
+	if pcLang = "" return [ 1, "" ] ok
+	_c_ = lower(pcLang)
+	_n_ = len(_c_)
+	for _i_ = 1 to len(_a_)
+		_t_ = lower(_a_[_i_])
+		if _t_ = _c_ return [ 1, "" ] ok
+		if len(_t_) > _n_ and left(_t_, _n_ + 1) = _c_ + "-" return [ 1, "" ] ok
+	next
+	return [ 0, "no '" + pcLang + "' language pack here (installed: " + _StzJoinComma(_a_) + ")" ]
 
 # TRUE when the platform can read pcLang ("" means the user's own languages, available when any pack is)
 func StzOcrPlatformHas(pcLang)

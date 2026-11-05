@@ -17,6 +17,7 @@
 # the guard says which and stops. THE HELPERS LIVE AFTER pf().
 
 load "../../stzBase.ring"
+load "_court_rule.ring"
 load "_golden/coco_masks_v1.ring"
 
 $nPass = 0
@@ -150,12 +151,13 @@ nFU = ScoreOf("foreground", "u2netp")
 chk("U2-Net-p was measured on the same 30 images (" + nFU + ")", nFU >= 0)
 cChosen = StzModelRegistryQ().ResolveQ("foreground").Chosen()
 cRule = ByTheRule("foreground")
-chk("the registry chose '" + cChosen + "' -- the rule (strictly beat the floor) says '" + cRule + "'", cChosen = cRule)
+chk("the registry chose '" + cChosen + "' -- the rule (the court) says '" + cRule + "'", cChosen = cRule)
 cRes = StzReplace(WorkingDirectory(), "\", "/") + "/results"
 if NOT StzDirExists(cRes)
 	StzDirCreatePath(cRes)
 ok
 StzSaveMeasurements(cRes + "/vision_im6.zmdl.txt")
+StzSaveCourt(cRes + "/court_im6_dense.txt")
 
 sec("scene 4")
 
@@ -208,27 +210,8 @@ func ScoreOf(cF, cImpl)
 	return a[:score]
 
 func ByTheRule(cF)
-	oF = StzFacultyQ(cF)
-	cFloor = ""
-	cBest = ""
-	nBest = -1
-	a = oF.Implementations()
-	n = len(a)
-	for i = 1 to n
-		if a[i][:kind] = "floor"
-			cFloor = a[i][:id]
-		else
-			s = ScoreOf(cF, a[i][:id])
-			if s > nBest
-				nBest = s
-				cBest = a[i][:id]
-			ok
-		ok
-	next
-	if nBest > ScoreOf(cF, cFloor)
-		return cBest
-	ok
-	return cFloor
+	# the court's rule (the default gate since 2026-11-05), restated independently in _court_rule.ring
+	return CourtRuleChoice(cF, StzFacultyQ(cF).GoldenVersion())
 
 func AllOnDisk(aItems)
 	n = len(aItems)

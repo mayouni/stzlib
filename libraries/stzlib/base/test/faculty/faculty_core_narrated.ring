@@ -21,9 +21,11 @@ StzClearMeasurements()
 StzClearModelTrace()
 StzClearParcelMemo()
 
-# 8 golden items: four short numbers the floor reads correctly, four long ODD ones it gets wrong -> the floor scores 0.5
-aGold = [ [ "3", "odd" ], [ "8", "even" ], [ "41", "odd" ], [ "60", "even" ],
-          [ "12345", "odd" ], [ "99999", "odd" ], [ "77777", "odd" ], [ "1357", "odd" ] ]
+# 16 golden items: eight short numbers the floor reads correctly, eight long ODD ones it gets wrong -> the floor scores 0.5. Sixteen and not
+# eight because the court (the default gate, SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8) upholds a model only when its gains are improbable
+# as chance: with eight items the right model gains 4 to 0, P = 1/16, and is refused; with sixteen it gains 8 to 0, P = 1/256
+aGold = [ [ "3", "odd" ], [ "8", "even" ], [ "41", "odd" ], [ "60", "even" ], [ "5", "odd" ], [ "2", "even" ], [ "27", "odd" ], [ "44", "even" ],
+          [ "12345", "odd" ], [ "99999", "odd" ], [ "77777", "odd" ], [ "1357", "odd" ], [ "13579", "odd" ], [ "24681", "odd" ], [ "86421", "odd" ], [ "55555", "odd" ] ]
 
 Scenario("A faculty is judged at declaration")
 	oBad = StzFacultyQ(:parity_bad)
@@ -154,9 +156,9 @@ Scenario("Running a faculty yields a parcel with its provenance; a failing model
 	Then("the same input gives the same key (memoised, deterministic)", oP2.Key(), oP.Key())
 
 	oBoom = StzFacultyQ(:fragile)
-	# the floor is right on "x" only; the model is right on both goldens (so it is chosen) but falls over on "boom"
+	# the floor is right on "x" only; the model is right on every golden (5 gains, 0 losses: the court upholds it) but falls over on "boom"
 	oBoom.SetInputTypeQ(:text).SetOutputTypeQ(:label).SetParamsQ([ :labels = [ "ok", "no" ] ]).SetFloorQ("steady", "_FcOk").
-	      AddGoldenQ("x", "ok").AddGoldenQ("y", "ok").
+	      AddGoldenQ("x", "ok").AddGoldenQ("y", "ok").AddGoldenQ("z", "ok").AddGoldenQ("w", "ok").AddGoldenQ("v", "ok").AddGoldenQ("u", "ok").
 	      AddImplementationQ([ :id = "crashes", :kind = "model", :fn = "_FcCrash", :licence = "mit" ])
 	StzModelRegistryQ().RunGoldens(:fragile)
 	Then("the fragile model beats the floor on the goldens, so it is chosen",

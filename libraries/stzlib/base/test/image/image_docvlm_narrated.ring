@@ -27,6 +27,7 @@
 # THE HELPERS LIVE AFTER pf().
 
 load "../../stzBase.ring"
+load "_court_rule.ring"
 load "_golden/doc_vlm_v1.ring"
 load "_golden/doc_vlm_v2.ring"
 load "_rig/doc_vlm_tsv.ring"
@@ -310,6 +311,9 @@ if bStored2 and bPages
 	nMeanG = 0
 	nMeanC = 0
 	nDiffC = 0
+	aVF = []    # the verdict of each reader on every page, in golden order: the court's evidence
+	aVG = []
+	aVC = []
 	for i = 1 to len(aG)
 		cKey = KeyOf(aG[i][1])
 		aBf = BlocksFromTsv($cRes2 + cKey + ".floor.tsv")
@@ -318,6 +322,9 @@ if bStored2 and bPages
 		if @@(aBc) != @@(BlocksFromTsv($cRes2 + cKey + ".combined.tsv")) nDiffC++ ok
 		if StzGoldenAgrees("doc-blocks", aBg, aG[i][2]) nOkG++ ok
 		if StzGoldenAgrees("doc-blocks", aBc, aG[i][2]) nOkC++ ok
+		aVF + StzGoldenAgrees("doc-blocks", aBf, aG[i][2])
+		aVG + StzGoldenAgrees("doc-blocks", aBg, aG[i][2])
+		aVC + StzGoldenAgrees("doc-blocks", aBc, aG[i][2])
 		nMeanF += StzDocBlocksMean(StzDocBlocksScores(aBf, aG[i][2]))
 		nMeanG += StzDocBlocksMean(StzDocBlocksScores(aBg, aG[i][2]))
 		nMeanC += StzDocBlocksMean(StzDocBlocksScores(aBc, aG[i][2]))
@@ -333,8 +340,16 @@ if bStored2 and bPages
 		"   (share of pages whose metrics' mean reaches " + $nStzDocAgreeBar + ")"
 	? "    the mean of the pages' metric means: native reader " + (nMeanF / len(aG)) + "   granite " + (nMeanG / len(aG)) + "   combined " + (nMeanC / len(aG))
 	chk("both models were measured on the same 27 pages (" + nGran + ", " + nComb + ")", nGran >= 0 and nComb >= 0)
+	# THE COURT'S EVIDENCE (the default gate): the stored floor reading must be the live one, or the evidence is of something else
+	nSumF = 0
+	for i = 1 to len(aVF)  nSumF += aVF[i]  next
+	chk("the floor's STORED readings agree on as many pages as its live run (" + nSumF + " of " + len(aVF) + "): the evidence is of what was measured", nSumF / len(aVF) = nFloor)
+	StzRecordCourtFromVerdicts("doc-vlm", "doc-vlm-v2", [ [ "native-reader", aVF, [] ], [ "granite-docling-258m", aVG, [] ], [ "native-plus-granite", aVC, [] ] ])
+	StzSaveCourt("results/court_im7b.txt")
+	aCt = StzCourtVerdictOf("doc-vlm", "doc-vlm-v2", "granite-docling-258m", "native-reader")
+	? "    the court: granite over the native reader " + aCt[:gains] + " gains, " + aCt[:losses] + " losses, P = " + aCt[:p] + " -> " + aCt[:verdict]
 	cChosen = StzModelRegistryQ().ResolveQ("doc-vlm").Chosen()
-	chk("the registry chose '" + cChosen + "' -- the rule (strictly beat the floor) says '" + ByTheRule("doc-vlm", "doc-vlm-v2") + "'",
+	chk("the registry chose '" + cChosen + "' -- the rule (the court) says '" + ByTheRule("doc-vlm", "doc-vlm-v2") + "'",
 		cChosen = ByTheRule("doc-vlm", "doc-vlm-v2"))
 	? "    on the record, golden v1 (the first two readers): native reader " + ScoreOf("doc-vlm", "native-reader", "doc-vlm-v1") +
 		", granite-docling-258m " + ScoreOf("doc-vlm", "granite-docling-258m", "doc-vlm-v1") + " -- a tie"
@@ -428,27 +443,9 @@ func ScoreOf(cF, cImpl, cVer)
 	return a[:score]
 
 func ByTheRule(cF, cVer)
-	oF = StzFacultyQ(cF)
-	cFloor = ""
-	cBest = ""
-	nBest = -1
-	a = oF.Implementations()
-	n = len(a)
-	for i = 1 to n
-		if a[i][:kind] = "floor"
-			cFloor = a[i][:id]
-		else
-			s = ScoreOf(cF, a[i][:id], cVer)
-			if s > nBest
-				nBest = s
-				cBest = a[i][:id]
-			ok
-		ok
-	next
-	if cBest != "" and nBest > ScoreOf(cF, cFloor, cVer) return cBest ok
-	return cFloor
+	# the court's rule (the default gate since 2026-11-05), restated independently in _court_rule.ring
+	return CourtRuleChoice(cF, cVer)
 
-# the independent scorer's numbers: "<tool>|<key>" -> [ 7 metrics ] ("" for none), from doc_vlm_score.py
 func ReadScores(cPath)
 	aOut = []
 	aL = StzSplit(read(cPath), char(10))

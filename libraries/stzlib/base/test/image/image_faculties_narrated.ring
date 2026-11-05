@@ -20,6 +20,7 @@
 # (D:/GitHub/_wti_models_src/coco/images). THE HELPERS LIVE AFTER pf().
 
 load "../../stzBase.ring"
+load "_court_rule.ring"
 load "_golden/coco_v1.ring"
 load "_golden/coco_dev_faces.ring"
 
@@ -133,6 +134,7 @@ cFile = cRes + "/vision.zmdl.txt"
 aBefore = [ StzModelRegistryQ().ResolveQ("faces").Chosen(), StzModelRegistryQ().ResolveQ("objects").Chosen(),
 	StzModelRegistryQ().ResolveQ("image-label").Chosen() ]
 StzSaveMeasurements(cFile)
+StzSaveCourt(cRes + "/court_im3.txt")
 StzClearMeasurements()
 chk("with the measurements cleared, every faculty falls back to its floor",
 	StzModelRegistryQ().ResolveQ("objects").IsFloor() = 1)
@@ -209,27 +211,8 @@ func CountExpected(aItems, cLabel)
 
 # the law, computed here from the measured numbers: the best model if it STRICTLY beats the floor, else the floor
 func ByTheRule(cF)
-	oF = StzFacultyQ(cF)
-	cFloor = ""
-	cBest = ""
-	nBest = -1
-	a = oF.Implementations()
-	n = len(a)
-	for i = 1 to n
-		if a[i][:kind] = "floor"
-			cFloor = a[i][:id]
-		else
-			s = ScoreOf(cF, a[i][:id])
-			if s > nBest
-				nBest = s
-				cBest = a[i][:id]
-			ok
-		ok
-	next
-	if nBest > ScoreOf(cF, cFloor)
-		return cBest
-	ok
-	return cFloor
+	# the court's rule (the default gate since 2026-11-05), restated independently in _court_rule.ring
+	return CourtRuleChoice(cF, StzFacultyQ(cF).GoldenVersion())
 
 func Bar(cName, nScore, cColor)
 	w = floor(nScore * 360)

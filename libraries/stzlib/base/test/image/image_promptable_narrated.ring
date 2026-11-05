@@ -20,6 +20,7 @@
 # When absent, the guard says which and stops. THE HELPERS LIVE AFTER pf().
 
 load "../../stzBase.ring"
+load "_court_rule.ring"
 load "_golden/coco_points_v1.ring"
 load "_golden/diode_depth_v1.ring"
 
@@ -155,7 +156,7 @@ nAS = ScoreOf("object-at", "mobilesam", "coco-v1")
 ? "    classical floor " + nAC + "   mobilesam " + nAS + "   (share of objects whose mask is found at IoU >= 0.5)"
 chk("MobileSAM was measured on the same 30 objects (" + nAS + ")", nAS >= 0)
 cChosenA = StzModelRegistryQ().ResolveQ("object-at").Chosen()
-chk("the registry chose '" + cChosenA + "' -- the rule (strictly beat the floor) says '" + ByTheRule("object-at",
+chk("the registry chose '" + cChosenA + "' -- the rule (the court) says '" + ByTheRule("object-at",
 	"coco-v1") + "'", cChosenA = ByTheRule("object-at", "coco-v1"))
 nCalls3 = StzVisionCallsRecorded()
 chk("...30 pictures encoded and 30 points decoded: " + (nCalls3 - nCalls2) + " records (the floor runs no model)",
@@ -191,6 +192,7 @@ if NOT StzDirExists(cRes)
 	StzDirCreatePath(cRes)
 ok
 StzSaveMeasurements(cRes + "/vision_im6b.zmdl.txt")
+StzSaveCourt(cRes + "/court_im6_promptable.txt")
 
 sec("scene 4")
 
@@ -249,29 +251,9 @@ func ScoreOf(cF, cImpl, cVer)
 	return a[:score]
 
 func ByTheRule(cF, cVer)
-	oF = StzFacultyQ(cF)
-	cFloor = ""
-	cBest = ""
-	nBest = -1
-	a = oF.Implementations()
-	n = len(a)
-	for i = 1 to n
-		if a[i][:kind] = "floor"
-			cFloor = a[i][:id]
-		else
-			s = ScoreOf(cF, a[i][:id], cVer)
-			if s > nBest
-				nBest = s
-				cBest = a[i][:id]
-			ok
-		ok
-	next
-	if nBest > ScoreOf(cF, cFloor, cVer)
-		return cBest
-	ok
-	return cFloor
+	# the court's rule (the default gate since 2026-11-05), restated independently in _court_rule.ring
+	return CourtRuleChoice(cF, cVer)
 
-# [ floor AbsRel, floor delta1, model AbsRel, model delta1 ] averaged over every nStep-th scan
 func MeanDepthScores(aGD, nStep)
 	a = [ 0, 0, 0, 0 ]
 	k = 0

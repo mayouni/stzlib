@@ -658,8 +658,10 @@ func _StzIou(a, b)
 
 # normalise an implementation spec into a full row with the defaults a floor-or-model needs
 func _StzImplRecord(paSpec)
+	# MP0 (SOFTANZA_MODEL_PLACEMENT.md): :platforms, the operating systems the implementation exists on ([] = everywhere Ring runs);
+	# :available, the NAME of a probe fn(cLang) -> [ 1|0, reason ] that says, without running anything heavy, whether it can answer here
 	_a_ = [ :id = "", :kind = "model", :fn = "", :version = "1", :deterministic = 1, :licence = "unstated",
-		:memory = 0, :languages = [ "*" ], :needle = "" ]
+		:memory = 0, :languages = [ "*" ], :needle = "", :platforms = [], :available = "" ]
 	for _i_ = 1 to len(paSpec)
 		_a_[paSpec[_i_][1]] = paSpec[_i_][2]
 	next
@@ -915,6 +917,25 @@ class stzFaculty from stzObject
 
 		def SetFloorQ(pcId, pcFn)
 			This.SetFloor(pcId, pcFn)
+			return This
+
+	# MP0: says where an implementation (the floor included) can run -- the operating systems it exists on ([] = everywhere) and the name
+	# of a probe fn(cLang) -> [ 1|0, reason ] ("" = none). The registry sets aside an implementation that cannot run here, with the reason,
+	# before it weighs any measurement; a measurement marks an item it could not run as UNAVAILABLE, never as wrong.
+	def SetAvailability(pcImplId, paPlatforms, pcProbe)
+		_i_ = _StzFacultyRow(@cName)
+		_aI_ = $aStzFaculties[_i_][:impls]
+		for _k_ = 1 to len(_aI_)
+			if _aI_[_k_][:id] = pcImplId
+				$aStzFaculties[_i_][:impls][_k_][:platforms] = paPlatforms
+				$aStzFaculties[_i_][:impls][_k_][:available] = pcProbe
+				return
+			ok
+		next
+		stzraise("SetAvailability: the faculty '" + @cName + "' has no implementation '" + pcImplId + "'.")
+
+		def SetAvailabilityQ(pcImplId, paPlatforms, pcProbe)
+			This.SetAvailability(pcImplId, paPlatforms, pcProbe)
 			return This
 
 	# Adds a model, dlm or service implementation to the faculty from a specification.

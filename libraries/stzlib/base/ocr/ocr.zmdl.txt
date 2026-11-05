@@ -1,9 +1,10 @@
 # zmdl 1 -- measured quality per implementation (SOFTANZA_MODEL_FLOW.md 9.2)
-ocr|platform|v2|0.54|26|0.65|30/10/2026 22:43:50|
-ocr|platform|v2/fr|1|9|1|30/10/2026 22:43:50|
-ocr|platform|v2/ar|0.62|8|1|30/10/2026 22:43:50|
-ocr|platform|v2/ru|0|9|0|30/10/2026 22:43:50|
-ocr|ppocr|v2|0.65|26|1|30/10/2026 22:44:29|
-ocr|ppocr|v2/fr|1|9|1|30/10/2026 22:44:29|
-ocr|ppocr|v2/ar|0|8|1|30/10/2026 22:44:29|
-ocr|ppocr|v2/ru|0.89|9|1|30/10/2026 22:44:29|
+# MP0 (2026-11-05): re-measured with capability before quality -- an item the platform engine cannot run here (no pack) is
+# UNAVAILABLE, not wrong: the floor's v2 row is over the 17 French and Arabic items this machine has packs for; it has no Russian row
+ocr|platform|v2|0.82|17|1|05/11/2026 14:04:34|measured on windows; 9 item(s) unavailable here, not counted
+ocr|platform|v2/fr|1|9|1|05/11/2026 14:04:34|
+ocr|platform|v2/ar|0.62|8|1|05/11/2026 14:04:34|
+ocr|ppocr|v2|0.65|26|1|05/11/2026 14:04:41|
+ocr|ppocr|v2/fr|1|9|1|05/11/2026 14:04:41|
+ocr|ppocr|v2/ar|0|8|1|05/11/2026 14:04:41|
+ocr|ppocr|v2/ru|0.89|9|1|05/11/2026 14:04:41|

@@ -4,7 +4,8 @@
 # stzGraph; CHECKED BEFORE IT RUNS; what passes between stages is an immutable parcel; a stage that refuses stops
 # its branch; and the SAME flow runs on a model, on another, or entirely on its floors -- the substitution contract.
 #
-# No GGUF: the "models" are plain Ring functions of known quality (the real-model flows are in flows_narrated.ring).
+# No GGUF: the "models" are plain Ring functions of known quality (the real-model flows are in flows_narrated.ring). Each model's golden
+# set gives it at least five gains over its floor and no loss, so the court (the default gate) can uphold it: P = 1/32 at five.
 #   clean  (text  -> text)   floor trims and lowercases;           "smart-clean" also collapses inner runs of spaces
 #   kind   (text  -> label)  floor: short if <= 5 characters;      "by-words" : short if <= 2 words
 #   shout  (label -> text)   floor only: upper-cases the label
@@ -19,11 +20,13 @@ StzClearParcelMemo()
 
 StzFacultyQ(:clean).SetInputTypeQ(:text).SetOutputTypeQ(:text).SetFloorQ("trim-lower", "_FlClean").
 	AddGoldenQ("  Hello   World ", "hello world").AddGoldenQ("A    B", "a b").AddGoldenQ(" Mixed CASE ", "mixed case").AddGoldenQ("x  y   z", "x y z").
+	AddGoldenQ("one  two", "one two").AddGoldenQ(" a  b  c ", "a b c").
 	AddImplementationQ([ :id = "smart-clean", :kind = "model", :fn = "_FlSmartClean", :licence = "apache-2.0", :memory = 50 ])
 
 StzFacultyQ(:kind).SetInputTypeQ(:text).SetOutputTypeQ(:label).SetParamsQ([ :labels = [ "short", "long" ] ]).SetFloorQ("by-chars", "_FlKindChars").
 	AddGoldenQ("hello world", "short").AddGoldenQ("a b", "short").AddGoldenQ("one two three four", "long").AddGoldenQ("ok", "short").
 	AddGoldenQ("this is a long sentence", "long").AddGoldenQ("hi there", "short").
+	AddGoldenQ("good morning", "short").AddGoldenQ("see you", "short").AddGoldenQ("thank you", "short").
 	AddImplementationQ([ :id = "by-words", :kind = "model", :fn = "_FlKindWords", :licence = "mit", :memory = 80 ])
 
 StzFacultyQ(:shout).SetInputTypeQ(:label).SetOutputTypeQ(:text).SetFloorQ("upper", "_FlShout").
