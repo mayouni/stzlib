@@ -627,6 +627,9 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     # digests, models, listeners, doors -- the inventory an advisory is matched
     # against (SOFTANZA_ONE_HOUR.md, B1).
     load "security/stzExposure.ring"
+    # An advisory meets the inventory, and time-to-safe is a number the ledger
+    # reports (SOFTANZA_ONE_HOUR.md, B2 and B4).
+    load "security/stzAdvisoryFeed.ring"
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge

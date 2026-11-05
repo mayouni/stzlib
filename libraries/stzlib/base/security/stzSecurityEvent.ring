@@ -105,6 +105,15 @@ func StzSecurityEventKinds()
 		# plan is a warning; a payout that reached the port with no committed plan is the alarm.
 		[ "payout.committed",             "info",    "",          "a payout plan was committed by an actor who may, and released through the port" ],
 		[ "model.call",                   "info",    "",          "a model was run on data through a governed door (the image plane, COMPASS-KERN-05)" ],
+		# The One Hour (SOFTANZA_ONE_HOUR.md B2, B4, B7): an advisory meets the inventory, and the time
+		# from that moment to the door shut and to the gate green is read from these, never from memory.
+		# The ORIGIN field of each carries the advisory id, so the five chain by it.
+		[ "advisory.matched",             "warning", "T1190",     "a published advisory names a component and version this process runs (origin: the advisory id)" ],
+		[ "exposure.closed",              "info",    "",          "the door to an exposed component was shut -- a listener refused, a domain unloaded, a socket family denied -- while the patch is built" ],
+		[ "pin.moved",                    "info",    "",          "a pinned version or digest was changed on purpose: a kernel pin, a vendored record, a model record" ],
+		[ "rebuilt",                      "info",    "",          "the engine or the image was built against the moved pin" ],
+		[ "guard.green",                  "info",    "",          "the gate passed on the rebuilt artefact: the advisory is closed by a patch" ],
+		[ "audit.claim",                  "info",    "",          "a model audit of the engine made a claim and the court judged it (verdict in the reason)" ],
 		[ "faculty.call",                 "info",    "",          "an agent asked a faculty through the registry: who asked, which implementation answered, and whether it ran or came from the memo (IM9a)" ],
 		[ "payout.refused",               "warning", "",          "a payout plan was refused: the policy, the actor, or the rehearsed document" ],
 		[ "payout.unplanned",             "error",   "T1657",     "money out was attempted at the port with no committed plan, or for an amount the plan did not authorise" ],
