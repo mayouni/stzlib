@@ -56,6 +56,16 @@ $cStzVisionOwlMerges = "owlvit_merges.txt"
 $nStzVisionFindScore = 0.08
 $nStzVisionFindNms = 0.5
 $nStzVisionFindMax = 20
+# WSP-SPIKE-01 (SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 6): two more implementations of :find over the SAME judging pairs.
+# owlvit+warm-rule: the picture's shift head is read first (a listex over 576 numbers: "the field is warm"); when its mean is at or above
+# $nStzVisionWarmShift the threshold for THAT picture is raised by $nStzVisionWarmStep. owlvit+shift-patch: the logit_shift head (tensor c210 of
+# the vision graph) with ONE direction removed -- the warm pictures' axis, found on the DEV pictures by contrast (_rig/owl_direction.py) and
+# applied by the engine (StzEngineNeuralPatchRemoveDirection); the patched file loads only with the recorded digest. Both cut-offs were
+# chosen on the DEV pairs only and committed before the judging run.
+$nStzVisionWarmShift = -0.60
+$nStzVisionWarmStep = 0.04
+$cStzVisionOwlPatched = "owlvit_vision_shiftpatch.gguf"
+$cStzVisionOwlPatchedSha256 = ""
 # the floor of :find: YOLOX's detections whose COCO label IS the word
 $nStzVisionFindFloorScore = 0.2
 
@@ -332,6 +342,14 @@ func StzVisionDeclare(paGoldens)
 		_oW_.AddImplementation([ :id = "owlvit", :kind = "graph", :fn = "_StzVisionFindOwl",
 			:needle = "vision/" + $cStzVisionOwlVision, :licence = "apache-2.0", :memory = 900 ])
 	ok
+	if len(StzFind("owlvit+warm-rule", _oW_.ImplementationIds())) = 0
+		_oW_.AddImplementation([ :id = "owlvit+warm-rule", :kind = "graph", :fn = "_StzVisionFindOwlWarm",
+			:needle = "vision/" + $cStzVisionOwlVision, :licence = "apache-2.0", :memory = 900 ])
+	ok
+	if len(StzFind("owlvit+shift-patch", _oW_.ImplementationIds())) = 0
+		_oW_.AddImplementation([ :id = "owlvit+shift-patch", :kind = "graph", :fn = "_StzVisionFindOwlPatched",
+			:needle = "vision/" + $cStzVisionOwlPatched, :licence = "apache-2.0", :memory = 900 ])
+	ok
 	if len(StzMeasurementOf("faces", "platform", "coco-v1")) = 0 and fexists(StzVisionMeasurementsFile())
 		StzLoadMeasurements(StzVisionMeasurementsFile())
 	ok
@@ -469,6 +487,54 @@ func _StzVisionFindOwl(pInput, paParams)
 	_oI_ = StzImageQ("" + pInput[1])
 	_a_ = _oI_.FindByWords(pInput[2])
 	_oI_.Release()
+	return _a_
+
+# WSP-SPIKE-01: the picture's two per-patch heads, read before any word -- [ :shifts, :scales, :meanShift, :maxShift ]
+func _StzVisionOwlHeads(poImg)
+	_cV_ = _StzVisionModelOrRaise($cStzVisionOwlVision, "FindByWords")
+	_a_ = StzEngineNeuralOwlHeads(_cV_, poImg.Pixels(), poImg.Width(), poImg.Height(), poImg.Channels(), 4)
+	_aS_ = []
+	_aC_ = []
+	_nSum_ = 0
+	_nMax_ = -1000
+	_n_ = len(_a_) / 2
+	for _i_ = 1 to _n_
+		_aS_ + _a_[2 * _i_ - 1]
+		_aC_ + _a_[2 * _i_]
+		_nSum_ += _a_[2 * _i_ - 1]
+		if _a_[2 * _i_ - 1] > _nMax_ _nMax_ = _a_[2 * _i_ - 1] ok
+	next
+	if _n_ = 0 return [ :shifts = [], :scales = [], :meanShift = 0, :maxShift = 0 ] ok
+	return [ :shifts = _aS_, :scales = _aC_, :meanShift = _nSum_ / _n_, :maxShift = _nMax_ ]
+
+# the warm rule: the same weights, the threshold raised for a warm picture
+func _StzVisionFindOwlWarm(pInput, paParams)
+	_oI_ = StzImageQ("" + pInput[1])
+	_aH_ = _StzVisionOwlHeads(_oI_)
+	_nThr_ = $nStzVisionFindScore
+	if _aH_[:meanShift] >= $nStzVisionWarmShift _nThr_ += $nStzVisionWarmStep ok
+	_a_ = _oI_.FindByWordsXT(pInput[2], _nThr_)
+	_oI_.Release()
+	return _a_
+
+# the patched weights: the vision graph swapped for the patched file for this call (it loads only with its recorded digest)
+func _StzVisionFindOwlPatched(pInput, paParams)
+	_cKeep_ = $cStzVisionOwlVision
+	$cStzVisionOwlVision = $cStzVisionOwlPatched
+	_cP_ = StzVisionModelPath($cStzVisionOwlPatched)
+	if $cStzVisionOwlPatchedSha256 != "" and StzEngineModelDigest(_cP_) != $cStzVisionOwlPatchedSha256
+		$cStzVisionOwlVision = _cKeep_
+		stzraise("stzImage.FindByWords: " + $cStzVisionOwlPatched + " is not the patched file whose digest is recorded (" + $cStzVisionOwlPatchedSha256 + ")")
+	ok
+	try
+		_oI_ = StzImageQ("" + pInput[1])
+		_a_ = _oI_.FindByWords(pInput[2])
+		_oI_.Release()
+	catch
+		$cStzVisionOwlVision = _cKeep_
+		stzraise(cCatchError)
+	done
+	$cStzVisionOwlVision = _cKeep_
 	return _a_
 
 # a word or a list of words as a list of trimmed lower-case words, no empty one

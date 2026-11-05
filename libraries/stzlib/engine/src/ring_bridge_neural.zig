@@ -14,6 +14,7 @@ const ocrg = @import("ocr_graph.zig"); // O3: PP-OCR graphs on ggml
 const ocrp = @import("ocr_pipeline.zig"); // O3b: an image file in, its text lines out
 const vlm = @import("vlm.zig"); // IM7: the vision half of a vision-language model
 const nvit = @import("neural_vit.zig"); // IM8a: that tower, resident on the GPU
+const wts = @import("weights.zig"); // WSP: tensors read, digested, patched by name
 const owl = @import("owl.zig"); // IM9f: find what words name in a picture
 const clip = @import("clip_text.zig"); // IM9f: the CLIP tokenizer and query embedding
 const vis = @import("vision.zig"); // IM3: the image plane's models (classify, faces, objects)
@@ -1461,6 +1462,105 @@ fn ring_OwlPixels(p: *anyopaque) callconv(.c) void {
     }
 }
 
+// WSP-SPIKE-01 -- the pattern ladder's first instruments over weights (SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 3)
+
+// (cModel) -> the names of the tensors the GGUF holds, in file order
+fn ring_TensorNames(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (wts.names(ocrArg(p, 1))) |nm| {
+        defer std.heap.c_allocator.free(nm);
+        for (nm) |x| R.ring_list_addstring2(out, x.ptr, @intCast(x.len));
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("weights: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// (cModel, cTensor) -> [ nRank, ne0, ne1, ne2, ne3, nType, nValues ]; [] when there is no such tensor
+fn ring_TensorInfo(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (wts.info(ocrArg(p, 1), ocrArg(p, 2))) |i| {
+        R.ring_list_adddouble(out, @floatFromInt(i.rank));
+        for (i.ne) |d| R.ring_list_adddouble(out, @floatFromInt(d));
+        R.ring_list_adddouble(out, @floatFromInt(i.ty));
+        R.ring_list_adddouble(out, @floatFromInt(i.n));
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("weights: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// (cModel, cTensor, nStart0, nCount) -> nCount values of an F32 tensor from the 0-based flat index, in ggml order
+fn ring_TensorSlice(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const g = R.ring_vm_api_getnumber;
+    if (wts.slice(ocrArg(p, 1), ocrArg(p, 2), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)))) |v| {
+        defer std.heap.c_allocator.free(v);
+        for (v) |x| R.ring_list_adddouble(out, x);
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("weights: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// (cModel, cTensor) -> the SHA-256 of the tensor's bytes, 64 hex characters; "" when there is no such tensor
+fn ring_TensorDigest(p: *anyopaque) callconv(.c) void {
+    if (wts.digest(ocrArg(p, 1), ocrArg(p, 2))) |h| {
+        R.ring_vm_api_retstring2(p, @constCast(&h), 64);
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("weights: {s}", .{@errorName(e)});
+        R.ring_vm_api_retstring2(p, @constCast(""), 0);
+    }
+}
+
+// (cModel, cOut, cTensor, nCol0, nCols, cDirection: the values separated by spaces) -> [ nValuesChanged, nCols, wdFirst, wdAbsSum ]; [] on refusal
+fn ring_PatchRemoveDirection(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const g = R.ring_vm_api_getnumber;
+    var dir: std.ArrayList(f32) = .empty;
+    defer dir.deinit(std.heap.c_allocator);
+    var it = std.mem.tokenizeAny(u8, ocrArg(p, 6), " \t\r\n");
+    var bad = false;
+    while (it.next()) |tok| {
+        const v = std.fmt.parseFloat(f32, tok) catch {
+            bad = true;
+            break;
+        };
+        dir.append(std.heap.c_allocator, v) catch {
+            bad = true;
+            break;
+        };
+    }
+    if (bad) {
+        ocrg.setError("weights: the direction is not a list of numbers", .{});
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    if (wts.removeDirection(ocrArg(p, 1), ocrArg(p, 2), ocrArg(p, 3), @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)), dir.items)) |r| {
+        R.ring_list_adddouble(out, @floatFromInt(r.changed));
+        R.ring_list_adddouble(out, @floatFromInt(r.cols));
+        R.ring_list_adddouble(out, r.wd_first);
+        R.ring_list_adddouble(out, r.wd_abs_sum);
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("weights: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// (cVision, cPixels, nW, nH, nC, nThreads) -> 576 x [ shift, scale ] interleaved: the two per-patch heads of OWL-ViT for a picture
+fn ring_OwlHeads(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const g = R.ring_vm_api_getnumber;
+    const th: c_int = @intFromFloat(g(p, 6));
+    if (owl.heads(ocrArg(p, 1), ocrArg(p, 2), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)), if (th < 1) 4 else th)) |v| {
+        defer std.heap.c_allocator.free(v);
+        for (v) |x| R.ring_list_adddouble(out, x);
+    } else |e| {
+        if (ocrg.lastError().len == 0) ocrg.setError("owl: {s}", .{@errorName(e)});
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 // the compute time of the last vision call, ms
 fn ring_VisionMs(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retnumber(p, vision_ms);
@@ -1479,6 +1579,12 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralowlfind", .func = &ring_OwlFind },
     .{ .name = "stzengineneuralowlscores", .func = &ring_OwlScores },
     .{ .name = "stzengineneuralowlpixels", .func = &ring_OwlPixels },
+    .{ .name = "stzengineneuraltensornames", .func = &ring_TensorNames },
+    .{ .name = "stzengineneuraltensorinfo", .func = &ring_TensorInfo },
+    .{ .name = "stzengineneuraltensorslice", .func = &ring_TensorSlice },
+    .{ .name = "stzengineneuraltensordigest", .func = &ring_TensorDigest },
+    .{ .name = "stzengineneuralpatchremovedirection", .func = &ring_PatchRemoveDirection },
+    .{ .name = "stzengineneuralowlheads", .func = &ring_OwlHeads },
     .{ .name = "stzengineneuralvisionembedimage", .func = &ring_VisionEmbedImage },
     .{ .name = "stzengineneuralvisionembedtext", .func = &ring_VisionEmbedText },
     .{ .name = "stzengineneuralvisiontokens", .func = &ring_VisionTokens },

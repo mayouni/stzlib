@@ -145,6 +145,20 @@ pub fn find(vision_path: []const u8, text_path: []const u8, vocab: []const u8, m
     return .{ .dets = try vis.nms(cands.items, nms_thr, true), .ms = fe.ms, .cached = fe.cached };
 }
 
+/// The two per-patch HEADS of a picture, read before any word is asked (WSP-SPIKE-01: a warm picture is a weight-readable condition): for each
+/// of the 576 patches its logit shift and its logit scale (elu + 1), interleaved. The graph output is kept as find keeps it. Caller frees.
+pub fn heads(vision_path: []const u8, px: []const u8, w: usize, h: usize, c: usize, n_threads: c_int) ![]f32 {
+    const fe = try features(vision_path, px, w, h, c, n_threads);
+    const out = try gpa.alloc(f32, patches * 2);
+    for (0..patches) |p| {
+        const row = fe.f[p * width .. (p + 1) * width];
+        const raw = row[dim + 1];
+        out[p * 2] = row[dim];
+        out[p * 2 + 1] = if (raw > 0) raw + 1.0 else @exp(raw);
+    }
+    return out;
+}
+
 /// Every patch's raw numbers for the reference check: the engine's score for each patch and query, without threshold or suppression. Caller frees.
 pub fn scores(vision_path: []const u8, text_path: []const u8, vocab: []const u8, merges: []const u8, queries: []const u8, px: []const u8, w: usize, h: usize, c: usize, n_threads: c_int) ![]f32 {
     var qv: std.ArrayList([]const f32) = .empty;
