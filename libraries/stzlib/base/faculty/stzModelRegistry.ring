@@ -23,6 +23,8 @@ $aStzSwaps        = []        # [ :needle, :seconds ] -- what load-swap costs, m
 $aStzCourt        = []        # rows [ :faculty, :golden, :challenger, :other, :gains, :losses, :p, :verdict, :date, :note ]
 $nStzCourtAlpha   = 0.05      # the court's level: a challenger's gains must be this improbable as chance
 $aStzCourtIncumbents = []     # rows [ :faculty, :golden, :impl ] -- who holds the faculty when the court sits
+$cStzPlacementOS  = ""        # MP0: "" = this machine; MP2 sets it to resolve for a declared target
+$aStzPlacementProbes = []     # MP2: [ probe name, the target's answer fn ] pairs that stand in for this machine's probes
 
 # ---- policy: one switch turns the models off -----------------------------------------------------
 # StzModelPolicy(:deterministic) or the environment STZ_MODELS=off. Every faculty then resolves to its floor,
@@ -104,7 +106,11 @@ func StzLoadMeasurements(pcPath)
 # challenger over another implementation only when its gains among them are improbable as chance: the exact one-sided sign test (McNemar's,
 # exact), P(X >= gains | discordant, 1/2) <= $nStzCourtAlpha, computed by the engine on the regularized incomplete beta. The verdict is DERIVED
 # from the gains and losses every time it is recorded or loaded; only the counts are evidence. A faculty whose golden set has court records is
-# judged by them (the registry, step 5b); a faculty without any is judged as before.
+# judged by them. THE COURT IS THE DEFAULT GATE (the author's ruling, 2026-11-05): step 5b runs for EVERY faculty, and a model with no
+# court evidence against the incumbent and the floor is not chosen -- a missing record is not an acquittal. The evidence is made where the
+# measurement is made: StzRunGoldens records, for every ordered pair of the implementations it scored, the gains and losses item by item
+# (and per language, when the faculty is measured per language). A measurement recorded by hand (StzRecordMeasurement) carries no evidence;
+# its author records the counts with StzRecordCourtVerdict, or the model stays out.
 # THE BURDEN IS ON THE CHANGE: the court sits with an INCUMBENT (the implementation that holds the faculty when the challengers are judged;
 # the floor when none is declared). The incumbent must be upheld against the floor; every other implementation must be upheld against the
 # incumbent AND the floor. The incumbent never has to prove itself against a challenger -- a tie leaves things as they were.
@@ -145,12 +151,45 @@ func StzSetCourtIncumbent(pcFaculty, pcGolden, pcImpl)
 	next
 	add($aStzCourtIncumbents, [ :faculty = pcFaculty, :golden = pcGolden, :impl = pcImpl ])
 
-# the incumbent the court sits with; "" when none is declared (the floor then)
+# the incumbent the court sits with; "" when none is declared (the floor then). A per-language golden ("v2/fr") sits with the incumbent of
+# its whole set ("v2") unless one is declared for the language itself.
 func StzCourtIncumbent(pcFaculty, pcGolden)
 	for _i_ = 1 to len($aStzCourtIncumbents)
 		if $aStzCourtIncumbents[_i_][:faculty] = pcFaculty and $aStzCourtIncumbents[_i_][:golden] = pcGolden return $aStzCourtIncumbents[_i_][:impl] ok
 	next
+	_n_ = StzFind("/", pcGolden)
+	if len(_n_) > 0
+		return StzCourtIncumbent(pcFaculty, left(pcGolden, _n_[1] - 1))
+	ok
 	return ""
+
+# the counts of one implementation against another from two verdict lists of the same items (1 right, 0 wrong or refused)
+func StzCourtCounts(paA, paB)
+	_nG_ = 0
+	_nL_ = 0
+	_n_ = len(paA)
+	if len(paB) < _n_ _n_ = len(paB) ok
+	for _i_ = 1 to _n_
+		if paA[_i_] = 1 and paB[_i_] = 0 _nG_++ ok
+		if paA[_i_] = 0 and paB[_i_] = 1 _nL_++ ok
+	next
+	return [ _nG_, _nL_ ]
+
+# the court file as lines (StzLoadCourt reads them back): the incumbents, then every record's counts
+func StzSaveCourt(pcPath)
+	_c_ = "# zcourt 1 -- the court's evidence per faculty and golden set (SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8)" + char(10) +
+	      "# faculty|golden|challenger|other|gains|losses|p|verdict|date|note   (p and the verdict are recomputed from the counts on load)" + char(10)
+	for _i_ = 1 to len($aStzCourtIncumbents)
+		_a_ = $aStzCourtIncumbents[_i_]
+		_c_ += "incumbent|" + _a_[:faculty] + "|" + _a_[:golden] + "|" + _a_[:impl] + char(10)
+	next
+	for _i_ = 1 to len($aStzCourt)
+		_a_ = $aStzCourt[_i_]
+		_c_ += _a_[:faculty] + "|" + _a_[:golden] + "|" + _a_[:challenger] + "|" + _a_[:other] + "|" + _a_[:gains] + "|" + _a_[:losses] + "|" +
+		       _a_[:p] + "|" + _a_[:verdict] + "|" + _a_[:date] + "|" + _a_[:note] + char(10)
+	next
+	write(pcPath, _c_)
+	return len($aStzCourt)
 
 func StzClearCourt()
 	$aStzCourt = []
@@ -178,6 +217,43 @@ func StzLoadCourt(pcPath)
 		ok
 	next
 	return _nLoaded_
+
+# ---- MP0: can it run HERE? (SOFTANZA_MODEL_PLACEMENT.md) -------------------------------------------------------------------
+# [ 1|0, reason ] for an implementation row and a language ("" = no particular one). Two checks, cheap, running nothing heavy: the operating
+# system against :platforms, then the implementation's own probe. $cStzPlacementOS, when set, stands for the operating system (MP2 resolves
+# for a declared target that way); $aStzPlacementProbes, when set, answers the probes of that target instead of this machine (both are
+# declared with the registry's other globals at the top of this file: an assignment after a func would belong to that func).
+
+func StzPlacementOS()
+	if $cStzPlacementOS != "" return $cStzPlacementOS ok
+	if isWindows() return "windows" ok
+	if isLinux() return "linux" ok
+	if isMacOSX() return "macos" ok
+	return "other"
+
+func StzImplementationAvailable(paImpl, pcLang)
+	_aP_ = []
+	if HasKey(paImpl, :platforms) _aP_ = paImpl[:platforms] ok
+	if isList(_aP_) and len(_aP_) > 0
+		if len(StzFind(StzPlacementOS(), _aP_)) = 0
+			return [ 0, "exists only on " + _StzJoinComma(_aP_) + "; this is " + StzPlacementOS() ]
+		ok
+	ok
+	_cFn_ = ""
+	if HasKey(paImpl, :available) _cFn_ = paImpl[:available] ok
+	if NOT isString(_cFn_) or _cFn_ = "" return [ 1, "" ] ok
+	for _i_ = 1 to len($aStzPlacementProbes)
+		if $aStzPlacementProbes[_i_][1] = _cFn_ return call $aStzPlacementProbes[_i_][2](pcLang) ok
+	next
+	return call _cFn_(pcLang)
+
+func _StzJoinComma(paList)
+	_c_ = ""
+	for _i_ = 1 to len(paList)
+		if _i_ > 1 _c_ += ", " ok
+		_c_ += "" + paList[_i_]
+	next
+	return _c_
 
 # ---- what is installed ---------------------------------------------------------------------------------
 # a model implementation is installed when a GGUF whose name contains its :needle is in the models directory
@@ -286,6 +362,17 @@ func StzResolveFaculty(pReq, paPins)
 			 :findings = [ _StzFlowFinding("unknown-implementation", _cFac_ + ":" + _aPins_[:impl], "the faculty has no such implementation") ] ]
 	ok
 
+	# MP0: CAPABILITY BEFORE QUALITY. The floor first: one that cannot run here (no pack, not this OS) is set aside like an uninstalled
+	# model, and the court then sits without it
+	_cLgR_ = ""
+	if len(_aReq_[:languages]) = 1 _cLgR_ = lower(_aReq_[:languages][1]) ok
+	_aFloorAv_ = StzImplementationAvailable(_aFloor_, _cLgR_)
+	_bFloorAv_ = _aFloorAv_[1]
+	if _bFloorAv_ = 0
+		add(_aRej_, [ _aFloor_[:id], "unavailable here: " + _aFloorAv_[2] ])
+		add(_aWhy_, "the floor '" + _aFloor_[:id] + "' is unavailable here (" + _aFloorAv_[2] + "): the court sits without it")
+	ok
+
 	# 3. the hard filters, each recorded when it removes a candidate
 	_aCand_ = []
 	_aSet_ = []
@@ -299,6 +386,11 @@ func StzResolveFaculty(pReq, paPins)
 		ok
 		if _a_[:kind] = "service"
 			add(_aRej_, [ _a_[:id], "a service is never selected implicitly; pin it by name" ])
+			loop
+		ok
+		_aAvC_ = StzImplementationAvailable(_a_, _cLgR_)
+		if _aAvC_[1] = 0
+			add(_aRej_, [ _a_[:id], "unavailable here: " + _aAvC_[2] ])
 			loop
 		ok
 		if StzImplementationIsInstalled(_a_) = 0
@@ -339,7 +431,7 @@ func StzResolveFaculty(pReq, paPins)
 	_cGold_ = _aFac_[:goldenversion]
 	if HasKey(_aFac_, :langkey) and _aFac_[:langkey] != "" and len(_aReq_[:languages]) = 1
 		_cLg_ = lower(_aReq_[:languages][1])
-		if len(StzMeasurementOf(_cFac_, _aFloor_[:id], _cGold_ + "/" + _cLg_)) > 0
+		if _StzAnyMeasuredIn(_cFac_, _aImpls_, _cGold_ + "/" + _cLg_) = 1
 			_cGold_ = _cGold_ + "/" + _cLg_
 			add(_aWhy_, "judged on the '" + _cLg_ + "' items of golden set " + _aFac_[:goldenversion] + " (the faculty is measured per language)")
 		else
@@ -347,10 +439,11 @@ func StzResolveFaculty(pReq, paPins)
 		ok
 	ok
 	_aFM_ = StzMeasurementOf(_cFac_, _aFloor_[:id], _cGold_)
+	if _bFloorAv_ = 0 _aFM_ = [] ok
 	_aElig_ = []
 	for _i_ = 1 to len(_aCand_)
 		_a_ = _aCand_[_i_]
-		if len(_aFM_) = 0
+		if len(_aFM_) = 0 and _bFloorAv_ = 1
 			add(_aRej_, [ _a_[:id], "the floor is unmeasured on golden set " + _cGold_ + ": there is no bar to beat" ])
 			loop
 		ok
@@ -363,9 +456,11 @@ func StzResolveFaculty(pReq, paPins)
 			add(_aRej_, [ _a_[:id], "fails conformance (" + _aM_[:conformance] + ")" ])
 			loop
 		ok
-		if _aM_[:score] <= _aFM_[:score]
-			add(_aRej_, [ _a_[:id], "does not beat the floor: measured " + _aM_[:score] + " against the floor's " + _aFM_[:score] ])
-			loop
+		if _bFloorAv_ = 1
+			if _aM_[:score] <= _aFM_[:score]
+				add(_aRej_, [ _a_[:id], "does not beat the floor: measured " + _aM_[:score] + " against the floor's " + _aFM_[:score] ])
+				loop
+			ok
 		ok
 		if _aM_[:score] < _aReq_[:quality]
 			add(_aRej_, [ _a_[:id], "measured " + _aM_[:score] + " < the requested quality " + _aReq_[:quality] ])
@@ -397,21 +492,31 @@ func StzResolveFaculty(pReq, paPins)
 		next
 	ok
 
-	# 5b. THE COURT: when the golden set has court records, the incumbent stays if it is upheld against the floor, and any other
-	# candidate stays only if it is upheld against the incumbent AND the floor; a missing record is not an acquittal
-	if StzCourtHasRecords(_cFac_, _cGold_) and len(_aElig_) > 0
+	# 5b. THE COURT, the default gate for every faculty: the incumbent stays if it is upheld against the floor, and any other candidate
+	# stays only if it is upheld against the incumbent AND the floor; a missing record is not an acquittal
+	if len(_aElig_) > 0
 		_cInc_ = StzCourtIncumbent(_cFac_, _cGold_)
 		if _cInc_ = "" _cInc_ = _aFloor_[:id] ok
+		# MP0: the court compares only implementations that can both run here: an unavailable floor or incumbent is not a bar
+		_bIncAv_ = 0
+		if _cInc_ = _aFloor_[:id]
+			_bIncAv_ = _bFloorAv_
+		else
+			for _j_ = 1 to len(_aElig_)
+				if _aElig_[_j_][1][:id] = _cInc_ _bIncAv_ = 1 ok
+			next
+		ok
 		_aKept_ = []
 		for _i_ = 1 to len(_aElig_)
 			_cId_ = _aElig_[_i_][1][:id]
-			_aOthers_ = [ _aFloor_[:id] ]
-			if _cId_ != _cInc_ and _cInc_ != _aFloor_[:id] add(_aOthers_, _cInc_) ok
+			_aOthers_ = []
+			if _bFloorAv_ = 1 add(_aOthers_, _aFloor_[:id]) ok
+			if _cId_ != _cInc_ and _cInc_ != _aFloor_[:id] and _bIncAv_ = 1 add(_aOthers_, _cInc_) ok
 			_bOk_ = 1
 			for _k_ = 1 to len(_aOthers_)
 				_aV_ = StzCourtVerdictOf(_cFac_, _cGold_, _cId_, _aOthers_[_k_])
 				if len(_aV_) = 0
-					add(_aRej_, [ _cId_, "not judged by the court against '" + _aOthers_[_k_] + "' on golden set " + _cGold_ ])
+					add(_aRej_, [ _cId_, "no court evidence against '" + _aOthers_[_k_] + "' on golden set " + _cGold_ + " (RunGoldens records it; a hand-recorded measurement does not)" ])
 					_bOk_ = 0
 					exit
 				ok
@@ -425,29 +530,59 @@ func StzResolveFaculty(pReq, paPins)
 			if _bOk_ = 1 add(_aKept_, _aElig_[_i_]) ok
 		next
 		if len(_aKept_) > 0
-			add(_aWhy_, "the court (incumbent '" + _cInc_ + "') upheld '" + _aKept_[1][1][:id] + "' on golden set " + _cGold_)
+			if _bFloorAv_ = 0 and (_bIncAv_ = 0 or _cInc_ = _aKept_[1][1][:id])
+				add(_aWhy_, "the court had no implementation to compare '" + _aKept_[1][1][:id] + "' with here: neither the floor nor an incumbent can run")
+			else
+				add(_aWhy_, "the court (incumbent '" + _cInc_ + "') upheld '" + _aKept_[1][1][:id] + "' on golden set " + _cGold_)
+			ok
 		ok
 		_aElig_ = _aKept_
 	ok
 
 	if len(_aElig_) > 0
 		_aBest_ = _aElig_[1]
-		add(_aWhy_, "'" + _aBest_[1][:id] + "' (" + _aBest_[1][:kind] + ") measured " + _aBest_[2][:score] + " on golden set " + _cGold_ +
-			    " (n=" + _aBest_[2][:n] + "), which beats the floor's " + _aFM_[:score] + " and the requested " + _aReq_[:quality])
+		if len(_aFM_) > 0
+			add(_aWhy_, "'" + _aBest_[1][:id] + "' (" + _aBest_[1][:kind] + ") measured " + _aBest_[2][:score] + " on golden set " + _cGold_ +
+				    " (n=" + _aBest_[2][:n] + "), which beats the floor's " + _aFM_[:score] + " and the requested " + _aReq_[:quality])
+		else
+			add(_aWhy_, "'" + _aBest_[1][:id] + "' (" + _aBest_[1][:kind] + ") measured " + _aBest_[2][:score] + " on golden set " + _cGold_ +
+				    " (n=" + _aBest_[2][:n] + "), the best measured implementation that can run here")
+		ok
 		for _i_ = 2 to len(_aElig_)
 			add(_aRej_, [ _aElig_[_i_][1][:id], "eligible but ranked lower (" + _aElig_[_i_][2][:score] + " < " + _aBest_[2][:score] + " or a larger footprint)" ])
 		next
-		add(_aWhy_, "the floor '" + _aFloor_[:id] + "' is kept as the fallback")
+		if _bFloorAv_ = 1
+			add(_aWhy_, "the floor '" + _aFloor_[:id] + "' is kept as the fallback")
+		else
+			add(_aWhy_, "there is no fallback here: the floor '" + _aFloor_[:id] + "' cannot run")
+		ok
 		return _StzPlan(_cFac_, _aBest_[1], _aWhy_, _aRej_, _aFloor_, 0)
 	ok
 
-	# 6. fall back to the floor, SAYING SO -- or refuse, when the requirement asked not to settle for it
+	# 6. fall back to the floor, SAYING SO -- or refuse, when the requirement asked not to settle for it. MP0: a floor that cannot run here
+	# is no fallback; the refusal then says what is missing, implementation by implementation
+	if _bFloorAv_ = 0
+		_cWhat_ = "nothing can answer '" + _cFac_ + "' here: the floor " + _aFloorAv_[2]
+		for _r_ = 1 to len(_aRej_)
+			if _aRej_[_r_][1] != _aFloor_[:id] _cWhat_ += "; " + _aRej_[_r_][1] + ": " + _aRej_[_r_][2] ok
+		next
+		add(_aWhy_, _cWhat_)
+		return [ :faculty = _cFac_, :chosen = "", :kind = "", :why = _aWhy_, :rejected = _aRej_, :floor = _aFloor_[:id], :refusal = 1, :pinned = 0,
+			 :findings = [ _StzFlowFinding("unavailable-here", _cFac_, _cWhat_) ] ]
+	ok
 	add(_aWhy_, "no model qualified; the floor '" + _aFloor_[:id] + "' is used")
 	if _aReq_[:refusebelow] = 1
 		return [ :faculty = _cFac_, :chosen = "", :kind = "", :why = _aWhy_, :rejected = _aRej_, :floor = _aFloor_[:id], :refusal = 1, :pinned = 0,
 			 :findings = [ _StzFlowFinding("below-quality", _cFac_, "no implementation met the requirement and it forbids falling back to the floor") ] ]
 	ok
 	return _StzPlan(_cFac_, _aFloor_, _aWhy_, _aRej_, _aFloor_, 0)
+
+# 1 when any implementation of the faculty has a measurement on that golden set (a per-language one included)
+func _StzAnyMeasuredIn(pcFac, paImpls, pcGold)
+	for _i_ = 1 to len(paImpls)
+		if len(StzMeasurementOf(pcFac, paImpls[_i_][:id], pcGold)) > 0 return 1 ok
+	next
+	return 0
 
 func _StzPlan(pcFac, paChosen, paWhy, paRej, paFloor, pbPinned)
 	return [ :faculty = pcFac, :chosen = paChosen[:id], :kind = paChosen[:kind], :why = paWhy, :rejected = paRej,
@@ -484,7 +619,16 @@ func StzRunFaculty(pcFaculty, pInput, paParams, pReq, paPins, pbImplicit)
 		ok
 		_cErr_ = "the implementation's answer was refused: " + _oP_.CiteFindings()
 	ok
-	# the chosen model failed and nobody pinned it: the floor answers, and the provenance says it fell back
+	# the chosen model failed and nobody pinned it: the floor answers, and the provenance says it fell back -- if it can run here (MP0);
+	# a floor that cannot is no fallback, and the refusal says both things
+	_aAvF_ = StzImplementationAvailable(_StzImplRow(pcFaculty, _aPlan_[:floor]), _StzLangOfItem(pcFaculty, pInput))
+	if _aAvF_[1] = 0
+		_oR_ = new stzParcel("refusal", [])
+		_oR_._MakeRefusal([ _StzFlowFinding("unavailable-here", pcFaculty, "'" + _aPlan_[:chosen] + "' failed (" + _cErr_ + ") and the floor '" +
+			_aPlan_[:floor] + "' cannot run here: " + _aAvF_[2]) ])
+		_StzNoteFacultyCall(pcFaculty, "", _oR_)
+		return _oR_
+	ok
 	_oF_ = StzRunImplementation(pcFaculty, _aPlan_[:floor], pInput, paParams)
 	if _oF_.IsRefusal() = 0
 		_aProv_ = _oF_.Provenance()
@@ -533,6 +677,10 @@ func StzScoreImplementation(pcFaculty, pcImplId, paParams)
 	_n_ = len(_aG_)
 	# per language, when the faculty is measured so: rows [ lang, ok, valid, n ]
 	_aLg_ = []
+	# the verdict of every item, in golden order (1 right, 0 wrong or refused): the court's evidence -- and per language, rows [ lang, verdicts ]
+	_aV_ = []
+	_aLgV_ = []
+	_nUnavail_ = 0
 	for _i_ = 1 to _n_
 		_cLg_ = StzGoldenLanguageOf(pcFaculty, _aG_[_i_][1], [])
 		_k_ = 0
@@ -546,13 +694,35 @@ func StzScoreImplementation(pcFaculty, pcImplId, paParams)
 			ok
 			_aLg_[_k_][4] = _aLg_[_k_][4] + 1
 		ok
+		# MP0: an item this implementation cannot run HERE (no pack, wrong OS) is UNAVAILABLE: it is neither right nor wrong, it is not in
+		# the score's n, and the court skips it (verdict -1)
+		_aAv_ = StzImplementationAvailable(_StzImplRow(pcFaculty, pcImplId), _StzLangOfItem(pcFaculty, _aG_[_i_][1]))
+		if _aAv_[1] = 0
+			add(_aV_, -1)
+			if _cLg_ != ""
+				_aLg_[_k_][4] = _aLg_[_k_][4] - 1
+				_q_ = 0
+				for _j_ = 1 to len(_aLgV_)
+					if _aLgV_[_j_][1] = _cLg_ _q_ = _j_ ok
+				next
+				if _q_ = 0
+					add(_aLgV_, [ _cLg_, [] ])
+					_q_ = len(_aLgV_)
+				ok
+				add(_aLgV_[_q_][2], -1)
+			ok
+			_nUnavail_++
+			loop
+		ok
 		_oP_ = StzRunImplementation(pcFaculty, pcImplId, _aG_[_i_][1], paParams)
+		_nV_ = 0
 		if _oP_.IsRefusal() = 0
 			_nValid_++
 			if _k_ > 0 _aLg_[_k_][3] = _aLg_[_k_][3] + 1 ok
 			_bRight_ = StzGoldenAgrees(_aFac_[:checker], _oP_.Value(), _aG_[_i_][2])
 			if _bRight_ = 1
 				_nOk_++
+				_nV_ = 1
 				if _k_ > 0 _aLg_[_k_][2] = _aLg_[_k_][2] + 1 ok
 			ok
 			# the truth is KNOWN here, so an answer that carried a probability goes in the calibration ledger
@@ -560,13 +730,52 @@ func StzScoreImplementation(pcFaculty, pcImplId, paParams)
 				StzRecordCalibration(pcFaculty, pcImplId, _oP_.Certainty(), _oP_.P(), _bRight_)
 			ok
 		ok
+		add(_aV_, _nV_)
+		if _cLg_ != ""
+			_q_ = 0
+			for _j_ = 1 to len(_aLgV_)
+				if _aLgV_[_j_][1] = _cLg_ _q_ = _j_ ok
+			next
+			if _q_ = 0
+				add(_aLgV_, [ _cLg_, [] ])
+				_q_ = len(_aLgV_)
+			ok
+			add(_aLgV_[_q_][2], _nV_)
+		ok
 	next
-	if _n_ = 0 return [ :score = 0, :n = 0, :conformance = 0, :bylang = [] ] ok
+	# the score is over the items this implementation could run here
+	_nA_ = _n_ - _nUnavail_
+	if _nA_ <= 0 return [ :score = 0, :n = 0, :conformance = 0, :bylang = [], :verdicts = _aV_, :bylangverdicts = _aLgV_, :unavailable = _nUnavail_ ] ok
 	_aBy_ = []
 	for _j_ = 1 to len(_aLg_)
-		add(_aBy_, [ _aLg_[_j_][1], _aLg_[_j_][2] / _aLg_[_j_][4], _aLg_[_j_][4], _aLg_[_j_][3] / _aLg_[_j_][4] ])
+		if _aLg_[_j_][4] > 0
+			add(_aBy_, [ _aLg_[_j_][1], _aLg_[_j_][2] / _aLg_[_j_][4], _aLg_[_j_][4], _aLg_[_j_][3] / _aLg_[_j_][4] ])
+		ok
 	next
-	return [ :score = _nOk_ / _n_, :n = _n_, :conformance = _nValid_ / _n_, :bylang = _aBy_ ]
+	return [ :score = _nOk_ / _nA_, :n = _nA_, :conformance = _nValid_ / _nA_, :bylang = _aBy_, :verdicts = _aV_, :bylangverdicts = _aLgV_, :unavailable = _nUnavail_ ]
+
+func _StzForgetRows(pcFaculty, pcImplId, pcVersion)
+	for _r_ = len($aStzMeasurements) to 1 step -1
+		_a_ = $aStzMeasurements[_r_]
+		if _a_[:faculty] = pcFaculty and _a_[:impl] = pcImplId
+			if _a_[:golden] = pcVersion or left(_a_[:golden], len(pcVersion) + 1) = pcVersion + "/"
+				del($aStzMeasurements, _r_)
+			ok
+		ok
+	next
+
+func _StzImplRow(pcFaculty, pcImplId)
+	_iF_ = _StzFacultyRow(pcFaculty)
+	if _iF_ = 0 return [] ok
+	_aI_ = $aStzFaculties[_iF_][:impls]
+	for _i_ = 1 to len(_aI_)
+		if _aI_[_i_][:id] = pcImplId return _aI_[_i_] ok
+	next
+	return []
+
+# the two-letter language of a golden item ("" when the faculty is not measured per language)
+func _StzLangOfItem(pcFaculty, pInput)
+	return StzGoldenLanguageOf(pcFaculty, pInput, [])
 
 func StzRunGoldens(pcFaculty, paParams)
 	return StzRunGoldensFor(pcFaculty, [], paParams)
@@ -585,13 +794,21 @@ func StzRunGoldensFor(pcFaculty, pacImplIds, paParams)
 	for _i_ = 1 to len(_aFac_[:impls])
 		if _aFac_[:impls][_i_][:kind] != "floor" add(_aOrder_, _aFac_[:impls][_i_]) ok
 	next
+	_aScored_ = []    # [ id, verdicts, bylangverdicts ] of every implementation scored here: the court's evidence
 	for _i_ = 1 to len(_aOrder_)
 		_a_ = _aOrder_[_i_]
 		if StzImplementationIsInstalled(_a_) = 0 loop ok
 		if len(pacImplIds) > 0 and _a_[:kind] != "floor" and len(StzFind(_a_[:id], pacImplIds)) = 0 loop ok
 		if _a_[:kind] = "service" loop ok        # a service is measured only when someone pins and runs it deliberately
 		_aS_ = StzScoreImplementation(pcFaculty, _a_[:id], paParams)
-		StzRecordMeasurement(pcFaculty, _a_[:id], _aFac_[:goldenversion], _aS_[:score], _aS_[:n], _aS_[:conformance], "")
+		add(_aScored_, [ _a_[:id], _aS_[:verdicts], _aS_[:bylangverdicts] ])
+		# a re-measurement REPLACES this implementation's rows on this golden version, its per-language ones included: a language it can
+		# no longer run here must not keep an old row (MP0)
+		_StzForgetRows(pcFaculty, _a_[:id], _aFac_[:goldenversion])
+		if _aS_[:n] = 0 loop ok    # it could run none of the items here: no measurement, rather than a false zero
+		_cNoteM_ = ""
+		if _aS_[:unavailable] > 0 _cNoteM_ = "measured on " + StzPlacementOS() + "; " + _aS_[:unavailable] + " item(s) unavailable here, not counted" ok
+		StzRecordMeasurement(pcFaculty, _a_[:id], _aFac_[:goldenversion], _aS_[:score], _aS_[:n], _aS_[:conformance], _cNoteM_)
 		add(_aRows_, StzMeasurementOf(pcFaculty, _a_[:id], _aFac_[:goldenversion]))
 		# and one row per language, filed under "<version>/<lang>" (the rows returned stay the whole-set ones)
 		_aBy_ = _aS_[:bylang]
@@ -599,7 +816,36 @@ func StzRunGoldensFor(pcFaculty, pacImplIds, paParams)
 			StzRecordMeasurement(pcFaculty, _a_[:id], _aFac_[:goldenversion] + "/" + _aBy_[_j_][1], _aBy_[_j_][2], _aBy_[_j_][3], _aBy_[_j_][4], "")
 		next
 	next
+	# THE COURT'S EVIDENCE, made where the measurement is made: every ordered pair of the implementations scored on the same items
+	_StzRecordCourtFromScores(pcFaculty, _aFac_[:goldenversion], _aScored_)
 	return _aRows_
+
+# The court's evidence from verdict lists made elsewhere: paScored is [ [ id, verdicts, bylangverdicts ] ... ], every verdict list over the SAME
+# items in the same order (1 right, 0 wrong or refused); bylangverdicts is [ [ lang, verdicts ] ... ] or []. A guard that scores implementations
+# by hand calls this, so its measurement carries the evidence the default gate asks for.
+func StzRecordCourtFromVerdicts(pcFaculty, pcGolden, paScored)
+	_StzRecordCourtFromScores(pcFaculty, pcGolden, paScored)
+	return len(paScored) * (len(paScored) - 1)
+
+func _StzRecordCourtFromScores(pcFaculty, pcGolden, paScored)
+	for _a_ = 1 to len(paScored)
+		for _b_ = 1 to len(paScored)
+			if _a_ = _b_ loop ok
+			_aC_ = StzCourtCounts(paScored[_a_][2], paScored[_b_][2])
+			StzRecordCourtVerdict(pcFaculty, pcGolden, paScored[_a_][1], paScored[_b_][1], _aC_[1], _aC_[2], "RunGoldens")
+			# per language, on the items of that language both were scored on
+			_aLa_ = paScored[_a_][3]
+			_aLb_ = paScored[_b_][3]
+			for _i_ = 1 to len(_aLa_)
+				for _j_ = 1 to len(_aLb_)
+					if _aLa_[_i_][1] = _aLb_[_j_][1]
+						_aC_ = StzCourtCounts(_aLa_[_i_][2], _aLb_[_j_][2])
+						StzRecordCourtVerdict(pcFaculty, pcGolden + "/" + _aLa_[_i_][1], paScored[_a_][1], paScored[_b_][1], _aC_[1], _aC_[2], "RunGoldens")
+					ok
+				next
+			next
+		next
+	next
 
 # Holds what the registry decided for a requirement: the implementation chosen, those rejected, and why.
 #

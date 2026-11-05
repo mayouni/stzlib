@@ -10,9 +10,10 @@
 # The rule came from :ocr, where the platform engine wins Arabic, the PP-OCR model wins Russian and French is a
 # tie; this guard needs no engine and no model file: the "implementations" are Ring functions of known quality.
 #
-# The task: say a greeting's language back in capitals. Six golden items, two per language:
-#   floor   right in English and German, wrong in French       (4 of 6)
-#   model   right in English and French, wrong in German       (4 of 6)
+# The task: say a greeting's language back in capitals. Twelve golden items: two English, five French, five German (five, because the court --
+# the default gate -- upholds a model on a language only when its gains there are improbable as chance: 5 to 0 is P = 1/32; 2 to 0 is not):
+#   floor   right in English and German, wrong in French       (7 of 12)
+#   model   right in English and French, wrong in German       (7 of 12)
 # On the whole set they TIE, so the floor answers a call with no language. Per language: English ties (floor),
 # French goes to the model, German stays with the floor.
 #
@@ -27,7 +28,9 @@ StzClearParcelMemo()
 
 aGold = [ [ [ :text = "hello", :lang = "en-GB" ], "HELLO" ], [ [ :text = "good morning", :lang = "en-US" ], "GOOD MORNING" ],
           [ [ :text = "bonjour", :lang = "fr-FR" ], "BONJOUR" ], [ [ :text = "salut", :lang = "fr-FR" ], "SALUT" ],
-          [ [ :text = "hallo", :lang = "de-DE" ], "HALLO" ], [ [ :text = "guten tag", :lang = "de-DE" ], "GUTEN TAG" ] ]
+          [ [ :text = "bonsoir", :lang = "fr-FR" ], "BONSOIR" ], [ [ :text = "coucou", :lang = "fr-BE" ], "COUCOU" ], [ [ :text = "bienvenue", :lang = "fr-CA" ], "BIENVENUE" ],
+          [ [ :text = "hallo", :lang = "de-DE" ], "HALLO" ], [ [ :text = "guten tag", :lang = "de-DE" ], "GUTEN TAG" ],
+          [ [ :text = "servus", :lang = "de-AT" ], "SERVUS" ], [ [ :text = "moin", :lang = "de-DE" ], "MOIN" ], [ [ :text = "gruezi", :lang = "de-CH" ], "GRUEZI" ] ]
 
 Scenario("A faculty is declared as measured per language")
 	oF = StzFacultyQ(:shout)
@@ -48,13 +51,13 @@ Scenario("RunGoldens files the whole-set measurement and one per language")
 	aRows = StzModelRegistryQ().RunGoldens(:shout)
 	oReg = StzModelRegistryQ()
 	Then("the rows returned are the whole-set ones, one per implementation", len(aRows), 2)
-	Then("on the whole set the floor scores 4 of 6", oReg.MeasurementOf(:shout, "rule")[:score] * 6, 4)
-	Then("and so does the model", oReg.MeasurementOf(:shout, "learned")[:score] * 6, 4)
+	Then("on the whole set the floor scores 7 of 12", oReg.MeasurementOf(:shout, "rule")[:score] * 12, 7)
+	Then("and so does the model", oReg.MeasurementOf(:shout, "learned")[:score] * 12, 7)
 	Then("per language, the floor: English 1, French 0, German 1",
 	     @@([ oReg.MeasurementOfIn(:shout, "rule", "en")[:score], oReg.MeasurementOfIn(:shout, "rule", "fr")[:score], oReg.MeasurementOfIn(:shout, "rule", "de")[:score] ]), @@([ 1, 0, 1 ]))
 	Then("the model: English 1, French 1, German 0",
 	     @@([ oReg.MeasurementOfIn(:shout, "learned", "en")[:score], oReg.MeasurementOfIn(:shout, "learned", "fr")[:score], oReg.MeasurementOfIn(:shout, "learned", "de")[:score] ]), @@([ 1, 1, 0 ]))
-	Then("each language row counts its own items", oReg.MeasurementOfIn(:shout, "learned", "fr-FR")[:n], 2)
+	Then("each language row counts its own items", oReg.MeasurementOfIn(:shout, "learned", "fr-FR")[:n], 5)
 	Then("a language measured is filed under <version>/<lang>", StzMeasurementOf(:shout, "learned", "v1/fr")[:score], 1)
 EndScenario()
 

@@ -236,7 +236,8 @@ func StzVisionColor(pColor)
 # [ [ :faces, aItems ], [ :objects, aItems ], [ "image-label", aItems ] ] of [ input, expected ] pairs.
 func StzVisionDeclare(paGoldens)
 	_oF_ = StzFacultyQ(:faces)
-	_oF_.SetInputTypeQ(:image).SetOutputTypeQ(:record).SetFloorQ("platform", "_StzVisionFacesPlatform").
+	# MP0: the floor is Windows' face detector (Windows.Media.FaceAnalysis): it exists on Windows only
+	_oF_.SetInputTypeQ(:image).SetOutputTypeQ(:record).SetFloorQ("platform", "_StzVisionFacesPlatform").SetAvailabilityQ("platform", [ "windows" ], "").
 	     SetGoldenCheckerQ("faces-anchors").SetGoldenVersionQ("coco-v1")
 	if len(StzFind("yunet", _oF_.ImplementationIds())) = 0
 		_oF_.AddImplementation([ :id = "yunet", :kind = "graph", :fn = "_StzVisionFacesYunet",

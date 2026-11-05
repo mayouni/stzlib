@@ -205,6 +205,7 @@ ok
     load "faculty/stzModelRegistry.ring"
     load "faculty/stzCalibration.ring"
     load "faculty/stzFlow.ring"
+    load "faculty/stzModelsReport.ring"    # MP1/MP2: the real picture of the models -- what can run here, what answers, where (SOFTANZA_MODEL_PLACEMENT.md)
 
     # Reflection: self-describing objects -- harvest a class's methods + docs from
     # source, then Ask()/ExplainMethod() via the neural tier (near-natural

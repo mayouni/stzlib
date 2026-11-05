@@ -17,6 +17,7 @@
 # NEEDS models/vision/smolvlm_500m*.gguf and the 256M model, the COCO pictures. HELPERS LIVE AFTER pf().
 
 load "../../stzBase.ring"
+load "_court_rule.ring"
 load "_golden/coco_describe_v1.ring"
 
 $nPass = 0
@@ -70,8 +71,29 @@ chk("...which does NOT meet the bar written beforehand (" + $nBar + " of " + nD 
 chk("...and its description is not empty or cut to nothing: every one of the " + nD + " has words", AllWords(aSaid))
 sec("scene 2")
 
-? "-- Scene 3: the registry --"
+? "-- Scene 3: the registry and the court --"
 StzVisionDeclare("")
+# THE COURT'S EVIDENCE: the 500M model's verdicts beside the fixed sentence's and the 256M model's on the same 99 pictures, those two read from
+# the run of image_describe_narrated.ring that made them (results/describe_verdicts_v1.txt)
+aV5 = []
+for i = 1 to nD  aV5 + aSaid[i][2]  next
+aPrev = []
+if fexists("results/describe_verdicts_v1.txt")
+	aPL = str2list(read("results/describe_verdicts_v1.txt"))
+	for i = 1 to len(aPL)
+		if len(aPL[i]) = 0  loop ok
+		aKV = split(aPL[i], "|")
+		aBits = []
+		for k = 1 to len(aKV[2])  aBits + (0 + aKV[2][k])  next
+		aPrev + [ aKV[1], aBits, [] ]
+	next
+ok
+chk("the 256M model's and the fixed sentence's verdicts on the same 99 pictures are on record (run image_describe_narrated.ring first)", len(aPrev) = 2 and len(aPrev[1][2]) = nD and len(aPrev[2][2]) = nD)
+StzRecordCourtFromVerdicts("describe", "coco-describe-v1", [ aPrev[1], aPrev[2], [ "smolvlm-500m", aV5, [] ] ])
+StzSaveCourt("results/court_im9e.txt")
+aCt = StzCourtVerdictOf("describe", "coco-describe-v1", "smolvlm-500m", "smolvlm-256m")
+? "    the court: the 500M model over the 256M model " + aCt[:gains] + " gains, " + aCt[:losses] + " losses, P = " + aCt[:p] + " -> " + aCt[:verdict]
+chk("THE COURT refuses the 500M model against the incumbent 256M model too", aCt[:verdict] = "refused" and StzCourtIncumbent("describe", "coco-describe-v1") = "smolvlm-256m")
 oF = StzFacultyQ(:describe)
 chk(":describe has both implementations, the 256M and the 500M", len(StzFind("smolvlm-256m", oF.ImplementationIds())) > 0 and len(StzFind("smolvlm-500m", oF.ImplementationIds())) > 0)
 n256 = StzMeasurementOf("describe", "smolvlm-256m", "coco-describe-v1")[:score]

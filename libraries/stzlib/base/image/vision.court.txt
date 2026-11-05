@@ -1,32 +1,80 @@
-# zcourt 1 -- the court's evidence per faculty and golden set (SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8)
-# faculty|golden|challenger|other|gains|losses   -- gains: items the challenger gets right and the other wrong; losses: the reverse
-# the verdict is derived when the file is loaded: upheld when gains > losses and P(X >= gains | gains + losses, 1/2) <= 0.05
+# zcourt 1 -- the court's evidence per faculty and golden set (SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8; the default gate)
+# faculty|golden|challenger|other|gains|losses   -- recomputed into a verdict on load: upheld when gains > losses and
+# P(X >= gains | gains + losses, 1/2) <= 0.05. Every count was checked by _rig/court_merge.py: (gains - losses) / n = score(a) - score(b)
 # incumbent|faculty|golden|impl   -- who holds the faculty when the court sits; the burden is on every other implementation
-# find-v1: read from owl_find_v1_judged.tsv and owl_wsp_judged.tsv (320 pairs) on 2026-11-05
 incumbent|find|find-v1|owlvit
-find|find-v1|yolox-by-name|owlvit|11|76
-find|find-v1|yolox-by-name|owlvit+warm-rule|11|76
-find|find-v1|yolox-by-name|owlvit+shift-patch|7|73
-find|find-v1|owlvit|yolox-by-name|76|11
-find|find-v1|owlvit|owlvit+warm-rule|1|1
+incumbent|find|find-v2|owlvit
+incumbent|faces|coco-v1|yunet
+incumbent|objects|coco-v1|yolox-tiny
+incumbent|image-label|coco-v1|siglip2
+incumbent|foreground|coco-v1|u2netp
+incumbent|object-at|coco-v1|mobilesam
+incumbent|depth|diode-v1|depth-anything-v2-small
+incumbent|describe|coco-describe-v1|smolvlm-256m
+incumbent|doc-vlm|doc-vlm-v2|granite-docling-258m
+incumbent|codes|codes-judge-v2|quirc-native1d
+incumbent|near-duplicate|pairs-judge-v1|siglip2-cosine
+codes|codes-judge-v2|nothing|quirc-native1d|0|362
+codes|codes-judge-v2|quirc-native1d|nothing|362|0
+depth|diode-v1|depth-anything-v2-small|lower-is-nearer|24|0
+depth|diode-v1|lower-is-nearer|depth-anything-v2-small|0|24
+describe|coco-describe-v1|fixed|smolvlm-256m|4|47
+describe|coco-describe-v1|fixed|smolvlm-500m|2|44
+describe|coco-describe-v1|smolvlm-256m|fixed|47|4
+describe|coco-describe-v1|smolvlm-256m|smolvlm-500m|10|9
+describe|coco-describe-v1|smolvlm-500m|fixed|44|2
+describe|coco-describe-v1|smolvlm-500m|smolvlm-256m|9|10
+doc-vlm|doc-vlm-v2|granite-docling-258m|native-plus-granite|4|2
+doc-vlm|doc-vlm-v2|granite-docling-258m|native-reader|8|2
+doc-vlm|doc-vlm-v2|native-plus-granite|granite-docling-258m|2|4
+doc-vlm|doc-vlm-v2|native-plus-granite|native-reader|4|0
+doc-vlm|doc-vlm-v2|native-reader|granite-docling-258m|2|8
+doc-vlm|doc-vlm-v2|native-reader|native-plus-granite|0|4
+faces|coco-v1|platform|yunet|1|3
+faces|coco-v1|yunet|platform|3|1
 find|find-v1|owlvit|owlvit+shift-patch|9|10
-find|find-v1|owlvit+warm-rule|yolox-by-name|76|11
-find|find-v1|owlvit+warm-rule|owlvit|1|1
-find|find-v1|owlvit+warm-rule|owlvit+shift-patch|8|9
-find|find-v1|owlvit+shift-patch|yolox-by-name|73|7
+find|find-v1|owlvit|owlvit+warm-rule|1|1
+find|find-v1|owlvit|yolox-by-name|76|11
 find|find-v1|owlvit+shift-patch|owlvit|10|9
 find|find-v1|owlvit+shift-patch|owlvit+warm-rule|9|8
-# find-v2: the fresh judging run (image_wsp_judge_v2.ring, 952 pairs on 292 pictures no implementation had seen), 05/11/2026 11:58:20
-incumbent|find|find-v2|owlvit
-find|find-v2|yolox-by-name|owlvit|38|226
-find|find-v2|yolox-by-name|owlvit+warm-rule|36|233
-find|find-v2|yolox-by-name|owlvit+shift-patch|36|231
-find|find-v2|owlvit|yolox-by-name|226|38
-find|find-v2|owlvit|owlvit+warm-rule|1|10
+find|find-v1|owlvit+shift-patch|yolox-by-name|73|7
+find|find-v1|owlvit+warm-rule|owlvit|1|1
+find|find-v1|owlvit+warm-rule|owlvit+shift-patch|8|9
+find|find-v1|owlvit+warm-rule|yolox-by-name|76|11
+find|find-v1|yolox-by-name|owlvit|11|76
+find|find-v1|yolox-by-name|owlvit+shift-patch|7|73
+find|find-v1|yolox-by-name|owlvit+warm-rule|11|76
 find|find-v2|owlvit|owlvit+shift-patch|37|44
-find|find-v2|owlvit+warm-rule|yolox-by-name|233|36
-find|find-v2|owlvit+warm-rule|owlvit|10|1
-find|find-v2|owlvit+warm-rule|owlvit+shift-patch|38|36
-find|find-v2|owlvit+shift-patch|yolox-by-name|231|36
+find|find-v2|owlvit|owlvit+warm-rule|1|10
+find|find-v2|owlvit|yolox-by-name|226|38
 find|find-v2|owlvit+shift-patch|owlvit|44|37
 find|find-v2|owlvit+shift-patch|owlvit+warm-rule|36|38
+find|find-v2|owlvit+shift-patch|yolox-by-name|231|36
+find|find-v2|owlvit+warm-rule|owlvit|10|1
+find|find-v2|owlvit+warm-rule|owlvit+shift-patch|38|36
+find|find-v2|owlvit+warm-rule|yolox-by-name|233|36
+find|find-v2|yolox-by-name|owlvit|38|226
+find|find-v2|yolox-by-name|owlvit+shift-patch|36|231
+find|find-v2|yolox-by-name|owlvit+warm-rule|36|233
+foreground|coco-v1|classical|u2netp|1|19
+foreground|coco-v1|u2netp|classical|19|1
+image-label|coco-v1|mobilenetv3|prior|25|0
+image-label|coco-v1|mobilenetv3|siglip2|0|8
+image-label|coco-v1|prior|mobilenetv3|0|25
+image-label|coco-v1|prior|siglip2|0|33
+image-label|coco-v1|siglip2|mobilenetv3|8|0
+image-label|coco-v1|siglip2|prior|33|0
+near-duplicate|pairs-judge-v1|identical-pixels|phash|0|389
+near-duplicate|pairs-judge-v1|identical-pixels|siglip2-cosine|0|390
+near-duplicate|pairs-judge-v1|phash|identical-pixels|389|0
+near-duplicate|pairs-judge-v1|phash|siglip2-cosine|0|1
+near-duplicate|pairs-judge-v1|siglip2-cosine|identical-pixels|390|0
+near-duplicate|pairs-judge-v1|siglip2-cosine|phash|1|0
+object-at|coco-v1|classical|mobilesam|2|17
+object-at|coco-v1|mobilesam|classical|17|2
+objects|coco-v1|nothing|yolox-nano|0|34
+objects|coco-v1|nothing|yolox-tiny|0|35
+objects|coco-v1|yolox-nano|nothing|34|0
+objects|coco-v1|yolox-nano|yolox-tiny|2|3
+objects|coco-v1|yolox-tiny|nothing|35|0
+objects|coco-v1|yolox-tiny|yolox-nano|3|2

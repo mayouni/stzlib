@@ -20,6 +20,7 @@
 # says which and stops. THE HELPERS LIVE AFTER pf().
 
 load "../../stzBase.ring"
+load "_court_rule.ring"
 load "_golden/coco_describe_v1.ring"
 
 $nPass = 0
@@ -164,6 +165,7 @@ nCalls2 = StzVisionCallsRecorded()
 # the model's words, once per picture: they are scored here AND shown on the page, so they are filed with the
 # checker the faculty names (StzGoldenAgrees) instead of being made a second time by StzRunGoldens
 aCo = []
+aVM = []    # the model's verdict on every picture, in golden order: the court's evidence
 nOk = 0
 nInvent = 0
 nMs = 0
@@ -172,6 +174,7 @@ for i = 1 to nD
 	nMs += StzEngineNeuralVlmStats()[1] + StzEngineNeuralVlmStats()[2]
 	b = StzGoldenAgrees("names-main-object", c, aGV[i][2])
 	if b nOk++ ok
+	aVM + b
 	aInv = Invented(aW, c, aD[i][3])
 	if len(aInv) > 0 nInvent++ ok
 	aCo + [ aD[i][1], aD[i][2], c, b, aInv ]
@@ -179,6 +182,14 @@ next
 StzRecordMeasurement("describe", "smolvlm-256m", "coco-describe-v1", nOk / nD, nD, 1,
 	"scored by the guard with names-main-object, one description per picture")
 StzRunGoldensFor("describe", [ "none" ], [])
+# THE COURT'S EVIDENCE (the default gate): the fixed sentence's verdict on the same pictures, beside the model's, item by item
+aVF = []
+for i = 1 to nD
+	aVF + StzGoldenAgrees("names-main-object", $cStzVisionDescribeFloor, aGV[i][2])
+next
+StzRecordCourtFromVerdicts("describe", "coco-describe-v1", [ [ "fixed", aVF, [] ], [ "smolvlm-256m", aVM, [] ] ])
+aCt = StzCourtVerdictOf("describe", "coco-describe-v1", "smolvlm-256m", "fixed")
+? "    the court: smolvlm-256m over the fixed sentence " + aCt[:gains] + " gains, " + aCt[:losses] + " losses, P = " + aCt[:p] + " -> " + aCt[:verdict]
 nVF = ScoreOf("describe", "fixed", "coco-describe-v1")
 nVS = ScoreOf("describe", "smolvlm-256m", "coco-describe-v1")
 ? "    fixed sentence " + nVF + "   smolvlm-256m " + nVS + "   (share of pictures whose main object is named)"
@@ -186,13 +197,20 @@ nVS = ScoreOf("describe", "smolvlm-256m", "coco-describe-v1")
 	"; " + floor(nMs / nD) + " ms a picture"
 chk("SmolVLM was measured on the same 99 pictures (" + nVS + ")", nVS >= 0)
 cChosenV = StzModelRegistryQ().ResolveQ("describe").Chosen()
-chk("the registry chose '" + cChosenV + "' -- the rule (strictly beat the floor) says '" + ByTheRule("describe",
+chk("the registry chose '" + cChosenV + "' -- the rule (the court) says '" + ByTheRule("describe",
 	"coco-describe-v1") + "'", cChosenV = ByTheRule("describe", "coco-describe-v1"))
 cRes = StzReplace(WorkingDirectory(), "\", "/") + "/results"
 if NOT StzDirExists(cRes)
 	StzDirCreatePath(cRes)
 ok
 StzSaveMeasurements(cRes + "/vision_im7a.zmdl.txt")
+StzSaveCourt(cRes + "/court_im7a.txt")
+# the verdict lists, for the guards that judge another model on the same 99 pictures (image_describe500_narrated.ring)
+cV = "fixed|"
+for i = 1 to nD  cV += "" + aVF[i]  next
+cV += char(10) + "smolvlm-256m|"
+for i = 1 to nD  cV += "" + aVM[i]  next
+write(cRes + "/describe_verdicts_v1.txt", cV + char(10))
 sec("scene 3")
 
 #=====================================================================#
@@ -267,25 +285,8 @@ func ScoreOf(cF, cImpl, cVer)
 	return a[:score]
 
 func ByTheRule(cF, cVer)
-	oF = StzFacultyQ(cF)
-	cFloor = ""
-	cBest = ""
-	nBest = -1
-	a = oF.Implementations()
-	n = len(a)
-	for i = 1 to n
-		if a[i][:kind] = "floor"
-			cFloor = a[i][:id]
-		else
-			s = ScoreOf(cF, a[i][:id], cVer)
-			if s > nBest
-				nBest = s
-				cBest = a[i][:id]
-			ok
-		ok
-	next
-	if nBest > ScoreOf(cF, cFloor, cVer) return cBest ok
-	return cFloor
+	# the court's rule (the default gate since 2026-11-05), restated independently in _court_rule.ring
+	return CourtRuleChoice(cF, cVer)
 
 func chk(cWhat, bCond)
 	if bCond = 1

@@ -109,13 +109,19 @@ if StzOcrPlatformHas("fr-FR") and StzOcrPlatformHas("ar-SA")
 		aAr = oReg.MeasurementOfIn(:ocr, "platform", "ar")
 		aRu = oReg.MeasurementOfIn(:ocr, "platform", "ru")
 		? "   platform floor on ocr goldens v2: " + aM[:score] + " over " + aM[:n] + " items -- fr " + aFr[:score] +
-		  ", ar " + aAr[:score] + ", ru " + aRu[:score]
-		Then("the floor is measured on the whole set", aM[:n], 26)
-		Then("and per language: 9 French, 8 Arabic, 9 Russian items", @@([ aFr[:n], aAr[:n], aRu[:n] ]), @@([ 9, 8, 9 ]))
+		  ", ar " + aAr[:score] + ", ru " + @@(aRu)
+		# MP0 (SOFTANZA_MODEL_PLACEMENT.md): the floor is measured on the items IT CAN RUN HERE -- a language with no pack on this
+		# machine is unavailable, not wrong, so it is neither in the floor's n nor in a per-language row
+		nCan = 0
+		if StzOcrPlatformHas("fr-FR") nCan += 9 ok
+		if StzOcrPlatformHas("ar-SA") nCan += 8 ok
+		if StzOcrPlatformHas("ru-RU") nCan += 9 ok
+		Then("the floor is measured on the items this machine's packs can read (" + nCan + " of 26)", aM[:n], nCan)
+		Then("and per language: 9 French, 8 Arabic", @@([ aFr[:n], aAr[:n] ]), @@([ 9, 8 ]))
 		Then("French at the ceiling", aFr[:score], 1)
 		Then("Arabic above half", aAr[:score] >= 0.5, 1)
 		if NOT StzOcrPlatformHas("ru-RU")
-			Then("Russian refused: no ru-RU pack here, so no Russian answer conforms", aRu[:conformance], 0)
+			Then("Russian: no ru-RU pack here, so the floor has NO Russian row -- not measured, never a zero", len(aRu), 0)
 		ok
 		StzSaveMeasurements("results/ocr.zmdl.txt")
 		Then("the measurement is filed", fexists("results/ocr.zmdl.txt"), 1)
@@ -194,7 +200,7 @@ ok
 Scenario("A language the platform has no pack for is a refusal that names it")
 	oP = StzFacultyQ(:ocr).RunQ([ :pages = [ $cDir + "z09_p1_150dpi.png" ], :lang = "xx-XX" ], [ :lang = "xx-XX" ])
 	Then("the answer is a refusal", oP.IsRefusal(), 1)
-	Then("and it names the language", StzFindFirst("xx-XX", oP.Why()) > 0, 1)
+	Then("and it names the language (its two-letter code, as the registry files languages)", StzFindFirst("'xx'", oP.Why()) > 0, 1)
 EndScenario()
 
 Summary()
