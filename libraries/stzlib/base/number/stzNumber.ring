@@ -2078,6 +2078,99 @@ func _StzNumberContentWithoutLoss(pnNumber)
 	ok
 	return _cBest_
 
+# A Ring number written in SCIENTIFIC NOTATION, in the fewest digits that read back as the same number:
+#   1500 -> "1.5e+03"    0.00123 -> "1.23e-03"    -2.5 -> "-2.5e+00"    0 -> "0e+00"
+#
+# The house format is the one StzEngineNumberToScientific writes: ONE digit before the point, the other
+# significant digits after it (no trailing zero, and no point when there is none), a lower case e, the sign of
+# the exponent ALWAYS written, and at least two exponent digits.
+#
+# The digits come from the engine's plain shortest decimal (the same call _StzNumberContentWithoutLoss makes), and
+# the engine's own writer is deliberately not used: it divides by a power of ten and so loses the last digits
+# (123456789.12345679 comes out as 1.234567891234567e+08, which is another number). The plain decimal is cut to
+# 1, 2, 3 ... significant digits, rounded half up with the engine's big integer, and the first cut that Ring's own
+# text-to-number conversion turns back into the very same double is kept. At most 17 cuts are tried, and 17
+# significant digits always suffice, so the loop ends on a text that reads back; most numbers end in two or three.
+func _StzNumberScientificText(pnValue)
+	if pnValue = 0
+		return "0e+00"
+	ok
+	_cSign_ = ""
+	_nAbs_ = pnValue
+	if _nAbs_ < 0
+		_cSign_ = "-"
+		_nAbs_ = -_nAbs_
+	ok
+	_cPlain_ = StzEngineNumberPlainShortest(_nAbs_)
+	if _cPlain_ = ""
+		StzRaise("This value is not a finite number (an infinity or a NaN). " +
+		         "It usually means an earlier calculation overflowed or divided " +
+		         "zero by zero -- the place to fix it is there, not here.")
+	ok
+	_nDot_ = StzFindFirst(".", _cPlain_)
+	_cInt_ = _cPlain_
+	_cFrac_ = ""
+	if _nDot_ > 0
+		_cInt_ = StzMid(_cPlain_, 1, _nDot_ - 1)
+		_cFrac_ = StzMidToEnd(_cPlain_, _nDot_ + 1)
+	ok
+	if _cInt_ = "0"
+		# below one: the engine's big integer drops the zeros that follow the point
+		_pFrac_ = StzEngineBigIntFromString(_cFrac_)
+		_cDigits_ = StzEngineBigIntToString(_pFrac_)
+		StzEngineBigIntFree(_pFrac_)
+		_nExp_ = len(_cDigits_) - len(_cFrac_) - 1
+	else
+		_cDigits_ = _cInt_ + _cFrac_
+		_nExp_ = len(_cInt_) - 1
+	ok
+	_nLen_ = len(_cDigits_)
+	_nMost_ = _nLen_
+	if _nMost_ > 17
+		_nMost_ = 17
+	ok
+	_cText_ = ""
+	for _k_ = 1 to _nMost_
+		_cMant_ = StzMid(_cDigits_, 1, _k_)
+		_nE_ = _nExp_
+		if _k_ < _nLen_
+			if _cDigits_[_k_ + 1] >= "5"
+				_pM_ = StzEngineBigIntFromString(_cMant_)
+				_pOne_ = StzEngineBigIntFromString("1")
+				_pSum_ = StzEngineBigIntAdd(_pM_, _pOne_)
+				_cMant_ = StzEngineBigIntToString(_pSum_)
+				StzEngineBigIntFree(_pM_)
+				StzEngineBigIntFree(_pOne_)
+				StzEngineBigIntFree(_pSum_)
+				if len(_cMant_) > _k_
+					# 99.5 rounded to two digits is 100, which is 1.0 and one more power of ten
+					_cMant_ = StzMid(_cMant_, 1, _k_)
+					_nE_ = _nE_ + 1
+				ok
+			ok
+		ok
+		_cShown_ = _cMant_[1]
+		if _k_ > 1
+			_cShown_ += "." + StzMidToEnd(_cMant_, 2)
+		ok
+		_cShown_ = _StzStripTrailingFractionZeros(_cShown_)
+		_cExpSign_ = "+"
+		_nExpAbs_ = _nE_
+		if _nE_ < 0
+			_cExpSign_ = "-"
+			_nExpAbs_ = -_nE_
+		ok
+		_cExpDigits_ = "" + _nExpAbs_
+		if _nExpAbs_ < 10
+			_cExpDigits_ = "0" + _cExpDigits_
+		ok
+		_cText_ = _cShown_ + "e" + _cExpSign_ + _cExpDigits_
+		if ring_number(_cText_) = _nAbs_
+			exit
+		ok
+	next
+	return _cSign_ + _cText_
+
 # THE DIGIT GROUPS OF A NUMBER, in threes FROM THE RIGHT, units group FIRST:
 #   "1234567" -> [ "567", "234", "1" ]
 #   "12590"   -> [ "590", "12" ]
@@ -7381,6 +7474,32 @@ class stzNumber from stzObject
 			StzRaise(stzNumberError(:CanNotConvertNumberToSpecifiedBase))
 		ok
 
+	# Returns the number as one digit, a point, the other digits and a power of ten, such as 1.5e+03 for 1500.
+	#
+	# The digits are the fewest that read back as the same number, so the text goes back to the value it came
+	# from. The exponent always carries its sign and has at least two digits, and zero is written 0e+00.
+	#
+	#   returns    a text: the mantissa, the letter e, the sign of the exponent and the exponent
+	#   note       ToScientificNotation, ToScientificForm and ToScientific are the same call; 255 gives
+	#              2.55e+02, 0.00123 gives 1.23e-03, -2.5 gives -2.5e+00, 100 gives 1e+02; the value is the
+	#              Ring double the number holds, so a number of more than 17 digits is written with its
+	#              17 first; the number is unchanged
+	#   warning    the text is not accepted back by new stzNumber(); read it with the Ring number() function
+	#   see        ToHexForm, IntegerPartToBaseNForm
+	#   example    ? new stzNumber(1500).ToScientificNotationForm()
+	#              #--> 1.5e+03
+	def ToScientificNotationForm()
+		return _StzNumberScientificText(This.NumericValue())
+
+		def ToScientificNotation()
+			return This.ToScientificNotationForm()
+
+		def ToScientificForm()
+			return This.ToScientificNotationForm()
+
+		def ToScientific()
+			return This.ToScientificNotationForm()
+
 	# Returns the eight bytes of the number as a double, as a binary string.
 	#
 	#   returns    a string of 8 bytes
@@ -8929,19 +9048,26 @@ class stzNumber from stzObject
 			return This.BForm()
 
 
-	# Raises an unsupported-feature error today instead of setting the default number format.
+	# Raises the error Unsupported feature in this version! on every call; pass the options to FormatXT each time.
 	#
-	#   returns    nothing today
-	#   warning    the call raises an unsupported-feature error today
+	#   returns    nothing; the call always raises
+	#   note       to format with chosen separators pass the options to FormatXT, which takes the keys
+	#              :ThousandsSeparator, :FractionalSeparator, :ShowSign and the others read by ApplyFormatXT
+	#   warning    FormatXT keeps only the whole part of a number when the fraction is not restricted
+	#              (1234567.891 gives 1.234.567), so it is no stand-in for a full default format
+	#   see        FormatXT, ApplyFormat
 	#@ aka  Default-format setting (unsupported in this version: raises).
 	def SetDefaultFormat() // TODO
 		StzRaise("Unsupported feature in this version!")
 
-	# Raises an unsupported-feature error today instead of applying a locale to the number.
+	# Raises the error Unsupported feature in this version! on every call; read a language's separators from stzLocale.
 	#
-	#   pcLocale   the locale
-	#   returns    nothing today
-	#   warning    the call raises an unsupported-feature error today
+	#   pcLocale   the locale name that would be applied, such as fr-FR
+	#   returns    nothing; the call always raises
+	#   note       the separators of a locale are read from stzLocale: new stzLocale("fr-FR").DecimalPoint()
+	#              is a comma and GroupSeparator() a space; StzFormatNumber(n, nDecimals) groups with commas
+	#              and writes a point whatever the locale, and FormatXT takes the separators as options
+	#   see        FormatXT, StzFormatNumber
 	#@ aka  Locale application (unsupported in this version: raises).
 	def ApplyLocale(pcLocale) // TODO
 		StzRaise("Unsupported feature in this version!")

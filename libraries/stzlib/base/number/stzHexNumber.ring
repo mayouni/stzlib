@@ -113,10 +113,10 @@ func SetHexPrefix(pcPrefix)
 # prefix and WithPrefix adds 0x back. The conversions go through a floating-point number, so they
 # are exact up to 9007199254740992 and rounded above. The From... methods replace the number in
 # place from a decimal, octal or binary value. Checked by hand: 0xFF is 255, 0b11111111 and 0o377;
-# 0x1A3 is 419, 0b110100011 and 0o643; 0xDEADBEEF is 3735928559. Found today: FractionalPart and
-# ToScientificForm raise R14; IntegerPartWithoutPrefix keeps a stray 0 (0xFF gives 0FF);
-# ToUnicodeHexForm keeps the 0x inside the U+ (U+0x41); and FromDecimalForm stores -1 and FF. for a
-# negative and a fraction.
+# 0x1A3 is 419, 0b110100011 and 0o643; 0xDEADBEEF is 3735928559. A hex number is a whole number, so
+# FractionalPart answers an empty text, and ToScientificForm writes 0xFF as 2.55e+02. Known limits:
+# IntegerPartWithoutPrefix keeps a stray 0 (0xFF gives 0FF); ToUnicodeHexForm keeps the 0x inside the U+
+# (U+0x41); and FromDecimalForm stores -1 and FF. for a negative and a fraction.
 #
 #   receiver   o1 = new stzHexNumber("0xFF")
 #   example    ? o1.ToDecimalForm()
@@ -253,23 +253,27 @@ class stzHexNumber from stzObject
 		def IntPartWithoutPrefix()
 			return This.IntegerPartWithoutPrefix()
 
-	# Raises error R14 today instead of returning the digits after the point.
+	# Returns the hex digits after a point, which is an empty text, as a hex number is a whole number.
 	#
-	#   returns    nothing; the call raises R14
-	#   note       confirmed with 0xFF and 0x41
-	#   warning    it calls HexNumberWithoutPrefix, a method that does not exist, so FractionalPart
-	#              and FractPart raise for every input; init also refuses a text with a point, so
-	#              there is never a fraction to return
-	#   see        IntegerPart
+	#   returns    a text; empty for every number that init accepts
+	#   note       FractPart is the same call; 0xFF, 0x41, 0x0 and U+0041 all give an empty text, as
+	#              stzBinaryNumber does for a number written without a point; init refuses a text with a
+	#              point such as 0x1F.8, so there is no fraction to return
+	#   see        IntegerPart, stzBinaryNumber
+	#   example    ? "[" + o1.FractionalPart() + "]"
+	#              #--> []
 	def FractionalPart()
-		_oStzStr_ = new stzString(This.HexNumberWithoutPrefix())
+		_cHex_ = This.Content()
+		_nDot_ = StzFindFirst(".", _cHex_)
 
-		if _oStzStr_.Contains(".")
-			return _oStzStr_.SplittedUsing(".")[2]
+		if _nDot_ = 0
+			return ""
 		ok
 
+		return StzMidToEnd(_cHex_, _nDot_ + 1)
+
 		def FractPart()
-			return This. FractionalPart()
+			return This.FractionalPart()
 	  #------------------#
 	 #    CONVERSION    #
 	#------------------#
@@ -377,16 +381,17 @@ class stzHexNumber from stzObject
 		def IntegerPartToBaseN(n)
 			return This.IntegerPartToBaseNForm(n)
 
-	# Raises error R14 today instead of returning the value in scientific notation.
+	# Returns the value as one digit, a point, the other digits and a power of ten, such as 2.55e+02 for 0xFF.
 	#
-	#   returns    nothing; the call raises R14
-	#   note       ToScientific is the same call
-	#   warning    it forwards to stzNumber.ToScientificForm, a method that does not exist, and
-	#              passes an undefined variable; stzNumber itself raises the same R14; confirmed
-	#              with 0xFF and 0x41
-	#   see        ToDecimalForm
+	#   returns    a text: the mantissa, the letter e, the sign of the exponent and at least two exponent digits
+	#   note       ToScientific is the same call; 0xFF gives 2.55e+02, 0x41 gives 6.5e+01, 0x0 gives 0e+00
+	#              and 0xDEADBEEF gives 3.735928559e+09; the digits are the fewest that read back as the
+	#              same number
+	#   see        ToDecimalForm, ToStzNumber
+	#   example    ? o1.ToScientificForm()
+	#              #--> 2.55e+02
 	def ToScientificForm()
-		return This.ToStzNumber().ToScientificForm(n)
+		return This.ToStzNumber().ToScientificNotationForm()
 
 		def ToScientific()
 			return This.ToScientificForm()

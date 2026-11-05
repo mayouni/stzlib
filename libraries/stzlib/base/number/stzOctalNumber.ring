@@ -47,10 +47,10 @@ func StzOctalNumberQ(cNumber)
 # Built from a text of the digits 0 to 7, with or without the 0o prefix, which is kept as given; the
 # From... methods replace the number in place from a decimal, binary or hexadecimal value and store
 # it with the 0o prefix. It inherits from stzString. Checked by hand: 0o377 is 255 (0b11111111,
-# 0xFF); 0o755 is 493 (0b111101101, 0x1ED); 0o400000000000000000 is 9007199254740992. Found today:
-# WithPrefix doubles a prefix that is already stored (0o0o377); ToDecimalForm gives 0 from 2 to the
-# power 63 up; ToBaseNForm and ToScientificNotationForm raise R14; and a capital 0O17 is accepted
-# and then converts to 0.
+# 0xFF); 0o755 is 493 (0b111101101, 0x1ED); 0o400000000000000000 is 9007199254740992. ToBaseNForm
+# writes the number in any base from 2 to 36 (0o377 is ff in base 16), and ToScientificNotationForm
+# writes it as 2.55e+02. Known limits: WithPrefix doubles a prefix that is already stored (0o0o377);
+# ToDecimalForm gives 0 from 2 to the power 63 up; and a capital 0O17 is accepted and then converts to 0.
 #
 #   receiver   o1 = new stzOctalNumber("0o377")
 #   example    ? o1.ToDecimalForm()
@@ -215,30 +215,45 @@ class stzOctalNumber from stzString
 		def ToHexmWithoutPrefix()
 			return This.ToHexFormWithoutPrefix()
 
-	# Raises error R14 today instead of writing the value in another base.
+	# Returns the number written in any base from 2 to 36, in lower case letters and without a prefix.
 	#
-	#   n          the base meant, from 2 to 32
-	#   returns    nothing; the call raises R14
-	#   note       toBaseN is the same call; use stzNumber.IntegerPartToBaseNForm on ToStzNumber()
-	#              meanwhile
-	#   warning    it forwards to ToBaseNForm on stzNumber, a method that does not exist there
-	#              (stzNumber has IntegerPartToBaseNForm), so every base raises R14; confirmed with
-	#              0o377 and 17
+	#   n          the base, a whole number from 2 to 36
+	#   returns    a text of digits in the base, the letters a to z standing for the digits 10 to 35
+	#   note       toBaseN is the same call; 0o377 (255) gives 11111111 in base 2, ff in base 16 and 73 in
+	#              base 36; 17 (15) gives f in base 16; 0o0 gives 0; the digits are those of
+	#              stzHexNumber.IntegerPartToBaseNForm
+	#   warning    a base that is not a whole number from 2 to 36 raises Can't convert this number in the
+	#              specified base: 0, 1, 37, 2.5, a text such as 16 and a list all do
 	#   see        ToBinaryForm, ToHexForm
+	#   example    ? o1.ToBaseNForm(16)
+	#              #--> ff
 	def ToBaseNForm(n)
-		# n must be netween 2 to 32
-		return This.ToStzNumber().ToBaseNForm(n)
+		_bBaseOk_ = 0
+		if isNumber(n)
+			if n = floor(n)
+				if n >= 2 and n <= 36
+					_bBaseOk_ = 1
+				ok
+			ok
+		ok
+
+		if NOT _bBaseOk_
+			StzRaise(stzNumberError(:CanNotConvertNumberToSpecifiedBase))
+		ok
+
+		return This.ToStzNumber().IntegerPartToBaseNForm(n)
 
 		def toBaseN(n)
 			return This.ToBaseNForm(n)
 
-	# Raises error R14 today instead of writing the value in scientific notation.
+	# Returns the value as one digit, a point, the other digits and a power of ten, such as 2.55e+02 for 0o377.
 	#
-	#   returns    nothing; the call raises R14
-	#   note       ToScientificNotation is the same call
-	#   warning    it forwards to ToScientificNotationForm on stzNumber, a method that does not
-	#              exist there; stzNumber raises the same R14 on its own
-	#   see        ToDecimalForm
+	#   returns    a text: the mantissa, the letter e, the sign of the exponent and at least two exponent digits
+	#   note       ToScientificNotation is the same call; 0o377 gives 2.55e+02, 17 gives 1.5e+01 and 0o0
+	#              gives 0e+00; the digits are the fewest that read back as the same number
+	#   see        ToDecimalForm, ToBaseNForm
+	#   example    ? o1.ToScientificNotationForm()
+	#              #--> 2.55e+02
 	def ToScientificNotationForm()
 		return This.ToStzNumber().ToScientificNotationForm()
 

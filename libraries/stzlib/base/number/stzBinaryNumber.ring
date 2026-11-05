@@ -51,10 +51,10 @@ def SetBinaryNumberPrefix(pcBinaryPrefix)
 # 0xB), and FromDecimalForm, FromHexForm and FromOctalForm replace the number in place, the last two
 # needing the 0x and 0o prefixes. The Bitwise methods work on the decimal value and answer a number.
 # Whole numbers convert exactly; the fractional part is exact in decimal and octal but ToHexForm
-# drops it. Several methods are broken today and each says so in its own entry: IntegerPart and
-# Reversed raise R24 when a dot is present, WithPrefix doubles the prefix, the reversals reverse the
-# prefix with the digits, ToScientificNotationForm raises R14, and an uppercase 0B prefix reads as
-# 0.
+# drops it. ToScientificNotationForm writes 0b1011 as 1.1e+01. Several methods have limits, and each
+# says so in its own entry: IntegerPart and Reversed raise R24 when a dot is present, WithPrefix
+# doubles the prefix, the reversals reverse the prefix with the digits, and an uppercase 0B prefix
+# reads as 0.
 #
 #   receiver   o1 = new stzBinaryNumber("0b1011")
 #   example    ? o1.ToDecimalForm()
@@ -484,13 +484,14 @@ class stzBinaryNumber from stzObject
 		def ToUnicodeHex()
 			return This.ToUnicodeHexForm()
 
-	# Raises error R14 today instead of returning the number in scientific notation.
+	# Returns the value as one digit, a point, the other digits and a power of ten, such as 1.1e+01 for 0b1011.
 	#
-	#   returns    nothing; it raises
-	#   note       ToScientificNotation is the same call and raises too
-	#   warning    it forwards to a stzNumber method of that name, which does not exist, so every
-	#              call raises R14
-	#   see        ToDecimalForm
+	#   returns    a text: the mantissa, the letter e, the sign of the exponent and at least two exponent digits
+	#   note       ToScientificNotation is the same call; by hand 0b1011 is 11, so it gives 1.1e+01;
+	#              0b101.11 (5.75) gives 5.75e+00, -0b101 gives -5e+00 and 0b0 gives 0e+00
+	#   see        ToDecimalForm, ToStzNumber
+	#   example    ? o1.ToScientificNotationForm()
+	#              #--> 1.1e+01
 	def ToScientificNotationForm()
 		return This.ToStzNumber().ToScientificNotationForm()
 
