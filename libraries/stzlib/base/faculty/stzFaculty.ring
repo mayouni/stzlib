@@ -919,9 +919,18 @@ class stzFaculty from stzObject
 			This.SetFloor(pcId, pcFn)
 			return This
 
-	# MP0: says where an implementation (the floor included) can run -- the operating systems it exists on ([] = everywhere) and the name
-	# of a probe fn(cLang) -> [ 1|0, reason ] ("" = none). The registry sets aside an implementation that cannot run here, with the reason,
-	# before it weighs any measurement; a measurement marks an item it could not run as UNAVAILABLE, never as wrong.
+	# Records where an implementation can run: the operating systems it exists on and an optional probe function.
+	#
+	# The registry sets aside an implementation that cannot run here, with the reason, before it weighs any
+	# measurement; a measurement marks an item it could not run as UNAVAILABLE, never as wrong.
+	#
+	#   pcImplId      the id of an implementation already added to this faculty, the floor included
+	#   paPlatforms   the operating systems the implementation exists on, where [] means everywhere
+	#   pcProbe       the name of a probe function fn(cLang) that answers [ 1|0, reason ], or "" for none
+	#   returns       nothing; use SetAvailabilityQ to chain
+	#   warning       raises an error when the faculty has no implementation with that id; the platform names
+	#                 and the probe's answer are stored as given and not checked here
+	#   see           SetFloor, Implementations
 	def SetAvailability(pcImplId, paPlatforms, pcProbe)
 		_i_ = _StzFacultyRow(@cName)
 		_aI_ = $aStzFaculties[_i_][:impls]

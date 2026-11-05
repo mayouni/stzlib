@@ -346,7 +346,9 @@ class stzKernelMaker from stzObject
 		@cWgsl = ""
 		return This
 
-	# Makes the output a stack of slices, each a width grid: the groups run slice by slice, and @slice names a thread's slice (@row and @col are the slice's own).
+	# Makes the output a stack of slices, each a width grid, where @slice names a thread's slice.
+	#
+	# The groups run slice by slice; @row and @col stay the slice's own.
 	#
 	#   pD         a declared scalar's name or a number, 1 or more
 	#   returns    the object itself

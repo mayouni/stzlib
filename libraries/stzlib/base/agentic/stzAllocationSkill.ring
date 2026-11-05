@@ -94,7 +94,7 @@ class stzAllocationSkill from stzAgentSkill
 		ok
 		@oAllocation = poAllocation
 
-	# Names a plan file the skill writes on each allocation, through the safe-world door.
+	# Sets the plan file that the skill writes on each allocation, through the safe-world door.
 	#
 	#   pcPath     the file's path
 	#   returns    the skill itself, so calls chain
@@ -109,10 +109,13 @@ class stzAllocationSkill from stzAgentSkill
 	def AllocationQ()
 		return @oAllocation
 
-	# TRUE when an unplaced demand exists and no recorded verdict blocks a new solve; a SetWhen function replaces this test.
+	# TRUE if an unplaced demand exists and no recorded verdict blocks a new solve; a SetWhen function replaces this test.
 	#
 	#   poMemory   the agent's stzAgentMemory
 	#   returns    1 or 0
+	#   note       a recorded verdict of infeasible or incomplete for the allocation makes it 0; the demands are read
+	#              from the memory's graph by the allocation's demand type, and one with no fact under the allocation's
+	#              predicate is unplaced
 	def PreconditionHolds(poMemory)
 		if @fWhen != ""
 			return call @fWhen(poMemory)

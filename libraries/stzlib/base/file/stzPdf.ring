@@ -604,8 +604,9 @@ class stzPdf from stzObject
 	def OcrPages()
 		return @aOcrBy
 
-	# Returns the stamps and logos the last re-read found on its scanned pages: drawn, not written, so their lines were
-	# kept out of Blocks() and Text().
+	# Returns the stamps and logos the last re-read found on its scanned pages, drawn rather than written.
+	#
+	# Their lines were kept out of Blocks() and Text().
 	#
 	#   returns    a list of [ :page = n, :kind = "stamp" | "logo", :box = [ x0, y0, x1, y1 ] in page points, :text = what
 	#              the OCR read from it ]
@@ -644,8 +645,9 @@ class stzPdf from stzObject
 		if _cT_ = "" return _cFirst_ ok
 		return _cT_
 
-	# Returns the lines of the last re-read's scanned pages that a drawn stroke touched -- a signature or a stamp
-	# crossing a printed line -- and that read better from a copy without the drawn ink.
+	# Returns the scanned-page lines that a drawn stroke touched and that read better from a copy without the drawn ink.
+	#
+	# A signature or a stamp crossing a printed line is such a stroke.
 	#
 	#   returns    a list of [ :page = n, :box = [ x0, y0, x1, y1 ] in page points, :first = the first reading, :text = the
 	#              reading kept ]
@@ -654,13 +656,16 @@ class stzPdf from stzObject
 	def OcrReadAgain()
 		return @aOcrReadAgain
 
-	# Writes an inspection page of the last re-read: each page read through OCR as the image the OCR read, beside its
-	# blocks (or, on a toggle, its OCR lines), linked both ways -- moving over the image draws the box of what was read
-	# there and marks it in the list, moving over a block or line draws its box on the image (StzOcrInspectionHtml).
+	# Writes an inspection page of the last re-read: each OCR page as an image beside its blocks, linked both ways.
+	#
+	# Moving over the image draws the box of what was read there and marks it in the list; moving over a block
+	# (or, on a toggle, an OCR line) draws its box on the image (StzOcrInspectionHtml). It is OcrInspectionXT with
+	# no notes.
 	#
 	#   pcHtml     the HTML file to write; its images go in a folder beside it, named after it with "_files"
 	#   returns    the HTML file's path
 	#   warning    raises when no page was read through OCR (call ReadOcr first)
+	#   see        OcrInspectionXT
 	def OcrInspection(pcHtml)
 		return This.OcrInspectionXT(pcHtml, [])
 

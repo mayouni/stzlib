@@ -2164,8 +2164,9 @@ class stzGraphPlanner from stzObject
 	# of that name. Every other step is a choice of route and hands nothing
 	# off. The hand-off SOLVES and never WRITES: writing an allocation is
 	# an effect, and effects belong to a governed skill.
+	#-----------------------------------------------#
 
-	# Gives the planner the knowledge its allocation steps read.
+	# Gives the planner the facts its allocation steps read.
 	#
 	#   poKnowledge   a stzKnowledgeGraph or a stzAgentMemory
 	#   returns       nothing; the planner changes
