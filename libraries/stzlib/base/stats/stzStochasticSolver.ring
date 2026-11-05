@@ -367,7 +367,7 @@ class stzStochasticSolver from stzObject
         
         # Handle multiplication
         if ring_substr1(_cExpr_, "*")
-            _acParts_ = split(_cExpr_, "*")
+            _acParts_ = ring_split(_cExpr_, "*")
             if len(_acParts_) = 2
                 _nLeft_ = 0+ trim(_acParts_[1])
                 _nRight_ = 0+ trim(_acParts_[2])
@@ -377,7 +377,7 @@ class stzStochasticSolver from stzObject
         
         # Handle division
         if ring_substr1(_cExpr_, "/")
-            _acParts_ = split(_cExpr_, "/")
+            _acParts_ = ring_split(_cExpr_, "/")
             if len(_acParts_) = 2
                 _nLeft_ = 0+ trim(_acParts_[1])
                 _nRight_ = 0+ trim(_acParts_[2])
@@ -391,7 +391,7 @@ class stzStochasticSolver from stzObject
         
         # Handle addition
         if ring_substr1(_cExpr_, "+")
-            _acParts_ = split(_cExpr_, "+")
+            _acParts_ = ring_split(_cExpr_, "+")
             if len(_acParts_) = 2
                 _nLeft_ = 0+ trim(_acParts_[1])
                 _nRight_ = 0+ trim(_acParts_[2])
@@ -401,7 +401,7 @@ class stzStochasticSolver from stzObject
         
         # Handle subtraction
         if ring_substr1(_cExpr_, "-")
-            _acParts_ = split(_cExpr_, "-")
+            _acParts_ = ring_split(_cExpr_, "-")
             if len(_acParts_) = 2
                 _nLeft_ = 0+ trim(_acParts_[1])
                 _nRight_ = 0+ trim(_acParts_[2])

@@ -7262,7 +7262,7 @@ class stzGraph from stzObject
 		@aNodes = []
 		@aEdges = []
 		
-		_acLines_ = split(_cContent_, char(10))
+		_acLines_ = ring_split(_cContent_, char(10))
 		_cSection_ = ""
 		_cCurrentNode_ = ""
 		_nLen_ = len(_acLines_)
@@ -7477,7 +7477,7 @@ class stzGraph from stzObject
 	
 	def _ParseStzRulz(_cContent_)
 		# Loads rule properties and links to functions from .stzrulf files
-		_acLines_ = split(_cContent_, char(10))
+		_acLines_ = ring_split(_cContent_, char(10))
 		_cSection_ = ""
 		_aCurrentRule_ = []
 		_cCurrentKey_ = ""
@@ -7812,7 +7812,7 @@ class stzGraph from stzObject
 	#   see           ExportToStzSim, ApplyStzSim
 	def ApplySimulation(cSimContent)
 		# Parse and apply changes from .stzsim format
-		_acLines_ = split(cSimContent, char(10))
+		_acLines_ = ring_split(cSimContent, char(10))
 		_cSection_ = ""
 		_cSimNode_ = ""      # the node most recently added -- a label line follows it
 		_nLen_ = len(_acLines_)
@@ -7867,7 +7867,7 @@ class stzGraph from stzObject
 				but StzFindFirst("add edge ", _cTrimmed_) = 1
 					_cRest_ = trim(StzMid(_cTrimmed_, 10, stzlen(_cTrimmed_) - 9))
 					if StzFindFirst("->", _cRest_) > 0
-						_acParts_ = split(_cRest_, "->")
+						_acParts_ = ring_split(_cRest_, "->")
 						if len(_acParts_) >= 2
 							_cFrom_ = trim(_acParts_[1])
 							_cTo_ = trim(_acParts_[2])
@@ -8308,7 +8308,7 @@ class stzGraphFinder from stzObject
 		_bIsNested_ = (StzFindFirst(".", pcKey) > 0)
 		
 		if _bIsNested_
-			_acPath_ = split(pcKey, ".")
+			_acPath_ = ring_split(pcKey, ".")
 			pValue = aElement
 			
 			if HasKey(aElement, _acPath_[1])

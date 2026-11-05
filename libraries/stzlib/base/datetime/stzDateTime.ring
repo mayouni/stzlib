@@ -591,7 +591,7 @@ class stzDateTime from stzObject
         _cDateTime_ = trim(_cDateTime_)
 
         if StzFindFirst("T", _cDateTime_) > 0
-            _aParts_ = split(_cDateTime_, "T")
+            _aParts_ = ring_split(_cDateTime_, "T")
             _cDatePart_ = _aParts_[1]
             _cTimePart_ = _aParts_[2]
             This._ParseDatePart(_cDatePart_)
@@ -628,9 +628,9 @@ class stzDateTime from stzObject
     def _ParseDatePart(_cDatePart_)
         _aDateParts_ = []
         if StzFindFirst("/", _cDatePart_) > 0
-            _aDateParts_ = split(_cDatePart_, "/")
+            _aDateParts_ = ring_split(_cDatePart_, "/")
         but StzFindFirst("-", _cDatePart_) > 0
-            _aDateParts_ = split(_cDatePart_, "-")
+            _aDateParts_ = ring_split(_cDatePart_, "-")
         ok
 
         if len(_aDateParts_) != 3
@@ -660,7 +660,7 @@ class stzDateTime from stzObject
             _cTimePart_ = trim(StzLeft(_cTimePart_, StzLen(_cTimePart_) - 2))
         ok
 
-        _aTimeParts_ = split(_cTimePart_, ":")
+        _aTimeParts_ = ring_split(_cTimePart_, ":")
         if len(_aTimeParts_) < 2
             @nHour = 0
             @nMinute = 0
@@ -677,7 +677,7 @@ class stzDateTime from stzObject
         if len(_aTimeParts_) >= 3
             _cSecPart_ = _aTimeParts_[3]
             if StzFindFirst(".", _cSecPart_) > 0
-                _aSecParts_ = split(_cSecPart_, ".")
+                _aSecParts_ = ring_split(_cSecPart_, ".")
                 @nSecond = 0+ _aSecParts_[1]
                 if len(_aSecParts_) >= 2
                     @nMs = 0+ _aSecParts_[2]
@@ -731,7 +731,7 @@ class stzDateTime from stzObject
 	        return ""
 	    ok
 
-	    _aParts_ = split(_cDateTime_, " ")
+	    _aParts_ = ring_split(_cDateTime_, " ")
 	    _cDatePart_ = _aParts_[1]
 	    _cTimePart_ = ""
 	    _cAMPM_ = ""
@@ -743,7 +743,7 @@ class stzDateTime from stzObject
 	        ok
 	    ok
 
-	    _aDateParts_ = split(_cDatePart_, _cDateSep_)
+	    _aDateParts_ = ring_split(_cDatePart_, _cDateSep_)
 	    if len(_aDateParts_) != 3
 	        return ""
 	    ok
@@ -756,7 +756,7 @@ class stzDateTime from stzObject
 	    ok
 
 	    if _cTimePart_ != ""
-	        _aTimeParts_ = split(_cTimePart_, ":")
+	        _aTimeParts_ = ring_split(_cTimePart_, ":")
 	        _cTimeFormat_ = ""
 
 	        if len(_aTimeParts_) >= 3
@@ -805,9 +805,9 @@ class stzDateTime from stzObject
 
 	    _aDateParts_ = []
 	    if StzFindFirst("/", _cDatePart_) > 0
-	        _aDateParts_ = split(_cDatePart_, "/")
+	        _aDateParts_ = ring_split(_cDatePart_, "/")
 	    but StzFindFirst("-", _cDatePart_) > 0
-	        _aDateParts_ = split(_cDatePart_, "-")
+	        _aDateParts_ = ring_split(_cDatePart_, "-")
 	    else
 	        return 0
 	    ok
@@ -830,7 +830,7 @@ class stzDateTime from stzObject
 	        _nYear_ = 0+ _aDateParts_[3]
 	    ok
 
-	    _aTimeParts_ = split(_cTimePart_, ":")
+	    _aTimeParts_ = ring_split(_cTimePart_, ":")
 	    if len(_aTimeParts_) < 2
 	        return 0
 	    ok
@@ -843,7 +843,7 @@ class stzDateTime from stzObject
 	    if len(_aTimeParts_) >= 3
 	        _cSecPart_ = _aTimeParts_[3]
 	        if StzFindFirst(".", _cSecPart_) > 0
-	            _aSecParts_ = split(_cSecPart_, ".")
+	            _aSecParts_ = ring_split(_cSecPart_, ".")
 	            _nSecond_ = 0+ _aSecParts_[1]
 	            if len(_aSecParts_) >= 2
 	                _nMs_ = 0+ _aSecParts_[2]
@@ -887,9 +887,9 @@ class stzDateTime from stzObject
 	    _aDateParts_ = []
 
 	    if StzFindFirst("/", cDate) > 0
-	        _aDateParts_ = split(cDate, "/")
+	        _aDateParts_ = ring_split(cDate, "/")
 	    but StzFindFirst("-", cDate) > 0
-	        _aDateParts_ = split(cDate, "-")
+	        _aDateParts_ = ring_split(cDate, "-")
 	    else
 	        return 0
 	    ok
@@ -1423,7 +1423,7 @@ class stzDateTime from stzObject
 	        return
 	    ok
 
-	    _aParts_ = split(_cExpr_, " ")
+	    _aParts_ = ring_split(_cExpr_, " ")
 
 	    _i_ = 1
 	    while _i_ <= len(_aParts_)
@@ -1480,7 +1480,7 @@ class stzDateTime from stzObject
 	        return
 	    ok
 
-	    _aParts_ = split(_cExpr_, " ")
+	    _aParts_ = ring_split(_cExpr_, " ")
 
 	    _i_ = 1
 	    while _i_ <= len(_aParts_)
@@ -2910,7 +2910,7 @@ class stzDateTime from stzObject
 
 	    # each word that IS a unit takes the number before it; a unit searched for inside the words
 	    # found day inside days, and min and minute inside minutes, and counted them again
-	    _aTokens_ = split(_cNatural_, " ")
+	    _aTokens_ = ring_split(_cNatural_, " ")
 	    _nTokensLen_ = len(_aTokens_)
 	    _nUnits2Len_ = len(_aUnits_)
 	    for _i_ = 2 to _nTokensLen_
@@ -3172,7 +3172,7 @@ class stzDateTime from stzObject
             ["second", 1000]
         ]
 
-        _aTokens_ = split(_cDuration_, " ")
+        _aTokens_ = ring_split(_cDuration_, " ")
 
         _nUnits1Len_ = len(_aUnits_)
         for _iLoopUnits1_ = 1 to _nUnits1Len_

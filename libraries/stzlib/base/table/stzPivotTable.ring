@@ -1078,10 +1078,10 @@ class stzPivotTable from stzList
 				return len(aValues)
 				
 			on "min"
-				return Min(aValues)
+				return ring_min(aValues)
 				
 			on "max"
-				return Max(aValues)
+				return ring_max(aValues)
 				
 			on "median"
 				return Median(aValues)
@@ -1384,8 +1384,10 @@ class stzPivotTable from stzList
 	#   returns    nothing; it prints
 	#   note       works for one column label with one or two row labels; the total row is drawn
 	#              under the bottom border, and the column headings are capitalised
-	#   warning    raises an error for a pivot with two column labels, on every dataset tried:
-	#              "Indexes out of range" or "Calling function with extra number of parameters";
+	#   warning    with two column labels it draws (it raised "Calling function with extra
+	#              number of parameters" until 2026-11-05: a bare split() and trim() reached
+	#              stzList's own methods), but it drops a cell: on a four-row dataset the
+	#              first row's value is missing from its column and from every total;
 	#              more than two labels on either side raise "Can't display the pivot table!"
 	#   see        ToTable
 	#@ aka  Show Method
@@ -2210,7 +2212,7 @@ class stzPivotTable from stzList
 			_cOutput_ += _cLine_
 		ok
 
-		_cTrimmed_ = trim(_cOutput_)
+		_cTrimmed_ = ring_trim(_cOutput_)
 		? StzLeft(_cTrimmed_, StzLen(_cTrimmed_) - 1) + char(10)
 
 	#-------------------------------------#
@@ -2900,7 +2902,7 @@ class stzPivotTable from stzList
 			_cOutput_ += _cLine_
 		ok
 	
-		_cTrimmed_ = trim(_cOutput_)
+		_cTrimmed_ = ring_trim(_cOutput_)
 		? StzLeft(_cTrimmed_, StzLen(_cTrimmed_) - 1) + char(10)
 	
 	  #------------------------------------------#
@@ -2953,7 +2955,7 @@ class stzPivotTable from stzList
 			_colHeader_ = _aHeaderRow_[_colIdx_]
 		
 			if _colHeader_ != ""
-				_aParts_ = split(_colHeader_, "_")
+				_aParts_ = ring_split(_colHeader_, "_")
 				_dim1Value_ = _aParts_[1]
 				_dim2Value_ = _aParts_[2]
 			
@@ -3377,7 +3379,7 @@ class stzPivotTable from stzList
 			# No final bottom border after totals
 		ok
 
-		_cTrimmed_ = trim(_cOutput_)
+		_cTrimmed_ = ring_trim(_cOutput_)
 		? StzLeft(_cTrimmed_, StzLen(_cTrimmed_) - 1) + char(10)
 
 	  #------------------------------------------#

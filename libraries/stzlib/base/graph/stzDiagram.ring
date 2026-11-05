@@ -20486,7 +20486,7 @@ class stzStylParser from stzObject
 			:custom = []
 		]
 		
-		_acLines_ = split(pcContent, char(10))
+		_acLines_ = ring_split(pcContent, char(10))
 		_cSection_ = ""
 		
 		_nAcLines1Len_ = len(_acLines_)
@@ -20529,7 +20529,7 @@ class stzStylParser from stzObject
 
 			# Parse section content
 			but _cSection_ != "" and StzFindFirst(":", _cLine_)
-				_aParts_ = split(_cLine_, ":")
+				_aParts_ = ring_split(_cLine_, ":")
 				_cKey_ = trim(_aParts_[1])
 				_cValue_ = trim(_aParts_[2])
 				

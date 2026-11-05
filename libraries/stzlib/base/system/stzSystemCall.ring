@@ -67,7 +67,7 @@ func StzSystemSilent(pcCommand)
 func StzNormalizePathsInCommand(pcCommand)
 	# Convert slashes in paths only, not in command flags
 	_cResult_ = ""
-	_aTokens_ = split(pcCommand, " ")
+	_aTokens_ = ring_split(pcCommand, " ")
 	_nLen_ = len(_aTokens_)
 	for i = 1 to _nLen_
 		_cToken_ = _aTokens_[i]
@@ -452,7 +452,7 @@ class stzSystemCall from stzObject
 			return []
 		ok
 
-		_acLines_ = split(@cOutput, char(10))
+		_acLines_ = ring_split(@cOutput, char(10))
 		_aResult_ = []
 		_nLen_ = len(_acLines_)
 
@@ -820,7 +820,7 @@ class stzSystemCall from stzObject
 	# purpose (cmd.exe /c ..., sh -c ...), so they keep the shell path.
 	def _IsShellProgram()
 		_cP_ = StzLower(StzReplace(@cProgram, char(92), "/"))
-		_acParts_ = split(_cP_, "/")
+		_acParts_ = ring_split(_cP_, "/")
 		if len(_acParts_) > 0  _cP_ = _acParts_[len(_acParts_)]  ok
 		if find([ "cmd", "cmd.exe", "sh", "bash", "zsh", "dash",
 			  "powershell", "powershell.exe", "pwsh", "pwsh.exe" ], _cP_) > 0
@@ -889,7 +889,7 @@ class stzSystemCall from stzObject
 			return []
 		ok
 
-		_acLines_ = split(@cOutput, char(10))
+		_acLines_ = ring_split(@cOutput, char(10))
 		# Remove empty lines
 		_aResult_ = []
 		_nLen_ = len(_acLines_)
@@ -1106,7 +1106,7 @@ class stzSystemCall from stzObject
 		ok
 
 		# Check for shell built-in commands
-		_aWords_ = split(_cCmd_, " ")
+		_aWords_ = ring_split(_cCmd_, " ")
 		if len(_aWords_) > 0
 			_cFirstWord_ = StzLower(trim(_aWords_[1]))
 			if find($ShellBuiltInCommands, _cFirstWord_) > 0

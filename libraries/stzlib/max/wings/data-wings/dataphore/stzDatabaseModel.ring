@@ -526,7 +526,7 @@ class stzDatabaseModel from stzDataModel
             if nLastParen > 0
                 cFieldsPart = left(cFieldsPart, nLastParen - 1)
             ok
-            acFields = split(cFieldsPart, ",")
+            acFields = ring_split(cFieldsPart, ",")
             aAddedFields = []
             _aCField242_ = acFields
             _nCField242_ = len(_aCField242_)
@@ -536,7 +536,7 @@ class stzDatabaseModel from stzDataModel
                 if cFieldDef = ""
                     loop
                 ok
-                acParts = split(cFieldDef, " ")
+                acParts = ring_split(cFieldDef, " ")
                 if len(acParts) >= 2
                     cFieldName = acParts[1]
                     cFieldType = acParts[2]
@@ -564,10 +564,10 @@ class stzDatabaseModel from stzDataModel
             cTableName = trim(This.ExtractSection(cStatement, nTablePos, nAddPos - 1))
             cConstraintPart = trim(This.ExtractSection(cStatement, nAddPos + 5, len(cStatement)))
             if left(upper(cConstraintPart), 10) = "CONSTRAINT"
-                acParts = split(cConstraintPart, " ")
+                acParts = ring_split(cConstraintPart, " ")
                 if len(acParts) >= 3
                     cConstraintName = acParts[2]
-                    acNameParts = split(cConstraintName, "_")
+                    acNameParts = ring_split(cConstraintName, "_")
                     if len(acNameParts) >= 3
                         cFieldName = acNameParts[2]
                         This.AddConstraint(cTableName, cFieldName, cConstraintPart)
@@ -830,7 +830,7 @@ class stzDatabaseModel from stzDataModel
     # Import from Mermaid ERD format
     def FromMermaid(cMermaidERD)
         This.ClearModel()
-        acLines = split(cMermaidERD, NL())
+        acLines = ring_split(cMermaidERD, char(10))
         cCurrentEntity = ""
         bInEntity = FALSE
         _aCLine244_ = acLines
@@ -853,7 +853,7 @@ class stzDatabaseModel from stzDataModel
                 loop
             ok
             if bInEntity and cLine != ""
-                aFieldParts = split(cLine, " ")
+                aFieldParts = ring_split(cLine, " ")
                 if len(aFieldParts) >= 2
                     cFieldName = aFieldParts[1]
                     cFieldType = aFieldParts[2]
@@ -867,7 +867,7 @@ class stzDatabaseModel from stzDataModel
                 ok
             ok
             if This.FindSubstring(cLine, "||--") > 0 or This.FindSubstring(cLine, "--o{") > 0
-                acParts = split(cLine, " ")
+                acParts = ring_split(cLine, " ")
                 if len(acParts) >= 3
                     cFromEntity = acParts[1]
                     cToEntity = acParts[3]

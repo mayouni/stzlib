@@ -281,7 +281,7 @@ Class TableDisplayConfig
                         loop
                     ok
                     
-                    _aParts_ = split(_cHeader_, "|")
+                    _aParts_ = ring_split(_cHeader_, "|")
                     if len(_aParts_) >= i and not find(_aUnique_, _aParts_[i])
                         _aUnique_ + _aParts_[i]
                     ok

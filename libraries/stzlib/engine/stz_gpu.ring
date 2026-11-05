@@ -444,7 +444,7 @@ func _StzGpuCalibFillFromFile pcPath
 	_aLines_ = str2list(read(pcPath))
 	_nL_ = len(_aLines_)
 	for _i_ = 1 to _nL_
-		_aParts_ = split(_aLines_[_i_], char(9))
+		_aParts_ = ring_split(_aLines_[_i_], char(9))
 		if len(_aParts_) = 2
 			# a FILL: never outranks a value set in this process (engine-side)
 			StzEngineGpuCalibFill(_aParts_[1], 0 + _aParts_[2])
@@ -469,7 +469,7 @@ func _StzGpuCalibLoadFile pcPath
 	_aLines_ = str2list(read(pcPath))
 	_nL_ = len(_aLines_)
 	for _i_ = 1 to _nL_
-		_aParts_ = split(_aLines_[_i_], char(9))
+		_aParts_ = ring_split(_aLines_[_i_], char(9))
 		if len(_aParts_) = 2
 			StzEngineGpuCalibSet(_aParts_[1], 0 + _aParts_[2])
 		but len(_aParts_) = 5 and _aParts_[1] = "shape"

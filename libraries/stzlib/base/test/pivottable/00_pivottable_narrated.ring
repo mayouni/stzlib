@@ -75,6 +75,18 @@ Scenario("The presentation setters survive the engine fast path")
     Then("an order set after generating still lands", OrderAppliedLate(), TRUE)
 EndScenario()
 
+Scenario("Two column labels take the Ring path, and it runs")
+    # The engine takes one column label; two go to the Ring fallback, where a
+    # bare split(), trim(), Min() and Max() reached stzList's OWN methods and
+    # raised R20 "Calling function with extra number of parameters" on every
+    # such table (fixed 2026-11-05). The values drawn are NOT judged here: the
+    # first row's cell is still dropped, as Show()'s warning says, and blessing
+    # that output would pin the defect.
+    Then("MIN generates", TwoColsRun("MIN", FALSE), "ok")
+    Then("MAX generates", TwoColsRun("MAX", FALSE), "ok")
+    Then("...and the table draws", TwoColsRun("SUM", TRUE), "ok")
+EndScenario()
+
 Summary()
 
 func Data()
@@ -159,3 +171,22 @@ func OrderAppliedLate()
     _cBefore_ = _oL_.ToTable().Content()[2][1]
     _oL_.SetColumnOrder([ 2024, 2023 ])
     return _oL_.ToTable().Content()[2][1] != _cBefore_
+
+# Generates, and draws when asked, a pivot with TWO column labels; answers
+# "ok" or the error raised.
+func TwoColsRun(cAgg, bShow)
+    oTc = new stzPivotTable([ [ :REGION, :PRODUCT, :YEAR, :AMOUNT ],
+        [ "North", "Widget", 2023, 100 ], [ "North", "Widget", 2023, 50 ],
+        [ "South", "Gadget", 2024, 70 ] ])
+    oTc.Analyze(:AMOUNT, :with = cAgg)
+    oTc.SetRowsBy([ :REGION ])
+    oTc.SetColsBy([ :PRODUCT, :YEAR ])
+    try
+        oTc.Generate()
+        if bShow
+            oTc.Show()
+        ok
+    catch
+        return cCatchError
+    done
+    return "ok"

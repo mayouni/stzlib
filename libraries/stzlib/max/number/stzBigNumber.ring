@@ -116,7 +116,7 @@ class stzBigNumber
 
 		# Splitting the number into 2 parts, intpart and fractpart
 
-	        acParts = split(cNumberInStr, ".")
+	        acParts = ring_split(cNumberInStr, ".")
 	        @cIntPart = This.pvtTrimLeadingZeros(acParts[1])
 
 		@cFracPart = ""
@@ -522,7 +522,7 @@ class stzBigNumber
 			
 		else
 
-			acSplits = split(cRounded, ".")
+			acSplits = ring_split(cRounded, ".")
 			@cIntPart = acSplits[1]
 			@cFracPart = acSplits[2]
 		ok

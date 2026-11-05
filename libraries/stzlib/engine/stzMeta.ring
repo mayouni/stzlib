@@ -232,7 +232,7 @@ func StzMetaApplyGenRules(oObject, cClass)
             loop
         ok
 
-        aparts = split(cRule, "|")
+        aparts = ring_split(cRule, "|")
         if len(aparts) != 3
             loop
         ok

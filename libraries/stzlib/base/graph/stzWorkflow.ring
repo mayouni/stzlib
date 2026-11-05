@@ -2062,7 +2062,7 @@ class stzFlowParser from stzObject
 	#   see         ParseFile, ToWorkflow
 	def Parse(pcContent)
 		_oWorkflow_ = ""
-		_acLines_ = split(pcContent, NL)
+		_acLines_ = ring_split(pcContent, char(10))
 		_cSection_ = ""
 		_cCurrentItem_ = ""
 		_aCurrentProps_ = []
@@ -2124,14 +2124,14 @@ class stzFlowParser from stzObject
 					_cCurrentItem_ = _cLine_
 					_aCurrentProps_ = []
 				else
-					_aParts_ = split(_cLine_, ":")
+					_aParts_ = ring_split(_cLine_, ":")
 					_cKey_ = trim(_aParts_[1])
 					_cValue_ = trim(_aParts_[2])
 					_aCurrentProps_ + [_cKey_, This._ParseValue(_cValue_)]
 				ok
 			
 			but _cSection_ = "flow" and StzFindFirst("->", _cLine_)
-				_aParts_ = split(_cLine_, "->")
+				_aParts_ = ring_split(_cLine_, "->")
 				_oWorkflow_.ConnectSteps(trim(_aParts_[1]), trim(_aParts_[2]))
 			
 			but _cSection_ = "actors"
@@ -2142,12 +2142,12 @@ class stzFlowParser from stzObject
 					_cCurrentItem_ = _cLine_
 					_aCurrentProps_ = []
 				else
-					_aParts_ = split(_cLine_, ":")
+					_aParts_ = ring_split(_cLine_, ":")
 					_aCurrentProps_ + [trim(_aParts_[1]), This._ParseValue(trim(_aParts_[2]))]
 				ok
 			
 			but _cSection_ = "roles" and StzFindFirst("->", _cLine_)
-				_aParts_ = split(_cLine_, "->")
+				_aParts_ = ring_split(_cLine_, "->")
 				_oWorkflow_.MapRoleToPosition(trim(_aParts_[1]), trim(_aParts_[2]))
 			ok
 		end

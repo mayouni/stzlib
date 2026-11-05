@@ -271,7 +271,7 @@ class stzStringWords from stzObject
 			return []
 		ok
 
-		return split(_cResult_, " ")
+		return ring_split(_cResult_, " ")
 
 	# Returns the different words once each, in order of first appearance, comparing case-sensitively.
 	#

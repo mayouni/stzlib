@@ -991,7 +991,7 @@ class stzDataWrangler from stzObject
 
     def _ToTitleCase(cText)
         # Simple title case implementation
-        _aWords_ = split(cText, " ")
+        _aWords_ = ring_split(cText, " ")
         _nWordsLen_ = len(_aWords_)
         for i = 1 to _nWordsLen_
             if len(_aWords_[i]) > 0
@@ -1475,7 +1475,7 @@ next
         # Convert common formats to ISO format (YYYY-MM-DD)
         if find(_cDate_, "/") > 0
             # Handle MM/DD/YYYY or DD/MM/YYYY formats
-            _aParts_ = split(_cDate_, "/")
+            _aParts_ = ring_split(_cDate_, "/")
             if len(_aParts_) = 3
                 # Assume MM/DD/YYYY for now
                 return _aParts_[3] + "-" + This._PadZero(_aParts_[1]) + "-" + This._PadZero(_aParts_[2])

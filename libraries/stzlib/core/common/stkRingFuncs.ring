@@ -68,7 +68,37 @@ func ring_trim(str)
 	return trim(str)
 
 func ring_split(str, sep)
-	return split(str, sep)
+	# Ring's stdlib Split(), line for line, with char(10) where it reads
+	# the global NL. Ring is case-insensitive, so a caller writing
+	# `nL = len(aLines)` makes NL a number, and every later split() then
+	# raises "Bad parameter type" inside substr(), far from that line.
+	# Library code calls ring_split(), never split() (NL-SPLIT-SWEEP-01).
+	# Same semantics as split(): a tab or space delimiter collapses runs
+	# of blanks, the string is trimmed, and a newline always splits too.
+
+	if sep = ""
+		_aOut_ = []
+		_nLen_ = len(str)
+		for _i_ = 1 to _nLen_
+			_aOut_ + str[_i_]
+		next
+		return _aOut_
+	ok
+
+	if sep = char(9)
+		sep = " "
+	ok
+
+	if sep = " "
+		while substr(str, char(9)) > 0
+			str = substr(str, char(9), " ")
+		end
+		while substr(str, "  ") > 0
+			str = substr(str, "  ", " ")
+		end
+	ok
+
+	return str2list(substr(trim(str), sep, char(10)))
 
 func ring_read(filePath)
 	return read(filePath)
@@ -237,7 +267,7 @@ func ring_substr(paParams)
 	ok
 
 	_nLen_ = len(paParams)
-	if n < 2 or n > 3
+	if _nLen_ < 2 or _nLen_ > 3
 		raise("ERR-" + StkError(:IncorrectNumberOfParams))
 	ok
 

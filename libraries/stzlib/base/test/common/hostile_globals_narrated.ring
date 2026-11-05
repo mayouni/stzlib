@@ -77,6 +77,48 @@ Scenario("The range-parser helpers keep their hands off the caller's globals")
 	Then("app thing added", @@( oHgApp.Things() ), @@([ [ "dish", [ ] ] ]))
 EndScenario()
 
+# NL IS A GLOBAL TOO, and Ring's own split() reads it (found 2026-11-05).
+# Ring is case-insensitive, so a caller writing `nL = len(aLines)` -- the
+# exact line in image_quality_narrated.ring -- turned NL into a number,
+# and every later split() in the library raised "Bad parameter type"
+# inside substr(), far from that line. The library calls ring_split()
+# now: the same function with char(10) where split() reads NL. Each
+# answer is taken while NL is a number and again once NL is restored --
+# the narration itself prints with NL -- and the two must agree.
+Scenario("A caller's nL does not break the library's splitting")
+	nL = 3
+	bHgRaised = 0
+	try
+		split("a:b", ":")
+	catch
+		bHgRaised = 1
+	done
+	aHgSplit1 = ring_split("a:b" + char(10) + "c", ":")
+	aHgKeys1 = StzJsonKeys('{"a":1,"b":2}')
+	nHgTime1 = StzIsTime("17:04:05")
+	cHgDt1 = new stzDateTime("2026-11-05T17:04:00").ToString()
+	aHgKnow1 = StzKnowSplit("a|b|c")
+	nL = char(10)
+
+	aHgSplit2 = ring_split("a:b" + char(10) + "c", ":")
+	aHgKeys2 = StzJsonKeys('{"a":1,"b":2}')
+	nHgTime2 = StzIsTime("17:04:05")
+	cHgDt2 = new stzDateTime("2026-11-05T17:04:00").ToString()
+	aHgKnow2 = StzKnowSplit("a|b|c")
+
+	Then("the hostility is real: Ring's own split() raises while NL is a number", bHgRaised, 1)
+	Then("ring_split answers as split() does, a newline splitting too", @@( aHgSplit1 ), @@([ "a", "b", "c" ]))
+	Then("...and the same with NL restored", @@( aHgSplit2 ), @@( aHgSplit1 ))
+	Then("json keys (stzJson)", @@( aHgKeys1 ), @@([ "a", "b" ]))
+	Then("...and the same with NL restored", @@( aHgKeys2 ), @@( aHgKeys1 ))
+	Then("a time is recognised (stzTime)", nHgTime1, 1)
+	Then("...and the same with NL restored", nHgTime2, nHgTime1)
+	Then("a date-time with a T parses (stzDateTime)", StzFindFirst("17:04", cHgDt1) > 0, TRUE)
+	Then("...and the same with NL restored", cHgDt2, cHgDt1)
+	Then("a knowledge line splits (stzKnowledgeGraph)", len(aHgKnow1), 3)
+	Then("...and the same with NL restored", @@( aHgKnow2 ), @@( aHgKnow1 ))
+EndScenario()
+
 # stzNumber leaked the same way, in eleven places: Factorial, Fibonacci,
 # Absolute, IsADigit, IsBetween(IB), PrimeFactors(XT), MultiplesUntil,
 # IsRGBColor and the [] operator all assigned a bare `n`. The sibling

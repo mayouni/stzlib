@@ -224,7 +224,7 @@ class stzStringRandomizer from stzObject
 	#   see        ShuffleWords, RandomChar
 	def RandomWord()
 		_cContent_ = @oString.Content()
-		_acWords_ = split(_cContent_, " ")
+		_acWords_ = ring_split(_cContent_, " ")
 		_nLen_ = len(_acWords_)
 		if _nLen_ = 0
 			return ""
@@ -243,7 +243,7 @@ class stzStringRandomizer from stzObject
 	#   see        WordsShuffled, Shuffle
 	def ShuffleWords()
 		_cContent_ = @oString.Content()
-		_acWords_ = split(_cContent_, " ")
+		_acWords_ = ring_split(_cContent_, " ")
 		_nLen_ = len(_acWords_)
 
 		for i = _nLen_ to 2 step -1

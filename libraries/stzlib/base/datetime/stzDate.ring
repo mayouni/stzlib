@@ -165,7 +165,7 @@ func _TodayYMD()
     # AddDays, Navigation methods, Age, etc., all of which route
     # here rather than through StzSysDate).
     if $cStzFrozenDate != ""
-        _acTymdParts_ = split($cStzFrozenDate, "/")
+        _acTymdParts_ = ring_split($cStzFrozenDate, "/")
         if len(_acTymdParts_) = 3
             return [ 0+ _acTymdParts_[3], 0+ _acTymdParts_[2], 0+ _acTymdParts_[1] ]
         ok
@@ -333,7 +333,7 @@ func StzFreezeClock(_cTimestamp_)
 		StzUnfreezeClock()
 		return
 	ok
-	_acStzFcParts_ = split(_cTimestamp_, " ")
+	_acStzFcParts_ = ring_split(_cTimestamp_, " ")
 	if len(_acStzFcParts_) >= 1 and StzLen(_acStzFcParts_[1]) >= 8 and StzMid(_acStzFcParts_[1], 5, 1) = "-"
 		# Date half -- convert from ISO YYYY-MM-DD to Ring's DD/MM/YYYY.
 		_cStzFcY_ = StzMid(_acStzFcParts_[1], 1, 4)

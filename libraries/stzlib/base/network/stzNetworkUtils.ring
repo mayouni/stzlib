@@ -25,7 +25,7 @@
         return ""
     
     func IsValidIP(cIP)
-        parts = split(cIP, ".")
+        parts = ring_split(cIP, ".")
         if len(parts) != 4 return False ok
         
         _nParts1Len_ = len(parts)

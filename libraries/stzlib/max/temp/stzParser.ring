@@ -181,7 +181,7 @@ class StzDocParser
 
 	func _formatContent(cContent)
 		# Get first non-empty line of content
-		aLines = split(cContent, nl)
+		aLines = ring_split(cContent, char(10))
 		_aCLine198_ = aLines
 		_nCLine198_ = len(_aCLine198_)
 		for _iCLine198_ = 1 to _nCLine198_

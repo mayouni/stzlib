@@ -312,7 +312,7 @@ func _StzPiMatches(pxValue, pbHas, pcOp, pcWanted)
 	if pcOp = "notcontains"  return StzFindFirst(pcWanted, _s_) = 0  ok
 	if pcOp = "beginswith"  return StzLeft(_s_, len(pcWanted)) = pcWanted  ok
 	if pcOp = "in"
-		_aW_ = split(pcWanted, ",")
+		_aW_ = ring_split(pcWanted, ",")
 		for _i_ = 1 to len(_aW_)
 			if _s_ = _aW_[_i_]  return 1  ok
 		next
@@ -745,7 +745,7 @@ func _StzPiSettlePay(nHub, i)
 
 # "/paiements/E123/retours" -> [ "paiements", "E123", "retours" ]
 func _StzPiSegments(pcPath)
-	_a_ = split(pcPath, "/")
+	_a_ = ring_split(pcPath, "/")
 	_aOut_ = []
 	for _i_ = 1 to len(_a_)
 		if _a_[_i_] != ""
