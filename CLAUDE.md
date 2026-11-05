@@ -482,6 +482,16 @@ Ring. Four differences between the VMs bit this plane: no `binarysearch()` on rn
 `eval` cannot create a global or define a callable function on rnxc, and `stzNodeSupervisor` starts its worker on
 `ring` whatever VM runs it.
 
+**The judge is written in Zig (P3, 2026-11-05).** `engine/src/testoor_*.zig` is the core and `base/testoor/*.ring` is
+its reference; the golden logbooks in `base/testoor/golden/` are the acceptance test. **FAST PATH for the core:
+`cd engine && zig build test-testoor -j2` is 30 s cold and 17 ms to run, 23 tests, with no Ring involved.** It reads
+`golden/` and compares 43 expected files byte for byte. `TESTOOR_CORE=ring` (or `TestoorCore("ring")`) makes
+`TestoorVerdict` use the Ring reference instead of the `stz_testoor` library; the guard
+`testoor_core_narrated.ring` runs both in one process. Four Ring facts the port is built on, measured on both
+VMs: `trim` strips the byte 32 only, `0 + "abc"` raises R41, a number prints whole or with two decimals, and
+`0.125` prints `0.13` on Ring 1.27 and `0.12` on Ring++ (the core follows Ring++). `std.json` is the wrong writer
+for the logbook: Ring escapes five bytes and writes every other byte raw.
+
 Two things measured on the way, so nobody re-measures them: Ring resolves `load`
 against the CURRENT DIRECTORY, not the file -- a runner must start each tour from
 its own folder; and a per-line `ringvm_settrace` hook costs 11.5 us per event and

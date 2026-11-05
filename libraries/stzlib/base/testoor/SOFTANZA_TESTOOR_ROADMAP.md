@@ -72,7 +72,10 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
   accepted by the author.
 
 ### P3 -- The Zig core, in this order.
-1. **Logbook writer, judge, five states, exit codes**, passing the goldens.
+*Opened 2026-11-05 on the author's word, with the recommended answers to protocol 2 section 11 and the Zig note section 10.*
+1. **Logbook writer, judge, five states, exit codes**, passing the goldens. **DONE 2026-11-05** (`TESTOOR_ZIG_CORE.md` section 9;
+   `zig build test-testoor`, 26 tests; all ten guards on rnxc through the core). Still open inside this step: the runner's own
+   logbook calls, and the difference corpus.
 2. **Seeds, stepped clock, weather, the scheduler hook** (the clock moves out of Ring).
 3. **Route join and graph store.**
 4. **Node counters**, the numerator of graph coverage, cheap where the Ring trace hook costs 11.5 us an event.

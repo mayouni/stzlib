@@ -405,7 +405,19 @@ func _TravEndingOf(paLines, pcErr, pnExit, pbHung, paFace)
 #
 # Answers the record with :run (state, ending, counts, stops with their claims and
 # times), :output, :stderr and :weather filled in. paRec itself is left alone.
+#
+# WHO JUDGES (stzCore.ring): the Zig core when its library is loaded (the stz_testoor engine
+# domain), the Ring reference below otherwise or when TestoorCore("ring") / TESTOOR_CORE=ring
+# say so. The answer is the same bytes either way: golden/ holds the proof for both.
 func TestoorVerdict(paRec, paLines, pcErr, pnExit, pbHung, paFace, pnWallMs, pnSeed)
+	if TestoorCoreIs() = "engine"
+		_aCore_ = _CoreVerdict(paRec, paLines, pcErr, pnExit, pbHung, paFace, pnWallMs, pnSeed)
+		if isList(_aCore_)  return _aCore_  ok
+	ok
+	return _TestoorVerdictRing(paRec, paLines, pcErr, pnExit, pbHung, paFace, pnWallMs, pnSeed)
+
+# THE REFERENCE: the verdict as the Ring code has always taken it
+func _TestoorVerdictRing(paRec, paLines, pcErr, pnExit, pbHung, paFace, pnWallMs, pnSeed)
 	_aRec_ = paRec
 	_aRec_[:flaky] = 0
 	_aRec_[:flaky_why] = ""
