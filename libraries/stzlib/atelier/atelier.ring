@@ -73,6 +73,10 @@ $nAtelierTours = 0
 
 # what a cell's `?` lines saw while it ran: [ [ see number, printed text, face ] ]
 $aAtelierSeen = []
+# B1, the process: each step of an unfolded chain [ see, pass, step, face, ns ], and
+# each state of a scene's object after a line [ scene, line, face ]
+$aAtelierSteps = []
+$aAtelierStates = []
 
 # the trail of a whole file admitted as a tour, and the tallies the narrated
 # helper keeps under the names a test may read
@@ -283,6 +287,8 @@ func AtelierCellOnce cSource
 	ok
 	aPlan = AtelierCellPlan(cSource)
 	$aAtelierSeen = []
+	$aAtelierSteps = []
+	$aAtelierStates = []
 	nT0 = clock()
 	cEnd = "finished"
 	cErr = ""
@@ -309,20 +315,48 @@ func AtelierCellOnce cSource
 	else
 		cRel = "nothing to release"
 	ok
-	rpp_http_reply(200, "application/json; charset=utf-8", AtelierCellJson(aPlan[2], cEnd, cErr, cRel, nMs))
+	rpp_http_reply(200, "application/json; charset=utf-8", AtelierCellJson(aPlan[2], cEnd, cErr, cRel, nMs, aPlan[3]))
 
-# [ the rewritten source, [ [ :n, :line, :expr, :promise ] ] ]
+# [ the rewritten source, [ [ :n, :line, :expr, :promise, :steps, :forms ] ], [ scenes ] ]
+#
+# B1, THE PROCESS. A `?` line whose expression is a chain -- a root (a name, a call, or
+# `new Class(...)`) followed by method calls -- is UNFOLDED: each step is evaluated once,
+# into a variable held by ref(), so a chain that changes its object changes it exactly as
+# the line written whole does (plain variables would copy the object and detach the chain
+# from it: measured, 2026-11-05), and each step's value and its time on the engine's
+# monotonic clock are kept. A scene -- a line `name {` -- has its object's state captured
+# after the opening and after every complete statement inside it, so a Verb() that changes
+# the object and a Verbed() that leaves it alone are seen apart.
 func AtelierCellPlan cSource
 	acL = str2list(substr("" + cSource, char(13), ""))
 	aSees = []
+	aScenes = []
 	cOut = ""
 	# nLines, never nL: Ring is case-insensitive, so nL spells the NL global.
 	# Harmless on rnxc, where an assignment in a function makes a local
 	# (measured 2026-11-05), but it reads as a write to NL and is not one.
 	nLines = len(acL)
+	nScene = 0
+	cSceneName = ""
+	nBraces = 0
+	nBrackets = 0
 	for i = 1 to nLines
 		cLine = acL[i]
 		cT = trim(cLine)
+		nIndent = len(cLine) - len(AtelierLeftTrimmed(cLine))
+		cPad = left(cLine, nIndent)
+		bStatement = 0
+		# a scene opens: a line that is only `name {`
+		if cSceneName = "" and AtelierIsSceneOpening(cT)
+			cSceneName = trim(left(cT, len(cT) - 1))
+			nScene++
+			aScenes + [ :id = nScene, :name = cSceneName, :line = i, :end = 0 ]
+			nBraces = 1
+			nBrackets = 0
+			cOut += cLine + char(10)
+			cOut += cPad + "    AtelierState(" + nScene + ", " + i + ", " + cSceneName + ")" + char(10)
+			loop
+		ok
 		if left(cT, 1) = "?" and left(cT, 4) != "?-->"
 			cExpr = trim(substr(cT, 2))
 			cPromise = ""
@@ -331,7 +365,6 @@ func AtelierCellPlan cSource
 				cPromise = trim(substr(cExpr, nAt + 4))
 				cExpr = trim(left(cExpr, nAt - 1))
 			else
-				# the promise on the line under it, and its continuation lines
 				j = i + 1
 				while j <= nLines and trim(acL[j]) = ""
 					j++
@@ -342,15 +375,345 @@ func AtelierCellPlan cSource
 			ok
 			if cExpr != ""
 				nN = len(aSees) + 1
-				aSees + [ :n = nN, :line = i, :expr = cExpr, :promise = cPromise ]
-				nIndent = substr(cLine, "?")
-				cOut += left(cLine, nIndent - 1) + "AtelierSee(" + nN + ", " + cExpr + ")" + char(10)
-				loop
+				aParts = AtelierChainParts(cExpr)
+				# `? @@( chain )` -- the house's way to print a list -- is unfolded inside
+				cWrap = ""
+				if len(aParts) < 2 and left(cExpr, 3) = "@@(" and right(cExpr, 1) = ")" and AtelierBalanced(substr(cExpr, 3))
+					aParts = AtelierChainParts(trim(substr(cExpr, 4, len(cExpr) - 4)))
+					if len(aParts) >= 2
+						cWrap = "@@"
+					ok
+				ok
+				aSteps = []
+				aForms = []
+				if len(aParts) >= 2
+					# the chain unfolded: one variable per step, held by ref() while a
+					# method follows it, timed on the monotonic clock
+					nK = len(aParts)
+					for k = 1 to nK
+						cV = "_atv_" + nN + "_" + k + "_"
+						if k = 1
+							cRhs = aParts[1]
+						else
+							cRhs = "_atv_" + nN + "_" + (k - 1) + "_" + aParts[k]
+						ok
+						if k < nK
+							cRhs = "ref(" + cRhs + ")"
+						ok
+						cOut += cPad + "_att_" + nN + "_ = StzEngineWatchTimestampNs()" + char(10)
+						cOut += cPad + cV + " = " + cRhs + char(10)
+						cOut += cPad + "AtelierStep(" + nN + ", " + k + ", " + cV + ", StzEngineWatchTimestampNs() - _att_" + nN + "_)" + char(10)
+						aSteps + aParts[k]
+					next
+					if cWrap = "@@"
+						cOut += cPad + "AtelierSee(" + nN + ", @@(_atv_" + nN + "_" + nK + "_))" + char(10)
+					else
+						cOut += cPad + "AtelierSee(" + nN + ", _atv_" + nN + "_" + nK + "_)" + char(10)
+					ok
+					aForms = AtelierForms(aParts, cSource, cWrap)
+				else
+					cOut += cPad + "AtelierSee(" + nN + ", " + cExpr + ")" + char(10)
+				ok
+				aSees + [ :n = nN, :line = i, :expr = cExpr, :promise = cPromise, :steps = aSteps, :forms = aForms ]
+				bStatement = 1
 			ok
 		ok
-		cOut += cLine + char(10)
+		if NOT bStatement
+			cOut += cLine + char(10)
+		ok
+		# inside a scene: count its braces and brackets, capture the state after a
+		# complete statement, close the scene on its last brace
+		if cSceneName != ""
+			aCount = AtelierBracketCount(cT)
+			nBraces += aCount[1]
+			nBrackets += aCount[2]
+			if nBraces <= 0
+				aScenes[len(aScenes)][:end] = i
+				cSceneName = ""
+				loop
+			ok
+			if nBraces = 1 and nBrackets = 0 and AtelierIsStatement(cT)
+				cOut += cPad + "AtelierState(" + nScene + ", " + i + ", " + cSceneName + ")" + char(10)
+			ok
+		ok
 	next
-	return [ cOut, aSees ]
+	return [ cOut, aSees, aScenes ]
+
+func AtelierLeftTrimmed cLine
+	for i = 1 to len(cLine)
+		if cLine[i] != " " and cLine[i] != char(9)
+			return substr(cLine, i)
+		ok
+	next
+	return ""
+
+# `name {` alone on its line opens a scene
+func AtelierIsSceneOpening cT
+	if right(cT, 1) != "{"
+		return 0
+	ok
+	cName = trim(left(cT, len(cT) - 1))
+	if cName = ""
+		return 0
+	ok
+	for i = 1 to len(cName)
+		c = cName[i]
+		if NOT (isalnum(c) or c = "_" or c = "@" or c = "$")
+			return 0
+		ok
+	next
+	return 1
+
+# a line after which the object's state is worth capturing: code, complete, and not a
+# keyword that opens a block
+func AtelierIsStatement cT
+	if cT = "" or left(cT, 1) = "#" or left(cT, 2) = "//" or cT = "}"
+		return 0
+	ok
+	if right(cT, 1) = "," or right(cT, 1) = "+"
+		return 0
+	ok
+	cFirst = lower(cT)
+	nSp = substr(cFirst, " ")
+	if nSp > 0
+		cFirst = left(cFirst, nSp - 1)
+	ok
+	acOpeners = [ "if", "but", "else", "for", "while", "switch", "on", "other", "try", "catch", "func", "def", "class", "return", "loop", "exit" ]
+	return find(acOpeners, cFirst) = 0
+
+# [ braces opened minus closed, brackets and parentheses opened minus closed ], outside strings
+func AtelierBracketCount cT
+	nB = 0
+	nP = 0
+	cQ = ""
+	for i = 1 to len(cT)
+		c = cT[i]
+		if cQ != ""
+			if c = cQ
+				cQ = ""
+			ok
+			loop
+		ok
+		if c = '"' or c = "'" or c = "`"
+			cQ = c
+		but c = "#"
+			exit
+		but c = "{"
+			nB++
+		but c = "}"
+			nB--
+		but c = "(" or c = "["
+			nP++
+		but c = ")" or c = "]"
+			nP--
+		ok
+	next
+	return [ nB, nP ]
+
+# a chain's parts: [ root, ".Method(args)", ... ] -- or [] when the expression is not
+# exactly a root followed by method calls (an operator outside a call is not a chain)
+func AtelierChainParts cExpr
+	c = trim("" + cExpr)
+	n = len(c)
+	aCuts = []
+	nDepth = 0
+	cQ = ""
+	for i = 1 to n
+		ch = c[i]
+		if cQ != ""
+			if ch = cQ
+				cQ = ""
+			ok
+			loop
+		ok
+		if ch = '"' or ch = "'" or ch = "`"
+			cQ = ch
+		but ch = "(" or ch = "["
+			nDepth++
+		but ch = ")" or ch = "]"
+			nDepth--
+		but ch = "." and nDepth = 0 and i < n
+			if isalpha(c[i + 1]) or c[i + 1] = "_"
+				aCuts + i
+			ok
+		ok
+	next
+	if len(aCuts) = 0
+		return []
+	ok
+	aParts = [ trim(left(c, aCuts[1] - 1)) ]
+	for k = 1 to len(aCuts)
+		nTo = n
+		if k < len(aCuts)
+			nTo = aCuts[k + 1] - 1
+		ok
+		aParts + trim(substr(c, aCuts[k], nTo - aCuts[k] + 1))
+	next
+	if NOT AtelierIsRoot(aParts[1])
+		return []
+	ok
+	for k = 2 to len(aParts)
+		if NOT AtelierIsCallSegment(aParts[k])
+			return []
+		ok
+	next
+	return aParts
+
+# a root: a name, a call, or new Class(...) -- nothing else before the first method
+func AtelierIsRoot cR
+	c = trim(cR)
+	if lower(left(c, 4)) = "new "
+		c = trim(substr(c, 5))
+	ok
+	i = 1
+	n = len(c)
+	if n = 0 or NOT (isalpha(c[1]) or c[1] = "_" or c[1] = "@" or c[1] = "$")
+		return 0
+	ok
+	while i <= n and (isalnum(c[i]) or c[i] = "_" or c[i] = "@" or c[i] = "$")
+		i++
+	end
+	if i > n
+		return 1
+	ok
+	return c[i] = "(" and right(c, 1) = ")" and AtelierBalanced(substr(c, i))
+
+# a segment: .Name(args), balanced, and nothing after the closing parenthesis
+func AtelierIsCallSegment cS
+	if left(cS, 1) != "." or right(cS, 1) != ")"
+		return 0
+	ok
+	nOpen = substr(cS, "(")
+	if nOpen < 3
+		return 0
+	ok
+	cName = substr(cS, 2, nOpen - 2)
+	for i = 1 to len(cName)
+		if NOT (isalnum(cName[i]) or cName[i] = "_" or cName[i] = "@")
+			return 0
+		ok
+	next
+	return AtelierBalanced(substr(cS, nOpen))
+
+# "(...)" whose first parenthesis closes at its last character, outside strings
+func AtelierBalanced cP
+	nD = 0
+	cQ = ""
+	n = len(cP)
+	for i = 1 to n
+		ch = cP[i]
+		if cQ != ""
+			if ch = cQ
+				cQ = ""
+			ok
+			loop
+		ok
+		if ch = '"' or ch = "'" or ch = "`"
+			cQ = ch
+		but ch = "(" or ch = "["
+			nD++
+		but ch = ")" or ch = "]"
+			nD--
+			if nD = 0 and i < n
+				return 0
+			ok
+		ok
+	next
+	return nD = 0
+
+# the same move written in the other forms, when it has them: every method but the last
+# ends in Q (it returns the object, so the chain is one object changed step by step).
+# [ [ "scene", code ], [ "classic", code ] ] -- offered to the reader to run, never run here
+func AtelierForms aParts, cSource, cWrap
+	nK = len(aParts)
+	if nK < 3
+		return []   # a root and one call: no other form says it differently
+	ok
+	for k = 2 to nK - 1
+		cName = AtelierSegName(aParts[k])
+		if upper(right(cName, 1)) != "Q"
+			return []
+		ok
+	next
+	cRoot = aParts[1]
+	bName = AtelierIsName(cRoot)
+	cObj = cRoot
+	if NOT bName
+		cObj = AtelierFreeName(cSource)
+	ok
+	cScene = ""
+	cClassic = ""
+	if NOT bName
+		cClassic = cObj + " = " + cRoot + char(10)
+	ok
+	cScene = cRoot + " {" + char(10)
+	for k = 2 to nK
+		cSeg = aParts[k]
+		cName = AtelierSegName(cSeg)
+		cArgs = substr(cSeg, substr(cSeg, "("))
+		if k < nK
+			cBare = left(cName, len(cName) - 1)
+			cScene += "    " + cBare + cArgs + char(10)
+			cClassic += cObj + "." + cBare + cArgs + char(10)
+		but cWrap = "@@"
+			cScene += "    ? @@( " + cName + cArgs + " )" + char(10)
+			cClassic += "? @@( " + cObj + "." + cName + cArgs + " )" + char(10)
+		else
+			cScene += "    ? " + cName + cArgs + char(10)
+			cClassic += "? " + cObj + "." + cName + cArgs + char(10)
+		ok
+	next
+	cScene += "}" + char(10)
+	return [ [ "scene", cScene ], [ "classic", cClassic ] ]
+
+func AtelierSegName cSeg
+	return substr(cSeg, 2, substr(cSeg, "(") - 2)
+
+func AtelierIsName cR
+	c = trim(cR)
+	if c = ""
+		return 0
+	ok
+	for i = 1 to len(c)
+		if NOT (isalnum(c[i]) or c[i] = "_" or c[i] = "@" or c[i] = "$")
+			return 0
+		ok
+	next
+	return isalpha(c[1]) or c[1] = "_"
+
+# o1, o2 ... the first not used as a word in the cell
+func AtelierFreeName cSource
+	cL = lower(cSource)
+	for k = 1 to 99
+		cName = "o" + k
+		if NOT AtelierHasWord(cL, cName)
+			return cName
+		ok
+	next
+	return "oForm"
+
+func AtelierHasWord cText, cWord
+	nFrom = 1
+	while 1
+		nAt = substr(substr(cText, nFrom), cWord)
+		if nAt = 0
+			return 0
+		ok
+		nAt = nFrom + nAt - 1
+		cBefore = " "
+		cAfter = " "
+		if nAt > 1
+			cBefore = cText[nAt - 1]
+		ok
+		if nAt + len(cWord) <= len(cText)
+			cAfter = cText[nAt + len(cWord)]
+		ok
+		if NOT (isalnum(cBefore) or cBefore = "_") and NOT (isalnum(cAfter) or cAfter = "_")
+			return 1
+		ok
+		nFrom = nAt + 1
+	end
+	return 0
 
 func AtelierLastIndexOf cText, cSub
 	nLast = 0
@@ -369,6 +732,44 @@ func AtelierLastIndexOf cText, cSub
 # and the value's face; a `?` inside a loop is seen once per pass
 func AtelierSee nN, vValue
 	add($aAtelierSeen, [ nN, AtelierPrinted(vValue), AtelierFace(vValue) ])
+
+# one step of an unfolded chain: its value in a LIGHT face (an intermediate object is
+# never asked to draw itself: a step must not cost a render), and its nanoseconds; kept
+# for the first pass of a line only
+func AtelierStep nN, nK, vValue, nNs
+	nPass = 1
+	for i = 1 to len($aAtelierSeen)
+		if $aAtelierSeen[i][1] = nN
+			nPass++
+		ok
+	next
+	if nPass = 1
+		add($aAtelierSteps, [ nN, nK, AtelierLightFace(vValue), nNs ])
+	ok
+
+# a scene's object after a line, in a light face
+func AtelierState nScene, nLine, oObject
+	add($aAtelierStates, [ nScene, nLine, AtelierLightFace(oObject) ])
+
+func AtelierLightFace vValue
+	if isString(vValue)
+		return [ "text", left(vValue, 400), "" ]
+	but isNumber(vValue)
+		return [ "text", "" + vValue, "" ]
+	but isList(vValue)
+		return [ "list", left(@@(vValue), 400), "" + len(vValue) ]
+	but isObject(vValue)
+		cClass = classname(vValue)
+		if ismethod(vValue, "content")
+			try
+				return [ "object", left(@@(vValue.Content()), 400), cClass ]
+			catch
+				cAtelierIgnored = cCatchError   # an empty catch leaks a VM stack slot per raise (F-16)
+			done
+		ok
+		return [ "object", cClass, cClass ]
+	ok
+	return [ "text", "", "" ]
 
 # the text `?` prints: a list one item per line, as Ring prints it
 func AtelierPrinted vValue
@@ -450,7 +851,7 @@ func AtelierFace vValue
 # the cell's answer: how it ended, and each line seen with its values and its
 # promise judged -- kept, diverged; a promise whose line never ran is unreached when
 # the cell broke or never started, unjudged when it finished without walking it
-func AtelierCellJson aSees, cEnd, cErr, cRel, nMs
+func AtelierCellJson aSees, cEnd, cErr, cRel, nMs, aScenes
 	nKept = 0  nDiv = 0  nUnr = 0  nUnj = 0
 	cJ = '{"end":' + AtelierJsonStr(cEnd) + ',"why":' + AtelierJsonStr(cErr) + ',"release":' + AtelierJsonStr(cRel)
 	cJ += ',"ms":' + (floor(nMs * 100 + 0.5) / 100) + ',"sees":['
@@ -496,7 +897,58 @@ func AtelierCellJson aSees, cEnd, cErr, cRel, nMs
 			cJ += ","
 		ok
 		cJ += '{"n":' + aS[:n] + ',"line":' + aS[:line] + ',"expr":' + AtelierJsonStr(aS[:expr]) + ',"promise":' + AtelierJsonStr(aS[:promise])
-		cJ += ',"state":' + AtelierJsonStr(cState) + ',"values":[' + cVals + ']}'
+		cJ += ',"state":' + AtelierJsonStr(cState) + ',"values":[' + cVals + ']'
+		# the chain unfolded: each step's text, its value, its nanoseconds
+		cJ += ',"steps":['
+		bFirst = 1
+		for k = 1 to len($aAtelierSteps)
+			aT = $aAtelierSteps[k]
+			if aT[1] = aS[:n]
+				if NOT bFirst
+					cJ += ","
+				ok
+				bFirst = 0
+				cText = ""
+				if aT[2] <= len(aS[:steps])
+					cText = aS[:steps][aT[2]]
+				ok
+				cJ += '{"k":' + aT[2] + ',"text":' + AtelierJsonStr(cText) + ',"kind":' + AtelierJsonStr(aT[3][1]) + ',"payload":' + AtelierJsonStr(aT[3][2]) + ',"label":' + AtelierJsonStr(aT[3][3]) + ',"ns":' + aT[4] + '}'
+			ok
+		next
+		cJ += '],"forms":['
+		for k = 1 to len(aS[:forms])
+			if k > 1
+				cJ += ","
+			ok
+			cJ += '{"name":' + AtelierJsonStr(aS[:forms][k][1]) + ',"code":' + AtelierJsonStr(aS[:forms][k][2]) + '}'
+		next
+		cJ += ']}'
+	next
+	# the scenes unfolded: the object after each line, and whether that line changed it
+	cJ += '],"scenes":['
+	for i = 1 to len(aScenes)
+		if i > 1
+			cJ += ","
+		ok
+		cJ += '{"id":' + aScenes[i][:id] + ',"name":' + AtelierJsonStr(aScenes[i][:name]) + ',"line":' + aScenes[i][:line] + ',"end":' + aScenes[i][:end] + ',"states":['
+		cPrev = ""
+		bFirst = 1
+		for k = 1 to len($aAtelierStates)
+			aT = $aAtelierStates[k]
+			if aT[1] = aScenes[i][:id]
+				nChanged = 0
+				if NOT bFirst and aT[3][2] != cPrev
+					nChanged = 1
+				ok
+				if NOT bFirst
+					cJ += ","
+				ok
+				cJ += '{"line":' + aT[2] + ',"kind":' + AtelierJsonStr(aT[3][1]) + ',"payload":' + AtelierJsonStr(aT[3][2]) + ',"label":' + AtelierJsonStr(aT[3][3]) + ',"changed":' + nChanged + '}'
+				cPrev = aT[3][2]
+				bFirst = 0
+			ok
+		next
+		cJ += ']}'
 	next
 	cJ += '],"kept":' + nKept + ',"diverged":' + nDiv + ',"unreached":' + nUnr + ',"unjudged":' + nUnj + '}'
 	return cJ

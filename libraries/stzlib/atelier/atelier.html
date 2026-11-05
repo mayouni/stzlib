@@ -16,6 +16,9 @@
    Rule 3, 5, 10    paper tones, one accent (action and selection), one resting shadow, no gradient
    Rule 112, 17, 1  nothing moves: no transition, no animation, no smooth scroll
    Rule 13, 110     the top bar sticks and holds its own space; nothing floats over the reading
+   B1               the process: a chain on a ? line unfolded step by step with each value and its time,
+                    the same move in its other forms (offered, put in the cell by the reader, never run
+                    behind their back), and a scene's object after every line, changed or not
    B0               the notebook is home: a cell, every ? line seen in its value's own face, every
                     #--> promise judged by testoor's matcher; the playground it replaces is gone
    Rule 27          a horizontal main menu of three short labels and NO second level: the domains filter one
@@ -180,6 +183,14 @@ td.name{overflow-wrap:anywhere;text-align:left}
 .see .promise{margin:12px 0 0;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
 .drawing{display:block;max-width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:10px}
 .cellsum{margin:0 0 24px}
+.process{margin:16px 0 0;border-top:1px dashed var(--line);padding:12px 0 0}
+.process table td.code,.process table td.val{text-align:left;font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:var(--code);overflow-wrap:anywhere}
+.process tr.changed td{font-weight:700}
+.process th.l{text-align:left}
+.process td.nw{white-space:nowrap;text-align:left}
+.forms{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:8px 0 0}
+.forms h4{margin:0 0 6px;font-size:var(--read);font-weight:700}
+.forms .act{margin-top:8px}
 .files{margin:8px 0 16px}
 .files summary{cursor:pointer;color:var(--accent);min-height:44px;display:inline-flex;align-items:center;font-weight:500}
 .files table th:nth-child(2),.files table td:nth-child(2){text-align:left}
@@ -294,15 +305,16 @@ o1 {
     ? NumberOfDuplicates()
     #--> 3
 
-    ? @@( FindDuplicates() )
-    #--> [ 3, 5, 6 ]
+    ? @@( DuplicatesRemoved() )
+    #--> [ "tea", "rice", "fish" ]
 
     RemoveDuplicates()
     ? @@( Content() )
     #--> [ "tea", "rice", "fish" ]
 }
 
-? Q("softanza").VizFind("an")
+? Q("softanza").UppercaseQ().Spacified()
+#--> S O F T A N Z A
 
 ? new stzBarPlot([ :Tea = 3, :Rice = 2, :Fish = 1 ])</textarea>
     <div class="row" style="margin-top:12px"><button class="act primary" id="runcell" data-t="nb_run">Run the cell</button><kbd data-t="play_shortcut">Ctrl+Enter</kbd></div>
@@ -577,7 +589,7 @@ function renderCoverage() {
 }
 
 // ---- the notebook: a cell, its lines seen, its promises judged (B0) ----
-let CELL = null;
+let CELL = null, CELLCODE = '';
 try { const saved = localStorage.getItem('atelier.cell'); if (saved && $('#cellcode')) $('#cellcode').value = saved; } catch (e) {}
 function tableFace(html) {
   // the library's ToHtml() is read, never inserted: its text is copied into a table of the page's own
@@ -599,6 +611,54 @@ function faceHtml(v) {
   if (v.kind === 'object') return `<p class="facelabel">${t('face_object', { label: esc(v.label) })}</p><pre>${esc(v.payload)}</pre>`;
   return `<pre>${esc(v.payload)}</pre>`;
 }
+const us = ns => fmt1(Number(ns) / 1000);
+function stepValue(st) {
+  const v = st.kind === 'object' && st.label ? `${st.label}: ${st.payload}` : st.payload;
+  return esc(v.length > 160 ? v.slice(0, 160) + ' ...' : v);
+}
+function chainHtml(s) {
+  if (!s.steps || s.steps.length < 2) return '';
+  const rows = s.steps.map(st => `<tr><td>${st.k}</td><td class="code">${esc(st.text)}</td><td class="val">${stepValue(st)}</td><td>${us(st.ns)}</td></tr>`).join('');
+  let h = `<div class="process"><p class="facelabel"><b>${t('proc_chain')}</b></p><p class="hint" style="margin:0 0 8px">${t('proc_chain_note')}</p>
+    <table><thead><tr><th scope="col">${t('col_step')}</th><th scope="col" class="l">${t('col_call')}</th><th scope="col" class="l">${t('col_value')}</th><th scope="col">${t('col_us')}</th></tr></thead><tbody>${rows}</tbody></table>`;
+  if (s.forms && s.forms.length) {
+    h += `<p class="facelabel" style="margin-top:16px"><b>${t('proc_forms')}</b></p><div class="forms">` +
+      s.forms.map((f, i) => `<div><h4>${t('proc_form_' + f.name)}</h4><pre>${esc(f.code)}</pre><button type="button" class="act" data-see="${s.n}" data-form="${i}">${t('proc_put')}</button></div>`).join('') + '</div>';
+  }
+  return h + '</div>';
+}
+function sceneHtml(sc) {
+  const lines = CELLCODE.split('\n');
+  const answers = {};
+  (CELL.sees || []).forEach(s => { if (s.values.length) answers[s.line] = s.values[s.values.length - 1].payload; });
+  const rows = sc.states.map((st, i) => {
+    const code = i === 0 ? t('proc_before') : (lines[st.line - 1] || '').trim();
+    const ans = answers[st.line] !== undefined ? esc(answers[st.line].slice(0, 120)) : '';
+    const what = i === 0 ? '' : (st.changed ? t('proc_changed') : t('proc_unchanged'));
+    return `<tr class="${st.changed ? 'changed' : ''}"><td>${st.line}</td><td class="code">${esc(code)}</td><td class="val">${ans}</td><td class="val">${stepValue(st)}</td><td class="nw">${what}</td></tr>`;
+  }).join('');
+  return `<article class="card see"><p class="facelabel"><b>${t('proc_scene', { name: esc(sc.name) })}</b></p><p class="hint" style="margin:0 0 8px">${t('proc_scene_note')}</p>
+    <div class="process" style="border:0;padding:0;margin:0"><table><thead><tr><th scope="col">${t('col_line')}</th><th scope="col" class="l">${t('col_code')}</th><th scope="col" class="l">${t('col_answer')}</th><th scope="col" class="l">${t('col_after', { name: esc(sc.name) })}</th><th scope="col" class="l">${t('col_change')}</th></tr></thead><tbody>${rows}</tbody></table></div></article>`;
+}
+// the reader puts a form in the cell, in place of the line it rewrites; its promise follows it
+function putForm(seeN, formI) {
+  const s = (CELL.sees || []).find(x => x.n === seeN);
+  if (!s || !s.forms[formI]) return;
+  const ta = $('#cellcode');
+  const lines = ta.value.split('\n');
+  const i = s.line - 1;
+  const pad = (lines[i] || '').match(/^\s*/)[0];
+  let end = i + 1;
+  if (!/#-->/.test(lines[i] || '')) { while (end < lines.length && /^\s*#/.test(lines[end])) end++; }
+  let form = s.forms[formI].code.replace(/\n$/, '').split('\n');
+  if (s.promise) {
+    let k = form.length - 1; while (k >= 0 && !/^\s*\?/.test(form[k])) k--;
+    if (k >= 0) form[k] = form[k] + '   #--> ' + s.promise.split('\n')[0];
+  }
+  lines.splice(i, end - i, ...form.map(l => pad + l));
+  ta.value = lines.join('\n');
+  ta.focus();
+}
 function renderCell() {
   if (!CELL || !$('#cellout')) return;
   const d = CELL;
@@ -610,6 +670,7 @@ function renderCell() {
     if (d.end === 'broke') sum += ' ' + t('nb_stopped', { why: esc(d.why) });
   }
   let html = `<div class="card cellsum"><p style="margin:0">${sum}</p></div>`;
+  (d.scenes || []).forEach(sc => { if (sc.states && sc.states.length) html += sceneHtml(sc); });
   d.sees.forEach(s => {
     const vals = s.values.map((v, k) => (s.values.length > 1 ? `<p class="facelabel"><b>${t('nb_pass', { k: k + 1 })}</b></p>` : '') + `<div class="face">${faceHtml(v)}</div>`).join('');
     let prom = '';
@@ -618,9 +679,10 @@ function renderCell() {
       prom = `<div class="promise"><span>${t('nb_promised')}: <code>#--&gt; ${esc(s.promise)}</code></span>${came}${s.state ? st(s.state) : ''}</div>`;
     } else if (s.values.length) prom = `<p class="hint">${t('nb_none')}</p>`;
     if (!s.values.length && !s.promise) prom = `<p class="hint">${t('nb_notrun')}</p>`;
-    html += `<article class="card see"><p class="seeline"><span class="mono">${t('nb_line', { n: s.line })}</span><code>? ${esc(s.expr)}</code></p>${vals}${prom}</article>`;
+    html += `<article class="card see"><p class="seeline"><span class="mono">${t('nb_line', { n: s.line })}</span><code>? ${esc(s.expr)}</code></p>${vals}${prom}${chainHtml(s)}</article>`;
   });
   $('#cellout').innerHTML = html;
+  document.querySelectorAll('#cellout button[data-form]').forEach(b => b.onclick = () => putForm(Number(b.dataset.see), Number(b.dataset.form)));
 }
 async function runCell() {
   if (EDITION) return;
@@ -629,7 +691,7 @@ async function runCell() {
   $('#runcell').disabled = true;
   try {
     const r = await fetch('/atelier/cell', { method: 'POST', body: code });
-    CELL = await r.json();
+    CELL = await r.json(); CELLCODE = code;
   } catch (e) { CELL = null; $('#cellout').innerHTML = `<div class="card cellsum"><p style="margin:0">${t('lib_gone')}</p></div>`; }
   $('#runcell').disabled = false;
   try { localStorage.setItem('atelier.cell', code); } catch (e) {}

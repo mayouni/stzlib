@@ -472,3 +472,43 @@ filled.
 seen with its promises kept, a promise diverged, each face (list, table, drawing, object, text), a
 loop seen per pass, a broken cell (kept, then unreached), a cell that does not scan, a function
 defined in a cell released with it, the notebook served as home and the checks at their address.
+
+### B1 -- 2026-11-05 -- the process
+
+**The chain, unfolded.** A `?` line whose expression is a chain -- a root (a name, a call, or
+`new Class(...)`) followed by method calls, alone or inside `@@( )` -- is rewritten so each step
+runs once, into a variable, on what the step before it answered, timed on the engine's monotonic
+clock (`StzEngineWatchTimestampNs`). **Measured first, because it decides correctness:** plain
+variables COPY a Ring object, so `_a_ = o2.AddQ(1)` then `_a_.AddQ(2)` leaves `o2` at 1 where the
+chain written whole leaves it at 3; `ref()` keeps the chain attached (3), on rnxc although
+`isfunction("ref")` answers 0, and refuses a number or a string. So every step but the last is held
+by `ref()` (a step followed by a method is an object), and the last by a plain variable. The guard
+proves it: `o1.RemoveDuplicatesQ().AddQ("soup").Content()` unfolded leaves `o1` as the line
+written whole does. What is not a chain (`1 + Q("ab").NumberOfChars()`) is not unfolded. A chain
+in a loop keeps the steps of its first pass. A step's value is a LIGHT face (an intermediate
+object is never asked to draw itself), its time in microseconds.
+
+**The forms.** When every method but the last ends in Q (each returns the object), the same move
+is offered as a scene (`root { Verb() ? Last() }`) and as the classic form (a name, then one line
+per call). The page offers them with "Put this form in the cell", which replaces the line in the
+cell, its promise carried to the form's `?` line; the reader runs it. Forms are never run behind
+the reader's back. Measured: the scene form of the default chain, put in the cell and run, keeps
+its promise.
+
+**The scene, unfolded.** A line that is only `name {` opens a scene: the object's state is captured
+after the opening and after every COMPLETE statement inside it (braces and brackets counted outside
+strings; a call over several lines is captured once, when it closes; a line that opens a block is
+not a capture point), and the page marks the lines that changed it. Measured in the default cell:
+`DuplicatesRemoved()` leaves `o1` unchanged, `RemoveDuplicates()` changes it -- the function forms
+(`Verbed()` answers, `Verb()` changes) seen, not told. Inside the braces the scene's own name
+reaches the object, and an assignment there makes a global, not an attribute (probed).
+
+**The page.** Under each line seen: the chain's steps (step, call, value, microseconds) and its
+forms; above the lines: each scene's table (line, code, answer, the object after it, changed or
+unchanged). Text columns' headers aligned with their data (Rule 11, a defect seen in a screenshot
+and fixed). StzZui's audit: 0 violations on 5 pages, light and dark. The rendered outputs, which
+the audit cannot reach (it loads pages without running them), measured the same way on a run
+notebook: lowest contrast 5.88:1 light, 5.97:1 dark; smallest text 17 px.
+
+**Guard** `base/test/atelier/atelier_process_narrated.ring`: 37 assertions, about 30 s. The page
+guard learned a key family (`proc_form_` + the form's name): 25 assertions.

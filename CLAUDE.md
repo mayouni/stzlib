@@ -515,12 +515,13 @@ projections; develop a new section as a standalone probe first.
 resident VM: `rnxc resident atelier.ring` from that folder, then http://127.0.0.1:8650/atelier.
 Plan, law and journal: `atelier/SOFTANZA_ATELIER_PLAN.md`. Never call it a lab.
 
-**FAST PATH: the five guards, one process each, from `base/test/atelier`:**
+**FAST PATH: the six guards, one process each, from `base/test/atelier`:**
 ```bash
-cd libraries/stzlib/base/test/atelier && rnxc atelier_cell_narrated.ring && rnxc atelier_page_narrated.ring && rnxc atelier_static_narrated.ring && rnxc atelier_narrated.ring && rnxc atelier_tours_narrated.ring
+cd libraries/stzlib/base/test/atelier && rnxc atelier_process_narrated.ring && rnxc atelier_cell_narrated.ring && rnxc atelier_page_narrated.ring && rnxc atelier_static_narrated.ring && rnxc atelier_narrated.ring && rnxc atelier_tours_narrated.ring
 ```
-The cell guard (B0, 43 assertions, under 40 s) is the workbench's: a cell's lines seen in their faces
-and its promises judged. The checks guard turns red whenever ANY desk's commit moves a check's verdict:
+The cell guard (B0, 43) and the process guard (B1, 37), under 40 s each, are the workbench's: a cell's
+lines seen in their faces and its promises judged; a chain unfolded with `ref()` (a plain variable copies
+a Ring object and detaches the chain from it) and a scene's object after each line. The checks guard turns red whenever ANY desk's commit moves a check's verdict:
 that is its job; read the moved id before re-recording, and re-record only at a pushed commit.
 The static guard (41 assertions, under a minute; python for the builder and the resolver, SKIPPED by
 name without it) is the cheap one: it also scans the Atelier for a drive path, because a recording

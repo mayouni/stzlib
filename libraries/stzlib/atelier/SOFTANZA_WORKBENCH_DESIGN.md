@@ -1,7 +1,9 @@
 # The Atelier as a workbench -- a design, for the author's decision
 
-*Status: B0 BUILT 2026-11-05 (the cell, its faces, its promises judged; see the plan's journal).
-B1 to B5 as proposed below.*
+*Status: B0 BUILT 2026-11-05 (the cell, its faces, its promises judged) and B1 BUILT 2026-11-05
+(the chain and the scene unfolded, the forms offered); see the plan's journal. B2 to B5 as
+proposed below. Natural, the fourth form, is not generated: it is shown only where the reader
+writes it.*
 
 *stzlib-atelier, 2026-11-05. Asked by the author on the live page: "The Atelier should be
 redesigned from the ground up to reflect what we would expect from a programming workbench, yet

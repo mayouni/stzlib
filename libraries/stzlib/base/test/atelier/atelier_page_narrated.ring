@@ -102,7 +102,8 @@ Scenario("The page speaks two languages whole, from one dictionary")
 		if nQ < 2  loop  ok
 		cKey = left(cRest, nQ - 1)
 		nAsked++
-		if find(acEn, cKey) = 0 and left(cKey, 6) != "state_" and left(cKey, 4) != "end_" and left(cKey, 5) != "ring_"
+		# a key FAMILY the page completes at run time (state_kept, end_broke, proc_form_scene...)
+		if find(acEn, cKey) = 0 and left(cKey, 6) != "state_" and left(cKey, 4) != "end_" and left(cKey, 5) != "ring_" and cKey != "proc_form_"
 			nUnknown++
 			? "    unknown key asked by the page: " + cKey
 		ok
@@ -112,6 +113,7 @@ Scenario("The page speaks two languages whole, from one dictionary")
 	? "    the page asks for " + nAsked + " keys (data-t and t() calls)"
 	Then("the page asks for many keys", nAsked > 40, TRUE)
 	Then("and every one it asks for exists", nUnknown, 0)
+	Then("the family of forms has both its members", find(acEn, "proc_form_scene") > 0 and find(acEn, "proc_form_classic") > 0, TRUE)
 	Then("no string of the page is hard-wired past the dictionary: the menu says Checks only as a default", StzFindFirst('data-t="menu_checks"', cPage) > 0, TRUE)
 EndScenario()
 
