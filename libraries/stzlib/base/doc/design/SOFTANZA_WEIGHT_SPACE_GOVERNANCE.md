@@ -200,6 +200,15 @@ bar (a rule that only counts false alarms is met by saying nothing). The patch m
 sibling: every tensor but `logit_shift.weight` byte-identical, verified by digest of each tensor. A miss is
 recorded as a miss; nothing is retuned on the judging pairs.
 
+**The DEV choice, made 2026-11-05 and committed before the judging run** (`image_wsp_dev.ring`, 136 DEV pairs; the incumbent is 0.7647 there):
+the warm rule reaches 0.7868 on seven cells of its grid; the tie is broken, by a rule stated here and not before, toward the LEAST intervention --
+the smallest step, then the warmer cut, so fewer pictures are touched: **cut -0.60, step 0.02**. The patched head reaches **0.8235 at threshold
+0.08** (positives 44 of 68, negatives 68 of 68), the best of its grid and above both others -- on the pictures its direction was found on, so
+the number is in-sample and proves nothing yet. The patched file is `models/vision/owlvit_vision_shiftpatch.gguf`, sha256 `45e95652f5d6af249a101eec2ebfd08296ed6e289eac195a1d90fc219b4d2c63`, replayable
+from `_golden/owl_shift_direction.txt` by `StzEngineNeuralPatchRemoveDirection(c210, column 0)`; it loads only with that digest. Found on the way,
+and fixed: `owl.zig` kept a picture's graph output keyed by the pixels alone, so a patched model was served the original's features (its first
+DEV sweep read exactly the incumbent's numbers, which was the tell); the key now holds the model file too.
+
 What is built for it, in order: section 3's move 1 (tensor values to Ring), move 2 for the shift head's
 output (the engine already computes it inside `owl.zig`: expose it), move 4 for the one op, the two
 implementations in `stzVision.ring`, the guard, the page.

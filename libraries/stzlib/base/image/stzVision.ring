@@ -63,9 +63,9 @@ $nStzVisionFindMax = 20
 # applied by the engine (StzEngineNeuralPatchRemoveDirection); the patched file loads only with the recorded digest. Both cut-offs were
 # chosen on the DEV pairs only and committed before the judging run.
 $nStzVisionWarmShift = -0.60
-$nStzVisionWarmStep = 0.04
+$nStzVisionWarmStep = 0.02
 $cStzVisionOwlPatched = "owlvit_vision_shiftpatch.gguf"
-$cStzVisionOwlPatchedSha256 = ""
+$cStzVisionOwlPatchedSha256 = "45e95652f5d6af249a101eec2ebfd08296ed6e289eac195a1d90fc219b4d2c63"
 # the floor of :find: YOLOX's detections whose COCO label IS the word
 $nStzVisionFindFloorScore = 0.2
 

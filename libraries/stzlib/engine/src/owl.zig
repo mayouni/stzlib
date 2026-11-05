@@ -39,8 +39,14 @@ pub const Found = struct {
     cached: bool,
 };
 
-fn fnv(px: []const u8, w: usize, h: usize, c: usize) u64 {
+/// The key of the kept graph output: the PIXELS and the MODEL FILE -- a patched copy of the model (WSP-SPIKE-01) must not be served the
+/// original's features for the same picture.
+fn fnv(model_path: []const u8, px: []const u8, w: usize, h: usize, c: usize) u64 {
     var hsh: u64 = 0xcbf29ce484222325;
+    for (model_path) |b| {
+        hsh ^= b;
+        hsh *%= 0x100000001b3;
+    }
     for (px) |b| {
         hsh ^= b;
         hsh *%= 0x100000001b3;
@@ -65,7 +71,7 @@ pub fn pixels(px: []const u8, w: usize, h: usize, c: usize) ![]f32 {
 }
 
 fn features(vision_path: []const u8, px: []const u8, w: usize, h: usize, c: usize, n_threads: c_int) !struct { f: []const f32, ms: f64, cached: bool } {
-    const k = fnv(px, w, h, c);
+    const k = fnv(vision_path, px, w, h, c);
     if (last_feats) |f| {
         if (k == last_key) return .{ .f = f, .ms = 0, .cached = true };
     }
