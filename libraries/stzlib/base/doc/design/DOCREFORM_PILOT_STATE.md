@@ -604,3 +604,8 @@ Next by size: 10 classes at 2 (stzWebSocket first), then 28 at 1, then the stzGr
 Connect raised R3 (libcurl is no longer loaded) and Close raised R24 when marked open. The class is now honest: Connect sets a named LastError and fires OnError, never raises on a text, IsOpen stays 0; Close is idempotent. No transport was built: the WebSocket client (RFC 6455 over engine TCP, TLS for wss) is owed to the engine owner. Guard 231 assertions, 10 mutants. Open: the wave data files still carry the old text.
 Next by size: 9 classes at 2 (stzLLMFunction first), then 28 at 1, then the stzGraphQuery follow-up.
 
+## 2026-11-05: the stzLLMFunction fix batch is ON MAIN; register 45 -> 43; the doc tooling runs under rnxc
+
+ReturnsNumber raised R41 on any reply whose first word was not a number and read '1,000' as 1; ReturnsBoolean matched yes/no as substrings ('unknown' = 0, 'yesterday' = 1). One tokenizer now serves both (and ReturnsOneOf, whole words): a number reply holds exactly one number and only filler words; a yes/no reply starts with the answer and is not hedged or contradicted; anything else is a REFUSAL through the class's own retry path with a WHY. Guard 442 assertions under rnxc, 13 mutants. 144 doc-floor errors from other sessions' new methods were repaired the same day (comment-only). The gate, export_reference (7 s under rnxc) and the doc guards run under rnxc with STZ_ENGINE_DIR; _StzBaseDir() follows the engine folder, so a copy outside the tree needs a junction folder (engine -> the copy, base -> the tree) for selfdoc-style guards. Open: ReturnsStructure JSON path accepts NaN/inf/0x10; selfdoc NOT RUN under rnxc (no neural DLL).
+Next by size: 8 classes at 2 (stzHexNumber first), then 28 at 1, then the stzGraphQuery follow-up.
+
