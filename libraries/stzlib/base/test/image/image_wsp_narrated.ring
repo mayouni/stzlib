@@ -11,7 +11,8 @@
 #   Scene 3  THE PATCH REPLAYED: remove-direction on c210 into a fresh file; the same digest as the recorded one; 211 of 212 tensors identical;
 #            the implementation refuses a file whose digest is not the recorded one
 #   Scene 4  THE JUDGING RECORD (judged once, image_wsp_judge.ring): the three shares re-added, the bar applied as written, ten pairs re-run live
-#   Scene 5  the registry: five implementations of :find measured, the faculty answers through the choice and says which
+#   Scene 5  the registry and the court: the measurements, then the court's reading of the same record (section 8) -- the one-pair
+#            win is refused, the incumbent holds, and the faculty answers through it
 #   Scene 6  what a person looks at: the shift field as a heat map over the photograph, what the patch removed and what it lost
 #
 # NEEDS the engine built with WSP-SPIKE-01, models/vision/owlvit_* and owlvit_vision_shiftpatch.gguf (models/MODELS.md), and the COCO pictures.
@@ -161,11 +162,16 @@ sec("scene 4")
 
 ? "-- Scene 5: the registry --"
 chk("the measurements shipped with the library hold all three implementations and the floor of :find", len(StzMeasurementOf("find", "owlvit", "find-v1")) > 0 and len(StzMeasurementOf("find", "owlvit+warm-rule", "find-v1")) > 0 and len(StzMeasurementOf("find", "owlvit+shift-patch", "find-v1")) > 0 and len(StzMeasurementOf("find", "yolox-by-name", "find-v1")) > 0)
-cChosen = StzModelRegistryQ().ResolveQ(StzRequirementQ("find")).Chosen()
-chk("the registry resolves :find to '" + cChosen + "' from the measurements alone -- the rule, not a preference", cChosen = "owlvit+shift-patch")
+oPlan = StzModelRegistryQ().ResolveQ(StzRequirementQ("find"))
+cChosen = oPlan.Chosen()
+aCourt = StzCourtVerdictOf("find", "find-v1", "owlvit+shift-patch", "owlvit")
+? "      the court on find-v1: shift-patch over owlvit " + aCourt[:gains] + " gains, " + aCourt[:losses] + " losses, P = " + aCourt[:p] + " -> " + aCourt[:verdict]
+chk("THE COURT (section 8) reads the same record: the patch's 10 gains against 9 losses give P = 0.5 and it is REFUSED", aCourt[:gains] = 10 and aCourt[:losses] = 9 and _Abs(aCourt[:p] - 0.5) < 0.000001 and aCourt[:verdict] = "refused")
+chk("the registry resolves :find to '" + cChosen + "': the incumbent holds, because the burden is on the change", cChosen = "owlvit")
+chk("and its Why names the court's refusal of the patch with its evidence", len(StzFind("the court REFUSED it against 'owlvit'", oPlan.Why())) > 0 and len(StzFind("P = 0.5", oPlan.Why())) > 0)
 oF = StzRunFaculty("find", [ $cCoco + "000000001675.jpg", "cat" ], [], [], [], 0)
 ? "      the faculty on 'cat': " + @@(oF.Provenance()) + " " + oF.CiteFindings()
-chk("StzRunFaculty(:find) answers through the patched head and its provenance says so", oF.IsRefusal() = 0 and len(oF.Value()) >= 1 and oF.Value()[1][:query] = "cat" and len(StzFind("owlvit+shift-patch", @@(oF.Provenance()))) > 0)
+chk("StzRunFaculty(:find) answers through owlvit and its provenance says so", oF.IsRefusal() = 0 and len(oF.Value()) >= 1 and oF.Value()[1][:query] = "cat" and len(StzFind("owlvit", @@(oF.Provenance()))) > 0 and len(StzFind("shift-patch", @@(oF.Provenance()))) = 0)
 sec("scene 5")
 
 ? "-- Scene 6: what a person looks at --"

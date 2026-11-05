@@ -218,6 +218,12 @@ on warm pictures 252 (refused, not strictly above); the shift head with the warm
 (chosen by the rule as written, by one pair, with six of nine false alarms gone and nine positives lost -- recorded as noise-level). The engine
 gained tensors read, digested and patched by name (`weights.zig`) and the heads tap (`owl.zig`); the patched file loads only with its digest.
 
+**The court (2026-11-05).** A one-pair win passes "strictly more" and is noise, so the registry gained a court (`stzModelRegistry.ring`, step
+5b; `base/image/vision.court.txt`): on the same items, a challenger is upheld over the incumbent only when its gains among the discordant items
+pass the exact one-sided sign test at 0.05. Read on the find-v1 record it refuses both WSP challengers (10 vs 9, P = 0.50; 1 vs 1, P = 0.75)
+and `:find` resolves to `owlvit` again. A fresh set (find-v2, 952 pairs on 292 pictures no implementation has seen) is defined, and judged once,
+by `SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md` section 8.
+
 **The perception gate** (`CENTRAL-PERCEPTGATE-01`) binds every rung: images reach a person through
 sight, so each rung ships PNGs a person can open, and records who looked and what they said. A
 counter proves delivery; only a look proves the picture is right.

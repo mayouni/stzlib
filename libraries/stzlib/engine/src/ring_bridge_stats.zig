@@ -391,6 +391,17 @@ fn ring_Erfc(p: *anyopaque) callconv(.c) void { rn(p, special.erfc(g(p, 1))); }
 fn ring_LogGamma(p: *anyopaque) callconv(.c) void { rn(p, special.stz_special_lgamma(g(p, 1))); }
 fn ring_Gamma(p: *anyopaque) callconv(.c) void { rn(p, special.stz_special_tgamma(g(p, 1))); }
 fn ring_GammaP(p: *anyopaque) callconv(.c) void { rn(p, special.gammaP(g(p, 1), g(p, 2))); }
+// P(X >= k) for X ~ Binomial(n, q), exact, on the regularized incomplete beta: 1 when k <= 0, 0 when k > n, else I_q(k, n - k + 1).
+// The WSP court's one-sided sign test is this
+// (k = the challenger's gains among the discordant pairs, n = the discordant pairs, q = 1/2)
+fn ring_BinomialUpperTail(p: *anyopaque) callconv(.c) void {
+    const k = g(p, 1);
+    const n = g(p, 2);
+    const q = g(p, 3);
+    if (k <= 0) return rn(p, 1);
+    if (k > n) return rn(p, 0);
+    rn(p, special.betaI(k, n - k + 1.0, q));
+}
 fn ring_GammaQ(p: *anyopaque) callconv(.c) void { rn(p, special.gammaQ(g(p, 1), g(p, 2))); }
 fn ring_BetaI(p: *anyopaque) callconv(.c) void { rn(p, special.betaI(g(p, 1), g(p, 2), g(p, 3))); }
 fn ring_NormalCdf(p: *anyopaque) callconv(.c) void { rn(p, special.normalCdf(g(p, 1))); }
@@ -3983,6 +3994,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelgamma", .func = &ring_LogGamma },
     .{ .name = "stzenginegammafn", .func = &ring_Gamma },
     .{ .name = "stzenginegammap", .func = &ring_GammaP },
+    .{ .name = "stzenginebinomialuppertail", .func = &ring_BinomialUpperTail },
     .{ .name = "stzenginegammaq", .func = &ring_GammaQ },
     .{ .name = "stzenginebetai", .func = &ring_BetaI },
     .{ .name = "stzenginenormalcdf", .func = &ring_NormalCdf },

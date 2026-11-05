@@ -239,6 +239,43 @@ measurement says so, and the record beside it says what the measurement is worth
 The guard is `image_wsp_narrated.ring`; the page `_find-out/find_wsp.html` shows the shift field of four pictures as a 24 x 24 heat map over the
 photograph, the six false alarms the patch removed and the nine positives it lost.
 
+## 8. The margin rule, and the fresh set (written 2026-11-05, committed BEFORE the fresh pictures existed on this machine)
+
+The author ruled: write the margin rule and re-judge on a fresh set.
+
+**The margin rule -- the court.** When two implementations of a faculty are judged on the SAME items, "strictly more" is replaced by a
+court. The evidence is in the DISCORDANT items, where one agrees and the other does not; agreements and disagreements both share are
+uninformative. A challenger is UPHELD over another implementation only when its gains g among the n = g + l discordant items are improbable as
+chance: the exact one-sided sign test (McNemar's test, exact), **P(X >= g | n, 1/2) <= 0.05**, computed by the engine as I_{1/2}(g, n - g + 1)
+on the regularized incomplete beta (`StzEngineBinomialUpperTail`, held to exact sums: 0.5, 0.031784, 0.083534, 0.028444). The section 6 note
+proposed a fixed band of about nine pairs; the paired test replaces it, because both implementations answer the same items and the band ignored
+that. **The burden is on the change**: the court sits with an INCUMBENT; the incumbent must be upheld against the floor; every other
+implementation must be upheld against the incumbent AND the floor; a tie leaves things as they were. The verdict is DERIVED from the counts
+every time the court record is recorded or loaded (`base/image/vision.court.txt`); only the counts are evidence. The registry applies it as
+step 5b; a faculty with no court record is judged as before.
+
+**Read on the find-v1 record, the rule refuses both challengers.** The shift patch's 10 gains against 9 losses give P = 0.50; the warm rule's
+1 against 1 gives P = 0.75; `owlvit` over the floor, 76 against 11, is upheld. Those twelve counts are in `vision.court.txt` with the incumbent
+`owlvit`, so from this commit `:find` resolves to `owlvit` again on find-v1. The find-v1 verdict as first written ("chosen by one pair") stays
+in the record above; this is the court's reading of the same evidence, not a rewrite of it.
+
+**The fresh set, find-v2** (`_rig/owl_golden_fresh.py`): LVIS v1 val pictures that are COCO val2017 pictures and are NOT among the 116 the
+find-v1 golden used (every picture on disk when this rule was written), ordered by sha1("find-v2:<id>"), the first 300; all JUDGING, nothing
+tuned on them. Pairs by exactly the find-v1 rule (positives with a box of at least 2% of the picture and exhaustive annotation; negatives LVIS
+verified absent, sampled to as many as the positives by sha1("find-v2:<picture>:<category>")). Computed from the annotations alone, before
+any picture was fetched: **952 pairs on 292 pictures (8 of the 300 carry no qualifying pair), 497 words, 476 positive; kind A 195, kind B 757.**
+
+**What is judged, and how** (`image_wsp_judge_v2.ring`, once): the floor `yolox-by-name`, `owlvit` (0.08), `owlvit+warm-rule` (cut -0.60,
+step 0.02) and `owlvit+shift-patch` (0.08, the file whose digest is recorded) -- every value as committed in `f7d102526`, nothing retuned.
+The run writes the four measurements and the gains and losses of every ordered pair of implementations. **The incumbent is `owlvit`**: it held
+`:find` under the IM9f rule, and the two WSP edits are its challengers. **A challenger takes `:find` only if the court upholds it against
+`owlvit` and the floor on find-v2.** When the run is recorded, the faculty's golden version moves to `find-v2`. A refusal is recorded as a
+refusal; nothing is tuned on the fresh pairs.
+
+**What the size buys, stated before the run.** At the find-v1 rate of discordance (19 of 320, 6%), 952 pairs give about 57 discordant pairs;
+the patch is then upheld only with at least 36 gains of 57 (63%). A patch that truly helps as little as the find-v1 reading suggests will be
+refused, and that is the rule working.
+
 ## 7. Limits, stated
 
 - A pattern over weights proves the edit IS what it says (which tensors, which columns, which direction).

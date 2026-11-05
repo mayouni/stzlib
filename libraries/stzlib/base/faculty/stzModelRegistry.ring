@@ -20,6 +20,9 @@ $cStzModelPolicy  = "auto"    # auto | deterministic   (deterministic = every fa
 $aStzModelTrace   = []        # one row per resolution: [ :faculty, :chosen, :implicit, :why ]
 $cStzResidentNeedle = ""      # the model currently resident in the engine's single slot
 $aStzSwaps        = []        # [ :needle, :seconds ] -- what load-swap costs, measured
+$aStzCourt        = []        # rows [ :faculty, :golden, :challenger, :other, :gains, :losses, :p, :verdict, :date, :note ]
+$nStzCourtAlpha   = 0.05      # the court's level: a challenger's gains must be this improbable as chance
+$aStzCourtIncumbents = []     # rows [ :faculty, :golden, :impl ] -- who holds the faculty when the court sits
 
 # ---- policy: one switch turns the models off -----------------------------------------------------
 # StzModelPolicy(:deterministic) or the environment STZ_MODELS=off. Every faculty then resolves to its floor,
@@ -90,6 +93,87 @@ func StzLoadMeasurements(pcPath)
 			if len(_aF_) >= 7 _cDate_ = _aF_[7] ok
 			StzRecordMeasurement(_aF_[1], _aF_[2], _aF_[3], 0 + _aF_[4], 0 + _aF_[5], 0 + _aF_[6], _cNote_)
 			$aStzMeasurements[len($aStzMeasurements)][:date] = _cDate_
+			_nLoaded_++
+		ok
+	next
+	return _nLoaded_
+
+# ---- the court (SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8, written 2026-11-05) ----------------------
+# A measurement that beats another by ONE pair on the same golden set passes "strictly more" and is noise. When two implementations are judged
+# on the SAME items, the evidence is in the DISCORDANT items -- the ones where one agrees and the other does not. The court upholds a
+# challenger over another implementation only when its gains among them are improbable as chance: the exact one-sided sign test (McNemar's,
+# exact), P(X >= gains | discordant, 1/2) <= $nStzCourtAlpha, computed by the engine on the regularized incomplete beta. The verdict is DERIVED
+# from the gains and losses every time it is recorded or loaded; only the counts are evidence. A faculty whose golden set has court records is
+# judged by them (the registry, step 5b); a faculty without any is judged as before.
+# THE BURDEN IS ON THE CHANGE: the court sits with an INCUMBENT (the implementation that holds the faculty when the challengers are judged;
+# the floor when none is declared). The incumbent must be upheld against the floor; every other implementation must be upheld against the
+# incumbent AND the floor. The incumbent never has to prove itself against a challenger -- a tie leaves things as they were.
+func StzRecordCourtVerdict(pcFaculty, pcGolden, pcChallenger, pcOther, pnGains, pnLosses, pcNote)
+	for _i_ = len($aStzCourt) to 1 step -1
+		_a_ = $aStzCourt[_i_]
+		if _a_[:faculty] = pcFaculty and _a_[:golden] = pcGolden and _a_[:challenger] = pcChallenger and _a_[:other] = pcOther
+			del($aStzCourt, _i_)
+		ok
+	next
+	_n_ = pnGains + pnLosses
+	_p_ = StzEngineBinomialUpperTail(pnGains, _n_, 0.5)
+	_cV_ = "refused"
+	if pnGains > pnLosses and _p_ <= $nStzCourtAlpha _cV_ = "upheld" ok
+	add($aStzCourt, [ :faculty = pcFaculty, :golden = pcGolden, :challenger = pcChallenger, :other = pcOther, :gains = pnGains,
+			  :losses = pnLosses, :p = _p_, :verdict = _cV_, :date = date() + " " + time(), :note = pcNote ])
+	return _cV_
+
+func StzCourtVerdictOf(pcFaculty, pcGolden, pcChallenger, pcOther)
+	for _i_ = 1 to len($aStzCourt)
+		_a_ = $aStzCourt[_i_]
+		if _a_[:faculty] = pcFaculty and _a_[:golden] = pcGolden and _a_[:challenger] = pcChallenger and _a_[:other] = pcOther return _a_ ok
+	next
+	return []
+
+func StzCourtHasRecords(pcFaculty, pcGolden)
+	for _i_ = 1 to len($aStzCourt)
+		if $aStzCourt[_i_][:faculty] = pcFaculty and $aStzCourt[_i_][:golden] = pcGolden return 1 ok
+	next
+	return 0
+
+func StzCourt()
+	return $aStzCourt
+
+func StzSetCourtIncumbent(pcFaculty, pcGolden, pcImpl)
+	for _i_ = len($aStzCourtIncumbents) to 1 step -1
+		if $aStzCourtIncumbents[_i_][:faculty] = pcFaculty and $aStzCourtIncumbents[_i_][:golden] = pcGolden del($aStzCourtIncumbents, _i_) ok
+	next
+	add($aStzCourtIncumbents, [ :faculty = pcFaculty, :golden = pcGolden, :impl = pcImpl ])
+
+# the incumbent the court sits with; "" when none is declared (the floor then)
+func StzCourtIncumbent(pcFaculty, pcGolden)
+	for _i_ = 1 to len($aStzCourtIncumbents)
+		if $aStzCourtIncumbents[_i_][:faculty] = pcFaculty and $aStzCourtIncumbents[_i_][:golden] = pcGolden return $aStzCourtIncumbents[_i_][:impl] ok
+	next
+	return ""
+
+func StzClearCourt()
+	$aStzCourt = []
+	$aStzCourtIncumbents = []
+
+# persisted as plain text lines:  faculty|golden|challenger|other|gains|losses|p|verdict|date|note  -- p and the verdict are written for a
+# reader, and RECOMPUTED from the gains and losses when the file is loaded; and  incumbent|faculty|golden|impl  for who holds the faculty
+func StzLoadCourt(pcPath)
+	if NOT fexists(pcPath) return 0 ok
+	_aL_ = split(read(pcPath), char(10))
+	_nLoaded_ = 0
+	for _i_ = 1 to len(_aL_)
+		if left(_aL_[_i_], 1) = "#" or len(trim(_aL_[_i_])) = 0 loop ok
+		_aF_ = split(_aL_[_i_], "|")
+		if len(_aF_) = 4 and _aF_[1] = "incumbent"
+			StzSetCourtIncumbent(_aF_[2], _aF_[3], trim(_aF_[4]))
+			loop
+		ok
+		if len(_aF_) >= 6
+			_cNote_ = ""
+			if len(_aF_) >= 10 _cNote_ = trim(_aF_[10]) ok
+			StzRecordCourtVerdict(_aF_[1], _aF_[2], _aF_[3], _aF_[4], 0 + _aF_[5], 0 + _aF_[6], _cNote_)
+			if len(_aF_) >= 9 $aStzCourt[len($aStzCourt)][:date] = _aF_[9] ok
 			_nLoaded_++
 		ok
 	next
@@ -311,6 +395,39 @@ func StzResolveFaculty(pReq, paPins)
 				ok
 			next
 		next
+	ok
+
+	# 5b. THE COURT: when the golden set has court records, the incumbent stays if it is upheld against the floor, and any other
+	# candidate stays only if it is upheld against the incumbent AND the floor; a missing record is not an acquittal
+	if StzCourtHasRecords(_cFac_, _cGold_) and len(_aElig_) > 0
+		_cInc_ = StzCourtIncumbent(_cFac_, _cGold_)
+		if _cInc_ = "" _cInc_ = _aFloor_[:id] ok
+		_aKept_ = []
+		for _i_ = 1 to len(_aElig_)
+			_cId_ = _aElig_[_i_][1][:id]
+			_aOthers_ = [ _aFloor_[:id] ]
+			if _cId_ != _cInc_ and _cInc_ != _aFloor_[:id] add(_aOthers_, _cInc_) ok
+			_bOk_ = 1
+			for _k_ = 1 to len(_aOthers_)
+				_aV_ = StzCourtVerdictOf(_cFac_, _cGold_, _cId_, _aOthers_[_k_])
+				if len(_aV_) = 0
+					add(_aRej_, [ _cId_, "not judged by the court against '" + _aOthers_[_k_] + "' on golden set " + _cGold_ ])
+					_bOk_ = 0
+					exit
+				ok
+				if _aV_[:verdict] != "upheld"
+					add(_aRej_, [ _cId_, "the court REFUSED it against '" + _aOthers_[_k_] + "' on golden set " + _cGold_ + ": " + _aV_[:gains] +
+						" gains and " + _aV_[:losses] + " losses among " + (_aV_[:gains] + _aV_[:losses]) + " discordant items, P = " + _aV_[:p] ])
+					_bOk_ = 0
+					exit
+				ok
+			next
+			if _bOk_ = 1 add(_aKept_, _aElig_[_i_]) ok
+		next
+		if len(_aKept_) > 0
+			add(_aWhy_, "the court (incumbent '" + _cInc_ + "') upheld '" + _aKept_[1][1][:id] + "' on golden set " + _cGold_)
+		ok
+		_aElig_ = _aKept_
 	ok
 
 	if len(_aElig_) > 0

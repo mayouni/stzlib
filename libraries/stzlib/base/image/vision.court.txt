@@ -1,0 +1,18 @@
+# zcourt 1 -- the court's evidence per faculty and golden set (SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8)
+# faculty|golden|challenger|other|gains|losses   -- gains: items the challenger gets right and the other wrong; losses: the reverse
+# the verdict is derived when the file is loaded: upheld when gains > losses and P(X >= gains | gains + losses, 1/2) <= 0.05
+# incumbent|faculty|golden|impl   -- who holds the faculty when the court sits; the burden is on every other implementation
+# find-v1: read from owl_find_v1_judged.tsv and owl_wsp_judged.tsv (320 pairs) on 2026-11-05
+incumbent|find|find-v1|owlvit
+find|find-v1|yolox-by-name|owlvit|11|76
+find|find-v1|yolox-by-name|owlvit+warm-rule|11|76
+find|find-v1|yolox-by-name|owlvit+shift-patch|7|73
+find|find-v1|owlvit|yolox-by-name|76|11
+find|find-v1|owlvit|owlvit+warm-rule|1|1
+find|find-v1|owlvit|owlvit+shift-patch|9|10
+find|find-v1|owlvit+warm-rule|yolox-by-name|76|11
+find|find-v1|owlvit+warm-rule|owlvit|1|1
+find|find-v1|owlvit+warm-rule|owlvit+shift-patch|8|9
+find|find-v1|owlvit+shift-patch|yolox-by-name|73|7
+find|find-v1|owlvit+shift-patch|owlvit|10|9
+find|find-v1|owlvit+shift-patch|owlvit+warm-rule|9|8

@@ -353,6 +353,9 @@ func StzVisionDeclare(paGoldens)
 	if len(StzMeasurementOf("faces", "platform", "coco-v1")) = 0 and fexists(StzVisionMeasurementsFile())
 		StzLoadMeasurements(StzVisionMeasurementsFile())
 	ok
+	if len(StzCourt()) = 0 and fexists(StzVisionCourtFile())
+		StzLoadCourt(StzVisionCourtFile())
+	ok
 	if isList(paGoldens)
 		_n_ = len(paGoldens)
 		for _i_ = 1 to _n_
@@ -366,6 +369,10 @@ func StzVisionDeclare(paGoldens)
 			ok
 		next
 	ok
+
+# The court's records shipped with the library: base/image/vision.court.txt (counts only; the verdicts are recomputed on load).
+func StzVisionCourtFile()
+	return StzReplace(StzVisionMeasurementsFile(), "vision.zmdl.txt", "vision.court.txt")
 
 # The measurements shipped with the library: base/image/vision.zmdl.txt.
 func StzVisionMeasurementsFile()
