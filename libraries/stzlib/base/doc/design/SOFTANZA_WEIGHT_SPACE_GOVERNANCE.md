@@ -215,6 +215,30 @@ implementations in `stzVision.ring`, the guard, the page.
 
 ---
 
+**THE VERDICT (2026-11-05, `image_wsp_judge.ring`, the 320 judging pairs, once).** The incumbent 252 (0.7875). **`owlvit+warm-rule` 252 (0.7875):
+equal, not strictly above -- REFUSED.** It changed two pairs: one false alarm gone (flowerpot), one COCO positive lost (pizza). **`owlvit+shift-patch`
+253 (0.7906): strictly above, BY ONE PAIR -- CHOSEN by the rule as written.** It changed nineteen: ten gained (six of the nine false alarms --
+chandelier, flowerpot, bath mat, christmas tree, turtle, tonic -- and four positives: table twice, ladder, tablecloth) and nine lost (ski parka,
+truck, pillow, headlight, sheep, painting, bowl, curtain, pizza). By kind: kind A positives 34 / 33 / 30 of 42; kind B positives 67 / 67 / 66 of 118;
+kind B negatives 142 / 143 / 148 of 151. Both rows are in `vision.zmdl.txt`; the registry now resolves `:find` to the patched head because the
+measurement says so, and the record beside it says what the measurement is worth:
+
+- **a margin of one pair in 320 is noise.** The rule said "strictly more" and was applied as written -- that is the law's point, a rule is not
+  re-read after the data -- but a reshuffle of 19 pairs with a net of +1 is not evidence the patch helps. The next rule written for a weight edit
+  owes a MARGIN above the judging set's own noise (for 320 balanced pairs, a binomial band of about +-0.02 of share, nine pairs), stated beforehand.
+- **DEV's 0.8235 did not transfer (0.7906).** The direction was found on the DEV pictures, so the DEV number was in-sample; the drop is the size of
+  that bias, measured. A direction found on pictures the thresholds are not tuned on is the obvious next design.
+- **what the patch did is exactly what it was named to do.** Six false alarms on warm pictures are gone; the price was paid in positives, mostly
+  the floor's own words (kind A: 34 -> 30). The head stopped reading the warm axis for everything, not only for absent words -- a bias term cannot
+  tell a present object from an absent one. That is the limit of editing a 768 -> 1 head, and it says where a real fix lives: in the class head
+  (768 -> 512), or in the threshold itself as a function of the field, which is the warm rule, which did not beat the incumbent either.
+- **the court worked.** Three implementations, one rule, one run, both verdicts on record, the digest of the patched file bound to its
+  implementation, 211 of 212 tensors proven untouched by digest, the direction kept so the patch replays. This is what the paper's authors say
+  they are building; it took a day here because the pieces existed.
+
+The guard is `image_wsp_narrated.ring`; the page `_find-out/find_wsp.html` shows the shift field of four pictures as a 24 x 24 heat map over the
+photograph, the six false alarms the patch removed and the nine positives it lost.
+
 ## 7. Limits, stated
 
 - A pattern over weights proves the edit IS what it says (which tensors, which columns, which direction).

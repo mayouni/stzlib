@@ -211,6 +211,13 @@ record re-added and ten pairs re-run live, the registry, the page). The page `_f
 the deferred list: words that need a larger model than the 32-pixel-patch base (small objects are out of reach: boxes under 2% of the picture are not even scored), a half-precision graph
 (it would halve the 611 MB), and a golden with more than 116 pictures (the pictures on disk are what LVIS and the COCO subset share).
 
+**WSP-SPIKE-01 (2026-11-05), the first weight edit under the court -- see `SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md`.** OWL-ViT's nine false
+alarms are warm pictures (the logit_shift head's mean over the 576 patches ranks every judging picture; all nine fall in the warmer half). Three
+implementations of `:find` were judged once on the 320 pairs above: the incumbent 252; a listex rule over the shift field raising the threshold
+on warm pictures 252 (refused, not strictly above); the shift head with the warm direction removed by the engine's `remove-direction` op 253
+(chosen by the rule as written, by one pair, with six of nine false alarms gone and nine positives lost -- recorded as noise-level). The engine
+gained tensors read, digested and patched by name (`weights.zig`) and the heads tap (`owl.zig`); the patched file loads only with its digest.
+
 **The perception gate** (`CENTRAL-PERCEPTGATE-01`) binds every rung: images reach a person through
 sight, so each rung ships PNGs a person can open, and records who looked and what they said. A
 counter proves delivery; only a look proves the picture is right.
