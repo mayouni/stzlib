@@ -74,12 +74,19 @@ Two consequences shape everything below:
 | code that runs at install or start, from a taken-over account | LiteLLM on PyPI; npm worms | models digest-gated (status -3 refuses) [M]; 21 vendored C libraries carry VERSION, no digest [M `engine/vendor/*/VERSION*`]; releases unsigned (R12) | **B1** + R12 |
 | a pinned version nobody moved | every distribution still on an old kernel | Harobanda's pin, 6.12.109, with no written bump rule [M `vendor/PIN.md`] | **B6** |
 
-## 3. Part A -- the language: what Ring++ ships now, what Haro inherits
+## 3. Part A -- the language: what Haro ships, what Ring++ keeps running
 
-Ring is retired (RING-RETIRED-01) and Haro runs on Ring++ in its own repository, so a language
-feature has one place to land: Ring++'s compiler and the `rnx` VM. Haro's grammar then
-inherits it with its own spelling. Each item names the class it closes and the number behind
-it.
+**Corrected 2026-11-05 17:47 (SECURITY-HAROVM-01).** The first draft of this section said a
+language feature "has one place to land: Ring++'s compiler and the `rnx` VM", and that Haro
+inherits it. That was wrong at the source: on 2026-11-02 Haro forked Ring++'s VM and compiler
+into its own `vm/` (ringpp `2ea38fd`, Haro D39) and its policy is *a fix made in one is carried
+to the other by hand, when it matters* (`haro/vm/NOTES.md:12`). Nothing flows from Ring++ to
+Haro by itself. So the one place a language feature lands is **Haro**, the language agentic
+programs are written in. Ring++ is the bridge that keeps Softanza's 697 Ring files running and,
+by its own handoff note, takes fixes only when Softanza-shaped code meets them; it gets nothing
+new from this document. The rungs below carry the corrected owners. Each item names the class
+it closes and the number behind it; the snippets are written in Ring's spelling because that is
+what stzlib's measured sites look like today, and Haro respells them in its grammar.
 
 ### A1. `finally` -- cleanup that runs on every exit [D]
 
@@ -263,8 +270,8 @@ find; it does not prove absence.
 | W0 | B1 `stzExposure` + digests for the 21 vendored libraries + the listener sweep | stzlib-security | 1 | `exposure_narrated`: the inventory names every domain, library and listener; a changed vendored file is refused |
 | W1 | B2 feed on a fixture, B4 event kinds, the drill scenario | stzlib-security | 2 | `advisory_watch_narrated`: a seeded advisory reaches `exposure.closed` in the drill, number printed |
 | W2a | B3 Ring rules in `stzCodeRules.ring`, Zig sweep in `engine/tools` | stzlib-security | 1 | both print their numbers on the tree; AMBIENT-01 is found by the rule |
-| W2b | A5 the same five rules in `rnxc check` | ringpp | 2 | the rules fire on stzlib's measured sites and nowhere else |
-| W3 | A1 `finally`, A2 `within`, A3 `using`, A4 `catch e` | ringpp | 5 | a VM guard per semantics line of A1; stzlib's 8 restore sites rewritten and the rule reads 0 |
+| W2b | A5 the same five rules in Haro's checker (WITHDRAWN from `rnxc check` 2026-11-05: stzlib's Ring code is already checked by W2a, and a rule in the bridge reaches nothing else) | haro | 2 | the rules fire on planted shapes in `.haro` and nowhere else |
+| W3 | A1 `finally`, A2 `within`, A3 `using`, A4 `catch e` (owner moved from ringpp to haro 2026-11-05, SECURITY-HAROVM-01: Haro's VM is a fork, nothing flows into it) | haro | 5 | a VM guard per semantics line of A1; stzlib's 8 restore sites rewritten once stzlib runs on Haro, and the rule reads 0 |
 | W4 | A6 `NEEDS` on a language declaration | haro-charter (design) then haro | charter 1, build after ZC4 | a world in a language without `network` cannot parse a listener |
 | W5 | B6 `harb advisories`, the pin rule, ALGOUT-01, and the pin moved past the TCP fix | harobanda | 1 + the bump | the reference boot proves the fix and the exclusion |
 | W6 | B5 responder; B7 audit agent under the court | stzlib-security + stzlib-intelligence | 2 | the drill shuts a door in under its budget; the audit re-finds a planted bug and leaves a clean file alone |
@@ -288,12 +295,16 @@ of two bug classes costs zero after it.
 Each ruling below is the recommendation this plane made, adopted on the author's word of
 2026-11-05 15:20. Each is reversible by its number; a reversal is a line in CONCLUSIONS.
 
-1. **A1-A4 land in Ring++ with these spellings: `finally`, `within`, `using`, `catch e`.**
-   RULED YES. The semantics of section 3 are the ruling; Haro may respell in its own grammar
-   provided every semantics line of A1 holds. Owner: ringpp (RINGPP-ONEHOUR-01).
-2. **`cCatchError` is retired once `catch e` ships.** RULED YES, in two steps: `rnxc check`
-   reports `last-error-read` at note tier from the day `catch e` ships; stzlib migrates by one
-   sweep (this plane); the tier becomes err when that sweep reads 0 across the estate.
+1. **A1-A4 land in Haro with these spellings: `finally`, `within`, `using`, `catch e`.**
+   RULED YES. The semantics of section 3 are the ruling; Haro respells in its own grammar
+   provided every semantics line of A1 holds. Owner: haro (HARO-ONEHOUR-02). *Amended
+   2026-11-05 17:47: the first text said Ring++ and RINGPP-ONEHOUR-01; Haro's VM is a fork of
+   Ring++ and inherits nothing, so the owner was wrong (SECURITY-HAROVM-01). Ring++ is frozen
+   as the bridge and ships none of A1-A4.*
+2. **`cCatchError` is retired once `catch e` ships.** RULED YES, in two steps: the
+   `last-error-read` rule reports at note tier from the day `catch e` ships (stzCodeRules
+   today, Haro's checker then); stzlib migrates by one sweep (this plane) the day it runs on
+   Haro; the tier becomes err when that sweep reads 0 across the estate.
 3. **Engine domains load on need, not all 87 at start.** RULED YES as a principle, gated by
    a measurement before any behaviour changes: rung W7 (this plane) first records cold-start
    time and the domains a program touches for the guards it owns, then designs the manifest
