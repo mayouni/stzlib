@@ -512,3 +512,41 @@ notebook: lowest contrast 5.88:1 light, 5.97:1 dark; smallest text 17 px.
 
 **Guard** `base/test/atelier/atelier_process_narrated.ring`: 37 assertions, about 30 s. The page
 guard learned a key family (`proc_form_` + the form's name): 25 assertions.
+
+### B2 -- 2026-11-05 -- the notebook
+
+**A notebook IS a narrated test file.** Running cell k runs cells 1 to k as ONE admission, top to
+bottom, so a name a cell makes is the one the cells below it read, exactly as a file read once
+would make it. Nothing is kept between two runs: a run is the file from its first line
+(measured: a name assigned in one run is unknown to the next, `isglobal` answers 0, because an
+assignment at the top of an admitted unit makes a name of that unit, released with it). Ring ends a
+function where the next definition begins, so each cell's definitions -- from its first line opening
+with `func`, `def` or `class` -- move after every cell's statements; a `map` answers, for each line
+of the composed file, the cell and the line of that cell it came from, and the page puts every
+result back under its own cell. Running up to cell 2 leaves cell 3's definitions out, so a cell that
+calls a helper defined below it stops at the call, named (`R3`), and says so.
+
+**Then lines.** A `Then("description", actual, expected)` on one line is judged by `=`, as the
+narrated suite judges it: its actual value seen in its face, its expected value shown as code
+(`@@`), kept or diverged. A cell has two ways to promise: `? expr` with `#-->`, and `Then`.
+
+**Saved, opened, forked.** "Save as a test file" writes the notebook as a narrated file: the two
+loads, a `Scenario` per cell (a title keeps its own quotes, wrapped in a mark it does not use),
+`Summary()`, then each cell's definitions under `# definitions of cell N`. "Open a test file" reads
+such a file back into its cells, blank lines included; the one blank line the saver writes before
+each marker is the file's and is dropped (a defect the probe found: a cell with statements AND a
+helper came back one blank line longer). A library check opens in the notebook as its own `Then`
+line: all 1,156 checks are a single `return AtelierThen(actual, expected)`, so the fork is exact, and
+the cell is never run behind the reader's back.
+
+**The court.** The guard saves a notebook into `base/test/_planted_notebook/` (ignored) where its own
+loads resolve, testoor's reader reads it (narrated, one stop per cell, the stops named by the cells'
+titles), and testoor's RUNNER walks it in a child rnxc: 3 kept and 1 diverged, the notebook's own
+counts. The page: cells with a title, "Run up to here" and Ctrl+Enter, "Run every cell", add, delete
+with undo, kept in the browser's storage (B0's single cell, if a reader had one, becomes the last
+cell rather than being lost). StzZui's audit: 0 violations on 10 pages, English and French, light and
+dark. The rendered outputs measured on a run notebook: lowest contrast 5.55:1 light, 5.97:1 dark,
+smallest text 17 px; nothing scrolls sideways at a phone's width.
+
+**Guard** `base/test/atelier/atelier_notebook_narrated.ring`: 38 assertions, about 90 s, of which
+about 30 s is testoor's child rnxc.

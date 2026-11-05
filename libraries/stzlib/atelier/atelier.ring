@@ -48,6 +48,14 @@
 #                            `#-->` promise under it judged by testoor's own matcher. Answers
 #                            JSON: how the cell ended, its time, and each line seen with its
 #                            values, its promise and the promise's state (B0 of the workbench)
+#   POST /atelier/notebook   B2: {"run": k, "cells": [{"title", "code"}]} -- cells 1 to k run as ONE
+#                            narrated file, top to bottom, so a cell sees the names the cells above
+#                            it made; definitions (func, def, class) are moved after every cell's
+#                            statements, as Ring requires. Answers the cell JSON, plus "map": the
+#                            cell and the cell's own line of every line of the composed file
+#   POST /atelier/notebook/save   the cells as a NARRATED TEST FILE: one Scenario per cell, Summary(),
+#                            then each cell's definitions under a marker; testoor's reader reads it
+#   POST /atelier/notebook/open   such a file, back into cells
 #   POST /atelier/stop       answers, then the loop ends
 #
 # WHAT JUDGES A CHECK is named in /atelier/state and on the page: the library's
@@ -77,6 +85,8 @@ $aAtelierSeen = []
 # each state of a scene's object after a line [ scene, line, face ]
 $aAtelierSteps = []
 $aAtelierStates = []
+# B2: what a cell's Then(...) lines judged: [ see, kept (1 or 0), the expected value as @@ shows it ]
+$aAtelierThens = []
 
 # the trail of a whole file admitted as a tour, and the tallies the narrated
 # helper keeps under the names a test may read
@@ -148,6 +158,12 @@ func AtelierServe
 			AtelierTourOnce(rpp_http_body())
 		but cMethod = "POST" and cPath = "/atelier/cell"
 			AtelierCellOnce(rpp_http_body())
+		but cMethod = "POST" and cPath = "/atelier/notebook"
+			AtelierNotebookOnce(rpp_http_body())
+		but cMethod = "POST" and cPath = "/atelier/notebook/save"
+			rpp_http_reply(200, "text/plain; charset=utf-8", AtelierNotebookSave(rpp_http_body()))
+		but cMethod = "POST" and cPath = "/atelier/notebook/open"
+			rpp_http_reply(200, "application/json; charset=utf-8", AtelierNotebookOpen(rpp_http_body()))
 		but cMethod = "GET" and cPath = "/atelier/state"
 			rpp_http_reply(200, "application/json; charset=utf-8", AtelierStateJson())
 		but cMethod = "POST" and cPath = "/atelier/run"
@@ -286,9 +302,15 @@ func AtelierCellOnce cSource
 		return
 	ok
 	aPlan = AtelierCellPlan(cSource)
+	aRun = AtelierRunPlan(aPlan)
+	rpp_http_reply(200, "application/json; charset=utf-8", AtelierCellJson(aPlan[2], aRun[1], aRun[2], aRun[3], aRun[4], aPlan[3]))
+
+# a planned cell (or a composed notebook) admitted, run and released: [ end, why, release, ms ]
+func AtelierRunPlan aPlan
 	$aAtelierSeen = []
 	$aAtelierSteps = []
 	$aAtelierStates = []
+	$aAtelierThens = []
 	nT0 = clock()
 	cEnd = "finished"
 	cErr = ""
@@ -300,6 +322,9 @@ func AtelierCellOnce cSource
 		if substr(cErr, "not admitted") > 0
 			cEnd = "not-started"
 			bAdmitted = 0
+			if substr(cErr, "is already defined") > 0 and substr(lower(cErr), "class") > 0
+				cErr += " -- a class a cell defined stays in the live program (Ring++ cannot release a class); restart the Atelier to define it again"
+			ok
 		else
 			cEnd = "broke"
 		ok
@@ -315,7 +340,222 @@ func AtelierCellOnce cSource
 	else
 		cRel = "nothing to release"
 	ok
-	rpp_http_reply(200, "application/json; charset=utf-8", AtelierCellJson(aPlan[2], cEnd, cErr, cRel, nMs, aPlan[3]))
+	return [ cEnd, cErr, cRel, nMs ]
+
+#--- B2, the notebook: many cells, one file ----------------------------------
+#
+# A notebook IS a narrated test file: running cell k runs cells 1 to k as one admission,
+# top to bottom, so every name a cell reads is the one the cells above made, exactly as a
+# file read once would make it. Nothing is kept between two runs: a run is the file from
+# its first line. Ring ends a function where the next definition begins, so a cell's
+# definitions (from its first line opening with func, def or class) are moved after every
+# cell's statements; the map says, for each line of the composed file, which cell and
+# which of that cell's lines it came from.
+
+func AtelierNotebookOnce cBody
+	if $cAtelierState != "admitted"
+		rpp_http_reply(503, "text/plain", "the library is " + $cAtelierState + " " + $cAtelierWhy)
+		return
+	ok
+	aIn = StzJsonToList(cBody)
+	aCells = AtelierNotebookCells(aIn)
+	nRun = len(aCells)
+	if isList(aIn) and HasKey(aIn, :run) and isNumber(aIn[:run]) and aIn[:run] >= 1 and aIn[:run] < nRun
+		nRun = aIn[:run]
+	ok
+	aComp = AtelierNotebookCompose(aCells, nRun)
+	aPlan = AtelierCellPlan(aComp[1])
+	aRun = AtelierRunPlan(aPlan)
+	cJ = AtelierCellJson(aPlan[2], aRun[1], aRun[2], aRun[3], aRun[4], aPlan[3])
+	cMap = ',"ran":' + nRun + ',"map":['
+	aMap = aComp[2]
+	for i = 1 to len(aMap)
+		if i > 1
+			cMap += ","
+		ok
+		cMap += "[" + aMap[i][1] + "," + aMap[i][2] + "]"
+	next
+	cMap += "]}"
+	rpp_http_reply(200, "application/json; charset=utf-8", left(cJ, len(cJ) - 1) + cMap)
+
+# the cells of a request: [ [ :title, :code ] ]
+func AtelierNotebookCells aIn
+	aOut = []
+	if NOT (isList(aIn) and HasKey(aIn, :cells))
+		return aOut
+	ok
+	aC = aIn[:cells]
+	for i = 1 to len(aC)
+		cTitle = ""
+		cCode = ""
+		if isList(aC[i])
+			if HasKey(aC[i], :title)
+				cTitle = "" + aC[i][:title]
+			ok
+			if HasKey(aC[i], :code)
+				cCode = "" + aC[i][:code]
+			ok
+		but isString(aC[i])
+			cCode = aC[i]
+		ok
+		aOut + [ :title = cTitle, :code = cCode ]
+	next
+	return aOut
+
+# [ the composed source, [ [ cell, line ] ] ] -- statements of cells 1..nRun, then their definitions
+func AtelierNotebookCompose aCells, nRun
+	cSrc = ""
+	aMap = []
+	aDefs = []
+	for i = 1 to nRun
+		acL = str2list(substr(aCells[i][:code], char(13), ""))
+		nDef = AtelierFirstDefinition(acL)
+		nTo = len(acL)
+		if nDef > 0
+			nTo = nDef - 1
+			aDefs + [ i, nDef, acL ]
+		ok
+		for j = 1 to nTo
+			cSrc += acL[j] + char(10)
+			aMap + [ i, j ]
+		next
+	next
+	for k = 1 to len(aDefs)
+		acL = aDefs[k][3]
+		for j = aDefs[k][2] to len(acL)
+			cSrc += acL[j] + char(10)
+			aMap + [ aDefs[k][1], j ]
+		next
+	next
+	return [ cSrc, aMap ]
+
+# the first line that opens a definition: func, def or class, then a name
+func AtelierFirstDefinition acL
+	for j = 1 to len(acL)
+		cT = lower(trim(acL[j]))
+		if left(cT, 5) = "func " or left(cT, 4) = "def " or left(cT, 6) = "class "
+			return j
+		ok
+	next
+	return 0
+
+# the notebook as a narrated test file, which the library's own runners can read and run
+func AtelierNotebookSave cBody
+	aCells = AtelierNotebookCells(StzJsonToList(cBody))
+	cOut = "# An Atelier notebook: " + len(aCells) + " cell(s), saved " + date() + " " + time() + "." + char(10)
+	cOut += "# Each cell is a Scenario; each ? line with its #--> promise, and each Then(...), is a claim." + char(10)
+	cOut += "# Run it from a folder of base/test, or open it again in the Atelier." + char(10)
+	cOut += char(10) + 'load "../../stzBase.ring"' + char(10) + 'load "../_narrated.ring"' + char(10)
+	aDefs = []
+	for i = 1 to len(aCells)
+		cTitle = aCells[i][:title]
+		if trim(cTitle) = ""
+			cTitle = "Cell " + i
+		ok
+		# a Ring string has three quote marks: the title keeps its own, and is wrapped in one it does not use
+		cTitle = substr(cTitle, char(10), " ")
+		cQ = '"'
+		if substr(cTitle, '"') > 0
+			cQ = "'"
+			if substr(cTitle, "'") > 0
+				cQ = "`"
+				if substr(cTitle, "`") > 0
+					cQ = '"'
+					cTitle = substr(cTitle, '"', "'")
+				ok
+			ok
+		ok
+		cOut += char(10) + "Scenario(" + cQ + cTitle + cQ + ")" + char(10)
+		acL = str2list(substr(aCells[i][:code], char(13), ""))
+		nDef = AtelierFirstDefinition(acL)
+		nTo = len(acL)
+		if nDef > 0
+			nTo = nDef - 1
+			aDefs + [ i, nDef, acL ]
+		ok
+		for j = 1 to nTo
+			cOut += acL[j] + char(10)
+		next
+	next
+	cOut += char(10) + "Summary()" + char(10)
+	for k = 1 to len(aDefs)
+		cOut += char(10) + "# definitions of cell " + aDefs[k][1] + char(10)
+		acL = aDefs[k][3]
+		for j = aDefs[k][2] to len(acL)
+			cOut += acL[j] + char(10)
+		next
+	next
+	return cOut
+
+# a narrated test file back into cells: one cell per Scenario, its definitions returned to it
+func AtelierNotebookOpen cText
+	acL = str2list(substr("" + cText, char(13), ""))
+	aCells = []
+	nCur = 0
+	bDefs = 0
+	for i = 1 to len(acL)
+		cLine = acL[i]
+		cT = trim(cLine)
+		cLow = lower(cT)
+		# the saver writes one blank line before each Scenario, before Summary() and before
+		# each block of definitions: that line is the file's, not the cell's, so it goes
+		bMarker = (left(cLow, 9) = "scenario(" and NOT bDefs) or cLow = "summary()" or left(cLow, 22) = "# definitions of cell "
+		if bMarker and nCur > 0 and right(aCells[nCur][:code], 2) = char(10) + char(10)
+			aCells[nCur][:code] = left(aCells[nCur][:code], len(aCells[nCur][:code]) - 1)
+		ok
+		if left(cLow, 5) = "load " or cLow = "summary()" or cLow = "pf()"
+			loop
+		ok
+		if left(cLow, 22) = "# definitions of cell "
+			nCur = 0 + trim(substr(cT, 23))
+			if nCur < 1 or nCur > len(aCells)
+				nCur = len(aCells)
+			ok
+			bDefs = 1
+			loop
+		ok
+		if left(cLow, 9) = "scenario(" and NOT bDefs
+			cTitle = trim(substr(cT, 10))
+			if right(cTitle, 1) = ")"
+				cTitle = trim(left(cTitle, len(cTitle) - 1))
+			ok
+			cTitle = AtelierUnquote(cTitle)
+			aCells + [ :title = cTitle, :code = "" ]
+			nCur = len(aCells)
+			loop
+		ok
+		if nCur = 0
+			# the file's header: its comments go, any code before the first Scenario is a cell
+			if cT = "" or left(cT, 1) = "#"
+				loop
+			ok
+			aCells + [ :title = "", :code = "" ]
+			nCur = len(aCells)
+		ok
+		aCells[nCur][:code] = aCells[nCur][:code] + cLine + char(10)
+	next
+	cJ = '{"cells":['
+	for i = 1 to len(aCells)
+		if i > 1
+			cJ += ","
+		ok
+		cCode = aCells[i][:code]
+		while right(cCode, 2) = char(10) + char(10)
+			cCode = left(cCode, len(cCode) - 1)
+		end
+		while left(cCode, 1) = char(10)
+			cCode = substr(cCode, 2)
+		end
+		cJ += '{"title":' + AtelierJsonStr(aCells[i][:title]) + ',"code":' + AtelierJsonStr(cCode) + '}'
+	next
+	return cJ + "]}"
+
+func AtelierUnquote cS
+	c = trim(cS)
+	if len(c) >= 2 and (left(c, 1) = '"' or left(c, 1) = "'" or left(c, 1) = "`") and right(c, 1) = left(c, 1)
+		return substr(c, 2, len(c) - 2)
+	ok
+	return c
 
 # [ the rewritten source, [ [ :n, :line, :expr, :promise, :steps, :forms ] ], [ scenes ] ]
 #
@@ -357,7 +597,18 @@ func AtelierCellPlan cSource
 			cOut += cPad + "    AtelierState(" + nScene + ", " + i + ", " + cSceneName + ")" + char(10)
 			loop
 		ok
-		if left(cT, 1) = "?" and left(cT, 4) != "?-->"
+		# B2: a Then(...) line on one line is a narrated assertion, judged by `=` as the
+		# suite judges it: its actual value seen in its face, its expected value shown
+		if lower(left(cT, 5)) = "then(" and AtelierBalanced(substr(cT, 5))
+			aArgs = AtelierSplitArgs(substr(cT, 6, len(cT) - 6))
+			if len(aArgs) = 3 and (left(aArgs[1], 1) = '"' or left(aArgs[1], 1) = "'" or left(aArgs[1], 1) = "`")
+				nN = len(aSees) + 1
+				cOut += cPad + "AtelierThenSee(" + nN + ", " + aArgs[2] + ", " + aArgs[3] + ")" + char(10)
+				aSees + [ :n = nN, :line = i, :expr = AtelierUnquote(aArgs[1]), :promise = "", :steps = [], :forms = [], :kind = "then" ]
+				bStatement = 1
+			ok
+		ok
+		if NOT bStatement and left(cT, 1) = "?" and left(cT, 4) != "?-->"
 			cExpr = trim(substr(cT, 2))
 			cPromise = ""
 			nAt = AtelierLastIndexOf(cExpr, "#-->")
@@ -414,7 +665,7 @@ func AtelierCellPlan cSource
 				else
 					cOut += cPad + "AtelierSee(" + nN + ", " + cExpr + ")" + char(10)
 				ok
-				aSees + [ :n = nN, :line = i, :expr = cExpr, :promise = cPromise, :steps = aSteps, :forms = aForms ]
+				aSees + [ :n = nN, :line = i, :expr = cExpr, :promise = cPromise, :steps = aSteps, :forms = aForms, :kind = "see" ]
 				bStatement = 1
 			ok
 		ok
@@ -558,6 +809,35 @@ func AtelierChainParts cExpr
 		ok
 	next
 	return aParts
+
+# the arguments of a call, split at its top-level commas, outside strings and brackets
+func AtelierSplitArgs cInner
+	aOut = []
+	nD = 0
+	cQ = ""
+	nFrom = 1
+	n = len(cInner)
+	for i = 1 to n
+		ch = cInner[i]
+		if cQ != ""
+			if ch = cQ
+				cQ = ""
+			ok
+			loop
+		ok
+		if ch = '"' or ch = "'" or ch = "`"
+			cQ = ch
+		but ch = "(" or ch = "[" or ch = "{"
+			nD++
+		but ch = ")" or ch = "]" or ch = "}"
+			nD--
+		but ch = "," and nD = 0
+			aOut + trim(substr(cInner, nFrom, i - nFrom))
+			nFrom = i + 1
+		ok
+	next
+	aOut + trim(substr(cInner, nFrom))
+	return aOut
 
 # a root: a name, a call, or new Class(...) -- nothing else before the first method
 func AtelierIsRoot cR
@@ -747,6 +1027,19 @@ func AtelierStep nN, nK, vValue, nNs
 		add($aAtelierSteps, [ nN, nK, AtelierLightFace(vValue), nNs ])
 	ok
 
+# a cell's Then(...): the actual value seen, judged by `=` as base/test/_narrated.ring judges it
+func AtelierThenSee nN, xActual, xExpected
+	add($aAtelierSeen, [ nN, AtelierPrinted(xActual), AtelierFace(xActual) ])
+	nOk = 0
+	try
+		if xActual = xExpected
+			nOk = 1
+		ok
+	catch
+		nOk = 0
+	done
+	add($aAtelierThens, [ nN, nOk, @@(xExpected) ])
+
 # a scene's object after a line, in a light face
 func AtelierState nScene, nLine, oObject
 	add($aAtelierStates, [ nScene, nLine, AtelierLightFace(oObject) ])
@@ -876,7 +1169,35 @@ func AtelierCellJson aSees, cEnd, cErr, cRel, nMs, aScenes
 			ok
 		next
 		cState = ""
-		if aS[:promise] != ""
+		cKind = "see"
+		if HasKey(aS, :kind)
+			cKind = aS[:kind]
+		ok
+		if cKind = "then"
+			aS[:promise] = ""
+			for k = 1 to len($aAtelierThens)
+				if $aAtelierThens[k][1] = aS[:n]
+					aS[:promise] = $aAtelierThens[k][3]
+					if $aAtelierThens[k][2] = 1
+						cState = "kept"
+						nKept++
+					else
+						cState = "diverged"
+						nDiv++
+					ok
+					exit
+				ok
+			next
+			if cState = ""
+				if cEnd = "finished"
+					cState = "unjudged"
+					nUnj++
+				else
+					cState = "unreached"
+					nUnr++
+				ok
+			ok
+		but aS[:promise] != ""
 			if cVals = ""
 				if cEnd = "finished"
 					cState = "unjudged"
@@ -896,7 +1217,7 @@ func AtelierCellJson aSees, cEnd, cErr, cRel, nMs, aScenes
 		if i > 1
 			cJ += ","
 		ok
-		cJ += '{"n":' + aS[:n] + ',"line":' + aS[:line] + ',"expr":' + AtelierJsonStr(aS[:expr]) + ',"promise":' + AtelierJsonStr(aS[:promise])
+		cJ += '{"n":' + aS[:n] + ',"line":' + aS[:line] + ',"kind":' + AtelierJsonStr(cKind) + ',"expr":' + AtelierJsonStr(aS[:expr]) + ',"promise":' + AtelierJsonStr(aS[:promise])
 		cJ += ',"state":' + AtelierJsonStr(cState) + ',"values":[' + cVals + ']'
 		# the chain unfolded: each step's text, its value, its nanoseconds
 		cJ += ',"steps":['

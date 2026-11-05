@@ -76,3 +76,4 @@ libraries/stzlib/atelier/_work/
 libraries/stzlib/atelier/_record_settings.ring
 **/test/atelier/_planted*
 libraries/stzlib/atelier/_atelier_*
+**/test/_planted_notebook/
