@@ -1101,7 +1101,7 @@ class stzGpu from stzObject
 		_FreeIds([_hA_, _hB_, _hO_])
 		return _aOut_
 
-	# The running total of a list of numbers, computed on the device (GB0): out[i] = in[1] + ... + in[i].
+	# Returns the running total of a list of numbers, computed on the device (GB0): out[i] = in[1] + ... + in[i].
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a list of the same length
@@ -1114,7 +1114,7 @@ class stzGpu from stzObject
 	def Scan(paValues)
 		return This._ScanMode(paValues, 0, "Scan")
 
-	# The running total of a list, shifted: out[1] = 0 and out[i] = in[1] + ... + in[i - 1].
+	# Returns the running total of a list, shifted: out[1] = 0 and out[i] = in[1] + ... + in[i - 1].
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a list of the same length
@@ -1147,7 +1147,7 @@ class stzGpu from stzObject
 		_FreeIds([_hI_, _hO_])
 		return _aOut_
 
-	# The running total of a list, on the device only where this machine's measurement says the device wins, and in a plain loop everywhere else.
+	# Returns the running total of a list, on the device where this machine's measurement says it wins, else by a plain loop.
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a list of the same length, as Scan returns it
@@ -1157,7 +1157,7 @@ class stzGpu from stzObject
 	def ScanRouted(paValues)
 		return This._ScanRoutedMode(paValues, 0)
 
-	# The shifted running total of a list, routed as ScanRouted routes.
+	# Returns the shifted running total of a list, routed as ScanRouted routes it.
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a list of the same length: 0, then the sums before each element
@@ -1350,7 +1350,7 @@ class stzGpu from stzObject
 		ok
 		return This.CompactWhere(paIn, ">", 2.5)
 
-	# The numbers of a list in ascending order, sorted on the device by a stable radix sort (GB0).
+	# Returns the numbers of a list in ascending order, sorted on the device by a stable radix sort (GB0).
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a new list of the same numbers, smallest first
@@ -1362,7 +1362,7 @@ class stzGpu from stzObject
 	def Sort(paValues)
 		return This._SortMode(paValues, 0, "Sort")
 
-	# The numbers of a list in descending order, by the same stable radix sort.
+	# Returns the numbers of a list in descending order, by the same stable radix sort.
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a new list of the same numbers, largest first
@@ -1395,7 +1395,7 @@ class stzGpu from stzObject
 		_FreeIds([_hI_, _hO_])
 		return _aOut_
 
-	# The keys of a list sorted, and each value carried with its key.
+	# Returns the keys of a list sorted, with each value carried along with its key.
 	#
 	#   paKeys     a non-empty list of numbers
 	#   paValues   a list of numbers of the same length
@@ -1429,7 +1429,7 @@ class stzGpu from stzObject
 		_FreeIds([_hK_, _hV_, _hOK_, _hOV_])
 		return _aRes_
 
-	# The places, in a list of numbers, of its elements in ascending order: the permutation that sorts it.
+	# Returns the places of a list's elements in ascending order: the permutation that sorts it.
 	#
 	#   paKeys     a non-empty list of numbers
 	#   returns    a list of 1-based places: element k is where the k-th smallest sits; equal keys keep their order
@@ -1463,7 +1463,7 @@ class stzGpu from stzObject
 		next
 		return _aIdx_
 
-	# A running total of a list that starts over at every segment start, computed on the device (GB0).
+	# Returns a running total of a list that starts over at every segment start, computed on the device (GB0).
 	#
 	#   paValues   a non-empty list of numbers
 	#   paFlags    a list of the same length; an entry that is not 0 starts a segment at its place (the first element always starts one)
@@ -1499,7 +1499,9 @@ class stzGpu from stzObject
 		_FreeIds([_hI_, _hF_, _hO_])
 		return _aOut_
 
-	# One number per segment of a list: the sum, the largest or the smallest of each stretch between segment starts, computed on the device.
+	# Returns one number per segment of a list: the sum, largest or smallest of each stretch between segment starts.
+	#
+	# The reduction runs on the device (GB0).
 	#
 	#   paValues   a non-empty list of numbers
 	#   paFlags    a list of the same length; an entry that is not 0 starts a segment (the first element always starts one)
@@ -1542,7 +1544,7 @@ class stzGpu from stzObject
 		ok
 		StzRaise("the operator is one of sum, max, min, not '" + pcOp + "'.")
 
-	# The same reduction, on the device only where this machine's measurement says the device wins, and in a plain loop everywhere else.
+	# Returns the same reduction, on the device where this machine's measurement says it wins, else by a plain loop.
 	#
 	#   paValues   a non-empty list of numbers
 	#   paFlags    a list of the same length; an entry that is not 0 starts a segment
@@ -1594,7 +1596,7 @@ class stzGpu from stzObject
 	def CalibrateSegmentedReduce()
 		return This._CalibrateRoute("segreduce", [1000, 5000, 20000, 50000, 200000, 1000000])
 
-	# The list sorted on the device only where this machine's measurement says the device wins, and by Ring's own sort everywhere else.
+	# Returns the list sorted, on the device where this machine's measurement says it wins, else by Ring's own sort.
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a new list, smallest first
@@ -1617,7 +1619,7 @@ class stzGpu from stzObject
 	def CalibrateSort()
 		return This._CalibrateRoute("sort", [1000, 5000, 20000, 50000, 200000, 1000000])
 
-	# The elements of a list whose mask entry is not 0, in order, packed -- selected on the device (GB0).
+	# Returns the elements of a list whose mask entry is not 0, in order, packed -- selected on the device (GB0).
 	#
 	#   paValues   a non-empty list of numbers
 	#   paMask     a list of the same length; an entry that is not 0 keeps its element
@@ -1647,7 +1649,7 @@ class stzGpu from stzObject
 		_aRes_ = StzEngineGpuOpCompact(_hI_, _hM_, _hO_, _nN_)
 		return This._CompactFinish(_aRes_, [_hI_, _hM_, _hO_], _hO_, "Compact")
 
-	# The elements of a list that pass a comparison with a threshold, in order, packed -- selected on the device (GB0).
+	# Returns the elements of a list that pass a comparison with a threshold, in order, packed, on the device (GB0).
 	#
 	#   paValues   a non-empty list of numbers
 	#   pcOp       ">", ">=", "<", "<=", "=" or "!="
@@ -1705,7 +1707,7 @@ class stzGpu from stzObject
 		_FreeIds(paIds)
 		return _aOut_
 
-	# The same selection, on the device only where this machine's measurement says the device wins, and in a plain loop everywhere else.
+	# Returns the same selection, on the device where this machine's measurement says it wins, else by a plain loop.
 	#
 	#   paValues   a non-empty list of numbers
 	#   pcOp       ">", ">=", "<", "<=", "=" or "!="
