@@ -81,6 +81,7 @@ class stzGpu from stzObject
 
 	@bTriedInit_ = 0
 	@aRouteFlags_ = [] # GB0: the flags a segmented-reduction rung times with
+	@aRouteCsr_ = [] # GB0: the CSR matrix and vector a sparse-product rung times with
 
 	# Creates a handle on the GPU plane; the device itself is opened lazily by the first call that needs it.
 	#
@@ -1297,6 +1298,23 @@ class stzGpu from stzObject
 				@aRouteFlags_ + (_i_ % 64 = 1)
 			next
 		ok
+		if pcKey = "spmv"
+			# pnN rows of 16 entries each, columns spread over pnN, values whole numbers
+			_aRp_ = []
+			_aCo_ = []
+			_aVa_ = []
+			_aXx_ = []
+			for _i_ = 0 to pnN - 1
+				_aRp_ + (_i_ * 16)
+				for _e_ = 0 to 15
+					_aCo_ + ((_i_ * 7919 + _e_ * 131) % pnN)
+					_aVa_ + ((_i_ + _e_) % 7)
+				next
+				_aXx_ + (_i_ % 5)
+			next
+			_aRp_ + (pnN * 16)
+			@aRouteCsr_ = [ _aRp_, _aCo_, _aVa_, _aXx_ ]
+		ok
 		_nReps_ = floor(400000 / pnN)
 		if _nReps_ < 3
 			_nReps_ = 3
@@ -1344,6 +1362,12 @@ class stzGpu from stzObject
 				return This._SegReduceCpu(paIn, @aRouteFlags_, "sum")
 			ok
 			return This.SegmentedReduce(paIn, @aRouteFlags_, "sum")
+		ok
+		if pcKey = "spmv"
+			if nSide = 0
+				return This._SpmvCpu(@aRouteCsr_[1], @aRouteCsr_[2], @aRouteCsr_[3], @aRouteCsr_[4])
+			ok
+			return This.Spmv(@aRouteCsr_[1], @aRouteCsr_[2], @aRouteCsr_[3], @aRouteCsr_[4])
 		ok
 		if nSide = 0
 			return This._CompactWhereCpu(paIn, ">", 2.5)
@@ -1595,6 +1619,141 @@ class stzGpu from stzObject
 	#   see        CalibrateScan, SegmentedReduceRouted
 	def CalibrateSegmentedReduce()
 		return This._CalibrateRoute("segreduce", [1000, 5000, 20000, 50000, 200000, 1000000])
+
+	# Returns the product of a sparse matrix in CSR form and a dense vector, computed on the device (GB0).
+	#
+	#   paRowPtr   nrows + 1 offsets into the entries, 0-based: the first is 0, the last is the number of entries
+	#   paCols     the column of every stored entry, 0-based, row by row
+	#   paVals     the value of every stored entry
+	#   paX        the dense vector, one number per column
+	#   returns    a list of nrows numbers
+	#   note       the offsets and columns travel as f32 whole numbers, exact below 2^24: at most 16,777,216 entries; the CSR is not checked, a row pointer that is not non-decreasing or a column past x gives a meaningless answer (nothing crashes); the sum adds along a row left to right (a short row) or in a tree (a long one), so it is exact on whole numbers and within f32 rounding otherwise
+	#   warning    one-shot: it uploads the matrix, runs and downloads; raises an error when no GPU device is available
+	#   see        Spmm, SpmvRouted, SegmentedReduce
+	# ---- GB0: the sparse-dense product ---------------------------------------
+	#@ aka  Two kernels, the shape decides: one thread per row (no waste on a short row) and one workgroup of 256 threads per row (right for a long one), chosen by the mean row length against the threshold the guard measured, or by the caller through SpmvWith.
+	def Spmv(paRowPtr, paCols, paVals, paX)
+		return This.SpmvWith(paRowPtr, paCols, paVals, paX, 0)
+
+	# Returns the same product with the kernel chosen by the caller.
+	#
+	#   paRowPtr   nrows + 1 offsets, as Spmv takes them
+	#   paCols     the column of every stored entry
+	#   paVals     the value of every stored entry
+	#   paX        the dense vector
+	#   nVariant   0 to let the mean row length choose, 1 for one thread per row, 2 for one workgroup per row
+	#   returns    a list of nrows numbers
+	#   see        Spmv
+	def SpmvWith(paRowPtr, paCols, paVals, paX, nVariant)
+		This._RequireDevice()
+		This._SpCheck(paRowPtr, paCols, paVals, paX, "Spmv")
+		_nR_ = ring_len(paRowPtr) - 1
+		_nZ_ = ring_len(paVals)
+		_aIds_ = This._SpUpload(paRowPtr, paCols, paVals, paX, _nR_, "Spmv")
+		_hY_ = StzEngineGpuBufferNew(_nR_ * 4)
+		if _hY_ = 0
+			_FreeIds(_aIds_)
+			StzRaise("Spmv: no device buffer (" + StzEngineGpuLastError() + ")")
+		ok
+		_nSt_ = StzEngineGpuOpSpmv(_aIds_[1], _aIds_[2], _aIds_[3], _aIds_[4], _hY_, _nR_, _nZ_, nVariant)
+		if _nSt_ != 0
+			_FreeIds(_aIds_)
+			_FreeIds([_hY_])
+			StzRaise("Spmv: the op refused (status " + _nSt_ + ").")
+		ok
+		_aOut_ = StzEngineGpuBufferDownloadList(_hY_, _nR_)
+		_FreeIds(_aIds_)
+		_FreeIds([_hY_])
+		return _aOut_
+
+	# Returns the product of a sparse matrix and a dense matrix of several columns, computed on the device.
+	#
+	#   paRowPtr   nrows + 1 offsets, as Spmv takes them
+	#   paCols     the column of every stored entry
+	#   paVals     the value of every stored entry
+	#   paX        the dense matrix, row-major: ncols rows of nK numbers, as one flat list
+	#   nK         the number of columns of X
+	#   returns    one flat list, row-major: nrows rows of nK numbers
+	#   see        Spmv
+	def Spmm(paRowPtr, paCols, paVals, paX, nK)
+		This._RequireDevice()
+		This._SpCheck(paRowPtr, paCols, paVals, paX, "Spmm")
+		_nR_ = ring_len(paRowPtr) - 1
+		_nZ_ = ring_len(paVals)
+		_aIds_ = This._SpUpload(paRowPtr, paCols, paVals, paX, _nR_, "Spmm")
+		_hY_ = StzEngineGpuBufferNew(_nR_ * nK * 4)
+		if _hY_ = 0
+			_FreeIds(_aIds_)
+			StzRaise("Spmm: no device buffer (" + StzEngineGpuLastError() + ")")
+		ok
+		_nSt_ = StzEngineGpuOpSpmm(_aIds_[1], _aIds_[2], _aIds_[3], _aIds_[4], _hY_, _nR_, _nZ_, nK)
+		if _nSt_ != 0
+			_FreeIds(_aIds_)
+			_FreeIds([_hY_])
+			StzRaise("Spmm: the op refused (status " + _nSt_ + ").")
+		ok
+		_aOut_ = StzEngineGpuBufferDownloadList(_hY_, _nR_ * nK)
+		_FreeIds(_aIds_)
+		_FreeIds([_hY_])
+		return _aOut_
+
+	def _SpCheck(paRowPtr, paCols, paVals, paX, pcName)
+		if NOT isList(paRowPtr) or NOT isList(paCols) or NOT isList(paVals) or NOT isList(paX) or ring_len(paRowPtr) < 2 or ring_len(paCols) = 0 or ring_len(paCols) != ring_len(paVals) or ring_len(paX) = 0
+			StzRaise(pcName + ": give me a CSR matrix (the row offsets, one more than the rows; the columns and the values, the same length) and a non-empty dense vector.")
+		ok
+		if paRowPtr[1] != 0 or paRowPtr[ring_len(paRowPtr)] != ring_len(paVals)
+			StzRaise(pcName + ": the row offsets must start at 0 and end at the number of entries.")
+		ok
+
+	def _SpUpload(paRowPtr, paCols, paVals, paX, pnRows, pcName)
+		_aIds_ = [ StzEngineGpuBufferNew((pnRows + 1) * 4), StzEngineGpuBufferNew(ring_len(paCols) * 4), StzEngineGpuBufferNew(ring_len(paVals) * 4), StzEngineGpuBufferNew(ring_len(paX) * 4) ]
+		for _i_ = 1 to 4
+			if _aIds_[_i_] = 0
+				_FreeIds(_aIds_)
+				StzRaise(pcName + ": no device buffer (" + StzEngineGpuLastError() + ")")
+			ok
+		next
+		if StzEngineGpuBufferUploadList(_aIds_[1], paRowPtr) != 0 or StzEngineGpuBufferUploadList(_aIds_[2], paCols) != 0 or StzEngineGpuBufferUploadList(_aIds_[3], paVals) != 0 or StzEngineGpuBufferUploadList(_aIds_[4], paX) != 0
+			_FreeIds(_aIds_)
+			StzRaise(pcName + ": upload refused (" + StzEngineGpuLastError() + ")")
+		ok
+		return _aIds_
+
+	# Returns the same product, on the device where this machine's measurement says it wins, else by a plain loop.
+	#
+	#   paRowPtr   nrows + 1 offsets, as Spmv takes them
+	#   paCols     the column of every stored entry
+	#   paVals     the value of every stored entry
+	#   paX        the dense vector
+	#   returns    a list of nrows numbers
+	#   note       with no calibration stored for "spmv" (or no device) the answer comes from the loop; CalibrateSpmv stores the line this machine measures
+	#   see        Spmv, CalibrateSpmv
+	def SpmvRouted(paRowPtr, paCols, paVals, paX)
+		This._SpCheck(paRowPtr, paCols, paVals, paX, "SpmvRouted")
+		if StzEngineGpuIsAvailable() = 1 and StzEngineGpuCalibRouteShaped("spmv", ring_len(paRowPtr) - 1, 1) = 1
+			return This.Spmv(paRowPtr, paCols, paVals, paX)
+		ok
+		return This._SpmvCpu(paRowPtr, paCols, paVals, paX)
+
+	def _SpmvCpu(paRowPtr, paCols, paVals, paX)
+		_aOut_ = []
+		_nR_ = ring_len(paRowPtr) - 1
+		for _r_ = 1 to _nR_
+			_nAcc_ = 0
+			for _e_ = paRowPtr[_r_] + 1 to paRowPtr[_r_ + 1]
+				_nAcc_ += paVals[_e_] * paX[paCols[_e_] + 1]
+			next
+			_aOut_ + _nAcc_
+		next
+		return _aOut_
+
+	# Measures the loop against the device for matrices of several sizes and stores, for this adapter, where the device wins.
+	#
+	#   returns    the hashlist CalibrateScan returns, for the key "spmv" (rungs are n rows of 16 entries each; the size counted is the rows)
+	#   warning    writes the calibration file; raises an error when no GPU device is available
+	#   see        CalibrateScan, SpmvRouted
+	def CalibrateSpmv()
+		return This._CalibrateRoute("spmv", [100, 500, 2000, 5000, 20000, 60000])
 
 	# Returns the list sorted, on the device where this machine's measurement says it wins, else by Ring's own sort.
 	#
