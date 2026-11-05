@@ -5,6 +5,7 @@ const xmldsig = @import("xmldsig.zig");
 const xmlmod = @import("xml.zig");
 const x509 = @import("x509.zig");
 const R = @import("ring_api.zig");
+const cell = @import("secret_cell.zig");
 
 const gn = R.ring_vm_api_getnumber;
 const gs = R.ring_vm_api_getstring;
@@ -457,7 +458,136 @@ fn ring_XmlPretty(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs2(p, &buf, 0);
 }
 
+// --- secret cells (COMPASS-KERN-07, see secret_cell.zig) ---------------------
+
+fn strArg(p: *anyopaque, n: c_int) []const u8 {
+    const ptr: [*]const u8 = @ptrCast(gs(p, n));
+    return ptr[0..@intCast(gss(p, n))];
+}
+
+fn cellArg(p: *anyopaque, n: c_int) ?*cell.Cell {
+    const raw = R.getHandleOrRaise(p, n, "secret") orelse return null;
+    return @ptrCast(@alignCast(raw));
+}
+
+fn retCell(p: *anyopaque, c: ?*cell.Cell) void {
+    if (c == null) return R.ring_vm_error(p, "secret: the engine could not allocate a cell");
+    R.retHandle(p, @ptrCast(c));
+}
+
+// StzEngineSecretHold(cValue) -> id; the caller's own copy is the caller's to drop
+fn ring_SecretHold(p: *anyopaque) callconv(.c) void {
+    retCell(p, cell.hold(strArg(p, 1)));
+}
+
+// StzEngineSecretHoldEnv(cVarName) -> id; an unset variable holds the empty text.
+// The value goes from the environment to the cell and never through Ring.
+fn ring_SecretHoldEnv(p: *anyopaque) callconv(.c) void {
+    const a = std.heap.c_allocator;
+    const v = std.process.getEnvVarOwned(a, strArg(p, 1)) catch {
+        retCell(p, cell.hold(""));
+        return;
+    };
+    defer a.free(v);
+    defer std.crypto.secureZero(u8, v);
+    retCell(p, cell.hold(v));
+}
+
+// StzEngineSecretHoldFile(cPath) -> id, surrounding whitespace trimmed; raises
+// when the file cannot be read
+fn ring_SecretHoldFile(p: *anyopaque) callconv(.c) void {
+    const a = std.heap.c_allocator;
+    const data = std.fs.cwd().readFileAlloc(a, strArg(p, 1), 1 << 20) catch
+        return R.ring_vm_error(p, "secret: the file source could not be read");
+    defer a.free(data);
+    defer std.crypto.secureZero(u8, data);
+    retCell(p, cell.hold(std.mem.trim(u8, data, " \t\r\n")));
+}
+
+// StzEngineSecretHoldRandomHex(nBytes) -> id holding 2n hex characters made in the cell
+fn ring_SecretHoldRandomHex(p: *anyopaque) callconv(.c) void {
+    const n = gn(p, 1);
+    if (n < 1 or n > 1024) return R.ring_vm_error(p, "secret: random size must be 1..1024 bytes");
+    retCell(p, cell.holdRandomHex(@intFromFloat(n)));
+}
+
+// StzEngineSecretReveal(id) -> the value, as a Ring string
+fn ring_SecretReveal(p: *anyopaque) callconv(.c) void {
+    const c = cellArg(p, 1) orelse return rs2(p, "", 0);
+    const v = cell.value(c);
+    rs2(p, v.ptr, @intCast(v.len));
+}
+
+// StzEngineSecretSize(id) -> bytes held; raises for a released secret
+fn ring_SecretSize(p: *anyopaque) callconv(.c) void {
+    const c = cellArg(p, 1) orelse return rn(p, 0);
+    rn(p, @floatFromInt(c.len));
+}
+
+// StzEngineSecretEquals(id, cCandidate) -> 1/0, in time that does not depend
+// on where the two first differ
+fn ring_SecretEquals(p: *anyopaque) callconv(.c) void {
+    const c = cellArg(p, 1) orelse return rn(p, 0);
+    rn(p, if (cell.ctEqual(cell.value(c), strArg(p, 2))) 1 else 0);
+}
+
+// StzEngineSecureEquals(cA, cB) -> 1/0, the same comparison for two Ring strings
+fn ring_SecureEquals(p: *anyopaque) callconv(.c) void {
+    rn(p, if (cell.ctEqual(strArg(p, 1), strArg(p, 2))) 1 else 0);
+}
+
+// StzEngineSecretIsLocked(id) -> 1 locked in RAM, 0 not, -1 the OS cannot say
+fn ring_SecretIsLocked(p: *anyopaque) callconv(.c) void {
+    const c = cellArg(p, 1) orelse return rn(p, 0);
+    rn(p, @floatFromInt(cell.osSaysLocked(c)));
+}
+
+// StzEngineSecretRelease(id) -> bytes still non-zero after the wipe (0); every
+// copy of the id goes stale. A released or null id releases nothing and answers 0.
+fn ring_SecretRelease(p: *anyopaque) callconv(.c) void {
+    const c = cellArg(p, 1) orelse return rn(p, 0);
+    R.releaseParam(p, 1);
+    rn(p, @floatFromInt(cell.release(c)));
+}
+
+fn ring_SecretLastResidueBefore(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(cell.lastResidueBefore()));
+}
+
+fn ring_SecretLastResidueAfter(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(cell.lastResidueAfter()));
+}
+
+fn ring_SecretLive(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(cell.liveCount()));
+}
+
+// StzEngineSecretCompareRatio(id, cA, cB, nRounds, nPer, bPlain) -> the median
+// over nRounds of time(cB)/time(cA), nPer comparisons each; ~1 for a constant-time
+// comparison whatever cA and cB are
+fn ring_SecretCompareRatio(p: *anyopaque) callconv(.c) void {
+    const c = cellArg(p, 1) orelse return rn(p, 0);
+    const rounds = gn(p, 4);
+    const per = gn(p, 5);
+    if (rounds < 1 or per < 1) return rn(p, 0);
+    rn(p, cell.medianRatio(cell.value(c), strArg(p, 2), strArg(p, 3), @intFromFloat(rounds), @intFromFloat(per), gn(p, 6) == 1));
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzenginesecretcompareratio", .func = &ring_SecretCompareRatio },
+    .{ .name = "stzenginesecrethold", .func = &ring_SecretHold },
+    .{ .name = "stzenginesecretholdenv", .func = &ring_SecretHoldEnv },
+    .{ .name = "stzenginesecretholdfile", .func = &ring_SecretHoldFile },
+    .{ .name = "stzenginesecretholdrandomhex", .func = &ring_SecretHoldRandomHex },
+    .{ .name = "stzenginesecretreveal", .func = &ring_SecretReveal },
+    .{ .name = "stzenginesecretsize", .func = &ring_SecretSize },
+    .{ .name = "stzenginesecretequals", .func = &ring_SecretEquals },
+    .{ .name = "stzenginesecureequals", .func = &ring_SecureEquals },
+    .{ .name = "stzenginesecretislocked", .func = &ring_SecretIsLocked },
+    .{ .name = "stzenginesecretrelease", .func = &ring_SecretRelease },
+    .{ .name = "stzenginesecretlastresiduebefore", .func = &ring_SecretLastResidueBefore },
+    .{ .name = "stzenginesecretlastresidueafter", .func = &ring_SecretLastResidueAfter },
+    .{ .name = "stzenginesecretlive", .func = &ring_SecretLive },
     .{ .name = "stzenginecryptosha256", .func = &ring_Sha256 },
     .{ .name = "stzenginecryptohmacsha256", .func = &ring_HmacSha256 },
     .{ .name = "stzenginecryptomd5", .func = &ring_Md5 },

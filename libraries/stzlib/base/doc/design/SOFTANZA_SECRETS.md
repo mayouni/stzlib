@@ -138,6 +138,20 @@ salt and 100 000 rounds; verification is constant-time; randomness is the engine
 CSPRNG — all reused from the platform layer, all backed by the same Zig engine that
 powers the rest of Softanza.
 
+## In memory: held, locked, wiped, compared in constant time
+
+A literal secret is not a Ring string. Ring copies strings freely and has no
+destructor, so a value kept in one could be neither wiped nor kept out of the page
+file. `FromLiteral` hands the value to an engine cell instead: pages locked in RAM
+before the value is written, zeroed by `Release()` before they are freed. `Matches`
+compares inside the engine in constant time and never reveals the password to do it;
+`StzSecureEq(a, b)` is the same comparison for two texts. `secret_memory_narrated`
+measures all four (COMPASS-KERN-07): 0 bytes left after the wipe, 200 of 200 values
+locked by the OS, the plaintext in 0 of 11 sinks, a timing ratio of 1.00.
+
+What stays the caller's: a text returned by `Reveal` is a Ring string and is not
+wiped -- prefer `Matches`, and keep any revealed copy short-lived.
+
 ## What's proven
 
 `secret_narrated` (47/47) exercises the whole story: redaction (the value never

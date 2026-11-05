@@ -231,7 +231,7 @@ class stzSecretStore from stzObject
 			_n_ = new stzSecret(_s_.Name())
 			_n_.SetKind(_cKind_)
 		ok
-		_n_.FromLiteral(StzEngineCryptoRandomHex(32))
+		_n_.FromRandomHex(32)   # made inside the engine, never a Ring string
 		This.Register(_n_)
 		This._Audit(poActor, _s_.Name(), "rotated")
 		StzNoteGrant("secret.rotated", "" + poActor.Name(), "secret:" + _s_.Name())

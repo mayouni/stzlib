@@ -3,6 +3,7 @@ pub const webauthn = @import("webauthn.zig");
 pub const xml = @import("xml.zig");
 pub const xmldsig = @import("xmldsig.zig");
 pub const x509 = @import("x509.zig");
+pub const secret_cell = @import("secret_cell.zig");
 pub const ring_bridge = @import("ring_bridge_crypto.zig");
 
 comptime {
@@ -18,4 +19,5 @@ test {
     _ = webauthn;
     _ = xml;
     _ = xmldsig;
+    _ = secret_cell;
 }

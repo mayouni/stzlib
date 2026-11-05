@@ -49,6 +49,21 @@ func StzDeployKeyQ(pcName)
 func StzTokenQ(pcName)
 	return new stzToken(pcName)
 
+# TRUE if two texts are equal, in a time that does not depend on where they first
+# differ -- the comparison to use for a password, a token or a signature.
+func StzSecureEq(pcA, pcB)
+	return StzEngineSecureEquals("" + pcA, "" + pcB)
+
+# What the last secret release found: how many bytes of the held value were
+# non-zero before the wipe, and how many after it. After must be 0; before shows
+# the count could see a value at all. COMPASS-KERN-07.
+func StzLastSecretWipe()
+	return [ :before = StzEngineSecretLastResidueBefore(), :after = StzEngineSecretLastResidueAfter() ]
+
+# How many secret values the engine holds right now, in locked pages.
+func StzHeldSecrets()
+	return StzEngineSecretLive()
+
 
   #============#
  #  STZSECRET #
@@ -78,7 +93,7 @@ class stzSecret from stzObject
 	@cKind    = "secret"    # semantic kind: secret / apikey / password / deploykey / token
 	@cSource  = "unset"     # literal / env / file / vault / unset
 	@cLocator = ""          # env var NAME / file PATH / vault REF  (SAFE to show)
-	@cLiteral = ""          # only for the :literal source (dev/test) -- never shown
+	@nCell    = 0           # the engine cell holding a :literal value -- never a Ring string
 
 	# Builds a secret with a name and no source yet, of kind secret.
 	#
@@ -92,7 +107,9 @@ class stzSecret from stzObject
 	#
 	#   pcValue    the plaintext to hold, which only Reveal by an effectful actor gives back
 	#   returns    nothing; use FromLiteralQ to chain
-	#   note       the locator shows as (inline), never the value
+	#   note       the locator shows as (inline), never the value. The value is held in engine
+	#              pages locked in RAM, not in a Ring string; setting another source does not wipe
+	#              it, because copies of this object may share it -- Release does
 	#   see        FromEnv, Reveal, Descriptor
 	#@ aka  -- source setters (Q-fluent: return the object AFTER acting) --------
 	def FromLiteral(pcValue)
@@ -100,9 +117,55 @@ class stzSecret from stzObject
 
 	def FromLiteralQ(pcValue)
 		@cSource  = "literal"
-		@cLiteral = "" + pcValue
+		@nCell    = StzEngineSecretHold("" + pcValue)
 		@cLocator = "(inline)"
 		return This
+
+	# Sets the secret to fresh random bytes made inside the engine, written as hex; the value never exists as a Ring string until revealed.
+	#
+	#   pnBytes    how many random bytes, 1 to 1024; the value is twice as many hex characters
+	#   returns    nothing; use FromRandomHexQ to chain
+	#   note       the source shows as literal, like any value this object holds itself
+	#   see        FromLiteral, Release
+	def FromRandomHex(pnBytes)
+		This.FromRandomHexQ(pnBytes)
+
+	def FromRandomHexQ(pnBytes)
+		@cSource  = "literal"
+		@nCell    = StzEngineSecretHoldRandomHex(pnBytes)
+		@cLocator = "(inline)"
+		return This
+
+	# Wipes the value this secret holds and gives its memory back; the secret cannot be revealed afterwards.
+	#
+	#   returns    nothing
+	#   note       a held value lives in engine pages locked in RAM; release zeroes them before
+	#              they are freed (StzLastSecretWipe reports what the wipe left, which is 0). Ring
+	#              has no destructor, so this is the drop: call it when the secret is no longer
+	#              needed. A copy of the object shares the value and is released with it
+	#   warning    a text returned earlier by Reveal is a Ring string the engine cannot reach and
+	#              is not wiped; keep such copies short-lived, and prefer Matches to Reveal
+	#   see        IsLockedInRam, StzLastSecretWipe, Reveal
+	def Release()
+		This._DropCell()
+		@cSource = "released"
+
+	# TRUE if the value is held in memory the operating system has pinned, so it is never written to the page file.
+	#
+	#   returns    TRUE or FALSE; FALSE for a secret read from the environment, a file or a vault,
+	#              whose value this object does not hold
+	#   note       on Windows the answer is read from the OS's own page table, not from a flag
+	#   see        Release, FromLiteral
+	def IsLockedInRam()
+		if @nCell = 0  return 0  ok
+		return StzEngineSecretIsLocked(@nCell) = 1
+
+	def _DropCell()
+		if @nCell != 0
+			_n_ = @nCell
+			@nCell = 0
+			StzEngineSecretRelease(_n_)
+		ok
 
 	# Sets the secret to be read from an environment variable when revealed.
 	#
@@ -312,11 +375,31 @@ class stzSecret from stzObject
 		ok
 		return This._Resolve() != ""
 
+	# compare without bringing the value into Ring: the cell compares in constant time
+	def _EqualsInEngine(pcCandidate)
+		if @cSource = "literal"
+			return StzEngineSecretEquals(@nCell, pcCandidate)
+		but @cSource = "env"
+			_h_ = StzEngineSecretHoldEnv(@cLocator)
+		but @cSource = "file"
+			if StzEngineFileExists(@cLocator) != 1
+				StzRaise("Secret '" + @cName + "': file source not found -- " + @cLocator)
+			ok
+			_h_ = StzEngineSecretHoldFile(@cLocator)
+		else
+			return StzSecureEq(This._Resolve(), pcCandidate)   # raises for vault / released / unset
+		ok
+		_r_ = StzEngineSecretEquals(_h_, pcCandidate)
+		StzEngineSecretRelease(_h_)
+		return _r_
+
 	  #-- internal resolution (source -> plaintext) -----------------------
 
 	def _Resolve()
 		if @cSource = "literal"
-			return @cLiteral
+			return StzEngineSecretReveal(@nCell)
+		but @cSource = "released"
+			StzRaise("Secret '" + @cName + "' was released: its value is wiped.")
 		but @cSource = "env"
 			return StzEngineSystemEnvGet(@cLocator)
 		but @cSource = "file"
@@ -425,12 +508,15 @@ class stzPassword from stzSecret
 	#   pcCandidate   the text to compare with the password
 	#   poActor       the actor asking, which must be effectful and not sandboxed
 	#   returns       TRUE or FALSE
-	#   note          the comparison is a plain equality, not a constant-time one
+	#   note          the comparison is constant-time and the password is not revealed into Ring
+	#                 to make it: a held value is compared inside the engine, and one read from the
+	#                 environment or a file goes there straight from its source
 	#   warning       raises an error for a refused actor, rather than answering FALSE
-	#   see           HashedBy, Reveal
+	#   see           HashedBy, Reveal, StzSecureEq
 	#@ aka  verify a candidate against this password (governed).
 	def Matches(pcCandidate, poActor)
-		return This.Reveal(poActor) = ("" + pcCandidate)
+		This._GateReveal(poActor)
+		return This._EqualsInEngine("" + pcCandidate)
 
 
   #==============#
