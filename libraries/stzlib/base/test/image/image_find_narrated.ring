@@ -191,7 +191,7 @@ sec("scene 5")
 ? "-- Scene 6: the registry --"
 chk("the measurements shipped with the library hold both implementations of :find", len(StzMeasurementOf("find", "yolox-by-name", "find-v1")) > 0 and len(StzMeasurementOf("find", "owlvit", "find-v1")) > 0)
 cChosen = StzModelRegistryQ().ResolveQ(StzRequirementQ("find")).Chosen()
-chk("the registry chooses '" + cChosen + "' for :find, from the measurements alone", cChosen = "owlvit")
+chk("the registry chooses '" + cChosen + "' for :find, from the measurements and the court alone: OWL-ViT, with the warm rule the fresh set upheld (image_wsp_narrated.ring)", cChosen = "owlvit+warm-rule")
 oF = StzRunFaculty("find", [ $cCoco + "000000001675.jpg", "cat" ], [], [], [], 0)
 ? "      the faculty on 'cat': refusal " + oF.IsRefusal() + ", " + @@(oF.Provenance()) + " " + oF.CiteFindings()
 chk("StzRunFaculty(:find) answers through the chosen implementation with the cat's box", oF.IsRefusal() = 0 and isList(oF.Value()) and len(oF.Value()) >= 1 and oF.Value()[1][:query] = "cat")

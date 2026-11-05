@@ -16,3 +16,17 @@ find|find-v1|owlvit+warm-rule|owlvit+shift-patch|8|9
 find|find-v1|owlvit+shift-patch|yolox-by-name|73|7
 find|find-v1|owlvit+shift-patch|owlvit|10|9
 find|find-v1|owlvit+shift-patch|owlvit+warm-rule|9|8
+# find-v2: the fresh judging run (image_wsp_judge_v2.ring, 952 pairs on 292 pictures no implementation had seen), 05/11/2026 11:58:20
+incumbent|find|find-v2|owlvit
+find|find-v2|yolox-by-name|owlvit|38|226
+find|find-v2|yolox-by-name|owlvit+warm-rule|36|233
+find|find-v2|yolox-by-name|owlvit+shift-patch|36|231
+find|find-v2|owlvit|yolox-by-name|226|38
+find|find-v2|owlvit|owlvit+warm-rule|1|10
+find|find-v2|owlvit|owlvit+shift-patch|37|44
+find|find-v2|owlvit+warm-rule|yolox-by-name|233|36
+find|find-v2|owlvit+warm-rule|owlvit|10|1
+find|find-v2|owlvit+warm-rule|owlvit+shift-patch|38|36
+find|find-v2|owlvit+shift-patch|yolox-by-name|231|36
+find|find-v2|owlvit+shift-patch|owlvit|44|37
+find|find-v2|owlvit+shift-patch|owlvit+warm-rule|36|38

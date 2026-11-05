@@ -337,7 +337,7 @@ func StzVisionDeclare(paGoldens)
 	# answers only the words that ARE a COCO class name (YOLOX); owlvit answers any word
 	_oW_ = StzFacultyQ("find")
 	_oW_.SetInputTypeQ(:record).SetOutputTypeQ(:record).SetFloorQ("yolox-by-name", "_StzVisionFindFloor").
-	     SetGoldenCheckerQ("find-f1").SetGoldenVersionQ("find-v1")
+	     SetGoldenCheckerQ("find-f1").SetGoldenVersionQ("find-v2")
 	if len(StzFind("owlvit", _oW_.ImplementationIds())) = 0
 		_oW_.AddImplementation([ :id = "owlvit", :kind = "graph", :fn = "_StzVisionFindOwl",
 			:needle = "vision/" + $cStzVisionOwlVision, :licence = "apache-2.0", :memory = 900 ])

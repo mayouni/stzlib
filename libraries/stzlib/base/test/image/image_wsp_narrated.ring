@@ -11,9 +11,11 @@
 #   Scene 3  THE PATCH REPLAYED: remove-direction on c210 into a fresh file; the same digest as the recorded one; 211 of 212 tensors identical;
 #            the implementation refuses a file whose digest is not the recorded one
 #   Scene 4  THE JUDGING RECORD (judged once, image_wsp_judge.ring): the three shares re-added, the bar applied as written, ten pairs re-run live
-#   Scene 5  the registry and the court: the measurements, then the court's reading of the same record (section 8) -- the one-pair
-#            win is refused, the incumbent holds, and the faculty answers through it
-#   Scene 6  what a person looks at: the shift field as a heat map over the photograph, what the patch removed and what it lost
+#   Scene 5  the court on the find-v1 record (section 8): the one-pair win of the patch is refused, the incumbent would have held
+#   Scene 6  THE FRESH SET, find-v2 (952 pairs on 292 pictures nothing was tuned or judged on, judged once): the warm rule UPHELD over the
+#            incumbent (10 gains, 1 loss), the patch REFUSED (44 against 37); every gain of the warm rule is a PRESENT word made right --
+#            the mechanism re-run live; the registry and the faculty answer through the court's choice
+#   Scene 7  what a person looks at: the shift field as a heat map, what the patch did on find-v1, and the warm rule's gains on the fresh set
 #
 # NEEDS the engine built with WSP-SPIKE-01, models/vision/owlvit_* and owlvit_vision_shiftpatch.gguf (models/MODELS.md), and the COCO pictures.
 # HELPERS LIVE AFTER pf().
@@ -24,9 +26,10 @@ $nPass = 0
 $nFail = 0
 $nSec = clock()
 $cCoco = "D:/GitHub/_wti_models_src/coco/images/"
+$cFresh = "D:/GitHub/_wti_models_src/coco_fresh/"
 decimals(6)
 
-if NOT StzVisionHasModel($cStzVisionOwlVision) or NOT StzVisionHasModel($cStzVisionOwlPatched) or NOT fexists($cCoco + "000000012576.jpg")
+if NOT StzVisionHasModel($cStzVisionOwlVision) or NOT StzVisionHasModel($cStzVisionOwlPatched) or NOT fexists($cCoco + "000000012576.jpg") or NOT fexists($cFresh + "000000287714.jpg")
 	? "NOT RUN: the OWL-ViT model files (original and patched) in " + StzVisionModelsDir() + " or the COCO pictures in " + $cCoco
 	shutdown(0)
 ok
@@ -162,22 +165,54 @@ sec("scene 4")
 
 ? "-- Scene 5: the registry --"
 chk("the measurements shipped with the library hold all three implementations and the floor of :find", len(StzMeasurementOf("find", "owlvit", "find-v1")) > 0 and len(StzMeasurementOf("find", "owlvit+warm-rule", "find-v1")) > 0 and len(StzMeasurementOf("find", "owlvit+shift-patch", "find-v1")) > 0 and len(StzMeasurementOf("find", "yolox-by-name", "find-v1")) > 0)
-oPlan = StzModelRegistryQ().ResolveQ(StzRequirementQ("find"))
-cChosen = oPlan.Chosen()
 aCourt = StzCourtVerdictOf("find", "find-v1", "owlvit+shift-patch", "owlvit")
 ? "      the court on find-v1: shift-patch over owlvit " + aCourt[:gains] + " gains, " + aCourt[:losses] + " losses, P = " + aCourt[:p] + " -> " + aCourt[:verdict]
-chk("THE COURT (section 8) reads the same record: the patch's 10 gains against 9 losses give P = 0.5 and it is REFUSED", aCourt[:gains] = 10 and aCourt[:losses] = 9 and _Abs(aCourt[:p] - 0.5) < 0.000001 and aCourt[:verdict] = "refused")
-chk("the registry resolves :find to '" + cChosen + "': the incumbent holds, because the burden is on the change", cChosen = "owlvit")
-chk("and its Why names the court's refusal of the patch with its evidence", len(StzFind("the court REFUSED it against 'owlvit'", oPlan.Why())) > 0 and len(StzFind("P = 0.5", oPlan.Why())) > 0)
-oF = StzRunFaculty("find", [ $cCoco + "000000001675.jpg", "cat" ], [], [], [], 0)
-? "      the faculty on 'cat': " + @@(oF.Provenance()) + " " + oF.CiteFindings()
-chk("StzRunFaculty(:find) answers through owlvit and its provenance says so", oF.IsRefusal() = 0 and len(oF.Value()) >= 1 and oF.Value()[1][:query] = "cat" and len(StzFind("owlvit", @@(oF.Provenance()))) > 0 and len(StzFind("shift-patch", @@(oF.Provenance()))) = 0)
+chk("THE COURT (section 8) reads the find-v1 record: the patch's 10 gains against 9 losses give P = 0.5 and it is REFUSED", aCourt[:gains] = 10 and aCourt[:losses] = 9 and _Abs(aCourt[:p] - 0.5) < 0.000001 and aCourt[:verdict] = "refused")
+aCourtW = StzCourtVerdictOf("find", "find-v1", "owlvit+warm-rule", "owlvit")
+chk("and the warm rule's 1 gain against 1 loss there gives P = 0.75: REFUSED; on find-v1 the incumbent owlvit would hold", aCourtW[:gains] = 1 and aCourtW[:losses] = 1 and aCourtW[:verdict] = "refused" and StzCourtIncumbent("find", "find-v1") = "owlvit")
 sec("scene 5")
 
-? "-- Scene 6: what a person looks at --"
-WritePage(cOut, aJ, aGold, aRef, aMeans, nI, nW, nP)
-chk("the page is written", fexists(cOut + "/find_wsp.html"))
+? "-- Scene 6: the fresh set, find-v2 (judged once, image_wsp_judge_v2.ring) --"
+aJ2 = _ReadTsv("_golden/owl_find_v2_judged.tsv")
+aSum = [ 0, 0, 0, 0 ]
+aDis = []
+for i = 1 to len(aJ2)
+	for m = 1 to 4  aSum[m] += number(aJ2[i][4 + m])  next
+	if aJ2[i][6] != aJ2[i][7]  aDis + aJ2[i] ok
+next
+? "      952 fresh pairs: floor " + aSum[1] + " | owlvit " + aSum[2] + " | warm-rule " + aSum[3] + " | shift-patch " + aSum[4]
+chk("952 fresh pairs on record: the floor 595, owlvit 783, the warm rule 792, the patch 790 (the rows in vision.zmdl.txt)", len(aJ2) = 952 and aSum[1] = 595 and aSum[2] = 783 and aSum[3] = 792 and aSum[4] = 790)
+aCW = StzCourtVerdictOf("find", "find-v2", "owlvit+warm-rule", "owlvit")
+aCP = StzCourtVerdictOf("find", "find-v2", "owlvit+shift-patch", "owlvit")
+? "      the court on find-v2: warm-rule over owlvit " + aCW[:gains] + "/" + aCW[:losses] + ", P = " + aCW[:p] + " -> " + aCW[:verdict] + " | shift-patch over owlvit " + aCP[:gains] + "/" + aCP[:losses] + ", P = " + aCP[:p] + " -> " + aCP[:verdict]
+chk("THE COURT on the fresh set: the warm rule over the incumbent, 10 gains and 1 loss, P = 12/2048 = 0.005859: UPHELD", aCW[:gains] = 10 and aCW[:losses] = 1 and _Abs(aCW[:p] - 12 / 2048) < 0.000001 and aCW[:verdict] = "upheld")
+chk("THE COURT on the fresh set: the weight patch over the incumbent, 44 gains and 37 losses, P = 0.25: REFUSED -- the edit is not evidence on fresh pictures either", aCP[:gains] = 44 and aCP[:losses] = 37 and aCP[:p] > 0.2 and aCP[:verdict] = "refused")
+chk("the warm rule is also upheld against the floor (233 against 36)", StzCourtVerdictOf("find", "find-v2", "owlvit+warm-rule", "yolox-by-name")[:verdict] = "upheld")
+nPosDis = 0
+for i = 1 to len(aDis)
+	if aDis[i][4] = "pos"  nPosDis++ ok
+next
+chk("THE MECHANISM, not the one it was built for: all " + len(aDis) + " pairs where the warm rule and owlvit disagree are PRESENT words -- it removed no false alarm on an absent word", len(aDis) = 11 and nPosDis = 11)
+oB = StzImageQ($cFresh + "000000287714.jpg")
+aExpB = _ExpOf(_FindGoldenIn(_ReadTsv("_golden/owl_find_v2.tsv"), "judge2", "000000287714.jpg", "bathtub"))
+s8 = StzFindScore(oB.FindByWordsXT("bathtub", $nStzVisionFindScore), aExpB)
+nMB = _StzVisionOwlHeads(oB)[:meanShift]
+oB.Release()
+sW = StzFindScore(_StzVisionFindOwlWarm([ $cFresh + "000000287714.jpg", "bathtub" ], []), aExpB)
+? "      the bathtub (mean shift " + nMB + "): at 0.08 " + s8[:hits] + " hit and " + s8[:false] + " false boxes; through the warm rule " + sW[:hits] + " hit and " + sW[:false] + " false"
+chk("live, on a warm fresh picture: the bathtub is found either way, and the warm rule's higher threshold drops the 4 extra boxes that kept it below F1 0.5", nMB >= $nStzVisionWarmShift and s8[:hits] = 1 and s8[:false] = 4 and s8[:agrees] = 0 and sW[:hits] = 1 and sW[:false] = 0 and sW[:agrees] = 1)
+oPlan = StzModelRegistryQ().ResolveQ(StzRequirementQ("find"))
+chk("the registry resolves :find to '" + oPlan.Chosen() + "' on find-v2, from the measurements and the court alone", oPlan.Chosen() = "owlvit+warm-rule")
+chk("and its Why says the court upheld it and refused the patch with its evidence", len(StzFind("the court (incumbent 'owlvit') upheld 'owlvit+warm-rule'", oPlan.Why())) > 0 and len(StzFind("REFUSED it against 'owlvit' on golden set find-v2: 44 gains and 37 losses", oPlan.Why())) > 0)
+oF = StzRunFaculty("find", [ $cFresh + "000000287714.jpg", "bathtub" ], [], [], [], 0)
+? "      the faculty on the bathtub: " + @@(oF.Provenance())
+chk("StzRunFaculty(:find) answers through the warm rule and its provenance says so", oF.IsRefusal() = 0 and len(oF.Value()) = 1 and len(StzFind("owlvit+warm-rule", @@(oF.Provenance()))) > 0)
 sec("scene 6")
+
+? "-- Scene 7: what a person looks at --"
+WritePage(cOut, aJ, aGold, aRef, aMeans, nI, nW, nP, aDis, aSum)
+chk("the page is written", fexists(cOut + "/find_wsp.html"))
+sec("scene 7")
 
 ? ""
 ? "ASSERTIONS: " + ($nPass + $nFail) + " -- " + $nPass + " passed, " + $nFail + " failed"
@@ -270,6 +305,15 @@ func _ReadTsv(cPath)
 	next
 	return aOut
 
+func _FindGoldenIn(aGold, cSplit, cPic, cWord)
+	for i = 1 to len(aGold)
+		if aGold[i][2] = cPic and aGold[i][3] = cWord and aGold[i][1] = cSplit  return aGold[i] ok
+	next
+	return []
+
+func _ExpOf(aG)
+	return [ :w = number(aG[6]), :h = number(aG[7]), :boxes = _BoxesOf(aG) ]
+
 func _FindGolden(aGold, cPic, cWord)
 	for i = 1 to len(aGold)
 		if aGold[i][2] = cPic and aGold[i][3] = cWord and aGold[i][1] = "judge"  return aGold[i] ok
@@ -320,8 +364,11 @@ func HeatTile(cOut, cPic, aShifts, nMean, nLo, nHi, cNote)
 
 # a pair: the truth (green), what the incumbent drew (orange), what the patch drew (blue)
 func PairTile(cOut, aJ, aG, aOldRows, cNote)
+	return PairTileIn(cOut, $cCoco, aJ, aG, aOldRows, cNote, "as it was", "patched")
+
+func PairTileIn(cOut, cDir, aJ, aG, aOldRows, cNote, cLabA, cLabB)
 	cPic = aJ[1]
-	oI = StzImageQ($cCoco + cPic)
+	oI = StzImageQ(cDir + cPic)
 	nW = oI.Width()
 	nH = oI.Height()
 	oI.SaveAsJpeg(cOut + "/" + cPic, 85)
@@ -340,9 +387,9 @@ func PairTile(cOut, aJ, aG, aOldRows, cNote)
 	if aJ[7] = "1"  cPz = "ok" ok
 	cTruth = "absent (LVIS verified it)"
 	if aJ[4] = "pos"  cTruth = "present: " + len(aT) + " box(es)" ok
-	return "<div class='c'><div class='im'><img src='" + cPic + "' alt='" + aJ[2] + "'>" + cSvg + "</div><p><b>" + aJ[2] + "</b> - " + cTruth + "</p><p><span class='b " + cI + "'>as it was " + cI + "</span><span class='b " + cPz + "'>patched " + cPz + "</span> " + cNote + "</p></div>"
+	return "<div class='c'><div class='im'><img src='" + cPic + "' alt='" + aJ[2] + "'>" + cSvg + "</div><p><b>" + aJ[2] + "</b> - " + cTruth + "</p><p><span class='b " + cI + "'>" + cLabA + " " + cI + "</span><span class='b " + cPz + "'>" + cLabB + " " + cPz + "</span> " + cNote + "</p></div>"
 
-func WritePage(cOut, aJ, aGold, aRef, aMeans, nI, nW, nP)
+func WritePage(cOut, aJ, aGold, aRef, aMeans, nI, nW, nP, aDis, aSum)
 	aOldJ = _ReadTsv("_golden/owl_find_v1_judged.tsv")
 	# one FIXED band for the four pictures, -0.85 .. -0.45: a patch at or below -0.85 is clear, one at -0.45 or above is full orange, so the
 	# cold picture reads pale and the warm one dark (the full range, -1.39 .. -0.41, saturates every picture: measured on the first render)
@@ -398,9 +445,42 @@ func WritePage(cOut, aJ, aGold, aRef, aMeans, nI, nW, nP)
 			c += PairTile(cOut, aJ[i], _FindGolden(aGold, aJ[i][1], aJ[i][2]), _OldRows(aOldJ, aJ[i][1], aJ[i][2]), "")
 		ok
 	next
+	c += "</div><h2>The fresh set: 952 pairs on 292 pictures nothing was tuned or judged on</h2>" +
+		"<div class='k'><div class='kp'><b>" + aSum[2] + " / 952</b><span>the model as it was (the incumbent)</span></div>" +
+		"<div class='kp'><b>" + aSum[3] + " / 952</b><span>the warm rule: 10 gains, 1 loss against the incumbent, P = 0.006: UPHELD by the court</span></div>" +
+		"<div class='kp miss'><b>" + aSum[4] + " / 952</b><span>the weight patch: 44 gains, 37 losses, P = 0.25: REFUSED by the court</span></div>" +
+		"<div class='kp'><b>11 of 11</b><span>of the warm rule's disagreements are present words: it cleared extra boxes, not false alarms</span></div></div>" +
+		"<p class='sub'>The warm rule's gains on the fresh set: the dashed orange boxes are what the model drew at its usual threshold, the blue ones what it draws " +
+		"with the threshold raised on a warm picture. The object was found both times; the extra boxes around it kept the answer below the bar.</p><div class='g'>"
+	aGold2 = _ReadTsv("_golden/owl_find_v2.tsv")
+	for i = 1 to len(aDis)
+		aG = _FindGoldenIn(aGold2, "judge2", aDis[i][1], aDis[i][2])
+		oI = StzImageQ($cFresh + aDis[i][1])
+		nH = _StzVisionOwlHeads(oI)[:meanShift]
+		aO = oI.FindByWordsXT(aDis[i][2], $nStzVisionFindScore)
+		oI.Release()
+		aWr = _StzVisionFindOwlWarm([ $cFresh + aDis[i][1], aDis[i][2] ], [])
+		aRow = [ aDis[i][1], aDis[i][2], aDis[i][3], aDis[i][4], aDis[i][6], "", aDis[i][7], _RowsText(aWr) ]
+		c += PairTileIn(cOut, $cFresh, aRow, aG, _RowsBoxes(aO), "mean shift " + nH, "as it was", "warm rule")
+	next
 	c += "</div><p class='sub'>Limits, stated: the direction was found on the DEV pictures, where the patch read 0.8235; on the judging pairs it read 0.7906 -- the drop is the in-sample bias, measured. " +
 		"A bias head cannot tell a present object from an absent one, so the false alarms it removed were paid for in positives. No person has looked at this page yet.</p></main></body></html>"
 	write(cOut + "/find_wsp.html", c)
+
+func _RowsText(aRows)
+	c = ""
+	for k = 1 to len(aRows)
+		r = aRows[k]
+		c += "" + r[:box][1] + " " + r[:box][2] + " " + r[:box][3] + " " + r[:box][4] + " " + r[:score] + ";"
+	next
+	return c
+
+func _RowsBoxes(aRows)
+	aOut = []
+	for k = 1 to len(aRows)
+		aOut + [ aRows[k][:box][1], aRows[k][:box][2], aRows[k][:box][3], aRows[k][:box][4], aRows[k][:score] ]
+	next
+	return aOut
 
 func _OldRows(aOldJ, cPic, cWord)
 	for i = 1 to len(aOldJ)

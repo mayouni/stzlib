@@ -1,0 +1,952 @@
+000000006614.jpg	apple	A	pos	1	0	0	0
+000000006614.jpg	grape	B	pos	0	0	0	0
+000000009772.jpg	bath mat	B	pos	0	1	1	1
+000000009772.jpg	batter	B	neg	1	1	1	1
+000000009772.jpg	mirror	B	pos	0	0	0	1
+000000009772.jpg	nightshirt	B	neg	1	1	1	1
+000000009772.jpg	television set	B	pos	0	1	1	1
+000000014473.jpg	muffin	B	neg	1	1	1	1
+000000014473.jpg	railroad train	B	pos	0	0	0	0
+000000016249.jpg	bench	A	pos	1	0	0	0
+000000016249.jpg	fork	A	neg	1	1	1	1
+000000016249.jpg	mushroom	B	neg	1	1	1	1
+000000016249.jpg	short pants	B	neg	1	1	1	1
+000000017178.jpg	automobile	B	pos	0	1	1	1
+000000017178.jpg	handkerchief	B	neg	1	1	1	1
+000000017178.jpg	heron	B	neg	1	1	1	1
+000000032285.jpg	bath towel	B	pos	0	1	1	1
+000000032285.jpg	blanket	B	pos	0	0	0	0
+000000032285.jpg	cistern	B	pos	0	1	1	1
+000000032285.jpg	grocery bag	B	neg	1	1	1	1
+000000032285.jpg	kayak	B	neg	1	1	1	1
+000000032285.jpg	scarf	B	neg	1	0	0	1
+000000032285.jpg	shower curtain	B	pos	0	0	0	0
+000000032285.jpg	towel	B	pos	0	1	1	1
+000000032610.jpg	backpack	A	pos	1	1	1	1
+000000032610.jpg	manhole	B	neg	1	1	1	1
+000000032610.jpg	router	B	pos	0	0	0	0
+000000032610.jpg	table	B	pos	0	1	1	1
+000000036494.jpg	clock	A	pos	1	0	0	0
+000000036494.jpg	dining table	A	pos	0	0	0	0
+000000036494.jpg	lamp	B	pos	0	0	0	0
+000000036494.jpg	rocking chair	B	neg	1	1	1	1
+000000036494.jpg	leotards	B	neg	1	1	1	1
+000000036494.jpg	automatic washer	B	neg	1	1	1	1
+000000036660.jpg	cellular telephone	B	pos	0	0	0	0
+000000041888.jpg	apron	B	neg	1	1	1	1
+000000041888.jpg	bicycle	A	neg	1	1	1	1
+000000041888.jpg	bird	A	pos	1	1	1	1
+000000041888.jpg	cleansing agent	B	neg	1	1	1	1
+000000041888.jpg	saltshaker	B	neg	1	1	1	1
+000000045070.jpg	suitcase	A	neg	1	0	0	0
+000000045070.jpg	jean	B	pos	0	1	1	1
+000000045070.jpg	saddle	B	pos	0	1	1	1
+000000045070.jpg	string cheese	B	neg	1	1	1	1
+000000050380.jpg	lamppost	B	neg	1	1	1	1
+000000050380.jpg	pony	B	pos	0	1	1	1
+000000051314.jpg	parrot	B	neg	1	1	1	1
+000000051314.jpg	wet suit	B	pos	0	1	1	1
+000000051326.jpg	flower arrangement	B	pos	0	1	1	1
+000000051326.jpg	pumpkin	B	pos	0	1	1	1
+000000051326.jpg	sandwich	A	neg	1	1	1	1
+000000051610.jpg	bed	A	pos	1	1	1	1
+000000051610.jpg	cap	B	neg	1	1	1	1
+000000051610.jpg	cigarette case	B	neg	1	1	1	1
+000000051610.jpg	jean	B	neg	1	1	1	1
+000000051610.jpg	laptop computer	B	pos	0	1	1	1
+000000051610.jpg	mashed potato	B	neg	1	1	1	1
+000000052507.jpg	pliers	B	neg	1	1	1	1
+000000052507.jpg	surfboard	A	pos	1	1	1	1
+000000053624.jpg	elephant	A	pos	1	1	1	1
+000000053624.jpg	sunhat	B	neg	1	1	1	1
+000000053994.jpg	curtain	B	neg	1	1	1	1
+000000053994.jpg	gargoyle	B	neg	1	1	1	1
+000000053994.jpg	parking meter	A	pos	1	1	1	1
+000000054593.jpg	baseball bat	A	pos	0	0	0	0
+000000054593.jpg	autobus	B	neg	1	1	1	1
+000000054593.jpg	minivan	B	pos	0	1	1	1
+000000054593.jpg	ski boot	B	neg	1	1	1	1
+000000054593.jpg	wok	B	neg	1	1	1	1
+000000055950.jpg	short pants	B	pos	0	1	1	1
+000000055950.jpg	tennis racket	A	pos	1	1	1	1
+000000057672.jpg	aquarium	B	neg	1	1	1	1
+000000057672.jpg	goat	B	neg	1	1	1	1
+000000060823.jpg	cow	A	pos	1	1	1	1
+000000060899.jpg	hairbrush	B	pos	0	1	1	1
+000000060899.jpg	ottoman	B	pos	0	1	1	1
+000000060899.jpg	pillow	B	pos	0	1	1	1
+000000065798.jpg	manhole	B	neg	1	1	1	1
+000000066038.jpg	coat hanger	B	neg	1	1	1	1
+000000066038.jpg	life buoy	B	neg	1	1	1	1
+000000066038.jpg	mitten	B	neg	1	1	1	1
+000000066038.jpg	umbrella	A	pos	1	1	1	1
+000000067896.jpg	butterfly	B	neg	1	1	1	1
+000000067896.jpg	clock	A	pos	1	1	1	1
+000000070229.jpg	slide	B	neg	1	1	1	1
+000000070229.jpg	hair dryer	B	neg	1	1	1	1
+000000070229.jpg	stove	B	neg	1	1	1	1
+000000070229.jpg	teddy bear	A	pos	0	1	1	1
+000000070254.jpg	bench	A	pos	0	0	0	0
+000000070254.jpg	bullet train	B	pos	0	1	1	1
+000000070254.jpg	watermelon	B	neg	1	1	1	1
+000000071938.jpg	cellular telephone	B	pos	0	0	0	0
+000000071938.jpg	pillow	B	pos	0	0	0	0
+000000071938.jpg	shirt	B	pos	0	0	0	0
+000000071938.jpg	underwear	B	neg	1	1	1	0
+000000073118.jpg	cone	B	neg	1	1	1	1
+000000073118.jpg	motorcycle	A	neg	1	1	1	1
+000000073118.jpg	tongs	B	neg	1	1	1	1
+000000073946.jpg	shark	B	pos	0	0	0	1
+000000073946.jpg	surfboard	A	pos	0	1	1	1
+000000073946.jpg	tank top	B	pos	0	0	0	0
+000000073946.jpg	tissue paper	B	neg	1	1	1	1
+000000074058.jpg	gelatin	B	neg	1	1	1	1
+000000074058.jpg	omelet	B	neg	1	1	1	1
+000000078266.jpg	apron	B	pos	0	0	0	0
+000000078266.jpg	cabin car	B	neg	1	1	1	1
+000000078266.jpg	comic book	B	neg	1	1	1	1
+000000078266.jpg	pipe	B	pos	0	0	0	0
+000000079188.jpg	walking cane	B	neg	1	1	1	1
+000000079188.jpg	dishtowel	B	neg	1	1	1	1
+000000079188.jpg	giraffe	A	pos	1	1	1	1
+000000080057.jpg	jewelry	B	neg	1	1	1	1
+000000080057.jpg	teddy bear	A	pos	1	1	1	1
+000000080057.jpg	toy	B	pos	0	0	0	0
+000000080057.jpg	wine bucket	B	neg	1	1	1	1
+000000082846.jpg	autobus	B	pos	0	1	1	1
+000000082846.jpg	crayon	B	neg	1	1	1	1
+000000082846.jpg	garbage truck	B	neg	1	1	1	1
+000000087470.jpg	ferris wheel	B	neg	1	1	1	1
+000000087470.jpg	lizard	B	neg	1	1	1	1
+000000090155.jpg	railroad train	B	pos	0	1	1	1
+000000091495.jpg	clothes hamper	B	neg	1	1	1	1
+000000091615.jpg	dishwasher	B	pos	0	0	1	1
+000000091615.jpg	kitchen sink	B	pos	0	0	0	1
+000000091615.jpg	mask	B	neg	1	1	1	1
+000000091615.jpg	microwave oven	B	pos	0	1	1	1
+000000093717.jpg	bicycle	A	pos	0	0	0	0
+000000093717.jpg	trousers	B	pos	0	1	1	1
+000000098018.jpg	stove	B	pos	0	0	0	0
+000000098018.jpg	sweatshirt	B	neg	1	1	1	1
+000000101068.jpg	baseball bat	A	pos	0	1	1	1
+000000101068.jpg	baseball cap	B	pos	0	1	1	0
+000000101068.jpg	trousers	B	pos	0	1	1	1
+000000101068.jpg	water ski	B	neg	1	1	1	1
+000000101780.jpg	giraffe	A	pos	1	1	1	1
+000000103548.jpg	beanie	B	neg	1	1	1	1
+000000103548.jpg	liquor	B	neg	1	1	1	1
+000000105014.jpg	broccoli	A	pos	1	0	0	0
+000000105014.jpg	bottle cap	B	pos	0	1	1	1
+000000105014.jpg	cucumber	B	pos	0	1	1	1
+000000105014.jpg	fork	A	pos	0	1	1	1
+000000105014.jpg	tomato	B	pos	0	1	1	1
+000000106912.jpg	crib	B	neg	1	1	1	1
+000000110999.jpg	basket	B	pos	0	0	0	0
+000000110999.jpg	knife	A	pos	0	0	0	0
+000000110999.jpg	painting	B	pos	0	0	0	0
+000000110999.jpg	pear	B	pos	0	0	0	0
+000000110999.jpg	plate	B	pos	0	0	0	0
+000000111086.jpg	boat	A	pos	0	1	1	1
+000000111086.jpg	railcar	B	neg	1	0	0	0
+000000111086.jpg	palette	B	neg	1	1	1	1
+000000111086.jpg	turtle	B	neg	1	1	1	1
+000000117914.jpg	bath towel	B	pos	0	1	1	1
+000000117914.jpg	sink	A	pos	1	1	1	0
+000000118515.jpg	bench	A	pos	1	0	0	0
+000000118515.jpg	crate	B	neg	1	1	1	1
+000000118515.jpg	kitten	B	pos	0	0	0	1
+000000118515.jpg	lamp	B	neg	1	1	1	1
+000000118515.jpg	spoon	A	neg	1	1	1	1
+000000118515.jpg	turban	B	neg	1	1	1	1
+000000118515.jpg	wet suit	B	neg	1	1	1	1
+000000119995.jpg	calendar	B	neg	1	1	1	1
+000000119995.jpg	dress suit	B	neg	1	0	0	0
+000000119995.jpg	tennis racket	A	pos	1	1	1	1
+000000122046.jpg	chair	A	pos	1	1	1	1
+000000122046.jpg	dress	B	pos	0	1	1	1
+000000122046.jpg	duck	B	neg	1	1	1	1
+000000122046.jpg	scarf	B	pos	0	1	1	0
+000000122606.jpg	beef	B	neg	1	1	1	1
+000000122606.jpg	highchair	B	neg	1	1	1	1
+000000122606.jpg	tricycle	B	neg	1	1	1	1
+000000122606.jpg	windshield wiper	B	pos	0	1	1	1
+000000123321.jpg	battery	B	neg	1	1	1	1
+000000123321.jpg	garbage	B	neg	1	1	1	1
+000000123321.jpg	soup	B	pos	0	0	0	1
+000000125211.jpg	mint candy	B	neg	1	1	1	1
+000000125211.jpg	ski	B	neg	1	1	1	1
+000000125211.jpg	zebra	A	pos	1	1	1	1
+000000125806.jpg	cow	A	pos	0	1	1	1
+000000125806.jpg	cappuccino	B	neg	1	1	1	1
+000000125806.jpg	railcar	B	neg	1	1	1	1
+000000125806.jpg	curtain	B	neg	1	1	1	1
+000000125806.jpg	yoke	B	neg	1	1	1	1
+000000127092.jpg	lollipop	B	neg	1	1	1	1
+000000127092.jpg	telephone pole	B	pos	0	0	0	0
+000000128598.jpg	lantern	B	neg	1	1	1	1
+000000129322.jpg	bathtub	B	pos	0	0	0	0
+000000129322.jpg	camera lens	B	neg	1	1	1	1
+000000129322.jpg	pipe	B	pos	0	1	1	1
+000000129322.jpg	toilet	A	pos	1	1	1	1
+000000129492.jpg	basket	B	pos	0	0	0	0
+000000129492.jpg	parking meter	A	neg	1	1	1	1
+000000129492.jpg	shampoo	B	neg	1	1	1	1
+000000129492.jpg	sunglasses	B	neg	1	1	1	1
+000000129492.jpg	trousers	B	pos	0	1	1	1
+000000130386.jpg	bowling ball	B	neg	1	1	1	1
+000000130386.jpg	pole	B	pos	0	0	0	0
+000000130386.jpg	street sign	B	pos	0	0	0	0
+000000132329.jpg	paper towel	B	neg	1	1	1	1
+000000132329.jpg	water bottle	B	pos	0	0	0	0
+000000135604.jpg	short pants	B	pos	0	1	1	0
+000000136355.jpg	baseball glove	A	neg	1	1	1	1
+000000136355.jpg	chopping board	B	pos	0	1	1	1
+000000136355.jpg	refrigerator	A	pos	1	0	0	1
+000000136355.jpg	flower arrangement	B	pos	0	0	0	1
+000000136355.jpg	kitchen table	B	pos	0	1	1	1
+000000136355.jpg	mandarin orange	B	neg	1	1	1	1
+000000136355.jpg	mask	B	neg	1	1	1	1
+000000136355.jpg	wallet	B	neg	1	0	0	0
+000000136355.jpg	wok	B	neg	1	0	0	0
+000000138819.jpg	trash can	B	pos	0	1	1	1
+000000138819.jpg	asparagus	B	neg	1	1	1	1
+000000138819.jpg	toilet	A	pos	0	0	0	0
+000000142472.jpg	artichoke	B	neg	1	1	1	1
+000000142472.jpg	automobile	B	pos	0	1	1	0
+000000142472.jpg	cleansing agent	B	neg	1	1	1	1
+000000142472.jpg	coaster	B	neg	1	1	1	1
+000000142472.jpg	table	B	neg	1	1	1	1
+000000144333.jpg	handbag	A	pos	0	0	0	0
+000000144333.jpg	bicycle	A	pos	1	1	1	1
+000000144333.jpg	automobile	B	pos	0	1	1	1
+000000144333.jpg	polo shirt	B	pos	0	1	1	1
+000000144333.jpg	timer	B	neg	1	1	1	1
+000000144798.jpg	alcohol	B	neg	1	1	1	1
+000000144798.jpg	bath mat	B	pos	0	1	1	1
+000000144798.jpg	bathtub	B	pos	0	1	1	1
+000000144798.jpg	book	A	pos	0	1	1	0
+000000144798.jpg	jacket	B	neg	1	1	1	1
+000000144798.jpg	toy	B	pos	0	1	1	0
+000000147729.jpg	cowbell	B	neg	1	1	1	1
+000000147729.jpg	heater	B	neg	1	1	1	1
+000000147729.jpg	sweater	B	pos	0	1	1	0
+000000150265.jpg	coat	B	pos	0	1	1	1
+000000150265.jpg	jacket	B	pos	0	1	1	1
+000000150265.jpg	plate	B	neg	1	1	1	1
+000000151051.jpg	garden hose	B	neg	1	1	1	1
+000000151051.jpg	person	A	pos	1	1	1	1
+000000151051.jpg	radish	B	neg	1	1	1	1
+000000151051.jpg	ski parka	B	pos	0	0	0	0
+000000151629.jpg	bookcase	B	neg	1	1	1	1
+000000151629.jpg	cd player	B	neg	1	1	1	1
+000000151629.jpg	globe	B	neg	1	1	1	1
+000000151962.jpg	dog	A	pos	1	1	1	1
+000000151962.jpg	rearview mirror	B	pos	0	1	1	1
+000000153217.jpg	knee pad	B	neg	1	1	1	1
+000000153217.jpg	motorcycle	A	pos	1	1	1	1
+000000153217.jpg	wheel	B	pos	0	1	1	1
+000000154358.jpg	chicken	B	neg	1	1	1	1
+000000154358.jpg	coffee table	B	pos	0	1	1	1
+000000154358.jpg	fireplace	B	pos	0	1	1	1
+000000159112.jpg	lemon	B	pos	0	0	0	1
+000000159112.jpg	pizza	A	pos	1	0	0	1
+000000159399.jpg	kite	A	pos	1	1	1	1
+000000161032.jpg	chandelier	B	neg	1	1	1	1
+000000161032.jpg	dog	A	neg	1	1	1	1
+000000161032.jpg	flowerpot	B	neg	1	1	1	1
+000000161032.jpg	skirt	B	pos	0	1	1	0
+000000163258.jpg	bow	B	neg	1	1	1	1
+000000163258.jpg	cincture	B	neg	1	1	1	1
+000000163258.jpg	sink	A	pos	0	1	1	1
+000000163258.jpg	toilet	A	pos	1	1	1	1
+000000165831.jpg	skirt	B	neg	1	1	1	1
+000000166259.jpg	duck	B	pos	0	1	1	1
+000000166259.jpg	pepper mill	B	neg	1	1	1	1
+000000167067.jpg	bow-tie	B	pos	0	1	1	1
+000000170278.jpg	blanket	B	pos	0	0	0	0
+000000170278.jpg	dresser	B	pos	0	0	1	1
+000000171740.jpg	lamp	B	pos	0	1	1	1
+000000171740.jpg	napkin	B	neg	1	1	1	1
+000000171740.jpg	parrot	B	neg	1	1	1	1
+000000171740.jpg	sofa	B	pos	0	1	1	1
+000000171740.jpg	teddy bear	A	neg	1	1	1	1
+000000172330.jpg	mattress	B	neg	1	1	1	1
+000000174371.jpg	fire extinguisher	B	neg	1	1	1	1
+000000174371.jpg	zucchini	B	neg	1	1	1	1
+000000176701.jpg	telephone pole	B	pos	0	0	0	1
+000000176701.jpg	trousers	B	neg	1	1	1	1
+000000179642.jpg	suitcase	A	pos	0	1	1	1
+000000179642.jpg	chessboard	B	neg	1	1	1	1
+000000179642.jpg	fan	B	pos	0	0	0	0
+000000179642.jpg	highchair	B	neg	1	0	0	0
+000000179642.jpg	jersey	B	pos	0	1	1	1
+000000179642.jpg	towel	B	pos	0	0	0	0
+000000180792.jpg	fishing rod	B	neg	1	1	1	1
+000000180792.jpg	pipe	B	pos	0	1	1	1
+000000180792.jpg	soccer ball	B	neg	1	1	1	1
+000000180792.jpg	swimsuit	B	neg	1	1	1	1
+000000180792.jpg	toilet	A	pos	1	1	1	1
+000000181542.jpg	autobus	B	pos	0	1	1	1
+000000181542.jpg	taxi	B	pos	0	0	0	1
+000000181542.jpg	dress	B	pos	0	1	1	1
+000000181542.jpg	motorcycle	A	pos	1	1	1	1
+000000181542.jpg	pickup truck	B	pos	0	0	0	1
+000000181542.jpg	sewing machine	B	neg	1	1	1	1
+000000182162.jpg	balloon	B	pos	0	1	1	0
+000000182162.jpg	radiator	B	neg	1	1	1	1
+000000182162.jpg	sofa	B	pos	0	1	1	1
+000000186296.jpg	sandal	B	pos	0	1	1	1
+000000187243.jpg	bath mat	B	pos	0	1	1	1
+000000187243.jpg	cart	B	neg	1	0	0	1
+000000187243.jpg	toilet	A	pos	1	1	1	1
+000000189226.jpg	bowling ball	B	neg	1	1	1	1
+000000189226.jpg	fireplug	B	pos	0	1	1	1
+000000189226.jpg	lightbulb	B	neg	1	1	1	1
+000000189226.jpg	notepad	B	neg	1	1	1	1
+000000189436.jpg	basket	B	pos	0	1	1	1
+000000189436.jpg	handle	B	neg	1	1	1	1
+000000189436.jpg	map	B	neg	1	1	1	1
+000000189436.jpg	teddy bear	A	pos	1	1	1	1
+000000190648.jpg	dresser	B	pos	0	0	0	0
+000000190648.jpg	mattress	B	pos	0	1	1	1
+000000191580.jpg	fork	A	pos	0	0	0	0
+000000191580.jpg	grape	B	neg	1	1	1	1
+000000191580.jpg	knife	A	pos	1	0	0	0
+000000191580.jpg	place mat	B	pos	0	0	0	0
+000000191580.jpg	plate	B	pos	0	1	1	1
+000000192964.jpg	crate	B	pos	0	0	0	0
+000000193245.jpg	person	A	pos	1	1	1	1
+000000193717.jpg	fireplug	B	pos	0	1	1	1
+000000193717.jpg	mushroom	B	neg	1	1	1	1
+000000193717.jpg	pillow	B	neg	1	1	1	1
+000000193717.jpg	short pants	B	neg	1	1	1	1
+000000193717.jpg	windsock	B	neg	1	1	1	1
+000000195165.jpg	toilet	A	pos	1	0	0	1
+000000200421.jpg	bed	A	pos	0	0	0	1
+000000200421.jpg	blanket	B	pos	0	1	1	1
+000000200421.jpg	jacket	B	pos	0	1	1	1
+000000200421.jpg	tennis racket	A	pos	1	1	1	1
+000000202001.jpg	pony	B	neg	1	1	1	1
+000000202001.jpg	sofa	B	pos	0	1	1	1
+000000205333.jpg	bagel	B	neg	1	1	1	1
+000000205333.jpg	crate	B	neg	1	1	1	1
+000000205333.jpg	doormat	B	neg	1	1	1	1
+000000206271.jpg	trash can	B	pos	0	1	1	0
+000000206271.jpg	bucket	B	pos	0	1	1	1
+000000206271.jpg	pipe	B	pos	0	0	0	0
+000000206271.jpg	urinal	B	pos	0	1	1	0
+000000206838.jpg	horse	A	pos	1	1	1	1
+000000206838.jpg	wet suit	B	neg	1	1	1	1
+000000207538.jpg	atomizer	B	neg	1	1	1	1
+000000207538.jpg	deadbolt	B	neg	1	1	1	1
+000000207538.jpg	gravestone	B	neg	1	1	1	1
+000000207538.jpg	microwave oven	B	pos	0	1	1	1
+000000207728.jpg	pea	B	neg	1	1	1	1
+000000207728.jpg	ram	B	pos	0	1	1	1
+000000214192.jpg	dirt bike	B	pos	0	1	1	1
+000000214224.jpg	alcohol	B	pos	0	1	1	1
+000000214224.jpg	blender	B	pos	0	1	1	1
+000000214224.jpg	bottle	A	pos	1	1	1	1
+000000214224.jpg	brownie	B	neg	1	1	1	1
+000000214224.jpg	freight car	B	neg	1	1	1	1
+000000214224.jpg	raincoat	B	neg	1	1	1	1
+000000215072.jpg	umbrella	A	pos	1	1	1	1
+000000215778.jpg	computer keyboard	B	pos	0	1	1	1
+000000215778.jpg	laptop computer	B	pos	0	1	1	1
+000000215778.jpg	table	B	pos	0	1	1	0
+000000215778.jpg	telephone	B	pos	0	1	1	1
+000000217425.jpg	ball	B	neg	1	1	1	1
+000000217425.jpg	clock tower	B	pos	0	1	1	1
+000000217425.jpg	funnel	B	neg	1	1	1	1
+000000217425.jpg	log	B	neg	1	1	1	1
+000000217425.jpg	road map	B	neg	1	1	1	1
+000000217425.jpg	streetlight	B	pos	0	0	0	0
+000000217753.jpg	burrito	B	neg	1	1	1	1
+000000217753.jpg	fire extinguisher	B	neg	1	1	1	1
+000000218362.jpg	clock	A	pos	0	0	0	0
+000000220764.jpg	bow	B	neg	1	1	1	1
+000000220764.jpg	coffee maker	B	neg	1	1	1	1
+000000220764.jpg	necklace	B	neg	1	1	1	1
+000000220764.jpg	tobacco pipe	B	neg	1	1	1	1
+000000220764.jpg	stereo	B	neg	1	1	1	1
+000000220764.jpg	watermelon	B	neg	1	1	1	1
+000000222825.jpg	dishwasher	B	pos	0	1	1	1
+000000222825.jpg	refrigerator	A	pos	1	1	1	1
+000000222825.jpg	step stool	B	neg	1	1	1	1
+000000222825.jpg	stove	B	pos	0	0	0	1
+000000223130.jpg	giraffe	A	pos	1	1	1	1
+000000223130.jpg	trailer truck	B	neg	1	1	1	1
+000000223130.jpg	vacuum cleaner	B	neg	1	1	1	1
+000000223955.jpg	bolt	B	neg	1	1	1	1
+000000223955.jpg	pickup truck	B	neg	1	1	1	1
+000000223955.jpg	short pants	B	pos	0	1	1	1
+000000223955.jpg	cover	B	neg	1	1	1	1
+000000223959.jpg	lamppost	B	neg	1	1	1	1
+000000223959.jpg	tennis racket	A	pos	1	1	1	1
+000000226058.jpg	heater	B	neg	1	1	1	1
+000000226058.jpg	pillow	B	pos	0	1	1	1
+000000226058.jpg	shoe	B	pos	0	1	1	1
+000000226058.jpg	sofa	B	pos	0	1	1	1
+000000226058.jpg	teddy bear	A	pos	1	1	1	1
+000000226058.jpg	windmill	B	neg	1	1	1	1
+000000226883.jpg	home plate	B	neg	1	1	1	1
+000000226883.jpg	horse	A	pos	1	1	1	1
+000000226883.jpg	scissors	A	neg	1	1	1	1
+000000226883.jpg	tarp	B	pos	0	1	1	0
+000000227765.jpg	chocolate bar	B	neg	1	1	1	1
+000000227765.jpg	dixie cup	B	neg	1	1	1	1
+000000227765.jpg	helicopter	B	neg	1	1	1	1
+000000227765.jpg	pot	B	pos	0	0	0	1
+000000227765.jpg	soup	B	pos	0	0	0	1
+000000227765.jpg	spoon	A	pos	1	1	1	1
+000000229358.jpg	mirror	B	pos	0	1	1	1
+000000229358.jpg	sink	A	pos	1	1	1	1
+000000229948.jpg	awning	B	pos	0	1	1	1
+000000229948.jpg	cart	B	pos	0	0	0	0
+000000229948.jpg	horse	A	pos	1	1	1	1
+000000229948.jpg	tambourine	B	neg	1	1	1	1
+000000229948.jpg	tractor	B	pos	0	1	1	1
+000000229948.jpg	wheel	B	pos	0	1	1	1
+000000231822.jpg	bowl	A	pos	1	1	1	1
+000000231822.jpg	brownie	B	pos	0	1	1	1
+000000231822.jpg	bun	B	pos	0	1	1	1
+000000231822.jpg	cup	A	pos	1	0	0	0
+000000231822.jpg	flashlight	B	neg	1	1	1	1
+000000231822.jpg	fork	A	pos	1	1	1	1
+000000231822.jpg	drinking glass	B	pos	0	0	0	0
+000000231822.jpg	plate	B	pos	0	1	1	1
+000000231822.jpg	puppy	B	neg	1	1	1	1
+000000231822.jpg	spoon	A	pos	0	1	1	1
+000000231822.jpg	tray	B	pos	0	1	1	1
+000000232348.jpg	blender	B	pos	0	1	1	0
+000000232348.jpg	mushroom	B	neg	1	1	1	1
+000000232348.jpg	toaster	A	pos	0	1	1	1
+000000233238.jpg	bottle	A	pos	1	1	1	1
+000000233238.jpg	omelet	B	neg	1	1	1	1
+000000233238.jpg	pole	B	pos	0	0	0	0
+000000233238.jpg	salad	B	pos	0	1	1	1
+000000233238.jpg	tablecloth	B	pos	0	0	1	0
+000000235778.jpg	edible corn	B	neg	1	1	1	1
+000000235778.jpg	kite	A	pos	0	0	0	0
+000000235778.jpg	shaving cream	B	neg	1	1	1	1
+000000235784.jpg	backpack	A	pos	1	1	1	1
+000000236690.jpg	bird	A	pos	1	1	1	1
+000000236690.jpg	canister	B	neg	1	1	1	1
+000000236690.jpg	hat	B	neg	1	1	1	1
+000000236914.jpg	honey	B	pos	0	1	1	1
+000000236914.jpg	sweater	B	pos	0	0	0	0
+000000236914.jpg	tablecloth	B	pos	0	1	1	1
+000000236914.jpg	teddy bear	A	pos	1	1	1	1
+000000241668.jpg	bridal gown	B	pos	0	1	1	1
+000000241668.jpg	dog	A	neg	1	1	1	1
+000000241668.jpg	underdrawers	B	neg	1	1	1	1
+000000241668.jpg	wristlet	B	neg	1	1	1	1
+000000245448.jpg	ashtray	B	neg	1	1	1	1
+000000245448.jpg	jacket	B	pos	0	1	1	1
+000000245448.jpg	jean	B	pos	0	1	1	1
+000000245448.jpg	motorcycle	A	pos	1	1	1	1
+000000245448.jpg	pickup truck	B	pos	0	1	1	1
+000000248314.jpg	calculator	B	pos	0	0	0	0
+000000248314.jpg	computer keyboard	B	pos	0	1	1	1
+000000248314.jpg	laptop computer	B	pos	0	1	1	1
+000000248314.jpg	melon	B	neg	1	1	1	1
+000000248314.jpg	computer mouse	B	pos	0	1	1	1
+000000248314.jpg	notepad	B	pos	0	0	0	1
+000000248314.jpg	thermos bottle	B	neg	1	1	1	1
+000000248400.jpg	blackboard	B	neg	1	1	1	1
+000000248400.jpg	costume	B	neg	1	1	1	1
+000000248400.jpg	lip balm	B	neg	1	1	1	1
+000000248400.jpg	pizza	A	pos	1	1	1	1
+000000248752.jpg	banner	B	neg	1	1	1	1
+000000248752.jpg	baseball bat	A	pos	1	1	1	1
+000000256868.jpg	drinking glass	B	neg	1	1	1	1
+000000261097.jpg	banner	B	pos	0	1	1	1
+000000261097.jpg	boom microphone	B	neg	1	1	1	1
+000000261097.jpg	bowling ball	B	neg	1	1	1	1
+000000261097.jpg	goat	B	neg	1	1	1	1
+000000261097.jpg	noseband	B	neg	1	1	1	1
+000000261888.jpg	deer	B	neg	1	1	1	1
+000000261888.jpg	flamingo	B	neg	1	1	1	1
+000000261888.jpg	golfcart	B	neg	1	1	1	1
+000000263463.jpg	bench	A	pos	0	1	1	1
+000000263463.jpg	dog	A	pos	0	1	1	1
+000000263463.jpg	doll	B	neg	1	1	1	1
+000000263463.jpg	magnet	B	neg	1	1	1	1
+000000263796.jpg	egg roll	B	neg	1	1	1	1
+000000263796.jpg	sink	A	pos	0	0	0	0
+000000263796.jpg	toilet	A	pos	1	1	1	1
+000000271997.jpg	necktie	B	pos	0	0	0	0
+000000271997.jpg	shirt	B	pos	0	0	0	0
+000000271997.jpg	suit	B	pos	0	1	1	1
+000000272416.jpg	bath mat	B	neg	1	1	1	1
+000000272416.jpg	cistern	B	pos	0	1	1	1
+000000272416.jpg	fish	B	neg	1	1	1	1
+000000272416.jpg	pipe	B	pos	0	1	1	1
+000000272416.jpg	toilet	A	pos	1	1	1	1
+000000273132.jpg	coat	B	pos	0	0	0	0
+000000273132.jpg	dress	B	pos	0	0	0	0
+000000273132.jpg	sweater	B	pos	0	0	0	0
+000000273198.jpg	doll	B	neg	1	1	1	1
+000000273198.jpg	fireplug	B	pos	0	1	1	1
+000000273198.jpg	ham	B	neg	1	1	1	1
+000000273198.jpg	postbox	B	pos	0	1	1	1
+000000274219.jpg	mast	B	neg	1	1	1	1
+000000274219.jpg	olive oil	B	neg	1	1	1	1
+000000280710.jpg	autobus	B	pos	0	1	1	0
+000000280710.jpg	coat	B	pos	0	1	1	1
+000000281032.jpg	basketball backboard	B	neg	1	1	1	1
+000000281032.jpg	flower arrangement	B	neg	1	1	1	1
+000000281032.jpg	person	A	pos	1	1	1	1
+000000281032.jpg	stove	B	pos	0	1	1	1
+000000281032.jpg	tissue paper	B	neg	1	1	1	1
+000000281032.jpg	webcam	B	neg	1	1	1	1
+000000286849.jpg	bow	B	neg	1	1	1	1
+000000286849.jpg	can	B	neg	1	1	1	1
+000000286849.jpg	coatrack	B	neg	1	1	1	1
+000000286849.jpg	hog	B	neg	1	1	1	1
+000000286849.jpg	perfume	B	neg	1	1	1	1
+000000287714.jpg	bathtub	B	pos	0	0	1	1
+000000287714.jpg	mirror	B	pos	0	0	1	0
+000000287714.jpg	sink	A	pos	1	1	1	1
+000000289960.jpg	kite	A	pos	1	1	1	1
+000000289960.jpg	school bus	B	neg	1	1	1	1
+000000292330.jpg	baseball bat	A	pos	0	1	1	0
+000000292330.jpg	dog	A	pos	1	1	1	1
+000000292330.jpg	noseband	B	neg	1	1	1	1
+000000295316.jpg	tinsel	B	neg	1	1	1	1
+000000297427.jpg	doughnut	B	pos	0	0	0	1
+000000297427.jpg	hamburger	B	pos	0	0	0	1
+000000300341.jpg	bracelet	B	neg	1	1	1	1
+000000300341.jpg	cabinet	B	pos	0	0	0	0
+000000300341.jpg	fan	B	pos	0	1	1	1
+000000300341.jpg	file cabinet	B	neg	1	1	1	1
+000000300341.jpg	jacket	B	pos	0	0	0	0
+000000300341.jpg	jean	B	pos	0	1	1	0
+000000300341.jpg	laptop computer	B	neg	1	1	1	1
+000000302452.jpg	christmas tree	B	neg	1	1	1	1
+000000302536.jpg	armchair	B	pos	0	1	1	1
+000000302536.jpg	awning	B	neg	1	1	1	1
+000000302536.jpg	curtain	B	pos	0	1	1	1
+000000302536.jpg	dog collar	B	neg	1	1	1	1
+000000302536.jpg	fireplace	B	pos	0	1	1	1
+000000302536.jpg	pool table	B	pos	0	0	0	0
+000000302536.jpg	stereo	B	neg	1	0	0	0
+000000302536.jpg	storage tank	B	neg	1	1	1	1
+000000306136.jpg	bicycle	A	pos	1	1	1	1
+000000306136.jpg	autobus	B	pos	0	1	1	1
+000000306136.jpg	knee pad	B	neg	1	1	1	1
+000000312552.jpg	cabin car	B	neg	1	1	1	1
+000000312552.jpg	football	B	neg	1	1	1	1
+000000312552.jpg	kitchen sink	B	neg	1	0	0	1
+000000312552.jpg	parakeet	B	neg	1	1	1	1
+000000312552.jpg	person	A	pos	1	1	1	1
+000000314177.jpg	figurine	B	neg	1	1	1	1
+000000319721.jpg	cash register	B	neg	1	1	1	1
+000000319721.jpg	jean	B	pos	0	1	1	1
+000000319721.jpg	polo shirt	B	pos	0	1	1	1
+000000323202.jpg	basketball backboard	B	neg	1	1	1	1
+000000323202.jpg	checkerboard	B	neg	1	1	1	1
+000000323202.jpg	magazine	B	pos	0	1	1	1
+000000323202.jpg	raspberry	B	neg	1	1	1	1
+000000323202.jpg	plastic bag	B	neg	1	0	0	0
+000000323202.jpg	seashell	B	pos	0	1	1	1
+000000323202.jpg	toilet	A	pos	1	1	1	1
+000000323202.jpg	toilet tissue	B	pos	0	0	1	1
+000000326627.jpg	colander	B	neg	1	1	1	1
+000000326627.jpg	hose	B	neg	1	1	1	1
+000000327780.jpg	camcorder	B	neg	1	1	1	1
+000000327780.jpg	fork	A	pos	0	1	1	1
+000000327780.jpg	paper plate	B	pos	0	0	0	1
+000000328337.jpg	frisbee	A	pos	0	1	1	1
+000000329219.jpg	bow	B	neg	1	1	1	1
+000000329219.jpg	cabinet	B	pos	0	1	1	1
+000000329219.jpg	curtain	B	pos	0	1	1	1
+000000329219.jpg	veil	B	neg	1	0	0	1
+000000329219.jpg	pigeon	B	neg	1	1	1	1
+000000329219.jpg	soap	B	neg	1	1	1	1
+000000331317.jpg	clock	A	pos	0	1	1	1
+000000331317.jpg	crow	B	neg	1	1	1	1
+000000331317.jpg	figurine	B	neg	1	1	1	1
+000000336209.jpg	armchair	B	neg	1	1	1	1
+000000336209.jpg	cabin car	B	neg	1	1	1	1
+000000340930.jpg	marker	B	pos	0	0	0	0
+000000340930.jpg	pen	B	pos	0	0	0	0
+000000340930.jpg	scissors	A	pos	0	1	1	0
+000000341681.jpg	horse carriage	B	neg	1	1	1	1
+000000341921.jpg	bowl	A	neg	1	1	1	1
+000000341921.jpg	slide	B	pos	0	0	0	1
+000000341921.jpg	giraffe	A	neg	1	1	1	1
+000000341921.jpg	jacket	B	pos	0	1	1	1
+000000342128.jpg	ironing board	B	neg	1	1	1	1
+000000342128.jpg	map	B	neg	1	1	1	1
+000000342128.jpg	sock	B	pos	0	0	0	0
+000000342128.jpg	tennis racket	A	pos	1	1	1	1
+000000345469.jpg	taillight	B	neg	1	1	1	1
+000000349152.jpg	chain mail	B	neg	1	1	1	1
+000000349152.jpg	doughnut	B	pos	0	1	1	1
+000000349152.jpg	shears	B	neg	1	1	1	1
+000000349480.jpg	basket	B	pos	0	1	1	1
+000000349480.jpg	blanket	B	pos	0	0	0	0
+000000349480.jpg	dress	B	pos	0	1	1	1
+000000349480.jpg	hat	B	pos	0	1	1	1
+000000349480.jpg	teddy bear	A	pos	1	1	1	1
+000000349594.jpg	edible corn	B	neg	1	1	1	1
+000000349594.jpg	key	B	neg	1	1	1	1
+000000349594.jpg	muffin	B	pos	0	1	1	1
+000000350679.jpg	bridal gown	B	pos	0	1	1	1
+000000350679.jpg	tablecloth	B	pos	0	0	1	1
+000000357567.jpg	bath mat	B	pos	0	1	1	1
+000000357567.jpg	shower curtain	B	pos	0	1	1	1
+000000357567.jpg	toilet	A	pos	1	1	1	1
+000000357903.jpg	railcar	B	neg	1	1	1	1
+000000357903.jpg	egg yolk	B	pos	0	1	1	1
+000000357903.jpg	jacket	B	neg	1	1	1	1
+000000357903.jpg	wok	B	neg	1	0	0	0
+000000363666.jpg	bow	B	neg	1	1	1	1
+000000370711.jpg	bow-tie	B	neg	1	1	1	1
+000000370711.jpg	colander	B	neg	1	1	1	1
+000000370711.jpg	peeler	B	neg	1	1	1	1
+000000370711.jpg	umbrella	A	pos	0	0	0	0
+000000370711.jpg	vase	A	neg	0	1	1	1
+000000377635.jpg	garbage truck	B	neg	1	1	1	1
+000000377635.jpg	platter	B	neg	1	1	1	1
+000000378515.jpg	dishtowel	B	neg	1	1	1	1
+000000378515.jpg	jacket	B	pos	0	0	0	0
+000000378515.jpg	person	A	pos	1	1	1	0
+000000378515.jpg	skirt	B	pos	0	0	0	0
+000000378515.jpg	soupspoon	B	neg	1	1	1	1
+000000380706.jpg	autobus	B	pos	0	1	0	0
+000000380706.jpg	lightbulb	B	neg	1	1	1	1
+000000380706.jpg	pole	B	pos	0	1	1	1
+000000380913.jpg	trash can	B	neg	1	1	1	1
+000000380913.jpg	handbag	A	pos	1	0	0	0
+000000380913.jpg	license plate	B	neg	1	1	1	1
+000000385029.jpg	chopping board	B	pos	0	1	1	1
+000000385029.jpg	crayon	B	neg	1	1	1	1
+000000385029.jpg	fork	A	pos	0	1	1	0
+000000385029.jpg	parrot	B	neg	1	1	1	1
+000000385029.jpg	pea	B	neg	1	1	1	1
+000000385029.jpg	pizza	A	pos	1	0	0	0
+000000385029.jpg	salad	B	pos	0	1	1	1
+000000385029.jpg	toast	B	neg	1	1	1	1
+000000385029.jpg	wine bottle	B	pos	0	1	1	1
+000000385190.jpg	bedspread	B	neg	1	1	1	1
+000000385190.jpg	painting	B	pos	0	0	0	0
+000000385190.jpg	rubber band	B	neg	1	1	1	1
+000000385190.jpg	soap	B	neg	1	1	1	1
+000000385190.jpg	street sign	B	pos	0	0	0	0
+000000385205.jpg	ax	B	neg	1	1	1	1
+000000385205.jpg	carrot	A	pos	0	0	0	0
+000000385205.jpg	cat	A	pos	1	1	1	1
+000000385205.jpg	sponge	B	neg	1	1	1	1
+000000393569.jpg	bunk bed	B	pos	0	1	1	1
+000000393569.jpg	pillow	B	pos	0	0	0	0
+000000393569.jpg	toilet	A	pos	1	0	1	1
+000000396205.jpg	cow	A	pos	1	0	0	0
+000000396205.jpg	latch	B	neg	1	1	1	1
+000000396205.jpg	wristband	B	neg	1	1	1	1
+000000396526.jpg	artichoke	B	neg	1	1	1	1
+000000396526.jpg	curtain	B	pos	0	0	0	0
+000000396526.jpg	dining table	A	pos	1	0	1	1
+000000396526.jpg	dispenser	B	neg	1	1	1	1
+000000396526.jpg	lamp	B	pos	0	1	1	1
+000000396526.jpg	paperback book	B	neg	1	1	1	1
+000000396526.jpg	tablecloth	B	pos	0	0	0	0
+000000398438.jpg	camera	B	neg	1	1	1	1
+000000398438.jpg	camera lens	B	neg	1	1	1	1
+000000398438.jpg	flower arrangement	B	pos	0	0	0	0
+000000402433.jpg	earphone	B	neg	1	1	1	1
+000000402433.jpg	pizza	A	pos	1	1	1	1
+000000402433.jpg	shopping cart	B	neg	1	1	1	1
+000000402473.jpg	cat	A	pos	1	1	1	1
+000000402473.jpg	garbage	B	neg	1	1	1	1
+000000402473.jpg	handsaw	B	neg	1	1	1	1
+000000402473.jpg	stool	B	neg	1	1	1	1
+000000402774.jpg	bicycle	A	neg	1	1	1	1
+000000402774.jpg	trousers	B	pos	0	1	1	1
+000000403584.jpg	cigarette	B	neg	1	1	1	1
+000000403584.jpg	jean	B	neg	1	1	1	1
+000000403584.jpg	surfboard	A	pos	1	1	1	1
+000000405195.jpg	bowl	A	neg	1	1	1	1
+000000407868.jpg	kite	A	pos	1	1	1	1
+000000407868.jpg	medicine	B	neg	1	1	1	1
+000000407868.jpg	sunflower	B	neg	1	1	1	1
+000000407943.jpg	jacket	B	neg	1	1	1	1
+000000407943.jpg	paintbrush	B	neg	1	1	1	1
+000000407943.jpg	umbrella	A	pos	0	0	0	0
+000000408696.jpg	handle	B	pos	0	0	0	0
+000000408696.jpg	toilet	A	pos	0	1	1	1
+000000408696.jpg	vacuum cleaner	B	pos	0	0	0	0
+000000408830.jpg	chain mail	B	neg	1	1	1	1
+000000408830.jpg	motorcycle	A	pos	1	1	1	1
+000000410221.jpg	airplane	A	pos	1	1	1	1
+000000410221.jpg	crayon	B	neg	1	1	1	1
+000000410221.jpg	tarp	B	neg	1	1	1	1
+000000410221.jpg	telephone booth	B	neg	1	1	1	1
+000000412887.jpg	cow	A	pos	1	0	0	1
+000000412887.jpg	dress suit	B	neg	1	1	1	1
+000000412887.jpg	grizzly	B	neg	1	1	1	0
+000000412887.jpg	pantyhose	B	neg	1	1	1	1
+000000412887.jpg	rocking chair	B	neg	1	1	1	0
+000000412887.jpg	streetlight	B	neg	1	1	1	1
+000000415741.jpg	bath towel	B	pos	0	1	1	1
+000000415741.jpg	curtain	B	pos	0	1	1	1
+000000415741.jpg	football	B	neg	1	1	1	1
+000000415741.jpg	grater	B	neg	1	1	1	1
+000000416745.jpg	cabinet	B	pos	0	0	0	0
+000000416745.jpg	handkerchief	B	neg	1	1	1	1
+000000416745.jpg	orange	A	neg	1	1	1	1
+000000416745.jpg	toilet	A	pos	1	1	1	1
+000000417465.jpg	bear	A	pos	0	0	0	1
+000000417465.jpg	wall clock	B	neg	1	1	1	1
+000000418696.jpg	giant panda	B	neg	1	1	1	1
+000000418696.jpg	persimmon	B	neg	1	1	1	1
+000000420840.jpg	bib	B	pos	0	0	0	1
+000000420840.jpg	camping bus	B	neg	1	1	1	1
+000000420840.jpg	dining table	A	pos	1	0	0	0
+000000420840.jpg	tablecloth	B	pos	0	0	0	0
+000000420840.jpg	wineglass	B	neg	1	1	1	1
+000000421060.jpg	motorcycle	A	neg	1	1	1	1
+000000421060.jpg	ski	B	pos	0	1	1	1
+000000421060.jpg	ski pole	B	pos	0	1	1	1
+000000421923.jpg	asparagus	B	neg	1	1	1	1
+000000421923.jpg	book	A	pos	0	0	0	0
+000000421923.jpg	flower arrangement	B	pos	0	1	1	1
+000000421923.jpg	license plate	B	neg	1	1	1	1
+000000421923.jpg	sculpture	B	pos	0	1	1	1
+000000421923.jpg	vase	A	pos	1	1	1	1
+000000430286.jpg	mattress	B	pos	0	1	1	1
+000000430286.jpg	pillow	B	neg	1	0	0	0
+000000430286.jpg	remote control	B	pos	0	1	1	1
+000000430286.jpg	seashell	B	neg	1	1	1	1
+000000433204.jpg	bouquet	B	neg	1	1	1	1
+000000433515.jpg	elk	B	neg	1	1	1	1
+000000433515.jpg	kite	A	pos	1	1	1	1
+000000433515.jpg	thermos bottle	B	neg	1	1	1	1
+000000434297.jpg	broccoli	A	pos	1	1	1	1
+000000434297.jpg	carrot	A	pos	0	0	0	0
+000000436551.jpg	balloon	B	neg	1	1	1	1
+000000436551.jpg	goose	B	pos	0	1	1	1
+000000443303.jpg	suitcase	A	pos	1	1	1	1
+000000443303.jpg	bed	A	pos	1	1	1	1
+000000443303.jpg	bow	B	neg	1	1	1	1
+000000443303.jpg	cat	A	pos	1	1	1	1
+000000443303.jpg	cracker	B	neg	1	1	1	1
+000000443303.jpg	grizzly	B	neg	1	1	1	1
+000000443303.jpg	vinegar	B	neg	1	1	1	1
+000000445439.jpg	license plate	B	neg	1	1	1	1
+000000445439.jpg	mask	B	neg	1	1	1	1
+000000445439.jpg	zebra	A	pos	1	1	1	1
+000000448810.jpg	tortilla	B	neg	1	1	1	1
+000000451150.jpg	doughnut	B	pos	0	1	1	1
+000000454798.jpg	horse	A	pos	1	1	1	1
+000000454798.jpg	sawhorse	B	neg	1	1	1	1
+000000456292.jpg	oar	B	neg	1	1	1	1
+000000456292.jpg	sleeping bag	B	neg	1	1	1	1
+000000456292.jpg	toothpick	B	neg	1	1	1	1
+000000461009.jpg	apple	A	pos	1	1	1	0
+000000461009.jpg	lanyard	B	pos	0	0	0	0
+000000461009.jpg	shirt	B	pos	0	0	0	0
+000000462031.jpg	baseball bat	A	pos	1	1	1	1
+000000462031.jpg	helmet	B	pos	0	1	1	1
+000000462031.jpg	jersey	B	pos	0	1	1	1
+000000463618.jpg	bird	A	pos	0	0	0	0
+000000463618.jpg	birdcage	B	pos	0	1	1	1
+000000463618.jpg	choker	B	neg	1	1	1	1
+000000463618.jpg	monitor	B	neg	1	0	0	1
+000000463618.jpg	television set	B	pos	0	1	1	1
+000000463690.jpg	armchair	B	neg	1	1	1	1
+000000463690.jpg	cabinet	B	neg	1	1	1	1
+000000468332.jpg	birthday cake	B	pos	0	1	1	1
+000000468332.jpg	ice chest	B	pos	0	0	0	0
+000000468332.jpg	fighter jet	B	neg	1	1	1	1
+000000468332.jpg	igniter	B	pos	0	0	0	0
+000000468332.jpg	orange	A	neg	1	1	1	1
+000000470121.jpg	dining table	A	pos	1	1	1	1
+000000470121.jpg	sushi	B	pos	0	1	1	1
+000000471869.jpg	eclair	B	neg	1	1	1	1
+000000471869.jpg	teddy bear	A	pos	1	1	1	1
+000000473121.jpg	flag	B	pos	0	1	1	1
+000000473121.jpg	frisbee	A	neg	1	1	1	1
+000000473121.jpg	trousers	B	pos	0	0	0	1
+000000475484.jpg	banana	A	neg	1	0	0	0
+000000475484.jpg	bow	B	neg	1	1	1	1
+000000475484.jpg	automobile	B	pos	0	1	1	0
+000000475484.jpg	dumbbell	B	neg	1	1	1	1
+000000475484.jpg	parking meter	A	pos	0	0	0	0
+000000475484.jpg	wristlet	B	neg	1	1	1	1
+000000478136.jpg	doughnut	B	pos	0	0	0	0
+000000478136.jpg	muffin	B	pos	0	1	1	1
+000000478136.jpg	plate	B	pos	0	1	1	1
+000000479030.jpg	tank top	B	neg	1	1	1	1
+000000479030.jpg	railroad train	B	pos	0	1	1	1
+000000480021.jpg	motorcycle	A	pos	1	1	1	1
+000000480021.jpg	shoe	B	pos	0	0	0	0
+000000480021.jpg	wheel	B	pos	0	1	1	1
+000000480212.jpg	camera lens	B	neg	1	1	1	1
+000000480212.jpg	cellular telephone	B	pos	0	0	0	0
+000000480936.jpg	belt	B	neg	1	1	1	1
+000000480936.jpg	suspenders	B	neg	1	1	1	1
+000000480936.jpg	mirror	B	neg	1	1	1	1
+000000480936.jpg	table	B	pos	0	1	1	1
+000000480944.jpg	cub	B	neg	1	1	1	1
+000000480944.jpg	underdrawers	B	neg	1	1	1	1
+000000480944.jpg	ram	B	neg	1	1	1	1
+000000481404.jpg	painting	B	pos	0	0	0	0
+000000481413.jpg	tag	B	neg	1	1	1	1
+000000483667.jpg	necktie	B	pos	0	1	1	1
+000000483667.jpg	sled	B	neg	1	1	1	1
+000000483999.jpg	place mat	B	pos	0	0	0	0
+000000489305.jpg	apron	B	pos	0	1	1	1
+000000489305.jpg	chopping board	B	pos	0	1	1	1
+000000489305.jpg	quilt	B	neg	1	1	1	1
+000000492992.jpg	armchair	B	neg	1	1	1	1
+000000492992.jpg	cow	A	pos	1	0	0	1
+000000492992.jpg	bird	A	pos	1	1	1	1
+000000492992.jpg	jean	B	neg	1	1	1	1
+000000492992.jpg	owl	B	neg	1	1	1	0
+000000494634.jpg	cabinet	B	pos	0	1	1	0
+000000494634.jpg	cat	A	pos	1	1	1	1
+000000494634.jpg	laptop computer	B	pos	0	1	1	1
+000000494634.jpg	sheep	A	neg	1	1	1	1
+000000494634.jpg	sugar bowl	B	neg	1	1	1	1
+000000500613.jpg	automobile	B	pos	0	0	0	0
+000000500613.jpg	fire engine	B	pos	0	1	1	1
+000000500613.jpg	pajamas	B	neg	1	1	1	1
+000000502336.jpg	boiled egg	B	neg	1	1	1	1
+000000502336.jpg	ring	B	neg	1	1	1	1
+000000502732.jpg	refrigerator	A	pos	1	1	1	1
+000000502737.jpg	chap	B	neg	1	1	1	1
+000000502737.jpg	jean	B	pos	0	1	1	1
+000000502737.jpg	sink	A	neg	1	1	1	1
+000000502737.jpg	wine bottle	B	neg	1	1	1	1
+000000505789.jpg	cantaloup	B	neg	1	1	1	1
+000000505789.jpg	coat	B	pos	0	1	1	1
+000000505789.jpg	jacket	B	pos	0	1	1	1
+000000506656.jpg	dumbbell	B	neg	1	1	1	1
+000000506656.jpg	fighter jet	B	neg	1	1	1	1
+000000506656.jpg	horse	A	pos	1	1	1	0
+000000509656.jpg	birdcage	B	neg	1	1	1	1
+000000509656.jpg	potholder	B	neg	1	1	1	1
+000000509656.jpg	zebra	A	pos	1	1	1	1
+000000515828.jpg	chair	A	pos	1	1	1	1
+000000515828.jpg	mask	B	neg	1	1	1	1
+000000515828.jpg	pastry	B	neg	1	1	1	1
+000000515828.jpg	pinecone	B	neg	1	1	1	1
+000000515828.jpg	starfish	B	neg	1	1	1	1
+000000516038.jpg	canoe	B	neg	1	1	1	1
+000000516038.jpg	fire extinguisher	B	neg	1	1	1	1
+000000516038.jpg	headboard	B	neg	1	1	1	1
+000000516038.jpg	pitcher's mound	B	pos	0	1	1	1
+000000516038.jpg	pigeon	B	neg	1	1	1	1
+000000516038.jpg	ski parka	B	neg	1	1	1	1
+000000516601.jpg	mailbox	B	neg	1	1	1	1
+000000521141.jpg	armband	B	neg	1	1	1	1
+000000521141.jpg	toothpick	B	neg	1	1	1	1
+000000523807.jpg	bun	B	pos	0	1	1	1
+000000523807.jpg	hot sauce	B	pos	0	1	1	0
+000000523807.jpg	napkin	B	pos	0	1	1	1
+000000523807.jpg	poncho	B	neg	1	1	1	1
+000000530052.jpg	solar array	B	neg	1	1	1	1
+000000534041.jpg	baby buggy	B	pos	0	0	0	1
+000000534041.jpg	handbag	A	pos	0	1	1	1
+000000534041.jpg	coat hanger	B	neg	1	1	1	1
+000000534041.jpg	forklift	B	neg	1	1	1	0
+000000534041.jpg	life buoy	B	neg	1	1	1	1
+000000534605.jpg	bed	A	neg	1	1	1	1
+000000534605.jpg	chocolate bar	B	neg	1	1	1	1
+000000534605.jpg	motorcycle	A	pos	1	1	1	1
+000000534605.jpg	webcam	B	neg	1	1	1	1
+000000536038.jpg	award	B	neg	1	1	1	1
+000000536038.jpg	book	A	pos	0	0	0	0
+000000536038.jpg	headboard	B	pos	0	0	0	0
+000000536038.jpg	sock	B	pos	0	0	0	1
+000000536038.jpg	tripod	B	neg	1	1	1	1
+000000543528.jpg	airplane	A	pos	1	1	1	1
+000000543528.jpg	juicer	B	neg	1	1	1	1
+000000546556.jpg	giant panda	B	neg	1	1	1	0
+000000546823.jpg	horse	A	pos	1	1	1	1
+000000546823.jpg	rubber band	B	neg	1	1	1	1
+000000547886.jpg	basketball	B	neg	1	1	1	1
+000000547886.jpg	clementine	B	neg	1	1	1	1
+000000547886.jpg	sweatband	B	neg	1	1	1	1
+000000547886.jpg	wind chime	B	neg	1	1	1	1
+000000548246.jpg	asparagus	B	neg	1	1	1	1
+000000548246.jpg	basket	B	pos	0	1	1	1
+000000548246.jpg	grizzly	B	neg	1	1	1	1
+000000548246.jpg	tennis racket	A	pos	0	0	0	0
+000000548246.jpg	turkey	B	neg	1	1	1	1
+000000548267.jpg	knife	A	neg	1	1	1	1
+000000548267.jpg	wristband	B	neg	1	1	1	1
+000000551304.jpg	ladder	B	neg	1	1	1	1
+000000551304.jpg	toilet tissue	B	pos	0	0	0	0
+000000553094.jpg	fighter jet	B	pos	0	1	1	1
+000000553094.jpg	oil lamp	B	neg	1	1	1	1
+000000553094.jpg	paper plate	B	neg	1	1	1	1
+000000553094.jpg	pumpkin	B	neg	1	1	1	1
+000000553094.jpg	tissue paper	B	neg	1	1	1	1
+000000554266.jpg	bed	A	pos	1	0	0	0
+000000554266.jpg	lamp	B	pos	0	1	1	0
+000000554266.jpg	pajamas	B	pos	0	0	0	0
+000000554579.jpg	canister	B	neg	1	1	1	1
+000000554579.jpg	christmas tree	B	pos	0	1	1	1
+000000554579.jpg	dog	A	pos	1	1	1	1
+000000554579.jpg	dress	B	pos	0	1	1	0
+000000554579.jpg	scarf	B	pos	0	1	1	1
+000000554579.jpg	spice rack	B	neg	1	1	1	1
+000000554579.jpg	table lamp	B	neg	1	1	1	1
+000000556158.jpg	jacket	B	pos	0	1	1	1
+000000560911.jpg	suitcase	A	pos	0	0	0	0
+000000560911.jpg	lantern	B	neg	1	1	1	1
+000000560911.jpg	propeller	B	neg	1	1	1	1
+000000562243.jpg	blender	B	neg	1	1	1	1
+000000562243.jpg	boom microphone	B	neg	1	1	1	1
+000000562243.jpg	domestic ass	B	neg	1	1	1	1
+000000562243.jpg	necktie	B	pos	0	1	1	1
+000000562443.jpg	garbage truck	B	neg	1	1	1	1
+000000562443.jpg	kettle	B	neg	1	1	1	1
+000000562443.jpg	zebra	A	pos	0	1	1	1
+000000562818.jpg	bunk bed	B	neg	1	1	1	1
+000000562818.jpg	automatic washer	B	neg	1	1	1	1
+000000563267.jpg	blackboard	B	pos	0	1	1	1
+000000563267.jpg	jean	B	pos	0	1	1	1
+000000563267.jpg	truck	A	neg	1	1	1	1
+000000565469.jpg	clock tower	B	pos	0	1	1	1
+000000565469.jpg	tennis ball	B	neg	1	1	1	1
+000000565962.jpg	cat	A	pos	1	1	1	1
+000000565962.jpg	figurine	B	pos	0	0	0	1
+000000565962.jpg	statue	B	pos	0	1	1	1
+000000567825.jpg	bottle	A	pos	1	0	0	0
+000000567825.jpg	dining table	A	pos	1	0	0	1
+000000567825.jpg	paper plate	B	neg	1	1	1	1
+000000567825.jpg	sandwich	A	pos	1	1	1	1
+000000567825.jpg	shower curtain	B	neg	1	1	1	1
+000000567825.jpg	wineglass	B	pos	0	1	1	1
+000000570756.jpg	pantyhose	B	neg	1	1	1	1
+000000570756.jpg	wrench	B	neg	1	1	1	1
+000000572620.jpg	crate	B	neg	1	0	0	0
+000000572620.jpg	jean	B	pos	0	1	1	1
+000000573391.jpg	bear	A	pos	1	1	1	0
+000000573391.jpg	gym mat	B	neg	1	1	1	1
+000000573391.jpg	parasail	B	neg	1	1	1	1
+000000573391.jpg	wooden spoon	B	neg	1	1	1	1
+000000573943.jpg	grater	B	neg	1	1	1	1
+000000575081.jpg	elk	B	neg	1	1	1	1
+000000575081.jpg	television set	B	pos	0	1	1	1
+000000575081.jpg	weathervane	B	neg	1	1	1	1
+000000575205.jpg	airplane	A	pos	1	1	1	1
+000000575205.jpg	crown	B	neg	1	1	1	1
+000000575205.jpg	person	A	neg	1	1	1	1
+000000575205.jpg	scoreboard	B	neg	1	1	1	1
+000000575357.jpg	dog	A	pos	1	1	1	1
+000000575357.jpg	frisbee	A	pos	0	0	0	0
+000000575357.jpg	rocking chair	B	neg	1	1	1	1
+000000575500.jpg	ball	B	neg	1	1	1	1
+000000576031.jpg	taxi	B	neg	1	1	1	1
+000000576031.jpg	ski pole	B	pos	0	0	1	1
+000000577182.jpg	leotards	B	neg	1	1	1	1
+000000581062.jpg	poncho	B	neg	1	1	1	1
+000000581615.jpg	baseball bat	A	neg	1	1	1	1
+000000581615.jpg	broach	B	neg	1	1	1	1
+000000581615.jpg	signboard	B	pos	0	1	1	0
+000000581615.jpg	urinal	B	pos	0	1	1	1

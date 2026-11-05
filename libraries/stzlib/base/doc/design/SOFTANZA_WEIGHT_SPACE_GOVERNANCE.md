@@ -276,6 +276,42 @@ refusal; nothing is tuned on the fresh pairs.
 the patch is then upheld only with at least 36 gains of 57 (63%). A patch that truly helps as little as the find-v1 reading suggests will be
 refused, and that is the rule working.
 
+**THE FRESH VERDICT (2026-11-05, `image_wsp_judge_v2.ring`, 952 pairs on 292 pictures, once).** Shares: the floor 595, the incumbent
+`owlvit` 783 (0.8225), **`owlvit+warm-rule` 792 (0.8319)**, `owlvit+shift-patch` 790 (0.8298). The court, against the incumbent:
+
+| challenger | gains | losses | P(X >= gains) | verdict |
+|---|---|---|---|---|
+| `owlvit+warm-rule` | 10 | 1 | 12/2048 = 0.0059 | **UPHELD** |
+| `owlvit+shift-patch` | 44 | 37 | 0.2526 | REFUSED |
+
+and both, and the incumbent, are upheld against the floor (233, 231 and 226 gains against 36 to 38). `:find` now resolves to
+**`owlvit+warm-rule`**, from the measurements and the court alone; the faculty's golden version is `find-v2`.
+
+What it says, read honestly:
+
+- **the weight edit is refused twice**, on the record it was tuned beside and on pictures it never saw. 81 discordant pairs on the fresh set
+  (more than four times the 19 of find-v1) and still no evidence: the patch moves about as many answers each way. Removing a direction from a
+  768 -> 1 bias head shifts every patch's bias and cannot tell a present object from an absent one.
+- **the rule built on READING the weights wins, and not for the reason it was built.** All 11 pairs on which the warm rule and the incumbent
+  disagree are PRESENT words; it removed no false alarm on an absent word (the kind B negatives are 432 of 447 for both). What it does, seen
+  live on the bathtub (mean shift -0.563): the object is found at either threshold, but at 0.08 four extra boxes surround it and keep F1 below
+  0.5; at 0.10 they are gone. A warm picture is one where the model says "yes, around here" too generously, and on fresh pictures that hurt
+  present words more than absent ones. The finding of section 2 (false alarms live in warm pictures) was true of find-v1; what the fresh set
+  rewards is the same reading put to a different use. The design was right about the signal and wrong about its consequence, and the court is
+  what told the two apart.
+- **the paper's lesson, restated for this library.** Reading the weights produced the useful signal; writing them did not. The rung-0 pattern
+  over a head's output, bound to a rung-1 reaction (raise the threshold), beat the edit of the head itself -- with no change to a single weight,
+  a digest that is the original model's, and a mechanism a reader can check in one picture.
+- **the cost of the court, measured.** The margin rule refused one honest-looking win (find-v1) and upheld one 10-to-1 result (find-v2); on
+  952 pairs a challenger needed P <= 0.05, which the warm rule met with 11 discordant pairs because they were nearly all one way. Small,
+  consistent effects pass; large, mixed ones do not -- which is the property wanted of a gate on weight edits.
+
+Records: `vision.zmdl.txt` (four find-v2 rows), `vision.court.txt` (twelve find-v2 counts, incumbent `owlvit`), `_golden/owl_find_v2_judged.tsv`
+(every pair's four verdicts). Guards: `image_wsp_narrated.ring` 43 of 43 and `image_find_narrated.ring` 31 of 31 on rnxc. The page
+`_find-out/find_wsp.html` gains the fresh section: the eleven pairs, the incumbent's boxes dashed, the warm rule's solid. **What is NOT done:**
+`stzImage.FindByWords` itself still runs the plain threshold; the warm rule answers through the faculty (`StzRunFaculty(:find)`), which is the
+governed path. Moving it into the face is a one-line change the author should rule on, since it changes what every caller of the face gets.
+
 ## 7. Limits, stated
 
 - A pattern over weights proves the edit IS what it says (which tensors, which columns, which direction).

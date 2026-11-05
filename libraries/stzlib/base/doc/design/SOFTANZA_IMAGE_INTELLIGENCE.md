@@ -224,6 +224,11 @@ pass the exact one-sided sign test at 0.05. Read on the find-v1 record it refuse
 and `:find` resolves to `owlvit` again. A fresh set (find-v2, 952 pairs on 292 pictures no implementation has seen) is defined, and judged once,
 by `SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md` section 8.
 
+**find-v2, judged once on 952 fresh pairs (2026-11-05).** The court upheld `owlvit+warm-rule` over the incumbent `owlvit` (792 against 783;
+10 gains, 1 loss, P = 0.006) and refused the weight patch (790; 44 against 37, P = 0.25). `:find` resolves to the warm rule. All eleven of its
+disagreements with the incumbent are present words: on a warm picture it drops the extra boxes around an object it found anyway, not false
+alarms on absent words. The edit of the weights is refused twice; the rule built on reading them is upheld.
+
 **The perception gate** (`CENTRAL-PERCEPTGATE-01`) binds every rung: images reach a person through
 sight, so each rung ships PNGs a person can open, and records who looked and what they said. A
 counter proves delivery; only a look proves the picture is right.
