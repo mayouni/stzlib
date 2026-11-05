@@ -515,10 +515,13 @@ projections; develop a new section as a standalone probe first.
 resident VM: `rnxc resident atelier.ring` from that folder, then http://127.0.0.1:8650/atelier.
 Plan, law and journal: `atelier/SOFTANZA_ATELIER_PLAN.md`. Never call it a lab.
 
-**FAST PATH: the four guards, one process each, from `base/test/atelier`:**
+**FAST PATH: the five guards, one process each, from `base/test/atelier`:**
 ```bash
-cd libraries/stzlib/base/test/atelier && rnxc atelier_narrated.ring && rnxc atelier_tours_narrated.ring && rnxc atelier_page_narrated.ring && rnxc atelier_static_narrated.ring
+cd libraries/stzlib/base/test/atelier && rnxc atelier_cell_narrated.ring && rnxc atelier_page_narrated.ring && rnxc atelier_static_narrated.ring && rnxc atelier_narrated.ring && rnxc atelier_tours_narrated.ring
 ```
+The cell guard (B0, 43 assertions, under 40 s) is the workbench's: a cell's lines seen in their faces
+and its promises judged. The checks guard turns red whenever ANY desk's commit moves a check's verdict:
+that is its job; read the moved id before re-recording, and re-record only at a pushed commit.
 The static guard (41 assertions, under a minute; python for the builder and the resolver, SKIPPED by
 name without it) is the cheap one: it also scans the Atelier for a drive path, because a recording
 made on this machine names this machine unless the scrub is on. ORDER OF A LANDING: push the code, THEN
