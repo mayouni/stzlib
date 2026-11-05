@@ -338,16 +338,16 @@ func PairTile(cOut, aJ, aG, aOldRows, cNote)
 
 func WritePage(cOut, aJ, aGold, aRef, aMeans, nI, nW, nP)
 	aOldJ = _ReadTsv("_golden/owl_find_v1_judged.tsv")
-	nLo = 100
-	nHi = -100
+	# one FIXED band for the four pictures, -0.85 .. -0.45: a patch at or below -0.85 is clear, one at -0.45 or above is full orange, so the
+	# cold picture reads pale and the warm one dark (the full range, -1.39 .. -0.41, saturates every picture: measured on the first render)
+	nLo = -0.85
+	nHi = -0.45
 	aFields = []
 	for i = 1 to len(aRef)
 		oI = StzImageRawQ($cCoco + aRef[i][1])
 		aHi = _StzVisionOwlHeads(oI)
 		oI.Release()
 		aFields + aHi[:shifts]
-		if _Min(aHi[:shifts]) < nLo  nLo = _Min(aHi[:shifts]) ok
-		if _Max(aHi[:shifts]) > nHi  nHi = _Max(aHi[:shifts]) ok
 	next
 	c = "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>" +
 		"<title>A weight edit under the court</title><style>" +
@@ -368,7 +368,7 @@ func WritePage(cOut, aJ, aGold, aRef, aMeans, nI, nW, nP)
 		"<div class='k'><div class='kp'><b>" + nI + " / 320</b><span>the model as it was</span></div><div class='kp'><b>" + nW + " / 320</b><span>the warm rule (threshold up on warm pictures): equal, REFUSED</span></div>" +
 		"<div class='kp'><b>" + nP + " / 320</b><span>the patched head: above by ONE pair, chosen by the rule as written</span></div>" +
 		"<div class='kp miss'><b>19 pairs</b><span>reshuffled by the patch (10 gained, 9 lost): a one-pair margin is noise, and the record says so</span></div></div>" +
-		"<h2>The shift field, read before any word is asked</h2><p class='sub'>Each cell is one of the 576 patches; the darker the orange, the higher its bias toward answering. One scale for the four pictures.</p><div class='g'>"
+		"<h2>The shift field, read before any word is asked</h2><p class='sub'>Each cell is one of the 576 patches; the darker the orange, the higher its bias toward answering. One band for the four pictures: clear at a shift of -0.85 or below, full orange at -0.45 or above.</p><div class='g'>"
 	aNote = [ "the pizza table: two false alarms (tinfoil, turtle)", "the room: cabinets, a fireplace, televisions", "the banana: two false alarms (pancake, tonic)", "the cat on the laptop: the coldest" ]
 	for i = 1 to len(aRef)
 		c += HeatTile(cOut, aRef[i][1], aFields[i], aMeans[i], nLo, nHi, aNote[i])
