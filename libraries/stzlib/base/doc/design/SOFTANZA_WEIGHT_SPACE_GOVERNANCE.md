@@ -308,9 +308,7 @@ What it says, read honestly:
 
 Records: `vision.zmdl.txt` (four find-v2 rows), `vision.court.txt` (twelve find-v2 counts, incumbent `owlvit`), `_golden/owl_find_v2_judged.tsv`
 (every pair's four verdicts). Guards: `image_wsp_narrated.ring` 43 of 43 and `image_find_narrated.ring` 31 of 31 on rnxc. The page
-`_find-out/find_wsp.html` gains the fresh section: the eleven pairs, the incumbent's boxes dashed, the warm rule's solid. **What is NOT done:**
-`stzImage.FindByWords` itself still runs the plain threshold; the warm rule answers through the faculty (`StzRunFaculty(:find)`), which is the
-governed path. Moving it into the face is a one-line change the author should rule on, since it changes what every caller of the face gets.
+`_find-out/find_wsp.html` gains the fresh section: the eleven pairs, the incumbent's boxes dashed, the warm rule's solid. **The face, ruled by the author the same day:** `stzImage.FindByWords` now applies the warm rule itself (`FindByWordsThreshold()` says which threshold a picture gets; `FindByWordsXT` keeps an explicit threshold and no rule). The measured implementations `owlvit` and `owlvit+shift-patch` call the explicit form, so they still mean what was measured -- the guards re-run ten judged pairs of each live against their stored verdicts -- and `owlvit+warm-rule` delegates to the face: one source for the rule.
 
 ## 7. Limits, stated
 

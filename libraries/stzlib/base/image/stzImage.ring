@@ -1001,8 +1001,20 @@ class stzImage from stzObject
 	# to be one the object detector was trained on. Returns [ [ :query, :score, :box = [ x, y, w, h ] ] ... ], best score first, the box in
 	# 1-based pixels like Objects(); at most 20 boxes per word. The first call about a picture runs the 768 x 768 graph (about 0.7 s on the
 	# CPU); a second call about the SAME pixels pays only for words it has not seen.
+	# The threshold is the WARM RULE (SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8, upheld by the court on 952 fresh pairs): the picture's
+	# logit-shift field is read first, and on a warm picture -- one where the model says "yes, around here" too generously -- the threshold
+	# is raised, which drops the extra boxes around an object it found anyway. FindByWordsXT takes an explicit threshold and applies no rule.
 	def FindByWords(pWords)
-		return This.FindByWordsXT(pWords, $nStzVisionFindScore)
+		return This.FindByWordsXT(pWords, This.FindByWordsThreshold())
+
+	# Returns the threshold FindByWords uses for this picture: $nStzVisionFindScore, raised by $nStzVisionWarmStep when the mean of the
+	# picture's 576 logit shifts is at least $nStzVisionWarmShift. Reading the field costs nothing more: it comes from the same graph run.
+	def FindByWordsThreshold()
+		_nThr_ = $nStzVisionFindScore
+		if _StzVisionOwlHeads(This)[:meanShift] >= $nStzVisionWarmShift
+			_nThr_ += $nStzVisionWarmStep
+		ok
+		return _nThr_
 
 	def FindByWordsXT(pWords, pnMinScore)
 		_aW_ = _StzVisionWordList(pWords)

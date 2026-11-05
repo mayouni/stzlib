@@ -490,9 +490,11 @@ func _StzVisionFindFloor(pInput, paParams)
 	next
 	return _aOut_
 
+# (the INCUMBENT as measured: the plain threshold, explicitly -- FindByWords now applies the warm rule, and a measured implementation must
+# keep meaning what was measured)
 func _StzVisionFindOwl(pInput, paParams)
 	_oI_ = StzImageQ("" + pInput[1])
-	_a_ = _oI_.FindByWords(pInput[2])
+	_a_ = _oI_.FindByWordsXT(pInput[2], $nStzVisionFindScore)
 	_oI_.Release()
 	return _a_
 
@@ -517,10 +519,7 @@ func _StzVisionOwlHeads(poImg)
 # the warm rule: the same weights, the threshold raised for a warm picture
 func _StzVisionFindOwlWarm(pInput, paParams)
 	_oI_ = StzImageQ("" + pInput[1])
-	_aH_ = _StzVisionOwlHeads(_oI_)
-	_nThr_ = $nStzVisionFindScore
-	if _aH_[:meanShift] >= $nStzVisionWarmShift _nThr_ += $nStzVisionWarmStep ok
-	_a_ = _oI_.FindByWordsXT(pInput[2], _nThr_)
+	_a_ = _oI_.FindByWords(pInput[2])    # the face applies the warm rule: one source for it
 	_oI_.Release()
 	return _a_
 
@@ -535,7 +534,7 @@ func _StzVisionFindOwlPatched(pInput, paParams)
 	ok
 	try
 		_oI_ = StzImageQ("" + pInput[1])
-		_a_ = _oI_.FindByWords(pInput[2])
+		_a_ = _oI_.FindByWordsXT(pInput[2], $nStzVisionFindScore)    # the patch as measured: the plain threshold
 		_oI_.Release()
 	catch
 		$cStzVisionOwlVision = _cKeep_
