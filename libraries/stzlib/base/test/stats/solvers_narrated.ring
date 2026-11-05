@@ -14,8 +14,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 pr()
 
@@ -194,7 +194,7 @@ chk("it solves the expected-value problem without crashing", bSolved = 1)
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
 pf()
@@ -212,9 +212,9 @@ func FrontDigest(oSolver)
 
 func chk(cLabel, bCond)
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok

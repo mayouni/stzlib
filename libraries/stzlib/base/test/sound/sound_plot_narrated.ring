@@ -27,8 +27,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 # the series hues, as stzCanvas writes them into SVG
 C_S1 = "rgb(57,135,229)"        # #3987e5, series 1
@@ -232,8 +232,8 @@ Chk("and one inside it does draw",
 
 # ---------------------------------------------------------------------------
 ? ""
-? "" + nPass + " passed, " + nFail + " failed"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
 
@@ -241,10 +241,10 @@ ok
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 
