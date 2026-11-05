@@ -536,16 +536,26 @@ fn ring_SecureEquals(p: *anyopaque) callconv(.c) void {
     rn(p, if (cell.ctEqual(strArg(p, 1), strArg(p, 2))) 1 else 0);
 }
 
-// StzEngineSecretIsLocked(id) -> 1 locked in RAM, 0 not, -1 the OS cannot say
+// a cell for a question that has an honest answer when the secret is gone:
+// a released id resolves to nothing instead of raising
+fn cellOrNull(p: *anyopaque, n: c_int) ?*cell.Cell {
+    if (R.ring_vm_api_isnumber(p, n) == 0) return null;
+    const raw = R.resolveHandle(gn(p, n)) orelse return null;
+    return @ptrCast(@alignCast(raw));
+}
+
+// StzEngineSecretIsLocked(id) -> 1 locked in RAM, 0 not (or released), -1 the OS cannot say
 fn ring_SecretIsLocked(p: *anyopaque) callconv(.c) void {
-    const c = cellArg(p, 1) orelse return rn(p, 0);
+    const c = cellOrNull(p, 1) orelse return rn(p, 0);
     rn(p, @floatFromInt(cell.osSaysLocked(c)));
 }
 
 // StzEngineSecretRelease(id) -> bytes still non-zero after the wipe (0); every
-// copy of the id goes stale. A released or null id releases nothing and answers 0.
+// copy of the id goes stale. A released or null id releases nothing and answers
+// 0, so a second release -- from a copy, or after a store wiped the value -- is
+// harmless.
 fn ring_SecretRelease(p: *anyopaque) callconv(.c) void {
-    const c = cellArg(p, 1) orelse return rn(p, 0);
+    const c = cellOrNull(p, 1) orelse return rn(p, 0);
     R.releaseParam(p, 1);
     rn(p, @floatFromInt(cell.release(c)));
 }

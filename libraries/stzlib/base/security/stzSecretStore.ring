@@ -138,6 +138,7 @@ class stzSecretStore from stzObject
 	@cName = ""
 	@aSecrets = []   # [ [ name, secretObject ], ... ]
 	@aLog = []       # [ [ seq, actorName, secretName, outcome ], ... ]  -- the audit trail
+	@aOwned = []     # names whose value THIS store made (RotateToFresh): wiped when replaced or revoked
 
 	# Builds an empty store, the one registry in which a project governs its secrets.
 	#
@@ -171,6 +172,7 @@ class stzSecretStore from stzObject
 		_nm_ = StzLower(ring_trim("" + poSecret.Name()))
 		_i_ = This._Index(_nm_)
 		if _i_ > 0
+			This._WipeOwned(_nm_)
 			@aSecrets[_i_][2] = poSecret
 		else
 			@aSecrets + [ _nm_, poSecret ]
@@ -197,7 +199,10 @@ class stzSecretStore from stzObject
 	#   poActor    the actor that performs the rotation, which must be effectful and not sandboxed
 	#   returns    the store itself, so calls chain
 	#   note       the access log gets a rotated entry and the ledger a secret.rotated grant; a
-	#              token's expiry is cleared (rotate_secret_narrated)
+	#              token's expiry is cleared (rotate_secret_narrated). The fresh value is made
+	#              inside the engine, and when it is rotated again or revoked the store wipes it
+	#              from memory (OwnsValueOf); the first value, registered from outside, is not
+	#              wiped, because the caller may still hold it
 	#   warning    raises an error for an unknown name, for a refused actor and for a secret whose
 	#              source is an environment variable, a file or a vault, naming where to rotate it;
 	#              an actor that is not an object also fails closed, but with R13 Object is required
@@ -232,7 +237,8 @@ class stzSecretStore from stzObject
 			_n_.SetKind(_cKind_)
 		ok
 		_n_.FromRandomHex(32)   # made inside the engine, never a Ring string
-		This.Register(_n_)
+		This.Register(_n_)      # wipes the value it replaces, if this store made it
+		@aOwned + StzLower(ring_trim("" + _s_.Name()))
 		This._Audit(poActor, _s_.Name(), "rotated")
 		StzNoteGrant("secret.rotated", "" + poActor.Name(), "secret:" + _s_.Name())
 		return This
@@ -242,11 +248,15 @@ class stzSecretStore from stzObject
 	#   pcName     the name of the secret to remove
 	#   returns    the store itself, so calls chain
 	#   note       the name is matched without regard to case
+	#   note       a value this store made (RotateToFresh) is wiped from memory first, so any copy
+	#              taken with Secret() goes stale with it; a value registered from outside is the
+	#              caller's to Release
 	#   warning    the removal leaves no entry in the access log and none in the ledger
 	#   see        Register, Has
 	#@ aka  revoke (remove) a secret by name.
 	def Revoke(pcName)
 		_nm_ = StzLower(ring_trim("" + pcName))
+		This._WipeOwned(_nm_)
 		_aNew_ = []
 		_n_ = len(@aSecrets)
 		for _i_ = 1 to _n_
@@ -475,7 +485,39 @@ class stzSecretStore from stzObject
 			? "  " + @aSecrets[_i_][2].Descriptor()
 		next
 
+	# TRUE if the value registered under the name was made by this store, by RotateToFresh.
+	#
+	#   pcName     the secret's name, matched without regard to case
+	#   returns    TRUE or FALSE
+	#   note       such a value is wiped from memory when it is replaced or revoked; a value
+	#              registered from outside is not, because the caller may still hold it
+	#   see        RotateToFresh, Revoke
+	def OwnsValueOf(pcName)
+		_nm_ = StzLower(ring_trim("" + pcName))
+		_n_ = len(@aOwned)
+		for _k_ = 1 to _n_
+			if @aOwned[_k_] = _nm_  return 1  ok
+		next
+		return 0
+
 	  #-- internals -------------------------------------------------------
+
+	# wipe the value under this name if this store made it; a copy anyone took
+	# with Secret() goes stale with it, which is what a rotated key must do
+	def _WipeOwned(pcName)
+		_aKeep_ = []
+		_n_ = len(@aOwned)
+		for _k_ = 1 to _n_
+			if @aOwned[_k_] = pcName
+				_i_ = This._Index(pcName)
+				if _i_ > 0
+					@aSecrets[_i_][2].Release()
+				ok
+			else
+				_aKeep_ + @aOwned[_k_]
+			ok
+		next
+		@aOwned = _aKeep_
 
 	def _Index(pcName)
 		_n_ = len(@aSecrets)

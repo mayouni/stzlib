@@ -115,4 +115,44 @@ Scenario("4. constant-time compare: the time does not say where two values diffe
 	? "  NUMBER constant-time: late/early " + nCt + " (early-exit sibling: " + nPl + ")"
 EndScenario()
 
+Scenario("5. rotation and revocation wipe the values the store made")
+	oAlice = HumanActor("alice")
+	nBase = StzHeldSecrets()
+	oMine = StzApiKeyQ("k").FromLiteralQ("invented-first-value")
+	oStore = new stzSecretStore("rot")
+	oStore.Register(oMine)
+	oStore.RotateToFresh("k", oAlice)
+	Then("the first value came from outside, so it is NOT wiped: the caller still reveals it",
+		oMine.Reveal(oAlice), "invented-first-value")
+	Then("the store owns the fresh value", oStore.OwnsValueOf("k"), 1)
+	oCopy = oStore.Secret("k")
+	Then("the fresh value is 64 hex characters", len(oCopy.Reveal(oAlice)), 64)
+	nWiped = 0  nLeft = 0
+	for r = 1 to 10
+		oStore.RotateToFresh("k", oAlice)
+		aW = StzLastSecretWipe()
+		if aW[:before] = 64  nWiped++  ok
+		nLeft += aW[:after]
+	next
+	Then("NUMBER -- of 10 rotated-out values, wiped", nWiped, 10)
+	Then("...with 0 bytes left in any of them", nLeft, 0)
+	cErr = ""
+	try  oCopy.Reveal(oAlice)  catch  cErr = cCatchError  done
+	Then("a copy of a rotated-out value raises, never reads freed memory", StzFindFirst("was destroyed", cErr) > 0, 1)
+	Then("asking a stale copy whether it is locked answers 0, not an error", oCopy.IsLockedInRam(), 0)
+	oCopy.Release()
+	Then("releasing a stale copy is harmless", StzLastSecretWipe()[:after], 0)
+	oStore.Revoke("k")
+	Then("Revoke wipes the value the store made", StzLastSecretWipe()[:before], 64)
+	Then("...and the store no longer owns a value under that name", oStore.OwnsValueOf("k"), 0)
+	Then("held values: only the caller's own is left", StzHeldSecrets() - nBase, 1)
+	oStore.Register(oMine)
+	oStore.Revoke("k")
+	Then("revoking a value registered from outside leaves it to its owner",
+		oMine.Reveal(oAlice), "invented-first-value")
+	oMine.Release()
+	Then("...who releases it", StzHeldSecrets() - nBase, 0)
+	? "  NUMBER rotation: " + nWiped + " of 10 rotated-out values wiped, " + nLeft + " bytes left"
+EndScenario()
+
 Summary()
