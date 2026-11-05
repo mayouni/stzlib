@@ -275,6 +275,8 @@ find; it does not prove absence.
 | W4 | A6 `NEEDS` on a language declaration | haro-charter (design) then haro | charter 1, build after ZC4 | a world in a language without `network` cannot parse a listener |
 | W5 | B6 `harb advisories`, the pin rule, ALGOUT-01, and the pin moved past the TCP fix | harobanda | 1 + the bump | the reference boot proves the fix and the exclusion |
 | W6 | B5 responder (DONE 2026-11-05: four doors, the drill shuts one in 4 ms; G51); B7 audit agent under the court | stzlib-security + stzlib-intelligence | 2 | the drill shuts a door in under its budget; the audit re-finds a planted bug and leaves a clean file alone |
+| W7 | the measurement behind ruling 3 (DONE 2026-11-05: domains cost 16 ms warm, the compile 22 s without a prefix; a guard reaches 6-10 domains of 82 statically, at most 52; 30 are unreachable by any) | stzlib-security | 1 | the numbers above, instruments and rows published |
+| W7b | the domain manifest, StzDomainWanted, the domain door for W6 | stzlib-security | 2 | the 34 guards green with and without a manifest |
 
 W0-W2a start now in this plane. W3 is the largest and the most valuable: every future member
 of two bug classes costs zero after it.
@@ -310,6 +312,41 @@ Each ruling below is the recommendation this plane made, adopted on the author's
    time and the domains a program touches for the guards it owns, then designs the manifest
    a program declares; no guard may go NOT RUN because of it. Until W7 lands, nothing loads
    differently.
+
+   **W7 MEASURED, 2026-11-05** (instruments `engine/tools/domain_load_census.ring` and
+   `engine/tools/domain_reach.ring`, rows in `engine/tools/w7_reach_2026-11-05.csv`; the Ring++
+   engine copy, 82 domains -- the 11 the copy lacks are not counted):
+
+   | what | number |
+   |---|---|
+   | all 82 domains, loaded alone, warm | 15-17 ms in total (two runs); 4,338 ms once, the files not in the OS cache |
+   | `load stzBase` and nothing else, warm | 136-141 ms, against 46-49 ms for an empty program |
+   | a program never run before | 22.6-24.3 s -- the compiler, not the domains: rnxc caches one 51 MB image per whole program (149 images, 3.9 GB, nothing evicts them) |
+   | the same, after `rnxc prefix stzBase.ring` (25.7 s, once per library change) | 455 ms |
+   | domains a guard reaches, static lower bound | 6-10 of 82, mean 7.7, over this plane's 34 guards; 6 for a program that only loads stzBase; 23 for the 34 together |
+   | domains a guard reaches, dynamic upper bound | 51-52 of 82 (every o.Name() resolved to every method of that name) |
+   | domains loaded and outside even the upper bound | 30, among them parsers of outside input: stz_compress (zlib), stz_url, stz_csv, stz_codec, stz_polyglot (tree-sitter) |
+
+   **What it rules.** Load-on-need buys almost no time: at most 16 ms of a warm start, nothing
+   of the compile. The time a new program costs is the missing prefix, and that is a working
+   rule for every desk, not a design (`rnxc prefix stzBase.ring` after a library edit). What
+   load-on-need buys is **surface**: every process today carries at least 30 libraries it
+   cannot reach, parsers of untrusted bytes among them, and a domain that is not loaded is the
+   only domain W6 can shut (a loaded one cannot be unloaded). So the manifest is built for
+   security, and its design is:
+
+   - a program names its domains before `load "stzBase.ring"` (`$aStzDomains = [ "crypto",
+     "seclog" ]`); absent, everything loads as today, so no guard goes NOT RUN;
+   - the 6 domains stzBase's own load reaches always load;
+   - each engine loader asks one function before its LoadLib, `StzDomainWanted(name)`, which
+     reads the manifest AND W6's shut list -- a domain shut for an advisory is refused at the
+     next start, the door W6 could not offer in a running process;
+   - a call into a domain that was not loaded raises R3 at its line, naming the domain: the
+     manifest is corrected by reading the error, never by guessing;
+   - Haro's `NEEDS` on a language declaration (W4) is the same list in the language.
+   The build-out touches the 94 loader files once, by one script, and is rung **W7b**. Its gate:
+   this plane's 34 guards green with the manifest absent, and with a manifest of their static
+   domains plus what their first run names.
 4. **The feed is a door, and the budget is one hour / one day.** RULED YES. `stzAdvisoryFeed`
    reaches OSV and KEV only from a program that declares the door; every fetch is a ledger
    record; a guard never reaches the live internet. Time-to-safe budget, measured by B4:
