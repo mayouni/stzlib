@@ -92,6 +92,8 @@ const base_domains = [_]Domain{
     .{ .name = "stz_polyglot", .entry = "src/stz_polyglot_entry.zig", .needs_treesitter = true, .needs_ring = true },
     .{ .name = "stz_watch", .entry = "src/stz_watch_entry.zig", .needs_ring = true },
     .{ .name = "stz_perf", .entry = "src/stz_perf_entry.zig", .needs_ring = true },
+    // the Testoor core (P3 of base/testoor/SOFTANZA_TESTOOR_ROADMAP.md): judge, promises, logbook
+    .{ .name = "stz_testoor", .entry = "src/stz_testoor_entry.zig", .needs_ring = true },
     .{ .name = "stz_seclog", .entry = "src/stz_seclog_entry.zig", .needs_ring = true, .needs_sqlite = true },
     .{ .name = "stz_cache", .entry = "src/stz_cache_entry.zig", .needs_ring = true },
     .{ .name = "stz_stream", .entry = "src/stz_stream_entry.zig", .needs_ring = true },
@@ -1536,6 +1538,19 @@ pub fn build(b: *std.Build) void {
         const xm_run = b.addRunArtifact(xm_tests);
         const xm_step = b.step("test-xml", "Test the XML parser, exclusive C14N and query paths");
         xm_step.dependOn(&xm_run.step);
+
+        // the Testoor core: no C deps, run from this folder so the golden logbooks resolve
+        const to_mod = b.createModule(.{
+            .root_source_file = b.path("src/testoor.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        const to_tests = b.addTest(.{ .root_module = to_mod });
+        const to_run = b.addRunArtifact(to_tests);
+        to_run.setCwd(b.path("."));
+        const to_step = b.step("test-testoor", "Test the Testoor core: promises, judge, logbook and the golden logbooks byte for byte");
+        to_step.dependOn(&to_run.step);
     }
 
     // Generator: populate reference data tables into unicode.db

@@ -237,6 +237,7 @@ ok
     # court (stzCodeRules, stzCodeGraph) and reads nothing above it.
     load "testoor/stzTour.ring"
     load "testoor/stzTraveller.ring"
+    load "testoor/stzCore.ring"
     load "testoor/stzRoute.ring"
     load "testoor/stzClock.ring"
     load "testoor/stzSubject.ring"
