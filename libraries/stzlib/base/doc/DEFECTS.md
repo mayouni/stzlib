@@ -5,11 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 45 methods in 36 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 43 methods in 35 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| neural/stzLLMFunction.ring | stzLLMFunction | 2 |
 | number/stzHexNumber.ring | stzHexNumber | 2 |
 | number/stzMatrix.ring | stzMatrix | 2 |
 | number/stzNumber.ring | stzNumber | 2 |
@@ -97,11 +96,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzUrl -- network/stzUrl.ring (1)
 
 - `FromLocalFile` (line 702): Raises error R19 today instead of returning a file URL for the given path. -- Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement
-
-## stzLLMFunction -- neural/stzLLMFunction.ring (2)
-
-- `ReturnsNumber` (line 166): Declares that the answer must be a number. -- the answer is read as the first word that parses as a number; a reply whose first word is not numeric (such as about 42 or none) raises a Ring error R41 inside the call instead of being refused or retried (w13 defect file)
-- `ReturnsBoolean` (line 177): Declares that the answer must be yes or no, kept as 1 or 0. -- the reply is searched for the letters yes or true, then no or false, as substrings, so a reply such as unknown reads as 0 (w13 defect file)
 
 ## stzBinaryNumber -- number/stzBinaryNumber.ring (1)
 

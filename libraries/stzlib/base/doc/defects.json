@@ -1,5 +1,5 @@
 {
- "count": 45,
+ "count": 43,
  "defects": [
   {
    "class": "stzEngineTimeline",
@@ -104,22 +104,6 @@
    "line": 702,
    "symptom": "Raises error R19 today instead of returning a file URL for the given path.",
    "cause": "Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement"
-  },
-  {
-   "class": "stzLLMFunction",
-   "file": "neural/stzLLMFunction.ring",
-   "method": "ReturnsNumber",
-   "line": 166,
-   "symptom": "Declares that the answer must be a number.",
-   "cause": "the answer is read as the first word that parses as a number; a reply whose first word is not numeric (such as about 42 or none) raises a Ring error R41 inside the call instead of being refused or retried (w13 defect file)"
-  },
-  {
-   "class": "stzLLMFunction",
-   "file": "neural/stzLLMFunction.ring",
-   "method": "ReturnsBoolean",
-   "line": 177,
-   "symptom": "Declares that the answer must be yes or no, kept as 1 or 0.",
-   "cause": "the reply is searched for the letters yes or true, then no or false, as substrings, so a reply such as unknown reads as 0 (w13 defect file)"
   },
   {
    "class": "stzBinaryNumber",
