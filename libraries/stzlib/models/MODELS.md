@@ -69,7 +69,7 @@ Converted from the sources above and checked against onnxruntime (cosine 1.00, m
 | `vision/yolox_nano.gguf` | objects -- YOLOX-nano, 80 COCO labels inside | 3,649,856 | `71e40dcc100b074b2329710c912f0ba03bc96b503a2b8174d27caf762480894c` | from `yolox/yolox_nano.onnx` by `engine/tools/onnx_to_gguf.py` |
 | `vision/yolox_tiny.gguf` | objects -- YOLOX-tiny (the default), 80 COCO labels inside | 20,212,928 | `2b9870a6efb8a427d10bce2c563fe261fbf8e6f21f5731207c435a048d000e4b` | from `yolox/yolox_tiny.onnx` by `engine/tools/onnx_to_gguf.py` |
 | `vision/yunet_2023mar.gguf` | faces -- YuNet 2023mar, 12 heads fused to [1, 8400, 16] | 225,856 | `f98be07de91e64b35beca64776838c3c2d940a89600dcbfd4968cc1e46cc62e7` | from `yunet/face_detection_yunet_2023mar.onnx` by `engine/tools/onnx_to_gguf.py` |
-| `vision/siglip2_vision.gguf` | embeddings (IM5) -- SigLIP2 base patch16-224 image tower, 224 x 224 -> 768 (pooler_output) | 371,570,112 | `ebd7fa83451175d2c1f8cbe6ba1c06d2e0638d99b9cad5e1e0a67c11ae0c9e81` | from `siglip2_base/vision_model.onnx` by `onnx_to_gguf.py --kind=embed-image --output=pooler_output --input=224` |
+| `vision/siglip2_vision.gguf` | embeddings (IM5) -- SigLIP2 base patch16-224 image tower, 224 x 224 -> 768 (pooler_output) | 371,573,184 | `ebd7fa83451175d2c1f8cbe6ba1c06d2e0638d99b9cad5e1e0a67c11ae0c9e81` | from `siglip2_base/vision_model.onnx` by `onnx_to_gguf.py --kind=embed-image --output=pooler_output --input=224` |
 | `vision/siglip2_text.gguf` | embeddings (IM5) -- SigLIP2 text tower, 64 token ids -> 768, Gemma's tokenizer inside (256,000 tokens, 580,604 merges) | 1,147,148,448 | `c8a687c42fcde7ecd0e6dd00181f421b60c2395c4d0cc5a5082c5761196308b3` | from `siglip2_base/text_model_fp16.onnx` + `tokenizer.json` (`cb9140fa...`) by `onnx_to_gguf.py --kind=embed-text --output=pooler_output --seq=64 --tokenizer=...` |
 | `vision/u2netp.gguf` | salient object (IM6) -- U2-Net-p, 320 x 320 -> the fused sigmoid mask | 4,534,784 | `3f17c1f9d27927eec870592edb4988dac18ba0c04d59a43f9a6d62eb4c9c9c07` | from `u2netp/u2netp.onnx` by `onnx_to_gguf.py --kind=saliency --output=1959 --input=320` |
 | `vision/depth_anything_v2_small.gguf` | relative depth (IM6) -- Depth-Anything-V2-Small, 518 x 518 -> predicted_depth | 98,874,784 | `6f8fe64f65549d9cb289f42f001383da6e8ac3c2a7eef90cfba1849044c8c0af` | from `depth_anything_v2_small/model.onnx` by `onnx_to_gguf.py --kind=depth --output=predicted_depth --input=518 --static` |
@@ -88,3 +88,17 @@ Converted from the sources above and checked against onnxruntime (cosine 1.00, m
 | `vision/granite_docling_258m_mmproj.gguf` | a page as structure (IM7) -- its SigLIP tower (512 px, 12 layers) and idefics3 connector, the same graph as SmolVLM's, run by vlm.zig over a page's tiles | 103,769,792 | `3d440e65a91e640dc0a53897ad7897700c39324802aaff2072232b6f21d0cadb` | as published: mmproj-granite-docling-258M-Q8_0.gguf from the same repository, not converted |
 
 Test photographs (Wikimedia Commons, downloaded with the author's yes, 2026-11-01) are held beside the sources in `D:\GitHub\_wti_models_src\photos\` with their sha256 and licences in `MANIFEST.tsv`: the NASA Expedition 64 crew portrait (public domain), Times Square (CC BY 2.0), Golden Retriever Carlos (CC BY 2.0), Cat03 (GFDL 1.2). None is in the tree.
+
+## The OCR models, converted (O3a, O3c) -- `models/ocr/` (recorded 2026-11-05: they were in no record before the catalogue asked)
+
+PP-OCR, Apache-2.0, converted by `engine/tools/onnx_to_gguf.py` from RapidOCR 3.10.0's ONNX exports (sources and their sha256 in `catalog.zcat`). The steps of the three first files were replayed on 2026-11-05 and reproduce them byte for byte.
+
+| file | what | size (bytes) | sha256 |
+|---|---|---|---|
+| `ocr/ppocr_det.gguf` | text detection, PP-OCRv6 det small | 9,833,504 | `d529164359a42058103ca877b94f4514a0f99a007717564666c0433b7882728e` |
+| `ocr/ppocr_rec.gguf` | Latin recognition, PP-OCRv6 rec small, its dictionary inside | 21,291,904 | `243acf5d162c9239d105b66050ff2116f9d84f4c4c81dc0e4db219cec2c25f02` |
+| `ocr/ppocr_cls.gguf` | line orientation, ch_ppocr_mobile_v2.0 cls | 536,480 | `e97b5b1cd558889cc9029c81a065131aa75f2d3783d0e4841d88ecb88aaf955a` |
+| `ocr/ppocr_rec_arabic.gguf` | Arabic recognition, PP-OCRv5 mobile (right to left) | 7,937,728 | `c1563b1f5f9f412d927c3a48b1b6c9863ed0176efdcaafa9ca658c6a9abae8d3` |
+| `ocr/ppocr_rec_cyrillic.gguf` | Cyrillic recognition, PP-OCRv5 mobile | 7,988,640 | `02b1adf6774c19e44bb4851d7eebc63bc9eed9cb3d2f14a42babdcf40f176b01` |
+
+**`catalog.zcat` is the machine-readable record** of every file a faculty needs (what `StzModelSetupPlan()` and `StzModelsReport()` read); this file is its prose.

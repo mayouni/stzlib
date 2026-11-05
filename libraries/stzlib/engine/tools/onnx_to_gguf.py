@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """onnx_to_gguf.py -- an ONNX graph as a GGUF file the engine's ocr_graph.zig runs on ggml.
 
-    python onnx_to_gguf.py <model.onnx> <out.gguf> [--kind det|rec|cls] [--direction=rtl] [--classifier=off]
+    python onnx_to_gguf.py <model.onnx> <out.gguf> [--kind=det|rec|cls] [--direction=rtl] [--classifier=off]
+
+(every option is written key=value: "--kind rec" with a space is NOT read -- the kind stays det, and a recogniser converted
+so loses its character dictionary; caught on 2026-11-05 when the model catalogue's steps were replayed)
 
 The GGUF carries the weights as F32 tensors (c0, c1, ...; ne = the ONNX shape reversed, which is the same
 memory) and a PROGRAM: one string per op, in order, over a small op set that maps one-to-one onto ggml:
@@ -1310,6 +1313,13 @@ def load_labels(arg):
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    # every option is key=value: a bare "--kind" followed by "rec" would leave the kind det and the word "rec" unread, and the file made
+    # would be silently wrong (a recogniser without its dictionary). Refuse it, saying how to write it.
+    for a in sys.argv[1:]:
+        if a.startswith("--") and "=" not in a and a not in ("--static",):
+            raise SystemExit("onnx_to_gguf.py: options are written --key=value; '%s' has no value (write e.g. --kind=rec)" % a)
+    if len(args) > 2:
+        raise SystemExit("onnx_to_gguf.py: unexpected argument(s) %s after <model.onnx> <out.gguf>; options are written --key=value" % args[2:])
     kind = "det"
     direction = ""
     classifier = ""

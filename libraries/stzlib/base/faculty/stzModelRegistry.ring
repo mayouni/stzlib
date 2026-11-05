@@ -239,6 +239,11 @@ func StzImplementationAvailable(paImpl, pcLang)
 			return [ 0, "exists only on " + _StzJoinComma(_aP_) + "; this is " + StzPlacementOS() ]
 		ok
 	ok
+	# MP3: the files the catalogue says it needs (for this language) must be here -- a floor that needs a model file included
+	if HasKey(paImpl, :faculty) and isString(paImpl[:faculty]) and paImpl[:faculty] != ""
+		_aFiles_ = StzImplementationFilesAvailable(paImpl[:faculty], paImpl[:id], pcLang)
+		if _aFiles_[1] = 0 return _aFiles_ ok
+	ok
 	_cFn_ = ""
 	if HasKey(paImpl, :available) _cFn_ = paImpl[:available] ok
 	if NOT isString(_cFn_) or _cFn_ = "" return [ 1, "" ] ok

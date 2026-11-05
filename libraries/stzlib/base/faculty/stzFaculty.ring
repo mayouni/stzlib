@@ -661,7 +661,7 @@ func _StzImplRecord(paSpec)
 	# MP0 (SOFTANZA_MODEL_PLACEMENT.md): :platforms, the operating systems the implementation exists on ([] = everywhere Ring runs);
 	# :available, the NAME of a probe fn(cLang) -> [ 1|0, reason ] that says, without running anything heavy, whether it can answer here
 	_a_ = [ :id = "", :kind = "model", :fn = "", :version = "1", :deterministic = 1, :licence = "unstated",
-		:memory = 0, :languages = [ "*" ], :needle = "", :platforms = [], :available = "" ]
+		:memory = 0, :languages = [ "*" ], :needle = "", :platforms = [], :available = "", :faculty = "" ]
 	for _i_ = 1 to len(paSpec)
 		_a_[paSpec[_i_][1]] = paSpec[_i_][2]
 	next
@@ -913,7 +913,7 @@ class stzFaculty from stzObject
 			if _aI_[_k_][:kind] = "floor" del($aStzFaculties[_i_][:impls], _k_) ok
 		next
 		add($aStzFaculties[_i_][:impls], _StzImplRecord([ :id = pcId, :kind = "floor", :fn = pcFn, :version = "1",
-			:deterministic = 1, :licence = "n/a", :memory = 0, :languages = [ "*" ], :needle = "" ]))
+			:deterministic = 1, :licence = "n/a", :memory = 0, :languages = [ "*" ], :needle = "", :faculty = @cName ]))
 
 		def SetFloorQ(pcId, pcFn)
 			This.SetFloor(pcId, pcFn)
@@ -968,6 +968,7 @@ class stzFaculty from stzObject
 				stzraise("AddImplementation: the faculty '" + @cName + "' already has an implementation '" + _aR_[:id] + "'.")
 			ok
 		next
+		_aR_[:faculty] = @cName    # MP3: capability asks the catalogue which files this implementation of THIS faculty needs
 		add($aStzFaculties[_i_][:impls], _aR_)
 
 		def AddImplementationQ(paSpec)

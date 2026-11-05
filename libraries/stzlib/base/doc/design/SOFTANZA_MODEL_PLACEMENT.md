@@ -107,7 +107,17 @@ All of them read the registry's own data; none decides anything the registry doe
 - **MP1 done**: `StzModelsReport()`, `StzModelsReportText()`, `StzModelsReportPage(path)`.
 - **MP2 begun**: `StzModelsReportFor("linux" | "macos" | "windows")` resolves the operating-system axis. A probe that reads THIS machine (an OCR
   pack) is not yet replaced by the target's: profiles with packs and shipped models are MP2's remaining half.
-- **MP3 to MP5 open.**
+- **MP3 done** (2026-11-05): `models/catalog.zcat` -- every file a faculty needs (26), what each implementation requires (20 rows, per
+  language where it differs), what a platform implementation needs from the operating system (2), and which conversions were replayed;
+  `StzModelCatalog()`, `StzImplementationFiles()`, `StzModelFileState()`, `StzModelVerify()`, `StzModelSetupPlan(faculty)` and
+  `StzModelSetupPlanText(faculty)`; the report page gains *What you could install here*. Capability now includes "the files it needs are here",
+  a floor included (`:find`'s floor quietly needs `yolox_tiny.gguf`). Guard `catalog_narrated.ring` (16). **Replaying the steps found three
+  wrong records**: the converter read `--kind rec` (as its own usage line wrote it) as no kind at all, so the catalogue's first OCR steps made a
+  recogniser without its dictionary -- the usage line is corrected and the converter now refuses an option without a value; `MODELS.md` had
+  SigLIP2's vision tower 3,072 bytes short; and the five OCR model files were in no record at all. Twelve conversions now reproduce their file
+  byte for byte; OWL-ViT's two (torch exports) and the Arabic and Cyrillic recognisers (no source on this machine) are marked not replayed.
+- **MP4 (the doctor) and MP5 (the bundle) open.** MP3b, a decision for the author: Softanza could publish its converted files (every licence
+  here permits it), so a developer downloads `yolox_tiny.gguf` instead of installing Python, ONNX and the converter to make it.
 
 **What the court and MP0 changed, faculty by faculty** (every other faculty keeps its choice, now on evidence):
 
