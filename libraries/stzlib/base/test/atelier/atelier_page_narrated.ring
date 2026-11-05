@@ -4,7 +4,7 @@ load "../../../atelier/atelierClient.ring"
 
 # THE ATELIER, A2 -- the experience. A check's id stays stable when its file
 # changes elsewhere; the page speaks two languages whole, from one dictionary
-# file; the page is served at its three addresses and names what judges it.
+# file; the page is served at its addresses and names what judges it.
 #
 # Run from this folder, on rnxc:
 #     rnxc atelier_page_narrated.ring
@@ -103,7 +103,7 @@ Scenario("The page speaks two languages whole, from one dictionary")
 		cKey = left(cRest, nQ - 1)
 		nAsked++
 		# a key FAMILY the page completes at run time (state_kept, end_broke, proc_form_scene...)
-		if find(acEn, cKey) = 0 and left(cKey, 6) != "state_" and left(cKey, 4) != "end_" and left(cKey, 5) != "ring_" and cKey != "proc_form_"
+		if find(acEn, cKey) = 0 and left(cKey, 6) != "state_" and left(cKey, 4) != "end_" and left(cKey, 5) != "ring_" and cKey != "proc_form_" and cKey != "course_" and cKey != "clang_"
 			nUnknown++
 			? "    unknown key asked by the page: " + cKey
 		ok
@@ -114,6 +114,7 @@ Scenario("The page speaks two languages whole, from one dictionary")
 	Then("the page asks for many keys", nAsked > 40, TRUE)
 	Then("and every one it asks for exists", nUnknown, 0)
 	Then("the family of forms has both its members", find(acEn, "proc_form_scene") > 0 and find(acEn, "proc_form_classic") > 0, TRUE)
+	Then("the lessons' families have their members: each language a chapter is written in, each course with chapters", find(acEn, "clang_en") > 0 and find(acEn, "clang_fr") > 0 and find(acEn, "clang_ar") > 0 and find(acEn, "clang_ha") > 0 and find(acEn, "course_elementary-introduction") > 0 and find(acEn, "course_math") > 0, TRUE)
 	Then("no string of the page is hard-wired past the dictionary: the menu says Checks only as a default", StzFindFirst('data-t="menu_checks"', cPage) > 0, TRUE)
 EndScenario()
 
@@ -130,10 +131,12 @@ Scenario("The page is served at its three addresses, with its dictionary, and na
 	Then("/atelier/coverage answers the same page", oH.ResponseBody() = cHome, TRUE)
 	oH.Get_("http://127.0.0.1:" + nAtPort + "/atelier/playground")
 	Then("/atelier/playground too", oH.ResponseBody() = cHome, TRUE)
+	oH.Get_("http://127.0.0.1:" + nAtPort + "/atelier/lessons")
+	Then("/atelier/lessons too (B3)", oH.ResponseBody() = cHome, TRUE)
 	oH.Get_("http://127.0.0.1:" + nAtPort + "/atelier/i18n")
 	Then("/atelier/i18n answers the dictionary", StzFindFirst('"fr"', oH.ResponseBody()) > 0, TRUE)
 	Then("the page carries a trail from the root", StzFindFirst('aria-label="Breadcrumb"', cHome) > 0, TRUE)
-	Then("a main menu of three short labels", len(StzSplit(cHome, 'data-view="')) - 1, 3)
+	Then("a main menu of four short labels: Notebook, Lessons, Checks, Coverage (Rule 27: one level)", len(StzSplit(cHome, 'data-view="')) - 1, 4)
 	Then("nothing moves: every transition and animation is refused", StzFindFirst("transition:none!important;animation:none!important", cHome) > 0, TRUE)
 	Then("one reading size, the site's", StzFindFirst("--read:1.3125rem", cHome) > 0, TRUE)
 	Then("the state names what judges a check", aS[:library][:commit] != "" and aS[:rnxc][:build] != "", TRUE)

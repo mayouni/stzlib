@@ -16,6 +16,9 @@
    Rule 3, 5, 10    paper tones, one accent (action and selection), one resting shadow, no gradient
    Rule 112, 17, 1  nothing moves: no transition, no animation, no smooth scroll
    Rule 13, 110     the top bar sticks and holds its own space; nothing floats over the reading
+   B3               the lessons: the Learning System's chapters opened as notebooks, each cell judged by
+                    the course's own court, each exercise checked and recorded by the learner's own Submit;
+                    a draft translation says so first; Arabic reads right to left, its code left to right
    B2               a notebook of cells: running cell k runs cells 1 to k as one program, so a name a
                     cell makes is the one the cells below read; saved as a narrated test file, opened back;
                     a library check forked into a cell as its Then line
@@ -213,6 +216,22 @@ body.embed .card{box-shadow:none}
 .cellout .scene{border-top:1px dashed var(--line);padding:16px 0 0;margin:16px 0 0}
 .nbtools{margin:16px 0 0}
 .undo{margin-left:12px}
+.lsform{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:16px 0 0}
+.lsform label{display:block;margin:0 0 4px}
+.lsform select,.lsform input{width:100%}
+.lesson .prose{max-width:72ch;margin:0 0 24px}
+.lesson .prose h3{font-family:"Fraunces",Georgia,"Times New Roman",serif;font-size:var(--title);font-weight:600;line-height:1.15;margin:32px 0 12px}
+.lesson .prose h4{font-size:var(--read);font-weight:700;margin:24px 0 8px}
+.lesson .prose pre,.lesson .exercise pre{margin:12px 0}
+.lesson blockquote{margin:12px 0;padding:4px 16px;border-inline-start:4px solid var(--line-2);color:var(--ink-2)}
+.notice{border-left:6px solid var(--err);background:var(--err-bg);color:var(--ink);border-radius:10px;padding:16px 20px;margin:0 0 24px}
+.court{margin:16px 0 0;border-top:1px dashed var(--line);padding:16px 0 0}
+.court ul{list-style:none;margin:8px 0 0;padding:0}
+.court li{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:0 0 8px}
+.exercise .task{max-width:72ch}
+.exercise .verdictrow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:12px 0 0}
+.lsprogress{margin:12px 0 0}
+[dir="rtl"] textarea,[dir="rtl"] pre,[dir="rtl"] code{direction:ltr;text-align:left}
 kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padding:0 8px;background:var(--panel-2)}
 
 /* a narrow screen: context columns leave, the state stays */
@@ -228,6 +247,7 @@ kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padd
     <a class="brand" href="/atelier" data-t="title">Softanza Atelier</a>
     <nav class="menu" aria-label="Atelier sections" id="menu">
       <a href="/atelier" data-view="notebook" data-t="menu_notebook">Notebook</a>
+      <a href="/atelier/lessons" data-view="lessons" data-t="menu_lessons">Lessons</a>
       <a href="/atelier/library" data-view="checks" data-t="menu_checks">Checks</a>
       <a href="/atelier/coverage" data-view="coverage" data-t="menu_coverage">Coverage</a>
     </nav>
@@ -306,6 +326,23 @@ kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padd
   <div class="card" id="onecheck"></div>
 </section>
 
+<section id="view-lessons" hidden aria-labelledby="h-ls">
+  <h2 id="h-ls" data-t="menu_lessons">Lessons</h2>
+  <div class="card">
+    <p data-t="ls_intro"></p>
+    <div class="lsform">
+      <div><label for="lscourse" data-t="ls_course">Course</label><select id="lscourse"></select></div>
+      <div><label for="lschapter" data-t="ls_chapter">Chapter</label><select id="lschapter"></select></div>
+      <div><label for="lslang" data-t="ls_lang">Language of the chapter</label><select id="lslang"></select></div>
+      <div><label for="lslearner" data-t="ls_learner">Learner</label><input type="text" id="lslearner" autocomplete="off" spellcheck="false"></div>
+    </div>
+    <p class="hint" data-t="ls_learner_hint"></p>
+    <div class="row nbtools"><button class="act primary" id="lsrunall" data-t="ls_run_all">Run every cell</button></div>
+    <p class="runinfo" id="lsinfo" aria-live="polite"></p>
+  </div>
+  <div id="lesson" class="lesson"></div>
+</section>
+
 <section id="view-notebook" hidden aria-labelledby="h-nb">
   <h2 id="h-nb" data-t="menu_notebook">Notebook</h2>
   <div class="card">
@@ -369,16 +406,18 @@ function pickLang() {
 
 // ---- the view: one page, three addresses, the menu tells the truth (Rules 26, 116) ----
 const P = location.pathname;
-const VIEW = /\/check(\.html)?$/.test(P) ? 'check' : /coverage(\.html)?$/.test(P) ? 'coverage' : (EDITION || /\/library$/.test(P)) ? 'checks' : 'notebook';
+// a menu link keeps the page's language, and a lesson's address carries its own choices
+const LANGQ = () => { const l = new URLSearchParams(location.search).get('lang'); return l ? '?lang=' + l : ''; };
+const VIEW = /\/check(\.html)?$/.test(P) ? 'check' : /coverage(\.html)?$/.test(P) ? 'coverage' : (EDITION || /\/library$/.test(P)) ? 'checks' : (!EDITION && /\/lessons$/.test(P)) ? 'lessons' : 'notebook';
 const URLS = EDITION
   ? { checks: 'data/checks.json', results: 'data/results.json', tours: 'data/tours.json', i18n: 'data/i18n.json', verdicts: null, home: 'index.html', library: 'index.html', coverage: 'coverage.html', one: 'check.html' }
-  : { checks: '/atelier/checks', results: '/atelier/results', tours: '/atelier/tours', i18n: '/atelier/i18n', verdicts: '/atelier/verdicts', home: '/', library: '/atelier/library', coverage: '/atelier/coverage', one: '/atelier/check' };
+  : { checks: '/atelier/checks', results: '/atelier/results', tours: '/atelier/tours', i18n: '/atelier/i18n', verdicts: '/atelier/verdicts', home: '/', lessons: '/atelier/lessons', library: '/atelier/library', coverage: '/atelier/coverage', one: '/atelier/check' };
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('embed');
 document.querySelectorAll('#menu a').forEach(a => {
   const v = a.dataset.view;
-  a.href = (v === 'notebook' ? URLS.home : v === 'checks' ? URLS.library : URLS.coverage) + (location.search || '');
+  a.href = (v === 'notebook' ? URLS.home : v === 'lessons' ? URLS.lessons : v === 'checks' ? URLS.library : URLS.coverage) + (VIEW === 'lessons' || v === 'lessons' ? (LANGQ()) : (location.search || ''));
   if (v === VIEW) a.setAttribute('aria-current', 'page');
-  if (EDITION && v === 'notebook') a.hidden = true;
+  if (EDITION && (v === 'notebook' || v === 'lessons')) a.hidden = true;
 });
 $('.brand').href = URLS.home + (location.search || '');
 $('#trailroot').href = URLS.home;
@@ -634,9 +673,12 @@ function stepValue(st) {
   const v = st.kind === 'object' && st.label ? `${st.label}: ${st.payload}` : st.payload;
   return esc(v.length > 160 ? v.slice(0, 160) + ' ...' : v);
 }
+// the run being drawn: the notebook's or a lesson's. CUR.box(n) is the textarea of cell n,
+// CUR.cells[n - 1] the code that ran, CUR.keep(n, code) keeps a form the reader put in
+let CUR = null;
 // a line of the composed program, as [cell, line of that cell] (1-based)
-function where(line) { return (NBRUN && NBRUN.map && NBRUN.map[line - 1]) || [1, line]; }
-function codeAt(line) { const [c, l] = where(line); return ((NBRUN.cells[c - 1] || {}).code || '').split('\n')[l - 1] || ''; }
+function where(line) { return (CUR && CUR.map && CUR.map[line - 1]) || [1, line]; }
+function codeAt(line) { const [c, l] = where(line); return (CUR.cells[c - 1] || '').split('\n')[l - 1] || ''; }
 function chainHtml(s) {
   if (!s.steps || s.steps.length < 2) return '';
   const rows = s.steps.map(st => `<tr><td>${st.k}</td><td class="code">${esc(st.text)}</td><td class="val">${stepValue(st)}</td><td>${us(st.ns)}</td></tr>`).join('');
@@ -650,7 +692,7 @@ function chainHtml(s) {
 }
 function sceneHtml(sc) {
   const answers = {};
-  (NBRUN.sees || []).forEach(s => { if (s.values.length) answers[s.line] = s.values[s.values.length - 1].payload; });
+  (CUR.sees || []).forEach(s => { if (s.values.length) answers[s.line] = s.values[s.values.length - 1].payload; });
   const rows = sc.states.map((st, i) => {
     const code = i === 0 ? t('proc_before') : codeAt(st.line).trim();
     const ans = answers[st.line] !== undefined ? esc(answers[st.line].slice(0, 120)) : '';
@@ -662,11 +704,11 @@ function sceneHtml(sc) {
 }
 // the reader puts a form in its cell, in place of the line it rewrites; its promise follows it
 function putForm(seeN, formI) {
-  const s = (NBRUN.sees || []).find(x => x.n === seeN);
+  const s = (CUR.sees || []).find(x => x.n === seeN);
   if (!s || !s.forms[formI]) return;
   const [ci, li] = where(s.line);
-  const ta = $('#code-' + ci);
-  if (!ta || ta.value !== NBRUN.cells[ci - 1].code) { $('#nbinfo').textContent = t('nb_stale', { n: ci }); return; }
+  const ta = CUR.box(ci);
+  if (!ta || ta.value !== CUR.cells[ci - 1]) { CUR.info(t('nb_stale', { n: ci })); return; }
   const lines = ta.value.split('\n');
   const i = li - 1;
   const pad = (lines[i] || '').match(/^\s*/)[0];
@@ -679,10 +721,10 @@ function putForm(seeN, formI) {
   }
   lines.splice(i, end - i, ...form.map(l => pad + l));
   ta.value = lines.join('\n');
-  NB[ci - 1].code = ta.value; nbStore();
+  CUR.keep(ci, ta.value);
   ta.focus();
 }
-function seeHtml(s) {
+function seeHtml(s, nojudge) {
   const vals = s.values.map((v, k) => (s.values.length > 1 ? `<p class="facelabel"><b>${t('nb_pass', { k: k + 1 })}</b></p>` : '') + `<div class="face">${faceHtml(v)}</div>`).join('');
   const isThen = s.kind === 'then';
   let prom = '';
@@ -694,6 +736,7 @@ function seeHtml(s) {
     prom = `<div class="promise"><span>${t('nb_promised')}: <code>#--&gt; ${esc(s.promise)}</code></span>${came}${s.state ? st(s.state) : ''}</div>`;
   } else if (s.values.length) prom = `<p class="hint">${t('nb_none')}</p>`;
   if (!s.values.length && !s.promise && !isThen) prom = `<p class="hint">${t('nb_notrun')}</p>`;
+  if (nojudge) prom = s.values.length ? '' : `<p class="hint">${t('nb_notrun')}</p>`;
   const head = isThen ? `<code>Then</code><b>${esc(s.expr)}</b>` : `<code>? ${esc(s.expr)}</code>`;
   return `<section class="see"><p class="seeline"><span class="mono">${t('nb_line', { n: where(s.line)[1] })}</span>${head}</p>${vals}${prom}${chainHtml(s)}</section>`;
 }
@@ -707,8 +750,10 @@ function summaryHtml(d) {
   }
   return `<div class="cellsum"><p style="margin:0">${sum}</p></div>`;
 }
+const NBCUR = () => NBRUN && Object.assign(NBRUN, { box: n => $('#code-' + n), info: m => { $('#nbinfo').textContent = m; }, keep: (n, code) => { NB[n - 1].code = code; nbStore(); } });
 function renderOutputs() {
   if (!NB) return;
+  CUR = NBCUR();
   NB.forEach((c, i) => {
     const out = $('#out-' + (i + 1));
     if (!out) return;
@@ -719,7 +764,7 @@ function renderOutputs() {
     (NBRUN.sees || []).forEach(s => { if (where(s.line)[0] === i + 1) h += seeHtml(s); });
     out.innerHTML = h;
   });
-  document.querySelectorAll('.cellout button[data-form]').forEach(b => b.onclick = () => putForm(Number(b.dataset.see), Number(b.dataset.form)));
+  document.querySelectorAll('#cells .cellout button[data-form]').forEach(b => b.onclick = () => { CUR = NBCUR(); putForm(Number(b.dataset.see), Number(b.dataset.form)); });
 }
 function renderNotebook() {
   if (!$('#cells') || !NB) return;
@@ -768,7 +813,7 @@ async function runNotebook(k) {
   try {
     const r = await fetch('/atelier/notebook', { method: 'POST', body: JSON.stringify({ run: k, cells }) });
     if (r.status !== 200) throw new Error(await r.text());
-    NBRUN = await r.json(); NBRUN.cells = cells;
+    NBRUN = await r.json(); NBRUN.cells = cells.map(c => c.code);
     info('');
   } catch (e) { NBRUN = null; info(t('lib_gone')); }
   NBBUSY = false;
@@ -820,11 +865,209 @@ if ($('#cells') && !EDITION) {
   $('#nbopen').onclick = () => $('#nbfile').click();
   $('#nbfile').onchange = e => { const f = e.target.files[0]; if (f) openNotebook(f); e.target.value = ''; };
 }
-function renderCell() { renderNotebook(); }
+function renderCell() { renderNotebook(); renderLessons(); }
+
+// ---- the lessons: the Learning System's chapters, opened as notebooks (B3) ----
+// A chapter is read, never written: its cells may be changed here and run, and the change
+// lives in this page only. Each cell is judged by the course's own court (the education
+// plane's matcher, on what the cell's ? lines printed); an exercise is checked by the
+// learner's own Submit, which runs the program in a fresh process and records the verdict.
+let LS = { courses: null, sel: {}, lesson: null, cells: [], run: null, busy: false };
+function lsLearner() { let v = ''; try { v = localStorage.getItem('atelier.learner') || ''; } catch (e) {} return v || 'me'; }
+// a small, safe reading of the chapters' markdown: escaped first, then marked up
+function mdInline(s) {
+  return esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\*([^*]+)\*/g, '<i>$1</i>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (m, txt, url) => `<a href="${url}" rel="noopener">${txt} &#8599;</a>`);
+}
+function md(text, skipTitle) {
+  const lines = String(text).replace(/\r/g, '').split('\n');
+  let h = '', para = [], list = null, code = null;
+  const flush = () => {
+    if (para.length) { h += `<p>${mdInline(para.join(' '))}</p>`; para = []; }
+    if (list) { h += `<${list.tag}>` + list.items.map(i => `<li>${mdInline(i)}</li>`).join('') + `</${list.tag}>`; list = null; }
+    if (code) { h += `<pre>${esc(code.join('\n'))}</pre>`; code = null; }
+  };
+  let titled = !skipTitle;
+  for (const raw of lines) {
+    if (code && (/^ {4}/.test(raw) || raw.trim() === '')) { code.push(raw.replace(/^ {4}/, '')); continue; }
+    const l = raw.trim();
+    if (!titled && /^# /.test(l)) { titled = true; continue; }
+    if (/^ {4}\S/.test(raw) && !list && !para.length) { flush(); code = [raw.slice(4)]; continue; }
+    if (l === '') { flush(); continue; }
+    let m;
+    if ((m = /^(#{1,4})\s+(.*)$/.exec(l))) { flush(); const n = Math.min(4, m[1].length + 1); h += `<h${n}>${mdInline(m[2])}</h${n}>`; continue; }
+    if ((m = /^>\s?(.*)$/.exec(l))) { flush(); h += `<blockquote>${mdInline(m[1])}</blockquote>`; continue; }
+    if ((m = /^[-*]\s+(.*)$/.exec(l))) { if (para.length) flush(); if (!list || list.tag !== 'ul') { flush(); list = { tag: 'ul', items: [] }; } list.items.push(m[1]); continue; }
+    if ((m = /^\d+[.)]\s+(.*)$/.exec(l))) { if (para.length) flush(); if (!list || list.tag !== 'ol') { flush(); list = { tag: 'ol', items: [] }; } list.items.push(m[1]); continue; }
+    if (list) { list.items[list.items.length - 1] += ' ' + l; continue; }
+    para.push(l);
+  }
+  flush();
+  return h;
+}
+async function lsCourses() {
+  if (EDITION || VIEW !== 'lessons' || LS.courses) return;
+  try { LS.courses = await (await fetch('/atelier/courses')).json(); } catch (e) { $('#lsinfo').textContent = t('lib_gone'); return; }
+  const q = new URLSearchParams(location.search);
+  let last = {}; try { last = JSON.parse(localStorage.getItem('atelier.lesson') || '{}'); } catch (e) {}
+  const c = LS.courses.courses.find(x => x.slug === (q.get('course') || last.course)) || LS.courses.courses[0];
+  const ch = (c && c.chapters.find(x => x.id === (q.get('chapter') || last.chapter))) || (c && c.chapters[0]);
+  LS.sel = { course: c && c.slug, chapter: ch && ch.id, lang: q.get('clang') || last.lang || LANG };
+  $('#lslearner').value = lsLearner();
+  renderLessons();
+  lsOpen();
+}
+function lsCourse() { return LS.courses && LS.courses.courses.find(x => x.slug === LS.sel.course); }
+function lsChapter() { const c = lsCourse(); return c && c.chapters.find(x => x.id === LS.sel.chapter); }
+function renderLessons() {
+  if (EDITION || VIEW !== 'lessons' || !LS.courses) return;
+  const opt = (v, label, on) => `<option value="${esc(v)}" ${on ? 'selected' : ''}>${esc(label)}</option>`;
+  $('#lscourse').innerHTML = LS.courses.courses.map(c => opt(c.slug, t('course_' + c.slug), c.slug === LS.sel.course)).join('');
+  const c = lsCourse();
+  $('#lschapter').innerHTML = (c ? c.chapters : []).map(ch => opt(ch.id, ch.n + ' \u00B7 ' + (ch.titles[LS.sel.lang] || ch.titles.en || ch.id), ch.id === LS.sel.chapter)).join('');
+  const ch = lsChapter();
+  const langs = LS.courses.languages.filter(l => ch && ch.titles[l]);
+  if (ch && !ch.titles[LS.sel.lang]) LS.sel.lang = ch.titles.en ? 'en' : langs[0];
+  $('#lslang').innerHTML = langs.map(l => opt(l, t('clang_' + l), l === LS.sel.lang)).join('');
+  renderLesson();
+}
+async function lsOpen() {
+  if (!LS.sel.course || !LS.sel.chapter) return;
+  try { localStorage.setItem('atelier.lesson', JSON.stringify(LS.sel)); } catch (e) {}
+  const qs = new URLSearchParams(location.search);
+  qs.set('course', LS.sel.course); qs.set('chapter', LS.sel.chapter); qs.set('clang', LS.sel.lang);
+  history.replaceState(null, '', location.pathname + '?' + qs.toString());
+  $('#lsinfo').textContent = t('ls_opening');
+  try {
+    const r = await fetch('/atelier/lesson', { method: 'POST', body: JSON.stringify({ course: LS.sel.course, chapter: LS.sel.chapter, lang: LS.sel.lang, learner: lsLearner() }) });
+    if (r.status !== 200) { $('#lsinfo').textContent = r.status === 503 ? t('play_waiting') : await r.text(); return; }
+    LS.lesson = await r.json();
+  } catch (e) { $('#lsinfo').textContent = t('lib_gone'); return; }
+  LS.cells = LS.lesson.blocks.filter(b => b.kind === 'cell').map(b => b.code);
+  LS.run = null;
+  $('#lsinfo').textContent = '';
+  renderLesson();
+}
+function lsProgress() {
+  const ex = LS.lesson.blocks.filter(b => b.kind === 'exercise' && !b.missing);
+  return ex.length ? t('ls_progress', { n: fmtN(ex.filter(b => b.passed).length), m: fmtN(ex.length), who: esc(LS.lesson.learner) }) : t('ls_progress_none');
+}
+function exResultHtml(b) {
+  if (!b.verdict) return '';
+  const word = b.verdict === 'passed' ? `<span class="st st-kept">${t('ls_v_passed')}</span>` : b.verdict === 'error' ? `<span class="st st-err">${t('ls_v_error')}</span>` : `<span class="st st-diverged">${t('ls_v_diverged')}</span>`;
+  let h = `<div class="verdictrow">${word}<span>${b.passed ? t('ls_counts') : (b.verdict === 'passed' ? t('ls_counts_not') : '')}</span>${b.seconds != null ? `<span>${t('ls_seconds', { s: fmt1(b.seconds) })}</span>` : ''}</div>`;
+  if (b.why) h += `<p>${esc(b.why)}</p>`;
+  if (b.output) h += `<p class="facelabel">${t('ls_printed')}</p><pre>${esc(b.output)}</pre>`;
+  return h;
+}
+function renderLesson() {
+  if (!LS.lesson || !$('#lesson')) return;
+  const L = LS.lesson, rtl = L.lang === 'ar';
+  let h = `<div class="card"><p class="eyebrow">${esc(t('course_' + L.course))} \u00B7 ${t('ls_chapter_n', { n: esc(L.n) })}</p><h3 lang="${esc(L.lang)}" dir="${rtl ? 'rtl' : 'ltr'}" style="font-family:Fraunces,Georgia,serif;font-size:var(--title);font-weight:600;margin:8px 0 0">${esc(L.title)}</h3>
+    ${L.world ? `<p class="hint">${t('ls_world', { world: esc(L.world) })}</p>` : ''}<p class="lsprogress">${lsProgress()}</p></div>`;
+  if (L.draft) h += `<div class="notice"><p style="margin:0">${t('ls_draft', { lang: t('clang_' + L.lang) })}</p></div>`;
+  let n = 0;
+  L.blocks.forEach((b, i) => {
+    if (b.kind === 'prose') h += `<div class="prose" lang="${esc(L.lang)}" dir="${rtl ? 'rtl' : 'ltr'}">${md(b.text, i === 0)}</div>`;
+    else if (b.kind === 'fence') h += `<pre>${esc(b.text)}</pre>`;
+    else if (b.kind === 'cell') {
+      n = b.n;
+      const code = LS.cells[n - 1] != null ? LS.cells[n - 1] : b.code;
+      const rows = Math.max(3, Math.min(24, code.split('\n').length + 1));
+      h += `<article class="card nbcell lscell" id="lcell-${n}"><div class="cellhead"><span class="cellno">${t('nb_cell', { n })}</span>
+        <button type="button" class="act primary" data-lrun="${n}">${t('nb_run_to')}</button></div>
+        <textarea id="lcode-${n}" spellcheck="false" rows="${rows}" dir="ltr" aria-label="${esc(t('nb_code_label', { n }))}">${esc(code)}</textarea>
+        <div class="cellout" id="lout-${n}" aria-live="polite"></div></article>`;
+    } else if (b.kind === 'exercise') {
+      if (b.missing) { h += `<div class="card"><p>${esc(b.missing)}</p></div>`; return; }
+      const rows = Math.max(5, Math.min(20, (b.work || '').split('\n').length + 2));
+      h += `<article class="card exercise" id="ex-${esc(b.id)}"><p class="eyebrow">${t('ls_exercise', { id: esc(b.id) })}</p>
+        <div class="task" lang="${esc(b.tasklang)}" dir="${b.tasklang === 'ar' ? 'rtl' : 'ltr'}">${md(b.task, false)}</div>
+        <label for="lwork-${esc(b.id)}">${t('ls_your_answer')}</label>
+        <textarea id="lwork-${esc(b.id)}" spellcheck="false" rows="${rows}" dir="ltr">${esc(b.work || '')}</textarea>
+        <div class="row" style="margin-top:12px"><button type="button" class="act primary" data-ex="${esc(b.id)}">${t('ls_check')}</button></div>
+        <p class="hint">${t('ls_check_note')}</p>
+        <div id="lres-${esc(b.id)}" aria-live="polite">${exResultHtml(b)}</div></article>`;
+    }
+  });
+  $('#lesson').innerHTML = h;
+  LS.cells.forEach((c, i) => {
+    const ta = $('#lcode-' + (i + 1)); if (!ta) return;
+    ta.oninput = e => { LS.cells[i] = e.target.value; };
+    ta.addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); lsRun(i + 1); } });
+  });
+  document.querySelectorAll('#lesson button[data-lrun]').forEach(b => b.onclick = () => lsRun(Number(b.dataset.lrun)));
+  document.querySelectorAll('#lesson button[data-ex]').forEach(b => b.onclick = () => lsCheck(b.dataset.ex));
+  renderLessonOutputs();
+}
+function courtHtml(v) {
+  if (!v) return '';
+  if (v.kept === -1) return `<div class="court"><p class="hint" style="margin:0">${v.error ? t('ls_court_error', { why: esc(v.error) }) : t('ls_court_none')}</p></div>`;
+  const rows = v.report.map(([p, hit]) => `<li><code>#--&gt; ${esc(p)}</code>${st(hit === 1 ? 'kept' : hit === 2 ? 'unperceived' : 'diverged')}</li>`).join('');
+  const unseen = v.report.some(r => r[1] === 2) ? `<p class="hint">${t('ls_unperceived')}</p>` : '';
+  return `<div class="court"><p class="facelabel"><b>${t('ls_court')}</b></p><ul>${rows}</ul>${unseen}${v.error ? `<p>${t('ls_court_error', { why: esc(v.error) })}</p>` : ''}</div>`;
+}
+const LSCUR = () => LS.run && Object.assign(LS.run, { box: n => $('#lcode-' + n), info: m => { $('#lsinfo').textContent = m; }, keep: (n, code) => { LS.cells[n - 1] = code; } });
+function renderLessonOutputs() {
+  LS.cells.forEach((c, i) => {
+    const out = $('#lout-' + (i + 1)); if (!out) return;
+    if (!LS.run || i + 1 > LS.run.ran) { out.innerHTML = ''; return; }
+    CUR = LSCUR();
+    let h = '';
+    if (i + 1 === LS.run.ran) h += summaryHtml(LS.run);
+    (LS.run.scenes || []).forEach(sc => { if (sc.states && sc.states.length && where(sc.line)[0] === i + 1) h += sceneHtml(sc); });
+    (LS.run.sees || []).forEach(s => { if (where(s.line)[0] === i + 1) h += seeHtml(s, true); });
+    h += courtHtml((LS.run.verdicts || [])[i]);
+    out.innerHTML = h;
+  });
+  document.querySelectorAll('#lesson .cellout button[data-form]').forEach(b => b.onclick = () => { CUR = LSCUR(); putForm(Number(b.dataset.see), Number(b.dataset.form)); });
+}
+async function lsRun(k) {
+  if (EDITION || LS.busy || !LS.lesson) return;
+  if (!stzReady) { $('#lsinfo').textContent = t('play_waiting'); return; }
+  LS.busy = true;
+  document.querySelectorAll('#lesson button[data-lrun], #lsrunall').forEach(b => b.disabled = true);
+  $('#lsinfo').textContent = t('nb_running', { k });
+  const cells = LS.cells.slice();
+  try {
+    const r = await fetch('/atelier/lesson/run', { method: 'POST', body: JSON.stringify({ course: LS.lesson.course, chapter: LS.lesson.chapter, lang: LS.lesson.lang, run: k, cells }) });
+    if (r.status !== 200) throw new Error(await r.text());
+    LS.run = await r.json(); LS.run.cells = cells;
+    $('#lsinfo').textContent = '';
+  } catch (e) { LS.run = null; $('#lsinfo').textContent = t('lib_gone'); }
+  LS.busy = false;
+  document.querySelectorAll('#lesson button[data-lrun], #lsrunall').forEach(b => b.disabled = false);
+  renderLessonOutputs();
+  const out = $('#lout-' + k); if (out && out.firstElementChild) out.firstElementChild.scrollIntoView({ block: 'nearest' });
+}
+async function lsCheck(id) {
+  if (EDITION || LS.busy) return;
+  const b = LS.lesson.blocks.find(x => x.kind === 'exercise' && x.id === id);
+  const ta = $('#lwork-' + id), res = $('#lres-' + id), btn = document.querySelector(`#lesson button[data-ex="${id}"]`);
+  if (!b || !ta) return;
+  LS.busy = true; btn.disabled = true;
+  res.innerHTML = `<p>${t('ls_checking')}</p>`;
+  try {
+    const r = await fetch('/atelier/exercise', { method: 'POST', body: JSON.stringify({ course: LS.lesson.course, exercise: id, code: ta.value, learner: lsLearner(), lang: LS.lesson.lang }) });
+    if (r.status !== 200) throw new Error(await r.text());
+    const d = await r.json();
+    Object.assign(b, { verdict: d.verdict, passed: d.counts, why: d.why, output: d.output, seconds: d.seconds, work: ta.value });
+    res.innerHTML = exResultHtml(b);
+    const p = document.querySelector('#lesson .lsprogress'); if (p) p.innerHTML = lsProgress();
+  } catch (e) { res.innerHTML = `<p>${esc(String(e.message || e).slice(0, 300))}</p>`; }
+  LS.busy = false; btn.disabled = false;
+}
+if ($('#lscourse') && !EDITION) {
+  $('#lscourse').onchange = () => { LS.sel.course = $('#lscourse').value; const c = lsCourse(); LS.sel.chapter = c && c.chapters[0] && c.chapters[0].id; renderLessons(); lsOpen(); };
+  $('#lschapter').onchange = () => { LS.sel.chapter = $('#lschapter').value; renderLessons(); lsOpen(); };
+  $('#lslang').onchange = () => { LS.sel.lang = $('#lslang').value; renderLessons(); lsOpen(); };
+  $('#lslearner').onchange = () => { try { localStorage.setItem('atelier.learner', $('#lslearner').value.trim()); } catch (e) {} lsOpen(); };
+  $('#lsrunall').onclick = () => lsRun(LS.cells.length);
+}
 
 // ---- load: the dictionary first, then the data ----
 pickLang();
-fetch(URLS.i18n).then(r => r.json()).then(d => { I18N = d; applyLang(); }).catch(() => applyLang());
+fetch(URLS.i18n).then(r => r.json()).then(d => { I18N = d; applyLang(); lsCourses(); }).catch(() => { applyLang(); lsCourses(); });
 fetch(URLS.checks).then(r => r.json()).then(d => { META = d; CHECKS = d.checks; shown = selection(); renderDomains(); renderChecks(shown); renderTotals(); renderStatus(); renderOne();
   const fork = new URLSearchParams(location.search).get('fork');
   if (fork && VIEW === 'notebook' && NB) { forkCheck(fork); const qs = new URLSearchParams(location.search); qs.delete('fork'); history.replaceState(null, '', location.pathname + (qs.toString() ? '?' + qs : '')); }

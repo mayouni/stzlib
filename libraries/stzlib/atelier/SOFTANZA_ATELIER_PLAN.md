@@ -550,3 +550,62 @@ smallest text 17 px; nothing scrolls sideways at a phone's width.
 
 **Guard** `base/test/atelier/atelier_notebook_narrated.ring`: 38 assertions, about 90 s, of which
 about 30 s is testoor's child rnxc.
+
+### B3 -- 2026-11-06 -- the lessons
+
+**The Learning System's chapters, opened as notebooks.** `/atelier/lessons` offers every course of
+`base/education/` that has written chapters (the elementary introduction and mathematics, 15 each;
+kernel-puzzles plans 13 and has written none, so it is not offered), each chapter in every language
+it is written in. The module is READ through its public calls and never written: `StzProgramQ`,
+`CourseQ`, `ChapterQ` (its blocks: prose, cells, exercises), `WorldFileOf`, `ExerciseQ`, and
+`StzLearnerQ`. Its plane was told before the work began, in its mailbox.
+
+**A chapter runs as the education runner runs one.** Every cell in one program over the chapter's
+world (`EduUseWorld`), each cell inside its own `try`, so a cell that raises does not hide the cells
+after it, and the cell's error is its own. Each cell is judged by the COURSE'S court,
+`StzEduMatchPromises`, on what its `?` lines printed, in the order they ran. Measured with
+`lessons_court.ring` against the education plane's own runner (a fresh process per chapter) on all
+30 English chapters: **199 cells, 196 agree, 3 unperceived, 0 disagree**; the Atelier answers a
+chapter in 30 to 200 ms where the fresh process takes 0.5 to 14 s. The three unperceived cells draw
+with `Show()`, which prints by itself where the Atelier reads only what `?` lines give
+(ATELIER-CAPTURE-14): a promise written after such a line, and not met, is UNPERCEIVED -- testoor's
+fifth state -- never diverged.
+
+**An exercise is the learner's own.** "Check my answer" calls `StzLearnerQ(folder).Submit`, which
+runs `stzExercise.Check` in a fresh process (0.5 s measured) from the learner's own folder, and
+writes the verdict with its sha256 evidence: the Atelier never writes progress itself. The answer
+never names the expected value (the course's `WhyIn`). Learners live under the Atelier's ignored
+`_work/learners/<name>`, a name kept to letters, digits and dashes; an id the page sends must be one
+the program lists, never a path. A pass counts only while the work file is the one the court ran
+(the plane's law 9), and the page says which.
+
+**What the reader sees.** Course, chapter, language and learner as four selectors; the address
+carries the choice. The prose read by a small, safe markdown reader (escaped first); Arabic right
+to left with its code left to right; a translation no person has reviewed opens with a draft
+notice (the plane's E10 rule, `IsReviewed`). Under each cell: its lines' faces and chains as in the
+notebook, then the court's verdict promise by promise. StzZui's audit: 0 violations on 10 pages,
+English, French and Arabic, light and dark; a run Arabic lesson measured: lowest contrast 5.55:1
+light, 5.97:1 dark, smallest text 17 px, nothing scrolls sideways at a phone's width.
+
+**Three defects found on the way, all fixed and guarded:**
+- **ATELIER-REFTHIS-16, the VM ended.** B1 held each step of an unfolded chain with `ref()`. In
+  ADMITTED code, a method called through a `ref()` variable that copies `This` (`x = This`, or
+  `new X(This)`) ends rnxc with a segmentation fault; the same file run plainly prints the right
+  answer. So `? o1.ContainsDuplicates()` ended the Atelier, notebook or lesson. Smallest program,
+  18 lines and no Softanza, routed to Ring++. The unfolding no longer uses `ref()`: every call goes
+  to the root object itself -- the name, or a fresh object in a plain variable -- while each step
+  answers that same object (`AtelierSameObject`: same class, same content; the house's VerbQ
+  methods return This), and to the step's own value from the first step that answers another
+  object. The one case this reads wrong is a step that answers a COPY of its object (CopyQ), then a
+  step that changes it: named in the code.
+- **A `?` line indented with a TAB was never seen.** Ring's `trim()` strips the space only, so the
+  planner missed `\t? x`: seven chapter cells. `AtelierTrim` strips both. The notebook had the
+  same blind spot since B0.
+- **Rule A refused two chapters.** Ring++ will not admit a cell naming a top-level `n` or `c`,
+  because a library function reads that name as an unassigned local. A chapter is written for a
+  plain run, so a lesson's statements run inside ONE function, where they are locals shared from
+  cell to cell, as in a file. The notebook keeps top-level names: a notebook cell that meets Rule A
+  is refused with Ring++'s own message, which names the rule.
+
+**Guard** `base/test/atelier/atelier_lessons_narrated.ring`: 47 assertions, about a minute; its
+court runs the education plane's own runner on two chapters, one of which names a variable `n`.

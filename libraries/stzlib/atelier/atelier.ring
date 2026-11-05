@@ -56,6 +56,21 @@
 #   POST /atelier/notebook/save   the cells as a NARRATED TEST FILE: one Scenario per cell, Summary(),
 #                            then each cell's definitions under a marker; testoor's reader reads it
 #   POST /atelier/notebook/open   such a file, back into cells
+#   GET  /atelier/lessons    B3: the page, opened on the lessons
+#   GET  /atelier/courses    B3: the Learning System's courses that have chapters, each chapter's
+#                            number, exercises and title in every language it is written in
+#   POST /atelier/lesson     B3: {"course", "chapter", "lang", "learner"} -- the chapter as blocks:
+#                            prose, cells, exercises (each with its task, and the learner's last
+#                            verdict and work); "draft" says whether a person has reviewed it
+#   POST /atelier/lesson/run B3: {"course", "chapter", "lang", "run": k, "cells": [code]} -- cells 1
+#                            to k run as the education runner runs a chapter: one program over the
+#                            chapter's world, each cell inside its own try. The cell JSON, the map,
+#                            and "verdicts": each cell judged by the education court
+#                            (StzEduMatchPromises) on what its ? lines printed
+#   POST /atelier/exercise   B3: {"course", "exercise", "code", "learner", "lang"} -- the learner's
+#                            own Submit: stzExercise.Check in a fresh process, recorded in the
+#                            learner's progress with its evidence; the answer never names the
+#                            expected value
 #   POST /atelier/stop       answers, then the loop ends
 #
 # WHAT JUDGES A CHECK is named in /atelier/state and on the page: the library's
@@ -87,6 +102,8 @@ $aAtelierSteps = []
 $aAtelierStates = []
 # B2: what a cell's Then(...) lines judged: [ see, kept (1 or 0), the expected value as @@ shows it ]
 $aAtelierThens = []
+# B3: the error each lesson cell's try caught: [ cell, error ]
+$aAtelierCaught = []
 
 # the trail of a whole file admitted as a tour, and the tallies the narrated
 # helper keeps under the names a test may read
@@ -141,7 +158,7 @@ func AtelierServe
 		$nAtelierServed++
 		cMethod = rpp_http_method()
 		cPath = rpp_http_path()
-		if cMethod = "GET" and (cPath = "/atelier" or cPath = "/" or cPath = "/atelier/" or cPath = "/atelier/coverage" or cPath = "/atelier/playground" or cPath = "/atelier/check" or cPath = "/atelier/library")
+		if cMethod = "GET" and (cPath = "/atelier" or cPath = "/" or cPath = "/atelier/" or cPath = "/atelier/coverage" or cPath = "/atelier/playground" or cPath = "/atelier/check" or cPath = "/atelier/library" or cPath = "/atelier/lessons")
 			# one page, three addresses: the menu is real links and the back button holds
 			rpp_http_reply(200, "text/html; charset=utf-8", read($cAtelierDir + "/atelier.html"))
 		but cMethod = "GET" and cPath = "/atelier/i18n"
@@ -164,6 +181,14 @@ func AtelierServe
 			rpp_http_reply(200, "text/plain; charset=utf-8", AtelierNotebookSave(rpp_http_body()))
 		but cMethod = "POST" and cPath = "/atelier/notebook/open"
 			rpp_http_reply(200, "application/json; charset=utf-8", AtelierNotebookOpen(rpp_http_body()))
+		but cMethod = "GET" and cPath = "/atelier/courses"
+			AtelierCoursesOnce()
+		but cMethod = "POST" and cPath = "/atelier/lesson"
+			AtelierLessonOnce(rpp_http_body())
+		but cMethod = "POST" and cPath = "/atelier/lesson/run"
+			AtelierLessonRunOnce(rpp_http_body())
+		but cMethod = "POST" and cPath = "/atelier/exercise"
+			AtelierExerciseOnce(rpp_http_body())
 		but cMethod = "GET" and cPath = "/atelier/state"
 			rpp_http_reply(200, "application/json; charset=utf-8", AtelierStateJson())
 		but cMethod = "POST" and cPath = "/atelier/run"
@@ -311,6 +336,7 @@ func AtelierRunPlan aPlan
 	$aAtelierSteps = []
 	$aAtelierStates = []
 	$aAtelierThens = []
+	$aAtelierCaught = []
 	nT0 = clock()
 	cEnd = "finished"
 	cErr = ""
@@ -432,7 +458,7 @@ func AtelierNotebookCompose aCells, nRun
 # the first line that opens a definition: func, def or class, then a name
 func AtelierFirstDefinition acL
 	for j = 1 to len(acL)
-		cT = lower(trim(acL[j]))
+		cT = lower(AtelierTrim(acL[j]))
 		if left(cT, 5) = "func " or left(cT, 4) = "def " or left(cT, 6) = "class "
 			return j
 		ok
@@ -495,7 +521,7 @@ func AtelierNotebookOpen cText
 	bDefs = 0
 	for i = 1 to len(acL)
 		cLine = acL[i]
-		cT = trim(cLine)
+		cT = AtelierTrim(cLine)
 		cLow = lower(cT)
 		# the saver writes one blank line before each Scenario, before Summary() and before
 		# each block of definitions: that line is the file's, not the cell's, so it goes
@@ -557,14 +583,465 @@ func AtelierUnquote cS
 	ok
 	return c
 
+#--- B3, the lessons ------------------------------------------------------------
+#
+# The Learning System (base/education/, the plane stzlib-education) opened as notebooks.
+# It is READ through its public calls and never edited: StzProgramQ, CourseQ, ChapterQ,
+# ExerciseQ, StzLearnerQ. A chapter runs as the education runner runs one: every cell in
+# ONE program over the chapter's world, each cell inside its own try, so a cell that fails
+# does not hide the cells after it. Each cell is judged by the education court
+# (StzEduMatchPromises) on what its ? lines printed. An exercise is judged and recorded only
+# by the learner's own Submit, which runs stzExercise.Check in a fresh process and writes the
+# verdict with its evidence; the Atelier never writes a learner's progress itself.
+
+func AtelierEduProgram
+	return StzProgramQ($cAtelierLibrary + "/base/education/program")
+
+# answers 503 and 0 while the library is not admitted
+func AtelierReady
+	if $cAtelierState != "admitted"
+		rpp_http_reply(503, "text/plain", "the library is " + $cAtelierState + " " + $cAtelierWhy)
+		return 0
+	ok
+	return 1
+
+# a learner's name, kept to letters, digits and dashes: it names a folder
+func AtelierLearnerName cName
+	c = lower(trim("" + cName))
+	cOut = ""
+	for i = 1 to len(c)
+		if (c[i] >= "a" and c[i] <= "z") or (c[i] >= "0" and c[i] <= "9") or c[i] = "-"
+			cOut += c[i]
+		ok
+	next
+	if cOut = ""
+		cOut = "me"
+	ok
+	return left(cOut, 40)
+
+func AtelierLearnerFolder cName
+	return $cAtelierDir + "/_work/learners/" + AtelierLearnerName(cName)
+
+# an id the page sends is one the program itself lists, never a path
+func AtelierIsId cId
+	if NOT isString(cId) or cId = "" or len(cId) > 80
+		return 0
+	ok
+	for i = 1 to len(cId)
+		c = cId[i]
+		if NOT ((c >= "a" and c <= "z") or (c >= "0" and c <= "9") or c = "-")
+			return 0
+		ok
+	next
+	return 1
+
+func AtelierInList cItem, acList
+	for i = 1 to len(acList)
+		if acList[i] = cItem
+			return 1
+		ok
+	next
+	return 0
+
+func AtelierField aIn, cKey
+	if isList(aIn) and HasKey(aIn, cKey)
+		return aIn[cKey]
+	ok
+	return ""
+
+# [ program, course object, chapter id, lang ], or a raise naming what is not there
+func AtelierLessonOf aIn
+	oProg = AtelierEduProgram()
+	cCourse = "" + AtelierField(aIn, :course)
+	cChapter = "" + AtelierField(aIn, :chapter)
+	cLang = lower("" + AtelierField(aIn, :lang))
+	if NOT AtelierIsId(cCourse) or NOT AtelierInList(cCourse, oProg.Courses())
+		raise("no course '" + left(cCourse, 80) + "' in the Learning System")
+	ok
+	oCourse = oProg.CourseQ(cCourse)
+	if NOT AtelierIsId(cChapter) or NOT AtelierInList(cChapter, oCourse.ChapterIds())
+		raise("no chapter '" + left(cChapter, 80) + "' in the course " + cCourse)
+	ok
+	if NOT AtelierInList(cLang, oProg.Languages())
+		cLang = "en"
+	ok
+	if oCourse.ChapterFile(cChapter, cLang) = ""
+		cLang = "en"
+	ok
+	return [ oProg, oCourse, cChapter, cLang ]
+
+func AtelierCoursesOnce
+	if NOT AtelierReady()
+		return
+	ok
+	try
+		rpp_http_reply(200, "application/json; charset=utf-8", AtelierCoursesJson())
+	catch
+		rpp_http_reply(500, "text/plain", cCatchError)
+	done
+
+# the courses that have chapters; each chapter's number, exercises, and title in every
+# language it is written in
+func AtelierCoursesJson
+	oProg = AtelierEduProgram()
+	acLangs = oProg.Languages()
+	acCourses = oProg.Courses()
+	cJ = '{"languages":['
+	for i = 1 to len(acLangs)
+		if i > 1
+			cJ += ","
+		ok
+		cJ += AtelierJsonStr(acLangs[i])
+	next
+	cJ += '],"source":' + AtelierJsonStr(oProg.SourceLanguage()) + ',"courses":['
+	nOut = 0
+	for i = 1 to len(acCourses)
+		oCourse = oProg.CourseQ(acCourses[i])
+		# a chapter the course plans but nobody has written yet is not offered
+		acPlanned = oCourse.ChapterIds()
+		acCh = []
+		for j = 1 to len(acPlanned)
+			for k = 1 to len(acLangs)
+				if oCourse.ChapterFile(acPlanned[j], acLangs[k]) != ""
+					acCh + acPlanned[j]
+					exit
+				ok
+			next
+		next
+		if len(acCh) = 0
+			loop
+		ok
+		if nOut > 0
+			cJ += ","
+		ok
+		nOut++
+		cJ += '{"slug":' + AtelierJsonStr(acCourses[i]) + ',"chapters":['
+		for j = 1 to len(acCh)
+			if j > 1
+				cJ += ","
+			ok
+			cJ += '{"id":' + AtelierJsonStr(acCh[j]) + ',"n":' + AtelierJsonStr(oCourse.ChapterNumber(acCh[j])) + ',"exercises":' + len(oCourse.ExercisesOf(acCh[j])) + ',"titles":{'
+			nT = 0
+			for k = 1 to len(acLangs)
+				if oCourse.ChapterFile(acCh[j], acLangs[k]) != ""
+					if nT > 0
+						cJ += ","
+					ok
+					nT++
+					cJ += AtelierJsonStr(acLangs[k]) + ":" + AtelierJsonStr(oCourse.TitleOf(acCh[j], acLangs[k]))
+				ok
+			next
+			cJ += "}}"
+		next
+		cJ += "]}"
+	next
+	return cJ + "]}"
+
+func AtelierLessonOnce cBody
+	if NOT AtelierReady()
+		return
+	ok
+	try
+		cJ = AtelierLessonJson(StzJsonToList(cBody))
+	catch
+		rpp_http_reply(422, "text/plain", cCatchError)
+		return
+	done
+	rpp_http_reply(200, "application/json; charset=utf-8", cJ)
+
+# the chapter as blocks, in the order its file gives them
+func AtelierLessonJson aIn
+	aL = AtelierLessonOf(aIn)
+	oProg = aL[1]
+	oCourse = aL[2]
+	cId = aL[3]
+	cLang = aL[4]
+	oChap = oCourse.ChapterQ(cId, cLang)
+	oLearner = StzLearnerQ(AtelierLearnerFolder(AtelierField(aIn, :learner)))
+	cWorld = oCourse.WorldFileOf(cId)
+	if cWorld != ""
+		# the world's file name only: a path names the machine
+		acW = str2list(substr(substr(cWorld, "\", "/"), "/", char(10)))
+		cWorld = acW[len(acW)]
+	ok
+	bDraft = 0
+	if cLang != oProg.SourceLanguage() and NOT oProg.IsReviewed(cLang, "chapter:" + oCourse.Slug() + "." + cId)
+		bDraft = 1
+	ok
+	cJ = '{"course":' + AtelierJsonStr(oCourse.Slug()) + ',"chapter":' + AtelierJsonStr(cId) + ',"n":' + AtelierJsonStr(oCourse.ChapterNumber(cId))
+	cJ += ',"lang":' + AtelierJsonStr(cLang) + ',"title":' + AtelierJsonStr(oChap.Title()) + ',"draft":' + bDraft
+	cJ += ',"world":' + AtelierJsonStr(cWorld) + ',"learner":' + AtelierJsonStr(oLearner.Id()) + ',"stored":' + oChap.NumberOfStoredOutputs() + ',"blocks":['
+	aB = oChap.Blocks()
+	acCells = oChap.Cells()
+	for i = 1 to len(aB)
+		if i > 1
+			cJ += ","
+		ok
+		cKind = aB[i][1]
+		if cKind = "cell"
+			cJ += '{"kind":"cell","n":' + aB[i][2] + ',"code":' + AtelierJsonStr(acCells[aB[i][2]]) + '}'
+		but cKind = "exercise"
+			cJ += AtelierExerciseBlockJson(oCourse, "" + aB[i][2], cLang, oLearner)
+		else
+			cJ += '{"kind":' + AtelierJsonStr(cKind) + ',"text":' + AtelierJsonStr(aB[i][2]) + '}'
+		ok
+	next
+	return cJ + "]}"
+
+# an exercise in a chapter: its task (never its promises), and the learner's last verdict
+func AtelierExerciseBlockJson oCourse, cExId, cLang, oLearner
+	cJ = '{"kind":"exercise","id":' + AtelierJsonStr(cExId)
+	try
+		oEx = oCourse.ExerciseQ(cExId)
+	catch
+		return cJ + ',"missing":' + AtelierJsonStr(cCatchError) + '}'
+	done
+	cTaskLang = cLang
+	if NOT oEx.HasTaskIn(cTaskLang)
+		cTaskLang = "en"
+	ok
+	cTask = ""
+	if oEx.HasTaskIn(cTaskLang)
+		cTask = oEx.Task(cTaskLang)
+	ok
+	cWork = ""
+	if oLearner.HasTried(cExId)
+		cWork = read(oLearner.WorkFile(cExId))
+	ok
+	cJ += ',"task":' + AtelierJsonStr(cTask) + ',"tasklang":' + AtelierJsonStr(cTaskLang) + ',"ext":' + AtelierJsonStr(oEx.SubmissionExtension())
+	cJ += ',"verdict":' + AtelierJsonStr(oLearner.LastVerdict(cExId)) + ',"passed":' + (0 + oLearner.HasPassed(cExId)) + ',"work":' + AtelierJsonStr(cWork) + '}'
+	return cJ
+
+func AtelierLessonRunOnce cBody
+	if NOT AtelierReady()
+		return
+	ok
+	aIn = StzJsonToList(cBody)
+	try
+		aL = AtelierLessonOf(aIn)
+	catch
+		rpp_http_reply(422, "text/plain", cCatchError)
+		return
+	done
+	acCells = []
+	aC = AtelierField(aIn, :cells)
+	if isList(aC)
+		for i = 1 to len(aC)
+			acCells + ("" + aC[i])
+		next
+	ok
+	nRun = len(acCells)
+	nAsk = AtelierField(aIn, :run)
+	if isNumber(nAsk) and nAsk >= 1 and nAsk < nRun
+		nRun = nAsk
+	ok
+	aComp = AtelierLessonCompose(acCells, nRun, aL[2].WorldFileOf(aL[3]))
+	aPlan = AtelierCellPlan(aComp[1])
+	aRun = AtelierRunPlan(aPlan)
+	cJ = AtelierCellJson(aPlan[2], aRun[1], aRun[2], aRun[3], aRun[4], aPlan[3])
+	cMap = ',"ran":' + nRun + ',"map":['
+	aMap = aComp[2]
+	for i = 1 to len(aMap)
+		if i > 1
+			cMap += ","
+		ok
+		cMap += "[" + aMap[i][1] + "," + aMap[i][2] + "]"
+	next
+	cMap += '],"verdicts":' + AtelierLessonVerdictsJson(acCells, nRun, aPlan[2], aMap, aRun[1]) + "}"
+	rpp_http_reply(200, "application/json; charset=utf-8", left(cJ, len(cJ) - 1) + cMap)
+
+# [ the composed source, [ [ cell, line ] ] ]: the chapter's prelude (cell 0), then each cell's
+# statements inside its own try, then every cell's definitions -- the education runner's shape.
+# The statements run inside ONE function: a chapter is written for a plain run, where a cell
+# may name a variable n or c, and Ring++ refuses to admit such a top-level name because a
+# library function reads it as an unassigned local (Rule A; found by B3 on two math chapters).
+# Inside a function the cells' names are its locals, shared from cell to cell as in a file.
+func AtelierLessonCompose acCells, nRun, cWorld
+	cSrc = "AtelierLessonBody()" + char(10) + "func AtelierLessonBody" + char(10)
+	aMap = [ [ 0, 0 ], [ 0, 0 ] ]
+	cSrc += 'EduPrepareLanguage("ha")' + char(10)
+	aMap + [ 0, 1 ]
+	if cWorld != ""
+		cSrc += 'EduUseWorld("' + substr(cWorld, "\", "/") + '")' + char(10)
+		aMap + [ 0, 2 ]
+	ok
+	aDefs = []
+	for i = 1 to nRun
+		acL = str2list(substr(acCells[i], char(13), ""))
+		nDef = AtelierFirstDefinition(acL)
+		nTo = len(acL)
+		if nDef > 0
+			nTo = nDef - 1
+			aDefs + [ i, nDef, acL ]
+		ok
+		cSrc += "try" + char(10)
+		aMap + [ i, 0 ]
+		for j = 1 to nTo
+			cSrc += acL[j] + char(10)
+			aMap + [ i, j ]
+		next
+		cSrc += "catch" + char(10) + "AtelierCaught(" + i + ", cCatchError)" + char(10) + "done" + char(10)
+		aMap + [ i, 0 ]
+		aMap + [ i, 0 ]
+		aMap + [ i, 0 ]
+	next
+	for k = 1 to len(aDefs)
+		acL = aDefs[k][3]
+		for j = aDefs[k][2] to len(acL)
+			cSrc += acL[j] + char(10)
+			aMap + [ aDefs[k][1], j ]
+		next
+	next
+	return [ cSrc, aMap ]
+
+# for each promise of a cell, in the order StzEduPromisesIn reads them (the same lines, trimmed
+# the same way): 1 when a line that prints by itself -- a call to Show, Print or see -- comes
+# before it, else 0
+func AtelierPromisesAfterAPrinter cCode
+	anOut = []
+	bPrinter = 0
+	acL = str2list(substr("" + cCode, char(13), ""))
+	for i = 1 to len(acL)
+		cRaw = trim(acL[i])
+		if left(cRaw, 5) = "# -->" or left(cRaw, 4) = "#-->"
+			anOut + bPrinter
+			loop
+		ok
+		cT = lower(AtelierTrim(acL[i]))
+		if cT = "" or left(cT, 1) = "#" or left(cT, 1) = "?"
+			loop
+		ok
+		if substr(cT, "show(") > 0 or substr(cT, "print(") > 0 or left(cT, 4) = "see "
+			bPrinter = 1
+		ok
+	next
+	return anOut
+
+# what a lesson cell's try caught
+func AtelierCaught nCell, cError
+	add($aAtelierCaught, [ nCell, "" + cError ])
+
+# each cell judged by the education court: its promises (the #--> lines of its code) against
+# what its ? lines printed, in the order they ran; a cell that never ran says "(not reached)",
+# as the education runner says it
+func AtelierLessonVerdictsJson acCells, nRun, aSees, aMap, cEnd
+	cJ = "["
+	for c = 1 to nRun
+		cOut = ""
+		nSeen = 0
+		for k = 1 to len($aAtelierSeen)
+			nN = $aAtelierSeen[k][1]
+			if nN >= 1 and nN <= len(aSees)
+				nLine = aSees[nN][:line]
+				if nLine >= 1 and nLine <= len(aMap) and aMap[nLine][1] = c
+					nSeen++
+					if NOT (HasKey(aSees[nN], :kind) and aSees[nN][:kind] = "then")
+						cOut += $aAtelierSeen[k][2] + char(10)
+					ok
+				ok
+			ok
+		next
+		cErr = ""
+		for k = 1 to len($aAtelierCaught)
+			if $aAtelierCaught[k][1] = c
+				cErr = $aAtelierCaught[k][2]
+			ok
+		next
+		if cErr = "" and nSeen = 0 and cEnd != "finished"
+			cErr = "(not reached)"
+		ok
+		acP = StzEduPromisesIn(acCells[c])
+		anAfter = AtelierPromisesAfterAPrinter(acCells[c])
+		nKept = -1
+		cRep = ""
+		if len(acP) > 0
+			aM = StzEduMatchPromises(acP, cOut, cErr)
+			nKept = aM[:kept]
+			# a promise the cell's ? lines did not print, written after a line that prints by
+			# itself (oG.Show()), is UNPERCEIVED, never diverged: the Atelier sees ? lines only
+			# (ATELIER-CAPTURE-14). Coded 2; a cell whose every miss is unperceived is 2 too
+			bOnlyUnseen = 1
+			for k = 1 to len(aM[:report])
+				nHit = aM[:report][k][2]
+				if nHit = 0
+					if k <= len(anAfter) and anAfter[k] = 1 and cErr = ""
+						nHit = 2
+					else
+						bOnlyUnseen = 0
+					ok
+				ok
+				if k > 1
+					cRep += ","
+				ok
+				cRep += "[" + AtelierJsonStr(aM[:report][k][1]) + "," + nHit + "]"
+			next
+			if nKept = 0 and bOnlyUnseen
+				nKept = 2
+			ok
+		ok
+		if c > 1
+			cJ += ","
+		ok
+		cJ += '{"cell":' + c + ',"kept":' + nKept + ',"error":' + AtelierJsonStr(cErr) + ',"report":[' + cRep + ']}'
+	next
+	return cJ + "]"
+
+func AtelierExerciseOnce cBody
+	if NOT AtelierReady()
+		return
+	ok
+	aIn = StzJsonToList(cBody)
+	cEx = "" + AtelierField(aIn, :exercise)
+	cLang = lower("" + AtelierField(aIn, :lang))
+	try
+		oProg = AtelierEduProgram()
+		cCourse = "" + AtelierField(aIn, :course)
+		if NOT AtelierIsId(cCourse) or NOT AtelierInList(cCourse, oProg.Courses())
+			raise("no course '" + left(cCourse, 80) + "' in the Learning System")
+		ok
+		if NOT AtelierIsId(cEx)
+			raise("no exercise '" + left(cEx, 80) + "'")
+		ok
+		oEx = oProg.CourseQ(cCourse).ExerciseQ(cEx)
+	catch
+		rpp_http_reply(422, "text/plain", cCatchError)
+		return
+	done
+	if NOT AtelierInList(cLang, oProg.Languages())
+		cLang = "en"
+	ok
+	cFolder = AtelierLearnerFolder(AtelierField(aIn, :learner))
+	oLearner = StzLearnerQ(cFolder)
+	# the court writes its temporary program where it stands: the learner's own folder
+	nT0 = clock()
+	chdir(cFolder)
+	try
+		oCheck = oLearner.Submit(oEx, "" + AtelierField(aIn, :code))
+		cErr = ""
+	catch
+		cErr = cCatchError
+	done
+	chdir($cAtelierLibrary)
+	nS = (clock() - nT0) / clockspersecond()
+	if cErr != ""
+		rpp_http_reply(500, "text/plain", cErr)
+		return
+	ok
+	cJ = '{"exercise":' + AtelierJsonStr(cEx) + ',"learner":' + AtelierJsonStr(oLearner.Id()) + ',"passed":' + (0 + oCheck.Passed())
+	cJ += ',"verdict":' + AtelierJsonStr(oLearner.LastVerdict(cEx)) + ',"counts":' + (0 + oLearner.HasPassed(cEx))
+	cJ += ',"why":' + AtelierJsonStr(oCheck.WhyIn(cLang)) + ',"error":' + AtelierJsonStr(oCheck.Error())
+	cJ += ',"output":' + AtelierJsonStr(left(oCheck.Output(), 4000)) + ',"seconds":' + (floor(nS * 10 + 0.5) / 10) + '}'
+	rpp_http_reply(200, "application/json; charset=utf-8", cJ)
+
 # [ the rewritten source, [ [ :n, :line, :expr, :promise, :steps, :forms ] ], [ scenes ] ]
 #
 # B1, THE PROCESS. A `?` line whose expression is a chain -- a root (a name, a call, or
 # `new Class(...)`) followed by method calls -- is UNFOLDED: each step is evaluated once,
-# into a variable held by ref(), so a chain that changes its object changes it exactly as
-# the line written whole does (plain variables would copy the object and detach the chain
-# from it: measured, 2026-11-05), and each step's value and its time on the engine's
-# monotonic clock are kept. A scene -- a line `name {` -- has its object's state captured
+# and each call goes to the root object itself while the steps answer that same object, so
+# a chain that changes its object changes it exactly as the line written whole does (a
+# step's plain variable is a COPY and would detach the chain; ref() kept it attached until
+# it was found to end the VM, ATELIER-REFTHIS-16), and each step's value and its time on
+# the engine's monotonic clock are kept. A scene -- a line `name {` -- has its object's state captured
 # after the opening and after every complete statement inside it, so a Verb() that changes
 # the object and a Verbed() that leaves it alone are seen apart.
 func AtelierCellPlan cSource
@@ -582,7 +1059,7 @@ func AtelierCellPlan cSource
 	nBrackets = 0
 	for i = 1 to nLines
 		cLine = acL[i]
-		cT = trim(cLine)
+		cT = AtelierTrim(cLine)
 		nIndent = len(cLine) - len(AtelierLeftTrimmed(cLine))
 		cPad = left(cLine, nIndent)
 		bStatement = 0
@@ -609,19 +1086,19 @@ func AtelierCellPlan cSource
 			ok
 		ok
 		if NOT bStatement and left(cT, 1) = "?" and left(cT, 4) != "?-->"
-			cExpr = trim(substr(cT, 2))
+			cExpr = AtelierTrim(substr(cT, 2))
 			cPromise = ""
 			nAt = AtelierLastIndexOf(cExpr, "#-->")
 			if nAt > 0
-				cPromise = trim(substr(cExpr, nAt + 4))
-				cExpr = trim(left(cExpr, nAt - 1))
+				cPromise = AtelierTrim(substr(cExpr, nAt + 4))
+				cExpr = AtelierTrim(left(cExpr, nAt - 1))
 			else
 				j = i + 1
-				while j <= nLines and trim(acL[j]) = ""
+				while j <= nLines and AtelierTrim(acL[j]) = ""
 					j++
 				end
-				if j <= nLines and left(trim(acL[j]), 4) = "#-->"
-					cPromise = trim(substr(trim(acL[j]), 5)) + _TourContinuation(acL, j)
+				if j <= nLines and left(AtelierTrim(acL[j]), 4) = "#-->"
+					cPromise = AtelierTrim(substr(AtelierTrim(acL[j]), 5)) + _TourContinuation(acL, j)
 				ok
 			ok
 			if cExpr != ""
@@ -638,22 +1115,46 @@ func AtelierCellPlan cSource
 				aSteps = []
 				aForms = []
 				if len(aParts) >= 2
-					# the chain unfolded: one variable per step, held by ref() while a
-					# method follows it, timed on the monotonic clock
+					# the chain unfolded, each step once, timed on the monotonic clock. NO
+					# ref(): in admitted code a method called through a ref() variable that
+					# copies This ends the VM (ATELIER-REFTHIS-16, 2026-11-05). So every call
+					# goes to the ROOT object itself -- the name, or a fresh object held in a
+					# plain variable -- for as long as each step answers that same object (the
+					# house's VerbQ methods return This); from the first step that answers
+					# another object, the next call goes to that step's value
 					nK = len(aParts)
-					for k = 1 to nK
-						cV = "_atv_" + nN + "_" + k + "_"
-						if k = 1
-							cRhs = aParts[1]
+					cAtv = "_atv_" + nN + "_"
+					cAtr = "_atr_" + nN + "_"
+					cAtt = "_att_" + nN + "_"
+					if AtelierIsName(aParts[1])
+						cRoot = aParts[1]
+						cOut += cPad + "AtelierStep(" + nN + ", 1, " + cRoot + ", 0)" + char(10)
+					else
+						cRoot = cAtv + "1_"
+						cOut += cPad + cAtt + " = StzEngineWatchTimestampNs()" + char(10)
+						cOut += cPad + cRoot + " = " + aParts[1] + char(10)
+						cOut += cPad + "AtelierStep(" + nN + ", 1, " + cRoot + ", StzEngineWatchTimestampNs() - " + cAtt + ")" + char(10)
+					ok
+					aSteps + aParts[1]
+					cOut += cPad + cAtr + " = 0" + char(10)
+					for k = 2 to nK
+						cV = cAtv + k + "_"
+						cOut += cPad + cAtt + " = StzEngineWatchTimestampNs()" + char(10)
+						if k = 2
+							cOut += cPad + cV + " = " + cRoot + aParts[k] + char(10)
 						else
-							cRhs = "_atv_" + nN + "_" + (k - 1) + "_" + aParts[k]
+							cOut += cPad + "if " + cAtr + " = 0" + char(10)
+							cOut += cPad + "    " + cV + " = " + cRoot + aParts[k] + char(10)
+							cOut += cPad + "else" + char(10)
+							cOut += cPad + "    " + cV + " = " + cAtv + (k - 1) + "_" + aParts[k] + char(10)
+							cOut += cPad + "ok" + char(10)
 						ok
+						cOut += cPad + "AtelierStep(" + nN + ", " + k + ", " + cV + ", StzEngineWatchTimestampNs() - " + cAtt + ")" + char(10)
 						if k < nK
-							cRhs = "ref(" + cRhs + ")"
+							cOut += cPad + "if " + cAtr + " = 0 and NOT AtelierSameObject(" + cV + ", " + cRoot + ")" + char(10)
+							cOut += cPad + "    " + cAtr + " = 1" + char(10)
+							cOut += cPad + "ok" + char(10)
 						ok
-						cOut += cPad + "_att_" + nN + "_ = StzEngineWatchTimestampNs()" + char(10)
-						cOut += cPad + cV + " = " + cRhs + char(10)
-						cOut += cPad + "AtelierStep(" + nN + ", " + k + ", " + cV + ", StzEngineWatchTimestampNs() - _att_" + nN + "_)" + char(10)
 						aSteps + aParts[k]
 					next
 					if cWrap = "@@"
@@ -689,6 +1190,17 @@ func AtelierCellPlan cSource
 		ok
 	next
 	return [ cOut, aSees, aScenes ]
+
+# a line without its indentation and its trailing blanks: Ring's trim() strips the
+# space only, so a line indented with a TAB kept its tab, and a `	? x` line was never seen
+# (found by B3: seven chapter cells of the Learning System are indented with tabs)
+func AtelierTrim cLine
+	c = AtelierLeftTrimmed("" + cLine)
+	n = len(c)
+	while n > 0 and (c[n] = " " or c[n] = char(9))
+		n--
+	end
+	return left(c, n)
 
 func AtelierLeftTrimmed cLine
 	for i = 1 to len(cLine)
@@ -1039,6 +1551,28 @@ func AtelierThenSee nN, xActual, xExpected
 		nOk = 0
 	done
 	add($aAtelierThens, [ nN, nOk, @@(xExpected) ])
+
+# a step answers the object it was called on when it gives back the same kind of object
+# holding the same content: the house's VerbQ methods return This. A step that answers a
+# copy of its object (CopyQ) reads as the object itself, and the steps after it then act on
+# the object -- the one case this rule gets wrong, named so nobody rediscovers it
+func AtelierSameObject vStep, vRoot
+	if NOT (isObject(vStep) and isObject(vRoot))
+		return 0
+	ok
+	if classname(vStep) != classname(vRoot)
+		return 0
+	ok
+	if ismethod(vStep, "content") and ismethod(vRoot, "content")
+		bSame = 0
+		try
+			bSame = (@@(vStep.Content()) = @@(vRoot.Content()))
+		catch
+			cAtelierIgnored = cCatchError   # an empty catch leaks a VM stack slot per raise (F-16)
+		done
+		return bSame
+	ok
+	return 1
 
 # a scene's object after a line, in a light face
 func AtelierState nScene, nLine, oObject

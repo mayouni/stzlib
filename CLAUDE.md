@@ -527,14 +527,18 @@ projections; develop a new section as a standalone probe first.
 resident VM: `rnxc resident atelier.ring` from that folder, then http://127.0.0.1:8650/atelier.
 Plan, law and journal: `atelier/SOFTANZA_ATELIER_PLAN.md`. Never call it a lab.
 
-**FAST PATH: the seven guards, one process each, from `base/test/atelier`:**
+**FAST PATH: the eight guards, one process each, from `base/test/atelier`:**
 ```bash
-cd libraries/stzlib/base/test/atelier && rnxc atelier_notebook_narrated.ring && rnxc atelier_process_narrated.ring && rnxc atelier_cell_narrated.ring && rnxc atelier_page_narrated.ring && rnxc atelier_static_narrated.ring && rnxc atelier_narrated.ring && rnxc atelier_tours_narrated.ring
+cd libraries/stzlib/base/test/atelier && rnxc atelier_lessons_narrated.ring && rnxc atelier_notebook_narrated.ring && rnxc atelier_process_narrated.ring && rnxc atelier_cell_narrated.ring && rnxc atelier_page_narrated.ring && rnxc atelier_static_narrated.ring && rnxc atelier_narrated.ring && rnxc atelier_tours_narrated.ring
 ```
 The cell guard (B0, 43) and the process guard (B1, 37), under 40 s each, are the workbench's: a cell's
-lines seen in their faces and its promises judged; a chain unfolded with `ref()` (a plain variable copies
-a Ring object and detaches the chain from it) and a scene's object after each line. The notebook guard (B2, 38, about
-90 s) saves a notebook where its loads resolve and has testoor's own runner judge it in a child rnxc. The checks guard turns red whenever ANY desk's commit moves a check's verdict:
+lines seen in their faces and its promises judged; a chain unfolded on its own object (a plain variable copies
+a Ring object and would detach the chain from it; B3 replaced `ref()`, see below) and a scene's object after each line. The notebook guard (B2, 38, about
+90 s) saves a notebook where its loads resolve and has testoor's own runner judge it in a child rnxc. The lessons
+guard (B3, 47, about a minute) opens the Learning System's chapters, read-only, and has the education
+plane's own runner agree with the Atelier cell by cell. NEVER `ref()` an object in code the Atelier
+generates: in admitted code a method called through a `ref()` variable that copies `This` ends rnxc
+(ATELIER-REFTHIS-16), and `trim()` leaves a TAB, so a planner trims with `AtelierTrim`. The checks guard turns red whenever ANY desk's commit moves a check's verdict:
 that is its job; read the moved id before re-recording, and re-record only at a pushed commit.
 The static guard (41 assertions, under a minute; python for the builder and the resolver, SKIPPED by
 name without it) is the cheap one: it also scans the Atelier for a drive path, because a recording
