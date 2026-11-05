@@ -79,12 +79,18 @@ Scenario("Two column labels take the Ring path, and it runs")
     # The engine takes one column label; two go to the Ring fallback, where a
     # bare split(), trim(), Min() and Max() reached stzList's OWN methods and
     # raised R20 "Calling function with extra number of parameters" on every
-    # such table (fixed 2026-11-05). The values drawn are NOT judged here: the
-    # first row's cell is still dropped, as Show()'s warning says, and blessing
-    # that output would pin the defect.
+    # such table (fixed 2026-11-05).
     Then("MIN generates", TwoColsRun("MIN", FALSE), "ok")
     Then("MAX generates", TwoColsRun("MAX", FALSE), "ok")
     Then("...and the table draws", TwoColsRun("SUM", TRUE), "ok")
+
+    # THE FIRST DATA ROW COUNTS. The fallback read the source table from row 2,
+    # as if row 1 were its header -- but stzTable numbers DATA rows from 1, so
+    # every two-column pivot lost its first row: North's Widget/2023 read 50,
+    # not 100 + 50, and every total was short by 100.
+    Then("North's Widget/2023 cell holds both rows (100 + 50)", TwoColsCell("Widget_2023", 1), 150)
+    Then("...South's Gadget/2024 is unchanged", TwoColsCell("Gadget_2024", 2), 70)
+    Then("...and the grand total counts all three rows", TwoColsCell("SUM", 3), 220)
 EndScenario()
 
 Summary()
@@ -190,3 +196,22 @@ func TwoColsRun(cAgg, bShow)
         return cCatchError
     done
     return "ok"
+
+# The SUM pivot of TwoColsRun's data: the cell at row nRow of the result
+# column named cCol, or "" when there is no such column.
+func TwoColsCell(cCol, nRow)
+    oTc = new stzPivotTable([ [ :REGION, :PRODUCT, :YEAR, :AMOUNT ],
+        [ "North", "Widget", 2023, 100 ], [ "North", "Widget", 2023, 50 ],
+        [ "South", "Gadget", 2024, 70 ] ])
+    oTc.Analyze(:AMOUNT, :with = "SUM")
+    oTc.SetRowsBy([ :REGION ])
+    oTc.SetColsBy([ :PRODUCT, :YEAR ])
+    oTc.Generate()
+    aTc = oTc.ToTable().Content()
+    nTc = len(aTc)
+    for iTc = 1 to nTc
+        if aTc[iTc][1] = cCol
+            return aTc[iTc][2][nRow]
+        ok
+    next
+    return ""

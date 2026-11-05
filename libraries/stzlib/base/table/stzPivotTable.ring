@@ -586,7 +586,7 @@ class stzPivotTable from stzList
 
 			_aCells_ = []
 
-			for i = 2 to _nRows_
+			for i = 1 to _nRows_
 				_aCells_ + @oSourceTable.Cell(_nColIndex_, i)
 			next
 
@@ -648,7 +648,7 @@ class stzPivotTable from stzList
 
 		# Collect all combinations
 
-		for r = 2 to _nRows_
+		for r = 1 to _nRows_
 			_aCombination_ = []
 
 			for i = 1 to _nLenFieldIndices_
@@ -898,7 +898,7 @@ class stzPivotTable from stzList
 		# Process data rows
 		_nRowCount_ = @oSourceTable.NumberOfRows()
 		
-		for r = 2 to _nRowCount_
+		for r = 1 to _nRowCount_
 			_bRowMatch_ = 1
 			_bColMatch_ = 1
 			
@@ -1384,10 +1384,11 @@ class stzPivotTable from stzList
 	#   returns    nothing; it prints
 	#   note       works for one column label with one or two row labels; the total row is drawn
 	#              under the bottom border, and the column headings are capitalised
-	#   warning    with two column labels it draws (it raised "Calling function with extra
-	#              number of parameters" until 2026-11-05: a bare split() and trim() reached
-	#              stzList's own methods), but it drops a cell: on a four-row dataset the
-	#              first row's value is missing from its column and from every total;
+	#   warning    with two column labels the values and totals are right (until 2026-11-05
+	#              it raised R20, and then dropped the source's first row), but the box is
+	#              drawn with faults: the rule under the first heading row is shifted one
+	#              place, a doubled junction stands between the column groups, and with two
+	#              row labels an empty row is drawn between the data rows;
 	#              more than two labels on either side raise "Can't display the pivot table!"
 	#   see        ToTable
 	#@ aka  Show Method
