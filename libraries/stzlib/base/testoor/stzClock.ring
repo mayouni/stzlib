@@ -101,6 +101,8 @@ func _TestoorWorldForget()
 			$nTestoorWorldEngine = -1
 		done
 	ok
+	# the node counters (stzNodes.ring) are part of the tour's world: zeroed with it
+	_TestoorNodesForget()
 	return 1
 
 # forget everything a tour declared; the wall clock is thawed too

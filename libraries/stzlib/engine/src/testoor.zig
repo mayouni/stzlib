@@ -11,11 +11,13 @@ pub const api = @import("testoor_api.zig");
 pub const clock = @import("testoor_clock.zig");
 pub const graph = @import("testoor_graph.zig");
 pub const routes = @import("testoor_routes.zig");
+pub const counters = @import("testoor_counters.zig");
 
 test {
     _ = clock;
     _ = graph;
     _ = routes;
+    _ = counters;
     _ = text;
     _ = json;
     _ = promises;

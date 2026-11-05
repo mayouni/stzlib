@@ -82,7 +82,10 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
 3. **Route join and graph store.** **DONE 2026-11-06** (`TESTOOR_ZIG_CORE.md` section 9; `testoor_graph.zig`, `testoor_routes.zig`,
    goldens `15`, `16`, `L6`, `impact/01..03` under `golden/protocol2/`; `zig build test-testoor` 53 tests; routes 44 and impact 51
    unchanged through the core and with `TESTOOR_CORE=ring`; the core guard 56). Evidence floor `L7`/`L8` not built.
-4. **Node counters**, the numerator of graph coverage, cheap where the Ring trace hook costs 11.5 us an event.
+4. **Node counters**, the numerator of graph coverage, cheap where the Ring trace hook costs 11.5 us an event. **DONE 2026-11-06**
+   (`TESTOOR_ZIG_CORE.md` section 9; `testoor_counters.zig`, `stzNodes.ring`, `testoor_counters_narrated.ring` 29; measured first:
+   a hit by slot is 0.19 us through Ring++ against the hook's 11.5 us, and the hook does not exist on Ring++). The measurement also
+   found a 10.8 us allocation on every bridge call that returns text, now 0.23 us.
 5. **The `stz guard` child**, so the stz desk calls the Zig runner.
 - *Exit:* the Ring guards pass against the Zig core unchanged; a Zig test per module.
 

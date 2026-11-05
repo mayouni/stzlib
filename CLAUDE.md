@@ -484,7 +484,7 @@ Ring. Four differences between the VMs bit this plane: no `binarysearch()` on rn
 
 **The judge is written in Zig (P3, 2026-11-05).** `engine/src/testoor_*.zig` is the core and `base/testoor/*.ring` is
 its reference; the golden logbooks in `base/testoor/golden/` are the acceptance test. **FAST PATH for the core:
-`cd engine && zig build test-testoor -j2` is 30 s cold and about 100 ms to run, 53 tests, with no Ring involved.** It reads
+`cd engine && zig build test-testoor -j2` is 30 s cold and about 100 ms to run, 60 tests, with no Ring involved.** It reads
 `golden/` and compares 43 expected files byte for byte. `TESTOOR_CORE=ring` (or `TestoorCore("ring")`) makes
 `TestoorVerdict` use the Ring reference instead of the `stz_testoor` library; the guard
 `testoor_core_narrated.ring` runs both in one process. Four Ring facts the port is built on, measured on both
@@ -496,6 +496,13 @@ for the logbook: Ring escapes five bytes and writes every other byte raw.
 reads a graph record, closes a change over its callers, selects tours and writes a tour's `nodes`. `golden/protocol2/` holds
 the cases only the core can judge; their expected files were written by hand from `TESTOOR_PROTOCOL_2.md`, so never
 regenerate them from the core's own output.
+
+**Node counters are the core's too (P3.4)**, and the way they were built is a rule: measure the call before designing the API.
+On Ring++ an empty Ring function call is 0.05 us, an engine call taking and returning numbers 0.15 us, and an engine call that
+returned a STRING was 10.81 us because every bridge call built a fresh arena over the page allocator (now one arena per thread,
+reused: 0.23 us). So a hot engine call takes and returns numbers; text is for the rare call. `TestoorNodeSlot` once, then
+`TestoorNodeHit(slot)` (0.19 us), and `TestoorNodesReport()` prints the `[testoor node ID N]` lines. Guard:
+`testoor_counters_narrated.ring`. The Ring trace hook (11.5 us an event) does not exist on Ring++.
 
 **The world of a tour is the core's too (P3.2).** Its seed, stepped clock and weather live in `testoor_clock.zig`
 behind `StzEngineTestoorWorld`, one world per thread; `stzClock.ring` asks the core and keeps the old bodies

@@ -78,6 +78,11 @@ is *observed* only when its hits are above zero. With a graph, ids are compared 
 listed under the graph's own spelling, and an id the graph does not own is dropped; with no graph the ids are listed as
 the tour spelled them, first seen first.
 
+**Who writes the lines (P3.4).** A tour may print them itself, or count with the engine's node counters
+(`TestoorNodeSlot` once, `TestoorNodeHit` per event, 0.19 us through Ring++) and print them with `TestoorNodesReport()` at its
+end. A counter writes `[testoor node ID N]` with the count always present, an id only if a node line could carry it (no space,
+no control byte) and a count saturated at fifteen digits, so every line it writes reads back.
+
 ## 4. The nodes record in the logbook
 
 Per tour, when the tour reported or was found to name any node:

@@ -36,7 +36,7 @@ A new domain `stz_testoor`, built the way the engine's other domains are (`perf`
 | `src/testoor_clock.zig` | the world of a tour: seed, stepped clock, weather and the tick each falls due at (P3.2; the seed is 40 lines that share the weather's pick count, so one file and not `testoor_seed.zig`) |
 | `src/testoor_graph.zig` | the graph store: the graph record, id comparison under a fold, the reach (closure of callers), impact selection, the nodes record (P3.3) |
 | `src/testoor_routes.zig` | the route join: owned, walked, unwalked, unknown walks, the findings the join raises, the report as prose and JSON (P3.3) |
-| later: `testoor_counters.zig` | step P3.4 |
+| `src/testoor_counters.zig` | node counters: a node registered once answers a slot, a hit by slot is an array increment, the report is the `[testoor node ID N]` lines (P3.4) |
 | `src/ring_bridge_testoor.zig` | the `regs` table and the `R.ring_vm_api_*` glue |
 | `src/stz_testoor_entry.zig` | exports `ringlib_init` |
 
@@ -58,6 +58,8 @@ adds nothing.
 | `StzEngineTestoorRunProse(cRequest)` | the same request | the summary a terminal shows |
 | `StzEngineTestoorRunExit(cRequest)` | the same request | 0, 1 or 2 |
 | `StzEngineTestoorTourProse(cTourJson)` | one tour as the logbook writes it | the line a terminal shows for it |
+| `StzEngineTestoorNodeSlot(cId)`, `...NodeHit(nSlot [, nHits])`, `...NodeHitId(cId [, nHits])` (P3.4) | an id, or a slot | a number: the slot (0 for an id a node line could not carry), or the count after. These are the HOT calls: numbers in, a number out, nothing allocated |
+| `StzEngineTestoorNodes(cOp, cText)` (P3.4) | `report`, `registered`, `get` (cText is the id) or `reset` | a string: the node lines, a count, or `1` |
 | `StzEngineTestoorImpact(cRequest)` (P3.3) | `{"graph":<graph record>,"changed":[ids],"tours":[{"file","names":[..]}]}` | the impact record of protocol 2 |
 | `StzEngineTestoorRoutes(cRequest)` and `...RoutesProse(cRequest)` (P3.3) | `{"items":[..],"walks":[..],"untouched":[..],"court":[..]}`: what the face read and what its court said | the routes report as JSON, or as prose |
 | `StzEngineTestoorWorld(cOp, cText, nA, nB)` (P3.2) | an operation, a text and two numbers | a string; the operations and their answers are listed above `call` in `testoor_clock.zig` |
@@ -65,8 +67,8 @@ adds nothing.
 Prose and exit are **functions of the run and its tours**, so the three run calls take one request. (Confirmed at
 P3.1: `_TravRunProse` reads nothing the tour JSON does not carry.)
 
-A stateless call takes one string and returns one string. It allocates from an arena that dies at the end
-of the call; the result is copied out through `rs2` (length-aware, so a NUL byte in a tour's output cannot
+A stateless call takes one string and returns one string. It allocates from a per-thread arena that every
+call reuses and empties (a fresh arena over the page allocator cost 10.8 us a call, found by the P3.4 measurement); the result is copied out through `rs2` (length-aware, so a NUL byte in a tour's output cannot
 cut it). A boundary crossing costs microseconds against a child process that costs 70 ms or more, so the
 JSON round trip is not where the time is.
 
@@ -237,6 +239,34 @@ The route join and the graph store moved to the core, and the version 2 addition
   clock 56, runner 80. Ten guards, 577 assertions.
 - **Not built:** the evidence floor (`L7`, `L8`), node counters (P3.4), and the Ring face handing a graph and names to the
   verdict from the runner (it belongs to P4, node-level route coverage; the core takes both today and the guard sends them).
+
+### P3.4, 2026-11-06 -- DONE
+
+Node counters, the numerator of graph coverage, and the measurement that had to come first.
+
+- **Measured first, on rnxc (Ring++):** an empty Ring function call 0.05 us; an engine call that takes and returns numbers
+  0.15 us; an engine call that RETURNS A STRING **10.81 us**. The Ring trace hook the first design considered costs 11.5 us an
+  event on Ring 1.27 and **does not exist on Ring++** (`ringvm_settrace` is R3 on rnxc), so a counter called directly is the
+  only route there and the only one that can be cheap.
+- **A defect of my own was found by it.** Every bridge call built a fresh arena over the page allocator, so each call that
+  returned text paid a system allocation: 10.81 us, as slow as the hook, on `ClockTick` and every world call since P3.2.
+  The bridge now reuses one arena per thread (up to 1 MB kept): the same call costs 0.23 us.
+- **`testoor_counters.zig`:** a node is registered ONCE and answers a slot; a hit by slot is an array increment, a hit by id one
+  hash lookup more. An id with a space or a control byte (32 and below) is refused with slot 0, because a node line could not
+  carry it; a count saturates at fifteen nines, the longest a node line carries; `reset` zeroes the counts and keeps the slots.
+  Raw in Zig a hit by slot is under a nanosecond (the optimiser may fuse the loop) and a hit by id 19 ns.
+- **The Ring face, `stzNodes.ring`:** `TestoorNodeSlot`, `TestoorNodeHit`, `TestoorNodeHitN`, `TestoorNode`, `TestoorNodeN`,
+  `TestoorNodeCount`, `TestoorNodesLines`, `TestoorNodesReport` (prints the lines), `TestoorNodesReset`. The counts live in the
+  engine, never in a Ring object. With no core, two parallel Ring lists do the same thing, slower and in the same answers.
+  `TestoorReset()` and `TestoorCore()` zero them with the rest of the tour's world.
+- **Through Ring, per event (100,000 events each):** `TestoorNodeHit(slot)` **0.19 us**, `TestoorNode(id)` 0.26 us, an empty
+  Ring function 0.08 us. The trace hook is 11.5 us: sixty times more. `testoor_counters_narrated.ring` asserts the bounds
+  (under the hook's 11.5 us for both hits, under 5 us for an engine call that returns text) and says by name that the hook
+  itself is not re-measured on this VM.
+- **Run, on rnxc against `engine-stzlib2`:** `zig build test-testoor` 60 of 60 (53 plus 7 counter tests); eleven guards, 606
+  assertions (the new `counters` 29, and the other ten unchanged); counters, routes, impact and clock also with `TESTOOR_CORE=ring`.
+- **Not built:** the Ring face handing a graph and the tour's names to the verdict from the runner (P4), an automatic flush of the
+  report at the end of a tour (a tour calls `TestoorNodesReport()` itself), the evidence floor (`L7`, `L8`).
 
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 

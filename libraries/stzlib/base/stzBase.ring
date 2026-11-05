@@ -239,6 +239,7 @@ ok
     load "testoor/stzTour.ring"
     load "testoor/stzTraveller.ring"
     load "testoor/stzCore.ring"
+    load "testoor/stzNodes.ring"
     load "testoor/stzRoute.ring"
     load "testoor/stzClock.ring"
     load "testoor/stzSubject.ring"
