@@ -207,30 +207,30 @@ class stzSoundLadder
 	#   see        ToSVG, Rungs
 	def ToText()
 		_t_ = This._Get(@aMode, :name, "") + " (" + @oU.Name() + ") -- tonic " + @oU.TonicName() + ", " +
-		      This._Fmt(StzNoteToHz(@oU.TonicName()), 2) + " Hz" + nl
-		_t_ += " deg  " + This._Pad("name", 18) + This._PadL("cents", 7) + This._PadL("Hz", 10) + "    step" + nl
+		      This._Fmt(StzNoteToHz(@oU.TonicName()), 2) + " Hz" + char(10)
+		_t_ += " deg  " + This._Pad("name", 18) + This._PadL("cents", 7) + This._PadL("Hz", 10) + "    step" + char(10)
 		_aR_ = This.Rungs()
 		for _i_ = len(_aR_) to 1 step -1
 			_r_ = _aR_[_i_]
 			_t_ += This._PadL("" + _r_[1], 4) + "  " + This._Pad(_r_[2], 18) + This._PadL("" + _r_[3], 7) +
-			       This._PadL(This._Fmt(_r_[4], 2), 10) + nl
+			       This._PadL(This._Fmt(_r_[4], 2), 10) + char(10)
 			if _i_ > 1
 				_s_ = _aR_[_i_ - 1][5]
-				_t_ += copy(" ", 45) + This._PadL("" + _s_, 4) + "  " + This._Tone(_s_) + nl
+				_t_ += copy(" ", 45) + This._PadL("" + _s_, 4) + "  " + This._Tone(_s_) + char(10)
 			ok
 		next
 		_aDn_ = This.DescendingRungs()
 		if len(_aDn_) > 0
-			_t_ += " descending, where it differs:" + nl
+			_t_ += " descending, where it differs:" + char(10)
 			_aUp_ = This.Rungs()
 			for _k_ = 1 to len(_aDn_)
 				if _aDn_[_k_][3] != _aUp_[_k_][3]
-					_t_ += "   degree " + _k_ + ": " + _aUp_[_k_][3] + " going up, " + _aDn_[_k_][3] + " coming down" + nl
+					_t_ += "   degree " + _k_ + ": " + _aUp_[_k_][3] + " going up, " + _aDn_[_k_][3] + " coming down" + char(10)
 				ok
 			next
 		ok
 		for _j_ in This.Ajnas()
-			_t_ += " jins " + _j_[1] + ": " + _j_[2] + " to " + _j_[3] + " cents" + nl
+			_t_ += " jins " + _j_[1] + ": " + _j_[2] + " to " + _j_[3] + " cents" + char(10)
 		next
 		return _t_
 
@@ -256,11 +256,11 @@ class stzSoundLadder
 	#   see        ToSVG, SaveAs
 	def ToHTML()
 		_q_ = char(34)
-		return "<!DOCTYPE html>" + nl + "<html lang=" + _q_ + "en" + _q_ + "><head><meta charset=" + _q_ + "utf-8" + _q_ + ">" +
+		return "<!DOCTYPE html>" + char(10) + "<html lang=" + _q_ + "en" + _q_ + "><head><meta charset=" + _q_ + "utf-8" + _q_ + ">" +
 		       "<title>" + This._Xml(This._Title()) + "</title>" +
 		       "<style>body{margin:0;padding:16px;background:#eceae4}svg{display:block;margin:0 auto;max-width:100%;height:auto;" +
-		       "background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18)}</style></head><body>" + nl +
-		       This.ToSVG() + nl + "</body></html>" + nl
+		       "background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18)}</style></head><body>" + char(10) +
+		       This.ToSVG() + char(10) + "</body></html>" + char(10)
 
 	# Returns the ladder as SVG text: rails, rungs spaced by cents, a faint quarter-tone grid, steps, and brackets for the ajnas.
 	#
@@ -291,8 +291,8 @@ class stzSoundLadder
 		_x1_ = 300                                     # the rails
 		_x2_ = 380
 		_o_ = "<svg xmlns=" + _q_ + "http://www.w3.org/2000/svg" + _q_ + " width=" + _q_ + _W_ + _q_ + " height=" + _q_ +
-		      This._F(_H_) + _q_ + " viewBox=" + _q_ + "0 0 " + _W_ + " " + This._F(_H_) + _q_ + ">" + nl
-		_o_ += "<rect width=" + _q_ + "100%" + _q_ + " height=" + _q_ + "100%" + _q_ + " fill=" + _q_ + "#ffffff" + _q_ + "/>" + nl
+		      This._F(_H_) + _q_ + " viewBox=" + _q_ + "0 0 " + _W_ + " " + This._F(_H_) + _q_ + ">" + char(10)
+		_o_ += "<rect width=" + _q_ + "100%" + _q_ + " height=" + _q_ + "100%" + _q_ + " fill=" + _q_ + "#ffffff" + _q_ + "/>" + char(10)
 		_o_ += This._T(_W_ / 2, 40, This._Title(), 22, "middle", _ink_, "")
 		_o_ += This._T(_W_ / 2, 64, "tonic " + @oU.TonicName() + " (" + This._Fmt(StzNoteToHz(@oU.TonicName()), 2) +
 		                " Hz) -- rungs spaced by cents, " + This._Fmt(@nPx * 100, 0) + " px a semitone", 13, "middle", "#666", "")
@@ -374,7 +374,7 @@ class stzSoundLadder
 			_o_ += This._L(_xj_ - 7, _yb_, _xj_, _yb_, 2.5, _warm_, "")
 			_o_ += "<text transform=" + _q_ + "translate(" + This._F(_xj_ + 14) + "," + This._F((_ya_ + _yb_) / 2) + ") rotate(90)" + _q_ +
 			       " font-family=" + _q_ + "Georgia,serif" + _q_ + " font-size=" + _q_ + "12" + _q_ + " fill=" + _q_ + _warm_ + _q_ +
-			       " text-anchor=" + _q_ + "middle" + _q_ + ">" + This._Xml(_j_[1]) + "</text>" + nl
+			       " text-anchor=" + _q_ + "middle" + _q_ + ">" + This._Xml(_j_[1]) + "</text>" + char(10)
 			_xj_ += 30
 		next
 		# what the declaration says about itself
@@ -492,7 +492,7 @@ class stzSoundLadder
 		if pcDash != ""  _d_ = " stroke-dasharray=" + _q_ + pcDash + _q_ ok
 		return "<line x1=" + _q_ + This._F(pnX1) + _q_ + " y1=" + _q_ + This._F(pnY1) + _q_ + " x2=" + _q_ + This._F(pnX2) + _q_ +
 		       " y2=" + _q_ + This._F(pnY2) + _q_ + " stroke=" + _q_ + pcColour + _q_ + " stroke-width=" + _q_ + This._F(pnW) + _q_ +
-		       _d_ + "/>" + nl
+		       _d_ + "/>" + char(10)
 
 	def _T(pnX, pnY, pcText, pnSize, pcAnchor, pcColour, pcStyle)
 		_q_ = char(34)
@@ -501,7 +501,7 @@ class stzSoundLadder
 		if pcStyle = "italic"  _s_ = " font-style=" + _q_ + "italic" + _q_ ok
 		return "<text x=" + _q_ + This._F(pnX) + _q_ + " y=" + _q_ + This._F(pnY) + _q_ + " font-family=" + _q_ +
 		       "Georgia,'Times New Roman',serif" + _q_ + " font-size=" + _q_ + pnSize + _q_ + " fill=" + _q_ + pcColour + _q_ +
-		       " text-anchor=" + _q_ + pcAnchor + _q_ + _s_ + ">" + This._Xml(pcText) + "</text>" + nl
+		       " text-anchor=" + _q_ + pcAnchor + _q_ + _s_ + ">" + This._Xml(pcText) + "</text>" + char(10)
 
 	def _F(pn)
 		_v_ = floor(pn * 10 + 0.5)

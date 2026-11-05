@@ -434,3 +434,41 @@ moved by nothing between the two).
 
 **Guards after A3.** Static 41 of 41 (26 s), checks 36 of 36 (53 s), page 24 of 24 (42 s), tours 42
 of 42 (148 s), one process each, under rnxc a8ad844, the CPU fit to measure.
+
+### B0 -- 2026-11-05 -- the cell (the workbench's first rung)
+
+The author ratified the workbench design (`SOFTANZA_WORKBENCH_DESIGN.md`) by saying go on B0.
+**The notebook is the Atelier's home now** (`/` and `/atelier`); the checks moved to
+`/atelier/library` and the playground is gone, because a cell does all it did and more.
+
+**The cell.** `POST /atelier/cell` takes the reader's code, rewrites every `?` line to
+`AtelierSee(<n>, <expression>)` -- so its value comes to the Atelier instead of the server's
+stdout, where nobody reads it -- admits the cell as one admission and releases it. Each value
+comes back in its own **face**: text (a string or a number), list (`@@`, with its count), table
+(a `stzTable`'s own `ToHtml()`, which the page reads and copies into a table of its own, never
+inserts), drawing (anything that answers `ToSVG()`, eleven classes today, shown as an image so it
+runs no script), image (`ToPngDataURI()`), object (its `Content()`). Every `#-->` promise, trailing
+or on the lines under its `?` as the library's own files write them, is judged after the run by
+**testoor's own matcher** (`_TravPromiseAt`): one court for the library's tests and the reader's
+cells. A `?` in a loop is seen once per pass. A cell that breaks keeps the promises before the
+error and leaves the ones after it unreached; a cell that does not scan never starts.
+
+**Measured** (rnxc a8ad844, fit to measure): the default cell -- a scene over a `stzList`, a
+boxed find, a bar plot -- runs in 2 ms; a plot cell in 10 ms. **Not captured, and said so on the
+page**: what a method prints by itself, which goes to the server's console (ATELIER-CAPTURE-14).
+**Not measured yet**: the faces of a cell's outputs by the StzZui audit, which loads pages
+without running them.
+
+**Found on the way, mine.** (1) Removing the domains submenu left one stray closing tag that ended
+the page's margin early: every section after Checks touched the left edge from 119762334 to now;
+seen in a screenshot, fixed, and the body's tags now count 30 opening and 30 closing. (2) Since A3
+the live trail's root pointed at `/atelier`, not the site root (Rule 108); the A3 audit ran only on
+the static edition, where the root resolved, so it missed it. The live home is `/` now; StzZui's
+audit: 0 violations on 6 pages, light and dark. (3) Four empty `catch` blocks in the server,
+each leaking a VM stack slot per caught error in a long-lived program (Ring++'s checker, F-16):
+filled.
+
+**Guard** `base/test/atelier/atelier_cell_narrated.ring`: 43 assertions, 15 to 33 s -- a scene
+seen with its promises kept, a promise diverged, each face (list, table, drawing, object, text), a
+loop seen per pass, a broken cell (kept, then unreached), a cell that does not scan, a function
+defined in a cell released with it, the notebook served as home and the checks at their address.

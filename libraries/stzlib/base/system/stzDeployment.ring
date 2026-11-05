@@ -696,26 +696,26 @@ class stzDeploymentSite from stzObject
 	#              capacity and provider when set
 	#   see        Config, Show
 	def ConfigText()
-		_c_ = "site '" + @cName + "' [" + @cKind + "]" + nl
+		_c_ = "site '" + @cName + "' [" + @cKind + "]" + char(10)
 		_c_ += "  connection: " + This.Protocol() + " -> " + _StzSiteOr(@cEndpoint, "(local)")
 		if @cAuthRef != ""
 			_c_ += "   auth: " + @cAuthRef
 		ok
-		_c_ += nl
-		_c_ += "  storage:    " + _StzSiteOr(@cStorage, "(unset)") + nl
+		_c_ += char(10)
+		_c_ += "  storage:    " + _StzSiteOr(@cStorage, "(unset)") + char(10)
 		if @cLaunch != ""
-			_c_ += "  launch:     " + @cLaunch + nl
+			_c_ += "  launch:     " + @cLaunch + char(10)
 		ok
 		# status was carried by Config() and ConfigJson() and missing only here --
 		# the human reading of a site disagreed with both machine readings of it
 		if @cStatusCmd != ""
-			_c_ += "  status:     " + @cStatusCmd + nl
+			_c_ += "  status:     " + @cStatusCmd + char(10)
 		ok
 		if This.HasCapacity()
-			_c_ += "  capacity:   " + @oCapacity.Text() + nl
+			_c_ += "  capacity:   " + @oCapacity.Text() + char(10)
 		ok
 		if @cProvider != ""
-			_c_ += "  provider:   " + @cProvider + nl
+			_c_ += "  provider:   " + @cProvider + char(10)
 		ok
 		return _c_
 
@@ -729,27 +729,27 @@ class stzDeploymentSite from stzObject
 	#@ aka  the config, serialized -- so a target site can be SAVED, versioned, shared: the persistent link the dev/emulation environment reads to reach a site.
 	def ConfigJson()
 		_q_ = char(34)
-		_c_ = "{" + nl
-		_c_ += "  " + _q_ + "name" + _q_ + ": " + _q_ + @cName + _q_ + "," + nl
-		_c_ += "  " + _q_ + "kind" + _q_ + ": " + _q_ + @cKind + _q_ + "," + nl
+		_c_ = "{" + char(10)
+		_c_ += "  " + _q_ + "name" + _q_ + ": " + _q_ + @cName + _q_ + "," + char(10)
+		_c_ += "  " + _q_ + "kind" + _q_ + ": " + _q_ + @cKind + _q_ + "," + char(10)
 		_c_ += "  " + _q_ + "connection" + _q_ + ": { " + _q_ + "endpoint" + _q_ + ": " + _q_ + @cEndpoint + _q_
 		_c_ += ", " + _q_ + "protocol" + _q_ + ": " + _q_ + This.Protocol() + _q_
-		_c_ += ", " + _q_ + "auth" + _q_ + ": " + _q_ + @cAuthRef + _q_ + " }," + nl
-		_c_ += "  " + _q_ + "storage" + _q_ + ": " + _q_ + @cStorage + _q_ + "," + nl
+		_c_ += ", " + _q_ + "auth" + _q_ + ": " + _q_ + @cAuthRef + _q_ + " }," + char(10)
+		_c_ += "  " + _q_ + "storage" + _q_ + ": " + _q_ + @cStorage + _q_ + "," + char(10)
 		_c_ += "  " + _q_ + "control" + _q_ + ": { " + _q_ + "launch" + _q_ + ": " + _q_ + @cLaunch + _q_
-		_c_ += ", " + _q_ + "status" + _q_ + ": " + _q_ + @cStatusCmd + _q_ + " }," + nl
+		_c_ += ", " + _q_ + "status" + _q_ + ": " + _q_ + @cStatusCmd + _q_ + " }," + char(10)
 
 		# capacity crosses as NUMBERS here and as text in ConfigText(): this is the
 		# form a machine reads back, and "4096MB / 8 vCPU / 500GB" is a sentence.
 		if This.HasCapacity()
 			_c_ += "  " + _q_ + "capacity" + _q_ + ": { " + _q_ + "memoryMB" + _q_ + ": " + @oCapacity.MemoryMB()
 			_c_ += ", " + _q_ + "vcpu" + _q_ + ": " + @oCapacity.ComputeVCPU()
-			_c_ += ", " + _q_ + "storageGB" + _q_ + ": " + @oCapacity.StorageGB() + " }," + nl
+			_c_ += ", " + _q_ + "storageGB" + _q_ + ": " + @oCapacity.StorageGB() + " }," + char(10)
 		else
-			_c_ += "  " + _q_ + "capacity" + _q_ + ": null," + nl
+			_c_ += "  " + _q_ + "capacity" + _q_ + ": null," + char(10)
 		ok
-		_c_ += "  " + _q_ + "provider" + _q_ + ": " + _q_ + @cProvider + _q_ + nl
-		_c_ += "}" + nl
+		_c_ += "  " + _q_ + "provider" + _q_ + ": " + _q_ + @cProvider + _q_ + char(10)
+		_c_ += "}" + char(10)
 		return _c_
 
 	# Writes the JSON configuration to a file, overwriting it.
@@ -836,7 +836,7 @@ class stzDeploymentSite from stzObject
 	def Rollback()
 		if This.IsLocal()
 			StzFileDelete(@cStorage + "/deploy.json")
-			write(@cStorage + "/.stzsite", "state=rolledback" + nl + "kind=" + @cKind + nl)
+			write(@cStorage + "/.stzsite", "state=rolledback" + char(10) + "kind=" + @cKind + char(10))
 			return 1
 		ok
 		return 1   # kind-specific rollback (git revert / instance terminate) -- best effort
@@ -937,16 +937,16 @@ class stzDeploymentSite from stzObject
 		for _i_ = 1 to _n_
 			This._WriteArtifact(@cStorage, paArtifacts[_i_][1], paArtifacts[_i_][2])
 		next
-		write(@cStorage + "/.stzsite", "state=stored" + nl + "kind=" + @cKind + nl)
+		write(@cStorage + "/.stzsite", "state=stored" + char(10) + "kind=" + @cKind + char(10))
 		return 1
 
 	def _LocalLaunch()
 		if @cStorage = "" or StzEngineFileExists(@cStorage + "/.stzsite") = 0
 			return 0
 		ok
-		_rec_ = "state=launched" + nl + "kind=" + @cKind + nl
+		_rec_ = "state=launched" + char(10) + "kind=" + @cKind + char(10)
 		if @cLaunch != ""
-			_rec_ += "launch=" + @cLaunch + nl
+			_rec_ += "launch=" + @cLaunch + char(10)
 		ok
 		write(@cStorage + "/.stzsite", _rec_)
 		return 1
@@ -1294,58 +1294,58 @@ class stzDeployment from stzObject
 	#   warning    pure reading: nothing runs
 	#   see        Show, Plan
 	def Explain()
-		_c_ = "Deployment of '" + @oDelivery.Name() + "' -- from definition to launch (rehearsal)" + nl
-		_c_ += "==============================================================================" + nl
+		_c_ = "Deployment of '" + @oDelivery.Name() + "' -- from definition to launch (rehearsal)" + char(10)
+		_c_ += "==============================================================================" + char(10)
 		if This.MayCommit()
-			_c_ += "  actor: " + @oActor.Name() + " -- MAY commit (effectful)" + nl
+			_c_ += "  actor: " + @oActor.Name() + " -- MAY commit (effectful)" + char(10)
 		but @oActor != ""
-			_c_ += "  actor: " + @oActor.Name() + " -- rehearse only (not effectful)" + nl
+			_c_ += "  actor: " + @oActor.Name() + " -- rehearse only (not effectful)" + char(10)
 		else
-			_c_ += "  actor: (none) -- rehearse only" + nl
+			_c_ += "  actor: (none) -- rehearse only" + char(10)
 		ok
 		_aP_ = This.Plan()
 		_n_ = len(_aP_)
 		for _i_ = 1 to _n_
 			_r_ = _aP_[_i_]
-			_c_ += nl + "  Part '" + _r_[1] + "' [" + _r_[2] + "] -> " + _r_[3] + nl
+			_c_ += char(10) + "  Part '" + _r_[1] + "' [" + _r_[2] + "] -> " + _r_[3] + char(10)
 			if _r_[4] = "(unbound)"
-				_c_ += "     (no site bound -- add .To(:" + _r_[1] + ", <site>))" + nl
+				_c_ += "     (no site bound -- add .To(:" + _r_[1] + ", <site>))" + char(10)
 			else
 				_site_ = This.SiteFor(_r_[1])
-				_c_ += "     site:   " + _r_[4] + " [" + _r_[5] + "]" + nl
-				_c_ += "     reach:  " + _site_.Protocol() + " -> " + _StzSiteOr(_site_.EndpointOf(), "(local)") + nl
-				_c_ += "     store:  " + _StzSiteOr(_site_.StorageLocation(), "(unset)") + nl
+				_c_ += "     site:   " + _r_[4] + " [" + _r_[5] + "]" + char(10)
+				_c_ += "     reach:  " + _site_.Protocol() + " -> " + _StzSiteOr(_site_.EndpointOf(), "(local)") + char(10)
+				_c_ += "     store:  " + _StzSiteOr(_site_.StorageLocation(), "(unset)") + char(10)
 			ok
 		next
 		if len(@oDelivery.Requirements()) > 0
 			_aFeas_ = This.Feasibility()
 			_nf_ = len(_aFeas_)
-			_c_ += nl + "  Host feasibility (required -> capacity):" + nl
+			_c_ += char(10) + "  Host feasibility (required -> capacity):" + char(10)
 			for _i_ = 1 to _nf_
 				_f_ = _aFeas_[_i_]
 				_mk_ = "ok  "
 				if _f_[4] = 0
 					_mk_ = "FAIL"
 				ok
-				_c_ += "     [" + _mk_ + "] " + _f_[1] + ": " + _f_[2] + " -> " + _f_[3] + "  (" + _f_[5] + ")" + nl
+				_c_ += "     [" + _mk_ + "] " + _f_[1] + ": " + _f_[2] + " -> " + _f_[3] + "  (" + _f_[5] + ")" + char(10)
 			next
 		ok
 		_aSteps_ = This.Steps()
 		_ns_ = len(_aSteps_)
 		if _ns_ > 0
-			_c_ += nl + "  Plan (" + _ns_ + " steps, in order; Run() executes them, governed):" + nl
+			_c_ += char(10) + "  Plan (" + _ns_ + " steps, in order; Run() executes them, governed):" + char(10)
 			for _i_ = 1 to _ns_
 				_st_ = _aSteps_[_i_]
 				_c_ += "     " + _i_ + ". " + StzPadRight(_st_[2], 10) + _st_[3] + " -> " + _st_[4]
 				if len(_st_[5]) > 0
 					_c_ += "   (after " + This._JoinNames(_st_[5]) + ")"
 				ok
-				_c_ += nl
+				_c_ += char(10)
 			next
 		ok
-		_c_ += nl + "  A verify gate must pass to proceed; a failure rolls back the completed steps." + nl
-		_c_ += "  Governed: only an effectful actor commits." + nl
-		return StzSplit(_c_, nl)   # a list of lines -- caller formats; Show() prints
+		_c_ += char(10) + "  A verify gate must pass to proceed; a failure rolls back the completed steps." + char(10)
+		_c_ += "  Governed: only an effectful actor commits." + char(10)
+		return StzSplit(_c_, char(10))   # a list of lines -- caller formats; Show() prints
 
 	# Prints the lines that Explain returns.
 	#
@@ -1819,12 +1819,12 @@ class stzDeployment from stzObject
 			next
 		next
 		_q_ = char(34)
-		_man_ = "{" + nl
-		_man_ += "  " + _q_ + "solution" + _q_ + ": " + _q_ + @oDelivery.Name() + _q_ + "," + nl
-		_man_ += "  " + _q_ + "part" + _q_ + ": " + _q_ + pcPart + _q_ + "," + nl
-		_man_ += "  " + _q_ + "engine" + _q_ + ": " + _q_ + _csv_ + _q_ + "," + nl
-		_man_ += "  " + _q_ + "artifacts" + _q_ + ": " + _q_ + _names_ + _q_ + nl
-		_man_ += "}" + nl
+		_man_ = "{" + char(10)
+		_man_ += "  " + _q_ + "solution" + _q_ + ": " + _q_ + @oDelivery.Name() + _q_ + "," + char(10)
+		_man_ += "  " + _q_ + "part" + _q_ + ": " + _q_ + pcPart + _q_ + "," + char(10)
+		_man_ += "  " + _q_ + "engine" + _q_ + ": " + _q_ + _csv_ + _q_ + "," + char(10)
+		_man_ += "  " + _q_ + "artifacts" + _q_ + ": " + _q_ + _names_ + _q_ + char(10)
+		_man_ += "}" + char(10)
 		_out_ = [ [ "deploy.json", _man_ ] ]
 		_nf_ = len(_files_)
 		for _i_ = 1 to _nf_

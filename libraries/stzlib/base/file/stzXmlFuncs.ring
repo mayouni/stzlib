@@ -66,7 +66,7 @@ func StzXmlChildren(pcXml, pcPath)
 	if _r_ = ""
 		return []
 	ok
-	return StzSplit(_r_, nl)
+	return StzSplit(_r_, char(10))
 
 func StzXmlPretty(pcXml)
 	return StzEngineXmlPretty("" + pcXml)

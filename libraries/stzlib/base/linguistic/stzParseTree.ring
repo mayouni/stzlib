@@ -285,6 +285,6 @@ class stzParseTree from stzObject
 		_c_ = _cPad_ + @cLabel
 		_n_ = len(@aoChildren)
 		for _i_ = 1 to _n_
-			_c_ += nl + @aoChildren[_i_]._Indent(nDepth + 1)
+			_c_ += char(10) + @aoChildren[_i_]._Indent(nDepth + 1)
 		next
 		return _c_

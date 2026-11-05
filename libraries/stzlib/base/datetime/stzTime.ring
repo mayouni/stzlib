@@ -45,12 +45,12 @@ func StzIsTime(str)
         return 0
     ok
 
-    _aParts_ = split(str, ":")
+    _aParts_ = ring_split(str, ":")
     if len(_aParts_) < 2 or len(_aParts_) > 3
         _cUpper_ = StzUpper(str)
         if StzRight(_cUpper_, 3) = " AM" or StzRight(_cUpper_, 3) = " PM"
             _cCore_ = trim(StzLeft(str, StzLen(str) - 3))
-            _aParts_ = split(_cCore_, ":")
+            _aParts_ = ring_split(_cCore_, ":")
             if len(_aParts_) < 2 or len(_aParts_) > 3
                 return 0
             ok
@@ -63,7 +63,7 @@ func StzIsTime(str)
     for i = 1 to _nPartsLen_
         _cPart_ = _aParts_[i]
         if i = len(_aParts_) and StzFindFirst(".", _cPart_)
-            _aSubParts_ = split(_cPart_, ".")
+            _aSubParts_ = ring_split(_cPart_, ".")
             _cPart_ = _aSubParts_[1]
         ok
         if not _IsAllDigits(_cPart_)
@@ -79,7 +79,7 @@ func StzIsTime(str)
     if len(_aParts_) = 3
         _cSecPart_ = _aParts_[3]
         if StzFindFirst(".", _cSecPart_)
-            _aSubParts_ = split(_cSecPart_, ".")
+            _aSubParts_ = ring_split(_cSecPart_, ".")
             _cSecPart_ = _aSubParts_[1]
         ok
         _nS_ = 0+ _cSecPart_
@@ -217,7 +217,7 @@ class stzTime from stzObject
             _cTime_ = trim(StzLeft(_cTime_, StzLen(_cTime_) - 3))
         ok
 
-        _aParts_ = split(_cTime_, ":")
+        _aParts_ = ring_split(_cTime_, ":")
         if len(_aParts_) < 2 or len(_aParts_) > 3
             StzRaise("Cannot parse time string: " + _cTime_)
         ok
@@ -230,7 +230,7 @@ class stzTime from stzObject
         if len(_aParts_) = 3
             _cSecPart_ = _aParts_[3]
             if StzFindFirst(".", _cSecPart_)
-                _aSubParts_ = split(_cSecPart_, ".")
+                _aSubParts_ = ring_split(_cSecPart_, ".")
                 _nS_ = 0+ _aSubParts_[1]
                 if len(_aSubParts_) > 1
                     _nMs_ = 0+ _aSubParts_[2]

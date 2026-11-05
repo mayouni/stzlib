@@ -121,7 +121,7 @@ func StzOcrPlatformLanguages()
 	if NOT isWindows() return [] ok
 	_cOut_ = StzSystem("powershell -NoProfile -ExecutionPolicy Bypass -File " + _StzOcrBridgePath() + " -List")
 	_aRes_ = []
-	_aL_ = split(_cOut_, char(10))
+	_aL_ = ring_split(_cOut_, char(10))
 	_nL_ = len(_aL_)
 	for _i_ = 1 to _nL_
 		_cT_ = trim(StzReplace(_aL_[_i_], char(13), ""))
@@ -351,11 +351,11 @@ func StzOcrPlatformLines(pcPath, pcLang)
 		if NOT fexists(_cOut_)
 			stzraise("the :ocr floor returned nothing for '" + pcPath + "': " + _cSum_)
 		ok
-		_aRawL_ = split(read(_cOut_), char(10))
+		_aRawL_ = ring_split(read(_cOut_), char(10))
 		remove(_cOut_)
 		_aBoxRaw_ = []
 		if fexists(_cBoxOut_)
-			_aBoxRaw_ = split(read(_cBoxOut_), char(10))
+			_aBoxRaw_ = ring_split(read(_cBoxOut_), char(10))
 			remove(_cBoxOut_)
 		ok
 		_nR_ = len(_aRawL_)
@@ -363,7 +363,7 @@ func StzOcrPlatformLines(pcPath, pcLang)
 			_aB_ = []
 			_aMd_ = []
 			if _i_ <= len(_aBoxRaw_)
-				_aF_ = split(trim(StzReplace(_aBoxRaw_[_i_], char(13), "")), " ")
+				_aF_ = ring_split(trim(StzReplace(_aBoxRaw_[_i_], char(13), "")), " ")
 				if len(_aF_) >= 4 _aB_ = [ 0 + _aF_[1], 0 + _aF_[2], 0 + _aF_[3], 0 + _aF_[4] ] ok
 				if len(_aF_) = 6 _aMd_ = [ 0 + _aF_[5], 0 + _aF_[6] ] ok
 			ok
@@ -696,7 +696,7 @@ func _StzOcrBridgeScript()
 #   pcDir      "rtl" or "ltr": the direction of the paragraph (the language pack's script decides it)
 #   returns    the line in logical order
 func StzOcrLogicalLineXT(pcLine, pcDir)
-	_aT_ = split(pcLine, " ")
+	_aT_ = ring_split(pcLine, " ")
 	_nT_ = len(_aT_)
 	_aK_ = []
 	for _i_ = 1 to _nT_
@@ -722,7 +722,7 @@ func StzOcrLogicalLineXT(pcLine, pcDir)
 # its right-to-left words outnumber the others, or, when they are as many, when the line ends in one and begins
 # with a number. See StzOcrLogicalLineXT, which is told the direction and never guesses.
 func StzOcrLogicalLine(pcLine)
-	_aT_ = split(pcLine, " ")
+	_aT_ = ring_split(pcLine, " ")
 	_nT_ = len(_aT_)
 	_nR_ = 0
 	_nL_ = 0
@@ -791,7 +791,7 @@ func _StzOcrKindIs(pcK, pcKind)
 
 # Puts every line of a text in logical order (lines kept, see StzOcrLogicalLine)
 func StzOcrLogicalText(pcText)
-	_aL_ = split(pcText, char(10))
+	_aL_ = ring_split(pcText, char(10))
 	_c_ = ""
 	_nL_ = len(_aL_)
 	for _i_ = 1 to _nL_
@@ -939,7 +939,7 @@ func _StzOcrIsDigit(pcChar)
 # order it stands on the page: the pack gives such a word's pieces -- letters, numbers, signs -- in right-to-left
 # order, so they are turned round and the brackets among them mirrored back.
 func _StzOcrPlatformVisualLine(pcLine)
-	_aT_ = split(pcLine, " ")
+	_aT_ = ring_split(pcLine, " ")
 	_nT_ = len(_aT_)
 	_c_ = ""
 	for _i_ = 1 to _nT_

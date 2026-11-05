@@ -367,7 +367,7 @@ class stzStochasticSolver from stzObject
         
         # Handle multiplication
         if ring_substr1(_cExpr_, "*")
-            _acParts_ = split(_cExpr_, "*")
+            _acParts_ = ring_split(_cExpr_, "*")
             if len(_acParts_) = 2
                 _nLeft_ = 0+ trim(_acParts_[1])
                 _nRight_ = 0+ trim(_acParts_[2])
@@ -377,7 +377,7 @@ class stzStochasticSolver from stzObject
         
         # Handle division
         if ring_substr1(_cExpr_, "/")
-            _acParts_ = split(_cExpr_, "/")
+            _acParts_ = ring_split(_cExpr_, "/")
             if len(_acParts_) = 2
                 _nLeft_ = 0+ trim(_acParts_[1])
                 _nRight_ = 0+ trim(_acParts_[2])
@@ -391,7 +391,7 @@ class stzStochasticSolver from stzObject
         
         # Handle addition
         if ring_substr1(_cExpr_, "+")
-            _acParts_ = split(_cExpr_, "+")
+            _acParts_ = ring_split(_cExpr_, "+")
             if len(_acParts_) = 2
                 _nLeft_ = 0+ trim(_acParts_[1])
                 _nRight_ = 0+ trim(_acParts_[2])
@@ -401,7 +401,7 @@ class stzStochasticSolver from stzObject
         
         # Handle subtraction
         if ring_substr1(_cExpr_, "-")
-            _acParts_ = split(_cExpr_, "-")
+            _acParts_ = ring_split(_cExpr_, "-")
             if len(_acParts_) = 2
                 _nLeft_ = 0+ trim(_acParts_[1])
                 _nRight_ = 0+ trim(_acParts_[2])
@@ -1196,11 +1196,11 @@ class stzStochasticSolver from stzObject
     #   see         exportScenarioAnalysis, solution
     def exportToCSV(cFileName)
         _oFile_ = new stzFile(cFileName)
-        _cContent_ = "Variable,Value" + nl
+        _cContent_ = "Variable,Value" + char(10)
         _nSolution1Len_ = len(@aSolution)
         for _iLoopSolution1_ = 1 to _nSolution1Len_
         	_sol_ = @aSolution[_iLoopSolution1_]
-            _cContent_ += _sol_[1] + "," + _sol_[2] + nl
+            _cContent_ += _sol_[1] + "," + _sol_[2] + char(10)
         next
         _oFile_.write(_cContent_)
 
@@ -1213,14 +1213,14 @@ class stzStochasticSolver from stzObject
     #   see         exportToCSV, analyzeScenarios
     def exportScenarioAnalysis(cFileName)
         _oFile_ = new stzFile(cFileName)
-        _cContent_ = "Scenario,Probability,ObjectiveValue,Feasible" + nl
+        _cContent_ = "Scenario,Probability,ObjectiveValue,Feasible" + char(10)
         
         _aResults_ = This.analyzeScenarios()
         _nResults1Len_ = len(_aResults_)
         for _iLoopResults1_ = 1 to _nResults1Len_
         	_result_ = _aResults_[_iLoopResults1_]
             _cFeasible_ = iff(_result_[:feasible], "Yes", "No")
-            _cContent_ += _result_[:scenario] + "," + _result_[:probability] + "," + _result_[:objectiveValue] + "," + _cFeasible_ + nl
+            _cContent_ += _result_[:scenario] + "," + _result_[:probability] + "," + _result_[:objectiveValue] + "," + _cFeasible_ + char(10)
         next
         
         _oFile_.write(_cContent_)

@@ -2268,7 +2268,7 @@ class stzSoundNotationReader
 		return number(pc)
 
 	def _IsSpace(pc)
-		return pc = " " or pc = char(9) or pc = nl or pc = char(13)
+		return pc = " " or pc = char(9) or pc = char(10) or pc = char(13)
 
 	#== both: the rows become ONE stzSoundScore =================================
 
@@ -2322,7 +2322,7 @@ class stzSoundNotationReader
 		_w_ = ""
 		for _k_ = 1 to len(pc)
 			_c_ = pc[_k_]
-			if _c_ = nl
+			if _c_ = char(10)
 				_a_ + _w_
 				_w_ = ""
 			but _c_ != char(13)

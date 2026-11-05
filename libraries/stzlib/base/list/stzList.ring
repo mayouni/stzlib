@@ -1381,7 +1381,7 @@ class stzList from stzObject
 		_cTsRes_ = ""
 		for _iTs_ = 1 to _nTsLen_
 			if _iTs_ > 1
-				_cTsRes_ = _cTsRes_ + nl
+				_cTsRes_ = _cTsRes_ + char(10)
 			ok
 			_xTs_ = _aTsContent_[_iTs_]
 			if isString(_xTs_)

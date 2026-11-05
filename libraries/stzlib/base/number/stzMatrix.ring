@@ -5000,7 +5000,7 @@ class stzMatrix from stzListOfLists
 		# If matrix is empty, just show empty border
 
 		if @nRows = 0 or @nCols = 0
-			see char(226) + char(148) + char(140) + char(226) + char(148) + char(144) + nl + char(226) + char(148) + char(148) + char(226) + char(148) + char(152) + nl
+			see char(226) + char(148) + char(140) + char(226) + char(148) + char(144) + char(10) + char(226) + char(148) + char(148) + char(226) + char(148) + char(152) + char(10)
 			return
 		ok
 
@@ -5062,7 +5062,7 @@ class stzMatrix from stzListOfLists
 
 		# Bottom border
 
-		see char(226) + char(148) + char(148) + ring_copy(" ", _nTotalWidth_) + char(226) + char(148) + char(152) + nl
+		see char(226) + char(148) + char(148) + ring_copy(" ", _nTotalWidth_) + char(226) + char(148) + char(152) + char(10)
 
 		# Prints the matrix as a bordered grid, the misspelt twin of Show.
 		#

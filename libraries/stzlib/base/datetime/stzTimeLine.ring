@@ -1933,7 +1933,7 @@ class stzTimeLine from stzObject
 
 		_cViz_ = StzReplace(_cViz_, char(226) + char(148) + char(128) + char(226) + char(148) + char(128) + char(226) + char(151) + char(139) + char(226) + char(151) + char(143) + char(226) + char(150) + char(186), char(226) + char(148) + char(128) + char(226) + char(148) + char(128) + char(226) + char(148) + char(128) + char(226) + char(151) + char(143) + char(226) + char(151) + char(139) + char(226) + char(148) + char(128) + char(226) + char(150) + char(186))
 
-		return _cViz_ + nl + nl + _cTable_
+		return _cViz_ + char(10) + char(10) + _cTable_
 	
 	# Returns a small table of figures about the timeline: counts, duration, coverage, longest span, gaps and overlaps.
 	#
@@ -2072,7 +2072,7 @@ class stzTimeLine from stzObject
 	    _cViz_ = _vizCanvasToString()
 	    _cTable_ = _buildTimepointsTable(_aTimepoints_)
 	    
-	    return _cViz_ + nl + nl + _cTable_
+	    return _cViz_ + char(10) + char(10) + _cTable_
 
 	#-------------------------------------#
 	#  MANAGING BLOCKED POINTS AND SPANS  #
@@ -2915,7 +2915,7 @@ class stzTimeLine from stzObject
 				next
 				
 				if i < _nRows_
-					_cResult_ += _cLine_ + nl
+					_cResult_ += _cLine_ + char(10)
 				else
 					_cResult_ += _cLine_
 				ok

@@ -122,17 +122,17 @@ class stzSoundNotation
 	def ToABC(pcTitle)
 		@aLosses = []
 		_aV_ = This._Voices()
-		_c_ = "X:1" + nl + "T:" + pcTitle + nl + "M:4/4" + nl + "L:1/16" + nl +
-		      "Q:1/4=" + floor(@oS.TempoInBpm() + 0.5) + nl + "K:C" + nl
+		_c_ = "X:1" + char(10) + "T:" + pcTitle + char(10) + "M:4/4" + char(10) + "L:1/16" + char(10) +
+		      "Q:1/4=" + floor(@oS.TempoInBpm() + 0.5) + char(10) + "K:C" + char(10)
 		_n_ = 0
 		for _v_ in _aV_
 			_n_++
-			_c_ += "V:" + _n_ + " name=" + char(34) + _v_[1] + char(34) + nl
+			_c_ += "V:" + _n_ + " name=" + char(34) + _v_[1] + char(34) + char(10)
 		next
 		_n_ = 0
 		for _v_ in _aV_
 			_n_++
-			_c_ += "[V:" + _n_ + "] " + This._AbcLine(_v_[2]) + nl
+			_c_ += "[V:" + _n_ + "] " + This._AbcLine(_v_[2]) + char(10)
 		next
 		return _c_
 
@@ -226,22 +226,22 @@ class stzSoundNotation
 		@aLosses = []
 		_aV_ = This._Voices()
 		_q_ = char(34)
-		_x_ = "<?xml version=" + _q_ + "1.0" + _q_ + " encoding=" + _q_ + "UTF-8" + _q_ + "?>" + nl +
-		      "<score-partwise version=" + _q_ + "4.0" + _q_ + ">" + nl +
-		      "  <work><work-title>" + This._Xml(pcTitle) + "</work-title></work>" + nl + "  <part-list>" + nl
+		_x_ = "<?xml version=" + _q_ + "1.0" + _q_ + " encoding=" + _q_ + "UTF-8" + _q_ + "?>" + char(10) +
+		      "<score-partwise version=" + _q_ + "4.0" + _q_ + ">" + char(10) +
+		      "  <work><work-title>" + This._Xml(pcTitle) + "</work-title></work>" + char(10) + "  <part-list>" + char(10)
 		_n_ = 0
 		for _v_ in _aV_
 			_n_++
 			_x_ += "    <score-part id=" + _q_ + "P" + _n_ + _q_ + "><part-name>" + This._Xml(_v_[1]) +
-			       "</part-name></score-part>" + nl
+			       "</part-name></score-part>" + char(10)
 		next
-		_x_ += "  </part-list>" + nl
+		_x_ += "  </part-list>" + char(10)
 		_n_ = 0
 		for _v_ in _aV_
 			_n_++
-			_x_ += "  <part id=" + _q_ + "P" + _n_ + _q_ + ">" + nl + This._XmlMeasures(_v_[2]) + "  </part>" + nl
+			_x_ += "  <part id=" + _q_ + "P" + _n_ + _q_ + ">" + char(10) + This._XmlMeasures(_v_[2]) + "  </part>" + char(10)
 		next
-		return _x_ + "</score-partwise>" + nl
+		return _x_ + "</score-partwise>" + char(10)
 
 	def _XmlMeasures(paSeg)
 		# the voice as a list of [ at, len, pitches or [] for a rest ], rests filled
@@ -262,13 +262,13 @@ class stzSoundNotation
 			while _left_ > 0
 				_b_ = floor(_at_ / 16)
 				if _b_ != _bar_
-					if _bar_ >= 0  _x_ += "    </measure>" + nl ok
+					if _bar_ >= 0  _x_ += "    </measure>" + char(10) ok
 					_bar_ = _b_
-					_x_ += "    <measure number=" + char(34) + (_b_ + 1) + char(34) + ">" + nl
+					_x_ += "    <measure number=" + char(34) + (_b_ + 1) + char(34) + ">" + char(10)
 					if _b_ = 0
 						_x_ += "      <attributes><divisions>4</divisions><time><beats>4</beats>" +
-						       "<beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes>" + nl +
-						       "      <sound tempo=" + char(34) + floor(@oS.TempoInBpm() + 0.5) + char(34) + "/>" + nl
+						       "<beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes>" + char(10) +
+						       "      <sound tempo=" + char(34) + floor(@oS.TempoInBpm() + 0.5) + char(34) + "/>" + char(10)
 					ok
 				ok
 				_room_ = 16 - (_at_ % 16)
@@ -280,7 +280,7 @@ class stzSoundNotation
 				_at_ += _take_
 			end
 		next
-		if _bar_ >= 0  _x_ += "    </measure>" + nl ok
+		if _bar_ >= 0  _x_ += "    </measure>" + char(10) ok
 		return _x_
 
 	# the largest note value that fits both what is left and the bar's room
@@ -304,7 +304,7 @@ class stzSoundNotation
 		_x_ = ""
 		if len(paP) = 0
 			return "      <note><rest/><duration>" + pnDur + "</duration><type>" + _ty_ + "</type>" +
-			       copy("<dot/>", _dot_) + "</note>" + nl
+			       copy("<dot/>", _dot_) + "</note>" + char(10)
 		ok
 		_k_ = 0
 		for _p_ in paP
@@ -323,7 +323,7 @@ class stzSoundNotation
 				if pbTieStart  _x_ += "<tied type=" + char(34) + "start" + char(34) + "/>" ok
 				_x_ += "</notations>"
 			ok
-			_x_ += "</note>" + nl
+			_x_ += "</note>" + char(10)
 		next
 		return _x_
 

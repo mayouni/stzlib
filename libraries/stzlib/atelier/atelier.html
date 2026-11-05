@@ -16,6 +16,8 @@
    Rule 3, 5, 10    paper tones, one accent (action and selection), one resting shadow, no gradient
    Rule 112, 17, 1  nothing moves: no transition, no animation, no smooth scroll
    Rule 13, 110     the top bar sticks and holds its own space; nothing floats over the reading
+   B0               the notebook is home: a cell, every ? line seen in its value's own face, every
+                    #--> promise judged by testoor's matcher; the playground it replaces is gone
    Rule 27          a horizontal main menu of three short labels and NO second level: the domains filter one
                     page, they are not pages, so they are a selector beside the search, never a menu
    Rule 108, 25     the trail from the root, every ancestor a link, the current step marked
@@ -170,7 +172,14 @@ th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);vert
 th:first-child,td:first-child{text-align:left}
 th{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:var(--label);font-weight:600;color:var(--ink-2);background:var(--panel-2)}
 tr.total td{font-weight:700;border-top:2px solid var(--line-2)}
-td.name{overflow-wrap:anywhere}
+td.name{overflow-wrap:anywhere;text-align:left}
+.see{margin:0 0 24px}
+.see .seeline{margin:0 0 12px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline}
+.see .face{margin:12px 0 0}
+.see .facelabel{color:var(--ink-2);margin:0 0 4px}
+.see .promise{margin:12px 0 0;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.drawing{display:block;max-width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:10px}
+.cellsum{margin:0 0 24px}
 .files{margin:8px 0 16px}
 .files summary{cursor:pointer;color:var(--accent);min-height:44px;display:inline-flex;align-items:center;font-weight:500}
 .files table th:nth-child(2),.files table td:nth-child(2){text-align:left}
@@ -196,9 +205,9 @@ kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padd
   <div class="topbar">
     <a class="brand" href="/atelier" data-t="title">Softanza Atelier</a>
     <nav class="menu" aria-label="Atelier sections" id="menu">
-      <a href="/atelier" data-view="checks" data-t="menu_checks">Checks</a>
+      <a href="/atelier" data-view="notebook" data-t="menu_notebook">Notebook</a>
+      <a href="/atelier/library" data-view="checks" data-t="menu_checks">Checks</a>
       <a href="/atelier/coverage" data-view="coverage" data-t="menu_coverage">Coverage</a>
-      <a href="/atelier/playground" data-view="playground" data-t="menu_playground">Playground</a>
     </nav>
     <div class="tools">
       <a id="langlink" href="?lang=fr" lang="fr" hreflang="fr" data-t="switch_lang">Lire en français</a>
@@ -257,7 +266,6 @@ kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padd
         <div class="summary" id="totals"></div>
       </div>
       <div class="card" id="chklist"><p data-t="nothing_run"></p></div>
-    </div>
   </div>
 </section>
 
@@ -276,17 +284,31 @@ kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padd
   <div class="card" id="onecheck"></div>
 </section>
 
-<section id="view-playground" hidden aria-labelledby="h-play">
-  <h2 id="h-play" data-t="menu_playground">Playground</h2>
+<section id="view-notebook" hidden aria-labelledby="h-nb">
+  <h2 id="h-nb" data-t="menu_notebook">Notebook</h2>
   <div class="card">
-    <p data-t="play_intro"></p>
-    <label for="code" data-t="play_label">Code to run</label>
-    <textarea id="code" spellcheck="false">oText = Q("Softanza runs in the Atelier")
-return [ oText.Uppercased(), oText.NumberOfWords(), Q(oText.Words()).Reversed() ]</textarea>
-    <div class="row" style="margin-top:12px"><button class="act primary" id="runcode" data-t="play_run">Run the code</button><kbd data-t="play_shortcut">Ctrl+Enter</kbd></div>
-    <p class="playtime" id="playtime"></p>
-    <pre id="playout" data-t="play_empty"></pre>
+    <p data-t="nb_intro"></p>
+    <label for="cellcode" data-t="nb_label">The cell</label>
+    <textarea id="cellcode" spellcheck="false" style="min-height:22rem">o1 = new stzList([ "tea", "rice", "tea", "fish", "rice", "tea" ])
+o1 {
+    ? NumberOfDuplicates()
+    #--> 3
+
+    ? @@( FindDuplicates() )
+    #--> [ 3, 5, 6 ]
+
+    RemoveDuplicates()
+    ? @@( Content() )
+    #--> [ "tea", "rice", "fish" ]
+}
+
+? Q("softanza").VizFind("an")
+
+? new stzBarPlot([ :Tea = 3, :Rice = 2, :Fish = 1 ])</textarea>
+    <div class="row" style="margin-top:12px"><button class="act primary" id="runcell" data-t="nb_run">Run the cell</button><kbd data-t="play_shortcut">Ctrl+Enter</kbd></div>
+    <p class="hint" data-t="nb_capture_note"></p>
   </div>
+  <div id="cellout" aria-live="polite"></div>
 </section>
 
 </div></div>
@@ -319,7 +341,7 @@ function applyLang() {
   const qs = new URLSearchParams(location.search); qs.set('lang', other);
   ll.href = location.pathname + '?' + qs.toString(); ll.lang = other; ll.hreflang = other;
   $('#themebtn').textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? t('theme_light') : t('theme_dark');
-  renderStatus(); renderDomains(); renderChecks(shown); renderTotals(); renderCoverage(); renderOne();
+  renderStatus(); renderDomains(); renderChecks(shown); renderTotals(); renderCoverage(); renderOne(); renderCell();
 }
 function pickLang() {
   const q = new URLSearchParams(location.search).get('lang');
@@ -332,20 +354,20 @@ function pickLang() {
 
 // ---- the view: one page, three addresses, the menu tells the truth (Rules 26, 116) ----
 const P = location.pathname;
-const VIEW = /\/check(\.html)?$/.test(P) ? 'check' : /coverage(\.html)?$/.test(P) ? 'coverage' : (/playground$/.test(P) && !EDITION) ? 'playground' : 'checks';
+const VIEW = /\/check(\.html)?$/.test(P) ? 'check' : /coverage(\.html)?$/.test(P) ? 'coverage' : (EDITION || /\/library$/.test(P)) ? 'checks' : 'notebook';
 const URLS = EDITION
-  ? { checks: 'data/checks.json', results: 'data/results.json', tours: 'data/tours.json', i18n: 'data/i18n.json', verdicts: null, home: 'index.html', coverage: 'coverage.html', one: 'check.html' }
-  : { checks: '/atelier/checks', results: '/atelier/results', tours: '/atelier/tours', i18n: '/atelier/i18n', verdicts: '/atelier/verdicts', home: '/atelier', coverage: '/atelier/coverage', one: '/atelier/check' };
+  ? { checks: 'data/checks.json', results: 'data/results.json', tours: 'data/tours.json', i18n: 'data/i18n.json', verdicts: null, home: 'index.html', library: 'index.html', coverage: 'coverage.html', one: 'check.html' }
+  : { checks: '/atelier/checks', results: '/atelier/results', tours: '/atelier/tours', i18n: '/atelier/i18n', verdicts: '/atelier/verdicts', home: '/', library: '/atelier/library', coverage: '/atelier/coverage', one: '/atelier/check' };
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('embed');
 document.querySelectorAll('#menu a').forEach(a => {
   const v = a.dataset.view;
-  a.href = (v === 'checks' ? URLS.home : v === 'coverage' ? URLS.coverage : '/atelier/playground') + (location.search || '');
+  a.href = (v === 'notebook' ? URLS.home : v === 'checks' ? URLS.library : URLS.coverage) + (location.search || '');
   if (v === VIEW) a.setAttribute('aria-current', 'page');
-  if (EDITION && v === 'playground') a.hidden = true;
+  if (EDITION && v === 'notebook') a.hidden = true;
 });
 $('.brand').href = URLS.home + (location.search || '');
 $('#trailroot').href = URLS.home;
-$('#trailmida').href = URLS.home;
+$('#trailmida').href = URLS.library;
 if (VIEW === 'check') $('#trailmid').hidden = false;
 $('#trailhere').dataset.t = 'menu_' + VIEW;
 $('#view-' + VIEW).hidden = false;
@@ -474,7 +496,7 @@ function loadRecorded(d) {
   if (EDITION) results = RECORDED;
 }
 function renderChecks(list) {
-  if (!CHECKS.length) return;
+  if (!CHECKS.length || VIEW !== 'checks') return;   // a view that is not shown builds nothing
   const show = $('#show').value;
   const rows = list.filter(c => {
     const r = results[c.id];
@@ -540,7 +562,7 @@ document.addEventListener('keydown', e => { if (e.ctrlKey && e.key.toLowerCase()
 let TOURS = null;
 const pct = (a, b) => b ? fmt1(100 * a / b) : '';
 function renderCoverage() {
-  if (!TOURS || !TOURS.totals) return;
+  if (!TOURS || !TOURS.totals || VIEW !== 'coverage') return;
   const T = TOURS, x = T.totals;
   $('#coverhead').textContent = t('coverage_head', { judged: fmtN(x.judged), claims: fmtN(x.claims), pct: pct(x.judged, x.claims), files: fmtN(x.files), kept: fmtN(x.kept), diverged: fmtN(x.diverged), unreached: fmtN(x.unreached), unjudged: fmtN(x.unjudged) });
   $('#coverfiles').textContent = t('coverage_files', { finished: fmtN(x.finished), broke: fmtN(x.broke), notstarted: fmtN(x.not_started), hung: fmtN(x.hung), keptcode: fmtN(x.kept_code), taken: T.taken, library: T.library, rnxc: T.rnxc, engine: T.engine, s: fmtN(Math.round(x.ms / 1000)) });
@@ -554,16 +576,69 @@ function renderCoverage() {
   $('#covertable').innerHTML = h; $('#covertable').hidden = false;
 }
 
-// ---- the playground ----
-async function play() {
-  if (!stzReady) { $('#playout').textContent = t('play_waiting'); return; }
-  const code = 'func Run cInput\n\treturn AtelierShow(AtelierBody())\n\nfunc AtelierBody\n' + $('#code').value + '\n';
-  const r = await run(code);
-  $('#playout').textContent = (r.status === 200 ? '' : r.status + '  ') + r.text;
-  $('#playtime').textContent = t('play_time', { ms: fmt1(r.ms) });
+// ---- the notebook: a cell, its lines seen, its promises judged (B0) ----
+let CELL = null;
+try { const saved = localStorage.getItem('atelier.cell'); if (saved && $('#cellcode')) $('#cellcode').value = saved; } catch (e) {}
+function tableFace(html) {
+  // the library's ToHtml() is read, never inserted: its text is copied into a table of the page's own
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const rows = [...doc.querySelectorAll('tr')].map(tr => [...tr.children].map(c => ({ h: c.tagName === 'TH', t: c.textContent.trim() })));
+  if (!rows.length) return `<pre>${esc(html)}</pre>`;
+  const head = rows[0].every(c => c.h) ? rows.shift() : null;
+  const td = c => `<td${c.t === '' || isNaN(Number(c.t)) ? ' class="name"' : ''}>${esc(c.t)}</td>`;
+  return `<table>${head ? '<thead><tr>' + head.map(c => `<th scope="col">${esc(c.t)}</th>`).join('') + '</tr></thead>' : ''}<tbody>${rows.map(r => '<tr>' + r.map(td).join('') + '</tr>').join('')}</tbody></table>`;
 }
-$('#runcode').onclick = play;
-$('#code').addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); play(); } });
+function faceHtml(v) {
+  if (v.kind === 'svg') {
+    const lab = v.label ? t('face_svg', { label: esc(v.label) }) : t('face_svg_plain');
+    return `<p class="facelabel">${lab}</p><img class="drawing" alt="${esc(t('nb_drawing_alt'))}" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(v.payload)}">`;
+  }
+  if (v.kind === 'image' && /^data:image\//.test(v.payload)) return `<p class="facelabel">${t('face_image')}</p><img class="drawing" alt="${esc(t('nb_drawing_alt'))}" src="${esc(v.payload)}">`;
+  if (v.kind === 'table') return `<p class="facelabel">${t('face_table', { label: esc(v.label) })}</p>${tableFace(v.payload)}`;
+  if (v.kind === 'list') return `<p class="facelabel">${t('face_list', { n: fmtN(v.label) })}</p><pre>${esc(v.payload)}</pre>`;
+  if (v.kind === 'object') return `<p class="facelabel">${t('face_object', { label: esc(v.label) })}</p><pre>${esc(v.payload)}</pre>`;
+  return `<pre>${esc(v.payload)}</pre>`;
+}
+function renderCell() {
+  if (!CELL || !$('#cellout')) return;
+  const d = CELL;
+  let sum = '';
+  if (d.end === 'not-started') sum = t('nb_notstarted', { why: esc(d.why) });
+  else {
+    sum = t('nb_ran', { ms: fmt1(d.ms), n: fmtN(d.sees.length), kept: fmtN(d.kept), diverged: fmtN(d.diverged) });
+    if (d.unreached) sum += ' ' + t('nb_unreached', { n: fmtN(d.unreached) });
+    if (d.end === 'broke') sum += ' ' + t('nb_stopped', { why: esc(d.why) });
+  }
+  let html = `<div class="card cellsum"><p style="margin:0">${sum}</p></div>`;
+  d.sees.forEach(s => {
+    const vals = s.values.map((v, k) => (s.values.length > 1 ? `<p class="facelabel"><b>${t('nb_pass', { k: k + 1 })}</b></p>` : '') + `<div class="face">${faceHtml(v)}</div>`).join('');
+    let prom = '';
+    if (s.promise) {
+      const came = s.state === 'diverged' && s.values.length ? `<span>${t('nb_came')}: <code>${esc(s.values[s.values.length - 1].payload.slice(0, 200))}</code></span>` : '';
+      prom = `<div class="promise"><span>${t('nb_promised')}: <code>#--&gt; ${esc(s.promise)}</code></span>${came}${s.state ? st(s.state) : ''}</div>`;
+    } else if (s.values.length) prom = `<p class="hint">${t('nb_none')}</p>`;
+    if (!s.values.length && !s.promise) prom = `<p class="hint">${t('nb_notrun')}</p>`;
+    html += `<article class="card see"><p class="seeline"><span class="mono">${t('nb_line', { n: s.line })}</span><code>? ${esc(s.expr)}</code></p>${vals}${prom}</article>`;
+  });
+  $('#cellout').innerHTML = html;
+}
+async function runCell() {
+  if (EDITION) return;
+  if (!stzReady) { $('#cellout').innerHTML = `<div class="card cellsum"><p style="margin:0">${t('play_waiting')}</p></div>`; return; }
+  const code = $('#cellcode').value;
+  $('#runcell').disabled = true;
+  try {
+    const r = await fetch('/atelier/cell', { method: 'POST', body: code });
+    CELL = await r.json();
+  } catch (e) { CELL = null; $('#cellout').innerHTML = `<div class="card cellsum"><p style="margin:0">${t('lib_gone')}</p></div>`; }
+  $('#runcell').disabled = false;
+  try { localStorage.setItem('atelier.cell', code); } catch (e) {}
+  renderCell();
+}
+if ($('#runcell')) {
+  $('#runcell').onclick = runCell;
+  $('#cellcode').addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); runCell(); } });
+}
 
 // ---- load: the dictionary first, then the data ----
 pickLang();

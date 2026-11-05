@@ -42,6 +42,12 @@
 #                            followed by the trail: the very lines base/test/_narrated.ring
 #                            would have printed, so testoor's judge reads them unchanged
 #   GET  /atelier/tours      tours.json, the last sweep of whole files (or null)
+#   POST /atelier/cell       the body is a CELL: code the reader wrote, run top to bottom as
+#                            one admission and released. Every `?` line is captured with its
+#                            value's FACE (text, list, table, drawing, image, object), and every
+#                            `#-->` promise under it judged by testoor's own matcher. Answers
+#                            JSON: how the cell ended, its time, and each line seen with its
+#                            values, its promise and the promise's state (B0 of the workbench)
 #   POST /atelier/stop       answers, then the loop ends
 #
 # WHAT JUDGES A CHECK is named in /atelier/state and on the page: the library's
@@ -64,6 +70,9 @@ $nAtelierServed = 0
 $nAtelierRuns = 0
 $nAtelierRefused = 0
 $nAtelierTours = 0
+
+# what a cell's `?` lines saw while it ran: [ [ see number, printed text, face ] ]
+$aAtelierSeen = []
 
 # the trail of a whole file admitted as a tour, and the tallies the narrated
 # helper keeps under the names a test may read
@@ -118,7 +127,7 @@ func AtelierServe
 		$nAtelierServed++
 		cMethod = rpp_http_method()
 		cPath = rpp_http_path()
-		if cMethod = "GET" and (cPath = "/atelier" or cPath = "/" or cPath = "/atelier/" or cPath = "/atelier/coverage" or cPath = "/atelier/playground" or cPath = "/atelier/check")
+		if cMethod = "GET" and (cPath = "/atelier" or cPath = "/" or cPath = "/atelier/" or cPath = "/atelier/coverage" or cPath = "/atelier/playground" or cPath = "/atelier/check" or cPath = "/atelier/library")
 			# one page, three addresses: the menu is real links and the back button holds
 			rpp_http_reply(200, "text/html; charset=utf-8", read($cAtelierDir + "/atelier.html"))
 		but cMethod = "GET" and cPath = "/atelier/i18n"
@@ -133,6 +142,8 @@ func AtelierServe
 			rpp_http_reply(200, "application/json; charset=utf-8", AtelierJsonFile("tours.json"))
 		but cMethod = "POST" and cPath = "/atelier/tour"
 			AtelierTourOnce(rpp_http_body())
+		but cMethod = "POST" and cPath = "/atelier/cell"
+			AtelierCellOnce(rpp_http_body())
 		but cMethod = "GET" and cPath = "/atelier/state"
 			rpp_http_reply(200, "application/json; charset=utf-8", AtelierStateJson())
 		but cMethod = "POST" and cPath = "/atelier/run"
@@ -254,6 +265,242 @@ func AtelierTourOnce cBody
 	cHead = "end" + char(9) + cEnd + char(9) + nMs + char(9) + cRel + char(9) + cErr
 	rpp_http_reply(200, "text/plain; charset=utf-8", cHead + char(10) + $cAtelierTrail)
 
+#--- a cell: the reader's code, its `?` lines seen, its promises judged ------
+#
+# The cell is rewritten line by line before it is admitted: a `?` line becomes
+# AtelierSee(<n>, <expression>), so its value comes to the Atelier instead of
+# going to the server's stdout, where nobody reads it. A `#-->` promise -- on the
+# `?` line itself or on the lines under it, as the library's own files write
+# them -- is kept beside its line and judged after the run with testoor's
+# matcher (_TravPromiseAt), the function that judges the library's promises:
+# one court, never a second. What a method prints on its own (not through `?`)
+# still goes to the server's stdout and is not captured: the page says so.
+
+func AtelierCellOnce cSource
+	if $cAtelierState != "admitted"
+		rpp_http_reply(503, "text/plain", "the library is " + $cAtelierState + " " + $cAtelierWhy)
+		return
+	ok
+	aPlan = AtelierCellPlan(cSource)
+	$aAtelierSeen = []
+	nT0 = clock()
+	cEnd = "finished"
+	cErr = ""
+	bAdmitted = 1
+	try
+		admitcode("cell", aPlan[1])
+	catch
+		cErr = substr(substr(cCatchError, char(13), ""), char(10), " ")
+		if substr(cErr, "not admitted") > 0
+			cEnd = "not-started"
+			bAdmitted = 0
+		else
+			cEnd = "broke"
+		ok
+	done
+	nMs = (clock() - nT0) * 1000 / clockspersecond()
+	cRel = "released"
+	if bAdmitted
+		try
+			releasecode("cell")
+		catch
+			cRel = "kept: " + substr(substr(cCatchError, char(13), ""), char(10), " ")
+		done
+	else
+		cRel = "nothing to release"
+	ok
+	rpp_http_reply(200, "application/json; charset=utf-8", AtelierCellJson(aPlan[2], cEnd, cErr, cRel, nMs))
+
+# [ the rewritten source, [ [ :n, :line, :expr, :promise ] ] ]
+func AtelierCellPlan cSource
+	acL = str2list(substr("" + cSource, char(13), ""))
+	aSees = []
+	cOut = ""
+	# nLines, never nL: Ring is case-insensitive, so nL spells the NL global.
+	# Harmless on rnxc, where an assignment in a function makes a local
+	# (measured 2026-11-05), but it reads as a write to NL and is not one.
+	nLines = len(acL)
+	for i = 1 to nLines
+		cLine = acL[i]
+		cT = trim(cLine)
+		if left(cT, 1) = "?" and left(cT, 4) != "?-->"
+			cExpr = trim(substr(cT, 2))
+			cPromise = ""
+			nAt = AtelierLastIndexOf(cExpr, "#-->")
+			if nAt > 0
+				cPromise = trim(substr(cExpr, nAt + 4))
+				cExpr = trim(left(cExpr, nAt - 1))
+			else
+				# the promise on the line under it, and its continuation lines
+				j = i + 1
+				while j <= nLines and trim(acL[j]) = ""
+					j++
+				end
+				if j <= nLines and left(trim(acL[j]), 4) = "#-->"
+					cPromise = trim(substr(trim(acL[j]), 5)) + _TourContinuation(acL, j)
+				ok
+			ok
+			if cExpr != ""
+				nN = len(aSees) + 1
+				aSees + [ :n = nN, :line = i, :expr = cExpr, :promise = cPromise ]
+				nIndent = substr(cLine, "?")
+				cOut += left(cLine, nIndent - 1) + "AtelierSee(" + nN + ", " + cExpr + ")" + char(10)
+				loop
+			ok
+		ok
+		cOut += cLine + char(10)
+	next
+	return [ cOut, aSees ]
+
+func AtelierLastIndexOf cText, cSub
+	nLast = 0
+	nFrom = 1
+	while 1
+		nAt = substr(substr(cText, nFrom), cSub)
+		if nAt = 0
+			exit
+		ok
+		nLast = nFrom + nAt - 1
+		nFrom = nLast + 1
+	end
+	return nLast
+
+# what a `?` line sees: kept in the order it ran, with what `?` would have printed
+# and the value's face; a `?` inside a loop is seen once per pass
+func AtelierSee nN, vValue
+	add($aAtelierSeen, [ nN, AtelierPrinted(vValue), AtelierFace(vValue) ])
+
+# the text `?` prints: a list one item per line, as Ring prints it
+func AtelierPrinted vValue
+	if isString(vValue)
+		return vValue
+	but isNumber(vValue)
+		return "" + vValue
+	but isList(vValue)
+		cOut = ""
+		for i = 1 to len(vValue)
+			if i > 1
+				cOut += char(10)
+			ok
+			cOut += AtelierPrinted(vValue[i])
+		next
+		return cOut
+	ok
+	return ""
+
+# a value in its own face: [ kind, payload, label ]
+#   text    a string or a number, as it prints
+#   list    the list as @@ shows it; the label says how many items
+#   table   a stzTable as the HTML its ToHtml() writes (the page reads it, never inserts it)
+#   svg     anything that answers ToSVG(), as the engine draws it; a string that is an SVG too
+#   image   a stzImage, as the PNG data URI its ToPngDataURI() answers
+#   object  any other object: its Content() as @@ shows it when it has one, else its class
+func AtelierFace vValue
+	if isString(vValue)
+		if lower(left(trim(vValue), 4)) = "<svg" or (lower(left(trim(vValue), 5)) = "<?xml" and substr(lower(vValue), "<svg") > 0)
+			return [ "svg", vValue, "" ]
+		ok
+		return [ "text", vValue, "" ]
+	but isNumber(vValue)
+		return [ "text", "" + vValue, "" ]
+	but isList(vValue)
+		return [ "list", @@(vValue), "" + len(vValue) ]
+	but isObject(vValue)
+		cClass = classname(vValue)
+		if ismethod(vValue, "topngdatauri")
+			try
+				return [ "image", vValue.ToPngDataURI(), cClass ]
+			catch
+				cAtelierIgnored = cCatchError   # an empty catch leaks a VM stack slot per raise (F-16)
+			done
+		ok
+		if ismethod(vValue, "tosvg")
+			cSvg = ""
+			try
+				cSvg = vValue.ToSVG()
+			catch
+				try
+					cSvg = vValue.ToSVG([])
+				catch
+					cSvg = ""
+				done
+			done
+			if isString(cSvg) and cSvg != ""
+				return [ "svg", cSvg, cClass ]
+			ok
+		ok
+		if substr(cClass, "table") > 0 and ismethod(vValue, "tohtml")
+			try
+				return [ "table", vValue.ToHtml(), cClass ]
+			catch
+				cAtelierIgnored = cCatchError   # an empty catch leaks a VM stack slot per raise (F-16)
+			done
+		ok
+		if ismethod(vValue, "content")
+			try
+				return [ "object", @@(vValue.Content()), cClass ]
+			catch
+				cAtelierIgnored = cCatchError   # an empty catch leaks a VM stack slot per raise (F-16)
+			done
+		ok
+		return [ "object", cClass, cClass ]
+	ok
+	return [ "text", "", "" ]
+
+# the cell's answer: how it ended, and each line seen with its values and its
+# promise judged -- kept, diverged; a promise whose line never ran is unreached when
+# the cell broke or never started, unjudged when it finished without walking it
+func AtelierCellJson aSees, cEnd, cErr, cRel, nMs
+	nKept = 0  nDiv = 0  nUnr = 0  nUnj = 0
+	cJ = '{"end":' + AtelierJsonStr(cEnd) + ',"why":' + AtelierJsonStr(cErr) + ',"release":' + AtelierJsonStr(cRel)
+	cJ += ',"ms":' + (floor(nMs * 100 + 0.5) / 100) + ',"sees":['
+	for i = 1 to len(aSees)
+		aS = aSees[i]
+		acPrinted = []
+		cVals = ""
+		for k = 1 to len($aAtelierSeen)
+			if $aAtelierSeen[k][1] = aS[:n]
+				acPart = str2list($aAtelierSeen[k][2])
+				for m = 1 to len(acPart)
+					acPrinted + _TravNorm(acPart[m])
+				next
+				if len($aAtelierSeen[k][2]) = 0
+					acPrinted + ""
+				ok
+				aF = $aAtelierSeen[k][3]
+				if cVals != ""
+					cVals += ","
+				ok
+				cVals += '{"kind":' + AtelierJsonStr(aF[1]) + ',"payload":' + AtelierJsonStr(aF[2]) + ',"label":' + AtelierJsonStr(aF[3]) + '}'
+			ok
+		next
+		cState = ""
+		if aS[:promise] != ""
+			if cVals = ""
+				if cEnd = "finished"
+					cState = "unjudged"
+					nUnj++
+				else
+					cState = "unreached"
+					nUnr++
+				ok
+			but _TravPromiseAt(aS[:promise], acPrinted, 1) > 0
+				cState = "kept"
+				nKept++
+			else
+				cState = "diverged"
+				nDiv++
+			ok
+		ok
+		if i > 1
+			cJ += ","
+		ok
+		cJ += '{"n":' + aS[:n] + ',"line":' + aS[:line] + ',"expr":' + AtelierJsonStr(aS[:expr]) + ',"promise":' + AtelierJsonStr(aS[:promise])
+		cJ += ',"state":' + AtelierJsonStr(cState) + ',"values":[' + cVals + ']}'
+	next
+	cJ += '],"kept":' + nKept + ',"diverged":' + nDiv + ',"unreached":' + nUnr + ',"unjudged":' + nUnj + '}'
+	return cJ
+
 #--- the narrated verbs, recording what base/test/_narrated.ring prints -----
 # (same lines, same tallies, so a tour reads as the suite reads it and
 # testoor's judge pairs the trail with the reader's claims by text)
@@ -324,6 +571,7 @@ func AtelierWritePid
 	try
 		write($cAtelierDir + "/_atelier_" + $nAtelierPort + ".pid", "" + ProcessId() + char(10))
 	catch
+		cAtelierIgnored = cCatchError   # an empty catch leaks a VM stack slot per raise (F-16)
 	done
 
 func AtelierRemovePid

@@ -219,7 +219,7 @@ class stzListener
 			_p_ = _aP8_[_iP8_]
 			_s_ = trim("" + _p_)
 			if _s_ = ""  loop ok
-			if _c_ != ""  _c_ += nl ok
+			if _c_ != ""  _c_ += char(10) ok
 			_c_ += _s_
 			_n_++
 		next

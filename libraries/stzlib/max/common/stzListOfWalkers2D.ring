@@ -780,7 +780,7 @@ class stzListOfWalkers2D
 			sSpaceAfter = space(nCellWidth - len(sXLabel) - nPadding)
 			sResult += sSpaceBefore + sXLabel + sSpaceAfter
 		next
-		sResult += NL
+		sResult += char(10)
 
 		# Add top border with markers
 
@@ -797,7 +797,7 @@ class stzListOfWalkers2D
 			sResult += sBorder
 		next
 
-		sResult += "╮" + NL
+		sResult += "╮" + char(10)
 
 # Add rows with Y-axis labels and borders
 for y = 1 to nGridHeight
@@ -818,7 +818,7 @@ for y = 1 to nGridHeight
         sResult += sSpaceBefore + sContent + sSpaceAfter
     next
     
-    sResult += "│" + NL
+    sResult += "│" + char(10)
 next
 
 		# Add bottom border
@@ -828,7 +828,7 @@ next
 		for x = 1 to nGridWidth
 			sResult += RepeatChar("─", nCellWidth)
 		next
-		sResult += "╯" + NL
+		sResult += "╯" + char(10)
     
 		return sResult   
 
@@ -837,13 +837,13 @@ next
 
 	def Legend()
 
-		cResult =  "  . = Empty position" + NL
-		cResult += "1-9 = Walker's walkable position" + NL
-		cResult += "  * = Overlapping walkable positions" + NL
-		cResult += " x# = Current position of walker #" + NL
-		cResult += " S# = Start position of walker #" + NL
-		cResult += " E# = End position of walker #" + NL
-		cResult += "v/> = Markers of current positions on grid borders" + NL
+		cResult =  "  . = Empty position" + char(10)
+		cResult += "1-9 = Walker's walkable position" + char(10)
+		cResult += "  * = Overlapping walkable positions" + char(10)
+		cResult += " x# = Current position of walker #" + char(10)
+		cResult += " S# = Start position of walker #" + char(10)
+		cResult += " E# = End position of walker #" + char(10)
+		cResult += "v/> = Markers of current positions on grid borders" + char(10)
     
 		return cResult
 

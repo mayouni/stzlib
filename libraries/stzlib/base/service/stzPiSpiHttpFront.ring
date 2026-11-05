@@ -173,7 +173,7 @@ func _StzPiFrontProblem(poResp, pnStatus, pcDetail)
 # the form body of a token request: [ [ key, value ], ... ], decoded
 func _StzPiFormPairs(pcBody)
 	_aOut_ = []
-	_a_ = split(pcBody, "&")
+	_a_ = ring_split(pcBody, "&")
 	for _i_ = 1 to len(_a_)
 		_p_ = StzFindFirst("=", _a_[_i_])
 		if _p_ > 0

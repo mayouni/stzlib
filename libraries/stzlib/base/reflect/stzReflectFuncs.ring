@@ -1995,7 +1995,7 @@ func _StzScanFolderForClass(pcFolder, pcNameLower)
 func _StzFileHasClass(pcContentLower, pcNameLower)
 	_needle_ = "class " + pcNameLower
 	if substr(pcContentLower, _needle_ + " ") > 0 return 1 ok
-	if substr(pcContentLower, _needle_ + nl) > 0 return 1 ok
+	if substr(pcContentLower, _needle_ + char(10)) > 0 return 1 ok
 	if substr(pcContentLower, _needle_ + char(13)) > 0 return 1 ok
 	if substr(pcContentLower, _needle_ + char(9)) > 0 return 1 ok
 	return 0
@@ -2203,7 +2203,7 @@ func _StzParseRecipe(pcFile)
 			loop
 		ok
 		if _bCode_
-			_cEg_ += _cRaw_ + nl
+			_cEg_ += _cRaw_ + char(10)
 			loop
 		ok
 		_cV_ = _StzLineTagValue(_cT_, "# intent:")
@@ -2400,11 +2400,11 @@ func _StzLoadExampleCache(nSig)
 func _StzSaveExampleCache(nSig)
 	_cPath_ = _StzExampleCachePath()
 	if _cPath_ = "" return ok
-	_c_ = "SIG2 " + nSig + nl
+	_c_ = "SIG2 " + nSig + char(10)
 	_n_ = len($aStzExampleIndex)
 	for _i_ = 1 to _n_
 		_r_ = $aStzExampleIndex[_i_]
-		_c_ += _r_[1] + char(1) + _r_[2] + char(1) + _r_[3] + char(1) + _r_[4] + nl
+		_c_ += _r_[1] + char(1) + _r_[2] + char(1) + _r_[3] + char(1) + _r_[4] + char(10)
 	next
 	try
 		write(_cPath_, _c_)
@@ -2456,10 +2456,10 @@ func _StzLoadEmbCache(pcClass, paTexts)
 func _StzSaveEmbCache(pcClass, paTexts, paVectors)
 	_cPath_ = _StzEmbCachePath(pcClass)
 	if _cPath_ = "" return ok
-	_c_ = "EMB " + StzEngineNeuralModelNEmbd() + " " + len(paTexts) + " " + _StzTextsSig(paTexts) + nl
+	_c_ = "EMB " + StzEngineNeuralModelNEmbd() + " " + len(paTexts) + " " + _StzTextsSig(paTexts) + char(10)
 	_n_ = len(paVectors)
 	for _i_ = 1 to _n_
-		_c_ += _StzFloatsToStr(paVectors[_i_]) + nl
+		_c_ += _StzFloatsToStr(paVectors[_i_]) + char(10)
 	next
 	try
 		write(_cPath_, _c_)
@@ -2536,7 +2536,7 @@ func _StzParseScenariosText(pcContent)
 			_bIn_ = 0
 			_cTitle_ = ""
 		else
-			if _bIn_ _cCode_ += _aLines_[_i_] + nl ok
+			if _bIn_ _cCode_ += _aLines_[_i_] + char(10) ok
 		ok
 	next
 	return _aOut_

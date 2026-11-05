@@ -69,7 +69,7 @@ func ListToCSVXT(aList, cSep)
         if i < _nCols_ _cResult_ += cSep ok
     next
 
-    _cResult_ += nl
+    _cResult_ += char(10)
     
     # Add data rows
     for j = 1 to _nRows_
@@ -77,7 +77,7 @@ func ListToCSVXT(aList, cSep)
             _cResult_ += aList[i][2][j]
             if i < _nCols_ _cResult_ += cSep ok
         next
-        if j < _nRows_ _cResult_ += nl ok
+        if j < _nRows_ _cResult_ += char(10) ok
     next
     
     return _cResult_

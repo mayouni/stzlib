@@ -648,7 +648,7 @@ func CharsContainingInTheirName(pcPartOfName)
 	if _cResult_ = ""
 		return []
 	ok
-	_aLines_ = split(_cResult_, nl)
+	_aLines_ = ring_split(_cResult_, char(10))
 	_nLen_ = len(_aLines_)
 	_acResult_ = []
 	for _i_ = 1 to _nLen_
@@ -699,7 +699,7 @@ func CharsNamesContaining(pcPartOfName)
 	if _cResult_ = ""
 		return []
 	ok
-	_aLines_ = split(_cResult_, nl)
+	_aLines_ = ring_split(_cResult_, char(10))
 	_nLen_ = len(_aLines_)
 	_acResult_ = []
 	for _i_ = 1 to _nLen_
@@ -906,7 +906,7 @@ class stzUnicodeData from stzObject
 		if _cResult_ = ""
 			return []
 		ok
-		_aLines_ = split(_cResult_, nl)
+		_aLines_ = ring_split(_cResult_, char(10))
 		_nLen_ = len(_aLines_)
 		_anResult_ = []
 		for _i_ = 1 to _nLen_
@@ -948,7 +948,7 @@ class stzUnicodeData from stzObject
 			if _cResult_ = ""
 				return []
 			ok
-			_aLines_ = split(_cResult_, nl)
+			_aLines_ = ring_split(_cResult_, char(10))
 			_nLen_ = len(_aLines_)
 			_acResult_ = []
 			for _i_ = 1 to _nLen_

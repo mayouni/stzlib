@@ -368,7 +368,7 @@ class stzLog from stzObject
 		for _i_ = 1 to _n_
 			_c_ += This._FormatEntry(@aEntries[_i_])
 			if _i_ < _n_
-				_c_ += nl
+				_c_ += char(10)
 			ok
 		next
 		return _c_
@@ -388,16 +388,16 @@ class stzLog from stzObject
 	#@ aka  a JSON array of the entries -- ship to any log pipeline. Fields are inlined as top-level keys alongside ts / level / category / message.
 	def AsJson()
 		_q_ = char(34)
-		_c_ = "[" + nl
+		_c_ = "[" + char(10)
 		_n_ = len(@aEntries)
 		for _i_ = 1 to _n_
 			_c_ += "  " + This._EntryJson(@aEntries[_i_])
 			if _i_ < _n_
 				_c_ += ","
 			ok
-			_c_ += nl
+			_c_ += char(10)
 		next
-		_c_ += "]" + nl
+		_c_ += "]" + char(10)
 		return _c_
 
 	# Writes the text rendering of the entries to a file, replacing its contents.

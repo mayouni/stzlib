@@ -258,7 +258,7 @@ class stzHBarPlot from stzBarPlot
 		_nL_ = len(@acLabels)
 		for _i_ = 1 to _nL_
 			if _i_ > 1
-				_cLabels_ += nl
+				_cLabels_ += char(10)
 			ok
 			_cLabels_ += @acLabels[_i_]
 		next

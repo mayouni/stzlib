@@ -500,7 +500,7 @@ class stzSamlServiceProvider from stzObject
 		_n_ = len(_in_)
 		for _i_ = 1 to _n_
 			_c_ = _in_[_i_]
-			if _c_ != " " and _c_ != nl and _c_ != char(13) and _c_ != char(9)
+			if _c_ != " " and _c_ != char(10) and _c_ != char(13) and _c_ != char(9)
 				_s_ += _c_
 			ok
 		next

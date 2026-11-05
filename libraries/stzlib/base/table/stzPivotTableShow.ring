@@ -281,7 +281,7 @@ Class TableDisplayConfig
                         loop
                     ok
                     
-                    _aParts_ = split(_cHeader_, "|")
+                    _aParts_ = ring_split(_cHeader_, "|")
                     if len(_aParts_) >= i and not find(_aUnique_, _aParts_[i])
                         _aUnique_ + _aParts_[i]
                     ok
@@ -546,15 +546,15 @@ Class TableDisplayConfig
     #   see        CalculateLayout, GetLayoutValue
     #@ aka  Debug function to show all calculated dimensions
     func DebugLayout()
-        see "=== TABLE LAYOUT DEBUG ===" + nl
-        see "Row Label Section Width: " + aCalculatedLayout[:RowLabelSectionWidth] + nl
-        see "Row Label Widths: " + nl
+        see "=== TABLE LAYOUT DEBUG ===" + char(10)
+        see "Row Label Section Width: " + aCalculatedLayout[:RowLabelSectionWidth] + char(10)
+        see "Row Label Widths: " + char(10)
         _nCalculatedLayoutRowLabelWidthsLen_ = len(aCalculatedLayout[:RowLabelWidths])
         for i = 1 to _nCalculatedLayoutRowLabelWidthsLen_
-            see "  " + aRowLabels[i] + ": " + aCalculatedLayout[:RowLabelWidths][i] + nl
+            see "  " + aRowLabels[i] + ": " + aCalculatedLayout[:RowLabelWidths][i] + char(10)
         next
         
-        see "Data Column Widths: " + nl
+        see "Data Column Widths: " + char(10)
         _aColDimValues_ = aContentDimensions[:ColumnDimValues]
         _aColDimValues14_ = _aColDimValues_[1]
         _nColDimValues14Len_ = len(_aColDimValues14_)
@@ -566,15 +566,15 @@ Class TableDisplayConfig
             	_dim2_ = _aColDimValues26_[_iLoopColDimValues26_]
                 _cKey_ = _dim1_ + "|" + _dim2_
                 if @IsHashList(aCalculatedLayout[:DataColumnWidths][_cKey_])
-                    see "  " + _cKey_ + ": " + aCalculatedLayout[:DataColumnWidths][_cKey_] + nl
+                    see "  " + _cKey_ + ": " + aCalculatedLayout[:DataColumnWidths][_cKey_] + char(10)
                 ok
             next
         next
         
-        see "Total Column Width: " + aCalculatedLayout[:TotalColumnWidth] + nl
-        see "Total Table Width: " + aCalculatedLayout[:TableWidth] + nl
-        see "Left Padding: " + aCalculatedLayout[:LeftPadding] + nl
-        see "=========================" + nl
+        see "Total Column Width: " + aCalculatedLayout[:TotalColumnWidth] + char(10)
+        see "Total Table Width: " + aCalculatedLayout[:TableWidth] + char(10)
+        see "Left Padding: " + aCalculatedLayout[:LeftPadding] + char(10)
+        see "=========================" + char(10)
     
 end  # End of TableDisplayConfig class
 
@@ -647,7 +647,7 @@ Class TableRenderer
         _aBorderChars_ = oConfig.aDecorators[:BorderChars]
         
         # Add top padding
-        see nl + copy(nl, oConfig.aSettings[:HeaderTopPadding] - 1)
+        see char(10) + copy(char(10), oConfig.aSettings[:HeaderTopPadding] - 1)
         
         # 1.1 Top border
         _cLeftPad_ = copy(" ", _nLeftPadding_)
@@ -1515,7 +1515,7 @@ Class TableThemeManager
     #@ aka  Apply a predefined theme
     func ApplyTheme(_cThemeName_)
         if !@IsHashList(aThemes[_cThemeName_])
-            see "Theme '" + _cThemeName_ + "' not found. Using Default." + nl
+            see "Theme '" + _cThemeName_ + "' not found. Using Default." + char(10)
             _cThemeName_ = :Default
         ok
         

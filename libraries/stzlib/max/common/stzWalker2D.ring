@@ -880,7 +880,7 @@ class stzWalker2D
 		for x = nMinX to nMaxX
 			sResult += ""+ (x % 10) + "  "
 		next
-		sResult += NL
+		sResult += char(10)
 	
 		# Add top border with rounded corners with
 		# indicator for current X position
@@ -893,7 +893,7 @@ class stzWalker2D
 				sResult += "───"
 			ok
 		next
-		sResult += "╮" + NL
+		sResult += "╮" + char(10)
 	
 		# Add rows with Y-axis labels and borders
 
@@ -908,7 +908,7 @@ class stzWalker2D
 			for x = 1 to nGridWidth
 				sResult += " " + aGrid[y][x] + " "
 			next
-			sResult += "│" + NL
+			sResult += "│" + char(10)
 		next
 	
 		# Add bottom border with rounded corners

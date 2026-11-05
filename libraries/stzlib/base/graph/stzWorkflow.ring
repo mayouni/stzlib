@@ -1244,46 +1244,46 @@ class stzWorkflow from stzDiagram
 	#              and transitions are not written
 	#   see        ImportFlow
 	def ToWorkflow()
-		_cResult_ = 'workflow "' + @cId + '"' + NL
-		_cResult_ += '    type: ' + @cWorkflowType + NL + NL
+		_cResult_ = 'workflow "' + @cId + '"' + char(10)
+		_cResult_ += '    type: ' + @cWorkflowType + char(10) + char(10)
 		
 		if This.IsSequential()
-			_cResult_ += 'steps' + NL
+			_cResult_ += 'steps' + char(10)
 			_nSteps1Len_ = len(@aSteps)
 			for _iLoopSteps1_ = 1 to _nSteps1Len_
 				_aStep_ = @aSteps[_iLoopSteps1_]
-				_cResult_ += '    ' + _aStep_[:id] + NL
-				_cResult_ += '        label: "' + _aStep_[:label] + '"' + NL
+				_cResult_ += '    ' + _aStep_[:id] + char(10)
+				_cResult_ += '        label: "' + _aStep_[:label] + '"' + char(10)
 				if _aStep_[:assignedTo] != ""
-					_cResult_ += '        assignedTo: ' + _aStep_[:assignedTo] + NL
+					_cResult_ += '        assignedTo: ' + _aStep_[:assignedTo] + char(10)
 				ok
 				if _aStep_[:duration] > 0
-					_cResult_ += '        duration: ' + _aStep_[:duration] + NL
+					_cResult_ += '        duration: ' + _aStep_[:duration] + char(10)
 				ok
 				if _aStep_[:sla] > 0
-					_cResult_ += '        sla: ' + _aStep_[:sla] + NL
+					_cResult_ += '        sla: ' + _aStep_[:sla] + char(10)
 				ok
-				_cResult_ += NL
+				_cResult_ += char(10)
 			end
 			
-			_cResult_ += 'flow' + NL
+			_cResult_ += 'flow' + char(10)
 			_aThisEdges1_ = This.Edges()
 			_nThisEdges1Len_ = len(_aThisEdges1_)
 			for _iLoopThisEdges1_ = 1 to _nThisEdges1Len_
 				_aEdge_ = _aThisEdges1_[_iLoopThisEdges1_]
-				_cResult_ += '    ' + _aEdge_[:from] + ' -> ' + _aEdge_[:to] + NL
+				_cResult_ += '    ' + _aEdge_[:from] + ' -> ' + _aEdge_[:to] + char(10)
 			end
 		ok
 		
 		if len(@aActors) > 0
-			_cResult_ += NL + 'actors' + NL
+			_cResult_ += char(10) + 'actors' + char(10)
 			_nActors1Len_ = len(@aActors)
 			for _iLoopActors1_ = 1 to _nActors1Len_
 				_aActor_ = @aActors[_iLoopActors1_]
-				_cResult_ += '    ' + _aActor_[:id] + NL
-				_cResult_ += '        name: "' + _aActor_[:name] + '"' + NL
-				_cResult_ += '        role: ' + _aActor_[:role] + NL
-				_cResult_ += NL
+				_cResult_ += '    ' + _aActor_[:id] + char(10)
+				_cResult_ += '        name: "' + _aActor_[:name] + '"' + char(10)
+				_cResult_ += '        role: ' + _aActor_[:role] + char(10)
+				_cResult_ += char(10)
 			end
 		ok
 		
@@ -2062,7 +2062,7 @@ class stzFlowParser from stzObject
 	#   see         ParseFile, ToWorkflow
 	def Parse(pcContent)
 		_oWorkflow_ = ""
-		_acLines_ = split(pcContent, NL)
+		_acLines_ = ring_split(pcContent, char(10))
 		_cSection_ = ""
 		_cCurrentItem_ = ""
 		_aCurrentProps_ = []
@@ -2124,14 +2124,14 @@ class stzFlowParser from stzObject
 					_cCurrentItem_ = _cLine_
 					_aCurrentProps_ = []
 				else
-					_aParts_ = split(_cLine_, ":")
+					_aParts_ = ring_split(_cLine_, ":")
 					_cKey_ = trim(_aParts_[1])
 					_cValue_ = trim(_aParts_[2])
 					_aCurrentProps_ + [_cKey_, This._ParseValue(_cValue_)]
 				ok
 			
 			but _cSection_ = "flow" and StzFindFirst("->", _cLine_)
-				_aParts_ = split(_cLine_, "->")
+				_aParts_ = ring_split(_cLine_, "->")
 				_oWorkflow_.ConnectSteps(trim(_aParts_[1]), trim(_aParts_[2]))
 			
 			but _cSection_ = "actors"
@@ -2142,12 +2142,12 @@ class stzFlowParser from stzObject
 					_cCurrentItem_ = _cLine_
 					_aCurrentProps_ = []
 				else
-					_aParts_ = split(_cLine_, ":")
+					_aParts_ = ring_split(_cLine_, ":")
 					_aCurrentProps_ + [trim(_aParts_[1]), This._ParseValue(trim(_aParts_[2]))]
 				ok
 			
 			but _cSection_ = "roles" and StzFindFirst("->", _cLine_)
-				_aParts_ = split(_cLine_, "->")
+				_aParts_ = ring_split(_cLine_, "->")
 				_oWorkflow_.MapRoleToPosition(trim(_aParts_[1]), trim(_aParts_[2]))
 			ok
 		end

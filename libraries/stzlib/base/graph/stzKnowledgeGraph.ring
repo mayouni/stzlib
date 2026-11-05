@@ -73,7 +73,7 @@ func StzKnowUnescape(pcField)
 
 # One record line -> its unescaped, trimmed fields.
 func StzKnowSplit(pcLine)
-	_acRaw_ = split("" + pcLine, "|")
+	_acRaw_ = ring_split("" + pcLine, "|")
 	_aOut_ = []
 	_n_ = len(_acRaw_)
 	for _i_ = 1 to _n_
@@ -1772,7 +1772,7 @@ class stzKnowParser from stzObject
     #   see         ParseFile, ExportToKnow
     def Parse(pcContent)
         _oKG_ = ""
-        _acLines_ = split(pcContent, char(10))
+        _acLines_ = ring_split(pcContent, char(10))
         _cSection_ = ""
         
         _nAcLines1Len_ = len(_acLines_)
@@ -1825,7 +1825,7 @@ class stzKnowParser from stzObject
                 ok
 
             but _cSection_ = "ontology" and StzFindFirst("|", _cLine_)
-                _aParts_ = split(_cLine_, "|")
+                _aParts_ = ring_split(_cLine_, "|")
                 if len(_aParts_) = 2
                     _oKG_.DefineProperty(trim(_aParts_[1]), [ trim(_aParts_[2]) ])
                 ok

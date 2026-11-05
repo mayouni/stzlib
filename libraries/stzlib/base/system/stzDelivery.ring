@@ -1198,8 +1198,8 @@ class stzBuildPlan from stzObject
 	#   returns    a list of text lines
 	#   see        Show, VectorFor
 	def Explain()
-		_c_ = "Solution '" + @cName + "' -- placement & scope plan (rehearsal; nothing built yet)" + nl
-		_c_ += "==============================================================================" + nl
+		_c_ = "Solution '" + @cName + "' -- placement & scope plan (rehearsal; nothing built yet)" + char(10)
+		_c_ += "==============================================================================" + char(10)
 		_tot_ = 0
 		_nat_ = 0
 		_eng_ = 0
@@ -1210,16 +1210,16 @@ class stzBuildPlan from stzObject
 			_p_ = @aParts[i]
 			_class_ = _p_[4]
 			_bEdge_ = (_class_ != "server")
-			_c_ += nl + "  Part '" + _p_[1] + "' [" + _p_[2] + "] -> " + _p_[3] + " (" + _class_
+			_c_ += char(10) + "  Part '" + _p_[1] + "' [" + _p_[2] + "] -> " + _p_[3] + " (" + _class_
 			if _bEdge_
 				_c_ += " / edge"
 			ok
-			_c_ += ")" + nl
+			_c_ += ")" + char(10)
 			_decs_ = _p_[5]
 			mLen = len(_decs_)
 			for k = 1 to mLen
 				_lbl_ = This._Label(_decs_[k][3], _class_)
-				_c_ += "     " + StzPadRight(_decs_[k][2], 18) + " " + StzPadRight(_lbl_, 12) + _decs_[k][4] + nl
+				_c_ += "     " + StzPadRight(_decs_[k][2], 18) + " " + StzPadRight(_lbl_, 12) + _decs_[k][4] + char(10)
 				_tot_++
 				if _decs_[k][3] = "native"
 					_nat_++
@@ -1234,22 +1234,22 @@ class stzBuildPlan from stzObject
 			if _bEdge_
 				_engnames_ = This._DisplaysByVector(_decs_, "engine")
 				if len(_engnames_) > 0
-					_c_ += "     -> " + This._EngineArtifact(_class_) + " carries: " + @@(_engnames_) + "  (~" + This._EngineKb(_decs_) + " KB, " + len(_engnames_) + " of " + mLen + ")" + nl
+					_c_ += "     -> " + This._EngineArtifact(_class_) + " carries: " + @@(_engnames_) + "  (~" + This._EngineKb(_decs_) + " KB, " + len(_engnames_) + " of " + mLen + ")" + char(10)
 				else
-					_c_ += "     -> " + This._EngineArtifact(_class_) + ": nothing to ship (all target / construct / server)" + nl
+					_c_ += "     -> " + This._EngineArtifact(_class_) + ": nothing to ship (all target / construct / server)" + char(10)
 				ok
 			else
-				_c_ += "     -> runs on the full native engine (server has everything)" + nl
+				_c_ += "     -> runs on the full native engine (server has everything)" + char(10)
 			ok
 		next
-		_c_ += nl + "  Summary: " + _tot_ + " capabilities across " + nParts + " parts -> "
-		_c_ += "target " + _nat_ + ", engine " + _eng_ + ", construct " + _cst_ + ", server " + _srv_ + "." + nl
+		_c_ += char(10) + "  Summary: " + _tot_ + " capabilities across " + nParts + " parts -> "
+		_c_ += "target " + _nat_ + ", engine " + _eng_ + ", construct " + _cst_ + ", server " + _srv_ + "." + char(10)
 
 		# THE OUTSIDE WORLD (phase 7): the same rehearsal, for dependencies you do
 		# not own. Read before building, not after deploying.
 		_nd_ = len(@aExtDeps)
 		if _nd_ > 0
-			_c_ += nl + "  External dependencies (" + _nd_ + "):" + nl
+			_c_ += char(10) + "  External dependencies (" + _nd_ + "):" + char(10)
 			for _i_ = 1 to _nd_
 				_d_ = @aExtDeps[_i_]
 				_c_ += "     " + StzPadRight("" + _d_[:service], 14) +
@@ -1266,23 +1266,23 @@ class stzBuildPlan from stzObject
 				if len(_d_[:parts]) > 0
 					_c_ += "   <- " + @@(_d_[:parts])
 				ok
-				_c_ += nl
+				_c_ += char(10)
 			next
 			_aSb_ = This.SandboxedDependencies()
 			_aCr_ = This.ProductionCredentials()
 			if len(_aSb_) > 0
 				_c_ += "     => " + len(_aSb_) + " still a fake: " + @@(_aSb_) +
-				       " -- Deploy(:Production) will REFUSE until these are real." + nl
+				       " -- Deploy(:Production) will REFUSE until these are real." + char(10)
 			else
-				_c_ += "     => nothing fake remains." + nl
+				_c_ += "     => nothing fake remains." + char(10)
 			ok
 			if len(_aCr_) > 0
-				_c_ += "     => production will require these credentials: " + @@(_aCr_) + nl
+				_c_ += "     => production will require these credentials: " + @@(_aCr_) + char(10)
 			ok
 		ok
 
-		_c_ += "  Build() will compile exactly this scope; Deploy() will commit it." + nl
-		return StzSplit(_c_, nl)   # a list of lines -- caller formats; Show() prints
+		_c_ += "  Build() will compile exactly this scope; Deploy() will commit it." + char(10)
+		return StzSplit(_c_, char(10))   # a list of lines -- caller formats; Show() prints
 
 	# Prints the lines of the plan.
 	#

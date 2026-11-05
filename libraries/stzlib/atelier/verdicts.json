@@ -1,11 +1,11 @@
 {
 "meta": {
-"taken": "2026-11-04 16:35",
-"checks_from": "c08f96dee",
+"taken": "2026-11-05 20:25",
+"checks_from": "eb394a58d",
 "ring": "ring.exe 515072 bytes, built 2026-09-12 01:29",
 "ring_tree": "0950e246a 2026-10-29",
 "rnxc": "ringpp a8ad844 2026-11-02, installed",
-"library": "c08f96dee 2026-11-04"
+"library": "eb394a58d 2026-11-05"
 },
 "verdicts": {
 "adverb/00_adverb_narrated#099386a7": {
@@ -626,6 +626,12 @@
 "ring_said": "",
 "whole_said": ""
 },
+"faculty/catalog_narrated#bedba270": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
 "faculty/faculty_core_narrated#750a3b0d": {
 "ring": "pass",
 "whole": "pass",
@@ -721,6 +727,48 @@
 "whole": "err",
 "ring_said": "Error (R2) : Array Access (Index out of range)",
 "whole_said": "Error (R2) : Array Access (Index out of range)"
+},
+"faculty/placement_narrated#b5c19574": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzimplementationavailable",
+"whole_said": ""
+},
+"faculty/placement_narrated#a1676c2e": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzimplementationavailable",
+"whole_said": "\"no 'tlh' pack here\"\n\"\""
+},
+"faculty/placement_narrated#f877ceb5": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzimplementationavailable",
+"whole_said": ""
+},
+"faculty/placement_narrated#2e0a7315": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "9\n\"\"",
+"whole_said": "9\n\"\""
+},
+"faculty/placement_narrated#334e03ed": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"faculty/placement_narrated#f853ce9e": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"faculty/release_narrated#bdece273": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stzmodelsumstext",
+"whole_said": "5\n0"
 },
 "file/stzZipFile_defects_narrated#3cb4562e": {
 "ring": "pass",
@@ -1742,10 +1790,10 @@
 "ring_said": "",
 "whole_said": ""
 },
-"meta/coderule_narrated#5f285949": {
-"ring": "pass",
+"meta/coderule_narrated#f25be3c6": {
+"ring": "fail",
 "whole": "pass",
-"ring_said": "",
+"ring_said": "21\n16",
 "whole_said": ""
 },
 "meta/coderule_narrated#8a88ecec": {
@@ -1765,12 +1813,6 @@
 "whole": "pass",
 "ring_said": "",
 "whole_said": ""
-},
-"meta/coderule_project_narrated#67116d9a": {
-"ring": "fail",
-"whole": "fail",
-"ring_said": "14\n16",
-"whole_said": "14\n16"
 },
 "misc/00_misc_narrated#840d5b37": {
 "ring": "pass",
@@ -4304,10 +4346,94 @@
 "ring_said": "Error (R3) : Calling Function without definition: stzenginehtmlneutralizebidi",
 "whole_said": ""
 },
+"security/advisory_watch_narrated#88f53e22": {
+"ring": "fail",
+"whole": "fail",
+"ring_said": "1\n0",
+"whole_said": "1\n0"
+},
+"security/advisory_watch_narrated#51c892a7": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R13) : Object is required",
+"whole_said": "Bad parameter type!"
+},
+"security/advisory_watch_narrated#933a7810": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stztimetosafeholds",
+"whole_said": ""
+},
+"security/advisory_watch_narrated#9b433a89": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stztimetosafeholds",
+"whole_said": "1\n0"
+},
+"security/advisory_watch_narrated#7d7fac2d": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stztimetosafe",
+"whole_said": ""
+},
 "security/at_rest_crypto_narrated#5410b4a9": {
 "ring": "err",
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: stzenginecryptorandomhex",
+"whole_said": ""
+},
+"security/engine_door_narrated#b5aa2dbf": {
+"ring": "pass",
+"whole": "pass",
+"ring_said": "",
+"whole_said": ""
+},
+"security/engine_door_narrated#2697dc29": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginetestsrvdoorprobe",
+"whole_said": "Error (R3) : Calling Function without definition: stzenginetestsrvdoorprobe"
+},
+"security/engine_door_narrated#a5c4c79d": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginetestsrvdoormissed",
+"whole_said": "Error (R3) : Calling Function without definition: stzenginetestsrvdoormissed"
+},
+"security/exposure_responder_narrated#94a6a105": {
+"ring": "err",
+"whole": "fail",
+"ring_said": "Error (R3) : Calling Function without definition: stznumberofshutdoors",
+"whole_said": "1\n0"
+},
+"security/exposure_responder_narrated#0f7479a2": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stztimetosafeholds",
+"whole_said": ""
+},
+"security/exposure_responder_narrated#4343d2a1": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R13) : Object is required",
+"whole_said": "Bad parameter type!"
+},
+"security/exposure_responder_narrated#00cc312c": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stzlisteners",
+"whole_said": ""
+},
+"security/exposure_responder_narrated#80bcc13c": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R13) : Object is required",
+"whole_said": "Bad parameter type!"
+},
+"security/exposure_responder_narrated#e29ddbdd": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: stznumberofshutdoors",
 "whole_said": ""
 },
 "security/model_digest_narrated#f48fbbc9": {
@@ -4334,12 +4460,6 @@
 "ring_said": "Error (R3) : Calling Function without definition: stzengineneuralmodelloadstatus",
 "whole_said": ""
 },
-"security/private_file_narrated#41f50da4": {
-"ring": "pass",
-"whole": "pass",
-"ring_said": "",
-"whole_said": ""
-},
 "security/prompt_boundary_narrated#084acaa8": {
 "ring": "pass",
 "whole": "pass",
@@ -4350,6 +4470,42 @@
 "ring": "pass",
 "whole": "pass",
 "ring_said": "",
+"whole_said": ""
+},
+"security/secret_memory_narrated#0cf89790": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R13) : Object is required",
+"whole_said": "Bad parameter type!"
+},
+"security/secret_memory_narrated#5ab417c8": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: stzsecureeq",
+"whole_said": "Error (R3) : Calling Function without definition: stzenginesecureequals"
+},
+"security/secret_memory_narrated#3a1be735": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: stzsecureeq",
+"whole_said": "Error (R3) : Calling Function without definition: stzenginesecureequals"
+},
+"security/secret_memory_narrated#b0a69c70": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: stzlastsecretwipe",
+"whole_said": "Error (R3) : Calling Function without definition: stzenginesecretlastresiduebefore"
+},
+"security/secret_memory_narrated#99451dc6": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: stzlastsecretwipe",
+"whole_said": "Error (R3) : Calling Function without definition: stzenginesecretlastresiduebefore"
+},
+"security/shape_rules_narrated#aae61f22": {
+"ring": "fail",
+"whole": "pass",
+"ring_said": "1\n0",
 "whole_said": ""
 },
 "security/stale_handle_narrated#1cf171e2": {
@@ -4363,12 +4519,6 @@
 "whole": "err",
 "ring_said": "Error (R13) : Object is required",
 "whole_said": "Bad parameter type!"
-},
-"security/stale_handle_narrated#717cdf45": {
-"ring": "pass",
-"whole": "pass",
-"ring_said": "",
-"whole_said": ""
 },
 "security/text_condition_not_code_narrated#6592052e": {
 "ring": "pass",
@@ -6721,6 +6871,18 @@
 "whole": "pass",
 "ring_said": "Error (R3) : Calling Function without definition: weatherplan",
 "whole_said": ""
+},
+"testoor/testoor_core_narrated#141c8dfd": {
+"ring": "err",
+"whole": "pass",
+"ring_said": "Error (R3) : Calling Function without definition: testoorcore",
+"whole_said": ""
+},
+"testoor/testoor_core_narrated#492ea080": {
+"ring": "err",
+"whole": "err",
+"ring_said": "Error (R3) : Calling Function without definition: stzenginetestoorrunjson",
+"whole_said": "Error (R3) : Calling Function without definition: stzenginetestoorrunjson"
 },
 "testoor/testoor_refine_narrated#ff2e0aad": {
 "ring": "err",

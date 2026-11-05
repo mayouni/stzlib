@@ -485,8 +485,8 @@ class stzBpmnDiagram from stzObject
 	#   see        Layout, EntryStep
 	def LayoutDigest()
 		This.Layout()
-		_dg_ = "LAWVER 1.0.0" + nl
-		_dg_ += "E " + This.EntryStep() + nl
+		_dg_ = "LAWVER 1.0.0" + char(10)
+		_dg_ += "E " + This.EntryStep() + char(10)
 
 		aN = []
 		for i = 1 to len(@aPlaced)
@@ -494,7 +494,7 @@ class stzBpmnDiagram from stzObject
 			aN + ("N " + p[1] + " " + p[2] + " " + p[3] + " " + p[4])
 		next
 		aN = This._Sorted(aN)
-		for i = 1 to len(aN)  _dg_ += aN[i] + nl next
+		for i = 1 to len(aN)  _dg_ += aN[i] + char(10) next
 
 		aX = []
 		for i = 1 to len(@aStubs)
@@ -504,7 +504,7 @@ class stzBpmnDiagram from stzObject
 			aX + ("X " + s[1] + " " + s[2] + " " + cK + " " + s[5] + " " + s[6])
 		next
 		aX = This._Sorted(aX)
-		for i = 1 to len(aX)  _dg_ += aX[i] + nl next
+		for i = 1 to len(aX)  _dg_ += aX[i] + char(10) next
 
 		aA = []
 		for i = 1 to len(@aArrows)
@@ -514,7 +514,7 @@ class stzBpmnDiagram from stzObject
 			aA + ("A " + e[1] + " " + e[2] + " " + e[3] + " " + cK + " " + e[5])
 		next
 		aA = This._Sorted(aA)
-		for i = 1 to len(aA)  _dg_ += aA[i] + nl next
+		for i = 1 to len(aA)  _dg_ += aA[i] + char(10) next
 
 		return _dg_
 

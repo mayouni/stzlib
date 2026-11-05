@@ -187,7 +187,7 @@ class stzGraphex from stzGraph
 		_cInner_ = _oPattern_.RemoveFirstAndLastCharsQ().Content()
 		
 		
-		_aParts_ = split(_cInner_, "->")
+		_aParts_ = ring_split(_cInner_, "->")
 		
 		
 		_aTokens_ = []

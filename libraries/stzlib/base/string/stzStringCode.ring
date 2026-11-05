@@ -176,7 +176,7 @@ class stzStringCode from stzObject
 	#   see        FunctionNames
 	def NumberOfFunctions()
 		_cContent_ = StzCaseFold(@oString.Content())
-		_acLines_ = split(_cContent_, nl)
+		_acLines_ = ring_split(_cContent_, char(10))
 		_nCount_ = 0
 		_nLen_ = len(_acLines_)
 
@@ -195,7 +195,7 @@ class stzStringCode from stzObject
 	#   see        ClassNames
 	def NumberOfClasses()
 		_cContent_ = StzCaseFold(@oString.Content())
-		_acLines_ = split(_cContent_, nl)
+		_acLines_ = ring_split(_cContent_, char(10))
 		_nCount_ = 0
 		_nLen_ = len(_acLines_)
 
@@ -215,7 +215,7 @@ class stzStringCode from stzObject
 	#   see        NumberOfFunctions, ClassNames
 	def FunctionNames()
 		_cContent_ = @oString.Content()
-		_acLines_ = split(_cContent_, nl)
+		_acLines_ = ring_split(_cContent_, char(10))
 		_acNames_ = []
 		_nLen_ = len(_acLines_)
 
@@ -233,7 +233,7 @@ class stzStringCode from stzObject
 				_nRestLen_ = len(_acRestChars_)
 				for j = 1 to _nRestLen_
 					_c_ = _acRestChars_[j]
-					if _c_ = " " or _c_ = "(" or _c_ = nl
+					if _c_ = " " or _c_ = "(" or _c_ = char(10)
 						exit
 					ok
 					_cName_ += _c_
@@ -253,7 +253,7 @@ class stzStringCode from stzObject
 	#   see        NumberOfClasses, FunctionNames
 	def ClassNames()
 		_cContent_ = @oString.Content()
-		_acLines_ = split(_cContent_, nl)
+		_acLines_ = ring_split(_cContent_, char(10))
 		_acNames_ = []
 		_nLen_ = len(_acLines_)
 
@@ -271,7 +271,7 @@ class stzStringCode from stzObject
 				_nRestLen_ = len(_acRestChars_)
 				for j = 1 to _nRestLen_
 					_c_ = _acRestChars_[j]
-					if _c_ = " " or _c_ = nl
+					if _c_ = " " or _c_ = char(10)
 						exit
 					ok
 					_cName_ += _c_
@@ -333,7 +333,7 @@ class stzStringCode from stzObject
 	#   see        ContainsComments
 	def LinesOfCode()
 		_cContent_ = @oString.Content()
-		_acLines_ = split(_cContent_, nl)
+		_acLines_ = ring_split(_cContent_, char(10))
 		_nCount_ = 0
 		_nLen_ = len(_acLines_)
 

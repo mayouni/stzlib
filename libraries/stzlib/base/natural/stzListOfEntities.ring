@@ -176,10 +176,10 @@ func WhatIs(pcName)
 		# own line, a blank line after -- printing the list breathes
 		_cAns_ = "- the method " + _aGrp_[_i_][1] + " (on " + _cCls_ + ")"
 		if _aGrp_[_i_][3] != ""
-			_cAns_ += nl + "  " + _aGrp_[_i_][3]
+			_cAns_ += char(10) + "  " + _aGrp_[_i_][3]
 		ok
 		if _i_ < _nG_
-			_cAns_ += nl   # separator BETWEEN blocks only, none trailing
+			_cAns_ += char(10)   # separator BETWEEN blocks only, none trailing
 		ok
 		_aOut_ + _cAns_
 	next

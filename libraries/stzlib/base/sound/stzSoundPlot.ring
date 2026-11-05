@@ -561,7 +561,7 @@ class stzSoundPlot
 
 	def _Wrap(pcText, pnMax)
 		_a_ = []
-		_words_ = split(pcText, " ")
+		_words_ = ring_split(pcText, " ")
 		_line_ = ""
 		for _i_ = 1 to len(_words_)
 			_try_ = _line_

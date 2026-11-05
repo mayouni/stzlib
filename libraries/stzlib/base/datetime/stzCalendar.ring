@@ -2994,7 +2994,7 @@ def CompareWith(_oOtherCal_)
 			_cKey_ = "" + _aHash_[_i_][1]
 			_cValue_ = _aHash_[_i_][2]
 			
-			_cJSON_ += nl + '"' + _cKey_ + '": '
+			_cJSON_ += char(10) + '"' + _cKey_ + '": '
 			
 			if isString(_cValue_)
 				_cJSON_ += '"' + _cValue_ + '"'
@@ -3011,7 +3011,7 @@ def CompareWith(_oOtherCal_)
 			ok
 		next
 		
-		_cJSON_ += nl + "}"
+		_cJSON_ += char(10) + "}"
 		return _cJSON_
 	
 	def _listToJSON(aList)
@@ -3050,27 +3050,27 @@ def CompareWith(_oOtherCal_)
 	
 	def ToCSVXT(cSep)
 	
-		_cCSV_ = "Metric,Value" + nl
+		_cCSV_ = "Metric,Value" + char(10)
 		
-		_cCSV_ += "Start Date" + cSep + @cStartDate + nl
-		_cCSV_ += "End Date" + cSep + @cEndDate + nl
-		_cCSV_ += "Year" + cSep + @nYear + nl
-		_cCSV_ += "Month" + cSep + @nMonth + nl
-		_cCSV_ += "Quarter" + cSep + @cQuarter + nl
-		_cCSV_ += "Total Days" + cSep + This.TotalDays() + nl
-		_cCSV_ += "Working Days" + cSep + This.AvailableDaysN() + nl
-		_cCSV_ += "Available Hours" + cSep + This.AvailableHoursN() + nl
-		_cCSV_ += "Business Start" + cSep + @cBusinessStart + nl
-		_cCSV_ += "Business End" + cSep + @cBusinessEnd + nl
+		_cCSV_ += "Start Date" + cSep + @cStartDate + char(10)
+		_cCSV_ += "End Date" + cSep + @cEndDate + char(10)
+		_cCSV_ += "Year" + cSep + @nYear + char(10)
+		_cCSV_ += "Month" + cSep + @nMonth + char(10)
+		_cCSV_ += "Quarter" + cSep + @cQuarter + char(10)
+		_cCSV_ += "Total Days" + cSep + This.TotalDays() + char(10)
+		_cCSV_ += "Working Days" + cSep + This.AvailableDaysN() + char(10)
+		_cCSV_ += "Available Hours" + cSep + This.AvailableHoursN() + char(10)
+		_cCSV_ += "Business Start" + cSep + @cBusinessStart + char(10)
+		_cCSV_ += "Business End" + cSep + @cBusinessEnd + char(10)
 		
 		_nLen_ = len(@aHolidays)
 		for _i_ = 1 to _nLen_
-			_cCSV_ += "Holiday" + cSep + @aHolidays[_i_][1] + cSep + @aHolidays[_i_][2] + nl
+			_cCSV_ += "Holiday" + cSep + @aHolidays[_i_][1] + cSep + @aHolidays[_i_][2] + char(10)
 		next
 		
 		_nLen_ = len(@aBreaks)
 		for _i_ = 1 to _nLen_
-			_cCSV_ += "Break" + cSep + @aBreaks[_i_][1] + cSep + @aBreaks[_i_][2] + cSep + @aBreaks[_i_][3] + nl
+			_cCSV_ += "Break" + cSep + @aBreaks[_i_][1] + cSep + @aBreaks[_i_][2] + cSep + @aBreaks[_i_][3] + char(10)
 		next
 		
 		return _cCSV_
@@ -3176,7 +3176,7 @@ def CompareWith(_oOtherCal_)
 		_cResult_ = This._drawMonthGrid()
 		
 		if _bShowTable_
-			_cResult_ += nl + nl + This._buildCalendarTable()
+			_cResult_ += char(10) + char(10) + This._buildCalendarTable()
 		ok
 		
 		return _cResult_
@@ -3191,7 +3191,7 @@ def CompareWith(_oOtherCal_)
 		ok
 		
 		_cMonthName_ = This.MonthName()
-		_cResult_ += RepeatChar(" ", 16) + _cMonthName_ + " " + @nYear + nl
+		_cResult_ += RepeatChar(" ", 16) + _cMonthName_ + " " + @nYear + char(10)
 		
 		_aParts_ = stzStringQ(This.Start()).Split("-")
 		_cYear_ = _aParts_[1]
@@ -3362,8 +3362,8 @@ def CompareWith(_oOtherCal_)
 				return "No calendar data to display"
 			ok
 			
-			_cResult_ += "                    " + @nYear + " Overview" + nl
-			_cResult_ += nl
+			_cResult_ += "                    " + @nYear + " Overview" + char(10)
+			_cResult_ += char(10)
 			
 			_aQuarters_ = [
 				[1, 3, "Q1"],
@@ -3396,7 +3396,7 @@ def CompareWith(_oOtherCal_)
 					_cResult_ += _cMonthName_ + "(" + _nDays_ + "d/" + _nHours_ + "h) "
 				next
 				
-				_cResult_ += nl
+				_cResult_ += char(10)
 			next
 			
 			return _cResult_
@@ -3466,8 +3466,8 @@ def CompareWith(_oOtherCal_)
 			return "Heat map available only for monthly views"
 		ok
 		
-		_cResult_ += This.MonthName() + " " + @nYear + " - Capacity Heat Map" + nl
-		_cResult_ += nl
+		_cResult_ += This.MonthName() + " " + @nYear + " - Capacity Heat Map" + char(10)
+		_cResult_ += char(10)
 		
 		# Calculate weeks
 		_cFirstDay_ = This.Start()
@@ -3516,12 +3516,12 @@ def CompareWith(_oOtherCal_)
 				_cResult_ += RepeatChar(@cVizWeekendChar, 5) + " (0/5 days - weekend/holiday)"
 			ok
 			
-			_cResult_ += nl
+			_cResult_ += char(10)
 		end
 		
-		_cResult_ += nl + "Legend:" + nl
-		_cResult_ += "  " + @cVizBlockChar + " = Available working day" + nl
-		_cResult_ += "  " + @cVizWeekendChar + " = Weekend or holiday" + nl
+		_cResult_ += char(10) + "Legend:" + char(10)
+		_cResult_ += "  " + @cVizBlockChar + " = Available working day" + char(10)
+		_cResult_ += "  " + @cVizWeekendChar + " = Weekend or holiday" + char(10)
 		
 		return _cResult_
 	
@@ -3593,16 +3593,16 @@ def CompareWith(_oOtherCal_)
 	
 	def _drawDetailedTable()
 		_cResult_ = ""
-		_cResult_ += This.MonthName() + " " + @nYear + " - Detailed View" + nl
-		_cResult_ += nl
+		_cResult_ += This.MonthName() + " " + @nYear + " - Detailed View" + char(10)
+		_cResult_ += char(10)
 		
 		_oTable_ = new stzTable(This.DetailedTable())
 		_cResult_ += _oTable_.ToString()
 		
-		_cResult_ += nl + nl + "Summary:" + nl
-		_cResult_ += "  Total Days: " + This.TotalDays() + nl
-		_cResult_ += "  Working Days: " + This.AvailableDaysN() + nl
-		_cResult_ += "  Available Hours: " + This.AvailableHoursN() + nl
+		_cResult_ += char(10) + char(10) + "Summary:" + char(10)
+		_cResult_ += "  Total Days: " + This.TotalDays() + char(10)
+		_cResult_ += "  Working Days: " + This.AvailableDaysN() + char(10)
+		_cResult_ += "  Available Hours: " + This.AvailableHoursN() + char(10)
 		
 		return _cResult_
 	

@@ -73,7 +73,7 @@ func StzJsonKeys(cJson)
 	if StzLen(_cKeys_) = 0
 		return []
 	ok
-	return split(_cKeys_, nl)
+	return ring_split(_cKeys_, char(10))
 
 func StzJsonSize(cJson)
 	_pH_ = StzEngineJsonParse(cJson)
