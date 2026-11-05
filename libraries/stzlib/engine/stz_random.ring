@@ -14,7 +14,10 @@ but isMacOS()
     $cStzRandomLib = $cEngineDir + "/zig-out/lib/libstz_random.dylib"
 ok
 
-if fexists($cStzRandomLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("random")
+    $pStzRandomHandle = NULL
+but fexists($cStzRandomLib)
     $pStzRandomHandle = LoadLib($cStzRandomLib)
 else
     ? "WARNING: stz_random not found at: " + $cStzRandomLib

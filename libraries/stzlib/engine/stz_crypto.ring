@@ -12,7 +12,10 @@ but isMacOS()
     $cStzCryptoLib = $cEngineDir + "/zig-out/lib/libstz_crypto.dylib"
 ok
 
-if fexists($cStzCryptoLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("crypto")
+    $pStzCryptoHandle = NULL
+but fexists($cStzCryptoLib)
     $pStzCryptoHandle = LoadLib($cStzCryptoLib)
 else
     ? "WARNING: stz_crypto not found at: " + $cStzCryptoLib

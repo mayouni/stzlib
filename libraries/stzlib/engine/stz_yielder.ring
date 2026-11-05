@@ -15,7 +15,10 @@ but isMacOS()
     $cStzYielderLib = $cEngineDir + "/zig-out/lib/libstz_yielder.dylib"
 ok
 
-if fexists($cStzYielderLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("yielder")
+    $pStzYielderHandle = NULL
+but fexists($cStzYielderLib)
     $pStzYielderHandle = LoadLib($cStzYielderLib)
 else
     ? "WARNING: stz_yielder not found at: " + $cStzYielderLib

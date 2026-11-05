@@ -64,7 +64,10 @@ but isMacOS()
     $cStzSoundLib = $cEngineDir + "/zig-out/lib/libstz_sound.dylib"
 ok
 
-if fexists($cStzSoundLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("sound")
+    $pStzSoundHandle = NULL
+but fexists($cStzSoundLib)
     $pStzSoundHandle = LoadLib($cStzSoundLib)
 else
     ? "WARNING: stz_sound not found at: " + $cStzSoundLib

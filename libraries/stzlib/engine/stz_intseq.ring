@@ -22,7 +22,10 @@ but isLinux()
 but isMacOS()
     $cStzIntSeqLib = $cEngineDir + "/zig-out/lib/libstz_intseq.dylib"
 ok
-if fexists($cStzIntSeqLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("intseq")
+    $pStzIntSeqHandle = NULL
+but fexists($cStzIntSeqLib)
     $pStzIntSeqHandle = LoadLib($cStzIntSeqLib)
 else
     ? "WARNING: stz_intseq not found at: " + $cStzIntSeqLib

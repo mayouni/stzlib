@@ -12,7 +12,10 @@ but isMacOS()
     $cStzArithLib = $cEngineDir + "/zig-out/lib/libstz_arith.dylib"
 ok
 
-if fexists($cStzArithLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("arith")
+    $pStzArithHandle = NULL
+but fexists($cStzArithLib)
     $pStzArithHandle = LoadLib($cStzArithLib)
 else
     ? "WARNING: stz_arith not found at: " + $cStzArithLib

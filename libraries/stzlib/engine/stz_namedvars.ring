@@ -11,7 +11,10 @@ but isLinux()
 but isMacOS()
     $cStzNamedvarsLib = $cEngineDir + "/zig-out/lib/libstz_namedvars.dylib"
 ok
-if fexists($cStzNamedvarsLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("namedvars")
+    $pStzNamedvarsHandle = NULL
+but fexists($cStzNamedvarsLib)
     $pStzNamedvarsHandle = LoadLib($cStzNamedvarsLib)
 else
     ? "WARNING: stz_namedvars not found at: " + $cStzNamedvarsLib

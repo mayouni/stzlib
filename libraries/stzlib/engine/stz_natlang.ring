@@ -12,7 +12,10 @@ but isMacOS()
     $cStzNatlangLib = $cEngineDir + "/zig-out/lib/libstz_natlang.dylib"
 ok
 
-if fexists($cStzNatlangLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("natlang")
+    $pStzNatlangHandle = NULL
+but fexists($cStzNatlangLib)
     $pStzNatlangHandle = LoadLib($cStzNatlangLib)
 else
     ? "WARNING: stz_natlang not found at: " + $cStzNatlangLib

@@ -15,7 +15,10 @@ but isMacOS()
     $cStzMatrixLib = $cEngineDir + "/zig-out/lib/libstz_matrix.dylib"
 ok
 
-if fexists($cStzMatrixLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("matrix")
+    $pStzMatrixHandle = NULL
+but fexists($cStzMatrixLib)
     $pStzMatrixHandle = LoadLib($cStzMatrixLib)
 else
     ? "WARNING: stz_matrix not found at: " + $cStzMatrixLib

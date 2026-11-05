@@ -98,6 +98,18 @@ func StzUrlHost(pcUrl)
 	if _k_ > 0  _c_ = StzLeft(_c_, _k_ - 1)  ok
 	return _c_
 
+# Writes exposure.closed for every domain the deny list refused at load (W7b).
+# Called when the process opens its ledger: the loaders ran before any ledger
+# could exist, so the refusals wait for one. Each is written once.
+func _StzNoteDomainRefusals()
+	_a_ = StzDomainsRefused()
+	_n_ = len(_a_)
+	if NOT isglobal("$nStzDomainRefusalsNoted")  $nStzDomainRefusalsNoted = 0  ok
+	for _i_ = $nStzDomainRefusalsNoted + 1 to _n_
+		StzNoteExposureClosed(_a_[_i_][2], "domain " + _a_[_i_][1], "domain door: refused at load -- " + _a_[_i_][3])
+	next
+	$nStzDomainRefusalsNoted = _n_
+
 func StzExposureResponderQ()
 	return new stzExposureResponder()
 
@@ -164,6 +176,49 @@ class stzExposureResponder from stzObject
 		poStore.Revoke(pcName)
 		StzNoteExposureClosed(pcAdvisoryId, "secret:" + pcName, "secret revoked: " + pcHow)
 		return This
+
+	# Denies an engine domain from the next start: a line in the deny list that every loader reads.
+	#
+	#   pcDomain   the domain as its loader names it: crypto, http, compress ...
+	#   returns    the responder, so calls chain
+	#   warning    a loaded library cannot be unloaded, so THIS process keeps it: what is written now is
+	#              capability.revoked, and exposure.closed is written by the next process that refuses the
+	#              domain at load and opens a ledger. Time-to-safe joins the two only on a durable ledger
+	#   see        StzDomainWanted, StzDomainDenyFile, ReopenDomain
+	def ShutDomain(pcAdvisoryId, pcDomain, pcHow)
+		if NOT StzSecurityLedgerIsOpen()  StzOpenSecurityLedger(4096)  ok
+		_cD_ = lower("" + pcDomain)
+		_p_ = StzDomainDenyFile()
+		_cOld_ = ""
+		if fexists(_p_)  _cOld_ = read(_p_)  ok
+		_cWhy_ = StzReplace(StzReplace("" + pcHow, "|", "/"), char(10), " ")
+		write(_p_, _cOld_ + _cD_ + "|" + pcAdvisoryId + "|" + _cWhy_ + char(10))
+		StzNoteFactFrom("capability.revoked", "stzExposureResponder", "domain " + _cD_,
+			"denied from the next start (" + _p_ + "); this process still holds it: " + _cWhy_, "" + pcAdvisoryId)
+		return This
+
+	# Removes an advisory's lines from the deny list; the domain loads again at the next start.
+	#
+	#   returns    the number of lines removed
+	def ReopenDomains(pcAdvisoryId)
+		_p_ = StzDomainDenyFile()
+		if NOT fexists(_p_)  return 0  ok
+		_aL_ = str2list(read(_p_))
+		_c_ = ""
+		_nOut_ = 0
+		_n_ = len(_aL_)
+		for _i_ = 1 to _n_
+			_aF_ = _stzFields(_aL_[_i_], "|")
+			if len(_aF_) >= 2 and _aF_[2] = "" + pcAdvisoryId
+				_nOut_++
+				StzNoteFactFrom("exposure.reopened", "stzExposureResponder", "domain " + _aF_[1],
+					"removed from the deny list; loads at the next start", "" + pcAdvisoryId)
+				loop
+			ok
+			if _aL_[_i_] != ""  _c_ += _aL_[_i_] + char(10)  ok
+		next
+		write(_p_, _c_)
+		return _nOut_
 
 	# Opens every door an advisory shut, and records it: after guard.green, or when the advisory was wrong.
 	#

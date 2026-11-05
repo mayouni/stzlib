@@ -16,7 +16,10 @@ but isMacOS()
     $cStzTimeLib = $cEngineDir + "/zig-out/lib/libstz_time.dylib"
 ok
 
-if fexists($cStzTimeLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("time")
+    $pStzTimeHandle = NULL
+but fexists($cStzTimeLib)
     $pStzTimeHandle = LoadLib($cStzTimeLib)
 else
     ? "WARNING: stz_time not found at: " + $cStzTimeLib

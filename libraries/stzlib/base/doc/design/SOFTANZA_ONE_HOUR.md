@@ -276,7 +276,7 @@ find; it does not prove absence.
 | W5 | B6 `harb advisories`, the pin rule, ALGOUT-01, and the pin moved past the TCP fix | harobanda | 1 + the bump | the reference boot proves the fix and the exclusion |
 | W6 | B5 responder (DONE 2026-11-05: four doors, the drill shuts one in 4 ms; G51); B7 audit agent under the court | stzlib-security + stzlib-intelligence | 2 | the drill shuts a door in under its budget; the audit re-finds a planted bug and leaves a clean file alone |
 | W7 | the measurement behind ruling 3 (DONE 2026-11-05: domains cost 16 ms warm, the compile 22 s without a prefix; a guard reaches 6-10 domains of 82 statically, at most 52; 30 are unreachable by any) | stzlib-security | 1 | the numbers above, instruments and rows published |
-| W7b | the domain manifest, StzDomainWanted, the domain door for W6 | stzlib-security | 2 | the 34 guards green with and without a manifest |
+| W7b | the domain manifest, StzDomainWanted, the domain door for W6 (DONE 2026-11-05: 87 loaders behind one door; 24 of 27 runnable guards equal under their manifest, 3 differ by design; G52) | stzlib-security | 2 | the 34 guards green with and without a manifest |
 
 W0-W2a start now in this plane. W3 is the largest and the most valuable: every future member
 of two bug classes costs zero after it.
@@ -347,6 +347,33 @@ Each ruling below is the recommendation this plane made, adopted on the author's
    The build-out touches the 94 loader files once, by one script, and is rung **W7b**. Its gate:
    this plane's 34 guards green with the manifest absent, and with a manifest of their static
    domains plus what their first run names.
+
+   **W7b BUILT, 2026-11-05** (`core/common/stkRingLibs.ring` StzDomainWanted; the 87 `stz_`
+   loaders; guard `domain_manifest_narrated`, 25/25 on rnxc, each case in a child process).
+   What building it corrected in the design above:
+   - **the floor is six, and one of them was not in the static count**: string, list, unicode,
+     stats, meta and **hashmap**, found by running a do-nothing program under an empty manifest
+     -- `say = new say` at load reaches hashmap through a class attribute block, which the
+     static reach does not follow. The core's stk_* libraries are not asked.
+   - **the gate, over 35 guards owned**: 27 run (5 stop on `object2pointer`, a builtin rnxc
+     lacks; 3 need stz_neural, absent from the engine copy). With no manifest all 27 are green.
+     Under a manifest, 24 equal their unmanifested count; the static domains alone sufficed for
+     9, and the rest needed 1 to 4 more, each named by an R3 -- mostly the ledger's clocks (time,
+     watch, perf), then reactor and db. Three differ BY DESIGN and say something true: exposure
+     measures the loaded set; domain_manifest tests manifests; and vault_http's stand-in server
+     is a child process that INHERITS `STZ_DOMAINS` and loads too little. So: **a program states
+     its manifest in `$aStzDomains`, which no child inherits; `STZ_DOMAINS` is for the outermost
+     process only.**
+   - **a guard can read the loaded set without calling it**: advisory_watch matches an advisory
+     against `stz_crypto` because it is loaded, and under a manifest without crypto it indexed a
+     record that was not there. No R3 names such a dependency; the guard's own count does.
+   - **the deny list is nameable**: a program's `$cStzDomainDenyFile`, else `STZ_DOMAIN_DENY`,
+     else `<engineDir>/DENIED`; a guard never writes the shared engine folder's file.
+   - **two readings fixed on the way, both from an engine copy outside the tree**: stzExposure
+     counted the core's `$pStkStringHandle` as a second "string" (core libraries are now named
+     stk_*), and read the vendored record from the engine copy, which carries libraries and not
+     the record (now `StzSourceEngineDir()`); `_StzBaseDir()` did the same for base/ (found by
+     stzlib-docs) and now uses `$cStzLibDir`, the tree found by its own source files.
 4. **The feed is a door, and the budget is one hour / one day.** RULED YES. `stzAdvisoryFeed`
    reaches OSV and KEV only from a program that declares the door; every fetch is a ledger
    record; a guard never reaches the live internet. Time-to-safe budget, measured by B4:

@@ -11,7 +11,10 @@ but isLinux()
 but isMacOS()
     $cStzSimilarityLib = $cEngineDir + "/zig-out/lib/libstz_similarity.dylib"
 ok
-if fexists($cStzSimilarityLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("similarity")
+    $pStzSimilarityHandle = NULL
+but fexists($cStzSimilarityLib)
     $pStzSimilarityHandle = LoadLib($cStzSimilarityLib)
 else
     ? "WARNING: stz_similarity not found at: " + $cStzSimilarityLib

@@ -12,7 +12,10 @@ but isMacOS()
     $cStzBitsLib = $cEngineDir + "/zig-out/lib/libstz_bits.dylib"
 ok
 
-if fexists($cStzBitsLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("bits")
+    $pStzBitsHandle = NULL
+but fexists($cStzBitsLib)
     $pStzBitsHandle = LoadLib($cStzBitsLib)
 else
     ? "WARNING: stz_bits not found at: " + $cStzBitsLib

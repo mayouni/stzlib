@@ -14,7 +14,10 @@ but isMacOS()
     $cStzDeepopsLib = $cEngineDir + "/zig-out/lib/libstz_deepops.dylib"
 ok
 
-if fexists($cStzDeepopsLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("deepops")
+    $pStzDeepopsHandle = NULL
+but fexists($cStzDeepopsLib)
     $pStzDeepopsHandle = LoadLib($cStzDeepopsLib)
 else
     ? "WARNING: stz_deepops not found at: " + $cStzDeepopsLib

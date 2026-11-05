@@ -14,7 +14,10 @@ but isMacOS()
     $cStzCsvLib = $cEngineDir + "/zig-out/lib/libstz_csv.dylib"
 ok
 
-if fexists($cStzCsvLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("csv")
+    $pStzCsvHandle = NULL
+but fexists($cStzCsvLib)
     $pStzCsvHandle = LoadLib($cStzCsvLib)
 else
     ? "WARNING: stz_csv not found at: " + $cStzCsvLib

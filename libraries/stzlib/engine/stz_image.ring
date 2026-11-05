@@ -16,7 +16,10 @@ but isMacOS()
     $cStzImageLib = $cEngineDir + "/zig-out/lib/libstz_image.dylib"
 ok
 
-if fexists($cStzImageLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("image")
+    $pStzImageHandle = NULL
+but fexists($cStzImageLib)
     $pStzImageHandle = LoadLib($cStzImageLib)
 else
     ? "WARNING: stz_image not found at: " + $cStzImageLib

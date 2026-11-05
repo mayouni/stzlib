@@ -15,7 +15,10 @@ but isMacOS()
     $cStzUnicodeLib = $cEngineDir + "/zig-out/lib/libstz_unicode.dylib"
 ok
 
-if fexists($cStzUnicodeLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("unicode")
+    $pStzUnicodeHandle = NULL
+but fexists($cStzUnicodeLib)
     $pStzUnicodeHandle = LoadLib($cStzUnicodeLib)
 else
     ? "WARNING: stz_unicode not found at: " + $cStzUnicodeLib

@@ -15,7 +15,10 @@ but isMacOS()
     $cStzUnidataLib = $cEngineDir + "/zig-out/lib/libstz_unidata.dylib"
 ok
 
-if fexists($cStzUnidataLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("unidata")
+    $pStzUnidataHandle = NULL
+but fexists($cStzUnidataLib)
     $pStzUnidataHandle = LoadLib($cStzUnidataLib)
 else
     ? "WARNING: stz_unidata not found at: " + $cStzUnidataLib

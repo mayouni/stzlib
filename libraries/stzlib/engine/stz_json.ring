@@ -15,7 +15,10 @@ but isMacOS()
     $cStzJsonLib = $cEngineDir + "/zig-out/lib/libstz_json.dylib"
 ok
 
-if fexists($cStzJsonLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("json")
+    $pStzJsonHandle = NULL
+but fexists($cStzJsonLib)
     $pStzJsonHandle = LoadLib($cStzJsonLib)
 else
     ? "WARNING: stz_json not found at: " + $cStzJsonLib

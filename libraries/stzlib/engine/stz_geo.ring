@@ -12,7 +12,10 @@ but isMacOS()
     $cStzGeoLib = $cEngineDir + "/zig-out/lib/libstz_geo.dylib"
 ok
 
-if fexists($cStzGeoLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("geo")
+    $pStzGeoHandle = NULL
+but fexists($cStzGeoLib)
     $pStzGeoHandle = LoadLib($cStzGeoLib)
 else
     ? "WARNING: stz_geo not found at: " + $cStzGeoLib

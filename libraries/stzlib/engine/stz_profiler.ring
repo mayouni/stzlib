@@ -12,7 +12,10 @@ but isMacOS()
     $cStzProfilerLib = $cEngineDir + "/zig-out/lib/libstz_profiler.dylib"
 ok
 
-if fexists($cStzProfilerLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("profiler")
+    $pStzProfilerHandle = NULL
+but fexists($cStzProfilerLib)
     $pStzProfilerHandle = LoadLib($cStzProfilerLib)
 else
     ? "WARNING: stz_profiler not found at: " + $cStzProfilerLib

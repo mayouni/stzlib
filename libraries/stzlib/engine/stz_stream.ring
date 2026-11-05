@@ -12,7 +12,10 @@ but isMacOS()
     $cStzStreamLib = $cEngineDir + "/zig-out/lib/libstz_stream.dylib"
 ok
 
-if fexists($cStzStreamLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("stream")
+    $pStzStreamHandle = NULL
+but fexists($cStzStreamLib)
     $pStzStreamHandle = LoadLib($cStzStreamLib)
 else
     ? "WARNING: stz_stream not found at: " + $cStzStreamLib

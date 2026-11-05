@@ -48,7 +48,10 @@ but isMacOS()
 	$cStzA11yRuntime = $cEngineDir + "/zig-out/lib/libaccesskit.dylib"
 ok
 
-if fexists($cStzA11yLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("a11y")
+	$pStzA11yHandle = NULL
+but fexists($cStzA11yLib)
 	$pStzA11yHandle = LoadLib($cStzA11yLib)
 else
 	$pStzA11yHandle = NULL

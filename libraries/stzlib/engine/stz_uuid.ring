@@ -12,7 +12,10 @@ but isMacOS()
     $cStzUuidLib = $cEngineDir + "/zig-out/lib/libstz_uuid.dylib"
 ok
 
-if fexists($cStzUuidLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("uuid")
+    $pStzUuidHandle = NULL
+but fexists($cStzUuidLib)
     $pStzUuidHandle = LoadLib($cStzUuidLib)
 else
     ? "WARNING: stz_uuid not found at: " + $cStzUuidLib

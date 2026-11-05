@@ -60,7 +60,10 @@ ok
 # the one that cannot be cross-built for every machine from one box. Load
 # quietly; the face reports the refusal in its own words.
 $pStzWindowHandle = NULL
-if fexists($cStzWindowLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("window")
+    $pStzWindowHandle = NULL
+but fexists($cStzWindowLib)
     $pStzWindowHandle = LoadLib($cStzWindowLib)
 ok
 

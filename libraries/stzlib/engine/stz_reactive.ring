@@ -12,7 +12,10 @@ but isMacOS()
     $cStzReactiveLib = $cEngineDir + "/zig-out/lib/libstz_reactive.dylib"
 ok
 
-if fexists($cStzReactiveLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("reactive")
+    $pStzReactiveHandle = NULL
+but fexists($cStzReactiveLib)
     $pStzReactiveHandle = LoadLib($cStzReactiveLib)
 else
     ? "WARNING: stz_reactive not found at: " + $cStzReactiveLib

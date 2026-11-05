@@ -22,7 +22,10 @@ but isMacOS()
     $cStzPoolLib = $cEngineDir + "/zig-out/lib/libstz_pool.dylib"
 ok
 
-if fexists($cStzPoolLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("pool")
+    $pStzPoolHandle = NULL
+but fexists($cStzPoolLib)
     $pStzPoolHandle = LoadLib($cStzPoolLib)
 else
     ? "WARNING: stz_pool not found at: " + $cStzPoolLib

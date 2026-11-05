@@ -79,7 +79,10 @@ ok
 # No warning when absent. A machine without a speech engine is a supported
 # configuration, not a broken install.
 $pStzVoiceHandle = NULL
-if fexists($cStzVoiceLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("voice")
+    $pStzVoiceHandle = NULL
+but fexists($cStzVoiceLib)
     $pStzVoiceHandle = LoadLib($cStzVoiceLib)
 ok
 

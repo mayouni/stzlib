@@ -15,7 +15,10 @@ but isMacOS()
     $cStzRegexLib = $cEngineDir + "/zig-out/lib/libstz_regex.dylib"
 ok
 
-if fexists($cStzRegexLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("regex")
+    $pStzRegexHandle = NULL
+but fexists($cStzRegexLib)
     $pStzRegexHandle = LoadLib($cStzRegexLib)
 else
     ? "WARNING: stz_regex not found at: " + $cStzRegexLib

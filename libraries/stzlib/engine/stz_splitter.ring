@@ -12,7 +12,10 @@ but isMacOS()
     $cStzSplitterLib = $cEngineDir + "/zig-out/lib/libstz_splitter.dylib"
 ok
 
-if fexists($cStzSplitterLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("splitter")
+    $pStzSplitterHandle = NULL
+but fexists($cStzSplitterLib)
     $pStzSplitterHandle = LoadLib($cStzSplitterLib)
 else
     ? "WARNING: stz_splitter not found at: " + $cStzSplitterLib

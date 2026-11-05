@@ -21,7 +21,10 @@ but isMacOS()
     $cStzTcpLib = $cEngineDir + "/zig-out/lib/libstz_tcp.dylib"
 ok
 
-if fexists($cStzTcpLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("tcp")
+    $pStzTcpHandle = NULL
+but fexists($cStzTcpLib)
     $pStzTcpHandle = LoadLib($cStzTcpLib)
 else
     ? "WARNING: stz_tcp not found at: " + $cStzTcpLib

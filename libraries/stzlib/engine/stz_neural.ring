@@ -14,7 +14,10 @@ but isMacOS()
     $cStzNeuralLib = $cEngineDir + "/zig-out/lib/libstz_neural.dylib"
 ok
 
-if fexists($cStzNeuralLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("neural")
+    $pStzNeuralHandle = NULL
+but fexists($cStzNeuralLib)
     $pStzNeuralHandle = LoadLib($cStzNeuralLib)
     # GPU routing (post-G6 constructive route): record WHERE the wgpu runtime
     # lives -- a string store only, zero startup cost. The device initializes

@@ -15,7 +15,10 @@ but isMacOS()
     $cStzValueLib = $cEngineDir + "/zig-out/lib/libstz_value.dylib"
 ok
 
-if fexists($cStzValueLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("value")
+    $pStzValueHandle = NULL
+but fexists($cStzValueLib)
     $pStzValueHandle = LoadLib($cStzValueLib)
 else
     ? "WARNING: stz_value not found at: " + $cStzValueLib

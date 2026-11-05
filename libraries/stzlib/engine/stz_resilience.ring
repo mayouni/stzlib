@@ -28,7 +28,10 @@ but isMacOS()
     $cStzResilienceLib = $cEngineDir + "/zig-out/lib/libstz_resilience.dylib"
 ok
 
-if fexists($cStzResilienceLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("resilience")
+    $pStzResilienceHandle = NULL
+but fexists($cStzResilienceLib)
     $pStzResilienceHandle = LoadLib($cStzResilienceLib)
 else
     ? "WARNING: stz_resilience not found at: " + $cStzResilienceLib

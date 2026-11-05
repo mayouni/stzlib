@@ -12,7 +12,10 @@ but isMacOS()
     $cStzHtmlLib = $cEngineDir + "/zig-out/lib/libstz_html.dylib"
 ok
 
-if fexists($cStzHtmlLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("html")
+    $pStzHtmlHandle = NULL
+but fexists($cStzHtmlLib)
     $pStzHtmlHandle = LoadLib($cStzHtmlLib)
 else
     ? "WARNING: stz_html not found at: " + $cStzHtmlLib

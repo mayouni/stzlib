@@ -12,7 +12,10 @@ but isMacOS()
     $cStzEmbedLib = $cEngineDir + "/zig-out/lib/libstz_embed.dylib"
 ok
 
-if fexists($cStzEmbedLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("embed")
+    $pStzEmbedHandle = NULL
+but fexists($cStzEmbedLib)
     $pStzEmbedHandle = LoadLib($cStzEmbedLib)
 else
     ? "WARNING: stz_embed not found at: " + $cStzEmbedLib

@@ -12,7 +12,10 @@ but isMacOS()
     $cStzCompressLib = $cEngineDir + "/zig-out/lib/libstz_compress.dylib"
 ok
 
-if fexists($cStzCompressLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("compress")
+    $pStzCompressHandle = NULL
+but fexists($cStzCompressLib)
     $pStzCompressHandle = LoadLib($cStzCompressLib)
 else
     ? "WARNING: stz_compress not found at: " + $cStzCompressLib

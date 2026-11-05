@@ -12,7 +12,10 @@ but isMacOS()
     $cStzCcodeLib = $cEngineDir + "/zig-out/lib/libstz_ccode.dylib"
 ok
 
-if fexists($cStzCcodeLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("ccode")
+    $pStzCcodeHandle = NULL
+but fexists($cStzCcodeLib)
     $pStzCcodeHandle = LoadLib($cStzCcodeLib)
 else
     ? "WARNING: stz_ccode not found at: " + $cStzCcodeLib

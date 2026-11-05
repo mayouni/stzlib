@@ -310,7 +310,10 @@ but isMacOS()
     $cStzGpuRuntime = $cEngineDir + "/zig-out/lib/libwgpu_native.dylib"
 ok
 
-if fexists($cStzGpuLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("gpu")
+    $pStzGpuHandle = NULL
+but fexists($cStzGpuLib)
     $pStzGpuHandle = LoadLib($cStzGpuLib)
 else
     ? "WARNING: stz_gpu not found at: " + $cStzGpuLib

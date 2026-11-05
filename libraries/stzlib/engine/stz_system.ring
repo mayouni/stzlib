@@ -15,7 +15,10 @@ but isMacOS()
     $cStzSystemLib = $cEngineDir + "/zig-out/lib/libstz_system.dylib"
 ok
 
-if fexists($cStzSystemLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("system")
+    $pStzSystemHandle = NULL
+but fexists($cStzSystemLib)
     $pStzSystemHandle = LoadLib($cStzSystemLib)
 else
     ? "WARNING: stz_system not found at: " + $cStzSystemLib

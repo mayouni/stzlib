@@ -19,7 +19,10 @@ but isMacOS()
     $cStzHistogramLib = $cEngineDir + "/zig-out/lib/libstz_histogram.dylib"
 ok
 
-if fexists($cStzHistogramLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("histogram")
+    $pStzHistogramHandle = NULL
+but fexists($cStzHistogramLib)
     $pStzHistogramHandle = LoadLib($cStzHistogramLib)
 else
     ? "WARNING: stz_histogram not found at: " + $cStzHistogramLib

@@ -14,7 +14,10 @@ but isMacOS()
     $cStzStatsLib = $cEngineDir + "/zig-out/lib/libstz_stats.dylib"
 ok
 
-if fexists($cStzStatsLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("stats")
+    $pStzStatsHandle = NULL
+but fexists($cStzStatsLib)
     $pStzStatsHandle = LoadLib($cStzStatsLib)
     # GS6a: t-SNE epochs can run on the GPU -- record WHERE the wgpu runtime
     # lives; the device is opened lazily at the first eligible fit, and a

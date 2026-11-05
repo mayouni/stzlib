@@ -12,7 +12,10 @@ but isMacOS()
     $cStzPatternLib = $cEngineDir + "/zig-out/lib/libstz_pattern.dylib"
 ok
 
-if fexists($cStzPatternLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("pattern")
+    $pStzPatternHandle = NULL
+but fexists($cStzPatternLib)
     $pStzPatternHandle = LoadLib($cStzPatternLib)
 else
     ? "WARNING: stz_pattern not found at: " + $cStzPatternLib

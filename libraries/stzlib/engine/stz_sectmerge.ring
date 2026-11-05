@@ -14,7 +14,10 @@ but isMacOS()
     $cStzSectmergeLib = $cEngineDir + "/zig-out/lib/libstz_sectmerge.dylib"
 ok
 
-if fexists($cStzSectmergeLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("sectmerge")
+    $pStzSectmergeHandle = NULL
+but fexists($cStzSectmergeLib)
     $pStzSectmergeHandle = LoadLib($cStzSectmergeLib)
 else
     ? "WARNING: stz_sectmerge not found at: " + $cStzSectmergeLib

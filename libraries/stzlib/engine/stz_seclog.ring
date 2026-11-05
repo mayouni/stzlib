@@ -15,7 +15,10 @@ but isMacOS()
     $cStzSecLogLib = $cEngineDir + "/zig-out/lib/libstz_seclog.dylib"
 ok
 
-if fexists($cStzSecLogLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("seclog")
+    $pStzSecLogHandle = NULL
+but fexists($cStzSecLogLib)
     $pStzSecLogHandle = LoadLib($cStzSecLogLib)
 else
     ? "WARNING: stz_seclog not found at: " + $cStzSecLogLib

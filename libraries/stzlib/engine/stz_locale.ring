@@ -15,7 +15,10 @@ but isMacOS()
     $cStzLocaleLib = $cEngineDir + "/zig-out/lib/libstz_locale.dylib"
 ok
 
-if fexists($cStzLocaleLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("locale")
+    $pStzLocaleHandle = NULL
+but fexists($cStzLocaleLib)
     $pStzLocaleHandle = LoadLib($cStzLocaleLib)
 else
     ? "WARNING: stz_locale not found at: " + $cStzLocaleLib

@@ -14,7 +14,10 @@ but isMacOS()
     $cStzGraphLib = $cEngineDir + "/zig-out/lib/libstz_graph.dylib"
 ok
 
-if fexists($cStzGraphLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("graph")
+    $pStzGraphHandle = NULL
+but fexists($cStzGraphLib)
     $pStzGraphHandle = LoadLib($cStzGraphLib)
 else
     ? "WARNING: stz_graph not found at: " + $cStzGraphLib

@@ -61,7 +61,10 @@ ok
 # machine without audio hardware support, which is a supported configuration,
 # not a broken install. The face reports the refusal in its own words.
 $pStzAudioDevHandle = NULL
-if fexists($cStzAudioDevLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("audiodev")
+    $pStzAudioDevHandle = NULL
+but fexists($cStzAudioDevLib)
     $pStzAudioDevHandle = LoadLib($cStzAudioDevLib)
 ok
 

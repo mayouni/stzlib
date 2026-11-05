@@ -45,6 +45,14 @@ func StzListeners()
 func StzForgetListeners()
 	$aStzListeners = []
 
+# The engine folder of the library's SOURCE tree -- vendor/, tools/ and src/ --
+# which is not $cEngineDir when STZ_ENGINE_DIR names a built copy elsewhere.
+func StzSourceEngineDir()
+	if isglobal("$cStzLibDir") and $cStzLibDir != "" and fexists($cStzLibDir + "/engine/stk_string.ring")
+		return $cStzLibDir + "/engine"
+	ok
+	return $cEngineDir
+
 func StzExposureQ()
 	return new stzExposure()
 
@@ -101,6 +109,17 @@ class stzExposure from stzObject
 
 	def NumberOfDomains()
 		return len(@aDomains)
+
+	# Returns the domains this process did NOT load: left out by its manifest, or refused by the deny list.
+	#
+	#   returns    a list of names; empty when every domain loaded
+	#   see        StzDomainWanted (ruling 3, W7b)
+	def SkippedDomains()
+		_a_ = []
+		_aS_ = StzDomainsSkipped()
+		_n_ = len(_aS_)
+		for _i_ = 1 to _n_  _a_ + _aS_[_i_]  next
+		return _a_
 
 	def HasDomain(pcName)
 		return This._Has(StzLower("" + pcName), @aDomains)
@@ -258,7 +277,11 @@ class stzExposure from stzObject
 				if NOT (isString(_v_) and _v_ = "")
 					if isPointer(_v_) or isNumber(_v_)
 						_g_ = _aG_[_i_]                       # $pStzCryptoHandle -> crypto
-						@aDomains + StzLower(left(right(_g_, len(_g_) - 5), len(_g_) - 11))
+						_cN_ = StzLower(left(right(_g_, len(_g_) - 5), len(_g_) - 11))
+						# the core's own libraries ($pStkStringHandle) are named stk_<name>:
+						# read as "string" they were counted twice (W7b, 2026-11-05)
+						if StzLower(left(_g_, 5)) = "$pstk"  _cN_ = "stk_" + _cN_  ok
+						@aDomains + _cN_
 					ok
 				ok
 			ok
@@ -267,7 +290,9 @@ class stzExposure from stzObject
 	def _ReadVendored()
 		@aVendored = []
 		@cRecorded = ""
-		_p_ = $cEngineDir + "/vendor/DIGESTS"
+		# the record belongs to the SOURCE tree: an engine copy built elsewhere
+		# (STZ_ENGINE_DIR) carries the libraries, not the record (W7b, 2026-11-05)
+		_p_ = StzSourceEngineDir() + "/vendor/DIGESTS"
 		if NOT fexists(_p_)  return  ok
 		_aL_ = StzSplit(read(_p_), char(10))
 		_n_ = len(_aL_)

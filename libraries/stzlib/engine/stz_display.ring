@@ -12,7 +12,10 @@ but isMacOS()
     $cStzDisplayLib = $cEngineDir + "/zig-out/lib/libstz_display.dylib"
 ok
 
-if fexists($cStzDisplayLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("display")
+    $pStzDisplayHandle = NULL
+but fexists($cStzDisplayLib)
     $pStzDisplayHandle = LoadLib($cStzDisplayLib)
 else
     ? "WARNING: stz_display not found at: " + $cStzDisplayLib

@@ -12,7 +12,10 @@ but isMacOS()
     $cStzCacheLib = $cEngineDir + "/zig-out/lib/libstz_cache.dylib"
 ok
 
-if fexists($cStzCacheLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("cache")
+    $pStzCacheHandle = NULL
+but fexists($cStzCacheLib)
     $pStzCacheHandle = LoadLib($cStzCacheLib)
 else
     ? "WARNING: stz_cache not found at: " + $cStzCacheLib

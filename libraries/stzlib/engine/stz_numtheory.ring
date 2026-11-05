@@ -12,7 +12,10 @@ but isMacOS()
     $cStzNumtheoryLib = $cEngineDir + "/zig-out/lib/libstz_numtheory.dylib"
 ok
 
-if fexists($cStzNumtheoryLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("numtheory")
+    $pStzNumtheoryHandle = NULL
+but fexists($cStzNumtheoryLib)
     $pStzNumtheoryHandle = LoadLib($cStzNumtheoryLib)
 else
     ? "WARNING: stz_numtheory not found at: " + $cStzNumtheoryLib

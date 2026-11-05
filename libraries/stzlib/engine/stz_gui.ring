@@ -72,7 +72,10 @@ ok
 # Loaded ONLY if present. Its absence is not an error: a machine without
 # it keeps every other graphics path, exactly as the window tier does.
 $pStzGuiHandle = NULL
-if fexists($cStzGuiLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("gui")
+    $pStzGuiHandle = NULL
+but fexists($cStzGuiLib)
     $pStzGuiHandle = LoadLib($cStzGuiLib)
 ok
 

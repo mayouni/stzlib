@@ -12,7 +12,10 @@ but isMacOS()
     $cStzProcessLib = $cEngineDir + "/zig-out/lib/libstz_process.dylib"
 ok
 
-if fexists($cStzProcessLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("process")
+    $pStzProcessHandle = NULL
+but fexists($cStzProcessLib)
     $pStzProcessHandle = LoadLib($cStzProcessLib)
 else
     ? "WARNING: stz_process not found at: " + $cStzProcessLib

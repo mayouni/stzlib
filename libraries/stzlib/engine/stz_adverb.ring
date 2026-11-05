@@ -11,7 +11,10 @@ but isLinux()
 but isMacOS()
     $cStzAdverbLib = $cEngineDir + "/zig-out/lib/libstz_adverb.dylib"
 ok
-if fexists($cStzAdverbLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("adverb")
+    $pStzAdverbHandle = NULL
+but fexists($cStzAdverbLib)
     $pStzAdverbHandle = LoadLib($cStzAdverbLib)
 else
     ? "WARNING: stz_adverb not found at: " + $cStzAdverbLib

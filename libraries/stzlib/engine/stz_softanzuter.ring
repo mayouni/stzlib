@@ -14,7 +14,10 @@ but isMacOS()
     $cStzSoftanzuterLib = $cEngineDir + "/zig-out/lib/libstz_softanzuter.dylib"
 ok
 
-if fexists($cStzSoftanzuterLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("softanzuter")
+    $pStzSoftanzuterHandle = NULL
+but fexists($cStzSoftanzuterLib)
     $pStzSoftanzuterHandle = LoadLib($cStzSoftanzuterLib)
 else
     ? "WARNING: stz_softanzuter not found at: " + $cStzSoftanzuterLib

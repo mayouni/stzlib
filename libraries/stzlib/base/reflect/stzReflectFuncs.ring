@@ -1829,8 +1829,14 @@ func _StzLastPos(pcStr, pcCh)
 	next
 	return _pos_
 
-# Softanza's base/ source dir, derived from the auto-discovered $cEngineDir.
+# Softanza's base/ source dir: the library folder found by the core (it holds
+# base/ and engine/), else derived from $cEngineDir -- which is wrong when
+# STZ_ENGINE_DIR names an engine copy outside the tree (found by stzlib-docs
+# 2026-11-05: StzSelfDoc, stzSemanticResolver and stzEmulator read <copy>/../base)
 func _StzBaseDir()
+	if isglobal("$cStzLibDir") and $cStzLibDir != ""
+		return $cStzLibDir + "/base"
+	ok
 	_cE_ = $cEngineDir
 	if NOT isString(_cE_) or _cE_ = "" return "" ok
 	if len(_cE_) >= 7 and right(_cE_, 7) = "/engine"

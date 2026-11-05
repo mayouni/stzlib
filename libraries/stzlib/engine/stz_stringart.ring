@@ -12,7 +12,10 @@ but isMacOS()
     $cStzStringartLib = $cEngineDir + "/zig-out/lib/libstz_stringart.dylib"
 ok
 
-if fexists($cStzStringartLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("stringart")
+    $pStzStringartHandle = NULL
+but fexists($cStzStringartLib)
     $pStzStringartHandle = LoadLib($cStzStringartLib)
 else
     ? "WARNING: stz_stringart not found at: " + $cStzStringartLib

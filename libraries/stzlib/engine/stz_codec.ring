@@ -12,7 +12,10 @@ but isMacOS()
     $cStzCodecLib = $cEngineDir + "/zig-out/lib/libstz_codec.dylib"
 ok
 
-if fexists($cStzCodecLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("codec")
+    $pStzCodecHandle = NULL
+but fexists($cStzCodecLib)
     $pStzCodecHandle = LoadLib($cStzCodecLib)
 else
     ? "WARNING: stz_codec not found at: " + $cStzCodecLib

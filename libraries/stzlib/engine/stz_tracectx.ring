@@ -19,7 +19,10 @@ but isMacOS()
     $cStzTraceCtxLib = $cEngineDir + "/zig-out/lib/libstz_tracectx.dylib"
 ok
 
-if fexists($cStzTraceCtxLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("tracectx")
+    $pStzTraceCtxHandle = NULL
+but fexists($cStzTraceCtxLib)
     $pStzTraceCtxHandle = LoadLib($cStzTraceCtxLib)
 else
     ? "WARNING: stz_tracectx not found at: " + $cStzTraceCtxLib

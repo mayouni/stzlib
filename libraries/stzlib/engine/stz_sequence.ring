@@ -11,7 +11,10 @@ but isLinux()
 but isMacOS()
     $cStzSequenceLib = $cEngineDir + "/zig-out/lib/libstz_sequence.dylib"
 ok
-if fexists($cStzSequenceLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("sequence")
+    $pStzSequenceHandle = NULL
+but fexists($cStzSequenceLib)
     $pStzSequenceHandle = LoadLib($cStzSequenceLib)
 else
     ? "WARNING: stz_sequence not found at: " + $cStzSequenceLib

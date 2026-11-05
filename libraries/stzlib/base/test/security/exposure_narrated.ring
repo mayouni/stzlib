@@ -88,17 +88,17 @@ Scenario("5. the bill of materials an outside scanner reads")
 EndScenario()
 
 Scenario("6. the vendored record refuses a changed tree (the tool's own fixture)")
-	cOut = systemCmd("python -I " + $cEngineDir + "/tools/vendor_digest.py --selftest")
+	cOut = systemCmd("python -I " + StzSourceEngineDir() + "/tools/vendor_digest.py --selftest")
 	Then("selftest: a clean tree passes, a changed byte and an added file are refused",
 		StzFindFirst("selftest: clean=0 tampered=1 added=1", cOut) > 0, 1)
-	cOut = systemCmd("python -I " + $cEngineDir + "/tools/vendor_digest.py --check --quiet")
+	cOut = systemCmd("python -I " + StzSourceEngineDir() + "/tools/vendor_digest.py --check --quiet")
 	# the engine this process runs may be a COPY (the Ring++ build lives beside the
 	# source tree); a copy that differs from the record is information, not a failure
 	# here -- the check must NAME what differs and its count must agree with its list
 	nChanged = len(StzFindCS("CHANGED", cOut, 1)) + len(StzFindCS("UNRECORDED", cOut, 1)) + len(StzFindCS("MISSING", cOut, 1))
 	Then("the check's count agrees with the libraries it names",
 		StzFindFirst("differing from the record: " + nChanged, cOut) > 0, 1)
-	? "  NUMBER vendored check on " + $cEngineDir + ": " + nChanged + " differing from the record"
+	? "  NUMBER vendored check on " + StzSourceEngineDir() + ": " + nChanged + " differing from the record"
 	if nChanged > 0  ? "  " + ring_trim(cOut)  ok
 EndScenario()
 

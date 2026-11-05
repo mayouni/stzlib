@@ -11,7 +11,10 @@ but isLinux()
 but isMacOS()
     $cStzRelationsLib = $cEngineDir + "/zig-out/lib/libstz_relations.dylib"
 ok
-if fexists($cStzRelationsLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("relations")
+    $pStzRelationsHandle = NULL
+but fexists($cStzRelationsLib)
     $pStzRelationsHandle = LoadLib($cStzRelationsLib)
 else
     ? "WARNING: stz_relations not found at: " + $cStzRelationsLib

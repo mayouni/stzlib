@@ -15,7 +15,10 @@ but isMacOS()
     $cStzBytesLib = $cEngineDir + "/zig-out/lib/libstz_bytes.dylib"
 ok
 
-if fexists($cStzBytesLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("bytes")
+    $pStzBytesHandle = NULL
+but fexists($cStzBytesLib)
     $pStzBytesHandle = LoadLib($cStzBytesLib)
 else
     ? "WARNING: stz_bytes not found at: " + $cStzBytesLib

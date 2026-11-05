@@ -82,6 +82,7 @@ func StzOpenSecurityLedger(pnCapacity)
 	ok
 	_oLed_ = new stzSecurityLedger(pnCapacity)
 	StzEngineSecLogSetCurrent(_oLed_.Handle())
+	_StzNoteDomainRefusals()
 	return _oLed_
 
 # The process ledger, made DURABLE (HaroBase rung 2): every event the
@@ -100,6 +101,7 @@ func StzOpenDurableSecurityLedger(pnCapacity, pcPath)
 		stzraise(_aV_[:why])
 	ok
 	StzEngineSecLogSetCurrent(_oLed_.Handle())
+	_StzNoteDomainRefusals()
 	return _oLed_
 
 func StzSecurityLedgerIsOpen()

@@ -15,7 +15,10 @@ but isMacOS()
     $cStzTableLib = $cEngineDir + "/zig-out/lib/libstz_table.dylib"
 ok
 
-if fexists($cStzTableLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("table")
+    $pStzTableHandle = NULL
+but fexists($cStzTableLib)
     $pStzTableHandle = LoadLib($cStzTableLib)
 else
     ? "WARNING: stz_table not found at: " + $cStzTableLib

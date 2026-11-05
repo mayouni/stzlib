@@ -15,7 +15,10 @@ but isMacOS()
     $cStzHashMapLib = $cEngineDir + "/zig-out/lib/libstz_hashmap.dylib"
 ok
 
-if fexists($cStzHashMapLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("hashmap")
+    $pStzHashMapHandle = NULL
+but fexists($cStzHashMapLib)
     $pStzHashMapHandle = LoadLib($cStzHashMapLib)
 else
     ? "WARNING: stz_hashmap not found at: " + $cStzHashMapLib

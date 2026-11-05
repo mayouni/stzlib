@@ -16,7 +16,10 @@ but isMacOS()
     $cStzReactorLib = $cEngineDir + "/zig-out/lib/libstz_reactor.dylib"
 ok
 
-if fexists($cStzReactorLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("reactor")
+    $pStzReactorHandle = NULL
+but fexists($cStzReactorLib)
     $pStzReactorHandle = LoadLib($cStzReactorLib)
 else
     ? "WARNING: stz_reactor not found at: " + $cStzReactorLib

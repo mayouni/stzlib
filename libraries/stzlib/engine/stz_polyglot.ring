@@ -15,7 +15,10 @@ but isMacOS()
     $cStzPolyglotLib = $cEngineDir + "/zig-out/lib/libstz_polyglot.dylib"
 ok
 
-if fexists($cStzPolyglotLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("polyglot")
+    $pStzPolyglotHandle = NULL
+but fexists($cStzPolyglotLib)
     $pStzPolyglotHandle = LoadLib($cStzPolyglotLib)
 else
     ? "WARNING: stz_polyglot not found at: " + $cStzPolyglotLib

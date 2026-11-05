@@ -14,7 +14,10 @@ but isMacOS()
     $cStzGridnavLib = $cEngineDir + "/zig-out/lib/libstz_gridnav.dylib"
 ok
 
-if fexists($cStzGridnavLib)
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if NOT StzDomainWanted("gridnav")
+    $pStzGridnavHandle = NULL
+but fexists($cStzGridnavLib)
     $pStzGridnavHandle = LoadLib($cStzGridnavLib)
 else
     ? "WARNING: stz_gridnav not found at: " + $cStzGridnavLib
