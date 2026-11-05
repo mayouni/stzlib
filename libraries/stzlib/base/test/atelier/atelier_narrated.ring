@@ -136,6 +136,13 @@ Scenario("Every check runs over HTTP, and no verdict moved against the last reco
 		? "    MOVED since the recording (id: was > now):"
 		for i = 1 to len(aMoved)
 			? "      " + aMoved[i][:id] + ": " + aMoved[i][:was] + " > " + aMoved[i][:now]
+			# what the check said now: a moved id without its words cost a rerun to read
+			# (B3, 2026-11-06: one check erred once in two runs, and nothing said why)
+			for k = 1 to len(aRun[:said])
+				if aRun[:said][k][1] = aMoved[i][:id]
+					? "        it said: " + left(substr(substr(aRun[:said][k][2], char(13), ""), char(10), " | "), 300)
+				ok
+			next
 		next
 	ok
 	Then("every check was run", len(aRun[:states]), len(aChecks[:checks]))
