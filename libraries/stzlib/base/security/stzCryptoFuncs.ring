@@ -58,6 +58,13 @@ func StzVerifySecretXT(pcSecret, pcStored, nRounds)
 	_cSalt_ = StzLeft(pcStored, _nSep_ - 1)
 	_cHash_ = StzMidToEnd(pcStored, _nSep_ + 1)
 	_cTry_ = StzEngineCryptoPbkdf2("" + pcSecret, _cSalt_, nRounds, 32)
+	# an error value must never meet a stored sentinel: a short or empty hash on
+	# either side is a refusal, not a comparison -- the shape of the OpenSSH 10.6p2
+	# bypass (musl's crypt() answered "*" for an overlong password, and a locked
+	# account's stored hash was "*"); ConstEqual("", "") answers 1
+	if len(_cHash_) < 64 or len(_cTry_) < 64
+		return 0
+	ok
 	return StzEngineCryptoConstEqual(_cTry_, _cHash_) = 1
 
 func StzRandomToken(nBytes)
