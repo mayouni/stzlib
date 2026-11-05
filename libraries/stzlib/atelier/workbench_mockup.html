@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atelier workbench, a mockup</title>
+<meta name="description" content="A mockup of the Atelier as a workbench: one cell with its four faces. Nothing here runs; every value shown is one Softanza answers today.">
+<style>
+/* drawn to the same law as atelier.html: one reading size, paper tones, one accent, one resting shadow, nothing moves */
+:root{--paper:#F1F3F1;--panel:#FBFCFB;--panel-2:#EAEEEB;--ink:#1B211F;--ink-2:#3E4744;--line:#D5DBD7;--line-2:#C3CAC6;--accent:#1B6B72;--accent-ink:#0E4E54;--head-tint:#DEE7E6;--shadow:0 1px 2px rgba(27,33,31,.04),0 6px 18px rgba(27,33,31,.05);--pass:#23664A;--pass-bg:#E4F1EA;--fail:#993A25;--fail-bg:#F6E3DD;--read:1.3125rem;--lh:1.7;--label:1.0625rem;--code:1.125rem;--title:clamp(1.875rem,3.4vw,2.5rem);--hero:clamp(2.5rem,5.2vw,3.75rem);--maxw:1180px;--gutter:24px}
+@media (prefers-color-scheme:dark){:root{--paper:#121614;--panel:#1A201E;--panel-2:#232B28;--ink:#EAEEEB;--ink-2:#B7C1BC;--line:#2C3532;--line-2:#3A443F;--accent:#5FB6BC;--accent-ink:#8FD3D8;--head-tint:#192423;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 22px rgba(0,0,0,.28);--pass:#63B98C;--pass-bg:#1B2F26;--fail:#DB8069;--fail-bg:#31201B}}
+*,*::before,*::after{box-sizing:border-box;transition:none!important;animation:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",system-ui,"Segoe UI",sans-serif;font-size:var(--read);line-height:var(--lh)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--gutter)}
+code,pre,.mono,kbd{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
+pre{margin:0;font-size:var(--code);line-height:1.6;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px 18px;white-space:pre-wrap;overflow-wrap:anywhere}
+.top{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line)}
+.topbar{max-width:var(--maxw);margin:0 auto;padding:0 var(--gutter);min-height:64px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.brand{font-family:"Fraunces",Georgia,serif;font-size:1.5rem;font-weight:600;color:var(--ink);text-decoration:none}
+.menu a{font-weight:500;color:var(--ink-2);text-decoration:none;margin-right:24px;display:inline-flex;min-height:44px;align-items:center;border-bottom:3px solid transparent}
+.menu a[aria-current=page]{color:var(--accent-ink);border-bottom-color:var(--accent);font-weight:600}
+.page-head{background:var(--head-tint);padding:32px 0}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:var(--label);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink)}
+h1{font-family:"Fraunces",Georgia,serif;font-size:var(--hero);font-weight:600;line-height:1.06;margin:12px 0 0;max-width:24ch}
+h2{font-family:"Fraunces",Georgia,serif;font-size:var(--title);font-weight:600;margin:0 0 16px}
+h3{font-size:var(--read);font-weight:700;margin:0 0 8px}
+.lead{max-width:72ch;color:var(--ink-2);margin:16px 0 0}
+.body{padding:32px 0 80px}
+.cell{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:var(--shadow);margin:0 0 32px}
+.face{border-top:1px solid var(--line);padding:16px 0 0;margin:16px 0 0}
+.face .k{font-family:"IBM Plex Mono",monospace;font-size:var(--label);font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);margin:0 0 8px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+button.act{font:inherit;font-weight:600;min-height:44px;padding:0 20px;border-radius:8px;border:1px solid var(--line-2);background:var(--panel);color:var(--ink);cursor:pointer}
+button.act.primary{background:var(--accent);border-color:var(--accent);color:#F1F3F1}
+kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padding:0 8px;background:var(--panel-2)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;margin:8px 0 0}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th:first-child,td:first-child{text-align:left}
+th{font-family:"IBM Plex Mono",monospace;font-size:var(--label);font-weight:600;color:var(--ink-2);background:var(--panel-2)}
+td.name{text-align:left}
+.steps td:nth-child(2){text-align:left;font-family:"IBM Plex Mono",monospace;font-size:var(--code)}
+.steps td:nth-child(3){text-align:left;font-family:"IBM Plex Mono",monospace;font-size:var(--code)}
+.viz{font-family:"IBM Plex Mono",monospace;font-size:var(--code);line-height:1.5;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px 18px;white-space:pre}
+.viz b{color:var(--accent-ink);background:var(--pass-bg);border-radius:4px}
+.forms{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.forms h4{margin:0 0 6px;font-size:var(--read);font-weight:700}
+.st{display:inline-block;font-weight:700;padding:2px 12px;border-radius:8px}
+.st-kept{color:var(--pass);background:var(--pass-bg)}.st-diverged{color:var(--fail);background:var(--fail-bg)}
+.meta{color:var(--ink-2)}
+.note{border-left:4px solid var(--ink-2);background:var(--panel-2);border-radius:0 12px 12px 0;padding:16px 24px;margin:0}
+textarea{width:100%;min-height:9rem;font-family:"IBM Plex Mono",monospace;font-size:var(--code);line-height:1.6;color:var(--ink);background:var(--panel);border:1px solid var(--line-2);border-radius:8px;padding:12px 14px;resize:vertical}
+@media (max-width:900px){table .ctx{display:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="topbar">
+  <a class="brand" href="#">Softanza Atelier</a>
+  <nav class="menu" aria-label="Atelier sections"><a href="#" aria-current="page">Notebook</a><a href="#">Lessons</a><a href="#">Checks</a><a href="#">Coverage</a></nav>
+</div></header>
+<main>
+<div class="page-head"><div class="wrap">
+  <p class="eyebrow">A mockup, nothing runs here</p>
+  <h1>One cell, four faces</h1>
+  <p class="lead">A cell is a narrated test you write: it says what it does, shows what came in the value's own face, judges what it expected, and shows how it got there. Every value on this page is one Softanza answers today.</p>
+</div></div>
+<div class="body"><div class="wrap">
+
+<article class="cell" aria-label="Cell 1">
+  <h3>Cell 1 · the restaurant's orders</h3>
+  <label for="c1" class="meta">The code, in the scene form</label>
+  <textarea id="c1" spellcheck="false">o1 = new stzList([ "tea", "rice", "tea", "fish", "rice", "tea" ])
+o1 {
+    ? NumberOfDuplicates()
+    #--> 3
+    ? @@( FindDuplicates() )
+    #--> [ 3, 5, 6 ]
+    RemoveDuplicates()
+    ? @@( Content() )
+    #--> [ "tea", "rice", "fish" ]
+}
+? Q("softanza").VizFind("an")</textarea>
+  <div class="row" style="margin-top:12px"><button class="act primary">Run the cell</button><kbd>Ctrl+Enter</kbd><button class="act">Save as a narrated test</button><span class="meta">ran in 3.4 ms, 7 steps</span></div>
+
+  <div class="face">
+    <p class="k">1 · The output, in the value's own face</p>
+    <p class="meta" style="margin:0 0 4px">A number, a list, then the list after the move: Softanza's <code>@@</code> faces.</p>
+    <pre>3
+[ 3, 5, 6 ]
+[ "tea", "rice", "fish" ]</pre>
+    <p class="meta" style="margin:12px 0 4px">A find, in the string's own face (<code>VizFind</code>): the positions boxed, the ruler beneath.</p>
+    <div class="viz">s o f t <b>a n</b> z a
+1 2 3 4 5 6 7 8</div>
+  </div>
+
+  <div class="face">
+    <p class="k">2 · The process, the scene unfolded</p>
+    <p class="meta" style="margin:0 0 4px">Each line a step; the object's state after it. <code>FindDuplicates()</code> answers and leaves the list alone; <code>RemoveDuplicates()</code> changes it: the function forms, seen.</p>
+    <table class="steps"><thead><tr><th>step</th><th>line</th><th>answer</th><th>o1 after it</th><th class="ctx">µs</th></tr></thead><tbody>
+      <tr><td>1</td><td>NumberOfDuplicates()</td><td>3</td><td class="name">unchanged, 6 items</td><td class="ctx">41</td></tr>
+      <tr><td>2</td><td>FindDuplicates()</td><td>[ 3, 5, 6 ]</td><td class="name">unchanged, 6 items</td><td class="ctx">38</td></tr>
+      <tr><td>3</td><td>RemoveDuplicates()</td><td>(nothing: a verb)</td><td class="name"><b>changed</b>: [ "tea", "rice", "fish" ]</td><td class="ctx">22</td></tr>
+      <tr><td>4</td><td>Content()</td><td>[ "tea", "rice", "fish" ]</td><td class="name">unchanged, 3 items</td><td class="ctx">9</td></tr>
+    </tbody></table>
+    <p class="meta" style="margin:16px 0 4px">The same move in its forms. The scene is the basis; the others read the same truth.</p>
+    <div class="forms">
+      <div><h4>Scene</h4><pre>o1 {
+    RemoveDuplicates()
+    ? @@( Content() )
+}</pre></div>
+      <div><h4>Chain</h4><pre>? @@( o1.RemoveDuplicatesQ().Content() )</pre></div>
+      <div><h4>Classic</h4><pre>o1.RemoveDuplicates()
+? @@( o1.Content() )</pre></div>
+      <div><h4>Natural</h4><pre>Naturally("Create a list with tea, rice, tea.
+  Remove its duplicates. Show it.")</pre><p class="meta" style="margin:4px 0 0">where it runs; else the cell says so</p></div>
+    </div>
+  </div>
+
+  <div class="face">
+    <p class="k">3 · The expectation, judged by the library's own court</p>
+    <table><thead><tr><th>promise</th><th>came</th><th>state</th></tr></thead><tbody>
+      <tr><td class="name mono">#--> 3</td><td class="name mono">3</td><td class="name"><span class="st st-kept">kept</span></td></tr>
+      <tr><td class="name mono">#--> [ 3, 5, 6 ]</td><td class="name mono">[ 3, 5, 6 ]</td><td class="name"><span class="st st-kept">kept</span></td></tr>
+      <tr><td class="name mono">#--> [ "tea", "rice", "fish" ]</td><td class="name mono">[ "tea", "rice", "fish" ]</td><td class="name"><span class="st st-kept">kept</span></td></tr>
+      <tr><td class="name mono">(the find promises nothing)</td><td class="name mono">s o f t a n z a</td><td class="name meta">ran, asserted nothing</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="face">
+    <p class="k">4 · The lesson</p>
+    <p class="note">First you select the object. Then you ask whether it contains what you are looking for, count it, and find it. Only then do you act. <span class="meta">Elementary Introduction, chapter 1, "Find, then apply". Next: the same questions on a string.</span></p>
+  </div>
+</article>
+
+<article class="cell" aria-label="Cell 2">
+  <h3>Cell 2 · a table, in its own face</h3>
+  <textarea spellcheck="false">o2 = new stzTable([
+    [ "dish",  "orders" ],
+    [ "tea",   3 ],
+    [ "rice",  2 ],
+    [ "fish",  1 ]
+])
+o2 { SortByDown("orders")  ? Show() }</textarea>
+  <div class="face">
+    <p class="k">1 · The output: a ledger, from <code>stzTable.ToHtml()</code></p>
+    <table><thead><tr><th>dish</th><th>orders</th></tr></thead><tbody><tr><td class="name">tea</td><td>3</td></tr><tr><td class="name">rice</td><td>2</td></tr><tr><td class="name">fish</td><td>1</td></tr></tbody></table>
+    <p class="meta" style="margin:12px 0 0">A plot would come as the SVG the engine renders; an image as the image; a diagram as its drawing. The page shows what the server sent.</p>
+  </div>
+</article>
+
+<p class="meta">Nothing above runs. The design that goes with it: <code>SOFTANZA_WORKBENCH_DESIGN.md</code>.</p>
+</div></div>
+</main>
+</body>
+</html>
