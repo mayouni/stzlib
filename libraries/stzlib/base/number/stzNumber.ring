@@ -6913,7 +6913,7 @@ class stzNumber from stzObject
 
 		_nOtherRound_ = _nCurrentRound_
 		if isString(pOtherNumber)
-			_nOtherRound_ = StzNumberQ(n).Round()
+			_nOtherRound_ = StzNumberQ(pOtherNumber).Round()
 		ok
 
 		# Applying the max between the two rounds
