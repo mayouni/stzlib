@@ -16,6 +16,12 @@
    Rule 3, 5, 10    paper tones, one accent (action and selection), one resting shadow, no gradient
    Rule 112, 17, 1  nothing moves: no transition, no animation, no smooth scroll
    Rule 13, 110     the top bar sticks and holds its own space; nothing floats over the reading
+   B2               a notebook of cells: running cell k runs cells 1 to k as one program, so a name a
+                    cell makes is the one the cells below read; saved as a narrated test file, opened back;
+                    a library check forked into a cell as its Then line
+   B1               the process: a chain on a ? line unfolded step by step with each value and its time,
+                    the same move in its other forms (offered, put in the cell by the reader, never run
+                    behind their back), and a scene's object after every line, changed or not
    B0               the notebook is home: a cell, every ? line seen in its value's own face, every
                     #--> promise judged by testoor's matcher; the playground it replaces is gone
    Rule 27          a horizontal main menu of three short labels and NO second level: the domains filter one
@@ -128,7 +134,7 @@ h3{font-size:var(--read);font-weight:700;margin:0 0 8px}
 .card p:first-child{margin-top:0}
 .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 label{font-weight:600}
-input[type=search],select,textarea{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line-2);border-radius:8px;min-height:44px;padding:6px 12px}
+input[type=search],input[type=text],select,textarea{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line-2);border-radius:8px;min-height:44px;padding:6px 12px}
 input[type=search]{width:100%}
 select{padding-right:32px}
 textarea{width:100%;min-height:10rem;font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:var(--code);line-height:1.6;resize:vertical;padding:12px 14px}
@@ -180,6 +186,14 @@ td.name{overflow-wrap:anywhere;text-align:left}
 .see .promise{margin:12px 0 0;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
 .drawing{display:block;max-width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:10px}
 .cellsum{margin:0 0 24px}
+.process{margin:16px 0 0;border-top:1px dashed var(--line);padding:12px 0 0}
+.process table td.code,.process table td.val{text-align:left;font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:var(--code);overflow-wrap:anywhere}
+.process tr.changed td{font-weight:700}
+.process th.l{text-align:left}
+.process td.nw{white-space:nowrap;text-align:left}
+.forms{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:8px 0 0}
+.forms h4{margin:0 0 6px;font-size:var(--read);font-weight:700}
+.forms .act{margin-top:8px}
 .files{margin:8px 0 16px}
 .files summary{cursor:pointer;color:var(--accent);min-height:44px;display:inline-flex;align-items:center;font-weight:500}
 .files table th:nth-child(2),.files table td:nth-child(2){text-align:left}
@@ -191,6 +205,14 @@ body.embed .body{padding:16px 0}
 body.embed .card{box-shadow:none}
 #playout{min-height:4rem;margin:16px 0 0}
 .playtime{margin:8px 0 0;color:var(--ink-2);min-height:1.7em}
+.nbcell .cellhead{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:0 0 12px}
+.nbcell .cellno{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:var(--label);font-weight:600;color:var(--ink-2)}
+.nbcell input.celltitle{flex:1 1 16rem;font-weight:600}
+.nbcell .cellsum{margin:16px 0 0}
+.cellout .see{border-top:1px dashed var(--line);padding:16px 0 0;margin:16px 0 0}
+.cellout .scene{border-top:1px dashed var(--line);padding:16px 0 0;margin:16px 0 0}
+.nbtools{margin:16px 0 0}
+.undo{margin-left:12px}
 kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padding:0 8px;background:var(--panel-2)}
 
 /* a narrow screen: context columns leave, the state stays */
@@ -288,27 +310,20 @@ kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padd
   <h2 id="h-nb" data-t="menu_notebook">Notebook</h2>
   <div class="card">
     <p data-t="nb_intro"></p>
-    <label for="cellcode" data-t="nb_label">The cell</label>
-    <textarea id="cellcode" spellcheck="false" style="min-height:22rem">o1 = new stzList([ "tea", "rice", "tea", "fish", "rice", "tea" ])
-o1 {
-    ? NumberOfDuplicates()
-    #--> 3
-
-    ? @@( FindDuplicates() )
-    #--> [ 3, 5, 6 ]
-
-    RemoveDuplicates()
-    ? @@( Content() )
-    #--> [ "tea", "rice", "fish" ]
-}
-
-? Q("softanza").VizFind("an")
-
-? new stzBarPlot([ :Tea = 3, :Rice = 2, :Fish = 1 ])</textarea>
-    <div class="row" style="margin-top:12px"><button class="act primary" id="runcell" data-t="nb_run">Run the cell</button><kbd data-t="play_shortcut">Ctrl+Enter</kbd></div>
+    <p data-t="nb_cells_note"></p>
+    <div class="row nbtools">
+      <button class="act" id="nbrunall" data-t="nb_run_all">Run every cell</button>
+      <button class="act" id="nbadd" data-t="nb_add">Add a cell</button>
+      <button class="act" id="nbsave" data-t="nb_save">Save as a test file</button>
+      <button class="act" id="nbopen" data-t="nb_open">Open a test file</button>
+      <input type="file" id="nbfile" accept=".ring,text/plain" hidden>
+      <kbd data-t="nb_shortcut">Ctrl+Enter</kbd>
+    </div>
     <p class="hint" data-t="nb_capture_note"></p>
+    <p class="runinfo" id="nbinfo" aria-live="polite"></p>
   </div>
-  <div id="cellout" aria-live="polite"></div>
+  <div id="cells"></div>
+  <div class="row"><button class="act" id="nbadd2" data-t="nb_add">Add a cell</button></div>
 </section>
 
 </div></div>
@@ -478,7 +493,7 @@ function cardHtml(c, r) {
     <p class="desc">${esc(c.desc)}</p>
     <p class="meta"><span>${t('provenance', { file: esc(c.file), line: c.line })}</span>${c.scenario ? `<span>${t('scenario', { s: esc(c.scenario) })}</span>` : ''}<span>${t('at_commit', { commit: esc(META.commit) })}</span><span class="mono">${t('id_label', { id: esc(c.id) })}</span></p>
     ${verdict}${more}${ring}
-    <p class="meta cite"><span>${t('cite_label')}</span><span class="mono">${esc(cite)}</span><span><a href="${esc(oneHref(c))}">${t('open_check')}</a></span></p>
+    <p class="meta cite"><span>${t('cite_label')}</span><span class="mono">${esc(cite)}</span><span><a href="${esc(oneHref(c))}">${t('open_check')}</a></span>${EDITION ? '' : `<span><a href="${esc(URLS.home + '?fork=' + encodeURIComponent(c.id) + '&lang=' + LANG)}">${t('open_in_nb')}</a></span>`}</p>
     <details><summary>${t('show_code')}</summary><pre>${esc(c.code)}</pre></details></article>`;
 }
 function recordedOf(c) { return results[c.id] || RECORDED[c.id] || null; }
@@ -576,9 +591,24 @@ function renderCoverage() {
   $('#covertable').innerHTML = h; $('#covertable').hidden = false;
 }
 
-// ---- the notebook: a cell, its lines seen, its promises judged (B0) ----
-let CELL = null;
-try { const saved = localStorage.getItem('atelier.cell'); if (saved && $('#cellcode')) $('#cellcode').value = saved; } catch (e) {}
+// ---- the notebook: cells, run as one program from the first (B0, B1, B2) ----
+const DEFAULT_CELLS = [
+  { title: 'A scene: the object after each line', code: 'o1 = new stzList([ "tea", "rice", "tea", "fish", "rice", "tea" ])\no1 {\n    ? NumberOfDuplicates()\n    #--> 3\n\n    ? @@( DuplicatesRemoved() )\n    #--> [ "tea", "rice", "fish" ]\n\n    RemoveDuplicates()\n    ? @@( Content() )\n    #--> [ "tea", "rice", "fish" ]\n}\n' },
+  { title: 'A chain, unfolded', code: '? Q("softanza").UppercaseQ().Spacified()\n#--> S O F T A N Z A\n' },
+  { title: 'The cells above, read from here', code: 'Then("the scene left three items", o1.NumberOfItems(), 3)\nThen("twice that, by a helper of this cell", Twice(o1.NumberOfItems()), 6)\n\nfunc Twice n\n\treturn 2 * n\n' },
+  { title: 'A drawing', code: '? new stzBarPlot([ :Tea = 3, :Rice = 2, :Fish = 1 ])\n' }
+];
+let NB = null, NBRUN = null, NBBUSY = false, NBUNDO = null;
+function nbStore() { try { localStorage.setItem('atelier.notebook', JSON.stringify({ cells: NB })); } catch (e) {} }
+function nbLoad() {
+  try { const d = JSON.parse(localStorage.getItem('atelier.notebook') || 'null'); if (d && Array.isArray(d.cells) && d.cells.length) NB = d.cells.map(c => ({ title: String(c.title || ''), code: String(c.code || '') })); } catch (e) {}
+  if (!NB) {
+    NB = DEFAULT_CELLS.map(c => Object.assign({}, c));
+    // the one cell of B0 and B1, kept as the last cell rather than lost
+    try { const old = localStorage.getItem('atelier.cell'); if (old && old.trim()) { NB.push({ title: '', code: old }); localStorage.removeItem('atelier.cell'); } } catch (e) {}
+    nbStore();
+  }
+}
 function tableFace(html) {
   // the library's ToHtml() is read, never inserted: its text is copied into a table of the page's own
   const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -599,51 +629,206 @@ function faceHtml(v) {
   if (v.kind === 'object') return `<p class="facelabel">${t('face_object', { label: esc(v.label) })}</p><pre>${esc(v.payload)}</pre>`;
   return `<pre>${esc(v.payload)}</pre>`;
 }
-function renderCell() {
-  if (!CELL || !$('#cellout')) return;
-  const d = CELL;
-  let sum = '';
+const us = ns => fmt1(Number(ns) / 1000);
+function stepValue(st) {
+  const v = st.kind === 'object' && st.label ? `${st.label}: ${st.payload}` : st.payload;
+  return esc(v.length > 160 ? v.slice(0, 160) + ' ...' : v);
+}
+// a line of the composed program, as [cell, line of that cell] (1-based)
+function where(line) { return (NBRUN && NBRUN.map && NBRUN.map[line - 1]) || [1, line]; }
+function codeAt(line) { const [c, l] = where(line); return ((NBRUN.cells[c - 1] || {}).code || '').split('\n')[l - 1] || ''; }
+function chainHtml(s) {
+  if (!s.steps || s.steps.length < 2) return '';
+  const rows = s.steps.map(st => `<tr><td>${st.k}</td><td class="code">${esc(st.text)}</td><td class="val">${stepValue(st)}</td><td>${us(st.ns)}</td></tr>`).join('');
+  let h = `<div class="process"><p class="facelabel"><b>${t('proc_chain')}</b></p><p class="hint" style="margin:0 0 8px">${t('proc_chain_note')}</p>
+    <table><thead><tr><th scope="col">${t('col_step')}</th><th scope="col" class="l">${t('col_call')}</th><th scope="col" class="l">${t('col_value')}</th><th scope="col">${t('col_us')}</th></tr></thead><tbody>${rows}</tbody></table>`;
+  if (s.forms && s.forms.length) {
+    h += `<p class="facelabel" style="margin-top:16px"><b>${t('proc_forms')}</b></p><div class="forms">` +
+      s.forms.map((f, i) => `<div><h4>${t('proc_form_' + f.name)}</h4><pre>${esc(f.code)}</pre><button type="button" class="act" data-see="${s.n}" data-form="${i}">${t('proc_put')}</button></div>`).join('') + '</div>';
+  }
+  return h + '</div>';
+}
+function sceneHtml(sc) {
+  const answers = {};
+  (NBRUN.sees || []).forEach(s => { if (s.values.length) answers[s.line] = s.values[s.values.length - 1].payload; });
+  const rows = sc.states.map((st, i) => {
+    const code = i === 0 ? t('proc_before') : codeAt(st.line).trim();
+    const ans = answers[st.line] !== undefined ? esc(answers[st.line].slice(0, 120)) : '';
+    const what = i === 0 ? '' : (st.changed ? t('proc_changed') : t('proc_unchanged'));
+    return `<tr class="${st.changed ? 'changed' : ''}"><td>${where(st.line)[1]}</td><td class="code">${esc(code)}</td><td class="val">${ans}</td><td class="val">${stepValue(st)}</td><td class="nw">${what}</td></tr>`;
+  }).join('');
+  return `<section class="scene"><p class="facelabel"><b>${t('proc_scene', { name: esc(sc.name) })}</b></p><p class="hint" style="margin:0 0 8px">${t('proc_scene_note')}</p>
+    <div class="process" style="border:0;padding:0;margin:0"><table><thead><tr><th scope="col">${t('col_line')}</th><th scope="col" class="l">${t('col_code')}</th><th scope="col" class="l">${t('col_answer')}</th><th scope="col" class="l">${t('col_after', { name: esc(sc.name) })}</th><th scope="col" class="l">${t('col_change')}</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
+}
+// the reader puts a form in its cell, in place of the line it rewrites; its promise follows it
+function putForm(seeN, formI) {
+  const s = (NBRUN.sees || []).find(x => x.n === seeN);
+  if (!s || !s.forms[formI]) return;
+  const [ci, li] = where(s.line);
+  const ta = $('#code-' + ci);
+  if (!ta || ta.value !== NBRUN.cells[ci - 1].code) { $('#nbinfo').textContent = t('nb_stale', { n: ci }); return; }
+  const lines = ta.value.split('\n');
+  const i = li - 1;
+  const pad = (lines[i] || '').match(/^\s*/)[0];
+  let end = i + 1;
+  if (!/#-->/.test(lines[i] || '')) { while (end < lines.length && /^\s*#/.test(lines[end])) end++; }
+  let form = s.forms[formI].code.replace(/\n$/, '').split('\n');
+  if (s.promise) {
+    let k = form.length - 1; while (k >= 0 && !/^\s*\?/.test(form[k])) k--;
+    if (k >= 0) form[k] = form[k] + '   #--> ' + s.promise.split('\n')[0];
+  }
+  lines.splice(i, end - i, ...form.map(l => pad + l));
+  ta.value = lines.join('\n');
+  NB[ci - 1].code = ta.value; nbStore();
+  ta.focus();
+}
+function seeHtml(s) {
+  const vals = s.values.map((v, k) => (s.values.length > 1 ? `<p class="facelabel"><b>${t('nb_pass', { k: k + 1 })}</b></p>` : '') + `<div class="face">${faceHtml(v)}</div>`).join('');
+  const isThen = s.kind === 'then';
+  let prom = '';
+  if (isThen) {
+    const came = s.state === 'diverged' && s.values.length ? `<span>${t('nb_came')}: <code>${esc(s.values[s.values.length - 1].payload.slice(0, 200))}</code></span>` : '';
+    prom = s.state === 'unreached' ? `<div class="promise">${st('unreached')}</div>` : `<div class="promise"><span>${t('nb_expected')}: <code>${esc(s.promise)}</code></span>${came}${s.state ? st(s.state) : ''}</div>`;
+  } else if (s.promise) {
+    const came = s.state === 'diverged' && s.values.length ? `<span>${t('nb_came')}: <code>${esc(s.values[s.values.length - 1].payload.slice(0, 200))}</code></span>` : '';
+    prom = `<div class="promise"><span>${t('nb_promised')}: <code>#--&gt; ${esc(s.promise)}</code></span>${came}${s.state ? st(s.state) : ''}</div>`;
+  } else if (s.values.length) prom = `<p class="hint">${t('nb_none')}</p>`;
+  if (!s.values.length && !s.promise && !isThen) prom = `<p class="hint">${t('nb_notrun')}</p>`;
+  const head = isThen ? `<code>Then</code><b>${esc(s.expr)}</b>` : `<code>? ${esc(s.expr)}</code>`;
+  return `<section class="see"><p class="seeline"><span class="mono">${t('nb_line', { n: where(s.line)[1] })}</span>${head}</p>${vals}${prom}${chainHtml(s)}</section>`;
+}
+function summaryHtml(d) {
+  let sum;
   if (d.end === 'not-started') sum = t('nb_notstarted', { why: esc(d.why) });
   else {
-    sum = t('nb_ran', { ms: fmt1(d.ms), n: fmtN(d.sees.length), kept: fmtN(d.kept), diverged: fmtN(d.diverged) });
+    sum = t('nb_ran_cells', { k: d.ran, ms: fmt1(d.ms), n: fmtN(d.sees.length), kept: fmtN(d.kept), diverged: fmtN(d.diverged) });
     if (d.unreached) sum += ' ' + t('nb_unreached', { n: fmtN(d.unreached) });
     if (d.end === 'broke') sum += ' ' + t('nb_stopped', { why: esc(d.why) });
   }
-  let html = `<div class="card cellsum"><p style="margin:0">${sum}</p></div>`;
-  d.sees.forEach(s => {
-    const vals = s.values.map((v, k) => (s.values.length > 1 ? `<p class="facelabel"><b>${t('nb_pass', { k: k + 1 })}</b></p>` : '') + `<div class="face">${faceHtml(v)}</div>`).join('');
-    let prom = '';
-    if (s.promise) {
-      const came = s.state === 'diverged' && s.values.length ? `<span>${t('nb_came')}: <code>${esc(s.values[s.values.length - 1].payload.slice(0, 200))}</code></span>` : '';
-      prom = `<div class="promise"><span>${t('nb_promised')}: <code>#--&gt; ${esc(s.promise)}</code></span>${came}${s.state ? st(s.state) : ''}</div>`;
-    } else if (s.values.length) prom = `<p class="hint">${t('nb_none')}</p>`;
-    if (!s.values.length && !s.promise) prom = `<p class="hint">${t('nb_notrun')}</p>`;
-    html += `<article class="card see"><p class="seeline"><span class="mono">${t('nb_line', { n: s.line })}</span><code>? ${esc(s.expr)}</code></p>${vals}${prom}</article>`;
+  return `<div class="cellsum"><p style="margin:0">${sum}</p></div>`;
+}
+function renderOutputs() {
+  if (!NB) return;
+  NB.forEach((c, i) => {
+    const out = $('#out-' + (i + 1));
+    if (!out) return;
+    if (!NBRUN || i + 1 > NBRUN.ran) { out.innerHTML = ''; return; }
+    let h = '';
+    if (i + 1 === NBRUN.ran) h += summaryHtml(NBRUN);
+    (NBRUN.scenes || []).forEach(sc => { if (sc.states && sc.states.length && where(sc.line)[0] === i + 1) h += sceneHtml(sc); });
+    (NBRUN.sees || []).forEach(s => { if (where(s.line)[0] === i + 1) h += seeHtml(s); });
+    out.innerHTML = h;
   });
-  $('#cellout').innerHTML = html;
+  document.querySelectorAll('.cellout button[data-form]').forEach(b => b.onclick = () => putForm(Number(b.dataset.see), Number(b.dataset.form)));
 }
-async function runCell() {
-  if (EDITION) return;
-  if (!stzReady) { $('#cellout').innerHTML = `<div class="card cellsum"><p style="margin:0">${t('play_waiting')}</p></div>`; return; }
-  const code = $('#cellcode').value;
-  $('#runcell').disabled = true;
+function renderNotebook() {
+  if (!$('#cells') || !NB) return;
+  $('#cells').innerHTML = NB.map((c, i) => {
+    const n = i + 1;
+    const rows = Math.max(4, Math.min(28, c.code.split('\n').length + 1));
+    return `<article class="card nbcell" id="cell-${n}">
+    <div class="cellhead"><span class="cellno">${t('nb_cell', { n })}</span>
+      <input type="text" class="celltitle" id="title-${n}" value="${esc(c.title)}" placeholder="${esc(t('nb_title_hint'))}" aria-label="${esc(t('nb_title_label', { n }))}">
+      <button type="button" class="act primary" data-run="${n}">${t('nb_run_to')}</button>
+      <button type="button" class="act" data-del="${n}" aria-label="${esc(t('nb_delete_label', { n }))}">${t('nb_delete')}</button></div>
+    <textarea id="code-${n}" spellcheck="false" rows="${rows}" aria-label="${esc(t('nb_code_label', { n }))}">${esc(c.code)}</textarea>
+    <div class="cellout" id="out-${n}" aria-live="polite"></div></article>`;
+  }).join('');
+  NB.forEach((c, i) => {
+    const n = i + 1;
+    $('#title-' + n).oninput = e => { NB[i].title = e.target.value; nbStore(); };
+    $('#code-' + n).oninput = e => { NB[i].code = e.target.value; nbStore(); };
+    $('#code-' + n).addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); runNotebook(n); } });
+  });
+  document.querySelectorAll('#cells button[data-run]').forEach(b => b.onclick = () => runNotebook(Number(b.dataset.run)));
+  document.querySelectorAll('#cells button[data-del]').forEach(b => b.onclick = () => deleteCell(Number(b.dataset.del)));
+  $('#nbrunall').disabled = $('#nbsave').disabled = NBBUSY;
+  renderOutputs();
+}
+function info(html) { $('#nbinfo').innerHTML = html; }
+function addCell(cell, focus) {
+  NB.push(cell || { title: '', code: '' }); nbStore(); renderNotebook();
+  if (focus !== false) $('#code-' + NB.length).focus();
+}
+function deleteCell(n) {
+  NBUNDO = { at: n - 1, cell: NB[n - 1] };
+  NB.splice(n - 1, 1);
+  if (!NB.length) NB.push({ title: '', code: '' });
+  NBRUN = null; nbStore(); renderNotebook();
+  info(`${t('nb_deleted', { n })}<button type="button" class="act undo" id="nbundo">${t('nb_undo')}</button>`);
+  $('#nbundo').onclick = () => { if (!NBUNDO) return; NB.splice(NBUNDO.at, 0, NBUNDO.cell); NBUNDO = null; nbStore(); renderNotebook(); info(''); };
+}
+async function runNotebook(k) {
+  if (EDITION || NBBUSY) return;
+  if (!stzReady) { info(t('play_waiting')); return; }
+  NBBUSY = true;
+  document.querySelectorAll('#cells button[data-run], #nbrunall').forEach(b => b.disabled = true);
+  info(t('nb_running', { k }));
+  const cells = NB.map(c => ({ title: c.title, code: c.code }));
   try {
-    const r = await fetch('/atelier/cell', { method: 'POST', body: code });
-    CELL = await r.json();
-  } catch (e) { CELL = null; $('#cellout').innerHTML = `<div class="card cellsum"><p style="margin:0">${t('lib_gone')}</p></div>`; }
-  $('#runcell').disabled = false;
-  try { localStorage.setItem('atelier.cell', code); } catch (e) {}
-  renderCell();
+    const r = await fetch('/atelier/notebook', { method: 'POST', body: JSON.stringify({ run: k, cells }) });
+    if (r.status !== 200) throw new Error(await r.text());
+    NBRUN = await r.json(); NBRUN.cells = cells;
+    info('');
+  } catch (e) { NBRUN = null; info(t('lib_gone')); }
+  NBBUSY = false;
+  document.querySelectorAll('#cells button[data-run], #nbrunall').forEach(b => b.disabled = false);
+  renderOutputs();
+  const out = $('#out-' + k); if (out && out.firstElementChild) out.firstElementChild.scrollIntoView({ block: 'nearest' });
 }
-if ($('#runcell')) {
-  $('#runcell').onclick = runCell;
-  $('#cellcode').addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); runCell(); } });
+async function saveNotebook() {
+  if (EDITION) return;
+  try {
+    const r = await fetch('/atelier/notebook/save', { method: 'POST', body: JSON.stringify({ cells: NB }) });
+    const text = await r.text();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
+    a.download = 'notebook_narrated.ring';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    info(t('nb_saved', { n: NB.length }));
+  } catch (e) { info(t('lib_gone')); }
 }
+async function openNotebook(file) {
+  try {
+    const text = await file.text();
+    const r = await fetch('/atelier/notebook/open', { method: 'POST', body: text });
+    const d = await r.json();
+    if (!d.cells || !d.cells.length) { info(t('nb_open_empty', { file: esc(file.name) })); return; }
+    NB = d.cells.map(c => ({ title: String(c.title || ''), code: String(c.code || '') }));
+    NBRUN = null; nbStore(); renderNotebook();
+    info(t('nb_opened', { file: esc(file.name), n: NB.length }));
+  } catch (e) { info(t('lib_gone')); }
+}
+// a library check forked into a cell: its own assertion, as the Then line it was in its file
+function forkCheck(id) {
+  const c = CHECKS.find(x => x.id === id);
+  if (!c) { info(t('check_missing', { id: esc(id) })); return; }
+  const m = /return AtelierThen\(([\s\S]*)\)\s*$/.exec(c.code);
+  if (!m) { info(t('check_missing', { id: esc(id) })); return; }
+  const q = !c.desc.includes('"') ? '"' : !c.desc.includes("'") ? "'" : !c.desc.includes('`') ? '`' : null;
+  const desc = q ? q + c.desc + q : '"' + c.desc.replace(/"/g, "'") + '"';
+  addCell({ title: c.desc, code: `# ${c.file}, line ${c.line}\nThen(${desc}, ${m[1].trim()})\n` }, false);
+  info(t('nb_forked', { n: NB.length, file: esc(c.file), line: c.line }));
+  const ta = $('#code-' + NB.length); if (ta) { ta.scrollIntoView({ block: 'center' }); ta.focus(); }
+}
+if ($('#cells') && !EDITION) {
+  nbLoad();
+  $('#nbrunall').onclick = () => runNotebook(NB.length);
+  $('#nbadd').onclick = $('#nbadd2').onclick = () => addCell();
+  $('#nbsave').onclick = saveNotebook;
+  $('#nbopen').onclick = () => $('#nbfile').click();
+  $('#nbfile').onchange = e => { const f = e.target.files[0]; if (f) openNotebook(f); e.target.value = ''; };
+}
+function renderCell() { renderNotebook(); }
 
 // ---- load: the dictionary first, then the data ----
 pickLang();
 fetch(URLS.i18n).then(r => r.json()).then(d => { I18N = d; applyLang(); }).catch(() => applyLang());
-fetch(URLS.checks).then(r => r.json()).then(d => { META = d; CHECKS = d.checks; shown = selection(); renderDomains(); renderChecks(shown); renderTotals(); renderStatus(); renderOne(); });
+fetch(URLS.checks).then(r => r.json()).then(d => { META = d; CHECKS = d.checks; shown = selection(); renderDomains(); renderChecks(shown); renderTotals(); renderStatus(); renderOne();
+  const fork = new URLSearchParams(location.search).get('fork');
+  if (fork && VIEW === 'notebook' && NB) { forkCheck(fork); const qs = new URLSearchParams(location.search); qs.delete('fork'); history.replaceState(null, '', location.pathname + (qs.toString() ? '?' + qs : '')); }
+});
 fetch(URLS.results).then(r => r.json()).then(d => { if (d && d.states) { loadRecorded(d); shown = selection(); renderChecks(shown); renderTotals(); renderOne(); } }).catch(() => {});
 if (URLS.verdicts) fetch(URLS.verdicts).then(r => r.json()).then(d => { VERD = d; renderChecks(shown); renderTotals(); }).catch(() => {});
 fetch(URLS.tours).then(r => r.json()).then(d => { TOURS = d; renderCoverage(); }).catch(() => {});

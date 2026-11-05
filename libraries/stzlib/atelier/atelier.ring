@@ -48,6 +48,14 @@
 #                            `#-->` promise under it judged by testoor's own matcher. Answers
 #                            JSON: how the cell ended, its time, and each line seen with its
 #                            values, its promise and the promise's state (B0 of the workbench)
+#   POST /atelier/notebook   B2: {"run": k, "cells": [{"title", "code"}]} -- cells 1 to k run as ONE
+#                            narrated file, top to bottom, so a cell sees the names the cells above
+#                            it made; definitions (func, def, class) are moved after every cell's
+#                            statements, as Ring requires. Answers the cell JSON, plus "map": the
+#                            cell and the cell's own line of every line of the composed file
+#   POST /atelier/notebook/save   the cells as a NARRATED TEST FILE: one Scenario per cell, Summary(),
+#                            then each cell's definitions under a marker; testoor's reader reads it
+#   POST /atelier/notebook/open   such a file, back into cells
 #   POST /atelier/stop       answers, then the loop ends
 #
 # WHAT JUDGES A CHECK is named in /atelier/state and on the page: the library's
@@ -73,6 +81,12 @@ $nAtelierTours = 0
 
 # what a cell's `?` lines saw while it ran: [ [ see number, printed text, face ] ]
 $aAtelierSeen = []
+# B1, the process: each step of an unfolded chain [ see, pass, step, face, ns ], and
+# each state of a scene's object after a line [ scene, line, face ]
+$aAtelierSteps = []
+$aAtelierStates = []
+# B2: what a cell's Then(...) lines judged: [ see, kept (1 or 0), the expected value as @@ shows it ]
+$aAtelierThens = []
 
 # the trail of a whole file admitted as a tour, and the tallies the narrated
 # helper keeps under the names a test may read
@@ -144,6 +158,12 @@ func AtelierServe
 			AtelierTourOnce(rpp_http_body())
 		but cMethod = "POST" and cPath = "/atelier/cell"
 			AtelierCellOnce(rpp_http_body())
+		but cMethod = "POST" and cPath = "/atelier/notebook"
+			AtelierNotebookOnce(rpp_http_body())
+		but cMethod = "POST" and cPath = "/atelier/notebook/save"
+			rpp_http_reply(200, "text/plain; charset=utf-8", AtelierNotebookSave(rpp_http_body()))
+		but cMethod = "POST" and cPath = "/atelier/notebook/open"
+			rpp_http_reply(200, "application/json; charset=utf-8", AtelierNotebookOpen(rpp_http_body()))
 		but cMethod = "GET" and cPath = "/atelier/state"
 			rpp_http_reply(200, "application/json; charset=utf-8", AtelierStateJson())
 		but cMethod = "POST" and cPath = "/atelier/run"
@@ -282,7 +302,15 @@ func AtelierCellOnce cSource
 		return
 	ok
 	aPlan = AtelierCellPlan(cSource)
+	aRun = AtelierRunPlan(aPlan)
+	rpp_http_reply(200, "application/json; charset=utf-8", AtelierCellJson(aPlan[2], aRun[1], aRun[2], aRun[3], aRun[4], aPlan[3]))
+
+# a planned cell (or a composed notebook) admitted, run and released: [ end, why, release, ms ]
+func AtelierRunPlan aPlan
 	$aAtelierSeen = []
+	$aAtelierSteps = []
+	$aAtelierStates = []
+	$aAtelierThens = []
 	nT0 = clock()
 	cEnd = "finished"
 	cErr = ""
@@ -294,6 +322,9 @@ func AtelierCellOnce cSource
 		if substr(cErr, "not admitted") > 0
 			cEnd = "not-started"
 			bAdmitted = 0
+			if substr(cErr, "is already defined") > 0 and substr(lower(cErr), "class") > 0
+				cErr += " -- a class a cell defined stays in the live program (Ring++ cannot release a class); restart the Atelier to define it again"
+			ok
 		else
 			cEnd = "broke"
 		ok
@@ -309,21 +340,275 @@ func AtelierCellOnce cSource
 	else
 		cRel = "nothing to release"
 	ok
-	rpp_http_reply(200, "application/json; charset=utf-8", AtelierCellJson(aPlan[2], cEnd, cErr, cRel, nMs))
+	return [ cEnd, cErr, cRel, nMs ]
 
-# [ the rewritten source, [ [ :n, :line, :expr, :promise ] ] ]
+#--- B2, the notebook: many cells, one file ----------------------------------
+#
+# A notebook IS a narrated test file: running cell k runs cells 1 to k as one admission,
+# top to bottom, so every name a cell reads is the one the cells above made, exactly as a
+# file read once would make it. Nothing is kept between two runs: a run is the file from
+# its first line. Ring ends a function where the next definition begins, so a cell's
+# definitions (from its first line opening with func, def or class) are moved after every
+# cell's statements; the map says, for each line of the composed file, which cell and
+# which of that cell's lines it came from.
+
+func AtelierNotebookOnce cBody
+	if $cAtelierState != "admitted"
+		rpp_http_reply(503, "text/plain", "the library is " + $cAtelierState + " " + $cAtelierWhy)
+		return
+	ok
+	aIn = StzJsonToList(cBody)
+	aCells = AtelierNotebookCells(aIn)
+	nRun = len(aCells)
+	if isList(aIn) and HasKey(aIn, :run) and isNumber(aIn[:run]) and aIn[:run] >= 1 and aIn[:run] < nRun
+		nRun = aIn[:run]
+	ok
+	aComp = AtelierNotebookCompose(aCells, nRun)
+	aPlan = AtelierCellPlan(aComp[1])
+	aRun = AtelierRunPlan(aPlan)
+	cJ = AtelierCellJson(aPlan[2], aRun[1], aRun[2], aRun[3], aRun[4], aPlan[3])
+	cMap = ',"ran":' + nRun + ',"map":['
+	aMap = aComp[2]
+	for i = 1 to len(aMap)
+		if i > 1
+			cMap += ","
+		ok
+		cMap += "[" + aMap[i][1] + "," + aMap[i][2] + "]"
+	next
+	cMap += "]}"
+	rpp_http_reply(200, "application/json; charset=utf-8", left(cJ, len(cJ) - 1) + cMap)
+
+# the cells of a request: [ [ :title, :code ] ]
+func AtelierNotebookCells aIn
+	aOut = []
+	if NOT (isList(aIn) and HasKey(aIn, :cells))
+		return aOut
+	ok
+	aC = aIn[:cells]
+	for i = 1 to len(aC)
+		cTitle = ""
+		cCode = ""
+		if isList(aC[i])
+			if HasKey(aC[i], :title)
+				cTitle = "" + aC[i][:title]
+			ok
+			if HasKey(aC[i], :code)
+				cCode = "" + aC[i][:code]
+			ok
+		but isString(aC[i])
+			cCode = aC[i]
+		ok
+		aOut + [ :title = cTitle, :code = cCode ]
+	next
+	return aOut
+
+# [ the composed source, [ [ cell, line ] ] ] -- statements of cells 1..nRun, then their definitions
+func AtelierNotebookCompose aCells, nRun
+	cSrc = ""
+	aMap = []
+	aDefs = []
+	for i = 1 to nRun
+		acL = str2list(substr(aCells[i][:code], char(13), ""))
+		nDef = AtelierFirstDefinition(acL)
+		nTo = len(acL)
+		if nDef > 0
+			nTo = nDef - 1
+			aDefs + [ i, nDef, acL ]
+		ok
+		for j = 1 to nTo
+			cSrc += acL[j] + char(10)
+			aMap + [ i, j ]
+		next
+	next
+	for k = 1 to len(aDefs)
+		acL = aDefs[k][3]
+		for j = aDefs[k][2] to len(acL)
+			cSrc += acL[j] + char(10)
+			aMap + [ aDefs[k][1], j ]
+		next
+	next
+	return [ cSrc, aMap ]
+
+# the first line that opens a definition: func, def or class, then a name
+func AtelierFirstDefinition acL
+	for j = 1 to len(acL)
+		cT = lower(trim(acL[j]))
+		if left(cT, 5) = "func " or left(cT, 4) = "def " or left(cT, 6) = "class "
+			return j
+		ok
+	next
+	return 0
+
+# the notebook as a narrated test file, which the library's own runners can read and run
+func AtelierNotebookSave cBody
+	aCells = AtelierNotebookCells(StzJsonToList(cBody))
+	cOut = "# An Atelier notebook: " + len(aCells) + " cell(s), saved " + date() + " " + time() + "." + char(10)
+	cOut += "# Each cell is a Scenario; each ? line with its #--> promise, and each Then(...), is a claim." + char(10)
+	cOut += "# Run it from a folder of base/test, or open it again in the Atelier." + char(10)
+	cOut += char(10) + 'load "../../stzBase.ring"' + char(10) + 'load "../_narrated.ring"' + char(10)
+	aDefs = []
+	for i = 1 to len(aCells)
+		cTitle = aCells[i][:title]
+		if trim(cTitle) = ""
+			cTitle = "Cell " + i
+		ok
+		# a Ring string has three quote marks: the title keeps its own, and is wrapped in one it does not use
+		cTitle = substr(cTitle, char(10), " ")
+		cQ = '"'
+		if substr(cTitle, '"') > 0
+			cQ = "'"
+			if substr(cTitle, "'") > 0
+				cQ = "`"
+				if substr(cTitle, "`") > 0
+					cQ = '"'
+					cTitle = substr(cTitle, '"', "'")
+				ok
+			ok
+		ok
+		cOut += char(10) + "Scenario(" + cQ + cTitle + cQ + ")" + char(10)
+		acL = str2list(substr(aCells[i][:code], char(13), ""))
+		nDef = AtelierFirstDefinition(acL)
+		nTo = len(acL)
+		if nDef > 0
+			nTo = nDef - 1
+			aDefs + [ i, nDef, acL ]
+		ok
+		for j = 1 to nTo
+			cOut += acL[j] + char(10)
+		next
+	next
+	cOut += char(10) + "Summary()" + char(10)
+	for k = 1 to len(aDefs)
+		cOut += char(10) + "# definitions of cell " + aDefs[k][1] + char(10)
+		acL = aDefs[k][3]
+		for j = aDefs[k][2] to len(acL)
+			cOut += acL[j] + char(10)
+		next
+	next
+	return cOut
+
+# a narrated test file back into cells: one cell per Scenario, its definitions returned to it
+func AtelierNotebookOpen cText
+	acL = str2list(substr("" + cText, char(13), ""))
+	aCells = []
+	nCur = 0
+	bDefs = 0
+	for i = 1 to len(acL)
+		cLine = acL[i]
+		cT = trim(cLine)
+		cLow = lower(cT)
+		# the saver writes one blank line before each Scenario, before Summary() and before
+		# each block of definitions: that line is the file's, not the cell's, so it goes
+		bMarker = (left(cLow, 9) = "scenario(" and NOT bDefs) or cLow = "summary()" or left(cLow, 22) = "# definitions of cell "
+		if bMarker and nCur > 0 and right(aCells[nCur][:code], 2) = char(10) + char(10)
+			aCells[nCur][:code] = left(aCells[nCur][:code], len(aCells[nCur][:code]) - 1)
+		ok
+		if left(cLow, 5) = "load " or cLow = "summary()" or cLow = "pf()"
+			loop
+		ok
+		if left(cLow, 22) = "# definitions of cell "
+			nCur = 0 + trim(substr(cT, 23))
+			if nCur < 1 or nCur > len(aCells)
+				nCur = len(aCells)
+			ok
+			bDefs = 1
+			loop
+		ok
+		if left(cLow, 9) = "scenario(" and NOT bDefs
+			cTitle = trim(substr(cT, 10))
+			if right(cTitle, 1) = ")"
+				cTitle = trim(left(cTitle, len(cTitle) - 1))
+			ok
+			cTitle = AtelierUnquote(cTitle)
+			aCells + [ :title = cTitle, :code = "" ]
+			nCur = len(aCells)
+			loop
+		ok
+		if nCur = 0
+			# the file's header: its comments go, any code before the first Scenario is a cell
+			if cT = "" or left(cT, 1) = "#"
+				loop
+			ok
+			aCells + [ :title = "", :code = "" ]
+			nCur = len(aCells)
+		ok
+		aCells[nCur][:code] = aCells[nCur][:code] + cLine + char(10)
+	next
+	cJ = '{"cells":['
+	for i = 1 to len(aCells)
+		if i > 1
+			cJ += ","
+		ok
+		cCode = aCells[i][:code]
+		while right(cCode, 2) = char(10) + char(10)
+			cCode = left(cCode, len(cCode) - 1)
+		end
+		while left(cCode, 1) = char(10)
+			cCode = substr(cCode, 2)
+		end
+		cJ += '{"title":' + AtelierJsonStr(aCells[i][:title]) + ',"code":' + AtelierJsonStr(cCode) + '}'
+	next
+	return cJ + "]}"
+
+func AtelierUnquote cS
+	c = trim(cS)
+	if len(c) >= 2 and (left(c, 1) = '"' or left(c, 1) = "'" or left(c, 1) = "`") and right(c, 1) = left(c, 1)
+		return substr(c, 2, len(c) - 2)
+	ok
+	return c
+
+# [ the rewritten source, [ [ :n, :line, :expr, :promise, :steps, :forms ] ], [ scenes ] ]
+#
+# B1, THE PROCESS. A `?` line whose expression is a chain -- a root (a name, a call, or
+# `new Class(...)`) followed by method calls -- is UNFOLDED: each step is evaluated once,
+# into a variable held by ref(), so a chain that changes its object changes it exactly as
+# the line written whole does (plain variables would copy the object and detach the chain
+# from it: measured, 2026-11-05), and each step's value and its time on the engine's
+# monotonic clock are kept. A scene -- a line `name {` -- has its object's state captured
+# after the opening and after every complete statement inside it, so a Verb() that changes
+# the object and a Verbed() that leaves it alone are seen apart.
 func AtelierCellPlan cSource
 	acL = str2list(substr("" + cSource, char(13), ""))
 	aSees = []
+	aScenes = []
 	cOut = ""
 	# nLines, never nL: Ring is case-insensitive, so nL spells the NL global.
 	# Harmless on rnxc, where an assignment in a function makes a local
 	# (measured 2026-11-05), but it reads as a write to NL and is not one.
 	nLines = len(acL)
+	nScene = 0
+	cSceneName = ""
+	nBraces = 0
+	nBrackets = 0
 	for i = 1 to nLines
 		cLine = acL[i]
 		cT = trim(cLine)
-		if left(cT, 1) = "?" and left(cT, 4) != "?-->"
+		nIndent = len(cLine) - len(AtelierLeftTrimmed(cLine))
+		cPad = left(cLine, nIndent)
+		bStatement = 0
+		# a scene opens: a line that is only `name {`
+		if cSceneName = "" and AtelierIsSceneOpening(cT)
+			cSceneName = trim(left(cT, len(cT) - 1))
+			nScene++
+			aScenes + [ :id = nScene, :name = cSceneName, :line = i, :end = 0 ]
+			nBraces = 1
+			nBrackets = 0
+			cOut += cLine + char(10)
+			cOut += cPad + "    AtelierState(" + nScene + ", " + i + ", " + cSceneName + ")" + char(10)
+			loop
+		ok
+		# B2: a Then(...) line on one line is a narrated assertion, judged by `=` as the
+		# suite judges it: its actual value seen in its face, its expected value shown
+		if lower(left(cT, 5)) = "then(" and AtelierBalanced(substr(cT, 5))
+			aArgs = AtelierSplitArgs(substr(cT, 6, len(cT) - 6))
+			if len(aArgs) = 3 and (left(aArgs[1], 1) = '"' or left(aArgs[1], 1) = "'" or left(aArgs[1], 1) = "`")
+				nN = len(aSees) + 1
+				cOut += cPad + "AtelierThenSee(" + nN + ", " + aArgs[2] + ", " + aArgs[3] + ")" + char(10)
+				aSees + [ :n = nN, :line = i, :expr = AtelierUnquote(aArgs[1]), :promise = "", :steps = [], :forms = [], :kind = "then" ]
+				bStatement = 1
+			ok
+		ok
+		if NOT bStatement and left(cT, 1) = "?" and left(cT, 4) != "?-->"
 			cExpr = trim(substr(cT, 2))
 			cPromise = ""
 			nAt = AtelierLastIndexOf(cExpr, "#-->")
@@ -331,7 +616,6 @@ func AtelierCellPlan cSource
 				cPromise = trim(substr(cExpr, nAt + 4))
 				cExpr = trim(left(cExpr, nAt - 1))
 			else
-				# the promise on the line under it, and its continuation lines
 				j = i + 1
 				while j <= nLines and trim(acL[j]) = ""
 					j++
@@ -342,15 +626,374 @@ func AtelierCellPlan cSource
 			ok
 			if cExpr != ""
 				nN = len(aSees) + 1
-				aSees + [ :n = nN, :line = i, :expr = cExpr, :promise = cPromise ]
-				nIndent = substr(cLine, "?")
-				cOut += left(cLine, nIndent - 1) + "AtelierSee(" + nN + ", " + cExpr + ")" + char(10)
-				loop
+				aParts = AtelierChainParts(cExpr)
+				# `? @@( chain )` -- the house's way to print a list -- is unfolded inside
+				cWrap = ""
+				if len(aParts) < 2 and left(cExpr, 3) = "@@(" and right(cExpr, 1) = ")" and AtelierBalanced(substr(cExpr, 3))
+					aParts = AtelierChainParts(trim(substr(cExpr, 4, len(cExpr) - 4)))
+					if len(aParts) >= 2
+						cWrap = "@@"
+					ok
+				ok
+				aSteps = []
+				aForms = []
+				if len(aParts) >= 2
+					# the chain unfolded: one variable per step, held by ref() while a
+					# method follows it, timed on the monotonic clock
+					nK = len(aParts)
+					for k = 1 to nK
+						cV = "_atv_" + nN + "_" + k + "_"
+						if k = 1
+							cRhs = aParts[1]
+						else
+							cRhs = "_atv_" + nN + "_" + (k - 1) + "_" + aParts[k]
+						ok
+						if k < nK
+							cRhs = "ref(" + cRhs + ")"
+						ok
+						cOut += cPad + "_att_" + nN + "_ = StzEngineWatchTimestampNs()" + char(10)
+						cOut += cPad + cV + " = " + cRhs + char(10)
+						cOut += cPad + "AtelierStep(" + nN + ", " + k + ", " + cV + ", StzEngineWatchTimestampNs() - _att_" + nN + "_)" + char(10)
+						aSteps + aParts[k]
+					next
+					if cWrap = "@@"
+						cOut += cPad + "AtelierSee(" + nN + ", @@(_atv_" + nN + "_" + nK + "_))" + char(10)
+					else
+						cOut += cPad + "AtelierSee(" + nN + ", _atv_" + nN + "_" + nK + "_)" + char(10)
+					ok
+					aForms = AtelierForms(aParts, cSource, cWrap)
+				else
+					cOut += cPad + "AtelierSee(" + nN + ", " + cExpr + ")" + char(10)
+				ok
+				aSees + [ :n = nN, :line = i, :expr = cExpr, :promise = cPromise, :steps = aSteps, :forms = aForms, :kind = "see" ]
+				bStatement = 1
 			ok
 		ok
-		cOut += cLine + char(10)
+		if NOT bStatement
+			cOut += cLine + char(10)
+		ok
+		# inside a scene: count its braces and brackets, capture the state after a
+		# complete statement, close the scene on its last brace
+		if cSceneName != ""
+			aCount = AtelierBracketCount(cT)
+			nBraces += aCount[1]
+			nBrackets += aCount[2]
+			if nBraces <= 0
+				aScenes[len(aScenes)][:end] = i
+				cSceneName = ""
+				loop
+			ok
+			if nBraces = 1 and nBrackets = 0 and AtelierIsStatement(cT)
+				cOut += cPad + "AtelierState(" + nScene + ", " + i + ", " + cSceneName + ")" + char(10)
+			ok
+		ok
 	next
-	return [ cOut, aSees ]
+	return [ cOut, aSees, aScenes ]
+
+func AtelierLeftTrimmed cLine
+	for i = 1 to len(cLine)
+		if cLine[i] != " " and cLine[i] != char(9)
+			return substr(cLine, i)
+		ok
+	next
+	return ""
+
+# `name {` alone on its line opens a scene
+func AtelierIsSceneOpening cT
+	if right(cT, 1) != "{"
+		return 0
+	ok
+	cName = trim(left(cT, len(cT) - 1))
+	if cName = ""
+		return 0
+	ok
+	for i = 1 to len(cName)
+		c = cName[i]
+		if NOT (isalnum(c) or c = "_" or c = "@" or c = "$")
+			return 0
+		ok
+	next
+	return 1
+
+# a line after which the object's state is worth capturing: code, complete, and not a
+# keyword that opens a block
+func AtelierIsStatement cT
+	if cT = "" or left(cT, 1) = "#" or left(cT, 2) = "//" or cT = "}"
+		return 0
+	ok
+	if right(cT, 1) = "," or right(cT, 1) = "+"
+		return 0
+	ok
+	cFirst = lower(cT)
+	nSp = substr(cFirst, " ")
+	if nSp > 0
+		cFirst = left(cFirst, nSp - 1)
+	ok
+	acOpeners = [ "if", "but", "else", "for", "while", "switch", "on", "other", "try", "catch", "func", "def", "class", "return", "loop", "exit" ]
+	return find(acOpeners, cFirst) = 0
+
+# [ braces opened minus closed, brackets and parentheses opened minus closed ], outside strings
+func AtelierBracketCount cT
+	nB = 0
+	nP = 0
+	cQ = ""
+	for i = 1 to len(cT)
+		c = cT[i]
+		if cQ != ""
+			if c = cQ
+				cQ = ""
+			ok
+			loop
+		ok
+		if c = '"' or c = "'" or c = "`"
+			cQ = c
+		but c = "#"
+			exit
+		but c = "{"
+			nB++
+		but c = "}"
+			nB--
+		but c = "(" or c = "["
+			nP++
+		but c = ")" or c = "]"
+			nP--
+		ok
+	next
+	return [ nB, nP ]
+
+# a chain's parts: [ root, ".Method(args)", ... ] -- or [] when the expression is not
+# exactly a root followed by method calls (an operator outside a call is not a chain)
+func AtelierChainParts cExpr
+	c = trim("" + cExpr)
+	n = len(c)
+	aCuts = []
+	nDepth = 0
+	cQ = ""
+	for i = 1 to n
+		ch = c[i]
+		if cQ != ""
+			if ch = cQ
+				cQ = ""
+			ok
+			loop
+		ok
+		if ch = '"' or ch = "'" or ch = "`"
+			cQ = ch
+		but ch = "(" or ch = "["
+			nDepth++
+		but ch = ")" or ch = "]"
+			nDepth--
+		but ch = "." and nDepth = 0 and i < n
+			if isalpha(c[i + 1]) or c[i + 1] = "_"
+				aCuts + i
+			ok
+		ok
+	next
+	if len(aCuts) = 0
+		return []
+	ok
+	aParts = [ trim(left(c, aCuts[1] - 1)) ]
+	for k = 1 to len(aCuts)
+		nTo = n
+		if k < len(aCuts)
+			nTo = aCuts[k + 1] - 1
+		ok
+		aParts + trim(substr(c, aCuts[k], nTo - aCuts[k] + 1))
+	next
+	if NOT AtelierIsRoot(aParts[1])
+		return []
+	ok
+	for k = 2 to len(aParts)
+		if NOT AtelierIsCallSegment(aParts[k])
+			return []
+		ok
+	next
+	return aParts
+
+# the arguments of a call, split at its top-level commas, outside strings and brackets
+func AtelierSplitArgs cInner
+	aOut = []
+	nD = 0
+	cQ = ""
+	nFrom = 1
+	n = len(cInner)
+	for i = 1 to n
+		ch = cInner[i]
+		if cQ != ""
+			if ch = cQ
+				cQ = ""
+			ok
+			loop
+		ok
+		if ch = '"' or ch = "'" or ch = "`"
+			cQ = ch
+		but ch = "(" or ch = "[" or ch = "{"
+			nD++
+		but ch = ")" or ch = "]" or ch = "}"
+			nD--
+		but ch = "," and nD = 0
+			aOut + trim(substr(cInner, nFrom, i - nFrom))
+			nFrom = i + 1
+		ok
+	next
+	aOut + trim(substr(cInner, nFrom))
+	return aOut
+
+# a root: a name, a call, or new Class(...) -- nothing else before the first method
+func AtelierIsRoot cR
+	c = trim(cR)
+	if lower(left(c, 4)) = "new "
+		c = trim(substr(c, 5))
+	ok
+	i = 1
+	n = len(c)
+	if n = 0 or NOT (isalpha(c[1]) or c[1] = "_" or c[1] = "@" or c[1] = "$")
+		return 0
+	ok
+	while i <= n and (isalnum(c[i]) or c[i] = "_" or c[i] = "@" or c[i] = "$")
+		i++
+	end
+	if i > n
+		return 1
+	ok
+	return c[i] = "(" and right(c, 1) = ")" and AtelierBalanced(substr(c, i))
+
+# a segment: .Name(args), balanced, and nothing after the closing parenthesis
+func AtelierIsCallSegment cS
+	if left(cS, 1) != "." or right(cS, 1) != ")"
+		return 0
+	ok
+	nOpen = substr(cS, "(")
+	if nOpen < 3
+		return 0
+	ok
+	cName = substr(cS, 2, nOpen - 2)
+	for i = 1 to len(cName)
+		if NOT (isalnum(cName[i]) or cName[i] = "_" or cName[i] = "@")
+			return 0
+		ok
+	next
+	return AtelierBalanced(substr(cS, nOpen))
+
+# "(...)" whose first parenthesis closes at its last character, outside strings
+func AtelierBalanced cP
+	nD = 0
+	cQ = ""
+	n = len(cP)
+	for i = 1 to n
+		ch = cP[i]
+		if cQ != ""
+			if ch = cQ
+				cQ = ""
+			ok
+			loop
+		ok
+		if ch = '"' or ch = "'" or ch = "`"
+			cQ = ch
+		but ch = "(" or ch = "["
+			nD++
+		but ch = ")" or ch = "]"
+			nD--
+			if nD = 0 and i < n
+				return 0
+			ok
+		ok
+	next
+	return nD = 0
+
+# the same move written in the other forms, when it has them: every method but the last
+# ends in Q (it returns the object, so the chain is one object changed step by step).
+# [ [ "scene", code ], [ "classic", code ] ] -- offered to the reader to run, never run here
+func AtelierForms aParts, cSource, cWrap
+	nK = len(aParts)
+	if nK < 3
+		return []   # a root and one call: no other form says it differently
+	ok
+	for k = 2 to nK - 1
+		cName = AtelierSegName(aParts[k])
+		if upper(right(cName, 1)) != "Q"
+			return []
+		ok
+	next
+	cRoot = aParts[1]
+	bName = AtelierIsName(cRoot)
+	cObj = cRoot
+	if NOT bName
+		cObj = AtelierFreeName(cSource)
+	ok
+	cScene = ""
+	cClassic = ""
+	if NOT bName
+		cClassic = cObj + " = " + cRoot + char(10)
+	ok
+	cScene = cRoot + " {" + char(10)
+	for k = 2 to nK
+		cSeg = aParts[k]
+		cName = AtelierSegName(cSeg)
+		cArgs = substr(cSeg, substr(cSeg, "("))
+		if k < nK
+			cBare = left(cName, len(cName) - 1)
+			cScene += "    " + cBare + cArgs + char(10)
+			cClassic += cObj + "." + cBare + cArgs + char(10)
+		but cWrap = "@@"
+			cScene += "    ? @@( " + cName + cArgs + " )" + char(10)
+			cClassic += "? @@( " + cObj + "." + cName + cArgs + " )" + char(10)
+		else
+			cScene += "    ? " + cName + cArgs + char(10)
+			cClassic += "? " + cObj + "." + cName + cArgs + char(10)
+		ok
+	next
+	cScene += "}" + char(10)
+	return [ [ "scene", cScene ], [ "classic", cClassic ] ]
+
+func AtelierSegName cSeg
+	return substr(cSeg, 2, substr(cSeg, "(") - 2)
+
+func AtelierIsName cR
+	c = trim(cR)
+	if c = ""
+		return 0
+	ok
+	for i = 1 to len(c)
+		if NOT (isalnum(c[i]) or c[i] = "_" or c[i] = "@" or c[i] = "$")
+			return 0
+		ok
+	next
+	return isalpha(c[1]) or c[1] = "_"
+
+# o1, o2 ... the first not used as a word in the cell
+func AtelierFreeName cSource
+	cL = lower(cSource)
+	for k = 1 to 99
+		cName = "o" + k
+		if NOT AtelierHasWord(cL, cName)
+			return cName
+		ok
+	next
+	return "oForm"
+
+func AtelierHasWord cText, cWord
+	nFrom = 1
+	while 1
+		nAt = substr(substr(cText, nFrom), cWord)
+		if nAt = 0
+			return 0
+		ok
+		nAt = nFrom + nAt - 1
+		cBefore = " "
+		cAfter = " "
+		if nAt > 1
+			cBefore = cText[nAt - 1]
+		ok
+		if nAt + len(cWord) <= len(cText)
+			cAfter = cText[nAt + len(cWord)]
+		ok
+		if NOT (isalnum(cBefore) or cBefore = "_") and NOT (isalnum(cAfter) or cAfter = "_")
+			return 1
+		ok
+		nFrom = nAt + 1
+	end
+	return 0
 
 func AtelierLastIndexOf cText, cSub
 	nLast = 0
@@ -369,6 +1012,57 @@ func AtelierLastIndexOf cText, cSub
 # and the value's face; a `?` inside a loop is seen once per pass
 func AtelierSee nN, vValue
 	add($aAtelierSeen, [ nN, AtelierPrinted(vValue), AtelierFace(vValue) ])
+
+# one step of an unfolded chain: its value in a LIGHT face (an intermediate object is
+# never asked to draw itself: a step must not cost a render), and its nanoseconds; kept
+# for the first pass of a line only
+func AtelierStep nN, nK, vValue, nNs
+	nPass = 1
+	for i = 1 to len($aAtelierSeen)
+		if $aAtelierSeen[i][1] = nN
+			nPass++
+		ok
+	next
+	if nPass = 1
+		add($aAtelierSteps, [ nN, nK, AtelierLightFace(vValue), nNs ])
+	ok
+
+# a cell's Then(...): the actual value seen, judged by `=` as base/test/_narrated.ring judges it
+func AtelierThenSee nN, xActual, xExpected
+	add($aAtelierSeen, [ nN, AtelierPrinted(xActual), AtelierFace(xActual) ])
+	nOk = 0
+	try
+		if xActual = xExpected
+			nOk = 1
+		ok
+	catch
+		nOk = 0
+	done
+	add($aAtelierThens, [ nN, nOk, @@(xExpected) ])
+
+# a scene's object after a line, in a light face
+func AtelierState nScene, nLine, oObject
+	add($aAtelierStates, [ nScene, nLine, AtelierLightFace(oObject) ])
+
+func AtelierLightFace vValue
+	if isString(vValue)
+		return [ "text", left(vValue, 400), "" ]
+	but isNumber(vValue)
+		return [ "text", "" + vValue, "" ]
+	but isList(vValue)
+		return [ "list", left(@@(vValue), 400), "" + len(vValue) ]
+	but isObject(vValue)
+		cClass = classname(vValue)
+		if ismethod(vValue, "content")
+			try
+				return [ "object", left(@@(vValue.Content()), 400), cClass ]
+			catch
+				cAtelierIgnored = cCatchError   # an empty catch leaks a VM stack slot per raise (F-16)
+			done
+		ok
+		return [ "object", cClass, cClass ]
+	ok
+	return [ "text", "", "" ]
 
 # the text `?` prints: a list one item per line, as Ring prints it
 func AtelierPrinted vValue
@@ -450,7 +1144,7 @@ func AtelierFace vValue
 # the cell's answer: how it ended, and each line seen with its values and its
 # promise judged -- kept, diverged; a promise whose line never ran is unreached when
 # the cell broke or never started, unjudged when it finished without walking it
-func AtelierCellJson aSees, cEnd, cErr, cRel, nMs
+func AtelierCellJson aSees, cEnd, cErr, cRel, nMs, aScenes
 	nKept = 0  nDiv = 0  nUnr = 0  nUnj = 0
 	cJ = '{"end":' + AtelierJsonStr(cEnd) + ',"why":' + AtelierJsonStr(cErr) + ',"release":' + AtelierJsonStr(cRel)
 	cJ += ',"ms":' + (floor(nMs * 100 + 0.5) / 100) + ',"sees":['
@@ -475,7 +1169,35 @@ func AtelierCellJson aSees, cEnd, cErr, cRel, nMs
 			ok
 		next
 		cState = ""
-		if aS[:promise] != ""
+		cKind = "see"
+		if HasKey(aS, :kind)
+			cKind = aS[:kind]
+		ok
+		if cKind = "then"
+			aS[:promise] = ""
+			for k = 1 to len($aAtelierThens)
+				if $aAtelierThens[k][1] = aS[:n]
+					aS[:promise] = $aAtelierThens[k][3]
+					if $aAtelierThens[k][2] = 1
+						cState = "kept"
+						nKept++
+					else
+						cState = "diverged"
+						nDiv++
+					ok
+					exit
+				ok
+			next
+			if cState = ""
+				if cEnd = "finished"
+					cState = "unjudged"
+					nUnj++
+				else
+					cState = "unreached"
+					nUnr++
+				ok
+			ok
+		but aS[:promise] != ""
 			if cVals = ""
 				if cEnd = "finished"
 					cState = "unjudged"
@@ -495,8 +1217,59 @@ func AtelierCellJson aSees, cEnd, cErr, cRel, nMs
 		if i > 1
 			cJ += ","
 		ok
-		cJ += '{"n":' + aS[:n] + ',"line":' + aS[:line] + ',"expr":' + AtelierJsonStr(aS[:expr]) + ',"promise":' + AtelierJsonStr(aS[:promise])
-		cJ += ',"state":' + AtelierJsonStr(cState) + ',"values":[' + cVals + ']}'
+		cJ += '{"n":' + aS[:n] + ',"line":' + aS[:line] + ',"kind":' + AtelierJsonStr(cKind) + ',"expr":' + AtelierJsonStr(aS[:expr]) + ',"promise":' + AtelierJsonStr(aS[:promise])
+		cJ += ',"state":' + AtelierJsonStr(cState) + ',"values":[' + cVals + ']'
+		# the chain unfolded: each step's text, its value, its nanoseconds
+		cJ += ',"steps":['
+		bFirst = 1
+		for k = 1 to len($aAtelierSteps)
+			aT = $aAtelierSteps[k]
+			if aT[1] = aS[:n]
+				if NOT bFirst
+					cJ += ","
+				ok
+				bFirst = 0
+				cText = ""
+				if aT[2] <= len(aS[:steps])
+					cText = aS[:steps][aT[2]]
+				ok
+				cJ += '{"k":' + aT[2] + ',"text":' + AtelierJsonStr(cText) + ',"kind":' + AtelierJsonStr(aT[3][1]) + ',"payload":' + AtelierJsonStr(aT[3][2]) + ',"label":' + AtelierJsonStr(aT[3][3]) + ',"ns":' + aT[4] + '}'
+			ok
+		next
+		cJ += '],"forms":['
+		for k = 1 to len(aS[:forms])
+			if k > 1
+				cJ += ","
+			ok
+			cJ += '{"name":' + AtelierJsonStr(aS[:forms][k][1]) + ',"code":' + AtelierJsonStr(aS[:forms][k][2]) + '}'
+		next
+		cJ += ']}'
+	next
+	# the scenes unfolded: the object after each line, and whether that line changed it
+	cJ += '],"scenes":['
+	for i = 1 to len(aScenes)
+		if i > 1
+			cJ += ","
+		ok
+		cJ += '{"id":' + aScenes[i][:id] + ',"name":' + AtelierJsonStr(aScenes[i][:name]) + ',"line":' + aScenes[i][:line] + ',"end":' + aScenes[i][:end] + ',"states":['
+		cPrev = ""
+		bFirst = 1
+		for k = 1 to len($aAtelierStates)
+			aT = $aAtelierStates[k]
+			if aT[1] = aScenes[i][:id]
+				nChanged = 0
+				if NOT bFirst and aT[3][2] != cPrev
+					nChanged = 1
+				ok
+				if NOT bFirst
+					cJ += ","
+				ok
+				cJ += '{"line":' + aT[2] + ',"kind":' + AtelierJsonStr(aT[3][1]) + ',"payload":' + AtelierJsonStr(aT[3][2]) + ',"label":' + AtelierJsonStr(aT[3][3]) + ',"changed":' + nChanged + '}'
+				cPrev = aT[3][2]
+				bFirst = 0
+			ok
+		next
+		cJ += ']}'
 	next
 	cJ += '],"kept":' + nKept + ',"diverged":' + nDiv + ',"unreached":' + nUnr + ',"unjudged":' + nUnj + '}'
 	return cJ

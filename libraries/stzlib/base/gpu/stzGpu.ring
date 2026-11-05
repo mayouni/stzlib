@@ -81,6 +81,7 @@ class stzGpu from stzObject
 
 	@bTriedInit_ = 0
 	@aRouteFlags_ = [] # GB0: the flags a segmented-reduction rung times with
+	@aRouteCsr_ = [] # GB0: the CSR matrix and vector a sparse-product rung times with
 
 	# Creates a handle on the GPU plane; the device itself is opened lazily by the first call that needs it.
 	#
@@ -1101,7 +1102,7 @@ class stzGpu from stzObject
 		_FreeIds([_hA_, _hB_, _hO_])
 		return _aOut_
 
-	# The running total of a list of numbers, computed on the device (GB0): out[i] = in[1] + ... + in[i].
+	# Returns the running total of a list of numbers, computed on the device (GB0): out[i] = in[1] + ... + in[i].
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a list of the same length
@@ -1114,7 +1115,7 @@ class stzGpu from stzObject
 	def Scan(paValues)
 		return This._ScanMode(paValues, 0, "Scan")
 
-	# The running total of a list, shifted: out[1] = 0 and out[i] = in[1] + ... + in[i - 1].
+	# Returns the running total of a list, shifted: out[1] = 0 and out[i] = in[1] + ... + in[i - 1].
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a list of the same length
@@ -1147,7 +1148,7 @@ class stzGpu from stzObject
 		_FreeIds([_hI_, _hO_])
 		return _aOut_
 
-	# The running total of a list, on the device only where this machine's measurement says the device wins, and in a plain loop everywhere else.
+	# Returns the running total of a list, on the device where this machine's measurement says it wins, else by a plain loop.
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a list of the same length, as Scan returns it
@@ -1157,7 +1158,7 @@ class stzGpu from stzObject
 	def ScanRouted(paValues)
 		return This._ScanRoutedMode(paValues, 0)
 
-	# The shifted running total of a list, routed as ScanRouted routes.
+	# Returns the shifted running total of a list, routed as ScanRouted routes it.
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a list of the same length: 0, then the sums before each element
@@ -1297,6 +1298,23 @@ class stzGpu from stzObject
 				@aRouteFlags_ + (_i_ % 64 = 1)
 			next
 		ok
+		if pcKey = "spmv"
+			# pnN rows of 16 entries each, columns spread over pnN, values whole numbers
+			_aRp_ = []
+			_aCo_ = []
+			_aVa_ = []
+			_aXx_ = []
+			for _i_ = 0 to pnN - 1
+				_aRp_ + (_i_ * 16)
+				for _e_ = 0 to 15
+					_aCo_ + ((_i_ * 7919 + _e_ * 131) % pnN)
+					_aVa_ + ((_i_ + _e_) % 7)
+				next
+				_aXx_ + (_i_ % 5)
+			next
+			_aRp_ + (pnN * 16)
+			@aRouteCsr_ = [ _aRp_, _aCo_, _aVa_, _aXx_ ]
+		ok
 		_nReps_ = floor(400000 / pnN)
 		if _nReps_ < 3
 			_nReps_ = 3
@@ -1345,12 +1363,18 @@ class stzGpu from stzObject
 			ok
 			return This.SegmentedReduce(paIn, @aRouteFlags_, "sum")
 		ok
+		if pcKey = "spmv"
+			if nSide = 0
+				return This._SpmvCpu(@aRouteCsr_[1], @aRouteCsr_[2], @aRouteCsr_[3], @aRouteCsr_[4])
+			ok
+			return This.Spmv(@aRouteCsr_[1], @aRouteCsr_[2], @aRouteCsr_[3], @aRouteCsr_[4])
+		ok
 		if nSide = 0
 			return This._CompactWhereCpu(paIn, ">", 2.5)
 		ok
 		return This.CompactWhere(paIn, ">", 2.5)
 
-	# The numbers of a list in ascending order, sorted on the device by a stable radix sort (GB0).
+	# Returns the numbers of a list in ascending order, sorted on the device by a stable radix sort (GB0).
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a new list of the same numbers, smallest first
@@ -1362,7 +1386,7 @@ class stzGpu from stzObject
 	def Sort(paValues)
 		return This._SortMode(paValues, 0, "Sort")
 
-	# The numbers of a list in descending order, by the same stable radix sort.
+	# Returns the numbers of a list in descending order, by the same stable radix sort.
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a new list of the same numbers, largest first
@@ -1395,7 +1419,7 @@ class stzGpu from stzObject
 		_FreeIds([_hI_, _hO_])
 		return _aOut_
 
-	# The keys of a list sorted, and each value carried with its key.
+	# Returns the keys of a list sorted, with each value carried along with its key.
 	#
 	#   paKeys     a non-empty list of numbers
 	#   paValues   a list of numbers of the same length
@@ -1429,7 +1453,7 @@ class stzGpu from stzObject
 		_FreeIds([_hK_, _hV_, _hOK_, _hOV_])
 		return _aRes_
 
-	# The places, in a list of numbers, of its elements in ascending order: the permutation that sorts it.
+	# Returns the places of a list's elements in ascending order: the permutation that sorts it.
 	#
 	#   paKeys     a non-empty list of numbers
 	#   returns    a list of 1-based places: element k is where the k-th smallest sits; equal keys keep their order
@@ -1463,7 +1487,7 @@ class stzGpu from stzObject
 		next
 		return _aIdx_
 
-	# A running total of a list that starts over at every segment start, computed on the device (GB0).
+	# Returns a running total of a list that starts over at every segment start, computed on the device (GB0).
 	#
 	#   paValues   a non-empty list of numbers
 	#   paFlags    a list of the same length; an entry that is not 0 starts a segment at its place (the first element always starts one)
@@ -1499,7 +1523,9 @@ class stzGpu from stzObject
 		_FreeIds([_hI_, _hF_, _hO_])
 		return _aOut_
 
-	# One number per segment of a list: the sum, the largest or the smallest of each stretch between segment starts, computed on the device.
+	# Returns one number per segment of a list: the sum, largest or smallest of each stretch between segment starts.
+	#
+	# The reduction runs on the device (GB0).
 	#
 	#   paValues   a non-empty list of numbers
 	#   paFlags    a list of the same length; an entry that is not 0 starts a segment (the first element always starts one)
@@ -1542,7 +1568,7 @@ class stzGpu from stzObject
 		ok
 		StzRaise("the operator is one of sum, max, min, not '" + pcOp + "'.")
 
-	# The same reduction, on the device only where this machine's measurement says the device wins, and in a plain loop everywhere else.
+	# Returns the same reduction, on the device where this machine's measurement says it wins, else by a plain loop.
 	#
 	#   paValues   a non-empty list of numbers
 	#   paFlags    a list of the same length; an entry that is not 0 starts a segment
@@ -1594,7 +1620,142 @@ class stzGpu from stzObject
 	def CalibrateSegmentedReduce()
 		return This._CalibrateRoute("segreduce", [1000, 5000, 20000, 50000, 200000, 1000000])
 
-	# The list sorted on the device only where this machine's measurement says the device wins, and by Ring's own sort everywhere else.
+	# Returns the product of a sparse matrix in CSR form and a dense vector, computed on the device (GB0).
+	#
+	#   paRowPtr   nrows + 1 offsets into the entries, 0-based: the first is 0, the last is the number of entries
+	#   paCols     the column of every stored entry, 0-based, row by row
+	#   paVals     the value of every stored entry
+	#   paX        the dense vector, one number per column
+	#   returns    a list of nrows numbers
+	#   note       the offsets and columns travel as f32 whole numbers, exact below 2^24: at most 16,777,216 entries; the CSR is not checked, a row pointer that is not non-decreasing or a column past x gives a meaningless answer (nothing crashes); the sum adds along a row left to right (a short row) or in a tree (a long one), so it is exact on whole numbers and within f32 rounding otherwise
+	#   warning    one-shot: it uploads the matrix, runs and downloads; raises an error when no GPU device is available
+	#   see        Spmm, SpmvRouted, SegmentedReduce
+	# ---- GB0: the sparse-dense product ---------------------------------------
+	#@ aka  Two kernels, the shape decides: one thread per row (no waste on a short row) and one workgroup of 256 threads per row (right for a long one), chosen by the mean row length against the threshold the guard measured, or by the caller through SpmvWith.
+	def Spmv(paRowPtr, paCols, paVals, paX)
+		return This.SpmvWith(paRowPtr, paCols, paVals, paX, 0)
+
+	# Returns the same product with the kernel chosen by the caller.
+	#
+	#   paRowPtr   nrows + 1 offsets, as Spmv takes them
+	#   paCols     the column of every stored entry
+	#   paVals     the value of every stored entry
+	#   paX        the dense vector
+	#   nVariant   0 to let the mean row length choose, 1 for one thread per row, 2 for one workgroup per row
+	#   returns    a list of nrows numbers
+	#   see        Spmv
+	def SpmvWith(paRowPtr, paCols, paVals, paX, nVariant)
+		This._RequireDevice()
+		This._SpCheck(paRowPtr, paCols, paVals, paX, "Spmv")
+		_nR_ = ring_len(paRowPtr) - 1
+		_nZ_ = ring_len(paVals)
+		_aIds_ = This._SpUpload(paRowPtr, paCols, paVals, paX, _nR_, "Spmv")
+		_hY_ = StzEngineGpuBufferNew(_nR_ * 4)
+		if _hY_ = 0
+			_FreeIds(_aIds_)
+			StzRaise("Spmv: no device buffer (" + StzEngineGpuLastError() + ")")
+		ok
+		_nSt_ = StzEngineGpuOpSpmv(_aIds_[1], _aIds_[2], _aIds_[3], _aIds_[4], _hY_, _nR_, _nZ_, nVariant)
+		if _nSt_ != 0
+			_FreeIds(_aIds_)
+			_FreeIds([_hY_])
+			StzRaise("Spmv: the op refused (status " + _nSt_ + ").")
+		ok
+		_aOut_ = StzEngineGpuBufferDownloadList(_hY_, _nR_)
+		_FreeIds(_aIds_)
+		_FreeIds([_hY_])
+		return _aOut_
+
+	# Returns the product of a sparse matrix and a dense matrix of several columns, computed on the device.
+	#
+	#   paRowPtr   nrows + 1 offsets, as Spmv takes them
+	#   paCols     the column of every stored entry
+	#   paVals     the value of every stored entry
+	#   paX        the dense matrix, row-major: ncols rows of nK numbers, as one flat list
+	#   nK         the number of columns of X
+	#   returns    one flat list, row-major: nrows rows of nK numbers
+	#   see        Spmv
+	def Spmm(paRowPtr, paCols, paVals, paX, nK)
+		This._RequireDevice()
+		This._SpCheck(paRowPtr, paCols, paVals, paX, "Spmm")
+		_nR_ = ring_len(paRowPtr) - 1
+		_nZ_ = ring_len(paVals)
+		_aIds_ = This._SpUpload(paRowPtr, paCols, paVals, paX, _nR_, "Spmm")
+		_hY_ = StzEngineGpuBufferNew(_nR_ * nK * 4)
+		if _hY_ = 0
+			_FreeIds(_aIds_)
+			StzRaise("Spmm: no device buffer (" + StzEngineGpuLastError() + ")")
+		ok
+		_nSt_ = StzEngineGpuOpSpmm(_aIds_[1], _aIds_[2], _aIds_[3], _aIds_[4], _hY_, _nR_, _nZ_, nK)
+		if _nSt_ != 0
+			_FreeIds(_aIds_)
+			_FreeIds([_hY_])
+			StzRaise("Spmm: the op refused (status " + _nSt_ + ").")
+		ok
+		_aOut_ = StzEngineGpuBufferDownloadList(_hY_, _nR_ * nK)
+		_FreeIds(_aIds_)
+		_FreeIds([_hY_])
+		return _aOut_
+
+	def _SpCheck(paRowPtr, paCols, paVals, paX, pcName)
+		if NOT isList(paRowPtr) or NOT isList(paCols) or NOT isList(paVals) or NOT isList(paX) or ring_len(paRowPtr) < 2 or ring_len(paCols) = 0 or ring_len(paCols) != ring_len(paVals) or ring_len(paX) = 0
+			StzRaise(pcName + ": give me a CSR matrix (the row offsets, one more than the rows; the columns and the values, the same length) and a non-empty dense vector.")
+		ok
+		if paRowPtr[1] != 0 or paRowPtr[ring_len(paRowPtr)] != ring_len(paVals)
+			StzRaise(pcName + ": the row offsets must start at 0 and end at the number of entries.")
+		ok
+
+	def _SpUpload(paRowPtr, paCols, paVals, paX, pnRows, pcName)
+		_aIds_ = [ StzEngineGpuBufferNew((pnRows + 1) * 4), StzEngineGpuBufferNew(ring_len(paCols) * 4), StzEngineGpuBufferNew(ring_len(paVals) * 4), StzEngineGpuBufferNew(ring_len(paX) * 4) ]
+		for _i_ = 1 to 4
+			if _aIds_[_i_] = 0
+				_FreeIds(_aIds_)
+				StzRaise(pcName + ": no device buffer (" + StzEngineGpuLastError() + ")")
+			ok
+		next
+		if StzEngineGpuBufferUploadList(_aIds_[1], paRowPtr) != 0 or StzEngineGpuBufferUploadList(_aIds_[2], paCols) != 0 or StzEngineGpuBufferUploadList(_aIds_[3], paVals) != 0 or StzEngineGpuBufferUploadList(_aIds_[4], paX) != 0
+			_FreeIds(_aIds_)
+			StzRaise(pcName + ": upload refused (" + StzEngineGpuLastError() + ")")
+		ok
+		return _aIds_
+
+	# Returns the same product, on the device where this machine's measurement says it wins, else by a plain loop.
+	#
+	#   paRowPtr   nrows + 1 offsets, as Spmv takes them
+	#   paCols     the column of every stored entry
+	#   paVals     the value of every stored entry
+	#   paX        the dense vector
+	#   returns    a list of nrows numbers
+	#   note       with no calibration stored for "spmv" (or no device) the answer comes from the loop; CalibrateSpmv stores the line this machine measures
+	#   see        Spmv, CalibrateSpmv
+	def SpmvRouted(paRowPtr, paCols, paVals, paX)
+		This._SpCheck(paRowPtr, paCols, paVals, paX, "SpmvRouted")
+		if StzEngineGpuIsAvailable() = 1 and StzEngineGpuCalibRouteShaped("spmv", ring_len(paRowPtr) - 1, 1) = 1
+			return This.Spmv(paRowPtr, paCols, paVals, paX)
+		ok
+		return This._SpmvCpu(paRowPtr, paCols, paVals, paX)
+
+	def _SpmvCpu(paRowPtr, paCols, paVals, paX)
+		_aOut_ = []
+		_nR_ = ring_len(paRowPtr) - 1
+		for _r_ = 1 to _nR_
+			_nAcc_ = 0
+			for _e_ = paRowPtr[_r_] + 1 to paRowPtr[_r_ + 1]
+				_nAcc_ += paVals[_e_] * paX[paCols[_e_] + 1]
+			next
+			_aOut_ + _nAcc_
+		next
+		return _aOut_
+
+	# Measures the loop against the device for matrices of several sizes and stores, for this adapter, where the device wins.
+	#
+	#   returns    the hashlist CalibrateScan returns, for the key "spmv" (rungs are n rows of 16 entries each; the size counted is the rows)
+	#   warning    writes the calibration file; raises an error when no GPU device is available
+	#   see        CalibrateScan, SpmvRouted
+	def CalibrateSpmv()
+		return This._CalibrateRoute("spmv", [100, 500, 2000, 5000, 20000, 60000])
+
+	# Returns the list sorted, on the device where this machine's measurement says it wins, else by Ring's own sort.
 	#
 	#   paValues   a non-empty list of numbers
 	#   returns    a new list, smallest first
@@ -1617,7 +1778,7 @@ class stzGpu from stzObject
 	def CalibrateSort()
 		return This._CalibrateRoute("sort", [1000, 5000, 20000, 50000, 200000, 1000000])
 
-	# The elements of a list whose mask entry is not 0, in order, packed -- selected on the device (GB0).
+	# Returns the elements of a list whose mask entry is not 0, in order, packed -- selected on the device (GB0).
 	#
 	#   paValues   a non-empty list of numbers
 	#   paMask     a list of the same length; an entry that is not 0 keeps its element
@@ -1647,7 +1808,7 @@ class stzGpu from stzObject
 		_aRes_ = StzEngineGpuOpCompact(_hI_, _hM_, _hO_, _nN_)
 		return This._CompactFinish(_aRes_, [_hI_, _hM_, _hO_], _hO_, "Compact")
 
-	# The elements of a list that pass a comparison with a threshold, in order, packed -- selected on the device (GB0).
+	# Returns the elements of a list that pass a comparison with a threshold, in order, packed, on the device (GB0).
 	#
 	#   paValues   a non-empty list of numbers
 	#   pcOp       ">", ">=", "<", "<=", "=" or "!="
@@ -1705,7 +1866,7 @@ class stzGpu from stzObject
 		_FreeIds(paIds)
 		return _aOut_
 
-	# The same selection, on the device only where this machine's measurement says the device wins, and in a plain loop everywhere else.
+	# Returns the same selection, on the device where this machine's measurement says it wins, else by a plain loop.
 	#
 	#   paValues   a non-empty list of numbers
 	#   pcOp       ">", ">=", "<", "<=", "=" or "!="

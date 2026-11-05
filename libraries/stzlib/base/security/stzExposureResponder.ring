@@ -137,10 +137,14 @@ class stzExposureResponder from stzObject
 	@aReach   = []    # [ [ component, kind, name ], ... ] -- what a component's advisory shuts
 	@aActions = []    # the last Respond: [ [ advisoryId, component, kind, name, closed ], ... ]
 
+	# Builds a responder holding the default reach table of what each vendored library and engine domain reaches.
+	#
+	#   returns    nothing; the object is built
+	#   see        SetReach, Reach
 	def init()
 		This._DefaultReach()
 
-	  #-- shutting, one door at a time ------------------------------------------
+	  #-- shutting, one door at a time ------------------------------------------#
 
 	# Refuses every new listener of a class (or "*" for all), whatever its address.
 	#
@@ -240,17 +244,22 @@ class stzExposureResponder from stzObject
 		$aStzShutDoors = _aKeep_
 		return _nOpened_
 
-	  #-- the reach table ---------------------------------------------------------
+	  #-- the reach table ---------------------------------------------------------#
 
 	# Says which door an advisory on a component shuts. A program adds what it knows about itself.
 	#
 	#   pcComponent   the component as the exposure spells it: curl, stz_http, a model file
 	#   pcKind        listener, exposed, fetch, model -- or none, to say no in-process door reaches it
 	#   pcName        the door's name: a class, a host, a model, or *
+	#   returns       the responder, so calls chain
 	def SetReach(pcComponent, pcKind, pcName)
 		@aReach + [ StzLower("" + pcComponent), "" + pcKind, StzLower("" + pcName) ]
 		return This
 
+	# Returns the reach table: which doors an advisory on each component shuts, as [ component, kind, name ] rows.
+	#
+	#   returns    a list of rows in lower case; the kind none says no in-process door reaches that component
+	#   see        SetReach, DoorsFor
 	def Reach()
 		return @aReach
 
@@ -266,7 +275,7 @@ class stzExposureResponder from stzObject
 		next
 		return _a_
 
-	  #-- responding to a feed ----------------------------------------------------
+	  #-- responding to a feed ----------------------------------------------------#
 
 	# Shuts, for every match of a feed, the doors its reach table names, and writes exposure.closed for each.
 	#
@@ -300,6 +309,11 @@ class stzExposureResponder from stzObject
 		next
 		return _nClosed_
 
+	# Returns what the last Respond did, as [ advisoryId, component, kind, name, closed ] rows.
+	#
+	#   returns    a list of rows, [] before any Respond; closed is 1 when a door was shut and 0 when no door
+	#              reaches the component (kind none)
+	#   see        Respond, Unreached
 	def Actions()
 		return @aActions
 

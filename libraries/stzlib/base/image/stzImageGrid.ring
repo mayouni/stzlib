@@ -38,26 +38,54 @@ class stzImageGrid from stzObject
 		@cRows = "" + pcRowMeaning
 		@cCols = "" + pcColumnMeaning
 
+	# Returns the number of the engine handle that holds the grid's numbers, 0 once the grid is released.
+	#
+	#   returns    a number
+	#   see        Release
 	def GridId()
 		return @nId
 
+	# Frees the numbers the grid holds in the engine and clears the grid's handle.
+	#
+	#   returns    what the engine's free call answers
+	#   see        GridId
 	def Release()
 		_n_ = StzEngineImageGridFree(@nId)
 		@nId = 0
 		return _n_
 
+	# TRUE if the grid has no rows.
+	#
+	#   returns    1 or 0
+	#   see        Rows, Columns
 	def IsEmpty()
 		return StzEngineImageGridRows(@nId) = 0
 
+	# Returns the number of rows the grid has.
+	#
+	#   returns    a number; rows are 1-based
+	#   see        Columns, RowMeaning
 	def Rows()
 		return StzEngineImageGridRows(@nId)
 
+	# Returns the number of columns the grid has.
+	#
+	#   returns    a number; columns are 1-based
+	#   see        Rows, ColumnMeaning
 	def Columns()
 		return StzEngineImageGridCols(@nId)
 
+	# Returns what a row counts, such as y for the rows of an image's pixels.
+	#
+	#   returns    a text given when the grid was made
+	#   see        ColumnMeaning, Rows
 	def RowMeaning()
 		return @cRows
 
+	# Returns what a column counts, such as x for pixels or level for a histogram.
+	#
+	#   returns    a text given when the grid was made
+	#   see        RowMeaning, Columns
 	def ColumnMeaning()
 		return @cCols
 
@@ -65,12 +93,24 @@ class stzImageGrid from stzObject
 	def At(pnRow, pnColumn)
 		return StzEngineImageGridAt(@nId, pnRow, pnColumn)
 
+	# Returns the largest value in the grid.
+	#
+	#   returns    a number
+	#   see        Min, Peak
 	def Max()
 		return StzEngineImageGridMax(@nId)
 
+	# Returns the smallest value in the grid.
+	#
+	#   returns    a number
+	#   see        Max
 	def Min()
 		return StzEngineImageGridMin(@nId)
 
+	# Returns the sum of every value in the grid.
+	#
+	#   returns    a number
+	#   see        Max, Min
 	def Sum()
 		return StzEngineImageGridSum(@nId)
 

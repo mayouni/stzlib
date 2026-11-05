@@ -26,6 +26,7 @@ const gscan = @import("gpu_scan.zig");
 const gcompact = @import("gpu_compact.zig");
 const gsort = @import("gpu_sort.zig");
 const gseg = @import("gpu_segscan.zig");
+const gspmv = @import("gpu_spmv.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -1073,6 +1074,21 @@ fn ring_OpCompactWhere(p: *anyopaque) callconv(.c) void {
     R.ring_list_adddouble(out, @floatFromInt(st));
     R.ring_list_adddouble(out, cnt);
     R.ring_vm_api_retlist(p, out);
+}
+
+// GB0 (sparse-dense): OpSpmv(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nVariant) -> status; nVariant 0 auto, 1 scalar, 2 vector
+fn ring_OpSpmv(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gspmv.stz_gpu_op_spmv(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)), @intFromFloat(gn(p, 4)), @intFromFloat(gn(p, 5)), gn(p, 6), gn(p, 7), gn(p, 8))));
+}
+
+// OpSpmm(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nK) -> status; X is ncols x nK row-major, Y nRows x nK
+fn ring_OpSpmm(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gspmv.stz_gpu_op_spmm(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)), @intFromFloat(gn(p, 4)), @intFromFloat(gn(p, 5)), gn(p, 6), gn(p, 7), gn(p, 8))));
+}
+
+// SpmvVariantFor(nRows, nNnz) -> 1 scalar or 2 vector: the variant auto picks
+fn ring_SpmvVariantFor(p: *anyopaque) callconv(.c) void {
+    rn(p, gspmv.stz_gpu_spmv_variant_for(gn(p, 1), gn(p, 2)));
 }
 
 // GB0 (segmented scan): OpSegScan(hIn, hFlags, hOut, n, nOp) -> status; nOp 0 sum, 1 max, 2 min
@@ -2632,6 +2648,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuopsegreduce", .func = &ring_OpSegReduce },
     .{ .name = "stzenginegpusegscandispatches", .func = &ring_SegScanDispatches },
     .{ .name = "stzenginegpusegscanrelease", .func = &ring_SegScanRelease },
+    .{ .name = "stzenginegpuopspmv", .func = &ring_OpSpmv },
+    .{ .name = "stzenginegpuopspmm", .func = &ring_OpSpmm },
+    .{ .name = "stzenginegpuspmvvariantfor", .func = &ring_SpmvVariantFor },
     .{ .name = "stzenginegpubufferfilllcg", .func = &ring_BufferFillLcg },
     .{ .name = "stzenginegpufoundrypairdist", .func = &ring_FoundryPairdist },
     .{ .name = "stzenginegpufoundrymatmul", .func = &ring_FoundryMatmul },

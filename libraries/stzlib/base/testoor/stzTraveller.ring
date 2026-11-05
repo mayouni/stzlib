@@ -1002,39 +1002,61 @@ class stzTraveller from stzObject
 		@nTimeoutMs = 0 + pnMs
 		return This
 
-	# The seed every child is walked with (--testoor-seed). A tour that says
-	# Seed(:run) adopts it; one that says Seed(42) overrides it and its own
-	# seed is what the logbook records. Not given, one is drawn from the clock
-	# at the first walk and reported, so a failure found today can be walked
-	# again tomorrow with the same seed.
+	# Sets the seed every child is walked with, passed to each tour as --testoor-seed.
+	#
+	# A tour that says Seed(:run) adopts it; one that says Seed(42) overrides it and its own seed is what
+	# the logbook records. Not given, one is drawn from the clock at the first walk and reported, so a
+	# failure found today can be walked again tomorrow with the same seed.
+	#
+	#   pnSeed     the seed, a number
+	#   returns    the traveller itself, so calls chain
+	#   see        SeedUsed, Repeat
 	def Seed(pnSeed)
 		@nSeed = 0 + pnSeed
 		return This
 
+	# Returns the seed the children are walked with, once one is set or drawn at the first walk.
+	#
+	#   returns    a number; -1 while none was given and no tour has been walked
+	#   see        Seed
 	def SeedUsed()
 		return @nSeed
 
-	# Walk each tour N times with ONE seed. When the verdicts differ the tour
-	# is FLAKY: a result the seed does not determine is weather nobody
+	# Sets how many times each tour is walked, all with one seed, so that a flaky tour shows.
+	#
+	# When the verdicts differ the tour is FLAKY: a result the seed does not determine is weather nobody
 	# declared, and flaky is a latency defect.
+	#
+	#   pnTimes    the number of walks per tour; a value below 1 counts as 1
+	#   returns    the traveller itself, so calls chain
+	#   see        Seed, Findings
 	def Repeat(pnTimes)
 		@nRepeat = 0 + pnTimes
 		if @nRepeat < 1  @nRepeat = 1  ok
 		return This
 
-	# What the tours test, handed to each child as --testoor-subject PATH, so a
-	# tour can be walked against a REFINED COPY of the program (TESTOOR_PROTOCOL.md
-	# section 2). The tour reads it back with TestoorSubject().
+	# Sets the file under test, handed to each child as --testoor-subject PATH.
+	#
+	# A tour can then be walked against a REFINED COPY of the program (TESTOOR_PROTOCOL.md section 2). The
+	# tour reads it back with TestoorSubject().
+	#
+	#   pcPath     the path of the file under test
+	#   returns    the traveller itself, so calls chain
+	#   see        SubjectAs
 	def Subject(pcPath)
 		@cSubject = "" + pcPath
 		return This
 
-	# Install the subject under a FIXED NAME beside each tour for the length of its
-	# walk, and remove it afterwards: the tour loads that name with a plain
-	# `load`. This is the portable way to hand a tour its subject, because a VM
-	# that cannot call a function defined at run time (Ring++'s rnxc, measured
-	# 2026-11-04) cannot load a subject from a path it was given, but can always
-	# load a file it names in its own source.
+	# Sets a fixed name under which the subject is installed beside each tour for the length of its walk.
+	#
+	# The subject is removed afterwards, and the tour loads that name with a plain load. This is the portable
+	# way to hand a tour its subject, because a VM that cannot call a function defined at run time (Ring++'s
+	# rnxc, measured 2026-11-04) cannot load a subject from a path it was given, but can always load a file
+	# it names in its own source.
+	#
+	#   pcName     the file name the subject is installed under
+	#   returns    the traveller itself, so calls chain
+	#   see        Subject
 	def SubjectAs(pcName)
 		@cSubjectAs = "" + pcName
 		return This
@@ -1100,7 +1122,7 @@ class stzTraveller from stzObject
 		@bWalked = 1
 		@nOwned++
 		if @nSeed < 0
-			@nSeed = 1 + (floor(clock() * 1000 / clockspersecond()) % 90000)
+			@nSeed = TestoorDrawSeed()   # the draw a tour makes for itself: one formula, stzClock.ring
 		ok
 		_aRec_ = This._WalkOnce("" + pcPath, @nSeed)
 		_k_ = 2
@@ -1232,10 +1254,16 @@ class stzTraveller from stzObject
 		done
 		return _b_
 
-	#-- adopting a record judged elsewhere (the golden logbooks) -------------
+	#-- adopting a record judged elsewhere (the golden logbooks) -------------#
 
-	# A record already judged is kept as if this runner had walked it: counted as
-	# owned, as run unless it was never started, and its wall time added.
+	# Adds a record already judged elsewhere to the logbook, as if this traveller had walked it.
+	#
+	# The record counts as owned, as run unless its child never started, and its wall time is added.
+	#
+	#   paRec      a tour record, read for its [:run][:end] and [:run][:wall_ms]
+	#   returns    the traveller itself, so calls chain
+	#   note       stzGolden uses it to rebuild a run from golden logbooks
+	#   see        Scope, SkippedBy
 	def AdoptRecord(paRec)
 		@aRecords + paRec
 		@nOwned++
@@ -1243,15 +1271,32 @@ class stzTraveller from stzObject
 		@nWallMs += paRec[:run][:wall_ms]
 		return This
 
+	# Sets the root folder and the topic the logbook reports for the run, without walking anything.
+	#
+	#   pcRoot     the folder the tours were found under
+	#   pcTopic    the topic folder, or "" for every topic
+	#   returns    the traveller itself, so calls chain
+	#   note       WalkTopic sets the same two values itself; stzGolden calls this one when it adopts records
+	#   see        AdoptRecord, TopicsSkippedBy
 	def Scope(pcRoot, pcTopic)
 		@cRoot = "" + pcRoot
 		@cTopic = "" + pcTopic
 		return This
 
+	# Sets the names of the tour files the run skipped, which the logbook then lists.
+	#
+	#   pacNames   a list of file names
+	#   returns    the traveller itself, so calls chain
+	#   see        Skipped, AdoptRecord
 	def SkippedBy(pacNames)
 		@acSkipped = pacNames
 		return This
 
+	# Sets the names of the topic folders the run did not walk, which the logbook then lists.
+	#
+	#   pacNames   a list of topic names
+	#   returns    the traveller itself, so calls chain
+	#   see        TopicsSkipped, Scope
 	def TopicsSkippedBy(pacNames)
 		@acTopicsSkipped = pacNames
 		return This
@@ -1331,7 +1376,11 @@ class stzTraveller from stzObject
 		next
 		return 0
 
-	# the court's shape, for stzRuleReport.Ingest(): a flaky tour is an ERROR
+	# Returns the court's findings in the shape stzRuleReport.Ingest() takes: one error for each flaky tour.
+	#
+	#   returns    a list of [ :rule = :tour_is_flaky, :subject = :tour, :where = file, :severity = :error, :message ]
+	#              rows, [] when no tour is flaky
+	#   see        Repeat
 	def Findings()
 		_aOut_ = []
 		_n_ = ring_len(@aRecords)

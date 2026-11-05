@@ -129,6 +129,7 @@ class stzLLMFunction from stzObject
 	@cGrammar = ""             # compiled once, on first live call
 	@cNoGrammarWhy = ""        # why not, when a schema cannot become a grammar
 	@bLastConstrained = 0      # was the last live answer grammar-constrained?
+	@cLastReason = ""          # why the last scalar reply was refused, for the error text
 
 	# Builds a typed language-model function with a name, an empty prompt, string output and no budget.
 	#
@@ -155,25 +156,56 @@ class stzLLMFunction from stzObject
 		@cTemplate = "" + pcTemplate
 		return This
 
-	# Declares that the answer must be a number.
+	# Declares that the answer must be one number, and refuses a reply that is anything else.
+	#
+	# A reply is read as a number when, with quotes, backticks, asterisks and sentence punctuation
+	# ignored, it is one number written with the digits 0 to 9 -- an optional sign, whole digits, an
+	# optional decimal part after a point, an optional exponent -- alone or between plain filler words
+	# such as the answer is. A comma is read only as a thousands mark between digit groups of three, so
+	# 1,000 is 1000. Every other reply is refused and retried, never raised from the parser: a hedge
+	# such as about 42, none, a lone comma as in 1,5, 5%, NaN, inf, 0x10, digits of another script, two
+	# numbers, a NUL byte, an integer of more than 15 digits and a number too large to be finite.
 	#
 	#   returns    the function itself, so calls chain
-	#   note       a comma splits words, so 1,5 reads as 1
-	#   warning    the answer is read as the first word that parses as a number; a reply whose first
-	#              word is not numeric (such as about 42 or none) raises a Ring error R41 inside the
-	#              call instead of being refused or retried (w13 defect file)
+	#   note       1,5 is refused rather than read as 1.5: the function has no locale, and a lone comma
+	#              cannot be told from a thousands mark
+	#   warning    a refused reply spends one attempt of the budget; after the retries Call_ raises
+	#              an error that says why the last reply was refused
 	#   see        ReturnsBoolean, ReturnsOneOf, Call_
+	#   example    o1.ReturnsNumber()
+	#              o1.UseResponder(func cP, nT { return "The answer is 42." })
+	#              ? o1.Call_("How many legs have a cat and a bird together")
+	#              #--> 42
+	#              o1.UseResponder(func cP, nT { return "1,000" })
+	#              ? o1.Call_("How many metres in a kilometre")
+	#              #--> 1000
 	def ReturnsNumber()
 		@cOutType = "number"
 		return This
 
-	# Declares that the answer must be yes or no, kept as 1 or 0.
+	# Declares that the answer must be yes or no, kept as 1 or 0, and refuses a reply that is neither.
+	#
+	# A reply is read as yes when it is the whole word yes, y, true or 1 and as no when it is the whole
+	# word no, n, false or 0, in any case, with quotes and sentence punctuation ignored. A longer reply
+	# is read by its first word, which must be yes, true, no or false followed by a comma, a period, a
+	# dash or a line break; the rest of the reply may repeat that answer but may not contradict it, and
+	# may not hedge with a word such as not, maybe, unknown, but, if or unless. Words are whole words
+	# in any script, so unknown, not sure, nobody, yesterday and know are refused and never read as 0
+	# or 1, and so is a reply that holds both yes and no. The answer words are English: an answer in
+	# another script is refused.
 	#
 	#   returns    the function itself, so calls chain
-	#   note       a reply with neither is refused
-	#   warning    the reply is searched for the letters yes or true, then no or false, as
-	#              substrings, so a reply such as unknown reads as 0 (w13 defect file)
+	#   note       a reply with neither answer is refused
+	#   warning    a refused reply spends one attempt of the budget; after the retries Call_ raises
+	#              an error that says why the last reply was refused
 	#   see        ReturnsNumber, ReturnsOneOf, Call_
+	#   example    o1.ReturnsBoolean()
+	#              o1.UseResponder(func cP, nT { return "Yes, it is." })
+	#              ? o1.Call_("Is the sea salty")
+	#              #--> 1
+	#              o1.UseResponder(func cP, nT { return "NO." })
+	#              ? o1.Call_("Is the sun cold")
+	#              #--> 0
 	def ReturnsBoolean()
 		@cOutType = "boolean"
 		return This
@@ -192,7 +224,7 @@ class stzLLMFunction from stzObject
 	#   pacChoices   the allowed answers as a list of text, compared without regard to case
 	#   returns      the function itself, so calls chain
 	#   note         a reply is accepted when it equals a choice, or contains exactly one of the
-	#                choices
+	#                choices as a whole word, so reddish is not red
 	#   see          ReturnsString, ReturnsStructure, Call_
 	def ReturnsOneOf(pacChoices)
 		@cOutType = "oneof"
@@ -339,7 +371,7 @@ class stzLLMFunction from stzObject
 	#              call
 	#   warning    raises an error without a prompt, without a budget, when no generative model is
 	#              loaded and nothing is memoized, when the budget is spent, and after the retries
-	#              when no reply validates
+	#              when no reply validates, naming why the last one was refused
 	#   see        Of, Budget, SeedAnswer, Why
 	#@ aka  -- the call ------------------------------------------------------------
 	def Call_(pcInput)
@@ -667,10 +699,13 @@ class stzLLMFunction from stzObject
 		return @cOutType
 
 	def _Citation()
-		if len(@aLastFindings) = 0
-			return ""
+		if @bHasSchema = 1 and len(@aLastFindings) > 0
+			return " WHY: " + @oSchema.CiteFindings(@aLastFindings)
 		ok
-		return " WHY: " + @oSchema.CiteFindings(@aLastFindings)
+		if @cLastReason != ""
+			return " WHY: " + @cLastReason
+		ok
+		return ""
 
 	# Adds an input with the answer it must give, for RunGoldens to check.
 	#
@@ -727,7 +762,15 @@ class stzLLMFunction from stzObject
 
 	#-- validation -------------------------------------------------------------
 
+	# Judges a raw reply against the declared type and answers [ 1, value ] or [ 0, "" ].
+	#
+	#   pcRaw      the raw reply text
+	#   returns    a list of two items: 1 and the value when the reply validates, 0 and an empty value
+	#              when it is refused
+	#   note       a refused scalar reply leaves its reason for Call_ in the private reason field
+	#   see        Call_
 	def _Validate(pcRaw)
+		@cLastReason = ""
 		if @cOutType = "structure"
 			_aV_ = @oSchema.ParseOutput(pcRaw)
 			@aLastFindings = _aV_[:findings]
@@ -737,49 +780,442 @@ class stzLLMFunction from stzObject
 			return [ 0, [] ]
 		ok
 
-		_cT_ = StzLower(ring_trim("" + pcRaw))
 		if @cOutType = "string"
 			return [ 1, ring_trim("" + pcRaw) ]
 		but @cOutType = "boolean"
-			if len(StzFind("yes", _cT_)) > 0 or len(StzFind("true", _cT_)) > 0
-				return [ 1, 1 ]
-			ok
-			if len(StzFind("no", _cT_)) > 0 or len(StzFind("false", _cT_)) > 0
-				return [ 1, 0 ]
-			ok
-			return [ 0, 0 ]
+			return This._ReadBoolean(pcRaw)
 		but @cOutType = "number"
-			_acW_ = StzSplit(StzReplace(StzReplace(_cT_, char(10), " "), ",", " "), " ")
-			_nW_ = len(_acW_)
-			for _i_ = 1 to _nW_
-				_cW_ = ring_trim(_acW_[_i_])
-				if _cW_ != ""
-					_nV_ = ring_number(_cW_)
-					if _nV_ != 0 or _cW_ = "0" or StzLeft(_cW_, 2) = "0."
-						return [ 1, _nV_ ]
-					ok
-				ok
-			next
-			return [ 0, 0 ]
+			return This._ReadNumber(pcRaw)
 		but @cOutType = "oneof"
-			_nC_ = len(@acChoices)
-			# exact match first, then unique containment
-			for _i_ = 1 to _nC_
-				if _cT_ = @acChoices[_i_]
-					return [ 1, @acChoices[_i_] ]
-				ok
-			next
-			_nHits_ = 0
-			_cHit_ = ""
-			for _i_ = 1 to _nC_
-				if len(StzFind(@acChoices[_i_], _cT_)) > 0
-					_nHits_++
-					_cHit_ = @acChoices[_i_]
-				ok
-			next
-			if _nHits_ = 1
-				return [ 1, _cHit_ ]
-			ok
-			return [ 0, "" ]
+			return This._ReadOneOf(pcRaw)
 		ok
 		return [ 0, "" ]
+
+	# Reads a reply as one number, or refuses it and keeps the reason.
+	#
+	#   pcRaw      the raw reply text
+	#   returns    [ 1, number ] when the reply is one number between filler words only, [ 0, 0 ] otherwise
+	#   see        _Tokenize, _ParseNumber, ReturnsNumber
+	def _ReadNumber(pcRaw)
+		_aTok_ = This._Tokenize(pcRaw)
+		_nT_ = len(_aTok_)
+		if _nT_ = 0
+			return [ 0, 0 ]
+		ok
+		_cFill_ = "|the|answer|result|value|total|number|is|are|was|equals|it|its|that|so|thus|therefore|final|correct|"
+		_nAt_ = 0
+		for _i_ = 1 to _nT_
+			_cK_ = _aTok_[_i_][2]
+			if _cK_ = "number"
+				if _nAt_ > 0
+					@cLastReason = "the reply holds more than one number"
+					return [ 0, 0 ]
+				ok
+				_nAt_ = _i_
+			but _cK_ = "word"
+				if len(StzFind("|" + _aTok_[_i_][1] + "|", _cFill_)) = 0
+					@cLastReason = "the word " + _aTok_[_i_][1] + " is not a plain filler word, so the reply is not one bare number"
+					return [ 0, 0 ]
+				ok
+			else
+				@cLastReason = _aTok_[_i_][5]
+				if @cLastReason = ""
+					@cLastReason = "the token " + StzLeft(_aTok_[_i_][1], 30) + " is not a number written with the digits 0 to 9"
+				ok
+				return [ 0, 0 ]
+			ok
+		next
+		if _nAt_ = 0
+			@cLastReason = "the reply holds no number"
+			return [ 0, 0 ]
+		ok
+		if len(StzFind("?", _aTok_[_nAt_][3])) > 0
+			@cLastReason = "the number is followed by a question mark"
+			return [ 0, 0 ]
+		ok
+		return [ 1, _aTok_[_nAt_][4] ]
+
+	# Reads a reply as yes or no, or refuses it and keeps the reason.
+	#
+	#   pcRaw      the raw reply text
+	#   returns    [ 1, 1 ] for yes, [ 1, 0 ] for no, [ 0, 0 ] when the reply is refused
+	#   see        _Tokenize, _AnswerOf, ReturnsBoolean
+	def _ReadBoolean(pcRaw)
+		_aTok_ = This._Tokenize(pcRaw)
+		_nT_ = len(_aTok_)
+		if _nT_ = 0
+			return [ 0, 0 ]
+		ok
+		_nLead_ = 0 - 1
+		if _nT_ = 1
+			_nLead_ = This._AnswerOf(_aTok_[1][1], 1)
+		else
+			_nLead_ = This._AnswerOf(_aTok_[1][1], 0)
+		ok
+		if _nLead_ < 0
+			if _nT_ = 1
+				@cLastReason = "the reply is not one of yes, y, true, 1, no, n, false, 0"
+			else
+				@cLastReason = "the reply does not begin with yes, true, no or false"
+			ok
+			return [ 0, 0 ]
+		ok
+		if len(StzFind("?", _aTok_[1][3])) > 0
+			@cLastReason = "the answer is followed by a question mark"
+			return [ 0, 0 ]
+		ok
+		if _nT_ = 1
+			return [ 1, _nLead_ ]
+		ok
+		_cMarks_ = _aTok_[1][3]
+		if len(StzFind(",", _cMarks_)) = 0 and len(StzFind(".", _cMarks_)) = 0 and
+		   len(StzFind("!", _cMarks_)) = 0 and len(StzFind(";", _cMarks_)) = 0 and
+		   len(StzFind(":", _cMarks_)) = 0 and len(StzFind("-", _cMarks_)) = 0
+			@cLastReason = "the first word is not followed by a comma, a period, a dash or a line break"
+			return [ 0, 0 ]
+		ok
+		_cHedge_ = "|not|never|none|nobody|nothing|neither|nor|maybe|perhaps|possibly|probably|unsure|unknown|uncertain|unclear|depends|cannot|but|however|though|although|except|unless|if|sometimes|partly|mostly|somewhat|"
+		for _i_ = 2 to _nT_
+			if _aTok_[_i_][2] = "word"
+				_w_ = _aTok_[_i_][1]
+				_nP_ = This._AnswerOf(_w_, 0)
+				if _nP_ >= 0
+					if _nP_ != _nLead_
+						@cLastReason = "the reply holds both a yes word and a no word"
+						return [ 0, 0 ]
+					ok
+				but len(StzFind("|" + _w_ + "|", _cHedge_)) > 0 or len(StzFind("n't", _w_)) > 0
+					@cLastReason = "the word " + _w_ + " hedges the answer"
+					return [ 0, 0 ]
+				ok
+			ok
+		next
+		return [ 1, _nLead_ ]
+
+	# Reads a reply as one of the declared choices, as a whole word, or refuses it.
+	#
+	#   pcRaw      the raw reply text
+	#   returns    [ 1, choice ] when the reply equals a choice or holds exactly one choice as a whole
+	#              word, [ 0, "" ] otherwise
+	#   see        ReturnsOneOf
+	def _ReadOneOf(pcRaw)
+		_cT_ = StzLower(ring_trim("" + pcRaw))
+		_nC_ = len(@acChoices)
+		# exact match first, then unique containment as a whole word
+		for _i_ = 1 to _nC_
+			if _cT_ = @acChoices[_i_]
+				return [ 1, @acChoices[_i_] ]
+			ok
+		next
+		_acCp_ = StzChars(_cT_)
+		_nHits_ = 0
+		_cHit_ = ""
+		for _i_ = 1 to _nC_
+			if @acChoices[_i_] != "" and This._HasWholeWord(_acCp_, _cT_, @acChoices[_i_]) = 1
+				_nHits_++
+				_cHit_ = @acChoices[_i_]
+			ok
+		next
+		if _nHits_ = 1
+			return [ 1, _cHit_ ]
+		ok
+		return [ 0, "" ]
+
+	# Tells whether a choice stands in a reply with no letter or digit touching either end of it.
+	#
+	#   pacCp      the characters of the reply, as StzChars gives them
+	#   pcText     the reply itself
+	#   pcWord     the choice to look for
+	#   returns    1 when some occurrence is a whole word, 0 otherwise
+	#   see        _ReadOneOf
+	def _HasWholeWord(pacCp, pcText, pcWord)
+		_aPos_ = StzFind(pcWord, pcText)
+		_nP_ = len(_aPos_)
+		if _nP_ = 0
+			return 0
+		ok
+		_nW_ = len(StzChars(pcWord))
+		_nN_ = len(pacCp)
+		for _i_ = 1 to _nP_
+			_p_ = _aPos_[_i_]
+			_bOk_ = 1
+			if _p_ > 1
+				_ch_ = pacCp[_p_ - 1]
+				if StzIsAlpha(_ch_) = 1 or StzIsDigit(_ch_) = 1
+					_bOk_ = 0
+				ok
+			ok
+			if _bOk_ = 1 and (_p_ + _nW_) <= _nN_
+				_ch_ = pacCp[_p_ + _nW_]
+				if StzIsAlpha(_ch_) = 1 or StzIsDigit(_ch_) = 1
+					_bOk_ = 0
+				ok
+			ok
+			if _bOk_ = 1
+				return 1
+			ok
+		next
+		return 0
+
+	# Maps an answer word to 1 for yes, 0 for no, or -1 when it is neither.
+	#
+	#   pcWord     a lower-case word, or the text 1 or 0
+	#   pbShort    1 to accept y, n, 1 and 0 as well as yes, true, no and false
+	#   returns    1, 0 or -1
+	#   see        _ReadBoolean
+	def _AnswerOf(pcWord, pbShort)
+		if pcWord = "yes" or pcWord = "true"
+			return 1
+		ok
+		if pcWord = "no" or pcWord = "false"
+			return 0
+		ok
+		if pbShort = 1
+			if pcWord = "y" or pcWord = "1"
+				return 1
+			ok
+			if pcWord = "n" or pcWord = "0"
+				return 0
+			ok
+		ok
+		return 0 - 1
+
+	# Cuts a reply into tokens, the one reading both the number rule and the boolean rule rest on.
+	#
+	# The reply is lower-cased, its typographic quotes, dashes and spaces are folded to plain ones and
+	# each line break becomes a semicolon, so a break counts as a separator. It is cut at spaces; each
+	# piece loses the quotes, brackets and asterisks on its left and the same plus sentence marks and
+	# dashes on its right, and the marks removed on the right stay with the token. A piece that
+	# was nothing but marks is dropped and its marks join the token before it.
+	#
+	#   pcRaw      the raw reply text
+	#   returns    a list of tokens [ text, kind, marks, value, why ]; kind is number (value is the
+	#              number), word (letters, with apostrophes inside) or other (why says what a
+	#              numeric-looking token broke); [ ] for an empty reply, one holding a NUL byte or one
+	#              that is not valid UTF-8, the reason being kept in the private reason field
+	#   see        _ParseNumber, _ReadNumber, _ReadBoolean
+	def _Tokenize(pcRaw)
+		_c_ = "" + pcRaw
+		if len(StzFind(char(0), _c_)) > 0
+			@cLastReason = "the reply holds a NUL byte"
+			return []
+		ok
+		_c_ = StzLower(_c_)
+		_c_ = StzReplace(_c_, char(226) + char(128) + char(156), char(34))
+		_c_ = StzReplace(_c_, char(226) + char(128) + char(157), char(34))
+		_c_ = StzReplace(_c_, char(226) + char(128) + char(152), "'")
+		_c_ = StzReplace(_c_, char(226) + char(128) + char(153), "'")
+		_c_ = StzReplace(_c_, char(226) + char(128) + char(147), "-")
+		_c_ = StzReplace(_c_, char(226) + char(128) + char(148), "-")
+		_c_ = StzReplace(_c_, char(226) + char(136) + char(146), "-")
+		_c_ = StzReplace(_c_, char(226) + char(128) + char(144), "-")
+		_c_ = StzReplace(_c_, char(226) + char(128) + char(145), "-")
+		_c_ = StzReplace(_c_, char(226) + char(128) + char(166), "...")
+		_c_ = StzReplace(_c_, char(227) + char(128) + char(130), ".")
+		_c_ = StzReplace(_c_, char(194) + char(160), " ")
+		_c_ = StzReplace(_c_, char(227) + char(128) + char(128), " ")
+		_c_ = StzReplace(_c_, char(226) + char(128) + char(137), " ")
+		_c_ = StzReplace(_c_, char(226) + char(128) + char(175), " ")
+		_c_ = StzReplace(_c_, char(13), " ")
+		_c_ = StzReplace(_c_, char(9), " ")
+		_c_ = StzReplace(_c_, char(11), " ")
+		_c_ = StzReplace(_c_, char(12), " ")
+		_c_ = StzReplace(_c_, char(10), " ; ")
+		if _c_ = "" and ("" + pcRaw) != ""
+			@cLastReason = "the reply is not valid UTF-8 text"
+			return []
+		ok
+
+		_cLeft_ = "([{" + char(34) + "'`*"
+		_cRight_ = ".,;:!?)]}" + char(34) + "'`*-"
+		_aTok_ = []
+		_acPiece_ = StzSplit(_c_, " ")
+		_nPieces_ = len(_acPiece_)
+		for _i_ = 1 to _nPieces_
+			if _acPiece_[_i_] = ""
+				loop
+			ok
+			_acCp_ = StzChars(_acPiece_[_i_])
+			_nA_ = 1
+			_nZ_ = len(_acCp_)
+			while _nA_ <= _nZ_
+				if len(StzFind(_acCp_[_nA_], _cLeft_)) = 0
+					exit
+				ok
+				_nA_++
+			end
+			_cMarks_ = ""
+			while _nZ_ >= _nA_
+				if len(StzFind(_acCp_[_nZ_], _cRight_)) = 0
+					exit
+				ok
+				_cMarks_ = _acCp_[_nZ_] + _cMarks_
+				_nZ_--
+			end
+			if _nZ_ < _nA_
+				_nLast_ = len(_aTok_)
+				if _nLast_ > 0
+					_aTok_[_nLast_][3] = _aTok_[_nLast_][3] + _cMarks_
+				ok
+				loop
+			ok
+			_cText_ = ""
+			for _k_ = _nA_ to _nZ_
+				_cText_ = _cText_ + _acCp_[_k_]
+			next
+
+			_aNum_ = This._ParseNumber(_cText_)
+			if _aNum_[1] = 1
+				_aTok_ + [ _cText_, "number", _cMarks_, _aNum_[2], "" ]
+			else
+				_cBare_ = StzReplace(_cText_, "'", "")
+				if _cBare_ != "" and StzIsAlpha(_cBare_) = 1
+					_aTok_ + [ _cText_, "word", _cMarks_, 0, "" ]
+				else
+					_aTok_ + [ _cText_, "other", _cMarks_, 0, _aNum_[3] ]
+				ok
+			ok
+		next
+		if len(_aTok_) = 0
+			@cLastReason = "the reply is empty"
+		ok
+		return _aTok_
+
+	# Reads a text as a number written with the digits 0 to 9, or says why it is not one.
+	#
+	# The grammar is a sign, whole digits, a point and digits, an exponent; whole digits may carry
+	# commas only as groups of exactly three after a first group of one to three digits. An integer
+	# of more than 15 digits, a value that is not finite and a non-zero literal that falls to zero
+	# are refused, since the number held would differ from the number written.
+	#
+	#   pcText     one token, lower-cased
+	#   returns    [ 1, number, "" ] when it is a number, [ 0, 0, why ] when it is not; why is empty
+	#              for a text that is not even numeric-looking
+	#   see        _Tokenize
+	def _ParseNumber(pcText)
+		_c_ = pcText
+		_n_ = ring_len(_c_)
+		if _n_ = 0
+			return [ 0, 0, "" ]
+		ok
+		_i_ = 1
+		_cSign_ = ""
+		if _c_[1] = "+" or _c_[1] = "-"
+			if _c_[1] = "-"
+				_cSign_ = "-"
+			ok
+			_i_ = 2
+		ok
+
+		# whole digits, with an optional comma between groups of three
+		_cInt_ = ""
+		_nGrp_ = 0
+		_bGroups_ = 0
+		while _i_ <= _n_
+			_ch_ = _c_[_i_]
+			if isdigit(_ch_)
+				_cInt_ = _cInt_ + _ch_
+				_nGrp_++
+				_i_++
+			but _ch_ = ","
+				if _bGroups_ = 0 and (_nGrp_ < 1 or _nGrp_ > 3)
+					return [ 0, 0, "the comma in " + StzLeft(_c_, 30) + " does not stand between digit groups of three, so it cannot be read as a thousands mark or as a decimal comma" ]
+				ok
+				if _bGroups_ = 1 and _nGrp_ != 3
+					return [ 0, 0, "the comma in " + StzLeft(_c_, 30) + " does not stand between digit groups of three, so it cannot be read as a thousands mark or as a decimal comma" ]
+				ok
+				_bGroups_ = 1
+				_nGrp_ = 0
+				_i_++
+			else
+				exit
+			ok
+		end
+		if _bGroups_ = 1 and _nGrp_ != 3
+			return [ 0, 0, "the comma in " + StzLeft(_c_, 30) + " does not stand between digit groups of three, so it cannot be read as a thousands mark or as a decimal comma" ]
+		ok
+
+		_cFrac_ = ""
+		_bPoint_ = 0
+		if _i_ <= _n_ and _c_[_i_] = "."
+			_bPoint_ = 1
+			_i_++
+			while _i_ <= _n_
+				if isdigit(_c_[_i_])
+					_cFrac_ = _cFrac_ + _c_[_i_]
+					_i_++
+				else
+					exit
+				ok
+			end
+			if _cFrac_ = ""
+				return [ 0, 0, "" ]
+			ok
+		ok
+		if _cInt_ = "" and _bPoint_ = 0
+			return [ 0, 0, "" ]
+		ok
+
+		_cExp_ = ""
+		if _i_ <= _n_ and _c_[_i_] = "e"
+			_i_++
+			_cEs_ = ""
+			if _i_ <= _n_ and (_c_[_i_] = "+" or _c_[_i_] = "-")
+				if _c_[_i_] = "-"
+					_cEs_ = "-"
+				ok
+				_i_++
+			ok
+			_cEd_ = ""
+			while _i_ <= _n_
+				if isdigit(_c_[_i_])
+					_cEd_ = _cEd_ + _c_[_i_]
+					_i_++
+				else
+					exit
+				ok
+			end
+			if _cEd_ = ""
+				return [ 0, 0, "" ]
+			ok
+			_cExp_ = "e" + _cEs_ + _cEd_
+		ok
+		if _i_ <= _n_
+			return [ 0, 0, "" ]
+		ok
+
+		# the integer part without its leading zeros says how many digits an integer carries
+		_cSig_ = _cInt_
+		while ring_len(_cSig_) > 0 and _cSig_[1] = "0"
+			_cSig_ = StzRight(_cSig_, ring_len(_cSig_) - 1)
+		end
+		if _bPoint_ = 0 and _cExp_ = "" and ring_len(_cSig_) > 15
+			return [ 0, 0, "the integer " + StzLeft(_c_, 20) + " has more than 15 digits and cannot be held exactly" ]
+		ok
+
+		_cLit_ = _cInt_
+		if _cLit_ = ""
+			_cLit_ = "0"
+		ok
+		if _bPoint_ = 1
+			_cLit_ = _cLit_ + "." + _cFrac_
+		ok
+		_nV_ = ring_number(_cSign_ + _cLit_ + _cExp_)
+		if (_nV_ - _nV_) != 0
+			return [ 0, 0, "the number " + StzLeft(_c_, 20) + " is too large to be finite" ]
+		ok
+		if _nV_ = 0
+			_nV_ = 0
+			_bNz_ = 0
+			_cAll_ = _cInt_ + _cFrac_
+			_nAll_ = ring_len(_cAll_)
+			for _k_ = 1 to _nAll_
+				if _cAll_[_k_] != "0"
+					_bNz_ = 1
+				ok
+			next
+			if _bNz_ = 1
+				return [ 0, 0, "the number " + StzLeft(_c_, 20) + " is too small to be told from zero" ]
+			ok
+		ok
+		return [ 1, _nV_, "" ]

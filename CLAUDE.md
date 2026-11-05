@@ -484,13 +484,20 @@ Ring. Four differences between the VMs bit this plane: no `binarysearch()` on rn
 
 **The judge is written in Zig (P3, 2026-11-05).** `engine/src/testoor_*.zig` is the core and `base/testoor/*.ring` is
 its reference; the golden logbooks in `base/testoor/golden/` are the acceptance test. **FAST PATH for the core:
-`cd engine && zig build test-testoor -j2` is 30 s cold and 17 ms to run, 23 tests, with no Ring involved.** It reads
+`cd engine && zig build test-testoor -j2` is 30 s cold and about 100 ms to run, 38 tests, with no Ring involved.** It reads
 `golden/` and compares 43 expected files byte for byte. `TESTOOR_CORE=ring` (or `TestoorCore("ring")`) makes
 `TestoorVerdict` use the Ring reference instead of the `stz_testoor` library; the guard
 `testoor_core_narrated.ring` runs both in one process. Four Ring facts the port is built on, measured on both
 VMs: `trim` strips the byte 32 only, `0 + "abc"` raises R41, a number prints whole or with two decimals, and
 `0.125` prints `0.13` on Ring 1.27 and `0.12` on Ring++ (the core follows Ring++). `std.json` is the wrong writer
 for the logbook: Ring escapes five bytes and writes every other byte raw.
+
+**The world of a tour is the core's too (P3.2).** Its seed, stepped clock and weather live in `testoor_clock.zig`
+behind `StzEngineTestoorWorld`, one world per thread; `stzClock.ring` asks the core and keeps the old bodies
+(`..Ring`) as the reference. A weather's tick, when the tour names none, is picked from the SEED, the same on every
+machine. **Before running any Testoor guard that walks children (clock, runner, routes), run `rnxc prefix
+stzBase.ring` from `base/` once after the library changes**: without it each child compiles the library (230 s
+loaded) and the guard's 60 s timeouts read as `unreached`.
 
 Two things measured on the way, so nobody re-measures them: Ring resolves `load`
 against the CURRENT DIRECTORY, not the file -- a runner must start each tour from
@@ -515,12 +522,14 @@ projections; develop a new section as a standalone probe first.
 resident VM: `rnxc resident atelier.ring` from that folder, then http://127.0.0.1:8650/atelier.
 Plan, law and journal: `atelier/SOFTANZA_ATELIER_PLAN.md`. Never call it a lab.
 
-**FAST PATH: the five guards, one process each, from `base/test/atelier`:**
+**FAST PATH: the seven guards, one process each, from `base/test/atelier`:**
 ```bash
-cd libraries/stzlib/base/test/atelier && rnxc atelier_cell_narrated.ring && rnxc atelier_page_narrated.ring && rnxc atelier_static_narrated.ring && rnxc atelier_narrated.ring && rnxc atelier_tours_narrated.ring
+cd libraries/stzlib/base/test/atelier && rnxc atelier_notebook_narrated.ring && rnxc atelier_process_narrated.ring && rnxc atelier_cell_narrated.ring && rnxc atelier_page_narrated.ring && rnxc atelier_static_narrated.ring && rnxc atelier_narrated.ring && rnxc atelier_tours_narrated.ring
 ```
-The cell guard (B0, 43 assertions, under 40 s) is the workbench's: a cell's lines seen in their faces
-and its promises judged. The checks guard turns red whenever ANY desk's commit moves a check's verdict:
+The cell guard (B0, 43) and the process guard (B1, 37), under 40 s each, are the workbench's: a cell's
+lines seen in their faces and its promises judged; a chain unfolded with `ref()` (a plain variable copies
+a Ring object and detaches the chain from it) and a scene's object after each line. The notebook guard (B2, 38, about
+90 s) saves a notebook where its loads resolve and has testoor's own runner judge it in a child rnxc. The checks guard turns red whenever ANY desk's commit moves a check's verdict:
 that is its job; read the moved id before re-recording, and re-record only at a pushed commit.
 The static guard (41 assertions, under a minute; python for the builder and the resolver, SKIPPED by
 name without it) is the cheap one: it also scans the Atelier for a drive path, because a recording

@@ -1,0 +1,24 @@
+knowledge "kp-24"
+
+facts
+    kp-24 | is-a | exercise
+    kp-24 | in-course | kernel-puzzles
+    kp-24 | in-chapter | the-scan
+    kp-24 | puzzle-number | 24
+    kp-24 | teaches | a-sparse-matrix-times-a-vector-by-gathering
+    kp-24 | starts | red
+
+    kp-24 | elements | 512
+    kp-24 | input-a | ramp
+    kp-24 | input-b | mod7
+    kp-24 | input-x | mod13
+    kp-24 | input-length-a | 4096
+    kp-24 | input-length-b | 4097
+    kp-24 | hidden-elements | 360
+    kp-24 | hidden-input-length-a | 2880
+    kp-24 | hidden-input-length-b | 2881
+
+    kp-24 | has-mistake | 02-values-and-columns-swapped
+    kp-24 | has-mistake | 03-a-row-of-seven
+    kp-24 | has-mistake | 04-one-entry-too-many
+    kp-24 | has-mistake | 05-no-gather

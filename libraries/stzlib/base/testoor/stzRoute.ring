@@ -163,14 +163,24 @@ class stzRouteMap from stzObject
 	@aTouched = []      # [ [ class, line, method ] ... ] untouched, from the map
 	@aMapFor = []       # [ class file, tour count ]
 
+	# Builds a route map holding no plan items, no walks and no untouched methods.
+	#
+	#   returns    nothing; the object is built
+	#   see        AddPlan, AddTour
 	def init()
 		@aItems = []
 		@aWalks = []
 		@aPlanTexts = []
 		@aTouched = []
 
-	#-- the plan: the routes owned ---------------------------------------
+	#-- the plan: the routes owned ---------------------------------------#
 
+	# Adds the items of a plan text to the routes owned, read by the court's own plan reader.
+	#
+	#   pcLabel      the name the plan goes by in findings and reports, such as its file path
+	#   pcPlanText   the text of the plan, not a path
+	#   returns      the map itself, so calls chain
+	#   see          AddPlanFile, Items
 	def AddPlan(pcLabel, pcPlanText)
 		_aIt_ = StzPlanItemsOf("" + pcPlanText)
 		_n_ = ring_len(_aIt_)
@@ -180,6 +190,12 @@ class stzRouteMap from stzObject
 		@aPlanTexts + [ "" + pcLabel, "" + pcPlanText ]
 		return This
 
+	# Reads a plan file and adds its items to the routes owned, labelled by the file's path.
+	#
+	#   pcPath     the path of the plan file
+	#   returns    the map itself, so calls chain
+	#   warning    a file that cannot be read adds nothing and raises nothing
+	#   see        AddPlan
 	def AddPlanFile(pcPath)
 		_c_ = ""
 		try
@@ -189,9 +205,14 @@ class stzRouteMap from stzObject
 		done
 		return This.AddPlan("" + pcPath, _c_)
 
-	#-- the tours: the routes walked -------------------------------------
+	#-- the tours: the routes walked -------------------------------------#
 
-	# one reader record (Tour(path)); its discharges() and Route() are walks
+	# Adds the walks one tour record declares, through its discharges() and Route() calls.
+	#
+	#   paRec      a record of the tour reader (Tour(path)), read for its :file and its :routes, each with :item,
+	#              :stop and :line
+	#   returns    the map itself, so calls chain
+	#   see        AddTours, AddToursUnder
 	def AddTour(paRec)
 		_n_ = ring_len(paRec[:routes])
 		for _k_ = 1 to _n_
@@ -200,6 +221,11 @@ class stzRouteMap from stzObject
 		next
 		return This
 
+	# Adds the walks of every record a logbook holds.
+	#
+	#   poLogbook  a logbook whose Records() are tour records
+	#   returns    the map itself, so calls chain
+	#   see        AddTour
 	def AddTours(poLogbook)
 		_aR_ = poLogbook.Records()
 		_n_ = ring_len(_aR_)
@@ -208,15 +234,27 @@ class stzRouteMap from stzObject
 		next
 		return This
 
-	# every tour under a folder, read here (no run)
+	# Reads every tour under a folder and adds their walks, without running any of them.
+	#
+	#   pcDir      the folder to read the tours under
+	#   returns    the map itself, so calls chain
+	#   see        AddTours
 	def AddToursUnder(pcDir)
 		return This.AddTours(StzLogbookQ().ReadTree("" + pcDir, ""))
 
-	#-- the figures ------------------------------------------------------
+	#-- the figures ------------------------------------------------------#
 
+	# Returns every plan item added, as [ id, status, line, label ] rows in plan order.
+	#
+	#   returns    a list of rows; an id met in two plans has a row for each
+	#   see        Owned, AddPlan
 	def Items()
 		return @aItems
 
+	# Returns the distinct ids of the routes the plans own, in the order they were first met.
+	#
+	#   returns    a list of ids
+	#   see        OwnedCount, Walked, Unwalked
 	def Owned()
 		return This._UniqueIds(@aItems)
 
@@ -228,9 +266,19 @@ class stzRouteMap from stzObject
 		next
 		return _acOut_
 
+	# Returns how many distinct routes the plans own.
+	#
+	#   returns    a number
+	#   note       owned and walked are two figures and are never summed
+	#   see        Owned, WalkedCount
 	def OwnedCount()
 		return ring_len(This.Owned())
 
+	# TRUE if at least one tour declares the route of that id.
+	#
+	#   pcId       the plan item's id, such as GG6
+	#   returns    1 or 0
+	#   see        Walked, Unwalked
 	def IsWalked(pcId)
 		_n_ = ring_len(@aWalks)
 		for _k_ = 1 to _n_
@@ -238,7 +286,10 @@ class stzRouteMap from stzObject
 		next
 		return 0
 
-	# the ids that have at least one tour, in plan order
+	# Returns the owned route ids that have at least one tour, in plan order.
+	#
+	#   returns    a list of ids
+	#   see        WalkedCount, IsWalked, Unwalked
 	def Walked()
 		_acOut_ = []
 		_ac_ = This.Owned()
@@ -248,10 +299,17 @@ class stzRouteMap from stzObject
 		next
 		return _acOut_
 
+	# Returns how many owned routes have at least one tour.
+	#
+	#   returns    a number
+	#   see        Walked, OwnedCount
 	def WalkedCount()
 		return ring_len(This.Walked())
 
-	# [ id, status, line, label ] of every route no tour walks, plan order
+	# Returns every owned route that no tour walks, as [ id, status, line, label ] rows in plan order.
+	#
+	#   returns    a list of rows, one for each id, taken from the first plan that defines it
+	#   see        UnwalkedCount, Walked
 	def Unwalked()
 		_aOut_ = []
 		_acSeen_ = []
@@ -264,10 +322,17 @@ class stzRouteMap from stzObject
 		next
 		return _aOut_
 
+	# Returns how many owned routes no tour walks.
+	#
+	#   returns    a number
+	#   see        Unwalked, OwnedCount
 	def UnwalkedCount()
 		return ring_len(This.Unwalked())
 
-	# [ id, file, stop, line ] of every walk naming an item no plan defines
+	# Returns every walk that names a route no plan defines, as [ id, file, stop, line ] rows.
+	#
+	#   returns    a list of rows
+	#   see        Findings, Owned
 	def UnknownWalks()
 		_ac_ = This.Owned()
 		_aOut_ = []
@@ -277,10 +342,16 @@ class stzRouteMap from stzObject
 		next
 		return _aOut_
 
-	#-- the map: untouched methods ---------------------------------------
+	#-- the map: untouched methods ---------------------------------------#
 
-	# names the public methods of a class file that no tour of the given
-	# files names; the answer is kept for Findings() and Json()
+	# Adds the public methods of a class file that none of the given tour files names, for Findings and Json.
+	#
+	#   pcClassFile    the path of the class file
+	#   pacTourFiles   a list of tour file paths
+	#   returns        the map itself, so calls chain
+	#   note           a static name join, not execution coverage: a method reached only through another reads
+	#                  untouched, and a method named in a tour that never ran it reads touched
+	#   see            UntouchedMethods
 	def MapMethods(pcClassFile, pacTourFiles)
 		_aU_ = StzUntouchedMethods(pcClassFile, pacTourFiles)
 		_n_ = ring_len(_aU_)
@@ -290,14 +361,23 @@ class stzRouteMap from stzObject
 		@aMapFor + [ "" + pcClassFile, ring_len(pacTourFiles) ]
 		return This
 
+	# Returns the methods MapMethods found untouched, as [ class, line, method, class file ] rows.
+	#
+	#   returns    a list of rows, [] before any MapMethods
+	#   see        MapMethods
 	def UntouchedMethods()
 		return @aTouched
 
-	#-- the court --------------------------------------------------------
+	#-- the court --------------------------------------------------------#
 
-	# findings in the unified shape [ :rule, :subject, :where, :severity, :message ],
-	# for stzRuleReport.Ingest(): the court's own plan rules over these two
-	# lists, then the rules of this file
+	# Returns the court's findings in the unified rule shape, from its plan rules and this file's own rules.
+	#
+	# The court's plan rules (StzCheckPlanCoverage) run over the plans and the walks. Then each unwalked route
+	# gives route_without_tour, a WARNING when the plan reads it closed and INFO otherwise, and each untouched
+	# method gives method_without_tour, INFO.
+	#
+	#   returns    a list of [ :rule, :subject, :where, :severity, :message ] rows, for stzRuleReport.Ingest()
+	#   see        NeedsAttention, Unwalked, MapMethods
 	def Findings()
 		_aOut_ = []
 		_nP_ = ring_len(@aPlanTexts)
@@ -338,7 +418,10 @@ class stzRouteMap from stzObject
 		next
 		return _aOut_
 
-	# 1 when the court has a finding of warning or worse
+	# TRUE if the court has a finding of warning severity or worse.
+	#
+	#   returns    1 or 0
+	#   see        Findings
 	def NeedsAttention()
 		_aF_ = This.Findings()
 		_n_ = ring_len(_aF_)
@@ -348,8 +431,12 @@ class stzRouteMap from stzObject
 		next
 		return 0
 
-	#-- the logbook faces -------------------------------------------------
+	#-- the logbook faces -------------------------------------------------#
 
+	# Returns the routes report as text: the counts, then each unwalked route, unknown walk and untouched method.
+	#
+	#   returns    a text; the counts are never summed and never turned into a percentage
+	#   see        Json
 	def Prose()
 		_c_ = "routes owned " + This.OwnedCount() + ", walked " + This.WalkedCount() +
 		      ", unwalked " + This.UnwalkedCount() + "  (counts, never summed, never a percentage)" + char(10)
@@ -372,6 +459,10 @@ class stzRouteMap from stzObject
 		ok
 		return _c_
 
+	# Returns the routes report as JSON: the counts, the unwalked and unknown routes, untouched methods and findings.
+	#
+	#   returns    a JSON text
+	#   see        Prose
 	def Json()
 		_c_ = '{"testoor":"logbook","kind":"routes","owned":' + This.OwnedCount() +
 		      ',"walked":' + This.WalkedCount() + ',"unwalked":['

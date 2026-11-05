@@ -39,6 +39,8 @@
 #   StzEngineGpuOpArgSort(hKeys, hOutIdx, n, nDesc)  out[k] = the 0-based place of the k-th key
 #   StzEngineGpuOpSegScan(hIn, hFlags, hOut, n, nOp)  running total (nOp 0 sum 1 max 2 min) that starts over at every nonzero flag (GB0)
 #   StzEngineGpuOpSegReduce(hIn, hFlags, hOut, n, nOp) -> [status, segments]   one number per segment, packed; hOut holds n
+#   StzEngineGpuOpSpmv(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nVariant)   y = A x, A in CSR (offsets and columns as f32 whole numbers); variant 0 auto 1 scalar 2 vector (GB0)
+#   StzEngineGpuOpSpmm(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nK)         Y = A X, X ncols x nK row-major
 # OUT buffers must be distinct from inputs (WebGPU aliasing validation).
 #
 # Kernel binding contract (every kernel compiled through this layer):

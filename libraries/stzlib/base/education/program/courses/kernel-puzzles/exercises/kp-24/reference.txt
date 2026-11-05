@@ -1,0 +1,5 @@
+in a
+in b
+in x
+out y
+body { @y = sum(j, 0, 8, @a[@i * 8 + j] * @x[@b[@i * 8 + j]]) }

@@ -4476,6 +4476,90 @@ row-wise products (the segments are the rows, the flags are the row starts),
 which is the next op the graph and neural desks want; top-k by selection per
 row is a segmented sort. Each is a rung of its own.
 
+## GB0 STATUS — the CSR sparse-dense product landed 2026-11-05 (the fifth and last op of the library layer)
+
+**What it is.** `StzEngineGpuOpSpmv(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz,
+variant)`: y = A x with A in CSR form (`engine/src/gpu_spmv.zig`); `OpSpmm(...,
+k)` is Y = A X for a dense matrix of k columns. The offsets and columns are f32
+whole numbers like every buffer of the plane, so nnz is limited to 16,777,216
+and refused by name above it. Face: `Spmv`, `SpmvWith`, `Spmm`, `SpmvRouted`,
+`CalibrateSpmv`.
+
+**Two kernels, because the shape decides.** SCALAR: one thread per output
+element walking its row (no waste on a short row; the dense-matrix form, its k
+threads of a row being neighbours). VECTOR: one workgroup per row, its 256
+threads striding the row and a tree adding the partials (right for a long row).
+The variant is the caller's, or chosen by the mean row length against
+`AUTO_VECTOR_MIN`, **48**. Measured at 1,000,000 entries on the RTX 3050: the
+scalar kernel wins at 2 to 16 entries a row, the two tie or trade places at 32
+(0.75 against 0.74 ms in one run, 1.3 against 2.5 in a loaded one) and the vector
+kernel wins by about 2x from 64, so the threshold sits between the last tie and
+the first clear win. **A first guess of 32 was right to the measurement and
+wrong to the assertion**: my "within 1.5x of the faster kernel at every row
+length" failed at 32, exactly where the kernels trade places, so the guard now
+asserts only away from the crossover and prints the zone as not asserted.
+
+**Decisions taken** (each reversible): the CSR is NOT validated (reading the
+offsets back would cost more than the product); the face checks the one thing it
+sees cheaply, that the offsets start at 0 and end at the number of entries; the
+dense-matrix form shares the scalar kernel, k = 1 being the vector product; x is
+not size-checked (its length is not an argument); no scratch is needed, so there
+is none, and the product is ONE dispatch in ONE submit.
+
+**Criteria, one by one.**
+- *A CPU reference*: the plain loop, in the guard, to the bit, for both kernels
+  and auto, on rows of 1, 2, 5, 16, 31, 32, 100 and 300 entries (500 rows each),
+  600 rows with every fifth empty, a few huge rows among tiny ones, a single row
+  of 5,000, a single entry and 257 rows of 1; the dense-matrix form at k = 1, 2, 3
+  and 8; where the sums round, 2.9e-7 (scalar) and 1.3e-7 (vector).
+- *A hidden shape*: every matrix above is a different shape; the CSR's row
+  lengths are the shape.
+- *A roof fraction*: 1,000,000 entries in 0.15 to 0.27 ms for the vector kernel
+  on long rows, which is about 12 MB of values, columns and gathered x in 0.2 ms.
+  **The scalar kernel is 0.16 to 0.26 ms at rows of 2 to 4 entries and 0.7 to 1.7
+  ms at 8 to 64**: its reads are strided by the row length, a thread's neighbour
+  starting a whole row away, so each read is a cache line to itself. That is the
+  open item below.
+- *A route*: through the list face (upload the matrix, one dispatch, download)
+  the loop wins for tiny matrices and the device from about 500 to 2,000 rows of
+  16 entries, 3 to 4.5 times from 20,000 (two runs; the line is stored at 2,000).
+
+**One thing the machine taught.** A route measured on a loaded machine is
+refused by the control rung (the first rung, measured again at the end, moved by
+more than 2x) and stores nothing: that is the control working. A guard that FAILS
+whenever another desk holds the GPU is a flaky guard, so this guard counts a
+confounded measurement as a named SKIP ("the machine was too loaded for a stable
+measurement; run again on a quiet machine"), prints the skipped count in its
+total, and does not call it a pass. The earlier route scenes (scan, compaction,
+sort, segmented reduction) still fail in that case (the scan's did, once, in a
+loaded full gate) and are the same pattern to fix.
+
+**The puzzle**: kp-24, *a sparse matrix times a vector*, in the scan chapter: the
+fixed-width (ELL) form, 8 entries a row, the value times the x its COLUMN names,
+which is the gather that costs sparse work its bandwidth. Two right answers (a
+loop over the 8, a loop over the entry numbers) and four mistakes (the values and
+columns swapped, a row stride of 7, a ninth entry that is the next row's first,
+no gather). Two corrections to my own first version: the device checker refuses an
+input shorter than n ("an input may be longer than n, never shorter") and my x had
+8 entries for 512 rows; and with x a ramp, x[c] = c, so swapping the values and the
+columns changed nothing on the visible shape. The data are now a ramp for the
+values, `mod7` for the columns and `mod13` for x: all different, so the gather is
+real. A third trap came from the knowledge graph (one edge per node pair: two
+inputs on the same recipe is two edges to one node). Desktop and the Intel iGPU in
+the browser agree on all six. **No person has worked it.**
+
+**Open, named and not built (GB0-SPMV-V2).** Rows of 8 to 64 entries are the
+worst zone for both kernels. A variant with several threads per row (2, 4, 8, 16
+neighbours sharing a row, their partials added by a short tree) would make the
+reads of a row one run; and a power-law matrix (a few huge rows among many tiny
+ones) wants a balanced form, the segmented scan of the previous op over the
+products being the obvious one. Each is a foundry variant, kept only if the
+clock agrees.
+
+**GB0's five ops are in**: the scan, stream compaction, the radix sort, the
+segmented scan and reduction, and the sparse-dense product, each with a CPU
+reference, shapes, a measured roof fraction and a stored route.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can

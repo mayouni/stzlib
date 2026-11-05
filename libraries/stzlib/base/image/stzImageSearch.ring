@@ -156,23 +156,38 @@ class stzImageIndex from stzObject
 			This.AddImages(pacPaths)
 			return This
 
+	# Returns the number of pictures the index holds.
+	#
+	#   returns    a number, 0 for an empty index
+	#   see        Names, AddImage
 	def NumberOfImages()
 		return @oIndex.Count()
 
+	# Returns the names the pictures were added under, as the underlying semantic index lists them.
+	#
+	#   returns    a list of strings, one per picture (a file's path when it was added without a name)
+	#   see        NumberOfImages, AddImage
 	def Names()
 		return @oIndex.Texts()
 
-	# The pictures ranked by how well a text describes them: [ [ :name, :score ], ... ] best first.
+	# Returns the pictures ranked by how well a text describes them, best first.
 	#
+	#   pcText     the words to look for, used as written
+	#   returns    a list of [ :name = n, :score = s ] rows, all pictures, [] for an empty index
 	#   note       the text is used as written -- a sentence, a phrase, a word, in any language the
 	#              tokenizer covers; a score is a cosine (see the header), the ORDER is the answer
+	#   see        SearchXT, SearchLike
 	def Search(pcText)
 		return This._Ranked(StzVisionTextEmbedding(pcText), 0)
 
 	def SearchXT(pcText, pnHowMany)
 		return This._Ranked(StzVisionTextEmbedding(pcText), pnHowMany)
 
-	# The pictures ranked by how much they resemble another picture (a stzImage or a path).
+	# Returns the pictures ranked by how much they resemble another picture, best first.
+	#
+	#   pImage     a stzImage or the path of an image file
+	#   returns    a list of [ :name = n, :score = s ] rows, all pictures, [] for an empty index
+	#   see        SearchLikeXT, Search
 	def SearchLike(pImage)
 		return This._Ranked(_StzVisionEmbeddingOf(pImage), 0)
 

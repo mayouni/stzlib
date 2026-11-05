@@ -22,6 +22,9 @@ $cTestoorCore = "auto"
 # choose who judges: "engine", "ring" or "auto"; answers who WILL judge
 func TestoorCore(pcWhich)
 	$cTestoorCore = lower("" + pcWhich)
+	# the world of a tour (stzClock.ring) lives in ONE place, the core's or the reference's:
+	# choosing who runs it forgets what was declared, so nothing is left behind in the other
+	_TestoorWorldForget()
 	return TestoorCoreIs()
 
 # "engine" when the verdict is taken in the Zig core, "ring" when the Ring reference takes it
