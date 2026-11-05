@@ -1,0 +1,61 @@
+{
+ "testoor": "graph",
+ "protocol": 2,
+ "subject": "tax/stzTax.py",
+ "language": "python",
+ "fold": "ascii",
+ "complete": true,
+ "why": "",
+ "nodes": [
+  {
+   "id": "stzTax.Total",
+   "name": "Total",
+   "kind": "method",
+   "file": "tax/stzTax.py",
+   "line": 12
+  },
+  {
+   "id": "stzTax.Rate",
+   "name": "Rate",
+   "kind": "method",
+   "file": "tax/stzTax.py",
+   "line": 20
+  },
+  {
+   "id": "stzTax.Net",
+   "name": "Net",
+   "kind": "method",
+   "file": "tax/stzTax.py",
+   "line": 30
+  },
+  {
+   "id": "stzMoney.Add",
+   "name": "Add",
+   "kind": "method",
+   "file": "tax/stzMoney.py",
+   "line": 4
+  },
+  {
+   "id": "stzMoney.Sub",
+   "name": "Sub",
+   "kind": "method",
+   "file": "tax/stzMoney.py",
+   "line": 9
+  },
+  {
+   "id": "stzTax.Round",
+   "name": "Round",
+   "kind": "method",
+   "file": "tax/stzTax.py",
+   "line": 41
+  }
+ ],
+ "edges": [
+  {
+   "from": "stzTax.Total",
+   "to": "stzTax.Rate",
+   "kind": "call",
+   "line": 15
+  }
+ ]
+}

@@ -1,0 +1,7 @@
+250	[testoor stop totals]
+500	[testoor node stzTax.Total]
+750	[testoor ok the total is 120]
+1000	[testoor node stztax.total]
+1250	[testoor node stzMoney.Add 2]
+1500	[testoor node stzTax.Total]
+1750	[testoor end timed]

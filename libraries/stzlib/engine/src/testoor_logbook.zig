@@ -112,7 +112,23 @@ pub fn tourJsonDetail(b: *Buf, t: V.Tour, detail: bool) !void {
         try b.int(rt.line);
         try b.c('}');
     }
-    try b.s("]}");
+    try b.c(']');
+    // protocol 2: a key appears only when it has something to say
+    if (t.nodes.len > 0) {
+        try b.s(",\"nodes\":[");
+        for (t.nodes, 0..) |nd, k| {
+            if (k > 0) try b.c(',');
+            try b.s("{\"id\":");
+            try b.js(nd.id);
+            try b.s(",\"evidence\":");
+            try b.js(nd.evidence);
+            try b.s(",\"hits\":");
+            try b.int(nd.hits);
+            try b.c('}');
+        }
+        try b.c(']');
+    }
+    try b.c('}');
 }
 
 fn isTrouble(end: []const u8) bool {
@@ -200,7 +216,43 @@ pub const Settings = struct {
     timeout_ms: f64 = 120000,
     skipped: []const []const u8 = &.{},
     topics_skipped: []const []const u8 = &.{},
+    /// protocol 2: the graph the run was walked against, when it had one
+    graph: ?GraphSettings = null,
 };
+
+/// what the runner knows of its graph; `named` and `observed` are counted from the tours
+pub const GraphSettings = struct { complete: bool = true, why: []const u8 = "", owned: i64 = 0 };
+
+pub const Figures = struct { named: i64 = 0, observed: i64 = 0 };
+
+/// Distinct nodes by their strongest evidence across the tours: a node is counted once, as
+/// observed if any tour observed it and as named otherwise. Never summed, never a percentage.
+pub fn graphFigures(a: Allocator, tours: []const V.Tour) !Figures {
+    var m: std.StringHashMapUnmanaged(bool) = .empty;
+    for (tours) |t| {
+        for (t.nodes) |n| {
+            const obs = eq(n.evidence, "observed");
+            const gop = try m.getOrPut(a, n.id);
+            if (!gop.found_existing) {
+                gop.value_ptr.* = obs;
+            } else if (obs) {
+                gop.value_ptr.* = true;
+            }
+        }
+    }
+    var f = Figures{};
+    var it = m.valueIterator();
+    while (it.next()) |v| {
+        if (v.*) f.observed += 1 else f.named += 1;
+    }
+    return f;
+}
+
+fn isProtocol2(st: Settings, tours: []const V.Tour) bool {
+    if (st.graph != null) return true;
+    for (tours) |t| if (t.nodes.len > 0) return true;
+    return false;
+}
 
 pub const Counts = struct {
     kept: i64 = 0,
@@ -262,7 +314,9 @@ fn strList(b: *Buf, items: []const []const u8) !void {
 
 pub fn runJson(b: *Buf, st: Settings, tours: []const V.Tour) !void {
     const c = counts(tours);
-    try b.s("{\"testoor\":\"logbook\",\"kind\":\"run\",\"by\":");
+    try b.s("{\"testoor\":\"logbook\",\"kind\":\"run\"");
+    if (isProtocol2(st, tours)) try b.s(",\"protocol\":2");
+    try b.s(",\"by\":");
     try b.js(st.by);
     try b.s(",\"root\":");
     try b.js(st.root);
@@ -296,7 +350,24 @@ pub fn runJson(b: *Buf, st: Settings, tours: []const V.Tour) !void {
     try b.int(c.unreached);
     try b.s(",\"unjudged\":");
     try b.int(c.unjudged);
-    try b.s("},\"tours_by_end\":{\"finished\":");
+    try b.c('}');
+    if (st.graph) |g| {
+        const f = try graphFigures(b.a, tours);
+        try b.s(",\"graph\":{\"complete\":");
+        try b.s(if (g.complete) "true" else "false");
+        if (!g.complete) {
+            try b.s(",\"why\":");
+            try b.js(g.why);
+        }
+        try b.s(",\"owned\":");
+        try b.int(g.owned);
+        try b.s(",\"named\":");
+        try b.int(f.named);
+        try b.s(",\"observed\":");
+        try b.int(f.observed);
+        try b.c('}');
+    }
+    try b.s(",\"tours_by_end\":{\"finished\":");
     try b.int(c.finished);
     try b.s(",\"finished-timed\":");
     try b.int(c.finished_timed);
@@ -340,7 +411,23 @@ pub fn summary(b: *Buf, st: Settings, tours: []const V.Tour) !void {
     try b.int(c.unreached);
     try b.s(" unreached, ");
     try b.int(c.unjudged);
-    try b.s(" unjudged\n  tours: ");
+    try b.s(" unjudged");
+    if (st.graph) |g| {
+        const f = try graphFigures(b.a, tours);
+        try b.s("\n  graph: ");
+        try b.int(g.owned);
+        try b.s(" owned, ");
+        try b.int(f.named);
+        try b.s(" named, ");
+        try b.int(f.observed);
+        try b.s(" observed (three figures, never summed)");
+        if (!g.complete) {
+            try b.s("\n  graph incomplete: ");
+            try b.s(g.why);
+            try b.s("; a selection from it takes every tour");
+        }
+    }
+    try b.s("\n  tours: ");
     try b.int(c.finished);
     try b.s(" finished, ");
     try b.int(c.finished_timed);

@@ -24,6 +24,16 @@
 # ever as small as the graph is complete. The guard measures the claim: for every
 # mutant of a planted subject, every tour that fails is in the selected set.
 #
+# WHO DOES WHAT (P3.3). The FACE reads Ring: the subject's source, its code graph, the
+# seed of a change (a constructor reaches whoever builds its class), the line that
+# dispatches by a built name, and the names a tour's source calls. The Zig CORE
+# (engine/src/testoor_graph.zig, StzEngineTestoorImpact) takes those as a graph record
+# of protocol 2 -- names are the ids, an edge per raw call entry, a second edge from the
+# class when the caller is its constructor -- and does the closure and the selection.
+# The loop in _ImpactClosureRing and the selection in StzImpactedTours are the
+# REFERENCE the core was written from; they run when the core is absent or
+# TestoorCore("ring") says so. Same names in the same order, same tours selected.
+#
 # Locals are _underscored_; nothing here touches a top-level name (Rule A clean).
 
 # the first line of a source that dispatches by a name built at run time, or 0
@@ -40,19 +50,18 @@ func StzImpactDynamicLine(pcSource)
 	next
 	return 0
 
-# The reach of a change to pcMethod in one subject file:
-# [ :names = lower-cased names that reach it, :complete = 1/0, :why, :dynamic_line ]
-func StzImpactOf(pcSubjectFile, pcMethod)
+# THE FACE'S HALF: read the subject and say what a change seeds and whether every edge is seen:
+# [ :readable, :seeds = lower-cased names, :raw = the graph's call entries, :complete, :why, :dynamic_line ]
+func _ImpactFace(pcSubjectFile, pcMethod)
 	_cSrc_ = ""
 	try
 		_cSrc_ = read("" + pcSubjectFile)
 	catch
-		return [ :names = [ lower("" + pcMethod) ], :complete = 0,
+		return [ :readable = 0, :seeds = [ lower("" + pcMethod) ], :raw = [], :complete = 0,
 		         :why = "cannot read " + pcSubjectFile, :dynamic_line = 0 ]
 	done
 	_oG_ = StzRingCodeGraphFromSource(_cSrc_)
 	_aRaw_ = _oG_.RawCallEntries()
-	_nRaw_ = len(_aRaw_)
 	# "Class.init" names one class's constructor; any other method is joined by
 	# its name alone
 	_cM_ = lower("" + pcMethod)
@@ -77,6 +86,18 @@ func StzImpactOf(pcSubjectFile, pcMethod)
 			ok
 		next
 	ok
+	_nDyn_ = StzImpactDynamicLine(_cSrc_)
+	_cWhy_ = ""
+	if _nDyn_ > 0
+		_cWhy_ = "line " + _nDyn_ + " dispatches by a name built at run time, so the graph cannot see every edge"
+	ok
+	return [ :readable = 1, :seeds = _acNames_, :raw = _aRaw_, :complete = (_nDyn_ = 0), :why = _cWhy_, :dynamic_line = _nDyn_ ]
+
+# THE REFERENCE closure of callers: [ :names, :complete, :why, :dynamic_line ]
+func _ImpactClosureRing(paFace)
+	_aRaw_ = paFace[:raw]
+	_nRaw_ = len(_aRaw_)
+	_acNames_ = paFace[:seeds]
 	_nAt_ = 1
 	while _nAt_ <= len(_acNames_)
 		_cName_ = _acNames_[_nAt_]
@@ -93,16 +114,92 @@ func StzImpactOf(pcSubjectFile, pcMethod)
 		next
 		_nAt_++
 	end
-	_nDyn_ = StzImpactDynamicLine(_cSrc_)
-	_cWhy_ = ""
-	if _nDyn_ > 0
-		_cWhy_ = "line " + _nDyn_ + " dispatches by a name built at run time, so the graph cannot see every edge"
+	return [ :names = _acNames_, :complete = paFace[:complete], :why = paFace[:why], :dynamic_line = paFace[:dynamic_line] ]
+
+# THE CORE'S closure, and with tours its selection too: [ :names, :selected, :skipped ], or [] when
+# the core is not there or cannot answer (the caller then runs the reference).
+func _ImpactCore(paFace, pacTourFiles)
+	if TestoorCoreIs() != "engine"  return []  ok
+	_aRaw_ = paFace[:raw]
+	_nRaw_ = len(_aRaw_)
+	_c_ = '{"graph":{"fold":"ascii","complete":' + paFace[:complete] + ',"why":' + _TourJsonStr(paFace[:why]) + ',"nodes":[],"edges":['
+	_bFirst_ = 1
+	for _i_ = 1 to _nRaw_
+		_cFrom_ = lower("" + _aRaw_[_i_][2])
+		_cTo_ = lower("" + _aRaw_[_i_][3])
+		if NOT _bFirst_  _c_ += ","  ok
+		_bFirst_ = 0
+		_c_ += '{"from":' + _TourJsonStr(_cFrom_) + ',"to":' + _TourJsonStr(_cTo_) + "}"
+		# a constructor that calls a name is the class calling it: the class is reached with it
+		if _cFrom_ = "init"
+			_c_ += ',{"from":' + _TourJsonStr(lower("" + _aRaw_[_i_][1])) + ',"to":' + _TourJsonStr(_cTo_) + "}"
+		ok
+	next
+	_c_ += ']},"changed":['
+	_nS_ = len(paFace[:seeds])
+	for _i_ = 1 to _nS_
+		if _i_ > 1  _c_ += ","  ok
+		_c_ += _TourJsonStr(paFace[:seeds][_i_])
+	next
+	_c_ += '],"tours":['
+	_nT_ = len(pacTourFiles)
+	for _i_ = 1 to _nT_
+		if _i_ > 1  _c_ += ","  ok
+		_c_ += '{"file":' + _TourJsonStr("" + pacTourFiles[_i_]) + ',"names":['
+		# a graph that is not complete selects every tour, so what a tour names is not read
+		if paFace[:complete]
+			_cT_ = ""
+			try
+				_cT_ = read("" + pacTourFiles[_i_])
+			catch
+				_cT_ = ""
+			done
+			_acC_ = _RouteCalledNames(_cT_)
+			_nC_ = len(_acC_)
+			for _k_ = 1 to _nC_
+				if _k_ > 1  _c_ += ","  ok
+				_c_ += _TourJsonStr(_acC_[_k_])
+			next
+		ok
+		_c_ += "]}"
+	next
+	_c_ += "]}"
+	_cOut_ = ""
+	try
+		_cOut_ = StzEngineTestoorImpact(_c_)
+	catch
+		return []
+	done
+	_aR_ = StzJsonToList(_cOut_)
+	if len(_aR_) = 0  return []  ok
+	return [ :names = _aR_[:names], :selected = _aR_[:selected], :skipped = _aR_[:skipped] ]
+
+# The reach of a change to pcMethod in one subject file:
+# [ :names = lower-cased names that reach it, :complete = 1/0, :why, :dynamic_line ]
+func StzImpactOf(pcSubjectFile, pcMethod)
+	_aF_ = _ImpactFace(pcSubjectFile, pcMethod)
+	if NOT _aF_[:readable]
+		return [ :names = _aF_[:seeds], :complete = 0, :why = _aF_[:why], :dynamic_line = 0 ]
 	ok
-	return [ :names = _acNames_, :complete = (_nDyn_ = 0), :why = _cWhy_, :dynamic_line = _nDyn_ ]
+	_aC_ = _ImpactCore(_aF_, [])
+	if len(_aC_) > 0
+		return [ :names = _aC_[:names], :complete = _aF_[:complete], :why = _aF_[:why], :dynamic_line = _aF_[:dynamic_line] ]
+	ok
+	return _ImpactClosureRing(_aF_)
 
 # Which tours to re-walk after a change to pcMethod: [ :selected, :skipped,
 # :names, :complete, :why ]. An incomplete graph selects every tour.
 func StzImpactedTours(pcSubjectFile, pcMethod, pacTourFiles)
+	if TestoorCoreIs() = "engine"
+		_aF_ = _ImpactFace(pcSubjectFile, pcMethod)
+		if _aF_[:readable]
+			_aC_ = _ImpactCore(_aF_, pacTourFiles)
+			if len(_aC_) > 0
+				return [ :selected = _aC_[:selected], :skipped = _aC_[:skipped], :names = _aC_[:names],
+				         :complete = _aF_[:complete], :why = _aF_[:why] ]
+			ok
+		ok
+	ok
 	_aI_ = StzImpactOf(pcSubjectFile, pcMethod)
 	_acSel_ = []
 	_acSkip_ = []

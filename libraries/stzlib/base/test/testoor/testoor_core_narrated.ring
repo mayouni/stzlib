@@ -20,10 +20,15 @@ load "../_narrated.ring"
 # pinned: a weather's tick is picked from the SEED (portable) and not from Ring's rand(), the stepped
 # clock and the weather want numbers, and a runner seed that is not a number is no seed.
 #
+# P3.3 adds the ROUTE JOIN and the GRAPH STORE (stzRoute.ring, stzImpact.ring; engine/src/testoor_routes.zig and
+# testoor_graph.zig): the route map's Json() and Prose() and impact's reach and selection are walked on the
+# reference and then on the core and must be the same bytes; and the cases only the core can judge, protocol 2's
+# nodes, its incomplete-graph run and its impact records (golden/protocol2/), are sent through the Ring seam.
+#
 # A machine without the core library (Ring 1.27 with no engine build) runs the first section
 # only and says, by name, what it did not run.
 
-? "TESTOOR P3.1 + P3.2 -- the core beside the reference"
+? "TESTOOR P3.1 + P3.2 + P3.3 -- the core beside the reference"
 nCoStart = clock()
 cCoRoot = currentdir() + "/../../testoor/golden"
 bCoLoaded = $bStzTestoorCore
@@ -255,10 +260,92 @@ Scenario("P3.2 -- the differences the world is allowed, each one pinned")
 EndScenario()
 ? "        [section took " + ((clock() - nCoSec) / clockspersecond()) + "s]"
 
+#============================================================================
+Scenario("P3.3 -- the route join: the core and the reference write the same report")
+	nCoSec = clock()
+	Given("two plans (an item met twice) and tours whose routes include one no plan owns")
+	oCoMap = StzRouteMapQ()
+	oCoMap.AddPlan("plan.md", "### ZA1 -- first" + char(10) + "CLOSED: shipped." + char(10) +
+	                          "### ZA2 -- second" + char(10) + "CLOSED: shipped." + char(10) +
+	                          "### ZA3 -- third" + char(10) + "OPEN: not yet." + char(10))
+	oCoMap.AddPlan("other.md", "### ZA3 -- third again" + char(10) + "OPEN: later." + char(10))
+	oCoMap.AddTour([ :file = "t/a.ring", :routes = [ [ :item = "ZA1", :stop = "first", :line = 3 ] ] ])
+	oCoMap.AddTour([ :file = "t/b.ring", :routes = [ [ :item = "QQ9", :stop = "", :line = 7 ] ] ])
+	Then("three routes are owned, one walked, one walk names a route no plan owns",
+	     "" + oCoMap.OwnedCount() + "/" + oCoMap.WalkedCount() + "/" + len(oCoMap.UnknownWalks()), "3/1/1")
+	TestoorCore("ring")
+	cCoRouteJsonRef = oCoMap.Json()
+	cCoRouteProseRef = oCoMap.Prose()
+	TestoorCore("engine")
+	Then("the core answers the report (a library built before the call existed would fall back, silently)", oCoMap._CoreRoutes("json") != "", TRUE)
+	Then("its JSON is the reference's bytes", oCoMap.Json(), cCoRouteJsonRef)
+	Then("its prose is the reference's bytes", oCoMap.Prose(), cCoRouteProseRef)
+	Then("and the report counts, never sums", StzFindFirst('"owned":3,"walked":1,"unwalked":[{"route":"ZA2"', cCoRouteJsonRef) > 0, TRUE)
+	Given("a map with no plan and no tour")
+	oCoEmpty = StzRouteMapQ()
+	TestoorCore("ring")
+	cCoEmptyRef = oCoEmpty.Json() + char(10) + oCoEmpty.Prose()
+	TestoorCore("engine")
+	Then("the empty report is the same bytes too", oCoEmpty.Json() + char(10) + oCoEmpty.Prose(), cCoEmptyRef)
+EndScenario()
+? "        [section took " + ((clock() - nCoSec) / clockspersecond()) + "s]"
+
+#============================================================================
+Scenario("P3.3 -- impact: the core and the reference reach the same names and select the same tours")
+	nCoSec = clock()
+	cCoPlant = currentdir() + "/_planted_core"
+	_CoPlantImpact(cCoPlant)
+	Given("a planted subject (stzInvoice calls stzTax calls stzNet), seven tours, and a subject that dispatches by a built name")
+	TestoorCore("ring")
+	cCoImRef = _CoImpactTranscript(cCoPlant)
+	TestoorCore("engine")
+	cCoImEng = _CoImpactTranscript(cCoPlant)
+	aCoFace = _ImpactFace(cCoPlant + "/lib/_subject.ring", "Vat")
+	Then("the core is the one answering", len(_ImpactCore(aCoFace, [ cCoPlant + "/lib/t2_vat.ring" ])) > 0, TRUE)
+	Then("the two transcripts are the same bytes: names in order, tours selected and skipped, completeness", cCoImEng, cCoImRef)
+	Then("a change to Label re-walks one tour of seven", StzFindFirst("Label|names=label|sel=t6_label|skip=6|complete=1", cCoImRef) > 0, TRUE)
+	Then("a change to Vat reaches Gross, which calls it, and the dynamic subject selects every tour",
+	     StzFindFirst("Vat|names=vat,gross|sel=t2_vat,t3_gross|", cCoImRef) > 0 and StzFindFirst("dyn:Gross|names=gross|sel=d1_gross,d2_vat,d3_unrelated|skip=0|complete=0", cCoImRef) > 0, TRUE)
+	_CoUnplantImpact(cCoPlant)
+EndScenario()
+? "        [section took " + ((clock() - nCoSec) / clockspersecond()) + "s]"
+
+#============================================================================
+Scenario("P3.3 -- protocol 2 through the Ring seam: node evidence in a verdict, the incomplete-graph run, the impact record")
+	nCoSec = clock()
+	cCoP2 = cCoRoot + "/protocol2"
+	Given("golden cases 15 and 16 sent to the core as the face would send them: the record, the output, the meta, the graph, the names")
+	cCoT15 = _CoVerdictP2(cCoP2 + "/judge/15_nodes_named_observed")
+	cCoT16 = _CoVerdictP2(cCoP2 + "/judge/16_node_line_count")
+	Then("case 15: a node reached three times, one named and never reached, one reached with a count",
+	     cCoT15, _CoChop(TestoorGoldenRead(cCoP2 + "/judge/15_nodes_named_observed/expected.json")))
+	Then("case 16: counts add, and a malformed count is ignored", cCoT16, _CoChop(TestoorGoldenRead(cCoP2 + "/judge/16_node_line_count/expected.json")))
+	Given("the run L6: those two tours against a graph that is not complete")
+	cCoRunReq = '{"run":' + TestoorGoldenRead(cCoP2 + "/logbook/L6_graph_incomplete/run.json") + ',"tours":[' + cCoT15 + "," + cCoT16 + "]}"
+	Then("its JSON carries protocol 2 and the three figures", StzEngineTestoorRunJson(cCoRunReq),
+	     _CoChop(TestoorGoldenRead(cCoP2 + "/logbook/L6_graph_incomplete/expected.json")))
+	Then("its prose says the graph is incomplete", StzEngineTestoorRunProse(cCoRunReq),
+	     _CoChop(TestoorGoldenRead(cCoP2 + "/logbook/L6_graph_incomplete/expected.txt")))
+	Then("and the run still exits 0: an incomplete graph is reported, not failed", StzEngineTestoorRunExit(cCoRunReq), 0)
+	Given("the three impact records")
+	acCoImp = _GoldenCases(cCoP2 + "/impact")
+	nCoImpBad = 0
+	for nCo = 1 to len(acCoImp)
+		if StzEngineTestoorImpact(TestoorGoldenRead(cCoP2 + "/impact/" + acCoImp[nCo] + "/request.json")) !=
+		   _CoChop(TestoorGoldenRead(cCoP2 + "/impact/" + acCoImp[nCo] + "/expected.json"))
+			nCoImpBad++
+			? "        DIFFERS: " + acCoImp[nCo]
+		ok
+	next
+	Then("complete, open and two changed nodes: the core writes each record", nCoImpBad, 0)
+	Then("there are three", len(acCoImp), 3)
+EndScenario()
+? "        [section took " + ((clock() - nCoSec) / clockspersecond()) + "s]"
+
 ok
 
 ? ""
-? "[P3.1 + P3.2 took " + ((clock() - nCoStart) / clockspersecond()) + "s]"
+? "[P3.1 + P3.2 + P3.3 took " + ((clock() - nCoStart) / clockspersecond()) + "s]"
 Summary()
 
 #============================================================================
@@ -430,3 +517,129 @@ func _CoWorldScript()
 	TestoorReset()
 	_c_ += "reset-declared=" + _CoJoin(WeatherDeclared()) + "|"
 	return _c_
+
+#============================================================================
+# P3.3 HELPERS: routes, impact and protocol 2 through the Ring seam
+
+# a text without its last line feed: what a golden file holds beyond the JSON it names
+func _CoChop(pcText)
+	_c_ = "" + pcText
+	if len(_c_) > 0 and right(_c_, 1) = char(10)
+		return left(_c_, len(_c_) - 1)
+	ok
+	return _c_
+
+# the file name of a path, without its folder and its .ring
+func _CoStem(pcPath)
+	_c_ = "" + pcPath
+	_n_ = len(_c_)
+	_nAt_ = 0
+	for _i_ = 1 to _n_
+		if _c_[_i_] = "/" or _c_[_i_] = "\"  _nAt_ = _i_  ok
+	next
+	_c_ = right(_c_, _n_ - _nAt_)
+	if len(_c_) > 5 and right(_c_, 5) = ".ring"  _c_ = left(_c_, len(_c_) - 5)  ok
+	return _c_
+
+# names.txt (one name a line) as the JSON array the core reads
+func _CoNamesJson(pcText)
+	_acL_ = str2list("" + pcText)
+	_c_ = "["
+	_bFirst_ = 1
+	_n_ = len(_acL_)
+	for _i_ = 1 to _n_
+		if len(_acL_[_i_]) = 0  loop  ok
+		if NOT _bFirst_  _c_ += ","  ok
+		_bFirst_ = 0
+		_c_ += _TourJsonStr(_acL_[_i_])
+	next
+	return _c_ + "]"
+
+# a golden file a case may not have: its text, or ""
+func _CoReadOpt(pcPath)
+	if fexists(pcPath)  return TestoorGoldenRead(pcPath)  ok
+	return ""
+
+# a protocol-2 judge case, sent to the core the way a face would send it
+func _CoVerdictP2(pcDir)
+	_cReq_ = '{"record":' + TestoorGoldenRead(pcDir + "/record.json") + ',"output":' + _TourJsonStr(TestoorGoldenRead(pcDir + "/output.txt")) +
+	         ',"meta":' + TestoorGoldenRead(pcDir + "/meta.json") + ',"graph":' + TestoorGoldenRead(pcDir + "/graph.json") +
+	         ',"names":' + _CoNamesJson(_CoReadOpt(pcDir + "/names.txt")) + "}"
+	return StzEngineTestoorVerdict(_cReq_)
+
+# the impact guard's planted subject, and tours that only NAME it (they are never run here)
+func _CoPlantImpact(pcRoot)
+	_CoUnplantImpact(pcRoot)
+	StzMakeDir(pcRoot)
+	StzMakeDir(pcRoot + "/lib")
+	StzMakeDir(pcRoot + "/dyn")
+	_t_ = char(9)
+	_n_ = char(10)
+	write(pcRoot + "/lib/_subject.ring",
+		"class stzNet" + _n_ +
+		_t_ + "def init()" + _n_ + _t_ + _t_ + "return" + _n_ +
+		_t_ + "def Of(n)" + _n_ + _t_ + _t_ + "return n" + _n_ +
+		_t_ + "def Round2(n)" + _n_ + _t_ + _t_ + "return n" + _n_ +
+		"class stzTax" + _n_ +
+		_t_ + '@oNet = ""' + _n_ +
+		_t_ + "def init()" + _n_ + _t_ + _t_ + "@oNet = new stzNet()" + _n_ +
+		_t_ + "def Vat(n)" + _n_ + _t_ + _t_ + "return @oNet.Of(n) * 2 / 10" + _n_ +
+		_t_ + "def Duty(n)" + _n_ + _t_ + _t_ + "return @oNet.Round2(n) / 100" + _n_ +
+		"class stzInvoice" + _n_ +
+		_t_ + '@oTax = ""' + _n_ +
+		_t_ + "def init()" + _n_ + _t_ + _t_ + "@oTax = new stzTax()" + _n_ +
+		_t_ + "def Gross(n)" + _n_ + _t_ + _t_ + "return n + @oTax.Vat(n)" + _n_ +
+		_t_ + "def Landed(n)" + _n_ + _t_ + _t_ + "return n + @oTax.Duty(n)" + _n_ +
+		_t_ + "def Label()" + _n_ + _t_ + _t_ + "return 7" + _n_)
+	write(pcRoot + "/lib/t1_net.ring", "o = new stzNet()" + _n_ + "? o.Of(5)" + _n_)
+	write(pcRoot + "/lib/t2_vat.ring", "o = new stzTax()" + _n_ + "? o.Vat(100)" + _n_)
+	write(pcRoot + "/lib/t3_gross.ring", "o = new stzInvoice()" + _n_ + "? o.Gross(100)" + _n_)
+	write(pcRoot + "/lib/t4_duty.ring", "o = new stzTax()" + _n_ + "? o.Duty(1000)" + _n_)
+	write(pcRoot + "/lib/t5_landed.ring", "o = new stzInvoice()" + _n_ + "? o.Landed(1000)" + _n_)
+	write(pcRoot + "/lib/t6_label.ring", "o = new stzInvoice()" + _n_ + "? o.Label()" + _n_)
+	write(pcRoot + "/lib/t7_unrelated.ring", '? "names nothing of the subject"' + _n_)
+	write(pcRoot + "/dyn/_subject.ring",
+		"func VatOf(n)" + _n_ + _t_ + "return n * 2 / 10" + _n_ +
+		"class stzInvoice" + _n_ +
+		_t_ + "def init()" + _n_ + _t_ + _t_ + "return" + _n_ +
+		_t_ + "def Gross(n)" + _n_ +
+		_t_ + _t_ + "eval('$nRes = VatOf(' + n + ')')" + _n_ +
+		_t_ + _t_ + "return n + $nRes" + _n_)
+	write(pcRoot + "/dyn/d1_gross.ring", "o = new stzInvoice()" + _n_ + "? o.Gross(100)" + _n_)
+	write(pcRoot + "/dyn/d2_vat.ring", "? VatOf(100)" + _n_)
+	write(pcRoot + "/dyn/d3_unrelated.ring", '? "names nothing"' + _n_)
+
+func _CoUnplantImpact(pcRoot)
+	if fexists(pcRoot + "/lib/_subject.ring")
+		StzDirDeleteAll(pcRoot)
+	ok
+
+# the reach and the selection of a set of changes, as text: ONE script on whichever implementation is chosen
+func _CoImpactTranscript(pcRoot)
+	_acLib_ = [ pcRoot + "/lib/t1_net.ring", pcRoot + "/lib/t2_vat.ring", pcRoot + "/lib/t3_gross.ring", pcRoot + "/lib/t4_duty.ring",
+	            pcRoot + "/lib/t5_landed.ring", pcRoot + "/lib/t6_label.ring", pcRoot + "/lib/t7_unrelated.ring" ]
+	_acMeth_ = [ "Of", "Vat", "Gross", "Landed", "Label", "Round2", "stzTax.init", "init" ]
+	_c_ = ""
+	_nM_ = len(_acMeth_)
+	for _i_ = 1 to _nM_
+		_c_ += _CoImpactLine("", pcRoot + "/lib/_subject.ring", _acMeth_[_i_], _acLib_)
+	next
+	_acDyn_ = [ pcRoot + "/dyn/d1_gross.ring", pcRoot + "/dyn/d2_vat.ring", pcRoot + "/dyn/d3_unrelated.ring" ]
+	_c_ += _CoImpactLine("dyn:", pcRoot + "/dyn/_subject.ring", "Gross", _acDyn_)
+	return _c_
+
+func _CoImpactLine(pcTag, pcSubject, pcMethod, pacTours)
+	_aR_ = StzImpactedTours(pcSubject, pcMethod, pacTours)
+	_cNames_ = ""
+	_n_ = len(_aR_[:names])
+	for _i_ = 1 to _n_
+		if _i_ > 1  _cNames_ += ","  ok
+		_cNames_ += _aR_[:names][_i_]
+	next
+	_cSel_ = ""
+	_n_ = len(_aR_[:selected])
+	for _i_ = 1 to _n_
+		if _i_ > 1  _cSel_ += ","  ok
+		_cSel_ += _CoStem(_aR_[:selected][_i_])
+	next
+	return pcTag + pcMethod + "|names=" + _cNames_ + "|sel=" + _cSel_ + "|skip=" + len(_aR_[:skipped]) + "|complete=" + _aR_[:complete] + char(10)

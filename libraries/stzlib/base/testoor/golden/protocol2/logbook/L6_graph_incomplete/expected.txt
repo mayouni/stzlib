@@ -1,0 +1,10 @@
+KEPT        fixtures/taxtour.py  1 stops: 1 kept  (2.13 s, finished, timed)
+KEPT        fixtures/counts.py  1 stops: 1 kept  (3.13 s, finished, timed)
+owned 2 tours, run 2 (two figures, never summed)
+  claims: 2 kept, 0 diverged, 0 unreached, 0 unjudged
+  graph: 6 owned, 1 named, 3 observed (three figures, never summed)
+  graph incomplete: line 7 dispatches by a name built at run time; a selection from it takes every tour
+  tours: 0 finished, 2 finished-timed, 0 not-started, 0 broke, 0 hung, 0 unreadable
+  wall: 5.26 s, by golden
+  skipped by name: 0
+exit 0

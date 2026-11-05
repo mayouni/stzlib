@@ -1,0 +1,1 @@
+{"testoor":"logbook","kind":"impact","protocol":2,"subject":"tax/stzTax.py","changed":["stzTax.Rate"],"method":"stzTax.Rate","complete":true,"why":"","names":["rate","total","print"],"selected":["tax/t1_rate.py","tax/t2_total.py","tax/t3_print.py"],"skipped":["tax/t4_add.py","tax/t5_net.py","tax/t6_label.py","tax/t7_nothing.py"]}

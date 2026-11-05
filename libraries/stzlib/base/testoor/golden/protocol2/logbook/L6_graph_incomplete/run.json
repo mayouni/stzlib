@@ -1,0 +1,22 @@
+{
+ "by": "golden",
+ "root": "fixtures",
+ "topic": "",
+ "subject": "tax/stzTax.py",
+ "seed": 5,
+ "repeat": 1,
+ "timeout_ms": 120000,
+ "refuse_root": "",
+ "cases": [
+  "15_nodes_named_observed",
+  "16_node_line_count"
+ ],
+ "skipped": [],
+ "topics_skipped": [],
+ "flaky": [],
+ "graph": {
+  "complete": false,
+  "why": "line 7 dispatches by a name built at run time",
+  "owned": 6
+ }
+}

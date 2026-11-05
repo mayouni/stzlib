@@ -484,13 +484,18 @@ Ring. Four differences between the VMs bit this plane: no `binarysearch()` on rn
 
 **The judge is written in Zig (P3, 2026-11-05).** `engine/src/testoor_*.zig` is the core and `base/testoor/*.ring` is
 its reference; the golden logbooks in `base/testoor/golden/` are the acceptance test. **FAST PATH for the core:
-`cd engine && zig build test-testoor -j2` is 30 s cold and about 100 ms to run, 38 tests, with no Ring involved.** It reads
+`cd engine && zig build test-testoor -j2` is 30 s cold and about 100 ms to run, 53 tests, with no Ring involved.** It reads
 `golden/` and compares 43 expected files byte for byte. `TESTOOR_CORE=ring` (or `TestoorCore("ring")`) makes
 `TestoorVerdict` use the Ring reference instead of the `stz_testoor` library; the guard
 `testoor_core_narrated.ring` runs both in one process. Four Ring facts the port is built on, measured on both
 VMs: `trim` strips the byte 32 only, `0 + "abc"` raises R41, a number prints whole or with two decimals, and
 `0.125` prints `0.13` on Ring 1.27 and `0.12` on Ring++ (the core follows Ring++). `std.json` is the wrong writer
 for the logbook: Ring escapes five bytes and writes every other byte raw.
+
+**The route join and the graph store are the core's too (P3.3).** `testoor_routes.zig` joins plan items to walks; `testoor_graph.zig`
+reads a graph record, closes a change over its callers, selects tours and writes a tour's `nodes`. `golden/protocol2/` holds
+the cases only the core can judge; their expected files were written by hand from `TESTOOR_PROTOCOL_2.md`, so never
+regenerate them from the core's own output.
 
 **The world of a tour is the core's too (P3.2).** Its seed, stepped clock and weather live in `testoor_clock.zig`
 behind `StzEngineTestoorWorld`, one world per thread; `stzClock.ring` asks the core and keeps the old bodies

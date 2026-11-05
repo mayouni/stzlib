@@ -379,21 +379,7 @@ class stzRouteMap from stzObject
 	#   returns    a list of [ :rule, :subject, :where, :severity, :message ] rows, for stzRuleReport.Ingest()
 	#   see        NeedsAttention, Unwalked, MapMethods
 	def Findings()
-		_aOut_ = []
-		_nP_ = ring_len(@aPlanTexts)
-		for _p_ = 1 to _nP_
-			_cLabel_ = @aPlanTexts[_p_][1]
-			_aDis_ = []
-			_nW_ = ring_len(@aWalks)
-			for _k_ = 1 to _nW_
-				_aDis_ + [ @aWalks[_k_][1], @aWalks[_k_][3] ]
-			next
-			_aF_ = StzCheckPlanCoverage(@aPlanTexts[_p_][2], _cLabel_, _aDis_)
-			_nF_ = ring_len(_aF_)
-			for _k_ = 1 to _nF_
-				_aOut_ + _aF_[_k_]
-			next
-		next
+		_aOut_ = This._CourtFindings()
 		_aU_ = This.Unwalked()
 		_nU_ = ring_len(_aU_)
 		for _k_ = 1 to _nU_
@@ -418,6 +404,26 @@ class stzRouteMap from stzObject
 		next
 		return _aOut_
 
+	# The court's own plan findings (StzCheckPlanCoverage over each plan and the walks), in plan order. The
+	# court is Ring and stays with the face; the join's own findings are written after these.
+	def _CourtFindings()
+		_aOut_ = []
+		_nP_ = ring_len(@aPlanTexts)
+		for _p_ = 1 to _nP_
+			_cLabel_ = @aPlanTexts[_p_][1]
+			_aDis_ = []
+			_nW_ = ring_len(@aWalks)
+			for _k_ = 1 to _nW_
+				_aDis_ + [ @aWalks[_k_][1], @aWalks[_k_][3] ]
+			next
+			_aF_ = StzCheckPlanCoverage(@aPlanTexts[_p_][2], _cLabel_, _aDis_)
+			_nF_ = ring_len(_aF_)
+			for _k_ = 1 to _nF_
+				_aOut_ + _aF_[_k_]
+			next
+		next
+		return _aOut_
+
 	# TRUE if the court has a finding of warning severity or worse.
 	#
 	#   returns    1 or 0
@@ -438,6 +444,11 @@ class stzRouteMap from stzObject
 	#   returns    a text; the counts are never summed and never turned into a percentage
 	#   see        Json
 	def Prose()
+		_c_ = This._CoreRoutes("prose")
+		if _c_ != ""  return _c_  ok
+		return This._ProseRing()
+
+	def _ProseRing()
 		_c_ = "routes owned " + This.OwnedCount() + ", walked " + This.WalkedCount() +
 		      ", unwalked " + This.UnwalkedCount() + "  (counts, never summed, never a percentage)" + char(10)
 		_aU_ = This.Unwalked()
@@ -464,6 +475,61 @@ class stzRouteMap from stzObject
 	#   returns    a JSON text
 	#   see        Prose
 	def Json()
+		_c_ = This._CoreRoutes("json")
+		if _c_ != ""  return _c_  ok
+		return This._JsonRing()
+
+	# The routes report from the Zig core (engine/src/testoor_routes.zig): the join, the findings it
+	# raises itself, the prose and the JSON. "" when the core is not there or cannot answer, and the
+	# caller then runs the reference below. A library built before this call existed falls back too.
+	def _CoreRoutes(pcWhich)
+		if TestoorCoreIs() != "engine"  return ""  ok
+		_cOut_ = ""
+		try
+			if pcWhich = "json"
+				_cOut_ = StzEngineTestoorRoutes(This._RoutesRequest())
+			else
+				_cOut_ = StzEngineTestoorRoutesProse(This._RoutesRequest())
+			ok
+		catch
+			_cOut_ = ""
+		done
+		return _cOut_
+
+	# what the face read, as the core's request: the plan items, the walks, the untouched methods, and the court's findings
+	def _RoutesRequest()
+		_c_ = '{"items":['
+		_n_ = ring_len(@aItems)
+		for _k_ = 1 to _n_
+			if _k_ > 1  _c_ += ","  ok
+			_c_ += '{"id":' + _TourJsonStr(@aItems[_k_][1]) + ',"status":' + _TourJsonStr(@aItems[_k_][2]) +
+			       ',"line":' + @aItems[_k_][3] + ',"label":' + _TourJsonStr(@aItems[_k_][4]) + "}"
+		next
+		_c_ += '],"walks":['
+		_n_ = ring_len(@aWalks)
+		for _k_ = 1 to _n_
+			if _k_ > 1  _c_ += ","  ok
+			_c_ += '{"id":' + _TourJsonStr(@aWalks[_k_][1]) + ',"file":' + _TourJsonStr(@aWalks[_k_][2]) +
+			       ',"stop":' + _TourJsonStr(@aWalks[_k_][3]) + ',"line":' + @aWalks[_k_][4] + "}"
+		next
+		_c_ += '],"untouched":['
+		_n_ = ring_len(@aTouched)
+		for _k_ = 1 to _n_
+			if _k_ > 1  _c_ += ","  ok
+			_c_ += '{"class":' + _TourJsonStr(@aTouched[_k_][1]) + ',"line":' + @aTouched[_k_][2] +
+			       ',"method":' + _TourJsonStr(@aTouched[_k_][3]) + ',"file":' + _TourJsonStr(@aTouched[_k_][4]) + "}"
+		next
+		_c_ += '],"court":['
+		_aF_ = This._CourtFindings()
+		_n_ = ring_len(_aF_)
+		for _k_ = 1 to _n_
+			if _k_ > 1  _c_ += ","  ok
+			_c_ += '{"rule":' + _TourJsonStr("" + _aF_[_k_][:rule]) + ',"severity":' + _TourJsonStr("" + _aF_[_k_][:severity]) +
+			       ',"where":' + _TourJsonStr("" + _aF_[_k_][:where]) + ',"message":' + _TourJsonStr("" + _aF_[_k_][:message]) + "}"
+		next
+		return _c_ + "]}"
+
+	def _JsonRing()
 		_c_ = '{"testoor":"logbook","kind":"routes","owned":' + This.OwnedCount() +
 		      ',"walked":' + This.WalkedCount() + ',"unwalked":['
 		_aU_ = This.Unwalked()

@@ -18,6 +18,8 @@ const T = @import("testoor_text.zig");
 const J = @import("testoor_json.zig");
 const V = @import("testoor_verdict.zig");
 const L = @import("testoor_logbook.zig");
+const G = @import("testoor_graph.zig");
+const R = @import("testoor_routes.zig");
 
 pub const Error = error{ BadRequest, OutOfMemory, BadOutputLine, BadJson };
 
@@ -29,7 +31,10 @@ fn field(v: J.Value, key: []const u8) Error!J.Value {
 pub fn verdictJson(a: Allocator, request: []const u8) Error![]u8 {
     const req = try J.parse(a, request);
     const rec = try V.recordFromValue(a, try field(req, "record"));
-    const meta = try V.metaFromValue(a, try field(req, "meta"));
+    var meta = try V.metaFromValue(a, try field(req, "meta"));
+    // protocol 2: the face may hand over the program's graph and the names the tour's source mentions
+    if (req.get("graph")) |gv| meta.graph = try G.fromValue(a, gv);
+    if (req.get("names")) |nv| meta.names = try strings(a, nv);
     const out_v = try field(req, "output");
     const lines = switch (out_v) {
         .arr => try V.linesFromValue(a, out_v),
@@ -77,6 +82,14 @@ pub fn tourFromValue(a: Allocator, v: J.Value) Error!V.Tour {
             .line = (try field(rv, "line")).int_(),
         });
     }
+    var nodes: std.ArrayList(G.NodeEv) = .empty;
+    if (v.get("nodes")) |nv| {
+        for (nv.items()) |n| try nodes.append(a, .{
+            .id = (try field(n, "id")).str_(),
+            .evidence = (try field(n, "evidence")).str_(),
+            .hits = (try field(n, "hits")).int_(),
+        });
+    }
     var weather: std.ArrayList([]const u8) = .empty;
     for ((try field(v, "weather")).items()) |w| try weather.append(a, w.str_());
     var seed: ?f64 = null;
@@ -90,6 +103,7 @@ pub fn tourFromValue(a: Allocator, v: J.Value) Error!V.Tour {
         .flaky = (try field(v, "flaky")).truthy(),
         .weather = weather.items,
         .routes = routes.items,
+        .nodes = nodes.items,
         .run = .{
             .end = (try field(v, "end")).str_(),
             .exit = (try field(v, "exit")).int_(),
@@ -125,11 +139,35 @@ fn readRun(a: Allocator, request: []const u8) Error!Run {
     if (rv.get("seed")) |x| st.seed = x.num_();
     if (rv.get("repeat")) |x| st.repeat = x.num_();
     if (rv.get("timeout_ms")) |x| st.timeout_ms = x.num_();
+    if (rv.get("graph")) |gv| st.graph = .{
+        .complete = if (gv.get("complete")) |x| x.truthy() else true,
+        .why = if (gv.get("why")) |x| x.str_() else "",
+        .owned = if (gv.get("owned")) |x| x.int_() else 0,
+    };
     st.skipped = try strings(a, rv.get("skipped"));
     st.topics_skipped = try strings(a, rv.get("topics_skipped"));
     var tours: std.ArrayList(V.Tour) = .empty;
     if (req.get("tours")) |tv| for (tv.items()) |t| try tours.append(a, try tourFromValue(a, t));
     return .{ .settings = st, .tours = tours.items };
+}
+
+/// The impact record (protocol 2 section 5) for a change: {"graph":<graph record>,"changed":[ids],
+/// "tours":[{"file":..,"names":[..]}]}. A graph that is not complete selects every tour.
+pub fn impactJson(a: Allocator, request: []const u8) Error![]u8 {
+    const req = try J.parse(a, request);
+    const g = try G.fromValue(a, try field(req, "graph"));
+    const changed = try strings(a, req.get("changed"));
+    var tours: std.ArrayList(G.TourNames) = .empty;
+    if (req.get("tours")) |tv| {
+        for (tv.items()) |t| try tours.append(a, .{
+            .file = if (t.get("file")) |x| x.str_() else "",
+            .names = try strings(a, t.get("names")),
+        });
+    }
+    const im = try G.impact(a, g, changed, tours.items);
+    var b = T.Buf.init(a);
+    try G.impactJson(&b, im);
+    return b.done();
 }
 
 pub fn runJson(a: Allocator, request: []const u8) Error![]u8 {
@@ -345,4 +383,55 @@ test "detail mode adds each stop's opening and closing millisecond and nothing e
         plain = try T.replaceAll(a, plain, cut, "");
     }
     try testing.expectEqualStrings(want, plain);
+}
+
+// ── the route join (P3.3) ────────────────────────────────────
+
+/// {"items":[{id,status,line,label}],"walks":[{id,file,stop,line}],"untouched":[{class,line,method,file}],
+///  "court":[{rule,severity,where,message}]} -- what the face read and what its court said
+fn readRoutes(a: Allocator, request: []const u8) Error!R.Map {
+    const req = try J.parse(a, request);
+    var items: std.ArrayList(R.Item) = .empty;
+    if (req.get("items")) |v| for (v.items()) |x| try items.append(a, .{
+        .id = (try field(x, "id")).str_(),
+        .status = (try field(x, "status")).str_(),
+        .line = (try field(x, "line")).int_(),
+        .label = (try field(x, "label")).str_(),
+    });
+    var walks: std.ArrayList(R.Walk) = .empty;
+    if (req.get("walks")) |v| for (v.items()) |x| try walks.append(a, .{
+        .id = (try field(x, "id")).str_(),
+        .file = (try field(x, "file")).str_(),
+        .stop = (try field(x, "stop")).str_(),
+        .line = (try field(x, "line")).int_(),
+    });
+    var untouched: std.ArrayList(R.Untouched) = .empty;
+    if (req.get("untouched")) |v| for (v.items()) |x| try untouched.append(a, .{
+        .class = (try field(x, "class")).str_(),
+        .line = (try field(x, "line")).int_(),
+        .method = (try field(x, "method")).str_(),
+        .file = (try field(x, "file")).str_(),
+    });
+    var court: std.ArrayList(R.Finding) = .empty;
+    if (req.get("court")) |v| for (v.items()) |x| try court.append(a, .{
+        .rule = (try field(x, "rule")).str_(),
+        .severity = (try field(x, "severity")).str_(),
+        .where = (try field(x, "where")).str_(),
+        .message = (try field(x, "message")).str_(),
+    });
+    return .{ .items = items.items, .walks = walks.items, .untouched = untouched.items, .court = court.items };
+}
+
+pub fn routesJson(a: Allocator, request: []const u8) Error![]u8 {
+    const m = try readRoutes(a, request);
+    var b = T.Buf.init(a);
+    try R.json(&b, m);
+    return b.done();
+}
+
+pub fn routesProse(a: Allocator, request: []const u8) Error![]u8 {
+    const m = try readRoutes(a, request);
+    var b = T.Buf.init(a);
+    try R.prose(&b, m);
+    return b.done();
 }

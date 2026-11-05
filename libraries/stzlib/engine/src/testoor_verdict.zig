@@ -20,6 +20,7 @@ const Allocator = std.mem.Allocator;
 const T = @import("testoor_text.zig");
 const P = @import("testoor_promises.zig");
 const J = @import("testoor_json.zig");
+const G = @import("testoor_graph.zig");
 
 pub const State = enum {
     none,
@@ -85,6 +86,10 @@ pub const Meta = struct {
     seed: ?f64,
     unreadable: bool,
     face: Face,
+    /// protocol 2: the program's graph and the names the tour's source mentions, both from the
+    /// face; without a graph a tour's node lines are listed as reported
+    graph: ?G.Graph = null,
+    names: []const []const u8 = &.{},
 };
 
 // ── the outputs ──────────────────────────────────────────────
@@ -121,6 +126,8 @@ pub const Tour = struct {
     flaky: bool,
     weather: []const []const u8,
     routes: []const RRoute,
+    /// protocol 2: the nodes this tour reached or named; empty (and absent from the logbook) otherwise
+    nodes: []const G.NodeEv = &.{},
 };
 
 // ── how a tour ended ─────────────────────────────────────────
@@ -490,17 +497,22 @@ pub fn verdict(a: Allocator, rec: Record, lines: []const Line, meta: Meta) !Tour
     // the seed the child walked with: the runner's, unless the tour printed its own
     run.seed = meta.seed;
     var weather: std.ArrayList([]const u8) = .empty;
+    var hits: std.ArrayList(G.Hit) = .empty;
     for (ls) |ln| {
         const t = T.trimSp(ln.text);
         const tn: i64 = @intCast(t.len);
-        if (T.startsWith(t, "[testoor seed ")) {
+        if (T.startsWith(t, "[testoor node ")) {
+            // protocol 2; a line whose count is malformed is ignored and stays ordinary output
+            if (G.parseNodeLine(t)) |h| try hits.append(a, h);
+        } else if (T.startsWith(t, "[testoor seed ")) {
             // DEVIATION: the reference raises R41 on a seed that is not a number
             if (T.parseNumber(T.sub(t, 15, tn - 15))) |n| run.seed = n;
         } else if (T.startsWith(t, "[testoor weather ") and !T.startsWith(t, "[testoor weather fired ")) {
             try weather.append(a, T.sub(t, 18, tn - 18));
         }
     }
-    return .{ .file = r.file, .dialect = r.dialect, .run = run, .flaky = false, .weather = weather.items, .routes = r.routes };
+    const nodes = try G.nodeEvidence(a, meta.graph, hits.items, meta.names);
+    return .{ .file = r.file, .dialect = r.dialect, .run = run, .flaky = false, .weather = weather.items, .routes = r.routes, .nodes = nodes };
 }
 
 // ── reading the goldens' input formats ───────────────────────

@@ -34,7 +34,9 @@ A new domain `stz_testoor`, built the way the engine's other domains are (`perf`
 | `src/testoor_verdict.zig` | `verdict(record, output, meta)`: stops, claims, endings, states |
 | `src/testoor_logbook.zig` | the run object, its JSON, its prose, its exit code |
 | `src/testoor_clock.zig` | the world of a tour: seed, stepped clock, weather and the tick each falls due at (P3.2; the seed is 40 lines that share the weather's pick count, so one file and not `testoor_seed.zig`) |
-| later: `testoor_routes.zig`, `testoor_graph.zig`, `testoor_counters.zig` | steps P3.3 to P3.4 |
+| `src/testoor_graph.zig` | the graph store: the graph record, id comparison under a fold, the reach (closure of callers), impact selection, the nodes record (P3.3) |
+| `src/testoor_routes.zig` | the route join: owned, walked, unwalked, unknown walks, the findings the join raises, the report as prose and JSON (P3.3) |
+| later: `testoor_counters.zig` | step P3.4 |
 | `src/ring_bridge_testoor.zig` | the `regs` table and the `R.ring_vm_api_*` glue |
 | `src/stz_testoor_entry.zig` | exports `ringlib_init` |
 
@@ -56,6 +58,8 @@ adds nothing.
 | `StzEngineTestoorRunProse(cRequest)` | the same request | the summary a terminal shows |
 | `StzEngineTestoorRunExit(cRequest)` | the same request | 0, 1 or 2 |
 | `StzEngineTestoorTourProse(cTourJson)` | one tour as the logbook writes it | the line a terminal shows for it |
+| `StzEngineTestoorImpact(cRequest)` (P3.3) | `{"graph":<graph record>,"changed":[ids],"tours":[{"file","names":[..]}]}` | the impact record of protocol 2 |
+| `StzEngineTestoorRoutes(cRequest)` and `...RoutesProse(cRequest)` (P3.3) | `{"items":[..],"walks":[..],"untouched":[..],"court":[..]}`: what the face read and what its court said | the routes report as JSON, or as prose |
 | `StzEngineTestoorWorld(cOp, cText, nA, nB)` (P3.2) | an operation, a text and two numbers | a string; the operations and their answers are listed above `call` in `testoor_clock.zig` |
 
 Prose and exit are **functions of the run and its tours**, so the three run calls take one request. (Confirmed at
@@ -208,6 +212,31 @@ FAILED 12 assertions and took 494 s, and it was not the world: the rnxc prefix (
 for one tour on a loaded machine, against a 60 s walk timeout) and four tours read as `unreached`. After the prefix
 (30 MB, 271 s once, under load) the same guard is 7.7 s and a tour starts in 0.7 s. **Build the prefix before any
 guard that walks children.**
+
+### P3.3, 2026-11-06 -- DONE
+
+The route join and the graph store moved to the core, and the version 2 additions of the verdict came with them.
+
+- **Written first:** the goldens `15`, `16`, `L6` and `impact/01..03` under `golden/protocol2/`, by hand from the protocol
+  document, because the Ring reference cannot judge version 2 and no oracle exists. The Zig harness reproduced all of them
+  on its first run.
+- **`testoor_graph.zig`** reads a graph record tolerantly, compares ids under the declared fold and never parses one,
+  closes a change over its callers in the order found, selects tours (an incomplete graph selects every tour), and joins what
+  a tour reported (`[testoor node ID [N]]`) and named with what the graph owns into the tour's `nodes`.
+- **`testoor_routes.zig`** is a port of the counting and both faces of `stzRouteMap`. The Ring face still reads the plans, the
+  walks and runs the court (`StzCheckPlanCoverage`); the court's findings cross as data and come first, as before.
+- **The Ring face split:** `stzImpact.ring` now has `_ImpactFace` (the subject's source, its code graph, the seed of a change,
+  the line that dispatches by a built name), `_ImpactCore` (a graph record of NAMES as ids, one edge per raw call entry and a
+  second from the class when the caller is a constructor, so the closure comes out in the reference's order) and the
+  unchanged loop as `_ImpactClosureRing`. `stzRouteMap` asks the core for `Json()` and `Prose()` and keeps `_JsonRing()` and
+  `_ProseRing()`; both fall back to the reference when the library is absent or does not know the call.
+- **Decisions taken where the protocol draft was silent** are listed in `TESTOOR_PROTOCOL_2.md` section 4 and pinned by the goldens.
+- **Run, on rnxc against `engine-stzlib2`:** `zig build test-testoor -j2` 53 of 53 (48 plus 5 route-join tests, 63 ms); the core
+  guard 56 (39 plus 17: the route report and impact side by side, and protocol 2 through the Ring seam); routes 44 and impact
+  51 **unchanged** through the core and with `TESTOOR_CORE=ring`; golden 75, reader 74, promises 52, protocol 55, refine 34,
+  clock 56, runner 80. Ten guards, 577 assertions.
+- **Not built:** the evidence floor (`L7`, `L8`), node counters (P3.4), and the Ring face handing a graph and names to the
+  verdict from the runner (it belongs to P4, node-level route coverage; the core takes both today and the guard sends them).
 
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 

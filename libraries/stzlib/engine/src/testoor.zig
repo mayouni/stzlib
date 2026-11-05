@@ -9,9 +9,13 @@ pub const verdict = @import("testoor_verdict.zig");
 pub const logbook = @import("testoor_logbook.zig");
 pub const api = @import("testoor_api.zig");
 pub const clock = @import("testoor_clock.zig");
+pub const graph = @import("testoor_graph.zig");
+pub const routes = @import("testoor_routes.zig");
 
 test {
     _ = clock;
+    _ = graph;
+    _ = routes;
     _ = text;
     _ = json;
     _ = promises;

@@ -49,6 +49,28 @@ The five logbook cases cover an all-kept run (exit 0), a mixed run with skipped 
 - `base/testoor/golden_update.ring` rewrites the expected files. A human reads the diff in git before it is committed.
 - A port passes when it reproduces every `expected.*` from the inputs.
 
+## Protocol 2 (`protocol2/`, P3.3)
+
+Cases version 2 added, which **only the Zig core can judge**: the Ring reference knows no node lines, no graph and no
+`protocol` key. So these expected files were **written by hand from `TESTOOR_PROTOCOL_2.md` before the code that
+satisfies them**, and `golden_update.ring` does not regenerate them. The Ring golden guard does not read this folder; the
+Zig harness (`testoor_golden_test.zig`) does.
+
+| folder | one case is | inputs | expected |
+|---|---|---|---|
+| `protocol2/judge/<case>/` | one tour, judged | the three of `judge/`, and optionally `graph.json` (the graph record) and `names.txt` (the names its source mentions, one a line) | `expected.json`, `expected.txt` |
+| `protocol2/logbook/<case>/` | one run, built from `protocol2/judge/` cases | `run.json`, which may carry a `graph` object (`complete`, `why`, `owned`) | `expected.json`, `expected.txt`, `expected.exit` |
+| `protocol2/impact/<case>/` | one change | `request.json`: the graph record, the changed ids, the tours with their names | `expected.json`, the impact record |
+
+| case | what it pins down |
+|---|---|
+| `15_nodes_named_observed` | a node reached three times (one line spelled in another case, under the `ascii` fold), one named and never reached, one reached with a count; a node neither is not listed; rows in the graph's order |
+| `16_node_line_count` | counts add; a count that is `x`, `-1`, `1 2` or `1.5`, a bare `[testoor node]` and a zero are ignored |
+| `L6_graph_incomplete` | a run whose graph is not complete: `protocol` 2, the three figures, the incomplete line in the prose, and the run still exits 0 |
+| `impact/01_complete` | a change reaches its callers, found in order, and the tours that name them are selected |
+| `impact/02_open_graph` | an open node: the reason is written, every tour is selected and none is skipped |
+| `impact/03_two_changed` | two changed nodes: the union of their reaches |
+
 ## Adding a case
 
 Write the three input files (or `run.json`), run `golden_update.ring`, **read** the expected prose and JSON against what you meant the case to show, add the case to the intent table in the guard, and commit them together. Never edit an `expected.*` by hand.

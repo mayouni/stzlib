@@ -1,0 +1,22 @@
+{
+ "exit": 0,
+ "hung": 0,
+ "stderr": "",
+ "wall_ms": 3130,
+ "seed": 5,
+ "unreadable": 0,
+ "face": {
+  "name": "python",
+  "ignore": "",
+  "endings": [
+   [
+    "SyntaxError",
+    "not-started"
+   ],
+   [
+    "Traceback (most recent call last)",
+    "broke"
+   ]
+  ]
+ }
+}

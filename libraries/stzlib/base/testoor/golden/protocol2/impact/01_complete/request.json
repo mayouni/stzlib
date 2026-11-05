@@ -1,0 +1,132 @@
+{
+ "graph": {
+  "testoor": "graph",
+  "protocol": 2,
+  "subject": "tax/stzTax.py",
+  "language": "python",
+  "fold": "ascii",
+  "nodes": [
+   {
+    "id": "stzTax.Rate",
+    "name": "Rate",
+    "kind": "method",
+    "file": "tax/stzTax.py",
+    "line": 20
+   },
+   {
+    "id": "stzTax.Total",
+    "name": "Total",
+    "kind": "method",
+    "file": "tax/stzTax.py",
+    "line": 12
+   },
+   {
+    "id": "stzTax.Net",
+    "name": "Net",
+    "kind": "method",
+    "file": "tax/stzTax.py",
+    "line": 30
+   },
+   {
+    "id": "stzInvoice.Print",
+    "name": "Print",
+    "kind": "method",
+    "file": "tax/stzTax.py",
+    "line": 8
+   },
+   {
+    "id": "stzMoney.Add",
+    "name": "Add",
+    "kind": "method",
+    "file": "tax/stzTax.py",
+    "line": 4
+   },
+   {
+    "id": "stzMoney.Sub",
+    "name": "Sub",
+    "kind": "method",
+    "file": "tax/stzTax.py",
+    "line": 9
+   },
+   {
+    "id": "stzReport.Label",
+    "name": "Label",
+    "kind": "method",
+    "file": "tax/stzTax.py",
+    "line": 3
+   }
+  ],
+  "edges": [
+   {
+    "from": "stzTax.Total",
+    "to": "stzTax.Rate",
+    "kind": "call",
+    "line": 15
+   },
+   {
+    "from": "stzInvoice.Print",
+    "to": "stzTax.Total",
+    "kind": "call",
+    "line": 10
+   },
+   {
+    "from": "stzTax.Net",
+    "to": "stzMoney.Sub",
+    "kind": "call",
+    "line": 33
+   },
+   {
+    "from": "stzTax.Total",
+    "to": "stzMoney.Add",
+    "kind": "call",
+    "line": 16
+   }
+  ],
+  "complete": true
+ },
+ "changed": [
+  "stzTax.Rate"
+ ],
+ "tours": [
+  {
+   "file": "tax/t1_rate.py",
+   "names": [
+    "rate"
+   ]
+  },
+  {
+   "file": "tax/t2_total.py",
+   "names": [
+    "total"
+   ]
+  },
+  {
+   "file": "tax/t3_print.py",
+   "names": [
+    "print"
+   ]
+  },
+  {
+   "file": "tax/t4_add.py",
+   "names": [
+    "add"
+   ]
+  },
+  {
+   "file": "tax/t5_net.py",
+   "names": [
+    "net"
+   ]
+  },
+  {
+   "file": "tax/t6_label.py",
+   "names": [
+    "label"
+   ]
+  },
+  {
+   "file": "tax/t7_nothing.py",
+   "names": []
+  }
+ ]
+}

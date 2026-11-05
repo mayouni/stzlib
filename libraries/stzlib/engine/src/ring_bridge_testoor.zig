@@ -71,6 +71,30 @@ fn ring_TourProse(p: *anyopaque) callconv(.c) void {
     rs2(p, out.ptr, @intCast(out.len));
 }
 
+fn ring_Impact(p: *anyopaque) callconv(.c) void {
+    const req = request(p) orelse return;
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const out = api.impactJson(arena.allocator(), req) catch |e| return raise(p, e);
+    rs2(p, out.ptr, @intCast(out.len));
+}
+
+fn ring_Routes(p: *anyopaque) callconv(.c) void {
+    const req = request(p) orelse return;
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const out = api.routesJson(arena.allocator(), req) catch |e| return raise(p, e);
+    rs2(p, out.ptr, @intCast(out.len));
+}
+
+fn ring_RoutesProse(p: *anyopaque) callconv(.c) void {
+    const req = request(p) orelse return;
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const out = api.routesProse(arena.allocator(), req) catch |e| return raise(p, e);
+    rs2(p, out.ptr, @intCast(out.len));
+}
+
 /// The world of one tour: its seed, its stepped clock and its weather. Ring keeps ONE of these
 /// per virtual machine as a global, so the engine keeps one per thread; the state is in the
 /// engine, never in a Ring object, because Ring copies an object it stores (CLAUDE.md,
@@ -98,6 +122,9 @@ fn ring_World(p: *anyopaque) callconv(.c) void {
 
 const regs = [_]R.Reg{
     .{ .name = "stzenginetestoorworld", .func = ring_World },
+    .{ .name = "stzenginetestoorimpact", .func = ring_Impact },
+    .{ .name = "stzenginetestoorroutes", .func = ring_Routes },
+    .{ .name = "stzenginetestoorroutesprose", .func = ring_RoutesProse },
     .{ .name = "stzenginetestoorverdict", .func = ring_Verdict },
     .{ .name = "stzenginetestoorrunjson", .func = ring_RunJson },
     .{ .name = "stzenginetestoorrunprose", .func = ring_RunProse },
