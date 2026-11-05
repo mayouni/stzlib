@@ -1,7 +1,7 @@
 # The One Hour
 ### What the language must make impossible, and what the tools must make fast -- a security design for Softanza, Ring++, Haro and Harobanda
 
-**Status: DESIGNED, 2026-11-05, by stzlib-security -- for the author's rulings (section 7).**
+**Status: RULED, 2026-11-05 -- the five rulings of section 7 were settled by the author's delegation the same day; designed by stzlib-security.**
 Every claim is **[M] measured** (a number, a file, a date), **[R] recorded** (a ruling or
 finding in the estate's record) or **[D] designed** (a proposal, reversible by name). A
 number without a source is a defect in this document.
@@ -283,16 +283,31 @@ of two bug classes costs zero after it.
 - It does not claim the one-hour number until B4 has measured it on a real advisory. Until
   then the number is **unmeasured**, and this document says so.
 
-## 7. The rulings owed by the author
+## 7. The rulings -- RULED by the author's delegation, 2026-11-05 ("Settle the 5 rulings and then continue")
 
-1. **A1-A4 in Ring++, with these spellings** (`finally`, `within`, `using`, `catch e`), or
-   with others -- the semantics are the ruling, the words are reversible.
-2. **Retire `cCatchError`** once `catch e` ships: stzlib migrates once, by a sweep.
-3. **Engine domains load on need, not all 87 at start** (A6's corollary): a behaviour change
-   every program sees, so it is the author's, not this plane's.
-4. **The feed is a door**: B2 may reach OSV and KEV from a program that declares it; the
-   budget for time-to-safe (proposed one hour / one day).
-5. **B7 runs**: a model reads our engine on a schedule, under the court.
+Each ruling below is the recommendation this plane made, adopted on the author's word of
+2026-11-05 15:20. Each is reversible by its number; a reversal is a line in CONCLUSIONS.
+
+1. **A1-A4 land in Ring++ with these spellings: `finally`, `within`, `using`, `catch e`.**
+   RULED YES. The semantics of section 3 are the ruling; Haro may respell in its own grammar
+   provided every semantics line of A1 holds. Owner: ringpp (RINGPP-ONEHOUR-01).
+2. **`cCatchError` is retired once `catch e` ships.** RULED YES, in two steps: `rnxc check`
+   reports `last-error-read` at note tier from the day `catch e` ships; stzlib migrates by one
+   sweep (this plane); the tier becomes err when that sweep reads 0 across the estate.
+3. **Engine domains load on need, not all 87 at start.** RULED YES as a principle, gated by
+   a measurement before any behaviour changes: rung W7 (this plane) first records cold-start
+   time and the domains a program touches for the guards it owns, then designs the manifest
+   a program declares; no guard may go NOT RUN because of it. Until W7 lands, nothing loads
+   differently.
+4. **The feed is a door, and the budget is one hour / one day.** RULED YES. `stzAdvisoryFeed`
+   reaches OSV and KEV only from a program that declares the door; every fetch is a ledger
+   record; a guard never reaches the live internet. Time-to-safe budget, measured by B4:
+   `exposure.closed` within 60 minutes of `advisory.matched`, `guard.green` within 24 hours.
+   A miss is a number in the drill's output, not a silent pass.
+5. **B7 runs on a schedule, under the court.** RULED YES, with one bound this plane adds: the
+   audit model runs locally by default (the estate's keys leaked once already, 2026-10-22,
+   all four revoked); a remote model is a door a program declares. A claim is filed only with
+   its verdict. Owner: stzlib-intelligence (INTELLIGENCE-ONEHOUR-01), with this plane.
 
 Every other line is this plane's to build or another plane's to answer in its mailbox, and
 each is named there with the measurement it must report.
