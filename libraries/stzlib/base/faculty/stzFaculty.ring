@@ -337,10 +337,10 @@ func StzGoldenAgrees(pcChecker, pGot, pExpected)
 		return 0
 	but pcChecker = "kwmax"
 		# expected is "keyword|maxwords": the answer keeps the keyword AND stays within the word limit
-		_aE_ = split("" + pExpected, "|")
+		_aE_ = _StzFieldsBy("" + pExpected, "|")
 		if len(_aE_) != 2 return 0 ok
 		if len(StzFind(lower(_aE_[1]), lower("" + pGot))) = 0 return 0 ok
-		return len(split(trim("" + pGot), " ")) <= (0 + _aE_[2])
+		return _StzWordCount("" + pGot) <= (0 + _aE_[2])
 	but pcChecker = "faces-anchors"
 		return StzFacesAgree(pGot, pExpected)
 	but pcChecker = "boxes-f1"
@@ -444,7 +444,7 @@ func StzNpyF32Grid(pcPath)
 	_aE_ = StzFind(")", _cS_)
 	if len(_aE_) = 0 return 0 ok
 	_cS_ = left(_cS_, _aE_[1] - 1)
-	_aS_ = split(StzReplace(_cS_, " ", ""), ",")
+	_aS_ = _StzFieldsBy(StzReplace(_cS_, " ", ""), ",")
 	if len(_aS_) < 2 return 0 ok
 	return StzEngineImageGridFromF32(0 + _aS_[1], 0 + _aS_[2], right(_c_, len(_c_) - 10 - _nH_))
 

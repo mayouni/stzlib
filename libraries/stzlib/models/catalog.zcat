@@ -7,6 +7,12 @@
 #   requires|<faculty>|<implementation>|<path>[,<path>...]|<when>       when = "" (always) or lang=<code>[,<code>...]
 #   platform|<faculty>|<implementation>|<os>|<what it needs>|<how to get it>
 #   replayed|<path>|<date>|<result>      a conversion whose steps were re-run on a machine and gave this exact file (or did not)
+#   repo|<hub repository>|<path>[,<path>...]|<licence text>|<upstream page>|<title>
+#        where Softanza PUBLISHES files it converted (MP3b): the files a repository holds, the licence text it carries (models/licences/),
+#        the upstream model it was converted from. Only converted files with a permissive licence are published; a downloaded file is
+#        linked to its upstream, never republished (StzModelPublishGate)
+#   release|<hub repository>|<version>|<state>|<revision>|<date>      state = staged | published; revision = the hub commit (or tag) the
+#        files were uploaded in, from which StzModelFetch reads them. The sha256 a fetched file must have is this catalogue's, never the hub's
 #
 # Every row was written from MODELS.md, the commit that made the file, and a sha256 of the file on the machine that measured it.
 
@@ -78,3 +84,15 @@ replayed|vision/owlvit_vision.gguf|2026-11-05|not replayed: several stages, torc
 replayed|vision/owlvit_text.gguf|2026-11-05|not replayed: several stages, torch and transformers needed
 replayed|ocr/ppocr_rec_arabic.gguf|2026-11-05|not replayed: its source is not on the replaying machine
 replayed|ocr/ppocr_rec_cyrillic.gguf|2026-11-05|not replayed: its source is not on the replaying machine
+
+# MP3b: where the converted files are published (org softanza on Hugging Face). Written 2026-11-05; nothing is published until a
+# release row says so
+repo|softanza/yunet-2023mar-stzgraph|vision/yunet_2023mar.gguf|licences/MIT-yunet.txt|https://huggingface.co/opencv/face_detection_yunet|YuNet face detector (2023mar)
+repo|softanza/yolox-stzgraph|vision/yolox_nano.gguf,vision/yolox_tiny.gguf|licences/Apache-2.0.txt|https://github.com/Megvii-BaseDetection/YOLOX|YOLOX nano and tiny object detectors
+repo|softanza/mobilenetv3-large-stzgraph|vision/mobilenetv3_large.gguf|licences/Apache-2.0.txt|https://huggingface.co/onnx-community/mobilenetv3_large_100.ra_in1k|MobileNetV3-Large image classifier (ImageNet-1k)
+repo|softanza/u2netp-stzgraph|vision/u2netp.gguf|licences/Apache-2.0.txt|https://github.com/danielgatis/rembg|U2-Net-p salient-object (foreground) segmenter
+repo|softanza/depth-anything-v2-small-stzgraph|vision/depth_anything_v2_small.gguf|licences/Apache-2.0.txt|https://huggingface.co/onnx-community/depth-anything-v2-small|Depth Anything V2 Small monocular depth
+repo|softanza/mobilesam-stzgraph|vision/mobile_sam_encoder.gguf,vision/mobile_sam_decoder.gguf|licences/Apache-2.0.txt|https://huggingface.co/Acly/MobileSAM|MobileSAM promptable segmenter (encoder and decoder)
+repo|softanza/siglip2-base-patch16-224-stzgraph|vision/siglip2_vision.gguf,vision/siglip2_text.gguf|licences/Apache-2.0.txt|https://huggingface.co/onnx-community/siglip2-base-patch16-224-ONNX|SigLIP 2 base (patch16, 224) image and text towers
+repo|softanza/owlvit-base-patch32-stzgraph|vision/owlvit_vision.gguf,vision/owlvit_text.gguf|licences/Apache-2.0.txt|https://huggingface.co/google/owlvit-base-patch32|OWL-ViT base (patch32) open-vocabulary detector
+repo|softanza/ppocr-stzgraph|ocr/ppocr_det.gguf,ocr/ppocr_rec.gguf,ocr/ppocr_cls.gguf,ocr/ppocr_rec_arabic.gguf,ocr/ppocr_rec_cyrillic.gguf|licences/Apache-2.0.txt|https://www.modelscope.cn/models/RapidAI/RapidOCR|PP-OCR text detector, recognisers (Latin, Arabic, Cyrillic) and orientation classifier

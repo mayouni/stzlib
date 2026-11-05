@@ -192,6 +192,23 @@ pub fn http_request_ex(
     return doRequest(method_code, url_ptr[0..url_len], ct_ptr[0..ct_len], body_ptr[0..body_len], headers_ptr[0..headers_len], out, out_max, cms, rms, opts_ptr[0..opts_len]);
 }
 
+/// A model file fetched into path, streamed, kept only with its recorded sha256 and size (curlcore.curl_download).
+pub fn http_download_verified(
+    url_ptr: [*]const u8,
+    url_len: usize,
+    path_ptr: [*]const u8,
+    path_len: usize,
+    hex_ptr: [*]const u8,
+    hex_len: usize,
+    want_bytes: u64,
+    opts_ptr: [*]const u8,
+    opts_len: usize,
+) callconv(.c) i64 {
+    const r = curlcore.curl_download(url_ptr, url_len, path_ptr, path_len, hex_ptr, hex_len, want_bytes, opts_ptr, opts_len, def_connect_ms);
+    importCurlError();
+    return r;
+}
+
 /// Response headers captured from the last request (raw "Name: Value" lines).
 pub fn http_last_headers(out: [*]u8, max: usize) callconv(.c) i32 {
     return curlcore.curl_last_headers(out, max);

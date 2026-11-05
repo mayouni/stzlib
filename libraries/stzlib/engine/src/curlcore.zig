@@ -158,6 +158,182 @@ pub fn curl_reset_pool() callconv(.c) void {
     }
 }
 
+// ── download to a file, checked against a recorded digest ────
+// A model is up to gigabytes: it never passes through memory. The body streams into <path>.part while its SHA-256 and length are
+// computed, and the file takes its name only when both are the recorded ones -- so a partial, a substituted or an oversized body never
+// sits at the path a program loads from. No recorded digest is a refusal (the shape of model_digest.zig), never a download "to check".
+
+pub const DL_OK: i64 = 1;
+pub const DL_TRANSPORT: i64 = -1;
+pub const DL_STATUS: i64 = -2;
+pub const DL_MISMATCH: i64 = -3;
+pub const DL_SIZE: i64 = -4;
+pub const DL_FILE: i64 = -5;
+pub const DL_NODIGEST: i64 = -6;
+
+const Sink = struct {
+    file: std.fs.File,
+    hash: std.crypto.hash.sha2.Sha256,
+    n: u64,
+    limit: u64,
+    write_failed: bool,
+    too_big: bool,
+};
+
+fn sinkCb(ptr: [*c]u8, size: usize, nmemb: usize, userdata: ?*anyopaque) callconv(.c) usize {
+    const total = size * nmemb;
+    const s: *Sink = @ptrCast(@alignCast(userdata.?));
+    if (s.limit > 0 and s.n + total > s.limit) {
+        s.too_big = true;
+        return 0; // a short count aborts the transfer (CURLE_WRITE_ERROR)
+    }
+    s.file.writeAll(ptr[0..total]) catch {
+        s.write_failed = true;
+        return 0;
+    };
+    s.hash.update(ptr[0..total]);
+    s.n += total;
+    return total;
+}
+
+var dl_bytes: u64 = 0;
+var dl_hex: [65]u8 = [_]u8{0} ** 65;
+
+/// Bytes received by the last download (kept or not).
+pub fn curl_download_last_bytes() callconv(.c) u64 {
+    return dl_bytes;
+}
+
+/// The SHA-256 of the last download's body, 64 hex characters ("" before any).
+pub fn curl_download_last_sha256() callconv(.c) [*:0]const u8 {
+    return @ptrCast(&dl_hex);
+}
+
+fn dlError(comptime fmt: []const u8, args: anytype) void {
+    var b: [512]u8 = undefined;
+    const s = std.fmt.bufPrint(&b, fmt, args) catch "download failed";
+    setError(s);
+}
+
+/// GET url into path, kept only when the body's sha256 is want_hex (and its length want_bytes, when not 0).
+/// DL_OK, or DL_TRANSPORT / DL_STATUS / DL_MISMATCH / DL_SIZE / DL_FILE / DL_NODIGEST with the reason in the last error.
+pub fn curl_download(
+    url_ptr: [*]const u8,
+    url_len: usize,
+    path_ptr: [*]const u8,
+    path_len: usize,
+    hex_ptr: [*]const u8,
+    hex_len: usize,
+    want_bytes: u64,
+    opts_ptr: [*]const u8,
+    opts_len: usize,
+    connect_ms: u32,
+) callconv(.c) i64 {
+    last_error_len = 0;
+    dl_bytes = 0;
+    dl_hex[0] = 0;
+    ensureInit();
+    const path = path_ptr[0..path_len];
+    var want: [64]u8 = undefined;
+    if (hex_len != 64) {
+        dlError("no recorded sha256 for {s}: a model is fetched only against the digest it must have", .{path});
+        return DL_NODIGEST;
+    }
+    for (hex_ptr[0..64], 0..) |ch, i| {
+        if (!std.ascii.isHex(ch)) {
+            dlError("the recorded sha256 for {s} is not 64 hex characters", .{path});
+            return DL_NODIGEST;
+        }
+        want[i] = std.ascii.toLower(ch);
+    }
+    var url_buf: [8192]u8 = undefined;
+    if (url_len >= url_buf.len or path_len + 6 >= 4096) {
+        setError("URL or path too long");
+        return DL_TRANSPORT;
+    }
+    @memcpy(url_buf[0..url_len], url_ptr[0..url_len]);
+    url_buf[url_len] = 0;
+
+    var part_buf: [4096]u8 = undefined;
+    const part = std.fmt.bufPrint(&part_buf, "{s}.part", .{path}) catch return DL_FILE;
+    if (std.fs.path.dirname(path)) |d| std.fs.cwd().makePath(d) catch {};
+    const file = std.fs.cwd().createFile(part, .{ .truncate = true }) catch {
+        dlError("cannot write {s}", .{part});
+        return DL_FILE;
+    };
+    var sink = Sink{ .file = file, .hash = std.crypto.hash.sha2.Sha256.init(.{}), .n = 0, .limit = want_bytes, .write_failed = false, .too_big = false };
+    var kept = false;
+    var closed = false;
+    defer {
+        if (!closed) sink.file.close();
+        if (!kept) std.fs.cwd().deleteFile(part) catch {};
+    }
+
+    const h = c.curl_easy_init() orelse {
+        setError("curl_easy_init failed");
+        return DL_TRANSPORT;
+    };
+    defer c.curl_easy_cleanup(h);
+    _ = c.curl_easy_setopt(h, c.CURLOPT_URL, @as([*:0]const u8, @ptrCast(&url_buf)));
+    if (share) |sh| _ = c.curl_easy_setopt(h, c.CURLOPT_SHARE, sh);
+    _ = c.curl_easy_setopt(h, c.CURLOPT_WRITEFUNCTION, &sinkCb);
+    _ = c.curl_easy_setopt(h, c.CURLOPT_WRITEDATA, &sink);
+    _ = c.curl_easy_setopt(h, c.CURLOPT_FOLLOWLOCATION, @as(c_long, 1)); // a hub answers with a redirect to its CDN
+    _ = c.curl_easy_setopt(h, c.CURLOPT_MAXREDIRS, @as(c_long, 10));
+    _ = c.curl_easy_setopt(h, c.CURLOPT_NOSIGNAL, @as(c_long, 1));
+    _ = c.curl_easy_setopt(h, c.CURLOPT_USERAGENT, "Softanza-HTTP/2.0");
+    _ = c.curl_easy_setopt(h, c.CURLOPT_HTTPGET, @as(c_long, 1));
+    _ = c.curl_easy_setopt(h, c.CURLOPT_FAILONERROR, @as(c_long, 0));
+    if (connect_ms > 0) _ = c.curl_easy_setopt(h, c.CURLOPT_CONNECTTIMEOUT_MS, @as(c_long, @intCast(connect_ms)));
+    // no total timeout (a gigabyte takes what it takes); a transfer slower than 1 KB/s for a minute is given up
+    _ = c.curl_easy_setopt(h, c.CURLOPT_LOW_SPEED_LIMIT, @as(c_long, 1024));
+    _ = c.curl_easy_setopt(h, c.CURLOPT_LOW_SPEED_TIME, @as(c_long, 60));
+    applyOpts(h, opts_ptr[0..opts_len]);
+
+    const rc = c.curl_easy_perform(h);
+    dl_bytes = sink.n;
+    if (sink.too_big) {
+        dlError("{s}: the body passed the recorded {d} bytes; nothing was kept", .{ path, want_bytes });
+        return DL_SIZE;
+    }
+    if (sink.write_failed) {
+        dlError("{s}: writing {s} failed (disk full?); nothing was kept", .{ path, part });
+        return DL_FILE;
+    }
+    if (rc != c.CURLE_OK) {
+        const es = c.curl_easy_strerror(rc);
+        dlError("GET {s} failed: {s}", .{ url_ptr[0..url_len], if (es != null) std.mem.span(es) else "transport error" });
+        return DL_TRANSPORT;
+    }
+    var code: c_long = 0;
+    _ = c.curl_easy_getinfo(h, c.CURLINFO_RESPONSE_CODE, &code);
+    if (code < 200 or code > 299) {
+        dlError("GET {s} answered HTTP {d}; nothing was kept", .{ url_ptr[0..url_len], code });
+        return DL_STATUS;
+    }
+    var raw: [32]u8 = undefined;
+    sink.hash.final(&raw);
+    const got = std.fmt.bytesToHex(raw, .lower);
+    @memcpy(dl_hex[0..64], &got);
+    dl_hex[64] = 0;
+    if (want_bytes > 0 and sink.n != want_bytes) {
+        dlError("{s}: {d} bytes arrived, not the recorded {d}; nothing was kept", .{ path, sink.n, want_bytes });
+        return DL_SIZE;
+    }
+    if (!std.mem.eql(u8, &got, &want)) {
+        dlError("{s}: the body's sha256 is {s}, not the recorded {s}; nothing was kept", .{ path, got[0..], want[0..] });
+        return DL_MISMATCH;
+    }
+    sink.file.close(); // Windows renames no open file
+    closed = true;
+    std.fs.cwd().rename(part, path) catch {
+        dlError("{s} was fetched and verified but could not be renamed to {s}", .{ part, path });
+        return DL_FILE;
+    };
+    kept = true;
+    return DL_OK;
+}
+
 // ── request ──────────────────────────────────────────────────
 
 const Buf = struct {

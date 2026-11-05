@@ -102,3 +102,7 @@ PP-OCR, Apache-2.0, converted by `engine/tools/onnx_to_gguf.py` from RapidOCR 3.
 | `ocr/ppocr_rec_cyrillic.gguf` | Cyrillic recognition, PP-OCRv5 mobile | 7,988,640 | `02b1adf6774c19e44bb4851d7eebc63bc9eed9cb3d2f14a42babdcf40f176b01` |
 
 **`catalog.zcat` is the machine-readable record** of every file a faculty needs (what `StzModelSetupPlan()` and `StzModelsReport()` read); this file is its prose.
+
+**Each of `vision/` and `ocr/` carries a `SHA256SUMS`, GENERATED from the catalogue** (`StzModelSumsWrite()`; a guard checks they agree, and `sha256sum --strict -c SHA256SUMS` passes on all 26 lines). Since 2026-11-05 the engine parses a graph model or a vision-language projector only once its sha256 is the one recorded there -- a file with no line, or another digest, is refused before the GGUF parser reads a byte, as the decoders already were.
+
+**Publishing (MP3b, 2026-11-05).** The 17 files Softanza converted are prepared for Hugging Face, organisation `softanza`, nine repositories (the `repo` rows of `catalog.zcat`): `StzModelReleaseStage(version, folder, [])` writes each repository's folder -- the catalogued bytes, a model card, the licence text (`licences/`), a notice, `SHA256SUMS`, a manifest -- and `upload.ps1`, which the author runs with their own account. The 8 downloaded files are never republished: their upstream URL is their source. Nothing is published until a `release` row says so; then `StzModelFetchFile(path)` fetches a file from the release's hub revision, streamed to disk, and keeps it only with the sha256 written HERE.

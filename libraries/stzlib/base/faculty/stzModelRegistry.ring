@@ -81,13 +81,48 @@ func StzSaveMeasurements(pcPath)
 	next
 	write(pcPath, _c_)
 
+# The fields of a line, split on one character by scanning: an empty field is kept, and nothing global is read. Ring's split() is not
+# used in the registry: it reads the global NL, which a caller's `nL = len(...)` replaces with a number -- found 2026-11-05, when
+# image_quality_narrated.ring did exactly that and the catalogue's next split() raised deep in the standard library.
+func _StzFieldsBy(pcLine, pcSep)
+	_aOut_ = []
+	_c_ = ""
+	_n_ = len(pcLine)
+	for _k_ = 1 to _n_
+		if pcLine[_k_] = pcSep
+			_aOut_ + _c_
+			_c_ = ""
+		else
+			_c_ += pcLine[_k_]
+		ok
+	next
+	_aOut_ + _c_
+	return _aOut_
+
+# the words of a text, counted as runs of characters that are not a space, a tab or a line break -- what Ring's split(s, " ") counted,
+# without reading the global NL a caller can overwrite (stzModelRegistry.ring, _StzFieldsBy)
+func _StzWordCount(pcText)
+	_n_ = 0
+	_bIn_ = 0
+	_k_ = len(pcText)
+	for _i_ = 1 to _k_
+		_ch_ = pcText[_i_]
+		if _ch_ = " " or _ch_ = char(9) or _ch_ = char(10) or _ch_ = char(13)
+			_bIn_ = 0
+		else
+			if _bIn_ = 0 _n_++ ok
+			_bIn_ = 1
+		ok
+	next
+	return _n_
+
 func StzLoadMeasurements(pcPath)
 	if NOT fexists(pcPath) return 0 ok
-	_aL_ = split(read(pcPath), char(10))
+	_aL_ = str2list(read(pcPath))
 	_nLoaded_ = 0
 	for _i_ = 1 to len(_aL_)
 		if left(_aL_[_i_], 1) = "#" or len(trim(_aL_[_i_])) = 0 loop ok
-		_aF_ = split(_aL_[_i_], "|")
+		_aF_ = _StzFieldsBy(trim(_aL_[_i_]), "|")
 		if len(_aF_) >= 6
 			_cNote_ = ""
 			if len(_aF_) >= 8 _cNote_ = _aF_[8] ok
@@ -199,11 +234,11 @@ func StzClearCourt()
 # reader, and RECOMPUTED from the gains and losses when the file is loaded; and  incumbent|faculty|golden|impl  for who holds the faculty
 func StzLoadCourt(pcPath)
 	if NOT fexists(pcPath) return 0 ok
-	_aL_ = split(read(pcPath), char(10))
+	_aL_ = str2list(read(pcPath))
 	_nLoaded_ = 0
 	for _i_ = 1 to len(_aL_)
 		if left(_aL_[_i_], 1) = "#" or len(trim(_aL_[_i_])) = 0 loop ok
-		_aF_ = split(_aL_[_i_], "|")
+		_aF_ = _StzFieldsBy(trim(_aL_[_i_]), "|")
 		if len(_aF_) = 4 and _aF_[1] = "incumbent"
 			StzSetCourtIncumbent(_aF_[2], _aF_[3], trim(_aF_[4]))
 			loop
