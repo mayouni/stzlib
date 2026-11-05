@@ -157,7 +157,7 @@ class stzAllocation from stzObject
 		@cDemandType = StzLower("" + pcType)
 		return This
 
-	# Names the type of the resources the demands are placed on.
+	# Declares the type of the resources the demands are placed on.
 	#
 	#   pcType     the type of the resources, as recorded with is-a
 	#   returns    the allocation itself, so calls chain
@@ -165,7 +165,7 @@ class stzAllocation from stzObject
 		@cResourceType = StzLower("" + pcType)
 		return This
 
-	# Names the demand property that measures how much of a resource a demand takes.
+	# Declares the demand property that measures how much of a resource a demand takes.
 	#
 	#   pcProp     a property each demand holds as a number, such as size
 	#   returns    the allocation itself, so calls chain
@@ -173,7 +173,7 @@ class stzAllocation from stzObject
 		@cSizeProp = StzLower("" + pcProp)
 		return This
 
-	# Names the resource property that bounds what it can take.
+	# Declares the resource property that bounds what a resource can take.
 	#
 	#   pcProp     a property each resource holds as a number, such as seats
 	#   returns    the allocation itself, so calls chain
@@ -224,7 +224,7 @@ class stzAllocation from stzObject
 			StzLower("" + pcHolderProp) ]
 		return This
 
-	# Names the demand property the allocation maximises, summed over what is placed or chosen.
+	# Declares the demand property the allocation maximises, summed over what is placed or chosen.
 	#
 	#   pcProp     a property each demand holds as a number, such as margin
 	#   returns    the allocation itself, so calls chain
@@ -234,7 +234,7 @@ class stzAllocation from stzObject
 		@cSense = "max"
 		return This
 
-	# Names the demand property the allocation minimises.
+	# Declares the demand property the allocation minimises, summed over what is placed or chosen.
 	#
 	#   pcProp     a property each demand holds as a number
 	#   returns    the allocation itself, so calls chain
@@ -243,7 +243,7 @@ class stzAllocation from stzObject
 		@cSense = "min"
 		return This
 
-	# Names the predicate WriteTo records each placement under.
+	# Sets the predicate WriteTo records each placement under.
 	#
 	#   pcPred     a predicate such as seated-at or portions
 	#   returns    the allocation itself, so calls chain
@@ -252,7 +252,7 @@ class stzAllocation from stzObject
 		@cWriteAs = StzLower("" + pcPred)
 		return This
 
-	# Names the word WriteTo records for a demand left unplaced; none by default.
+	# Sets the word WriteTo records for a demand left unplaced; none by default.
 	#
 	#   pcWord     a word that is not the name of a resource
 	#   returns    the allocation itself, so calls chain
@@ -768,7 +768,7 @@ class stzAllocation from stzObject
 		next
 		return _aF_
 
-	# Names the unit a chosen quantity is written with; the WriteAs predicate by default.
+	# Sets the unit a chosen quantity is written with; the WriteAs predicate by default.
 	#
 	#   pcUnit     a unit such as portions or units
 	#   returns    the allocation itself, so calls chain

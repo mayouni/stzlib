@@ -104,9 +104,13 @@ class stzAdvisoryFeed from stzObject
 	@cKevUrl     = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
 	@cOsvUrl     = "https://api.osv.dev/v1/query"
 
+	# Builds an advisory feed with no advisories and no matches.
+	#
+	#   returns    nothing; the object is built
+	#   see        SeedAdvisory, FetchLive
 	def init()
 
-	  #-- the fixture door -----------------------------------------------------
+	  #-- the fixture door -----------------------------------------------------#
 
 	# Adds an advisory row by hand, the deterministic source a guard uses.
 	#
@@ -122,18 +126,30 @@ class stzAdvisoryFeed from stzObject
 		@aAdvisories + [ "" + pcId, StzLower("" + pcComponent), "" + pcVersions, pnScore, pbExploited, "" ]
 		return This
 
+	# Returns the advisory rows the feed holds, seeded by hand or fetched live.
+	#
+	#   returns    a list of [ id, component, versions, score, exploited, summary ] rows, the component in lowercase
+	#   see        SeedAdvisory, NumberOfAdvisories
 	def Advisories()
 		return @aAdvisories
 
+	# Returns how many advisory rows the feed holds.
+	#
+	#   returns    a number, 0 for an empty feed
+	#   see        Advisories, Clear
 	def NumberOfAdvisories()
 		return len(@aAdvisories)
 
+	# Removes every advisory row and every recorded match from the feed.
+	#
+	#   returns    the feed itself, so calls chain
+	#   see        SeedAdvisory, Match
 	def Clear()
 		@aAdvisories = []
 		@aMatches = []
 		return This
 
-	  #-- the live door ----------------------------------------------------------
+	  #-- the live door ----------------------------------------------------------#
 
 	# Fetches the live feeds for the exposure's components through the HTTP client -- a DOOR.
 	#
@@ -154,13 +170,16 @@ class stzAdvisoryFeed from stzObject
 		next
 		return len(@aAdvisories) - _nBefore_
 
-	  #-- matching -----------------------------------------------------------------
+	  #-- matching -----------------------------------------------------------------#
 
-	# TRUE when an advisory's versions cover the version text the exposure carries.
+	# TRUE if an advisory's versions cover the version text the exposure carries.
 	#
 	#   pcVersionSeen   the version text as recorded, such as curl 8.22.0 (libcurl only)
 	#   paAdvisory      an advisory row
 	#   returns         TRUE or FALSE; * covers everything, a prefix covers every version starting with it
+	#   note            the version compared is the first blank-separated token of the recorded text that starts with
+	#                   a digit; a text with no such token is not covered, unless the advisory says *
+	#   see             Match, SeedAdvisory
 	def Affects(pcVersionSeen, paAdvisory)
 		_v_ = paAdvisory[3]
 		if _v_ = "*"  return 1  ok
@@ -225,9 +244,18 @@ class stzAdvisoryFeed from stzObject
 		next
 		return len(@aMatches)
 
+	# Returns the matches the last Match found, as [ id, component, version-seen ] rows.
+	#
+	#   returns    a list of rows, [] before any Match; version-seen is the recorded version text, or loaded for an
+	#              engine domain, or present for a model
+	#   see        Match, NumberOfMatches
 	def Matches()
 		return @aMatches
 
+	# Returns how many matches the last Match found.
+	#
+	#   returns    a number, 0 before any Match
+	#   see        Match, Matches
 	def NumberOfMatches()
 		return len(@aMatches)
 

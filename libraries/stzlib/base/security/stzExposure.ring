@@ -90,7 +90,7 @@ class stzExposure from stzObject
 		This._ReadModels()
 		return This
 
-	  #-- engine domains ---------------------------------------------------
+	  #-- engine domains ---------------------------------------------------#
 
 	# Returns the names of the engine domains loaded in this process, from their non-null DLL handles.
 	#
@@ -99,13 +99,22 @@ class stzExposure from stzObject
 	def Domains()
 		return @aDomains
 
+	# Returns how many engine domains are loaded in this process.
+	#
+	#   returns    a number, 0 when no engine domain is loaded
+	#   see        Domains, HasDomain
 	def NumberOfDomains()
 		return len(@aDomains)
 
+	# TRUE if the engine domain of that name is loaded in this process.
+	#
+	#   pcName     the domain name without its stz_ prefix, such as crypto, compared in lower case
+	#   returns    TRUE or FALSE
+	#   see        Domains, NumberOfDomains
 	def HasDomain(pcName)
 		return This._Has(StzLower("" + pcName), @aDomains)
 
-	  #-- vendored libraries -----------------------------------------------
+	  #-- vendored libraries -----------------------------------------------#
 
 	# Returns the vendored C libraries as rows [ name, version, files, digest ], from engine/vendor/DIGESTS.
 	#
@@ -115,6 +124,10 @@ class stzExposure from stzObject
 	def Vendored()
 		return @aVendored
 
+	# Returns how many vendored C libraries the record lists.
+	#
+	#   returns    a number, 0 when the record is absent
+	#   see        Vendored
 	def NumberOfVendored()
 		return len(@aVendored)
 
@@ -124,6 +137,11 @@ class stzExposure from stzObject
 	def VendoredRecordedAt()
 		return @cRecorded
 
+	# Returns the tree digest recorded for a vendored library, or an empty text when none has that name.
+	#
+	#   pcName     the library name as the record spells it
+	#   returns    a text, the SHA-256 digest of the whole tree
+	#   see        Vendored, VendoredVersionOf
 	def VendoredDigestOf(pcName)
 		_n_ = len(@aVendored)
 		for _i_ = 1 to _n_
@@ -131,6 +149,11 @@ class stzExposure from stzObject
 		next
 		return ""
 
+	# Returns the version recorded for a vendored library, or an empty text when none has that name.
+	#
+	#   pcName     the library name as the record spells it
+	#   returns    a text
+	#   see        Vendored, VendoredDigestOf
 	def VendoredVersionOf(pcName)
 		_n_ = len(@aVendored)
 		for _i_ = 1 to _n_
@@ -138,7 +161,7 @@ class stzExposure from stzObject
 		next
 		return ""
 
-	  #-- models -------------------------------------------------------------
+	  #-- models -------------------------------------------------------------#
 
 	# Returns the models the record names, as rows [ file, digest, present ].
 	#
@@ -147,18 +170,26 @@ class stzExposure from stzObject
 	def Models()
 		return @aModels
 
+	# Returns how many models the record names, whether their files are present or not.
+	#
+	#   returns    a number, 0 when the record is absent
+	#   see        Models
 	def NumberOfModels()
 		return len(@aModels)
 
-	  #-- listeners ----------------------------------------------------------
+	  #-- listeners ----------------------------------------------------------#
 
 	# Returns the listeners this process opened, as rows [ class, host, port, loopback ].
 	#
 	#   returns    a list of rows recorded by StzNoteListener
-	#   see        NumberOfOpenListeners, ExposedListeners
+	#   see        NumberOfListeners, ExposedListeners
 	def Listeners()
 		return $aStzListeners
 
+	# Returns how many listeners this process has opened.
+	#
+	#   returns    a number; the list is the process's, shared by every exposure object
+	#   see        Listeners, NumberOfExposedListeners
 	def NumberOfListeners()
 		return len($aStzListeners)
 
@@ -173,10 +204,14 @@ class stzExposure from stzObject
 		next
 		return _a_
 
+	# Returns how many of the opened listeners are bound beyond loopback.
+	#
+	#   returns    a number
+	#   see        ExposedListeners, NumberOfListeners
 	def NumberOfExposedListeners()
 		return len(This.ExposedListeners())
 
-	  #-- doors --------------------------------------------------------------
+	  #-- doors --------------------------------------------------------------#
 
 	# Returns how many model calls the security ledger holds -- the doors passed in this process.
 	#
@@ -185,7 +220,7 @@ class stzExposure from stzObject
 		if NOT StzSecurityLedgerIsOpen()  return 0  ok
 		return len(StzSecurityLedgerQ().OfKind("model.call"))
 
-	  #-- the whole picture --------------------------------------------------
+	  #-- the whole picture --------------------------------------------------#
 
 	# Returns the exposure as one record of counts, for a report or an assertion.
 	#
@@ -238,6 +273,10 @@ class stzExposure from stzObject
 		_c_ += This._Join(_aS_) + ']}'
 		return _c_
 
+	# Prints a one-line summary of the exposure to the console.
+	#
+	#   returns    nothing; it prints the counts of Summary and the time the vendored record was written
+	#   see        Summary
 	def Show()
 		_s_ = This.Summary()
 		? "exposure: " + _s_[:domains] + " engine domains, " + _s_[:vendored] + " vendored libraries (recorded " +
