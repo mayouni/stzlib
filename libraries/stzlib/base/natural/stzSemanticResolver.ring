@@ -1086,7 +1086,7 @@ func _StzSemSaveCache(nSig)
 	if _cPath_ = ""
 		return
 	ok
-	_c_ = "SIG5 " + nSig + nl
+	_c_ = "SIG5 " + nSig + char(10)
 	_nOps_ = len($aSemanticOperations)
 	for _i_ = 1 to _nOps_
 		_aOp_ = $aSemanticOperations[_i_]
@@ -1112,12 +1112,12 @@ func _StzSemSaveCache(nSig)
 		next
 		_c_ += "OP" + char(1) + _aOp_[:semantic_id] + char(1) +
 		       _aOp_[:stz_method] + char(1) + _aOp_[:stz_signature] + char(1) +
-		       _cTo_ + char(1) + _nAr_ + char(1) + _cKind_ + nl
+		       _cTo_ + char(1) + _nAr_ + char(1) + _cKind_ + char(10)
 	next
 	_nB_ = len($aStzSemLexicon)
 	for _i_ = 1 to _nB_
-		_cBag_ = StzReplace($aStzSemLexicon[_i_][2], nl, " ")
-		_c_ += "LX" + char(1) + $aStzSemLexicon[_i_][1] + char(1) + _cBag_ + nl
+		_cBag_ = StzReplace($aStzSemLexicon[_i_][2], char(10), " ")
+		_c_ += "LX" + char(1) + $aStzSemLexicon[_i_][1] + char(1) + _cBag_ + char(10)
 	next
 	try
 		write(_cPath_, _c_)
@@ -1858,7 +1858,7 @@ func StzNaturalPlanFor(pcIntent, pcTypeWord, pxValue)
 	for _i_ = 1 to _n_
 		_cS_ = trim(_aSteps_[_i_])
 		if _cS_ != ""
-			_cPlan_ += nl + _cS_
+			_cPlan_ += char(10) + _cS_
 		ok
 	next
 	return _cPlan_

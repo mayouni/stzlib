@@ -86,7 +86,7 @@ class stzCorpus from stzObject
 			# same per-document step, so adding one at a time yields exactly
 			# the model a full retrain would.
 			if @nModel != 0
-				stzengine_ngram_add_doc(@nModel, StzReplace(pcText, nl, " "))
+				stzengine_ngram_add_doc(@nModel, StzReplace(pcText, char(10), " "))
 			ok
 		ok
 
@@ -131,10 +131,10 @@ class stzCorpus from stzObject
 		_aClean_ = []
 		_nD_ = len(@acDocs)
 		for _d_ = 1 to _nD_
-			_aClean_ + StzReplace(@acDocs[_d_], nl, " ")
+			_aClean_ + StzReplace(@acDocs[_d_], char(10), " ")
 		next
 		try
-			@nModel = stzengine_ngram_train(JoinXT(_aClean_, nl))
+			@nModel = stzengine_ngram_train(JoinXT(_aClean_, char(10)))
 		catch
 			stzraise("stzCorpus needs the stz_natlang engine (stz_natlang.dll is not loaded).")
 		done

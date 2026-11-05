@@ -119,6 +119,40 @@ Scenario("A caller's nL does not break the library's splitting")
 	Then("...and the same with NL restored", @@( aHgKnow2 ), @@( aHgKnow1 ))
 EndScenario()
 
+# THE LIBRARY'S OWN NL READS (NL-RESWEEP-01, 2026-11-05). New code had
+# brought back 457 bare reads of NL in 53 loaded files; each is char(10)
+# now. A bare read does not raise when NL is a number -- "a" + 3 is "a3"
+# -- so the wound is a newline silently replaced by a digit. Each swept
+# path below answers while NL is 3, and again once NL is restored.
+Scenario("A caller's nL does not leak into the library's text")
+	nL = 3
+	cHgBare1 = "a" + nl
+	cHgList1 = StzListQ([ 1, 2 ]).ToString()
+	cHgCsv1 = ListToCSVXT([ [ "a", [ "1", "2" ] ], [ "b", [ "3", "4" ] ] ], ",")
+	oHgG = new stzGraph("hg")
+	oHgG.AddNode("x")
+	oHgG.AddNode("y")
+	oHgG.AddEdge("x", "y")
+	cHgDot1 = oHgG.ExportToDOT()
+	cHgMan1 = _StzWebManifest("hg", [ "a.wasm" ], "a.wasm")
+	nL = char(10)
+
+	cHgList2 = StzListQ([ 1, 2 ]).ToString()
+	cHgCsv2 = ListToCSVXT([ [ "a", [ "1", "2" ] ], [ "b", [ "3", "4" ] ] ], ",")
+	cHgDot2 = oHgG.ExportToDOT()
+	cHgMan2 = _StzWebManifest("hg", [ "a.wasm" ], "a.wasm")
+
+	Then("the hostility is real: a bare read of NL gives a digit, not a newline", cHgBare1, "a3")
+	Then("a list prints one item per line (stzList.ToString)", StzFindFirst(char(10), cHgList1) > 0, TRUE)
+	Then("...and the same with NL restored", cHgList2, cHgList1)
+	Then("a CSV breaks its rows on a newline (ListToCSVXT)", cHgCsv1, "a,b" + char(10) + "1,3" + char(10) + "2,4")
+	Then("...and the same with NL restored", cHgCsv2, cHgCsv1)
+	Then("a DOT export keeps its edge line (stzGraph)", StzFindFirst("  x -> y;" + char(10), cHgDot1) > 0, TRUE)
+	Then("...and the same with NL restored", cHgDot2, cHgDot1)
+	Then("a web manifest keeps its lines (stzWebBundle)", StzFindFirst('"main": "a.wasm",' + char(10), cHgMan1) > 0, TRUE)
+	Then("...and the same with NL restored", cHgMan2, cHgMan1)
+EndScenario()
+
 # stzNumber leaked the same way, in eleven places: Factorial, Fibonacci,
 # Absolute, IsADigit, IsBetween(IB), PrimeFactors(XT), MultiplesUntil,
 # IsRGBColor and the [] operator all assigned a bare `n`. The sibling

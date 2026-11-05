@@ -497,7 +497,7 @@ class stzPivotTable from stzList
 		_nOrd_ = len(@aColumnOrder)
 		for _iO_ = 1 to _nOrd_
 			if _iO_ > 1
-				_cOrder_ += nl
+				_cOrder_ += char(10)
 			ok
 			_cOrder_ += ("" + @aColumnOrder[_iO_])
 		next

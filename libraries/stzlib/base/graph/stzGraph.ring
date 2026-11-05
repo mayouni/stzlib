@@ -4725,9 +4725,9 @@ class stzGraph from stzObject
 	#   note       ToDot is another spelling and ExportToDotQ chains a stzDotCode
 	#   see        Display, ToCanvas
 	def ExportToDOT()
-		_cDOT_ = "digraph " + This.Id() + " {" + nl
-		_cDOT_ += "  rankdir=TD;" + nl
-		_cDOT_ += "  node [shape=box];" + nl + nl
+		_cDOT_ = "digraph " + This.Id() + " {" + char(10)
+		_cDOT_ += "  rankdir=TD;" + char(10)
+		_cDOT_ += "  node [shape=box];" + char(10) + char(10)
 		
 		_nLen_ = len(@aNodes)
 		for i = 1 to _nLen_
@@ -4739,10 +4739,10 @@ class stzGraph from stzObject
 				_cName_ = StzMid(_cName_, 2, stzlen(_cName_) - 1)
 			ok
 
-			_cDOT_ += "  " + _cName_ + " [label=" + '"' + _cLabel_ + '"' + "];" + nl
+			_cDOT_ += "  " + _cName_ + " [label=" + '"' + _cLabel_ + '"' + "];" + char(10)
 		end
 
-		_cDOT_ += nl
+		_cDOT_ += char(10)
 
 		_nLen_ = len(@aEdges)
 		for i = 1 to _nLen_
@@ -4762,10 +4762,10 @@ class stzGraph from stzObject
 			if _cLabel_ != ""
 				_cDOT_ += " [label=" + '"' + _cLabel_ + '"' + "]"
 			ok
-			_cDOT_ += ";" + nl
+			_cDOT_ += ";" + char(10)
 		end
 		
-		_cDOT_ += "}" + nl
+		_cDOT_ += "}" + char(10)
 		return _cDOT_
 	
 		def ExportToDotQ()
@@ -4828,9 +4828,9 @@ class stzGraph from stzObject
 			]
 		end
 		
-		_cJSON_ = "{" + nl
-		_cJSON_ += '  "id": "' + This.Id() + '",' + nl
-		_cJSON_ += '  "nodes": [' + nl
+		_cJSON_ = "{" + char(10)
+		_cJSON_ += '  "id": "' + This.Id() + '",' + char(10)
+		_cJSON_ += '  "nodes": [' + char(10)
 		
 		_nLen_ = len(_acNodes_)
 		for i = 1 to _nLen_
@@ -4838,11 +4838,11 @@ class stzGraph from stzObject
 			if i < _nLen_
 				_cJSON_ += ","
 			ok
-			_cJSON_ += nl
+			_cJSON_ += char(10)
 		end
 		
-		_cJSON_ += '  ],' + nl
-		_cJSON_ += '  "edges": [' + nl
+		_cJSON_ += '  ],' + char(10)
+		_cJSON_ += '  "edges": [' + char(10)
 		
 		_nLen_ = len(_acEdges_)
 		for i = 1 to _nLen_
@@ -4850,17 +4850,17 @@ class stzGraph from stzObject
 			if i < _nLen_
 				_cJSON_ += ","
 			ok
-			_cJSON_ += nl
+			_cJSON_ += char(10)
 		end
 		
-		_cJSON_ += '  ],' + nl
+		_cJSON_ += '  ],' + char(10)
 		_cJSON_ += '  "metrics": ' + @ToJSON([
 			:nodeCount = len(@aNodes),
 			:edgeCount = len(@aEdges),
 			:density = This.NodeDensity(),
 			:longestPath = This.LongestPath(),
 			:hasCycles = This.HasCyclicDependencies()
-		]) + nl
+		]) + char(10)
 		_cJSON_ += "}"
 		
 		return _cJSON_
@@ -4878,8 +4878,8 @@ class stzGraph from stzObject
 	#              names
 	#   see        ExportToJSON
 	def ExportToYAML()
-		_cYAML_ = "graph: " + This.Id() + nl
-		_cYAML_ += "nodes:" + nl
+		_cYAML_ = "graph: " + This.Id() + char(10)
+		_cYAML_ += "nodes:" + char(10)
 		
 		_nLen_ = len(@aNodes)
 		for i = 1 to _nLen_
@@ -4890,19 +4890,19 @@ class stzGraph from stzObject
 				_cName_ = StzMid(_cName_, 2, stzlen(_cName_) - 1)
 			ok
 
-			_cYAML_ += "  - id: " + _cName_ + nl
-			_cYAML_ += "    label: " + _aNode_["label"] + nl
+			_cYAML_ += "  - id: " + _cName_ + char(10)
+			_cYAML_ += "    label: " + _aNode_["label"] + char(10)
 			if len(_aNode_["properties"]) > 0
-				_cYAML_ += "    properties:" + nl
+				_cYAML_ += "    properties:" + char(10)
 				_acProps_ = _aNode_["properties"]
 				_nPropLen_ = len(_acProps_)
 				for j = 1 to _nPropLen_
-					_cYAML_ += "      - " + string(_acProps_[j][1]) + nl
+					_cYAML_ += "      - " + string(_acProps_[j][1]) + char(10)
 				end
 			ok
 		end
 		
-		_cYAML_ += nl + "edges:" + nl
+		_cYAML_ += char(10) + "edges:" + char(10)
 		_nLen_ = len(@aEdges)
 		for i = 1 to _nLen_
 			_aEdge_ = @aEdges[i]
@@ -4916,9 +4916,9 @@ class stzGraph from stzObject
 				_cTo_ = StzMid(_cTo_, 2, stzlen(_cTo_) - 1)
 			ok
 
-			_cYAML_ += "  - from: " + _cFrom_ + nl
-			_cYAML_ += "    to: " + _cTo_ + nl
-			_cYAML_ += "    label: " + _aEdge_["label"] + nl
+			_cYAML_ += "  - from: " + _cFrom_ + char(10)
+			_cYAML_ += "    to: " + _cTo_ + char(10)
+			_cYAML_ += "    label: " + _aEdge_["label"] + char(10)
 		end
 		
 		return _cYAML_
@@ -8568,7 +8568,7 @@ class stzGraphAsciiVisualizer from stzObject
 	def _ShowVerticalBranchWithNodes(pcNodeId, pacVisitedPath, pnBranchDepth, pacDisplayNodes)
 		_cDisplayLabel_ = This._GetDisplayLabel(pcNodeId, pacDisplayNodes)
 		_cBoxed_ = BoxRound(_cDisplayLabel_)
-		_acLines_ = @split(_cBoxed_, nl)
+		_acLines_ = @split(_cBoxed_, char(10))
 		_nLen_ = len(_acLines_)
 		
 		for i = 1 to _nLen_
@@ -8598,7 +8598,7 @@ class stzGraphAsciiVisualizer from stzObject
 					This._Emit("")
 					_cDisplayLabel_ = This._GetDisplayLabel(pcNodeId, pacDisplayNodes)
 					_cBoxed_ = BoxRound(_cDisplayLabel_)
-					_acLines_ = @split(_cBoxed_, nl)
+					_acLines_ = @split(_cBoxed_, char(10))
 					_nLen2_ = len(_acLines_)
 					
 					for j = 1 to _nLen2_
@@ -8675,7 +8675,7 @@ class stzGraphAsciiVisualizer from stzObject
 	def _ShowHorizontalBranchWithNodes(pcNodeId, pacVisited, pacBoxLines, pacArrowLines, pacDisplayNodes)
 		_cDisplayLabel_ = This._GetDisplayLabel(pcNodeId, pacDisplayNodes)
 		_cBoxed_ = BoxRound(_cDisplayLabel_)
-		_acLines_ = @split(_cBoxed_, nl)
+		_acLines_ = @split(_cBoxed_, char(10))
 		
 		_acNeighbors_ = @oGraph.Neighbors(pcNodeId)
 		

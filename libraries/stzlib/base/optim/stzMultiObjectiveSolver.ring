@@ -1166,7 +1166,7 @@ class stzMultiObjectiveSolver from stzObject
         for i = 1 to _nObjLen_
             _cContent_ += @aObjectives[i][:expression] + ","
         next
-        _cContent_ += nl
+        _cContent_ += char(10)
         
         # Data rows
         _nParetoLen_ = len(@aParetoSolutions)
@@ -1186,7 +1186,7 @@ class stzMultiObjectiveSolver from stzObject
                 if @aObjectives[j][:type] = "maximize" _nValue_ = -_nValue_ ok
                 _cContent_ += _nValue_ + ","
             next
-            _cContent_ += nl
+            _cContent_ += char(10)
         next
         
         _oFile_.write(_cContent_)

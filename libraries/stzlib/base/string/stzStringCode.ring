@@ -233,7 +233,7 @@ class stzStringCode from stzObject
 				_nRestLen_ = len(_acRestChars_)
 				for j = 1 to _nRestLen_
 					_c_ = _acRestChars_[j]
-					if _c_ = " " or _c_ = "(" or _c_ = nl
+					if _c_ = " " or _c_ = "(" or _c_ = char(10)
 						exit
 					ok
 					_cName_ += _c_
@@ -271,7 +271,7 @@ class stzStringCode from stzObject
 				_nRestLen_ = len(_acRestChars_)
 				for j = 1 to _nRestLen_
 					_c_ = _acRestChars_[j]
-					if _c_ = " " or _c_ = nl
+					if _c_ = " " or _c_ = char(10)
 						exit
 					ok
 					_cName_ += _c_

@@ -406,7 +406,7 @@ def init(paData)
 		_nLenL_ = len(@acLabels)
 		for i = 1 to _nLenL_
 			if i > 1
-				_cLabels_ += nl
+				_cLabels_ += char(10)
 			ok
 			_cLabels_ += @acLabels[i]
 		next
@@ -477,7 +477,7 @@ def init(paData)
 				_cResult_ += @acCanvas[i][j]
 			next
 			if i < @nHeight
-				_cResult_ += nl
+				_cResult_ += char(10)
 			ok
 		next
 		return _cResult_

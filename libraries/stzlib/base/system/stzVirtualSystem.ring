@@ -920,7 +920,7 @@ class stzVirtualSystem from stzObject
 	#   see        ShowHistory, History
 	#@ aka  THE REHEARSAL, AS TEXT.
 	def HistoryText()
-		_c_ = "Rehearsed operations (" + len(@aHistory) + "):" + nl
+		_c_ = "Rehearsed operations (" + len(@aHistory) + "):" + char(10)
 		_n_ = len(@aHistory)
 		for _i_ = 1 to _n_
 			_oOp_ = @aHistory[_i_]
@@ -934,7 +934,7 @@ class stzVirtualSystem from stzObject
 			if _oOp_.Intent() != ""
 				_c_ += " -- " + _oOp_.Intent()
 			ok
-			_c_ += nl
+			_c_ += char(10)
 		next
 		return _c_
 

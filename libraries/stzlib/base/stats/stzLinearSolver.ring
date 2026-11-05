@@ -1803,10 +1803,10 @@ class stzLinearSolver from stzObject
 	def exportToCSV(cFileName)
 		# Export solution to CSV file
 		_oFile_ = new stzFile(cFileName)
-		_cContent_ = "Variable,Value" + nl
+		_cContent_ = "Variable,Value" + char(10)
 		_nLen_ = len(@aSolution)
 		for i = 1 to _nLen_
-			_cContent_ += @aSolution[i][1] + "," + @aSolution[i][2] + nl
+			_cContent_ += @aSolution[i][1] + "," + @aSolution[i][2] + char(10)
 		next
 
 		_oFile_.write(_cContent_)
@@ -1819,25 +1819,25 @@ class stzLinearSolver from stzObject
 	def exportReport(cFileName)
 		# Export full report
 		_oFile_ = new stzFile(cFileName)
-		_cContent_ = "Linear Programming Problem Report" + nl
-		_cContent_ += "=================================" + nl + nl
+		_cContent_ = "Linear Programming Problem Report" + char(10)
+		_cContent_ += "=================================" + char(10) + char(10)
 		
-		_cContent_ += "Problem Definition:" + nl
-		_cContent_ += "Variables: " + len(@variables) + nl
-		_cContent_ += "Constraints: " + len(@constraints) + nl
-		_cContent_ += "Objective: " + StzUpper(@objectiveType) + " " + @objective + nl + nl
+		_cContent_ += "Problem Definition:" + char(10)
+		_cContent_ += "Variables: " + len(@variables) + char(10)
+		_cContent_ += "Constraints: " + len(@constraints) + char(10)
+		_cContent_ += "Objective: " + StzUpper(@objectiveType) + " " + @objective + char(10) + char(10)
 		
 		if @status != ""
-			_cContent_ += "Solution:" + nl
-			_cContent_ += "Status: " + @status + nl
-			_cContent_ += "Solve Time: " + @solveTime + " seconds" + nl
-			_cContent_ += "Iterations: " + @iterations + nl
-			_cContent_ += "Objective Value: " + this.objectiveValue() + nl + nl
+			_cContent_ += "Solution:" + char(10)
+			_cContent_ += "Status: " + @status + char(10)
+			_cContent_ += "Solve Time: " + @solveTime + " seconds" + char(10)
+			_cContent_ += "Iterations: " + @iterations + char(10)
+			_cContent_ += "Objective Value: " + this.objectiveValue() + char(10) + char(10)
 			
-			_cContent_ += "Variable Values:" + nl
+			_cContent_ += "Variable Values:" + char(10)
 			_nLen_ = len(@aSolution)
 			for i = 1 to _nLen_
-				_cContent_ += @aSolution[i][1] + " = " + @aSolution[i][2] + nl
+				_cContent_ += @aSolution[i][1] + " = " + @aSolution[i][2] + char(10)
 			next
 		ok
 

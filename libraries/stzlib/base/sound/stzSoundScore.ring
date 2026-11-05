@@ -783,7 +783,7 @@ class stzSoundScore
 		_w_ = ""
 		for _k_ = 1 to len(pcText)
 			_ch_ = pcText[_k_]
-			if _ch_ = " " or _ch_ = char(9) or _ch_ = nl
+			if _ch_ = " " or _ch_ = char(9) or _ch_ = char(10)
 				if _w_ != ""  _a_ + _w_  _w_ = "" ok
 			else
 				_w_ += _ch_

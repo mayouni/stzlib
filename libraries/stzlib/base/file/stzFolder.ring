@@ -5419,7 +5419,7 @@ class stzFolder from stzObject
 		if _cFolderName_ = ""
 			_cFolderName_ = This.Path()
 		end
-		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + _nTotalMatches_ + " matches for '" + _cPattern_ + "')" + nl
+		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + _nTotalMatches_ + " matches for '" + _cPattern_ + "')" + char(10)
 		_cResult_ += This.GenerateVizTreeString(This.Path(), '', 1, _cPattern_, "both", 0, 1)
 		return _cResult_
 
@@ -5438,7 +5438,7 @@ class stzFolder from stzObject
 		if _cFolderName_ = ""
 			_cFolderName_ = This.Path()
 		end
-		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + _nTotalMatches_ + " file matches for '" + _cPattern_ + "')" + nl
+		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + _nTotalMatches_ + " file matches for '" + _cPattern_ + "')" + char(10)
 		_cResult_ += This.GenerateVizTreeString(This.Path(), "", 1, _cPattern_, "files", 0, 1)
 		return _cResult_
 
@@ -5457,7 +5457,7 @@ class stzFolder from stzObject
 		if _cFolderName_ = ""
 			_cFolderName_ = This.Path()
 		end
-		_cResult_ = @acDisplayChars[:FolderRootXT] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + _nTotalMatches_ + " folder matches for '" + _cPattern_ + "')" + nl
+		_cResult_ = @acDisplayChars[:FolderRootXT] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + " " + _nTotalMatches_ + " folder matches for '" + _cPattern_ + "')" + char(10)
 		_cResult_ += This.GenerateVizTreeString(This.Path(), "", 1, _cPattern_, "folders", 0, 1)
 		return _cResult_
 
@@ -5478,7 +5478,7 @@ class stzFolder from stzObject
 		if _cFolderName_ = ""
 			_cFolderName_ = This.Path()
 		end
-		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + "" + _nTotalMatches_ + " matches for '" + _cPattern_ + "')" + nl
+		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + "" + _nTotalMatches_ + " matches for '" + _cPattern_ + "')" + char(10)
 		_cResult_ += This.GenerateVizTreeString(This.Path(), '', 1, _cPattern_, "both", 0, This.MaxDisplayLevel())
 		return _cResult_
 
@@ -5497,7 +5497,7 @@ class stzFolder from stzObject
 		if _cFolderName_ = ""
 			_cFolderName_ = This.Path()
 		end
-		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + "" + _nTotalMatches_ + " file matches for '" + _cPattern_ + "')" + nl
+		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + "" + _nTotalMatches_ + " file matches for '" + _cPattern_ + "')" + char(10)
 		This.CollapseAll()
 		_acFoldersWithMatches_ = This.GetFoldersContainingFileMatches(This.Path(), _cPattern_)
 		if len(_acFoldersWithMatches_) > 0
@@ -5518,7 +5518,7 @@ class stzFolder from stzObject
 		if _cFolderName_ = ""
 			_cFolderName_ = This.Path()
 		end
-		_cResult_ = @acDisplayChars[:FolderRootXT] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + + "  " + _nTotalMatches_ + " folder matches for '" + _cPattern_ + "')" + nl
+		_cResult_ = @acDisplayChars[:FolderRootXT] + " " + _cFolderName_ + " (" + @acDisplayChars[:FolderRootSearchSymbol] + + "  " + _nTotalMatches_ + " folder matches for '" + _cPattern_ + "')" + char(10)
 		_cResult_ += This.GenerateVizTreeString(This.Path(), "", 1, _cPattern_, "folders", 0, This.MaxDisplayLevel())
 		return _cResult_
 
@@ -6714,9 +6714,9 @@ class stzFolder from stzObject
 	            
 	            # Use correct connector based on position
 	            if _bIsLastItem_
-	                _cResult_ += _cPrefix_ + @acDisplayChars[:ClosingChar] + (char(226)+char(148)+char(128)) + _cIcon_ + " " + _cItemName_ + nl
+	                _cResult_ += _cPrefix_ + @acDisplayChars[:ClosingChar] + (char(226)+char(148)+char(128)) + _cIcon_ + " " + _cItemName_ + char(10)
 	            else
-	                _cResult_ += _cPrefix_ + @acDisplayChars[:VerticalCharTick] + (char(226)+char(148)+char(128)) + _cIcon_ + " " + _cItemName_ + nl
+	                _cResult_ += _cPrefix_ + @acDisplayChars[:VerticalCharTick] + (char(226)+char(148)+char(128)) + _cIcon_ + " " + _cItemName_ + char(10)
 	            end
 	            
 	        else  # folder
@@ -6781,10 +6781,10 @@ class stzFolder from stzObject
 	            
 	            # Build the line - use correct connector based on position
 	            if _bIsLastItem_
-	                _cResult_ += _cPrefix_ + @acDisplayChars[:ClosingChar] + (char(226)+char(148)+char(128)) + _cIcon_ + " " + _cItemName_ + _cMatchCount_ + _cFolderStats_ + nl
+	                _cResult_ += _cPrefix_ + @acDisplayChars[:ClosingChar] + (char(226)+char(148)+char(128)) + _cIcon_ + " " + _cItemName_ + _cMatchCount_ + _cFolderStats_ + char(10)
 	                _cNewPrefix_ = _cPrefix_ + "  "  # No vertical line continuation for last item
 	            else
-	                _cResult_ += _cPrefix_ + @acDisplayChars[:VerticalCharTick] + (char(226)+char(148)+char(128)) + _cIcon_ + " " + _cItemName_ + _cMatchCount_ + _cFolderStats_ + nl
+	                _cResult_ += _cPrefix_ + @acDisplayChars[:VerticalCharTick] + (char(226)+char(148)+char(128)) + _cIcon_ + " " + _cItemName_ + _cMatchCount_ + _cFolderStats_ + char(10)
 	                _cNewPrefix_ = _cPrefix_ + @acDisplayChars[:VerticlalChar] + " "  # Continue vertical line
 	            end
 	            

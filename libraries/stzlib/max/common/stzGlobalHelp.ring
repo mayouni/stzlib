@@ -38,7 +38,7 @@ func HelpXT(cStzClassOrFunc)
 		StzRaise("Inexistant extended help for this entry!")
 	ok
 
-	return cResult + NL + NL+ cHelpXT
+	return cResult + char(10) + char(10)+ cHelpXT
 
 	func HelpForXT(cStzClassOrFunc)
 		return HelpXT(cStzClassOrFunc)

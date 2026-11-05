@@ -1015,7 +1015,7 @@ class stzBarPlot from stzObject
 		_nL_ = len(@acLabels)
 		for _i_ = 1 to _nL_
 			if _i_ > 1
-				_cLabels_ += nl
+				_cLabels_ += char(10)
 			ok
 			_cLabels_ += @acLabels[_i_]
 		next
@@ -1084,7 +1084,7 @@ class stzBarPlot from stzObject
 			next
 			
 			if i < _nRows_
-				_cResult_ += _cLine_ + nl
+				_cResult_ += _cLine_ + char(10)
 			else
 				_cResult_ += _cLine_
 			ok

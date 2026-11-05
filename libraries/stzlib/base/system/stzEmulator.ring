@@ -364,28 +364,28 @@ func _StzEmuAssetsDir()
 	return _StzBaseDir() + "/system/emulator_assets"
 
 func _StzEmuHtml(pcName, poPlan)
-	_h_ = "<!doctype html>" + nl + "<html lang='en'><head><meta charset='utf-8'>" + nl
-	_h_ += "<meta name='viewport' content='width=device-width, initial-scale=1'>" + nl
-	_h_ += "<title>" + pcName + " -- Deploy(:Emulated)</title>" + nl
-	_h_ += "<link rel='stylesheet' href='emulator.css'></head><body>" + nl
-	_h_ += "<div class='head'><h1>" + pcName + " <span class='chip'>emulation</span></h1>" + nl
-	_h_ += "<span class='stat ok'><span class='dot'></span> parts healthy</span></div>" + nl
-	_h_ += "<div class='sub'>The whole solution, emulated in the browser -- each part runs its real engine. What works here ships as-is.</div>" + nl
-	_h_ += "<div class='deploybar'><div class='t'><b>Ready to ship.</b> Every part runs its real engine here -- what works in emulation ships as-is.</div><button class='crit' onclick='deployProd()'>Deploy to production</button></div>" + nl
-	_h_ += "<div class='page'>" + _StzEmuGridCol(poPlan) + _StzEmuAuxCol(poPlan) + "</div>" + nl
-	_h_ += _StzEmuPopups(poPlan) + nl
-	_h_ += "<script src='stz_parts.js'></script>" + nl
-	_h_ += "<script src='stz_appdata.js'></script>" + nl
-	_h_ += "<script src='stz.js'></script>" + nl
-	_h_ += "<script src='emulator.js'></script>" + nl
-	_h_ += "</body></html>" + nl
+	_h_ = "<!doctype html>" + char(10) + "<html lang='en'><head><meta charset='utf-8'>" + char(10)
+	_h_ += "<meta name='viewport' content='width=device-width, initial-scale=1'>" + char(10)
+	_h_ += "<title>" + pcName + " -- Deploy(:Emulated)</title>" + char(10)
+	_h_ += "<link rel='stylesheet' href='emulator.css'></head><body>" + char(10)
+	_h_ += "<div class='head'><h1>" + pcName + " <span class='chip'>emulation</span></h1>" + char(10)
+	_h_ += "<span class='stat ok'><span class='dot'></span> parts healthy</span></div>" + char(10)
+	_h_ += "<div class='sub'>The whole solution, emulated in the browser -- each part runs its real engine. What works here ships as-is.</div>" + char(10)
+	_h_ += "<div class='deploybar'><div class='t'><b>Ready to ship.</b> Every part runs its real engine here -- what works in emulation ships as-is.</div><button class='crit' onclick='deployProd()'>Deploy to production</button></div>" + char(10)
+	_h_ += "<div class='page'>" + _StzEmuGridCol(poPlan) + _StzEmuAuxCol(poPlan) + "</div>" + char(10)
+	_h_ += _StzEmuPopups(poPlan) + char(10)
+	_h_ += "<script src='stz_parts.js'></script>" + char(10)
+	_h_ += "<script src='stz_appdata.js'></script>" + char(10)
+	_h_ += "<script src='stz.js'></script>" + char(10)
+	_h_ += "<script src='emulator.js'></script>" + char(10)
+	_h_ += "</body></html>" + char(10)
 	return _h_
 
 func _StzEmuManifest(pcName, poPlan)
 	_cQ_ = char(34)
-	_c_ = "{" + nl + "  " + _cQ_ + "name" + _cQ_ + ": " + _cQ_ + pcName + _cQ_ + "," + nl
-	_c_ += "  " + _cQ_ + "kind" + _cQ_ + ": " + _cQ_ + "emulator" + _cQ_ + "," + nl
-	_c_ += "  " + _cQ_ + "entry" + _cQ_ + ": " + _cQ_ + "index.html" + _cQ_ + "," + nl
+	_c_ = "{" + char(10) + "  " + _cQ_ + "name" + _cQ_ + ": " + _cQ_ + pcName + _cQ_ + "," + char(10)
+	_c_ += "  " + _cQ_ + "kind" + _cQ_ + ": " + _cQ_ + "emulator" + _cQ_ + "," + char(10)
+	_c_ += "  " + _cQ_ + "entry" + _cQ_ + ": " + _cQ_ + "index.html" + _cQ_ + "," + char(10)
 	_c_ += "  " + _cQ_ + "parts" + _cQ_ + ": ["
 	_aP_ = poPlan.Parts()
 	_n_ = len(_aP_)
@@ -395,14 +395,14 @@ func _StzEmuManifest(pcName, poPlan)
 			_c_ += ", "
 		ok
 	next
-	_c_ += "]" + nl + "}" + nl
+	_c_ += "]" + char(10) + "}" + char(10)
 	return _c_
 
 # The plan-derived engine map, as a tiny JS asset emulator.js reads: for each
 # frontend part, its own stz.wasm subset file + the groups it carries. This is
 # how a device console knows to load ONLY its part's subset.
 func _StzEmuPartsJs(paWasmParts)
-	_j_ = "window.STZ_PARTS = {" + nl
+	_j_ = "window.STZ_PARTS = {" + char(10)
 	_n_ = len(paWasmParts)
 	for _i_ = 1 to _n_
 		_wp_ = paWasmParts[_i_]
@@ -410,9 +410,9 @@ func _StzEmuPartsJs(paWasmParts)
 		if _i_ < _n_
 			_j_ += ","
 		ok
-		_j_ += nl
+		_j_ += char(10)
 	next
-	_j_ += "};" + nl
+	_j_ += "};" + char(10)
 	return _j_
 
 # The app MODEL, as a JS asset emulator.js reads (window.STZ_APPDATA): each api
@@ -420,9 +420,9 @@ func _StzEmuPartsJs(paWasmParts)
 # pins + automation rule. This is what makes the backend/device consoles answer
 # with REAL data + REAL logic instead of a rehearsed map. Empty when no model.
 func _StzEmuAppDataJs(poApp, poPlan)
-	_j_ = "window.STZ_APPDATA = {" + nl
+	_j_ = "window.STZ_APPDATA = {" + char(10)
 	if NOT isObject(poApp)
-		return _j_ + "};" + nl
+		return _j_ + "};" + char(10)
 	ok
 	_aP_ = poPlan.Parts()
 	_n_ = len(_aP_)
@@ -441,9 +441,9 @@ func _StzEmuAppDataJs(poApp, poPlan)
 		if _i_ < _ne_
 			_j_ += ","
 		ok
-		_j_ += nl
+		_j_ += char(10)
 	next
-	_j_ += "};" + nl
+	_j_ += "};" + char(10)
 	return _j_
 
 func _StzEmuApiEntry(poApp, pcPart)

@@ -194,13 +194,13 @@ class stzSelfDoc from stzObject
 		# Teach the function FORM (active mutates / passive returns a copy / ...).
 		_cFn_ = _StzFormNote(@aMethods[_ix_][1])
 		if _cFn_ != ""
-			_cOut_ += nl + "  (" + _cFn_ + ")"
+			_cOut_ += char(10) + "  (" + _cFn_ + ")"
 		ok
 		# For a compositionally-rich name, spell its grammar out as a sentence --
 		# the name IS the meaning (functions-as-linguistic-expressions).
 		_aPn_ = _StzParseName(@aMethods[_ix_][1])
 		if _StzHasRichFormTag(_aPn_[2])
-			_cOut_ += nl + "  reads as: " + _StzNameGloss(@aMethods[_ix_][1])
+			_cOut_ += char(10) + "  reads as: " + _StzNameGloss(@aMethods[_ix_][1])
 		ok
 		# What the author WROTE in the method's doc block, field by field (never
 		# invented here): parameters, returns, notes, see-also, example.
@@ -211,21 +211,21 @@ class stzSelfDoc from stzObject
 			for _iP_ = 1 to _nPr_
 				_cRole_ = _StzDocWrittenRole(_aRec_, _aPr_[_iP_])
 				if _cRole_ != ""
-					_cOut_ += nl + "  " + _aPr_[_iP_] + " -- " + _cRole_
+					_cOut_ += char(10) + "  " + _aPr_[_iP_] + " -- " + _cRole_
 				ok
 			next
 			if _aRec_[:returns] != ""
-				_cOut_ += nl + "  returns: " + _aRec_[:returns]
+				_cOut_ += char(10) + "  returns: " + _aRec_[:returns]
 			ok
 			_nNt_ = len(_aRec_[:notes])
 			for _iN_ = 1 to _nNt_
-				_cOut_ += nl + "  note: " + _aRec_[:notes][_iN_]
+				_cOut_ += char(10) + "  note: " + _aRec_[:notes][_iN_]
 			next
 			if _aRec_[:see] != ""
-				_cOut_ += nl + "  see: " + _aRec_[:see]
+				_cOut_ += char(10) + "  see: " + _aRec_[:see]
 			ok
 			if _aRec_[:example] != ""
-				_cOut_ += nl + "  example: " + StzReplace(_aRec_[:example], char(10), nl + "           ")
+				_cOut_ += char(10) + "  example: " + StzReplace(_aRec_[:example], char(10), char(10) + "           ")
 			ok
 		ok
 		# A provably-running example from the tests: prefer a real "code #--> output"
@@ -233,9 +233,9 @@ class stzSelfDoc from stzObject
 		_aEg_ = _StzExampleFor(lower(@aMethods[_ix_][1]))
 		if len(_aEg_) = 3
 			if _aEg_[2] != ""
-				_cOut_ += nl + "  e.g. " + _aEg_[2]
+				_cOut_ += char(10) + "  e.g. " + _aEg_[2]
 			but _aEg_[1] != ""
-				_cOut_ += nl + "  e.g. tested in: " + _aEg_[1]
+				_cOut_ += char(10) + "  e.g. tested in: " + _aEg_[1]
 			ok
 		ok
 		return _cOut_

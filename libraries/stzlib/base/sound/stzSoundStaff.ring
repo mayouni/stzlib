@@ -517,11 +517,11 @@ class stzSoundStaff
 	#   see        ToSVG, SaveAs
 	def ToHTML(pcTitle)
 		_q_ = char(34)
-		return "<!DOCTYPE html>" + nl + "<html lang=" + _q_ + "en" + _q_ + "><head><meta charset=" + _q_ + "utf-8" + _q_ + ">" +
+		return "<!DOCTYPE html>" + char(10) + "<html lang=" + _q_ + "en" + _q_ + "><head><meta charset=" + _q_ + "utf-8" + _q_ + ">" +
 		       "<title>" + This._Xml(pcTitle) + "</title>" +
 		       "<style>body{margin:0;padding:16px;background:#eceae4}svg{display:block;margin:0 auto;max-width:100%;height:auto;" +
-		       "background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18)}</style></head><body>" + nl +
-		       This.ToSVG(pcTitle) + nl + "</body></html>" + nl
+		       "background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18)}</style></head><body>" + char(10) +
+		       This.ToSVG(pcTitle) + char(10) + "</body></html>" + char(10)
 
 	# Lays the score out on the staff and returns the drawing as SVG.
 	#
@@ -809,22 +809,22 @@ class stzSoundStaff
 
 		_q_ = char(34)
 		_o_ = "<svg xmlns=" + _q_ + "http://www.w3.org/2000/svg" + _q_ + " width=" + _q_ + @nWidth + _q_ + " height=" + _q_ +
-		      This._F(@nHeight) + _q_ + " viewBox=" + _q_ + "0 0 " + @nWidth + " " + This._F(@nHeight) + _q_ + ">" + nl
-		_o_ += "<rect width=" + _q_ + "100%" + _q_ + " height=" + _q_ + "100%" + _q_ + " fill=" + _q_ + "#ffffff" + _q_ + "/>" + nl
-		_o_ += "<g fill=" + _q_ + "#111" + _q_ + " stroke=" + _q_ + "#111" + _q_ + ">" + nl
+		      This._F(@nHeight) + _q_ + " viewBox=" + _q_ + "0 0 " + @nWidth + " " + This._F(@nHeight) + _q_ + ">" + char(10)
+		_o_ += "<rect width=" + _q_ + "100%" + _q_ + " height=" + _q_ + "100%" + _q_ + " fill=" + _q_ + "#ffffff" + _q_ + "/>" + char(10)
+		_o_ += "<g fill=" + _q_ + "#111" + _q_ + " stroke=" + _q_ + "#111" + _q_ + ">" + char(10)
 		if pcTitle != ""
-			_o_ += This._Text(@nWidth / 2, 38, pcTitle, 22, "middle", "") + nl
+			_o_ += This._Text(@nWidth / 2, 38, pcTitle, 22, "middle", "") + char(10)
 		ok
 		# the tempo, over the first staff: a small quarter note, then "= 96"
 		_ty_ = @aStaffY[1][1] - _aAbove_[1] + 1.2 * _sp_
 		_tx_ = @nLeft + 6
 		_o_ += This._Ellipse(_tx_, _ty_, 0.42 * _sp_, 0.3 * _sp_, TRUE) +
 		       This._Line(_tx_ + 0.38 * _sp_, _ty_, _tx_ + 0.38 * _sp_, _ty_ - 2.2 * _sp_, 1.1) +
-		       This._Text(_tx_ + 1.1 * _sp_, _ty_ + 4, "= " + floor(@oS.TempoInBpm() + 0.5), 13, "start", "") + nl
+		       This._Text(_tx_ + 1.1 * _sp_, _ty_ + 4, "= " + floor(@oS.TempoInBpm() + 0.5), 13, "start", "") + char(10)
 		for _si_ = 1 to len(@aSystems)
 			_o_ += This._DrawSystem(_si_, _aBarCols_)
 		next
-		_o_ += "</g>" + nl + "</svg>"
+		_o_ += "</g>" + char(10) + "</svg>"
 		return _o_
 
 	# a bar's columns: every onset any staff has there, as [ pos, width, room for an accidental ]
@@ -1210,7 +1210,7 @@ class stzSoundStaff
 					if _y_ - 2.2 * _sp_ < _oy_  _oy_ = _y_ - 2.2 * _sp_ ok
 					_o_ += "<circle cx=" + char(34) + This._F(_hx_) + char(34) + " cy=" + char(34) + This._F(_oy_) + char(34) +
 					       " r=" + char(34) + This._F(0.32 * _sp_) + char(34) + " fill=" + char(34) + "none" + char(34) +
-					       " stroke-width=" + char(34) + "1.1" + char(34) + "/>" + nl
+					       " stroke-width=" + char(34) + "1.1" + char(34) + "/>" + char(10)
 					@aModel + [ "openmark", This._StaffNo(pnK), pnS, pnBar, _hx_, _oy_ ]
 				ok
 				if pcClef = "perc1"
@@ -1277,7 +1277,7 @@ class stzSoundStaff
 		_t_ = "translate(" + This._F(pnX) + "," + This._F(pnY) + ") rotate(-20)"
 		if pnLen <= 6
 			return "<ellipse transform=" + _q_ + _t_ + _q_ + " rx=" + _q_ + This._F(0.62 * _sp_) + _q_ + " ry=" + _q_ +
-			       This._F(0.44 * _sp_) + _q_ + " stroke=" + _q_ + "none" + _q_ + "/>" + nl
+			       This._F(0.44 * _sp_) + _q_ + " stroke=" + _q_ + "none" + _q_ + "/>" + char(10)
 		ok
 		if pnLen >= 16
 			# a whole note: an open oval, its hole tilted the other way
@@ -1285,13 +1285,13 @@ class stzSoundStaff
 			       This._F(0.78 * _sp_) + _q_ + " ry=" + _q_ + This._F(0.48 * _sp_) + _q_ + " stroke=" + _q_ + "none" + _q_ + "/>" +
 			       "<ellipse transform=" + _q_ + "translate(" + This._F(pnX) + "," + This._F(pnY) + ") rotate(55)" + _q_ + " rx=" + _q_ +
 			       This._F(0.36 * _sp_) + _q_ + " ry=" + _q_ + This._F(0.22 * _sp_) + _q_ + " fill=" + _q_ + "#fff" + _q_ +
-			       " stroke=" + _q_ + "none" + _q_ + "/>" + nl
+			       " stroke=" + _q_ + "none" + _q_ + "/>" + char(10)
 		ok
 		# a half note: an open, tilted oval
 		return "<ellipse transform=" + _q_ + _t_ + _q_ + " rx=" + _q_ + This._F(0.62 * _sp_) + _q_ + " ry=" + _q_ +
 		       This._F(0.44 * _sp_) + _q_ + " stroke=" + _q_ + "none" + _q_ + "/>" +
 		       "<ellipse transform=" + _q_ + _t_ + _q_ + " rx=" + _q_ + This._F(0.46 * _sp_) + _q_ + " ry=" + _q_ +
-		       This._F(0.2 * _sp_) + _q_ + " fill=" + _q_ + "#fff" + _q_ + " stroke=" + _q_ + "none" + _q_ + "/>" + nl
+		       This._F(0.2 * _sp_) + _q_ + " fill=" + _q_ + "#fff" + _q_ + " stroke=" + _q_ + "none" + _q_ + "/>" + char(10)
 
 	def _Flag(pnX, pnY, pcDir, pnN)
 		_sp_ = @nSp
@@ -1309,7 +1309,7 @@ class stzSoundStaff
 			      " c" + This._F(0.3 * _sp_) + "," + This._F(1.3 * _sp_) + " " + This._F(-0.6 * _sp_) + "," + This._F(1.9 * _sp_) +
 			      " " + This._F(-0.9 * _sp_) + "," + This._F(2.2 * _sp_) + " z"
 		ok
-		return "<path d=" + _q_ + _d_ + _q_ + " stroke=" + _q_ + "none" + _q_ + "/>" + nl
+		return "<path d=" + _q_ + _d_ + _q_ + " stroke=" + _q_ + "none" + _q_ + "/>" + char(10)
 
 	# a beam group: stems to one straight line, a second beam for sixteenths
 	def _Beam(paG, paP, pnTop, pcClef, pnK, pnS, pnBar)
@@ -1412,7 +1412,7 @@ class stzSoundStaff
 		_q_ = char(34)
 		return "<polygon points=" + _q_ + This._F(pnX1 - 0.6) + "," + This._F(pnY1) + " " + This._F(pnX2 + 0.6) + "," + This._F(pnY2) + " " +
 		       This._F(pnX2 + 0.6) + "," + This._F(pnY2 + pnTh) + " " + This._F(pnX1 - 0.6) + "," + This._F(pnY1 + pnTh) + _q_ +
-		       " stroke=" + _q_ + "none" + _q_ + "/>" + nl
+		       " stroke=" + _q_ + "none" + _q_ + "/>" + char(10)
 
 	# a tie from this piece to the next piece of the same staff
 	def _Tie(pnK, pnS, pnI, pnX, pnTop, pcDir)
@@ -1477,7 +1477,7 @@ class stzSoundStaff
 		_d_ = "M" + This._F(pnX1) + "," + This._F(pnY) + " Q" + This._F(_mx_) + "," + This._F(pnY + pnSg * _h_) + " " +
 		      This._F(pnX2) + "," + This._F(pnY) + " Q" + This._F(_mx_) + "," + This._F(pnY + pnSg * (_h_ - 0.32 * @nSp)) + " " +
 		      This._F(pnX1) + "," + This._F(pnY) + " z"
-		return "<path d=" + _q_ + _d_ + _q_ + " stroke=" + _q_ + "none" + _q_ + "/>" + nl
+		return "<path d=" + _q_ + _d_ + _q_ + " stroke=" + _q_ + "none" + _q_ + "/>" + char(10)
 
 	# rests are drawn as shapes: the whole hangs from the fourth line, the half
 	# sits on the middle one, the quarter is a zigzag, the eighth and sixteenth a
@@ -1507,7 +1507,7 @@ class stzSoundStaff
 			      This._F(_c_ + 0.6 * _sp_) + " " + This._F(_x_ - 0.55 * _sp_) + "," + This._F(_c_ + 1.1 * _sp_) + " " +
 			      This._F(_x_ - 0.05 * _sp_) + "," + This._F(_c_ + 1.6 * _sp_)
 			_o_ += "<path d=" + char(34) + _d_ + char(34) + " fill=" + char(34) + "none" + char(34) + " stroke-width=" +
-			       char(34) + This._F(0.28 * _sp_) + char(34) + " stroke-linejoin=" + char(34) + "round" + char(34) + "/>" + nl
+			       char(34) + This._F(0.28 * _sp_) + char(34) + " stroke-linejoin=" + char(34) + "round" + char(34) + "/>" + char(10)
 		else
 			_nh_ = 1
 			if _len_ = 1  _nh_ = 2 ok
@@ -1519,7 +1519,7 @@ class stzSoundStaff
 				_o_ += This._Ellipse(_hx_ - 0.75 * _sp_, _hy_ + 0.2 * _sp_, 0.3 * _sp_, 0.3 * _sp_, TRUE)
 				_o_ += "<path d=" + char(34) + "M" + This._F(_hx_ - 0.75 * _sp_) + "," + This._F(_hy_ + 0.45 * _sp_) + " Q" +
 				       This._F(_hx_ - 0.2 * _sp_) + "," + This._F(_hy_ + 0.6 * _sp_) + " " + This._F(_hx_) + "," + This._F(_hy_) +
-				       char(34) + " fill=" + char(34) + "none" + char(34) + " stroke-width=" + char(34) + "1.3" + char(34) + "/>" + nl
+				       char(34) + " fill=" + char(34) + "none" + char(34) + " stroke-width=" + char(34) + "1.3" + char(34) + "/>" + char(10)
 			next
 		ok
 		if ring_find([ 12, 6, 3 ], _len_) > 0
@@ -1548,7 +1548,7 @@ class stzSoundStaff
 			_d_ = "M" + This._F(pnX - 0.3 * _sp_) + "," + This._F(pnY - 0.1 * _sp_) + " C" + This._F(pnX + 0.2 * _sp_) + "," +
 			      This._F(pnY - 0.75 * _sp_) + " " + This._F(pnX + 0.95 * _sp_) + "," + This._F(pnY - 0.45 * _sp_) + " " +
 			      This._F(pnX - 0.3 * _sp_) + "," + This._F(pnY + 0.5 * _sp_)
-			_o_ += "<path d=" + char(34) + _d_ + char(34) + " fill=" + char(34) + "none" + char(34) + " stroke-width=" + char(34) + "1.5" + char(34) + "/>" + nl
+			_o_ += "<path d=" + char(34) + _d_ + char(34) + " fill=" + char(34) + "none" + char(34) + " stroke-width=" + char(34) + "1.5" + char(34) + "/>" + char(10)
 			if pnAlt = -0.5
 				_o_ += This._Line(pnX - 0.8 * _sp_, pnY - 0.75 * _sp_, pnX + 0.2 * _sp_, pnY - 1.35 * _sp_, 1.1)
 			ok
@@ -2280,19 +2280,19 @@ class stzSoundStaff
 	def _Line(pnX1, pnY1, pnX2, pnY2, pnW)
 		_q_ = char(34)
 		return "<line x1=" + _q_ + This._F(pnX1) + _q_ + " y1=" + _q_ + This._F(pnY1) + _q_ + " x2=" + _q_ + This._F(pnX2) + _q_ +
-		       " y2=" + _q_ + This._F(pnY2) + _q_ + " stroke-width=" + _q_ + This._F(pnW) + _q_ + "/>" + nl
+		       " y2=" + _q_ + This._F(pnY2) + _q_ + " stroke-width=" + _q_ + This._F(pnW) + _q_ + "/>" + char(10)
 
 	def _Rect(pnX, pnY, pnW, pnH)
 		_q_ = char(34)
 		return "<rect x=" + _q_ + This._F(pnX) + _q_ + " y=" + _q_ + This._F(pnY) + _q_ + " width=" + _q_ + This._F(pnW) + _q_ +
-		       " height=" + _q_ + This._F(pnH) + _q_ + " stroke=" + _q_ + "none" + _q_ + "/>" + nl
+		       " height=" + _q_ + This._F(pnH) + _q_ + " stroke=" + _q_ + "none" + _q_ + "/>" + char(10)
 
 	def _Ellipse(pnX, pnY, pnRx, pnRy, pbFill)
 		_q_ = char(34)
 		_f_ = ""
 		if pbFill  _f_ = " stroke=" + _q_ + "none" + _q_ ok
 		return "<ellipse cx=" + _q_ + This._F(pnX) + _q_ + " cy=" + _q_ + This._F(pnY) + _q_ + " rx=" + _q_ + This._F(pnRx) + _q_ +
-		       " ry=" + _q_ + This._F(pnRy) + _q_ + _f_ + "/>" + nl
+		       " ry=" + _q_ + This._F(pnRy) + _q_ + _f_ + "/>" + char(10)
 
 	def _Text(pnX, pnY, pcText, pnSize, pcAnchor, pcWeight)
 		_q_ = char(34)
@@ -2300,13 +2300,13 @@ class stzSoundStaff
 		if pcWeight != ""  _w_ = " font-weight=" + _q_ + pcWeight + _q_ ok
 		return "<text x=" + _q_ + This._F(pnX) + _q_ + " y=" + _q_ + This._F(pnY) + _q_ + " font-family=" + _q_ +
 		       "Georgia,'Times New Roman',serif" + _q_ + " font-size=" + _q_ + This._F(pnSize) + _q_ + " text-anchor=" + _q_ +
-		       pcAnchor + _q_ + " stroke=" + _q_ + "none" + _q_ + _w_ + ">" + This._Xml(pcText) + "</text>" + nl
+		       pcAnchor + _q_ + " stroke=" + _q_ + "none" + _q_ + _w_ + ">" + This._Xml(pcText) + "</text>" + char(10)
 
 	def _Glyph(pnX, pnY, pcEntity, pnSize)
 		_q_ = char(34)
 		return "<text x=" + _q_ + This._F(pnX) + _q_ + " y=" + _q_ + This._F(pnY) + _q_ + " font-family=" + _q_ +
 		       "'Noto Music','Segoe UI Symbol','Apple Symbols','Bravura Text',Symbola,serif" + _q_ + " font-size=" + _q_ +
-		       This._F(pnSize) + _q_ + " stroke=" + _q_ + "none" + _q_ + ">" + pcEntity + "</text>" + nl
+		       This._F(pnSize) + _q_ + " stroke=" + _q_ + "none" + _q_ + ">" + pcEntity + "</text>" + char(10)
 
 	# a number as SVG wants it: one decimal, whatever decimals() is set to
 	def _F(pn)

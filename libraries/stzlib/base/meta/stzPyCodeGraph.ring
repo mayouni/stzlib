@@ -215,7 +215,7 @@ class stzPyCodeGraph from stzCodeGraph
 		_a_ + '        s.generic_visit(n)'
 		_a_ + 'V().visit(tree)'
 		_a_ + 'sys.stdout.write(chr(10).join(out) + chr(10))'
-		return JoinXT(_a_, nl)
+		return JoinXT(_a_, char(10))
 
 	#-- the INDENTATION FLOOR (self-contained, no dependency) --------------
 	# 'class Name(Bases):' opens a scope, 'def'/'async def' lines more

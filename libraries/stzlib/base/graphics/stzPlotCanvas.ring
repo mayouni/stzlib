@@ -278,14 +278,14 @@ func _StzPlotMin(paV)
 # NOTE: a function SIGNATURE must sit on ONE line -- Ring's parser does not
 # continue it, and splitting one here made stzBase.ring die at load with no
 # message at all.
-func _StzPlotVBars(_oCanvas_, paValues, paLabels, oFont, cCol, cInk, cMuted, nL, nR, nT, nB, nMin, nMax, bVals)
+func _StzPlotVBars(_oCanvas_, paValues, paLabels, oFont, cCol, cInk, cMuted, nLeft, nR, nT, nB, nMin, nMax, bVals)
 	_nN_ = len(paValues)
-	_nSlot_ = (nR - nL) / _nN_
+	_nSlot_ = (nR - nLeft) / _nN_
 	_nBW_ = _nSlot_ * 0.62
 	for _i_ = 1 to _nN_
 		_nV_ = paValues[_i_]
 		_nHt_ = (nB - nT) * (_nV_ - nMin) / (nMax - nMin)
-		_nX_ = nL + (_i_ - 1) * _nSlot_ + (_nSlot_ - _nBW_) / 2
+		_nX_ = nLeft + (_i_ - 1) * _nSlot_ + (_nSlot_ - _nBW_) / 2
 		_nY_ = nB - _nHt_
 		if _nHt_ > 0
 			_oCanvas_.AddGradientRectQ(_nX_, _nY_, _nBW_, _nHt_, cCol, "#9a5ad0", 1)
@@ -306,27 +306,27 @@ func _StzPlotVBars(_oCanvas_, paValues, paLabels, oFont, cCol, cInk, cMuted, nL,
 		ok
 	next
 
-func _StzPlotHBars(_oCanvas_, paValues, paLabels, oFont, cCol, cInk, cMuted, nL, nR, nT, nB, nMin, nMax, bVals)
+func _StzPlotHBars(_oCanvas_, paValues, paLabels, oFont, cCol, cInk, cMuted, nLeft, nR, nT, nB, nMin, nMax, bVals)
 	_nN_ = len(paValues)
 	_nSlot_ = (nB - nT) / _nN_
 	_nBH_ = _nSlot_ * 0.62
 	for _i_ = 1 to _nN_
 		_nV_ = paValues[_i_]
-		_nWd_ = (nR - nL) * (_nV_ - nMin) / (nMax - nMin)
+		_nWd_ = (nR - nLeft) * (_nV_ - nMin) / (nMax - nMin)
 		_nY_ = nT + (_i_ - 1) * _nSlot_ + (_nSlot_ - _nBH_) / 2
 		if _nWd_ > 0
-			_oCanvas_.AddGradientRectQ(nL, _nY_, _nWd_, _nBH_, cCol, "#9a5ad0", 0)
+			_oCanvas_.AddGradientRectQ(nLeft, _nY_, _nWd_, _nBH_, cCol, "#9a5ad0", 0)
 		ok
 		if isObject(oFont)
 			if bVals
 				_oCanvas_.SetFont(oFont, 14)
-				_oCanvas_.AddTextQ(_StzPlotNum(_nV_), nL + _nWd_ + 8,
+				_oCanvas_.AddTextQ(_StzPlotNum(_nV_), nLeft + _nWd_ + 8,
 					_nY_ + _nBH_ / 2 + 5).ColorQ(cInk)
 			ok
 			if isList(paLabels) and len(paLabels) >= _i_
 				_oCanvas_.SetFont(oFont, 15)
 				_cLb_ = "" + paLabels[_i_]
-				_oCanvas_.AddTextQ(_cLb_, nL - 12 - oFont.WidthOf(_cLb_, 15),
+				_oCanvas_.AddTextQ(_cLb_, nLeft - 12 - oFont.WidthOf(_cLb_, 15),
 					_nY_ + _nBH_ / 2 + 5).ColorQ(cMuted)
 			ok
 		ok
@@ -335,9 +335,9 @@ func _StzPlotHBars(_oCanvas_, paValues, paLabels, oFont, cCol, cInk, cMuted, nL,
 # A histogram: contiguous bins, so the bars touch. Only every other bin
 # label is drawn when they would collide -- a row of overlapping labels
 # tells a reader less than a sparse one.
-func _StzPlotBins(oC, paValues, paLabels, oFont, cCol, cInk, cMuted, nL, nR, nT, nB, nMin, nMax, bVals)
+func _StzPlotBins(oC, paValues, paLabels, oFont, cCol, cInk, cMuted, nLeft, nR, nT, nB, nMin, nMax, bVals)
 	_nN_ = len(paValues)
-	_nBW_ = (nR - nL) / _nN_
+	_nBW_ = (nR - nLeft) / _nN_
 	_nEvery_ = 1
 	if isObject(oFont) and isList(paLabels) and len(paLabels) >= _nN_
 		_nWide_ = 0
@@ -352,7 +352,7 @@ func _StzPlotBins(oC, paValues, paLabels, oFont, cCol, cInk, cMuted, nL, nR, nT,
 	for _i_ = 1 to _nN_
 		_nV_ = paValues[_i_]
 		_nHt_ = (nB - nT) * (_nV_ - nMin) / (nMax - nMin)
-		_nX_ = nL + (_i_ - 1) * _nBW_
+		_nX_ = nLeft + (_i_ - 1) * _nBW_
 		_nY_ = nB - _nHt_
 		if _nHt_ > 0
 			# a 1px inset keeps the bins visually separable without lying
@@ -377,7 +377,7 @@ func _StzPlotBins(oC, paValues, paLabels, oFont, cCol, cInk, cMuted, nL, nR, nT,
 
 # Grouped bars: one cluster per category, one bar per series, plus the
 # legend without which a multi-series chart cannot be read.
-func _StzPlotMulti(oC, paSeries, paCategories, oFont, cInk, cMuted, nL, nR, nT, nB, nMin, nMax)
+func _StzPlotMulti(oC, paSeries, paCategories, oFont, cInk, cMuted, nLeft, nR, nT, nB, nMin, nMax)
 	_nS_ = len(paSeries)
 	if _nS_ = 0  return  ok
 	_nCat_ = 0
@@ -388,11 +388,11 @@ func _StzPlotMulti(oC, paSeries, paCategories, oFont, cInk, cMuted, nL, nR, nT, 
 	next
 	if _nCat_ = 0  return  ok
 
-	_nSlot_ = (nR - nL) / _nCat_
+	_nSlot_ = (nR - nLeft) / _nCat_
 	_nGroupW_ = _nSlot_ * 0.74
 	_nBarW_ = _nGroupW_ / _nS_
 	for _c_ = 1 to _nCat_
-		_nGx_ = nL + (_c_ - 1) * _nSlot_ + (_nSlot_ - _nGroupW_) / 2
+		_nGx_ = nLeft + (_c_ - 1) * _nSlot_ + (_nSlot_ - _nGroupW_) / 2
 		for _s_ = 1 to _nS_
 			_aV_ = paSeries[_s_][2]
 			if len(_aV_) < _c_  loop  ok
@@ -429,15 +429,15 @@ func _StzPlotMulti(oC, paSeries, paCategories, oFont, cInk, cMuted, nL, nR, nT, 
 # and for the handful of parts a composition chart carries the aspect
 # ratios stay readable. (Squarified packing is the upgrade if a caller
 # ever brings dozens of slices.)
-func _StzPlotTreemap(oC, paValues, paLabels, oFont, cInk, nL, nR, nT, nB, bVals)
+func _StzPlotTreemap(oC, paValues, paLabels, oFont, cInk, nLeft, nR, nT, nB, bVals)
 	_nN_ = len(paValues)
 	_nTotal_ = 0
 	for _i_ = 1 to _nN_  _nTotal_ += paValues[_i_]  next
 	if _nTotal_ <= 0
 		StzRaise("stzPlotCanvas: a treemap needs values that sum above zero.")
 	ok
-	_nX_ = nL   _nY_ = nT
-	_nW_ = nR - nL   _nH_ = nB - nT
+	_nX_ = nLeft   _nY_ = nT
+	_nW_ = nR - nLeft   _nH_ = nB - nT
 	_nRem_ = _nTotal_
 	for _i_ = 1 to _nN_
 		_nV_ = paValues[_i_]
@@ -472,7 +472,7 @@ func _StzPlotTreemap(oC, paValues, paLabels, oFont, cInk, nL, nR, nT, nB, bVals)
 
 # Points as [x, y] pairs, or bare values taken as y against their index.
 # bLine draws the connecting polyline as well as the points.
-func _StzPlotLine(_oCanvas_, paValues, cCol, nL, nR, nT, nB, nMin, nMax, bLine)
+func _StzPlotLine(_oCanvas_, paValues, cCol, nLeft, nR, nT, nB, nMin, nMax, bLine)
 	_nN_ = len(paValues)
 	_aXs_ = []
 	_aYs_ = []
@@ -493,7 +493,7 @@ func _StzPlotLine(_oCanvas_, paValues, cCol, nL, nR, nT, nB, nMin, nMax, bLine)
 			_nXv_ = _i_ - 1
 			_nYv_ = paValues[_i_]
 		ok
-		_aXs_ + (nL + (nR - nL) * (_nXv_ - _nXMin_) / (_nXMax_ - _nXMin_))
+		_aXs_ + (nLeft + (nR - nLeft) * (_nXv_ - _nXMin_) / (_nXMax_ - _nXMin_))
 		_aYs_ + (nB - (nB - nT) * (_nYv_ - nMin) / (nMax - nMin))
 	next
 	if bLine and _nN_ > 1

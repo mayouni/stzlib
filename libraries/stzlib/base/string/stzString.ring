@@ -20369,8 +20369,8 @@ class stzString from stzObject
 		ok
 		# Multi-line blocks: drop #-comments and fold to one line so
 		# the expression can sit inside eval's parentheses.
-		if StzFindFirst(nl, _cPuExpr_) > 0
-			_aPuLines_ = StzSplit(_cPuExpr_, nl)
+		if StzFindFirst(char(10), _cPuExpr_) > 0
+			_aPuLines_ = StzSplit(_cPuExpr_, char(10))
 			_cPuExpr_ = ""
 			_nPuNL_ = len(_aPuLines_)
 			for _iPuL_ = 1 to _nPuNL_

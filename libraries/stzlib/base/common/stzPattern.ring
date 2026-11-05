@@ -597,7 +597,7 @@ class stzPattern
 		_w_ = ""
 		while @nPos <= len(@aChars)
 			_c_ = @aChars[@nPos]
-			if _c_ = " " or _c_ = char(9) or _c_ = nl or _c_ = char(13) or
+			if _c_ = " " or _c_ = char(9) or _c_ = char(10) or _c_ = char(13) or
 			   ring_find([ "[", "]", "<", ">", ",", "*", "/", "?", "!", "@", "~" ], _c_) > 0
 				exit
 			ok
@@ -629,7 +629,7 @@ class stzPattern
 	def _Ws()
 		while @nPos <= len(@aChars)
 			_c_ = @aChars[@nPos]
-			if _c_ = " " or _c_ = char(9) or _c_ = nl or _c_ = char(13)
+			if _c_ = " " or _c_ = char(9) or _c_ = char(10) or _c_ = char(13)
 				@nPos++
 			else
 				exit

@@ -1180,7 +1180,7 @@ class stzScatterPlot from stzObject
 			for j = 1 to _nLenCurrent_
 				_cLine_ += @acCanvas[i][j]
 			next
-			_cResult_ += _cLine_ + nl
+			_cResult_ += _cLine_ + char(10)
 		next
 
 		# Remove unnecessary empty lines
@@ -1213,7 +1213,7 @@ class stzScatterPlot from stzObject
 			# from a known column could not fix it: the damage happened here, after
 			# the drawing was already correct.
 			_cResult_ = _oTempStr_.Content()
-			_acLines_ = @split(_cResult_, nl)
+			_acLines_ = @split(_cResult_, char(10))
 			
 			# THE Y LETTER IS PLACED ONCE, by the Replace below, which also extends
 			# the axis to make room for it. A second append here gave every scatter
@@ -1224,7 +1224,7 @@ class stzScatterPlot from stzObject
 			for i = 1 to _nLinesLen_4
 				_cResult_ += _acLines_[i]
 				if i < len(_acLines_)
-					_cResult_ += nl
+					_cResult_ += char(10)
 				ok
 			next
 			_oTempStr_ = new stzString(_cResult_)
@@ -1235,7 +1235,7 @@ class stzScatterPlot from stzObject
 		if @bShowVLetter and @bShowVAxis
 			# Place X letter at the top of vertical axis
 			_cResult_ = _oTempStr_.Content()
-			_acLines_ = @split(_cResult_, nl)
+			_acLines_ = @split(_cResult_, char(10))
 			
 			# THE X LETTER IS PLACED ONCE, further down, on the ASSEMBLED string.
 			#
@@ -1249,7 +1249,7 @@ class stzScatterPlot from stzObject
 			for i = 1 to _nLinesLen_
 				_cResult_ += _acLines_[i]
 				if i < len(_acLines_)
-					_cResult_ += nl
+					_cResult_ += char(10)
 				ok
 			next
 			_oTempStr_ = new stzString(_cResult_)

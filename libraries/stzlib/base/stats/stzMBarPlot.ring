@@ -748,7 +748,7 @@ class stzMBarPlot from stzBarPlot
 		_cSeries_ = ""
 		for _i_ = 1 to len(@acSeriesNames)
 			if _i_ > 1
-				_cSeries_ += nl
+				_cSeries_ += char(10)
 			ok
 			_cSeries_ += @acSeriesNames[_i_]
 		next
@@ -756,7 +756,7 @@ class stzMBarPlot from stzBarPlot
 		_cCats_ = ""
 		for _i_ = 1 to len(@acCategories)
 			if _i_ > 1
-				_cCats_ += nl
+				_cCats_ += char(10)
 			ok
 			_cCats_ += @acCategories[_i_]
 		next
@@ -775,7 +775,7 @@ class stzMBarPlot from stzBarPlot
 		# the glyph lives on the SERIES, next to its name and its values
 		for _i_ = 1 to @nSeries
 			if _i_ > 1
-				_cChars_ += nl
+				_cChars_ += char(10)
 			ok
 			_cChars_ += @aSeriesData[_i_][:Char]
 		next

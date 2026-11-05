@@ -16465,7 +16465,7 @@ class stzDiagram from stzGraph
 	# a name a little further from its glyph is read correctly, and a
 	# name over a wire is a picture that has stopped saying what it is
 	# about.
-	def _PlateHitsWire(nL, nT, nR, nB)
+	def _PlateHitsWire(nLeft, nT, nR, nB)
 		_aPh_ = @aEdgePaths
 		_nPh_ = len(_aPh_)
 		for _iPh_ = 1 to _nPh_
@@ -16476,7 +16476,7 @@ class stzDiagram from stzGraph
 				_phX2_ = max([ _aPhF_[_kPh_], _aPhF_[_kPh_ + 2] ])
 				_phY1_ = min([ _aPhF_[_kPh_ + 1], _aPhF_[_kPh_ + 3] ])
 				_phY2_ = max([ _aPhF_[_kPh_ + 1], _aPhF_[_kPh_ + 3] ])
-				if _phX2_ < nL or _phX1_ > nR  loop  ok
+				if _phX2_ < nLeft or _phX1_ > nR  loop  ok
 				if _phY2_ < nT or _phY1_ > nB  loop  ok
 				return 1
 			next
