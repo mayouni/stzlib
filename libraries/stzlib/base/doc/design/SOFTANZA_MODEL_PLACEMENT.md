@@ -92,6 +92,7 @@ All of them read the registry's own data; none decides anything the registry doe
 - **MP1 -- the report, here.** Text and page; the perception gate applies: the page is looked at.
 - **MP2 -- the report, there.** Profiles; the CI status.
 - **MP3 -- catalogue and setup plan.** `catalog.zcat` beside `MODELS.md`, MODELS.md generated from it.
+- **MP3b -- release and fetch.** The converted files published under org softanza; a verified fetch.
 - **MP4 -- the doctor.**
 - **MP5 -- the bundle.**
 
@@ -116,8 +117,30 @@ All of them read the registry's own data; none decides anything the registry doe
   recogniser without its dictionary -- the usage line is corrected and the converter now refuses an option without a value; `MODELS.md` had
   SigLIP2's vision tower 3,072 bytes short; and the five OCR model files were in no record at all. Twelve conversions now reproduce their file
   byte for byte; OWL-ViT's two (torch exports) and the Arabic and Cyrillic recognisers (no source on this machine) are marked not replayed.
-- **MP4 (the doctor) and MP5 (the bundle) open.** MP3b, a decision for the author: Softanza could publish its converted files (every licence
-  here permits it), so a developer downloads `yolox_tiny.gguf` instead of installing Python, ONNX and the converter to make it.
+- **MP3b built** (2026-11-05, the author's word: "Hugging Face, org softanza"). The machinery is library code; nothing is uploaded by it.
+  - *The gate* (`StzModelPublishGate`): only a file Softanza CONVERTED, under a permissive licence, named by a `repo` row whose licence TEXT
+    is in `models/licences/`. 17 files pass, in nine repositories; the 8 downloaded files are linked to their upstream, never republished;
+    the refused OWL-ViT shift patch is derived, so it is remade, never published.
+  - *The stager* (`StzModelReleaseStage(version, folder, repos)`): one folder per repository with the catalogued bytes (each copy checked
+    again), a model card (hub metadata; what the files are and are not -- not llama.cpp models; each file's sha256, source and steps; what
+    Softanza measured and the court's word; the limits of that), the licence text, a notice, `SHA256SUMS`, a manifest Softanza itself
+    reads; and `upload.ps1` that the AUTHOR runs signed in (`hf repos create`, `hf upload`, `hf repos tag create`). A repository whose
+    bytes are not the catalogued ones is not staged and its script uploads nothing.
+  - *The fetch* (`StzModelFetchFile(path)`, `StzModelFetch(faculty)`; engine `StzEngineHttpDownloadVerified`): the developer's explicit
+    call, streamed to `<path>.part` while hashed, renamed only with the catalogue's sha256 and size; anything else leaves nothing at the
+    path. A converted file is read from a PUBLISHED release's hub revision (`release` rows, written by `StzModelReleaseMark`), never from
+    a moving branch; the hub is a mirror and the catalogue in git is the authority. The setup plan prints a `fetch` line wherever one exists.
+  - *Load-time digests, which the release needed and found missing*: graph models and VLM projectors reached the GGUF parser with no
+    digest check -- only the decoders had one, while the threat model's G23 said every model file did. `ocr_graph.load` and the projector
+    load now refuse a file whose sha256 is not recorded, from `SHA256SUMS` files the catalogue generates (`StzModelSumsWrite`); a patched
+    model the process wrote itself is trusted in that process (`weights.removeDirection`).
+  *And one defect the gate run found*: the catalogue (MP3) and the registry's loaders split lines with Ring's `split()`, which reads the
+  global `NL` -- and `image_quality_narrated.ring` writes `nL = len(aLines)` at its line 50, so the next catalogue read raised inside the
+  standard library. The faculty modules now split with `_StzFieldsBy` and count words with `_StzWordCount`, which read nothing global;
+  at least 188 other library lines in 46 files still call `split()` and carry the same exposure.
+  Guard `release_narrated.ring` (52), offline: every exchange is with the engine's loopback server. **Owed**: the author's upload, then
+  one `release` row per repository; until then every converted file's fetch source is empty and the setup plan gives the steps.
+- **MP4 (the doctor) and MP5 (the bundle) open.**
 
 **What the court and MP0 changed, faculty by faculty** (every other faculty keeps its choice, now on evidence):
 

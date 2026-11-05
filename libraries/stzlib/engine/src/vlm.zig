@@ -17,6 +17,7 @@ const std = @import("std");
 const og = @import("ocr_graph.zig");
 const vision = @import("vision.zig");
 const nvit = @import("neural_vit.zig");
+const digest = @import("model_digest.zig");
 const c = og.c;
 
 const gpa = std.heap.c_allocator;
@@ -104,6 +105,12 @@ pub fn load(path: []const u8) ?*Projector {
     free();
     const pz = gpa.dupeZ(u8, path) catch return null;
     defer gpa.free(pz);
+    // parsed only once its SHA-256 is the recorded one, like the decoder beside it (model_digest.zig)
+    const vd = digest.verify(pz.ptr);
+    if (vd != digest.OK) {
+        setError("vlm: the projector {s} was refused before parsing ({s})", .{ path, if (vd == digest.ERR_MISMATCH) "its sha256 is not the recorded one" else if (vd == digest.ERR_UNKNOWN) "no recorded sha256: no SHA256SUMS line beside it" else "unreadable" });
+        return null;
+    }
     var ctx: ?*c.ggml_context = null;
     const gg = c.gguf_init_from_file(pz.ptr, .{ .no_alloc = false, .ctx = &ctx }) orelse {
         setError("vlm: cannot read the projector {s}", .{path});

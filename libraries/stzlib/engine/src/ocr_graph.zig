@@ -17,6 +17,7 @@
 //! by base/test/ocr/ocr_model_parity_narrated.ring), before any OCR text is read through it.
 
 const std = @import("std");
+const digest = @import("model_digest.zig");
 pub const c = @cImport({
     @cInclude("ggml.h");
     @cInclude("ggml-cpu.h");
@@ -301,6 +302,23 @@ pub fn load(path: []const u8) !*Model {
     errdefer m.arena.deinit();
     const a = m.arena.allocator();
     const zpath = try a.dupeZ(u8, path);
+    // the parser is the attack surface: a graph model is parsed only once its SHA-256 is the RECORDED one (model_digest.zig) -- a
+    // SHA256SUMS line beside it, a file this process wrote itself, or StzExpectModelDigest. No recorded digest is a refusal, not a pass.
+    switch (digest.verify(zpath.ptr)) {
+        digest.OK => {},
+        digest.ERR_MISMATCH => {
+            setError("the model {s} is not the recorded file: its sha256 differs from the one recorded for it (SHA256SUMS beside it)", .{path});
+            return error.DigestMismatch;
+        },
+        digest.ERR_UNKNOWN => {
+            setError("the model {s} has no recorded sha256 (no SHA256SUMS line beside it, no StzExpectModelDigest): refused before parsing", .{path});
+            return error.DigestUnknown;
+        },
+        else => {
+            setError("the file could not be read: {s}", .{path});
+            return error.NotGguf;
+        },
+    }
     var wctx: ?*c.ggml_context = null;
     const params = c.gguf_init_params{ .no_alloc = false, .ctx = &wctx };
     const g = c.gguf_init_from_file(zpath.ptr, params) orelse {

@@ -11,8 +11,9 @@
 #                  sources, sizes, licences, the exact steps,  #
 #                  the digests to check, whether the steps     #
 #                  were replayed, and what installing changes. #
-#                  It fetches NOTHING: a download is the       #
-#                  developer's act.                            #
+#                  It fetches NOTHING by itself: a download is #
+#                  the developer's act (StzModelFetch, in       #
+#                  stzModelRelease.ring).                      #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
@@ -31,7 +32,8 @@ func StzModelCatalogFile()
 #
 #   returns    [ :files = [ [ :path, :bytes, :sha256, :licence, :how, :url, :sourcebytes, :sourcesha256, :steps ] ... ],
 #                :requires = [ [ :faculty, :impl, :paths, :langs ] ... ], :platforms = [ [ :faculty, :impl, :os, :needs, :how ] ... ],
-#                :replayed = [ [ :path, :date, :result ] ... ] ]
+#                :replayed = [ [ :path, :date, :result ] ... ], :repos = [ [ :repo, :paths, :licencefile, :upstream, :title ] ... ],
+#                :releases = [ [ :repo, :version, :state, :revision, :date ] ... ] ]
 #   see        StzModelSetupPlan, StzImplementationFiles, StzModelFileState
 func StzModelCatalog()
 	if $bStzCatalogRead = 1 return $aStzCatalog ok
@@ -39,6 +41,8 @@ func StzModelCatalog()
 	_aR_ = []
 	_aP_ = []
 	_aY_ = []
+	_aRp_ = []
+	_aRl_ = []
 	_cPath_ = StzModelCatalogFile()
 	if _cPath_ != "" and fexists(_cPath_)
 		_aL_ = str2list(read(_cPath_))
@@ -54,16 +58,20 @@ func StzModelCatalog()
 				_cW_ = ""
 				if len(_a_) >= 5 _cW_ = _a_[5] ok
 				_aLg_ = []
-				if left(_cW_, 5) = "lang=" _aLg_ = split(right(_cW_, len(_cW_) - 5), ",") ok
-				_aR_ + [ :faculty = _a_[2], :impl = _a_[3], :paths = split(_a_[4], ","), :langs = _aLg_ ]
+				if left(_cW_, 5) = "lang=" _aLg_ = _StzFieldsBy(right(_cW_, len(_cW_) - 5), ",") ok
+				_aR_ + [ :faculty = _a_[2], :impl = _a_[3], :paths = _StzFieldsBy(_a_[4], ","), :langs = _aLg_ ]
 			but _a_[1] = "platform" and len(_a_) >= 6
 				_aP_ + [ :faculty = _a_[2], :impl = _a_[3], :os = _a_[4], :needs = _a_[5], :how = _a_[6] ]
 			but _a_[1] = "replayed" and len(_a_) >= 4
 				_aY_ + [ :path = _a_[2], :date = _a_[3], :result = _a_[4] ]
+			but _a_[1] = "repo" and len(_a_) >= 6
+				_aRp_ + [ :repo = _a_[2], :paths = _StzFieldsBy(_a_[3], ","), :licencefile = _a_[4], :upstream = _a_[5], :title = _a_[6] ]
+			but _a_[1] = "release" and len(_a_) >= 6
+				_aRl_ + [ :repo = _a_[2], :version = _a_[3], :state = _a_[4], :revision = _a_[5], :date = _a_[6] ]
 			ok
 		next
 	ok
-	$aStzCatalog = [ :files = _aF_, :requires = _aR_, :platforms = _aP_, :replayed = _aY_ ]
+	$aStzCatalog = [ :files = _aF_, :requires = _aR_, :platforms = _aP_, :replayed = _aY_, :repos = _aRp_, :releases = _aRl_ ]
 	$bStzCatalogRead = 1
 	return $aStzCatalog
 
@@ -74,19 +82,7 @@ func StzModelCatalogReload()
 
 # the fields of a catalogue line, split on "|" by scanning (a field may hold any character but the bar)
 func _StzCatalogFields(pcLine)
-	_aOut_ = []
-	_c_ = ""
-	_n_ = len(pcLine)
-	for _k_ = 1 to _n_
-		if pcLine[_k_] = "|"
-			_aOut_ + _c_
-			_c_ = ""
-		else
-			_c_ += pcLine[_k_]
-		ok
-	next
-	_aOut_ + _c_
-	return _aOut_
+	return _StzFieldsBy(pcLine, "|")
 
 # The catalogue row of a file (a path relative to the models directory); [] when it is not catalogued.
 func StzModelCatalogEntry(pcPath)
@@ -188,7 +184,8 @@ func StzModelSetupPlan(pcFaculty)
 				_e_ = StzModelCatalogEntry(_aPaths_[_k_])
 				_aOut_ + [ :faculty = _cF_, :impl = _cId_, :kind = "file", :what = _aPaths_[_k_] + " -- " + _s_[:reason],
 					   :bytes = _e_[:bytes], :licence = _e_[:licence], :how = _e_[:how], :url = _e_[:url], :sha256 = _e_[:sha256],
-					   :steps = _e_[:steps], :replayed = _StzReplayedOf(_aPaths_[_k_]), :value = _StzSetupValue(_cF_, _cId_, "") ]
+					   :steps = _e_[:steps], :replayed = _StzReplayedOf(_aPaths_[_k_]), :value = _StzSetupValue(_cF_, _cId_, ""),
+					   :path = _aPaths_[_k_], :fetch = StzModelFetchSource(_aPaths_[_k_]) ]
 			next
 			# the platform's own needs, for each measured language it cannot read here
 			_aPf_ = StzModelCatalog()[:platforms]
@@ -260,7 +257,8 @@ func _StzSetupValue(pcF, pcImpl, pcLang)
 func StzModelSetupPlanText(pcFaculty)
 	_aP_ = StzModelSetupPlan(pcFaculty)
 	_c_ = "SOFTANZA SETUP PLAN -- " + StzPlacementOS() + ", this machine; models directory: " + StzModelsDir() + char(10) +
-	      "Softanza fetches nothing: each step is yours to run. Check every file against its sha256 before use (StzModelVerify)." + char(10)
+	      "Softanza fetches nothing by itself: each step is yours to run. A 'fetch' line is one call that downloads the file and keeps it only" + char(10) +
+	      "with the sha256 written here (StzModelFetch); every other file is checked against it before use (StzModelVerify)." + char(10)
 	if len(_aP_) = 0
 		return _c_ + char(10) + "Nothing to do: every file the catalogue says these faculties need is here, and every platform implementation can run." + char(10)
 	ok
@@ -275,6 +273,9 @@ func StzModelSetupPlanText(pcFaculty)
 			       "  how       " + _s_[:how] + ": " + _s_[:steps] + char(10) +
 			       "  check     sha256 " + _s_[:sha256] + char(10) +
 			       "  replayed  " + _s_[:replayed] + char(10)
+			if _s_[:fetch] != ""
+				_c_ += "  fetch     StzModelFetchFile('" + _s_[:path] + "')   from " + _s_[:fetch] + char(10)
+			ok
 		else
 			_c_ += "  how       " + _s_[:steps] + char(10)
 		ok
@@ -282,6 +283,54 @@ func StzModelSetupPlanText(pcFaculty)
 	next
 	if _nBytes_ > 0 _c_ += char(10) + "files to fetch or make: " + _nBytes_ + " bytes in all" + char(10) ok
 	return _c_
+
+# THE SHA256SUMS of one models subdirectory ("vision", "ocr"), written from the catalogue: the file the engine reads before it parses a
+# model (model_digest.zig), and that `sha256sum -c` reads. It is GENERATED, never edited: the catalogue is the one record, and a guard checks the two agree.
+#
+#   returns    the text, one "<sha256>  <file name>" line per catalogued file under pcDir, in catalogue order
+#   see        StzModelSumsWrite
+func StzModelSumsText(pcDir)
+	_c_ = ""      # no comment line: `sha256sum -c` reads this file as it is
+	_aF_ = StzModelCatalog()[:files]
+	_cPre_ = pcDir + "/"
+	for _i_ = 1 to len(_aF_)
+		_p_ = _aF_[_i_][:path]
+		if left(_p_, len(_cPre_)) != _cPre_ loop ok
+		_cName_ = right(_p_, len(_p_) - len(_cPre_))
+		if StzFindFirst("/", _cName_) > 0 loop ok
+		_c_ += lower(_aF_[_i_][:sha256]) + "  " + _cName_ + char(10)
+	next
+	return _c_
+
+# the models subdirectories the catalogue names ("vision", "ocr"), in order of first appearance
+func StzModelSumsDirs()
+	_aOut_ = []
+	_aF_ = StzModelCatalog()[:files]
+	for _i_ = 1 to len(_aF_)
+		_n_ = StzFindFirst("/", _aF_[_i_][:path])
+		if _n_ = 0 loop ok
+		_d_ = left(_aF_[_i_][:path], _n_ - 1)
+		if len(StzFind(_d_, _aOut_)) = 0 _aOut_ + _d_ ok
+	next
+	return _aOut_
+
+# Writes models/<dir>/SHA256SUMS for every subdirectory the catalogue names. Returns [ [ file written, lines ] ... ].
+func StzModelSumsWrite()
+	_aOut_ = []
+	_aD_ = StzModelSumsDirs()
+	for _i_ = 1 to len(_aD_)
+		_cDir_ = StzModelsDir() + "/" + _aD_[_i_]
+		if NOT StzDirExists(_cDir_) StzDirCreatePath(_cDir_) ok
+		_c_ = StzModelSumsText(_aD_[_i_])
+		write(_cDir_ + "/SHA256SUMS", _c_)
+		_aL_ = str2list(_c_)
+		_n_ = 0
+		for _k_ = 1 to len(_aL_)
+			if len(_aL_[_k_]) > 0 and left(_aL_[_k_], 1) != "#" _n_++ ok
+		next
+		_aOut_ + [ _cDir_ + "/SHA256SUMS", _n_ ]
+	next
+	return _aOut_
 
 # Every catalogued file that is here, checked against its sha256 (MP4's doctor will build on it). Returns [ [ path, state ] ... ].
 func StzModelVerify()

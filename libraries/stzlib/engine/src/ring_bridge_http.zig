@@ -363,7 +363,26 @@ fn ring_HttpLastVersion(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(curlcore.curl_last_http_version()));
 }
 
+/// StzEngineHttpDownloadVerified(url, path, sha256, bytes, opts) -> 1 when the body streamed into path has the recorded sha256 (and
+/// size, when bytes > 0); -1 transport, -2 HTTP status, -3 digest, -4 size, -5 file, -6 no recorded digest -- and then nothing is at path.
+fn ring_HttpDownloadVerified(p: *anyopaque) callconv(.c) void {
+    const r = http.http_download_verified(@ptrCast(gs(p, 1)), @intCast(gss(p, 1)), @ptrCast(gs(p, 2)), @intCast(gss(p, 2)), @ptrCast(gs(p, 3)), @intCast(gss(p, 3)), @intFromFloat(gn(p, 4)), @ptrCast(gs(p, 5)), @intCast(gss(p, 5)));
+    rn(p, @floatFromInt(r));
+}
+
+/// StzEngineHttpDownloadSha256() -> the sha256 of the last download's body; StzEngineHttpDownloadBytes() -> its byte count.
+fn ring_HttpDownloadSha256(p: *anyopaque) callconv(.c) void {
+    rs(p, @constCast(curlcore.curl_download_last_sha256()));
+}
+
+fn ring_HttpDownloadBytes(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(curlcore.curl_download_last_bytes()));
+}
+
 const regs = [_]R.Reg{
+    .{ .name = "stzenginehttpdownloadverified", .func = ring_HttpDownloadVerified },
+    .{ .name = "stzenginehttpdownloadsha256", .func = ring_HttpDownloadSha256 },
+    .{ .name = "stzenginehttpdownloadbytes", .func = ring_HttpDownloadBytes },
     .{ .name = "stzenginehttpengineversion", .func = ring_HttpEngineVersion },
     .{ .name = "stzenginehttplastversion", .func = ring_HttpLastVersion },
     .{ .name = "stzenginehttpget", .func = ring_HttpGet },

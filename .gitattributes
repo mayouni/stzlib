@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# a SHA256SUMS is read by `sha256sum -c`, which takes a CR as part of the file name: LF on every checkout
+SHA256SUMS text eol=lf

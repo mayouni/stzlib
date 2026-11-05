@@ -10,6 +10,7 @@
 
 const std = @import("std");
 const graph = @import("ocr_graph.zig");
+const model_digest = @import("model_digest.zig");
 const vis = @import("vision.zig");
 
 const c = graph.c;
@@ -129,15 +130,22 @@ pub fn removeDirection(model_path: []const u8, out_path: []const u8, name: []con
     const at: u64 = c.gguf_get_data_offset(m.gguf) + c.gguf_get_tensor_offset(m.gguf, tid);
     const nbytes: usize = c.ggml_nbytes(t);
     try std.fs.cwd().copyFile(model_path, std.fs.cwd(), out_path, .{});
-    const f = std.fs.cwd().openFile(out_path, .{ .mode = .read_write }) catch {
-        graph.setError("weights: could not open {s} for writing", .{out_path});
-        return error.WriteFailed;
-    };
-    defer f.close();
-    const bytes: [*]const u8 = @ptrCast(t.data);
-    f.pwriteAll(bytes[0..nbytes], at) catch {
-        graph.setError("weights: could not write {s}", .{out_path});
-        return error.WriteFailed;
-    };
+    {
+        const f = std.fs.cwd().openFile(out_path, .{ .mode = .read_write }) catch {
+            graph.setError("weights: could not open {s} for writing", .{out_path});
+            return error.WriteFailed;
+        };
+        defer f.close();
+        const bytes: [*]const u8 = @ptrCast(t.data);
+        f.pwriteAll(bytes[0..nbytes], at) catch {
+            graph.setError("weights: could not write {s}", .{out_path});
+            return error.WriteFailed;
+        };
+    }
+    // the patched file is one this process just wrote from a verified original: trusted in this process (model_digest.zig), so the
+    // caller may load it; another process needs its digest recorded (the catalogue's derive row, SHA256SUMS)
+    const oz = try gpa.dupeZ(u8, out_path);
+    defer gpa.free(oz);
+    model_digest.trustWritten(oz.ptr);
     return .{ .changed = ncols * inner, .cols = ncols, .wd_first = first, .wd_abs_sum = abs_sum };
 }
