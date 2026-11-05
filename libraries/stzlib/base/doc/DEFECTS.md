@@ -68,7 +68,7 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 ## stzText -- linguistic/stzText.ring (1)
 
-- `SummarizedAbstractively` (line 1316): Raises error R19 today when no generative model is loaded, instead of falling back to the extractive summary. -- Raises error R19 without a generative model (checked on three texts): the fallback calls Summary without its sentence count
+- `SummarizedAbstractively` (line 1317): Raises error R19 today when no generative model is loaded, instead of falling back to the extractive summary. -- Raises error R19 without a generative model (checked on three texts): the fallback calls Summary without its sentence count
 
 ## stzListBounder -- list/stzListBounder.ring (1)
 

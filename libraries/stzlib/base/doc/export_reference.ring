@@ -18,7 +18,8 @@ if len(aArgs) >= 3 cCommit = aArgs[3] ok
 if len(aArgs) >= 4 cDate = aArgs[4] ok
 if len(aArgs) >= 5 cOut = aArgs[5] ok
 
-r = StzReferenceExport(_StzBaseDir(), cOut, cCommit, cDate)
+# the library is the folder above this one: _StzBaseDir() follows the engine folder, which STZ_ENGINE_DIR may put outside the tree
+r = StzReferenceExport("..", cOut, cCommit, cDate)
 ? "classes " + r[:classes] + ", roots " + r[:roots] + ", names " + r[:names]
 ? "aliases " + r[:aliases] + ", extension forms " + r[:extension_forms]
 ? "brief: written " + r[:brief_written] + ", derived " + r[:brief_derived]

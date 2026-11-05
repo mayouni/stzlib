@@ -45,7 +45,7 @@
    "class": "stzText",
    "file": "linguistic/stzText.ring",
    "method": "SummarizedAbstractively",
-   "line": 1316,
+   "line": 1317,
    "symptom": "Raises error R19 today when no generative model is loaded, instead of falling back to the extractive summary.",
    "cause": "Raises error R19 without a generative model (checked on three texts): the fallback calls Summary without its sentence count"
   },
