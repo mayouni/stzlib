@@ -264,24 +264,44 @@ class stzImage from stzObject
 		@nId = 0
 		return _n_
 
-	# TRUE when the object holds no live pixels.
+	# TRUE if the object holds no live pixels.
+	#
+	#   returns    1 or 0
+	#   see        Release
 	def IsEmpty()
 		return StzEngineImageWidth(@nId) = 0
 
-	# The EXIF orientation the file carried, 1 to 8 (1 = upright, and also what a file with no tag says), even when
-	# it was applied on load; 0 when the object holds no pixels. 6 means the pixels are stored a quarter turn off.
+	# Returns the EXIF orientation the file carried, 1 to 8, even when the load applied it.
+	#
+	# 1 means upright, and is also what a file with no tag says; 6 means the pixels are stored a quarter turn off.
+	#
+	#   returns    a number 1 to 8, or 0 when the object holds no pixels
+	#   see        IsOrientationApplied, StzImageRawQ
 	def StoredOrientation()
 		return StzEngineImageOrientation(@nId)
 
-	# TRUE when the load turned the pixels upright by the stored orientation (StzImageQ does; StzImageRawQ does not).
+	# TRUE if the load turned the pixels upright by the stored orientation.
+	#
+	# StzImageQ does; StzImageRawQ does not.
+	#
+	#   returns    1 or 0
+	#   see        StoredOrientation
 	def IsOrientationApplied()
 		return StzEngineImageOrientationApplied(@nId) = 1
 
 	#@ aka  -- 1. WHAT IT IS --------------------------------------------------------
 
+	# Returns the number of pixel columns of the image, 0 when the object holds no pixels.
+	#
+	#   returns    a number
+	#   see        Height, Size
 	def Width()
 		return StzEngineImageWidth(@nId)
 
+	# Returns the number of pixel rows of the image, 0 when the object holds no pixels.
+	#
+	#   returns    a number
+	#   see        Width, Size
 	def Height()
 		return StzEngineImageHeight(@nId)
 
@@ -356,11 +376,19 @@ class stzImage from stzObject
 	def ToJpegDataURI(pnQuality)
 		return StzEngineImageToDataUri(@nId, pnQuality)
 
+	# Returns the image as a PNG data URI that an HTML page shows inline.
+	#
+	#   returns    a text; the encoding is lossless and done in the engine
+	#   see        ToJpegDataURI, ToPNG
 	def ToPngDataURI()
 		return StzEngineImageToDataUri(@nId, 0)
 
 	#@ aka  -- 3. CHANNELS ----------------------------------------------------------
 
+	# Changes the image in place to gray (BT.601), so every copy of the object sees the change.
+	#
+	#   returns    nothing; use ApplyGrayScaleQ to chain
+	#   see        Grayscaled
 	def ApplyGrayScale()
 		This._Take(StzEngineImageConvert(@nId, 1))
 
@@ -380,6 +408,10 @@ class stzImage from stzObject
 	def WithAlpha()
 		return This._New(StzEngineImageConvert(@nId, 4))
 
+	# Changes the image in place to its colour-inverted form, alpha kept, so every copy of the object sees the change.
+	#
+	#   returns    nothing; use ApplyInversionQ to chain
+	#   see        Inverted
 	def ApplyInversion()
 		This._Take(StzEngineImageInvert(@nId))
 
@@ -393,6 +425,15 @@ class stzImage from stzObject
 
 	#@ aka  -- 4. GEOMETRY ----------------------------------------------------------
 
+	# Changes the image in place to the rectangle whose top-left pixel is (pnX, pnY), 1-based.
+	#
+	#   pnX        the column of the rectangle's top-left pixel
+	#   pnY        the row of the rectangle's top-left pixel
+	#   pnWidth    the rectangle's size along the columns, in pixels
+	#   pnHeight   the rectangle's size along the rows, in pixels
+	#   returns    nothing; use ApplyCropQ to chain
+	#   warning    a rectangle that leaves the image raises an error
+	#   see        Cropped
 	def ApplyCrop(pnX, pnY, pnWidth, pnHeight)
 		This._Take(StzEngineImageCrop(@nId, pnX, pnY, pnWidth, pnHeight))
 
@@ -406,6 +447,12 @@ class stzImage from stzObject
 	def Cropped(pnX, pnY, pnWidth, pnHeight)
 		return This._New(StzEngineImageCrop(@nId, pnX, pnY, pnWidth, pnHeight))
 
+	# Changes the image in place to its mirror image: :horizontal swaps left and right, :vertical top and bottom.
+	#
+	#   pcWay      :horizontal (also :horizontally or :x) or :vertical (also :vertically or :y)
+	#   returns    nothing; use ApplyFlipQ to chain
+	#   warning    any other way raises an error
+	#   see        Flipped
 	def ApplyFlip(pcWay)
 		This._Take(StzEngineImageFlip(@nId, This._Horizontal(pcWay)))
 
@@ -426,6 +473,14 @@ class stzImage from stzObject
 		ok
 		stzraise("stzImage.Flip: the ways are :horizontal and :vertical, not '" + pcWay + "'.")
 
+	# Changes the image in place by turning it clockwise, exactly for a multiple of 90 degrees.
+	#
+	# Any other angle turns about the centre on the same canvas, the corners black (ApplyRotationXT fills them).
+	#
+	#   pnDegrees  the angle in degrees, clockwise
+	#   returns    nothing; use ApplyRotationQ to chain
+	#   warning    an angle that is not a number raises an error
+	#   see        Rotated, ApplyRotationXT
 	def ApplyRotation(pnDegrees)
 		This._Take(This._Rotate(pnDegrees, 0))
 
@@ -433,8 +488,14 @@ class stzImage from stzObject
 			This.ApplyRotation(pnDegrees)
 			return This
 
-	# Returns the image turned clockwise as a new image (data): a multiple of 90 degrees exactly,
-	# any other angle about the centre on the same canvas, the corners black (RotatedXT fills them).
+	# Returns the image turned clockwise as a new image (data), exactly for a multiple of 90 degrees.
+	#
+	# Any other angle turns about the centre on the same canvas, the corners black (RotatedXT fills them).
+	#
+	#   pnDegrees  the angle in degrees, clockwise
+	#   returns    a new stzImage; the image itself is unchanged
+	#   warning    an angle that is not a number raises an error
+	#   see        ApplyRotation, RotatedXT
 	def Rotated(pnDegrees)
 		return This._New(This._Rotate(pnDegrees, 0))
 
@@ -460,6 +521,12 @@ class stzImage from stzObject
 		_aM_ = StzRotationMatrix((_nW_ + 1) / 2, (_nH_ + 1) / 2, pnDegrees, 1)
 		return This._Warp(_aM_, _nW_, _nH_, pnFill)
 
+	# Changes the image in place to the given size, resampled bilinearly.
+	#
+	#   pnWidth    the new number of pixel columns
+	#   pnHeight   the new number of pixel rows
+	#   returns    nothing; use ApplyResizeQ to chain
+	#   see        Resized, ResizedXT
 	def ApplyResize(pnWidth, pnHeight)
 		This._Take(StzEngineImageResize(@nId, pnWidth, pnHeight, 1))
 
@@ -489,6 +556,12 @@ class stzImage from stzObject
 
 	#@ aka  -- 5. FILTERS AND THRESHOLDS --------------------------------------------
 
+	# Changes the image in place to its Gaussian-blurred form (OpenCV's 8-bit kernel, borders reflected).
+	#
+	#   pnSigma    the blur's standard deviation, above 0 and at most 100
+	#   returns    nothing; use ApplyBlurQ to chain
+	#   warning    a sigma outside 0 < sigma <= 100 raises an error
+	#   see        Blurred
 	def ApplyBlur(pnSigma)
 		This._Take(StzEngineImageBlur(@nId, pnSigma))
 
@@ -506,6 +579,12 @@ class stzImage from stzObject
 	def OtsuThreshold()
 		return StzEngineImageOtsu(@nId)
 
+	# Changes the image in place to a one-channel image: 255 where the gray level is above the threshold, 0 elsewhere.
+	#
+	#   pThreshold   a level 0..255, or :otsu to let the image choose it
+	#   returns      nothing; use ApplyThresholdQ to chain
+	#   warning      any other value raises an error
+	#   see          Thresholded, OtsuThreshold
 	def ApplyThreshold(pThreshold)
 		This._Take(StzEngineImageThreshold(@nId, This._Level(pThreshold)))
 
@@ -548,8 +627,9 @@ class stzImage from stzObject
 		return new stzImageGrid(_StzImageMust(StzEngineImageToGrid(@nId, pnChannel)),
 			"y", "x")
 
-	# Returns the luminance of the text and of its background inside a box -- what a contrast ratio is
-	# computed from. Measures, never judges. The box's gray levels are split by Otsu and the side with fewer
+	# Returns the luminance of the text and of its background inside a box, the figures a contrast ratio is built from.
+	#
+	# It measures and never judges. The box's gray levels are split by Otsu and the side with fewer
 	# pixels is the ink; the text is the median of the quarter of the ink farthest from the split, and the
 	# background the median of the pixels at least 3 pixels from any ink. Luminance is WCAG 2.x relative
 	# luminance (sRGB), 0 for black and 1 for white.
@@ -558,6 +638,7 @@ class stzImage from stzObject
 	#   returns    [ :text, :background, :spread, :ink, :bgpixels ]; :spread is the 2nd to 98th percentile range
 	#              of the background, :ink and :bgpixels how many pixels each figure stands on. :background
 	#              and :spread are "" when no pixel is 3 pixels from ink; [] when the box has one gray level
+	#   warning    a box that is not a list of four values raises an error
 	#   example    o1 = StzImageNew(40, 20, 3, 255)
 	#              o1.ApplyBox([ 11, 6, 12, 6 ], [ 51, 51, 51 ], 3)
 	#              aLum = o1.TextLuminanceInBox([ 0, 0, 39, 19 ])
@@ -587,6 +668,14 @@ class stzImage from stzObject
 	def Morphed(pcOp, pnSize, pcShape)
 		return This._New(This._Morph(pcOp, pnSize, pcShape))
 
+	# Changes the image in place by a morphological operation, as OpenCV's morphologyEx.
+	#
+	#   pcOp       :erode, :dilate, :open, :close, :gradient, :tophat or :blackhat
+	#   pnSize     the kernel's side, odd, 1..255
+	#   pcShape    :rect, :cross or :ellipse
+	#   returns    nothing; use ApplyMorphologyQ to chain
+	#   warning    an unknown operation or shape raises an error
+	#   see        Morphed
 	def ApplyMorphology(pcOp, pnSize, pcShape)
 		This._Take(This._Morph(pcOp, pnSize, pcShape))
 
@@ -621,6 +710,12 @@ class stzImage from stzObject
 	def Closed(pnSize)
 		return This.Morphed(:close, pnSize, :rect)
 
+	# Changes the image in place so each pixel is the median of its window, which removes salt-and-pepper noise.
+	#
+	#   pnSize     the window's side
+	#   returns    nothing; use ApplyMedianFilterQ to chain
+	#   note       edges are kept
+	#   see        MedianFiltered
 	def ApplyMedianFilter(pnSize)
 		This._Take(StzEngineImageMedian(@nId, pnSize))
 
@@ -632,6 +727,10 @@ class stzImage from stzObject
 	def MedianFiltered(pnSize)
 		return This._New(StzEngineImageMedian(@nId, pnSize))
 
+	# Changes the image in place to a gray image whose levels are spread over 0..255 by histogram equalisation.
+	#
+	#   returns    nothing; use ApplyEqualizationQ to chain
+	#   see        Equalized
 	def ApplyEqualization()
 		This._Take(StzEngineImageEqualize(@nId))
 
@@ -692,6 +791,12 @@ class stzImage from stzObject
 	def SauvolaThresholdedXT(pnWindow, pnK, pnR)
 		return This._New(StzEngineImageSauvola(@nId, pnWindow, pnK, pnR))
 
+	# Changes the image in place to its Canny edges, a one-channel image with 255 on an edge.
+	#
+	#   pnLow      below it a gradient is never an edge
+	#   pnHigh     above it a gradient always is; between, only when joined to a strong one
+	#   returns    nothing; use ApplyEdgeDetectionQ to chain
+	#   see        Edges
 	def ApplyEdgeDetection(pnLow, pnHigh)
 		This._Take(StzEngineImageCanny(@nId, pnLow, pnHigh, 0))
 
@@ -699,6 +804,12 @@ class stzImage from stzObject
 			This.ApplyEdgeDetection(pnLow, pnHigh)
 			return This
 
+	# Changes the image in place by thresholding each pixel against the mean of its block, for uneven light.
+	#
+	#   pnBlock    the window's side, odd, >= 3
+	#   pnC        how far below the local mean a pixel may be and still count as bright
+	#   returns    nothing; use ApplyAdaptiveThresholdQ to chain
+	#   see        AdaptiveThresholded
 	def ApplyAdaptiveThreshold(pnBlock, pnC)
 		This._Take(StzEngineImageAdaptiveMean(@nId, pnBlock, pnC))
 
@@ -706,6 +817,11 @@ class stzImage from stzObject
 			This.ApplyAdaptiveThreshold(pnBlock, pnC)
 			return This
 
+	# Changes the image in place by Sauvola's rule, the document binarizer, with k 0.2 and R 128.
+	#
+	#   pnWindow   the window's side
+	#   returns    nothing; use ApplySauvolaThresholdQ to chain
+	#   see        SauvolaThresholded
 	def ApplySauvolaThreshold(pnWindow)
 		This._Take(StzEngineImageSauvola(@nId, pnWindow, 0.2, 128))
 
@@ -820,12 +936,15 @@ class stzImage from stzObject
 		return StzEngineImageWarp(@nId, _nP_, pnWidth, pnHeight, pnFill,
 			_m_[1], _m_[2], _m_[3], _m_[4], _m_[5], _m_[6], _m_[7], _m_[8], _m_[9])
 
-	# Returns what is not the background, as a one-channel image (data): 0 for the pixels connected
-	# to the border whose gray is within the tolerance of the border's median gray, 255 elsewhere.
+	# Returns what is not the background, as a one-channel image (data): 0 for background pixels, 255 elsewhere.
 	#
+	# The background is the pixels connected to the border whose gray is within the tolerance of the border's median gray.
+	#
+	#   returns    a new one-channel stzImage
 	#   note       the tolerance is MEASURED from the border itself: 3 robust sigmas of its gray, at
 	#              least 4 -- ForegroundMaskXT(n) sets it by hand; ForegroundTolerance() says what the
 	#              last mask used. A dark object or band not matching the border stays foreground
+	#   see        PageCorners, ForegroundMaskXT
 	def ForegroundMask()
 		return This._New(StzEngineImageForeground(@nId, 0))
 
@@ -860,13 +979,16 @@ class stzImage from stzObject
 		next
 		return _a_
 
-	# Returns the four corners of the page in a photograph -- top-left, top-right, bottom-right,
-	# bottom-left, 1-based -- or [ ] when no four-sided bright region stands out.
+	# Returns the four corners of the page in a photograph, or [ ] when no four-sided bright region stands out.
 	#
+	# The corners come top-left, top-right, bottom-right, bottom-left, 1-based.
+	#
+	#   returns    a list of four [ x, y ] points, or []
 	#   note       the page is the largest region that is not the background -- the background
 	#              being what touches the border and has the border's colour, within a tolerance
 	#              measured from the border (ForegroundMask) --
 	#              its outline simplified to 2% of its perimeter; it must come down to four corners
+	#   see        ApplyPageFlattening, ForegroundMask
 	def PageCorners()
 		_oB_ = This.ForegroundMask()
 		_aC_ = _oB_.Contours()
@@ -890,13 +1012,16 @@ class stzImage from stzObject
 		ok
 		return StzOrderedCorners(_aQ_)
 
-	# Changes the image to its page, flattened: the four corners found by PageCorners pulled to a
-	# rectangle as wide and as tall as the page's longer edges IN THE PHOTOGRAPH.
+	# Changes the image to its page, flattened: the corners PageCorners finds are pulled to a rectangle.
 	#
+	# The rectangle is as wide and as tall as the page's longer edges IN THE PHOTOGRAPH.
+	#
+	#   returns    nothing; use ApplyPageFlatteningQ to chain
 	#   note       a single photograph does not give a page's true proportions: perspective shortens
 	#              the far edge, and undoing that needs the camera's focal length. When the page's
 	#              size is known (A4, a receipt), say it with ApplyPageFlatteningXT
 	#   warning    raises an error when no page is found; ask PageCorners first to decide
+	#   see        PageCorners, ApplyPageFlatteningXT
 	def ApplyPageFlattening()
 		This._Take(This._Flatten(0, 0))
 
@@ -997,18 +1122,29 @@ class stzImage from stzObject
 	def Objects()
 		return This.ObjectsXT(0.3)
 
-	# IM9f: finds what WORDS name -- "a red mug", "traffic cone", or a list of them. Open vocabulary (OWL-ViT): a word does not have
-	# to be one the object detector was trained on. Returns [ [ :query, :score, :box = [ x, y, w, h ] ] ... ], best score first, the box in
-	# 1-based pixels like Objects(); at most 20 boxes per word. The first call about a picture runs the 768 x 768 graph (about 0.7 s on the
-	# CPU); a second call about the SAME pixels pays only for words it has not seen.
-	# The threshold is the WARM RULE (SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8, upheld by the court on 952 fresh pairs): the picture's
-	# logit-shift field is read first, and on a warm picture -- one where the model says "yes, around here" too generously -- the threshold
-	# is raised, which drops the extra boxes around an object it found anyway. FindByWordsXT takes an explicit threshold and applies no rule.
+	# Returns the boxes of what words name, found by an open-vocabulary detector (OWL-ViT), best score first.
+	#
+	# IM9f: a word does not have to be one the object detector was trained on. The first call about a picture
+	# runs the 768 x 768 graph (about 0.7 s on the CPU); a second call about the SAME pixels pays only for words
+	# it has not seen. The threshold is the WARM RULE (SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8, upheld by
+	# the court on 952 fresh pairs): the picture's logit-shift field is read first, and on a warm picture -- one
+	# where the model says "yes, around here" too generously -- the threshold is raised, which drops the extra
+	# boxes around an object it found anyway. FindByWordsXT takes an explicit threshold and applies no rule.
+	#
+	#   pWords     the words to find -- "a red mug", "traffic cone" -- as a text or a list of them
+	#   returns    [ [ :query, :score, :box = [ x, y, w, h ] ] ... ], the box in 1-based pixels like Objects(); at
+	#              most 20 boxes per word
+	#   see        FindByWordsXT, FindByWordsThreshold, Objects
 	def FindByWords(pWords)
 		return This.FindByWordsXT(pWords, This.FindByWordsThreshold())
 
-	# Returns the threshold FindByWords uses for this picture: $nStzVisionFindScore, raised by $nStzVisionWarmStep when the mean of the
-	# picture's 576 logit shifts is at least $nStzVisionWarmShift. Reading the field costs nothing more: it comes from the same graph run.
+	# Returns the score threshold FindByWords uses for this picture, raised when the picture reads warm.
+	#
+	# It is $nStzVisionFindScore, raised by $nStzVisionWarmStep when the mean of the picture's 576 logit shifts is
+	# at least $nStzVisionWarmShift. Reading the field costs nothing more: it comes from the same graph run.
+	#
+	#   returns    a number
+	#   see        FindByWords, FindByWordsXT
 	def FindByWordsThreshold()
 		_nThr_ = $nStzVisionFindScore
 		if _StzVisionOwlHeads(This)[:meanShift] >= $nStzVisionWarmShift
@@ -1053,9 +1189,12 @@ class stzImage from stzObject
 	def ObjectsXT(pnMinScore)
 		return This._Objects(pnMinScore, 0)
 
-	# Returns the objects found in the whole image AND in four overlapping tiles, merged: small
-	# people in a wide street come back (2 found whole on Times Square, 9 with the tiles), at five
-	# runs' cost.
+	# Returns the objects found in the whole image and in four overlapping tiles, merged, at five runs' cost.
+	#
+	# Small people in a wide street come back: 2 found whole on Times Square, 9 with the tiles.
+	#
+	#   returns    a list shaped as Objects() returns it
+	#   see        Objects, ObjectsXT
 	def ObjectsTiled()
 		return This._Objects(0.3, 2)
 
@@ -1106,8 +1245,13 @@ class stzImage from stzObject
 	def LaplacianVariance()
 		return StzEngineImageLaplacianVar(@nId)
 
-	# Returns the same figure on the picture shrunk (by area) so that its long side is pnLongSide, never enlarged: two pictures of
-	# different sizes then compare. 0 means the picture's own size.
+	# Returns the sharpness figure of the picture shrunk so that its long side is the given length, never enlarged.
+	#
+	# The picture is shrunk by area, on its gray, so two pictures of different sizes then compare.
+	#
+	#   pnLongSide   the length of the long side after the shrink; 0 means the picture's own size
+	#   returns      a number, the variance of the Laplacian of the gray
+	#   see          Sharpness, RelativeSharpness
 	def SharpnessAt(pnLongSide)
 		_nW_ = This.Width()
 		_nH_ = This.Height()
@@ -1142,9 +1286,13 @@ class stzImage from stzObject
 		if _nV_ < 1 _nV_ = 1 ok
 		return This.Sharpness() / _nV_
 
-	# Returns how the picture is exposed, from the histogram of its gray: [ :mean, :std, :p1, :p99, :dark, :light ] -- the mean and
-	# standard deviation of the gray level, its 1st and 99th percentile level, and the FRACTION of pixels at 5 or below (crushed
-	# shadows) and at 250 or above (blown highlights).
+	# Returns how the picture is exposed, from the histogram of its gray, as [ :mean, :std, :p1, :p99, :dark, :light ].
+	#
+	# The mean and standard deviation of the gray level, its 1st and 99th percentile level, and the FRACTION of
+	# pixels at 5 or below (crushed shadows) and at 250 or above (blown highlights).
+	#
+	#   returns    a hash list with those six keys; every value is 0 when the histogram holds no pixels
+	#   see        Quality, IsUnderexposed, IsOverexposed
 	def ExposureStats()
 		_oH_ = This.Histogram()
 		_aH_ = _oH_.ToList(1)
@@ -1183,23 +1331,39 @@ class stzImage from stzObject
 	def PerceptualHash()
 		return StzEngineImagePHash(@nId)
 
-	# TRUE when the picture is blurred: its RelativeSharpness is below $nStzBlurBelow. It finds DEFOCUS blur; a blur in one direction (motion)
-	# leaves detail across it, which an isotropic measure sees, so it is found less often.
+	# TRUE if the picture is blurred: its RelativeSharpness is below $nStzBlurBelow.
+	#
+	# It finds DEFOCUS blur; a blur in one direction (motion) leaves detail across it, which an isotropic
+	# measure sees, so it is found less often.
+	#
+	#   returns    1 or 0
+	#   see        RelativeSharpness, Quality
 	def IsBlurry()
 		return This.RelativeSharpness() < $nStzBlurBelow
 
-	# TRUE when even the bright end of the picture is dark: its 99th percentile gray level is below $nStzUnderP99.
+	# TRUE if even the bright end of the picture is dark: its 99th percentile gray level is below $nStzUnderP99.
+	#
+	#   returns    1 or 0
+	#   see        ExposureStats, IsOverexposed
 	def IsUnderexposed()
 		_aE_ = This.ExposureStats()
 		return _aE_[:p99] < $nStzUnderP99
 
-	# TRUE when much of the picture is blown out: at least $nStzOverLight of its pixels are at 250 or above.
+	# TRUE if much of the picture is blown out: at least $nStzOverLight of its pixels are at 250 or above.
+	#
+	#   returns    1 or 0
+	#   see        ExposureStats, IsUnderexposed
 	def IsOverexposed()
 		_aE_ = This.ExposureStats()
 		return _aE_[:light] >= $nStzOverLight
 
-	# Returns what the three verdicts rest on and what they say: [ :sharpness, :relativeSharpness, :exposure, :isBlurry, :isUnderexposed, :isOverexposed ]
-	# -- the numbers first, so a caller with other thresholds can judge for itself.
+	# Returns what the three verdicts rest on and what they say, the numbers first.
+	#
+	# A caller with other thresholds can then judge for itself.
+	#
+	#   returns    [ :sharpness, :relativeSharpness, :exposure, :isBlurry, :isUnderexposed, :isOverexposed ]; :exposure
+	#              is the list ExposureStats returns
+	#   see        ExposureStats, IsBlurry, IsUnderexposed, IsOverexposed
 	def Quality()
 		_aE_ = This.ExposureStats()
 		_nSh_ = This.Sharpness()
@@ -1213,13 +1377,24 @@ class stzImage from stzObject
 	def HashDistanceTo(poOther)
 		return StzHashDistance(This.PerceptualHash(), poOther.PerceptualHash())
 
-	# TRUE when the other picture is a near-duplicate of this one by its hash: at most $nStzNearDupBits bits apart. A copy of a photograph that was
-	# resized, re-encoded, brightened or slightly cropped is; a different photograph is not (see IM9d for how often this is right).
+	# TRUE if the other picture is a near-duplicate of this one by its hash: at most $nStzNearDupBits bits apart.
+	#
+	# A copy of a photograph that was resized, re-encoded, brightened or slightly cropped is; a different
+	# photograph is not (see IM9d for how often this is right).
+	#
+	#   poOther    the stzImage to compare with
+	#   returns    1 or 0
+	#   see        HashDistanceTo, SimilarityToImage
 	def IsNearDuplicateOf(poOther)
 		return This.HashDistanceTo(poOther) <= $nStzNearDupBits
 
-	# Returns the cosine of the two pictures' SigLIP2 embeddings (the model of IM5): 1 for the same content, near 0 for unrelated ones; the
-	# meaning-level measure, where HashDistanceTo is the pixel-level one.
+	# Returns the cosine of the two pictures' SigLIP2 embeddings: 1 for the same content, near 0 for unrelated ones.
+	#
+	# It is the meaning-level measure (the model of IM5), where HashDistanceTo is the pixel-level one.
+	#
+	#   poOther    the stzImage to compare with
+	#   returns    a number
+	#   see        HashDistanceTo, Embedding
 	def SimilarityToImage(poOther)
 		_aA_ = This.Embedding()
 		_aB_ = poOther.Embedding()
@@ -1294,9 +1469,11 @@ class stzImage from stzObject
 		_oM_.Release()
 		return _oR_
 
-	# Returns how near each pixel is, as a grid of numbers (data): RELATIVE inverse depth, larger is
-	# nearer, in no unit; Height() rows of Width() columns.
+	# Returns how near each pixel is, as a grid of numbers (data): relative inverse depth, larger is nearer.
 	#
+	# The numbers have no unit; the grid has Height() rows of Width() columns.
+	#
+	#   returns    a stzImageGrid
 	#   note       Depth-Anything-V2-Small (models/vision); ToImageScaled() on the grid shows it, near
 	#              white and far black. A relative map ranks distances, it does not measure them
 	def DepthMap()
@@ -1401,9 +1578,11 @@ class stzImage from stzObject
 
 	#@ aka  -- 10f. A PAGE AS STRUCTURE (IM7: Granite-Docling, see stzVision.ring and stzDocTags.ring) ----
 
-	# Returns what Granite-Docling writes about the picture taken as a document page: DocTags, the page's
-	# structure as tags (<section_header_level_1>, <text>, <otsl> ...) with the words between them.
+	# Returns what Granite-Docling writes about the picture taken as a document page, as DocTags.
 	#
+	# DocTags is the page's structure as tags (<section_header_level_1>, <text>, <otsl> ...) with the words between them.
+	#
+	#   returns    a text of tags
 	#   note       the page is resized to 2048 on its long side and cut into 512 x 512 tiles, with one more view
 	#              of the whole page; each view is 64 rows for the decoder, which writes greedily, so the same
 	#              page gets the same tags. An English model. The views go through the vision tower on the GPU
