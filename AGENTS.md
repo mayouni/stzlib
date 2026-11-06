@@ -116,8 +116,8 @@ The GPU plane, twenty-one guards in one folder, each needing a device: the spars
 ceiling and a split dispatch timed whole (GK3, GC0; 39), the user kernel's own reference (GK6, 34), f16 weights (GK5, 23), the grammar's admissions (KP0, 43),
 the group's memory and puzzles 9-12 (KP3, 58) and the kernel puzzles (KP1-KP2, 95: the course `libraries/stzlib/base/education/program/courses/kernel-puzzles`,
 graded by `libraries/stzlib/base/gpu/stzKernelPuzzle.ring` on the desktop and by
-`libraries/stzlib/base/education/program/courses/kernel-puzzles/runner/puzzle.html` in a browser
-with WebGPU, the course folder served over http). The standalone probe `libraries/stzlib/engine/src/gpu_peak_probe.zig`
+`libraries/stzlib/base/gpu/puzzle_runner/puzzle.html` in a browser
+with WebGPU, `libraries/stzlib/base` served over http). The standalone probe `libraries/stzlib/engine/src/gpu_peak_probe.zig`
 prints every adapter's peak with its spread (build it with `zig build-exe`, run it with
 `libraries/stzlib/engine/vendor/wgpu/lib/wgpu_native.dll` as its one argument), and the edge proof
 `libraries/stzlib/base/test/gpu/edge_proof/edge_proof.html` runs eight kernels in a browser

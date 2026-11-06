@@ -188,7 +188,7 @@ ok
 
 ? ""
 ? "-- Scene 4: the browser runner exists beside the course --"
-cRunner = "../../education/program/courses/kernel-puzzles/runner/puzzle.html"
+cRunner = "../../gpu/puzzle_runner/puzzle.html"
 chk("the page is there", fexists(cRunner))
 cPage = read(cRunner)
 chk("...it fetches the puzzle's reference, starter and facts (one source for both runners)",

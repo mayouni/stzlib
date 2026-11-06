@@ -50,7 +50,11 @@ const q = new URLSearchParams(location.search);
 const id = (q.get("p") || "kp-01").toLowerCase();
 const lang = (q.get("lang") || "en").toLowerCase();
 const el = (s) => document.getElementById(s);
-const exDir = `../exercises/${id}/`;
+// the course this page grades, read in place: the page lives beside the GPU
+// plane and stz.wasm, never inside the program folder, which holds only text
+// a teacher can open (moved 2026-11-06); serve base/ over http to use it
+const course = "../../education/program/courses/kernel-puzzles/";
+const exDir = course + `exercises/${id}/`;
 
 async function text(path) {
   const r = await fetch(path, { cache: "no-store" }); // the course files are small and may change under the page
@@ -412,7 +416,7 @@ function littleMarkdown(md) {
 async function load() {
   // the course's own list of puzzles, from its manifest
   try {
-    const cf = facts(await text("../course.zknw"));
+    const cf = facts(await text(course + "course.zknw"));
     const ids = cf.filter(p => p[0] === "kernel-puzzles" && p[1] === "has-exercise").map(p => p[2]);
     el("list").innerHTML = ids.map(x => x === id ? `<b>${x}</b>` : `<a href="?p=${x}&lang=${lang}" style="color:inherit">${x}</a>`).join(" · ")
       + ` &nbsp; <span>lang:</span> ` + ["en", "fr", "ar", "ha"].map(l => l === lang ? `<b>${l}</b>` : `<a href="?p=${id}&lang=${l}" style="color:inherit">${l}</a>`).join(" ");

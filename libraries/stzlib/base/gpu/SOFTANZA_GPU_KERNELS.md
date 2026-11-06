@@ -590,7 +590,7 @@ to one verdict:
 
 Recipes: `ramp`, `half`, `mod13`, `mod7`, `ones`, `tenths`.
 
-**The browser runner** (`runner/puzzle.html`) loads the engine compiled to
+**The browser runner** (`base/gpu/puzzle_runner/puzzle.html`, beside `stz.wasm`; serve `base/` over http and open `gpu/puzzle_runner/puzzle.html?p=kp-05`) loads the engine compiled to
 WebAssembly, transpiles in the page, runs on the browser's WebGPU, and
 falls back to the interpreter when WebGPU is missing. A separate edge
 proof page, `base/test/gpu/edge_proof/`, shows the browser and the

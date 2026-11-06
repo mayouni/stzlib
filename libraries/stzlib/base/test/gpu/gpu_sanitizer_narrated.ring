@@ -145,7 +145,7 @@ aS = oQ.Sanitize(cShort)
 chk("puzzle 9, an array too short: the verdict stays the values' own, and Sanitize names the dropped writes and the reads past",
 	oQ.GradeOnCpu(cShort) = "mismatch at element 1" and len(aS) = 2 and StzFindFirst("dropped:", aS[1]) = 1 and StzFindFirst("past:", aS[2]) = 1)
 chk("...and the right answer is clean", len(oQ.Sanitize(oQ.Reference())) = 0 and oQ.GradeOnCpu(oQ.Reference()) = "verified")
-cPage = read("../../education/program/courses/kernel-puzzles/runner/puzzle.html")
+cPage = read("../../gpu/puzzle_runner/puzzle.html")
 chk("the browser runner sanitizes the learner's kernel and gives the same race verdict",
 	StzFindFirst("stz_gpu_spec_sanitize", cPage) > 0 and StzFindFirst("race at line ${san.raceLine}", cPage) > 0)
 ? "  (scene 4: " + ((clock() - $t0) / clockspersecond()) + " s)"

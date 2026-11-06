@@ -280,7 +280,7 @@ ok
 
 ? ""
 ? "-- Scene 4: the browser runner speaks the same schedule --"
-cPage = read("../../education/program/courses/kernel-puzzles/runner/puzzle.html")
+cPage = read("../../gpu/puzzle_runner/puzzle.html")
 chk("the page reads a declared hidden shape and the band from the facts",
 	StzFindFirst("hidden-elements", cPage) > 0 and StzFindFirst("hidden-scalar-", cPage) > 0 and StzFindFirst(char(34) + "band" + char(34), cPage) > 0)
 chk("...measures its roofs with the engine's own kernels (stz.wasm carries them), timed in batches",

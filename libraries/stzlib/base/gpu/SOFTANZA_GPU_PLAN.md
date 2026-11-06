@@ -2984,6 +2984,9 @@ path when WebGPU is missing — and the guard holds the two paths to the
 same verdicts; the one thing it cannot see is a store past the region.
 
 **The browser runner** is `courses/kernel-puzzles/runner/puzzle.html`
+(MOVED 2026-11-06 to `base/gpu/puzzle_runner/puzzle.html`: the program folder
+holds only text a teacher can open, and the education demo proves it to a
+decision maker; the page reads the course in place and is served from `base/`)
 beside `stz.wasm`, in the edge proof's shape: it fetches the puzzle's
 facts, reference, starter and task, builds the data from the same
 recipes, transpiles the learner's text with the wasm transpiler, computes
