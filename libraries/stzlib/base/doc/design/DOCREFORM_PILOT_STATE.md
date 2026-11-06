@@ -614,3 +614,8 @@ Next by size: 8 classes at 2 (stzHexNumber first), then 28 at 1, then the stzGra
 stzNumber gained the scientific-notation methods the Hex, Octal and Binary classes forwarded to (engine format, fewest digits that read back as the same double; the engine's own Zig writer loses digits and is owed a fix), Hex FractionalPart answers '' (whole numbers), Octal ToBaseNForm reaches IntegerPartToBaseNForm. SetDefaultFormat and ApplyLocale stay UNIMPLEMENTED (their doc blocks say so and name the alternatives, so the generated register no longer lists them: a reclassification, not a fix). Guard 174 under rnxc, 16 mutants.
 Next by size: 5 classes at 2 (stzMatrix first), then 28 at 1, then the stzGraphQuery follow-up.
 
+## 2026-11-06: stzMatrix, stzListOfNamedObjects, stzStringInserter, stzReactor, stzStringList are ON MAIN; register 36 -> 26
+
+The register was generated from doc blocks written under Ring 1.27: six of these ten rows (R13, R21, R24, R41) do not reproduce under rnxc, so those batches were hardening and documentation, with the real faults rnxc showed fixed instead (listed in CONCLUSIONS). Rule from now on: reproduce under rnxc first. stzListOfNamedObjects had never run. Guards: 128, 203, 165, 60, 97 under rnxc; the reactor guard is flaky in my hands (exit 127, no output, on some runs) and the engine crash at Destroy is open. Tests that spawn `ring` from PATH exist in cluster/, perf/ and others and were not run.
+Next by size: 21 classes at 1 row, then the stzGraphQuery follow-up.
+
