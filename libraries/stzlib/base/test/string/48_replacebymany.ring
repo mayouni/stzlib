@@ -12,3 +12,4 @@ Scenario("Replacing occurrences by cycling replacements")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

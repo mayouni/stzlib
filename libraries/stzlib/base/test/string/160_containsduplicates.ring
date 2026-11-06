@@ -19,3 +19,4 @@ Scenario("Detecting that a string has duplicates")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -155,6 +155,7 @@ Scenario("what the engine bought, measured")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Det(aM)
 	oD = new stzMatrix(aM)

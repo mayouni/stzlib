@@ -25,6 +25,7 @@ Scenario("Create timelines with a date-only boundary")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Tl aOpts
     return new stzTimeLines(aOpts)

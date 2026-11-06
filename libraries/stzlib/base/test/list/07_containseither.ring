@@ -22,3 +22,4 @@ Scenario("ContainsEither(a, :or = b): an EXCLUSIVE either -- TRUE when exactly O
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

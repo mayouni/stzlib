@@ -14,3 +14,4 @@ Scenario("Split a string at a substring boundary")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -66,6 +66,7 @@ Scenario("A position outside 1..N raises a clear error")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Raises(o, cCode)
 	try

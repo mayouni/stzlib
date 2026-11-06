@@ -15,3 +15,4 @@ Scenario("Removing the spaces")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

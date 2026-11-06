@@ -141,6 +141,7 @@ Scenario("The roots of unity, a closed-form oracle")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #-- helpers (uniquely prefixed: short names collide with library globals) ------
 

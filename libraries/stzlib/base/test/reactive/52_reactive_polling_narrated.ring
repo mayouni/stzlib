@@ -42,3 +42,4 @@ Scenario("isOneTime parameter is honoured (regression test)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

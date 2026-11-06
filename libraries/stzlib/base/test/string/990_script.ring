@@ -8,3 +8,4 @@ Scenario("A Chinese hello")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

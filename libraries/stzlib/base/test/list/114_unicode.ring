@@ -20,3 +20,4 @@ Scenario("Unicodes() maps a string to the list of its characters' Unicode codepo
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

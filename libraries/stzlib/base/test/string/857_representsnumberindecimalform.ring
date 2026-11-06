@@ -16,3 +16,4 @@ Scenario("Prefixes decide the base")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

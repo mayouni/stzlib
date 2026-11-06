@@ -27,3 +27,4 @@ Scenario("Removing one end char vs the whole run")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

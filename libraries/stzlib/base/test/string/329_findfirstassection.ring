@@ -13,6 +13,7 @@ Scenario("First occurrence as a section")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

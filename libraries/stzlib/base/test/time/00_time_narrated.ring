@@ -36,3 +36,4 @@ Scenario("Comparison and parts of day")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

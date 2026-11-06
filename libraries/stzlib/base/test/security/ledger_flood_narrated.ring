@@ -69,6 +69,7 @@ Scenario("grants are never budgeted; a zero budget writes everything (negative s
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # -- helpers (after the main code) ------------------------------------
 

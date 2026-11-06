@@ -12,3 +12,4 @@ Scenario("Upper-casing a string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

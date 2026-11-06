@@ -60,3 +60,4 @@ Scenario("A live (uncancelled) token does not disturb normal execution")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

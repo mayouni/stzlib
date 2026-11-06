@@ -11,3 +11,4 @@ Scenario("Nothing but neutrals")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

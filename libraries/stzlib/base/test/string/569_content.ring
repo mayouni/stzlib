@@ -14,3 +14,4 @@ Scenario("Removing the bounded words")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

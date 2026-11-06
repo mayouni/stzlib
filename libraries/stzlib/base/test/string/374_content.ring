@@ -12,3 +12,4 @@ Scenario("Replacing a section")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

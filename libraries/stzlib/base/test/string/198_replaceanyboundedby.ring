@@ -23,3 +23,4 @@ Scenario("Replacing bounded content, including bounds")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -25,3 +25,4 @@ Scenario("Two membership checks: ContainsThese on a single list, and EachContain
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -15,3 +15,4 @@ Scenario("Walking the Mios forward")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

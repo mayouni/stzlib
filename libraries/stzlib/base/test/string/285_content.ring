@@ -14,3 +14,4 @@ Scenario("Two-then-three grouping")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

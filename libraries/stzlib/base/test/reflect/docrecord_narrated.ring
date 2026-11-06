@@ -184,3 +184,4 @@ Scenario("ExplainMethod and RecordOf show what the author WROTE")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

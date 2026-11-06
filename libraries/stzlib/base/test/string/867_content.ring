@@ -10,3 +10,4 @@ Scenario("Only the second opener")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

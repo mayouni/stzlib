@@ -301,6 +301,7 @@ Scenario("THE PROOF: one world, one envelope, one host, one engine")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # -- helpers (after all top-level code; Ring hoists func defs) --------

@@ -15,3 +15,4 @@ Scenario("Indexing the ends of a big string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

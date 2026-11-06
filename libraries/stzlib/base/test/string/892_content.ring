@@ -11,3 +11,4 @@ Scenario("No options, no hearts")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

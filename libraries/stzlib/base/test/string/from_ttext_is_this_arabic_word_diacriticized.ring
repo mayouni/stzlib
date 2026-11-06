@@ -20,3 +20,4 @@ Scenario("Diacritics and script")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

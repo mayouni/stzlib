@@ -80,3 +80,4 @@ Scenario("SetTimeout satisfies both readers, not just the engine")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -13,3 +13,4 @@ Scenario("Counting the letters of the Arabic alphabet")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

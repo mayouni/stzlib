@@ -11,3 +11,4 @@ Scenario("Marking every A")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

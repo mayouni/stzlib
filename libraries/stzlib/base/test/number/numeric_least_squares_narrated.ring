@@ -316,6 +316,7 @@ EndScenario()
 
 
 Summary()
+shutdown($_zst_fail)
 
 func SumSq(aD, ay, c1, c2)
 	nS = 0

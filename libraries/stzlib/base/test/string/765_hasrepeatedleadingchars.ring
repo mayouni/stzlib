@@ -19,3 +19,4 @@ Scenario("Leading spaces before an Arabic word")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

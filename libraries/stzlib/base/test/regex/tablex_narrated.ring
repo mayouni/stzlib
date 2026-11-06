@@ -175,6 +175,7 @@ Scenario("The parts of a match, and the tables that match")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func TxMatch(cPattern)
 	oX = new stzTablex(cPattern)

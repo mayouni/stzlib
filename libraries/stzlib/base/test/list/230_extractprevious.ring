@@ -25,3 +25,4 @@ Scenario("ExtractPrevious pulls out the nearest earlier occurrence and removes i
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

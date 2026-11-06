@@ -17,3 +17,4 @@ Scenario("Sorting a jumble of letters")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

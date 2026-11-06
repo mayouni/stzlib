@@ -262,6 +262,7 @@ Scenario("k-means runs entirely in the engine now")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func VerdictAt(aD, k)
 	oT = new stzTrainingSet(aD)

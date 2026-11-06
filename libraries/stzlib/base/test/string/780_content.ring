@@ -13,3 +13,4 @@ Scenario("Oh Tunisia")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

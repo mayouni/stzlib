@@ -12,3 +12,4 @@ Scenario("Un enonce, trois graphies")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

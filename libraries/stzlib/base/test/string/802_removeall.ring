@@ -20,3 +20,4 @@ Scenario("Peeling script tags")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -300,6 +300,7 @@ Scenario("A subclass must fill what the inherited accessor reads")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #-- helpers --------------------------------------------------------------------
 

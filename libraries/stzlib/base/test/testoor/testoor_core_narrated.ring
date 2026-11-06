@@ -365,6 +365,7 @@ ok
 ? ""
 ? "[P3.1 + P3.2 + P3.3 + the floor took " + ((clock() - nCoStart) / clockspersecond()) + "s]"
 Summary()
+shutdown($_zst_fail)
 
 #============================================================================
 # HELPERS AFTER THE TOP-LEVEL CODE

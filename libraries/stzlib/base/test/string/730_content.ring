@@ -13,3 +13,4 @@ Scenario("Hashing a string in place")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -17,3 +17,4 @@ Scenario("Classifying the case of a string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

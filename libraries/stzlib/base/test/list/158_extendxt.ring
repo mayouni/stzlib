@@ -21,3 +21,4 @@ Scenario("Growing a list up to a target length with ExtendXT(:List, :ToPosition)
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

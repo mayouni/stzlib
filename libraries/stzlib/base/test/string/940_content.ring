@@ -10,3 +10,4 @@ Scenario("Tildes between the letters")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

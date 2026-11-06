@@ -361,3 +361,4 @@ Scenario("Classic dictionary behavior unchanged (regression)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

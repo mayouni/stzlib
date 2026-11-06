@@ -16,3 +16,4 @@ Scenario("Shortening in place")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

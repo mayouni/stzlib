@@ -100,3 +100,4 @@ Scenario("the historical verb is untouched")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

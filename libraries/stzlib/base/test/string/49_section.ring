@@ -17,3 +17,4 @@ Scenario("Bounding a section by computed positions and delimiters")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

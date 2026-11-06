@@ -12,3 +12,4 @@ Scenario("Recognizing type plurals")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -418,3 +418,4 @@ Scenario("The questions leave the text alone and give the same answer when asked
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

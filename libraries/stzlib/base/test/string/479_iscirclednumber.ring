@@ -10,3 +10,4 @@ Scenario("A circled digit")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

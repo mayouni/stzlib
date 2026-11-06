@@ -124,6 +124,7 @@ Scenario("StzChatSafeText is the named boundary")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func HasFinding aF, cInv, cNode
 	for i = 1 to len(aF)

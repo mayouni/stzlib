@@ -40,3 +40,4 @@ Scenario("A batch of async requests runs across the loops")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

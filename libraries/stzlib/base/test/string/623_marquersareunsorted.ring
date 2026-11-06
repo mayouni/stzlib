@@ -10,3 +10,4 @@ Scenario("Unsorted marquers")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

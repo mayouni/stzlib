@@ -36,3 +36,4 @@ Scenario("Whole-word geographic/language forms still fire")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

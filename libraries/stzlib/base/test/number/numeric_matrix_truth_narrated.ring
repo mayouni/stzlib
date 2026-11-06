@@ -105,3 +105,4 @@ Scenario("what correctness by construction costs here: almost nothing")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

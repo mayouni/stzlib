@@ -8,3 +8,4 @@ Scenario("Indexing a list from the end")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

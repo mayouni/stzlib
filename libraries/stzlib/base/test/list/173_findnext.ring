@@ -22,3 +22,4 @@ Scenario("FindNext() returns the position of the next occurrence of a value, sca
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

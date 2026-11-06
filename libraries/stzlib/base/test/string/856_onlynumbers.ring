@@ -9,3 +9,4 @@ Scenario("Two numbers squeezed out")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -366,6 +366,7 @@ Scenario("The drawing family returns a text, one block per lane, and prints noth
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func NewSet
 	return new stzListOfTimeLines([ :Lanes = [ "Team A", "Team B" ], :Start = "2026-01-01", :End = "2026-12-31" ])

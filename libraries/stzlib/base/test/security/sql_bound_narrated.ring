@@ -137,3 +137,4 @@ Scenario("a transaction commits whole or rolls back whole")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

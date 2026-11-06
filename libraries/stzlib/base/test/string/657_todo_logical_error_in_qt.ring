@@ -19,3 +19,4 @@ Scenario("Eszett up and down")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -12,3 +12,4 @@ Scenario("Performance-gain helpers")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

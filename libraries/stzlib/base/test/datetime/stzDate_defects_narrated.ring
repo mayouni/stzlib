@@ -209,6 +209,7 @@ Scenario("The live clock: offsets from the real today, every expectation compute
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers: everything below is independent of stzDate -------------------------------------------
 # (kept at the end of the file: top-level code after a func definition becomes part of that function)

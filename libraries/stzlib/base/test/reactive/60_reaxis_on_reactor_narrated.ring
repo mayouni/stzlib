@@ -113,3 +113,4 @@ Scenario("teardown: stopping a system releases its reactor loop")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

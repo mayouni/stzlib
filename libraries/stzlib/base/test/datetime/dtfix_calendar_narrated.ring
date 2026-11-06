@@ -112,3 +112,4 @@ Scenario("Breaks, navigation and the span conflicts no longer name methods that 
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

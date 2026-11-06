@@ -9,3 +9,4 @@ Scenario("Both Lands go")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

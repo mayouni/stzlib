@@ -20,3 +20,4 @@ Scenario("IsIncludedIn (whole) vs AreIncludedIn (each item) subset tests")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

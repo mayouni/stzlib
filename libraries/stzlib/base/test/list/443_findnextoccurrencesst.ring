@@ -23,3 +23,4 @@ Scenario("FindNextOccurrencesST finds matches strictly after a starting position
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

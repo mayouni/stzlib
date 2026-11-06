@@ -11,3 +11,4 @@ Scenario("Second marquer after position 14")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

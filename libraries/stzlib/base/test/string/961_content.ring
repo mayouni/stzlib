@@ -13,3 +13,4 @@ Scenario("Caret islands")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

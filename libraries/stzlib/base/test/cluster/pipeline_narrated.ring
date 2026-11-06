@@ -87,3 +87,4 @@ Scenario("a pipeline can specialize along NON-doc facets (breadth)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

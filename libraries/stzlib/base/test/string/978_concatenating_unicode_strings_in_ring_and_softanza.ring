@@ -15,3 +15,4 @@ Scenario("A million latin concatenations")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

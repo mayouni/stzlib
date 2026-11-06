@@ -520,6 +520,7 @@ Scenario("The function-call form of Is no longer dies on the name _ (R13)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func CtSame a, b
 	if isString(a) and isString(b) and strcmp(a, b) = 0

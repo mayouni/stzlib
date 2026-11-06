@@ -18,3 +18,4 @@ Scenario("All chars are of a kind")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

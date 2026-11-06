@@ -13,6 +13,7 @@ Scenario("FindTheseBounds / RemoveTheseBounds")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func RemovedBounds
 	o = new stzString('[ @$2{"a";1;[1]}U ]')

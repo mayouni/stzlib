@@ -13,3 +13,4 @@ Scenario("The unsigned suffix also matches")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

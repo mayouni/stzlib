@@ -161,6 +161,7 @@ Scenario("Rows are sorted by their labels, whatever order the source gives them"
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Data()
     return [ [ :REGION, :PRODUCT, :AMOUNT ],

@@ -14,3 +14,4 @@ Scenario("Removing from the edges")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

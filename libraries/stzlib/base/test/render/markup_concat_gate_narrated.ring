@@ -26,6 +26,7 @@ load "../_narrated.ring"
 $GATE_SKIP_DIRS = [ "test", "doc", "archive", "recovered" ]
 
 GateMain()
+shutdown($_zst_fail)
 
 func GateMain()
 	aBase = GateBaseline("markup_concat_baseline.txt")

@@ -13,3 +13,4 @@ Scenario("Relative containment of a substring")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

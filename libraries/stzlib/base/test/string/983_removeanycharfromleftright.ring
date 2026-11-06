@@ -14,3 +14,4 @@ Scenario("Hearts off each side in turn")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

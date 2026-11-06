@@ -56,6 +56,7 @@ Scenario("the library's own roster functions are allowed by the library")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # -- helpers (after the main code) ------------------------------------
 

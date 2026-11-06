@@ -10,3 +10,4 @@ Scenario("A W-expression prefix")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

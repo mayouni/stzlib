@@ -34,6 +34,7 @@ Scenario("Element class queries")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Html cStr
     return new stzHtml(cStr)

@@ -98,3 +98,4 @@ Scenario("The frame is accountable like everything else")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

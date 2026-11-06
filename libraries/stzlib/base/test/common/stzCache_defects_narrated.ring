@@ -223,6 +223,7 @@ Scenario("The fixture is removed, and nothing outside it was touched")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func StzNormalizeSlashes(cPath)
 	cOut = ""

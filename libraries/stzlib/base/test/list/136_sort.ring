@@ -63,3 +63,4 @@ Scenario("Contrasts in-place sorting against copy-returning sorting across the R
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

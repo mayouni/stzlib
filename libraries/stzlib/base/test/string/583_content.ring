@@ -10,3 +10,4 @@ Scenario("Removing the last A")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

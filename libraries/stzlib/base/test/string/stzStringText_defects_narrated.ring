@@ -482,6 +482,7 @@ Scenario("A call of 100 public methods on a small mixed text raises nothing (the
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers (at the end: top-level code after a func becomes part of it) ---
 

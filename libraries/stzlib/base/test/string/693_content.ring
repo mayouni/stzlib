@@ -10,3 +10,4 @@ Scenario("Replacing a word")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

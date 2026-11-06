@@ -13,3 +13,4 @@ Scenario("Split a CamelCase string before each uppercase letter")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -30,3 +30,4 @@ Scenario("A different sum for each number")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -22,3 +22,4 @@ Scenario("ExtendXT(:ToPosition, :WithItemsIn): grow to a target length, distribu
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

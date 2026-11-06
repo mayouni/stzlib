@@ -15,6 +15,7 @@ Scenario("Numbers, and the numbers coming after an anchor")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

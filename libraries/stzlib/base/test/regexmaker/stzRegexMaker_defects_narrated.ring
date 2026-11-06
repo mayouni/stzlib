@@ -508,6 +508,7 @@ Scenario("The recursive maker: balanced parentheses through a self-reference")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Fits(cPattern, cText)
 	oRegex = new stzRegex(cPattern)

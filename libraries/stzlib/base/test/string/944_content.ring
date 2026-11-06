@@ -11,3 +11,4 @@ Scenario("Spaces after the even positions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

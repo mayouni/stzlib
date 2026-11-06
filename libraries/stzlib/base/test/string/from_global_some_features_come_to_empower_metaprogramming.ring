@@ -25,3 +25,4 @@ Scenario("Metaprogramming helpers")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

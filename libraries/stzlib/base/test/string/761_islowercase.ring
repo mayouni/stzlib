@@ -11,3 +11,4 @@ Scenario("Two holiday strings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

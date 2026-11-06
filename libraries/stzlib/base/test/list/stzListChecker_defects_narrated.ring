@@ -210,6 +210,7 @@ Scenario("The ContainsOnly family beside them, on the same data")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func LcSame(a, b)
 	return @@(a) = @@(b)

@@ -57,6 +57,7 @@ Scenario("3. engine and Ring records share one chain")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func DoorRecords()
 	if NOT StzSecurityLedgerIsOpen()  return 0  ok

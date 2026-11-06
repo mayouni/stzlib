@@ -12,3 +12,4 @@ Scenario("Peeling Ringoria down to Ring")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

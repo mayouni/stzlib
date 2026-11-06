@@ -19,3 +19,4 @@ Scenario("Shrink truncates a list to a position, discarding the tail")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -13,3 +13,4 @@ Scenario("Script membership of neutral chars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

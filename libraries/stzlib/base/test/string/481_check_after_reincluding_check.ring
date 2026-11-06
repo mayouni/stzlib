@@ -12,3 +12,4 @@ Scenario("Multi-kind check and a raw predicate")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

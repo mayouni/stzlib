@@ -14,6 +14,7 @@ Scenario("Chars around a position")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

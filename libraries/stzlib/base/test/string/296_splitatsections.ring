@@ -19,6 +19,7 @@ Scenario("Splitting a 1..12 range at sections")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

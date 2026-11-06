@@ -11,3 +11,4 @@ Scenario("Equality with a case dial")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

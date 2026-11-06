@@ -15,3 +15,4 @@ Scenario("Nth previous occurrence going backward")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

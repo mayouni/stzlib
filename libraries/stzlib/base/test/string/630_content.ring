@@ -15,3 +15,4 @@ Scenario("Marking the languages")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

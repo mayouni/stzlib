@@ -228,6 +228,7 @@ _TrUnplantAll(cTrPlant)
 ? ""
 ? "[TR1 took " + ((clock() - nTrStart) / clockspersecond()) + "s]"
 Summary()
+shutdown($_zst_fail)
 
 #============================================================================
 # HELPERS AFTER THE TOP-LEVEL CODE (Ring runs a file until its first func)

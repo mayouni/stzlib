@@ -13,3 +13,4 @@ Scenario("URL and HTML encoding")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

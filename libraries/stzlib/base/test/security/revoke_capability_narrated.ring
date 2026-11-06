@@ -66,6 +66,7 @@ Scenario("an LLM can propose the revocation and cannot commit it")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # -- helpers (after the main code: a func swallows what follows it) ---
 

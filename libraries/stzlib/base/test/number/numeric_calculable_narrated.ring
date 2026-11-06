@@ -149,6 +149,7 @@ Scenario("the error message that gave a wrong diagnosis")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func RaisesNum(c)
 	bR = FALSE

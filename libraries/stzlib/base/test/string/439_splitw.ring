@@ -15,3 +15,4 @@ Scenario("SplitW splits at the uppercase letters")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

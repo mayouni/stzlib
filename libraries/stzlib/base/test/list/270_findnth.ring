@@ -29,3 +29,4 @@ Scenario("FindNth locates the n-th occurrence of a value, even at scale")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

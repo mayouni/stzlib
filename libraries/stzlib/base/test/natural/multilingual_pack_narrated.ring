@@ -239,3 +239,4 @@ Scenario("Existing languages unaffected (regression)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

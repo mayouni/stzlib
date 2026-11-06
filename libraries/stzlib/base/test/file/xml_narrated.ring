@@ -164,3 +164,4 @@ Scenario("the parser really is the one the signature code uses")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

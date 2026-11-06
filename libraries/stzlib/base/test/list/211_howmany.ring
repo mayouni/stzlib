@@ -26,3 +26,4 @@ Scenario("Counting and locating a repeated value inside a stzList.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

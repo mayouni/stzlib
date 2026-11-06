@@ -20,6 +20,7 @@ Scenario("Decimal to binary form")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Bin cStr
     return new stzBinaryNumber(cStr)

@@ -90,3 +90,4 @@ Scenario("stzWebSocket reports through the same inherited slot")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

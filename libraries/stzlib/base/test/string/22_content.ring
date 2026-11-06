@@ -15,3 +15,4 @@ Scenario("Stripping the leading run of a char (Left alias)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

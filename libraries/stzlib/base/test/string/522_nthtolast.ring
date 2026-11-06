@@ -9,3 +9,4 @@ Scenario("Third char before the last")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

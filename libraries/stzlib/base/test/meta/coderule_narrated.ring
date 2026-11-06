@@ -371,6 +371,7 @@ Scenario("Markup concatenation is counted at info, as a text heuristic, and neve
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # -- helpers (after ALL top-level code) ---------------------------------

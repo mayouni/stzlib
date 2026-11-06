@@ -11,3 +11,4 @@ Scenario("Wordifying a squashed sentence")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

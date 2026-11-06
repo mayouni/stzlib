@@ -14,3 +14,4 @@ Scenario("Inferring stzChar predicates")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

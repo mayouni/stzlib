@@ -8,3 +8,4 @@ Scenario("latin is a script name")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

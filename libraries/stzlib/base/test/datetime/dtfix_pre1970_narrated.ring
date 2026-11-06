@@ -124,3 +124,4 @@ Scenario("A duration in words from epoch counts each unit once")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

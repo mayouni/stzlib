@@ -18,3 +18,4 @@ Scenario("Replacing a char only inside a scope substring")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

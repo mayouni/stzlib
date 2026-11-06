@@ -12,3 +12,4 @@ Scenario("Replacing many substrings by one")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

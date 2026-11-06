@@ -13,3 +13,4 @@ Scenario("Rewriting every bounded content")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

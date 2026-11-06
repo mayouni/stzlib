@@ -34,3 +34,4 @@ Scenario("Detecting and locating duplicate values in a stzList.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

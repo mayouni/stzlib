@@ -12,3 +12,4 @@ Scenario("Sections in a nice day")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

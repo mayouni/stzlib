@@ -28,3 +28,4 @@ Scenario("RemoveSection(n1, n2) vs RemoveRange(start, count): two ways to delete
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

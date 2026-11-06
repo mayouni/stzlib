@@ -111,3 +111,4 @@ Scenario("what the grouping is FOR: a thousands separator")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

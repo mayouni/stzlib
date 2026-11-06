@@ -12,3 +12,4 @@ Scenario("Shortening a long string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -59,6 +59,7 @@ Scenario("Plan execution dispatches every step without arity errors")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Dw aList
     return new stzDataWrangler(aList, [])

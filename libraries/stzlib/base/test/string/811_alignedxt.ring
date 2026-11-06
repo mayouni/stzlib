@@ -11,3 +11,4 @@ Scenario("Centering with dots")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

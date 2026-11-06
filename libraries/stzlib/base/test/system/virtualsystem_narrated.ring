@@ -89,7 +89,8 @@ EndScenario()
 
 Summary()
 
-pf()
+pfq()
+shutdown($_zst_fail)
 
 # how many lines carry an intent marker
 func NIntentMarkers(pcText)

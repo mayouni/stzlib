@@ -42,3 +42,4 @@ Scenario("The year is padded to four digits")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -17,3 +17,4 @@ Scenario("Backward STD positions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

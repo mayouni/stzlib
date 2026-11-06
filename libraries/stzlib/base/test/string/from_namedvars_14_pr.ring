@@ -15,3 +15,4 @@ Scenario("Named and unnamed objects")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

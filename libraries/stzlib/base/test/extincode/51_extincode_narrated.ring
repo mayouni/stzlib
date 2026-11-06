@@ -30,3 +30,4 @@ Scenario("range1 is 1-based and end-inclusive")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

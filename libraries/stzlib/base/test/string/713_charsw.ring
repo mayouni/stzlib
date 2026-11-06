@@ -19,3 +19,4 @@ Scenario("CharsW keeps the characters matching a predicate")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -9,3 +9,4 @@ Scenario("x without the 0")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

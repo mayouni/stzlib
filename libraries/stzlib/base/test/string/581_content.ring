@@ -31,3 +31,4 @@ Scenario("Start and end are direction-neutral")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

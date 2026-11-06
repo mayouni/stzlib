@@ -79,3 +79,4 @@ Scenario("stzNeuralModel: GGUF loads at RUNTIME (no real model needed here)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

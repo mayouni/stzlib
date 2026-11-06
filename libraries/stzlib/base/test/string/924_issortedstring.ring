@@ -15,3 +15,4 @@ Scenario("Strings are not lists, lists are not strings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

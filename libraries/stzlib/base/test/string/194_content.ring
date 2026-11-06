@@ -12,3 +12,4 @@ Scenario("Replacing content between bounds")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

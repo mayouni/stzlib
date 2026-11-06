@@ -8,3 +8,4 @@ Scenario("Space is not a number")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

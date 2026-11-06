@@ -183,6 +183,7 @@ Scenario("Measurements persist as plain text and come back")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # ---- the implementations (functions go last: in Ring, whatever follows a func belongs to it) -------------------
 

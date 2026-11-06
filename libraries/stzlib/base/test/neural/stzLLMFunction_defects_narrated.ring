@@ -437,6 +437,7 @@ done
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # ---------------------------------------------------------------------------------------------------------------
 # helpers: functions come last, because in Ring a statement after a func belongs to that func

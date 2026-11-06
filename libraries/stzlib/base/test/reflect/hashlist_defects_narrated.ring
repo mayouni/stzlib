@@ -190,6 +190,7 @@ Scenario("Items inside list values")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Raises(cCode)
 	# Runs cCode with a hash list named o in scope; TRUE when it raises.

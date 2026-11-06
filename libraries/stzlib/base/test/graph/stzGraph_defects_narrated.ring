@@ -324,6 +324,7 @@ EndScenario()
 FxRemoveRoot()
 Then("the fixture folder is gone", dirExists($cFx), 0)
 Summary()
+shutdown($_zst_fail)
 
 #------------------------------------------------------------------------------------------
 # Graph builders.

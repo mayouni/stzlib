@@ -467,6 +467,7 @@ Scenario("Start after Stop: the negative siblings, a stop with no restart and a 
 	EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # ---- helpers (at the end: top-level code after a func belongs to that func) ----
 

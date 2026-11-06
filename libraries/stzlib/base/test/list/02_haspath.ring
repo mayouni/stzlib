@@ -39,3 +39,4 @@ Scenario("HasPath: does a nested hashlist contain a given key PATH? Given a tree
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -23,3 +23,4 @@ Scenario("Directional distances in a bracketed bullet string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

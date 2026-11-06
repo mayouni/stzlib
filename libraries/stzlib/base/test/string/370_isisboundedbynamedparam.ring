@@ -16,3 +16,4 @@ Scenario("IsBoundedBy in three spellings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

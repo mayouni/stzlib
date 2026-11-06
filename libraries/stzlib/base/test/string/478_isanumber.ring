@@ -10,3 +10,4 @@ Scenario("2 is an even positive number")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -13,3 +13,4 @@ Scenario("RemoveW drops the lowercase characters")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -104,6 +104,7 @@ Scenario("Ill-conditioning is flagged, and singularity is not swallowed")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #-- oracles and helpers (file scope) -----------------------------------------
 

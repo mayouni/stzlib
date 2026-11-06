@@ -53,6 +53,7 @@ Scenario("A named hash list")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Hl aPairs
     return new stzHashList(aPairs)

@@ -11,3 +11,4 @@ Scenario("Same, via RemoveXT")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

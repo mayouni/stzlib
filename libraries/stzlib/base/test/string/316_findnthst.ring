@@ -16,3 +16,4 @@ Scenario("Starting-at finders")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -14,3 +14,4 @@ Scenario("Finding the n-th occurrence from a start offset")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

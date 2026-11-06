@@ -20,3 +20,4 @@ Scenario("Association() zips two parallel lists into a list of [key, value] pair
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

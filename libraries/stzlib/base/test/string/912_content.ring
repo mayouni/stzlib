@@ -14,3 +14,4 @@ Scenario("Greeting a dear friend")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

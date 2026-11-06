@@ -12,3 +12,4 @@ Scenario("A binary-ish string of three digits")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

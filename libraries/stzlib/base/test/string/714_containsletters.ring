@@ -15,3 +15,4 @@ Scenario("Letters in a decorated string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

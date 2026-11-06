@@ -22,3 +22,4 @@ Scenario("IsAPairQ() as a chainable GUARD.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

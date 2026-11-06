@@ -10,3 +10,4 @@ Scenario("Extending a string by appending text")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

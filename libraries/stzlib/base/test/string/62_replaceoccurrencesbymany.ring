@@ -14,3 +14,4 @@ Scenario("Replacing the 1st, 3rd and 5th occurrences")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

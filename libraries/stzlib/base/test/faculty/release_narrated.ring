@@ -200,3 +200,4 @@ Scenario("The fetch of a catalogued file, and where a published release is read 
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

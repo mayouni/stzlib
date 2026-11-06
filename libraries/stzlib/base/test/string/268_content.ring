@@ -12,3 +12,4 @@ Scenario("Spacing out the chars of a string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

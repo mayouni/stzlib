@@ -19,3 +19,4 @@ Scenario("A million appends, latin and arabic")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

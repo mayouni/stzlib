@@ -12,3 +12,4 @@ Scenario("Containment of an empty string vs a bullet")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

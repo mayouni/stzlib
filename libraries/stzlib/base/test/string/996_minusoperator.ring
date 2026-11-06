@@ -10,3 +10,4 @@ Scenario("Minus leaves the object alone")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

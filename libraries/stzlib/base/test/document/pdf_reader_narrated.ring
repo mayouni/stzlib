@@ -773,3 +773,4 @@ Scenario("A file that is not a readable PDF is refused with the reason")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

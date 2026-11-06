@@ -90,6 +90,7 @@ $oSpawner.Destroy()
 if fexists("_tmp_fakevault_gen.ring")  remove("_tmp_fakevault_gen.ring")  ok
 
 Summary()
+shutdown($_zst_fail)
 
 # -- helpers (after the main code) ------------------------------------
 

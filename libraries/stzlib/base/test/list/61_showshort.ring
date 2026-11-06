@@ -33,3 +33,4 @@ Scenario("Native ':' ranges vs L() over reals, negatives and Unicode tokens")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

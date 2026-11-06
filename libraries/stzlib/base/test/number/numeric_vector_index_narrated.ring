@@ -195,6 +195,7 @@ Scenario("...and end to end: this is what semantic search looks like")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #-- helpers (Vix-prefixed: short names collide with library globals) -----------
 

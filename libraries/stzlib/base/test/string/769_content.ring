@@ -11,3 +11,4 @@ Scenario("Shaving three chars off each end")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

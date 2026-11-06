@@ -11,3 +11,4 @@ Scenario("Three strings, three cases")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

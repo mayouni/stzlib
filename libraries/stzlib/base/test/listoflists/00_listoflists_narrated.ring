@@ -30,6 +30,7 @@ Scenario("The @IsListOfLists predicate")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Lll aList
     return new stzListOfLists(aList)

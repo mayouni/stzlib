@@ -598,6 +598,7 @@ Scenario("HOSTILE corpus: no injected text runs; the canary stays 0")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # --------------------------------------------------------------------------------------------------
 # helpers: functions go at the END of the file (top-level code after a func belongs to it)

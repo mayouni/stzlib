@@ -21,3 +21,4 @@ Scenario("The many ways to check bounds")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

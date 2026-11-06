@@ -40,3 +40,4 @@ Scenario("Slicing a list four ways: Section / SectionXT / Range / RangeXT.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

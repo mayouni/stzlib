@@ -10,3 +10,4 @@ Scenario("Transpiling a char condition")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

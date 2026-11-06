@@ -17,3 +17,4 @@ Scenario("Unsorted positions refused")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

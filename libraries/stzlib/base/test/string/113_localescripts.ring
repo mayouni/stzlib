@@ -14,3 +14,4 @@ Scenario("The two script registries are populated")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

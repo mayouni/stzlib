@@ -91,3 +91,4 @@ Scenario("the JWT shape works end to end: verify, then read the claims")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

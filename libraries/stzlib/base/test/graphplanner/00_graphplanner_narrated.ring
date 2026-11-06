@@ -30,6 +30,7 @@ Scenario("Engine A* still populates explainability data")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func LinearPlan()
     g = new stzGraph("linear")

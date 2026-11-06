@@ -15,3 +15,4 @@ Scenario("Sections, forward and backward")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

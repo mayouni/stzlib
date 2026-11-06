@@ -24,3 +24,4 @@ Scenario("NoItemsAreDuplicated(): the positive, readable spelling of this list i
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

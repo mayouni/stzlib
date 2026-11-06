@@ -26,3 +26,4 @@ Scenario("Treating a list's CODE STRING as text, then slicing it.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -99,3 +99,4 @@ EndScenario()
 
 StzEngineTestServerStop()
 Summary()
+shutdown($_zst_fail)

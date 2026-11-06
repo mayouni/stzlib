@@ -23,3 +23,4 @@ Scenario("ExtendTo() grows a list in place until it reaches a target length.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

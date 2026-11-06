@@ -270,6 +270,7 @@ Scenario("A section: counting the cells")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func LT()
 	return new stzTable([ [ :A, :B, :C ], [ 1, 2, 3 ], [ 4, [ 5, 6 ], 6 ], [ 7, 8, 9 ] ])

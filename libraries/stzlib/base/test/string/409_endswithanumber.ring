@@ -13,3 +13,4 @@ Scenario("A negative decimal closes the string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

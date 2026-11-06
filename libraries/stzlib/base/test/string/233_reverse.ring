@@ -16,3 +16,4 @@ Scenario("Reversing a string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

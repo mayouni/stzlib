@@ -74,6 +74,7 @@ Scenario("Section ops are codepoint-correct (multibyte)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func BoxTopBar cBox   # first line of a Boxify() result
     return @split(cBox, char(10))[1]

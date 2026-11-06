@@ -11,3 +11,4 @@ Scenario("Hearts between slashes")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

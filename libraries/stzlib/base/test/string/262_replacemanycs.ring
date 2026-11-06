@@ -17,3 +17,4 @@ Scenario("Replace-many-CS with no matching alias")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

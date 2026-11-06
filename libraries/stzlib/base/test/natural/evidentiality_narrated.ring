@@ -58,3 +58,4 @@ Scenario("Sentiment verdicts carry the strength of the tone")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

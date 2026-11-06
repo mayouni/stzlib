@@ -13,3 +13,4 @@ Scenario("An Arabic letter is right-to-left")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

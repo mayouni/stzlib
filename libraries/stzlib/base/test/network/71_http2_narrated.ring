@@ -35,3 +35,4 @@ Scenario("A second h2 host also negotiates HTTP/2")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -19,3 +19,4 @@ Scenario("Concatenation spellings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

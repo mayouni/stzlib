@@ -119,6 +119,7 @@ Scenario("backward-compat: bases still construct and LoadRuleBase still works")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # -- helpers (after ALL top-level code) ---------------------------------

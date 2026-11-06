@@ -26,6 +26,7 @@ Scenario("Branch paths")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Tree()
     return new stzTree(:root = [

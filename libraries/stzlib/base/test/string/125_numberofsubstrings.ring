@@ -12,3 +12,4 @@ Scenario("Counting all the substrings of a word")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

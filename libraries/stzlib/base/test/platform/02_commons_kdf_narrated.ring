@@ -121,3 +121,4 @@ Scenario("Raising the KDF cost does not lock anybody out")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -15,3 +15,4 @@ Scenario("CountCharsW counts the characters matching a predicate")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

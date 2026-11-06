@@ -172,3 +172,4 @@ Scenario("lifecycle: stop tears the server down cleanly")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

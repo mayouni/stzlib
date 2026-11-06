@@ -23,3 +23,4 @@ Scenario("PARIS in a 20-wide box, four ways")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -10,3 +10,4 @@ Scenario("The letter that broke Qt")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

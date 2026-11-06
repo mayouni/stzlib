@@ -58,6 +58,7 @@ Scenario("a family with no factory loaded is read, not refused (negative sibling
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # -- helpers (after the main code) ------------------------------------
 

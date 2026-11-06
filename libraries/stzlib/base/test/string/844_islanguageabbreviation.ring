@@ -12,3 +12,4 @@ Scenario("ara is the long form")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

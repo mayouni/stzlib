@@ -67,6 +67,7 @@ Scenario("6. the library: PHP2Shell's shape is found where it was measured")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Fires(cRule, cCode)
 	aF = StzCheckCode(cCode)

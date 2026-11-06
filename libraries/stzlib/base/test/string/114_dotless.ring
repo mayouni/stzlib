@@ -22,3 +22,4 @@ Scenario("Arabic, dotless")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -14,3 +14,4 @@ Scenario("Inserting a separator each 3 chars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

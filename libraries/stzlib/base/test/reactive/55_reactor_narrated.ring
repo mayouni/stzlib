@@ -24,3 +24,4 @@ Scenario("the libuv event loop actually runs")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

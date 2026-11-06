@@ -12,3 +12,4 @@ Scenario("Replacing a substring at a known position")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -90,3 +90,4 @@ StzEduRemoveTree("t_math_tutor")
 ? ""
 ? "  [time] whole guard: " + ((clock() - t0) / clockspersecond()) + " s"
 Summary()
+shutdown($_zst_fail)

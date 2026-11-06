@@ -164,6 +164,7 @@ Scenario("SetCacheSize bounds the cache (FIFO eviction)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #============================================================#
 #  GRAPH FIXTURES                                            #

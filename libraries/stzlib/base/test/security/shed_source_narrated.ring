@@ -54,3 +54,4 @@ Scenario("an LLM can propose shedding and cannot commit it")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -10,3 +10,4 @@ Scenario("ContainsCS on a condition string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -14,3 +14,4 @@ Scenario("Naming the run char")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

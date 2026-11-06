@@ -75,3 +75,4 @@ Scenario("An unfilled hole refuses loudly")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

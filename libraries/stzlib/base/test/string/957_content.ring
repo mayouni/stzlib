@@ -11,3 +11,4 @@ Scenario("Three carets, three letters")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

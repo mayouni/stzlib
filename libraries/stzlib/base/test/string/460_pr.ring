@@ -16,3 +16,4 @@ Scenario("Boiling a tuple down to its punctuation")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

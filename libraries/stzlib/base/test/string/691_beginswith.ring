@@ -14,3 +14,4 @@ Scenario("Peeling one layer of braces")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

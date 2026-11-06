@@ -136,6 +136,7 @@ Scenario("a large offset does not swamp a small spread")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Rnd2(n)
 	return ceil(n * 100 - 0.5) / 100

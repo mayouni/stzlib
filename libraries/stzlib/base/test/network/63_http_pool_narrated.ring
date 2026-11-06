@@ -53,3 +53,4 @@ Scenario("HTTPS uses a distinct pool key and opens its own socket")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

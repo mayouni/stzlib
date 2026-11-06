@@ -132,6 +132,7 @@ _RfUnplantAll(cRfRoot)
 ? ""
 ? "[P1b took " + ((clock() - nRfStart) / clockspersecond()) + "s]"
 Summary()
+shutdown($_zst_fail)
 
 #============================================================================
 # HELPERS AFTER THE TOP-LEVEL CODE

@@ -9,3 +9,4 @@ Scenario("A hex fragment")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

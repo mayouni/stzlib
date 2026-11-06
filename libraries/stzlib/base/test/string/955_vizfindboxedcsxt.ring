@@ -14,3 +14,4 @@ Scenario("Four bulleted matches")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

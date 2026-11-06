@@ -33,3 +33,4 @@ Scenario("Unicodes() over a list: a recursive, structure-preserving codepoint ma
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

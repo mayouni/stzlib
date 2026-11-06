@@ -266,6 +266,7 @@ Scenario("The removal goes through the list's single update point")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ExpItems(aItems, aGone)
 	aOut = []

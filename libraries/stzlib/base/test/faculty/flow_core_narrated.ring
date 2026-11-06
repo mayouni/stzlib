@@ -139,6 +139,7 @@ Scenario("Explain() says what the flow is, for a person or an agent")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func _FlClean(cText, aParams)
 	cT = lower(trim(cText))

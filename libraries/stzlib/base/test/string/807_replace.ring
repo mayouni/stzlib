@@ -10,3 +10,4 @@ Scenario("Rixo to Ring, thrice")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

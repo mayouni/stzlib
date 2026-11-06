@@ -77,3 +77,4 @@ Scenario("isWeiferich and ToBytes answer")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

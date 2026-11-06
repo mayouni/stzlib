@@ -142,3 +142,4 @@ Scenario("custom roles, and unregister clears grants")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

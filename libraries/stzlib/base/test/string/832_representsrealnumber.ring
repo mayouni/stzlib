@@ -8,3 +8,4 @@ Scenario("A plain decimal real")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

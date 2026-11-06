@@ -25,3 +25,4 @@ Scenario("A structured raise")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

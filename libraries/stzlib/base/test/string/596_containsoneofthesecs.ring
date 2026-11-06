@@ -10,3 +10,4 @@ Scenario("Mama matches, case aside")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

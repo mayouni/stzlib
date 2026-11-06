@@ -90,6 +90,7 @@ Scenario("StzCheckProjectDeep: no-cyclic-calls (opt-in, the slow audit)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # -- helpers (after ALL top-level code) ---------------------------------

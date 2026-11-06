@@ -10,3 +10,4 @@ Scenario("Ups and downs")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

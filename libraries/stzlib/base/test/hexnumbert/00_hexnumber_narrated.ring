@@ -35,6 +35,7 @@ Scenario("Build a hex number from a decimal")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Hex cStr
     return new stzHexNumber(cStr)

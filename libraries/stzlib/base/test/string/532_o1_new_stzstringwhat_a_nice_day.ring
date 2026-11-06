@@ -30,3 +30,4 @@ Scenario("Out-of-range sections raise")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

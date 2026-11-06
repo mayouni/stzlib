@@ -12,3 +12,4 @@ Scenario("Replacing a separator by cycling values")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

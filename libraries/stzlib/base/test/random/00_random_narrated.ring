@@ -65,6 +65,7 @@ Scenario("Randomize actually changes order across runs")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Lst aList
     return new stzList(aList)

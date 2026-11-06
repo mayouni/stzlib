@@ -20,3 +20,4 @@ Scenario("ContainsDuplicates() reports whether any value occurs more than once."
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

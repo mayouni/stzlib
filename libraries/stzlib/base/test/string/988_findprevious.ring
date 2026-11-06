@@ -12,3 +12,4 @@ Scenario("Hearts behind the cursor")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

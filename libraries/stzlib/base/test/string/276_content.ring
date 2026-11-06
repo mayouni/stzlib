@@ -12,3 +12,4 @@ Scenario("Grouping from the right, named params (:Going)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

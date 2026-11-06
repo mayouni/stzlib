@@ -11,3 +11,4 @@ Scenario("ReplaceMany with an empty substring is a no-op")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

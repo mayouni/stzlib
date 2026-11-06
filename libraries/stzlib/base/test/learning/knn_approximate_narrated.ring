@@ -135,6 +135,7 @@ Scenario("Toggling and retuning invalidate cleanly")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #-- helpers (Kna-prefixed: short names collide with library globals) ------------
 

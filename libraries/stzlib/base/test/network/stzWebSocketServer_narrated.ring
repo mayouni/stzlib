@@ -388,6 +388,7 @@ ok
 
 WsEndScene()
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers, kept below the scenes ---------------------------------------------------------------------------
 

@@ -10,3 +10,4 @@ Scenario("Keeping just the extra")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

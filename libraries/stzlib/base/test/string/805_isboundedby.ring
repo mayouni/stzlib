@@ -11,3 +11,4 @@ Scenario("Braces and a basmala")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

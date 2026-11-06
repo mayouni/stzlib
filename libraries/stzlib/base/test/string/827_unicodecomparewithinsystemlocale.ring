@@ -11,3 +11,4 @@ Scenario("Caps against minuscules")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

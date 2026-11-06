@@ -36,3 +36,4 @@ Scenario("More olds than news")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -12,3 +12,4 @@ Scenario("Inserting spaces to separate run-together words")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

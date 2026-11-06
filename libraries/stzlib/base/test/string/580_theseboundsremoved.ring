@@ -10,3 +10,4 @@ Scenario("Unwrapping Go!")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

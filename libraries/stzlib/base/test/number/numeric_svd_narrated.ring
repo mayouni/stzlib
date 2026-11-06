@@ -179,6 +179,7 @@ Scenario("a real design matrix: 200 observations, 4 predictors")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func RaisesRank(oM)
 	bR = FALSE

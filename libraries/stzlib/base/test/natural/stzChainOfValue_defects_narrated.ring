@@ -313,6 +313,7 @@ Scenario("The type forms agree with each other for every kind of value")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Cases()
 	acL = []

@@ -22,3 +22,4 @@ Scenario("Removing duplicate items from a list in place with RemoveDuplicates().
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

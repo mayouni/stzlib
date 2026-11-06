@@ -10,3 +10,4 @@ Scenario("Removing the regions whole")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -17,3 +17,4 @@ Scenario("Three reservations")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

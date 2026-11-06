@@ -196,6 +196,7 @@ Scenario("the divergence this class documents is REAL, and still surfaced")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func MakeData(nEx, nF)
 	aD = []

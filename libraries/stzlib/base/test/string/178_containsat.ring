@@ -12,3 +12,4 @@ Scenario("Containment at a list of positions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

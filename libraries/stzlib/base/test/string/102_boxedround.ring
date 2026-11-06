@@ -15,3 +15,4 @@ Scenario("Building a decorated greeting")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

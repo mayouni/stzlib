@@ -62,3 +62,4 @@ Scenario("Stop on a never-started watcher is a no-op")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

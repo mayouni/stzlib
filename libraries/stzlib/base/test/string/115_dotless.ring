@@ -21,3 +21,4 @@ Scenario("Six phrases in their dotless skeleton")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

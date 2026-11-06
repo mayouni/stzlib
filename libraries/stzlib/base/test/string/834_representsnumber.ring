@@ -19,3 +19,4 @@ Scenario("An octal real")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

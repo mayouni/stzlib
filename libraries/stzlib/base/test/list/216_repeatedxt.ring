@@ -22,3 +22,4 @@ Scenario("repeatedxt")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -137,6 +137,7 @@ next
 ? ""
 ? "  [time] whole guard: " + ((clock() - t0) / clockspersecond()) + " s"
 Summary()
+shutdown($_zst_fail)
 
 # every file under a folder, recursively, as paths relative to it
 func MathFilesUnder pcDir

@@ -12,3 +12,4 @@ Scenario("Removing a substring at several positions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

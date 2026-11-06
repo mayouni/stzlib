@@ -1861,6 +1861,7 @@ Scenario("the name forms hold here too")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Rnd2(n)
 	return ceil(n * 100 - 0.5) / 100

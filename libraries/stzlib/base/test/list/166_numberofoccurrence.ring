@@ -28,3 +28,4 @@ Scenario("Counts and locates how many times an exact item value appears in a lis
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

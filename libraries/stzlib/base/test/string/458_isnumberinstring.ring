@@ -10,3 +10,4 @@ Scenario("A decimal in a string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

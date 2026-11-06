@@ -10,3 +10,4 @@ Scenario("The second number becomes a tilde")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

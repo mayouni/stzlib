@@ -243,6 +243,7 @@ Scenario("what cannot be tested says so, instead of returning zeros")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func RaisesPaired(a, b)
 	bR = FALSE

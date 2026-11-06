@@ -11,3 +11,4 @@ Scenario("Filling in the missing letters")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

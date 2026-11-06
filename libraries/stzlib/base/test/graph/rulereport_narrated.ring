@@ -123,6 +123,7 @@ Scenario("severity filters + warnings advise, errors gate")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # -- helpers (after ALL top-level code) ---------------------------------

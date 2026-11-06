@@ -11,3 +11,4 @@ Scenario("The default box")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

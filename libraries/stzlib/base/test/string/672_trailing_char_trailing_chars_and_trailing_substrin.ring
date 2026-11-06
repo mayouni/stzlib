@@ -20,6 +20,7 @@ Scenario("Working the trailing part of 12.4560000")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

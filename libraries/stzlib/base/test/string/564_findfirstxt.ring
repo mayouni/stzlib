@@ -11,3 +11,4 @@ Scenario("First heart between stars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -16,3 +16,4 @@ Scenario("Two spellings of a famous name")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

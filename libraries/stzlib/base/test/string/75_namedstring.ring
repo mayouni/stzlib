@@ -17,3 +17,4 @@ Scenario("A string that knows its own name")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -11,3 +11,4 @@ Scenario("Changing towns")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

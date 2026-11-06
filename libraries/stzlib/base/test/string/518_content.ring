@@ -10,3 +10,4 @@ Scenario("Putting ONE before TWO")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -10,3 +10,4 @@ Scenario("The second of four")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

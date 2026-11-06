@@ -11,6 +11,7 @@ Scenario("ReplaceManyByMany maps each word to its replacement")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ManyByMany
 	o = new stzString("ring qt softanza pyhton kandaji csharp ring kandaji")

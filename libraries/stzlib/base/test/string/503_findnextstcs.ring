@@ -10,3 +10,4 @@ Scenario("Case-insensitive next find")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -17,3 +17,4 @@ Scenario("A string is not a replacements list")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -13,3 +13,4 @@ Scenario("Mapping several separators to several replacements")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

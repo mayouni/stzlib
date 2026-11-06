@@ -9,3 +9,4 @@ Scenario("RING in cells, functional")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

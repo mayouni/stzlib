@@ -88,3 +88,4 @@ Scenario("the vendored C that the new mode broke, and now does not")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

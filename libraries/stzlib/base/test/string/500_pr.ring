@@ -21,3 +21,4 @@ Scenario("Three endings, one result")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

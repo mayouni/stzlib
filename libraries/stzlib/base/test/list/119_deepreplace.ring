@@ -30,3 +30,4 @@ Scenario("DeepReplace() does a recursive replace-by-value across the whole tree.
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

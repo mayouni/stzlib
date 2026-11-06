@@ -76,3 +76,4 @@ Scenario("Is the table sorted by an expression")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

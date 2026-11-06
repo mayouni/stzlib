@@ -147,6 +147,7 @@ Scenario("passwordless challenges are durable across stzAuth instances")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 func TokenFrom cBody

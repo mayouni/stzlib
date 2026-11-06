@@ -13,3 +13,4 @@ Scenario("Peeling matching braces")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

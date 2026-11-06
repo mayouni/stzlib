@@ -30,3 +30,4 @@ Scenario("Sections of a comeback")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

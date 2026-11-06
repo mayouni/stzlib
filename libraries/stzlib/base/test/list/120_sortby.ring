@@ -24,3 +24,4 @@ Scenario("Sorts a list of strings by a derived key rather than by value.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

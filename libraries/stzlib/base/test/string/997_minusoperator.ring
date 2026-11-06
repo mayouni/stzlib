@@ -16,3 +16,4 @@ Scenario("Four flavors of minus")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

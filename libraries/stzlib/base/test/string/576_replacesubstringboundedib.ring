@@ -13,3 +13,4 @@ Scenario("Replacing bounded blocks whole")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

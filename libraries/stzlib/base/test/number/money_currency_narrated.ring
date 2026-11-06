@@ -185,3 +185,4 @@ Scenario("StzMoneyQ is untouched")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

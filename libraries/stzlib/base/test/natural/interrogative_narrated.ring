@@ -60,3 +60,4 @@ Scenario("Result() keeps its contract; no questions means no answers")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

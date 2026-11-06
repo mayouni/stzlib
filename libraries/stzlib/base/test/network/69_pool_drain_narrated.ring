@@ -61,3 +61,4 @@ Scenario("Client Shutdown drops the shared connection cache")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

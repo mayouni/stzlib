@@ -98,6 +98,7 @@ Scenario("DescribeQ() hands back a TABLE object, per the naming law")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #-- local helpers (file scope) ------------------------------------------------
 

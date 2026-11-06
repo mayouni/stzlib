@@ -56,6 +56,7 @@ Scenario("teardown")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # -- helpers (after all top-level code; Ring hoists func defs) --------

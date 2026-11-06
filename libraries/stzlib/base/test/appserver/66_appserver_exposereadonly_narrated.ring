@@ -94,6 +94,7 @@ Scenario("teardown")
 	oClient.Destroy()
 	Then("teardown completes without crash", TRUE, TRUE)
 EndScenario()
+shutdown($_zst_fail)
 
 func Hit(cMethod, cPath, cForm)
 	cReq = cMethod + " " + cPath + " HTTP/1.1" + $CRLF + "Host: local" + $CRLF

@@ -13,3 +13,4 @@ Scenario("The real edges of a padded string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

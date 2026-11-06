@@ -13,3 +13,4 @@ Scenario("Hearts within sections")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

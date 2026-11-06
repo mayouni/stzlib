@@ -13,3 +13,4 @@ Scenario("Checking a substring within sections")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -133,6 +133,7 @@ EndScenario()
 if fexists($cStore)  remove($cStore)  ok
 
 Summary()
+shutdown($_zst_fail)
 
 func OpenRaises cKey, cBlob, cAad
 	try

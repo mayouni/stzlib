@@ -266,6 +266,7 @@ Scenario("Conditioning PREDICTS the error, not merely bounds it")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #-- helpers (uniquely prefixed: short names collide with library globals) ------
 

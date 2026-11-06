@@ -9,3 +9,4 @@ Scenario("Sun or moon")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

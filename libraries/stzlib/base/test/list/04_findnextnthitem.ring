@@ -30,3 +30,4 @@ Scenario("Find the n-th item forward / backward from a position -- by POSITION o
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

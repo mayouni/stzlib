@@ -148,3 +148,4 @@ Scenario("A range of the table")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

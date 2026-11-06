@@ -91,6 +91,7 @@ Scenario("A batched GET is still the SAME client")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # -- batched-GET helpers -------------------------------------------------------
 

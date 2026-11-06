@@ -13,3 +13,4 @@ Scenario("Semicolons in a record")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

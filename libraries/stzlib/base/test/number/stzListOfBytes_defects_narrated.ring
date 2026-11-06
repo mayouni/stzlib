@@ -155,6 +155,7 @@ Scenario("The neighbours the six rows rely on did not move")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #-----------------------------------------------------------------------------------------------#
 

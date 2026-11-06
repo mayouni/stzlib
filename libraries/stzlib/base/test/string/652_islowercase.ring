@@ -9,3 +9,4 @@ Scenario("date is lowercase")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

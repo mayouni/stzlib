@@ -72,3 +72,4 @@ Scenario("the platform generates this world's shells (Generate is real)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

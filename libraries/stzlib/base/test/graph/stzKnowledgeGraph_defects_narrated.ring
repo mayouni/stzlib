@@ -463,6 +463,7 @@ Scenario("the issues feed the house rule report: errors make it unsound, warning
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #------------------------------ helpers ------------------------------------------------------------------
 

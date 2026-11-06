@@ -48,6 +48,7 @@ Scenario("Phase-tiled consecutive substrings of 4 chars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

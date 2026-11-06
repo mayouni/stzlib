@@ -100,3 +100,4 @@ Scenario("The token count is readable before anything is generated")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

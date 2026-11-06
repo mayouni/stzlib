@@ -17,3 +17,4 @@ Scenario("Replacing bounded content via ReplaceXT, single / bound")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

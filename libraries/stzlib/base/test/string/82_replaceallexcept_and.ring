@@ -11,3 +11,4 @@ Scenario("Replace-all-except with the :And spelling")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

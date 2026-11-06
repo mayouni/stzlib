@@ -12,3 +12,4 @@ Scenario("Extending to a position, :ByCharsRepeated spelling")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

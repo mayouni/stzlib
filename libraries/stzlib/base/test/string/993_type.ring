@@ -12,3 +12,4 @@ Scenario("Nothing hidden in normal text")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

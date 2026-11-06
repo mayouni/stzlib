@@ -343,6 +343,7 @@ Scenario("ContainsPropertyOrValue: a non-text argument skips the property test a
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Ana()
 	return new stzEntity([ :name = "Ana", :type = "Person", :age = 30 ])

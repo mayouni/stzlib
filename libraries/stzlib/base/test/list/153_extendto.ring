@@ -22,3 +22,4 @@ Scenario("ExtendTo() grows a list to a requested length, padding the new slots w
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

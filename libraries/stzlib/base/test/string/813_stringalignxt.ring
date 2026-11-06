@@ -22,3 +22,4 @@ Scenario("An Arabic word in 30 columns")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

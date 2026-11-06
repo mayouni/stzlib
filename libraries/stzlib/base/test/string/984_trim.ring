@@ -12,3 +12,4 @@ Scenario("Blanks off, hearts on")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

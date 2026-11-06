@@ -25,3 +25,4 @@ Scenario("Checks whether BOTH numbers in a pair lie inside an inclusive range.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

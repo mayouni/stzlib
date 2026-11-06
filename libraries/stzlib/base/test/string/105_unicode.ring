@@ -8,3 +8,4 @@ Scenario("The codepoint of a character")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

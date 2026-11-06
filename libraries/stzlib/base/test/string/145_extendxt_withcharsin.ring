@@ -14,3 +14,4 @@ Scenario("Extending to a position cycling through given chars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

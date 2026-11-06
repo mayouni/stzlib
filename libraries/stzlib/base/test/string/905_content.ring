@@ -12,3 +12,4 @@ Scenario("SOFTANZA in cells, XT spelling")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -9,3 +9,4 @@ Scenario("salem is salem")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

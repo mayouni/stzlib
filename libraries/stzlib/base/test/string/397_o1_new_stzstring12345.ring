@@ -19,3 +19,4 @@ Scenario("Symbolic section positions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -9,3 +9,4 @@ Scenario("Counting Arabic, case aside")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

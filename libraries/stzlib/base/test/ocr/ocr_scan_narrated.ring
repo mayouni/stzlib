@@ -335,6 +335,7 @@ else
 ok
 
 Summary()
+shutdown($_zst_fail)
 
 # the kind of the first block whose text is pcText, "" when none
 func blockKind(oP, pcText)

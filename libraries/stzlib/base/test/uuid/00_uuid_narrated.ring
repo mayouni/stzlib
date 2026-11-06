@@ -62,3 +62,4 @@ Scenario("UUIDs are unique and well-formed across many generations")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

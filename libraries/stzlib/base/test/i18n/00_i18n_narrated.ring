@@ -26,3 +26,4 @@ Scenario("Country by abbreviation")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

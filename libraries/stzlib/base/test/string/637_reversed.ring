@@ -8,3 +8,4 @@ Scenario("Countdown reversed")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

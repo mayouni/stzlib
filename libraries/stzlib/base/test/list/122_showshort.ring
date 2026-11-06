@@ -23,3 +23,4 @@ Scenario("Two ways to render a stzList on the console: full vs elided.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

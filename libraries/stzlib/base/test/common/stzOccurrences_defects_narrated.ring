@@ -217,6 +217,7 @@ Scenario("Uppercased and Lowercased change the text at the occurrences only")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Same(pcA, pcB)
 	if NOT (isString(pcA) and isString(pcB))

@@ -12,3 +12,4 @@ Scenario("Removing an o-run named in uppercase")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

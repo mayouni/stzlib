@@ -250,6 +250,7 @@ Scenario("the inherited list methods that read the content now see the objects")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers: at the end, because code after a func belongs to the func ---
 

@@ -105,3 +105,4 @@ Scenario("metadata survives in the DB store (durable device list)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -10,3 +10,4 @@ Scenario("A string is a stzString")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

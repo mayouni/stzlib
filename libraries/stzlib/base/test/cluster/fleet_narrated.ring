@@ -79,3 +79,4 @@ Scenario("teardown stops the front host (workers self-exit on TTL)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

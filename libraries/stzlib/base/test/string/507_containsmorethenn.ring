@@ -12,3 +12,4 @@ Scenario("Counting occurrences")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

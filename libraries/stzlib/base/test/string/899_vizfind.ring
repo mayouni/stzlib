@@ -10,3 +10,4 @@ Scenario("A one-pair hash list")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

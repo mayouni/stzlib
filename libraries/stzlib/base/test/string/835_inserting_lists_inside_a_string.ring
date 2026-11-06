@@ -28,3 +28,4 @@ Scenario("Announcing five versions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

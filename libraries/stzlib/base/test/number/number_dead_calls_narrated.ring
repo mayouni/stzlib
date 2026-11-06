@@ -180,3 +180,4 @@ Scenario("the two tests that could not run before")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

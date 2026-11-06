@@ -302,3 +302,4 @@ Scenario("Cross-encoder reranking -- retrieve-then-rerank second stage")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

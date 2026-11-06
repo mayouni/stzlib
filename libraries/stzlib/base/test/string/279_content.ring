@@ -11,3 +11,4 @@ Scenario("Updating the content in place")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

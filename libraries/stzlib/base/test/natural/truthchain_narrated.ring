@@ -46,3 +46,4 @@ Scenario("Verdicts are CERTAIN in the evidential register")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

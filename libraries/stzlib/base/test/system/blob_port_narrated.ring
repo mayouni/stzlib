@@ -239,3 +239,4 @@ EndScenario()
 if StzDirExists($DIR)  StzDirDeleteAll($DIR) ok
 
 Summary()
+shutdown($_zst_fail)

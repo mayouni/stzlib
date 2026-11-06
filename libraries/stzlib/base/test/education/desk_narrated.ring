@@ -110,6 +110,7 @@ EduDeskClean()
 ? ""
 ? "  [time] whole guard: " + ((clock() - t0) / clockspersecond()) + " s"
 Summary()
+shutdown($_zst_fail)
 
 #===========================================================================
 func EduDeskClean()

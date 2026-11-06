@@ -15,3 +15,4 @@ Scenario("Managing a big text")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

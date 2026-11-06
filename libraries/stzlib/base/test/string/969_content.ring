@@ -10,3 +10,4 @@ Scenario("Head and middle shrunk")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

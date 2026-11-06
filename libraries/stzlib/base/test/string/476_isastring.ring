@@ -9,3 +9,4 @@ Scenario("Strings and chars are strings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

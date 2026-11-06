@@ -175,3 +175,4 @@ Scenario("6. what no door reaches is reported, and no hour is claimed for it")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

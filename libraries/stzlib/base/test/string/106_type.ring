@@ -12,3 +12,4 @@ Scenario("A string as a list of stzChar objects")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

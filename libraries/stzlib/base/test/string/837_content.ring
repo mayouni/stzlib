@@ -17,3 +17,4 @@ Scenario("Plus-separated versions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -10,3 +10,4 @@ Scenario("The stray leading m")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

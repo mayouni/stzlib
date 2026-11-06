@@ -22,3 +22,4 @@ Scenario("Asks an StzCCode (Softanza conditional-code) object where its executab
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

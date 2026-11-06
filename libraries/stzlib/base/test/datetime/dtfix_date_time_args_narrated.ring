@@ -163,3 +163,4 @@ Scenario("stzDate: ToHuman writes the future in lowercase like the past")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

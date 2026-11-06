@@ -61,3 +61,4 @@ Scenario("QRT -> explicit type (the solid-code choice when ambiguous)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

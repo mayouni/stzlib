@@ -21,3 +21,4 @@ Scenario("ExtendXT( :List, :With = ... ) appends the items of another list flatl
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -252,6 +252,7 @@ Scenario("teardown: hanging up ends the peer process cleanly")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #--- helpers (Ring hoists func defs) ---------------------------------
 

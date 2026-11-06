@@ -172,3 +172,4 @@ Scenario("A section")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

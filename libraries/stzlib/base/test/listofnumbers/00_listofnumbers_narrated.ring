@@ -111,6 +111,7 @@ Scenario("Random draws hold their invariants over many runs")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func NumsOf aList
     return new stzListOfNumbers(aList)

@@ -11,3 +11,4 @@ Scenario("Heart and its slashes")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

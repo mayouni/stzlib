@@ -12,3 +12,4 @@ Scenario("Case-sensitive vs insensitive replace")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

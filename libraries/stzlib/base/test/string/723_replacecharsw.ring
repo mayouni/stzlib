@@ -13,3 +13,4 @@ Scenario("ReplaceCharsW replaces the lowercase letters")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -16,6 +16,7 @@ Scenario("Substrongs and substrinks of a word list")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

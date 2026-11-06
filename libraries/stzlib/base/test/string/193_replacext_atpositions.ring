@@ -13,3 +13,4 @@ Scenario("Replacing at several positions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

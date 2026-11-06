@@ -189,3 +189,4 @@ Scenario("a passkey cannot be used before the relying party is declared")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

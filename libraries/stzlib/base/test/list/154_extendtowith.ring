@@ -22,3 +22,4 @@ Scenario("Padding a list out to a fixed length with ExtendToWith().")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

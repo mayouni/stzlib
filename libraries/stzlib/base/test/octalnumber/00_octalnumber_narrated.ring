@@ -29,6 +29,7 @@ Scenario("Build an octal number from other bases")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func OctNum cStr
     return new stzOctalNumber(cStr)

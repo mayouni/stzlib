@@ -10,3 +10,4 @@ Scenario("Only the first Land goes")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

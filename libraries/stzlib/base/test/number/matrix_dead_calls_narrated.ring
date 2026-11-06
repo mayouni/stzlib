@@ -165,3 +165,4 @@ Scenario("two aliases the tests documented and nothing defined")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

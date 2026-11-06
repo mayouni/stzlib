@@ -456,6 +456,7 @@ EndScenario()
 
 StzDirDeleteAll(cDir)
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers -------------------------------------------------------------
 

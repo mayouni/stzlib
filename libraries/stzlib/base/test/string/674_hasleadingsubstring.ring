@@ -16,6 +16,7 @@ Scenario("Working the leading part of 000012.456")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

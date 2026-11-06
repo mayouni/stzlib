@@ -259,6 +259,7 @@ Scenario("signing RS256, for the clients that accept nothing else")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 func Hit oSrv, cM, cPath, aH, cBody

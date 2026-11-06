@@ -29,3 +29,4 @@ Scenario("Relative position of a substring (positional forms)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

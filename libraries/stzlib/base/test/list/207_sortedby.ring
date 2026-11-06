@@ -20,3 +20,4 @@ Scenario("SortedBy() orders a list using a computed key rather than the raw item
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -10,3 +10,4 @@ Scenario("One-call char dedup")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

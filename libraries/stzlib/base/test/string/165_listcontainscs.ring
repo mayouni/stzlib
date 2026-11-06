@@ -12,3 +12,4 @@ Scenario("Case-sensitive membership in a list of strings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -10,3 +10,4 @@ Scenario("Digits sorted both ways")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

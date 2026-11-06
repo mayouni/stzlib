@@ -95,3 +95,4 @@ Scenario("Q(obj).Ask() -- any object describes ITSELF")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -12,3 +12,4 @@ Scenario("All chars are circled numbers")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

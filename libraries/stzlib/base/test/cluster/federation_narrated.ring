@@ -86,3 +86,4 @@ Scenario("REAL cross-host transport: a governed call reaches a live worker")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -11,3 +11,4 @@ Scenario("Dropping the last من")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

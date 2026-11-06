@@ -94,6 +94,7 @@ EndScenario()
 
 CleanDb($cDb)
 Summary()
+shutdown($_zst_fail)
 
 # -- helpers (after the main code) ------------------------------------
 

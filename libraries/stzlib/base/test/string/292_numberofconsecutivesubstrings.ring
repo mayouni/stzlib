@@ -52,6 +52,7 @@ Scenario("The Z / ZZ groupings stay coherent with the windows")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

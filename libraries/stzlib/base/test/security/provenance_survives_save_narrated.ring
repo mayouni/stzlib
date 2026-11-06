@@ -138,3 +138,4 @@ EndScenario()
 remove($cFile + ".zknw")
 
 Summary()
+shutdown($_zst_fail)

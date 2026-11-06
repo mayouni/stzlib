@@ -13,3 +13,4 @@ Scenario("Cheering then cleaning")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

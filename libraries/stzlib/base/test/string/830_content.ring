@@ -13,3 +13,4 @@ Scenario("Foulena becomes Tiba")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

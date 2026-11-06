@@ -12,3 +12,4 @@ Scenario("Removing everything except the listed runs")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

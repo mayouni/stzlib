@@ -21,3 +21,4 @@ Scenario("A char list in cells, twice")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

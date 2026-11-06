@@ -18,3 +18,4 @@ Scenario("Spacifying the words of a concatenated sentence")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

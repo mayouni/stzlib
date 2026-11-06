@@ -11,3 +11,4 @@ Scenario("SplitBeforePositions splits before positions 4 and 8")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

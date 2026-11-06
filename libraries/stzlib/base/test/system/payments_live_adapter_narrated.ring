@@ -618,6 +618,7 @@ if fexists($cCertDir + "/.py5_front_mtls.ring")   remove($cCertDir + "/.py5_fron
 if fexists($cCertDir + "/.py5_front_plain.log")  remove($cCertDir + "/.py5_front_plain.log")  ok
 if fexists($cCertDir + "/.py5_front_mtls.log")  remove($cCertDir + "/.py5_front_mtls.log")  ok
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers (after Summary; Ring hoists func definitions) -------------------
 

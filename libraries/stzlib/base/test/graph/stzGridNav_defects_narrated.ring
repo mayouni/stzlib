@@ -559,6 +559,7 @@ Scenario("The examples of the class block")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Pos(o)
 	return "" + o.CurrentRow() + "," + o.CurrentCol()

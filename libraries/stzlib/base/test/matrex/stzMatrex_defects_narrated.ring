@@ -290,6 +290,7 @@ Scenario("JSON: tokens as objects, text escaped by the library writer")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func MxMatch(cPattern, aMatrix)
 	oX = new stzMatrex(cPattern)

@@ -15,3 +15,4 @@ Scenario("Sorting the candidates")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

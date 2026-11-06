@@ -13,3 +13,4 @@ Scenario("Carets become their positions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

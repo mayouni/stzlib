@@ -287,6 +287,7 @@ Scenario("Accented letters in the condition text")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func BuildErr(pObject, pCondition)
 	try

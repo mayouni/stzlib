@@ -384,6 +384,7 @@ Scenario("Type tests of the target")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func TxJoin(aList)
 	cOut = ""

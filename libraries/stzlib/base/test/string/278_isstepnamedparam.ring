@@ -12,3 +12,4 @@ Scenario("Recognising a :Step named param")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

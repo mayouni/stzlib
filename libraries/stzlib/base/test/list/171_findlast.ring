@@ -20,3 +20,4 @@ Scenario("Locating the LAST occurrence of a value in a list with FindLast().")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

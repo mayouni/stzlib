@@ -15,3 +15,4 @@ Scenario("Nth occurrence from a position")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

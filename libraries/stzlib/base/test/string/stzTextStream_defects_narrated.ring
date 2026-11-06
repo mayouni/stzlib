@@ -325,6 +325,7 @@ remove(cTsU)
 remove(cTsC)
 
 Summary()
+shutdown($_zst_fail)
 
 # case-sensitive text equality as 1/0 (= on texts folds case)
 func TsSame(cA1, cB1)

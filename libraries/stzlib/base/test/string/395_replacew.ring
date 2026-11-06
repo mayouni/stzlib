@@ -15,3 +15,4 @@ Scenario("ReplaceW replaces every non-letter with a space")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

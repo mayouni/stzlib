@@ -11,3 +11,4 @@ Scenario("Whitespace housekeeping")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

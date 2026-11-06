@@ -13,3 +13,4 @@ Scenario("Seven chars off the head of an Arabic greeting")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

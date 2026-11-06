@@ -13,6 +13,7 @@ Scenario("RemoveCharsW removes every x / X from a sentence")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Cleaned
 	o = new stzString("

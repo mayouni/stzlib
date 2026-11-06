@@ -21,3 +21,4 @@ Scenario("Section raises out-of-range; SectionXT is lenient")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

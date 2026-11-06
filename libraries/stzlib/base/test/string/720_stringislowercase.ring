@@ -8,3 +8,4 @@ Scenario("A capital in the middle")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

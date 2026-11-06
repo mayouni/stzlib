@@ -12,3 +12,4 @@ Scenario("Reading then removing the leading zeros")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

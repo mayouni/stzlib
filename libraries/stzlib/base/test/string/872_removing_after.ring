@@ -11,3 +11,4 @@ Scenario("A star after programming")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

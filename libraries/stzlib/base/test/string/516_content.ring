@@ -13,3 +13,4 @@ Scenario("Moving and swapping chars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

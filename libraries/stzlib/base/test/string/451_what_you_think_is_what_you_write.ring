@@ -14,3 +14,4 @@ Scenario("Natural-language checks")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -41,6 +41,7 @@ Scenario("Square / Composite / Positive")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Nbx cPattern
     return new stzNumbrex(cPattern)

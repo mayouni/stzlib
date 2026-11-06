@@ -57,6 +57,7 @@ Scenario("stzString (*) and (/): same rule")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if NOT (isList(aA) and isList(aE)) return FALSE ok

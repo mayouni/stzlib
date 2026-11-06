@@ -10,3 +10,4 @@ Scenario("Three openers before three hearts")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

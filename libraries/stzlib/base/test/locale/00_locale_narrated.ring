@@ -30,6 +30,7 @@ Scenario("Identity of fr_FR")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Lcl cId
     return new stzLocale(cId)

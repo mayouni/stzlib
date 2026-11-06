@@ -19,3 +19,4 @@ Scenario("Stripping the leading run of a char")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -91,6 +91,7 @@ Scenario("an LLM can propose rotation and cannot commit it")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func CountOutcome oStore, cOutcome
 	aL = oStore.AccessLog()

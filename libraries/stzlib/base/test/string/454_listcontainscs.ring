@@ -10,3 +10,4 @@ Scenario("Case-insensitive containment")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

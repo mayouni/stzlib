@@ -12,3 +12,4 @@ Scenario("Splitting a 3-line string on the newline")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -10,3 +10,4 @@ Scenario("Removing the first A")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

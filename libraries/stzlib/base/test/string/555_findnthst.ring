@@ -11,3 +11,4 @@ Scenario("Stars from position 4")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

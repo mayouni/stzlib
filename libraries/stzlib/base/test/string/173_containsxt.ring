@@ -12,3 +12,4 @@ Scenario("Carets after a point")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

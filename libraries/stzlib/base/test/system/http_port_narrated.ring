@@ -155,3 +155,4 @@ Scenario("the live adapter exists, and is honest about what it cannot do")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

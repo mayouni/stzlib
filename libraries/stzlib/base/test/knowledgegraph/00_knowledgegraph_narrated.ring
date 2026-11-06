@@ -55,6 +55,7 @@ Scenario("Entity lookup folds multibyte case")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func KgLowE
     return char(195) + char(169)

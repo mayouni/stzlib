@@ -93,6 +93,7 @@ Scenario("Positional methods measure BYTES, not codepoints")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Lob cStr
     return new stzListOfBytes(cStr)

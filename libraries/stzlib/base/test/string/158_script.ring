@@ -10,3 +10,4 @@ Scenario("Script and Unicode name of a CJK character")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

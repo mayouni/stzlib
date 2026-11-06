@@ -103,3 +103,4 @@ Scenario("6. the vendored record refuses a changed tree (the tool's own fixture)
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -168,6 +168,7 @@ Scenario("what this bought: the confidence interval is now a t interval")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func RaisesLevel(n)
 	bR = FALSE

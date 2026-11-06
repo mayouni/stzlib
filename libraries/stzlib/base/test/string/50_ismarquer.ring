@@ -11,3 +11,4 @@ Scenario("Recognising marquer placeholder tokens")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

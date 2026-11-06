@@ -234,3 +234,4 @@ Summary()
 # Safety net: ensure the sandboxes are gone even if an assertion bailed early.
 if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
 if dirExists(CurrentDir() + "/_tanar") RemoveFolderRecursive(CurrentDir() + "/_tanar") ok
+shutdown($_zst_fail)

@@ -17,3 +17,4 @@ Scenario("FindSubStringsW with an or-predicate over substrings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

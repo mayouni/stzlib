@@ -121,3 +121,4 @@ $oCli.Destroy()
 $oSrv.Destroy()
 
 Summary()
+shutdown($_zst_fail)

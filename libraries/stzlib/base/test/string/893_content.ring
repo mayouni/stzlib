@@ -10,3 +10,4 @@ Scenario("Empty list first")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

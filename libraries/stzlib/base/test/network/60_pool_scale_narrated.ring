@@ -76,3 +76,4 @@ Scenario("Pool drains 1000 jobs through 8 workers within bounded time")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

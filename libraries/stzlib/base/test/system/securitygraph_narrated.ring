@@ -122,6 +122,7 @@ Scenario("unstored-secret: a referenced secret that lives in no store")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # -- helpers (after ALL top-level code) ---------------------------------

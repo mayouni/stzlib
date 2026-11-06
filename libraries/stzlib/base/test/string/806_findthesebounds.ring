@@ -19,6 +19,7 @@ Scenario("Where the bounds and the bounded sit")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

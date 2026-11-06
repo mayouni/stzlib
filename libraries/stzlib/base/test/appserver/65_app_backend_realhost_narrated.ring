@@ -162,6 +162,7 @@ Scenario("launching on a GENUINELY remote machine -- rehearsed, not run")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # -- helpers (after ALL top-level code) ---------------------------------

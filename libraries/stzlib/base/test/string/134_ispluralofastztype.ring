@@ -9,3 +9,4 @@ Scenario("Recognising a plural Softanza type name")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

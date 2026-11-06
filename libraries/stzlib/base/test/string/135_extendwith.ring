@@ -13,3 +13,4 @@ Scenario("Extending a string with more characters")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

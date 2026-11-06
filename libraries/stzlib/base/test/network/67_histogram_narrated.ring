@@ -50,3 +50,4 @@ Scenario("The HTTP path records request latency")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -140,6 +140,7 @@ Scenario("R5 COMPOSITION: the supervisor runs as a supervised reactor job")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # -- helpers (after all top-level code; Ring hoists func defs) --------

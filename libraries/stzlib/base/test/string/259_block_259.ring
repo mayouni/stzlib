@@ -12,3 +12,4 @@ Scenario("Ring substr at the edges")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

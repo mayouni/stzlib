@@ -13,3 +13,4 @@ Scenario("FindW locates the digit characters")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

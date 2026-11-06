@@ -13,3 +13,4 @@ Scenario("A script tag pair")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

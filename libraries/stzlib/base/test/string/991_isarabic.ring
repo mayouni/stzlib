@@ -8,3 +8,4 @@ Scenario("The word one, in Arabic")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

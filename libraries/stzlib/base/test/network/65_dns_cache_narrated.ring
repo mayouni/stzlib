@@ -36,6 +36,7 @@ Scenario("A warm resolve is a cache hit, not a re-resolve")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func DnsStat(cKey)
     # Parse "resolves=N\thits=N" -> the integer for cKey.

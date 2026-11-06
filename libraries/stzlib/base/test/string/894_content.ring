@@ -12,3 +12,4 @@ Scenario("The fourth heart")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

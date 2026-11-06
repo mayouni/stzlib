@@ -10,3 +10,4 @@ Scenario("Third A in a list")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -10,3 +10,4 @@ Scenario("A heart at position 3")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

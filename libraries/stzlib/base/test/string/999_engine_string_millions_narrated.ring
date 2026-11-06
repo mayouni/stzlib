@@ -107,3 +107,4 @@ Scenario("Unicode at scale -- emoji (surrogate-safe codepoints)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -12,3 +12,4 @@ Scenario("Leading zeros of 000122.12")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

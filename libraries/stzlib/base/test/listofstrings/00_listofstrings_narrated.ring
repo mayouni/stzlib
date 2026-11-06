@@ -46,6 +46,7 @@ Scenario("Sort by a custom key expression")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Sl aList
     return new stzListOfStrings(aList)

@@ -10,3 +10,4 @@ Scenario("Detecting the script of a string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

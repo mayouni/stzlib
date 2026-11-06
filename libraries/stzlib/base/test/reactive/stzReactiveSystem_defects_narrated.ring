@@ -180,6 +180,7 @@ Scenario("LIMIT: a request made on a COPY of the system is not seen by the loop"
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #-- helpers --------------------------------------------------------------------
 

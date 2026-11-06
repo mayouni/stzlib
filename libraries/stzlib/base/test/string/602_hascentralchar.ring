@@ -11,3 +11,4 @@ Scenario("The center of RINGO")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

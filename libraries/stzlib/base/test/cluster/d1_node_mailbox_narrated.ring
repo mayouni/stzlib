@@ -222,6 +222,7 @@ Scenario("teardown: every child process is accounted for")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #--- helpers (Ring hoists func defs) ---------------------------------
 

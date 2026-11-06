@@ -20,6 +20,7 @@ Scenario("Common items of two substring lists")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

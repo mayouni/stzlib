@@ -86,6 +86,7 @@ for i = 1 to len($aChildren)
 	if fexists($aChildren[i])  remove($aChildren[i])  ok
 next
 Summary()
+shutdown($_zst_fail)
 
 # Starts a child rnxc on a generated program and returns what it printed as a
 # hash list. pcHead goes before load; pcEnv is NAME=value or ""; pcDeny names

@@ -10,3 +10,4 @@ Scenario("Keeping just the section")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

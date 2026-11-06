@@ -99,3 +99,4 @@ Scenario("LIVE: Stop force-kills every spawned worker (orphan cleanup)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

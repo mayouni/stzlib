@@ -122,6 +122,7 @@ Scenario("a copy is independent, because the truth is engine-side")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Rnd2(n)
 	return ceil(n * 100 - 0.5) / 100

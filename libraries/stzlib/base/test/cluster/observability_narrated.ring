@@ -125,3 +125,4 @@ Scenario("LIVE: a served request has measured latency and an on-wire trace")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

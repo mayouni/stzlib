@@ -62,3 +62,4 @@ Scenario("Options that cannot be told apart are refused, not merged")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

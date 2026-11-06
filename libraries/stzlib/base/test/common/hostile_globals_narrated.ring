@@ -233,3 +233,4 @@ Scenario("THE POINT: the library never clobbers the user's variables")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

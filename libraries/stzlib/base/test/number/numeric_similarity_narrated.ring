@@ -162,6 +162,7 @@ Scenario("vectorised, and the gain is bigger here than anywhere else in phase 4"
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func RaisesPair(aA, aB)
 	bR = FALSE

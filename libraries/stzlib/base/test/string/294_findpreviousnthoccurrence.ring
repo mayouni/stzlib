@@ -17,3 +17,4 @@ Scenario("Brackets around position 21")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

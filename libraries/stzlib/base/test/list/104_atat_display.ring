@@ -34,3 +34,4 @@ Scenario("Turning on the @@() string-form pretty-printer with pr() and watching 
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

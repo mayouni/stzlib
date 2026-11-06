@@ -296,3 +296,4 @@ EndScenario()
 if fexists(CurrentDir() + "/_p7test.db")  remove(CurrentDir() + "/_p7test.db") ok
 
 Summary()
+shutdown($_zst_fail)

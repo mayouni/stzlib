@@ -10,3 +10,4 @@ Scenario("IsReverseOf on a string and a range")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

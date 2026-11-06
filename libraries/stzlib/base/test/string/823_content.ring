@@ -16,3 +16,4 @@ Scenario("Two roads to the same sentence")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

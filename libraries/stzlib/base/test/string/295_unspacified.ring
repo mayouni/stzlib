@@ -28,3 +28,4 @@ Scenario("Unspacified collapses inner runs to one space")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -28,6 +28,7 @@ Scenario("Match nodes by property")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func BuildGraph()
     g = new stzGraph("social")

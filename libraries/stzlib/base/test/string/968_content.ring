@@ -10,3 +10,4 @@ Scenario("Numbers to single marks")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

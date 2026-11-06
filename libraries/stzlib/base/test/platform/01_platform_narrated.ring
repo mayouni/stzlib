@@ -161,3 +161,4 @@ Scenario("REGISTRY + ENFORCEMENT: cross-world calls are norm-gated")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -10,3 +10,4 @@ Scenario("Unifying the operators")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

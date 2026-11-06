@@ -916,6 +916,7 @@ Scenario("the card adapter survives, as one adapter among others")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers -------------------------------------------------------------
 

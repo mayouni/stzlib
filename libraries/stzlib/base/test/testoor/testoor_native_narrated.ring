@@ -162,6 +162,7 @@ ok
 ? ""
 ? "[P3.5 took " + ((clock() - nNvStart) / clockspersecond()) + "s]"
 Summary()
+shutdown($_zst_fail)
 
 #============================================================================
 # HELPERS AFTER THE TOP-LEVEL CODE

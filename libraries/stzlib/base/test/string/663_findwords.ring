@@ -10,6 +10,7 @@ Scenario("Word positions in a Proust echo")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

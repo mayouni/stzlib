@@ -168,3 +168,4 @@ Scenario("through the registry: the fake is refused in production, the DLM is no
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -15,3 +15,4 @@ Scenario("Four rings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

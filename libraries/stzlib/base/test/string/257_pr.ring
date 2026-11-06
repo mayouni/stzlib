@@ -10,3 +10,4 @@ Scenario("Good morning becomes good light")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

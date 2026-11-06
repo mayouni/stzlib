@@ -161,6 +161,7 @@ else
 ok
 
 Summary()
+shutdown($_zst_fail)
 
 # the golden items of one language: the language tag's items of a golden set
 func goldensIn(paG, pcLang)

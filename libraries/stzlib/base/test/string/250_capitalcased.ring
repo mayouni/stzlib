@@ -13,3 +13,4 @@ Scenario("Capital-casing (title case) a string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

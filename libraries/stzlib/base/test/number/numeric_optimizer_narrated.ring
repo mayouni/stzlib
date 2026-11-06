@@ -147,6 +147,7 @@ Scenario("what it refuses")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Rnd6(n)
 	return ceil(n * 1000000 - 0.5) / 1000000

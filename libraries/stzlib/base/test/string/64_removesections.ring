@@ -12,3 +12,4 @@ Scenario("Removing several codepoint ranges")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -31,3 +31,4 @@ Scenario("The mirror symbol and NthToLast")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

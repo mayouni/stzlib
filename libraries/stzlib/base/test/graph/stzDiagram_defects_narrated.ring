@@ -220,6 +220,7 @@ EndScenario()
 FxGuard($cFx, 1)
 StzDirDeleteAll($cFx)
 Summary()
+shutdown($_zst_fail)
 
 func Mk()
 	d = new stzDiagram("flow")

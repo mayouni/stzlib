@@ -74,6 +74,7 @@ Scenario("an event-driven runaway stops in the middle of a burst")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # -- helpers (after the main code) ------------------------------------
 

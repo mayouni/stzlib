@@ -12,3 +12,4 @@ Scenario("Replacing at a char position")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

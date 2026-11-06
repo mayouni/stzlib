@@ -18,3 +18,4 @@ Scenario("Sisyphus in Greek")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

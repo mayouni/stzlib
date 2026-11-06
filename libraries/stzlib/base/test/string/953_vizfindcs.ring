@@ -12,3 +12,4 @@ Scenario("Three spellings of stz")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -40,6 +40,7 @@ Scenario("CountToQ yields a sequence object at scale")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Ctr aOpts
     return new stzCounter(aOpts)

@@ -10,3 +10,4 @@ Scenario("Only before the first heart")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -13,3 +13,4 @@ Scenario("German lowercase round-trip")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

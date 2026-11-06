@@ -220,6 +220,7 @@ Scenario("ragged data is a diagnosis, not an index error")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Rnd10(n)
 	return ceil(n * 10000000000 - 0.5) / 10000000000

@@ -14,3 +14,4 @@ Scenario("Recognising hex and U+ number literals")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

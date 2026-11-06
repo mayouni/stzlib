@@ -199,3 +199,4 @@ Scenario("lifecycle: the host stops cleanly")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

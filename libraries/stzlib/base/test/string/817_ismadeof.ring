@@ -15,3 +15,4 @@ Scenario("The letters of Salsabil")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

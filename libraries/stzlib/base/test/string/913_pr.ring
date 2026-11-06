@@ -19,3 +19,4 @@ Scenario("Editing with second thoughts")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

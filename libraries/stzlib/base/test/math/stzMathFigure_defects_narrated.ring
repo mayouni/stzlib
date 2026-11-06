@@ -342,6 +342,7 @@ EndScenario()
 
 ? "(guard took " + ((clock() - nMfClock) / clockspersecond()) + " s)"
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers (after the main code: in Ring a func swallows what follows it). Their variables are named mfh...,
 # because a name assigned inside a function is the same name as one at the top, and they would overwrite it.

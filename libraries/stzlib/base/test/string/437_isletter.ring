@@ -20,3 +20,4 @@ Scenario("Active vs passive removal")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

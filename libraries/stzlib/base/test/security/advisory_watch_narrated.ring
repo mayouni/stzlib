@@ -84,3 +84,4 @@ Scenario("4. THE DRILL: one advisory through the five kinds, and the two numbers
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

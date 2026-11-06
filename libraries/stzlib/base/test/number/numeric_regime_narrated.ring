@@ -116,3 +116,4 @@ Scenario("infinities and NaN are refused, not carried")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

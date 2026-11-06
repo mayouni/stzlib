@@ -72,3 +72,4 @@ Scenario("Node carries id, class, attribute accessors")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

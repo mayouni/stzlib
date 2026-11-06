@@ -11,3 +11,4 @@ Scenario("Hearts at three positions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

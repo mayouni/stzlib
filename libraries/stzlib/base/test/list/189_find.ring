@@ -20,3 +20,4 @@ Scenario("Find(value) returns every position at which a value appears in a list.
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

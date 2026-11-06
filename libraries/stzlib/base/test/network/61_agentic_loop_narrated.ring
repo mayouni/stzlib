@@ -88,3 +88,4 @@ Scenario("Backoff delays grow then stay capped under retry pressure")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

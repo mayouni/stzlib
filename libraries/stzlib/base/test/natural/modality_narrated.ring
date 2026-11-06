@@ -204,3 +204,4 @@ Scenario("Temporal guards -- obligation has SCOPE IN TIME")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -11,3 +11,4 @@ Scenario("Naming, removing, transforming")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

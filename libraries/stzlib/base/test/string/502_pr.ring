@@ -10,3 +10,4 @@ Scenario("Casting shorthands")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

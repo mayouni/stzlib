@@ -11,3 +11,4 @@ Scenario("Extending by repeating the string's own chars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

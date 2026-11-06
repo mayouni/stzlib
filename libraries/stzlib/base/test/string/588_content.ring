@@ -10,3 +10,4 @@ Scenario("Wrapping a word")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

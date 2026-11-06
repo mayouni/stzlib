@@ -33,6 +33,7 @@ Scenario("Empty list edge case")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Lhl aList
     return new stzListOfHashLists(aList)

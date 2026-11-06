@@ -13,3 +13,4 @@ Scenario("///")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

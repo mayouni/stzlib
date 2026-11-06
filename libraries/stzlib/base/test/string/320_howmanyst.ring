@@ -16,3 +16,4 @@ Scenario("Counting occurrences from a starting position")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

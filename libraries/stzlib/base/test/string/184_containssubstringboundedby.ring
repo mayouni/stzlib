@@ -10,3 +10,4 @@ Scenario("Containment of a bounded substring")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -14,3 +14,4 @@ Scenario("Hex-unicode recognition and codepoint -> hex")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

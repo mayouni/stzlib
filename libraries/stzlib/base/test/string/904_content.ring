@@ -11,3 +11,4 @@ Scenario("SOFTANZA in cells")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

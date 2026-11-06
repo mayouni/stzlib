@@ -224,6 +224,7 @@ Scenario("Building a char of the wrong type raises a clear message")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Raises(o, cCode)
 	try

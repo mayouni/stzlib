@@ -33,3 +33,4 @@ Scenario("Irregular and unchanged plurals")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

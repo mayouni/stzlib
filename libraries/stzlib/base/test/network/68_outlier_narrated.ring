@@ -53,3 +53,4 @@ Scenario("A host is readmitted after the cooldown")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

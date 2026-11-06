@@ -13,3 +13,4 @@ Scenario("Peeling the trailing zeros")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

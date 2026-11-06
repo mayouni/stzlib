@@ -58,6 +58,7 @@ StzEduRemoveTree(cWs)
 ? ""
 ? "  [time] whole guard: " + (anSecs[1] + anSecs[2]) + " s of demo runs"
 Summary()
+shutdown($_zst_fail)
 
 #===========================================================================
 # helpers -- after the last top-level statement (Ring stops there)

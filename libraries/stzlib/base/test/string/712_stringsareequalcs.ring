@@ -15,3 +15,4 @@ Scenario("Equal strings, four spellings of the check")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

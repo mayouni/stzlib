@@ -137,3 +137,4 @@ Scenario("what did NOT change, which is most of it")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

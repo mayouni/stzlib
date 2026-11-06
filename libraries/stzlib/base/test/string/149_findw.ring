@@ -13,3 +13,4 @@ Scenario("FindW locates a multibyte character by codepoint position")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -295,6 +295,7 @@ Scenario("Explain: a known pattern is explained, an unknown one answers an empty
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func RxNew cPattern
 	return new stzRegex(cPattern)

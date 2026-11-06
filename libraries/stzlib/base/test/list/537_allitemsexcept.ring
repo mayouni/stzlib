@@ -15,3 +15,4 @@ Scenario("AllItemsExcept returns every item except the given one")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

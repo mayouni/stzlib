@@ -38,3 +38,4 @@ EndScenario()
 
 oReactor.Destroy()
 Summary()
+shutdown($_zst_fail)

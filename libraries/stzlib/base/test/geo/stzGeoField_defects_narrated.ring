@@ -209,6 +209,7 @@ Scenario("SetRamp with a name that is not a ramp lists every ramp there is")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # --------------------------------------------------------------------------------------
 # helpers (after the scenarios: in Ring, code after a func is part of the func)

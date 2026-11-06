@@ -21,3 +21,4 @@ Scenario("ExtendXT() grows a list up to a target position, padding the gap with 
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

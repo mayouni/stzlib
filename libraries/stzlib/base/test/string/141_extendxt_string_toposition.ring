@@ -11,3 +11,4 @@ Scenario("Extending a string to a position with spaces")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

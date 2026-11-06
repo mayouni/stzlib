@@ -44,6 +44,7 @@ Scenario("Objects still write as before, and an empty one writes as {}")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Raises(o, cCode)
 	try

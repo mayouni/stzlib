@@ -19,3 +19,4 @@ Scenario("Stripping leading and trailing runs of a char")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

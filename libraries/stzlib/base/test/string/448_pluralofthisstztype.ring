@@ -9,3 +9,4 @@ Scenario("Pluralizing a stz type name")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

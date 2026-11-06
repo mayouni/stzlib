@@ -531,6 +531,7 @@ Scenario("A simulation over a different workflow: nothing leaks between objects"
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #----------------------------------------------------------------------#
 #  helpers -- at the end of the file, top-level code after a func would

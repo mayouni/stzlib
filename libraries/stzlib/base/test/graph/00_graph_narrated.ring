@@ -246,6 +246,7 @@ Scenario("A* with an admissible-scaled heuristic (weighted coordinates)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Rnd2 n
     return 0.01 * floor(n * 100 + 0.5)

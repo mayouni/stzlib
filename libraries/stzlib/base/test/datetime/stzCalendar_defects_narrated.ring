@@ -421,6 +421,7 @@ Scenario("The year overview adds up the available days and hours of each month")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func J(aList)
 	cRes = ""

@@ -14,3 +14,4 @@ Scenario("Boundary declared in the step spec")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

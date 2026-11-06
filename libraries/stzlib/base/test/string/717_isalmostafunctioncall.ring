@@ -12,3 +12,4 @@ Scenario("Things that look like calls")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

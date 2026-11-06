@@ -8,3 +8,4 @@ Scenario("A plain string wraps as stzString")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

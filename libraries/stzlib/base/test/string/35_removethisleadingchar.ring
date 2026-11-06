@@ -14,3 +14,4 @@ Scenario("Conditionally peeling the leading run")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

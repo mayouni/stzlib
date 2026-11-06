@@ -18,3 +18,4 @@ Scenario("SortInAscending orders a mixed list, numbers before strings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

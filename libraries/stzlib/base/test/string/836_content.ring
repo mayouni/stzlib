@@ -13,3 +13,4 @@ Scenario("Three versions, default dress")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

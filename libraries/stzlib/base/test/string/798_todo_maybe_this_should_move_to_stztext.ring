@@ -16,3 +16,4 @@ Scenario("Two sentences, two leading directions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

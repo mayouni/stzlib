@@ -88,6 +88,7 @@ Scenario("A call takes its language from its input, and the chosen implementatio
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # the floor: right unless the text is French (it lowercases French by mistake)
 func _PlFloor(paIn, paParams)

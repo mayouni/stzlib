@@ -12,3 +12,4 @@ Scenario("Adding before an anchor")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -95,6 +95,7 @@ Scenario("Every mark the grid draws with can be chosen")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Grid aDims
     return new stzGrid(aDims)

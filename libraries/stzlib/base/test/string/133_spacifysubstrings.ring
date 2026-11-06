@@ -12,3 +12,4 @@ Scenario("Spacing out chosen substrings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

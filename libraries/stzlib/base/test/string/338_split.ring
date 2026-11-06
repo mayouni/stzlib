@@ -16,6 +16,7 @@ Scenario("Conditional fluent chain on a split result")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

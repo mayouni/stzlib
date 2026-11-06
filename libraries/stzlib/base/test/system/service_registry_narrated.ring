@@ -316,6 +316,7 @@ Scenario("live-without-certificate: a live payment without its mTLS identity is 
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # a double that declares itself a conformance adapter
 class stzRegistryConformanceDouble

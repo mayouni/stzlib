@@ -10,3 +10,4 @@ Scenario("The two trailing dammas")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

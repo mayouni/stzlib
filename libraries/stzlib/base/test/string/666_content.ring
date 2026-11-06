@@ -10,3 +10,4 @@ Scenario("Dropping the last digit")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

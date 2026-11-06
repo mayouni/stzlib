@@ -18,3 +18,4 @@ Scenario("Removing overlapping sections from a string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

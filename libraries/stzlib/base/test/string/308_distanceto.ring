@@ -14,3 +14,4 @@ Scenario("Distance from a position to a char")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -98,3 +98,4 @@ Scenario("A CONFIGURED falsity list still bites")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

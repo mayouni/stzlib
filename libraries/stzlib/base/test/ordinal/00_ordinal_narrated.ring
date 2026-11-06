@@ -28,3 +28,4 @@ Scenario("French ordinals")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

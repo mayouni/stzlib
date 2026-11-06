@@ -15,3 +15,4 @@ Scenario("Reversing and simplifying")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -10,3 +10,4 @@ Scenario("Renaming a placeholder")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

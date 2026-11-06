@@ -291,6 +291,7 @@ Scenario("A longer list is read in one pass")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # helpers: below the main code, because code after a func belongs to that func
 # one object per text, all six answers, as a six-character string of 0/1

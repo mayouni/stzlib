@@ -10,3 +10,4 @@ Scenario("Replacing a one-char section")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

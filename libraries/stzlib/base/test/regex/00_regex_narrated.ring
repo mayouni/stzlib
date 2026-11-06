@@ -104,6 +104,7 @@ Scenario("Z hands back positions; it does not print them")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Rgx cPattern
     return new stzRegex(cPattern)

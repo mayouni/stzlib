@@ -10,3 +10,4 @@ Scenario("Recognizing defined names")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

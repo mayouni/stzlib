@@ -78,6 +78,7 @@ Scenario("The parameter reader: a default value is not part of the name, and a o
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ScoreOk(cBrief, cName)
 	aS = StzDocScoreOf(cBrief, cName)

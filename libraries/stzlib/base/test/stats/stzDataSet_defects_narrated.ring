@@ -521,6 +521,7 @@ Scenario("ExecutePlan, RunPlan and PerformPlan ask for the verbose run; RunPlanX
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # helpers go at the END: top-level code after a func belongs to that func
 

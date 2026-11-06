@@ -533,6 +533,7 @@ Scenario("5,000 rows sort in n log n: correct against an independent oracle, and
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #------------------------------ helpers ------------------------------------------------------------------
 

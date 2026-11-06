@@ -230,6 +230,7 @@ Scenario("the idiom is gone from the hot paths, and the cost with it")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func WhyOf(oT, aF)
 	oT.Classify(aF)

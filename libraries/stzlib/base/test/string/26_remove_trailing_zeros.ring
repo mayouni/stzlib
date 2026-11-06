@@ -12,3 +12,4 @@ Scenario("Trimming trailing zeros from a decimal")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

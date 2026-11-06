@@ -109,6 +109,7 @@ Scenario("Maze and ShowAdjacent run")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Raises(cCode)
 	try

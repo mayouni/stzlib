@@ -13,3 +13,4 @@ Scenario("First / last / nth from a starting position")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

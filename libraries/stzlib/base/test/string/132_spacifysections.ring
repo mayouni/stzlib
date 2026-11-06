@@ -19,3 +19,4 @@ Scenario("Spacifying the chars inside chosen sections")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

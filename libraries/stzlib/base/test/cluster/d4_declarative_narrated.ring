@@ -115,6 +115,7 @@ Scenario("teardown: StopAll ends the topology and removes its artifacts")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #--- helpers ---------------------------------------------------------
 

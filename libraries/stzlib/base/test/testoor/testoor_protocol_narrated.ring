@@ -192,6 +192,7 @@ _TpUnplantAll(cTpPlant)
 ? ""
 ? "[PROTOCOL took " + ((clock() - nTpStart) / clockspersecond()) + "s]"
 Summary()
+shutdown($_zst_fail)
 
 #============================================================================
 # HELPERS AFTER THE TOP-LEVEL CODE

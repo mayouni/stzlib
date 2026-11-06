@@ -26,3 +26,4 @@ Scenario("IsHashList recognizes :key = value literals but not string = compariso
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

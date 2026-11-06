@@ -12,3 +12,4 @@ Scenario("Starring a whole sentence")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

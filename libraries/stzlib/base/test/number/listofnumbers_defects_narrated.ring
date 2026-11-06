@@ -474,6 +474,7 @@ Scenario("Walker reverse-engineers the list into a stzWalker that reproduces it"
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func SmallestOf(aNumbers)
 	nMin = aNumbers[1]

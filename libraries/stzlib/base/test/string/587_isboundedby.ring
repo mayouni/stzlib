@@ -11,3 +11,4 @@ Scenario("Checking and stripping bounds")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

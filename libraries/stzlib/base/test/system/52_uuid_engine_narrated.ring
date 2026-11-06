@@ -41,3 +41,4 @@ Scenario("stzUUID class wraps engine UUIDs")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

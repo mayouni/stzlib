@@ -9,3 +9,4 @@ Scenario("a * a list")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

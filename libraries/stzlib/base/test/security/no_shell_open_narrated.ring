@@ -42,6 +42,7 @@ EndScenario()
 
 CleanUp()
 Summary()
+shutdown($_zst_fail)
 
 # -- helpers (after the main code) ------------------------------------
 

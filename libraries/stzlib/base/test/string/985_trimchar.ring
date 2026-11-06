@@ -11,3 +11,4 @@ Scenario("Hearts off both sides at once")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

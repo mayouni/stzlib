@@ -22,3 +22,4 @@ Scenario("ContainsDupSecutiveItems() reports whether any two side-by-side items 
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

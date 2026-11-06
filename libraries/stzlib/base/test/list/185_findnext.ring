@@ -30,3 +30,4 @@ Scenario("Locating items in a list: FindNext, Find, and FindFirst.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

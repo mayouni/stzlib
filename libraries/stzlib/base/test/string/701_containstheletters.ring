@@ -11,3 +11,4 @@ Scenario("Letters regardless of their case")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

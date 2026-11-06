@@ -97,3 +97,4 @@ Scenario("degenerate input is lenient, never a panic")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

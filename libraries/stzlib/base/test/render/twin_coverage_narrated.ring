@@ -22,6 +22,7 @@ load "../_narrated.ring"
 # divergence, and the shape this rule takes an exception for -- with a reason.
 
 RxMain()
+shutdown($_zst_fail)
 
 func RxPanel()
 	return 'DEFINE PANEL screen (' + char(10) +

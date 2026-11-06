@@ -15,3 +15,4 @@ Scenario("Stringifying the items of a list")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

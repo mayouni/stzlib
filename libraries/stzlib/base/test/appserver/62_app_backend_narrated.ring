@@ -127,6 +127,7 @@ Scenario("teardown releases the host, the client and the database")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # Explain() returns a list of lines -- join for substring checks.
 # (nCount, not nL: 'nL' would alias Ring's case-insensitive builtin 'nl'.)

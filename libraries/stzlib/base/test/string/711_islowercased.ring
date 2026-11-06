@@ -10,3 +10,4 @@ Scenario("Checking the case of tunis")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

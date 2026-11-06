@@ -13,3 +13,4 @@ Scenario("A string section is bound-order independent")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

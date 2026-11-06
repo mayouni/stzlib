@@ -24,3 +24,4 @@ Scenario("SpacifyXT with cycling separators and steps")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

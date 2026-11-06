@@ -10,3 +10,4 @@ Scenario("Descending marquers")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

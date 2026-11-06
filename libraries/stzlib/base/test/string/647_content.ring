@@ -11,3 +11,4 @@ Scenario("Replacing backward")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

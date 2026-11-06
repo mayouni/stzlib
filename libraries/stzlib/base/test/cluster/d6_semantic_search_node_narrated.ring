@@ -115,6 +115,7 @@ Scenario("teardown")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #--- the ONE assertion body (identical before/after Deploy) ----------
 

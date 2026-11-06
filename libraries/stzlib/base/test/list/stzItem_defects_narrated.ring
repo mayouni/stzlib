@@ -317,6 +317,7 @@ Scenario("Known limits that stay documented rather than fixed")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Same(aA, aB)
 	if @@(aA) = @@(aB)

@@ -10,6 +10,7 @@ Scenario("RemoveFirstAndLastChars strips the outer characters")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func RemovedEnds
 	o = new stzString('[ @$2{"a";1;[1]}U ]')

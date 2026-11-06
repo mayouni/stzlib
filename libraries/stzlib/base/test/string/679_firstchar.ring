@@ -10,3 +10,4 @@ Scenario("The ends of ---Ring")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

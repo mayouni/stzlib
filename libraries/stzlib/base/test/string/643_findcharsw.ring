@@ -11,3 +11,4 @@ Scenario("FindCharsW locates a specific letter")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

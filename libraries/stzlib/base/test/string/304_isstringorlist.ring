@@ -8,3 +8,4 @@ Scenario("A string is a string-or-list")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

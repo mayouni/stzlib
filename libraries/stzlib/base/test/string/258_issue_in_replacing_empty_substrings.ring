@@ -16,3 +16,4 @@ Scenario("Replacing an empty substring is safe in Softanza")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

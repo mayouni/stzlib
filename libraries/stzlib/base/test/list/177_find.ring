@@ -29,3 +29,4 @@ Scenario("The Find family: locating where a value lives inside a list.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

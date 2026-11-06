@@ -14,3 +14,4 @@ Scenario("Dedup through a fluent chain")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

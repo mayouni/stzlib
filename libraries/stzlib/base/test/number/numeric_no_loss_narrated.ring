@@ -93,3 +93,4 @@ Scenario("the representation ladder, observable rather than folklore")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

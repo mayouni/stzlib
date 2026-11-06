@@ -10,3 +10,4 @@ Scenario("Tilde every two chars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

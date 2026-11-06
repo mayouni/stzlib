@@ -12,3 +12,4 @@ Scenario("Casing checks on der fluss")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

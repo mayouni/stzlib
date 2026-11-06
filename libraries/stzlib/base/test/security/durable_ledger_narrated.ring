@@ -120,6 +120,7 @@ CleanDb($cDb)
 CleanDb($cDb2)
 
 Summary()
+shutdown($_zst_fail)
 
 func CleanDb cPath
 	acSuffix = [ "", "-wal", "-shm", "-journal" ]

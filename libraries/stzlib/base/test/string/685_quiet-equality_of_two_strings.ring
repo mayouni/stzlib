@@ -15,3 +15,4 @@ Scenario("Quietly equal, up to a point")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

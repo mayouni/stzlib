@@ -10,3 +10,4 @@ Scenario("The numeral two")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

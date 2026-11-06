@@ -53,3 +53,4 @@ Scenario("Send/Recv on null handle return -1")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

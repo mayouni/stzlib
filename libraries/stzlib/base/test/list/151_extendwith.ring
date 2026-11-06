@@ -22,3 +22,4 @@ Scenario("Builds a stzList from a character range and grows it with ExtendWith()
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

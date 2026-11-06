@@ -47,3 +47,4 @@ Scenario("Span and comparison")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -11,3 +11,4 @@ Scenario("Slashes around three hearts")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

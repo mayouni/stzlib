@@ -35,3 +35,4 @@ Scenario(":Rounded = FALSE wins over :Corners")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

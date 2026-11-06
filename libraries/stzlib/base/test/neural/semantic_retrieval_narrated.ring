@@ -45,6 +45,7 @@ else
 	? "The lexical floor is guarded by ask_probe_narrated.ring; this probe adds the"
 	? "embedding + reranker layers that need a runtime model."
 ok
+shutdown($_zst_fail)
 
 #-- helpers ---------------------------------------------------------------
 func RunSemanticScenarios cLabel

@@ -12,3 +12,4 @@ Scenario("Trimming one side at a time")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

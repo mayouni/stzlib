@@ -9,3 +9,4 @@ Scenario("Arc vs cra")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

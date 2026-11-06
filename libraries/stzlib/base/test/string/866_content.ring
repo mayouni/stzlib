@@ -10,3 +10,4 @@ Scenario("Three stars, all gone")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

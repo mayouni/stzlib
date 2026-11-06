@@ -6,6 +6,7 @@ $RX_RED = []       # [ sink, entry ] for every corpus entry a sink failed on
 $RX_DECODES = 0    # 1 when the engine parser decodes entities in TextOfTag
 
 RxMain()
+shutdown($_zst_fail)
 
 # RX0 -- the hostile corpus and the parse-back oracle over every sink that
 # writes text into HTML, JSON or SVG.

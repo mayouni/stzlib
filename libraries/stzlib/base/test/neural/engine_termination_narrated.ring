@@ -80,3 +80,4 @@ Scenario(":EndBias lets a model finish once the grammar is satisfied")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

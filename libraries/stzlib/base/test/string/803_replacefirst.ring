@@ -11,3 +11,4 @@ Scenario("Rewriting the tail of a sentence")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

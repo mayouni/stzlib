@@ -12,3 +12,4 @@ Scenario("SplitW splits on a position rule")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

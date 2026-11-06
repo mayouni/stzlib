@@ -48,3 +48,4 @@ Scenario("Detecting and removing DupSecutive items -- duplicate values that sit 
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

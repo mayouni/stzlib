@@ -150,3 +150,4 @@ Scenario("L1: a DB-backed store makes users and sessions DURABLE")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

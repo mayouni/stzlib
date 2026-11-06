@@ -14,3 +14,4 @@ Scenario("Replacing a substring only at chosen positions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

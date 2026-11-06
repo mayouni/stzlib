@@ -81,3 +81,4 @@ Scenario("RemoveDuplicates keeps the first of each repeated char")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

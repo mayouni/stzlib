@@ -45,3 +45,4 @@ Scenario("ObjectToJson handles primitives and arrays")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

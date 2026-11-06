@@ -18,3 +18,4 @@ Scenario("Probing a condition string for its binding var")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

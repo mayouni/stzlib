@@ -12,3 +12,4 @@ Scenario("The first and third stars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

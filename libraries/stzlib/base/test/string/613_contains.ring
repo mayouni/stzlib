@@ -16,3 +16,4 @@ Scenario("Containment edges")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -11,3 +11,4 @@ Scenario("Finding the previous occurrence before a position")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

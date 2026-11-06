@@ -13,3 +13,4 @@ Scenario("Comparing across cases")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

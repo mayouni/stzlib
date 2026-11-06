@@ -139,3 +139,4 @@ Scenario("a user without 2FA is completely unaffected")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

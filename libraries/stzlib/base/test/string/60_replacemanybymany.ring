@@ -13,3 +13,4 @@ Scenario("Each search word maps to its own replacement")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

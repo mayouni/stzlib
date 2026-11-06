@@ -288,6 +288,7 @@ Scenario("Neighbours of the same shape: the 'many' forms")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Same(pcA, pcB)
 	return strcmp(pcA, pcB) = 0

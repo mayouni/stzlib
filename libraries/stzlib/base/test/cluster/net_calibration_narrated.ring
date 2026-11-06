@@ -86,6 +86,7 @@ Scenario("cleanup: no machine file may linger in a test directory")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #--- helpers ---------------------------------------------------------
 

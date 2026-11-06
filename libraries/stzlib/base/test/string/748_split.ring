@@ -12,3 +12,4 @@ Scenario("The third field of a record")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -11,3 +11,4 @@ Scenario("Descending or not")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

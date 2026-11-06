@@ -197,7 +197,8 @@ EndScenario()
 
 Summary()
 
-pf()
+pfq()
+shutdown($_zst_fail)
 
 #-- helpers --------------------------------------------------------------------
 

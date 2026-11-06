@@ -16,3 +16,4 @@ Scenario("The koala's memory story")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

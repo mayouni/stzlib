@@ -10,3 +10,4 @@ Scenario("A star off the tail")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

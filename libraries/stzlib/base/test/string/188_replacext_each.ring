@@ -15,3 +15,4 @@ Scenario("Replacing every occurrence two ways")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

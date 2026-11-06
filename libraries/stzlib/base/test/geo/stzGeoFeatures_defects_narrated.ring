@@ -257,6 +257,7 @@ Scenario("The source states the rule and no longer calls the trap open")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # --------------------------------------------------------------------------------------
 # helpers (after the scenarios: in Ring, code after a func is part of the func)

@@ -10,3 +10,4 @@ Scenario("Scanning from beyond the string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

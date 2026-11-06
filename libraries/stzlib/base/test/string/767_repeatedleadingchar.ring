@@ -12,3 +12,4 @@ Scenario("No run when the second char differs")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

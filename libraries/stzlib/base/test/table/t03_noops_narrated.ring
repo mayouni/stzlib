@@ -82,3 +82,4 @@ Scenario("Updated returns an updated copy")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

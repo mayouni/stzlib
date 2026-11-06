@@ -23,3 +23,4 @@ Scenario("Section(n1, n2) returns the contiguous run of items between two positi
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

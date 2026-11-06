@@ -80,3 +80,4 @@ Scenario("AntiSection returns the runs outside a section")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

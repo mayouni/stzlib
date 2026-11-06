@@ -63,3 +63,4 @@ for iM = 1 to nM
 next
 
 Summary()
+shutdown($_zst_fail)

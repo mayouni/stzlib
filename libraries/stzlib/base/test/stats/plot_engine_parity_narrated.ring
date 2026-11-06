@@ -394,6 +394,7 @@ Scenario("A plot drawn with the caller's own characters is still the same plot")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #-- helpers (Pp-prefixed) ------------------------------------------------------
 

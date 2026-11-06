@@ -11,3 +11,4 @@ Scenario("a times three suffixes")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -9,3 +9,4 @@ Scenario("An ascending digit string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

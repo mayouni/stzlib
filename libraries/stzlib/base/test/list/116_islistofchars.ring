@@ -21,3 +21,4 @@ Scenario("IsListOfChars() reports whether a list holds only single-character ite
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

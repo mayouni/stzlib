@@ -73,3 +73,4 @@ Scenario("ItemsAppearing* answer items with their own type")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

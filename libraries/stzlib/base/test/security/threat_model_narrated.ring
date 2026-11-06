@@ -51,6 +51,7 @@ Scenario("the checker itself catches a broken row (negative sibling)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # -- helpers (after the main code: a func swallows what follows it) ---
 

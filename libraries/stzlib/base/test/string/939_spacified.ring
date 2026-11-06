@@ -9,3 +9,4 @@ Scenario("Letters given room")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

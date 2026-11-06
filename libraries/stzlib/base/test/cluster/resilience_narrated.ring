@@ -185,3 +185,4 @@ Scenario("LIVE: a broken sibling never breaks the request (failover + isolation)
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

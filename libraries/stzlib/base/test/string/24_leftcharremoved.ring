@@ -27,3 +27,4 @@ Scenario("Removing chars from the left of a string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

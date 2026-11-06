@@ -18,3 +18,4 @@ Scenario("Two orderings, one insertion")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -10,3 +10,4 @@ Scenario("Fixing the fourth char")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -317,6 +317,7 @@ EndScenario()
 
 
 Summary()
+shutdown($_zst_fail)
 
 func RaisesEigen(oM)
 	bR = FALSE

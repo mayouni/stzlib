@@ -13,3 +13,4 @@ Scenario("Only the second Dan")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -12,3 +12,4 @@ Scenario("Reading the country out of a record")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

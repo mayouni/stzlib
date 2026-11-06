@@ -9,3 +9,4 @@ Scenario("Two scripts, two answers")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

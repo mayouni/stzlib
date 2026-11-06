@@ -156,3 +156,4 @@ Scenario("5. rotation and revocation wipe the values the store made")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

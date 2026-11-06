@@ -11,3 +11,4 @@ Scenario("Tilde every three chars, from the right")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

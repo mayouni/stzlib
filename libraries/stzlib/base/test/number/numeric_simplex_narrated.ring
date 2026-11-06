@@ -190,6 +190,7 @@ Scenario("the speed this slice was actually about")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func GetVal(o, cName)
 	aSol = o.Solution()

@@ -221,6 +221,7 @@ Scenario("ToStzSetOfSections names its cause instead of the constructor's messag
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Raises(o, cCode)
 	try

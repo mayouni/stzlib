@@ -10,3 +10,4 @@ Scenario("Friends in Han")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

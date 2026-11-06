@@ -13,3 +13,4 @@ Scenario("Three sections in order")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -147,6 +147,7 @@ Scenario("stzOrgChart compliance bases are real rule sets now, not stubs")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # -- helpers (after ALL top-level code) ---------------------------------

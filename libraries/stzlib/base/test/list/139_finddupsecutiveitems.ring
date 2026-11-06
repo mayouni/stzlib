@@ -35,3 +35,4 @@ Scenario("Locating and managing consecutive duplicate items (the DupSecutive fam
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -34,6 +34,7 @@ Scenario("Shape constraints")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Mtx cPattern
     return new stzMatrex(cPattern)

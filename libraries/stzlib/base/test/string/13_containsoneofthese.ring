@@ -18,3 +18,4 @@ Scenario("Inclusive vs exclusive containment")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

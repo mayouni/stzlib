@@ -16,3 +16,4 @@ Scenario("Starring each run char")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

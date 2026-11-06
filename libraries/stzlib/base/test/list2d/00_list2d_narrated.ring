@@ -31,6 +31,7 @@ Scenario("The global Transpose() helper")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func L2D aList
     return new stzList2D(aList)

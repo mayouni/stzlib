@@ -127,6 +127,7 @@ Scenario("big fractions, because the parts are big integers")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Rnd4(n)
 	return ceil(n * 10000 - 0.5) / 10000

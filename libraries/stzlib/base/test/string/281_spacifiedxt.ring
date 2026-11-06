@@ -14,3 +14,4 @@ Scenario("A price, comma-grouped")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

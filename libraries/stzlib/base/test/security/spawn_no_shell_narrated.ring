@@ -124,3 +124,4 @@ remove($cEcho)
 StzEngineDirDelete($cDir)
 
 Summary()
+shutdown($_zst_fail)

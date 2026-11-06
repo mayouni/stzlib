@@ -19,3 +19,4 @@ Scenario("Conditionally peeling each end")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

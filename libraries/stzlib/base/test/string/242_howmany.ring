@@ -12,3 +12,4 @@ Scenario("Counting and locating a repeated substring")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

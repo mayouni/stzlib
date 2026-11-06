@@ -138,6 +138,7 @@ Scenario("a fully governed composition is sound by the rule set")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # -- helpers (after ALL top-level code) ---------------------------------

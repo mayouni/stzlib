@@ -13,3 +13,4 @@ Scenario("Replace-by-many that wraps the replacement list")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

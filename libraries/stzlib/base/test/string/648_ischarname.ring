@@ -10,3 +10,4 @@ Scenario("Recognizing char names")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

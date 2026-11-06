@@ -18,3 +18,4 @@ Scenario("Numbered carets, two spellings of the call")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

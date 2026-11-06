@@ -14,3 +14,4 @@ Scenario("ReplaceCharsW replaces the Arabic letters of a mixed string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -14,3 +14,4 @@ Scenario("Backwards and by length")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

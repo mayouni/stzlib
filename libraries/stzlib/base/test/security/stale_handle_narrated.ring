@@ -70,3 +70,4 @@ Scenario("the process ledger keeps one id")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

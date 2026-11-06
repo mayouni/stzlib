@@ -64,3 +64,4 @@ Scenario("Self-closing and void tags do not break the index")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

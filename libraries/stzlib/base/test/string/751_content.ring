@@ -35,3 +35,4 @@ Scenario("Six ways to box RING")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

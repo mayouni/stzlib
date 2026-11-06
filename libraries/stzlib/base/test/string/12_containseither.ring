@@ -16,3 +16,4 @@ Scenario("ContainsEither is an inclusive or")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

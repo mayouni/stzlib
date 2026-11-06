@@ -33,3 +33,4 @@ Scenario("ms and us readings agree (rounded)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

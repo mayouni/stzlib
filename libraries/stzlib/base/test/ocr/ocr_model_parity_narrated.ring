@@ -55,6 +55,7 @@ for i = 1 to nK
 next
 
 Summary()
+shutdown($_zst_fail)
 
 func parityOf(cKind)
 	aR = StzEngineNeuralOcrGraphParity($cModels + "ppocr_" + cKind + ".gguf", $cParity + cKind + "_in.bin",

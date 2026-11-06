@@ -43,3 +43,4 @@ Scenario("A small budget over a long window still grants at least one")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

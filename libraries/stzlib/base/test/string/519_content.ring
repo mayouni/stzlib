@@ -11,6 +11,7 @@ Scenario("Putting ONE before TWO in a list")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

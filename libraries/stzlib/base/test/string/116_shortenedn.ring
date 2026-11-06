@@ -11,3 +11,4 @@ Scenario("Shortening with N chars per side")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

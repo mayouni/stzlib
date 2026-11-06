@@ -185,6 +185,7 @@ Scenario("both are off the quadratic list")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func RaisesNB()
 	b = FALSE

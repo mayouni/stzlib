@@ -44,6 +44,7 @@ Scenario("Numeric-script classification (IsMandarinNumber typo fix)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Chr p
     return StzCharQ(p)

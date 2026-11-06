@@ -13,6 +13,7 @@ Scenario("Case-insensitive bounded word find")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

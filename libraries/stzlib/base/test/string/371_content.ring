@@ -20,3 +20,4 @@ Scenario("Peeling chars off a string, conditionally")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -12,6 +12,7 @@ Scenario("FindZZ + ReplaceInSection (single section)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ReplacedInSec
 	o = new stzString("Softanza Programming by Heart")

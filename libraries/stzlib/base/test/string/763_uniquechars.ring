@@ -39,3 +39,4 @@ Scenario("Unique chars of a long Arabic text")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

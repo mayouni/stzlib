@@ -12,3 +12,4 @@ Scenario("Collapsing several operators into one")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

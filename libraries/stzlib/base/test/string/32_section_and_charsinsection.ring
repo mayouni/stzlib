@@ -12,6 +12,7 @@ Scenario("A section as a substring and as its chars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

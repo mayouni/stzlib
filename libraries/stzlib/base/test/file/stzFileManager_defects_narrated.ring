@@ -596,6 +596,7 @@ Scenario("Nothing is left behind")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #------------------------------------------------------------------------------------------
 # Fixture helpers. Every path the library sees comes from FxP(); every destructive step is

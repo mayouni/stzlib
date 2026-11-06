@@ -12,3 +12,4 @@ Scenario("Wrapping the nth occurrence")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

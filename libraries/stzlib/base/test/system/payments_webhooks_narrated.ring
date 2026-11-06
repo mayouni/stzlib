@@ -187,6 +187,7 @@ Scenario("the secret comes from the store, through the governed door")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers -------------------------------------------------------------
 

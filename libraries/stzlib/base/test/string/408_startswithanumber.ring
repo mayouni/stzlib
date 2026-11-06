@@ -13,3 +13,4 @@ Scenario("A signed decimal opens the string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

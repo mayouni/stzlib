@@ -40,6 +40,7 @@ Scenario("Vacancy tracking and assignment")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func PersonField o, cId, cField
     aData = o.PersonData(cId)

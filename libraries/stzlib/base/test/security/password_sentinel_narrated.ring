@@ -46,3 +46,4 @@ Scenario("3. real records still verify (negative siblings)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

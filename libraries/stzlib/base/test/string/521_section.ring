@@ -8,3 +8,4 @@ Scenario("A named section")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

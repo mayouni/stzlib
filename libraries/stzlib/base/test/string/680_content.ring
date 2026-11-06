@@ -13,3 +13,4 @@ Scenario("Dropping the numeric tail")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

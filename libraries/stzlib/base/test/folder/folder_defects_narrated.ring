@@ -450,6 +450,7 @@ Scenario("Cleaning up: the fixture is removed")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers ----------------------------------------------------------------
 

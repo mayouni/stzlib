@@ -43,3 +43,4 @@ Scenario("An unknown job id is reported as not found")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

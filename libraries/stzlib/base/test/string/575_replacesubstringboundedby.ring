@@ -18,3 +18,4 @@ Scenario("Replacing dash-bounded words")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

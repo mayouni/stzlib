@@ -23,3 +23,4 @@ Scenario("Runs that only exist case-blind")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

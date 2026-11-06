@@ -14,3 +14,4 @@ Scenario("Head backward-3, tail two digits")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

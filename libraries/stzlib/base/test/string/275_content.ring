@@ -11,3 +11,4 @@ Scenario("Grouping from the right with a space")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

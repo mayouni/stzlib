@@ -12,3 +12,4 @@ Scenario("Both separators of a locale string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

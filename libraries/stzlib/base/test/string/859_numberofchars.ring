@@ -11,3 +11,4 @@ Scenario("Counting a koala")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

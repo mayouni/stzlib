@@ -26,3 +26,4 @@ Scenario("Extracting only the numeric and textual atoms from a mixed list.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

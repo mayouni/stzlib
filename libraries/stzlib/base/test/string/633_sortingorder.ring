@@ -13,3 +13,4 @@ Scenario("Detecting the order")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

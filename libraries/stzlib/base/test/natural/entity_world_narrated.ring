@@ -176,3 +176,4 @@ Scenario("Graph-governed relations -- the world grows edges under LAW")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

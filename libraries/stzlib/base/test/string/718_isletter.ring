@@ -11,3 +11,4 @@ Scenario("One letter, two directions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

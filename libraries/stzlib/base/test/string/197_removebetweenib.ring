@@ -12,3 +12,4 @@ Scenario("Removing the content and the bounds")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

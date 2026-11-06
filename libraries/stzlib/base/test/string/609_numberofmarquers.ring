@@ -14,3 +14,4 @@ Scenario("First and last of four")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

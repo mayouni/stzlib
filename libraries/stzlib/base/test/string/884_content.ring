@@ -10,3 +10,4 @@ Scenario("Only around the second heart")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

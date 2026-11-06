@@ -12,3 +12,4 @@ Scenario("Fixing the fourth char, named-param form")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -175,6 +175,7 @@ Scenario("shapes and edges")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func NormSq(aX)
 	nS = 0

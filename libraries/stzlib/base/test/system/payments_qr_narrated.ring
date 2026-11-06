@@ -168,6 +168,7 @@ Scenario("what nobody has perceived")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers -------------------------------------------------------------
 

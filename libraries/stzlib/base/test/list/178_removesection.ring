@@ -22,3 +22,4 @@ Scenario("Drops a contiguous slice of a list by position range with RemoveSectio
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

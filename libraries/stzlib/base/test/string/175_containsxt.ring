@@ -10,3 +10,4 @@ Scenario("Contains :Before / :After a position")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

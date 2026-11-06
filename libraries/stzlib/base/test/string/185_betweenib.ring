@@ -12,3 +12,4 @@ Scenario("The section between two positions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

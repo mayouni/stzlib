@@ -21,3 +21,4 @@ Scenario("NumberOfOccurrence(value) counts how many times a value appears in a l
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

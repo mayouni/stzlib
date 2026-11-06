@@ -11,3 +11,4 @@ Scenario("Strings that hold lists")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

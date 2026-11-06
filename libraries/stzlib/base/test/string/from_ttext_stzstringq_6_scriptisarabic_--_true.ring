@@ -12,3 +12,4 @@ Scenario("Naming the script")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

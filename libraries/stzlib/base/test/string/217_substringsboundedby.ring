@@ -14,6 +14,7 @@ Scenario("Extracting segments bounded by a repeated quote mark")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

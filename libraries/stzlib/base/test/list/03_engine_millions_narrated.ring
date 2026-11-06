@@ -94,6 +94,7 @@ Scenario("Classify a million items (hash grouping, native positions)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
     if len(aA) != len(aE) return FALSE ok

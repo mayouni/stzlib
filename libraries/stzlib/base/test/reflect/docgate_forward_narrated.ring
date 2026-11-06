@@ -49,6 +49,7 @@ Scenario("The findings file is a pure function of the findings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func RuleOf(aFind, cKey)
 	for i = 1 to len(aFind)

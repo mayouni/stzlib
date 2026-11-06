@@ -13,3 +13,4 @@ Scenario("Swapping the ends")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

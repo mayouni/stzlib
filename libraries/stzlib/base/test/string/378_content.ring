@@ -14,3 +14,4 @@ Scenario("Adding after the first occurrence")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

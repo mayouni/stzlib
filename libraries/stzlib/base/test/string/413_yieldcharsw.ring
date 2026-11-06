@@ -16,3 +16,4 @@ Scenario("FindCharsW + YieldCharsW over the letters of a decorated string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

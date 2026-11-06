@@ -11,3 +11,4 @@ Scenario("Ascending or not")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

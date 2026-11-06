@@ -12,3 +12,4 @@ Scenario("Dropping the numeric head")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

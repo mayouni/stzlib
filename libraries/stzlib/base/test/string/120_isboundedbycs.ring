@@ -11,3 +11,4 @@ Scenario("A string bounded by a single repeated marker")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

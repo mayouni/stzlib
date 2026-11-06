@@ -104,3 +104,4 @@ Scenario("Parallel GET wall-clock is bounded for N bogus URLs")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -246,6 +246,7 @@ _TcUnplantAll(cTcPlant)
 ? ""
 ? "[TR4 took " + ((clock() - nTcStart) / clockspersecond()) + "s]"
 Summary()
+shutdown($_zst_fail)
 
 #============================================================================
 # HELPERS AFTER THE TOP-LEVEL CODE

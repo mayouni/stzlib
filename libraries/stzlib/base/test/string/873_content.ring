@@ -10,3 +10,4 @@ Scenario("Three closers after three hearts")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -34,3 +34,4 @@ Scenario("GET status against an invalid URL is -1")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

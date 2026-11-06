@@ -167,3 +167,4 @@ Scenario("signing is a SEPARATE gate from governance (defense in depth)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

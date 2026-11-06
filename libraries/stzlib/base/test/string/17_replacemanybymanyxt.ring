@@ -17,6 +17,7 @@ Scenario("ReplaceManyByManyXT recycles a shorter replacement list over more word
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ManyByManyXT
 	o = new stzString("ring qt softanza pyhton kandaji csharp ring")

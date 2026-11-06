@@ -295,3 +295,4 @@ Scenario("The conversions that raised")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

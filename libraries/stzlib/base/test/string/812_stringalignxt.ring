@@ -20,3 +20,4 @@ Scenario("SOFTANZA four ways in 30 columns")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

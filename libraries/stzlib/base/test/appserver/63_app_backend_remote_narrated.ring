@@ -143,3 +143,4 @@ Scenario("LOCATION TRANSPARENCY: the same calls, the same answers, in-process")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

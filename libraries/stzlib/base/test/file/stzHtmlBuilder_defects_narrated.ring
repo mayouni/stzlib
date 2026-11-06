@@ -383,6 +383,7 @@ EndScenario()
 Summary()
 
 remove(cTmp)
+shutdown($_zst_fail)
 
 # byte-exact equality. Ring's strcmp STOPS AT THE FIRST NUL (the file test holds end + NUL + z), so
 # strcmp is only the quick reject: then length, then every byte.

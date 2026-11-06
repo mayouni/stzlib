@@ -107,6 +107,7 @@ Scenario("the house set carries it, and says what it is")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # -- helpers (after the main code) ------------------------------------
 

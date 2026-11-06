@@ -16,6 +16,7 @@ Scenario("Starting-at STZZ spans")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

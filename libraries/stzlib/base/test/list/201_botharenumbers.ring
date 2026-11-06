@@ -31,3 +31,4 @@ Scenario("The BothAre* predicate family: type-checking the two members of a pair
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

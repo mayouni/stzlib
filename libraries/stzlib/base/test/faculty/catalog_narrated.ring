@@ -115,6 +115,7 @@ Scenario("A missing platform pack: the plan gives the operating system's own com
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func _CatEcho(cText, aParams)
 	return cText

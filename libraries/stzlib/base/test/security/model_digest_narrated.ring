@@ -115,3 +115,4 @@ StzEngineDirDelete($cUnknownDir)
 StzEngineDirDelete($cDir)
 
 Summary()
+shutdown($_zst_fail)

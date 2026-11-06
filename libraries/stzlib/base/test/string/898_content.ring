@@ -12,3 +12,4 @@ Scenario("Trimming the digits off both ends")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

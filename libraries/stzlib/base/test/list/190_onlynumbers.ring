@@ -23,3 +23,4 @@ Scenario("OnlyNumbers() keeps just the numeric members of a heterogeneous list."
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

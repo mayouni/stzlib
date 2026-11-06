@@ -13,3 +13,4 @@ Scenario("Three binary spellings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

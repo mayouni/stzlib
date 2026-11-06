@@ -13,3 +13,4 @@ Scenario("Unspacifying a string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

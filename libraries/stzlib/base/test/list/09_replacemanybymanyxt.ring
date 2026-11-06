@@ -22,3 +22,4 @@ Scenario("ReplaceManyByManyXT: replace several items, RECYCLING a shorter replac
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

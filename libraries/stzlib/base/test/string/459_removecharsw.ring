@@ -14,3 +14,4 @@ Scenario("RemoveCharsW drops the digits of a string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

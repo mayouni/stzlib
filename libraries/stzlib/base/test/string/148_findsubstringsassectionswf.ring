@@ -13,3 +13,4 @@ Scenario("FindSubStringsAsSectionsWF returns matching sections")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -176,6 +176,7 @@ Scenario("Every implicit resolution is in the trace and one switch turns the mod
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func _Fl3Wire(oFlow, cFrom, cTo)
 	oFlow.ConnectStages(cFrom, cTo)

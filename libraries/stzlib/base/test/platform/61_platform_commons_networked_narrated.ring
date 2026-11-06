@@ -90,6 +90,7 @@ Scenario("lifecycle: the body stops cleanly")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func HttpPost oC, nPort, oP, cPath, cForm
 	cR = "POST " + cPath + " HTTP/1.1" + $CRLF + "Host: l" + $CRLF +

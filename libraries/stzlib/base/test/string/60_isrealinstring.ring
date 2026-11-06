@@ -11,3 +11,4 @@ Scenario("Recognising real numbers held in strings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

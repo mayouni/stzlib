@@ -24,3 +24,4 @@ Scenario("Peeling leading chars one-by-one, then all at once")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

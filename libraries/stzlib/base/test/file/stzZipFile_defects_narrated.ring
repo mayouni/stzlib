@@ -557,6 +557,7 @@ EndScenario()
 Summary()
 
 StzDirDeleteAll($cFx)
+shutdown($_zst_fail)
 
 # =============================================================== helpers (kept at the end of the file)
 # Every local here is prefixed h_ : Ring lets a function see the variables of the main script, so a

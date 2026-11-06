@@ -207,6 +207,7 @@ Scenario("the same route really answers over a socket")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # drive the server's REAL dispatch chain in-process (the auth gate, the router,

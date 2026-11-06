@@ -10,3 +10,4 @@ Scenario("Starring the middle third")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

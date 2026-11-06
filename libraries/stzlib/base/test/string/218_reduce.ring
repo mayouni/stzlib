@@ -9,3 +9,4 @@ Scenario("Reducing a list of strings to one")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

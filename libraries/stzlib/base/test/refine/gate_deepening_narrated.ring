@@ -88,3 +88,4 @@ Scenario("all four stages compose: structural, constraint, derivation, governanc
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

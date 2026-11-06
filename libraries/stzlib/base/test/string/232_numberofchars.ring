@@ -15,3 +15,4 @@ Scenario("Counting chars and lines")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

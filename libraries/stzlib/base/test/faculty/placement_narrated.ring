@@ -161,6 +161,7 @@ Scenario("The report (MP1) says what the registry chooses, here and on another s
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func _PcEntry(aR, cF, cLang)
 	for i = 1 to len(aR)

@@ -10,3 +10,4 @@ Scenario("Extending to a fixed width with spaces")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

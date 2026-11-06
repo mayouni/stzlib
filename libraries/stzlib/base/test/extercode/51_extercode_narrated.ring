@@ -41,3 +41,4 @@ Scenario("Thin language wrappers construct and roundtrip")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

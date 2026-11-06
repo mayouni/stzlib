@@ -34,3 +34,4 @@ Scenario("The empty-string toolkit: detect, count, locate, replace, and remove t
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

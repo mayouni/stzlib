@@ -9,3 +9,4 @@ Scenario("Dashes to spaces")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

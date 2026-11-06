@@ -11,3 +11,4 @@ Scenario("Naming the two tilde blocks")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

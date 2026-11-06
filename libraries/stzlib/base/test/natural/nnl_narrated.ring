@@ -313,3 +313,4 @@ Scenario("The monad keeps its discourse role")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

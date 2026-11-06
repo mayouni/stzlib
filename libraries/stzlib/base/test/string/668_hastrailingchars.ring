@@ -15,3 +15,4 @@ Scenario("The case dial changes what counts as a run")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

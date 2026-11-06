@@ -74,6 +74,7 @@ Scenario("3. every model kind, one record each")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ModelCalls()
 	if NOT StzSecurityLedgerIsOpen()  return 0  ok

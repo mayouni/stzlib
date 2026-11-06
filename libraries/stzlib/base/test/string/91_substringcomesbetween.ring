@@ -17,3 +17,4 @@ Scenario("A substring positioned between two bounds")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -158,3 +158,4 @@ Scenario("the pre-engine class tree is GONE, not merely superseded")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

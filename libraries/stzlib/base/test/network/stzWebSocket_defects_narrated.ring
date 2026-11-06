@@ -538,6 +538,7 @@ EndScenario()
 
 StzEngineWsEchoStop()
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers, kept below the scenarios ----------------------------------------------------------------------------
 

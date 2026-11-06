@@ -16,3 +16,4 @@ Scenario("Deep nesting is out of scope")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

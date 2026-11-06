@@ -12,3 +12,4 @@ Scenario("Three sections, three names")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

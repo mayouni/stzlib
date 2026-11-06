@@ -69,3 +69,4 @@ Scenario("the live world runs as a supervised agent on the reactor")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

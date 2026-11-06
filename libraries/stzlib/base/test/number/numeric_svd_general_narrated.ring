@@ -188,6 +188,7 @@ EndScenario()
 
 
 Summary()
+shutdown($_zst_fail)
 
 func Rnd8(n)
 	return ceil(n * 100000000 - 0.5) / 100000000

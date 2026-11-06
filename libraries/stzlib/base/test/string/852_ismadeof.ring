@@ -9,3 +9,4 @@ Scenario("maan from its letters")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -67,3 +67,4 @@ else
 ok
 
 Summary()
+shutdown($_zst_fail)

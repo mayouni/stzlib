@@ -13,3 +13,4 @@ Scenario("Transpiling an item condition")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

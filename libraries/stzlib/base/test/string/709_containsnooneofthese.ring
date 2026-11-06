@@ -12,3 +12,4 @@ Scenario("None of these, then one of these")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

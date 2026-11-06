@@ -12,3 +12,4 @@ Scenario("Shortening with a custom ellipsis")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

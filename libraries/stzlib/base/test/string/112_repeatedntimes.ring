@@ -16,3 +16,4 @@ Scenario("Repeating a character three times")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

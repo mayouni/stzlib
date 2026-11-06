@@ -19,3 +19,4 @@ Scenario("A case-sensitivity flag that is permissively ignored")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

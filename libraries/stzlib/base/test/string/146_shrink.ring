@@ -10,3 +10,4 @@ Scenario("Shrinking a string to a position")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

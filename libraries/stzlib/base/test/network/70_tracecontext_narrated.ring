@@ -45,3 +45,4 @@ Scenario("The HTTP client can start a trace")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

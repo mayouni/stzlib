@@ -18,3 +18,4 @@ Scenario("Size verbs on strings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

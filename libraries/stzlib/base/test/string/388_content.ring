@@ -12,3 +12,4 @@ Scenario("Wrapping the first occurrence")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

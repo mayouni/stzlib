@@ -12,3 +12,4 @@ Scenario("Dropping the last char")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

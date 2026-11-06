@@ -167,3 +167,4 @@ Scenario("through the registry, and refused in production")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

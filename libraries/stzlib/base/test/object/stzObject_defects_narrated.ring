@@ -356,6 +356,7 @@ Scenario("ALengthN counts what the object holds")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func HasLiteral(aValues, cLiteral)
 	for i = 1 to len(aValues)

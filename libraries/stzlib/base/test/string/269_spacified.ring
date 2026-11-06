@@ -12,3 +12,4 @@ Scenario("Non-mutating spacing of chars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

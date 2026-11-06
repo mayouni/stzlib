@@ -12,3 +12,4 @@ Scenario("Glyph shorthands")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

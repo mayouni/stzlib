@@ -692,6 +692,7 @@ Scenario("Every public method once, on maximize 3x + 2y with x + y <= 4 and x <=
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # helpers go at the END: top-level code after a func belongs to that func
 

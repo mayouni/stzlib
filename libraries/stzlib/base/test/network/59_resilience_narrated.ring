@@ -94,3 +94,4 @@ Scenario("Circuit: half-open trips back open on failure")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

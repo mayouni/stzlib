@@ -12,3 +12,4 @@ Scenario("Choosing the repeat container")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

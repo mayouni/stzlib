@@ -193,6 +193,7 @@ Scenario("Building with no variation is refused")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # helpers at the END: top-level code after a func definition would join that function
 

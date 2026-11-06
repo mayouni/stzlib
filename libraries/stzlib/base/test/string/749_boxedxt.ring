@@ -18,3 +18,4 @@ Scenario("A box with alternating corners")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

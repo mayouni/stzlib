@@ -12,6 +12,7 @@ Scenario("Positive integers to binary form")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Dtb cStr
     return new stzDecimalToBinary(cStr)

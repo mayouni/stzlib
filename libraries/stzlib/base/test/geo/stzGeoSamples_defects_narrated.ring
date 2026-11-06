@@ -201,6 +201,7 @@ Scenario("Beyond 200 gauges the probe is not run; a KrigeFields run is still rea
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # --------------------------------------------------------------------------------------
 # helpers (after the scenarios: in Ring, code after a func is part of the func)

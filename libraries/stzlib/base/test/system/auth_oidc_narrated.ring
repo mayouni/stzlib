@@ -183,3 +183,4 @@ Scenario("the local rules still apply to an external login")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

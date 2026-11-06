@@ -10,3 +10,4 @@ Scenario("Replacing two words at once")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

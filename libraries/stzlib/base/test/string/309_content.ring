@@ -12,3 +12,4 @@ Scenario("Inserting before positions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

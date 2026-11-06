@@ -17,3 +17,4 @@ Scenario("Concatenating a million Arabic strings")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

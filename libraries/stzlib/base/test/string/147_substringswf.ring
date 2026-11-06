@@ -14,3 +14,4 @@ Scenario("SubStringsWF finds substrings by a function predicate")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

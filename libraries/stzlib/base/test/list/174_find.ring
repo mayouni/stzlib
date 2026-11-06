@@ -20,3 +20,4 @@ Scenario("Finds a value inside a numeric range using the global StzFindFirst()."
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

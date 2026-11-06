@@ -11,3 +11,4 @@ Scenario("Toggling time-keeping")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

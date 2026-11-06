@@ -32,3 +32,4 @@ Scenario("Demonstrates stzList.EachContains() -- a whole-list predicate that ret
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -101,3 +101,4 @@ if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
 Summary()
 
 if dirExists(cSbx) RemoveFolderRecursive(cSbx) ok
+shutdown($_zst_fail)

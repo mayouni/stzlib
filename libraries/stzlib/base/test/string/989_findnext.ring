@@ -16,3 +16,4 @@ Scenario("Bullets around the cursor")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

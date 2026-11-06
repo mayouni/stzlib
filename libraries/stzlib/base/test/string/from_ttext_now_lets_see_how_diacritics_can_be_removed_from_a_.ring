@@ -14,3 +14,4 @@ Scenario("Removing diacritics")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

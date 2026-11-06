@@ -13,3 +13,4 @@ Scenario("Bounded on both sides, or just one")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

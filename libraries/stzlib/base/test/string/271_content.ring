@@ -12,3 +12,4 @@ Scenario("Grouping digits from the right, named params")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

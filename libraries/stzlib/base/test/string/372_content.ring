@@ -11,3 +11,4 @@ Scenario("Removing a section")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

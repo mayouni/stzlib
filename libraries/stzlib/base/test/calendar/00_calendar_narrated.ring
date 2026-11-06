@@ -80,6 +80,7 @@ Scenario("A viz dimension can be turned down as well as up")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func VizHeightAfter(poObj, pn)
 	poObj.SetVizHeight(pn)

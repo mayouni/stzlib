@@ -17,3 +17,4 @@ Scenario("Walking a sentence both ways")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

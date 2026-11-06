@@ -12,3 +12,4 @@ Scenario("Starring the 3rd char of a French word")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

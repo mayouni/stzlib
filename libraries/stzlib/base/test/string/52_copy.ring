@@ -16,3 +16,4 @@ Scenario("Sculpting a copy leaves the original intact")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

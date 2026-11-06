@@ -9,3 +9,4 @@ Scenario("A times 1 2 3")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

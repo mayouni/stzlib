@@ -11,3 +11,4 @@ Scenario("Dashes hugging three hearts")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

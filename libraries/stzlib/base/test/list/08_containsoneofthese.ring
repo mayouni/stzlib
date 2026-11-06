@@ -27,3 +27,4 @@ Scenario("ContainsOneOfThese (inclusive any) vs ContainsOnlyOneOfThese (exclusiv
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

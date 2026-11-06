@@ -23,3 +23,4 @@ Scenario("ExtendToWithItemsIn() grows a list up to a target length, filling the 
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

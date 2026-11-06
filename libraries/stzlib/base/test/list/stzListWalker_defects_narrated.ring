@@ -273,6 +273,7 @@ Scenario("Every public method of the class, once, on numbers and on texts")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ErrOf(cCode)
 	try

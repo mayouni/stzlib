@@ -248,6 +248,7 @@ Scenario("The unknown-ramp error lists every ramp there is")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # --- helpers (after the main code: in Ring a func swallows what follows it) ---

@@ -10,3 +10,4 @@ Scenario("Contains before/after a substring anchor")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

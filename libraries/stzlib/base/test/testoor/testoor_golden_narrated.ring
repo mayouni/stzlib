@@ -172,6 +172,7 @@ EndScenario()
 ? ""
 ? "[P2b took " + ((clock() - nGdStart) / clockspersecond()) + "s]"
 Summary()
+shutdown($_zst_fail)
 
 #============================================================================
 # HELPERS AFTER THE TOP-LEVEL CODE

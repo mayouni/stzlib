@@ -99,3 +99,4 @@ Scenario("constellations nest recursively (graph-of-graphs)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

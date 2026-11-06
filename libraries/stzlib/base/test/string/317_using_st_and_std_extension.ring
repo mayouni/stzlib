@@ -26,3 +26,4 @@ Scenario("STD forms add a direction")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

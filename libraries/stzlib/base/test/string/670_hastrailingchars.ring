@@ -12,3 +12,4 @@ Scenario("Trailing zeros of a number-in-string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

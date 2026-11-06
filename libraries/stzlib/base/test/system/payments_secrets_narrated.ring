@@ -150,6 +150,7 @@ Scenario("sealed at rest, a descriptor keeps its kind and its expiry")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers -------------------------------------------------------------
 

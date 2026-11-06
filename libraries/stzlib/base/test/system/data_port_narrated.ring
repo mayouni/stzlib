@@ -153,3 +153,4 @@ Scenario("swapping to a hosted adapter changes no application code")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

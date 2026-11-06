@@ -159,3 +159,4 @@ Scenario("LIVE: a rate limit protects a real worker and recovers on refill")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

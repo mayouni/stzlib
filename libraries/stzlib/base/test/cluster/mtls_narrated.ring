@@ -117,6 +117,7 @@ $oSpawner.Destroy()
 $oClient.Destroy()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # -- helpers (after Summary; Ring hoists func defs) -------------------

@@ -62,3 +62,4 @@ Scenario("Broad family sanity at L=100 (uniform 'a')")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

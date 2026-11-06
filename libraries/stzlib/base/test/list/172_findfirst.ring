@@ -21,3 +21,4 @@ Scenario("FindFirst() returns the 1-based position of the first occurrence of an
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

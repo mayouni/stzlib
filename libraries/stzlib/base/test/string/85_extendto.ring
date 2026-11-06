@@ -12,3 +12,4 @@ Scenario("Padding a string to a fixed width")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

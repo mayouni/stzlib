@@ -23,3 +23,4 @@ Scenario("Strips every singleton from a list, keeping only items that recur.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

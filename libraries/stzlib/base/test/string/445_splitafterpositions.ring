@@ -10,3 +10,4 @@ Scenario("SplitAfterPositions splits after positions 4 and 8")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

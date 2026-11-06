@@ -62,6 +62,7 @@ Scenario("Single-dataset plans skip pairwise steps gracefully (R19 guard)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Ds aList
     return new stzDataSet(aList)

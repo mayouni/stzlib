@@ -17,3 +17,4 @@ Scenario("SOFTANZA, one box or eight")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

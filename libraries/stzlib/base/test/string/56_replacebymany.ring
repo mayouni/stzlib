@@ -20,3 +20,4 @@ Scenario("Replace-by-many and its named shorthands")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

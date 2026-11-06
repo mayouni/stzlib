@@ -91,6 +91,7 @@ Scenario("changes made through the governed doors are not tampering (negative si
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func HasFinding aF, cKey, cName
 	for i = 1 to len(aF)

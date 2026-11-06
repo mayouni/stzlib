@@ -73,3 +73,4 @@ Scenario("what rounding does to ties, stated rather than assumed")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

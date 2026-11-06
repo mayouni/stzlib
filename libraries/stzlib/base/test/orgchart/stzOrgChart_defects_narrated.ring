@@ -311,6 +311,7 @@ Scenario("The edges of the family -- positions with no record, and the chart is 
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #--------------------------------------------------------------------
 

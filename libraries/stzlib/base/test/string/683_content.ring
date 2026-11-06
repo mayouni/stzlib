@@ -12,3 +12,4 @@ Scenario("Dropping the first char")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

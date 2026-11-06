@@ -14,3 +14,4 @@ Scenario("Peeling both ends of a fenced word")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

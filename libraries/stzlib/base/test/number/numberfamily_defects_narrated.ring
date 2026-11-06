@@ -423,6 +423,7 @@ done
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # ---------------------------------------------------------------------------------------------------------------
 # helpers: every name a function reads is a $global (Rule A)

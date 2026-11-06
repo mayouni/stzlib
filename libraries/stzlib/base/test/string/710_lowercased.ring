@@ -11,3 +11,4 @@ Scenario("tunis in three cases")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

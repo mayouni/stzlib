@@ -10,3 +10,4 @@ Scenario("Numbers to carets")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

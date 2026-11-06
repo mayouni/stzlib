@@ -120,6 +120,7 @@ Scenario("teardown: both workers stop cleanly through the SAME surface")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #--- the ONE body (identical caller code for any locality) -----------
 

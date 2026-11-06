@@ -13,3 +13,4 @@ Scenario("Five names backwards")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

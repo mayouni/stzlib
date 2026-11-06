@@ -17,3 +17,4 @@ Scenario("Collapsing each run to one star")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -150,6 +150,7 @@ Scenario("teardown releases the owned reactor")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 
 # -- helpers (after all top-level code; Ring hoists func defs) --------

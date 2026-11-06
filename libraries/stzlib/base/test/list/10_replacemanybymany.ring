@@ -31,3 +31,4 @@ Scenario("ReplaceManyByMany (1-to-1 mapping) and the Section<->Range conversions
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

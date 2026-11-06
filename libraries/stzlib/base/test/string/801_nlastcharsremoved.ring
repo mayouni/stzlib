@@ -14,3 +14,4 @@ Scenario("Trimming a tail, reversing a head")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

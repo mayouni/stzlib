@@ -12,3 +12,4 @@ Scenario("The lenient section with a negative end")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

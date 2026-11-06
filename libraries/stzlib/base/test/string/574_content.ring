@@ -14,3 +14,4 @@ Scenario("Fixing the noword")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

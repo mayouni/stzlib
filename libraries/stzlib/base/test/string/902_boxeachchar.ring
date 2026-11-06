@@ -13,3 +13,4 @@ Scenario("RING in cells, in place")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

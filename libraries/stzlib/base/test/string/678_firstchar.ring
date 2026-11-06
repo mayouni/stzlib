@@ -10,3 +10,4 @@ Scenario("The ends of ABC")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

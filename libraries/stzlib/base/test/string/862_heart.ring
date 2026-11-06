@@ -15,3 +15,4 @@ Scenario("Eight glyphs by name")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

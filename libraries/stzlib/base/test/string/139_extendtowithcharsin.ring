@@ -13,3 +13,4 @@ Scenario("Extending a string by cycling chars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

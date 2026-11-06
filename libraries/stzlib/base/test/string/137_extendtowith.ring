@@ -10,3 +10,4 @@ Scenario("Extending to a fixed width with a chosen char")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

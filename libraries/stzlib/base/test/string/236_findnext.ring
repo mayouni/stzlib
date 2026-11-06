@@ -20,3 +20,4 @@ Scenario("Directional search from a position")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

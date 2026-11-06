@@ -38,6 +38,7 @@ Scenario("Case mapping is codepoint-correct (multibyte)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func LowE   # e-acute U+00E9
     return char(195) + char(169)

@@ -51,6 +51,7 @@ Scenario("Determinant (engine, read-only)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Mtrx aRows
     return new stzMatrix(aRows)

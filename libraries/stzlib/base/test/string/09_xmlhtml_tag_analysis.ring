@@ -13,3 +13,4 @@ Scenario("XML tag-occurrence analysis flags a duplicated tag")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

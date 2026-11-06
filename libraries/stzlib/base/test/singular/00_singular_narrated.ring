@@ -25,3 +25,4 @@ Scenario("Irregular singulars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

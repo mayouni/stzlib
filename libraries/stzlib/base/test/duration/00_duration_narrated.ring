@@ -69,6 +69,7 @@ Scenario("Mutate a duration in place")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Dur p
     return new stzDuration(p)

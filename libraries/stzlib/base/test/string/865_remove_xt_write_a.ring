@@ -11,3 +11,4 @@ Scenario("A heart in the wrong place")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

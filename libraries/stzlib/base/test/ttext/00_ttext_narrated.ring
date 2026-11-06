@@ -38,6 +38,7 @@ Scenario("Sentence count keeps multibyte content")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func AccE   # e-acute U+00E9
     return char(195) + char(169)

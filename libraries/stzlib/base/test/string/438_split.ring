@@ -13,3 +13,4 @@ Scenario("Split a hyphenated word into its parts")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

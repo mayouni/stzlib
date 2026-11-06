@@ -36,3 +36,4 @@ Scenario("IsChar() answers whether a value qualifies as a single character.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

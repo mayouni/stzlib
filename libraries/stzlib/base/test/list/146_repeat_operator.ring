@@ -25,3 +25,4 @@ Scenario("The * operator on a stzList repeats its content N times in one step.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -101,6 +101,7 @@ Scenario("THE CATALOGUE WHOLE: one plan, six verbs, five real responders")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # -- helpers (after the main code) ------------------------------------
 

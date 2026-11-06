@@ -12,3 +12,4 @@ Scenario("Checking a char within sections")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

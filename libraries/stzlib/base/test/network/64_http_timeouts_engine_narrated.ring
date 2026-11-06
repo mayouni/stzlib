@@ -56,3 +56,4 @@ Scenario("Process-wide engine defaults can be set and a request still runs")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

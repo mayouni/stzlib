@@ -25,6 +25,7 @@ Scenario("Two lookalike circumflexed e's")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

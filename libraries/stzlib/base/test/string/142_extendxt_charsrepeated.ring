@@ -12,3 +12,4 @@ Scenario("Extending to a position with repeated chars")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

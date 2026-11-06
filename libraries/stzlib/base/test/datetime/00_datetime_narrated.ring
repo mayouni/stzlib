@@ -42,3 +42,4 @@ Scenario("Comparison")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

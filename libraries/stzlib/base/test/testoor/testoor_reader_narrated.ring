@@ -252,6 +252,7 @@ _TrUnplant()
 ? ""
 ? "[TR0 took " + ((clock() - nTrStart) / clockspersecond()) + "s]"
 Summary()
+shutdown($_zst_fail)
 
 #============================================================================
 # THE HELPERS LIVE AFTER THE TOP-LEVEL CODE. Ring runs a file until its

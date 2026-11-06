@@ -389,6 +389,7 @@ Scenario("Bad arguments are refused with a message, and a window with no area ex
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # --- helpers (after the scenarios: Ring puts everything after a func inside it) -------------------
 

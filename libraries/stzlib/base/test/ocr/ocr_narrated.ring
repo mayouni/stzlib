@@ -204,3 +204,4 @@ Scenario("A language the platform has no pack for is a refusal that names it")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

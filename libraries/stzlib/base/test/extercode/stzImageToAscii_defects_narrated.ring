@@ -297,6 +297,7 @@ IaRm(cWork)
 Then("the guard left its work folder gone", direxists(cWork), 0)
 
 Summary()
+shutdown($_zst_fail)
 
 # removes a folder with all it holds, when it exists
 func IaRm(cDir)

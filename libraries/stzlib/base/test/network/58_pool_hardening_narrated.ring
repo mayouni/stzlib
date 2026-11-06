@@ -68,3 +68,4 @@ Scenario("Workload of 50 bogus jobs completes under bounded wall time")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

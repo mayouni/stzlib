@@ -126,3 +126,4 @@ Scenario("cluster integration: classify then route (R8.2 -> R8.3 seam)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

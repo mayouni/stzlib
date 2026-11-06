@@ -29,6 +29,7 @@ Scenario("From messy text to a clean grid")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

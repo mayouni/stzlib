@@ -333,6 +333,7 @@ Scenario("Reading HTML that ToHtml did not write")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #-------------------------------------------------------------------------------------------------------#
 

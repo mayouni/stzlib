@@ -15,3 +15,4 @@ Scenario("Stripping both runs")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

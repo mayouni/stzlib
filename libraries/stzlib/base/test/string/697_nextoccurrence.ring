@@ -13,3 +13,4 @@ Scenario("Forward once, backward twice")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

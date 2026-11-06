@@ -17,3 +17,4 @@ Scenario("Head backward-3, tail forward-2, joined by a dot")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

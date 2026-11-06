@@ -15,3 +15,4 @@ Scenario("Surgical removes")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

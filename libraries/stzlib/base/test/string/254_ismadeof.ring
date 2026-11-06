@@ -11,3 +11,4 @@ Scenario("Checking what a string is made of")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

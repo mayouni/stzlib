@@ -161,6 +161,7 @@ Scenario("Tier-1 aka widening: user words find core methods (lexical floor)")
 	Then("'raised to the power of'",
 		LibTopMethod(oDw, "raised to the power of"), "Power")
 EndScenario()
+shutdown($_zst_fail)
 
 # TRUE if Ask's top-1 method for cQuery is one of the acceptable answers (a
 # capability often has an alias/Q-variant family, all correct).

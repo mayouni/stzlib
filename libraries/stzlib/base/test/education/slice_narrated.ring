@@ -255,6 +255,7 @@ EduGuardClean()
 ? ""
 ? "  [time] whole guard: " + ((clock() - $nEduGuardT0) / clockspersecond()) + " s"
 Summary()
+shutdown($_zst_fail)
 
 #===========================================================================
 # helpers -- after the last top-level statement (Ring stops there)

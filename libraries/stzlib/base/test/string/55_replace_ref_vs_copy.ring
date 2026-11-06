@@ -20,3 +20,4 @@ Scenario("Replacing on a copy")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

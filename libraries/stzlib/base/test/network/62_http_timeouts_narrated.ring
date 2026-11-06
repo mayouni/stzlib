@@ -64,3 +64,4 @@ Scenario("Unknown id returns -2 even with a deadline")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

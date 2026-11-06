@@ -58,6 +58,7 @@ Scenario("The export half runs on the fixture library")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func RuleOf(aFind, cKey)
 	for i = 1 to len(aFind)

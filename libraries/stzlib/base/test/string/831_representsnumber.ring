@@ -25,3 +25,4 @@ Scenario("An octal real, sixteen questions")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

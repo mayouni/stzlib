@@ -15,3 +15,4 @@ Scenario("Single-position finds")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

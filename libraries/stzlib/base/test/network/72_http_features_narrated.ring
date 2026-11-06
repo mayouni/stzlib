@@ -62,3 +62,4 @@ Scenario("gzip responses are transparently decompressed (vendored zlib)")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -24,3 +24,4 @@ Scenario("Growing a list to a fixed length by cycling its existing items.")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

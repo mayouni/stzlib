@@ -12,3 +12,4 @@ Scenario("Wrapping each occurrence with slashes")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

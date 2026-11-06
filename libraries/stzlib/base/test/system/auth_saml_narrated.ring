@@ -387,3 +387,4 @@ Scenario("the IdP can sign RSA-SHA256, which is what many enterprise SPs require
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -12,3 +12,4 @@ Scenario("Removing the content between two bounds")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

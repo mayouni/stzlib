@@ -81,6 +81,7 @@ Scenario("A number given to the case methods raises; the process lives on")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Raises(o, cCode)
 	try

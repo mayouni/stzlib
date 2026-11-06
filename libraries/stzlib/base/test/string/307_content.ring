@@ -15,3 +15,4 @@ Scenario("Spacifying a fully-tiled name string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

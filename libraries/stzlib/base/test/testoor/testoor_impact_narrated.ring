@@ -179,6 +179,7 @@ _ImUnplantAll(cImRoot)
 ? ""
 ? "[P1a took " + ((clock() - nImStart) / clockspersecond()) + "s]"
 Summary()
+shutdown($_zst_fail)
 
 #============================================================================
 # HELPERS AFTER THE TOP-LEVEL CODE

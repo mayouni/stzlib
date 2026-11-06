@@ -14,3 +14,4 @@ Scenario("FindCharsW locates a letter case-insensitively")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -13,3 +13,4 @@ Scenario("fr alone, then fr-fr")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -12,3 +12,4 @@ Scenario("Foulana becomes Palestine")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -20,3 +20,4 @@ Scenario("Finding a value inside a large numeric range with the global StzFindFi
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

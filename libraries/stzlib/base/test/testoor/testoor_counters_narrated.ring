@@ -174,6 +174,7 @@ ok
 ? ""
 ? "[P3.4 took " + ((clock() - nCnStart) / clockspersecond()) + "s]"
 Summary()
+shutdown($_zst_fail)
 
 #============================================================================
 # HELPERS AFTER THE TOP-LEVEL CODE

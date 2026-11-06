@@ -10,3 +10,4 @@ Scenario("A full locale abbreviation")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

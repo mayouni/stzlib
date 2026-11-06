@@ -79,3 +79,4 @@ Scenario("The engine's locale case functions refuse a non-text instead of ending
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

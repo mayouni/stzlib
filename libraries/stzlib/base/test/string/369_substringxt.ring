@@ -19,3 +19,4 @@ Scenario("Bound predicates")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -176,6 +176,7 @@ Scenario("...and the convolution theorem gives polynomials a faster product")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #-- helpers (Fft-prefixed: short names collide with library globals) -----------
 

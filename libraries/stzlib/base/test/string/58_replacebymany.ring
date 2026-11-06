@@ -12,3 +12,4 @@ Scenario("Replace-by-many with the :By named param")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

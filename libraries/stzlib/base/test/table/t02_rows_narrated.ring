@@ -107,6 +107,7 @@ Scenario("Sections: the block between two corners")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func Tn(cText, xActual, xExpected)
 	Then(cText, xActual, substr(xExpected, "'", char(34)))

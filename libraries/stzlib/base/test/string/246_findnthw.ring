@@ -14,3 +14,4 @@ Scenario("Finding the nth char / substring matching a W condition")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

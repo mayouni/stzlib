@@ -223,3 +223,4 @@ Scenario("a rule with no clauses holds vacuously; bad inputs are refused early")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

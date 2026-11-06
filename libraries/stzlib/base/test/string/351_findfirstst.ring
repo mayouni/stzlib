@@ -14,3 +14,4 @@ Scenario("Starting-at finders converging on the last occurrence")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

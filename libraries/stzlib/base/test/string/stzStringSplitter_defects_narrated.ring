@@ -507,6 +507,7 @@ Scenario("The neighbours in the class are unchanged: Split, SplitBefore, SplitAf
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 # ---------------------------------------------------------------------------------------------
 # helpers (at the end: top-level code after a func belongs to that func in Ring)

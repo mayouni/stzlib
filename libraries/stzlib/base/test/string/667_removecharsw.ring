@@ -12,3 +12,4 @@ Scenario("RemoveCharsW removes a specific character")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

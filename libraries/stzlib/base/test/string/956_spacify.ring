@@ -12,3 +12,4 @@ Scenario("Marking the As of a spaced string")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

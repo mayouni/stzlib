@@ -13,3 +13,4 @@ Scenario("Compositions of aabbcaacccbb")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

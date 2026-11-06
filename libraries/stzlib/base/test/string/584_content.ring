@@ -10,3 +10,4 @@ Scenario("Removing the last a, case aside")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -10,3 +10,4 @@ Scenario("Heart and its carets")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

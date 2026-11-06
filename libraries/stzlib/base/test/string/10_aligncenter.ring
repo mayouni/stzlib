@@ -19,3 +19,4 @@ Scenario("Aligning RING within width 15")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

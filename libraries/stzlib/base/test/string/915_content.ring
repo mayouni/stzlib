@@ -12,3 +12,4 @@ Scenario("Only the 2nd and 3rd dots blocks")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -332,6 +332,7 @@ Scenario("two sets of 2,000 pairs are checked and intersected without a quadrati
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 #------------------------------ helpers ------------------------------------------------------------------
 

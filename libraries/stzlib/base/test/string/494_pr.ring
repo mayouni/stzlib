@@ -20,3 +20,4 @@ Scenario("Negative-form conditions on a char list")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)

@@ -13,6 +13,7 @@ Scenario("Substrings bounded by a repeated marker keep the middle gaps")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
 
 func ListEq aA, aE
 	if len(aA) != len(aE) return FALSE ok

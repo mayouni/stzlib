@@ -13,3 +13,4 @@ Scenario("Removing bounded runs including their bounds")
 EndScenario()
 
 Summary()
+shutdown($_zst_fail)
