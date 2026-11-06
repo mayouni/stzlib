@@ -26,8 +26,8 @@ decimals(4)
 ? "== MU0: four measurements, taken before anything is built on them =="
 ? ""
 
-nRate = 48000
-nBlock = 512
+$nRate = 48000
+$nBlock = 512
 
 # ---------------------------------------------------------------------------
 ? "-- Spike 1: a frequency ramp does not click --"
@@ -41,10 +41,10 @@ nBlock = 512
 
 nHzA = 440
 nHzB = 880
-nAmp = 0.5
+$nAmp = 0.5
 # the second difference of a sine of amplitude A at frequency f is bounded by
 # A * (2*pi*f/rate)^2 -- derived, not measured, so the yardstick cannot drift
-nBound = nAmp * pow(2 * 3.14159265358979 * nHzB / nRate, 2)
+nBound = $nAmp * pow(2 * 3.14159265358979 * nHzB / $nRate, 2)
 ? "   the 880 Hz tone's own largest second difference: " + nBound
 
 nNone = WorstKink(nHzA, nHzB, -1, 16)
@@ -64,10 +64,10 @@ Chk("a 10 ms ramp does NOT kink beyond the tone's own curvature",
 Chk("and it is dramatically smaller than the jump", nRamped < nJump / 2)
 
 # it ARRIVES, and it MOVES through the middle -- the two halves of a ramp
-oGr = MakeOscGraph(nHzA, nAmp)
-oW = oGr.ToSound(nBlock * 4 / nRate)
+oGr = MakeOscGraph(nHzA, $nAmp)
+oW = oGr.ToSound($nBlock * 4 / $nRate)
 StzEngineSoundGraphSetFrequency(oGr.GraphId(), oGr.NodeNamed(:osc), nHzB, 200)
-oMid = oGr.ToSound(nBlock * 8 / nRate)          # 85 ms into a 200 ms ramp
+oMid = oGr.ToSound($nBlock * 8 / $nRate)          # 85 ms into a 200 ms ramp
 nMid = StzEngineSoundGraphCurrentFrequency(oGr.GraphId(), oGr.NodeNamed(:osc))
 ? "   85 ms into a 200 ms ramp the oscillator reads " + nMid + " Hz"
 Chk("it has LEFT 440", nMid > 445)
@@ -80,7 +80,7 @@ oW.Release()  oMid.Release()  oRest.Release()  oGr.Release()
 
 # refusals: the plane's law that a setting which silently does nothing is
 # worse than one that says no
-oGr2 = MakeOscGraph(nHzA, nAmp)
+oGr2 = MakeOscGraph(nHzA, $nAmp)
 Chk("a frequency above Nyquist is REFUSED",
     StzEngineSoundGraphSetFrequency(oGr2.GraphId(), oGr2.NodeNamed(:osc), 30000, 0) != 0)
 Chk("and so is setting it on a node that is not an oscillator",
@@ -102,9 +102,9 @@ oGr2.Release()
 
 nBeats = 20
 nBpm = 120
-nBeatFrames = floor(60 / nBpm * nRate)          # 24000
+nBeatFrames = floor(60 / nBpm * $nRate)          # 24000
 oG2 = new stzSoundGraph()
-oG2.Reshape(1, nRate)
+oG2.Reshape(1, $nRate)
 oG2.AddOscillator(:Sine, 1000, 0.5)
 oG2.NameIt(:tone)
 oG2.AddEnvelopeOn(:tone, 0.001, 0.04, 0.0, 0.02, 0.05)
@@ -114,13 +114,13 @@ oG2.Prepare()
 oSpend = oG2.ToSound(0.5)                        # spend the envelope first
 oSpend.Release()
 
-nTotal = nBeats * nBeatFrames + nRate
-oGrid = StzSoundOfSilenceQ(nTotal / nRate, 1, nRate)
+nTotal = nBeats * nBeatFrames + $nRate
+oGrid = StzSoundOfSilenceQ(nTotal / $nRate, 1, $nRate)
 nAt = 0
-nNextBeat = nRate                                # first beat one second in
+nNextBeat = $nRate                                # first beat one second in
 nBeat = 0
 aIdeal = []
-while nAt + nBlock <= nTotal
+while nAt + $nBlock <= nTotal
 	# THE MECHANISM UNDER TEST. The Ring thread asks at the beat; the render
 	# honours the request at the start of the NEXT block it renders. Offline
 	# that is: fire at the first block edge at or after the beat. The first cut
@@ -133,29 +133,29 @@ while nAt + nBlock <= nTotal
 		nBeat++
 		nNextBeat += nBeatFrames
 	ok
-	oB = oG2.ToSound(nBlock / nRate)
+	oB = oG2.ToSound($nBlock / $nRate)
 	Blit(oGrid, oB, nAt)
 	oB.Release()
-	nAt += nBlock
+	nAt += $nBlock
 end
 oG2.Release()
 
-aOnsets = OnsetsOf(oGrid, 0.05, nRate)
+aOnsets = OnsetsOf(oGrid, 0.05, $nRate)
 ? "   notes fired " + len(aIdeal) + ", onsets found " + len(aOnsets)
 Chk("every note produced exactly one onset", len(aOnsets) = len(aIdeal))
 nMax = 0
 nSum = 0
 for i = 1 to len(aOnsets)
 	if i > len(aIdeal)  exit ok
-	d = (aOnsets[i] - aIdeal[i]) / nRate * 1000
+	d = (aOnsets[i] - aIdeal[i]) / $nRate * 1000
 	if d > nMax  nMax = d ok
 	nSum += d
 next
 nMean = nSum / len(aOnsets)
 ? "   late by: mean " + nMean + " ms, worst " + nMax + " ms   (one block is " +
-  (nBlock / nRate * 1000) + " ms)"
+  ($nBlock / $nRate * 1000) + " ms)"
 Chk("no onset is EARLY -- a request is never honoured before it is made", nMax >= 0)
-Chk("the worst lateness is within one block", nMax <= nBlock / nRate * 1000 + 0.05)
+Chk("the worst lateness is within one block", nMax <= $nBlock / $nRate * 1000 + 0.05)
 Chk("and it is real, not zero -- the grid IS quantised", nMax > 1.0)
 oGrid.SaveAs("mu0_grid_quantised.wav")
 ? "   written mu0_grid_quantised.wav -- the demo plays it beside a sample-exact"
@@ -168,7 +168,7 @@ oGrid.Release()
 ? "   The number this file can take is the pitch; the verdict it cannot take"
 ? "   is whether it sounds like a string. That is the demo's, and the author's."
 
-nBuf = StzEngineSoundPluckOf(220, nRate, 1.5, 0.996)
+nBuf = StzEngineSoundPluckOf(220, $nRate, 1.5, 0.996)
 Chk("the seam rendered a pluck", nBuf != 0)
 oPluck = StzSoundFromBufferQ(nBuf)
 ? "   " + oPluck.Duration() + " s, peak " + oPluck.Peak()
@@ -184,7 +184,7 @@ Chk("and DECAYS, as a string does", nLate < nEarly * 0.2)
 # is the integer quantisation, up to half a sample -- measured here so MU1
 # knows what the fractional delay it owes has to remove.
 nPeriod = PeriodByAutocorrelation(oPluck, 12000, 36000, 180, 260)
-nHzGot = nRate / nPeriod
+nHzGot = $nRate / nPeriod
 nCents = 1200 * log(nHzGot / 220) / log(2)
 ? "   autocorrelation period " + nPeriod + " frames = " + nHzGot + " Hz, " +
   nCents + " cents from A3"
@@ -199,7 +199,7 @@ Chk("the pluck is within 10 cents of the pitch asked for (integer period)",
 ? "    bar is 2 cents and nothing in this spike can see 2 cents on a pluck.)"
 
 # a period that cannot fit is refused rather than aliased
-Chk("a pitch too low for the line is REFUSED", StzEngineSoundPluckOf(5, nRate, 0.1, 0.996) = 0)
+Chk("a pitch too low for the line is REFUSED", StzEngineSoundPluckOf(5, $nRate, 0.1, 0.996) = 0)
 oPluck.SaveAs("mu0_pluck.wav")
 ? "   written mu0_pluck.wav"
 oPluck.Release()
@@ -220,8 +220,8 @@ nQ  = nD4 * pow(2, 1/24)                         # one quarter step up
 
 oA = RenderTone(nD4, 2.0)
 oB = RenderTone(nQ, 2.0)
-nFa = PitchByCrossings(oA, nRate)
-nFb = PitchByCrossings(oB, nRate)
+nFa = PitchByCrossings(oA, $nRate)
+nFb = PitchByCrossings(oB, $nRate)
 nCa = 1200 * log(nFa / nD4) / log(2)
 nCb = 1200 * log(nFb / nQ) / log(2)
 nGap = 1200 * log(nFb / nFa) / log(2)
@@ -240,14 +240,14 @@ Chk("the coarse instrument agrees to within its own resolution",
 
 # the negative sibling: a semitone is NOT fifty cents, or the gap test proves nothing
 oC = RenderTone(nD4 * pow(2, 1/12), 2.0)
-nGapSemi = 1200 * log(PitchByCrossings(oC, nRate) / nFa) / log(2)
+nGapSemi = 1200 * log(PitchByCrossings(oC, $nRate) / nFa) / log(2)
 ? "   a semitone, same instrument: " + nGapSemi + " cents"
 Chk("a semitone reads as 100, so the 50 above was measured and not assumed",
     fabs(nGapSemi - 100) <= 2)
 
-oQt = StzSoundOfSilenceQ(4.5, 1, nRate)
+oQt = StzSoundOfSilenceQ(4.5, 1, $nRate)
 Blit(oQt, oA, 0)
-Blit(oQt, oB, floor(2.25 * nRate))
+Blit(oQt, oB, floor(2.25 * $nRate))
 oQt.SaveAs("mu0_quartertone.wav")
 ? "   written mu0_quartertone.wav"
 oA.Release()  oB.Release()  oC.Release()  oQt.Release()
@@ -273,7 +273,7 @@ func Chk cLabel, bCond
 
 func MakeOscGraph nHz, nAmp
 	_g_ = new stzSoundGraph()
-	_g_.Reshape(1, nRate)
+	_g_.Reshape(1, $nRate)
 	_g_.AddOscillator(:Sine, nHz, nAmp)
 	_g_.NameIt(:osc)
 	_g_.AddGainOn(:osc, 1.0)
@@ -290,12 +290,12 @@ func MakeOscGraph nHz, nAmp
 func WorstKink nHzA, nHzB, nRampMs, nPhases
 	_worst_ = 0
 	for _k_ = 0 to nPhases - 1
-		_g_ = MakeOscGraph(nHzA, nAmp)
-		_warm_ = _g_.ToSound((4 + _k_) * nBlock / nRate)
+		_g_ = MakeOscGraph(nHzA, $nAmp)
+		_warm_ = _g_.ToSound((4 + _k_) * $nBlock / $nRate)
 		if nRampMs >= 0
 			StzEngineSoundGraphSetFrequency(_g_.GraphId(), _g_.NodeNamed(:osc), nHzB, nRampMs)
 		ok
-		_cut_ = _g_.ToSound(8 * nBlock / nRate)
+		_cut_ = _g_.ToSound(8 * $nBlock / $nRate)
 		# stitch the last two of warm onto cut so the seam's second
 		# difference is computable
 		_n_ = _warm_.Frames()
@@ -314,7 +314,7 @@ func WorstKink nHzA, nHzB, nRampMs, nPhases
 
 func RenderTone nHz, nSecs
 	_g_ = new stzSoundGraph()
-	_g_.Reshape(1, nRate)
+	_g_.Reshape(1, $nRate)
 	_g_.AddOscillator(:Sine, nHz, 0.5)
 	_g_.NameIt(:t)
 	_g_.SetOutputTo(:t)

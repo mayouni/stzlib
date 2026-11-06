@@ -154,7 +154,7 @@ Scenario("the constructor still reads every form it used to")
 EndScenario()
 
 Summary()
-shutdown($nFail)
+shutdown($_zst_fail)
 
 func RaisesNum(c)
 	bR = FALSE

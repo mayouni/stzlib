@@ -36,7 +36,7 @@ decimals(6)
 # nothing. Every narrated guard in this directory is laid out the same way.
 $nPass = 0
 $nFail = 0
-nSec = 0
+$nSec = 0
 
 # ---------------------------------------------------------------------
 sec("THE TABLE: an ellipsoid is a CLAIM about the shape of the Earth")
@@ -382,9 +382,9 @@ func chk pcWhat, pbOk
 	ok
 
 func sec pcWhat
-	nSec++
+	$nSec++
 	? ""
-	? "-- " + nSec + ". " + pcWhat + " --"
+	? "-- " + $nSec + ". " + pcWhat + " --"
 
 func _Refuses pcName
 	try

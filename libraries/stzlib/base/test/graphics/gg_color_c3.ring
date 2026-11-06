@@ -5,10 +5,10 @@ load "../../stzBase.ring"
 
 	SOFTANZA_COLOR_SYSTEM.md, phase C3, kill criterion written first:
 
-	    "if the existing themes cannot pass a stated minimum and cannot be
+	    	    "if the existing themes cannot pass a stated minimum and cannot be
 	     adjusted to, the minimum is wrong or the themes are -- either way
 	     that is the finding, and it gets written down rather than lowered
-	     quietly."
+	     quietly.	     quietly."
 
 	So this file is allowed to fail, and if it does the failure is the
 	deliverable. What it must NOT do is pick a threshold that the current
@@ -23,7 +23,7 @@ load "../../stzBase.ring"
 ---------------------------------------------------------------------------*/
 
 decimals(2)
-nOk = 0  nBad = 0
+$nOk = 0  $nBad = 0
 
 ? "=============================================================="
 ? " C3 -- contrast as a number"
@@ -297,21 +297,21 @@ chkeq("...and states it where it states a neutral at all", nThemeFlat, 0)
 
 ? ""
 ? "=============================================================="
-? " VERDICT : " + iif(nBad = 0, "C3 PASSES -- the themes clear the stated minimum",
+? " VERDICT : " + iif($nBad = 0, "C3 PASSES -- the themes clear the stated minimum",
                      "C3 FAILS -- see the failures above; they are the finding")
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + $nBad + " failed"
 ? "=============================================================="
-shutdown($nFail)
+shutdown($nBad)
 
 #---------------------------------------------------------------------------
 
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
-		nBad++
+		$nBad++
 	ok
 
 func chkeq cWhat, xGot, xWant

@@ -28,7 +28,7 @@ decimals(4)
 # keeps the symmetry survives them. That is a real limit of this gallery
 # and it is written here rather than left to be discovered.
 
-nOk = 0  nBad = 0  nSec = 0
+$nOk = 0  $nBad = 0  $nSec = 0
 
 # ---------------------------------------------------------------------
 sec("THE GALLERY: sixteen became forty-four")
@@ -224,23 +224,23 @@ chk("A ZONE IS A TRANSVERSE MERCATOR ON ITS OWN MERIDIAN AT 0.9996, which " +
 
 ? ""
 ? "=========================================================="
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + $nBad + " failed"
 ? "=========================================================="
-shutdown($nFail)
+shutdown($nBad)
 
 func chk pcWhat, pbOk
 	if pbOk
-		nOk++
+		$nOk++
 		? "  ok   " + pcWhat
 	else
-		nBad++
+		$nBad++
 		? "  FAIL " + pcWhat
 	ok
 
 func sec pcWhat
-	nSec++
+	$nSec++
 	? ""
-	? "-- " + nSec + ". " + pcWhat + " --"
+	? "-- " + $nSec + ". " + pcWhat + " --"
 
 func _GHas paList, pcName
 	for _i_ = 1 to len(paList)
