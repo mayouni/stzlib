@@ -190,7 +190,7 @@ func StzModelsReportPage(pcPath)
 	      "table{border-collapse:collapse;width:100%;font-size:.92rem}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}" +
 	      "th{color:var(--mut);font-weight:600}.wrap{overflow-x:auto}.ch{font-weight:700}.ok{color:var(--ok)}.no{color:var(--no)}.warn{color:var(--warn)}.off{color:var(--off)}" +
 	      ".tag{display:inline-block;border-radius:4px;padding:0 6px;font-size:.8rem;border:1px solid var(--line);color:var(--mut)}</style></head><body><main>" +
-	      "<h1>The models this program uses</h1><p class='sub'>Every faculty: what answers it on this machine (" + StzPlacementOS() + ") and as it would on each operating system, " +
+	      "<h1>The models this program uses</h1><p class='sub'>Every faculty: what answers it on this machine (" + StzHtmlEscaped(StzPlacementOS()) + ") and as it would on each operating system, " +
 	      "then what can run here, what was measured, what the court decided. Read from the registry itself: nothing on this page is decided by the page. " +
 	      "Another operating system's column assumes the same model files are shipped with the program, and an OCR language pack is read from this machine.</p>" +
 	      "<h2>What answers, where</h2><div class='wrap'><table><tr><th>faculty</th><th>this machine</th><th>windows</th><th>linux</th><th>macos</th><th>why, here</th></tr>"
@@ -198,11 +198,11 @@ func StzModelsReportPage(pcPath)
 		_e_ = _aHere_[_i_]
 		_cF_ = ":" + _e_[:faculty]
 		if _e_[:lang] != "" _cF_ += " [" + _e_[:lang] + "]" ok
-		_c_ += "<tr><td>" + _cF_ + "</td><td class='ch'>" + _StzReportCell(_e_) + "</td>"
+		_c_ += "<tr><td>" + StzHtmlEscaped(_cF_) + "</td><td class='ch'>" + _StzReportCell(_e_) + "</td>"
 		for _o_ = 1 to len(_aOS_)
 			_c_ += "<td>" + _StzReportCell(_StzReportFind(_aOther_[_o_], _e_[:faculty], _e_[:lang])) + "</td>"
 		next
-		_c_ += "<td>" + _StzHtml(_e_[:reason]) + "</td></tr>"
+		_c_ += "<td>" + StzHtmlEscaped(_e_[:reason]) + "</td></tr>"
 	next
 	_c_ += "</table></div>"
 	# MP3: what could be installed HERE, from the catalogue and the court (Softanza fetches nothing)
@@ -215,9 +215,9 @@ func StzModelsReportPage(pcPath)
 		_c_ += "<div class='wrap'><table><tr><th>faculty</th><th>needs</th><th>how</th><th>what it changes here</th></tr>"
 		for _i_ = 1 to len(_aSP_)
 			_s_ = _aSP_[_i_]
-			_cHow_ = _StzHtml(_s_[:steps])
-			if _s_[:kind] = "file" _cHow_ = _StzHtml(_s_[:how] + " (" + _s_[:bytes] + " bytes, " + _s_[:licence] + "): " + _s_[:steps] + " -- sha256 " + _s_[:sha256]) ok
-			_c_ += "<tr><td>:" + _s_[:faculty] + " / " + _StzHtml(_s_[:impl]) + "</td><td>" + _StzHtml(_s_[:what]) + "</td><td><code>" + _cHow_ + "</code></td><td>" + _StzHtml(_s_[:value]) + "</td></tr>"
+			_cHow_ = StzHtmlEscaped(_s_[:steps])
+			if _s_[:kind] = "file" _cHow_ = StzHtmlEscaped(_s_[:how] + " (" + _s_[:bytes] + " bytes, " + _s_[:licence] + "): " + _s_[:steps] + " -- sha256 " + _s_[:sha256]) ok
+			_c_ += "<tr><td>:" + StzHtmlEscaped(_s_[:faculty]) + " / " + StzHtmlEscaped(_s_[:impl]) + "</td><td>" + StzHtmlEscaped(_s_[:what]) + "</td><td><code>" + _cHow_ + "</code></td><td>" + StzHtmlEscaped(_s_[:value]) + "</td></tr>"
 		next
 		_c_ += "</table></div>"
 	ok
@@ -226,23 +226,23 @@ func StzModelsReportPage(pcPath)
 		_e_ = _aHere_[_i_]
 		_cF_ = ":" + _e_[:faculty]
 		if _e_[:lang] != "" _cF_ += " [" + _e_[:lang] + "]" ok
-		_c_ += "<h2>" + _cF_ + " <span class='tag'>golden " + _e_[:golden] + "</span></h2><div class='wrap'><table><tr><th>implementation</th><th>kind</th><th>here</th><th>measured</th><th>the court</th></tr>"
+		_c_ += "<h2>" + StzHtmlEscaped(_cF_) + " <span class='tag'>golden " + StzHtmlEscaped(_e_[:golden]) + "</span></h2><div class='wrap'><table><tr><th>implementation</th><th>kind</th><th>here</th><th>measured</th><th>the court</th></tr>"
 		for _k_ = 1 to len(_e_[:impls])
 			_r_ = _e_[:impls][_k_]
 			_cHere_ = "<span class='ok'>can run</span>"
 			if _r_[:available] = 0
-				_cHere_ = "<span class='off'>unavailable: " + _StzHtml(_r_[:unavailable]) + "</span>"
+				_cHere_ = "<span class='off'>unavailable: " + StzHtmlEscaped(_r_[:unavailable]) + "</span>"
 			but _r_[:installed] = 0
-				_cHere_ = "<span class='no'>not installed: needs '" + _StzHtml(_r_[:needle]) + "'</span>"
+				_cHere_ = "<span class='no'>not installed: needs '" + StzHtmlEscaped(_r_[:needle]) + "'</span>"
 			ok
 			_cMeas_ = "<span class='off'>unmeasured</span>"
-			if _r_[:score] >= 0 _cMeas_ = "" + _StzRound2(_r_[:score]) + " <span class='off'>(n=" + _r_[:n] + ")</span>" ok
-			_cCt_ = _StzHtml(_r_[:court])
+			if _r_[:score] >= 0 _cMeas_ = StzHtmlEscaped(_StzRound2(_r_[:score])) + " <span class='off'>(n=" + StzHtmlEscaped(_r_[:n]) + ")</span>" ok
+			_cCt_ = StzHtmlEscaped(_r_[:court])
 			if len(StzFind("upheld", _r_[:court])) > 0 _cCt_ = "<span class='ok'>" + _cCt_ + "</span>" ok
 			if len(StzFind("refused", _r_[:court])) > 0 _cCt_ = "<span class='warn'>" + _cCt_ + "</span>" ok
-			_cId_ = _StzHtml(_r_[:id])
+			_cId_ = StzHtmlEscaped(_r_[:id])
 			if _r_[:chosen] _cId_ = "<span class='ch'>&#9656; " + _cId_ + "</span>" ok
-			_c_ += "<tr><td>" + _cId_ + "</td><td>" + _r_[:kind] + "</td><td>" + _cHere_ + "</td><td>" + _cMeas_ + "</td><td>" + _cCt_ + "</td></tr>"
+			_c_ += "<tr><td>" + _cId_ + "</td><td>" + StzHtmlEscaped(_r_[:kind]) + "</td><td>" + _cHere_ + "</td><td>" + _cMeas_ + "</td><td>" + _cCt_ + "</td></tr>"
 		next
 		_c_ += "</table></div>"
 	next
@@ -259,10 +259,6 @@ func _StzReportFind(paR, pcF, pcLang)
 func _StzReportCell(paE)
 	if len(paE) = 0 return "<span class='off'>-</span>" ok
 	if paE[:refusal] = 1 return "<span class='no'>nothing</span>" ok
-	if paE[:kind] = "floor" return _StzHtml(paE[:chosen]) + " <span class='tag'>floor</span>" ok
-	return _StzHtml(paE[:chosen])
+	if paE[:kind] = "floor" return StzHtmlEscaped(paE[:chosen]) + " <span class='tag'>floor</span>" ok
+	return StzHtmlEscaped(paE[:chosen])
 
-func _StzHtml(pcText)
-	_c_ = StzReplace("" + pcText, "&", "&amp;")
-	_c_ = StzReplace(_c_, "<", "&lt;")
-	return StzReplace(_c_, ">", "&gt;")

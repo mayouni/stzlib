@@ -4,13 +4,20 @@
 # one-line text heuristic with known false positives (an operand escaped or validated on an
 # earlier line). The gate FAILS when a file here counts MORE, or a file not here counts any;
 # a LOWER count is reported and the baseline should then be lowered.
+# Read and added 2026-11-06: faculty/stzModelRelease.ring 1 is the text of a PowerShell script
+# ("<commit>" is a placeholder, not a tag); faculty/stzModelsReport.ring 4 join cells escaped on
+# an earlier line (_StzReportCell, _cCt_, _cId_ through StzHtmlEscaped); image/stzVision.ring 4
+# are a vision model's prompt tokens (<row_1_col_2>, <global-img>), which escaping would break.
 data/stzRegexData.ring 10
-education/stzEduReader.ring 35
 education/stzEducation.ring 1
+education/stzEduReader.ring 35
 education/tools/learn.ring 1
+faculty/stzModelRelease.ring 1
+faculty/stzModelsReport.ring 4
 graph/stzGraph.ring 3
 graph/stzStoryboard.ring 8
 gui/stzUiDocument.ring 8
+image/stzVision.ring 4
 natural/stzNatural.ring 2
 neural/stzOutputSchema.ring 1
 platform/stzPlatform.ring 6

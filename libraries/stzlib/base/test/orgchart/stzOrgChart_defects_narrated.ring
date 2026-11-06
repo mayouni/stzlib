@@ -242,7 +242,10 @@ Scenario("Row 7 -- ViewDepartment with a title")
 	Then("and renames the subtitle", o.Subtitle(), "Department 'risk'")
 	Runs(o, 'ViewDepartment("nowhere")')
 	Then("a department nobody belongs to highlights nothing", len(Lit(o)), 0)
-	Then("a position with no department gains an empty department key when read", HasKey(o.Position("ceo"), :department), 1)
+	# On Ring 1.27 a keyed read of a missing key INSERTED it, and this row
+	# pinned that side effect. Ring++ never writes on a read (charter 6.7),
+	# so reading the departments leaves the record as it was (2026-11-06)
+	Then("a position with no department is not given a department key by being read", HasKey(o.Position("ceo"), :department), 0)
 EndScenario()
 
 Scenario("Row 8 -- ViewPath with a title leaves the chart as it was")
