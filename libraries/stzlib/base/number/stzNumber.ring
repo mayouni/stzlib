@@ -2346,9 +2346,9 @@ func _StzRationalToFloat(pcStr)
 
 # ── ROUNDING A DECIMAL STRING, EXACTLY, IN A NAMED MODE ─────────────────
 #
-# RoundToXT rounds by going through NumericValue() -- an f64 -- so it inherits
-# binary tie behaviour and Ring's 14-place ceiling, and it cannot express
-# half-even at all. Rounding the DIGITS instead is exact, has no ceiling, and makes
+# RoundToXT used to round by going through NumericValue() -- an f64 -- so it
+# inherited binary tie behaviour, Ring's 14-place ceiling and the interpreter's
+# own tie rule; it now rounds a plain decimal here, :HalfUp (2026-11-06). Rounding the DIGITS instead is exact, has no ceiling, and makes
 # the tie rule a decision rather than an accident of representation.
 #
 #   :HalfUp    a tie goes AWAY FROM ZERO   (0.5 -> 1, 2.5 -> 3, -1.5 -> -2)
@@ -5405,18 +5405,27 @@ class stzNumber from stzObject
 
 		@nRound = _nRound_
 
-		_nCurrentRound_ = StzCurrentRound()
-		StzDecimals(_nRound_)
-		@cContent = ""+ This.NumericValue()
+		# A plain decimal is rounded on its DIGITS, half away from zero. Going
+		# through NumericValue() handed the tie to whoever formats numbers: Ring
+		# 1.27 rounded 2.5 to 3, Ring++ (rnxc) rounds it to 2, half-even, so
+		# RoundedTo(0) of 2.5 changed answer with the interpreter (2026-11-06).
+		_cNum_ = ring_trim("" + @cContent)
+		if _cNum_ != "" and _StzIsPlainDecimal(_cNum_)
+			@cContent = _StzRoundDecimalString(_cNum_, _nRound_, :HalfUp)
+		else
+			_nCurrentRound_ = StzCurrentRound()
+			StzDecimals(_nRound_)
+			@cContent = ""+ This.NumericValue()
 
-		if This.IsInteger() and _nRound_ > 0
-			@cContent += "."
-			for _i_ = 1 to _nRound_
-				@cContent += "0"
-			next
+			if This.IsInteger() and _nRound_ > 0
+				@cContent += "."
+				for _i_ = 1 to _nRound_
+					@cContent += "0"
+				next
+			ok
+
+			StzDecimals(_nCurrentRound_)
 		ok
-
-		StzDecimals(_nCurrentRound_)
 
 		#< @FunctionFluentForm
 

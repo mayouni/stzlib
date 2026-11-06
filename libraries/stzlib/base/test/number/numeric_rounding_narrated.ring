@@ -50,9 +50,12 @@ Scenario("the tidying that WAS intended still happens")
 	Then("...down to a whole number", oPi.RoundedTo(0), "12")
 
 	Then("a value whose places are all zeros tidies to the integer",
-	     (new stzNumber("1.005")).RoundedTo(2), "1")
-	# 1.005 is 1.00499... as a double, so two places really is 1.00, and 1.00
-	# tidied is 1. Correct on both counts -- checked before assuming a defect.
+	     (new stzNumber("1.004")).RoundedTo(2), "1")
+	# This row used 1.005 and expected "1": as a double 1.005 is 1.00499..., and
+	# RoundedTo rounded the double. It rounds the DIGITS now (2026-11-06), so
+	# 1.005 is the tie it reads as and goes half-up, as RoundedToHalfUp does.
+	Then("...and 1.005 is a tie on its digits, so it goes up",
+	     (new stzNumber("1.005")).RoundedTo(2), "1.01")
 EndScenario()
 
 Scenario("what rounding does to ties, stated rather than assumed")
