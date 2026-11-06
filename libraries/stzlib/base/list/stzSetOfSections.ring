@@ -60,7 +60,7 @@ func StzSetOfSectionsQ(paSections)
 #              #--> 0
 #   see        stzListOfSections, stzSection, stzListSections, IsSetOfSections
 class stzSetOfSections from stzListOfSections
-	@aContent
+	@aContent = []	# the empty set until init keeps a list; a refused creation leaves it so
 
 	# Builds the set from a list of sections; a value that is not a set of sections raises an error.
 	#

@@ -22,17 +22,17 @@ load "../_narrated.ring"
 #
 # Run from inside its folder: cd base/test/stats
 
-canary = 0
+$canary = 0
 $lsShown = "" + 0.123456789   # how Ring shows a number before any extractor was built
 $lsSeed = 1   # the seed of the random cross-checks, a global so the generator can advance it
 
 Scenario("A control: the canary does detect code that runs")
-	canary = 0
+	$canary = 0
 	oProbe = new CanaryProbe
 	oProbe.Run("LsCanary()")
-	Then("a function call evaluated in a class method sets the canary", canary, 1)
-	canary = 0
-	Then("and a fresh canary reads 0", canary, 0)
+	Then("a function call evaluated in a class method sets the canary", $canary, 1)
+	$canary = 0
+	Then("and a fresh canary reads 0", $canary, 0)
 EndScenario()
 
 Scenario("CalculatePenalty: 1000 times the total violation, hand-computed on 15 candidates")
@@ -454,13 +454,13 @@ Scenario("extractCoefficient: hand-computed, with the old silent wrong answer as
 	Then("pow(x, 2) is not linear either", Has(cMsg, "is not linear"), 1)
 	cMsg = RaiseOf("oX.extractCoefficient('2x + y', 'y')")
 	Then("a name glued to a digit is refused, not read as the variable '2x'", Has(cMsg, "refused"), 1)
-	canary = 0
+	$canary = 0
 	cMsg = RaiseOf("oX.extractCoefficient('x + LsCanary()', 'x')")
 	Then("a call is refused", Has(cMsg, "refused"), 1)
-	Then("and nothing ran", canary, 0)
-	cMsg = RaiseOf("oX.extractCoefficient('x + 1; canary = 1', 'x')")
+	Then("and nothing ran", $canary, 0)
+	cMsg = RaiseOf("oX.extractCoefficient('x + 1; $canary = 1', 'x')")
 	Then("a statement is refused", Has(cMsg, "refused"), 1)
-	Then("and nothing ran either", canary, 0)
+	Then("and nothing ran either", $canary, 0)
 	cMsg = RaiseOf("oX.extractCoefficient('2*(x + 1)', 'x')")
 	Then("while a parenthesised linear text raises nothing", cMsg, "")
 EndScenario()
@@ -516,13 +516,13 @@ Scenario("Text is judged, never run: evaluateExpression and objectiveValue")
 	Then("pow(2, 3) + sqrt(16) is 12", oT.evaluateExpression("pow(2, 3) + sqrt(16)"), 12)
 	Then("a text that cannot be evaluated gives 0", oT.evaluateExpression("1 +"), 0)
 	Then("10 / 4 is 2.5, not a whole division", oT.evaluateExpression("10 / 4"), 2.5)
-	canary = 0
+	$canary = 0
 	Then("a call of a function of the program gives 0", oT.evaluateExpression("LsCanary()"), 0)
-	Then("and did not run", canary, 0)
-	Then("an assignment gives 0", oT.evaluateExpression("canary = 1"), 0)
-	Then("and did not run", canary, 0)
-	Then("two statements give 0", oT.evaluateExpression("1; canary = 1"), 0)
-	Then("and did not run", canary, 0)
+	Then("and did not run", $canary, 0)
+	Then("an assignment gives 0", oT.evaluateExpression("$canary = 1"), 0)
+	Then("and did not run", $canary, 0)
+	Then("two statements give 0", oT.evaluateExpression("1; $canary = 1"), 0)
+	Then("and did not run", $canary, 0)
 	Then("a name that is not a number gives 0", oT.evaluateExpression("canary + 1"), 0)
 
 	# the doc's example: 14
@@ -547,20 +547,20 @@ Scenario("Text is judged, never run: evaluateExpression and objectiveValue")
 	Then("and not the 39 of 'xx' becoming '33'", LsNear(oW.objectiveValue(), 39), 0)
 
 	# hostile objective after a solve
-	canary = 0
+	$canary = 0
 	oV.maximize("x + LsCanary()")
 	cMsg = RaiseOf("oV.objectiveValue()")
 	Then("an objective with a call is refused by objectiveValue", Has(cMsg, "refused"), 1)
-	Then("and nothing ran", canary, 0)
+	Then("and nothing ran", $canary, 0)
 	cMsg = RaiseOf("oV.solve('simplex')")
 	Then("solve refuses it too", Has(cMsg, "refused"), 1)
-	Then("and nothing ran", canary, 0)
+	Then("and nothing ran", $canary, 0)
 	oC = new stzLinearSolver()
 	oC.addVariable("x", 0, 3)
 	oC.addConstraint("x + LsCanary()", "<=", 3).maximize("x")
 	cMsg = RaiseOf("oC.solve('simplex')")
 	Then("a constraint with a call is refused by solve", Has(cMsg, "refused"), 1)
-	Then("and nothing ran", canary, 0)
+	Then("and nothing ran", $canary, 0)
 	oC.clear()
 	oC.addVariable("x", 0, 3)
 	oC.addConstraint("x", "<=", 2).maximize("x")
@@ -697,7 +697,7 @@ shutdown($_zst_fail)
 # helpers go at the END: top-level code after a func belongs to that func
 
 func LsCanary()
-	canary = 1
+	$canary = 1
 	return 1
 
 func LsNear(a, b)

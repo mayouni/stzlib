@@ -14,21 +14,21 @@ load "../_narrated.ring"
 #
 # Run from inside its folder: cd base/test/stats
 
-canary = 0
+$canary = 0
 $ceSeed = 1   # the seed of the random cross-check, a global so the generator can advance it
 
 o1 = new stzCoeffExtractor([ "x", "y" ])
 
 Scenario("A control: the canary does detect code that runs")
-	canary = 0
+	$canary = 0
 	oProbe = new CanaryProbe
-	oProbe.Run("x = 1; canary = 1")
-	Then("an assignment evaluated in a class method sets the canary", canary, 1)
-	canary = 0
+	oProbe.Run("x = 1; $canary = 1")
+	Then("an assignment evaluated in a class method sets the canary", $canary, 1)
+	$canary = 0
 	oProbe.Run("x = CanaryFn()")
-	Then("a function call evaluated in a class method sets the canary", canary, 1)
-	canary = 0
-	Then("and a fresh canary reads 0", canary, 0)
+	Then("a function call evaluated in a class method sets the canary", $canary, 1)
+	$canary = 0
+	Then("and a fresh canary reads 0", $canary, 0)
 EndScenario()
 
 Scenario("evaluateExpression computes the value at a point (hand-computed)")
@@ -183,10 +183,10 @@ Scenario("numericalDerivative: a central difference at the test point 10")
 	Then("and with the step put back it raises nothing", cMsg, "")
 	cMsg = RaiseOf("o1.numericalDerivative('x/8', 'z')")
 	Then("a variable the extractor does not know is refused", Has(cMsg, "not one of the names"), 1)
-	canary = 0
+	$canary = 0
 	cMsg = RaiseOf("o1.numericalDerivative('x/8 + CanaryFn()', 'x')")
 	Then("an unsafe expression is refused", Has(cMsg, "refused"), 1)
-	Then("and nothing ran", canary, 0)
+	Then("and nothing ran", $canary, 0)
 EndScenario()
 
 Scenario("extract, extractAllCoefficients and the alias names, on every kind of input")
@@ -226,7 +226,7 @@ Scenario("extract, extractAllCoefficients and the alias names, on every kind of 
 	Then("a8 is not in the expression: 0", aAll[8], 0)
 	cMsg = RaiseOf("o1.extract('x/8 + CanaryFn()', 'x')")
 	Then("a non-linear expression outside the grammar is refused by extract", Has(cMsg, "refused"), 1)
-	Then("and nothing ran", canary, 0)
+	Then("and nothing ran", $canary, 0)
 EndScenario()
 
 Scenario("validateExpression answers 1 only for an expression that is safe AND computable, and never raises")
@@ -247,10 +247,10 @@ Scenario("validateExpression answers 1 only for an expression that is safe AND c
 	Then("sqrt(x - 20) is not computable at 10: not valid", o1.validateExpression("sqrt(x - 20)"), 0)
 	Then("sqrt(x - 5) is: valid", o1.validateExpression("sqrt(x - 5)"), 1)
 	Then("1e999 * x overflows at the test point: not valid", o1.validateExpression("1e999 * x"), 0)
-	canary = 0
+	$canary = 0
 	Then("x + CanaryFn() is not valid", o1.validateExpression("x + CanaryFn()"), 0)
-	Then("x + 1;canary=1 is not valid", o1.validateExpression("x + 1;canary=1"), 0)
-	Then("and nothing ran", canary, 0)
+	Then("x + 1;$canary=1 is not valid", o1.validateExpression("x + 1;$canary=1"), 0)
+	Then("and nothing ran", $canary, 0)
 	oNone = new stzCoeffExtractor([])
 	Then("with no variable known, 2 + 3 is valid", oNone.validateExpression("2 + 3"), 1)
 	Then("and x + 1 is not", oNone.validateExpression("x + 1"), 0)
@@ -381,7 +381,7 @@ Scenario("A hostile corpus: none of it runs, all of it is refused")
 	nHost = len(aHost)
 	Then("the corpus has at least 20 strings", nHost >= 20, 1)
 	Then("it has more than 50, in fact", nHost > 50, 1)
-	canary = 0
+	$canary = 0
 	nRefused = 0
 	nBadSurface = 0
 	for i = 1 to nHost
@@ -398,8 +398,8 @@ Scenario("A hostile corpus: none of it runs, all of it is refused")
 		ok
 		nRefused += nOkAll
 		Then("refused by judge, validate, evaluate and derivative: " + aHost[i][1], nOkAll, 1)
-		Then("the canary is still 0 after: " + aHost[i][1], canary, 0)
-		canary = 0
+		Then("the canary is still 0 after: " + aHost[i][1], $canary, 0)
+		$canary = 0
 	next
 	Then("every string of the corpus was refused", nRefused, nHost)
 EndScenario()
@@ -407,13 +407,13 @@ EndScenario()
 Scenario("The same hostile texts through extract on the plain path never run either")
 	aHost = HostileCorpus()
 	nHost = len(aHost)
-	canary = 0
+	$canary = 0
 	for i = 1 to nHost
 		RaiseOf("o1.extract(aHost[" + i + "][2], 'y')")
 		RaiseOf("o1.trySimpleExtraction(aHost[" + i + "][2], 'x')")
 		RaiseOf("o1.extractLinearCoefficient(aHost[" + i + "][2], 'x')")
 	next
-	Then("the canary is still 0 after " + nHost + " strings through the plain path", canary, 0)
+	Then("the canary is still 0 after " + nHost + " strings through the plain path", $canary, 0)
 EndScenario()
 
 Scenario("The library does not leak: the old route's own symptoms are gone")
@@ -613,20 +613,20 @@ Scenario("When the expression is not linear in the variable, extract gives the s
 EndScenario()
 
 Scenario("Text is judged, never run, on the exact path too: a refused text raises and the canary stays 0")
-	canary = 0
+	$canary = 0
 	aRef = [
-		[ "a statement after a semicolon", "x+1;canary=1" ],
+		[ "a statement after a semicolon", "x+1;$canary=1" ],
 		[ "an incomplete expression", "x +" ],
 		[ "a caret", "x ^ 2" ],
 		[ "an assignment", "x = 1" ],
 		[ "a function that is not listed", "exp(x)" ],
 		[ "two operands", "x y" ],
-		[ "an eval call", 'x+eval("canary=1")' ],
+		[ "an eval call", 'x+eval("$canary=1")' ],
 		[ "a call of a global function", "x+CanaryFn()" ],
 		[ "a call alone", "CanaryFn()" ],
-		[ "a newline injection", "x" + char(10) + "canary=1" ],
-		[ "a brace", "x+{canary=1}" ],
-		[ "a comparison", "x==canary" ],
+		[ "a newline injection", "x" + char(10) + "$canary=1" ],
+		[ "a brace", "x+{$canary=1}" ],
+		[ "a comparison", "x==$canary" ],
 		[ "an empty argument list", "pow()" ],
 		[ "a very deep text", DeepText(80) ]
 	]
@@ -634,16 +634,16 @@ Scenario("Text is judged, never run, on the exact path too: a refused text raise
 	for i = 1 to nRef
 		cMsg = RaiseOf("oC.extract(aRef[" + i + "][2], 'x')")
 		Then("refused for x: " + aRef[i][1], Has(cMsg, "stzCoeffExtractor: refused"), 1)
-		Then("and the canary is still 0", canary, 0)
+		Then("and the canary is still 0", $canary, 0)
 		cMsg = RaiseOf("oC.extract(aRef[" + i + "][2], 'z')")
 		Then("refused for z as well, the name asked does not change the verdict: " + aRef[i][1], Has(cMsg, "stzCoeffExtractor: refused"), 1)
 		cMsg = RaiseOf("oC.extractLinearCoefficient(aRef[" + i + "][2], 'x')")
 		Then("refused by extractLinearCoefficient: " + aRef[i][1], Has(cMsg, "stzCoeffExtractor: refused"), 1)
 		cMsg = RaiseOf("oC.trySimpleExtraction(aRef[" + i + "][2], 'x')")
-		Then("trySimpleExtraction does not run it either: " + aRef[i][1], canary, 0)
-		canary = 0
+		Then("trySimpleExtraction does not run it either: " + aRef[i][1], $canary, 0)
+		$canary = 0
 	next
-	cMsg = RaiseOf("oC.extract('x+1;canary=1', 'x')")
+	cMsg = RaiseOf("oC.extract('x+1;$canary=1', 'x')")
 	Then("the message names the character that stopped it", Has(cMsg, "character ;"), 1)
 	cMsg = RaiseOf("oC.extract('x+1', 'x')")
 	Then("while the clean sibling x+1 raises nothing", cMsg, "")
@@ -754,8 +754,8 @@ Scenario("The memory of answers is emptied when the names or the step change, an
 	Then("410 different expressions, more than the memory holds, are all answered right", nBad, 0)
 	Then("and the first one is still right after the memory was emptied on the way: 1", Near(oK.extract("x + 1*y", "y"), 1, 0.000000001), 1)
 	Then("as is 3*x + 2*y", Near(oK.extract("3*x + 2*y", "x"), 3, 0.000000001), 1)
-	cMsg = RaiseOf("oK.extract('x+1;canary=1', 'x')")
-	cMsg2 = RaiseOf("oK.extract('x+1;canary=1', 'x')")
+	cMsg = RaiseOf("oK.extract('x+1;$canary=1', 'x')")
+	cMsg2 = RaiseOf("oK.extract('x+1;$canary=1', 'x')")
 	Then("a refusal is not remembered as an answer: it raises the second time too", Has(cMsg2, "refused"), 1)
 EndScenario()
 
@@ -801,7 +801,7 @@ shutdown($_zst_fail)
 # helpers go at the END: top-level code after a func belongs to that func
 
 func CanaryFn()
-	canary = 1
+	$canary = 1
 	return 1
 
 func Near(a, b, nTol)
@@ -830,22 +830,22 @@ func RaiseOf(cCode)
 
 func HostileCorpus()
 	aH = []
-	aH + [ "statement after a semicolon", "x+1;canary=1" ]
+	aH + [ "statement after a semicolon", "x+1;$canary=1" ]
 	aH + [ "semicolon then a call", "x+1;CanaryFn()" ]
-	aH + [ "eval of a string", 'x+eval("canary=1")' ]
-	aH + [ "bare assignment", "canary=1" ]
-	aH + [ "assignment inside", "x+(canary=1)" ]
+	aH + [ "eval of a string", 'x+eval("$canary=1")' ]
+	aH + [ "bare assignment", "$canary=1" ]
+	aH + [ "assignment inside", "x+($canary=1)" ]
 	aH + [ "a call of a global function", "x+CanaryFn()" ]
 	aH + [ "a call alone", "CanaryFn()" ]
 	aH + [ "a string break-out", 'x" + CanaryFn() + "' ]
 	aH + [ "a single-quote break-out", "x' + CanaryFn() + '" ]
-	aH + [ "newline injection", "x+1" + char(10) + "canary=1" ]
+	aH + [ "newline injection", "x+1" + char(10) + "$canary=1" ]
 	aH + [ "newline injection, call", "x+1" + char(10) + "CanaryFn()" ]
-	aH + [ "carriage return injection", "x+1" + char(13) + "canary=1" ]
-	aH + [ "crlf injection", "x+1" + char(13) + char(10) + "canary=1" ]
+	aH + [ "carriage return injection", "x+1" + char(13) + "$canary=1" ]
+	aH + [ "crlf injection", "x+1" + char(13) + char(10) + "$canary=1" ]
 	aH + [ "load a file", 'load "canary.ring"' ]
 	aH + [ "load after an expression", 'x+1 load "canary.ring"' ]
-	aH + [ "a second statement with no separator", "x+1 canary=1" ]
+	aH + [ "a second statement with no separator", "x+1 $canary=1" ]
 	aH + [ "a second statement, a call", "1 CanaryFn()" ]
 	aH + [ "two operands then a call", "x 1 CanaryFn()" ]
 	aH + [ "a name containing pow, before", "xpow(x,2)" ]
@@ -853,17 +853,17 @@ func HostileCorpus()
 	aH + [ "a name containing sqrt", "sqrt2(x)" ]
 	aH + [ "a name containing max", "maxx([x,1])" ]
 	aH + [ "a function glued after a call", "pow(x,2)CanaryFn()" ]
-	aH + [ "braces", "x+{canary=1}" ]
-	aH + [ "backticks", "x+`canary=1`" ]
-	aH + [ "brackets with an assignment", "x+[canary=1]" ]
+	aH + [ "braces", "x+{$canary=1}" ]
+	aH + [ "backticks", "x+`$canary=1`" ]
+	aH + [ "brackets with an assignment", "x+[$canary=1]" ]
 	aH + [ "the call keyword", "x+call CanaryFn()" ]
-	aH + [ "system with a canary argument", 'system("canary=1")' ]
-	aH + [ "system after an expression", 'x+system("canary=1")' ]
-	aH + [ "eval as a name", 'eval("canary=1")' ]
+	aH + [ "system with a canary argument", 'system("$canary=1")' ]
+	aH + [ "system after an expression", 'x+system("$canary=1")' ]
+	aH + [ "eval as a name", 'eval("$canary=1")' ]
 	aH + [ "import as a name", "import canary" ]
 	aH + [ "a dot call", "x.CanaryFn()" ]
 	aH + [ "a method call on a number", "1.CanaryFn()" ]
-	aH + [ "a comparison", "x==canary" ]
+	aH + [ "a comparison", "x==$canary" ]
 	aH + [ "an assignment to x", "x=CanaryFn()" ]
 	aH + [ "a comment tail", "x+1 # CanaryFn()" ]
 	aH + [ "a slash comment", "x+1 //CanaryFn()" ]
@@ -872,8 +872,8 @@ func HostileCorpus()
 	aH + [ "an increment", "x++ CanaryFn()" ]
 	aH + [ "hex", "0x1" ]
 	aH + [ "a comma statement", "x,CanaryFn()" ]
-	aH + [ "a comma then assignment", "x,canary=1" ]
-	aH + [ "max with an assignment", "max(canary=1)" ]
+	aH + [ "a comma then assignment", "x,$canary=1" ]
+	aH + [ "max with an assignment", "max($canary=1)" ]
 	aH + [ "max of a call", "max([CanaryFn(), 1])" ]
 	aH + [ "pow with a call", "pow(CanaryFn(), 2)" ]
 	aH + [ "sqrt of a name", "sqrt(canary)" ]
@@ -888,20 +888,20 @@ func HostileCorpus()
 	aH + [ "an undeclared name", "canary" ]
 	aH + [ "an undeclared name with an operator", "x+canary" ]
 	aH + [ "a name used in a nonlinear form", "x/8+CanaryFn()" ]
-	aH + [ "a nonlinear form then a statement", "x/8; canary=1" ]
-	aH + [ "a nonlinear form then a statement after a space", "pow(x,2) canary=1" ]
-	aH + [ "NUL then a statement", "x+1" + char(0) + "canary=1" ]
-	aH + [ "a tab then a statement", "x+1" + char(9) + ";" + char(9) + "canary=1" ]
+	aH + [ "a nonlinear form then a statement", "x/8; $canary=1" ]
+	aH + [ "a nonlinear form then a statement after a space", "pow(x,2) $canary=1" ]
+	aH + [ "NUL then a statement", "x+1" + char(0) + "$canary=1" ]
+	aH + [ "a tab then a statement", "x+1" + char(9) + ";" + char(9) + "$canary=1" ]
 	aH + [ "a vertical tab", "x+1" + char(11) + "CanaryFn()" ]
 	aH + [ "a form feed", "x+1" + char(12) + "CanaryFn()" ]
-	aH + [ "the Unicode line separator", "x+1" + char(226) + char(128) + char(168) + "canary=1" ]
+	aH + [ "the Unicode line separator", "x+1" + char(226) + char(128) + char(168) + "$canary=1" ]
 	aH + [ "a zero-width space inside pow", "p" + char(226) + char(128) + char(139) + "ow(x,2)" ]
 	aH + [ "a Cyrillic o (D0 BE) inside pow", "p" + char(208) + char(190) + "w(x,2)" ]
 	aH + [ "a Cyrillic a (D0 B0) as a name", "x+" + char(208) + char(176) ]
 	aH + [ "a Greek omicron (CE BF) inside pow", "p" + char(206) + char(191) + "w(x,2)" ]
 	aH + [ "a fullwidth plus (EF BC 8B)", "x" + char(239) + char(188) + char(139) + "1" ]
 	aH + [ "a fullwidth parenthesis (EF BC 88)", "pow" + char(239) + char(188) + char(136) + "x,2)" ]
-	aH + [ "a fullwidth semicolon (EF BC 9B)", "x+1" + char(239) + char(188) + char(155) + "canary=1" ]
+	aH + [ "a fullwidth semicolon (EF BC 9B)", "x+1" + char(239) + char(188) + char(155) + "$canary=1" ]
 	aH + [ "a fullwidth x (EF BD 98)", char(239) + char(189) + char(152) + "+1" ]
 	aH + [ "a non-breaking space (C2 A0)", "x" + char(194) + char(160) + "+1" ]
 	aH + [ "a byte order mark inside", "x" + char(239) + char(187) + char(191) + "+1" ]

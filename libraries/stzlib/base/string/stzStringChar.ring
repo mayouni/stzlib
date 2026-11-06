@@ -1559,12 +1559,13 @@ class stzStringChar from stzString
 	#   see        IsAsciiLetter, AsciiCode
 	#@ aka  TRUE if the char is ASCII (codepoint below 128).
 	def IsAscii()
-		try
-			ascii( This.Content() )
-			return 1
-		catch
+		# The code point decides, as in AsciiCode(). This asked ascii() to raise
+		# on a multi-byte char; rnxc's ascii() answers the first byte instead, so
+		# every accented letter read as ASCII (2026-11-06).
+		if This.Unicode() > 127
 			return 0
-		done
+		ok
+		return 1
 
 	# TRUE if the char is an unaccented ASCII letter, A to Z or a to z.
 	#

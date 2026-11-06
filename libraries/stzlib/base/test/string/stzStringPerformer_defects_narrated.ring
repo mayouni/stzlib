@@ -39,7 +39,7 @@ gcAleph = char(215) + char(144)
 gcBet = char(215) + char(145)
 gcGrin = char(240) + char(159) + char(152) + char(128)
 gcAcute = char(204) + char(129)
-gnCanary = 0
+$gnCanary = 0
 
 # [ label, text, expression, expected text after Perform ]
 gaPerf = []
@@ -517,10 +517,10 @@ Scenario("The length limit: 2000 characters are accepted, 2001 are not (the engi
 EndScenario()
 
 Scenario("CONTROL: the canary can be set -- a Ring eval inside a function reaches the global")
-	gnCanary = 0
+	$gnCanary = 0
 	RunCanaryControl()
-	Then("the control sets the canary to 1, so a 0 later is a finding and not a blind instrument", gnCanary, 1)
-	gnCanary = 0
+	Then("the control sets the canary to 1, so a 0 later is a finding and not a blind instrument", $gnCanary, 1)
+	$gnCanary = 0
 	gcSrc = read("../../string/stzStringPerformer.ring")
 	gnHasEval = substr(gcSrc, "eval(")
 	Then("the class source holds no eval( anywhere", gnHasEval, 0)
@@ -534,7 +534,7 @@ Scenario("CONTROL: the canary can be set -- a Ring eval inside a function reache
 EndScenario()
 
 Scenario("HOSTILE corpus: no injected text runs; the canary stays 0")
-	gnCanary = 0
+	$gnCanary = 0
 	gaHostile = HostileCorpus()
 	gnCount = len(gaHostile)
 	gnEnough = (gnCount >= 20)
@@ -571,30 +571,30 @@ Scenario("HOSTILE corpus: no injected text runs; the canary stays 0")
 			gnAcceptedLiteral++
 		ok
 	next
-	Then("the canary is still 0 after every method on every string", gnCanary, 0)
+	Then("the canary is still 0 after every method on every string", $gnCanary, 0)
 	Then("every string that must be rejected was rejected (text unchanged, no results)", gnTextBad, 0)
 	gnSome = (gnAcceptedLiteral >= 3 and gnAcceptedLiteral < gnCount)
 	Then("some strings are accepted as plain literals (a quoted text is a value, never run) and most are not", gnSome, 1)
 	# the injected assignment inside a quoted literal is only a value: it is written, not run
 	gO = new stzStringPerformer("ab")
-	gO.Perform("'; gnCanary=1; '")
+	gO.Perform("'; $gnCanary=1; '")
 	gcC = gO.Content()
-	gnSame = strcmp(gcC, "; gnCanary=1; ; gnCanary=1; ")
+	gnSame = strcmp(gcC, "; $gnCanary=1; ; $gnCanary=1; ")
 	Then("a quoted text holding an assignment is written into the text as plain characters", gnSame, 0)
-	Then("and the canary is still 0", gnCanary, 0)
+	Then("and the canary is still 0", $gnCanary, 0)
 	# a condition is judged by the same evaluator
 	gO = new stzStringPerformer("abc")
-	gO.PerformW("@char = 'a'; gnCanary=1", "upper(@char)")
+	gO.PerformW("@char = 'a'; $gnCanary=1", "upper(@char)")
 	gcC = gO.Content()
-	Then("a condition with a statement separator is not run either", gnCanary, 0)
+	Then("a condition with a statement separator is not run either", $gnCanary, 0)
 	# the instrument reads a long hostile text without a fault
-	gcLong = "upper(@char)" + copy(" ; gnCanary=1", 4000)
+	gcLong = "upper(@char)" + copy(" ; $gnCanary=1", 4000)
 	gO = new stzStringPerformer("abc")
 	gO.Perform(gcLong)
 	gcC = gO.Content()
 	gnSame = strcmp(gcC, "abc")
 	Then("a very long hostile text is rejected and the text stays abc", gnSame, 0)
-	Then("the canary is still 0 after it", gnCanary, 0)
+	Then("the canary is still 0 after it", $gnCanary, 0)
 EndScenario()
 
 Summary()
@@ -666,7 +666,7 @@ func SameTexts(paA, paB)
 
 # a Ring eval inside a function assigning the global canary: proves the instrument can fire
 func RunCanaryControl()
-	eval("gnCanary = 1")
+	eval("$gnCanary = 1")
 
 # [ label, text, must be rejected (1) or is a plain literal that is accepted (0) ]
 # Texts built with char codes where they look like something else; none runs a real command.
@@ -681,34 +681,34 @@ func HostileCorpus()
 	gcNl = char(10)
 	gcCr = char(13)
 	gcNul = char(0)
-	gaHc + [ "semicolon then assignment", "upper(@char);gnCanary=1", 1 ]
-	gaHc + [ "newline then assignment", "upper(@char)" + gcNl + "gnCanary=1", 1 ]
-	gaHc + [ "crlf then spaced assignment", "upper(@char)" + gcCr + gcNl + "gnCanary = 1", 1 ]
-	gaHc + [ "eval with double quotes", 'eval("gnCanary=1")', 1 ]
-	gaHc + [ "eval with single quotes", "eval('gnCanary=1')", 1 ]
+	gaHc + [ "semicolon then assignment", "upper(@char);$gnCanary=1", 1 ]
+	gaHc + [ "newline then assignment", "upper(@char)" + gcNl + "$gnCanary=1", 1 ]
+	gaHc + [ "crlf then spaced assignment", "upper(@char)" + gcCr + gcNl + "$gnCanary = 1", 1 ]
+	gaHc + [ "eval with double quotes", 'eval("$gnCanary=1")', 1 ]
+	gaHc + [ "eval with single quotes", "eval('$gnCanary=1')", 1 ]
 	gaHc + [ "load word", 'load "x.ring"', 1 ]
 	gaHc + [ "the word system as a bare name", "upper(@char) and system", 1 ]
 	gaHc + [ "call word", "call gnCanary", 1 ]
-	gaHc + [ "quote break-out, single", "'; gnCanary=1; '", 0 ]
-	gaHc + [ "quote break-out, double (a quoted text)", '"); gnCanary=1; ("', 0 ]
+	gaHc + [ "quote break-out, single", "'; $gnCanary=1; '", 0 ]
+	gaHc + [ "quote break-out, double (a quoted text)", '"); $gnCanary=1; ("', 0 ]
 	gaHc + [ "hash comment", "upper(@char)#", 1 ]
-	gaHc + [ "block comment", "upper(@char) /* gnCanary=1 */", 1 ]
-	gaHc + [ "NUL then assignment", "upper(@char)" + gcNul + ";gnCanary=1", 1 ]
+	gaHc + [ "block comment", "upper(@char) /* $gnCanary=1 */", 1 ]
+	gaHc + [ "NUL then assignment", "upper(@char)" + gcNul + ";$gnCanary=1", 1 ]
 	gaHc + [ "unbalanced open", "upper(@char", 1 ]
 	gaHc + [ "unbalanced close", "upper(@char))", 1 ]
-	gaHc + [ "bare assignment", "gnCanary = 1", 1 ]
+	gaHc + [ "bare assignment", "$gnCanary = 1", 1 ]
 	gaHc + [ "return word", "return 1", 1 ]
 	gaHc + [ "bye word", "bye", 1 ]
 	gaHc + [ "separator then bye", "upper(@char); bye", 1 ]
 	gaHc + [ "see word", "see 'x'", 1 ]
-	gaHc + [ "fullwidth semicolon look-alike", "upper(@char)" + gcFullSemi + "gnCanary=1", 1 ]
-	gaHc + [ "greek question mark look-alike", "upper(@char)" + gcGreekQ + "gnCanary=1", 1 ]
+	gaHc + [ "fullwidth semicolon look-alike", "upper(@char)" + gcFullSemi + "$gnCanary=1", 1 ]
+	gaHc + [ "greek question mark look-alike", "upper(@char)" + gcGreekQ + "$gnCanary=1", 1 ]
 	gaHc + [ "fullwidth P in the function name", gcFullU + "pper(@char)", 1 ]
 	gaHc + [ "cyrillic a in the variable name", "upper(@ch" + gcCyrA + "r)", 1 ]
 	gaHc + [ "fullwidth parentheses", "upper" + gcFullOpen + "@char" + gcFullClose, 1 ]
-	gaHc + [ "double-quoted assignment text", '"gnCanary=1"', 0 ]
+	gaHc + [ "double-quoted assignment text", '"$gnCanary=1"', 0 ]
 	gaHc + [ "single-quoted call text", "'eval(1)'", 0 ]
-	gaHc + [ "braces with separator", "{ upper(@char); gnCanary=1 }", 1 ]
+	gaHc + [ "braces with separator", "{ upper(@char); $gnCanary=1 }", 1 ]
 	gaHc + [ "trailing separator", "upper(@char) ; ", 1 ]
 	gaHc + [ "member access", "@char.gnCanary", 1 ]
 	gaHc + [ "the word this", "this", 1 ]
@@ -716,6 +716,6 @@ func HostileCorpus()
 	gaHc + [ "twenty thousand open parentheses (crashed the engine before the length limit)", copy("(", 20000), 1 ]
 	gaHc + [ "twenty thousand minus signs", copy("-", 20000) + "1", 1 ]
 	gaHc + [ "twenty thousand nots", copy("not ", 20000) + "true", 1 ]
-	gaHc + [ "deep nesting with a separator", "upper(" + copy("(", 3000) + "@char" + copy(")", 3000) + ");gnCanary=1", 1 ]
+	gaHc + [ "deep nesting with a separator", "upper(" + copy("(", 3000) + "@char" + copy(")", 3000) + ");$gnCanary=1", 1 ]
 	gaHc + [ "unknown function holding a call word", "len(@char) + sys_call('x')", 1 ]
 	return gaHc
