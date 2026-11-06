@@ -5,15 +5,10 @@ They were found by calling every method once with real data before its block was
 and each was checked with a second call on different data. **None is fixed yet.** The register is generated from
 `reference.json` by `doc/tools/wave/mk_defects.py`: fix the method, fix its block (or drop the warning), regenerate.
 
-**At least 36 methods in 31 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
+**At least 26 methods in 26 classes** (the register only catches the blocks worded as defects; the per-wave notes with the evidence list more, for instance stzTimeLine.HasMoment): `doc/tools/wave/data/w*_defects*.md`.
 
 | file | class | defects |
 |---|---|---|
-| number/stzMatrix.ring | stzMatrix | 2 |
-| object/stzListOfNamedObjects.ring | stzListOfNamedObjects | 2 |
-| reactive/stzReactor.ring | stzReactor | 2 |
-| string/stzStringInserter.ring | stzStringInserter | 2 |
-| string/stzStringList.ring | stzStringList | 2 |
 | common/stzEngineTimeline.ring | stzEngineTimeline | 1 |
 | geo/stzGeoProjection.ring | stzGeoProjection | 1 |
 | graph/stzGraphRule.ring | stzGraphRule | 1 |
@@ -93,24 +88,9 @@ and each was checked with a second call on different data. **None is fixed yet.*
 
 - `FromLocalFile` (line 702): Raises error R19 today instead of returning a file URL for the given path. -- Raises error R19 today whatever the path, on a drive path with backslashes and on /tmp/y.txt: it calls ReplaceSubstring with two arguments where that method takes a start, an end and a replacement
 
-## stzMatrix -- number/stzMatrix.ring (2)
-
-- `Diagonal1` (line 2961): Returns nothing today instead of the main diagonal, because its body is empty. -- the method exists but has no body, so it answers an empty value for every matrix; Diagonal gives the main diagonal
-- `EigenVectors` (line 4433): Returns the unit eigenvectors as the columns of a matrix, in the same order as the eigenvalues. -- raises an error unless the matrix is square, for a defective matrix, and when an eigenvector is complex
-
-## stzListOfNamedObjects -- object/stzListOfNamedObjects.ring (2)
-
-- `init` (line 68): Raises error R14 today instead of building a list of named objects from the given list. -- the check calls IsListOfNamedObjects on a stzList, a method that does not exist, so every list raises R14 Calling Method without definition: islistofnamedobjects (tried with an empty list and with one object); a value that is not a list raises Incorrect param type
-- `Copy` (line 97): Raises error R14 today instead of returning a copy of the list: it builds a new one through init, which raises.
-
 ## stzMultiObjectiveSolver -- optim/stzMultiObjectiveSolver.ring (1)
 
 - `exportParetoFrontCSV` (line 1154): Raises error R41 today instead of writing the front to a file, one row per solution. -- a variable value, a number, is joined to a comma with + and Ring cannot add a number to a text; it raises for the front of every problem tried (two problems, epsilon-constraint method)
-
-## stzReactor -- reactive/stzReactor.ring (2)
-
-- `SubmitSpawn` (line 211): Starts a program on the loop and returns at once with the job id; the program runs off the Ring thread and its output is fetched later. -- a plain text instead of a list raises error R21, because the wrap into a list is skipped inside the method
-- `Spawn` (line 289): Runs a program and waits for it to end, returning what it printed; the exit code is then in SpawnLastStatus. -- a plain text instead of a list raises error R21, because the wrap into a list is skipped inside SubmitSpawn
 
 ## stzListex -- regex/stzListex.ring (1)
 
@@ -147,16 +127,6 @@ and each was checked with a second call on different data. **None is fixed yet.*
 ## stzStringIO -- string/stzStringIO.ring (1)
 
 - `FromClipboard` (line 328): Raises the error "Clipboard access is not supported in this environment!" today. -- Always raises, it is a placeholder
-
-## stzStringInserter -- string/stzStringInserter.ring (2)
-
-- `InsertAfterManyPositions` (line 606): Raises error R13 today instead of inserting a fragment after each of several positions. -- raises Object is required (R13) for every valid list of numbers: [1,3,5] on banana and [2] on abc; probable cause the line that sorts the positions with new stzList(panPos).SortedInDescending(), since the same call made in two statements works; an empty or non-numeric list raises Incorrect param type instead
-- `InsertBeforeManyPositions` (line 638): Raises error R13 today instead of inserting a fragment in front of each of several positions. -- raises Object is required (R13) for every valid list of numbers: [1,3,5] on banana; probable cause the line that sorts the positions with new stzList(panPos).SortedInDescending(); an empty or non-numeric list raises Incorrect param type instead
-
-## stzStringList -- string/stzStringList.ring (2)
-
-- `SortBy` (line 1311): Sorts the strings in place by a numeric key computed from each one, such as its length; a text key raises. -- @item is not defined here and raises R24, and a key that is text raises R41 because keys are compared with a greater-than, so only numeric keys such as len(@string) work
-- `Matches` (line 1756): TRUE if every string matches the pattern as a whole, so "a." matches ab and "a" does not; an empty list is TRUE. -- the old comment says it returns the strings that match, but it answers one verdict for the whole list
 
 ## stzStringReplacer -- string/stzStringReplacer.ring (1)
 
