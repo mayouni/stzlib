@@ -7887,10 +7887,35 @@ class stzMathDiagram from stzObject
 				_px_ = "(" + _l_[4] + "+" + _t_ + "*" + _dx_ + ")"
 				_py_ = "(" + _l_[5] + "+" + _t_ + "*" + _dy_ + ")"
 				if _s_[1] = "rect"
-					# THE BOX ITSELF, not a circle around it: the exact distance
-					# from the nearest point of the segment to the label's box.
-					return "(" + _p_ + ")-" + This._BoxSD("(" + _s_[4] + ")/2",
-						"(" + _s_[5] + ")/2", _px_ + "-" + _s_[2], _py_ + "-" + _s_[3])
+					# THE BOX ITSELF, not a circle around it. The point of the
+					# segment nearest the box's CENTRE is not the point nearest
+					# the BOX: a segment shorter than the box can cut its corner
+					# while that point stands a full pad away (found 2026-11-06:
+					# a note in the cardinal sine sat 0.15px from the curve, its
+					# chord's end exactly 6px clear). Two convex shapes apart
+					# are nearest at an end of the segment or a corner of the
+					# box, so the gap is the least of those six distances; the
+					# centre's term stays for when the segment is inside.
+					_hw_ = "(" + _s_[4] + ")/2"
+					_hh_ = "(" + _s_[5] + ")/2"
+					_ac_ = [ This._BoxSD(_hw_, _hh_, _px_ + "-" + _s_[2], _py_ + "-" + _s_[3]),
+					         This._BoxSD(_hw_, _hh_, _l_[4] + "-" + _s_[2], _l_[5] + "-" + _s_[3]),
+					         This._BoxSD(_hw_, _hh_, _l_[6] + "-" + _s_[2], _l_[7] + "-" + _s_[3]) ]
+					_aSg_ = [ [ -1, -1 ], [ 1, -1 ], [ -1, 1 ], [ 1, 1 ] ]
+					for _k_ = 1 to 4
+						_cx_ = "(" + _s_[2] + "+(" + _aSg_[_k_][1] + ")*" + _hw_ + ")"
+						_cy_ = "(" + _s_[3] + "+(" + _aSg_[_k_][2] + ")*" + _hh_ + ")"
+						_tk_ = "max(0,min(1,((" + _cx_ + "-" + _l_[4] + ")*" + _dx_ + "+(" +
+						       _cy_ + "-" + _l_[5] + ")*" + _dy_ + ")/(" + _dx_ + "^2+" + _dy_ +
+						       "^2+0.000001)))"
+						_ac_ + ("sqrt((" + _l_[4] + "+" + _tk_ + "*" + _dx_ + "-" + _cx_ + ")^2+(" +
+						        _l_[5] + "+" + _tk_ + "*" + _dy_ + "-" + _cy_ + ")^2+0.000001)")
+					next
+					_cMin_ = _ac_[1]
+					for _k_ = 2 to len(_ac_)
+						_cMin_ = "min(" + _cMin_ + "," + _ac_[_k_] + ")"
+					next
+					return "(" + _p_ + ")-" + _cMin_
 				ok
 				_nd_ = "sqrt((" + _px_ + "-" + _s_[2] + ")^2+(" + _py_ + "-" + _s_[3] + ")^2)"
 				return "(" + _s_[4] + "+" + _p_ + ")-" + _nd_

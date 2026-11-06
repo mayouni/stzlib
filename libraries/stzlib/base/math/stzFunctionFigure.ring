@@ -828,7 +828,10 @@ func _FfCompile(pcExpr, pcVar)
 func _FfFinite(pn)
 	if NOT isNumber(pn)  return FALSE  ok
 	if pn > pow(10, 300) or pn < -pow(10, 300)  return FALSE  ok
-	if NOT (pn <= 0 or pn >= 0)  return FALSE  ok
+	# a nan is the one number not equal to itself; "NOT (pn <= 0 or
+	# pn >= 0)" said the same on Ring, but rnxc answers <= and >= as the
+	# negation of > and <, so both are TRUE for a nan (2026-11-06)
+	if NOT (pn = pn)  return FALSE  ok
 	return TRUE
 
 # bisection on the tape between two samples of opposite sign, of the
