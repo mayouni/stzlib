@@ -27,9 +27,9 @@
 load "../../stzBase.ring"
 load "math_scenes.ring"
 
-nOk = 0
-nBad = 0
-nSecClock = 0
+$nOk = 0
+$nBad = 0
+$nSecClock = 0
 acSkipped = []
 ? "=============================================================="
 ? " MATH GATE -- the mathematics plane, M1a: the :Function figure"
@@ -910,34 +910,35 @@ chk("NEGATIVE: the same theme set on Diagram()'s copy leaves the figure's own re
 
 #---------------------------------------------------------------------------
 
-if nSecClock > 0
-	? "        [section took " + ((clock() - nSecClock) / clockspersecond()) + "s]"
+if $nSecClock > 0
+	? "        [section took " + ((clock() - $nSecClock) / clockspersecond()) + "s]"
 ok
 ? "=============================================================="
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + $nBad + " failed"
 if len(acSkipped) > 0
 	? " skipped: " + @@(acSkipped)
 else
 	? " skipped: none -- every section of this gate ran"
 ok
 ? "=============================================================="
+shutdown($nBad)
 
 #---------------------------------------------------------------------------
 
 func sec cTitle
-	if nSecClock > 0
-		? "        [section took " + ((clock() - nSecClock) / clockspersecond()) + "s]"
+	if $nSecClock > 0
+		? "        [section took " + ((clock() - $nSecClock) / clockspersecond()) + "s]"
 	ok
-	nSecClock = clock()
+	$nSecClock = clock()
 	? cTitle
 
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
-		nBad++
+		$nBad++
 	ok
 
 func chkeq cWhat, xGot, xWant

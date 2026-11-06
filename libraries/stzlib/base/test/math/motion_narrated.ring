@@ -16,9 +16,9 @@
 
 load "../../stzBase.ring"
 
-nOk = 0
-nBad = 0
-nSecClock = 0
+$nOk = 0
+$nBad = 0
+$nSecClock = 0
 cSkipped = "none -- every section of this gate ran"
 ? "=============================================================="
 ? " MOTION GATE -- the mathematics plane, M2: sliders and declared states"
@@ -339,28 +339,29 @@ chk("a motion drawing its curve live refuses to export -- a frame is the settled
 
 #---------------------------------------------------------------------------
 
-if nSecClock > 0
-	? "        [section took " + ((clock() - nSecClock) / clockspersecond()) + "s]"
+if $nSecClock > 0
+	? "        [section took " + ((clock() - $nSecClock) / clockspersecond()) + "s]"
 ok
 ? "=============================================================="
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + $nBad + " failed"
 ? " skipped: " + cSkipped
 ? "=============================================================="
+shutdown($nBad)
 
 func sec cTitle
-	if nSecClock > 0
-		? "        [section took " + ((clock() - nSecClock) / clockspersecond()) + "s]"
+	if $nSecClock > 0
+		? "        [section took " + ((clock() - $nSecClock) / clockspersecond()) + "s]"
 	ok
-	nSecClock = clock()
+	$nSecClock = clock()
 	? cTitle
 
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
-		nBad++
+		$nBad++
 	ok
 
 func chkeq cWhat, xGot, xWant
