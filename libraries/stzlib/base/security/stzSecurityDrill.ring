@@ -508,15 +508,7 @@ class stzSecurityDrill from stzObject
 		return @oReactor.AwaitTcp(_nJ_, 5000)
 
 	def _RingExecutable()
-		_a_ = sysargv
-		_n_ = ring_len(_a_)
-		for _i_ = 1 to _n_
-			_c_ = StzLower("" + _a_[_i_])
-			if StzFindFirst("ring.exe", _c_) > 0 or StzRight(_c_, 5) = "/ring" or _c_ = "ring"
-				return "" + _a_[_i_]
-			ok
-		next
-		return "ring"
+		return StzInterpreterPath()
 
 	def _DeriveStzBasePath()
 		_nSlash_ = 0

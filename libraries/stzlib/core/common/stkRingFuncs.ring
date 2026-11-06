@@ -378,3 +378,51 @@ func ring_randbytes(n)
 
 func CatchError()
 	return cCatchError
+
+#--
+
+# The interpreter running this program, so a worker or child process runs on
+# the same one. exefilename() names it on Ring++ (rnxc) as on Ring; a program
+# built into its own executable falls back to an interpreter named in sysargv,
+# then to "rnxc". The lookups this replaces looked only for "ring", so under
+# rnxc every worker was launched on the retired interpreter (2026-11-06).
+
+func StzInterpreterPath()
+	_aNames_ = [ "rnxc", "ring", "haro" ]
+	_cExe_ = "" + exefilename()
+	if _StzIsInterpreterPath(_cExe_, _aNames_)
+		return _cExe_
+	ok
+	_aArgs_ = sysargv
+	_nArgs_ = len(_aArgs_)
+	for _i_ = 1 to _nArgs_
+		if _StzIsInterpreterPath("" + _aArgs_[_i_], _aNames_)
+			return "" + _aArgs_[_i_]
+		ok
+	next
+	return "rnxc"
+
+func _StzIsInterpreterPath(pcPath, paNames)
+	_cP_ = lower(substr(pcPath, char(92), "/"))
+	_nSlash_ = 0
+	_nLenP_ = len(_cP_)
+	for _i_ = _nLenP_ to 1 step -1
+		if _cP_[_i_] = "/"
+			_nSlash_ = _i_
+			exit
+		ok
+	next
+	_cBase_ = _cP_
+	if _nSlash_ > 0
+		_cBase_ = right(_cP_, _nLenP_ - _nSlash_)
+	ok
+	if right(_cBase_, 4) = ".exe"
+		_cBase_ = left(_cBase_, len(_cBase_) - 4)
+	ok
+	_nNames_ = len(paNames)
+	for _i_ = 1 to _nNames_
+		if _cBase_ = paNames[_i_]
+			return 1
+		ok
+	next
+	return 0

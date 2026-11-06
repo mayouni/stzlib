@@ -151,15 +151,7 @@ func D2Body(cAddr)
 #--- helpers ---------------------------------------------------------
 
 func D2RingExe()
-	_aA_ = sysargv
-	_nLen_ = len(_aA_)
-	for _i_ = 1 to _nLen_
-		_c_ = StzLower("" + _aA_[_i_])
-		if StzFindFirst("ring.exe", _c_) > 0 or _c_ = "ring"
-			return "" + _aA_[_i_]
-		ok
-	next
-	return "ring"
+	return StzInterpreterPath()
 
 # Wait (bounded) until a spawned node answers pings at its address.
 func D2AwaitBoot(cAddr, nTimeoutMs)

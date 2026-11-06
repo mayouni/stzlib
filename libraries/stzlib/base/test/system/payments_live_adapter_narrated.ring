@@ -726,13 +726,7 @@ func WaitFront(cMode, nPort, nTimeoutMs)
 	return FALSE
 
 func FrontRingExe
-	aA = sysargv
-	nArgs = len(aA)
-	for i = 1 to nArgs
-		c = StzLower("" + aA[i])
-		if StzFindFirst("ring.exe", c) > 0 or c = "ring"  return "" + aA[i]  ok
-	next
-	return "ring"
+	return StzInterpreterPath()
 
 func FrontBaseRing
 	nSlash = 0

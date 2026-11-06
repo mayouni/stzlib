@@ -183,15 +183,7 @@ shutdown($_zst_fail)
 #--- helpers ---------------------------------------------------------
 
 func D5RingExe()
-	_aA_ = sysargv
-	_nLen_ = len(_aA_)
-	for _i_ = 1 to _nLen_
-		_c_ = StzLower("" + _aA_[_i_])
-		if StzFindFirst("ring.exe", _c_) > 0 or _c_ = "ring"
-			return "" + _aA_[_i_]
-		ok
-	next
-	return "ring"
+	return StzInterpreterPath()
 
 func D5AwaitBoot(cAddr, nTimeoutMs)
 	_nDl_ = StzEngineWatchTimestampMs() + nTimeoutMs

@@ -147,18 +147,12 @@ func WaitTlsReady oClient, nPort, nTimeoutMs
 	return FALSE
 
 func MtlsRingExe
-	aA = sysargv
-	nLen = len(aA)
-	for i = 1 to nLen
-		c = StzLower("" + aA[i])
-		if StzFindFirst("ring.exe", c) > 0 or c = "ring"  return "" + aA[i]  ok
-	next
-	return "ring"
+	return StzInterpreterPath()
 
 func MtlsBaseRing
 	nSlash = 0
-	nL = len($cEngineDir)
-	for i = 1 to nL
+	nChars = len($cEngineDir)
+	for i = 1 to nChars
 		if $cEngineDir[i] = "/"  nSlash = i  ok
 	next
 	return StzLeft($cEngineDir, nSlash - 1) + "/base/stzBase.ring"
