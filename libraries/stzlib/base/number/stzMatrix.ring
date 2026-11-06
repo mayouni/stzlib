@@ -196,7 +196,7 @@ func IsListOfMatrices(paList)
 # an error rather than a wrong number. Known gaps today, each carried as a warning on its method:
 # Section reads its corners as [ column, row ] and FindElementsInSection returns [ column, row ]
 # pairs, so ReplaceSection changes the wrong cells on a non-square rectangle; MultiplyByInRow scales
-# a column; Add given a matrix adds it and then raises; Diagonal1 answers nothing.
+# a column; Add given a matrix adds it and then raises.
 #
 #   receiver   o1 = new stzMatrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ])
 #   example    ? @@( o1.Size() )
@@ -2951,14 +2951,15 @@ class stzMatrix from stzListOfLists
 
 		return _aDiagonal_
 
-		# Returns nothing today instead of the main diagonal, because its body is empty.
+		# Returns the main diagonal, the cells from the top left down; the numbered form that pairs with Diagonal2.
 		#
-		#   returns    nothing today
-		#   note       the intended answer is the same as Diagonal
-		#   warning    the method exists but has no body, so it answers an empty value for every
-		#              matrix; Diagonal gives the main diagonal
-		#   see        Diagonal
-		func Diagonal1()
+		#   returns    a list of min(rows, columns) numbers, the same as Diagonal
+		#   note       the matrix is not changed; a matrix that is not square gives its leading cells
+		#   see        Diagonal, Diagonal2
+		#   example    ? @@( o1.Diagonal1() )
+		#              #--> [ 1, 5 ]
+		def Diagonal1()
+			return This.Diagonal()
 
 	# Returns the secondary diagonal, the cells from the top right down, as a list of numbers.
 	#
@@ -4424,11 +4425,21 @@ class stzMatrix from stzListOfLists
 
 	# Returns the unit eigenvectors as the columns of a matrix, in the same order as the eigenvalues.
 	#
-	#   returns    a list of rows; column j is the eigenvector of eigenvalue j
-	#   note       orthonormal for a symmetric matrix
-	#   warning    raises an error unless the matrix is square, for a defective matrix, and when an
-	#              eigenvector is complex
+	#   returns    a list of rows; column j is the unit eigenvector of EigenValues()[j]
+	#   note       the sign is fixed so the answer is the same on every run: the largest component
+	#              of each column is positive, the first one when several are equal; the columns of
+	#              a symmetric matrix are orthonormal, and so are the columns that share a repeated
+	#              eigenvalue of any matrix
+	#   note       a matrix with no full set of real eigenvectors is refused with a named error, not
+	#              answered with copies: a matrix that is not square, a defective one (see
+	#              NumberOfIndependentEigenVectors) and one whose eigenvalues are complex, for which
+	#              ComplexEigenVectors answers
 	#   see        EigenValues, ComplexEigenVectors
+	#   example    o2 = new stzMatrix([ [ 2, 1 ], [ 0, 3 ] ])
+	#              ? @@( o2.EigenValues() )
+	#              #--> [ 2, 3 ]
+	#              ? @@( o2.EigenVectors() )
+	#              #--> [ [ 1, 0.71 ], [ 0, 0.71 ] ]
 	#@ aka  The eigenvectors, as a matrix whose COLUMN j is the unit eigenvector belonging to eigenvalue j -- same order as EigenValues(), so column 1 goes with the first (largest) eigenvalue. For a symmetric matrix they are orthonormal.
 	def EigenVectors()
 
@@ -4449,6 +4460,10 @@ class stzMatrix from stzListOfLists
 				         "ComplexEigenVectors() returns what there is.")
 			ok
 			_aVecsEv_ = _aSysEv_[:vectors]
+			_anValsEv_ = []
+			for _iEv_ = 1 to @nRows
+				_anValsEv_ + _aSysEv_[:values][_iEv_].RealPart()
+			next
 			_aOutEv_ = []
 			for _iEv_ = 1 to @nRows
 				_aRowEv_ = []
@@ -4462,7 +4477,7 @@ class stzMatrix from stzListOfLists
 				next
 				_aOutEv_ + _aRowEv_
 			next
-			return _aOutEv_
+			return This._ConformEigenColumns(_aOutEv_, _anValsEv_)
 		ok
 
 		This._EnsureEngineMatrix()
@@ -4482,7 +4497,101 @@ class stzMatrix from stzListOfLists
 			_aEvc_ + _aRowEc_
 		next
 		StzEngineMatrixFree(_pEvc_)
-		return _aEvc_
+		return This._ConformEigenColumns(_aEvc_, [])
+
+	# Returns the eigenvector columns made orthonormal within a repeated eigenvalue and given a fixed sign.
+	#
+	#   paRows     the eigenvectors as rows of a square matrix, one per column
+	#   panVals    the eigenvalue of each column, or [ ] to leave the columns as they are
+	#   returns    a list of rows, same shape as paRows
+	#   status     internal
+	def _ConformEigenColumns(paRows, panVals)
+
+		_nN_ = len(paRows)
+		if _nN_ = 0
+			return paRows
+		ok
+
+		_aCols_ = []
+		for _jCf_ = 1 to _nN_
+			_aColCf_ = []
+			for _iCf_ = 1 to _nN_
+				_aColCf_ + paRows[_iCf_][_jCf_]
+			next
+			_aCols_ + _aColCf_
+		next
+
+		# Gram-Schmidt against the earlier columns that carry the same eigenvalue:
+		# a combination of eigenvectors of one eigenvalue is still one of them.
+		if len(panVals) = _nN_
+			_nScaleCf_ = 1
+			for _jCf_ = 1 to _nN_
+				if fabs(panVals[_jCf_]) > _nScaleCf_
+					_nScaleCf_ = fabs(panVals[_jCf_])
+				ok
+			next
+			_nTolCf_ = 0.000000001 * _nScaleCf_
+			for _jCf_ = 2 to _nN_
+				_bSharedCf_ = 0
+				for _kCf_ = 1 to _jCf_ - 1
+					if fabs(panVals[_kCf_] - panVals[_jCf_]) <= _nTolCf_
+						_nDotCf_ = 0
+						for _iCf_ = 1 to _nN_
+							_nDotCf_ += _aCols_[_jCf_][_iCf_] * _aCols_[_kCf_][_iCf_]
+						next
+						for _iCf_ = 1 to _nN_
+							_aCols_[_jCf_][_iCf_] = _aCols_[_jCf_][_iCf_] - _nDotCf_ * _aCols_[_kCf_][_iCf_]
+						next
+						_bSharedCf_ = 1
+					ok
+				next
+				if _bSharedCf_
+					_nLenCf_ = 0
+					for _iCf_ = 1 to _nN_
+						_nLenCf_ += _aCols_[_jCf_][_iCf_] * _aCols_[_jCf_][_iCf_]
+					next
+					_nLenCf_ = sqrt(_nLenCf_)
+					if _nLenCf_ < 0.000000001
+						StzRaise("EigenVectors: the eigenvectors of a repeated eigenvalue " +
+						         "are numerically dependent, so no orthonormal set exists.")
+					ok
+					for _iCf_ = 1 to _nN_
+						_aCols_[_jCf_][_iCf_] = _aCols_[_jCf_][_iCf_] / _nLenCf_
+					next
+				ok
+			next
+		ok
+
+		# sign: the largest component, the first of equal ones, is positive
+		for _jCf_ = 1 to _nN_
+			_nBigCf_ = 0
+			for _iCf_ = 1 to _nN_
+				if fabs(_aCols_[_jCf_][_iCf_]) > _nBigCf_
+					_nBigCf_ = fabs(_aCols_[_jCf_][_iCf_])
+				ok
+			next
+			_nPickCf_ = 0
+			for _iCf_ = 1 to _nN_
+				if _nPickCf_ = 0 and fabs(_aCols_[_jCf_][_iCf_]) >= _nBigCf_ * 0.999999999
+					_nPickCf_ = _iCf_
+				ok
+			next
+			if _nPickCf_ > 0 and _aCols_[_jCf_][_nPickCf_] < 0
+				for _iCf_ = 1 to _nN_
+					_aCols_[_jCf_][_iCf_] = 0 - _aCols_[_jCf_][_iCf_]
+				next
+			ok
+		next
+
+		_aOutCf_ = []
+		for _iCf_ = 1 to _nN_
+			_aRowCf_ = []
+			for _jCf_ = 1 to _nN_
+				_aRowCf_ + _aCols_[_jCf_][_iCf_]
+			next
+			_aOutCf_ + _aRowCf_
+		next
+		return _aOutCf_
 
 	# TRUE if the matrix equals its transpose within a relative tolerance of one part in 10^12.
 	#
