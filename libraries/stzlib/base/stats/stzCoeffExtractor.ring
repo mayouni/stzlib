@@ -1017,7 +1017,13 @@ class stzCoeffExtractor from stzObject
 			if NOT isNumber(_anOut_[_iOut_])
 				raise("stzCoeffExtractor: the expression did not give a number")
 			ok
-			if NOT ( _anOut_[_iOut_] = _anOut_[_iOut_] ) or _anOut_[_iOut_] > _nBig_ or _anOut_[_iOut_] < -_nBig_
+			# a nan is no value at all (the square root of a negative number:
+			# Ring raised inside sqrt(), Ring++ returns a nan), an infinity is
+			# a value too large -- two different answers to the user
+			if NOT ( _anOut_[_iOut_] = _anOut_[_iOut_] )
+				raise("stzCoeffExtractor: the expression could not be evaluated at this point")
+			ok
+			if _anOut_[_iOut_] > _nBig_ or _anOut_[_iOut_] < -_nBig_
 				raise("stzCoeffExtractor: the expression did not give a finite number at this point")
 			ok
 		next
