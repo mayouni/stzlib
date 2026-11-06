@@ -175,15 +175,22 @@ Scenario("...and it is no longer quadratic")
 	# scheduling hiccup moves it from 2 to 4. Scale the repetition count
 	# until the SMALLER run is long enough that no single stall can
 	# dominate, then time the bigger run over the SAME count.
+	#
+	# The loop stops ON the count it timed. It used to test the cap at the
+	# top, so a run that never reached 120 ms left the loop with nReps
+	# doubled once more than nH measured: the bigger run then did twice the
+	# queries and the ratio read ~3.7 for a true ~1.8. On rnxc, where a
+	# query costs a few microseconds, 5120 queries no longer reached 120 ms
+	# and that is how it showed (2026-11-06).
 	nReps = 10
 	nH = 0
-	while nReps <= 5120
+	while 1
 		t0 = StzEngineWatchTimestampMs()
 		for r = 1 to nReps
 			v = oK2.Classify(q)
 		next
 		nH = StzEngineWatchTimestampMs() - t0
-		if nH >= 120  exit  ok
+		if nH >= 120 or nReps >= 163840  exit  ok
 		nReps = nReps * 2
 	end
 	t0 = StzEngineWatchTimestampMs()

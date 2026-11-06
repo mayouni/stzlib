@@ -68,8 +68,13 @@ Scenario("the fit is the same fit -- and the residue is measured, not assumed")
 	oTs = new stzTrainingSet(aD)
 
 	Then("1 epoch: agrees to 1e-15", DriftAt(oTs, 400, 6, 1) < 0.000000000000001, TRUE)
-	Then("...and is NOT exactly zero -- exp is the one thing that could not match",
-	     DriftAt(oTs, 400, 6, 1) > 0, TRUE)
+	# ON RNXC THE RESIDUE IS GONE. Measured 2026-11-06: the drift is exactly 0 at
+	# 1, 2, 10, 100 and 500 epochs -- Ring++ and the engine call the same exp, so
+	# the old loop and the engine now agree bit for bit. This row asserted the drift
+	# was NOT zero, which was true of Ring 1.27's C exp and is not true here; it
+	# now asserts what rnxc measures, and the bounds below still hold either way.
+	Then("...and on rnxc it is exactly zero -- both loops call the same exp now",
+	     DriftAt(oTs, 400, 6, 1) = 0 and DriftAt(oTs, 400, 6, 500) = 0, TRUE)
 	Then("10 epochs: still under 1e-14", DriftAt(oTs, 400, 6, 10) < 0.00000000000001, TRUE)
 	Then("100 epochs: under 1e-13", DriftAt(oTs, 400, 6, 100) < 0.0000000000001, TRUE)
 	Then("500 epochs: still under 1e-13 -- the growth is slow",
