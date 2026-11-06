@@ -20,6 +20,7 @@ const V = @import("testoor_verdict.zig");
 const L = @import("testoor_logbook.zig");
 const G = @import("testoor_graph.zig");
 const R = @import("testoor_routes.zig");
+const Ev = @import("testoor_evidence.zig");
 
 pub const Error = error{ BadRequest, OutOfMemory, BadOutputLine, BadJson };
 
@@ -144,6 +145,7 @@ fn readRun(a: Allocator, request: []const u8) Error!Run {
         .why = if (gv.get("why")) |x| x.str_() else "",
         .owned = if (gv.get("owned")) |x| x.int_() else 0,
     };
+    if (rv.get("evidence")) |ev| st.evidence = Ev.fromValue(ev);
     st.skipped = try strings(a, rv.get("skipped"));
     st.topics_skipped = try strings(a, rv.get("topics_skipped"));
     var tours: std.ArrayList(V.Tour) = .empty;

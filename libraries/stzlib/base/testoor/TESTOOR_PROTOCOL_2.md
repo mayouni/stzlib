@@ -174,6 +174,21 @@ policy that picks a floor is *not* in the protocol (it is data the library holds
 `kept`**; a floor that allows it says `allow_unjudged` out loud. A gate that finds `met` false refuses,
 and a refused change rolls back. The core holds no opinion on what a floor ought to be.
 
+**Decisions the build took where this section was silent** (pinned by goldens `L7` and `L8` and by the tests of
+`testoor_evidence.zig`):
+
+- **where it sits:** in the RUN, beside `claims` and `graph`, after both; its presence makes `"protocol":2` appear
+- **the exit it gives a gate:** a run that carries a floor and does not meet it exits **1**, whatever its tours said; a run
+  that meets it exits as it would have. A run with no floor is untouched (section 9 still holds)
+- **no floor accepts** a claim that DIVERGED or a claim never REACHED: they fail every floor, even one that asks for nothing
+- **`allow_unjudged` absent means false**: unjudged claims are refused unless the floor allows them out loud
+- **five counts**, not the four of the example: `kept`, `diverged`, `unreached`, `unjudged`, `routes_walked`
+- **`routes_walked`** is the number of DISTINCT route ids walked by all the tours of the run
+- **the reason** is the first failing check, in this order: diverged, unreached, `kept` below `min_kept`, unjudged not allowed,
+  `routes_walked` below `min_routes`. The floor is echoed in the order `min_kept`, `allow_unjudged`, `min_routes`, a field it
+  did not set omitted
+- **the terminal summary** gains `evidence: met -- ...` or `evidence: NOT MET -- <why>; ...` after the claims and graph lines
+
 ## 7. `refinements`
 
 When the subject walked is a refined copy, the run says what it was refined from:
@@ -216,7 +231,7 @@ fourteen were:
 **Status, 2026-11-06 (P3.3):** `15`, `16`, `L6` and `impact/01..03` are written, under `golden/protocol2/`, and the Zig
 core reproduces every one byte for byte. Their expected files were written **by hand from this document, before any
 code**, because the Ring reference cannot judge version 2 and there is no oracle to regenerate them from. `L7` and `L8`
-(the evidence floor) are not built.
+(the evidence floor) are built (2026-11-06): see section 6 for the decisions that came with them.
 
 ## 11. Questions for the author
 

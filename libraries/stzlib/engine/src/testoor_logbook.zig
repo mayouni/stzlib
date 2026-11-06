@@ -13,6 +13,7 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 const T = @import("testoor_text.zig");
 const V = @import("testoor_verdict.zig");
+const Ev = @import("testoor_evidence.zig");
 
 const Buf = T.Buf;
 
@@ -221,6 +222,8 @@ pub const Settings = struct {
     /// the run's wall time when the runner knows it: the sum of EVERY walk, repeats included. Without it
     /// the sum of the tours' own, which is what a run rebuilt from judged tours has
     wall_ms: ?f64 = null,
+    /// protocol 2: the floor of evidence a gate demands of this run (testoor_evidence.zig)
+    evidence: ?Ev.Settings = null,
 };
 
 /// what the runner knows of its graph; `named` and `observed` are counted from the tours
@@ -252,7 +255,7 @@ pub fn graphFigures(a: Allocator, tours: []const V.Tour) !Figures {
 }
 
 fn isProtocol2(st: Settings, tours: []const V.Tour) bool {
-    if (st.graph != null) return true;
+    if (st.graph != null or st.evidence != null) return true;
     for (tours) |t| if (t.nodes.len > 0) return true;
     return false;
 }
@@ -304,6 +307,15 @@ pub fn exitCode(st: Settings, tours: []const V.Tour) i64 {
         if (t.flaky) return 1;
         if (t.run.diverged > 0) return 1;
         if (isTrouble(t.run.end)) return 1;
+    }
+    // a gate's floor of evidence that the walk did not meet: the run exits 1, which a gate reads as a refusal
+    if (st.evidence) |ev| {
+        var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+        defer arena.deinit();
+        const a = arena.allocator();
+        const v = Ev.countsOf(a, tours) catch return 1;
+        const j = Ev.judge(a, ev, v) catch return 1;
+        if (!j.met) return 1;
     }
     return 0;
 }
@@ -370,6 +382,10 @@ pub fn runJson(b: *Buf, st: Settings, tours: []const V.Tour) !void {
         try b.int(f.observed);
         try b.c('}');
     }
+    if (st.evidence) |ev| {
+        try b.s(",\"evidence\":");
+        try Ev.writeJson(b, ev, try Ev.judge(b.a, ev, try Ev.countsOf(b.a, tours)));
+    }
     try b.s(",\"tours_by_end\":{\"finished\":");
     try b.int(c.finished);
     try b.s(",\"finished-timed\":");
@@ -429,6 +445,10 @@ pub fn summary(b: *Buf, st: Settings, tours: []const V.Tour) !void {
             try b.s(g.why);
             try b.s("; a selection from it takes every tour");
         }
+    }
+    if (st.evidence) |ev| {
+        try b.c('\n');
+        try Ev.writeProse(b, ev, try Ev.judge(b.a, ev, try Ev.countsOf(b.a, tours)));
     }
     try b.s("\n  tours: ");
     try b.int(c.finished);

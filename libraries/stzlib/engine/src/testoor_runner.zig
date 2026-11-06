@@ -30,6 +30,7 @@ const V = @import("testoor_verdict.zig");
 const L = @import("testoor_logbook.zig");
 const W = @import("testoor_walk.zig");
 const K = @import("testoor_clock.zig");
+const Ev = @import("testoor_evidence.zig");
 
 pub const TourSpec = struct {
     file: []const u8,
@@ -170,6 +171,7 @@ pub fn fromValue(a: Allocator, v: J.Value) !Manifest {
         if (rv.get("seed")) |x| m.settings.seed = x.num_();
         if (rv.get("repeat")) |x| m.settings.repeat = x.num_();
         if (rv.get("timeout_ms")) |x| m.settings.timeout_ms = x.num_();
+        if (rv.get("evidence")) |x| m.settings.evidence = Ev.fromValue(x);
     }
     m.settings.skipped = try strings(a, v.get("skipped"));
     m.settings.topics_skipped = try strings(a, v.get("topics_skipped"));

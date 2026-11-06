@@ -19,6 +19,7 @@ const V = @import("testoor_verdict.zig");
 const L = @import("testoor_logbook.zig");
 const G = @import("testoor_graph.zig");
 const A = @import("testoor_api.zig");
+const Ev = @import("testoor_evidence.zig");
 
 const Allocator = std.mem.Allocator;
 
@@ -143,6 +144,7 @@ fn logbookCase(a: Allocator, dir: []const u8, lsub: []const u8, jsub: []const u8
         .why = if (gv.get("why")) |x| x.str_() else "",
         .owned = if (gv.get("owned")) |x| x.int_() else 0,
     };
+    if (rj.get("evidence")) |ev| st.evidence = Ev.fromValue(ev);
     var tours: std.ArrayList(V.Tour) = .empty;
     const refuse = rj.get("refuse_root").?.str_();
     if (refuse.len != 0) {

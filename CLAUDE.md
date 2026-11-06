@@ -484,7 +484,7 @@ Ring. Four differences between the VMs bit this plane: no `binarysearch()` on rn
 
 **The judge is written in Zig (P3, 2026-11-05).** `engine/src/testoor_*.zig` is the core and `base/testoor/*.ring` is
 its reference; the golden logbooks in `base/testoor/golden/` are the acceptance test. **FAST PATH for the core:
-`cd engine && zig build test-testoor -j2` is 30 s cold and 4 s to run, 72 tests (the walker and the runner spawn real children), with no Ring involved.** It reads
+`cd engine && zig build test-testoor -j2` is 30 s cold and 5 s to run, 79 tests (the walker and the runner spawn real children), with no Ring involved.** It reads
 `golden/` and compares 43 expected files byte for byte. `TESTOOR_CORE=ring` (or `TestoorCore("ring")`) makes
 `TestoorVerdict` use the Ring reference instead of the `stz_testoor` library; the guard
 `testoor_core_narrated.ring` runs both in one process. Four Ring facts the port is built on, measured on both
@@ -496,6 +496,11 @@ for the logbook: Ring escapes five bytes and writes every other byte raw.
 reads a graph record, closes a change over its callers, selects tours and writes a tour's `nodes`. `golden/protocol2/` holds
 the cases only the core can judge; their expected files were written by hand from `TESTOOR_PROTOCOL_2.md`, so never
 regenerate them from the core's own output.
+
+**The evidence floor is the core's (protocol 2 section 6).** `testoor_evidence.zig`: a run that carries `run.evidence` (a gate's
+posture, tier and floor) gets an `evidence` record and EXITS 1 when the walk does not meet the floor, though every tour was kept.
+A diverged or unreached claim fails every floor; unjudged is refused unless `allow_unjudged` is said out loud. Goldens
+`L7`, `L8` and judge `17` are hand-written, like the rest of `golden/protocol2/`.
 
 **The walk loop is the core's too (P3.5), as a native program.** `cd engine && zig build testoor-exe -j2` builds
 `zig-out/bin/testoor`; `testoor run MANIFEST.json [--json|--prose]` walks, judges and logs with no Ring VM, and exits 0, 1 or 2 as

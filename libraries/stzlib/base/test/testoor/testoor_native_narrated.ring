@@ -128,6 +128,33 @@ Scenario("The deadline holds: a hung tour is killed, and the native runner itsel
 EndScenario()
 ? "        [section took " + ((clock() - nNvSec) / clockspersecond()) + "s]"
 
+#============================================================================
+Scenario("A gate's floor of evidence: a run whose every tour holds still exits 1 when the walk is too thin")
+	nNvSec = clock()
+	acThin = [ cNvPlant + "/kept.ring" ]
+	Given("one tour that holds, with two kept claims and no route walked")
+	cFloorA = '{"posture":"human","tier":"normal","floor":{"min_kept":2}}'
+	cFloorB = '{"posture":"llm","tier":"critical","floor":{"min_kept":3}}'
+	cFloorC = '{"posture":"llm","tier":"critical","floor":{"min_kept":1,"min_routes":1}}'
+	write(cNvPlant + "/manifest_a.json", TestoorManifestJson(acThin, [ :seed = 5, :timeout_ms = 6000, :evidence_json = cFloorA ]))
+	write(cNvPlant + "/manifest_b.json", TestoorManifestJson(acThin, [ :seed = 5, :timeout_ms = 6000, :evidence_json = cFloorB ]))
+	write(cNvPlant + "/manifest_c.json", TestoorManifestJson(acThin, [ :seed = 5, :timeout_ms = 6000, :evidence_json = cFloorC ]))
+	aFA = _NvRun([ "run", cNvPlant + "/manifest_a.json", "--json" ])
+	aFB = _NvRun([ "run", cNvPlant + "/manifest_b.json", "--json" ])
+	aFC = _NvRun([ "run", cNvPlant + "/manifest_c.json", "--json" ])
+	aJA = StzJsonToList(aFA[2])
+	aJB = StzJsonToList(aFB[2])
+	aJC = StzJsonToList(aFC[2])
+	Then("a floor of two kept claims is met: the gate accepts, exit 0", "" + aFA[1] + "/" + aJA[:evidence][:met], "0/1")
+	Then("a floor of three is not, though the tour is kept: the gate refuses, exit 1", "" + aFB[1] + "/" + aJB[:evidence][:met], "1/0")
+	Then("and the record says why", aJB[:evidence][:why], "kept 2 is below the floor's min_kept 3")
+	Then("a floor that asks for a route nobody walked is not met either", "" + aFC[1] + "/" + aJC[:evidence][:met], "1/0")
+	Then("naming the routes", aJC[:evidence][:why], "routes walked 0 is below the floor's min_routes 1")
+	Then("the tour itself is kept in every one of them: the floor is the gate's verdict, not the tour's", aJB[:tours][1][:state], "kept")
+	Then("a run with no floor carries no evidence record and no protocol key", StzFindFirst('"evidence":{', aNative[2]) + StzFindFirst('"protocol":2', aNative[2]), 0)
+EndScenario()
+? "        [section took " + ((clock() - nNvSec) / clockspersecond()) + "s]"
+
 _NvUnplantAll(cNvPlant)
 
 ok

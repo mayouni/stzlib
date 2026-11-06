@@ -1,0 +1,1 @@
+KEPT        fixtures/pricing.py  2 stops: 4 kept  (2.33 s, finished, timed)

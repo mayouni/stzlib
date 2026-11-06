@@ -13,6 +13,7 @@ pub const graph = @import("testoor_graph.zig");
 pub const routes = @import("testoor_routes.zig");
 pub const counters = @import("testoor_counters.zig");
 pub const walk = @import("testoor_walk.zig");
+pub const evidence = @import("testoor_evidence.zig");
 pub const runner = @import("testoor_runner.zig");
 
 test {
@@ -21,6 +22,7 @@ test {
     _ = routes;
     _ = counters;
     _ = walk;
+    _ = evidence;
     _ = runner;
     _ = text;
     _ = json;

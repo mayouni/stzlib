@@ -342,10 +342,28 @@ Scenario("P3.3 -- protocol 2 through the Ring seam: node evidence in a verdict, 
 EndScenario()
 ? "        [section took " + ((clock() - nCoSec) / clockspersecond()) + "s]"
 
+#============================================================================
+Scenario("The evidence floor through the Ring seam: a gate's floor met, and a gate's floor refused")
+	nCoSec = clock()
+	Given("golden case 17 (four kept claims, two routes walked) under the floors of L7 and L8")
+	cCoT17 = _CoChop(TestoorGoldenRead(cCoP2 + "/judge/17_routes_and_claims/expected.json"))
+	acCoFloor = [ "L7_floor_met", "L8_floor_refused" ]
+	for nCo = 1 to len(acCoFloor)
+		cCoFloorReq = '{"run":' + TestoorGoldenRead(cCoP2 + "/logbook/" + acCoFloor[nCo] + "/run.json") + ',"tours":[' + cCoT17 + "]}"
+		Then(acCoFloor[nCo] + ": the JSON carries the evidence record", StzEngineTestoorRunJson(cCoFloorReq),
+		     _CoChop(TestoorGoldenRead(cCoP2 + "/logbook/" + acCoFloor[nCo] + "/expected.json")))
+		Then(acCoFloor[nCo] + ": the prose says met or NOT MET", StzEngineTestoorRunProse(cCoFloorReq),
+		     _CoChop(TestoorGoldenRead(cCoP2 + "/logbook/" + acCoFloor[nCo] + "/expected.txt")))
+		Then(acCoFloor[nCo] + ": the exit code a gate reads", "" + StzEngineTestoorRunExit(cCoFloorReq),
+		     _CoChop(TestoorGoldenRead(cCoP2 + "/logbook/" + acCoFloor[nCo] + "/expected.exit")))
+	next
+EndScenario()
+? "        [section took " + ((clock() - nCoSec) / clockspersecond()) + "s]"
+
 ok
 
 ? ""
-? "[P3.1 + P3.2 + P3.3 took " + ((clock() - nCoStart) / clockspersecond()) + "s]"
+? "[P3.1 + P3.2 + P3.3 + the floor took " + ((clock() - nCoStart) / clockspersecond()) + "s]"
 Summary()
 
 #============================================================================

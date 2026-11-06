@@ -10,6 +10,9 @@
 #   TestoorManifestJson(acFiles, aOptions)
 #       acFiles    the tour files, as Walk() would take them
 #       aOptions   any of  :by :root :topic :subject :seed :repeat :timeout_ms :skipped :topics_skipped
+#                  :evidence_json  a gate's FLOOR OF EVIDENCE as JSON text, e.g.
+#                  '{"posture":"llm","tier":"critical","floor":{"min_kept":3,"min_routes":1}}' (protocol 2 section 6):
+#                  the run then exits 1 when the walk does not meet it, whatever its tours said
 #                  (a hash-list; every key is optional)
 #   TestoorNativeExe()
 #       the native runner's path: the TESTOOR_EXE variable, else engine/zig-out/bin/testoor beside the
@@ -39,6 +42,11 @@ func _ManifestStrings(pacList)
 	next
 	return _c_ + "]"
 
+# the floor a gate demands, written into the run when there is one
+func _ManifestEvidence(pcJson)
+	if pcJson = ""  return ""  ok
+	return ',"evidence":' + pcJson
+
 func TestoorNativeExe()
 	_c_ = sysget("TESTOOR_EXE")
 	if _c_ != "" and fexists(_c_)  return _c_  ok
@@ -53,7 +61,7 @@ func TestoorManifestJson(pacFiles, paOpt)
 	      ',"subject":' + _TourJsonStr("" + _ManifestOpt(paOpt, :subject, "")) +
 	      ',"seed":' + _ManifestOpt(paOpt, :seed, -1) +
 	      ',"repeat":' + _ManifestOpt(paOpt, :repeat, 1) +
-	      ',"timeout_ms":' + _ManifestOpt(paOpt, :timeout_ms, 120000) + "}" +
+	      ',"timeout_ms":' + _ManifestOpt(paOpt, :timeout_ms, 120000) + _ManifestEvidence(_ManifestOpt(paOpt, :evidence_json, "")) + "}" +
 	      ',"skipped":' + _ManifestStrings(_ManifestOpt(paOpt, :skipped, [])) +
 	      ',"topics_skipped":' + _ManifestStrings(_ManifestOpt(paOpt, :topics_skipped, [])) + ',"tours":['
 	_nF_ = len(pacFiles)

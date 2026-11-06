@@ -38,6 +38,7 @@ A new domain `stz_testoor`, built the way the engine's other domains are (`perf`
 | `src/testoor_graph.zig` | the graph store: the graph record, id comparison under a fold, the reach (closure of callers), impact selection, the nodes record (P3.3) |
 | `src/testoor_routes.zig` | the route join: owned, walked, unwalked, unknown walks, the findings the join raises, the report as prose and JSON (P3.3) |
 | `src/testoor_counters.zig` | node counters: a node registered once answers a slot, a hit by slot is an array increment, the report is the `[testoor node ID N]` lines (P3.4) |
+| `src/testoor_evidence.zig` | the evidence floor of protocol 2 section 6: the five counts, `met` and the first reason, the record and its summary line, the exit a gate reads (after P3) |
 | `src/testoor_walk.zig` | the walk: spawn by argv in the tour's folder, stamp each line with its arrival, hold the child (and its whole tree) to the deadline, read its error stream and its exit (P3.5) |
 | `src/testoor_runner.zig` | the runner: a manifest of tours in, each walked, judged and repeated for flakiness, the run logbook out (P3.5) |
 | `src/testoor_main.zig` | the `testoor` program: `testoor run MANIFEST [--json\|--prose]`, exit 0, 1 or 2 (P3.5; built by `zig build testoor-exe`, no Ring) |
@@ -319,6 +320,25 @@ The walk loop and the run moved into a native program. A command line that is no
   discovery of tours under a root, skip lists and topics (the face lists them in the manifest); the court's findings (the Ring
   court stays Ring); an automatic stop of the walk on the first failure. The stz CLI's side, calling `testoor` as a child, is the stz
   desk's and is not started.
+
+### The evidence floor, L7 and L8, 2026-11-06 -- DONE
+
+The last of the protocol-2 conformance cases (`TESTOOR_PROTOCOL_2.md` section 10).
+
+- **Written first, by hand:** judge case `17_routes_and_claims` and logbooks `L7_floor_met` and `L8_floor_refused` under
+  `golden/protocol2/`. The Zig harness reproduced all of them on its first run.
+- **`testoor_evidence.zig`:** the five counts, `met` computed from the counts and the floor and nothing else, the first failing
+  reason in a fixed order, the record (a floor field it did not set is omitted) and its summary line. Seven tests.
+- **The exit a gate reads:** a run that carries a floor and does not meet it exits 1, though every tour was kept (a refused change
+  rolls back). The decisions the draft left open are written into protocol 2 section 6.
+- **Where it can be asked:** the run request of the Ring seam (`run.evidence`), the manifest of the native runner
+  (`TestoorManifestJson(..., [ :evidence_json = '{"posture":..,"tier":..,"floor":{..}}' ])`), and the Zig runner's settings.
+  Through the native runner a one-tour run with two kept claims met a floor of two (exit 0), missed a floor of three (exit 1,
+  "kept 2 is below the floor's min_kept 3") and a floor asking for a route nobody walked (exit 1).
+- **Run, on rnxc:** `zig build test-testoor` 79 of 79 (7 new); twelve guards, **642 assertions** (the core guard 62, six of them the
+  floor through the Ring seam; the native guard 30, seven of them the gate).
+- **Not built:** the library's default floors per posture as refinement points (protocol 2 section 11, question 4: the library's data,
+  not the core's), and a Ring-reference version of the floor (it is core-only, like the rest of protocol 2).
 
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 

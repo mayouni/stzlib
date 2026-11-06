@@ -67,7 +67,10 @@ Zig harness (`testoor_golden_test.zig`) does.
 | `15_nodes_named_observed` | a node reached three times (one line spelled in another case, under the `ascii` fold), one named and never reached, one reached with a count; a node neither is not listed; rows in the graph's order |
 | `16_node_line_count` | counts add; a count that is `x`, `-1`, `1 2` or `1.5`, a bare `[testoor node]` and a zero are ignored |
 | `L6_graph_incomplete` | a run whose graph is not complete: `protocol` 2, the three figures, the incomplete line in the prose, and the run still exits 0 |
-| `impact/01_complete` | a change reaches its callers, found in order, and the tours that name them are selected |
+| `17_routes_and_claims` | four kept claims in two stops and two routes walked: what the evidence floor counts |
+| `L7_floor_met` | a gate's floor (`min_kept` 3, unjudged refused, `min_routes` 1) that the walk meets: the evidence record, `met` true, exit 0 |
+| `L8_floor_refused` | a floor (`min_kept` 5) the walk falls short of though the tour is kept: `met` false with the first reason, exit 1 |
+ | `impact/01_complete` | a change reaches its callers, found in order, and the tours that name them are selected |
 | `impact/02_open_graph` | an open node: the reason is written, every tour is selected and none is skipped |
 | `impact/03_two_changed` | two changed nodes: the union of their reaches |
 

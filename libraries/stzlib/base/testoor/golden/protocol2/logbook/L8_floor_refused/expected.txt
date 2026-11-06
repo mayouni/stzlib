@@ -1,0 +1,8 @@
+KEPT        fixtures/pricing.py  2 stops: 4 kept  (2.33 s, finished, timed)
+owned 1 tours, run 1 (two figures, never summed)
+  claims: 4 kept, 0 diverged, 0 unreached, 0 unjudged
+  evidence: NOT MET -- kept 4 is below the floor's min_kept 5; 4 kept, 0 diverged, 0 unreached, 0 unjudged, 2 routes walked (posture human, tier normal)
+  tours: 0 finished, 1 finished-timed, 0 not-started, 0 broke, 0 hung, 0 unreadable
+  wall: 2.33 s, by golden
+  skipped by name: 0
+exit 1
