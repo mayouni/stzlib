@@ -1297,44 +1297,34 @@ class stzStringList from stzObject
 	 #   SORT BY EXPRESSION                                 #
 	#------------------------------------------------------#
 
-	# Sorts the strings in place by a numeric key computed from each one, such as its length; a text key raises.
+	# Sorts the strings in place by a key worked out from each one: numbers by value, texts by code point, equal keys in their order.
 	#
-	#   pcExpr     a Ring expression that gives a number, with @string standing for the current
-	#              string
+	#   pcExpr     a W expression that gives one key per string, with @string or @item for the
+	#              current string and @i for its position
 	#   returns    nothing; the list changes
-	#   note       the sort is stable
-	#   warning    known defect: @item is not defined here and raises R24, and a key that is text
-	#              raises R41 because keys are compared with a greater-than, so only numeric keys
-	#              such as len(@string) work
-	#   see        SortInAscending
-	#@ aka  SortBy(cExpr): sort by an eval'd expression where @string aliases the per-item string. Pre-compute keys once, then insertion-sort over (key, value) pairs.
+	#   note       the keys must be all numbers or all texts, and a mix raises SortBy: ...; a text
+	#              key is compared by code point, so a capital comes before a lowercase letter, and
+	#              it may not hold the control characters 0 and 1; len() in the expression counts
+	#              bytes where Q(@string).NumberOfChars() counts characters; a list of fewer than
+	#              two strings is left as it is, without reading the expression
+	#   see        SortInAscending, StringsW
+	#   example    o1 = new stzStringList([ "pear", "fig", "apple" ])
+	#              o1.SortBy("len(@string)")
+	#              ? @@( o1.Content() )
+	#              #--> [ "fig", "pear", "apple" ]
+	#@ aka  SortBy(cExpr): the keys come from the W engine, never run as code (R17); the order is stable, from the engine's text sort for text keys and Ring's numeric sort for numbers.
 	def SortBy(pcExpr)
-		# NOTE: `This.Content() + []` does NOT copy -- Ring's `+`
-		# appends the empty list as a nested element, which then
-		# sorts to the front (its key len([]) = 0). Build a real
-		# shallow copy with a loop instead.
-		_aSrc_ = This.Content()
-		_nLen_ = len(_aSrc_)
+		_nLen_ = len(@acContent)
 		if _nLen_ < 2 return ok
-		_aData_ = []
+		if NOT isString(pcExpr)
+			StzRaise("Incorrect param type! pcExpr must be a string.")
+		ok
+		_anOrder_ = This._StableOrderOfKeys(This._SortKeys(pcExpr))
+		_acSorted_ = []
 		for _i_ = 1 to _nLen_
-			_aData_ + _aSrc_[_i_]
+			_acSorted_ + @acContent[_anOrder_[_i_]]
 		next
-		# the keys are computed by the engine, never run as code (R17)
-		_aKeys_ = StzWValues(_aData_, pcExpr)
-		for _i_ = 2 to _nLen_
-			_curKey_ = _aKeys_[_i_]
-			_curVal_ = _aData_[_i_]
-			_j_ = _i_ - 1
-			while _j_ >= 1 and _aKeys_[_j_] > _curKey_
-				_aKeys_[_j_ + 1] = _aKeys_[_j_]
-				_aData_[_j_ + 1] = _aData_[_j_]
-				_j_--
-			end
-			_aKeys_[_j_ + 1] = _curKey_
-			_aData_[_j_ + 1] = _curVal_
-		next
-		@acContent = _aData_
+		@acContent = _acSorted_
 
 		def SortByQ(pcExpr)
 			This.SortBy(pcExpr)
@@ -1342,6 +1332,97 @@ class stzStringList from stzObject
 
 		def SortedDown()
 			return This.SortedInDescending()
+
+	def _SortKeys(pcExpr)
+		# the keys are computed by the engine, never run as code (R17)
+		return StzWValues(@acContent, pcExpr)
+
+	def _StableOrderOfKeys(paKeys)
+		_nKeys_ = len(paKeys)
+		if _nKeys_ != len(@acContent)
+			StzRaise("SortBy: the expression gave " + _nKeys_ + " keys for " + len(@acContent) + " strings.")
+		ok
+		_nNumbers_ = 0
+		_nTexts_ = 0
+		for _i_ = 1 to _nKeys_
+			if isNumber(paKeys[_i_])
+				_nNumbers_++
+			but isString(paKeys[_i_])
+				_nTexts_++
+			else
+				StzRaise("SortBy: every key must be a number or a text.")
+			ok
+		next
+		if _nNumbers_ > 0 and _nTexts_ > 0
+			StzRaise("SortBy: the keys are numbers for some strings and texts for others, and the two cannot be put in one order.")
+		ok
+		if _nTexts_ > 0
+			return This._StableOrderOfTexts(paKeys)
+		ok
+		return This._StableOrderOfNumbers(paKeys)
+
+	def _StableOrderOfNumbers(paKeys)
+		# Ring's sort is not stable: sort the pairs [ key, position ] by key, then put the
+		# positions inside each run of equal keys back in order
+		_nKeys_ = len(paKeys)
+		_aPairs_ = []
+		for _i_ = 1 to _nKeys_
+			_aPairs_ + [ paKeys[_i_], _i_ ]
+		next
+		_aPairs_ = sort(_aPairs_, 1)
+		_anOrder_ = []
+		_i_ = 1
+		while _i_ <= _nKeys_
+			_j_ = _i_
+			while _j_ < _nKeys_ and _aPairs_[_j_ + 1][1] = _aPairs_[_i_][1]
+				_j_++
+			end
+			if _j_ = _i_
+				_anOrder_ + _aPairs_[_i_][2]
+			else
+				_anRun_ = []
+				for _k_ = _i_ to _j_
+					_anRun_ + _aPairs_[_k_][2]
+				next
+				_anRun_ = sort(_anRun_)
+				_nRun_ = len(_anRun_)
+				for _k_ = 1 to _nRun_
+					_anOrder_ + _anRun_[_k_]
+				next
+			ok
+			_i_ = _j_ + 1
+		end
+		return _anOrder_
+
+	def _StableOrderOfTexts(paKeys)
+		# Each key is followed by the control character 1 and its position, nine digits wide, and
+		# the engine sorts the lot by bytes: equal keys end up in order of position, and a key that
+		# is the start of a longer one comes first because 1 is below every character a key holds
+		_nKeys_ = len(paKeys)
+		_cJoined_ = ""
+		for _i_ = 1 to _nKeys_
+			if StzFindFirst(char(1), paKeys[_i_]) > 0
+				StzRaise("SortBy: a text key may not hold the control characters 0 and 1.")
+			ok
+			if _i_ > 1
+				_cJoined_ += StzChar(0)
+			ok
+			_cJoined_ += paKeys[_i_] + char(1) + right("000000000" + _i_, 9)
+		next
+		_pH_ = StzEngineString(_cJoined_)
+		_pR_ = StzEngineStringSortNullItemsCS(_pH_, 1)
+		_cSorted_ = StzEngineStringData(_pR_)
+		StzEngineStringFree(_pR_)
+		StzEngineStringFree(_pH_)
+		_acSorted_ = _SplitNullDelimited(_cSorted_)
+		if len(_acSorted_) != _nKeys_
+			StzRaise("SortBy: a text key may not hold the control characters 0 and 1.")
+		ok
+		_anOrder_ = []
+		for _i_ = 1 to _nKeys_
+			_anOrder_ + number(right(_acSorted_[_i_], 9))
+		next
+		return _anOrder_
 
 	  #======================================================#
 	 #   REVERSE                                            #
@@ -1748,19 +1829,50 @@ class stzStringList from stzObject
 	# TRUE if every string matches the pattern as a whole, so "a." matches ab and "a" does not; an empty list is TRUE.
 	#
 	#   pcRegexPatt   the regular expression, matched against each whole string
-	#   returns       TRUE or FALSE
-	#   warning       known defect: the old comment says it returns the strings that match, but it
-	#                 answers one verdict for the whole list
-	#   see           StringsW
-	#@ aka  The strings matching the given regex pattern.
+	#   returns       TRUE or FALSE, one verdict for the whole list and never the strings
+	#   note          a pattern that is no valid expression matches nothing, so the verdict is FALSE;
+	#                 an empty pattern or one that is not a text raises, except on an empty list
+	#   see           StringsMatching, StringsW
+	#   example       o1 = new stzStringList([ "ab", "ac" ])
+	#                 ? o1.Matches("a.")
+	#                 #--> 1
+	#@ aka  The verdict for the whole list, TRUE or FALSE; StringsMatching answers the strings that match.
 	def Matches(pcRegexPatt)
 		_nLen_ = len(@acContent)
+		if _nLen_ = 0
+			return 1
+		ok
+		_oRx_ = rx(pcRegexPatt)
 		for i = 1 to _nLen_
-			if rx(pcRegexPatt).Match(@acContent[i]) = 0
+			if _oRx_.Match(@acContent[i]) = 0
 				return 0
 			ok
 		next
 		return 1
+
+	# Returns the strings that match the pattern as a whole, in their order; an empty list when none does.
+	#
+	#   pcRegexPatt   the regular expression, matched against each whole string
+	#   returns       a list of strings
+	#   note          a pattern that is no valid expression matches nothing; an empty pattern or one
+	#                 that is not a text raises, except on an empty list
+	#   see           Matches, StringsW
+	#   example       o1 = new stzStringList([ "ab", "xc", "ac" ])
+	#                 ? @@( o1.StringsMatching("a.") )
+	#                 #--> [ "ab", "ac" ]
+	def StringsMatching(pcRegexPatt)
+		_aRes_ = []
+		_nLen_ = len(@acContent)
+		if _nLen_ = 0
+			return _aRes_
+		ok
+		_oRx_ = rx(pcRegexPatt)
+		for i = 1 to _nLen_
+			if _oRx_.Match(@acContent[i]) != 0
+				_aRes_ + @acContent[i]
+			ok
+		next
+		return _aRes_
 
 	  #======================================================#
 	 #   TYPE IDENTITY                                      #
