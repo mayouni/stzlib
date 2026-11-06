@@ -600,7 +600,7 @@ Scenario("the wire codec, on its own")
 EndScenario()
 
 Scenario("stage (b) is UNPERCEIVED, and says so")
-	cOut = StzSystem("ring payments_conformance_run.ring")
+	cOut = StzSystem(StzInterpreterPath() + " payments_conformance_run.ring")
 	Then("without DIKO's sandbox credentials the conformance run does not run", StzFindFirst("UNPERCEIVED", cOut) > 0, TRUE)
 	Then("...it names what is missing, by variable", StzFindFirst("PISPI_CLIENT_SECRET", cOut) > 0, TRUE)
 	Then("...it is not a failure and not a pass", StzFindFirst("STATUS: PASS", cOut), 0)

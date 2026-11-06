@@ -58,6 +58,13 @@ sec("scene 1")
 ? "-- Scene 2: the registry's choice is the implementation that answers --"
 nB = Calls("faculty.call")
 nA = len(aAsked)
+# only an ask the registry answers with a MODEL passes a model's door; a
+# faculty answered by its floor here (the platform's face detector, on
+# Windows) writes no model.call, rightly (2026-11-06)
+nModelAsks = 0
+for i = 1 to nA
+	if StzModelRegistryQ().ResolveQ(StzRequirementQ(aAsked[i])).IsFloor() = 0  nModelAsks++  ok
+next
 nMc0 = Calls("model.call")
 for i = 1 to nA
 	cChosen = StzModelRegistryQ().ResolveQ(StzRequirementQ(aAsked[i])).Chosen()
@@ -71,7 +78,7 @@ for i = 1 to nA
 next
 chk("a person asking leaves no faculty.call (the models' own doors already record the runs)", Calls("faculty.call") = nB)
 nMc1 = Calls("model.call")
-chk("...and each run reached the door: model.call grew by at least " + nA, nMc1 - nMc0 >= nA)
+chk("...and each run a model answers reached the door: model.call grew by at least " + nModelAsks + " (of " + nA + " asks)", nMc1 - nMc0 >= nModelAsks)
 aRec = Ledger("model.call")
 nNoOrigin = 0
 nR = len(aRec)
@@ -119,7 +126,7 @@ for i = nMc0 + 1 to len(aMc)
 		nOrig++
 	ok
 next
-chk("the models' doors wrote " + nMcNew + " model.call records, at least one per ask", nMcNew >= nA)
+chk("the models' doors wrote " + nMcNew + " model.call records, at least one per ask a model answers (" + nModelAsks + ")", nModelAsks > 0 and nMcNew >= nModelAsks)
 chk("...every one with the agent as origin (" + nOrig + " of " + nMcNew + ")", nOrig = nMcNew)
 sec("scene 3")
 

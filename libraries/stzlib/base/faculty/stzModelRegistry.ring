@@ -946,7 +946,7 @@ class stzModelPlan from stzObject
 
 	# Returns which kind of implementation the plan picked.
 	#
-	#   returns    a text: floor, model, dlm or service; an empty text for a refusal
+	#   returns    a text: floor, model, dlm, graph (a model file run by the engine) or service; an empty text for a refusal
 	#   note       the registry picks a service only when it was pinned by name
 	#   see        Chosen, IsFloor
 	def Kind()
