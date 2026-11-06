@@ -86,7 +86,11 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
    (`TESTOOR_ZIG_CORE.md` section 9; `testoor_counters.zig`, `stzNodes.ring`, `testoor_counters_narrated.ring` 29; measured first:
    a hit by slot is 0.19 us through Ring++ against the hook's 11.5 us, and the hook does not exist on Ring++). The measurement also
    found a 10.8 us allocation on every bridge call that returns text, now 0.23 us.
-5. **The `stz guard` child**, so the stz desk calls the Zig runner.
+5. **The `stz guard` child**, so the stz desk calls the Zig runner. **DONE 2026-11-06** (`TESTOOR_ZIG_CORE.md` section 9; `testoor_walk.zig`,
+   `testoor_runner.zig`, the `testoor` program, `stzManifest.ring`, `testoor_native_narrated.ring` 23; `zig build test-testoor` 72). The stz
+   guard it was to run through does not exist yet, so the acceptance was a parity of the native runner and the Ring runner on five
+   planted tours. TESTOOR-POLL-07 was measured first: the Ring runner's wait costs about 0 CPU per second waited; the Atelier's
+   CPU went elsewhere. A grandchild keeping the pipe open once kept the runner alive 29 s; a job object kills the tree now.
 - *Exit:* the Ring guards pass against the Zig core unchanged; a Zig test per module.
 
 ### P4 -- Graph-first coverage on the real library.

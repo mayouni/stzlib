@@ -1551,6 +1551,18 @@ pub fn build(b: *std.Build) void {
         to_run.setCwd(b.path("."));
         const to_step = b.step("test-testoor", "Test the Testoor core: promises, judge, logbook and the golden logbooks byte for byte");
         to_step.dependOn(&to_run.step);
+
+        // the Testoor runner as a native program (P3.5): no Ring, so a command line can call it as a child
+        const tr_mod = b.createModule(.{
+            .root_source_file = b.path("src/testoor_main.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        const tr_exe = b.addExecutable(.{ .name = "testoor", .root_module = tr_mod });
+        const tr_install = b.addInstallArtifact(tr_exe, .{});
+        const tr_step = b.step("testoor-exe", "Build the native Testoor runner: zig-out/bin/testoor");
+        tr_step.dependOn(&tr_install.step);
     }
 
     // Generator: populate reference data tables into unicode.db

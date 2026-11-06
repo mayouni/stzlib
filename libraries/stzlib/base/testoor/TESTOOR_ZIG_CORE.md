@@ -16,10 +16,11 @@ contracts are `TESTOOR_PROTOCOL.md` (1.1) and `TESTOOR_PROTOCOL_2.md` (draft); t
 | seeds, the stepped clock, weather, the scheduler hook | the code-graph readers (`stzCodeGraph`, the parsed program) |
 | the route join, the graph store (protocol 2), node counters | the court, refinement, diagrams, the intelligence layer |
 
-**The walk loop stays in the face's language until step P3.5.** It spawns, reads lines with their
-arrival times, enforces the deadline and calls the judge. The process seam already exists in the engine
-(`system.zig`, spawn by argv, non-blocking read, timed wait). Moving the loop is only wanted when the stz
-desk must call the runner without a Ring VM (`stz guard`), and not before.
+**The walk loop moved at step P3.5** (2026-11-06), because the stz command line must call the runner without a Ring VM.
+It spawns, reads lines with their arrival times, enforces the deadline and calls the judge, in `testoor_walk.zig`
+and `testoor_runner.zig`, behind a native program, `testoor`. The Ring Traveller keeps its own loop as the reference,
+and the Ring face still READS tours and hands the native runner a manifest (`stzManifest.ring`). Reading a tour is still
+the face's.
 
 ## 2. One domain, in the engine's own pattern
 
@@ -37,6 +38,9 @@ A new domain `stz_testoor`, built the way the engine's other domains are (`perf`
 | `src/testoor_graph.zig` | the graph store: the graph record, id comparison under a fold, the reach (closure of callers), impact selection, the nodes record (P3.3) |
 | `src/testoor_routes.zig` | the route join: owned, walked, unwalked, unknown walks, the findings the join raises, the report as prose and JSON (P3.3) |
 | `src/testoor_counters.zig` | node counters: a node registered once answers a slot, a hit by slot is an array increment, the report is the `[testoor node ID N]` lines (P3.4) |
+| `src/testoor_walk.zig` | the walk: spawn by argv in the tour's folder, stamp each line with its arrival, hold the child (and its whole tree) to the deadline, read its error stream and its exit (P3.5) |
+| `src/testoor_runner.zig` | the runner: a manifest of tours in, each walked, judged and repeated for flakiness, the run logbook out (P3.5) |
+| `src/testoor_main.zig` | the `testoor` program: `testoor run MANIFEST [--json\|--prose]`, exit 0, 1 or 2 (P3.5; built by `zig build testoor-exe`, no Ring) |
 | `src/ring_bridge_testoor.zig` | the `regs` table and the `R.ring_vm_api_*` glue |
 | `src/stz_testoor_entry.zig` | exports `ringlib_init` |
 
@@ -267,6 +271,54 @@ Node counters, the numerator of graph coverage, and the measurement that had to 
   assertions (the new `counters` 29, and the other ten unchanged); counters, routes, impact and clock also with `TESTOOR_CORE=ring`.
 - **Not built:** the Ring face handing a graph and the tour's names to the verdict from the runner (P4), an automatic flush of the
   report at the end of a tour (a tour calls `TestoorNodesReport()` itself), the evidence floor (`L7`, `L8`).
+
+### P3.5, 2026-11-06 -- DONE (the acceptance as written could not be run; what stood in for it is below)
+
+The walk loop and the run moved into a native program. A command line that is not Ring calls it as a child.
+
+- **TESTOOR-POLL-07 first, as promised.** The Atelier measured the Ring runner at 3,309 CPU seconds over 23 minutes while its
+  children were mostly idle. Measured here on Ring++ with a child that idles for 2, 10 and 20 seconds: the Ring runner costs
+  about 0.2 CPU seconds in all, **the same at every length**, so its wait is a real timed wait and not a spin (0.0 CPU per
+  second waited), and lines arrive stamped within ~20 ms. The native runner: **0.031 CPU seconds over 10.4 s**. The wait is
+  not where the Atelier's CPU went. The likelier cause is the one found on 2026-11-05: a child started without an
+  up-to-date rnxc prefix compiles the whole library, about 23 CPU seconds each. A polling loop was not the problem, and
+  waiting longer between polls would only have made every stop time later.
+- **`testoor_walk.zig`** is event-driven: one thread blocks on the child's output, one on its error stream, and the walking
+  thread waits for the stream's end with the deadline as its timeout. A line is stamped with the time of the read that
+  completed it, every carriage return is removed, a last line with no line feed is kept, a hung child's error stream is
+  dropped, a killed child answers exit -3 and one that could not be started -1: the Ring loop's rules.
+- **A defect the first test run hid.** The hung-tour test passed, yet the whole run took 31 s. A tour killed at its deadline
+  had a grandchild (`ping`) that kept the output pipe open, so the reader threads stayed blocked and the process could not
+  exit (29 s for a 1.5 s deadline). The Ring runner has the same blind spot (its own comment: "Kill() must reach the child
+  itself"). The child is now put in a Windows JOB OBJECT that kills everything in it, so the deadline kills the whole tree;
+  the tests fell to 4 s and no stray process is left. If a descendant ever escapes the job and a reader stays blocked, the
+  program ends itself hard instead of waiting.
+- **Three deliberate differences from the Ring loop:** the deadline is the WHOLE walk's (the Ring loop gave a child that had
+  ended its output a fresh full timeout); a child that streams without pause is still killed at the deadline (the Ring loop
+  looked at the clock only when nothing had arrived); and off Windows the wait for the exit after the stream ended is not
+  time-limited yet (the stream's end is). The off-Windows path compiles and is untested.
+- **`testoor_runner.zig`** reads a manifest (the shape is in its header), walks each tour, judges it with the same core,
+  repeats it with the same seed when asked and marks a tour flaky when its signature changes, and writes the run. The run's
+  wall time is the sum of every walk, repeats included, as the Ring runner's is (a `wall_ms` override on the logbook's settings).
+  A tour with no record is a self-describing one and is judged from what it prints.
+- **`testoor_main.zig`:** `testoor run MANIFEST.json [--json|--prose] [--seed N] [--repeat N] [--timeout MS]`; JSON on a pipe,
+  prose on a terminal, each tour's line streamed as it is judged; exit 0, 1 or 2 as the Ring runner's. Built with
+  `cd engine && zig build testoor-exe -j2`. No Ring.
+- **The Ring face, `stzManifest.ring`:** `TestoorManifestJson(files, options)` builds the manifest with the Ring reader, face and
+  launch template, so a tour the Ring runner would not run is unreadable in the manifest too. `TestoorNativeExe()` finds the program.
+- **Acceptance.** The roadmap asked for "the stz desk's guard run through the Zig runner gives the same exit code and logbook".
+  The stz repository has no guard command yet (its `src/main.zig` is a stub), so that could not be run. In its place,
+  `testoor_native_narrated.ring` (23 assertions) walks five planted tours with the Ring runner and with the native one: a
+  tour that holds, one that fails, one that breaks midway, one that hangs, and a self-describing one with no record. **State,
+  ending, exit, seed, every stop and every claim read the same, and so do the run's counts and its exit code (1).** A flaky tour is
+  found flaky by both; a hung tour is killed at 2.5 s and the native process itself returns in 2.54 s; a manifest that cannot be
+  read is refused with exit 2. The guard skips by name when the program is not built.
+- **Run, on rnxc against `engine-stzlib2` with the native program from the worktree:** `zig build test-testoor` 72 of 72, 4 s
+  (12 new: the walker and the runner spawn real children); twelve guards, **629 assertions**, none failing.
+- **Not built:** reading a tour in Zig (a Haro or CLI face must hand the native runner a record, or print `[testoor ...]` lines);
+  discovery of tours under a root, skip lists and topics (the face lists them in the manifest); the court's findings (the Ring
+  court stays Ring); an automatic stop of the walk on the first failure. The stz CLI's side, calling `testoor` as a child, is the stz
+  desk's and is not started.
 
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 

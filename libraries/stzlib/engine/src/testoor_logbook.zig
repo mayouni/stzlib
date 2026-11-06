@@ -218,6 +218,9 @@ pub const Settings = struct {
     topics_skipped: []const []const u8 = &.{},
     /// protocol 2: the graph the run was walked against, when it had one
     graph: ?GraphSettings = null,
+    /// the run's wall time when the runner knows it: the sum of EVERY walk, repeats included. Without it
+    /// the sum of the tours' own, which is what a run rebuilt from judged tours has
+    wall_ms: ?f64 = null,
 };
 
 /// what the runner knows of its graph; `named` and `observed` are counted from the tours
@@ -333,7 +336,7 @@ pub fn runJson(b: *Buf, st: Settings, tours: []const V.Tour) !void {
     try b.s(",\"run\":");
     try b.int(c.run);
     try b.s(",\"wall_ms\":");
-    try b.num(c.wall_ms);
+    try b.num(st.wall_ms orelse c.wall_ms);
     try b.s(",\"timeout_ms\":");
     try b.num(st.timeout_ms);
     try b.s(",\"seed\":");
@@ -440,7 +443,7 @@ pub fn summary(b: *Buf, st: Settings, tours: []const V.Tour) !void {
     try b.s(" hung, ");
     try b.int(c.unreadable);
     try b.s(" unreadable\n  wall: ");
-    try b.num(c.wall_ms / 1000.0);
+    try b.num((st.wall_ms orelse c.wall_ms) / 1000.0);
     try b.s(" s, by ");
     try b.s(st.by);
     try b.s("\n  skipped by name: ");

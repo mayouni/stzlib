@@ -484,7 +484,7 @@ Ring. Four differences between the VMs bit this plane: no `binarysearch()` on rn
 
 **The judge is written in Zig (P3, 2026-11-05).** `engine/src/testoor_*.zig` is the core and `base/testoor/*.ring` is
 its reference; the golden logbooks in `base/testoor/golden/` are the acceptance test. **FAST PATH for the core:
-`cd engine && zig build test-testoor -j2` is 30 s cold and about 100 ms to run, 60 tests, with no Ring involved.** It reads
+`cd engine && zig build test-testoor -j2` is 30 s cold and 4 s to run, 72 tests (the walker and the runner spawn real children), with no Ring involved.** It reads
 `golden/` and compares 43 expected files byte for byte. `TESTOOR_CORE=ring` (or `TestoorCore("ring")`) makes
 `TestoorVerdict` use the Ring reference instead of the `stz_testoor` library; the guard
 `testoor_core_narrated.ring` runs both in one process. Four Ring facts the port is built on, measured on both
@@ -496,6 +496,14 @@ for the logbook: Ring escapes five bytes and writes every other byte raw.
 reads a graph record, closes a change over its callers, selects tours and writes a tour's `nodes`. `golden/protocol2/` holds
 the cases only the core can judge; their expected files were written by hand from `TESTOOR_PROTOCOL_2.md`, so never
 regenerate them from the core's own output.
+
+**The walk loop is the core's too (P3.5), as a native program.** `cd engine && zig build testoor-exe -j2` builds
+`zig-out/bin/testoor`; `testoor run MANIFEST.json [--json|--prose]` walks, judges and logs with no Ring VM, and exits 0, 1 or 2 as
+the Ring runner does. A face hands it a manifest (`TestoorManifestJson` in `stzManifest.ring`). `testoor_native_narrated.ring` skips
+BY NAME when the program is not found: set `TESTOOR_EXE`. **Killing only a child leaves its grandchildren holding the output pipe**
+(a tour killed at 1.5 s kept the runner alive 29 s): the child goes in a Windows job object so the deadline kills the tree. And
+TESTOOR-POLL-07 is answered by a measurement: the Ring runner's wait costs ~0 CPU per second waited, so a high CPU figure for a
+runner is a child compiling the library without a rnxc prefix, not the poll.
 
 **Node counters are the core's too (P3.4)**, and the way they were built is a rule: measure the call before designing the API.
 On Ring++ an empty Ring function call is 0.05 us, an engine call taking and returning numbers 0.15 us, and an engine call that
