@@ -98,6 +98,7 @@ pub const Fns = struct {
     wgpuDeviceCreateBindGroup: *const @TypeOf(c.wgpuDeviceCreateBindGroup),
     wgpuDevicePoll: *const @TypeOf(c.wgpuDevicePoll),
     wgpuDeviceRelease: *const @TypeOf(c.wgpuDeviceRelease),
+    wgpuDeviceDestroy: *const @TypeOf(c.wgpuDeviceDestroy),
     wgpuQueueSubmit: *const @TypeOf(c.wgpuQueueSubmit),
     wgpuQueueWriteBuffer: *const @TypeOf(c.wgpuQueueWriteBuffer),
     wgpuQueueRelease: *const @TypeOf(c.wgpuQueueRelease),
@@ -289,7 +290,12 @@ fn onDevice(status: c.WGPURequestDeviceStatus, dev: c.WGPUDevice, message: c.WGP
 
 fn onUncapturedError(_: [*c]const c.WGPUDevice, _: c.WGPUErrorType, message: c.WGPUStringView, _: ?*anyopaque, _: ?*anyopaque) callconv(.c) void {
     counters[CTR_GPU_ERRORS] += 1;
-    setLastError(svSlice(message));
+    const m = svSlice(message);
+    setLastError(m);
+    // A lost device reports itself HERE (every object it is asked to make is an error that names it) even when
+    // the device-lost callback is never delivered, which is what a device destroyed under us does (probed
+    // 2026-11-06, in every callback mode). The next submit would abort the process, so the flag goes down now.
+    if (std.mem.indexOf(u8, m, "is lost") != null) available = false;
 }
 
 fn onDeviceLost(_: [*c]const c.WGPUDevice, _: c.WGPUDeviceLostReason, message: c.WGPUStringView, _: ?*anyopaque, _: ?*anyopaque) callconv(.c) void {
@@ -524,6 +530,13 @@ fn createInstance(backends: c.WGPUInstanceBackend) c.WGPUInstance {
 
 pub fn stz_gpu_init(path: [*:0]const u8) callconv(.c) i32 {
     if (available) return 1;
+    // A device LOST under us (a TDR, a driver reset): `available` is already false, but the dead device's
+    // buffer table, kernels, uniform pools and the layers' device objects are all still here. Clean the dead
+    // one up before opening the next, as Shutdown and a change of adapter already do, so no id of the dead
+    // device can name a resource on the new one. DEFENSIVE: the 2026-11-06 abort that was reproduced came from
+    // a submit to a device nobody had noticed was gone (deviceAlive fixes that), and this cleanup was NOT
+    // shown necessary by removing it and re-running the loss scene.
+    if (device != null) closeDevice();
     clearErrors();
     if (!loadWgpu(std.mem.span(path))) {
         setLastError("wgpu runtime not loadable");
@@ -583,7 +596,11 @@ fn openDeviceOn(idx: usize) i32 {
     var desc = std.mem.zeroes(c.WGPUDeviceDescriptor);
     desc.label = sv("stz_gpu");
     desc.uncapturedErrorCallbackInfo = .{ .nextInChain = null, .callback = onUncapturedError, .userdata1 = null, .userdata2 = null };
-    desc.deviceLostCallbackInfo = .{ .nextInChain = null, .mode = c.WGPUCallbackMode_AllowProcessEvents, .callback = onDeviceLost, .userdata1 = null, .userdata2 = null };
+    // SPONTANEOUS, not AllowProcessEvents: the loss must be known the moment it happens. In process-events mode
+    // the callback was never delivered after a destroyed device (probed 2026-11-06), so `available` stayed true
+    // and the next queue submit named a dead device and aborted the process. The callback only clears a flag and
+    // counts, so running it on whatever thread wgpu loses the device on is safe.
+    desc.deviceLostCallbackInfo = .{ .nextInChain = null, .mode = c.WGPUCallbackMode_AllowSpontaneous, .callback = onDeviceLost, .userdata1 = null, .userdata2 = null };
     const cbinfo = c.WGPURequestDeviceCallbackInfo{
         .nextInChain = null,
         .mode = c.WGPUCallbackMode_AllowProcessEvents,
@@ -697,6 +714,42 @@ pub fn stz_gpu_shutdown() callconv(.c) void {
     // stay stable for the process lifetime. The DLL stays loaded.
 }
 
+/// Is the device still there? `available` is cleared by the device-lost callback, and that callback is only
+/// DELIVERED when events are processed: with nothing processing them, a device lost between two calls (a TDR,
+/// a driver reset) leaves `available` true, and the next queue submit names a dead device, which wgpu-native
+/// answers with a panic that aborts the whole process (reproduced 2026-11-06: "Error in wgpuQueueSubmit:
+/// Parent device is lost"). So every entry point that is about to touch the queue asks here first: one
+/// non-blocking poll and one pass over the pending events, a few microseconds against a submit's tens.
+fn deviceAlive() bool {
+    if (!available) return false;
+    _ = fns.wgpuDevicePoll(device, 0, null);
+    fns.wgpuInstanceProcessEvents(instance);
+    if (!available) return false;
+    // The CANARY: making a 4-byte buffer on a lost device does not abort (wgpu makes an error object and tells
+    // the uncaptured-error callback, which now treats "is lost" as the loss), where the submit that follows would.
+    var d = std.mem.zeroes(c.WGPUBufferDescriptor);
+    d.size = 4;
+    d.usage = c.WGPUBufferUsage_CopyDst;
+    if (fns.wgpuDeviceCreateBuffer(device, &d)) |b| fns.wgpuBufferRelease(b);
+    return available;
+}
+
+/// GT3: destroy the device under the engine's feet, the way a driver reset or a TDR does. The lost
+/// callback fires (the engine marks itself unavailable, counts an error and keeps the message) and NOTHING
+/// else is cleaned up by us: the buffer table, the kernels and the hooks are exactly as a real loss leaves
+/// them. For tests only. 1 when the engine noticed (it is unavailable now), 0 when it did not or there was
+/// no device to lose.
+pub fn stz_gpu_simulate_device_loss() callconv(.c) i32 {
+    if (!available) return 0;
+    fns.wgpuDeviceDestroy(device);
+    var spins: usize = 0;
+    while (spins < 50) : (spins += 1) {
+        if (!deviceAlive()) return 1;
+        std.Thread.sleep(1_000_000);
+    }
+    return 0;
+}
+
 pub fn stz_gpu_is_available() callconv(.c) i32 {
     return if (available) 1 else 0;
 }
@@ -772,7 +825,7 @@ pub fn stz_gpu_counters_reset() callconv(.c) void {
 // ---------------- buffers
 
 pub fn stz_gpu_buffer_new(nbytes: f64) callconv(.c) i64 {
-    if (!available) {
+    if (!deviceAlive()) {
         counters[CTR_FALLBACK_COUNT] += 1;
         return 0;
     }
@@ -834,7 +887,7 @@ pub fn stz_gpu_buffer_size(id: i64) callconv(.c) f64 {
 /// Upload raw bytes. Staged by wgpu; flushed by the next submit (a dispatch or
 /// a read) -- no extra submit here, residency chains stay one-submit-per-op.
 pub fn stz_gpu_buffer_write(id: i64, data: [*]const u8, nbytes: f64) callconv(.c) i32 {
-    if (!available) {
+    if (!deviceAlive()) {
         counters[CTR_FALLBACK_COUNT] += 1;
         return FALLBACK;
     }
@@ -849,7 +902,7 @@ pub fn stz_gpu_buffer_write(id: i64, data: [*]const u8, nbytes: f64) callconv(.c
 /// Read back `nbytes` from the buffer into `out`. Synchronous: encodes a copy
 /// to a transient staging buffer, submits, maps, copies out.
 pub fn stz_gpu_buffer_read(id: i64, out: [*]u8, nbytes: f64) callconv(.c) i32 {
-    if (!available) {
+    if (!deviceAlive()) {
         counters[CTR_FALLBACK_COUNT] += 1;
         return FALLBACK;
     }
@@ -901,7 +954,7 @@ pub fn stz_gpu_buffer_read(id: i64, out: [*]u8, nbytes: f64) callconv(.c) i32 {
 /// kind: TEX_TARGET (0) offscreen render target, TEX_NEAREST (1) / TEX_LINEAR
 /// (2) sampled texture. RGBA8Unorm always -- ONE format, the GR0 contract.
 pub fn stz_gpu_texture_new(wf2: f64, hf: f64, kind: f64) callconv(.c) i64 {
-    if (!available) {
+    if (!deviceAlive()) {
         counters[CTR_FALLBACK_COUNT] += 1;
         return 0;
     }
@@ -1035,7 +1088,7 @@ pub fn stz_gpu_texture_height(id: i64) callconv(.c) f64 {
 /// Full-texture RGBA8 upload (sampled kinds only; a render target's pixels
 /// come from rendering). nbytes must be exactly w*h*4.
 pub fn stz_gpu_texture_write(id: i64, data: [*]const u8, nbytes: f64) callconv(.c) i32 {
-    if (!available) {
+    if (!deviceAlive()) {
         counters[CTR_FALLBACK_COUNT] += 1;
         return FALLBACK;
     }
@@ -1064,8 +1117,18 @@ pub fn stz_gpu_texture_write(id: i64, data: [*]const u8, nbytes: f64) callconv(.
 // them. A REGISTRY rather than a single slot, because there is more than
 // one such layer now and a second one silently overwriting the first would
 // leak exactly the objects this exists to release.
-const MAX_CLOSE_HOOKS = 4;
+//
+// The registry held FOUR slots and silently ignored a fifth; nine modules register one today (the
+// render, scene, scene3d and surface layers, the checker, the fft op and the scan-family ops), so
+// which of them were forgotten depended on which a process touched first. It holds 32 now, and a
+// registration that finds it full is COUNTED (`stz_gpu_close_hooks(1)`), not lost: a layer whose
+// hook never runs leaks exactly the objects the hook exists to release.
+const MAX_CLOSE_HOOKS = 32;
+comptime {
+    std.debug.assert(MAX_CLOSE_HOOKS >= 16); // at least twice what registers today
+}
 var close_hooks: [MAX_CLOSE_HOOKS]?*const fn () void = @splat(null);
+var close_hooks_dropped: usize = 0;
 
 pub fn registerDeviceCloseHook(f: *const fn () void) void {
     for (&close_hooks) |*slot| {
@@ -1076,6 +1139,19 @@ pub fn registerDeviceCloseHook(f: *const fn () void) void {
         slot.* = f;
         return;
     }
+    close_hooks_dropped += 1; // full: the hook will not run, and that is now a number a guard can read
+}
+
+/// 0: how many close hooks are registered right now; 1: how many registrations found the registry
+/// full and were dropped (always 0 unless a layer was added without enlarging the registry).
+pub fn stz_gpu_close_hooks(which: i32) callconv(.c) f64 {
+    if (which == 1) return @floatFromInt(close_hooks_dropped);
+    if (which != 0) return -1;
+    var n: usize = 0;
+    for (close_hooks) |h| {
+        if (h != null) n += 1;
+    }
+    return @floatFromInt(n);
 }
 
 fn runCloseHooks() void {
@@ -1206,7 +1282,7 @@ pub fn mapCallback() c.WGPUBufferMapCallbackInfo {
 ///   @binding(0) = uniform StzTile { xoff: u32, ... } (owned by this layer)
 ///   @binding(1..) = the caller's storage buffers, in dispatch order.
 pub fn stz_gpu_kernel_compile(text: [*]const u8, len: f64) callconv(.c) i64 {
-    if (!available) {
+    if (!deviceAlive()) {
         counters[CTR_FALLBACK_COUNT] += 1;
         return 0;
     }
@@ -1356,7 +1432,7 @@ pub fn frameEncoder() c.WGPUCommandEncoder {
 /// Open a frame. Every dispatch and every render pass until FrameEnd
 /// encodes into ONE encoder and costs ONE submit between them.
 pub fn stz_gpu_frame_begin() callconv(.c) i32 {
-    if (!available) {
+    if (!deviceAlive()) {
         counters[CTR_FALLBACK_COUNT] += 1;
         return FALLBACK;
     }
@@ -1389,7 +1465,7 @@ pub fn stz_gpu_frame_active() callconv(.c) i32 {
 
 /// Open a batch. Dispatches accumulate into one pass until End.
 pub fn stz_gpu_batch_begin() callconv(.c) i32 {
-    if (!available) {
+    if (!deviceAlive()) {
         counters[CTR_FALLBACK_COUNT] += 1;
         return FALLBACK;
     }
@@ -1440,7 +1516,7 @@ pub fn stz_gpu_dispatch_params(kernel: i64, params: [*]const u8, params_len: f64
 }
 
 fn dispatchInternal(kernel: i64, params: ?[]const u8, buf_ids: [*]const i64, nbufs: i32, wx: f64, wy: f64) i32 {
-    if (!available) {
+    if (!deviceAlive()) {
         counters[CTR_FALLBACK_COUNT] += 1;
         return FALLBACK;
     }
@@ -1580,7 +1656,7 @@ fn dispatchInternal(kernel: i64, params: ?[]const u8, buf_ids: [*]const i64, nbu
 
 /// Block until all submitted work completes.
 pub fn stz_gpu_sync() callconv(.c) i32 {
-    if (!available) {
+    if (!deviceAlive()) {
         counters[CTR_FALLBACK_COUNT] += 1;
         return FALLBACK;
     }
@@ -1809,6 +1885,40 @@ test "the shaped route: an unmeasured class between measured ones is interpolate
     try std.testing.expectEqual(@as(i32, 1), stz_gpu_calib_route_shaped(op.ptr, op.len, 100000, 64));
     calib.clearRetainingCapacity();
     calib_shaped.clearRetainingCapacity();
+}
+
+var test_hook_hits: usize = 0;
+fn TestHook(comptime i: usize) *const fn () void {
+    return &struct {
+        fn f() void {
+            _ = i;
+            test_hook_hits += 1;
+        }
+    }.f;
+}
+
+test "the close-hook registry holds every module that registers one, counts a full registry, and runs each hook once" {
+    close_hooks = @splat(null);
+    close_hooks_dropped = 0;
+    test_hook_hits = 0;
+    // nine register today: all of them fit, with room for as many again and more
+    inline for (0..9) |i| registerDeviceCloseHook(TestHook(i));
+    try std.testing.expectEqual(@as(f64, 9), stz_gpu_close_hooks(0));
+    try std.testing.expectEqual(@as(f64, 0), stz_gpu_close_hooks(1));
+    // registering the same hook again is not a second hook and not a drop
+    registerDeviceCloseHook(TestHook(3));
+    try std.testing.expectEqual(@as(f64, 9), stz_gpu_close_hooks(0));
+    try std.testing.expectEqual(@as(f64, 0), stz_gpu_close_hooks(1));
+    // fill it, then three more: three are dropped AND counted, none vanishes silently
+    inline for (9..MAX_CLOSE_HOOKS + 3) |i| registerDeviceCloseHook(TestHook(i));
+    try std.testing.expectEqual(@as(f64, MAX_CLOSE_HOOKS), stz_gpu_close_hooks(0));
+    try std.testing.expectEqual(@as(f64, 3), stz_gpu_close_hooks(1));
+    // closing runs every registered hook exactly once
+    runCloseHooks();
+    try std.testing.expectEqual(@as(usize, MAX_CLOSE_HOOKS), test_hook_hits);
+    try std.testing.expectEqual(@as(f64, -1), stz_gpu_close_hooks(2));
+    close_hooks = @splat(null);
+    close_hooks_dropped = 0;
 }
 
 test "shape classes are powers-of-two ceilings" {

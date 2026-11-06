@@ -4563,6 +4563,48 @@ clock agrees.
 segmented scan and reduction, and the sparse-dense product, each with a CPU
 reference, shapes, a measured roof fraction and a stored route.
 
+## GT3 STATUS — the long run, shortened: a soak guard, a lost device reported and recovered, and two defects found (2026-11-06)
+
+**What ran, and what did not.** The row asks for an hour of a backbone forward and the checker. What was run is
+`gpu_soak_narrated.ring`: a loop over six compute modules (convolution, scan, compaction, sort, segmented
+reduction, sparse product) and the checker that closes and reopens the device every tenth round, for `SOAK_SECONDS`
+seconds (default 60; one 10-minute run, 2,650 rounds and 265 closings, was made by hand), then an engine-alone
+phase with no Ring lists in the loop, then three simulated device losses. **No backbone forward was in the loop, and
+no run lasted an hour.** The row is therefore met in its two conditions at minutes scale, not at the scale it names.
+
+**Flat, measured.** Live buffers, compiled kernels and process memory held across the runs: the live-buffer count
+after the first round (1 of 1, the FFT twiddle table kept on purpose) was the count after every later round and
+after every reopening; the compile count did not move; the engine-alone phase grew the resident set by 5 MB over
+40 s against a 32 MB bound. The whole-process resident set DOES step up while Ring lists are built and dropped (the
+Ring heap, not the engine), which is why the bound is on the engine-alone phase and the loop's own is a loose
+quarter-mean bound.
+
+**Defect 1, found by reading: the close-hook registry dropped silently when full.** Sixteen slots, and a seventeenth
+registering layer was ignored, so its scratch would survive a device closing. Now 32 slots with a compile-time
+assert that the cap is at least 16, a counter of the dropped (`StzEngineGpuCloseHooks(1)`), and a Zig test with a
+negative control (the cap plus three registered gives three dropped). The guard asserts zero dropped.
+
+**Defect 2, found by simulating the loss: a submit to a lost device aborts the process.** wgpu-native answers a queue
+submit to a lost device with a panic that cannot unwind (`Error in wgpuQueueSubmit: Parent device is lost`), and the
+engine only learned of a loss from the device-lost callback, which is delivered only while events are processed.
+Worse, an explicit `wgpuDeviceDestroy` never delivers that callback in this build, in any callback mode. Fixed in
+two parts: the uncaptured-error callback treats a message naming "is lost" as the loss, and the ten entry points
+that count a fallback now ask `deviceAlive()` first, which polls, processes events and creates a 4-byte buffer as a
+canary (creating a buffer on a lost device raises an error object and that callback, and does not abort).
+`StzEngineGpuSimulateDeviceLoss()` destroys the device under the engine and returns 1 when the engine noticed.
+The guard's scene 4 runs three losses: each is noticed, reported (the error count rises, the last error names the
+loss), answers FALLBACK for three ops while down, comes back on `Init`, and gives the first round's answers.
+
+**What is NOT shown.**
+- **A real driver reset.** The loss is a destroy, not a TDR; the lost callback a real reset would deliver was never
+  seen here, and the canary's behaviour on a real loss is the same call made on the same wgpu state, not a proven one.
+- **That `Init`'s cleanup is needed.** `Init` now closes a dead device before opening the next. It was not shown
+  necessary by removing it and re-running the loss scene; it is kept as a defensive step and said so in the source.
+- **The checker's `impossible` speed verdict.** The checker said `impossible` instead of `verified` for its tiny
+  correct kernel in 4 of 2,940 rounds across two runs. The first three fell within 3 rounds of a reopening and the
+  fourth did not, so no claim is made about reopening. It is a speed verdict (a time below the measured floors),
+  never a wrong answer; the guard keeps it apart from the answers and bounds its plain rate at 2%.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
@@ -4590,7 +4632,7 @@ GK4 was.
 | **GT0** | a random-kernel fuzz: descriptions generated from the grammar, transpiled and interpreted, compared on the device; seeded, counted, a fixed budget per run | a guard runs N generated kernels of every line kind and prints how many agreed, how many were refused, and each disagreement with its seed | none: a disagreement is a bug, not a reason to stop | this desk |
 | **GT1** | the guards on main's library under Ring++, not on the vehicle's overlay | every GPU guard runs from a checkout of main under `rnxc` | none | waits on the Principal's ruling on the library's Rule A migration |
 | **GT2** | a platform matrix: AMD, Apple, Linux; Chrome, Edge, Firefox, Safari | the guards and the edge proof pass, or each failure is named, on each machine | none | waits on machines only the author can provide |
-| **GT3** | a long run: a backbone forward and the checker repeated for an hour | memory and handle counts are flat; a lost device is reported and recovered, not crashed | none | this desk |
+| **GT3** | a long run: a backbone forward and the checker repeated for an hour | memory and handle counts are flat; a lost device is reported and recovered, not crashed | none | this desk. SHORTENED 2026-11-06 (see GT3 STATUS): minutes, no backbone forward, a destroy-based loss; both conditions met at that scale |
 | **GZ0** | the interpreter as a sanitizer: a shared-memory race, a read past a shared array and a barrier not every thread reaches are reported with the line that caused them | each defect class has a negative puzzle that the sanitizer names and the device does not | if a race the device shows is missed, the sanitizer is wrong and is fixed before it ships | this desk |
 | **GC0** | MEASURED 2026-10-28 (see GC0 STATUS): the distance to cuBLAS: the foundry's matmul against the vendor's, same laptop, same shapes, both clocks | a table of ratios on MiniLM's shapes and on square shapes from 256 to 4,096 | none: the number is the deliverable | needs a benchmark-only tool on the machine (PyTorch or a cuBLAS sample); the no-new-dependency rule makes that the author's call |
 | **GL0** | the language grows: integer and vector types, atomics, 2-D and 3-D grids, a general bounded loop, branches | each admission has a puzzle, a refusal list, and agreement between both readers | an admission that the interpreter cannot mirror exactly is refused | this desk; after GT0, so the fuzz covers each admission as it lands |

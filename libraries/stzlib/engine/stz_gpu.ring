@@ -41,6 +41,8 @@
 #   StzEngineGpuOpSegReduce(hIn, hFlags, hOut, n, nOp) -> [status, segments]   one number per segment, packed; hOut holds n
 #   StzEngineGpuOpSpmv(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nVariant)   y = A x, A in CSR (offsets and columns as f32 whole numbers); variant 0 auto 1 scalar 2 vector (GB0)
 #   StzEngineGpuOpSpmm(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nK)         Y = A X, X ncols x nK row-major
+#   StzEngineGpuSimulateDeviceLoss() -> 1 when a device destroyed under the engine was noticed: a test of the recovery path, not for production (GT3)
+#   StzEngineGpuCloseHooks(0) -> device-close hooks registered; (1) -> registrations dropped because the registry was full (must be 0) (GT3)
 # OUT buffers must be distinct from inputs (WebGPU aliasing validation).
 #
 # Kernel binding contract (every kernel compiled through this layer):

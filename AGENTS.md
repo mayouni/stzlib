@@ -131,7 +131,7 @@ cd libraries/stzlib/base/test/gpu && rnxc gpu_verify_narrated.ring && rnxc gpu_s
 ```
 
 ```bash
-cd libraries/stzlib/base/test/gpu && rnxc gpu_grammar_narrated.ring && rnxc gpu_shared_narrated.ring && rnxc gpu_puzzle_narrated.ring && rnxc gpu_fuzz_narrated.ring && rnxc gpu_sanitizer_narrated.ring && rnxc gpu_when_narrated.ring && rnxc gpu_int_narrated.ring && rnxc gpu_vec_narrated.ring && rnxc gpu_buffers_narrated.ring && rnxc gpu_atomic_narrated.ring && rnxc gpu_host_narrated.ring && rnxc gpu_loop_narrated.ring && rnxc gpu_grid3_narrated.ring && rnxc gpu_scan_narrated.ring && rnxc gpu_compact_narrated.ring && rnxc gpu_sort_narrated.ring && rnxc gpu_segscan_narrated.ring && rnxc gpu_spmv_narrated.ring
+cd libraries/stzlib/base/test/gpu && rnxc gpu_grammar_narrated.ring && rnxc gpu_shared_narrated.ring && rnxc gpu_puzzle_narrated.ring && rnxc gpu_fuzz_narrated.ring && rnxc gpu_sanitizer_narrated.ring && rnxc gpu_when_narrated.ring && rnxc gpu_int_narrated.ring && rnxc gpu_vec_narrated.ring && rnxc gpu_buffers_narrated.ring && rnxc gpu_atomic_narrated.ring && rnxc gpu_host_narrated.ring && rnxc gpu_loop_narrated.ring && rnxc gpu_grid3_narrated.ring && rnxc gpu_scan_narrated.ring && rnxc gpu_compact_narrated.ring && rnxc gpu_sort_narrated.ring && rnxc gpu_segscan_narrated.ring && rnxc gpu_spmv_narrated.ring && rnxc gpu_soak_narrated.ring
 ```
 
 The standalone probe beside it prints every adapter's peak with its spread, A B A B against

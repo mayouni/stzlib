@@ -112,6 +112,16 @@ fn ring_Counter(p: *anyopaque) callconv(.c) void {
     rn(p, gpu.stz_gpu_counter(@intFromFloat(gn(p, 1))));
 }
 
+// SimulateDeviceLoss() -> 1 when the engine noticed a device destroyed under it (a test of the recovery path)
+fn ring_SimulateDeviceLoss(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gpu.stz_gpu_simulate_device_loss()));
+}
+
+// CloseHooks(0) -> how many device-close hooks are registered; CloseHooks(1) -> how many registrations were dropped (must be 0)
+fn ring_CloseHooks(p: *anyopaque) callconv(.c) void {
+    rn(p, gpu.stz_gpu_close_hooks(@intFromFloat(gn(p, 1))));
+}
+
 fn ring_CountersReset(p: *anyopaque) callconv(.c) void {
     gpu.stz_gpu_counters_reset();
     rn(p, 1);
@@ -2541,6 +2551,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpusettilelimit", .func = &ring_SetTileLimit },
     .{ .name = "stzenginegputilelimit", .func = &ring_TileLimit },
     .{ .name = "stzenginegpucounter", .func = &ring_Counter },
+    .{ .name = "stzenginegpuclosehooks", .func = &ring_CloseHooks },
+    .{ .name = "stzenginegpusimulatedeviceloss", .func = &ring_SimulateDeviceLoss },
     .{ .name = "stzenginegpucountersreset", .func = &ring_CountersReset },
     .{ .name = "stzenginegpulasterror", .func = &ring_LastError },
     .{ .name = "stzenginegpufirsterror", .func = &ring_FirstError },
