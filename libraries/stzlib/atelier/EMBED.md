@@ -50,10 +50,12 @@ needs to be built to cite a check**, and nothing is fetched from a server.
 ## 4. Resolving a citation
 
 ```
-python cite.py <commit>:<id> [--data <folder>] [--format json|markdown|html]
+rnxc edition.ring cite <commit>:<id> [--data <folder>] [--format json|markdown|html]
 ```
 
-From the Atelier's folder at the pinned commit (or from a built edition, `--data <edition>/data`).
+From the Atelier's folder at the pinned commit (or from a built edition, `--data <edition>/data`),
+on Ring++: the tool is library code (`atelierEdition.ring`, `AtelierCiteCheck`). A pin taken
+before 2026-11-06 carries it as `python cite.py`, with the same arguments and the same record.
 It answers one record -- description, file, line, scenario, code, the recorded state, what was
 said when it did not pass, and `judged_by` (library, rnxc, engine, when) -- or **refuses with
 exit 2** and the reason: the data was recorded at another commit, or no check has that id. A
@@ -65,10 +67,11 @@ A book's builder calls it once per citation and renders the record in its own st
 ## 5. The static edition
 
 ```
-python build_static.py --out <folder>
+rnxc edition.ring build-checks --out <folder> [--allow-mixed]
 ```
 
-writes `<folder>/<commit>/`: `index.html` (the checks by domain, with search), `coverage.html` (the
+(from the Atelier's folder, on Ring++; a pin taken before 2026-11-06 carries it as
+`python build_static.py --out <folder>`) writes `<folder>/<commit>/`: `index.html` (the checks by domain, with search), `coverage.html` (the
 Then lines judged, per domain and per file), `check.html` (one check, by `?id=`), `data/` (the four
 files above), `edition.json` (what judged it, the counts) and adds the edition to
 `<folder>/editions.json`. Everything is static and relative. **Nothing runs**: no playground, no run
@@ -76,7 +79,10 @@ buttons. **No Ring column**: the page of an edition never carries a comparison w
 author's rulings of 2026-10-30: none on a public page until he says so). It refuses to mix: the
 checks, the recording and the sweep must name one commit, else it says which to record again; and,
 inside a git checkout, that commit must be in the checkout's history (a rebase can rewrite it, and a
-citation of a commit nobody can check out is not a citation).
+citation of a commit nobody can check out is not a citation). Every refusal exits 2 with its
+reasons; `--allow-mixed` builds anyway and `edition.json` says `"mixed": true`. No folder of the
+machine that took the recording goes out: each is replaced by `<path>`, and the maintainer is told
+how many.
 
 The folder is not committed anywhere: it is derived, from a pinned commit, by one command.
 
@@ -97,7 +103,7 @@ it was recorded at, what was expected and what came when it did not pass, the ci
 ```
 
 A frame is the right embed for a page that can host one. A book's reader that cannot should render
-the record `cite.py` answers, in the book's own style, and print the citation beneath it.
+the record `edition.ring cite` answers, in the book's own style, and print the citation beneath it.
 
 ## 6. What a citing page owes the reader
 

@@ -562,8 +562,8 @@ generates: in admitted code a method called through a `ref()` variable that copi
 guard (B4, 38, about a minute) records a notebook, builds its one-file static page and cites its
 cells (`edition.ring record|build|cite`, Ring++, EMBED.md section 8). The checks guard turns red whenever ANY desk's commit moves a check's verdict:
 that is its job; read the moved id before re-recording, and re-record only at a pushed commit.
-The static guard (41 assertions, under a minute; python for the builder and the resolver, SKIPPED by
-name without it) is the cheap one: it also scans the Atelier for a drive path, because a recording
+The static guard (46 assertions, about a minute, no Python: the checks' edition and citation are
+`edition.ring build-checks|cite` in Ring++ since 2026-11-06) is the cheap one: it also scans the Atelier for a drive path, because a recording
 made on this machine names this machine unless the scrub is on. ORDER OF A LANDING: push the code, THEN
 record (`rnxc record.ring`, `rnxc tours.ring`, `python harvest.py`) at that commit, THEN commit the data:
 a rebase rewrites a commit's hash, and a recording that names a rebased-away commit cites nothing

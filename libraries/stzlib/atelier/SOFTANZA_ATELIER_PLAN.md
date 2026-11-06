@@ -74,8 +74,8 @@ measured side by side.
 | `results.json` | the last recording: what judged it, the counts, each check's state -- the guard's baseline |
 | `verdicts.json` | Ring's answers, and what they were taken on |
 | `tours.json` | the last sweep of whole files (A1): what judged them, the totals, every domain, every file |
-| `build_static.py` | maintainer (A3): `python build_static.py --out <folder>` writes the static edition of this commit: index, coverage and a one-check page over the data it already carries; read-only, no Ring column, refuses a mixed set, scrubs machine paths |
-| `cite.py` | (A3) `python cite.py <commit>:<id>` resolves a citation to its check, state and what judged it, or refuses with the reason |
+| `atelierEdition.ring` | (A3, B4) the editions' functions, Ring++: a notebook recorded, built and cited, and the checks' static edition (`AtelierBuildChecks`) and citation (`AtelierCiteCheck`) |
+| `edition.ring` | maintainer (A3, B4): the command line. `rnxc edition.ring build-checks --out <folder>` writes the static edition of this commit: index, coverage and a one-check page over the data it already carries; read-only, no Ring column, refuses a mixed set, scrubs machine paths. `rnxc edition.ring cite <commit>:<id>` resolves a citation to its check, state and what judged it, or refuses with the reason. `record`, `build` and `cite` of a notebook are B4's |
 | `EMBED.md` | (A3) the contract: the citation, the id law, what a commit carries, what a citing page owes the reader |
 
 Settings, in this order: a config file admitted before the app
@@ -380,7 +380,8 @@ the tests and is a maintainer's tool. **Still owed, and Ring++'s:** the same boo
 actually re-laid with a library that carries `atelier/` (the current install, laid at
 `0950e246a`, predates it). Asked through Central.
 
-**(b) The static edition.** `python build_static.py --out <folder>` writes
+**(b) The static edition.** `python build_static.py --out <folder>` (since 2026-11-06 `rnxc
+edition.ring build-checks --out <folder>`, see "A3 in Ring++" below) writes
 `<folder>/<commit>/`: `index.html`, `coverage.html`, `check.html`, `data/` (the four files a commit
 carries), `edition.json`, and appends `editions.json`. Built from this commit's own data: 872 KB, 8
 files, the 1,129 checks, their recording and the sweep, nothing fetched and nothing run. It is derived
@@ -396,7 +397,7 @@ same-origin front over the built edition: the index, the coverage page, a check 
 French pages: 0 violations, light and dark.
 
 **(c) The embed contract, `EMBED.md`.** A check is cited as `<commit>:<id>`: the commit the check
-was recorded at and its stable id. `cite.py <commit>:<id>` resolves one from the data a pinned
+was recorded at and its stable id. `cite.py <commit>:<id>` (now `rnxc edition.ring cite`) resolves one from the data a pinned
 commit already carries, or refuses with exit 2 and the reason (another commit, an absent id, not a
 citation); the guard checks all three refusals. `check.html?id=<id>&embed=1` is a card for a frame.
 What a citing page owes the reader is written down: name the commit, never quote a count without
@@ -629,8 +630,8 @@ recording naming a folder of a machine, and an out folder inside the Atelier's o
 
 **Written in Ring++** (`atelierEdition.ring`, the functions a guard calls in-process, and
 `edition.ring`, the command line): the author's ruling of 2026-11-05 that the library's tooling is
-library code. A3's `build_static.py` and `cite.py` are Python and predate the ruling; porting them
-is named as their own task, not done here.
+library code. A3's `build_static.py` and `cite.py` were Python and predated the ruling; they were
+ported on 2026-11-06 (below).
 
 **The page.** The same `atelier.html` in a third mode: the edition's eyebrow and lead say what it
 is, its status names the recording, the menu goes (nothing runs), every cell carries its citation
@@ -655,3 +656,41 @@ milliseconds. The client gave a check 60 s; under load the build crossed it, the
 no answer, and the next check, queued behind it, read as an error too. The limit is 300 s now, with
 the reason beside it: a timeout is never a verdict on the library. The 48 s is the natural plane's
 to know, and is in CONCLUSIONS.
+
+### A3 in Ring++ -- 2026-11-06 -- the checks' edition and citation, ported
+
+**The author's ruling of 2026-11-05, applied to A3.** `build_static.py` and `cite.py` are gone;
+their work is two verbs of `edition.ring` beside B4's, over functions in `atelierEdition.ring`:
+`rnxc edition.ring build-checks --out <folder> [--allow-mixed] [--from <folder>]` and `rnxc
+edition.ring cite <commit>:<id> [--data <folder>] [--format json|markdown|html]` (an id beginning
+`notebook/` is B4's cell and still takes its recording as `--data`). Every promise of EMBED.md
+sections 4 and 5 is kept: the mix refused unless allowed, a commit outside this history refused,
+machine paths replaced by `<path>` and counted, the same files at the same paths, no Ring column.
+
+**Checked against the Python tools as an oracle before they were deleted.** On this commit's own
+data both wrote the same eight files; every JSON file parsed equal, `edition.json` apart from its
+`built` time, `editions.json` equal, and the three pages equal byte for byte outside their
+`EDITION` line, whose value parsed equal. Six citations in three formats each (three checks spread
+over the harvest and three that did not pass, with what they said): json and markdown equal; html
+equal once the shared escaper writes an apostrophe as `&#x27;`, as Python's did.
+
+**The data is copied as text, never parsed and written back.** The parser answers a null as `""`
+and a true as `1`, so a writer could not give back what it read; the page reads the text as it
+is. The machine-path scrub therefore works on the JSON text: a backslash followed by another (or
+by a slash) belongs to the path, any other escape ends it, so the path stops where the decoded text
+would stop it and the JSON stays well formed (the guard parses the scrubbed failure back). 38 ms
+over the 395 KB of `checks.json`.
+
+**One defect found on the way, in B4's shared helper:** `_AtelierIsInside` compared a relative
+`--out` with an absolute Atelier folder, so `--out _x` given from the Atelier's own folder read as
+outside it. Both paths are made whole against the working folder now.
+
+**Guard** `base/test/atelier/atelier_static_narrated.ring`: 46 assertions, about a minute, no
+Python; it calls the functions in-process and starts the command line twice for its exit codes
+(a mixed build exits 2, a check's citation exits 0). Until today it SKIPPED whole without Python.
+
+**For the sites that cite.** stzsite's `tools/atelier.py` and ayouni's book call the Python tools
+on a PINNED tree; a pin before this commit keeps them, and a pin at or after it calls
+`rnxc edition.ring build-checks --out <folder>` and `rnxc edition.ring cite <commit>:<id> --format
+json` from the pinned tree's `atelier/` folder instead. The JSON a citation answers has the same
+keys. Routed through Central; neither repository is edited from here.

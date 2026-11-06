@@ -1,5 +1,7 @@
 load "../../stzBase.ring"
 load "../_narrated.ring"
+load "../../../atelier/atelierClient.ring"
+load "../../../atelier/atelierEdition.ring"
 
 # THE ATELIER, A3 -- reach. The static edition is built from a pinned commit's own
 # data by one command, refuses to mix commits, carries no Ring column and no machine
@@ -7,21 +9,15 @@ load "../_narrated.ring"
 #
 # Run from this folder, on rnxc:
 #     rnxc atelier_static_narrated.ring
-# A few seconds. The builder and the resolver are python (maintainer tools, like the
-# harvester): the whole guard is SKIPPED by name when python is not on the path.
-# Planted data is written under _planted_static/ (ignored by git).
+# The builder and the resolver are Ring++ (atelier/atelierEdition.ring, the command line
+# atelier/edition.ring), ported from Python on 2026-11-06: the guard calls them in-process,
+# and starts the command line twice for its exit codes (each child compiles edition.ring
+# once, about 25 s cold). Planted data is written under _planted_static/ (ignored by git).
 
 ? "ATELIER A3 -- the static edition and the citation"
 cAtHere = substr(currentdir(), "\", "/")
-cAtAtelier = cAtHere + "/../../../atelier"
+cAtAtelier = _AtelierNormalize(cAtHere + "/../../../atelier")
 cAtPlant = cAtHere + "/_planted_static"
-cPy = _AtPython()
-
-if cPy = ""
-	? "    SKIPPED by name: python is not on the path, and the builder and the resolver are python"
-	Summary()
-	shutdown($_zst_fail)
-ok
 
 _AtPlant(cAtPlant, cAtAtelier)
 cSrc = cAtPlant + "/src"
@@ -29,10 +25,11 @@ cSrc = cAtPlant + "/src"
 #============================================================================
 Scenario("One command builds the edition from one commit's data")
 	Given("a planted folder: the page, the dictionary, two checks, their recording and a sweep, all at abc123def")
-	aB = _AtRun([ cPy, "build_static.py", "--from", cSrc, "--out", cAtPlant + "/out1" ], cAtAtelier)
-	When("build_static.py runs")
-	Then("it succeeds", aB[1], 0)
-	Then("it names the edition by its commit", StzFindFirst("edition abc123def", aB[2]) > 0, TRUE)
+	aB = AtelierBuildChecks(cAtPlant + "/out1", cSrc, 0, cAtAtelier)
+	When("the builder runs")
+	if NOT aB[:ok]  ? "    " + _AtJoin(aB[:why])  ok
+	Then("it succeeds", aB[:ok], 1)
+	Then("it names the edition by its commit", aB[:commit], "abc123def")
 	cEd = cAtPlant + "/out1/abc123def"
 	Then("the checks page is there", fexists(cEd + "/index.html"), TRUE)
 	Then("the coverage page", fexists(cEd + "/coverage.html"), TRUE)
@@ -58,100 +55,101 @@ Scenario("No machine path goes out: a recording made without the scrub is mended
 	cRes = read(cAtPlant + "/out1/abc123def/data/results.json")
 	Then("the path is gone from the edition's data", StzFindFirst("someone", cRes) = 0, TRUE)
 	Then("a name stands in its place", StzFindFirst("<path>", cRes) > 0, TRUE)
-	Then("the maintainer was told", StzFindFirst("machine path(s) replaced", aB[2]) > 0, TRUE)
+	Then("and the data is still JSON, the failure's two lines kept", StzJsonToList(cRes)[:said][1][2], "FAIL" + char(10) + "3" + char(10) + "2 at <path>")
+	Then("the maintainer was told", StzFindFirst("machine path(s) replaced", _AtJoin(aB[:notes])) > 0, TRUE)
 EndScenario()
 
 Scenario("The three files must name one commit, else the build is refused")
 	Given("a sweep taken at another commit than the recording")
 	_AtWrite(cSrc + "/tours.json", _AtTours("zzz999aaa on main"))
-	aM = _AtRun([ cPy, "build_static.py", "--from", cSrc, "--out", cAtPlant + "/out2" ], cAtAtelier)
-	Then("it is refused, exit 2", aM[1], 2)
-	Then("it says which file to take again", StzFindFirst("the sweep (tours.json) was taken at zzz999aaa", aM[2]) > 0, TRUE)
+	aM = AtelierBuildChecks(cAtPlant + "/out2", cSrc, 0, cAtAtelier)
+	Then("it is refused, as a mix", "" + aM[:ok] + "/" + aM[:mixed], "0/1")
+	Then("it says which file to take again", StzFindFirst("the sweep (tours.json) was taken at zzz999aaa", _AtJoin(aM[:why])) > 0, TRUE)
 	Then("and nothing was written", fexists(cAtPlant + "/out2/abc123def/index.html"), FALSE)
-	aA = _AtRun([ cPy, "build_static.py", "--from", cSrc, "--out", cAtPlant + "/out3", "--allow-mixed" ], cAtAtelier)
-	Then("--allow-mixed builds it anyway", aA[1], 0)
+	aA = AtelierBuildChecks(cAtPlant + "/out3", cSrc, 1, cAtAtelier)
+	Then("allowing the mix builds it anyway", aA[:ok], 1)
 	Then("and the edition says it is mixed", StzFindFirst('"mixed": true', read(cAtPlant + "/out3/abc123def/edition.json")) > 0, TRUE)
 	_AtWrite(cSrc + "/tours.json", _AtTours("abc123def on main"))
 	Given("a recording and checks that name different ids")
-	_AtWrite(cSrc + "/results.json", substr(_AtResults(), "#22222222", "#33333333"))
-	aI = _AtRun([ cPy, "build_static.py", "--from", cSrc, "--out", cAtPlant + "/out4" ], cAtAtelier)
-	Then("that is refused too", aI[1], 2)
-	Then("naming the ids", StzFindFirst("do not name the same ids", aI[2]) > 0, TRUE)
+	_AtWrite(cSrc + "/results.json", StzReplace(_AtResults(), "#22222222", "#33333333"))
+	aI = AtelierBuildChecks(cAtPlant + "/out4", cSrc, 0, cAtAtelier)
+	Then("that is refused too", aI[:ok], 0)
+	Then("naming the ids", StzFindFirst("do not name the same ids", _AtJoin(aI[:why])) > 0, TRUE)
 	_AtWrite(cSrc + "/results.json", _AtResults())
 EndScenario()
 
 Scenario("The committed data names a commit that this history has")
 	Given("the Atelier's own checks, recording and sweep, built as they stand")
-	aH = _AtRun([ cPy, "build_static.py", "--out", cAtPlant + "/out5" ], cAtAtelier)
-	if aH[1] != 0  ? "    the builder said: " + trim(aH[2])  ok
-	Then("the real data builds: one commit, in this history", aH[1], 0)
-	Then("the edition is named by that commit", StzFindFirst("build_static: edition ", aH[2]) > 0, TRUE)
+	aH = AtelierBuildChecks(cAtPlant + "/out5", "", 0, cAtAtelier)
+	if NOT aH[:ok]  ? "    the builder said: " + _AtJoin(aH[:why])  ok
+	Then("the real data builds: one commit, in this history", aH[:ok], 1)
+	Then("the edition is named by that commit", fexists(cAtPlant + "/out5/" + aH[:commit] + "/index.html"), TRUE)
 EndScenario()
 
 Scenario("The output may not be placed inside the library, where an install would copy it")
-	aN = _AtRun([ cPy, "build_static.py", "--out", cAtAtelier + "/_x" ], cAtAtelier)
-	Then("refused", aN[1] != 0, TRUE)
-	Then("saying why", StzFindFirst("inside the Atelier folder", aN[2]) > 0, TRUE)
-	Then("and nothing was written there", fexists(cAtAtelier + "/_x"), FALSE)
-	aD = _AtRun([ cPy, "build_static.py" ], cAtAtelier)
-	Then("no --out, no default", aD[1] != 0, TRUE)
+	aN = AtelierBuildChecks(cAtAtelier + "/_x", "", 0, cAtAtelier)
+	Then("refused", aN[:ok], 0)
+	Then("saying why", StzFindFirst("inside the Atelier folder", _AtJoin(aN[:why])) > 0, TRUE)
+	Then("and nothing was written there", StzEngineDirExists(cAtAtelier + "/_x"), 0)
+	aD = AtelierBuildChecks("", "", 0, cAtAtelier)
+	Then("no out folder, no default", aD[:ok], 0)
 EndScenario()
 
 Scenario("A citation resolves to its check, or is refused with the reason")
 	Given("the planted data at abc123def")
-	aC = _AtRun([ cPy, "cite.py", "abc123def:planted/00_p_narrated#22222222", "--data", cSrc ], cAtAtelier)
-	Then("it resolves", aC[1], 0)
-	Then("to the check's description", StzFindFirst('"description": "two is three"', aC[2]) > 0, TRUE)
-	Then("and its recorded state", StzFindFirst('"state": "fail"', aC[2]) > 0, TRUE)
-	Then("with what was said when it failed", StzFindFirst('"said": "FAIL', aC[2]) > 0, TRUE)
-	Then("and what judged it", StzFindFirst('"library": "abc123def on main"', aC[2]) > 0, TRUE)
-	aMd = _AtRun([ cPy, "cite.py", "abc123def:planted/00_p_narrated#11111111", "--data", cSrc, "--format", "markdown" ], cAtAtelier)
-	Then("markdown names the state and the citation", StzFindFirst("Recorded state: **pass**", aMd[2]) > 0 and StzFindFirst("Citation: `abc123def:planted/00_p_narrated#11111111`", aMd[2]) > 0, TRUE)
-	aW = _AtRun([ cPy, "cite.py", "fffffff00:planted/00_p_narrated#11111111", "--data", cSrc ], cAtAtelier)
-	Then("another commit is refused, exit 2", aW[1], 2)
-	Then("saying where the data was recorded", StzFindFirst("recorded at abc123def", aW[2]) > 0, TRUE)
-	aX = _AtRun([ cPy, "cite.py", "abc123def:planted/nonesuch#00000000", "--data", cSrc ], cAtAtelier)
-	Then("an absent id is refused, exit 2", aX[1], 2)
-	aY = _AtRun([ cPy, "cite.py", "no-colon-here", "--data", cSrc ], cAtAtelier)
-	Then("a text that is not a citation is refused", aY[1], 2)
+	aC = AtelierCiteCheck("abc123def:planted/00_p_narrated#22222222", cSrc)
+	Then("it resolves", aC[:ok], 1)
+	cJ = AtelierCiteCheckRender(aC[:record], "json")
+	Then("to the check's description", StzFindFirst('"description": "two is three"', cJ) > 0, TRUE)
+	Then("and its recorded state", StzFindFirst('"state": "fail"', cJ) > 0, TRUE)
+	Then("with what was said when it failed", StzFindFirst('"said": "FAIL', cJ) > 0, TRUE)
+	Then("and what judged it", StzFindFirst('"library": "abc123def on main"', cJ) > 0, TRUE)
+	cMd = AtelierCiteCheckRender(AtelierCiteCheck("abc123def:planted/00_p_narrated#11111111", cSrc)[:record], "markdown")
+	Then("markdown names the state and the citation", StzFindFirst("Recorded state: **pass**", cMd) > 0 and StzFindFirst("Citation: `abc123def:planted/00_p_narrated#11111111`", cMd) > 0, TRUE)
+	aW = AtelierCiteCheck("fffffff00:planted/00_p_narrated#11111111", cSrc)
+	Then("another commit is refused", aW[:ok], 0)
+	Then("saying where the data was recorded", StzFindFirst("recorded at abc123def", aW[:why]) > 0, TRUE)
+	Then("an absent id is refused", AtelierCiteCheck("abc123def:planted/nonesuch#00000000", cSrc)[:ok], 0)
+	Then("a text that is not a citation is refused", AtelierCiteCheck("no-colon-here", cSrc)[:ok], 0)
+EndScenario()
+
+Scenario("The command line says the same, with an exit code a script can read")
+	# the tool loads the library relative to where it stands, so the child starts in the Atelier's folder
+	_AtWrite(cSrc + "/tours.json", _AtTours("zzz999aaa on main"))
+	aX = _AtRun([ AtelierRnxc(), "edition.ring", "build-checks", "--from", cSrc, "--out", cAtPlant + "/out6" ], cAtAtelier)
+	_AtWrite(cSrc + "/tours.json", _AtTours("abc123def on main"))
+	if aX[1] != 2  ? "    the child said: " + left(aX[2], 600)  ok
+	Then("a mixed build exits 2", aX[1], 2)
+	Then("naming the file to take again", StzFindFirst("REFUSED, the three files do not describe one commit", aX[2]) > 0 and StzFindFirst("the sweep (tours.json)", aX[2]) > 0, TRUE)
+	aY = _AtRun([ AtelierRnxc(), "edition.ring", "cite", "abc123def:planted/00_p_narrated#22222222", "--data", cSrc, "--format", "markdown" ], cAtAtelier)
+	if aY[1] != 0  ? "    the child said: " + left(aY[2], 600)  ok
+	Then("a check's citation resolves, exit 0", aY[1], 0)
+	Then("and prints the record it names", StzFindFirst("Recorded state: **fail**", aY[2]) > 0 and StzFindFirst("Citation: `abc123def:planted/00_p_narrated#22222222`", aY[2]) > 0, TRUE)
 EndScenario()
 
 Scenario("The public tree carries no machine path")
 	Given("every data file, source and document of the Atelier")
 	acFiles = [ "checks.json", "results.json", "tours.json", "verdicts.json", "i18n.json", "EMBED.md", "SOFTANZA_ATELIER_PLAN.md",
-	            "atelier.ring", "atelierClient.ring", "tours.ring", "record.ring", "atelier.html", "build_static.py", "cite.py", "harvest.py", "verdicts.py" ]
-	cCode = "import re,sys,os" + char(10) +
-	        "rx=re.compile(r'(?<![A-Za-z0-9])[A-Za-z]:[\\/]')" + char(10) +
-	        "bad=[]" + char(10) +
-	        "for f in sys.argv[1:]:" + char(10) +
-	        char(9) + "t=open(f,encoding='utf-8',errors='replace').read()" + char(10) +
-	        char(9) + "if rx.search(t): bad.append(os.path.basename(f))" + char(10) +
-	        "print(','.join(bad))" + char(10) +
-	        "sys.exit(1 if bad else 0)" + char(10)
-	acArgv = [ cPy, "-c", cCode ]
+	            "atelier.ring", "atelierClient.ring", "atelierEdition.ring", "edition.ring", "tours.ring", "record.ring", "atelier.html",
+	            "harvest.py", "verdicts.py" ]
+	cBad = ""
 	for i = 1 to len(acFiles)
-		acArgv + (cAtAtelier + "/" + acFiles[i])
+		if AtelierHasDrivePath(read(cAtAtelier + "/" + acFiles[i]))  cBad += acFiles[i] + " "  ok
 	next
-	aP = _AtRun(acArgv, cAtAtelier)
-	if aP[1] != 0  ? "    carrying a drive path: " + trim(aP[2])  ok
-	Then("no file of the Atelier holds a drive path", aP[1], 0)
+	if cBad != ""  ? "    carrying a drive path: " + cBad  ok
+	Then("no file of the Atelier holds a drive path", cBad, "")
 EndScenario()
 
+StzDirDeleteAll(cAtPlant)
 Summary()
 shutdown($_zst_fail)
 
-# python, when it is on the path
-func _AtPython()
-	_oP_ = new stzProcess()
-	try
-		_oP_.Spawn("python --version")
-		_c_ = _oP_.ReadOutputAll()
-		_oP_.Wait()
-		_oP_.Close()
-		if StzFindFirst("Python 3", _c_) > 0  return "python"  ok
-	catch
-	done
-	return ""
+func _AtJoin(pacWhy)
+	_c_ = ""
+	for _i_ = 1 to len(pacWhy)
+		_c_ += pacWhy[_i_] + " | "
+	next
+	return _c_
 
 # a program by argv in a folder: [ exit code, stdout and stderr together ]
 func _AtRun(pacArgv, pcDir)
@@ -160,7 +158,7 @@ func _AtRun(pacArgv, pcDir)
 	_cOut_ = _oP_.ReadOutputAll()
 	# the timed wait leaves the pipes open, so stderr can still be read after the exit
 	# (the plain Wait() closes them: a refusal's words went missing)
-	_nX_ = _oP_.WaitFor(60000)
+	_nX_ = _oP_.WaitFor(180000)
 	_cErr_ = _oP_.ReadErrorAll()
 	_oP_.Close()
 	return [ _nX_, _cOut_ + char(10) + _cErr_ ]
@@ -171,7 +169,7 @@ func _AtWrite(pcFile, pcText)
 func _AtResults()
 	_nl_ = char(10)
 	_bs_ = char(92)
-	# "FAIL", a newline, "3", a newline, "2 at D:\Users\someone\x.ring" -- as JSON writes them
+	# "FAIL", a newline, "3", a newline, "2 at " and a Windows path -- as JSON writes them
 	_cSaid_ = "FAIL" + _bs_ + "n3" + _bs_ + "n2 at D:" + _bs_ + _bs_ + "Users" + _bs_ + _bs_ + "someone" + _bs_ + _bs_ + "x.ring"
 	return '{"taken": "2026-01-01 00:00", "library": "abc123def on main", "rnxc": "ringpp x", "engine": "an engine", "checks_from": "abc123def", "checks": 2,' + _nl_ +
 	       '"pass": 1, "fail": 1, "err": 0, "median_ms": 1, "total_ms": 2,' + _nl_ +
@@ -187,7 +185,7 @@ func _AtTours(pcLibrary)
 
 # the planted source: the real page and dictionary, and the smallest data that is consistent
 func _AtPlant(pcRoot, pcAtelier)
-	if fexists(pcRoot + "/src")
+	if fexists(pcRoot + "/src/checks.json")
 		StzDirDeleteAll(pcRoot)
 	ok
 	StzDirCreatePath(pcRoot + "/src")
