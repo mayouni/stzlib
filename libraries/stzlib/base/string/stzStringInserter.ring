@@ -19,11 +19,12 @@
 # verb changes the held text in place and returns nothing (the Q form returns the inserter so calls
 # chain), and the Inserted form returns the new text and leaves the inserter alone. Read the result
 # with Content. Positions count characters, not bytes, so Hebrew, Arabic and emoji text is cut where
-# you expect. A position out of range changes nothing without any error. Found today:
+# you expect. A position out of range changes nothing without any error. The verbs that take a list
+# of positions, InsertAfterManyPositions and InsertBeforeManyPositions, read every position in the
+# original text and insert once per distinct position. Found today:
 # InsertAfterNth, InsertAfterFirst and InsertAfterLast put the new fragment in a wrong place when
 # the fragment they look for is absent; InsertBetweenSubStrings replaces the text between the bounds
-# instead of inserting; InsertSubStringBetweenPositions uses only the smaller position; and the two
-# ManyPositions verbs raise R13 for every valid list.
+# instead of inserting; and InsertSubStringBetweenPositions uses only the smaller position.
 #
 #   receiver   o1 = StzStringInserterQ("banana")
 #   example    o1.InsertAfterSubString("an", "-")
@@ -592,66 +593,93 @@ class stzStringInserter from stzObject
 	 #   INSERTING AT MANY POSITIONS                        #
 	#======================================================#
 
-	# Raises error R13 today instead of inserting a fragment after each of several positions.
+	# Inserts a fragment right after each of several positions of the original text, in place.
 	#
-	#   pcSubStr   the fragment to insert
-	#   panPos     the list of positions to insert after
-	#   returns    nothing
-	#   note       use InsertAfter once per position, from the last position to the first
-	#   warning    raises Object is required (R13) for every valid list of numbers: [1,3,5] on
-	#              banana and [2] on abc; probable cause the line that sorts the positions with new
-	#              stzList(panPos).SortedInDescending(), since the same call made in two statements
-	#              works; an empty or non-numeric list raises Incorrect param type instead
+	#   pcSubStr   the fragment to insert; an empty text changes nothing
+	#   panPos     the list of positions to insert after, whole numbers counted in characters; the empty list changes nothing
+	#   returns    nothing; the text changes. InsertAfterManyPositionsQ returns the inserter for chaining
+	#   note       every position refers to the text as it was before the call: banana with 1, 3, 5
+	#              and - gives b-an-an-a; position 0 puts the fragment at the very start and the
+	#              length of the text at the very end; a position listed twice inserts once, and the
+	#              order of the list does not matter; a position below 0 or past the length is
+	#              skipped without any error and the others still apply; positions count
+	#              characters, so a Hebrew, Arabic or emoji text is cut where you expect; the list
+	#              you pass is not changed
+	#   warning    a list holding something other than a whole number (a text, a fraction, a list)
+	#              raises Incorrect param type!, and so does a fragment that is not a text; nothing
+	#              is inserted then
 	#   see        InsertBeforeManyPositions, InsertAfter
+	#   example    o1.InsertAfterManyPositions("-", [ 1, 3, 5 ])
+	#              ? o1.Content()
+	#              #--> b-an-an-a
 	def InsertAfterManyPositions(pcSubStr, panPos)
-		if CheckingParams()
-			if NOT isString(pcSubStr)
-				StzRaise("Incorrect param type! pcSubStr must be a string.")
-			ok
-			if NOT (isList(panPos) and @IsListOfNumbers(panPos))
-				StzRaise("Incorrect param type! panPos must be a list of numbers.")
-			ok
-		ok
-
-		_aSorted_ = new stzList(panPos).SortedInDescending()
-		_nSorted2Len_ = len(_aSorted_)
-		for _iLoopSorted2_ = 1 to _nSorted2Len_
-			_n_ = _aSorted_[_iLoopSorted2_]
-			This.InsertAfter(_n_, pcSubStr)
+		_anPos_ = This._PositionsFromLastToFirst(pcSubStr, panPos)
+		_nPos_ = len(_anPos_)
+		for _iPos_ = 1 to _nPos_
+			This.InsertAfter(_anPos_[_iPos_], pcSubStr)
 		next
 
 		def InsertAfterManyPositionsQ(pcSubStr, panPos)
 			This.InsertAfterManyPositions(pcSubStr, panPos)
 			return This
 
-	# Raises error R13 today instead of inserting a fragment in front of each of several positions.
+	# Inserts a fragment right in front of each of several positions of the original text, in place.
 	#
-	#   pcSubStr   the fragment to insert
-	#   panPos     the list of positions to insert in front of
-	#   returns    nothing
-	#   note       use InsertBefore once per position, from the last position to the first
-	#   warning    raises Object is required (R13) for every valid list of numbers: [1,3,5] on
-	#              banana; probable cause the line that sorts the positions with new
-	#              stzList(panPos).SortedInDescending(); an empty or non-numeric list raises
-	#              Incorrect param type instead
+	#   pcSubStr   the fragment to insert; an empty text changes nothing
+	#   panPos     the list of positions to insert in front of, whole numbers counted in characters; the empty list changes nothing
+	#   returns    nothing; the text changes. InsertBeforeManyPositionsQ returns the inserter for chaining
+	#   note       every position refers to the text as it was before the call: banana with 1, 3, 5
+	#              and - gives -ba-na-na; the length plus one puts the fragment at the very end; a
+	#              position listed twice inserts once, and the order of the list does not matter; a
+	#              position below 1 or past the length plus one is skipped without any error and
+	#              the others still apply; positions count characters, so a Hebrew, Arabic or emoji
+	#              text is cut where you expect; the list you pass is not changed
+	#   warning    a list holding something other than a whole number (a text, a fraction, a list)
+	#              raises Incorrect param type!, and so does a fragment that is not a text; nothing
+	#              is inserted then
 	#   see        InsertAfterManyPositions, InsertBefore
+	#   example    o1.InsertBeforeManyPositions("-", [ 1, 3, 5 ])
+	#              ? o1.Content()
+	#              #--> -ba-na-na
 	def InsertBeforeManyPositions(pcSubStr, panPos)
-		if CheckingParams()
-			if NOT isString(pcSubStr)
-				StzRaise("Incorrect param type! pcSubStr must be a string.")
-			ok
-			if NOT (isList(panPos) and @IsListOfNumbers(panPos))
-				StzRaise("Incorrect param type! panPos must be a list of numbers.")
-			ok
-		ok
-
-		_aSorted_ = new stzList(panPos).SortedInDescending()
-		_nSorted1Len_ = len(_aSorted_)
-		for _iLoopSorted1_ = 1 to _nSorted1Len_
-			_n_ = _aSorted_[_iLoopSorted1_]
-			This.InsertBefore(_n_, pcSubStr)
+		_anPos_ = This._PositionsFromLastToFirst(pcSubStr, panPos)
+		_nPos_ = len(_anPos_)
+		for _iPos_ = 1 to _nPos_
+			This.InsertBefore(_anPos_[_iPos_], pcSubStr)
 		next
 
 		def InsertBeforeManyPositionsQ(pcSubStr, panPos)
 			This.InsertBeforeManyPositions(pcSubStr, panPos)
 			return This
+
+	# Checks the arguments of the two many-positions verbs and returns the distinct positions, the last first.
+	#
+	#   pcSubStr   the fragment to insert
+	#   panPos     the list of positions, whole numbers
+	#   returns    a list of numbers in descending order, without duplicates; empty for the empty list
+	#   see        InsertAfterManyPositions, InsertBeforeManyPositions
+	def _PositionsFromLastToFirst(pcSubStr, panPos)
+		if CheckingParams()
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+			if NOT isList(panPos)
+				StzRaise("Incorrect param type! panPos must be a list of whole numbers.")
+			ok
+
+			_nLen_ = len(panPos)
+			for _i_ = 1 to _nLen_
+				if NOT isNumber(panPos[_i_]) or panPos[_i_] != floor(panPos[_i_])
+					StzRaise("Incorrect param type! panPos must be a list of whole numbers.")
+				ok
+			next
+		ok
+
+		if len(panPos) = 0
+			return []
+		ok
+
+		# Sorted in two statements: a call chained on new stzList(...) returns an unusable object on some Ring VMs.
+		_oPos_ = new stzList(StzU(panPos))
+		_anSorted_ = _oPos_.SortedInDescending()
+		return _anSorted_
