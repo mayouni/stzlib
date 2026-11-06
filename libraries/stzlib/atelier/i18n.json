@@ -198,7 +198,15 @@
   "clang_en": "English",
   "clang_fr": "French",
   "clang_ar": "Arabic",
-  "clang_ha": "Hausa"
+  "clang_ha": "Hausa",
+  "nbed_intro": "An edition of a notebook: what was recorded when the library at one commit ran it, cell by cell. Nothing runs here and nothing is fetched. Every value below is a recording, named by its commit, never an output kept as truth.",
+  "nbed_note": "an edition: a recording, read only",
+  "nbed_judged": "Recorded {taken} by the library {library}, rnxc {rnxc}, the engine {engine}.",
+  "nbed_counts": "{n} cells; {kept} promises kept, {diverged} diverged.",
+  "nbed_cite_how": "Cite a cell as {commit}:<its id>. The id is under each cell; it changes when the cell does, and only then.",
+  "nbed_link": "link to this cell",
+  "nbed_eyebrow": "An edition of a notebook, recorded at one commit",
+  "nbed_lead": "What Softanza's library answered when it ran this notebook, kept with the commit, the Ring++ build and the engine that answered. To run it yourself, open the notebook file in the Atelier on your own machine."
  },
  "fr": {
   "lang_name": "Français",
@@ -399,6 +407,14 @@
   "clang_en": "anglais",
   "clang_fr": "français",
   "clang_ar": "arabe",
-  "clang_ha": "haoussa"
+  "clang_ha": "haoussa",
+  "nbed_intro": "Une édition d'un carnet : ce qui a été enregistré quand la bibliothèque, à un commit, l'a exécuté, cellule par cellule. Rien ne s'exécute ici et rien n'est téléchargé. Chaque valeur ci-dessous est un enregistrement, nommé par son commit, jamais une sortie gardée comme vérité.",
+  "nbed_note": "une édition : un enregistrement, en lecture seule",
+  "nbed_judged": "Enregistré le {taken} par la bibliothèque {library}, rnxc {rnxc}, le moteur {engine}.",
+  "nbed_counts": "{n} cellules ; {kept} promesses tenues, {diverged} divergentes.",
+  "nbed_cite_how": "Citez une cellule par {commit}:<son identifiant>. L'identifiant est sous chaque cellule ; il change quand la cellule change, et seulement alors.",
+  "nbed_link": "lien vers cette cellule",
+  "nbed_eyebrow": "Une édition d'un carnet, enregistrée à un commit",
+  "nbed_lead": "Ce que la bibliothèque de Softanza a répondu quand elle a exécuté ce carnet, gardé avec le commit, la version de Ring++ et le moteur qui ont répondu. Pour l'exécuter vous-même, ouvrez le fichier du carnet dans l'Atelier, sur votre machine."
  }
 }

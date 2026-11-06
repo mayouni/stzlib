@@ -4,7 +4,8 @@
 (the chain and the scene unfolded, the forms offered) and B2 BUILT 2026-11-05 (the notebook: many
 cells as one file, saved, opened, a check forked; the court agrees) and B3 BUILT 2026-11-06 (the
 lessons: the Learning System's chapters as notebooks, judged by the course's court, exercises
-recorded by the learner's own Submit); see the plan's journal. B4 and B5 as proposed below. Natural, the fourth form, is not generated: it is shown only where the reader
+recorded by the learner's own Submit) and B4 BUILT 2026-11-06 (the edition of a notebook: one
+static page per notebook, cited cell by cell); see the plan's journal. B5 as proposed below. Natural, the fourth form, is not generated: it is shown only where the reader
 writes it.*
 
 *stzlib-atelier, 2026-11-05. Asked by the author on the live page: "The Atelier should be

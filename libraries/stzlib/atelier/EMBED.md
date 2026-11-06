@@ -115,3 +115,44 @@ the record `cite.py` answers, in the book's own style, and print the citation be
 A `<commit>:<id>` stays resolvable for as long as that commit's data is reachable. A check whose
 text changes gets a new id, so an old citation of it still resolves, at its old commit, to the old
 text. A citation is never updated in place; a page that wants the newer state cites the newer commit.
+
+## 8. Citing a cell of a notebook (B4)
+
+A notebook -- a narrated test file in the notebook's form, one `Scenario` per cell -- is cited
+cell by cell, with the same grammar:
+
+```
+<commit>:notebook/<name>#<hash>
+
+225e28c8e:notebook/a-first-notebook#eb218172
+```
+
+- **`<name>`** is the notebook's file name without `.ring`.
+- **`<hash>`** is the first eight hex digits of the SHA-256 of the cell's title, a line feed, and
+  its code. It changes when the cell does, and only then; two identical cells of one notebook take
+  `-2`, `-3`. The `notebook/` prefix keeps the two kinds of id apart: a check's id begins with its
+  test folder.
+- **`<commit>`** is the library commit the notebook was RECORDED at: the first token of the
+  recording's `library`.
+
+**What a commit carries.** Beside the notebook, `<name>.recording.json`: what a running Atelier
+answered when the library at that commit ran every cell, with its `rnxc`, its `engine`, when it
+was `taken`, the notebook's `digest` (the SHA-256 of the file, its line ends made LF), every cell
+with its id, and the Atelier's whole answer (each line seen, its values in their faces, its
+promise and state; the chains unfolded; the scenes).
+
+**The tools**, in Ring++, from the Atelier's folder:
+
+```
+rnxc edition.ring record <notebook.ring> [--port N]
+rnxc edition.ring build <notebook.ring> --out <folder>
+rnxc edition.ring cite <commit>:notebook/<name>#<hash> --data <name>.recording.json [--format json|markdown|html]
+```
+
+`build` writes `<folder>/<commit>/notebook/<name>/index.html`: ONE file holding the page, the
+recording and the dictionary, so it opens from disk and sits in a frame; nothing runs and nothing is
+fetched. `?cell=<id>&embed=1` shows one cell as a bare card. It refuses, with exit 2 and the
+reasons, a notebook changed since its recording, a commit not in this history, a recording that
+names a folder of a machine, and an out folder inside the Atelier. `cite` answers one record, or
+refuses with exit 2: another commit, or an id no cell has. The order of a landing is the checks':
+push the code, record at that commit, then commit the notebook and its recording together.

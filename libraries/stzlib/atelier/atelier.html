@@ -16,6 +16,8 @@
    Rule 3, 5, 10    paper tones, one accent (action and selection), one resting shadow, no gradient
    Rule 112, 17, 1  nothing moves: no transition, no animation, no smooth scroll
    Rule 13, 110     the top bar sticks and holds its own space; nothing floats over the reading
+   B4               the edition of a notebook: the page, the recording and the dictionary in ONE static file;
+                    nothing runs and nothing is fetched; every cell carries its citation <commit>:<id>
    B3               the lessons: the Learning System's chapters opened as notebooks, each cell judged by
                     the course's own court, each exercise checked and recorded by the learner's own Submit;
                     a draft translation says so first; Arabic reads right to left, its code left to right
@@ -206,6 +208,7 @@ td.name{overflow-wrap:anywhere;text-align:left}
 body.embed .top,body.embed .trail,body.embed .page-head{display:none}
 body.embed .body{padding:16px 0}
 body.embed .card{box-shadow:none}
+body.embed #view-edition > h2,body.embed #view-edition > .card{display:none}
 #playout{min-height:4rem;margin:16px 0 0}
 .playtime{margin:8px 0 0;color:var(--ink-2);min-height:1.7em}
 .nbcell .cellhead{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:0 0 12px}
@@ -326,6 +329,15 @@ kbd{font-size:var(--label);border:1px solid var(--line-2);border-radius:6px;padd
   <div class="card" id="onecheck"></div>
 </section>
 
+<section id="view-edition" hidden aria-labelledby="h-ed">
+  <h2 id="h-ed"></h2>
+  <div class="card">
+    <p data-t="nbed_intro"></p>
+    <p id="edinfo"></p>
+  </div>
+  <div id="edcells"></div>
+</section>
+
 <section id="view-lessons" hidden aria-labelledby="h-ls">
   <h2 id="h-ls" data-t="menu_lessons">Lessons</h2>
   <div class="card">
@@ -408,8 +420,11 @@ function pickLang() {
 const P = location.pathname;
 // a menu link keeps the page's language, and a lesson's address carries its own choices
 const LANGQ = () => { const l = new URLSearchParams(location.search).get('lang'); return l ? '?lang=' + l : ''; };
-const VIEW = /\/check(\.html)?$/.test(P) ? 'check' : /coverage(\.html)?$/.test(P) ? 'coverage' : (EDITION || /\/library$/.test(P)) ? 'checks' : (!EDITION && /\/lessons$/.test(P)) ? 'lessons' : 'notebook';
-const URLS = EDITION
+const NBED = !!(EDITION && EDITION.kind === 'notebook');
+const VIEW = NBED ? 'edition' : /\/check(\.html)?$/.test(P) ? 'check' : /coverage(\.html)?$/.test(P) ? 'coverage' : (EDITION || /\/library$/.test(P)) ? 'checks' : (!EDITION && /\/lessons$/.test(P)) ? 'lessons' : 'notebook';
+const URLS = NBED
+  ? { checks: null, results: null, tours: null, i18n: null, verdicts: null, home: 'index.html', library: 'index.html', coverage: 'index.html', one: 'index.html', lessons: 'index.html' }
+  : EDITION
   ? { checks: 'data/checks.json', results: 'data/results.json', tours: 'data/tours.json', i18n: 'data/i18n.json', verdicts: null, home: 'index.html', library: 'index.html', coverage: 'coverage.html', one: 'check.html' }
   : { checks: '/atelier/checks', results: '/atelier/results', tours: '/atelier/tours', i18n: '/atelier/i18n', verdicts: '/atelier/verdicts', home: '/', lessons: '/atelier/lessons', library: '/atelier/library', coverage: '/atelier/coverage', one: '/atelier/check' };
 if (new URLSearchParams(location.search).get('embed') === '1') document.body.classList.add('embed');
@@ -423,7 +438,8 @@ $('.brand').href = URLS.home + (location.search || '');
 $('#trailroot').href = URLS.home;
 $('#trailmida').href = URLS.library;
 if (VIEW === 'check') $('#trailmid').hidden = false;
-$('#trailhere').dataset.t = 'menu_' + VIEW;
+if (NBED) { $('.page-head .eyebrow').dataset.t = 'nbed_eyebrow'; $('.page-head .lead').dataset.t = 'nbed_lead'; $('#menu').hidden = true; delete $('#trailhere').dataset.t; $('#trailhere').textContent = EDITION.name; }
+else $('#trailhere').dataset.t = 'menu_' + VIEW;
 $('#view-' + VIEW).hidden = false;
 if (EDITION) {
   // read-only: nothing here runs, and the Ring comparison is not part of an edition
@@ -443,6 +459,13 @@ $('#themebtn').onclick = () => {
 // ---- the server's state: what judges a check is named (Rule 99) ----
 let STATE = null, stzReady = false;
 function renderStatus() {
+  if (NBED) {
+    const R = EDITION.recording;
+    $('#libstate').textContent = t('nbed_note');
+    $('#judged').textContent = t('nbed_judged', { taken: EDITION.taken, library: EDITION.library, rnxc: EDITION.rnxc, engine: EDITION.engine });
+    $('#served').textContent = t('nbed_counts', { n: fmtN(R.cells.length), kept: fmtN(R.kept), diverged: fmtN(R.diverged) });
+    return;
+  }
   if (EDITION) {
     $('#libstate').textContent = t('edition_note');
     $('#judged').textContent = t('edition_judged', { taken: EDITION.taken, library: EDITION.library, rnxc: EDITION.rnxc, engine: EDITION.engine, n: fmtN(CHECKS.length || EDITION.checks), source: EDITION.source, commit: EDITION.checks_from });
@@ -686,7 +709,7 @@ function chainHtml(s) {
     <table><thead><tr><th scope="col">${t('col_step')}</th><th scope="col" class="l">${t('col_call')}</th><th scope="col" class="l">${t('col_value')}</th><th scope="col">${t('col_us')}</th></tr></thead><tbody>${rows}</tbody></table>`;
   if (s.forms && s.forms.length) {
     h += `<p class="facelabel" style="margin-top:16px"><b>${t('proc_forms')}</b></p><div class="forms">` +
-      s.forms.map((f, i) => `<div><h4>${t('proc_form_' + f.name)}</h4><pre>${esc(f.code)}</pre><button type="button" class="act" data-see="${s.n}" data-form="${i}">${t('proc_put')}</button></div>`).join('') + '</div>';
+      s.forms.map((f, i) => `<div><h4>${t('proc_form_' + f.name)}</h4><pre>${esc(f.code)}</pre>${EDITION ? '' : `<button type="button" class="act" data-see="${s.n}" data-form="${i}">${t('proc_put')}</button>`}</div>`).join('') + '</div>';
   }
   return h + '</div>';
 }
@@ -865,7 +888,32 @@ if ($('#cells') && !EDITION) {
   $('#nbopen').onclick = () => $('#nbfile').click();
   $('#nbfile').onchange = e => { const f = e.target.files[0]; if (f) openNotebook(f); e.target.value = ''; };
 }
-function renderCell() { renderNotebook(); renderLessons(); }
+function renderCell() { renderNotebook(); renderLessons(); renderEdition(); }
+
+// ---- the edition of a notebook (B4): what was RECORDED, cell by cell, each with its citation ----
+// ?cell=<id> shows one cell (add &embed=1 for the bare card, to put in a frame)
+const cellAnchor = id => 'c-' + String(id).replace(/[^A-Za-z0-9_-]/g, '-');
+function renderEdition() {
+  if (!NBED || !$('#edcells')) return;
+  const R = EDITION.recording, only = new URLSearchParams(location.search).get('cell');
+  CUR = Object.assign({}, R.run, { cells: R.cells.map(c => c.code), box: () => null, info: () => {}, keep: () => {} });
+  $('#h-ed').textContent = EDITION.name;
+  document.title = EDITION.name + ' · ' + t('title');
+  $('#edinfo').textContent = t('nbed_cite_how', { commit: EDITION.commit });
+  let h = only ? '' : `<div class="card">${summaryHtml(R.run)}</div>`;
+  R.cells.forEach((c, i) => {
+    if (only && c.id !== only) return;
+    let out = '';
+    (R.run.scenes || []).forEach(sc => { if (sc.states && sc.states.length && where(sc.line)[0] === i + 1) out += sceneHtml(sc); });
+    (R.run.sees || []).forEach(sv => { if (where(sv.line)[0] === i + 1) out += seeHtml(sv); });
+    const cite = EDITION.commit + ':' + c.id;
+    h += `<article class="card nbcell" id="${cellAnchor(c.id)}"><div class="cellhead"><span class="cellno">${t('nb_cell', { n: c.n })}</span><b>${esc(c.title)}</b></div>
+      <pre>${esc(c.code.replace(/\n+$/, ''))}</pre><div class="cellout">${out}</div>
+      <p class="meta cite"><span>${t('cite_label')}</span> <span class="mono">${esc(cite)}</span> <a href="#${cellAnchor(c.id)}">${t('nbed_link')}</a></p></article>`;
+  });
+  if (only && !h) h = `<div class="card"><p>${t('check_missing', { id: esc(only) })}</p></div>`;
+  $('#edcells').innerHTML = h;
+}
 
 // ---- the lessons: the Learning System's chapters, opened as notebooks (B3) ----
 // A chapter is read, never written: its cells may be changed here and run, and the change
@@ -1067,14 +1115,15 @@ if ($('#lscourse') && !EDITION) {
 
 // ---- load: the dictionary first, then the data ----
 pickLang();
-fetch(URLS.i18n).then(r => r.json()).then(d => { I18N = d; applyLang(); lsCourses(); }).catch(() => { applyLang(); lsCourses(); });
-fetch(URLS.checks).then(r => r.json()).then(d => { META = d; CHECKS = d.checks; shown = selection(); renderDomains(); renderChecks(shown); renderTotals(); renderStatus(); renderOne();
+if (NBED) { I18N = EDITION.i18n; applyLang(); }
+else fetch(URLS.i18n).then(r => r.json()).then(d => { I18N = d; applyLang(); lsCourses(); }).catch(() => { applyLang(); lsCourses(); });
+if (!NBED) fetch(URLS.checks).then(r => r.json()).then(d => { META = d; CHECKS = d.checks; shown = selection(); renderDomains(); renderChecks(shown); renderTotals(); renderStatus(); renderOne();
   const fork = new URLSearchParams(location.search).get('fork');
   if (fork && VIEW === 'notebook' && NB) { forkCheck(fork); const qs = new URLSearchParams(location.search); qs.delete('fork'); history.replaceState(null, '', location.pathname + (qs.toString() ? '?' + qs : '')); }
 });
-fetch(URLS.results).then(r => r.json()).then(d => { if (d && d.states) { loadRecorded(d); shown = selection(); renderChecks(shown); renderTotals(); renderOne(); } }).catch(() => {});
+if (!NBED) fetch(URLS.results).then(r => r.json()).then(d => { if (d && d.states) { loadRecorded(d); shown = selection(); renderChecks(shown); renderTotals(); renderOne(); } }).catch(() => {});
 if (URLS.verdicts) fetch(URLS.verdicts).then(r => r.json()).then(d => { VERD = d; renderChecks(shown); renderTotals(); }).catch(() => {});
-fetch(URLS.tours).then(r => r.json()).then(d => { TOURS = d; renderCoverage(); }).catch(() => {});
+if (!NBED) fetch(URLS.tours).then(r => r.json()).then(d => { TOURS = d; renderCoverage(); }).catch(() => {});
 </script>
 </body>
 </html>

@@ -609,3 +609,49 @@ light, 5.97:1 dark, smallest text 17 px, nothing scrolls sideways at a phone's w
 
 **Guard** `base/test/atelier/atelier_lessons_narrated.ring`: 47 assertions, about a minute; its
 court runs the education plane's own runner on two chapters, one of which names a variable `n`.
+
+### B4 -- 2026-11-06 -- the edition of a notebook
+
+**A3's rule, generalised from the checks to a notebook.** No output is stored as truth: an edition
+shows a RECORDING named by its commit. `rnxc edition.ring record <notebook>` has a running Atelier
+read the notebook file and run every cell, and writes `<name>.recording.json` beside it: the
+library commit, the Ring++ build, the engine, when, the file's sha256, every cell with its id
+(`notebook/<name>#<8 hex of the sha256 of its title and code>`), and the Atelier's whole answer.
+`build` makes ONE static page of it -- the page, the recording and the dictionary in a single
+file, nothing fetched, nothing run -- at `<out>/<commit>/notebook/<name>/index.html`, and lists it
+in `<out>/notebooks.json`. `cite` resolves `<commit>:notebook/<name>#<hash>` to the cell, its code,
+each line it saw with the value and verdict recorded, and what judged it. The contract is
+EMBED.md, section 8.
+
+**Refused, because each would make a citation lie:** a notebook changed since it was recorded (its
+sha256 is not the recording's), a commit not in this history (rebased away or never landed), a
+recording naming a folder of a machine, and an out folder inside the Atelier's own.
+
+**Written in Ring++** (`atelierEdition.ring`, the functions a guard calls in-process, and
+`edition.ring`, the command line): the author's ruling of 2026-11-05 that the library's tooling is
+library code. A3's `build_static.py` and `cite.py` are Python and predate the ruling; porting them
+is named as their own task, not done here.
+
+**The page.** The same `atelier.html` in a third mode: the edition's eyebrow and lead say what it
+is, its status names the recording, the menu goes (nothing runs), every cell carries its citation
+and a link to itself, and a chain's forms are shown without the button that would put one in a
+cell. Its trail begins at the page itself: a notebook edition is a one-page site, and a site that
+embeds it brings its own trail. StzZui's audit, the notebook's folder served as the root: 0
+violations on 4 pages, English and French, light and dark.
+
+**One fact paid for:** the engine's system call wraps its line in a shell of its own, so a
+`cd /d <folder> && ...` inside it ends with that inner shell and the command runs where the caller
+stands. A program that must start a tool in another folder moves there itself (`chdir`) first.
+
+**The example**, `atelier/notebooks/a-first-notebook.ring` (the notebook page's four default
+cells) and its recording, committed after the code, at the commit that landed it.
+
+**Guard** `base/test/atelier/atelier_edition_narrated.ring`: 38 assertions, about a minute.
+
+**And a flake explained.** The checks guard twice named two checks of
+`natural/entity_world_narrated` as moved from pass to error, with nothing said. Measured on a fresh
+Atelier: the first of them builds the entity world, 48 s, and every later check of that file takes
+milliseconds. The client gave a check 60 s; under load the build crossed it, the client gave up with
+no answer, and the next check, queued behind it, read as an error too. The limit is 300 s now, with
+the reason beside it: a timeout is never a verdict on the library. The 48 s is the natural plane's
+to know, and is in CONCLUSIONS.

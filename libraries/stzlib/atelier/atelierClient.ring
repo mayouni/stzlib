@@ -206,10 +206,14 @@ func AtelierWaitReady(pnPort, pnTimeoutMs, poProcess)
 	ok
 	return _aS_
 
-# one check: [ :kind, :text, :ms ] -- kind pass | fail | err, as the page decides it
+# one check: [ :kind, :text, :ms ] -- kind pass | fail | err, as the page decides it.
+# 300 s, not 60: the first check of natural/entity_world_narrated builds the entity world, 48 s
+# on a fresh Atelier (measured 2026-11-06); under load it crossed 60 s, the client gave up with
+# no answer, and the check AFTER it, queued behind it, read as an error too. A timeout is
+# never a verdict on the library
 func AtelierRunCheck(pnPort, pcCode)
 	_oH_ = new stzHttpClient()
-	_oH_.SetTimeout(60)
+	_oH_.SetTimeout(300)
 	_t0_ = clock()
 	_oH_.Post("http://127.0.0.1:" + pnPort + "/atelier/run", pcCode)
 	_nMs_ = (clock() - _t0_) * 1000 / clockspersecond()
