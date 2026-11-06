@@ -9,8 +9,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 nSkip = 0
 nRate = 48000
 
@@ -233,19 +233,20 @@ Chk("a breath above 1 is refused", oR2.Refusals() >= 3)
 ? "       a voice is still the author's -- UNPERCEIVED, and its Sing() shut."
 
 ? ""
-? "" + nPass + " passed, " + nFail + " failed, " + nSkip + " skipped"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed, " + nSkip + " skipped"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
+shutdown($nFail)
 
 # ---- helpers --------------------------------------------------------------
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

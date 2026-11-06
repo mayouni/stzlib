@@ -463,6 +463,7 @@ ok
 ? "=========================================="
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
+shutdown($nFail)
 
 func chk cLabel, bCond
 	if bCond

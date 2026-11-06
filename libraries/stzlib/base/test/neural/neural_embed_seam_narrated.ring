@@ -152,7 +152,8 @@ chk("...having gone the CPU way (no device work attempted)",
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func chk cLabel, bCond
 	if bCond

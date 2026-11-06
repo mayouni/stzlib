@@ -168,7 +168,8 @@ sec("scene 5")
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func SameAs(oMine, cName, nAllowed)
 	oRef = StzImageQ($cOracle + cName + ".png").ApplyGrayScaleQ()

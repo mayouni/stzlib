@@ -26,8 +26,8 @@ aDoor = [ "AGENTS.md",
           ".claude/skills/ring-traps/SKILL.md",
           ".claude/skills/fast-path/SKILL.md" ]
 aPathsOnly = [ ".claude/skills/grind-err/SKILL.md" ]
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 nPaths = 0
 nCmds = 0
 
@@ -53,22 +53,22 @@ Verdict("and it is absent from the checkout", NOT (fexists(cRoot + "no/such/file
 Verdict("a placeholder <topic> is not read as a path", IsPathToken("ring x.ring --topic <topic>") = 0)
 ? ""
 ? "================================================"
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "================================================"
-if nFail > 0
+if $nFail > 0
 	? "STATUS: FAILED"
 else
 	? "STATUS: OK"
 ok
-shutdown(nFail)
+shutdown($nFail)
 
 func Verdict(cText, bOk)
 	if bOk
 		? "  THEN  " + cText + "  [PASS]"
-		nPass++
+		$nPass++
 	else
 		? "  THEN  " + cText + "  [FAIL]"
-		nFail++
+		$nFail++
 	ok
 
 func JudgeFile(cFile, bCommands)

@@ -13,8 +13,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 # counter indices (see engine/stz_sound.ring)
 C_LIVE = 0
@@ -257,20 +257,21 @@ StzEngineSoundFree(nSrc)
 
 # ---------------------------------------------------------------------------
 ? ""
-? "" + nPass + " passed, " + nFail + " failed"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
+shutdown($nFail)
 
 # ---- helpers (below the main body: in Ring, top-level code after a func
 # ---- never runs, so the scenes must come first) ---------------------------
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

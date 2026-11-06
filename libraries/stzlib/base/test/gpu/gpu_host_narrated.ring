@@ -161,7 +161,8 @@ ok
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 # ======================================================================
 # THE HOST, written from SOFTANZA_GPU_HOST_CONTRACT.md. It calls only the

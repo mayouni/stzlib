@@ -173,7 +173,8 @@ sec("scene 8")
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 # an image result against an oracle PNG: at most nAllowed pixels may differ
 func SameAs(oMine, cName, nAllowed)

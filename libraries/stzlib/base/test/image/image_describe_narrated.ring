@@ -234,7 +234,7 @@ sec("scene 5")
 
 ? ""
 ? "ASSERTIONS: " + ($nPass + $nFail) + " -- " + $nPass + " passed, " + $nFail + " failed"
-pf()
+pfq()
 shutdown($nFail)
 
 # the ids the engine gives the prompt, the picture's 64 rows written as 64 <image> ids (49190)

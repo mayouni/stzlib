@@ -54,16 +54,16 @@ load "../_narrated.ring"
 # cliff was neither.
 
 Scenario("the exact loop that used to die at 1366")
-	nFail = 0
+	$nFail = 0
 	for i = 1 to 25000
 		try
 			v = StringToNumber("1")
 		catch
-			nFail = i
+			$nFail = i
 			exit
 		done
 	next
-	Then("25000 calls, no failure", nFail, 0)
+	Then("25000 calls, no failure", $nFail, 0)
 	Then("...and the answer is still right", StringToNumber("1"), 1)
 	Then("...for a decimal too", StringToNumber("12.375"), 12.375)
 	Then("...and a negative", StringToNumber("-4.5"), -4.5)
@@ -72,43 +72,43 @@ EndScenario()
 Scenario("...and the arithmetic path built on it")
 	# pvtCalculate is stzNumber's arithmetic chokepoint and goes through
 	# StringToNumber, so every numeric method inherited the cliff.
-	nFail = 0
+	$nFail = 0
 	for i = 1 to 25000
 		try
 			v = StzNumberQ((i % 70) - 35).Sigmoid()
 		catch
-			nFail = i
+			$nFail = i
 			exit
 		done
 	next
-	Then("25000 sigmoids, no failure", nFail, 0)
+	Then("25000 sigmoids, no failure", $nFail, 0)
 	Then("...and sigmoid(0) is still a half", Rnd6(StzNumberQ(0).Sigmoid()), 0.5)
 	Then("...still saturating at the top", Rnd6(StzNumberQ(800).Sigmoid()), 1)
 	Then("...and at the bottom", Rnd6(StzNumberQ(-800).Sigmoid()), 0)
 EndScenario()
 
 Scenario("the two constructors that measured the leak")
-	nFail = 0
+	$nFail = 0
 	for i = 1 to 25000
 		try
 			v = new stzChar("1")
 		catch
-			nFail = i
+			$nFail = i
 			exit
 		done
 	next
-	Then("25000 stzChars, where 4097 used to be the wall", nFail, 0)
+	Then("25000 stzChars, where 4097 used to be the wall", $nFail, 0)
 
-	nFail = 0
+	$nFail = 0
 	for i = 1 to 25000
 		try
 			v = new stzNumber("12.375")
 		catch
-			nFail = i
+			$nFail = i
 			exit
 		done
 	next
-	Then("25000 stzNumbers from strings, where 1639 was the wall", nFail, 0)
+	Then("25000 stzNumbers from strings, where 1639 was the wall", $nFail, 0)
 EndScenario()
 
 Scenario("the constructor still reads every form it used to")
@@ -154,6 +154,7 @@ Scenario("the constructor still reads every form it used to")
 EndScenario()
 
 Summary()
+shutdown($nFail)
 
 func RaisesNum(c)
 	bR = FALSE

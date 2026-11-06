@@ -103,7 +103,8 @@ chk("the order reaches its final state", oChain.MemoryQ().Fact("order","state","
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func chk(cLabel, bCond)
 	if bCond

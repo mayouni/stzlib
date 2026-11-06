@@ -17,8 +17,8 @@ load "../../stzBase.ring"
 #  wall of C22/C26 redefinitions.)
 
 ? "Loading classes"
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 ? ""
 ? "=== Unicode: stzString Core ==="
@@ -33,29 +33,29 @@ oStr = new stzString(cArabic)
 nChars = oStr.NumberOfChars()
 if nChars = 5
     ? "  Arabic NumberOfChars(5): PASS"
-    nPass++
+    $nPass++
 else
     ? "  Arabic NumberOfChars(5): FAIL [" + nChars + "]"
-    nFail++
+    $nFail++
 ok
 
 # NthChar should return full char, not single byte
 cFirst = oStr.NthChar(1)
 if cFirst = StzChar(1605)
     ? "  Arabic NthChar(1): PASS"
-    nPass++
+    $nPass++
 else
     ? "  Arabic NthChar(1): FAIL"
-    nFail++
+    $nFail++
 ok
 
 cLast = oStr.NthChar(5)
 if cLast = StzChar(1575)
     ? "  Arabic NthChar(5): PASS"
-    nPass++
+    $nPass++
 else
     ? "  Arabic NthChar(5): FAIL"
-    nFail++
+    $nFail++
 ok
 
 ? ""
@@ -67,10 +67,10 @@ oCase = new stzStringCaseChanger(cGerman)
 cUpper = oCase.Uppercased()
 if cUpper = StzChar(220) + "BER"
     ? "  German Uppercased: PASS"
-    nPass++
+    $nPass++
 else
     ? "  German Uppercased: FAIL [" + cUpper + "]"
-    nFail++
+    $nFail++
 ok
 
 # French accented
@@ -79,10 +79,10 @@ oCase2 = new stzStringCaseChanger(cFrench)
 cUpper2 = oCase2.Uppercased()
 if cUpper2 = StzChar(201) + "T" + StzChar(201)
     ? "  French Uppercased: PASS"
-    nPass++
+    $nPass++
 else
     ? "  French Uppercased: FAIL [" + cUpper2 + "]"
-    nFail++
+    $nFail++
 ok
 
 ? ""
@@ -95,20 +95,20 @@ oFinder = new stzStringFinder(cMixed)
 bContains = oFinder.Contains("world")
 if bContains = 1
     ? "  Contains 'world' in mixed: PASS"
-    nPass++
+    $nPass++
 else
     ? "  Contains 'world' in mixed: FAIL"
-    nFail++
+    $nFail++
 ok
 
 # "hello " (6) + 5 Arabic chars + " " (1) = 12, so "world" at char 13
 nFirst = oFinder.FindFirst("world")
 if nFirst = 13
     ? "  FindFirst 'world' at pos 13: PASS"
-    nPass++
+    $nPass++
 else
     ? "  FindFirst 'world' at pos 13: FAIL [" + nFirst + "]"
-    nFail++
+    $nFail++
 ok
 
 ? ""
@@ -120,28 +120,28 @@ oGet = new stzStringGetter(cChinese)
 cFirst = oGet.FirstChar()
 if cFirst = StzChar(20320)
     ? "  CJK FirstChar: PASS"
-    nPass++
+    $nPass++
 else
     ? "  CJK FirstChar: FAIL"
-    nFail++
+    $nFail++
 ok
 
 cLast = oGet.LastChar()
 if cLast = StzChar(30028)
     ? "  CJK LastChar: PASS"
-    nPass++
+    $nPass++
 else
     ? "  CJK LastChar: FAIL"
-    nFail++
+    $nFail++
 ok
 
 cSection = oGet.Section(2, 3)
 if cSection = StzChar(22909) + StzChar(19990)
     ? "  CJK Section(2,3): PASS"
-    nPass++
+    $nPass++
 else
     ? "  CJK Section(2,3): FAIL [" + cSection + "]"
-    nFail++
+    $nFail++
 ok
 
 ? ""
@@ -153,19 +153,19 @@ oDup = new stzStringDuplicates(cDup)
 acDups = oDup.DuplicatedChars()
 if len(acDups) = 1 and acDups[1] = StzChar(1605)
     ? "  Arabic DuplicatedChars: PASS"
-    nPass++
+    $nPass++
 else
     ? "  Arabic DuplicatedChars: FAIL [count=" + len(acDups) + "]"
-    nFail++
+    $nFail++
 ok
 
 nUnique = oDup.NumberOfUniqueChars()
 if nUnique = 2
     ? "  Arabic UniqueChars(2): PASS"
-    nPass++
+    $nPass++
 else
     ? "  Arabic UniqueChars(2): FAIL [" + nUnique + "]"
-    nFail++
+    $nFail++
 ok
 
 ? ""
@@ -179,10 +179,10 @@ oCheck = new stzString(cRepeated)
 nLen = oCheck.NumberOfChars()
 if nLen = 6
     ? "  CJK Repeat(3) length 6: PASS"
-    nPass++
+    $nPass++
 else
     ? "  CJK Repeat(3) length 6: FAIL [" + nLen + "]"
-    nFail++
+    $nFail++
 ok
 
 ? ""
@@ -193,10 +193,10 @@ oSplit = new stzStringSplitter(cSplit)
 aParts = oSplit.Split(" ")
 if len(aParts) = 3 and aParts[1] = StzChar(1605) and aParts[3] = StzChar(1581)
     ? "  Arabic Split by space: PASS"
-    nPass++
+    $nPass++
 else
     ? "  Arabic Split by space: FAIL [parts=" + len(aParts) + "]"
-    nFail++
+    $nFail++
 ok
 
 ? ""
@@ -207,10 +207,10 @@ oTrim = new stzStringTrimmer(cTrimMe)
 cTrimmed = oTrim.Trimmed()
 if cTrimmed = StzChar(233) + "t" + StzChar(233)
     ? "  French Trimmed: PASS"
-    nPass++
+    $nPass++
 else
     ? "  French Trimmed: FAIL [" + cTrimmed + "]"
-    nFail++
+    $nFail++
 ok
 
 ? ""
@@ -224,10 +224,10 @@ cShuffled = oRand.Shuffled()
 oShCheck = new stzString(cShuffled)
 if oShCheck.NumberOfChars() = 4
     ? "  CJK Shuffled length(4): PASS"
-    nPass++
+    $nPass++
 else
     ? "  CJK Shuffled length(4): FAIL [" + oShCheck.NumberOfChars() + "]"
-    nFail++
+    $nFail++
 ok
 
 # RandomChar should be a full CJK char
@@ -235,10 +235,10 @@ cRC = oRand.RandomChar()
 oRC = new stzString(cRC)
 if oRC.NumberOfChars() = 1
     ? "  CJK RandomChar is 1 char: PASS"
-    nPass++
+    $nPass++
 else
     ? "  CJK RandomChar is 1 char: FAIL [" + oRC.NumberOfChars() + "]"
-    nFail++
+    $nFail++
 ok
 
 ? ""
@@ -251,19 +251,19 @@ cAt1 = oWalk.CharAt(1)
 cAt3 = oWalk.CharAt(3)
 if cAt1 = StzChar(1605) and cAt3 = StzChar(1581)
     ? "  Arabic CharAt(1,3): PASS"
-    nPass++
+    $nPass++
 else
     ? "  Arabic CharAt(1,3): FAIL"
-    nFail++
+    $nFail++
 ok
 
 acFromTo = oWalk.CharsFromTo(1, 3)
 if len(acFromTo) = 3 and acFromTo[1] = StzChar(1605) and acFromTo[3] = StzChar(1581)
     ? "  Arabic CharsFromTo(1,3): PASS"
-    nPass++
+    $nPass++
 else
     ? "  Arabic CharsFromTo(1,3): FAIL [count=" + len(acFromTo) + "]"
-    nFail++
+    $nFail++
 ok
 
 ? ""
@@ -275,10 +275,10 @@ cExtracted = oExt.ExtractSection(2, 3)
 oRemain = new stzString(oExt.Content())
 if cExtracted = StzChar(22909) + StzChar(19990) and oRemain.NumberOfChars() = 2
     ? "  CJK ExtractSection(2,3): PASS"
-    nPass++
+    $nPass++
 else
     ? "  CJK ExtractSection(2,3): FAIL [" + cExtracted + "] remain=" + oRemain.NumberOfChars()
-    nFail++
+    $nFail++
 ok
 
 #-----------------------------------------------#
@@ -286,9 +286,10 @@ ok
 #-----------------------------------------------#
 
 ? ""
-? "=== RESULTS: " + nPass + " passed, " + nFail + " failed ==="
-if nFail = 0
+? "=== RESULTS: " + $nPass + " passed, " + $nFail + " failed ==="
+if $nFail = 0
     ? "=== ALL UNICODE TESTS PASSED ==="
 else
     ? "=== SOME UNICODE TESTS FAILED ==="
 ok
+shutdown($nFail)

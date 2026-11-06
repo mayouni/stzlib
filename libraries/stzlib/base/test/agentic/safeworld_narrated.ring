@@ -384,7 +384,8 @@ chk("...and carries the pointer where the next reader will see it",
 
 StzDirDeleteAll(cFx)
 
-pf()
+pfq()
+shutdown($nFail)
 
 func chk(cWhat, bCond)
 	if bCond = 1

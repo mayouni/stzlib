@@ -21,8 +21,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 pr()
 
@@ -116,10 +116,11 @@ chk("the big result is still correct at its far end",
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 # Ring's "=" does NOT deep-compare lists -- it answers FALSE for two lists
 # with identical contents. Five assertions here were written as
@@ -136,9 +137,9 @@ func SameList aExpected, aGot
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok

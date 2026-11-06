@@ -11,8 +11,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 nRate = 48000
 
 pr()
@@ -106,19 +106,20 @@ Chk("and the browser's kit knows the same nine strokes, and rings cymbals and th
 ? "   Whether the toms and the open hi-hat SOUND like a kit's, is not a number: UNPERCEIVED."
 
 ? ""
-? "" + nPass + " passed, " + nFail + " failed"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
+shutdown($nFail)
 
 # ---- helpers --------------------------------------------------------------
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

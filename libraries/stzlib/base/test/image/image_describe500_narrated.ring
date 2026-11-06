@@ -111,7 +111,7 @@ sec("scene 4")
 
 ? ""
 ? "ASSERTIONS: " + ($nPass + $nFail) + " -- " + $nPass + " passed, " + $nFail + " failed"
-pf()
+pfq()
 shutdown($nFail)
 
 func WordsOf(aW, cCat)

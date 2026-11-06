@@ -24,8 +24,8 @@ if NOT StzGraphicsDevice()
 	return
 ok
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 FONT = new stzFont("C:/Windows/Fonts/segoeui.ttf")
 OPT = [ :Font = FONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
 
@@ -74,16 +74,17 @@ oW.LastCanvas().ToPNG("guide_network_witness.png")
 ? "   wrote guide_network.png and guide_network_witness.png"
 
 ? ""
-? "== " + nPass + " passed, " + nFail + " failed =="
+? "== " + $nPass + " passed, " + $nFail + " failed =="
+shutdown($nFail)
 
 #---------------------------------------------------------------------------
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

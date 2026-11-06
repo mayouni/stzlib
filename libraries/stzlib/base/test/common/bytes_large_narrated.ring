@@ -73,7 +73,8 @@ next
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func chk(cWhat, bCond)
 	if bCond = 1

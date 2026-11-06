@@ -191,7 +191,8 @@ sec("scene 6")
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func MeanLevelDiff(oA, oB)
 	return oA.DifferenceWith(oB)[:mean]

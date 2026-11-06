@@ -195,7 +195,7 @@ sec("scene 7")
 
 ? ""
 ? "ASSERTIONS: " + ($nPass + $nFail) + " -- " + $nPass + " passed, " + $nFail + " failed"
-pf()
+pfq()
 shutdown($nFail)
 
 # every picture of a golden slice through the three verdicts; one row per variant: [ name, n, called blurry, called under, called over ]

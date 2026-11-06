@@ -31,8 +31,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 pr()
 
@@ -167,10 +167,11 @@ chk("...pointing at the court that still checks what a grammar cannot",
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 # Every non-blank line of a grammar must be a complete rule. A raw newline
 # inside a quoted terminal splits a rule across two lines and leaves one
@@ -188,9 +189,9 @@ func EveryLineIsARule(cGrammar)
 
 func chk(cLabel, bCond)
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok

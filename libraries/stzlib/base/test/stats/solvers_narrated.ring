@@ -197,7 +197,8 @@ chk("it solves the expected-value problem without crashing", bSolved = 1)
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 # A front reduced to one comparable string, so two runs can be compared exactly
 # rather than approximately.

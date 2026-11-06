@@ -35,8 +35,8 @@ load "stdlib.ring"
 $cEngineDir = "../../../engine"
 load "../../../engine/stz_gpu.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 # counter indices (documented in engine/stz_gpu.ring)
 C_BYTES = 2
@@ -449,15 +449,16 @@ ok
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
+shutdown($nFail)
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

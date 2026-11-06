@@ -81,7 +81,8 @@ chk("concluding with open gaps REFUSES (LAW 3)", bRefuse = 1)
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func chk(cLabel, bCond)
 	if bCond

@@ -87,7 +87,8 @@ chk("the ledger's hash chain verifies", StzSecurityLedgerQ().Verify()[:intact] =
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func NeuralRecords()
 	if StzSecurityLedgerIsOpen() = 0

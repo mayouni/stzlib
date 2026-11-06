@@ -187,7 +187,8 @@ StzDirDeleteAll(cFx)
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func Seating()
 	oA = new stzAllocation("seating")

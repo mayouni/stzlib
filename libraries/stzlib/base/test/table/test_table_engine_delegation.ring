@@ -5,8 +5,8 @@ load "../../stzBase.ring"
 
 pr()
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 # --- Sort (via stzTableSorter, delegates to engine pdq sort) ---
 
@@ -25,18 +25,18 @@ o1.SortOn(:NAME)
 cFirst = o1.Cell(:NAME, 1)
 ? "  After SortOn(:NAME), first: " + cFirst
 if cFirst = "Ali"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected Ali, got " + cFirst
 ok
 
 cLast = o1.Cell(:NAME, 3)
 ? "  Last: " + cLast
 if cLast = "Han"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected Han, got " + cLast
 ok
 
@@ -44,9 +44,9 @@ ok
 nAge = o1.Cell(:AGE, 1)
 ? "  Ali's age: " + nAge
 if nAge = 35
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 35, got " + nAge
 ok
 
@@ -56,9 +56,9 @@ o1.SortDownOn(:SALARY)
 cTopSalary = o1.Cell(:NAME, 1)
 ? "  After SortDownOn(:SALARY), top earner: " + cTopSalary
 if cTopSalary = "Ali"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected Ali (35000), got " + cTopSalary
 ok
 
@@ -77,45 +77,45 @@ o2 = new stzTableAggregator([
 nSum = o2.SumCol(:PRICE)
 ? "  SumCol(:PRICE): " + nSum
 if nSum = 11
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 11, got " + nSum
 ok
 
 nAvg = o2.AvgCol(:PRICE)
 ? "  AvgCol(:PRICE): " + nAvg
 if nAvg = 2.75
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 2.75, got " + nAvg
 ok
 
 nMin = o2.MinCol(:PRICE)
 ? "  MinCol(:PRICE): " + nMin
 if nMin = 1
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 1, got " + nMin
 ok
 
 nMax = o2.MaxCol(:PRICE)
 ? "  MaxCol(:PRICE): " + nMax
 if nMax = 5
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 5, got " + nMax
 ok
 
 nProduct = o2.ProductCol(:QTY)
 ? "  ProductCol(:QTY): " + nProduct
 if nProduct = 24000
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 24000, got " + nProduct
 ok
 
@@ -133,9 +133,9 @@ o3 = new stzTableAggregator([
 nSum2 = o3.SumCol(:QTY)
 ? "  SumCol(:QTY) before mutation: " + nSum2
 if nSum2 = 25
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 25, got " + nSum2
 ok
 
@@ -146,16 +146,17 @@ o3.ReplaceCell(:QTY, 1, 20)
 nSum3 = o3.SumCol(:QTY)
 ? "  SumCol(:QTY) after mutation: " + nSum3
 if nSum3 = 33
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 33, got " + nSum3
 ok
 
 # --- Summary ---
 ? ""
 ? "================================="
-? "  PASSED: " + nPass + "  FAILED: " + nFail
+? "  PASSED: " + $nPass + "  FAILED: " + $nFail
 ? "================================="
 
-pf()
+pfq()
+shutdown($nFail)

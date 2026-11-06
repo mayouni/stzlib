@@ -69,7 +69,8 @@ chk("...leaving the gap explicitly for a human",
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func chk(cLabel, bCond)
 	if bCond

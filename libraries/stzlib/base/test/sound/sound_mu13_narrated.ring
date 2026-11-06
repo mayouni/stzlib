@@ -11,8 +11,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 nRate = 48000
 
 pr()
@@ -126,19 +126,20 @@ Chk("the pattern language spells them cr and rd", oP.HasStroke("crash") and oP.H
 ? "   read as an engraver writes them, is not a number: UNPERCEIVED."
 
 ? ""
-? "" + nPass + " passed, " + nFail + " failed"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
+shutdown($nFail)
 
 # ---- helpers --------------------------------------------------------------
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

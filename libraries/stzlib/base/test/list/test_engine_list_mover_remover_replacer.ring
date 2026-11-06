@@ -5,8 +5,8 @@ load "../../stzBase.ring"
 
 pr()
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 ? "=== Engine Delegation: Swap ==="
 
@@ -15,9 +15,9 @@ o1.Swap(1, 4)
 aResult = o1.Content()
 ? "  Swap(1,4): " + @@(aResult)
 if len(aResult) = 4 and aResult[1] = "d" and aResult[4] = "a"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [d, b, c, a]"
 ok
 
@@ -29,9 +29,9 @@ o2.Reverse()
 aResult2 = o2.Content()
 ? "  Reverse(): " + @@(aResult2)
 if len(aResult2) = 3 and aResult2[1] = "z" and aResult2[3] = "x"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [z, y, x]"
 ok
 
@@ -43,9 +43,9 @@ o3.Shuffle()
 aResult3 = o3.Content()
 ? "  Shuffle() length: " + len(aResult3)
 if len(aResult3) = 5
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 5 items"
 ok
 
@@ -57,9 +57,9 @@ o4.RemoveItemAtPosition(3)
 aResult4 = o4.Content()
 ? "  RemoveItemAtPosition(3): " + @@(aResult4)
 if len(aResult4) = 4 and aResult4[1] = "a" and aResult4[3] = "d"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [a, b, d, e]"
 ok
 
@@ -71,9 +71,9 @@ o5.RemoveAll("x")
 aResult5 = o5.Content()
 ? "  RemoveAll('x'): " + @@(aResult5)
 if len(aResult5) = 2 and aResult5[1] = "a" and aResult5[2] = "b"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [a, b]"
 ok
 
@@ -85,9 +85,9 @@ o6.RemoveFirstItem()
 aResult6 = o6.Content()
 ? "  RemoveFirstItem(): " + @@(aResult6)
 if len(aResult6) = 2 and aResult6[1] = "second"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [second, third]"
 ok
 
@@ -99,9 +99,9 @@ o7.RemoveLastItem()
 aResult7 = o7.Content()
 ? "  RemoveLastItem(): " + @@(aResult7)
 if len(aResult7) = 2 and aResult7[2] = "second"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [first, second]"
 ok
 
@@ -113,9 +113,9 @@ o8.ReplaceAt(2, "B")
 aResult8 = o8.Content()
 ? "  ReplaceAt(2, 'B'): " + @@(aResult8)
 if len(aResult8) = 3 and aResult8[2] = "B"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [a, B, c]"
 ok
 
@@ -127,9 +127,9 @@ o9.SwapItems(1, 3)
 aResult9 = o9.Content()
 ? "  SwapItems(1,3): " + @@(aResult9)
 if len(aResult9) = 3 and aResult9[1] = "3" and aResult9[3] = "1"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [3, 2, 1]"
 ok
 
@@ -141,9 +141,9 @@ o10.ReplaceAll("x", "Z")
 aResult10 = o10.Content()
 ? "  ReplaceAll('x','Z'): " + @@(aResult10)
 if len(aResult10) = 5 and aResult10[1] = "Z" and aResult10[3] = "Z" and aResult10[5] = "Z" and aResult10[2] = "a"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [Z, a, Z, b, Z]"
 ok
 
@@ -155,16 +155,17 @@ o11.RemoveAll("z")
 aResult11 = o11.Content()
 ? "  RemoveAll('z') on [a,b,c]: " + @@(aResult11)
 if len(aResult11) = 3
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected no change"
 ok
 
 # --- Summary ---
 ? ""
 ? "================================="
-? "  PASSED: " + nPass + "  FAILED: " + nFail
+? "  PASSED: " + $nPass + "  FAILED: " + $nFail
 ? "================================="
 
-pf()
+pfq()
+shutdown($nFail)

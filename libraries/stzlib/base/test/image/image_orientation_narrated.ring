@@ -140,7 +140,7 @@ sec("scene 6")
 
 ? ""
 ? "ASSERTIONS: " + ($nPass + $nFail) + " -- " + $nPass + " passed, " + $nFail + " failed"
-pf()
+pfq()
 shutdown($nFail)
 
 # [ the best-matching orientation among Pillow's uprights of the same size, the mean difference to orientation n's, its largest ]

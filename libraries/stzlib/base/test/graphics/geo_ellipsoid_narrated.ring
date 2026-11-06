@@ -34,8 +34,8 @@ decimals(6)
 # written after it until the next one. Defined up here they take the whole
 # suite into sec() and the file runs in silence -- no error, no output,
 # nothing. Every narrated guard in this directory is laid out the same way.
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 nSec = 0
 
 # ---------------------------------------------------------------------
@@ -368,15 +368,16 @@ ok
 
 ? ""
 ? "=========================================================="
-? " " + nPass + " ok, " + nFail + " failed"
+? " " + $nPass + " ok, " + $nFail + " failed"
 ? "=========================================================="
+shutdown($nFail)
 
 func chk pcWhat, pbOk
 	if pbOk
-		nPass++
+		$nPass++
 		? "  ok   " + pcWhat
 	else
-		nFail++
+		$nFail++
 		? "  FAIL " + pcWhat
 	ok
 

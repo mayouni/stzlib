@@ -162,7 +162,7 @@ if len(aSkipped) > 0
 ok
 ? ""
 ? "ASSERTIONS: " + ($nPass + $nFail) + " -- " + $nPass + " passed, " + $nFail + " failed"
-pf()
+pfq()
 shutdown($nFail)
 
 func Min(aL)

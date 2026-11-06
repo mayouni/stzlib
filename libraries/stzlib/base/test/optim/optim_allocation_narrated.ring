@@ -308,7 +308,8 @@ sec("scene 8")
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 # the hall every scene starts from: three tables, four parties
 func Hall()

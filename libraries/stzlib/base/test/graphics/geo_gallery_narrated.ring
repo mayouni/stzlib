@@ -53,23 +53,23 @@ sec("EVERY PROJECTION HELD TO ITS OWN CLAIM")
 # is. It caught two defects on its first run -- a Mollweide half normalised
 # with 2/sqrt(2 pi) where the Mollweide uses 2 sqrt(2)/pi, and a symmetry
 # claim made for Collignon, which is a triangle.
-nArea = 0  nConf = 0  nFail = 0
+nArea = 0  nConf = 0  $nFail = 0
 aFailed = []
 for i = 1 to len(aK)
 	o = new stzGeoProjection(aK[i])
 	if o.IsEqualArea()  nArea++  ok
 	if o.IsConformal()  nConf++  ok
 	if NOT o.HoldsItsClaim()
-		nFail++
+		$nFail++
 		aFailed + aK[i]
 	ok
 next
 ? "   " + nArea + " claim equal area, " + nConf + " claim conformality, " +
-  nFail + " fail their claim"
+  $nFail + " fail their claim"
 chk("EVERY PROJECTION THAT CLAIMS EQUAL AREA HOLDS IT -- areal scale 1 " +
     "everywhere, to four decimal places, measured from the derivative. " +
     "NINETEEN of the forty-four claim it and nineteen hold it",
-    nFail = 0 and nArea = 19)
+    $nFail = 0 and nArea = 19)
 chk("...AND EVERY PROJECTION THAT CLAIMS CONFORMALITY BENDS NO ANGLE, " +
     "anywhere. Four claim it: Mercator, its transverse, Lambert's conformal " +
     "conic and the stereographic",
@@ -226,6 +226,7 @@ chk("A ZONE IS A TRANSVERSE MERCATOR ON ITS OWN MERIDIAN AT 0.9996, which " +
 ? "=========================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=========================================================="
+shutdown($nFail)
 
 func chk pcWhat, pbOk
 	if pbOk

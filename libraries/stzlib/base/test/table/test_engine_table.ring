@@ -5,18 +5,18 @@ load "../../stzBase.ring"
 
 pr()
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 # --- Create table and add columns/rows ---
 ? "=== Engine Table: Create and populate ==="
 
 pTable = StzEngineTableNew()
 if pTable != NULL
-	nPass++
+	$nPass++
 	? "  Created table handle: OK"
 else
-	nFail++
+	$nFail++
 	? "  FAIL: could not create table"
 ok
 
@@ -27,9 +27,9 @@ nCityCol = StzEngineTableAddCol(pTable, "city")
 
 ? "  Columns added: name=" + nNameCol + " age=" + nAgeCol + " city=" + nCityCol
 if StzEngineTableNumCols(pTable) = 3
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 3 columns"
 ok
 
@@ -39,9 +39,9 @@ nRow1 = StzEngineTableAddRow(pTable)
 nRow2 = StzEngineTableAddRow(pTable)
 
 if StzEngineTableNumRows(pTable) = 3
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 3 rows"
 ok
 
@@ -65,18 +65,18 @@ StzEngineTableSetCellString(pTable, 2, 2, "Beijing")
 cName = StzEngineTableGetCellString(pTable, 0, 0)
 ? "  Cell(0,0) name: " + cName
 if cName = "Ali"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected Ali"
 ok
 
 nAge = StzEngineTableGetCellInt(pTable, 1, 2)
 ? "  Cell(1,2) age: " + nAge
 if nAge = 42
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 42"
 ok
 
@@ -87,18 +87,18 @@ ok
 nFound = StzEngineTableFindCol(pTable, "age")
 ? "  FindCol('age'): " + nFound
 if nFound = 1
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 1"
 ok
 
 nNotFound = StzEngineTableFindCol(pTable, "xyz")
 ? "  FindCol('xyz'): " + nNotFound
 if nNotFound = -1
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected -1"
 ok
 
@@ -109,9 +109,9 @@ ok
 cColName = StzEngineTableColName(pTable, 0)
 ? "  ColName(0): " + cColName
 if cColName = "name"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected name"
 ok
 
@@ -123,18 +123,18 @@ StzEngineTableSortOn(pTable, 0, 1)  # sort ascending on name column
 cFirst = StzEngineTableGetCellString(pTable, 0, 0)
 ? "  After sort on name asc, first: " + cFirst
 if cFirst = "Ali"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected Ali (alphabetically first)"
 ok
 
 cLast = StzEngineTableGetCellString(pTable, 0, 2)
 ? "  Last: " + cLast
 if cLast = "Han"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected Han"
 ok
 
@@ -145,36 +145,36 @@ ok
 nSum = StzEngineTableSumCol(pTable, 1)
 ? "  SumCol(age): " + nSum
 if nSum = 105
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 105"
 ok
 
 nAvg = StzEngineTableAvgCol(pTable, 1)
 ? "  AvgCol(age): " + nAvg
 if nAvg = 35
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 35"
 ok
 
 nMin = StzEngineTableMinCol(pTable, 1)
 ? "  MinCol(age): " + nMin
 if nMin = 28
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 28"
 ok
 
 nMax = StzEngineTableMaxCol(pTable, 1)
 ? "  MaxCol(age): " + nMax
 if nMax = 42
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 42"
 ok
 
@@ -186,9 +186,9 @@ StzEngineTableSwapRows(pTable, 0, 2)
 cSwapped = StzEngineTableGetCellString(pTable, 0, 0)
 ? "  After swap(0,2), row 0 name: " + cSwapped
 if cSwapped = "Han"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected Han"
 ok
 
@@ -206,14 +206,14 @@ if pClone != NULL
 	nCloneRows = StzEngineTableNumRows(pClone)
 	? "  Clone cols=" + nCloneCols + " rows=" + nCloneRows
 	if nCloneCols = 3 and nCloneRows = 3
-		nPass++
+		$nPass++
 	else
-		nFail++
+		$nFail++
 		? "  FAIL: expected 3 cols, 3 rows"
 	ok
 	StzEngineTableFree(pClone)
 else
-	nFail++
+	$nFail++
 	? "  FAIL: clone returned NULL"
 ok
 
@@ -223,10 +223,10 @@ ok
 
 StzEngineTableRemoveRow(pTable, 1)
 if StzEngineTableNumRows(pTable) = 2
-	nPass++
+	$nPass++
 	? "  After remove row 1: 2 rows"
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 2 rows"
 ok
 
@@ -238,9 +238,9 @@ StzEngineTableRenameCol(pTable, 0, "fullname")
 cRenamed = StzEngineTableColName(pTable, 0)
 ? "  After rename col 0: " + cRenamed
 if cRenamed = "fullname"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected fullname"
 ok
 
@@ -250,7 +250,8 @@ StzEngineTableFree(pTable)
 # --- Summary ---
 ? ""
 ? "================================="
-? "  PASSED: " + nPass + "  FAILED: " + nFail
+? "  PASSED: " + $nPass + "  FAILED: " + $nFail
 ? "================================="
 
-pf()
+pfq()
+shutdown($nFail)

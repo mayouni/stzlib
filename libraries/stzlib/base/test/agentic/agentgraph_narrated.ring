@@ -78,7 +78,8 @@ chk("its kind is llm_actor", oLLM.Kind() = "llm_actor")
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func chk(cLabel, bCond)
 	if bCond

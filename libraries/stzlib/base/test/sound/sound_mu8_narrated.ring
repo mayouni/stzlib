@@ -14,8 +14,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 pr()
 decimals(3)
@@ -241,19 +241,20 @@ Chk("an empty text: " + Mu8Refused(oRd.FromAbcQ(""), oRd), substr(oRd.LastError(
 ? "   met); no nested repeats and no P: parts order; one tune per text."
 
 ? ""
-? "" + nPass + " passed, " + nFail + " failed"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
+shutdown($nFail)
 
 # ---- helpers --------------------------------------------------------------
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

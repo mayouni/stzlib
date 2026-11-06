@@ -26,8 +26,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 pr()
 
@@ -309,19 +309,20 @@ chk("a grammar on a STREAMING session is refused, not quietly dropped",
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 # THE HELPER LIVES AFTER pf(). Ring runs a file's top-level code until the
 # first `func`, so a helper defined at the TOP silently kills every scene
 # below it -- the file runs, prints nothing, and exits 0.
 func chk(cWhat, bCond)
 	if bCond = 1
-		nPass++
+		$nPass++
 		? "  [OK] " + cWhat
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cWhat
 	ok

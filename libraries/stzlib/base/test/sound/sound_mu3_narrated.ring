@@ -8,8 +8,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 nSkip = 0
 
 pr()
@@ -342,19 +342,20 @@ Chk("and refuses what is not one", NOT oLt2.IsValid() and substr(oLt2.LastError(
 
 # ---------------------------------------------------------------------------
 ? ""
-? "" + nPass + " passed, " + nFail + " failed, " + nSkip + " skipped"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed, " + nSkip + " skipped"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
+shutdown($nFail)
 
 # ---- helpers --------------------------------------------------------------
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

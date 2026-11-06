@@ -390,7 +390,8 @@ ok
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail" + ", " + $nSkip + " skipped"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func chk cLabel, bCond
 	if bCond

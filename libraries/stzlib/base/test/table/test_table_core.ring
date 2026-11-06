@@ -5,8 +5,8 @@ load "../../stzBase.ring"
 
 pr()
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 # --- Init from hashlist ---
 ? "=== Init (hashlist) ==="
@@ -20,9 +20,9 @@ o1 = new stzTable([
 n = o1.NumberOfColumns()
 ? "  NumberOfColumns: " + n
 if n = 3
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 3"
 ok
 
@@ -41,9 +41,9 @@ o2 = new stzTable([
 n = o2.NumberOfColumns()
 ? "  NumberOfColumns: " + n
 if n = 3
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 3"
 ok
 
@@ -54,9 +54,9 @@ ok
 c = o1.ClassName()
 ? "  ClassName: " + c
 if c = "stztable"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected stztable"
 ok
 
@@ -68,9 +68,9 @@ aContent = o1.Content()
 n = len(aContent)
 ? "  Content length: " + n
 if n = 3
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 3"
 ok
 
@@ -81,36 +81,36 @@ ok
 b = o1.HasColName(:name)
 ? "  HasColName(:name): " + b
 if b = 1
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 1"
 ok
 
 b = o1.HasColName(:xyz)
 ? "  HasColName(:xyz): " + b
 if b = 0
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 0"
 ok
 
 b = o1.IsColNumber(2)
 ? "  IsColNumber(2): " + b
 if b = 1
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 1"
 ok
 
 b = o1.IsColNumber(5)
 ? "  IsColNumber(5): " + b
 if b = 0
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 0"
 ok
 
@@ -122,25 +122,26 @@ o3 = new stzTable([])
 b = o3.IsEmpty()
 ? "  Empty table IsEmpty: " + b
 if b = 1
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 1"
 ok
 
 b = o1.IsEmpty()
 ? "  Non-empty table IsEmpty: " + b
 if b = 0
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 0"
 ok
 
 # --- Summary ---
 ? ""
 ? "================================="
-? "  PASSED: " + nPass + "  FAILED: " + nFail
+? "  PASSED: " + $nPass + "  FAILED: " + $nFail
 ? "================================="
 
-pf()
+pfq()
+shutdown($nFail)

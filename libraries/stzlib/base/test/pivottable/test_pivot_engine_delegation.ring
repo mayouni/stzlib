@@ -5,8 +5,8 @@ load "../../stzBase.ring"
 
 pr()
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 # --- Sales data for pivot testing ---
 
@@ -28,15 +28,15 @@ o1.SetShowTotals(FALSE, FALSE)
 o1.Generate()
 
 ? "  Generated successfully"
-nPass++
+$nPass++
 
 # North Widget: 100 + 50 = 150
 v1 = o1.Value("North", "Widget")
 ? "  Value(North, Widget): " + v1
 if v1 = 150
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 150, got " + v1
 ok
 
@@ -44,9 +44,9 @@ ok
 v2 = o1.Value("South", "Gadget")
 ? "  Value(South, Gadget): " + v2
 if v2 = 300
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 300, got " + v2
 ok
 
@@ -54,9 +54,9 @@ ok
 v3 = o1.Value("South", "Widget")
 ? "  Value(South, Widget): " + v3
 if v3 = 225
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 225, got " + v3
 ok
 
@@ -78,15 +78,15 @@ o2.SetShowTotals(FALSE, FALSE)
 o2.Generate()
 
 ? "  Generated successfully (COUNT)"
-nPass++
+$nPass++
 
 # IT Active: 2 employees
 v4 = o2.Value("IT", "Active")
 ? "  Value(IT, Active): " + v4
 if v4 = 2
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 2, got " + v4
 ok
 
@@ -94,9 +94,9 @@ ok
 v5 = o2.Value("HR", "Left")
 ? "  Value(HR, Left): " + v5
 if v5 = 1
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 1, got " + v5
 ok
 
@@ -117,15 +117,15 @@ o3.SetShowTotals(TRUE, TRUE)
 o3.Generate()
 
 ? "  Generated with totals"
-nPass++
+$nPass++
 
 # North row total: 100 + 200 = 300
 v6 = o3.RowTotal("North")
 ? "  RowTotal(North): " + v6
 if v6 = 300
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 300, got " + v6
 ok
 
@@ -133,16 +133,17 @@ ok
 v7 = o3.GrandTotal()
 ? "  GrandTotal: " + v7
 if v7 = 750
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 750, got " + v7
 ok
 
 # --- Summary ---
 ? ""
 ? "================================="
-? "  PASSED: " + nPass + "  FAILED: " + nFail
+? "  PASSED: " + $nPass + "  FAILED: " + $nFail
 ? "================================="
 
-pf()
+pfq()
+shutdown($nFail)

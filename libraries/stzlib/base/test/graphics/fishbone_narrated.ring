@@ -15,8 +15,8 @@
 load "../../stzBase.ring"
 load "gg_math_scenes.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 FONT = new stzFont("C:/Windows/Fonts/segoeui.ttf")
 
 ? "-- Scene 1: why the coffee is bitter -- six categories, nine causes --"
@@ -63,16 +63,17 @@ else
 ok
 
 ? ""
-? "== " + nPass + " passed, " + nFail + " failed =="
+? "== " + $nPass + " passed, " + $nFail + " failed =="
+shutdown($nFail)
 
 #---------------------------------------------------------------------------
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

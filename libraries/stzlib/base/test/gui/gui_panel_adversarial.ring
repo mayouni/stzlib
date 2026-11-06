@@ -20,8 +20,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 if NOT StzGuiAvailable()
 	? "No layout engine on this machine -- nothing to stress."
@@ -229,8 +229,9 @@ chk("negative is refused", _MakesPanel(-5, 100) = 0)
 
 ? ""
 ? "=============================================================="
-? " " + nPass + " ok, " + nFail + " failed"
+? " " + $nPass + " ok, " + $nFail + " failed"
 ? "=============================================================="
+shutdown($nFail)
 
 #-- helpers ---------------------------------------------------------------
 
@@ -270,9 +271,9 @@ func _MakesPanel nW, nH
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok

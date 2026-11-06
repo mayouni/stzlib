@@ -510,7 +510,8 @@ chk("the version is a gate: the build writes v2 and still reads v1",
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 # THE HELPERS LIVE AFTER pf(). Ring runs a file's top-level code until the
 # first `func`, so a helper defined at the top silently kills every scene

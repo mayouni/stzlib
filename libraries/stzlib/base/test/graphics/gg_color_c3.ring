@@ -74,7 +74,7 @@ aThemes = [ "neutral", "light", "dark", "vibrant", "pro", "access", "print" ]
 # the three grey themes stay out, as they were.
 aRoles = [ :primary, :success, :warning, :danger, :info, :muted, :neutral ]
 
-nFail = 0
+$nFail = 0
 nChecked = 0
 aFailures = []
 _aCT53_ = aThemes
@@ -91,7 +91,7 @@ for _iCT53_ = 1 to _nCT53_
 		nChecked++
 		cV = "ok"
 		if aBest[2] < nMin
-			nFail++
+			$nFail++
 			cV = "FAILS"
 			aFailures + [ cT, cR, StzResolveColor(cFill), aBest[2] ]
 		ok
@@ -104,9 +104,9 @@ for _iCT53_ = 1 to _nCT53_
 next
 
 ? ""
-? "   checked " + nChecked + " theme/role pairs, " + nFail + " below " + nMin + ":1"
+? "   checked " + nChecked + " theme/role pairs, " + $nFail + " below " + nMin + ":1"
 
-if nFail > 0
+if $nFail > 0
 	? ""
 	? "   THE FAILURES, written down rather than explained away:"
 	_aA55_ = aFailures
@@ -118,7 +118,7 @@ if nFail > 0
 	next
 ok
 
-chkeq("every shipped theme role can carry legible text", nFail, 0)
+chkeq("every shipped theme role can carry legible text", $nFail, 0)
 
 #---------------------------------------------------------------------------
 ? ""
@@ -301,6 +301,7 @@ chkeq("...and states it where it states a neutral at all", nThemeFlat, 0)
                      "C3 FAILS -- see the failures above; they are the finding")
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
+shutdown($nFail)
 
 #---------------------------------------------------------------------------
 

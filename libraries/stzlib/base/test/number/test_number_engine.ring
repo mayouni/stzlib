@@ -9,8 +9,8 @@ if cDll = ""
 ok
 pHandle = LoadLib(cDll)
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 # --- IsPrime ---
 ? "=== IsPrime ==="
@@ -18,27 +18,27 @@ nFail = 0
 n = StzEngineNumberIsPrime(7)
 ? "  IsPrime(7): " + n
 if n = 1
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 1"
 ok
 
 n = StzEngineNumberIsPrime(10)
 ? "  IsPrime(10): " + n
 if n = 0
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 0"
 ok
 
 n = StzEngineNumberIsPrime(97)
 ? "  IsPrime(97): " + n
 if n = 1
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 1"
 ok
 
@@ -49,18 +49,18 @@ ok
 n = StzEngineNumberGcd(12, 8)
 ? "  GCD(12,8): " + n
 if n = 4
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 4"
 ok
 
 n = StzEngineNumberGcd(100, 75)
 ? "  GCD(100,75): " + n
 if n = 25
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 25"
 ok
 
@@ -71,18 +71,18 @@ ok
 n = StzEngineNumberLcm(4, 6)
 ? "  LCM(4,6): " + n
 if n = 12
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 12"
 ok
 
 n = StzEngineNumberLcm(3, 7)
 ? "  LCM(3,7): " + n
 if n = 21
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 21"
 ok
 
@@ -95,9 +95,9 @@ cResult = StzEngineBigIntToString(pBigInt)
 StzEngineBigIntFree(pBigInt)
 ? "  5! = " + cResult
 if cResult = "120"
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 120"
 ok
 
@@ -106,9 +106,9 @@ cResult = StzEngineBigIntToString(pBigInt)
 StzEngineBigIntFree(pBigInt)
 ? "  10! = " + cResult
 if cResult = "3628800"
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 3628800"
 ok
 
@@ -121,9 +121,9 @@ cResult = StzEngineBigIntToString(pBigInt)
 StzEngineBigIntFree(pBigInt)
 ? "  Fib(10) = " + cResult
 if cResult = "55"
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 55"
 ok
 
@@ -132,9 +132,9 @@ cResult = StzEngineBigIntToString(pBigInt)
 StzEngineBigIntFree(pBigInt)
 ? "  Fib(20) = " + cResult
 if cResult = "6765"
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 6765"
 ok
 
@@ -145,27 +145,27 @@ ok
 n = StzEngineNumberIsPerfect(6)
 ? "  IsPerfect(6): " + n
 if n = 1
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 1"
 ok
 
 n = StzEngineNumberIsPerfect(28)
 ? "  IsPerfect(28): " + n
 if n = 1
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 1"
 ok
 
 n = StzEngineNumberIsPerfect(12)
 ? "  IsPerfect(12): " + n
 if n = 0
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 0"
 ok
 
@@ -176,18 +176,18 @@ ok
 n = StzEngineNumberDigitCount(12345)
 ? "  DigitCount(12345): " + n
 if n = 5
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 5"
 ok
 
 n = StzEngineNumberDigitCount(0)
 ? "  DigitCount(0): " + n
 if n = 1
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 1"
 ok
 
@@ -198,18 +198,18 @@ ok
 n = StzEngineNumberDigitSum(12345)
 ? "  DigitSum(12345): " + n
 if n = 15
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 15"
 ok
 
 n = StzEngineNumberDigitSum(999)
 ? "  DigitSum(999): " + n
 if n = 27
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 27"
 ok
 
@@ -220,9 +220,9 @@ ok
 n = StzEngineNumberReverseDigits(12345)
 ? "  ReverseDigits(12345): " + n
 if n = 54321
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 54321"
 ok
 
@@ -233,18 +233,18 @@ ok
 n = StzEngineNumberIsPalindrome(12321)
 ? "  IsPalindrome(12321): " + n
 if n = 1
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 1"
 ok
 
 n = StzEngineNumberIsPalindrome(12345)
 ? "  IsPalindrome(12345): " + n
 if n = 0
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 0"
 ok
 
@@ -258,9 +258,9 @@ pC = StzEngineBigIntAdd(pA, pB)
 cResult = StzEngineBigIntToString(pC)
 ? "  100 + 200 = " + cResult
 if cResult = "300"
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 300"
 ok
 
@@ -268,9 +268,9 @@ pD = StzEngineBigIntMul(pA, pB)
 cResult = StzEngineBigIntToString(pD)
 ? "  100 * 200 = " + cResult
 if cResult = "20000"
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 20000"
 ok
 
@@ -284,9 +284,9 @@ pBig = StzEngineBigIntFromString("999999999999999999")
 cResult = StzEngineBigIntToString(pBig)
 ? "  BigInt('999999999999999999') = " + cResult
 if cResult = "999999999999999999"
-    nPass++
+    $nPass++
 else
-    nFail++
+    $nFail++
     ? "  FAIL: expected 999999999999999999"
 ok
 StzEngineBigIntFree(pBig)
@@ -294,8 +294,9 @@ StzEngineBigIntFree(pBig)
 # --- Summary ---
 ? ""
 ? "================================="
-? "  PASSED: " + nPass + "  FAILED: " + nFail
+? "  PASSED: " + $nPass + "  FAILED: " + $nFail
 ? "================================="
+shutdown($nFail)
 
 # ---- Helper ----
 

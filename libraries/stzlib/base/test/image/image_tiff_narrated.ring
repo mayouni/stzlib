@@ -91,7 +91,7 @@ sec("scene 5")
 
 ? ""
 ? "ASSERTIONS: " + ($nPass + $nFail) + " -- " + $nPass + " passed, " + $nFail + " failed"
-pf()
+pfq()
 shutdown($nFail)
 
 func Compare(cLabel, cFile, cExp)

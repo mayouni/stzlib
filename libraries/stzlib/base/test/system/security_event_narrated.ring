@@ -144,7 +144,8 @@ chk("AsLine() reads as a sentence", StzFindFirst("REFUSED sig.nonce.replayed by 
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func chk cLabel, bCond
 	if bCond

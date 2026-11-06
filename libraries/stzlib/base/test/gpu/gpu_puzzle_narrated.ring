@@ -202,7 +202,8 @@ chk("...and its data recipes are the face's five", StzFindFirst("mod13", cPage) 
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func chk cLabel, bCond
 	if bCond

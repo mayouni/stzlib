@@ -654,8 +654,12 @@ git status -sb | head -1     # the branch, not an assumption
   their topic directory (`cd libraries/stzlib/base/test/<topic>`).
   Running them from the stzlib root produces a misleading
   "Can't open file" error.
-- Tests ending with `pf()` print "STOPPED!" on a successful pass --
-  that banner is the success marker, not a failure.
+- A guard that counts its failures ends on `pfq()` then
+  `shutdown($nFail)`: its EXIT CODE IS ITS FAIL COUNT, 0 when green
+  (277 guards, 2026-11-06). `pf()` raises STOP, so a `shutdown` after
+  it never ran and every such guard exited 1 green or red. A new guard
+  takes the same ending. Scratch files ending with `pf()` still print
+  "STOPPED!" on a successful pass -- that banner is not a failure.
 - `#ERR exit 3221225794` is Windows 0xC0000142 (DLL init / access
   violation) and can be a stale header. Always re-run a sample
   before assuming the tests still crash.

@@ -83,6 +83,7 @@ if $nFailed = 0
 else
 	? "SOME TESTS FAILED!"
 ok
+shutdown($nFailed)
 
 
 func $Assert(cName, bResult)

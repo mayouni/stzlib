@@ -173,7 +173,7 @@ sec("scene 6")
 
 ? ""
 ? "ASSERTIONS: " + ($nPass + $nFail) + " -- " + $nPass + " passed, " + $nFail + " failed"
-pf()
+pfq()
 shutdown($nFail)
 
 # the contrast ratio of two luminances

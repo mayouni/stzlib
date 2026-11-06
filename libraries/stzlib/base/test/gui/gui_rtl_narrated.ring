@@ -32,8 +32,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 if NOT StzGuiAvailable()
 	? "No layout engine on this machine -- nothing to flip."
@@ -196,8 +196,9 @@ oPanLtr.Free()
 
 ? ""
 ? "=============================================================="
-? " " + nPass + " ok, " + nFail + " failed"
+? " " + $nPass + " ok, " + $nFail + " failed"
 ? "=============================================================="
+shutdown($nFail)
 
 #-- helpers ---------------------------------------------------------------
 #
@@ -240,9 +241,9 @@ func _XOf aTexts, cNeedle
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok

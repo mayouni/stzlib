@@ -287,7 +287,8 @@ StzResetEngineAgentLoop()
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 # A governed PI agent that fires every cycle -- the same shape
 # agenthost_narrated.ring uses, so the loop is driving real work rather

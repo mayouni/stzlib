@@ -371,7 +371,7 @@ if len(aSkipped) > 0
 ok
 ? ""
 ? "ASSERTIONS: " + ($nPass + $nFail) + " -- " + $nPass + " passed, " + $nFail + " failed"
-pf()
+pfq()
 shutdown($nFail)
 
 # the independent scorer's numbers against the Ring scorer's, metric by metric, on a set's stored predictions

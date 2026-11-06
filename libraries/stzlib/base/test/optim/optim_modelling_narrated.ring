@@ -380,7 +380,8 @@ sec("scene 7")
 
 StzDirDeleteAll(cFx)
 
-pf()
+pfq()
+shutdown($nFail)
 
 func chk(cWhat, bCond)
 	if bCond = 1

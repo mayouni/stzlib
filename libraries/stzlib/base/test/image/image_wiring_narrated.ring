@@ -165,7 +165,7 @@ sec("scene 6")
 
 ? ""
 ? "ASSERTIONS: " + ($nPass + $nFail) + " -- " + $nPass + " passed, " + $nFail + " failed"
-pf()
+pfq()
 shutdown($nFail)
 
 # one skill, run once per cycle: asks the next faculty of $aAskList through the registry

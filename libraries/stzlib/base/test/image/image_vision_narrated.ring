@@ -167,7 +167,8 @@ sec("scene 7")
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func LandmarksInside(aF)
 	n = len(aF)

@@ -91,7 +91,7 @@ sec("scene 5")
 
 ? ""
 ? "ASSERTIONS: " + ($nPass + $nFail) + " -- " + $nPass + " passed, " + $nFail + " failed"
-pf()
+pfq()
 shutdown($nFail)
 
 # the engine's reading against Pillow's: byte-equal, or within the stated bar; the measured difference is printed

@@ -5,8 +5,8 @@ load "../../stzBase.ring"
 
 pr()
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 # --- FindCellCS for strings (engine fast path) ---
 
@@ -23,27 +23,27 @@ o1 = new stzTableSearch([
 aPos = o1.FindCell("Ali")
 ? "  FindCell('Ali'): " + @@(aPos)
 if @@(aPos) = "[ [ 1, 1 ], [ 1, 4 ] ]"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [ [ 1, 1 ], [ 1, 4 ] ], got " + @@(aPos)
 ok
 
 aPos2 = o1.FindCell("Dev")
 ? "  FindCell('Dev'): " + @@(aPos2)
 if @@(aPos2) = "[ [ 3, 1 ], [ 3, 2 ] ]"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [ [ 3, 1 ], [ 3, 2 ] ], got " + @@(aPos2)
 ok
 
 aPos3 = o1.FindCell("missing")
 ? "  FindCell('missing'): " + @@(aPos3)
 if @@(aPos3) = "[ ]"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [ ], got " + @@(aPos3)
 ok
 
@@ -55,18 +55,18 @@ ok
 aCS = o1.FindCellCS("ali", 1)
 ? "  FindCellCS('ali', CS=1): " + @@(aCS)
 if @@(aCS) = "[ ]"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [ ], got " + @@(aCS)
 ok
 
 aCI = o1.FindCellCS("ali", 0)
 ? "  FindCellCS('ali', CS=0): " + @@(aCI)
 if @@(aCI) = "[ [ 1, 1 ], [ 1, 4 ] ]"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [ [ 1, 1 ], [ 1, 4 ] ], got " + @@(aCI)
 ok
 
@@ -86,16 +86,17 @@ o2.SortOn(:NAME)
 cFirst = o2.Cell(:NAME, 1)
 ? "  After SortOn(:NAME), first: " + cFirst
 if cFirst = "Alice"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected Alice, got " + cFirst
 ok
 
 # --- Summary ---
 ? ""
 ? "================================="
-? "  PASSED: " + nPass + "  FAILED: " + nFail
+? "  PASSED: " + $nPass + "  FAILED: " + $nFail
 ? "================================="
 
-pf()
+pfq()
+shutdown($nFail)

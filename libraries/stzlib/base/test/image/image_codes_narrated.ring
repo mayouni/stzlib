@@ -117,7 +117,7 @@ sec("scene 7")
 
 ? ""
 ? "ASSERTIONS: " + ($nPass + $nFail) + " -- " + $nPass + " passed, " + $nFail + " failed"
-pf()
+pfq()
 shutdown($nFail)
 
 # ---- the engine ------------------------------------------------------------------------------------------------------

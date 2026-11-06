@@ -5,8 +5,8 @@ load "../../stzBase.ring"
 
 pr()
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 ? "=== Engine Delegation: RepeatedLeadingItems ==="
 
@@ -14,9 +14,9 @@ o1 = new stzListLeadTrail(["a", "a", "a", "b", "c"])
 aResult = o1.RepeatedLeadingItems()
 ? "  RepeatedLeadingItems: " + @@(aResult)
 if len(aResult) = 3 and aResult[1] = "a" and aResult[3] = "a"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [a, a, a]"
 ok
 
@@ -27,9 +27,9 @@ o2 = new stzListLeadTrail(["a", "b", "c"])
 aResult2 = o2.RepeatedLeadingItems()
 ? "  RepeatedLeadingItems: " + @@(aResult2)
 if len(aResult2) = 0
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected empty list"
 ok
 
@@ -40,9 +40,9 @@ o3 = new stzListLeadTrail(["a", "b", "c", "c", "c"])
 aResult3 = o3.RepeatedTrailingItems()
 ? "  RepeatedTrailingItems: " + @@(aResult3)
 if len(aResult3) = 3 and aResult3[1] = "c" and aResult3[3] = "c"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [c, c, c]"
 ok
 
@@ -54,9 +54,9 @@ o4.RemoveRepeatedLeadingItems()
 aResult4 = o4.Content()
 ? "  RemoveRepeatedLeadingItems: " + @@(aResult4)
 if len(aResult4) = 3 and aResult4[1] = "x" and aResult4[2] = "a"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [x, a, b]"
 ok
 
@@ -68,9 +68,9 @@ o5.RemoveRepeatedTrailingItems()
 aResult5 = o5.Content()
 ? "  RemoveRepeatedTrailingItems: " + @@(aResult5)
 if len(aResult5) = 3 and aResult5[1] = "a" and aResult5[3] = "y"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [a, b, y]"
 ok
 
@@ -81,9 +81,9 @@ o6 = new stzListLeadTrail(["hello", "world", "test"])
 nResult6 = o6.StartsWith("hello")
 ? "  StartsWith('hello'): " + nResult6
 if nResult6 = 1
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 1"
 ok
 
@@ -93,9 +93,9 @@ ok
 nResult7 = o6.StartsWith("world")
 ? "  StartsWith('world'): " + nResult7
 if nResult7 = 0
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 0"
 ok
 
@@ -105,9 +105,9 @@ ok
 nResult8 = o6.EndsWith("test")
 ? "  EndsWith('test'): " + nResult8
 if nResult8 = 1
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 1"
 ok
 
@@ -117,9 +117,9 @@ ok
 nResult9 = o6.EndsWith("hello")
 ? "  EndsWith('hello'): " + nResult9
 if nResult9 = 0
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 0"
 ok
 
@@ -130,16 +130,17 @@ o10 = new stzListLeadTrail(["z", "z", "z", "z", "a"])
 nCount = o10.NumberOfRepeatedLeadingItems()
 ? "  NumberOfRepeatedLeadingItems: " + nCount
 if nCount = 4
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 4"
 ok
 
 # --- Summary ---
 ? ""
 ? "================================="
-? "  PASSED: " + nPass + "  FAILED: " + nFail
+? "  PASSED: " + $nPass + "  FAILED: " + $nFail
 ? "================================="
 
-pf()
+pfq()
+shutdown($nFail)

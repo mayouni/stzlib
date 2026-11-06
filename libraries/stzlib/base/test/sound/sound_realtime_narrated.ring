@@ -19,8 +19,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 nSkip = 0
 
 CS_STREAMS = 0
@@ -224,19 +224,20 @@ StzEngineSoundGraphFree(nG)
 
 # ---------------------------------------------------------------------------
 ? ""
-? "" + nPass + " passed, " + nFail + " failed, " + nSkip + " skipped"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed, " + nSkip + " skipped"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
+shutdown($nFail)
 
 # ---- helpers (below the main body) ----------------------------------------
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

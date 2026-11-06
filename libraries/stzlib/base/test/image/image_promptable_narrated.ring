@@ -225,7 +225,8 @@ sec("scene 6")
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 # the parity prompts: [ photo, kind, [ four numbers ], estimate ]
 func Prompts()

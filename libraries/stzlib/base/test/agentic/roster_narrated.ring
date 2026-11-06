@@ -207,7 +207,8 @@ StzFileDelete(cCentral + "/journal/" + cBlocked)
 
 StzDirDeleteAll(cFixture)
 
-pf()
+pfq()
+shutdown($nFail)
 
 func chk(cWhat, bCond)
 	if bCond = 1

@@ -287,7 +287,8 @@ chk("releasing " + nK + " images frees exactly " + nK + " handles", StzImagesAli
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
-pf()
+pfq()
+shutdown($nFail)
 
 func Ramp4()
 	c = ""

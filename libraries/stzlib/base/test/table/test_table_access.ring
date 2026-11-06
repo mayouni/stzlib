@@ -5,8 +5,8 @@ load "../../stzBase.ring"
 
 pr()
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 o1 = new stzTable([
 	[ :NAME,   :AGE,  :CITY     ],
@@ -21,36 +21,36 @@ o1 = new stzTable([
 aCol = o1.Col(:name)
 ? "  Col(:name): " + @@(aCol)
 if len(aCol) = 3 and aCol[1] = "Ali"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [Ali, Dania, Han]"
 ok
 
 aCol = o1.Col(2)
 ? "  Col(2): " + @@(aCol)
 if len(aCol) = 3 and aCol[1] = 35
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [35, 28, 42]"
 ok
 
 c = o1.NthColName(1)
 ? "  NthColName(1): " + c
 if StzLower(c) = "name"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected name"
 ok
 
 c = o1.LastColName()
 ? "  LastColName: " + c
 if StzLower(c) = "city"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected city"
 ok
 
@@ -61,27 +61,27 @@ ok
 aRow = o1.Row(1)
 ? "  Row(1): " + @@(aRow)
 if len(aRow) = 3 and aRow[1] = "Ali"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [Ali, 35, Tunis]"
 ok
 
 aRow = o1.LastRow()
 ? "  LastRow: " + @@(aRow)
 if len(aRow) = 3 and aRow[1] = "Han"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected [Han, 42, Beijing]"
 ok
 
 n = o1.NumberOfRows()
 ? "  NumberOfRows: " + n
 if n = 3
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 3"
 ok
 
@@ -92,27 +92,27 @@ ok
 v = o1.Cell(:name, 2)
 ? "  Cell(:name, 2): " + v
 if v = "Dania"
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected Dania"
 ok
 
 v = o1.Cell(:age, 3)
 ? "  Cell(:age, 3): " + v
 if v = 42
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 42"
 ok
 
 n = o1.NumberOfCells()
 ? "  NumberOfCells: " + n
 if n = 9
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 9"
 ok
 
@@ -123,16 +123,17 @@ ok
 aSection = o1.Section([1, 1], [2, 2])
 ? "  Section([1,1],[2,2]): " + @@(aSection)
 if len(aSection) = 4
-	nPass++
+	$nPass++
 else
-	nFail++
+	$nFail++
 	? "  FAIL: expected 4 cells"
 ok
 
 # --- Summary ---
 ? ""
 ? "================================="
-? "  PASSED: " + nPass + "  FAILED: " + nFail
+? "  PASSED: " + $nPass + "  FAILED: " + $nFail
 ? "================================="
 
-pf()
+pfq()
+shutdown($nFail)
