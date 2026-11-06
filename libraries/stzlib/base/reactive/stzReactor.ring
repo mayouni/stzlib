@@ -45,8 +45,8 @@ func StzReactor()
 # and the Connect calls dial out and give a channel that is used the same way. A job id is spent
 # once it is drained. The last-status readers (TcpLastStatus, SpawnLastStatus, HttpLastStatus,
 # TlsClientStatus) hold one value for the whole process. The loop starts at the first call and
-# Destroy stops it. Known gap today: Spawn and SubmitSpawn raise error R21 when given a plain text
-# instead of a list.
+# Destroy stops it. Spawn and SubmitSpawn take the program as a list of text, or as one text when it
+# has no arguments.
 #
 #   receiver   o1 = new stzReactor()
 #   example    ? o1.AwaitTimer( o1.SubmitTimer(20), 2000 )
@@ -200,24 +200,39 @@ class stzReactor from stzObject
 
 	# Starts a program on the loop and returns at once with the job id; the program runs off the Ring thread and its output is fetched later.
 	#
-	#   acArgv     the program followed by its arguments, as a list of text
+	#   acArgv     the program followed by its arguments, as a list of text, or one text for a
+	#              program with no arguments; a number in the list is sent as its text
 	#   returns    a job id, 0 or a negative number when the job could not be queued
 	#   note       pass [ "program", "arg1" ]; the engine receives the arguments joined with line
-	#              breaks
-	#   warning    known defect: a plain text instead of a list raises error R21, because the wrap
-	#              into a list is skipped inside the method
+	#              breaks, so an argument that holds a line break arrives as two; an empty text or
+	#              an empty list gets a job that ends at once with no output and the status -1; a
+	#              number, an object or a list inside the list raises Incorrect param type!
 	#   see        AwaitSpawn, PollSpawn, Spawn
 	#@ aka  ── async process spawn (polyglot fleet) ─────────────────
 	def SubmitSpawn(acArgv)
 		This._Ensure()
+		# the argument list is built in a fresh variable: a one-clause wrap that reassigns the
+		# parameter can no-op inside a method body, and the branch below cannot
+		_acArgs_ = []
 		if isString(acArgv)
-			acArgv = [ acArgv ]
+			_acArgs_ + acArgv
+		but isList(acArgv)
+			_nArgs_ = len(acArgv)
+			for i = 1 to _nArgs_
+				if isString(acArgv[i]) or isNumber(acArgv[i])
+					_acArgs_ + ("" + acArgv[i])
+				else
+					StzRaise("Incorrect param type! Every item of acArgv must be a text or a number.")
+				ok
+			next
+		else
+			StzRaise("Incorrect param type! acArgv must be a text, or a list of texts.")
 		ok
 		cJoined = ""
-		_nLen_ = len(acArgv)
+		_nLen_ = len(_acArgs_)
 		for i = 1 to _nLen_
 			if i > 1  cJoined += char(10)  ok
-			cJoined += "" + acArgv[i]
+			cJoined += _acArgs_[i]
 		next
 		return StzEngineReactorSubmitSpawn(@pHandle, cJoined)
 
@@ -246,7 +261,8 @@ class stzReactor from stzObject
 
 	# Returns the exit code of the last program whose output was fetched, whichever job it was.
 	#
-	#   returns    the exit code, a number; 0 when the program succeeded
+	#   returns    the exit code, a number; 0 when the program succeeded, a negative libuv code when
+	#              it could not start, -1 for an empty text or an empty list
 	#   note       one value shared by the whole process, so read it right after the fetch
 	#   see        AwaitSpawn, PollSpawn
 	def SpawnLastStatus()
@@ -277,13 +293,12 @@ class stzReactor from stzObject
 
 	# Runs a program and waits for it to end, returning what it printed; the exit code is then in SpawnLastStatus.
 	#
-	#   acArgv       the program followed by its arguments, as a list of text
+	#   acArgv       the program followed by its arguments, as a list of text, or one text for a
+	#                program with no arguments
 	#   nTimeoutMs   the longest wait, in milliseconds
 	#   returns      the program output as text; "" when the job could not be queued or timed out
 	#   note         pass [ "cmd", "/c", "echo hi" ] on Windows or [ "/bin/sh", "-c", "echo hi" ]
-	#                elsewhere
-	#   warning      known defect: a plain text instead of a list raises error R21, because the wrap
-	#                into a list is skipped inside SubmitSpawn
+	#                elsewhere; a program that does not exist answers "" with a negative status
 	#   see          SubmitSpawn, SpawnLastStatus
 	#@ aka  Submit + await in one call; returns the child's stdout.
 	def Spawn(acArgv, nTimeoutMs)
