@@ -54,7 +54,7 @@ nBC = oP.Fact(:distance, [ "B.icon", "C.icon" ])[:value]
 ```ring
 oFig = StzMathFigureQ(:Function, [ :f = "x^2 - 3", :on = [ -3, 3 ], :mark = [ :zeros ] ])
 aZ = oFig.Zeros()
-z = aZ[1][1]
+z = aZ[2][1]
 ? z
 #--> 1.73
 ? fabs( z - sqrt(3) ) < 0.000001

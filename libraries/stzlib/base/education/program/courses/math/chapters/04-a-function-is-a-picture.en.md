@@ -23,7 +23,7 @@ The figure found two zeros and one extremum. Each mark is a place: an x and a y.
 
 ```ring
 ? @@( oF.Zeros() )
-#--> [ [ 1.41, -0.00 ], [ -1.41, -0.00 ] ]
+#--> [ [ -1.41, -0.00 ], [ 1.41, -0.00 ] ]
 ? @@( oF.Extrema() )
 #--> [ [ 0, -2 ] ]
 ```
@@ -35,7 +35,7 @@ what remains is smaller than a millionth. The figure found the square root of tw
 
 ```ring
 aZ = oF.Zeros()
-z = aZ[1][1]
+z = aZ[2][1]
 ? z
 #--> 1.41
 ? fabs( z * z - 2 ) < 0.000001

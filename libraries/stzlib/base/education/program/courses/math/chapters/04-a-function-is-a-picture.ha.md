@@ -25,7 +25,7 @@ Siffar ta samu sifili biyu da ƙololuwa ɗaya. Kowace alama wuri ne: x da y.
 
 ```ring
 ? @@( oF.Zeros() )
-#--> [ [ 1.41, -0.00 ], [ -1.41, -0.00 ] ]
+#--> [ [ -1.41, -0.00 ], [ 1.41, -0.00 ] ]
 ? @@( oF.Extrema() )
 #--> [ [ 0, -2 ] ]
 ```
@@ -38,7 +38,7 @@ ba.
 
 ```ring
 aZ = oF.Zeros()
-z = aZ[1][1]
+z = aZ[2][1]
 ? z
 #--> 1.41
 ? fabs( z * z - 2 ) < 0.000001

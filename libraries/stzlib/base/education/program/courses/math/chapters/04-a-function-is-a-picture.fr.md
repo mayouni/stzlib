@@ -26,7 +26,7 @@ La figure a trouvé deux zéros et un extremum. Chaque marque est une place : un
 
 ```ring
 ? @@( oF.Zeros() )
-#--> [ [ 1.41, -0.00 ], [ -1.41, -0.00 ] ]
+#--> [ [ -1.41, -0.00 ], [ 1.41, -0.00 ] ]
 ? @@( oF.Extrema() )
 #--> [ [ 0, -2 ] ]
 ```
@@ -39,7 +39,7 @@ qu'on la lui dise.
 
 ```ring
 aZ = oF.Zeros()
-z = aZ[1][1]
+z = aZ[2][1]
 ? z
 #--> 1.41
 ? fabs( z * z - 2 ) < 0.000001

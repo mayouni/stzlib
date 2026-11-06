@@ -922,14 +922,46 @@ func _FfClampIndex(pnI, pnN, paX, paY)
 	return _i_
 
 # nearest the middle of the range first, so a symmetric picture keeps its
-# symmetric names when the cap bites
+# symmetric names when the cap bites.
+#
+# A TIE IS DECIDED HERE, not by the sort: two marks equally far from the
+# middle go LEFT first, in reading order. sort() left the tie to the
+# interpreter: Ring 1.27's sort put +1.41 before -1.41 for x^2 - 2 yet
+# -1.57 before 1.57 for sin, and rnxc's keeps the input order, so Zeros()
+# changed with the runtime and the math course's promises with it
+# (2026-11-06). Distances that differ only in their last bits are a tie
+# too: the zeros are found numerically.
 func _FfSortMarks(paMarks, pnMid)
-	_a_ = []
-	for _i_ = 1 to len(paMarks)  _a_ + [ fabs(paMarks[_i_][2] - pnMid), _i_ ]  next
-	_a_ = sort(_a_, 1)
+	_n_ = len(paMarks)
+	_ad_ = []
+	_nMax_ = 1
+	for _i_ = 1 to _n_
+		_ad_ + fabs(paMarks[_i_][2] - pnMid)
+		if _ad_[_i_] > _nMax_  _nMax_ = _ad_[_i_]  ok
+	next
+	_nTol_ = _nMax_ * 0.000000001
+	_ai_ = []
+	for _i_ = 1 to _n_  _ai_ + _i_  next
+	# insertion sort: a handful of marks, and stable by construction
+	for _i_ = 2 to _n_
+		_k_ = _ai_[_i_]
+		_j_ = _i_ - 1
+		while _j_ >= 1
+			if NOT _FfMarkBefore(paMarks, _ad_, _k_, _ai_[_j_], _nTol_)  exit  ok
+			_ai_[_j_ + 1] = _ai_[_j_]
+			_j_--
+		end
+		_ai_[_j_ + 1] = _k_
+	next
 	_out_ = []
-	for _i_ = 1 to len(_a_)  _out_ + paMarks[_a_[_i_][2]]  next
+	for _i_ = 1 to _n_  _out_ + paMarks[_ai_[_i_]]  next
 	return _out_
+
+# mark pnA goes before mark pnB: nearer the middle, or as near and further left
+func _FfMarkBefore(paMarks, paDist, pnA, pnB, pnTol)
+	if paDist[pnA] < paDist[pnB] - pnTol  return 1  ok
+	if paDist[pnA] > paDist[pnB] + pnTol  return 0  ok
+	return paMarks[pnA][2] < paMarks[pnB][2]
 
 # a nice step: 1, 2, 2.5 or 5 times a power of ten, giving at most pnTicks
 func _FfNiceStep(pnRange, pnTicks)

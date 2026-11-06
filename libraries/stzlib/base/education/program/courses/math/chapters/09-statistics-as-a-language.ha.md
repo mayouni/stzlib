@@ -43,7 +43,7 @@ daga kwata ta farko zuwa ta uku, matsakaici a ciki, da ƙimar da ta fita an ƙid
 ```ring
 oB = StzMathFigureQ(:BoxPlot, [ :of = aV, :label = "eight values" ])
 ? oB.Why()
-#--> a box plot of 1 group(s): n = 8, box 4 | 6 | 9.75, 1 outlier(s)
+#--> a box plot of 1 group(s) under percentile quartiles: n = 8, box 4 | 6 | 9.75, 1 outlier(s)
 ? len( oB.Violations() )
 #--> 0
 ```
@@ -84,7 +84,7 @@ da ƙima da ta fita; maraice ba ta da ita.
 oG = StzMathFigureQ(:BoxPlot, [ :groups = [ [ "morning", [ 12, 15, 14, 18, 16, 15, 13, 40 ] ],
                                             [ "evening", [ 20, 22, 19, 25, 24, 21, 23, 22 ] ] ] ])
 ? oG.Why()
-#--> a box plot of 2 group(s): morning n = 8, box 13.75 | 15 | 16.5, 1 outlier(s); evening n = 8, box 20.75 | 22 | 23.25, 0 outlier(s)
+#--> a box plot of 2 group(s) under percentile quartiles: morning n = 8, box 13.75 | 15 | 16.5, 1 outlier(s); evening n = 8, box 20.75 | 22 | 23.25, 0 outlier(s)
 ```
 
 ## 7. Yaɗuwa a matsayin lamba ɗaya
