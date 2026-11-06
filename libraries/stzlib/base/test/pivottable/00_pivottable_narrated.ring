@@ -134,6 +134,32 @@ Scenario("A total aggregates the source rows it covers, as a cell does")
     Then("...and the COUNT grand total counts them all", PivotColumn(oHgCount, "COUNT")[3], 4)
 EndScenario()
 
+Scenario("Rows are sorted by their labels, whatever order the source gives them")
+    # Rows came out in the order the source first gave their labels, so on
+    # real data one group listed "test" before "library" and the next group
+    # the other way round (fixed 2026-11-06). Both paths sort now: the
+    # engine's (one column label) and the Ring fallback's (two).
+    oSrEng = SortPivot([ :PRODUCT ])
+    Then("one column label: the regions in order, the total row last",
+        @@(RowLabelsOf(oSrEng, 1)), @@([ "North", "North", "North", "South", "South", "SUM" ]))
+    Then("...and the cities in order inside each region, without regard to case",
+        @@(RowLabelsOf(oSrEng, 2)), @@([ "bern", "Oslo", "Zürich", "Athens", "Rome", "" ]))
+    Then("...and each row keeps its own amounts (Zürich sold 20 Widgets)",
+        PivotColumn(oSrEng, "Widget")[3], 20)
+    oSrRing = SortPivot([ :PRODUCT, :YEAR ])
+    Then("two column labels: the same order", @@(RowLabelsOf(oSrRing, 2)), @@(RowLabelsOf(oSrEng, 2)))
+    Then("...and the grid draws Oslo before Zürich inside North",
+        StzFindFirst("Oslo", oSrRing._PivotTwoColLabelsText(1, 1)) <
+        StzFindFirst("Zürich", oSrRing._PivotTwoColLabelsText(1, 1)), TRUE)
+    oSrYear = new stzPivotTable(UnsortedData())
+    oSrYear.Analyze(:AMOUNT, :with = "SUM")
+    oSrYear.SetRowsBy([ :YEAR ])
+    oSrYear.SetColsBy([ :PRODUCT ])
+    oSrYear.Generate()
+    Then("numbers sort by value: 2023 before 2024, which the source gives first",
+        @@(RowLabelsOf(oSrYear, 1)), @@([ 2023, 2024, "SUM" ]))
+EndScenario()
+
 Summary()
 
 func Data()
@@ -350,3 +376,28 @@ func PivotColumn(oPivot, cName)
         ok
     next
     return []
+
+# ── the row-order helpers ──────────────────────────────────────────────────────
+
+# Regions and cities in no order: South first, a lower-case city, Zürich
+# before Oslo, and 2024 before 2023.
+func UnsortedData()
+    return [ [ :REGION, :CITY, :PRODUCT, :YEAR, :AMOUNT ],
+        [ "South", "Rome", "Widget", 2024, 10 ],
+        [ "North", "Zürich", "Widget", 2023, 20 ],
+        [ "South", "Athens", "Gadget", 2024, 30 ],
+        [ "North", "bern", "Gadget", 2024, 40 ],
+        [ "North", "Oslo", "Widget", 2023, 50 ] ]
+
+# A generated SUM pivot over UnsortedData, rows by REGION then CITY.
+func SortPivot(aCols)
+    oSp = new stzPivotTable(UnsortedData())
+    oSp.Analyze(:AMOUNT, :with = "SUM")
+    oSp.SetRowsBy([ :REGION, :CITY ])
+    oSp.SetColsBy(aCols)
+    oSp.Generate()
+    return oSp
+
+# The values of the pivot's nth column, top to bottom.
+func RowLabelsOf(oPivot, n)
+    return oPivot.ToTable().Content()[n][2]

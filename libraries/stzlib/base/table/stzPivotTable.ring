@@ -430,6 +430,7 @@ class stzPivotTable from stzList
 			_addTotalRow(_aUniqueColCombos_)
 		ok
 
+		_sortDataRows()
 		@oResultTable = new stzTable(@aPivotData)
 		@bIsGenerated = 1
 
@@ -554,12 +555,118 @@ class stzPivotTable from stzList
 
 		StzEngineTableFree(_pResult)
 
+		_sortDataRows()
 		@oResultTable = new stzTable(@aPivotData)
 		@bIsGenerated = 1
 
 	  #--------------------------------#
 	 #  DATA PROCESSING HELPERS       #
 	#--------------------------------#
+
+	# Rows came out in the order their labels first appear in the source, so
+	# one group could list "test" before "library" and the next the other way
+	# round. Both paths now sort the data rows by their row labels, first label
+	# first: numbers by value and before text, text without regard to case. The
+	# merge is stable, so rows equal on every label keep their order. The total
+	# row, when there is one, stays last (2026-11-06).
+
+	def _sortDataRows()
+		_nRows_ = len(@aPivotData)
+		_nLast_ = _nRows_
+		if @bShowTotalRow
+			_nLast_--
+		ok
+		_nData_ = _nLast_ - 1
+		if _nData_ < 2
+			return
+		ok
+
+		# Each row's labels, made comparable once rather than per comparison
+
+		_nDims_ = len(@aRowLabels)
+		_aKeys_ = []
+		for _r_ = 2 to _nLast_
+			_aK_ = []
+			for _d_ = 1 to _nDims_
+				_x_ = @aPivotData[_r_][_d_]
+				if isNumber(_x_)
+					_aK_ + [ 0, _x_ ]
+				else
+					_aK_ + [ 1, StzLower("" + _x_) ]
+				ok
+			next
+			_aKeys_ + _aK_
+		next
+
+		# Bottom-up merge sort over the row positions
+
+		_anIdx_ = []
+		for _i_ = 1 to _nData_
+			_anIdx_ + _i_
+		next
+
+		_nWidth_ = 1
+		while _nWidth_ < _nData_
+			_anOut_ = []
+			_nLo_ = 1
+			while _nLo_ <= _nData_
+				_nMid_ = _nLo_ + _nWidth_ - 1
+				if _nMid_ > _nData_
+					_nMid_ = _nData_
+				ok
+				_nHi_ = _nLo_ + (2 * _nWidth_) - 1
+				if _nHi_ > _nData_
+					_nHi_ = _nData_
+				ok
+
+				_i_ = _nLo_
+				_j_ = _nMid_ + 1
+				while _i_ <= _nMid_ and _j_ <= _nHi_
+					if _PivotKeyLess(_aKeys_[_anIdx_[_j_]], _aKeys_[_anIdx_[_i_]])
+						_anOut_ + _anIdx_[_j_]
+						_j_++
+					else
+						_anOut_ + _anIdx_[_i_]
+						_i_++
+					ok
+				end
+				while _i_ <= _nMid_
+					_anOut_ + _anIdx_[_i_]
+					_i_++
+				end
+				while _j_ <= _nHi_
+					_anOut_ + _anIdx_[_j_]
+					_j_++
+				end
+
+				_nLo_ = _nHi_ + 1
+			end
+			_anIdx_ = _anOut_
+			_nWidth_ *= 2
+		end
+
+		_aSorted_ = [ @aPivotData[1] ]
+		for _i_ = 1 to _nData_
+			_aSorted_ + @aPivotData[_anIdx_[_i_] + 1]
+		next
+		if @bShowTotalRow
+			_aSorted_ + @aPivotData[_nRows_]
+		ok
+		@aPivotData = _aSorted_
+
+	# 1 when the labels paKeyA sort before paKeyB (see _sortDataRows)
+
+	def _PivotKeyLess(paKeyA, paKeyB)
+		_nLen_ = len(paKeyA)
+		for _d_ = 1 to _nLen_
+			if paKeyA[_d_][1] != paKeyB[_d_][1]
+				return paKeyA[_d_][1] < paKeyB[_d_][1]
+			ok
+			if paKeyA[_d_][2] != paKeyB[_d_][2]
+				return paKeyA[_d_][2] < paKeyB[_d_][2]
+			ok
+		next
+		return 0
 
 	def _getUniqueCombinations(paFields)
 
