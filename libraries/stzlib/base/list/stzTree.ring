@@ -822,8 +822,14 @@ class stzTree from stzList
 		_cNodeName_ = paNode[1]
 		_aNodeContent_ = paNode[2]
 
-		_cCode_ = 'This.Content()' + pcBranch + ' + [ _cNodeName_, _aNodeContent_ ]'
+		# appended into a copy and written back: Ring let an append through
+		# This.Content() reach the tree itself, Ring++ refuses an append onto
+		# a call's result (E1, call_expression), and the explicit Update is
+		# the same on both (2026-11-08)
+		_aTree_ = This.Content()
+		_cCode_ = '_aTree_' + pcBranch + ' + [ _cNodeName_, _aNodeContent_ ]'
 		eval(_cCode_)
+		This.Update(_aTree_)
 
 	
 	# Adds an item at the end of the content of the node found at a path, in place.
@@ -846,8 +852,14 @@ class stzTree from stzList
 			return
 		ok
 		
-		_cCode_ = 'This.Content()' + pcBranch + ' + pItem'
+		# appended into a copy and written back: Ring let an append through
+		# This.Content() reach the tree itself, Ring++ refuses an append onto
+		# a call's result (E1, call_expression), and the explicit Update is
+		# the same on both (2026-11-08)
+		_aTree_ = This.Content()
+		_cCode_ = '_aTree_' + pcBranch + ' + pItem'
 		eval(_cCode_)
+		This.Update(_aTree_)
 
 	  #-------------------------------#
 	 #  GEETING NODES FROM A BRANCH  #
