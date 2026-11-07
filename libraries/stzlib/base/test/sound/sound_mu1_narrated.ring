@@ -25,7 +25,7 @@ $nFail = 0
 
 pr()
 decimals(3)
-nRate = 48000
+$nRate = 48000
 
 ? "== MU1: twenty instruments, in tune, distinct, and honest about their names =="
 ? ""
@@ -67,7 +67,7 @@ oSine.Release()
 ? "   The same A4, plucked by MU0's thirty-line spike and by MU1's guitar, read"
 ? "   by the same fine instrument."
 
-nOld = StzEngineSoundPluckOf(440, nRate, 1.2, 0.996)
+nOld = StzEngineSoundPluckOf(440, $nRate, 1.2, 0.996)
 nOldHz = StzEngineSoundMeasurePitch(nOld, 12001, 440, 0)
 oG = StzSoundInstrumentQ(:Guitar)
 oNew = oG.ToSoundOf(440, 1.2)
@@ -228,10 +228,10 @@ oDum.Release()  oTak.Release()  oBd.Release()
 ? "   cents, stated here before it was measured."
 
 oK = StzSoundInstrumentQ(:Kalangu).ToSoundOfGlide(150, 220, 0.8)
-nWin = 16384 / nRate
+nWin = 16384 / $nRate
 nE = StzEngineSoundMeasurePitch(oK.BufferId(), 1, 150 * pow(220 / 150, (nWin / 2) / 0.8), 1)
 nEx = 150 * pow(220 / 150, (nWin / 2) / 0.8)
-nLateAt = floor((0.8 - nWin) * nRate) + 1
+nLateAt = floor((0.8 - nWin) * $nRate) + 1
 nL = StzEngineSoundMeasurePitch(oK.BufferId(), nLateAt, 150 * pow(220 / 150, (0.8 - nWin / 2) / 0.8), 1)
 nLx = 150 * pow(220 / 150, (0.8 - nWin / 2) / 0.8)
 ? "   early window: expected " + nEx + ", read " + nE + "   late: expected " + nLx + ", read " + nL
@@ -262,7 +262,7 @@ Chk("a plucked string REFUSES to glide -- it holds one pitch", NOT isObject(oBad
 oA = StzSoundInstrumentQ(:Guitar).ToSoundOf(220, 1.4)
 nFifth = pow(2, 7 / 12)
 oGr = new stzSoundGraph()
-oGr.Reshape(1, nRate)
+oGr.Reshape(1, $nRate)
 oGr.AddSound(oA)
 oGr.NameIt(:src)
 oGr.SetOutputTo(:src)
@@ -404,7 +404,7 @@ func ReadCentre poN, nHz, bWanders
 
 func RenderTone nHz, nSecs
 	_g_ = new stzSoundGraph()
-	_g_.Reshape(1, nRate)
+	_g_.Reshape(1, $nRate)
 	_g_.AddOscillator(:Sine, nHz, 0.5)
 	_g_.NameIt(:t)
 	_g_.SetOutputTo(:t)
@@ -413,7 +413,7 @@ func RenderTone nHz, nSecs
 
 func SourceGraph poSound
 	_g_ = new stzSoundGraph()
-	_g_.Reshape(1, nRate)
+	_g_.Reshape(1, $nRate)
 	_g_.AddSound(poSound)
 	_g_.NameIt(:src)
 	_g_.SetOutputTo(:src)
@@ -426,11 +426,11 @@ func SourceGraph poSound
 # located between samples by linear interpolation, and the count between them.
 # Nothing here calls the engine except to read samples.
 func PitchByLowpassCrossings poN, nHz, nFrom, nTo
-	_a_ = exp(-2 * 3.14159265358979 * nHz * 1.2 / nRate)
+	_a_ = exp(-2 * 3.14159265358979 * nHz * 1.2 / $nRate)
 	_y_ = list(8)
 	for _p_ = 1 to 8  _y_[_p_] = 0 next
-	_f0_ = floor(nFrom * nRate)
-	_f1_ = floor(nTo * nRate)
+	_f0_ = floor(nFrom * $nRate)
+	_f1_ = floor(nTo * $nRate)
 	_prev_ = 0
 	_first_ = 0
 	_last_ = 0
@@ -453,7 +453,7 @@ func PitchByLowpassCrossings poN, nHz, nFrom, nTo
 		_prev_ = _x_
 	next
 	if _count_ = 0  return 0 ok
-	return nRate * _count_ / (_last_ - _first_)
+	return $nRate * _count_ / (_last_ - _first_)
 
 # The magnitude of one frequency, by Goertzel's recurrence over a Hann window
 # from 0.05 s: no trigonometry per sample, and it answers for exactly the
@@ -461,7 +461,7 @@ func PitchByLowpassCrossings poN, nHz, nFrom, nTo
 func Harmonic poN, nHz
 	_n_ = 16384
 	if poN.Frames() < 2400 + _n_  _n_ = poN.Frames() - 2400 ok
-	_w_ = 2 * 3.14159265358979 * nHz / nRate
+	_w_ = 2 * 3.14159265358979 * nHz / $nRate
 	_c_ = 2 * cos(_w_)
 	_s1_ = 0
 	_s2_ = 0
@@ -474,8 +474,8 @@ func Harmonic poN, nHz
 	return sqrt(_s1_ * _s1_ + _s2_ * _s2_ - _c_ * _s1_ * _s2_)
 
 func RmsBetween poN, nA, nB
-	_f0_ = floor(nA * nRate) + 1
-	_f1_ = floor(nB * nRate)
+	_f0_ = floor(nA * $nRate) + 1
+	_f1_ = floor(nB * $nRate)
 	_acc_ = 0
 	for _f_ = _f0_ to _f1_
 		_v_ = poN.SampleAt(_f_, 1)

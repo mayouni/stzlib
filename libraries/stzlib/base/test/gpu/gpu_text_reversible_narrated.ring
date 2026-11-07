@@ -25,8 +25,10 @@
 # Runs on the COMMITTED fixture with no device, no download, no system
 # font: this suite IS its own CI coverage, like its GR2a sibling.
 
-load "stdlib.ring"
+load "stdlibcore.ring"
 $cEngineDir = "../../../engine"
+# the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
+load "../../../core/common/stkRingLibs.ring"
 load "../../../engine/stz_gpu.ring"
 
 $nPass = 0

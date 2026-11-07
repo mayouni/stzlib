@@ -24,13 +24,13 @@ load "../_narrated.ring"
 # The expectations are written by hand. Texts beyond ASCII are built from char codes and never
 # printed. Every positive has a negative sibling.
 
-eAc   = char(195) + char(169)                              # e acute
-alef  = char(215) + char(144)                              # Hebrew alef
-bet   = char(215) + char(145)
-emo   = char(240) + char(159) + char(152) + char(128)      # grinning face
-nBig  = 1
+$eAc   = char(195) + char(169)                              # e acute
+$alef  = char(215) + char(144)                              # Hebrew alef
+$bet   = char(215) + char(145)
+$emo   = char(240) + char(159) + char(152) + char(128)      # grinning face
+$nBig  = 1
 for i = 1 to 30
-	nBig = nBig * 10
+	$nBig = $nBig * 10
 next
 
 vNum  = 5
@@ -321,12 +321,12 @@ func Cases()
 	acL + [ "a negative", -7, "1000" ]
 	acL + [ "a decimal", 3.14, "1000" ]
 	acL + [ "zero", 0, "1000" ]
-	acL + [ "a huge number", nBig, "1000" ]
+	acL + [ "a huge number", $nBig, "1000" ]
 	acL + [ "a numeric text", "12", "0100" ]
 	acL + [ "the empty text", "", "0100" ]
-	acL + [ "an accented text", "caf" + eAc, "0100" ]
-	acL + [ "a Hebrew text", alef + bet, "0100" ]
-	acL + [ "an emoji text", emo, "0100" ]
+	acL + [ "an accented text", "caf" + $eAc, "0100" ]
+	acL + [ "a Hebrew text", $alef + $bet, "0100" ]
+	acL + [ "an emoji text", $emo, "0100" ]
 	acL + [ "the empty list", [], "0010" ]
 	acL + [ "a nested list", [ 1, [ 2, 3 ] ], "0010" ]
 	acL + [ "a list of lists", [ [ 1, 2 ], [ 3, 4 ] ], "0010" ]
@@ -343,13 +343,13 @@ func MaskOf(pValue)
 	return cM1
 
 func Ones(pcMask)
-	nOnes = 0
+	_nOnes_ = 0
 	for iO = 1 to len(pcMask)
 		if pcMask[iO] = "1"
-			nOnes++
+			_nOnes_++
 		ok
 	next
-	return nOnes
+	return _nOnes_
 
 func Calls()
 	return [

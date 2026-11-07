@@ -32,7 +32,7 @@ Scenario("The safe stop ends the loop at the end of the pass that asked for it")
 	Then("the run raised nothing (no STOPPED banner)", cErr, "")
 	Then("the loop ended at the pass that asked: 3 ticks", $nTicks, 3)
 	Then("...well before the bound of 20", $nTicks < $nBound, TRUE)
-	Then("the system reports itself stopped", $oRs.@isRunning, ENGINE_STOPPED)
+	Then("the system reports itself stopped", $oRs.@isRunning, $ENGINE_STOPPED)
 EndScenario()
 
 Scenario("Without the safe stop the same loop keeps ticking until the bound")

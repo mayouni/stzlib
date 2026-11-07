@@ -6,7 +6,7 @@ load "../_narrated.ring"
 # wrong, so a pattern parsed into a token of the right type with no value and Match answered FALSE (or raised)
 # for about 90 patterns. Each scenario states what the pattern does AFTER the fix.
 
-oT = new stzTable([
+$oT = new stzTable([
 	[ :ID, :NAME, :AGE, :CITY ],
 	[ 1, "Ali", 28, "Niamey" ],
 	[ 2, "Sara", 32, "Paris" ],
@@ -131,9 +131,9 @@ Scenario("The case, and the sequence")
 	Then("@cs: puts a after A, so a, A is not in order", oSc.Match(oK), FALSE)
 	oSeq = new stzTablex("{cols(4) -> rows(4)}")
 	Then("terms joined by -> are one token each", oSeq.NumberOfTokens(), 2)
-	Then("and all must hold", oSeq.Match(oT), TRUE)
+	Then("and all must hold", oSeq.Match($oT), TRUE)
 	oSeq2 = new stzTablex("{cols(4) -> rows(5)}")
-	Then("one failing term fails the sequence", oSeq2.Match(oT), FALSE)
+	Then("one failing term fails the sequence", oSeq2.Match($oT), FALSE)
 	Then("a non-text pattern raises", TxRaises(12), TRUE)
 EndScenario()
 
@@ -154,12 +154,12 @@ Scenario("Building patterns from patterns")
 	oB = new stzTablex("{rows(4)}")
 	oAnd = oA.And_(oB)
 	Then("And_ joins with & and keeps the braces", oAnd.Pattern(), "{cols(4) & rows(4)}")
-	Then("the joined pattern matches", oAnd.Match(oT), TRUE)
+	Then("the joined pattern matches", oAnd.Match($oT), TRUE)
 	oOr = oA.Or_(oB)
 	Then("Or_ joins with |", oOr.Pattern(), "{cols(4) | rows(4)}")
 	oNot = oA.Not_()
 	Then("Not_ puts @! in front", oNot.Pattern(), "{@!cols(4)}")
-	Then("and negates", oNot.Match(oT), FALSE)
+	Then("and negates", oNot.Match($oT), FALSE)
 	aParts = oA.SplitByOperator("a->b->(c->d)", "->")
 	Then("SplitByOperator splits outside brackets only", len(aParts), 3)
 	Then("and keeps a bracketed part whole", aParts[3], "(c->d)")
@@ -167,27 +167,27 @@ EndScenario()
 
 Scenario("The parts of a match, and the tables that match")
 	oM = new stzTablex("{cols(4) & rows(4)}")
-	oM.Match(oT)
+	oM.Match($oT)
 	Then("CountMatchedParts counts the recorded parts", oM.CountMatchedParts(), 4)
 	Then("HowManyMatchedParts agrees", oM.HowManyMatchedParts(), 4)
-	Then("MatchingTables keeps the table that matches", len(oM.MatchingTables([ oT, oS ])), 1)
-	Then("CountMatchingTables counts it", oM.CountMatchingTables([ oT, oS ]), 1)
+	Then("MatchingTables keeps the table that matches", len(oM.MatchingTables([ $oT, oS ])), 1)
+	Then("CountMatchingTables counts it", oM.CountMatchingTables([ $oT, oS ]), 1)
 EndScenario()
 
 Summary()
 shutdown($_zst_fail)
 
 func TxMatch(cPattern)
-	oX = new stzTablex(cPattern)
-	return oX.Match(oT)
+	_oX_ = new stzTablex(cPattern)
+	return _oX_.Match($oT)
 
 func TxTokens(cPattern)
-	oX = new stzTablex(cPattern)
-	return oX.Tokens()
+	_oX_ = new stzTablex(cPattern)
+	return _oX_.Tokens()
 
 func TxRaises(x)
 	try
-		oX = new stzTablex(x)
+		_oX_ = new stzTablex(x)
 		return FALSE
 	catch
 		return TRUE

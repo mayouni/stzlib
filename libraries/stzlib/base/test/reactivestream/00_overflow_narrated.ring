@@ -1,6 +1,10 @@
 load "../../stzBase.ring"
 load "../_narrated.ring"
 
+# the library names BUFFER_EXPAND bare, so on Ring++ a function here cannot
+# read it (Rule A); it is captured once at the top level
+$cBufferExpand = BUFFER_EXPAND
+
 # stzReactiveStream -- WHAT AN OVERFLOW STRATEGY ACTUALLY DOES.
 #
 # An audit ran the four documented strategies against the same load: four items
@@ -123,7 +127,7 @@ func HeldLast(pStrategy)
 func ReceivedCount(pWhich)
 	_oRs3_ = new stzReactiveSystem()
 	_oSt3_ = _oRs3_.CreateStream("probe3")
-	_oSt3_.SetOverflowStrategy(BUFFER_EXPAND, 10)
+	_oSt3_.SetOverflowStrategy($cBufferExpand, 10)
 	if pWhich = :Correct
 		_oSt3_.Receive(1)
 	else
@@ -134,7 +138,7 @@ func ReceivedCount(pWhich)
 func ManyCount(pWhich)
 	_oRs4_ = new stzReactiveSystem()
 	_oSt4_ = _oRs4_.CreateStream("probe4")
-	_oSt4_.SetOverflowStrategy(BUFFER_EXPAND, 10)
+	_oSt4_.SetOverflowStrategy($cBufferExpand, 10)
 	if pWhich = :Correct
 		_oSt4_.ReceiveMany([ 1, 2, 3 ])
 	else
@@ -145,7 +149,7 @@ func ManyCount(pWhich)
 func ManyDropped(pWhich)
 	_oRs5_ = new stzReactiveSystem()
 	_oSt5_ = _oRs5_.CreateStream("probe5")
-	_oSt5_.SetOverflowStrategy(BUFFER_EXPAND, 10)
+	_oSt5_.SetOverflowStrategy($cBufferExpand, 10)
 	if pWhich = :Correct
 		_oSt5_.ReceiveMany([ 1, 2, 3 ])
 	else

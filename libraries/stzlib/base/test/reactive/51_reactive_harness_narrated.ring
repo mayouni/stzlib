@@ -10,9 +10,9 @@ Scenario("stzTimerManager carries default frequency and patience")
     Given("a fresh timer manager")
     oTm = new stzTimerManager()
     Then("checkFrequency defaults to DEFAULT_TIMER_CHECK",
-        oTm.@checkFrequency, DEFAULT_TIMER_CHECK)
+        oTm.@checkFrequency, $DEFAULT_TIMER_CHECK)
     Then("emptyLoopPatience defaults to DEFAULT_PATIENCE",
-        oTm.@emptyLoopPatience, DEFAULT_PATIENCE)
+        oTm.@emptyLoopPatience, $DEFAULT_PATIENCE)
     Then("timers list starts empty",       len(oTm.@timers), 0)
     Then("isRunning starts false",         oTm.@isRunning,   FALSE)
 EndScenario()
@@ -189,7 +189,7 @@ Scenario("stzReactiveTask DELIVERS -- storing a callback is not calling it")
 	Given("a task whose body returns 42")
 	gDelivered = "(never)"
 	oRs = new stzReactiveSystem()
-	oOk = new stzReactiveTask("ok", func { return 42 }, oRs, ERROR_CALLBACK)
+	oOk = new stzReactiveTask("ok", func { return 42 }, oRs, $ERROR_CALLBACK)
 	oOk.Then_(func r { gDelivered = "" + r })
 	oOk.Execute()
 
@@ -205,7 +205,7 @@ Scenario("stzReactiveTask DELIVERS -- storing a callback is not calling it")
 
 	Given("a task whose body divides by zero")
 	gReason = "(never)"
-	oBad = new stzReactiveTask("bad", func { return 1/0 }, oRs, ERROR_CALLBACK)
+	oBad = new stzReactiveTask("bad", func { return 1/0 }, oRs, $ERROR_CALLBACK)
 	oBad.Catch_(func msg { gReason = "" + msg })
 	oBad.Execute()
 
@@ -226,7 +226,7 @@ Scenario("stzReactiveTask DELIVERS -- storing a callback is not calling it")
 	# status said error, and there was no accessor to ask why. The last arm is
 	# now written as "not the mode that wants silence", so an unforeseen mode
 	# lands on REPORT rather than on swallow.
-	oOrphan = new stzReactiveTask("orphan", func { return 1/0 }, oRs, ERROR_CALLBACK)
+	oOrphan = new stzReactiveTask("orphan", func { return 1/0 }, oRs, $ERROR_CALLBACK)
 	oOrphan.Execute()
 	Then("the reason is kept", StzFindFirst("divide by zero", oOrphan.Error()) > 0, TRUE)
 
@@ -239,7 +239,7 @@ Scenario("stzReactiveTask DELIVERS -- storing a callback is not calling it")
 
 	# ...and the one mode that IS allowed to stay quiet still records, so silence
 	# by request never costs the reason.
-	oQuiet = new stzReactiveTask("quiet", func { return 1/0 }, oRs, ERROR_IGNORE)
+	oQuiet = new stzReactiveTask("quiet", func { return 1/0 }, oRs, $ERROR_IGNORE)
 	oQuiet.Execute()
 	Then("ignore keeps the reason on the object", StzFindFirst("divide by zero", oQuiet.Error()) > 0, TRUE)
 	Then("...and still marks the task failed", oQuiet.HasFailed(), TRUE)
@@ -266,7 +266,7 @@ Scenario("A subclass must fill what the inherited accessor reads")
 	# This class wrote _status_ to a LOCAL, which vanished when Execute()
 	# returned -- the exact defect its HTTP sibling had fixed in July and this
 	# one had not. Every inherited accessor answered as though it never ran.
-	Then("the status is on the task, not in a local", oFn.Status(), TASK_COMPLETED)
+	Then("the status is on the task, not in a local", oFn.Status(), $TASK_COMPLETED)
 	Then("...the result too", oFn.Result(), 42)
 	Then("...and it says it succeeded", oFn.Succeeded(), TRUE)
 	Then("a task that worked carries no error", oFn.Error(), "")
@@ -294,9 +294,9 @@ Scenario("A subclass must fill what the inherited accessor reads")
 
 	# THE NEGATIVE SIBLING: the accessor must not simply answer non-empty for
 	# everything, or the assertion above would hold for a task that was fine.
-	oHtFresh = new stzHttpTask("ht2", "http://nowhere.invalid", HTTP_GET, NULL, oRs2)
+	oHtFresh = new stzHttpTask("ht2", "http://nowhere.invalid", $HTTP_GET, NULL, oRs2)
 	Then("an unrun task reports no error", oHtFresh.Error(), "")
-	Then("...and is still pending", oHtFresh.Status(), TASK_PENDING)
+	Then("...and is still pending", oHtFresh.Status(), $TASK_PENDING)
 EndScenario()
 
 Summary()

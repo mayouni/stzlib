@@ -1,4 +1,4 @@
-load "stdlib.ring"
+load "stdlibcore.ring"
 
 # RX3 -- the dead-link guard on the agent door: AGENTS.md and its skills.
 #
@@ -20,7 +20,7 @@ load "stdlib.ring"
 # slash are read as paths; a token starting with ../ is relative to a test folder
 # and is not judged.
 
-cRoot = "../../../../../"
+$cRoot = "../../../../../"
 aDoor = [ "AGENTS.md",
           ".claude/skills/narrated-guard/SKILL.md",
           ".claude/skills/ring-traps/SKILL.md",
@@ -28,8 +28,8 @@ aDoor = [ "AGENTS.md",
 aPathsOnly = [ ".claude/skills/grind-err/SKILL.md" ]
 $nPass = 0
 $nFail = 0
-nPaths = 0
-nCmds = 0
+$nPaths = 0
+$nCmds = 0
 
 ? "SCENARIO: every path the door names exists, and every command it gives can run"
 for i = 1 to len(aDoor)
@@ -38,9 +38,9 @@ next
 for i = 1 to len(aPathsOnly)
 	JudgeFile(aPathsOnly[i], 0)
 next
-? "  (" + nPaths + " paths and " + nCmds + " commands read; a command is checked for shape and targets, not executed)"
+? "  (" + $nPaths + " paths and " + $nCmds + " commands read; a command is checked for shape and targets, not executed)"
 ? "SCENARIO: the door is short and routes"
-cDoor = read(cRoot + "AGENTS.md")
+cDoor = read($cRoot + "AGENTS.md")
 nLines = len(str2list(cDoor))
 Verdict("AGENTS.md is about 150 lines (" + nLines + ")", nLines <= 170)
 Verdict("it names CLAUDE.md as the law", substr(cDoor, "CLAUDE.md") > 0)
@@ -49,7 +49,7 @@ Verdict("it names Testoor's three exit codes", substr(cDoor, "**0**") > 0 and su
 Verdict("it names its own guard", substr(cDoor, "agents_door_narrated.ring") > 0)
 ? "SCENARIO: the negative sibling: a dead link is read as a path and found absent"
 Verdict("the token rule reads no/such/file.md as a path", IsPathToken("no/such/file.md") = 1)
-Verdict("and it is absent from the checkout", NOT (fexists(cRoot + "no/such/file.md") or direxists(cRoot + "no/such/file.md")))
+Verdict("and it is absent from the checkout", NOT (fexists($cRoot + "no/such/file.md") or direxists($cRoot + "no/such/file.md")))
 Verdict("a placeholder <topic> is not read as a path", IsPathToken("ring x.ring --topic <topic>") = 0)
 ? ""
 ? "================================================"
@@ -73,17 +73,17 @@ func Verdict(cText, bOk)
 
 func JudgeFile(cFile, bCommands)
 	? "  GIVEN " + cFile
-	if NOT fexists(cRoot + cFile)
+	if NOT fexists($cRoot + cFile)
 		Verdict("the file exists", 0)
 		return
 	ok
 	Verdict("the file exists", 1)
-	cText = read(cRoot + cFile)
+	cText = read($cRoot + cFile)
 	aLines = str2list(cText)
 	bFence = 0
 	bBash = 0
-	for i = 1 to len(aLines)
-		cL = aLines[i]
+	for _i_ = 1 to len(aLines)
+		cL = aLines[_i_]
 		cT = trim(cL)
 		if left(cT, 3) = "```"
 			if bFence = 0
@@ -106,29 +106,29 @@ func JudgeFile(cFile, bCommands)
 
 func JudgeTokens(cFile, cLine, bCommands)
 	n = len(cLine)
-	i = 1
-	while i <= n
-		if cLine[i] = "`"
-			j = i + 1
+	_i_ = 1
+	while _i_ <= n
+		if cLine[_i_] = "`"
+			j = _i_ + 1
 			while j <= n and cLine[j] != "`"
 				j++
 			end
 			if j > n
 				exit
 			ok
-			cTok = substr(cLine, i + 1, j - i - 1)
+			cTok = substr(cLine, _i_ + 1, j - _i_ - 1)
 			if IsPathToken(cTok) and (bCommands = 1 or substr(cTok, "/") > 0)
-				nPaths++
+				$nPaths++
 				cP = cTok
 				if right(cP, 1) = "/"
 					cP = left(cP, len(cP) - 1)
 				ok
-				bOk = fexists(cRoot + cP) or direxists(cRoot + cP)
+				bOk = fexists($cRoot + cP) or direxists($cRoot + cP)
 				Verdict(cFile + " names " + cTok, bOk)
 			ok
-			i = j + 1
+			_i_ = j + 1
 		else
-			i++
+			_i_++
 		ok
 	end
 
@@ -149,24 +149,26 @@ func IsPathToken(cTok)
 	return 0
 
 func JudgeCommand(cFile, cCmd)
-	nCmds++
+	$nCmds++
 	cDir = ""
 	aParts = split(cCmd, "&&")
 	for k = 1 to len(aParts)
 		cP = trim(aParts[k])
 		if left(cP, 3) = "cd "
 			cDir = trim(substr(cP, 4))
-			Verdict(cFile + " command: folder " + cDir + " exists", direxists(cRoot + cDir))
-		but left(cP, 5) = "ring "
-			aW = split(trim(substr(cP, 6)), " ")
-			cR = aW[1]
-			cFull = cRoot + cDir + "/" + cR
+			Verdict(cFile + " command: folder " + cDir + " exists", direxists($cRoot + cDir))
+		but left(cP, 5) = "ring " or left(cP, 5) = "rnxc " or right(lower(left(cP, substr(cP, " ") - 1)), 8) = "rnxc.exe"
+			# rnxc runs a program as ring did (RING-RETIRED-01): the
+			# interpreter is the first word, the program the second
+			aW = split(trim(cP), " ")
+			cR = aW[2]
+			cFull = $cRoot + cDir + "/" + cR
 			if cDir = ""
-				cFull = cRoot + cR
+				cFull = $cRoot + cR
 			ok
 			Verdict(cFile + " command: ring " + cR + " exists in " + cDir, fexists(cFull))
 		but left(cP, 9) = "zig build"
-			Verdict(cFile + " command: build.zig is in " + cDir, fexists(cRoot + cDir + "/build.zig"))
+			Verdict(cFile + " command: build.zig is in " + cDir, fexists($cRoot + cDir + "/build.zig"))
 		else
 			Verdict(cFile + " command of a known shape: " + cP, 0)
 		ok

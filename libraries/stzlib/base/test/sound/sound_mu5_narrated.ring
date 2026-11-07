@@ -12,7 +12,7 @@ load "../../stzBase.ring"
 $nPass = 0
 $nFail = 0
 nSkip = 0
-nRate = 48000
+$nRate = 48000
 
 pr()
 decimals(3)
@@ -292,12 +292,12 @@ func Mu5SpreadOf aA
 # the amplitude of each harmonic k*f0, k = 1..nK, by a DFT over 0.2 s from 0.3 s
 func Mu5Harmonics oS, nF0, nK
 	_aH_ = []
-	_from_ = floor(0.3 * nRate)
-	_n_ = floor(0.2 * nRate)
+	_from_ = floor(0.3 * $nRate)
+	_n_ = floor(0.2 * $nRate)
 	_x_ = list(_n_)
 	for _i_ = 1 to _n_  _x_[_i_] = oS.SampleAt(_from_ + _i_, 1) next
 	for _k_ = 1 to nK
-		_w_ = 2 * 3.14159265358979 * _k_ * nF0 / nRate
+		_w_ = 2 * 3.14159265358979 * _k_ * nF0 / $nRate
 		_re_ = 0
 		_im_ = 0
 		for _i_ = 1 to _n_

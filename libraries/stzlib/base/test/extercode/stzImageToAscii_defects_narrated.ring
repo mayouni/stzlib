@@ -25,12 +25,12 @@ ok
 
 cStart = currentdir()
 cWork  = cStart + "/_ia_work"
-cToolDir = cWork + "/sp ace"
-cTool  = cToolDir + "/tool.bat"
+$cToolDir = cWork + "/sp ace"
+cTool  = $cToolDir + "/tool.bat"
 bWin   = isWindows()
 
 IaRm(cWork)
-StzMakeDir(cToolDir)
+StzMakeDir($cToolDir)
 write(cWork + "/my pic.png", "x")
 write(cWork + "/plain.png", "x")
 
@@ -145,20 +145,20 @@ if bWin
 
 Scenario("Row 3 -- Execute: the arguments reach the stand-in intact, and the text is kept")
 	IaMode("ok")
-	remove(cToolDir + "/argv.log")
+	remove($cToolDir + "/argv.log")
 	o = new stzImgToAscii("my pic.png")
 	o.Height(12)
 	o.Width(40)
-	Then("the stand-in has not run yet", fexists(cToolDir + "/argv.log"), 0)
+	Then("the stand-in has not run yet", fexists($cToolDir + "/argv.log"), 0)
 	o.Execute()
-	Then("the stand-in ran", fexists(cToolDir + "/argv.log"), 1)
+	Then("the stand-in ran", fexists($cToolDir + "/argv.log"), 1)
 	Then("it received exactly the arguments BuildArgs builds, the path with a space as one",
-		@@(IaLog(cToolDir)), @@([ "-p", "my pic.png", "-s", "12", "-w", "40" ]))
+		@@(IaLog($cToolDir)), @@([ "-p", "my pic.png", "-s", "12", "-w", "40" ]))
 	Then("the text it printed is kept", trim(o.Content()), "STUB-TEXT")
 	Then("a text run keeps no file", o.OutputFile(), "")
 	Then("a text run writes nothing in the output folder", len(dir("output")), 0)
-	Then("Run is the same call", IaViaAlias("Run", cToolDir), 1)
-	Then("Go is the same call", IaViaAlias("Go", cToolDir), 1)
+	Then("Run is the same call", IaViaAlias("Run", $cToolDir), 1)
+	Then("Go is the same call", IaViaAlias("Go", $cToolDir), 1)
 EndScenario()
 
 Scenario("Row 3 -- Execute: a file format is written to a file, in the output folder or where asked")
@@ -170,8 +170,8 @@ Scenario("Row 3 -- Execute: a file format is written to a file, in the output fo
 	Then("the file is in the output folder", left(cF, 7), "output/")
 	Then("it carries the format as extension", right(cF, 4), ".svg")
 	Then("it exists", fexists(cF), 1)
-	Then("the stand-in was told where to write", IaLog(cToolDir)[len(IaLog(cToolDir))], cF)
-	Then("the option before the path is -o", IaLog(cToolDir)[len(IaLog(cToolDir)) - 1], "-o")
+	Then("the stand-in was told where to write", IaLog($cToolDir)[len(IaLog($cToolDir))], cF)
+	Then("the option before the path is -o", IaLog($cToolDir)[len(IaLog($cToolDir)) - 1], "-o")
 	Then("Content reads the file the tool wrote", trim(o.Content()), "STUB-FILE")
 	o = new stzImgToAscii("my pic.png")
 	o.Format("html")
@@ -183,16 +183,16 @@ Scenario("Row 3 -- Execute: a file format is written to a file, in the output fo
 	Then("a chosen output file is used, even for ansi, and its name keeps the space", o.OutputFile(), "output/my result.txt")
 	Then("the file holds what the tool wrote", trim(read("output/my result.txt")), "STUB-FILE")
 	Then("the stand-in received it as one argument",
-		IaLog(cToolDir)[len(IaLog(cToolDir))], "output/my result.txt")
+		IaLog($cToolDir)[len(IaLog($cToolDir))], "output/my result.txt")
 	Then("Content returns that file", trim(o.Content()), "STUB-FILE")
 EndScenario()
 
 Scenario("Row 3 -- Execute: a refusal or a failure keeps nothing, and the stand-in is not started for a refusal")
 	IaMode("ok")
-	remove(cToolDir + "/argv.log")
+	remove($cToolDir + "/argv.log")
 	o = new stzImgToAscii("")
 	Then("no image is refused with a clear message", IaHas(IaErr("o.Execute()"), "No image set"), 1)
-	Then("the stand-in did not run", fexists(cToolDir + "/argv.log"), 0)
+	Then("the stand-in did not run", fexists($cToolDir + "/argv.log"), 0)
 
 	o = new stzImgToAsciiProbe("my pic.png")
 	o.Execute()
@@ -231,26 +231,26 @@ EndScenario()
 
 Scenario("Row 4 -- Content: runs the tool once when needed, then answers from what it kept")
 	IaMode("ok")
-	remove(cToolDir + "/argv.log")
+	remove($cToolDir + "/argv.log")
 	o = new stzImgToAscii("my pic.png")
-	Then("nothing ran yet", fexists(cToolDir + "/argv.log"), 0)
+	Then("nothing ran yet", fexists($cToolDir + "/argv.log"), 0)
 	Then("Content runs the tool and returns its text", trim(o.Content()), "STUB-TEXT")
-	Then("the stand-in ran", fexists(cToolDir + "/argv.log"), 1)
-	remove(cToolDir + "/argv.log")
+	Then("the stand-in ran", fexists($cToolDir + "/argv.log"), 1)
+	remove($cToolDir + "/argv.log")
 	Then("a second Content answers the same", trim(o.Content()), "STUB-TEXT")
-	Then("without running the tool again", fexists(cToolDir + "/argv.log"), 0)
+	Then("without running the tool again", fexists($cToolDir + "/argv.log"), 0)
 	o = new stzImgToAscii("")
 	Then("with no image it is refused", IaHas(IaErr("o.Content()"), "No image set"), 1)
 EndScenario()
 
 Scenario("Row 5 -- Show: a text is printed, a file is handed to the viewer, and the viewer is never really opened")
 	IaMode("ok")
-	remove(cToolDir + "/argv.log")
+	remove($cToolDir + "/argv.log")
 	o = new stzImgToAsciiProbe("my pic.png")
 	o.Verbose()
 	? "  (the next line is Show printing the converted image, then Verbose printing the command)"
 	o.Show()
-	Then("Show ran the tool first", fexists(cToolDir + "/argv.log"), 1)
+	Then("Show ran the tool first", fexists($cToolDir + "/argv.log"), 1)
 	Then("a text result is printed and the viewer is not asked", o.Viewed(), 0)
 	o.View()
 	o.Display()
@@ -307,13 +307,13 @@ func IaRm(cDir)
 
 # the error text of a Ring expression, "" when it ran
 func IaErr(cCall)
-	cErr = ""
+	_cErr_ = ""
 	try
 		eval(cCall)
 	catch
-		cErr = cCatchError
+		_cErr_ = cCatchError
 	done
-	return cErr
+	return _cErr_
 
 # 1 when cNeedle occurs in cText
 func IaHas(cText, cNeedle)
@@ -350,7 +350,7 @@ func IaLog(cDir)
 
 # tells the stand-in how to behave: ok, fail or nofile
 func IaMode(cMode)
-	write(cToolDir + "/mode.txt", cMode + char(13) + char(10))
+	write($cToolDir + "/mode.txt", cMode + char(13) + char(10))
 
 # runs the object o through an alias and says whether the stand-in ran
 func IaViaAlias(cAlias, cDir)

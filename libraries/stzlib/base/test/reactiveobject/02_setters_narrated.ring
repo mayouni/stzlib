@@ -35,7 +35,7 @@ Scenario("SetAsync sets")
 	# store ever changing, and the callback could fire without either.
 	Then("the attribute actually changed", oA.GetAttribute(:name), "after")
 	Then("...the success handler was called with the value", gGot, "after")
-	Then("...and the task says it completed", oT.Status(), TASK_COMPLETED)
+	Then("...and the task says it completed", oT.Status(), $TASK_COMPLETED)
 	Then("...carrying the same value", oT.Result(), "after")
 	Then("...with nothing recorded against the object", oA.HasErrors(), FALSE)
 EndScenario()

@@ -19,9 +19,9 @@ load "../_narrated.ring"
 # question that is about case is turned into a number first.
 
 eSmall = char(195) + char(169)                  # e acute, small
-eCap   = char(195) + char(137)                  # E acute, capital
-alef   = char(215) + char(144)
-bet    = char(215) + char(145)
+$eCap   = char(195) + char(137)                  # E acute, capital
+$alef   = char(215) + char(144)
+$bet    = char(215) + char(145)
 gimel  = char(215) + char(146)
 
 Scenario("HasName: the stored name Ana is found, in any case, and only whole")
@@ -84,26 +84,26 @@ EndScenario()
 
 Scenario("HasName: accented and Hebrew names fold in the engine, not by bytes")
 	Given("an entity named Zo plus E acute in capital")
-	oZ = new stzEntity([ :name = "Zo" + eCap, :type = "person" ])
-	r = oZ.HasName("Zo" + eCap)
+	oZ = new stzEntity([ :name = "Zo" + $eCap, :type = "person" ])
+	r = oZ.HasName("Zo" + $eCap)
 	Then("the same capital matches", r, 1)
 	r = oZ.HasName("Zo" + eSmall)
 	Then("the small accented form matches the capital", r, 1)
-	r = oZ.HasName("ZO" + eCap)
+	r = oZ.HasName("ZO" + $eCap)
 	Then("ASCII capitals around the accent match", r, 1)
 	r = oZ.HasName("Zoe")
 	Then("the unaccented letter does not match", r, 0)
 	r = oZ.HasName("Zo")
 	Then("a prefix does not match", r, 0)
 	Given("an entity named with two Hebrew letters")
-	oH = new stzEntity([ :name = alef + bet, :type = "person" ])
-	r = oH.HasName(alef + bet)
+	oH = new stzEntity([ :name = $alef + $bet, :type = "person" ])
+	r = oH.HasName($alef + $bet)
 	Then("the same letters match", r, 1)
-	r = oH.HasName(bet + alef)
+	r = oH.HasName($bet + $alef)
 	Then("the letters in the other order do not", r, 0)
-	r = oH.HasName(alef)
+	r = oH.HasName($alef)
 	Then("a prefix of the Hebrew name does not", r, 0)
-	r = oH.HasName(alef + bet + gimel)
+	r = oH.HasName($alef + $bet + gimel)
 	Then("an extension of the Hebrew name does not", r, 0)
 EndScenario()
 
@@ -151,7 +151,7 @@ EndScenario()
 
 Scenario("IsOfType: accented and Hebrew types")
 	Given("a type of Pers plus E acute in capital")
-	oP = new stzEntity([ :name = "x", :type = "Pers" + eCap ])
+	oP = new stzEntity([ :name = "x", :type = "Pers" + $eCap ])
 	r = oP.IsOfType("pers" + eSmall)
 	Then("the small accented form matches", r, 1)
 	r = oP.IsOfType("pers")
@@ -159,14 +159,14 @@ Scenario("IsOfType: accented and Hebrew types")
 	r = oP.IsOfType("perse")
 	Then("the unaccented letter does not", r, 0)
 	Given("a type of two Hebrew letters")
-	oH = new stzEntity([ :name = "x", :type = alef + bet ])
-	r = oH.IsOfType(alef + bet)
+	oH = new stzEntity([ :name = "x", :type = $alef + $bet ])
+	r = oH.IsOfType($alef + $bet)
 	Then("the same letters match", r, 1)
-	r = oH.IsOfType(bet + alef)
+	r = oH.IsOfType($bet + $alef)
 	Then("the other order does not", r, 0)
 	r = oH.IsOfType("person")
 	Then("a Latin type does not", r, 0)
-	r = oH.IsOfType(alef)
+	r = oH.IsOfType($alef)
 	Then("a prefix does not", r, 0)
 EndScenario()
 
@@ -357,9 +357,9 @@ func Mk(pcKind)
 	but pcKind = "org"
 		return new stzEntity([ :name = "Acme", :type = "Organisation", :age = 30 ])
 	but pcKind = "acc"
-		return new stzEntity([ :name = "Zo" + eCap, :type = "Pers" + eCap, :age = 30 ])
+		return new stzEntity([ :name = "Zo" + $eCap, :type = "Pers" + $eCap, :age = 30 ])
 	ok
-	return new stzEntity([ :name = alef + bet, :type = bet + alef, :age = 30 ])
+	return new stzEntity([ :name = $alef + $bet, :type = $bet + $alef, :age = 30 ])
 
 func Calls()
 	return [
@@ -387,13 +387,13 @@ func BadCalls()
 
 func RunOne(pcKind, pcCall)
 	oRun = Mk(pcKind)
-	cErr = ""
+	_cErr_ = ""
 	try
 		eval("xRun = oRun." + pcCall)
 	catch
-		cErr = cCatchError
-		if cErr = ""
-			cErr = "raised"
+		_cErr_ = cCatchError
+		if _cErr_ = ""
+			_cErr_ = "raised"
 		ok
 	done
-	return cErr
+	return _cErr_

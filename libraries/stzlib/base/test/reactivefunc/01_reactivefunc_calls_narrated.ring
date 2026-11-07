@@ -31,7 +31,7 @@ Scenario("Call_ calls")
 	# The counter is the mechanism. A status and a result could both come from
 	# somewhere else; the function body running could not.
 	Then("the wrapped function actually ran", gRuns, 1)
-	Then("...the task says it completed", oT.Status(), TASK_COMPLETED)
+	Then("...the task says it completed", oT.Status(), $TASK_COMPLETED)
 	Then("...and carries the answer", oT.Result(), 42)
 	Then("...with no error", oT.Error(), "")
 
@@ -124,7 +124,7 @@ Scenario("What is still not connected, pinned rather than glossed")
 	oTq = oQ.Call_([ 1 ])
 
 	Then("the engine STILL has none -- AddTask reached a copy", len(oRs4.@tasks), 0)
-	Then("...yet the caller's task ran anyway", oTq.Status(), TASK_COMPLETED)
+	Then("...yet the caller's task ran anyway", oTq.Status(), $TASK_COMPLETED)
 EndScenario()
 
 Summary()

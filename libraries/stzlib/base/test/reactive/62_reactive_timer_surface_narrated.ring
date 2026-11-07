@@ -49,11 +49,11 @@ Scenario("A unit the clock cannot read is refused, not silently the smallest one
 	oRs2 = new stzReactiveSystem()
 	oRs2.RunAfterXT(5, "hours", func { })
 
-	Then("five hours is five hours", FirstInterval(oRs2), 5 * HOUR)
+	Then("five hours is five hours", FirstInterval(oRs2), 5 * $HOUR)
 
 	Given("the units that were already understood")
-	Then("seconds scale up", IntervalFor("seconds", 5), 5 * SECOND)
-	Then("minutes too", IntervalFor("minutes", 5), 5 * MINUTE)
+	Then("seconds scale up", IntervalFor("seconds", 5), 5 * $SECOND)
+	Then("minutes too", IntervalFor("minutes", 5), 5 * $MINUTE)
 	Then("milliseconds pass through", IntervalFor("milliseconds", 5), 5)
 	Then("...and so does a missing unit", IntervalFor(NULL, 5), 5)
 

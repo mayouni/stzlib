@@ -32,8 +32,10 @@
 #
 # STANDALONE like the other gpu guards: loads only the engine bridge.
 
-load "stdlib.ring"
+load "stdlibcore.ring"
 $cEngineDir = "../../../engine"
+# the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
+load "../../../core/common/stkRingLibs.ring"
 load "../../../engine/stz_gpu.ring"
 
 $nPass = 0

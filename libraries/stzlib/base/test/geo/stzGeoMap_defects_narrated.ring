@@ -19,9 +19,9 @@ decimals(4)
 # Every positive carries a negative sibling: what must still be refused, still be unclassed, still
 # not drawn.
 
-cNiger = read("../graphics/niger_adm1.geojson")
-cFix   = read("../graphics/fixtures/two_countries.geojson")
-oFont  = new stzFont("C:/Windows/Fonts/segoeui.ttf")
+$cNiger = read("../graphics/niger_adm1.geojson")
+$cFix   = read("../graphics/fixtures/two_countries.geojson")
+$oFont  = new stzFont("C:/Windows/Fonts/segoeui.ttf")
 
 # --- a Niger map fitted the way the gallery fits it ------------------------------------------
 Scenario("Values without classes: a refusal that says what to do, not an index error")
@@ -93,7 +93,7 @@ Scenario("The inset draws a region as its parent does, open top included")
 	cTop = oM.ColourOf(8)
 	Then("the parent paints Niamey in the top colour of YlOrRd", cTop, "#BD0026")
 	oC = new stzCanvas(1000, 640)
-	oM.DrawInsetsOn(oC, oFont, 14, "#222222")
+	oM.DrawInsetsOn(oC, $oFont, 14, "#222222")
 	cSvg = oC.ToSVG()
 	Then("the inset holds Niamey, and only Niamey", len(oM.Insets()[1][:idx]), 1)
 	Then("the inset draws Niamey in the parent's colour", CountOf(cSvg, 'fill="' + RgbOf(cTop) + '"'), 1)
@@ -107,7 +107,7 @@ Scenario("The inset draws a region as its parent does, open top included")
 	oK.SetPaper(20, 60, 700, 590)
 	oK.AddInsetXT([ 1.9, 13.3, 2.4, 13.75 ], [ 740, 400, 960, 560 ], "Niamey")
 	oC2 = new stzCanvas(1000, 640)
-	oK.DrawInsetsOn(oC2, oFont, 14, "#222222")
+	oK.DrawInsetsOn(oC2, $oFont, 14, "#222222")
 	cSvg2 = oC2.ToSVG()
 	Then("with a closed top the parent has Niamey as no data", oK.ColourOf(8), "#E8E8E8")
 	Then("...and so does the inset: the two agree", CountOf(cSvg2, 'fill="' + RgbOf("#E8E8E8") + '"'), 1)
@@ -147,7 +147,7 @@ Scenario("The scale without SetPaper is measured over the real extent of the fea
 		fabs(aBar[:pixels] - nExpect) / nExpect < 0.005, 1)
 
 	oC = new stzCanvas(1000, 640)
-	nY = oM.DrawScaleBarOn(oC, oFont, 13, 40, 575, 120, 16, "#4A3A22")
+	nY = oM.DrawScaleBarOn(oC, $oFont, 13, 40, 575, 120, 16, "#4A3A22")
 	Then("DrawScaleBarOn draws the bar and answers the y it ended at", nY > 575, 1)
 
 	oM.SetPaper(30, 50, 570, 470)
@@ -157,11 +157,11 @@ Scenario("The scale without SetPaper is measured over the real extent of the fea
 	# negative sibling: a sheet that really is the world on Mercator keeps being refused
 	oWp = new stzGeoProjection(:Mercator)
 	oWp.FitToSphere(800, 600, 10)
-	oW = StzGeoMap(oWp, StzGeoFeaturesFromJson(cNiger))
+	oW = StzGeoMap(oWp, StzGeoFeaturesFromJson($cNiger))
 	oW.SetPaper(0, 0, 800, 600)
 	Then("a world Mercator sheet, poles and all, varies far past the 1.25 a bar tolerates", oW.ScaleVariation() > 1.25, 1)
 	oC3 = new stzCanvas(800, 600)
-	Then("...and DrawScaleBarOn still refuses it (answers 0)", oW.DrawScaleBarOn(oC3, oFont, 13, 40, 575, 120, 16, "#222222"), 0)
+	Then("...and DrawScaleBarOn still refuses it (answers 0)", oW.DrawScaleBarOn(oC3, $oFont, 13, 40, 575, 120, 16, "#222222"), 0)
 EndScenario()
 
 Scenario("The stream-density raster covers the features, not a box thousands of pixels wide")
@@ -253,33 +253,33 @@ shutdown($_zst_fail)
 
 # --- helpers (after the main code: in Ring a func swallows what follows it) ---
 func NigerMap()
-	oN = StzGeoFeaturesFromJson(cNiger)
-	oP = StzGeoConicFor(oN, :ConicEqualArea)
-	oP.FitFeaturesIn(oN, 30, 70, 690, 580, 10)
-	oM = StzGeoMap(oP, oN)
-	oM.SetSource("geoBoundaries ADM1 (UN OCHA)")
-	return oM
+	_oN_ = StzGeoFeaturesFromJson($cNiger)
+	_oP_ = StzGeoConicFor(_oN_, :ConicEqualArea)
+	_oP_.FitFeaturesIn(_oN_, 30, 70, 690, 580, 10)
+	_oM_ = StzGeoMap(_oP_, _oN_)
+	_oM_.SetSource("geoBoundaries ADM1 (UN OCHA)")
+	return _oM_
 
 func FixtureMap()
-	oF = StzGeoFeaturesFromJson(cFix)
-	oP = new stzGeoProjection(:Equirectangular)
-	oP.FitToFeatures(oF, 500, 400, 20)
-	oM = StzGeoMap(oP, oF)
-	oM.SetSource("Invented, for a guard")
-	return oM
+	_oF_ = StzGeoFeaturesFromJson($cFix)
+	_oP_ = new stzGeoProjection(:Equirectangular)
+	_oP_.FitToFeatures(_oF_, 500, 400, 20)
+	_oM_ = StzGeoMap(_oP_, _oF_)
+	_oM_.SetSource("Invented, for a guard")
+	return _oM_
 
 # the raised message of one call, "" when it did not raise
 func ErrOf(oM, cWhat)
 	cErr = ""
-	oC = new stzCanvas(200, 200)
+	_oC_ = new stzCanvas(200, 200)
 	try
 		switch cWhat
 		on "ClassOf"        oM.ClassOf(1)
 		on "ColourOf"       oM.ColourOf(1)
-		on "DrawOn"         oM.DrawOn(oC)
-		on "DrawRegionsOn"  oM.DrawRegionsOn(oC, "#FFFFFF", 0.5)
-		on "DrawSheetOn"    oM.DrawSheetOn(oC, "#333333", 0.5)
-		on "DrawLegendOn"   oM.DrawLegendOn(oC, oFont, 10, 20, "t")
+		on "DrawOn"         oM.DrawOn(_oC_)
+		on "DrawRegionsOn"  oM.DrawRegionsOn(_oC_, "#FFFFFF", 0.5)
+		on "DrawSheetOn"    oM.DrawSheetOn(_oC_, "#333333", 0.5)
+		on "DrawLegendOn"   oM.DrawLegendOn(_oC_, $oFont, 10, 20, "t")
 		on "SetPalette3"    oM.SetPalette([ "#FFFFFF", "#888888", "#000000" ])
 		on "SetRampBlues"   oM.SetRamp(:Blues)
 		on "SetRampNope"    oM.SetRamp(:NoSuchRamp)
@@ -296,8 +296,8 @@ func Has(cText, cNeedle)
 func NigerDensity(oM)
 	aPop = [ 487620, 593821, 2037713, 3402094, 3328365, 2722482, 3539764, 1026848 ]
 	aOut = []
-	for i = 1 to oM.Features().Count()
-		aOut + (aPop[i] / oM.Features().AreaKm2Of(i))
+	for _k_ = 1 to oM.Features().Count()
+		aOut + (aPop[_k_] / oM.Features().AreaKm2Of(_k_))
 	next
 	return aOut
 

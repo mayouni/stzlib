@@ -16,9 +16,9 @@ load "../_narrated.ring"
 
 $CRLF = char(13) + char(10)
 
-oSrv = new stzAppServer()
-oClient = new stzReactor()
-oSrv.Start(0, "127.0.0.1")
+$oSrv = new stzAppServer()
+$oClient = new stzReactor()
+$oSrv.Start(0, "127.0.0.1")
 
 $oDb = new stzDatabase(":memory:")
 $oDb.Exec("CREATE TABLE ledger(id INTEGER PRIMARY KEY, entry TEXT)")
@@ -28,9 +28,9 @@ $oDb.Exec("INSERT INTO note (entry) VALUES ('first')")
 $oDb.Exec("CREATE TABLE tag(uuid TEXT, label TEXT)")
 $oDb.Exec("INSERT INTO tag (uuid, label) VALUES ('u-1', 'alpha')")
 
-oSrv.ExposeReadOnly($oDb, "ledger")
-oSrv.Expose($oDb, "note")
-oSrv.ExposeReadOnlyWithKey($oDb, "tag", "uuid")
+$oSrv.ExposeReadOnly($oDb, "ledger")
+$oSrv.Expose($oDb, "note")
+$oSrv.ExposeReadOnlyWithKey($oDb, "tag", "uuid")
 
 Scenario("a read-only table still reads exactly as under Expose")
 	Given("a ledger table exposed with ExposeReadOnly")
@@ -89,9 +89,9 @@ Scenario("ExposeReadOnlyWithKey reads by its key and refuses writes")
 EndScenario()
 
 Scenario("teardown")
-	oSrv.Stop()
+	$oSrv.Stop()
 	$oDb.Close()
-	oClient.Destroy()
+	$oClient.Destroy()
 	Then("teardown completes without crash", TRUE, TRUE)
 EndScenario()
 shutdown($_zst_fail)
@@ -102,9 +102,9 @@ func Hit(cMethod, cPath, cForm)
 		cReq += "Content-Length: " + len(cForm) + $CRLF
 	ok
 	cReq += "Connection: close" + $CRLF + $CRLF + cForm
-	nJob = oClient.SubmitTcp("127.0.0.1", oSrv.Port(), cReq)
-	oSrv.ServeOne(3000)
-	return oClient.AwaitTcp(nJob, 5000)
+	nJob = $oClient.SubmitTcp("127.0.0.1", $oSrv.Port(), cReq)
+	$oSrv.ServeOne(3000)
+	return $oClient.AwaitTcp(nJob, 5000)
 
 func Has(cText, cNeedle)
 	return StzFindFirst(cNeedle, cText) > 0

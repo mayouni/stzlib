@@ -15,7 +15,7 @@ before the first line, more under load.
 From its own folder, always: `load` resolves against the current directory.
 
 ```bash
-cd libraries/stzlib/base/test/render && ring escape_sinks_narrated.ring
+cd libraries/stzlib/base/test/render && rnxc escape_sinks_narrated.ring
 ```
 
 Read the last lines: `TOTAL: n assertions, p pass, f fail` and `STATUS: OK`. A guard
@@ -25,12 +25,12 @@ ending with `pf()` prints `STOPPED!` on success; that banner is the success mark
 
 | what you touched | gate |
 |---|---|
-| `base/file/stzHtml.ring`, the JSON faces, the GUI projections | `cd libraries/stzlib/base/test/render && ring escape_sinks_narrated.ring && ring twin_coverage_narrated.ring` |
-| `base/meta/stzCodeRules.ring` | `cd libraries/stzlib/base/test/meta && ring coderule_narrated.ring` |
-| a writer that builds HTML or XML by concatenation | `cd libraries/stzlib/base/test/render && ring markup_concat_gate_narrated.ring`: the ratchet, about a minute, fails on a new concatenating line |
-| any public method (a brief above it) | `cd libraries/stzlib/base/doc && ring gate.ring` prints `OK` or the errors |
+| `libraries/stzlib/base/file/stzHtml.ring`, the JSON faces, the GUI projections | `cd libraries/stzlib/base/test/render && rnxc escape_sinks_narrated.ring && rnxc twin_coverage_narrated.ring` |
+| `libraries/stzlib/base/meta/stzCodeRules.ring` | `cd libraries/stzlib/base/test/meta && rnxc coderule_narrated.ring` |
+| a writer that builds HTML or XML by concatenation | `cd libraries/stzlib/base/test/render && rnxc markup_concat_gate_narrated.ring`: the ratchet, about a minute, fails on a new concatenating line |
+| any public method (a brief above it) | `cd libraries/stzlib/base/doc && rnxc gate.ring` prints `OK` or the errors |
 | the engine (`engine/src/*.zig`) | `cd libraries/stzlib/engine && zig build -j2`, alone, in the foreground, about 25 minutes; never beside another build |
-| a test topic | `cd libraries/stzlib/base/testoor && ring testoor.ring --topic <topic>` |
+| a test topic | `cd libraries/stzlib/base/testoor && rnxc testoor.ring --topic <topic>` |
 
 ## Testoor's exit codes
 
