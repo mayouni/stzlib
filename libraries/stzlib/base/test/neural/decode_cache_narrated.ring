@@ -32,7 +32,9 @@ aSkipped = []
 #=====================================================================#
 Scenario("The greedy text is the text the decoder wrote before the cache changed")
 #=====================================================================#
-aExp = StzSplit(read("_data/decode_equiv_expected.txt"), char(10))
+# a checkout with autocrlf hands the file back with carriage returns the
+# decoder never wrote, so they go before the split, as they go from cT
+aExp = StzSplit(StzReplace(read("_data/decode_equiv_expected.txt"), char(13), ""), char(10))
 nCompared = 0
 nSame = 0
 nModels = 0
