@@ -173,15 +173,20 @@ func StzRouteSchema()
 # ---- words, for the retrieval floors --------------------------------------------------------------------
 func _TkWords(cText)
 	_c_ = lower(cText)
+	# a new text, not _c_[_i_] = " ": Ring++ does not assign into a text by
+	# index (Ring did), it raises Bad parameter type (2026-11-07)
+	_o_ = ""
 	for _i_ = 1 to len(_c_)
 		_n_ = ascii(_c_[_i_])
 		# letters and digits stay; everything else becomes a space (compared by code: Ring's >= does not order strings)
-		if NOT ((_n_ >= 97 and _n_ <= 122) or (_n_ >= 48 and _n_ <= 57))
-			_c_[_i_] = " "
+		if (_n_ >= 97 and _n_ <= 122) or (_n_ >= 48 and _n_ <= 57)
+			_o_ += _c_[_i_]
+		else
+			_o_ += " "
 		ok
 	next
 	_a_ = []
-	_aW_ = split(_c_, " ")
+	_aW_ = split(_o_, " ")
 	for _i_ = 1 to len(_aW_)
 		if len(_aW_[_i_]) > 2 add(_a_, _aW_[_i_]) ok
 	next

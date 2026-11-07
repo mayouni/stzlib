@@ -362,14 +362,15 @@ Scenario("Static: the bytes of a PNG-like file survive, all 256 values")
 		AsSame(right(aR[3], 256), $cAll), 1)
 	Then("the wire is the headers plus exactly 256 bytes", len(aR[3]) - 256 > 0 and Has(left(aR[3], len(aR[3]) - 256), $CRLF + $CRLF), TRUE)
 	Given("the negative sibling: a body that differs by one byte")
-	cOff = $cAll
-	cOff[1] = char(1)
+	# built, not cOff[1] = ...: Ring++ does not assign into a text by index
+	cOff = char(1) + right($cAll, 255)
 	Then("is detected as different", AsSame(aR[2], cOff), 0)
 	Given("a body whose last 255 bytes are wrong but which starts with the same NUL")
-	cOff = $cAll
-	cOff[256] = char(7)
+	cOff = left($cAll, 255) + char(7)
 	Then("is detected as different (strcmp would stop at the first NUL and call it equal)", AsSame(aR[2], cOff), 0)
-	Then("and strcmp indeed calls them equal, which is why it is not used here", strcmp(aR[2], cOff), 0)
+	# Ring's strcmp stopped at the first NUL and called them equal, which is
+	# why AsSame compares here; Ring++'s compares every byte (2026-11-07)
+	Then("and Ring++'s strcmp sees the difference too, past the NUL", strcmp(aR[2], cOff) != 0, TRUE)
 EndScenario()
 
 Scenario("Static: HEAD has the headers and no body; other methods are refused")
