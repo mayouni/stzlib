@@ -117,6 +117,37 @@ func _ZipShowName(_cZName_)
 	next
 	return _cZOut_
 
+# Says why an archive cannot be written at this path, or "" when it can: its folder is missing, or
+# (to add to it) the file there is not a zip. Asked BEFORE zip_openfile, because that answer is the
+# runtime's: Ring's zip refused both and answered NULL, Ring++'s answers a handle, treats a file that
+# is not a zip as an empty archive and rewrites it at close (2026-11-07: a text file lost its bytes).
+#
+#   _cZPath_   the archive's path
+#   _cZMode_   "w" to create it, "a" to add to it
+#   returns    a text; "" when the archive can be written
+func _ZipArchiveProblem(_cZPath_, _cZMode_)
+	_cZP_ = StzReplace("" + _cZPath_, char(92), "/")
+	_nZCut_ = 0
+	_nZLen_ = ring_len(_cZP_)
+	for _nZi_ = _nZLen_ to 1 step -1
+		if _cZP_[_nZi_] = "/"
+			_nZCut_ = _nZi_
+			exit
+		ok
+	next
+	if _nZCut_ > 1 and NOT direxists(left(_cZP_, _nZCut_ - 1))
+		return "its folder does not exist"
+	ok
+	if _cZMode_ = "a" and fexists(_cZPath_)
+		_hZ_ = fopen(_cZPath_, "rb")
+		_cZSig_ = fread(_hZ_, 4)
+		fclose(_hZ_)
+		if NOT (_cZSig_ = "PK" + char(3) + char(4) or _cZSig_ = "PK" + char(5) + char(6))
+			return "the file there is not a zip archive"
+		ok
+	ok
+	return ""
+
 # Gives an absolute path written with forward slashes, with . and .. segments resolved and folded to
 # lower case on Windows, so two paths of the same file compare equal.
 func _ZipCleanPath(_cZPath_)
@@ -269,6 +300,10 @@ class stzZipFile from stzObject
             StzRaise("Files parameter must be a list")
         ok
         
+        _cZWhy_ = _ZipArchiveProblem(@cZipFileName, "w")
+        if _cZWhy_ != ""
+            StzRaise("Cannot write the zip file (" + _cZWhy_ + "): " + @cZipFileName)
+        ok
         _oZip_ = zip_openfile(@cZipFileName, 'w')
         if _oZip_ = ""
             StzRaise("Cannot create zip file: " + @cZipFileName)
@@ -360,6 +395,10 @@ class stzZipFile from stzObject
             _aKept_ + _aNames_[i]
         next
 
+        _cZWhy_ = _ZipArchiveProblem(@cZipFileName, "w")
+        if _cZWhy_ != ""
+            StzRaise("Cannot write the zip file (" + _cZWhy_ + "): " + @cZipFileName)
+        ok
         _oZip_ = zip_openfile(@cZipFileName, 'w')
         _cBad_ = ""
         _nKept_ = ring_len(_aKept_)
@@ -405,6 +444,10 @@ class stzZipFile from stzObject
             StzRaise("File does not exist: " + cFileName)
         ok
         
+        _cZWhy_ = _ZipArchiveProblem(@cZipFileName, "a")
+        if _cZWhy_ != ""
+            StzRaise("Cannot write the zip file (" + _cZWhy_ + "): " + @cZipFileName)
+        ok
         _oZip_ = zip_openfile(@cZipFileName, 'a')
         if _oZip_ = ""
             StzRaise("Cannot open zip file for appending: " + @cZipFileName)
@@ -431,6 +474,10 @@ class stzZipFile from stzObject
             StzRaise("Files parameter must be a list")
         ok
         
+        _cZWhy_ = _ZipArchiveProblem(@cZipFileName, "a")
+        if _cZWhy_ != ""
+            StzRaise("Cannot write the zip file (" + _cZWhy_ + "): " + @cZipFileName)
+        ok
         _oZip_ = zip_openfile(@cZipFileName, 'a')
         if _oZip_ = ""
             StzRaise("Cannot open zip file for appending: " + @cZipFileName)
@@ -501,6 +548,10 @@ class stzZipFile from stzObject
         _cMode_ = 'w'
         if fexists(@cZipFileName)
             _cMode_ = 'a'
+        ok
+        _cZWhy_ = _ZipArchiveProblem(@cZipFileName, _cMode_)
+        if _cZWhy_ != ""
+            StzRaise("Cannot write the zip file (" + _cZWhy_ + "): " + @cZipFileName)
         ok
         _oZip_ = zip_openfile(@cZipFileName, _cMode_)
         _nRc_ = zip_entry_open(_oZip_, cEntryName)
