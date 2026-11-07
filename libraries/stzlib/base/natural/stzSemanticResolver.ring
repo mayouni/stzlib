@@ -33,6 +33,8 @@ $bStzSemOpsGrown = 0    # $aSemanticOperations grown from the harvest yet?
 $aStzSemExactNames = []     # [ [ lowered stz_method, semantic_id ], ... ]
 $aStzSemOpIds = []          # flat id list backing _StzSemOpKnown (ring_find speed)
 $nStzSemCacheSig = 0        # cache signature (combined source sizes)
+$aStzSemAkaTagMap = []      # [ "owner|method", tags ] from the #@ aka lines that are tags
+$bStzSemAkaTagMapBuilt = 0
 $aStzSemLangLex = []        # multilingual packs: [ [ cCode, aBags, aExact ], ... ]
 
 #--
@@ -962,7 +964,17 @@ func StzSemanticLexicon()
 
 	for _j_ = 1 to _nR_
 		_aRec_ = _aRecs_[_j_]
-		if len(_aRec_) < 3 or _aRec_[3] = ""
+		if len(_aRec_) < 4
+			loop
+		ok
+		# only the aka lines that are TAGS (short comma-separated phrases);
+		# the harvest's aka field also carries the description sentence the
+		# self-documentation grind wrote as a second aka line, whose words
+		# tied with the real tags ("for independent caps" took "caps" from
+		# Uppercase) or spread one word over many bags ("mirrored" in six
+		# descriptions answered nothing) -- 2026-11-08
+		_cAka_ = _StzSemAkaTagsOf(_aRec_[4], _aRec_[1])
+		if _cAka_ = ""
 			loop
 		ok
 		# FORM-SLOTTED folding: a PREDICATE'S aka is predicate-specific
@@ -975,7 +987,7 @@ func StzSemanticLexicon()
 		if _aFm_[1] = "predicate" or _aFm_[1] = "negative"
 			_cOwnId_ = "METHOD_" + upper(_aRec_[1])
 			if _StzSemOpKnown(_cOwnId_)
-				_StzSemBagAdd(_aBags_, _cOwnId_, _aRec_[3])
+				_StzSemBagAdd(_aBags_, _cOwnId_, _cAka_)
 				loop
 			ok
 		ok
@@ -984,7 +996,7 @@ func StzSemanticLexicon()
 		for _k_ = 1 to _nC_
 			_cId_ = "METHOD_" + upper(_aCands_[_k_])
 			if _StzSemOpKnown(_cId_)
-				_StzSemBagAdd(_aBags_, _cId_, _aRec_[3])
+				_StzSemBagAdd(_aBags_, _cId_, _cAka_)
 				exit
 			ok
 		next
@@ -1018,7 +1030,9 @@ func _StzSemCachePath()
 # to them changes the size and forces a rebuild.
 
 func _StzSemCacheSig()
-	_n_ = 0
+	# starts at the LEXICON VERSION, so a change to how the lexicon is built
+	# rebuilds the cache too (2: aka sentences are no longer harvested)
+	_n_ = 2
 	_aCls_ = [ "stzString", "stzList", "stzNumber" ]
 	for _i_ = 1 to 3
 		_cSrc_ = _StzResolveSource(_aCls_[_i_])
@@ -2350,6 +2364,89 @@ func _StzSemOpKnown(pcId)
 		ok
 	next
 	return 0
+
+# The retrieval TAGS a method's #@ aka lines give, or "" -- only the lines
+# that read as tags: no sentence punctuation, and no comma-separated part
+# longer than four words. Read from the owning class's source, once.
+func _StzSemAkaTagsOf(pcOwner, pcMethod)
+	if NOT $bStzSemAkaTagMapBuilt
+		_StzSemBuildAkaTagMap()
+	ok
+	_cKey_ = lower("" + pcOwner) + "|" + lower("" + pcMethod)
+	_n_ = len($aStzSemAkaTagMap)
+	for _i_ = 1 to _n_
+		if $aStzSemAkaTagMap[_i_][1] = _cKey_
+			return $aStzSemAkaTagMap[_i_][2]
+		ok
+	next
+	return ""
+
+func _StzSemBuildAkaTagMap()
+	$bStzSemAkaTagMapBuilt = 1
+	_aOwners_ = []
+	_aRecs_ = _StzSemHarvest()
+	_nR_ = len(_aRecs_)
+	for _i_ = 1 to _nR_
+		if len(_aRecs_[_i_]) >= 4 and _aRecs_[_i_][4] != ""
+			_cO_ = lower("" + _aRecs_[_i_][4])
+			if len(StzFind(_cO_, _aOwners_)) = 0
+				_aOwners_ + _cO_
+			ok
+		ok
+	next
+	_nO_ = len(_aOwners_)
+	for _o_ = 1 to _nO_
+		_cSrc_ = _StzResolveSource(_aOwners_[_o_])
+		if _cSrc_ = "" or NOT fexists(_cSrc_)
+			loop
+		ok
+		_aL_ = str2list(read(_cSrc_))
+		_nL_ = len(_aL_)
+		_cTags_ = ""
+		for _k_ = 1 to _nL_
+			_cT_ = trim(_aL_[_k_])
+			if lower(left(_cT_, 6)) = "#@ aka"
+				_cOne_ = _StzSemTagLine(trim(substr(_cT_, 7, len(_cT_) - 6)))
+				if _cOne_ != ""
+					_cTags_ += " " + _cOne_
+				ok
+			but lower(left(_cT_, 4)) = "def " or lower(left(_cT_, 5)) = "func "
+				if _cTags_ != ""
+					_cD_ = _cT_
+					if lower(left(_cD_, 5)) = "func "
+						_cD_ = "def " + substr(_cD_, 6, len(_cD_) - 5)
+					ok
+					_cName_ = _StzDefName(_cD_)
+					if _cName_ != ""
+						$aStzSemAkaTagMap + [ _aOwners_[_o_] + "|" + lower(_cName_), trim(_cTags_) ]
+					ok
+				ok
+				_cTags_ = ""
+			but _cT_ != "" and left(_cT_, 1) != "#"
+				_cTags_ = ""
+			ok
+		next
+	next
+
+# One #@ aka line as tags (commas become spaces), or "" when it is a sentence.
+func _StzSemTagLine(pcText)
+	_c_ = trim("" + pcText)
+	if _c_ = ""
+		return ""
+	ok
+	_acP_ = [ ".", ":", "(", "[", "=", ";" ]
+	for _i_ = 1 to len(_acP_)
+		if StzFindFirst(_acP_[_i_], _c_) > 0
+			return ""
+		ok
+	next
+	_aT_ = StzSplit(_c_, ",")
+	for _i_ = 1 to len(_aT_)
+		if len(StzSplit(trim(_aT_[_i_]), " ")) > 4
+			return ""
+		ok
+	next
+	return StzReplace(_c_, ",", " ")
 
 func _StzSemBagAdd(paBags, pcId, pcWords)
 	if pcWords = ""
