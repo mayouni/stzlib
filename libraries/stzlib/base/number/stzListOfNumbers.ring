@@ -1471,33 +1471,33 @@ func FirstNPrimesW(_n_, pcCondition)
 
 	nMax = MaxRingNumber()
 
-	# The condition names @prime; the loop's own variable is _prime_. A
-	# bare @name in a plain function is refused under Ring++'s Rule A (@ is
-	# an attribute), so the condition is rewritten onto the local before it
-	# is evaluated -- case-insensitively, as Ring's names are.
-	_cCode_ = 'bOk = (' + StzReplaceCS(_StzStripBraces(pcCondition), "@prime", "_prime_", FALSE) + ' )'
+	# The condition names @prime: it is JUDGED by the W engine on blocks of
+	# candidate primes, @prime read as the engine's @item -- never run as
+	# code (Haro, PRINCIPAL-HAROFIRST-01).
+	_cCond_ = StzReplaceCS(_StzStripBraces(pcCondition), "@prime", "@item", FALSE)
 
 	_anResult_ = []
-
 	_prime_ = 0
 	_j_ = 0
 
-	while 1
-		_j_++
-		if _j_ > nMax
-			StzRaise("Can't proceed! Maximum Ring number exceeded.")
-		ok
-
-		_prime_ = NextPrimeAfter(_prime_)
-
-		eval(_cCode_)
-		if bOk
-			_anResult_ + _prime_
+	while len(_anResult_) < _n_
+		_aBlock_ = []
+		for _b_ = 1 to 64
+			_j_++
+			if _j_ > nMax
+				StzRaise("Can't proceed! Maximum Ring number exceeded.")
+			ok
+			_prime_ = NextPrimeAfter(_prime_)
+			_aBlock_ + _prime_
+		next
+		_anPos_ = StzWPositions(_aBlock_, _cCond_)
+		_nPos_ = len(_anPos_)
+		for _k_ = 1 to _nPos_
+			_anResult_ + _aBlock_[_anPos_[_k_]]
 			if len(_anResult_) = _n_
 				exit
 			ok
-		ok
-
+		next
 	end
 
 	return _anResult_
@@ -5298,26 +5298,15 @@ class stzListOfNumbers from stzList
 			StzRaise("Can't add anything! Because the list is empty.")
 		ok
 
-		_oCCode_ = StzCCodeQ(pcCondition)
-		_aSection_ = _oCCode_.ExecutableSection()
-
-		_nStart_ = _aSection_[1]
-
-		_nEnd_ = _aSection_[2]
-		if isString(_nEnd_) and _nEnd_ = :Last
-			_nEnd_ = _nLen_
-		ok
-
-		_cCode_ = _oCCode_.Transpiled()
-		_cCode_ = 'bOk = (' + _cCode_ + ')'
+		# the condition is JUDGED by the list's W engine, never run as code
+		# (Haro, PRINCIPAL-HAROFIRST-01): FindAllItemsW reads @item, @i,
+		# This[@i+k] and Q(...).IsX() and bounds the navigation itself
+		_anPos_ = This.FindAllItemsW(pcCondition)
 
 		_anResult_ = []
-
-		for @i = _nStart_ to _nEnd_
-			eval(_cCode_)
-			if bOk
-				_anResult_ + (_anContent_[@i] + _n_)
-			ok
+		_nPos_ = len(_anPos_)
+		for _k_ = 1 to _nPos_
+			_anResult_ + (_anContent_[_anPos_[_k_]] + _n_)
 		next
 
 		This.Update( _anResult_ )
@@ -5445,29 +5434,17 @@ class stzListOfNumbers from stzList
 			StzRaise("Can't change anything! Because the list is empty.")
 		ok
 
-		_oCCode_ = StzCCodeQ(pcCondition)
-		_aSection_ = _oCCode_.ExecutableSection()
-
-		_nStart_ = _aSection_[1]
-
-		_nEnd_ = _aSection_[2]
-		if isString(_nEnd_) and _nEnd_ = :Last
-			_nEnd_ = _nLen_
-		ok
-
-		_cCode_ = _oCCode_.Transpiled()
-		_cCode_ = 'bOk = (' + _cCode_ + ')'
+		# judged by the list's W engine, never run as code (Haro)
+		_anPos_ = This.FindAllItemsW(pcCondition)
 
 		_anResult_ = _anContent_
-
-		for @i = _nStart_ to _nEnd_
-			eval(_cCode_)
-			if bOk
-				if bDivide
-					_anResult_[@i] = _anContent_[@i] / _n_
-				else
-					_anResult_[@i] = _anContent_[@i] * _n_
-				ok
+		_nPos_ = len(_anPos_)
+		for _k_ = 1 to _nPos_
+			_p_ = _anPos_[_k_]
+			if bDivide
+				_anResult_[_p_] = _anContent_[_p_] / _n_
+			else
+				_anResult_[_p_] = _anContent_[_p_] * _n_
 			ok
 		next
 
