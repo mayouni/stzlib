@@ -1,0 +1,5 @@
+o = new K
+? o.GetQ(1)
+class K
+	def GetQ(x)
+		return x + 1
