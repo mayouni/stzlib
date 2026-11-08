@@ -180,58 +180,206 @@ pub const StzList = struct {
 
 // ─── Helpers ───
 
-fn strEqlCI(a_ptr: [*]const u8, a_len: usize, b_ptr: [*]const u8, b_len: usize) bool {
-    if (a_len != b_len) return false;
-    if (a_len == 0) return true;
-    const a = a_ptr[0..a_len];
-    const b = b_ptr[0..b_len];
-    for (a, b) |ca, cb| {
-        const la = ascii.lower(ca);
-        const lb = ascii.lower(cb);
-        if (la != lb) return false;
+// ─── Case folding: the ONE fold every case-insensitive path reads ───
+//
+// Equality (strEqlCI), the sort order (strCompareCI) and the hash
+// (hashValueInto) read a string through the same fold: Unicode FULL case
+// folding (CaseFolding.txt, statuses C and F, via utf8proc), one codepoint
+// at a time, with no allocation. Until 2026-11-09 all three folded ASCII
+// only, so ["α"] and ["Α"] differed with case ignored while stzString
+// called them equal (STZLIB-LISTCI-UNICODE-01).
+//
+// The three must read the SAME fold, because the hash set and the
+// sort-then-compare multiset test (stzList.IsEqualToCS) are correct only
+// while   eql(a,b)  <=>  compare(a,b) == 0   and   eql(a,b) => hash(a) == hash(b).
+//
+// Folding is not normalisation: "é" (U+00E9) and "e" + U+0301 stay two
+// different texts, as they are when case counts. Full folding can change
+// the length: "ß" folds to "ss" and the Kelvin sign K to "k", so no path
+// here may compare byte lengths before folding.
+
+extern fn utf8proc_iterate(str: [*]const u8, strlen: isize, dst: *i32) callconv(.c) isize;
+extern fn utf8proc_decompose_char(cp: i32, dst: [*]i32, bufsize: isize, options: c_int, last_boundclass: ?*c_int) callconv(.c) isize;
+extern fn utf8proc_encode_char(cp: i32, dst: [*]u8) callconv(.c) isize;
+const UTF8PROC_CASEFOLD: c_int = 1 << 10; // utf8proc.h; CHARBOUND unset, so last_boundclass may be null
+
+// A byte that does not start valid UTF-8 folds to BAD_BYTE + the byte:
+// above every codepoint, so it never equals one, and it still orders.
+const BAD_BYTE: i32 = 0x110000;
+
+const FoldIter = struct {
+    s: []const u8,
+    pos: usize = 0,
+    buf: [4]i32 = undefined, // a full fold is at most 3 codepoints
+    n: usize = 0,
+    k: usize = 0,
+
+    fn init(s: []const u8) FoldIter {
+        return .{ .s = s };
     }
-    return true;
+
+    fn next(self: *FoldIter) ?i32 {
+        if (self.k < self.n) {
+            const cp = self.buf[self.k];
+            self.k += 1;
+            return cp;
+        }
+        if (self.pos >= self.s.len) return null;
+        const b = self.s[self.pos];
+        if (b < 0x80) {
+            self.pos += 1;
+            return ascii.lower(b);
+        }
+        var cp: i32 = 0;
+        const used = utf8proc_iterate(self.s.ptr + self.pos, @intCast(self.s.len - self.pos), &cp);
+        if (used < 1) {
+            self.pos += 1;
+            return BAD_BYTE + @as(i32, b);
+        }
+        self.pos += @intCast(used);
+        const m = utf8proc_decompose_char(cp, &self.buf, self.buf.len, UTF8PROC_CASEFOLD, null);
+        if (m < 1 or m > self.buf.len) return cp;
+        self.n = @intCast(m);
+        self.k = 1;
+        return self.buf[0];
+    }
+};
+
+// Folded order of two texts: codepoint by codepoint, then the shorter first.
+// The UTF-8 byte order and the codepoint order agree, so on ASCII this is the
+// order the ASCII-only fold gave.
+fn foldCompare(a: []const u8, b: []const u8) i32 {
+    // ASCII prefix: no utf8proc call. While both bytes are ASCII, each is the
+    // next folded codepoint of its side, so a difference here is final.
+    var i: usize = 0;
+    while (i < a.len and i < b.len and a[i] < 0x80 and b[i] < 0x80) : (i += 1) {
+        const la = ascii.lower(a[i]);
+        const lb = ascii.lower(b[i]);
+        if (la < lb) return -1;
+        if (la > lb) return 1;
+    }
+    // A full fold never yields nothing, so a side with bytes left is longer.
+    if (i == a.len) return if (i == b.len) 0 else -1;
+    if (i == b.len) return 1;
+    var ia = FoldIter.init(a[i..]);
+    var ib = FoldIter.init(b[i..]);
+    while (true) {
+        const ca = ia.next();
+        const cb = ib.next();
+        if (ca == null) return if (cb == null) 0 else -1;
+        if (cb == null) return 1;
+        if (ca.? < cb.?) return -1;
+        if (ca.? > cb.?) return 1;
+    }
+}
+
+// The folded text as UTF-8 (a BAD_BYTE goes back as its byte). Caller frees.
+fn foldAlloc(s: []const u8) ?[]u8 {
+    var out = std.ArrayList(u8){};
+    out.ensureTotalCapacity(allocator, s.len) catch return null;
+    var it = FoldIter.init(s);
+    while (it.next()) |cp| {
+        var enc: [4]u8 = undefined;
+        if (cp >= BAD_BYTE) {
+            out.append(allocator, @intCast(cp - BAD_BYTE)) catch {
+                out.deinit(allocator);
+                return null;
+            };
+            continue;
+        }
+        const n = utf8proc_encode_char(cp, &enc);
+        if (n < 1) continue;
+        out.appendSlice(allocator, enc[0..@intCast(n)]) catch {
+            out.deinit(allocator);
+            return null;
+        };
+    }
+    return out.toOwnedSlice(allocator) catch {
+        out.deinit(allocator);
+        return null;
+    };
+}
+
+// The folded text written into dst, cut at a whole codepoint when dst is full.
+fn foldInto(s: []const u8, dst: []u8) usize {
+    var w: usize = 0;
+    var it = FoldIter.init(s);
+    while (it.next()) |cp| {
+        var enc: [4]u8 = undefined;
+        var n: usize = 1;
+        if (cp >= BAD_BYTE) {
+            enc[0] = @intCast(cp - BAD_BYTE);
+        } else {
+            const m = utf8proc_encode_char(cp, &enc);
+            if (m < 1) continue;
+            n = @intCast(m);
+        }
+        if (w + n > dst.len) break;
+        @memcpy(dst[w..][0..n], enc[0..n]);
+        w += n;
+    }
+    return w;
+}
+
+fn strEqlCI(a_ptr: [*]const u8, a_len: usize, b_ptr: [*]const u8, b_len: usize) bool {
+    return foldCompare(a_ptr[0..a_len], b_ptr[0..b_len]) == 0;
 }
 
 fn strCompareCI(a_ptr: [*]const u8, a_len: usize, b_ptr: [*]const u8, b_len: usize) i32 {
-    const min_len = @min(a_len, b_len);
-    if (min_len > 0) {
-        const a = a_ptr[0..min_len];
-        const b = b_ptr[0..min_len];
-        for (a, b) |ca, cb| {
-            const la = ascii.lower(ca);
-            const lb = ascii.lower(cb);
-            if (la < lb) return -1;
-            if (la > lb) return 1;
-        }
-    }
-    if (a_len < b_len) return -1;
-    if (a_len > b_len) return 1;
-    return 0;
+    return foldCompare(a_ptr[0..a_len], b_ptr[0..b_len]);
 }
 
+// Case-insensitive reaches INTO nested lists, as value.zig's eqlCS does:
+// [["A"]] and [["a"]] are equal with case ignored. Until 2026-11-09 a nested
+// list was compared with case even when case was ignored, while the hash
+// already folded it.
 fn valueCompareCS(a: *const StzValue, b: *const StzValue, case_sensitive: bool) i32 {
     if (case_sensitive) return a.compare(b);
     if (a.tag != b.tag) {
         return @as(i32, @intCast(@intFromEnum(a.tag))) - @as(i32, @intCast(@intFromEnum(b.tag)));
     }
-    if (a.tag == .string_val) {
-        const sa = a.data.string_val;
-        const sb = b.data.string_val;
-        return strCompareCI(sa.ptr, sa.len, sb.ptr, sb.len);
+    switch (a.tag) {
+        .string_val => {
+            const sa = a.data.string_val;
+            const sb = b.data.string_val;
+            return strCompareCI(sa.ptr, sa.len, sb.ptr, sb.len);
+        },
+        .list_val => {
+            const la = a.data.list_val;
+            const lb = b.data.list_val;
+            const min_len = @min(la.len, lb.len);
+            for (0..min_len) |i| {
+                const c = valueCompareCS(la.items[i], lb.items[i], false);
+                if (c != 0) return c;
+            }
+            if (la.len < lb.len) return -1;
+            if (la.len > lb.len) return 1;
+            return 0;
+        },
+        else => return a.compare(b),
     }
-    return a.compare(b);
 }
 
 fn valueEqlCS(a: *const StzValue, b: *const StzValue, case_sensitive: bool) bool {
     if (case_sensitive) return a.eql(b);
     if (a.tag != b.tag) return false;
-    if (a.tag == .string_val) {
-        const sa = a.data.string_val;
-        const sb = b.data.string_val;
-        return strEqlCI(sa.ptr, sa.len, sb.ptr, sb.len);
+    switch (a.tag) {
+        .string_val => {
+            const sa = a.data.string_val;
+            const sb = b.data.string_val;
+            return strEqlCI(sa.ptr, sa.len, sb.ptr, sb.len);
+        },
+        .list_val => {
+            const la = a.data.list_val;
+            const lb = b.data.list_val;
+            if (la.len != lb.len) return false;
+            for (0..la.len) |i| {
+                if (!valueEqlCS(la.items[i], lb.items[i], false)) return false;
+            }
+            return true;
+        },
+        else => return a.eql(b),
     }
-    return a.eql(b);
 }
 
 // ─── Value hash-set (for O(n) set ops / classify) ───
@@ -253,9 +401,14 @@ fn hashValueInto(h: *std.hash.Wyhash, v: *const StzValue, cs: bool) void {
             if (cs) {
                 h.update(s.ptr[0..s.len]);
             } else {
-                for (s.ptr[0..s.len]) |c| {
-                    const lc: u8 = ascii.lower(c);
-                    h.update(&[_]u8{lc});
+                // The same fold as strEqlCI: equal texts hash equal.
+                var it = FoldIter.init(s.ptr[0..s.len]);
+                while (it.next()) |cp| {
+                    if (cp < 0x80) {
+                        h.update(&[_]u8{@intCast(cp)});
+                    } else {
+                        h.update(std.mem.asBytes(&cp));
+                    }
                 }
             }
         },
@@ -1275,7 +1428,7 @@ fn findInSeen(seen: []const []const u8, key: []const u8, case_sensitive: bool) ?
 }
 
 // Native dense str-mode classify -> nested [ [repString, [pos...]], ... ].
-// Groups by content (cs: exact bytes; !cs: ASCII case-fold, matching the boxed
+// Groups by content (cs: exact bytes; !cs: the Unicode fold, matching the boxed
 // engine semantics). Representative key = first ORIGINAL occurrence.
 fn classifyStrsFast(arr: []const []u8, cs: bool) ?*StzList {
     const result = StzList.init() catch return null;
@@ -1298,8 +1451,7 @@ fn classifyStrsFast(arr: []const []u8, cs: bool) ?*StzList {
         var key: []const u8 = s;
         var folded: ?[]u8 = null;
         if (!cs) {
-            const fb = allocator.alloc(u8, s.len) catch continue;
-            for (s, 0..) |c, j| fb[j] = ascii.lower(c);
+            const fb = foldAlloc(s) orelse continue;
             key = fb;
             folded = fb;
         }
@@ -1448,9 +1600,10 @@ pub fn stz_list_frequencies_cs(list_arg: ?*const StzList, case_sensitive: i32) c
     for (l.items.items, 0..) |item, i| {
         key_lens[i] = valueToString(item, &key_bufs[i]);
         if (!cs) {
-            for (key_bufs[i][0..key_lens[i]]) |*c| {
-                if (c.* >= 'A' and c.* <= 'Z') c.* += 32;
-            }
+            // the same fold as every other case-insensitive path
+            var raw: [256]u8 = undefined;
+            @memcpy(raw[0..key_lens[i]], key_bufs[i][0..key_lens[i]]);
+            key_lens[i] = foldInto(raw[0..key_lens[i]], &key_bufs[i]);
         }
     }
 
@@ -2279,13 +2432,17 @@ pub fn stz_list_difference_cs(a: ?*const StzList, b: ?*const StzList, case_sensi
 
 fn strContainsCS(hay: []const u8, needle: []const u8, cs: bool) bool {
     if (needle.len == 0) return true;
-    if (needle.len > hay.len) return false;
-    if (cs) return std.mem.indexOf(u8, hay, needle) != null;
-    var i: usize = 0;
-    while (i + needle.len <= hay.len) : (i += 1) {
-        if (strEqlCI(hay.ptr + i, needle.len, needle.ptr, needle.len)) return true;
+    if (cs) {
+        if (needle.len > hay.len) return false;
+        return std.mem.indexOf(u8, hay, needle) != null;
     }
-    return false;
+    // Case ignored: search the FOLDED texts, since a fold can change the
+    // length ("ß" -> "ss"), so a byte window over the raw text is wrong.
+    const fh = foldAlloc(hay) orelse return false;
+    defer allocator.free(fh);
+    const fn_ = foldAlloc(needle) orelse return false;
+    defer allocator.free(fn_);
+    return std.mem.indexOf(u8, fh, fn_) != null;
 }
 
 fn listsOverlapCS(la: *const StzValue, lb: *const StzValue, cs: bool) bool {
@@ -6514,4 +6671,198 @@ test "find_empty_strings basic" {
     try std.testing.expectEqual(@as(usize, 2), result.len());
     try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(result, 0));
     try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(result, 1));
+}
+
+// ─── STZLIB-LISTCI-UNICODE-01: case ignored means the Unicode fold ───
+//
+// Expectations written by hand from CaseFolding.txt (statuses C and F), not
+// read back from the code:
+//   0391 Α -> 03B1 α      00C9 É -> 00E9 é      00DF ß -> 0073 0073 "ss" (F)
+//   03A3 Σ -> 03C3 σ      03C2 ς -> 03C3 σ      212A K (Kelvin) -> 006B k
+//   0130 İ -> 0069 0307 (F)                     017F ſ -> 0073 s
+//   0131 ı has NO entry (only the Turkic status T maps I to it), so ı != i.
+
+fn ciTestStr(s: []const u8) !*StzValue {
+    return value_mod.stz_value_new_string(s.ptr, s.len) orelse error.AllocFailed;
+}
+
+fn ciSign(x: i32) i32 {
+    return if (x < 0) -1 else if (x > 0) @as(i32, 1) else 0;
+}
+
+test "ci fold: equal texts across scripts and byte lengths" {
+    const pairs = [_][2][]const u8{
+        .{ "αβγ", "ΑΒΓ" },
+        .{ "é", "É" },
+        .{ "straße", "STRASSE" },
+        .{ "ς", "Σ" },
+        .{ "\u{212A}", "k" },
+        .{ "\u{0130}", "i\u{0307}" },
+        .{ "\u{017F}", "S" },
+        .{ "Hello", "hELLO" },
+        .{ "", "" },
+    };
+    const ctx = ValueSetCtx{ .cs = false };
+    for (pairs) |p| {
+        try std.testing.expect(strEqlCI(p[0].ptr, p[0].len, p[1].ptr, p[1].len));
+        try std.testing.expectEqual(@as(i32, 0), strCompareCI(p[0].ptr, p[0].len, p[1].ptr, p[1].len));
+        const a = try ciTestStr(p[0]);
+        defer value_mod.stz_value_free(a);
+        const b = try ciTestStr(p[1]);
+        defer value_mod.stz_value_free(b);
+        try std.testing.expect(valueEqlCS(a, b, false));
+        try std.testing.expectEqual(ctx.hash(a), ctx.hash(b));
+        // with case, these pairs are different texts (the empty pair aside)
+        if (p[0].len > 0) try std.testing.expect(!valueEqlCS(a, b, true));
+    }
+}
+
+test "ci fold: texts that stay different" {
+    const pairs = [_][2][]const u8{
+        .{ "é", "e\u{0301}" }, // folding is not normalisation
+        .{ "α", "β" },
+        .{ "ss", "s" },
+        .{ "\u{0131}", "i" }, // dotless i has no fold
+        .{ "\xff", "\xfe" }, // bytes that are not UTF-8 stay themselves
+        .{ "a", "a\xff" },
+    };
+    for (pairs) |p| {
+        try std.testing.expect(!strEqlCI(p[0].ptr, p[0].len, p[1].ptr, p[1].len));
+        const c1 = strCompareCI(p[0].ptr, p[0].len, p[1].ptr, p[1].len);
+        const c2 = strCompareCI(p[1].ptr, p[1].len, p[0].ptr, p[0].len);
+        try std.testing.expect(c1 != 0);
+        try std.testing.expectEqual(ciSign(c1), -ciSign(c2));
+    }
+}
+
+test "ci fold: order, equality and hash agree over a mixed set" {
+    // The law the hash set and the sort-then-compare multiset test rest on.
+    const words = [_][]const u8{
+        "Apple", "apple", "banana", "Straße", "STRASSE", "strasse", "αβγ", "ΑΒΓ",
+        "\u{212A}elvin", "KELVIN", "é", "É", "e\u{0301}", "Σ", "ς", "σ", "z", "\xff", "", "\u{0131}", "I",
+    };
+    const ctx = ValueSetCtx{ .cs = false };
+    for (words) |x| {
+        const vx = try ciTestStr(x);
+        defer value_mod.stz_value_free(vx);
+        for (words) |y| {
+            const vy = try ciTestStr(y);
+            defer value_mod.stz_value_free(vy);
+            const eq = valueEqlCS(vx, vy, false);
+            const c = valueCompareCS(vx, vy, false);
+            try std.testing.expectEqual(eq, c == 0);
+            try std.testing.expectEqual(ciSign(c), -ciSign(valueCompareCS(vy, vx, false)));
+            if (eq) try std.testing.expectEqual(ctx.hash(vx), ctx.hash(vy));
+            for (words) |z| {
+                const vz = try ciTestStr(z);
+                defer value_mod.stz_value_free(vz);
+                if (c <= 0 and valueCompareCS(vy, vz, false) <= 0)
+                    try std.testing.expect(valueCompareCS(vx, vz, false) <= 0);
+            }
+        }
+    }
+    // ASCII keeps the order the ASCII-only fold gave
+    try std.testing.expect(strCompareCI("Apple", 5, "banana", 6) < 0);
+    try std.testing.expect(strCompareCI("apple", 5, "Apples", 6) < 0);
+}
+
+test "ci fold: the list operations see Unicode case" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "αβγ", "αβγ".len);
+    _ = stz_list_append_string(l, "Straße", "Straße".len);
+    _ = stz_list_append_string(l, "kelvin", 6);
+
+    const greek = try ciTestStr("ΑΒΓ");
+    defer value_mod.stz_value_free(greek);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_contains_cs(l, greek, 0));
+    try std.testing.expectEqual(@as(i32, 0), stz_list_contains_cs(l, greek, 1));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_find_first_string_cs(l, "STRASSE", 7, 0));
+    try std.testing.expectEqual(@as(i64, -1), stz_list_find_first_string_cs(l, "STRASSE", 7, 1));
+    const kelvin = try ciTestStr("\u{212A}ELVIN");
+    defer value_mod.stz_value_free(kelvin);
+    try std.testing.expectEqual(@as(usize, 1), stz_list_count_cs(l, kelvin, 0));
+
+    // unique: α/Α are one item, ß/ss/SS are one item
+    const u = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(u);
+    for ([_][]const u8{ "α", "Α", "ß", "ss", "SS" }) |s| _ = stz_list_append_string(u, s.ptr, s.len);
+    const uq = stz_list_unique_cs(u, 0) orelse return error.AllocFailed;
+    defer stz_list_free(uq);
+    try std.testing.expectEqual(@as(usize, 2), uq.len());
+    // frequencies alternate [key, count]: two groups, of 2 and 3
+    const fq = stz_list_frequencies_cs(u, 0) orelse return error.AllocFailed;
+    defer stz_list_free(fq);
+    try std.testing.expectEqual(@as(usize, 4), fq.len());
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(fq, 1));
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(fq, 3));
+
+    // the substring test reads the folded texts: "ß" is inside "STRASSE"
+    try std.testing.expect(strContainsCS("STRASSE", "ß", false));
+    try std.testing.expect(strContainsCS("Straße", "SS", false));
+    try std.testing.expect(!strContainsCS("Straße", "SS", true));
+    try std.testing.expect(!strContainsCS("abc", "ß", false));
+}
+
+test "ci fold: sorted copies compare equal exactly when the multisets match" {
+    // stzList.IsEqualToCS sorts both sides under the case rule, then compares.
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    const b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(b);
+    for ([_][]const u8{ "Σ", "ß", "a", "ß" }) |s| _ = stz_list_append_string(a, s.ptr, s.len);
+    for ([_][]const u8{ "SS", "A", "ς", "ss" }) |s| _ = stz_list_append_string(b, s.ptr, s.len);
+    _ = stz_list_sort_cs(a, 0);
+    _ = stz_list_sort_cs(b, 0);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_equals_cs(a, b, 0));
+
+    const c = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(c);
+    for ([_][]const u8{ "SS", "A", "ς", "a" }) |s| _ = stz_list_append_string(c, s.ptr, s.len);
+    _ = stz_list_sort_cs(c, 0);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_equals_cs(a, c, 0)); // one ß became an a
+}
+
+test "ci fold: nested lists are compared with case ignored too" {
+    const outer_a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(outer_a);
+    const outer_b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(outer_b);
+
+    const ia = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(ia);
+    const ib = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(ib);
+    for ([_][2][]const u8{ .{ "A", "a" }, .{ "Β", "β" } }) |p| {
+        const x = try ciTestStr(p[0]);
+        defer value_mod.stz_value_free(x);
+        const y = try ciTestStr(p[1]);
+        defer value_mod.stz_value_free(y);
+        _ = value_mod.stz_value_list_append(ia, x);
+        _ = value_mod.stz_value_list_append(ib, y);
+    }
+    _ = stz_list_append_value(outer_a, ia);
+    _ = stz_list_append_value(outer_b, ib);
+
+    try std.testing.expectEqual(@as(i32, 1), stz_list_equals_cs(outer_a, outer_b, 0));
+    try std.testing.expectEqual(@as(i32, 0), stz_list_equals_cs(outer_a, outer_b, 1));
+    try std.testing.expectEqual(@as(i32, 0), valueCompareCS(ia, ib, false));
+    const ctx = ValueSetCtx{ .cs = false };
+    try std.testing.expectEqual(ctx.hash(ia), ctx.hash(ib));
+}
+
+test "ci fold: dense text classify groups by the same fold" {
+    var raw = [_][]u8{
+        try allocator.dupe(u8, "α"),
+        try allocator.dupe(u8, "Α"),
+        try allocator.dupe(u8, "β"),
+        try allocator.dupe(u8, "straße"),
+        try allocator.dupe(u8, "STRASSE"),
+    };
+    defer {
+        for (raw) |s| allocator.free(s);
+    }
+    const groups = classifyStrsFast(&raw, false) orelse return error.AllocFailed;
+    defer stz_list_free(groups);
+    try std.testing.expectEqual(@as(usize, 3), groups.len());
 }
