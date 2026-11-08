@@ -2491,9 +2491,12 @@ class stzObject
 		_acAttributes_ = This.Attributes()
 		_nLen_ = len(_acAttributes_)
 
-		for i = 1 to _nLen_ 
-			_cCode_ = "_aResult_ + This." + _acAttributes_[i]
-			eval(_cCode_)
+		# read with getattribute, not eval("_aResult_ + This.<name>"): on Ring++
+		# the values that eval appended after an object attribute came back
+		# as texts that are not texts (type() says STRING, isString() says 0
+		# and len() raises), while getattribute reads each one whole (2026-11-08)
+		for _i_ = 1 to _nLen_
+			_aResult_ + getattribute(This, _acAttributes_[_i_])
 		next
 		return _aResult_
 

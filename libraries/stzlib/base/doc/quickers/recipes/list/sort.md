@@ -6,5 +6,5 @@ Sort([ 3, 1, 2 ])
 ```
 
 - **Methods:** stzList.Sort, stzList.SortedInAscending, stzListOfNumbers.Sorted
-- **Tags:** sort, order, arrange, ascending, ranking, sorted, smallest to largest
+- **Tags:** sort, order, arrange, ascending, ranking, sorted, smallest to largest, sort numbers, sort a list of numbers
 - **See also:** reverse
