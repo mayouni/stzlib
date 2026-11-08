@@ -144,6 +144,8 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
   exemplified, generalised, exhausted, proved), and a floor that asks for a grade over the impact set of a change.
 - **V1 to V4 need nothing from Haro**: grade 2 per node, property tours over declared domains with shrinking, enumeration
   of finite domains and of the declared weather up to a depth, and `min_grade` in the floor.
+- **V1 DONE 2026-11-08**: the ladder record (`TESTOOR_PROTOCOL_3.md` section 2), asked for with `ladder`; goldens L9 and L10;
+  run on haro.exe.
 - **V5 and V6 wait on the Haro desk** (HARO-PROOF-01): the checker's facts per node (`total`, `uses`, profile) as the
   first certificates, then contracts and a discharge path. Testoor records certificates and never checks a proof.
 - *Exit:* a change to a critical refinement point, proposed by an `:llm` posture, is refused unless every node in its

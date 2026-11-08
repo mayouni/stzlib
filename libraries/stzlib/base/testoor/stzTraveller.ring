@@ -63,8 +63,10 @@
 #
 # Locals are _underscored_ for the reason stzTour.ring gives.
 
-# the program a tour runs on: the RNXC environment variable, else the rnxc
-# running this process (sysargv[1] under rnxc), else `rnxc` on the path.
+# the program a tour runs on: the RNXC environment variable, else the haro or
+# the rnxc running this process (sysargv[1] under either), else `rnxc` on the
+# path. Haro first (PRINCIPAL-HAROFIRST-01, 2026-11-08): a runner walked on
+# haro.exe launches its tours on the same haro.exe.
 # Never `ring`: the author retired it (2026-10-23), and a verdict taken on
 # it describes nothing that ships. Measured 2026-11-03: a child rnxc on a
 # tour loading stzBase starts in 0.44 to 0.60 s, its compiled image cached
@@ -79,7 +81,7 @@ func TestoorProgram()
 	if len(sysargv) >= 1
 		_c_ = "" + sysargv[1]
 		_lc_ = lower(_c_)
-		if right(_lc_, 4) = "rnxc" or right(_lc_, 8) = "rnxc.exe"
+		if right(_lc_, 4) = "rnxc" or right(_lc_, 8) = "rnxc.exe" or right(_lc_, 4) = "haro" or right(_lc_, 8) = "haro.exe"
 			return _c_
 		ok
 	ok

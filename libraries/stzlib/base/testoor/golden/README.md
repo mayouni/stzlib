@@ -70,9 +70,25 @@ Zig harness (`testoor_golden_test.zig`) does.
 | `17_routes_and_claims` | four kept claims in two stops and two routes walked: what the evidence floor counts |
 | `L7_floor_met` | a gate's floor (`min_kept` 3, unjudged refused, `min_routes` 1) that the walk meets: the evidence record, `met` true, exit 0 |
 | `L8_floor_refused` | a floor (`min_kept` 5) the walk falls short of though the tour is kept: `met` false with the first reason, exit 1 |
+| `18_nodes_on_a_diverged_tour` | a tour that reached two nodes and diverged: both observed in its own record (V1) |
+| `19_nodes_on_an_unjudged_tour` | a tour that reached a node and printed no verdict: observed, its planned claim unjudged (V1) |
  | `impact/01_complete` | a change reaches its callers, found in order, and the tours that name them are selected |
 | `impact/02_open_graph` | an open node: the reason is written, every tour is selected and none is skipped |
 | `impact/03_two_changed` | two changed nodes: the union of their reaches |
+
+## Protocol 3 (`protocol3/`, V1)
+
+The evidence ladder (`TESTOOR_PROTOCOL_3.md` section 2). Written by hand before the code, like `protocol2/`, and read by the Zig
+harness only. A run here is built from `protocol2/judge/` cases.
+
+| folder | one case is | inputs | expected |
+|---|---|---|---|
+| `protocol3/logbook/<case>/` | one run asked for the ladder | `run.json` with `"ladder": true`, and a `graph` object or none | `expected.json`, `expected.txt`, `expected.exit` |
+
+| case | what it pins down |
+|---|---|
+| `L9_ladder_graph` | cases 15, 16 (flaky), 18 and 19 against a complete graph of six: only the kept, finished, steady tour exemplifies; a node a mention reached takes its grade from the tour that observed it; one owned node stays named; `protocol` 3; exit 1 as without the ladder |
+| `L10_ladder_no_graph` | cases 15 and 16 with no graph: no `owned` and no `named`; a node two tours exemplified lists both; exit 0 |
 
 ## Adding a case
 

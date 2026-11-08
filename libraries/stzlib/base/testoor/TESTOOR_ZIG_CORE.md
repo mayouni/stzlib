@@ -340,6 +340,32 @@ The last of the protocol-2 conformance cases (`TESTOOR_PROTOCOL_2.md` section 10
 - **Not built:** the library's default floors per posture as refinement points (protocol 2 section 11, question 4: the library's data,
   not the core's), and a Ring-reference version of the floor (it is core-only, like the rest of protocol 2).
 
+### V1, the evidence ladder's grade 2 per node, 2026-11-08 -- DONE
+
+The first step of P9 (`TESTOOR_EVIDENCE_LADDER.md`, ruled TESTOOR-LADDER-01), and the first record of protocol 3
+(`TESTOOR_PROTOCOL_3.md` section 2).
+
+- **Written first, by hand:** judge cases `18_nodes_on_a_diverged_tour` and `19_nodes_on_an_unjudged_tour` under
+  `golden/protocol2/judge/`, and logbooks `L9_ladder_graph` and `L10_ladder_no_graph` under `golden/protocol3/logbook/`. The
+  core reproduced all of them on its first run.
+- **`testoor_ladder.zig`:** a tour EXEMPLIFIES when it kept a claim and did not fail (no claim diverged or unreached, not flaky,
+  finished); a node takes the highest grade any tour gave it, and lists only the tours that gave that grade; grade 0 is counted
+  (owned minus the listed rows), never listed. Three tests.
+- **Asked for, never assumed:** `Settings.ladder`, set by `"ladder": true` in a run request, `:ladder = TRUE` in
+  `TestoorManifestJson`, or `--ladder` on `testoor run`. A run that asks writes `"protocol":3`; one that does not writes protocol
+  2's bytes, and every earlier golden is untouched.
+- **Run on haro.exe first** (PRINCIPAL-HAROFIRST-01), against `stz_testoor` built for Haro's ABI by Haro's own
+  `engine/build_engine.py` (imported, with every output on C:) and Haro's other domains from `C:\haro-engine`: the core guard 70 (8
+  new: the ladder through the Ring seam, and the same run not asked), the native guard 39 (9 new: a kept and a failing tour through
+  the native runner, `--ladder`, and the run not asked). `TestoorProgram()` now launches a runner's tours on the haro.exe that runs
+  it, so the native guard's children ran on Haro too.
+- **`zig build test-testoor`:** 83 of 83 (4 new).
+- **The gate, all twelve guards on haro.exe: 669 assertions, none failing**: the 642 of the floor, the 17 above, and 10 that rnxc
+  skips by name and Haro runs (the clock guard's distribution-plane section: a supervised worker killed at its declared tick and
+  restarted). Slowest: the runner guard 153 s, the clock guard 76 s; Haro keeps no library prefix, so each guard pays its compile.
+- **Not built:** grades 3 to 5 (V2, V3, V5), `min_grade` in the floor (V4). The Ring reference has no ladder; it is core-only, like
+  protocol 2.
+
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 
 1. **One domain `stz_testoor`** (recommended) or one per module.
