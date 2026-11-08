@@ -53,8 +53,8 @@ when it carries a version 2 key, else absent.
   claims neither raise a tour nor stop it.
 - **A node is exemplified** when a tour that exemplifies observed it. A node reached by a kept tour AND by a failing one is
   exemplified, and its `tours` names only the kept one: a failing tour's reach is not listed beside an exemplifying tour.
-- **A tour's mention raises no grade.** Protocol 2's per-tour evidence `named` (the tour's source mentions the node) is a proxy:
-  it stays in the tour's `nodes` record and counts for nothing here.
+- **A tour's mention raises no grade.** A mention (the tour's source names the node; `mentioned` in this logbook, section 3) is
+  a proxy: it stays in the tour's `nodes` record and counts for nothing here.
 - **Rows** follow the order in which the run first OBSERVED each node: tours in run order, each tour's nodes in its own order,
   which is the graph's when it had one.
 - **Ids** are compared exactly. With a graph they are already the graph's spelling (protocol 2 folds them when it reads the
@@ -67,13 +67,19 @@ when it carries a version 2 key, else absent.
 - **An incomplete graph lowers no grade of V1.** An `open` node caps only the grades above 2, from V4 on, where proof and
   exhaustion are claimed.
 
-## 3. One word, two meanings
+## 3. One word, one meaning: a mention is `mentioned`
 
 Protocol 2 uses `named` for a **tour's** evidence: the tour's source mentions the node. The ladder, as ruled, uses `named` for
-**grade 0**: the graph holds the node. Both can stand in one logbook: L9 writes `"graph":{...,"named":0,...}` and
-`"ladder":{...,"named":1,...}`, and its prose reads `graph: 6 owned, 0 named, 5 observed` above `ladder: ... 1 named, of 6 owned`.
-They are counted from different things and are both right. The words are kept as built and ruled, and the choice is the
-author's: TESTOOR-NAMED-01.
+**grade 0**: the graph holds the node. **Ruled by the author, 2026-11-08 (TESTOOR-NAMED-01, option b): in a protocol 3 logbook
+a mention is written `mentioned`.** So a run that asks for the ladder writes:
+
+- a tour's node row `{"id":..,"evidence":"mentioned","hits":0}` where protocol 2 writes `"evidence":"named"`;
+- the run's graph figures `"graph":{..,"mentioned":0,"observed":5}` where protocol 2 writes `"named"`;
+- the prose `graph: 6 owned, 0 mentioned, 5 observed (three figures, never summed)`.
+
+`named` then means one thing in that logbook: the ladder's grade 0. **A run that does not ask for the ladder, and the
+single-tour verdict of the Ring seam (`StzEngineTestoorVerdict`), keep `named` byte for byte**, so nothing that reads protocol 2
+changes. The core holds one evidence and writes its word by the logbook's version.
 
 ## 4. Conformance
 

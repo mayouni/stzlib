@@ -38,6 +38,16 @@ pub fn tourJson(b: *Buf, t: V.Tour) !void {
 /// did): what the Ring runner's record holds beside the logbook's own fields. The logbook
 /// itself never carries them, so the golden bytes are the bytes of `detail = false`.
 pub fn tourJsonDetail(b: *Buf, t: V.Tour, detail: bool) !void {
+    return tourJsonIn(b, t, detail, false);
+}
+
+/// TESTOOR-NAMED-01 (b), the author's ruling of 2026-11-08: in a protocol 3 logbook a tour's MENTION of a node is
+/// written `mentioned`, because `named` there is the ladder's grade 0 (the graph holds the node). Protocol 2 keeps `named`.
+fn mentionWord(word: []const u8, v3: bool) []const u8 {
+    return if (v3 and eq(word, "named")) "mentioned" else word;
+}
+
+fn tourJsonIn(b: *Buf, t: V.Tour, detail: bool, v3: bool) !void {
     const r = t.run;
     try b.s("{\"file\":");
     try b.js(t.file);
@@ -123,7 +133,7 @@ pub fn tourJsonDetail(b: *Buf, t: V.Tour, detail: bool) !void {
             try b.s("{\"id\":");
             try b.js(nd.id);
             try b.s(",\"evidence\":");
-            try b.js(nd.evidence);
+            try b.js(mentionWord(nd.evidence, v3));
             try b.s(",\"hits\":");
             try b.int(nd.hits);
             try b.c('}');
@@ -395,7 +405,7 @@ pub fn runJson(b: *Buf, st: Settings, tours: []const V.Tour) !void {
         }
         try b.s(",\"owned\":");
         try b.int(g.owned);
-        try b.s(",\"named\":");
+        try b.s(if (st.ladder) ",\"mentioned\":" else ",\"named\":");
         try b.int(f.named);
         try b.s(",\"observed\":");
         try b.int(f.observed);
@@ -428,7 +438,7 @@ pub fn runJson(b: *Buf, st: Settings, tours: []const V.Tour) !void {
     try b.s("],\"tours\":[");
     for (tours, 0..) |t, k| {
         if (k > 0) try b.c(',');
-        try tourJson(b, t);
+        try tourJsonIn(b, t, false, st.ladder);
     }
     try b.s("]}");
 }
@@ -460,7 +470,7 @@ pub fn summary(b: *Buf, st: Settings, tours: []const V.Tour) !void {
         try b.int(g.owned);
         try b.s(" owned, ");
         try b.int(f.named);
-        try b.s(" named, ");
+        try b.s(if (st.ladder) " mentioned, " else " named, ");
         try b.int(f.observed);
         try b.s(" observed (three figures, never summed)");
         if (!g.complete) {
