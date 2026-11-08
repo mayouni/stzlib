@@ -173,6 +173,7 @@ pub fn fromValue(a: Allocator, v: J.Value) !Manifest {
         if (rv.get("timeout_ms")) |x| m.settings.timeout_ms = x.num_();
         if (rv.get("evidence")) |x| m.settings.evidence = Ev.fromValue(x);
         if (rv.get("ladder")) |x| m.settings.ladder = x.truthy();
+        if (rv.get("impact")) |x| m.settings.impact = try Ev.impactFromValue(a, x);
     }
     m.settings.skipped = try strings(a, v.get("skipped"));
     m.settings.topics_skipped = try strings(a, v.get("topics_skipped"));

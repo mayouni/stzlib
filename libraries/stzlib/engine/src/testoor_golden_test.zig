@@ -146,6 +146,7 @@ fn logbookCase(a: Allocator, dir: []const u8, lsub: []const u8, jsub: []const u8
     };
     if (rj.get("evidence")) |ev| st.evidence = Ev.fromValue(ev);
     if (rj.get("ladder")) |x| st.ladder = x.truthy();
+    if (rj.get("impact")) |x| st.impact = try Ev.impactFromValue(a, x);
     var tours: std.ArrayList(V.Tour) = .empty;
     const refuse = rj.get("refuse_root").?.str_();
     if (refuse.len != 0) {
@@ -259,6 +260,24 @@ test "protocol 3: the evidence ladder (V1, V2) with a graph and without one" {
     failures = 0;
     for (cases) |case| try logbookCase(a, dir, "protocol3/logbook", try judgeDirFor(a, dir, "protocol3/logbook", case), case);
     std.debug.print("  protocol 3 logbook: {d} expected files compared in all\n", .{compared});
+    try std.testing.expectEqual(@as(usize, 0), failures);
+}
+
+test "protocol 3: the impact record widened by an open node, and the nodes it caps (V4)" {
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const dir = try goldenDir(a);
+    const cases = try caseNames(a, dir, "protocol3/impact");
+    try std.testing.expect(cases.len >= 1);
+    failures = 0;
+    for (cases) |case| {
+        const req = try readAll(a, dir, try std.fs.path.join(a, &.{ "protocol3/impact", case, "request.json" }));
+        var got: std.ArrayList(u8) = .empty;
+        try got.appendSlice(a, try A.impactJson(a, req));
+        try got.append(a, '\n');
+        try expectFile(a, dir, try std.fs.path.join(a, &.{ "protocol3/impact", case, "expected.json" }), got.items);
+    }
     try std.testing.expectEqual(@as(usize, 0), failures);
 }
 

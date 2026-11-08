@@ -1,0 +1,119 @@
+{
+ "protocol": 3,
+ "graph": {
+  "testoor": "graph",
+  "protocol": 2,
+  "subject": "inv/stzInvoice.py",
+  "language": "python",
+  "fold": "ascii",
+  "complete": true,
+  "why": "",
+  "nodes": [
+   {
+    "id": "stzTax#Rate",
+    "name": "Rate",
+    "kind": "point",
+    "file": "inv/stzTax.py",
+    "line": 2
+   },
+   {
+    "id": "stzTax.Total",
+    "name": "Total",
+    "kind": "method",
+    "file": "inv/stzTax.py",
+    "line": 3
+   },
+   {
+    "id": "stzInvoice.Amount",
+    "name": "Amount",
+    "kind": "method",
+    "file": "inv/stzInvoice.py",
+    "line": 4
+   },
+   {
+    "id": "stzReport.Monthly",
+    "name": "Monthly",
+    "kind": "method",
+    "file": "inv/stzReport.py",
+    "line": 5
+   },
+   {
+    "id": "stzInvoice.Render",
+    "name": "Render",
+    "kind": "method",
+    "file": "inv/stzInvoice.py",
+    "line": 6
+   },
+   {
+    "id": "stzTemplate.Fill",
+    "name": "Fill",
+    "kind": "method",
+    "file": "inv/stzTemplate.py",
+    "line": 7,
+    "open": true
+   },
+   {
+    "id": "stzMoney.Add",
+    "name": "Add",
+    "kind": "method",
+    "file": "inv/stzMoney.py",
+    "line": 8
+   }
+  ],
+  "edges": [
+   {
+    "from": "stzTax.Total",
+    "to": "stzTax#Rate",
+    "kind": "call",
+    "line": 3
+   },
+   {
+    "from": "stzTax.Total",
+    "to": "stzMoney.Add",
+    "kind": "call",
+    "line": 3
+   },
+   {
+    "from": "stzInvoice.Amount",
+    "to": "stzTax.Total",
+    "kind": "call",
+    "line": 4
+   },
+   {
+    "from": "stzReport.Monthly",
+    "to": "stzInvoice.Amount",
+    "kind": "call",
+    "line": 5
+   },
+   {
+    "from": "stzInvoice.Render",
+    "to": "stzInvoice.Amount",
+    "kind": "call",
+    "line": 6
+   },
+   {
+    "from": "stzInvoice.Render",
+    "to": "stzTemplate.Fill",
+    "kind": "call",
+    "line": 6
+   }
+  ]
+ },
+ "changed": [
+  "stzTax#Rate"
+ ],
+ "tours": [
+  {
+   "file": "inv/t_total.py",
+   "names": [
+    "total"
+   ]
+  },
+  {
+   "file": "inv/t_render.py",
+   "names": [
+    "render"
+   ]
+  }
+ ]
+}

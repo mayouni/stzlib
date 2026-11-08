@@ -153,6 +153,7 @@ fn readRun(a: Allocator, request: []const u8) Error!Run {
     };
     if (rv.get("evidence")) |ev| st.evidence = Ev.fromValue(ev);
     if (rv.get("ladder")) |x| st.ladder = x.truthy();
+    if (rv.get("impact")) |x| st.impact = try Ev.impactFromValue(a, x);
     st.skipped = try strings(a, rv.get("skipped"));
     st.topics_skipped = try strings(a, rv.get("topics_skipped"));
     var tours: std.ArrayList(V.Tour) = .empty;
@@ -184,7 +185,11 @@ pub fn impactJson(a: Allocator, request: []const u8) Error![]u8 {
             .names = try strings(a, t.get("names")),
         });
     }
-    const im = try G.impact(a, g, changed, tours.items);
+    var im = try G.impact(a, g, changed, tours.items);
+    // protocol 3 (V4): the reach as ids, widened by the open nodes, and the nodes they cap
+    if (req.get("protocol")) |pv| if (pv.int_() >= 3) {
+        im.v3 = try G.widenedReach(a, g, changed);
+    };
     var b = T.Buf.init(a);
     try G.impactJson(&b, im);
     return b.done();

@@ -1,0 +1,16 @@
+{
+ "file": "fixtures/inv_rate.py",
+ "readable": 1,
+ "why": "",
+ "dialect": "protocol",
+ "lines": 40,
+ "asserts": 1,
+ "stops": [
+  {
+   "title": "(the tour)",
+   "line": 1,
+   "claims": []
+  }
+ ],
+ "routes": []
+}

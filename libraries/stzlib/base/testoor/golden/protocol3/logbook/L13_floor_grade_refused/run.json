@@ -1,0 +1,77 @@
+{
+ "by": "golden",
+ "root": "fixtures",
+ "topic": "",
+ "subject": "inv/stzInvoice.py",
+ "seed": 5,
+ "repeat": 1,
+ "timeout_ms": 120000,
+ "refuse_root": "",
+ "cases": [
+  "23_invoice_rate_exhausted",
+  "24_invoice_amount_exhausted",
+  "25_invoice_report_generalised"
+ ],
+ "skipped": [],
+ "topics_skipped": [],
+ "flaky": [],
+ "graph": {
+  "complete": false,
+  "why": "node stzTemplate.Fill dispatches by a name built at run time (line 7)",
+  "owned": 7
+ },
+ "impact": {
+  "testoor": "logbook",
+  "kind": "impact",
+  "protocol": 3,
+  "subject": "inv/stzInvoice.py",
+  "changed": [
+   "stzTax#Rate"
+  ],
+  "method": "stzTax#Rate",
+  "complete": false,
+  "why": "node stzTemplate.Fill dispatches by a name built at run time (line 7)",
+  "names": [
+   "rate",
+   "total",
+   "amount",
+   "monthly",
+   "render"
+  ],
+  "selected": [
+   "inv/t_total.py",
+   "inv/t_render.py"
+  ],
+  "skipped": [],
+  "reach": [
+   "stzTax#Rate",
+   "stzTax.Total",
+   "stzInvoice.Amount",
+   "stzReport.Monthly",
+   "stzInvoice.Render",
+   "stzTemplate.Fill"
+  ],
+  "widened": [
+   "stzTemplate.Fill"
+  ],
+  "capped": [
+   {
+    "id": "stzInvoice.Render",
+    "by": "stzTemplate.Fill"
+   },
+   {
+    "id": "stzTemplate.Fill",
+    "by": "stzTemplate.Fill"
+   }
+  ]
+ },
+ "ladder": true,
+ "evidence": {
+  "posture": "llm",
+  "tier": "critical",
+  "floor": {
+   "min_grade": "exhausted",
+   "over": "impact"
+  }
+ }
+}

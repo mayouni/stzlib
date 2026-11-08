@@ -254,6 +254,8 @@ pub const Settings = struct {
     /// protocol 3 (V1): write the evidence ladder, each node's highest grade (testoor_ladder.zig). Asked for,
     /// never assumed, so a run that does not ask writes protocol 2's bytes
     ladder: bool = false,
+    /// protocol 3 (V4): the impact set a floor's `min_grade` is judged over, as the core's impact record gave it
+    impact: ?Ev.ImpactSet = null,
 };
 
 /// what the runner knows of its graph; `named` and `observed` are counted from the tours
@@ -294,6 +296,7 @@ fn isProtocol2(st: Settings, tours: []const V.Tour) bool {
 fn protocolOf(st: Settings, tours: []const V.Tour) u8 {
     if (st.ladder) return 3;
     for (tours) |t| if (t.properties.len > 0) return 3;
+    if (st.evidence) |ev| if (ev.floor.min_grade != null) return 3;
     if (isProtocol2(st, tours)) return 2;
     return 1;
 }
@@ -355,7 +358,7 @@ pub fn exitCode(st: Settings, tours: []const V.Tour) i64 {
         var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
         defer arena.deinit();
         const a = arena.allocator();
-        const v = Ev.countsOf(a, tours) catch return 1;
+        const v = Ev.countsFor(a, ev, tours, st.impact) catch return 1;
         const j = Ev.judge(a, ev, v) catch return 1;
         if (!j.met) return 1;
     }
@@ -435,7 +438,7 @@ pub fn runJson(b: *Buf, st: Settings, tours: []const V.Tour) !void {
     }
     if (st.evidence) |ev| {
         try b.s(",\"evidence\":");
-        try Ev.writeJson(b, ev, try Ev.judge(b.a, ev, try Ev.countsOf(b.a, tours)));
+        try Ev.writeJson(b, ev, try Ev.judge(b.a, ev, try Ev.countsFor(b.a, ev, tours, st.impact)));
     }
     try b.s(",\"tours_by_end\":{\"finished\":");
     try b.int(c.finished);
@@ -503,7 +506,7 @@ pub fn summary(b: *Buf, st: Settings, tours: []const V.Tour) !void {
     }
     if (st.evidence) |ev| {
         try b.c('\n');
-        try Ev.writeProse(b, ev, try Ev.judge(b.a, ev, try Ev.countsOf(b.a, tours)));
+        try Ev.writeProse(b, ev, try Ev.judge(b.a, ev, try Ev.countsFor(b.a, ev, tours, st.impact)));
     }
     try b.s("\n  tours: ");
     try b.int(c.finished);

@@ -1,0 +1,12 @@
+KEPT        fixtures/inv_rate.py  1 stops: 1 kept  (1.38 s, finished, timed)
+KEPT        fixtures/inv_amount.py  1 stops: 1 kept  (0.88 s, finished, timed)
+KEPT        fixtures/inv_report.py  1 stops: 2 kept  (1.88 s, finished, timed)
+owned 3 tours, run 3 (two figures, never summed)
+  claims: 4 kept, 0 diverged, 0 unreached, 0 unjudged
+  graph: 7 owned, 0 mentioned, 6 observed (three figures, never summed)
+  graph incomplete: node stzTemplate.Fill dispatches by a name built at run time (line 7); a selection from it takes every tour
+  evidence: met -- 4 kept, 0 diverged, 0 unreached, 0 unjudged, 0 routes walked, 0 of 6 nodes in the impact set below exemplified (posture llm, tier critical)
+  tours: 0 finished, 3 finished-timed, 0 not-started, 0 broke, 0 hung, 0 unreadable
+  wall: 4.14 s, by golden
+  skipped by name: 0
+exit 0

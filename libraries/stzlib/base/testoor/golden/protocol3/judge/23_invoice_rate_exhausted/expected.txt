@@ -1,0 +1,1 @@
+KEPT        fixtures/inv_rate.py  1 stops: 1 kept  (1.38 s, finished, timed)

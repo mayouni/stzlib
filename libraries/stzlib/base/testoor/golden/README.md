@@ -95,6 +95,10 @@ harness only. A run here is built from `protocol2/judge/` cases.
 | `22_property_text_generalised` | a property held over unbounded texts; two malformed property lines ignored; a named node never reached |
 | `L11_ladder_properties` | grades 4, 3 and 1 beside a named node, the counts of grades 3 and 4, `mentioned` in the graph figures; exit 1 |
 | `L12_properties_no_ladder` | properties without the ladder: protocol 3 by the tours' records alone; exit 0 |
+| `impact/04_reach_widened_capped` (under `protocol3/`) | the impact record in protocol 3: the reach as ids, widened by an open node, and the nodes it caps |
+| `23`, `24`, `25` (judge) | three tours over the ladder page's graph: two exhaust their nodes, one generalises one and exemplifies two |
+| `L13_floor_grade_refused` | a floor of `exhausted` over the impact set: 3 of 6 below, the first named in the reach's order; exit 1 |
+| `L14_floor_grade_met` | a floor of `exemplified` over the same walk, the ladder not asked: met, a cap does not bite at grade 2; exit 0 |
 
 ## Adding a case
 

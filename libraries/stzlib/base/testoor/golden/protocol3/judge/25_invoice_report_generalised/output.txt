@@ -1,0 +1,7 @@
+250	[testoor stop the monthly report]
+500	[testoor node stzReport.Monthly 3]
+750	[testoor node stzInvoice.Render 3]
+1000	[testoor node stzTemplate.Fill 3]
+1250	[testoor property {"id":"MONTHLY-TOTALS","nodes":["stzReport.Monthly"],"domain":"m int 1..12; s text 0..20 of mixed","seed":3,"tried":100,"exhaustive":false,"held":true}]
+1500	[testoor ok the report renders]
+1750	[testoor end timed]

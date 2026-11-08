@@ -23,6 +23,12 @@
 //!   * a floor field the floor does not set is omitted from the record; the floor is echoed in the
 //!     order min_kept, allow_unjudged, min_routes
 //!
+//! PROTOCOL 3 (V4, TESTOOR_PROTOCOL_3.md section 5): a floor may ask for a GRADE -- `min_grade` -- over the impact
+//! set of the change (`over:"impact"`, the only set so far). Every node of the set, as the core's impact record gave it
+//! (the reach widened by the open nodes), must stand on that grade of the evidence ladder; a node an open node caps can
+//! never stand above exemplified. The grade check comes after the five counts' checks, and its reason names the first
+//! node of the set, in its order, that falls short.
+//!
 //! Imports no Ring.
 
 const std = @import("std");
@@ -30,12 +36,41 @@ const Allocator = std.mem.Allocator;
 const T = @import("testoor_text.zig");
 const J = @import("testoor_json.zig");
 const V = @import("testoor_verdict.zig");
+const Ld = @import("testoor_ladder.zig");
 
 pub const Floor = struct {
     min_kept: ?f64 = null,
     allow_unjudged: ?bool = null,
     min_routes: ?f64 = null,
+    /// protocol 3 (V4): the grade every node of the set must stand on, and the set ("impact")
+    min_grade: ?[]const u8 = null,
+    over: ?[]const u8 = null,
 };
+
+/// the set a grade is judged over: the reach of the core's impact record, and the nodes an open node caps
+pub const Cap = struct { id: []const u8, by: []const u8 };
+pub const ImpactSet = struct { reach: []const []const u8, capped: []const Cap };
+
+pub fn impactFromValue(a: Allocator, v: J.Value) !ImpactSet {
+    var reach: std.ArrayList([]const u8) = .empty;
+    if (v.get("reach")) |r| for (r.items()) |x| try reach.append(a, x.str_());
+    var capped: std.ArrayList(Cap) = .empty;
+    if (v.get("capped")) |c| for (c.items()) |x| try capped.append(a, .{
+        .id = if (x.get("id")) |i| i.str_() else "",
+        .by = if (x.get("by")) |i| i.str_() else "",
+    });
+    return .{ .reach = reach.items, .capped = capped.items };
+}
+
+const grade_names = [_][]const u8{ "named", "observed", "exemplified", "generalised", "exhausted", "proved" };
+
+/// a grade's place on the ladder, 0 to 5, or null for a name that is not a grade
+pub fn gradeRank(name: []const u8) ?u8 {
+    for (grade_names, 0..) |g, i| if (std.mem.eql(u8, g, name)) return @intCast(i);
+    return null;
+}
+
+const exemplified_rank: u8 = 2;
 
 /// what the gate asks: who proposed the change, how risky the thing changed is, and the floor
 pub const Settings = struct {
@@ -50,6 +85,11 @@ pub const Counts = struct {
     unreached: i64 = 0,
     unjudged: i64 = 0,
     routes_walked: i64 = 0,
+    /// protocol 3 (V4), only when the floor asks for a grade: the nodes of the set, those below the grade, the first
+    /// reason, or why the grade could not be judged at all
+    reach: i64 = 0,
+    below: i64 = 0,
+    grade_why: []const u8 = "",
 };
 
 pub const Verdict = struct { counts: Counts, met: bool, why: []const u8 };
@@ -62,6 +102,8 @@ pub fn fromValue(v: J.Value) Settings {
         if (f.get("min_kept")) |x| s.floor.min_kept = x.num_();
         if (f.get("allow_unjudged")) |x| s.floor.allow_unjudged = x.truthy();
         if (f.get("min_routes")) |x| s.floor.min_routes = x.num_();
+        if (f.get("min_grade")) |x| s.floor.min_grade = x.str_();
+        if (f.get("over")) |x| s.floor.over = x.str_();
     }
     return s;
 }
@@ -79,6 +121,51 @@ pub fn countsOf(a: Allocator, tours: []const V.Tour) !Counts {
             if (r.item.len == 0) continue;
             if ((try seen.getOrPut(a, r.item)).found_existing) continue;
             c.routes_walked += 1;
+        }
+    }
+    return c;
+}
+
+/// the five counts and, when the floor asks for a grade, the grade check over the impact set
+pub fn countsFor(a: Allocator, s: Settings, tours: []const V.Tour, impact: ?ImpactSet) !Counts {
+    var c = try countsOf(a, tours);
+    const want_name = s.floor.min_grade orelse return c;
+    const want = gradeRank(want_name) orelse {
+        c.grade_why = try std.fmt.allocPrint(a, "the floor's min_grade {s} is not a grade", .{want_name});
+        return c;
+    };
+    const over = s.floor.over orelse "impact";
+    if (!std.mem.eql(u8, over, "impact")) {
+        c.grade_why = try std.fmt.allocPrint(a, "the floor's over {s} is not a set this core knows", .{over});
+        return c;
+    }
+    const set = impact orelse {
+        c.grade_why = "the floor asks for a grade over the impact set, and the run carries no impact record";
+        return c;
+    };
+    const lad = try Ld.build(a, tours);
+    c.reach = @intCast(set.reach.len);
+    for (set.reach) |id| {
+        var have: u8 = 0;
+        for (lad.rows) |r| if (std.mem.eql(u8, r.id, id)) {
+            have = @intFromEnum(r.grade);
+        };
+        var by: ?[]const u8 = null;
+        for (set.capped) |cp| if (std.mem.eql(u8, cp.id, id)) {
+            by = cp.by;
+        };
+        var why: ?[]const u8 = null;
+        if (by != null and want > exemplified_rank) {
+            why = if (std.mem.eql(u8, by.?, id))
+                try std.fmt.allocPrint(a, "{s} dispatches by a name built at run time: it can reach no grade above exemplified", .{id})
+            else
+                try std.fmt.allocPrint(a, "{s} can reach no grade above exemplified: it calls {s}, which is open", .{ id, by.? });
+        } else if (have < want) {
+            why = try std.fmt.allocPrint(a, "{s} is {s}, below the floor's min_grade {s}", .{ id, grade_names[have], want_name });
+        }
+        if (why) |w| {
+            c.below += 1;
+            if (c.grade_why.len == 0) c.grade_why = w;
         }
     }
     return c;
@@ -106,6 +193,7 @@ pub fn judge(a: Allocator, s: Settings, c: Counts) !Verdict {
             return .{ .counts = c, .met = false, .why = try std.fmt.allocPrint(a, "routes walked {d} is below the floor's min_routes {s}", .{ c.routes_walked, try T.fmtNum(a, m) }) };
         }
     }
+    if (f.min_grade != null and c.grade_why.len > 0) return .{ .counts = c, .met = false, .why = c.grade_why };
     return .{ .counts = c, .met = true, .why = "" };
 }
 
@@ -132,6 +220,14 @@ pub fn writeJson(b: *T.Buf, s: Settings, v: Verdict) !void {
         if (!first) try b.c(',');
         try b.s("\"min_routes\":");
         try b.num(m);
+        first = false;
+    }
+    if (s.floor.min_grade) |g| {
+        if (!first) try b.c(',');
+        try b.s("\"min_grade\":");
+        try b.js(g);
+        try b.s(",\"over\":");
+        try b.js(s.floor.over orelse "impact");
     }
     try b.s("},\"kept\":");
     try b.int(v.counts.kept);
@@ -143,6 +239,12 @@ pub fn writeJson(b: *T.Buf, s: Settings, v: Verdict) !void {
     try b.int(v.counts.unjudged);
     try b.s(",\"routes_walked\":");
     try b.int(v.counts.routes_walked);
+    if (s.floor.min_grade != null) {
+        try b.s(",\"reach\":");
+        try b.int(v.counts.reach);
+        try b.s(",\"below\":");
+        try b.int(v.counts.below);
+    }
     try b.s(",\"met\":");
     try b.s(if (v.met) "true" else "false");
     try b.s(",\"why\":");
@@ -161,12 +263,17 @@ pub fn writeProse(b: *T.Buf, s: Settings, v: Verdict) !void {
         try b.s(v.why);
         try b.s("; ");
     }
-    try b.s(try std.fmt.allocPrint(a, "{d} kept, {d} diverged, {d} unreached, {d} unjudged, {d} routes walked (posture {s}, tier {s})", .{
+    try b.s(try std.fmt.allocPrint(a, "{d} kept, {d} diverged, {d} unreached, {d} unjudged, {d} routes walked", .{
         v.counts.kept,
         v.counts.diverged,
         v.counts.unreached,
         v.counts.unjudged,
         v.counts.routes_walked,
+    }));
+    if (s.floor.min_grade) |g| {
+        try b.s(try std.fmt.allocPrint(a, ", {d} of {d} nodes in the impact set below {s}", .{ v.counts.below, v.counts.reach, g }));
+    }
+    try b.s(try std.fmt.allocPrint(a, " (posture {s}, tier {s})", .{
         if (s.posture.len == 0) "unstated" else s.posture,
         if (s.tier.len == 0) "unstated" else s.tier,
     }));
@@ -266,6 +373,30 @@ test "the record omits a floor field the floor does not set, and echoes the rest
     var e = T.Buf.init(a);
     try writeJson(&e, .{}, try judge(a, .{}, counts(0, 0, 0, 0, 0)));
     try testing.expect(std.mem.indexOf(u8, try e.done(), "\"floor\":{},") != null);
+}
+
+test "a floor asking for a grade with no impact record, or a grade that is not one, is not met" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const s = Settings{ .floor = .{ .min_grade = "exemplified" } };
+    const none = try judge(a, s, try countsFor(a, s, &.{}, null));
+    try testing.expect(!none.met);
+    try testing.expectEqualStrings("the floor asks for a grade over the impact set, and the run carries no impact record", none.why);
+    const bad = Settings{ .floor = .{ .min_grade = "excellent" } };
+    try testing.expectEqualStrings("the floor's min_grade excellent is not a grade", (try judge(a, bad, try countsFor(a, bad, &.{}, .{ .reach = &.{}, .capped = &.{} }))).why);
+    // an empty set meets any grade, proved included: nothing was changed that anything calls
+    const proved = Settings{ .floor = .{ .min_grade = "proved" } };
+    try testing.expect((try judge(a, proved, try countsFor(a, proved, &.{}, .{ .reach = &.{}, .capped = &.{} }))).met);
+    // a node no tour reached is named, and a node an open node caps is held at exemplified
+    const set = ImpactSet{ .reach = &.{ "A", "B" }, .capped = &.{.{ .id = "B", .by = "B" }} };
+    const ex = Settings{ .floor = .{ .min_grade = "observed" } };
+    const v = try judge(a, ex, try countsFor(a, ex, &.{}, set));
+    try testing.expectEqualStrings("A is named, below the floor's min_grade observed", v.why);
+    try testing.expectEqual(@as(i64, 2), v.counts.below);
+    const gen = Settings{ .floor = .{ .min_grade = "generalised" } };
+    const c2 = try countsFor(a, gen, &.{}, .{ .reach = &.{"B"}, .capped = &.{.{ .id = "B", .by = "B" }} });
+    try testing.expectEqualStrings("B dispatches by a name built at run time: it can reach no grade above exemplified", c2.grade_why);
 }
 
 test "the settings are read from the document a gate hands over" {

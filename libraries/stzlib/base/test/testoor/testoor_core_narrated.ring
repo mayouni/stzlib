@@ -388,10 +388,39 @@ Scenario("V1 -- the evidence ladder through the Ring seam: each node's highest g
 EndScenario()
 ? "        [section took " + ((clock() - nCoSec) / clockspersecond()) + "s]"
 
+#============================================================================
+Scenario("V4 -- the floor asks for a GRADE over the change's impact set: the reach widened by an open node, the nodes it caps")
+	nCoSec = clock()
+	cCoP3i = cCoRoot + "/protocol3/impact/04_reach_widened_capped"
+	Given("the ladder page's graph: a refinement point, its callers, and a template filler that dispatches by a built name")
+	cCoImp3 = StzEngineTestoorImpact(TestoorGoldenRead(cCoP3i + "/request.json"))
+	Then("asked for protocol 3, the impact record gives the reach as ids, widened by the open node, and the two nodes it caps",
+	     cCoImp3, _CoChop(TestoorGoldenRead(cCoP3i + "/expected.json")))
+	cCoImp2 = StzEngineTestoorImpact(StzReplace(TestoorGoldenRead(cCoP3i + "/request.json"), '"protocol": 3', '"protocol": 2'))
+	Then("asked for protocol 2, the same request writes protocol 2's record: no reach, no caps", "" + StzFindFirst('"reach"', cCoImp2) + "/" + (StzFindFirst('"protocol":2,', cCoImp2) > 0), "0/1")
+	cCoP3j = cCoRoot + "/protocol3/judge"
+	cCoT23 = _CoVerdictP2(cCoP3j + "/23_invoice_rate_exhausted")
+	cCoT24 = _CoVerdictP2(cCoP3j + "/24_invoice_amount_exhausted")
+	cCoT25 = _CoVerdictP2(cCoP3j + "/25_invoice_report_generalised")
+	Then("three tours over it, judged through the seam: two exhaust their nodes, one generalises one node and exemplifies two",
+	     cCoT23 + cCoT24 + cCoT25, _CoChop(TestoorGoldenRead(cCoP3j + "/23_invoice_rate_exhausted/expected.json")) +
+	     _CoChop(TestoorGoldenRead(cCoP3j + "/24_invoice_amount_exhausted/expected.json")) + _CoChop(TestoorGoldenRead(cCoP3j + "/25_invoice_report_generalised/expected.json")))
+	acCoV4 = [ "L13_floor_grade_refused", "L14_floor_grade_met" ]
+	for nCo = 1 to len(acCoV4)
+		cCoV4Req = '{"run":' + TestoorGoldenRead(cCoP3 + "/" + acCoV4[nCo] + "/run.json") + ',"tours":[' + cCoT23 + "," + cCoT24 + "," + cCoT25 + "]}"
+		Then(acCoV4[nCo] + ": the evidence record carries the grade, the set and the nodes below it", StzEngineTestoorRunJson(cCoV4Req),
+		     _CoChop(TestoorGoldenRead(cCoP3 + "/" + acCoV4[nCo] + "/expected.json")))
+		Then(acCoV4[nCo] + ": the prose names the first node that falls short", StzEngineTestoorRunProse(cCoV4Req),
+		     _CoChop(TestoorGoldenRead(cCoP3 + "/" + acCoV4[nCo] + "/expected.txt")))
+		Then(acCoV4[nCo] + ": the exit a gate reads", "" + StzEngineTestoorRunExit(cCoV4Req), _CoChop(TestoorGoldenRead(cCoP3 + "/" + acCoV4[nCo] + "/expected.exit")))
+	next
+EndScenario()
+? "        [section took " + ((clock() - nCoSec) / clockspersecond()) + "s]"
+
 ok
 
 ? ""
-? "[P3.1 + P3.2 + P3.3 + the floor + V1 took " + ((clock() - nCoStart) / clockspersecond()) + "s]"
+? "[P3.1 + P3.2 + P3.3 + the floor + V1 + V4 took " + ((clock() - nCoStart) / clockspersecond()) + "s]"
 Summary()
 shutdown($_zst_fail)
 

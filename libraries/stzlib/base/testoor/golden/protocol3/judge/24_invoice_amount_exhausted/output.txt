@@ -1,0 +1,4 @@
+250	[testoor stop amounts]
+500	[testoor node stzInvoice.Amount 10]
+750	[testoor property {"id":"AMOUNT-SUMS","nodes":["stzInvoice.Amount"],"domain":"n int 0..9","seed":3,"tried":10,"of":10,"exhaustive":true,"held":true}]
+1000	[testoor end timed]

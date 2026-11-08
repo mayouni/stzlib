@@ -183,6 +183,32 @@ Scenario("V1 -- the evidence ladder from the native runner: a node a kept tour r
 EndScenario()
 ? "        [section took " + ((clock() - nNvSec) / clockspersecond()) + "s]"
 
+#============================================================================
+Scenario("V4 -- a floor that asks for a grade, through the native runner: met when every node of the set stands on it, refused naming the first that does not")
+	nNvSec = clock()
+	acG = [ cNvPlant + "/nodes_kept.ring" ]
+	Given("one kept tour that reaches Total and Rate, and a floor of exemplified over two impact sets")
+	cGFloor = '{"posture":"llm","tier":"critical","floor":{"min_grade":"exemplified","over":"impact"}}'
+	write(cNvPlant + "/manifest_g1.json", TestoorManifestJson(acG, [ :seed = 5, :timeout_ms = 6000, :evidence_json = cGFloor,
+	      :impact_json = '{"reach":["stzTax.Total","stzTax.Rate"],"capped":[]}' ]))
+	write(cNvPlant + "/manifest_g2.json", TestoorManifestJson(acG, [ :seed = 5, :timeout_ms = 6000, :evidence_json = cGFloor,
+	      :impact_json = '{"reach":["stzTax.Total","stzTax.Net"],"capped":[]}' ]))
+	write(cNvPlant + "/manifest_g3.json", TestoorManifestJson(acG, [ :seed = 5, :timeout_ms = 6000, :evidence_json = cGFloor ]))
+	aG1 = _NvRun([ "run", cNvPlant + "/manifest_g1.json", "--json" ])
+	aG2 = _NvRun([ "run", cNvPlant + "/manifest_g2.json", "--json" ])
+	aG3 = _NvRun([ "run", cNvPlant + "/manifest_g3.json", "--json" ])
+	aJG1 = StzJsonToList(aG1[2])
+	aJG2 = StzJsonToList(aG2[2])
+	aJG3 = StzJsonToList(aG3[2])
+	Then("both nodes of the set were exemplified: met, exit 0, protocol 3", "" + aG1[1] + "/" + aJG1[:evidence][:met] + "/" + aJG1[:protocol], "0/1/3")
+	Then("a set holding a node no tour reached: refused, exit 1, though the tour is kept", "" + aG2[1] + "/" + aJG2[:evidence][:met] + "/" + aJG2[:tours][1][:state], "1/0/kept")
+	Then("and the reason names that node and its grade", aJG2[:evidence][:why], "stzTax.Net is named, below the floor's min_grade exemplified")
+	Then("the record counts the set and the nodes below it", "" + aJG2[:evidence][:reach] + "/" + aJG2[:evidence][:below], "2/1")
+	Then("a floor that asks for a grade with no impact record is refused, never guessed", aJG3[:evidence][:why],
+	     "the floor asks for a grade over the impact set, and the run carries no impact record")
+EndScenario()
+? "        [section took " + ((clock() - nNvSec) / clockspersecond()) + "s]"
+
 _NvUnplantAll(cNvPlant)
 
 ok

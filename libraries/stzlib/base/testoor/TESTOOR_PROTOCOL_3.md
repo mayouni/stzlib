@@ -22,7 +22,7 @@ when it carries a version 2 key, else absent.
 | the **property record**: a property held over generated inputs from a declared domain, shrunk on failure | 3 | V2 | **built 2026-11-08** (section 4) |
 | the same record when every input of a finite domain was tried | 4 | V2 | **built 2026-11-08** (section 4.2): it falls out of the generator |
 | every SCHEDULE of the declared weather up to a depth | 4 | V3 | sketched, 6(b) |
-| `min_grade` and `over` in the evidence floor | -- | V4 | sketched, 6(d) |
+| `min_grade` and `over` in the evidence floor, and the impact record's widened `reach` and `capped` | -- | V4 | **built 2026-11-08** (section 5) |
 | a node's checker `facts`, and the **certificate record** | 5 | V5, V6 | sketched, 6(a) and 6(c); waits on HARO-PROOF-01 |
 
 ## 2. The ladder record (V1)
@@ -178,7 +178,53 @@ line is. The face writes the line through the core (op `line`), so key order and
   `"generalised"` and `"exhausted"`, after `"exemplified"`, when any tour of the run carries a property; so does the prose,
   highest grade first: `ladder: 1 exhausted, 1 generalised, 0 exemplified, 1 observed, 1 named, of 4 owned`.
 
-## 5. Conformance
+## 5. The floor asks for a grade (V4)
+
+A gate can now ask for more than kept claims: that every node a change reaches stand on a grade of the ladder. This is the
+point of the ladder -- an `:llm` change to a critical point is refused unless what it touches was exhausted, or proved.
+
+### 5.1 The set: the impact record in protocol 3
+
+The impact record (protocol 2 section 5) answers a request that says `"protocol":3` with three more keys, after `skipped`:
+
+| key | rule |
+|---|---|
+| `reach` | the changed nodes and their callers' closure, as **ids** in the graph's spelling, in the order protocol 2's reach finds them; then every **open** node not yet in it, in the graph's order, each followed by its own callers' closure |
+| `widened` | the open nodes that joined the reach that way |
+| `capped` | `{"id","by"}` for every node of the reach whose callees, followed breadth first in the edges' order, include an open node -- `by` is the first one found, and an open node caps itself |
+
+**Why the reach is widened.** An open node dispatches by a name built at run time, so it may call the changed node through an
+edge no reader saw. Its callers would then be missing from the reach, and a floor judged over a reach with a hole could be met
+by never looking. So every open node joins the reach with its callers: the graph widens, it never guesses (ruling 16). The
+record's `complete` and `selected` keep protocol 2's meaning: a selection from an incomplete graph still takes every tour.
+
+A request without `"protocol":3` writes protocol 2's record, byte for byte.
+
+### 5.2 The floor
+
+```json
+"floor":{"min_kept":3,"min_grade":"exhausted","over":"impact"}
+```
+
+- **`min_grade`**: `named`, `observed`, `exemplified`, `generalised`, `exhausted` or `proved`. **`over`**: the set it is judged over;
+  `impact` is the only one, and the default. A floor that asks for a grade makes the logbook protocol 3.
+- **The run carries the set** as `impact`: the protocol 3 impact record, as the core gave it (the Ring seam: `run.impact`; the
+  native runner: `:impact_json` in `TestoorManifestJson`). Only `reach` and `capped` are read.
+- **Each node of the reach** stands on its ladder grade (sections 2 and 4.6, computed whether or not the ladder is asked for);
+  a node no tour reached is `named`. **A capped node can stand on no grade above `exemplified`**: under a floor above it, it fails
+  whatever its tours did, because no proof and no exhaustion can be claimed through a name built at run time.
+- **The checks run in this order**, and the reason is the first that fails: the five counts' checks of protocol 2 section 6, then
+  the grade -- the first node of the reach, in its order, that falls short:
+  `stzReport.Monthly is generalised, below the floor's min_grade exhausted`;
+  `stzInvoice.Render can reach no grade above exemplified: it calls stzTemplate.Fill, which is open`;
+  `stzTemplate.Fill dispatches by a name built at run time: it can reach no grade above exemplified`.
+- **Refused, never guessed**: a floor that asks for a grade and a run that carries no impact record is not met ("the floor asks
+  for a grade over the impact set, and the run carries no impact record"); nor is a `min_grade` that is not a grade.
+- **The record** echoes `min_grade` and `over` after `min_routes`, and gains `"reach"` (the set's size) and `"below"` (how many fall
+  short) after `routes_walked`. **The prose** adds `, 3 of 6 nodes in the impact set below exhausted` before the posture.
+- **An empty reach meets any grade**, `proved` included: nothing the change touches is called by anything.
+
+## 6. Conformance
 
 Written by hand from section 2 before the code, and reproduced by the core on its first run (`zig build test-testoor`).
 
@@ -194,6 +240,10 @@ Written by hand from section 2 before the code, and reproduced by the core on it
 | `protocol3/judge/22_property_text_generalised` | a property held over an unbounded text domain (no `of`); a line that is not JSON and one with no `held` are ignored; the line names a node the tour never reached |
 | `protocol3/logbook/L11_ladder_properties` | 20, 21 and 22 against a graph of four: one node exhausted, one generalised by the property that held, one observed where the property failed, one named; the counts of grades 3 and 4 written; exit 1 |
 | `protocol3/logbook/L12_properties_no_ladder` | 20 and 22 with no ladder asked: the tours' `properties` alone make the log protocol 3; no `ladder` key; exit 0 |
+| `protocol3/impact/04_reach_widened_capped` | the ladder page's graph: the reach as ids, the open template filler widened in, the renderer and the filler capped |
+| `protocol3/judge/23`, `24`, `25` | three tours over that graph: two exhaust their nodes, one generalises one node and exemplifies two |
+| `protocol3/logbook/L13_floor_grade_refused` | an `:llm` floor of `exhausted` over the impact set: 3 of 6 below, the first named in order; exit 1 though every tour is kept |
+| `protocol3/logbook/L14_floor_grade_met` | the same walk under `exemplified`, the ladder not asked: met, because a cap does not bite at grade 2; exit 0 |
 
 The same requests with the ladder NOT asked for write protocol 2 and no `ladder` key: the core guard and the native guard each
 assert it. `testoor_property_narrated.ring` holds the Ring face to section 4: the domains through the seam, `TestoorProperty`

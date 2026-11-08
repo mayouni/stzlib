@@ -394,6 +394,26 @@ mention as `mentioned`.
 - **Not built:** list and map domains (the `stzList` pairs need them), the declared weather's schedules (V3), `min_grade` in the
   floor (V4).
 
+### V4, the floor asks for a grade, 2026-11-08 -- DONE
+
+The third step of P9, `TESTOOR_PROTOCOL_3.md` section 5. Chosen before list domains because it turns the ladder from a report
+into a gate: the exit P9 was written for.
+
+- **Read first:** the protocol 2 impact record gave the reach only as lower-cased names and said nothing of open nodes, so V4
+  needed the reach as ids, and the caps. An open node may call the change through an edge nobody saw, so the reach a floor is
+  judged over is WIDENED by every open node and its callers.
+- **Written first, by hand:** `protocol3/impact/04` (the ladder page's graph as a real case), judge cases 23 to 25, logbooks L13
+  (refused) and L14 (met). The core reproduced them the first time.
+- **`testoor_graph.zig`:** `widenedReach` and `openCause`; the impact record writes `reach`, `widened` and `capped` when the
+  request says protocol 3.
+- **`testoor_evidence.zig`:** `min_grade` and `over` in the floor, the run's impact set, `countsFor` (the grade check after the
+  five counts', the first node short of the grade named), `reach` and `below` in the record and the prose. One new test.
+- **Asked through** `run.impact` (the Ring seam), `:impact_json` in `TestoorManifestJson` (the native runner).
+- **Run on haro.exe:** the core guard 79 (9 new), the native guard 44 (5 new: met, refused naming a node no tour reached, refused
+  for want of an impact record).
+- **`zig build test-testoor`:** 94 of 94.
+- **Not built:** floors per posture and tier as the library's data (protocol 2 section 11, question 4); list domains; V3; V5.
+
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 
 1. **One domain `stz_testoor`** (recommended) or one per module.

@@ -136,7 +136,7 @@ footer p + p { margin-top: 8px; }
     <p class="eyebrow">Testoor · protocol 3 · ruled 2026-11-08</p>
     <h1>The evidence ladder</h1>
     <p class="lede">Testing shows that bugs are present, never that they are absent. So Testoor records <b>how much is known</b> about each node of the program's graph, property by property, on six grades. A change is accepted only when every node it reaches stands on the grade its floor asks for.</p>
-    <div class="ruled"><span class="chip good">TESTOOR-LADDER-01: yes to all four</span><span class="chip">grades 0 to 2 recorded today</span><span class="chip next">V1 and V2 built</span></div>
+    <div class="ruled"><span class="chip good">TESTOOR-LADDER-01: yes to all four</span><span class="chip">grades 0 to 2 recorded today</span><span class="chip next">V1, V2 and V4 built</span></div>
   </div>
 </header>
 
@@ -211,19 +211,20 @@ footer p + p { margin-top: 8px; }
 
   <section aria-labelledby="h-graph">
     <h2 id="h-graph">How a floor reads the ladder on a change</h2>
-    <p>An example with invented names. An <code>:llm</code> proposal moves the refinement point <code>stzTax#Rate</code> from 0.20 to 0.22. The point is <i>critical</i>, so its floor asks that every node in the change's impact set reach <i>exhausted</i>.</p>
+    <p>An example with invented names. An <code>:llm</code> proposal moves the refinement point <code>stzTax#Rate</code> from 0.20 to 0.22. The point is <i>critical</i>, so its floor asks that every node in the change's impact set reach <i>exhausted</i>. Since V4 this is the rule the core applies, and this graph is one of its golden cases.</p>
 
     <div class="figure">
       <div class="svgbox">
-        <svg class="graph" viewBox="0 0 965 465" width="965" height="465" role="img" aria-label="Seven nodes. The impact set holds stzTax#Rate, stzTax.Total, stzInvoice.Amount, stzReport.Monthly and stzInvoice.Render. Monthly and Render are below the floor; Render reaches stzTemplate.Fill, an open node.">
+        <svg class="graph" viewBox="0 0 965 500" width="965" height="500" role="img" aria-label="Seven nodes. The impact set holds stzTax#Rate, stzTax.Total, stzInvoice.Amount, stzReport.Monthly, stzInvoice.Render and, widened in because it is open, stzTemplate.Fill. Monthly, Render and Fill are below the floor.">
           <defs>
             <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" style="fill: var(--fg2)"></path>
             </marker>
           </defs>
           <!-- the impact set -->
-          <rect x="6" y="38" width="953" height="312" rx="16" style="fill: var(--tint); stroke: var(--accent); stroke-width: 2; stroke-dasharray: 8 6"></rect>
-          <text x="20" y="28" style="fill: var(--accent); font-weight: 700">impact set of the change: the change and every node that calls into it</text>
+          <path d="M6,38 H959 V350 H470 V470 H250 V350 H6 Z" style="fill: var(--tint); stroke: var(--accent); stroke-width: 2; stroke-dasharray: 8 6; stroke-linejoin: round"></path>
+          <text x="20" y="28" style="fill: var(--accent); font-weight: 700">impact set: the change, every node that calls into it, and every open node, widened in</text>
+          <text x="250" y="492" style="fill: var(--accent); font-weight: 700">widened in: an open node may call the change unseen</text>
 
           <!-- edges: caller to callee -->
           <path d="M210,96 C240,96 240,186 263,186" style="fill: none; stroke: var(--fg2); stroke-width: 2" marker-end="url(#arr)"></path>
@@ -289,7 +290,8 @@ footer p + p { margin-top: 8px; }
             <tr><td><code>stzTax.Total</code></td><td><span class="g b5">5 proved</span><br>the checker's facts</td><td><span class="chip good">meets</span></td></tr>
             <tr><td><code>stzInvoice.Amount</code></td><td><span class="g b4">4 exhausted</span></td><td><span class="chip good">meets</span></td></tr>
             <tr><td><code>stzReport.Monthly</code></td><td><span class="g b3">3 generalised</span></td><td><span class="chip bad">below</span></td></tr>
-            <tr><td><code>stzInvoice.Render</code></td><td><span class="g b2">2 exemplified</span><br>can go no higher</td><td><span class="chip bad">below</span></td></tr>
+            <tr><td><code>stzInvoice.Render</code></td><td><span class="g b2">2 exemplified</span><br>can go no higher: it calls an open node</td><td><span class="chip bad">below</span></td></tr>
+            <tr><td><code>stzTemplate.Fill</code><br>widened in</td><td><span class="g b1">1 observed</span><br>can go no higher than 2: it is open</td><td><span class="chip bad">below</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -299,12 +301,14 @@ footer p + p { margin-top: 8px; }
   "tier": "critical",
   "floor": {"min_grade": "exhausted",
             "over": "impact"},
+  "reach": 6,
+  "below": 3,
   "met": false,
-  "why": "stzInvoice.Render can reach no
-          grade above exemplified: it calls
-          stzTemplate.Fill, which is open"
+  "why": "stzReport.Monthly is generalised,
+          below the floor's min_grade
+          exhausted"
 }</pre>
-        <p class="verdict"><span class="chip bad">refused, exit 1</span> The change rolls back. Walking <code>stzReport.Monthly</code> to <i>exhausted</i> is a cost; <code>stzInvoice.Render</code> needs <code>stzTemplate.Fill</code> to stop using <code>eval</code>. That is the graph saying where proof stops.</p>
+        <p class="verdict"><span class="chip bad">refused, exit 1</span> The change rolls back, and the record names the first node short of the floor, in the reach's order. Walking <code>stzReport.Monthly</code> to <i>exhausted</i> is a cost a tour can pay. <code>stzInvoice.Render</code> and <code>stzTemplate.Fill</code> cannot rise until <code>Fill</code> stops dispatching by a built name. That is the graph saying where proof stops.</p>
       </div>
     </div>
   </section>
@@ -339,9 +343,9 @@ footer p + p { margin-top: 8px; }
     <h2 id="h-steps">The steps, in order</h2>
     <ol class="steps">
       <li><b>V1</b><p>Report grade 2 for each node: kept claims joined to the nodes their tours reached.</p><p class="need">Built 2026-11-08, run on haro.exe.</p></li>
-      <li class="is-next"><b>V2</b><p>Property tours over declared domains: integers, decimals, choices, and texts in any alphabet, with a seed and shrinking.</p><p class="need">Built 2026-11-08, run on haro.exe.</p></li>
+      <li><b>V2</b><p>Property tours over declared domains: integers, decimals, choices, and texts in any alphabet, with a seed and shrinking.</p><p class="need">Built 2026-11-08, run on haro.exe.</p></li>
       <li><b>V3</b><p>The schedules of the declared weather, up to a depth. Finite domains are already tried whole by V2.</p><p class="need">Needs nothing from Haro.</p></li>
-      <li><b>V4</b><p><code>min_grade</code> and <code>over: impact</code> in the floor; hand-written goldens first.</p><p class="need">Needs nothing from Haro.</p></li>
+      <li class="is-next"><b>V4</b><p><code>min_grade</code> and <code>over: impact</code> in the floor, the reach widened by every open node.</p><p class="need">Built 2026-11-08, run on haro.exe.</p></li>
       <li><b>V5</b><p>The certificate record. Its first producer is Haro's checker: <code>total</code>, <code>uses</code>, the profile.</p><p class="need">Waits on HARO-PROOF-01 (a).</p></li>
       <li><b>V6</b><p>Contracts, and a path from Haro to a solver or a verifier.</p><p class="need">Waits on HARO-PROOF-01 (b) to (d).</p></li>
     </ol>
@@ -349,7 +353,7 @@ footer p + p { margin-top: 8px; }
 
   <footer>
     <p>From <code>TESTOOR_EVIDENCE_LADDER.md</code> and <code>TESTOOR_PROTOCOL_3.md</code> on stzlib main. The shrink is a real run; the rest of the records are the protocol's own. Ruled by the author on 2026-11-08 (TESTOOR-LADDER-01): the ladder is the direction of protocol 3, the six grade names stand, P9 follows P4 with V1 to V3 free to start earlier, and Testoor records certificates without checking proofs.</p>
-    <p>The graph above is an illustration with invented names, not a measurement of stzlib. The records it shows are a sketch of what V4 will write.</p>
+    <p>The worked change uses invented names, not a measurement of stzlib. Since V4 the core judges it as shown (golden L13); only <code>stzTax.Total</code>'s proof waits on V5.</p>
   </footer>
 </main>
 

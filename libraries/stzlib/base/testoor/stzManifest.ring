@@ -15,6 +15,8 @@
 #                  the run then exits 1 when the walk does not meet it, whatever its tours said
 #                  :ladder  TRUE to write the EVIDENCE LADDER (protocol 3 section 2): each graph node's
 #                  highest grade -- named, observed, exemplified -- and the tours that gave it
+#                  :impact_json  the IMPACT RECORD of the change as JSON text, as StzEngineTestoorImpact gives
+#                  it with "protocol":3 -- the set a floor's min_grade is judged over (protocol 3 section 5)
 #                  (a hash-list; every key is optional)
 #   TestoorNativeExe()
 #       the native runner's path: the TESTOOR_EXE variable, else engine/zig-out/bin/testoor beside the
@@ -49,6 +51,11 @@ func _ManifestEvidence(pcJson)
 	if pcJson = ""  return ""  ok
 	return ',"evidence":' + pcJson
 
+# the impact record a floor's grade is judged over, written into the run when there is one
+func _ManifestImpact(pcJson)
+	if pcJson = ""  return ""  ok
+	return ',"impact":' + pcJson
+
 # the evidence ladder, written into the run only when asked, so a run that does not ask keeps protocol 2's bytes
 func _ManifestLadder(pxOn)
 	if isNumber(pxOn) and pxOn = 1  return ',"ladder":true'  ok
@@ -69,7 +76,7 @@ func TestoorManifestJson(pacFiles, paOpt)
 	      ',"seed":' + _ManifestOpt(paOpt, :seed, -1) +
 	      ',"repeat":' + _ManifestOpt(paOpt, :repeat, 1) +
 	      ',"timeout_ms":' + _ManifestOpt(paOpt, :timeout_ms, 120000) + _ManifestEvidence(_ManifestOpt(paOpt, :evidence_json, "")) +
-	      _ManifestLadder(_ManifestOpt(paOpt, :ladder, 0)) + "}" +
+	      _ManifestLadder(_ManifestOpt(paOpt, :ladder, 0)) + _ManifestImpact(_ManifestOpt(paOpt, :impact_json, "")) + "}" +
 	      ',"skipped":' + _ManifestStrings(_ManifestOpt(paOpt, :skipped, [])) +
 	      ',"topics_skipped":' + _ManifestStrings(_ManifestOpt(paOpt, :topics_skipped, [])) + ',"tours":['
 	_nF_ = len(pacFiles)

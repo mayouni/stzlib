@@ -162,6 +162,13 @@ pub fn reachNames(a: Allocator, g: Graph, ids: []const []const u8) ![]const []co
 
 pub const TourNames = struct { file: []const u8, names: []const []const u8 };
 
+/// protocol 3 (V4): a reached node whose callees, followed as far as they go, include an open node -- or which is open
+/// itself -- can never be proved through, so a floor above exemplified can never be met on it
+pub const Cap = struct { id: []const u8, by: []const u8 };
+
+/// protocol 3 (V4): the reach as ids, WIDENED by every open node and its callers, and the nodes an open node caps
+pub const Widened = struct { reach: []const []const u8, widened: []const []const u8, capped: []const Cap };
+
 pub const Impact = struct {
     subject: []const u8,
     changed: []const []const u8,
@@ -170,7 +177,62 @@ pub const Impact = struct {
     names: []const []const u8,
     selected: []const []const u8,
     skipped: []const []const u8,
+    /// written only when the request asked for protocol 3
+    v3: ?Widened = null,
 };
+
+/// the graph's own spelling of an id, or the id when the graph does not hold it
+fn canon(g: Graph, id: []const u8) []const u8 {
+    return if (g.indexOf(id)) |i| g.nodes[i].id else id;
+}
+
+/// the first open node among a node and its callees, followed breadth first in the edges' order; null when none is
+pub fn openCause(a: Allocator, g: Graph, id: []const u8) !?[]const u8 {
+    var queue: std.ArrayList([]const u8) = .empty;
+    try queue.append(a, canon(g, id));
+    var at: usize = 0;
+    while (at < queue.items.len) : (at += 1) {
+        const cur = queue.items[at];
+        if (g.indexOf(cur)) |i| if (g.nodes[i].open) return g.nodes[i].id;
+        for (g.edges) |e| {
+            if (sameId(g.fold, e.from, cur) and indexIn(g.fold, queue.items, e.to) == null) try queue.append(a, canon(g, e.to));
+        }
+    }
+    return null;
+}
+
+fn addCallers(a: Allocator, g: Graph, out: *std.ArrayList([]const u8), from: usize) !void {
+    var at = from;
+    while (at < out.items.len) : (at += 1) {
+        const cur = out.items[at];
+        for (g.edges) |e| {
+            if (sameId(g.fold, e.to, cur) and indexIn(g.fold, out.items, e.from) == null) try out.append(a, canon(g, e.from));
+        }
+    }
+}
+
+/// The reach a FLOOR is judged over. An open node dispatches by a name built at run time, so it may call the changed
+/// node through an edge no reader saw: every open node joins the reach, with its callers -- the graph widens, it never
+/// guesses. Then each reached node an open node caps.
+pub fn widenedReach(a: Allocator, g: Graph, changed: []const []const u8) !Widened {
+    var out: std.ArrayList([]const u8) = .empty;
+    for (try reach(a, g, changed)) |id| {
+        const c = canon(g, id);
+        if (indexIn(g.fold, out.items, c) == null) try out.append(a, c);
+    }
+    var widened: std.ArrayList([]const u8) = .empty;
+    for (g.nodes) |n| {
+        if (!n.open or indexIn(g.fold, out.items, n.id) != null) continue;
+        try widened.append(a, n.id);
+        try out.append(a, n.id);
+        try addCallers(a, g, &out, out.items.len - 1);
+    }
+    var capped: std.ArrayList(Cap) = .empty;
+    for (out.items) |id| {
+        if (try openCause(a, g, id)) |by| try capped.append(a, .{ .id = id, .by = by });
+    }
+    return .{ .reach = out.items, .widened = widened.items, .capped = capped.items };
+}
 
 /// Which tours a change obliges you to walk again. A graph that is not complete selects EVERY
 /// tour and skips none: a selection is only as small as the graph is complete.
@@ -207,7 +269,7 @@ fn strArr(b: *T.Buf, items: []const []const u8) !void {
 
 /// the impact record (protocol 2 section 5), one JSON document
 pub fn impactJson(b: *T.Buf, im: Impact) !void {
-    try b.s("{\"testoor\":\"logbook\",\"kind\":\"impact\",\"protocol\":2,\"subject\":");
+    try b.s(if (im.v3 != null) "{\"testoor\":\"logbook\",\"kind\":\"impact\",\"protocol\":3,\"subject\":" else "{\"testoor\":\"logbook\",\"kind\":\"impact\",\"protocol\":2,\"subject\":");
     try b.js(im.subject);
     try b.s(",\"changed\":");
     try strArr(b, im.changed);
@@ -223,6 +285,22 @@ pub fn impactJson(b: *T.Buf, im: Impact) !void {
     try strArr(b, im.selected);
     try b.s(",\"skipped\":");
     try strArr(b, im.skipped);
+    if (im.v3) |w| {
+        try b.s(",\"reach\":");
+        try strArr(b, w.reach);
+        try b.s(",\"widened\":");
+        try strArr(b, w.widened);
+        try b.s(",\"capped\":[");
+        for (w.capped, 0..) |c, k| {
+            if (k > 0) try b.c(',');
+            try b.s("{\"id\":");
+            try b.js(c.id);
+            try b.s(",\"by\":");
+            try b.js(c.by);
+            try b.c('}');
+        }
+        try b.c(']');
+    }
     try b.c('}');
 }
 
