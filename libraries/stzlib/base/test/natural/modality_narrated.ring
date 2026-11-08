@@ -170,7 +170,7 @@ Scenario("Temporal guards -- obligation has SCOPE IN TIME")
 	Given("EnforceConstraintWhile: in force only while the condition holds; EnforceConstraintUntil: in force until the condition is met, then the constraint RETIRES itself")
 
 	oTw = new stzString("HI")
-	oTw.EnforceConstraintWhile("shout-while-short", :Uppercase, '{ StzLen(@string) < 6 }')
+	oTw.EnforceConstraintWhile("shout-while-short", :Uppercase, '{ len(@string) < 6 }')
 	bRefused = FALSE
 	try
 		oTw.UpdateWith("hi")

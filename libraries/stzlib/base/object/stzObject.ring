@@ -5083,21 +5083,47 @@ class stzObject
 	 #  CASTING THE OBJECT VALUE INTO A NUMBER UNDER A GIVEN CONDITION  #
 	#==================================================================#
 
+	# The content as a W condition reads it: a number for a number (a stzNumber keeps its digits
+	# as text), the content itself otherwise.
+	#
+	#   returns    the content, a number when the object holds one
+	#   see        ToNumberW, IfQ
+	def _ContentAsValue()
+		xContent = This.Content()
+		if This.IsANumber() and isString(xContent)
+			return 0 + xContent
+		ok
+		return xContent
+
+	# Computes a number from the content, by a W expression given as text or by a function.
+	#
+	#   pcCode     '{ @number = <expression> }' -- the expression's value for the whole content,
+	#              named @list, @string or @number; or '{ @number += <expression> }' -- the sum of
+	#              the expression over the chars of a text (@char, @i) or the items of a list
+	#              (@item, @i); or a function of the content that returns a number
+	#   returns    a number
+	#   note       the expression is judged by the W engine and never run as code
+	#   warning    an expression the W engine does not compute raises, naming the WF form
+	#   example    ? Q([ "Me", "and", "You!" ]).ToNumberW('{ @number += len(@item) }')
+	#              #--> 9
 	def ToNumberW(pcCode)
 
 		if isList(pcCode) and IsUsingNamedParamList(pcCode)
 			pcCode = pcCode[2]
 		ok
 
-		if NOT isString(pcCode)
-			StzRaise("Incorrect param type! pcCode must be a string.")
+		if StzIsFunctionValue(pcCode)
+			nResult = call pcCode(This._ContentAsValue())
+			if NOT isNumber(nResult)
+				StzRaise("Incorrect type! The function must return a number.")
+			ok
+			return nResult
 		ok
 
-		@number = 0
-		if This.IsANumber()
-			@number = This.Number()
+		if NOT isString(pcCode)
+			StzRaise("Incorrect param type! pcCode must be a string or a function.")
 		ok
-		
+
 		# RemoveThisBoundQ, which takes the bound. RemoveBoundsQ() takes NONE
 		# -- it strips whatever bounds are there -- so passing it a quote was
 		# R20 "extra number of parameters", and ToNumberW() raised on its
@@ -5107,58 +5133,50 @@ class stzObject
 			RemoveThisFirstCharQ("{").
 			RemoveThisLastCharQ("}").
 			Trimmed()
-		
-		if NOT Q(_cCode_).StartsWithOneOfTheseCS([
-			"@number =", "@number +=", "@number=", "@number+=" ], 0 )
 
+		cLow = StzLower(_cCode_)
+		cExpr = ""
+		bSum = 0
+		aStarts = [ "@number +=", "@number+=", "@number =", "@number=" ]
+		for i = 1 to 4
+			if StzLeft(cLow, StzLen(aStarts[i])) = aStarts[i]
+				cExpr = ring_trim(StzMid(_cCode_, StzLen(aStarts[i]) + 1, StzLen(_cCode_) - StzLen(aStarts[i])))
+				bSum = (i <= 2)
+				exit
+			ok
+		next
+		if cExpr = ""
 			StzRaise("Syntax error! pcCode must start with '@number =' or '@number +='.")
 		ok
 
-		if Q(_cCode_).StartsWithEitherCS( "@number=", :Or = "@number =", 0 )
-			# EXAMPLE
-			# ? Q([ "a", "b", "c" ]).ToNumberW('{ @number = len(@list) }')
-			#--> 3
+		# the content's own names are the engine's item
+		cExpr = StzReplaceCS(cExpr, "@list", "@item", 0)
+		cExpr = StzReplaceCS(cExpr, "@string", "@item", 0)
+		cExpr = StzReplaceCS(cExpr, "@number", "@item", 0)
 
-			@list = This.Content()
-			@string = This.Content()
-
-			eval(_cCode_)
-
+		if NOT bSum or This.IsANumber()
+			aItems = [ This._ContentAsValue() ]
+		but This.IsAString()
+			aItems = StzChars(This.Content())
+		but This.IsAList()
+			aItems = This.List()
 		else
-			# CASE += is used on a list of items or a string
+			StzRaise("Incorrect type! ToNumberW works on a number, a text or a list.")
+		ok
 
-			# EXAMPLE
-			# ? Q([ "Me", "and", "You!" ]).ToNumberWXT('{ @number += len(@item) }')
-			#--> 9
-			@number = 0
-
-			if This.IsANumber()
-				eval(_cCode_)
-
-			but This.IsAString()
-				_nLenStr_ = This.NumberOfChars()
-				for @i = 1 to _nLenStr_
-					@char = This.Char(@i)
-					eval(_cCode_)
-				next
-
-			but This.IsAList()
-				_aList_ = This.List()
-				_nLenList_ = len(_aList_)
-
-				for @i = 1 to _nLenList_ 
-					@item = This.Item(@i)
-					eval(_cCode_)
-				next
+		if len(aItems) = 0
+			return 0
+		ok
+		aValues = StzWValues(aItems, cExpr)
+		nResult = 0
+		nValues = len(aValues)
+		for i = 1 to nValues
+			if NOT isNumber(aValues[i])
+				StzRaise("Incorrect type! @number must be a number.")
 			ok
-
-		ok
-
-		if NOT isNumber(@number)
-			StzRaise("Incorrect type! @number must be a number.")
-		ok
-
-		return @number
+			nResult += aValues[i]
+		next
+		return nResult
 
 		def ToNumberWQ(pcCode)
 			return new stzNumber( This.ToNumberW(pcCode) )
@@ -5758,19 +5776,21 @@ class stzObject
 
 	# Returns the object when the condition, given as text, holds, and a false object when it does not.
 	#
-	#   pcCondition   a Ring expression as text, such as "1 = 1"
+	#   pcCondition   a W condition as text, about the content as @item, such as "@item > 3" or
+	#                 "1 = 1"; or a function of the content
 	#   returns       the object itself, or a false object
 	#   note          Q(5).IfQ("1 = 2") answers a stzFalseObject, so a chain goes on and says why it
-	#                 stopped
-	#   warning       a condition that is not a text raises "Incorrect param type!"
+	#                 stopped; the text is judged by the W engine, never run as code
+	#   warning       a condition that is neither a text nor a function raises "Incorrect param type!"
 	#   see           IfSo
 	def IfQ(pcCondition)
-		if NOT isString(pcCondition)
+		if StzIsFunctionValue(pcCondition)
+			_bOk_ = call pcCondition(This._ContentAsValue())
+		but isString(pcCondition)
+			_bOk_ = StzWHolds(This._ContentAsValue(), pcCondition)
+		else
 			StzRaise("Incorrect param type!")
 		ok
-
-		_cCode_ = '_bOk_ = (' + pcCondition + ')'
-		eval(_cCode_)
 
 		if _bOk_
 			return This
@@ -7757,15 +7777,18 @@ class stzObject
 			_cCc_ = pRule
 			_cCc_ = StzReplace(_cCc_, "{", " ")
 			_cCc_ = StzReplace(_cCc_, "}", " ")
-			_cCc_ = StzReplace(_cCc_, "@string", "_vCv_")
-			_cCc_ = StzReplace(_cCc_, "@number", "_vCv_")
-			_cCc_ = StzReplace(_cCc_, "@object", "_vCv_")
-			_cCc_ = StzReplace(_cCc_, "@list", "_vCv_")
-			_cCc_ = StzReplace(_cCc_, "@item", "_vCv_")
-			_cCc_ = StzReplace(_cCc_, "@", "_vCv_")
+			# all of them become the W engine's @item, which judges the
+			# condition without running it
+			_cCc_ = StzReplaceCS(_cCc_, "@string", char(1), 0)
+			_cCc_ = StzReplaceCS(_cCc_, "@number", char(1), 0)
+			_cCc_ = StzReplaceCS(_cCc_, "@object", char(1), 0)
+			_cCc_ = StzReplaceCS(_cCc_, "@list", char(1), 0)
+			_cCc_ = StzReplaceCS(_cCc_, "@item", char(1), 0)
+			_cCc_ = StzReplace(_cCc_, "@", char(1))
+			_cCc_ = StzReplace(_cCc_, char(1), "@item")
 			_bCh_ = 0
 			try
-				eval("_bCh_ = ( " + _cCc_ + " )")
+				_bCh_ = StzWHolds(_vCv_, _cCc_)
 			catch
 				StzRaise("Invalid constraint condition: " + pRule)
 			done

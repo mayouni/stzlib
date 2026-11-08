@@ -389,17 +389,14 @@ class stzChainOfTruth from stzObject
 
 				# The wrapped object is asked directly: a call of the global _( ) here would
 				# read the _ attribute of this class instead and die with R13.
-				_cCode_ = 'bResult = This.StzObjectQ().Is' + pThing
-				eval(_cCode_)
+				_aCall_ = StzParseCallText(pThing)
+				bResult = StzCallMethodOn(This.StzObjectQ(), "Is" + _aCall_[1], _aCall_[2])
 
 			else
-				# Case of an eventual function call
-				_cCode_ = pThing
-				try
-					eval(_cCode_)
-				catch
-					bResult = 0
-				done
+				# Any other text is not run: it is not a name or a call, so the
+				# answer is 0 (the eval that stood here answered 0 when the text
+				# did not run, and left the answer unset when it did)
+				bResult = 0
 			ok
 
 		# Case of a list of strings
@@ -482,100 +479,23 @@ class stzChainOfTruth from stzObject
 	#
 	#   pThing     what to test, as for Is
 	#   returns    the chain itself; close it with the _ attribute to read 1 or 0
-	#   warning    the form 'LetterOf("HUSSEIN")' raises error R3 Calling Function without
-	#              definition: functionnamefinishes..., because the helper it calls has another name
+	#   warning    the form 'LetterOf("HUSSEIN")' -- a name ending in Of or In, called on one value --
+	#              is refused by name: its meaning (H is a letter of HUSSEIN, and HUSSEIN has
+	#              other letters) was never built. Until 2026-11-08 the same form raised error R3,
+	#              from helpers that do not exist, before reaching the two evals it would have run.
 	#   see        Is, IsNotA, IsNotAn
 	def IsA(pThing)
 
-		# Captures expressions like this: _("H").IsA('LetterOf("HUSSEIN")')._
-		# Returns 0 for any other expression.
+		if isString(pThing) and StzRight(pThing, 1) = ")" and
+		   StzFindFirst("(", pThing) > 1
 
-		# Managing the special semantic meaning of IsA()
-		if isString(pThing) and
-		   (StzFindFirst("(", pThing) > 1 and StzFindFirst(")", pThing) > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and StzFindFirst("(", pThing) < StzFindFirst(")", pThing) and StzRight(pThing, 1) = ")") and
-		   FunctionNameFinishesWithOneOfThese( pThing, [ "in", "of" ] ) and
-		   FunctionParamTypeIsOneOfThese( pThing, [ "STRING", "LIST" ] )
-
-			/*
-			IsA() has a special semantic meaning that we should
-			manage with care. Let's explain it by example:
-
-			_("H").IsA('LetterOf("HUSSEIN")')._
-
-			--> Should return 1, because H is one of the
-			letters of the string HUSSEIN: There is at least
-			one other letter in addition to H, so IsA('Letter')
-			becomes semantically relevant.)
-
-			However, when we say:
-			_("H").IsA('LetterOf("---H---")')._
-
-			--> This returns 0, Because H is the only, and only
-			letter, in the string HUSSEIN: IsA() is then
-			semantically NOT relevant!
-			*/
-
-			if This.ShouldReturnFalse()
-				This.SetChainToReturn(0)
-				return This
+			_cName_ = StzLower(StzLeft(pThing, StzFindFirst("(", pThing) - 1))
+			if StzRight(_cName_, 2) = "of" or StzRight(_cName_, 2) = "in"
+				StzRaise("Can't test IsA('" + pThing + "')! The form Name(value) ending in Of or In is not built; test the parts with Is().")
 			ok
-	
-			@bNegateNext = 0
-
-			# Avoiding that the method name be the same as isNumber(),
-			# isString(), isList() or isObject() which are preserved
-			# by Ring (instead we have IsAString(), IsANumber(),
-			# IsAList(), and IsAnObject methods)
-
-			_cFuncName_ = FunctionName(pThing)
-
-			_cTempType_ = StzUpper(StzLeft(_cFuncName_, StzLen(_cFuncName_) - 2))
-			if _cTempType_ = "NUMBER" or _cTempType_ = "STRING" or _cTempType_ = "LIST"
-				_cFuncName_ = "A" + _cFuncName_
-
-			but _cTempType_ = "OBJECT"
-				_cFuncName_ = "An" + _cFuncName_
-			
-			ok
-
-			_cFunCode_ = _cFuncName_ + '(' + FunctionParam(pThing) + ')'
-			_cCode_ = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + _cFunCode_
-	
-			#--> Example of generated code:
-			# bResult = _("H").Q.IsLetterOf("HUSSEIN")
-
-			# Which invoques the IsLetterOf() method from stzString
-
-			# Now, we evaluate that code and get 1 or 0
-			# as produced, normally, by the @ softanza object
-			
-			eval(_cCode_)
-
-			# Let's leverage the result we got to apply the sepeciefic
-			# semantics of IsA() as explained above
-
-			_cValue_ = FunctionParam(pThing)
-			_cMethod_ = StzLeft(_cFuncName_, StzLen(_cFuncName_) - 2)
-			_cIsMethod_ = "is" + _cMethod_
-			_cIsMethodCall_ = _cIsMethod_ + "()"
-			_cCode_ = "bPass = _(" + ComputableForm(_cValue_) + ").Q.NumberOfItemsW('{ _(@item).Q." + _cIsMethodCall_ + " }') > 1"
-
-				eval(_cCode_)
-	
-
-			if bResult = 1 and bPass
-				This.SetChainToReturn(1)
-			else
-				This.SetChainToReturn(0)
-			ok
-	
-			return This			
-
-		# In all other cases, the IsA() behaves exactly like Is()
-		else
-			return This.Is(pThing)
-
 		ok
+
+		return This.Is(pThing)
 
 		# Raises error R24 on every call, because its body reads the name pThing while its parameter is called pcThing.
 		#
@@ -672,14 +592,9 @@ class stzChainOfTruth from stzObject
 
 		pcMethod = StringSimplified(pcMethod)
 
-		_cCode_ = 'bResult = This.StzObjectQ().' + pcMethod
-
-		if NOT (StzFindFirst("(", pcMethod) > 1 and StzFindFirst(")", pcMethod) > 0 and StringNumberOfOccurrence(pcMethod, "(") = 1 and StringNumberOfOccurrence(pcMethod, ")") = 1 and StzFindFirst("(", pcMethod) < StzFindFirst(")", pcMethod) and StzRight(pcMethod, 1) = ")")
-			_cCode_ += "()"
-		ok
-
 		try
-			eval(_cCode_)
+			_aCall_ = StzParseCallText(pcMethod)
+			bResult = StzCallMethodOn(This.StzObjectQ(), _aCall_[1], _aCall_[2])
 		catch
 			StzRaise("Syntax Error. check the code you provided as a param of Which()...")
 		done
@@ -713,13 +628,12 @@ class stzChainOfTruth from stzObject
 
 	# Evaluates a condition on the wrapped object, such as NumberOfChars() = 4, tags the chain with the answer and returns it.
 	#
-	#   pcCondition   a Ring condition about the wrapped object, written without braces and starting
-	#                 with one of its methods
+	#   pcCondition   a call of one of the wrapped object's methods, compared or not to a literal:
+	#                 NumberOfChars() = 4, IsEven, Contains("a"); braces around it are allowed
 	#   returns       the chain itself; close it with the _ attribute to read 1 or 0
-	#   note          Having and That are the same call
-	#   warning       a condition between braces, as '{ NumberOfChars() = 4 }', raises Syntax error!
-	#                 Check the condition, because the braces are sent to the evaluator; an invalid
-	#                 condition raises the same error
+	#   note          Having and That are the same call; nothing in the condition is run as code
+	#   warning       any other condition -- a variable, an expression on both sides, two calls --
+	#                 raises Syntax error!, as an invalid condition always did
 	#   see           Which, Containing, get_
 	def Where(pcCondition)
 		/* Example
@@ -744,14 +658,8 @@ class stzChainOfTruth from stzObject
 
 		_cCondition_ = StringSimplified(pcCondition)
 
-		_cCode_ = "if This.StzObjectQ()." + _cCondition_ + char(10) +
-			"	" + "bResult = 1" + char(10) +
-			"else" + char(10) +
-			"	bResult = 0" + char(10) +
-			"ok"
-
 		try
-			eval(_cCode_)
+			bResult = _StzChainHolds(This.StzObjectQ(), _cCondition_)
 		catch
 			StzRaise("Syntax error! Check the condition you provided in the parma.")
 		done
@@ -980,8 +888,8 @@ class stzChainOfTruth from stzObject
 	#              false when n is not a whole number from 1 to 2147483647, when there is no item at
 	#              n, or when pcThing does not fit the held value
 	#   note       the letter of a text is a codepoint, not a byte, so the 2nd letter of an accented
-	#              text is whole; the call text is evaluated as Ring code, so pass only text you wrote,
-	#              and a call that cannot be evaluated raises a message that names it
+	#              text is whole; the call is read as a name and literal values, never run as code, and
+	#              a call that cannot be read or run raises a message that names it
 	#   see        st, nd, rd, th
 	#   example    ? _(7).Nth('LetterOf("HUSSEIN")')._
 	#              #--> N
@@ -1009,16 +917,9 @@ class stzChainOfTruth from stzObject
 				StzRaise("Nth expects a call such as 'LetterOf(" + char(34) + "HUSSEIN" + char(34) + ")' and got: " + pcThing)
 			ok
 
-			_cRest_ = StzMid(_cCall_, _nParen_ + 1, StzLen(_cCall_) - _nParen_)
-			_cSep_ = ", "
-			if StzLeft(ring_trim(_cRest_), 1) = ")"
-				_cSep_ = ""
-			ok
-
-			_cCode_ = "_xNth_ = Nth" + StzLeft(_cCall_, _nParen_) + _nRank_ + _cSep_ + _cRest_
-
 			try
-				eval(_cCode_)
+				_aCall_ = StzParseCallText(_cCall_)
+				_xNth_ = _StzCallNthFunction("Nth" + _aCall_[1], _nRank_, _aCall_[2])
 			catch
 				StzRaise("Nth could not run the call you provided: " + pcThing)
 			done
@@ -1250,3 +1151,83 @@ class stzChainOfTruth from stzObject
 		ok
 
 		return 0
+
+# 1 when the condition holds on poObject. The condition is a call of one of its methods, compared
+# or not to a literal: NumberOfChars() = 4, IsEven, Contains("a"), Size() >= 2. Nothing else is
+# read, and nothing in it is run as code.
+func _StzChainHolds(poObject, pcCondition)
+	cCond = trim(pcCondition)
+	if left(cCond, 1) = "{" and right(cCond, 1) = "}"
+		cCond = trim(substr(cCond, 2, len(cCond) - 2))
+	ok
+	cQuote = ""
+	nDepth = 0
+	nLen = len(cCond)
+	nOp = 0
+	cOp = ""
+	for i = 1 to nLen
+		c = cCond[i]
+		if cQuote != ""
+			if c = cQuote
+				cQuote = ""
+			ok
+			loop
+		ok
+		if c = '"' or c = "'" or c = "`"
+			cQuote = c
+		but c = "(" or c = "["
+			nDepth++
+		but c = ")" or c = "]"
+			nDepth--
+		but nDepth = 0 and (c = "=" or c = "<" or c = ">" or c = "!")
+			nOp = i
+			cOp = c
+			if i < nLen and cCond[i + 1] = "="
+				cOp += "="
+			ok
+			exit
+		ok
+	next
+	if nOp = 0
+		aCall = StzParseCallText(cCond)
+		return StzCallMethodOn(poObject, aCall[1], aCall[2]) = 1
+	ok
+	aCall = StzParseCallText(left(cCond, nOp - 1))
+	xLeft = StzCallMethodOn(poObject, aCall[1], aCall[2])
+	xRight = StzLiteralValue(substr(cCond, nOp + len(cOp)))
+	switch cOp
+	on "="
+		return xLeft = xRight
+	on "=="
+		return xLeft = xRight
+	on "!="
+		return xLeft != xRight
+	on "<"
+		return xLeft < xRight
+	on ">"
+		return xLeft > xRight
+	on "<="
+		return xLeft <= xRight
+	on ">="
+		return xLeft >= xRight
+	off
+	StzRaise("Can't read the condition '" + pcCondition + "'! The comparison is not one of = != < > <= >=.")
+
+# The answer of the global function pcFunc called with the rank first, then the values of paArgs
+# (at most 3). The name is checked and called by name, never written into code.
+func _StzCallNthFunction(pcFunc, pnRank, paArgs)
+	if NOT StzIsPlainIdentifier(pcFunc)
+		StzRaise("Can't call '" + pcFunc + "'! It is not a plain name.")
+	ok
+	f = pcFunc
+	switch len(paArgs)
+	on 0
+		return call f(pnRank)
+	on 1
+		return call f(pnRank, paArgs[1])
+	on 2
+		return call f(pnRank, paArgs[1], paArgs[2])
+	on 3
+		return call f(pnRank, paArgs[1], paArgs[2], paArgs[3])
+	off
+	StzRaise("Can't call '" + pcFunc + "'! At most 3 values follow the rank.")

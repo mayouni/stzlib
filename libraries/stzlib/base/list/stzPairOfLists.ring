@@ -78,46 +78,27 @@ class stzPairOfLists from stzListOfLists
 
 	# Returns the items of the two lists taken in turn: one of the longer list, one of the other.
 	#
-	#   returns    nothing today: it raises error R24, except for two empty lists, which answer [ ]
-	#   warning    Raises error R24 "Using uninitialized variable: aresult" today for any non-empty
-	#              lists, instead of the interleaved list, because its generated code appends to
-	#              aResult while the variable is named _aResult_ and refers to the lists by names it
-	#              cannot see
+	#   returns    a list; when one list is longer, its extra items come last
+	#   note       with lists of equal length the first list leads: [1,2] and ["a","b"] give
+	#              [ 1, "a", 2, "b" ]
 	#   see        Associate
 	def Alternate()
-		_aResult_ = []
-
-		_nLen1_ = len( This.FirstList() )
-		_nlen2_ = len( This.SecondList() )
-
-		_nMax_ = @Max([ _nLen1_, _nlen2_ ])
-
-		_cBiggerList_ = ""
-		_cOtherList_ = ""
-
-		if _nLen1_ = _nMax_
-			_cBiggerList_ = :FirstList
-			_cOtherList_ = :SecondList
-
-		else
-			_cBiggerList_ = :SecondList
-			_cOtherList_ = :FirstList
+		aFirst = @aList1
+		aSecond = @aList2
+		if len(aSecond) > len(aFirst)
+			aFirst = @aList2
+			aSecond = @aList1
 		ok
-
-		_cBiggerList_ += "()"
-		_cOtherList_ += "()"
-
-		cCode =
-			"for i = 1 to len(This." + _cBiggerList_ + ")" + char(10) +
-			"	aResult + This." + _cBiggerList_ + "[i]" + char(10) +
-			"	if i <= len(This." + _cOtherList_ + ")" + char(10) +
-			"		aResult + " + _cOtherList_ + "[i]" + char(10) +
-			"	ok" + char(10) +
-			"next"
-		
-		eval(cCode)
-
-		return _aResult_
+		nFirst = len(aFirst)
+		nSecond = len(aSecond)
+		aResult = []
+		for i = 1 to nFirst
+			aResult + aFirst[i]
+			if i <= nSecond
+				aResult + aSecond[i]
+			ok
+		next
+		return aResult
 
 		def AlternateQ()
 			return new stzList( This.Alternate() )

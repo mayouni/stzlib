@@ -256,3 +256,163 @@ func _StzValuesOfItems(paItems, pExpr)
 	ok
 	return StzWValues(paItems, pExpr)
 
+# Calls the method named pcMethod on poObject with the values of paArgs, and returns its answer.
+#
+#   poObject   the object
+#   pcMethod   a method NAME, alone (Content, not Content()); anything else is refused
+#   paArgs     the arguments as values, at most 4; none is put into code
+#   returns    what the method returns
+#   note       the one text run here is the checked name between fixed code -- the checked form
+#              haro check admits; a later Haro dispatch table replaces even that
+#   see        StzIsPlainIdentifier
+func StzCallMethodOn(poObject, pcMethod, paArgs)
+	if NOT isobject(poObject)
+		StzRaise("Can't call the method! poObject must be an object.")
+	ok
+	if NOT islist(paArgs)
+		paArgs = [ paArgs ]
+	ok
+	cName = "" + pcMethod
+	if right(cName, 2) = "()"
+		cName = left(cName, len(cName) - 2)
+	ok
+	if NOT StzIsPlainIdentifier(cName)
+		StzRaise("Can't call the method! '" + cName + "' is not a plain name, and a name is all that is run here.")
+	ok
+	nArgs = len(paArgs)
+	if nArgs > 4
+		StzRaise("Can't call the method! At most 4 arguments are passed.")
+	ok
+	aArgCode = [ "", "paArgs[1]", "paArgs[1], paArgs[2]", "paArgs[1], paArgs[2], paArgs[3]",
+		"paArgs[1], paArgs[2], paArgs[3], paArgs[4]" ]
+	xResult = ""
+	eval("xResult = poObject." + cName + "(" + aArgCode[nArgs + 1] + ")")
+	return xResult
+
+# Reads a call written as text -- Name, Name() or Name(arg, arg ...) -- into its name and the
+# VALUES of its arguments, running nothing.
+#
+#   pcText     the call text; each argument is a literal: a number, a quoted text, a :symbol, or
+#              a list of literal data
+#   returns    [ cName, aArgs ]
+#   note       anything else -- a variable, an expression, a second call -- is refused by name
+#   see        StzLiteralValue, StzCallMethodOn
+func StzParseCallText(pcText)
+	if NOT isstring(pcText)
+		StzRaise("Can't read the call! It must be a text.")
+	ok
+	cText = trim(pcText)
+	nOpen = substr(cText, "(")
+	if nOpen = 0
+		if NOT StzIsPlainIdentifier(cText)
+			StzRaise("Can't read the call '" + pcText + "'! A name alone, or Name(literal values), is read.")
+		ok
+		return [ cText, [] ]
+	ok
+	cName = trim(left(cText, nOpen - 1))
+	if NOT StzIsPlainIdentifier(cName) or right(cText, 1) != ")"
+		StzRaise("Can't read the call '" + pcText + "'! A name alone, or Name(literal values), is read.")
+	ok
+	cInside = substr(cText, nOpen + 1, len(cText) - nOpen - 1)
+	aArgs = []
+	cArg = ""
+	cQuote = ""
+	nDepth = 0
+	nLen = len(cInside)
+	for i = 1 to nLen
+		c = cInside[i]
+		if cQuote != ""
+			if c = cQuote
+				cQuote = ""
+			ok
+			cArg += c
+			loop
+		ok
+		if c = '"' or c = "'" or c = "`"
+			cQuote = c
+		but c = "["
+			nDepth++
+		but c = "]"
+			nDepth--
+		but c = "," and nDepth = 0
+			aArgs + StzLiteralValue(cArg)
+			cArg = ""
+			loop
+		ok
+		cArg += c
+	next
+	if cQuote != "" or nDepth != 0
+		StzRaise("Can't read the call '" + pcText + "'! A quote or a bracket is not closed.")
+	ok
+	if trim(cArg) != "" or len(aArgs) > 0
+		aArgs + StzLiteralValue(cArg)
+	ok
+	return [ cName, aArgs ]
+
+# The value a literal written as text stands for: a number, a quoted text, a :symbol, or a list
+# of literal data. Anything else is refused by name.
+func StzLiteralValue(pcText)
+	cText = trim("" + pcText)
+	nLen = len(cText)
+	if nLen = 0
+		StzRaise("Can't read the value! It is empty.")
+	ok
+	c1 = cText[1]
+	if nLen >= 2 and (c1 = '"' or c1 = "'" or c1 = "`") and cText[nLen] = c1
+		cIn = substr(cText, 2, nLen - 2)
+		if substr(cIn, c1) = 0
+			return cIn
+		ok
+	ok
+	if c1 = ":" and StzIsPlainIdentifier(substr(cText, 2))
+		return substr(cText, 2)
+	ok
+	if c1 = "["
+		if NOT StzIsPlainListLiteral(cText)
+			StzRaise("Can't read the value '" + cText + "'! A list is read only when it holds literal data.")
+		ok
+		aValue = []
+		eval("aValue = " + cText)
+		return aValue
+	ok
+	bDigit = 0
+	bNumber = 1
+	for i = 1 to nLen
+		c = cText[i]
+		if c >= "0" and c <= "9"
+			bDigit = 1
+		but NOT (c = "." or (i = 1 and (c = "-" or c = "+")))
+			bNumber = 0
+			exit
+		ok
+	next
+	if bNumber and bDigit
+		return number(cText)
+	ok
+	cLow = lower(cText)
+	if cLow = "true"
+		return 1
+	ok
+	if cLow = "false"
+		return 0
+	ok
+	StzRaise("Can't read the value '" + cText + "'! A number, a quoted text, a :symbol or a list of literal data is read.")
+
+# 1 when the W condition holds for the one value pValue (named @item), 0 when it does not.
+#
+#   pValue     the value the condition is about
+#   pcCond     a W condition as text
+#   returns    1 or 0
+#   warning    a condition the W engine cannot judge RAISES, naming the WF form -- it is never
+#              read as false, and never run as code
+#   see        StzWValues, StzWPositions
+func StzWHolds(pValue, pcCond)
+	aV = StzWValues([ pValue ], pcCond)
+	xV = aV[1]
+	if isNumber(xV)
+		return xV != 0
+	ok
+	if isString(xV)
+		return xV != ""
+	ok
+	return 1
