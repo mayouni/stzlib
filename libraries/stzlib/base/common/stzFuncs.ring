@@ -2334,29 +2334,23 @@ func TheseStzObjectsQ(p)
 #===
 
 func @ForEach(p, pIn)
-	/* EXAMPLES
+	/* EXAMPLES -- the loop body is a function of the item's values (Haro runs no text as code)
 
-	@ForEach( :Item, :In = [ "a", "b", "c" ] ) { X('
-		? v(:Item)
-	') }
+	@ForEach( :Item, :In = [ "a", "b", "c" ] ) { X(func item { ? item }) }
 	#--> "a"
 	#--> "b"
 	#--> "c"
 
 	? ""
 
-	@ForEach( :Char, :In = "ABC" ) { X('
-		? v(:Char)
-	') }
+	@ForEach( :Char, :In = "ABC" ) { X(func c { ? c }) }
 	#--> "A"
 	#--> "B"
 	#--> "C"
 
 	? ""
 
-	@ForEach( [ :Char, :Number ], :In = [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ] ) { X('
-		? v(:Char) + v(:Number)
-	') }
+	@ForEach( [ :Char, :Number ], :In = [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ] ) { X(func c, n { ? c + n }) }
 	#--> "A1"
 	#--> "B2"
 	#--> "C3'
@@ -5923,26 +5917,18 @@ class stzForEachObjectOld from stzObject
 		def HowManyValue()
 			return This.NumberOfIterations()
 
-	# Runs a piece of Ring code once for each item, with each loop variable bound to that item's value.
+	# Calls a function once for each item, with the item's values as its arguments, one per loop variable.
 	#
-	#   pcCode     the Ring code as text, such as '? A + B'
+	#   pFunc      a function, such as func a, b { ? a + b }; code as text is refused (Haro runs no
+	#              text as code)
 	#   returns    nothing
 	#   see        Vars, Values
-	def @(pcCode)
-
-		_nValuesLen_2 = len(@aValues)
-		for i = 1 to _nValuesLen_2
-
-			_nValuesiLen_3 = len(@aValues[i])
-			for j = 1 to _nValuesiLen_3
-				_cCode_ = @acVars[j] + ' = @aValues[i][j]'
-				eval(_cCode_)
-			next
-
-			eval(pcCode)
+	def @(pFunc)
+		StzRequireFunction(pFunc, "The loop body")
+		nItems = len(@aValues)
+		for i = 1 to nItems
+			_StzCallWithValues(pFunc, @aValues[i])
 		next
-
-		return
 
 # Runs a piece of Ring code once for each item of a list, binding the item's values to named loop variables.
 #
@@ -6246,9 +6232,9 @@ class stzForEachObject from stzObject
 		def @IterateOnLyOnThesePositions(panPos)
 			@SetIterations(panPos)
 
-	# Runs a piece of Ring code once for each item in scope, with the loop variables set to that item's values.
+	# Calls the loop's function once for each item in scope, with that item's values as its arguments.
 	#
-	#   pcCode     the Ring code as text, such as '? v(:Item)'
+	#   pcCode     a function, called with the item's values, one argument per loop variable
 	#   returns    nothing
 	#   note       the code is evaluated in the method, so collect results in a global variable
 	#   warning    with several variables each name is a variable inside the code (Char, Number);
@@ -6263,53 +6249,48 @@ class stzForEachObject from stzObject
 			return
 		ok
 
-		_nLen_ = len(@Iterations)
+		This._ExecAt(@Iterations, pcCode)
 
-		if This.@NumberOfVars() = 1
+	# Calls the loop's function at each of the positions, in order, with that item's values.
+	#
+	#   panPos     the positions
+	#   pFunc      the function; one argument per loop variable
+	#   returns    nothing
+	#   see        Exec, ExecN
+	def _ExecAt(panPos, pFunc)
+		StzRequireFunction(pFunc, "The loop body")
+		nPos = len(panPos)
+		bOne = ( This.@NumberOfVars() = 1 )
+		for i = 1 to nPos
+			@i = panPos[i]
+			if bOne
+				_StzCallWithValues(pFunc, [ @aValues[@i] ])
+			else
+				_StzCallWithValues(pFunc, @aValues[@i])
+			ok
+		next
 
-			for i = 1 to _nLen_
-				@i = @Iterations[i]
-				_cCode_ = @acVars[1] + ' = @aValues[' + @Iterations[i] + ']'
-				eval(_cCode_)
-				eval(pcCode)
-			next
-
-		else
-
-			for i = 1 to _nLen_
-				@i = @Iterations[i]
-				_nValuesiLen_2 = len(@aValues[@i])
-				for j = 1 to _nValuesiLen_2
-					_cCode_ = @acVars[j] + ' = @aValues[' + @Iterations[i] + '][' + j + ']'
-					eval(_cCode_)
-				next
-	
-				eval(pcCode)
-			next
-
-		ok
-
-		# Runs a piece of Ring code once for each item in scope, with the loop variables set to that item's values.
+		# Calls the loop's function once for each item in scope, with that item's values as its arguments.
 		#
-		#   pcCode     the Ring code as text
+		#   pcCode     a function, called with the item's values
 		#   returns    nothing
 		#   warning    with a single loop variable use v(:Name), as the name itself is not bound
 		#   see        Exec
 		def Execute(pcCode)
 			This.Exec(pcCode)
 
-		# Runs a piece of Ring code once for each item in scope, with the loop variables set to that item's values.
+		# Calls the loop's function once for each item in scope, with that item's values as its arguments.
 		#
-		#   pcCode     the Ring code as text
+		#   pcCode     a function, called with the item's values
 		#   returns    nothing
 		#   warning    with a single loop variable use v(:Name), as the name itself is not bound
 		#   see        Exec
 		def Run(pcCode)
 			This.Exec(pcCode)
 
-		# Runs a piece of Ring code once for each item in scope, with the loop variables set to that item's values.
+		# Calls the loop's function once for each item in scope, with that item's values as its arguments.
 		#
-		#   pcCode     the Ring code as text
+		#   pcCode     a function, called with the item's values
 		#   returns    nothing
 		#   warning    with a single loop variable use v(:Name), as the name itself is not bound
 		#   see        Exec
@@ -6319,19 +6300,19 @@ class stzForEachObject from stzObject
 		def _(pcCode)
 			This.Exec(pcCode)
 
-		# Runs a piece of Ring code once for each item in scope, with the loop variables set to that item's values.
+		# Calls the loop's function once for each item in scope, with that item's values as its arguments.
 		#
-		#   pcCode     the Ring code as text
+		#   pcCode     a function, called with the item's values
 		#   returns    nothing
 		#   warning    with a single loop variable use v(:Name), as the name itself is not bound
 		#   see        Exec
 		def X(pcCode)
 			This.Exec(pcCode)
 
-	# Runs a piece of Ring code only for the item at one position, or for the items at a list of positions, in the order given.
+	# Calls the loop's function only for the item at one position, or for the items at a list of positions, in the order given.
 	#
 	#   _n_        a position or a list of positions in the data
-	#   pcCode     the Ring code as text
+	#   pcCode     a function, called with the item's values
 	#   returns    nothing
 	#   note       the positions given here do not change the scope that Exec uses
 	#   warning    a position given as text does nothing and raises no error; with a single loop
@@ -6347,54 +6328,30 @@ class stzForEachObject from stzObject
 			_anPos_ = _n_
 		ok
 
-		_nLen_ = len(_anPos_)
+		This._ExecAt(_anPos_, pcCode)
 
-		if This.@NumberOfVars() = 1
-
-			for i = 1 to _nLen_
-				@i = _anPos_[i]
-				_cCode_ = @acVars[1] + ' = @aValues[' + _anPos_[i] + ']'
-				eval(_cCode_)
-				eval(pcCode)
-			next
-
-		else
-
-			for i = 1 to _nLen_
-				@i = _anPos_[i]
-				_nValuesiLen_ = len(@aValues[@i])
-				for j = 1 to _nValuesiLen_
-					_cCode_ = @acVars[j] + ' = @aValues[' + _anPos_[i] + '][' + j + ']'
-					eval(_cCode_)
-				next
-	
-				eval(pcCode)
-			next
-
-		ok
-
-		# Runs a piece of Ring code only for the item at one position, or for the items at a list of positions.
+		# Calls the loop's function only for the item at one position, or for the items at a list of positions.
 		#
 		#   _n_        a position or a list of positions in the data
-		#   pcCode     the Ring code as text
+		#   pcCode     a function, called with the item's values
 		#   returns    nothing
 		#   see        ExecN
 		def ExecuteN(_n_, pcCode)
 			This.ExecN(_n_, pcCode)
 
-		# Runs a piece of Ring code only for the item at one position, or for the items at a list of positions.
+		# Calls the loop's function only for the item at one position, or for the items at a list of positions.
 		#
 		#   _n_        a position or a list of positions in the data
-		#   pcCode     the Ring code as text
+		#   pcCode     a function, called with the item's values
 		#   returns    nothing
 		#   see        ExecN
 		def RunN(_n_, pcCode)
 			This.ExecN(_n_, pcCode)
 
-		# Runs a piece of Ring code only for the item at one position, or for the items at a list of positions.
+		# Calls the loop's function only for the item at one position, or for the items at a list of positions.
 		#
 		#   _n_        a position or a list of positions in the data
-		#   pcCode     the Ring code as text
+		#   pcCode     a function, called with the item's values
 		#   returns    nothing
 		#   see        ExecN
 		def @n(_n_, pcCode)
@@ -6403,10 +6360,10 @@ class stzForEachObject from stzObject
 		def _n(_n_, pcCode)
 			This.ExecN(_n_, pcCode)
 
-		# Runs a piece of Ring code only for the item at one position, or for the items at a list of positions.
+		# Calls the loop's function only for the item at one position, or for the items at a list of positions.
 		#
 		#   _n_        a position or a list of positions in the data
-		#   pcCode     the Ring code as text
+		#   pcCode     a function, called with the item's values
 		#   returns    nothing
 		#   see        ExecN
 		def Xn(_n_, pcCode)
@@ -6430,3 +6387,19 @@ class stzForEachObject from stzObject
 #WARNING
 # DO NOT ADD GLOBAL FUNCTIONS HERE BECAUSE THIS IS A CLASS REGION
 
+# Calls pFunc with the values of paValues as its arguments (at most 4), for the @ForEach loops.
+func _StzCallWithValues(pFunc, paValues)
+	switch len(paValues)
+	on 0
+		call pFunc()
+	on 1
+		call pFunc(paValues[1])
+	on 2
+		call pFunc(paValues[1], paValues[2])
+	on 3
+		call pFunc(paValues[1], paValues[2], paValues[3])
+	on 4
+		call pFunc(paValues[1], paValues[2], paValues[3], paValues[4])
+	other
+		StzRaise("Can't call the loop body! At most 4 loop variables are passed.")
+	off

@@ -3652,18 +3652,46 @@ class stzDataSet from stzObject
     #  CORE INTERPOLATION METHODS   #
     #===============================#
 
+    # 1 when a rule's condition holds for this dataset, 0 when it does not or cannot be read.
+    #
+    #   cCondition   a function of the dataset, or a text such as "Count() >= 5 and abs(Skewness())
+    #                > $nSkewnessThreshold" -- the dataset's methods, the thresholds named in
+    #                _NamedThresholds, and the grammar of StzMethodExprValue
+    #   returns      1 or 0
+    #   note         the text is read, never run as code (Haro runs no text as code)
+    #   see          _NamedThresholds
     def _EvaluateCondition(cCondition)
+        if StzIsFunctionValue(cCondition)
+            return call cCondition(This)
+        ok
         if cCondition = @trim("")
             StzRaise("Can't evaluate the condition! cCondition must not be be an empty string.")
         ok
-        
+
         try
-            _cCode_ = '_bResult_ = (' + cCondition + ')'
-            eval(_cCode_)
-            return _bResult_
+            return StzMethodExprHolds(This, cCondition, This._NamedThresholds())
         catch
             return 0
         done
+
+    # The thresholds a rule's condition may name, with their values now.
+    #
+    #   returns    a list of [ "$name", value ] pairs
+    #   see        _EvaluateCondition
+    def _NamedThresholds()
+        return [
+            [ "$nSmallSampleSizeThreshold", $nSmallSampleSizeThreshold ],
+            [ "$nSkewnessThreshold", $nSkewnessThreshold ],
+            [ "$nKurtosisThreshold", $nKurtosisThreshold ],
+            [ "$nDiversityThreshold", $nDiversityThreshold ],
+            [ "$nEntropyThreshold", $nEntropyThreshold ],
+            [ "$nMeanDifferenceThreshold", $nMeanDifferenceThreshold ],
+            [ "$nVarThreshold", $nVarThreshold ],
+            [ "$nCorrelationThreshold", $nCorrelationThreshold ],
+            [ "$nOutlierThreshold", $nOutlierThreshold ],
+            [ "$nNormalityThreshold", $nNormalityThreshold ],
+            [ "$nMovingAverageWindow", $nMovingAverageWindow ]
+        ]
 
     def _InterpolateTemplate(_cTemplate_)
         return This._InterpolateContent(_cTemplate_)
@@ -3717,8 +3745,8 @@ class stzDataSet from stzObject
 	        
 	        # Extract method name without braces
 	        _cMethod_ = _oTempStr_.Section(_nStart_ + 1, _nEnd_ - 1)
-	        _cCode_ = '_value_ = ' + _cMethod_
-			eval(_cCode_)
+	        # read by the grammar of StzMethodExprValue, never run as code
+	        _value_ = StzMethodExprValue(This, _cMethod_, This._NamedThresholds())
 	        _cValue_ = This._FormatValue(_value_)
 	        _oTempStr_.ReplaceSection(_nStart_, _nEnd_, _cValue_)
 
@@ -4344,21 +4372,8 @@ class stzDataSet from stzObject
             return "skipped (needs a second dataset)"
         ok
 
-        # Build execution code
-        _cCode_ = "_result_ = " + _cFunction_ + "("
-        if len(_aArgs_) > 0
-            _nArgsLen_2 = len(_aArgs_)
-            for i = 1 to _nArgsLen_2
-                _cCode_ += _aArgs_[i]
-                if i < len(_aArgs_)
-                    _cCode_ += ", "
-                ok
-            next
-        ok
-        _cCode_ += ")"
-        
-        eval(_cCode_)
-        return _result_
+        # the step names a method of this dataset, or a function; its arguments are values
+        return StzCallMethodOrFunction(This, _cFunction_, _aArgs_)
 
     # Functions that require a second/paired dataset as an argument.
     def _NeedsPairedDataset(_cFunction_)

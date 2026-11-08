@@ -659,7 +659,7 @@ class stzChainOfTruth from stzObject
 		_cCondition_ = StringSimplified(pcCondition)
 
 		try
-			bResult = _StzChainHolds(This.StzObjectQ(), _cCondition_)
+			bResult = StzMethodExprHolds(This.StzObjectQ(), _cCondition_, [])
 		catch
 			StzRaise("Syntax error! Check the condition you provided in the parma.")
 		done
@@ -1151,67 +1151,6 @@ class stzChainOfTruth from stzObject
 		ok
 
 		return 0
-
-# 1 when the condition holds on poObject. The condition is a call of one of its methods, compared
-# or not to a literal: NumberOfChars() = 4, IsEven, Contains("a"), Size() >= 2. Nothing else is
-# read, and nothing in it is run as code.
-func _StzChainHolds(poObject, pcCondition)
-	cCond = trim(pcCondition)
-	if left(cCond, 1) = "{" and right(cCond, 1) = "}"
-		cCond = trim(substr(cCond, 2, len(cCond) - 2))
-	ok
-	cQuote = ""
-	nDepth = 0
-	nLen = len(cCond)
-	nOp = 0
-	cOp = ""
-	for i = 1 to nLen
-		c = cCond[i]
-		if cQuote != ""
-			if c = cQuote
-				cQuote = ""
-			ok
-			loop
-		ok
-		if c = '"' or c = "'" or c = "`"
-			cQuote = c
-		but c = "(" or c = "["
-			nDepth++
-		but c = ")" or c = "]"
-			nDepth--
-		but nDepth = 0 and (c = "=" or c = "<" or c = ">" or c = "!")
-			nOp = i
-			cOp = c
-			if i < nLen and cCond[i + 1] = "="
-				cOp += "="
-			ok
-			exit
-		ok
-	next
-	if nOp = 0
-		aCall = StzParseCallText(cCond)
-		return StzCallMethodOn(poObject, aCall[1], aCall[2]) = 1
-	ok
-	aCall = StzParseCallText(left(cCond, nOp - 1))
-	xLeft = StzCallMethodOn(poObject, aCall[1], aCall[2])
-	xRight = StzLiteralValue(substr(cCond, nOp + len(cOp)))
-	switch cOp
-	on "="
-		return xLeft = xRight
-	on "=="
-		return xLeft = xRight
-	on "!="
-		return xLeft != xRight
-	on "<"
-		return xLeft < xRight
-	on ">"
-		return xLeft > xRight
-	on "<="
-		return xLeft <= xRight
-	on ">="
-		return xLeft >= xRight
-	off
-	StzRaise("Can't read the condition '" + pcCondition + "'! The comparison is not one of = != < > <= >=.")
 
 # The answer of the global function pcFunc called with the rank first, then the values of paArgs
 # (at most 3). The name is checked and called by name, never written into code.

@@ -416,3 +416,413 @@ func StzWHolds(pValue, pcCond)
 		return xV != ""
 	ok
 	return 1
+
+# Calls pcName as a method of poObject when it has one, else as a global function, with the values
+# of paArgs -- the order an unqualified call inside a class resolves in.
+#
+#   poObject   the object
+#   pcName     a plain name; anything else is refused
+#   paArgs     the arguments as values, at most 4
+#   returns    what the method or the function returns
+#   warning    a name that is neither a method of poObject nor a function raises
+#   see        StzCallMethodOn
+func StzCallMethodOrFunction(poObject, pcName, paArgs)
+	cName = "" + pcName
+	if NOT StzIsPlainIdentifier(cName)
+		StzRaise("Can't call '" + cName + "'! It is not a plain name.")
+	ok
+	if ismethod(poObject, lower(cName))
+		return StzCallMethodOn(poObject, cName, paArgs)
+	ok
+	if NOT isfunction(cName)
+		StzRaise("Can't call '" + cName + "'! It is neither a method of the object nor a function.")
+	ok
+	f = cName
+	switch len(paArgs)
+	on 0
+		return call f()
+	on 1
+		return call f(paArgs[1])
+	on 2
+		return call f(paArgs[1], paArgs[2])
+	on 3
+		return call f(paArgs[1], paArgs[2], paArgs[3])
+	on 4
+		return call f(paArgs[1], paArgs[2], paArgs[3], paArgs[4])
+	off
+	StzRaise("Can't call '" + cName + "'! At most 4 arguments are passed.")
+
+# The value of an expression about an object's own methods, read by a closed grammar and never run.
+#
+#   poObject   the object whose methods the expression names
+#   pcExpr     the expression: numbers, quoted texts, true and false, $names from paNamed, calls of
+#              the object's methods (Count(), @.Value(), IsEven), the functions abs, sqrt, min, max,
+#              len, round, floor, ceil, lower and upper, + - * / %, = != <> < > <= >=, and, or, not,
+#              and parentheses; braces around the whole are dropped
+#   paNamed    the values a $name may read, as [ [ "$name", value ], ... ]; [] for none
+#   returns    the value
+#   note       a method is called by its checked name with the VALUES of its arguments; nothing in
+#              the text reaches eval, so a text cannot act -- a name outside this grammar is refused
+#   see        StzMethodExprHolds, StzCallMethodOn
+func StzMethodExprValue(poObject, pcExpr, paNamed)
+	oExpr = new stzMethodExpr(poObject, pcExpr, paNamed)
+	return oExpr.Value()
+
+# 1 when the expression about the object's methods holds, 0 when it does not; it raises when the
+# text is not in the grammar of StzMethodExprValue.
+func StzMethodExprHolds(poObject, pcExpr, paNamed)
+	xValue = StzMethodExprValue(poObject, pcExpr, paNamed)
+	if isNumber(xValue)
+		return xValue != 0
+	ok
+	if isString(xValue)
+		return xValue != ""
+	ok
+	return 1
+
+class stzMethodExpr
+	@oObject
+	@aNamed
+	@aTokens = []
+	@nPos = 1
+	@cText = ""
+
+	def init(poObject, pcExpr, paNamed)
+		if NOT isString(pcExpr)
+			StzRaise("Can't read the expression! It must be a text.")
+		ok
+		@oObject = poObject
+		@aNamed = paNamed
+		@cText = trim(pcExpr)
+		if len(@cText) >= 2 and left(@cText, 1) = "{" and right(@cText, 1) = "}"
+			@cText = trim(substr(@cText, 2, len(@cText) - 2))
+		ok
+		This._Tokenize()
+
+	def Value()
+		@nPos = 1
+		if len(@aTokens) = 0
+			This._Refuse("it is empty")
+		ok
+		xValue = This._Or()
+		if @nPos <= len(@aTokens)
+			This._Refuse("'" + @aTokens[@nPos][2] + "' is not expected there")
+		ok
+		return xValue
+
+	def _Refuse(pcWhy)
+		StzRaise("Can't read the expression '" + @cText + "': " + pcWhy + ".")
+
+	# tokens are [ kind, text ]: num, str, name, global, op
+	def _Tokenize()
+		@aTokens = []
+		cS = @cText
+		nLen = len(cS)
+		i = 1
+		while i <= nLen
+			c = cS[i]
+			if c = " " or c = char(9) or c = char(10) or c = char(13)
+				i++
+				loop
+			ok
+			if c = '"' or c = "'" or c = "`"
+				j = i + 1
+				while j <= nLen and cS[j] != c
+					j++
+				end
+				if j > nLen
+					This._Refuse("a quote is not closed")
+				ok
+				@aTokens + [ "str", substr(cS, i + 1, j - i - 1) ]
+				i = j + 1
+				loop
+			ok
+			if (c >= "0" and c <= "9") or (c = "." and i < nLen and cS[i + 1] >= "0" and cS[i + 1] <= "9")
+				j = i
+				while j <= nLen and ((cS[j] >= "0" and cS[j] <= "9") or cS[j] = ".")
+					j++
+				end
+				@aTokens + [ "num", substr(cS, i, j - i) ]
+				i = j
+				loop
+			ok
+			if c = "$" or c = "_" or (c >= "a" and c <= "z") or (c >= "A" and c <= "Z")
+				j = i + 1
+				while j <= nLen and (cS[j] = "_" or (cS[j] >= "a" and cS[j] <= "z") or
+				      (cS[j] >= "A" and cS[j] <= "Z") or (cS[j] >= "0" and cS[j] <= "9"))
+					j++
+				end
+				cWord = substr(cS, i, j - i)
+				if c = "$"
+					@aTokens + [ "global", lower(cWord) ]
+				else
+					@aTokens + [ "name", cWord ]
+				ok
+				i = j
+				loop
+			ok
+			if i < nLen
+				c2 = substr(cS, i, 2)
+				if c2 = "!=" or c2 = "<>" or c2 = "<=" or c2 = ">=" or c2 = "=="
+					@aTokens + [ "op", c2 ]
+					i += 2
+					loop
+				ok
+			ok
+			if c = "(" or c = ")" or c = "," or c = "+" or c = "-" or c = "*" or c = "/" or
+			   c = "%" or c = "=" or c = "<" or c = ">" or c = "!" or c = "@" or c = "."
+				@aTokens + [ "op", c ]
+				i++
+				loop
+			ok
+			This._Refuse("the character '" + c + "' is not in the grammar")
+		end
+
+	def _Peek()
+		if @nPos <= len(@aTokens)
+			return @aTokens[@nPos]
+		ok
+		return [ "end", "" ]
+
+	def _IsOp(pcOp)
+		aT = This._Peek()
+		return aT[1] = "op" and aT[2] = pcOp
+
+	def _IsWord(pcWord)
+		aT = This._Peek()
+		return aT[1] = "name" and lower(aT[2]) = pcWord
+
+	def _Expect(pcOp)
+		if NOT This._IsOp(pcOp)
+			This._Refuse("'" + pcOp + "' was expected")
+		ok
+		@nPos++
+
+	def _Truth(pValue)
+		if isNumber(pValue)
+			return pValue != 0
+		ok
+		if isString(pValue)
+			return pValue != ""
+		ok
+		return 1
+
+	def _Or()
+		xLeft = This._And()
+		while This._IsWord("or")
+			@nPos++
+			xRight = This._And()
+			xLeft = ( This._Truth(xLeft) or This._Truth(xRight) )
+		end
+		return xLeft
+
+	def _And()
+		xLeft = This._Not()
+		while This._IsWord("and")
+			@nPos++
+			xRight = This._Not()
+			xLeft = ( This._Truth(xLeft) and This._Truth(xRight) )
+		end
+		return xLeft
+
+	def _Not()
+		if This._IsWord("not") or This._IsOp("!")
+			@nPos++
+			return NOT This._Truth(This._Not())
+		ok
+		return This._Compare()
+
+	def _Compare()
+		xLeft = This._Add()
+		aT = This._Peek()
+		if aT[1] = "op" and ( aT[2] = "=" or aT[2] = "==" or aT[2] = "!=" or aT[2] = "<>" or
+		   aT[2] = "<" or aT[2] = ">" or aT[2] = "<=" or aT[2] = ">=" )
+			@nPos++
+			xRight = This._Add()
+			switch aT[2]
+			on "="  return xLeft = xRight
+			on "==" return xLeft = xRight
+			on "!=" return xLeft != xRight
+			on "<>" return xLeft != xRight
+			on "<"  return xLeft < xRight
+			on ">"  return xLeft > xRight
+			on "<=" return xLeft <= xRight
+			on ">=" return xLeft >= xRight
+			off
+		ok
+		return xLeft
+
+	def _Add()
+		xLeft = This._Mul()
+		while This._IsOp("+") or This._IsOp("-")
+			cOp = This._Peek()[2]
+			@nPos++
+			xRight = This._Mul()
+			if cOp = "+"
+				if isString(xLeft) or isString(xRight)
+					xLeft = "" + xLeft + xRight
+				else
+					xLeft = xLeft + xRight
+				ok
+			else
+				xLeft = This._Num(xLeft) - This._Num(xRight)
+			ok
+		end
+		return xLeft
+
+	def _Mul()
+		xLeft = This._Unary()
+		while This._IsOp("*") or This._IsOp("/") or This._IsOp("%")
+			cOp = This._Peek()[2]
+			@nPos++
+			xRight = This._Num(This._Unary())
+			xLeft = This._Num(xLeft)
+			if cOp = "*"
+				xLeft = xLeft * xRight
+			but cOp = "/"
+				if xRight = 0
+					This._Refuse("it divides by zero")
+				ok
+				xLeft = xLeft / xRight
+			else
+				xLeft = xLeft % xRight
+			ok
+		end
+		return xLeft
+
+	def _Num(pValue)
+		if NOT isNumber(pValue)
+			This._Refuse("a number was expected and " + type(pValue) + " was found")
+		ok
+		return pValue
+
+	def _Unary()
+		if This._IsOp("-")
+			@nPos++
+			return 0 - This._Num(This._Unary())
+		ok
+		if This._IsOp("+")
+			@nPos++
+			return This._Num(This._Unary())
+		ok
+		return This._Primary()
+
+	def _Args()
+		aArgs = []
+		This._Expect("(")
+		if This._IsOp(")")
+			@nPos++
+			return aArgs
+		ok
+		while 1
+			aArgs + This._Or()
+			if This._IsOp(",")
+				@nPos++
+				loop
+			ok
+			This._Expect(")")
+			exit
+		end
+		return aArgs
+
+	def _Primary()
+		aT = This._Peek()
+		if aT[1] = "num"
+			@nPos++
+			return 0 + aT[2]
+		ok
+		if aT[1] = "str"
+			@nPos++
+			return aT[2]
+		ok
+		if aT[1] = "global"
+			@nPos++
+			nNamed = len(@aNamed)
+			for i = 1 to nNamed
+				if lower(@aNamed[i][1]) = aT[2]
+					return @aNamed[i][2]
+				ok
+			next
+			This._Refuse("'" + aT[2] + "' is not one of the values it may read")
+		ok
+		if This._IsOp("(")
+			@nPos++
+			xValue = This._Or()
+			This._Expect(")")
+			return xValue
+		ok
+		# @.Method(...) -- the object, named
+		if This._IsOp("@")
+			@nPos++
+			This._Expect(".")
+			aT = This._Peek()
+			if aT[1] != "name"
+				This._Refuse("a method name was expected after @.")
+			ok
+			@nPos++
+			aArgs = []
+			if This._IsOp("(")
+				aArgs = This._Args()
+			ok
+			return StzCallMethodOn(@oObject, aT[2], aArgs)
+		ok
+		if aT[1] = "name"
+			@nPos++
+			cLow = lower(aT[2])
+			if cLow = "true"
+				return 1
+			ok
+			if cLow = "false"
+				return 0
+			ok
+			aArgs = []
+			bCalled = This._IsOp("(")
+			if bCalled
+				aArgs = This._Args()
+			ok
+			if bCalled and len(aArgs) > 0
+				nArgs = len(aArgs)
+				switch cLow
+				on "abs"
+					return fabs(This._Num(aArgs[1]))
+				on "sqrt"
+					return sqrt(This._Num(aArgs[1]))
+				on "round"
+					return floor(This._Num(aArgs[1]) + 0.5)
+				on "floor"
+					return floor(This._Num(aArgs[1]))
+				on "ceil"
+					return ceil(This._Num(aArgs[1]))
+				on "len"
+					if isList(aArgs[1])
+						return len(aArgs[1])
+					ok
+					return StzLen("" + aArgs[1])
+				on "lower"
+					return StzLower("" + aArgs[1])
+				on "upper"
+					return StzUpper("" + aArgs[1])
+				on "max"
+					xBest = This._Num(aArgs[1])
+					for i = 2 to nArgs
+						if This._Num(aArgs[i]) > xBest
+							xBest = aArgs[i]
+						ok
+					next
+					return xBest
+				on "min"
+					xBest = This._Num(aArgs[1])
+					for i = 2 to nArgs
+						if This._Num(aArgs[i]) < xBest
+							xBest = aArgs[i]
+						ok
+					next
+					return xBest
+				off
+			ok
+			return StzCallMethodOn(@oObject, aT[2], aArgs)
+		ok
+		if aT[1] = "end"
+			This._Refuse("it ends too early")
+		ok
+		This._Refuse("'" + aT[2] + "' is not expected there")
