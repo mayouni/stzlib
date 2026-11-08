@@ -58,6 +58,7 @@ func _StzKindHolds(pValue, pcDesc)
 	_vKh_ = pValue
 	_bKh_ = 0
 	try
+		if NOT StzIsPlainIdentifier(pcDesc)  StzRaise("Can't proceed! '" + pcDesc + "' is not a plain name, and a name is all that is run here.")  ok
 		eval("_bKh_ = @is" + pcDesc + "(_vKh_)")
 	catch
 		StzRaise("Unknown constraint descriptor :" + pcDesc +

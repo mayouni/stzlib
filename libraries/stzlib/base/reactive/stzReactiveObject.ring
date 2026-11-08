@@ -363,7 +363,8 @@ class stzReactiveObject from stzObject
 	    if @wrappedObject != $OBJECT_STANDALONE
 	        # Wrapper mode: get from wrapped object
 	        if hasattribute(@wrappedObject, _cAttribute_)
-	            return eval("@wrappedObject." + _cAttribute_)
+	            # read by name, not eval(): eval answers nothing, so this returned "" (2026-11-08)
+            return getattribute(@wrappedObject, _cAttribute_)
 	        else
 	            # Try storage if not on wrapped object
 	            return GetAttributeFromStorage(_cAttribute_)

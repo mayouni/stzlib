@@ -695,8 +695,7 @@ func AttributesValues(pObject) # Compliments Ring attributes() function
 	_nLen_ = len(_acAttributes_)
 
 	for i = 1 to _nLen_
-		_cCode_ = '_value_ = pObject.' + _acAttributes_[i]
-		eval(_cCode_)
+		_value_ = getattribute(pObject, _acAttributes_[i])   # no eval: Haro runs no text as code
 		_aResult_ + _value_
 	next
 
@@ -5056,8 +5055,9 @@ func new_stz(_cType_, p)
 		StzRaise("Incorrect param type! cType must be a string.")
 	ok
 	
-	_cCode_ = '_oObject_ = new stz' + _cType_ + '(' + @@(p) + ')'
+	_cCode_ = '_oObject_ = new stz' + _cType_ + '(p)'
 
+	if NOT StzIsPlainIdentifier(_cType_)  StzRaise("Can't proceed! '" + _cType_ + "' is not a plain name, and a name is all that is run here.")  ok
 	eval(_cCode_)
 
 	return _oObject_

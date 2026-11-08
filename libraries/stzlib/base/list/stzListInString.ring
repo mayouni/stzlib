@@ -75,6 +75,7 @@ class stzListInString from stzString
 			ok
 
 			_cCode_ = "_oResult_ = new " + pcType + "(This.List())"
+			if NOT StzIsPlainIdentifier(pcType)  StzRaise("Can't proceed! '" + pcType + "' is not a plain name, and a name is all that is run here.")  ok
 			eval(_cCode_)
 			return _oResult_
 
@@ -153,6 +154,7 @@ class stzListInString from stzString
 						Content()
 
 				_cCode_ = '_cType_ = StzLower(type(' + _cVarName_ + '))'
+				if NOT StzIsPlainIdentifier(_cVarName_)  StzRaise("Can't proceed! '" + _cVarName_ + "' is not a plain name, and a name is all that is run here.")  ok
 				eval(_cCode_)
 
 				_aResult_ + [
@@ -216,6 +218,7 @@ class stzListInString from stzString
 						Content()
 
 				_cCode_ = '_cType_ = StzLower(type(' + _cVarName_ + '))'
+				if NOT StzIsPlainIdentifier(_cVarName_)  StzRaise("Can't proceed! '" + _cVarName_ + "' is not a plain name, and a name is all that is run here.")  ok
 				eval(_cCode_)
 
 				_aResult_ + _oStzStr_.Content()
@@ -243,6 +246,7 @@ class stzListInString from stzString
 		for _iLoopThisVarNames1_ = 1 to _nThisVarNames1Len_
 			_cVarName_ = _aThisVarNames1_[_iLoopThisVarNames1_]
 			_cCode_ = '_cType_ = ring_type('+ _cVarName_ +')'
+			if NOT StzIsPlainIdentifier(_cVarName_)  StzRaise("Can't proceed! '" + _cVarName_ + "' is not a plain name, and a name is all that is run here.")  ok
 			eval(_cCode_)
 			_acResult_ + _cType_
 		next

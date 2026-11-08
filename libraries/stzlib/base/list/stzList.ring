@@ -5381,6 +5381,7 @@ class stzList from stzObject
 		# 1. a collective predicate, when the list itself knows
 		_cAreM_ = "islistof" + _cAreD_
 		if StzFindFirst(_cAreM_, ring_methods(This)) > 0
+			if NOT StzIsPlainIdentifier(_cAreM_)  StzRaise("Can't proceed! '" + _cAreM_ + "' is not a plain name, and a name is all that is run here.")  ok
 			eval("_bAre_ = This." + _cAreM_ + "()")
 			return _bAre_
 		ok
@@ -5400,10 +5401,12 @@ class stzList from stzObject
 		_aAreM_ = ring_methods(_oAreIt_)
 
 		if StzFindFirst("is" + pcDesc, _aAreM_) > 0
+			if NOT StzIsPlainIdentifier(pcDesc)  StzRaise("Can't proceed! '" + pcDesc + "' is not a plain name, and a name is all that is run here.")  ok
 			eval("_bAreOne_ = _oAreIt_.Is" + pcDesc + "()")
 			return _bAreOne_
 		ok
 		if StzFindFirst("is" + pcSing, _aAreM_) > 0
+			if NOT StzIsPlainIdentifier(pcSing)  StzRaise("Can't proceed! '" + pcSing + "' is not a plain name, and a name is all that is run here.")  ok
 			eval("_bAreOne_ = _oAreIt_.Is" + pcSing + "()")
 			return _bAreOne_
 		ok
@@ -5413,6 +5416,7 @@ class stzList from stzObject
 			_oAreCh_ = StzCharQ(pItem)
 			_aAreCM_ = ring_methods(_oAreCh_)
 			if StzFindFirst("is" + pcSing, _aAreCM_) > 0
+				if NOT StzIsPlainIdentifier(pcSing)  StzRaise("Can't proceed! '" + pcSing + "' is not a plain name, and a name is all that is run here.")  ok
 				eval("_bAreOne_ = _oAreCh_.Is" + pcSing + "()")
 				return _bAreOne_
 			ok

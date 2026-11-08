@@ -1048,6 +1048,7 @@ class stzListNamedParams from stzObject
 
 		for i = 1 to _nLen_
 			_cCode_ = '_bFound_ = This.Is' + pacParamNames[i] + 'NamedParam()'
+			if NOT StzIsPlainIdentifier(pacParamNames[i])  StzRaise("Can't proceed! '" + pacParamNames[i] + "' is not a plain name, and a name is all that is run here.")  ok
 			eval(_cCode_)
 			if _bFound_
 				_bResult_ = 1

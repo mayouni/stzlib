@@ -307,8 +307,7 @@ func StzAttributesXT(pObj)
 	_nLen_ = len(_acAttr_)
 
 	for i = 1 to _nLen_
-		_cCode_ = "_val_ = pObj." + _acAttr_[i]
-		eval(_cCode_)
+		_val_ = getattribute(pObj, _acAttr_[i])   # no eval: Haro runs no text as code
 		_aResult_ + [ _acAttr_[i], _val_ ]
 	next
 
@@ -2972,6 +2971,7 @@ class stzObject
 			# name (@noname), which the eval then read as an uninitialized variable
 			_cCode_ = '_bResult_ = @is' + pacStr[i] + '(_vIsaxt_)'
 
+			if NOT StzIsPlainIdentifier(pacStr[i])  StzRaise("Can't proceed! '" + pacStr[i] + "' is not a plain name, and a name is all that is run here.")  ok
 			eval(_cCode_)
 			if _bResult_ = 0
 				exit
@@ -3295,6 +3295,7 @@ class stzObject
 
 		_cCode_ = '_bResult_ = This.IsListOf'+ pcType + '()'
 
+		if NOT StzIsPlainIdentifier(pcType)  StzRaise("Can't proceed! '" + pcType + "' is not a plain name, and a name is all that is run here.")  ok
 		eval(_cCode_)
 		return _bResult_
 
@@ -6452,8 +6453,7 @@ class stzObject
 		_nLen_ = len(_acAttributes_)
 
 		for i = 1 to _nLen_
-			_cCode_ = '_value_ = This.' + _acAttributes_[i]
-			eval(_cCode_)
+			_value_ = getattribute(This, _acAttributes_[i])   # no eval: Haro runs no text as code
 			_aValues_ + _value_
 		next
 
@@ -6498,8 +6498,7 @@ class stzObject
 		_nLen_ = len(_acAttributes_)
 
 		for i = 1 to _nLen_
-			_cCode_ = '_value_ = This.' + _acAttributes_[i]
-			eval(_cCode_)
+			_value_ = getattribute(This, _acAttributes_[i])   # no eval: Haro runs no text as code
 			_aValues_ + _value_
 		next
 
@@ -6536,8 +6535,7 @@ class stzObject
 		_nLen_ = len(_acAttributes_)
 
 		for i = 1 to _nLen_
-			_cCode_ = '_value_ = This.' + _acAttributes_[i]
-			eval(_cCode_)
+			_value_ = getattribute(This, _acAttributes_[i])   # no eval: Haro runs no text as code
 			_aValues_ + _value_
 		next
 
@@ -6678,8 +6676,7 @@ class stzObject
 		_nLen_ = len(_acAttributes_)
 
 		for i = 1 to _nLen_
-			_cCode_ = '_value_ = This.' + _acAttributes_[i]
-			eval(_cCode_)
+			_value_ = getattribute(This, _acAttributes_[i])   # no eval: Haro runs no text as code
 			_aValues_ + _value_
 		next
 
@@ -7140,6 +7137,7 @@ class stzObject
 
 	def _NNLNounCount(pcMethod)
 		if StzFindFirst(StzLower(pcMethod), ring_methods(This)) > 0
+			if NOT StzIsPlainIdentifier(pcMethod)  StzRaise("Can't proceed! '" + pcMethod + "' is not a plain name, and a name is all that is run here.")  ok
 			eval("_nNNL_ = This." + StzLower(pcMethod) + "()")
 			return _nNNL_
 		ok
@@ -7151,6 +7149,7 @@ class stzObject
 		# branch above), the subject second, refusal third.
 		if isObject(@oNNLMain)
 			if StzFindFirst(StzLower(pcMethod), ring_methods(@oNNLMain)) > 0
+				if NOT StzIsPlainIdentifier(pcMethod)  StzRaise("Can't proceed! '" + pcMethod + "' is not a plain name, and a name is all that is run here.")  ok
 				eval("_nNNL_ = @oNNLMain." + StzLower(pcMethod) + "()")
 				return _nNNL_
 			ok
@@ -8040,6 +8039,7 @@ class stzObject
 
 	def _NNLStateHolds(pState, pcDesc)
 		_vTense_ = pState
+		if NOT StzIsPlainIdentifier(pcDesc)  StzRaise("Can't proceed! '" + pcDesc + "' is not a plain name, and a name is all that is run here.")  ok
 		eval("_bTh_ = @is" + pcDesc + "(_vTense_)")
 		return _bTh_
 

@@ -4668,13 +4668,9 @@ class stzDataSet from stzObject
 	PRIVATE
 
     def _IsVarDefined(cVarName)
-        # Check if instance variable is defined
-        try
-            eval("This." + cVarName)
-            return 1
-        catch
-            return 0
-        done
+        # Check if instance variable is defined -- asked, not run (Haro runs no text as code)
+        if NOT isString(cVarName)  return 0  ok
+        return isattribute(This, cVarName)
 
     def _SafeDivision(nNumerator, nDenominator)
         if nDenominator = 0

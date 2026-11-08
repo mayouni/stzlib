@@ -770,6 +770,7 @@ func _StzSemProbeBehavior(pcClass, pcMethod)
 	try
 		eval("_oPrb_ = " + _cNew_)
 		_xBefore_ = @@( _oPrb_.Content() )
+		if NOT StzIsPlainIdentifier(pcMethod)  StzRaise("Can't proceed! '" + pcMethod + "' is not a plain name, and a name is all that is run here.")  ok
 		eval("_vPrbRet_ = _oPrb_." + pcMethod + "()")
 		_xAfter_ = @@( _oPrb_.Content() )
 		if _xAfter_ != _xBefore_

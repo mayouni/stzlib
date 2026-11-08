@@ -380,6 +380,7 @@ class stzChainOfTruth from stzObject
 				# name inside an eval'd STRING is invisible to a rename sweep,
 				# so it went on compiling and died at run time with R3.
 				_cCode_ = 'bResult = This.StzObjectQ().Is' + pThing + '()'
+				if NOT StzIsPlainIdentifier(pThing)  StzRaise("Can't proceed! '" + pThing + "' is not a plain name, and a name is all that is run here.")  ok
 				eval(_cCode_)
 	
 			# Case of a function call
@@ -904,6 +905,7 @@ class stzChainOfTruth from stzObject
 	#   see        IsNeighther, ContainingNo, NeightherFunction
 	def Nor(p)
 		_cCode_ = 'bResult = This.' + This.NeightherFunction() + '(p)'
+		if NOT StzIsPlainIdentifier(This.NeightherFunction())  StzRaise("Can't proceed! '" + This.NeightherFunction() + "' is not a plain name, and a name is all that is run here.")  ok
 		eval(_cCode_)
 
 		return bResult

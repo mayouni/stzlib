@@ -26,8 +26,9 @@ func QRT(p, pcType)
 	ok
 
 	if Q(pcType).IsStzClassName()
-		_cCode_ = "oResult = new " + pcType + '(' + @@(p) + ')'
+		_cCode_ = "oResult = new " + pcType + '(p)'
 
+		if NOT StzIsPlainIdentifier(pcType)  StzRaise("Can't proceed! '" + pcType + "' is not a plain name, and a name is all that is run here.")  ok
 		eval(_cCode_)
 
 		return oResult
