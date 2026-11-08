@@ -1,1 +1,1 @@
-StzIsPlainIdentifier,StzIsPlainListLiteral,StzIsQueryCondition,IsValidNodePath,@IsValidNodePath,IsValidItemPath,@IsValidItemPath
+StzIsPlainIdentifier,StzIsPlainListLiteral,StzIsQueryCondition,IsValidNodePath,@IsValidNodePath,IsValidItemPath,@IsValidItemPath,StzIsArithmeticFormula

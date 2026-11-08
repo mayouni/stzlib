@@ -995,6 +995,11 @@ class stzCoeffExtractor from stzObject
 		_aPts_ = aPoints
 		_anOut_ = []
 		_cFailure_ = ""
+		# held, in this body, to the shape translateExpression emits (Haro
+		# runs no text as code unless a named validator saw it)
+		if NOT StzIsArithmeticFormula(cFormula)
+			raise("stzCoeffExtractor: the formula is not one translateExpression builds")
+		ok
 		try
 			eval("for _iPt_ = 1 to ring_len(_aPts_) " + ring_char(10) + "_aEv_ = _aPts_[_iPt_] " + ring_char(10) + "_anOut_ + (" + cFormula + ") " + ring_char(10) + "next")
 		catch
@@ -1108,3 +1113,38 @@ class stzCoeffExtractor from stzObject
 			_bValid_ = 0
 		done
 		return _bValid_
+
+# 1 when the text is a formula of the shape stzCoeffExtractor.translateExpression
+# emits, and nothing else: numbers, + - * / ^ %, ( ) [ ] and commas, the point
+# reference _aEv_[k], and the functions pow, sqrt, abs, min, max. No other name
+# can appear, so the text can call nothing but those.
+func StzIsArithmeticFormula(pcText)
+	if NOT isString(pcText) or pcText = ""  return 0  ok
+	_n_ = len(pcText)
+	_i_ = 1
+	while _i_ <= _n_
+		_k_ = ascii(pcText[_i_])
+		if (_k_ >= 65 and _k_ <= 90) or (_k_ >= 97 and _k_ <= 122) or _k_ = 95
+			_j_ = _i_
+			while _j_ <= _n_
+				_kj_ = ascii(pcText[_j_])
+				if NOT ( (_kj_ >= 65 and _kj_ <= 90) or (_kj_ >= 97 and _kj_ <= 122) or _kj_ = 95 or (_kj_ >= 48 and _kj_ <= 57) )  exit  ok
+				_j_++
+			end
+			_cW_ = lower(substr(pcText, _i_, _j_ - _i_))
+			if _cW_ = "_aev_"
+				if _j_ > _n_ or pcText[_j_] != "["  return 0  ok
+			but NOT ( _cW_ = "pow" or _cW_ = "sqrt" or _cW_ = "abs" or _cW_ = "min" or _cW_ = "max" or _cW_ = "e" )
+				return 0
+			ok
+			_i_ = _j_
+			loop
+		ok
+		if NOT ( (_k_ >= 48 and _k_ <= 57) or _k_ = 32 or _k_ = 46 or _k_ = 43 or _k_ = 45 or _k_ = 42 or
+		         _k_ = 47 or _k_ = 94 or _k_ = 37 or _k_ = 40 or _k_ = 41 or _k_ = 91 or _k_ = 93 or _k_ = 44 )
+			return 0
+		ok
+		_i_++
+	end
+	return 1
+
