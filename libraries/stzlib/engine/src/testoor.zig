@@ -16,9 +16,13 @@ pub const walk = @import("testoor_walk.zig");
 pub const evidence = @import("testoor_evidence.zig");
 pub const runner = @import("testoor_runner.zig");
 pub const ladder = @import("testoor_ladder.zig");
+pub const domain = @import("testoor_domain.zig");
+pub const property = @import("testoor_property.zig");
 
 test {
     _ = ladder;
+    _ = domain;
+    _ = property;
     _ = clock;
     _ = graph;
     _ = routes;

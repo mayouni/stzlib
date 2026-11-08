@@ -10,7 +10,11 @@
 //! not flaky, and it finished (timed or not). The same definition of failure as the tour line's seed.
 //! A tour's own `named` evidence (its source mentions the node) is a proxy and raises no grade.
 //!
-//! Grades 3 to 5 (generalised, exhausted, proved) are V2 to V6. Nothing here reads a clock or a file.
+//!   3 generalised  a property HELD over generated inputs, in a tour that did not fail, about the node (V2)
+//!   4 exhausted    the same, over every value of a finite domain (V2)
+//!
+//! A property raises the nodes its line names that the same tour observed, or, naming none, every node that tour
+//! observed: it cannot raise a node no tour reached. Grade 5 (proved) is V5. Nothing here reads a clock or a file.
 
 const std = @import("std");
 const T = @import("testoor_text.zig");
@@ -19,17 +23,24 @@ const V = @import("testoor_verdict.zig");
 const Allocator = std.mem.Allocator;
 const Buf = T.Buf;
 
-pub const Grade = enum {
+pub const Grade = enum(u8) {
     named,
     observed,
     exemplified,
+    generalised,
+    exhausted,
 
     pub fn name(self: Grade) []const u8 {
         return switch (self) {
             .named => "named",
             .observed => "observed",
             .exemplified => "exemplified",
+            .generalised => "generalised",
+            .exhausted => "exhausted",
         };
+    }
+    fn above(self: Grade, other: Grade) bool {
+        return @intFromEnum(self) > @intFromEnum(other);
     }
 };
 
@@ -38,29 +49,46 @@ pub const Row = struct {
     grade: Grade,
     /// the tours that gave the node its grade, in run order, each once
     tours: std.ArrayList([]const u8) = .empty,
+    /// grades 3 and 4: the properties that gave it, in run order, each once
+    properties: std.ArrayList([]const u8) = .empty,
 };
 
 pub const Ladder = struct {
     rows: []Row,
     observed: i64,
     exemplified: i64,
+    generalised: i64 = 0,
+    exhausted: i64 = 0,
+    /// any tour of the run printed a property: the counts of grades 3 and 4 are then written, zeros included
+    with_properties: bool = false,
 };
 
 fn eq(x: []const u8, y: []const u8) bool {
     return std.mem.eql(u8, x, y);
 }
 
-/// a tour that kept a claim and did not fail
-pub fn exemplifies(t: V.Tour) bool {
+/// a tour that did not fail: no claim diverged or unreached, not flaky, finished
+pub fn holdsUp(t: V.Tour) bool {
     const r = t.run;
     if (t.flaky) return false;
-    if (r.kept < 1 or r.diverged > 0 or r.unreached > 0) return false;
+    if (r.diverged > 0 or r.unreached > 0) return false;
     return eq(r.end, "finished") or eq(r.end, "finished-timed");
 }
 
-fn addTour(a: Allocator, row: *Row, file: []const u8) !void {
-    for (row.tours.items) |f| if (eq(f, file)) return;
-    try row.tours.append(a, file);
+/// a tour that kept a claim and did not fail
+pub fn exemplifies(t: V.Tour) bool {
+    return holdsUp(t) and t.run.kept >= 1;
+}
+
+fn addOnce(a: Allocator, list: *std.ArrayList([]const u8), x: []const u8) !void {
+    for (list.items) |f| if (eq(f, x)) return;
+    try list.append(a, x);
+}
+
+fn propertyAbout(nodes: ?[]const []const u8, id: []const u8) bool {
+    const ns = nodes orelse return true;
+    for (ns) |n| if (eq(n, id)) return true;
+    return false;
 }
 
 /// Rows in the order the run first OBSERVED each node (tours in run order, each tour's nodes in its own
@@ -69,31 +97,48 @@ fn addTour(a: Allocator, row: *Row, file: []const u8) !void {
 pub fn build(a: Allocator, tours: []const V.Tour) !Ladder {
     var rows: std.ArrayList(Row) = .empty;
     var index: std.StringHashMapUnmanaged(usize) = .empty;
+    var with_props = false;
     for (tours) |t| {
+        if (t.properties.len > 0) with_props = true;
         const ex = exemplifies(t);
+        const up = holdsUp(t);
         for (t.nodes) |n| {
             if (!eq(n.evidence, "observed") or n.hits <= 0) continue;
+            // the grade THIS tour gives the node, and the properties that gave it
+            var g: Grade = if (ex) .exemplified else .observed;
+            var by: std.ArrayList([]const u8) = .empty;
+            if (up) for (t.properties) |pr| {
+                if (!pr.held or !propertyAbout(pr.nodes, n.id)) continue;
+                const pg: Grade = if (pr.exhaustive) .exhausted else .generalised;
+                if (pg.above(g)) {
+                    g = pg;
+                    by.clearRetainingCapacity();
+                }
+                if (pg == g) try addOnce(a, &by, pr.id);
+            };
             const gop = try index.getOrPut(a, n.id);
             if (!gop.found_existing) {
                 gop.value_ptr.* = rows.items.len;
-                try rows.append(a, .{ .id = n.id, .grade = .observed });
+                try rows.append(a, .{ .id = n.id, .grade = g });
             }
             const row = &rows.items[gop.value_ptr.*];
-            if (ex) {
-                if (row.grade != .exemplified) {
-                    row.grade = .exemplified;
-                    row.tours.clearRetainingCapacity();
-                }
-                try addTour(a, row, t.file);
-            } else if (row.grade == .observed) {
-                try addTour(a, row, t.file);
+            if (g.above(row.grade)) {
+                row.grade = g;
+                row.tours.clearRetainingCapacity();
+                row.properties.clearRetainingCapacity();
+            }
+            if (g == row.grade) {
+                try addOnce(a, &row.tours, t.file);
+                for (by.items) |id| try addOnce(a, &row.properties, id);
             }
         }
     }
-    var l = Ladder{ .rows = rows.items, .observed = 0, .exemplified = 0 };
+    var l = Ladder{ .rows = rows.items, .observed = 0, .exemplified = 0, .with_properties = with_props };
     for (rows.items) |r| switch (r.grade) {
         .observed => l.observed += 1,
         .exemplified => l.exemplified += 1,
+        .generalised => l.generalised += 1,
+        .exhausted => l.exhausted += 1,
         .named => {},
     };
     return l;
@@ -120,6 +165,12 @@ pub fn writeJson(b: *Buf, l: Ladder, owned: ?i64) !void {
     try b.int(l.observed);
     try b.s(",\"exemplified\":");
     try b.int(l.exemplified);
+    if (l.with_properties) {
+        try b.s(",\"generalised\":");
+        try b.int(l.generalised);
+        try b.s(",\"exhausted\":");
+        try b.int(l.exhausted);
+    }
     try b.s(",\"nodes\":[");
     for (l.rows, 0..) |r, k| {
         if (k > 0) try b.c(',');
@@ -132,7 +183,16 @@ pub fn writeJson(b: *Buf, l: Ladder, owned: ?i64) !void {
             if (j > 0) try b.c(',');
             try b.js(f);
         }
-        try b.s("]}");
+        try b.c(']');
+        if (r.grade.above(.exemplified)) {
+            try b.s(",\"properties\":[");
+            for (r.properties.items, 0..) |id, j| {
+                if (j > 0) try b.c(',');
+                try b.js(id);
+            }
+            try b.c(']');
+        }
+        try b.c('}');
     }
     try b.s("]}");
 }
@@ -140,6 +200,12 @@ pub fn writeJson(b: *Buf, l: Ladder, owned: ?i64) !void {
 /// the summary line, without its leading newline and indent
 pub fn writeProse(b: *Buf, l: Ladder, owned: ?i64) !void {
     try b.s("ladder: ");
+    if (l.with_properties) {
+        try b.int(l.exhausted);
+        try b.s(" exhausted, ");
+        try b.int(l.generalised);
+        try b.s(" generalised, ");
+    }
     try b.int(l.exemplified);
     try b.s(" exemplified, ");
     try b.int(l.observed);

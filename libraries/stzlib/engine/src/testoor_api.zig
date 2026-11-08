@@ -21,8 +21,9 @@ const L = @import("testoor_logbook.zig");
 const G = @import("testoor_graph.zig");
 const R = @import("testoor_routes.zig");
 const Ev = @import("testoor_evidence.zig");
+const Pr = @import("testoor_property.zig");
 
-pub const Error = error{ BadRequest, OutOfMemory, BadOutputLine, BadJson };
+pub const Error = error{ BadRequest, OutOfMemory, BadOutputLine, BadJson, BadDomain };
 
 fn field(v: J.Value, key: []const u8) Error!J.Value {
     return v.get(key) orelse Error.BadRequest;
@@ -91,6 +92,10 @@ pub fn tourFromValue(a: Allocator, v: J.Value) Error!V.Tour {
             .hits = (try field(n, "hits")).int_(),
         });
     }
+    var props: std.ArrayList(Pr.Record) = .empty;
+    if (v.get("properties")) |pv| {
+        for (pv.items()) |x| if (try Pr.fromValue(a, x)) |r| try props.append(a, r);
+    }
     var weather: std.ArrayList([]const u8) = .empty;
     for ((try field(v, "weather")).items()) |w| try weather.append(a, w.str_());
     var seed: ?f64 = null;
@@ -105,6 +110,7 @@ pub fn tourFromValue(a: Allocator, v: J.Value) Error!V.Tour {
         .weather = weather.items,
         .routes = routes.items,
         .nodes = nodes.items,
+        .properties = props.items,
         .run = .{
             .end = (try field(v, "end")).str_(),
             .exit = (try field(v, "exit")).int_(),
@@ -152,6 +158,17 @@ fn readRun(a: Allocator, request: []const u8) Error!Run {
     var tours: std.ArrayList(V.Tour) = .empty;
     if (req.get("tours")) |tv| for (tv.items()) |t| try tours.append(a, try tourFromValue(a, t));
     return .{ .settings = st, .tours = tours.items };
+}
+
+/// The three operations a face asks of a property (protocol 3 section 4): the inputs of a domain, the candidates that
+/// shrink a failing input, and the canonical line of a record. {"op":"inputs"|"shrink"|"line", ...} in, JSON or a line out.
+pub fn propertyJson(a: Allocator, request: []const u8) Error![]u8 {
+    const req = try J.parse(a, request);
+    return Pr.op(a, req) catch |e| switch (e) {
+        error.BadRequest => Error.BadRequest,
+        error.BadDomain => Error.BadDomain,
+        error.OutOfMemory => Error.OutOfMemory,
+    };
 }
 
 /// The impact record (protocol 2 section 5) for a change: {"graph":<graph record>,"changed":[ids],

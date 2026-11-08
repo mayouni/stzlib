@@ -15,6 +15,7 @@ const T = @import("testoor_text.zig");
 const V = @import("testoor_verdict.zig");
 const Ev = @import("testoor_evidence.zig");
 const Ld = @import("testoor_ladder.zig");
+const Pr = @import("testoor_property.zig");
 
 const Buf = T.Buf;
 
@@ -140,6 +141,15 @@ fn tourJsonIn(b: *Buf, t: V.Tour, detail: bool, v3: bool) !void {
         }
         try b.c(']');
     }
+    // protocol 3 (V2): the property lines the tour printed, in the core's key order
+    if (t.properties.len > 0) {
+        try b.s(",\"properties\":[");
+        for (t.properties, 0..) |pr, k| {
+            if (k > 0) try b.c(',');
+            try Pr.writeRecord(b, pr);
+        }
+        try b.c(']');
+    }
     try b.c('}');
 }
 
@@ -213,6 +223,12 @@ pub fn tourProse(b: *Buf, t: V.Tour) !void {
             try b.s(cl.claim);
         }
     }
+    // protocol 3 (V2): a property that did not hold shows its counterexample, shrunk, and the seed that replays it
+    for (t.properties) |pr| {
+        if (pr.held) continue;
+        try b.c('\n');
+        try Pr.writeCounterexample(b, pr);
+    }
 }
 
 // ── one run ──────────────────────────────────────────────────
@@ -277,6 +293,7 @@ fn isProtocol2(st: Settings, tours: []const V.Tour) bool {
 /// the version a run's logbook says it is: the highest version of any key it carries, and none for 1
 fn protocolOf(st: Settings, tours: []const V.Tour) u8 {
     if (st.ladder) return 3;
+    for (tours) |t| if (t.properties.len > 0) return 3;
     if (isProtocol2(st, tours)) return 2;
     return 1;
 }
@@ -356,6 +373,7 @@ pub fn runJson(b: *Buf, st: Settings, tours: []const V.Tour) !void {
     const c = counts(tours);
     try b.s("{\"testoor\":\"logbook\",\"kind\":\"run\"");
     const pv = protocolOf(st, tours);
+    const v3 = pv == 3;
     if (pv > 1) {
         try b.s(",\"protocol\":");
         try b.int(pv);
@@ -405,7 +423,7 @@ pub fn runJson(b: *Buf, st: Settings, tours: []const V.Tour) !void {
         }
         try b.s(",\"owned\":");
         try b.int(g.owned);
-        try b.s(if (st.ladder) ",\"mentioned\":" else ",\"named\":");
+        try b.s(if (v3) ",\"mentioned\":" else ",\"named\":");
         try b.int(f.named);
         try b.s(",\"observed\":");
         try b.int(f.observed);
@@ -438,7 +456,7 @@ pub fn runJson(b: *Buf, st: Settings, tours: []const V.Tour) !void {
     try b.s("],\"tours\":[");
     for (tours, 0..) |t, k| {
         if (k > 0) try b.c(',');
-        try tourJsonIn(b, t, false, st.ladder);
+        try tourJsonIn(b, t, false, v3);
     }
     try b.s("]}");
 }
@@ -470,7 +488,7 @@ pub fn summary(b: *Buf, st: Settings, tours: []const V.Tour) !void {
         try b.int(g.owned);
         try b.s(" owned, ");
         try b.int(f.named);
-        try b.s(if (st.ladder) " mentioned, " else " named, ");
+        try b.s(if (protocolOf(st, tours) == 3) " mentioned, " else " named, ");
         try b.int(f.observed);
         try b.s(" observed (three figures, never summed)");
         if (!g.complete) {

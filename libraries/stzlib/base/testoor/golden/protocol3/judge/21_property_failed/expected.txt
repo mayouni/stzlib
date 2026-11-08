@@ -1,0 +1,4 @@
+DIVERGED    fixtures/squares.py  1 stops: 0 kept, 1 diverged  seed 5  (1.13 s, finished, timed)
+    diverged  squares  (0.75 s)
+        diverged  property SQUARE-UNDER-50
+    counterexample  SQUARE-UNDER-50  {"n":8}  (seed 7, 5 shrinks)

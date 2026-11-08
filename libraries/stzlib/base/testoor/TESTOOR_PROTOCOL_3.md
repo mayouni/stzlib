@@ -19,8 +19,9 @@ when it carries a version 2 key, else absent.
 | addition | grade | step | state |
 |---|---|---|---|
 | the **ladder record**: each node's highest grade and the tours that gave it | 0, 1, 2 | V1 | **built 2026-11-08** (section 2) |
-| the **property record**: a property held over generated inputs from a declared domain, shrunk on failure | 3 | V2 | sketched, `TESTOOR_EVIDENCE_LADDER.md` 6(b) |
-| the same record when every input or schedule inside a bound was tried | 4 | V3 | sketched, 6(b) |
+| the **property record**: a property held over generated inputs from a declared domain, shrunk on failure | 3 | V2 | **built 2026-11-08** (section 4) |
+| the same record when every input of a finite domain was tried | 4 | V2 | **built 2026-11-08** (section 4.2): it falls out of the generator |
+| every SCHEDULE of the declared weather up to a depth | 4 | V3 | sketched, 6(b) |
 | `min_grade` and `over` in the evidence floor | -- | V4 | sketched, 6(d) |
 | a node's checker `facts`, and the **certificate record** | 5 | V5, V6 | sketched, 6(a) and 6(c); waits on HARO-PROOF-01 |
 
@@ -81,7 +82,103 @@ a mention is written `mentioned`.** So a run that asks for the ladder writes:
 single-tour verdict of the Ring seam (`StzEngineTestoorVerdict`), keep `named` byte for byte**, so nothing that reads protocol 2
 changes. The core holds one evidence and writes its word by the logbook's version.
 
-## 4. Conformance
+## 4. The property record (V2)
+
+A **property** is one claim checked over many inputs drawn from a declared **domain**. It is walked in ONE child: the core
+generates the inputs and shrinks a failure, the tour evaluates the claim on each input and prints one line. On Haro a walk pays
+the library's compile, 15 to 25 s, so a property that started a child per input would cost minutes; one that loops costs one
+walk.
+
+### 4.1 The domain
+
+A domain is a text: dimensions separated by `;`, each `NAME KIND ...`, a name of letters, digits and `_` that does not start
+with a digit, each name once.
+
+| kind | written | its values, in order | its origin (where a shrink goes) |
+|---|---|---|---|
+| `int` | `n int 0..100` | the integers from A to B, ascending | the value nearest 0 |
+| `dec` | `rate dec 0..0.25 step 0.01` | A, A+S, A+2S ... up to B, exact, written with the step's decimals as text (`"0.07"`) | the value nearest 0 |
+| `one` | `algo one quick\|merge\|heap` | the options, in the order written | the first option |
+| `text` | `s text 0..12 of mixed` | texts of A to B letters (code points) over an alphabet, by length then letter by letter | A copies of the alphabet's first letter |
+
+**Alphabets** are ordered lists of code points, so "simpler" means "earlier": `ascii` (a to z, A to Z, 0 to 9, the space, then
+the other printable ASCII signs in code order), `latin` (U+00E0 to U+00FF without U+00F7), `greek` (U+03B1 to U+03C9), `hebrew`
+(U+05D0 to U+05EA), `arabic` (U+0621 to U+064A), `cjk` (U+4E00 to U+4E9F), `emoji` (U+1F600 to U+1F64F), and `mixed`, which is
+all of them in that order. `of "..."` gives the letters themselves, in order, with no `"` and no `;` among them.
+
+A domain's **size** is the product of its dimensions' sizes; a text dimension of B letters over k letters has k^A + ... + k^B
+values. A size above 2^53 is **unbounded**.
+
+### 4.2 The inputs
+
+Asked of the core with the domain, a seed and a number of tries (the Ring face: `StzEngineTestoorProperty`, op `inputs`).
+
+- **When the size is at most the tries, every value is tried**, in order, the last dimension changing fastest. The answer says
+  `"exhaustive":true` and `"of"` is the size.
+- **Otherwise the first input is the origin** (every dimension at its origin) **and the rest are draws**: splitmix64 over the
+  seed, the draw's number and the dimension's number; a text draws its length, then each letter. `"exhaustive":false`; `"of"`
+  is the size, absent when unbounded. Draws may repeat; `tried` counts evaluations, never distinct values.
+- An input is a JSON object, one key per dimension: an `int` is a number, every other kind is text.
+
+### 4.3 The shrink
+
+Asked with the domain and a failing input (op `shrink`): **candidates, simplest first**, each inside the domain and none equal to
+the input. Dimensions are shrunk in the order written, the others held.
+
+- **`int`, `dec`** (on the value's position counted from A for `dec`): with d the distance to the origin, the candidates are
+  `v - d`, `v - d/2`, `v - d/4` ... `v - 1` toward the origin, halving toward zero, each once. From 100 toward 0:
+  0, 50, 75, 88, 94, 97, 99.
+- **`one`**: the options written before the current one, first option first.
+- **`text`**: shorter first -- the first A letters, the first A + (n-A)/2 letters, then the text without its letter at each
+  position in turn (none shorter than A); then simpler letters -- each position's letter shrunk like an `int` over its place in
+  the alphabet, toward the first letter. A letter outside the alphabet has no candidates.
+
+**The tour's loop**: try the candidates in order; the first that still fails becomes the input, and the candidates are asked
+again; stop when none fails. `shrinks` counts the inputs taken. The loop is the face's (the Ring face: `TestoorProperty`, 1,000
+evaluations at most); the order is the core's, so every language shrinks a failure to the same answer.
+
+### 4.4 The line a tour prints
+
+```
+[testoor property {"id":"TAX-RATE-01","nodes":["stzTax.Total"],"domain":"rate dec 0..0.25 step 0.01","seed":42,"tried":26,"of":26,"exhaustive":true,"held":true}]
+```
+
+| field | rule |
+|---|---|
+| `id` | the property's name, no whitespace; required |
+| `nodes` | optional: the graph nodes the property is about |
+| `domain`, `seed` | what replays it |
+| `tried`, `of`, `exhaustive` | the generated inputs checked (a failure stops them; the shrink's checks are not counted); the domain's size, absent when unbounded; true only when every value was tried and the property held |
+| `held` | required |
+| `counterexample`, `shrinks` | only when `held` is false: the input after shrinking, and how many shrinks it took |
+
+A line that is not a JSON object, or lacks `id`, `held` or `tried`, is ignored and stays ordinary output, as a malformed node
+line is. The face writes the line through the core (op `line`), so key order and spelling are the core's.
+
+### 4.5 What the judge does with it
+
+- **Every tour** keeps its property lines, in the order printed, as its `properties` record: in the tour's JSON after `nodes`,
+  written in the table's order with the counterexample as the tour gave it. It is a version 3 key: a run that carries one writes
+  `"protocol":3` (and, by section 3, `mentioned`).
+- **In a self-describing tour** each property line is also a CLAIM in the stop it appears in: kind `property`, text
+  `property ID`, kept when it held and diverged when it did not. A tour with no static claims that prints a property line is
+  self-describing. **In a tour judged from its record** the line is recorded and is not a claim: wrap it in one
+  (`Then("...", TestoorProperty(...)[:held], TRUE)`).
+- **The prose** adds, under a tour, one line per property that did not hold:
+  `    counterexample  ID  {"n":8}  (seed 42, 5 shrinks)`.
+- **Exit codes do not change**: a failed property in a self-describing tour is a diverged claim, which already exits 1.
+
+### 4.6 The ladder's grades 3 and 4
+
+- A property that HELD, in a tour that did not fail (no claim diverged or unreached, not flaky, finished), raises its nodes to
+  **`exhausted`** when it was exhaustive and to **`generalised`** otherwise.
+- Its nodes are the line's `nodes`, each only if the same tour observed it; with no `nodes`, every node the tour observed. A
+  property cannot raise a node no tour reached.
+- A row of grade 3 or 4 adds `"properties"`: the ids that gave it, in run order, each once. The ladder's counts gain
+  `"generalised"` and `"exhausted"`, after `"exemplified"`, when any tour of the run carries a property; so does the prose,
+  highest grade first: `ladder: 1 exhausted, 1 generalised, 0 exemplified, 1 observed, 1 named, of 4 owned`.
+
+## 5. Conformance
 
 Written by hand from section 2 before the code, and reproduced by the core on its first run (`zig build test-testoor`).
 
@@ -92,5 +189,12 @@ Written by hand from section 2 before the code, and reproduced by the core on it
 | `protocol3/logbook/L9_ladder_graph` | cases 15, 16 (flaky), 18 and 19 against a complete graph of six: only the kept, finished, steady tour exemplifies; a node it shares with a flaky and a diverged tour lists it alone; a node only a mention reached (Rate, named by 15) takes its grade from the tour that observed it; one owned node stays named; `protocol` 3; exit 1 for the flaky and diverged tours, as without the ladder |
 | `protocol3/logbook/L10_ladder_no_graph` | cases 15 and 16 with no graph: no `owned`, no `named`; a node two tours exemplified lists both, in run order; exit 0 |
 
+| `protocol3/judge/20_property_exhausted` | a property held over all 26 values of a `dec` domain: a kept claim of kind `property`, the record with `"exhaustive":true` |
+| `protocol3/judge/21_property_failed` | a property that failed: a diverged claim, the counterexample and the shrinks in the record, the counterexample line in the prose |
+| `protocol3/judge/22_property_text_generalised` | a property held over an unbounded text domain (no `of`); a line that is not JSON and one with no `held` are ignored; the line names a node the tour never reached |
+| `protocol3/logbook/L11_ladder_properties` | 20, 21 and 22 against a graph of four: one node exhausted, one generalised by the property that held, one observed where the property failed, one named; the counts of grades 3 and 4 written; exit 1 |
+| `protocol3/logbook/L12_properties_no_ladder` | 20 and 22 with no ladder asked: the tours' `properties` alone make the log protocol 3; no `ladder` key; exit 0 |
+
 The same requests with the ladder NOT asked for write protocol 2 and no `ladder` key: the core guard and the native guard each
-assert it.
+assert it. `testoor_property_narrated.ring` holds the Ring face to section 4: the domains through the seam, `TestoorProperty`
+in-process (a failure shrunk to the same smallest input from two seeds), and two property tours walked as children.

@@ -1,0 +1,7 @@
+250	[testoor stop replace keeps length]
+500	[testoor node stzString.Replace 200]
+750	[testoor property not json at all]
+1000	[testoor property {"id":"NO-HELD","tried":3}]
+1250	[testoor property {"id":"REPLACE-KEEPS-LENGTH","nodes":["stzString.Replace","stzString.Upper"],"domain":"s text 0..12 of mixed","seed":11,"tried":200,"exhaustive":false,"held":true}]
+1500	[testoor ok the replace answers text]
+1750	[testoor end timed]

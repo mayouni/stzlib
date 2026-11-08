@@ -240,6 +240,7 @@ ok
     load "testoor/stzTraveller.ring"
     load "testoor/stzCore.ring"
     load "testoor/stzNodes.ring"
+    load "testoor/stzProperty.ring"
     load "testoor/stzManifest.ring"
     load "testoor/stzRoute.ring"
     load "testoor/stzClock.ring"

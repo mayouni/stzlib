@@ -102,7 +102,24 @@ pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: var
 footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--rule); color: var(--fg2); }
 footer p + p { margin-top: 8px; }
 
+/* the shrink */
+.shrinkcols { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.shrink { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.shrink li { display: grid; grid-template-columns: 9.5em minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 6px 12px; }
+.shrink li.final { border: 2px solid var(--bad); }
+.shrink .step { font-weight: 700; color: var(--ink); }
+.shrink li.final .step { color: var(--bad); }
+.shrink .txt { font-size: 1.6rem; line-height: 1.3; unicode-bidi: isolate; overflow-wrap: anywhere; font-family: var(--sans), "Segoe UI Emoji", "Noto Sans", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; }
+.shrink .meta { color: var(--fg2); font-variant-numeric: tabular-nums; text-align: right; }
+.shrinkside { display: grid; gap: 12px; }
+.ints { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ints span { font-family: var(--mono); font-weight: 600; padding: 4px 12px; border-radius: 8px; background: var(--tint); border: 1px solid var(--rule); }
+.ints i { font-style: normal; color: var(--fg2); }
+.ints span.last { border: 2px solid var(--bad); color: var(--bad); }
 @media (max-width: 860px) {
+  .shrinkcols { grid-template-columns: minmax(0, 1fr); }
+  .shrink li { grid-template-columns: minmax(0, 1fr) auto; }
+  .shrink .step { grid-column: 1 / -1; }
   .group { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .rung { grid-template-columns: 56px minmax(0, 1fr); }
   .rung dl { grid-column: 1 / -1; }
@@ -119,7 +136,7 @@ footer p + p { margin-top: 8px; }
     <p class="eyebrow">Testoor · protocol 3 · ruled 2026-11-08</p>
     <h1>The evidence ladder</h1>
     <p class="lede">Testing shows that bugs are present, never that they are absent. So Testoor records <b>how much is known</b> about each node of the program's graph, property by property, on six grades. A change is accepted only when every node it reaches stands on the grade its floor asks for.</p>
-    <div class="ruled"><span class="chip good">TESTOOR-LADDER-01: yes to all four</span><span class="chip">grades 0 to 2 recorded today</span><span class="chip next">V1 built: the ladder record</span></div>
+    <div class="ruled"><span class="chip good">TESTOOR-LADDER-01: yes to all four</span><span class="chip">grades 0 to 2 recorded today</span><span class="chip next">V1 and V2 built</span></div>
   </div>
 </header>
 
@@ -143,19 +160,19 @@ footer p + p { margin-top: 8px; }
       </div>
 
       <div class="group">
-        <div class="group-label"><strong>Testoor on its own</strong><span>Steps V2 and V3, from declared domains, the seed and the stepped clock</span></div>
+        <div class="group-label"><strong>Testoor on its own</strong><span>V2 built: properties over declared domains. V3: the schedules of the declared weather</span></div>
         <ol class="rungs">
           <li class="rung">
             <div class="badge b4" aria-label="grade 4">4</div>
             <div><h3>exhausted</h3><p class="means">The property held for every input of a finite declared domain, or every schedule of the declared weather up to a depth.</p>
-              <p class="status"><span class="chip">V3</span></p></div>
+              <p class="status"><span class="chip good">built for finite domains, V2</span></p></div>
             <dl><dt>Produced by</dt><dd>An enumerating tour. Costs the size of the domain.</dd>
                 <dt>Proves</dt><dd>The property holds, inside the bound.</dd></dl>
           </li>
           <li class="rung">
             <div class="badge b3" aria-label="grade 3">3</div>
             <div><h3>generalised</h3><p class="means">The property held on N generated inputs from a declared domain, with a seed. A failure is shrunk to its smallest case and kept as a new tour.</p>
-              <p class="status"><span class="chip">V2</span></p></div>
+              <p class="status"><span class="chip good">built, V2</span></p></div>
             <dl><dt>Produced by</dt><dd>A property tour. Costs N walks, or one walk that loops.</dd>
                 <dt>Proves</dt><dd>No counterexample in N tries.</dd></dl>
           </li>
@@ -292,12 +309,38 @@ footer p + p { margin-top: 8px; }
     </div>
   </section>
 
+  <section aria-labelledby="h-shrink">
+    <h2 id="h-shrink">A failing property, shrunk step by step</h2>
+    <p class="intro">A real run on haro.exe, seed 20. The property says a text has as many bytes as letters, over texts of up to 8 letters in every alphabet. It is false, because <code>len()</code> counts bytes and <code>StzLen()</code> counts letters. The core proposes simpler inputs, shorter ones first and then earlier letters; the first that still fails is kept.</p>
+    <div class="shrinkcols">
+      <ol class="shrink">
+        <li><span class="step">first failure</span><span class="txt" dir="ltr">了之丅乕😣وإ亏</span><span class="meta">8 letters, 23 bytes</span></li>
+        <li><span class="step">shorter</span><span class="txt" dir="ltr">了之丅乕</span><span class="meta">4 letters, 12 bytes</span></li>
+        <li><span class="step">shorter</span><span class="txt" dir="ltr">了之</span><span class="meta">2 letters, 6 bytes</span></li>
+        <li><span class="step">shorter</span><span class="txt" dir="ltr">了</span><span class="meta">1 letter, 3 bytes</span></li>
+        <li><span class="step">earlier letter</span><span class="txt" dir="ltr">ת</span><span class="meta">Hebrew, 2 bytes</span></li>
+        <li><span class="step">earlier letter</span><span class="txt" dir="ltr">θ</span><span class="meta">Greek, 2 bytes</span></li>
+        <li><span class="step">earlier letter</span><span class="txt" dir="ltr">å</span><span class="meta">Latin, 2 bytes</span></li>
+        <li><span class="step">earlier letter</span><span class="txt" dir="ltr">â</span><span class="meta">Latin, 2 bytes</span></li>
+        <li><span class="step">earlier letter</span><span class="txt" dir="ltr">á</span><span class="meta">Latin, 2 bytes</span></li>
+        <li class="final"><span class="step">counterexample</span><span class="txt" dir="ltr">à</span><span class="meta">U+00E0: 1 letter, 2 bytes</span></li>
+      </ol>
+      <div class="shrinkside">
+        <p><b>Why it stops at à.</b> Every ASCII letter comes first in the alphabet and passes, so the simplest text that still fails is the first letter outside ASCII, alone. From seeds 5 and 6 the shrink arrives at the same <code>à</code>: the guard asserts it.</p>
+        <p><b>A number shrinks the same way.</b> "A square is under 50", over 0 to 100, failed first at 86:</p>
+        <p class="ints"><span>86</span><i aria-hidden="true">→</i><span>43</span><i aria-hidden="true">→</i><span>22</span><i aria-hidden="true">→</i><span>11</span><i aria-hidden="true">→</i><span>9</span><i aria-hidden="true">→</i><span class="last">8</span></p>
+        <p><b>What the logbook keeps</b>, under the tour's line:</p>
+        <pre>counterexample  BYTES-ARE-LETTERS  {"s":"à"}  (seed 20, 9 shrinks)</pre>
+      </div>
+    </div>
+  </section>
+
   <section aria-labelledby="h-steps">
     <h2 id="h-steps">The steps, in order</h2>
     <ol class="steps">
-      <li class="is-next"><b>V1</b><p>Report grade 2 for each node: kept claims joined to the nodes their tours reached.</p><p class="need">Built 2026-11-08, run on haro.exe: 669 assertions, none failing.</p></li>
-      <li><b>V2</b><p>Property tours over declared domains, refinement bounds first, with a seed and shrinking.</p><p class="need">Needs nothing from Haro.</p></li>
-      <li><b>V3</b><p>Enumerate finite domains, and the schedules of the declared weather up to a depth.</p><p class="need">Needs nothing from Haro.</p></li>
+      <li><b>V1</b><p>Report grade 2 for each node: kept claims joined to the nodes their tours reached.</p><p class="need">Built 2026-11-08, run on haro.exe.</p></li>
+      <li class="is-next"><b>V2</b><p>Property tours over declared domains: integers, decimals, choices, and texts in any alphabet, with a seed and shrinking.</p><p class="need">Built 2026-11-08, run on haro.exe.</p></li>
+      <li><b>V3</b><p>The schedules of the declared weather, up to a depth. Finite domains are already tried whole by V2.</p><p class="need">Needs nothing from Haro.</p></li>
       <li><b>V4</b><p><code>min_grade</code> and <code>over: impact</code> in the floor; hand-written goldens first.</p><p class="need">Needs nothing from Haro.</p></li>
       <li><b>V5</b><p>The certificate record. Its first producer is Haro's checker: <code>total</code>, <code>uses</code>, the profile.</p><p class="need">Waits on HARO-PROOF-01 (a).</p></li>
       <li><b>V6</b><p>Contracts, and a path from Haro to a solver or a verifier.</p><p class="need">Waits on HARO-PROOF-01 (b) to (d).</p></li>
@@ -305,8 +348,9 @@ footer p + p { margin-top: 8px; }
   </section>
 
   <footer>
-    <p>From <code>TESTOOR_EVIDENCE_LADDER.md</code>, stzlib main 6e06f0372. Ruled by the author on 2026-11-08 (TESTOOR-LADDER-01): the ladder is the direction of protocol 3, the six grade names stand, P9 follows P4 with V1 to V3 free to start earlier, and Testoor records certificates without checking proofs.</p>
+    <p>From <code>TESTOOR_EVIDENCE_LADDER.md</code> and <code>TESTOOR_PROTOCOL_3.md</code> on stzlib main. The shrink is a real run; the rest of the records are the protocol's own. Ruled by the author on 2026-11-08 (TESTOOR-LADDER-01): the ladder is the direction of protocol 3, the six grade names stand, P9 follows P4 with V1 to V3 free to start earlier, and Testoor records certificates without checking proofs.</p>
     <p>The graph above is an illustration with invented names, not a measurement of stzlib. The records it shows are a sketch of what V4 will write.</p>
   </footer>
 </main>
+
 </html>

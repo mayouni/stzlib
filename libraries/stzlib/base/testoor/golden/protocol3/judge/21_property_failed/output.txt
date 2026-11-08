@@ -1,0 +1,4 @@
+250	[testoor stop squares]
+500	[testoor node stzMath.Square 45]
+750	[testoor property {"id":"SQUARE-UNDER-50","nodes":["stzMath.Square"],"domain":"n int 0..100","seed":7,"tried":3,"of":101,"exhaustive":false,"held":false,"counterexample":{"n":8},"shrinks":5}]
+1000	[testoor end timed]

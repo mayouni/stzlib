@@ -1,0 +1,14 @@
+KEPT        fixtures/ratetour3.py  1 stops: 1 kept  (1.13 s, finished, timed)
+DIVERGED    fixtures/squares.py  1 stops: 0 kept, 1 diverged  seed 5  (1.13 s, finished, timed)
+    diverged  squares  (0.75 s)
+        diverged  property SQUARE-UNDER-50
+    counterexample  SQUARE-UNDER-50  {"n":8}  (seed 7, 5 shrinks)
+KEPT        fixtures/replace.py  1 stops: 2 kept  (1.88 s, finished, timed)
+owned 3 tours, run 3 (two figures, never summed)
+  claims: 3 kept, 1 diverged, 0 unreached, 0 unjudged
+  graph: 4 owned, 0 mentioned, 3 observed (three figures, never summed)
+  ladder: 1 exhausted, 1 generalised, 0 exemplified, 1 observed, 1 named, of 4 owned
+  tours: 0 finished, 3 finished-timed, 0 not-started, 0 broke, 0 hung, 0 unreadable
+  wall: 4.14 s, by golden
+  skipped by name: 0
+exit 1

@@ -1,0 +1,8 @@
+KEPT        fixtures/ratetour3.py  1 stops: 1 kept  (1.13 s, finished, timed)
+KEPT        fixtures/replace.py  1 stops: 2 kept  (1.88 s, finished, timed)
+owned 2 tours, run 2 (two figures, never summed)
+  claims: 3 kept, 0 diverged, 0 unreached, 0 unjudged
+  tours: 0 finished, 2 finished-timed, 0 not-started, 0 broke, 0 hung, 0 unreadable
+  wall: 3.01 s, by golden
+  skipped by name: 0
+exit 0

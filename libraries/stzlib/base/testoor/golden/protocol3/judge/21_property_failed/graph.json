@@ -1,0 +1,40 @@
+{
+ "testoor": "graph",
+ "protocol": 2,
+ "subject": "tax/stzProps.py",
+ "language": "python",
+ "fold": "ascii",
+ "complete": true,
+ "why": "",
+ "nodes": [
+  {
+   "id": "stzTax.Total",
+   "name": "Total",
+   "kind": "method",
+   "file": "tax/stzTax.py",
+   "line": 12
+  },
+  {
+   "id": "stzMath.Square",
+   "name": "Square",
+   "kind": "method",
+   "file": "tax/stzMath.py",
+   "line": 4
+  },
+  {
+   "id": "stzString.Replace",
+   "name": "Replace",
+   "kind": "method",
+   "file": "tax/stzString.py",
+   "line": 30
+  },
+  {
+   "id": "stzMath.Root",
+   "name": "Root",
+   "kind": "method",
+   "file": "tax/stzMath.py",
+   "line": 9
+  }
+ ],
+ "edges": []
+}

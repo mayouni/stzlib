@@ -245,7 +245,7 @@ measurement and with hand-written goldens, as P3 did.
 | step | what | needs Haro? |
 |---|---|---|
 | **V1** | report grade 2 per node: the join of kept claims and node lines, already in the logbook's data. **DONE 2026-11-08**: the ladder record, `TESTOOR_PROTOCOL_3.md` section 2 | no |
-| **V2** | grade 3: property tours over declared domains (refinement bounds first), seeded, with shrinking; TR5's metamorphic relations (`Verb`/`Verbed`/`VerbQ`) are its first properties | no |
+| **V2** | grade 3: property tours over declared domains (refinement bounds first), seeded, with shrinking; TR5's metamorphic relations (`Verb`/`Verbed`/`VerbQ`) are its first properties. **DONE 2026-11-08**: `TESTOOR_PROTOCOL_3.md` section 4, with grade 4 for finite domains tried whole | no |
 | **V3** | grade 4: enumerate finite domains and the schedules of the declared weather up to depth k; report `tried` and `of` | no |
 | **V4** | `min_grade` and `over:"impact"` in the floor; goldens first | no |
 | **V5** | the certificate record; the first producer is Haro's checker facts (question (a)) | yes, (a) |

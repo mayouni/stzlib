@@ -228,15 +228,36 @@ test "protocol 2: a run whose graph is incomplete still exits 0, and says so" {
     try std.testing.expectEqual(@as(usize, 0), failures);
 }
 
-test "protocol 3: the evidence ladder (V1) with a graph and without one" {
+/// the judge folder a run's cases live in: protocol 3's when its first case is there, else protocol 2's
+fn judgeDirFor(a: Allocator, dir: []const u8, lsub: []const u8, case: []const u8) ![]const u8 {
+    const rj = try J.parse(a, try readAll(a, dir, try std.fs.path.join(a, &.{ lsub, case, "run.json" })));
+    const cs = rj.get("cases").?.items();
+    if (cs.len == 0) return "protocol2/judge";
+    const probe = try std.fs.path.join(a, &.{ dir, "protocol3/judge", cs[0].str_() });
+    std.fs.cwd().access(probe, .{}) catch return "protocol2/judge";
+    return "protocol3/judge";
+}
+
+test "protocol 3: the judge cases of V2 (a property held, failed and shrunk, held over text)" {
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const dir = try goldenDir(a);
+    failures = 0;
+    try judgeCases(a, dir, "protocol3/judge", 3);
+    std.debug.print("  protocol 3 judge: {d} expected files compared in all\n", .{compared});
+    try std.testing.expectEqual(@as(usize, 0), failures);
+}
+
+test "protocol 3: the evidence ladder (V1, V2) with a graph and without one" {
     var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
     defer arena.deinit();
     const a = arena.allocator();
     const dir = try goldenDir(a);
     const cases = try caseNames(a, dir, "protocol3/logbook");
-    try std.testing.expect(cases.len >= 2);
+    try std.testing.expect(cases.len >= 4);
     failures = 0;
-    for (cases) |case| try logbookCase(a, dir, "protocol3/logbook", "protocol2/judge", case);
+    for (cases) |case| try logbookCase(a, dir, "protocol3/logbook", try judgeDirFor(a, dir, "protocol3/logbook", case), case);
     std.debug.print("  protocol 3 logbook: {d} expected files compared in all\n", .{compared});
     try std.testing.expectEqual(@as(usize, 0), failures);
 }

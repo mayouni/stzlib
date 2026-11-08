@@ -366,6 +366,34 @@ The first step of P9 (`TESTOOR_EVIDENCE_LADDER.md`, ruled TESTOOR-LADDER-01), an
 - **Not built:** grades 3 to 5 (V2, V3, V5), `min_grade` in the floor (V4). The Ring reference has no ladder; it is core-only, like
   protocol 2.
 
+### V2, property tours (grades 3 and 4), 2026-11-08 -- DONE
+
+The second step of P9, `TESTOOR_PROTOCOL_3.md` section 4. TESTOOR-NAMED-01 (b) came first: a protocol 3 logbook writes a tour's
+mention as `mentioned`.
+
+- **Measured first:** stzlib declares 13 refinement domains in its source (10 bounded values, 3 choices, all in tests and docs),
+  and about 34 `Verb`/`Verbed` pairs in `stzString` and 14 in `stzList`, which are properties over TEXT and lists. So text is a
+  first domain, beside `int`, `dec` and `one`.
+- **Written first, by hand:** judge cases 20, 21 and 22 under `golden/protocol3/judge/`, logbooks L11 and L12. The core
+  reproduced them the first time it compiled.
+- **`testoor_domain.zig`:** a domain's text read into dimensions; every value in order when there are no more than the tries,
+  else the origin and seeded draws (splitmix64 over the seed, the draw and the dimension); the shrink candidates, simplest first
+  (an int halves its distance to the origin, a text gets shorter and then its letters earlier in their alphabet). A `dec` is an
+  integer count of its step's smallest unit, never a float. Six tests.
+- **`testoor_property.zig`:** the property line read (malformed ones stay ordinary output) and written back in the core's key
+  order, and the three operations a face asks: `inputs`, `shrink`, `line`. Through the bridge as `StzEngineTestoorProperty`.
+- **The judge:** every tour keeps its property lines as `properties`; in a self-describing tour each is a claim of kind
+  `property`; the prose shows a counterexample. The ladder's grades 3 and 4 follow section 4.6.
+- **The Ring face:** `TestoorProperty(cId, cDomain, cCheck, aOptions)` in `base/testoor/stzProperty.ring` calls the check by
+  name and shrinks in the order the core gives, so a failure shrinks to the same answer in every language.
+- **Run on haro.exe:** the new guard `testoor_property_narrated.ring`, 32 assertions. "A square is under 50" shrinks to 8 and "a
+  text has as many bytes as letters" to the single letter U+00E0 from two seeds; two property tours walked as children through
+  the native runner give the ladder one node generalised and one observed. A real shrink at seed 20 took an 8-letter text of 23
+  bytes in four scripts to `à` in 9 steps (halves, then Hebrew, Greek and Latin letters), and 86 to 8 in 5.
+- **`zig build test-testoor`:** 92 of 92 (9 new).
+- **Not built:** list and map domains (the `stzList` pairs need them), the declared weather's schedules (V3), `min_grade` in the
+  floor (V4).
+
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 
 1. **One domain `stz_testoor`** (recommended) or one per module.

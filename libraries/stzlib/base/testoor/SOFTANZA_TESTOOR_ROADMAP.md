@@ -146,6 +146,9 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
   of finite domains and of the declared weather up to a depth, and `min_grade` in the floor.
 - **V1 DONE 2026-11-08**: the ladder record (`TESTOOR_PROTOCOL_3.md` section 2), asked for with `ladder`; goldens L9 and L10;
   run on haro.exe.
+- **V2 DONE 2026-11-08**: property tours (`TESTOOR_PROTOCOL_3.md` section 4): domains of ints, decimals, choices and texts in
+  any alphabet, seeded inputs and shrinking in the core, `TestoorProperty` in Ring; grade 4 for finite domains tried whole.
+  Next in P9: list domains, then V3 (the weather's schedules) and V4 (`min_grade`).
 - **V5 and V6 wait on the Haro desk** (HARO-PROOF-01): the checker's facts per node (`total`, `uses`, profile) as the
   first certificates, then contracts and a discharge path. Testoor records certificates and never checks a proof.
 - *Exit:* a change to a critical refinement point, proposed by an `:llm` posture, is refused unless every node in its

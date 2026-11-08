@@ -36,6 +36,7 @@ fn raise(p: *anyopaque, e: api.Error) void {
         error.BadJson => R.ring_vm_error(p, "Testoor: the request is not a JSON document"),
         error.BadOutputLine => R.ring_vm_error(p, "Testoor: a line of the tour's output has no numeric arrival time"),
         error.OutOfMemory => R.ring_vm_error(p, "Testoor: out of memory"),
+        error.BadDomain => R.ring_vm_error(p, "Testoor: the domain cannot be read, or the input is not one of its values"),
     }
 }
 
@@ -84,6 +85,14 @@ fn ring_TourProse(p: *anyopaque) callconv(.c) void {
     const arena = scratchArena();
     defer scratchDone(arena);
     const out = api.tourProseJson(arena.allocator(), req) catch |e| return raise(p, e);
+    rs2(p, out.ptr, @intCast(out.len));
+}
+
+fn ring_Property(p: *anyopaque) callconv(.c) void {
+    const req = request(p) orelse return;
+    const arena = scratchArena();
+    defer scratchDone(arena);
+    const out = api.propertyJson(arena.allocator(), req) catch |e| return raise(p, e);
     rs2(p, out.ptr, @intCast(out.len));
 }
 
@@ -224,6 +233,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginetestoornodehitid", .func = ring_NodeHitId },
     .{ .name = "stzenginetestoornodes", .func = ring_Nodes },
     .{ .name = "stzenginetestoorimpact", .func = ring_Impact },
+    .{ .name = "stzenginetestoorproperty", .func = ring_Property },
     .{ .name = "stzenginetestoorroutes", .func = ring_Routes },
     .{ .name = "stzenginetestoorroutesprose", .func = ring_RoutesProse },
     .{ .name = "stzenginetestoorverdict", .func = ring_Verdict },

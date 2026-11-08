@@ -1,0 +1,17 @@
+{
+ "by": "golden",
+ "root": "fixtures",
+ "topic": "",
+ "subject": "tax/stzProps.py",
+ "seed": 5,
+ "repeat": 1,
+ "timeout_ms": 120000,
+ "refuse_root": "",
+ "cases": [
+  "20_property_exhausted",
+  "22_property_text_generalised"
+ ],
+ "skipped": [],
+ "topics_skipped": [],
+ "flaky": []
+}

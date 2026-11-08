@@ -21,6 +21,7 @@ const T = @import("testoor_text.zig");
 const P = @import("testoor_promises.zig");
 const J = @import("testoor_json.zig");
 const G = @import("testoor_graph.zig");
+const Pr = @import("testoor_property.zig");
 
 pub const State = enum {
     none,
@@ -128,6 +129,8 @@ pub const Tour = struct {
     routes: []const RRoute,
     /// protocol 2: the nodes this tour reached or named; empty (and absent from the logbook) otherwise
     nodes: []const G.NodeEv = &.{},
+    /// protocol 3 (V2): the property lines it printed, in order; empty (and absent from the logbook) otherwise
+    properties: []const Pr.Record = &.{},
 };
 
 // ── how a tour ended ─────────────────────────────────────────
@@ -390,6 +393,7 @@ fn hasProtocolVerdicts(lines: []const Line) bool {
     for (lines) |l| {
         const t = T.trimSp(l.text);
         if (T.startsWith(t, "[testoor ok ") or T.startsWith(t, "[testoor fail ") or T.startsWith(t, "[testoor stop ")) return true;
+        if (Pr.looksLikeLine(t)) return true;
     }
     return false;
 }
@@ -434,6 +438,19 @@ fn adoptProtocol(a: Allocator, rec: Record, lines: []const Line) !Adopted {
             try claims.items[cur - 1].append(a, .{ .line = i, .kind = "sees", .claim = text, .want = "" });
             printed += 1;
             const shown = try std.mem.concat(a, u8, &.{ if (ok) "  [OK] " else "  [FAIL] ", text });
+            try out.append(a, .{ .text = shown, .at = ln.at });
+        } else if (try Pr.parseLine(a, t)) |pr| {
+            // protocol 3 (V2): in a self-describing tour a property is a claim of the stop it is printed in
+            const text = try std.mem.concat(a, u8, &.{ "property ", pr.id });
+            if (cur == 0) {
+                try stops.append(a, .{ .title = "(the tour)", .line = 1, .claims = &.{} });
+                try claims.append(a, .empty);
+                cur = 1;
+                try out.append(a, .{ .text = "(the tour)", .at = ln.at });
+            }
+            try claims.items[cur - 1].append(a, .{ .line = i, .kind = "property", .claim = text, .want = "" });
+            printed += 1;
+            const shown = try std.mem.concat(a, u8, &.{ if (pr.held) "  [OK] " else "  [FAIL] ", text });
             try out.append(a, .{ .text = shown, .at = ln.at });
         } else if (T.startsWith(t, "[testoor route ") and endsBracket(t)) {
             const where = if (cur > 0) stops.items[cur - 1].title else "";
@@ -498,10 +515,16 @@ pub fn verdict(a: Allocator, rec: Record, lines: []const Line, meta: Meta) !Tour
     run.seed = meta.seed;
     var weather: std.ArrayList([]const u8) = .empty;
     var hits: std.ArrayList(G.Hit) = .empty;
-    for (ls) |ln| {
+    var props: std.ArrayList(Pr.Record) = .empty;
+    // the lines as the child printed them: adoption above turns a property line into its verdict, and node, seed and
+    // weather lines pass through it unchanged
+    for (lines) |ln| {
         const t = T.trimSp(ln.text);
         const tn: i64 = @intCast(t.len);
-        if (T.startsWith(t, "[testoor node ")) {
+        if (T.startsWith(t, "[testoor property ")) {
+            // protocol 3 (V2): every tour keeps its property lines; a malformed one stays ordinary output
+            if (try Pr.parseLine(a, t)) |pr| try props.append(a, pr);
+        } else if (T.startsWith(t, "[testoor node ")) {
             // protocol 2; a line whose count is malformed is ignored and stays ordinary output
             if (G.parseNodeLine(t)) |h| try hits.append(a, h);
         } else if (T.startsWith(t, "[testoor seed ")) {
@@ -512,7 +535,7 @@ pub fn verdict(a: Allocator, rec: Record, lines: []const Line, meta: Meta) !Tour
         }
     }
     const nodes = try G.nodeEvidence(a, meta.graph, hits.items, meta.names);
-    return .{ .file = r.file, .dialect = r.dialect, .run = run, .flaky = false, .weather = weather.items, .routes = r.routes, .nodes = nodes };
+    return .{ .file = r.file, .dialect = r.dialect, .run = run, .flaky = false, .weather = weather.items, .routes = r.routes, .nodes = nodes, .properties = props.items };
 }
 
 // ── reading the goldens' input formats ───────────────────────

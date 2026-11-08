@@ -83,12 +83,18 @@ harness only. A run here is built from `protocol2/judge/` cases.
 
 | folder | one case is | inputs | expected |
 |---|---|---|---|
-| `protocol3/logbook/<case>/` | one run asked for the ladder | `run.json` with `"ladder": true`, and a `graph` object or none | `expected.json`, `expected.txt`, `expected.exit` |
+| `protocol3/judge/<case>/` | one tour that printed property lines (V2) | the inputs of `protocol2/judge/` | `expected.json`, `expected.txt` |
+| `protocol3/logbook/<case>/` | one run, built from `protocol3/judge/` cases when its first case is there, else from `protocol2/judge/` | `run.json`, with `"ladder": true` or not, and a `graph` object or none | `expected.json`, `expected.txt`, `expected.exit` |
 
 | case | what it pins down |
 |---|---|
 | `L9_ladder_graph` | cases 15, 16 (flaky), 18 and 19 against a complete graph of six: only the kept, finished, steady tour exemplifies; a node a mention reached takes its grade from the tour that observed it; one owned node stays named; `protocol` 3; exit 1 as without the ladder |
 | `L10_ladder_no_graph` | cases 15 and 16 with no graph: no `owned` and no `named`; a node two tours exemplified lists both; exit 0 |
+| `20_property_exhausted` | a property held over every value of a `dec` domain: a kept claim of kind `property` and its record |
+| `21_property_failed` | a property that failed: a diverged claim, the shrunk counterexample, the counterexample line |
+| `22_property_text_generalised` | a property held over unbounded texts; two malformed property lines ignored; a named node never reached |
+| `L11_ladder_properties` | grades 4, 3 and 1 beside a named node, the counts of grades 3 and 4, `mentioned` in the graph figures; exit 1 |
+| `L12_properties_no_ladder` | properties without the ladder: protocol 3 by the tours' records alone; exit 0 |
 
 ## Adding a case
 
