@@ -91,16 +91,31 @@ for i = 1 to 12000
 next
 cBig = cBase + cBase + cBase + cBase   # exactly 4x
 
-nT0 = StzEngineWatchTimestampMs()
-aB1 = StzFindCS("fox", cBase, TRUE)
-nBaseMs = StzEngineWatchTimestampMs() - nT0
+# THE REPETITIONS ARE CALIBRATED, not the size: on Ring++ with the engine
+# one find over the 1x text took under 3 ms, too short to time. The number
+# of finds per timing doubles until the 1x run is long enough (20 ms), and
+# the 4x run makes as many, so the ratio is per find either way (2026-11-08)
+nReps = 1
+while 1
+	nT0 = StzEngineWatchTimestampMs()
+	for r = 1 to nReps
+		aB1 = StzFindCS("fox", cBase, TRUE)
+	next
+	nBaseMs = StzEngineWatchTimestampMs() - nT0
+	if nBaseMs >= 20 or nReps >= 1024
+		exit
+	ok
+	nReps *= 2
+end
 
 nT0 = StzEngineWatchTimestampMs()
-aB2 = StzFindCS("fox", cBig, TRUE)
+for r = 1 to nReps
+	aB2 = StzFindCS("fox", cBig, TRUE)
+next
 nBigMs = StzEngineWatchTimestampMs() - nT0
 
-? "   1x = " + len(cBase) + " bytes / " + len(aB1) + " matches : " + nBaseMs + " ms"
-? "   4x = " + len(cBig) + " bytes / " + len(aB2) + " matches : " + nBigMs + " ms"
+? "   1x = " + len(cBase) + " bytes / " + len(aB1) + " matches : " + nBaseMs + " ms for " + nReps + " finds"
+? "   4x = " + len(cBig) + " bytes / " + len(aB2) + " matches : " + nBigMs + " ms for " + nReps + " finds"
 ? "   ratio = " + (nBigMs / nBaseMs) + "x for 4x the input"
 
 chk("the 1x run was slow enough to time honestly", nBaseMs >= 3)
