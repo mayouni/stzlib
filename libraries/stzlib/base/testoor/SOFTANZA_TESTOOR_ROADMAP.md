@@ -139,7 +139,7 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
 - **Zin SIMULATION_TEST** read into the logbook, once the Zin desk confirms what a tick means.
 - **Python, JS and others** registered by their owners; the conformance guard is already their test.
 
-### P9 -- Proof as evidence (PROPOSED 2026-11-08, not ruled).
+### P9 -- Proof as evidence (RULED 2026-11-08, TESTOOR-LADDER-01: yes to all four; V1 first).
 - **The evidence ladder** (`TESTOOR_EVIDENCE_LADDER.md`): six grades per node and property (named, observed,
   exemplified, generalised, exhausted, proved), and a floor that asks for a grade over the impact set of a change.
 - **V1 to V4 need nothing from Haro**: grade 2 per node, property tours over declared domains with shrinking, enumeration

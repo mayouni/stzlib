@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Testoor Evidence Ladder</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: one reading column; the ladder climbs bottom to top in three groups; then one worked graph and its record. No motion. */
+:root {
+  --bg: #F6F9F9; --surface: #FFFFFF; --tint: #E4EFEF; --rule: #C3D6D7;
+  --ink: #0E4E54; --accent: #1B6B72; --fg: #1A2A2B; --fg2: #3A5254;
+  --bad: #A3342A; --bad-bg: #FBE9E6; --good: #2C6A37; --good-bg: #E5F1E6;
+  --g0: #EDF4F4; --g0i: #1A2A2B; --g1: #D0E4E5; --g1i: #1A2A2B; --g2: #A5CDCF; --g2i: #0C2C2F;
+  --g3: #5C9FA4; --g3i: #FFFFFF; --g4: #2A7980; --g4i: #FFFFFF; --g5: #0E4E54; --g5i: #FFFFFF;
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --sans: "Source Sans 3", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+  --read: 18px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E1819; --surface: #142224; --tint: #172A2C; --rule: #2B4244;
+  --ink: #8FD3D8; --accent: #5FB6BC; --fg: #E0ECEC; --fg2: #B4C9CA;
+  --bad: #F0897D; --bad-bg: #3A1F1C; --good: #8FD49B; --good-bg: #1B3320;
+  --g0: #1C2B2D; --g0i: #E0ECEC; --g1: #23403F; --g1i: #E0ECEC; --g2: #2C5B5E; --g2i: #E0ECEC;
+  --g3: #3C8287; --g3i: #FFFFFF; --g4: #5FB6BC; --g4i: #0A1819; --g5: #A9E1E5; --g5i: #0A1819;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0E1819; --surface: #142224; --tint: #172A2C; --rule: #2B4244;
+  --ink: #8FD3D8; --accent: #5FB6BC; --fg: #E0ECEC; --fg2: #B4C9CA;
+  --bad: #F0897D; --bad-bg: #3A1F1C; --good: #8FD49B; --good-bg: #1B3320;
+  --g0: #1C2B2D; --g0i: #E0ECEC; --g1: #23403F; --g1i: #E0ECEC; --g2: #2C5B5E; --g2i: #E0ECEC;
+  --g3: #3C8287; --g3i: #FFFFFF; --g4: #5FB6BC; --g4i: #0A1819; --g5: #A9E1E5; --g5i: #0A1819;
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: var(--read); line-height: 1.55; }
+.wrap { max-width: 1060px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 56px; }
+header.head { background: var(--tint); border-bottom: 1px solid var(--rule); }
+header.head .wrap { padding-block: 40px 32px; }
+.eyebrow { font-family: var(--mono); font-weight: 600; color: var(--accent); letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 10px; font-size: var(--read); }
+h1, h2 { font-family: var(--serif); color: var(--ink); text-wrap: balance; margin: 0; }
+h1 { font-size: 2.6rem; line-height: 1.15; }
+h2 { font-size: 1.7rem; line-height: 1.25; margin-bottom: 12px; }
+p { margin: 0; max-width: 68ch; }
+.lede { margin-top: 14px; }
+.ruled { display: inline-flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 18px; }
+.chip { display: inline-block; font-weight: 700; padding: 2px 10px; border-radius: 6px; border: 1px solid var(--rule); background: var(--surface); color: var(--fg); }
+.chip.good { background: var(--good-bg); color: var(--good); border-color: var(--good); }
+.chip.bad { background: var(--bad-bg); color: var(--bad); border-color: var(--bad); }
+.chip.next { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+code, .mono { font-family: var(--mono); font-weight: 500; font-size: 0.95em; }
+section { margin-top: 48px; }
+.intro { margin-bottom: 20px; }
+
+/* the ladder */
+.ladder { display: grid; gap: 18px; }
+.group { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 16px; align-items: start; }
+.group-label { padding-top: 6px; }
+.group-label strong { display: block; color: var(--ink); font-family: var(--serif); font-size: 1.25rem; line-height: 1.3; }
+.group-label span { display: block; color: var(--fg2); margin-top: 4px; }
+.rungs { list-style: none; margin: 0; padding: 0 22px; display: grid; gap: 12px; position: relative; }
+.rungs::before, .rungs::after { content: ""; position: absolute; top: -9px; bottom: -9px; width: 8px; border-radius: 4px; background: var(--rule); }
+.rungs::before { left: 0; } .rungs::after { right: 0; }
+.rung { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 0.8fr); gap: 16px; align-items: start; background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 14px 16px; box-shadow: 0 1px 2px rgba(14, 78, 84, 0.08); }
+.badge { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-family: var(--serif); font-weight: 700; font-size: 1.6rem; }
+.rung h3 { margin: 0; font-family: var(--serif); color: var(--ink); font-size: 1.35rem; line-height: 1.3; }
+.rung .means { margin-top: 2px; }
+.rung dl { margin: 0; display: grid; gap: 6px; }
+.rung dt { font-weight: 700; color: var(--ink); }
+.rung dd { margin: 0; }
+.rung .status { margin-top: 10px; }
+.b0 { background: var(--g0); color: var(--g0i); border: 1px solid var(--rule); } .b1 { background: var(--g1); color: var(--g1i); }
+.b2 { background: var(--g2); color: var(--g2i); } .b3 { background: var(--g3); color: var(--g3i); }
+.b4 { background: var(--g4); color: var(--g4i); } .b5 { background: var(--g5); color: var(--g5i); }
+.warn { margin-top: 18px; border-left: 4px solid var(--accent); padding: 4px 0 4px 14px; }
+
+/* the worked graph */
+.figure { margin-top: 18px; background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 16px; }
+.svgbox { overflow-x: auto; }
+svg.graph { display: block; width: 965px; height: auto; max-width: none; }
+svg text { font-family: var(--sans); font-size: 16px; }
+svg .id { font-family: var(--mono); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.legend span { padding: 2px 10px; border-radius: 6px; font-weight: 600; }
+.cols { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; margin-top: 22px; align-items: start; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { color: var(--ink); font-weight: 700; }
+td .g { display: inline-block; padding: 0 8px; border-radius: 5px; font-weight: 600; }
+.tablebox { overflow-x: auto; }
+pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: var(--mono); font-size: 0.95em; background: var(--tint); border: 1px solid var(--rule); border-radius: 10px; padding: 14px; }
+.verdict { margin-top: 12px; }
+
+/* the steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.steps li { background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 12px 14px; }
+.steps li.is-next { border: 2px solid var(--accent); }
+.steps b { color: var(--ink); font-family: var(--serif); font-size: 1.2rem; }
+.steps p { margin-top: 4px; }
+.steps .need { margin-top: 6px; color: var(--fg2); font-weight: 600; }
+footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--rule); color: var(--fg2); }
+footer p + p { margin-top: 8px; }
+
+@media (max-width: 860px) {
+  .group { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .rung { grid-template-columns: 56px minmax(0, 1fr); }
+  .rung dl { grid-column: 1 / -1; }
+  .cols { grid-template-columns: minmax(0, 1fr); }
+  .steps { grid-template-columns: minmax(0, 1fr); }
+  h1 { font-size: 2.1rem; }
+}
+@media (max-width: 760px) { .svgbox { display: none; } .legend { display: none; } }
+@media (min-width: 761px) { .phone-note { display: none; } }
+</style>
+
+<header class="head">
+  <div class="wrap">
+    <p class="eyebrow">Testoor · protocol 3 · ruled 2026-11-08</p>
+    <h1>The evidence ladder</h1>
+    <p class="lede">Testing shows that bugs are present, never that they are absent. So Testoor records <b>how much is known</b> about each node of the program's graph, property by property, on six grades. A change is accepted only when every node it reaches stands on the grade its floor asks for.</p>
+    <div class="ruled"><span class="chip good">TESTOOR-LADDER-01: yes to all four</span><span class="chip">grades 0 to 2 recorded today</span><span class="chip next">next step: V1</span></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section aria-labelledby="h-ladder">
+    <h2 id="h-ladder">Six grades, read from the bottom up</h2>
+    <p class="intro">Each grade is recorded per node <i>and per property</i>, never per file and never as a percentage. Higher grades cost more and say more.</p>
+
+    <div class="ladder">
+      <div class="group">
+        <div class="group-label"><strong>With Haro's checker and provers</strong><span>Steps V5 and V6, after the Haro desk answers HARO-PROOF-01</span></div>
+        <ol class="rungs">
+          <li class="rung">
+            <div class="badge b5" aria-label="grade 5">5</div>
+            <div><h3>proved</h3><p class="means">A checker certified the property against a specification, for these exact source bytes.</p>
+              <p class="status"><span class="chip">V5, V6</span></p></div>
+            <dl><dt>Produced by</dt><dd>Haro's checker first (<code>total</code>, <code>uses</code>), then a prover. Testoor records the certificate and never checks a proof.</dd>
+                <dt>Proves</dt><dd>The property holds on every path, if the specification and the trusted base are right.</dd></dl>
+          </li>
+        </ol>
+      </div>
+
+      <div class="group">
+        <div class="group-label"><strong>Testoor on its own</strong><span>Steps V2 and V3, from declared domains, the seed and the stepped clock</span></div>
+        <ol class="rungs">
+          <li class="rung">
+            <div class="badge b4" aria-label="grade 4">4</div>
+            <div><h3>exhausted</h3><p class="means">The property held for every input of a finite declared domain, or every schedule of the declared weather up to a depth.</p>
+              <p class="status"><span class="chip">V3</span></p></div>
+            <dl><dt>Produced by</dt><dd>An enumerating tour. Costs the size of the domain.</dd>
+                <dt>Proves</dt><dd>The property holds, inside the bound.</dd></dl>
+          </li>
+          <li class="rung">
+            <div class="badge b3" aria-label="grade 3">3</div>
+            <div><h3>generalised</h3><p class="means">The property held on N generated inputs from a declared domain, with a seed. A failure is shrunk to its smallest case and kept as a new tour.</p>
+              <p class="status"><span class="chip">V2</span></p></div>
+            <dl><dt>Produced by</dt><dd>A property tour. Costs N walks, or one walk that loops.</dd>
+                <dt>Proves</dt><dd>No counterexample in N tries.</dd></dl>
+          </li>
+        </ol>
+      </div>
+
+      <div class="group">
+        <div class="group-label"><strong>Recorded today</strong><span>Protocol 2; V1 reports grade 2 for each node</span></div>
+        <ol class="rungs">
+          <li class="rung">
+            <div class="badge b2" aria-label="grade 2">2</div>
+            <div><h3>exemplified</h3><p class="means">A claim was kept on a tour that reached the node.</p>
+              <p class="status"><span class="chip next">V1, next</span></p></div>
+            <dl><dt>Produced by</dt><dd>A tour. Costs one walk.</dd>
+                <dt>Proves</dt><dd>The node did the right thing on one input the author chose.</dd></dl>
+          </li>
+          <li class="rung">
+            <div class="badge b1" aria-label="grade 1">1</div>
+            <div><h3>observed</h3><p class="means">A tour reached the node and printed <code>[testoor node ID]</code>.</p>
+              <p class="status"><span class="chip good">built, P3.3 and P3.4</span></p></div>
+            <dl><dt>Produced by</dt><dd>A tour or a trace hook. Costs one walk.</dd>
+                <dt>Proves</dt><dd>The node ran without failing, once.</dd></dl>
+          </li>
+          <li class="rung">
+            <div class="badge b0" aria-label="grade 0">0</div>
+            <div><h3>named</h3><p class="means">The node is in the program's own graph.</p>
+              <p class="status"><span class="chip good">built, P3.3</span></p></div>
+            <dl><dt>Produced by</dt><dd>The program's graph reader. Free.</dd>
+                <dt>Proves</dt><dd>The node exists and has an owner.</dd></dl>
+          </li>
+        </ol>
+      </div>
+    </div>
+    <p class="warn"><b>A grade is only as good as its specification.</b> A proof of a specification nobody read is weaker than a kept claim written from the real intent, so a floor that asks for <i>proved</i> also asks who read the specification (<code>spec_read_by</code>).</p>
+  </section>
+
+  <section aria-labelledby="h-graph">
+    <h2 id="h-graph">How a floor reads the ladder on a change</h2>
+    <p>An example with invented names. An <code>:llm</code> proposal moves the refinement point <code>stzTax#Rate</code> from 0.20 to 0.22. The point is <i>critical</i>, so its floor asks that every node in the change's impact set reach <i>exhausted</i>.</p>
+
+    <div class="figure">
+      <div class="svgbox">
+        <svg class="graph" viewBox="0 0 965 465" width="965" height="465" role="img" aria-label="Seven nodes. The impact set holds stzTax#Rate, stzTax.Total, stzInvoice.Amount, stzReport.Monthly and stzInvoice.Render. Monthly and Render are below the floor; Render reaches stzTemplate.Fill, an open node.">
+          <defs>
+            <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" style="fill: var(--fg2)"></path>
+            </marker>
+          </defs>
+          <!-- the impact set -->
+          <rect x="6" y="38" width="953" height="312" rx="16" style="fill: var(--tint); stroke: var(--accent); stroke-width: 2; stroke-dasharray: 8 6"></rect>
+          <text x="20" y="28" style="fill: var(--accent); font-weight: 700">impact set of the change: the change and every node that calls into it</text>
+
+          <!-- edges: caller to callee -->
+          <path d="M210,96 C240,96 240,186 263,186" style="fill: none; stroke: var(--fg2); stroke-width: 2" marker-end="url(#arr)"></path>
+          <path d="M210,256 C240,256 240,206 263,206" style="fill: none; stroke: var(--fg2); stroke-width: 2" marker-end="url(#arr)"></path>
+          <path d="M210,280 C240,280 240,421 263,421" style="fill: none; stroke: var(--fg2); stroke-width: 2" marker-end="url(#arr)"></path>
+          <path d="M455,196 L508,196" style="fill: none; stroke: var(--fg2); stroke-width: 2" marker-end="url(#arr)"></path>
+          <path d="M700,196 L753,196" style="fill: none; stroke: var(--fg2); stroke-width: 2" marker-end="url(#arr)"></path>
+          <path d="M605,232 L605,383" style="fill: none; stroke: var(--fg2); stroke-width: 2" marker-end="url(#arr)"></path>
+
+          <!-- stzReport.Monthly: generalised, below the floor -->
+          <rect x="20" y="60" width="190" height="72" rx="10" style="fill: var(--g3); stroke: var(--bad); stroke-width: 3"></rect>
+          <text class="id" x="32" y="90" style="fill: var(--g3i)">stzReport.Monthly</text>
+          <text x="32" y="116" style="fill: var(--g3i)">3 generalised · 500</text>
+          <text x="20" y="156" style="fill: var(--bad); font-weight: 700">below the floor</text>
+
+          <!-- stzInvoice.Render: exemplified, capped -->
+          <rect x="20" y="230" width="190" height="72" rx="10" style="fill: var(--g2); stroke: var(--bad); stroke-width: 3"></rect>
+          <text class="id" x="32" y="260" style="fill: var(--g2i)">stzInvoice.Render</text>
+          <text x="32" y="286" style="fill: var(--g2i)">2 exemplified</text>
+          <text x="20" y="326" style="fill: var(--bad); font-weight: 700">capped: reaches an open node</text>
+
+          <!-- stzInvoice.Amount: exhausted -->
+          <rect x="265" y="160" width="190" height="72" rx="10" style="fill: var(--g4)"></rect>
+          <text class="id" x="277" y="190" style="fill: var(--g4i)">stzInvoice.Amount</text>
+          <text x="277" y="216" style="fill: var(--g4i)">4 exhausted · 26 of 26</text>
+
+          <!-- stzTax.Total: proved by the checker's facts -->
+          <rect x="510" y="160" width="190" height="72" rx="10" style="fill: var(--g5)"></rect>
+          <text class="id" x="522" y="190" style="fill: var(--g5i)">stzTax.Total</text>
+          <text x="522" y="216" style="fill: var(--g5i)">5 proved · total, pure</text>
+
+          <!-- stzTax#Rate: the change -->
+          <rect x="755" y="160" width="190" height="72" rx="10" style="fill: var(--g4); stroke: var(--fg); stroke-width: 3"></rect>
+          <text class="id" x="767" y="190" style="fill: var(--g4i)">stzTax#Rate</text>
+          <text x="767" y="216" style="fill: var(--g4i)">4 exhausted · 26 of 26</text>
+          <text x="755" y="258" style="fill: var(--fg); font-weight: 700">the change: 0.20 to 0.22</text>
+          <text x="755" y="282" style="fill: var(--fg2)">proposed by :llm</text>
+
+          <!-- outside the impact set -->
+          <rect x="265" y="385" width="190" height="72" rx="10" style="fill: var(--surface); stroke: var(--bad); stroke-width: 2; stroke-dasharray: 6 5"></rect>
+          <text class="id" x="277" y="415" style="fill: var(--fg)">stzTemplate.Fill</text>
+          <text x="277" y="441" style="fill: var(--bad); font-weight: 700">open · eval</text>
+
+          <rect x="510" y="385" width="190" height="72" rx="10" style="fill: var(--g2)"></rect>
+          <text class="id" x="522" y="415" style="fill: var(--g2i)">stzMoney.Add</text>
+          <text x="522" y="441" style="fill: var(--g2i)">2 exemplified</text>
+          <text x="715" y="415" style="fill: var(--fg2)">a callee, outside the set:</text>
+          <text x="715" y="439" style="fill: var(--fg2)">the floor does not ask for it</text>
+        </svg>
+      </div>
+      <div class="legend" aria-hidden="true">
+        <span class="b0">0 named</span><span class="b1">1 observed</span><span class="b2">2 exemplified</span><span class="b3">3 generalised</span><span class="b4">4 exhausted</span><span class="b5">5 proved</span>
+      </div>
+      <p class="phone-note">The drawing needs a wider screen; the table below holds the same facts.</p>
+    </div>
+
+    <div class="cols">
+      <div class="tablebox">
+        <table>
+          <thead><tr><th>node in the impact set</th><th>grade</th><th>against <i>exhausted</i></th></tr></thead>
+          <tbody>
+            <tr><td><code>stzTax#Rate</code><br>the change</td><td><span class="g b4">4 exhausted</span></td><td><span class="chip good">meets</span></td></tr>
+            <tr><td><code>stzTax.Total</code></td><td><span class="g b5">5 proved</span><br>the checker's facts</td><td><span class="chip good">meets</span></td></tr>
+            <tr><td><code>stzInvoice.Amount</code></td><td><span class="g b4">4 exhausted</span></td><td><span class="chip good">meets</span></td></tr>
+            <tr><td><code>stzReport.Monthly</code></td><td><span class="g b3">3 generalised</span></td><td><span class="chip bad">below</span></td></tr>
+            <tr><td><code>stzInvoice.Render</code></td><td><span class="g b2">2 exemplified</span><br>can go no higher</td><td><span class="chip bad">below</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <pre>"evidence": {
+  "posture": "llm",
+  "tier": "critical",
+  "floor": {"min_grade": "exhausted",
+            "over": "impact"},
+  "met": false,
+  "why": "stzInvoice.Render can reach no
+          grade above exemplified: it calls
+          stzTemplate.Fill, which is open"
+}</pre>
+        <p class="verdict"><span class="chip bad">refused, exit 1</span> The change rolls back. Walking <code>stzReport.Monthly</code> to <i>exhausted</i> is a cost; <code>stzInvoice.Render</code> needs <code>stzTemplate.Fill</code> to stop using <code>eval</code>. That is the graph saying where proof stops.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-steps">
+    <h2 id="h-steps">The steps, in order</h2>
+    <ol class="steps">
+      <li class="is-next"><b>V1</b><p>Report grade 2 for each node: kept claims joined to the nodes their tours reached.</p><p class="need">Next. Needs nothing from Haro.</p></li>
+      <li><b>V2</b><p>Property tours over declared domains, refinement bounds first, with a seed and shrinking.</p><p class="need">Needs nothing from Haro.</p></li>
+      <li><b>V3</b><p>Enumerate finite domains, and the schedules of the declared weather up to a depth.</p><p class="need">Needs nothing from Haro.</p></li>
+      <li><b>V4</b><p><code>min_grade</code> and <code>over: impact</code> in the floor; hand-written goldens first.</p><p class="need">Needs nothing from Haro.</p></li>
+      <li><b>V5</b><p>The certificate record. Its first producer is Haro's checker: <code>total</code>, <code>uses</code>, the profile.</p><p class="need">Waits on HARO-PROOF-01 (a).</p></li>
+      <li><b>V6</b><p>Contracts, and a path from Haro to a solver or a verifier.</p><p class="need">Waits on HARO-PROOF-01 (b) to (d).</p></li>
+    </ol>
+  </section>
+
+  <footer>
+    <p>From <code>TESTOOR_EVIDENCE_LADDER.md</code>, stzlib main 6e06f0372. Ruled by the author on 2026-11-08 (TESTOOR-LADDER-01): the ladder is the direction of protocol 3, the six grade names stand, P9 follows P4 with V1 to V3 free to start earlier, and Testoor records certificates without checking proofs.</p>
+    <p>The graph above is an illustration with invented names, not a measurement of stzlib. The records it shows are a sketch of what V4 will write.</p>
+  </footer>
+</main>
+</html>

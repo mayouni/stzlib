@@ -268,8 +268,11 @@ V1 to V4 can be built in Zig and Ring now. V5 and V6 wait on the Haro desk's ans
 - **Most of stzlib is Ring with `eval`.** Grade 5 will cover a small core first: engine-facing functions, the
   judge itself, and `.haro` code under a profile. That is how every verified system started.
 
-## 11. Decisions the author owes
+## 11. Decisions
 
-| row | question | class |
+| row | question | state |
 |---|---|---|
-| TESTOOR-LADDER-01 | (a) adopt the ladder as the direction of protocol 3; (b) the six grade names (named, observed, exemplified, generalised, exhausted, proved); (c) the phase V1 to V6 after P4, with V1 to V3 allowed to start before P4 ends; (d) Testoor records certificates and never checks proofs itself | judgement |
+| TESTOOR-LADDER-01 | (a) adopt the ladder as the direction of protocol 3; (b) the six grade names (named, observed, exemplified, generalised, exhausted, proved); (c) the phase V1 to V6 after P4, with V1 to V3 allowed to start before P4 ends; (d) Testoor records certificates and never checks proofs itself | **DECIDED 2026-11-08 by the author, all four as written**: "yes to all four, make a visual diagram of the ladder, display it, and only after that we can go with V1" |
+
+The diagram the author asked for is `TESTOOR_EVIDENCE_LADDER.html` beside this note: the six grades in three groups, and
+one worked change whose floor is refused (an illustration with invented names, not a measurement).
