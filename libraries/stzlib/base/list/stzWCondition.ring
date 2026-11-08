@@ -242,3 +242,17 @@ func StzRequireFunction(p, pcWhat)
 			"(Haro runs no text as code).")
 	ok
 
+# The value of an expression for every item: a FUNCTION of the item is called
+# on each; an expression given as text is a W expression the engine computes
+# (StzWValues), never run as code.
+func _StzValuesOfItems(paItems, pExpr)
+	if StzIsFunctionValue(pExpr)
+		_aR_ = []
+		_n_ = len(paItems)
+		for _i_ = 1 to _n_
+			_aR_ + call pExpr(paItems[_i_])
+		next
+		return _aR_
+	ok
+	return StzWValues(paItems, pExpr)
+

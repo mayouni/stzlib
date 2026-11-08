@@ -16,47 +16,54 @@ load "../_narrated.ring"
 
 aPairs = [ [ "b", 3 ], [ "aaa", 1 ], [ "cc", 2 ] ]
 
-Scenario("SortBy orders the pairs by an evaluated key")
+Scenario("SortBy orders the pairs by a key, a function of the pair (Haro runs no text as code)")
 	o = new stzListOfPairs(aPairs)
-	o.SortBy('@pair[2]')
+	o.SortBy(func p { return p[2] })
 	Then("by the second item, ascending", @@(o.Content()), '[ [ "aaa", 1 ], [ "cc", 2 ], [ "b", 3 ] ]')
 	o = new stzListOfPairs(aPairs)
-	o.SortByInAscending('len(@pair[1])')
+	o.SortByInAscending(func p { return len(p[1]) })
 	Then("by the length of the first item", @@(o.Content()), '[ [ "b", 3 ], [ "cc", 2 ], [ "aaa", 1 ] ]')
 	o = new stzListOfPairs(aPairs)
-	o.SortByUp('-@pair[2]')
+	o.SortByUp(func p { return -p[2] })
 	Then("a negated key gives the reverse order", @@(o.Content()), '[ [ "b", 3 ], [ "cc", 2 ], [ "aaa", 1 ] ]')
 	o = new stzListOfPairs(aPairs)
-	Then("SortedBy answers a sorted copy", @@(o.SortedBy('@pair[1]')), '[ [ "aaa", 1 ], [ "b", 3 ], [ "cc", 2 ] ]')
+	Then("SortedBy answers a sorted copy", @@(o.SortedBy(func p { return p[1] })), '[ [ "aaa", 1 ], [ "b", 3 ], [ "cc", 2 ] ]')
 	Then("and leaves the list as it was", @@(o.Content()), @@(aPairs))
 EndScenario()
 
 Scenario("Equal keys keep their order")
 	o = new stzListOfPairs([ [ "x", 2 ], [ "y", 1 ], [ "z", 2 ], [ "w", 1 ] ])
 	Then("ascending: y w before x z, each in input order",
-		@@(o.SortedBy('@pair[2]')), '[ [ "y", 1 ], [ "w", 1 ], [ "x", 2 ], [ "z", 2 ] ]')
+		@@(o.SortedBy(func p { return p[2] })), '[ [ "y", 1 ], [ "w", 1 ], [ "x", 2 ], [ "z", 2 ] ]')
 	Then("descending: x z before y w, each in input order",
-		@@(o.SortedByInDescending('@pair[2]')), '[ [ "x", 2 ], [ "z", 2 ], [ "y", 1 ], [ "w", 1 ] ]')
+		@@(o.SortedByInDescending(func p { return p[2] })), '[ [ "x", 2 ], [ "z", 2 ], [ "y", 1 ], [ "w", 1 ] ]')
 EndScenario()
 
 Scenario("The descending forms order the pairs and keep each pair as it is")
 	o = new stzListOfPairs(aPairs)
-	o.SortByInDescending('@pair[2]')
+	o.SortByInDescending(func p { return p[2] })
 	Then("SortByInDescending, by the second item", @@(o.Content()), '[ [ "b", 3 ], [ "cc", 2 ], [ "aaa", 1 ] ]')
 	o = new stzListOfPairs(aPairs)
-	o.SortByDown('len(@pair[1])')
+	o.SortByDown(func p { return len(p[1]) })
 	Then("SortByDown, by length", @@(o.Content()), '[ [ "aaa", 1 ], [ "cc", 2 ], [ "b", 3 ] ]')
 	o = new stzListOfPairs(aPairs)
-	Then("SortedByDown answers a copy", @@(o.SortedByDown('@pair[1]')), '[ [ "cc", 2 ], [ "b", 3 ], [ "aaa", 1 ] ]')
+	Then("SortedByDown answers a copy", @@(o.SortedByDown(func p { return p[1] })), '[ [ "cc", 2 ], [ "b", 3 ], [ "aaa", 1 ] ]')
 	Then("no pair is turned round", o.Content()[1][1], "b")
 	Then("SortedInDescending is descending", @@(o.SortedInDescending()), '[ [ "cc", 2 ], [ "b", 3 ], [ "aaa", 1 ] ]')
 EndScenario()
 
 Scenario("A bad key expression is refused")
 	o = new stzListOfPairs(aPairs)
-	Then("an expression without @pair raises", Raises(o, "o.SortBy('len(x)')") != "", 1)
+	Then("a key given as text is refused, not run", Raises(o, "o.SortBy('len(x)')") != "", 1)
+	Then("...even one naming @pair", Raises(o, "o.SortBy('@pair[2]')") != "", 1)
 	o = new stzListOfPairs([ [ "a", 1 ], [ "b", "z" ] ])
-	Then("keys mixing numbers and texts raise", Raises(o, "o.SortBy('@pair[2]')") != "", 1)
+	bMixed = 0
+	try
+		o.SortBy(func p { return p[2] })
+	catch
+		bMixed = 1
+	done
+	Then("keys mixing numbers and texts raise", bMixed, 1)
 EndScenario()
 
 Scenario("ReplacePair and UpdatePairWith reach every position")

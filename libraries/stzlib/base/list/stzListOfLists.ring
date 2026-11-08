@@ -708,23 +708,17 @@ class stzListOfLists from stzList
 	#@ aka  The positions of the sublists satisfying the W condition.
 	def PositionsW(pcCondition)
 
-		_cPwCondition_ = StringSimplified(_StzStripBraces(pcCondition))
-		_aResult_ = []  # the evaluated code below appends to this very variable
-
+		if NOT StzIsFunctionValue(pcCondition)
+			StzRaise("PositionsW takes a function of the list (func aList { return len(aList) = 3 }): the W engine reads a list item as nothing, and Haro runs no text as code.")
+		ok
+		_aResult_ = []
 		_aPwLists_ = This.ListOfLists()
 		_nPwLen_ = len(_aPwLists_)
-
-		for @i = 1 to _nPwLen_
-			@list = _aPwLists_[@i]
-
-			@item = @list # Allows using both @list and @item in the user's script
-			_cPwCode_ = "if " + _cPwCondition_ + char(10) +
-				char(9) + "_aResult_ + @i" + char(10) +
-			"ok"
-
-			eval(_cPwCode_)
+		for _i_ = 1 to _nPwLen_
+			if call pcCondition(_aPwLists_[_i_])
+				_aResult_ + _i_
+			ok
 		next
-
 		return _aResult_
 
 		#< @FunctionFluentForm
@@ -773,23 +767,17 @@ class stzListOfLists from stzList
 	# The sublists satisfying the W condition.
 	def ListsW(pcCondition)
 
-		_cLwCondition_ = StringSimplified(_StzStripBraces(pcCondition))
-		_aResult_ = []  # the evaluated code below appends to this very variable
-
+		if NOT StzIsFunctionValue(pcCondition)
+			StzRaise("ListsW takes a function of the list (func aList { return len(aList) = 3 }): the W engine reads a list item as nothing, and Haro runs no text as code.")
+		ok
+		_aResult_ = []
 		_aLwLists_ = This.ListOfLists()
 		_nLwLen_ = len(_aLwLists_)
-
-		for @i = 1 to _nLwLen_
-			@list = _aLwLists_[@i]
-
-			@item = @list # Allows using both @list and @item in the user's script
-			_cLwCode_ = "if " + _cLwCondition_ + char(10) +
-				char(9) + "_aResult_ + @list" + char(10) +
-			"ok"
-
-			eval(_cLwCode_)
+		for _i_ = 1 to _nLwLen_
+			if call pcCondition(_aLwLists_[_i_])
+				_aResult_ + _aLwLists_[_i_]
+			ok
 		next
-
 		return _aResult_
 
 		#< @FunctionFluentForm
@@ -4914,12 +4902,11 @@ class stzListOfLists from stzList
 		_aSobCol_ = This.Col(nCol)
 		_nSobLenCol_ = len(_aSobCol_)
 
-		_cSobCode_ = '_value_ = (' + _StzStripBraces(pcExpr) + ')'
-
-		for @i = 1 to _nSobLenCol_
-			@item = _aSobCol_[@i]
-			eval(_cSobCode_)
-			ring_insert(_aSobContent_[@i], 1, _value_)
+		# a function of the item, or a W expression on @item the engine
+		# computes -- never run as code (Haro)
+		_aSobVals_ = _StzValuesOfItems(_aSobCol_, pcExpr)
+		for _i_ = 1 to _nSobLenCol_
+			ring_insert(_aSobContent_[_i_], 1, _aSobVals_[_i_])
 		next
 
 		This.UpdateWith( @SortLists(_aSobContent_) )
@@ -5326,22 +5313,20 @@ class stzListOfLists from stzList
 				StzRaise("Incorrect param type! pcExpr must be a string.")
 			ok
 
-			if NOT StringContainsCS(pcExpr, "@item", 0)
-				StzRaise("Syntax error! pcExpr must contain the keword @item.")
+			if NOT StzIsFunctionValue(pcExpr) and NOT StringContainsCS(pcExpr, "@item", 0)
+				StzRaise("Syntax error! pcExpr must contain the keword @item, or be a function of the item.")
 			ok
 		ok
-
-		_cCobCode_ = '_value_ = (' + _StzStripBraces(pcExpr) + ')'
 
 		_aCobContent_ = This.Content()
 
 		_aCobCol_ = This.Col(nCol)
 		_nCobLenCol_ = len(_aCobCol_)
 
-		for @i = 1 to _nCobLenCol_
-			@item = _aCobCol_[@i]
-			eval(_cCobCode_)
-			ring_insert(_aCobContent_[@i], nCol, _value_)
+		# a function of the item, or a W expression the engine computes (Haro)
+		_aCobVals_ = _StzValuesOfItems(_aCobCol_, pcExpr)
+		for _i_ = 1 to _nCobLenCol_
+			ring_insert(_aCobContent_[_i_], nCol, _aCobVals_[_i_])
 		next
 
 		_aCobResult_ = StzListOfListsQ(_aCobContent_).

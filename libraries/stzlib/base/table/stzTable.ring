@@ -19411,20 +19411,93 @@ func _NormalizeColLookupKey(pVal)
 
 	#>
 
+	# The rows (numbers) where a condition holds. A FUNCTION of the row (its
+	# cells by column name, row[:age]) is called per row; a condition given as
+	# text is computed by the engine over numeric columns (@(:age) > 30), and
+	# any value other than 0 keeps the row. A text condition the engine cannot
+	# compute is refused by name -- Haro runs no text as code (2026-11-08).
+	def _RowsWhere(pCondition)
+		_nRows_ = This.NumberOfRows()
+		_anKeep_ = []
+		if StzIsFunctionValue(pCondition)
+			_acNames_ = This.ColNames()
+			_nCols_ = len(_acNames_)
+			for _r_ = 1 to _nRows_
+				_aRw_ = This.Row(_r_)
+				_aH_ = []
+				for _c_ = 1 to _nCols_
+					_aH_ + [ _acNames_[_c_], _aRw_[_c_] ]
+				next
+				if call pCondition(_aH_)
+					_anKeep_ + _r_
+				ok
+			next
+			return _anKeep_
+		ok
+		if _nRows_ = 0  return []  ok
+		_aV_ = This._EngineFormulaColumn(pCondition)
+		if len(_aV_) != _nRows_
+			StzRaise("Can't filter! The condition is not one the engine computes (arithmetic and " +
+				"comparisons over numeric columns): pass a function of the row instead, " +
+				"func row { return ... row[:colname] ... }.")
+		ok
+		for _r_ = 1 to _nRows_
+			if _aV_[_r_] != 0
+				_anKeep_ + _r_
+			ok
+		next
+		return _anKeep_
+
+	# The values of a formula over the numeric columns it names, one per row,
+	# computed by the engine; [ ] when the engine cannot compute it (no column
+	# named, a column that is not all numbers, or a formula it does not compile).
+	def _EngineFormulaColumn(pcFormula)
+		if NOT isString(pcFormula) or StzIsFunctionValue(pcFormula)  return []  ok
+		_nCols_ = This.NumberOfCols()
+		_nRows_ = This.NumberOfRows()
+		_aRefCols_ = []
+		for _c_ = 1 to _nCols_
+			if StzFindFirstCS('@(:' + This.ColName(_c_) + ')', pcFormula, 0) > 0
+				_aRefCols_ + _c_
+			ok
+		next
+		_nRefLen_ = len(_aRefCols_)
+		if _nRefLen_ = 0  return []  ok
+		_oF_ = new stzString(pcFormula)
+		for _j_ = 1 to _nRefLen_
+			_oF_.ReplaceCS('@(:' + This.ColName(_aRefCols_[_j_]) + ')', 'This[' + _j_ + ']', 0)
+		next
+		if _oF_.ContainsCS('@(:', 0)  return []  ok
+		_aRefData_ = []
+		for _j_ = 1 to _nRefLen_
+			_aCv_ = This.Col(_aRefCols_[_j_])
+			for _c_ = 1 to len(_aCv_)
+				if NOT isNumber(_aCv_[_c_])  return []  ok
+			next
+			_aRefData_ + _aCv_
+		next
+		return StzEngineListEvalColumnsDense(_aRefData_, _nRows_, _oF_.Content())
+
 	  #--------------------------------------------#
 	 #  FILTERING THE TABLE BY A GIVEN CONDITION  #
 	#--------------------------------------------#
 
 	def FilterW(pcCondition)
 
-		# Validate input is a string
+		# A function of the row, or a condition the engine computes over
+		# numeric columns; a condition is never run as code (Haro)
 
 		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
+			StzRaise("Incorrect param type! pcCondition must be a string or a function.")
 		ok
 
-		if ring_trim(pcCondition) = ""
+		if NOT StzIsFunctionValue(pcCondition) and ring_trim(pcCondition) = ""
 			StzRaise("Can't proceed! You must provide a condition.")
+		ok
+
+		if StzIsFunctionValue(pcCondition)
+			This.FilterWXT(pcCondition)
+			return
 		ok
 
 
@@ -19436,31 +19509,12 @@ func _NormalizeColLookupKey(pVal)
 			return
 		ok
 
-		# Prepare the condition expression
-
-		_nCols_ = This.NumberOfCols()
-
-		for i = 1 to _nCols_
-			_cColName_ = This.ColName(i)
-			_oCondition_.ReplaceCS('@(:' + _cColName_ + ')', 'This.Cell(' + i + ', nRow)', 0)
-		next
-
-		_cCondition_ = _oCondition_.Content()
-
-		# Prepare evaluation code
-		_cCode_ = "_bResult_ = " + _cCondition_
-
-		# Perform filtering
-		_nRows_ = This.NumberOfRows()
+		_anKeep_ = This._RowsWhere(pcCondition)
 		_aRowsToKeep_ = []
-
-		for nRow = 1 to _nRows_
-			# Evaluate the condition for the current row
-			eval(_cCode_)
-			if _bResult_
-				_aRowsToKeep_ + This.Row(nRow)
-			ok
+		for _k_ = 1 to len(_anKeep_)
+			_aRowsToKeep_ + This.Row(_anKeep_[_k_])
 		next
+
 		_nLenRowsToKeep_ = len(_aRowsToKeep_)
 
 		# Rebuild the table with filtered rows
@@ -19523,65 +19577,15 @@ func _NormalizeColLookupKey(pVal)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		if ring_trim(pcCondition) = ""
+		if NOT StzIsFunctionValue(pcCondition) and ring_trim(pcCondition) = ""
 			StzRaise("Can't proceed! You must provide a condition.")
 		ok
 
-		# Validate that all referenced column names exist
-
-		_oConditionTemp_ = new stzString(pcCondition)
-		_acColNames_ = This.ColNames()
-		_nLenCols_ = len(_acColNames_)
-
-		for i = 1 to _nLenCols_
-
-			if _oConditionTemp_.ContainsCS('@(:' + _acColNames_[i] + ')', 0)
-				if NOT This.IsColName(_acColNames_[i])
-					StzRaise("Invalid column name! The column '@(:" + _acColNames_[i] + ")' does not exist in the table.")
-				ok
-			ok
-
-		next
-
-		# Prepare the condition expression
-
-		_oCondition_ = new stzString(pcCondition)
-		_nCols_ = This.NumberOfCols()
-
-		for i = 1 to _nCols_
-			_cColName_ = This.ColName(i)
-			_oCondition_.ReplaceCS('@(:' + _cColName_ + ')', 'This.Cell(' + i + ', nRow)', 0)
-		next
-
-		_cCondition_ = _oCondition_.Content()
-
-		# Verify that no '@(:...)' patterns remain
-
-		if Q(_cCondition_).Contains('@(:')
-			StzRaise("Invalid condition! Unresolved column reference found in: " + _cCondition_)
-		ok
-
-		# Prepare evaluation code
-
-		_cCode_ = "_bOk_ = " + _cCondition_
-
-		# Perform filtering
-
-		_nRows_ = This.NumberOfRows()
+		_anKeep_ = This._RowsWhere(pcCondition)
 		_aRowsToKeep_ = []
-
-		for nRow = 1 to _nRows_
-			try
-				eval(_cCode_)
-				if _bOk_
-					_aRowsToKeep_ + This.Row(nRow)
-				ok
-			catch
-				StzRaise("Error evaluating condition: " + _cCondition_ + " at row " + nRow)
-			done
+		for _k_ = 1 to len(_anKeep_)
+			_aRowsToKeep_ + This.Row(_anKeep_[_k_])
 		next
-
-		# Rebuild the table with filtered rows
 
 		_aResult_ = []
 		_nCols_ = This.NumberOfCols()

@@ -1150,20 +1150,20 @@ class stzListOfPairs from stzListOfLists
 	#   see           SortBy, SortByInDescending
 	def _SortedByExpr(pcExpr, bDescending)
 
-		if NOT ( isString(pcExpr) and ring_len(StzFindCS("@pair", pcExpr, 0)) > 0 )
-			StzRaise("Incorrect param! pcExpr must be a string containing @pair keyword.")
+		# the key is a FUNCTION of the pair (func aPair { return aPair[2] }):
+		# the W engine reads a list item as nothing, and Haro runs no text
+		# as code (2026-11-08)
+		if NOT StzIsFunctionValue(pcExpr)
+			StzRaise("Incorrect param! The sort key is a function of the pair: func aPair { return aPair[2] }.")
 		ok
 
 		_aContent_ = This.Content()
 		_nLen_ = ring_len(_aContent_)
-		_cCode_ = "_xKey_ = " + pcExpr
 		_aKeyed_ = []
 		_nNumbers_ = 0
 
 		for _iSb_ = 1 to _nLen_
-			@pair = _aContent_[_iSb_]
-			_xKey_ = ""
-			eval(_cCode_)
+			_xKey_ = call pcExpr(_aContent_[_iSb_])
 			if isNumber(_xKey_)
 				_nNumbers_++
 			but NOT isString(_xKey_)

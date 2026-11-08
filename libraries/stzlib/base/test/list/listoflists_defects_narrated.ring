@@ -28,11 +28,20 @@ EndScenario()
 
 Scenario("PositionsW and ListsW collect what the condition keeps")
 	o1 = new stzListOfLists([ [ 1, 2, 3 ], [ 4 ], [ 5, 6, 7 ] ])
-	Then("PositionsW answers the positions of the lists with three items (it raised R24)",
-		@@(o1.PositionsW("len(@list) = 3")), "[ 1, 3 ]")
-	Then("none matching answers nothing", @@(o1.PositionsW("len(@list) = 9")), "[ ]")
-	Then("ListsW answers the lists themselves", @@(o1.ListsW("len(@list) = 1")), "[ [ 4 ] ]")
-	Then("FindListsW is PositionsW", @@(o1.FindListsW("len(@list) = 3")), "[ 1, 3 ]")
+	# the condition is a function of the list: the W engine reads a list item
+	# as nothing, and Haro runs no text as code (2026-11-08)
+	Then("PositionsW answers the positions of the lists with three items",
+		@@(o1.PositionsW(func l { return len(l) = 3 })), "[ 1, 3 ]")
+	Then("none matching answers nothing", @@(o1.PositionsW(func l { return len(l) = 9 })), "[ ]")
+	Then("ListsW answers the lists themselves", @@(o1.ListsW(func l { return len(l) = 1 })), "[ [ 4 ] ]")
+	Then("FindListsW is PositionsW", @@(o1.FindListsW(func l { return len(l) = 3 })), "[ 1, 3 ]")
+	bTextRefused = 0
+	try
+		o1.PositionsW("len(@list) = 3")
+	catch
+		bTextRefused = 1
+	done
+	Then("NEGATIVE: the condition as text is refused, not run", bTextRefused, 1)
 EndScenario()
 
 Scenario("JustifyEachListWith takes the item it pads with")
