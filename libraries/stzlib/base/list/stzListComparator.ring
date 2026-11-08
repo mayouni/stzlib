@@ -22,9 +22,9 @@
 # and ContainsOneOfTheseCS methods; build one with new stzListComparator when you only need to
 # compare. It never changes the list, so a stzList passed in stays intact. Every test has a CS form
 # taking 1 to compare with case and 0 to ignore it, and the plain form compares with case.
-# IsEqualTo, IsNotEqualTo and IsPermutationOf compare sets: they ignore order and repeats, so [ 1,
-# 1, 2 ] equals [ 1, 2, 2 ]; IsStrictlyEqualTo is the one that checks positions. Union, CommonItems
-# and IsSubsetOf work on sets too. Found today: IsReverseOf raises error R3 (the function that
+# IsEqualTo, IsNotEqualTo and IsPermutationOf compare multisets: they ignore order and count
+# repeats, so [ 1, 1, 2 ] does not equal [ 1, 2, 2 ]; IsStrictlyEqualTo is the one that checks
+# positions. Union, CommonItems and IsSubsetOf work on sets. Found today: IsReverseOf raises error R3 (the function that
 # reverses the other list does not exist), and IsSortedLike answers TRUE for any two lists of the
 # same size. Hebrew, Arabic and emoji items compare like any other text.
 #
@@ -102,32 +102,18 @@ class stzListComparator from stzObject
 	#===============================#
 
 	def IsEqualToCS(paOtherList, pCaseSensitive)
-		# Set-based equality: same items regardless of order
-		if NOT isList(paOtherList)
-			return 0
-		ok
-		if This.NumberOfItems() != len(paOtherList)
-			return 0
-		ok
-		# Mutual subset check via engine
-		_pCmpA_ = @oList._EngineListFromContent()
-		_oCmpTemp_ = new stzList(paOtherList)
-		_pCmpB_ = _oCmpTemp_._EngineListFromContent()
-		_nCmpAsubB_ = StzEngineListIsSubsetCS(_pCmpA_, _pCmpB_, pCaseSensitive)
-		_nCmpBsubA_ = StzEngineListIsSubsetCS(_pCmpB_, _pCmpA_, pCaseSensitive)
-		StzEngineListFree(_pCmpB_)
-		StzEngineListFree(_pCmpA_)
-		return _nCmpAsubB_ and _nCmpBsubA_
+		# Multiset equality: the stzList method is the one implementation.
+		return @oList.IsEqualToCS(paOtherList, pCaseSensitive)
 
-	# TRUE if another list has the same size and the same items, in any order.
+	# TRUE if another list holds the same items, each as many times, in any order.
 	#
 	#   paOtherList   the list to compare with
 	#   returns       TRUE or FALSE, as 1 or 0
 	#   note          case counts: IsEqualToCS(paOtherList, 0) ignores it; use IsStrictlyEqualTo
 	#                 when the order matters
-	#   warning       it ignores order and repeats: [ 1, 2, 3, 4 ] equals [ 4, 3, 2, 1 ], and [ 1,
-	#                 1, 2 ] equals [ 1, 2, 2 ], since only the size and the set of items are
-	#                 compared; a value that is not a list answers FALSE
+	#   note          order does not matter and repeats do: [ 1, 2, 3, 4 ] equals [ 4, 3, 2, 1 ],
+	#                 and [ 1, 1, 2 ] does not equal [ 1, 2, 2 ]; a value that is not a list
+	#                 answers FALSE
 	#   see           IsStrictlyEqualTo, IsPermutationOf, IsNotEqualTo
 	def IsEqualTo(paOtherList)
 		return This.IsEqualToCS(paOtherList, 1)
@@ -496,25 +482,16 @@ class stzListComparator from stzObject
 	#======================================================#
 
 	def IsPermutationOfCS(paOtherList, pCaseSensitive)
-		if This.NumberOfItems() != len(paOtherList)
-			return 0
-		ok
-		pA = @oList._EngineListFromContent()
-		_oTemp_ = new stzList(paOtherList)
-		pB = _oTemp_._EngineListFromContent()
-		_nAsubB_ = StzEngineListIsSubsetCS(pA, pB, pCaseSensitive)
-		_nBsubA_ = StzEngineListIsSubsetCS(pB, pA, pCaseSensitive)
-		StzEngineListFree(pB)
-		StzEngineListFree(pA)
-		return _nAsubB_ and _nBsubA_
+		# A permutation holds the same items, each as many times: the
+		# multiset equality of stzList.
+		return @oList.IsEqualToCS(paOtherList, pCaseSensitive)
 
-	# TRUE if another list has the same size and the same set of items, in any order.
+	# TRUE if another list holds the same items, each as many times, in another (or the same) order.
 	#
 	#   paOtherList   the list to compare with
 	#   returns       TRUE or FALSE, as 1 or 0
-	#   note          case counts unless IsPermutationOfCS(paOtherList, 0) is used
-	#   warning       it ignores repeats, so [ 1, 1, 2 ] is called a permutation of [ 1, 2, 2 ],
-	#                 which is not one; it is the same test as IsEqualTo
+	#   note          case counts unless IsPermutationOfCS(paOtherList, 0) is used; [ 1, 1, 2 ]
+	#                 is not a permutation of [ 1, 2, 2 ]; it is the same test as IsEqualTo
 	#   see           IsEqualTo, IsStrictlyEqualTo
 	def IsPermutationOf(paOtherList)
 		return This.IsPermutationOfCS(paOtherList, 1)

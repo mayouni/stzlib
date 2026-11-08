@@ -3490,12 +3490,27 @@ class stzList from stzObject
 		ok
 		return _aResult_
 
-	  #-------------------------------------------#
-	 #  EQUALITY CHECK (set-based, engine-backed) #
-	#-------------------------------------------#
+	  #-------------------------------------------------#
+	 #  EQUALITY CHECK (multiset, any order, engine)    #
+	#-------------------------------------------------#
 
+	# TRUE if the list holds the same items as the given list, in any order, each item as many times.
+	#
+	#   paOtherList      the list to compare with
+	#   pCaseSensitive   1 compares text with case, 0 ignores it (also :CaseSensitive = 0)
+	#   returns          TRUE or FALSE
+	#   note             repeats count: [ 1, 1, 2 ] is not equal to [ 1, 2, 2 ]
+	#   see              IsEqualTo, IsStrictlyEqualToCS
 	def IsEqualToCS(paOtherList, pCaseSensitive)
-		# Set-based equality: same items regardless of order
+		# Multiset equality, in the engine. Both sides are copied, each
+		# copy is sorted under the case rule, and the sorted copies are
+		# compared position by position: two sorted lists match exactly
+		# when they hold the same items the same number of times. The
+		# engine's sort order and its equality fold case the same way, so
+		# items that compare equal sort next to each other.
+		#
+		# This replaced a mutual-subset check (A in B and B in A, same
+		# size), which ignored repeats: [1,1,2] read equal to [1,2,2].
 		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
@@ -3508,31 +3523,37 @@ class stzList from stzObject
 			return 0
 		ok
 
-		# Use mutual subset check (A subset B AND B subset A)
-		_pEqList1_ = This._Engine()
-		if _pEqList1_ = "" return 0 ok
+		# A copy of the cached handle: sorting the cache itself would put
+		# it out of step with @aContent.
+		_pEqMine_ = StzEngineListClone(This._Engine())
+		if _pEqMine_ = "" return 0 ok
 
-		_oEqOther_ = new stzList(paOtherList)
-		_pEqList2_ = _oEqOther_._EngineListFromContent()
-		if _pEqList2_ = ""
+		_pEqOther_ = StzEngineMarshalList(paOtherList)
+		if _pEqOther_ = ""
+			StzEngineListFree(_pEqMine_)
 			return 0
 		ok
 
-		_nAsubB_ = StzEngineListIsSubsetCS(_pEqList1_, _pEqList2_, pCaseSensitive)
-		_nBsubA_ = StzEngineListIsSubsetCS(_pEqList2_, _pEqList1_, pCaseSensitive)
-		StzEngineListFree(_pEqList2_)
+		StzEngineListSortCS(_pEqMine_, pCaseSensitive)
+		StzEngineListSortCS(_pEqOther_, pCaseSensitive)
+		_nEqResult_ = StzEngineListEqualsCS(_pEqMine_, _pEqOther_, pCaseSensitive)
 
-		return _nAsubB_ and _nBsubA_
+		StzEngineListFree(_pEqOther_)
+		StzEngineListFree(_pEqMine_)
+
+		return _nEqResult_
 
 	# TRUE if the list holds the same items as the given list, in any order, each item as many times.
 	#
 	#   paOtherList   the list to compare with
 	#   returns       TRUE or FALSE
-	#   note          order does not matter: IsStrictlyEqualTo also compares the positions
-	#   see           IsStrictlyEqualTo
+	#   note          order does not matter, repeats do: IsStrictlyEqualTo also compares the positions
+	#   see           IsStrictlyEqualTo, IsEqualToCS
 	#   example       ? o1.IsEqualTo([ "c", "b", "a", "b" ])
 	#                 #--> TRUE
 	#                 ? o1.IsEqualTo([ "a", "b", "c" ])
+	#                 #--> FALSE
+	#                 ? o1.IsEqualTo([ "a", "b", "c", "c" ])
 	#                 #--> FALSE
 	def IsEqualTo(paOtherList)
 		return This.IsEqualToCS(paOtherList, 1)
