@@ -73,16 +73,25 @@ o3 = new stzTableAggregator([
 	[ :WORD, [ "al", "be", "ce" ] ]
 ])
 
-# WORD is a string column: the numeric guard sends this to the Ring fallback,
-# where '+' is string concatenation -- NOT the engine's numeric coercion.
-o3.AddCalculatedCol(:TAG, '@(:WORD) + "-x"')
-chk("a string-concat formula falls back and concatenates",
+# WORD is a string column, which the engine's arithmetic does not take. What
+# used to fall back to running the formula as code is a FUNCTION of the row
+# (Haro runs no text as code), where '+' is string concatenation.
+o3.AddCalculatedCol(:TAG, func row { return row[:word] + "-x" })
+chk("a string-concat formula, as a function of the row, concatenates",
 	@@(o3.Col(:TAG)) = @@([ "al-x", "be-x", "ce-x" ]))
 ? "  TAG -> " + @@( o3.Col(:TAG) )
 
-# A Ring builtin the engine DSL does not implement: also the fallback path.
-o3.AddCalculatedCol(:UP, 'upper(@(:WORD))')
-chk("a Ring-only function falls back and still computes",
+# A Ring builtin the engine DSL does not implement: a function of the row too,
+# and the same formula as text is refused by name.
+o3.AddCalculatedCol(:UP, func row { return upper(row[:word]) })
+bUpRefused = 0
+try
+	o3.AddCalculatedCol(:UP2, 'upper(@(:WORD))')
+catch
+	bUpRefused = 1
+done
+chk("NEGATIVE: the text formula the engine cannot compute is refused, not run", bUpRefused = 1)
+chk("a Ring-only function, given as a function of the row, computes",
 	@@(o3.Col(:UP)) = @@([ "AL", "BE", "CE" ]))
 ? "  UP  -> " + @@( o3.Col(:UP) )
 

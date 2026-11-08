@@ -15,11 +15,12 @@ rxuter() {
 
 	AddTrigger(:EmailFound = "(\w+)@(\w+\.\w+)")
 
-	# Step 2: Define how to process found emails
+	# Step 2: Define how to process found emails -- a function of the
+	# matched value (Haro runs no text as code)
 
-	AddComputation( :When = :EmailFound, :Do = "{
-	          @value = StzStringQ(@value).Split('@')[2]
-	}")
+	AddComputation( :When = :EmailFound, :Do = func cMatch {
+	          return StzStringQ(cMatch).Split('@')[2]
+	})
 
 	# Step 3: Process text containing emails
 

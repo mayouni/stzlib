@@ -159,21 +159,8 @@ class stzRegexuter from stzObject
 			StzRaise("Can't proceed! Trigger does not exist: " + _cTriggerName_)
 		ok
 
-		if NOT isString(_cCode_)
-			StzRaise("Invalid code type! Expected string.")
-		ok
-
-		# Verify code contains @value
-		if NOT StringContains(_cCode_, "@value")
-			StzRaise("Invalid computation! Code must contain @value keyword.")
-		ok
-
-		# Clean code
-		_cCode_ = trim(_cCode_)
-		if StzLeft(_cCode_, 1) = "{" and StzRight(_cCode_, 1) = "}"
-			_cCode_ = StzMid(_cCode_, 2, StzLen(_cCode_)-2)
-		ok
-
+		# a function of the matched value -- Haro runs no text as code
+		StzRequireFunction(_cCode_, "AddCode")
 		@aCodesPerTrigger + [_cTriggerName_, _cCode_]
 
 		# Attaches a piece of Ring code to a trigger, to compute a new value from each match held in @value.
@@ -538,14 +525,14 @@ class stzRegexuter from stzObject
 			ok
 		next
 
-		if trim(_cCode_) = ""
+		if NOT StzIsFunctionValue(_cCode_)
 			return cMatchedValue
 		ok
 
+		# the computation is a function of the matched value (Haro runs no
+		# text as code)
 		try
-			@value = cMatchedValue
-			eval(_cCode_)
-			return @value
+			return call _cCode_(cMatchedValue)
 		catch
 			return cMatchedValue
 		done

@@ -136,21 +136,8 @@ class stzListexuter from stzObject
             StzRaise("Trigger does not exist: " + _cTriggerName_)
         ok
         
-        if NOT isString(_cCode_)
-            StzRaise("Invalid code type! Expected string.")
-        ok
-        
-        # Verify code contains @value or @list reference
-        if NOT (StringContains(_cCode_, "@value") or StringContains(_cCode_, "@list"))
-            StzRaise("Code must contain @value or @list reference.")
-        ok
-        
-        # Clean code
-        _cCode_ = trim(_cCode_)
-        if StzLeft(_cCode_, 1) = "{" and StzRight(_cCode_, 1) = "}"
-            _cCode_ = StzMid(_cCode_, 2, StzLen(_cCode_)-2)
-        ok
-        
+        # a function of the matched value -- Haro runs no text as code
+        StzRequireFunction(_cCode_, "AddCode")
         @aCodesPerTrigger + [_cTriggerName_, _cCode_]
         
     #------------------#
@@ -555,21 +542,14 @@ class stzListexuter from stzObject
             ok
         next
         
-        if trim(_cCode_) = ""
+        if NOT StzIsFunctionValue(_cCode_)
             return aMatchedValue
         ok
-        
+
+        # the computation is a function of the matched list (Haro runs no
+        # text as code)
         try
-            @list = aMatchedValue
-            @value = aMatchedValue  # For compatibility 
-            eval(_cCode_)
-            
-            # Return either @list or @value based on which was modified
-            if @list != aMatchedValue
-                return @list
-            else
-                return @value
-            ok
+            return call _cCode_(aMatchedValue)
         catch
             return aMatchedValue
         done

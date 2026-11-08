@@ -13,12 +13,12 @@ lxu() {
     # Combining multiple ListEx features
     AddTrigger(:ComplexData = "[@S, [@N1-100+], @!N?]")  # String, list of nums 1-100, optional non-number
     
-    AddCode(:ComplexData, '{
+    AddCode(:ComplexData, func v {
         # Process the name
-        cName = @list[1]
+        cName = v[1]
         
         # Calculate statistics on the numbers
-        aNumbers = @list[2]
+        aNumbers = v[2]
         nSum = 0
         nMin = 999
         nMax = 0
@@ -35,20 +35,21 @@ lxu() {
         
         # Check if we have the optional tag
         cTag = ""
-        if len(@list) > 2
-            cTag = @list[3]
+        if len(v) > 2
+            cTag = v[3]
         ok
         
         # Build result
-        @list = [
+        v = [
             "ID: " + cName,
             "Stats: [min:" + nMin + ", max:" + nMax + ", avg:" + nAvg + "]"
         ]
         
         if cTag != ""
-            @list + ["Tag: " + cTag]
+            v + ["Tag: " + cTag]
         ok
-    }')
+        return v
+    })
     
     Process([
         ["temp_readings", [22, 24, 21, 25], "celsius"],

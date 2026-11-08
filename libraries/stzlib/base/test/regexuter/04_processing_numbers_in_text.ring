@@ -16,9 +16,10 @@ rxu() {
 
 	# Step 2: Define what to do when the trigger fires
 
-	AddCode( :When = :NumberFound, :Do = '{
-		@value = @number(@value) * 2
-	}')
+	AddCode( :When = :NumberFound, :Do = func v {
+		v = @number(v) * 2
+		return v
+	})
 
 	# Step 3: Process some text to find and compute on matches
 

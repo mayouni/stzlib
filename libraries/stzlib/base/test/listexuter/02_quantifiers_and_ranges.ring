@@ -14,21 +14,23 @@ lxu() {
     AddTrigger(:OneTwoNumbers = "[@N1-2, @S]")  # 1-2 numbers followed by string
     AddTrigger(:OptionalString = "[@N, @S?]")   # Number with optional string
     
-    AddCode(:OneTwoNumbers, '{
-        if len(@list) = 3  # Two numbers and a string
-            @list = [ @list[1] + @list[2], @list[3] ]
+    AddCode(:OneTwoNumbers, func v {
+        if len(v) = 3  # Two numbers and a string
+            v = [ v[1] + v[2], v[3] ]
         else  # One number and a string
-            @list = [ @list[1], @list[2] ]
+            v = [ v[1], v[2] ]
         ok
-    }')
+        return v
+    })
     
-    AddCode(:OptionalString, '{
-        if len(@list) = 2  # Has optional string
-            @list = [ "WITH_STRING", @list ]
+    AddCode(:OptionalString, func v {
+        if len(v) = 2  # Has optional string
+            v = [ "WITH_STRING", v ]
         else  # Just a number
-            @list = [ "NUMBER_ONLY", @list ]
+            v = [ "NUMBER_ONLY", v ]
         ok
-    }')
+        return v
+    })
     
     Process([
         [10, "apple"],      # OneTwoNumbers with one number

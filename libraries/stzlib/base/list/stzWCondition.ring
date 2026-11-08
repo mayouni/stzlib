@@ -227,3 +227,18 @@ func StzIsQueryCondition(pcCond)
 	# Only worth the checked path when there is a method call the engine
 	# cannot take; everything else goes to the engine itself.
 	return _bHasMethod_
+
+# 1 when p is a function the program can call: a named function or an
+# anonymous one (func x { ... }), both names isfunction() knows.
+func StzIsFunctionValue(p)
+	if NOT isString(p) or p = ""  return 0  ok
+	return isfunction(p)
+
+# Raises unless p is a function: an API that used to take CODE AS TEXT takes a
+# function instead, because Haro runs no text as code (PRINCIPAL-HAROFIRST-01).
+func StzRequireFunction(p, pcWhat)
+	if NOT StzIsFunctionValue(p)
+		stzraise(pcWhat + " takes a function, not code as text: pass func x { ... } " +
+			"(Haro runs no text as code).")
+	ok
+

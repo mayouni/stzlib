@@ -18,17 +18,20 @@ rxu.AddTrigger(["variable", "var\s+\w+\s*="])
 rxu.AddTrigger(["comment", "#.*$"])
 
 # Add analysis computations
-rxu.AddCode("function", '{
-    @value = "FUNCTION {" + trim(@value) + "}"
-}')
+rxu.AddCode("function", func v {
+    v = "FUNCTION {" + trim(v) + "}"
+    return v
+    })
 
-rxu.AddCode("variable", '{
-    @value = "VAR {" + trim(@value) + "}"
-}')
+rxu.AddCode("variable", func v {
+    v = "VAR {" + trim(v) + "}"
+    return v
+    })
 
-rxu.AddCode("comment", '{
-    @value = "COMMENT {" + trim(@value) + "}"
-}')
+rxu.AddCode("comment", func v {
+    v = "COMMENT {" + trim(v) + "}"
+    return v
+    })
 
 # Process code
 

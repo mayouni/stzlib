@@ -15,10 +15,11 @@ rxu() {
     
 	# Define transformation with logging
 
-	@C(:When = :SensitiveData, :Do = '{
-		nOriginalLength = len(@value)
-		@value = "REDACTED-" + nOriginalLength
-	}')
+	@C(:When = :SensitiveData, :Do = func v {
+		nOriginalLength = len(v)
+		v = "REDACTED-" + nOriginalLength
+		return v
+	})
 
 	# Process sensitive content
 
@@ -80,9 +81,15 @@ rxu {
 
 	# Add computations
 
-	@C( :For = "numbers", 	:Do = '{ @value = number(@value) * 2 }' )
-	@C( :For = "words", 	:Do = '{ @value = upper(@value) }' )
-	@C( :For = "spaces", 	:Do = '{ @value = "-" }' )
+	@C( :For = "numbers", 	:Do = func v { v = number(v) * 2
+	return v
+})
+	@C( :For = "words", 	:Do = func v { v = upper(v)
+	return v
+})
+	@C( :For = "spaces", 	:Do = func v { v = "-"
+	return v
+})
 
 	# Process text
 	Process("hello 123 world 456")

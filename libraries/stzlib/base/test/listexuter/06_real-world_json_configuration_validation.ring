@@ -17,36 +17,39 @@ lxu() {
     AddTrigger(:LoggingConfig = "[@S{debug;info;warning;error}, @N?]")  # level, retention days
     
     # Validate and normalize configs
-    AddCode(:ServerConfig, '{
+    AddCode(:ServerConfig, func v {
         # Normalize hostname to lowercase
-        @list[1] = lower(@list[1])
+        v[1] = lower(v[1])
         
         # Validate endpoints begin with "/"
-        _nList3Len_ = len(@list[3])
+        _nList3Len_ = len(v[3])
         for i = 1 to _nList3Len_
-            if not beginswith(@list[3][i], "/")
-                @list[3][i] = "/" + @list[3][i]
+            if not beginswith(v[3][i], "/")
+                v[3][i] = "/" + v[3][i]
             ok
         next
         
         # Add validation stamp
-        @list + ["VALID_SERVER_CONFIG"]
-    }')
+        v + ["VALID_SERVER_CONFIG"]
+        return v
+    })
     
-    AddCode(:DatabaseConfig, '{
+    AddCode(:DatabaseConfig, func v {
         # Validate DB connection
-        @list + ["CONNECTION_STRING: " + @list[2] + "/" + @list[1]]
-        @list + ["VALID_DB_CONFIG"]
-    }')
+        v + ["CONNECTION_STRING: " + v[2] + "/" + v[1]]
+        v + ["VALID_DB_CONFIG"]
+        return v
+    })
     
-    AddCode(:LoggingConfig, '{
+    AddCode(:LoggingConfig, func v {
         # Set default retention if missing
-        if len(@list) = 1
-            @list + [30]  # Default 30 days
+        if len(v) = 1
+            v + [30]  # Default 30 days
         ok
         
-        @list + ["VALID_LOGGING_CONFIG"]
-    }')
+        v + ["VALID_LOGGING_CONFIG"]
+        return v
+    })
     
     # Sample configuration to validate
     configData = [

@@ -51,14 +51,22 @@ chk("... values correct", @@(o.Col(:DOUBLEINCOME)) = @@([ 2400, 80000, 18000 ]))
 chk("both calc cols now tracked", len(o.FindCalculatedCols()) = 2)
 
 ? ""
-? "-- Scene 3: a FALLBACK calc col (Ring-only formula) still works --"
+? "-- Scene 3: a calc col the engine cannot compute is a FUNCTION of the row --"
 
-# StzCountryQ(...) is a Ring method call the engine DSL cannot compile, over a
-# string column -- exactly like 209_show's Currency column. It must fall back
-# to the classic eval path and still compute.
-o.AddCalculatedCol(:SHOUT, 'upper(@(:COUNTRY))')
-chk("a Ring-function calc col falls back and computes",
+# upper() over a string column is Ring logic the engine DSL does not compute.
+# It used to fall back to running the formula text as code; Haro runs no text
+# as code (PRINCIPAL-HAROFIRST-01), so it is a function of the row, read by
+# column name, and the text form is refused by name.
+o.AddCalculatedCol(:SHOUT, func row { return upper(row[:country]) })
+chk("a calc col given as a function of the row computes",
 	@@(o.Col(:SHOUT)) = @@([ "TUNISIA", "JAPAN", "BRAZIL" ]))
+bRefused = 0
+try
+	o.AddCalculatedCol(:SHOUT2, 'upper(@(:COUNTRY))')
+catch
+	bRefused = 1
+done
+chk("NEGATIVE: the same formula as text is refused, not run", bRefused = 1)
 ? "  SHOUT -> " + @@(o.Col(:SHOUT))
 
 ? ""
@@ -78,7 +86,8 @@ chk("ProductCol", t.ProductCol(:QTY) = 240000)
 ? "-- Scene 5: calculated ROWS from a bare stzTable --"
 
 r = new stzTable([ [ :A, [ 1, 2, 3 ] ], [ :B, [ 10, 20, 30 ] ] ])
-r.AddCalculatedRow([ '@Sum(@(:A))', '@Sum(@(:B))' ])
+# each formula is a function of its column's cells (Haro runs no text as code)
+r.AddCalculatedRow([ func aCol { return @Sum(aCol) }, func aCol { return @Sum(aCol) } ])
 chk("AddCalculatedRow appends a summary row", r.NumberOfRows() = 4)
 chk("... with the aggregated values", @@(r.Row(4)) = @@([ 6, 60 ]))
 chk("... and the row is tracked", @@(r.FindCalculatedRows()) = @@([ 4 ]))

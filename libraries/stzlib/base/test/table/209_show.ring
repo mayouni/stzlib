@@ -36,7 +36,8 @@ o1.AddCalculatedCol(:PERCAPITA, '@(:INCOME) / @(:POPULATION)')
 #    Germany     4490        83.30       53.90
 #      India     3370         1430        2.36
 
-o1.InsertCalculatedCol(2, :CURRENCY, 'StzCountryQ(@(:COUNTRY)).CurrencyAbbreviation()')
+# a formula the engine cannot compute is a function of the row (Haro runs no text as code)
+o1.InsertCalculatedCol(2, :CURRENCY, func row { return StzCountryQ(row[:country]).CurrencyAbbreviation() })
 ? o1.Show()
 #-->
 # COUNTRY   CURRENCY   INCOME   POPULATION   PERCAPITA

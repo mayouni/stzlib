@@ -14,7 +14,7 @@ lxu() {
     AddTrigger(:ValidStatusCode = "[@N{200;404;500}]")  # Only specific status codes
     AddTrigger(:ApiResponse = "[@S, [@N, @S]]")         # Response with nested details
     
-    AddCode(:ValidStatusCode, '{
+    AddCode(:ValidStatusCode, func v {
         codeMap = [
             200, "OK",
             404, "Not Found",
@@ -23,21 +23,23 @@ lxu() {
         
         _nCodeMapLen_ = len(codeMap)
         for i = 1 to _nCodeMapLen_ step 2
-            if @list = codeMap[i]
-                @list = [ @list, codeMap[i+1] ]
+            if v = codeMap[i]
+                v = [ v, codeMap[i+1] ]
                 exit
             ok
         next
-    }')
+        return v
+    })
     
-    AddCode(:ApiResponse, '{
-        @list = [
+    AddCode(:ApiResponse, func v {
+        v = [
             "API_RESPONSE",
-            @list[1],  # Endpoint
-            @list[2][1],  # Status code
-            @list[2][2]   # Message
+            v[1],  # Endpoint
+            v[2][1],  # Status code
+            v[2][2]   # Message
         ]
-    }')
+        return v
+    })
     
     Process([
         200,

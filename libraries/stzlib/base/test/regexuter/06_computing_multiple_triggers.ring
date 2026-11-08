@@ -16,19 +16,23 @@ rxu() {
 	Trigger(:WordInQuotes = '"([^"]+)"')
 	Trigger(:EmailAddr = "([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})")
 
-	# Different computations for each trigger (with @C as a shorthand for AddComputation())
+	# Different computations for each trigger (with @C as a shorthand for AddComputation()),
+	# each a function of the matched value: Haro runs no text as code
 
-	@C( :When = :Number, :Do = '{
-		@value = @number(@value) * 2
-	}')
+	@C( :When = :Number, :Do = func v {
+		v = @number(v) * 2
+		return v
+	})
 	
-	@C( :When = :WordInQuotes, :Do = '{
-		@value = upper(@value)
-	}')
+	@C( :When = :WordInQuotes, :Do = func v {
+		v = upper(v)
+		return v
+	})
 	
-	@C( :When = :EmailAddr, :Do = '{
-		@value = "CONTACT: " + @value
-	}')
+	@C( :When = :EmailAddr, :Do = func v {
+		v = "CONTACT: " + v
+		return v
+	})
 
 	# Feeding the Regexuter with a string to process it by
 	# firing the triggers and executing their computations

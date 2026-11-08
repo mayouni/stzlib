@@ -13,9 +13,10 @@ lxu() {
     # Using basic type patterns from ListEx
     AddTrigger(:ListOfNumbers = "[@N3]")    # One or more numbers
     
-    AddCode(:ListOfNumbers, '{
-        @list + [ :Sum = @Sum(@list), :Mean = @Mean(@list)  ]
-    }')
+    AddCode(:ListOfNumbers, func v {
+        v + [ :Sum = @Sum(v), :Mean = @Mean(v)  ]
+        return v
+    })
     
     Process([
         [42, "hello"],

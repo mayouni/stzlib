@@ -18480,12 +18480,13 @@ func _NormalizeColLookupKey(pVal)
 				StzRaise("Can't proceed! The column name you provided already exists.")
 			ok
 
-			if ring_trim(pcFormula) = ""
+			if NOT StzIsFunctionValue(pcFormula) and ring_trim(pcFormula) = ""
 				StzRaise("Cant' proceed! You must provide a formula.")
 			ok
 		ok
 
 		_aColData_ = []
+		_bFormulaIsFunction_ = StzIsFunctionValue(pcFormula)
 		_nCols_ = This.NumberOfCols()
 		_nRows_ = This.NumberOfRows()
 
@@ -18505,13 +18506,16 @@ func _NormalizeColLookupKey(pVal)
 		# case-INsensitive: column names are stored lower-cased while a formula
 		# may write @(:A). The @(:name) delimiters make the token exact, so a
 		# column whose name is a prefix of another cannot match by accident.
-		_oEngFormula_ = new stzString(pcFormula)
+		_oEngFormula_ = new stzString("")
 		_aRefCols_ = []
-		for i = 1 to _nCols_
-			if StzFindFirstCS( '@(:' + This.ColName(i) + ')', pcFormula, 0 ) > 0
-				_aRefCols_ + i
-			ok
-		next
+		if NOT _bFormulaIsFunction_
+			_oEngFormula_ = new stzString(pcFormula)
+			for i = 1 to _nCols_
+				if StzFindFirstCS( '@(:' + This.ColName(i) + ')', pcFormula, 0 ) > 0
+					_aRefCols_ + i
+				ok
+			next
+		ok
 		_nRefLen_ = len(_aRefCols_)
 
 		for j = 1 to _nRefLen_
@@ -18547,16 +18551,24 @@ func _NormalizeColLookupKey(pVal)
 		# Fallback: a non-numeric reference, or a formula the engine DSL cannot
 		# compile (which returns an empty column), is evaluated the classic way
 		# so no existing formula regresses.
+		# Otherwise the formula is a FUNCTION of the row (its cells by column
+		# name: row[:income]); a text formula the engine cannot compute is
+		# refused, never run as code (Haro, PRINCIPAL-HAROFIRST-01)
 		if len(_aColData_) != _nRows_
+			if NOT StzIsFunctionValue(pcFormula)
+				StzRaise("Can't calculate the column! The formula is not one the engine computes " +
+					"(arithmetic over numeric columns): pass a function of the row instead, " +
+					"func row { return ... row[:colname] ... }.")
+			ok
 			_aColData_ = []
-			_oForumla_ = new stzString(pcFormula)
-			for i = 1 to _nCols_
-				_oForumla_.ReplaceCS( ('@(:'+ This.ColName(i)+')'), 'This.Cell(' + i + ', i)', 0)
-			next
-			_cCode_ = "_value_ = " + _oForumla_.Content()
+			_acNames_ = This.ColNames()
 			for i = 1 to _nRows_
-				eval(_cCode_)
-				_aColData_ + _value_
+				_aRw_ = This.Row(i)
+				_aHRow_ = []
+				for _c_ = 1 to _nCols_
+					_aHRow_ + [ _acNames_[_c_], _aRw_[_c_] ]
+				next
+				_aColData_ + call pcFormula(_aHRow_)
 			next
 		ok
 
@@ -18653,16 +18665,13 @@ func _NormalizeColLookupKey(pVal)
 
 		# Preparing the list of formulas
 
-		_aoForumlas_ = StzListQ(pacFormulas).ToListOfStzStrings()
-		_acCodes_ = []
+		# each formula is a FUNCTION of its column's cells ("" leaves the
+		# cell blank) -- Haro runs no text as code
 		for i = 1 to _nMin_
-			_cColName_ = This.ColName(i)
-			_aoForumlas_[i].ReplaceCS( ('@(:'+ _cColName_ +')'), 'This.Col(:' + _cColName_ + ')', 0)
-			_cCode_ =  _aoForumlas_[i].Content()
-			if _cCode_ != ""
-				_cCode_ = '_value_ = ' + _cCode_
+			if pacFormulas[i] != "" and NOT StzIsFunctionValue(pacFormulas[i])
+				StzRaise("Can't calculate the row! Each formula is a function of its column's cells: " +
+					"func aCol { return ... }.")
 			ok
-			_acCodes_ + _cCode_
 		next
 
 		@NumberOfRows = _nRows_
@@ -18670,9 +18679,8 @@ func _NormalizeColLookupKey(pVal)
 		@NumberOfColumns = _nCols_
 
 		for i = 1 to _nMin_
-			if _acCodes_[i] != ""
-				eval(_acCodes_[i])
-				_aRowData_ + _value_
+			if pacFormulas[i] != ""
+				_aRowData_ + call pacFormulas[i](This.Col(i))
 			else
 				_aRowData_ + " "
 			ok

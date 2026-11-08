@@ -258,6 +258,7 @@ class stzStringWalker from stzObject
 	#              keeps its test on the end): both were read from the code and not run
 	#   see        CharsFromTo, CharsWithStep
 	def WalkAndYield(_nStart_, _nEnd_, nStep, pcCode)
+		StzRequireFunction(pcCode, "WalkAndYield")
 		_acResult_ = []
 		_nLen_ = @oString.NumberOfChars()
 
@@ -270,12 +271,10 @@ class stzStringWalker from stzObject
 
 		_i_ = _nStart_
 		while _i_ <= _nEnd_
-			@char = @oString.NthChar(_i_)
-			@position = _i_
-
-			_cCode_ = pcCode
-			eval(_cCode_)
-			_acResult_ + @char
+			# a function of the char and its position returns what is yielded
+			# (Haro runs no text as code: '@char = upper(@char)' is now
+			# func c, n { return upper(c) })
+			_acResult_ + call pcCode(@oString.NthChar(_i_), _i_)
 
 			_i_ += nStep
 		end

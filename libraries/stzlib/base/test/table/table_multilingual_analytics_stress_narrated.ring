@@ -159,7 +159,8 @@ chk("sorting did not corrupt multilingual text",
 ? ""
 ? "-- Scene 7: the spreadsheet 'totals' row --"
 oRep = oT.Copy()
-oRep.AddCalculatedRow([ '', '', '', '@Sum(@(:QTY))', '', '', '@Sum(@(:GROSS))', '' ])
+# each formula is a function of its column's cells (Haro runs no text as code)
+oRep.AddCalculatedRow([ '', '', '', func aCol { return @Sum(aCol) }, '', '', func aCol { return @Sum(aCol) }, '' ])
 chk("a summary row was appended", oRep.NumberOfRows() = nRows + 1)
 chk("the totals row carries the QTY total",
 	fabs(oRep.Cell(:QTY, nRows + 1) - nExpectQty) < 0.01)

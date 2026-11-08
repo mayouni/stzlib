@@ -14,17 +14,19 @@ lxu() {
     AddTrigger(:NotNumber = "[@!N]")       # Anything but a number
     AddTrigger(:NumberOrString = "[@N|@S]") # Either number or string
     
-    AddCode(:NotNumber, '{
-        @list = [ "NOT_NUMBER", @list ]
-    }')
+    AddCode(:NotNumber, func v {
+        v = [ "NOT_NUMBER", v ]
+        return v
+    })
     
-    AddCode(:NumberOrString, '{
-        if isNumber(@list)
-            @list = @list * 2
+    AddCode(:NumberOrString, func v {
+        if isNumber(v)
+            v = v * 2
         else
-            @list = upper(@list)
+            v = upper(v)
         ok
-    }')
+        return v
+    })
     
     Process([
         "text",      # NotNumber and NumberOrString
