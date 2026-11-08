@@ -234,7 +234,12 @@ else
     # above was coming from somewhere else.
     StzEngineGpuScene3dLight(hL, 0,-1,0, BLACK, AMB)
     cFlat = StzEngineGpuScene3dToPixels(hL)
-    aFlat = inkRange(cFlat, nW, nH)
+    # the FACES, not the edges: the target is multisampled, so a pixel the
+    # cube's outline crosses is a quarter, a half or three quarters of the
+    # face (10, 20, 30 over the black clear) -- measured 2026-11-08, 1417
+    # face pixels at 40 and 108 edge pixels at 10/20/30. Only a pixel whose
+    # four neighbours are ink too is a face pixel.
+    aFlat = inkRangeInterior(cFlat, nW, nH)
     chk("with a BLACK light every visible face collapses to one ambient " +
         "value (" + aFlat[1] + ".." + aFlat[2] + ")", aFlat[2] - aFlat[1] <= 1)
     chk("and that value is the ambient we asked for", aFlat[1] = 40)
@@ -289,6 +294,29 @@ func rgba nR, nG, nB, nA
 	return nR * 16777216 + nG * 65536 + nB * 256 + nA
 
 # [minRed, maxRed, inkedPixels] over pixels that are not the clear colour
+# the ink range over FACE pixels only: a pixel counts when it and its four
+# neighbours are all above the near-black background, which drops the
+# multisampled outline
+func inkRangeInterior cPix, nW, nH
+	_nMin_ = 999  _nMax_ = -1  _nCount_ = 0
+	for _y_ = 1 to nH - 2
+		for _x_ = 1 to nW - 2
+			if isInk(cPix, nW, _x_, _y_) and isInk(cPix, nW, _x_ - 1, _y_) and isInk(cPix, nW, _x_ + 1, _y_) and
+			   isInk(cPix, nW, _x_, _y_ - 1) and isInk(cPix, nW, _x_, _y_ + 1)
+				_nR_ = ascii(substr(cPix, (_y_ * nW + _x_) * 4 + 1, 1))
+				_nCount_++
+				if _nR_ < _nMin_  _nMin_ = _nR_  ok
+				if _nR_ > _nMax_  _nMax_ = _nR_  ok
+			ok
+		next
+	next
+	if _nCount_ = 0  return [0, 0, 0]  ok
+	return [_nMin_, _nMax_, _nCount_]
+
+func isInk cPix, nW, nX, nY
+	_o_ = (nY * nW + nX) * 4
+	return ascii(substr(cPix, _o_ + 1, 1)) + ascii(substr(cPix, _o_ + 2, 1)) + ascii(substr(cPix, _o_ + 3, 1)) > 12
+
 func inkRange cPix, nW, nH
 	_nMin_ = 999  _nMax_ = -1  _nCount_ = 0
 	for _i_ = 0 to nW * nH - 1
