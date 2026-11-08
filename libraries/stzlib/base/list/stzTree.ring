@@ -826,6 +826,10 @@ class stzTree from stzList
 		# This.Content() reach the tree itself, Ring++ refuses an append onto
 		# a call's result (E1, call_expression), and the explicit Update is
 		# the same on both (2026-11-08)
+		# the path is pasted into code, so it is held to the path grammar first
+		if NOT IsValidNodePath(pcBranch)
+			stzraise("Can't proceed! pcBranch is not a valid node path.")
+		ok
 		_aTree_ = This.Content()
 		_cCode_ = '_aTree_' + pcBranch + ' + [ _cNodeName_, _aNodeContent_ ]'
 		eval(_cCode_)
@@ -856,6 +860,10 @@ class stzTree from stzList
 		# This.Content() reach the tree itself, Ring++ refuses an append onto
 		# a call's result (E1, call_expression), and the explicit Update is
 		# the same on both (2026-11-08)
+		# the path is pasted into code, so it is held to the path grammar first
+		if NOT IsValidNodePath(pcBranch)
+			stzraise("Can't proceed! pcBranch is not a valid node path.")
+		ok
 		_aTree_ = This.Content()
 		_cCode_ = '_aTree_' + pcBranch + ' + pItem'
 		eval(_cCode_)
