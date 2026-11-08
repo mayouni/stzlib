@@ -486,6 +486,15 @@ because COMPASS-KERN-05 asks that every model call leave a chained record before
 every classify / faces / objects call -- the faculty, the model file, what was found, the time --
 and opens the process ledger first when none is open, so no face can switch the record off.
 
+*Added 2026-11-08 by the intelligence plane (SECURITY-R18b), additively:* `model.run` (info). The doors
+above are Ring functions, so a direct `StzEngineNeural*` call passed none of them. `stz_neural` now writes
+its own record of every run -- actor `stz_neural`, subject the model file's name in lower case, what ran on
+how many bytes -- through `stz_seclog`'s exported door, BEFORE the model's file is read, so a run that
+brings the process down still leaves its record. The Ring doors stay and keep writing `model.call` (who
+asked, through which faculty, under which agent): the governed path leaves one of each, and a
+`model.run` with no `model.call` beside it is a run that went round the doors. Guard:
+`test/security/engine_model_run_narrated.ring`.
+
 ### 6.2 `stzSecurityLedger` — evidence, not a log (I1)
 
 Engine-backed bounded ring (the `perf_trace_*` shape), each entry

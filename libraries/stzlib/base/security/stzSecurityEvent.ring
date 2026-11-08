@@ -105,6 +105,7 @@ func StzSecurityEventKinds()
 		# plan is a warning; a payout that reached the port with no committed plan is the alarm.
 		[ "payout.committed",             "info",    "",          "a payout plan was committed by an actor who may, and released through the port" ],
 		[ "model.call",                   "info",    "",          "a model was run on data through a governed door (the image plane, COMPASS-KERN-05)" ],
+		[ "model.run",                    "info",    "",          "the engine was asked to run a model, written by stz_neural itself before the run; a model.run with no model.call beside it went round the doors (SECURITY-R18b)" ],
 		# The One Hour (SOFTANZA_ONE_HOUR.md B2, B4, B7): an advisory meets the inventory, and the time
 		# from that moment to the door shut and to the gate green is read from these, never from memory.
 		# The ORIGIN field of each carries the advisory id, so the five chain by it.
