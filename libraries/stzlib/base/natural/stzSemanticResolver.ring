@@ -100,9 +100,9 @@ func StzGrowSemanticOperations()
 	# instance may become operations (the harvest can carry phantom names
 	# from nested defs and parent-file noise -- calling those would R14).
 	_aLive_ = []
-	_aLive_ + [ "stzstring", _StzSemMethodsOf("new stzString('')") ]
-	_aLive_ + [ "stzlist",   _StzSemMethodsOf("new stzList([])") ]
-	_aLive_ + [ "stznumber", _StzSemMethodsOf("new stzNumber(0)") ]
+	_aLive_ + [ "stzstring", _StzSemMethodsOf(new stzString("")) ]
+	_aLive_ + [ "stzlist",   _StzSemMethodsOf(new stzList([])) ]
+	_aLive_ + [ "stznumber", _StzSemMethodsOf(new stzNumber(0)) ]
 
 	# arity maps per owner class, built lazily (one source pass each)
 	_aArity_ = []    # [ [ ownerLower, aMap ], ... ]
@@ -872,11 +872,10 @@ func StzNamingLint()
 # The lowered method names of a live instance (Ring's methods() is the
 # ground truth of callability).
 
-func _StzSemMethodsOf(pcNewExpr)
+func _StzSemMethodsOf(poObj)
 	_aOut_ = []
 	try
-		eval("_oObj_ = " + pcNewExpr)
-		_aM_ = methods(_oObj_)
+		_aM_ = methods(poObj)
 		_nM_ = len(_aM_)
 		for _i_ = 1 to _nM_
 			_aOut_ + lower(_aM_[_i_])

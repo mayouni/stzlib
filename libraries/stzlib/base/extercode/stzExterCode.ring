@@ -463,10 +463,10 @@ class stzExterCode from stzObject
     #
     #   returns    the value; an empty text when the result file is empty
     #   warning    the files are deleted afterwards only if CleanupRequired is TRUE
-    #   see        it evaluates the text of the result file as Ring code, so only run external code
-    #              you trust; it raises an error quoting the log when the result file does not
-    #              exist; when the text cannot be evaluated it prints Eval error and returns the raw
-    #              text
+    #   see        it reads the text of the result file as a literal -- a number, a text or a list
+    #              of literal data -- and runs nothing; it raises an error quoting the log when the
+    #              result file does not exist; when the text is not such a literal it prints Eval
+    #              error and returns the raw text
     def Result()
 
         if NOT fexists(@cResultFile)
@@ -486,10 +486,11 @@ class stzExterCode from stzObject
         ok
 
         try
-	    _cContent_ = StzReplace(_cContent_, "\n", char(10))
-            _cCode_ = '_result_ = ' + _cContent_
+            _cContent_ = StzReplace(_cContent_, "\n", char(10))
 
-            eval(_cCode_)
+            # the external program writes a Ring LITERAL -- a number, a text or a
+            # list of literal data -- and it is read as data, never run as code
+            _result_ = StzLiteralValue(_cContent_)
 
             if CleanupRequired()
                 This.CleanupFiles()

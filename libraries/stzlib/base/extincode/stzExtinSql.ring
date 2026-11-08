@@ -194,15 +194,15 @@ func WHERE_(pcCondition)
 	_nLen_ = len(_aRows_)
 	_acColNames_ = $_oIntermediateTable.ColNames()
 	_nLenCols_ = len(_acColNames_)
-	for i = 1 to _nLenCols_
-		_cColName_ = _acColNames_[i]
-		_cCondition_ = Q(_cCondition_).ReplaceQ( _cColName_,  'v(cTableName).cell(:' + _cColName_ + ', i)' ).Content()
-		_cCode_ = '_bOk_ = ' + _cCondition_
-	next
+	# each row is read against the condition: a column's name is that row's value,
+	# found by name as a whole word, and nothing in the condition is run as code
 	_anPos_ = []
 	for i = 1 to _nLen_
-		eval(_cCode_)
-		if NOT _bOk_
+		_aNamed_ = []
+		for j = 1 to _nLenCols_
+			_aNamed_ + [ _acColNames_[j], _aRows_[i][j] ]
+		next
+		if NOT StzMethodExprHolds(new stzNoMethods, _cCondition_, _aNamed_)
 			_anPos_ + i
 		ok
 	next

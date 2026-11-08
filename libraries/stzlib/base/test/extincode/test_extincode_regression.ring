@@ -2,13 +2,12 @@
 # console).
 #
 # Run from base/extincode/test/.
-#ERR Error (C22) : Function redefinition, function is already defined!
 
 load "../../stzBase.ring"
 
-nPsd = 0
-nFld = 0
-nTtl = 0
+$nPsd = 0
+$nFld = 0
+$nTtl = 0
 
 ? "=== stzExtinCode integration regression ==="
 
@@ -22,14 +21,24 @@ chk("iif(1, 'yes', 'no') = 'yes'",   iif(1, "yes", "no") = "yes")
 chk("iif(0, 'yes', 'no') = 'no'",    iif(0, "yes", "no") = "no")
 
 # ------------------------------------------------------------
-# iif: string condition (eval-based)
+# iif: string condition (read, never run -- Haro runs no text as code)
 # ------------------------------------------------------------
 ? ""
 ? "--- iif string ---"
 
 x = 5
-chk("iif('x > 3', ...) = 'big'",      iif("x > 3", "big", "small") = "big")
-chk("iif('x < 3', ...) = 'small'",    iif("x < 3", "big", "small") = "small")
+chk("iif(x > 3, ...) = 'big'",        iif(x > 3, "big", "small") = "big")
+chk("iif(x < 3, ...) = 'small'",      iif(x < 3, "big", "small") = "small")
+chk("iif('5 > 3', ...) = 'big'",      iif("5 > 3", "big", "small") = "big")
+chk("iif('len('abc') = 3', ...)",   iif("len('abc') = 3", "y", "n") = "y")
+# a text naming a program variable cannot reach it: refused, never read as false
+bRefused = 0
+try
+	iif("x > 3", "big", "small")
+catch
+	bRefused = 1
+done
+chk("iif('x > 3', ...) is refused",   bRefused = 1)
 
 # ------------------------------------------------------------
 # Aliases iff / @if
@@ -67,20 +76,20 @@ chk("console smoke completed",       isObject(oCon))
 # ------------------------------------------------------------
 ? ""
 ? "=========================="
-? "Total:  " + nTtl
-? "Passed: " + nPsd
-? "Failed: " + nFld
-if nFld = 0
+? "Total:  " + $nTtl
+? "Passed: " + $nPsd
+? "Failed: " + $nFld
+if $nFld = 0
 	? "ALL stzExtinCode CHECKS PASSED!"
 else
 	? "SOME stzExtinCode CHECKS FAILED!"
 ok
 
 func chk(cLabel, bCond)
-	nTtl++
+	$nTtl++
 	if bCond
-		nPsd++
+		$nPsd++
 	else
-		nFld++
+		$nFld++
 		? "  FAIL: " + cLabel
 	ok

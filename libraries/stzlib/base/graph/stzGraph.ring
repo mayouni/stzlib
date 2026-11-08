@@ -7572,51 +7572,56 @@ class stzGraph from stzObject
 	#  .stzrulf FORMAT #
 	#------------------#
 	
-	# Loads a .stzrulf file of custom rule functions into the program, once per path; a missing file or a path with a quote raises an error.
+	# Checks that a .stzrulf file of custom rule functions is loaded into the program, once per path.
 	#
-	#   returns    nothing; functions are defined
-	#   note       put the group registrations above the func definitions in the file
-	#   see        LoadFromStzRulz, UseRulesFrom
+	#   pcPath     the path of the .stzrulf file
+	#   returns    nothing
+	#   note       a .stzrulf is Ring code -- rule registrations, then functions -- and code is
+	#              loaded by the program, with load "path/to/rules.stzrulf" at its top: Haro runs
+	#              no text as code, so it cannot be loaded from a path known only at run time.
+	#              This method reads the file's func names and checks each is defined
+	#   warning    a missing file raises; a file whose functions are not defined raises with the
+	#              load line to add
+	#   see        LoadStzRulf, UseRulesFrom
 	def LoadRuleFunctionsFrom(pcPath)
-		# A .stzrulf file is pure Ring code: it defines custom rule
-		# functions and registers them into a rule group, which
-		# UseRulesFrom() then pulls into this graph.
-		#
-		# `load pcPath` CANNOT do this. Ring's load is a COMPILE-TIME
-		# directive, so handing it a variable is silently a no-op -- this
-		# method used to report success while defining nothing and
-		# registering nothing (verified: isfunction() -> 0 and the rule
-		# groups unchanged, right after a "successful" call). Going
-		# through eval() makes load see a literal at ITS compile time,
-		# which is the only way to reach a path known at run time.
-		#
-		# NOTE for .stzrulf authors: put the RegisterRuleInGroup() calls
-		# ABOVE the func definitions. In Ring, statements written after a
-		# func belong to that func's body -- register below and the
-		# registration never runs.
 
 		if NOT fexists(pcPath)
 			stzraise("File not found: " + pcPath)
 		ok
 
-		if StzFindFirst("'", pcPath) > 0
-			stzraise("A .stzrulf path may not contain a quote: " + pcPath)
-		ok
-
-		# Load it ONCE per process. A .stzrulf defines functions, and
-		# defining one twice is C22 "Function redefinition" -- a COMPILE
-		# error try/catch cannot catch, which takes the program down. Two
-		# graphs asking for the same custom rules is ordinary, so a repeat
-		# load is a quiet no-op: the functions are already here, and the
-		# rules are already in their group for UseRulesFrom() to pull.
-
 		_cKey_ = StzLower("" + pcPath)
 		if ring_find($acStzRulfLoaded, _cKey_) > 0
 			return
 		ok
-		$acStzRulfLoaded + _cKey_
 
-		eval("load '" + pcPath + "'")
+		# the names the file defines: every line that starts with func
+		_acLines_ = str2list(substr(read(pcPath), char(13), ""))
+		_nLines_ = len(_acLines_)
+		_acMissing_ = []
+		for _i_ = 1 to _nLines_
+			_cLine_ = trim(_acLines_[_i_])
+			if lower(left(_cLine_, 5)) = "func "
+				_cName_ = trim(substr(_cLine_, 6))
+				_nCut_ = substr(_cName_, "(")
+				if _nCut_ > 0
+					_cName_ = trim(left(_cName_, _nCut_ - 1))
+				ok
+				_nCut_ = substr(_cName_, " ")
+				if _nCut_ > 0
+					_cName_ = left(_cName_, _nCut_ - 1)
+				ok
+				if _cName_ != "" and NOT isfunction(lower(_cName_))
+					_acMissing_ + _cName_
+				ok
+			ok
+		next
+
+		if len(_acMissing_) > 0
+			stzraise("The rule functions of " + pcPath + " are not loaded (" + _acMissing_[1] +
+				"...). Add this line at the top of your program: load " + char(34) + pcPath + char(34))
+		ok
+
+		$acStzRulfLoaded + _cKey_
 
 		# Loads a .stzrulf file of custom rule functions; another spelling of the function load.
 		#

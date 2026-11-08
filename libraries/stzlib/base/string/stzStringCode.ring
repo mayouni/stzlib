@@ -129,25 +129,25 @@ class stzStringCode from stzObject
 	 #     CODE EXECUTION            #
 	#===============================#
 
-	# Runs the text as Ring code and returns nothing.
+	# Refuses: running a text as code is what Haro does not do.
 	#
-	#   returns    nothing
-	#   note       the code runs inside the method, so a variable it assigns, such as x = 1 + 2, is
-	#              not visible to the caller afterwards; only run code you trust
+	#   returns    nothing; it raises
+	#   note       an expression is computed by ExecuteAndReturn, and an action is written as a
+	#              function and called
 	#   see        ExecuteAndReturn
 	def Execute()
-		eval(@oString.Content())
+		StzRaise("Can't execute the text! Haro runs no text as code: compute an expression with ExecuteAndReturn(), or write the action as a function.")
 
-	# Evaluates the text as a Ring expression and returns its value.
+	# Computes the text as an expression and returns its value, running nothing.
 	#
 	#   returns    the value of the expression
-	#   note       "(2 + 3) * 4" answers 20; the text must be an expression, and only code you trust
-	#              should be run
-	#   see        Execute
+	#   note       "(2 + 3) * 4" answers 20; the expression is read by StzExprValue -- literals,
+	#              arithmetic, comparisons, and/or/not and the pure functions abs, sqrt, min, max,
+	#              len, round, floor, ceil, lower, upper
+	#   warning    any other name is refused by name
+	#   see        Execute, StzExprValue
 	def ExecuteAndReturn()
-		_cCode_ = "_result_ = " + @oString.Content()
-		eval(_cCode_)
-		return _result_
+		return StzExprValue(@oString.Content())
 
 	  #===============================#
 	 #     CODE STRUCTURE            #

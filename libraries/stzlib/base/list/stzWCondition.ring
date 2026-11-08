@@ -377,11 +377,19 @@ func StzLiteralValue(pcText)
 	ok
 	bDigit = 0
 	bNumber = 1
+	nExp = 0
 	for i = 1 to nLen
 		c = cText[i]
 		if c >= "0" and c <= "9"
 			bDigit = 1
-		but NOT (c = "." or (i = 1 and (c = "-" or c = "+")))
+		but (c = "e" or c = "E") and bDigit and nExp = 0 and i < nLen
+			nExp = i
+		but c = "-" or c = "+"
+			if NOT ( i = 1 or i = nExp + 1 )
+				bNumber = 0
+				exit
+			ok
+		but NOT (c = "." and nExp = 0)
 			bNumber = 0
 			exit
 		ok
@@ -452,6 +460,15 @@ func StzCallMethodOrFunction(poObject, pcName, paArgs)
 	off
 	StzRaise("Can't call '" + cName + "'! At most 4 arguments are passed.")
 
+# The value of an expression of literals, the pure functions and the operators of
+# StzMethodExprValue, with no object and no names: "(2 + 3) * 4" gives 20. Nothing is run.
+func StzExprValue(pcExpr)
+	return StzMethodExprValue(new stzNoMethods, pcExpr, [])
+
+# 1 when such an expression holds.
+func StzExprHolds(pcExpr)
+	return StzMethodExprHolds(new stzNoMethods, pcExpr, [])
+
 # The value of an expression about an object's own methods, read by a closed grammar and never run.
 #
 #   poObject   the object whose methods the expression names
@@ -459,7 +476,8 @@ func StzCallMethodOrFunction(poObject, pcName, paArgs)
 #              the object's methods (Count(), @.Value(), IsEven), the functions abs, sqrt, min, max,
 #              len, round, floor, ceil, lower and upper, + - * / %, = != <> < > <= >=, and, or, not,
 #              and parentheses; braces around the whole are dropped
-#   paNamed    the values a $name may read, as [ [ "$name", value ], ... ]; [] for none
+#   paNamed    the values a name may read, as [ [ "$name", value ], ... ] or [ [ "age", 30 ], ... ]
+#              -- a bare name found here is that value, before it is a method; [] for none
 #   returns    the value
 #   note       a method is called by its checked name with the VALUES of its arguments; nothing in
 #              the text reaches eval, so a text cannot act -- a name outside this grammar is refused
@@ -777,6 +795,19 @@ class stzMethodExpr
 			ok
 			aArgs = []
 			bCalled = This._IsOp("(")
+			if NOT bCalled
+				nNamed = len(@aNamed)
+				for i = 1 to nNamed
+					if lower(@aNamed[i][1]) = cLow
+						return @aNamed[i][2]
+					ok
+				next
+			ok
+			if classname(@oObject) = "stznomethods" and NOT ( bCalled and ring_find([ "abs", "sqrt",
+			   "round", "floor", "ceil", "len", "lower", "upper", "max", "min" ], cLow) > 0 )
+				This._Refuse("'" + aT[2] + "' names something a text cannot reach: a variable or a " +
+					"function of the program is read by the program itself, as in iif(x > 3, ...)")
+			ok
 			if bCalled
 				aArgs = This._Args()
 			ok
@@ -826,3 +857,7 @@ class stzMethodExpr
 			This._Refuse("it ends too early")
 		ok
 		This._Refuse("'" + aT[2] + "' is not expected there")
+
+# An object with no method: what StzExprValue reads an expression against, so a name in it reaches
+# nothing.
+class stzNoMethods

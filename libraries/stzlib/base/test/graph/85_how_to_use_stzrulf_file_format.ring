@@ -14,6 +14,8 @@
 # Extracted from stzgraphtest.ring, block #85.
 
 load "../../stzBase.ring"
+# a .stzrulf is code, so the program loads it; LoadRuleFunctionsFrom then checks it
+load "../_data/custom_functions.stzrulf"
 
 
 pr()

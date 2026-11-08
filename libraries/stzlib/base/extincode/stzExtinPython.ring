@@ -147,7 +147,7 @@ func f(str)
 	return Interpoltate(str)
 
 func exec(_cCode_)
-	eval(_cCode_)
+	StzRaise("Can't exec the text! Haro runs no text as code: write the action as a function and call it.")
 
 func _if(pExpressionOrBoolean)
 	if len($_aTempVars) = 0
@@ -156,8 +156,7 @@ func _if(pExpressionOrBoolean)
 	$_bVarReset = 0
 	_bTemp_ = 1
 	if isString(pExpressionOrBoolean)
-		_cCode_ = '_bTemp_ = (' + pExpressionOrBoolean + ')'
-		eval(_cCode_)
+		_bTemp_ = StzExprHolds(pExpressionOrBoolean)
 	but ( isNumber(pExpressionOrBoolean) and (pExpressionOrBoolean = 0 or pExpressionOrBoolean = 1) )
 		_bTemp_ = pExpressionOrBoolean
 	ok

@@ -54,13 +54,9 @@ func iif(pCondition, pTrue, pFalse)
 
 	ok
 
-	# pCondition is a string -- was `cCondition` (undefined). The
-	# whole eval was unreachable; iif("x = 1", ...) crashed.
-	_cCode_ = '_bOk_ = (' + pCondition + ')'
-
-	eval(_cCode_)
-
-	if _bOk_
+	# a condition given as text is read by StzExprHolds -- literals and
+	# operators, never run as code
+	if StzExprHolds(pCondition)
 		return pTrue
 	else
 		return pFalse
