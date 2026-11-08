@@ -139,6 +139,16 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
 - **Zin SIMULATION_TEST** read into the logbook, once the Zin desk confirms what a tick means.
 - **Python, JS and others** registered by their owners; the conformance guard is already their test.
 
+### P9 -- Proof as evidence (PROPOSED 2026-11-08, not ruled).
+- **The evidence ladder** (`TESTOOR_EVIDENCE_LADDER.md`): six grades per node and property (named, observed,
+  exemplified, generalised, exhausted, proved), and a floor that asks for a grade over the impact set of a change.
+- **V1 to V4 need nothing from Haro**: grade 2 per node, property tours over declared domains with shrinking, enumeration
+  of finite domains and of the declared weather up to a depth, and `min_grade` in the floor.
+- **V5 and V6 wait on the Haro desk** (HARO-PROOF-01): the checker's facts per node (`total`, `uses`, profile) as the
+  first certificates, then contracts and a discharge path. Testoor records certificates and never checks a proof.
+- *Exit:* a change to a critical refinement point, proposed by an `:llm` posture, is refused unless every node in its
+  impact set reaches the grade its floor names.
+
 ## 4. Order, and what runs at the same time
 
 P2 comes before P3, because the goldens and the protocol are what the Zig core is built against. P4 needs the
