@@ -1,0 +1,26 @@
+{
+ "by": "golden",
+ "root": "fixtures",
+ "topic": "",
+ "subject": "tax/stzTax.py",
+ "seed": 5,
+ "repeat": 1,
+ "timeout_ms": 120000,
+ "refuse_root": "",
+ "cases": [
+  "15_nodes_named_observed",
+  "16_node_line_count",
+  "18_nodes_on_a_diverged_tour",
+  "19_nodes_on_an_unjudged_tour"
+ ],
+ "skipped": [],
+ "topics_skipped": [],
+ "flaky": [
+  "16_node_line_count"
+ ],
+ "graph": {
+  "complete": true,
+  "owned": 6
+ },
+ "ladder": true
+}

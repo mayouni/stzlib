@@ -1,0 +1,5 @@
+250	[testoor stop net]
+500	[testoor node stzTax.Net]
+750	[testoor node stzTax.Total 2]
+1000	[testoor fail the net is 100]
+1250	[testoor end timed]

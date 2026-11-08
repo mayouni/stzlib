@@ -1,0 +1,3 @@
+DIVERGED    fixtures/nettour.py  1 stops: 0 kept, 1 diverged  seed 5  (1.38 s, finished, timed)
+    diverged  net  (1 s)
+        diverged  the net is 100

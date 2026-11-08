@@ -155,6 +155,34 @@ Scenario("A gate's floor of evidence: a run whose every tour holds still exits 1
 EndScenario()
 ? "        [section took " + ((clock() - nNvSec) / clockspersecond()) + "s]"
 
+#============================================================================
+Scenario("V1 -- the evidence ladder from the native runner: a node a kept tour reached is exemplified, one only a failing tour reached is observed")
+	nNvSec = clock()
+	acLad = [ cNvPlant + "/nodes_kept.ring", cNvPlant + "/nodes_fails.ring" ]
+	Given("a tour that reaches Total and Rate and keeps its claim, and one that reaches Net and Total and fails")
+	write(cNvPlant + "/manifest_l.json", TestoorManifestJson(acLad, [ :seed = 5, :timeout_ms = 6000, :ladder = TRUE ]))
+	write(cNvPlant + "/manifest_n.json", TestoorManifestJson(acLad, [ :seed = 5, :timeout_ms = 6000 ]))
+	aLL = _NvRun([ "run", cNvPlant + "/manifest_l.json", "--json" ])
+	aLJ = StzJsonToList(aLL[2])
+	Then("the run says protocol 3", aLJ[:protocol], 3)
+	Then("two nodes exemplified, one observed", "" + aLJ[:ladder][:exemplified] + "/" + aLJ[:ladder][:observed], "2/1")
+	Then("rows follow first observation: Total, Rate, Net",
+	     aLJ[:ladder][:nodes][1][:id] + "," + aLJ[:ladder][:nodes][2][:id] + "," + aLJ[:ladder][:nodes][3][:id], "stzTax.Total,stzTax.Rate,stzTax.Net")
+	Then("Total is exemplified by the kept tour alone, though the failing one reached it too",
+	     aLJ[:ladder][:nodes][1][:grade] + ":" + len(aLJ[:ladder][:nodes][1][:tours]) + ":" + aLJ[:ladder][:nodes][1][:tours][1], "exemplified:1:" + aLJ[:tours][1][:file])
+	Then("Net, reached only by the failing tour, is observed and names that tour",
+	     aLJ[:ladder][:nodes][3][:grade] + ":" + aLJ[:ladder][:nodes][3][:tours][1], "observed:" + aLJ[:tours][2][:file])
+	Then("with no graph, no owned and no named figure is written", StzFindFirst('"ladder":{"observed":', aLL[2]) > 0, TRUE)
+	Then("the ladder changes no exit code: 1, for the failing tour", aLL[1], 1)
+	aLN = _NvRun([ "run", cNvPlant + "/manifest_n.json", "--json" ])
+	Then("the same tours with no ladder asked for: no ladder, and protocol 2 for their nodes",
+	     "" + StzFindFirst('"ladder":', aLN[2]) + "/" + (StzFindFirst('"protocol":2,', aLN[2]) > 0), "0/1")
+	aLF = _NvRun([ "run", cNvPlant + "/manifest_n.json", "--prose", "--ladder" ])
+	Then("--ladder asks for it from the command line, and the prose says what a reader can count",
+	     StzFindFirst("ladder: 2 exemplified, 1 observed; no graph, so named nodes are not counted", aLF[2]) > 0, TRUE)
+EndScenario()
+? "        [section took " + ((clock() - nNvSec) / clockspersecond()) + "s]"
+
 _NvUnplantAll(cNvPlant)
 
 ok
@@ -215,6 +243,8 @@ func _NvPlantAll(pcRoot)
 	write(pcRoot + "/broke.ring", '? "  [OK] before the break"' + _n_ + 'x = 0 + "abc"' + _n_ + '? "  [OK] never printed"' + _n_)
 	write(pcRoot + "/hang.ring", '? "  [OK] alive"' + _n_ + "while 1" + _n_ + "end" + _n_)
 	write(pcRoot + "/selfdesc.ring", '? "[testoor stop it says what it is]"' + _n_ + '? "[testoor ok it said so]"' + _n_)
+	write(pcRoot + "/nodes_kept.ring", '? "[testoor node stzTax.Total]"' + _n_ + '? "[testoor node stzTax.Rate 2]"' + _n_ + '? "  [OK] the total holds"' + _n_)
+	write(pcRoot + "/nodes_fails.ring", '? "[testoor node stzTax.Net]"' + _n_ + '? "[testoor node stzTax.Total]"' + _n_ + '? "  [FAIL] the net does not"' + _n_)
 	write(pcRoot + "/flaky.ring",
 		'cM = "nv_flaky_marker.txt"' + _n_ +
 		"if fexists(cM)" + _n_ +

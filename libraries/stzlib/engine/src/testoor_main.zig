@@ -2,8 +2,10 @@
 //! not Ring (the `stz` command line, a Haro program, a continuous-integration step) calls it as a
 //! CHILD, hands it a manifest of tours, and reads the logbook and the exit code.
 //!
-//!   testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS]
+//!   testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--ladder]
 //!   testoor version
+//!
+//! `--ladder` writes the evidence ladder (TESTOOR_PROTOCOL_3.md section 2): each node's highest grade.
 //!
 //! MANIFEST is a file, or `-` for standard input; its shape is in testoor_runner.zig. The logbook is
 //! JSON when standard output is a pipe and prose when it is a terminal, unless `--json` or `--prose`
@@ -39,7 +41,7 @@ fn say(s: []const u8) void {
 }
 
 fn usage() noreturn {
-    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS]\n       testoor version\n");
+    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--ladder]\n       testoor version\n");
     std.process.exit(2);
 }
 
@@ -92,9 +94,12 @@ pub fn main() !void {
     var seed: ?f64 = null;
     var repeat: ?f64 = null;
     var timeout: ?f64 = null;
+    var ladder = false;
     var i: usize = 3;
     while (i < args.len) : (i += 1) {
-        if (eq(args[i], "--json")) {
+        if (eq(args[i], "--ladder")) {
+            ladder = true;
+        } else if (eq(args[i], "--json")) {
             mode = .json;
         } else if (eq(args[i], "--prose")) {
             mode = .prose;
@@ -117,6 +122,7 @@ pub fn main() !void {
     if (seed) |v| m.settings.seed = v;
     if (repeat) |v| m.settings.repeat = v;
     if (timeout) |v| m.settings.timeout_ms = v;
+    if (ladder) m.settings.ladder = true;
     if (m.settings.by.len == 0 or eq(m.settings.by, "shell")) m.settings.by = "testoor";
 
     const as_json = switch (mode) {

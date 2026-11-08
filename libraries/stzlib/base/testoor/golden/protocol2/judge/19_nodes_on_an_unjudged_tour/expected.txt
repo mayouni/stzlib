@@ -1,0 +1,3 @@
+UNJUDGED    fixtures/ratetour.py  1 stops: 0 kept, 1 unjudged  (1.13 s, finished, timed)
+    unjudged  rates  (0.75 s)
+        unjudged  (planned claim 1)

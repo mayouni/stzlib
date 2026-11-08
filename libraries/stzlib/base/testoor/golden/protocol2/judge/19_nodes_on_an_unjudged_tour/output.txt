@@ -1,0 +1,4 @@
+250	[testoor stop rates]
+500	[testoor plan 1]
+750	[testoor node stzTax.Rate]
+1000	[testoor end timed]

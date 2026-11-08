@@ -1,0 +1,16 @@
+KEPT        fixtures/taxtour.py  1 stops: 1 kept  (2.13 s, finished, timed)
+KEPT        fixtures/counts.py  1 stops: 1 kept  FLAKY  seed 5  (3.13 s, finished, timed)
+DIVERGED    fixtures/nettour.py  1 stops: 0 kept, 1 diverged  seed 5  (1.38 s, finished, timed)
+    diverged  net  (1 s)
+        diverged  the net is 100
+UNJUDGED    fixtures/ratetour.py  1 stops: 0 kept, 1 unjudged  (1.13 s, finished, timed)
+    unjudged  rates  (0.75 s)
+        unjudged  (planned claim 1)
+owned 4 tours, run 4 (two figures, never summed)
+  claims: 2 kept, 1 diverged, 0 unreached, 1 unjudged
+  graph: 6 owned, 0 named, 5 observed (three figures, never summed)
+  ladder: 2 exemplified, 3 observed, 1 named, of 6 owned
+  tours: 0 finished, 4 finished-timed, 0 not-started, 0 broke, 0 hung, 0 unreadable
+  wall: 7.77 s, by golden
+  skipped by name: 0
+exit 1

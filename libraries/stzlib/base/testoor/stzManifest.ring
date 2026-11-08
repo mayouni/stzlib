@@ -13,6 +13,8 @@
 #                  :evidence_json  a gate's FLOOR OF EVIDENCE as JSON text, e.g.
 #                  '{"posture":"llm","tier":"critical","floor":{"min_kept":3,"min_routes":1}}' (protocol 2 section 6):
 #                  the run then exits 1 when the walk does not meet it, whatever its tours said
+#                  :ladder  TRUE to write the EVIDENCE LADDER (protocol 3 section 2): each graph node's
+#                  highest grade -- named, observed, exemplified -- and the tours that gave it
 #                  (a hash-list; every key is optional)
 #   TestoorNativeExe()
 #       the native runner's path: the TESTOOR_EXE variable, else engine/zig-out/bin/testoor beside the
@@ -47,6 +49,11 @@ func _ManifestEvidence(pcJson)
 	if pcJson = ""  return ""  ok
 	return ',"evidence":' + pcJson
 
+# the evidence ladder, written into the run only when asked, so a run that does not ask keeps protocol 2's bytes
+func _ManifestLadder(pxOn)
+	if isNumber(pxOn) and pxOn = 1  return ',"ladder":true'  ok
+	return ""
+
 func TestoorNativeExe()
 	_c_ = sysget("TESTOOR_EXE")
 	if _c_ != "" and fexists(_c_)  return _c_  ok
@@ -61,7 +68,8 @@ func TestoorManifestJson(pacFiles, paOpt)
 	      ',"subject":' + _TourJsonStr("" + _ManifestOpt(paOpt, :subject, "")) +
 	      ',"seed":' + _ManifestOpt(paOpt, :seed, -1) +
 	      ',"repeat":' + _ManifestOpt(paOpt, :repeat, 1) +
-	      ',"timeout_ms":' + _ManifestOpt(paOpt, :timeout_ms, 120000) + _ManifestEvidence(_ManifestOpt(paOpt, :evidence_json, "")) + "}" +
+	      ',"timeout_ms":' + _ManifestOpt(paOpt, :timeout_ms, 120000) + _ManifestEvidence(_ManifestOpt(paOpt, :evidence_json, "")) +
+	      _ManifestLadder(_ManifestOpt(paOpt, :ladder, 0)) + "}" +
 	      ',"skipped":' + _ManifestStrings(_ManifestOpt(paOpt, :skipped, [])) +
 	      ',"topics_skipped":' + _ManifestStrings(_ManifestOpt(paOpt, :topics_skipped, [])) + ',"tours":['
 	_nF_ = len(pacFiles)

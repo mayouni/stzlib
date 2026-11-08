@@ -14,6 +14,7 @@ const Allocator = std.mem.Allocator;
 const T = @import("testoor_text.zig");
 const V = @import("testoor_verdict.zig");
 const Ev = @import("testoor_evidence.zig");
+const Ld = @import("testoor_ladder.zig");
 
 const Buf = T.Buf;
 
@@ -224,6 +225,9 @@ pub const Settings = struct {
     wall_ms: ?f64 = null,
     /// protocol 2: the floor of evidence a gate demands of this run (testoor_evidence.zig)
     evidence: ?Ev.Settings = null,
+    /// protocol 3 (V1): write the evidence ladder, each node's highest grade (testoor_ladder.zig). Asked for,
+    /// never assumed, so a run that does not ask writes protocol 2's bytes
+    ladder: bool = false,
 };
 
 /// what the runner knows of its graph; `named` and `observed` are counted from the tours
@@ -258,6 +262,17 @@ fn isProtocol2(st: Settings, tours: []const V.Tour) bool {
     if (st.graph != null or st.evidence != null) return true;
     for (tours) |t| if (t.nodes.len > 0) return true;
     return false;
+}
+
+/// the version a run's logbook says it is: the highest version of any key it carries, and none for 1
+fn protocolOf(st: Settings, tours: []const V.Tour) u8 {
+    if (st.ladder) return 3;
+    if (isProtocol2(st, tours)) return 2;
+    return 1;
+}
+
+fn graphOwned(st: Settings) ?i64 {
+    return if (st.graph) |g| g.owned else null;
 }
 
 pub const Counts = struct {
@@ -330,7 +345,11 @@ fn strList(b: *Buf, items: []const []const u8) !void {
 pub fn runJson(b: *Buf, st: Settings, tours: []const V.Tour) !void {
     const c = counts(tours);
     try b.s("{\"testoor\":\"logbook\",\"kind\":\"run\"");
-    if (isProtocol2(st, tours)) try b.s(",\"protocol\":2");
+    const pv = protocolOf(st, tours);
+    if (pv > 1) {
+        try b.s(",\"protocol\":");
+        try b.int(pv);
+    }
     try b.s(",\"by\":");
     try b.js(st.by);
     try b.s(",\"root\":");
@@ -381,6 +400,10 @@ pub fn runJson(b: *Buf, st: Settings, tours: []const V.Tour) !void {
         try b.s(",\"observed\":");
         try b.int(f.observed);
         try b.c('}');
+    }
+    if (st.ladder) {
+        try b.s(",\"ladder\":");
+        try Ld.writeJson(b, try Ld.build(b.a, tours), graphOwned(st));
     }
     if (st.evidence) |ev| {
         try b.s(",\"evidence\":");
@@ -445,6 +468,10 @@ pub fn summary(b: *Buf, st: Settings, tours: []const V.Tour) !void {
             try b.s(g.why);
             try b.s("; a selection from it takes every tour");
         }
+    }
+    if (st.ladder) {
+        try b.s("\n  ");
+        try Ld.writeProse(b, try Ld.build(b.a, tours), graphOwned(st));
     }
     if (st.evidence) |ev| {
         try b.c('\n');

@@ -145,6 +145,7 @@ fn logbookCase(a: Allocator, dir: []const u8, lsub: []const u8, jsub: []const u8
         .owned = if (gv.get("owned")) |x| x.int_() else 0,
     };
     if (rj.get("evidence")) |ev| st.evidence = Ev.fromValue(ev);
+    if (rj.get("ladder")) |x| st.ladder = x.truthy();
     var tours: std.ArrayList(V.Tour) = .empty;
     const refuse = rj.get("refuse_root").?.str_();
     if (refuse.len != 0) {
@@ -224,6 +225,19 @@ test "protocol 2: a run whose graph is incomplete still exits 0, and says so" {
     failures = 0;
     for (cases) |case| try logbookCase(a, dir, "protocol2/logbook", "protocol2/judge", case);
     std.debug.print("  protocol 2 logbook: {d} expected files compared in all\n", .{compared});
+    try std.testing.expectEqual(@as(usize, 0), failures);
+}
+
+test "protocol 3: the evidence ladder (V1) with a graph and without one" {
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const dir = try goldenDir(a);
+    const cases = try caseNames(a, dir, "protocol3/logbook");
+    try std.testing.expect(cases.len >= 2);
+    failures = 0;
+    for (cases) |case| try logbookCase(a, dir, "protocol3/logbook", "protocol2/judge", case);
+    std.debug.print("  protocol 3 logbook: {d} expected files compared in all\n", .{compared});
     try std.testing.expectEqual(@as(usize, 0), failures);
 }
 

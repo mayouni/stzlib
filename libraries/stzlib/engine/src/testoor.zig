@@ -15,8 +15,10 @@ pub const counters = @import("testoor_counters.zig");
 pub const walk = @import("testoor_walk.zig");
 pub const evidence = @import("testoor_evidence.zig");
 pub const runner = @import("testoor_runner.zig");
+pub const ladder = @import("testoor_ladder.zig");
 
 test {
+    _ = ladder;
     _ = clock;
     _ = graph;
     _ = routes;

@@ -146,6 +146,7 @@ fn readRun(a: Allocator, request: []const u8) Error!Run {
         .owned = if (gv.get("owned")) |x| x.int_() else 0,
     };
     if (rv.get("evidence")) |ev| st.evidence = Ev.fromValue(ev);
+    if (rv.get("ladder")) |x| st.ladder = x.truthy();
     st.skipped = try strings(a, rv.get("skipped"));
     st.topics_skipped = try strings(a, rv.get("topics_skipped"));
     var tours: std.ArrayList(V.Tour) = .empty;

@@ -360,10 +360,38 @@ Scenario("The evidence floor through the Ring seam: a gate's floor met, and a ga
 EndScenario()
 ? "        [section took " + ((clock() - nCoSec) / clockspersecond()) + "s]"
 
+#============================================================================
+Scenario("V1 -- the evidence ladder through the Ring seam: each node's highest grade, and the tours that gave it")
+	nCoSec = clock()
+	Given("golden cases 18 (a tour that reached two nodes and DIVERGED) and 19 (one that reached a node and judged nothing)")
+	cCoT18 = _CoVerdictP2(cCoP2 + "/judge/18_nodes_on_a_diverged_tour")
+	cCoT19 = _CoVerdictP2(cCoP2 + "/judge/19_nodes_on_an_unjudged_tour")
+	Then("case 18: both nodes observed, the claim diverged", cCoT18, _CoChop(TestoorGoldenRead(cCoP2 + "/judge/18_nodes_on_a_diverged_tour/expected.json")))
+	Then("case 19: the node observed, the planned claim unjudged", cCoT19, _CoChop(TestoorGoldenRead(cCoP2 + "/judge/19_nodes_on_an_unjudged_tour/expected.json")))
+	cCoP3 = cCoRoot + "/protocol3/logbook"
+	Given("the run L9: cases 15, 16 (flaky), 18 and 19 against a complete graph of six nodes, the ladder asked for")
+	cCoT16F = StzReplace(cCoT16, '"flaky":0', '"flaky":1')
+	cCoL9 = '{"run":' + TestoorGoldenRead(cCoP3 + "/L9_ladder_graph/run.json") + ',"tours":[' + cCoT15 + "," + cCoT16F + "," + cCoT18 + "," + cCoT19 + "]}"
+	Then("its JSON is protocol 3 and carries the ladder: only the kept, finished, steady tour exemplifies", StzEngineTestoorRunJson(cCoL9),
+	     _CoChop(TestoorGoldenRead(cCoP3 + "/L9_ladder_graph/expected.json")))
+	Then("its prose gives the three grades of the six nodes", StzEngineTestoorRunProse(cCoL9), _CoChop(TestoorGoldenRead(cCoP3 + "/L9_ladder_graph/expected.txt")))
+	Then("and the ladder changes no exit code: 1, for the flaky and the diverged tours", "" + StzEngineTestoorRunExit(cCoL9),
+	     _CoChop(TestoorGoldenRead(cCoP3 + "/L9_ladder_graph/expected.exit")))
+	Given("the run L10: cases 15 and 16 with no graph")
+	cCoL10 = '{"run":' + TestoorGoldenRead(cCoP3 + "/L10_ladder_no_graph/run.json") + ',"tours":[' + cCoT15 + "," + cCoT16 + "]}"
+	Then("without a graph the ladder lists what was reached and counts no named node", StzEngineTestoorRunJson(cCoL10),
+	     _CoChop(TestoorGoldenRead(cCoP3 + "/L10_ladder_no_graph/expected.json")))
+	Then("and says so in its prose", StzEngineTestoorRunProse(cCoL10), _CoChop(TestoorGoldenRead(cCoP3 + "/L10_ladder_no_graph/expected.txt")))
+	Given("the same run as L9 with the ladder NOT asked for")
+	cCoL9Off = StzEngineTestoorRunJson(StzReplace(cCoL9, '"ladder": true', '"ladder": false'))
+	Then("no ladder is written, and the logbook stays protocol 2", "" + StzFindFirst('"ladder":', cCoL9Off) + "/" + (StzFindFirst('"protocol":2,', cCoL9Off) > 0), "0/1")
+EndScenario()
+? "        [section took " + ((clock() - nCoSec) / clockspersecond()) + "s]"
+
 ok
 
 ? ""
-? "[P3.1 + P3.2 + P3.3 + the floor took " + ((clock() - nCoStart) / clockspersecond()) + "s]"
+? "[P3.1 + P3.2 + P3.3 + the floor + V1 took " + ((clock() - nCoStart) / clockspersecond()) + "s]"
 Summary()
 shutdown($_zst_fail)
 
