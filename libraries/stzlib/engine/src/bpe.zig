@@ -12,6 +12,7 @@
 
 const std = @import("std");
 const c = @import("ocr_graph.zig").c;
+const gr = @import("gguf_read.zig"); // SECURITY-MODELDATA-01b
 
 pub const Bpe = struct {
     arena: std.heap.ArenaAllocator,
@@ -22,8 +23,9 @@ pub const Bpe = struct {
     pad: u32,
 };
 
+// i is in range at every call (each loop is bounded by the array's own checked count)
 fn arrStr(g: *c.gguf_context, id: i64, i: usize) []const u8 {
-    return std.mem.span(c.gguf_get_arr_str(g, id, i));
+    return std.mem.span(gr.arrStr(g, id, i).?);
 }
 
 /// The tokenizer a GGUF carries, or null when it carries none. The strings stay owned by the GGUF.
@@ -33,15 +35,20 @@ pub fn fromGguf(g: *c.gguf_context, gpa: std.mem.Allocator) !?*Bpe {
     const aid = c.gguf_find_key(g, "stz.tok.merge_a");
     const bid = c.gguf_find_key(g, "stz.tok.merge_b");
     if (aid < 0 or bid < 0) return error.NoMerges;
+    // SECURITY-MODELDATA-01b: arrays of strings, and the two merge halves the same length -- merge_b shorter
+    // than merge_a was read past its end
+    const nv: usize = gr.arrN(g, vid, gr.T_STR) orelse return error.BadTokenizer;
+    const na = gr.arrN(g, aid, gr.T_STR) orelse return error.BadTokenizer;
+    if (gr.arrN(g, bid, gr.T_STR) != na or nv > std.math.maxInt(u32) or na > std.math.maxInt(u32)) return error.BadTokenizer;
     const t = try gpa.create(Bpe);
     t.arena = std.heap.ArenaAllocator.init(gpa);
     const a = t.arena.allocator();
     t.vocab = std.StringHashMap(u32).init(a);
     t.ranks = std.StringHashMap(u32).init(a);
-    const nv: usize = @intCast(c.gguf_get_arr_n(g, vid));
+    // nv, checked above
     try t.vocab.ensureTotalCapacity(@intCast(nv));
     for (0..nv) |i| t.vocab.putAssumeCapacity(arrStr(g, vid, i), @intCast(i));
-    const nm: usize = @intCast(c.gguf_get_arr_n(g, aid));
+    const nm: usize = na;
     try t.ranks.ensureTotalCapacity(@intCast(nm));
     for (0..nm) |i| {
         const x = arrStr(g, aid, i);
@@ -54,11 +61,9 @@ pub fn fromGguf(g: *c.gguf_context, gpa: std.mem.Allocator) !?*Bpe {
         if (!r.found_existing) r.value_ptr.* = @intCast(i);
     }
     const sid = c.gguf_find_key(g, "stz.tok.space");
-    t.space = if (sid >= 0) std.mem.span(c.gguf_get_val_str(g, sid)) else "";
-    const eid = c.gguf_find_key(g, "stz.tok.eos");
-    t.eos = if (eid >= 0) c.gguf_get_val_u32(g, eid) else 1;
-    const pid = c.gguf_find_key(g, "stz.tok.pad");
-    t.pad = if (pid >= 0) c.gguf_get_val_u32(g, pid) else 0;
+    t.space = if (gr.strAt(g, sid)) |s| std.mem.span(s) else "";
+    t.eos = gr.intAs(u32, g, "stz.tok.eos", 1);
+    t.pad = gr.intAs(u32, g, "stz.tok.pad", 0);
     return t;
 }
 

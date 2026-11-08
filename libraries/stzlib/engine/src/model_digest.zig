@@ -40,9 +40,18 @@ var g_cache: std.ArrayListUnmanaged(Cached) = .{};
 var g_mutex: std.Thread.Mutex = .{};
 var g_last_hex: [HEX + 1]u8 = [_]u8{0} ** (HEX + 1);
 
+// On Windows a path names the same file whatever the case of its letters and whichever separator it uses: a digest
+// pinned for "dir/ocr/x.gguf" must match the "dir/ocr\x.gguf" a pipeline joins. Found 2026-11-08 (SECURITY-MODELDATA-01):
+// an OCR detector pinned by its caller was refused, because the pipeline joined its folder with a backslash.
 fn pathEql(a: []const u8, b: []const u8) bool {
-    if (builtin.os.tag == .windows) return std.ascii.eqlIgnoreCase(a, b);
-    return std.mem.eql(u8, a, b);
+    if (builtin.os.tag != .windows) return std.mem.eql(u8, a, b);
+    if (a.len != b.len) return false;
+    for (a, b) |x, y| {
+        const xs = if (x == '\\') '/' else std.ascii.toLower(x);
+        const ys = if (y == '\\') '/' else std.ascii.toLower(y);
+        if (xs != ys) return false;
+    }
+    return true;
 }
 
 fn normHex(src: []const u8, out: *[HEX]u8) bool {
@@ -180,4 +189,11 @@ test "a digest is refused unless it was recorded, and a mismatch is refused" {
     try std.testing.expectEqual(OK, verify(path.ptr));
     try tmp.dir.writeFile(.{ .sub_path = "SHA256SUMS", .data = ("0" ** 64) ++ "  m.gguf\n" });
     try std.testing.expectEqual(ERR_MISMATCH, verify(path.ptr));
+}
+
+test "on Windows a path matches across letter case and either separator" {
+    if (builtin.os.tag != .windows) return error.SkipZigTest;
+    try std.testing.expect(pathEql("C:/m/ocr\\x.gguf", "c:\\M\\ocr/X.GGUF"));
+    try std.testing.expect(!pathEql("C:/m/ocr/x.gguf", "C:/m/ocr/y.gguf"));
+    try std.testing.expect(!pathEql("C:/m/ocr/x.gguf", "C:/m/ocr/x.gguf2"));
 }

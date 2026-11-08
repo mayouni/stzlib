@@ -783,7 +783,9 @@ pub export fn neural_embed_routed(text: [*c]const u8, len: usize) callconv(.c) c
                 return embed.neural_embed_text(text, len);
             };
             defer gpa.free(vec);
-            if (neural_backbone_forward(ids.ptr, n_tok, vec.ptr) == 1 and
+            // the GPU pass reads the same weights the CPU graph does: it runs only on a model that keeps the
+            // backbone's contract, with ids inside their tables (SECURITY-MODELDATA-01b); the CPU path refuses the rest
+            if (embed.backboneReady(ids) and neural_backbone_forward(ids.ptr, n_tok, vec.ptr) == 1 and
                 embed.installEmbedding(vec))
             {
                 g_used_backbone += 1;

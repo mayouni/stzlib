@@ -19,6 +19,7 @@ const vision = @import("vision.zig");
 const nvit = @import("neural_vit.zig");
 const digest = @import("model_digest.zig");
 const c = og.c;
+const gr = @import("gguf_read.zig"); // SECURITY-MODELDATA-01b
 
 const gpa = std.heap.c_allocator;
 
@@ -58,26 +59,20 @@ fn setError(comptime fmt: []const u8, args: anytype) void {
 }
 
 fn kvInt(gg: *c.gguf_context, key: [*:0]const u8) ?usize {
-    const id = c.gguf_find_key(gg, key);
-    if (id < 0) return null;
-    return switch (c.gguf_get_kv_type(gg, id)) {
-        c.GGUF_TYPE_UINT32 => c.gguf_get_val_u32(gg, id),
-        c.GGUF_TYPE_INT32 => @intCast(@max(0, c.gguf_get_val_i32(gg, id))),
-        c.GGUF_TYPE_UINT64 => @intCast(c.gguf_get_val_u64(gg, id)),
-        else => null,
-    };
+    // a size: non-negative and bounded (u64 max panicked in @intCast); anything else is absent
+    const v = gr.intAt(gg, gr.find(gg, key)) orelse return null;
+    if (v < 0 or v > std.math.maxInt(i32)) return null;
+    return @intCast(v);
 }
 
 fn kvF32(gg: *c.gguf_context, key: [*:0]const u8, dflt: f32) f32 {
-    const id = c.gguf_find_key(gg, key);
-    if (id < 0 or c.gguf_get_kv_type(gg, id) != c.GGUF_TYPE_FLOAT32) return dflt;
-    return c.gguf_get_val_f32(gg, id);
+    return gr.float(gg, key, dflt);
 }
 
 fn kvF32x3(gg: *c.gguf_context, key: [*:0]const u8, dflt: [3]f32) [3]f32 {
-    const id = c.gguf_find_key(gg, key);
-    if (id < 0 or c.gguf_get_kv_type(gg, id) != c.GGUF_TYPE_ARRAY or c.gguf_get_arr_n(gg, id) != 3) return dflt;
-    const p: [*]const f32 = @ptrCast(@alignCast(c.gguf_get_arr_data(gg, id)));
+    // three f32s, or the default: an array of strings asserted inside gguf_get_arr_data
+    const p = gr.arrOf(f32, gg, gr.find(gg, key)) orelse return dflt;
+    if (p.len != 3) return dflt;
     return .{ p[0], p[1], p[2] };
 }
 
@@ -116,8 +111,7 @@ pub fn load(path: []const u8) ?*Projector {
         setError("vlm: cannot read the projector {s}", .{path});
         return null;
     };
-    const kt = c.gguf_find_key(gg, "clip.projector_type");
-    const kind: []const u8 = if (kt >= 0) std.mem.span(c.gguf_get_val_str(gg, kt)) else "";
+    const kind: []const u8 = gr.strOr(gg, "clip.projector_type", "");
     if (!std.mem.eql(u8, kind, "idefics3")) {
         setError("vlm: the projector type is '{s}', and only idefics3 (SmolVLM, Granite-Docling) is built", .{kind});
         c.ggml_free(ctx);

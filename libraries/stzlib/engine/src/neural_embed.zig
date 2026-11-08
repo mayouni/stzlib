@@ -22,6 +22,7 @@ const c = @cImport({
     @cInclude("ggml-cpu.h");
     @cInclude("gguf.h");
 });
+const gr = @import("gguf_read.zig"); // SECURITY-MODELDATA-01b: every metadata read checks its type first
 
 const gpa = std.heap.c_allocator;
 
@@ -106,9 +107,7 @@ pub export fn neural_model_loaded() callconv(.c) c_int {
 
 fn kvStr(key: [*:0]const u8) ?[*:0]const u8 {
     const ctx = g_gguf orelse return null;
-    const id = c.gguf_find_key(ctx, key);
-    if (id < 0) return null;
-    return c.gguf_get_val_str(ctx, id);
+    return gr.str(ctx, key);
 }
 
 // Integer value for an ARCH-PREFIXED key suffix (".embedding_length" ->
@@ -124,16 +123,10 @@ fn kvArchInt(suffix: []const u8, dflt: i64) i64 {
     @memcpy(buf[g_arch_len..][0..suffix.len], suffix);
     buf[g_arch_len + suffix.len] = 0;
     const key: [*:0]const u8 = @ptrCast(&buf[0]);
-    const id = c.gguf_find_key(ctx, key);
-    if (id < 0) return dflt;
-    return switch (c.gguf_get_kv_type(ctx, id)) {
-        c.GGUF_TYPE_UINT32 => @intCast(c.gguf_get_val_u32(ctx, id)),
-        c.GGUF_TYPE_INT32 => @intCast(c.gguf_get_val_i32(ctx, id)),
-        c.GGUF_TYPE_UINT64 => @intCast(c.gguf_get_val_u64(ctx, id)),
-        c.GGUF_TYPE_INT64 => c.gguf_get_val_i64(ctx, id),
-        c.GGUF_TYPE_UINT16 => @intCast(c.gguf_get_val_u16(ctx, id)),
-        else => dflt,
-    };
+    // a size is never negative and must fit the c_int the exports return: anything else is the default
+    const v = gr.intAt(ctx, gr.find(ctx, key)) orelse return dflt;
+    if (v < 0 or v > std.math.maxInt(i32)) return dflt;
+    return @intCast(v);
 }
 
 pub export fn neural_model_arch() callconv(.c) [*c]const u8 {
@@ -159,9 +152,8 @@ pub export fn neural_model_n_ctx() callconv(.c) c_int {
 // Vocabulary size = length of the tokenizer.ggml.tokens string array.
 pub export fn neural_model_n_vocab() callconv(.c) c_int {
     const ctx = g_gguf orelse return 0;
-    const id = c.gguf_find_key(ctx, "tokenizer.ggml.tokens");
-    if (id < 0) return 0;
-    return @intCast(c.gguf_get_arr_n(ctx, id));
+    const n = gr.arrN(ctx, gr.find(ctx, "tokenizer.ggml.tokens"), gr.T_STR) orelse return 0;
+    return @intCast(@min(n, std.math.maxInt(i32)));
 }
 
 // The model's LayerNorm epsilon -- exported so the GPU backbone normalizes
@@ -184,16 +176,18 @@ pub export fn neural_model_kv_count() callconv(.c) c_int {
 
 pub export fn neural_model_key(i: c_int) callconv(.c) [*c]const u8 {
     const ctx = g_gguf orelse return @ptrCast("");
+    if (i < 0 or i >= c.gguf_get_n_kv(ctx)) return @ptrCast("");
     return c.gguf_get_key(ctx, @intCast(i));
 }
 
 pub export fn neural_model_key_type(i: c_int) callconv(.c) c_int {
     const ctx = g_gguf orelse return -1;
-    return @intCast(c.gguf_get_kv_type(ctx, @intCast(i)));
+    return gr.kindOf(ctx, i);
 }
 
 pub export fn neural_model_tensor_name(i: c_int) callconv(.c) [*c]const u8 {
     const ctx = g_gguf orelse return @ptrCast("");
+    if (i < 0 or i >= c.gguf_get_n_tensors(ctx)) return @ptrCast("");
     return c.gguf_get_tensor_name(ctx, @intCast(i));
 }
 
@@ -219,27 +213,21 @@ var g_tok_ids: std.ArrayList(i32) = .{};
 
 fn kvI32(key: [*:0]const u8, dflt: i32) i32 {
     const ctx = g_gguf orelse return dflt;
-    const id = c.gguf_find_key(ctx, key);
-    if (id < 0) return dflt;
-    return switch (c.gguf_get_kv_type(ctx, id)) {
-        c.GGUF_TYPE_UINT32 => @intCast(c.gguf_get_val_u32(ctx, id)),
-        c.GGUF_TYPE_INT32 => c.gguf_get_val_i32(ctx, id),
-        else => dflt,
-    };
+    return gr.intAs(i32, ctx, key, dflt);
 }
 
 fn buildVocab() bool {
     if (g_vocab_built) return true;
     const ctx = g_gguf orelse return false;
-    const tid = c.gguf_find_key(ctx, "tokenizer.ggml.tokens");
-    if (tid < 0) return false;
+    const tid = gr.find(ctx, "tokenizer.ggml.tokens");
+    const n = gr.arrN(ctx, tid, gr.T_STR) orelse return false;
+    if (n == 0 or n > std.math.maxInt(i32)) return false;
     g_vocab = std.StringHashMap(i32).init(gpa);
-    const n = c.gguf_get_arr_n(ctx, tid);
     g_wp_classic = false;
     var upper_count: usize = 0; // uppercase-bearing REGULAR (non-special) tokens
     var i: usize = 0;
     while (i < n) : (i += 1) {
-        const tok = c.gguf_get_arr_str(ctx, tid, i); // stable slice while model loaded
+        const tok = gr.arrStr(ctx, tid, i).?; // i < n, checked above; stable slice while model loaded
         const s = std.mem.span(tok);
         g_vocab.put(s, @intCast(i)) catch {};
         // classic-WordPiece scheme: any "##..." continuation token in the vocab
@@ -366,6 +354,7 @@ pub export fn neural_tokenize(text: [*c]const u8, len: usize) callconv(.c) c_int
 }
 
 pub export fn neural_token_at(i: c_int) callconv(.c) c_int {
+    if (i < 0) return -1;
     const idx: usize = @intCast(i);
     if (idx >= g_tok_ids.items.len) return -1;
     return g_tok_ids.items[idx];
@@ -374,9 +363,8 @@ pub export fn neural_token_at(i: c_int) callconv(.c) c_int {
 // PROBE: raw vocab token string at index i (to check id-order + null-termination).
 pub export fn neural_vocab_token(i: c_int) callconv(.c) [*c]const u8 {
     const ctx = g_gguf orelse return @ptrCast("");
-    const tid = c.gguf_find_key(ctx, "tokenizer.ggml.tokens");
-    if (tid < 0) return @ptrCast("");
-    return c.gguf_get_arr_str(ctx, tid, @intCast(i));
+    if (i < 0) return @ptrCast("");
+    return gr.arrStr(ctx, gr.find(ctx, "tokenizer.ggml.tokens"), @intCast(i)) orelse @ptrCast("");
 }
 
 // ---- BERT embedding forward pass --------------------------------------------
@@ -391,10 +379,7 @@ fn kvArchF32(suffix: []const u8, dflt: f32) f32 {
     @memcpy(buf[g_arch_len..][0..suffix.len], suffix);
     buf[g_arch_len + suffix.len] = 0;
     const key: [*:0]const u8 = @ptrCast(&buf[0]);
-    const id = c.gguf_find_key(ctx, key);
-    if (id < 0) return dflt;
-    if (c.gguf_get_kv_type(ctx, id) == c.GGUF_TYPE_FLOAT32) return c.gguf_get_val_f32(ctx, id);
-    return dflt;
+    return gr.float(ctx, key, dflt);
 }
 
 fn layerNorm(ctx: ?*c.ggml_context, x: *c.ggml_tensor, w: *c.ggml_tensor, b: *c.ggml_tensor, eps: f32) *c.ggml_tensor {
@@ -415,6 +400,94 @@ fn getTOpt(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, b: []u8
     return c.ggml_get_tensor(m, s.ptr);
 }
 
+// THE BACKBONE'S CONTRACT (SECURITY-MODELDATA-01b, 2026-11-08). The graph below takes every weight with `.?` and
+// hands ggml shapes it trusts; a model file that leaves a tensor out, or states a shape that does not agree with
+// its own hyperparameters, panicked on the null or failed a GGML_ASSERT -- either way the process ended. So before
+// the first graph of a model is built, every tensor the backbone will read is checked: present, of at most two
+// dimensions, and shaped to n_embd / n_ff. The answer is kept for the loaded model (model_generation). The rows of
+// the three lookup tables are kept too, because every id the graph looks up -- token, position, segment -- must be
+// a row of its table: a cls id of -1 in the metadata, or a 300-token text against 128 positions, read past the
+// table inside ggml_get_rows.
+var g_bb_gen: usize = std.math.maxInt(usize);
+var g_bb_ok: bool = false;
+var g_bb_tok_rows: i64 = 0;
+var g_bb_pos_rows: i64 = 0; // 0: no position table (ALiBi)
+var g_bb_typ_rows: i64 = 0;
+
+fn twoD(t: *c.ggml_tensor, ne0: i64) bool {
+    return t.*.ne[0] == ne0 and t.*.ne[1] >= 1 and t.*.ne[2] == 1 and t.*.ne[3] == 1;
+}
+fn bbMat(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, ne0: i64, ne1: i64) bool {
+    var b: [64]u8 = undefined;
+    const t = getTOpt(m, fmt, args, &b) orelse return false;
+    return twoD(t, ne0) and t.*.ne[1] == ne1;
+}
+fn bbVec(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, n: i64) bool {
+    var b: [64]u8 = undefined;
+    const t = getTOpt(m, fmt, args, &b) orelse return false;
+    // a bias or a norm is added or multiplied in f32, so it must be stored as f32
+    return t.*.type == c.GGML_TYPE_F32 and t.*.ne[0] == n and t.*.ne[1] == 1 and t.*.ne[2] == 1 and t.*.ne[3] == 1;
+}
+
+fn backboneContract(m: ?*c.ggml_context) bool {
+    const E: i64 = neural_model_n_embd();
+    const H: i64 = neural_model_n_heads();
+    const L: i64 = neural_model_n_layers();
+    if (E <= 0 or H <= 0 or L <= 0 or L > 4096 or @rem(E, H) != 0) return false;
+    var nb: [64]u8 = undefined;
+    const te = getTOpt(m, "token_embd.weight", .{}, &nb) orelse return false;
+    const ty = getTOpt(m, "token_types.weight", .{}, &nb) orelse return false;
+    if (!twoD(te, E) or !twoD(ty, E)) return false;
+    g_bb_tok_rows = te.*.ne[1];
+    g_bb_typ_rows = ty.*.ne[1];
+    g_bb_pos_rows = 0;
+    if (getTOpt(m, "position_embd.weight", .{}, &nb)) |p| {
+        if (!twoD(p, E)) return false;
+        g_bb_pos_rows = p.*.ne[1];
+    }
+    if (!bbVec(m, "token_embd_norm.weight", .{}, E) or !bbVec(m, "token_embd_norm.bias", .{}, E)) return false;
+    const has_gate = getTOpt(m, "blk.0.ffn_gate.weight", .{}, &nb) != null;
+    const up0 = getTOpt(m, "blk.0.ffn_up.weight", .{}, &nb) orelse return false;
+    const F: i64 = up0.*.ne[1];
+    var l: usize = 0;
+    while (l < L) : (l += 1) {
+        for ([_][]const u8{ "q", "k", "v", "output" }) |w| {
+            if (!bbMat(m, "blk.{d}.attn_{s}.weight", .{ l, w }, E, E) or !bbVec(m, "blk.{d}.attn_{s}.bias", .{ l, w }, E)) return false;
+        }
+        if (!bbVec(m, "blk.{d}.attn_output_norm.weight", .{l}, E) or !bbVec(m, "blk.{d}.attn_output_norm.bias", .{l}, E)) return false;
+        if (!bbMat(m, "blk.{d}.ffn_up.weight", .{l}, E, F)) return false;
+        if (has_gate) {
+            if (!bbMat(m, "blk.{d}.ffn_gate.weight", .{l}, E, F)) return false;
+        } else if (!bbVec(m, "blk.{d}.ffn_up.bias", .{l}, F)) return false;
+        if (!bbMat(m, "blk.{d}.ffn_down.weight", .{l}, F, E) or !bbVec(m, "blk.{d}.ffn_down.bias", .{l}, E)) return false;
+        if (!bbVec(m, "blk.{d}.layer_output_norm.weight", .{l}, E) or !bbVec(m, "blk.{d}.layer_output_norm.bias", .{l}, E)) return false;
+    }
+    return true;
+}
+
+fn backboneOk(m: ?*c.ggml_context) bool {
+    if (g_bb_gen != model_generation) {
+        g_bb_ok = backboneContract(m);
+        g_bb_gen = model_generation;
+    }
+    return g_bb_ok;
+}
+
+// for the GPU route (neural_backbone.zig): the loaded model keeps the contract and these token ids (types 0,
+// positions 0..n-1) are rows of their tables -- the same test buildBackbone makes before the CPU graph
+pub fn backboneReady(ids: []const i32) bool {
+    const m = g_ctx orelse return false;
+    if (!backboneOk(m)) return false;
+    if (!idsInRange(ids.ptr, ids.len, g_bb_tok_rows)) return false;
+    return g_bb_pos_rows == 0 or ids.len <= g_bb_pos_rows;
+}
+
+// every id the graph will look up is a row of its table
+fn idsInRange(ids: [*]const i32, n: usize, rows: i64) bool {
+    for (ids[0..n]) |v| if (v < 0 or v >= rows) return false;
+    return true;
+}
+
 // Build the transformer backbone in `ctx` and return the final per-token hidden
 // states `cur` [n_embd, n_tok]. AUTO-ADAPTS across architectures:
 //   - learned position embeddings (BERT/MiniLM/RoBERTa) vs NONE + ALiBi in the
@@ -422,7 +495,14 @@ fn getTOpt(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, b: []u8
 //   - standard FFN (up->gelu->down) vs GEGLU (gelu(gate)*up -> down, no up/gate
 //     bias, jina-bert-v2).
 // Shared by embeddings, NER, and the cross-encoder reranker.
-fn buildBackbone(ctx: ?*c.ggml_context, mctx: ?*c.ggml_context, tokens: *c.ggml_tensor, positions: *c.ggml_tensor, types: *c.ggml_tensor, n_tok: usize, n_embd: usize, n_head: usize, n_layer: usize, head_dim: usize, eps: f32) *c.ggml_tensor {
+//
+// Null when the model breaks the backbone's contract or an input id is not a row of its table (above): the caller
+// refuses, as it does for a missing model.
+fn buildBackbone(ctx: ?*c.ggml_context, mctx: ?*c.ggml_context, tokens: *c.ggml_tensor, positions: *c.ggml_tensor, types: *c.ggml_tensor, n_tok: usize, n_embd: usize, n_head: usize, n_layer: usize, head_dim: usize, eps: f32) ?*c.ggml_tensor {
+    if (!backboneOk(mctx)) return null;
+    if (!idsInRange(@ptrCast(@alignCast(tokens.*.data)), n_tok, g_bb_tok_rows)) return null;
+    if (!idsInRange(@ptrCast(@alignCast(types.*.data)), n_tok, g_bb_typ_rows)) return null;
+    if (g_bb_pos_rows > 0 and !idsInRange(@ptrCast(@alignCast(positions.*.data)), n_tok, g_bb_pos_rows)) return null;
     var nb: [64]u8 = undefined;
     var nb2: [64]u8 = undefined;
 
@@ -535,7 +615,7 @@ fn forwardTokens(text: [*c]const u8, len: usize) bool {
         pd[i] = @intCast(i);
         yd[i] = 0;
     }
-    const cur = buildBackbone(ctx, mctx, tokens, positions, types, n_tok, n_embd, n_head, n_layer, head_dim, eps);
+    const cur = buildBackbone(ctx, mctx, tokens, positions, types, n_tok, n_embd, n_head, n_layer, head_dim, eps) orelse return false;
 
     // compute cur = [n_embd, n_tok]
     const graph = c.ggml_new_graph(ctx) orelse return false;
@@ -601,6 +681,7 @@ pub fn installEmbedding(vec: []const f32) bool {
 }
 
 pub export fn neural_embed_at(i: c_int) callconv(.c) f64 {
+    if (i < 0) return 0;
     const idx: usize = @intCast(i);
     if (idx >= g_emb.items.len) return 0;
     return g_emb.items[idx];
@@ -651,10 +732,8 @@ fn clearNer() void {
 // model is loaded); "O" if unavailable.
 fn nerLabel(k: usize) []const u8 {
     const ctx = g_gguf orelse return "O";
-    const id = c.gguf_find_key(ctx, "ner.labels");
-    if (id < 0) return "O";
-    if (k >= c.gguf_get_arr_n(ctx, id)) return "O";
-    return std.mem.span(c.gguf_get_arr_str(ctx, id, k));
+    const s = gr.arrStr(ctx, gr.find(ctx, "ner.labels"), k) orelse return "O";
+    return std.mem.span(s);
 }
 
 fn normType(t: []const u8) []const u8 {
@@ -745,6 +824,8 @@ pub export fn neural_ner(text: [*c]const u8, len: usize) callconv(.c) c_int {
     const mctx = g_ctx orelse return 0;
     const Wt = c.ggml_get_tensor(mctx, "ner.classifier.weight") orelse return 0;
     const Bt = c.ggml_get_tensor(mctx, "ner.classifier.bias") orelse return 0;
+    // the head must read the backbone's width and give one score per label (SECURITY-MODELDATA-01b)
+    if (!twoD(Wt, neural_model_n_embd()) or Bt.*.type != c.GGML_TYPE_F32 or Bt.*.ne[0] != Wt.*.ne[1] or Bt.*.ne[1] != 1) return 0;
     const n_labels: usize = @intCast(Wt.*.ne[1]);
     if (n_labels < 2 or text == null or len == 0) return 0;
 
@@ -788,7 +869,7 @@ pub export fn neural_ner(text: [*c]const u8, len: usize) callconv(.c) c_int {
         yd[i] = 0;
     }
 
-    const cur = buildBackbone(ctx, mctx, tokens, positions, types, n_tok, n_embd, n_head, n_layer, head_dim, eps);
+    const cur = buildBackbone(ctx, mctx, tokens, positions, types, n_tok, n_embd, n_head, n_layer, head_dim, eps) orelse return 0;
     // classifier head: logits = W . cur + b  -> [n_labels, n_tok]
     var logits = c.ggml_mul_mat(ctx, Wt, cur).?;
     logits = c.ggml_add(ctx, logits, Bt).?;
@@ -909,6 +990,10 @@ pub export fn neural_rerank(qptr: [*c]const u8, qlen: usize, dptr: [*c]const u8,
     const mctx = g_ctx orelse return 0;
     const Wt = c.ggml_get_tensor(mctx, "cls.weight") orelse return 0;
     const Bt = c.ggml_get_tensor(mctx, "cls.bias");
+    if (!twoD(Wt, neural_model_n_embd())) return 0; // SECURITY-MODELDATA-01b
+    if (Bt) |b| {
+        if (b.*.type != c.GGML_TYPE_F32 or b.*.ne[0] != Wt.*.ne[1] or b.*.ne[1] != 1) return 0;
+    }
     const n_out: usize = @intCast(Wt.*.ne[1]);
     if (qptr == null or dptr == null or n_out == 0) return 0;
 
@@ -950,7 +1035,7 @@ pub export fn neural_rerank(qptr: [*c]const u8, qlen: usize, dptr: [*c]const u8,
         yd[i] = g_seg.items[i];
     }
 
-    const cur = buildBackbone(ctx, mctx, tokens, positions, types, n_tok, n_embd, n_head, n_layer, head_dim, eps);
+    const cur = buildBackbone(ctx, mctx, tokens, positions, types, n_tok, n_embd, n_head, n_layer, head_dim, eps) orelse return 0;
     // [CLS] hidden = token 0 = first n_embd contiguous floats -> cls head
     const cls_h = c.ggml_view_1d(ctx, cur, @intCast(n_embd), 0).?;
     var score_t = c.ggml_mul_mat(ctx, Wt, cls_h).?;

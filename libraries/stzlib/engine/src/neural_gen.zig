@@ -12,6 +12,7 @@
 
 const std = @import("std");
 const embed = @import("neural_embed.zig");
+const gr = @import("gguf_read.zig"); // SECURITY-MODELDATA-01b: every metadata read checks its type first
 const gm = @import("gbnf_machine.zig");
 const c = @cImport({
     @cInclude("ggml.h");
@@ -56,39 +57,32 @@ fn kvArchInt(suffix: []const u8, dflt: i64) i64 {
     const key: [*:0]const u8 = @ptrCast(&buf[0]);
     const id = c.gguf_find_key(ctx, key);
     if (id < 0) return dflt;
-    return switch (c.gguf_get_kv_type(ctx, id)) {
-        c.GGUF_TYPE_UINT32 => @intCast(c.gguf_get_val_u32(ctx, id)),
-        c.GGUF_TYPE_INT32 => @intCast(c.gguf_get_val_i32(ctx, id)),
-        c.GGUF_TYPE_UINT64 => @intCast(c.gguf_get_val_u64(ctx, id)),
-        c.GGUF_TYPE_INT64 => c.gguf_get_val_i64(ctx, id),
-        c.GGUF_TYPE_ARRAY => uniformArrayValue(ctx, id) orelse dflt,
-        else => dflt,
-    };
+    var v: i128 = 0;
+    if (c.gguf_get_kv_type(ctx, id) == c.GGUF_TYPE_ARRAY) {
+        v = uniformArrayValue(ctx, id) orelse return dflt;
+    } else {
+        v = gr.intAt(ctx, id) orelse return dflt;
+    }
+    // every key read here is a size or a count: never negative, and it must fit the casts its callers make
+    if (v < 0 or v > std.math.maxInt(i32)) return dflt;
+    return @intCast(v);
 }
 
 // Some models (granite) store a per-layer value, e.g. head_count_kv, as an ARRAY with one entry per layer.
 // When every entry is the same it IS that value; when they differ (a hybrid or otherwise irregular stack)
 // there is no single value and null is returned - callers that cannot run such a model refuse it.
 fn uniformArrayValue(ctx: *c.gguf_context, id: i64) ?i64 {
-    const at = c.gguf_get_arr_type(ctx, id);
-    const n = c.gguf_get_arr_n(ctx, id);
-    if (n == 0) return null;
-    const data = c.gguf_get_arr_data(ctx, id) orelse return null;
-    switch (at) {
-        c.GGUF_TYPE_UINT32 => {
-            const a: [*]const u32 = @ptrCast(@alignCast(data));
-            var i: usize = 1;
-            while (i < n) : (i += 1) if (a[i] != a[0]) return null;
-            return @intCast(a[0]);
-        },
-        c.GGUF_TYPE_INT32 => {
-            const a: [*]const i32 = @ptrCast(@alignCast(data));
-            var i: usize = 1;
-            while (i < n) : (i += 1) if (a[i] != a[0]) return null;
-            return @intCast(a[0]);
-        },
-        else => return null,
+    if (gr.arrOf(u32, ctx, id)) |a| {
+        if (a.len == 0) return null;
+        for (a[1..]) |x| if (x != a[0]) return null;
+        return @intCast(a[0]);
     }
+    if (gr.arrOf(i32, ctx, id)) |a| {
+        if (a.len == 0) return null;
+        for (a[1..]) |x| if (x != a[0]) return null;
+        return @intCast(a[0]);
+    }
+    return null;
 }
 
 // True when the key exists as an array whose entries differ (an irregular stack this decoder cannot run).
@@ -118,21 +112,12 @@ fn kvArchF32(suffix: []const u8, dflt: f32) f32 {
     @memcpy(buf[arch.len..][0..suffix.len], suffix);
     buf[arch.len + suffix.len] = 0;
     const key: [*:0]const u8 = @ptrCast(&buf[0]);
-    const id = c.gguf_find_key(ctx, key);
-    if (id < 0) return dflt;
-    if (c.gguf_get_kv_type(ctx, id) == c.GGUF_TYPE_FLOAT32) return c.gguf_get_val_f32(ctx, id);
-    return dflt;
+    return gr.float(ctx, key, dflt);
 }
 
 fn kvI32(key: [*:0]const u8, dflt: i32) i32 {
     const ctx = gguf() orelse return dflt;
-    const id = c.gguf_find_key(ctx, key);
-    if (id < 0) return dflt;
-    return switch (c.gguf_get_kv_type(ctx, id)) {
-        c.GGUF_TYPE_UINT32 => @intCast(c.gguf_get_val_u32(ctx, id)),
-        c.GGUF_TYPE_INT32 => c.gguf_get_val_i32(ctx, id),
-        else => dflt,
-    };
+    return gr.intAs(i32, ctx, key, dflt);
 }
 
 fn kvBool(key: [*:0]const u8, dflt: bool) bool {
@@ -234,9 +219,8 @@ fn freeBpe() void {
 
 fn vocabToken(i: usize) []const u8 {
     const ctx = gguf() orelse return "";
-    const tid = c.gguf_find_key(ctx, "tokenizer.ggml.tokens");
-    if (tid < 0) return "";
-    return std.mem.span(c.gguf_get_arr_str(ctx, tid, @intCast(i)));
+    const s = gr.arrStr(ctx, gr.find(ctx, "tokenizer.ggml.tokens"), i) orelse return "";
+    return std.mem.span(s);
 }
 
 fn buildBpe() bool {
@@ -246,24 +230,22 @@ fn buildBpe() bool {
     resetKv();
     const ctx = gguf() orelse return false;
     buildByteMaps();
-    const tid = c.gguf_find_key(ctx, "tokenizer.ggml.tokens");
-    if (tid < 0) return false;
-    const n: usize = @intCast(c.gguf_get_arr_n(ctx, tid));
+    const tid = gr.find(ctx, "tokenizer.ggml.tokens");
+    const n: usize = gr.arrN(ctx, tid, gr.T_STR) orelse return false;
+    if (n == 0 or n > std.math.maxInt(i32)) return false;
     g_n_vocab = n;
     g_tok_map = std.StringHashMap(i32).init(gpa);
     g_merge_map = std.StringHashMap(i32).init(gpa);
 
     // token types (3 = CONTROL) for special-token literal matching
     var types: ?[*]const i32 = null;
-    const yid = c.gguf_find_key(ctx, "tokenizer.ggml.token_type");
-    if (yid >= 0 and c.gguf_get_kv_type(ctx, yid) == c.GGUF_TYPE_ARRAY and
-        c.gguf_get_arr_type(ctx, yid) == c.GGUF_TYPE_INT32)
-    {
-        types = @ptrCast(@alignCast(c.gguf_get_arr_data(ctx, yid)));
+    // a token-type array shorter than the vocabulary was read past its end: it is used only when it covers it
+    if (gr.arrOf(i32, ctx, gr.find(ctx, "tokenizer.ggml.token_type"))) |ty| {
+        if (ty.len >= n) types = ty.ptr;
     }
 
     for (0..n) |i| {
-        const s = std.mem.span(c.gguf_get_arr_str(ctx, tid, i)); // stable while loaded
+        const s = std.mem.span(gr.arrStr(ctx, tid, i).?); // i < n, checked above; stable while loaded
         g_tok_map.put(s, @intCast(i)) catch {};
         if (types) |ty| {
             if ((ty[i] == 3 or ty[i] == 4) and s.len > 0) { // CONTROL, or USER-DEFINED (added tokens: <think>, <tool_call>...)
@@ -272,11 +254,10 @@ fn buildBpe() bool {
         }
     }
 
-    const mid = c.gguf_find_key(ctx, "tokenizer.ggml.merges");
-    if (mid >= 0) {
-        const nm: usize = @intCast(c.gguf_get_arr_n(ctx, mid));
+    const mid = gr.find(ctx, "tokenizer.ggml.merges");
+    if (gr.arrN(ctx, mid, gr.T_STR)) |nm| {
         for (0..nm) |i| {
-            const s = std.mem.span(c.gguf_get_arr_str(ctx, mid, i));
+            const s = std.mem.span(gr.arrStr(ctx, mid, i).?);
             g_merge_map.put(s, @intCast(i)) catch {};
         }
     }
@@ -576,6 +557,69 @@ fn graphPoolBytes(ctx: *c.ggml_context) usize {
 // Everything one decoder forward puts in its graph. With fill == false the
 // graph is built for its SHAPE only (tensors carry no data), which is what
 // lets forwardDecode size its pool from the graph instead of from a formula.
+// THE DECODER'S CONTRACT (SECURITY-MODELDATA-01b, 2026-11-08). The graph below takes every weight with `.?` and
+// reshapes Q, K and V by the sizes the metadata states; a file whose sizes disagree with its own tensors -- a
+// head_count_kv that is missing, or of the wrong type, falls back to n_head -- failed a GGML_ASSERT in a reshape and
+// ended the process (12 SmolLM2 mutants of the fuzz). So before the first graph of a model, every tensor the graph
+// reads is checked against the sizes: Q [n_embd, n_head*hd], K and V [n_embd, n_kv*hd], the output [n_head*hd,
+// n_embd], the three FFN matrices on one n_ff, the norms and any bias f32 vectors of their width, n_head a multiple
+// of n_kv. The answer is kept for the loaded model, and so are the rows of the token table, which every id fed to
+// the graph must be one of.
+var g_dc_gen: usize = std.math.maxInt(usize);
+var g_dc_ok: bool = false;
+var g_dc_rows: i64 = 0;
+
+fn dMat(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, ne0: i64, ne1: i64) bool {
+    var b: [96]u8 = undefined;
+    const t = getTOpt(m, fmt, args, &b) orelse return false;
+    return t.*.ne[0] == ne0 and t.*.ne[1] == ne1 and t.*.ne[2] == 1 and t.*.ne[3] == 1;
+}
+// a vector of n f32s; `optional`: an absent one is fine (the graph reads it only when present)
+fn dVec(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, n: i64, optional: bool) bool {
+    var b: [96]u8 = undefined;
+    const t = getTOpt(m, fmt, args, &b) orelse return optional;
+    return t.*.type == c.GGML_TYPE_F32 and t.*.ne[0] == n and t.*.ne[1] == 1 and t.*.ne[2] == 1 and t.*.ne[3] == 1;
+}
+
+fn decoderContract(m: ?*c.ggml_context, d: Dims) bool {
+    if (d.n_kv > d.n_head or d.n_head % d.n_kv != 0 or d.hd == 0 or d.n_layer > 4096) return false;
+    const E: i64 = @intCast(d.n_embd);
+    const Q: i64 = @intCast(d.n_head * d.hd);
+    const KV: i64 = @intCast(d.n_kv * d.hd);
+    const HD: i64 = @intCast(d.hd);
+    var nb: [96]u8 = undefined;
+    const te = getTOpt(m, "token_embd.weight", .{}, &nb) orelse return false;
+    if (te.*.ne[0] != E or te.*.ne[1] < 1 or te.*.ne[2] != 1 or te.*.ne[3] != 1) return false;
+    g_dc_rows = te.*.ne[1];
+    if (getTOpt(m, "output.weight", .{}, &nb)) |o| {
+        if (o.*.ne[0] != E or o.*.ne[1] < 1 or o.*.ne[2] != 1 or o.*.ne[3] != 1) return false;
+    }
+    if (!dVec(m, "output_norm.weight", .{}, E, false)) return false;
+    const g0 = getTOpt(m, "blk.0.ffn_gate.weight", .{}, &nb) orelse return false;
+    const F: i64 = g0.*.ne[1];
+    var l: usize = 0;
+    while (l < d.n_layer) : (l += 1) {
+        if (!dVec(m, "blk.{d}.attn_norm.weight", .{l}, E, false)) return false;
+        if (!dMat(m, "blk.{d}.attn_q.weight", .{l}, E, Q) or !dVec(m, "blk.{d}.attn_q.bias", .{l}, Q, true)) return false;
+        if (!dMat(m, "blk.{d}.attn_k.weight", .{l}, E, KV) or !dVec(m, "blk.{d}.attn_k.bias", .{l}, KV, true)) return false;
+        if (!dMat(m, "blk.{d}.attn_v.weight", .{l}, E, KV) or !dVec(m, "blk.{d}.attn_v.bias", .{l}, KV, true)) return false;
+        if (!dVec(m, "blk.{d}.attn_q_norm.weight", .{l}, HD, true) or !dVec(m, "blk.{d}.attn_k_norm.weight", .{l}, HD, true)) return false;
+        if (!dMat(m, "blk.{d}.attn_output.weight", .{l}, Q, E) or !dVec(m, "blk.{d}.attn_output.bias", .{l}, E, true)) return false;
+        if (!dVec(m, "blk.{d}.ffn_norm.weight", .{l}, E, false)) return false;
+        if (!dMat(m, "blk.{d}.ffn_gate.weight", .{l}, E, F) or !dMat(m, "blk.{d}.ffn_up.weight", .{l}, E, F)) return false;
+        if (!dMat(m, "blk.{d}.ffn_down.weight", .{l}, F, E)) return false;
+    }
+    return true;
+}
+
+fn decoderOk(m: ?*c.ggml_context, d: Dims) bool {
+    if (g_dc_gen != embed.model_generation) {
+        g_dc_ok = decoderContract(m, d);
+        g_dc_gen = embed.model_generation;
+    }
+    return g_dc_ok;
+}
+
 fn buildDecodeGraph(
     ctx: *c.ggml_context,
     m: ?*c.ggml_context,
@@ -793,6 +837,14 @@ fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
         .res_scale = kvArchF32(".residual_scale", 1.0),
         .logit_scale = kvArchF32(".logit_scale", 1.0),
     };
+
+    // the model keeps the decoder's contract, and what is fed in fits it (SECURITY-MODELDATA-01b)
+    if (!decoderOk(m, dims)) return false;
+    if (embd) |e| {
+        if (e.len < n_embd * n_new) return false;
+    } else {
+        for (ids) |t| if (t < 0 or t >= g_dc_rows) return false;
+    }
 
     // the persistent cache, sized for this forward (a new model shape starts a new cache, which zeroes g_n_past)
     if (!ensureKv(n_layer, n_kv, dims.hd, g_n_past + n_new)) return false;

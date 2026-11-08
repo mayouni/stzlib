@@ -288,11 +288,16 @@ pub fn lastError() []const u8 {
     return last_error[0..last_error_len];
 }
 
+const gr = @import("gguf_read.zig"); // SECURITY-MODELDATA-01b: every metadata read checks its type first
+
 fn kvStr(g: *c.gguf_context, key: [*:0]const u8, a: std.mem.Allocator) ![]const u8 {
-    const id = c.gguf_find_key(g, key);
-    if (id < 0) return error.MissingKey;
-    const p = c.gguf_get_val_str(g, id);
+    const p = gr.str(g, key) orelse return error.MissingKey; // absent, or not a string
     return try a.dupe(u8, std.mem.span(p));
+}
+
+// an array of strings, or the error: a number where the lines belong asserted inside ggml
+fn kvLines(g: *c.gguf_context, id: i64) !usize {
+    return gr.arrN(g, id, gr.T_STR) orelse error.BadMetadata;
 }
 
 pub fn load(path: []const u8) !*Model {
@@ -335,15 +340,15 @@ pub fn load(path: []const u8) !*Model {
     }
     m.kind = try kvStr(g, "stz.ocr.kind", a);
     m.output = try kvStr(g, "stz.ocr.output", a);
-    const rid = c.gguf_find_key(g, "stz.ocr.output_rank");
-    m.output_rank = if (rid >= 0) c.gguf_get_val_u32(g, rid) else 4;
+    m.output_rank = gr.intAs(u32, g, "stz.ocr.output_rank", 4);
+    if (m.output_rank < 1 or m.output_rank > 4) return error.BadMetadata;
     const pid = c.gguf_find_key(g, "stz.ocr.program");
     if (pid < 0) return error.NoProgram;
-    const n: usize = @intCast(c.gguf_get_arr_n(g, pid));
+    const n: usize = try kvLines(g, pid);
     m.lines = try a.alloc([]const u8, n);
     var i: usize = 0;
     while (i < n) : (i += 1) {
-        const p = c.gguf_get_arr_str(g, pid, i);
+        const p = gr.arrStr(g, pid, i).?;
         m.lines[i] = try a.dupe(u8, std.mem.span(p));
     }
     m.labels = &.{};
@@ -351,24 +356,22 @@ pub fn load(path: []const u8) !*Model {
     m.input_h = 0;
     const lid = c.gguf_find_key(g, "stz.graph.labels");
     if (lid >= 0) {
-        const nl2: usize = @intCast(c.gguf_get_arr_n(g, lid));
+        const nl2: usize = try kvLines(g, lid);
         m.labels = try a.alloc([]const u8, nl2);
         var j: usize = 0;
-        while (j < nl2) : (j += 1) m.labels[j] = try a.dupe(u8, std.mem.span(c.gguf_get_arr_str(g, lid, j)));
+        while (j < nl2) : (j += 1) m.labels[j] = try a.dupe(u8, std.mem.span(gr.arrStr(g, lid, j).?));
     }
-    const wid = c.gguf_find_key(g, "stz.graph.input_w");
-    if (wid >= 0) m.input_w = c.gguf_get_val_u32(g, wid);
-    const hid = c.gguf_find_key(g, "stz.graph.input_h");
-    if (hid >= 0) m.input_h = c.gguf_get_val_u32(g, hid);
+    m.input_w = gr.intAs(u32, g, "stz.graph.input_w", 0);
+    m.input_h = gr.intAs(u32, g, "stz.graph.input_h", 0);
     m.inputs = &.{};
     m.parts = &.{};
     const iid = c.gguf_find_key(g, "stz.graph.inputs");
     if (iid >= 0) {
         // "program name:rank:onnx name:d,d,..."
-        const ni: usize = @intCast(c.gguf_get_arr_n(g, iid));
+        const ni: usize = try kvLines(g, iid);
         m.inputs = try a.alloc(InSpec, ni);
         for (m.inputs, 0..) |*s, k| {
-            const line = try a.dupe(u8, std.mem.span(c.gguf_get_arr_str(g, iid, k)));
+            const line = try a.dupe(u8, std.mem.span(gr.arrStr(g, iid, k).?));
             var it = std.mem.splitScalar(u8, line, ':');
             s.pname = it.next() orelse return error.BadInputs;
             s.rank = try std.fmt.parseInt(u8, it.next() orelse return error.BadInputs, 10);
@@ -379,9 +382,11 @@ pub fn load(path: []const u8) !*Model {
             while (dit.next()) |v| : (nd += 1) {
                 if (nd >= 5) return error.BadInputs;
                 d[nd] = try std.fmt.parseInt(i64, v, 10);
+                if (d[nd] < 1) return error.BadInputs; // a dimension is a positive count
             }
+            if (nd == 0) return error.BadInputs;
             s.n = 1;
-            for (d[0..nd]) |v| s.n *= @intCast(v);
+            for (d[0..nd]) |v| s.n = std.math.mul(@TypeOf(s.n), s.n, @intCast(v)) catch return error.BadInputs;
             // ggml order; a rank-5 input keeps its outer 1 in the rank only
             s.dims = .{ 1, 1, 1, 1 };
             const first: usize = if (nd == 5) 1 else 0;
@@ -391,10 +396,10 @@ pub fn load(path: []const u8) !*Model {
     }
     const oid = c.gguf_find_key(g, "stz.graph.outputs");
     if (oid >= 0) {
-        const no: usize = @intCast(c.gguf_get_arr_n(g, oid));
+        const no: usize = try kvLines(g, oid);
         m.parts = try a.alloc(OutPart, no);
         for (m.parts, 0..) |*p, k| {
-            const line = try a.dupe(u8, std.mem.span(c.gguf_get_arr_str(g, oid, k)));
+            const line = try a.dupe(u8, std.mem.span(gr.arrStr(g, oid, k).?));
             const colon = std.mem.lastIndexOfScalar(u8, line, ':') orelse return error.BadOutputs;
             p.name = line[0..colon];
             p.n = try std.fmt.parseInt(usize, line[colon + 1 ..], 10);

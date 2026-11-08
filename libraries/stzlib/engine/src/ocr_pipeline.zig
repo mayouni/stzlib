@@ -42,6 +42,7 @@ const graph = @import("ocr_graph.zig");
 // implementation, shared with the image plane (stz_image).
 const core = @import("image_core.zig");
 const c = graph.c;
+const gr = @import("gguf_read.zig"); // SECURITY-MODELDATA-01b
 const stbi = @cImport({
     @cInclude("stb_image.h");
 });
@@ -244,14 +245,16 @@ fn recognizer(m: *Models, file: []const u8) !*Rec {
         graph.setError("the recogniser {s} carries no dictionary (stz.ocr.character): re-convert it with tools/onnx_to_gguf.py", .{name});
         return error.NoDictionary;
     }
-    const n: usize = @intCast(c.gguf_get_arr_n(rec.gguf, kid));
+    // SECURITY-MODELDATA-01b: the dictionary is an array of strings, and the two switches are strings
+    const n: usize = gr.arrN(rec.gguf, kid, gr.T_STR) orelse {
+        graph.setError("the recogniser {s}: stz.ocr.character is not a list of strings", .{name});
+        return error.NoDictionary;
+    };
     const chars = try a.alloc([]const u8, n);
-    for (0..n) |i| chars[i] = try a.dupe(u8, std.mem.span(c.gguf_get_arr_str(rec.gguf, kid, i)));
-    const did = c.gguf_find_key(rec.gguf, "stz.ocr.direction");
-    const rtl = did >= 0 and std.mem.eql(u8, std.mem.span(c.gguf_get_val_str(rec.gguf, did)), "rtl");
+    for (0..n) |i| chars[i] = try a.dupe(u8, std.mem.span(gr.arrStr(rec.gguf, kid, i).?));
+    const rtl = std.mem.eql(u8, gr.strOr(rec.gguf, "stz.ocr.direction", ""), "rtl");
     // a recogniser may say the angle classifier does not apply to its script (stz.ocr.classifier = "off")
-    const kcl = c.gguf_find_key(rec.gguf, "stz.ocr.classifier");
-    const use_cls = !(kcl >= 0 and std.mem.eql(u8, std.mem.span(c.gguf_get_val_str(rec.gguf, kcl)), "off"));
+    const use_cls = !std.mem.eql(u8, gr.strOr(rec.gguf, "stz.ocr.classifier", ""), "off");
     m.recs[m.n_recs] = .{ .name = try a.dupe(u8, name), .model = rec, .chars = chars, .rtl = rtl, .use_cls = use_cls };
     m.n_recs += 1;
     return &m.recs[m.n_recs - 1];

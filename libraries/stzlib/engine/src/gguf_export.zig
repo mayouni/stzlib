@@ -11,6 +11,7 @@
 const std = @import("std");
 const digest = @import("model_digest.zig");
 
+const gr = @import("gguf_read.zig");
 const c = @cImport({
     @cInclude("ggml.h");
     @cInclude("gguf.h");
@@ -88,9 +89,8 @@ pub fn stz_gguf_inspect(path: [*c]const u8) callconv(.c) i64 {
     const gg = c.gguf_init_from_file(path, params) orelse return -1;
     defer c.gguf_free(gg);
     const n = c.gguf_get_n_tensors(gg);
-    const kid = c.gguf_find_key(gg, "general.architecture");
-    if (kid >= 0) {
-        const s = c.gguf_get_val_str(gg, kid);
+    // SECURITY-MODELDATA-01b: an architecture that is not a string is no architecture (it asserted inside ggml)
+    if (gr.str(gg, "general.architecture")) |s| {
         const len = std.mem.len(@as([*:0]const u8, @ptrCast(s)));
         const take = @min(len, g_arch_buf.len - 1);
         @memcpy(g_arch_buf[0..take], s[0..take]);

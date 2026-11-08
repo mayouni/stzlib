@@ -13,6 +13,7 @@
 
 const std = @import("std");
 const graph = @import("ocr_graph.zig");
+const gr = @import("gguf_read.zig"); // SECURITY-MODELDATA-01b
 const core = @import("image_core.zig");
 const bpe = @import("bpe.zig");
 
@@ -466,8 +467,9 @@ fn tokenizerFor(path: []const u8, m: *graph.Model) !*bpe.Bpe {
 }
 
 fn seqOf(m: *graph.Model) usize {
-    const id = graph.c.gguf_find_key(m.gguf, "stz.graph.seq");
-    return if (id >= 0) graph.c.gguf_get_val_u32(m.gguf, id) else 64;
+    // a text length: positive and bounded, or the default (a number of the wrong type asserted inside ggml)
+    const n = gr.intAs(u32, m.gguf, "stz.graph.seq", 64);
+    return if (n >= 1 and n <= 1 << 16) n else 64;
 }
 
 /// The token ids a text model reads for a text (padded to its fixed length). Caller frees.
