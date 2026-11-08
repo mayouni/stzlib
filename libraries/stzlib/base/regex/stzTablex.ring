@@ -1064,6 +1064,9 @@ class stzTablex from stzObject
 				_value_ = 0+ _cValue_
 
 			but IsListInString(_cValue_)
+				if NOT StzIsPlainListLiteral(_cValue_)
+					StzRaise("Can't proceed! The list text names something; only literal data is read here.")
+				ok
 				_cCode_ = "_value_ = " + _cValue_
 				eval(_cCode_)
 			ok

@@ -3593,6 +3593,9 @@ class stzDataSet from stzObject
 
                 # Handle inheritance
                 _cInheritedTemplate_ = _aSection_[2]
+                if NOT StzIsPlainIdentifier(_cInheritedTemplate_)
+                    StzRaise("Can't proceed! The inherited template must be named by a plain name.")
+                ok
                 eval("aInheritedSections = " + _cInheritedTemplate_ + "[:sections]")
            
                 _nInheritedSections1Len_ = len(aInheritedSections)

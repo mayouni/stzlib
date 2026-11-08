@@ -842,6 +842,9 @@ class stzNaturalEngine from stzObject
 	            # nested brackets can mis-pair the section -- degrade to a
 	            # literal string token instead of dying in eval
 	            try
+	                if NOT StzIsPlainListLiteral(_cSection_)
+	                    StzRaise("Can't proceed! The list text names something; only literal data is read here.")
+	                ok
 	                _cCode_ = '_aResult_ + ' + _cSection_
 	                eval(_cCode_)
 	            catch
@@ -1277,6 +1280,9 @@ class stzNaturalEngine from stzObject
 				# through to normal word handling instead of dying.
 				_bParsed_ = 0
 				try
+					if NOT StzIsPlainListLiteral(_cValue_)
+						StzRaise("Can't proceed! The list text names something; only literal data is read here.")
+					ok
 					_cCode_ = '_aListValue_ = ' + _cValue_
 					eval(_cCode_)
 					_bParsed_ = 1

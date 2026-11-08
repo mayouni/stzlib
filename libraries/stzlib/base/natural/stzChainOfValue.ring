@@ -530,7 +530,8 @@ class stzChainOfValue from stzObject
 	#   see        StopValue, Becomes
 	#-------------------
 	def StopWhen(p)
-		eval('$pStopValue = ' + ComputableForm(p))
+		# assigned, not rendered to source and run back: the same copy, no code
+		$pStopValue = p
 		return This
 
 	# Runs the code given as text, once or in a loop, when the chain is still ongoing; a stopped chain runs nothing.

@@ -44,6 +44,11 @@ class stzListInString from stzString
 			StzRaise("Syntax error! The list is not correct.")
 		else
 			@cListInString = pcListInString
+			# literal data only: a list text that names a variable or a function is
+			# refused here, not run (R17; haro/text-run-as-code)
+			if NOT StzIsPlainListLiteral(pcListInString)
+				StzRaise("Can't proceed! The list text names something; only literal data is read here.")
+			ok
 			_cCode_ = '@aList = ' + pcListInString
 			eval(_cCode_)
 		ok
