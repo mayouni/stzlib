@@ -21,18 +21,43 @@
 $aStzLastGrammarRun = [ :judged = 0, :masked = 0, :steps = 0, :stalled = 0, :complete = 0 ]
 # GK2b: the matmul verdicts are pushed into the neural DLL once -- see StzNeuralVariantsSync()
 $bStzNeuralVariantsSynced_ = 0
+# The file name (lowercase, no folder) of the model in the engine's slot, or "": the name an advisory on a model FILE
+# shuts (stzExposureResponder.Respond), where the architecture is the name a reach table shuts. Set by every load.
+$cStzNeuralModelFile = ""
 
 # THE DOOR (COMPASS-KERN-05): every language-model call -- generate, chat, streaming, option
 # probabilities, embed, rerank -- writes a chained model.call record to the security ledger before
 # its answer returns. When no ledger is open the door OPENS the process ledger first, so no face
 # can switch the record off. The image plane's door (base/image/stzVision.ring) is the same rule.
 func _StzNeuralDoor(pcFaculty, pcWhat)
-	# a shut door (stzExposureResponder, W6) withholds the answer here
-	StzDoorCheck("model", "" + StzEngineNeuralModelArch(), "stzNeuralModel", 0)
+	# a shut door (stzExposureResponder, W6) withholds the answer here, and _StzNeuralGate refused the run before it
+	_StzNeuralGate()
 	if NOT StzSecurityLedgerIsOpen()
 		StzOpenSecurityLedger(4096)
 	ok
 	StzNoteFact("model.call", "stzNeuralModel", "" + StzEngineNeuralModelArch(), pcFaculty + ": " + pcWhat)
+
+# THE GATE (SECURITY-MODELDOOR-01): every body that runs the model in the engine's slot calls this BEFORE the run, so
+# a shut door refuses the run itself -- a crafted model or a loader bug is reached by the run, and withholding only the
+# answer would leave it reached. It checks the door of the architecture and of the file; a load checks the file's
+# door before it reads a byte (stzNeuralModel.LoadFrom).
+func _StzNeuralGate()
+	StzDoorCheck("model", "" + StzEngineNeuralModelArch(), "stzNeuralModel", 0)
+	if $cStzNeuralModelFile != ""
+		StzDoorCheck("model", $cStzNeuralModelFile, "stzNeuralModel", 0)
+	ok
+
+# The file name of a model path, lowercase, without its folder: "D:/m/SmolLM2.gguf" -> "smollm2.gguf". The cut is at
+# the last / or \, an ASCII byte, so a byte slice keeps every UTF-8 character of the name whole.
+func StzModelFileName(pcPath)
+	_c_ = "" + pcPath
+	_n_ = len(_c_)
+	for _i_ = _n_ to 1 step -1
+		if _c_[_i_] = "/" or _c_[_i_] = char(92)
+			return StzLower(right(_c_, _n_ - _i_))
+		ok
+	next
+	return StzLower(_c_)
 
 # StzNeuralModelQ(cPath) -- construct a model object and load the GGUF at
 # cPath. ONE creation function, named for its class + Q (the house rule).
@@ -104,6 +129,7 @@ func StzGenerate(pcPrompt, pnMaxNewTokens)
 	if NOT isNumber(pnMaxNewTokens) or pnMaxNewTokens < 1
 		pnMaxNewTokens = 64
 	ok
+	_StzNeuralGate()
 	_cOut_ = StzEngineNeuralGenerate(pcPrompt, pnMaxNewTokens)
 	_StzNeuralDoor("generate", "" + len(_cOut_) + " bytes for a prompt of " + len(pcPrompt))
 	_StzRefuseOverlongPrompt("StzGenerate", _cOut_)
@@ -309,6 +335,7 @@ func StzGenerateXT(pcPrompt, paOptions)
 		StzEngineNeuralSetTermination(_nRepeatPenalty_, _nRepeatLastN_, _nStopOnRepeat_, _nEndBias_)
 	ok
 
+	_StzNeuralGate()
 	_cOut_ = StzEngineNeuralGenerateXT(pcPrompt, _nMax_, _nTemp_, _nTopP_, _nTopK_, _nSeed_)
 	_StzNeuralDoor("generate", "" + len(_cOut_) + " bytes for a prompt of " + len(pcPrompt))
 
@@ -453,10 +480,12 @@ func StzStartGeneration(pcPrompt, paOptions)
 		next
 	ok
 	_StzNeuralDoor("generate-stream", "started on a prompt of " + len(pcPrompt) + " bytes")
+	_StzNeuralGate()
 	return StzEngineNeuralGenStart(pcPrompt, _nMax_, _nTemp_, _nTopP_, _nTopK_, _nSeed_)
 
 # The next decoded token text of the open session ("" when finished).
 func StzNextToken()
+	_StzNeuralGate()
 	if StzEngineNeuralGenNext() = 0
 		return ""
 	ok
@@ -562,6 +591,7 @@ func StzRerank(pcQuery, paDocs)
 	_bXEnc_ = StzHasRerankerModel()
 	_aScored_ = []
 	_nD_ = len(paDocs)
+	_StzNeuralGate()
 	for i = 1 to _nD_
 		if isString(paDocs[i])
 			if _bXEnc_
@@ -615,6 +645,7 @@ func StzSemanticSimilarity(pcA, pcB)
 # buffer into a fresh Ring list (so a second embed doesn't clobber the first).
 func _StzEmbedInto(pcText)
 	StzNeuralVariantsSync()
+	_StzNeuralGate()
 	_nDim_ = StzEngineNeuralEmbed(pcText)
 	_StzNeuralDoor("embed", "" + _nDim_ + " numbers for " + len(pcText) + " bytes")
 	_aVec_ = []
@@ -755,8 +786,15 @@ class stzNeuralModel from stzNeural
 	def LoadFrom(pcPath)
 		if NOT isString(pcPath) return 0 ok
 		@cPath = pcPath
+		# a shut door on this model file refuses the load before the reader opens it (SECURITY-MODELDOOR-01)
+		_cFile_ = StzModelFileName(pcPath)
+		StzDoorCheck("model", _cFile_, "stzNeuralModel", 0)
 		# refused unless the file's digest was recorded -- see StzTrustModel
-		return StzEngineNeuralModelLoad(pcPath) = 1
+		if StzEngineNeuralModelLoad(pcPath) != 1
+			return 0
+		ok
+		$cStzNeuralModelFile = _cFile_
+		return 1
 
 	# Returns why the last load was accepted or refused.
 	#
@@ -787,6 +825,7 @@ class stzNeuralModel from stzNeural
 	def Unload()
 		StzEngineNeuralModelFree()
 		@cPath = ""
+		$cStzNeuralModelFile = ""
 		return This
 
 	# Returns the path given to the last LoadFrom.
@@ -900,6 +939,7 @@ class stzNeuralModel from stzNeural
 		def EmbeddingOf(pcText)
 			if NOT isString(pcText) return [] ok
 			StzNeuralVariantsSync()
+			_StzNeuralGate()
 			_nDim_ = StzEngineNeuralEmbed(pcText)
 			_StzNeuralDoor("embed", "" + _nDim_ + " numbers for " + len(pcText) + " bytes")
 			if _nDim_ = 0 return [] ok
@@ -1083,6 +1123,7 @@ class stzNeuralChat from stzObject
 				"<|im_start|>user" + char(10) + _cSafe_ + "<|im_end|>" + char(10) +
 				"<|im_start|>assistant" + char(10)
 			@bStarted = 1
+			_StzNeuralGate()
 			_cReply_ = StzEngineNeuralGenerateXT(_cPrompt_, @nMaxTokens,
 				@nTemperature, @nTopP, @nTopK, @nSeed)
 		else

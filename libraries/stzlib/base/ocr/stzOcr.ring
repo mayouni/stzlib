@@ -43,6 +43,8 @@ $aStzOcrModelLastStats = []
 # MP0: the platform's language packs, read once per process (asking the platform spawns PowerShell: about a second)
 $aStzOcrPackCache = []
 $bStzOcrPackCached = 0
+# the name of the platform's OCR model at the model door (_StzOcrDoor): an advisory on it shuts that door
+$cStzOcrPlatformModel = "windows.media.ocr"
 
 # Declares the :ocr faculty: an image in (a path, a list of page paths, or a record [ :pages, :lang ]), a text out.
 #
@@ -222,6 +224,24 @@ func _StzOcrModel(pImage, paParams)
 	next
 	return _cText_
 
+# THE OCR DOOR (SECURITY-R18a, SECURITY-MODELDOOR-01). The two implementations of :ocr that run a model -- the GGUF
+# graphs (the recogniser named by its file) and the platform's Windows.Media.Ocr (named "windows.media.ocr") -- check
+# the model's door before they run or answer from their cache, and write a chained model.call record before their
+# lines go back, filed under the agent that is acting when there is one (the image plane's door is the same rule).
+func _StzOcrGate(pcModel)
+	StzDoorCheck("model", pcModel, "stzOcr", 0)
+
+func _StzOcrDoor(pcModel, pcWhat)
+	StzDoorCheck("model", pcModel, "stzOcr", 0)
+	if NOT StzSecurityLedgerIsOpen()
+		StzOpenSecurityLedger(4096)
+	ok
+	if $cStzCaller != ""
+		StzNoteFactFrom("model.call", "stzOcr", pcModel, "ocr: " + pcWhat, "agent:" + $cStzCaller)
+		return
+	ok
+	StzNoteFact("model.call", "stzOcr", pcModel, "ocr: " + pcWhat)
+
 # The lines the model reads on one image with the default recogniser (Latin, Greek, kana, CJK).
 func StzOcrModelLines(pcPath)
 	return StzOcrModelLinesXT(pcPath, "")
@@ -240,6 +260,7 @@ func StzOcrModelLinesXT(pcPath, pcLang)
 		stzraise("StzOcr: the image '" + pcPath + "' does not exist")
 	ok
 	_cRec_ = StzOcrModelRecogniserFor(pcLang)
+	_StzOcrGate(_cRec_)
 	_cKey_ = "model|" + _cRec_ + "|" + _StzOcrCacheKey(pcPath, "")
 	_nC_ = len($aStzOcrCache)
 	for _i_ = 1 to _nC_
@@ -252,8 +273,12 @@ func StzOcrModelLinesXT(pcPath, pcLang)
 	_aRows_ = StzEngineNeuralOcrReadWith(StzOcrModelDir(), _cRec_, pcPath, 4)
 	if len(_aRows_) = 0
 		_cErr_ = StzEngineNeuralOcrGraphError()
-		if _cErr_ != "" stzraise("the :ocr model could not read '" + pcPath + "': " + _cErr_) ok
+		if _cErr_ != ""
+			_StzOcrDoor(_cRec_, "FAILED -- " + _cErr_)
+			stzraise("the :ocr model could not read '" + pcPath + "': " + _cErr_)
+		ok
 	ok
+	_StzOcrDoor(_cRec_, "" + len(_aRows_) + " line(s)")
 	_aLines_ = []
 	_nR_ = len(_aRows_)
 	for _i_ = 1 to _nR_
@@ -305,6 +330,7 @@ func StzOcrPlatformLines(pcPath, pcLang)
 		stzraise("StzOcr: the image '" + pcPath + "' does not exist")
 	ok
 	pcPath = _StzOcrAbsolutePath(pcPath)
+	_StzOcrGate($cStzOcrPlatformModel)
 	_cKey_ = _StzOcrCacheKey(pcPath, pcLang)
 	_nC_ = len($aStzOcrCache)
 	for _i_ = 1 to _nC_
@@ -339,6 +365,8 @@ func StzOcrPlatformLines(pcPath, pcLang)
 		_cSum_ = trim(StzSystem(_cCmd_))
 	ok
 	$cStzOcrLastSummary = _cSum_
+	# the platform's model ran, in process or through the script: the record is written whatever it found
+	_StzOcrDoor($cStzOcrPlatformModel, "the platform engine for '" + pcLang + "': " + _cSum_)
 	if StzFindFirst("NO ENGINE", _cSum_) > 0
 		_cFor_ = pcLang
 		if _cFor_ = "" _cFor_ = "the user's languages" ok

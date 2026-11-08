@@ -45,6 +45,7 @@
 # from inside the index (found by the GS4 guard, 2026-09-09).
 func StzNeuralEmbeddingOf(pcText)
 	StzNeuralVariantsSync()
+	_StzNeuralGate()
 	_nDim_ = StzEngineNeuralEmbed(pcText)
 	_StzNeuralDoor("embed", "" + _nDim_ + " numbers for " + len(pcText) + " bytes")
 	if _nDim_ = 0 return [] ok

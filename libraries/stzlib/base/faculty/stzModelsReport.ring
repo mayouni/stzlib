@@ -30,23 +30,33 @@ func StzModelsReport()
 # only on another operating system is set aside, exactly as the registry would there. A probe that reads THIS machine (an OCR language
 # pack) cannot know the target's: the entry then says so (:assumed).
 func StzModelsReportFor(pcOS)
+	# the simulated OS is set inside the try and restored on every exit; the error is raised again unchanged
+	# (SECURITY-AMBIENT-02): a report that raises must not leave the registry choosing for another machine
 	_cKeep_ = $cStzPlacementOS
-	$cStzPlacementOS = pcOS
-	_StzReportDeclareShipped()
+	_cErr_ = ""
 	_aOut_ = []
-	_aN_ = StzFacultyNames()
-	for _f_ = 1 to len(_aN_)
-		_cF_ = _aN_[_f_]
-		_oF_ = StzFacultyQ(_cF_)
-		# every declared faculty: in a program the golden ITEMS live with the tests, but the measurements ship with the library
-		_aOut_ + _StzReportEntry(_cF_, "")
-		# a faculty measured per language: one entry per language it has measurements in
-		_aLgs_ = _StzReportLanguages(_cF_, _oF_.GoldenVersion())
-		for _l_ = 1 to len(_aLgs_)
-			_aOut_ + _StzReportEntry(_cF_, _aLgs_[_l_])
+	try
+		$cStzPlacementOS = pcOS
+		_StzReportDeclareShipped()
+		_aN_ = StzFacultyNames()
+		for _f_ = 1 to len(_aN_)
+			_cF_ = _aN_[_f_]
+			_oF_ = StzFacultyQ(_cF_)
+			# every declared faculty: in a program the golden ITEMS live with the tests, but the measurements ship with the library
+			_aOut_ + _StzReportEntry(_cF_, "")
+			# a faculty measured per language: one entry per language it has measurements in
+			_aLgs_ = _StzReportLanguages(_cF_, _oF_.GoldenVersion())
+			for _l_ = 1 to len(_aLgs_)
+				_aOut_ + _StzReportEntry(_cF_, _aLgs_[_l_])
+			next
 		next
-	next
+	catch
+		_cErr_ = cCatchError
+	done
 	$cStzPlacementOS = _cKeep_
+	if _cErr_ != ""
+		raise(_cErr_)
+	ok
 	return _aOut_
 
 # The faculties the library ships are declared in every process before a report reads them (vision is declared at load; OCR on first use)

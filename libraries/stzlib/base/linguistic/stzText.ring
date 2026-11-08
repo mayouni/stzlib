@@ -638,6 +638,7 @@ class stzText from stzStringText
 		#@ aka  NeuralEntities() -- the transformer-NER result explicitly: [[entity, type], ...] via the loaded NER-head model; [] if none is loaded (DATA).
 		def NeuralEntities()
 			if StzEngineNeuralModelHasNer() != 1 return [] ok
+			_StzNeuralGate()
 			_nNueN_ = StzEngineNeuralNer(This.Content())
 			_StzNeuralDoor("ner", "" + _nNueN_ + " entities")
 			_aNueOut_ = []

@@ -205,36 +205,46 @@ class stzPIAgent from stzObject
 		# through the registry, and the model door under it, file their ledger records under this agent's name.
 		_cPrevCaller_ = $cStzCaller
 		$cStzCaller = @cName
-		_nActed_ = 0
-		_nS_ = len(@aSkills)
-		for _i_ = 1 to _nS_
-			_oSk_ = @aSkills[_i_][1]
-			_cAction_ = @aSkills[_i_][2]
-			if _oSk_.PreconditionHolds(@oMem) = 0
-				@aTrace + [ :skill = _oSk_.Name_(), :decision = "skipped",
-					:verified = 0, :why = "precondition not met" ]
-				loop
-			ok
-			# GOVERNANCE GATE: a governed skill needs MayProceed
-			if _cAction_ != ""
-				if @oGov.MayProceed(@cName, _cAction_) = 0
-					@aTrace + [ :skill = _oSk_.Name_(), :decision = "refused",
-						:verified = 0, :why = @oGov.Why() ]
+		# a skill that raises must not leave this agent's name and workbench behind for the next caller (SECURITY-AMBIENT-01):
+		# the loop runs under try, both globals are restored on every exit, and the error is raised again unchanged
+		_cErr_ = ""
+		try
+			_nActed_ = 0
+			_nS_ = len(@aSkills)
+			for _i_ = 1 to _nS_
+				_oSk_ = @aSkills[_i_][1]
+				_cAction_ = @aSkills[_i_][2]
+				if _oSk_.PreconditionHolds(@oMem) = 0
+					@aTrace + [ :skill = _oSk_.Name_(), :decision = "skipped",
+						:verified = 0, :why = "precondition not met" ]
 					loop
 				ok
-				@oGov.RecordDecision(@cName + "-" + _oSk_.Name_(),
-					"skill fired on met precondition", @cName, _cAction_)
-			ok
-			_aR_ = _oSk_.Apply(@oMem)
-			@aTrace + [ :skill = _oSk_.Name_(),
-				:decision = "ran", :verified = _aR_[:verified],
-				:why = _aR_[:why] ]
-			if _aR_[:verified] = 1
-				_nActed_++
-			ok
-		next
+				# GOVERNANCE GATE: a governed skill needs MayProceed
+				if _cAction_ != ""
+					if @oGov.MayProceed(@cName, _cAction_) = 0
+						@aTrace + [ :skill = _oSk_.Name_(), :decision = "refused",
+							:verified = 0, :why = @oGov.Why() ]
+						loop
+					ok
+					@oGov.RecordDecision(@cName + "-" + _oSk_.Name_(),
+						"skill fired on met precondition", @cName, _cAction_)
+				ok
+				_aR_ = _oSk_.Apply(@oMem)
+				@aTrace + [ :skill = _oSk_.Name_(),
+					:decision = "ran", :verified = _aR_[:verified],
+					:why = _aR_[:why] ]
+				if _aR_[:verified] = 1
+					_nActed_++
+				ok
+			next
+		catch
+			_cErr_ = cCatchError
+		done
 		$nStzActiveAgentWorkbench = _nPrevWb_
 		$cStzCaller = _cPrevCaller_
+		if _cErr_ != ""
+			raise(_cErr_)
+		ok
 		return _nActed_
 
 	# Repeats Cycle until a cycle verifies nothing or 20 rounds are done.

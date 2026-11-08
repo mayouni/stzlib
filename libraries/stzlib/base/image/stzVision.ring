@@ -121,6 +121,9 @@ func StzVisionCallsRecorded()
 	return len(StzSecurityLedgerQ().OfKind("model.call"))
 
 func _StzVisionModelOrRaise(pcFile, pcFaculty)
+	# every vision run asks for its model's path here first, so a shut door refuses the run before the model is
+	# read or run (SECURITY-MODELDOOR-01); _StzVisionDoor checks it again where the answer goes back
+	StzDoorCheck("model", pcFile, "stzImage", 0)
 	_cP_ = StzVisionModelPath(pcFile)
 	if NOT fexists(_cP_)
 		stzraise("stzImage." + pcFaculty + ": the model " + pcFile + " is not installed in " +
@@ -528,22 +531,26 @@ func _StzVisionFindOwlWarm(pInput, paParams)
 
 # the patched weights: the vision graph swapped for the patched file for this call (it loads only with its recorded digest)
 func _StzVisionFindOwlPatched(pInput, paParams)
-	_cKeep_ = $cStzVisionOwlVision
-	$cStzVisionOwlVision = $cStzVisionOwlPatched
 	_cP_ = StzVisionModelPath($cStzVisionOwlPatched)
 	if $cStzVisionOwlPatchedSha256 != "" and StzEngineModelDigest(_cP_) != $cStzVisionOwlPatchedSha256
-		$cStzVisionOwlVision = _cKeep_
 		stzraise("stzImage.FindByWords: " + $cStzVisionOwlPatched + " is not the patched file whose digest is recorded (" + $cStzVisionOwlPatchedSha256 + ")")
 	ok
+	# the swap is made inside the try and undone on every exit; the error is raised again unchanged (SECURITY-AMBIENT-02)
+	_cKeep_ = $cStzVisionOwlVision
+	_cErr_ = ""
+	_a_ = []
 	try
+		$cStzVisionOwlVision = $cStzVisionOwlPatched
 		_oI_ = StzImageQ("" + pInput[1])
 		_a_ = _oI_.FindByWordsXT(pInput[2], $nStzVisionFindScore)    # the patch as measured: the plain threshold
 		_oI_.Release()
 	catch
-		$cStzVisionOwlVision = _cKeep_
-		stzraise(cCatchError)
+		_cErr_ = cCatchError
 	done
 	$cStzVisionOwlVision = _cKeep_
+	if _cErr_ != ""
+		raise(_cErr_)
+	ok
 	return _a_
 
 # a word or a list of words as a list of trimmed lower-case words, no empty one
@@ -787,6 +794,8 @@ func _StzVisionVlmLoad(pcDecoder, pcSha, pcFaculty)
 				StzEngineNeuralModelLoadStatus() + "; -2 is a digest other than the one in models/MODELS.md)")
 		ok
 		$cStzVisionVlmSlot = _cD_
+		# the slot now holds this decoder: the neural gate checks ITS file's door (SECURITY-MODELDOOR-01)
+		$cStzNeuralModelFile = StzLower(pcDecoder)
 	ok
 	return _cD_
 # IM7: what SmolVLM says about a picture after a request -- the decoder put in the model slot (only with its

@@ -11,13 +11,15 @@ import os, re, sys
 ROOT = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 # continuations of a generation StzStartGeneration already recorded: one call, one record
 ALLOWED = {('StzNextToken', 'gennext'), ('StzNextToken', 'genchunk')}
+# ocrregion is not here: it writes a rectangle of an image enlarged (ring_OcrRegion -> ocrp.writeRegion), no model runs;
+# the reading of that region goes through StzOcrLinesWithBoxes, whose implementations pass _StzOcrDoor (2026-11-08)
 RUNS = """generate generatext generatecont genstart gennext genchunk prefilllogits embed embedtokens
-backboneembed clipembed rerank ner ocrread ocrreadwith ocrregion ocrplatformread owlfind owlscores
+backboneembed clipembed rerank ner ocrread ocrreadwith ocrplatformread owlfind owlscores
 visionclassify visiondepth visionembedimage visionembedtext visionfaces visionobjects visionsaliency
 visionsamembed visionsammask vlmdescribe vlmembed vlmembedinput vlmfeed vlmpage vlmpageviews vlmstart""".split()
 call_re = re.compile(r'\bstzengineneural(' + '|'.join(sorted(RUNS, key=len, reverse=True)) + r')\s*\(', re.I)
 head_re = re.compile(r'^\s*(func|def)\s+([A-Za-z_@][\w@]*)', re.I)
-door_re = re.compile(r'_Stz(Neural|Vision)Door\s*\(|StzNoteFact\w*\(\s*"model\.call"', re.I)
+door_re = re.compile(r'_Stz(Neural|Vision|Ocr)Door\s*\(|StzNoteFact\w*\(\s*"model\.call"', re.I)
 rows = []
 for dp, dn, fn in os.walk(ROOT):
     rel = os.path.relpath(dp, ROOT)

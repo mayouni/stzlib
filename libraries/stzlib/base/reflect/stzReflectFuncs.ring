@@ -1876,6 +1876,7 @@ func _StzRankMethodTextsHeaded(pcQuestion, paTexts, paVectors, n, paBonus, paHea
 	if StzHasRerankerModel()
 		_aCand_ = _StzLexicalTopKIdxH(pcQuestion, paTexts, paHeads, 25)
 		_nc_ = len(_aCand_)
+		_StzNeuralGate()
 		for _i_ = 1 to _nc_
 			_idx_ = _aCand_[_i_]
 			_aSc_ + [ _idx_, StzEngineNeuralRerank(pcQuestion, _StzCuratedZone(paTexts[_idx_])) ]
