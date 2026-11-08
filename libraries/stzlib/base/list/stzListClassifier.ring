@@ -582,19 +582,18 @@ class stzListClassifier from stzObject
 		_aPwTrue_ = []
 		_aPwFalse_ = []
 
-		# The condition is already Ring-evaluable after @item substitution; the
-		# old StzCCodeToRingCode() wrapper does not exist (R3). Strip any outer
-		# braces and use it directly, mirroring the engine-backed W-methods.
-		_cPwCode_ = _StzStripBraces(pcCondition)
-
-		for @i = 1 to _nPwLen_
-			@item = _aPwContent_[@i]
-			_cPwEval_ = StzReplace(_cPwCode_, "@item", @@(@item))
-			eval("_bPwResult_ = ( " + _cPwEval_ + " )")
-			if _bPwResult_
-				@AddItem(_aPwTrue_, @item)
+		# JUDGED by the W engine, never run as code (Haro); the item was
+		# pasted into the text with @@ before, so a text item could end
+		# its own literal
+		_anPwPos_ = StzWPositions(_aPwContent_, pcCondition)
+		_aPwIn_ = []
+		for _i_ = 1 to _nPwLen_  _aPwIn_ + 0  next
+		for _i_ = 1 to len(_anPwPos_)  _aPwIn_[_anPwPos_[_i_]] = 1  next
+		for _i_ = 1 to _nPwLen_
+			if _aPwIn_[_i_]
+				@AddItem(_aPwTrue_, _aPwContent_[_i_])
 			else
-				@AddItem(_aPwFalse_, @item)
+				@AddItem(_aPwFalse_, _aPwContent_[_i_])
 			ok
 		next
 

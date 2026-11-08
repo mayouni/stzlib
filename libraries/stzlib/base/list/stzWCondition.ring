@@ -157,10 +157,12 @@ func StzIsPlainListLiteral(pcText)
 # quotes, every word must be one of:
 #   - and, or, not, true, false, null
 #   - a variable (@item, @i) or a symbol (:CS) -- what follows @ or :
-#   - Q, opening Q( ... ) on a value
+#   - Q or StzCharQ, opening Q( ... ) / StzCharQ( ... ) on a value
 #   - This, only as This[ ... ] (reading an item, never a method of the list)
 #   - a method name right after a dot that ASKS: Is..., Has..., Contains...,
-#     StartsWith..., EndsWith..., NumberOf..., Count..., Size, Len...
+#     StartsWith..., EndsWith..., NumberOf..., Count..., Size, Len...,
+#     or one of the char's value queries: Script, CharCase, Orientation,
+#     Category, Direction, Unicode, Name (they read, never act)
 #   - one of the engine's pure functions: len, lower, upper, trim, ascii, abs,
 #     round, floor, ceil, number, string, left, right, isstring, isnumber, islist
 # A second statement needs a word outside this list, so it cannot be smuggled in.
@@ -169,6 +171,7 @@ func StzIsQueryCondition(pcCond)
 	_acPure_ = [ "len", "lower", "upper", "trim", "ascii", "abs", "round", "floor", "ceil",
 		"number", "string", "left", "right", "isstring", "isnumber", "islist" ]
 	_acAsk_ = [ "is", "has", "contains", "startswith", "endswith", "numberof", "count", "size", "len" ]
+	_acValueQ_ = [ "script", "charcase", "orientation", "category", "direction", "unicode", "name" ]
 	_n_ = len(pcCond)
 	_cQ_ = ""
 	_bHasMethod_ = 0
@@ -203,7 +206,7 @@ func StzIsQueryCondition(pcCond)
 				_bOk_ = 1
 			but _cW_ = "and" or _cW_ = "or" or _cW_ = "not" or _cW_ = "true" or _cW_ = "false" or _cW_ = "null"
 				_bOk_ = 1
-			but _cW_ = "q" and _cNext_ = "("
+			but (_cW_ = "q" or _cW_ = "stzcharq") and _cNext_ = "("
 				_bOk_ = 1
 			but _cW_ = "this" and _cNext_ = "["
 				_bOk_ = 1
@@ -211,6 +214,7 @@ func StzIsQueryCondition(pcCond)
 				for _a_ = 1 to len(_acAsk_)
 					if left(_cW_, len(_acAsk_[_a_])) = _acAsk_[_a_]  _bOk_ = 1  _bHasMethod_ = 1  exit  ok
 				next
+				if find(_acValueQ_, _cW_) > 0  _bOk_ = 1  _bHasMethod_ = 1  ok
 			but find(_acPure_, _cW_) > 0 and _cNext_ = "("
 				_bOk_ = 1
 			ok

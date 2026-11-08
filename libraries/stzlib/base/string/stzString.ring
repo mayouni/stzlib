@@ -20383,26 +20383,20 @@ class stzString from stzObject
 			next
 			_cPuExpr_ = ring_trim(_cPuExpr_)
 		ok
-		# Bare CharQ(@i) means This.CharQ(@i) -- resolve it so the
-		# eval (a function scope) finds it. Keep StzCharQ intact.
-		if StzFindFirst("CharQ(", _cPuExpr_) > 0
-			_cPuExpr_ = StzReplace(_cPuExpr_, "StzCharQ(", "@__STZCQ__(")
-			_cPuExpr_ = StzReplace(_cPuExpr_, "This.CharQ(", "@__THISCQ__(")
-			_cPuExpr_ = StzReplace(_cPuExpr_, "CharQ(", "This.CharQ(")
-			_cPuExpr_ = StzReplace(_cPuExpr_, "@__THISCQ__(", "This.CharQ(")
-			_cPuExpr_ = StzReplace(_cPuExpr_, "@__STZCQ__(", "StzCharQ(")
+		# JUDGED by the W engine, never run as code (Haro): the char at
+		# hand is the engine's @item, however the expression names it --
+		# @char, This[@i], CharQ(@i) or This.CharQ(@i)
+		_cPuExpr_ = StzReplaceCS(_cPuExpr_, "This.CharQ(@i)", "StzCharQ(@item)", 0)
+		_cPuExpr_ = StzReplaceCS(_cPuExpr_, "StzCharQ(This[@i])", "StzCharQ(@item)", 0)
+		_cPuExpr_ = StzReplaceCS(_cPuExpr_, "StzCharQ(@i)", "StzCharQ(@item)", 0)
+		if StzFindFirst("CharQ(@i)", _cPuExpr_) > 0 and StzFindFirst("StzCharQ(@i", _cPuExpr_) = 0
+			_cPuExpr_ = StzReplaceCS(_cPuExpr_, "CharQ(@i)", "StzCharQ(@item)", 0)
 		ok
+		_cPuExpr_ = StzReplaceCS(_cPuExpr_, "This[@i]", "@item", 0)
 		_aPuChars_ = This.Chars()
 		_nPuLen_ = len(_aPuChars_)
 		if _nPuLen_ = 0 return [ [], [] ] ok
-		_aPuVals_ = []
-		@char = ""
-		for @i = 1 to _nPuLen_
-			@char = _aPuChars_[@i]
-			_vPu_ = ""
-			eval("_vPu_ = ( " + _cPuExpr_ + " )")
-			_aPuVals_ + _vPu_
-		next
+		_aPuVals_ = StzWValues(_aPuChars_, _cPuExpr_)
 		_aPuSecs_ = []
 		_aPuPart_ = []
 		_nPuStart_ = 1
