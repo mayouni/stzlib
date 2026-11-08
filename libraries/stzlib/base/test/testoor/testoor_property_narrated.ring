@@ -94,6 +94,41 @@ EndScenario()
 ? "        [section took " + ((clock() - nPrSec) / clockspersecond()) + "s]"
 
 #============================================================================
+Scenario("Lists: stzList's own Verb/Verbed pairs checked over generated lists of numbers, texts in every alphabet, and lists of lists")
+	nPrSec = clock()
+	Given("a list domain through the seam: lists of up to two 0s and 1s")
+	aPrL = StzJsonToList(StzEngineTestoorProperty('{"op":"inputs","domain":"xs list 0..2 of int 0..1","seed":1,"tries":10}'))
+	Then("seven lists, tried whole, shortest first", "" + aPrL[:exhaustive] + "/" + aPrL[:of] + "/" + _PrJoin(aPrL[:texts]),
+	     '1/7/{"xs":[]}|{"xs":[0]}|{"xs":[1]}|{"xs":[0,0]}|{"xs":[0,1]}|{"xs":[1,0]}|{"xs":[1,1]}|')
+	aPrLS = StzJsonToList(StzEngineTestoorProperty('{"op":"shrink","domain":"xs list 0..5 of int 0..9","input":{"xs":[3,1]}}'))
+	Then("a list shrinks shorter first, then element by element", _PrJoin(aPrLS[:texts]),
+	     '{"xs":[]}|{"xs":[3]}|{"xs":[1]}|{"xs":[0,1]}|{"xs":[2,1]}|{"xs":[3,0]}|')
+	Given("Reverse() and Reversed(), over lists of numbers")
+	aPrR = TestoorProperty("LIST-REVERSE-PAIR", "xs list 0..12 of int -50..50", "_PrReversePair", [ :tries = 150, :seed = 5, :print = 0 ])
+	Then("Reverse() leaves the list as Reversed() returns it", aPrR[:held], 1)
+	aPrR2 = TestoorProperty("LIST-REVERSE-TWICE", "ws list 0..8 of text 0..4 of mixed", "_PrReverseTwice", [ :tries = 150, :seed = 5, :print = 0 ])
+	Then("and reversing twice gives the list back, over texts in every alphabet", aPrR2[:held], 1)
+	Given("Sort() and Sorted()")
+	aPrS = TestoorProperty("LIST-SORT-PAIR", "xs list 0..12 of int -50..50", "_PrSortPair", [ :tries = 150, :seed = 5, :print = 0 ])
+	Then("Sort() leaves the list as Sorted() returns it", aPrS[:held], 1)
+	aPrS2 = TestoorProperty("LIST-SORTED-IN-ORDER", "xs list 0..12 of int -50..50", "_PrSortedInOrder", [ :tries = 150, :seed = 5, :print = 0 ])
+	Then("Sorted() puts every number before the next, and keeps the length", aPrS2[:held], 1)
+	aPrS3 = TestoorProperty("LIST-SORT-TWICE", "ws list 0..8 of text 0..4 of mixed", "_PrSortTwice", [ :tries = 150, :seed = 5, :print = 0 ])
+	Then("sorting a sorted list of texts changes nothing", aPrS3[:held], 1)
+	Given("Flatten() and Flattened(), over lists of lists")
+	aPrF = TestoorProperty("LIST-FLATTEN-PAIR", "ls list 0..4 of list 0..3 of int 0..9", "_PrFlattenPair", [ :tries = 150, :seed = 5, :print = 0 ])
+	Then("Flatten() leaves the list as Flattened() returns it", aPrF[:held], 1)
+	aPrF2 = TestoorProperty("LIST-FLATTEN-COUNTS", "ls list 0..4 of list 0..3 of int 0..9", "_PrFlattenCounts", [ :tries = 150, :seed = 5, :print = 0 ])
+	Then("Flattened() keeps every element: its length is the sum of the inner lengths", aPrF2[:held], 1)
+	Given("a law that is false: a list equals itself sorted")
+	aPrX = TestoorProperty("LIST-IS-SORTED", "xs list 0..8 of int 0..9", "_PrIsSorted", [ :tries = 100, :seed = 5, :print = 0 ])
+	aPrX2 = TestoorProperty("LIST-IS-SORTED", "xs list 0..8 of int 0..9", "_PrIsSorted", [ :tries = 100, :seed = 6, :print = 0 ])
+	Then("it fails, and shrinks to the smallest unsorted list, [1,0]", aPrX[:counterexample], '{"xs":[1,0]}')
+	Then("from another seed, to the same [1,0]", aPrX2[:counterexample], '{"xs":[1,0]}')
+EndScenario()
+? "        [section took " + ((clock() - nPrSec) / clockspersecond()) + "s]"
+
+#============================================================================
 cPrExe = TestoorNativeExe()
 if cPrExe = ""
 	? ""
@@ -145,6 +180,46 @@ func _PrReplaceKeepsLength(paIn)
 
 func _PrNotHeap(paIn)
 	return paIn[:algo] != "heap"
+
+func _PrReversePair(paIn)
+	_o_ = new stzList(paIn[:xs])
+	_o_.Reverse()
+	return _o_.IsStrictlyEqualTo(new stzList(paIn[:xs]).Reversed())
+
+func _PrReverseTwice(paIn)
+	return new stzList(new stzList(new stzList(paIn[:ws]).Reversed()).Reversed()).IsStrictlyEqualTo(paIn[:ws])
+
+func _PrSortPair(paIn)
+	_o_ = new stzList(paIn[:xs])
+	_o_.Sort()
+	return _o_.IsStrictlyEqualTo(new stzList(paIn[:xs]).Sorted())
+
+func _PrSortedInOrder(paIn)
+	_a_ = new stzList(paIn[:xs]).Sorted()
+	if len(_a_) != len(paIn[:xs])  return 0  ok
+	for _i_ = 2 to len(_a_)
+		if _a_[_i_ - 1] > _a_[_i_]  return 0  ok
+	next
+	return 1
+
+func _PrSortTwice(paIn)
+	_a_ = new stzList(paIn[:ws]).Sorted()
+	return new stzList(new stzList(_a_).Sorted()).IsStrictlyEqualTo(_a_)
+
+func _PrFlattenPair(paIn)
+	_o_ = new stzList(paIn[:ls])
+	_o_.Flatten()
+	return _o_.IsStrictlyEqualTo(new stzList(paIn[:ls]).Flattened())
+
+func _PrFlattenCounts(paIn)
+	_n_ = 0
+	for _i_ = 1 to len(paIn[:ls])
+		_n_ += len(paIn[:ls][_i_])
+	next
+	return len(new stzList(paIn[:ls]).Flattened()) = _n_
+
+func _PrIsSorted(paIn)
+	return new stzList(paIn[:xs]).IsStrictlyEqualTo(new stzList(paIn[:xs]).Sorted())
 
 func _PrJoin(pacList)
 	_c_ = ""

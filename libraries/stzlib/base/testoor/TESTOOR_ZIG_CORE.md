@@ -414,6 +414,26 @@ into a gate: the exit P9 was written for.
 - **`zig build test-testoor`:** 94 of 94.
 - **Not built:** floors per posture and tier as the library's data (protocol 2 section 11, question 4); list domains; V3; V5.
 
+### List domains, 2026-11-08 -- DONE
+
+V2's domains gain `list`, chosen after V4 on the author's word ("should we continue with list domains?").
+
+- **Measured first:** stzList has 14 `Verb`/`Verbed` pairs; nine take only the list; Join and Concatenate need lists of texts,
+  Flatten, Merge and DeepRemove nested lists. So a list holds any known kind, a list included.
+- **`testoor_domain.zig`:** `xs list A..B of <kind>`; sizes, every value in order, draws, origins and shrinks recurse through the
+  element (`valCandidates`, one function for every kind). Two tests, their expectations derived by hand from protocol 3 4.1 and
+  4.3 (the seven lists of up to two 0s and 1s; `[3,1]` shrinks to `[]`, `[3]`, `[1]`, `[0,1]`, `[2,1]`, `[3,0]`).
+- **stzList's laws, checked on haro.exe over generated lists:** Reverse/Reversed, reversing twice (texts in every alphabet),
+  Sort/Sorted, Sorted in order and the same length, sorting twice, Flatten/Flattened, Flattened keeps every element. All hold.
+- **A mistake the guard caught in itself:** the laws were first written with `IsEqualTo`, which ignores ORDER by design, so they
+  held without checking order. The guard's deliberately false law ("a list equals itself sorted") held too, which exposed it;
+  the laws now use `IsStrictlyEqualTo`. A negative sibling is what keeps a property from passing vacuously.
+- **A defect found in stzList, not fixed here:** `IsEqualTo` is documented as "the same items ... in any order, each item as many
+  times", but it compares the lengths and a subset each way, so `[1,1,2]` equals `[1,2,2]`. The property "IsEqualTo agrees with
+  comparing the sorted lists" fails at every seed tried. Routed to the author; changing it may break callers that rely on it.
+- **`zig build test-testoor`:** 96 of 96. The property guard: 43 assertions (11 new).
+- **Not built:** a list mixing kinds (a `one of kinds` element), a shrink pass that changes two dimensions together.
+
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 
 1. **One domain `stz_testoor`** (recommended) or one per module.

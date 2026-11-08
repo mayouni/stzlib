@@ -100,6 +100,7 @@ with a digit, each name once.
 | `dec` | `rate dec 0..0.25 step 0.01` | A, A+S, A+2S ... up to B, exact, written with the step's decimals as text (`"0.07"`) | the value nearest 0 |
 | `one` | `algo one quick\|merge\|heap` | the options, in the order written | the first option |
 | `text` | `s text 0..12 of mixed` | texts of A to B letters (code points) over an alphabet, by length then letter by letter | A copies of the alphabet's first letter |
+| `list` | `xs list 0..10 of int -5..5`, `ls list 0..4 of list 0..3 of int 0..9` | lists of A to B elements of any kind above, a list included, by length then element by element, the last fastest | A copies of the element's origin |
 
 **Alphabets** are ordered lists of code points, so "simpler" means "earlier": `ascii` (a to z, A to Z, 0 to 9, the space, then
 the other printable ASCII signs in code order), `latin` (U+00E0 to U+00FF without U+00F7), `greek` (U+03B1 to U+03C9), `hebrew`
@@ -118,7 +119,8 @@ Asked of the core with the domain, a seed and a number of tries (the Ring face: 
 - **Otherwise the first input is the origin** (every dimension at its origin) **and the rest are draws**: splitmix64 over the
   seed, the draw's number and the dimension's number; a text draws its length, then each letter. `"exhaustive":false`; `"of"`
   is the size, absent when unbounded. Draws may repeat; `tried` counts evaluations, never distinct values.
-- An input is a JSON object, one key per dimension: an `int` is a number, every other kind is text.
+- An input is a JSON object, one key per dimension: an `int` is a number, a `list` an array of its elements, every other kind
+  is text. A Ring check receives a list as a Ring list.
 
 ### 4.3 The shrink
 
@@ -132,6 +134,13 @@ the input. Dimensions are shrunk in the order written, the others held.
 - **`text`**: shorter first -- the first A letters, the first A + (n-A)/2 letters, then the text without its letter at each
   position in turn (none shorter than A); then simpler letters -- each position's letter shrunk like an `int` over its place in
   the alphabet, toward the first letter. A letter outside the alphabet has no candidates.
+- **`list`**: as a text -- the first A elements, the first A + (n-A)/2, then the list without each element in turn -- and then
+  each element, in place, by its own kind's candidates, nested lists included.
+
+**What a shrink cannot do.** Each dimension is shrunk with the others held, so a failure that needs two dimensions to change
+TOGETHER stops at a local minimum: no single simpler input still fails, though a simpler pair would. Measured on stzList's
+`IsEqualTo` (TESTOOR_ZIG_CORE.md, list domains): the shrink stopped at `[2,2,0,3]` against `[2,0,3,0]`, where `[1,1,2]` against `[1,2,2]` is
+smaller, because removing an element from one list alone makes their lengths differ. The counterexample is still a true one.
 
 **The tour's loop**: try the candidates in order; the first that still fails becomes the input, and the candidates are asked
 again; stop when none fails. `shrinks` counts the inputs taken. The loop is the face's (the Ring face: `TestoorProperty`, 1,000

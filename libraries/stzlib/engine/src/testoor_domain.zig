@@ -1,7 +1,8 @@
 //! Testoor core -- DOMAINS, step V2 of the evidence ladder (TESTOOR_PROTOCOL_3.md section 4).
 //!
 //! A domain is the set of inputs a property is checked over, written as a text: dimensions separated by `;`, each
-//! `NAME KIND ...` -- `n int 0..100`, `rate dec 0..0.25 step 0.01`, `algo one quick|merge|heap`, `s text 0..12 of mixed`.
+//! `NAME KIND ...` -- `n int 0..100`, `rate dec 0..0.25 step 0.01`, `algo one quick|merge|heap`, `s text 0..12 of mixed`,
+//! and `xs list 0..10 of int -5..5`: a list of any of these kinds, a list of lists included.
 //! The core answers three questions about it, the same in every language:
 //!
 //!   inputs   every value in order when there are no more than the tries, else the origin and seeded draws
@@ -19,7 +20,7 @@ const Buf = T.Buf;
 
 pub const Error = error{ BadDomain, OutOfMemory };
 
-pub const Kind = enum { int, dec, one, text };
+pub const Kind = enum { int, dec, one, text, list };
 
 pub const Dim = struct {
     name: []const u8,
@@ -32,6 +33,8 @@ pub const Dim = struct {
     scale: u8 = 0,
     options: []const []const u8 = &.{},
     alphabet: []const u21 = &.{},
+    /// list: the kind of its elements; lo and hi are then the lengths
+    elem: ?*const Dim = null,
 };
 
 pub const Domain = struct { dims: []const Dim };
@@ -41,6 +44,7 @@ pub const Val = union(enum) {
     int: i64,
     pos: i64,
     text: []const u21,
+    list: []const Val,
 };
 
 pub const Input = []const Val;
@@ -187,8 +191,25 @@ fn parseDim(a: Allocator, seg: []const u8) Error!Dim {
     const name = it.next() orelse return Error.BadDomain;
     if (!isName(name)) return Error.BadDomain;
     const kind_s = it.next() orelse return Error.BadDomain;
-    const rest = T.trimSp(it.rest());
+    return parseKind(a, name, kind_s, T.trimSp(it.rest()));
+}
+
+/// a kind and what follows it: `int 0..9`, `text 0..4 of ascii`, `list 0..3 of int 0..9` (the element read the same way)
+fn parseKind(a: Allocator, name: []const u8, kind_s: []const u8, rest: []const u8) Error!Dim {
     const eq = std.mem.eql;
+    if (eq(u8, kind_s, "list")) {
+        const at = std.mem.indexOf(u8, rest, " of ") orelse return Error.BadDomain;
+        const ab = try bounds(rest[0..at]);
+        const lo = try parseInt(ab[0]);
+        const hi = try parseInt(ab[1]);
+        if (lo < 0 or lo > hi or hi > 10000) return Error.BadDomain;
+        const spec = T.trimSp(rest[at + 4 ..]);
+        var it = std.mem.tokenizeScalar(u8, spec, ' ');
+        const ek = it.next() orelse return Error.BadDomain;
+        const e = try a.create(Dim);
+        e.* = try parseKind(a, "", ek, T.trimSp(it.rest()));
+        return .{ .name = name, .kind = .list, .lo = lo, .hi = hi, .elem = e };
+    }
     if (eq(u8, kind_s, "int")) {
         const ab = try bounds(rest);
         const lo = try parseInt(ab[0]);
@@ -270,8 +291,8 @@ pub fn dimSize(d: Dim) u64 {
         .int => @as(u64, @intCast(@as(i128, d.hi) - @as(i128, d.lo))) +| 1,
         .dec => @as(u64, @intCast(@divExact(d.hi - d.lo, d.step))) + 1,
         .one => d.options.len,
-        .text => blk: {
-            const k: u64 = d.alphabet.len;
+        .text, .list => blk: {
+            const k: u64 = if (d.kind == .text) d.alphabet.len else dimSize(d.elem.?.*);
             var total: u64 = 0;
             var pw: u64 = 1;
             var len: i64 = 0;
@@ -323,6 +344,11 @@ pub fn origin(a: Allocator, d: Dim) Error!Val {
             @memset(l, d.alphabet[0]);
             break :blk .{ .text = l };
         },
+        .list => blk: {
+            const l = try a.alloc(Val, @intCast(d.lo));
+            for (l) |*x| x.* = try origin(a, d.elem.?.*);
+            break :blk .{ .list = l };
+        },
     };
 }
 
@@ -331,6 +357,27 @@ pub fn origin(a: Allocator, d: Dim) Error!Val {
 /// the i-th value of a dimension in its order (i below dimSize)
 fn nth(a: Allocator, d: Dim, idx: u64) Error!Val {
     switch (d.kind) {
+        .list => {
+            const e = d.elem.?.*;
+            const k = dimSize(e);
+            var rest = idx;
+            var len: i64 = d.lo;
+            while (true) : (len += 1) {
+                var count: u64 = 1;
+                var j: i64 = 0;
+                while (j < len) : (j += 1) count = satMul(count, k);
+                if (rest < count) break;
+                rest -= count;
+            }
+            const l = try a.alloc(Val, @intCast(len));
+            var p: usize = l.len;
+            while (p > 0) {
+                p -= 1;
+                l[p] = try nth(a, e, rest % k);
+                rest /= k;
+            }
+            return .{ .list = l };
+        },
         .int => return .{ .int = d.lo + @as(i64, @intCast(idx)) },
         .dec, .one => return .{ .pos = @intCast(idx) },
         .text => {
@@ -413,6 +460,12 @@ fn draw(a: Allocator, d: Dim, rng: *Rng) Error!Val {
             const l = try a.alloc(u21, len);
             for (l) |*c| c.* = d.alphabet[@intCast(rng.below(d.alphabet.len))];
             return .{ .text = l };
+        },
+        .list => {
+            const len: usize = @intCast(@as(u64, @intCast(d.lo)) + rng.below(@as(u64, @intCast(d.hi - d.lo)) + 1));
+            const l = try a.alloc(Val, len);
+            for (l) |*x| x.* = try draw(a, d.elem.?.*, rng);
+            return .{ .list = l };
         },
     }
 }
@@ -499,21 +552,75 @@ fn textCandidates(a: Allocator, d: Dim, cur: []const u21) Error![]const []const 
     return out.items;
 }
 
+fn valEq(x: Val, y: Val) bool {
+    return switch (x) {
+        .int => |i| y == .int and y.int == i,
+        .pos => |p| y == .pos and y.pos == p,
+        .text => |t| y == .text and sameText(t, y.text),
+        .list => |l| blk: {
+            if (y != .list or y.list.len != l.len) break :blk false;
+            for (l, 0..) |v, i| if (!valEq(v, y.list[i])) break :blk false;
+            break :blk true;
+        },
+    };
+}
+
+/// a list shrinks as a text does: shorter first (its first `lo` elements, its first half, each element left out), then
+/// each element, in place, by its own kind's candidates
+fn listCandidates(a: Allocator, d: Dim, cur: []const Val) Error![]const []const Val {
+    var out: std.ArrayList([]const Val) = .empty;
+    const add = struct {
+        fn f(al: Allocator, list: *std.ArrayList([]const Val), c: []const Val, input: []const Val) Error!void {
+            if (valEq(.{ .list = c }, .{ .list = input })) return;
+            for (list.items) |x| if (valEq(.{ .list = x }, .{ .list = c })) return;
+            try list.append(al, c);
+        }
+    }.f;
+    const n: i64 = @intCast(cur.len);
+    if (d.lo < n) try add(a, &out, cur[0..@intCast(d.lo)], cur);
+    const mid = d.lo + @divTrunc(n - d.lo, 2);
+    if (mid > d.lo and mid < n) try add(a, &out, cur[0..@intCast(mid)], cur);
+    if (n - 1 >= d.lo) {
+        var i: usize = 0;
+        while (i < cur.len) : (i += 1) {
+            const c = try a.alloc(Val, cur.len - 1);
+            @memcpy(c[0..i], cur[0..i]);
+            @memcpy(c[i..], cur[i + 1 ..]);
+            try add(a, &out, c, cur);
+        }
+    }
+    for (cur, 0..) |v, i| {
+        for (try valCandidates(a, d.elem.?.*, v)) |nv| {
+            const c = try a.dupe(Val, cur);
+            c[i] = nv;
+            try add(a, &out, c, cur);
+        }
+    }
+    return out.items;
+}
+
+/// the values simpler than `v` in one dimension, simplest first
+pub fn valCandidates(a: Allocator, dim: Dim, v: Val) Error![]Val {
+    var vals: std.ArrayList(Val) = .empty;
+    switch (dim.kind) {
+        .int => for (try halving(a, v.int, (try origin(a, dim)).int)) |x| try vals.append(a, .{ .int = x }),
+        .dec => for (try halving(a, v.pos, (try origin(a, dim)).pos)) |p| try vals.append(a, .{ .pos = p }),
+        .one => {
+            var p: i64 = 0;
+            while (p < v.pos) : (p += 1) try vals.append(a, .{ .pos = p });
+        },
+        .text => for (try textCandidates(a, dim, v.text)) |t| try vals.append(a, .{ .text = t }),
+        .list => for (try listCandidates(a, dim, v.list)) |l| try vals.append(a, .{ .list = l }),
+    }
+    return vals.items;
+}
+
 /// the candidates simpler than a failing input, simplest first: each dimension in the order written, the others held
 pub fn shrink(a: Allocator, d: Domain, in: Input) Error![]Input {
     var out: std.ArrayList(Input) = .empty;
     for (d.dims, 0..) |dim, k| {
-        var vals: std.ArrayList(Val) = .empty;
-        switch (dim.kind) {
-            .int => for (try halving(a, in[k].int, (try origin(a, dim)).int)) |v| try vals.append(a, .{ .int = v }),
-            .dec => for (try halving(a, in[k].pos, (try origin(a, dim)).pos)) |p| try vals.append(a, .{ .pos = p }),
-            .one => {
-                var p: i64 = 0;
-                while (p < in[k].pos) : (p += 1) try vals.append(a, .{ .pos = p });
-            },
-            .text => for (try textCandidates(a, dim, in[k].text)) |t| try vals.append(a, .{ .text = t }),
-        }
-        for (vals.items) |v| {
+        const vals = try valCandidates(a, dim, in[k]);
+        for (vals) |v| {
             const c = try a.dupe(Val, in);
             c[k] = v;
             try out.append(a, c);
@@ -554,23 +661,36 @@ fn writeText(b: *Buf, l: []const u21) !void {
     try b.js(bytes.items);
 }
 
-/// an input as the JSON object a tour receives: one key per dimension, an int a number and every other value text
+fn writeVal(b: *Buf, dim: Dim, v: Val) error{OutOfMemory}!void {
+    switch (dim.kind) {
+        .int => try b.int(v.int),
+        .dec => {
+            try b.c('"');
+            try writeDec(b, dim, v.pos);
+            try b.c('"');
+        },
+        .one => try b.js(dim.options[@intCast(v.pos)]),
+        .text => try writeText(b, v.text),
+        .list => {
+            try b.c('[');
+            for (v.list, 0..) |x, i| {
+                if (i > 0) try b.c(',');
+                try writeVal(b, dim.elem.?.*, x);
+            }
+            try b.c(']');
+        },
+    }
+}
+
+/// an input as the JSON object a tour receives: one key per dimension, an int a number, a list an array, every other
+/// value text
 pub fn writeInput(b: *Buf, d: Domain, in: Input) !void {
     try b.c('{');
     for (d.dims, 0..) |dim, k| {
         if (k > 0) try b.c(',');
         try b.js(dim.name);
         try b.c(':');
-        switch (dim.kind) {
-            .int => try b.int(in[k].int),
-            .dec => {
-                try b.c('"');
-                try writeDec(b, dim, in[k].pos);
-                try b.c('"');
-            },
-            .one => try b.js(dim.options[@intCast(in[k].pos)]),
-            .text => try writeText(b, in[k].text),
-        }
+        try writeVal(b, dim, in[k]);
     }
     try b.c('}');
 }
@@ -590,47 +710,59 @@ pub fn readInput(a: Allocator, d: Domain, v: J.Value) Error!Input {
     const in = try a.alloc(Val, d.dims.len);
     for (d.dims, 0..) |dim, k| {
         const x = field(v, dim.name) orelse return Error.BadDomain;
-        switch (dim.kind) {
-            .int => {
-                const n: f64 = switch (x) {
-                    .num => |f| f,
-                    .str => |s| T.parseNumber(s) orelse return Error.BadDomain,
-                    else => return Error.BadDomain,
-                };
-                if (n != @floor(n) or @abs(n) > 9.0e18) return Error.BadDomain;
-                const i: i64 = @intFromFloat(n);
-                if (i < dim.lo or i > dim.hi) return Error.BadDomain;
-                in[k] = .{ .int = i };
-            },
-            .dec => {
-                var tmp: [64]u8 = undefined;
-                const s = switch (x) {
-                    .str => |s| s,
-                    .num => |f| std.fmt.bufPrint(&tmp, "{d}", .{f}) catch return Error.BadDomain,
-                    else => return Error.BadDomain,
-                };
-                const dv = try parseDec(s);
-                if (dv.decimals > dim.scale) return Error.BadDomain;
-                const units = try rescale(dv, dim.scale);
-                if (units < dim.lo or units > dim.hi or @mod(units - dim.lo, dim.step) != 0) return Error.BadDomain;
-                in[k] = .{ .pos = @divExact(units - dim.lo, dim.step) };
-            },
-            .one => {
-                const s = x.str_();
-                var found: ?usize = null;
-                for (dim.options, 0..) |o, i| if (std.mem.eql(u8, o, s)) {
-                    found = i;
-                };
-                in[k] = .{ .pos = @intCast(found orelse return Error.BadDomain) };
-            },
-            .text => {
-                const l = try decodeUtf8(a, x.str_());
-                if (l.len < dim.lo or l.len > dim.hi) return Error.BadDomain;
-                in[k] = .{ .text = l };
-            },
-        }
+        in[k] = try readVal(a, dim, x);
     }
     return in;
+}
+
+/// one value of one dimension, read from the JSON a tour sent back; anything outside the dimension is refused
+fn readVal(a: Allocator, dim: Dim, x: J.Value) Error!Val {
+    switch (dim.kind) {
+        .list => {
+            const items = switch (x) {
+                .arr => |xs| xs,
+                else => return Error.BadDomain,
+            };
+            if (items.len < dim.lo or items.len > dim.hi) return Error.BadDomain;
+            const l = try a.alloc(Val, items.len);
+            for (items, 0..) |it, i| l[i] = try readVal(a, dim.elem.?.*, it);
+            return .{ .list = l };
+        },
+        .int => {
+            const n: f64 = switch (x) {
+                .num => |f| f,
+                .str => |s| T.parseNumber(s) orelse return Error.BadDomain,
+                else => return Error.BadDomain,
+            };
+            if (n != @floor(n) or @abs(n) > 9.0e18) return Error.BadDomain;
+            const i: i64 = @intFromFloat(n);
+            if (i < dim.lo or i > dim.hi) return Error.BadDomain;
+            return .{ .int = i };
+        },
+        .dec => {
+            var tmp: [64]u8 = undefined;
+            const s = switch (x) {
+                .str => |s| s,
+                .num => |f| std.fmt.bufPrint(&tmp, "{d}", .{f}) catch return Error.BadDomain,
+                else => return Error.BadDomain,
+            };
+            const dv = try parseDec(s);
+            if (dv.decimals > dim.scale) return Error.BadDomain;
+            const units = try rescale(dv, dim.scale);
+            if (units < dim.lo or units > dim.hi or @mod(units - dim.lo, dim.step) != 0) return Error.BadDomain;
+            return .{ .pos = @divExact(units - dim.lo, dim.step) };
+        },
+        .one => {
+            const s = x.str_();
+            for (dim.options, 0..) |o, i| if (std.mem.eql(u8, o, s)) return .{ .pos = @intCast(i) };
+            return Error.BadDomain;
+        },
+        .text => {
+            const l = try decodeUtf8(a, x.str_());
+            if (l.len < dim.lo or l.len > dim.hi) return Error.BadDomain;
+            return .{ .text = l };
+        },
+    }
 }
 
 // ── tests ────────────────────────────────────────────────────
@@ -731,6 +863,46 @@ test "a choice shrinks to the options before it; a text to shorter texts, then e
     const want = [_][]const u8{ "{\"s\":\"\"}", "{\"s\":\"a\"}", "{\"s\":\"b\"}", "{\"s\":\"aa\"}" };
     try testing.expectEqual(want.len, ct.len);
     for (want, 0..) |w, i| try testing.expectEqualStrings(w, try inputText(a, t, ct[i]));
+}
+
+test "a list is tried by length, then element by element, the last fastest" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const d = try parse(a, "xs list 0..2 of int 0..1");
+    try testing.expectEqual(@as(?u64, 7), size(d));
+    const r = try inputs(a, d, 1, 10);
+    try testing.expect(r.exhaustive);
+    const want = [_][]const u8{ "{\"xs\":[]}", "{\"xs\":[0]}", "{\"xs\":[1]}", "{\"xs\":[0,0]}", "{\"xs\":[0,1]}", "{\"xs\":[1,0]}", "{\"xs\":[1,1]}" };
+    try testing.expectEqual(want.len, r.inputs.len);
+    for (want, 0..) |w, i| try testing.expectEqualStrings(w, try inputText(a, d, r.inputs[i]));
+    // a list of lists: 1 + 3 + 9 values; a list of unbounded texts is unbounded
+    try testing.expectEqual(@as(?u64, 13), size(try parse(a, "ls list 0..2 of list 0..1 of int 0..1")));
+    try testing.expectEqual(@as(?u64, null), size(try parse(a, "ws list 0..3 of text 0..9 of mixed")));
+    // a list's origin is its shortest length of its element's origin
+    const o = try inputs(a, try parse(a, "ws list 1..3 of text 0..9 of mixed"), 5, 3);
+    try testing.expectEqualStrings("{\"ws\":[\"\"]}", try inputText(a, try parse(a, "ws list 1..3 of text 0..9 of mixed"), o.inputs[0]));
+}
+
+test "a list shrinks shorter first, then each element by its own kind, nested lists included" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const d = try parse(a, "xs list 0..5 of int 0..9");
+    const c = try shrink(a, d, try readInput(a, d, try J.parse(a, "{\"xs\":[3,1]}")));
+    const want = [_][]const u8{ "{\"xs\":[]}", "{\"xs\":[3]}", "{\"xs\":[1]}", "{\"xs\":[0,1]}", "{\"xs\":[2,1]}", "{\"xs\":[3,0]}" };
+    try testing.expectEqual(want.len, c.len);
+    for (want, 0..) |w, i| try testing.expectEqualStrings(w, try inputText(a, d, c[i]));
+    const n = try parse(a, "ls list 0..2 of list 0..1 of int 0..1");
+    const cn = try shrink(a, n, try readInput(a, n, try J.parse(a, "{\"ls\":[[1]]}")));
+    const wn = [_][]const u8{ "{\"ls\":[]}", "{\"ls\":[[]]}", "{\"ls\":[[0]]}" };
+    try testing.expectEqual(wn.len, cn.len);
+    for (wn, 0..) |w, i| try testing.expectEqualStrings(w, try inputText(a, n, cn[i]));
+    // an element outside its kind, or a list of the wrong length, is not an input of the domain
+    try testing.expectError(Error.BadDomain, readInput(a, d, try J.parse(a, "{\"xs\":[3,10]}")));
+    try testing.expectError(Error.BadDomain, readInput(a, d, try J.parse(a, "{\"xs\":[1,1,1,1,1,1]}")));
+    try testing.expectError(Error.BadDomain, readInput(a, d, try J.parse(a, "{\"xs\":3}")));
+    try testing.expectError(Error.BadDomain, parse(a, "xs list 0..3 of"));
 }
 
 test "the mixed alphabet puts every ASCII letter before the first accented one" {

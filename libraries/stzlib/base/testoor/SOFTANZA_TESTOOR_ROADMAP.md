@@ -151,6 +151,8 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
 - **V4 DONE 2026-11-08**: the floor's `min_grade` over the change's impact set (`TESTOOR_PROTOCOL_3.md` section 5): the reach
   widened by every open node, a capped node held at exemplified. P9's exit holds for grades 0 to 4; grade 5 waits on V5.
   Next in P9: list domains, then V3 (the weather's schedules).
+- **List domains DONE 2026-11-08**: `list` of any kind, nested; stzList's Reverse, Sort and Flatten laws hold over generated
+  lists; a defect found in `IsEqualTo` (multiplicity ignored), routed. Next in P9: V3, or mixed lists and joint shrinking.
 - **V5 and V6 wait on the Haro desk** (HARO-PROOF-01): the checker's facts per node (`total`, `uses`, profile) as the
   first certificates, then contracts and a discharge path. Testoor records certificates and never checks a proof.
 - *Exit:* a change to a critical refinement point, proposed by an `:llm` posture, is refused unless every node in its

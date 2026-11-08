@@ -10,6 +10,9 @@
 #       cDomain   dimensions separated by ";":  "n int 0..100"   "rate dec 0..0.25 step 0.01"
 #                 "algo one quick|merge|heap"   "s text 0..12 of mixed"   (alphabets: ascii latin greek
 #                 hebrew arabic cjk emoji mixed, or the letters themselves: of "abc")
+#                 "xs list 0..10 of int -5..5"   "ls list 0..4 of list 0..3 of int 0..9"  (a list of any kind;
+#                 it reaches the check as a Ring list -- compare lists with IsStrictlyEqualTo when ORDER
+#                 matters: IsEqualTo ignores it)
 #       cCheck    the NAME of a function that takes one input -- a hash list, one key per dimension
 #                 (an int is a number; a dec, a choice and a text are text) -- and answers TRUE or FALSE
 #       aOptions  :tries   how many inputs (100); a finite domain no larger is tried WHOLE (exhaustive)
