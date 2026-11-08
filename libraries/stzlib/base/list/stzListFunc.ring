@@ -596,6 +596,9 @@ func Listify(cStrInList)
 
 	_oTempStr_ = new stzString(cStrInList)
 	if _oTempStr_.IsListInString()
+		if NOT StzIsPlainListLiteral(_oTempStr_.Content())
+			StzRaise("Can't listify! The list text names something; only literal data is read.")
+		ok
 		_cCode_ = '_aResult_ = ' + _oTempStr_.Content()
 		eval(_cCode_)
 		return _aResult_
@@ -5603,12 +5606,18 @@ func CallMethod( pcMethod, paOnObjects )
 		StzRaise(stzObjectError(:CanNotProcessMethodCall))
 	ok
 
+	# the method is a NAME (Content or "Content()"), run on each named object;
+	# arguments are not taken, so nothing but a name is put into code
+	_cMth_ = ring_trim("" + pcMethod)
+	if right(_cMth_, 2) = "()"  _cMth_ = left(_cMth_, len(_cMth_) - 2)  ok
 	_aResult_ = []
 	_aOnObjects21_ = paOnObjects[2]
 	_nOnObjects21Len_ = len(_aOnObjects21_)
 	for _iLoopOnObjects21_ = 1 to _nOnObjects21Len_
 		_cObjName_ = _aOnObjects21_[_iLoopOnObjects21_]
-		_cCode_ = "aResult + " + _cObjName_ + "." + pcMethod
+		if NOT StzIsPlainIdentifier(_cObjName_)  StzRaise("Can't call the method! Each object must be named by a plain name.")  ok
+		if NOT StzIsPlainIdentifier(_cMth_)  StzRaise("Can't call the method! Name it alone, as a plain name: CallMethod(:Uppercase, [ :on, [ ... ] ]).")  ok
+		_cCode_ = "_aResult_ + " + _cObjName_ + "." + _cMth_ + "()"
 		eval(_cCode_)
 	next
 	return _aResult_

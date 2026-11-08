@@ -2106,6 +2106,7 @@ class stzObject
 		# Creating an object from the name of an existing object
 		but IsNonNullString(pObject)
 
+			if NOT StzIsPlainIdentifier(pObject)  StzRaise("Can't create a stzObject from the provided string! The string must be a valid object name.")  ok
 			_cCode_ = '_bOk_ = isObject(' + pObject + ')'
 			eval(_cCode_)
 			if NOT _bOk_
@@ -2114,6 +2115,7 @@ class stzObject
 
 			@cVarName = pObject
 
+			if NOT StzIsPlainIdentifier(pObject)  StzRaise("Can't create a stzObject from the provided string! The string must be a valid object name.")  ok
 			_cCode_ = "@content = " + pObject
 			eval(_cCode_)
 
@@ -7053,10 +7055,14 @@ class stzObject
 				StzRaise(_cMsg_)
 			ok
 		ok
+		# the method is a name, checked; the parameters are passed BY NAME
+		# (paParams[i]), never pasted into the code as source (Haro: no text
+		# run as code, and a text parameter cannot end its own literal)
+		if NOT StzIsPlainIdentifier(_cM_)  StzRaise("NNL: the method to call must be a plain name.")  ok
 		_cCode_ = "_vNNL_ = This." + _cM_ + "("
 		_nP_ = ring_len(paParams)
 		for _i_ = 1 to _nP_
-			_cCode_ += @@(paParams[_i_])
+			_cCode_ += "paParams[" + _i_ + "]"
 			if _i_ < _nP_
 				_cCode_ += ", "
 			ok

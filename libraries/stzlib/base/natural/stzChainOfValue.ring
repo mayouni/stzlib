@@ -145,6 +145,8 @@ class stzChainOfValue from stzObject
 		# in 'stopped' state so the user-facing API (Is / DoThis /
 		# WhyChainStopped) can still report a clean diagnostic
 		# instead of bringing the whole process down.
+		# a variable name, with the $ a top-level name carries under Rule A
+		if NOT StzIsPlainIdentifier(StzReplace(@cVarName, "$", ""))  StzRaise("Can't chain the value! It must be named by a plain variable name.")  ok
 		_cCode_ = '@pValue = ' + @cVarName
 		try
 			eval(_cCode_)
@@ -567,6 +569,7 @@ class stzChainOfValue from stzObject
 						@cCodeStatus = :HasBeenExecuted
 						@cCodeExecutor = :DoThis
 
+						if NOT StzIsPlainIdentifier(StzReplace(This.VarName(), "$", ""))  StzRaise("Can't chain the value! It must be named by a plain variable name.")  ok
 						eval('This.Update(' + This.VarName() + ')')
 					end
 				ok

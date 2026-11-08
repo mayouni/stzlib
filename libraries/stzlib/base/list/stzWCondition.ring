@@ -57,6 +57,9 @@ func _StzWCheckedPositions(paItems, pcCond)
 	# The condition names the engine's @item and @i; here they are _item_ and
 	# _i_, the loop's own locals -- an @name in a plain function is refused
 	# under Ring++'s Rule A. Rewritten before the eval, as FirstNPrimesW does.
+	# admitted again HERE, in the body that runs it: the caller's check is
+	# not seen by Haro's checker, and must not need to be trusted
+	if NOT StzIsQueryCondition(pcCond)  stzraise("This condition names something the W engine does not judge.")  ok
 	pcCond = StzReplaceCS(StzReplaceCS(pcCond, "@item", "_item_", 0), "@i", "_i_", 0)
 	for _i_ = 1 to _n_
 		_item_ = paItems[_i_]
@@ -76,6 +79,7 @@ func _StzWCheckedValues(paItems, pcExpr)
 	# The condition names the engine's @item and @i; here they are _item_ and
 	# _i_, the loop's own locals -- an @name in a plain function is refused
 	# under Ring++'s Rule A. Rewritten before the eval, as FirstNPrimesW does.
+	if NOT StzIsQueryCondition(pcExpr)  stzraise("This expression names something the W engine does not judge.")  ok
 	pcExpr = StzReplaceCS(StzReplaceCS(pcExpr, "@item", "_item_", 0), "@i", "_i_", 0)
 	for _i_ = 1 to _n_
 		_item_ = paItems[_i_]

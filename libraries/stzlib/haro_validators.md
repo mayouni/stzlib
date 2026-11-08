@@ -11,5 +11,5 @@ Each one accepts only a shape that cannot name anything to run: a plain identifi
 literal of data, a query condition on Q(@item) with literal arguments, a tree path made of
 [:name] and [n] segments. A function joins the list only when it is that strict.
 
-Counted 2026-11-08: 108 sites with the first three named; 62 with all seven, after the first
-three rounds of retirement (PRINCIPAL-HAROFIRST-01).
+Counted 2026-11-08: 108 sites with the first three named; 51 with all seven, after the first
+four rounds of retirement (PRINCIPAL-HAROFIRST-01).
