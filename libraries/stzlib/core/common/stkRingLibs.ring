@@ -3,7 +3,9 @@
 #  LOADING NECESSARY RING LIBS AND ENGINE BRIDGES      #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-load "stdlibcore.ring"
+# Ring's standard library is not loaded (haro D50): the sixteen functions
+# the library used from it are its own, in stkRingStdFuncs.ring.
+load "stkRingStdFuncs.ring"
 
 # Load Core Engine bridge (string + char)
 # The Engine replaces Qt -- no qtcore.ring, no Ring extensions.

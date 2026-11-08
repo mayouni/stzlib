@@ -713,14 +713,13 @@ class stkPointer
         # Initialize low-level pointer access if possible
         try
             # Try to get buffer data and create pointer to it
-            _oBuffer_ = @oMemory.GetBufferById(@cBufferId)
-            if not IsNull(_oBuffer_)
-                _cBufferData_ = _oBuffer_.Content()
-                if len(_cBufferData_) > 0
-                    @pLowLevelPtr = varptr(:cBufferData, :char)
-                    @nBaseAddress = getptr(@pLowLevelPtr)
-                ok
-            ok
+            # No low-level pointer is taken. This used varptr(:cBufferData),
+            # a name nothing assigned (the local is _cBufferData_), so it
+            # always raised and landed in the catch below -- and naming the
+            # local would hand out a pointer to a value freed when this method
+            # returns. What it always did is now what it says (2026-11-08).
+            @pLowLevelPtr = ""
+            @nBaseAddress = 0
         catch cError
             # If low-level access fails, continue without it
             @pLowLevelPtr = ""

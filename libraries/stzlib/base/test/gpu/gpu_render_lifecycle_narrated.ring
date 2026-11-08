@@ -31,7 +31,6 @@
 #
 # STANDALONE like gpu_lifecycle_narrated: loads only the engine bridge.
 
-load "stdlibcore.ring"
 $cEngineDir = "../../../engine"
 # the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
 load "../../../core/common/stkRingLibs.ring"

@@ -1,4 +1,5 @@
-load "stdlibcore.ring"
+# Ring's standard library is not loaded (haro D50); its Split, the one
+# function this guard used, is SplitOn at the end of this file.
 
 # RX3 -- the dead-link guard on the agent door: AGENTS.md and its skills.
 #
@@ -151,7 +152,7 @@ func IsPathToken(cTok)
 func JudgeCommand(cFile, cCmd)
 	$nCmds++
 	cDir = ""
-	aParts = split(cCmd, "&&")
+	aParts = SplitOn(cCmd, "&&")
 	for k = 1 to len(aParts)
 		cP = trim(aParts[k])
 		if left(cP, 3) = "cd "
@@ -160,7 +161,7 @@ func JudgeCommand(cFile, cCmd)
 		but left(cP, 5) = "ring " or left(cP, 5) = "rnxc " or right(lower(left(cP, substr(cP, " ") - 1)), 8) = "rnxc.exe"
 			# rnxc runs a program as ring did (RING-RETIRED-01): the
 			# interpreter is the first word, the program the second
-			aW = split(trim(cP), " ")
+			aW = SplitOn(trim(cP), " ")
 			cR = aW[2]
 			cFull = $cRoot + cDir + "/" + cR
 			if cDir = ""
@@ -173,3 +174,16 @@ func JudgeCommand(cFile, cCmd)
 			Verdict(cFile + " command of a known shape: " + cP, 0)
 		ok
 	next
+
+# Ring's stdlib Split, for the two separators used here: a space separator
+# folds tabs and runs of spaces first; the text is trimmed; empty parts are
+# kept as Ring keeps them.
+func SplitOn cText, cSep
+	if cSep = " "
+		cText = substr(cText, char(9), " ")
+		while substr(cText, "  ") > 0
+			cText = substr(cText, "  ", " ")
+		end
+	ok
+	cText = trim(cText)
+	return str2list(substr(cText, cSep, char(10)))

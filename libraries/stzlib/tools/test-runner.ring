@@ -8,7 +8,6 @@
 #   --list                       List all test files without running
 #   --verbose                    Show detailed output
 
-load "stdlibcore.ring"
 
 # Configuration
 cBaseDir = currentdir() + "/../"

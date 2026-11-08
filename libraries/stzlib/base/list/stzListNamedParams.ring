@@ -132,14 +132,12 @@ class stzListNamedParams from stzObject
 	# TRUE if the list is the named parameter with the given keyword, the case ignored.
 	#
 	#   cKeyword   the keyword to test for, such as "At"
-	#   returns    nothing today: it raises error R20
-	#   note       use IsThisNamedParam(aList, cKeyword) instead
-	#   warning    Raises error R20 "Calling function with extra number of parameters" today instead
-	#              of TRUE or FALSE, whatever the keyword; the global IsThisNamedParam(aList,
-	#              cKeyword) it relies on answers 1 for [ :N, 5 ] and "N" outside the class
+	#   returns    1 or 0
+	#   note       a bare IsThisNamedParam(...) here would be the class's own
+	#              0-argument method (R20 until 2026-11-08); StzIsThisNamedParam is the global
 	#   see        IsANamedParam, IsOneOfTheseNamedParams
 	def IsNamedParamWith(cKeyword)
-		return IsThisNamedParam(This.Content(), cKeyword)
+		return StzIsThisNamedParam(This.Content(), cKeyword)
 
 	# NOTE: IsOneOfTheseNamedParams is defined further below (line ~916)
 	# with the full eval-based implementation. Removed duplicate here.

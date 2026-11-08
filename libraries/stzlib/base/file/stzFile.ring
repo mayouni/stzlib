@@ -1,4 +1,4 @@
-﻿load "ziplib.ring" # A ring library, Required by stzZipFile
+﻿# zip_addfile, the one ziplib.ring function stzZipFile used, is in core/common/stkRingStdFuncs.ring
 
 /*
 Intent-Based File API for Softanza v2.0
@@ -2487,9 +2487,11 @@ class stzFileEaraser from stzObject
         StzEngineFileWrite(@cFileName, "")
 		return 1
 
+		# Empties the file and gives an appender on it, to write it again.
+		# (It called StzFileAppend with one of its two arguments: R19.)
 		def EraseQ(cText)
 			This.Erase()
-			return StzFileAppend(@cFileName)
+			return StzFileAppendQ(@cFileName)
 
 #======================================================#
 # MODIFIER CLASS - READ + SOPHISTICATED UPDATE INTENT  #

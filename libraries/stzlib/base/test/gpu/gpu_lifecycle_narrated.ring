@@ -32,7 +32,6 @@
 # Ring traps avoided: main code before the first func; helper temps
 # underscored; no keyword-bearing names.
 
-load "stdlibcore.ring"
 $cEngineDir = "../../../engine"
 # the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
 load "../../../core/common/stkRingLibs.ring"

@@ -22,7 +22,6 @@
 # Standalone like the G1 guard (loads only the engine bridge): a broken
 # face elsewhere in the library must not mask an op regression.
 
-load "stdlibcore.ring"
 $cEngineDir = "../../../engine"
 # the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
 load "../../../core/common/stkRingLibs.ring"
