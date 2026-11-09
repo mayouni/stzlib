@@ -6,7 +6,7 @@
 // C ABI: stz_hashmap_* prefix.
 
 const std = @import("std");
-const ascii = @import("ascii.zig");
+const casefold = @import("casefold.zig");
 const allocator = std.heap.c_allocator;
 const value_mod = @import("value.zig");
 const StzValue = value_mod.StzValue;
@@ -56,10 +56,12 @@ pub const StzHashMap = struct {
 
         // Case-INsensitive keeps the scan: the index is keyed on exact
         // bytes, so it cannot answer a folded query. This path is rare
-        // (the _cs entry points only), and folding a second index would
-        // have to pick a fold, which the exact-byte contract does not.
+        // (the _cs entry points only). The comparison is casefold.zig, the
+        // engine's one fold -- no byte-length precheck, since a fold can
+        // change the length ("ß" and "SS" are one key with case ignored).
+        // Until 2026-11-09 it folded ASCII only (STZLIB-LISTCI-UNICODE-01).
         for (self.entries.items, 0..) |entry, i| {
-            if (entry.key.len == key.len and asciiEqlCI(entry.key, key)) return i;
+            if (casefold.eql(entry.key, key)) return i;
         }
         return null;
     }
@@ -72,16 +74,6 @@ pub const StzHashMap = struct {
         }
     }
 };
-
-fn asciiEqlCI(a: []const u8, b: []const u8) bool {
-    if (a.len != b.len) return false;
-    for (a, b) |ca, cb| {
-        const la = ascii.lower(ca);
-        const lb = ascii.lower(cb);
-        if (la != lb) return false;
-    }
-    return true;
-}
 
 fn dupeKey(key_ptr: [*]const u8, key_len: usize) ?[]u8 {
     const k = allocator.alloc(u8, key_len) catch return null;
@@ -490,4 +482,20 @@ test "hashmap find_key" {
     try std.testing.expectEqual(@as(i64, 1), stz_hashmap_find_key_cs(m, "NAME", 4, 0));
     try std.testing.expectEqual(@as(i64, 0), stz_hashmap_find_key_cs(m, "NAME", 4, 1));
     try std.testing.expectEqual(@as(i64, 0), stz_hashmap_find_key(null, "x", 1));
+}
+
+// STZLIB-LISTCI-UNICODE-01: keys match with case ignored through casefold.zig.
+// Expectations from CaseFolding.txt: Ό -> ό, ß -> ss, Kelvin sign K -> k.
+test "hashmap case insensitive across scripts" {
+    const m = stz_hashmap_new() orelse return error.AllocFailed;
+    defer stz_hashmap_free(m);
+    _ = stz_hashmap_put_int(m, "όνομα", "όνομα".len, 1);
+    _ = stz_hashmap_put_int(m, "straße", "straße".len, 2);
+    _ = stz_hashmap_put_int(m, "kelvin", 6, 3);
+
+    try std.testing.expectEqual(@as(i64, 1), stz_hashmap_find_key_cs(m, "ΌΝΟΜΑ", "ΌΝΟΜΑ".len, 0));
+    try std.testing.expectEqual(@as(i64, 0), stz_hashmap_find_key_cs(m, "ΌΝΟΜΑ", "ΌΝΟΜΑ".len, 1));
+    try std.testing.expectEqual(@as(i64, 2), stz_hashmap_find_key_cs(m, "STRASSE", 7, 0));
+    try std.testing.expectEqual(@as(i32, 1), stz_hashmap_has_key_cs(m, "\u{212A}ELVIN", "\u{212A}ELVIN".len, 0));
+    try std.testing.expect(stz_hashmap_get_cs(m, "STRASSE", 7, 1) == null);
 }

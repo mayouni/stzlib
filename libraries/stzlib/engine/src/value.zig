@@ -8,6 +8,8 @@
 
 const std = @import("std");
 const allocator = std.heap.c_allocator;
+// Reached only by eqlCS: a DLL that calls eqlCS (stz_value, stz_table) links utf8proc.
+const casefold = @import("casefold.zig");
 
 // ─── Value Type Tags ───
 
@@ -137,16 +139,12 @@ pub const StzValue = struct {
             .int_val => a.data.int_val == b.data.int_val,
             .float_val => a.data.float_val == b.data.float_val,
             .string_val => {
+                // casefold.zig, the engine's one fold: "α" = "Α", "ß" = "SS".
+                // No byte-length precheck, since a fold can change the length.
+                // Until 2026-11-09 it folded ASCII only (STZLIB-LISTCI-UNICODE-01).
                 const sa = a.data.string_val;
                 const sb = b.data.string_val;
-                if (sa.len != sb.len) return false;
-                if (sa.len == 0) return true;
-                const a_slice = sa.ptr[0..sa.len];
-                const b_slice = sb.ptr[0..sb.len];
-                for (a_slice, b_slice) |ca, cb| {
-                    if (std.ascii.toLower(ca) != std.ascii.toLower(cb)) return false;
-                }
-                return true;
+                return casefold.eql(sa.ptr[0..sa.len], sb.ptr[0..sb.len]);
             },
             .list_val => {
                 const la = a.data.list_val;
@@ -948,4 +946,36 @@ test "value list heterogeneous sort" {
     try std.testing.expectEqual(@as(i32, 2), stz_value_type(t2));
     const t3 = stz_value_list_get(list, 3) orelse return error.NotFound;
     try std.testing.expectEqual(@as(i32, 4), stz_value_type(t3));
+}
+
+// STZLIB-LISTCI-UNICODE-01: case ignored reads casefold.zig, in nested lists too.
+// Expectations from CaseFolding.txt: Α -> α, ß -> ss, ς and Σ -> σ.
+test "value equals_cs folds Unicode case" {
+    const pairs = [_][2][]const u8{ .{ "αβγ", "ΑΒΓ" }, .{ "straße", "STRASSE" }, .{ "ς", "Σ" } };
+    for (pairs) |p| {
+        const a = stz_value_new_string(p[0].ptr, p[0].len) orelse return error.AllocFailed;
+        defer stz_value_free(a);
+        const b = stz_value_new_string(p[1].ptr, p[1].len) orelse return error.AllocFailed;
+        defer stz_value_free(b);
+        try std.testing.expectEqual(@as(i32, 1), stz_value_equals_cs(a, b, 0));
+        try std.testing.expectEqual(@as(i32, 0), stz_value_equals_cs(a, b, 1));
+    }
+    const e1 = stz_value_new_string("é", "é".len) orelse return error.AllocFailed;
+    defer stz_value_free(e1);
+    const e2 = stz_value_new_string("e\u{0301}", "e\u{0301}".len) orelse return error.AllocFailed;
+    defer stz_value_free(e2);
+    try std.testing.expectEqual(@as(i32, 0), stz_value_equals_cs(e1, e2, 0)); // folding is not normalisation
+
+    const la = stz_value_new_list() orelse return error.AllocFailed;
+    defer stz_value_free(la);
+    const lb = stz_value_new_list() orelse return error.AllocFailed;
+    defer stz_value_free(lb);
+    const xa = stz_value_new_string("Α", "Α".len) orelse return error.AllocFailed;
+    defer stz_value_free(xa);
+    const xb = stz_value_new_string("α", "α".len) orelse return error.AllocFailed;
+    defer stz_value_free(xb);
+    _ = stz_value_list_append(la, xa);
+    _ = stz_value_list_append(lb, xb);
+    try std.testing.expectEqual(@as(i32, 1), stz_value_equals_cs(la, lb, 0));
+    try std.testing.expectEqual(@as(i32, 0), stz_value_equals_cs(la, lb, 1));
 }

@@ -13,6 +13,7 @@ const allocator = std.heap.c_allocator;
 const value_mod = @import("value.zig");
 const StzValue = value_mod.StzValue;
 const ValueType = value_mod.ValueType;
+const casefold = @import("casefold.zig");
 
 // ─── Column ───
 
@@ -69,9 +70,12 @@ pub const Column = struct {
         return std.mem.eql(u8, self.name, other_ptr[0..other_len]);
     }
 
+    // Column names match with case ignored, through casefold.zig, the
+    // engine's one fold: "ΌΝΟΜΑ" finds the column "όνομα", "STRASSE" finds
+    // "straße". No byte-length precheck, since a fold can change the length.
+    // Until 2026-11-09 it folded ASCII only (STZLIB-LISTCI-UNICODE-01).
     fn nameEqlCI(self: *const Column, other_ptr: [*]const u8, other_len: usize) bool {
-        if (self.name.len != other_len) return false;
-        return std.ascii.eqlIgnoreCase(self.name, other_ptr[0..other_len]);
+        return casefold.eql(self.name, other_ptr[0..other_len]);
     }
 };
 
@@ -1134,4 +1138,29 @@ test "table remove row and column" {
 
     t.removeColumn(0);
     try std.testing.expectEqual(@as(usize, 1), t.numColumns());
+}
+
+// STZLIB-LISTCI-UNICODE-01: column names, and cells searched with case
+// ignored, match through casefold.zig. Expectations from CaseFolding.txt:
+// Ό -> ό, Α -> α, Ή -> ή, ß -> ss.
+test "table names and cells with case ignored across scripts" {
+    const t = stz_table_new() orelse return error.AllocFailed;
+    defer stz_table_free(t);
+    _ = stz_table_add_col(t, "όνομα", "όνομα".len);
+    _ = stz_table_add_col(t, "straße", "straße".len);
+    _ = stz_table_add_row(t);
+    stz_table_set_cell_string(t, 0, 0, "αθήνα", "αθήνα".len);
+    stz_table_set_cell_string(t, 1, 0, "x", 1);
+
+    try std.testing.expectEqual(@as(i64, 0), stz_table_find_col(t, "ΌΝΟΜΑ", "ΌΝΟΜΑ".len));
+    try std.testing.expectEqual(@as(i64, 1), stz_table_find_col(t, "STRASSE", 7));
+    try std.testing.expectEqual(@as(i64, -1), stz_table_find_col(t, "onoma", 5));
+
+    const needle = value_mod.stz_value_new_string("ΑΘΉΝΑ", "ΑΘΉΝΑ".len) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(needle);
+    var out: [8]i64 = undefined;
+    try std.testing.expectEqual(@as(usize, 1), stz_table_find_cell_cs(t, needle, 0, &out, 4));
+    try std.testing.expectEqual(@as(i64, 0), out[0]);
+    try std.testing.expectEqual(@as(i64, 0), out[1]);
+    try std.testing.expectEqual(@as(usize, 0), stz_table_find_cell_cs(t, needle, 1, &out, 4));
 }
