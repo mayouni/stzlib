@@ -77,3 +77,7 @@ libraries/stzlib/atelier/_record_settings.ring
 **/test/atelier/_planted*
 libraries/stzlib/atelier/_atelier_*
 **/test/_planted_notebook/
+
+# An agent's saved approvals hold the exact commands it was allowed to run, secrets included:
+# never published (LOOKOUT-W45-SECRETS-01)
+.claude/settings.local.json
