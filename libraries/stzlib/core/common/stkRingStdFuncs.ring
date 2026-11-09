@@ -166,6 +166,11 @@ func Sign n
 	return 1
 
 # Waits nSeconds seconds (a number, or a text holding one).
+#
+# Ring's Sleep called SysSleep and then, unless it answered true, waited AGAIN
+# in a clock loop. On rnxc and haro.exe syssleep answers nothing, so that form
+# slept twice: Sleep(0.5) took 1.00 s on both (measured 2026-11-09). syssleep
+# is native on both runtimes, so it is the whole wait here.
 func Sleep nSeconds
 	if isstring(nSeconds)
 		nSeconds = number(nSeconds)
@@ -173,13 +178,7 @@ func Sleep nSeconds
 	if NOT isnumber(nSeconds)
 		raise("Bad parameter type!")
 	ok
-	if syssleep(nSeconds * 1000)
-		return
-	ok
-	nTicks = nSeconds * clockspersecond()
-	nStartClock = clock()
-	while clock() - nStartClock < nTicks
-	end
+	syssleep(nSeconds * 1000)
 
 # cStr without its trailing spaces and tabs. An all-blank or empty text
 # gives "" (Ring's version raised an index error there).
