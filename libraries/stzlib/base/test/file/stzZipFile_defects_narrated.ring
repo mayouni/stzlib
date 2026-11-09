@@ -47,8 +47,8 @@ Scenario("The register rows reproduced: neither call exists in the library, and 
 	Then("the class no longer calls FilesInDir", len(aHit1), 0)
 	Then("nor zip_newentry", len(aHit2), 0)
 	Then("nor zip_entry_writestring, which does not exist either", len(aHit3), 0)
-	aHit4 = StzFind("zip_entry_write(", cSrc)
-	Then("it calls the zip function that does exist, zip_entry_write", len(aHit4) > 0, 1)
+	aHit4 = StzFind("StzEngineZipWrite(", cSrc)
+	Then("it writes through the engine's ZIP writer, StzEngineZipWrite (no Ring zip native is left)", len(aHit4) > 0, 1)
 EndScenario()
 
 # ---------------------------------------------------------------------------------------------
@@ -224,7 +224,7 @@ Scenario("AddString stores a text byte for byte, creating the archive when it is
 	Then("it returns the archive path", cRet, cArc)
 	Then("the archive now exists", oZ.Exists(), 1)
 	Then("it holds one entry, hello.txt", ZfJoin(oZ.ListContents()), "hello.txt")
-	Then("read back by the library's own reader it is the same text", ZfSame(zip_extract_file(cArc, "hello.txt"), "hello world"), 1)
+	Then("read back by the library's own reader it is the same text", ZfSame(StzEngineZipRead(cArc, "hello.txt"), "hello world"), 1)
 	cUtf8 = cHeb + " " + cAra + " " + cEmo + " caf" + char(195) + char(169)
 	oZ.AddString("utf8.txt", cUtf8)
 	cNul = "ab" + char(0) + "cd" + char(0) + char(0) + "ef"
@@ -242,18 +242,18 @@ Scenario("AddString stores a text byte for byte, creating the archive when it is
 	oZ.AddString("num.txt", 12345)
 	Then("eight more entries make nine, in the order added", ZfJoin(oZ.ListContents()), "hello.txt|utf8.txt|nul.bin|crlf.txt|all256.bin|empty.txt|big.txt|docs/sub/nested.txt|num.txt")
 	Then("FileCount agrees", oZ.FileCount(), 9)
-	Then("a UTF-8 text (Hebrew, Arabic, emoji, accent) round-trips: same bytes", ZfSame(zip_extract_file(cArc, "utf8.txt"), cUtf8), 1)
-	Then("a text with NULs round-trips and keeps its length 9", len(zip_extract_file(cArc, "nul.bin")), 9)
-	Then("and its bytes", ZfSame(zip_extract_file(cArc, "nul.bin"), cNul), 1)
-	Then("CR LF and a lone CR survive", ZfSame(zip_extract_file(cArc, "crlf.txt"), cCrlf), 1)
-	Then("all 256 byte values survive, 256 bytes", len(zip_extract_file(cArc, "all256.bin")), 256)
-	Then("byte for byte", ZfSame(zip_extract_file(cArc, "all256.bin"), cAllBytes), 1)
-	Then("an empty text gives an empty entry", len(zip_extract_file(cArc, "empty.txt")), 0)
+	Then("a UTF-8 text (Hebrew, Arabic, emoji, accent) round-trips: same bytes", ZfSame(StzEngineZipRead(cArc, "utf8.txt"), cUtf8), 1)
+	Then("a text with NULs round-trips and keeps its length 9", len(StzEngineZipRead(cArc, "nul.bin")), 9)
+	Then("and its bytes", ZfSame(StzEngineZipRead(cArc, "nul.bin"), cNul), 1)
+	Then("CR LF and a lone CR survive", ZfSame(StzEngineZipRead(cArc, "crlf.txt"), cCrlf), 1)
+	Then("all 256 byte values survive, 256 bytes", len(StzEngineZipRead(cArc, "all256.bin")), 256)
+	Then("byte for byte", ZfSame(StzEngineZipRead(cArc, "all256.bin"), cAllBytes), 1)
+	Then("an empty text gives an empty entry", len(StzEngineZipRead(cArc, "empty.txt")), 0)
 	Then("and the entry exists", oZ.Contains("empty.txt"), 1)
-	Then("a 2000-line text round-trips", ZfSame(zip_extract_file(cArc, "big.txt"), cBig), 1)
-	Then("a number is stored as its text", zip_extract_file(cArc, "num.txt"), "12345")
-	Then("a different text is not equal to the stored one (negative sibling)", ZfSame(zip_extract_file(cArc, "all256.bin"), copy("x", 256)), 0)
-	Then("a one-byte difference is seen", ZfSame(zip_extract_file(cArc, "nul.bin"), "ab" + char(0) + "cd" + char(0) + char(1) + "ef"), 0)
+	Then("a 2000-line text round-trips", ZfSame(StzEngineZipRead(cArc, "big.txt"), cBig), 1)
+	Then("a number is stored as its text", StzEngineZipRead(cArc, "num.txt"), "12345")
+	Then("a different text is not equal to the stored one (negative sibling)", ZfSame(StzEngineZipRead(cArc, "all256.bin"), copy("x", 256)), 0)
+	Then("a one-byte difference is seen", ZfSame(StzEngineZipRead(cArc, "nul.bin"), "ab" + char(0) + "cd" + char(0) + char(1) + "ef"), 0)
 	nCrc = ZfCentralCrc(cArc, "hello.txt")
 	Then("the CRC32 stored for hello.txt is Python's (222957957)", nCrc, 222957957)
 	nCrc = ZfCentralCrc(cArc, "all256.bin")
@@ -271,7 +271,7 @@ Scenario("AddString stores a text byte for byte, creating the archive when it is
 EndScenario()
 
 # ---------------------------------------------------------------------------------------------
-Scenario("AddString on an existing archive keeps what is there, and a name added twice is stored twice")
+Scenario("AddString on an existing archive keeps what is there, and a name added again replaces the entry")
 	cArc = $cFx + "/mix.zip"
 	StzFileWrite($cFx + "/one.txt", "one")
 	oZ = new stzZipFile(cArc)
@@ -279,10 +279,12 @@ Scenario("AddString on an existing archive keeps what is there, and a name added
 	Then("an archive made by CreateFrom has the file under the path as given", oZ.ListContents()[1], $cFxRel + "/one.txt")
 	oZ.AddString("added.txt", "text-1")
 	Then("AddString appends to it", ZfJoin(oZ.ListContents()), $cFxRel + "/one.txt|added.txt")
-	Then("the file entry is intact", ZfSame(zip_extract_file(cArc, $cFxRel + "/one.txt"), "one"), 1)
+	Then("the file entry is intact", ZfSame(StzEngineZipRead(cArc, $cFxRel + "/one.txt"), "one"), 1)
 	oZ.AddString("added.txt", "text-2")
-	Then("the same name again is stored a second time (as AddFile does)", ZfJoin(oZ.ListContents()), $cFxRel + "/one.txt|added.txt|added.txt")
-	Then("a lookup by name finds the first (documented)", zip_extract_file(cArc, "added.txt"), "text-1")
+	# Ring's zip library stored the name a second time and a lookup found the first copy; two
+	# entries of one name are read differently by different tools, so the engine replaces
+	Then("the same name again replaces the entry, it is not stored twice", ZfJoin(oZ.ListContents()), $cFxRel + "/one.txt|added.txt")
+	Then("a lookup by name finds the new content", StzEngineZipRead(cArc, "added.txt"), "text-2")
 	Given("an existing file that is not a zip")
 	write($cFx + "/notzip.zip", "this is not a zip file at all, only text, padded padded padded padded")
 	oZ = new stzZipFile($cFx + "/notzip.zip")
@@ -434,7 +436,7 @@ Scenario("ZIP SLIP: hostile archives are refused before one byte is written")
 	Then("a segment that merely starts with two dots is a plain name", read(cSS + "/dest/out/..a/b.txt"), "dots")
 	Then("the folder entry became a folder", StzDirExists(cSS + "/dest/out/emptydir"), 1)
 	Then("and nothing was written above the target", ZfFilesUnder(cSS + "/dest"), 3)
-	Given("an entry whose path with the folder is too long for the library (it ended the Ring process)")
+	Given("an entry whose path with the folder is over 250 bytes (Ring's zip library ended the process on it; the engine has no fixed buffer)")
 	StzDirDeleteAll(cSS)
 	StzDirCreatePath(cSS + "/dest/out")
 	cZ = cSS + "/long.zip"
@@ -442,8 +444,8 @@ Scenario("ZIP SLIP: hostile archives are refused before one byte is written")
 	ZfBuildHostile(cZ, [ cLongName ])
 	oZ = new stzZipFile(cZ)
 	cErr = ZfExtractErr(oZ, cSS + "/dest/out")
-	Then("ExtractTo raises Entry path is too long (and this line ran: the process lived)", ZfHas(cErr, "Entry path is too long"), 1)
-	Then("nothing was written", ZfFilesUnder(cSS + "/dest/out") + ZfFilesNamed(cSS, "f.txt"), 0)
+	Then("ExtractTo extracts it without error", cErr, "")
+	Then("and its file is there", StzFileExists(cSS + "/dest/out/" + cLongName), 1)
 	Given("an entry that fits the limit exactly is extracted")
 	nRoomName = 250 - (len(cSS + "/dest/out") + 1)
 	cFitName = copy("e", nRoomName - 2) + ".x"
@@ -456,7 +458,7 @@ Scenario("ZIP SLIP: hostile archives are refused before one byte is written")
 	ZfBuildHostile(cZ, [ cFitName + "y" ])
 	oZ = new stzZipFile(cZ)
 	cErr = ZfExtractErr(oZ, cSS + "/dest/out")
-	Then("one byte more is refused", ZfHas(cErr, "Entry path is too long"), 1)
+	Then("one byte more goes through too", cErr, "")
 	Given("a file entry the library cannot write: the folder it needs is taken by a FILE")
 	StzDirDeleteAll(cSS)
 	StzDirCreatePath(cSS + "/dest/out")
@@ -719,17 +721,23 @@ func ZfWalkErrFolders(h_cRoot, h_nFolders)
 	done
 	return ""
 
-# builds an archive whose entry names go in unchecked (the library's writer does not look at them)
+# builds an archive whose entry names go in unchecked (the engine's writer does not look at them; the Ring face does)
 func ZfBuildHostile(h_cZip, h_aNames)
 	remove(h_cZip)
-	h_pZip = zip_openfile(h_cZip, "w")
+	h_cNames = ""
+	h_cSizes = ""
+	h_cBlob = ""
 	h_nLen = len(h_aNames)
 	for h_nQ = 1 to h_nLen
-		zip_entry_open(h_pZip, h_aNames[h_nQ])
-		zip_entry_write(h_pZip, "EVIL", 4)
-		zip_entry_close(h_pZip)
+		if h_nQ > 1
+			h_cNames += char(10)
+			h_cSizes += ","
+		ok
+		h_cNames += h_aNames[h_nQ]
+		h_cSizes += "4"
+		h_cBlob += "EVIL"
 	next
-	zip_close(h_pZip)
+	StzEngineZipWrite(h_cZip, h_cNames, h_cSizes, h_cBlob, 0)
 
 # turns each # of a name stored in the archive into a backslash, same length, so the CRC stays valid
 func ZfPatchHash(h_cZip, h_cName)
@@ -739,10 +747,7 @@ func ZfPatchHash(h_cZip, h_cName)
 	write(h_cZip, h_cData2)
 
 func ZfAddFolderEntry(h_cZip, h_cFolder)
-	h_pZip = zip_openfile(h_cZip, "a")
-	zip_entry_open(h_pZip, h_cFolder)
-	zip_entry_close(h_pZip)
-	zip_close(h_pZip)
+	StzEngineZipWrite(h_cZip, h_cFolder, "0", "", 1)
 
 # counts the files under a folder, iteratively
 func ZfFilesUnder(h_cRoot)

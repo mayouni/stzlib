@@ -1,5 +1,5 @@
 /*
-	stkRingStdFuncs -- the twenty functions Softanza took from Ring's
+	stkRingStdFuncs -- the nineteen functions Softanza took from Ring's
 	standard library, defined here so the library loads no part of Ring's
 	distribution.
 
@@ -196,12 +196,6 @@ func TrimRight cStr
 	ok
 	return left(cStr, nIndex)
 
-# Adds the file cFile to the open zip oZip under its own name (ziplib's shim
-# over the zip natives every runtime carries).
-func zip_addfile oZip, cFile
-	zip_entry_open(oZip, cFile)
-	zip_entry_fwrite(oZip, cFile)
-	zip_entry_close(oZip)
 
 # --- Four more, which the library itself never calls but its tests did,
 # reaching Ring's stdlib through the library's load (found 2026-11-08 by the

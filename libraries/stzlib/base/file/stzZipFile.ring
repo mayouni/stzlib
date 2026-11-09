@@ -252,6 +252,44 @@ func _ZipWalkFolder(_cZRoot_, _nZMaxDepth_, _nZMaxFiles_, _nZMaxFolders_)
 	end
 	return sort(_aZFound_)
 
+# Writes the archive cArchive from entry names and their bytes, through the engine's ZIP
+# writer (stz_compress). With pbAppend, the entries already there are kept and a new entry
+# replaces an old one of the same name. Raises with the engine's reason when it cannot.
+func _ZipWriteEntries(cArchive, paNames, paDatas, pbAppend)
+	_nE_ = len(paNames)
+	_cNames_ = ""
+	_cSizes_ = ""
+	_cBlob_ = ""
+	for _i_ = 1 to _nE_
+		if _i_ > 1
+			_cNames_ += char(10)
+			_cSizes_ += ","
+		ok
+		_cNames_ += paNames[_i_]
+		_cSizes_ += ("" + len(paDatas[_i_]))
+		_cBlob_ += paDatas[_i_]
+	next
+	_nAppend_ = 0
+	if pbAppend
+		_nAppend_ = 1
+	ok
+	if StzEngineZipWrite(cArchive, _cNames_, _cSizes_, _cBlob_, _nAppend_) != 1
+		StzRaise("Cannot write the zip file (" + StzEngineZipLastError() + "): " + cArchive)
+	ok
+
+# The entries of the files of a list that exist, under the paths as given: [ names, datas ].
+func _ZipEntriesOfFiles(paFiles)
+	_aN_ = []
+	_aD_ = []
+	_nF_ = len(paFiles)
+	for _i_ = 1 to _nF_
+		if StzFileExists(paFiles[_i_])
+			_aN_ + paFiles[_i_]
+			_aD_ + read(paFiles[_i_])
+		ok
+	next
+	return [ _aN_, _aD_ ]
+
 func ZipFile(cZipFileName)
     return new stzZipFile(cZipFileName)
 
@@ -290,8 +328,7 @@ class stzZipFile from stzObject
     #   returns    the archive path
     #   note       give relative paths to get entries that extract anywhere
     #   warning    raises Files parameter must be a list for anything else; a path given as absolute
-    #              is stored as absolute, and extracting such an archive ends the Ring process (see
-    #              ExtractTo)
+    #              is stored as absolute, and ExtractTo refuses such an archive as an unsafe name
     #   see        AddFiles, ExtractTo
     #@ aka  CREATION OPERATIONS
     def CreateFrom(_aFiles_)
@@ -304,19 +341,8 @@ class stzZipFile from stzObject
         if _cZWhy_ != ""
             StzRaise("Cannot write the zip file (" + _cZWhy_ + "): " + @cZipFileName)
         ok
-        _oZip_ = zip_openfile(@cZipFileName, 'w')
-        if _oZip_ = ""
-            StzRaise("Cannot create zip file: " + @cZipFileName)
-        ok
-        
-        _nLen_ = len(_aFiles_)
-        for i = 1 to _nLen_
-            if StzFileExists(_aFiles_[i])
-                zip_addfile(_oZip_, _aFiles_[i])
-            ok
-        next
-
-        zip_close(_oZip_)
+        _aE_ = _ZipEntriesOfFiles(_aFiles_)
+        _ZipWriteEntries(@cZipFileName, _aE_[1], _aE_[2], 0)
         return @cZipFileName
 
         def CreateFromQ(_aFiles_)
@@ -399,26 +425,15 @@ class stzZipFile from stzObject
         if _cZWhy_ != ""
             StzRaise("Cannot write the zip file (" + _cZWhy_ + "): " + @cZipFileName)
         ok
-        _oZip_ = zip_openfile(@cZipFileName, 'w')
-        _cBad_ = ""
+        _aDatas_ = []
         _nKept_ = ring_len(_aKept_)
         for i = 1 to _nKept_
-            if zip_entry_open(_oZip_, _aKept_[i]) != 0
-                _cBad_ = "Cannot open the archive to add: " + _ZipShowName(_aKept_[i])
-                exit
+            if not StzFileExists(_cRoot_ + "/" + _aKept_[i])
+                StzRaise("Cannot read the file to add: " + _ZipShowName(_aKept_[i]))
             ok
-            _nRc_ = zip_entry_fwrite(_oZip_, _cRoot_ + "/" + _aKept_[i])
-            zip_entry_close(_oZip_)
-            if _nRc_ != 0
-                _cBad_ = "Cannot read the file to add: " + _ZipShowName(_aKept_[i])
-                exit
-            ok
+            _aDatas_ + read(_cRoot_ + "/" + _aKept_[i])
         next
-        zip_close(_oZip_)
-        if _cBad_ != ""
-            remove(@cZipFileName)
-            StzRaise(_cBad_)
-        ok
+        _ZipWriteEntries(@cZipFileName, _aKept_, _aDatas_, 0)
         if not fexists(@cZipFileName)
             StzRaise("Cannot create zip file: " + @cZipFileName)
         ok
@@ -428,14 +443,13 @@ class stzZipFile from stzObject
             This.CreateFromDirectory(_cDirPath_)
             return This
     
-    # Appends an existing file to an existing archive; the same file added twice is stored twice.
+    # Adds an existing file to the archive; the same file added again replaces its entry.
     #
     #   cFileName   the file to add, stored under the path as given
     #   returns     the archive path
     #   note        use CreateFrom to start an archive
     #   warning     raises File does not exist for a missing file; on an archive that does not exist
-    #               yet it returns the path and creates nothing, so no entry is added and no error
-    #               is raised
+    #               yet it creates the archive with this one entry
     #   see         AddFiles, CreateFrom
     #@ aka  MODIFICATION OPERATIONS
     def AddFile(cFileName)
@@ -448,25 +462,19 @@ class stzZipFile from stzObject
         if _cZWhy_ != ""
             StzRaise("Cannot write the zip file (" + _cZWhy_ + "): " + @cZipFileName)
         ok
-        _oZip_ = zip_openfile(@cZipFileName, 'a')
-        if _oZip_ = ""
-            StzRaise("Cannot open zip file for appending: " + @cZipFileName)
-        ok
-        
-        zip_addfile(_oZip_, cFileName)
-        zip_close(_oZip_)
+        _ZipWriteEntries(@cZipFileName, [ cFileName ], [ read(cFileName) ], 1)
         return @cZipFileName
     
         def AddFileQ(cFileName)
             This.AddFile(cFileName)
             return This
     
-    # Appends the files of a list to an existing archive, skipping those that do not exist; a file already inside is stored a second time.
+    # Adds the files of a list to the archive, skipping those that do not exist; a file already inside replaces its entry.
     #
     #   _aFiles_   the list of file paths, each stored as given
     #   returns    the archive path
     #   warning    raises Files parameter must be a list for anything else; like AddFile, it creates
-    #              nothing on an archive that does not exist yet
+    #              the archive when it does not exist yet
     #   see        AddFile, CreateFrom
     def AddFiles(_aFiles_)
         # Add multiple files to existing zip
@@ -478,19 +486,8 @@ class stzZipFile from stzObject
         if _cZWhy_ != ""
             StzRaise("Cannot write the zip file (" + _cZWhy_ + "): " + @cZipFileName)
         ok
-        _oZip_ = zip_openfile(@cZipFileName, 'a')
-        if _oZip_ = ""
-            StzRaise("Cannot open zip file for appending: " + @cZipFileName)
-        ok
-        
-        _nLen_ = len(_aFiles_)
-        for i = 1 to _nLen_
-            if StzFileExists(_aFiles_[i])
-                zip_addfile(_oZip_, _aFiles_[i])
-            ok
-        next
-
-        zip_close(_oZip_)
+        _aE_ = _ZipEntriesOfFiles(_aFiles_)
+        _ZipWriteEntries(@cZipFileName, _aE_[1], _aE_[2], 1)
         return @cZipFileName
 
         def AddFilesQ(_aFiles_)
@@ -512,8 +509,7 @@ class stzZipFile from stzObject
     #   returns      the archive path
     #   warning      raises Invalid entry name, naming the rule, for a name that breaks one; raises
     #                Content must be a text for a list or an object; a name already in the archive
-    #                is stored a second time, as AddFile does, and readers that look an entry up by
-    #                name find the first
+    #                is replaced, as AddFile does
     #   see          AddFile, CreateFrom, ListContents
     def AddString(cEntryName, cContent)
         # Add string content as file entry
@@ -553,15 +549,8 @@ class stzZipFile from stzObject
         if _cZWhy_ != ""
             StzRaise("Cannot write the zip file (" + _cZWhy_ + "): " + @cZipFileName)
         ok
-        _oZip_ = zip_openfile(@cZipFileName, _cMode_)
-        _nRc_ = zip_entry_open(_oZip_, cEntryName)
-        if _nRc_ = 0
-            _nRc_ = zip_entry_write(_oZip_, _cText_, ring_len(_cText_))
-            zip_entry_close(_oZip_)
-        ok
-        zip_close(_oZip_)
-        if _nRc_ != 0
-            StzRaise("Cannot store the entry in the zip file: " + @cZipFileName)
+        if StzEngineZipWrite(@cZipFileName, cEntryName, "" + ring_len(_cText_), _cText_, 1) != 1
+            StzRaise("Cannot store the entry in the zip file (" + StzEngineZipLastError() + "): " + @cZipFileName)
         ok
         return @cZipFileName
 
@@ -583,11 +572,9 @@ class stzZipFile from stzObject
     #   warning        raises Zip file does not exist for a missing archive; raises Unsafe entry name
     #                  in the archive, extracting nothing, for an entry name that breaks a rule (an
     #                  archive made by CreateFrom with absolute paths is refused this way, where it
-    #                  once ended the Ring process with exit 127); raises Entry path is too long,
-    #                  extracting nothing, when the folder and an entry name together pass 250 bytes
-    #                  on Windows (1000 elsewhere), where the library ends the Ring process; raises
-    #                  Entry was not extracted for a file entry that is missing afterwards, such as
-    #                  one whose folder name is already taken by a file
+    #                  once ended the Ring process with exit 127); raises Entry was not extracted,
+    #                  with the engine's reason, for an entry it cannot write, such as one whose
+    #                  folder name is already taken by a file
     #   see            ExtractHere, ExtractToNewFolder, ListContents
     #@ aka  EXTRACTION OPERATIONS
     def ExtractTo(_cTargetDir_)
@@ -601,24 +588,16 @@ class stzZipFile from stzObject
 
         _aNames_ = This.ListContents()
         _nNames_ = ring_len(_aNames_)
-        # the library copies folder + name into a fixed buffer and ends the Ring process when it
-        # does not fit: 260 bytes on Windows, 1024 elsewhere; stay under with a margin
-        _nRoom_ = 250
-        if not isWindows()
-            _nRoom_ = 1000
-        ok
-        _nBase_ = ring_len(_cTargetDir_) + 1
         for i = 1 to _nNames_
             _cWhy_ = _ZipEntryNameProblem(_aNames_[i])
             if _cWhy_ != ""
                 StzRaise("Unsafe entry name in the archive (" + _cWhy_ + "), nothing extracted: " + _ZipShowName(_aNames_[i]))
             ok
-            if (_nBase_ + ring_len(_aNames_[i])) > _nRoom_
-                StzRaise("Entry path is too long for the zip library (over " + _nRoom_ + " bytes with the folder), nothing extracted: " + _ZipShowName(_aNames_[i]))
-            ok
         next
 
-        zip_extract_allfiles(@cZipFileName, _cTargetDir_)
+        if StzEngineZipExtractAll(@cZipFileName, _cTargetDir_) < 0
+            StzRaise("Entry was not extracted (" + StzEngineZipLastError() + "): " + @cZipFileName)
+        ok
 
         _cBase_ = StzReplace(_cTargetDir_, "\", "/")
         for i = 1 to _nNames_
@@ -668,7 +647,7 @@ class stzZipFile from stzObject
     # Returns the names of the entries, exactly as stored, in the order they were added.
     #
     #   returns    a list of text
-    #   note       a file stored twice is listed twice
+    #   note       a name appears once: adding it again replaces the entry
     #   warning    raises Zip file does not exist for a missing archive
     #   see        FileCount, Contains
     #@ aka  INSPECTION OPERATIONS
@@ -678,19 +657,14 @@ class stzZipFile from stzObject
             StzRaise("Zip file does not exist: " + @cZipFileName)
         ok
         
-        _oZip_ = zip_openfile(@cZipFileName, 'r')
-        if _oZip_ = ""
-            StzRaise("Cannot open zip file: " + @cZipFileName)
+        _cNames_ = StzEngineZipNames(@cZipFileName)
+        if _cNames_ = "" and StzEngineZipLastError() != ""
+            StzRaise("Cannot open zip file (" + StzEngineZipLastError() + "): " + @cZipFileName)
         ok
-        
-        _aFiles_ = []
-        _nCount_ = zip_filescount(_oZip_)
-        for i = 1 to _nCount_
-            _aFiles_ + zip_getfilenamebyindex(_oZip_, i)
-        next
-        
-        zip_close(_oZip_)
-        return _aFiles_
+        if _cNames_ = ""
+            return []
+        ok
+        return str2list(_cNames_)
     
         def ListContentsQ()
             This.ListContents()
@@ -706,14 +680,11 @@ class stzZipFile from stzObject
             return 0
         ok
         
-        _oZip_ = zip_openfile(@cZipFileName, 'r')
-        if _oZip_ = ""
+        _cNames_ = StzEngineZipNames(@cZipFileName)
+        if _cNames_ = ""
             return 0
         ok
-        
-        _nCount_ = zip_filescount(_oZip_)
-        zip_close(_oZip_)
-        return _nCount_
+        return len(str2list(_cNames_))
     
     # TRUE if an entry has exactly this name, as stored: a file added by absolute path matches only by that path.
     #

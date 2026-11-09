@@ -1,4 +1,4 @@
-﻿# zip_addfile, the one ziplib.ring function stzZipFile used, is in core/common/stkRingStdFuncs.ring
+﻿# stzZipFile reads and writes archives through the engine's ZIP container (stz_compress); no part of Ring's zip library is loaded
 
 /*
 Intent-Based File API for Softanza v2.0
