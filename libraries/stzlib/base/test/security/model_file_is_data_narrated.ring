@@ -16,6 +16,10 @@ load "../_narrated.ring"
 #       Each case below is one CLASS the discovery fuzzer found ending the process on 2026-11-08 (149 of 714 mutants
 #       of MiniLM did; after the fix, 0). The fuzzer itself is base/test/security/gguf_fuzz.py: it drives the
 #       exported text path in a child process per mutant and is the deep sweep; this guard is the gate.
+#   (c) the OCR and vision models (SECURITY-MODELDATA-01c): they carry a PROGRAM the engine runs, a line per
+#       operation, and every operation now checks what ggml would assert and Zig would panic on before it calls
+#       ggml; a text tower's token ids are checked against its table; a picture projector loads only when its
+#       weights agree with its sizes. The fuzzer reaches them through stz_graph_probe and stz_vlm_probe.
 #
 # A mutant is the real model with one part rewritten. Rewriting a value moves everything after the metadata, so a
 # padding key (stz.pad) keeps the move a multiple of the file's 32-byte alignment and every tensor stays where its
@@ -202,6 +206,75 @@ Scenario("B8. the generator: sizes that disagree with its own tensors are refuse
 	ok
 EndScenario()
 
+#----------------------------------------------------------------------------------------------------- (c) the graphs
+
+# SECURITY-MODELDATA-01c. The OCR and vision models carry a PROGRAM the engine runs, a line per operation, and the
+# shapes it runs on come from the file (the weights) and from the caller (the picture). Every operation now states
+# what ggml would assert and what Zig would panic on, before it calls ggml: a line that lies is refused with a
+# message naming what is wrong. Each case below ended the process on the previous engine.
+
+Scenario("C1. a program line that lies is refused, saying what is wrong")
+	if fexists(cOcrDir + "/ppocr_rec.gguf") and fexists(cOcrDir + "/ppocr_det.gguf")
+		# a folder of its own: the pipeline keeps at most 8 recognisers per folder in one process, and B6 used 4
+		cD = cTmp + "/ocr_c1"
+		StzMakeDir(cD)
+		for cF in [ "ppocr_det.gguf", "ppocr_cls.gguf" ]
+			write(cD + "/" + cF, read(cOcrDir + "/" + cF))
+			StzExpectModelDigest(cD + "/" + cF, StzModelDigest(cD + "/" + cF))
+		next
+		cRec = read(cOcrDir + "/ppocr_rec.gguf")
+		aProg = _ProgramLines(cRec)
+		Then("the recogniser's program is read: its first line is a convolution", left(aProg[1], 8), "t1=conv(")
+		aCases = [
+			[ 1, "t1=conv(x,c0;s=0,2;p=1,1;dw=0;r=4)", "attribute s[0] = 0", "a stride of 0 (a division by zero)" ],
+			[ 1, "t1=conv(x,c0;s=2,2;p=2147483647,1;dw=0;r=4)", "attribute p[0] = 2147483647", "a padding of 2^31-1 (an overflow)" ],
+			[ 2, "t2=add(t1,c0;r=4)", "does not broadcast", "an add of two shapes that do not broadcast" ],
+			[ 3, "t3=slice(t2;d=0;o=5;n=999999;r=4)", "slice:", "a slice past the end" ],
+			[ 3, "t3=permute(t2;p=0,0,1,2;r=4)", "permute: axis", "a permutation that repeats an axis" ]
+		]
+		nC = len(aCases)
+		for i = 1 to nC
+			aP = aProg
+			aP[aCases[i][1]] = aCases[i][2]
+			cName = "rec_lie" + i + ".gguf"
+			_Ocr(cD, cName, _SetKv(cRec, "stz.ocr.program", _Lines(aP)))
+			Then(aCases[i][4] + ": nothing is read", len(StzEngineNeuralOcrReadWith(cD, cName, cPng, 2)), 0)
+			Then("...and the refusal says why", _Has(StzEngineNeuralOcrGraphError(), aCases[i][3]), 1)
+		next
+		Then("the real recogniser still reads the page", len(StzEngineNeuralOcrReadWith(cOcrDir, "", cPng, 2)) > 0, 1)
+	else
+		? "  NOT RUN: C1 -- no OCR models in " + cOcrDir
+	ok
+EndScenario()
+
+Scenario("C2. a text tower's token id outside its table is refused at the lookup")
+	# a text tower made here from nothing: a 10-row table and a tokenizer of four letters whose end-of-text id is
+	# the file's to state. ggml checks a lookup's range only while computing, and that check ends the process
+	cT = _TextTower(cTmp, "tower_eos_ok", 3)
+	Then("with its end-of-text id inside the table the tower runs (4 tokens x 4 numbers)", len(StzEngineNeuralVisionEmbedText(cT, "abc", 2)), 16)
+	cT = _TextTower(cTmp, "tower_eos_999", 999)
+	Then("with an end-of-text id of 999 it reads nothing", len(StzEngineNeuralVisionEmbedText(cT, "abc", 2)), 0)
+	Then("...and says the id is not a row of the table", _Has(StzEngineNeuralOcrGraphError(), "id 999 is not a row of the 10-row table"), 1)
+	cT = _TextTower(cTmp, "tower_eos_huge", 4000000000)
+	Then("an end-of-text id past the i32 range reads (the default id is used), it does not end the process", len(StzEngineNeuralVisionEmbedText(cT, "abc", 2)), 16)
+EndScenario()
+
+Scenario("C3. a picture projector whose weights disagree with its sizes does not load")
+	cPj = StzModelsDir() + "/vision/smolvlm_256m_mmproj.gguf"
+	if fexists(cPj)
+		cPx = copy(char(128), 4 * 4 * 3)
+		cSeedP = read(cPj)
+		cOk = _Mutant(cTmp, "proj_same", _SetKv(cSeedP, "general.name", _TStr("rewritten")))
+		Then("the faithful rewrite encodes a picture", len(StzEngineNeuralVlmEmbed(cOk, cPx, 4, 4, 3, 2)) > 0, 1)
+		cBad = _Mutant(cTmp, "proj_pos_transposed", _Transpose(cSeedP, "v.position_embd.weight"))
+		Then("with its position table transposed it encodes nothing", len(StzEngineNeuralVlmEmbed(cBad, cPx, 4, 4, 3, 2)), 0)
+		Then("...and says a weight disagrees with its sizes", _Has(StzEngineNeuralOcrGraphError(), "disagrees with its sizes"), 1)
+		cSeedP = ""
+	else
+		? "  NOT RUN: C3 -- no " + cPj + " on this machine"
+	ok
+EndScenario()
+
 Scenario("B7. after every refusal the process is whole: the real model loads and embeds")
 	Then("MiniLM loads", StzEngineNeuralModelLoad(cMini), 1)
 	Then("...and embeds", StzEngineNeuralEmbed(cText), 384)
@@ -364,6 +437,57 @@ func _Transpose(pcS, pcName)
 	_n_ = _TensorAt(pcS, pcName)
 	_d_ = _n_ + 8 + len(pcName) + 4
 	return left(pcS, _d_ - 1) + substr(pcS, _d_ + 8, 8) + substr(pcS, _d_, 8) + substr(pcS, _d_ + 16, len(pcS) - _d_ - 15)
+
+# the lines of a graph model's program (stz.ocr.program, an array of strings)
+func _ProgramLines(pcS)
+	_aK_ = _Kvs(pcS)
+	_n_ = len(_aK_)
+	for _i_ = 1 to _n_
+		if _aK_[_i_][1] = "stz.ocr.program"
+			_p_ = _aK_[_i_][4]
+			_nL_ = _U(pcS, _p_ + 4, 8)
+			_p_ = _p_ + 12
+			_a_ = []
+			for _j_ = 1 to _nL_
+				_nB_ = _U(pcS, _p_, 8)
+				_a_ + substr(pcS, _p_ + 8, _nB_)
+				_p_ = _p_ + 8 + _nB_
+			next
+			return _a_
+		ok
+	next
+	return []
+
+# an array of strings, as _SetKv takes it
+func _Lines(paLines)
+	_c_ = _LE(9, 4) + _LE(8, 4) + _LE(len(paLines), 8)
+	for _x_ in paLines
+		_c_ += _Str(_x_)
+	next
+	return _c_
+
+# a text tower made from nothing: the program looks the ids up in a 10 x 4 table (zeros), the tokenizer knows four
+# letters and no merges, a text is 4 ids long, and the end-of-text id is pnEos. Written, then trusted for this process.
+func _TextTower(pcTmp, pcName, pnEos)
+	_aV_ = [ "a", "b", "c", "d" ]
+	_cKv_ = _Str("general.architecture") + _LE(8, 4) + _Str("stz-ocr-graph")
+	_cKv_ += _Str("stz.ocr.kind") + _LE(8, 4) + _Str("text")
+	_cKv_ += _Str("stz.ocr.output") + _LE(8, 4) + _Str("y")
+	_cKv_ += _Str("stz.ocr.program") + _Lines([ "y=embed(c0,x;r=3)" ])
+	_cKv_ += _Str("stz.tok.vocab") + _Lines(_aV_)
+	_cKv_ += _Str("stz.tok.merge_a") + _Lines([])
+	_cKv_ += _Str("stz.tok.merge_b") + _Lines([])
+	if pnEos > 2147483647
+		_cKv_ += _Str("stz.tok.eos") + _LE(10, 4) + _LE(pnEos, 8)
+	else
+		_cKv_ += _Str("stz.tok.eos") + _LE(4, 4) + _LE(pnEos, 4)
+	ok
+	_cKv_ += _Str("stz.tok.pad") + _LE(4, 4) + _LE(0, 4)
+	_cKv_ += _Str("stz.graph.seq") + _LE(4, 4) + _LE(4, 4)
+	_cInfo_ = _Str("c0") + _LE(2, 4) + _LE(4, 8) + _LE(10, 8) + _LE(0, 4) + _LE(0, 8)
+	_cHead_ = "GGUF" + _LE(3, 4) + _LE(1, 8) + _LE(10, 8) + _cKv_ + _cInfo_
+	_nPad_ = (32 - (len(_cHead_) % 32)) % 32
+	return _Mutant(pcTmp, pcName, _cHead_ + copy(char(0), _nPad_) + copy(char(0), 4 * 10 * 4))
 
 func _Has(pcText, pcNeedle)
 	return len(StzFindCS(pcNeedle, pcText, 0)) > 0

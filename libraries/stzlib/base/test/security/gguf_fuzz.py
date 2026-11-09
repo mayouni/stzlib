@@ -9,6 +9,10 @@ the step it reached and the tail of its stderr. The guard is the gate; this is t
 usage:  python -I gguf_fuzz.py <dll_dir> <seed.gguf> <work_dir> <log> [regex over case names]
           dll_dir   the folder holding the stz_neural.dll to test (and the DLLs it loads)
           work_dir  where each mutant is written, with a SHA256SUMS line so the digest gate admits it
+        FUZZ_GRAPH=w,h,ids: a graph model (OCR, vision), run once by stz_graph_probe on zeros of its declared inputs,
+        or ids 0..ids-1, or a w x h image -- and its PROGRAM (stz.ocr.program) mutated line by line too: every
+        number, the operation, the first input, the line dropped (FUZZ_EVERY=<k>: every k-th line, default 3)
+        FUZZ_VLM=1: a picture projector (mmproj), loaded and run once by stz_vlm_probe
         FUZZ_SPARSE=1 FUZZ_LAST=<n>: tensor cases only for blk.0, blk.<n> and the tensors outside the blocks
         (for a big seed: each 145 MB mutant costs about a second to write)
 child:  python -I gguf_fuzz.py --child <dll_dir> <mutant.gguf>
@@ -16,7 +20,7 @@ child:  python -I gguf_fuzz.py --child <dll_dir> <mutant.gguf>
 Measured 2026-11-08 on the engine before the fix: 149 of 714 MiniLM mutants ended the process. After: 0 of 714,
 0 of 844 on jina-reranker, and on SmolLM2 (sparse, the keys it reads) 0 of 565 where 12 had ended it.
 """
-import ctypes, hashlib, math, os, re, struct, subprocess, sys, time
+import ctypes, hashlib, math, os, re, struct, subprocess, sys, time, zlib
 
 T_U8, T_I8, T_U16, T_I16, T_U32, T_I32, T_F32, T_BOOL, T_STR, T_ARR, T_U64, T_I64, T_F64 = range(13)
 SCALAR = {T_U8: '<B', T_I8: '<b', T_U16: '<H', T_I16: '<h', T_U32: '<I', T_I32: '<i', T_F32: '<f', T_BOOL: '<B',
@@ -177,12 +181,113 @@ def cases(g):
         yield ('t %s n_dims=1 flat' % n, g.emit(tis=ti(nd2=1, dims2=[math.prod(dims)])))
         yield ('t %s type=999' % n, g.emit(tis=ti(tt2=999)))
         yield ('t %s type=f32' % n, g.emit(tis=ti(tt2=0)))
+        yield ('t %s type=f16' % n, g.emit(tis=ti(tt2=1)))
+        yield ('t %s type=q8_0' % n, g.emit(tis=ti(tt2=8)))
         yield ('t %s offset=2^62' % n, g.emit(tis=ti(off2=2**62)))
         yield ('t %s offset=end' % n, g.emit(tis=ti(off2=len(g.data))))
         yield ('t %s offset+1' % n, g.emit(tis=ti(off2=off + 1)))
     dup = [list(x) for x in g.tis]; dup[1] = [g.tis[0][0], g.tis[1][1]]
     yield ('t duplicate name', g.emit(tis=dup))
     yield ('t none', g.emit(tis=[]))
+
+
+# ---------------------------------------------------------------- the graph models (OCR, vision): their PROGRAM too
+OPS = ['conv', 'convt', 'pad', 'win', 'ln', 'repeat', 'pool', 'resize', 'step2', 'slice', 'embed', 'gap', 'up', 'concat',
+       'add', 'mul', 'linear', 'matmul', 'permute', 'reshape', 'heads', 'relu', 'softmax', 'mean']
+
+
+def program_of(g):
+    for i, (k, t, v) in enumerate(g.kvs):
+        if k == 'stz.ocr.program':
+            n = struct.unpack_from('<Q', v, 4)[0]
+            o, lines = 12, []
+            for _ in range(n):
+                x, o = rstr(v, o); lines.append(x)
+            return i, lines
+    return None, []
+
+
+def with_program(g, i, lines):
+    kv2 = [list(x) for x in g.kvs]
+    kv2[i] = ['stz.ocr.program', T_ARR, arr(T_STR, lines)]
+    return g.emit(kvs=kv2)
+
+
+def graph_cases(g):
+    yield ('identity (re-emitted seed)', g.emit())
+    # the stz keys: every wrong type, removed
+    for c in cases(g):
+        name = c[0]
+        if name.startswith('kv ') and ('stz.' in name or 'general.architecture' in name):
+            yield c
+        elif name.startswith('trunc ') or name.startswith('hdr n_'):
+            yield c
+    i, lines = program_of(g)
+    if i is None:
+        return
+    every = int(os.environ.get('FUZZ_EVERY', '3'))
+    for li, line in enumerate(lines):
+        if li % every and li != len(lines) - 1:
+            continue
+        def put(new, why):
+            l2 = list(lines); l2[li] = new
+            return ('prog %d %s' % (li, why), with_program(g, i, l2))
+        out, rest = line.split('=', 1)
+        op = rest.split('(', 1)[0]
+        # every number in the line: 0, -1, huge, +1, doubled
+        nums = list(re.finditer(r'(?<![A-Za-z_])-?\d+', rest))
+        for mi, mt in enumerate(nums[:6]):
+            for nv, why in [('0', 'zero'), ('-1', 'neg'), ('2147483647', 'huge'), (str(int(mt.group()) + 1), 'plus1'),
+                            (str(int(mt.group()) * 2), 'double')]:
+                if nv == mt.group():
+                    continue
+                r2 = rest[:mt.start()] + nv + rest[mt.end():]
+                yield put(out + '=' + r2, 'num%d %s' % (mi, why))
+        # another operation on the same arguments
+        for o2 in OPS:
+            if o2 != op and (zlib.crc32(('%d %s' % (li, o2)).encode()) % 4 == 0):
+                yield put(out + '=' + o2 + rest[len(op):], 'op %s->%s' % (op, o2))
+        # the first input replaced by the image input, and by a name nothing made
+        yield put(out + '=' + re.sub(r'\(([^,;)]+)', '(x', rest, count=1), 'input0 x')
+        yield put(out + '=' + re.sub(r'\(([^,;)]+)', '(nosuch', rest, count=1), 'input0 missing')
+        # the line dropped
+        yield ('prog %d dropped' % li, with_program(g, i, lines[:li] + lines[li + 1:]))
+    yield ('prog empty', with_program(g, i, []))
+    # tensors: a sample
+    for c in cases(g):
+        if c[0].startswith('t ') and (zlib.crc32(c[0].encode()) % 5 == 0 or 'renamed' in c[0]):
+            yield c
+
+
+def vlm_cases(g):
+    yield ('identity (re-emitted seed)', g.emit())
+    for c in cases(g):
+        name = c[0]
+        if name.startswith('kv ') and ('clip.' in name or 'general.architecture' in name):
+            yield c
+        elif name.startswith('t ') and ('blk.' not in name or '.blk.0.' in name or zlib.crc32(name.encode()) % 7 == 0):
+            yield c
+
+
+def vlm_child(dll_dir, path):
+    cap_memory(2 << 30)
+    os.add_dll_directory(dll_dir)
+    d = ctypes.CDLL(os.path.join(dll_dir, 'stz_neural.dll'))
+    sys.stdout.write('vlm|'); sys.stdout.flush()
+    print('ok' if d.stz_vlm_probe(path.encode(), 1) == 1 else 'refused')
+
+
+def graph_child(dll_dir, path, w, h, n_ids):
+    cap_memory(2 << 30)
+    os.add_dll_directory(dll_dir)
+    d = ctypes.CDLL(os.path.join(dll_dir, 'stz_neural.dll'))
+    d.stz_graph_probe_error.restype = ctypes.c_char_p
+    sys.stdout.write('probe|'); sys.stdout.flush()
+    r = d.stz_graph_probe(path.encode(), int(w), int(h), int(n_ids))
+    if r == 1:
+        print('ok')
+    else:
+        print('refused: ' + d.stz_graph_probe_error().decode('utf-8', 'replace')[:160])
 
 
 # ---------------------------------------------------------------- the child: one mutant, the exported text path
@@ -242,7 +347,9 @@ def main():
     bad = 0
     n = 0
     with open(log, 'a', encoding='utf-8') as L:
-        for name, data in cases(g):
+        graph = os.environ.get('FUZZ_GRAPH')  # "w,h,ids": a graph model, run through stz_graph_probe
+        vlm = os.environ.get('FUZZ_VLM')  # a picture projector, run through stz_vlm_probe (load, then one encode)
+        for name, data in (vlm_cases(g) if vlm else graph_cases(g) if graph else cases(g)):
             if flt and not re.search(flt, name): continue  # a regex over the case names
             n += 1
             open(mut, 'wb').write(data)
@@ -250,8 +357,10 @@ def main():
             open(os.path.join(work, 'SHA256SUMS'), 'w').write('%s  mutant.gguf\n' % h)
             t0 = time.time()
             try:
-                p = subprocess.run([sys.executable, '-I', __file__, '--child', dll_dir, mut], capture_output=True,
-                                   text=True, timeout=90)
+                argv = ([sys.executable, '-I', __file__, '--vlm-child', dll_dir, mut] if vlm
+                        else [sys.executable, '-I', __file__, '--graph-child', dll_dir, mut] + graph.split(',') if graph
+                        else [sys.executable, '-I', __file__, '--child', dll_dir, mut])
+                p = subprocess.run(argv, capture_output=True, text=True, timeout=120)
                 rc, out = p.returncode, (p.stdout.strip() + ' ' + p.stderr.strip()[-300:]).strip()
             except subprocess.TimeoutExpired as e:
                 rc, out = 'TIMEOUT', ''
@@ -266,4 +375,6 @@ def main():
 
 if __name__ == '__main__':
     if sys.argv[1] == '--child': child(sys.argv[2], sys.argv[3])
+    elif sys.argv[1] == '--graph-child': graph_child(*sys.argv[2:7])
+    elif sys.argv[1] == '--vlm-child': vlm_child(sys.argv[2], sys.argv[3])
     else: main()

@@ -82,6 +82,64 @@ fn tensor(p: *const Projector, comptime fmt: []const u8, args: anytype) ?*c.ggml
     return c.ggml_get_tensor(p.ctx, name.ptr);
 }
 
+// THE PROJECTOR'S CONTRACT (SECURITY-MODELDATA-01c, 2026-11-08). encode() below takes the tower's weights by name and
+// hands ggml the shapes it trusts; a file whose weights disagree with its own sizes failed a GGML_ASSERT and ended
+// the process. So a projector loads only when every weight the tower reads (and the GPU tower beside it) is there and
+// shaped to its sizes: the patch kernel [patch, patch, 3, D], the positions [D, patches], Q K V and the output [D, D],
+// one MLP pair [D, F] and [F, D], the connector [scale^2 * D, n_out], and every bias and norm a vector of f32.
+fn pMat(p: *const Projector, comptime fmt: []const u8, args: anytype, ne: [4]i64) bool {
+    const t = tensor(p, fmt, args) orelse return false;
+    return t.*.ne[0] == ne[0] and t.*.ne[1] == ne[1] and t.*.ne[2] == ne[2] and t.*.ne[3] == ne[3];
+}
+fn pVec(p: *const Projector, comptime fmt: []const u8, args: anytype, n: i64) bool {
+    const t = tensor(p, fmt, args) orelse return false;
+    return t.*.type == c.GGML_TYPE_F32 and t.*.ne[0] == n and t.*.ne[1] == 1 and t.*.ne[2] == 1 and t.*.ne[3] == 1;
+}
+
+fn contract(p: *const Projector) bool {
+    if (p.hidden > 1 << 16 or p.image > 4096 or p.patch > p.image or p.n_layer > 1024 or p.hidden % p.heads != 0) return false;
+    const D: i64 = @intCast(p.hidden);
+    const P: i64 = @intCast(p.patch);
+    const g: i64 = @intCast(p.image / p.patch);
+    const s: i64 = @intCast(p.scale);
+    if (!pMat(p, "v.patch_embd.weight", .{}, .{ P, P, 3, D }) or !pVec(p, "v.patch_embd.bias", .{}, D)) return false;
+    if (!pMat(p, "v.position_embd.weight", .{}, .{ D, g * g, 1, 1 })) return false;
+    for (0..p.n_layer) |L| {
+        for ([_][]const u8{ "attn_q", "attn_k", "attn_v", "attn_out" }) |w| {
+            if (!pMat(p, "v.blk.{d}.{s}.weight", .{ L, w }, .{ D, D, 1, 1 }) or !pVec(p, "v.blk.{d}.{s}.bias", .{ L, w }, D)) return false;
+        }
+        for ([_][]const u8{ "ln1", "ln2" }) |w| {
+            if (!pVec(p, "v.blk.{d}.{s}.weight", .{ L, w }, D) or !pVec(p, "v.blk.{d}.{s}.bias", .{ L, w }, D)) return false;
+        }
+        // the MLP pair under either name (see encode): the one that reads D first, F wide, then back to D
+        const up = tensor(p, "v.blk.{d}.ffn_up.weight", .{L}) orelse return false;
+        const first = if (up.*.ne[0] == D) "ffn_up" else "ffn_down";
+        const second = if (up.*.ne[0] == D) "ffn_down" else "ffn_up";
+        const w1 = tensor(p, "v.blk.{d}.{s}.weight", .{ L, first }) orelse return false;
+        const F = w1.*.ne[1];
+        if (F < 1 or !pMat(p, "v.blk.{d}.{s}.weight", .{ L, first }, .{ D, F, 1, 1 }) or !pVec(p, "v.blk.{d}.{s}.bias", .{ L, first }, F)) return false;
+        if (!pMat(p, "v.blk.{d}.{s}.weight", .{ L, second }, .{ F, D, 1, 1 }) or !pVec(p, "v.blk.{d}.{s}.bias", .{ L, second }, D)) return false;
+    }
+    if (!pVec(p, "v.post_ln.weight", .{}, D) or !pVec(p, "v.post_ln.bias", .{}, D)) return false;
+    const fc = tensor(p, "mm.model.fc.weight", .{}) orelse return false;
+    return fc.*.ne[0] == s * s * D and fc.*.ne[1] >= 1 and fc.*.ne[2] == 1 and fc.*.ne[3] == 1;
+}
+
+/// SECURITY-MODELDATA-01c, the fuzzer's door: load a projector (digest gate, sizes, contract) and, when run is 1,
+/// encode one grey picture through it. 1 it loaded (and ran), 0 it was refused.
+pub export fn stz_vlm_probe(path: [*:0]const u8, run: c_int) callconv(.c) c_int {
+    const p = load(std.mem.span(path)) orelse return 0;
+    if (run != 1) return 1;
+    const n_in = 3 * p.image * p.image;
+    const input = gpa.alloc(f32, n_in) catch return 0;
+    defer gpa.free(input);
+    @memset(input, 0);
+    const out = gpa.alloc(f32, p.tokens() * p.n_out) catch return 0;
+    defer gpa.free(out);
+    encode(p, input, 2, out) catch return 0;
+    return 1;
+}
+
 pub fn free() void {
     nvit.invalidate();
     if (g_proj) |*p| {
@@ -144,6 +202,13 @@ pub fn load(path: []const u8) ?*Projector {
         return null;
     }
     p.n_out = @intCast(fc.?.*.ne[1]);
+    if (!contract(&p)) {
+        setError("vlm: the projector {s} has a weight whose shape disagrees with its sizes", .{path});
+        c.ggml_free(p.ctx);
+        c.gguf_free(gg);
+        gpa.free(p.path);
+        return null;
+    }
     g_proj = p;
     return &g_proj.?;
 }

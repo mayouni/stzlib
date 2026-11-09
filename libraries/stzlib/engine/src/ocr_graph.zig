@@ -523,6 +523,8 @@ fn reshapeDims(b: *Builder, l: *const Line, x: *c.ggml_tensor, out: *[4]i64) !us
         } else {
             dims[n] = try std.fmt.parseInt(i64, item, 10);
         }
+        // a size is a positive count, or -1 for the one to infer (SECURITY-MODELDATA-01c: a 0 divided by zero below)
+        try need(dims[n] >= 1 or dims[n] == -1, "reshape: size {d}", .{dims[n]});
     }
     // ggml order, -1 inferred
     var total: i64 = 1;
@@ -532,9 +534,16 @@ fn reshapeDims(b: *Builder, l: *const Line, x: *c.ggml_tensor, out: *[4]i64) !us
         if (dims[i] == -1) {
             if (infer != null) return error.BadReshape;
             infer = i;
-        } else total *= dims[i];
+        } else {
+            total = std.math.mul(i64, total, dims[i]) catch return error.BadReshape;
+            try need(total <= MAX_ELEMS, "reshape: the sizes hold more than a graph allows", .{});
+        }
     }
-    if (infer) |k| dims[k] = @divExact(c.ggml_nelements(x), total);
+    if (infer) |k| {
+        // the inferred size is whole, or the reshape is refused (an inexact @divExact panicked)
+        try need(@rem(c.ggml_nelements(x), total) == 0, "reshape: {d} values do not divide into sizes of {d}", .{ c.ggml_nelements(x), total });
+        dims[k] = @divExact(c.ggml_nelements(x), total);
+    }
     var first: usize = 0;
     if (n == 5) {
         if (dims[0] != 1) {
@@ -562,22 +571,87 @@ fn useDirect(im2col_bytes: i64) bool {
     return im2col_bytes > IM2COL_DIRECT;
 }
 
+// A PROGRAM LINE IS CHECKED BEFORE IT RUNS (SECURITY-MODELDATA-01c, 2026-11-08). The program comes from the model file,
+// and so do the shapes of the weights it names; the input's shape comes from the caller. ggml checks shapes with
+// GGML_ASSERT, which ends the process, and Zig checks its casts and divisions with a panic, which does the same: a
+// stride of 0, a padding of 2^31, a convolution whose kernel is wider than its input, an add of two shapes that do not
+// broadcast, a slice past the end -- each ended the process when the fuzzer put it in a program (22 of the first 37
+// mutants of YuNet's line 0). So every operation below states what ggml will assert, and what Zig will panic on,
+// BEFORE it calls ggml: a line that fails is refused with a message, and the run answers by status.
+const MAX_ELEMS: i64 = 1 << 28; // no tensor of a graph holds more than 2^28 values (1 GiB of f32)
+const MAX_ATTR: i64 = 1 << 16; // a stride, a padding, a kernel, a dilation, a factor: never more
+
+fn need(ok: bool, comptime fmt: []const u8, args: anytype) !void {
+    if (ok) return;
+    setError("graph: " ++ fmt, args);
+    return error.BadGraph;
+}
+
+fn elems(ne: [4]i64) i64 {
+    var n: i64 = 1;
+    for (ne) |v| {
+        if (v < 1) return -1;
+        n = std.math.mul(i64, n, v) catch return -1;
+        if (n > MAX_ELEMS) return -1;
+    }
+    return n;
+}
+
+fn sizeOk(ne: [4]i64) bool {
+    return elems(ne) > 0;
+}
+
+// an attribute that a stride, a padding, a size or a factor may be: lo..MAX_ATTR
+fn attr(l: *const Line, key: []const u8, i: usize, lo: i64) !i64 {
+    const v = try l.int(key, i);
+    try need(v >= lo and v <= MAX_ATTR, "attribute {s}[{d}] = {d} is outside {d}..{d}", .{ key, i, v, lo, MAX_ATTR });
+    return v;
+}
+
+// ggml_mul_mat's precondition (static in ggml.c, so stated here): a's rows are b's, b broadcasts over a
+fn canMulMat(a: *c.ggml_tensor, b: *c.ggml_tensor) bool {
+    return a.ne[0] == b.ne[0] and a.ne[2] > 0 and a.ne[3] > 0 and @rem(b.ne[2], a.ne[2]) == 0 and
+        @rem(b.ne[3], a.ne[3]) == 0 and !c.ggml_is_transposed(a);
+}
+
+fn isF32(t: *c.ggml_tensor) bool {
+    return t.type == c.GGML_TYPE_F32;
+}
+
 fn build(b: *Builder, s: []const u8) !void {
     const ctx = b.ctx;
     const l = try parse(s);
     const op = l.op;
     var r: *c.ggml_tensor = undefined;
     const x = if (l.n_in > 0) try b.get(l.inputs[0]) else return error.BadLine;
+    // the activation every operation but a table lookup reads is f32 values (a weight, or token ids, is not one)
+    try need(is(op, "embed") or isF32(x), "{s}: its input {s} is not f32 values", .{ op, l.inputs[0] });
     if (is(op, "conv")) {
+        try need(l.n_in >= 2, "conv: no kernel", .{});
         const w = try b.get(l.inputs[1]);
-        const s0: c_int = @intCast(try l.int("s", 0));
-        const s1: c_int = @intCast(try l.int("s", 1));
-        const p0: c_int = @intCast(try l.int("p", 0));
-        const p1: c_int = @intCast(try l.int("p", 1));
+        const s0: c_int = @intCast(try attr(&l, "s", 0, 1));
+        const s1: c_int = @intCast(try attr(&l, "s", 1, 1));
+        const p0: c_int = @intCast(try attr(&l, "p", 0, 0));
+        const p1: c_int = @intCast(try attr(&l, "p", 1, 0));
         const dw = try l.int("dw", 0);
         // a dilation (IM6: U2-Net), d=[w, h]; absent means 1
-        const d0: c_int = if (l.val("d") != null) @intCast(try l.int("d", 0)) else 1;
-        const d1: c_int = if (l.val("d") != null) @intCast(try l.int("d", 1)) else 1;
+        const d0: c_int = if (l.val("d") != null) @intCast(try attr(&l, "d", 0, 1)) else 1;
+        const d1: c_int = if (l.val("d") != null) @intCast(try attr(&l, "d", 1, 1)) else 1;
+        // the kernel's channels are the input's (one per channel when depthwise), and the output is at least 1 x 1
+        const kd0: i64 = if (dw == 1) 1 else d0;
+        const kd1: i64 = if (dw == 1) 1 else d1;
+        const cow = @divTrunc(x.ne[0] + 2 * p0 - kd0 * (w.ne[0] - 1) - 1, s0) + 1;
+        const coh = @divTrunc(x.ne[1] + 2 * p1 - kd1 * (w.ne[1] - 1) - 1, s1) + 1;
+        try need(w.ne[0] >= 1 and w.ne[1] >= 1 and x.ne[0] + 2 * p0 - kd0 * (w.ne[0] - 1) - 1 >= 0 and
+            x.ne[1] + 2 * p1 - kd1 * (w.ne[1] - 1) - 1 >= 0, "conv: the kernel {d}x{d} is larger than its input {d}x{d}", .{ w.ne[0], w.ne[1], x.ne[0], x.ne[1] });
+        // ggml computes a convolution only over an f16 or f32 kernel (anything else aborts while computing)
+        try need(w.type == c.GGML_TYPE_F16 or w.type == c.GGML_TYPE_F32, "conv: a kernel of type {d} (f16 or f32 only)", .{w.type});
+        if (dw == 1) {
+            try need(w.ne[2] == 1 and w.ne[3] == x.ne[2], "conv: a depthwise kernel has one channel per input channel", .{});
+        } else {
+            try need(w.ne[2] == x.ne[2] and x.ne[3] == 1, "conv: the kernel's {d} channels are not the input's {d}", .{ w.ne[2], x.ne[2] });
+        }
+        try need(sizeOk(.{ cow, coh, w.ne[3], x.ne[3] }) and sizeOk(.{ cow * coh, w.ne[0] * w.ne[1], w.ne[2], 1 }), "conv: the output is too large", .{});
         // (the im2col depthwise path wants an F16 kernel; the direct one reads F32 and a contiguous WHCN input)
         // A full convolution is im2col then one matrix product, and the im2col is MATERIALISED: OW x OH x K
         // floats. On a page that is hundreds of megabytes for one layer (the detector's head: 474 MB), and on
@@ -590,35 +664,59 @@ fn build(b: *Builder, s: []const u8) !void {
             const ow = @divTrunc(x.ne[0] + 2 * p0 - d0 * (w.ne[0] - 1) - 1, s0) + 1;
             const oh = @divTrunc(x.ne[1] + 2 * p1 - d1 * (w.ne[1] - 1) - 1, s1) + 1;
             const bytes = ow * oh * w.ne[0] * w.ne[1] * w.ne[2] * 4;
-            r = if (useDirect(bytes)) c.ggml_conv_2d_direct(ctx, w, x, s0, s1, p0, p1, d0, d1) else c.ggml_conv_2d(ctx, w, x, s0, s1, p0, p1, d0, d1);
+            const direct = useDirect(bytes);
+            try need(!direct or w.type == x.type, "conv: the direct form wants the kernel's type to be the input's", .{});
+            r = if (direct) c.ggml_conv_2d_direct(ctx, w, x, s0, s1, p0, p1, d0, d1) else c.ggml_conv_2d(ctx, w, x, s0, s1, p0, p1, d0, d1);
         }
     } else if (is(op, "convt")) {
+        try need(l.n_in >= 2, "convt: no kernel", .{});
         const w = try b.get(l.inputs[1]);
-        r = c.ggml_conv_transpose_2d_p0(ctx, w, x, @intCast(try l.int("s", 0)));
+        const st = try attr(&l, "s", 0, 1);
+        try need(w.ne[3] == x.ne[2] and w.ne[0] >= 1 and w.ne[1] >= 1, "convt: the kernel's channels are not the input's", .{});
+        try need(w.type == c.GGML_TYPE_F16 or w.type == c.GGML_TYPE_F32, "convt: a kernel of type {d} (f16 or f32 only)", .{w.type});
+        try need(sizeOk(.{ (x.ne[0] - 1) * st + w.ne[0], (x.ne[1] - 1) * st + w.ne[1], w.ne[2], x.ne[3] }), "convt: the output is too large", .{});
+        r = c.ggml_conv_transpose_2d_p0(ctx, w, x, @intCast(st));
     } else if (is(op, "pad")) {
         if (l.val("q") != null) {
             // zeros before and after each ggml dim, q = [before0, after0, before1, after1, ...] (IM6: TinyViT's windows)
             var q: [8]c_int = undefined;
-            for (&q, 0..) |*v, k| v.* = @intCast(try l.int("q", k));
+            for (&q, 0..) |*v, k| v.* = @intCast(try attr(&l, "q", k, 0));
+            try need(sizeOk(.{ x.ne[0] + q[0] + q[1], x.ne[1] + q[2] + q[3], x.ne[2] + q[4] + q[5], x.ne[3] + q[6] + q[7] }), "pad: the output is too large", .{});
             r = c.ggml_pad_ext(ctx, contig(ctx, x), q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7]);
         } else {
-            r = c.ggml_pad(ctx, x, @intCast(try l.int("r", 0)), @intCast(try l.int("b", 0)), 0, 0);
+            const pr = try attr(&l, "r", 0, 0);
+            const pb = try attr(&l, "b", 0, 0);
+            try need(sizeOk(.{ x.ne[0] + pr, x.ne[1] + pb, x.ne[2], x.ne[3] }), "pad: the output is too large", .{});
+            r = c.ggml_pad(ctx, x, @intCast(pr), @intCast(pb), 0, 0);
         }
     } else if (is(op, "win")) {
         // TinyViT's window partition or its reverse: the ONNX [1, A, B, C, D, E] with B and C swapped, written as
         // ggml [D*E, C, B, A] with dims 1 and 2 swapped (the converter's _window_swap)
         var q: [4]i64 = undefined;
         for (&q, 0..) |*v, k| v.* = try l.int("q", k);
+        try need(elems(q) == c.ggml_nelements(x), "win: [{d},{d},{d},{d}] does not hold the input's values", .{ q[0], q[1], q[2], q[3] });
         const t = c.ggml_reshape_4d(ctx, contig(ctx, x), q[0], q[1], q[2], q[3]);
         r = c.ggml_cont(ctx, c.ggml_permute(ctx, t, 0, 2, 1, 3));
     } else if (is(op, "ln")) {
         // LayerNorm over ggml dim 0 (the ONNX last axis), then the scale and the optional bias
-        r = c.ggml_norm(ctx, contig(ctx, x), try l.flt("e"));
-        r = c.ggml_mul(ctx, r, try b.get(l.inputs[1]));
+        try need(l.n_in >= 2, "ln: no scale", .{});
+        const lw = try b.get(l.inputs[1]);
+        try need(c.ggml_can_repeat(lw, x) and isF32(lw), "ln: the scale does not fit the input", .{});
+        if (l.n_in > 2) {
+            const lb = try b.get(l.inputs[2]);
+            try need(c.ggml_can_repeat(lb, x) and isF32(lb), "ln: the bias does not fit the input", .{});
+        }
+        // ggml asserts eps >= 0 while COMPUTING, where it ends the process (the SAM decoder's fuzz, line 150)
+        const eps = try l.flt("e");
+        try need(std.math.isFinite(eps) and eps >= 0, "ln: epsilon {d}", .{eps});
+        r = c.ggml_norm(ctx, contig(ctx, x), eps);
+        r = c.ggml_mul(ctx, r, lw);
         if (l.n_in > 2) r = c.ggml_add(ctx, r, try b.get(l.inputs[2]));
     } else if (is(op, "repeat")) {
         var q: [4]i64 = undefined;
         for (&q, 0..) |*v, k| v.* = try l.int("q", k);
+        try need(sizeOk(q) and @rem(q[0], x.ne[0]) == 0 and @rem(q[1], x.ne[1]) == 0 and @rem(q[2], x.ne[2]) == 0 and
+            @rem(q[3], x.ne[3]) == 0, "repeat: [{d},{d},{d},{d}] is not a whole repeat of the input", .{ q[0], q[1], q[2], q[3] });
         r = c.ggml_repeat_4d(ctx, x, q[0], q[1], q[2], q[3]);
     } else if (is(op, "sin")) {
         r = c.ggml_sin(ctx, contig(ctx, x));
@@ -630,8 +728,13 @@ fn build(b: *Builder, s: []const u8) !void {
         const kind = l.val("kind") orelse return error.MissingAttr;
         const pop: c.ggml_op_pool = if (is(kind, "max")) c.GGML_OP_POOL_MAX else c.GGML_OP_POOL_AVG;
         // optional symmetric padding (IM3: YOLOX's spatial pyramid); ggml's max pool skips padded cells
-        const pp0: f32 = if (l.val("p") != null) @floatFromInt(try l.int("p", 0)) else 0;
-        const pp1: f32 = if (l.val("p") != null) @floatFromInt(try l.int("p", 1)) else 0;
+        const pp0: f32 = if (l.val("p") != null) @floatFromInt(try attr(&l, "p", 0, 0)) else 0;
+        const pp1: f32 = if (l.val("p") != null) @floatFromInt(try attr(&l, "p", 1, 0)) else 0;
+        const pk0 = try attr(&l, "k", 0, 1);
+        const pk1 = try attr(&l, "k", 1, 1);
+        const ps0 = try attr(&l, "s", 0, 1);
+        const ps1 = try attr(&l, "s", 1, 1);
+        try need(x.ne[0] + 2 * @as(i64, @intFromFloat(pp0)) >= pk0 and x.ne[1] + 2 * @as(i64, @intFromFloat(pp1)) >= pk1, "pool: the window {d}x{d} is larger than its input", .{ pk0, pk1 });
         var xin = x;
         if (l.val("ceil") != null) {
             // ceil mode (IM6): zero-pad right and bottom so the last window fits -- the converter allows it only
@@ -644,11 +747,14 @@ fn build(b: *Builder, s: []const u8) !void {
             const r1: c_int = @intCast(@mod(st1 - @mod(x.ne[1] - k1, st1), st1));
             if (r0 > 0 or r1 > 0) xin = c.ggml_pad(ctx, contig(ctx, x), r0, r1, 0, 0);
         }
-        r = c.ggml_pool_2d(ctx, xin, pop, @intCast(try l.int("k", 0)), @intCast(try l.int("k", 1)), @intCast(try l.int("s", 0)), @intCast(try l.int("s", 1)), pp0, pp1);
+        r = c.ggml_pool_2d(ctx, xin, pop, @intCast(pk0), @intCast(pk1), @intCast(ps0), @intCast(ps1), pp0, pp1);
     } else if (is(op, "resize")) {
         // to the width and height of another tensor (input 1: U2-Net's upsample_like) or to w, h (DPT's refine
         // stages); m is ggml's scale mode with its flags (1 bilinear, | 256 corners aligned)
-        const mode: u32 = @intCast(try l.int("m", 0));
+        const mode_i = try l.int("m", 0);
+        try need(mode_i >= 0 and mode_i < 1 << 16 and (mode_i & 0xFF) < c.GGML_SCALE_MODE_COUNT and
+            ((mode_i & c.GGML_SCALE_FLAG_ANTIALIAS) == 0 or (mode_i & 0xFF) == c.GGML_SCALE_MODE_BILINEAR), "resize: mode {d} is not one of ggml's", .{mode_i});
+        const mode: u32 = @intCast(mode_i);
         var tw: i64 = 0;
         var th: i64 = 0;
         if (l.n_in > 1) {
@@ -656,18 +762,22 @@ fn build(b: *Builder, s: []const u8) !void {
             tw = ref.ne[0];
             th = ref.ne[1];
         } else if (l.val("fw") != null) {
-            tw = x.ne[0] * try l.int("fw", 0);
-            th = x.ne[1] * try l.int("fh", 0);
+            tw = x.ne[0] * try attr(&l, "fw", 0, 1);
+            th = x.ne[1] * try attr(&l, "fh", 0, 1);
         } else {
             tw = try l.int("w", 0);
             th = try l.int("h", 0);
         }
+        try need(sizeOk(.{ tw, th, x.ne[2], x.ne[3] }), "resize: {d}x{d} is not a size", .{ tw, th });
         r = c.ggml_interpolate(ctx, contig(ctx, x), tw, th, x.ne[2], x.ne[3], mode);
     } else if (is(op, "step2")) {
         // every second element along ggml dim a (0 = columns, 1 = rows) from offset o (IM3: YOLOX's Focus).
         // Expressed as a reshape that splits the dim into (n/2, 2) and a view that keeps one of the two.
         const a = try l.int("a", 0);
-        const o: usize = @intCast(try l.int("o", 0));
+        const o_i = try l.int("o", 0);
+        try need((a == 0 or a == 1) and (o_i == 0 or o_i == 1), "step2: a={d} o={d} (each 0 or 1)", .{ a, o_i });
+        try need(@rem(if (a == 0) x.ne[0] else x.ne[1], 2) == 0, "step2: the {s} are odd", .{if (a == 0) "columns" else "rows"});
+        const o: usize = @intCast(o_i);
         const xc = contig(ctx, x);
         const es: usize = @intCast(c.ggml_element_size(xc));
         const W = xc.ne[0];
@@ -684,39 +794,64 @@ fn build(b: *Builder, s: []const u8) !void {
         }
     } else if (is(op, "slice")) {
         // n elements from offset o along ggml dim d, the other dims whole (IM5: SigLIP2's packed k/v, a token)
-        const d: usize = @intCast(try l.int("d", 0));
+        const d_i = try l.int("d", 0);
+        try need(d_i >= 0 and d_i < 4, "slice: dimension {d}", .{d_i});
+        const d: usize = @intCast(d_i);
         var o: i64 = try l.int("o", 0);
         const n = try l.int("n", 0);
         const xc = contig(ctx, x);
         if (o < 0) o += xc.ne[d]; // -1: the last one (SigLIP2's text pools its last token)
+        try need(n >= 1 and o >= 0 and o <= xc.ne[d] - n, "slice: {d} from {d} is not inside {d}", .{ n, o, xc.ne[d] });
         var ne: [4]i64 = .{ xc.ne[0], xc.ne[1], xc.ne[2], xc.ne[3] };
         ne[d] = n;
         const v = c.ggml_view_4d(ctx, xc, ne[0], ne[1], ne[2], ne[3], xc.nb[1], xc.nb[2], xc.nb[3], @as(usize, @intCast(o)) * xc.nb[d]);
         r = c.ggml_cont(ctx, v);
     } else if (is(op, "embed")) {
         // rows of a table (x = the table) for the token ids (input 1, I32): ONNX [1, N, D]
+        try need(l.n_in >= 2, "embed: no ids", .{});
         const ids = try b.get(l.inputs[1]);
+        try need(ids.type == c.GGML_TYPE_I32 and c.ggml_is_contiguous(ids) and x.ne[2] == 1 and x.ne[3] == 1, "embed: a table and I32 ids", .{});
+        // every id the lookup reads is a row of the table (a tokenizer's eos or pad id from the file included): ggml
+        // asserts the range only while computing, and that assert ends the process
+        if (ids.data) |p| {
+            const iv: [*]const i32 = @ptrCast(@alignCast(p));
+            const nid: usize = @intCast(c.ggml_nelements(ids));
+            for (iv[0..nid]) |v| try need(v >= 0 and v < x.ne[1], "embed: id {d} is not a row of the {d}-row table", .{ v, x.ne[1] });
+        }
         const flat = c.ggml_reshape_1d(ctx, ids, c.ggml_nelements(ids));
         const rows = c.ggml_get_rows(ctx, x, flat);
         r = c.ggml_reshape_3d(ctx, rows, rows.*.ne[0], rows.*.ne[1], 1);
     } else if (is(op, "gap")) {
+        try need(x.ne[0] <= MAX_ATTR and x.ne[1] <= MAX_ATTR, "gap: the input is too large", .{});
         r = c.ggml_pool_2d(ctx, x, c.GGML_OP_POOL_AVG, @intCast(x.ne[0]), @intCast(x.ne[1]), @intCast(x.ne[0]), @intCast(x.ne[1]), 0, 0);
     } else if (is(op, "up")) {
-        const f = try l.int("f", 0);
+        const f = try attr(&l, "f", 0, 1);
+        try need(sizeOk(.{ x.ne[0] * f, x.ne[1] * f, x.ne[2], x.ne[3] }), "up: the output is too large", .{});
         r = c.ggml_interpolate(ctx, x, x.ne[0] * f, x.ne[1] * f, x.ne[2], x.ne[3], c.GGML_SCALE_MODE_NEAREST);
     } else if (is(op, "concat")) {
-        const d: c_int = @intCast(try l.int("d", 0));
-        r = x;
+        const d_i = try l.int("d", 0);
+        try need(d_i >= 0 and d_i < 4, "concat: dimension {d}", .{d_i});
+        const d: c_int = @intCast(d_i);
+        var tot: i64 = x.ne[@intCast(d_i)];
         var i: usize = 1;
+        while (i < l.n_in) : (i += 1) {
+            const y = try b.get(l.inputs[i]);
+            var k: usize = 0;
+            while (k < 4) : (k += 1) try need(k == @as(usize, @intCast(d_i)) or y.ne[k] == x.ne[k], "concat: {s} differs outside dimension {d}", .{ l.inputs[i], d_i });
+            try need(y.type == x.type, "concat: {s} is of another type", .{l.inputs[i]});
+            tot += y.ne[@intCast(d_i)];
+        }
+        var cne: [4]i64 = .{ x.ne[0], x.ne[1], x.ne[2], x.ne[3] };
+        cne[@intCast(d_i)] = tot;
+        try need(sizeOk(cne), "concat: the output is too large", .{});
+        r = x;
+        i = 1;
         while (i < l.n_in) : (i += 1) r = c.ggml_concat(ctx, r, try b.get(l.inputs[i]), d);
-    } else if (is(op, "add")) {
-        r = c.ggml_add(ctx, x, try b.get(l.inputs[1]));
-    } else if (is(op, "sub")) {
-        r = c.ggml_sub(ctx, x, try b.get(l.inputs[1]));
-    } else if (is(op, "mul")) {
-        r = c.ggml_mul(ctx, x, try b.get(l.inputs[1]));
-    } else if (is(op, "div")) {
-        r = c.ggml_div(ctx, x, try b.get(l.inputs[1]));
+    } else if (is(op, "add") or is(op, "sub") or is(op, "mul") or is(op, "div")) {
+        try need(l.n_in >= 2, "{s}: one operand", .{op});
+        const y = try b.get(l.inputs[1]);
+        try need(c.ggml_can_repeat(y, x) and isF32(y), "{s}: {s} does not broadcast to {s}", .{ op, l.inputs[1], l.inputs[0] });
+        r = if (is(op, "add")) c.ggml_add(ctx, x, y) else if (is(op, "sub")) c.ggml_sub(ctx, x, y) else if (is(op, "mul")) c.ggml_mul(ctx, x, y) else c.ggml_div(ctx, x, y);
     } else if (is(op, "sb")) {
         r = c.ggml_scale_bias(ctx, x, try l.flt("s"), try l.flt("b"));
     } else if (is(op, "clamp")) {
@@ -741,28 +876,44 @@ fn build(b: *Builder, s: []const u8) !void {
     } else if (is(op, "softmax")) {
         r = c.ggml_soft_max(ctx, contig(ctx, x));
     } else if (is(op, "linear")) {
-        r = c.ggml_mul_mat(ctx, try b.get(l.inputs[1]), contig(ctx, x));
+        try need(l.n_in >= 2, "linear: no weight", .{});
+        const lw = try b.get(l.inputs[1]);
+        try need(canMulMat(lw, x), "linear: the weight's {d} inputs are not the input's {d}", .{ lw.ne[0], x.ne[0] });
+        try need(sizeOk(.{ lw.ne[1], x.ne[1], x.ne[2], x.ne[3] }), "linear: the output is too large", .{});
+        r = c.ggml_mul_mat(ctx, lw, contig(ctx, x));
     } else if (is(op, "matmul")) {
+        try need(l.n_in >= 2, "matmul: one operand", .{});
         const y = try b.get(l.inputs[1]);
+        // y transposed is [y.ne1, y.ne0, ...]: its rows are y's columns
+        try need(y.ne[1] == x.ne[0] and y.ne[2] > 0 and y.ne[3] > 0 and @rem(x.ne[2], y.ne[2]) == 0 and
+            @rem(x.ne[3], y.ne[3]) == 0, "matmul: {s} and {s} do not multiply", .{ l.inputs[0], l.inputs[1] });
+        try need(sizeOk(.{ y.ne[0], x.ne[1], x.ne[2], x.ne[3] }), "matmul: the output is too large", .{});
         r = c.ggml_mul_mat(ctx, c.ggml_cont(ctx, c.ggml_transpose(ctx, y)), contig(ctx, x));
     } else if (is(op, "permute")) {
         const rank: usize = b.rankOf(l.inputs[0]);
+        try need(rank >= 1 and rank <= 4, "permute: rank {d}", .{rank});
         var ax: [4]c_int = .{ 0, 1, 2, 3 };
+        var seen: [4]bool = .{ false, false, false, false };
         var i: usize = 0;
         while (i < rank) : (i += 1) {
-            const p: usize = @intCast(try l.int("p", i));
+            const p_i = try l.int("p", i);
+            try need(p_i >= 0 and p_i < @as(i64, @intCast(rank)) and !seen[@intCast(p_i)], "permute: axis {d} of a rank-{d} tensor", .{ p_i, rank });
+            seen[@intCast(p_i)] = true;
+            const p: usize = @intCast(p_i);
             ax[rank - 1 - p] = @intCast(rank - 1 - i);
         }
         r = c.ggml_cont(ctx, c.ggml_permute(ctx, x, ax[0], ax[1], ax[2], ax[3]));
     } else if (is(op, "reshape")) {
         var ne: [4]i64 = undefined;
         _ = try reshapeDims(b, &l, x, &ne);
+        try need(elems(ne) == c.ggml_nelements(x), "reshape: [{d},{d},{d},{d}] does not hold the input's {d} values", .{ ne[0], ne[1], ne[2], ne[3], c.ggml_nelements(x) });
         r = c.ggml_reshape_4d(ctx, contig(ctx, x), ne[0], ne[1], ne[2], ne[3]);
     } else if (is(op, "heads")) {
         // x is ONNX [1, N, 3*h*d]: head i of q (0), k (1) or v (2) as ONNX [1, h, N, d]
         const h = try l.int("h", 0);
         const d = try l.int("d", 0);
         const which = try l.int("i", 0);
+        try need(h >= 1 and d >= 1 and h <= MAX_ATTR and d <= MAX_ATTR and which >= 0 and which <= 2, "heads: h={d} d={d} i={d}", .{ h, d, which });
         const xc = contig(ctx, x);
         if (xc.ne[2] != 1 or xc.ne[0] != 3 * h * d) {
             setError("heads: the input is not [1, N, 3*{d}*{d}]", .{ h, d });
@@ -778,6 +929,7 @@ fn build(b: *Builder, s: []const u8) !void {
     }
     try b.tensors.put(l.out, r);
     const rk = try l.int("r", 0);
+    try need(rk >= 0 and rk <= 5, "rank {d}", .{rk});
     try b.ranks.put(l.out, @intCast(rk));
 }
 
@@ -1058,3 +1210,56 @@ pub fn info(model_path: []const u8) !Info {
     }
     return .{ .ops = m.lines.len, .consts = nconst, .params = params, .kind = m.kind };
 }
+
+// ------------------------------------------------------------------------------------------------ the fuzzer's door
+
+/// SECURITY-MODELDATA-01c: load a graph model (through the digest gate) and run it once, on zeros of the inputs it
+/// declares (stz.graph.inputs), else on the token ids 0..n_ids-1 when n_ids > 0 (a text tower), else on a grey image
+/// w x h. 1 it ran, 0 it was refused (lastError says why). A file that lies must answer 0 here, never end the
+/// process: base/test/security/gguf_fuzz.py drives this through the DLL's exports, one child process per mutant.
+pub export fn stz_graph_probe(path: [*:0]const u8, w: c_int, h: c_int, n_ids: c_int) callconv(.c) c_int {
+    clearError();
+    const m = load(std.mem.span(path)) catch return 0;
+    defer m.free();
+    if (m.inputs.len > 0) {
+        var bufs: [8][]f32 = undefined;
+        var views: [8][]const f32 = undefined;
+        const n = @min(m.inputs.len, bufs.len);
+        var made: usize = 0;
+        defer for (bufs[0..made]) |bf| gpa.free(bf);
+        for (m.inputs[0..n], 0..) |s, k| {
+            bufs[k] = gpa.alloc(f32, s.n) catch return 0;
+            made += 1;
+            @memset(bufs[k], 0);
+            views[k] = bufs[k];
+        }
+        const o = runInputs(m, views[0..n], 2) catch return 0;
+        gpa.free(o.data);
+        return 1;
+    }
+    if (n_ids > 0) {
+        const ids = gpa.alloc(i32, @intCast(n_ids)) catch return 0;
+        defer gpa.free(ids);
+        for (ids, 0..) |*v, i| v.* = @intCast(i);
+        const o = runIds(m, ids, 2) catch return 0;
+        gpa.free(o.data);
+        return 1;
+    }
+    if (w < 1 or h < 1) return 0;
+    const n: usize = 3 * @as(usize, @intCast(w)) * @as(usize, @intCast(h));
+    const img = gpa.alloc(f32, n) catch return 0;
+    defer gpa.free(img);
+    @memset(img, 0.5);
+    const o = run(m, img, .{ 1, 3, h, w }, 2) catch return 0;
+    gpa.free(o.data);
+    return 1;
+}
+
+/// the reason of the last refusal (the fuzzer's log)
+pub export fn stz_graph_probe_error() callconv(.c) [*:0]const u8 {
+    const n = @min(last_error_len, last_error.len - 1);
+    probe_err[n] = 0;
+    @memcpy(probe_err[0..n], last_error[0..n]);
+    return @ptrCast(&probe_err);
+}
+var probe_err: [257]u8 = undefined;

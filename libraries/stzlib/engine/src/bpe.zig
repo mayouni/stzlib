@@ -39,7 +39,7 @@ pub fn fromGguf(g: *c.gguf_context, gpa: std.mem.Allocator) !?*Bpe {
     // than merge_a was read past its end
     const nv: usize = gr.arrN(g, vid, gr.T_STR) orelse return error.BadTokenizer;
     const na = gr.arrN(g, aid, gr.T_STR) orelse return error.BadTokenizer;
-    if (gr.arrN(g, bid, gr.T_STR) != na or nv > std.math.maxInt(u32) or na > std.math.maxInt(u32)) return error.BadTokenizer;
+    if (gr.arrN(g, bid, gr.T_STR) != na or nv > std.math.maxInt(i32) or na > std.math.maxInt(i32)) return error.BadTokenizer;
     const t = try gpa.create(Bpe);
     t.arena = std.heap.ArenaAllocator.init(gpa);
     const a = t.arena.allocator();
@@ -62,8 +62,10 @@ pub fn fromGguf(g: *c.gguf_context, gpa: std.mem.Allocator) !?*Bpe {
     }
     const sid = c.gguf_find_key(g, "stz.tok.space");
     t.space = if (gr.strAt(g, sid)) |s| std.mem.span(s) else "";
-    t.eos = gr.intAs(u32, g, "stz.tok.eos", 1);
-    t.pad = gr.intAs(u32, g, "stz.tok.pad", 0);
+    // the ids are i32 when they reach the model: an eos or pad past that range panicked in encode's casts
+    // (SECURITY-MODELDATA-01c); whether the id is a row of the model's table is the graph's check, at its lookup
+    t.eos = @intCast(@max(0, gr.intAs(i32, g, "stz.tok.eos", 1)));
+    t.pad = @intCast(@max(0, gr.intAs(i32, g, "stz.tok.pad", 0)));
     return t;
 }
 
