@@ -122,13 +122,14 @@ func StzIsPlainIdentifier(pcName)
 	return 1
 
 # 1 when a "list in a string" holds only literal data: no letters outside
-# quotes except TRUE, FALSE and NULL, so it cannot name a function. Used
+# quotes except TRUE, FALSE, NULL and :symbols, so it cannot name a function. Used
 # before ToList() evaluates the literal.
 func StzIsPlainListLiteral(pcText)
 	if NOT isString(pcText)  return 0  ok
 	_n_ = len(pcText)
 	_cQ_ = ""
 	_cWord_ = ""
+	_bSym_ = 0
 	for _i_ = 1 to _n_ + 1
 		if _i_ <= _n_  _ch_ = pcText[_i_]  else  _ch_ = " "  ok
 		if _cQ_ != ""
@@ -140,15 +141,43 @@ func StzIsPlainListLiteral(pcText)
 			loop
 		ok
 		_k_ = ascii(_ch_)
-		if (_k_ >= 65 and _k_ <= 90) or (_k_ >= 97 and _k_ <= 122) or _k_ = 95 or _k_ >= 128
+		if (_k_ >= 65 and _k_ <= 90) or (_k_ >= 97 and _k_ <= 122) or _k_ = 95 or _k_ >= 128 or
+		   (_cWord_ != "" and _k_ >= 48 and _k_ <= 57)
+			# a : starts a symbol only where a token can start -- after [ , = ( a space
+			# or a tab, or at the start. In [1:limit] the : is Ring's range and limit
+			# is a variable: not a symbol, so the text is refused
+			if _cWord_ = "" and _i_ > 1 and pcText[_i_ - 1] = ":"
+				if _i_ = 2
+					_bSym_ = 1
+				else
+					_cBefore_ = pcText[_i_ - 2]
+					if _cBefore_ = "[" or _cBefore_ = "," or _cBefore_ = "=" or _cBefore_ = "(" or
+					   _cBefore_ = " " or _cBefore_ = char(9)
+						_bSym_ = 1
+					ok
+				ok
+			ok
 			_cWord_ += _ch_
 		else
 			if _cWord_ != ""
+				# a :symbol is a text; any other word must be true, false or null
 				_cW_ = lower(_cWord_)
-				if _cW_ != "true" and _cW_ != "false" and _cW_ != "null"  return 0  ok
+				if NOT _bSym_ and _cW_ != "true" and _cW_ != "false" and _cW_ != "null"  return 0  ok
 				_cWord_ = ""
+				_bSym_ = 0
 			ok
 			if _ch_ = "(" or _ch_ = "{" or _ch_ = "@" or _ch_ = "$"  return 0  ok
+			# a : that does not start a symbol is Ring's range operator: [1:3000000000]
+			# builds that many items, so a range is never literal data here
+			if _ch_ = ":"
+				if _i_ >= _n_  return 0  ok
+				_kN_ = ascii(pcText[_i_ + 1])
+				if NOT ( (_kN_ >= 65 and _kN_ <= 90) or (_kN_ >= 97 and _kN_ <= 122) or _kN_ = 95 )  return 0  ok
+				if _i_ > 1
+					_cB_ = pcText[_i_ - 1]
+					if NOT ( _cB_ = "[" or _cB_ = "," or _cB_ = "=" or _cB_ = "(" or _cB_ = " " or _cB_ = char(9) )  return 0  ok
+				ok
+			ok
 		ok
 	next
 	return 1

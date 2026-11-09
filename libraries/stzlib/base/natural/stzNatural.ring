@@ -702,7 +702,8 @@ class stzNaturalEngine from stzObject
 	#   _cCode_    the narration
 	#   returns    nothing; read the outcome with Result, Answers and Understood
 	#   note       Result is the last thing produced; the code is written by
-	#              GenerateCodeFromSemantics and run with eval
+	#              GenerateCodeFromSemantics and run by RunGeneratedCode, which reads it and runs
+	#              no text as code
 	#   warning    a text that is empty or not a text is ignored and the earlier state stays; a
 	#              narration that creates no object raises an error
 	#   see        Process, Result, Analyze
@@ -1253,9 +1254,246 @@ class stzNaturalEngine from stzObject
 		This.AddToDebugLog(_cCode_)
 		
 		if trim(_cCode_) != ""
-			eval(_cCode_)
+			This.RunGeneratedCode(_cCode_)
 		ok
 	
+	# Runs the code GenerateCodeFromSemantics wrote, line by line, reading each line and running no
+	# text as code.
+	#
+	#   _cCode_    the generated code; Code() shows the same text
+	#   returns    nothing; Result and Answers hold what it produced
+	#   note       the generator writes a closed set of line shapes, and each is done here: an
+	#              object built by the lexicon's constructor (oStr = StzStringQ("abc")), a name
+	#              given to it (o_basket = oStr), a value kept (v_sep = o_basket.Content(), v_x =
+	#              @result), a method called (oStr.Replace("a", "b")), a query (@result =
+	#              oStr.Size(), then @aAnswers + @result), and a display (? oStr.Content()). A
+	#              method or constructor is called by its checked name; its arguments are literals
+	#              or names already bound
+	#   warning    a line of any other shape raises, quoting the line
+	#   see        GenerateCodeFromSemantics, Code, Result
+	def RunGeneratedCode(_cCode_)
+		_aNames_ = []	# [ [ lowered name, slot ], ... ]
+		_aSlots_ = []	# the values; an alias shares its slot, so a method changes both
+		_acLines_ = str2list(StzReplace(_cCode_, char(13), ""))
+		_nLines_ = len(_acLines_)
+		for _iLine_ = 1 to _nLines_
+			_cLine_ = trim(_acLines_[_iLine_])
+			if _cLine_ = ""
+				loop
+			ok
+
+			# ? <expr>
+			if left(_cLine_, 1) = "?"
+				? This._GenValue(trim(substr(_cLine_, 2)), _aNames_, _aSlots_)
+				loop
+			ok
+
+			# @aAnswers + @result
+			if StzLower(_cLine_) = "@aanswers + @result"
+				@aAnswers + @result
+				loop
+			ok
+
+			_nEq_ = This._GenTopLevelEquals(_cLine_)
+			if _nEq_ = 0
+				# <name>.<Method>(<args>)
+				This._GenValue(_cLine_, _aNames_, _aSlots_)
+				loop
+			ok
+
+			_cLeft_ = trim(left(_cLine_, _nEq_ - 1))
+			_cRight_ = trim(substr(_cLine_, _nEq_ + 1))
+
+			if StzLower(_cLeft_) = "@result"
+				@result = This._GenValue(_cRight_, _aNames_, _aSlots_)
+				loop
+			ok
+
+			if NOT StzIsPlainIdentifier(_cLeft_)
+				StzRaise("Can't run the generated line: " + _cLine_)
+			ok
+
+			# an alias: the name shares the slot of the object it names
+			_nAlias_ = This._GenSlotOf(_cRight_, _aNames_)
+			if _nAlias_ > 0 and isobject(_aSlots_[_nAlias_])
+				This._GenBind(_cLeft_, _nAlias_, _aNames_)
+				loop
+			ok
+
+			_aSlots_ + This._GenValue(_cRight_, _aNames_, _aSlots_)
+			This._GenBind(_cLeft_, len(_aSlots_), _aNames_)
+		next
+
+	# The position of the = that assigns in a generated line, 0 when the line assigns nothing.
+	def _GenTopLevelEquals(pcLine)
+		_cQ_ = ""
+		_nDepth_ = 0
+		_nLen_ = len(pcLine)
+		for _i_ = 1 to _nLen_
+			_c_ = pcLine[_i_]
+			if _cQ_ != ""
+				if _c_ = _cQ_  _cQ_ = ""  ok
+				loop
+			ok
+			if _c_ = '"' or _c_ = "'" or _c_ = "`"
+				_cQ_ = _c_
+			but _c_ = "(" or _c_ = "["
+				_nDepth_++
+			but _c_ = ")" or _c_ = "]"
+				_nDepth_--
+			but _c_ = "=" and _nDepth_ = 0
+				return _i_
+			ok
+		next
+		return 0
+
+	# Binds a name to a slot, replacing an earlier binding of the same name.
+	def _GenBind(pcName, pnSlot, paNames)
+		_cName_ = StzLower(pcName)
+		_nNames_ = len(paNames)
+		for _i_ = 1 to _nNames_
+			if paNames[_i_][1] = _cName_
+				paNames[_i_][2] = pnSlot
+				return
+			ok
+		next
+		paNames + [ _cName_, pnSlot ]
+
+	# The slot a name is bound to, 0 when it is not bound.
+	def _GenSlotOf(pcName, paNames)
+		_cName_ = StzLower(trim(pcName))
+		_nNames_ = len(paNames)
+		for _i_ = 1 to _nNames_
+			if paNames[_i_][1] = _cName_
+				return paNames[_i_][2]
+			ok
+		next
+		return 0
+
+	# The value of a right-hand side: a bound name, @result, a literal, Func(args) or
+	# name.Method(args).
+	def _GenValue(pcExpr, paNames, paSlots)
+		_cExpr_ = trim(pcExpr)
+		if StzLower(_cExpr_) = "@result"
+			return @result
+		ok
+		_nSlot_ = This._GenSlotOf(_cExpr_, paNames)
+		if _nSlot_ > 0
+			return paSlots[_nSlot_]
+		ok
+
+		# name.Method(args): the dot that follows a plain name
+		_nDot_ = substr(_cExpr_, ".")
+		_nParen_ = substr(_cExpr_, "(")
+		if _nDot_ > 1 and (_nParen_ = 0 or _nDot_ < _nParen_) and
+		   StzIsPlainIdentifier(left(_cExpr_, _nDot_ - 1))
+			_nSlot_ = This._GenSlotOf(left(_cExpr_, _nDot_ - 1), paNames)
+			if _nSlot_ = 0
+				StzRaise("Can't run the generated line: '" + left(_cExpr_, _nDot_ - 1) + "' is not bound.")
+			ok
+			_aCall_ = This._GenCall(substr(_cExpr_, _nDot_ + 1), paNames, paSlots)
+			return StzCallMethodOn(paSlots[_nSlot_], _aCall_[1], _aCall_[2])
+		ok
+
+		# Func(args): a constructor of the lexicon, a global function
+		if _nParen_ > 1 and StzIsPlainIdentifier(trim(left(_cExpr_, _nParen_ - 1)))
+			_aCall_ = This._GenCall(_cExpr_, paNames, paSlots)
+			_f_ = _aCall_[1]
+			if NOT This._GenIsConstructor(_f_)
+				StzRaise("Can't run the generated line: '" + _f_ + "' is not a constructor of the lexicon.")
+			ok
+			switch len(_aCall_[2])
+			on 0
+				return call _f_()
+			on 1
+				return call _f_(_aCall_[2][1])
+			on 2
+				return call _f_(_aCall_[2][1], _aCall_[2][2])
+			on 3
+				return call _f_(_aCall_[2][1], _aCall_[2][2], _aCall_[2][3])
+			off
+			StzRaise("Can't run the generated line: at most 3 arguments.")
+		ok
+
+		return StzLiteralValue(_cExpr_)
+
+	# 1 when pcName is the function of one of the lexicon's constructors (StzStringQ, StzListQ ...):
+	# the only functions a generated line may call.
+	def _GenIsConstructor(pcName)
+		_cName_ = StzLower(trim(pcName))
+		_nOps_ = len($aSemanticOperations)
+		for _i_ = 1 to _nOps_
+			_aOp_ = $aSemanticOperations[_i_]
+			_nPairs_ = len(_aOp_)
+			for _j_ = 1 to _nPairs_
+				if isList(_aOp_[_j_]) and len(_aOp_[_j_]) = 2 and _aOp_[_j_][1] = "constructor" and
+				   isString(_aOp_[_j_][2])
+					_cCons_ = _aOp_[_j_][2]
+					_nCut_ = substr(_cCons_, "(")
+					if _nCut_ > 1 and StzLower(trim(left(_cCons_, _nCut_ - 1))) = _cName_
+						return 1
+					ok
+				ok
+			next
+		next
+		return 0
+
+	# Reads Name(arg, ...) into [ cName, aValues ]: each argument a bound name or a literal.
+	def _GenCall(pcCall, paNames, paSlots)
+		_cCall_ = trim(pcCall)
+		_nOpen_ = substr(_cCall_, "(")
+		if _nOpen_ = 0
+			if NOT StzIsPlainIdentifier(_cCall_)
+				StzRaise("Can't run the generated call: " + pcCall)
+			ok
+			return [ _cCall_, [] ]
+		ok
+		_cName_ = trim(left(_cCall_, _nOpen_ - 1))
+		if NOT StzIsPlainIdentifier(_cName_) or right(_cCall_, 1) != ")"
+			StzRaise("Can't run the generated call: " + pcCall)
+		ok
+		_cInside_ = substr(_cCall_, _nOpen_ + 1, len(_cCall_) - _nOpen_ - 1)
+		_aArgs_ = []
+		_cArg_ = ""
+		_cQ_ = ""
+		_nDepth_ = 0
+		_nLen_ = len(_cInside_)
+		for _i_ = 1 to _nLen_
+			_c_ = _cInside_[_i_]
+			if _cQ_ != ""
+				if _c_ = _cQ_  _cQ_ = ""  ok
+				_cArg_ += _c_
+				loop
+			ok
+			if _c_ = '"' or _c_ = "'" or _c_ = "`"
+				_cQ_ = _c_
+			but _c_ = "[" or _c_ = "("
+				_nDepth_++
+			but _c_ = "]" or _c_ = ")"
+				_nDepth_--
+			but _c_ = "," and _nDepth_ = 0
+				_aArgs_ + This._GenArg(_cArg_, paNames, paSlots)
+				_cArg_ = ""
+				loop
+			ok
+			_cArg_ += _c_
+		next
+		if trim(_cArg_) != ""
+			_aArgs_ + This._GenArg(_cArg_, paNames, paSlots)
+		ok
+		return [ _cName_, _aArgs_ ]
+
+	def _GenArg(pcArg, paNames, paSlots)
+		_cArg_ = trim(pcArg)
+		_nSlot_ = This._GenSlotOf(_cArg_, paNames)
+		if _nSlot_ > 0
+			return paSlots[_nSlot_]
+		ok
+		if StzLower(_cArg_) = "@result"
+			return @result
+		ok
+		return StzLiteralValue(_cArg_)
+
 	# Returns the tokens as semantic records and notes which action words could not be understood.
 	#
 	#   returns    a list of records with type, value and original
