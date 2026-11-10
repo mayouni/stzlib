@@ -3,6 +3,58 @@
 *stzlib-haroport, 2026-11-08. Read at origin/main 6e7502509. Nothing here is renamed yet: this memo asks one
 ruling, `HAROPORT-SPELLINGS-01`, in four parts, before any mass rename (the prompt's step 1).*
 
+## 0. Restated 2026-11-10 -- `HAROPORT-SPELLINGS-02`, replacing the ruling asked below
+
+*Read at origin/main 0ba0d6b5a, haro.exe built after haro d62f05c. Sections 1 to 6 below are the memo of 2026-11-08,
+left as written; this section replaces its section 3 as the question. The counts are `HAROPORT_PLAN.md`'s.*
+
+Since 2026-11-08 Haro has ruled most of what section 3 asked. **Decided, so not asked again:**
+
+- **the letters** (`TYPES.md`, the Principal, 2026-11-07): text `t`, vector `v`, map `m`, record `r`, integer `i`,
+  decimal `d`, float `f`, any number `n`, boolean `b`, object `o`, handle `h`. Section 3 (b1) -- keep Softanza's
+  letters, drop the underscores -- is superseded: `_nLen_` becomes `iLen` or `nLen` by what it holds, `_cName_`
+  becomes `tName`, by Haro's re-lettering rules (`study/v47/reletter.py`);
+- **keywords** lowercase only in a `.haro` file (v0.42);
+- **built-ins** in Softanza's casing, `ParentClassName` (HARO-BUILTIN-CASE-01, 2026-11-09);
+- **pairs** written `[:key, value]` (HARO-SURFACE-01).
+
+**Asked -- one subject, six parts, class naming:**
+
+**(a) Softanza's parameter prefix `p`** (`pcSubStr`, `pnStartingAt`, `paList`: 44,393 declaration sites, 125,385
+occurrences). Haro's rule reads `p` as no type's letter.
+- **(a1) Recommended: drop the `p`, the type letter stays** -- `pcSubStr` -> `tSubStr`, `paList` -> `vList`. Haro writes a
+  parameter's full type where it is declared (TYPES T2), so the `p` repeats what the signature says. A parameter that
+  would land on a local of the same function is a conflict for a hand decision.
+- (a2) Keep `p` as a mark before the letter, as `$` and `@` are (`ptSubStr`). Needs Haro's letter rule to accept it.
+
+**(b) The booleans written 1 / 0** (5,079 statements; stzlib's own rule since 2026-08, because a caller could
+overwrite `TRUE`).
+- **(b1) Recommended: `true` and `false`.** In a `.haro` file `true` is a keyword and cannot be assigned, so the reason
+  for 1 / 0 is gone. A `.ring` caller still reads them as 1 and 0 (measured, `HAROPORT_PLAN.md` section 3).
+- (b2) Keep 1 / 0 and letter those names `i`. It keeps the numbers and loses what `b` tells a reader.
+
+**(c) Softanza's two-letter list letters** (`anPos`, `acNames`, `aoItems`: 16,623 occurrences). Haro has one letter
+for a vector, and its element type is written once, where it is declared.
+- **(c1) Recommended: `v`, with the element type in the declaration** -- `anPos` -> `vPos` (`vector of integer`). Where
+  the list holds pairs, `m` or `r` by what it is.
+- (c2) Keep a second letter (`viPos`). Haro's rule would have to accept it.
+
+**(d) The names Haro's letter rule has no shape for.**
+- single letters (30,292 sites, `i`, `n`, `c`): **recommended, Haro's own rule R3** -- a `for` counter stays a single
+  letter; any other takes its letter before the original (`n` -> `nN`, `c` -> `tC`);
+- ALL_CAPS constants (1,434 sites, `$MAX_NUMBER_SIZE`, `@NL`): **recommended, a letter and capitalised words** --
+  `$iMaxNumberSize`, `@tNL`;
+- capitalised attributes (5,385 sites, `@CaseSensitive`): **recommended, the letter first** -- `@bCaseSensitive`.
+
+**(e) The keyword-shaped names** -- section 3 (c) below, unchanged: the plain word where Haro does not reserve it,
+the Q form for a chaining method, an English word otherwise. Haro still refuses a method named exactly like a keyword
+(`And`: 251 statements after the tool passes).
+
+**(f) The W texts** -- section 3 (a) below, unchanged: bare words of the W grammar (`item`, `position`, `count`,
+`total`), the `@` forms accepted during the port and refused when none is left.
+
+The order is `HAROPORT_PLAN.md` section 4 -- bottom up, one module per commit -- and replaces section 3 (d).
+
 Every number below was measured today on both runtimes that matter: **rnxc** (`D:\GitHub\ringpp\zig-out\bin\rnxc.exe`,
 the bridge) and **haro.exe** (`D:\GitHub\haro\vm\zig-out\bin\haro.exe`, the target), on a `.ring` file (Haro's Ring
 surface) and, where it applies, on a `.haro` file (Haro's own rules). The probes are small standalone programs in
@@ -57,7 +109,7 @@ dodge is needed for the second row only, and `Where`/`Select` need none.
 `if call f(a[i])` with `f = func x { return x > 3 }`, alternated twice): inline 8 ms on both; function 13-16 ms on rnxc,
 16-17 ms on haro.exe. A function costs about one call per item, and a call is cheap.
 
-## 3. The ruling asked -- `HAROPORT-SPELLINGS-01`, class judgement, four parts
+## 3. The ruling asked -- `HAROPORT-SPELLINGS-01`, class judgement, four parts (replaced by section 0, 2026-11-10)
 
 **(a) What a W condition names instead of `@item` / `@i`.**
 A W text is **not Haro code**: the engine's expression compiler (`engine/src/expr.zig`) reads it against a closed
