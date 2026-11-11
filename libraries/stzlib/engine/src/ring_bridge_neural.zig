@@ -1792,6 +1792,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralspecstats", .func = &ring_NeuralSpecStats },
     .{ .name = "stzengineneuralgentokenize", .func = &ring_NeuralGenTokenize },
     .{ .name = "stzengineneuralgentokenat", .func = &ring_NeuralGenTokenAt },
+    .{ .name = "stzengineneuralgenprobetext", .func = &ring_NeuralGenProbeText },
     .{ .name = "stzengineneuralgeneratext", .func = &ring_NeuralGenerateXT },
     .{ .name = "stzengineneuralgenstart", .func = &ring_NeuralGenStart },
     .{ .name = "stzengineneuralgennext", .func = &ring_NeuralGenNext },
@@ -1904,6 +1905,12 @@ fn ring_NeuralGenTokenize(p: *anyopaque) callconv(.c) void {
     const t = gs(p, 1);
     const tlen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
     rn(p, @floatFromInt(gen.neural_gen_tokenize(t, tlen)));
+}
+
+// StzEngineNeuralGenProbeText() -> the text of the ids StzEngineNeuralGenTokenize last produced (a round trip)
+fn ring_NeuralGenProbeText(p: *anyopaque) callconv(.c) void {
+    const t: [*:0]const u8 = @ptrCast(gen.neural_gen_probe_text());
+    R.ring_vm_api_retstring(p, t);
 }
 
 fn ring_NeuralGenTokenAt(p: *anyopaque) callconv(.c) void {

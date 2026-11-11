@@ -262,6 +262,7 @@ fn buildBpe() bool {
         }
     }
 
+    g_spm = if (kvStr("tokenizer.ggml.model")) |tm| std.mem.eql(u8, std.mem.span(tm), "gemma4") else false;
     g_bos = kvI32("tokenizer.ggml.bos_token_id", -1);
     g_eos = kvI32("tokenizer.ggml.eos_token_id", -1);
     g_add_bos = kvBool("tokenizer.ggml.add_bos_token", false);
@@ -392,7 +393,7 @@ fn encode(text: []const u8, out: *std.ArrayList(i32)) void {
             }
         }
         if (matched) |sp| {
-            if (i > seg_start) bpeSegment(text[seg_start..i], out);
+            if (i > seg_start) segment(text[seg_start..i], out);
             out.append(gpa, sp.id) catch {};
             i += sp.s.len;
             seg_start = i;
@@ -400,7 +401,11 @@ fn encode(text: []const u8, out: *std.ArrayList(i32)) void {
             i += 1;
         }
     }
-    if (text.len > seg_start) bpeSegment(text[seg_start..], out);
+    if (text.len > seg_start) segment(text[seg_start..], out);
+}
+
+fn segment(text: []const u8, out: *std.ArrayList(i32)) void {
+    if (g_spm) spmSegment(text, out) else bpeSegment(text, out);
 }
 
 // Decode ids -> bytes (reverse byte-unicode mapping; control tokens skipped).
@@ -416,6 +421,10 @@ fn decodeInto(ids: []const i32, out: *std.ArrayList(u8)) void {
         }
         if (is_special) continue;
         const s = vocabToken(@intCast(id));
+        if (g_spm) {
+            spmDecodeInto(s, out);
+            continue;
+        }
         var view = std.unicode.Utf8View.init(s) catch continue;
         var it = view.iterator();
         while (it.nextCodepoint()) |cp| {
@@ -1799,6 +1808,7 @@ const GenSlot = struct {
     add_bos: bool = false,
     specials: std.ArrayList(Special) = .{},
     eog: std.ArrayList(i32) = .{},
+    spm: bool = false,
     dc_gen: usize = std.math.maxInt(usize),
     dc_ok: bool = false,
     dc_rows: i64 = 0,
@@ -1822,6 +1832,7 @@ fn swapGen(s: *GenSlot) void {
     std.mem.swap(bool, &g_add_bos, &s.add_bos);
     std.mem.swap(std.ArrayList(Special), &g_specials, &s.specials);
     std.mem.swap(std.ArrayList(i32), &g_eog, &s.eog);
+    std.mem.swap(bool, &g_spm, &s.spm);
     std.mem.swap(usize, &g_dc_gen, &s.dc_gen);
     std.mem.swap(bool, &g_dc_ok, &s.dc_ok);
     std.mem.swap(i64, &g_dc_rows, &s.dc_rows);
@@ -2091,6 +2102,153 @@ pub export fn neural_generate_spec(text: [*c]const u8, len: usize, max_new: c_in
     g_gen_text.append(gpa, 0) catch return -1;
     if (g_spec_status != SPEC_OK) return -1;
     return @intCast(g_gen_text.items.len - 1);
+}
+
+// ---- SPM-style BPE (tokenizer.ggml.model = "gemma4"; GEMMA4-01, 2026-11-11) -----------------------------------------
+//
+// Gemma 4's tokenizer is BPE over RAW UTF-8, not GPT-2's byte-to-unicode map: the text's spaces become U+2581 ("▁"),
+// no space is prepended, the text splits only into runs of newlines and runs of everything else, and each run merges
+// its characters pair by pair, lowest merge rank first (leftmost on a tie) -- the whole line is one word. A piece the
+// vocabulary does not hold is written as its bytes, each the token "<0xXX>". This is llama.cpp's llm_tokenizer_bpe
+// with LLAMA_VOCAB_PRE_TYPE_GEMMA4 (b12283, src/llama-vocab.cpp), read line by line; the guard compares ids with it.
+// A line can be thousands of characters, so the merges run on a priority queue with stale pairs skipped (the
+// rescanning loop of bpeWord would be quadratic in the line).
+
+var g_spm: bool = false; // the model in place tokenizes SPM-style (set by buildBpe from tokenizer.ggml.model)
+
+const SpmSym = struct { start: usize, n: usize, prev: isize, next: isize };
+const SpmPair = struct { rank: i32, left: usize, right: usize, len: usize };
+fn spmPairLess(_: void, a: SpmPair, b: SpmPair) std.math.Order {
+    if (a.rank != b.rank) return std.math.order(a.rank, b.rank);
+    return std.math.order(a.left, b.left);
+}
+
+fn spmUtf8Len(b: u8) usize {
+    if (b < 0x80) return 1;
+    if (b >> 5 == 0b110) return 2;
+    if (b >> 4 == 0b1110) return 3;
+    if (b >> 3 == 0b11110) return 4;
+    return 1;
+}
+
+fn spmRank(word: []const u8, syms: []const SpmSym, l: usize, r: usize, kb: *std.ArrayList(u8)) ?i32 {
+    const a = word[syms[l].start..][0..syms[l].n];
+    const b = word[syms[r].start..][0..syms[r].n];
+    kb.clearRetainingCapacity();
+    kb.appendSlice(gpa, a) catch return null;
+    kb.append(gpa, ' ') catch return null;
+    kb.appendSlice(gpa, b) catch return null;
+    return g_merge_map.get(kb.items);
+}
+
+fn spmPush(q: *std.PriorityQueue(SpmPair, void, spmPairLess), word: []const u8, syms: []const SpmSym, l: isize, r: isize, kb: *std.ArrayList(u8)) void {
+    if (l < 0 or r < 0) return;
+    const li: usize = @intCast(l);
+    const ri: usize = @intCast(r);
+    const rank = spmRank(word, syms, li, ri, kb) orelse return;
+    q.add(.{ .rank = rank, .left = li, .right = ri, .len = syms[li].n + syms[ri].n }) catch {};
+}
+
+fn spmWord(word: []const u8, out: *std.ArrayList(i32)) void {
+    if (word.len == 0) return;
+    var syms: std.ArrayList(SpmSym) = .{};
+    defer syms.clearAndFree(gpa);
+    var off: usize = 0;
+    while (off < word.len) {
+        const n = @min(word.len - off, spmUtf8Len(word[off]));
+        const idx: isize = @intCast(syms.items.len);
+        syms.append(gpa, .{ .start = off, .n = n, .prev = idx - 1, .next = if (off + n == word.len) -1 else idx + 1 }) catch return;
+        off += n;
+    }
+    var kb: std.ArrayList(u8) = .{};
+    defer kb.clearAndFree(gpa);
+    var q = std.PriorityQueue(SpmPair, void, spmPairLess).init(gpa, {});
+    defer q.deinit();
+    var i: usize = 1;
+    while (i < syms.items.len) : (i += 1) spmPush(&q, word, syms.items, @intCast(i - 1), @intCast(i), &kb);
+    while (q.removeOrNull()) |p| {
+        const s = syms.items;
+        // stale: either side was merged away, or grew, since this pair was queued
+        if (s[p.left].n == 0 or s[p.right].n == 0) continue;
+        if (s[p.left].next != @as(isize, @intCast(p.right)) or s[p.left].n + s[p.right].n != p.len) continue;
+        s[p.left].n += s[p.right].n;
+        s[p.right].n = 0;
+        s[p.left].next = s[p.right].next;
+        if (s[p.right].next >= 0) s[@intCast(s[p.right].next)].prev = @intCast(p.left);
+        spmPush(&q, word, s, s[p.left].prev, @intCast(p.left), &kb);
+        spmPush(&q, word, s, @intCast(p.left), s[p.left].next, &kb);
+    }
+    // the pieces, in order; a piece the vocabulary lacks becomes its bytes as <0xXX>
+    var at: isize = 0;
+    while (at >= 0) {
+        const sym = syms.items[@intCast(at)];
+        at = sym.next;
+        if (sym.n == 0) continue;
+        const piece = word[sym.start..][0..sym.n];
+        if (g_tok_map.get(piece)) |id| {
+            out.append(gpa, id) catch {};
+        } else {
+            const hex = "0123456789ABCDEF";
+            for (piece) |ch| {
+                const bt = [6]u8{ '<', '0', 'x', hex[ch >> 4], hex[ch & 15], '>' };
+                if (g_tok_map.get(bt[0..])) |id| out.append(gpa, id) catch {};
+            }
+        }
+    }
+}
+
+fn spmSegment(text: []const u8, out: *std.ArrayList(i32)) void {
+    var buf: std.ArrayList(u8) = .{};
+    defer buf.clearAndFree(gpa);
+    for (text) |b| {
+        if (b == ' ') buf.appendSlice(gpa, "\u{2581}") catch return else buf.append(gpa, b) catch return;
+    }
+    const t = buf.items;
+    var i: usize = 0;
+    while (i < t.len) {
+        const start = i;
+        const nl = t[i] == '\n';
+        while (i < t.len and (t[i] == '\n') == nl) i += 1;
+        const run = t[start..i];
+        // a run of newlines that is itself a token is that token (llama.cpp PR 21343); otherwise it merges
+        if (nl) {
+            if (g_tok_map.get(run)) |id| {
+                out.append(gpa, id) catch {};
+                continue;
+            }
+        }
+        spmWord(run, out);
+    }
+}
+
+// one SPM token's text: "<0xXX>" is that byte, U+2581 is a space
+fn spmDecodeInto(s: []const u8, out: *std.ArrayList(u8)) void {
+    if (s.len == 6 and s[0] == '<' and s[1] == '0' and s[2] == 'x' and s[5] == '>') {
+        const v = std.fmt.parseInt(u8, s[3..5], 16) catch {
+            out.appendSlice(gpa, s) catch {};
+            return;
+        };
+        out.append(gpa, v) catch {};
+        return;
+    }
+    var k: usize = 0;
+    while (k < s.len) {
+        if (k + 3 <= s.len and s[k] == 0xE2 and s[k + 1] == 0x96 and s[k + 2] == 0x81) {
+            out.append(gpa, ' ') catch {};
+            k += 3;
+        } else {
+            out.append(gpa, s[k]) catch {};
+            k += 1;
+        }
+    }
+}
+
+/// The text of the ids the last neural_gen_tokenize produced, decoded as generation decodes (a round trip for a guard).
+pub export fn neural_gen_probe_text() callconv(.c) [*c]const u8 {
+    g_gen_text.clearRetainingCapacity();
+    decodeInto(g_probe_ids.items, &g_gen_text);
+    g_gen_text.append(gpa, 0) catch return @ptrCast("");
+    return @ptrCast(g_gen_text.items.ptr);
 }
 
 // tokenizer probe: BPE-encode into a shared buffer (count returned; ids via
