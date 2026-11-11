@@ -133,6 +133,7 @@ Shutdown($nFail)
 func Scenario(tName)
 	? ""
 	? "SCENARIO: " + tName
+end
 
 func Then(tWhat, xGot, xExpected)
 	if xGot = xExpected
@@ -144,12 +145,14 @@ func Then(tWhat, xGot, xExpected)
 		? "    expected: " + Shown(xExpected)
 		? "    got:      " + Shown(xGot)
 	end
+end
 
 func Shown(x)
 	if IsString(x)
 		return "'" + x + "'"
 	end
 	return String(x)
+end
 
 func Slashes(tPath)
 	tOut = ""
@@ -162,7 +165,9 @@ func Slashes(tPath)
 		end
 	end
 	return tOut
+end
 
 func Chat(tAsk)
 	return "<|im_start|>system" + Char(10) + "You are a helpful assistant.<|im_end|>" + Char(10) +
 	       "<|im_start|>user" + Char(10) + tAsk + "<|im_end|>" + Char(10) + "<|im_start|>assistant" + Char(10)
+end
