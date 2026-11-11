@@ -24,19 +24,24 @@ triage_extract|qwen3-0.6b-choice|v1|0.39|36|1|21/10/2026 18:13:21|
 triage_extract|granite-350m-choice|v1|0.11|36|1|21/10/2026 18:15:57|
 triage_extract|qwen25c-0.5b-choice|v1|0.25|36|1|21/10/2026 18:20:22|
 brief|qwen3-0.6b|v1|0.56|36|1|21/10/2026 18:24:05|
-kind|granite-1b|v1|0.67|36|1|21/10/2026 18:47:16|
-kind|granite-1b-choice|v1|0.67|36|1|21/10/2026 18:56:00|
-triage_extract|granite-1b|v1|0.56|36|1|21/10/2026 19:12:03|
-triage_extract|granite-1b-choice|v1|0.72|36|1|21/10/2026 19:26:35|
-brief|granite-1b|v1|0.53|36|1|21/10/2026 19:28:12|
-kind|keyword-rules|v1|0.69|36|1|21/10/2026 19:29:34|
 kind|qwen25c-1.5b|v1|0.64|36|1|21/10/2026 19:30:30|
 kind|qwen25c-1.5b-choice|v1|0.56|36|1|21/10/2026 19:31:46|
-triage_extract|keyword-rules|v1|0.56|36|1|21/10/2026 19:31:46|
 triage_extract|qwen25c-1.5b|v1|0.61|36|1|21/10/2026 19:34:11|
 triage_extract|qwen25c-1.5b-choice|v1|0.64|36|1|21/10/2026 19:36:51|
-brief|first-clause|v1|0.69|36|1|21/10/2026 19:36:51|
 brief|qwen25c-1.5b|v1|0.50|36|1|21/10/2026 19:42:28|
 kind|granite42-3b-choice|v1|0.67|36|1|22/10/2026 13:08:56|summed from slices, ChatML template, 2026-10-22
 triage_extract|granite42-3b-choice|v1|0.69|36|1|22/10/2026 13:09:04|summed from slices, ChatML template, 2026-10-22
 brief|granite42-3b|v1|0.58|36|1|22/10/2026 13:09:11|summed from slices, ChatML template, 2026-10-22
+kind|keyword-rules|v1|0.69|36|1|11/11/2026 15:04:18|
+kind|granite-1b|v1|0.61|36|0.97|11/11/2026 15:06:55|
+kind|granite-1b-choice|v1|0.67|36|1|11/11/2026 15:10:20|
+kind|bolt-e4b|v1|0.75|36|1|11/11/2026 15:16:28|
+kind|bolt-e4b-choice|v1|0.81|36|1|11/11/2026 15:24:36|
+triage_extract|keyword-rules|v1|0.56|36|1|11/11/2026 15:24:36|
+triage_extract|granite-1b|v1|0.56|36|1|11/11/2026 15:30:16|
+triage_extract|granite-1b-choice|v1|0.72|36|1|11/11/2026 15:34:35|
+triage_extract|bolt-e4b|v1|0.83|36|1|11/11/2026 15:38:15|
+triage_extract|bolt-e4b-choice|v1|0.94|36|1|11/11/2026 15:42:52|
+brief|first-clause|v1|0.69|36|1|11/11/2026 15:42:52|
+brief|granite-1b|v1|0.53|36|1|11/11/2026 15:43:47|
+brief|bolt-e4b|v1|0.69|36|1|11/11/2026 15:45:48|

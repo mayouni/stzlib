@@ -37,6 +37,8 @@ for i = 1 to len(aFacs)
 	next
 	? "  (" + cF + " took " + nSec + " s)"
 	StzSaveMeasurements(cStore)
+	# the court's counts from this run (every ordered pair scored on the same tickets), beside the scores
+	StzSaveCourt("results/court.zcourt.txt")
 next
 aSw = StzModelSwapCosts()
 for i = 1 to len(aSw)
