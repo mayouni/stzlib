@@ -135,7 +135,7 @@ Shutdown($nFail)
 func Scenario(tName)
 	? ""
 	? "SCENARIO: " + tName
-
+end
 func Then(tWhat, xGot, xExpected)
 	if xGot = xExpected
 		$nPass = $nPass + 1
@@ -146,13 +146,13 @@ func Then(tWhat, xGot, xExpected)
 		? "    expected: " + String(xExpected)
 		? "    got:      " + String(xGot)
 	end
-
+end
 func ChatMl(tSystem, tUser)
 	return "<|im_start|>system" + Char(10) + tSystem + "<|im_end|>" + Char(10) + "<|im_start|>user" + Char(10) + tUser + "<|im_end|>" + Char(10) + "<|im_start|>assistant" + Char(10)
-
+end
 func Gemma(tSystem, tUser)
 	return "<|turn>system" + Char(10) + tSystem + "<turn|>" + Char(10) + "<|turn>user" + Char(10) + tUser + "<turn|>" + Char(10) + "<|turn>model" + Char(10)
-
+end
 func Slashes(tPath)
 	tOut = ""
 	nLen = Len(tPath)
@@ -164,3 +164,4 @@ func Slashes(tPath)
 		end
 	end
 	return tOut
+end

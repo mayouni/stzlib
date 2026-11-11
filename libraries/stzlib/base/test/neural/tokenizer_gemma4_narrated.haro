@@ -102,7 +102,7 @@ Shutdown($nFail)
 func Scenario(tName)
 	? ""
 	? "SCENARIO: " + tName
-
+end
 func Then(tWhat, xGot, xExpected)
 	if xGot = xExpected
 		$nPass = $nPass + 1
@@ -113,7 +113,7 @@ func Then(tWhat, xGot, xExpected)
 		? "    expected: " + String(xExpected)
 		? "    got:      " + String(xGot)
 	end
-
+end
 func Slashes(tPath)
 	tOut = ""
 	nLen = Len(tPath)
@@ -125,3 +125,4 @@ func Slashes(tPath)
 		end
 	end
 	return tOut
+end
