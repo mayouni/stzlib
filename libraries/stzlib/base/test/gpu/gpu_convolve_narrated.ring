@@ -39,7 +39,7 @@ pr()
 
 decimals(9)
 
-if StzEngineGpuInit($cStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
+if StzEngineGpuInit($tStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
 	? "  NO GPU ON THIS MACHINE -- asserting the refusal contract only"
 	StzEngineGpuCountersReset()
 	chk("the op refuses without a device", StzEngineGpuOpConvolveReal(1, 4, 1, 4, 1) != 0)

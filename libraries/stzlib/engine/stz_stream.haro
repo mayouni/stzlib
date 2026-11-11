@@ -1,0 +1,23 @@
+# Softanza Engine -- Stream Operations
+#
+# Loads stz_stream.dll for byte stream read/write with cursor.
+#
+# Function prefix: StzEngineStream*
+
+if IsWindows()
+    $tStzStreamLib = $tEngineDir + "/zig-out/bin/stz_stream.dll"
+elseif IsLinux()
+    $tStzStreamLib = $tEngineDir + "/zig-out/lib/libstz_stream.so"
+elseif isMacOS()
+    $tStzStreamLib = $tEngineDir + "/zig-out/lib/libstz_stream.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("stream")
+    $hStzStreamHandle = null
+elseif FExists($tStzStreamLib)
+    $hStzStreamHandle = LoadLib($tStzStreamLib)
+else
+    ? "WARNING: stz_stream not found at: " + $tStzStreamLib
+    $hStzStreamHandle = null
+end

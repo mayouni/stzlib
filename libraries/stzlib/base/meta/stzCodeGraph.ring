@@ -17,7 +17,7 @@
 
 # Is the vendored tree-sitter engine grammar loaded (stz_polyglot.dll)?
 func StzTreeSitterAvailable()
-	return $pStzPolyglotHandle != ""
+	return $hStzPolyglotHandle != ""
 
 # Turns source code into a graph of classes, methods, functions, imports and calls, and answers questions about inheritance and impact.
 #
@@ -112,7 +112,7 @@ class stzCodeGraph from stzObject
 	#   see        BuildGraph, DeadCode, FileOf
 	#@ aka  -- tree-sitter scanning (real parse in the engine, no runtime) --------
 	def ScanSourceViaTreeSitter(pcSource, pcFile)
-		if $pStzPolyglotHandle = ""
+		if $hStzPolyglotHandle = ""
 			stzraise("The tree-sitter engine (stz_polyglot.dll) is not loaded. Build the engine with: zig build -Dring=D:/ring127.")
 		ok
 		This._IngestAstLines(StzEnginePolyglotParse(This.Language(), "" + pcSource), pcFile)

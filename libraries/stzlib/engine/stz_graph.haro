@@ -1,0 +1,25 @@
+# Softanza Engine -- Graph Ring Bridge
+#
+# Loads stz_graph.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Function prefix: StzEngineGraph*
+
+if IsWindows()
+    $tStzGraphLib = $tEngineDir + "/zig-out/bin/stz_graph.dll"
+elseif IsLinux()
+    $tStzGraphLib = $tEngineDir + "/zig-out/lib/libstz_graph.so"
+elseif isMacOS()
+    $tStzGraphLib = $tEngineDir + "/zig-out/lib/libstz_graph.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("graph")
+    $hStzGraphHandle = null
+elseif FExists($tStzGraphLib)
+    $hStzGraphHandle = LoadLib($tStzGraphLib)
+else
+    ? "WARNING: stz_graph not found at: " + $tStzGraphLib
+    $hStzGraphHandle = null
+end

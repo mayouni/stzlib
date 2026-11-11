@@ -46,12 +46,12 @@ func StzForgetListeners()
 	$aStzListeners = []
 
 # The engine folder of the library's SOURCE tree -- vendor/, tools/ and src/ --
-# which is not $cEngineDir when STZ_ENGINE_DIR names a built copy elsewhere.
+# which is not $tEngineDir when STZ_ENGINE_DIR names a built copy elsewhere.
 func StzSourceEngineDir()
-	if isglobal("$cStzLibDir") and $cStzLibDir != "" and fexists($cStzLibDir + "/engine/stk_string.ring")
+	if isglobal("$cStzLibDir") and $cStzLibDir != "" and fexists($cStzLibDir + "/engine/stk_string.haro")
 		return $cStzLibDir + "/engine"
 	ok
-	return $cEngineDir
+	return $tEngineDir
 
 func StzExposureQ()
 	return new stzExposure()
@@ -315,9 +315,9 @@ class stzExposure from stzObject
 				_v_ = eval("return " + _aG_[_i_])
 				if NOT (isString(_v_) and _v_ = "")
 					if isPointer(_v_) or isNumber(_v_)
-						_g_ = _aG_[_i_]                       # $pStzCryptoHandle -> crypto
+						_g_ = _aG_[_i_]                       # $hStzCryptoHandle -> crypto
 						_cN_ = StzLower(left(right(_g_, len(_g_) - 5), len(_g_) - 11))
-						# the core's own libraries ($pStkStringHandle) are named stk_<name>:
+						# the core's own libraries ($hStkStringHandle) are named stk_<name>:
 						# read as "string" they were counted twice (W7b, 2026-11-05)
 						if StzLower(left(_g_, 5)) = "$pstk"  _cN_ = "stk_" + _cN_  ok
 						@aDomains + _cN_

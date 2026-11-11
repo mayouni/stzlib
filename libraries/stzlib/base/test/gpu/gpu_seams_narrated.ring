@@ -34,7 +34,7 @@ pr()
 decimals(12)
 
 ? "-- Scene 0: a device, and a clean slate --"
-nInit = StzEngineGpuInit($cStzGpuRuntime)
+nInit = StzEngineGpuInit($tStzGpuRuntime)
 if StzEngineGpuIsAvailable() = 0
     ? "  NO GPU ON THIS MACHINE -- the seam can never engage; asserting the CPU contract only"
 else

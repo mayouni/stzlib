@@ -1,0 +1,23 @@
+# Softanza Engine -- Compression Utilities
+#
+# Loads stz_compress.dll for deflate/inflate, CRC-32, Adler-32, RLE.
+#
+# Function prefix: StzEngineCompress*
+
+if IsWindows()
+    $tStzCompressLib = $tEngineDir + "/zig-out/bin/stz_compress.dll"
+elseif IsLinux()
+    $tStzCompressLib = $tEngineDir + "/zig-out/lib/libstz_compress.so"
+elseif isMacOS()
+    $tStzCompressLib = $tEngineDir + "/zig-out/lib/libstz_compress.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("compress")
+    $hStzCompressHandle = null
+elseif FExists($tStzCompressLib)
+    $hStzCompressHandle = LoadLib($tStzCompressLib)
+else
+    ? "WARNING: stz_compress not found at: " + $tStzCompressLib
+    $hStzCompressHandle = null
+end

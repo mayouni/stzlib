@@ -1,0 +1,23 @@
+# Softanza Engine -- Codec Operations
+#
+# Loads stz_codec.dll for Base64, Hex, URL encoding/decoding, ROT13.
+#
+# Function prefix: StzEngineCodec*
+
+if IsWindows()
+    $tStzCodecLib = $tEngineDir + "/zig-out/bin/stz_codec.dll"
+elseif IsLinux()
+    $tStzCodecLib = $tEngineDir + "/zig-out/lib/libstz_codec.so"
+elseif isMacOS()
+    $tStzCodecLib = $tEngineDir + "/zig-out/lib/libstz_codec.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("codec")
+    $hStzCodecHandle = null
+elseif FExists($tStzCodecLib)
+    $hStzCodecHandle = LoadLib($tStzCodecLib)
+else
+    ? "WARNING: stz_codec not found at: " + $tStzCodecLib
+    $hStzCodecHandle = null
+end

@@ -3,13 +3,13 @@
 #---------------------------------#
 
 # Parameter checking (can be disabled for performance in loops)
-$_bParamCheck = 1
+$bParamCheck = 1
 
 func CheckingParams()
-	return $_bParamCheck
+	return $bParamCheck
 
 func SetParamCheckingTo(bValue)
-	$_bParamCheck = bValue
+	$bParamCheck = bValue
 
 # Early checking (preliminary validations before heavy operations)
 $_bEarlyCheck = 1

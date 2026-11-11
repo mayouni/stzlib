@@ -1,0 +1,23 @@
+# Softanza Engine -- Small Utility Functions
+#
+# Loads stz_smallfn.dll for min/max/abs/sign/clamp/lerp/rounding/math.
+#
+# Function prefix: StzEngineSmall*
+
+if IsWindows()
+    $tStzSmallfnLib = $tEngineDir + "/zig-out/bin/stz_smallfn.dll"
+elseif IsLinux()
+    $tStzSmallfnLib = $tEngineDir + "/zig-out/lib/libstz_smallfn.so"
+elseif isMacOS()
+    $tStzSmallfnLib = $tEngineDir + "/zig-out/lib/libstz_smallfn.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("smallfn")
+    $hStzSmallfnHandle = null
+elseif FExists($tStzSmallfnLib)
+    $hStzSmallfnHandle = LoadLib($tStzSmallfnLib)
+else
+    ? "WARNING: stz_smallfn not found at: " + $tStzSmallfnLib
+    $hStzSmallfnHandle = null
+end

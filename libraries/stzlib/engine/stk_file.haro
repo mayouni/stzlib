@@ -1,0 +1,23 @@
+# Softanza Engine -- Core File Ring Bridge
+#
+# Loads stk_file.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: core/file/stkFile.ring
+# Function prefix: StkEngine* (distinct from Base StzEngine*)
+
+if IsWindows()
+    $tStkFileLib = $tEngineDir + "/zig-out/bin/stk_file.dll"
+elseif IsLinux()
+    $tStkFileLib = $tEngineDir + "/zig-out/lib/libstk_file.so"
+elseif isMacOS()
+    $tStkFileLib = $tEngineDir + "/zig-out/lib/libstk_file.dylib"
+end
+
+if FExists($tStkFileLib)
+    $hStkFileHandle = LoadLib($tStkFileLib)
+else
+    ? "WARNING: stk_file not found at: " + $tStkFileLib
+    $hStkFileHandle = null
+end

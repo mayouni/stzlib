@@ -1,0 +1,26 @@
+# Softanza Engine -- All-in-One FFI Bridge
+#
+# Convenience loader: loads all per-domain Engine bridges.
+# Use this when you want every Engine module available.
+# For selective loading, load individual bridges instead:
+#   load "engine/stz_string.haro"     # string + char only
+#   load "engine/stz_datetime.haro"   # date + time + datetime only
+#   load "engine/stz_file.haro"       # file + dir + path only
+#   load "engine/stz_locale.haro"     # locale only
+#   load "engine/stz_regex.haro"      # regex only
+#   load "engine/stz_bytes.haro"      # byte array only
+#   load "engine/stz_json.haro"       # JSON only
+#   load "engine/stz_url.haro"        # URL only
+#   load "engine/stz_system.haro"     # system/process only
+#   load "engine/stz_unicode.haro"    # unicode properties/case/normalize only
+
+load "stz_string.haro"
+load "stz_datetime.haro"
+load "stz_file.haro"
+load "stz_locale.haro"
+load "stz_regex.haro"
+load "stz_bytes.haro"
+load "stz_json.haro"
+load "stz_url.haro"
+load "stz_system.haro"
+load "stz_unicode.haro"

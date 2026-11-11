@@ -1,0 +1,26 @@
+# Softanza Engine -- Base Yielder Ring Bridge
+#
+# Loads stz_yielder.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: base/yielder/stzYielder.ring
+# Function prefix: StzEngineYielder*
+
+if IsWindows()
+    $tStzYielderLib = $tEngineDir + "/zig-out/bin/stz_yielder.dll"
+elseif IsLinux()
+    $tStzYielderLib = $tEngineDir + "/zig-out/lib/libstz_yielder.so"
+elseif isMacOS()
+    $tStzYielderLib = $tEngineDir + "/zig-out/lib/libstz_yielder.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("yielder")
+    $hStzYielderHandle = null
+elseif FExists($tStzYielderLib)
+    $hStzYielderHandle = LoadLib($tStzYielderLib)
+else
+    ? "WARNING: stz_yielder not found at: " + $tStzYielderLib
+    $hStzYielderHandle = null
+end

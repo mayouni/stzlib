@@ -10,12 +10,12 @@ load "stkRingStdFuncs.ring"
 # Load Core Engine bridge (string + char)
 # The Engine replaces Qt -- no qtcore.ring, no Ring extensions.
 
-$cEngineDir = _stzDiscoverEngineDir()
+$tEngineDir = _stzDiscoverEngineDir()
 # the library's own source folder (the one holding base/ and engine/), found
 # apart from the engine: STZ_ENGINE_DIR may name a copy outside the tree
 $cStzLibDir = _stzDiscoverLibDir()
 
-load "../../engine/stk_string.ring"
+load "../../engine/stk_string.haro"
 
 # --- Helper function (Ring compiles funcs first, so it's callable above) ---
 
@@ -96,7 +96,7 @@ func StzDomainDenyFile()
 	ok
 	_p_ = sysget("STZ_DOMAIN_DENY")
 	if _p_ != ""  return _p_  ok
-	return $cEngineDir + "/DENIED"
+	return $tEngineDir + "/DENIED"
 
 # the domains a manifest left out, and those the deny list refused: [ [ domain, advisoryId, why ], ... ]
 func StzDomainsSkipped()
@@ -122,7 +122,7 @@ func _stzDiscoverLibDir()
 		ok
 	next
 	for _depth_ = 1 to 12
-		if fexists(_cDir_ + "/engine/stk_string.ring") and fexists(_cDir_ + "/base/stzBase.ring")
+		if fexists(_cDir_ + "/engine/stk_string.haro") and fexists(_cDir_ + "/base/stzBase.ring")
 			return _cDir_
 		ok
 		if fexists(_cDir_ + "/libraries/stzlib/base/stzBase.ring")

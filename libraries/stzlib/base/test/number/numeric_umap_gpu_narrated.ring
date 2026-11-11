@@ -61,7 +61,7 @@ nPurCpu = purity(oCpu.Embedding(), 4, 5, 1)
 ? "  CPU 5-NN blob purity: " + nPurCpu
 chk("the CPU embedding keeps the blobs together (purity >= 0.95)", nPurCpu >= 0.95)
 
-if StzEngineGpuInit($cStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
+if StzEngineGpuInit($tStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
 	? ""
 	? "  NO GPU ON THIS MACHINE -- the seams can never engage; the CPU contract above is the coverage"
 	StzEngineUmapGpuSetMinN(1)

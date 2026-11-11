@@ -31,7 +31,7 @@ $TEMP_STRING = ""
 $TEMP_NUMBER = 0
 $TEMP_OBJECT = ""
 
-$_bKeepHisto = 0 // for keeping objec update history
+$bKeepHisto = 0 // for keeping objec update history
 $_aHisto = []
 
 $_aKeepHistoXT = [ 0, "" ]
@@ -79,7 +79,7 @@ $_bAsObjectQ = 0
 
 _bModifiable = 0	# Used with operators that modify stz objects
 
-$_bParamCheck = 1  	# Activates the "# Checking params region" in softanza functions
+$bParamCheck = 1  	# Activates the "# Checking params region" in softanza functions
 		     	#--> Set it to FALSE if the functions are used inside large loops
 		    	# so you can gain performance (the checks can then be made once,
 		     	# by yourself, outside the loop).
@@ -2420,7 +2420,7 @@ func @ForEach(p, pIn)
 	#>
 
 func StzActivateParamChecking()
-	$_bParamCheck = 1
+	$bParamCheck = 1
 
 	func ActivateParamChecking()
 		StzActivateParamChecking()
@@ -2462,7 +2462,7 @@ func StzActivateParamChecking()
 	#>
 
 func StzDesactivateParamChecking()
-	$_bParamCheck = 0
+	$bParamCheck = 0
 
 	func DesactivateParamChecking()
 		StzDesactivateParamChecking()
@@ -2506,7 +2506,7 @@ func StzDesactivateParamChecking()
 	#>
 
 func StzParamChecking()
-	return $_bParamCheck
+	return $bParamCheck
 
 	func ParamChecking()
 		return StzParamChecking()
@@ -2514,22 +2514,22 @@ func StzParamChecking()
 	#< @FunctionAlternativeForms
 
 	func ParamsChecking()
-		return $_bParamCheck
+		return $bParamCheck
 
 	func ParamCheck()
-		return $_bParamCheck
+		return $bParamCheck
 
 	func ParamsCheck()
-		return $_bParamCheck
+		return $bParamCheck
 
 	# NOTE: CheckParam(pValue, p2, p3) is defined in stznamedparams_engine.ring
 	# The 0-arg alias was removed to avoid Ring's redefinition error.
 
 	func CheckingParam()
-		return $_bParamCheck
+		return $bParamCheck
 
 	func CheckParams()
-		return $_bParamCheck
+		return $bParamCheck
 
 	#>
 
@@ -2537,31 +2537,31 @@ func StzParamChecking()
 	# Forgetting the "c" in "Check"
 
 	func ParamCheking()
-		return $_bParamCheck
+		return $bParamCheck
 
 	func ParamsCheking()
-		return $_bParamCheck
+		return $bParamCheck
 
 	func ParamChek()
-		return $_bParamCheck
+		return $bParamCheck
 
 	func ParamsChek()
-		return $_bParamCheck
+		return $bParamCheck
 
 	func ChekParam()
-		return $_bParamCheck
+		return $bParamCheck
 
 	func ChekingParam()
-		return $_bParamCheck
+		return $bParamCheck
 
 	func ChekParams()
-		return $_bParamCheck
+		return $bParamCheck
 
 	func ChekingParams()
-		return $_bParamCheck
+		return $bParamCheck
 
 	func ChekcParams()
-		return $_bParamCheck
+		return $bParamCheck
 
 	#>
 

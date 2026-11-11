@@ -1,0 +1,26 @@
+# Softanza Engine -- loopback HTTP test server (test fixture).
+#
+# Loads stz_testsrv.dll. A std.net HTTP/1.1 server on 127.0.0.1 serving
+# canned responses by path, for hardening the HTTP client offline (no
+# public internet, deterministic). See engine/src/testserver.zig.
+#
+#   StzEngineTestServerStart(nPort)  -> actual bound port (0 = ephemeral)
+#   StzEngineTestServerStop()
+
+if IsWindows()
+    $tStzTestSrvLib = $tEngineDir + "/zig-out/bin/stz_testsrv.dll"
+elseif IsLinux()
+    $tStzTestSrvLib = $tEngineDir + "/zig-out/lib/libstz_testsrv.so"
+elseif isMacOS()
+    $tStzTestSrvLib = $tEngineDir + "/zig-out/lib/libstz_testsrv.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("testsrv")
+    $hStzTestSrvHandle = null
+elseif FExists($tStzTestSrvLib)
+    $hStzTestSrvHandle = LoadLib($tStzTestSrvLib)
+else
+    ? "WARNING: stz_testsrv not found at: " + $tStzTestSrvLib
+    $hStzTestSrvHandle = null
+end

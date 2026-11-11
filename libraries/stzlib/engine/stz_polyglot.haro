@@ -1,0 +1,26 @@
+# Softanza Engine -- polyglot code parsing (tree-sitter).
+#
+# Loads stz_polyglot.dll: vendored tree-sitter runtime + tree-sitter-python
+# grammar (C, compiled by Zig -- NO Python/external runtime). Parses source
+# to the CLASS|/METHOD|/FUNC|/IMPORT|/CALL| line protocol the code-graph
+# ingests. Adding a language = another vendored grammar behind this door.
+#
+# Function prefix: StzEnginePolyglot*
+
+if IsWindows()
+    $tStzPolyglotLib = $tEngineDir + "/zig-out/bin/stz_polyglot.dll"
+elseif IsLinux()
+    $tStzPolyglotLib = $tEngineDir + "/zig-out/lib/libstz_polyglot.so"
+elseif isMacOS()
+    $tStzPolyglotLib = $tEngineDir + "/zig-out/lib/libstz_polyglot.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("polyglot")
+    $hStzPolyglotHandle = null
+elseif FExists($tStzPolyglotLib)
+    $hStzPolyglotHandle = LoadLib($tStzPolyglotLib)
+else
+    ? "WARNING: stz_polyglot not found at: " + $tStzPolyglotLib
+    $hStzPolyglotHandle = null
+end

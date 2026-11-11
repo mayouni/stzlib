@@ -88,7 +88,7 @@ func StzModelsDir()
 	if isglobal("$cStzLibDir") and isString($cStzLibDir) and $cStzLibDir != ""
 		return $cStzLibDir + "/models"
 	ok
-	_e_ = $cEngineDir
+	_e_ = $tEngineDir
 	if isString(_e_) and len(_e_) >= 7 and right(_e_, 7) = "/engine"
 		return left(_e_, len(_e_) - 7) + "/models"
 	ok

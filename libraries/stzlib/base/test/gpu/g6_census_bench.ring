@@ -16,7 +16,7 @@ load "../../stzBase.ring"
 
 decimals(3)
 
-StzEngineGpuInit($cStzGpuRuntime)
+StzEngineGpuInit($tStzGpuRuntime)
 if StzEngineGpuIsAvailable() = 0
     ? "NO GPU -- the measurement needs the proxy device"
     return

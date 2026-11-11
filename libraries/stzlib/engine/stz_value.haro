@@ -1,0 +1,26 @@
+# Softanza Engine -- Value Ring Bridge
+#
+# Loads stz_value.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: base/list/stzList.ring (for Reduce)
+# Function prefix: StzEngineValue*
+
+if IsWindows()
+    $tStzValueLib = $tEngineDir + "/zig-out/bin/stz_value.dll"
+elseif IsLinux()
+    $tStzValueLib = $tEngineDir + "/zig-out/lib/libstz_value.so"
+elseif isMacOS()
+    $tStzValueLib = $tEngineDir + "/zig-out/lib/libstz_value.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("value")
+    $hStzValueHandle = null
+elseif FExists($tStzValueLib)
+    $hStzValueHandle = LoadLib($tStzValueLib)
+else
+    ? "WARNING: stz_value not found at: " + $tStzValueLib
+    $hStzValueHandle = null
+end

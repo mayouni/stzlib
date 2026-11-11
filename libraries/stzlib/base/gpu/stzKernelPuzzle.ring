@@ -39,13 +39,13 @@ func StzKernelPuzzleQ(pcId)
 # The folder the puzzles live in, from the engine directory the library discovered at load.
 func StzKernelPuzzlesFolder()
 	_nSlash_ = 0
-	_nL_ = len($cEngineDir)
+	_nL_ = len($tEngineDir)
 	for _i_ = 1 to _nL_
-		if $cEngineDir[_i_] = "/"
+		if $tEngineDir[_i_] = "/"
 			_nSlash_ = _i_
 		ok
 	next
-	return StzLeft($cEngineDir, _nSlash_ - 1) + "/base/education/program/courses/kernel-puzzles/exercises"
+	return StzLeft($tEngineDir, _nSlash_ - 1) + "/base/education/program/courses/kernel-puzzles/exercises"
 
 # Builds a stzKernelMaker from a description text, so a description read from a file or typed in a page becomes a maker.
 #
@@ -383,7 +383,7 @@ class stzKernelPuzzle from stzObject
 		_oRef_ = StzKernelMakerFromSpec(@cReference)
 		_aB_ = This.Bindings()
 		_nN_ = This.Elements()
-		if StzEngineGpuInit($cStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0
+		if StzEngineGpuInit($tStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0
 			_oG_ = new stzGpu
 			_aOpt_ = [ :n = _nN_, :band = This.Band() ]
 			if This.HiddenElements() > 0
@@ -431,7 +431,7 @@ class stzKernelPuzzle from stzObject
 			return _r_
 		ok
 		_oK_ = _r_
-		if NOT (StzEngineGpuInit($cStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0)
+		if NOT (StzEngineGpuInit($tStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0)
 			return "no device"
 		ok
 		_oRef_ = StzKernelMakerFromSpec(@cReference)

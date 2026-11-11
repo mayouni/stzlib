@@ -1666,7 +1666,7 @@ class stzDeployment from stzObject
 		if poSite.IsLocal()
 			# the local machine can answer for ITSELF -- probe the device
 			if StzEngineGpuIsAvailable() = 0
-				StzEngineGpuInit($cStzGpuRuntime)
+				StzEngineGpuInit($tStzGpuRuntime)
 			ok
 			return StzEngineGpuIsAvailable() = 1
 		ok

@@ -1,0 +1,25 @@
+# Softanza Engine -- SectMerge Ring Bridge
+#
+# Loads stz_sectmerge.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Function prefix: StzEngineSmp*
+
+if IsWindows()
+    $tStzSectmergeLib = $tEngineDir + "/zig-out/bin/stz_sectmerge.dll"
+elseif IsLinux()
+    $tStzSectmergeLib = $tEngineDir + "/zig-out/lib/libstz_sectmerge.so"
+elseif isMacOS()
+    $tStzSectmergeLib = $tEngineDir + "/zig-out/lib/libstz_sectmerge.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("sectmerge")
+    $hStzSectmergeHandle = null
+elseif FExists($tStzSectmergeLib)
+    $hStzSectmergeHandle = LoadLib($tStzSectmergeLib)
+else
+    ? "WARNING: stz_sectmerge not found at: " + $tStzSectmergeLib
+    $hStzSectmergeHandle = null
+end

@@ -1,0 +1,30 @@
+# Softanza Engine -- latency histogram (p50 / p95 / p99).
+#
+# Loads stz_histogram.dll. Log-scale bucketed histogram for request /
+# job latency; gap-analysis Tier 1 item 6.
+#
+# Function prefix: StzEngineHistogram*
+#   StzEngineHistogramCreate()              -> opaque handle
+#   StzEngineHistogramRecord(h, nMs)        -> tally one sample
+#   StzEngineHistogramPercentile(h, nP)     -> ms upper bound for pctile
+#   StzEngineHistogramCount(h)              -> total samples
+#   StzEngineHistogramReset(h)
+#   StzEngineHistogramDestroy(h)
+
+if IsWindows()
+    $tStzHistogramLib = $tEngineDir + "/zig-out/bin/stz_histogram.dll"
+elseif IsLinux()
+    $tStzHistogramLib = $tEngineDir + "/zig-out/lib/libstz_histogram.so"
+elseif isMacOS()
+    $tStzHistogramLib = $tEngineDir + "/zig-out/lib/libstz_histogram.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("histogram")
+    $hStzHistogramHandle = null
+elseif FExists($tStzHistogramLib)
+    $hStzHistogramHandle = LoadLib($tStzHistogramLib)
+else
+    ? "WARNING: stz_histogram not found at: " + $tStzHistogramLib
+    $hStzHistogramHandle = null
+end

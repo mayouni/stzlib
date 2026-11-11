@@ -105,7 +105,7 @@ StzEngineRegexFree(pH)
 ? ""
 ? "--- Test: StzRegexMatchAll wrapper ---"
 
-# Need to set $cEngineDir for the bridge file
+# Need to set $tEngineDir for the bridge file
 cTemp = cRegexLib
 nLen2 = len(cTemp)
 cNorm2 = ""
@@ -117,8 +117,8 @@ for i = 1 to nLen2
 	ok
 next
 nCut2 = len(cNorm2) - len("/zig-out/bin/stz_regex.dll")
-$cEngineDir = left(cNorm2, nCut2)
-load "../../../engine/stz_regex.ring"
+$tEngineDir = left(cNorm2, nCut2)
+load "../../../engine/stz_regex.haro"
 aMatches = StzRegexMatchAll("[a-z]+", "Hello World Test")
 ? "  Found " + len(aMatches) + " matches"
 if len(aMatches) = 3

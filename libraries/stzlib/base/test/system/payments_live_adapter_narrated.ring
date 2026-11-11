@@ -20,7 +20,7 @@ load "../_narrated.ring"
 # touches is the engine's throwaway TEST-ONLY mutual-TLS fixture (engine/src/mtls_certs), which
 # the mTLS guard of the cluster plane already uses.
 
-$cCertDir = $cEngineDir + "/src/mtls_certs"
+$cCertDir = $tEngineDir + "/src/mtls_certs"
 $cNodeCrt = $cCertDir + "/node.crt.pem"
 $cNodeKey = $cCertDir + "/node.key.pem"
 $cCACrt   = $cCertDir + "/ca.crt.pem"
@@ -730,11 +730,11 @@ func FrontRingExe
 
 func FrontBaseRing
 	nSlash = 0
-	nChars = len($cEngineDir)
+	nChars = len($tEngineDir)
 	for i = 1 to nChars
-		if $cEngineDir[i] = "/"  nSlash = i  ok
+		if $tEngineDir[i] = "/"  nSlash = i  ok
 	next
-	return StzLeft($cEngineDir, nSlash - 1) + "/base/stzBase.ring"
+	return StzLeft($tEngineDir, nSlash - 1) + "/base/stzBase.ring"
 
 # a request and a response, as the app server would hand them to the route's handler
 func HandleWebhook(cBody, cSig)

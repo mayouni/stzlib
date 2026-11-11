@@ -32,7 +32,7 @@ pr()
 
 decimals(4)
 
-if StzEngineGpuInit($cStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
+if StzEngineGpuInit($tStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
 	? "  NO GPU ON THIS MACHINE -- the foundry cannot run; the table's refusals are the coverage"
 	chk("the table refuses the broken variant without a device", StzEngineUmapKnnVariantSet(4096, 8, 15, 4) != 0)
 	chk("...and answers 0 (the generic) for an unset class", StzEngineUmapKnnVariantGet(4096, 8, 15) = 0)

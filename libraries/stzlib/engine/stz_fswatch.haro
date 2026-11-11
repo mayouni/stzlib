@@ -1,0 +1,30 @@
+# Softanza Engine -- background folder watcher (libuv-free).
+#
+# Loads stz_fswatch.dll. Replaces the libuv fs_event surface.
+# Backed by a Zig worker thread that polls std.fs at 250ms,
+# diffs against the previous snapshot, and queues ADD / MOD / DEL
+# events for the Ring side to drain.
+#
+# Function prefix: StzEngineFsWatch*
+#   StzEngineFsWatchStart(cPath)        -> opaque watcher handle
+#   StzEngineFsWatchPoll(hWatch)        -> "KIND\tname\n..."
+#   StzEngineFsWatchStop(hWatch)
+#   StzEngineFsWatchLastError()
+
+if IsWindows()
+    $tStzFsWatchLib = $tEngineDir + "/zig-out/bin/stz_fswatch.dll"
+elseif IsLinux()
+    $tStzFsWatchLib = $tEngineDir + "/zig-out/lib/libstz_fswatch.so"
+elseif isMacOS()
+    $tStzFsWatchLib = $tEngineDir + "/zig-out/lib/libstz_fswatch.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("fswatch")
+    $hStzFsWatchHandle = null
+elseif FExists($tStzFsWatchLib)
+    $hStzFsWatchHandle = LoadLib($tStzFsWatchLib)
+else
+    ? "WARNING: stz_fswatch not found at: " + $tStzFsWatchLib
+    $hStzFsWatchHandle = null
+end

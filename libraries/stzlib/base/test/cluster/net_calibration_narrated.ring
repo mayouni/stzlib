@@ -95,10 +95,10 @@ func NcgRingExe()
 
 func NcgBaseRing()
 	_nSlash_ = 0
-	_nBl_ = StzLen($cEngineDir)
+	_nBl_ = StzLen($tEngineDir)
 	for _iB_ = 1 to _nBl_
-		if $cEngineDir[_iB_] = "/"
+		if $tEngineDir[_iB_] = "/"
 			_nSlash_ = _iB_
 		ok
 	next
-	return StzLeft($cEngineDir, _nSlash_ - 1) + "/base/stzBase.ring"
+	return StzLeft($tEngineDir, _nSlash_ - 1) + "/base/stzBase.ring"

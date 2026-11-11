@@ -26,7 +26,7 @@ $nFail = 0
 
 pr()
 
-if StzEngineGpuInit($cStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
+if StzEngineGpuInit($tStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
 	? "  NO GPU ON THIS MACHINE -- the slots exist but no driver will ever write them here"
 	chk("both slots are empty strings without a device", StzEngineGpuFirstError() = "" and StzEngineGpuLastError() = "")
 else

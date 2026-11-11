@@ -1,0 +1,23 @@
+# Softanza Engine -- Process Info
+#
+# Loads stz_process.dll for process/platform introspection.
+#
+# Function prefix: StzEngineProcess*
+
+if IsWindows()
+    $tStzProcessLib = $tEngineDir + "/zig-out/bin/stz_process.dll"
+elseif IsLinux()
+    $tStzProcessLib = $tEngineDir + "/zig-out/lib/libstz_process.so"
+elseif isMacOS()
+    $tStzProcessLib = $tEngineDir + "/zig-out/lib/libstz_process.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("process")
+    $hStzProcessHandle = null
+elseif FExists($tStzProcessLib)
+    $hStzProcessHandle = LoadLib($tStzProcessLib)
+else
+    ? "WARNING: stz_process not found at: " + $tStzProcessLib
+    $hStzProcessHandle = null
+end

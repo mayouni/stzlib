@@ -1,0 +1,26 @@
+# Softanza Engine -- Base URL Ring Bridge
+#
+# Loads stz_url.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: base/network/stzUrl.ring
+# Function prefix: StzEngine*
+
+if IsWindows()
+    $tStzUrlLib = $tEngineDir + "/zig-out/bin/stz_url.dll"
+elseif IsLinux()
+    $tStzUrlLib = $tEngineDir + "/zig-out/lib/libstz_url.so"
+elseif isMacOS()
+    $tStzUrlLib = $tEngineDir + "/zig-out/lib/libstz_url.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("url")
+    $hStzUrlHandle = null
+elseif FExists($tStzUrlLib)
+    $hStzUrlHandle = LoadLib($tStzUrlLib)
+else
+    ? "WARNING: stz_url not found at: " + $tStzUrlLib
+    $hStzUrlHandle = null
+end

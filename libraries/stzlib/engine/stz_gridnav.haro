@@ -1,0 +1,25 @@
+# Softanza Engine -- GridNav Ring Bridge
+#
+# Loads stz_gridnav.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Function prefix: StzEngineGrid*
+
+if IsWindows()
+    $tStzGridnavLib = $tEngineDir + "/zig-out/bin/stz_gridnav.dll"
+elseif IsLinux()
+    $tStzGridnavLib = $tEngineDir + "/zig-out/lib/libstz_gridnav.so"
+elseif isMacOS()
+    $tStzGridnavLib = $tEngineDir + "/zig-out/lib/libstz_gridnav.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("gridnav")
+    $hStzGridnavHandle = null
+elseif FExists($tStzGridnavLib)
+    $hStzGridnavHandle = LoadLib($tStzGridnavLib)
+else
+    ? "WARNING: stz_gridnav not found at: " + $tStzGridnavLib
+    $hStzGridnavHandle = null
+end

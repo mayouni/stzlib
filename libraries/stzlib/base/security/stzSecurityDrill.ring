@@ -512,18 +512,18 @@ class stzSecurityDrill from stzObject
 
 	def _DeriveStzBasePath()
 		_nSlash_ = 0
-		_nL_ = len($cEngineDir)
+		_nL_ = len($tEngineDir)
 		for _i_ = 1 to _nL_
-			if $cEngineDir[_i_] = "/"
+			if $tEngineDir[_i_] = "/"
 				_nSlash_ = _i_
 			ok
 		next
-		return StzLeft($cEngineDir, _nSlash_ - 1) + "/base/stzBase.ring"
+		return StzLeft($tEngineDir, _nSlash_ - 1) + "/base/stzBase.ring"
 
 	# The application under attack: real auth, a real signing gate, its
 	# own ledger, and one route that seals the evidence on request.
 	def _GenerateTargetScript()
-		@cScript = $cEngineDir + "/../base/security/.stzdrilltarget_gen.ring"
+		@cScript = $tEngineDir + "/../base/security/.stzdrilltarget_gen.ring"
 		_nl_ = char(10)
 		_c_ = 'load "' + @cBaseRing + '"' + _nl_
 		# THE TARGET'S GLOBALS ARE $-PREFIXED AND UNIQUE ON PURPOSE. They were

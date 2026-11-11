@@ -1,0 +1,23 @@
+# Softanza Engine -- Core String + Char Ring Bridge
+#
+# Loads stk_string.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: core/string/stkString.ring, core/string/stkChar.ring
+# Function prefix: StkEngine* (distinct from Base StzEngine*)
+
+if IsWindows()
+    $tStkStringLib = $tEngineDir + "/zig-out/bin/stk_string.dll"
+elseif IsLinux()
+    $tStkStringLib = $tEngineDir + "/zig-out/lib/libstk_string.so"
+elseif isMacOS()
+    $tStkStringLib = $tEngineDir + "/zig-out/lib/libstk_string.dylib"
+end
+
+if FExists($tStkStringLib)
+    $hStkStringHandle = LoadLib($tStkStringLib)
+else
+    ? "WARNING: stk_string not found at: " + $tStkStringLib
+    $hStkStringHandle = null
+end

@@ -31,15 +31,15 @@
 #
 # STANDALONE like gpu_lifecycle_narrated: loads only the engine bridge.
 
-$cEngineDir = "../../../engine"
+$tEngineDir = "../../../engine"
 # the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
 load "../../../core/common/stkRingLibs.ring"
-load "../../../engine/stz_gpu.ring"
+load "../../../engine/stz_gpu.haro"
 
 $nPass = 0
 $nFail = 0
 
-# counter indices (documented in engine/stz_gpu.ring)
+# counter indices (documented in engine/stz_gpu.haro)
 C_BYTES = 2
 C_FALL  = 3
 C_SUB   = 6
@@ -119,8 +119,8 @@ chk("every refusal was counted", StzEngineGpuCounter(C_FALL) >= nF0 + 3)
 
 ? ""
 ? "-- Scene 3: Init against the vendored runtime --"
-nInit = StzEngineGpuInit($cStzGpuRuntime)
-? "  Init(" + $cStzGpuRuntime + ") = " + nInit
+nInit = StzEngineGpuInit($tStzGpuRuntime)
+? "  Init(" + $tStzGpuRuntime + ") = " + nInit
 if StzEngineGpuIsAvailable() = 0
     ? "  NO GPU ON THIS MACHINE -- device scenes skipped, scenes 1-2 ARE the coverage"
 else
@@ -442,7 +442,7 @@ else
     nF1 = StzEngineGpuCounter(C_FALL)
     chk("post-shutdown texture ask refuses", StzEngineGpuTextureNew(16, 16, K_TARGET) = 0)
     chk("and was counted", StzEngineGpuCounter(C_FALL) = nF1 + 1)
-    chk("re-Init restores the device", StzEngineGpuInit($cStzGpuRuntime) = 1)
+    chk("re-Init restores the device", StzEngineGpuInit($tStzGpuRuntime) = 1)
     hTR = StzEngineGpuTextureNew(8, 8, K_TARGET)
     chk("render service is back (target creates)", hTR > 0)
     StzEngineGpuShutdown()

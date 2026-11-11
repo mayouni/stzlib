@@ -1,0 +1,27 @@
+# Softanza Engine -- reactor (libuv-backed async I/O backbone).
+#
+# Loads stz_reactor.dll, which statically links vendored libuv
+# (engine/vendor/libuv). Tier 2 foundation: epoll/kqueue/IOCP behind
+# libuv's one proactor API.
+#
+# Function prefix: StzEngineReactor*
+#   StzEngineReactorVersion()   -> libuv version string (e.g. "1.52.1")
+#   StzEngineReactorSelfTest()  -> timer callbacks fired (1 = loop OK)
+
+if IsWindows()
+    $tStzReactorLib = $tEngineDir + "/zig-out/bin/stz_reactor.dll"
+elseif IsLinux()
+    $tStzReactorLib = $tEngineDir + "/zig-out/lib/libstz_reactor.so"
+elseif isMacOS()
+    $tStzReactorLib = $tEngineDir + "/zig-out/lib/libstz_reactor.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("reactor")
+    $hStzReactorHandle = null
+elseif FExists($tStzReactorLib)
+    $hStzReactorHandle = LoadLib($tStzReactorLib)
+else
+    ? "WARNING: stz_reactor not found at: " + $tStzReactorLib
+    $hStzReactorHandle = null
+end

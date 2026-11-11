@@ -1,0 +1,23 @@
+# Softanza Engine -- Geographic Utilities
+#
+# Loads stz_geo.dll for haversine, bearing, midpoint, coordinate ops.
+#
+# Function prefix: StzEngineGeo*
+
+if IsWindows()
+    $tStzGeoLib = $tEngineDir + "/zig-out/bin/stz_geo.dll"
+elseif IsLinux()
+    $tStzGeoLib = $tEngineDir + "/zig-out/lib/libstz_geo.so"
+elseif isMacOS()
+    $tStzGeoLib = $tEngineDir + "/zig-out/lib/libstz_geo.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("geo")
+    $hStzGeoHandle = null
+elseif FExists($tStzGeoLib)
+    $hStzGeoHandle = LoadLib($tStzGeoLib)
+else
+    ? "WARNING: stz_geo not found at: " + $tStzGeoLib
+    $hStzGeoHandle = null
+end

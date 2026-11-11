@@ -1,0 +1,26 @@
+# Softanza Engine -- Base File Ring Bridge
+#
+# Loads stz_file.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: base/file/stzFile.ring, base/file/stzDir.ring
+# Function prefix: StzEngine* (distinct from Core StkEngine*)
+
+if IsWindows()
+    $tStzFileLib = $tEngineDir + "/zig-out/bin/stz_file.dll"
+elseif IsLinux()
+    $tStzFileLib = $tEngineDir + "/zig-out/lib/libstz_file.so"
+elseif isMacOS()
+    $tStzFileLib = $tEngineDir + "/zig-out/lib/libstz_file.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("file")
+    $hStzFileHandle = null
+elseif FExists($tStzFileLib)
+    $hStzFileHandle = LoadLib($tStzFileLib)
+else
+    ? "WARNING: stz_file not found at: " + $tStzFileLib
+    $hStzFileHandle = null
+end

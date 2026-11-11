@@ -1135,17 +1135,17 @@ class stzAppBackend from stzObject
 	# Both generated files sit beside this module, dot-prefixed, exactly where
 	# the cluster puts its generated worker.
 	def _ScratchPath(pcTag)
-		return $cEngineDir + "/../base/appserver/.stzbackend_" + pcTag + "_" + @cName
+		return $tEngineDir + "/../base/appserver/.stzbackend_" + pcTag + "_" + @cName
 
 	def _StzBasePath()
 		_nSlash_ = 0
-		_nL_ = len($cEngineDir)
+		_nL_ = len($tEngineDir)
 		for _i_ = 1 to _nL_
-			if $cEngineDir[_i_] = "/"
+			if $tEngineDir[_i_] = "/"
 				_nSlash_ = _i_
 			ok
 		next
-		return StzLeft($cEngineDir, _nSlash_ - 1) + "/base/stzBase.ring"
+		return StzLeft($tEngineDir, _nSlash_ - 1) + "/base/stzBase.ring"
 
 	# The ring interpreter running US -- so the child is the same build.
 	def _RingExecutable()

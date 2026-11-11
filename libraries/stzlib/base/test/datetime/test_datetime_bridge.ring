@@ -11,7 +11,7 @@ else
 	return
 ok
 
-# Set $cEngineDir from the discovered DLL path (strip /zig-out/bin/stz_datetime.dll)
+# Set $tEngineDir from the discovered DLL path (strip /zig-out/bin/stz_datetime.dll)
 cTemp = cDtLib
 nLen = len(cTemp)
 cNorm = ""
@@ -23,10 +23,10 @@ for i = 1 to nLen
 	ok
 next
 nCut = len(cNorm) - len("/zig-out/bin/stz_datetime.dll")
-$cEngineDir = left(cNorm, nCut)
+$tEngineDir = left(cNorm, nCut)
 
 # Load bridge wrappers (DLL already loaded, this adds Ring functions)
-load "../../../engine/stz_datetime.ring"
+load "../../../engine/stz_datetime.haro"
 ? "=== DateTime Bridge Wrapper Tests ==="
 
 # Test 1: StzDaysInMonth

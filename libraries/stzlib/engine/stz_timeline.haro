@@ -1,0 +1,25 @@
+# Softanza Engine -- Timeline Ring Bridge
+#
+# Loads stz_timeline.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Function prefix: StzEngineTimeline*
+
+if IsWindows()
+    $tStzTimelineLib = $tEngineDir + "/zig-out/bin/stz_timeline.dll"
+elseif IsLinux()
+    $tStzTimelineLib = $tEngineDir + "/zig-out/lib/libstz_timeline.so"
+elseif isMacOS()
+    $tStzTimelineLib = $tEngineDir + "/zig-out/lib/libstz_timeline.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("timeline")
+    $hStzTimelineHandle = null
+elseif FExists($tStzTimelineLib)
+    $hStzTimelineHandle = LoadLib($tStzTimelineLib)
+else
+    ? "WARNING: stz_timeline not found at: " + $tStzTimelineLib
+    $hStzTimelineHandle = null
+end

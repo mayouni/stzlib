@@ -184,7 +184,7 @@ func _SurvivesShutdownMidBatch
 	if StzEngineGpuBatchActive() != 0
 		return FALSE
 	ok
-	StzEngineGpuInit($cStzGpuRuntime)
+	StzEngineGpuInit($tStzGpuRuntime)
 	if StzEngineGpuIsAvailable() = 0
 		return FALSE
 	ok

@@ -455,10 +455,10 @@ class stzNodeApp from stzObject
 
 	def _BaseRing()
 		_nBrSlash_ = 0
-		_nBrLen_ = StzLen($cEngineDir)
+		_nBrLen_ = StzLen($tEngineDir)
 		for _iBr_ = 1 to _nBrLen_
-			if $cEngineDir[_iBr_] = "/"
+			if $tEngineDir[_iBr_] = "/"
 				_nBrSlash_ = _iBr_
 			ok
 		next
-		return StzLeft($cEngineDir, _nBrSlash_ - 1) + "/base/stzBase.ring"
+		return StzLeft($tEngineDir, _nBrSlash_ - 1) + "/base/stzBase.ring"

@@ -378,7 +378,7 @@ class stzSemanticIndex from stzObject
 			return
 		ok
 		if StzEngineGpuIsAvailable() = 0
-			StzEngineGpuInit($cStzGpuRuntime)
+			StzEngineGpuInit($tStzGpuRuntime)
 		ok
 		if StzEngineGpuIsAvailable() = 1
 			StzGpuLoadCalibrationForAdapter()

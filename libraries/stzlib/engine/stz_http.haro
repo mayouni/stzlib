@@ -1,0 +1,29 @@
+# Softanza Engine -- HTTP Client (libcurl-free)
+#
+# Loads stz_http.dll. Replaces the libcurl.ring extension dependency
+# for stzNetwork / stzHttpClient. Backed by Zig std.http.Client +
+# std.crypto.tls -- HTTPS works without an external TLS lib.
+#
+# Function prefix: StzEngineHttp*
+#   StzEngineHttpGet(cUrl)                        -> body string
+#   StzEngineHttpGetStatus(cUrl)                  -> HTTP status int
+#   StzEngineHttpPost(cUrl, cContentType, cBody)  -> body string
+#   StzEngineHttpLastError()                      -> last error message
+
+if IsWindows()
+    $tStzHttpLib = $tEngineDir + "/zig-out/bin/stz_http.dll"
+elseif IsLinux()
+    $tStzHttpLib = $tEngineDir + "/zig-out/lib/libstz_http.so"
+elseif isMacOS()
+    $tStzHttpLib = $tEngineDir + "/zig-out/lib/libstz_http.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("http")
+    $hStzHttpHandle = null
+elseif FExists($tStzHttpLib)
+    $hStzHttpHandle = LoadLib($tStzHttpLib)
+else
+    ? "WARNING: stz_http not found at: " + $tStzHttpLib
+    $hStzHttpHandle = null
+end

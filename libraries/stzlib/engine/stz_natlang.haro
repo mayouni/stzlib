@@ -1,0 +1,23 @@
+# Softanza Engine -- Natural Language Utilities
+#
+# Loads stz_natlang.dll for word/sentence counting, case/content checks.
+#
+# Function prefix: StzEngineNatLang*
+
+if IsWindows()
+    $tStzNatlangLib = $tEngineDir + "/zig-out/bin/stz_natlang.dll"
+elseif IsLinux()
+    $tStzNatlangLib = $tEngineDir + "/zig-out/lib/libstz_natlang.so"
+elseif isMacOS()
+    $tStzNatlangLib = $tEngineDir + "/zig-out/lib/libstz_natlang.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("natlang")
+    $hStzNatlangHandle = null
+elseif FExists($tStzNatlangLib)
+    $hStzNatlangHandle = LoadLib($tStzNatlangLib)
+else
+    ? "WARNING: stz_natlang not found at: " + $tStzNatlangLib
+    $hStzNatlangHandle = null
+end

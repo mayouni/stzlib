@@ -1,0 +1,26 @@
+# Softanza Engine -- Base System Ring Bridge
+#
+# Loads stz_system.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: base/system/stzSystemCall.ring
+# Function prefix: StzEngine*
+
+if IsWindows()
+    $tStzSystemLib = $tEngineDir + "/zig-out/bin/stz_system.dll"
+elseif IsLinux()
+    $tStzSystemLib = $tEngineDir + "/zig-out/lib/libstz_system.so"
+elseif isMacOS()
+    $tStzSystemLib = $tEngineDir + "/zig-out/lib/libstz_system.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("system")
+    $hStzSystemHandle = null
+elseif FExists($tStzSystemLib)
+    $hStzSystemHandle = LoadLib($tStzSystemLib)
+else
+    ? "WARNING: stz_system not found at: " + $tStzSystemLib
+    $hStzSystemHandle = null
+end

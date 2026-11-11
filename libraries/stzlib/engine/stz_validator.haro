@@ -1,0 +1,22 @@
+# Softanza Engine -- Validation Rules
+#
+# Loads stz_validator.dll for validation rules.
+#
+# Function prefix: StzEngineValidator*
+
+if IsWindows()
+    $tStzValidatorLib = $tEngineDir + "/zig-out/bin/stz_validator.dll"
+elseif IsLinux()
+    $tStzValidatorLib = $tEngineDir + "/zig-out/lib/libstz_validator.so"
+elseif isMacOS()
+    $tStzValidatorLib = $tEngineDir + "/zig-out/lib/libstz_validator.dylib"
+end
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("validator")
+    $hStzValidatorHandle = null
+elseif FExists($tStzValidatorLib)
+    $hStzValidatorHandle = LoadLib($tStzValidatorLib)
+else
+    ? "WARNING: stz_validator not found at: " + $tStzValidatorLib
+    $hStzValidatorHandle = null
+end

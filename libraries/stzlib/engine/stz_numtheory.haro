@@ -1,0 +1,23 @@
+# Softanza Engine -- Number Theory
+#
+# Loads stz_numtheory.dll for GCD/LCM/primes/factorize/fibonacci/modular.
+#
+# Function prefix: StzEngineNumTheory*
+
+if IsWindows()
+    $tStzNumtheoryLib = $tEngineDir + "/zig-out/bin/stz_numtheory.dll"
+elseif IsLinux()
+    $tStzNumtheoryLib = $tEngineDir + "/zig-out/lib/libstz_numtheory.so"
+elseif isMacOS()
+    $tStzNumtheoryLib = $tEngineDir + "/zig-out/lib/libstz_numtheory.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("numtheory")
+    $hStzNumtheoryHandle = null
+elseif FExists($tStzNumtheoryLib)
+    $hStzNumtheoryHandle = LoadLib($tStzNumtheoryLib)
+else
+    ? "WARNING: stz_numtheory not found at: " + $tStzNumtheoryLib
+    $hStzNumtheoryHandle = null
+end

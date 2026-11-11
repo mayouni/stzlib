@@ -13,7 +13,7 @@ load "../_narrated.ring"
 # as BOTH the server cert and the client cert; server.* = an UNRELATED
 # self-signed cert (the "wrong CA" for the negative test).
 
-$cCertDir = $cEngineDir + "/src/mtls_certs"
+$cCertDir = $tEngineDir + "/src/mtls_certs"
 $cNodeCrt = $cCertDir + "/node.crt.pem"
 $cNodeKey = $cCertDir + "/node.key.pem"
 $cCACrt   = $cCertDir + "/ca.crt.pem"
@@ -151,8 +151,8 @@ func MtlsRingExe
 
 func MtlsBaseRing
 	nSlash = 0
-	nChars = len($cEngineDir)
+	nChars = len($tEngineDir)
 	for i = 1 to nChars
-		if $cEngineDir[i] = "/"  nSlash = i  ok
+		if $tEngineDir[i] = "/"  nSlash = i  ok
 	next
-	return StzLeft($cEngineDir, nSlash - 1) + "/base/stzBase.ring"
+	return StzLeft($tEngineDir, nSlash - 1) + "/base/stzBase.ring"

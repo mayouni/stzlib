@@ -72,7 +72,7 @@ chk("the device was never asked (state untried)", StzEngineTsneGpuState() = 0)
 aKlCpu = oCpu.KLHistory()
 chk("the KL history descends on the CPU", aKlCpu[len(aKlCpu)] < aKlCpu[1])
 
-if StzEngineGpuInit($cStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
+if StzEngineGpuInit($tStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
 	? ""
 	? "  NO GPU ON THIS MACHINE -- the seam can never engage; the CPU contract above is the coverage"
 	StzEngineTsneGpuSetMinN(1)

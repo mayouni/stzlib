@@ -1,0 +1,23 @@
+# Softanza Engine -- Profiler (Named Timers)
+#
+# Loads stz_profiler.dll for function-level timing and call counting.
+#
+# Function prefix: StzEngineProfiler*
+
+if IsWindows()
+    $tStzProfilerLib = $tEngineDir + "/zig-out/bin/stz_profiler.dll"
+elseif IsLinux()
+    $tStzProfilerLib = $tEngineDir + "/zig-out/lib/libstz_profiler.so"
+elseif isMacOS()
+    $tStzProfilerLib = $tEngineDir + "/zig-out/lib/libstz_profiler.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("profiler")
+    $hStzProfilerHandle = null
+elseif FExists($tStzProfilerLib)
+    $hStzProfilerHandle = LoadLib($tStzProfilerLib)
+else
+    ? "WARNING: stz_profiler not found at: " + $tStzProfilerLib
+    $hStzProfilerHandle = null
+end

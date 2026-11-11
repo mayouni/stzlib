@@ -1,0 +1,146 @@
+# Softanza Engine -- Base DateTime Ring Bridge
+#
+# Loads stz_datetime.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: base/datetime/stzDate.ring, stzTime.ring, stzDateTime.ring
+# Function prefix: StzEngine* (distinct from Core StkEngine*)
+
+if IsWindows()
+    $tStzDateTimeLib = $tEngineDir + "/zig-out/bin/stz_datetime.dll"
+elseif IsLinux()
+    $tStzDateTimeLib = $tEngineDir + "/zig-out/lib/libstz_datetime.so"
+elseif isMacOS()
+    $tStzDateTimeLib = $tEngineDir + "/zig-out/lib/libstz_datetime.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("datetime")
+    $hStzDateTimeHandle = null
+elseif FExists($tStzDateTimeLib)
+    $hStzDateTimeHandle = LoadLib($tStzDateTimeLib)
+else
+    ? "WARNING: stz_datetime not found at: " + $tStzDateTimeLib
+    $hStzDateTimeHandle = null
+end
+
+#------------------------------------------------------------#
+#  HIGH-LEVEL DATE WRAPPERS                                  #
+#  Bridge unused engine exports into production Ring API     #
+#------------------------------------------------------------#
+
+func StzDaysInMonth(nYear, nMonth)
+    hHandle = StzEngineDateNew(nYear, nMonth, 1)
+    nResult = StzEngineDateDaysInMonth(hHandle)
+    StzEngineDateFree(hHandle)
+    return nResult
+end
+func StzDaysInYear(nYear)
+    hHandle = StzEngineDateNew(nYear, 1, 1)
+    nResult = StzEngineDateDaysInYear(hHandle)
+    StzEngineDateFree(hHandle)
+    return nResult
+end
+func StzIsLeapYear(nYear)
+    hHandle = StzEngineDateNew(nYear, 1, 1)
+    nResult = StzEngineDateIsLeapYear(hHandle)
+    StzEngineDateFree(hHandle)
+    return nResult
+end
+func StzDateToString(nYear, nMonth, nDay)
+    hHandle = StzEngineDateNew(nYear, nMonth, nDay)
+    tResult = StzEngineDateToString(hHandle)
+    StzEngineDateFree(hHandle)
+    return tResult
+end
+func StzDateToISO(nYear, nMonth, nDay)
+    hHandle = StzEngineDateNew(nYear, nMonth, nDay)
+    tResult = StzEngineDateToISO(hHandle)
+    StzEngineDateFree(hHandle)
+    return tResult
+end
+func StzDateFormat(nYear, nMonth, nDay, tFormat)
+    hHandle = StzEngineDateNew(nYear, nMonth, nDay)
+    tResult = StzEngineDateFormat(hHandle, tFormat)
+    StzEngineDateFree(hHandle)
+    return tResult
+end
+func StzCompareDates(nY1, nM1, nD1, nY2, nM2, nD2)
+    hH1 = StzEngineDateNew(nY1, nM1, nD1)
+    hH2 = StzEngineDateNew(nY2, nM2, nD2)
+    nResult = StzEngineDateCompare(hH1, hH2)
+    StzEngineDateFree(hH2)
+    StzEngineDateFree(hH1)
+    return nResult
+end
+#------------------------------------------------------------#
+#  HIGH-LEVEL TIME WRAPPERS                                  #
+#------------------------------------------------------------#
+
+func StzTimeNew(nHour, nMinute, nSecond)
+    return StzEngineTimeNew(nHour, nMinute, nSecond)
+end
+func StzTimeNewMs(nHour, nMinute, nSecond, nMs)
+    return StzEngineTimeNewMs(nHour, nMinute, nSecond, nMs)
+end
+func StzTimeHour12(hHandle)
+    return StzEngineTimeHour12(hHandle)
+end
+func StzTimeIsPm(hHandle)
+    return StzEngineTimeIsPm(hHandle)
+end
+func StzTimeAddSeconds(hHandle, nSeconds)
+    return StzEngineTimeAddSeconds(hHandle, nSeconds)
+end
+func StzTimeAddMs(hHandle, nMs)
+    return StzEngineTimeAddMs(hHandle, nMs)
+end
+func StzTimeToString(nHour, nMinute, nSecond)
+    hHandle = StzEngineTimeNew(nHour, nMinute, nSecond)
+    tResult = StzEngineTimeToString(hHandle)
+    StzEngineTimeFree(hHandle)
+    return tResult
+end
+func StzTimeToString12h(nHour, nMinute, nSecond)
+    hHandle = StzEngineTimeNew(nHour, nMinute, nSecond)
+    tResult = StzEngineTimeToString12h(hHandle)
+    StzEngineTimeFree(hHandle)
+    return tResult
+end
+func StzCompareTimes(nH1, nM1, nS1, nH2, nM2, nS2)
+    hH1 = StzEngineTimeNew(nH1, nM1, nS1)
+    hH2 = StzEngineTimeNew(nH2, nM2, nS2)
+    nResult = StzEngineTimeCompare(hH1, hH2)
+    StzEngineTimeFree(hH2)
+    StzEngineTimeFree(hH1)
+    return nResult
+end
+#------------------------------------------------------------#
+#  HIGH-LEVEL DATETIME WRAPPERS                              #
+#------------------------------------------------------------#
+
+func StzCompareDateTimes(nY1, nM1, nD1, nH1, nMi1, nS1, nY2, nM2, nD2, nH2, nMi2, nS2)
+    hH1 = StzEngineDateTimeNew(nY1, nM1, nD1, nH1, nMi1, nS1)
+    hH2 = StzEngineDateTimeNew(nY2, nM2, nD2, nH2, nMi2, nS2)
+    nResult = StzEngineDateTimeCompare(hH1, hH2)
+    StzEngineDateTimeFree(hH2)
+    StzEngineDateTimeFree(hH1)
+    return nResult
+end
+func StzDateTimeIsBetween(nY, nM, nD, nH, nMi, nS, nY1, nM1, nD1, nH1, nMi1, nS1, nY2, nM2, nD2, nH2, nMi2, nS2)
+    hMain = StzEngineDateTimeNew(nY, nM, nD, nH, nMi, nS)
+    hLow  = StzEngineDateTimeNew(nY1, nM1, nD1, nH1, nMi1, nS1)
+    hHigh = StzEngineDateTimeNew(nY2, nM2, nD2, nH2, nMi2, nS2)
+    nResult = StzEngineDateTimeIsBetween(hMain, hLow, hHigh)
+    StzEngineDateTimeFree(hHigh)
+    StzEngineDateTimeFree(hLow)
+    StzEngineDateTimeFree(hMain)
+    return nResult
+end
+func StzDateTimeToISO(nYear, nMonth, nDay, nHour, nMinute, nSecond)
+    hHandle = StzEngineDateTimeNew(nYear, nMonth, nDay, nHour, nMinute, nSecond)
+    tResult = StzEngineDateTimeToISO(hHandle)
+    StzEngineDateTimeFree(hHandle)
+    return tResult
+end

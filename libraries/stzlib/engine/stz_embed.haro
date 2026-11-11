@@ -1,0 +1,23 @@
+# Softanza Engine -- Embed (Version, Build Info, Feature Flags)
+#
+# Loads stz_embed.dll for engine introspection and feature registry.
+#
+# Function prefix: StzEngineEmbed*
+
+if IsWindows()
+    $tStzEmbedLib = $tEngineDir + "/zig-out/bin/stz_embed.dll"
+elseif IsLinux()
+    $tStzEmbedLib = $tEngineDir + "/zig-out/lib/libstz_embed.so"
+elseif isMacOS()
+    $tStzEmbedLib = $tEngineDir + "/zig-out/lib/libstz_embed.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("embed")
+    $hStzEmbedHandle = null
+elseif FExists($tStzEmbedLib)
+    $hStzEmbedHandle = LoadLib($tStzEmbedLib)
+else
+    ? "WARNING: stz_embed not found at: " + $tStzEmbedLib
+    $hStzEmbedHandle = null
+end

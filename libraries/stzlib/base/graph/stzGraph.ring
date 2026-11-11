@@ -172,8 +172,8 @@ class stzGraph from stzObject
 		# ringlib_init (not as Ring funcs), so isFunction() can't see them
 		# -- using it here silently disabled the ENTIRE engine graph path
 		# and forced every op onto the slow pure-Ring fallbacks. Detect via
-		# the loader handle ($pStzGraphHandle, set in engine/stz_graph.ring).
-		return isPointer($pStzGraphHandle)
+		# the loader handle ($hStzGraphHandle, set in engine/stz_graph.haro).
+		return isPointer($hStzGraphHandle)
 
 	def _EngineHandle()
 		return @pEngineGraph

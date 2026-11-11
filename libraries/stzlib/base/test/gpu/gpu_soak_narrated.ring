@@ -79,7 +79,7 @@ else
 		bDown = (StzEngineGpuIsAvailable() = 0)
 		nFb0 = StzEngineGpuCounter(3)
 		bFb = (StzEngineGpuOpScan(1, 2, 100, 0) = 1) and (StzEngineGpuOpSort(1, 2, 100, 0) = 1) and (StzEngineGpuOpSpmv(1, 2, 3, 4, 5, 10, 10, 0) = 1)
-		StzEngineGpuInit($cStzGpuRuntime)
+		StzEngineGpuInit($tStzGpuRuntime)
 		bUp = (StzEngineGpuIsAvailable() = 1)
 		aR = _Round(oG)
 		StzEngineGpuCompactRelease()
@@ -121,7 +121,7 @@ else
 			StzEngineGpuOpScan(1, 2, 100, 0)
 			StzEngineGpuOpSort(1, 2, 100, 0)
 			StzEngineGpuOpSpmv(1, 2, 3, 4, 5, 10, 10, 0)
-			StzEngineGpuInit($cStzGpuRuntime)
+			StzEngineGpuInit($tStzGpuRuntime)
 			nClosings++
 			nPrevCompile = 0 - 1
 		ok
@@ -277,7 +277,7 @@ else
 		nErr1 = StzEngineGpuCounter(9)
 		cMsg = StzEngineGpuLastError()
 		bFb = (StzEngineGpuOpScan(1, 2, 100, 0) = 1) and (StzEngineGpuOpSort(1, 2, 100, 0) = 1) and (StzEngineGpuOpSpmv(1, 2, 3, 4, 5, 10, 10, 0) = 1)
-		nUp = StzEngineGpuInit($cStzGpuRuntime)
+		nUp = StzEngineGpuInit($tStzGpuRuntime)
 		bUp = (StzEngineGpuIsAvailable() = 1)
 		aR = _Round(oG)
 		StzEngineGpuCompactRelease()

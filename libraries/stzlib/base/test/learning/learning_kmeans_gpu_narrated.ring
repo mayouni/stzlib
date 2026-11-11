@@ -61,7 +61,7 @@ for c = 1 to nK
 next
 chk("...and the eight blobs are eight clusters of 250 (the data is what it says)", nBiggest = 250)
 
-if StzEngineGpuInit($cStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
+if StzEngineGpuInit($tStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
 	? ""
 	? "  NO GPU ON THIS MACHINE -- the seam can never engage; the CPU contract above is the coverage"
 	StzEngineKMeansGpuSetMinWork(1)

@@ -21,7 +21,7 @@ $nFail = 0
 
 pr()
 
-cEng = $cEngineDir
+cEng = $tEngineDir
 ? "engine dir: " + cEng
 
 ? ""

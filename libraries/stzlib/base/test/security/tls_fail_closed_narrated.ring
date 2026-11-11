@@ -20,7 +20,7 @@ load "../_narrated.ring"
 # is given the test CA MUST accept it -- the positive sibling of every
 # refusal. Everything runs in-process: no worker is spawned.
 
-$cCertDir = $cEngineDir + "/src/mtls_certs"
+$cCertDir = $tEngineDir + "/src/mtls_certs"
 $cNodeCrt = $cCertDir + "/node.crt.pem"
 $cNodeKey = $cCertDir + "/node.key.pem"
 $cCACrt   = $cCertDir + "/ca.crt.pem"

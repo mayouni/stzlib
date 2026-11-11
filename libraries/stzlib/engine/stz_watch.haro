@@ -1,0 +1,23 @@
+# Softanza Engine -- Stopwatch Operations
+#
+# Loads stz_watch.dll for nanosecond-precision stopwatch timing.
+#
+# Function prefix: StzEngineWatch*
+
+if IsWindows()
+    $tStzWatchLib = $tEngineDir + "/zig-out/bin/stz_watch.dll"
+elseif IsLinux()
+    $tStzWatchLib = $tEngineDir + "/zig-out/lib/libstz_watch.so"
+elseif isMacOS()
+    $tStzWatchLib = $tEngineDir + "/zig-out/lib/libstz_watch.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("watch")
+    $hStzWatchHandle = null
+elseif FExists($tStzWatchLib)
+    $hStzWatchHandle = LoadLib($tStzWatchLib)
+else
+    ? "WARNING: stz_watch not found at: " + $tStzWatchLib
+    $hStzWatchHandle = null
+end
