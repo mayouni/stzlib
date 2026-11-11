@@ -102,3 +102,15 @@ kind|v1|lfm3-1.7b-choice|keyword-rules|9|19|0.98|refused|11/11/2026 23:07:20|Run
 kind|v1|lfm3-1.7b-choice|granite-1b|8|15|0.95|refused|11/11/2026 23:07:20|RunGoldens
 kind|v1|lfm3-1.7b-choice|granite-1b-choice|7|16|0.98|refused|11/11/2026 23:07:20|RunGoldens
 kind|v1|lfm3-1.7b-choice|lfm3-1.7b|3|10|0.99|refused|11/11/2026 23:07:20|RunGoldens
+triage_extract|fresh1-fr|keyword-rules|granite-1b-choice|0|11|1|refused|12/11/2026 00:10:22|RunGoldens
+triage_extract|fresh1-fr|keyword-rules|bolt-e4b-choice|0|17|1|refused|12/11/2026 00:10:22|RunGoldens
+triage_extract|fresh1-fr|granite-1b-choice|keyword-rules|11|0|0.00|upheld|12/11/2026 00:10:22|RunGoldens
+triage_extract|fresh1-fr|granite-1b-choice|bolt-e4b-choice|0|6|1|refused|12/11/2026 00:10:22|RunGoldens
+triage_extract|fresh1-fr|bolt-e4b-choice|keyword-rules|17|0|0.00|upheld|12/11/2026 00:10:22|RunGoldens
+triage_extract|fresh1-fr|bolt-e4b-choice|granite-1b-choice|6|0|0.02|upheld|12/11/2026 00:10:22|RunGoldens
+triage_extract|fresh1-ar|keyword-rules|granite-1b-choice|0|11|1|refused|12/11/2026 00:16:30|RunGoldens
+triage_extract|fresh1-ar|keyword-rules|bolt-e4b-choice|0|19|1|refused|12/11/2026 00:16:30|RunGoldens
+triage_extract|fresh1-ar|granite-1b-choice|keyword-rules|11|0|0.00|upheld|12/11/2026 00:16:30|RunGoldens
+triage_extract|fresh1-ar|granite-1b-choice|bolt-e4b-choice|0|8|1|refused|12/11/2026 00:16:30|RunGoldens
+triage_extract|fresh1-ar|bolt-e4b-choice|keyword-rules|19|0|0.00|upheld|12/11/2026 00:16:30|RunGoldens
+triage_extract|fresh1-ar|bolt-e4b-choice|granite-1b-choice|8|0|0.00|upheld|12/11/2026 00:16:30|RunGoldens

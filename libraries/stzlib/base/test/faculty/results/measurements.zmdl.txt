@@ -62,3 +62,9 @@ retrieve|word-idf|v2|0.39|36|1|11/11/2026 23:55:01|
 retrieve|word-idf|v2/en|0.50|12|1|11/11/2026 23:55:01|
 retrieve|word-idf|v2/fr|0.33|12|1|11/11/2026 23:55:01|
 retrieve|word-idf|v2/ar|0.33|12|1|11/11/2026 23:55:01|
+triage_extract|keyword-rules|fresh1-fr|0.29|24|1|12/11/2026 00:04:42|
+triage_extract|granite-1b-choice|fresh1-fr|0.75|24|1|12/11/2026 00:06:18|
+triage_extract|bolt-e4b-choice|fresh1-fr|1|24|1|12/11/2026 00:10:22|
+triage_extract|keyword-rules|fresh1-ar|0.21|24|1|12/11/2026 00:10:23|
+triage_extract|granite-1b-choice|fresh1-ar|0.67|24|1|12/11/2026 00:12:48|
+triage_extract|bolt-e4b-choice|fresh1-ar|1|24|1|12/11/2026 00:16:30|

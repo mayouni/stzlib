@@ -40,6 +40,20 @@ func StzTicketTickets()
 	next
 	return _aOut_
 
+# THE FRESH TICKETS of one language: [ [ text, product, severity ] ... ] from _data/tickets_fresh_frar.tsv (lang, product,
+# severity, text a line)
+func StzTicketFresh(pcLang)
+	_aOut_ = []
+	_aL_ = split(read("_data/tickets_fresh_frar.tsv"), char(10))
+	for _i_ = 1 to len(_aL_)
+		_c_ = _aL_[_i_]
+		if right(_c_, 1) = char(13) _c_ = left(_c_, len(_c_) - 1) ok
+		if len(trim(_c_)) = 0 loop ok
+		_aF_ = StzSplit(_c_, char(9))
+		if len(_aF_) = 4 and _aF_[1] = pcLang add(_aOut_, [ _aF_[4], _aF_[2], _aF_[3] ]) ok
+	next
+	return _aOut_
+
 # THE RETRIEVAL SET'S OTHER LANGUAGES (v2): [ [ lang, articles, [ [ question, number of the right article ] ... ] ] ... ]
 # read from _data/retrieval_v2.tsv -- lang, doc|query, number, text -- written before any challenger ran on it
 func StzTicketRetrievalV2()
@@ -168,9 +182,22 @@ func StzTicketAppDeclare()
 	_o3_ = StzFacultyQ(:triage_extract)
 	_o3_.SetInputTypeQ(:text).SetOutputTypeQ(:record).SetParamsQ([ :schema = _oSchema_ ]).SetFloorQ("keyword-rules", "_TkExtractFloor").
 	     SetGoldenCheckerQ("fields")
-	for _i_ = 1 to len(_aTick_)
-		_o3_.AddGolden(_aTick_[_i_][1], [ :product = _aTick_[_i_][2], :severity = _aTick_[_i_][3] ])
-	next
+	# STZ_TICKETS_FRESH = fr | ar: the FRESH tickets of that language instead (_data/tickets_fresh_frar.tsv, written
+	# 2026-11-12 by an author who saw no floor, no model and no result), golden version fresh1-fr / fresh1-ar -- the
+	# set that confirms or overturns, before Bolt is ever a default, its extraction win on the English set
+	# (BOLT-PLACEMENT-01 (c)). The English set stays v1.
+	_cFresh_ = sysget("STZ_TICKETS_FRESH")
+	if _cFresh_ = "fr" or _cFresh_ = "ar"
+		_o3_.SetGoldenVersion("fresh1-" + _cFresh_)
+		_aF_ = StzTicketFresh(_cFresh_)
+		for _i_ = 1 to len(_aF_)
+			_o3_.AddGolden(_aF_[_i_][1], [ :product = _aF_[_i_][2], :severity = _aF_[_i_][3] ])
+		next
+	else
+		for _i_ = 1 to len(_aTick_)
+			_o3_.AddGolden(_aTick_[_i_][1], [ :product = _aTick_[_i_][2], :severity = _aTick_[_i_][3] ])
+		next
+	ok
 
 	# ---- FLOW 3: brief -> kind -> route ---------------------------------------------------------
 	_o4_ = StzFacultyQ(:brief)

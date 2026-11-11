@@ -40,3 +40,12 @@ granite-1b in the same run (624 s; kind again, 118 s, after _TkChoice was fixed 
 "Billing" begin with the same token, so the capitalised twin is now added only when its first token is unclaimed;
 granite-1b's numbers did not move). Of 36:  kind 0.61 / 0.42 by probability (floor 0.69); triage_extract 0.64 / 0.39
 (granite-1b-choice 0.72, bolt-e4b-choice 0.94); brief 0.17 (floor 0.69). The court refuses LFM3 on every faculty.
+
+2026-11-12 (BOLT-PLACEMENT-01 (c)): a FRESH extraction set -- 24 French and 24 Arabic tickets (../_data/tickets_fresh_frar.tsv,
+written by an author who saw no floor, no model and no result; its labels kept as written), run with STZ_TICKETS_FRESH=fr|ar
+as golden versions fresh1-fr / fresh1-ar, read by probability, CPU unthrottled:
+                 keyword-rules   granite-1b-choice   bolt-e4b-choice   court, bolt over granite
+  fresh1-fr          0.29             0.75               1 (24/24)       6-0, P = 0.016, upheld
+  fresh1-ar          0.21             0.67               1 (24/24)       8-0, P = 0.004, upheld
+Bolt's English win (0.94 against 0.72) holds in French and Arabic. A perfect score on 24 items also says this set may be
+easier than the English one; the floor's keywords are English, which its scores show.

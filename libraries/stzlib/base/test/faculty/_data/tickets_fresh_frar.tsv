@@ -1,0 +1,48 @@
+fr	app	high	L'application plante dès que j'ouvre l'écran des commandes sur mon iPhone 14. Impossible de valider les livraisons de la journée, mes chauffeurs attendent.
+fr	app	low	Bonjour, serait-il possible d'avoir un mode sombre dans l'appli Android ? Merci d'avance.
+fr	app	high	Petite question : après la mise à jour de l'appli hier soir, toutes mes notes enregistrées hors ligne ont disparu. Est-ce normal, ou y a-t-il un moyen de les récupérer ?
+fr	app	low	URGENT !!! L'icône de l'application est toute floue sur mon nouveau Samsung, c'est vraiment moche, corrigez ça svp !!!
+fr	app	high	J'ai pris l'abonnement Pro directement dans l'application sur mon iPhone et Apple m'a débité deux fois 49,99 €. Je veux être remboursé de la deuxième somme.
+fr	app	low	Les notifications push de l'app arrivent avec quelques minutes de retard sur Android. Rien de grave, mais c'est un peu agaçant.
+fr	app	high	Depuis ce matin, impossible de se connecter à l'application mobile, ni sur iOS ni sur Android : écran blanc juste après le code SMS. Toute notre équipe terrain est bloquée.
+fr	web	high	Le tableau de bord ne charge plus du tout depuis 9h, on a une erreur 502. Nous présentons ces chiffres à un client à 14h aujourd'hui.
+fr	web	low	Bonjour, je n'arrive pas à trouver où télécharger mes factures dans l'espace facturation du site. Pourriez-vous m'indiquer le chemin ?
+fr	web	high	Votre page de paiement en ligne a prélevé ma carte trois fois pour le renouvellement annuel, soit 3 x 240 €. C'est inadmissible, remboursez-moi.
+fr	web	low	Il y a une coquille sur la page Mon compte : « adresse electronique » sans accent.
+fr	web	high	Je dois envoyer l'export comptable à mon expert-comptable demain matin, mais le bouton « Exporter en CSV » du tableau de bord ne fait rien quand je clique. Pouvez-vous regarder ?
+fr	web	low	J'utilise surtout l'appli mobile et elle marche très bien. Par contre, sur le site, le graphique des ventes mensuelles affiche les mois en anglais alors que mon compte est réglé en français.
+fr	web	low	Comment changer l'adresse e-mail associée à mon compte ? Je ne trouve pas l'option dans les paramètres du site.
+fr	api	high	Vos webhooks ne sont plus envoyés depuis la nuit dernière. Nos commandes ne remontent plus dans notre ERP et nous perdons des ventes depuis des heures.
+fr	api	low	Est-ce que le SDK Python gère les appels asynchrones ? Je n'ai rien trouvé à ce sujet dans la documentation.
+fr	api	high	L'API renvoie des erreurs 500 sur POST /v2/payments pour environ 30 % des requêtes. Production impactée.
+fr	api	low	C'est très urgent pour moi : quand sortira la prochaine version du SDK JavaScript ? J'ai hâte de voir les nouveautés.
+fr	api	high	J'ai régénéré notre clé secrète dans le tableau de bord comme vous l'aviez conseillé, et depuis toutes nos requêtes API répondent 401. Notre intégration est complètement à l'arrêt.
+fr	api	low	La limite de 100 requêtes par minute est un peu juste pour nos tests d'intégration. Existe-t-il une offre avec un quota plus élevé ?
+fr	other	low	Bonjour, je suis étudiant en école de commerce et je prépare un mémoire sur les start-up SaaS. Votre fondateur accepterait-il un entretien de vingt minutes ?
+fr	other	low	Nous sommes une agence de marketing basée à Lyon et souhaiterions vous proposer un partenariat de revente. À qui dois-je m'adresser ?
+fr	other	high	Notre service achats exige votre certificat ISO 27001 et votre attestation RGPD avant demain midi pour valider le contrat. Sans ces documents, le dossier sera rejeté.
+fr	other	low	Vos bureaux parisiens sont-ils ouverts au public ? Je passe dans le quartier la semaine prochaine.
+ar	app	high	التطبيق يتوقف فجأة كلما حاولت رفع صورة الفاتورة من هاتفي الأندرويد، ولدي أكثر من خمسين فاتورة يجب إدخالها اليوم.
+ar	app	low	السلام عليكم، هل يمكن إضافة اللغة العربية إلى واجهة التطبيق على الآيفون؟ شكرًا لكم.
+ar	app	high	اشتريت باقة الرصيد من داخل التطبيق ودفعت عبر Google Play، لكن الرصيد لم يُضف إلى حسابي مع أن المبلغ خُصم من بطاقتي.
+ar	app	low	هذا غير مقبول إطلاقًا! لون الزر في الشاشة الرئيسية للتطبيق تغيّر بعد التحديث الأخير ولم يعد يعجبني. أعيدوه كما كان.
+ar	app	high	مرحبًا، لاحظت بعد إعادة تثبيت التطبيق أن جميع المسودات التي حفظتها خلال الشهر الماضي قد اختفت. هل هناك طريقة لاستعادتها؟
+ar	app	low	التطبيق يستهلك البطارية أكثر من المعتاد منذ التحديث، لكنه يعمل بشكل طبيعي.
+ar	web	high	الموقع لا يفتح أبدًا منذ ساعة، وتظهر رسالة «الخدمة غير متاحة» على كل الصفحات. عملاؤنا لا يستطيعون الدخول إلى حساباتهم.
+ar	web	low	أريد تغيير طريقة الدفع من البطاقة إلى التحويل البنكي في صفحة الفوترة على الموقع، كيف أفعل ذلك؟
+ar	web	high	تمت ترقية اشتراكنا في لوحة التحكم إلى الخطة السنوية دون أن نطلب ذلك، وخُصم 1200 دولار من حساب الشركة. أرجو إلغاء العملية واسترجاع المبلغ فورًا.
+ar	web	low	في صفحة الملف الشخصي، الصورة الرمزية لا تظهر بشكل دائري بل تبدو مقصوصة من الأعلى.
+ar	web	high	علينا تقديم التقرير الربعي لمجلس الإدارة غدًا، لكن التقارير في لوحة التحكم تعرض أرقام الشهر الماضي فقط بدلًا من الربع كاملًا. نرجو المساعدة.
+ar	web	low	نستخدم الـ API منذ سنتين دون أي مشكلة. فقط أردت أن أسأل: لماذا لا تعرض صفحة الحساب على الموقع تاريخ انتهاء الاشتراك؟
+ar	web	low	عاجل جدًا!! كيف أضيف زميلًا جديدًا إلى حساب الشركة على الموقع؟ سيبدأ عمله معنا الشهر القادم.
+ar	api	high	الـ webhook الخاص بتأكيد الدفع يُرسل الحدث نفسه ثلاث أو أربع مرات، ونتيجة لذلك شحنّا طلبات مكررة لعملائنا.
+ar	api	low	هل توجد مكتبة SDK رسمية للغة Go، أم علينا استخدام الطلبات المباشرة؟
+ar	api	high	منذ الساعة الثانية فجرًا تنتهي كل طلبات الـ API بانتهاء المهلة (timeout)، ونظامنا في بيئة الإنتاج متوقف تمامًا.
+ar	api	low	التوثيق الخاص بنقطة النهاية ‎/orders‎ لا يذكر الحقول الاختيارية، أرجو تحديثه عندما يتسنى لكم ذلك.
+ar	api	high	بعد تحديث الـ SDK الخاص بأندرويد إلى الإصدار 4.2 توقف تطبيقنا نحن عن استقبال البيانات من خوادمكم، وقد أطلقنا هذه النسخة لمستخدمينا أمس.
+ar	api	low	نود الحصول على مفتاح API تجريبي لاختبار التكامل قبل الاشتراك، هل هذا ممكن؟
+ar	other	low	نحن شركة توزيع في الرياض ونرغب في أن نصبح وكيلًا معتمدًا لمنتجاتكم في دول الخليج. من المسؤول عن الشراكات لديكم؟
+ar	other	low	هل لديكم وظائف شاغرة للمطورين في فرعكم بدبي؟
+ar	other	high	نحتاج نسخة موقّعة من اتفاقية معالجة البيانات قبل نهاية اليوم، وإلا فلن يوقّع قسمنا القانوني على العقد وستُلغى الصفقة.
+ar	other	low	أردت فقط أن أشكر فريق الدعم على مساعدتهم الأسبوع الماضي، كنتم رائعين.
+ar	other	low	مرحبًا، عندي سؤال بخصوص أمر ما، متى يمكنني الاتصال بكم؟
