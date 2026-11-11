@@ -1508,6 +1508,21 @@ pub fn build(b: *std.Build) void {
     addPcre2(test_mod, tests, b);
     addSnowball(test_mod, tests, b);
     addSqlite(test_mod, tests, b);
+
+    // THE TEST STEP NEEDS THE wgpu HEADERS TOO, and did not have them.
+    //
+    // The root of this module is engine.zig, which reaches gpu.zig, which does
+    // @cInclude("webgpu/webgpu.h"). Every DLL that needs it gets the path from
+    // `if (dom.needs_wgpu)` in the domain loop above; the test module got
+    // utf8proc, pcre2, snowball and sqlite and nothing else, so
+    // `zig build test` failed at the C import with "file not found".
+    //
+    // It only LOOKED fine where the cache was warm: a tree that had run
+    // `zig build` already had the cimport resolved, so the missing path cost
+    // nothing until someone ran the tests in a fresh checkout. Found that way
+    // -- a worktree cut from origin/main could not run the engine suite at all,
+    // while the same command passed in a long-lived tree beside it.
+    test_mod.addIncludePath(b.path("vendor/wgpu/include"));
     const run_tests = b.addRunArtifact(tests);
     const test_step = b.step("test", "Run Softanza Engine tests");
     test_step.dependOn(&run_tests.step);
