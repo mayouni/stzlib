@@ -34,3 +34,9 @@ the QUESTION across the inputs. Which reads less depends on which is longer: wit
 when the input is longer than about Q/(Q-1) times a question -- here the tickets (about 30 tokens) are shorter than the
 questions (about 45), so today's order wins. Moving the question after the input moves the answers: by one or two on
 Bolt, by up to nine on granite-1b (severity 35 -> 26), so a shape is chosen per model, on its golden set.
+
+2026-11-11 (RADAR-LFM3-FAMILY-01): lfm3-1.7b (Liquid AI's LFM3-1.7B, Q8_0) on kind, triage_extract and brief, with
+granite-1b in the same run (624 s; kind again, 118 s, after _TkChoice was fixed -- in LFM3's vocabulary "Bug" and
+"Billing" begin with the same token, so the capitalised twin is now added only when its first token is unclaimed;
+granite-1b's numbers did not move). Of 36:  kind 0.61 / 0.42 by probability (floor 0.69); triage_extract 0.64 / 0.39
+(granite-1b-choice 0.72, bolt-e4b-choice 0.94); brief 0.17 (floor 0.69). The court refuses LFM3 on every faculty.

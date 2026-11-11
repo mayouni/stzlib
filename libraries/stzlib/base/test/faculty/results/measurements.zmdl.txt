@@ -1,4 +1,41 @@
 # zmdl 1 -- measured quality per implementation (SOFTANZA_MODEL_FLOW.md 9.2)
+faces|platform|coco-v1|0.80|30|1|02/11/2026 00:41:41|
+faces|yunet|coco-v1|0.87|30|1|02/11/2026 00:41:45|
+objects|nothing|coco-v1|0|40|1|02/11/2026 00:41:45|
+objects|yolox-nano|coco-v1|0.85|40|1|02/11/2026 00:41:48|
+objects|yolox-tiny|coco-v1|0.88|40|1|02/11/2026 00:41:54|
+image-label|prior|coco-v1|0|40|1|02/11/2026 00:41:54|
+image-label|mobilenetv3|coco-v1|0.62|40|1|02/11/2026 00:41:55|
+image-label|siglip2|coco-v1|0.82|40|1|02/11/2026 00:42:05|
+foreground|classical|coco-v1|0.10|30|1|02/11/2026 01:41:17|
+foreground|u2netp|coco-v1|0.70|30|1|02/11/2026 01:41:39|
+object-at|classical|coco-v1|0.13|30|1|02/11/2026 15:00:59|
+object-at|mobilesam|coco-v1|0.63|30|1|02/11/2026 17:48:30|
+depth|lower-is-nearer|diode-v1|0.31|78|1|02/11/2026 17:48:37|
+depth|depth-anything-v2-small|diode-v1|0.61|78|1|02/11/2026 17:50:01|
+describe|fixed|coco-describe-v1|0.44|99|1|03/11/2026 02:59:49|
+describe|smolvlm-256m|coco-describe-v1|0.88|99|1|03/11/2026 18:13:48|scored by the guard with names-main-object, one description per picture
+doc-vlm|native-reader|doc-vlm-v1|0.13|31|1|03/11/2026 13:21:01|
+doc-vlm|granite-docling-258m|doc-vlm-v1|0.13|31|1|03/11/2026 13:21:01|scored by the guard with doc-blocks on the predictions stored in results/doc_vlm_v1/
+doc-vlm|native-reader|doc-vlm-v2|0.22|27|1|03/11/2026 14:37:57|
+doc-vlm|granite-docling-258m|doc-vlm-v2|0.44|27|1|03/11/2026 14:37:57|scored by the guard with doc-blocks on the predictions stored in results/doc_vlm_v2/
+doc-vlm|native-plus-granite|doc-vlm-v2|0.37|27|1|03/11/2026 14:37:57|scored by the guard with doc-blocks: StzDocBlocksCombine of the stored floor and model predictions of results/doc_vlm_v2/
+codes|nothing|codes-judge-v1|0|366|1|04/11/2026 01:03:12|
+codes|quirc-native1d|codes-judge-v1|0.96|366|1|04/11/2026 01:03:12|FIRST reading of the first judging set (seed 777), BEFORE the fix: QR 171/174, 1D 179/192 = 93.2% (bar 95%: MISSED), 12 codes invented (bar 0: MISSED); one defect, an EAN-8 read inside a UPC-A; kept on record
+codes|nothing|codes-judge-v2|0|366|1|04/11/2026 01:03:12|
+codes|quirc-native1d|codes-judge-v2|0.99|366|1|04/11/2026 01:03:12|second judging set seed 4242, made after the fix and judged once: QR 170/174, 1D 192/192, negatives 0 false of 24, 0 invented; scored by StzCodesAgree (every bar met)
+near-duplicate|identical-pixels|pairs-judge-v1|0.50|780|1|04/11/2026 02:46:21|
+near-duplicate|phash|pairs-judge-v1|1|780|1|04/11/2026 02:46:21|judging pairs from COCO 40 to the end (390 same, 390 different), made after the rule was committed: 779 of 780; one crop missed at 18 bits against the threshold of 17; no different pair called the same
+near-duplicate|siglip2-cosine|pairs-judge-v1|1|780|1|04/11/2026 02:46:21|judging pairs, as above: 780 of 780; a cosine of at least 0.83
+describe|smolvlm-500m|coco-describe-v1|0.87|99|1|04/11/2026 08:18:44|SmolVLM-500M-Instruct Q8_0 on the SAME 99 pictures and checker as the 256M model: 86 of 99, against the bar of 88 (strictly more than the 256M model's 87): NOT CHOSEN; 33 of 99 captions name an unannotated COCO category (the 256M model: 38); 2.56 s a picture against 1.44 s on the same machine; its captions are fluent and detailed and its misses are mostly pictures whose main annotated object (a dining table) the caption does not name
+find|yolox-by-name|find-v1|0.58|320|1|04/11/2026 23:29:00|judging pairs (76 pictures, 320 pairs: 160 positive, 160 negative; LVIS v1 val truth on COCO val pictures), made by the rule committed in c0a759258 and judged once at the threshold chosen on the dev pairs (0.2): 187 of 320; kind A positives 27 of 42, kind A negatives 9 of 9, kind B positives 0 of 118 (a word that is not a COCO class gets nothing), kind B negatives 151 of 151
+find|owlvit|find-v1|0.79|320|1|04/11/2026 23:29:00|OWL-ViT base patch32 through the engine, the same judging pairs at the threshold chosen on the dev pairs (0.08): 252 of 320; kind A positives 34 of 42, kind A negatives 9 of 9, kind B positives 67 of 118, kind B negatives 142 of 151 (9 false alarms); strictly above the floor, CHOSEN
+find|owlvit+warm-rule|find-v1|0.79|320|1|05/11/2026 10:31:45|WSP-SPIKE-01, judged once on the same 320 pairs (cut -0.60, step 0.02, chosen on DEV): 252 of 320, EQUAL to the incumbent, not strictly above: REFUSED; kind A positives 33 of 42, kind B positives 67 of 118, kind B negatives 143 of 151 (one false alarm fewer, one kind A positive lost)
+find|owlvit+shift-patch|find-v1|0.79|320|1|05/11/2026 10:31:45|WSP-SPIKE-01, judged once on the same 320 pairs (threshold 0.08, chosen on DEV where it read 0.8235 in-sample): 253 of 320, strictly above the incumbent's 252 BY ONE PAIR: CHOSEN by the rule as written; kind A positives 30 of 42 (4 lost), kind B positives 66 of 118 (1 lost), kind B negatives 148 of 151 (6 of the 9 false alarms gone); a one-pair margin is inside the noise of 320 pairs and is recorded as such
+find|yolox-by-name|find-v2|0.62|952|1|05/11/2026 11:58:20|the floor on the fresh set: YOLOX's detections whose COCO label IS the word, 952 pairs judged once under SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8
+find|owlvit|find-v2|0.82|952|1|05/11/2026 11:58:20|the incumbent on the fresh set (threshold 0.08 as committed), 952 pairs judged once under SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8
+find|owlvit+warm-rule|find-v2|0.83|952|1|05/11/2026 11:58:20|a challenger on the fresh set (cut -0.60, step 0.02 as committed); its standing is the court's, vision.court.txt, 952 pairs judged once under SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8
+find|owlvit+shift-patch|find-v2|0.83|952|1|05/11/2026 11:58:20|a challenger on the fresh set (the patched logit_shift head, digest 45e95652..., threshold 0.08); its standing is the court's, vision.court.txt, 952 pairs judged once under SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8
 route|table|v1|1|3|1|21/10/2026 16:37:18|
 retrieve|word-idf|v1|0.50|12|1|21/10/2026 16:42:59|
 retrieve|minilm-cosine|v1|1|12|1|21/10/2026 16:43:06|
@@ -32,18 +69,10 @@ brief|qwen25c-1.5b|v1|0.50|36|1|21/10/2026 19:42:28|
 kind|granite42-3b-choice|v1|0.67|36|1|22/10/2026 13:08:56|summed from slices, ChatML template, 2026-10-22
 triage_extract|granite42-3b-choice|v1|0.69|36|1|22/10/2026 13:09:04|summed from slices, ChatML template, 2026-10-22
 brief|granite42-3b|v1|0.58|36|1|22/10/2026 13:09:11|summed from slices, ChatML template, 2026-10-22
-kind|keyword-rules|v1|0.69|36|1|11/11/2026 15:04:18|
-kind|granite-1b|v1|0.61|36|0.97|11/11/2026 15:06:55|
-kind|granite-1b-choice|v1|0.67|36|1|11/11/2026 15:10:20|
 kind|bolt-e4b|v1|0.75|36|1|11/11/2026 15:16:28|
 kind|bolt-e4b-choice|v1|0.81|36|1|11/11/2026 15:24:36|
-triage_extract|keyword-rules|v1|0.56|36|1|11/11/2026 15:24:36|
-triage_extract|granite-1b|v1|0.56|36|1|11/11/2026 15:30:16|
-triage_extract|granite-1b-choice|v1|0.72|36|1|11/11/2026 15:34:35|
 triage_extract|bolt-e4b|v1|0.83|36|1|11/11/2026 15:38:15|
 triage_extract|bolt-e4b-choice|v1|0.94|36|1|11/11/2026 15:42:52|
-brief|first-clause|v1|0.69|36|1|11/11/2026 15:42:52|
-brief|granite-1b|v1|0.53|36|1|11/11/2026 15:43:47|
 brief|bolt-e4b|v1|0.69|36|1|11/11/2026 15:45:48|
 retrieve|word-idf|v2|0.39|36|1|11/11/2026 18:04:23|
 retrieve|word-idf|v2/en|0.50|12|1|11/11/2026 18:04:23|
@@ -57,3 +86,16 @@ retrieve|siglip2-text|v2|0.67|36|1|11/11/2026 18:04:32|
 retrieve|siglip2-text|v2/en|0.67|12|1|11/11/2026 18:04:32|
 retrieve|siglip2-text|v2/fr|0.83|12|1|11/11/2026 18:04:32|
 retrieve|siglip2-text|v2/ar|0.50|12|1|11/11/2026 18:04:32|
+triage_extract|keyword-rules|v1|0.56|36|1|11/11/2026 22:54:58|
+triage_extract|granite-1b|v1|0.56|36|1|11/11/2026 22:55:57|
+triage_extract|granite-1b-choice|v1|0.72|36|1|11/11/2026 22:58:06|
+triage_extract|lfm3-1.7b|v1|0.64|36|1|11/11/2026 22:59:31|
+triage_extract|lfm3-1.7b-choice|v1|0.39|36|1|11/11/2026 23:01:37|
+brief|first-clause|v1|0.69|36|1|11/11/2026 23:01:37|
+brief|granite-1b|v1|0.53|36|1|11/11/2026 23:02:33|
+brief|lfm3-1.7b|v1|0.17|36|1|11/11/2026 23:03:35|
+kind|keyword-rules|v1|0.69|36|1|11/11/2026 23:05:22|
+kind|granite-1b|v1|0.61|36|0.97|11/11/2026 23:05:48|
+kind|granite-1b-choice|v1|0.67|36|1|11/11/2026 23:06:10|
+kind|lfm3-1.7b|v1|0.61|36|1|11/11/2026 23:06:49|
+kind|lfm3-1.7b-choice|v1|0.42|36|1|11/11/2026 23:07:20|

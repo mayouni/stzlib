@@ -1,15 +1,85 @@
 # zcourt 1 -- the court's evidence per faculty and golden set (SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8)
 # faculty|golden|challenger|other|gains|losses|p|verdict|date|note   (p and the verdict are recomputed from the counts on load)
-kind|v1|keyword-rules|granite-1b|6|3|0.25|refused|11/11/2026 15:24:36|RunGoldens
-kind|v1|keyword-rules|granite-1b-choice|5|4|0.50|refused|11/11/2026 15:24:36|RunGoldens
+incumbent|find|find-v1|owlvit
+incumbent|find|find-v2|owlvit
+incumbent|faces|coco-v1|yunet
+incumbent|objects|coco-v1|yolox-tiny
+incumbent|image-label|coco-v1|siglip2
+incumbent|foreground|coco-v1|u2netp
+incumbent|object-at|coco-v1|mobilesam
+incumbent|depth|diode-v1|depth-anything-v2-small
+incumbent|describe|coco-describe-v1|smolvlm-256m
+incumbent|doc-vlm|doc-vlm-v2|granite-docling-258m
+incumbent|codes|codes-judge-v2|quirc-native1d
+incumbent|near-duplicate|pairs-judge-v1|siglip2-cosine
+codes|codes-judge-v2|nothing|quirc-native1d|0|362|1|refused|11/11/2026 22:53:51|
+codes|codes-judge-v2|quirc-native1d|nothing|362|0|0.00|upheld|11/11/2026 22:53:51|
+depth|diode-v1|depth-anything-v2-small|lower-is-nearer|24|0|0.00|upheld|11/11/2026 22:53:51|
+depth|diode-v1|lower-is-nearer|depth-anything-v2-small|0|24|1|refused|11/11/2026 22:53:51|
+describe|coco-describe-v1|fixed|smolvlm-256m|4|47|1.00|refused|11/11/2026 22:53:51|
+describe|coco-describe-v1|fixed|smolvlm-500m|2|44|1.00|refused|11/11/2026 22:53:51|
+describe|coco-describe-v1|smolvlm-256m|fixed|47|4|0.00|upheld|11/11/2026 22:53:51|
+describe|coco-describe-v1|smolvlm-256m|smolvlm-500m|10|9|0.50|refused|11/11/2026 22:53:51|
+describe|coco-describe-v1|smolvlm-500m|fixed|44|2|0.00|upheld|11/11/2026 22:53:51|
+describe|coco-describe-v1|smolvlm-500m|smolvlm-256m|9|10|0.68|refused|11/11/2026 22:53:51|
+doc-vlm|doc-vlm-v2|granite-docling-258m|native-plus-granite|4|2|0.34|refused|11/11/2026 22:53:51|
+doc-vlm|doc-vlm-v2|granite-docling-258m|native-reader|8|2|0.05|refused|11/11/2026 22:53:51|
+doc-vlm|doc-vlm-v2|native-plus-granite|granite-docling-258m|2|4|0.89|refused|11/11/2026 22:53:51|
+doc-vlm|doc-vlm-v2|native-plus-granite|native-reader|4|0|0.06|refused|11/11/2026 22:53:51|
+doc-vlm|doc-vlm-v2|native-reader|granite-docling-258m|2|8|0.99|refused|11/11/2026 22:53:51|
+doc-vlm|doc-vlm-v2|native-reader|native-plus-granite|0|4|1|refused|11/11/2026 22:53:51|
+faces|coco-v1|platform|yunet|1|3|0.94|refused|11/11/2026 22:53:51|
+faces|coco-v1|yunet|platform|3|1|0.31|refused|11/11/2026 22:53:51|
+find|find-v1|owlvit|owlvit+shift-patch|9|10|0.68|refused|11/11/2026 22:53:51|
+find|find-v1|owlvit|owlvit+warm-rule|1|1|0.75|refused|11/11/2026 22:53:51|
+find|find-v1|owlvit|yolox-by-name|76|11|0.00|upheld|11/11/2026 22:53:51|
+find|find-v1|owlvit+shift-patch|owlvit|10|9|0.50|refused|11/11/2026 22:53:51|
+find|find-v1|owlvit+shift-patch|owlvit+warm-rule|9|8|0.50|refused|11/11/2026 22:53:51|
+find|find-v1|owlvit+shift-patch|yolox-by-name|73|7|0.00|upheld|11/11/2026 22:53:51|
+find|find-v1|owlvit+warm-rule|owlvit|1|1|0.75|refused|11/11/2026 22:53:51|
+find|find-v1|owlvit+warm-rule|owlvit+shift-patch|8|9|0.69|refused|11/11/2026 22:53:51|
+find|find-v1|owlvit+warm-rule|yolox-by-name|76|11|0.00|upheld|11/11/2026 22:53:51|
+find|find-v1|yolox-by-name|owlvit|11|76|1.00|refused|11/11/2026 22:53:51|
+find|find-v1|yolox-by-name|owlvit+shift-patch|7|73|1.00|refused|11/11/2026 22:53:51|
+find|find-v1|yolox-by-name|owlvit+warm-rule|11|76|1.00|refused|11/11/2026 22:53:51|
+find|find-v2|owlvit|owlvit+shift-patch|37|44|0.81|refused|11/11/2026 22:53:51|
+find|find-v2|owlvit|owlvit+warm-rule|1|10|1.00|refused|11/11/2026 22:53:51|
+find|find-v2|owlvit|yolox-by-name|226|38|0.00|upheld|11/11/2026 22:53:51|
+find|find-v2|owlvit+shift-patch|owlvit|44|37|0.25|refused|11/11/2026 22:53:51|
+find|find-v2|owlvit+shift-patch|owlvit+warm-rule|36|38|0.64|refused|11/11/2026 22:53:51|
+find|find-v2|owlvit+shift-patch|yolox-by-name|231|36|0.00|upheld|11/11/2026 22:53:51|
+find|find-v2|owlvit+warm-rule|owlvit|10|1|0.01|upheld|11/11/2026 22:53:51|
+find|find-v2|owlvit+warm-rule|owlvit+shift-patch|38|36|0.45|refused|11/11/2026 22:53:51|
+find|find-v2|owlvit+warm-rule|yolox-by-name|233|36|0.00|upheld|11/11/2026 22:53:51|
+find|find-v2|yolox-by-name|owlvit|38|226|1|refused|11/11/2026 22:53:51|
+find|find-v2|yolox-by-name|owlvit+shift-patch|36|231|1|refused|11/11/2026 22:53:51|
+find|find-v2|yolox-by-name|owlvit+warm-rule|36|233|1|refused|11/11/2026 22:53:51|
+foreground|coco-v1|classical|u2netp|1|19|1.00|refused|11/11/2026 22:53:51|
+foreground|coco-v1|u2netp|classical|19|1|0.00|upheld|11/11/2026 22:53:51|
+image-label|coco-v1|mobilenetv3|prior|25|0|0.00|upheld|11/11/2026 22:53:51|
+image-label|coco-v1|mobilenetv3|siglip2|0|8|1|refused|11/11/2026 22:53:51|
+image-label|coco-v1|prior|mobilenetv3|0|25|1|refused|11/11/2026 22:53:51|
+image-label|coco-v1|prior|siglip2|0|33|1|refused|11/11/2026 22:53:51|
+image-label|coco-v1|siglip2|mobilenetv3|8|0|0.00|upheld|11/11/2026 22:53:51|
+image-label|coco-v1|siglip2|prior|33|0|0.00|upheld|11/11/2026 22:53:51|
+near-duplicate|pairs-judge-v1|identical-pixels|phash|0|389|1|refused|11/11/2026 22:53:51|
+near-duplicate|pairs-judge-v1|identical-pixels|siglip2-cosine|0|390|1|refused|11/11/2026 22:53:51|
+near-duplicate|pairs-judge-v1|phash|identical-pixels|389|0|0.00|upheld|11/11/2026 22:53:51|
+near-duplicate|pairs-judge-v1|phash|siglip2-cosine|0|1|1|refused|11/11/2026 22:53:51|
+near-duplicate|pairs-judge-v1|siglip2-cosine|identical-pixels|390|0|0.00|upheld|11/11/2026 22:53:51|
+near-duplicate|pairs-judge-v1|siglip2-cosine|phash|1|0|0.50|refused|11/11/2026 22:53:51|
+object-at|coco-v1|classical|mobilesam|2|17|1.00|refused|11/11/2026 22:53:51|
+object-at|coco-v1|mobilesam|classical|17|2|0.00|upheld|11/11/2026 22:53:51|
+objects|coco-v1|nothing|yolox-nano|0|34|1|refused|11/11/2026 22:53:51|
+objects|coco-v1|nothing|yolox-tiny|0|35|1|refused|11/11/2026 22:53:51|
+objects|coco-v1|yolox-nano|nothing|34|0|0.00|upheld|11/11/2026 22:53:51|
+objects|coco-v1|yolox-nano|yolox-tiny|2|3|0.81|refused|11/11/2026 22:53:51|
+objects|coco-v1|yolox-tiny|nothing|35|0|0.00|upheld|11/11/2026 22:53:51|
+objects|coco-v1|yolox-tiny|yolox-nano|3|2|0.50|refused|11/11/2026 22:53:51|
 kind|v1|keyword-rules|bolt-e4b|4|6|0.83|refused|11/11/2026 15:24:36|RunGoldens
 kind|v1|keyword-rules|bolt-e4b-choice|4|8|0.93|refused|11/11/2026 15:24:36|RunGoldens
-kind|v1|granite-1b|keyword-rules|3|6|0.91|refused|11/11/2026 15:24:36|RunGoldens
-kind|v1|granite-1b|granite-1b-choice|1|3|0.94|refused|11/11/2026 15:24:36|RunGoldens
 kind|v1|granite-1b|bolt-e4b|0|5|1|refused|11/11/2026 15:24:36|RunGoldens
 kind|v1|granite-1b|bolt-e4b-choice|0|7|1|refused|11/11/2026 15:24:36|RunGoldens
-kind|v1|granite-1b-choice|keyword-rules|4|5|0.75|refused|11/11/2026 15:24:36|RunGoldens
-kind|v1|granite-1b-choice|granite-1b|3|1|0.31|refused|11/11/2026 15:24:36|RunGoldens
 kind|v1|granite-1b-choice|bolt-e4b|2|5|0.94|refused|11/11/2026 15:24:36|RunGoldens
 kind|v1|granite-1b-choice|bolt-e4b-choice|1|6|0.99|refused|11/11/2026 15:24:36|RunGoldens
 kind|v1|bolt-e4b|keyword-rules|6|4|0.38|refused|11/11/2026 15:24:36|RunGoldens
@@ -20,16 +90,10 @@ kind|v1|bolt-e4b-choice|keyword-rules|8|4|0.19|refused|11/11/2026 15:24:36|RunGo
 kind|v1|bolt-e4b-choice|granite-1b|7|0|0.01|upheld|11/11/2026 15:24:36|RunGoldens
 kind|v1|bolt-e4b-choice|granite-1b-choice|6|1|0.06|refused|11/11/2026 15:24:36|RunGoldens
 kind|v1|bolt-e4b-choice|bolt-e4b|3|1|0.31|refused|11/11/2026 15:24:36|RunGoldens
-triage_extract|v1|keyword-rules|granite-1b|10|10|0.59|refused|11/11/2026 15:42:52|RunGoldens
-triage_extract|v1|keyword-rules|granite-1b-choice|2|8|0.99|refused|11/11/2026 15:42:52|RunGoldens
 triage_extract|v1|keyword-rules|bolt-e4b|3|13|1.00|refused|11/11/2026 15:42:52|RunGoldens
 triage_extract|v1|keyword-rules|bolt-e4b-choice|1|15|1.00|refused|11/11/2026 15:42:52|RunGoldens
-triage_extract|v1|granite-1b|keyword-rules|10|10|0.59|refused|11/11/2026 15:42:52|RunGoldens
-triage_extract|v1|granite-1b|granite-1b-choice|5|11|0.96|refused|11/11/2026 15:42:52|RunGoldens
 triage_extract|v1|granite-1b|bolt-e4b|3|13|1.00|refused|11/11/2026 15:42:52|RunGoldens
 triage_extract|v1|granite-1b|bolt-e4b-choice|0|14|1|refused|11/11/2026 15:42:52|RunGoldens
-triage_extract|v1|granite-1b-choice|keyword-rules|8|2|0.05|refused|11/11/2026 15:42:52|RunGoldens
-triage_extract|v1|granite-1b-choice|granite-1b|11|5|0.11|refused|11/11/2026 15:42:52|RunGoldens
 triage_extract|v1|granite-1b-choice|bolt-e4b|1|5|0.98|refused|11/11/2026 15:42:52|RunGoldens
 triage_extract|v1|granite-1b-choice|bolt-e4b-choice|2|10|1.00|refused|11/11/2026 15:42:52|RunGoldens
 triage_extract|v1|bolt-e4b|keyword-rules|13|3|0.01|upheld|11/11/2026 15:42:52|RunGoldens
@@ -40,9 +104,7 @@ triage_extract|v1|bolt-e4b-choice|keyword-rules|15|1|0.00|upheld|11/11/2026 15:4
 triage_extract|v1|bolt-e4b-choice|granite-1b|14|0|0.00|upheld|11/11/2026 15:42:52|RunGoldens
 triage_extract|v1|bolt-e4b-choice|granite-1b-choice|10|2|0.02|upheld|11/11/2026 15:42:52|RunGoldens
 triage_extract|v1|bolt-e4b-choice|bolt-e4b|5|1|0.11|refused|11/11/2026 15:42:52|RunGoldens
-brief|v1|first-clause|granite-1b|11|5|0.11|refused|11/11/2026 15:45:48|RunGoldens
 brief|v1|first-clause|bolt-e4b|6|6|0.61|refused|11/11/2026 15:45:48|RunGoldens
-brief|v1|granite-1b|first-clause|5|11|0.96|refused|11/11/2026 15:45:48|RunGoldens
 brief|v1|granite-1b|bolt-e4b|2|8|0.99|refused|11/11/2026 15:45:48|RunGoldens
 brief|v1|bolt-e4b|first-clause|6|6|0.61|refused|11/11/2026 15:45:48|RunGoldens
 brief|v1|bolt-e4b|granite-1b|8|2|0.05|refused|11/11/2026 15:45:48|RunGoldens
@@ -70,3 +132,49 @@ retrieve|v2|siglip2-text|minilm-cosine|6|6|0.61|refused|11/11/2026 18:04:32|RunG
 retrieve|v2/en|siglip2-text|minilm-cosine|0|4|1|refused|11/11/2026 18:04:32|RunGoldens
 retrieve|v2/fr|siglip2-text|minilm-cosine|3|1|0.31|refused|11/11/2026 18:04:32|RunGoldens
 retrieve|v2/ar|siglip2-text|minilm-cosine|3|1|0.31|refused|11/11/2026 18:04:32|RunGoldens
+triage_extract|v1|keyword-rules|granite-1b|10|10|0.59|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|keyword-rules|granite-1b-choice|2|8|0.99|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|keyword-rules|lfm3-1.7b|5|8|0.87|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|keyword-rules|lfm3-1.7b-choice|10|4|0.09|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|granite-1b|keyword-rules|10|10|0.59|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|granite-1b|granite-1b-choice|5|11|0.96|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|granite-1b|lfm3-1.7b|6|9|0.85|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|granite-1b|lfm3-1.7b-choice|10|4|0.09|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|granite-1b-choice|keyword-rules|8|2|0.05|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|granite-1b-choice|granite-1b|11|5|0.11|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|granite-1b-choice|lfm3-1.7b|5|2|0.23|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|granite-1b-choice|lfm3-1.7b-choice|15|3|0.00|upheld|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|lfm3-1.7b|keyword-rules|8|5|0.29|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|lfm3-1.7b|granite-1b|9|6|0.30|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|lfm3-1.7b|granite-1b-choice|2|5|0.94|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|lfm3-1.7b|lfm3-1.7b-choice|12|3|0.02|upheld|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|lfm3-1.7b-choice|keyword-rules|4|10|0.97|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|lfm3-1.7b-choice|granite-1b|4|10|0.97|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|lfm3-1.7b-choice|granite-1b-choice|3|15|1.00|refused|11/11/2026 23:01:37|RunGoldens
+triage_extract|v1|lfm3-1.7b-choice|lfm3-1.7b|3|12|1.00|refused|11/11/2026 23:01:37|RunGoldens
+brief|v1|first-clause|granite-1b|11|5|0.11|refused|11/11/2026 23:03:35|RunGoldens
+brief|v1|first-clause|lfm3-1.7b|20|1|0.00|upheld|11/11/2026 23:03:35|RunGoldens
+brief|v1|granite-1b|first-clause|5|11|0.96|refused|11/11/2026 23:03:35|RunGoldens
+brief|v1|granite-1b|lfm3-1.7b|15|2|0.00|upheld|11/11/2026 23:03:35|RunGoldens
+brief|v1|lfm3-1.7b|first-clause|1|20|1.00|refused|11/11/2026 23:03:35|RunGoldens
+brief|v1|lfm3-1.7b|granite-1b|2|15|1.00|refused|11/11/2026 23:03:35|RunGoldens
+kind|v1|keyword-rules|granite-1b|6|3|0.25|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|keyword-rules|granite-1b-choice|5|4|0.50|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|keyword-rules|lfm3-1.7b|12|9|0.33|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|keyword-rules|lfm3-1.7b-choice|19|9|0.04|upheld|11/11/2026 23:07:20|RunGoldens
+kind|v1|granite-1b|keyword-rules|3|6|0.91|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|granite-1b|granite-1b-choice|1|3|0.94|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|granite-1b|lfm3-1.7b|10|10|0.59|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|granite-1b|lfm3-1.7b-choice|15|8|0.11|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|granite-1b-choice|keyword-rules|4|5|0.75|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|granite-1b-choice|granite-1b|3|1|0.31|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|granite-1b-choice|lfm3-1.7b|13|11|0.42|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|granite-1b-choice|lfm3-1.7b-choice|16|7|0.05|upheld|11/11/2026 23:07:20|RunGoldens
+kind|v1|lfm3-1.7b|keyword-rules|9|12|0.81|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|lfm3-1.7b|granite-1b|10|10|0.59|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|lfm3-1.7b|granite-1b-choice|11|13|0.73|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|lfm3-1.7b|lfm3-1.7b-choice|10|3|0.05|upheld|11/11/2026 23:07:20|RunGoldens
+kind|v1|lfm3-1.7b-choice|keyword-rules|9|19|0.98|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|lfm3-1.7b-choice|granite-1b|8|15|0.95|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|lfm3-1.7b-choice|granite-1b-choice|7|16|0.98|refused|11/11/2026 23:07:20|RunGoldens
+kind|v1|lfm3-1.7b-choice|lfm3-1.7b|3|10|0.99|refused|11/11/2026 23:07:20|RunGoldens

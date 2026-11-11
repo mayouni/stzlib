@@ -21,7 +21,9 @@ $aTkModels = [
 	[ "qwen25c-1.5b",  "qwen2.5-coder-1.5b", "apache-2.0", 1900 ],
 	[ "granite42-3b",  "granite-4.2-3b",     "apache-2.0", 3000 ],
 	# NVIDIA's Nemotron 3.5 Bolt E4B (Gemma 4), the challenger of RADAR-NVIDIA-BOLTCOURT-01 (2026-11-11)
-	[ "bolt-e4b",      "nemotron-3.5-bolt",  "openmdw-1.1", 6400 ]
+	[ "bolt-e4b",      "nemotron-3.5-bolt",  "openmdw-1.1", 6400 ],
+	# Liquid AI's LFM3-1.7B (convolutions and gated attention), RADAR-LFM3-FAMILY-01 (2026-11-11)
+	[ "lfm3-1.7b",     "lfm3-1.7b",          "lfm-1.0",     2100 ]
 ]
 
 # THE GOLDEN SET: 36 tickets written by an INDEPENDENT author who never saw a floor (so a floor cannot be tuned to it),
@@ -427,19 +429,38 @@ func _TkKindModel(cText, aParams)
 # may begin either way) and returns the best label with its probability among the candidates and the mass they hold.
 func _TkChoice(cSystem, cUser, acOptions)
 	_cP_ = StzChatPrompt(cSystem, cUser)
+	# each option and its capitalised twin -- the twin only when its first token is no other option's first token
+	# (2026-11-11: in LFM3's vocabulary "Bug" and "Billing" both begin with "B", and StzOptionProbabilities refuses
+	# options it cannot tell apart, so every :kind reading of that model failed; no model measured before had a clash)
+	_aFirst_ = []
+	for _i_ = 1 to len(acOptions)
+		add(_aFirst_, _TkFirstToken(acOptions[_i_]))
+	next
 	_aAll_ = []
+	_aOwner_ = []
 	for _i_ = 1 to len(acOptions)
 		add(_aAll_, acOptions[_i_])
-		add(_aAll_, upper(left(acOptions[_i_], 1)) + right(acOptions[_i_], len(acOptions[_i_]) - 1))
+		add(_aOwner_, _i_)
+	next
+	for _i_ = 1 to len(acOptions)
+		_cCap_ = upper(left(acOptions[_i_], 1)) + right(acOptions[_i_], len(acOptions[_i_]) - 1)
+		_nT_ = _TkFirstToken(_cCap_)
+		if len(StzFind(_nT_, _aFirst_)) = 0
+			add(_aAll_, _cCap_)
+			add(_aOwner_, _i_)
+			add(_aFirst_, _nT_)
+		ok
 	next
 	_aR_ = StzOptionProbabilities(_cP_, _aAll_)
 	if len(_aR_) = 0 stzraise("no generative model is loaded") ok
 	_aSum_ = []
-	_nTot_ = 0
 	for _i_ = 1 to len(acOptions)
-		_p_ = _aR_[:probabilities][2 * _i_ - 1][2] + _aR_[:probabilities][2 * _i_][2]
-		add(_aSum_, _p_)
-		_nTot_ += _p_
+		add(_aSum_, 0)
+	next
+	_nTot_ = 0
+	for _k_ = 1 to len(_aAll_)
+		_aSum_[_aOwner_[_k_]] += _aR_[:probabilities][_k_][2]
+		_nTot_ += _aR_[:probabilities][_k_][2]
 	next
 	_nBest_ = 1
 	for _i_ = 2 to len(acOptions)
@@ -448,6 +469,16 @@ func _TkChoice(cSystem, cUser, acOptions)
 	_nShare_ = 0
 	if _nTot_ > 0 _nShare_ = _aSum_[_nBest_] / _nTot_ ok
 	return [ acOptions[_nBest_], _nShare_, _nTot_ ]
+
+# the first token of a word, after a BOS the tokenizer may prepend (found as StzOptionProbabilities finds it)
+func _TkFirstToken(cWord)
+	StzEngineNeuralGenTokenize("a")
+	_nA_ = StzEngineNeuralGenTokenAt(0)
+	StzEngineNeuralGenTokenize("b")
+	_nSkip_ = 0
+	if StzEngineNeuralGenTokenAt(0) = _nA_ _nSkip_ = 1 ok
+	StzEngineNeuralGenTokenize(cWord)
+	return StzEngineNeuralGenTokenAt(_nSkip_)
 
 func _TkNoteChoice(nShare)
 	$aStzImplNote = [ :certainty = StzBandOfProbability(nShare), :p = nShare, :detail = "read by probability" ]
