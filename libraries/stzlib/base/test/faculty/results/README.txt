@@ -20,3 +20,17 @@ measured per language (v2/en, v2/fr, v2/ar). A hit is the right article in the t
 floor 0.50/0.33/0.33, minilm-cosine 1/0.67/0.33, siglip2-text 0.67/0.83/0.50 (en/fr/ar). With 12 items a language, the
 court upholds a challenger there only from about five discordant wins with none lost (5-0 is P = 0.031). The court file
 is LOADED before a run and saved after it, so a run replaces the pairs it scores and keeps the others.
+
+2026-11-11 (RADAR-LFM3-DECISIONSHAPE-01, ../_measure_d1shape.haro): three option questions about each of the 36 tickets,
+read by probability; right answers kind/product/severity of 36, tokens actually read, seconds (CPU, heartbeat 179/182):
+  bolt-e4b     today, reuse off  29 34 36   9,939 tokens  387 s
+               today, reuse on   29 34 36   3,215 tokens  138 s   (identical answers: the logits are equal to the bit)
+               d1 shape          28 33 36   5,712 tokens  268 s
+  granite-1b   today, reuse off  24 27 35   9,915 tokens  176 s
+               today, reuse on   24 27 35   3,191 tokens   62 s
+               d1 shape          30 29 26   5,704 tokens  112 s
+The d1 shape shares the INPUT across the questions; today's question-by-question order, with the prefix cache, shares
+the QUESTION across the inputs. Which reads less depends on which is longer: with Q questions the d1 shape reads less
+when the input is longer than about Q/(Q-1) times a question -- here the tickets (about 30 tokens) are shorter than the
+questions (about 45), so today's order wins. Moving the question after the input moves the answers: by one or two on
+Bolt, by up to nine on granite-1b (severity 35 -> 26), so a shape is chosen per model, on its golden set.
