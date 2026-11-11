@@ -21,6 +21,7 @@ nLoaded = StzLoadMeasurements(cStore)
 # erased the other faculties' evidence, 2026-11-11)
 if fexists("results/court.zcourt.txt") StzLoadCourt("results/court.zcourt.txt") ok
 StzTicketAppDeclare()
+acBed = [ "retrieve", "rerank", "triage_extract", "brief", "kind", "route" ]
 
 aFacs = StzFacultyNames()
 if cFacs != "all" aFacs = split(cFacs, ",") ok
@@ -39,9 +40,10 @@ for i = 1 to len(aFacs)
 		? "  " + cF + " / " + aRows[j][:impl] + "  score=" + aRows[j][:score] + "  n=" + aRows[j][:n] + "  conformance=" + aRows[j][:conformance]
 	next
 	? "  (" + cF + " took " + nSec + " s)"
-	StzSaveMeasurements(cStore)
+	# only the bed's own faculties: the library's other filed rows (the image plane's) load with it and are not this file's
+	StzSaveMeasurementsOf(cStore, acBed)
 	# the court's counts from this run (every ordered pair scored on the same tickets), beside the scores
-	StzSaveCourt("results/court.zcourt.txt")
+	StzSaveCourtOf("results/court.zcourt.txt", acBed)
 next
 aSw = StzModelSwapCosts()
 for i = 1 to len(aSw)

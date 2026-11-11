@@ -81,6 +81,19 @@ func StzSaveMeasurements(pcPath)
 	next
 	write(pcPath, _c_)
 
+# The same file, holding only the rows of the faculties named (pacFaculties, a list of names). A measurement bed loads what
+# the whole library has filed -- the image plane's rows load with the library -- so saving everything copied them into the
+# bed's own file (found 2026-11-11 in the support desk's results). A bed saves its own faculties with this.
+func StzSaveMeasurementsOf(pcPath, pacFaculties)
+	_c_ = "# zmdl 1 -- measured quality per implementation (SOFTANZA_MODEL_FLOW.md 9.2)" + char(10)
+	for _i_ = 1 to len($aStzMeasurements)
+		_a_ = $aStzMeasurements[_i_]
+		if len(StzFind(_a_[:faculty], pacFaculties)) = 0 loop ok
+		_c_ += _a_[:faculty] + "|" + _a_[:impl] + "|" + _a_[:golden] + "|" + _a_[:score] + "|" + _a_[:n] + "|" +
+		       _a_[:conformance] + "|" + _a_[:date] + "|" + _a_[:note] + char(10)
+	next
+	write(pcPath, _c_)
+
 # The fields of a line, split on one character by scanning: an empty field is kept, and nothing global is read. Ring's split() is not
 # used in the registry: it reads the global NL, which a caller's `nL = len(...)` replaces with a number -- found 2026-11-05, when
 # image_quality_narrated.ring did exactly that and the catalogue's next split() raised deep in the standard library.
@@ -225,6 +238,26 @@ func StzSaveCourt(pcPath)
 	next
 	write(pcPath, _c_)
 	return len($aStzCourt)
+
+# The court's file holding only the faculties named, as StzSaveMeasurementsOf; the number of records written.
+func StzSaveCourtOf(pcPath, pacFaculties)
+	_c_ = "# zcourt 1 -- the court's evidence per faculty and golden set (SOFTANZA_WEIGHT_SPACE_GOVERNANCE.md section 8)" + char(10) +
+	      "# faculty|golden|challenger|other|gains|losses|p|verdict|date|note   (p and the verdict are recomputed from the counts on load)" + char(10)
+	for _i_ = 1 to len($aStzCourtIncumbents)
+		_a_ = $aStzCourtIncumbents[_i_]
+		if len(StzFind(_a_[:faculty], pacFaculties)) = 0 loop ok
+		_c_ += "incumbent|" + _a_[:faculty] + "|" + _a_[:golden] + "|" + _a_[:impl] + char(10)
+	next
+	_n_ = 0
+	for _i_ = 1 to len($aStzCourt)
+		_a_ = $aStzCourt[_i_]
+		if len(StzFind(_a_[:faculty], pacFaculties)) = 0 loop ok
+		_c_ += _a_[:faculty] + "|" + _a_[:golden] + "|" + _a_[:challenger] + "|" + _a_[:other] + "|" + _a_[:gains] + "|" + _a_[:losses] + "|" +
+		       _a_[:p] + "|" + _a_[:verdict] + "|" + _a_[:date] + "|" + _a_[:note] + char(10)
+		_n_++
+	next
+	write(pcPath, _c_)
+	return _n_
 
 func StzClearCourt()
 	$aStzCourt = []

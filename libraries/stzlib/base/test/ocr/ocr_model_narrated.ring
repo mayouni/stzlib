@@ -145,9 +145,9 @@ Scenario("The registry measures both on golden set v2, per language, and chooses
 	Then("read through the faculty, a Russian document is answered by the model", o2.AnsweredBy(), "ppocr")
 	Then("with its lines", o2.NumberOfLines() > 100, 1)
 	Then("and its text holds a Russian key sentence", StzFindFirst("Настоящее руководство описывает подключение устройства и настройку его параметров.", o2.Text()) > 0, 1)
-	StzSaveMeasurements("results/ocr.zmdl.txt")
+	StzSaveMeasurementsOf("results/ocr.zmdl.txt", [ "ocr" ])
 	Then("the measurements are filed", fexists("results/ocr.zmdl.txt"), 1)
-	StzSaveCourt("results/ocr.court.txt")
+	StzSaveCourtOf("results/ocr.court.txt", [ "ocr" ])
 	Then("and the court's evidence beside them (the default gate)", fexists("results/ocr.court.txt"), 1)
 EndScenario()
 
