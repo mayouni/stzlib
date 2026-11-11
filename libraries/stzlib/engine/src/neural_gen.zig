@@ -445,6 +445,32 @@ var g_kv_shape: [2]usize = .{ 0, 0 }; // n_kv, hd of the allocated cache
 var g_n_past: usize = 0;
 var g_logits: std.ArrayList(f32) = .{};
 var g_gen_text: std.ArrayList(u8) = .{};
+// THREADS. One token's step reads every weight once and is bound by memory: 4 threads were measured enough. A pass over
+// several tokens (a prompt chunk, speculative decoding's verification) does that arithmetic once per token and is bound
+// by compute, so it may take more. The split changes which thread computes a row, never the order of any sum.
+var g_threads_one: c_int = 4;
+var g_threads_many: c_int = 4;
+pub export fn neural_gen_set_threads(one: c_int, many: c_int) callconv(.c) void {
+    g_threads_one = std.math.clamp(one, 1, 64);
+    g_threads_many = std.math.clamp(many, 1, 64);
+}
+var g_rows_out: usize = 1; // rows of logits a forward computes: 1, or k+1 for speculative decoding's verification
+var g_row_best: std.ArrayList(i32) = .{}; // the best token of each of those rows (filled only when there are several)
+
+// THE ATTENTION'S WIDTH IS PADDED, so a token's numbers do not depend on how many tokens were read with it
+// (RADAR-NVIDIA-SPECDEC-01, 2026-11-11). Attention sums over the keys -- the softmax's total and each value row's dot
+// product -- and those sums are vectorised: an element's place in the accumulation depends on the row's LENGTH, through
+// the vector tail. One token read alone sums over n_past+1 keys; the same token read in a batch of k+1 sums over
+// n_past+k+1, the later keys masked. The sums differed in their last bits, and a near tie between two tokens then went
+// the other way: speculative decoding, which reads k+1 tokens at once, wrote "which is why the sky appears blue" where
+// the model alone writes "making the sky appear blue" (1 text of 6, measured). Every forward now attends over a width
+// rounded up to kv_pad keys, the extra keys masked: every element sits in the same lane in either case, and a masked
+// key adds exactly 0 (exp(-1e9) is 0 in f32, and the cache is zeroed when allocated, so 0 * a stale value is 0).
+// 64 covers the widest unrolled step ggml's f32 kernels take (AVX-512: 16 lanes x 4) and tinyBLAS's k granularity.
+const kv_pad: usize = 64;
+fn padKv(n: usize) usize {
+    return (n + kv_pad - 1) / kv_pad * kv_pad;
+}
 
 fn resetKv() void {
     if (g_kvctx) |k| c.ggml_free(k);
@@ -466,6 +492,8 @@ fn ensureKv(n_layer: usize, n_kv: usize, hd: usize, need: usize) bool {
     const per = hd * cap * n_kv * 4;
     const bytes = 2 * n_layer * (per + c.ggml_tensor_overhead() + 128) + 65536;
     const nctx = c.ggml_init(.{ .mem_size = bytes, .mem_buffer = null, .no_alloc = false }) orelse return false;
+    // zeroed: the padded attention reads keys no token wrote yet, masked, and 0 * (whatever was there) must be 0
+    @memset(@as([*]u8, @ptrCast(c.ggml_get_mem_buffer(nctx).?))[0..c.ggml_get_mem_size(nctx)], 0);
     var nk: std.ArrayList(*c.ggml_tensor) = .{};
     var nv: std.ArrayList(*c.ggml_tensor) = .{};
     var ok = true;
@@ -632,7 +660,7 @@ fn buildDecodeGraph(
 ) ?DecodeGraph {
     const n_new = ids.len;
     const n_past = d.n_past;
-    const kv_len = n_past + n_new;
+    const kv_len = padKv(n_past + n_new); // the attention's width; keys past n_past+n_new are masked (see kv_pad)
     const n_embd = d.n_embd;
     const n_head = d.n_head;
     const n_kv = d.n_kv;
@@ -750,8 +778,10 @@ fn buildDecodeGraph(
 
     var xF = c.ggml_rms_norm(ctx, cur, eps).?;
     xF = c.ggml_mul(ctx, xF, getT(m, "output_norm.weight", .{}, &nb)).?;
-    // lm_head on the LAST token only (untied output.weight, else tied embeddings)
-    const last = c.ggml_view_2d(ctx, xF, @intCast(n_embd), 1, xF.*.nb[1], @intCast((n_new - 1) * xF.*.nb[1])).?;
+    // lm_head on the LAST token only (untied output.weight, else tied embeddings) -- or on the last g_rows_out tokens,
+    // when speculative decoding's verification pass needs the target's choice after each of them
+    const n_out: usize = @max(1, @min(g_rows_out, n_new));
+    const last = c.ggml_view_2d(ctx, xF, @intCast(n_embd), @intCast(n_out), xF.*.nb[1], @intCast((n_new - n_out) * xF.*.nb[1])).?;
     const lastc = c.ggml_cont(ctx, last).?;
     const lm_w = getTOpt(m, "output.weight", .{}, &nb) orelse getT(m, "token_embd.weight", .{}, &nb);
     var logits = c.ggml_mul_mat(ctx, lm_w, lastc).?;
@@ -847,7 +877,7 @@ fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
     }
 
     // the persistent cache, sized for this forward (a new model shape starts a new cache, which zeroes g_n_past)
-    if (!ensureKv(n_layer, n_kv, dims.hd, g_n_past + n_new)) return false;
+    if (!ensureKv(n_layer, n_kv, dims.hd, padKv(g_n_past + n_new))) return false;
     const n_past = g_n_past;
     var dims_now = dims;
     dims_now.n_past = n_past;
@@ -883,7 +913,7 @@ fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
 
     g_phase[2] = msSince(tp);
     tp = std.time.nanoTimestamp();
-    var plan = c.ggml_graph_plan(graph, 4, null);
+    var plan = c.ggml_graph_plan(graph, if (n_new > 1) g_threads_many else g_threads_one, null);
     var wbuf: ?[]u8 = null;
     if (plan.work_size > 0) {
         wbuf = gpa.alloc(u8, plan.work_size) catch return false;
@@ -898,9 +928,27 @@ fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
     g_phase[4] = msSince(tp);
     tp = std.time.nanoTimestamp();
 
-    // read back the last-token logits
+    // read back the last-token logits (and, for a verification pass, the best token of every row)
     const n_vocab_t: usize = @intCast(logits.*.ne[0]);
-    const ld: [*]const f32 = @ptrCast(@alignCast(logits.*.data));
+    const n_rows: usize = @intCast(logits.*.ne[1]);
+    const ld_all: [*]const f32 = @ptrCast(@alignCast(logits.*.data));
+    g_row_best.clearRetainingCapacity();
+    if (n_rows > 1) {
+        g_row_best.ensureTotalCapacity(gpa, n_rows) catch return false;
+        for (0..n_rows) |r| {
+            const row = ld_all[r * n_vocab_t ..][0..n_vocab_t];
+            var best: usize = 0;
+            var bestv: f32 = -3.4e38;
+            for (row, 0..) |v, i| {
+                if (v > bestv) {
+                    bestv = v;
+                    best = i;
+                }
+            }
+            g_row_best.appendAssumeCapacity(@intCast(best));
+        }
+    }
+    const ld = ld_all + (n_rows - 1) * n_vocab_t;
     g_logits.clearRetainingCapacity();
     g_logits.ensureTotalCapacity(gpa, n_vocab_t) catch return false;
     for (0..n_vocab_t) |i| g_logits.appendAssumeCapacity(ld[i]);
@@ -1713,6 +1761,336 @@ pub export fn neural_generate(text: [*c]const u8, len: usize, max_new: c_int) ca
 pub export fn neural_gen_text() callconv(.c) [*c]const u8 {
     if (g_gen_text.items.len == 0) return @ptrCast("");
     return @ptrCast(g_gen_text.items.ptr);
+}
+
+// ---- speculative decoding (RADAR-NVIDIA-SPECDEC-01, 2026-11-11) ---------------------------------------------------
+//
+// A small DRAFTER of the same family proposes k tokens one by one; the TARGET then reads the k+1 tokens [x0, d1..dk] in
+// ONE forward, keeping its own greedy choice after each of them. The drafts are taken while they equal the target's
+// choice; the first that differs is replaced by the target's own token, and the cache is cut back to what was taken.
+// So the text is the TARGET's greedy text -- the drafter only decides how many tokens one target pass may confirm --
+// and the speedup is the drafter's cheapness times how often it agrees. Greedy only: a sampled or constrained
+// generation (temperature, grammar, repeat penalty, stop-on-repeat) is refused, not approximated.
+//
+// THE TWO MODELS. The decoder keeps one model's state in globals (the loaded GGUF, its tokenizer, its cache, its
+// contract verdict). The drafter's state lives in a SLOT beside it -- embed.ModelSlot for the model, GenSlot for the
+// rest -- and swapIn/swapOut EXCHANGE the two, so the drafter runs through exactly the code the target runs, and
+// nothing is rebuilt on a swap: each model keeps its own generation number, tokenizer maps and cache.
+//
+// THE SAME TOKENIZER, OR NOTHING. A draft token is an id; it means the same word to the target only if both models
+// number the same vocabulary the same way. A signature over every token string, bos, eos and the end-of-generation set
+// is taken from each model, and a target whose signature differs from the drafter's is refused.
+
+const GenSlot = struct {
+    kvctx: ?*c.ggml_context = null,
+    kt: std.ArrayList(*c.ggml_tensor) = .{},
+    vt: std.ArrayList(*c.ggml_tensor) = .{},
+    cap: usize = 0,
+    kv_shape: [2]usize = .{ 0, 0 },
+    n_past: usize = 0,
+    logits: std.ArrayList(f32) = .{},
+    bpe_built: bool = false,
+    bpe_gen: usize = 0,
+    tok_map: std.StringHashMap(i32) = undefined,
+    merge_map: std.StringHashMap(i32) = undefined,
+    n_vocab: usize = 0,
+    bos: i32 = -1,
+    eos: i32 = -1,
+    add_bos: bool = false,
+    specials: std.ArrayList(Special) = .{},
+    eog: std.ArrayList(i32) = .{},
+    dc_gen: usize = std.math.maxInt(usize),
+    dc_ok: bool = false,
+    dc_rows: i64 = 0,
+};
+
+fn swapGen(s: *GenSlot) void {
+    std.mem.swap(?*c.ggml_context, &g_kvctx, &s.kvctx);
+    std.mem.swap(std.ArrayList(*c.ggml_tensor), &g_kt, &s.kt);
+    std.mem.swap(std.ArrayList(*c.ggml_tensor), &g_vt, &s.vt);
+    std.mem.swap(usize, &g_cap, &s.cap);
+    std.mem.swap([2]usize, &g_kv_shape, &s.kv_shape);
+    std.mem.swap(usize, &g_n_past, &s.n_past);
+    std.mem.swap(std.ArrayList(f32), &g_logits, &s.logits);
+    std.mem.swap(bool, &g_bpe_built, &s.bpe_built);
+    std.mem.swap(usize, &g_bpe_gen, &s.bpe_gen);
+    std.mem.swap(std.StringHashMap(i32), &g_tok_map, &s.tok_map);
+    std.mem.swap(std.StringHashMap(i32), &g_merge_map, &s.merge_map);
+    std.mem.swap(usize, &g_n_vocab, &s.n_vocab);
+    std.mem.swap(i32, &g_bos, &s.bos);
+    std.mem.swap(i32, &g_eos, &s.eos);
+    std.mem.swap(bool, &g_add_bos, &s.add_bos);
+    std.mem.swap(std.ArrayList(Special), &g_specials, &s.specials);
+    std.mem.swap(std.ArrayList(i32), &g_eog, &s.eog);
+    std.mem.swap(usize, &g_dc_gen, &s.dc_gen);
+    std.mem.swap(bool, &g_dc_ok, &s.dc_ok);
+    std.mem.swap(i64, &g_dc_rows, &s.dc_rows);
+}
+
+var g_draft_model: embed.ModelSlot = .{};
+var g_draft_gen: GenSlot = .{};
+var g_draft_ready: bool = false;
+var g_draft_sig: u64 = 0;
+var g_target_sig: u64 = 0;
+var g_target_sig_gen: usize = std.math.maxInt(usize);
+
+fn swapIn() void {
+    embed.swapModel(&g_draft_model);
+    swapGen(&g_draft_gen);
+}
+fn swapOut() void {
+    swapGen(&g_draft_gen);
+    embed.swapModel(&g_draft_model);
+}
+
+const SPEC_OK: c_int = 0;
+const SPEC_NO_DRAFTER: c_int = 1; // no drafter is loaded
+const SPEC_DRAFTER_REFUSED: c_int = 2; // the drafter file did not load as a generator (digest, shape, arch)
+const SPEC_VOCAB_DIFFERS: c_int = 3; // the target numbers its vocabulary differently from the drafter
+const SPEC_NOT_GREEDY: c_int = 4; // grammar, repeat penalty or stop-on-repeat is set: refused, not approximated
+const SPEC_TARGET_FAILED: c_int = 5; // the target refused the prompt (see neural_gen_last_error)
+const SPEC_FORWARD_FAILED: c_int = 6;
+var g_spec_status: c_int = SPEC_OK;
+
+// [rounds, tokens drafted, drafts taken, target passes, drafter passes, ms, tokens produced, ms in the target's
+//  verification passes, ms in the drafter]
+var g_spec_stats: [9]f64 = .{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+// The vocabulary's identity: every token string in order, then bos, eos and the end-of-generation set.
+fn vocabSignature() u64 {
+    var h = std.hash.Wyhash.init(0x5eed_d1ce);
+    h.update(std.mem.asBytes(&g_n_vocab));
+    for (0..g_n_vocab) |i| {
+        h.update(vocabToken(i));
+        h.update(&[_]u8{0});
+    }
+    h.update(std.mem.asBytes(&g_bos));
+    h.update(std.mem.asBytes(&g_eos));
+    for (g_eog.items) |e| h.update(std.mem.asBytes(&e));
+    return h.final();
+}
+
+fn freeDrafter() void {
+    if (g_draft_model.gguf != null or g_draft_gen.bpe_built or g_draft_gen.kvctx != null) {
+        swapIn();
+        freeBpe();
+        resetKv();
+        g_logits.clearAndFree(gpa);
+        swapOut();
+    }
+    embed.freeSlot(&g_draft_model);
+    g_draft_gen = .{};
+    g_draft_ready = false;
+    g_draft_sig = 0;
+}
+
+/// Free the drafter (the target in place is untouched).
+pub export fn neural_gen_draft_free() callconv(.c) void {
+    freeDrafter();
+}
+
+/// Load the drafter from a GGUF file, beside the model in place: digest-checked as every model is, a generator this
+/// decoder knows, its tokenizer read. 1 when ready; 0 with neural_gen_spec_status() = SPEC_DRAFTER_REFUSED otherwise.
+pub export fn neural_gen_draft_load(path: [*c]const u8) callconv(.c) c_int {
+    freeDrafter();
+    g_spec_status = SPEC_OK;
+    if (path == null) {
+        g_spec_status = SPEC_DRAFTER_REFUSED;
+        return 0;
+    }
+    var ok = false;
+    {
+        swapIn();
+        defer swapOut();
+        if (embed.neural_model_load(path) == 1 and neural_model_has_generator() == 1 and buildBpe()) {
+            g_draft_sig = vocabSignature();
+            ok = true;
+        }
+    }
+    if (!ok) {
+        freeDrafter();
+        g_spec_status = SPEC_DRAFTER_REFUSED;
+        return 0;
+    }
+    g_draft_ready = true;
+    return 1;
+}
+
+pub export fn neural_gen_draft_ready() callconv(.c) c_int {
+    return if (g_draft_ready) 1 else 0;
+}
+
+pub export fn neural_gen_spec_status() callconv(.c) c_int {
+    return g_spec_status;
+}
+
+pub export fn neural_gen_spec_stat(i: c_int) callconv(.c) f64 {
+    if (i < 0 or i >= g_spec_stats.len) return 0;
+    return g_spec_stats[@intCast(i)];
+}
+
+fn specCommit(id: i32, out: *std.ArrayList(i32)) bool {
+    out.append(gpa, id) catch return false;
+    g_chunk.clearRetainingCapacity();
+    var one = [1]i32{id};
+    decodeInto(one[0..], &g_chunk);
+    g_gen_text.appendSlice(gpa, g_chunk.items) catch return false;
+    return true;
+}
+
+/// Greedy generation with the drafter proposing up to `k` tokens per target pass. The text is the target's own greedy
+/// text (neural_gen_text); the counts of the run are in neural_gen_spec_stat. Its length, or -1 (see the status).
+pub export fn neural_generate_spec(text: [*c]const u8, len: usize, max_new: c_int, k_in: c_int) callconv(.c) c_int {
+    const t0 = std.time.nanoTimestamp();
+    g_spec_status = SPEC_OK;
+    g_spec_stats = .{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    g_gen_text.clearRetainingCapacity();
+    if (!g_draft_ready) {
+        g_spec_status = SPEC_NO_DRAFTER;
+        return -1;
+    }
+    if (g_gram_on or g_rep_penalty > 1.0 or g_stop_repeat > 0) {
+        g_spec_status = SPEC_NOT_GREEDY;
+        return -1;
+    }
+    const k: usize = @intCast(std.math.clamp(k_in, 1, 16));
+    const max: usize = if (max_new > 0) @intCast(max_new) else 64;
+
+    // the target reads the prompt (fresh sequence, greedy); its last logits give the first token
+    if (neural_gen_start(text, len, max_new, 0, 1.0, 0, 0) == 0) {
+        g_spec_status = SPEC_TARGET_FAILED;
+        return -1;
+    }
+    g_stream_active = false; // this function drives the target, not neural_gen_next
+    if (g_target_sig_gen != embed.model_generation) {
+        g_target_sig = vocabSignature();
+        g_target_sig_gen = embed.model_generation;
+    }
+    if (g_target_sig != g_draft_sig) {
+        g_spec_status = SPEC_VOCAB_DIFFERS;
+        return -1;
+    }
+
+    var prompt: std.ArrayList(i32) = .{};
+    defer prompt.clearAndFree(gpa);
+    encode(text[0..len], &prompt);
+
+    // the drafter reads the same prompt into its own cache
+    const n_prompt_d = prompt.items.len;
+    const dok = blk: {
+        swapIn();
+        defer swapOut();
+        resetKv();
+        break :blk prefillIds(prompt.items);
+    };
+    if (!dok) {
+        g_spec_status = SPEC_FORWARD_FAILED;
+        return -1;
+    }
+
+    var out: std.ArrayList(i32) = .{};
+    defer out.clearAndFree(gpa);
+    var drafts: std.ArrayList(i32) = .{};
+    defer drafts.clearAndFree(gpa);
+    var batch: std.ArrayList(i32) = .{};
+    defer batch.clearAndFree(gpa);
+    var d_have: usize = 0; // produced tokens the drafter's cache already holds
+
+    var x0 = argmaxLogits();
+    while (true) {
+        if (x0 < 0 or isEog(x0)) break;
+        if (g_n_past >= contextWindow()) {
+            g_truncated = true;
+            break;
+        }
+        if (!specCommit(x0, &out)) break;
+        if (out.items.len >= max) break;
+
+        // the drafter proposes: first it catches up on what was produced, then one token at a time
+        const room = contextWindow() - g_n_past; // >= 1 here: x0 still has to go into the target's cache
+        const kk = @min(k, room - 1, max - out.items.len);
+        drafts.clearRetainingCapacity();
+        if (kk > 0) {
+            const td = std.time.nanoTimestamp();
+            defer g_spec_stats[8] += @as(f64, @floatFromInt(std.time.nanoTimestamp() - td)) / 1.0e6;
+            const ok = blk: {
+                swapIn();
+                defer swapOut();
+                g_n_past = n_prompt_d + d_have; // what the drafter took last round, cut to what the target kept
+                if (!prefillIds(out.items[d_have..])) break :blk false;
+                g_spec_stats[4] += 1;
+                d_have = out.items.len;
+                while (drafts.items.len < kk) {
+                    const d = argmaxLogits();
+                    drafts.append(gpa, d) catch break :blk false;
+                    if (isEog(d) or drafts.items.len == kk) break;
+                    var one = [1]i32{d};
+                    if (!forwardDecode(one[0..])) break :blk false;
+                    g_spec_stats[4] += 1;
+                }
+                break :blk true;
+            };
+            if (!ok) {
+                g_spec_status = SPEC_FORWARD_FAILED;
+                break;
+            }
+        }
+
+        // the target reads x0 and every draft in one pass, keeping its choice after each
+        batch.clearRetainingCapacity();
+        batch.append(gpa, x0) catch break;
+        batch.appendSlice(gpa, drafts.items) catch break;
+        const base = g_n_past;
+        g_rows_out = batch.items.len;
+        const tv = std.time.nanoTimestamp();
+        const tok = forwardDecode(batch.items);
+        g_spec_stats[7] += @as(f64, @floatFromInt(std.time.nanoTimestamp() - tv)) / 1.0e6;
+        g_rows_out = 1;
+        if (!tok) {
+            g_spec_status = SPEC_FORWARD_FAILED;
+            g_last_error = GEN_FORWARD_FAILED;
+            break;
+        }
+        g_spec_stats[0] += 1;
+        g_spec_stats[1] += @floatFromInt(drafts.items.len);
+        g_spec_stats[3] += 1;
+        // best[i]: the target's token after batch[i] (one row: the plain last-token choice)
+        var lone = [1]i32{0};
+        const best: []const i32 = if (batch.items.len > 1) g_row_best.items else blk: {
+            lone[0] = argmaxLogits();
+            break :blk lone[0..];
+        };
+
+        var a: usize = 0;
+        var stop = false;
+        while (a < drafts.items.len and drafts.items[a] == best[a]) {
+            const d = drafts.items[a];
+            if (isEog(d)) {
+                stop = true;
+                break;
+            }
+            a += 1;
+            if (!specCommit(d, &out)) {
+                stop = true;
+                break;
+            }
+            if (out.items.len >= max) {
+                stop = true;
+                break;
+            }
+        }
+        g_spec_stats[2] += @floatFromInt(a);
+        // the target keeps x0 and the drafts it took; the drafter, at most what it was fed
+        g_n_past = base + 1 + a;
+        d_have = @min(d_have + a, d_have + (if (drafts.items.len > 0) drafts.items.len - 1 else 0));
+        if (stop) break;
+        x0 = best[a];
+    }
+    g_spec_stats[6] = @floatFromInt(out.items.len);
+    g_spec_stats[5] = @as(f64, @floatFromInt(std.time.nanoTimestamp() - t0)) / 1.0e6;
+    g_gen_text.append(gpa, 0) catch return -1;
+    if (g_spec_status != SPEC_OK) return -1;
+    return @intCast(g_gen_text.items.len - 1);
 }
 
 // tokenizer probe: BPE-encode into a shared buffer (count returned; ids via

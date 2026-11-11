@@ -8,7 +8,12 @@
 #
 #   Scene 1  nothing about the answer changed: the greedy text of every decoder family present (llama, qwen2 with biases, qwen3 with q/k
 #            norms, granite) on prompts of 5, 11 and 1100+ tokens equals the text the decoder wrote BEFORE the change
-#            (_data/decode_equiv_expected.txt); the long prompt crosses every capacity doubling (256, 512, 1024, 2048)
+#            (_data/decode_equiv_expected.txt); the long prompt crosses every capacity doubling (256, 512, 1024, 2048).
+#            RE-RECORDED 2026-11-11, once, for a stated reason: the attention now runs over a width padded to 64 keys
+#            (neural_gen.zig, kv_pad), so a token's numbers no longer depend on how many tokens were read with it. That
+#            moved the last bits of every attention sum, and 5 of the 12 texts took the other side of a near tie
+#            ("science" -> "politics", "Republic of France" -> "French Republic", two list items swapped...); the long
+#            prompts did not move. The cache change this scene guards was measured against the file before that day.
 #   Scene 2  a step no longer carries the context: the graph's pool is the same few megabytes at 1400 tokens as at 90 (it was 14 and 166 MB),
 #            the cache copy-in and the append phases cost nothing, and a step at 1400 tokens costs under twice a step at 90
 #   Scene 3  the cache is reusable: the same prompt twice, and a short prompt after a long one, write the same text

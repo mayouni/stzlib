@@ -43,6 +43,41 @@ pub fn ctxHandle() ?*anyopaque {
 var g_arch: [64]u8 = undefined;
 var g_arch_len: usize = 0;
 
+// Generations are ISSUED from a counter that only grows, and model_generation names the model in place. The two were one
+// variable until a second model could be held aside (RADAR-NVIDIA-SPECDEC-01): putting a held model back restores ITS
+// generation, so every cache keyed on it stays valid, and a later load must still get a number no model ever had.
+var g_gen_issued: usize = 0;
+fn issueGeneration() void {
+    g_gen_issued = @max(g_gen_issued, model_generation) + 1;
+    model_generation = g_gen_issued;
+}
+
+/// A loaded model held aside: its handles, its architecture name and its generation. `swapModel` exchanges the model in
+/// place with the one in the slot, so two swaps restore both; nothing is read, copied or freed. The decoder's drafter
+/// (speculative decoding) lives in a slot while the target model is in place.
+pub const ModelSlot = struct {
+    gguf: ?*c.gguf_context = null,
+    ctx: ?*c.ggml_context = null,
+    arch: [64]u8 = undefined,
+    arch_len: usize = 0,
+    gen: usize = 0,
+};
+
+pub fn swapModel(s: *ModelSlot) void {
+    std.mem.swap(?*c.gguf_context, &g_gguf, &s.gguf);
+    std.mem.swap(?*c.ggml_context, &g_ctx, &s.ctx);
+    std.mem.swap([64]u8, &g_arch, &s.arch);
+    std.mem.swap(usize, &g_arch_len, &s.arch_len);
+    std.mem.swap(usize, &model_generation, &s.gen);
+}
+
+/// Free the model a slot holds (never the one in place).
+pub fn freeSlot(s: *ModelSlot) void {
+    if (s.gguf) |x| c.gguf_free(x);
+    if (s.ctx) |x| c.ggml_free(x);
+    s.* = .{};
+}
+
 // Load a GGUF model: metadata + WEIGHTS (no_alloc=false makes gguf read the
 // tensor blob into the created ggml_context and wire tensor->data). 1 on success.
 //
@@ -68,7 +103,7 @@ pub export fn neural_model_load(path: [*c]const u8) callconv(.c) c_int {
     g_gguf = ctx;
     g_ctx = mctx;
     g_arch_len = 0;
-    model_generation += 1;
+    issueGeneration();
     if (kvStr("general.architecture")) |a| {
         const s = std.mem.span(a);
         const n = @min(s.len, g_arch.len);
@@ -79,7 +114,7 @@ pub export fn neural_model_load(path: [*c]const u8) callconv(.c) c_int {
 }
 
 pub export fn neural_model_free() callconv(.c) void {
-    model_generation += 1;
+    issueGeneration();
     if (g_gguf) |x| {
         c.gguf_free(x);
         g_gguf = null;

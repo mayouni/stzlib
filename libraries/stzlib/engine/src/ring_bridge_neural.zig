@@ -1784,6 +1784,12 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralmodelkeytype", .func = &ring_NeuralModelKeyType },
     .{ .name = "stzengineneuralhasgenerator", .func = &ring_NeuralHasGenerator },
     .{ .name = "stzengineneuralgenerate", .func = &ring_NeuralGenerate },
+    .{ .name = "stzengineneuraldraftload", .func = &ring_NeuralDraftLoad },
+    .{ .name = "stzengineneuraldraftfree", .func = &ring_NeuralDraftFree },
+    .{ .name = "stzengineneuralgeneratespec", .func = &ring_NeuralGenerateSpec },
+    .{ .name = "stzengineneuralspecstatus", .func = &ring_NeuralSpecStatus },
+    .{ .name = "stzengineneuralgensetthreads", .func = &ring_NeuralGenSetThreads },
+    .{ .name = "stzengineneuralspecstats", .func = &ring_NeuralSpecStats },
     .{ .name = "stzengineneuralgentokenize", .func = &ring_NeuralGenTokenize },
     .{ .name = "stzengineneuralgentokenat", .func = &ring_NeuralGenTokenAt },
     .{ .name = "stzengineneuralgeneratext", .func = &ring_NeuralGenerateXT },
@@ -1830,6 +1836,68 @@ fn ring_NeuralGenerate(p: *anyopaque) callconv(.c) void {
     }
     const t: [*:0]const u8 = @ptrCast(gen.neural_gen_text());
     R.ring_vm_api_retstring(p, t);
+}
+
+// --- speculative decoding (RADAR-NVIDIA-SPECDEC-01): a drafter beside the model in place -----------------------
+var draft_file: [256]u8 = undefined;
+var draft_len: usize = 0;
+
+/// StzEngineNeuralDraftLoad(cPath) -> 1 when the drafter is ready beside the loaded model, else 0
+/// (StzEngineNeuralSpecStatus() says why; StzEngineNeuralModelLoadStatus() says why a digest refused it)
+fn ring_NeuralDraftLoad(p: *anyopaque) callconv(.c) void {
+    const path = gs(p, 1)[0..@intCast(R.ring_vm_api_getstringsize(p, 1))];
+    draft_len = 0;
+    const r = gen.neural_gen_draft_load(gs(p, 1));
+    if (r == 1) {
+        draft_len = @min(path.len, draft_file.len);
+        @memcpy(draft_file[0..draft_len], path[path.len - draft_len ..]);
+    }
+    rn(p, @floatFromInt(r));
+}
+
+fn ring_NeuralDraftFree(p: *anyopaque) callconv(.c) void {
+    draft_len = 0;
+    gen.neural_gen_draft_free();
+    rn(p, 1);
+}
+
+// StzEngineNeuralGenerateSpec(cPrompt, nMaxNew, nDraft) -> the target's greedy text, drafted nDraft tokens at a time
+// ("" on a refusal: StzEngineNeuralSpecStatus()). Two models run, so two model.run records are written.
+fn ring_NeuralGenerateSpec(p: *anyopaque) callconv(.c) void {
+    const plen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    ranSlot("generate-spec", plen);
+    ran("draft", draft_file[0..draft_len], plen);
+    const maxn: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 2));
+    const k: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 3));
+    const n = gen.neural_generate_spec(gs(p, 1), plen, maxn, k);
+    if (n < 0) {
+        R.ring_vm_api_retstring(p, "");
+        return;
+    }
+    const t: [*:0]const u8 = @ptrCast(gen.neural_gen_text());
+    R.ring_vm_api_retstring(p, t);
+}
+
+/// StzEngineNeuralSpecStatus() -> 0 ok, 1 no drafter, 2 drafter refused, 3 vocabularies differ, 4 not greedy, 5 the target
+/// refused the prompt, 6 a forward failed
+/// StzEngineNeuralGenSetThreads(nOneToken, nManyTokens) -> 1: the decoder's threads for a one-token step and for a pass
+/// over several tokens (a prompt chunk, a verification); 4 and 4 until set
+fn ring_NeuralGenSetThreads(p: *anyopaque) callconv(.c) void {
+    gen.neural_gen_set_threads(@intFromFloat(R.ring_vm_api_getnumber(p, 1)), @intFromFloat(R.ring_vm_api_getnumber(p, 2)));
+    rn(p, 1);
+}
+
+fn ring_NeuralSpecStatus(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_spec_status()));
+}
+
+/// StzEngineNeuralSpecStats() -> [ rounds, tokens drafted, drafts taken, target passes, drafter passes, ms, tokens produced,
+/// ms in the target's verification passes, ms in the drafter ]
+fn ring_NeuralSpecStats(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    var i: c_int = 0;
+    while (i < 9) : (i += 1) R.ring_list_adddouble(out, gen.neural_gen_spec_stat(i));
+    R.ring_vm_api_retlist(p, out);
 }
 
 fn ring_NeuralGenTokenize(p: *anyopaque) callconv(.c) void {
