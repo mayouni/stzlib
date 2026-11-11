@@ -1,13 +1,19 @@
-ggml unknown (built as 0.0.0-stz)
+ggml 0.15.3 (upstream commit eced84c86f8b012c752c016f7fe789adea168e1e, 2026-06-26), built as 0.0.0-stz
 
-Upstream commit not recorded when vendored; GGML_VERSION/GGML_COMMIT are
-defined as 0.0.0-stz at build time. Pruned to CPU-only and PATCHED -- the
-patch set is in NOTICE beside this file.
+Pinned 2026-11-11 (RADAR-NVIDIA-GGMLPIN-01) by matching this copy against upstream's history: of the 90 files here that
+NOTICE does not name as patched, 89 are byte for byte the files at the same paths in tag v0.15.3; the 90th is this
+folder's own .gitignore. The same 89 files are unchanged through upstream commit 14372131 (2026-07-09), since the
+commits in between touch only the GPU backends pruned here; v0.15.3 was master's tip on the day the copy was taken
+(2026-07-07, stzlib 3f3fd7288). The four patched files are listed in NOTICE beside this file.
+
+GGML_VERSION/GGML_COMMIT stay defined as 0.0.0-stz / stz at build time: a patched, pruned CPU build is not upstream's
+0.15.3, and neural_runtime_narrated.ring reads that name.
 
 --- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
 Component:        ggml
-Version:          unknown (built as 0.0.0-stz)
+Version:          0.15.3 (patched, CPU only; built as 0.0.0-stz)
 Source:           https://github.com/ggml-org/ggml
 Licence:          MIT
-Archive-SHA-256:  not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)
+Purl:             pkg:github/ggml-org/ggml@v0.15.3
+Archive-SHA-256:  not recorded -- no archive was fetched; pinned to tag v0.15.3 by matching upstream's git history file by file
 Tree-Digest:      41e7681348f67d1a53f53d80a20137382592a12d25a0f9179dbad10c4734911d

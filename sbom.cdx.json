@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:a7b4b669-0e12-544d-9da9-e2e8b8b1bccf",
+  "serialNumber": "urn:uuid:fbeef57e-a467-50d0-9045-f15adcc0ecf4",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-11-04T00:03:12Z",
+    "timestamp": "2026-11-11T08:15:23Z",
     "tools": {
       "components": [
         {
@@ -20,7 +20,7 @@
       "properties": [
         {
           "name": "softanza:generated-from-commit",
-          "value": "ac16d9598c27f1c38f1a60bd96ca8f8bc6062646"
+          "value": "18608e02975b4fb4492710749b55fb120724add9"
         }
       ]
     }
@@ -98,7 +98,7 @@
       "type": "library",
       "bom-ref": "vendor/ggml",
       "name": "ggml",
-      "version": "unknown (built as 0.0.0-stz)",
+      "version": "0.15.3 (patched, CPU only; built as 0.0.0-stz)",
       "licenses": [
         {
           "expression": "MIT"
@@ -121,9 +121,10 @@
         },
         {
           "name": "softanza:archive-sha-256",
-          "value": "not recorded -- the upstream archive was not fetched when this record was written (2026-09-29)"
+          "value": "not recorded -- no archive was fetched; pinned to tag v0.15.3 by matching upstream's git history file by file"
         }
-      ]
+      ],
+      "purl": "pkg:github/ggml-org/ggml@v0.15.3"
     },
     {
       "type": "library",
