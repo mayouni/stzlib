@@ -45,3 +45,15 @@ triage_extract|bolt-e4b-choice|v1|0.94|36|1|11/11/2026 15:42:52|
 brief|first-clause|v1|0.69|36|1|11/11/2026 15:42:52|
 brief|granite-1b|v1|0.53|36|1|11/11/2026 15:43:47|
 brief|bolt-e4b|v1|0.69|36|1|11/11/2026 15:45:48|
+retrieve|word-idf|v2|0.39|36|1|11/11/2026 18:04:23|
+retrieve|word-idf|v2/en|0.50|12|1|11/11/2026 18:04:23|
+retrieve|word-idf|v2/fr|0.33|12|1|11/11/2026 18:04:23|
+retrieve|word-idf|v2/ar|0.33|12|1|11/11/2026 18:04:23|
+retrieve|minilm-cosine|v2|0.67|36|1|11/11/2026 18:04:27|
+retrieve|minilm-cosine|v2/en|1|12|1|11/11/2026 18:04:27|
+retrieve|minilm-cosine|v2/fr|0.67|12|1|11/11/2026 18:04:27|
+retrieve|minilm-cosine|v2/ar|0.33|12|1|11/11/2026 18:04:27|
+retrieve|siglip2-text|v2|0.67|36|1|11/11/2026 18:04:32|
+retrieve|siglip2-text|v2/en|0.67|12|1|11/11/2026 18:04:32|
+retrieve|siglip2-text|v2/fr|0.83|12|1|11/11/2026 18:04:32|
+retrieve|siglip2-text|v2/ar|0.50|12|1|11/11/2026 18:04:32|

@@ -17,6 +17,9 @@ cModels = sysargv[4]
 cStore = "results/measurements.zmdl.txt"
 if NOT direxists("results") system("mkdir results") ok
 nLoaded = StzLoadMeasurements(cStore)
+# the court's earlier counts too: a run REPLACES the pairs it scores and keeps the rest (saving without loading first
+# erased the other faculties' evidence, 2026-11-11)
+if fexists("results/court.zcourt.txt") StzLoadCourt("results/court.zcourt.txt") ok
 StzTicketAppDeclare()
 
 aFacs = StzFacultyNames()

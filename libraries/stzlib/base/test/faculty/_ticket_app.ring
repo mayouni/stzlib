@@ -38,6 +38,33 @@ func StzTicketTickets()
 	next
 	return _aOut_
 
+# THE RETRIEVAL SET'S OTHER LANGUAGES (v2): [ [ lang, articles, [ [ question, number of the right article ] ... ] ] ... ]
+# read from _data/retrieval_v2.tsv -- lang, doc|query, number, text -- written before any challenger ran on it
+func StzTicketRetrievalV2()
+	_aOut_ = []
+	_aL_ = split(read("_data/retrieval_v2.tsv"), char(10))
+	for _i_ = 1 to len(_aL_)
+		_c_ = _aL_[_i_]
+		if right(_c_, 1) = char(13) _c_ = left(_c_, len(_c_) - 1) ok
+		if len(trim(_c_)) = 0 loop ok
+		_aF_ = StzSplit(_c_, char(9))
+		if len(_aF_) != 4 loop ok
+		_k_ = 0
+		for _j_ = 1 to len(_aOut_)
+			if _aOut_[_j_][1] = _aF_[1] _k_ = _j_ ok
+		next
+		if _k_ = 0
+			add(_aOut_, [ _aF_[1], [], [] ])
+			_k_ = len(_aOut_)
+		ok
+		if _aF_[2] = "doc"
+			add(_aOut_[_k_][2], _aF_[4])
+		but _aF_[2] = "query"
+			add(_aOut_[_k_][3], [ _aF_[4], 0 + _aF_[3] ])
+		ok
+	next
+	return _aOut_
+
 # THE DEV SET: the 20 tickets the author of the floors READ while writing them. The extraction and kind floors were
 # written looking at these, and score 1.0 on them: that proves nothing about generalisation, which is exactly why the
 # golden set above is a different, independently written one. Kept for reference and for debugging a floor.
@@ -105,13 +132,27 @@ func StzTicketAppDeclare()
 	_aQ_ = StzTicketQueries()
 
 	# ---- FLOW 1: retrieval -------------------------------------------------------------------
+	# v2 (RADAR-NVIDIA-EMBEDSET-01, 2026-11-11): the 12 English questions, and 12 French and 12 Arabic ones, each over
+	# its own language's help articles (_data/retrieval_v2.tsv), so a multilingual embedder is judged per language
 	_o_ = StzFacultyQ(:retrieve)
-	_o_.SetInputTypeQ(:record).SetOutputTypeQ(:record).SetFloorQ("word-idf", "_TkRetrieveFloor").SetGoldenCheckerQ("indocs")
+	_o_.SetInputTypeQ(:record).SetOutputTypeQ(:record).SetFloorQ("word-idf", "_TkRetrieveFloor").SetGoldenCheckerQ("indocs").
+	    SetGoldenVersionQ("v2").SetGoldenLanguageKeyQ(:lang)
 	for _i_ = 1 to len(_aQ_)
-		_o_.AddGolden([ :query = _aQ_[_i_][1], :docs = _aDocs_ ], _aDocs_[_aQ_[_i_][2]])
+		_o_.AddGolden([ :query = _aQ_[_i_][1], :docs = _aDocs_, :lang = "en" ], _aDocs_[_aQ_[_i_][2]])
+	next
+	_aML_ = StzTicketRetrievalV2()
+	for _l_ = 1 to len(_aML_)
+		_aD_ = _aML_[_l_][2]
+		_aQL_ = _aML_[_l_][3]
+		for _i_ = 1 to len(_aQL_)
+			_o_.AddGolden([ :query = _aQL_[_i_][1], :docs = _aD_, :lang = _aML_[_l_][1] ], _aD_[_aQL_[_i_][2]])
+		next
 	next
 	_o_.AddImplementation([ :id = "minilm-cosine", :kind = "model", :fn = "_TkRetrieveEmbed", :needle = "all-minilm",
 				:licence = "apache-2.0", :memory = 60 ])
+	# SigLIP2's text tower (the image plane's, multilingual by its Gemma vocabulary): a second embedder on the same set
+	_o_.AddImplementation([ :id = "siglip2-text", :kind = "graph", :fn = "_TkRetrieveSiglip", :needle = "vision/siglip2_text.gguf",
+				:licence = "apache-2.0", :memory = 1200 ])
 	_o2_ = StzFacultyQ(:rerank)
 	_o2_.SetInputTypeQ(:record).SetOutputTypeQ(:ranking).SetFloorQ("stem-overlap", "_TkRerankFloor").SetGoldenCheckerQ("first")
 	for _i_ = 1 to len(_aQ_)
@@ -266,6 +307,30 @@ func _TkRetrieveEmbed(aRec, aParams)
 	_aScored_ = []
 	for _i_ = 1 to len(aRec[:docs])
 		add(_aScored_, [ aRec[:docs][_i_], _TkCosine(_aQv_, StzNeuralEmbeddingOf(aRec[:docs][_i_])) ])
+	next
+	for _i_ = 1 to len(_aScored_) - 1
+		_m_ = _i_
+		for _j_ = _i_ + 1 to len(_aScored_)
+			if _aScored_[_j_][2] > _aScored_[_m_][2] _m_ = _j_ ok
+		next
+		if _m_ != _i_
+			_t_ = _aScored_[_i_]
+			_aScored_[_i_] = _aScored_[_m_]
+			_aScored_[_m_] = _t_
+		ok
+	next
+	_aTop_ = []
+	for _i_ = 1 to min([4, len(_aScored_)])
+		add(_aTop_, _aScored_[_i_][1])
+	next
+	return [ :query = aRec[:query], :docs = _aTop_ ]
+
+# the same ranking by SigLIP2's text tower: its vectors are L2-normalized, so the dot product is the cosine
+func _TkRetrieveSiglip(aRec, aParams)
+	_aQv_ = StzVisionTextEmbedding(aRec[:query])
+	_aScored_ = []
+	for _i_ = 1 to len(aRec[:docs])
+		add(_aScored_, [ aRec[:docs][_i_], _TkCosine(_aQv_, StzVisionTextEmbedding(aRec[:docs][_i_])) ])
 	next
 	for _i_ = 1 to len(_aScored_) - 1
 		_m_ = _i_
