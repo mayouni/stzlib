@@ -113,14 +113,27 @@ pub fn str_script_name(handle: StzStringHandle) callconv(.c) StzStringHandle {
 // They are constants now because the defect was a comment disagreeing with the
 // code it described. A name cannot drift from the value it IS, and the next
 // reader checks these five lines against the header instead of trusting prose.
-const BIDI_L: c_int = 1; // Left-to-Right
-const BIDI_R: c_int = 4; // Right-to-Left
-const BIDI_AL: c_int = 5; // Right-to-Left Arabic
-const BIDI_EN: c_int = 9; // European Number
-const BIDI_AN: c_int = 12; // Arabic Number
+const BIDI_L: c_int = 1; // Left-to-Right          -- STRONG
+const BIDI_R: c_int = 4; // Right-to-Left          -- STRONG
+const BIDI_AL: c_int = 5; // Right-to-Left Arabic  -- STRONG
+const BIDI_EN: c_int = 9; // European Number       -- weak, does not vote below
+const BIDI_AN: c_int = 12; // Arabic Number        -- weak, does not vote below
+
+// ONLY THE THREE STRONG CLASSES VOTE, and that is a correction to this block's
+// first version (2026-11-11). Repairing the shifted table above, I carried the
+// old code's intent forward and let EN and AN vote as well. Measured against the
+// library's own face afterwards, "12345" answered LTR where this module's header
+// and stzStringLocale.DetectDirection both promise NEUTRAL -- digits had started
+// deciding a direction they must not decide.
+//
+// UAX#9 rule P2 scans for the first character of type L, AL or R and skips
+// everything else; EN and AN are WEAK types, resolved against a direction that is
+// already known rather than establishing one. So they are named here, for the
+// reader checking these lines against utf8proc's header, and they do not vote.
 
 /// Detect text direction: LTR, RTL, MIXED, or NEUTRAL.
-/// Uses Unicode bidi class: R/AL/AN = RTL, L/EN = LTR.
+/// Uses the Unicode STRONG bidi classes only: R/AL = RTL, L = LTR (UAX#9 P2).
+/// Digits and punctuation do not vote, so a text of them is NEUTRAL.
 pub fn str_detect_direction(handle: StzStringHandle) callconv(.c) c_int {
     const s = handle orelse return DIR_NEUTRAL;
     const data = s.slice();
@@ -138,8 +151,8 @@ pub fn str_detect_direction(handle: StzStringHandle) callconv(.c) c_int {
 
         const bidi = unicode.stz_unicode_bidi_class(cp);
         switch (bidi) {
-            BIDI_L, BIDI_EN => has_ltr = true,
-            BIDI_R, BIDI_AL, BIDI_AN => has_rtl = true,
+            BIDI_L => has_ltr = true,
+            BIDI_R, BIDI_AL => has_rtl = true,
             else => {},
         }
 
@@ -655,6 +668,27 @@ test "detect direction -- a Hebrew nonspacing mark is not LTR" {
     const s = str_from("\xd6\xb0", 2) orelse return error.SkipZigTest;
     defer core.str_free(s);
     try testing.expect(str_detect_direction(s) != DIR_LTR);
+}
+
+// The two below pin the correction of 2026-11-11. The first version of this fix
+// let EN and AN vote, so "12345" answered LTR where the header promises NEUTRAL.
+// Caught by measuring the library's face, not by any test here -- these are that
+// measurement, kept.
+
+test "detect direction -- European digits do not vote" {
+    // EN is a WEAK class (UAX#9 P2 scans for L, AL or R only), so a text of
+    // digits establishes no direction at all.
+    const s = str_from("12345", 5) orelse return error.SkipZigTest;
+    defer core.str_free(s);
+    try testing.expect(str_detect_direction(s) == DIR_NEUTRAL);
+}
+
+test "detect direction -- Arabic-Indic digits do not vote" {
+    // U+0663 ARABIC-INDIC DIGIT THREE is AN, weak for the same reason. It must
+    // not make a text right-to-left on its own.
+    const s = str_from("\xd9\xa3", 2) orelse return error.SkipZigTest;
+    defer core.str_free(s);
+    try testing.expect(str_detect_direction(s) == DIR_NEUTRAL);
 }
 
 test "has_rtl true for Arabic" {
