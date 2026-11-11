@@ -275,12 +275,23 @@ if bModel and bPages
 	? "  v20_c22: " + aS4[3] + " tokens, " + floor(nSecLoop) + " s (it ran 3072 tokens and 275 s without the stop)"
 	aLines = StzSplit(cLoop, nl)
 	nLn = len(aLines)
-	# the stream may end on a part of a fourth line: look for the run of three among the last six lines
+	# the stream may end on a part of the next line: look, just before the end, for a block of k lines (k = 1 to 16)
+	# written three times in a row. Since 2026-11-11 the page loops on a ten-line footer rather than on one line (the
+	# padded attention moved its numbers), and the engine's stop sees a repeated block as it sees a repeated line
 	bRun = 0
-	for q = 3 to nLn
-		if q > nLn - 6 and aLines[q] = aLines[q - 1] and aLines[q - 1] = aLines[q - 2] bRun = 1 ok
+	for nK = 1 to 16
+		for nEnd = nLn - 1 to nLn
+			if bRun = 0 and nEnd - 3 * nK >= 0
+				bSame = 1
+				for q = nEnd - 2 * nK + 1 to nEnd
+					if aLines[q] != aLines[q - nK] bSame = 0 ok
+				next
+				if bSame = 1 bRun = nK ok
+			ok
+		next
 	next
-	chk("the page that looped now stops short of the cap, at an identical line three times in a row", aS4[3] < $nStzVisionDocMaxTokens and bRun = 1)
+	? "  the loop it stopped on: a block of " + bRun + " line(s), three times"
+	chk("the page that looped now stops short of the cap, at a block of lines written three times in a row", aS4[3] < $nStzVisionDocMaxTokens and bRun > 0)
 	chk("...in under half the time it took (275 s)", nSecLoop < 140)
 	o.Release()
 else

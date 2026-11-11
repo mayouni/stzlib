@@ -1788,6 +1788,12 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuraldraftfree", .func = &ring_NeuralDraftFree },
     .{ .name = "stzengineneuralgeneratespec", .func = &ring_NeuralGenerateSpec },
     .{ .name = "stzengineneuralspecstatus", .func = &ring_NeuralSpecStatus },
+    .{ .name = "stzengineneuralgensetprefixreuse", .func = &ring_NeuralGenSetPrefixReuse },
+    .{ .name = "stzengineneuralgenreusedtokens", .func = &ring_NeuralGenReusedTokens },
+    .{ .name = "stzengineneuralgenlogitshash", .func = &ring_NeuralGenLogitsHash },
+    .{ .name = "stzengineneuralgenprefixsave", .func = &ring_NeuralGenPrefixSave },
+    .{ .name = "stzengineneuralgenprefixload", .func = &ring_NeuralGenPrefixLoad },
+    .{ .name = "stzengineneuralgenprefixstatus", .func = &ring_NeuralGenPrefixStatus },
     .{ .name = "stzengineneuralgensetthreads", .func = &ring_NeuralGenSetThreads },
     .{ .name = "stzengineneuralspecstats", .func = &ring_NeuralSpecStats },
     .{ .name = "stzengineneuralgentokenize", .func = &ring_NeuralGenTokenize },
@@ -1886,6 +1892,33 @@ fn ring_NeuralGenerateSpec(p: *anyopaque) callconv(.c) void {
 fn ring_NeuralGenSetThreads(p: *anyopaque) callconv(.c) void {
     gen.neural_gen_set_threads(@intFromFloat(R.ring_vm_api_getnumber(p, 1)), @intFromFloat(R.ring_vm_api_getnumber(p, 2)));
     rn(p, 1);
+}
+
+// --- the read prompt kept (RADAR-SNAPSHOT-PREFIXKV-01) ---
+/// StzEngineNeuralGenSetPrefixReuse(n) -> 1: a fresh prompt keeps what the cache holds of it (1, the default) or not (0)
+fn ring_NeuralGenSetPrefixReuse(p: *anyopaque) callconv(.c) void {
+    gen.neural_gen_set_prefix_reuse(@intFromFloat(R.ring_vm_api_getnumber(p, 1)));
+    rn(p, 1);
+}
+/// StzEngineNeuralGenReusedTokens() -> the tokens of the last fresh prompt the cache already held
+fn ring_NeuralGenReusedTokens(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_reused_tokens()));
+}
+/// StzEngineNeuralGenLogitsHash() -> a 32-bit hash of the whole last logits vector (equal: equal to the bit)
+fn ring_NeuralGenLogitsHash(p: *anyopaque) callconv(.c) void {
+    rn(p, gen.neural_gen_logits_hash());
+}
+/// StzEngineNeuralGenPrefixSave(cPath, nTokens) -> 1 written (nTokens <= 0: all the cache holds), 0 refused
+fn ring_NeuralGenPrefixSave(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_prefix_save(gs(p, 1), @intFromFloat(R.ring_vm_api_getnumber(p, 2)))));
+}
+/// StzEngineNeuralGenPrefixLoad(cPath) -> tokens restored, 0 refused (StzEngineNeuralGenPrefixStatus: 1 unreadable,
+/// 2 not a prefix file, 3 another model, 4 another cache shape, 5 wrong size, 6 bad values, 7 nothing to save)
+fn ring_NeuralGenPrefixLoad(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_prefix_load(gs(p, 1))));
+}
+fn ring_NeuralGenPrefixStatus(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_prefix_status()));
 }
 
 fn ring_NeuralSpecStatus(p: *anyopaque) callconv(.c) void {

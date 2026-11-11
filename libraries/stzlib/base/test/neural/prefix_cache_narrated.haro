@@ -1,0 +1,166 @@
+# A READ PROMPT KEPT -- RADAR-SNAPSHOT-PREFIXKV-01, narrated
+#
+# NVIDIA's Snapshot restores a warmed GPU process instead of starting it cold. Radar's lesson for Softanza: the warm
+# state worth keeping is a prompt already READ. The decoder's cache now remembers which tokens it holds: a fresh prompt
+# that begins as the cache does keeps that prefix and reads only the rest; and the cache's tokens can be saved to a file
+# keyed by the model's SHA-256 and put back in a later process.
+#
+#   Scene 1  in memory: prompts sharing a system turn give the SAME logits, to the bit (a hash of the whole vector), with
+#            the shared prefix kept as with everything read again -- and the prefix is not read again
+#   Scene 2  on disk: the system turn saved, the model loaded again (an empty cache), the file put back: the next prompt
+#            reads only its own tail and its logits equal a full read's
+#   Scene 3  what a prefix file must be: written for THIS model file, this cache shape, exactly its stated size, finite
+#            numbers -- another model's, a cut one, one with a NaN, and a file that is not a prefix are refused, by reason
+#   Scene 4  the same on Gemma 4 (Nemotron 3.5 Bolt E4B), whose graph is the engine's other one
+#
+# MEASURED, not asserted (wall clock): on Bolt, six tickets behind a 113-token system turn read in 4.0 s instead of
+# 29.9 s; the 114-token turn comes back from disk in 113 ms instead of 4.3 s of reading.
+# RUNS ON haro.exe, the engine's functions only: STZ_ENGINE_DIR names a built engine, STZ_MODELS_DIR the models folder.
+
+$tEngine = Slashes(SysGet("STZ_ENGINE_DIR"))
+$tModels = Slashes(SysGet("STZ_MODELS_DIR"))
+$tTmp = Slashes(SysGet("TEMP")) + "/stz_prefixkv"
+$nPass = 0
+$nFail = 0
+$aNotRun = []
+LoadLib($tEngine + "/zig-out/bin/stz_neural.dll")
+System("mkdir " + Char(34) + SysGet("TEMP") + "\stz_prefixkv" + Char(34) + " 2>nul")
+$tSmol = $tModels + "/smollm2-135m-instruct-q8_0.gguf"
+$tQwen = $tModels + "/qwen2.5-coder-0.5b-instruct-q8_0.gguf"
+$tBolt = $tModels + "/Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf"
+$tSys = "You are the triage assistant of a software company's support desk. Every message is one ticket from a customer. " +
+        "Classify it as bug, billing or other, and answer with that one word only."
+$aTickets = [ "The app closes as soon as I open the camera screen.", "I was charged twice for the March invoice.",
+              "Could you add a dark theme to the dashboard?", "Exports to CSV stop at 1000 rows." ]
+
+if FExists($tSmol)
+	StzEngineNeuralModelLoad($tSmol)
+
+	Scenario("1. in memory: the shared prefix kept, the logits the same to the bit")
+	nSame = 0
+	nKept = 0
+	nLen = Len($aTickets)
+	for i = 1 to nLen
+		tP = ChatMl($tSys, $aTickets[i])
+		StzEngineNeuralGenSetPrefixReuse(0)
+		StzEngineNeuralPrefillLogits(tP)
+		nOff = StzEngineNeuralGenLogitsHash()
+		StzEngineNeuralGenSetPrefixReuse(1)
+		StzEngineNeuralPrefillLogits(ChatMl($tSys, "another ticket first"))
+		StzEngineNeuralPrefillLogits(tP)
+		if StzEngineNeuralGenLogitsHash() = nOff
+			nSame = nSame + 1
+		end
+		if StzEngineNeuralGenReusedTokens() >= 30
+			nKept = nKept + 1
+		end
+	end
+	? "  " + String(nSame) + " of " + String(nLen) + " the same to the bit; the prefix kept on " + String(nKept)
+	Then("every prompt's logits equal a full read's", nSame, nLen)
+	Then("...and the system turn was not read again", nKept, nLen)
+	StzEngineNeuralGenSetPrefixReuse(0)
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $aTickets[1]))
+	Then("with reuse off nothing is kept", StzEngineNeuralGenReusedTokens(), 0)
+	StzEngineNeuralGenSetPrefixReuse(1)
+
+	Scenario("2. on disk: saved, the model loaded again, put back")
+	tKv = $tTmp + "/smol.stzkv"
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, ""))
+	nPre = StzEngineNeuralGenPromptTokens() - 3
+	Then("the system turn is written", StzEngineNeuralGenPrefixSave(tKv, nPre), 1)
+	StzEngineNeuralModelLoad($tSmol)
+	Then("...and comes back whole into an empty cache", StzEngineNeuralGenPrefixLoad(tKv), nPre)
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $aTickets[2]))
+	nDisk = StzEngineNeuralGenLogitsHash()
+	# the file holds the system turn and the opening of the user turn; a ticket shares all but the last few of those
+	# tokens (the tokenizer joins the turn's opening to what follows it), and the engine keeps exactly what is shared
+	nReused = StzEngineNeuralGenReusedTokens()
+	? "  the file held " + String(nPre) + " tokens; the ticket shared " + String(nReused) + " of them"
+	Then("the next prompt reads only its tail: the system turn comes from the file", nReused >= 40 and nReused <= nPre, true)
+	StzEngineNeuralGenSetPrefixReuse(0)
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $aTickets[2]))
+	StzEngineNeuralGenSetPrefixReuse(1)
+	Then("...and its logits equal a full read's, to the bit", nDisk, StzEngineNeuralGenLogitsHash())
+
+	Scenario("3. what a prefix file must be")
+	tKvRaw = Read(tKv)
+	nRaw = Len(tKvRaw)
+	Write(tKv + ".cut", Left(tKvRaw, nRaw - 4))
+	Then("a file four bytes short is refused: wrong size (5)", StzEngineNeuralGenPrefixLoad(tKv + ".cut") * 10 + StzEngineNeuralGenPrefixStatus(), 5)
+	# a NaN (0x7FC00000) written over the last number of the file
+	Write(tKv + ".nan", Left(tKvRaw, nRaw - 4) + Char(0) + Char(0) + Char(192) + Char(127))
+	Then("a file holding a NaN is refused: bad values (6)", StzEngineNeuralGenPrefixLoad(tKv + ".nan") * 10 + StzEngineNeuralGenPrefixStatus(), 6)
+	Write(tKv + ".txt", "not a prefix file, only text")
+	Then("a file that is not a prefix is refused (2)", StzEngineNeuralGenPrefixLoad(tKv + ".txt") * 10 + StzEngineNeuralGenPrefixStatus(), 2)
+	if FExists($tQwen)
+		StzEngineNeuralModelLoad($tQwen)
+		Then("another model's prefix is refused (3)", StzEngineNeuralGenPrefixLoad(tKv) * 10 + StzEngineNeuralGenPrefixStatus(), 3)
+	else
+		$aNotRun + "scene 3, another model (no qwen2.5-coder-0.5b)"
+	end
+else
+	$aNotRun + ("scenes 1-3 (no " + $tSmol + ")")
+end
+
+Scenario("4. the same on Gemma 4")
+if FExists($tBolt)
+	StzEngineNeuralModelLoad($tBolt)
+	nSame = 0
+	for i = 1 to 2
+		tP = Gemma($tSys, $aTickets[i])
+		StzEngineNeuralGenSetPrefixReuse(0)
+		StzEngineNeuralPrefillLogits(tP)
+		nOff = StzEngineNeuralGenLogitsHash()
+		StzEngineNeuralGenSetPrefixReuse(1)
+		StzEngineNeuralPrefillLogits(Gemma($tSys, "another ticket first"))
+		StzEngineNeuralPrefillLogits(tP)
+		if StzEngineNeuralGenLogitsHash() = nOff and StzEngineNeuralGenReusedTokens() >= 30
+			nSame = nSame + 1
+		end
+	end
+	Then("Bolt: the prefix kept and the logits the same to the bit, on both prompts", nSame, 2)
+else
+	$aNotRun + ("scene 4 (no " + $tBolt + ")")
+end
+
+? ""
+for t in $aNotRun
+	? "NOT RUN: " + t
+end
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+func Scenario(tName)
+	? ""
+	? "SCENARIO: " + tName
+
+func Then(tWhat, xGot, xExpected)
+	if xGot = xExpected
+		$nPass = $nPass + 1
+		? "  THEN  " + tWhat + "  [PASS]"
+	else
+		$nFail = $nFail + 1
+		? "  THEN  " + tWhat + "  [FAIL]"
+		? "    expected: " + String(xExpected)
+		? "    got:      " + String(xGot)
+	end
+
+func ChatMl(tSystem, tUser)
+	return "<|im_start|>system" + Char(10) + tSystem + "<|im_end|>" + Char(10) + "<|im_start|>user" + Char(10) + tUser + "<|im_end|>" + Char(10) + "<|im_start|>assistant" + Char(10)
+
+func Gemma(tSystem, tUser)
+	return "<|turn>system" + Char(10) + tSystem + "<turn|>" + Char(10) + "<|turn>user" + Char(10) + tUser + "<turn|>" + Char(10) + "<|turn>model" + Char(10)
+
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for i = 1 to nLen
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut

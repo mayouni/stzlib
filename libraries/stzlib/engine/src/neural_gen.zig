@@ -467,6 +467,9 @@ pub export fn neural_gen_set_threads(one: c_int, many: c_int) callconv(.c) void 
     g_threads_one = std.math.clamp(one, 1, 64);
     g_threads_many = std.math.clamp(many, 1, 64);
 }
+var g_kv_ids: std.ArrayList(i32) = .{}; // the token ids the cache holds, in order (-1: a picture's row); see prefixKeep
+var g_prefix_reuse: bool = true;
+var g_reused: usize = 0;
 var g_rows_out: usize = 1; // rows of logits a forward computes: 1, or k+1 for speculative decoding's verification
 var g_row_best: std.ArrayList(i32) = .{}; // the best token of each of those rows (filled only when there are several)
 
@@ -493,6 +496,7 @@ fn resetKv() void {
     g_cap = 0;
     g_kv_shape = .{ 0, 0 };
     g_n_past = 0;
+    g_kv_ids.clearRetainingCapacity();
 }
 
 /// The cache holds `need` tokens of n_layer layers x n_kv heads x hd: allocated, or grown by doubling with the valid part copied
@@ -939,6 +943,7 @@ fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
     tp = std.time.nanoTimestamp();
 
     g_n_past = n_past + n_new;
+    kvIdsSet(n_past, ids, embd != null);
     g_phase[4] = msSince(tp);
     tp = std.time.nanoTimestamp();
 
@@ -1304,6 +1309,14 @@ var g_seen: std.ArrayList(u8) = .{}; // scratch: one flag per vocabulary id
 var g_line_cur: std.ArrayList(u8) = .{};
 var g_line_prev: std.ArrayList(u8) = .{};
 var g_line_run: usize = 0;
+// THE STOP SEES A REPEATED BLOCK, NOT ONLY A REPEATED LINE (2026-11-11). Granite-Docling looped on page v20_c22 by
+// writing one line 88 times, which "the same line N times" ended; after 0f31cb56e moved its numbers by their last bits
+// it looped on a ten-line footer instead ("in" / "England" / "and" / "Wales" / "·" / "Company" / ...), each line
+// different from the one before, and ran to the 2048-token cap. So each finished line's hash is kept, and the stop fires
+// when the last k*N lines are N copies of the last k, for any block of k <= stop_period lines; k = 1 is the old rule.
+// stop_period was 8 first and missed that footer by two lines; 16 covers a page header or footer written word by word.
+var g_line_hashes: std.ArrayList(u64) = .{};
+const stop_period: usize = 16;
 
 // Install the aids for the generations that follow. rep_penalty <= 1 and
 // stop_repeat <= 0 and end_bias == 0 mean "off" for that aid.
@@ -1325,6 +1338,7 @@ pub export fn neural_gen_stopped_on_repeat() callconv(.c) c_int {
 
 fn resetTermination() void {
     g_hist.clearRetainingCapacity();
+    g_line_hashes.clearRetainingCapacity();
     g_line_cur.clearRetainingCapacity();
     g_line_prev.clearRetainingCapacity();
     g_line_run = 0;
@@ -1364,6 +1378,31 @@ fn trimmedLine(line: []const u8) []const u8 {
     return std.mem.trim(u8, line, " \t\r");
 }
 
+fn noteLineForCycle(line: []const u8) void {
+    const keep = stop_period * g_stop_repeat;
+    if (g_line_hashes.items.len >= keep and keep > 0) _ = g_line_hashes.orderedRemove(0);
+    g_line_hashes.append(gpa, std.hash.Wyhash.hash(0x5107, line)) catch return;
+    const h = g_line_hashes.items;
+    var k: usize = 1;
+    while (k <= stop_period) : (k += 1) {
+        const need = k * g_stop_repeat;
+        if (h.len < need) break;
+        const tail = h[h.len - need ..];
+        var same = true;
+        var i: usize = k;
+        while (i < need) : (i += 1) {
+            if (tail[i] != tail[i - k]) {
+                same = false;
+                break;
+            }
+        }
+        if (same) {
+            g_stopped_on_repeat = true;
+            return;
+        }
+    }
+}
+
 // Feed the text of one emitted token to the repeated-line detector.
 fn trackLines(piece: []const u8) void {
     for (piece) |b| {
@@ -1381,6 +1420,7 @@ fn trackLines(piece: []const u8) void {
                 g_line_run = 1;
             }
             if (g_stop_repeat > 0 and g_line_run >= g_stop_repeat) g_stopped_on_repeat = true;
+            if (g_stop_repeat > 0) noteLineForCycle(cur);
         }
         g_line_cur.clearRetainingCapacity();
     }
@@ -1451,7 +1491,6 @@ pub export fn neural_gen_start_x(text: [*c]const u8, len: usize, max_new: c_int,
         return 0;
     }
     if (text == null or len == 0) return 0;
-    if (reset != 0) resetKv();
     var ids: std.ArrayList(i32) = .{};
     defer ids.clearAndFree(gpa);
     encode(text[0..len], &ids);
@@ -1462,6 +1501,17 @@ pub export fn neural_gen_start_x(text: [*c]const u8, len: usize, max_new: c_int,
     if (reset == 0 and g_add_bos and prompt.len > 0 and prompt[0] == g_bos)
         prompt = prompt[1..];
     g_last_prompt_tokens = prompt.len;
+    // a fresh prompt keeps what the cache already holds of it (RADAR-SNAPSHOT-PREFIXKV-01) and reads the rest
+    g_reused = 0;
+    if (reset != 0) {
+        const keep = prefixKeep(prompt);
+        if (keep == 0) resetKv() else {
+            g_n_past = keep;
+            g_kv_ids.shrinkRetainingCapacity(keep);
+            prompt = prompt[keep..];
+            g_reused = keep;
+        }
+    }
     // the prompt, plus what is already cached, plus room for at least one new
     // token, must fit the window; otherwise REFUSE (never trim)
     if (g_n_past + prompt.len >= contextWindow()) {
@@ -1802,6 +1852,7 @@ const GenSlot = struct {
     cap: usize = 0,
     kv_shape: [2]usize = .{ 0, 0 },
     n_past: usize = 0,
+    kv_ids: std.ArrayList(i32) = .{},
     logits: std.ArrayList(f32) = .{},
     bpe_built: bool = false,
     bpe_gen: usize = 0,
@@ -1826,6 +1877,7 @@ fn swapGen(s: *GenSlot) void {
     std.mem.swap(usize, &g_cap, &s.cap);
     std.mem.swap([2]usize, &g_kv_shape, &s.kv_shape);
     std.mem.swap(usize, &g_n_past, &s.n_past);
+    std.mem.swap(std.ArrayList(i32), &g_kv_ids, &s.kv_ids);
     std.mem.swap(std.ArrayList(f32), &g_logits, &s.logits);
     std.mem.swap(bool, &g_bpe_built, &s.bpe_built);
     std.mem.swap(usize, &g_bpe_gen, &s.bpe_gen);
@@ -2107,6 +2159,187 @@ pub export fn neural_generate_spec(text: [*c]const u8, len: usize, max_new: c_in
     g_gen_text.append(gpa, 0) catch return -1;
     if (g_spec_status != SPEC_OK) return -1;
     return @intCast(g_gen_text.items.len - 1);
+}
+
+// ---- the read prompt kept (RADAR-SNAPSHOT-PREFIXKV-01, 2026-11-11) ----------------------------------------------------
+//
+// NVIDIA's Snapshot restores a warmed GPU process instead of starting it cold; Radar's lesson for Softanza: the warm
+// state worth keeping here is a prompt already READ. Two levels:
+//   IN MEMORY  the cache remembers which token ids it holds (g_kv_ids). A fresh prompt that begins as the cache does
+//              keeps that common prefix and reads only the rest -- a fixed system prompt is read once, not per call.
+//              At least one token is always read, so the logits are fresh.
+//   ON DISK    neural_gen_prefix_save writes the cache's tokens and K/V rows, keyed by the model's SHA-256 and shapes;
+//              neural_gen_prefix_load puts them back, and the next prompt that begins with those tokens reuses them.
+// THE ANSWER IS THE SAME, BIT FOR BIT: a position's K and V depend only on the tokens before it (causal attention), and
+// since 0f31cb56e a token's numbers do not depend on how many tokens were read with it (kv_pad) -- so the logits after
+// a reused prefix are the logits a full read gives. neural_gen_logits_hash() lets a guard check that over the whole
+// vocabulary.
+
+fn kvIdsSet(n_past: usize, ids: []const i32, rows: bool) void {
+    if (g_kv_ids.items.len > n_past) g_kv_ids.shrinkRetainingCapacity(n_past);
+    if (g_kv_ids.items.len != n_past) { // a gap: the record cannot say what the cache holds any more
+        g_kv_ids.clearRetainingCapacity();
+        return;
+    }
+    for (ids) |t| g_kv_ids.append(gpa, if (rows) -1 else t) catch {
+        g_kv_ids.clearRetainingCapacity();
+        return;
+    };
+}
+
+// how much of `prompt` the cache already holds, leaving at least its last token to read
+fn prefixKeep(prompt: []const i32) usize {
+    if (!g_prefix_reuse or prompt.len < 2 or g_kv_ids.items.len < g_n_past) return 0;
+    const held = g_kv_ids.items[0..g_n_past];
+    var n: usize = 0;
+    while (n < held.len and n < prompt.len - 1 and held[n] >= 0 and held[n] == prompt[n]) n += 1;
+    return n;
+}
+
+pub export fn neural_gen_set_prefix_reuse(on: c_int) callconv(.c) void {
+    g_prefix_reuse = on != 0;
+}
+/// tokens of the last fresh prompt that the cache already held (not read again)
+pub export fn neural_gen_reused_tokens() callconv(.c) c_int {
+    return @intCast(g_reused);
+}
+/// a 32-bit hash of the whole last logits vector, bit for bit (equal hashes: equal logits, to the bit)
+pub export fn neural_gen_logits_hash() callconv(.c) f64 {
+    const h = std.hash.Wyhash.hash(0x10917, std.mem.sliceAsBytes(g_logits.items));
+    return @floatFromInt(@as(u32, @truncate(h)));
+}
+
+const PREFIX_MAGIC = "STZKV001";
+const PX_OK: c_int = 0;
+const PX_UNREADABLE: c_int = 1;
+const PX_NOT_PREFIX: c_int = 2;
+const PX_OTHER_MODEL: c_int = 3;
+const PX_OTHER_SHAPE: c_int = 4;
+const PX_SIZE: c_int = 5;
+const PX_VALUES: c_int = 6;
+const PX_NOTHING: c_int = 7;
+var g_prefix_status: c_int = PX_OK;
+pub export fn neural_gen_prefix_status() callconv(.c) c_int {
+    return g_prefix_status;
+}
+
+// the cache shape this model's forward uses: [layers with a cache, kv heads, head width]
+fn modelKvShape() ?[3]usize {
+    const m = mctx() orelse return null;
+    if (isGemma4()) {
+        if (!g4Ok(m)) return null;
+        return .{ g_g4.own, g_g4.kv, g_g4.hd_g };
+    }
+    const n_embd: usize = @intCast(@max(0, kvArchInt(".embedding_length", 0)));
+    const n_head: usize = @intCast(@max(0, kvArchInt(".attention.head_count", 0)));
+    const n_layer: usize = @intCast(@max(0, kvArchInt(".block_count", 0)));
+    if (n_embd == 0 or n_head == 0 or n_layer == 0) return null;
+    const n_kv: usize = @intCast(@max(0, kvArchInt(".attention.head_count_kv", @intCast(n_head))));
+    const hd: usize = @intCast(@max(0, kvArchInt(".attention.key_length", @intCast(n_embd / n_head))));
+    if (n_kv == 0 or hd == 0) return null;
+    return .{ n_layer, n_kv, hd };
+}
+
+/// Write the first n tokens the cache holds (n <= 0: all of them) to `path`, keyed by the model's SHA-256 and shapes.
+/// 1 written; 0 with neural_gen_prefix_status() saying why.
+pub export fn neural_gen_prefix_save(path: [*c]const u8, n_c: c_int) callconv(.c) c_int {
+    g_prefix_status = PX_NOTHING;
+    if (path == null) return 0;
+    const hex = embed.modelHex() orelse return 0;
+    if (g_kvctx == null or g_n_past == 0 or g_kv_ids.items.len < g_n_past) return 0;
+    const n: usize = if (n_c <= 0) g_n_past else @min(@as(usize, @intCast(n_c)), g_n_past);
+    for (g_kv_ids.items[0..n]) |t| if (t < 0) return 0; // picture rows have no token to key them by
+    const layers = g_kt.items.len;
+    const kv = g_kv_shape[0];
+    const hd = g_kv_shape[1];
+    g_prefix_status = PX_UNREADABLE;
+    const f = std.fs.cwd().createFile(std.mem.span(@as([*:0]const u8, @ptrCast(path))), .{}) catch return 0;
+    defer f.close();
+    var buf: [65536]u8 = undefined;
+    var w = f.writer(&buf);
+    const io = &w.interface;
+    io.writeAll(PREFIX_MAGIC) catch return 0;
+    io.writeAll(hex) catch return 0;
+    for ([_]u32{ @intCast(layers), @intCast(kv), @intCast(hd), @intCast(n) }) |v| io.writeInt(u32, v, .little) catch return 0;
+    io.writeAll(std.mem.sliceAsBytes(g_kv_ids.items[0..n])) catch return 0;
+    for (0..layers) |L| {
+        const k: [*]const f32 = @ptrCast(@alignCast(g_kt.items[L].*.data));
+        const v: [*]const f32 = @ptrCast(@alignCast(g_vt.items[L].*.data));
+        for (0..kv) |g| io.writeAll(std.mem.sliceAsBytes(k[hd * g_cap * g ..][0 .. hd * n])) catch return 0;
+        for (0..kv) |g| for (0..hd) |d| io.writeAll(std.mem.sliceAsBytes(v[g_cap * (d + hd * g) ..][0..n])) catch return 0;
+    }
+    io.flush() catch return 0;
+    g_prefix_status = PX_OK;
+    return 1;
+}
+
+/// Put a saved prefix back into the cache: refused, with a status, unless it was written for THIS model file (its
+/// SHA-256), with this model's cache shape, is exactly the size its header says, and holds finite numbers only -- a
+/// prefix file is model data, read as SECURITY-MODELDATA-01 reads one. The next fresh prompt that begins with its
+/// tokens reads only the rest. Returns the number of tokens restored, 0 on a refusal.
+pub export fn neural_gen_prefix_load(path: [*c]const u8) callconv(.c) c_int {
+    g_prefix_status = PX_UNREADABLE;
+    if (path == null) return 0;
+    if (neural_model_has_generator() == 0 or !buildBpe()) return 0;
+    const hex = embed.modelHex() orelse return 0;
+    const shape = modelKvShape() orelse return 0;
+    const bytes = std.fs.cwd().readFileAlloc(gpa, std.mem.span(@as([*:0]const u8, @ptrCast(path))), 1 << 32) catch return 0;
+    defer gpa.free(bytes);
+    const head = PREFIX_MAGIC.len + 64 + 16;
+    g_prefix_status = PX_NOT_PREFIX;
+    if (bytes.len < head or !std.mem.eql(u8, bytes[0..8], PREFIX_MAGIC)) return 0;
+    g_prefix_status = PX_OTHER_MODEL;
+    if (!std.mem.eql(u8, bytes[8..72], hex)) return 0;
+    const layers = std.mem.readInt(u32, bytes[72..76], .little);
+    const kv = std.mem.readInt(u32, bytes[76..80], .little);
+    const hd = std.mem.readInt(u32, bytes[80..84], .little);
+    const n = std.mem.readInt(u32, bytes[84..88], .little);
+    g_prefix_status = PX_OTHER_SHAPE;
+    if (layers != shape[0] or kv != shape[1] or hd != shape[2]) return 0;
+    g_prefix_status = PX_SIZE;
+    if (n == 0 or n >= contextWindow()) return 0;
+    const per_layer = @as(u64, 2) * kv * hd * n * 4;
+    const want = @as(u64, head) + @as(u64, n) * 4 + per_layer * layers;
+    if (bytes.len != want) return 0;
+    var ids: std.ArrayList(i32) = .{};
+    defer ids.clearAndFree(gpa);
+    ids.ensureTotalCapacity(gpa, n) catch return 0;
+    for (0..n) |i| {
+        const t = std.mem.readInt(i32, bytes[head + 4 * i ..][0..4], .little);
+        g_prefix_status = PX_VALUES;
+        if (t < 0 or t >= g_n_vocab) return 0;
+        ids.appendAssumeCapacity(t);
+    }
+    const data = bytes[head + 4 * n ..];
+    var off: usize = 0;
+    while (off < data.len) : (off += 4) {
+        const x: f32 = @bitCast(std.mem.readInt(u32, data[off..][0..4], .little));
+        if (!std.math.isFinite(x)) return 0;
+    }
+    resetKv();
+    g_prefix_status = PX_UNREADABLE;
+    if (!ensureKv(layers, kv, hd, padKv(n))) return 0;
+    off = 0;
+    const take = struct {
+        fn f(src: []const u8, at: *usize, dst: []f32) void {
+            @memcpy(std.mem.sliceAsBytes(dst), src[at.* .. at.* + dst.len * 4]);
+            at.* += dst.len * 4;
+        }
+    }.f;
+    for (0..layers) |L| {
+        const k: [*]f32 = @ptrCast(@alignCast(g_kt.items[L].*.data));
+        const v: [*]f32 = @ptrCast(@alignCast(g_vt.items[L].*.data));
+        for (0..kv) |g| take(data, &off, k[hd * g_cap * g ..][0 .. hd * n]);
+        for (0..kv) |g| for (0..hd) |d| take(data, &off, v[g_cap * (d + hd * g) ..][0..n]);
+    }
+    g_n_past = n;
+    g_kv_ids.clearRetainingCapacity();
+    g_kv_ids.appendSlice(gpa, ids.items) catch {
+        resetKv();
+        return 0;
+    };
+    g_prefix_status = PX_OK;
+    return @intCast(n);
 }
 
 // ---- the Gemma 4 decoder (general.architecture = "gemma4"; GEMMA4-01 step 2, 2026-11-11) -----------------------------
@@ -2442,6 +2675,7 @@ fn forwardGemma4(ids: []const i32) bool {
     _ = c.ggml_graph_compute(built.graph, &plan);
     g_phase[3] = msSince(tp);
     g_n_past = n_past + n_new;
+    kvIdsSet(n_past, ids, false);
     return readLogits(built.logits);
 }
 
