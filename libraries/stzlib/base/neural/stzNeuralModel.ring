@@ -77,7 +77,17 @@ func StzHasNeuralModel()
 	return StzEngineNeuralModelLoaded() = 1 and StzEngineNeuralModelNEmbd() > 0
 
 # The Softanza models directory (sibling of engine/: libraries/stzlib/models).
+# STZ_MODELS_DIR names it outright, as stzExposure already reads it; then the library's own folder; then the engine's
+# sibling. Until 2026-11-11 only the last was asked, so with STZ_ENGINE_DIR naming a built engine OUTSIDE the tree (how
+# haro.exe loads the library) this answered "" and every model guard read a file that does not exist.
 func StzModelsDir()
+	_d_ = sysget("STZ_MODELS_DIR")
+	if isString(_d_) and _d_ != ""
+		return StzReplace(_d_, char(92), "/")
+	ok
+	if isglobal("$cStzLibDir") and isString($cStzLibDir) and $cStzLibDir != ""
+		return $cStzLibDir + "/models"
+	ok
 	_e_ = $cEngineDir
 	if isString(_e_) and len(_e_) >= 7 and right(_e_, 7) = "/engine"
 		return left(_e_, len(_e_) - 7) + "/models"
