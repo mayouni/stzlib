@@ -5,6 +5,21 @@ ruling, `HAROPORT-SPELLINGS-01`, in four parts, before any mass rename (the prom
 
 ## 0. Restated 2026-11-10 -- `HAROPORT-SPELLINGS-02`, replacing the ruling asked below
 
+**RULED by the Principal in chat, 2026-11-11 05:59**, choosing among the options below:
+
+| part | the Principal's choice | as written |
+|---|---|---|
+| (a) parameter prefix | "Keep p as a mark" | `pcSubStr` -> `ptSubStr`, `pnStartingAt` -> `piStartingAt`: `p` stands before the type letter as `$` and `@` do |
+| (b) booleans 1 / 0 | "true / false" (recommended) | `bReady = true` |
+| (c) two-letter list letters | "v + second letter" | `anPos` -> `viPos`, `acNames` -> `vtNames`: the element's letter after `v` |
+| (d) other names | "Keep constants in caps" | constants keep their capitals after their letter: `$iMAX_NUMBER_SIZE`, `@tNL`; single letters by Haro's R3 (a `for` counter stays `i`; `n` -> `nN`); capitalised attributes take their letter (`@bCaseSensitive`) |
+| (e) keyword-shaped names | "Plain / Q / word" (recommended) | section 3 (c) below |
+| (f) W texts | "Bare words" (recommended) | section 3 (a1) below: `item`, `position`, `count`, `total` |
+
+(a), (c) and (d)'s constants extend Haro's letter rule (TYPES T2: "a lowercase type letter followed by a capital"):
+a `p` mark before the letter, a second letter after `v` naming the element, and capitals with underscores after the
+letter of a constant. The Haro desk builds those before the port tool applies them (`HARO-LETTER-SOFTANZA-01`).
+
 *Read at origin/main 0ba0d6b5a, haro.exe built after haro d62f05c. Sections 1 to 6 below are the memo of 2026-11-08,
 left as written; this section replaces its section 3 as the question. The counts are `HAROPORT_PLAN.md`'s.*
 
