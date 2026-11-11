@@ -159,6 +159,15 @@ pub fn arrStr(ctx: anytype, id: i64, i: usize) ?[*:0]const u8 {
 }
 
 /// the items of an array of T (a scalar type), as a slice of the file's own memory; null for any other shape
+/// An array of booleans (one byte each in GGUF), or null when the key is not one.
+pub fn arrBool(ctx: anytype, id: i64) ?[]const u8 {
+    const n = arrN(ctx, id, T_BOOL) orelse return null;
+    if (n == 0) return &[_]u8{};
+    const p = gguf_get_arr_data(op(ctx), id) orelse return null;
+    const items: [*]const u8 = @ptrCast(p);
+    return items[0..n];
+}
+
 pub fn arrOf(comptime T: type, ctx: anytype, id: i64) ?[]const T {
     const elem: c_int = switch (T) {
         u8 => T_U8,

@@ -145,7 +145,7 @@ pub export fn neural_model_has_generator() callconv(.c) c_int {
     const arch = archName();
     const known = std.mem.eql(u8, arch, "llama") or std.mem.eql(u8, arch, "qwen2") or
         std.mem.eql(u8, arch, "qwen3") or std.mem.eql(u8, arch, "smollm") or
-        std.mem.eql(u8, arch, "granite");
+        std.mem.eql(u8, arch, "granite") or std.mem.eql(u8, arch, "gemma4");
     if (!known) return 0;
     var nb: [64]u8 = undefined;
     if (getTOpt(mctx(), "blk.0.attn_norm.weight", .{}, &nb) == null) return 0;
@@ -272,6 +272,10 @@ fn buildBpe() bool {
         if (id != g_eos) g_eog.append(gpa, id) catch {};
     }
     if (g_tok_map.get("<|endoftext|>")) |id| {
+        if (id != g_eos) g_eog.append(gpa, id) catch {};
+    }
+    // Gemma 4 ends a turn with <turn|> (llama.cpp counts it end-of-generation)
+    if (g_tok_map.get("<turn|>")) |id| {
         if (id != g_eos) g_eog.append(gpa, id) catch {};
     }
     g_bpe_gen = embed.model_generation;
@@ -841,6 +845,7 @@ fn forwardDecode(ids: []const i32) bool {
 
 // forwardDecode with the input rows given (n_embd floats per id) instead of looked up: the embedding entry
 fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
+    if (isGemma4()) return if (embd == null) forwardGemma4(ids) else false; // GEMMA4-01: its own graph, text rows only
     const m = mctx() orelse return false;
     const n_new = ids.len;
     if (n_new == 0) return false;
@@ -2102,6 +2107,372 @@ pub export fn neural_generate_spec(text: [*c]const u8, len: usize, max_new: c_in
     g_gen_text.append(gpa, 0) catch return -1;
     if (g_spec_status != SPEC_OK) return -1;
     return @intCast(g_gen_text.items.len - 1);
+}
+
+// ---- the Gemma 4 decoder (general.architecture = "gemma4"; GEMMA4-01 step 2, 2026-11-11) -----------------------------
+//
+// Gemma 4 E4B (and NVIDIA's Nemotron 3.5 Bolt E4B, post-trained from it), wired as llama.cpp b12283 wires it
+// (src/models/gemma4.cpp, read line by line):
+//   - the token rows are scaled by sqrt(n_embd);
+//   - PER-LAYER EMBEDDINGS: a second table gives every token P numbers per layer; they are added to a projection of the
+//     token's row (RMS-normed, eps folded), scaled by 1/sqrt(2), and each block multiplies its slice into a gated
+//     branch: gelu(inp_gate x) * slice -> proj -> RMS norm -> added to the residual;
+//   - two kinds of attention by the file's own pattern: SLIDING layers (head hd_s, window W, rope base b_s) and GLOBAL
+//     ones (head hd_g, rope base b_g with the file's frequency factors). Q and K are RMS-normed per head with weights,
+//     V without; the attention scale is 1 (the norms do its work); rope is NEOX;
+//   - the last `shared_kv_layers` layers write no cache: they read the cache of the last own layer of their kind;
+//   - norms after attention and after the feed-forward; a GELU gated feed-forward; each layer's output scaled by its
+//     own scalar; the logits soft-capped: c * tanh(x / c).
+// THE CACHE: every own layer's K and V are allocated at the widest head (hd_g) and a sliding layer reads its first hd_s
+// columns through views -- the llama path's cache unchanged; sliding layers hold twice what they need (0.8 GB at 4,096
+// tokens for E4B, against 0.47 GB packed). The attention width is padded as everywhere (kv_pad).
+
+const G4 = struct {
+    n_layer: usize,
+    d: usize, // n_embd
+    h: usize, // query heads
+    kv: usize, // kv heads
+    hd_g: usize,
+    hd_s: usize,
+    f: usize,
+    p: usize, // per-layer embedding width
+    own: usize, // layers with their own cache: n_layer - shared_kv_layers
+    window: usize,
+    base_g: f32,
+    base_s: f32,
+    eps: f32,
+    softcap: f32,
+    n_ctx_train: c_int,
+    rows: i64, // vocabulary rows of token_embd
+    swa: [256]bool,
+};
+
+var g_g4_gen: usize = std.math.maxInt(usize);
+var g_g4_ok: bool = false;
+var g_g4: G4 = undefined;
+
+fn isGemma4() bool {
+    return std.mem.eql(u8, archName(), "gemma4");
+}
+
+fn g4Hd(d: *const G4, il: usize) usize {
+    return if (d.swa[il]) d.hd_s else d.hd_g;
+}
+fn g4Src(d: *const G4, il: usize) usize {
+    if (il < d.own) return il;
+    return d.own - (if (d.swa[il]) @as(usize, 2) else 1);
+}
+
+fn g4Mat(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, ne0: usize, ne1: usize) bool {
+    var nb: [96]u8 = undefined;
+    const t = getTOpt(m, fmt, args, &nb) orelse return false;
+    return t.*.ne[0] == ne0 and t.*.ne[1] == ne1 and t.*.ne[2] == 1 and t.*.ne[3] == 1;
+}
+fn g4Vec(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, n: usize) bool {
+    var nb: [96]u8 = undefined;
+    const t = getTOpt(m, fmt, args, &nb) orelse return false;
+    return t.*.type == c.GGML_TYPE_F32 and t.*.ne[0] == n and t.*.ne[1] == 1 and t.*.ne[2] == 1 and t.*.ne[3] == 1;
+}
+
+// THE CONTRACT (SECURITY-MODELDATA-01's rule): every tensor the graph reads is present and shaped to the file's own
+// sizes, checked once per model, before ggml sees any of it -- a file that lies about a shape is refused, not run.
+fn g4Read(m: ?*c.ggml_context) ?G4 {
+    const ctx = gguf() orelse return null;
+    var d: G4 = undefined;
+    const L = kvArchInt(".block_count", 0);
+    if (L < 2 or L > 256) return null;
+    d.n_layer = @intCast(L);
+    d.d = @intCast(@max(0, kvArchInt(".embedding_length", 0)));
+    d.h = @intCast(@max(0, kvArchInt(".attention.head_count", 0)));
+    d.kv = @intCast(@max(0, kvArchInt(".attention.head_count_kv", 0)));
+    d.hd_g = @intCast(@max(0, kvArchInt(".attention.key_length", 0)));
+    d.hd_s = @intCast(@max(0, kvArchInt(".attention.key_length_swa", 0)));
+    d.f = @intCast(@max(0, kvArchInt(".feed_forward_length", 0)));
+    d.p = @intCast(@max(0, kvArchInt(".embedding_length_per_layer_input", 0)));
+    const shared: usize = @intCast(@max(0, kvArchInt(".attention.shared_kv_layers", 0)));
+    d.window = @intCast(@max(0, kvArchInt(".attention.sliding_window", 0)));
+    if (d.d == 0 or d.h == 0 or d.kv == 0 or d.h % d.kv != 0 or d.hd_g == 0 or d.hd_s == 0 or d.hd_s > d.hd_g or
+        d.f == 0 or d.p == 0 or d.window == 0 or shared + 2 > d.n_layer) return null;
+    if (d.d > 1 << 16 or d.f > 1 << 18 or d.hd_g > 4096 or d.h > 1024) return null;
+    if (kvArchInt(".attention.value_length", @intCast(d.hd_g)) != d.hd_g or
+        kvArchInt(".attention.value_length_swa", @intCast(d.hd_s)) != d.hd_s) return null;
+    d.own = d.n_layer - shared;
+    d.base_g = kvArchF32(".rope.freq_base", 10000.0);
+    d.base_s = kvArchF32(".rope.freq_base_swa", 10000.0);
+    d.eps = kvArchF32(".attention.layer_norm_rms_epsilon", 1e-6);
+    d.softcap = kvArchF32(".final_logit_softcapping", 0.0);
+    if (!(d.eps >= 0) or !(d.softcap >= 0) or !(d.base_g > 0) or !(d.base_s > 0)) return null;
+    d.n_ctx_train = @intCast(std.math.clamp(kvArchInt(".context_length", 2048), 1, 1 << 24));
+    // the rope turns the whole head of each kind (dimension_count = key_length): another split is not this wiring
+    if (kvArchInt(".rope.dimension_count", @intCast(d.hd_g)) != d.hd_g or
+        kvArchInt(".rope.dimension_count_swa", @intCast(d.hd_s)) != d.hd_s) return null;
+    var key: [96]u8 = undefined;
+    const pk = std.fmt.bufPrintZ(&key, "{s}.attention.sliding_window_pattern", .{archName()}) catch return null;
+    const pat = gr.arrBool(ctx, gr.find(ctx, pk)) orelse return null;
+    if (pat.len != d.n_layer) return null;
+    for (0..d.n_layer) |i| d.swa[i] = pat[i] != 0;
+    // a shared layer reads the last own layer of its kind: that layer must be of its kind
+    for (d.own..d.n_layer) |il| if (d.swa[g4Src(&d, il)] != d.swa[il]) return null;
+
+    const D = d.d;
+    const PL = d.p * d.n_layer;
+    var nb: [96]u8 = undefined;
+    const te = getTOpt(m, "token_embd.weight", .{}, &nb) orelse return null;
+    if (te.*.ne[0] != D or te.*.ne[1] < 1 or te.*.ne[2] != 1) return null;
+    d.rows = te.*.ne[1];
+    const V: usize = @intCast(d.rows);
+    if (getTOpt(m, "output.weight", .{}, &nb) != null and !g4Mat(m, "output.weight", .{}, D, V)) return null;
+    if (!g4Mat(m, "per_layer_token_embd.weight", .{}, PL, V)) return null;
+    if (!g4Mat(m, "per_layer_model_proj.weight", .{}, D, PL)) return null;
+    if (!g4Vec(m, "per_layer_proj_norm.weight", .{}, d.p) or !g4Vec(m, "output_norm.weight", .{}, D)) return null;
+    for (0..d.n_layer) |il| {
+        const hd = g4Hd(&d, il);
+        if (!g4Vec(m, "blk.{d}.attn_norm.weight", .{il}, D)) return null;
+        if (!g4Mat(m, "blk.{d}.attn_q.weight", .{il}, D, d.h * hd)) return null;
+        if (!g4Vec(m, "blk.{d}.attn_q_norm.weight", .{il}, hd)) return null;
+        if (!g4Mat(m, "blk.{d}.attn_output.weight", .{il}, d.h * hd, D)) return null;
+        if (il < d.own) {
+            if (!g4Mat(m, "blk.{d}.attn_k.weight", .{il}, D, d.kv * hd)) return null;
+            if (!g4Vec(m, "blk.{d}.attn_k_norm.weight", .{il}, hd)) return null;
+            if (getTOpt(m, "blk.{d}.attn_v.weight", .{il}, &nb) != null and !g4Mat(m, "blk.{d}.attn_v.weight", .{il}, D, d.kv * hd)) return null;
+        }
+        if (!d.swa[il] and !g4Vec(m, "rope_freqs.weight", .{}, hd / 2)) return null;
+        if (!g4Vec(m, "blk.{d}.post_attention_norm.weight", .{il}, D) or !g4Vec(m, "blk.{d}.ffn_norm.weight", .{il}, D)) return null;
+        if (!g4Mat(m, "blk.{d}.ffn_gate.weight", .{il}, D, d.f) or !g4Mat(m, "blk.{d}.ffn_up.weight", .{il}, D, d.f)) return null;
+        if (!g4Mat(m, "blk.{d}.ffn_down.weight", .{il}, d.f, D) or !g4Vec(m, "blk.{d}.post_ffw_norm.weight", .{il}, D)) return null;
+        if (!g4Mat(m, "blk.{d}.inp_gate.weight", .{il}, D, d.p) or !g4Mat(m, "blk.{d}.proj.weight", .{il}, d.p, D)) return null;
+        if (!g4Vec(m, "blk.{d}.post_norm.weight", .{il}, D)) return null;
+        if (getTOpt(m, "blk.{d}.layer_output_scale.weight", .{il}, &nb) != null and !g4Vec(m, "blk.{d}.layer_output_scale.weight", .{il}, 1)) return null;
+        if (getTOpt(m, "blk.{d}.ffn_gate_inp.weight", .{il}, &nb) != null) return null; // the mixture-of-experts variant: not this wiring
+    }
+    return d;
+}
+
+fn g4Ok(m: ?*c.ggml_context) bool {
+    if (g_g4_gen != embed.model_generation) {
+        g_g4_gen = embed.model_generation;
+        if (g4Read(m)) |d| {
+            g_g4 = d;
+            g_g4_ok = true;
+        } else g_g4_ok = false;
+    }
+    return g_g4_ok;
+}
+
+fn g4Norm(ctx: *c.ggml_context, x: *c.ggml_tensor, w: *c.ggml_tensor, eps: f32) *c.ggml_tensor {
+    return c.ggml_mul(ctx, c.ggml_rms_norm(ctx, x, eps).?, w).?;
+}
+
+fn buildGemma4Graph(
+    ctx: *c.ggml_context,
+    m: ?*c.ggml_context,
+    ids: []const i32,
+    d: *const G4,
+    n_past: usize,
+    fill: bool,
+    kouts: *std.ArrayList(*c.ggml_tensor),
+) ?DecodeGraph {
+    const n = ids.len;
+    const kv_len = padKv(n_past + n);
+    const grp = d.h / d.kv;
+    const D = d.d;
+    var nb: [96]u8 = undefined;
+    var nb2: [96]u8 = undefined;
+
+    const tokens = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n)).?;
+    const positions = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n)).?;
+    const mask_g = c.ggml_new_tensor_2d(ctx, c.GGML_TYPE_F32, @intCast(kv_len), @intCast(n * grp)).?;
+    const mask_s = c.ggml_new_tensor_2d(ctx, c.GGML_TYPE_F32, @intCast(kv_len), @intCast(n * grp)).?;
+    if (fill) {
+        const td: [*]i32 = @ptrCast(@alignCast(tokens.*.data));
+        const pd: [*]i32 = @ptrCast(@alignCast(positions.*.data));
+        for (0..n) |i| {
+            td[i] = ids[i];
+            pd[i] = @intCast(n_past + i);
+        }
+        const mg: [*]f32 = @ptrCast(@alignCast(mask_g.*.data));
+        const ms: [*]f32 = @ptrCast(@alignCast(mask_s.*.data));
+        for (0..n * grp) |x| {
+            const q = n_past + x % n; // this query's position
+            for (0..kv_len) |k| {
+                const seen = k <= q;
+                mg[x * kv_len + k] = if (seen) 0.0 else -1.0e9;
+                // llama.cpp LLAMA_SWA_TYPE_STANDARD: a key W or more positions back is out of the window
+                ms[x * kv_len + k] = if (seen and q - k < d.window) 0.0 else -1.0e9;
+            }
+        }
+    }
+
+    // the token rows, scaled by sqrt(n_embd)
+    var inpL = c.ggml_get_rows(ctx, getT(m, "token_embd.weight", .{}, &nb), tokens).?;
+    inpL = c.ggml_scale(ctx, inpL, @sqrt(@as(f32, @floatFromInt(D)))).?;
+
+    // the per-layer inputs [P, n, L]: the table's rows plus the normed projection of the scaled token row
+    const P = d.p;
+    const L = d.n_layer;
+    var ple = c.ggml_get_rows(ctx, getT(m, "per_layer_token_embd.weight", .{}, &nb), tokens).?;
+    ple = c.ggml_scale(ctx, ple, @sqrt(@as(f32, @floatFromInt(P))) / @sqrt(2.0)).?;
+    ple = c.ggml_reshape_3d(ctx, ple, @intCast(P), @intCast(L), @intCast(n)).?;
+    var proj = c.ggml_mul_mat(ctx, getT(m, "per_layer_model_proj.weight", .{}, &nb), inpL).?;
+    proj = c.ggml_reshape_3d(ctx, proj, @intCast(P), @intCast(L), @intCast(n)).?;
+    proj = c.ggml_rms_norm(ctx, proj, d.eps * @as(f32, @floatFromInt(D))).?; // eps / (1/sqrt(D))^2
+    const pnorm = c.ggml_scale(ctx, getT(m, "per_layer_proj_norm.weight", .{}, &nb), 1.0 / @sqrt(2.0)).?;
+    proj = c.ggml_mul(ctx, proj, pnorm).?;
+    ple = c.ggml_add(ctx, proj, ple).?;
+    ple = c.ggml_cont(ctx, c.ggml_permute(ctx, ple, 0, 2, 1, 3)).?; // [P, n, L]
+
+    const rope_f = getTOpt(m, "rope_freqs.weight", .{}, &nb2);
+    for (0..L) |il| {
+        const hd = g4Hd(d, il);
+        const is_swa = d.swa[il];
+        const base = if (is_swa) d.base_s else d.base_g;
+        const ff: ?*c.ggml_tensor = if (is_swa) null else rope_f;
+
+        var cur = g4Norm(ctx, inpL, getT(m, "blk.{d}.attn_norm.weight", .{il}, &nb), d.eps);
+        var Q = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_q.weight", .{il}, &nb), cur).?;
+        Q = c.ggml_reshape_3d(ctx, Q, @intCast(hd), @intCast(d.h), @intCast(n)).?;
+        Q = g4Norm(ctx, Q, getT(m, "blk.{d}.attn_q_norm.weight", .{il}, &nb), d.eps);
+        Q = c.ggml_rope_ext(ctx, Q, positions, ff, @intCast(hd), c.GGML_ROPE_TYPE_NEOX, d.n_ctx_train, base, 1.0, 0.0, 1.0, 0.0, 0.0).?;
+
+        const src = g4Src(d, il);
+        const kt = g_kt.items[src];
+        const vt = g_vt.items[src];
+        if (il < d.own) {
+            var K = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_k.weight", .{il}, &nb), cur).?;
+            const V = if (getTOpt(m, "blk.{d}.attn_v.weight", .{il}, &nb2)) |wv| c.ggml_mul_mat(ctx, wv, cur).? else K;
+            K = c.ggml_reshape_3d(ctx, K, @intCast(hd), @intCast(d.kv), @intCast(n)).?;
+            K = g4Norm(ctx, K, getT(m, "blk.{d}.attn_k_norm.weight", .{il}, &nb), d.eps);
+            K = c.ggml_rope_ext(ctx, K, positions, ff, @intCast(hd), c.GGML_ROPE_TYPE_NEOX, d.n_ctx_train, base, 1.0, 0.0, 1.0, 0.0, 0.0).?;
+            var V3 = c.ggml_reshape_3d(ctx, V, @intCast(hd), @intCast(d.kv), @intCast(n)).?;
+            V3 = c.ggml_rms_norm(ctx, V3, d.eps).?;
+            const Kcur = c.ggml_cont(ctx, c.ggml_permute(ctx, K, 0, 2, 1, 3)).?; // [hd, n, kv]
+            const Vcur = c.ggml_cont(ctx, c.ggml_permute(ctx, V3, 0, 2, 1, 3)).?;
+            const kview = c.ggml_view_3d(ctx, kt, @intCast(hd), @intCast(n), @intCast(d.kv), kt.*.nb[1], kt.*.nb[2], n_past * kt.*.nb[1]).?;
+            const vview = c.ggml_view_3d(ctx, vt, @intCast(n), @intCast(hd), @intCast(d.kv), vt.*.nb[1], vt.*.nb[2], n_past * vt.*.nb[0]).?;
+            kouts.append(gpa, c.ggml_cpy(ctx, Kcur, kview).?) catch return null;
+            kouts.append(gpa, c.ggml_cpy(ctx, c.ggml_permute(ctx, Vcur, 1, 0, 2, 3), vview).?) catch return null;
+        }
+        const K_all = c.ggml_view_3d(ctx, kt, @intCast(hd), @intCast(kv_len), @intCast(d.kv), kt.*.nb[1], kt.*.nb[2], 0).?;
+        const Vt = c.ggml_view_3d(ctx, vt, @intCast(kv_len), @intCast(hd), @intCast(d.kv), vt.*.nb[1], vt.*.nb[2], 0).?;
+        const Qp = c.ggml_cont(ctx, c.ggml_permute(ctx, Q, 0, 2, 1, 3)).?; // [hd, n, h]
+        const Qv = c.ggml_reshape_3d(ctx, Qp, @intCast(hd), @intCast(n * grp), @intCast(d.kv)).?;
+        var KQ = c.ggml_mul_mat(ctx, K_all, Qv).?;
+        KQ = c.ggml_soft_max_ext(ctx, KQ, if (is_swa) mask_s else mask_g, 1.0, 0.0).?;
+        var KQV = c.ggml_mul_mat(ctx, Vt, KQ).?;
+        KQV = c.ggml_reshape_3d(ctx, KQV, @intCast(hd), @intCast(n), @intCast(d.h)).?;
+        KQV = c.ggml_cont(ctx, c.ggml_permute(ctx, KQV, 0, 2, 1, 3)).?;
+        KQV = c.ggml_reshape_2d(ctx, KQV, @intCast(hd * d.h), @intCast(n)).?;
+        cur = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_output.weight", .{il}, &nb), KQV).?;
+        cur = g4Norm(ctx, cur, getT(m, "blk.{d}.post_attention_norm.weight", .{il}, &nb), d.eps);
+        const attn_out = c.ggml_add(ctx, cur, inpL).?;
+
+        // the GELU-gated feed-forward, normed before and after
+        var h2 = g4Norm(ctx, attn_out, getT(m, "blk.{d}.ffn_norm.weight", .{il}, &nb), d.eps);
+        const up = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_up.weight", .{il}, &nb), h2).?;
+        const gate = c.ggml_gelu(ctx, c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_gate.weight", .{il}, &nb), h2).?).?;
+        h2 = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_down.weight", .{il}, &nb), c.ggml_mul(ctx, gate, up).?).?;
+        h2 = g4Norm(ctx, h2, getT(m, "blk.{d}.post_ffw_norm.weight", .{il}, &nb), d.eps);
+        cur = c.ggml_add(ctx, h2, attn_out).?;
+
+        // the per-layer embedding branch
+        var pe = c.ggml_gelu(ctx, c.ggml_mul_mat(ctx, getT(m, "blk.{d}.inp_gate.weight", .{il}, &nb), cur).?).?;
+        const slice = c.ggml_view_2d(ctx, ple, @intCast(P), @intCast(n), ple.*.nb[1], il * ple.*.nb[2]).?;
+        pe = c.ggml_mul(ctx, pe, slice).?;
+        pe = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.proj.weight", .{il}, &nb), pe).?;
+        pe = g4Norm(ctx, pe, getT(m, "blk.{d}.post_norm.weight", .{il}, &nb), d.eps);
+        cur = c.ggml_add(ctx, cur, pe).?;
+
+        if (getTOpt(m, "blk.{d}.layer_output_scale.weight", .{il}, &nb2)) |os| cur = c.ggml_mul(ctx, cur, os).?;
+        inpL = cur;
+    }
+
+    const xF = g4Norm(ctx, inpL, getT(m, "output_norm.weight", .{}, &nb), d.eps);
+    const n_out: usize = @max(1, @min(g_rows_out, n));
+    const last = c.ggml_cont(ctx, c.ggml_view_2d(ctx, xF, @intCast(D), @intCast(n_out), xF.*.nb[1], @intCast((n - n_out) * xF.*.nb[1])).?).?;
+    const lm_w = getTOpt(m, "output.weight", .{}, &nb) orelse getT(m, "token_embd.weight", .{}, &nb);
+    var logits = c.ggml_mul_mat(ctx, lm_w, last).?;
+    if (d.softcap > 0) {
+        logits = c.ggml_scale(ctx, logits, 1.0 / d.softcap).?;
+        logits = c.ggml_tanh(ctx, logits).?;
+        logits = c.ggml_scale(ctx, logits, d.softcap).?;
+    }
+    const graph = c.ggml_new_graph_custom(ctx, decode_graph_nodes, false) orelse return null;
+    for (kouts.items) |t| c.ggml_build_forward_expand(graph, t);
+    c.ggml_build_forward_expand(graph, logits);
+    return .{ .graph = graph, .logits = logits };
+}
+
+fn forwardGemma4(ids: []const i32) bool {
+    const m = mctx() orelse return false;
+    const n_new = ids.len;
+    if (n_new == 0 or !g4Ok(m)) return false;
+    const d = &g_g4;
+    for (ids) |t| if (t < 0 or t >= d.rows) return false;
+    if (!ensureKv(d.own, d.kv, d.hd_g, padKv(g_n_past + n_new))) return false;
+    const n_past = g_n_past;
+    var kouts: std.ArrayList(*c.ggml_tensor) = .{};
+    defer kouts.clearAndFree(gpa);
+
+    var tp = std.time.nanoTimestamp();
+    var pool_bytes: usize = 0;
+    {
+        const meta = c.ggml_init(.{ .mem_size = 64 * 1024 * 1024, .mem_buffer = null, .no_alloc = true }) orelse return false;
+        defer c.ggml_free(meta);
+        if (buildGemma4Graph(meta, m, ids, d, n_past, false, &kouts) == null) return false;
+        pool_bytes = graphPoolBytes(meta);
+    }
+    kouts.clearRetainingCapacity();
+    g_last_pool_bytes = pool_bytes;
+    g_phase[0] = msSince(tp);
+    tp = std.time.nanoTimestamp();
+    const ctx = c.ggml_init(.{ .mem_size = pool_bytes + 64 * 1024, .mem_buffer = null, .no_alloc = false }) orelse return false;
+    defer c.ggml_free(ctx);
+    g_phase[1] = msSince(tp);
+    tp = std.time.nanoTimestamp();
+    const built = buildGemma4Graph(ctx, m, ids, d, n_past, true, &kouts) orelse return false;
+    g_phase[2] = msSince(tp);
+    tp = std.time.nanoTimestamp();
+    var plan = c.ggml_graph_plan(built.graph, if (n_new > 1) g_threads_many else g_threads_one, null);
+    var wbuf: ?[]u8 = null;
+    if (plan.work_size > 0) {
+        wbuf = gpa.alloc(u8, plan.work_size) catch return false;
+        plan.work_data = wbuf.?.ptr;
+    }
+    defer if (wbuf) |w| gpa.free(w);
+    _ = c.ggml_graph_compute(built.graph, &plan);
+    g_phase[3] = msSince(tp);
+    g_n_past = n_past + n_new;
+    return readLogits(built.logits);
+}
+
+// the logits of the last row into g_logits, and each row's best token into g_row_best when there are several
+fn readLogits(logits: *c.ggml_tensor) bool {
+    const tp = std.time.nanoTimestamp();
+    const n_vocab_t: usize = @intCast(logits.*.ne[0]);
+    const n_rows: usize = @intCast(logits.*.ne[1]);
+    const ld_all: [*]const f32 = @ptrCast(@alignCast(logits.*.data));
+    g_row_best.clearRetainingCapacity();
+    if (n_rows > 1) {
+        g_row_best.ensureTotalCapacity(gpa, n_rows) catch return false;
+        for (0..n_rows) |r| {
+            const row = ld_all[r * n_vocab_t ..][0..n_vocab_t];
+            var best: usize = 0;
+            var bestv: f32 = -3.4e38;
+            for (row, 0..) |v, i| {
+                if (v > bestv) {
+                    bestv = v;
+                    best = i;
+                }
+            }
+            g_row_best.appendAssumeCapacity(@intCast(best));
+        }
+    }
+    const ld = ld_all + (n_rows - 1) * n_vocab_t;
+    g_logits.clearRetainingCapacity();
+    g_logits.ensureTotalCapacity(gpa, n_vocab_t) catch return false;
+    for (0..n_vocab_t) |i| g_logits.appendAssumeCapacity(ld[i]);
+    g_phase[5] = msSince(tp);
+    return true;
 }
 
 // ---- SPM-style BPE (tokenizer.ggml.model = "gemma4"; GEMMA4-01, 2026-11-11) -----------------------------------------
