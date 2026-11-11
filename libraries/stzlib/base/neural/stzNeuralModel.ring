@@ -528,9 +528,9 @@ func StzChatPrompt(pcSystem, pcUser)
 			"<|start_of_role|>user<|end_of_role|>" + StzChatSafeText(pcUser) + "<|end_of_text|>" + char(10) +
 			"<|start_of_role|>assistant<|end_of_role|>"
 	ok
-	# Gemma 4 (and Nemotron 3.5 Bolt, built on it): its own template with thinking off, as the GGUF's
-	# tokenizer.chat_template renders it -- the BOS the tokenizer adds, then <|turn>role ... <turn|> per turn and
-	# an open model turn (read 2026-11-11, GEMMA4-01; the template is read as data, never run)
+	# Gemma 4 (and Nemotron 3.5 Bolt, built on it): the turns its model card's template renders with thinking off --
+	# the BOS the tokenizer adds, then <|turn>role ... <turn|> per turn and an open model turn (written down by hand
+	# 2026-11-11, GEMMA4-01: no code here reads or runs a template carried in a model file)
 	if _cArch_ = "gemma4" and StzChatHasToken("<|turn>") = 1
 		return "<|turn>system" + char(10) + ring_trim(pcSystem) + "<turn|>" + char(10) +
 			"<|turn>user" + char(10) + StzChatSafeText(pcUser) + "<turn|>" + char(10) +

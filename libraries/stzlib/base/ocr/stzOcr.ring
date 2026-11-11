@@ -94,12 +94,13 @@ func StzOcrDeclare(paGolden)
 # The :ocr measurements shipped with the library (base/ocr/ocr.zmdl.txt), copied from the model guard's filed result
 # (base/test/ocr/results/ocr.zmdl.txt) when the golden set or an implementation changes. They were measured on ONE
 # machine: the floor's score in a language is that machine's language packs.
+#   Found through the library's own folder (_StzBaseDir), not the engine's: with STZ_ENGINE_DIR naming a built engine
+#   outside the tree -- every haro.exe run -- the engine-relative path was "", the filed measurements were never loaded,
+#   and ppocr read as UNMEASURED (found 2026-11-11 by image_docvlm_narrated, after StzModelsDir was fixed the same way).
 func StzOcrMeasurementsFile()
-	_e_ = $cEngineDir
-	if isString(_e_) and len(_e_) >= 7 and right(_e_, 7) = "/engine"
-		return left(_e_, len(_e_) - 7) + "/base/ocr/ocr.zmdl.txt"
-	ok
-	return ""
+	_b_ = _StzBaseDir()
+	if _b_ = "" return "" ok
+	return _b_ + "/ocr/ocr.zmdl.txt"
 
 # The court's evidence for :ocr shipped with the library (base/ocr/ocr.court.txt): the gains and losses of each implementation against the
 # other, on the whole set and per language, copied from the model guard's filed result with the measurements.

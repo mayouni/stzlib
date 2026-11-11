@@ -381,12 +381,11 @@ func StzVisionCourtFile()
 	return StzReplace(StzVisionMeasurementsFile(), "vision.zmdl.txt", "vision.court.txt")
 
 # The measurements shipped with the library: base/image/vision.zmdl.txt.
+#   Found through the library's own folder (_StzBaseDir), not the engine's, as StzOcrMeasurementsFile (2026-11-11).
 func StzVisionMeasurementsFile()
-	_e_ = $cEngineDir
-	if isString(_e_) and len(_e_) >= 7 and right(_e_, 7) = "/engine"
-		return left(_e_, len(_e_) - 7) + "/base/image/vision.zmdl.txt"
-	ok
-	return ""
+	_b_ = _StzBaseDir()
+	if _b_ = "" return "" ok
+	return _b_ + "/image/vision.zmdl.txt"
 
 # -- the floors ---------------------------------------------------------
 
