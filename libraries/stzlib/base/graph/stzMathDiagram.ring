@@ -4505,12 +4505,14 @@ class stzMathDiagram from stzObject
 	#   returns    a number
 	#   see        CanvasHeight, ToCanvas
 	#@ aka  the paper, and what a shape is beyond its geometry -- for the rules that judge a picture rather than solve it (DN8c)
-	def CanvasWidth()   return @oStyle.CanvasWidth()
+	def CanvasWidth()
+		return @oStyle.CanvasWidth()
 	# Returns the height of the paper, in pixels, as the style fixes it.
 	#
 	#   returns    a number
 	#   see        CanvasWidth, ToCanvas
-	def CanvasHeight()  return @oStyle.CanvasHeight()
+	def CanvasHeight()
+		return @oStyle.CanvasHeight()
 
 	# Returns the name of the object a shape draws, such as A for A.icon.
 	#

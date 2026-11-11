@@ -123,18 +123,21 @@ class stzRuleGovernance from stzObject
 	#
 	#   returns    the name as text
 	#   see        Rules
-	def Name_()     return @cName
+	def Name_()
+		return @cName
 	# Returns the rules added so far, in the order they were added.
 	#
 	#   returns    a list of stzScopedRule objects
 	#   see        AddRule, ScopeTable
-	def Rules()     return @aoRules
+	def Rules()
+		return @aoRules
 	# Returns the findings of the last CheckRules or CheckAll.
 	#
 	#   returns    a list of findings; [ ] before either has run
 	#   note       CheckCases does not store its findings here
 	#   see        CheckAll, IsSound
-	def Findings()  return @aFindings
+	def Findings()
+		return @aFindings
 
 	# Adds a rule to judge, in the order it will be listed.
 	#

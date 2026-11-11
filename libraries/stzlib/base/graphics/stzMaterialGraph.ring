@@ -253,12 +253,14 @@ class stzMaterialGraph from stzObject
 	#
 	#   returns    a number
 	#   see        OutputNode, AddNode
-	def NodeCount()  return len(@aNodes)
+	def NodeCount()
+		return len(@aNodes)
 	# Returns the name of the node declared as the output.
 	#
 	#   returns    the name as text in lower case; an empty text before Emits
 	#   see        Emits, NodeCount
-	def OutputNode() return @cOut
+	def OutputNode()
+		return @cOut
 
 	# Derives the emission order and the reuse of the graph and proves its properties.
 	#

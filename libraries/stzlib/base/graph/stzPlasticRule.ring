@@ -160,34 +160,40 @@ class stzScopedRule from stzObject
 	#
 	#   returns    the name as text
 	#   see        Claim
-	def Name_()      return @cName
+	def Name_()
+		return @cName
 	# Returns the sentence the rule asserts.
 	#
 	#   returns    the sentence as text; an empty text until SetClaim is called
 	#   note       the rule governance reports a rule with an empty claim as claim_unstated
 	#   see        SetClaim, Check
-	def Claim()      return @cClaim
+	def Claim()
+		return @cClaim
 	# Returns the quantities the rule reads, as it declared them.
 	#
 	#   returns    a list of text; [ ] until SetReads is called
 	#   see        SetReads, Writes
-	def Reads()      return @acReads
+	def Reads()
+		return @acReads
 	# Returns the quantities the rule writes, as it declared them.
 	#
 	#   returns    a list of text; [ ] until SetWrites is called
 	#   see        SetWrites, Reads
-	def Writes()     return @acWrites
+	def Writes()
+		return @acWrites
 	# Returns when the rule runs relative to other rules.
 	#
 	#   returns    a number; 0 until SetOrder is called
 	#   note       only the comparison with another rule's order means anything
 	#   see        SetOrder
-	def Order()      return @nOrder
+	def Order()
+		return @nOrder
 	# Returns the severity the rule's findings carry.
 	#
 	#   returns    the severity as text; error until SetSeverity is called
 	#   see        SetSeverity, Check
-	def Severity()   return @cSeverity
+	def Severity()
+		return @cSeverity
 
 	# Sets the sentence the rule asserts, in words a reader can disagree with.
 	#
@@ -291,12 +297,14 @@ class stzScopedRule from stzObject
 	#
 	#   returns    TRUE or FALSE, as 1 or 0
 	#   see        SetUniversal, UniversalWhy
-	def IsUniversal()   return @cUniversal != ""
+	def IsUniversal()
+		return @cUniversal != ""
 	# Returns the reason the rule was declared universal.
 	#
 	#   returns    the reason as text; an empty text when it was not
 	#   see        SetUniversal, IsUniversal
-	def UniversalWhy()  return @cUniversal
+	def UniversalWhy()
+		return @cUniversal
 
 	# Returns the subjects the rule governs in a case, by calling its scope.
 	#

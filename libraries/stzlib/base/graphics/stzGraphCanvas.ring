@@ -300,12 +300,14 @@ class stzGraphCanvas from stzObject
 	#
 	#   returns    a number, 1000 unless :Width or SetSize gave another
 	#   see        Height, SetSize
-	def Width()   return @nW
+	def Width()
+		return @nW
 	# Returns the height of the drawing, in pixels.
 	#
 	#   returns    a number, 620 unless :Height or SetSize gave another
 	#   see        Width, SetSize
-	def Height()  return @nH
+	def Height()
+		return @nH
 
 	# Returns the route each long edge takes through the ranks it crosses, in the same space as Positions.
 	#
@@ -314,24 +316,28 @@ class stzGraphCanvas from stzObject
 	#   note       an edge a to d over three ranks is one route with two bend points
 	#   see        Positions
 	#@ aka  The bend points of every edge that spans more than one rank, in the SAME normalised space as Positions() -- so a face transforms both with one rule and cannot place an edge in a different frame from the nodes it joins.
-	def EdgeRoutes()  return @aBendOf
+	def EdgeRoutes()
+		return @aBendOf
 
 	# Returns how wide the layout was before it was fitted to the canvas.
 	#
 	#   returns    a number in layout units; 1 for one minimum separation
 	#   see        RawSpanY, IsUnitX
-	def RawSpanX()    return @nRawSpanX
+	def RawSpanX()
+		return @nRawSpanX
 	# Returns how tall the layout was before it was fitted to the canvas.
 	#
 	#   returns    a number in layout units
 	#   see        RawSpanX, LayerCount
-	def RawSpanY()    return @nRawSpanY
+	def RawSpanY()
+		return @nRawSpanY
 	# Returns how many layers, ranks from top to bottom, the layout has.
 	#
 	#   returns    a number; 1 for the layouts that have no layers
 	#   note       the chain mine, smelt, chip, car has 4
 	#   see        RawSpanY, Positions
-	def LayerCount()  return @nLayerCount
+	def LayerCount()
+		return @nLayerCount
 	# a node's signed demand in slot units, zero where none was sent
 	def _DemandOf(paXtra, nId)
 		if NOT isList(paXtra) or nId < 1 or nId > len(paXtra)  return 0  ok
@@ -344,14 +350,16 @@ class stzGraphCanvas from stzObject
 	#   note       it is 1 for the hierarchical layout and 0 for the modes, sequence, mesh and ring
 	#              layouts
 	#   see        RawSpanX, RawPositions
-	def IsUnitX()     return @bUnitX
+	def IsUnitX()
+		return @bUnitX
 	# Returns how many edge crossings the drawn order contains.
 	#
 	#   returns    a number; -1 when no hierarchical layout has run, as with the force layout
 	#   note       the count is of the order that is drawn, after the sweep and after clusters are
 	#              compacted
 	#   see        LayerCount
-	def LayoutCrossings()  return @nLayoutCrossings
+	def LayoutCrossings()
+		return @nLayoutCrossings
 
 	# Changes the size of the drawing and lays the graph out again for it.
 	#

@@ -1064,37 +1064,44 @@ class stzGraphRule from stzObject
 	#
 	#   returns    a text
 	#   see        Name, init
-	def Name_()        return @cName
+	def Name_()
+		return @cName
 	# Returns what the rule claims, as set by SetMessage.
 	#
 	#   returns    a text; empty when none was set
 	#   see        Message, ViolationMessage
-	def Claim()        return @cMessage
+	def Claim()
+		return @cMessage
 	# Returns the names the rule declares it reads.
 	#
 	#   returns    a list of text; empty when none was declared
 	#   see        SetReadsQ, Writes
-	def Reads()        return @acReads
+	def Reads()
+		return @acReads
 	# Returns the names the rule declares it writes.
 	#
 	#   returns    a list of text; empty when none was declared
 	#   see        SetWritesQ, Reads
-	def Writes()       return @acWrites
+	def Writes()
+		return @acWrites
 	# Returns the position the rule declares among the rules of its set.
 	#
 	#   returns    a number; 0 when none was declared
 	#   see        SetOrderQ
-	def Order()        return @nOrder
+	def Order()
+		return @nOrder
 	# TRUE if the rule was declared universal, with a reason.
 	#
 	#   returns    TRUE or FALSE
 	#   see        DeclareUniversal, UniversalWhy
-	def IsUniversal()  return @cUniversal != ""
+	def IsUniversal()
+		return @cUniversal != ""
 	# Returns the reason given when the rule was declared universal.
 	#
 	#   returns    a text; empty when the rule is not universal
 	#   see        DeclareUniversal, IsUniversal
-	def UniversalWhy() return @cUniversal
+	def UniversalWhy()
+		return @cUniversal
 
 	# Gives the rule a function that decides for the whole graph, for a test the clauses cannot say.
 	#
