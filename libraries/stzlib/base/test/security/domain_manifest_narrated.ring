@@ -16,7 +16,7 @@ load "../_narrated.ring"
 $cDir = currentdir()
 $cDeny = "_dm_deny.txt"
 $aChildren = []
-$cStzDomainDenyFile = $cDeny
+$tStzDomainDenyFile = $cDeny
 if fexists($cDeny)  remove($cDeny)  ok
 
 oBase = new stzExposure()

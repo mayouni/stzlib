@@ -94,7 +94,7 @@ func _EduFilesUnder(pcRoot, pcRel)
 class stzProject from stzObject
 
 	@cFolder = ""
-	@cId = ""
+	@tId = ""
 	@cGuard = ""
 	@acPromises = []
 
@@ -108,7 +108,7 @@ class stzProject from stzObject
 	#   see        HasGuard, Check, ProveItself
 	def init(pcFolder)
 		@cFolder = _EduNoSlash(pcFolder)
-		@cId = _EduLastSegment(@cFolder)
+		@tId = _EduLastSegment(@cFolder)
 		if fexists(@cFolder + "/guard.ring")
 			@cGuard = read(@cFolder + "/guard.ring")
 		ok
@@ -121,7 +121,7 @@ class stzProject from stzObject
 	#   returns    a text such as project-s0
 	#   see        Folder
 	def Id()
-		return @cId
+		return @tId
 
 	# Returns the project's folder path, without a trailing slash.
 	#
@@ -150,7 +150,7 @@ class stzProject from stzObject
 	def Brief(pcLang)
 		_cF_ = @cFolder + "/brief." + pcLang + ".md"
 		if NOT fexists(_cF_)
-			StzRaise("Project '" + @cId + "' has no brief in '" + pcLang + "'.")
+			StzRaise("Project '" + @tId + "' has no brief in '" + pcLang + "'.")
 		ok
 		# the same text from an LF tree and from a CRLF checkout (autocrlf)
 		return StzReplace(read(_cF_), char(13), "")
@@ -189,7 +189,7 @@ class stzProject from stzObject
 
 	def CheckMany(pacFolders)
 		if NOT This.HasGuard()
-			StzRaise("Project '" + @cId + "' has no guard yet: nothing can be earned by it.")
+			StzRaise("Project '" + @tId + "' has no guard yet: nothing can be earned by it.")
 		ok
 		_acProgs_ = []
 		_nL_ = len(pacFolders)
@@ -200,7 +200,7 @@ class stzProject from stzObject
 		_aRuns_ = StzEduRunPrograms(_acProgs_)
 		_aRes_ = []
 		for _i_ = 1 to _nL_
-			_oK_ = new stzExerciseCheck(@cId, @acPromises, _EduFolderHash(pacFolders[_i_]), _aRuns_[_i_])
+			_oK_ = new stzExerciseCheck(@tId, @acPromises, _EduFolderHash(pacFolders[_i_]), _aRuns_[_i_])
 			_oK_.SetKind("decl")
 			_aRes_ + _oK_
 		next

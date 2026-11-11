@@ -1,0 +1,341 @@
+#---------------------------------#
+#  COMMON FOR ALL NUMBER CLASSES  #
+#---------------------------------#
+
+$xMAX_NUMBER_SIZE = 15			# Because Ring uses C DOUBLE
+$tMIN_NUMBER = "2.2250738585072014e-308"
+$tMAX_NUMBER = "1.7976931348623157e+308"
+
+#-- Min and Max representable numbers 
+
+func MinNumber
+	return $tMIN_NUMBER
+end
+func MaxNumber
+	return $tMAX_NUMBER
+end
+#-- Even or odd
+
+func IsEven(xN)
+	if EvenOrOdd(xN) = 2
+		return true
+	else
+		return false
+	end
+end
+	func @IsEven(xN)
+		return IsEven(xN)
+	end
+func IsOdd(xN)
+	return not IsEven(xN)
+end
+	func @IsOdd(xN)
+		return IsOdd(xN)
+	end
+#-- Number type
+
+func IsInt(xN)
+	if ring_substr1( String(xN), '.') = 0
+		return true
+	else
+		return false
+	end
+end
+	func IsInteger(xN)
+		return IsInt(xN)
+	end
+	func @IsInt(xN)
+		return IsInt(xN)
+	end
+	func @IsInteger(xN)
+		return IsInt(xN)
+	end
+func IsFractNumber(xN)
+	return not IsInt(xN)
+end
+	func @IsFractNumber(xN)
+		return not IsInt(xN)
+	end
+func IsBigNumber(xN)
+	Raise("todo")
+end
+	func @IsBigNumber(xN)
+		return IsBigNumber(xN)
+	end
+func IsSafeNumber(xN)
+	return not IsBigNumber(xN)
+end
+	func @IsSafeNumber(xN)
+		return not IsBigNumber(xN)
+	end
+#-- Rounds staff
+
+func CurrentRound # Current round in Ring actuated by decimals() function
+
+	tStringified = String(0.1234567890123456789f)
+	nPos = ring_substr1(tStringified, ".")
+	nLen = Len(tStringified)
+
+	nResult = nLen - nPos
+	return nResult
+end
+	func @CurrentRound
+		return CurrentRound()
+	end
+func Round(pnNumber) # Effective Round of a number (independently form current round)
+
+	if IsNumber(pnNumber)
+
+		# In case of integer, no rounds
+
+		if IsInteger(pnNumber)
+			return 0
+		end
+
+		# Store the current round in the program
+
+		nCurrentRound = CurrentRound()
+
+		# We have a number with a fractional part, stringify it
+
+		nMax = $xMAX_NUMBER_SIZE # the maximum possible (calculable) round in Ring
+		Decimals(nMax)
+		tTempStr = String(pnNumber)
+
+		# Rounding the number to the most possible round depending
+		# on the positions taken by the decimal digits and the sign
+
+		nLen = Len(tTempStr)
+		nDotPos = ring_substr1(tTempStr, ".")
+
+		nMaxPossibleRound = nMax - nDotPos
+
+		if pnNumber < 0
+			nMaxPossibleRound--
+		end
+
+		if nMaxPossibleRound < 0
+			Raise("ERR-" + StkError(:OutOfRangeValue) + Char(10))
+		end
+	
+		Decimals(nMaxPossibleRound)
+		tTempStr = String(pnNumber)
+
+		# Restoring the current round in the program
+
+		Decimals(nCurrentRound)
+	
+		# Doing the job
+
+		nLen = Len(tTempStr)
+		nResult = nLen - nDotPos
+
+		if tTempStr[nLen] != "0" and tTempStr[nLen] != "9"
+			return nResult
+		end
+
+		for i = nLen-1 to nDotPos+1 step - 1
+
+			if tTempStr[i] = tTempStr[i+1] and
+			   (tTempStr[i] = "0" or tTempStr[i] = "9")
+
+				nResult--
+			else
+				exit
+			end
+		
+		end
+
+		nResult--
+
+		return nResult
+
+	elseif IsString(pnNumber)
+
+		tTempStr = Trim( ring_substr2(pnNumber, "_", "") )
+		nValue = 0+ tTempStr
+
+		if not IsNumber(nValue)
+			Raise("ERR-" + StkError(:IncorrectParamValue) + Char(10))
+		end
+
+		nRound = 0
+		nDotPos = ring_substr1(tTempStr, ".")
+
+		nRoundMax = $xMAX_NUMBER_SIZE - (nDotPos - 1)
+
+		if nDotPos > 0
+			nRound = Len(tTempStr) - nDotPos
+		end
+
+		if nRound > nRoundMax
+			return nRoundMax
+		else
+			return nRound
+		end
+
+	else
+		Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+	end
+end
+	func @Round(pnNumber)
+		return Round(pnNumber)
+	end
+func MaxInt(xN) # Maximum number of digits n can have in its integer part
+	if xN = 0 return end
+
+	nMaxRound = MaxRound(xN)
+	nResult = $xMAX_NUMBER_SIZE - nMaxRound
+
+	return nResult
+end
+	func @MaxInt(xN)
+		return MaxInt(xN)
+	end
+func MaxRound(xN) # Maximum number of digits n can have in its fractional part
+	if xN = 0 return $xMAX_NUMBER_SIZE end  # Special case for zero
+	    
+	nIntPart   = Floor(Abs(xN))
+	nIntDigits = Len(String(intPart))
+
+	if nIntDigits >= $xMAX_NUMBER_SIZE
+		return 0
+	end
+
+	nMaxFractDigits = $xMAX_NUMBER_SIZE - nIntDigits
+	    
+	# Ensure we have at least 1 fractional digit and no more than $MAX_NUMBER_SIZE
+
+	if nMaxFractDigits > $xMAX_NUMBER_SIZE
+		nMaxFractDigits = $xMAX_NUMBER_SIZE
+	end
+
+	if nMaxFractDigits < 1
+		nMaxFractDigits = 1
+	end
+
+	return nMaxFractDigits
+end
+	func @MaxRound(paNumbers)
+		return MaxRound(paNumbers)
+	end
+#-- Absolute value of a number
+
+func Abs(xN)
+	if xN < 0
+		xN = -xN
+	end
+
+	return xN
+end
+	func @Abs(xN)
+		return Abs(xN)
+	end
+#-- Number value from a string
+
+func Val(tNumberInStr)
+	if not IsString(tNumberInStr)
+		Raise("ERR-" + StkError(:IncorrectParamType))
+	end
+
+	if ring_substr1(tNumberInStr, "_") > 0
+		tNumberInStr = @trim( ring_substr2(tNumberInStr, "_", "") )
+	end
+
+	nResult = 0+ tNumberInStr
+
+	if not IsNumber(nResult)
+		Raise("ERR-" + StkErrror(:IncorrectParamType) + Char(10) )
+	end
+
+	return nResult
+end
+	func @Val(tNumberInStr)
+		return Val(tNumberInStr)
+	end
+#-- Stringifying a number with given round and spacification char
+
+func NStringify(nNumber, tSpaceChar, nSpaceStep, nRound)
+
+	if not ( IsNumber(nNumber) and IsString(tSpaceChar) and IsNumber(nRound) )
+		Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+	end
+
+	tStringified = String(nNumber)
+
+	# Spacifying the integer part
+
+	nDotPos = ring_substr1(tStringified, ".")
+
+	tIntPart = ""
+
+	if nDotPos = 0
+		tIntPart = tStringified
+
+	else
+		for i = 1 to nDotPos-1
+			tIntPart += tStringified[i] 
+		end
+	end
+
+	if nNumber < 0
+		tIntPart = ring_substr2(tIntPart, "-", "")
+	end
+
+	nLen = Len(tIntPart)
+
+	tIntPartRev = Reverse(tIntPart)
+
+	tResult = ""
+	nJ = 0
+
+	for i = 1 to nLen
+	
+		tResult += tIntPartRev[i]
+
+		nJ++
+		if nJ = nSpaceStep and i < nLen
+			tResult += tSpaceChar
+			nJ = 0
+		end
+
+	end
+
+	tResult = Reverse(tResult)
+
+	# Compositing the spacified number in a string
+
+	if nNumber < 0
+		tResult = "-" + tResult
+	end
+
+	if nDotPos > 0
+		tFractPart = ""
+		nLen = Len(tStringified)
+
+		nLenFract = nLen - nDotPos
+
+		nMin = 0
+		if nLenFract < nRound
+			nMin = nLenFract
+		else
+			nMin = nRound
+		end
+
+		nDotPos++
+
+		for i = nDotPos to nLen
+			tFractPart += tStringified[i]
+		end
+
+		tResult += ( "." + tFractPart )
+	end
+
+	return tResult
+end
+	#< @FunctionAlternativeForm
+
+	func @NStringify(nNumber, tSpaceChar, nSpaceStep, nRound)
+		return NStringify(nNumber, tSpaceChar, nSpaceStep, nRound)
+	end
+	#>

@@ -198,7 +198,7 @@ func StzKernelMakerFromSpec(pcSpec)
 #              verified
 #
 class stzKernelPuzzle from stzObject
-	@cId = ""
+	@tId = ""
 	@cFolder = ""
 	@aFacts = []
 	@cReference = ""
@@ -211,13 +211,13 @@ class stzKernelPuzzle from stzObject
 	#              reference.txt is missing
 	#   see        Grade
 	def init(pcId)
-		@cId = lower("" + pcId)
-		@cFolder = StzKernelPuzzlesFolder() + "/" + @cId
+		@tId = lower("" + pcId)
+		@cFolder = StzKernelPuzzlesFolder() + "/" + @tId
 		if NOT fexists(@cFolder + "/exercise.zknw")
-			StzRaise("stzKernelPuzzle: no puzzle '" + @cId + "' (no exercise.zknw at " + @cFolder + ").")
+			StzRaise("stzKernelPuzzle: no puzzle '" + @tId + "' (no exercise.zknw at " + @cFolder + ").")
 		ok
 		if NOT fexists(@cFolder + "/reference.txt")
-			StzRaise("stzKernelPuzzle '" + @cId + "': reference.txt is missing; nothing could grade it.")
+			StzRaise("stzKernelPuzzle '" + @tId + "': reference.txt is missing; nothing could grade it.")
 		ok
 		@aFacts = This._FactsOf(read(@cFolder + "/exercise.zknw"))
 		@cReference = StzReplace(read(@cFolder + "/reference.txt"), char(13), "")
@@ -230,7 +230,7 @@ class stzKernelPuzzle from stzObject
 	#   returns    a text
 	#   see        Folder
 	def Id()
-		return @cId
+		return @tId
 
 	# Returns the folder the puzzle was read from.
 	#
@@ -643,7 +643,7 @@ class stzKernelPuzzle from stzObject
 			on "mod7"
 				_a_ + ((_i_ * 3) % 7)
 			other
-				StzRaise("stzKernelPuzzle '" + @cId + "': unknown data recipe '" + pcRecipe + "' (ramp, half, mod13, mod7, ones, tenths).")
+				StzRaise("stzKernelPuzzle '" + @tId + "': unknown data recipe '" + pcRecipe + "' (ramp, half, mod13, mod7, ones, tenths).")
 			end
 		next
 		return _a_

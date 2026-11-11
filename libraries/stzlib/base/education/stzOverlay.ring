@@ -70,7 +70,7 @@ func StzOverlayFromTemplate(pcTemplate, pcTarget, paPairs)
 class stzOverlay from stzObject
 
 	@cFolder = ""
-	@cId = ""
+	@tId = ""
 	@cName = ""
 	@aFacts = []
 
@@ -86,7 +86,7 @@ class stzOverlay from stzObject
 	#   see        HasManifest, Check
 	def init(pcFolder)
 		@cFolder = _EduNoSlash(pcFolder)
-		@cId = _EduLastSegment(@cFolder)
+		@tId = _EduLastSegment(@cFolder)
 		if fexists(@cFolder + "/overlay.zknw")
 			@aFacts = _EduFactsOf(@cFolder + "/overlay.zknw")
 			_nL_ = len(@aFacts)
@@ -110,7 +110,7 @@ class stzOverlay from stzObject
 	#   note       Name comes from the manifest and can differ
 	#   see        Name, Folder
 	def Id()
-		return @cId
+		return @tId
 
 	# Returns the name the manifest gives the overlay with its is-a overlay fact, or an empty text when there is none.
 	#
@@ -189,7 +189,7 @@ class stzOverlay from stzObject
 	def Check(poProgram)
 		_aF_ = []
 		if NOT This.HasManifest()
-			_aF_ + This._Finding("overlay-manifest", @cId, "overlay.zknw", "error",
+			_aF_ + This._Finding("overlay-manifest", @tId, "overlay.zknw", "error",
 				"an overlay must carry overlay.zknw with one `<name> | is-a | overlay` fact; without it nothing can be laid over the core")
 			return _aF_
 		ok

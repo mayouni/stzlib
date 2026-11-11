@@ -1642,7 +1642,7 @@ MISC
 
 #--- Softanza logo and motto
 
-$SOFTANZALOGO = 
+$xSOFTANZALOGO = 
 "╭━━━┳━━━┳━━━┳━━━━┳━━━┳━╮╱╭┳━━━━┳━━━╮
 ┃╭━╮┃╭━╮┃╭━━┫╭╮╭╮┃╭━╮┃┃╰╮┃┣━━╮━┃╭━╮┃
 ┃╰━━┫┃╱┃┃╰━━╋╯┃┃╰┫┃╱┃┃╭╮╰╯┃╱╭╯╭┫┃╱┃┃
@@ -1653,7 +1653,7 @@ $SOFTANZALOGO =
 Programming, by Heart! By: M.Ayouni╭
 ━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
   ╰╯"
-$SOFTANZA = $SOFTANZALOGO
+$SOFTANZA = $xSOFTANZALOGO
 
 #--- Collectibles
 

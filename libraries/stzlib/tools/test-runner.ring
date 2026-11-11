@@ -12,7 +12,7 @@
 # Configuration
 cBaseDir = currentdir() + "/../"
 aLayers = [
-    [:name = "core",  :path = cBaseDir + "core/test/",  :loader = "../core/stzCore.ring"],
+    [:name = "core",  :path = cBaseDir + "core/test/",  :loader = "../core/stzCore.haro"],
     [:name = "base",  :path = cBaseDir + "base/test/",  :loader = "../base/stzBase.ring"],
     [:name = "max",   :path = cBaseDir + "max/test/",   :loader = "../max/stzMax.ring"]
 ]

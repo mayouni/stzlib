@@ -60,31 +60,31 @@ end
 	end
 func StzMetaIsOneOfTheseNamedParams(paList, pvtNames)
     if not IsPointer($hStzMetaHandle)
-        return 0
+        return false
     end
 
     if not IsList(paList)
-        return 0
+        return false
     end
 
     if Len(paList) != 2
-        return 0
+        return false
     end
 
     if not IsString(paList[1])
-        return 0
+        return false
     end
 
     nLen = Len(pvtNames)
     for i = 1 to nLen
         if ring_lower(paList[1]) = ring_lower(pvtNames[i])
             if StzMetaIsNamedParam(pvtNames[i])
-                return 1
+                return true
             end
         end
     end
 
-    return 0
+    return false
 end
 	func EngineIsOneOfTheseNamedParams(paList, pvtNames)
 		return StzMetaIsOneOfTheseNamedParams(paList, pvtNames)

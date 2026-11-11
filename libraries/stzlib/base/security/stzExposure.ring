@@ -48,8 +48,8 @@ func StzForgetListeners()
 # The engine folder of the library's SOURCE tree -- vendor/, tools/ and src/ --
 # which is not $tEngineDir when STZ_ENGINE_DIR names a built copy elsewhere.
 func StzSourceEngineDir()
-	if isglobal("$cStzLibDir") and $cStzLibDir != "" and fexists($cStzLibDir + "/engine/stk_string.haro")
-		return $cStzLibDir + "/engine"
+	if isglobal("$tStzLibDir") and $tStzLibDir != "" and fexists($tStzLibDir + "/engine/stk_string.haro")
+		return $tStzLibDir + "/engine"
 	ok
 	return $tEngineDir
 

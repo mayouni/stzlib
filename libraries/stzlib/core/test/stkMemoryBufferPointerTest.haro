@@ -1,0 +1,472 @@
+load "../stklib.haro"
+
+#=========================================#
+#  BASIC BUFFER CREATION AND MANAGEMENT   #
+#=========================================#
+
+/*--- Creating buffers and basic operations
+
+pr()
+
+oMem = new stkMemory()
+oMem {
+	
+	# Create a buffer with 100 bytes capacity
+
+	oBuff1 = CreateBuffer(100)
+	
+	? oBuff1.Size() + NL
+	#--> 0
+	
+	# Write some data to the buffer
+
+	oBuff1.Write(0, "Hello Softanza!")
+	? oBuff1.Size()
+	#--> 15
+	
+	# Read data back from buffer (first 5 bytes)
+	? oBuff1.Read(0, 5)
+	#--> "Hello"
+}
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--- Multiple buffer management
+
+pr()
+
+oMem = new stkMemory()
+oMem {
+	init()
+	
+	# Create multiple buffers for different purposes
+	oConfigBuffer = CreateBuffer(256)    # Configuration data
+	oDataBuffer = CreateBuffer(1024)     # Main data storage
+	oLogBuffer = CreateBuffer(512)       # Log messages
+	
+	# Checking the number of buffers in memory
+	? NumberOfBuffers()
+	#--> 3
+	
+	# Write configuration data
+	oConfigBuffer.Write(0, "app_version=1.0;debug=true")
+	
+	# Write main data
+	oDataBuffer.Write(0, "user_data={name:'John',age:30}")
+	
+	# Write log entry
+	oLogBuffer.Write(0, "[INFO] System initialized")
+	
+	# Read and display all data
+	? "Config: " + oConfigBuffer.RawData()
+	#--> "Config: app_version=1.0;debug=true"
+	
+	? "Data: " + oDataBuffer.RawData()
+	#--> "Data: user_data={name:'John',age:30}"
+	
+	? "Log: " + oLogBuffer.RawData()
+	#--> "Log: [INFO] System initialized"
+}
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.22
+
+#=================================#
+#  POINTER-BASED ACCESS PATTERNS  #
+#=================================#
+
+/*--- Creating and using read pointers
+*/
+pr()
+
+oMem = new stkMemory()
+oMem {
+
+oBuff = CreateBuffer(200)
+
+	# Create a buffer with sample text
+	oBuff = CreateBuffer(200)
+	oBuff.Write(0, "The quick brown fox jumps over the lazy dog")
+	
+	# Create multiple read pointers to different parts
+	oReadPtr1 = CreatePointer(oBuff.Id(), "read")
+	oReadPtr2 = CreatePointer(oBuff.Id(), "read")
+	
+	? "Created " + Len(@aPointers) + " pointers"
+	#--> "Created 2 pointers"
+	
+	# Use pointers to read different segments
+	tWord1 = oReadPtr1.Read(0, 3)    # "The"
+	tWord2 = oReadPtr1.Read(10, 5)   # "brown"
+	tWord3 = oReadPtr2.Read(16, 3)   # "fox"
+	
+	? "Words extracted: " + tWord1 + ", " + tWord2 + ", " + tWord3
+	#--> "Words extracted: The, brown, fox"
+
+}
+
+pf()
+
+/*--- Write pointer exclusivity and data modification
+
+pr()
+
+oMem = new stkMemory()
+oMem {
+	init()
+	
+	# Create buffer for document editing
+	oDocBuffer = CreateBuffer(500)
+	WriteToBuffer(oDocBuffer.Id(), 0, "Original document content")
+	
+	# Create a write pointer (only one allowed per buffer)
+	oWritePtr = CreatePointer(oDocBuffer.Id(), "write")
+	
+	? "Write pointer created successfully"
+	#--> "Write pointer created successfully"
+	
+	# Try to create another write pointer (should fail)
+	try
+		oWritePtr2 = CreatePointer(oDocBuffer.Id(), "write")
+	}
+	catch {
+		? "Expected error: Cannot create second write pointer"
+		#--> "Expected error: Cannot create second write pointer"
+	}
+	
+	# Use write pointer to modify content
+	oWritePtr.Write(0, "Modified document content")
+	
+	# Verify modification with read pointer
+	oReadPtr = CreatePointer(oDocBuffer.Id(), "read")
+	tNewContent = oReadPtr.Read(0, 25)
+	? "Modified content: " + tNewContent
+	#--> "Modified content: Modified document content"
+end
+
+pf()
+
+#===============================#
+#  MEMORY LIFECYCLE MANAGEMENT  #
+#===============================#
+
+/*--- Buffer destruction and pointer invalidation
+
+pr()
+
+oMem = new stkMemory()
+oMem {
+	init()
+	
+	# Create buffer and pointers
+	oBuff = CreateBuffer(100)
+	WriteToBuffer(oBuff.Id(), 0, "Test data")
+	
+	oPtr1 = CreatePointer(oBuff.Id(), "read")
+	oPtr2 = CreatePointer(oBuff.Id(), "read")
+	
+	? "Before destruction - Pointer 1 valid: " + oPtr1.IsValid()
+	#--> "Before destruction - Pointer 1 valid: true"
+	
+	? "Before destruction - Pointer 2 valid: " + oPtr2.IsValid()
+	#--> "Before destruction - Pointer 2 valid: true"
+	
+	# Destroy the buffer
+	DestroyBuffer(oBuff.Id())
+	
+	? "After destruction - Pointer 1 valid: " + oPtr1.IsValid()
+	#--> "After destruction - Pointer 1 valid: false"
+	
+	? "After destruction - Pointer 2 valid: " + oPtr2.IsValid()
+	#--> "After destruction - Pointer 2 valid: false"
+	
+	? "Remaining buffers: " + Len(@aBuffers)
+	#--> "Remaining buffers: 0"
+}
+
+pf()
+
+/*--- Pointer destruction and write pointer release
+
+pr()
+
+oMem = new stkMemory()
+oMem {
+	init()
+	
+	# Create buffer and write pointer
+	oBuff = CreateBuffer(100)
+	oWritePtr = CreatePointer(oBuff.Id(), "write")
+	
+	? "Buffer has write pointer: " + oBuff.@bHasWritePointer
+	#--> "Buffer has write pointer: true"
+	
+	# Destroy the write pointer
+	DestroyPointer(oWritePtr.@nPointerId)
+	
+	? "After pointer destruction - Buffer has write pointer: " + oBuff.@bHasWritePointer
+	#--> "After pointer destruction - Buffer has write pointer: false"
+	
+	# Now we can create a new write pointer
+	oNewWritePtr = CreatePointer(oBuff.Id(), "write")
+	? "New write pointer created successfully"
+	#--> "New write pointer created successfully"
+}
+
+pf()
+
+#================================#
+#  PRACTICAL USAGE SCENARIOS     #
+#================================#
+
+/*--- Text processing with multiple views
+
+pr()
+
+oMem = new stkMemory()
+oMem {
+	init()
+	
+	# Create a text buffer with paragraph data
+	oTextBuffer = CreateBuffer(1000)
+	cText = "Softanza is a programming language designed for natural programming. " +
+	        "It combines the power of Ring with intuitive syntax. " +
+	        "The memory management system provides safe and efficient data handling."
+	
+	WriteToBuffer(oTextBuffer.Id(), 0, cText)
+	
+	# Create specialized pointers for different text operations
+	oReaderPtr = CreatePointer(oTextBuffer.Id(), "read")    # For reading operations
+	oParserPtr = CreatePointer(oTextBuffer.Id(), "read")    # For parsing operations
+	
+	# Extract sentences using different pointers
+	tSentence1 = oReaderPtr.Read(0, 67)   # First sentence
+	tSentence2 = oParserPtr.Read(67, 51)  # Second sentence
+	
+	? "Sentence 1: " + tSentence1
+	#--> "Sentence 1: Softanza is a programming language designed for natural programming."
+	
+	? "Sentence 2: " + tSentence2
+	#--> "Sentence 2: It combines the power of Ring with intuitive syntax."
+}
+
+pf()
+
+/*--- Data serialization and deserialization
+
+pr()
+
+oMem = new stkMemory()
+oMem {
+	init()
+	
+	# Create buffers for serialization process
+	oSourceBuffer = CreateBuffer(500)   # Original data
+	oSerialBuffer = CreateBuffer(1000)  # Serialized data
+	oTargetBuffer = CreateBuffer(500)   # Deserialized data
+	
+	# Original data structure (simulated)
+	tOriginalData = "user_id:123|name:John Doe|email:john@example.com"
+	WriteToBuffer(oSourceBuffer.Id(), 0, tOriginalData)
+	
+	# Serialization process (add header)
+	tHeader = "DATA_V1.0|LENGTH:" + Len(tOriginalData) + "|"
+	tSerialized = tHeader + tOriginalData
+	WriteToBuffer(oSerialBuffer.Id(), 0, tSerialized)
+	
+	? "Serialized data: " + ReadFromBuffer(oSerialBuffer.Id(), 0, oSerialBuffer.Size())
+	#--> "Serialized data: DATA_V1.0|LENGTH:45|user_id:123|name:John Doe|email:john@example.com"
+	
+	# Deserialization process (extract original data)
+	tFullSerialized = ReadFromBuffer(oSerialBuffer.Id(), 0, oSerialBuffer.Size())
+	nDataStart = Find(tFullSerialized, "user_id:")
+	tDeserialized = SubStr(tFullSerialized, nDataStart, Len(tOriginalData))
+	WriteToBuffer(oTargetBuffer.Id(), 0, tDeserialized)
+	
+	? "Deserialized data: " + ReadFromBuffer(oTargetBuffer.Id(), 0, oTargetBuffer.Size())
+	#--> "Deserialized data: user_id:123|name:John Doe|email:john@example.com"
+}
+
+pf()
+
+#=================================#
+#  ERROR HANDLING AND ROBUSTNESS  #
+#=================================#
+
+/*--- Boundary condition testing
+
+pr()
+
+oMem = new stkMemory()
+oMem {
+	init()
+	
+	# Create small buffer for boundary testing
+	oBuff = CreateBuffer(10)
+	WriteToBuffer(oBuff.Id(), 0, "1234567890")
+	
+	oPtr = CreatePointer(oBuff.Id(), "read")
+	
+	# Test normal read
+	tData = oPtr.Read(0, 5)
+	? "Normal read (0,5): " + tData
+	#--> "Normal read (0,5): 12345"
+	
+	# Test boundary read
+	tData = oPtr.Read(5, 5)
+	? "Boundary read (5,5): " + tData
+	#--> "Boundary read (5,5): 67890"
+	
+	# Test error conditions
+	try
+		tData = oPtr.Read(8, 5)  # Should fail - out of bounds
+	}
+	catch {
+		? "Expected error: Read out of bounds"
+		#--> "Expected error: Read out of bounds"
+	}
+	
+	try
+		tData = oPtr.Read(-1, 5)  # Should fail - negative offset
+	end
+	catch {
+		? "Expected error: Invalid offset"
+		#--> "Expected error: Invalid offset"
+	}
+end
+
+pf()
+
+/*--- Invalid operations and safety checks
+
+pr()
+
+oMem = new stkMemory()
+oMem {
+	init()
+	
+	# Create buffer and pointers
+	oBuff = CreateBuffer(50)
+	WriteToBuffer(oBuff.Id(), 0, "Test data for safety checks")
+	
+	oReadPtr = CreatePointer(oBuff.Id(), "read")
+	oWritePtr = CreatePointer(oBuff.Id(), "write")
+	
+	# Test write with read-only pointer
+	try
+		oReadPtr.Write(0, "Should fail")
+	}
+	catch {
+		? "Expected error: Read-only pointer cannot write"
+		#--> "Expected error: Read-only pointer cannot write"
+	}
+	
+	# Test operations on invalid buffer
+	try
+		tData = ReadFromBuffer(999, 0, 10)  # Non-existent buffer
+	end
+	catch {
+		? "Expected error: Buffer not found"
+		#--> "Expected error: Buffer not found"
+	}
+	
+	# Test write beyond capacity
+	try
+		WriteToBuffer(oBuff.Id(), 0, Copy("X", 100))  # Exceeds capacity
+	end
+	catch {
+		? "Expected error: Write beyond capacity"
+		#--> "Expected error: Write beyond capacity"
+	}
+end
+
+pf()
+
+#============================#
+#  ADVANCED USAGE PATTERNS   #
+#============================#
+
+/*--- Multi-buffer data processing pipeline
+
+pr()
+
+oMem = new stkMemory()
+oMem {
+	init()
+	
+	# Create processing pipeline buffers
+	oInputBuffer = CreateBuffer(200)    # Raw input
+	oProcessBuffer = CreateBuffer(300)  # Processing stage
+	oOutputBuffer = CreateBuffer(250)   # Final output
+	
+	# Input data
+	tRawData = "hello world from softanza system"
+	WriteToBuffer(oInputBuffer.Id(), 0, tRawData)
+	
+	# Stage 1: Read and uppercase
+	cInput = ReadFromBuffer(oInputBuffer.Id(), 0, oInputBuffer.Size())
+	tProcessed = Upper(cInput)
+	WriteToBuffer(oProcessBuffer.Id(), 0, tProcessed)
+	
+	# Stage 2: Add formatting
+	tFormatted = "[PROCESSED] " + ReadFromBuffer(oProcessBuffer.Id(), 0, oProcessBuffer.Size()) + " [END]"
+	WriteToBuffer(oOutputBuffer.Id(), 0, tFormatted)
+	
+	# Final result
+	cResult = ReadFromBuffer(oOutputBuffer.Id(), 0, oOutputBuffer.Size())
+	? "Pipeline result: " + cResult
+	#--> "Pipeline result: [PROCESSED] HELLO WORLD FROM SOFTANZA SYSTEM [END]"
+	
+	? "Pipeline uses " + Len(@aBuffers) + " buffers and " + Len(@aPointers) + " pointers"
+	#--> "Pipeline uses 3 buffers and 0 pointers"
+}
+
+pf()
+
+/*--- Dynamic buffer management with cleanup
+
+pr()
+
+oMem = new stkMemory()
+oMem {
+	init()
+	
+	# Create temporary buffers for batch processing
+	aTempBuffers = []
+	for i = 1 to 5
+		oBuff = CreateBuffer(100)
+		WriteToBuffer(oBuff.Id(), 0, "Batch item " + i)
+		aTempBuffers + oBuff
+	}
+	
+	? "Created " + Len(aTempBuffers) + " temporary buffers"
+	#--> "Created 5 temporary buffers"
+	
+	# Process all buffers
+	aOBuff188 = aTempBuffers {
+	nOBuff188 = Len(aOBuff188)
+	for iOBuff188 = 1 to nOBuff188
+		oBuff = aOBuff188[iOBuff188]
+		tData = ReadFromBuffer(oBuff.Id(), 0, oBuff.Size())
+		? "Processing: " + tData
+		#--> "Processing: Batch item 1"
+		#--> "Processing: Batch item 2"
+		#--> "Processing: Batch item 3"
+		#--> "Processing: Batch item 4"
+		#--> "Processing: Batch item 5"
+	}
+	
+	# Cleanup temporary buffers
+	aOBuff189 = aTempBuffers {
+	nOBuff189 = Len(aOBuff189)
+	for iOBuff189 = 1 to nOBuff189
+		oBuff = aOBuff189[iOBuff189]
+		DestroyBuffer(oBuff.Id())
+	}
+	
+	? "Cleanup complete. Remaining buffers: " + Len(@aBuffers)
+	#--> "Cleanup complete. Remaining buffers: 0"
+}
+
+pf()

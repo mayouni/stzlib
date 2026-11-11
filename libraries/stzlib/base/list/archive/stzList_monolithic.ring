@@ -3252,7 +3252,7 @@ func IsHybridList(paList) # Contains at least two different types
 
 	nLen = len(paList)
 	if nLen < 1
-		return _FALSE
+		return 0
 	ok
 
 	bResult = 1
@@ -3289,7 +3289,7 @@ func IsPureList(paList) # Made of itmes of same type
 
 	nLen = len(paList)
 	if nLen < 1
-		return _FALSE
+		return 0
 	ok
 
 	bResult = 1
@@ -3649,7 +3649,7 @@ func IsListOfNumbersAndStrings(paList)
 
 			return 1
 	else
-			return _FALSE
+			return 0
 
 	ok
 
@@ -9810,7 +9810,7 @@ class stzList from stzObject
 			return This
 
 		def ReplaceAllOccurrencesQC(pItem, pNewIteme)
-			return This.ReplaceAllOccurrencesQC(pItem, pNewIteme, _TRUE)
+			return This.ReplaceAllOccurrencesQC(pItem, pNewIteme, 1)
 
 		#>
 

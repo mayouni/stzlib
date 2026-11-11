@@ -1,0 +1,24 @@
+func @IsPpointer(xP)
+	return IsPointer(xP) # A Ring standard function
+end
+func ArePointers(paPointers)
+	if not IsList(paPointers)
+
+		return 0
+	end
+
+	bResult = true
+	nLen = Len(paPointers)
+
+	for i = 1 to nLen
+		if not IsPointer(paPointers[i])
+			bResult = false
+			exit
+		end
+	end
+
+	return bResult
+end
+	func @ArePointers(paPointers)
+		return ArePointers(paPointers)
+	end

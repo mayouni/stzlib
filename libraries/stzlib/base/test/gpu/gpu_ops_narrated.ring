@@ -24,7 +24,7 @@
 
 $tEngineDir = "../../../engine"
 # the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
-load "../../../core/common/stkRingLibs.ring"
+load "../../../core/common/stkRingLibs.haro"
 load "../../../engine/stz_gpu.haro"
 
 decimals(12)  # the measured-error printouts are the point; 2 decimals hides them

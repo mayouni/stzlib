@@ -1,0 +1,82 @@
+#----------------------------------#
+#  COMMON FOR ALL STRING CLASSES   #
+#----------------------------------#
+
+func IsLetter(xC)
+	if Len(xC) != 1
+		return false
+	end
+	nN = Ascii(xC)
+	if (nN >= 65 and nN <= 90) or (nN >= 97 and nN <= 122)
+		return true
+	end
+	return false
+end
+	func @IsLetter(xC)
+		return IsLetter(xC)
+	end
+func IsDigit(xC)
+	if Len(xC) != 1
+		return false
+	end
+	nN = Ascii(xC)
+	return (nN >= 48 and nN <= 57)
+end
+	func @IsDigit(xC)
+		return IsDigit(xC)
+	end
+# Polymorphic (widened 2026-07-10, see doc/design/NNL_REVIEW.md): a single
+# char keeps the historical ASCII-char check; a longer string answers for
+# the WHOLE string -- this is what the NNL descriptor dispatch relies on
+# (@isLowercase("ring") must be TRUE; it silently answered 0 for years
+# because the char-only form said "not one char -> FALSE").
+
+func IsUpperCase(xC)
+	if not IsString(xC) or Len(xC) = 0
+		return false
+	end
+	if Len(xC) = 1
+		nN = Ascii(xC)
+		return (nN >= 65 and nN <= 90)
+	end
+	return xC = Upper(xC) and Upper(xC) != Lower(xC)
+end
+	func @IsUpperCase(xC)
+		return IsUpperCase(xC)
+	end
+func IsLowerCase(xC)
+	if not IsString(xC) or Len(xC) = 0
+		return false
+	end
+	if Len(xC) = 1
+		nN = Ascii(xC)
+		return (nN >= 97 and nN <= 122)
+	end
+	return xC = Lower(xC) and Lower(xC) != Upper(xC)
+end
+	func @IsLowerCase(xC)
+		return IsLowerCase(xC)
+	end
+func StringIsEmpty(xStr)
+	return (Len(xStr) = 0)
+end
+func StringRepeat(xStr, xN)
+	tResult = ""
+	for i = 1 to xN
+		tResult += xStr
+	end
+	return tResult
+end
+	func @StringRepeat(xStr, xN)
+		return StringRepeat(xStr, xN)
+	end
+func StringReverse(xStr)
+	tResult = ""
+	for i = Len(xStr) to 1 step -1
+		tResult += xStr[i]
+	end
+	return tResult
+end
+	func @StringReverse(xStr)
+		return StringReverse(xStr)
+	end

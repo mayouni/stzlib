@@ -1,0 +1,30 @@
+#---------------------------------#
+#  SOFTANZA CORE GLOBAL SETTINGS  #
+#---------------------------------#
+
+# Parameter checking (can be disabled for performance in loops)
+$bParamCheck = true
+
+func CheckingParams
+	return $bParamCheck
+end
+func SetParamCheckingTo(bValue)
+	$bParamCheck = bValue
+
+# Early checking (preliminary validations before heavy operations)
+$bEarlyCheck = true
+end
+func EarlyChecking
+	return $bEarlyCheck
+end
+func SetEarlyCheckingTo(bValue)
+	$bEarlyCheck = bValue
+
+# Softanza version
+$tSOFTANZA_VERSION = "0.9"
+$xSOFTANZALOGO = "Softanza v" + $tSOFTANZA_VERSION + " - Programming, by Heart!"
+
+# Ring type constants
+$bTRUE  = true
+$bFALSE = false
+end

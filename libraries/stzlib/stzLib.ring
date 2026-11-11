@@ -6,7 +6,7 @@
 # The other two layers have their own entry files, because a layer is chosen
 # by WHICH FILE you load, not by a flag:
 #
-#   load "core/stkLib.ring"     -> CORE only  (stk*) -- lean, portable
+#   load "core/stkLib.haro"     -> CORE only  (stk*) -- lean, portable
 #   load "max/stxLib.ring"      -> MAX        (stx*) -- includes BASE and CORE
 #
 # Architecture: Core (stk*) -> Base (stz*) -> Max (stx*)

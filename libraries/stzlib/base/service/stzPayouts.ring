@@ -117,7 +117,7 @@ func _StzPayoutFinding(pcRule, pcWhere, pcMessage)
 #   see        stzPayoutDesk, stzPayoutPolicy, stzPaymentsPort
 class stzPayoutPlan from stzObject
 
-	@cId = ""
+	@tId = ""
 	@cProposer = ""
 	@aItems = []       # [ [ kind, key, amount ], ... ]
 	@aObjects = []     # the order or batch behind a pay / bulk item, "" for the others
@@ -139,7 +139,7 @@ class stzPayoutPlan from stzObject
 	#   see        Id, Paying
 	#@ aka  a plan starts empty and says what it pays
 	def WithId(pcId)
-		@cId = "" + pcId
+		@tId = "" + pcId
 		return This
 
 	# Returns the identifier of the plan.
@@ -147,7 +147,7 @@ class stzPayoutPlan from stzObject
 	#   returns    a text; empty until WithId is called
 	#   see        WithId
 	def Id()
-		return @cId
+		return @tId
 
 	# Sets the name of whoever proposes the plan, an agent or a person.
 	#
@@ -325,7 +325,7 @@ class stzPayoutPlan from stzObject
 		for _i_ = 1 to ring_len(@aVisas)
 			_aVisas_ + [ [ "role", @aVisas[_i_][1] ], [ "name", @aVisas[_i_][2] ] ]
 		next
-		return ListToJson([ [ "plan", @cId ], [ "proposer", @cProposer ], [ "items", _aItems_ ], [ "visas", _aVisas_ ] ])
+		return ListToJson([ [ "plan", @tId ], [ "proposer", @cProposer ], [ "items", _aItems_ ], [ "visas", _aVisas_ ] ])
 
 
   #===============#

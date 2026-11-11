@@ -85,7 +85,7 @@ $bParamCheck = 1  	# Activates the "# Checking params region" in softanza functi
 		     	# by yourself, outside the loop).
 			# Use the SetParamCheckingTo(FALSE)
 
-$_bEarlyCheck = 1	# Used for the same reason as _bParamCheck
+$bEarlyCheck = 1	# Used for the same reason as _bParamCheck
 
 $_nVizWidth = 50		# Default wrap width (columns) for the VizFind* visuals.
 			#--> Change it with SetVizWidth(80); read it with DefaultVizWidth().
@@ -2605,7 +2605,7 @@ func ResetVizWidth()
 #--
 
 func StzEarlyCheck()
-	return $_bEarlyCheck
+	return $bEarlyCheck
 
 	func EarlyCheck()
 		return StzEarlyCheck()
@@ -2614,22 +2614,22 @@ func StzEarlyCheck()
 		return StzEarlyCheck()
 
 func StzEarlyCheckOn()
-	$_bEarlyCheck = 1
+	$bEarlyCheck = 1
 
 	func EarlyCheckOn()
 		StzEarlyCheckOn()
 
 	func ActivateEarlyCheck()
-		$_bEarlyCheck = 1
+		$bEarlyCheck = 1
 
 	func EarlyChecksOn()
-		$_bEarlyCheck = 1
+		$bEarlyCheck = 1
 
 	func ActivateEarlyChecks()
-		$_bEarlyCheck = 1
+		$bEarlyCheck = 1
 
 func StzEarlyCheckOff()
-	$_bEarlyCheck = 0
+	$bEarlyCheck = 0
 
 	func EarlyCheckOff()
 		StzEarlyCheckOff()
@@ -2650,7 +2650,7 @@ func StzSetEarlyCheck(b)
 		ok
 	ok
 
-	$_bEarlyCheck = b
+	$bEarlyCheck = b
 
 	func SetEarlyCheck(b)
 		StzSetEarlyCheck(b)

@@ -18544,7 +18544,7 @@ class stzDiagram from stzGraph
 	#@ aka  NOTE // There also is an Explain() at the parent stzGraph level
 	def Explain()
 		_aExplanation_ = [
-			:diagram = @cId,
+			:diagram = @tId,
 			:structure = "",
 			:rules = "",
 			:effects = ""
@@ -18552,7 +18552,7 @@ class stzDiagram from stzGraph
 		
 		_nNodes_ = This.NodeCount()
 		_nEdges_ = This.EdgeCount()
-		_aExplanation_[:structure] = "Diagram '" + @cId + "' contains " + _nNodes_ + " nodes and " + _nEdges_ + " edges."
+		_aExplanation_[:structure] = "Diagram '" + @tId + "' contains " + _nNodes_ + " nodes and " + _nEdges_ + " edges."
 		
 		_nRules_ = len(@aoVisualRules)
 		if _nRules_ = 0
@@ -18719,7 +18719,7 @@ class stzDiagram from stzGraph
 			
 			if StzFindFirst("diagram ", _cLine_)
 				_cTitle_ = trim(StzMid(_cLine_, 10, stzlen(_cLine_) - 10))
-				@cId = _cTitle_
+				@tId = _cTitle_
 
 			but _cLine_ = "properties"
 				_cCurrentSection_ = "properties"
@@ -18973,7 +18973,7 @@ class stzDiagram from stzGraph
 	#   returns    text
 	#   see        LoadStyle, WriteToStylFile
 	def ExportToStyl()
-		_cStyl_ = 'style "' + @cId + '_style"' + char(10)
+		_cStyl_ = 'style "' + @tId + '_style"' + char(10)
 		_cStyl_ += '    theme: ' + @cTheme + char(10)
 		_cStyl_ += '    layout: ' + @cLayout + char(10) + char(10)
 		

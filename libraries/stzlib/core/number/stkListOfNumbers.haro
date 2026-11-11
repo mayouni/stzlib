@@ -1,0 +1,90 @@
+
+#~~~~~~~~~~~~~#
+#  FUNCTIONS  #
+#~~~~~~~~~~~~~#
+
+
+func FindMin(viNumbers)
+
+	if not IsList(viNumbers)
+		StzRaise("Incorrect param type! anNumbers must be a list.")
+	end
+
+	nLen = Len(viNumbers)
+
+	# Early check
+
+	if nLen = 0
+		return 0
+
+	elseif nLen = 1
+		return 1
+	end
+
+	nResult = 1
+	nTempNumber = viNumbers[1]
+
+	for i = 2 to nLen
+		if viNumbers[i] < nTempNumber
+			nResult = i
+			nTempNumber = viNumbers[i]
+		end
+	end
+
+	return nResult
+end
+	func @FindMin(viNumbers)
+		return FindMin(viNumbers)
+	end
+func FindMax(viNumbers)
+
+	if not IsList(viNumbers)
+		StzRaise("Incorrect param type! anNumbers must be a list.")
+	end
+
+	nLen = Len(viNumbers)
+
+	# Early check
+
+	if nLen = 0
+		return 0
+
+	elseif nLen = 1
+		return 1
+	end
+
+	nResult = 1
+	nTempNumber = viNumbers[1]
+
+	for i = 2 to nLen
+		if viNumbers[i] > nTempNumber
+			nResult = i
+			nTempNumber = viNumbers[i]
+		end
+	end
+
+	return nResult
+end
+	func @FindMax(viNumbers)
+		return FindMax(viNumbers)
+	end
+func Max(pviNumbers)
+	return pviNumbers[ FindMax(pviNumbers) ]
+end
+	func @Max(pviNumbers)
+		return Max(pviNumbers)
+	end
+func Min(pviNumbers)
+	return pviNumbers[ FindMin(pviNumbers) ]
+end
+	func @Min(pviNumbers)
+		return Min(pviNumbers)
+	end
+#~~~~~~~~~#
+#  CLASS  #
+#~~~~~~~~~#
+
+class stzCoreListOfNumbers from stkListOfNumbers
+end
+class stkListOfNumbers
+end

@@ -1,0 +1,33 @@
+
+#~~~~~~~~~~~~~~~~~~~#
+#  STZ CORE OBJECT  #
+#~~~~~~~~~~~~~~~~~~~#
+
+class stkObject from stzCoreObject
+end
+class stzCoreObject
+	@xContent
+
+	def init(pxObject)
+		if not IsObject(pObject)
+			Raise("Incorrect param type! pObject must be an object.")
+		end
+
+		@xContent= pObject
+	end
+	def Content
+		return @xContent
+	end
+	def Copy
+		return new stzCoreObject(@xContent)	
+	end
+	def StzType
+		return "stzobject"
+	end
+	def IsStzObject
+		return true
+	end
+end
+
+
+

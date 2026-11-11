@@ -1,0 +1,253 @@
+/*
+	stkRingStdFuncs -- the nineteen functions Softanza took from Ring's
+	standard library, defined here so the library loads no part of Ring's
+	distribution.
+
+	Haro ships none of Ring's distribution (haro CHARTER D50, ruled by the
+	author 2026-11-05: "no Ring has to be carried with us in Haro at all
+	other than the surface we already have in Ring++ VM"). Until this file,
+	core/common/stkRingLibs.ring loaded "stdlibcore.ring" and
+	base/file/stzFile.ring loaded "ziplib.ring", and haro.exe stopped at
+	both (the C27 that kept it from loading stzlib).
+
+	Each function keeps the NAME and the BEHAVIOUR its callers relied on,
+	read from Ring++'s copy of stdlibcore.ring and ziplib.ring -- so the
+	252 library call sites (and the tests' calls to Split, MakeDir,
+	SystemCmd and List2Code, the last four below) are unchanged. A program that loads Ring's stdlib beside
+	stzlib still works: Ring++ lets the later definition stand, and the two
+	agree. Where Ring's version raised an index error on an edge case the
+	callers never reach (TrimRight of an all-blank text), this one answers
+	instead; that is the only difference, and it is named at the function.
+
+	Natives are spelled in lowercase (haro ruling of 2026-11-07).
+*/
+
+# 1 when cStr, trimmed, begins with cSub (Ring's Startswith trims first).
+func StartsWith(tStr, tSub)
+	tStr = Trim(tStr)
+	if Left(tStr, Len(tSub)) = tSub
+		return true
+	end
+	return false
+end
+# 1 when cStr, trimmed, ends with cSub.
+func EndsWith(tStr, tSub)
+	tStr = Trim(tStr)
+	if Right(tStr, Len(tSub)) = tSub
+		return true
+	end
+	return false
+end
+# 1 for an odd number, 2 for an even one.
+func EvenOrOdd(xN)
+	if xN % 2 = 1
+		return 1
+	end
+	return 2
+end
+# The divisors of n, from 1 to n.
+func Factors(xN)
+	aDivisors = []
+	for i = 1 to xN
+		if xN % i = 0
+			aDivisors + i
+		end
+	end
+	return aDivisors
+end
+# The items of aList for which the function fTest answers true.
+func Filter(aList, fTest)
+	aKept = []
+	nCount = Len(aList)
+	for i = 1 to nCount
+		if call fTest(aList[i])
+			aKept + aList[i]
+		end
+	end
+	return aKept
+end
+# The size in bytes of an open file; the position is left at the start.
+func FSize(fHandle)
+	FSeek(fHandle, 0, 2)
+	nSize = FTell(fHandle)
+	FSeek(fHandle, 0, 0)
+	return nSize
+end
+# The greatest common divisor (Euclid).
+func GCD(nA, nB)
+	while nB
+		nC = nA
+		nA = nB
+		nB = nC % nB
+	end
+	return nA
+end
+# 1 when nNum is prime.
+func IsPrime(nNum)
+	if nNum <= 1
+		return false
+	end
+	if nNum % 2 = 0 and nNum != 2
+		return false
+	end
+	for i = 2 to Sqrt(nNum)
+		if nNum % i = 0
+			return false
+		end
+	end
+	return true
+end
+# 1 when cLetter is one of A E I O U, in either case.
+func IsVowel(tLetter)
+	tUp = Upper(tLetter)
+	tVowels = "AEIOU"
+	for i = 1 to 5
+		if tUp = tVowels[i]
+			return true
+		end
+	end
+	return false
+end
+# The least common multiple.
+func LCM(nM, nN)
+	return nM * nN / GCD(nM, nN)
+end
+# A copy of aList with fMap applied to every item.
+func Map(aList, fMap)
+	aMapped = aList
+	nCount = Len(aMapped)
+	for i = 1 to nCount
+		aMapped[i] = call fMap(aMapped[i])
+	end
+	return aMapped
+end
+# aList folded by fStep(accumulated, item) from pxInitial; with pxInitial
+# empty (""), from the first item. Every item must have the type of the
+# start value, as in Ring's Reduce.
+func Reduce(aList, fStep, pxInitial)
+	if not IsList(aList)
+		Raise("aList should be a list.  Instead, it's a " + Type(aList))
+	end
+	nLength = Len(aList)
+	if not IsFunction(fStep)
+		Raise(fStep + " is not a function.")
+	end
+	nStart = 1
+	if IsString(pxInitial) and pxInitial = ""
+		if nLength > 0
+			pxInitial = aList[1]
+			nStart = 2
+		else
+			Raise("if xInitial is NULL, then Reduce() requires a non-empty list aList")
+		end
+	else
+		if nLength < 1
+			return pxInitial
+		end
+	end
+	tType = Type(pxInitial)
+	xResult = pxInitial
+	for i = nStart to nLength
+		if not Type(aList[i]) = tType
+			Raise("At least one of the elements in aList is " + Type(aList[i]) + ".  It should be " + tType)
+		end
+		xResult = call fStep(xResult, aList[i])
+	end
+	return xResult
+end
+# -1, 0 or 1.
+func Sign(xN)
+	if xN < 0
+		return -1
+	end
+	if xN = 0
+		return 0
+	end
+	return 1
+end
+# Waits nSeconds seconds (a number, or a text holding one).
+#
+# Ring's Sleep called SysSleep and then, unless it answered true, waited AGAIN
+# in a clock loop. On rnxc and haro.exe syssleep answers nothing, so that form
+# slept twice: Sleep(0.5) took 1.00 s on both (measured 2026-11-09). syssleep
+# is native on both runtimes, so it is the whole wait here.
+func Sleep(nSeconds)
+	if IsString(nSeconds)
+		nSeconds = Number(nSeconds)
+	end
+	if not IsNumber(nSeconds)
+		Raise("Bad parameter type!")
+	end
+	SysSleep(Float(nSeconds) * Float(1000))
+end
+# cStr without its trailing spaces and tabs. An all-blank or empty text
+# gives "" (Ring's version raised an index error there).
+func TrimRight(tStr)
+	nIndex = Len(tStr)
+	while nIndex > 0
+		tLast = tStr[nIndex]
+		if not (tLast = " " or tLast = Char(9))
+			exit
+		end
+		nIndex--
+	end
+	if nIndex = 0
+		return ""
+	end
+	return Left(tStr, nIndex)
+end
+
+# --- Four more, which the library itself never calls but its tests did,
+# reaching Ring's stdlib through the library's load (found 2026-11-08 by the
+# haroport gate: stzGraphQuery_defects and 54_fswatch_engine went red).
+
+# Ring's Split(): a space or tab delimiter collapses runs of blanks, the text
+# is trimmed, a line break always splits too. The library calls ring_split.
+func Split(tString, tDelimiter)
+	return ring_split(tString, tDelimiter)
+end
+# Creates the folder cFolder (and its parents off Windows), silently.
+func MakeDir(tFolder)
+	if IsWindows()
+		System("mkdir " + tFolder + " >nul 2>nul")
+	else
+		System("mkdir -p " + tFolder + " >/dev/null 2>&1")
+	end
+end
+# The output of the shell command cCmd, without its last line break.
+func SystemCmd(tCmd)
+	tTmpPath = TempName()
+	System(tCmd + "> " + tTmpPath)
+	tOut = Read(tTmpPath)
+	Remove(tTmpPath)
+	if Right(tOut, 1) = Char(10)
+		tOut = Left(tOut, Len(tOut) - 1)
+	end
+	return tOut
+end
+# Ring's List2Code(): the list as Ring source, one item per line, tab-indented.
+func List2Code(aList)
+	return List2CodeAt(aList, 0)
+end
+	func List2CodeAt(aList, nDepth)
+		if not IsList(aList)
+			Raise("Error (List2Code) : Expect a list")
+		end
+		tCode = Copy(Char(9), nDepth) + "[" + WindowsNL()
+		tTabs = Copy(Char(9), nDepth + 1)
+		nCount = Len(aList)
+		for i = 1 to nCount
+			if i > 1
+				tCode += "," + WindowsNL()
+			end
+			if IsString(aList[i])
+				tCode += tTabs + '"' + SubStr(aList[i], '"', '"+char(34)+"') + '"'
+			elseif IsNumber(aList[i])
+				tCode += tTabs + String(aList[i])
+			elseif IsList(aList[i])
+				tCode += List2CodeAt(aList[i], nDepth + 1)
+			end
+		end
+		tCode += WindowsNL() + Copy(Char(9), nDepth) + "]"
+		return tCode
+	end

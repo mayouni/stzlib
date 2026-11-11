@@ -703,7 +703,7 @@ class stzPaymentRequest from stzObject
 #   see        stzPaymentsPort, stzPaymentOrder, stzPaymentRequest
 class stzPaymentBatch from stzObject
 
-	@cId = ""
+	@tId = ""
 	@cFrom = ""
 	@cTo = ""
 	@cMotif = ""
@@ -724,7 +724,7 @@ class stzPaymentBatch from stzObject
 	#   see        InstructionId, stzPaymentsPort
 	#@ aka  nothing to prepare: a builder starts empty and says what it needs
 	def WithInstructionId(pcId)
-		@cId = "" + pcId
+		@tId = "" + pcId
 		return This
 
 	# Sets the platform's alias that is debited, for a batch of payments.
@@ -804,7 +804,7 @@ class stzPaymentBatch from stzObject
 	#   returns    a text; an empty text when none was set
 	#   see        WithInstructionId
 	def InstructionId()
-		return @cId
+		return @tId
 
 	# Returns how many items the batch holds.
 	#
@@ -826,7 +826,7 @@ class stzPaymentBatch from stzObject
 		return _n_
 
 	def _Head(pcPayerKey, pcPayer)
-		if @cId = ""
+		if @tId = ""
 			StzRaise("A batch needs an instructionId: one identifier for the whole batch.")
 		ok
 		if pcPayer = ""
@@ -835,7 +835,7 @@ class stzPaymentBatch from stzObject
 		if ring_len(@aItems) = 0
 			StzRaise("A batch needs at least one item.")
 		ok
-		_a_ = [ [ "instructionId", @cId ], [ pcPayerKey, pcPayer ], [ "confirmation", @nConfirm ] ]
+		_a_ = [ [ "instructionId", @tId ], [ pcPayerKey, pcPayer ], [ "confirmation", @nConfirm ] ]
 		if @cMotif != ""
 			_a_ + [ "motif", @cMotif ]
 		ok

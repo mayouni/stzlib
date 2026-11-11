@@ -1539,7 +1539,7 @@ class stzKnowledgeGraph from stzGraph
 	#   see        WriteToKnowFile, ImportKnow
 	#@ aka  PROVENANCE SURVIVES A SAVE (stzlib-security, HaroBase rung 1). A fact's source and confidence, and every contradiction the graph refused, used to be dropped here: the file kept the bare triples, so knowledge read back from disk no longer said where it came from -- and a STRICT graph could not even load its own export. Two sections now carry them:
 	def ExportToKnow()
-	    _cKnow_ = 'knowledge "' + @cId + '"' + char(10) + char(10)
+	    _cKnow_ = 'knowledge "' + @tId + '"' + char(10) + char(10)
 	    _cKnow_ += "facts" + char(10)
 	    _aFacts_ = This.Facts()
 	    _nFacts2Len_ = len(_aFacts_)

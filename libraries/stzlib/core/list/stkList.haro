@@ -1,0 +1,240 @@
+
+
+#~~~~~~~~~~~~~~~~~#
+#  STZ CORE LIST  #
+#~~~~~~~~~~~~~~~~~#
+
+class stzCoreList from stkList
+end
+class stkList from stkObject
+	@xContent = []
+
+	def init(pvList)
+		if not IsList(pvList)
+			return Raise( "ERR-"+ StkError(:IncorrectParamType) )
+		end
+
+		@xContent = pvList
+	end
+	#--
+
+	def Content
+		return @xContent
+	end
+	#--
+
+	def Size
+		return Len(@xContent)
+	end
+		def Count
+			return Len(@xContent)
+		end
+		def NumberOfItems
+			return Len(@xContent)
+		end
+	#--
+
+	def At(xN)
+		return @xContent[xN]
+	end
+		def ItemAt(xN)
+			return @xContent[xN]
+		end
+	#-- APPENDING
+
+	def Append(xItem)
+		@xContent + xItem
+	end
+		def Add(xItem)
+			@xContent + xItem
+		end
+	#-- FINDING
+
+	def FindFirst(xItem)
+		return ring_find(@xContent, xItem)
+	end
+	#--
+
+	def FindLast(xItem)
+		xN = ring_find( Reverse(@xContent), xItem )
+		nResult = Len(@xContent) - xN + 1
+
+		return nResult
+	end
+	#--
+
+	def Find(xItem)
+
+		viResult = []
+		nLen = Len(@xContent)
+
+		for i = 1 to nLen
+			if @xContent[i] = xItem
+				viResult + i
+			end
+		end
+
+		return viResult
+	end
+		def FindAll(xItem)
+			return this.Find(xItem)
+		end
+	#--
+
+	def FindNth(xN, xItem)
+
+		nResult = 0
+		nLen = Len(@xContent)
+		nTimes = 0
+
+		for i = 1 to nLen
+			if @xContent[i] = xItem
+				nTimes++
+				if nTimes = xN
+					nResult = i
+					exit
+				end
+			end
+		end
+
+		return nResult
+	end
+	#-- INSERTING
+
+	def InsertAt(xN, xItem)
+		ring_insert(@xContent, xN, xItem)
+	end
+	#-- REPLACING
+
+	def Replace(xItem1, xItem2)
+		viPos = this.FindAll(xItem1)
+		nLen = Len(viPos)
+
+		for i = 1 to nLen
+			@xContent[viPos[i]] = xItem2
+		end
+	end
+	def ReplaceSection(xN1, xN2, xItem)
+		if not (IsNumber(xN1) and IsNumber(xN2))
+			Raise( "ERR-" + StkError(:IncorrectParamType) )
+		end
+
+		if xN1 > xN2
+			nTemp = xN1
+			xN1 = xN2
+			xN2 = nTemp
+		end
+
+		aResult = []
+
+		for i = xN1 to xN2
+			@xContent[i] = xItem
+		end
+	end
+	#-- REMOVING
+
+	def RemoveAt(xN)
+		ring_remove(@xContent, xN)
+	end
+		def RemoveItemAt(xN)
+			ring_remove(@xContent, xN)
+		end
+		def RemoveNth(xN)
+			ring_remove(@xContent, xN)
+		end
+		def RemoveNthItem(xN)
+			ring_remove(@xContent, xN)
+		end
+	def Remove(xItem)
+		viPos = this.FindAll(xItem)
+		nLen = Len(viPos)
+
+		if nLen > 0
+			for i = nLen to 1 step -1
+				ring_remove(@xContent, viPos[i])
+			end
+		end
+	end
+		def RemoveItem(xItem)
+			this.Remove(xItem)
+		end
+	def RemoveSection(xN1, xN2)
+		if not (IsNumber(xN1) and IsNumber(xN2))
+			Raise( "ERR-" + StkError(:IncorrectParamType) )
+		end
+
+		if xN1 > xN2
+			nTemp = xN1
+			xN1 = xN2
+			xN2 = nTemp
+		end
+
+		aResult = []
+
+		for i = xN2 to xN1 step -1
+			ring_remove(@xContent, i)
+		end
+	end
+	#--
+
+	def Section(xN1, xN2)
+		if not (IsNumber(xN1) and IsNumber(xN2))
+			Raise( "ERR-" + StkError(:IncorrectParamType) )
+		end
+
+		if xN1 > xN2
+			nTemp = xN1
+			xN1 = xN2
+			xN2 = nTemp
+		end
+
+		aResult = []
+
+		for i = xN1 to xN2
+			aResult + @xContent[i]
+		end
+
+		return aResult
+	end
+	#--
+
+	def Contains(xItem)
+		if ring_find(@xContent, xItem) > 0
+			return true
+		else
+			return false
+		end
+	end
+	#==
+
+	def StartsWith(xItem)
+		if @xContent[1] = xItem
+			return true
+		else
+			return false
+		end
+	end
+	#--
+
+	def EndsWith(xItem)
+		if @xContent[ Len(@xContent) ] = xItem
+			return true
+		else
+			return false
+		end
+	end
+
+	#==
+
+	def Operator(xOp, xValue)
+		if xOp = "+"
+			@xContent + xValue
+
+		elseif xOp = "[]"
+			return @xContent[xValue]
+
+		else
+			Raise( 'ERR-' + StkError(:UnsupportedOperator) )
+		end
+	end
+end

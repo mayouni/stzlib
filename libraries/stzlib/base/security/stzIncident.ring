@@ -65,7 +65,7 @@ func StzIncidentFromCase(pcId, paCase, poLedger)
 #   see        stzSecuritySentinel, stzSecurityLedger, stzSecurityGraph
 class stzIncident from stzObject
 
-	@cId = ""
+	@tId = ""
 	@cRule = ""
 	@cWhere = ""
 	@cSeverity = "error"
@@ -85,7 +85,7 @@ class stzIncident from stzObject
 	#   returns    nothing; the object is built
 	#   see        FromCase, FromFinding
 	def init(pcId)
-		@cId = "" + pcId
+		@tId = "" + pcId
 		@nOpenedAt = StzEngineTimeWallMs()
 		@aNotes = []
 
@@ -150,7 +150,7 @@ class stzIncident from stzObject
 	#   see        Rule, Status
 	#@ aka  -- reading ------------------------------------------------------
 	def Id()
-		return @cId
+		return @tId
 
 	# Returns the name of the detection rule that fired.
 	#
@@ -356,7 +356,7 @@ class stzIncident from stzObject
 	#   see        Close, Notes
 	def Contain(pcNote)
 		if @cStatus != "open"
-			stzraise("stzIncident '" + @cId + "': only an OPEN incident can be contained (this one is " + @cStatus + ").")
+			stzraise("stzIncident '" + @tId + "': only an OPEN incident can be contained (this one is " + @cStatus + ").")
 		ok
 		@cStatus = "contained"
 		This._Note(pcNote)
@@ -372,7 +372,7 @@ class stzIncident from stzObject
 	#   see        Contain, Notes
 	def Close(pcNote)
 		if @cStatus = "closed"
-			stzraise("stzIncident '" + @cId + "': already closed. Reopening is a NEW incident referencing this one -- regressions are new commitments, deliberately.")
+			stzraise("stzIncident '" + @tId + "': already closed. Reopening is a NEW incident referencing this one -- regressions are new commitments, deliberately.")
 		ok
 		@cStatus = "closed"
 		This._Note(pcNote)
@@ -397,7 +397,7 @@ class stzIncident from stzObject
 		_cJ_ += (',"time":' + @nOpenedAt)
 		_cJ_ += (',"severity_id":' + This._OcsfSeverityId())
 		_cJ_ += (',"status":"' + @cStatus + '"')
-		_cJ_ += ',"finding":{"title":"' + This._Esc(@cRule) + '","uid":"' + This._Esc(@cId) + '"'
+		_cJ_ += ',"finding":{"title":"' + This._Esc(@cRule) + '","uid":"' + This._Esc(@tId) + '"'
 		_cJ_ += (',"desc":"' + This._Esc(@cMessage) + '"}')
 		_cJ_ += ',"metadata":{"product":{"name":"Softanza","vendor_name":"Softanza"},"version":"1.0.0"}'
 		_cJ_ += ',"unmapped":{'
@@ -442,7 +442,7 @@ class stzIncident from stzObject
 	#@ aka  -- the narrated account ----------------------------------------
 	def Explain()
 		_aL_ = []
-		_cH_ = "Incident " + @cId + " (" + @cSeverity + ", " + @cStatus + ") -- " + @cRule
+		_cH_ = "Incident " + @tId + " (" + @cSeverity + ", " + @cStatus + ") -- " + @cRule
 		if @cActor != ""
 			_cH_ += (" involving '" + @cActor + "'")
 		ok

@@ -1,0 +1,352 @@
+
+class stkMemory
+    @bIsValid = true
+    @aBuffers = []           # Hashlist format: [["buf1", oBuffer1], ["buf2", oBuffer2], ...]
+    @aPointers = []          # Hashlist format: [["ptr1", oPointer1], ["ptr2", oPointer2], ...]
+    @nNextBufferId = 1       # Unique ID generator
+    @nNextPointerId = 1      # Unique pointer ID generator
+    
+    def init
+        # Initialize container
+        @aBuffers = []
+        @aPointers = []
+        @nNextBufferId = 1
+        @nNextPointerId = 1
+        @bIsValid = true
+    end
+
+	def CreateBuffer(nSize)
+
+	    if nSize <= 0
+	        Raise("Buffer size must be positive")
+	    end
+	    
+	    tBufferId = "buf" + @nNextBufferId
+	    @nNextBufferId++
+	    
+	    oBuffer = new stkBuffer(this, tBufferId, nSize)
+#	    ? "DEBUG CreateBuffer: Created buffer with ID " + cBufferId + " and size " + oBuffer.Size()
+	    
+	    @aBuffers + [tBufferId, oBuffer]
+#	    ? "DEBUG CreateBuffer: Buffer stored in hashlist with size " + @aBuffers[cBufferId].Size()
+	    
+	    return true
+	end
+
+	def NumberOfBuffers
+		return Len(@aBuffers)
+	end
+	def CreatePointer(tBufferId, tAccessMode)
+
+		oBuffer = @aBuffers[tBufferId]
+		if IsNull(oBuffer)
+	        Raise("Invalid buffer ID (" + tBufferId + ")")
+	    end
+
+	    if not ( tAccessMode = "read" or tAccessMode = "write" )
+	        Raise("Access mode must be 'read' or 'write'")
+	    end
+
+	    if tAccessMode = "write" and oBuffer.HasWritePointer()
+	        Raise("Buffer already has a write pointer")
+	    end
+	    
+	    # Add the pointer to the @aPointers container
+
+	    tPointerId = "ptr" + @nNextPointerId
+	    @nNextPointerId++
+	    oPointer = new stkPointer(this, tBufferId, tAccessMode, 0, oBuffer.Capacity(), tPointerId)
+	    @aPointers + [ tPointerId, oPointer]
+
+	    return true
+	end
+
+    def CreatePointerView(tBufferId, tAccessMode, nOffset, nLength)
+
+	oBuffer = @aBuffers[tBufferId]
+	if IsNull(oBuffer)
+            Raise("Invalid buffer ID: " + tBufferId)
+        end
+        
+        # Validate view bounds
+        if nOffset < 0 or nLength <= 0
+            Raise("Invalid view bounds")
+        end
+        
+        if (nOffset + nLength) > oBuffer.Size()
+            Raise("View extends beyond buffer bounds")
+        end
+        
+        # Check write access restrictions
+        if tAccessMode = "write" and oBuffer.HasWritePointer()
+            Raise("Buffer already has a write pointer")
+        end
+        
+        # Create new stkPointer instance with view
+
+	tPointerId = "ptr" + @nNextPointerId
+        oPointer = new stkPointer(this, tBufferId, tAccessMode, nOffset, nLength, tPointerId)
+        
+        # Add to managed pointers
+        @aPointers + [ tPointerId, oPointer ]
+        
+        # Update buffer's write pointer status
+        if tAccessMode = "write"
+            oBuffer.ReleaseWritePointer()  # This will be called when pointer is destroyed
+        end
+        
+        # Increment ID for next pointer
+        @nNextPointerId++
+        
+        return true
+    end
+
+	def ReadFromBuffer(tBufferId, nOffset, nLength)
+
+	    oBuffer = @aBuffers[tBufferId]
+	    if IsNull(oBuffer)
+	        Raise("Buffer not found: " + tBufferId)
+	    end
+
+	    return oBuffer.Read(nOffset, nLength)
+	end
+
+    def GetBuffer(tBufferId)
+        oBuffer = @aBufferId[tBufferId]
+		if IsNull(oBuffer)
+			Raise("Invalid buffer ID: " + tBufferId)
+		end
+
+		return oBuffer
+    end
+
+	def DestroyBuffer(tBufferId)
+		oBuffer = @aBuffers[tBufferId]
+	    if IsNull(oBuffer)
+	        return false
+	    end
+	    
+	    # Invalidate all pointers to this buffer
+		nLenPtr = Len(@aPointers)
+
+	    for i = 1 to nLenPtr
+	        if @aPointers[i].BufferId() = tBufferId
+	            @aPointers[i].@bIsValid = false  # Direct access to invalidate
+	        end
+	    end
+	    
+	    # Remove buffer from hashlist
+	    Del(@aBuffers, this.FindBuffer(tBufferId))
+	    
+	    return true
+	end
+    def FindBuffer(tBufferId)
+		nLen = Len(@aBuffers)
+		for i = 1 to nLen
+			if @aBuffers[i][1] = tBufferId
+				return i
+			end
+		end
+
+		return 0
+    end
+    def DestroyPointer(tPointerId)
+		oPointer = @aPointers[tPointerId]
+        if IsNull(oPointer)
+			return false
+		end
+         
+        # If it is a write pointer, release the buffer's write lock
+        if oPointer.AccessMode() = "write"
+			oBuffers = @aBuffers[oPointer.BufferId()]
+            if not IsNull(oBuffer)
+                oBuffer.ReleaseWritePointer()
+            end
+        end
+        
+        # Remove pointer from list
+        Del(@aPointers, this.FindPointer(tPointerId))
+
+        return true
+    end
+    def FindPointer(tPointerId)
+		nLen = Len(@aPointers)
+		for i = 1 to nLen
+			if @aPointers[i][1] = tPointerId
+				return i
+			end
+		end
+
+		return 0
+    end
+    def ValidatePointer(tPointerId)
+		oPointer = @aPointers[tPointerId]
+        if IsNull(oPointer)
+            return false
+        end
+
+        # Check if referenced buffer still exists
+        return IsValidBufferId(oPointer.BufferId())
+    end
+
+	def BufferInfo(tBufferId)
+		oBuffer = @aBuffers[tBufferId]
+		if IsNull(oBuffer)
+			return []
+		end
+	    
+	    return [
+	        [:id, oBuffer.Id()],
+	        [:size, oBuffer.Size()],
+	        [:capacity, oBuffer.Capacity()],
+	        [:hasWritePointer, oBuffer.HasWritePointer()],
+	        [:isValid, oBuffer.IsValid()]
+	    ]
+	end
+    def PointerInfo(nPointerId)
+
+        # Find pointer in list
+
+	nLen = Len(@aPointers)
+
+        for i = 1 to nLen
+            oPointer = @aPointers[i]
+            if oPointer.PointerId() = nPointerId
+                return oPointer.Info()
+            end
+        end
+        
+        return ""
+    end
+
+	def Stats
+
+	    aStats = [
+	        [:totalBuffers, nLenBuf],
+	        [:totalPointers, nLenPtr],
+	        [:validPointers, 0],
+	        [:readPointers, 0],
+	        [:writePointers, 0],
+	        [:totalMemory, 0]
+	    ]
+
+		nLenBuf = Len(@aBuffers)
+		nLenPtr = Len(@aPointers)
+	    
+	    # Count valid pointers (unchanged)
+	    for i = 1 to nLenPtr
+	        oPointer = @aPointers[i]
+	        if oPointer.IsValid()
+	            aStats[:validPointers]++
+	            if oPointer.AccessMode() = "read"
+	                aStats[:readPointers]++
+	            else
+	                aStats[:writePointers]++
+	            end
+	        end
+	    end
+	    
+	    # Calculate total memory using hashlist
+	    for i = 1 to nLenBuf
+	        oBuffer = @aBuffers[i][2]  # Get buffer object from hashlist pair
+	        aStats[:totalMemory] += oBuffer.Size()
+	    end
+	    
+	    return aStats
+	end
+
+    def IsValid
+        return @bIsValid
+    end
+    def Show
+
+	nLenBuf = Len(@aBuffers)
+	nLenPtr = Len(@aPointers)
+
+  	  ? "stkMemory Container:"
+	    ? "  Valid: " + @bIsValid
+	    ? "  Buffers: " + nLenBuf
+	    ? "  Pointers: " + nLenPtr
+	    ? "  Next Buffer ID: " + @nNextBufferId
+	    ? "  Next Pointer ID: " + @nNextPointerId
+	    
+	    if nLenBuf > 0
+	        ? "  Buffer Details:"
+	        for i = 1 to nLenBuf
+	            tBufferId = @aBuffers[i][1]
+	            oBuffer = @aBuffers[i][2]
+	            ? "    ID:" + tBufferId + " Size:" + oBuffer.Size() + " WritePtr:" + oBuffer.HasWritePointer()
+	        end
+	    end
+        
+        if nLenPtr > 0
+            ? "  Pointer Details:"
+            for i = 1 to nLenPtr
+                oPointer = @aPointers[i]
+                ? "    ID:" + oPointer.PointerId() + " Buffer:" + oPointer.BufferId() + " Mode:" + oPointer.AccessMode() + " Valid:" + oPointer.IsValid()
+            end
+        end
+    end
+    def CleanupInvalidPointers
+
+        # Remove invalid pointers from array
+
+	nLenPtr = Len(@aPointers)
+        aValidPointers = []
+
+        for i = 1 to nLenPtr
+            if @aPointers[i].IsValid()
+                aValidPointers + @aPointers[i]
+            end
+        end
+
+        @aPointers = aValidPointers
+    end
+
+	def DestroyAllBuffers
+
+	    # Destroy all buffers (will invalidate all pointers)
+
+	    nLenBuf = Len(@aBuffers)
+
+	    for i = 1 to nLenBuff
+	        tBufferId = @aBuffers[i][1]
+	       this.DestroyBuffer(tBufferId)
+	    end
+
+	    @aBuffers = []
+	end
+
+    def DestroyAllPointers
+
+        # Destroy all pointers
+
+	nLenPtr = Len(@aPointers)
+
+        for i = 1 to nLenPtr
+            this.DestroyPointer(@aPointers[i].PointerId())
+        end
+
+        @aPointers = []
+    end
+    def Free
+        this.DestroyAllPointers()
+        this.DestroyAllBuffers()
+        @bIsValid = false
+    end
+    		def Destroy
+       		 this.Free()
+    		end
+	#----
+    
+	def IsValidBuffer(oBuffer)
+		if not (IsObject(oBuffer) and ClassName(oBuffer) = "stkbuffer")
+			return  0
+		end
+
+		return this.IsValidBufferId(oBuffer.Id())
+	end
+	def IsValidBufferId(tBufferId)
+	    return HasKey(@aBuffers[tBufferId]) #TODO #WARNING // HasKey() belongs to the base layer!
+end
+	end

@@ -3452,7 +3452,7 @@ func IsHybridList(paList) # Contains at least two different types
 
 	_nLen_ = len(paList)
 	if _nLen_ < 1
-		return _FALSE
+		return 0
 	ok
 
 	_bResult_ = 1
@@ -3489,7 +3489,7 @@ func IsPureList(paList) # Made of itmes of same type
 
 	_nLen_ = len(paList)
 	if _nLen_ < 1
-		return _FALSE
+		return 0
 	ok
 
 	_bResult_ = 1

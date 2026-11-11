@@ -1,0 +1,402 @@
+
+#~~~~~~~~~~~~~~~~~~~#
+#  STK CORE STRING  #
+#~~~~~~~~~~~~~~~~~~~#
+
+func StkReplaceCS(tStr, tSubStr, tNewSubStr, bCase)
+
+	if bCase
+		return ring_substr2(tStr, tSubStr, tNewSubStr)
+	end
+
+	tStrLow = Lower(tStr)
+	tSubStrLow = Lower(tSubStr)
+	tNewSubStrLow = Lower(tNewSubStr)
+
+	return ring_substr2(tStrLow, tSubStrLow, tNewSubStrLow)
+end
+func StkReplace(tStr, tSubStr, tNewSubStr)
+	return StkReplaceCS(tStr, tSubStr, tNewSubStr, true)
+end
+# Split function
+
+func StkSplitCS(tStr, tSubStr, bCase)
+	if tSubStr = "" return [tStr] end
+
+	tWork = tStr
+	tSep = tSubStr
+	if not bCase
+		tWork = Lower(tStr)
+		tSep = Lower(tSubStr)
+	end
+
+	vtResult = []
+	nSepLen = Len(tSep)
+	nPos = SubStr(tWork, tSep)
+
+	nStart = 1
+	while nPos > 0
+		vtResult + SubStr(tStr, nStart, nPos - nStart)
+		nStart = nPos + nSepLen
+		tWork = SubStr(tWork, nStart)
+		tStr = SubStr(tStr, nStart)
+		nStart = 1
+		nPos = SubStr(tWork, tSep)
+	end
+	vtResult + tStr
+	return vtResult
+end
+func StkSplit(tStr, tSubStr)
+	return StkSplitCS(tStr, tSubStr, false)
+end
+# Trim function
+
+func StkTrim(tStr)
+	return Trim(tStr)
+end
+
+class stkString from stzCoreString
+end
+class stzCoreString from stzCoreObject
+
+	@hEngine = ""
+
+	def init(xStr)
+		if not IsString(xStr)
+			return StkError(:IncorrectPramType)
+		end
+		@hEngine = StkEngineStringFrom(xStr)
+	end
+	#--
+
+	def Content
+		return StkEngineStringData(@hEngine)
+	end
+	def Update(tStr)
+		StkEngineStringFree(@hEngine)
+		@hEngine = StkEngineStringFrom(tStr)
+	end
+	#--
+
+	def Size
+		return StkEngineStringSize(@hEngine)
+	end
+		def Count
+			return this.Size()
+		end
+		def NumberOfChars
+			return this.Size()
+		end
+	#--
+
+	def At(xN)
+		tContent = this.Content()
+		if xN > 0 and xN <= Len(tContent)
+			return tContent[xN]
+		end
+		return ""
+	end
+		def CharAt(xN)
+			return this.At(xN)
+		end
+	#-- APPENDING
+
+	def Append(xSubstr)
+		if xSubstr != ""
+			StkEngineStringAppend(@hEngine, xSubstr)
+		end
+	end
+		def Add(xSubstr)
+			this.Append(xSubstr)
+		end
+	#-- FINDING
+
+	def FindFirstCS(xSubstr, bCase)
+		if xSubstr = ""
+			return 0
+		end
+		if bCase
+			nPos = StkEngineStringIndexOf(@hEngine, xSubstr)
+			if nPos >= 0 return nPos + 1 end
+			return 0
+		end
+		tContent = Lower(this.Content())
+		tNeedle = Lower(xSubstr)
+		nPos = SubStr(tContent, tNeedle)
+		return nPos
+	end
+	def FindFirst(xSubstr)
+		if xSubstr = ""
+			return 0
+		end
+		return this.FindFirstCS(xSubstr, true)
+	end
+	#--
+
+	def FindLastCS(tSub, bCase)
+		if tSub = ""
+			return 0
+		end
+		tContent = this.Content()
+		tNeedle = tSub
+		if not bCase
+			tContent = Lower(tContent)
+			tNeedle = Lower(tSub)
+		end
+		nResult = 0
+		nOffset = 0
+		tWork = tContent
+		nPos = SubStr(tWork, tNeedle)
+		while nPos > 0
+			nResult = nOffset + nPos
+			tWork = SubStr(tWork, nPos + 1)
+			nOffset = nResult
+			nPos = SubStr(tWork, tNeedle)
+		end
+		return nResult
+	end
+	def FindLast(xSubstr)
+		if xSubstr = ""
+			return 0
+		end
+		return this.FindLastCS(xSubstr, true)
+	end
+	#--
+
+	def FindCS(tSub, bCase)
+		if tSub = ""
+			return [0]
+		end
+
+		tContent = this.Content()
+		tNeedle = tSub
+		if not bCase
+			tContent = Lower(tContent)
+			tNeedle = Lower(tSub)
+		end
+
+		nSize = Len(tNeedle)
+		viResult = []
+		nOffset = 0
+		tWork = tContent
+		nPos = SubStr(tWork, tNeedle)
+		while nPos > 0
+			viResult + (nOffset + nPos)
+			tWork = SubStr(tWork, nPos + nSize)
+			nOffset += (nPos + nSize - 1)
+			nPos = SubStr(tWork, tNeedle)
+		end
+		return viResult
+	end
+		def FindAllCS(xSubstr, bCase)
+			return this.FindCS(xSubstr, bCase)
+		end
+	def Find(xSubstr)
+		return this.FindCS(xSubstr, true)
+	end
+		def FindAll(xSubstr)
+			return this.Find(xSubstr)
+		end
+	#--
+
+	def FindNthCS(xN, xSubstr, bCase)
+		if xN < 0 or xSubstr = ""
+			return 0
+		end
+		viAll = this.FindCS(xSubstr, bCase)
+		if xN <= Len(viAll) return viAll[xN] end
+		return 0
+	end
+	def FindNth(xN, xSubstr)
+		return this.FindNthCS(xN, xSubstr, true)
+	end
+	#-- INSERTING
+
+	def InsertAt(xN, xSubstr)
+		if xN > 0 and xSubstr != ""
+			tContent = this.Content()
+			tNew = Left(tContent, xN-1) + xSubstr + SubStr(tContent, xN)
+			this.Update(tNew)
+		end
+	end
+	#== REPLACING
+
+	def ReplaceCS(xSubstr1, xSubstr2, bCase)
+		tResult = StkReplaceCS(this.Content(), xSubstr1, xSubstr2, bCase)
+		this.Update(tResult)
+	end
+	def Replace(xSubstr1, xSubstr2)
+		this.ReplaceCS(xSubstr1, xSubstr2, true)
+	end
+	#--
+
+	def ReplaceSection(xN1, xN2, xSubstr)
+		if xN1 > 0 and xN2 >= xN1 and xSubstr != ""
+			tContent = this.Content()
+			tNew = Left(tContent, xN1 - 1) + xSubstr + SubStr(tContent, xN2 + 1)
+			this.Update(tNew)
+		end
+	end
+	#== REMOVING
+
+	def RemoveCS(xSubstr, bCase)
+		this.ReplaceCS(xSubstr, "", bCase)
+	end
+	def Remove(xSubstr)
+		this.Replace(xSubstr, "")
+	end
+	#--
+
+	def RemoveSection(xN1, xN2)
+		if xN1 > 0 and xN2 >= xN1
+			tContent = this.Content()
+			tNew = Left(tContent, xN1 - 1) + SubStr(tContent, xN2 + 1)
+			this.Update(tNew)
+		end
+	end
+	#== SPLITTING
+
+	def SplitCS(tSubStr, bCase)
+		vtResult = StkSplitCS(this.Content(), tSubStr, bCase)
+		return vtResult
+	end
+	def Split(xSubstr)
+		return this.SplitCS(xSubstr, true)
+	end
+	#--
+
+	def Section(xN1, xN2)
+		if xN1 > 0 and xN2 >= xN1
+			tContent = this.Content()
+			return SubStr(tContent, xN1, xN2 - xN1 + 1)
+		else
+			Raise( 'ERR-' + StkError(:IncorrectParamType) )
+		end
+	end
+	#--
+
+	def ContainsCS(xSubstr, bCase)
+		if xSubstr = ""
+			return false
+		end
+		if bCase
+			return StkEngineStringContains(@hEngine, xSubstr) = 1
+		end
+		return SubStr(Lower(this.Content()), Lower(xSubstr)) > 0
+	end
+	def Contains(xSubstr)
+		if xSubstr = ""
+			return 0
+		end
+		return this.ContainsCS(xSubstr, true)
+	end
+	#==
+
+	def StartsWithCS(xSubstr, bCase)
+		if xSubstr = ""
+			return false
+		end
+		if bCase
+			return Left(this.Content(), Len(xSubstr)) = xSubstr
+		end
+		return Left(Lower(this.Content()), Len(xSubstr)) = Lower(xSubstr)
+	end
+	def StartsWith(xSubstr)
+		if xSubstr = ""
+			return 0
+		end
+		return this.StartsWithCS(xSubstr, true)
+	end
+	#--
+
+	def EndsWithCS(xSubstr, bCase)
+		if xSubstr = ""
+			return false
+		end
+		if bCase
+			return Right(this.Content(), Len(xSubstr)) = xSubstr
+		end
+		return Right(Lower(this.Content()), Len(xSubstr)) = Lower(xSubstr)
+	end
+	def EndsWith(xSubstr)
+		if xSubstr = ""
+			return 0
+		end
+		return this.EndsWithCS(xSubstr, true)
+	end
+	#--
+
+	def Simplify
+		if this.Content() != ""
+			tContent = this.Content()
+			while SubStr(tContent, "  ") > 0
+				tContent = ring_substr2(tContent, "  ", " ")
+			end
+			this.Update(StkTrim(tContent))
+		end
+	end
+	#==
+
+	def UnicodeAt(xN)
+		tContent = this.Content()
+		if tContent = ""
+			Raise( "Can't proceed! Because the string is empty." )
+		end
+		if xN <= 0
+			Raise( 'ERR-' + StkError(:IncorrectParamType) )
+		end
+		tChar = this.CharAt(xN)
+		return StkEngineCharUnicode(tChar)
+	end
+		def UnicodeOfCharAt(xN)
+			return this.UnicodeAt(xN)
+		end
+	def Unicode
+		nLen = this.Size()
+		if nLen = 0
+			Raise( "Can't proceed! Because the string is empty." )
+		end
+		if nLen = 1
+			return this.UnicodeAt(1)
+		else
+			return this.Unicodes()
+		end
+	end
+	def Unicodes
+		nLen = this.Size()
+		if nLen = 0
+			Raise( "Can't proceed! Because the string is empty." )
+		end
+		viResult = []
+		for i = 1 to nLen
+			viResult + this.UnicodeAt(i)
+		end
+		return viResult
+	end
+	def Chars
+		nLen = this.Size()
+		if nLen = 0
+			Raise( "Can't proceed! Because the string is empty." )
+		end
+		vtResult = []
+		for i = 1 to nLen
+			vtResult + this.CharAt(i)
+		end
+		return vtResult
+	end
+	#==
+
+	def Operator(xOp, xValue)
+		if xOp = "+"
+			if xValue != ""
+				this.Append(xValue)
+			end
+
+		elseif xOp = "[]"
+			return this.At(xValue)
+
+		else
+			Raise( 'ERR-' + StkError(:UnsupportedOperator) )
+		end
+	end
+end

@@ -1834,8 +1834,8 @@ func _StzLastPos(pcStr, pcCh)
 # STZ_ENGINE_DIR names an engine copy outside the tree (found by stzlib-docs
 # 2026-11-05: StzSelfDoc, stzSemanticResolver and stzEmulator read <copy>/../base)
 func _StzBaseDir()
-	if isglobal("$cStzLibDir") and $cStzLibDir != ""
-		return $cStzLibDir + "/base"
+	if isglobal("$tStzLibDir") and $tStzLibDir != ""
+		return $tStzLibDir + "/base"
 	ok
 	_cE_ = $tEngineDir
 	if NOT isString(_cE_) or _cE_ = "" return "" ok

@@ -9,7 +9,7 @@ ok
 
 # Loding the files related to the CORE layer
 
-    load "../core/stzCore.ring" 
+    load "../core/stzCore.haro" 
 
 # Loading files related tp the COMMON module
 

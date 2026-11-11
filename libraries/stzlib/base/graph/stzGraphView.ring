@@ -58,7 +58,7 @@ class stzGraphView from stzGraph
 		@oParentGraph = ref(oParent)
 		@acIncludedNodes = acNodes
 		
-		@cId = "view_" + UUID()
+		@tId = "view_" + UUID()
 		@cGraphType = @oParentGraph.GraphType()
 		
 		@aNodes = This._FilteredNodes()
