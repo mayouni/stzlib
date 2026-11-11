@@ -88,7 +88,7 @@ func StzModelsDir()
 	if isglobal("$cStzLibDir") and isString($cStzLibDir) and $cStzLibDir != ""
 		return $cStzLibDir + "/models"
 	ok
-	_e_ = $tEngineDir
+	_e_ = $cEngineDir
 	if isString(_e_) and len(_e_) >= 7 and right(_e_, 7) = "/engine"
 		return left(_e_, len(_e_) - 7) + "/models"
 	ok
@@ -543,7 +543,12 @@ func StzChatPrompt(pcSystem, pcUser)
 		# a reasoning model in ChatML (Granite 4.2): its own template's thinking-off form is an empty block
 		_cTail_ = "<think></think>"
 	ok
-	return "<|im_start|>system" + char(10) + pcSystem + "<|im_end|>" + char(10) +
+	# LFM3's turns open with its BOS, which its tokenizer does not add (add_bos_token false) and its turns begin with
+	_cHead_ = ""
+	if _cArch_ = "lfm3" and StzChatHasToken("<|startoftext|>") = 1
+		_cHead_ = "<|startoftext|>"
+	ok
+	return _cHead_ + "<|im_start|>system" + char(10) + pcSystem + "<|im_end|>" + char(10) +
 		"<|im_start|>user" + char(10) + StzChatSafeText(pcUser) + "<|im_end|>" + char(10) +
 		"<|im_start|>assistant" + char(10) + _cTail_
 

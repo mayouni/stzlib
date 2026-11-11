@@ -14,6 +14,7 @@ const std = @import("std");
 const embed = @import("neural_embed.zig");
 const gr = @import("gguf_read.zig"); // SECURITY-MODELDATA-01b: every metadata read checks its type first
 const gm = @import("gbnf_machine.zig");
+const clip = @import("clip_text.zig"); // its Unicode classes (utf8proc), for the LLAMA3 pre-tokenizer
 const c = @cImport({
     @cInclude("ggml.h");
     @cInclude("ggml-cpu.h");
@@ -143,6 +144,8 @@ fn getTOpt(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, b: []u8
 pub export fn neural_model_has_generator() callconv(.c) c_int {
     if (gguf() == null or mctx() == null) return 0;
     const arch = archName();
+    // LFM3 mixes convolution and attention layers: its own contract decides (l3Read)
+    if (std.mem.eql(u8, arch, "lfm3")) return if (l3Ok(mctx())) 1 else 0;
     const known = std.mem.eql(u8, arch, "llama") or std.mem.eql(u8, arch, "qwen2") or
         std.mem.eql(u8, arch, "qwen3") or std.mem.eql(u8, arch, "smollm") or
         std.mem.eql(u8, arch, "granite") or std.mem.eql(u8, arch, "gemma4");
@@ -266,6 +269,9 @@ fn buildBpe() bool {
     g_bos = kvI32("tokenizer.ggml.bos_token_id", -1);
     g_eos = kvI32("tokenizer.ggml.eos_token_id", -1);
     g_add_bos = kvBool("tokenizer.ggml.add_bos_token", false);
+    // llama.cpp b12283 cuts an "lfm2" tokenizer's text by the LLAMA3 pattern; whether a BOS opens it is the file's
+    // own add_bos_token (llama.cpp reads it after the pre-type's default, so the file's value stands)
+    g_pre_llama3 = if (kvStr("tokenizer.ggml.pre")) |pre| std.mem.eql(u8, std.mem.span(pre), "lfm2") else false;
     if (g_eos >= 0) g_eog.append(gpa, g_eos) catch {};
     // ChatML end marker doubles as end-of-generation when present
     if (g_tok_map.get("<|im_end|>")) |id| {
@@ -409,7 +415,7 @@ fn encode(text: []const u8, out: *std.ArrayList(i32)) void {
 }
 
 fn segment(text: []const u8, out: *std.ArrayList(i32)) void {
-    if (g_spm) spmSegment(text, out) else bpeSegment(text, out);
+    if (g_spm) spmSegment(text, out) else if (g_pre_llama3) llama3Segment(text, out) else bpeSegment(text, out);
 }
 
 // Decode ids -> bytes (reverse byte-unicode mapping; control tokens skipped).
@@ -497,6 +503,7 @@ fn resetKv() void {
     g_kv_shape = .{ 0, 0 };
     g_n_past = 0;
     g_kv_ids.clearRetainingCapacity();
+    resetConv();
 }
 
 /// The cache holds `need` tokens of n_layer layers x n_kv heads x hd: allocated, or grown by doubling with the valid part copied
@@ -850,6 +857,7 @@ fn forwardDecode(ids: []const i32) bool {
 // forwardDecode with the input rows given (n_embd floats per id) instead of looked up: the embedding entry
 fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
     if (isGemma4()) return if (embd == null) forwardGemma4(ids) else false; // GEMMA4-01: its own graph, text rows only
+    if (isLfm3()) return if (embd == null) forwardLfm3(ids) else false; // LFM3: its own graph, text rows only
     const m = mctx() orelse return false;
     const n_new = ids.len;
     if (n_new == 0) return false;
@@ -1853,6 +1861,11 @@ const GenSlot = struct {
     kv_shape: [2]usize = .{ 0, 0 },
     n_past: usize = 0,
     kv_ids: std.ArrayList(i32) = .{},
+    cvctx: ?*c.ggml_context = null,
+    cv: std.ArrayList(*c.ggml_tensor) = .{},
+    cv_cap: usize = 0,
+    cv_shape: [2]usize = .{ 0, 0 },
+    pre_llama3: bool = false,
     logits: std.ArrayList(f32) = .{},
     bpe_built: bool = false,
     bpe_gen: usize = 0,
@@ -1878,6 +1891,11 @@ fn swapGen(s: *GenSlot) void {
     std.mem.swap([2]usize, &g_kv_shape, &s.kv_shape);
     std.mem.swap(usize, &g_n_past, &s.n_past);
     std.mem.swap(std.ArrayList(i32), &g_kv_ids, &s.kv_ids);
+    std.mem.swap(?*c.ggml_context, &g_cvctx, &s.cvctx);
+    std.mem.swap(std.ArrayList(*c.ggml_tensor), &g_cv, &s.cv);
+    std.mem.swap(usize, &g_cv_cap, &s.cv_cap);
+    std.mem.swap([2]usize, &g_cv_shape, &s.cv_shape);
+    std.mem.swap(bool, &g_pre_llama3, &s.pre_llama3);
     std.mem.swap(std.ArrayList(f32), &g_logits, &s.logits);
     std.mem.swap(bool, &g_bpe_built, &s.bpe_built);
     std.mem.swap(usize, &g_bpe_gen, &s.bpe_gen);
@@ -2247,6 +2265,7 @@ pub export fn neural_gen_prefix_save(path: [*c]const u8, n_c: c_int) callconv(.c
     if (path == null) return 0;
     const hex = embed.modelHex() orelse return 0;
     if (g_kvctx == null or g_n_past == 0 or g_kv_ids.items.len < g_n_past) return 0;
+    if (g_cv.items.len > 0) return 0; // a convolution's state is not in the file format (LFM3): in-memory reuse only
     const n: usize = if (n_c <= 0) g_n_past else @min(@as(usize, @intCast(n_c)), g_n_past);
     for (g_kv_ids.items[0..n]) |t| if (t < 0) return 0; // picture rows have no token to key them by
     const layers = g_kt.items.len;
@@ -2282,6 +2301,9 @@ pub export fn neural_gen_prefix_load(path: [*c]const u8) callconv(.c) c_int {
     if (path == null) return 0;
     if (neural_model_has_generator() == 0 or !buildBpe()) return 0;
     const hex = embed.modelHex() orelse return 0;
+    g_prefix_status = PX_OTHER_SHAPE;
+    if (isLfm3()) return 0; // its convolution state is not in the file format
+    g_prefix_status = PX_UNREADABLE;
     const shape = modelKvShape() orelse return 0;
     const bytes = std.fs.cwd().readFileAlloc(gpa, std.mem.span(@as([*:0]const u8, @ptrCast(path))), 1 << 32) catch return 0;
     defer gpa.free(bytes);
@@ -2707,6 +2729,477 @@ fn readLogits(logits: *c.ggml_tensor) bool {
     for (0..n_vocab_t) |i| g_logits.appendAssumeCapacity(ld[i]);
     g_phase[5] = msSince(tp);
     return true;
+}
+
+// ---- the LLAMA3 pre-tokenizer (tokenizer.ggml.pre = "lfm2"; RADAR-LFM3-FAMILY-01, 2026-11-11) -----------------------
+//
+// LFM3's tokenizer is byte-level BPE, as GPT-2's, but its text is cut into pieces by the LLAMA3 pattern, which
+// llama.cpp b12283 maps "lfm2" to (with ignore_merges and BOS forced on): Unicode letters, not ASCII only; digits in
+// threes; contractions; and its own whitespace rules. bpeSegment approximates GPT-2's cut and stays the cut of the
+// families already guarded; this one is exact, alternative by alternative, in the pattern's order:
+//   (?:'[sS]|'[tT]|'[rR][eE]|'[vV][eE]|'[mM]|'[lL][lL]|'[dD])|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}|
+//    ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+
+// A piece the vocabulary holds whole is that token (ignore_merges); any other goes through the merges.
+
+var g_pre_llama3: bool = false;
+
+fn l3Nl(cp: u21) bool {
+    return cp == '\r' or cp == '\n';
+}
+
+// the length in bytes of the piece the pattern matches at text[i..]
+fn llama3PieceLen(t: []const u8, i: usize) usize {
+    const c0 = clip.cpAt(t, i);
+    const cp = c0.cp;
+    // 1: a contraction
+    if (cp == '\'' and i + 1 < t.len) {
+        const a = std.ascii.toLower(t[i + 1]);
+        if (a == 's' or a == 't' or a == 'm' or a == 'd') return 2;
+        if (i + 2 < t.len) {
+            const b = std.ascii.toLower(t[i + 2]);
+            if ((a == 'r' and b == 'e') or (a == 'v' and b == 'e') or (a == 'l' and b == 'l')) return 3;
+        }
+    }
+    // 2: [^\r\n\p{L}\p{N}]? \p{L}+
+    {
+        var j = i;
+        if (!clip.isLetterCp(cp) and !clip.isNumberCp(cp) and !l3Nl(cp) and i + c0.len < t.len and clip.isLetterCp(clip.cpAt(t, i + c0.len).cp)) j = i + c0.len;
+        if (clip.isLetterCp(clip.cpAt(t, j).cp)) {
+            while (j < t.len and clip.isLetterCp(clip.cpAt(t, j).cp)) j += clip.cpAt(t, j).len;
+            return j - i;
+        }
+    }
+    // 3: \p{N}{1,3}
+    if (clip.isNumberCp(cp)) {
+        var j = i;
+        var k: usize = 0;
+        while (j < t.len and k < 3 and clip.isNumberCp(clip.cpAt(t, j).cp)) : (k += 1) j += clip.cpAt(t, j).len;
+        return j - i;
+    }
+    // 4: ' '? [^\s\p{L}\p{N}]+ [\r\n]*
+    {
+        var j = i;
+        if (cp == ' ') j += 1;
+        const st = j;
+        while (j < t.len) {
+            const x = clip.cpAt(t, j);
+            if (clip.isSpaceCp(x.cp) or clip.isLetterCp(x.cp) or clip.isNumberCp(x.cp)) break;
+            j += x.len;
+        }
+        if (j > st) {
+            while (j < t.len and (t[j] == '\r' or t[j] == '\n')) j += 1;
+            return j - i;
+        }
+    }
+    if (clip.isSpaceCp(cp)) {
+        // the whitespace run, and where its last newline ends
+        var w = i;
+        var last_nl: usize = 0;
+        var last_len: usize = 0;
+        while (w < t.len) {
+            const x = clip.cpAt(t, w);
+            if (!clip.isSpaceCp(x.cp)) break;
+            if (l3Nl(x.cp)) last_nl = w + x.len;
+            last_len = x.len;
+            w += x.len;
+        }
+        // 5: \s*[\r\n]+ -- up to the run's last newline
+        if (last_nl > i) return last_nl - i;
+        // 6: \s+(?!\S) -- all of it at the end of the text, else all but its last character
+        if (w == t.len) return w - i;
+        if (w - i > last_len) return w - i - last_len;
+        // 7: \s+
+        return w - i;
+    }
+    // anything else (an unpaired byte): one codepoint
+    return c0.len;
+}
+
+fn llama3Segment(text: []const u8, out: *std.ArrayList(i32)) void {
+    var mapped: std.ArrayList(u8) = .{};
+    defer mapped.clearAndFree(gpa);
+    var i: usize = 0;
+    while (i < text.len) {
+        const n = @max(1, llama3PieceLen(text, i));
+        const piece = text[i..@min(text.len, i + n)];
+        i += n;
+        // ignore_merges: a piece the vocabulary holds whole is that one token
+        mapped.clearRetainingCapacity();
+        for (piece) |b| {
+            var ub: [4]u8 = undefined;
+            const un = std.unicode.utf8Encode(g_b2u[b], &ub) catch continue;
+            mapped.appendSlice(gpa, ub[0..un]) catch return;
+        }
+        if (g_tok_map.get(mapped.items)) |id| {
+            out.append(gpa, id) catch {};
+            continue;
+        }
+        bpeWord(piece, out);
+    }
+}
+
+// ---- the LFM3 decoder (general.architecture = "lfm3"; RADAR-LFM3-FAMILY-01, 2026-11-11) ---------------------------
+//
+// Liquid AI's LFM3, wired as llama.cpp b12283 wires it (src/models/lfm3.cpp and lfm-base.cpp, read line by line):
+//   - layers of two kinds, by the file's per-layer head_count_kv: 0 is a SHORT CONVOLUTION, more is ATTENTION
+//     (sliding or global by the file's pattern);
+//   - a convolution layer: in_proj gives b, c and x; b*x goes through a causal convolution of width l_cache (7) per
+//     channel; c times that; out_proj. Its state is the last l_cache-1 values of b*x, so the engine KEEPS b*x for every
+//     position, in a cache shaped as the attention's (g_cv, one [cap, n_embd] tensor a layer, l_cache-1 zero rows
+//     first): reuse of a prefix, a rollback and a drafter's cut work on it exactly as on K and V;
+//   - an attention layer: Q and K RMS-normed per head with weights, V not; NEOX rope over the whole head, the global
+//     layers with the file's frequency factors (half the head turns); scale 1/sqrt(head); every head's output scaled by
+//     sigmoid(attn_gate x) -- the gate reads the block's normed input;
+//   - norms after each block when the file has them (both or neither); a SiLU-gated feed-forward; no logit cap; the
+//     token rows not scaled. A decision model (attention.causal = false) is the other graph: refused here.
+// THE CONTRACT, before ggml sees a tensor, as for Gemma 4: every tensor present and shaped to the file's own sizes.
+
+const L3 = struct {
+    n_layer: usize,
+    d: usize,
+    h: usize,
+    kv: usize,
+    hd: usize,
+    f: usize,
+    dconv: usize, // l_cache - 1
+    window: usize,
+    base_g: f32,
+    base_s: f32,
+    eps: f32,
+    n_ctx_train: c_int,
+    rows: i64,
+    n_attn: usize,
+    n_conv: usize,
+    post: bool,
+    attn: [256]bool,
+    swa: [256]bool,
+    idx: [256]usize, // the layer's slot in its kind's cache
+};
+
+var g_l3_gen: usize = std.math.maxInt(usize);
+var g_l3_ok: bool = false;
+var g_l3: L3 = undefined;
+
+fn isLfm3() bool {
+    return std.mem.eql(u8, archName(), "lfm3");
+}
+
+fn l3Key(suffix: []const u8, buf: *[96]u8) ?[*:0]const u8 {
+    const k = std.fmt.bufPrintZ(buf, "{s}{s}", .{ archName(), suffix }) catch return null;
+    return k.ptr;
+}
+
+fn l3Read(m: ?*c.ggml_context) ?L3 {
+    const ctx = gguf() orelse return null;
+    var d: L3 = undefined;
+    var kb: [96]u8 = undefined;
+    const L = kvArchInt(".block_count", 0);
+    if (L < 2 or L > 256) return null;
+    d.n_layer = @intCast(L);
+    d.d = @intCast(@max(0, kvArchInt(".embedding_length", 0)));
+    d.h = @intCast(@max(0, kvArchInt(".attention.head_count", 0)));
+    d.hd = @intCast(@max(0, kvArchInt(".attention.key_length", 0)));
+    d.f = @intCast(@max(0, kvArchInt(".feed_forward_length", 0)));
+    const lc = kvArchInt(".shortconv.l_cache", 0);
+    if (lc < 2 or lc > 64) return null;
+    d.dconv = @intCast(lc - 1);
+    d.window = @intCast(@max(0, kvArchInt(".attention.sliding_window", 0)));
+    if (d.d == 0 or d.h == 0 or d.hd == 0 or d.f == 0 or d.window == 0) return null;
+    if (d.d > 1 << 16 or d.f > 1 << 18 or d.hd > 4096 or d.h > 1024) return null;
+    if (kvArchInt(".attention.value_length", @intCast(d.hd)) != d.hd) return null;
+    if (kvArchInt(".rope.dimension_count", @intCast(d.hd)) != d.hd) return null;
+    // the decision variant (non-causal attention) is another graph
+    if (gr.find(ctx, l3Key(".attention.causal", &kb) orelse return null) >= 0 and !gr.boolOr(ctx, l3Key(".attention.causal", &kb).?, true)) return null;
+    d.base_g = kvArchF32(".rope.freq_base", 10000.0);
+    d.base_s = kvArchF32(".rope.freq_base_swa", 10000.0);
+    d.eps = kvArchF32(".attention.layer_norm_rms_epsilon", 1e-5);
+    if (!(d.eps >= 0) or !(d.base_g > 0) or !(d.base_s > 0)) return null;
+    d.n_ctx_train = @intCast(std.math.clamp(kvArchInt(".context_length", 2048), 1, 1 << 24));
+    // the per-layer kv heads (0: a convolution) and the sliding pattern
+    const kid = gr.find(ctx, l3Key(".attention.head_count_kv", &kb) orelse return null);
+    var kvs: [256]i64 = undefined;
+    if (gr.arrOf(u32, ctx, kid)) |a| {
+        if (a.len != d.n_layer) return null;
+        for (a, 0..) |x, i| kvs[i] = x;
+    } else if (gr.arrOf(i32, ctx, kid)) |a| {
+        if (a.len != d.n_layer) return null;
+        for (a, 0..) |x, i| kvs[i] = x;
+    } else return null;
+    const pat = gr.arrBool(ctx, gr.find(ctx, l3Key(".attention.sliding_window_pattern", &kb) orelse return null)) orelse return null;
+    if (pat.len != d.n_layer) return null;
+    d.kv = 0;
+    d.n_attn = 0;
+    d.n_conv = 0;
+    for (0..d.n_layer) |i| {
+        d.swa[i] = pat[i] != 0;
+        if (kvs[i] < 0) return null;
+        d.attn[i] = kvs[i] > 0;
+        if (d.attn[i]) {
+            if (d.kv == 0) d.kv = @intCast(kvs[i]) else if (kvs[i] != d.kv) return null;
+            d.idx[i] = d.n_attn;
+            d.n_attn += 1;
+        } else {
+            if (d.swa[i]) return null;
+            d.idx[i] = d.n_conv;
+            d.n_conv += 1;
+        }
+    }
+    if (d.n_attn == 0 or d.kv == 0 or d.h % d.kv != 0) return null;
+
+    const D = d.d;
+    var nb: [96]u8 = undefined;
+    const te = getTOpt(m, "token_embd.weight", .{}, &nb) orelse return null;
+    if (te.*.ne[0] != D or te.*.ne[1] < 1 or te.*.ne[2] != 1) return null;
+    d.rows = te.*.ne[1];
+    const V: usize = @intCast(d.rows);
+    if (getTOpt(m, "output.weight", .{}, &nb) != null and !g4Mat(m, "output.weight", .{}, D, V)) return null;
+    if (!g4Vec(m, "output_norm.weight", .{}, D)) return null;
+    d.post = getTOpt(m, "blk.0.post_attention_norm.weight", .{}, &nb) != null;
+    for (0..d.n_layer) |il| {
+        if (!g4Vec(m, "blk.{d}.attn_norm.weight", .{il}, D) or !g4Vec(m, "blk.{d}.ffn_norm.weight", .{il}, D)) return null;
+        if (d.post) {
+            if (!g4Vec(m, "blk.{d}.post_attention_norm.weight", .{il}, D) or !g4Vec(m, "blk.{d}.post_ffw_norm.weight", .{il}, D)) return null;
+        } else if (getTOpt(m, "blk.{d}.post_attention_norm.weight", .{il}, &nb) != null or getTOpt(m, "blk.{d}.post_ffw_norm.weight", .{il}, &nb) != null) return null;
+        if (!g4Mat(m, "blk.{d}.ffn_gate.weight", .{il}, D, d.f) or !g4Mat(m, "blk.{d}.ffn_up.weight", .{il}, D, d.f)) return null;
+        if (!g4Mat(m, "blk.{d}.ffn_down.weight", .{il}, d.f, D)) return null;
+        if (d.attn[il]) {
+            if (!g4Mat(m, "blk.{d}.attn_q.weight", .{il}, D, d.h * d.hd) or !g4Mat(m, "blk.{d}.attn_k.weight", .{il}, D, d.kv * d.hd)) return null;
+            if (!g4Mat(m, "blk.{d}.attn_v.weight", .{il}, D, d.kv * d.hd) or !g4Mat(m, "blk.{d}.attn_output.weight", .{il}, d.h * d.hd, D)) return null;
+            if (!g4Vec(m, "blk.{d}.attn_q_norm.weight", .{il}, d.hd) or !g4Vec(m, "blk.{d}.attn_k_norm.weight", .{il}, d.hd)) return null;
+            if (!g4Mat(m, "blk.{d}.attn_gate.weight", .{il}, D, d.h)) return null;
+            if (!d.swa[il] and !g4Vec(m, "rope_freqs.weight", .{}, d.hd / 2)) return null;
+        } else {
+            const cw = getTOpt(m, "blk.{d}.shortconv.conv.weight", .{il}, &nb) orelse return null;
+            if (cw.*.type != c.GGML_TYPE_F32 or cw.*.ne[0] != d.dconv + 1 or cw.*.ne[1] != D or cw.*.ne[2] != 1) return null;
+            if (!g4Mat(m, "blk.{d}.shortconv.in_proj.weight", .{il}, D, 3 * D) or !g4Mat(m, "blk.{d}.shortconv.out_proj.weight", .{il}, D, D)) return null;
+        }
+    }
+    return d;
+}
+
+fn l3Ok(m: ?*c.ggml_context) bool {
+    if (g_l3_gen != embed.model_generation) {
+        g_l3_gen = embed.model_generation;
+        if (l3Read(m)) |d| {
+            g_l3 = d;
+            g_l3_ok = true;
+        } else g_l3_ok = false;
+    }
+    return g_l3_ok;
+}
+
+// the convolution cache: one [cap, n_embd] tensor a convolution layer, its first dconv rows always zero
+var g_cvctx: ?*c.ggml_context = null;
+var g_cv: std.ArrayList(*c.ggml_tensor) = .{};
+var g_cv_cap: usize = 0;
+var g_cv_shape: [2]usize = .{ 0, 0 }; // n_embd, dconv
+
+fn resetConv() void {
+    if (g_cvctx) |k| c.ggml_free(k);
+    g_cvctx = null;
+    g_cv.clearAndFree(gpa);
+    g_cv_cap = 0;
+    g_cv_shape = .{ 0, 0 };
+}
+
+fn ensureConv(n_conv: usize, d: usize, dconv: usize, need: usize) bool {
+    if (g_cv.items.len == n_conv and g_cv_shape[0] == d and g_cv_shape[1] == dconv and g_cv_cap >= need) return true;
+    if (g_cv.items.len != 0 and (g_cv.items.len != n_conv or g_cv_shape[0] != d or g_cv_shape[1] != dconv)) resetConv();
+    var cap: usize = if (g_cv_cap == 0) 256 else g_cv_cap;
+    while (cap < need) cap *= 2;
+    const bytes = n_conv * (cap * d * 4 + c.ggml_tensor_overhead() + 128) + 65536;
+    const nctx = c.ggml_init(.{ .mem_size = bytes, .mem_buffer = null, .no_alloc = false }) orelse return false;
+    @memset(@as([*]u8, @ptrCast(c.ggml_get_mem_buffer(nctx).?))[0..c.ggml_get_mem_size(nctx)], 0);
+    var nt: std.ArrayList(*c.ggml_tensor) = .{};
+    for (0..n_conv) |_| {
+        const t = c.ggml_new_tensor_2d(nctx, c.GGML_TYPE_F32, @intCast(cap), @intCast(d)) orelse {
+            nt.clearAndFree(gpa);
+            c.ggml_free(nctx);
+            return false;
+        };
+        nt.append(gpa, t) catch {
+            nt.clearAndFree(gpa);
+            c.ggml_free(nctx);
+            return false;
+        };
+    }
+    if (g_cvctx != null and g_cv.items.len == n_conv) {
+        const keep = dconv + g_n_past; // the zero rows and every position held
+        for (0..n_conv) |L| {
+            const o: [*]const f32 = @ptrCast(@alignCast(g_cv.items[L].*.data));
+            const n_: [*]f32 = @ptrCast(@alignCast(nt.items[L].*.data));
+            for (0..d) |ch| @memcpy(n_[cap * ch ..][0..@min(keep, g_cv_cap)], o[g_cv_cap * ch ..][0..@min(keep, g_cv_cap)]);
+        }
+    }
+    if (g_cvctx) |old| c.ggml_free(old);
+    g_cv.deinit(gpa);
+    g_cv = nt;
+    g_cvctx = nctx;
+    g_cv_cap = cap;
+    g_cv_shape = .{ d, dconv };
+    return true;
+}
+
+fn buildLfm3Graph(
+    ctx: *c.ggml_context,
+    m: ?*c.ggml_context,
+    ids: []const i32,
+    d: *const L3,
+    n_past: usize,
+    fill: bool,
+    kouts: *std.ArrayList(*c.ggml_tensor),
+) ?DecodeGraph {
+    const n = ids.len;
+    const kv_len = padKv(n_past + n);
+    const grp = d.h / d.kv;
+    const D = d.d;
+    const hd = d.hd;
+    var nb: [96]u8 = undefined;
+    var nb2: [96]u8 = undefined;
+
+    const tokens = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n)).?;
+    const positions = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n)).?;
+    const mask_g = c.ggml_new_tensor_2d(ctx, c.GGML_TYPE_F32, @intCast(kv_len), @intCast(n * grp)).?;
+    const mask_s = c.ggml_new_tensor_2d(ctx, c.GGML_TYPE_F32, @intCast(kv_len), @intCast(n * grp)).?;
+    if (fill) {
+        const td: [*]i32 = @ptrCast(@alignCast(tokens.*.data));
+        const pd: [*]i32 = @ptrCast(@alignCast(positions.*.data));
+        for (0..n) |i| {
+            td[i] = ids[i];
+            pd[i] = @intCast(n_past + i);
+        }
+        const mg: [*]f32 = @ptrCast(@alignCast(mask_g.*.data));
+        const ms: [*]f32 = @ptrCast(@alignCast(mask_s.*.data));
+        for (0..n * grp) |x| {
+            const q = n_past + x % n;
+            for (0..kv_len) |k| {
+                const seen = k <= q;
+                mg[x * kv_len + k] = if (seen) 0.0 else -1.0e9;
+                ms[x * kv_len + k] = if (seen and q - k < d.window) 0.0 else -1.0e9;
+            }
+        }
+    }
+
+    var inpL = c.ggml_get_rows(ctx, getT(m, "token_embd.weight", .{}, &nb), tokens).?;
+    const rope_f = getTOpt(m, "rope_freqs.weight", .{}, &nb2);
+    const scale: f32 = 1.0 / @sqrt(@as(f32, @floatFromInt(hd)));
+    for (0..d.n_layer) |il| {
+        const cur_in = g4Norm(ctx, inpL, getT(m, "blk.{d}.attn_norm.weight", .{il}, &nb), d.eps);
+        var cur: *c.ggml_tensor = undefined;
+        if (d.attn[il]) {
+            const is_swa = d.swa[il];
+            const base = if (is_swa) d.base_s else d.base_g;
+            const ff: ?*c.ggml_tensor = if (is_swa) null else rope_f;
+            var Q = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_q.weight", .{il}, &nb), cur_in).?;
+            Q = c.ggml_reshape_3d(ctx, Q, @intCast(hd), @intCast(d.h), @intCast(n)).?;
+            Q = g4Norm(ctx, Q, getT(m, "blk.{d}.attn_q_norm.weight", .{il}, &nb), d.eps);
+            Q = c.ggml_rope_ext(ctx, Q, positions, ff, @intCast(hd), c.GGML_ROPE_TYPE_NEOX, d.n_ctx_train, base, 1.0, 0.0, 1.0, 0.0, 0.0).?;
+            var K = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_k.weight", .{il}, &nb), cur_in).?;
+            K = c.ggml_reshape_3d(ctx, K, @intCast(hd), @intCast(d.kv), @intCast(n)).?;
+            K = g4Norm(ctx, K, getT(m, "blk.{d}.attn_k_norm.weight", .{il}, &nb), d.eps);
+            K = c.ggml_rope_ext(ctx, K, positions, ff, @intCast(hd), c.GGML_ROPE_TYPE_NEOX, d.n_ctx_train, base, 1.0, 0.0, 1.0, 0.0, 0.0).?;
+            const V = c.ggml_reshape_3d(ctx, c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_v.weight", .{il}, &nb), cur_in).?, @intCast(hd), @intCast(d.kv), @intCast(n)).?;
+            const kt = g_kt.items[d.idx[il]];
+            const vt = g_vt.items[d.idx[il]];
+            const Kcur = c.ggml_cont(ctx, c.ggml_permute(ctx, K, 0, 2, 1, 3)).?;
+            const Vcur = c.ggml_cont(ctx, c.ggml_permute(ctx, V, 0, 2, 1, 3)).?;
+            const kview = c.ggml_view_3d(ctx, kt, @intCast(hd), @intCast(n), @intCast(d.kv), kt.*.nb[1], kt.*.nb[2], n_past * kt.*.nb[1]).?;
+            const vview = c.ggml_view_3d(ctx, vt, @intCast(n), @intCast(hd), @intCast(d.kv), vt.*.nb[1], vt.*.nb[2], n_past * vt.*.nb[0]).?;
+            kouts.append(gpa, c.ggml_cpy(ctx, Kcur, kview).?) catch return null;
+            kouts.append(gpa, c.ggml_cpy(ctx, c.ggml_permute(ctx, Vcur, 1, 0, 2, 3), vview).?) catch return null;
+            const K_all = c.ggml_view_3d(ctx, kt, @intCast(hd), @intCast(kv_len), @intCast(d.kv), kt.*.nb[1], kt.*.nb[2], 0).?;
+            const Vt = c.ggml_view_3d(ctx, vt, @intCast(kv_len), @intCast(hd), @intCast(d.kv), vt.*.nb[1], vt.*.nb[2], 0).?;
+            const Qp = c.ggml_cont(ctx, c.ggml_permute(ctx, Q, 0, 2, 1, 3)).?;
+            const Qv = c.ggml_reshape_3d(ctx, Qp, @intCast(hd), @intCast(n * grp), @intCast(d.kv)).?;
+            var KQ = c.ggml_mul_mat(ctx, K_all, Qv).?;
+            KQ = c.ggml_soft_max_ext(ctx, KQ, if (is_swa) mask_s else mask_g, scale, 0.0).?;
+            var KQV = c.ggml_mul_mat(ctx, Vt, KQ).?;
+            KQV = c.ggml_reshape_3d(ctx, KQV, @intCast(hd), @intCast(n), @intCast(d.h)).?;
+            KQV = c.ggml_cont(ctx, c.ggml_permute(ctx, KQV, 0, 2, 1, 3)).?; // [hd, h, n]
+            // every head's output scaled by sigmoid(attn_gate x)
+            var gate = c.ggml_sigmoid(ctx, c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_gate.weight", .{il}, &nb), cur_in).?).?;
+            gate = c.ggml_reshape_3d(ctx, gate, 1, @intCast(d.h), @intCast(n)).?;
+            KQV = c.ggml_mul(ctx, KQV, gate).?;
+            KQV = c.ggml_reshape_2d(ctx, KQV, @intCast(hd * d.h), @intCast(n)).?;
+            cur = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_output.weight", .{il}, &nb), KQV).?;
+        } else {
+            const bcx = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.shortconv.in_proj.weight", .{il}, &nb), cur_in).?; // [3D, n]
+            const es = c.ggml_element_size(bcx);
+            const b = c.ggml_view_2d(ctx, bcx, @intCast(D), @intCast(n), bcx.*.nb[1], 0).?;
+            const cc = c.ggml_view_2d(ctx, bcx, @intCast(D), @intCast(n), bcx.*.nb[1], D * es).?;
+            const x = c.ggml_view_2d(ctx, bcx, @intCast(D), @intCast(n), bcx.*.nb[1], 2 * D * es).?;
+            const bxT = c.ggml_cont(ctx, c.ggml_transpose(ctx, c.ggml_mul(ctx, b, x).?).?).?; // [n, D]
+            const ct = g_cv.items[d.idx[il]];
+            const cview = c.ggml_view_2d(ctx, ct, @intCast(n), @intCast(D), ct.*.nb[1], (d.dconv + n_past) * ct.*.nb[0]).?;
+            kouts.append(gpa, c.ggml_cpy(ctx, bxT, cview).?) catch return null;
+            // the window: the dconv values before this read and the n it writes (the cache's zero rows stand before position 0)
+            const win = c.ggml_cont(ctx, c.ggml_view_2d(ctx, ct, @intCast(d.dconv + n), @intCast(D), ct.*.nb[1], n_past * ct.*.nb[0]).?).?;
+            const sx = c.ggml_reshape_3d(ctx, win, @intCast(d.dconv + n), @intCast(D), 1).?;
+            const conv = c.ggml_ssm_conv(ctx, sx, getT(m, "blk.{d}.shortconv.conv.weight", .{il}, &nb)).?; // [D, n, 1]
+            const y = c.ggml_mul(ctx, cc, c.ggml_reshape_2d(ctx, conv, @intCast(D), @intCast(n)).?).?;
+            cur = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.shortconv.out_proj.weight", .{il}, &nb), y).?;
+        }
+        if (d.post) cur = g4Norm(ctx, cur, getT(m, "blk.{d}.post_attention_norm.weight", .{il}, &nb), d.eps);
+        cur = c.ggml_add(ctx, inpL, cur).?;
+        const fn_ = g4Norm(ctx, cur, getT(m, "blk.{d}.ffn_norm.weight", .{il}, &nb), d.eps);
+        const up = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_up.weight", .{il}, &nb), fn_).?;
+        const gt = c.ggml_silu(ctx, c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_gate.weight", .{il}, &nb), fn_).?).?;
+        var ffo = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_down.weight", .{il}, &nb), c.ggml_mul(ctx, gt, up).?).?;
+        if (d.post) ffo = g4Norm(ctx, ffo, getT(m, "blk.{d}.post_ffw_norm.weight", .{il}, &nb), d.eps);
+        inpL = c.ggml_add(ctx, cur, ffo).?;
+    }
+
+    const xF = g4Norm(ctx, inpL, getT(m, "output_norm.weight", .{}, &nb), d.eps);
+    const n_out: usize = @max(1, @min(g_rows_out, n));
+    const last = c.ggml_cont(ctx, c.ggml_view_2d(ctx, xF, @intCast(D), @intCast(n_out), xF.*.nb[1], @intCast((n - n_out) * xF.*.nb[1])).?).?;
+    const lm_w = getTOpt(m, "output.weight", .{}, &nb) orelse getT(m, "token_embd.weight", .{}, &nb);
+    const logits = c.ggml_mul_mat(ctx, lm_w, last).?;
+    const graph = c.ggml_new_graph_custom(ctx, decode_graph_nodes, false) orelse return null;
+    for (kouts.items) |t| c.ggml_build_forward_expand(graph, t);
+    c.ggml_build_forward_expand(graph, logits);
+    return .{ .graph = graph, .logits = logits };
+}
+
+fn forwardLfm3(ids: []const i32) bool {
+    const m = mctx() orelse return false;
+    const n_new = ids.len;
+    if (n_new == 0 or !l3Ok(m)) return false;
+    const d = &g_l3;
+    for (ids) |t| if (t < 0 or t >= d.rows) return false;
+    if (!ensureKv(d.n_attn, d.kv, d.hd, padKv(g_n_past + n_new))) return false;
+    if (d.n_conv > 0 and !ensureConv(d.n_conv, d.d, d.dconv, d.dconv + g_n_past + n_new)) return false;
+    const n_past = g_n_past;
+    var kouts: std.ArrayList(*c.ggml_tensor) = .{};
+    defer kouts.clearAndFree(gpa);
+    var tp = std.time.nanoTimestamp();
+    var pool_bytes: usize = 0;
+    {
+        const meta = c.ggml_init(.{ .mem_size = 64 * 1024 * 1024, .mem_buffer = null, .no_alloc = true }) orelse return false;
+        defer c.ggml_free(meta);
+        if (buildLfm3Graph(meta, m, ids, d, n_past, false, &kouts) == null) return false;
+        pool_bytes = graphPoolBytes(meta);
+    }
+    kouts.clearRetainingCapacity();
+    g_last_pool_bytes = pool_bytes;
+    g_phase[0] = msSince(tp);
+    tp = std.time.nanoTimestamp();
+    const ctx = c.ggml_init(.{ .mem_size = pool_bytes + 64 * 1024, .mem_buffer = null, .no_alloc = false }) orelse return false;
+    defer c.ggml_free(ctx);
+    const built = buildLfm3Graph(ctx, m, ids, d, n_past, true, &kouts) orelse return false;
+    g_phase[2] = msSince(tp);
+    tp = std.time.nanoTimestamp();
+    var plan = c.ggml_graph_plan(built.graph, if (n_new > 1) g_threads_many else g_threads_one, null);
+    var wbuf: ?[]u8 = null;
+    if (plan.work_size > 0) {
+        wbuf = gpa.alloc(u8, plan.work_size) catch return false;
+        plan.work_data = wbuf.?.ptr;
+    }
+    defer if (wbuf) |w| gpa.free(w);
+    _ = c.ggml_graph_compute(built.graph, &plan);
+    g_phase[3] = msSince(tp);
+    g_n_past = n_past + n_new;
+    kvIdsSet(n_past, ids, false);
+    return readLogits(built.logits);
 }
 
 // ---- SPM-style BPE (tokenizer.ggml.model = "gemma4"; GEMMA4-01, 2026-11-11) -----------------------------------------

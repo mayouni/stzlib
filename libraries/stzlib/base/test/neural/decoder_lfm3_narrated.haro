@@ -1,0 +1,152 @@
+# THE LFM3 DECODER -- RADAR-LFM3-FAMILY-01, narrated
+#
+# Liquid AI's LFM3-1.7B runs in the engine's own decoder (neural_gen.zig, buildLfm3Graph): 13 short-convolution layers,
+# 5 sliding and 6 global attention layers with per-head gates, wired as llama.cpp b12283 wires it. Its tokenizer cuts
+# text by the LLAMA3 pattern (llama3Segment). The references are llama.cpp's, written in by a script.
+#
+#   Scene 1  six texts -- Arabic, French, numbers, blank lines, chat marks as text -- give llama-tokenize's ids
+#   Scene 2  the engine's perplexity on a 657-token English text (_data/ppl_text_en.txt) is llama-perplexity's within 2
+#            percent: 15.6067 there (-c 256, f32 cache, flash attention off), scored the same way here. Greedy TEXT is
+#            not the bar: LFM3's logits are not capped, and the two builds' sums part on near ties (83 percent of
+#            teacher-forced steps agree on 8 prompts, the gaps up to 3.4 logits); a cut branch moves perplexity far more
+#   Scene 3  the convolution's state is kept per position, as K and V: a prompt reusing a cached prefix gives the same
+#            logits, to the bit, as one read whole
+#   Scene 4  a prefix file carries K and V only, so an LFM3 cache is neither saved nor loaded -- refused, by reason
+#   Scene 5  a chat question is answered and the answer ends on the model's own end of turn
+#
+# RUNS ON haro.exe, the engine's functions only: STZ_ENGINE_DIR, STZ_MODELS_DIR with LFM3-1.7B-Q8_0.gguf (1.8 GB,
+# models/MODELS.md); without it every scene says NOT RUN. About 60 s.
+
+$tEngine = Slashes(SysGet("STZ_ENGINE_DIR"))
+$tModels = Slashes(SysGet("STZ_MODELS_DIR"))
+$nPass = 0
+$nFail = 0
+$aNotRun = []
+$aCases = []
+LoadLib($tEngine + "/zig-out/bin/stz_neural.dll")
+$tLfm = $tModels + "/LFM3-1.7B-Q8_0.gguf"
+$aCases + [ "a short sentence", "The capital of France is", [ 597, 5205, 302, 3980, 355 ] ]
+$aCases + [ "blank lines", "para one" + Char(10) + Char(10) + "para two" + Char(10) + Char(10) + Char(10) + "three newlines", [ 19836, 734, 8, 19836, 1046, 7, 37564, 94309 ] ]
+$aCases + [ "Arabic", "مرحبا بالعالم، كيف حالك اليوم؟", [ 17880, 2262, 68059, 103296, 19557, 3279, 61111, 68814, 1397, 35385, 32839 ] ]
+$aCases + [ "French accents", "L'été dernier, nous sommes allés à Marseille avec François et Zoé.", [ 52, 34241, 17929, 20, 6679, 34461, 612, 903, 839, 41660, 2585, 20706, 626, 25277, 359, 22 ] ]
+$aCases + [ "chat-turn marks written as text", "<start_of_turn>user" + Char(10) + "What is 2+2?<end_of_turn>" + Char(10) + "<start_of_turn>model" + Char(10), [ 36, 13886, 30590, 2383, 749, 38, 5922, 207, 2992, 355, 229, 26, 19, 26, 39, 36, 458, 30590, 2383, 749, 703, 36, 13886, 30590, 2383, 749, 38, 9466, 207 ] ]
+$aCases + [ "numbers", "Numbers 1234567890 3.14159 -42 1e10", [ 93881, 229, 9792, 25677, 23944, 24, 229, 27, 22, 13387, 5098, 640, 3843, 229, 25, 77, 654 ] ]
+
+if FExists($tLfm)
+	StzEngineNeuralModelLoad($tLfm)
+
+	Scenario("1. llama.cpp's token ids")
+	nSame = 0
+	nCases = Len($aCases)
+	for i = 1 to nCases
+		aExp = $aCases[i][3]
+		nGot = StzEngineNeuralGenTokenize($aCases[i][2])
+		bSame = (nGot = Len(aExp))
+		if bSame
+			for j = 1 to nGot
+				if StzEngineNeuralGenTokenAt(j - 1) != aExp[j]
+					bSame = false
+					exit
+				end
+			end
+		end
+		if bSame
+			nSame = nSame + 1
+		else
+			? "  differs: " + $aCases[i][1]
+		end
+	end
+	Then("the six texts give llama.cpp's ids exactly", nSame, nCases)
+
+	Scenario("2. perplexity, against llama.cpp's on the same text")
+	tText = Read("_data/ppl_text_en.txt")
+	nSum = Float(0)
+	nCount = 0
+	for nChunk = 0 to 1
+		StzEngineNeuralModelLoad($tLfm)
+		nTok = StzEngineNeuralGenTokenize(tText)
+		aIds = []
+		for j = 0 to nTok - 1
+			aIds + StzEngineNeuralGenTokenAt(j)
+		end
+		for p = 0 to 254
+			StzEngineNeuralVlmFeed(aIds[nChunk * 256 + p + 1])
+			if p >= 128
+				nSum = nSum + StzEngineNeuralLogitLse() - StzEngineNeuralLogitAt(aIds[nChunk * 256 + p + 2])
+				nCount = nCount + 1
+			end
+		end
+	end
+	nPpl = Exp(nSum / Float(nCount))
+	? "  the engine: " + String(nPpl) + " over " + String(nCount) + " predictions; llama.cpp: 15.6067"
+	Then("...within 2 percent of llama.cpp's", nPpl > Float(15.6067) * 0.98f and nPpl < Float(15.6067) * 1.02f, true)
+
+	Scenario("3. a cached prefix, convolutions included: the same logits to the bit")
+	tSys = "You triage customer-support tickets. Answer with one word: bug, billing or other."
+	tP = Chat(tSys, "I was charged twice for the March invoice.")
+	StzEngineNeuralGenSetPrefixReuse(0)
+	StzEngineNeuralPrefillLogits(tP)
+	nOff = StzEngineNeuralGenLogitsHash()
+	StzEngineNeuralGenSetPrefixReuse(1)
+	StzEngineNeuralPrefillLogits(Chat(tSys, "The app closes when I open it."))
+	StzEngineNeuralPrefillLogits(tP)
+	? "  " + String(StzEngineNeuralGenReusedTokens()) + " tokens reused"
+	Then("the prefix is kept", StzEngineNeuralGenReusedTokens() >= 20, true)
+	Then("...and the logits equal a full read's", StzEngineNeuralGenLogitsHash(), nOff)
+
+	Scenario("4. a prefix file does not carry a convolution's state")
+	tKv = Slashes(SysGet("TEMP")) + "/stz_lfm3_prefix.stzkv"
+	Then("saving an LFM3 cache is refused", StzEngineNeuralGenPrefixSave(tKv, 0), 0)
+	Then("...and so is loading one, by reason (4: not this cache's shape)", StzEngineNeuralGenPrefixLoad(tKv) * 10 + StzEngineNeuralGenPrefixStatus(), 4)
+
+	Scenario("5. a chat answer that ends")
+	tOut = StzEngineNeuralGenerate(Chat("You are a helpful assistant.", "What is 2 + 2? Answer with the number."), 32)
+	? "  [" + tOut + "]"
+	Then("the answer holds 4 and ends before the cap", SubStr(tOut, "4") > 0 and StzEngineNeuralGenLastError() = 0 and Len(tOut) < 60, true)
+else
+	$aNotRun + ("every scene (no " + $tLfm + ")")
+end
+
+? ""
+for t in $aNotRun
+	? "NOT RUN: " + t
+end
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+func Chat(tSystem, tUser)
+	return "<|startoftext|><|im_start|>system" + Char(10) + tSystem + "<|im_end|>" + Char(10) + "<|im_start|>user" + Char(10) + tUser +
+	       "<|im_end|>" + Char(10) + "<|im_start|>assistant" + Char(10) + "<think></think>"
+end
+
+func Scenario(tName)
+	? ""
+	? "SCENARIO: " + tName
+end
+
+func Then(tWhat, xGot, xExpected)
+	if xGot = xExpected
+		$nPass = $nPass + 1
+		? "  THEN  " + tWhat + "  [PASS]"
+	else
+		$nFail = $nFail + 1
+		? "  THEN  " + tWhat + "  [FAIL]"
+		? "    expected: " + String(xExpected)
+		? "    got:      " + String(xGot)
+	end
+end
+
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for i = 1 to nLen
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end
