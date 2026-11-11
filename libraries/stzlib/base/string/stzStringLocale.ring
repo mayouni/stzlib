@@ -219,10 +219,10 @@ class stzStringLocale from stzObject
 	# Returns a number naming the reading direction of the text.
 	#
 	#   returns    a number: 0 left to right, 1 right to left, 2 mixed, 3 neutral
-	#   note       digits and punctuation do not vote; a text of them answers 3
-	#   warning    Hebrew letters are not seen as right to left: a Hebrew text answers 3, neutral,
-	#              and a Hebrew word next to a Latin one answers 0; Arabic, Syriac and Thaana answer
-	#              1
+	#   note       only the three STRONG bidi classes vote -- L, R and AL (UAX#9 rule P2). Digits
+	#              and punctuation are weak, so a text of them answers 3
+	#   note       measured 2026-11-12 on haro.exe: Hebrew 1, Arabic 1, Latin 0, Hebrew with Latin
+	#              2, Arabic with Latin 2, "12345" 3, a comma 3, a space 3, empty 3
 	#   see        DirectionName, IsRightToLeft
 	def DetectDirection()
 		_pH_ = @oString.Engine()
@@ -232,7 +232,7 @@ class stzStringLocale from stzObject
 	#
 	#   returns    a text: LTR, RTL, Mixed or Neutral
 	#   note       a text with no letter answers Neutral
-	#   warning    Hebrew letters are not seen as right to left: a Hebrew text answers Neutral
+	#   note       a Hebrew text answers RTL, as Arabic, Syriac and Thaana do
 	#   see        DetectDirection, IsLeftToRight
 	def DirectionName()
 		_pH_ = @oString.Engine()
@@ -248,9 +248,12 @@ class stzStringLocale from stzObject
 	#
 	#   returns    TRUE or FALSE
 	#   note       IsRTL is the same call
-	#   warning    answers FALSE for Hebrew text today, as the direction is Neutral for it; it
-	#              answers TRUE for Arabic, Syriac and Thaana; a text mixing Arabic and Latin is
-	#              Mixed and answers FALSE
+	#   note       TRUE for Hebrew, Arabic, Syriac and Thaana
+	#   warning    a text MIXING a right-to-left script with Latin is Mixed, so this answers FALSE
+	#              for it -- while stzString.IsRightToLeft answers TRUE for the same text. The two
+	#              ask different questions under one name: that one takes the FIRST STRONG
+	#              character (UAX#9 rule P2, which is the base direction of a paragraph), this one
+	#              takes the whole text. Measured 2026-11-12; routed, not yet reconciled
 	#   see        DetectDirection, HasRTL
 	def IsRightToLeft()
 		_pH_ = @oString.Engine()
@@ -263,8 +266,8 @@ class stzStringLocale from stzObject
 	#
 	#   returns    TRUE or FALSE
 	#   note       IsLTR is the same call
-	#   warning    a Hebrew text answers FALSE here because it is read as Neutral; a Hebrew word
-	#              next to a Latin word answers TRUE
+	#   note       a Hebrew text answers FALSE because it reads right to left; a Hebrew word next
+	#              to a Latin word is Mixed, so it answers FALSE as well
 	#   see        DetectDirection, IsRightToLeft
 	def IsLeftToRight()
 		_pH_ = @oString.Engine()
