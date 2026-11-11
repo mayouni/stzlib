@@ -89,6 +89,36 @@ pub fn str_script_name(handle: StzStringHandle) callconv(.c) StzStringHandle {
     return str_from(name.ptr, name.len);
 }
 
+// THE BIDI CLASSES THIS FILE JUDGES, NAMED RATHER THAN NUMBERED.
+//
+// These were five bare numbers behind a comment reading
+//
+//     1=L, 2=LRE, 3=LRO, 5=R, 6=AL, 7=RLE, 8=RLO, 13=AN, 14=EN
+//
+// and that table is SHIFTED from R onward. utf8proc's real enum
+// (vendor/utf8proc/utf8proc.h) is L=1, LRE=2, LRO=3, R=4, AL=5, RLE=6, RLO=7,
+// PDF=8, EN=9, ES=10, ET=11, AN=12, CS=13, NSM=14. The code matched the comment
+// faithfully, so it:
+//
+//   - never matched R = 4, and Hebrew letters carry R. Hebrew reported NEUTRAL,
+//     and Latin mixed with Hebrew reported LTR because has_rtl could not be set
+//   - counted RLE = 6, an embedding CONTROL, as strong right-to-left
+//   - counted CS = 13, a number separator, as strong right-to-left
+//   - counted NSM = 14, a nonspacing mark, as left-to-right
+//
+// Arabic passed throughout, which is why nothing caught it: Arabic letters are
+// AL = 5, and 5 sat in the old right-to-left set by coincidence. All three
+// direction tests in this file used Arabic.
+//
+// They are constants now because the defect was a comment disagreeing with the
+// code it described. A name cannot drift from the value it IS, and the next
+// reader checks these five lines against the header instead of trusting prose.
+const BIDI_L: c_int = 1; // Left-to-Right
+const BIDI_R: c_int = 4; // Right-to-Left
+const BIDI_AL: c_int = 5; // Right-to-Left Arabic
+const BIDI_EN: c_int = 9; // European Number
+const BIDI_AN: c_int = 12; // Arabic Number
+
 /// Detect text direction: LTR, RTL, MIXED, or NEUTRAL.
 /// Uses Unicode bidi class: R/AL/AN = RTL, L/EN = LTR.
 pub fn str_detect_direction(handle: StzStringHandle) callconv(.c) c_int {
@@ -107,10 +137,9 @@ pub fn str_detect_direction(handle: StzStringHandle) callconv(.c) c_int {
         i += @intCast(blen);
 
         const bidi = unicode.stz_unicode_bidi_class(cp);
-        // utf8proc bidi classes: 1=L, 2=LRE, 3=LRO, 5=R, 6=AL, 7=RLE, 8=RLO, 13=AN, 14=EN
         switch (bidi) {
-            1, 14 => has_ltr = true, // L, EN
-            5, 6, 13 => has_rtl = true, // R, AL, AN
+            BIDI_L, BIDI_EN => has_ltr = true,
+            BIDI_R, BIDI_AL, BIDI_AN => has_rtl = true,
             else => {},
         }
 
@@ -146,7 +175,12 @@ pub fn str_has_rtl(handle: StzStringHandle) callconv(.c) c_int {
         if (blen <= 0) break;
         i += @intCast(blen);
         const bidi = unicode.stz_unicode_bidi_class(cp);
-        if (bidi == 5 or bidi == 6 or bidi == 13) return 1;
+        // THE SAME WRONG SET, DERIVED A SECOND TIME. This read
+        // `bidi == 5 or bidi == 6 or bidi == 13` -- AL, RLE and CS -- so it
+        // answered yes for an embedding control and a number separator and no
+        // for every Hebrew letter, independently of the switch above. Two
+        // copies of one rule drift separately, so both now read the constants.
+        if (bidi == BIDI_R or bidi == BIDI_AL or bidi == BIDI_AN) return 1;
     }
     return 0;
 }
@@ -570,6 +604,57 @@ test "detect direction mixed" {
     const s = str_from("Hello \xd9\x85\xd8\xb1\xd8\xad\xd8\xa8\xd8\xa7", 16) orelse return error.SkipZigTest;
     defer core.str_free(s);
     try testing.expect(str_detect_direction(s) == DIR_MIXED);
+}
+
+// HEBREW, WHICH EVERY TEST ABOVE MISSES.
+//
+// All three direction tests above use ARABIC, and Arabic passed this function
+// even while it was broken: its letters carry bidi class AL = 5, and 5 happened
+// to sit in the old RTL set by coincidence. Hebrew letters carry class R = 4,
+// which the old set never matched, so Hebrew reported NEUTRAL and mixed
+// Hebrew-Latin text reported LTR.
+//
+// A suite that tests one RTL script cannot tell a correct implementation from
+// one that is right about that script by accident -- which is what it was.
+
+test "detect direction RTL -- Hebrew, not only Arabic" {
+    // "shalom" -- U+05E9 U+05DC U+05D5 U+05DD, bidi class R
+    const s = str_from("\xd7\xa9\xd7\x9c\xd7\x95\xd7\x9d", 8) orelse return error.SkipZigTest;
+    defer core.str_free(s);
+    try testing.expect(str_detect_direction(s) == DIR_RTL);
+}
+
+test "detect direction mixed -- Latin with Hebrew" {
+    const s = str_from("Hello \xd7\xa9\xd7\x9c\xd7\x95\xd7\x9d", 14) orelse return error.SkipZigTest;
+    defer core.str_free(s);
+    try testing.expect(str_detect_direction(s) == DIR_MIXED);
+}
+
+test "has_rtl true for Hebrew" {
+    const s = str_from("\xd7\xa9", 2) orelse return error.SkipZigTest;
+    defer core.str_free(s);
+    try testing.expect(str_has_rtl(s) == 1);
+}
+
+// THE NEGATIVE SIBLINGS. The old set counted three classes as strong direction
+// that are not: RLE (6) and RLO (7) are embedding CONTROLS, CS (13) is a number
+// separator, and NSM (14) was counted as LTR though a nonspacing mark follows
+// the direction of what it marks. A fix that merely added R = 4 to the old set
+// would pass every positive test above and still be wrong about these.
+
+test "detect direction -- a bare number separator is not RTL" {
+    // U+002C COMMA is CS. Alone it carries no direction.
+    const s = str_from(",", 1) orelse return error.SkipZigTest;
+    defer core.str_free(s);
+    try testing.expect(str_detect_direction(s) == DIR_NEUTRAL);
+}
+
+test "detect direction -- a Hebrew nonspacing mark is not LTR" {
+    // U+05B0 HEBREW POINT SHEVA is NSM. It must not report LTR, which is what
+    // the old mapping did by reading 14 as EN.
+    const s = str_from("\xd6\xb0", 2) orelse return error.SkipZigTest;
+    defer core.str_free(s);
+    try testing.expect(str_detect_direction(s) != DIR_LTR);
 }
 
 test "has_rtl true for Arabic" {
