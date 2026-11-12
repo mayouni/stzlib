@@ -347,6 +347,6 @@ class stkMemory
 		return this.IsValidBufferId(oBuffer.Id())
 	end
 	def IsValidBufferId(tBufferId)
-	    return HasKey(@vBuffers[tBufferId]) #TODO #WARNING // HasKey() belongs to the base layer!
+	    return this.FindBuffer(tBufferId) > 0
 end
 	end
