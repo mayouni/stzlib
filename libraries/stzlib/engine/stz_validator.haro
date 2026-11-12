@@ -13,10 +13,10 @@ elseif isMacOS()
 end
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("validator")
-    $hStzValidatorHandle = null
+    $hStzValidatorHandle = ""
 elseif FExists($tStzValidatorLib)
     $hStzValidatorHandle = LoadLib($tStzValidatorLib)
 else
     ? "WARNING: stz_validator not found at: " + $tStzValidatorLib
-    $hStzValidatorHandle = null
+    $hStzValidatorHandle = ""
 end

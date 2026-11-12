@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("splitter")
-    $hStzSplitterHandle = null
+    $hStzSplitterHandle = ""
 elseif FExists($tStzSplitterLib)
     $hStzSplitterHandle = LoadLib($tStzSplitterLib)
 else
     ? "WARNING: stz_splitter not found at: " + $tStzSplitterLib
-    $hStzSplitterHandle = null
+    $hStzSplitterHandle = ""
 end

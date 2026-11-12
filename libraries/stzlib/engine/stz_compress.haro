@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("compress")
-    $hStzCompressHandle = null
+    $hStzCompressHandle = ""
 elseif FExists($tStzCompressLib)
     $hStzCompressHandle = LoadLib($tStzCompressLib)
 else
     ? "WARNING: stz_compress not found at: " + $tStzCompressLib
-    $hStzCompressHandle = null
+    $hStzCompressHandle = ""
 end

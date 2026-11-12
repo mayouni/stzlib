@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("profiler")
-    $hStzProfilerHandle = null
+    $hStzProfilerHandle = ""
 elseif FExists($tStzProfilerLib)
     $hStzProfilerHandle = LoadLib($tStzProfilerLib)
 else
     ? "WARNING: stz_profiler not found at: " + $tStzProfilerLib
-    $hStzProfilerHandle = null
+    $hStzProfilerHandle = ""
 end

@@ -24,10 +24,10 @@ elseif isMacOS()
 end
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("intseq")
-    $hStzIntSeqHandle = null
+    $hStzIntSeqHandle = ""
 elseif FExists($tStzIntSeqLib)
     $hStzIntSeqHandle = LoadLib($tStzIntSeqLib)
 else
     ? "WARNING: stz_intseq not found at: " + $tStzIntSeqLib
-    $hStzIntSeqHandle = null
+    $hStzIntSeqHandle = ""
 end

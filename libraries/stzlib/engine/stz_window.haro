@@ -59,10 +59,10 @@ end
 # Absent is a legitimate state here, unlike the other domains: this DLL is
 # the one that cannot be cross-built for every machine from one box. Load
 # quietly; the face reports the refusal in its own words.
-$hStzWindowHandle = null
+$hStzWindowHandle = ""
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("window")
-    $hStzWindowHandle = null
+    $hStzWindowHandle = ""
 elseif FExists($tStzWindowLib)
     $hStzWindowHandle = LoadLib($tStzWindowLib)
 end

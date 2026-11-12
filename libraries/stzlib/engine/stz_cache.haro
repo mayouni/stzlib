@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("cache")
-    $hStzCacheHandle = null
+    $hStzCacheHandle = ""
 elseif FExists($tStzCacheLib)
     $hStzCacheHandle = LoadLib($tStzCacheLib)
 else
     ? "WARNING: stz_cache not found at: " + $tStzCacheLib
-    $hStzCacheHandle = null
+    $hStzCacheHandle = ""
 end

@@ -5,7 +5,7 @@ func StkPointerQ(pParams)
     return new stkPointer(pParams)
 end
 func StkStringPointerQ(tString, nBufferSize)
-    if IsNull(nBufferSize) nBufferSize = Len(tString) + 1 end
+    if IsEmpty(nBufferSize) nBufferSize = Len(tString) + 1 end
     return new stkPointer([tString, "string", nBufferSize])
 end
 
@@ -23,7 +23,7 @@ class stkPointer
 	def init(pParams)
 	    @oMemory = new stkMemory()
 	    
-	    if IsNull(pParams)
+	    if IsEmpty(pParams)
 	        this.CreateNullPointer()
 	    elseif IsList(pParams) and Len(pParams) >= 2
 	        this.CreateFromParams(pParams)
@@ -184,7 +184,7 @@ class stkPointer
 	def CopyFrom(pSource, nSize)
 	    this.ValidatePointer()
 	    
-	    if IsNull(nSize)
+	    if IsEmpty(nSize)
 	        nSize = @nBufferSize
 	    end
 	    
@@ -227,7 +227,7 @@ class stkPointer
 	def CopyTo(pDest, nSize)
 	    this.ValidatePointer()
 	    
-	    if IsNull(nSize)
+	    if IsEmpty(nSize)
 	        nSize = @nBufferSize
 	    end
 	    
@@ -296,7 +296,7 @@ class stkPointer
 
     def Status
 
-        if IsNull(@pointer)
+        if IsEmpty(@pointer)
 			return -1
 		end
 
@@ -308,11 +308,11 @@ class stkPointer
     end
  
     def IsValidPointer
-        return @bIsValid and not IsNull(@pointer)
+        return @bIsValid and not IsEmpty(@pointer)
     end
 
     def IsNullPointer
-        return IsNull(@pointer) or this.Address() = 0
+        return IsEmpty(@pointer) or this.Address() = 0
     end
 
     def Equals(oOther)

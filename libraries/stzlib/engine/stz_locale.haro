@@ -17,10 +17,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("locale")
-    $hStzLocaleHandle = null
+    $hStzLocaleHandle = ""
 elseif FExists($tStzLocaleLib)
     $hStzLocaleHandle = LoadLib($tStzLocaleLib)
 else
     ? "WARNING: stz_locale not found at: " + $tStzLocaleLib
-    $hStzLocaleHandle = null
+    $hStzLocaleHandle = ""
 end

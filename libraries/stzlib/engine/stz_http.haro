@@ -20,10 +20,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("http")
-    $hStzHttpHandle = null
+    $hStzHttpHandle = ""
 elseif FExists($tStzHttpLib)
     $hStzHttpHandle = LoadLib($tStzHttpLib)
 else
     ? "WARNING: stz_http not found at: " + $tStzHttpLib
-    $hStzHttpHandle = null
+    $hStzHttpHandle = ""
 end

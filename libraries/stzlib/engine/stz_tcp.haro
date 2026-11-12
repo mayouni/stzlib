@@ -23,10 +23,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("tcp")
-    $hStzTcpHandle = null
+    $hStzTcpHandle = ""
 elseif FExists($tStzTcpLib)
     $hStzTcpHandle = LoadLib($tStzTcpLib)
 else
     ? "WARNING: stz_tcp not found at: " + $tStzTcpLib
-    $hStzTcpHandle = null
+    $hStzTcpHandle = ""
 end

@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("natlang")
-    $hStzNatlangHandle = null
+    $hStzNatlangHandle = ""
 elseif FExists($tStzNatlangLib)
     $hStzNatlangHandle = LoadLib($tStzNatlangLib)
 else
     ? "WARNING: stz_natlang not found at: " + $tStzNatlangLib
-    $hStzNatlangHandle = null
+    $hStzNatlangHandle = ""
 end

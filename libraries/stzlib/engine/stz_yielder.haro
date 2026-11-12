@@ -17,10 +17,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("yielder")
-    $hStzYielderHandle = null
+    $hStzYielderHandle = ""
 elseif FExists($tStzYielderLib)
     $hStzYielderHandle = LoadLib($tStzYielderLib)
 else
     ? "WARNING: stz_yielder not found at: " + $tStzYielderLib
-    $hStzYielderHandle = null
+    $hStzYielderHandle = ""
 end

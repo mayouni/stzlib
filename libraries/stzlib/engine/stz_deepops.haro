@@ -16,10 +16,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("deepops")
-    $hStzDeepopsHandle = null
+    $hStzDeepopsHandle = ""
 elseif FExists($tStzDeepopsLib)
     $hStzDeepopsHandle = LoadLib($tStzDeepopsLib)
 else
     ? "WARNING: stz_deepops not found at: " + $tStzDeepopsLib
-    $hStzDeepopsHandle = null
+    $hStzDeepopsHandle = ""
 end

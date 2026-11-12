@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("smallfn")
-    $hStzSmallfnHandle = null
+    $hStzSmallfnHandle = ""
 elseif FExists($tStzSmallfnLib)
     $hStzSmallfnHandle = LoadLib($tStzSmallfnLib)
 else
     ? "WARNING: stz_smallfn not found at: " + $tStzSmallfnLib
-    $hStzSmallfnHandle = null
+    $hStzSmallfnHandle = ""
 end

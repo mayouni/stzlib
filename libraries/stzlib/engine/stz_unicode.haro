@@ -17,10 +17,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("unicode")
-    $hStzUnicodeHandle = null
+    $hStzUnicodeHandle = ""
 elseif FExists($tStzUnicodeLib)
     $hStzUnicodeHandle = LoadLib($tStzUnicodeLib)
 else
     ? "WARNING: stz_unicode not found at: " + $tStzUnicodeLib
-    $hStzUnicodeHandle = null
+    $hStzUnicodeHandle = ""
 end

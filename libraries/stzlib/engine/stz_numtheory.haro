@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("numtheory")
-    $hStzNumtheoryHandle = null
+    $hStzNumtheoryHandle = ""
 elseif FExists($tStzNumtheoryLib)
     $hStzNumtheoryHandle = LoadLib($tStzNumtheoryLib)
 else
     ? "WARNING: stz_numtheory not found at: " + $tStzNumtheoryLib
-    $hStzNumtheoryHandle = null
+    $hStzNumtheoryHandle = ""
 end

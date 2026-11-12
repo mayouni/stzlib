@@ -50,11 +50,11 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("a11y")
-	$hStzA11yHandle = null
+	$hStzA11yHandle = ""
 elseif FExists($tStzA11yLib)
 	$hStzA11yHandle = LoadLib($tStzA11yLib)
 else
-	$hStzA11yHandle = null
+	$hStzA11yHandle = ""
 end
 
 # Open the runtime once, lazily. A caller never has to know where the

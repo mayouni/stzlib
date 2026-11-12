@@ -17,12 +17,12 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("regex")
-    $hStzRegexHandle = null
+    $hStzRegexHandle = ""
 elseif FExists($tStzRegexLib)
     $hStzRegexHandle = LoadLib($tStzRegexLib)
 else
     ? "WARNING: stz_regex not found at: " + $tStzRegexLib
-    $hStzRegexHandle = null
+    $hStzRegexHandle = ""
 end
 
 #------------------------------------------------------------#

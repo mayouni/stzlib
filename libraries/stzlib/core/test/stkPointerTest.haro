@@ -167,7 +167,7 @@ oSmall.CopyFrom(oLarge, 10)  # Try to copy more than buffer size
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*--- Test 9: null termination (#TODO Explain null-termination)
+/*--- Test 9: "" termination (#TODO Explain null-termination)
 
 pr()
 

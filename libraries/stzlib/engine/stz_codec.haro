@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("codec")
-    $hStzCodecHandle = null
+    $hStzCodecHandle = ""
 elseif FExists($tStzCodecLib)
     $hStzCodecHandle = LoadLib($tStzCodecLib)
 else
     ? "WARNING: stz_codec not found at: " + $tStzCodecLib
-    $hStzCodecHandle = null
+    $hStzCodecHandle = ""
 end

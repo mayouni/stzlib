@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("arith")
-    $hStzArithHandle = null
+    $hStzArithHandle = ""
 elseif FExists($tStzArithLib)
     $hStzArithHandle = LoadLib($tStzArithLib)
 else
     ? "WARNING: stz_arith not found at: " + $tStzArithLib
-    $hStzArithHandle = null
+    $hStzArithHandle = ""
 end

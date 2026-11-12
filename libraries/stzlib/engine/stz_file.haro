@@ -17,10 +17,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("file")
-    $hStzFileHandle = null
+    $hStzFileHandle = ""
 elseif FExists($tStzFileLib)
     $hStzFileHandle = LoadLib($tStzFileLib)
 else
     ? "WARNING: stz_file not found at: " + $tStzFileLib
-    $hStzFileHandle = null
+    $hStzFileHandle = ""
 end

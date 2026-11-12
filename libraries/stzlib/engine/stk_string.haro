@@ -19,5 +19,5 @@ if FExists($tStkStringLib)
     $hStkStringHandle = LoadLib($tStkStringLib)
 else
     ? "WARNING: stk_string not found at: " + $tStkStringLib
-    $hStkStringHandle = null
+    $hStkStringHandle = ""
 end

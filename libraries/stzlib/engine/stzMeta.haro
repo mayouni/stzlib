@@ -22,7 +22,7 @@ end
 if FExists($tStzMetaLib)
     $hStzMetaHandle = LoadLib($tStzMetaLib)
 else
-    $hStzMetaHandle = null
+    $hStzMetaHandle = ""
 end
 
 #------------------------------------------------------------#
