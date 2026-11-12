@@ -486,15 +486,27 @@ class stzRegex from stzObject
 	# Searches the text for the pattern as a whole word, by wrapping the pattern in word boundaries; TRUE if it occurs.
 	#
 	#   returns    TRUE or FALSE (1 or 0)
-	#   note       call SetPattern again to get the original back
-	#   warning    the pattern is replaced for good by its word-bounded form, and each further call
-	#              adds another pair of boundaries: "pre" becomes \bpre\b, then \b\bpre\b\b
+	#   note       the pattern is unchanged when the call returns
 	#   see        MatchFirstWordIn, MatchFirst
 	def MatchWordsIn(pcStr)
-		_cWordPattern_ = "\b" + This.Pattern() + "\b"
-		This.SetPattern(_cWordPattern_)
-		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
-		return _nKind_ = 1
+		# 2026-11-12: this used to SetPattern the word-bounded form and LEAVE IT
+		# THERE, so the object came back changed and a second call anchored the
+		# anchors. Measured on haro.exe, calling it three times on "pre":
+		#
+		#   pre  ->  \bpre\b  ->  \b\bpre\b\b  ->  \b\b\bpre\b\b\b
+		#
+		# and every one of those calls still answered TRUE, which is why nothing
+		# ever failed and the warning that used to stand here described the defect
+		# as if it were the contract.
+		#
+		# A frame named at the call site must not outlive the call -- the same
+		# principle that rules out ambient state everywhere else in the paradigm.
+		# The original is restored before returning.
+		cOriginalPattern = This.Pattern()
+		This.SetPattern("\b" + cOriginalPattern + "\b")
+		nKind = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
+		This.SetPattern(cOriginalPattern)
+		return nKind = 1
 
 		def MatchWord(pcStr)
 			return This.MatchWordsIn(pcStr)
@@ -502,15 +514,18 @@ class stzRegex from stzObject
 	# Searches the text for the pattern as a whole word, by wrapping the pattern in word boundaries; TRUE if it occurs.
 	#
 	#   returns    TRUE or FALSE (1 or 0)
-	#   note       call SetPattern again to get the original back
-	#   warning    the pattern is replaced for good by its word-bounded form, and each further call
-	#              adds another pair of boundaries
+	#   note       the pattern is unchanged when the call returns
 	#   see        MatchWordsIn, MatchFirst
 	def MatchFirstWordIn(pcStr)
-		_cWordPattern_ = "\b" + This.Pattern() + "\b"
-		This.SetPattern(_cWordPattern_)
-		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
-		return _nKind_ = 1
+		# Same repair as MatchWordsIn, 2026-11-12. This verb carried the identical
+		# mutation, so two calls to EITHER of them compound, and one call to each
+		# compounds too. The brief that reported it had it right: this class of
+		# defect rarely occurs alone.
+		cOriginalPattern = This.Pattern()
+		This.SetPattern("\b" + cOriginalPattern + "\b")
+		nKind = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
+		This.SetPattern(cOriginalPattern)
+		return nKind = 1
 
 		def MatchFirstWord(pcStr)
 			return This.MatchFirstWordIn(pcStr)

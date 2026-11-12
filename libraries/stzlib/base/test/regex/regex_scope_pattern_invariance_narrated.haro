@@ -1,0 +1,89 @@
+load "../../stzBase.ring"
+load "../_narrated.ring"
+
+# A scope verb must leave the object as it found it.
+#
+# MatchWordsIn and MatchFirstWordIn each built the word-bounded pattern and called
+# SetPattern with it, so the anchors persisted and the next call anchored the
+# anchors. Measured on haro.exe before the repair, calling MatchWord three times
+# on the pattern "pre":
+#
+#   pre  ->  \bpre\b  ->  \b\bpre\b\b  ->  \b\b\bpre\b\b\b
+#
+# Every one of those calls still answered TRUE. That is why it was invisible for
+# as long as the verbs have existed, and why the doc comment above them had come
+# to describe the compounding as though it were the contract.
+#
+# Scenario 2 is the control that matters most. The repair restores the original
+# pattern after the match, so the obvious way to get these assertions to pass is
+# to stop anchoring at all -- which would silently turn MatchWord into Match.
+# Scenario 2 fails if that happens.
+#
+# Scenario 3 sweeps the rest of the scope row, because this class of defect rarely
+# occurs alone and a guard on the two verbs that were reported would not have
+# found a third.
+
+Scenario("1. The word verbs leave the pattern as they found it, however often they are called")
+
+	oWord = new stzRegex("pre")
+	oWord.MatchWord("pre")
+	Then("after one MatchWord", oWord.Pattern(), "pre")
+	oWord.MatchWord("pre")
+	Then("after a second MatchWord", oWord.Pattern(), "pre")
+	oWord.MatchWord("pre")
+	Then("after a third MatchWord", oWord.Pattern(), "pre")
+
+	oFirstWord = new stzRegex("pre")
+	oFirstWord.MatchFirstWord("pre")
+	Then("after one MatchFirstWord", oFirstWord.Pattern(), "pre")
+
+	oBoth = new stzRegex("pre")
+	oBoth.MatchWord("pre")
+	oBoth.MatchFirstWord("pre")
+	Then("one call to each does not compound across the two verbs", oBoth.Pattern(), "pre")
+
+EndScenario()
+
+Scenario("2. The word boundary is still applied DURING the call -- the control")
+
+	oYes = new stzRegex("pre")
+	Then("pre matches the whole word pre", oYes.MatchWord("pre"), true)
+
+	oNope = new stzRegex("pre")
+	Then("pre does not match inside prefix", oNope.MatchWord("prefix"), false)
+
+	oNope2 = new stzRegex("pre")
+	Then("and not inside suppress either", oNope2.MatchWord("suppress"), false)
+
+EndScenario()
+
+Scenario("3. No other verb in the scope row changes the pattern")
+
+	oLine = new stzRegex("one")
+	oLine.MatchLine("one")
+	Then("MatchLine", oLine.Pattern(), "one")
+
+	oFirstLine = new stzRegex("one")
+	oFirstLine.MatchFirstLine("one")
+	Then("MatchFirstLine", oFirstLine.Pattern(), "one")
+
+	oSeg = new stzRegex("one")
+	oSeg.MatchSegment("one")
+	Then("MatchSegment", oSeg.Pattern(), "one")
+
+	oFirstSeg = new stzRegex("one")
+	oFirstSeg.MatchFirstSegment("one")
+	Then("MatchFirstSegment", oFirstSeg.Pattern(), "one")
+
+	oAny = new stzRegex("one")
+	oAny.Match("one")
+	Then("Match", oAny.Pattern(), "one")
+
+	oAnyFirst = new stzRegex("one")
+	oAnyFirst.MatchFirst("one")
+	Then("MatchFirst", oAnyFirst.Pattern(), "one")
+
+EndScenario()
+
+Summary()
+Shutdown($_zst_fail)
