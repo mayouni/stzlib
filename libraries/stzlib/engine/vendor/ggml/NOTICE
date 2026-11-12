@@ -63,3 +63,14 @@ numbers do not move. Measured on the seven OCR golden pages: the PP-OCR
 recogniser 20.2-20.8 s -> 16.0-17.4 s, every line's text and confidence
 identical; BERT parity vs numpy still passes, its max difference 1.6e-7 -> 4.2e-6
 (a different summation order). sgemm.cpp holds no state needing a constructor.
+
+SOFTANZA PATCH (src/ggml-cpu/tiled/tiled.cpp, 2026-11-12): v0.29.0's tiled K-quant
+matmul (src/ggml-cpu/tiled/, new in this version) is compiled but OFF unless
+GGML_CPU_TILED_MM is set to a non-zero number -- upstream has it on by default. On,
+it moves a K-quant model's greedy text against llama.cpp's reference: Nemotron
+Bolt E4B (Q4_K_M) gives llama.cpp's text on 2 of 3 prompts instead of 3 of 3
+(decoder_gemma4_narrated.haro); Q8_0 and F32 models are untouched by it (LFM3's
+perplexity 15.57 either way). Every guard and measurement since 0.29.0 ran with it
+off. Both switch readers (ggml_tiled_matmul_enabled, ggml_tiled_matmul_forced)
+also lose their function-local std::once_flag, a static this DLL never constructs
+(the root cause above): each reads its variable on every call.

@@ -1,8 +1,12 @@
 ggml 0.29.0 (upstream commit 57e2c2ca2a7cae756b1c4dfafa0cdfef9051d234, 2026-11-04), built as 0.0.0-stz
 
-Taken 2026-11-12 over 0.15.3 (pinned 2026-11-11, RADAR-NVIDIA-GGMLPIN-01). Of the 95 files here other than this one,
-89 are byte for byte the files at the same paths in tag v0.29.0; the four NOTICE names as patched carry the same
-patches re-applied; the last two are NOTICE and this folder's own .gitignore. The pruning is unchanged: CPU only,
+Taken 2026-11-12 over 0.15.3 (pinned 2026-11-11, RADAR-NVIDIA-GGMLPIN-01). Of the 100 files here other than this one,
+92 are byte for byte the files at the same paths in tag v0.29.0; the four NOTICE names as patched carry the same
+patches re-applied, and src/ggml-cpu/tiled/tiled.cpp carries one of its own (the tiled matmul off by default); NOTICE and this folder's own .gitignore are ours; and src/ggml-version.h is ours too, standing in
+for the header upstream's CMake writes from ggml-version.h.in (it defines GGML_VERSION and GGML_COMMIT only where the
+build has not). The four files of src/ggml-cpu/tiled/ and that header were missing from the first commit of 0.29.0
+(ee2663143), which was made from a diff, and a diff carries no new file: a clean checkout could not build stz_neural
+or stz_matrix until they were added the same day. The pruning is unchanged: CPU only,
 x86 only, as NOTICE describes. Upstream's history between the two tags was read from a local clone of
 github.com/ggml-org/ggml.
 
@@ -16,4 +20,4 @@ Source:           https://github.com/ggml-org/ggml
 Licence:          MIT
 Purl:             pkg:github/ggml-org/ggml@v0.29.0
 Archive-SHA-256:  not recorded -- no archive was fetched; taken from tag v0.29.0 of a git clone, matched file by file
-Tree-Digest:      30f101841e310b34270a0e29f511f1ef5f38f5258586ac8c11daed7330296e8d
+Tree-Digest:      5a1714ead791b48e05e25b59007290e859c87768bc057f8ff03fe828be3b9b5d

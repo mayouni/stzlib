@@ -59,7 +59,15 @@ if FExists($tLfm)
 	Then("the six texts give llama.cpp's ids exactly", nSame, nCases)
 
 	Scenario("2. perplexity, against llama.cpp's on the same text")
-	tText = Read("_data/ppl_text_en.txt")
+	# the text as llama-perplexity read it: LF line ends, whatever a checkout wrote (a CRLF checkout read 16.21)
+	tRaw = Read("_data/ppl_text_en.txt")
+	tText = ""
+	nLenRaw = Len(tRaw)
+	for j = 1 to nLenRaw
+		if tRaw[j] != Char(13)
+			tText = tText + tRaw[j]
+		end
+	end
 	nSum = Float(0)
 	nCount = 0
 	for nChunk = 0 to 1
