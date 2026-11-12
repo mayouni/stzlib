@@ -1,0 +1,73 @@
+# screen_formats 1 -- RADAR-A2UI-SLMFORMAT-01; model|format|mode|request|shape|law|valid|coverage|out_tokens|seconds|complete|why
+granite-4.0-1b-Q8_0.gguf|zane|grammar|signin|1|1|1|1|41|19.661|1|
+granite-4.0-1b-Q8_0.gguf|zane|grammar|room|1|1|1|0|44|4.535|1| missing verb SELECT
+granite-4.0-1b-Q8_0.gguf|zane|grammar|plan|1|0|0|0|35|3.229|1|verifier exit 1: MISSING_UNDO missing verb SELECT
+granite-4.0-1b-Q8_0.gguf|zane|grammar|order|1|1|1|0|65|5.26|1| missing verb READ
+granite-4.0-1b-Q8_0.gguf|zane|grammar|contact|1|0|0|1|87|6.832|1|verifier exit 1: FIELD_MISPLACED,FIELD_MISPLACED
+granite-4.0-1b-Q8_0.gguf|zane|grammar|delete|1|1|1|0|40|3.498|1| missing verb CONFIRM
+granite-4.0-1b-Q8_0.gguf|zane|grammar|settings|1|1|1|1|39|3.411|1|
+granite-4.0-1b-Q8_0.gguf|zane|grammar|rating|1|0|0|1|93|7.487|1|verifier exit 1: FIELD_MISPLACED,FIELD_MISPLACED
+granite-4.0-1b-Q8_0.gguf|zane|grammar|search|1|0|0|0|112|8.643|1|verifier exit 1: FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED missing verb FILTER
+granite-4.0-1b-Q8_0.gguf|zane|grammar|expense|1|0|0|1|94|7.927|1|verifier exit 1: MISSING_UNDO,FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED
+granite-4.0-1b-Q8_0.gguf|zane|grammar|address|1|0|0|0|133|9.822|1|verifier exit 1: FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED missing verb SELECT
+granite-4.0-1b-Q8_0.gguf|zane|grammar|failed|1|0|0|1|43|3.985|1|verifier exit 1: MISSING_UNDO
+granite-4.0-1b-Q8_0.gguf|zane|free|signin|0|0|0|0|22|1.446|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|zane|free|room|0|0|0|0|8|1.23|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|zane|free|plan|0|0|0|0|6|0.883|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|zane|free|order|0|0|0|0|6|1.016|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|zane|free|contact|0|0|0|0|11|0.981|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|zane|free|delete|0|0|0|0|9|0.948|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|zane|free|settings|0|0|0|0|15|1.337|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|zane|free|rating|0|0|0|0|27|1.997|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|zane|free|search|1|0|0|0|133|6.453|-1|verifier exit 1: UNKNOWN_INTENT,UNKNOWN_SIGNAL,FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED missing verb FILTER
+granite-4.0-1b-Q8_0.gguf|zane|free|expense|0|0|0|0|9|0.989|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|zane|free|address|0|0|0|0|8|0.894|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|zane|free|failed|0|0|0|0|7|0.764|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|a2ui_json|grammar|signin|1|1|1|1|158|28.345|1|
+granite-4.0-1b-Q8_0.gguf|a2ui_json|grammar|room|1|0|0|1|289|33.71|1|Card root has no property children
+granite-4.0-1b-Q8_0.gguf|a2ui_json|grammar|plan|1|0|0|1|339|44.253|1|Card root has no property children
+granite-4.0-1b-Q8_0.gguf|a2ui_json|grammar|order|1|1|1|1|232|24.642|1|
+granite-4.0-1b-Q8_0.gguf|a2ui_json|grammar|contact|1|1|1|1|192|21.224|1|
+granite-4.0-1b-Q8_0.gguf|a2ui_json|grammar|delete|1|0|0|1|196|19.985|1|Button cancel_button lacks child
+granite-4.0-1b-Q8_0.gguf|a2ui_json|grammar|settings|1|0|0|1|179|20.878|1|Card root has no property children
+granite-4.0-1b-Q8_0.gguf|a2ui_json|grammar|rating|1|1|1|0|241|29.895|1| missing 'rate'
+granite-4.0-1b-Q8_0.gguf|a2ui_json|grammar|search|1|1|1|1|206|23.665|1|
+granite-4.0-1b-Q8_0.gguf|a2ui_json|grammar|expense|1|0|0|0|241|26.164|1|Card root has no property children missing '120'
+granite-4.0-1b-Q8_0.gguf|a2ui_json|grammar|address|1|0|0|1|160|19.092|1|Card root has no property children
+granite-4.0-1b-Q8_0.gguf|a2ui_json|grammar|failed|1|1|1|1|225|25.546|1|
+granite-4.0-1b-Q8_0.gguf|a2ui_json|free|signin|1|1|1|1|158|9.863|-1|
+granite-4.0-1b-Q8_0.gguf|a2ui_json|free|room|1|0|0|1|289|18.64|-1|Card root has no property children
+granite-4.0-1b-Q8_0.gguf|a2ui_json|free|plan|1|0|0|1|339|21.347|-1|Card root has no property children
+granite-4.0-1b-Q8_0.gguf|a2ui_json|free|order|1|1|1|1|232|14.626|-1|
+granite-4.0-1b-Q8_0.gguf|a2ui_json|free|contact|1|0|0|1|179|11.039|-1|the component message is a TextArea, which the catalogue does not hold
+granite-4.0-1b-Q8_0.gguf|a2ui_json|free|delete|0|0|0|0|196|11.954|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|a2ui_json|free|settings|0|0|0|0|177|11.183|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|a2ui_json|free|rating|0|0|0|0|240|14.592|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|a2ui_json|free|search|1|1|1|1|206|13.111|-1|
+granite-4.0-1b-Q8_0.gguf|a2ui_json|free|expense|1|0|0|0|241|14.792|-1|Card root has no property children missing '120'
+granite-4.0-1b-Q8_0.gguf|a2ui_json|free|address|1|0|0|1|160|10.557|-1|Card root has no property children
+granite-4.0-1b-Q8_0.gguf|a2ui_json|free|failed|1|1|1|1|225|13.94|-1|
+granite-4.0-1b-Q8_0.gguf|a2ui_express|grammar|signin|1|1|1|1|82|16.997|1|
+granite-4.0-1b-Q8_0.gguf|a2ui_express|grammar|room|1|0|0|1|203|25.945|1|DateTimeInput date: value is the bare name 'undefined', not a value
+granite-4.0-1b-Q8_0.gguf|a2ui_express|grammar|plan|1|0|0|1|88|12.3|1|the id continue is used twice
+granite-4.0-1b-Q8_0.gguf|a2ui_express|grammar|order|1|0|0|0|79|9.588|1|TextField quantity lacks value missing 'total'
+granite-4.0-1b-Q8_0.gguf|a2ui_express|grammar|contact|1|0|0|1|88|9.486|1|Button send: its child is not a defined component
+granite-4.0-1b-Q8_0.gguf|a2ui_express|grammar|delete|1|0|0|0|50|6.142|1|Button delete: its child is not a defined component missing 'report.pdf'
+granite-4.0-1b-Q8_0.gguf|a2ui_express|grammar|settings|1|0|0|0|75|8.119|1|Button save: its child is not a defined component missing 'save'
+granite-4.0-1b-Q8_0.gguf|a2ui_express|grammar|rating|1|0|0|1|82|10.125|1|the id rating is used twice
+granite-4.0-1b-Q8_0.gguf|a2ui_express|grammar|search|1|0|0|1|97|11.853|1|ChoicePicker status_filter: variant 'default' is not one of its values
+granite-4.0-1b-Q8_0.gguf|a2ui_express|grammar|expense|1|0|0|0|85|10.875|1|TextField note lacks value missing '120'
+granite-4.0-1b-Q8_0.gguf|a2ui_express|grammar|address|1|0|0|1|174|21.272|1|the id title is used twice
+granite-4.0-1b-Q8_0.gguf|a2ui_express|grammar|failed|1|0|0|1|92|11.282|1|Button contact: variant 'secondary' is not one of its values
+granite-4.0-1b-Q8_0.gguf|a2ui_express|free|signin|1|1|1|1|82|4.514|-1|
+granite-4.0-1b-Q8_0.gguf|a2ui_express|free|room|0|0|0|0|160|9.376|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|a2ui_express|free|plan|1|0|0|1|95|5.834|-1|the id continue is used twice
+granite-4.0-1b-Q8_0.gguf|a2ui_express|free|order|0|0|0|0|86|5.334|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|a2ui_express|free|contact|1|0|0|0|88|5.007|-1|the component message is a TextArea, which the catalogue does not hold missing 'message'
+granite-4.0-1b-Q8_0.gguf|a2ui_express|free|delete|1|0|0|0|50|3.117|-1|Button delete: its child is not a defined component missing 'report.pdf'
+granite-4.0-1b-Q8_0.gguf|a2ui_express|free|settings|1|0|0|0|75|4.022|-1|Button save: its child is not a defined component missing 'save'
+granite-4.0-1b-Q8_0.gguf|a2ui_express|free|rating|0|0|0|0|1|0.674|-1|not a sentence of the format's syntax
+granite-4.0-1b-Q8_0.gguf|a2ui_express|free|search|1|0|0|1|99|5.716|-1|ChoicePicker status_filter: variant 'default' is not one of its values
+granite-4.0-1b-Q8_0.gguf|a2ui_express|free|expense|1|0|0|0|85|4.855|-1|TextField note lacks value missing '120'
+granite-4.0-1b-Q8_0.gguf|a2ui_express|free|address|1|0|0|1|176|9.764|-1|statement add_new_address is an event, not a component
+granite-4.0-1b-Q8_0.gguf|a2ui_express|free|failed|1|0|0|1|92|4.819|-1|Button contact: variant 'secondary' is not one of its values

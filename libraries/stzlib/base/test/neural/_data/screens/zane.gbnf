@@ -1,0 +1,15 @@
+root ::= decl ("\n\n" decl)*
+decl ::= "DEFINE " kind " " ident " (\n" fields "\n)"
+kind ::= "INTENT_FLOW" | "FORM" | "WIZARD" | "SCREEN" | "COMPONENT" | "NAV_GRAPH" | "WORLD_VIEW" | "INTERACTION" | "FEEDBACK" | "VIBE"
+fields ::= "  " field (",\n  " field)*
+field ::= verbkey " [" verbs "]" | idkey " [" idents "]" | kvkey " " scalar
+verbkey ::= "SATISFIES" | "ALWAYS_REACHABLE"
+idkey ::= "VISIBLE_ENTITIES" | "VISIBLE_STATE" | "INTENT_FLOWS" | "STEPS" | "REPORTS" | "SUPPRESSES" | "SIGNALS" | "ENTRIES"
+kvkey ::= "INTENT_FLOW" | "PERSPECTIVE" | "TONE" | "SURFACE_AS" | "DENSITY" | "MOTION" | "ROLE" | "LABEL" | "TARGET" | "ACTOR"
+verbs ::= verb (", " verb)*
+verb ::= "DISCOVER" | "UNDERSTAND" | "LOCATE" | "FOCUS" | "FILTER" | "COMPARE" | "READ" | "SCAN" | "SCROLL" | "ZOOM" | "SELECT" | "HIGHLIGHT" | "PREVIEW" | "MARK" | "ACT" | "CONFIRM" | "CANCEL" | "UNDO" | "PAUSE" | "RESUME" | "RETRY" | "EXIT"
+idents ::= ident (", " ident)*
+scalar ::= ident | string | number | "true" | "false"
+ident ::= [a-z_] [a-z0-9_]*
+string ::= "\"" [^"\n]* "\""
+number ::= "-"? [0-9]+ ("." [0-9]+)?

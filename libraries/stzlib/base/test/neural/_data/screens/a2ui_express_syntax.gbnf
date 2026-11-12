@@ -1,0 +1,17 @@
+root ::= ws "<a2ui>" sp0 nl line* sp0 "</a2ui>" ws
+line ::= sp0 stmt sp0 nl | sp0 nl
+stmt ::= ident sp0 "=" sp0 value | path sp0 "=" sp0 value
+call ::= ident "(" sp0 (args sp0)? ")"
+args ::= arg (sp0 "," sp0 arg)* (sp0 ",")?
+arg ::= ident sp0 "=" sp0 value | value
+value ::= call | string | number | path | ident | array | map
+array ::= "[" sp0 (value (sp0 "," sp0 value)* (sp0 ",")?)? sp0 "]"
+map ::= "{" sp0 (key sp0 ":" sp0 value (sp0 "," sp0 key sp0 ":" sp0 value)* (sp0 ",")?)? sp0 "}"
+key ::= ident | string
+path ::= "$" [a-zA-Z0-9_/]+
+string ::= "\"" ([^"\\\n] | "\\" ["\\nt])* "\""
+number ::= "-"? [0-9]+ ("." [0-9]+)?
+ident ::= [a-zA-Z_] [a-zA-Z0-9_]*
+sp0 ::= [ \t]*
+nl ::= "\r"? "\n"
+ws ::= [ \t\r\n]*
