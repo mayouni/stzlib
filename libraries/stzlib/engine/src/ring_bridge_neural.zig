@@ -35,31 +35,83 @@ var slot_file: [256]u8 = undefined;
 var slot_len: usize = 0;
 var run_records: f64 = 0;
 
-fn ran(faculty: []const u8, file: []const u8, n_bytes: usize) void {
-    var nb: [256]u8 = undefined;
+// THE SHUT LIST (SECURITY-R18c, 2026-11-12). Before a run writes its record, ran() asks stz_seclog whether an advisory
+// has shut this model (kind "model", the same lowercase file name the record carries, the name stzExposureResponder's
+// ShutModel uses). A shut model does not run: the entry point answers its own documented failure value ([], "" or 0),
+// the record is capability.refused with the advisory as its origin -- never model.run, since nothing ran -- and
+// StzEngineNeuralRefusal() (and, for the picture and OCR models, StzEngineNeuralOcrGraphError()) gives the sentence.
+// Asked BEFORE the file is read, at every entry point that runs a model and at the two that load one. ran() answers a
+// bool, so a call site that ignored it would not compile: no entry point can be left unchecked.
+var refused_records: f64 = 0;
+var refusal_buf: [320]u8 = undefined;
+var refusal_len: usize = 0;
+var load_shut = false;
+
+// the model file's name as the shut list and the ledger know it: no folder, ASCII letters lower-cased
+fn baseLower(file: []const u8, nb: *[256]u8) []const u8 {
     const cut = if (std.mem.lastIndexOfAny(u8, file, "\\/")) |i| i + 1 else 0;
     const base = file[cut..];
     const n = @min(base.len, nb.len);
     for (base[0..n], 0..) |ch, i| nb[i] = std.ascii.toLower(ch);
-    const subject: []const u8 = if (n == 0) "(no model loaded)" else nb[0..n];
+    return if (n == 0) "(no model loaded)" else nb[0..n];
+}
+
+// false when an advisory has shut this model; the refusal is recorded and its sentence kept
+fn allowed(file: []const u8) bool {
+    var nb: [256]u8 = undefined;
+    const subject = baseLower(file, &nb);
+    var adv: [64]u8 = undefined;
+    const a = door.isShut("model", subject, &adv) orelse {
+        refusal_len = 0;
+        return true;
+    };
+    refused_records += 1;
+    const msg = std.fmt.bufPrint(&refusal_buf, "refused: the model '{s}' is shut by advisory {s}", .{ subject, a }) catch refusal_buf[0..0];
+    refusal_len = msg.len;
+    ocrg.setError("{s}", .{msg});
+    _ = door.recordFact("capability.refused", "stzNeuralModel", subject, a, "shut by stzExposureResponder");
+    return false;
+}
+
+// true when the model may run, and then its model.run record is written; false when it is shut
+fn ran(faculty: []const u8, file: []const u8, n_bytes: usize) bool {
+    if (!allowed(file)) return false;
+    var nb: [256]u8 = undefined;
+    const subject = baseLower(file, &nb);
     var wb: [160]u8 = undefined;
     const what = std.fmt.bufPrint(&wb, "{s}: {d} bytes in", .{ faculty, n_bytes }) catch faculty;
     run_records += 1;
     _ = door.recordFact("model.run", "stz_neural", subject, "", what);
+    return true;
 }
 
 // the text slot's model: the file StzEngineNeuralModelLoad last loaded
-fn ranSlot(faculty: []const u8, n_bytes: usize) void {
-    ran(faculty, slot_file[0..slot_len], n_bytes);
+fn ranSlot(faculty: []const u8, n_bytes: usize) bool {
+    return ran(faculty, slot_file[0..slot_len], n_bytes);
 }
 
-// StzEngineNeuralRunRecords() -> [ runs asked, records written, records missed ] in this process (missed: 0 is the
-// only right answer; POSIX answers every run as missed until R14)
+// an entry point's [] when its model is shut
+fn refusedList(p: *anyopaque) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_vm_api_retlist(p, out);
+}
+
+// StzEngineNeuralRefusal() -> why the last model run or load was refused ("refused: the model '<file>' is shut by
+// advisory <id>"), or "" when it was not
+fn ring_NeuralRefusal(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retstring2(p, &refusal_buf, @intCast(refusal_len));
+}
+
+// StzEngineNeuralRunRecords() -> [ runs asked, records written, records missed, runs refused (a shut model),
+// shut checks that could not reach the list ] in this process (missed and unchecked: 0 is the only right answer;
+// POSIX answers every run as missed and unchecked until R14)
 fn ring_NeuralRunRecords(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
     R.ring_list_adddouble(out, run_records);
     R.ring_list_adddouble(out, @floatFromInt(door.writtenCount()));
     R.ring_list_adddouble(out, @floatFromInt(door.missedCount()));
+    R.ring_list_adddouble(out, refused_records);
+    R.ring_list_adddouble(out, @floatFromInt(door.shutUnknownCount()));
     R.ring_vm_api_retlist(p, out);
 }
 
@@ -154,6 +206,9 @@ fn ring_NeuralVersion(p: *anyopaque) callconv(.c) void {
 // --- Model loading + inspection (GGUF) ---
 fn ring_NeuralModelLoad(p: *anyopaque) callconv(.c) void {
     const path = gs(p, 1)[0..@intCast(R.ring_vm_api_getstringsize(p, 1))];
+    // SECURITY-R18c: a shut model is never read; the model already loaded stays as it was. Status -4.
+    load_shut = !allowed(path);
+    if (load_shut) return rn(p, 0);
     slot_len = 0;
     const r = embed.neural_model_load(gs(p, 1));
     if (r == 1) {
@@ -165,8 +220,9 @@ fn ring_NeuralModelLoad(p: *anyopaque) callconv(.c) void {
 }
 
 /// StzEngineNeuralModelLoadStatus() -> why the last load was refused:
-/// 0 ok, -1 unreadable, -2 digest mismatch, -3 no recorded digest.
+/// 0 ok, -1 unreadable, -2 digest mismatch, -3 no recorded digest, -4 shut by an advisory (StzEngineNeuralRefusal).
 fn ring_NeuralModelLoadStatus(p: *anyopaque) callconv(.c) void {
+    if (load_shut) return rn(p, -4);
     rn(p, @floatFromInt(embed.neural_model_load_status()));
 }
 
@@ -251,7 +307,7 @@ fn ring_NeuralTokenAt(p: *anyopaque) callconv(.c) void {
 // THE SEAM: every embedding in the library comes through here, and the
 // engine decides CPU vs GPU backbone by the MEASURED token threshold.
 fn ring_NeuralEmbed(p: *anyopaque) callconv(.c) void {
-    ranSlot("embed", @intCast(R.ring_vm_api_getstringsize(p, 1)));
+    if (!ranSlot("embed", @intCast(R.ring_vm_api_getstringsize(p, 1)))) return rn(p, 0);
     const ptr = gs(p, 1);
     const len: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
     rn(p, @floatFromInt(nbb.neural_embed_routed(ptr, len)));
@@ -262,7 +318,7 @@ fn ring_NeuralEmbedAt(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_NeuralEmbedTokens(p: *anyopaque) callconv(.c) void {
-    ranSlot("embed-tokens", @intCast(R.ring_vm_api_getstringsize(p, 1)));
+    if (!ranSlot("embed-tokens", @intCast(R.ring_vm_api_getstringsize(p, 1)))) return rn(p, 0);
     const ptr = gs(p, 1);
     const len: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
     rn(p, @floatFromInt(embed.neural_embed_tokens(ptr, len)));
@@ -280,7 +336,7 @@ fn ring_NeuralModelHasNer(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(embed.neural_model_has_ner()));
 }
 fn ring_NeuralNer(p: *anyopaque) callconv(.c) void {
-    ranSlot("ner", @intCast(R.ring_vm_api_getstringsize(p, 1)));
+    if (!ranSlot("ner", @intCast(R.ring_vm_api_getstringsize(p, 1)))) return rn(p, 0);
     const ptr = gs(p, 1);
     const len: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
     rn(p, @floatFromInt(embed.neural_ner(ptr, len)));
@@ -298,7 +354,7 @@ fn ring_NeuralModelHasReranker(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(embed.neural_model_has_reranker()));
 }
 fn ring_NeuralRerank(p: *anyopaque) callconv(.c) void {
-    ranSlot("rerank", @intCast(R.ring_vm_api_getstringsize(p, 1) + R.ring_vm_api_getstringsize(p, 2)));
+    if (!ranSlot("rerank", @intCast(R.ring_vm_api_getstringsize(p, 1) + R.ring_vm_api_getstringsize(p, 2)))) return rn(p, 0);
     const q = gs(p, 1);
     const qlen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
     const d = gs(p, 2);
@@ -381,7 +437,7 @@ fn ring_AttentionVariantUsed(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_BackboneEmbed(p: *anyopaque) callconv(.c) void {
-    ranSlot("embed-backbone", @intCast(R.ring_vm_api_getstringsize(p, 1)));
+    if (!ranSlot("embed-backbone", @intCast(R.ring_vm_api_getstringsize(p, 1)))) return refusedList(p);
     const ptr = gs(p, 1);
     const len: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
     const out = R.ring_vm_api_newlist(p) orelse return;
@@ -609,7 +665,7 @@ fn ring_OcrGraphInfo(p: *anyopaque) callconv(.c) void {
 // StzEngineNeuralOcrGraphParity(cModel, cInputBin, cExpectedBin, cOutputBin, nThreads)
 //   -> [ n, nMaxAbs, nMeanAbs, nCosine, nMs, nArgmaxAgree ], [] on failure (StzEngineNeuralOcrGraphError says why)
 fn ring_OcrGraphParity(p: *anyopaque) callconv(.c) void {
-    ran("ocr-parity", ocrArg(p, 1), ocrArg(p, 2).len);
+    if (!ran("ocr-parity", ocrArg(p, 1), ocrArg(p, 2).len)) return refusedList(p);
     const out = R.ring_vm_api_newlist(p) orelse return;
     const threads: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 5));
     if (ocrg.parity(ocrArg(p, 1), ocrArg(p, 2), ocrArg(p, 3), ocrArg(p, 4), if (threads < 1) 4 else threads)) |r| {
@@ -636,14 +692,14 @@ fn ring_OcrGraphParity(p: *anyopaque) callconv(.c) void {
 var ocr_stats: [6]f64 = .{ 0, 0, 0, 0, 0, 0 };
 
 fn ring_OcrRead(p: *anyopaque) callconv(.c) void {
-    ran("ocr", "ppocr_rec.gguf", ocrArg(p, 2).len);
+    if (!ran("ocr", "ppocr_rec.gguf", ocrArg(p, 2).len)) return refusedList(p);
     ocrRead(p, "", 2, 3);
 }
 
 // StzEngineNeuralOcrReadWith(cModelsDir, cRecogniserFile, cImage, nThreads) -- the same rows, read with the named
 // recogniser (ppocr_rec_arabic.gguf, ppocr_rec_cyrillic.gguf, ...) in the models folder
 fn ring_OcrReadWith(p: *anyopaque) callconv(.c) void {
-    ran("ocr", if (ocrArg(p, 2).len == 0) "ppocr_rec.gguf" else ocrArg(p, 2), ocrArg(p, 3).len);
+    if (!ran("ocr", if (ocrArg(p, 2).len == 0) "ppocr_rec.gguf" else ocrArg(p, 2), ocrArg(p, 3).len)) return refusedList(p);
     ocrRead(p, ocrArg(p, 2), 3, 4);
 }
 
@@ -870,7 +926,7 @@ fn ring_OcrRegion(p: *anyopaque) callconv(.c) void {
 // read again enlarged to nTarget pixels; the summary says "NO ENGINE for <lang>" when the machine has no pack for
 // it; [] when WinRT cannot be reached (the caller falls back to the script)
 fn ring_OcrPlatformRead(p: *anyopaque) callconv(.c) void {
-    ran("ocr", "windows.media.ocr", ocrArg(p, 1).len);
+    if (!ran("ocr", "windows.media.ocr", ocrArg(p, 1).len)) return refusedList(p);
     const out = R.ring_vm_api_newlist(p) orelse return;
     const target: f32 = @floatCast(R.ring_vm_api_getnumber(p, 3));
     var r = ocrw.read(ocrArg(p, 1), ocrArg(p, 2), if (target > 0) target else 40) catch |e| {
@@ -903,7 +959,7 @@ var vision_ms: f64 = 0;
 
 // (cModel, cPixels, nW, nH, nC, nK, nThreads) -> [ [ cLabel, nScore, nIndex ], ... ] best first
 fn ring_VisionClassify(p: *anyopaque) callconv(.c) void {
-    ran("classify", ocrArg(p, 1), ocrArg(p, 2).len);
+    if (!ran("classify", ocrArg(p, 1), ocrArg(p, 2).len)) return refusedList(p);
     const out = R.ring_vm_api_newlist(p) orelse return;
     const th: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 7));
     if (vis.classify(ocrArg(p, 1), ocrArg(p, 2), @intFromFloat(R.ring_vm_api_getnumber(p, 3)), @intFromFloat(R.ring_vm_api_getnumber(p, 4)), @intFromFloat(R.ring_vm_api_getnumber(p, 5)), @intFromFloat(R.ring_vm_api_getnumber(p, 6)), if (th < 1) 4 else th)) |r| {
@@ -924,13 +980,13 @@ fn ring_VisionClassify(p: *anyopaque) callconv(.c) void {
 
 // (cModel, cPixels, nW, nH, nC, nScore, nNms, nThreads) -> [ [ x, y, w, h, score, l1x, l1y, ... l5y ], ... ]
 fn ring_VisionFaces(p: *anyopaque) callconv(.c) void {
-    ran("faces", ocrArg(p, 1), ocrArg(p, 2).len);
+    if (!ran("faces", ocrArg(p, 1), ocrArg(p, 2).len)) return refusedList(p);
     visionDetect(p, false);
 }
 
 // (cModel, cPixels, nW, nH, nC, nScore, nNms, nThreads, nTiles 0|2) -> [ [ cLabel, score, x, y, w, h, nClass ], ... ]
 fn ring_VisionObjects(p: *anyopaque) callconv(.c) void {
-    ran("objects", ocrArg(p, 1), ocrArg(p, 2).len);
+    if (!ran("objects", ocrArg(p, 1), ocrArg(p, 2).len)) return refusedList(p);
     visionDetect(p, true);
 }
 
@@ -974,7 +1030,7 @@ fn visionDetect(p: *anyopaque, objs: bool) void {
 
 // IM5: (cModel, cPixels, nW, nH, nC, nThreads) -> the picture's embedding, L2-normalized (SigLIP2: 768 numbers)
 fn ring_VisionEmbedImage(p: *anyopaque) callconv(.c) void {
-    ran("embed-image", ocrArg(p, 1), ocrArg(p, 2).len);
+    if (!ran("embed-image", ocrArg(p, 1), ocrArg(p, 2).len)) return refusedList(p);
     const out = R.ring_vm_api_newlist(p) orelse return;
     const g = R.ring_vm_api_getnumber;
     const th: c_int = @intFromFloat(g(p, 6));
@@ -990,7 +1046,7 @@ fn ring_VisionEmbedImage(p: *anyopaque) callconv(.c) void {
 
 // IM5: (cModel, cText, nThreads) -> the text's embedding, L2-normalized, in the same space as the pictures'
 fn ring_VisionEmbedText(p: *anyopaque) callconv(.c) void {
-    ran("embed-text", ocrArg(p, 1), ocrArg(p, 2).len);
+    if (!ran("embed-text", ocrArg(p, 1), ocrArg(p, 2).len)) return refusedList(p);
     const out = R.ring_vm_api_newlist(p) orelse return;
     const th: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 3));
     if (vis.embedText(ocrArg(p, 1), ocrArg(p, 2), if (th < 1) 4 else th)) |r| {
@@ -1005,7 +1061,7 @@ fn ring_VisionEmbedText(p: *anyopaque) callconv(.c) void {
 
 // IM6: (cModel, cPixels, nW, nH, nC, nThreads) -> the salient-object mask, W x H bytes 0..255 ("" on failure)
 fn ring_VisionSaliency(p: *anyopaque) callconv(.c) void {
-    ran("foreground", ocrArg(p, 1), ocrArg(p, 2).len);
+    if (!ran("foreground", ocrArg(p, 1), ocrArg(p, 2).len)) return R.ring_vm_api_retstring2(p, "", 0);
     const g = R.ring_vm_api_getnumber;
     const th: c_int = @intFromFloat(g(p, 6));
     if (vis.saliency(ocrArg(p, 1), ocrArg(p, 2), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)), if (th < 1) 4 else th)) |r| {
@@ -1021,7 +1077,7 @@ fn ring_VisionSaliency(p: *anyopaque) callconv(.c) void {
 // IM6: (cModel, cPixels, nW, nH, nC, nThreads) -> relative inverse depth, W x H float32 little-endian bytes
 // ("" on failure); stz_image turns them into a grid (StzEngineImageGridFromF32)
 fn ring_VisionDepth(p: *anyopaque) callconv(.c) void {
-    ran("depth", ocrArg(p, 1), ocrArg(p, 2).len);
+    if (!ran("depth", ocrArg(p, 1), ocrArg(p, 2).len)) return R.ring_vm_api_retstring2(p, "", 0);
     const g = R.ring_vm_api_getnumber;
     const th: c_int = @intFromFloat(g(p, 6));
     if (vis.depth(ocrArg(p, 1), ocrArg(p, 2), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)), if (th < 1) 4 else th)) |r| {
@@ -1038,7 +1094,7 @@ fn ring_VisionDepth(p: *anyopaque) callconv(.c) void {
 // IM6 (MobileSAM): (cEncoder, cPixels, nW, nH, nC, nThreads) -> the id of the picture's embedding, kept in the
 // engine for the prompts that follow (0 on failure)
 fn ring_VisionSamEmbed(p: *anyopaque) callconv(.c) void {
-    ran("object-at", ocrArg(p, 1), ocrArg(p, 2).len);
+    if (!ran("object-at", ocrArg(p, 1), ocrArg(p, 2).len)) return rn(p, 0);
     const g = R.ring_vm_api_getnumber;
     const th: c_int = @intFromFloat(g(p, 6));
     if (vis.samEmbed(ocrArg(p, 1), ocrArg(p, 2), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)), if (th < 1) 4 else th)) |r| {
@@ -1058,7 +1114,7 @@ var sam_last: [3]f64 = .{ 0, 0, 0 };
 // corners with labels 2 and 3. StzEngineNeuralVisionSamLast() gives [predicted IoU, which of the four masks,
 // 1 when the last embed found its picture already encoded].
 fn ring_VisionSamMask(p: *anyopaque) callconv(.c) void {
-    ran("object-at", ocrArg(p, 1), 0);
+    if (!ran("object-at", ocrArg(p, 1), 0)) return R.ring_vm_api_retstring2(p, "", 0);
     const g = R.ring_vm_api_getnumber;
     const th: c_int = @intFromFloat(g(p, 9));
     const pts = [4]f32{ @floatCast(g(p, 3)), @floatCast(g(p, 4)), @floatCast(g(p, 5)), @floatCast(g(p, 6)) };
@@ -1108,7 +1164,7 @@ fn vlmRowsBytes(p: *anyopaque, proj: *const vlm.Projector, input: []const f32, t
 // (cProjector, cPixels, nW, nH, nC, nThreads) -> the picture's rows for the decoder, float32 bytes (tokens x
 // width), "" on failure (StzEngineNeuralOcrGraphError says why)
 fn ring_VlmEmbed(p: *anyopaque) callconv(.c) void {
-    ran("vlm-picture", ocrArg(p, 1), ocrArg(p, 2).len);
+    if (!ran("vlm-picture", ocrArg(p, 1), ocrArg(p, 2).len)) return R.ring_vm_api_retstring2(p, "", 0);
     const g = R.ring_vm_api_getnumber;
     const proj = vlm.load(ocrArg(p, 1)) orelse {
         ocrg.setError("{s}", .{vlm.lastError()});
@@ -1132,7 +1188,7 @@ fn ring_VlmEmbed(p: *anyopaque) callconv(.c) void {
 // (cProjector, cInputF32, nThreads) -> the rows for a tower input already prepared (3 x S x S float32 bytes,
 // channel-major): parity with a reference's own preprocessing
 fn ring_VlmEmbedInput(p: *anyopaque) callconv(.c) void {
-    ran("vlm-picture", ocrArg(p, 1), ocrArg(p, 2).len);
+    if (!ran("vlm-picture", ocrArg(p, 1), ocrArg(p, 2).len)) return R.ring_vm_api_retstring2(p, "", 0);
     const proj = vlm.load(ocrArg(p, 1)) orelse {
         ocrg.setError("{s}", .{vlm.lastError()});
         return R.ring_vm_api_retstring2(p, "", 0);
@@ -1152,7 +1208,7 @@ fn ring_VlmEmbedInput(p: *anyopaque) callconv(.c) void {
 // (cBefore, cRows, cAfter, nMaxNew) -> 1 when the decoder (the loaded model) has read the text, the picture's
 // rows and the text after it, and generation can go on with StzEngineNeuralGenNext; 0 otherwise
 fn ring_VlmStart(p: *anyopaque) callconv(.c) void {
-    ranSlot("vlm-decode", @intCast(R.ring_vm_api_getstringsize(p, 1) + R.ring_vm_api_getstringsize(p, 2) + R.ring_vm_api_getstringsize(p, 3)));
+    if (!ranSlot("vlm-decode", @intCast(R.ring_vm_api_getstringsize(p, 1) + R.ring_vm_api_getstringsize(p, 2) + R.ring_vm_api_getstringsize(p, 3)))) return rn(p, 0);
     const rows_b = ocrArg(p, 2);
     const n_embd = gen.embdWidth();
     if (n_embd == 0 or rows_b.len % (4 * n_embd) != 0) return R.ring_vm_api_retnumber(p, 0);
@@ -1199,7 +1255,7 @@ fn ring_VlmFeed(p: *anyopaque) callconv(.c) void {
 var vlm_stats: [3]f64 = .{ 0, 0, 0 };
 
 fn ring_VlmDescribe(p: *anyopaque) callconv(.c) void {
-    ran("describe", ocrArg(p, 1), ocrArg(p, 2).len);
+    if (!ran("describe", ocrArg(p, 1), ocrArg(p, 2).len)) return R.ring_vm_api_retstring2(p, "", 0);
     const g = R.ring_vm_api_getnumber;
     const A = std.heap.c_allocator;
     const proj = vlm.load(ocrArg(p, 1)) orelse {
@@ -1300,7 +1356,7 @@ fn ring_VlmPageViews(p: *anyopaque) callconv(.c) void {
 // the views). StzEngineNeuralVlmStats() then gives [ the views' ms, the words' ms, the tokens made ].
 // nMaxNew -1 only reads the prompt ("1"), -2 returns the views' rows instead of words: a guard's instruments
 fn ring_VlmPage(p: *anyopaque) callconv(.c) void {
-    ran("doc-vlm", ocrArg(p, 1), ocrArg(p, 2).len);
+    if (!ran("doc-vlm", ocrArg(p, 1), ocrArg(p, 2).len)) return R.ring_vm_api_retstring2(p, "", 0);
     const g = R.ring_vm_api_getnumber;
     const A = std.heap.c_allocator;
     const proj = vlm.load(ocrArg(p, 1)) orelse {
@@ -1475,7 +1531,7 @@ fn ring_ClipIds(p: *anyopaque) callconv(.c) void {
 
 // IM9f: (cTextModel, cVocab, cMerges, cText, nThreads) -> the query's embedding, 512 numbers, L2-normalised
 fn ring_ClipEmbed(p: *anyopaque) callconv(.c) void {
-    ran("find-by-words", ocrArg(p, 1), ocrArg(p, 4).len);
+    if (!ran("find-by-words", ocrArg(p, 1), ocrArg(p, 4).len)) return refusedList(p);
     const out = R.ring_vm_api_newlist(p) orelse return;
     const th: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 5));
     if (clip.embed(ocrArg(p, 1), ocrArg(p, 2), ocrArg(p, 3), ocrArg(p, 4), if (th < 1) 4 else th)) |r| {
@@ -1491,7 +1547,7 @@ fn ring_ClipEmbed(p: *anyopaque) callconv(.c) void {
 // IM9f: (cVision, cText, cVocab, cMerges, cQueries (newline-separated), cPixels, nW, nH, nC, nScore, nNms, nThreads)
 //   -> [ [ x, y, w, h, score, nQuery (1-based) ], ... ] in the picture's pixels
 fn ring_OwlFind(p: *anyopaque) callconv(.c) void {
-    ran("find-by-words", ocrArg(p, 1), ocrArg(p, 6).len);
+    if (!ran("find-by-words", ocrArg(p, 1), ocrArg(p, 6).len)) return refusedList(p);
     const out = R.ring_vm_api_newlist(p) orelse return;
     const g = R.ring_vm_api_getnumber;
     const th: c_int = @intFromFloat(g(p, 12));
@@ -1515,7 +1571,7 @@ fn ring_OwlFind(p: *anyopaque) callconv(.c) void {
 
 // IM9f: (cVision, cText, cVocab, cMerges, cQueries, cPixels, nW, nH, nC, nThreads) -> the logit of every patch for every query, patch by patch
 fn ring_OwlScores(p: *anyopaque) callconv(.c) void {
-    ran("find-by-words", ocrArg(p, 1), ocrArg(p, 6).len);
+    if (!ran("find-by-words", ocrArg(p, 1), ocrArg(p, 6).len)) return refusedList(p);
     const out = R.ring_vm_api_newlist(p) orelse return;
     const g = R.ring_vm_api_getnumber;
     const th: c_int = @intFromFloat(g(p, 10));
@@ -1753,6 +1809,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuraltokenat", .func = &ring_NeuralTokenAt },
     .{ .name = "stzengineneuralembed", .func = &ring_NeuralEmbed },
     .{ .name = "stzengineneuralrunrecords", .func = &ring_NeuralRunRecords },
+    .{ .name = "stzengineneuralrefusal", .func = &ring_NeuralRefusal },
     .{ .name = "stzengineneuralembedat", .func = &ring_NeuralEmbedAt },
     .{ .name = "stzengineneuralembedtokens", .func = &ring_NeuralEmbedTokens },
     .{ .name = "stzengineneuraltokendim", .func = &ring_NeuralTokenDim },
@@ -1832,7 +1889,7 @@ fn ring_NeuralHasGenerator(p: *anyopaque) callconv(.c) void {
 
 // StzEngineNeuralGenerate(cPrompt, nMaxNew) -> generated text (greedy)
 fn ring_NeuralGenerate(p: *anyopaque) callconv(.c) void {
-    ranSlot("generate", @intCast(R.ring_vm_api_getstringsize(p, 1)));
+    if (!ranSlot("generate", @intCast(R.ring_vm_api_getstringsize(p, 1)))) return R.ring_vm_api_retstring(p, "");
     const prompt = gs(p, 1);
     const plen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
     const maxn: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 2));
@@ -1853,6 +1910,8 @@ var draft_len: usize = 0;
 /// (StzEngineNeuralSpecStatus() says why; StzEngineNeuralModelLoadStatus() says why a digest refused it)
 fn ring_NeuralDraftLoad(p: *anyopaque) callconv(.c) void {
     const path = gs(p, 1)[0..@intCast(R.ring_vm_api_getstringsize(p, 1))];
+    load_shut = !allowed(path);
+    if (load_shut) return rn(p, 0);
     draft_len = 0;
     const r = gen.neural_gen_draft_load(gs(p, 1));
     if (r == 1) {
@@ -1872,8 +1931,9 @@ fn ring_NeuralDraftFree(p: *anyopaque) callconv(.c) void {
 // ("" on a refusal: StzEngineNeuralSpecStatus()). Two models run, so two model.run records are written.
 fn ring_NeuralGenerateSpec(p: *anyopaque) callconv(.c) void {
     const plen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
-    ranSlot("generate-spec", plen);
-    ran("draft", draft_file[0..draft_len], plen);
+    if (!allowed(slot_file[0..slot_len]) or !allowed(draft_file[0..draft_len])) return R.ring_vm_api_retstring(p, "");
+    _ = ranSlot("generate-spec", plen);
+    _ = ran("draft", draft_file[0..draft_len], plen);
     const maxn: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 2));
     const k: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 3));
     const n = gen.neural_generate_spec(gs(p, 1), plen, maxn, k);
@@ -1953,7 +2013,7 @@ fn ring_NeuralGenTokenAt(p: *anyopaque) callconv(.c) void {
 
 // StzEngineNeuralGenerateXT(prompt, maxNew, temp, topP, topK, seed) -> text
 fn ring_NeuralGenerateXT(p: *anyopaque) callconv(.c) void {
-    ranSlot("generate", @intCast(R.ring_vm_api_getstringsize(p, 1)));
+    if (!ranSlot("generate", @intCast(R.ring_vm_api_getstringsize(p, 1)))) return R.ring_vm_api_retstring(p, "");
     const prompt = gs(p, 1);
     const plen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
     const maxn: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 2));
@@ -1971,7 +2031,7 @@ fn ring_NeuralGenerateXT(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_NeuralGenStart(p: *anyopaque) callconv(.c) void {
-    ranSlot("generate-stream", @intCast(R.ring_vm_api_getstringsize(p, 1)));
+    if (!ranSlot("generate-stream", @intCast(R.ring_vm_api_getstringsize(p, 1)))) return rn(p, 0);
     const prompt = gs(p, 1);
     const plen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
     const maxn: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 2));
@@ -1996,7 +2056,7 @@ fn ring_NeuralGenActive(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_NeuralGenerateCont(p: *anyopaque) callconv(.c) void {
-    ranSlot("generate-cont", @intCast(R.ring_vm_api_getstringsize(p, 1)));
+    if (!ranSlot("generate-cont", @intCast(R.ring_vm_api_getstringsize(p, 1)))) return R.ring_vm_api_retstring(p, "");
     const prompt = gs(p, 1);
     const plen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
     const maxn: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 2));
@@ -2065,7 +2125,7 @@ fn ring_NeuralStoppedOnRepeat(p: *anyopaque) callconv(.c) void {
 
 // StzEngineNeuralPrefillLogits(cPrompt) -> 1 when the prompt was prefilled and its next-token logits are kept
 fn ring_NeuralPrefillLogits(p: *anyopaque) callconv(.c) void {
-    ranSlot("prefill", @intCast(R.ring_vm_api_getstringsize(p, 1)));
+    if (!ranSlot("prefill", @intCast(R.ring_vm_api_getstringsize(p, 1)))) return rn(p, 0);
     const prompt = gs(p, 1);
     const plen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
     rn(p, @floatFromInt(gen.neural_gen_prefill_logits(prompt, plen)));
