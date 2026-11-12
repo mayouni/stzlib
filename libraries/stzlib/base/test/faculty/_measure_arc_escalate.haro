@@ -1,0 +1,408 @@
+# _measure_arc_escalate.haro -- RADAR-ARC-ESCALATE-01, the instrument
+#
+# Rayline's ARC predicts, per candidate model, whether an agent's next step will succeed, and keeps the step local when
+# the prediction clears 0.85. The same idea on this machine, with no predictor: Granite-4.0-1b answers each option
+# question by StzOptionProbabilities' reading, and a question whose top option holds less than a threshold of the
+# options' probability goes to the support-quality pack (Bolt E4B). Before trusting the threshold, the instrument asks
+# whether Granite's top probability is calibrated (is it right about as often as it is sure?) and whether it ranks
+# Granite's right answers above its wrong ones -- the escalation needs the second more than the first.
+#
+#   the questions   kind, product, severity on the 36 held-out tickets (English); product and severity on the 48 fresh
+#                   tickets (French and Arabic) -- 204 per model; the question's words are _measure_d1shape's
+#   the reading     each option's probability is its first token's, lower-case plus capitalised, as _TkChoice reads it;
+#                   the top probability is the best option's share of the options' total
+#   the costs       each call's own milliseconds with the prefix cache on (today's default), and each model's load time:
+#                   the engine holds one model at a time, so a cascade either batches (Granite answers the queue, then
+#                   Bolt loads once for the escalated questions) or swaps at every escalation; both are printed
+#
+#   haro _measure_arc_escalate.haro            run both models, write results/arc_escalate.tsv, then analyse
+#   haro _measure_arc_escalate.haro analyse    analyse results/arc_escalate.tsv only (no model needed)
+#
+# Run from base/test/faculty on haro.exe with STZ_ENGINE_DIR and STZ_MODELS_DIR set; the run needs Bolt E4B and
+# granite-4.0-1b in the models folder. The analysis is written to results/arc_escalate.txt.
+
+$tTsv = "results/arc_escalate.tsv"
+$tReport = "results/arc_escalate.txt"
+$vModels = [ [ "granite", "granite-4.0-1b-Q8_0.gguf" ], [ "bolt", "Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf" ] ]
+$tSys = "You triage customer-support tickets."
+# [ name, the question, options ]
+$vQ = [
+	[ "kind", "Classify the ticket as exactly one of: bug (something is broken or behaves wrongly), billing (money: charges, refunds, invoices, plans, prices), other (a question, request or feedback).", [ "bug", "billing", "other" ] ],
+	[ "product", "Which product is the ticket about: app (the mobile app), web (the website, dashboard, account or billing pages), api (the developer API, SDKs, webhooks), or other?", [ "app", "web", "api", "other" ] ],
+	[ "severity", "How severe is it: high (it blocks the customer's work, loses money or data, is an outage, or has a deadline today or tomorrow) or low (anything else)?", [ "high", "low" ] ]
+]
+$tFormat = ""
+$nRead = 0
+$tLog = ""
+
+bRun = true
+for i = 1 to Len(SysArgv)
+	if SysArgv[i] = "analyse"
+		bRun = false
+	end
+end
+if bRun
+	RunModels()
+end
+Analyse()
+
+# ---- the run ----
+
+func RunModels
+	LoadLib(Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/stz_neural.dll")
+	tModels = Slashes(SysGet("STZ_MODELS_DIR")) + "/"
+	# [ set, lang, ticket text, [ golden kind, golden product, golden severity ] ] -- "" where the set has no golden
+	vItems = []
+	vH = ReadTsv("_data/tickets_heldout.tsv")
+	for i = 1 to Len(vH)
+		if Len(vH[i]) = 5
+			vItems + [ "heldout", "en", vH[i][1], [ vH[i][4], vH[i][2], vH[i][3] ] ]
+		end
+	end
+	vF = ReadTsv("_data/tickets_fresh_frar.tsv")
+	for i = 1 to Len(vF)
+		if Len(vF[i]) = 4
+			vItems + [ "fresh", vF[i][1], vF[i][4], [ "", vF[i][2], vF[i][3] ] ]
+		end
+	end
+	tOut = "set" + Char(9) + "lang" + Char(9) + "model" + Char(9) + "question" + Char(9) + "item" + Char(9) + "golden" + Char(9) + "answer" + Char(9) + "right" + Char(9) + "p_bp" + Char(9) + "mass_bp" + Char(9) + "ms" + Char(9) + "tokens_read" + Char(10)
+	? "items: " + String(Len(vItems))
+	for k = 1 to Len($vModels)
+		$tFormat = "granite"
+		if $vModels[k][1] = "bolt"
+			$tFormat = "gemma"
+		end
+		nStart = Clock()
+		StzEngineNeuralModelLoad(tModels + $vModels[k][2])
+		nLoad = Ms(nStart)
+		? $vModels[k][1] + ": loaded in " + String(nLoad) + " ms"
+		tOut = tOut + "-" + Char(9) + "-" + Char(9) + $vModels[k][1] + Char(9) + "(load)" + Char(9) + "0" + Char(9) + "-" + Char(9) + "-" + Char(9) + "0" + Char(9) + "0" + Char(9) + "0" + Char(9) + String(nLoad) + Char(9) + "0" + Char(10)
+		StzEngineNeuralGenSetPrefixReuse(1)
+		for j = 1 to Len($vQ)
+			nRight = 0
+			nAsked = 0
+			for i = 1 to Len(vItems)
+				tGold = vItems[i][4][j]
+				if tGold != ""
+					$nRead = 0
+					nStart = Clock()
+					vA = Ask($tSys + " " + $vQ[j][2] + " Answer with the single word.", "Ticket: " + vItems[i][3], $vQ[j][3])
+					nMs = Ms(nStart)
+					nOk = 0
+					if vA[1] = tGold
+						nOk = 1
+						nRight = nRight + 1
+					end
+					nAsked = nAsked + 1
+					tOut = tOut + vItems[i][1] + Char(9) + vItems[i][2] + Char(9) + $vModels[k][1] + Char(9) + $vQ[j][1] + Char(9) + String(i) + Char(9) + tGold + Char(9) + vA[1] + Char(9) + String(nOk) + Char(9) + String(vA[2]) + Char(9) + String(vA[3]) + Char(9) + String(nMs) + Char(9) + String($nRead) + Char(10)
+				end
+			end
+			? "  " + $vQ[j][1] + ": " + String(nRight) + "/" + String(nAsked)
+		end
+		Write($tTsv, tOut)
+	end
+end
+
+# one option question: [ best option, its share of the options' probability in basis points, the options' total
+# probability in basis points ]
+func Ask(tSystem, tUser, vOpt)
+	tP = Chat(tSystem, tUser)
+	StzEngineNeuralPrefillLogits(tP)
+	$nRead = $nRead + StzEngineNeuralGenPromptTokens() - StzEngineNeuralGenReusedTokens()
+	fLse = StzEngineNeuralLogitLse()
+	tBest = ""
+	fBest = Float(-1)
+	fSum = Float(0)
+	for i = 1 to Len(vOpt)
+		tCap = Upper(Left(vOpt[i], 1)) + Right(vOpt[i], Len(vOpt[i]) - 1)
+		fP = Exp(StzEngineNeuralLogitAt(FirstId(vOpt[i])) - fLse) + Exp(StzEngineNeuralLogitAt(FirstId(tCap)) - fLse)
+		fSum = fSum + fP
+		if fP > fBest
+			fBest = fP
+			tBest = vOpt[i]
+		end
+	end
+	return [ tBest, Bp(fBest / fSum), Bp(fSum) ]
+end
+
+func Bp(fX)
+	return Number(String(Decimal(fX * Float(10000), 0)))
+end
+
+func Ms(nStart)
+	return Divide((Clock() - nStart) * 1000, ClocksPerSecond(), 0)
+end
+
+# the first token of a word, after the BOS the tokenizer may prepend
+func FirstId(tWord)
+	StzEngineNeuralGenTokenize("a")
+	nIdA = StzEngineNeuralGenTokenAt(0)
+	StzEngineNeuralGenTokenize("b")
+	nSkip = 0
+	if StzEngineNeuralGenTokenAt(0) = nIdA
+		nSkip = 1
+	end
+	StzEngineNeuralGenTokenize(tWord)
+	return StzEngineNeuralGenTokenAt(nSkip)
+end
+
+func Chat(tSystem, tUser)
+	if $tFormat = "gemma"
+		return "<|turn>system" + Char(10) + tSystem + "<turn|>" + Char(10) + "<|turn>user" + Char(10) + tUser + "<turn|>" + Char(10) + "<|turn>model" + Char(10)
+	end
+	return "<|start_of_role|>system<|end_of_role|>" + tSystem + "<|end_of_text|>" + Char(10) + "<|start_of_role|>user<|end_of_role|>" + tUser + "<|end_of_text|>" + Char(10) + "<|start_of_role|>assistant<|end_of_role|>"
+end
+
+# ---- the analysis: no model needed ----
+
+func Analyse
+	vRows = ReadTsv($tTsv)
+	# per model: [ key, right, p_bp, ms, question ] for every answered question, and the load time
+	vG = []
+	vB = []
+	nLoadG = 0
+	nLoadB = 0
+	for i = 2 to Len(vRows)
+		vR = vRows[i]
+		if Len(vR) = 12
+			if vR[4] = "(load)"
+				if vR[3] = "granite"
+					nLoadG = Number(vR[11])
+				else
+					nLoadB = Number(vR[11])
+				end
+			else
+				vE = [ vR[1] + "|" + vR[4] + "|" + vR[5], Number(vR[8]), Number(vR[9]), Number(vR[11]), vR[4] ]
+				if vR[3] = "granite"
+					vG + vE
+				else
+					vB + vE
+				end
+			end
+		end
+	end
+	if Len(vG) = 0 or Len(vG) != Len(vB)
+		? "analyse: " + $tTsv + " does not hold both models' answers (granite " + String(Len(vG)) + ", bolt " + String(Len(vB)) + ")"
+		return
+	end
+	# the same question at the same place in both lists: the run asks them in one order
+	for i = 1 to Len(vG)
+		if vG[i][1] != vB[i][1]
+			? "analyse: the two models' rows are not in the same order at row " + String(i)
+			return
+		end
+	end
+	nN = Len(vG)
+	Say("ARC-ESCALATE on the support desk: " + String(nN) + " option questions per model (kind, product, severity; English, French, Arabic)")
+	Say("")
+	Say("EACH MODEL ALONE")
+	for k = 1 to 2
+		vM = vG
+		tName = "granite-4.0-1b"
+		nLoad = nLoadG
+		if k = 2
+			vM = vB
+			tName = "bolt-e4b      "
+			nLoad = nLoadB
+		end
+		tLine = "  " + tName + "  right " + String(SumCol(vM, 2)) + "/" + String(nN)
+		for j = 1 to Len($vQ)
+			tLine = tLine + "   " + $vQ[j][1] + " " + String(SumWhere(vM, 2, $vQ[j][1])) + "/" + String(CountWhere(vM, $vQ[j][1]))
+		end
+		tLine = tLine + "   " + Secs(SumCol(vM, 4)) + " s answering, " + Secs(nLoad) + " s to load"
+		Say(tLine)
+	end
+	Say("")
+	Say("IS GRANITE'S TOP PROBABILITY CALIBRATED? (the top option's share of the options' probability)")
+	Calibration(vG, "granite-4.0-1b")
+	Calibration(vB, "bolt-e4b")
+	Say("")
+	Say("THE CASCADE: Granite answers; below the threshold the question goes to Bolt")
+	Say("  threshold  escalated   right    batched s   swapping s")
+	vT = [ 0, 5000, 6000, 7000, 8000, 8500, 9000, 9500, 9900, 10001 ]
+	nGms = SumCol(vG, 4)
+	for k = 1 to Len(vT)
+		nEsc = 0
+		nRight = 0
+		nBms = 0
+		for i = 1 to nN
+			if vG[i][3] < vT[k]
+				nEsc = nEsc + 1
+				nRight = nRight + vB[i][2]
+				nBms = nBms + vB[i][4]
+			else
+				nRight = nRight + vG[i][2]
+			end
+		end
+		nBatched = nLoadG + nGms + nBms
+		if nEsc > 0
+			nBatched = nBatched + nLoadB
+		end
+		nSwap = nLoadG + nGms + nBms + nEsc * (nLoadB + nLoadG)
+		tTh = Pad(String(Divide(vT[k], 100, 0)) + "%", 9)
+		if vT[k] = 0
+			tTh = Pad("never", 9)
+		elseif vT[k] = 10001
+			tTh = Pad("always", 9)
+		end
+		Say("  " + tTh + "  " + Pad(String(nEsc) + "/" + String(nN), 9) + "  " + Pad(String(nRight) + "/" + String(nN), 7) + "  " + Pad(Secs(nBatched), 10) + "  " + Secs(nSwap))
+	end
+	nOracle = 0
+	for i = 1 to nN
+		if vG[i][2] = 1 or vB[i][2] = 1
+			nOracle = nOracle + 1
+		end
+	end
+	Say("  Bolt alone: " + String(SumCol(vB, 2)) + "/" + String(nN) + " in " + Secs(nLoadB + SumCol(vB, 4)) + " s;  escalating exactly Granite's " + String(nN - SumCol(vG, 2)) + " errors would reach " + String(nOracle) + "/" + String(nN))
+	Write($tReport, $tLog)
+end
+
+# accuracy by band of the top probability, the expected calibration error, and how often a right answer is surer than a
+# wrong one (the area under the ROC curve: 0.5 is chance, 1.0 a perfect ranking)
+func Calibration(vM, tName)
+	vEdges = [ 0, 5000, 7000, 8500, 9500, 9900, 10001 ]
+	Say("  " + tName)
+	Say("    band          n   right   mean p   accuracy")
+	nN = Len(vM)
+	nEce = 0
+	for k = 1 to Len(vEdges) - 1
+		nC = 0
+		nOk = 0
+		nPsum = 0
+		for i = 1 to nN
+			if vM[i][3] >= vEdges[k] and vM[i][3] < vEdges[k + 1]
+				nC = nC + 1
+				nOk = nOk + vM[i][2]
+				nPsum = nPsum + vM[i][3]
+			end
+		end
+		if nC > 0
+			nMeanP = Divide(nPsum, nC, 0)
+			nAcc = Divide(nOk * 10000, nC, 0)
+			nGap = nAcc - nMeanP
+			if nGap < 0
+				nGap = 0 - nGap
+			end
+			nEce = nEce + nGap * nC
+			tHi = String(Divide(vEdges[k + 1], 100, 0)) + "%"
+			if vEdges[k + 1] = 10001
+				tHi = "100%"
+			end
+			Say("    " + Pad(String(Divide(vEdges[k], 100, 0)) + "-" + tHi, 12) + Pad(String(nC), 5) + Pad(String(nOk), 8) + Pad(Pct(nMeanP), 9) + Pct(nAcc))
+		end
+	end
+	nPairs = 0
+	nWins = 0
+	for i = 1 to nN
+		if vM[i][2] = 1
+			for j = 1 to nN
+				if vM[j][2] = 0
+					nPairs = nPairs + 2
+					if vM[i][3] > vM[j][3]
+						nWins = nWins + 2
+					elseif vM[i][3] = vM[j][3]
+						nWins = nWins + 1
+					end
+				end
+			end
+		end
+	end
+	tAuc = "no wrong answer to rank"
+	if nPairs > 0
+		tAuc = String(Divide(nWins * 1000, nPairs, 0))
+		tAuc = "0." + Right("000" + tAuc, 3)
+		if nWins = nPairs
+			tAuc = "1.000"
+		end
+	end
+	Say("    calibration error " + Pct(Divide(nEce, nN, 0)) + ";  a right answer surer than a wrong one: " + tAuc)
+end
+
+# ---- small helpers ----
+
+func Say(tLine)
+	? tLine
+	$tLog = $tLog + tLine + Char(10)
+end
+
+func SumCol(vM, nCol)
+	nS = 0
+	for i = 1 to Len(vM)
+		nS = nS + vM[i][nCol]
+	end
+	return nS
+end
+
+func SumWhere(vM, nCol, tQ)
+	nS = 0
+	for i = 1 to Len(vM)
+		if vM[i][5] = tQ
+			nS = nS + vM[i][nCol]
+		end
+	end
+	return nS
+end
+
+func CountWhere(vM, tQ)
+	nS = 0
+	for i = 1 to Len(vM)
+		if vM[i][5] = tQ
+			nS = nS + 1
+		end
+	end
+	return nS
+end
+
+func Secs(nMs)
+	return String(Divide(nMs, 1000, 1))
+end
+
+func Pct(nBp)
+	return String(Divide(nBp, 100, 1)) + "%"
+end
+
+func Pad(tText, nWidth)
+	tOut = tText
+	while Len(tOut) < nWidth
+		tOut = tOut + " "
+	end
+	return tOut
+end
+
+func ReadTsv(tPath)
+	vOut = []
+	vLines = Str2List(Read(tPath))
+	for i = 1 to Len(vLines)
+		tLine = vLines[i]
+		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
+			tLine = Left(tLine, Len(tLine) - 1)
+		end
+		vF = []
+		tCur = ""
+		for j = 1 to Len(tLine)
+			if tLine[j] = Char(9)
+				vF + tCur
+				tCur = ""
+			else
+				tCur = tCur + tLine[j]
+			end
+		end
+		vF + tCur
+		if Len(tLine) > 0
+			vOut + vF
+		end
+	end
+	return vOut
+end
+
+func Slashes(tPath)
+	tOut = ""
+	for i = 1 to Len(tPath)
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end
