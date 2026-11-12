@@ -3,7 +3,12 @@
 //! CHILD, hands it a manifest of tours, and reads the logbook and the exit code.
 //!
 //!   testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--ladder]
+//!   testoor walk FOLDER [--suffix S] [--haro PATH] [the same options]
 //!   testoor version
+//!
+//! `walk` finds the `.haro` tours under FOLDER itself (names ending with `_narrated.haro` unless `--suffix` says
+//! otherwise; a name beginning with `_` or `.` is never walked), reads each with the Haro face and launches it on
+//! haro.exe: `--haro`, else the HARO_EXE variable, else `haro` on the path. No manifest and no other language.
 //!
 //! `--ladder` writes the evidence ladder (TESTOOR_PROTOCOL_3.md section 2): each node's highest grade.
 //!
@@ -41,7 +46,7 @@ fn say(s: []const u8) void {
 }
 
 fn usage() noreturn {
-    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--ladder]\n       testoor version\n");
+    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--ladder]\n       testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--ladder]\n       testoor version\n");
     std.process.exit(2);
 }
 
@@ -88,7 +93,10 @@ pub fn main() !void {
         say(version_line ++ "\n");
         return;
     }
-    if (args.len < 3 or !eq(args[1], "run")) usage();
+    if (args.len < 3 or (!eq(args[1], "run") and !eq(args[1], "walk"))) usage();
+    const walking = eq(args[1], "walk");
+    var suffix: []const u8 = "_narrated.haro";
+    var haro: []const u8 = std.process.getEnvVarOwned(a, "HARO_EXE") catch "haro";
 
     var mode: Mode = .auto;
     var seed: ?f64 = null;
@@ -99,6 +107,12 @@ pub fn main() !void {
     while (i < args.len) : (i += 1) {
         if (eq(args[i], "--ladder")) {
             ladder = true;
+        } else if (walking and eq(args[i], "--suffix") and i + 1 < args.len) {
+            suffix = args[i + 1];
+            i += 1;
+        } else if (walking and eq(args[i], "--haro") and i + 1 < args.len) {
+            haro = args[i + 1];
+            i += 1;
         } else if (eq(args[i], "--json")) {
             mode = .json;
         } else if (eq(args[i], "--prose")) {
@@ -112,13 +126,25 @@ pub fn main() !void {
         }
     }
 
-    const text = (if (eq(args[2], "-"))
-        std.fs.File.stdin().readToEndAlloc(a, 256 * 1024 * 1024)
-    else
-        std.fs.cwd().readFileAlloc(a, args[2], 256 * 1024 * 1024)) catch |e|
-        refuse(a, mode, try std.fmt.allocPrint(a, "cannot read the manifest {s}: {s}", .{ args[2], @errorName(e) }));
-    const doc = J.parse(a, text) catch refuse(a, mode, "the manifest is not a JSON document");
-    var m = R.fromValue(a, doc) catch refuse(a, mode, "the manifest is missing a field the runner reads");
+    var m: R.Manifest = undefined;
+    if (walking) {
+        // P3.6: the tours under a folder, read by the Haro face -- no manifest, no other language
+        const found = R.discover(a, args[2], suffix) catch |e|
+            refuse(a, mode, try std.fmt.allocPrint(a, "no such root: {s} ({s})", .{ args[2], @errorName(e) }));
+        var specs = try a.alloc(R.TourSpec, found.len);
+        for (found, 0..) |rel, k| specs[k] = try R.haroTour(a, args[2], rel, haro);
+        // a guard's FIRST run on haro.exe after the library changes compiles its image of the library: measured 5 to 11
+        // minutes a guard on 2026-11-12 (49.5 MB each), then seconds. A two-minute deadline would call every first run hung
+        m = .{ .settings = .{ .root = args[2], .timeout_ms = 1_200_000 }, .tours = specs };
+    } else {
+        const text = (if (eq(args[2], "-"))
+            std.fs.File.stdin().readToEndAlloc(a, 256 * 1024 * 1024)
+        else
+            std.fs.cwd().readFileAlloc(a, args[2], 256 * 1024 * 1024)) catch |e|
+            refuse(a, mode, try std.fmt.allocPrint(a, "cannot read the manifest {s}: {s}", .{ args[2], @errorName(e) }));
+        const doc = J.parse(a, text) catch refuse(a, mode, "the manifest is not a JSON document");
+        m = R.fromValue(a, doc) catch refuse(a, mode, "the manifest is missing a field the runner reads");
+    }
     if (seed) |v| m.settings.seed = v;
     if (repeat) |v| m.settings.repeat = v;
     if (timeout) |v| m.settings.timeout_ms = v;

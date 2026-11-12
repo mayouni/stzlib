@@ -434,6 +434,46 @@ V2's domains gain `list`, chosen after V4 on the author's word ("should we conti
 - **`zig build test-testoor`:** 96 of 96. The property guard: 43 assertions (11 new).
 - **Not built:** a list mixing kinds (a `one of kinds` element), a shrink pass that changes two dimensions together.
 
+### P3.6, the Haro face, 2026-11-13 -- DONE
+
+`TESTOOR_PROTOCOL_3.md` section 6. Chosen because PRINCIPAL-NORING-01 (2026-11-09) makes every new test a `.haro` file, and
+reading a tour's source was the Ring face's work, in Ring: the native runner could run a `.haro` tour only from a manifest a
+Ring program wrote.
+
+- **Written first, by hand:** `haro/reader/R1` and `R2` (a source and the record it reads into), `haro/judge/H1`.
+- **`testoor_reader.zig`:** `readHaro` -- a stop from `Scenario("...")`, a claim from `Then("...", ...)`, a claim built at run
+  time counted and not recorded, the helpers' bodies, class bodies and comments not read -- `writeRecord`, and `face`, the Haro
+  face as data: `Haro refused this statement` and `Error (R` broke the tour, `TOTAL: ` finished it.
+- **`testoor_runner.zig`:** `discover` (sorted paths; a file or folder beginning with `_` or `.` never walked) and `haroTour`
+  (`<haro> <file>`, run from the tour's own folder, so `load "../../stzBase.ring"` resolves).
+- **`testoor_main.zig`:** `testoor walk FOLDER [--suffix S] [--haro PATH]`. Its deadline is 20 minutes unless `--timeout` says
+  otherwise: a guard's FIRST run on haro.exe after the library changes compiles its image of the library, measured on
+  2026-11-12 at 5 to 11 minutes and 49.5 MB a guard, then seconds. The first walk, at two minutes, called two guards that pass hung.
+- **`testoor_verdict.zig`: `Face.verdicts`, found by the acceptance walk.** `models_check_narrated.haro` prints the report of
+  the program it tests, and one of its lines is `  FAIL     :triage_extract=bolt-e4b-choice  -- ...`. Protocol 2 reads a
+  verdict from any line of a verdict's shape, so the walk counted two diverged claims in a guard whose 15 claims all hold. In a
+  narrated tour a verdict is now a line that begins with the face's `verdicts` (`THEN ` for Haro); a face that leaves it empty
+  reads as before, which every golden of protocols 1 to 3 confirms. Golden H1.
+- **The acceptance: `testoor walk ../base/test` on haro.exe, 11 tours in 70 s with the images compiled, each against the same
+  guard run by hand:**
+
+| tour | the walk | run by hand |
+|---|---|---|
+| `faculty/model_pack` | 21 kept, 6 unjudged, finished | `TOTAL` 21 pass; scenes 2 and 3 not run: the support-quality pack is not on this machine |
+| `faculty/models_check` | 15 kept, 2 unjudged, finished | 15 pass; scene 1 not run, the same pack |
+| `governance/policy_diff` | 41 kept | 41 pass |
+| `neural/decoder_gemma4`, `decoder_lfm3`, `prefix_cache`, `tokenizer_gemma4` | every claim unjudged, finished | `NOT RUN`: the model file is not found (`no /Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf`); 0 assertions |
+| `neural/spec_decoding`, `security/credential_broker`, `security/engine_model_shut` | broke, every claim unreached | R3: `stzengineneuralspecstatus`, `stzenginehttpbrokergrant`, `stzengineneuralrunrecords` are not in the engine Haro built on 2026-11-08 (`C:\haro-engine`) |
+| `testoor/testoor_walk` | 10 kept | 10 pass |
+
+  An unjudged claim is a claim the source holds and the run never printed: here, every one sits in a branch the guard skips
+  when the pack or the model is absent, which is what the guard itself reports.
+- **`testoor_walk_narrated.haro`**, the first Testoor guard written in Haro: five planted tours (kept, diverged, a runtime error,
+  a refused statement, self-describing) walked as children, a `_` file and another name left out; 10 assertions.
+- **`zig build test-testoor`:** 100 of 100.
+- **Not built:** a reader that takes Haro's parsed program in place of source lines (P8 names it); the `stz guard` child calling
+  `walk`; the move of Testoor's own thirteen `.ring` guards to `.haro`.
+
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 
 1. **One domain `stz_testoor`** (recommended) or one per module.

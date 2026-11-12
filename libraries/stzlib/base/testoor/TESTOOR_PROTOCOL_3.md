@@ -233,7 +233,57 @@ A request without `"protocol":3` writes protocol 2's record, byte for byte.
   short) after `routes_walked`. **The prose** adds `, 3 of 6 nodes in the impact set below exhausted` before the posture.
 - **An empty reach meets any grade**, `proved` included: nothing the change touches is called by anything.
 
-## 6. Conformance
+## 6. The Haro face: `.haro` tours read and walked by the core (P3.6)
+
+Since 2026-11-09 no new code is written in the retired language (PRINCIPAL-NORING-01), and the estate's new tests are
+`.haro` files. Reading a tour's source was the Ring face's work, in Ring; the face for `.haro` tours is in the core
+(`engine/src/testoor_reader.zig`), so the native runner walks them with no other language involved.
+
+### 6.1 `testoor walk`
+
+    testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--ladder]
+
+- **The tours** are the files under FOLDER, in any folder below it, whose name ends with `_narrated.haro` (or `--suffix`),
+  sorted by path. A file or a folder whose name begins with `_` or `.` is never walked: measurement scripts, planted
+  fixtures and data live there.
+- **Each tour** is read by the Haro face (6.2) and launched as `<haro> <file>` from its own folder, where a guard's
+  `load "../../stzBase.ring"` resolves. `<haro>` is `--haro`, else the `HARO_EXE` variable, else `haro` on the path. Nothing
+  is added to the tour's arguments: a guard that reads `SysArgv` reads only what it would read run by hand.
+- **The logbook** is the one `testoor run` writes; the run's `root` is FOLDER.
+
+### 6.2 What the Haro face reads
+
+A `.haro` guard is narrated: `Scenario("...")` opens a stop, `Then("...", got, wanted)` is a claim of the stop in progress,
+and it prints `SCENARIO: <title>`, `  THEN  <claim>  [PASS]` or `[FAIL]` and a closing `TOTAL:` line.
+
+- **A stop** is a line beginning with `Scenario(` whose first argument is ONE text literal (`"..."` or `'...'`, then `,`
+  or `)`); **a claim**, a line beginning with `Then(` likewise, of kind `sees`. A claim before any stop opens `(the tour)`.
+- **A claim whose text is built at run time** (`Then("a" + tX, ...)`) is counted in `asserts` and not recorded: the judge
+  adds it when its verdict line is printed. The text is never guessed from the line.
+- **Read at the top level and inside the file's own functions; never inside a HELPER's body** -- a function named Then,
+  Scenario, Summary, Chk, ChkEq or Sec, or one whose body prints `[PASS]`, `[FAIL]` or `[OK]`. A class body is not read. A
+  line beginning with `#` is a comment.
+- **The dialect** is `narrated` when the file calls `Scenario(` or `Then(`, else `unknown`; a self-describing tour (one
+  that prints `[testoor ...]` lines) is judged from what it prints, as in protocol 1.1.
+- **A verdict, in a narrated tour, is only a line that begins (spaces aside) with `THEN `.** A program under test prints
+  reports of its own (`  FAIL     :triage_extract=... -- ...`), and a report that says FAIL is output, not a failed claim.
+  The face carries the rule as data (`verdicts` beside `ignore` and `endings`); a face that leaves it empty reads a verdict
+  from any line of a verdict's shape, as in protocol 2.
+
+### 6.3 How a Haro tour ends
+
+Tried in order over the tour's output, a verdict line (`THEN  ...`) never read for it, since a claim's text may hold any
+of these:
+
+| the output holds | the tour |
+|---|---|
+| `Haro refused this statement` | **broke**: Haro runs a file up to a statement it refused and stops there |
+| `Error (R` | **broke**: a runtime error |
+| `TOTAL: ` | **finished**, whatever the exit code: a guard exits with its failure count, and those failures are diverged claims, not a break |
+
+Otherwise a non-zero exit is `broke`, a zero exit `finished`, and a tour past its deadline `hung`, as for every face.
+
+## 7. Conformance
 
 Written by hand from section 2 before the code, and reproduced by the core on its first run (`zig build test-testoor`).
 
@@ -254,6 +304,12 @@ Written by hand from section 2 before the code, and reproduced by the core on it
 | `protocol3/logbook/L13_floor_grade_refused` | an `:llm` floor of `exhausted` over the impact set: 3 of 6 below, the first named in order; exit 1 though every tour is kept |
 | `protocol3/logbook/L14_floor_grade_met` | the same walk under `exemplified`, the ladder not asked: met, because a cap does not bite at grade 2; exit 0 |
 
+| `haro/reader/R1_narrated` | the Haro face's reader (6.2): a claim before any scenario opens `(the tour)`; a claim in a comment, a claim built at run time and the bodies of the helpers `Scenario` and `Then` are not recorded, the built claim counted in `asserts`; claims inside the file's own function and inside an `if` are; a single-quoted claim is a literal |
+| `haro/reader/R2_self_describing` | a `.haro` file with no `Scenario(` and no `Then(`: dialect `unknown`, no stop, judged from what it prints |
+| `haro/judge/H1_a_report_line_is_not_a_verdict` | a narrated Haro tour whose program prints `  FAIL     :...` before its two `THEN` lines: 2 kept, finished, exit 0 -- under protocol 2's rule the report line was a diverged claim |
+
 The same requests with the ladder NOT asked for write protocol 2 and no `ladder` key: the core guard and the native guard each
 assert it. `testoor_property_narrated.ring` holds the Ring face to section 4: the domains through the seam, `TestoorProperty`
 in-process (a failure shrunk to the same smallest input from two seeds), and two property tours walked as children.
+`testoor_walk_narrated.haro` holds `testoor walk` to section 6 on haro.exe: five planted tours (kept, diverged, refused,
+a runtime error, self-describing) judged from their folder, a `_` file and a non-matching name never walked.

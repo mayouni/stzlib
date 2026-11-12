@@ -1,0 +1,5 @@
+250	SCENARIO: a target without the pack
+500	  FAIL     :triage_extract=bolt-e4b-choice  -- 'keyword-rules' would answer there
+750	  THEN  status 1: a requirement is not met  [PASS]
+1000	  THEN  the report names what fails  [PASS]
+1250	TOTAL: 2 assertions, 2 pass, 0 fail

@@ -134,8 +134,10 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
 - *Guard for every item:* nothing in this phase can change a verdict without a run.
 
 ### P8 -- Faces.
-- **Haro**, when it can be parsed: a helper that prints the protocol lines and a profile, and a reader that takes
-  the parsed program (`rnxc dump --json` is the model to try) in place of matching source lines.
+- **Haro, in the core: DONE 2026-11-13 as P3.6** (`TESTOOR_PROTOCOL_3.md` section 6). `testoor walk FOLDER` finds the
+  `*_narrated.haro` tours, reads each with `testoor_reader.zig` and judges it on haro.exe -- no manifest and no other language.
+  Chosen after PRINCIPAL-NORING-01 (2026-11-09) made `.haro` the language of every new test. The reader matches source
+  lines; a reader that takes the parsed program once Haro offers one stays the better design.
 - **Zin SIMULATION_TEST** read into the logbook, once the Zin desk confirms what a tick means.
 - **Python, JS and others** registered by their owners; the conformance guard is already their test.
 
