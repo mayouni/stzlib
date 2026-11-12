@@ -1,0 +1,438 @@
+# stzPolicyDiff.haro -- the access a governance change adds, shown before the change is accepted (RADAR-OPENSHELL-POLICYDIFF-01)
+#
+# A policy is the rules that decide what an agent may reach. Softanza holds them in three places, and this file reads
+# all three the same way:
+#
+#   :regime      a stzGovernance (or the path of its .zgov file): which actor may carry out which action, and which
+#                executor may perform work of which reversibility class
+#   :functions   the functions an agent file may name, each with the most trusted posture it may run under
+#                ([ [ name, posture ], ... ]; "" or absent reads none, :live reads this process's StzAllowAgentFunction list)
+#   :graph       a stzSecurityGraph: which capabilities, tools, secrets, stores and actors each actor reaches, by any path
+#   :facts       any other surface's own facts, written [ kind, subject, object ] -- the endpoint a secret may be sent to,
+#                once the credential broker gives endpoints a rule
+#
+# A policy's REACH is the list of facts it allows, each one asked of the library's own decision function: MayProceed
+# and MayExecuteFor for the regime, the allowance for the functions, graph reachability for the graph. Nothing here
+# re-implements a rule. StzPolicyDiff(before, after) is the reach after minus the reach before (added) and the reverse
+# (removed); status 0 when the change adds no access, 1 when it adds some -- that change waits for review.
+#
+# WHY THE DIFF IS EXACT AND NOT A SAMPLE. Every surface is closed: MayProceed refuses an action with no declared tier
+# and an actor with no permission row, MayExecuteFor refuses an executor with no posture, an agent file may name no
+# function outside the allowance list, and a graph reaches nothing it does not hold as a node. So an actor, action,
+# executor or function named in NEITHER policy is refused by both, and asking every name either policy holds, of both
+# policies, covers every case there is.
+#
+#   xD = StzPolicyDiff([ [:regime, "before.zgov"] ], [ [:regime, "after.zgov"] ])
+#   ? StzPolicyDiffText(xD)
+#   StzRuleReportQ("ci").Ingest(StzPolicyDiffFindings(xD))      # the house rule shape, severity warning
+#
+# A command-line gate: tools/policy_diff.haro before.zgov after.zgov exits with the status.
+
+# The facts a policy allows: [ [ kind, subject, object, why ], ... ], where why says which rule allows it.
+func StzPolicyReach(xPolicy)
+	xP = _PdResolve(xPolicy)
+	return _PdReach(xP, _PdNames(xP, ""))
+end
+
+# The access a change adds and removes: [ [:added, facts], [:removed, facts], [:status, 0 or 1] ].
+func StzPolicyDiff(xBefore, xAfter)
+	xB = _PdResolve(xBefore)
+	xA = _PdResolve(xAfter)
+	vNames = _PdNames(xB, _PdNames(xA, ""))
+	vB = _PdReach(xB, vNames)
+	vA = _PdReach(xA, vNames)
+	vAdded = _PdMinus(vA, vB)
+	vRemoved = _PdMinus(vB, vA)
+	# a removed fact's why is the after policy's own reason for refusing it
+	for i = 1 to Len(vRemoved)
+		vRemoved[i][4] = _PdWhyNot(xA, vRemoved[i])
+	end
+	nStatus = 0
+	if Len(vAdded) > 0
+		nStatus = 1
+	end
+	return [ [:added, vAdded], [:removed, vRemoved], [:status, nStatus] ]
+end
+
+# One line per fact, the additions first, as a reviewer reads them; the postures a function or an actor gains are
+# said on one line.
+func StzPolicyDiffText(xDiff)
+	vAdded = xDiff[:added]
+	vRemoved = xDiff[:removed]
+	tOut = ""
+	if Len(vAdded) = 0
+		tOut = "THE CHANGE ADDS NO ACCESS"
+	elseif Len(vAdded) = 1
+		tOut = "THE CHANGE ADDS 1 ACCESS -- it waits for review"
+	else
+		tOut = "THE CHANGE ADDS " + String(Len(vAdded)) + " ACCESSES -- it waits for review"
+	end
+	vLines = _PdSentences(vAdded, true)
+	for i = 1 to Len(vLines)
+		tOut = tOut + Char(10) + "  + " + vLines[i]
+	end
+	if Len(vRemoved) > 0
+		tOut = tOut + Char(10) + "IT REMOVES " + String(Len(vRemoved))
+		vLines = _PdSentences(vRemoved, false)
+		for i = 1 to Len(vLines)
+			tOut = tOut + Char(10) + "  - " + vLines[i]
+		end
+	end
+	return tOut
+end
+
+# A fact as a sentence; bNow says it was gained (the sentence says "now") or lost.
+func StzPolicyFactSentence(vFact, bNow)
+	return _PdSentence(vFact[1], vFact[2], vFact[3], vFact[4], bNow)
+end
+
+# The sentences of a list of facts: a function's or an actor's postures, which follow each other, become one line.
+func _PdSentences(vFacts, bNow)
+	vOut = []
+	nAt = 1
+	while nAt <= Len(vFacts)
+		vF = vFacts[nAt]
+		vObjects = [ vF[3] ]
+		nNext = nAt + 1
+		if vF[1] = "call" or vF[1] = "posture"
+			while nNext <= Len(vFacts)
+				if vFacts[nNext][1] = vF[1] and vFacts[nNext][2] = vF[2]
+					vObjects + vFacts[nNext][3]
+					nNext = nNext + 1
+				else
+					exit
+				end
+			end
+		end
+		vOut + _PdSentence(vF[1], vF[2], _PdJoin(vObjects), vF[4], bNow)
+		nAt = nNext
+	end
+	return vOut
+end
+
+func _PdSentence(tKind, tSubject, tObject, tWhy, bNow)
+	tWhen = "no longer"
+	if bNow
+		tWhen = "now"
+	end
+	tTail = ""
+	if tWhy != ""
+		tTail = " -- " + tWhy
+	end
+	if tKind = "proceed"
+		return "'" + tSubject + "' may " + tWhen + " carry out '" + tObject + "'" + tTail
+	elseif tKind = "execute"
+		return "'" + tSubject + "' may " + tWhen + " perform " + tObject + " work" + tTail
+	elseif tKind = "call"
+		return "an agent file may " + tWhen + " call '" + tSubject + "' under " + _PdPostures(tObject) + tTail
+	elseif tKind = "posture"
+		return "'" + tSubject + "' may " + tWhen + " run under " + _PdPostures(tObject) + tTail
+	end
+	return "'" + tSubject + "' " + tWhen + " reaches " + tKind + " '" + tObject + "'" + tTail
+end
+
+func _PdPostures(tList)
+	if StzFindFirst(" and ", tList) > 0
+		return "the " + tList + " postures"
+	end
+	return "the " + tList + " posture"
+end
+
+func _PdJoin(vWords)
+	nLenW = Len(vWords)
+	tOut = vWords[1]
+	for i = 2 to nLenW
+		if i = nLenW
+			tOut = tOut + " and " + vWords[i]
+		else
+			tOut = tOut + ", " + vWords[i]
+		end
+	end
+	return tOut
+end
+
+# Why the after policy does not allow a fact the before policy allowed, asked of the same rules.
+func _PdWhyNot(xA, vF)
+	tKind = vF[1]
+	if tKind = "proceed" or tKind = "execute"
+		oGov = _PdRegime(xA)
+		if IsObject(oGov) = false
+			return "the policy after the change has no regime"
+		end
+		if tKind = "proceed"
+			oGov.MayProceed(vF[2], vF[3])
+		else
+			oGov.MayExecuteFor(vF[2], vF[3])
+		end
+		return oGov.Why()
+	end
+	if tKind = "call"
+		tMax = _PdAllowance(_PdFunctions(xA), vF[2])
+		if tMax = ""
+			return "no allowance names it"
+		end
+		return "allowed only up to the " + tMax + " posture"
+	end
+	if _PdHas(xA, :graph)
+		oG = xA[:graph].GraphQ()
+		if tKind = "posture"
+			if oG.NodeExists(vF[2]) = 0
+				return "it is not in the graph"
+			end
+			return "its posture is " + oG.NodeProperty(vF[2], "posture")
+		end
+		if _PdIn(tKind, [ "capability", "tool", "secret", "store", "site", "actor" ])
+			return "no path leads there in the graph after the change"
+		end
+	end
+	return "the policy after the change does not hold it"
+end
+
+# The additions in the house rule shape, for stzRuleReport.Ingest: rule policy-adds-access, severity warning.
+func StzPolicyDiffFindings(xDiff)
+	vOut = []
+	vAdded = xDiff[:added]
+	for i = 1 to Len(vAdded)
+		vOut + [ [:rule, "policy-adds-access"], [:subject, vAdded[i][2]], [:where, vAdded[i][1] + ":" + vAdded[i][3]],
+			[:severity, "warning"], [:message, StzPolicyFactSentence(vAdded[i], true)] ]
+	end
+	return vOut
+end
+
+# ---- the names a policy holds, per surface: [ actors, actions, executors, functions ] ----
+
+func _PdNames(xPolicy, xInto)
+	vN = [ [], [], [], [] ]
+	if IsList(xInto)
+		vN = xInto
+	end
+	oGov = _PdRegime(xPolicy)
+	if IsObject(oGov)
+		vP = oGov._Perms()
+		for i = 1 to Len(vP)
+			vN[1] = _PdAdd(vN[1], vP[i][1])
+			vN[2] = _PdAdd(vN[2], vP[i][2])
+		end
+		vR = oGov._Risks()
+		for i = 1 to Len(vR)
+			vN[2] = _PdAdd(vN[2], vR[i][1])
+		end
+		vU = oGov._Auths()
+		for i = 1 to Len(vU)
+			vN[1] = _PdAdd(vN[1], vU[i][1])
+		end
+		vS = oGov._Postures()
+		for i = 1 to Len(vS)
+			vN[3] = _PdAdd(vN[3], vS[i][1])
+		end
+	end
+	vF = _PdFunctions(xPolicy)
+	for i = 1 to Len(vF)
+		vN[4] = _PdAdd(vN[4], StzLower(vF[i][1]))
+	end
+	return vN
+end
+
+func _PdAdd(vList, tName)
+	if _PdIn(tName, vList) = false
+		vList + tName
+	end
+	return vList
+end
+
+# ---- the reach, asked of each surface's own decision function ----
+
+func _PdReach(xPolicy, vNames)
+	vOut = []
+	oGov = _PdRegime(xPolicy)
+	if IsObject(oGov)
+		for i = 1 to Len(vNames[1])
+			for j = 1 to Len(vNames[2])
+				if oGov.MayProceed(vNames[1][i], vNames[2][j]) = 1
+					vOut + [ "proceed", vNames[1][i], vNames[2][j], oGov.Why() ]
+				end
+			end
+		end
+		vClasses = [ "reversible", "compensable", "irreversible" ]
+		for i = 1 to Len(vNames[3])
+			for j = 1 to 3
+				if oGov.MayExecuteFor(vNames[3][i], vClasses[j]) = 1
+					vOut + [ "execute", vNames[3][i], vClasses[j], oGov.Why() ]
+				end
+			end
+		end
+	end
+	vF = _PdFunctions(xPolicy)
+	if Len(vF) > 0
+		vPostures = [ "sandboxed", "external", "trusted" ]
+		for i = 1 to Len(vNames[4])
+			tMax = _PdAllowance(vF, vNames[4][i])
+			nMax = StzAgentPostureRank(tMax)
+			for j = 1 to nMax
+				vOut + [ "call", vNames[4][i], vPostures[j], "allowed up to the " + tMax + " posture" ]
+			end
+		end
+	end
+	if _PdHas(xPolicy, :graph)
+		vOut = _PdGraphReach(xPolicy[:graph], vOut)
+	end
+	if _PdHas(xPolicy, :facts)
+		vX = xPolicy[:facts]
+		for i = 1 to Len(vX)
+			tWhy = ""
+			if Len(vX[i]) >= 4
+				tWhy = vX[i][4]
+			end
+			vOut + [ StzLower(vX[i][1]), StzLower(vX[i][2]), StzLower(vX[i][3]), tWhy ]
+		end
+	end
+	return vOut
+end
+
+# Every actor's reach in the graph: each node it reaches by any path, by the node's kind, with the path; and the postures
+# its own posture admits (sandboxed < external < trusted).
+func _PdGraphReach(oSG, vOut)
+	oG = oSG.GraphQ()
+	vIds = oG.NodesIds()
+	vPostures = [ "sandboxed", "external", "trusted" ]
+	for i = 1 to Len(vIds)
+		if oG.NodeProperty(vIds[i], "kind") = "actor"
+			tP = "" + oG.NodeProperty(vIds[i], "posture")
+			nRank = StzAgentPostureRank(tP)
+			for j = 1 to nRank
+				vOut + [ "posture", vIds[i], vPostures[j], "its posture is " + tP ]
+			end
+			vR = oG.ReachableFrom(vIds[i])
+			for j = 1 to Len(vR)
+				if vR[j] != vIds[i]
+					tKind = "" + oG.NodeProperty(vR[j], "kind")
+					vOut + [ tKind, vIds[i], vR[j], _PdPathWords(oG.ShortestPath(vIds[i], vR[j])) ]
+				end
+			end
+		end
+	end
+	return vOut
+end
+
+func _PdPathWords(vPath)
+	if Len(vPath) = 0
+		return ""
+	end
+	tOut = "" + vPath[1]
+	for i = 2 to Len(vPath)
+		tOut = tOut + " -> " + vPath[i]
+	end
+	return tOut
+end
+
+# The facts of vA that vB does not hold, matched on kind, subject and object (the why may differ between policies).
+func _PdMinus(vA, vB)
+	vKeys = []
+	for i = 1 to Len(vB)
+		vKeys + (vB[i][1] + "|" + vB[i][2] + "|" + vB[i][3])
+	end
+	vOut = []
+	for i = 1 to Len(vA)
+		if _PdIn(vA[i][1] + "|" + vA[i][2] + "|" + vA[i][3], vKeys) = false
+			vOut + vA[i]
+		end
+	end
+	return vOut
+end
+
+# ---- reading a policy ----
+
+func _PdIn(tName, vList)
+	for i = 1 to Len(vList)
+		if vList[i] = tName
+			return true
+		end
+	end
+	return false
+end
+
+# The policy with its regime read once: a .zgov path becomes the stzGovernance it describes.
+func _PdResolve(xPolicy)
+	if _PdHas(xPolicy, :regime) = false
+		return xPolicy
+	end
+	vOut = []
+	for i = 1 to Len(xPolicy)
+		if xPolicy[i][1] = :regime
+			vOut + [ :regime, _PdRegime(xPolicy) ]
+		else
+			vOut + xPolicy[i]
+		end
+	end
+	return vOut
+end
+
+func _PdHas(xPolicy, tKey)
+	if IsList(xPolicy) = false
+		return false
+	end
+	for i = 1 to Len(xPolicy)
+		if IsList(xPolicy[i])
+			if Len(xPolicy[i]) = 2
+				if xPolicy[i][1] = tKey
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
+# The regime as a stzGovernance: the object itself, or a fresh one read from the .zgov path; "" when the policy has none.
+func _PdRegime(xPolicy)
+	if _PdHas(xPolicy, :regime) = false
+		return ""
+	end
+	xR = xPolicy[:regime]
+	if IsObject(xR)
+		return xR
+	end
+	if IsString(xR)
+		if xR != ""
+			oGov = new stzGovernance("policy")
+			oGov.LoadFrom(xR)
+			return oGov
+		end
+	end
+	return ""
+end
+
+# The allowance list: as given, or this process's own (StzAllowAgentFunction) for :live; the library's built-in roster
+# functions are part of every list, as StzAgentFunctionAllowance reads them.
+func _PdFunctions(xPolicy)
+	if _PdHas(xPolicy, :functions) = false
+		return []
+	end
+	xF = xPolicy[:functions]
+	vOut = []
+	if IsString(xF)
+		if StzLower(xF) = "live"
+			vOut = $aStzAgentFnAllow
+		else
+			return []
+		end
+	else
+		vOut = xF
+	end
+	vB = StzBuiltinAgentFunctions()
+	for i = 1 to Len(vB)
+		vOut + vB[i]
+	end
+	return vOut
+end
+
+# The most trusted posture a list allows a function; "" when it may not be named. The first row for a name wins, as
+# StzAllowAgentFunction keeps one row per name and the built-in roster is read after it.
+func _PdAllowance(vF, tName)
+	for i = 1 to Len(vF)
+		if StzLower(vF[i][1]) = tName
+			return StzLower(vF[i][2])
+		end
+	end
+	return ""
+end
