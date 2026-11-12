@@ -17,8 +17,23 @@
 
 import io, os, re, subprocess, sys, collections
 
-RING = "D:/ring127/bin/ring.exe"
+# 2026-11-12: this named D:/ring127/bin/ring.exe, and ring.exe CANNOT LOAD THIS
+# LIBRARY any more. base/faculty/stzModelRegistry.ring:286 calls `call` on an
+# indexed expression, which is valid Haro and invalid Ring 1.27, so every test
+# raised at load and the harness could only report that nothing ran. haro.exe is
+# the runtime (PRINCIPAL-NORING-01) and needs STZ_ENGINE_DIR pointing at a
+# Haro-ABI engine build -- stzlib's own zig-out is a PLAIN-Ring build and has no
+# rpp_init export, so it cannot be used here. Both are read from the environment
+# first, so a desk whose engine sits elsewhere does not edit this file.
+RUNNER = os.environ.get("STZ_RUNNER", "D:/GitHub/haro/vm/zig-out/bin/haro.exe")
+ENGINE_DIR = os.environ.get("STZ_ENGINE_DIR", "D:/GitHub/haro/runtime/engine")
+
 TOPIC = sys.argv[1] if len(sys.argv) > 1 else "char"
+
+# The tree THIS FILE lives in, so a worktree measures its own files. ROOT used to
+# name D:/GitHub/stzlib absolutely, so a run from a worktree silently graded the
+# main checkout and reported it as the worktree's own result.
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # A topic name, or an explicit directory. The second form exists so the
 # harness can be pointed at a scratch folder of DELIBERATELY WRONG promises
@@ -26,7 +41,7 @@ TOPIC = sys.argv[1] if len(sys.argv) > 1 else "char"
 if ':' in TOPIC or '/' in TOPIC or os.path.isdir(TOPIC):
     ROOT = TOPIC
 else:
-    ROOT = "D:/GitHub/stzlib/libraries/stzlib/base/test/" + TOPIC
+    ROOT = os.path.join(BASE_DIR, "test", TOPIC)
 
 TRAILING = re.compile(r'^\s*\?.*?#-->\s*(.+?)\s*$')
 
@@ -167,8 +182,10 @@ def expectations(path):
 
 def run(path):
     try:
-        p = subprocess.run([RING, os.path.basename(path)], cwd=os.path.dirname(path),
-                           capture_output=True, timeout=120)
+        env = dict(os.environ)
+        env["STZ_ENGINE_DIR"] = ENGINE_DIR
+        p = subprocess.run([RUNNER, os.path.basename(path)], cwd=os.path.dirname(path),
+                           capture_output=True, timeout=120, env=env)
         return (p.stdout + p.stderr).decode('utf-8', 'replace').replace('\r\n', '\n').split('\n')
     except subprocess.TimeoutExpired:
         return None
@@ -177,6 +194,7 @@ def run(path):
 matched = missing = 0
 timeouts = []
 didnotrun = []
+unread = []
 notreached = 0
 raisedfiles = {}
 annotated = 0
@@ -188,6 +206,15 @@ for fn in files:
     path = os.path.join(ROOT, fn)
     exp = expectations(path)
     if not exp:
+        # "NO PROMISES THIS EXTRACTOR COULD READ" IS NOT "NO PROMISES", and the
+        # bare `continue` that used to stand here made the difference invisible.
+        # Measured 2026-11-12: the regex topic has 50 files carrying #--> and this
+        # harness reported "files with expectations : 5". Estate-wide, 2,433 test
+        # files annotate ONLY in the standalone form, which TRAILING cannot match.
+        # A run that grades 5 of 50 and prints a clean summary is a green nobody
+        # earned, so the count is reported below whatever the cause.
+        if '#-->' in io.open(path, encoding='utf-8', errors='replace').read():
+            unread.append(fn)
         continue
     out = run(path)
     if out is None:
@@ -367,6 +394,10 @@ if timeouts:
     print("  timed out (not checked) : %d  %s" % (len(timeouts), ', '.join(safe(x) for x in timeouts[:4])))
 if didnotrun:
     print("  DID NOT COMPILE         : %d  %s" % (len(didnotrun), ', '.join(safe(x) for x in didnotrun[:4])))
+if unread:
+    print("  PROMISES NOT READ       : %d files carry #--> that this extractor could not parse" % len(unread))
+    print("                            (standalone '#--> v' on its own line; TRAILING matches only '? expr  #--> v')")
+    print("                            %s" % ', '.join(safe(x) for x in unread[:6]))
     print("     (nothing ran in these -- they are not divergences)")
 if raisedfiles:
     print("  RAISED part-way        : %d files, %d expectations never reached" % (len(raisedfiles), notreached))
