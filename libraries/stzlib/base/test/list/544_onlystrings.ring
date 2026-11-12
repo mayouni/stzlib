@@ -24,10 +24,10 @@ o1 = new stzList([ "a", 1, 3, "b", ["A1", "A2"], obj1, "c", 3, [ "B1", "B2" ], o
 #--> The two objects o1 and o2 printed in the console:
 #
 # @oobject: NULL
-# @cvarname: @trueobject
+# @tVarName: @trueobject
 #
 # @oobject: NULL
-# @cvarname: @falseobject
+# @tVarName: @falseobject
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.27

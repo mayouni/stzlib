@@ -262,14 +262,14 @@ class stzDecisionTree from stzObject
 				# unseen value: fall to the node's majority default
 				@cWhy = _cPath_ + " (unseen value) -> default '" +
 					_aNode_[:default] + "'"
-				$cStzLastWhyB = @cWhy
+				$tStzLastWhyB = @cWhy
 				$nStzLastCertainty = 1
 				return _aNode_[:default]
 			ok
 			_aNode_ = _aNext_
 		end
 		@cWhy = _cPath_ + " -> '" + _aNode_[:leaf] + "'"
-		$cStzLastWhyB = @cWhy
+		$tStzLastWhyB = @cWhy
 		$nStzLastCertainty = 1
 		return _aNode_[:leaf]
 

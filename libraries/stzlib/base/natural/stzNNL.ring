@@ -17,45 +17,45 @@
 #   "with BETWEEN 3 and 5 words"                   -> :Between
 # SetLastValue() (stzNaturalCode) stores WHAT is expected; the mode says
 # HOW to compare. Every *NB()/*B() device compares through the register
-# and records its explanation in $cStzLastWhyB.
+# and records its explanation in $tStzLastWhyB.
 
-$cStzExpectMode = :Exactly
+$tStzExpectMode = :Exactly
 $nStzExpectTol = 0
-$cStzLastWhyB = ""
+$tStzLastWhyB = ""
 $nStzLastCertainty = 1   # EVIDENTIALITY: how confidently the last verdict is known
 $aStzAskAnswers = []   # Q4: the session ask-record (see the funcs below)
 
 func ExpectExactly(n)
 	SetLastValue(n)
-	$cStzExpectMode = :Exactly
+	$tStzExpectMode = :Exactly
 
 func ExpectAtLeast(n)
 	SetLastValue(n)
-	$cStzExpectMode = :AtLeast
+	$tStzExpectMode = :AtLeast
 
 func ExpectAtMost(n)
 	SetLastValue(n)
-	$cStzExpectMode = :AtMost
+	$tStzExpectMode = :AtMost
 
 func ExpectMoreThan(n)
 	SetLastValue(n)
-	$cStzExpectMode = :MoreThan
+	$tStzExpectMode = :MoreThan
 
 func ExpectLessThan(n)
 	SetLastValue(n)
-	$cStzExpectMode = :LessThan
+	$tStzExpectMode = :LessThan
 
 func ExpectAbout(n)
 	ExpectAboutXT(n, 0.1)
 
 func ExpectAboutXT(n, nTolerance)
 	SetLastValue(n)
-	$cStzExpectMode = :About
+	$tStzExpectMode = :About
 	$nStzExpectTol = nTolerance
 
 func ExpectBetween(n1, n2)
 	SetLastValue([ n1, n2 ])
-	$cStzExpectMode = :Between
+	$tStzExpectMode = :Between
 
 # THE ACCOUNTABILITY SURFACE -- two scopes, two names (the archived
 # WhyChainStopped precedent: explanations live ON the chain):
@@ -112,10 +112,10 @@ func StzEvidentialVerdict(bYes, nConf)
 	return _cEv_ + " not"
 
 func Why()
-	return $cStzLastWhyB
+	return $tStzLastWhyB
 
 	func @Why()
-		return $cStzLastWhyB
+		return $tStzLastWhyB
 
 # THE SESSION ASK-RECORD (Q4 convergence) -- every question FRAME records
 # its answer here, so a run of questions folds exactly like a narration's

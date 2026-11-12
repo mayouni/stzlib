@@ -1,28 +1,28 @@
 
 
-func StzTrueObjectQ()
+func StzTrueObjectQ
 	return new stzTrueObject
-
-	func 1Object()
+end
+	func 1Object
 		return new stzTrueObject
-
-	func ATrueObject()
+	end
+	func ATrueObject
 		return new stzTrueObject
-
-		func TrueObject()
+	end
+		func TrueObject
 			return new stzTrueObject
-
-	func StzTrueQ()
+		end
+	func StzTrueQ
 		return new stzTrueObject
-
-	func TRUE()
+	end
+	func true
 		return new stzTrueObject
-
-	func TRUEQ()
+	end
+	func TRUEQ
 		return new stzTrueObject
-
+	end
 class stzTrue from stzTrueObject
-
+end
 # Is an object that holds the value 1 and is equal to everything, as the passing counterpart of the null object.
 #
 # Its content is 1 and every comparison with it answers 1, whatever the other side is; its Where
@@ -40,50 +40,50 @@ class stzTrue from stzTrueObject
 #   see        stzNullObject, stzFalseObject, TRUE
 class stzTrueObject from stzObject
 
-	@cVarName = :@trueobject
+	@tVarName = :@trueobject
 
 	# Returns 1, which is the true object's content.
 	#
 	#   returns    1, a number
 	#   see        Value, Where
-	def Content()
-		return 1
-
+	def Content
+		return true
+	end
 		# Returns the same 1 as Content.
 		#
 		#   returns    1, a number
 		#   see        Content
-		def Value()
+		def Value
 			return Content()
-
+		end
 	# Returns 0 whatever the condition says; the condition is not evaluated.
 	#
 	#   pcCondition   a condition, ignored
 	#   returns       0, a number
 	#   see           W, stzNullObject
-	def Where(pcCondition)
-		return 0
-
+	def Where(pxCondition)
+		return false
+	end
 		# Returns 0 whatever the condition says, like Where.
 		#
 		#   pcCondition   a condition, ignored
 		#   returns       0, a number
 		#   see           Where
-		def W(pcCondition)
-			return 0
-
-	def IsEqualToCSQ(p, pCaseSensitie)
-		return This
-
-		def IsEqualToQ(p)
-			return This
-
-		def EqualsQ(p)
-			return This
-
-	def IsEqualToCS(p, pCaseSensitive)
-		return 1
-
+		def W(pxCondition)
+			return false
+		end
+	def IsEqualToCSQ(xP, pxCaseSensitie)
+		return this
+	end
+		def IsEqualToQ(xP)
+			return this
+		end
+		def EqualsQ(xP)
+			return this
+		end
+	def IsEqualToCS(xP, pxCaseSensitive)
+		return true
+	end
 		# Returns 1 for every argument, whatever it is: the true object is equal to everything.
 		#
 		#   p          the value to compare, ignored
@@ -91,21 +91,23 @@ class stzTrueObject from stzObject
 		#   note       IsEqualToCS gives the same answer, and IsEqualToQ and IsEqualToCSQ return the
 		#              object so a chain goes on
 		#   see        Equals, IsEqualToQ
-		def IsEqualTo(p)
-			return 1
-
+		def IsEqualTo(xP)
+			return true
+		end
 		# Returns 1 for every argument, as IsEqualTo does.
 		#
 		#   p          the value to compare, ignored
 		#   returns    1, a number
 		#   note       EqualsQ returns the object so a chain goes on
 		#   see        IsEqualTo
-		def Equals(p)
-			return 1
-
+		def Equals(xP)
+			return true
+		end
 	# Returns the type name of the object, stzTrueObject, as a symbol.
 	#
 	#   returns    the symbol stztrueobject
 	#   see        Content
-	def StzType()
+	def StzType
 		return :stzTrueObject
+	end
+end

@@ -148,7 +148,7 @@ class stzKMeans from stzObject
 
 		@cWhy = "converged in " + @nIterations + " iteration(s); inertia " +
 			This.Inertia()
-		$cStzLastWhyB = @cWhy
+		$tStzLastWhyB = @cWhy
 		$nStzLastCertainty = 1
 		return This
 

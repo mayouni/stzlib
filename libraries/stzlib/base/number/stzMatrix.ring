@@ -1386,7 +1386,7 @@ class stzMatrix from stzListOfLists
 					@aContent = _aNew_
 					@nCols = _nBCols_
 					This._InvalidateEngineMatrix()
-					$cStzLastWhyB = "matmul ran on the GGML tier (threaded f32 kernel)"
+					$tStzLastWhyB = "matmul ran on the GGML tier (threaded f32 kernel)"
 					return
 				ok
 				StzEngineMatrixFree(_pB_)
@@ -1395,7 +1395,7 @@ class stzMatrix from stzListOfLists
 		ok
 		# graceful degradation: the naive engine/Ring path
 		This.MultiplyByMatrix(paMatrix)
-		$cStzLastWhyB = "matmul ran on the NAIVE tier (ggml unavailable)"
+		$tStzLastWhyB = "matmul ran on the NAIVE tier (ggml unavailable)"
 
 	# Replaces this matrix by its matrix product with a second matrix on the right.
 	#

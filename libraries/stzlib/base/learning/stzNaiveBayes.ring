@@ -150,7 +150,7 @@ class stzNaiveBayes from stzObject
 
 		@cWhy = "log-scores: " + _cScores_ + " -- best: '" + _cBest_ + "'"
 		$nStzLastCertainty = 1
-		$cStzLastWhyB = @cWhy
+		$tStzLastWhyB = @cWhy
 		return _cBest_
 
 	# Returns the log-score of every label for the last text and the best one.

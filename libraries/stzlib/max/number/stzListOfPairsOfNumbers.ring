@@ -6,7 +6,7 @@ func AbsDiff(paList)
 	return StzListOfPairsOfNumbersQ(paList).AbsDiff()
 
 class stzListOfPairsOfNumbers from stzListOfPairs
-	@content = []
+	@xContent = []
 
 	def init(paListOfPairsOfNumbers)
 
@@ -14,14 +14,14 @@ class stzListOfPairsOfNumbers from stzListOfPairs
 			StzRaise("Incorrect param type! paListOfPairsOfNumbers must be, well, a list of pairs of numbers ;).")
 		ok
 
-		@content = paListOfPairsOfNumbers
+		@xContent = paListOfPairsOfNumbers
 
 
 	def Content()
-		return @content
+		return @xContent
 
 	def Copy()
-		return new stzListOfPairsOfNumbers(@content)
+		return new stzListOfPairsOfNumbers(@xContent)
 
 
 	#--

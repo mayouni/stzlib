@@ -267,7 +267,7 @@ class stzPIAgent from stzObject
 		end
 		@cWhy = "pursued " + _nRound_ + " round(s); " + _nTotal_ +
 			" skill-firing(s) verified"
-		$cStzLastWhyB = @cWhy
+		$tStzLastWhyB = @cWhy
 		return _nTotal_
 
 	# Returns the governed decisions taken so far: every trace row that ran or was refused.

@@ -43,14 +43,14 @@ ok
 
 # Loading files related to the OBJECT module
 
-    load "object/stzObject.ring"
-    load "object/stzObjectHistory.ring"
+    load "object/stzObject.haro"
+    load "object/stzObjectHistory.haro"
 
     load "object/stzListOfObjects.ring"
     load "object/stzListOfNamedObjects.ring"
-    load "object/stzNullObject.ring"
-    load "object/stzTrueObject.ring"
-    load "object/stzFalseObject.ring"
+    load "object/stzNullObject.haro"
+    load "object/stzTrueObject.haro"
+    load "object/stzFalseObject.haro"
 
 # Loading files related to the NUMBER module
 

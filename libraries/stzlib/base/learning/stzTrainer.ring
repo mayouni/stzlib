@@ -167,7 +167,7 @@ class stzTrainer from stzObject
 		_nLast_ = @aLossHistory[len(@aLossHistory)]
 		@cWhy = "trained " + nEpochs + " epoch(s), lr " + @nLr +
 			": loss " + _nFirst_ + " -> " + _nLast_
-		$cStzLastWhyB = @cWhy
+		$tStzLastWhyB = @cWhy
 		$nStzLastCertainty = 1
 		return This
 

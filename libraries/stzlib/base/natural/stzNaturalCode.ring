@@ -41,4 +41,4 @@ func LastValue()
 
 func SetLastValue(value)
 	$xLastValue = value
-	$cStzExpectMode = :Exactly
+	$tStzExpectMode = :Exactly

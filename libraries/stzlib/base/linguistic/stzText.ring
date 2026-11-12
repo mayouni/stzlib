@@ -295,7 +295,7 @@ class stzText from stzStringText
 		# EVIDENTIALITY: confidence = |compound| (capped at 1)
 		$nStzLastCertainty = fabs(_nIpS_)
 		if $nStzLastCertainty > 1 $nStzLastCertainty = 1 ok
-		$cStzLastWhyB = StzEvidentialVerdict(_bIp_, $nStzLastCertainty) +
+		$tStzLastWhyB = StzEvidentialVerdict(_bIp_, $nStzLastCertainty) +
 			": positive in tone"
 		return _bIp_
 
@@ -306,7 +306,7 @@ class stzText from stzStringText
 		if _nInS_ <= -0.05 _bIn_ = 1 ok
 		$nStzLastCertainty = fabs(_nInS_)
 		if $nStzLastCertainty > 1 $nStzLastCertainty = 1 ok
-		$cStzLastWhyB = StzEvidentialVerdict(_bIn_, $nStzLastCertainty) +
+		$tStzLastWhyB = StzEvidentialVerdict(_bIn_, $nStzLastCertainty) +
 			": negative in tone"
 		return _bIn_
 
@@ -1361,7 +1361,7 @@ class stzText from stzStringText
 		else
 			$nStzLastCertainty = 1 - _nIssScore_
 		ok
-		$cStzLastWhyB = StzEvidentialVerdict(_bIss_, $nStzLastCertainty) +
+		$tStzLastWhyB = StzEvidentialVerdict(_bIss_, $nStzLastCertainty) +
 			": semantically similar to " + @@(pcOther)
 		return _bIss_
 
@@ -1423,7 +1423,7 @@ class stzText from stzStringText
 		if len(_aCaR_) = 0 return "" ok
 		# EVIDENTIALITY: the label carries the top score as confidence
 		$nStzLastCertainty = _aCaR_[1][2]
-		$cStzLastWhyB = Evidentially() + " " + @@(_aCaR_[1][1])
+		$tStzLastWhyB = Evidentially() + " " + @@(_aCaR_[1][1])
 		return _aCaR_[1][1]
 
 		def ClassifiedAsQ(paLabels)

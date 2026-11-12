@@ -33,24 +33,24 @@ I made this stzNullObject class, so I can write just:
 	? Q(obj).Type()	#--> :Object
 */
 
-func StzNullObjectQ()
+func StzNullObjectQ
 	return new stzNullObject
-
-	func NullObject()
+end
+	func NullObject
 		return new stzNullObject
-
-	func ANullObject()
+	end
+	func ANullObject
 		return new stzNullObject
-
-	func Null()
+	end
+	func ""
 		return new stzNullObject
-
-	func NullQ()
+	end
+	func NullQ
 		return new stzNullObject
-
-	func StzNullQ()
+	end
+	func StzNullQ
 		return new stzNullObject
-
+	end
 # Is an object that does nothing and holds nothing, for samples that need an object without writing a class.
 #
 # Its content is an empty text, its Where answers an empty text, and it is equal to nothing, not
@@ -68,50 +68,50 @@ func StzNullObjectQ()
 #   see        stzTrueObject, stzFalseObject, NullObject
 class stzNullObject from stzObject
 	
-	@cVarName = :@nullobject
+	@tVarName = :@nullobject
 
 	# Returns an empty text, which is the null object's content.
 	#
 	#   returns    an empty text
 	#   see        Value, Where
-	def Content()
+	def Content
 		return ""
-
+	end
 		# Returns the same empty text as Content.
 		#
 		#   returns    an empty text
 		#   see        Content
-		def Value()
+		def Value
 			return Content()
-
+		end
 	# Returns an empty text whatever the condition says; the condition is not evaluated.
 	#
 	#   pcCondition   a condition, ignored
 	#   returns       an empty text
 	#   see           W, stzTrueObject
-	def Where(pcCondition)
+	def Where(pxCondition)
 		return ""
-
+	end
 		# Returns an empty text whatever the condition says, like Where.
 		#
 		#   pcCondition   a condition, ignored
 		#   returns       an empty text
 		#   see           Where
-		def W(pcCondition)
+		def W(pxCondition)
 			return ""
-
-	def IsEqualToCSQ(p, pCaseSensitie)
-		return This
-
-		def IsEqualToQ(p)
-			return This
-
-		def EqualsQ(p)
-			return This
-
-	def IsEqualToCS(p, pCaseSensitive)
-		return 0
-
+		end
+	def IsEqualToCSQ(xP, pxCaseSensitie)
+		return this
+	end
+		def IsEqualToQ(xP)
+			return this
+		end
+		def EqualsQ(xP)
+			return this
+		end
+	def IsEqualToCS(xP, pxCaseSensitive)
+		return false
+	end
 		# Returns 0 for every argument, even for the null object itself: null is equal to nothing.
 		#
 		#   p          the value to compare, ignored
@@ -119,21 +119,23 @@ class stzNullObject from stzObject
 		#   note       IsEqualToCS gives the same answer, and IsEqualToQ and IsEqualToCSQ return the
 		#              null object so a chain goes on
 		#   see        Equals, IsEqualToQ
-		def IsEqualTo(p)
-			return 0
-
+		def IsEqualTo(xP)
+			return false
+		end
 		# Returns 0 for every argument, as IsEqualTo does.
 		#
 		#   p          the value to compare, ignored
 		#   returns    0, a number
 		#   note       EqualsQ returns the null object so a chain goes on
 		#   see        IsEqualTo
-		def Equals(p)
-			return 0
-
+		def Equals(xP)
+			return false
+		end
 	# Returns the type name of the object, stzNullObject, as a symbol.
 	#
 	#   returns    the symbol stznullobject
 	#   see        Content
-	def StzType()
+	def StzType
 		return :stzNullObject
+	end
+end

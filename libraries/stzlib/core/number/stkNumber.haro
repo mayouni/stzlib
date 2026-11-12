@@ -87,7 +87,7 @@ class stkNumber
 
 		@nRound = @Round(pxNumber)
 
-		if KeepingHisto() = 1
+		if KeepingHisto()
 			this.AddHistoricValue(this.Content())  # From the parent stzObject
 		end
 	end

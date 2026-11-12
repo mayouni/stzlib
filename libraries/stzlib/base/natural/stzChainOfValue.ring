@@ -97,7 +97,7 @@ func ThisValue(pValue)
 #              #--> 20
 #   see        stzChainOfTruth, stzObject
 class stzChainOfValue from stzObject
-	@cVarName
+	@tVarName
 	@pValue
 	@cType
 
@@ -137,7 +137,7 @@ class stzChainOfValue from stzObject
 	#   see         VarName, Value, ChainStatus
 	#----------------------
 	def init(pcVarName)
-		@cVarName = pcVarName
+		@tVarName = pcVarName
 
 		# Resolve the wrapped variable from the caller's scope by
 		# evaluating '@pValue = <name>'. If the caller forgot to set
@@ -146,15 +146,15 @@ class stzChainOfValue from stzObject
 		# WhyChainStopped) can still report a clean diagnostic
 		# instead of bringing the whole process down.
 		# a variable name, with the $ a top-level name carries under Rule A
-		if NOT StzIsPlainIdentifier(StzReplace(@cVarName, "$", ""))  StzRaise("Can't chain the value! It must be named by a plain variable name.")  ok
-		_cCode_ = '@pValue = ' + @cVarName
+		if NOT StzIsPlainIdentifier(StzReplace(@tVarName, "$", ""))  StzRaise("Can't chain the value! It must be named by a plain variable name.")  ok
+		_cCode_ = '@pValue = ' + @tVarName
 		try
 			eval(_cCode_)
 		catch
 			@pValue = ""
 			@bChainStopped = 1
 			@aWhyChainStopped = [
-				"Because the variable " + @cVarName +
+				"Because the variable " + @tVarName +
 				" is not defined in the caller's scope."
 			]
 		done
@@ -174,7 +174,7 @@ class stzChainOfValue from stzObject
 	#   see        Value, Copy
 	#----------------------
 	def VarName()
-		return @cVarName
+		return @tVarName
 
 	# Returns the value read from the watched variable when the chain was built, or the last value given to Update.
 	#

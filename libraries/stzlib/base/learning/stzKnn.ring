@@ -246,7 +246,7 @@ class stzKnn from stzObject
 		@cWhy = ""
 
 		$nStzLastCertainty = 1
-		$cStzLastWhyB = ""
+		$tStzLastWhyB = ""
 		return @acAlphabet_[_nWin_ + 1]
 
 	# Returns the neighbours behind the last answer, each with its number and distance, and the vote.
@@ -278,7 +278,7 @@ class stzKnn from stzObject
 		@cWhy = "the " + @nWhyUsed_ + " nearest examples were: " + _cNear_ +
 			" -- majority: '" + @acAlphabet_[@nWhyWin_ + 1] + "' (" +
 			@nWhyVotes_ + "/" + @nWhyUsed_ + ")"
-		$cStzLastWhyB = @cWhy
+		$tStzLastWhyB = @cWhy
 		return @cWhy
 
 	# ONE DEFINITION OF DISTANCE (phase 5 slice 3 of the numeric foundation).

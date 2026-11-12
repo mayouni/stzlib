@@ -204,7 +204,7 @@ class stzTruthChain from stzObject
 		_n_ = len(@aAtoms)
 		if _n_ = 0
 			@cWhy = "no atoms: nothing to decide"
-			$cStzLastWhyB = @cWhy
+			$tStzLastWhyB = @cWhy
 			return 0
 		ok
 		_bAcc_ = 0
@@ -231,7 +231,7 @@ class stzTruthChain from stzObject
 		else
 			@cWhy = "no: " + @@(@pValue) + " is not (" + _cNarr_ + ")"
 		ok
-		$cStzLastWhyB = @cWhy
+		$tStzLastWhyB = @cWhy
 		return _bAcc_
 
 		def IsTrue()

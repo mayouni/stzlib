@@ -178,20 +178,20 @@ class stzCan
 		_aC_ = ConstraintsOn(_cK_)
 		_nC_ = len(_aC_)
 		if _nC_ = 0
-			$cStzLastWhyB = "no: nothing is known about being a '" + _cK_ +
+			$tStzLastWhyB = "no: nothing is known about being a '" + _cK_ +
 				"' (no constraints were declared)"
 			$aStzAskAnswers + 0
 			return 0
 		ok
 		for _i_ = 1 to _nC_
 			if NOT _StzKindHolds(@pValue, _aC_[_i_])
-				$cStzLastWhyB = "no: " + @@(@pValue) + " is not " +
+				$tStzLastWhyB = "no: " + @@(@pValue) + " is not " +
 					_aC_[_i_] + " (constraint " + _i_ + " of '" + _cK_ + "')"
 				$aStzAskAnswers + 0
 				return 0
 			ok
 		next
-		$cStzLastWhyB = "yes: " + @@(@pValue) + " satisfies all " + _nC_ +
+		$tStzLastWhyB = "yes: " + @@(@pValue) + " satisfies all " + _nC_ +
 			" constraints of '" + _cK_ + "'"
 		$aStzAskAnswers + 1
 		return 1
@@ -240,18 +240,18 @@ class stzMust
 		_aC_ = ConstraintsOn(@cKind)
 		_nC_ = len(_aC_)
 		if _nC_ = 0
-			$cStzLastWhyB = "no: nothing is known about being a '" +
+			$tStzLastWhyB = "no: nothing is known about being a '" +
 				@cKind + "' (no constraints were declared)"
 			$aStzAskAnswers + 0
 			return 0
 		ok
 		if ring_find(_aC_, _cD_) > 0
-			$cStzLastWhyB = "yes: a '" + @cKind + "' must be " + _cD_ +
+			$tStzLastWhyB = "yes: a '" + @cKind + "' must be " + _cD_ +
 				" (declared constraint)"
 			$aStzAskAnswers + 1
 			return 1
 		ok
-		$cStzLastWhyB = "no: nothing constrains a '" + @cKind +
+		$tStzLastWhyB = "no: nothing constrains a '" + @cKind +
 			"' to be " + _cD_
 		$aStzAskAnswers + 0
 		return 0
