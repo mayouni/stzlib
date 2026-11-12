@@ -21,7 +21,7 @@
 #  TEST SAMPLES  #
 #----------------#
 
-Decimals(3)
+# Decimals(3) -- a .haro file holds no places setting (Haro v0.66); Text(x, n) writes n places
 t0 = Clock()
 
 /*----

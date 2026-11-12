@@ -36,10 +36,11 @@ end
 func ring_char(xN)
 	return Char(xN)
 end
-# Ring's decimals(n), for code inside a class that defines its own Decimals():
-# there a bare decimals() reaches the method first (R20 on every runtime).
-func ring_decimals(xN)
-	Decimals(xN)
+# The fraction digits tFraction (the text after "0.") rounded to nPlaces places, as the text of
+# that number: StkRoundedFractionText("4567", 2) is "0.46", and "999" to 2 places is "1.00".
+# It rounds per value; no places setting is read or changed.
+func StkRoundedFractionText(tFraction, nPlaces)
+	return String(Decimal(Decimal("0." + tFraction), nPlaces))
 end
 func ring_EvenOrOdd(xN) # Inverses the output to be more logic (odd -> 1, even -> 2)
 	if EvenOrOdd(xN) = 1

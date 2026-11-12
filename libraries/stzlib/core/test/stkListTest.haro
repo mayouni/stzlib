@@ -2,7 +2,7 @@
 #  LOADING THE CORE LIBRARY  #
 #----------------------------#
 
-Decimals(3)
+# Decimals(3) -- a .haro file holds no places setting (Haro v0.66); Text(x, n) writes n places
 
 # You either load the hole SoftanzaCore library (all classes)
 

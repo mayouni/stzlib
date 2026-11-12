@@ -92,63 +92,22 @@ func Round(pxNumber) # Effective Round of a number (independently form current r
 			return 0
 		end
 
-		# Store the current round in the program
+		# A number's text is its shortest exact form (a float) or its own digits (a decimal),
+		# so its effective round is the count of digits after the point, trailing zeros aside.
+		# No places setting is read or changed.
 
-		nCurrentRound = CurrentRound()
-
-		# We have a number with a fractional part, stringify it
-
-		nMax = $xMAX_NUMBER_SIZE # the maximum possible (calculable) round in Ring
-		Decimals(nMax)
 		tTempStr = String(pxNumber)
-
-		# Rounding the number to the most possible round depending
-		# on the positions taken by the decimal digits and the sign
-
-		nLen = Len(tTempStr)
 		nDotPos = ring_substr1(tTempStr, ".")
-
-		nMaxPossibleRound = nMax - nDotPos
-
-		if pxNumber < 0
-			nMaxPossibleRound--
+		if nDotPos = 0
+			return 0
 		end
-
-		if nMaxPossibleRound < 0
-			Raise("ERR-" + StkError(:OutOfRangeValue) + Char(10))
-		end
-	
-		Decimals(nMaxPossibleRound)
-		tTempStr = String(pxNumber)
-
-		# Restoring the current round in the program
-
-		Decimals(nCurrentRound)
-	
-		# Doing the job
 
 		nLen = Len(tTempStr)
-		nResult = nLen - nDotPos
-
-		if tTempStr[nLen] != "0" and tTempStr[nLen] != "9"
-			return nResult
+		while nLen > nDotPos and tTempStr[nLen] = "0"
+			nLen--
 		end
 
-		for i = nLen-1 to nDotPos+1 step - 1
-
-			if tTempStr[i] = tTempStr[i+1] and
-			   (tTempStr[i] = "0" or tTempStr[i] = "9")
-
-				nResult--
-			else
-				exit
-			end
-		
-		end
-
-		nResult--
-
-		return nResult
+		return nLen - nDotPos
 
 	elseif IsString(pxNumber)
 

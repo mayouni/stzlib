@@ -65,7 +65,7 @@ o1 = new stzCoreNumber(123.4)
 	? CurrentRound()
 	#--> 2
 
-	Decimals(3)
+	# Decimals(3) -- a .haro file holds no places setting (Haro v0.66); Text(x, n) writes n places
 	o1 = new stkNumber(123.4)
 
 	? o1.SValue() + xNL
@@ -73,7 +73,7 @@ o1 = new stzCoreNumber(123.4)
 
 # The other way around, we can provide a number in string
 
-Decimals(2) # to set the default round back
+# Decimals(2) -- a .haro file holds no places setting (Haro v0.66)
 
 o2 = new stzCoreNumber("678.908")
 
@@ -322,7 +322,7 @@ o1 = new stkNumber("1223.87636")
 
 ? Round(8.1234567890123456789012)
 
-Decimals(15)
+# Decimals(15) -- a .haro file holds no places setting (Haro v0.66); Text(x, n) writes n places
 ? 8.1234567890123456789012 * 3
 
 rnf
@@ -529,7 +529,7 @@ o1 = new stkNumber(-234.87663637188362538)
 
 	# In fact:
 
-	Decimals(15)
+	# Decimals(15) -- a .haro file holds no places setting (Haro v0.66); Text(x, n) writes n places
 	? 12.8657239
 	#--> 12.865723900000001
 	#              \_ the fraction starting from the first 0 is not meanigful
@@ -548,7 +548,7 @@ n = 12.576 * 3.27
 # This may hide some numbers in the Fract part.
 # Let's extend the decimals() round and see:
 
-Decimals(10)
+# Decimals(10) -- a .haro file holds no places setting (Haro v0.66); Text(x, n) writes n places
 ? n
 #--> 41.1235200000
 
@@ -623,7 +623,7 @@ n = 12.8745
 
 # But internally, the hole decimal part is not lost:
 
-Decimals(4)
+# Decimals(4) -- a .haro file holds no places setting (Haro v0.66); Text(x, n) writes n places
 ? n
 #--> 14500.90
 
@@ -637,11 +637,11 @@ Decimals(4)
 ? CurrentRound()
 #--> 2
 
-Decimals(3)
+# Decimals(3) -- a .haro file holds no places setting (Haro v0.66); Text(x, n) writes n places
 ? CurrentRound()
 #--> 3
 
-Decimals(12)
+# Decimals(12) -- a .haro file holds no places setting (Haro v0.66); Text(x, n) writes n places
 ? CurrentRound()
 12
 

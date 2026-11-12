@@ -59,14 +59,14 @@ pf()
 
 pr()
 
-Decimals(5)
+# Decimals(5) -- a .haro file holds no places setting (Haro v0.66); Text(x, n) writes n places
 
 oDouble = new stkPointer([3.14159, "double"])
 
 ? oDouble.RingValue()	#--> 3.14159
 ? oDouble.Type()		#--> double
 
-Decimals(2)
+# Decimals(2) -- a .haro file holds no places setting (Haro v0.66); Text(x, n) writes n places
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22

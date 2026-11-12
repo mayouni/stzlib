@@ -8792,20 +8792,9 @@ class stzNumber from stzObject
 
 			if _bRoundItWhenRestricted_ = 1
 
-				# Memorise the active round
-				_nCurrentRound_ = GetActiveRound()
-
-				# Setting the rounding system to the number of restricted digits
-				# (ring_decimals: a bare decimals() here is This.Decimals(), R20)
-				ring_decimals(_nNumberOfDigitsInFractionalPart_)
-
-				# Composing a dummy number with the restricted fraction part
-				_cTempNumber_ = "0." + _cFractionalPart_
-
-				# Rounding that number
-				_nTempNumber_ = 0+ _cTempNumber_
-				# Saving the rounded number in a string
-				_cTempNumber_ = ""+ _nTempNumber_
+				# The restricted fraction, rounded per value to its number of digits
+				# (no places setting is read or changed)
+				_cTempNumber_ = StkRoundedFractionText(_cFractionalPart_, _nNumberOfDigitsInFractionalPart_)
 
 				# Reading the rounded fraction part
 				_cFractionalPart_ = ""
@@ -8813,9 +8802,6 @@ class stzNumber from stzObject
 				for _i_ = StzFindFirst(".", _cTempNumber_) + 1 to _nTempNumberLen_
 					_cFractionalPart_ += _cTempNumber_[_i_]
 				next
-
-				# Restoring the active round memorised above
-				ring_decimals(_nCurrentRound_)
 			ok
 		ok
 

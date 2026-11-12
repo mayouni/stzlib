@@ -8,7 +8,7 @@ load "../error/stkerror.haro"
 #NOTE Tool used to check result:
 # https://www.calculator.net/big-number-calculator.htm
 
-Decimals(3)
+# Decimals(3) -- a .haro file holds no places setting (Haro v0.66); Text(x, n) writes n places
 t0 = Clock()
 
 /*----

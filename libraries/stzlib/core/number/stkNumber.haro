@@ -140,17 +140,11 @@ class stkNumber
 			return this.FractPart()
 		end
 	def SFractPart
-		nTempRound = CurrentRound() # in Ring program
-		nRound = this.Round()
-
-		Decimals(nRound)
-
+		# The number's text is already exact (no places setting to read or change)
 		nRound = @Round(@xContent)
 
 		tTempStr = String(@xContent)
 		nLen = Len(tTempStr)
-
-		Decimals(nTempRound)
 
 		nPos = ring_substr1(tTempStr, ".")
 
@@ -260,10 +254,11 @@ class stkNumber
 			Raise(StkError(:IncorrectParamType))
 		end
 
-		nTempRound = CurrentRound()
-
-		Decimals(xN)
-		return @xContent
+		# Rounded per value, to xN places (no places setting is changed)
+		if IsInteger(@xContent)
+			return @xContent
+		end
+		return Decimal(@xContent, xN)
 	end
 
 	def SRoundedTo(xN)
@@ -271,13 +266,8 @@ class stkNumber
 			Raise(StkError(:IncorrectParamType))
 		end
 
-		nTempRound = CurrentRound()
-
-		Decimals(xN)
-		tResult = String(@xContent)
-		Decimals(nTempRound)
-
-		return tResult
+		# The text of the number written with exactly xN places
+		return String(Decimal(@xContent, xN))
 	end
 	#----------------------------------#
 	#  GETTING THE SIGN OF THE NUMBER  #
