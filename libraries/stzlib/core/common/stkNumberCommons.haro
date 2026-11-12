@@ -216,8 +216,8 @@ func MaxRound(xN) # Maximum number of digits n can have in its fractional part
 
 	return nMaxFractDigits
 end
-	func @MaxRound(paNumbers)
-		return MaxRound(paNumbers)
+	func @MaxRound(pxNumbers)
+		return MaxRound(pxNumbers)
 	end
 #-- Absolute value of a number
 

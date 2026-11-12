@@ -32,14 +32,14 @@ end
 func StzRegexMatchAll(tPattern, tInput)
     hHandle = StzEngineRegexNew(tPattern, 0)
     nCount = StzEngineRegexMatchAll(hHandle, tInput)
-    aResult = []
+    xResult = []
     for i = 1 to nCount
         tText = StzEngineRegexCaptureText(hHandle, i)
         nStart = StzEngineRegexCaptureStart(hHandle, i)
-        aResult + [ [:text, tText], [:position, nStart] ]
+        xResult + [ [:text, tText], [:position, nStart] ]
     end
     StzEngineRegexFree(hHandle)
-    return aResult
+    return xResult
 end
 func StzRegexSetLimits(hHandle, nMaxSteps, nMaxMatches, nMaxCaptures)
     StzEngineRegexSetLimits(hHandle, nMaxSteps, nMaxMatches, nMaxCaptures)

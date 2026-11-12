@@ -18,54 +18,54 @@ load "../../stzBase.ring"
 load "_ticket_app.ring"
 $nPass = 0
 $nFail = 0
-$aNotRun = []
+$vNotRun = []
 StzModelCatalogUseFile("../../../models/catalog.zcat")
 StzLoadMeasurements("results/measurements.zmdl.txt")
 StzLoadCourt("results/court.zcourt.txt")
 StzTicketAppDeclare()
-aNeeds = [ "triage_extract=bolt-e4b-choice", "kind", "route" ]
+xNeeds = [ "triage_extract=bolt-e4b-choice", "kind", "route" ]
 
 if StzModelPackInstalled("support-quality") = 1
 	Scenario("1. here, with the pack: what the program was built on holds")
-	aC = StzModelsCheck("", aNeeds)
-	? StzModelsCheckText(aC)
-	Then("status 0: every requirement met", aC[:status], 0)
-	Then("...extraction answered by Bolt, as required", aC[:rows][1][:chosen], "bolt-e4b-choice")
+	xC = StzModelsCheck("", xNeeds)
+	? StzModelsCheckText(xC)
+	Then("status 0: every requirement met", xC[:status], 0)
+	Then("...extraction answered by Bolt, as required", xC[:rows][1][:chosen], "bolt-e4b-choice")
 else
-	$aNotRun + ("scene 1 (the support-quality pack is not installed in " + StzModelsDir() + ")")
+	$vNotRun + ("scene 1 (the support-quality pack is not installed in " + StzModelsDir() + ")")
 end
 
 Scenario("2. a target without the pack")
-aWithout = [ [:os, "linux"], [:memory, 32768], [:packs, []] ]
-aC = StzModelsCheck(aWithout, aNeeds)
-? StzModelsCheckText(aC)
-Then("status 1: a requirement is not met", aC[:status], 1)
-Then("...the extraction line fails", aC[:rows][1][:met], 0)
-Then("...because Bolt is not installed there", StzFindFirst("'keyword-rules' would answer there, not 'bolt-e4b-choice': it is not installed there", aC[:rows][1][:why]) > 0, true)
-Then("the plain requirements still pass: kind and route answer there", aC[:rows][2][:met] = 1 and aC[:rows][3][:met] = 1, true)
-aC2 = StzModelsCheck(aWithout, [ "triage_extract", "kind" ])
-Then("a program that needs extraction answered, by anything, passes there: status 0", aC2[:status], 0)
+vWithout = [ [:os, "linux"], [:memory, 32768], [:packs, []] ]
+xC = StzModelsCheck(vWithout, xNeeds)
+? StzModelsCheckText(xC)
+Then("status 1: a requirement is not met", xC[:status], 1)
+Then("...the extraction line fails", xC[:rows][1][:met], 0)
+Then("...because Bolt is not installed there", StzFindFirst("'keyword-rules' would answer there, not 'bolt-e4b-choice': it is not installed there", xC[:rows][1][:why]) > 0, true)
+Then("the plain requirements still pass: kind and route answer there", xC[:rows][2][:met] = 1 and xC[:rows][3][:met] = 1, true)
+xC2 = StzModelsCheck(vWithout, [ "triage_extract", "kind" ])
+Then("a program that needs extraction answered, by anything, passes there: status 0", xC2[:status], 0)
 
 Scenario("3. a target with the pack but 8 GB")
-aSmall = [ [:os, "windows"], [:memory, 8192], [:packs, [ "support-quality" ]] ]
-aC = StzModelsCheck(aSmall, aNeeds)
-Then("status 1", aC[:status], 1)
-Then("...and the line names the pack and the memory", StzFindFirst("it cannot run there -- in the optional pack 'support-quality', which needs a machine with 16384 MB of memory; this one has 8192 MB", aC[:rows][1][:why]) > 0, true)
+vSmall = [ [:os, "windows"], [:memory, 8192], [:packs, [ "support-quality" ]] ]
+xC = StzModelsCheck(vSmall, xNeeds)
+Then("status 1", xC[:status], 1)
+Then("...and the line names the pack and the memory", StzFindFirst("it cannot run there -- in the optional pack 'support-quality', which needs a machine with 16384 MB of memory; this one has 8192 MB", xC[:rows][1][:why]) > 0, true)
 
 Scenario("4. a refusal fails with no implementation named; an undeclared name is status 2")
 oG = StzFacultyQ("check_nowhere")
 oG.SetInputTypeQ("record").SetOutputTypeQ("text").SetFloorQ("native", "_McUpper").SetGoldenCheckerQ("exact").SetGoldenVersionQ("v1")
 oG.AddGolden([ [:text, "a"] ], "A")
 oG.SetAvailability("native", [ "windows" ], "")
-aC = StzModelsCheck([ [:os, "linux"] ], [ "check_nowhere", "kind" ])
-? StzModelsCheckText(aC)
-Then("on Linux a Windows-only faculty refuses: status 1", aC[:status], 1)
-Then("...and the line says nothing would answer, and why", StzFindFirst("NOTHING would answer there: native: exists only on windows; this is linux", aC[:rows][1][:why]) > 0, true)
-aC = StzModelsCheck("", [ "kind", "no_such_faculty" ])
-Then("a requirement nobody declared: status 2, never a silent pass", aC[:status], 2)
-Then("...and its line says so", aC[:rows][2][:met], -1)
-aC = StzModelsCheck("", [ "kind/xx" ])
-Then("a language the faculty was never measured in fails: unknown is not good", aC[:status], 1)
+xC = StzModelsCheck([ [:os, "linux"] ], [ "check_nowhere", "kind" ])
+? StzModelsCheckText(xC)
+Then("on Linux a Windows-only faculty refuses: status 1", xC[:status], 1)
+Then("...and the line says nothing would answer, and why", StzFindFirst("NOTHING would answer there: native: exists only on windows; this is linux", xC[:rows][1][:why]) > 0, true)
+xC = StzModelsCheck("", [ "kind", "no_such_faculty" ])
+Then("a requirement nobody declared: status 2, never a silent pass", xC[:status], 2)
+Then("...and its line says so", xC[:rows][2][:met], -1)
+xC = StzModelsCheck("", [ "kind/xx" ])
+Then("a language the faculty was never measured in fails: unknown is not good", xC[:status], 1)
 
 Scenario("5. the command-line tool, as a CI step runs it")
 tRun = "cd ..\..\..\tools && " + SysArgv[1] + " models_check.haro --require "
@@ -75,7 +75,7 @@ Then("an implementation that would not answer: exit 1", System(tRun + "faces=no-
 Then("an undeclared faculty: exit 2", System(tRun + "no_such_faculty" + tOut), 2)
 
 ? ""
-for t in $aNotRun
+for t in $vNotRun
 	? "NOT RUN: " + t
 end
 ? "================================================"
@@ -83,8 +83,8 @@ end
 ? "================================================"
 Shutdown($nFail)
 
-func _McUpper(aIn, aParams)
-	return StzUpper(aIn[:text])
+func _McUpper(xIn, xParams)
+	return StzUpper(xIn[:text])
 end
 func Scenario(tName)
 	? ""

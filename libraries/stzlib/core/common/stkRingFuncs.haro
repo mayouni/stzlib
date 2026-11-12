@@ -96,12 +96,12 @@ func ring_split(xStr, xSep)
 	# of blanks, the string is trimmed, and a newline always splits too.
 
 	if xSep = ""
-		aOut = []
+		vOut = []
 		nLen = Len(xStr)
 		for i = 1 to nLen
-			aOut + xStr[i]
+			vOut + xStr[i]
 		end
-		return aOut
+		return vOut
 	end
 
 	if xSep = Char(9)
@@ -163,8 +163,8 @@ end
 		return ring_sort(pvList)
 	end
 func ring_sort2(pvList, xN)
-	aResult = Sort(pvList, xN)
-	return aResult
+	xResult = Sort(pvList, xN)
+	return xResult
 end
 	func ring_sortXT(pvList, xN)
 		return Sort(pvList, xN)
@@ -407,16 +407,16 @@ end
 # rnxc every worker was launched on the retired interpreter (2026-11-06).
 
 func StzInterpreterPath
-	aNames = [ "rnxc", "ring", "haro" ]
+	vNames = [ "rnxc", "ring", "haro" ]
 	tExe = String(ExeFileName())
-	if _StzIsInterpreterPath(tExe, aNames)
+	if _StzIsInterpreterPath(tExe, vNames)
 		return tExe
 	end
-	aArgs = sysargv
-	nArgs = Len(aArgs)
+	xArgs = sysargv
+	nArgs = Len(xArgs)
 	for i = 1 to nArgs
-		if _StzIsInterpreterPath(String(aArgs[i]), aNames)
-			return String(aArgs[i])
+		if _StzIsInterpreterPath(String(xArgs[i]), vNames)
+			return String(xArgs[i])
 		end
 	end
 	return "rnxc"

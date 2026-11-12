@@ -21,30 +21,30 @@ $tEngine = Slashes(SysGet("STZ_ENGINE_DIR"))
 $tModels = Slashes(SysGet("STZ_MODELS_DIR"))
 $nPass = 0
 $nFail = 0
-$aNotRun = []
-$aCases = []
+$vNotRun = []
+$vCases = []
 LoadLib($tEngine + "/zig-out/bin/stz_neural.dll")
 $tLfm = $tModels + "/LFM3-1.7B-Q8_0.gguf"
-$aCases + [ "a short sentence", "The capital of France is", [ 597, 5205, 302, 3980, 355 ] ]
-$aCases + [ "blank lines", "para one" + Char(10) + Char(10) + "para two" + Char(10) + Char(10) + Char(10) + "three newlines", [ 19836, 734, 8, 19836, 1046, 7, 37564, 94309 ] ]
-$aCases + [ "Arabic", "مرحبا بالعالم، كيف حالك اليوم؟", [ 17880, 2262, 68059, 103296, 19557, 3279, 61111, 68814, 1397, 35385, 32839 ] ]
-$aCases + [ "French accents", "L'été dernier, nous sommes allés à Marseille avec François et Zoé.", [ 52, 34241, 17929, 20, 6679, 34461, 612, 903, 839, 41660, 2585, 20706, 626, 25277, 359, 22 ] ]
-$aCases + [ "chat-turn marks written as text", "<start_of_turn>user" + Char(10) + "What is 2+2?<end_of_turn>" + Char(10) + "<start_of_turn>model" + Char(10), [ 36, 13886, 30590, 2383, 749, 38, 5922, 207, 2992, 355, 229, 26, 19, 26, 39, 36, 458, 30590, 2383, 749, 703, 36, 13886, 30590, 2383, 749, 38, 9466, 207 ] ]
-$aCases + [ "numbers", "Numbers 1234567890 3.14159 -42 1e10", [ 93881, 229, 9792, 25677, 23944, 24, 229, 27, 22, 13387, 5098, 640, 3843, 229, 25, 77, 654 ] ]
+$vCases + [ "a short sentence", "The capital of France is", [ 597, 5205, 302, 3980, 355 ] ]
+$vCases + [ "blank lines", "para one" + Char(10) + Char(10) + "para two" + Char(10) + Char(10) + Char(10) + "three newlines", [ 19836, 734, 8, 19836, 1046, 7, 37564, 94309 ] ]
+$vCases + [ "Arabic", "مرحبا بالعالم، كيف حالك اليوم؟", [ 17880, 2262, 68059, 103296, 19557, 3279, 61111, 68814, 1397, 35385, 32839 ] ]
+$vCases + [ "French accents", "L'été dernier, nous sommes allés à Marseille avec François et Zoé.", [ 52, 34241, 17929, 20, 6679, 34461, 612, 903, 839, 41660, 2585, 20706, 626, 25277, 359, 22 ] ]
+$vCases + [ "chat-turn marks written as text", "<start_of_turn>user" + Char(10) + "What is 2+2?<end_of_turn>" + Char(10) + "<start_of_turn>model" + Char(10), [ 36, 13886, 30590, 2383, 749, 38, 5922, 207, 2992, 355, 229, 26, 19, 26, 39, 36, 458, 30590, 2383, 749, 703, 36, 13886, 30590, 2383, 749, 38, 9466, 207 ] ]
+$vCases + [ "numbers", "Numbers 1234567890 3.14159 -42 1e10", [ 93881, 229, 9792, 25677, 23944, 24, 229, 27, 22, 13387, 5098, 640, 3843, 229, 25, 77, 654 ] ]
 
 if FExists($tLfm)
 	StzEngineNeuralModelLoad($tLfm)
 
 	Scenario("1. llama.cpp's token ids")
 	nSame = 0
-	nCases = Len($aCases)
+	nCases = Len($vCases)
 	for i = 1 to nCases
-		aExp = $aCases[i][3]
-		nGot = StzEngineNeuralGenTokenize($aCases[i][2])
-		bSame = (nGot = Len(aExp))
+		xExp = $vCases[i][3]
+		nGot = StzEngineNeuralGenTokenize($vCases[i][2])
+		bSame = (nGot = Len(xExp))
 		if bSame
 			for j = 1 to nGot
-				if StzEngineNeuralGenTokenAt(j - 1) != aExp[j]
+				if StzEngineNeuralGenTokenAt(j - 1) != xExp[j]
 					bSame = false
 					exit
 				end
@@ -53,7 +53,7 @@ if FExists($tLfm)
 		if bSame
 			nSame = nSame + 1
 		else
-			? "  differs: " + $aCases[i][1]
+			? "  differs: " + $vCases[i][1]
 		end
 	end
 	Then("the six texts give llama.cpp's ids exactly", nSame, nCases)
@@ -65,14 +65,14 @@ if FExists($tLfm)
 	for nChunk = 0 to 1
 		StzEngineNeuralModelLoad($tLfm)
 		nTok = StzEngineNeuralGenTokenize(tText)
-		aIds = []
+		vIds = []
 		for j = 0 to nTok - 1
-			aIds + StzEngineNeuralGenTokenAt(j)
+			vIds + StzEngineNeuralGenTokenAt(j)
 		end
 		for p = 0 to 254
-			StzEngineNeuralVlmFeed(aIds[nChunk * 256 + p + 1])
+			StzEngineNeuralVlmFeed(vIds[nChunk * 256 + p + 1])
 			if p >= 128
-				nSum = nSum + StzEngineNeuralLogitLse() - StzEngineNeuralLogitAt(aIds[nChunk * 256 + p + 2])
+				nSum = nSum + StzEngineNeuralLogitLse() - StzEngineNeuralLogitAt(vIds[nChunk * 256 + p + 2])
 				nCount = nCount + 1
 			end
 		end
@@ -104,11 +104,11 @@ if FExists($tLfm)
 	? "  [" + tOut + "]"
 	Then("the answer holds 4 and ends before the cap", SubStr(tOut, "4") > 0 and StzEngineNeuralGenLastError() = 0 and Len(tOut) < 60, true)
 else
-	$aNotRun + ("every scene (no " + $tLfm + ")")
+	$vNotRun + ("every scene (no " + $tLfm + ")")
 end
 
 ? ""
-for t in $aNotRun
+for t in $vNotRun
 	? "NOT RUN: " + t
 end
 ? "================================================"

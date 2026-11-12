@@ -24,13 +24,13 @@ $tEngine = Slashes(SysGet("STZ_ENGINE_DIR"))
 $tModels = Slashes(SysGet("STZ_MODELS_DIR"))
 $nPass = 0
 $nFail = 0
-$aNotRun = []
+$vNotRun = []
 
 LoadLib($tEngine + "/zig-out/bin/stz_neural.dll")
 $tTarget = $tModels + "/qwen2.5-coder-1.5b-instruct-q8_0.gguf"
 $tDrafter = $tModels + "/qwen2.5-coder-0.5b-instruct-q8_0.gguf"
 
-aPrompts = [
+vPrompts = [
 	Chat("Write a Python function that returns the sum of the squares of a list of numbers."),
 	Chat("Explain in three sentences why the sky looks blue."),
 	Chat("List five unusual uses for a paperclip, one per line.")
@@ -43,14 +43,14 @@ if FExists($tTarget) and FExists($tDrafter)
 	nSame = 0
 	nRuns = 0
 	nTaken = 0
-	nPrompts = Len(aPrompts)
+	nPrompts = Len(vPrompts)
 	for p = 1 to nPrompts
-		tPlain = StzEngineNeuralGenerate(aPrompts[p], 48)
+		tPlain = StzEngineNeuralGenerate(vPrompts[p], 48)
 		for k in [ 1, 2, 4 ]
-			tSpec = StzEngineNeuralGenerateSpec(aPrompts[p], 48, k)
-			aS = StzEngineNeuralSpecStats()
+			tSpec = StzEngineNeuralGenerateSpec(vPrompts[p], 48, k)
+			xS = StzEngineNeuralSpecStats()
 			nRuns = nRuns + 1
-			nTaken = nTaken + aS[3]
+			nTaken = nTaken + xS[3]
 			if tSpec = tPlain and Len(tPlain) > 0
 				nSame = nSame + 1
 			end
@@ -60,38 +60,38 @@ if FExists($tTarget) and FExists($tDrafter)
 	Then("all 9 drafted texts (3 prompts x widths 1, 2, 4) are byte for byte the target's own", nSame, 9)
 	Then("...and drafts were taken, so the drafter did the work (not a target running alone)", nTaken > 50, true)
 else
-	$aNotRun + "scene 1 (Qwen2.5-Coder 1.5B and 0.5B not in " + $tModels + ")"
+	$vNotRun + "scene 1 (Qwen2.5-Coder 1.5B and 0.5B not in " + $tModels + ")"
 end
 
 Scenario("2. the run's counts add up")
 if StzEngineNeuralSpecStatus() = 0 and FExists($tDrafter)
-	tSpec = StzEngineNeuralGenerateSpec(aPrompts[1], 64, 4)
-	aS = StzEngineNeuralSpecStats()
-	? "  rounds " + String(aS[1]) + ", drafted " + String(aS[2]) + ", taken " + String(aS[3]) + ", target passes " + String(aS[4]) + ", tokens " + String(aS[7])
-	Then("every round confirms its own token plus the drafts it took: tokens = rounds + taken", aS[7], aS[1] + aS[3])
-	Then("...taken never exceeds drafted", aS[3] <= aS[2], true)
-	Then("...one target pass a round", aS[4], aS[1])
-	Then("...no round drafts more than its width", aS[2] <= 4 * aS[1], true)
+	tSpec = StzEngineNeuralGenerateSpec(vPrompts[1], 64, 4)
+	xS = StzEngineNeuralSpecStats()
+	? "  rounds " + String(xS[1]) + ", drafted " + String(xS[2]) + ", taken " + String(xS[3]) + ", target passes " + String(xS[4]) + ", tokens " + String(xS[7])
+	Then("every round confirms its own token plus the drafts it took: tokens = rounds + taken", xS[7], xS[1] + xS[3])
+	Then("...taken never exceeds drafted", xS[3] <= xS[2], true)
+	Then("...one target pass a round", xS[4], xS[1])
+	Then("...no round drafts more than its width", xS[2] <= 4 * xS[1], true)
 else
-	$aNotRun + "scene 2 (needs scene 1's models)"
+	$vNotRun + "scene 2 (needs scene 1's models)"
 end
 
 Scenario("3. what it refuses, and why")
 if FExists($tTarget) and FExists($tDrafter)
 	StzEngineNeuralDraftFree()
-	Then("with no drafter it writes nothing", StzEngineNeuralGenerateSpec(aPrompts[1], 16, 2), "")
+	Then("with no drafter it writes nothing", StzEngineNeuralGenerateSpec(vPrompts[1], 16, 2), "")
 	Then("...and says: no drafter (1)", StzEngineNeuralSpecStatus(), 1)
 	tMini = $tModels + "/all-MiniLM-L6-v2.Q8_0.gguf"
 	if FExists(tMini)
 		Then("an encoder is refused as a drafter", StzEngineNeuralDraftLoad(tMini), 0)
 		Then("...and says: drafter refused (2)", StzEngineNeuralSpecStatus(), 2)
-		Then("...and the target in place still writes", Len(StzEngineNeuralGenerate(aPrompts[1], 8)) > 0, true)
+		Then("...and the target in place still writes", Len(StzEngineNeuralGenerate(vPrompts[1], 8)) > 0, true)
 	else
-		$aNotRun + "scene 3, encoder as drafter (no " + tMini + ")"
+		$vNotRun + "scene 3, encoder as drafter (no " + tMini + ")"
 	end
 	StzEngineNeuralDraftLoad($tDrafter)
 	StzEngineNeuralSetTermination(1.3, 64, 0, 0)
-	Then("a repeat penalty is refused, not approximated", StzEngineNeuralGenerateSpec(aPrompts[1], 16, 2), "")
+	Then("a repeat penalty is refused, not approximated", StzEngineNeuralGenerateSpec(vPrompts[1], 16, 2), "")
 	Then("...and says: not greedy (4)", StzEngineNeuralSpecStatus(), 4)
 	StzEngineNeuralClearTermination()
 	tG3 = $tModels + "/granite-4.2-3b-Q4_K_M.gguf"
@@ -102,27 +102,27 @@ if FExists($tTarget) and FExists($tDrafter)
 		Then("a target numbering its vocabulary differently is refused", StzEngineNeuralGenerateSpec("Hello", 8, 2), "")
 		Then("...and says: vocabularies differ (3)", StzEngineNeuralSpecStatus(), 3)
 	else
-		$aNotRun + "scene 3, differing vocabularies (Granite 4.2-3B or 4.0-350M absent)"
+		$vNotRun + "scene 3, differing vocabularies (Granite 4.2-3B or 4.0-350M absent)"
 	end
 else
-	$aNotRun + "scene 3 (needs scene 1's models)"
+	$vNotRun + "scene 3 (needs scene 1's models)"
 end
 
 Scenario("4. the ledger sees both models")
 if FExists($tTarget) and FExists($tDrafter)
 	StzEngineNeuralModelLoad($tTarget)
 	StzEngineNeuralDraftLoad($tDrafter)
-	aBefore = StzEngineNeuralRunRecords()
-	StzEngineNeuralGenerateSpec(aPrompts[1], 8, 2)
-	aAfter = StzEngineNeuralRunRecords()
-	Then("one call asks for two model.run records: the target's and the drafter's", aAfter[1] - aBefore[1], 2)
+	xBefore = StzEngineNeuralRunRecords()
+	StzEngineNeuralGenerateSpec(vPrompts[1], 8, 2)
+	xAfter = StzEngineNeuralRunRecords()
+	Then("one call asks for two model.run records: the target's and the drafter's", xAfter[1] - xBefore[1], 2)
 	StzEngineNeuralDraftFree()
 else
-	$aNotRun + "scene 4 (needs scene 1's models)"
+	$vNotRun + "scene 4 (needs scene 1's models)"
 end
 
 ? ""
-for t in $aNotRun
+for t in $vNotRun
 	? "NOT RUN: " + t
 end
 ? "================================================"

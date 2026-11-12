@@ -2,15 +2,15 @@
 #  COMMON FOR ALL LIST CLASSES  #
 #-------------------------------#
 
-func ListReverse(aList)
-	aResult = []
-	for i = Len(aList) to 1 step -1
-		aResult + aList[i]
+func ListReverse(vList)
+	xResult = []
+	for i = Len(vList) to 1 step -1
+		xResult + vList[i]
 	end
-	return aResult
+	return xResult
 end
-	func @ListReverse(aList)
-		return ListReverse(aList)
+	func @ListReverse(vList)
+		return ListReverse(vList)
 	end
 # Deep value-equality for list items: Ring's `=` does NOT compare two
 # lists by content, so membership/contains on lists needs this.
@@ -27,61 +27,61 @@ func ListsDeepEqual(pxA, pxB)
 	end
 	return pxA = pxB
 end
-func ListContains(aList, pxItem)
-	nLen = Len(aList)
+func ListContains(vList, pxItem)
+	nLen = Len(vList)
 	for i = 1 to nLen
-		if ListsDeepEqual(aList[i], pxItem)
+		if ListsDeepEqual(vList[i], pxItem)
 			return true
 		end
 	end
 	return false
 end
-	func @ListContains(aList, pxItem)
-		return ListContains(aList, pxItem)
+	func @ListContains(vList, pxItem)
+		return ListContains(vList, pxItem)
 	end
-func ListFlatten(aList)
-	aResult = []
-	nLen = Len(aList)
+func ListFlatten(vList)
+	xResult = []
+	nLen = Len(vList)
 	for i = 1 to nLen
-		if IsList(aList[i])
-			aFlat = ListFlatten(aList[i])
-			aItem9 = aFlat
-			nItem9 = Len(aItem9)
+		if IsList(vList[i])
+			xFlat = ListFlatten(vList[i])
+			xItem9 = xFlat
+			nItem9 = Len(xItem9)
 			for iItem9 = 1 to nItem9
-				xItem = aItem9[iItem9]
-				aResult + xItem
+				xItem = xItem9[iItem9]
+				xResult + xItem
 			end
 		else
-			aResult + aList[i]
+			xResult + vList[i]
 		end
 	end
-	return aResult
+	return xResult
 end
-	func @ListFlatten(aList)
-		return ListFlatten(aList)
+	func @ListFlatten(vList)
+		return ListFlatten(vList)
 	end
-func ListUnique(aList)
-	aResult = []
-	nLen = Len(aList)
+func ListUnique(vList)
+	xResult = []
+	nLen = Len(vList)
 	for i = 1 to nLen
-		if not ListContains(aResult, aList[i])
-			aResult + aList[i]
+		if not ListContains(xResult, vList[i])
+			xResult + vList[i]
 		end
 	end
-	return aResult
+	return xResult
 end
-	func @ListUnique(aList)
-		return ListUnique(aList)
+	func @ListUnique(vList)
+		return ListUnique(vList)
 	end
-func ListSection(aList, xN1, xN2)
-	aResult = []
+func ListSection(vList, xN1, xN2)
+	xResult = []
 	if xN1 < 1 xN1 = 1 end
-	if xN2 > Len(aList) xN2 = Len(aList) end
+	if xN2 > Len(vList) xN2 = Len(vList) end
 	for i = xN1 to xN2
-		aResult + aList[i]
+		xResult + vList[i]
 	end
-	return aResult
+	return xResult
 end
-	func @ListSection(aList, xN1, xN2)
-		return ListSection(aList, xN1, xN2)
+	func @ListSection(vList, xN1, xN2)
+		return ListSection(vList, xN1, xN2)
 	end

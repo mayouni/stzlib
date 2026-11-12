@@ -8,10 +8,10 @@
 # with STZ_ENGINE_DIR and STZ_MODELS_DIR set; it needs Bolt E4B and granite-4.0-1b in models/. Results: results/README.txt.
 LoadLib(Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/stz_neural.dll")
 $tModels = Slashes(SysGet("STZ_MODELS_DIR")) + "/"
-$aTickets = Tickets("_data/tickets_heldout.tsv")
+$xTickets = Tickets("_data/tickets_heldout.tsv")
 $tSys = "You triage customer-support tickets."
 # [ name, the question (the same words in both shapes), options, the golden column ]
-$aQ = [
+$vQ = [
 	[ "kind", "Classify the ticket as exactly one of: bug (something is broken or behaves wrongly), billing (money: charges, refunds, invoices, plans, prices), other (a question, request or feedback).", [ "bug", "billing", "other" ], 4 ],
 	[ "product", "Which product is the ticket about: app (the mobile app), web (the website, dashboard, account or billing pages), api (the developer API, SDKs, webhooks), or other?", [ "app", "web", "api", "other" ], 2 ],
 	[ "severity", "How severe is it: high (it blocks the customer's work, loses money or data, is an outage, or has a deadline today or tomorrow) or low (anything else)?", [ "high", "low" ], 3 ]
@@ -19,7 +19,7 @@ $aQ = [
 $tFormat = ""
 $nRead = 0
 
-? "tickets: " + String(Len($aTickets))
+? "tickets: " + String(Len($xTickets))
 for tModel in [ "Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf", "granite-4.0-1b-Q8_0.gguf" ]
 	StzEngineNeuralModelLoad($tModels + tModel)
 	$tFormat = "granite"
@@ -28,58 +28,58 @@ for tModel in [ "Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf", "granite-4.0-1b-Q8_0.gguf" 
 	end
 	? ""
 	? tModel
-	nQ = Len($aQ)
-	nT = Len($aTickets)
+	nQ = Len($vQ)
+	nT = Len($xTickets)
 	for tPass in [ "today, reuse off", "today, reuse on", "d1 shape" ]
 		StzEngineNeuralGenSetPrefixReuse(1)
 		if tPass = "today, reuse off"
 			StzEngineNeuralGenSetPrefixReuse(0)
 		end
 		$nRead = 0
-		aRight = [ 0, 0, 0 ]
-		aAns = []
+		vRight = [ 0, 0, 0 ]
+		vAns = []
 		nStart = Clock()
 		if tPass = "d1 shape"
 			for t = 1 to nT
 				for q = 1 to nQ
-					tA = Ask($tSys + " Answer with the single word.", "Ticket: " + $aTickets[t][1] + Char(10) + Char(10) + $aQ[q][2], $aQ[q][3])
-					aAns + tA
-					if tA = $aTickets[t][$aQ[q][4]]
-						aRight[q] = aRight[q] + 1
+					tA = Ask($tSys + " Answer with the single word.", "Ticket: " + $xTickets[t][1] + Char(10) + Char(10) + $vQ[q][2], $vQ[q][3])
+					vAns + tA
+					if tA = $xTickets[t][$vQ[q][4]]
+						vRight[q] = vRight[q] + 1
 					end
 				end
 			end
 		else
 			for q = 1 to nQ
 				for t = 1 to nT
-					tA = Ask($tSys + " " + $aQ[q][2] + " Answer with the single word.", "Ticket: " + $aTickets[t][1], $aQ[q][3])
-					aAns + tA
-					if tA = $aTickets[t][$aQ[q][4]]
-						aRight[q] = aRight[q] + 1
+					tA = Ask($tSys + " " + $vQ[q][2] + " Answer with the single word.", "Ticket: " + $xTickets[t][1], $vQ[q][3])
+					vAns + tA
+					if tA = $xTickets[t][$vQ[q][4]]
+						vRight[q] = vRight[q] + 1
 					end
 				end
 			end
 		end
 		nMs = Divide((Clock() - nStart) * 1000, ClocksPerSecond(), 0)
-		? "  " + tPass + ": kind " + String(aRight[1]) + "/36, product " + String(aRight[2]) + "/36, severity " + String(aRight[3]) + "/36; tokens read " + String($nRead) + "; " + String(nMs) + " ms"
+		? "  " + tPass + ": kind " + String(vRight[1]) + "/36, product " + String(vRight[2]) + "/36, severity " + String(vRight[3]) + "/36; tokens read " + String($nRead) + "; " + String(nMs) + " ms"
 	end
 end
 
 # one option question: the best option by the summed probability of its lower-case and capitalised first token
-func Ask(tSystem, tUser, aOpt)
+func Ask(tSystem, tUser, vOpt)
 	tP = Chat(tSystem, tUser)
 	StzEngineNeuralPrefillLogits(tP)
 	$nRead = $nRead + StzEngineNeuralGenPromptTokens() - StzEngineNeuralGenReusedTokens()
 	nLse = StzEngineNeuralLogitLse()
 	tBest = ""
 	nBest = Float(-1)
-	nOpt = Len(aOpt)
+	nOpt = Len(vOpt)
 	for i = 1 to nOpt
-		tCap = Upper(Left(aOpt[i], 1)) + Right(aOpt[i], Len(aOpt[i]) - 1)
-		nP = Exp(StzEngineNeuralLogitAt(FirstId(aOpt[i])) - nLse) + Exp(StzEngineNeuralLogitAt(FirstId(tCap)) - nLse)
+		tCap = Upper(Left(vOpt[i], 1)) + Right(vOpt[i], Len(vOpt[i]) - 1)
+		nP = Exp(StzEngineNeuralLogitAt(FirstId(vOpt[i])) - nLse) + Exp(StzEngineNeuralLogitAt(FirstId(tCap)) - nLse)
 		if nP > nBest
 			nBest = nP
-			tBest = aOpt[i]
+			tBest = vOpt[i]
 		end
 	end
 	return tBest
@@ -105,31 +105,31 @@ func Chat(tSystem, tUser)
 end
 # the golden tickets: [ text, product, severity, kind, keyword ] per line
 func Tickets(tPath)
-	aOut = []
-	aLines = Str2List(Read(tPath))
-	nL = Len(aLines)
+	vOut = []
+	xLines = Str2List(Read(tPath))
+	nL = Len(xLines)
 	for i = 1 to nL
-		tLine = aLines[i]
+		tLine = xLines[i]
 		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
 			tLine = Left(tLine, Len(tLine) - 1)
 		end
-		aF = []
+		xF = []
 		tCur = ""
 		nC = Len(tLine)
 		for j = 1 to nC
 			if tLine[j] = Char(9)
-				aF + tCur
+				xF + tCur
 				tCur = ""
 			else
 				tCur = tCur + tLine[j]
 			end
 		end
-		aF + tCur
-		if Len(aF) = 5
-			aOut + aF
+		xF + tCur
+		if Len(xF) = 5
+			vOut + xF
 		end
 	end
-	return aOut
+	return vOut
 end
 
 func Slashes(tPath)

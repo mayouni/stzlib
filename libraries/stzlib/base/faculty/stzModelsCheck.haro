@@ -33,26 +33,26 @@
 #   example    aC = StzModelsCheck([ [:os, "linux"], [:memory, 8192], [:packs, []] ], [ "ocr", "triage_extract=bolt-e4b-choice" ])
 #              Shutdown(StzModelsCheckExit(xTarget, aRequire))    # in a CI step: prints the check, exits with its status
 #   see        StzModelsReportFor, StzModelsCheckText
-func StzModelsCheck(xTarget, aRequire)
-	aThere = StzModelsReportFor(xTarget)
-	aHere = aThere
+func StzModelsCheck(xTarget, xRequire)
+	xThere = StzModelsReportFor(xTarget)
+	xHere = xThere
 	if IsList(xTarget)
-		aHere = StzModelsReportFor("")
+		xHere = StzModelsReportFor("")
 	elseif xTarget != ""
-		aHere = StzModelsReportFor("")
+		xHere = StzModelsReportFor("")
 	end
-	aRows = []
+	xRows = []
 	nUnmet = 0
 	nUnknown = 0
-	nLenReq = Len(aRequire)
+	nLenReq = Len(xRequire)
 	for i = 1 to nLenReq
-		aRow = _StzCheckOne("" + aRequire[i], aThere, aHere)
-		if aRow[:met] = -1
+		xRow = _StzCheckOne("" + xRequire[i], xThere, xHere)
+		if xRow[:met] = -1
 			nUnknown = nUnknown + 1
-		elseif aRow[:met] = 0
+		elseif xRow[:met] = 0
 			nUnmet = nUnmet + 1
 		end
-		aRows + aRow
+		xRows + xRow
 	end
 	nStatus = 0
 	if nUnmet > 0
@@ -61,46 +61,46 @@ func StzModelsCheck(xTarget, aRequire)
 	if nUnknown > 0
 		nStatus = 2
 	end
-	return [ [:status, nStatus], [:target, _StzCheckTargetText(xTarget)], [:rows, aRows] ]
+	return [ [:status, nStatus], [:target, _StzCheckTargetText(xTarget)], [:rows, xRows] ]
 end
 
 # The check as text: one line per requirement, then the status.
-func StzModelsCheckText(aCheck)
+func StzModelsCheckText(xCheck)
 	tNl = Char(10)
-	tOut = "SOFTANZA MODELS CHECK -- " + aCheck[:target] + tNl
-	aRows = aCheck[:rows]
-	nLenRows = Len(aRows)
+	tOut = "SOFTANZA MODELS CHECK -- " + xCheck[:target] + tNl
+	xRows = xCheck[:rows]
+	nLenRows = Len(xRows)
 	nMet = 0
 	for i = 1 to nLenRows
-		aR = aRows[i]
+		xR = xRows[i]
 		tMark = "FAIL   "
-		if aR[:met] = 1
+		if xR[:met] = 1
 			tMark = "PASS   "
 			nMet = nMet + 1
-		elseif aR[:met] = -1
+		elseif xR[:met] = -1
 			tMark = "UNKNOWN"
 		end
-		tOut = tOut + "  " + tMark + "  :" + aR[:requirement] + "  -- " + aR[:why] + tNl
-		if aR[:here] != "" and aR[:here] != aR[:chosen]
-			tOut = tOut + "           (on this machine '" + aR[:here] + "' answers it; there '" + aR[:chosen] + "' would)" + tNl
+		tOut = tOut + "  " + tMark + "  :" + xR[:requirement] + "  -- " + xR[:why] + tNl
+		if xR[:here] != "" and xR[:here] != xR[:chosen]
+			tOut = tOut + "           (on this machine '" + xR[:here] + "' answers it; there '" + xR[:chosen] + "' would)" + tNl
 		end
 	end
-	tOut = tOut + "status " + String(aCheck[:status]) + ": " + String(nMet) + " of " + String(nLenRows) + " requirements met"
-	if aCheck[:status] = 2
+	tOut = tOut + "status " + String(xCheck[:status]) + ": " + String(nMet) + " of " + String(nLenRows) + " requirements met"
+	if xCheck[:status] = 2
 		tOut = tOut + "; a requirement names no declared faculty (StzFacultyNames lists them)"
 	end
 	return tOut + tNl
 end
 
 # For a CI step: checks, prints the text, returns the status to exit with.
-func StzModelsCheckExit(xTarget, aRequire)
-	aC = StzModelsCheck(xTarget, aRequire)
-	? StzModelsCheckText(aC)
-	return aC[:status]
+func StzModelsCheckExit(xTarget, xRequire)
+	xC = StzModelsCheck(xTarget, xRequire)
+	? StzModelsCheckText(xC)
+	return xC[:status]
 end
 
 # one requirement against the report's entries there and here
-func _StzCheckOne(tReq, aThere, aHere)
+func _StzCheckOne(tReq, xThere, xHere)
 	tFac = tReq
 	tBy = ""
 	nEq = StzFindFirst("=", tReq)
@@ -117,76 +117,76 @@ func _StzCheckOne(tReq, aThere, aHere)
 	if StzHasFaculty(tFac) = 0
 		return _StzCheckRow(tReq, -1, "", "", "no faculty named '" + tFac + "' is declared in this program")
 	end
-	aE = _StzCheckEntry(aThere, tFac, tLang)
+	xE = _StzCheckEntry(xThere, tFac, tLang)
 	tHere = ""
-	aH = _StzCheckEntry(aHere, tFac, tLang)
-	if Len(aH) > 0
-		tHere = aH[:chosen]
+	xH = _StzCheckEntry(xHere, tFac, tLang)
+	if Len(xH) > 0
+		tHere = xH[:chosen]
 	end
-	if Len(aE) = 0
+	if Len(xE) = 0
 		return _StzCheckRow(tReq, 0, "", tHere, "':" + tFac + "' is not measured in '" + tLang + "', so no choice is recorded for it there (unknown is not good)")
 	end
-	if aE[:refusal] = 1
-		return _StzCheckRow(tReq, 0, "", tHere, "NOTHING would answer there: " + _StzCheckRefusalWhy(aE))
+	if xE[:refusal] = 1
+		return _StzCheckRow(tReq, 0, "", tHere, "NOTHING would answer there: " + _StzCheckRefusalWhy(xE))
 	end
 	if tBy = ""
-		return _StzCheckRow(tReq, 1, aE[:chosen], tHere, "'" + aE[:chosen] + "' would answer (" + aE[:reason] + ")")
+		return _StzCheckRow(tReq, 1, xE[:chosen], tHere, "'" + xE[:chosen] + "' would answer (" + xE[:reason] + ")")
 	end
-	if aE[:chosen] = tBy
-		return _StzCheckRow(tReq, 1, aE[:chosen], tHere, "'" + tBy + "' would answer (" + aE[:reason] + ")")
+	if xE[:chosen] = tBy
+		return _StzCheckRow(tReq, 1, xE[:chosen], tHere, "'" + tBy + "' would answer (" + xE[:reason] + ")")
 	end
-	return _StzCheckRow(tReq, 0, aE[:chosen], tHere, "'" + aE[:chosen] + "' would answer there, not '" + tBy + "': " + _StzCheckImplWhy(aE, tBy))
+	return _StzCheckRow(tReq, 0, xE[:chosen], tHere, "'" + xE[:chosen] + "' would answer there, not '" + tBy + "': " + _StzCheckImplWhy(xE, tBy))
 end
 
 func _StzCheckRow(tReq, nMet, tChosen, tHere, tWhy)
 	return [ [:requirement, tReq], [:met, nMet], [:chosen, tChosen], [:here, tHere], [:why, tWhy] ]
 end
 
-func _StzCheckEntry(aEntries, tFac, tLang)
-	nLenE = Len(aEntries)
+func _StzCheckEntry(xEntries, tFac, tLang)
+	nLenE = Len(xEntries)
 	for i = 1 to nLenE
-		if aEntries[i][:faculty] = tFac and aEntries[i][:lang] = tLang
-			return aEntries[i]
+		if xEntries[i][:faculty] = tFac and xEntries[i][:lang] = tLang
+			return xEntries[i]
 		end
 	end
 	return []
 end
 
 # why an implementation that is not chosen there is not: it cannot run, it is not installed, or the registry preferred another
-func _StzCheckImplWhy(aE, tBy)
-	aI = aE[:impls]
-	nLenI = Len(aI)
+func _StzCheckImplWhy(xE, tBy)
+	xI = xE[:impls]
+	nLenI = Len(xI)
 	for i = 1 to nLenI
-		if aI[i][:id] = tBy
-			if aI[i][:available] = 0
-				return "it cannot run there -- " + aI[i][:unavailable]
+		if xI[i][:id] = tBy
+			if xI[i][:available] = 0
+				return "it cannot run there -- " + xI[i][:unavailable]
 			end
-			if aI[i][:installed] = 0
+			if xI[i][:installed] = 0
 				return "it is not installed there (see StzModelSetupPlanText, StzModelPackPlanText)"
 			end
-			return "the registry chose otherwise (" + aE[:reason] + ")"
+			return "the registry chose otherwise (" + xE[:reason] + ")"
 		end
 	end
-	return "no implementation '" + tBy + "' is declared for ':" + aE[:faculty] + "'"
+	return "no implementation '" + tBy + "' is declared for ':" + xE[:faculty] + "'"
 end
 
 # a refusal's reasons, one per implementation that could not take part
-func _StzCheckRefusalWhy(aE)
+func _StzCheckRefusalWhy(xE)
 	tOut = ""
-	aI = aE[:impls]
-	nLenI = Len(aI)
+	xI = xE[:impls]
+	nLenI = Len(xI)
 	for i = 1 to nLenI
 		tR = ""
-		if aI[i][:available] = 0
-			tR = aI[i][:unavailable]
-		elseif aI[i][:installed] = 0
+		if xI[i][:available] = 0
+			tR = xI[i][:unavailable]
+		elseif xI[i][:installed] = 0
 			tR = "not installed"
 		end
 		if tR != ""
 			if tOut != ""
 				tOut = tOut + "; "
 			end
-			tOut = tOut + aI[i][:id] + ": " + tR
+			tOut = tOut + xI[i][:id] + ": " + tR
 		end
 	end
 	if tOut = ""
