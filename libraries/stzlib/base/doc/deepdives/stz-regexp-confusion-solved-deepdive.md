@@ -117,6 +117,30 @@ o.MatchSegment("<div>.*</div>")     # Greedy by default
 o.MatchOneSegment("<div>.*</div>")  # Non-greedy/lazy match
 ```
 
+> **Dated note, 2026-11-12 — two corrections to the two lines above.**
+>
+> **`MatchOneSegment` did not exist** when this page was written, and the verb that
+> stood in for it was byte-identical to the greedy one, so the distinction this
+> section teaches was not one the library made. It exists now and it is lazy,
+> measured: over `<div>First</div><div>Second</div>` the greedy verb spans the whole
+> 33 characters and `MatchOneSegment` spans the first 16.
+>
+> **The argument is the TEXT, not the pattern.** Every call on this page reads as
+> though the pattern goes in the parentheses; the pattern belongs to the object and
+> the scope verb takes the string being searched. So the pair above is written:
+>
+> ```ring
+> html = "<div>First</div><div>Second</div>"
+>
+> o = new stzRegex("<div>.*</div>")   # the pattern lives on the object
+>
+> o.MatchSegment(html)                # greedy  -- spans both divs
+> o.MatchOneSegment(html)             # lazy    -- spans the first div only
+> ```
+>
+> The same correction applies to the HTML and log examples below: pass the subject
+> text, and set the pattern when the object is made.
+
 ## Real-World Examples
 
 ### 1. Log File Processing
