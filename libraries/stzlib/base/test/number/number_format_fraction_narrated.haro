@@ -1,0 +1,53 @@
+load "../../stzBase.ring"
+load "../_narrated.ring"
+
+# A formatted DECIMAL, which is the case no other number test covered.
+#
+# stzNumber.ApplyFormatXT lost the fractional part of every decimal it formatted,
+# and nothing caught it for as long as the method has existed. The reason is worth
+# keeping: all four number tests that format anything format INTEGERS -- 1200,
+# 12590, 1234567, 1234567890, 590. An integer has no fractional part, so the code
+# that drops one was never reached by a single assertion.
+#
+# Fixed in 3210f2701 (2026-11-12), where the two defects were found to hide each
+# other. :FractionalSeparator was read into _cFractionalSeparator_ while the emit
+# sites printed `cFractionalSep`, a name assigned nowhere; and the fractional part
+# itself was overwritten with "" whenever no precision was requested, which is the
+# default. Repairing either one alone shows nothing: with the separator empty the
+# output looks like a missing separator, and with the fraction empty the option
+# looks ignored.
+#
+# Scenario 3 is the control. The overwrite existed to serve a REQUESTED precision,
+# so that path has to keep working; if it ever stops, the guard above has been
+# bought by breaking something else.
+
+Scenario("1. A decimal keeps its fraction when no precision is asked for")
+
+	Then("1234.56 carries both separators", (new stzNumber(1234.56)).Format(), "+1.234,56")
+	Then("a longer fraction is not truncated", (new stzNumber(1234.5678)).Format(), "+1.234,5678")
+	Then("an integer gains no separator", (new stzNumber(42)).Format(), "+42")
+
+EndScenario()
+
+Scenario("2. :FractionalSeparator is placed rather than discarded")
+
+	Then("a semicolon is the separator asked for",
+		(new stzNumber(1234.56)).FormatXT([ [:FractionalSeparator, ";"] ]), "+1.234;56")
+
+	Then("the thousands separator is chosen independently",
+		(new stzNumber(1234.56)).FormatXT([ [:ThousandsSeparator, " "] ]), "+1 234,56")
+
+EndScenario()
+
+Scenario("3. A requested precision still restricts -- the control")
+
+	Then("two digits of four",
+		(new stzNumber(1234.5678)).FormatXT([ [:NumberOfDigitsInFractionalPart, 2] ]), "+1.234,56")
+
+	Then("three digits of four",
+		(new stzNumber(1234.5678)).FormatXT([ [:NumberOfDigitsInFractionalPart, 3] ]), "+1.234,567")
+
+EndScenario()
+
+Summary()
+Shutdown($_zst_fail)
