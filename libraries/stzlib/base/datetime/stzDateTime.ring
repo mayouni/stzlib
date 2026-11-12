@@ -518,6 +518,26 @@ class stzDateTime from stzObject
 	                This.SetFromEpochDuration(pDateTime[:FromEpochDuration])
 
 	            else
+	                # 2026-11-11: this is the explicit-components form (:Year, :Month, :Day, :Hour,
+	                # :Minute, :Second), and it is ALSO the else of the long HasKey chain above. So a
+	                # hash naming an option that does not exist -- a typo, or a name the library never
+	                # had -- used to land here and be answered 2000-01-01, reporting success. A named
+	                # option that is taken and discarded is a facade: it is refused here instead.
+	                # Found by base/test/datetime/76_example_15_counting_from_islamic_calendar.ring,
+	                # which asks for :CountingFromIslamicCalendar -- the real name is
+	                # :CountingFromIslamicHijra -- and was answered the year 2000 rather than told the
+	                # key is not one of ours. The six names below are the only ones this branch reads;
+	                # :Origin is read only beside :CountingFrom, so :Origin alone is an error too.
+	                # No _var_ wrapping: that guarded Ring's local/global collision, which Haro does not have.
+	                bHasComponent = HasKey(pDateTime, :Year) or HasKey(pDateTime, :Month) or HasKey(pDateTime, :Day)
+	                if not bHasComponent
+	                    bHasComponent = HasKey(pDateTime, :Hour) or HasKey(pDateTime, :Minute) or HasKey(pDateTime, :Second)
+	                ok
+
+	                if len(pDateTime) > 0 and not bHasComponent
+	                    StzRaise("Unsupported option in stzDateTime(): " + pDateTime[1][1] + "!")
+	                ok
+
 	                _nYear_ = 2000
 	                _nMonth_ = 1
 	                _nDay_ = 1
