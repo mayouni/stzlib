@@ -117,8 +117,14 @@ All of them read the registry's own data; none decides anything the registry doe
   absent pack at the end of the setup plan. The code is `.haro` (`base/faculty/stzModelPack.haro`); guard `model_pack_narrated.haro` (27).
   Two things the first pack found: the default requirement's permissive list did not name OpenMDW (the Linux Foundation's model licence,
   permissive: the licence and notices travel with the weights, no use is limited), so an installed Bolt could never have been chosen; and
-  the catalogue's size check read a 6.2 GB file as -1 bytes (a 32-bit `ftell`) -- it reads the engine's size now. The CI status is MP2's
-  last part.
+  the catalogue's size check read a 6.2 GB file as -1 bytes (a 32-bit `ftell`) -- it reads the engine's size now.
+- **MP2 done: the CI status** (2026-11-12). `StzModelsCheck(target, requirements)` answers, for each requirement, what would answer
+  there: `"ocr"` (the faculty answers), `"ocr/ar"` (in that language, as measured in it), `"faces=yunet"` (and that implementation
+  is the one). Status 0 when every one is met, 1 when one is not -- a refusal, another implementation, a language never measured --
+  and 2 when a requirement names no declared faculty, so a typo never passes. Each line says why, and where this machine would answer
+  otherwise. `StzModelsCheckExit` prints it and returns the status for a CI step; `tools/models_check.haro --require ... [--os]
+  [--memory] [--pack]` does it for the library's own faculties and exits with it. Code `base/faculty/stzModelsCheck.haro`; guard
+  `models_check_narrated.haro` (17, the tool's three exit codes among them).
 - **MP3 done** (2026-11-05): `models/catalog.zcat` -- every file a faculty needs (26), what each implementation requires (20 rows, per
   language where it differs), what a platform implementation needs from the operating system (2), and which conversions were replayed;
   `StzModelCatalog()`, `StzImplementationFiles()`, `StzModelFileState()`, `StzModelVerify()`, `StzModelSetupPlan(faculty)` and
