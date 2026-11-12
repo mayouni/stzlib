@@ -1,0 +1,13 @@
+root ::= "{\"version\": \"1.0\", \"createSurface\": {\"surfaceId\": " idstr ", \"components\": [" ws comp ("," ws comp)* ws "]" ("," ws "\"dataModel\": " object)? "}}"
+comp ::= "{\"id\": " idstr ", \"component\": " cname ("," ws prop)* "}"
+cname ::= "\"Text\"" | "\"Button\"" | "\"Row\"" | "\"Column\"" | "\"Card\"" | "\"Divider\"" | "\"TextField\"" | "\"CheckBox\"" | "\"ChoicePicker\"" | "\"Slider\"" | "\"DateTimeInput\""
+prop ::= "\"" pname "\": " value
+pname ::= "text" | "variant" | "child" | "children" | "action" | "justify" | "align" | "axis" | "label" | "value" | "placeholder" | "options" | "displayStyle" | "filterable" | "min" | "max" | "steps" | "enableDate" | "enableTime"
+idstr ::= "\"" [a-zA-Z_] [a-zA-Z0-9_]* "\""
+value ::= object | array | string | number | "true" | "false"
+object ::= "{" ws (pair ("," ws pair)*)? ws "}"
+pair ::= string ": " value
+array ::= "[" ws (value ("," ws value)*)? ws "]"
+string ::= "\"" ([^"\\\n] | "\\" ["\\/nt])* "\""
+number ::= "-"? [0-9]+ ("." [0-9]+)?
+ws ::= " "?

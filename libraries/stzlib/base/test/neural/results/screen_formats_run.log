@@ -1,0 +1,79 @@
+MODEL granite-4.0-1b-Q8_0.gguf  -- 12 requests
+  zane grammar signin: shape 1 law 1 coverage 1 tokens 41 s 19.661  
+  zane grammar room: shape 1 law 1 coverage 0 tokens 44 s 4.535   missing verb SELECT
+  zane grammar plan: shape 1 law 0 coverage 0 tokens 35 s 3.229  verifier exit 1: MISSING_UNDO missing verb SELECT
+  zane grammar order: shape 1 law 1 coverage 0 tokens 65 s 5.26   missing verb READ
+  zane grammar contact: shape 1 law 0 coverage 1 tokens 87 s 6.832  verifier exit 1: FIELD_MISPLACED,FIELD_MISPLACED
+  zane grammar delete: shape 1 law 1 coverage 0 tokens 40 s 3.498   missing verb CONFIRM
+  zane grammar settings: shape 1 law 1 coverage 1 tokens 39 s 3.411  
+  zane grammar rating: shape 1 law 0 coverage 1 tokens 93 s 7.487  verifier exit 1: FIELD_MISPLACED,FIELD_MISPLACED
+  zane grammar search: shape 1 law 0 coverage 0 tokens 112 s 8.643  verifier exit 1: FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED missing verb FILTER
+  zane grammar expense: shape 1 law 0 coverage 1 tokens 94 s 7.927  verifier exit 1: MISSING_UNDO,FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED
+  zane grammar address: shape 1 law 0 coverage 0 tokens 133 s 9.822  verifier exit 1: FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED missing verb SELECT
+  zane grammar failed: shape 1 law 0 coverage 1 tokens 43 s 3.985  verifier exit 1: MISSING_UNDO
+SUMMARY zane / grammar: valid 5 of 12, shape 12, covered 6, tokens per valid screen 45, tokens in all 826, seconds 84
+  zane free signin: shape 0 law 0 coverage 0 tokens 22 s 1.446  not a sentence of the format's syntax
+  zane free room: shape 0 law 0 coverage 0 tokens 8 s 1.23  not a sentence of the format's syntax
+  zane free plan: shape 0 law 0 coverage 0 tokens 6 s 0.883  not a sentence of the format's syntax
+  zane free order: shape 0 law 0 coverage 0 tokens 6 s 1.016  not a sentence of the format's syntax
+  zane free contact: shape 0 law 0 coverage 0 tokens 11 s 0.981  not a sentence of the format's syntax
+  zane free delete: shape 0 law 0 coverage 0 tokens 9 s 0.948  not a sentence of the format's syntax
+  zane free settings: shape 0 law 0 coverage 0 tokens 15 s 1.337  not a sentence of the format's syntax
+  zane free rating: shape 0 law 0 coverage 0 tokens 27 s 1.997  not a sentence of the format's syntax
+  zane free search: shape 1 law 0 coverage 0 tokens 133 s 6.453  verifier exit 1: UNKNOWN_INTENT,UNKNOWN_SIGNAL,FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED missing verb FILTER
+  zane free expense: shape 0 law 0 coverage 0 tokens 9 s 0.989  not a sentence of the format's syntax
+  zane free address: shape 0 law 0 coverage 0 tokens 8 s 0.894  not a sentence of the format's syntax
+  zane free failed: shape 0 law 0 coverage 0 tokens 7 s 0.764  not a sentence of the format's syntax
+SUMMARY zane / free: valid 0 of 12, shape 1, covered 0, tokens per valid screen -, tokens in all 261, seconds 18
+  a2ui_json grammar signin: shape 1 law 1 coverage 1 tokens 158 s 28.345  
+  a2ui_json grammar room: shape 1 law 0 coverage 1 tokens 289 s 33.71  Card root has no property children
+  a2ui_json grammar plan: shape 1 law 0 coverage 1 tokens 339 s 44.253  Card root has no property children
+  a2ui_json grammar order: shape 1 law 1 coverage 1 tokens 232 s 24.642  
+  a2ui_json grammar contact: shape 1 law 1 coverage 1 tokens 192 s 21.224  
+  a2ui_json grammar delete: shape 1 law 0 coverage 1 tokens 196 s 19.985  Button cancel_button lacks child
+  a2ui_json grammar settings: shape 1 law 0 coverage 1 tokens 179 s 20.878  Card root has no property children
+  a2ui_json grammar rating: shape 1 law 1 coverage 0 tokens 241 s 29.895   missing 'rate'
+  a2ui_json grammar search: shape 1 law 1 coverage 1 tokens 206 s 23.665  
+  a2ui_json grammar expense: shape 1 law 0 coverage 0 tokens 241 s 26.164  Card root has no property children missing '120'
+  a2ui_json grammar address: shape 1 law 0 coverage 1 tokens 160 s 19.092  Card root has no property children
+  a2ui_json grammar failed: shape 1 law 1 coverage 1 tokens 225 s 25.546  
+SUMMARY a2ui_json / grammar: valid 6 of 12, shape 12, covered 10, tokens per valid screen 209, tokens in all 2658, seconds 317
+  a2ui_json free signin: shape 1 law 1 coverage 1 tokens 158 s 9.863  
+  a2ui_json free room: shape 1 law 0 coverage 1 tokens 289 s 18.64  Card root has no property children
+  a2ui_json free plan: shape 1 law 0 coverage 1 tokens 339 s 21.347  Card root has no property children
+  a2ui_json free order: shape 1 law 1 coverage 1 tokens 232 s 14.626  
+  a2ui_json free contact: shape 1 law 0 coverage 1 tokens 179 s 11.039  the component message is a TextArea, which the catalogue does not hold
+  a2ui_json free delete: shape 0 law 0 coverage 0 tokens 196 s 11.954  not a sentence of the format's syntax
+  a2ui_json free settings: shape 0 law 0 coverage 0 tokens 177 s 11.183  not a sentence of the format's syntax
+  a2ui_json free rating: shape 0 law 0 coverage 0 tokens 240 s 14.592  not a sentence of the format's syntax
+  a2ui_json free search: shape 1 law 1 coverage 1 tokens 206 s 13.111  
+  a2ui_json free expense: shape 1 law 0 coverage 0 tokens 241 s 14.792  Card root has no property children missing '120'
+  a2ui_json free address: shape 1 law 0 coverage 1 tokens 160 s 10.557  Card root has no property children
+  a2ui_json free failed: shape 1 law 1 coverage 1 tokens 225 s 13.94  
+SUMMARY a2ui_json / free: valid 4 of 12, shape 9, covered 8, tokens per valid screen 205, tokens in all 2642, seconds 165
+  a2ui_express grammar signin: shape 1 law 1 coverage 1 tokens 82 s 16.997  
+  a2ui_express grammar room: shape 1 law 0 coverage 1 tokens 203 s 25.945  DateTimeInput date: value is the bare name 'undefined', not a value
+  a2ui_express grammar plan: shape 1 law 0 coverage 1 tokens 88 s 12.3  the id continue is used twice
+  a2ui_express grammar order: shape 1 law 0 coverage 0 tokens 79 s 9.588  TextField quantity lacks value missing 'total'
+  a2ui_express grammar contact: shape 1 law 0 coverage 1 tokens 88 s 9.486  Button send: its child is not a defined component
+  a2ui_express grammar delete: shape 1 law 0 coverage 0 tokens 50 s 6.142  Button delete: its child is not a defined component missing 'report.pdf'
+  a2ui_express grammar settings: shape 1 law 0 coverage 0 tokens 75 s 8.119  Button save: its child is not a defined component missing 'save'
+  a2ui_express grammar rating: shape 1 law 0 coverage 1 tokens 82 s 10.125  the id rating is used twice
+  a2ui_express grammar search: shape 1 law 0 coverage 1 tokens 97 s 11.853  ChoicePicker status_filter: variant 'default' is not one of its values
+  a2ui_express grammar expense: shape 1 law 0 coverage 0 tokens 85 s 10.875  TextField note lacks value missing '120'
+  a2ui_express grammar address: shape 1 law 0 coverage 1 tokens 174 s 21.272  the id title is used twice
+  a2ui_express grammar failed: shape 1 law 0 coverage 1 tokens 92 s 11.282  Button contact: variant 'secondary' is not one of its values
+SUMMARY a2ui_express / grammar: valid 1 of 12, shape 12, covered 8, tokens per valid screen 82, tokens in all 1195, seconds 153
+  a2ui_express free signin: shape 1 law 1 coverage 1 tokens 82 s 4.514  
+  a2ui_express free room: shape 0 law 0 coverage 0 tokens 160 s 9.376  not a sentence of the format's syntax
+  a2ui_express free plan: shape 1 law 0 coverage 1 tokens 95 s 5.834  the id continue is used twice
+  a2ui_express free order: shape 0 law 0 coverage 0 tokens 86 s 5.334  not a sentence of the format's syntax
+  a2ui_express free contact: shape 1 law 0 coverage 0 tokens 88 s 5.007  the component message is a TextArea, which the catalogue does not hold missing 'message'
+  a2ui_express free delete: shape 1 law 0 coverage 0 tokens 50 s 3.117  Button delete: its child is not a defined component missing 'report.pdf'
+  a2ui_express free settings: shape 1 law 0 coverage 0 tokens 75 s 4.022  Button save: its child is not a defined component missing 'save'
+  a2ui_express free rating: shape 0 law 0 coverage 0 tokens 1 s 0.674  not a sentence of the format's syntax
+  a2ui_express free search: shape 1 law 0 coverage 1 tokens 99 s 5.716  ChoicePicker status_filter: variant 'default' is not one of its values
+  a2ui_express free expense: shape 1 law 0 coverage 0 tokens 85 s 4.855  TextField note lacks value missing '120'
+  a2ui_express free address: shape 1 law 0 coverage 1 tokens 176 s 9.764  statement add_new_address is an event, not a component
+  a2ui_express free failed: shape 1 law 0 coverage 1 tokens 92 s 4.819  Button contact: variant 'secondary' is not one of its values
+SUMMARY a2ui_express / free: valid 1 of 12, shape 9, covered 5, tokens per valid screen 82, tokens in all 1089, seconds 63
