@@ -40,14 +40,14 @@ class stkPointer
         @bIsManaged = false
     end
 
-    def CreateFromParams(aParams)
+    def CreateFromParams(xParams)
 
-        pValue = aParams[1]
-        tType = aParams[2]
+        pValue = xParams[1]
+        tType = xParams[2]
         nSize = 0
 
-        if Len(aParams) > 2
-			nSize = aParams[3]
+        if Len(xParams) > 2
+			nSize = xParams[3]
 		end
         
         this.CreateFromValue([ pValue, tType, nSize ])

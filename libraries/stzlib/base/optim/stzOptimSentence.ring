@@ -65,7 +65,7 @@ func StzOptimSentenceQ(pcText)
 #   see        stzOptimModel, stzOptimFile, StzOptimNaturally
 class stzOptimSentence from stzObject
 
-	@cText = ""
+	@tText = ""
 	@cSense = ""
 	@cObjExpr = ""
 	@aVarSpec = []      # [ [ name, lb, ub, hasUb, int ] ]
@@ -82,7 +82,7 @@ class stzOptimSentence from stzObject
 	#              one more variable, so use a keeping clause or put the relation first
 	#   see        Findings, ToModel
 	def init(pcText)
-		@cText = "" + pcText
+		@tText = "" + pcText
 		This._Parse()
 
 	# Returns the faults found in the sentence, one text each, empty when the sentence is understood.
@@ -182,7 +182,7 @@ class stzOptimSentence from stzObject
 	# Split on newlines and on a leading `and `, so both layouts read the
 	# same: one clause per line, or one long sentence joined by `and`.
 	def _Clauses()
-		_c_ = StzReplace("" + @cText, char(13), "")
+		_c_ = StzReplace("" + @tText, char(13), "")
 		_ac_ = StzSplit(_c_, char(10))
 		_aOut_ = []
 		_n_ = len(_ac_)

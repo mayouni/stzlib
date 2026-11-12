@@ -60,7 +60,7 @@ class stzSoundTranscriber
 	@aUnpitched = []        # [ seconds, clarity ] -- onsets with no pitch
 	@nMinClarity = 0.6
 	@cInstrument = "piano"
-	@cLastError = ""
+	@tLastError = ""
 
 	# Builds a transcriber with the piano as the instrument, a minimum clarity of 0.6 and no result yet.
 	#
@@ -116,7 +116,7 @@ class stzSoundTranscriber
 	#   note       for a missing sound it reads TranscribeQ: nothing to transcribe
 	#   see        TranscribeQ
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Turns a sound into a stzSoundScore: finds the onsets, reads the pitch of each and keeps its clarity as the confidence.
 	#
@@ -137,13 +137,13 @@ class stzSoundTranscriber
 		@aConf = []
 		@aUnpitched = []
 		if NOT isObject(poSound) or poSound.Frames() = 0
-			@cLastError = "TranscribeQ: nothing to transcribe"
+			@tLastError = "TranscribeQ: nothing to transcribe"
 			return _oS_
 		ok
 		# a MONO copy, made by the engine -- never ToMono on the caller's sound
 		_id_ = StzEngineSoundToChannels(poSound.BufferId(), 1)
 		if _id_ = 0
-			@cLastError = StzEngineSoundLastError()
+			@tLastError = StzEngineSoundLastError()
 			return _oS_
 		ok
 		_m_ = StzSoundFromBufferQ(_id_)

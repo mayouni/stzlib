@@ -22,9 +22,9 @@ $tEngine = Slashes(SysGet("STZ_ENGINE_DIR"))
 $tModels = Slashes(SysGet("STZ_MODELS_DIR"))
 $nPass = 0
 $nFail = 0
-$aNotRun = []
-$aExact = []
-$aForced = []
+$vNotRun = []
+$vExact = []
+$vForced = []
 LoadLib($tEngine + "/zig-out/bin/stz_neural.dll")
 $tBolt = $tModels + "/Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf"
 tLong = ""
@@ -32,55 +32,55 @@ for i = 1 to 30
 	tLong = tLong + "The river towns of the northern valley keep their records in stone halls, and every spring the clerks count the barges that passed the locks. "
 end
 tLong = tLong + Char(10) + "Question: what do the clerks count every spring?" + Char(10) + "Answer:"
-$aExact + [ "Les trois plus grands fleuves de France sont", " la Loire, le Rhône et la Seine." + Char(10) + Char(10) + "**Question:** Quel est le plus grand fleuve de France parmi ceux mentionnés ?" + Char(10) + Char(10) + "**Réponse:** Le texte ne spécifie pas lequel est le plus grand parmi la Loire, le" ]
-$aExact + [ tLong, " the barges that passed the locks." ]
-$aExact + [ "A haiku about a cat sleeping on a keyboard:" + Char(10), "Soft fur on the keys," + Char(10) + "Silent, rhythmic, gentle breath," + Char(10) + "Code waits for the dawn." ]
-$aForced + [ "The capital of France is", " Paris." ]
-$aForced + [ "Question: Why does the sky look blue?" + Char(10) + "Answer:", " The sky looks blue because of a phenomenon called **Rayleigh scattering**." + Char(10) + Char(10) + "**Explanation:**" + Char(10) + "1. **Sunlight Composition:** Sunlight, which appears white, is actually composed of all colors of the rainbow (red, orange, yellow," ]
-$aForced + [ "المدينة الأكثر سكانا في المغرب هي", " مدينة الدار البيضاء." + Char(10) + Char(10) + "**ملاحظة:** على الرغم من أن الدار البيضاء هي الأكبر من حيث عدد السكان، فإن بعض المدن الأخرى قد تكون أكثر كثافة سكانية في مناطق محددة (مثل المد" ]
-$aForced + [ "def fibonacci(n):" + Char(10) + "    " + Char(34) + Char(34) + Char(34) + "Return the n-th Fibonacci number." + Char(34) + Char(34) + Char(34) + Char(10), "    if n <= 0:" + Char(10) + "        return 0" + Char(10) + "    elif n == 1:" + Char(10) + "        return 1" + Char(10) + "    else:" + Char(10) + "        # Recursive step: F(n) = F(n-1) +" ]
-$aForced + [ "Five unusual uses for a paperclip:" + Char(10) + "1.", " **Temporary Zipper Fix:** If a zipper is snagged or a tiny pull tab is missing, a paperclip can temporarily bridge the gap or act as a makeshift pull tab." + Char(10) + "2. **SIM Card Tray Ejector:** This" ]
+$vExact + [ "Les trois plus grands fleuves de France sont", " la Loire, le Rhône et la Seine." + Char(10) + Char(10) + "**Question:** Quel est le plus grand fleuve de France parmi ceux mentionnés ?" + Char(10) + Char(10) + "**Réponse:** Le texte ne spécifie pas lequel est le plus grand parmi la Loire, le" ]
+$vExact + [ tLong, " the barges that passed the locks." ]
+$vExact + [ "A haiku about a cat sleeping on a keyboard:" + Char(10), "Soft fur on the keys," + Char(10) + "Silent, rhythmic, gentle breath," + Char(10) + "Code waits for the dawn." ]
+$vForced + [ "The capital of France is", " Paris." ]
+$vForced + [ "Question: Why does the sky look blue?" + Char(10) + "Answer:", " The sky looks blue because of a phenomenon called **Rayleigh scattering**." + Char(10) + Char(10) + "**Explanation:**" + Char(10) + "1. **Sunlight Composition:** Sunlight, which appears white, is actually composed of all colors of the rainbow (red, orange, yellow," ]
+$vForced + [ "المدينة الأكثر سكانا في المغرب هي", " مدينة الدار البيضاء." + Char(10) + Char(10) + "**ملاحظة:** على الرغم من أن الدار البيضاء هي الأكبر من حيث عدد السكان، فإن بعض المدن الأخرى قد تكون أكثر كثافة سكانية في مناطق محددة (مثل المد" ]
+$vForced + [ "def fibonacci(n):" + Char(10) + "    " + Char(34) + Char(34) + Char(34) + "Return the n-th Fibonacci number." + Char(34) + Char(34) + Char(34) + Char(10), "    if n <= 0:" + Char(10) + "        return 0" + Char(10) + "    elif n == 1:" + Char(10) + "        return 1" + Char(10) + "    else:" + Char(10) + "        # Recursive step: F(n) = F(n-1) +" ]
+$vForced + [ "Five unusual uses for a paperclip:" + Char(10) + "1.", " **Temporary Zipper Fix:** If a zipper is snagged or a tiny pull tab is missing, a paperclip can temporarily bridge the gap or act as a makeshift pull tab." + Char(10) + "2. **SIM Card Tray Ejector:** This" ]
 
 if FExists($tBolt)
 	? "load: " + String(StzEngineNeuralModelLoad($tBolt)) + " (digest status " + String(StzEngineNeuralModelLoadStatus()) + ")"
 
 	Scenario("1. llama.cpp's greedy text, byte for byte")
-	nExact = Len($aExact)
+	nExact = Len($vExact)
 	nSame = 0
 	for i = 1 to nExact
-		tOut = StzEngineNeuralGenerate($aExact[i][1], 48)
+		tOut = StzEngineNeuralGenerate($vExact[i][1], 48)
 		? "  " + String(StzEngineNeuralGenPromptTokens()) + " prompt tokens -> " + String(Len(tOut)) + " bytes"
-		if tOut = $aExact[i][2]
+		if tOut = $vExact[i][2]
 			nSame = nSame + 1
 		end
 	end
 	Then("the 3 texts are llama.cpp's, the 826-token prompt among them", nSame, nExact)
 
 	Scenario("2. where the runtimes part, they part on a near tie")
-	nForced = Len($aForced)
+	nForced = Len($vForced)
 	nOk = 0
 	for i = 1 to nForced
-		tP = $aForced[i][1]
+		tP = $vForced[i][1]
 		nP = StzEngineNeuralGenTokenize(tP)
-		nAll = StzEngineNeuralGenTokenize(tP + $aForced[i][2])
-		aAll = []
+		nAll = StzEngineNeuralGenTokenize(tP + $vForced[i][2])
+		vAll = []
 		for j = 0 to nAll - 1
-			aAll + StzEngineNeuralGenTokenAt(j)
+			vAll + StzEngineNeuralGenTokenAt(j)
 		end
 		StzEngineNeuralPrefillLogits(tP)
 		nAgree = 0
 		nWorst = Float(0)
 		for j = nP + 1 to nAll
-			aTop = StzEngineNeuralVlmTop(1)
-			if aTop[1][1] = aAll[j]
+			xTop = StzEngineNeuralVlmTop(1)
+			if xTop[1][1] = vAll[j]
 				nAgree = nAgree + 1
 			else
-				nGap = aTop[1][2] - StzEngineNeuralLogitAt(aAll[j])
+				nGap = xTop[1][2] - StzEngineNeuralLogitAt(vAll[j])
 				if nGap > nWorst
 					nWorst = nGap
 				end
 			end
-			StzEngineNeuralVlmFeed(aAll[j])
+			StzEngineNeuralVlmFeed(vAll[j])
 		end
 		nSteps = nAll - nP
 		? "  prompt " + String(i) + ": llama.cpp's token is the engine's best at " + String(nAgree) + " of " + String(nSteps) + " steps; widest gap " + String(nWorst)
@@ -95,11 +95,11 @@ if FExists($tBolt)
 	tOut = StzEngineNeuralGenerate("The capital of France is", 64)
 	Then("...and stops on its end of text before 64 tokens (no truncation, no error)", StzEngineNeuralGenLastError() = 0 and Len(tOut) < 200, true)
 else
-	$aNotRun + ("every scene (no " + $tBolt + ")")
+	$vNotRun + ("every scene (no " + $tBolt + ")")
 end
 
 ? ""
-for t in $aNotRun
+for t in $vNotRun
 	? "NOT RUN: " + t
 end
 ? "================================================"

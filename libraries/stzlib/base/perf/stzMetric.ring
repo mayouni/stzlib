@@ -77,7 +77,7 @@ func StzMetric(pcName, pcKind)
 #   see        StzPerfMonitor, stzStopwatch, stzPerfSeries
 class stzMetric from stzObject
 
-	@cName = ""
+	@tName = ""
 	@cKind = ""		# :counter / :gauge / :timer (folded lowercase)
 	@cHelp = ""
 	@nWindow = 1024
@@ -97,7 +97,7 @@ class stzMetric from stzObject
 	#@ aka  family CHILD (perf P8); [] on flat metrics
 	def init(pcName, pcKind)
 		if isString(pcName)
-			@cName = pcName
+			@tName = pcName
 		ok
 		_cK_ = StzLower("" + pcKind)
 		if _cK_ != "counter" and _cK_ != "gauge" and _cK_ != "timer"
@@ -124,7 +124,7 @@ class stzMetric from stzObject
 
 	def _MustBe(pcKind, pcVerb)
 		if @cKind != pcKind
-			stzraise("stzMetric '" + @cName + "': " + pcVerb + "() belongs to the :" + pcKind + " kind, and this metric is a :" + @cKind + ".")
+			stzraise("stzMetric '" + @tName + "': " + pcVerb + "() belongs to the :" + pcKind + " kind, and this metric is a :" + @cKind + ".")
 		ok
 
 	# Returns the metric's name as given.
@@ -132,7 +132,7 @@ class stzMetric from stzObject
 	#   returns    a text
 	#   see        Kind, PromName
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the metric's kind, in lower case.
 	#
@@ -191,7 +191,7 @@ class stzMetric from stzObject
 	# family's engine-owned stores. Children are reconstructed per
 	# face on cache miss -- this path must not churn engine handles.
 	def _InitChild(pcName, pcKind)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@cKind = StzLower("" + pcKind)
 		return This
 
@@ -282,7 +282,7 @@ class stzMetric from stzObject
 	def Mean()
 		This._Ensure()
 		if @cKind = "counter"
-			stzraise("stzMetric '" + @cName + "': Mean() of a cumulative counter is not meaningful -- ask RatePerSecond().")
+			stzraise("stzMetric '" + @tName + "': Mean() of a cumulative counter is not meaningful -- ask RatePerSecond().")
 		ok
 		return @oSeries.Mean()
 
@@ -451,7 +451,7 @@ class stzMetric from stzObject
 	#   see        PromText, Name
 	#@ aka  -- Interop: Prometheus exposition ---------------------------
 	def PromName()
-		_cN_ = StzReplace(@cName, ".", "_")
+		_cN_ = StzReplace(@tName, ".", "_")
 		_cN_ = StzReplace(_cN_, "-", "_")
 		return _cN_
 
@@ -541,7 +541,7 @@ class stzMetric from stzObject
 	#@ aka  -- Interop: one OTLP metric fragment ------------------------
 	def OtelMetricJson()
 		This._Ensure()
-		_cJ_ = '{"name":"' + @cName + '"'
+		_cJ_ = '{"name":"' + @tName + '"'
 		if @cHelp != ""
 			_cJ_ += (',"description":"' + @cHelp + '"')
 		ok
@@ -605,7 +605,7 @@ class stzMetric from stzObject
 	def Explain()
 		This._Ensure()
 		_aLines_ = []
-		_aLines_ + ("Metric " + @cName + " (:" + @cKind + ").")
+		_aLines_ + ("Metric " + @tName + " (:" + @cKind + ").")
 		if @cKind = "counter"
 			_aLines_ + ("  total: " + This.Value() + " ; rate: " + This.RatePerSecond() + "/s")
 		but @cKind = "gauge"

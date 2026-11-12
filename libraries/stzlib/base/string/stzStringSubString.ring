@@ -83,8 +83,8 @@ class stzStringSubString from stzStringSubStringCS
 #   see        stzStringSubString, stzString, stzStringFinder
 class stzStringSubStringCS from stzObject
 
-	@cSubStr
-	@cStr
+	@tSubStr
+	@tStr
 	@bCaseSensitive
 
 	# Builds a view of a fragment inside a text, with a flag saying whether comparisons respect case.
@@ -110,8 +110,8 @@ class stzStringSubStringCS from stzObject
 			StzRaise("Can't create stzStringSubStringCS! Both parameters must be strings.")
 		ok
 
-		@cSubStr = pcSubStr
-		@cStr = pcStr
+		@tSubStr = pcSubStr
+		@tStr = pcStr
 		@bCaseSensitive = @CaseSensitive(pCaseSensitive)
 
 	  #===============================#
@@ -124,21 +124,21 @@ class stzStringSubStringCS from stzObject
 	#   note       Content is the same call
 	#   see        String, NumberOfChars
 	def SubString()
-		return @cSubStr
+		return @tSubStr
 
 		# Returns the fragment this object studies.
 		#
 		#   returns    a text
 		#   see        String, SubString
 		def Content()
-			return @cSubStr
+			return @tSubStr
 
 	# Returns the text the fragment is looked for in.
 	#
 	#   returns    a text
 	#   see        SubString
 	def String()
-		return @cStr
+		return @tStr
 
 	# Returns the flag the object was built with.
 	#
@@ -153,7 +153,7 @@ class stzStringSubStringCS from stzObject
 	#   note       an gives 2; the Hebrew fragment ום gives 2 and an emoji gives 1
 	#   see        SubString
 	def NumberOfChars()
-		_oSub_ = new stzString(@cSubStr)
+		_oSub_ = new stzString(@tSubStr)
 		return _oSub_.NumberOfChars()
 
 	  #===============================#
@@ -168,9 +168,9 @@ class stzStringSubStringCS from stzObject
 	#              here and two sections there
 	#   see        Sections, NthPosition
 	def NumberOfOccurrence()
-		_oStr_ = new stzString(@cStr)
+		_oStr_ = new stzString(@tStr)
 		_oFinder_ = new stzStringFinder(_oStr_)
-		return _oFinder_.NumberOfOccurrenceCS(@cSubStr, @bCaseSensitive)
+		return _oFinder_.NumberOfOccurrenceCS(@tSubStr, @bCaseSensitive)
 
 	# Raises error R14 today instead of returning the position of every occurrence.
 	#
@@ -180,9 +180,9 @@ class stzStringSubStringCS from stzObject
 	#              Occurrences raise for every input; confirmed with Banana bandana and with banana
 	#   see        Sections, NthPosition, FirstPosition
 	def Positions()
-		_oStr_ = new stzString(@cStr)
+		_oStr_ = new stzString(@tStr)
 		_oFinder_ = new stzStringFinder(_oStr_)
-		return _oFinder_.FindAllCS(@cSubStr, @bCaseSensitive)
+		return _oFinder_.FindAllCS(@tSubStr, @bCaseSensitive)
 
 		def Occurrences()
 			return This.Positions()
@@ -196,9 +196,9 @@ class stzStringSubStringCS from stzObject
 	#              occurrences overlap
 	#   see        FirstPosition, LastPosition, Sections
 	def NthPosition(n)
-		_oStr_ = new stzString(@cStr)
+		_oStr_ = new stzString(@tStr)
 		_oFinder_ = new stzStringFinder(_oStr_)
-		return _oFinder_.FindNthCS(n, @cSubStr, @bCaseSensitive)
+		return _oFinder_.FindNthCS(n, @tSubStr, @bCaseSensitive)
 
 	# Returns the 1-based position where the first occurrence starts.
 	#
@@ -225,9 +225,9 @@ class stzStringSubStringCS from stzObject
 	#              gives [2,2], [4,4]; positions count characters
 	#   see        NthPosition, NumberOfOccurrence
 	def Sections()
-		_oStr_ = new stzString(@cStr)
+		_oStr_ = new stzString(@tStr)
 		_oFinder_ = new stzStringFinder(_oStr_)
-		return _oFinder_.FindAsSectionsCS(@cSubStr, @bCaseSensitive)
+		return _oFinder_.FindAsSectionsCS(@tSubStr, @bCaseSensitive)
 
 	  #===============================#
 	 #     REPLACE / REMOVE          #
@@ -242,9 +242,9 @@ class stzStringSubStringCS from stzObject
 	#                 banana gives b-na
 	#   see           Removed, Uppercased
 	def ReplacedWith(pcNewSubStr)
-		_oStr_ = new stzString(@cStr)
+		_oStr_ = new stzString(@tStr)
 		_oReplacer_ = new stzStringReplacer(_oStr_)
-		_oReplacer_.ReplaceCS(@cSubStr, pcNewSubStr, @bCaseSensitive)
+		_oReplacer_.ReplaceCS(@tSubStr, pcNewSubStr, @bCaseSensitive)
 		return _oReplacer_.Content()
 
 		def Replaced(pcNewSubStr)
@@ -268,7 +268,7 @@ class stzStringSubStringCS from stzObject
 	#   note       looks at the fragment only, not at the text; Ab is neither lower nor upper case
 	#   see        IsUppercased, Lowercased
 	def IsLowercased()
-		_oSub_ = new stzString(@cSubStr)
+		_oSub_ = new stzString(@tSubStr)
 		return StzEngineStringIsLowercase(_oSub_.Engine())
 
 	# TRUE if the fragment itself is in capitals.
@@ -277,7 +277,7 @@ class stzStringSubStringCS from stzObject
 	#   note       looks at the fragment only; AB gives 1, Ab gives 0
 	#   see        IsLowercased, Uppercased
 	def IsUppercased()
-		_oSub_ = new stzString(@cSubStr)
+		_oSub_ = new stzString(@tSubStr)
 		return StzEngineStringIsUppercase(_oSub_.Engine())
 
 	# Returns the text with every occurrence of the fragment turned into capitals.
@@ -287,9 +287,9 @@ class stzStringSubStringCS from stzObject
 	#              found too; é in café É gives cafÉ É; an emoji has no capital and stays as it is
 	#   see        Lowercased, ReplacedWith
 	def Uppercased()
-		_oStr_ = new stzString(@cStr)
+		_oStr_ = new stzString(@tStr)
 		_oReplacer_ = new stzStringReplacer(_oStr_)
-		_oReplacer_.ReplaceCS(@cSubStr, StzUpper(@cSubStr), @bCaseSensitive)
+		_oReplacer_.ReplaceCS(@tSubStr, StzUpper(@tSubStr), @bCaseSensitive)
 		return _oReplacer_.Content()
 
 	# Returns the text with every occurrence of the fragment turned into small letters.
@@ -299,9 +299,9 @@ class stzStringSubStringCS from stzObject
 	#              gives αδβ
 	#   see        Uppercased, ReplacedWith
 	def Lowercased()
-		_oStr_ = new stzString(@cStr)
+		_oStr_ = new stzString(@tStr)
 		_oReplacer_ = new stzStringReplacer(_oStr_)
-		_oReplacer_.ReplaceCS(@cSubStr, StzLower(@cSubStr), @bCaseSensitive)
+		_oReplacer_.ReplaceCS(@tSubStr, StzLower(@tSubStr), @bCaseSensitive)
 		return _oReplacer_.Content()
 
 	  #===============================#
@@ -316,7 +316,7 @@ class stzStringSubStringCS from stzObject
 	#   see             IsAfter, IsBetween
 	def IsBefore(pcOtherSubStr)
 		_nMyPos_ = This.FirstPosition()
-		_oStr_ = new stzString(@cStr)
+		_oStr_ = new stzString(@tStr)
 		_oFinder_ = new stzStringFinder(_oStr_)
 		_nOtherPos_ = _oFinder_.FindFirstCS(pcOtherSubStr, @bCaseSensitive)
 		if _nMyPos_ = 0 or _nOtherPos_ = 0
@@ -335,7 +335,7 @@ class stzStringSubStringCS from stzObject
 	#   see             IsBefore, IsBetween
 	def IsAfter(pcOtherSubStr)
 		_nMyPos_ = This.FirstPosition()
-		_oStr_ = new stzString(@cStr)
+		_oStr_ = new stzString(@tStr)
 		_oFinder_ = new stzStringFinder(_oStr_)
 		_nOtherPos_ = _oFinder_.FindFirstCS(pcOtherSubStr, @bCaseSensitive)
 		if _nMyPos_ = 0 or _nOtherPos_ = 0
@@ -355,7 +355,7 @@ class stzStringSubStringCS from stzObject
 	#              the Hebrew ום between ש and ע gives 1
 	#   see        IsBefore, IsBoundedBy
 	def IsBetween(pcBound1, pcBound2)
-		_oStr_ = new stzString(@cStr)
+		_oStr_ = new stzString(@tStr)
 		_oFinder_ = new stzStringFinder(_oStr_)
 		_nPos1_ = _oFinder_.FindFirstCS(pcBound1, @bCaseSensitive)
 		_nPos2_ = _oFinder_.FindFirstCS(pcBound2, @bCaseSensitive)
@@ -391,13 +391,13 @@ class stzStringSubStringCS from stzObject
 		if NOT (isList(pacBounds) and len(pacBounds) = 2)
 			return 0
 		ok
-		_oStr_ = new stzString(@cStr)
+		_oStr_ = new stzString(@tStr)
 		_oFinder_ = new stzStringFinder(_oStr_)
 		_aSections_ = _oFinder_.FindAnyBoundedByAsSectionsCS(pacBounds, @bCaseSensitive)
 		_nLen_ = len(_aSections_)
 		for i = 1 to _nLen_
 			_cFound_ = _oStr_.Section(_aSections_[i][1], _aSections_[i][2])
-			if _cFound_ = @cSubStr
+			if _cFound_ = @tSubStr
 				return 1
 			ok
 		next

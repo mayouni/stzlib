@@ -2670,7 +2670,7 @@ func StzMathComputedFnList()
 #   see        stzMathSubstance, stzMathStyle, stzMathDiagram, StzSetTheoryDomain
 class stzMathDomain from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aTypes = []        # [ [ cType, cSuper ] ] -- cSuper "" at the root
 	@aPredicates = []   # [ [ cName, acArgTypes, bSymmetric ] ]
 	@aFunctions = []    # [ [ cName, acArgTypes, cOutType ] ]
@@ -2681,14 +2681,14 @@ class stzMathDomain from stzObject
 	#   returns    nothing; the object is built
 	#   see        AddType, AddPredicate
 	def init(pcName)
-		@cName = StzLower(ring_trim("" + pcName))
+		@tName = StzLower(ring_trim("" + pcName))
 
 	# Returns the domain's name, trimmed and in lower case.
 	#
 	#   returns    a text
 	#   see        init
 	def Name_()
-		return @cName
+		return @tName
 
 	# Declares a type of object, such as Set or Atom, and returns the domain so calls chain.
 	#

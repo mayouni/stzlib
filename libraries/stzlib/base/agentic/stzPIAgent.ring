@@ -45,7 +45,7 @@
 #   see        stzAgentSkill, stzAgentMemory, stzGovernance, stzAgentHost
 class stzPIAgent from stzObject
 
-	@cName = ""
+	@tName = ""
 	@oMem = ""
 	@oGov = ""
 	@aSkills = []       # [ skill, governedAction("" = ungoverned) ]
@@ -59,7 +59,7 @@ class stzPIAgent from stzObject
 	#   see        AddSkill, Cycle
 	#@ aka  object: an id survives Ring's copy-on-assign (the engine-wrapper copy law, in pure Ring)
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@oMem = new stzAgentMemory(pcName)
 		@oGov = new stzGovernance(pcName)
 
@@ -68,7 +68,7 @@ class stzPIAgent from stzObject
 	#   returns    a text
 	#   see        init
 	def Name_()
-		return @cName
+		return @tName
 
 	# Returns the agent's memory, where the skills perceive and learn.
 	#
@@ -110,7 +110,7 @@ class stzPIAgent from stzObject
 	def GiveWorkbench()
 		if @nWorkbench = 0
 			@nWorkbench = StzOpenAgentWorkbench()
-			StzAgentWorkbenchQ(@nWorkbench).SetActor(@cName)
+			StzAgentWorkbenchQ(@nWorkbench).SetActor(@tName)
 		ok
 
 		def GiveWorkbenchQ()
@@ -136,7 +136,7 @@ class stzPIAgent from stzObject
 	#   see        GiveWorkbench, HasWorkbench
 	def WorkbenchQ()
 		if @nWorkbench = 0
-			stzraise("stzPIAgent.WorkbenchQ: '" + @cName + "' holds no " +
+			stzraise("stzPIAgent.WorkbenchQ: '" + @tName + "' holds no " +
 				"workbench -- GiveWorkbench() first.")
 		ok
 		return StzAgentWorkbenchQ(@nWorkbench)
@@ -204,7 +204,7 @@ class stzPIAgent from stzObject
 		# The AMBIENT caller (IM9a), restored the same way: while this agent's skills fire, a faculty it asks
 		# through the registry, and the model door under it, file their ledger records under this agent's name.
 		_cPrevCaller_ = $cStzCaller
-		$cStzCaller = @cName
+		$cStzCaller = @tName
 		# a skill that raises must not leave this agent's name and workbench behind for the next caller (SECURITY-AMBIENT-01):
 		# the loop runs under try, both globals are restored on every exit, and the error is raised again unchanged
 		_cErr_ = ""
@@ -221,13 +221,13 @@ class stzPIAgent from stzObject
 				ok
 				# GOVERNANCE GATE: a governed skill needs MayProceed
 				if _cAction_ != ""
-					if @oGov.MayProceed(@cName, _cAction_) = 0
+					if @oGov.MayProceed(@tName, _cAction_) = 0
 						@aTrace + [ :skill = _oSk_.Name_(), :decision = "refused",
 							:verified = 0, :why = @oGov.Why() ]
 						loop
 					ok
-					@oGov.RecordDecision(@cName + "-" + _oSk_.Name_(),
-						"skill fired on met precondition", @cName, _cAction_)
+					@oGov.RecordDecision(@tName + "-" + _oSk_.Name_(),
+						"skill fired on met precondition", @tName, _cAction_)
 				ok
 				_aR_ = _oSk_.Apply(@oMem)
 				@aTrace + [ :skill = _oSk_.Name_(),

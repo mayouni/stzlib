@@ -4,7 +4,7 @@
 
 class stzPlugin
     @cFilePath
-    @cName
+    @tName
     @cVersion
     @cDescription
     @bActive
@@ -38,7 +38,7 @@ class stzPlugin
     
     def ParseMetadata()
         @bValid = false
-        @cName = ""
+        @tName = ""
         @cVersion = "V1"
         @cDescription = ""
         @aMetadata = []
@@ -71,7 +71,7 @@ class stzPlugin
                     cAfter = substr(cBaseName, i + 1)
                     if left(cAfter, 1) = "V" and isdigit(substr(cAfter, 2, 1))
                         @cVersion = cAfter
-                        @cName = left(cBaseName, i - 1)
+                        @tName = left(cBaseName, i - 1)
                         nUnderPos = i
                         exit
                     ok
@@ -79,12 +79,12 @@ class stzPlugin
             next
             
             if nUnderPos = 0
-                @cName = cBaseName
+                @tName = cBaseName
             ok
             
             # Parse metadata from file content
             This.ExtractMetadata(cContent)
-            @bValid = (@cName != "")
+            @bValid = (@tName != "")
             
         catch
             @bValid = false
@@ -135,7 +135,7 @@ class stzPlugin
         return @cFilePath
     
     def Name()
-        return @cName
+        return @tName
     
     def Version()
         return @cVersion

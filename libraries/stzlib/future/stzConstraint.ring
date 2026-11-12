@@ -67,21 +67,21 @@ func IsConstraint(pObject, pcConstraint)
 
 class stzConstraint from stzObject
 	@oObject
-	@cConstraint
-	@cConstraintName
+	@tConstraint
+	@tConstraintName
 	
 	def init( pObject, pConstraint )
 		if isObject(pObject) and IsConstraint(pObject, pConstraint)
 
 			@oObject = pObject
-			@cConstraint = pConstraint
+			@tConstraint = pConstraint
 
 		else
 			StzRaise("Incorrect types of object params!")
 		ok
 
 	def Content()
-		return @cConstraint
+		return @tConstraint
 
 		def Value()
 			return This.Content()
@@ -93,7 +93,7 @@ class stzConstraint from stzObject
 		return @oObject
 
 	def Name()
-		return @cConstraintName
+		return @tConstraintName
 
 	def Expression()
 

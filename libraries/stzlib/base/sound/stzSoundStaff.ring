@@ -119,7 +119,7 @@ class stzSoundStaff
 	@nSp = 10                  # one staff space, in pixels
 	@aLosses = []
 	@aModel = []
-	@cLastError = ""
+	@tLastError = ""
 
 	# the engraving, computed by _Layout
 	@aStaves = []              # [ instrument, clef, pieces ]
@@ -168,7 +168,7 @@ class stzSoundStaff
 	#   see        MeterChangeAt, Meters
 	def SetMeter(pnBeats, pnUnit)
 		if NOT isNumber(pnBeats) or pnBeats < 1 or pnBeats > 32 or ring_find([ 2, 4, 8, 16 ], pnUnit) = 0
-			@cLastError = "SetMeter: beats 1 to 32 over a unit of 2, 4, 8 or 16"
+			@tLastError = "SetMeter: beats 1 to 32 over a unit of 2, 4, 8 or 16"
 			return This
 		ok
 		@nBeats = pnBeats
@@ -202,7 +202,7 @@ class stzSoundStaff
 	def SetKey(pKey)
 		if isNumber(pKey)
 			if pKey < -7 or pKey > 7
-				@cLastError = "SetKey: a number of fifths is -7 (seven flats) to 7 (seven sharps)"
+				@tLastError = "SetKey: a number of fifths is -7 (seven flats) to 7 (seven sharps)"
 				return This
 			ok
 			@cKey = "fifths"
@@ -216,7 +216,7 @@ class stzSoundStaff
 		ok
 		_f_ = This._FifthsOfName("" + pKey)
 		if _f_ = 99
-			@cLastError = "SetKey: '" + pKey + "' is not a key -- a tonic and a mode (D, Bb, F#m, Ddor), a number of fifths, auto or none"
+			@tLastError = "SetKey: '" + pKey + "' is not a key -- a tonic and a mode (D, Bb, F#m, Ddor), a number of fifths, auto or none"
 			return This
 		ok
 		@cKey = "fifths"
@@ -248,7 +248,7 @@ class stzSoundStaff
 	def _SigOfMode(pUniverse, pMode, pcWho)
 		_oU_ = StzSoundUniverseQ(pUniverse)
 		if NOT _oU_.IsUsable()
-			@cLastError = pcWho + ": " + _oU_.LastError()
+			@tLastError = pcWho + ": " + _oU_.LastError()
 			return []
 		ok
 		if "" + pMode != ""  _oU_.Mode(pMode) ok
@@ -257,7 +257,7 @@ class stzSoundStaff
 			if This._GetKV(_m_, "name", "") = _oU_.ModeName()  _aD_ = This._GetKV(_m_, "degrees", []) ok
 		next
 		if len(_aD_) != 7
-			@cLastError = pcWho + ": a key signature needs a mode of seven degrees; " + _oU_.Name() + " / " +
+			@tLastError = pcWho + ": a key signature needs a mode of seven degrees; " + _oU_.Name() + " / " +
 			              _oU_.ModeName() + " has " + len(_aD_)
 			return []
 		ok
@@ -274,7 +274,7 @@ class stzSoundStaff
 			_a_ = _m_ - (12 * (_o_ + 1) + _aSemi_[_l_])
 			_a_ = floor(_a_ * 2 + 0.5) / 2
 			if fabs(_a_) > 1
-				@cLastError = pcWho + ": degree " + _i_ + " is " + _a_ + " semitones from its letter; no signature writes that"
+				@tLastError = pcWho + ": degree " + _i_ + " is " + _a_ + " semitones from its letter; no signature writes that"
 				return []
 			ok
 			_aSig_[_l_] = _a_
@@ -294,11 +294,11 @@ class stzSoundStaff
 	#@ aka  MU13: the time signature changes at the barline at (or after) `pnBeat`
 	def MeterChangeAt(pnBeat, pnBeats, pnUnit)
 		if NOT isNumber(pnBeat) or pnBeat < 0
-			@cLastError = "MeterChangeAt: a beat is 0 or later"
+			@tLastError = "MeterChangeAt: a beat is 0 or later"
 			return This
 		ok
 		if NOT isNumber(pnBeats) or pnBeats < 1 or pnBeats > 32 or ring_find([ 2, 4, 8, 16 ], pnUnit) = 0
-			@cLastError = "MeterChangeAt: beats 1 to 32 over a unit of 2, 4, 8 or 16"
+			@tLastError = "MeterChangeAt: beats 1 to 32 over a unit of 2, 4, 8 or 16"
 			return This
 		ok
 		@aMeterReq + [ pnBeat, pnBeats, pnUnit ]
@@ -333,14 +333,14 @@ class stzSoundStaff
 	#@ aka  MU12: the key changes at the barline at (or after) `pnBeat`
 	def KeyChangeAt(pnBeat, pKey)
 		if NOT isNumber(pnBeat) or pnBeat < 0
-			@cLastError = "KeyChangeAt: a beat is 0 or later"
+			@tLastError = "KeyChangeAt: a beat is 0 or later"
 			return This
 		ok
 		_f_ = 0
 		_bNone_ = FALSE
 		if isNumber(pKey)
 			if pKey < -7 or pKey > 7
-				@cLastError = "KeyChangeAt: a number of fifths is -7 to 7"
+				@tLastError = "KeyChangeAt: a number of fifths is -7 to 7"
 				return This
 			ok
 			_f_ = pKey
@@ -349,7 +349,7 @@ class stzSoundStaff
 		else
 			_f_ = This._FifthsOfName("" + pKey)
 			if _f_ = 99
-				@cLastError = "KeyChangeAt: '" + pKey + "' is not a key -- a tonic and a mode (D, Bb, F#m, Ddor), a number of fifths, or none"
+				@tLastError = "KeyChangeAt: '" + pKey + "' is not a key -- a tonic and a mode (D, Bb, F#m, Ddor), a number of fifths, or none"
 				return This
 			ok
 		ok
@@ -374,7 +374,7 @@ class stzSoundStaff
 	#   see         KeyChangeAt, SetKeyOfMode
 	def KeyChangeOfModeAt(pnBeat, pUniverse, pMode)
 		if NOT isNumber(pnBeat) or pnBeat < 0
-			@cLastError = "KeyChangeOfModeAt: a beat is 0 or later"
+			@tLastError = "KeyChangeOfModeAt: a beat is 0 or later"
 			return This
 		ok
 		_r_ = This._SigOfMode(pUniverse, pMode, "KeyChangeOfModeAt")
@@ -449,7 +449,7 @@ class stzSoundStaff
 	#   warning    it is never cleared by a later success
 	#   see        SetKey
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns every mark of the drawing as data, before it is written as SVG.
 	#

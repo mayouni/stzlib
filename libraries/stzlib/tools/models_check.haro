@@ -16,29 +16,29 @@
 
 load "../base/stzBase.ring"
 
-aArgs = SysArgv
-nLenArgs = Len(aArgs)
+xArgs = SysArgv
+nLenArgs = Len(xArgs)
 tOs = ""
 nMemory = 0
-aPacks = []
+vPacks = []
 bProfile = false
-aRequire = []
+xRequire = []
 # the arguments after this program's own name, whatever the runner puts before it
 nFirst = 1
 for i = 1 to nLenArgs
-	if StzFindFirst("models_check", aArgs[i]) > 0
+	if StzFindFirst("models_check", xArgs[i]) > 0
 		nFirst = i + 1
 	end
 end
 nAt = nFirst
 while nAt <= nLenArgs
-	tA = aArgs[nAt]
+	tA = xArgs[nAt]
 	tV = ""
 	if nAt < nLenArgs
-		tV = aArgs[nAt + 1]
+		tV = xArgs[nAt + 1]
 	end
 	if tA = "--require"
-		aRequire = StzSplit(tV, ",")
+		xRequire = StzSplit(tV, ",")
 		nAt = nAt + 2
 	elseif tA = "--os"
 		tOs = tV
@@ -49,7 +49,7 @@ while nAt <= nLenArgs
 		bProfile = true
 		nAt = nAt + 2
 	elseif tA = "--pack"
-		aPacks + tV
+		vPacks + tV
 		bProfile = true
 		nAt = nAt + 2
 	else
@@ -57,7 +57,7 @@ while nAt <= nLenArgs
 		Shutdown(2)
 	end
 end
-if Len(aRequire) = 0
+if Len(xRequire) = 0
 	? "models_check: name what the program needs with --require, e.g. --require ocr,faces"
 	Shutdown(2)
 end
@@ -66,9 +66,9 @@ if bProfile
 	if tOs = ""
 		tOs = StzPlacementOS()
 	end
-	xTarget = [ [:os, tOs], [:packs, aPacks] ]
+	xTarget = [ [:os, tOs], [:packs, vPacks] ]
 	if nMemory > 0
 		xTarget + [ :memory, nMemory ]
 	end
 end
-Shutdown(StzModelsCheckExit(xTarget, aRequire))
+Shutdown(StzModelsCheckExit(xTarget, xRequire))

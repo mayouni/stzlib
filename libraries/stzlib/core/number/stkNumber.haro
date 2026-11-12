@@ -18,25 +18,25 @@ class stkNumber
 	#  INITIALISING THE NUMBER, FROM A NUMBER OR A NUMBER IN STRING  #
 	#----------------------------------------------------------------#
 
-	def init(pnNumber)
-		if not (IsNumber(pnNumber) or IsString(pnNumber))
+	def init(pxNumber)
+		if not (IsNumber(pxNumber) or IsString(pxNumber))
 			Raise("ERR-" + StkErrror(:IncorrectParamType) + Char(10) )
 		end
 
-		if IsNumber(pnNumber)
+		if IsNumber(pxNumber)
 
-			@xContent = pnNumber
+			@xContent = pxNumber
 			@nRound = @Round(""= @xContent)
 
 		else # the number is provided in a string
-			if ring_substr1(pnNumber, '_') > 0
+			if ring_substr1(pxNumber, '_') > 0
 
 				@bSpacify = true
 			else
 				@bSpacify = false
 			end
 
-			@xContent = @Val(pnNumber)
+			@xContent = @Val(pxNumber)
 			@nRound = @Round(@xContent)
 
 		end
@@ -67,25 +67,25 @@ class stkNumber
 	#  UPDATING THE NUMBER WITH A NUMBER OR STRING FORM   #
 	#-----------------------------------------------------#
 
-	def Update(pnNumber)
+	def Update(pxNumber)
 
-		if IsNumber(pnNumber)
+		if IsNumber(pxNumber)
 
-			@xContent = pnNumber
+			@xContent = pxNumber
 			
 
 		else # the number is provided in a string
 
-			@xContent = @Val(pnNumber)
+			@xContent = @Val(pxNumber)
 
-			if ring_substr1(pnNumber, '_') > 0
+			if ring_substr1(pxNumber, '_') > 0
 				@bSpacify = true
 			else
 				@bSpacify = false
 			end
 		end
 
-		@nRound = @Round(pnNumber)
+		@nRound = @Round(pxNumber)
 
 		if KeepingHisto() = 1
 			this.AddHistoricValue(this.Content())  # From the parent stzObject
@@ -331,58 +331,58 @@ class stkNumber
 	#  ARITHMETIC OPERATIONS  #
 	#-------------------------#
 
-	def Add(pnNumber)
-		if IsNumber(pnNumber)
-			@xContent += pnNumber
+	def Add(pxNumber)
+		if IsNumber(pxNumber)
+			@xContent += pxNumber
 
-		elseif IsString(pnNumber)
-			@xContent += @Val(pnNumber)
-
-		else
-			Raise(StkError(:IncorrectParamType))
-		end
-	end
-	def Substruct(pnNumber)
-		if IsNumber(pnNumber)
-			@xContent -= pnNumber
-
-		elseif IsString(pnNumber)
-			@xContent -= @Val(pnNumber)
+		elseif IsString(pxNumber)
+			@xContent += @Val(pxNumber)
 
 		else
 			Raise(StkError(:IncorrectParamType))
 		end
 	end
-		def Substract(pnNumber)
-			this.Substruct(pnNumber)
-		end
-	def MultiplyBy(pnNumber)
-		if IsNumber(pnNumber)
-			@xContent *= pnNumber
+	def Substruct(pxNumber)
+		if IsNumber(pxNumber)
+			@xContent -= pxNumber
 
-		elseif IsString(pnNumber)
-			@xContent *= @Val(pnNumber)
+		elseif IsString(pxNumber)
+			@xContent -= @Val(pxNumber)
 
 		else
 			Raise(StkError(:IncorrectParamType))
 		end
 	end
-		def Multiply(pnNumber)
-			this.MultiplyBy(pnNumber)
+		def Substract(pxNumber)
+			this.Substruct(pxNumber)
 		end
-	def DivideBy(pnNumber)
-		if IsNumber(pnNumber)
-			@xContent /= pnNumber
+	def MultiplyBy(pxNumber)
+		if IsNumber(pxNumber)
+			@xContent *= pxNumber
 
-		elseif IsString(pnNumber)
-			@xContent /= @Val(pnNumber)
+		elseif IsString(pxNumber)
+			@xContent *= @Val(pxNumber)
 
 		else
 			Raise(StkError(:IncorrectParamType))
 		end
 	end
-		def Divide(pnNumber)
-			return this.DivideBy(pnNumber)
+		def Multiply(pxNumber)
+			this.MultiplyBy(pxNumber)
+		end
+	def DivideBy(pxNumber)
+		if IsNumber(pxNumber)
+			@xContent /= pxNumber
+
+		elseif IsString(pxNumber)
+			@xContent /= @Val(pxNumber)
+
+		else
+			Raise(StkError(:IncorrectParamType))
+		end
+	end
+		def Divide(pxNumber)
+			return this.DivideBy(pxNumber)
 		end
 	def Abs
 		if @xContent > 0
@@ -438,7 +438,7 @@ class stkNumber
 
 				# Getting the numeric value
 
-				nValue = @xContent + (0+ tTempStr)
+				nValue = @xContent + (Decimal(tTempStr))
 
 				if not IsNumber(nValue)
 					Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
@@ -484,7 +484,7 @@ class stkNumber
 
 				# Getting the numeric value
 
-				nValue = @xContent - (0+ tTempStr)
+				nValue = @xContent - (Decimal(tTempStr))
 
 				if not IsNumber(nValue)
 					Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
@@ -530,7 +530,7 @@ class stkNumber
 
 				# Getting the numeric value
 
-				nValue = @xContent * (0+ tTempStr)
+				nValue = @xContent * (Decimal(tTempStr))
 
 				if not IsNumber(nValue)
 					Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
@@ -575,7 +575,7 @@ class stkNumber
 
 				# Getting the numeric value
 
-				nValue = @xContent + (0+ tTempStr)
+				nValue = @xContent + (Decimal(tTempStr))
 
 				if not IsNumber(nValue)
 					Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))

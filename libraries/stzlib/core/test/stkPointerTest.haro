@@ -132,8 +132,8 @@ pf()
 
 pr()
 
-aList = [1, 2, 3, "test"]
-oObj = new stkPointer([aList, "list"])
+vList = [1, 2, 3, "test"]
+oObj = new stkPointer([vList, "list"])
 
 ? oObj.RingValue()
 #--> [1, 2, 3, "test"]

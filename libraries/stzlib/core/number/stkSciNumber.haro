@@ -20,12 +20,12 @@ func IsSciForm(tNumber)
 		tExp += tNumberInStr[i]
 	end
 
-	nBase = 0+ tBase
+	nBase = Decimal(tBase)
 	if not IsNumber(nBase)
 		return false
 	end
 
-	nExp = 0+ tExp
+	nExp = Decimal(tExp)
 	if not IsNumber(nExp)
 		return false
 	end
@@ -33,7 +33,7 @@ func IsSciForm(tNumber)
 	return true
 end
 func Number2Sci(xN)
-	return StzEngineNumberToScientific(0+ xN)
+	return StzEngineNumberToScientific(Decimal(xN))
 end
 func Sci2Number(tNumberInStr)
 	tClean = Trim( ring_substr2(tNumberInStr, "_", "") )
@@ -68,12 +68,12 @@ class stkSciNumber
 			tExp += tNumberInStr[i]
 		end
 	
-		nBase = 0+ tBase
+		nBase = Decimal(tBase)
 		if not IsNumber(nBase)
 			return Raise("ERR-" + StkError(:IncorrectParamType))
 		end
 	
-		nExp = 0+ tExp
+		nExp = Decimal(tExp)
 		if not IsNumber(nExp)
 			return Raise("ERR-" + StkError(:IncorrectParamType))
 		end

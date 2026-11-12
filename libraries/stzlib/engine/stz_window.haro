@@ -77,8 +77,8 @@ end
 # Only the ones a graphics loop reaches for. The engine takes any code in
 # 0..511, so an unlisted key is a number away.
 
-func StzWindowKeyCode(ptName)
-	switch Upper("" + ptName)
+func StzWindowKeyCode(pxName)
+	switch Upper("" + pxName)
 	case "SPACE"      return 32
 	case "APOSTROPHE" return 39
 	case "COMMA"      return 44
@@ -102,7 +102,7 @@ func StzWindowKeyCode(ptName)
 	case "LEFTALT"    return 342
 	end
 
-	tU = Upper("" + ptName)
+	tU = Upper("" + pxName)
 	if Len(tU) = 1
 		nA = Ascii(tU)
 		# digits 0-9 and letters A-Z ARE their ASCII codes in GLFW
@@ -111,7 +111,7 @@ func StzWindowKeyCode(ptName)
 		end
 	end
 	if Left(tU, 1) = "F" and Len(tU) <= 3
-		nN = 0 + Right(tU, Len(tU) - 1)
+		nN = Decimal(Right)(tU, Len(tU) - 1)
 		if nN >= 1 and nN <= 25
 			return 289 + nN        # F1 = 290
 		end

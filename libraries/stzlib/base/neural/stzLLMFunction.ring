@@ -107,7 +107,7 @@
 #   see        stzOutputSchema, stzNeuralModel, stzNeuralChat
 class stzLLMFunction from stzObject
 
-	@cName = ""
+	@tName = ""
 	@cTemplate = ""
 	@cOutType = "string"       # string | number | boolean | oneof | structure
 	@acChoices = []
@@ -137,14 +137,14 @@ class stzLLMFunction from stzObject
 	#   returns    nothing; the object is built
 	#   see        SetPrompt, Budget, Call_
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the name the function was built with.
 	#
 	#   returns    a text
 	#   see        SetPrompt
 	def Name_()
-		return @cName
+		return @tName
 
 	# Sets the prompt template, in which {input} marks where each call puts its input text.
 	#
@@ -247,7 +247,7 @@ class stzLLMFunction from stzObject
 	#@ aka  THE STRUCTURED RUNG. paFields is an stzOutputSchema declaration; it is compiled and judged HERE, so a defective declaration can never reach a model.
 	def ReturnsStructure(paFields)
 		_o_ = new stzOutputSchema(paFields)
-		_o_.SetNameQ(@cName)
+		_o_.SetNameQ(@tName)
 		@oSchema = _o_
 		@bHasSchema = 1
 		@cOutType = "structure"
@@ -382,7 +382,7 @@ class stzLLMFunction from stzObject
 			stzraise("Budget(n) is MANDATORY before calling (G9: no silent spend).")
 		ok
 		_cPrompt_ = This._EffectivePrompt(pcInput)
-		_cKey_ = StzEngineCryptoSha256(@cName + "|" + @cOutType + "|" + _cPrompt_)
+		_cKey_ = StzEngineCryptoSha256(@tName + "|" + @cOutType + "|" + _cPrompt_)
 
 		# memo hit: deterministic, free
 		if HasKey(@aCache, _cKey_)
@@ -402,7 +402,7 @@ class stzLLMFunction from stzObject
 		while _nTry_ <= @nRetries
 			_nTry_++
 			if @nCallsMade >= @nMaxCalls
-				stzraise("Budget exhausted (" + @nMaxCalls + " call(s)) for '" + @cName + "' -- raise Budget(n) deliberately if more is wanted.")
+				stzraise("Budget exhausted (" + @nMaxCalls + " call(s)) for '" + @tName + "' -- raise Budget(n) deliberately if more is wanted.")
 			ok
 			@nCallsMade++
 			_cRaw_ = ""
@@ -426,7 +426,7 @@ class stzLLMFunction from stzObject
 			ok
 		end
 		stzraise("The model produced no valid '" + This._TypeSaid() + "' in " +
-			@nRetries + " retries for '" + @cName + "' -- refusing (LAW 3: no garbage escapes as a value)." +
+			@nRetries + " retries for '" + @tName + "' -- refusing (LAW 3: no garbage escapes as a value)." +
 			This._Citation())
 
 		def Of(pcInput)
@@ -444,7 +444,7 @@ class stzLLMFunction from stzObject
 	#@ aka  test/offline door: seed a known answer into the memo cache (the golden path for model-free environments; the seed is EXPLICIT)
 	def SeedAnswer(pcInput, pValue)
 		_cPrompt_ = This._EffectivePrompt(pcInput)
-		_cKey_ = StzEngineCryptoSha256(@cName + "|" + @cOutType + "|" + _cPrompt_)
+		_cKey_ = StzEngineCryptoSha256(@tName + "|" + @cOutType + "|" + _cPrompt_)
 		_vSeed_ = pValue
 
 		# A SEEDED structure is validated like a generated one. The door
@@ -460,7 +460,7 @@ class stzLLMFunction from stzObject
 			ok
 			if _aV_[:ok] = 0
 				@aLastFindings = _aV_[:findings]
-				stzraise("The seed for '" + @cName + "' does not satisfy the declared " +
+				stzraise("The seed for '" + @tName + "' does not satisfy the declared " +
 					"structure -- refusing to seed it." + This._Citation())
 			ok
 			_vSeed_ = _aV_[:value]

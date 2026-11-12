@@ -344,61 +344,61 @@ $bStzGpuCalibAdapterLoaded_ = false
 # trace is a pin on an outcome (GK.1, finding 4). Routing truth lives in
 # the engine; these lists exist only so Save() can write back what was
 # measured or loaded.
-$aStzGpuCalibShaped_ = []     # rows [ op, n, d, ratio ]
-$aStzGpuCalibLadder_ = []     # rows [ op, n, d, cpuMs, gpuMs ]
-$aStzGpuVariants_ = []        # rows [ op, m, n, d, variant ]  (GK2: a decision per shape class)
+$vStzGpuCalibShaped_ = []     # rows [ op, n, d, ratio ]
+$vStzGpuCalibLadder_ = []     # rows [ op, n, d, cpuMs, gpuMs ]
+$vStzGpuVariants_ = []        # rows [ op, m, n, d, variant ]  (GK2: a decision per shape class)
 
 # GK2: record which VARIANT of an op serves a shape class -- the foundry's
 # verdict, persisted as `variant<TAB>op<TAB>m<TAB>n<TAB>d<TAB>v`
-func StzGpuVariantSet(ptOp, pnM, pnN, pnD, pnV)
-	if StzEngineGpuVariantSet(ptOp, pnM, pnN, pnD, pnV) != 0
+func StzGpuVariantSet(pxOp, pxM, pxN, pxD, pxV)
+	if StzEngineGpuVariantSet(pxOp, pxM, pxN, pxD, pxV) != 0
 		return false
 	end
-	nCm = StzEngineGpuShapeClass(pnM)
-	nCn = StzEngineGpuShapeClass(pnN)
-	nCd = StzEngineGpuShapeClass(pnD)
-	nL = Len($aStzGpuVariants_)
+	nCm = StzEngineGpuShapeClass(pxM)
+	nCn = StzEngineGpuShapeClass(pxN)
+	nCd = StzEngineGpuShapeClass(pxD)
+	nL = Len($vStzGpuVariants_)
 	for i = 1 to nL
-		xR = $aStzGpuVariants_[i]
-		if xR[1] = ptOp and StzEngineGpuShapeClass(xR[2]) = nCm and
+		xR = $vStzGpuVariants_[i]
+		if xR[1] = pxOp and StzEngineGpuShapeClass(xR[2]) = nCm and
 		   StzEngineGpuShapeClass(xR[3]) = nCn and StzEngineGpuShapeClass(xR[4]) = nCd
-			$aStzGpuVariants_[i] = [ ptOp, pnM, pnN, pnD, pnV ]
+			$vStzGpuVariants_[i] = [ pxOp, pxM, pxN, pxD, pxV ]
 			return true
 		end
 	end
-	$aStzGpuVariants_ + [ ptOp, pnM, pnN, pnD, pnV ]
+	$vStzGpuVariants_ + [ pxOp, pxM, pxN, pxD, pxV ]
 	return true
 end
 func StzGpuVariants
-	return $aStzGpuVariants_
+	return $vStzGpuVariants_
 end
-func StzGpuCalibSetShaped(ptOp, pnN, pnD, pnRatio)
-	StzEngineGpuCalibSetShaped(ptOp, pnN, pnD, pnRatio)
-	_StzGpuCalibRecordShaped(ptOp, pnN, pnD, pnRatio)
+func StzGpuCalibSetShaped(pxOp, pxN, pxD, pxRatio)
+	StzEngineGpuCalibSetShaped(pxOp, pxN, pxD, pxRatio)
+	_StzGpuCalibRecordShaped(pxOp, pxN, pxD, pxRatio)
 end
-func StzGpuCalibAddLadderRow(ptOp, pnN, pnD, pnCpuMs, pnGpuMs)
-	$aStzGpuCalibLadder_ + [ ptOp, pnN, pnD, pnCpuMs, pnGpuMs ]
+func StzGpuCalibAddLadderRow(pxOp, pxN, pxD, pxCpuMs, pxGpuMs)
+	$vStzGpuCalibLadder_ + [ pxOp, pxN, pxD, pxCpuMs, pxGpuMs ]
 end
 func StzGpuCalibrationLadder
-	return $aStzGpuCalibLadder_
+	return $vStzGpuCalibLadder_
 end
 func StzGpuCalibrationShapes
-	return $aStzGpuCalibShaped_
+	return $vStzGpuCalibShaped_
 end
 # one row per (op, class) -- a later measurement of the same class replaces
-func _StzGpuCalibRecordShaped(ptOp, pnN, pnD, pnRatio)
-	nCn = StzEngineGpuShapeClass(pnN)
-	nCd = StzEngineGpuShapeClass(pnD)
-	nL = Len($aStzGpuCalibShaped_)
+func _StzGpuCalibRecordShaped(pxOp, pxN, pxD, pxRatio)
+	nCn = StzEngineGpuShapeClass(pxN)
+	nCd = StzEngineGpuShapeClass(pxD)
+	nL = Len($vStzGpuCalibShaped_)
 	for i = 1 to nL
-		xR = $aStzGpuCalibShaped_[i]
-		if xR[1] = ptOp and StzEngineGpuShapeClass(xR[2]) = nCn and
+		xR = $vStzGpuCalibShaped_[i]
+		if xR[1] = pxOp and StzEngineGpuShapeClass(xR[2]) = nCn and
 		   StzEngineGpuShapeClass(xR[3]) = nCd
-			$aStzGpuCalibShaped_[i] = [ ptOp, pnN, pnD, pnRatio ]
+			$vStzGpuCalibShaped_[i] = [ pxOp, pxN, pxD, pxRatio ]
 			return
 		end
 	end
-	$aStzGpuCalibShaped_ + [ ptOp, pnN, pnD, pnRatio ]
+	$vStzGpuCalibShaped_ + [ pxOp, pxN, pxD, pxRatio ]
 end
 
 func StzGpuCalibFileDefault
@@ -444,82 +444,82 @@ func StzGpuLoadCalibrationForAdapter
 	_StzGpuCalibFillFromFile(tCalF)
 end
 # fill-only: set an op's threshold from the file ONLY where none is set yet
-func _StzGpuCalibFillFromFile(ptPath)
-	if not FExists(ptPath)
+func _StzGpuCalibFillFromFile(pxPath)
+	if not FExists(pxPath)
 		return
 	end
-	aLines = Str2List(Read(ptPath))
-	nL = Len(aLines)
+	xLines = Str2List(Read(pxPath))
+	nL = Len(xLines)
 	for i = 1 to nL
-		aParts = ring_split(aLines[i], Char(9))
-		if Len(aParts) = 2
+		xParts = ring_split(xLines[i], Char(9))
+		if Len(xParts) = 2
 			# a FILL: never outranks a value set in this process (engine-side)
-			StzEngineGpuCalibFill(aParts[1], 0 + aParts[2])
-		elseif Len(aParts) = 5 and aParts[1] = "shape"
-			StzEngineGpuCalibFillShaped(aParts[2], 0 + aParts[3], 0 + aParts[4], 0 + aParts[5])
-			_StzGpuCalibRecordShaped(aParts[2], 0 + aParts[3], 0 + aParts[4], 0 + aParts[5])
-		elseif Len(aParts) = 6 and aParts[1] = "ladder"
-			StzGpuCalibAddLadderRow(aParts[2], 0 + aParts[3], 0 + aParts[4], 0 + aParts[5], 0 + aParts[6])
-		elseif Len(aParts) = 6 and aParts[1] = "variant"
-			if StzEngineGpuVariantGet(aParts[2], 0 + aParts[3], 0 + aParts[4], 0 + aParts[5]) = 0
-				StzGpuVariantSet(aParts[2], 0 + aParts[3], 0 + aParts[4], 0 + aParts[5], 0 + aParts[6])
+			StzEngineGpuCalibFill(xParts[1], Decimal(xParts[2]))
+		elseif Len(xParts) = 5 and xParts[1] = "shape"
+			StzEngineGpuCalibFillShaped(xParts[2], Decimal(xParts[3]), Decimal(xParts[4]), Decimal(xParts[5]))
+			_StzGpuCalibRecordShaped(xParts[2], Decimal(xParts[3]), Decimal(xParts[4]), Decimal(xParts[5]))
+		elseif Len(xParts) = 6 and xParts[1] = "ladder"
+			StzGpuCalibAddLadderRow(xParts[2], Decimal(xParts[3]), Decimal(xParts[4]), Decimal(xParts[5]), Decimal(xParts[6]))
+		elseif Len(xParts) = 6 and xParts[1] = "variant"
+			if StzEngineGpuVariantGet(xParts[2], Decimal(xParts[3]), Decimal(xParts[4]), Decimal(xParts[5])) = 0
+				StzGpuVariantSet(xParts[2], Decimal(xParts[3]), Decimal(xParts[4]), Decimal(xParts[5]), Decimal(xParts[6]))
 			end
 		end
 	end
 end
 # raw overwrite (the calibration round-trip's own tool; faces use the
 # fill-only loaders above)
-func _StzGpuCalibLoadFile(ptPath)
-	if not FExists(ptPath)
+func _StzGpuCalibLoadFile(pxPath)
+	if not FExists(pxPath)
 		return
 	end
-	aLines = Str2List(Read(ptPath))
-	nL = Len(aLines)
+	xLines = Str2List(Read(pxPath))
+	nL = Len(xLines)
 	for i = 1 to nL
-		aParts = ring_split(aLines[i], Char(9))
-		if Len(aParts) = 2
-			StzEngineGpuCalibSet(aParts[1], 0 + aParts[2])
-		elseif Len(aParts) = 5 and aParts[1] = "shape"
-			StzGpuCalibSetShaped(aParts[2], 0 + aParts[3], 0 + aParts[4], 0 + aParts[5])
-		elseif Len(aParts) = 6 and aParts[1] = "ladder"
-			StzGpuCalibAddLadderRow(aParts[2], 0 + aParts[3], 0 + aParts[4], 0 + aParts[5], 0 + aParts[6])
-		elseif Len(aParts) = 6 and aParts[1] = "variant"
-			StzGpuVariantSet(aParts[2], 0 + aParts[3], 0 + aParts[4], 0 + aParts[5], 0 + aParts[6])
+		xParts = ring_split(xLines[i], Char(9))
+		if Len(xParts) = 2
+			StzEngineGpuCalibSet(xParts[1], Decimal(xParts[2]))
+		elseif Len(xParts) = 5 and xParts[1] = "shape"
+			StzGpuCalibSetShaped(xParts[2], Decimal(xParts[3]), Decimal(xParts[4]), Decimal(xParts[5]))
+		elseif Len(xParts) = 6 and xParts[1] = "ladder"
+			StzGpuCalibAddLadderRow(xParts[2], Decimal(xParts[3]), Decimal(xParts[4]), Decimal(xParts[5]), Decimal(xParts[6]))
+		elseif Len(xParts) = 6 and xParts[1] = "variant"
+			StzGpuVariantSet(xParts[2], Decimal(xParts[3]), Decimal(xParts[4]), Decimal(xParts[5]), Decimal(xParts[6]))
 		end
 	end
 end
 # persist the given ops' current thresholds (default + per-adapter files)
-func StzGpuSaveCalibration(paOps)
+func StzGpuSaveCalibration(pxOps)
 	tOut = ""
-	nL = Len(paOps)
+	nL = Len(pxOps)
 	for i = 1 to nL
-		nT = StzEngineGpuCalibGet(paOps[i])
+		nT = StzEngineGpuCalibGet(pxOps[i])
 		if nT > 0
-			tOut += paOps[i] + Char(9) + nT + Char(10)
+			tOut += pxOps[i] + Char(9) + nT + Char(10)
 		end
 	end
 	if tOut = ""
 		return false
 	end
 	# GK1: the measured classes, then the ladder that produced them
-	nS = Len($aStzGpuCalibShaped_)
+	nS = Len($vStzGpuCalibShaped_)
 	for i = 1 to nS
-		xR = $aStzGpuCalibShaped_[i]
-		if Find(paOps, xR[1]) > 0 and xR[4] > 0
+		xR = $vStzGpuCalibShaped_[i]
+		if Find(pxOps, xR[1]) > 0 and xR[4] > 0
 			tOut += "shape" + Char(9) + xR[1] + Char(9) + xR[2] + Char(9) + xR[3] + Char(9) + xR[4] + Char(10)
 		end
 	end
-	nS = Len($aStzGpuCalibLadder_)
+	nS = Len($vStzGpuCalibLadder_)
 	for i = 1 to nS
-		xR = $aStzGpuCalibLadder_[i]
-		if Find(paOps, xR[1]) > 0
+		xR = $vStzGpuCalibLadder_[i]
+		if Find(pxOps, xR[1]) > 0
 			tOut += "ladder" + Char(9) + xR[1] + Char(9) + xR[2] + Char(9) + xR[3] + Char(9) + xR[4] + Char(9) + xR[5] + Char(10)
 		end
 	end
-	nS = Len($aStzGpuVariants_)
+	nS = Len($vStzGpuVariants_)
 	for i = 1 to nS
-		xR = $aStzGpuVariants_[i]
-		if Find(paOps, xR[1]) > 0 and xR[5] > 0
+		xR = $vStzGpuVariants_[i]
+		if Find(pxOps, xR[1]) > 0 and xR[5] > 0
 			tOut += "variant" + Char(9) + xR[1] + Char(9) + xR[2] + Char(9) + xR[3] + Char(9) + xR[4] + Char(9) + xR[5] + Char(10)
 		end
 	end

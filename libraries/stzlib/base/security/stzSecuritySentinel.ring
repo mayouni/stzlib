@@ -80,7 +80,7 @@ func StzSecuritySentinel(poDetectionSet)
 #   see        stzAgentHost, stzSecurityLedger, stzResponsePlan
 class stzSecuritySentinel from stzObject
 
-	@cName = "security-sentinel"
+	@tName = "security-sentinel"
 	@oSet = ""
 	@oLedger = ""		# NULL = watch the process ledger
 	@aActive = []		# :where keys currently firing
@@ -113,14 +113,14 @@ class stzSecuritySentinel from stzObject
 	#   returns    a text
 	#   see        SetName, Name_
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the sentinel's name, the way an agent host asks for it.
 	#
 	#   returns    a text
 	#   see        Name, Cycle
 	def Name_()
-		return @cName
+		return @tName
 
 	# Gives the sentinel a name, which an agent host uses to tell its agents apart.
 	#
@@ -129,7 +129,7 @@ class stzSecuritySentinel from stzObject
 	#   see        Name, Cycle
 	def SetName(pcName)
 		if isString(pcName) and pcName != ""
-			@cName = pcName
+			@tName = pcName
 		ok
 		return This
 
@@ -335,7 +335,7 @@ class stzSecuritySentinel from stzObject
 		if ring_len(@aActive) > 0
 			_cS_ = "" + ring_len(@aActive) + " active detection(s)"
 		ok
-		_aL_ + ("Sentinel " + @cName + " -- " + @nChecks + " check(s), " + _cS_ + ".")
+		_aL_ + ("Sentinel " + @tName + " -- " + @nChecks + " check(s), " + _cS_ + ".")
 		_nA_ = ring_len(@aActive)
 		for _i_ = 1 to _nA_
 			_aL_ + ("  FIRING: " + @aActive[_i_])

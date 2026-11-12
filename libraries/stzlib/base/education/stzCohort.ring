@@ -72,7 +72,7 @@ func _EduAbsolute(pcPath)
 class stzCohort from stzObject
 
 	@cFolder = ""
-	@cName = ""
+	@tName = ""
 	@aFacts = []
 
 	# Opens a cohort from its folder, which must hold cohort.zknw, the facts that name its course, its overlay and its learners.
@@ -87,7 +87,7 @@ class stzCohort from stzObject
 	#   see        AddLearner, CourseSlug, ProgramQ
 	def init(pcFolder)
 		@cFolder = _EduNoSlash(pcFolder)
-		@cName = _EduLastSegment(@cFolder)
+		@tName = _EduLastSegment(@cFolder)
 		if NOT fexists(@cFolder + "/cohort.zknw")
 			StzRaise("Not a cohort: " + @cFolder + "/cohort.zknw is missing.")
 		ok
@@ -98,7 +98,7 @@ class stzCohort from stzObject
 	#   returns    a text such as espa-2026
 	#   see        Folder, CourseSlug
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the cohort's folder path, without a trailing slash.
 	#
@@ -113,9 +113,9 @@ class stzCohort from stzObject
 	#   warning    raises an error naming the cohort when the file has no follows fact
 	#   see        OverlayName, ProgramQ
 	def CourseSlug()
-		_ac_ = _EduObjects(@aFacts, @cName, "follows")
+		_ac_ = _EduObjects(@aFacts, @tName, "follows")
 		if len(_ac_) = 0
-			StzRaise("Cohort '" + @cName + "' follows no course.")
+			StzRaise("Cohort '" + @tName + "' follows no course.")
 		ok
 		return _ac_[1]
 
@@ -124,7 +124,7 @@ class stzCohort from stzObject
 	#   returns    a text such as bank; an empty text for none
 	#   see        CourseSlug, ProgramQ
 	def OverlayName()
-		_ac_ = _EduObjects(@aFacts, @cName, "under")
+		_ac_ = _EduObjects(@aFacts, @tName, "under")
 		if len(_ac_) = 0
 			return ""
 		ok
@@ -135,7 +135,7 @@ class stzCohort from stzObject
 	#   returns    a list of text; [ ] for a cohort with no learner
 	#   see        AddLearner, LearnerQ
 	def LearnerIds()
-		return _EduObjects(@aFacts, @cName, "has-learner")
+		return _EduObjects(@aFacts, @tName, "has-learner")
 
 	# Opens the stzLearner whose folder is the cohort's folder plus the id, creating the folders on disk when they are absent.
 	#
@@ -157,12 +157,12 @@ class stzCohort from stzObject
 		if StzFindFirst(pcId, This.LearnerIds()) > 0
 			return This.LearnerQ(pcId)
 		ok
-		@aFacts + [ @cName, "has-learner", pcId ]
+		@aFacts + [ @tName, "has-learner", pcId ]
 		This._Save()
 		return This.LearnerQ(pcId)
 
 	def _Save()
-		_c_ = 'knowledge "' + @cName + '"' + char(10) + char(10) + "facts" + char(10)
+		_c_ = 'knowledge "' + @tName + '"' + char(10) + char(10) + "facts" + char(10)
 		_nL_ = len(@aFacts)
 		for _i_ = 1 to _nL_
 			_c_ += "    " + @aFacts[_i_][1] + " | " + @aFacts[_i_][2] + " | " + @aFacts[_i_][3] + char(10)
@@ -184,7 +184,7 @@ class stzCohort from stzObject
 		if _cOv_ != ""
 			_cDir_ = _EduParentOf(_EduNoSlash(pcProgramFolder)) + "/overlays/" + _cOv_
 			if NOT fexists(_cDir_ + "/overlay.zknw")
-				StzRaise("Cohort '" + @cName + "' is under overlay '" + _cOv_ + "', and " + _cDir_ + " is not one.")
+				StzRaise("Cohort '" + @tName + "' is under overlay '" + _cOv_ + "', and " + _cDir_ + " is not one.")
 			ok
 			_oP_.WithOverlay(_cDir_)
 		ok
@@ -271,7 +271,7 @@ class stzCohort from stzObject
 		if _cOv_ = ""
 			_cOv_ = "(none)"
 		ok
-		_c_ = "# Progress of cohort " + @cName + char(10) + char(10)
+		_c_ = "# Progress of cohort " + @tName + char(10) + char(10)
 		_c_ += "*Course " + This.CourseSlug() + ", overlay " + _cOv_ + ", " + len(_acIds_) + " learners, " + _nAll_ +
 		       " exercises. Every figure below is a promise beside the cell that computes it: run this file" +
 		       " through StzChapterQ, and it says whether it is still true.*" + char(10) + char(10)

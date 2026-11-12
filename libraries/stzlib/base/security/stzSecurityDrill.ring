@@ -62,7 +62,7 @@ func StzSecurityDrill(pcName)
 #   see        stzDrillRemoteResponder, stzResponsePlan, stzSecurityLedger, stzRequestSigner
 class stzSecurityDrill from stzObject
 
-	@cName = ""
+	@tName = ""
 	@oReactor = ""
 	@cRingExe = "ring"
 	@cBaseRing = ""
@@ -94,20 +94,20 @@ class stzSecurityDrill from stzObject
 	#   warning    nothing is spawned or contacted until SpawnTarget
 	#   see        SpawnTarget, SetEvidencePath
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@oReactor = new stzReactor()
 		@cRingExe = This._RingExecutable()
 		@cBaseRing = This._DeriveStzBasePath()
 		# ABSOLUTE: the target is another process and resolves relative
 		# paths against ITS working directory, not ours.
-		@cEvidence = currentdir() + "/_drill_" + @cName + "_evidence.stzledger"
+		@cEvidence = currentdir() + "/_drill_" + @tName + "_evidence.stzledger"
 
 	# Returns the drill's name.
 	#
 	#   returns    a text
 	#   see        init
 	def Name()
-		return @cName
+		return @tName
 
 	# Sets the shared secret of the target's signed-request gate, which FireReplay also signs with.
 	#
@@ -295,7 +295,7 @@ class stzSecurityDrill from stzObject
 		if @oLedger = ""
 			stzraise("Contain(): no acquired evidence -- CollectEvidence() first.")
 		ok
-		_oPlan_ = StzResponsePlan("contain-" + @cName)
+		_oPlan_ = StzResponsePlan("contain-" + @tName)
 		_aF_ = StzDefaultDetectionSet().CheckAgainst(@oLedger)
 		_n_ = ring_len(_aF_)
 		for _i_ = 1 to _n_
@@ -434,7 +434,7 @@ class stzSecurityDrill from stzObject
 				_cV_ = "MISSED: " + This._Join(This.MissedDetections(), ", ")
 			ok
 		ok
-		_aL_ + ("Drill " + @cName + " against 127.0.0.1:" + @nPort + " -- " + _cV_ + ".")
+		_aL_ + ("Drill " + @tName + " against 127.0.0.1:" + @nPort + " -- " + _cV_ + ".")
 		if @oLedger != ""
 			_aL_ + ("  evidence : " + @cEvidence + " (" + @oLedger.Count() +
 				" verified event(s), attested by " + @cAttestor + ")")

@@ -1,0 +1,532 @@
+
+# stzPrimitives.ring — Engine-backed primitive string utility functions
+#
+# These functions are used across ALL Softanza domains (number, object,
+# datetime, list, table, etc.) and must be available BEFORE any domain
+# module loads. They are loaded right after stzRingLibs.ring (which
+# provides the engine DLLs) and after stzFuncs.ring (which provides
+# CheckParams, CaseSensitive, StzRaise).
+#
+# Every function here delegates to the Zig engine for Unicode-correct
+# behavior. Ring builtins (upper/lower/len/substr/left/right) are
+# byte-oriented and break on multibyte UTF-8 — these replace them.
+
+  #------------------------------------------------------#
+ #  UNICODE-AWARE WRAPPERS (engine-backed, simple API)  #
+#------------------------------------------------------#
+
+#-- String repetition (pure Ring, no engine needed)
+
+func StzRepeatStr(tStr, nCount)
+	tSrResult = ""
+	for iSr = 1 to nCount
+		tSrResult += tStr
+	end
+	return tSrResult
+end
+#-- Case conversion (Unicode-aware, replaces ASCII-only Ring upper()/lower())
+#
+# Engine-boundary safety: the Zig engine functions assume a Ring string
+# on input. Passing a number or list directly causes a silent native
+# crash (the process exits with no recoverable error, even inside
+# try/catch). These wrappers coerce non-string input to its decimal
+# string form so caller code that does e.g. StzLower(1234) gets a
+# usable answer instead of a hard exit.
+
+func StzUpper(tStr)
+	if not IsString(tStr)
+		tStr = "" + tStr
+	end
+	# Unicode SpecialCasing (ß->SS, ﬄ->FFL, ...) is now done ENGINE-SIDE in
+	# stz_unicode_to_upper_str, so no Ring-side ß scan/patch is needed.
+	xH = StzEngineString(tStr)
+	xR = StzEngineStringToUpper(xH)
+	xC = StzEngineStringData(xR)
+	StzEngineStringFree(xR)
+	StzEngineStringFree(xH)
+	return xC
+end
+# Group similar strings by edit (Levenshtein) distance -- fuzzy dedup, typo
+# grouping, near-duplicate detection. Greedy "leader" clustering ENGINE-SIDE:
+# each string joins the FIRST cluster whose representative is within nThreshold
+# edits, else starts a new one. Returns [[member, ...], ...]. cs default 1.
+func StzClusterByEditDistance(pxStrings, nThreshold)
+	return StzClusterByEditDistanceCS(pxStrings, nThreshold, 1)
+end
+func StzClusterByEditDistanceCS(pxStrings, nThreshold, pxCaseSensitive)
+	if not IsList(pxStrings) or Len(pxStrings) = 0
+		return []
+	end
+	nLen = Len(pxStrings)
+	tPacked = ""
+	for i = 1 to nLen
+		tPacked += ("" + pxStrings[i])
+		if i < nLen tPacked += Char(0) end
+	end
+	xH = StzEngineString(tPacked)
+	xRes = StzEngineStringEditCluster(xH, nThreshold, pxCaseSensitive)
+	viIDs = []
+	nC = StzEngineFindResultCount(xRes)
+	for i = 1 to nC
+		viIDs + StzEngineFindResultGet(xRes, i)
+	end
+	StzEngineFindResultFree(xRes)
+	StzEngineStringFree(xH)
+	vClusters = []
+	for i = 1 to nLen
+		nCid = viIDs[i]
+		while Len(vClusters) < nCid
+			vClusters + []
+		end
+		vClusters[nCid] + pxStrings[i]
+	end
+	return vClusters
+end
+# TF-IDF keyword extraction across a document corpus. For each document,
+# returns its top-N keywords ranked by tf(term)*ln(Ndocs/df(term)) -- terms
+# that are frequent in THIS doc but rare across the corpus. Keyword extraction,
+# search relevance, summarization, tag suggestion. Returns [[kw,...] per doc].
+# nTop <= 0 -> all terms. cs default 1 (case-sensitive).
+func StzTFIDFKeywords(pxDocs, nTop)
+	return StzTFIDFKeywordsCS(pxDocs, nTop, 1)
+end
+func StzTFIDFKeywordsCS(pxDocs, nTop, pxCaseSensitive)
+	if not IsList(pxDocs) or Len(pxDocs) = 0
+		return []
+	end
+	nLen = Len(pxDocs)
+	tPacked = ""
+	for i = 1 to nLen
+		tPacked += ("" + pxDocs[i])
+		if i < nLen tPacked += Char(0) end
+	end
+	xH = StzEngineString(tPacked)
+	xRes = StzEngineStringTFIDFKeywords(xH, nTop, pxCaseSensitive)
+	tOut = StzEngineStringData(xRes)
+	StzEngineStringFree(xRes)
+	StzEngineStringFree(xH)
+	# Unpack: documents are separated by char(1), keywords within a doc by
+	# char(0). Split doc-by-doc (there are exactly nLen of them).
+	xResult = []
+	xDocChunks = Str2List( StzReplace(tOut, Char(1), Char(10)) )
+	for i = 1 to nLen
+		if i <= Len(xDocChunks) and xDocChunks[i] != ""
+			xResult + Str2List( StzReplace(xDocChunks[i], Char(0), Char(10)) )
+		else
+			xResult + []
+		end
+	end
+	return xResult
+end
+func StzLower(tStr)
+	if not IsString(tStr)
+		tStr = "" + tStr
+	end
+	xH = StzEngineString(tStr)
+	xR = StzEngineStringToLower(xH)
+	xC = StzEngineStringData(xR)
+	StzEngineStringFree(xR)
+	StzEngineStringFree(xH)
+	return xC
+end
+func StzTitle(tStr)
+	if not IsString(tStr)
+		tStr = "" + tStr
+	end
+	xH = StzEngineString(tStr)
+	xR = StzEngineStringToTitle(xH)
+	xC = StzEngineStringData(xR)
+	StzEngineStringFree(xR)
+	StzEngineStringFree(xH)
+	return xC
+end
+func StzCaseFold(tStr)
+	if not IsString(tStr)
+		tStr = "" + tStr
+	end
+	return StzEngineUnicodeCaseFold(tStr)
+end
+#-- Number parse (engine-backed): leading numeric token -> number, else 0
+
+func StzNumber(tStr)
+	if IsNumber(tStr)
+		return tStr
+	end
+	if not IsString(tStr)
+		tStr = "" + tStr
+	end
+	xH = StzEngineString(tStr)
+	xN = StzEngineStringToNumber(xH)
+	StzEngineStringFree(xH)
+	return xN
+end
+#-- Length (codepoint count, not byte count)
+
+func StzLen(tStr)
+	if IsList(tStr)
+		return Len(tStr)
+	end
+	xH = StzEngineString(tStr)
+	xN = StzEngineStringCount(xH)
+	StzEngineStringFree(xH)
+	return xN
+end
+#-- Codepoint count, without constructing a stz object to ask for it.
+#
+#   Q(x).NumberOfChars() builds a whole stzString (a full copy of x) just
+#   to return a number the engine already knows -- ~30x the cost of asking
+#   directly. This is the same question, asked directly.
+#
+#   Strings take the engine fast path. Anything else defers to the object,
+#   because NumberOfChars() does NOT mean "codepoints" everywhere: on a
+#   list it counts the single-character ITEMS (len(Chars())), which is a
+#   different number from StzLen()'s item count. Deferring keeps every
+#   non-string caller exactly as it was.
+
+func StzNumberOfChars(xP)
+	if IsString(xP)
+		return StzLen(xP)
+	end
+
+	return Q(xP).NumberOfChars()
+end
+#-- Split null-delimited engine output into Ring list
+#   Used to parse engine functions that return items separated by \0
+
+func _SplitNullDelimited(tJoined)
+	if tJoined = ""
+		return []
+	end
+	vtResult = []
+	# NUL-delimited BYTE buffer whose segments are UTF-8 chars (possibly
+	# multibyte). Walk byte positions and cut each segment with a single
+	# byte-range substr(). The old code used StzMid(cJoined, i, 1) -- a
+	# CODEPOINT slice indexed by a BYTE counter -- which dropped trailing
+	# multibyte chars and returned "" on multibyte; char-by-char accumulation
+	# of a multibyte segment then also tripped an R31 GC error. Extracting the
+	# whole byte range at once avoids both.
+	nLen = Len(tJoined)
+	nStart = 1
+	for i = 1 to nLen
+		if Ascii(SubStr(tJoined, i, 1)) = 0
+			if i > nStart
+				vtResult + SubStr(tJoined, nStart, i - nStart)
+			end
+			nStart = i + 1
+		end
+	end
+	if nLen >= nStart
+		vtResult + SubStr(tJoined, nStart, nLen - nStart + 1)
+	end
+	return vtResult
+end
+#-- Parse comma-separated numbers from engine output into Ring list
+#   Used for engine functions returning positions as "2,5,8" etc.
+
+func _ParseCSVNumbers(tCSV)
+	if tCSV = ""
+		return []
+	end
+	viPcsvResult = []
+	tPcsvCurrent = ""
+	nPcsvLen = Len(tCSV)
+	for iPcsv = 1 to nPcsvLen
+		tPcsvChar = tCSV[iPcsv]
+		if tPcsvChar = ","
+			if tPcsvCurrent != ""
+				viPcsvResult + (Decimal(tPcsvCurrent))
+				tPcsvCurrent = ""
+			end
+		else
+			tPcsvCurrent += tPcsvChar
+		end
+	end
+	if tPcsvCurrent != ""
+		viPcsvResult + (Decimal(tPcsvCurrent))
+	end
+	return viPcsvResult
+end
+#-- Character from codepoint (UTF-8 encoded, replaces byte-only Ring char())
+
+func StzChar(nCodepoint)
+	return StzEngineUnicodeEncode(nCodepoint)
+end
+#-- Codepoint of the first character (inverse of StzChar). Unicode-aware
+#   replacement for byte-only Ring ascii() when the char may be multi-byte.
+
+func StzCodepoint(tChar)
+	if not IsString(tChar) or tChar = "" return 0 end
+	xH = StzEngineString(tChar)
+	xN = StzEngineStringCharAt(xH, 1)
+	StzEngineStringFree(xH)
+	return xN
+end
+#-- String reverse (codepoint-aware, not byte-reverse)
+
+func StzReverse(tStr)
+	xH = StzEngineString(tStr)
+	xR = StzEngineStringReverse(xH)
+	xC = StzEngineStringData(xR)
+	StzEngineStringFree(xR)
+	StzEngineStringFree(xH)
+	return xC
+end
+#-- Type checking (Unicode-aware)
+
+func StzIsUpper(tStr)
+	xH = StzEngineString(tStr)
+	xN = StzEngineStringIsUppercase(xH)
+	StzEngineStringFree(xH)
+	return xN
+end
+func StzIsLower(tStr)
+	xH = StzEngineString(tStr)
+	xN = StzEngineStringIsLowercase(xH)
+	StzEngineStringFree(xH)
+	return xN
+end
+func StzIsAlpha(tStr)
+	xH = StzEngineString(tStr)
+	xN = StzEngineStringIsAlpha(xH)
+	StzEngineStringFree(xH)
+	return xN
+end
+func StzIsDigit(tStr)
+	xH = StzEngineString(tStr)
+	xN = StzEngineStringIsDigit(xH)
+	StzEngineStringFree(xH)
+	return xN
+end
+#-- Substring extraction (codepoint-aware)
+#
+# These MUST call the engine's *Cp (codepoint) slice family, never the bare
+# byte family. StzEngineStringLeft/Right/Mid take BYTE offsets and lengths; a
+# codepoint index handed to them slices mid-character, so the engine's utf-8
+# validation returns "" -- or, when the bytes happen to land on a boundary,
+# a SILENTLY TRUNCATED string (verified 2026-07-23: StzLeft("cafe"+accent, 4)
+# = "", StzMidToEnd("a-"+arabic, 3) = half the characters). ASCII always
+# passed, which is exactly why it hid for so long.
+#
+# The engine's str_left_cp / str_right_cp / str_mid_cp take INDEX_BASE=1
+# positions and codepoint counts, clamp a negative/zero count to 0, and clamp
+# an over-long count to the end -- so they cannot panic and need no arithmetic
+# here. (StzEngineStringLeft(x, -1) DID panic: its bridge casts the count to
+# usize with @intFromFloat, and -1 is out of bounds for an unsigned int.)
+
+func StzLeft(tStr, xN)
+	if not IsString(tStr) tStr = "" + tStr end
+	if not IsNumber(xN) return "" end
+	if xN <= 0 return "" end
+	xH = StzEngineString(tStr)
+	xR = StzEngineStringLeftCp(xH, xN)
+	xC = StzEngineStringData(xR)
+	StzEngineStringFree(xR)
+	StzEngineStringFree(xH)
+	return xC
+end
+func StzRight(tStr, xN)
+	if not IsString(tStr) tStr = "" + tStr end
+	if not IsNumber(xN) return "" end
+	if xN <= 0 return "" end
+	xH = StzEngineString(tStr)
+	xR = StzEngineStringRightCp(xH, xN)
+	xC = StzEngineStringData(xR)
+	StzEngineStringFree(xR)
+	StzEngineStringFree(xH)
+	return xC
+end
+func StzMid(tStr, nStart, nLen)
+	# Defensive bounds: Ring's substr returns "" silently on degenerate
+	# inputs; match that lenient behaviour rather than raising.
+	if not IsString(tStr) tStr = "" + tStr end
+	if not (IsNumber(nStart) and IsNumber(nLen)) return "" end
+	if nLen <= 0 return "" end
+	if nStart < 1 nStart = 1 end
+	xH = StzEngineString(tStr)
+	# 1-BASED start (the Cp family is INDEX_BASE-based; the byte family was
+	# 0-based, hence the old `_nStart_ - 1`). Over-long counts self-clamp.
+	xR = StzEngineStringMidCp(xH, nStart, nLen)
+	xC = StzEngineStringData(xR)
+	StzEngineStringFree(xR)
+	StzEngineStringFree(xH)
+	return xC
+end
+	# @-prefixed alias (stzMatrex.ParsePattern and friends call @StzMid;
+	# only the bare StzMid existed, so the class crashed at construction
+	# with R3 "Calling Function without definition: @stzmid").
+	func @StzMid(tStr, nStart, nLen)
+		return StzMid(tStr, nStart, nLen)
+	end
+# StzMidToEnd(cStr, nStart): codepoint-correct equivalent of
+# Ring's `substr(cStr, nStart)`. One handle-reuse round (count +
+# slice) instead of a StzMid + separate StzLen.
+func StzMidToEnd(tStr, nStart)
+	if not IsString(tStr) tStr = "" + tStr end
+	if not IsNumber(nStart) return "" end
+	if nStart < 1 nStart = 1 end
+	xH = StzEngineString(tStr)
+	nCount = StzEngineStringCount(xH)      # CODEPOINTS, matching the Cp slice
+	if nStart > nCount
+		StzEngineStringFree(xH)
+		return ""
+	end
+	xR = StzEngineStringMidCp(xH, nStart, nCount - nStart + 1)
+	xC = StzEngineStringData(xR)
+	StzEngineStringFree(xR)
+	StzEngineStringFree(xH)
+	return xC
+end
+  #------------------------------------------------------#
+ #  PADDING, CENTERING, CAPITALIZING                    #
+#------------------------------------------------------#
+
+func StzPadRight(tText, nWidth)
+	return StzPadRightXT(tText, nWidth, " ")
+end
+	func PadRight(tText, nWidth)
+		return StzPadRight(tText, nWidth)
+	end
+func StzPadRightXT(xText, xWidth, xC)
+	xStr = StzEngineString("" + xText)
+	xResult = StzEngineStringLjust(xStr, xWidth, xC)
+	tResult = StzEngineStringData(xResult)
+	StzEngineStringFree(xResult)
+	StzEngineStringFree(xStr)
+	return tResult
+end
+	func PadRightXT(xText, xWidth, xC)
+		return StzPadRightXT(xText, xWidth, xC)
+	end
+func StzPadLeft(tText, nWidth)
+	return StzPadLeftXT(tText, nWidth, " ")
+end
+	func PadLeft(tText, nWidth)
+		return StzPadLeft(tText, nWidth)
+	end
+func StzPadLeftXT(xText, xWidth, xC)
+	xStr = StzEngineString("" + xText)
+	xResult = StzEngineStringRjust(xStr, xWidth, xC)
+	tResult = StzEngineStringData(xResult)
+	StzEngineStringFree(xResult)
+	StzEngineStringFree(xStr)
+	return tResult
+end
+	func PadLeftXT(xText, xWidth, xC)
+		return StzPadLeftXT(xText, xWidth, xC)
+	end
+func StzCenter(xText, xWidth)
+	xStr = StzEngineString("" + xText)
+	xResult = StzEngineStringCenterPad(xStr, xWidth, " ")
+	tResult = StzEngineStringData(xResult)
+	StzEngineStringFree(xResult)
+	StzEngineStringFree(xStr)
+	return tResult
+end
+	func Center(xText, xWidth)
+		return StzCenter(xText, xWidth)
+	end
+func StzCapitalize(xStr)
+	if Len(xStr) = 0 return xStr end
+	xStr = StzEngineString(xStr)
+	xResult = StzEngineStringCapitalizeFirst(xStr)
+	tResult = StzEngineStringData(xResult)
+	StzEngineStringFree(xResult)
+	StzEngineStringFree(xStr)
+	return tResult
+end
+	func Capitalize(xStr)
+		return StzCapitalize(xStr)
+	end
+	# THE CODEPOINT OF A CHARACTER, and 0 when there is no character.
+#
+# The plots let a caller choose the glyph they draw with, and those choices cross
+# into the engine as numbers rather than as text -- one field beside the widths,
+# no second string argument, no allocation. 0 is the "caller said nothing" value,
+# so an unset character has to answer 0 rather than raise.
+func StzCharCode(xC)
+	if not IsString(xC) or xC = ""
+		return 0
+	end
+	return StzUnicode(xC)
+end
+func Capitalise(xStr)
+		return StzCapitalize(xStr)
+end
+	func @Capitalize(xStr)
+		return StzCapitalize(xStr)
+	end
+	func @Capitalise(xStr)
+		return StzCapitalize(xStr)
+	end
+  #------------------------------------------------------#
+ #  REPLACE (engine-backed, Unicode-safe)               #
+#------------------------------------------------------#
+
+# 1 for true and 0 for false: an engine function reads its flags as numbers
+func StzBoolAsNumber(bX)
+	if bX
+		return 1
+	end
+	return 0
+end
+func StzReplaceCS(tStr, tSubStr, tNewSubStr, bCaseSensitive)
+	if CheckParams()
+		if not ( IsString(tStr) and IsString(tSubStr) and IsString(tNewSubStr) )
+			StzRaise("Incorrect params types! cStr, cSubStr, and cNewSubStr must all be strings.")
+		end
+	end
+
+	if tStr = "" or tSubStr = ''
+		return tStr
+	end
+
+	bCase = CaseSensitive(bCaseSensitive)
+
+	# Use Engine for codepoint-safe replace
+	xStr = StzEngineString(tStr)
+	StzEngineStringReplaceCS(xStr, tSubStr, tNewSubStr, StzBoolAsNumber(bCase))
+
+	tResult = StzEngineStringData(xStr)
+	StzEngineStringFree(xStr)
+	return tResult
+end
+	#< @FunctionAlternativeForms
+
+	func @ReplaceCS(tStr, tSubStr, tNewSubStr, bCaseSensitive)
+		return StzReplaceCS(tStr, tSubStr, tNewSubStr, bCaseSensitive)
+	end
+	func ReplaceCS(xStr, tSubStr, tNewSubStr, bCaseSensitive)
+		return StzReplaceCS(tStr, tSubStr, tNewSubStr, bCaseSensitive)
+	end
+	#>
+
+func StzReplace(tStr, tSubStr, tNewSubStr)
+	return StzReplaceCS(tStr, tSubStr, tNewSubStr, true)
+end
+	func @Replace(tStr, tSubStr, tNewSubStr)
+		return StzReplace(tStr, tSubStr, tNewSubStr)
+	end
+	func Replace(tStr, tSubStr, tNewSubStr)
+		return StzReplace(tStr, tSubStr, tNewSubStr)
+	end
+  #------------------------------------------------------#
+ #  SPLIT (delegates to Core layer StkSplit)            #
+#------------------------------------------------------#
+
+func StzSplitCS(tStr, tSubStr, bCaseSensitive)
+	return StkSplitCS(tStr, tSubStr, bCaseSensitive)
+end
+func StzSplit(tStr, tSubStr)
+	return StkSplit(tStr, tSubStr)
+end
+
+#-- Global _ListCopy helper (was previously only a method on stzString).
+func _ListCopy(pxList)
+	if not IsList(pxList) return pxList end
+	vR = []
+	nL = Len(pxList)
+	for i = 1 to nL
+		vR + pxList[i]
+	end
+	return vR
+end

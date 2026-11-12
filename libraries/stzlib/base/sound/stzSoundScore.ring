@@ -72,7 +72,7 @@ class stzSoundScore
 	@nSwingGrid = 0.5      # the swung subdivision, in beats: 0.5 = eighth notes
 	@nVelocity = 0.8
 	@cOn = ""              # the instrument On() named, for notes added after it
-	@cLastError = ""
+	@tLastError = ""
 	@nRefusals = 0
 
 	# Builds a score, empty or filled from space-separated note names of one beat each.
@@ -722,7 +722,7 @@ class stzSoundScore
 	def ToSound()
 		_oR_ = new stzSoundScoreRenderer(This)
 		_o_ = _oR_.Offline()
-		@cLastError = _oR_.LastError()
+		@tLastError = _oR_.LastError()
 		_oR_.Release()
 		return _o_
 
@@ -739,7 +739,7 @@ class stzSoundScore
 		_oP_ = StzSoundSchedulerQ(This)
 		_oP_.Play()
 		_oP_.RunToEnd()
-		@cLastError = _oP_.LastError()
+		@tLastError = _oP_.LastError()
 		_oP_.Release()
 		return This
 
@@ -748,7 +748,7 @@ class stzSoundScore
 	#   returns    a text
 	#   see        Refusals
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns how many calls the score has refused so far.
 	#
@@ -762,7 +762,7 @@ class stzSoundScore
 
 	def _Refuse(pcWhy)
 		@nRefusals++
-		@cLastError = pcWhy
+		@tLastError = pcWhy
 
 	def _GoodBeats(pnBeats, pcWho)
 		if NOT isNumber(pnBeats) or pnBeats <= 0
@@ -884,7 +884,7 @@ class stzSoundScoreRenderer
 	@aInst = []             # [ name, stzSoundInstrument ]
 	@aPlan = []             # [ frame0, bufferId ] per event, in start order
 	@nEndFrame = 0
-	@cLastError = ""
+	@tLastError = ""
 	@nRefusals = 0
 	@nRendered = 0          # distinct notes the instruments rendered
 	@nSeconds = 0           # wall time spent rendering them
@@ -931,7 +931,7 @@ class stzSoundScoreRenderer
 	#   returns    a text
 	#   see        Refusals
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns how many notes an instrument has refused to render.
 	#
@@ -991,7 +991,7 @@ class stzSoundScoreRenderer
 		_o_.MakeSilence(_n_ / @nRate, @nChannels, @nRate)
 		for _p_ in _aP_
 			if StzEngineSoundMixInto(_o_.BufferId(), _p_[2], _p_[1] + 1, @nGain) < 0
-				@cLastError = StzEngineSoundLastError()
+				@tLastError = StzEngineSoundLastError()
 				@nRefusals++
 			ok
 		next
@@ -1040,7 +1040,7 @@ class stzSoundScoreRenderer
 		next
 		_oI_ = This._Instrument(_inst_)
 		if NOT _oI_.IsUsable()
-			@cLastError = _oI_.LastError()
+			@tLastError = _oI_.LastError()
 			@nRefusals++
 			return 0
 		ok
@@ -1061,7 +1061,7 @@ class stzSoundScoreRenderer
 			_oS_ = _oI_.ToSoundOf(paEvent[3], _hold_)
 		ok
 		if NOT isObject(_oS_)
-			@cLastError = _oI_.LastError()
+			@tLastError = _oI_.LastError()
 			@nRefusals++
 			return 0
 		ok

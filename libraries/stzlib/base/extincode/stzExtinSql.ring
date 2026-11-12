@@ -100,7 +100,7 @@ func VALUES(paValues)
 			_oStzTable_.AddRows(paValues)
 		ok
 	ok
-	$_aVars[_cTableName_] = _oStzTable_
+	$vVars[_cTableName_] = _oStzTable_
 	
 	#< @FunctionAlternativeForms
 	func _VALUES(paValues)
@@ -207,7 +207,7 @@ func WHERE_(pcCondition)
 		ok
 	next
 	$_oIntermediateTable.RemoveRows(_anPos_)
-	$_aVars[_cTableName_] = $_oInitialTable
+	$vVars[_cTableName_] = $_oInitialTable
 	return $_oIntermediateTable
 	
 	#< @FunctionAlternativeForms
@@ -310,15 +310,15 @@ class WITH
 				StzRaise("Incorrect param type! paParams must be a list of 1 to 3 items.")
 			ok
 		ok
-		_n_ = StzHashListQ($_aVars).FindKey(_cSQL_)
+		_n_ = StzHashListQ($vVars).FindKey(_cSQL_)
 		if _n_ = 0
-			$_aVars + [ _cSQL_, $_oIntermediateTable.rows() ]
-			$_aVars + [ _cSQL_ + 'Data', $_oIntermediateTable.rows() ]
-			$_aVars + [ _cSQL_ + 'Table', $_oIntermediateTable ]
-			$_aVars + [ _cSQL_ + 'Object', $_oIntermediateTable ]
+			$vVars + [ _cSQL_, $_oIntermediateTable.rows() ]
+			$vVars + [ _cSQL_ + 'Data', $_oIntermediateTable.rows() ]
+			$vVars + [ _cSQL_ + 'Table', $_oIntermediateTable ]
+			$vVars + [ _cSQL_ + 'Object', $_oIntermediateTable ]
 		else
-			$_aVars[_n_] = [ _cSQL_, $_oIntermediateTable.rows() ]
-			$_aVars[_n_] = [ _cSQL_ + 'Data', $_oIntermediateTable.rows() ]
-			$_aVars[_n_] = [ _cSQL_ + 'Table', $_oIntermediateTable ]
-			$_aVars[_n_] = [ _cSQL_ + 'Object', $_oIntermediateTable ]
+			$vVars[_n_] = [ _cSQL_, $_oIntermediateTable.rows() ]
+			$vVars[_n_] = [ _cSQL_ + 'Data', $_oIntermediateTable.rows() ]
+			$vVars[_n_] = [ _cSQL_ + 'Table', $_oIntermediateTable ]
+			$vVars[_n_] = [ _cSQL_ + 'Object', $_oIntermediateTable ]
 		ok

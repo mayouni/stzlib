@@ -133,7 +133,7 @@ func StzPlasticRule(pcName)
 #   see        stzRuleGovernance, stzGraphRule, stzRuleReport
 class stzScopedRule from stzObject
 
-	@cName    = ""
+	@tName    = ""
 	@cClaim   = ""
 	@pScope   = NULL     # func(oDg) -> list of subject keys it governs
 	@pClaimFn = NULL     # func(oDg, cSubject) -> [ bHolds, cWhy ]
@@ -152,7 +152,7 @@ class stzScopedRule from stzObject
 	#              build the same object
 	#   see        SetClaim, SetScope
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@acReads = []
 		@acWrites = []
 
@@ -161,7 +161,7 @@ class stzScopedRule from stzObject
 	#   returns    the name as text
 	#   see        Claim
 	def Name_()
-		return @cName
+		return @tName
 	# Returns the sentence the rule asserts.
 	#
 	#   returns    the sentence as text; an empty text until SetClaim is called
@@ -348,7 +348,7 @@ class stzScopedRule from stzObject
 		but isObject(paAnswer)
 			_cKind_ = "object"
 		ok
-		StzRaise("rule '" + @cName + "': its " + pcWhich + " answered a " +
+		StzRaise("rule '" + @tName + "': its " + pcWhich + " answered a " +
 			_cKind_ + _cShown_ + ", not a list of subject keys -- return " +
 			"[ ] for none and [ 'key', ... ] otherwise")
 
@@ -372,7 +372,7 @@ class stzScopedRule from stzObject
 			if isList(_aV_) and len(_aV_) = 2 and _aV_[1]  loop  ok
 			_cWhy_ = ""
 			if isList(_aV_) and len(_aV_) = 2  _cWhy_ = "" + _aV_[2]  ok
-			_aF_ + [ :rule = @cName, :subject = :plastic,
+			_aF_ + [ :rule = @tName, :subject = :plastic,
 				:where = "" + pcWhere + " / " + _aSub_[_iSub_],
 				:severity = @cSeverity,
 				:message = @cClaim + " -- " + _cWhy_ ]

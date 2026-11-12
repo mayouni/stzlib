@@ -55,7 +55,7 @@ func StzComputePipelineQ(pcName)
 #   see        stzFacetCatalog, stzClusterSupervisor, stzClusterTelemetry
 class stzComputePipeline from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aStages = []      # [ [ facet, stageName, fWork ], ... ]
 	@oPool = ""      # optional: admit each stage into its facet's budget
 	@aTrace = []       # [ [ facet, stageName, output, durMs ], ... ] from the
@@ -70,14 +70,14 @@ class stzComputePipeline from stzObject
 	#   returns    nothing; the object is built
 	#   see        Stage, Run
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the pipeline's name.
 	#
 	#   returns    a text
 	#   see        init
 	def Name_()
-		return @cName
+		return @tName
 
 	# Appends a stage: a function that transforms the running value, tagged with the facet that handles it.
 	#
@@ -280,7 +280,7 @@ class stzComputePipeline from stzObject
 	#   returns    a text
 	#   see        Facets
 	def Narrate()
-		_cR_ = "pipeline " + @cName + ": " + This._Join(This.Facets(), " -> ")
+		_cR_ = "pipeline " + @tName + ": " + This._Join(This.Facets(), " -> ")
 		return _cR_
 
 	#-- internals ----------------------------------------------------------

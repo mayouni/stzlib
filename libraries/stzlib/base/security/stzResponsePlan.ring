@@ -127,7 +127,7 @@ func StzResponseActions()
 #              StzResponsePlan
 class stzResponsePlan from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aActions = []		# [ kind(lower), target, rationale ]
 	@aAudit = []		# [ n, verdict, kind, target, actor, why ]
 	@bExecuted = 0
@@ -138,14 +138,14 @@ class stzResponsePlan from stzObject
 	#   returns    nothing; the plan is built
 	#   see        Propose, ExecuteOn
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the name the plan was built with.
 	#
 	#   returns    a text
 	#   see        init
 	def Name()
-		return @cName
+		return @tName
 
 	# Adds one containment action to the plan; the action is only recorded, nothing is performed.
 	#
@@ -331,7 +331,7 @@ class stzResponsePlan from stzObject
 	#@ aka  -- legibility ----------------------------------------------------
 	def Explain()
 		_aL_ = []
-		_aL_ + ("Response plan " + @cName + " -- " + ring_len(@aActions) + " proposed action(s).")
+		_aL_ + ("Response plan " + @tName + " -- " + ring_len(@aActions) + " proposed action(s).")
 		_nLen_ = ring_len(@aActions)
 		for _i_ = 1 to _nLen_
 			_aL_ + ("  " + _i_ + ". " + @aActions[_i_][1] + " '" + @aActions[_i_][2] + "'")

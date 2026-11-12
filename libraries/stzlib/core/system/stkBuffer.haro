@@ -190,10 +190,10 @@ class stkBuffer
 
     def Read(nOffset, nLength)
         this.ValidateBuffer()
- ? "DEBUG Read: @nSize = " + @nSize + ", nOffset = " + nOffset + ", nLength = " + nLength
+ ? "DEBUG Read: @nSize = " + String(@nSize) + ", nOffset = " + String(nOffset) + ", nLength = " + String(nLength)
 
         if nOffset < 0 or nLength < 0
-            Raise("ERROR: Negative offset (" + nOffset + ") or length (" + nLength + ") not allowed")
+            Raise("ERROR: Negative offset (" + String(nOffset) + ") or length (" + String(nLength) + ") not allowed")
         end
         
         if @nSize = 0
@@ -202,12 +202,12 @@ class stkBuffer
         end
         
         if nOffset >= @nSize
-            Raise("ERROR: Offset (" + nOffset + ") beyond buffer size (" + @nSize + ")")
+            Raise("ERROR: Offset (" + String(nOffset) + ") beyond buffer size (" + String(@nSize) + ")")
         end
         
         if nOffset + nLength > @nSize
-            Raise("ERROR: Read request (offset:" + nOffset + " + length:" + nLength + 
-                  ") exceeds buffer size (" + @nSize + ")")
+            Raise("ERROR: Read request (offset:" + String(nOffset) + " + length:" + String(nLength) + 
+                  ") exceeds buffer size (" + String(@nSize) + ")")
         end
         
         if nLength = 0
@@ -634,7 +634,7 @@ class stkBuffer
         end
         
         if nOffset < 0
-            Raise("ERROR: Negative offset (" + nOffset + ") not allowed")
+            Raise("ERROR: Negative offset (" + String(nOffset) + ") not allowed")
         end
         
         if not FExists(tFileName)
@@ -650,7 +650,7 @@ class stkBuffer
         nFileSize = Len(tFileContent)
         
         if nOffset >= nFileSize
-            Raise("ERROR: Offset (" + nOffset + ") beyond file size (" + nFileSize + ")")
+            Raise("ERROR: Offset (" + String(nOffset) + ") beyond file size (" + String(nFileSize) + ")")
         end
         
         if IsEmpty(nLength)
@@ -658,7 +658,7 @@ class stkBuffer
         end
         
         if nLength < 0
-            Raise("ERROR: Negative length (" + nLength + ") not allowed")
+            Raise("ERROR: Negative length (" + String(nLength) + ") not allowed")
         end
         
         if nOffset + nLength > nFileSize

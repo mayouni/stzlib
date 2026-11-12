@@ -90,7 +90,7 @@ func StzVoiceForQ(pcLanguageTag)
 class stzVoice
 
 	@nV = 0
-	@cLastError = ""
+	@tLastError = ""
 	@nRefusals = 0
 	@bWarm = FALSE
 	@nCurrent = 0            # 1-based index of the selected voice, 0 = platform default
@@ -104,16 +104,16 @@ class stzVoice
 	#   see        StzVoiceQ, IsUsable
 	def init()
 		if NOT StzVoiceEngineLoaded()
-			@cLastError = "stz_voice.dll is not loaded"
+			@tLastError = "stz_voice.dll is not loaded"
 			return
 		ok
 		if StzEngineVoiceIsAvailable() = 0
-			@cLastError = StzEngineVoiceLastError()
+			@tLastError = StzEngineVoiceLastError()
 			return
 		ok
 		@nV = StzEngineVoiceOpen()
 		if @nV = 0
-			@cLastError = StzEngineVoiceLastError()
+			@tLastError = StzEngineVoiceLastError()
 		ok
 
 	# Frees the speech engine handle held by the voice.
@@ -143,7 +143,7 @@ class stzVoice
 	#              failure that made it
 	#   see        Refusals
 	def LastError()
-		if @cLastError != ""  return @cLastError ok
+		if @tLastError != ""  return @tLastError ok
 		if StzVoiceEngineLoaded()  return StzEngineVoiceLastError() ok
 		return ""
 
@@ -241,13 +241,13 @@ class stzVoice
 	def UseLanguage(pcTag)
 		if NOT This.IsUsable()
 			@nRefusals++
-			@cLastError = "UseLanguage: there is no usable voice on this machine"
+			@tLastError = "UseLanguage: there is no usable voice on this machine"
 			return FALSE
 		ok
 		_i_ = This._FindLanguage(pcTag)
 		if _i_ = 0
 			@nRefusals++
-			@cLastError = "no voice speaks '" + pcTag + "' -- this machine has: " +
+			@tLastError = "no voice speaks '" + pcTag + "' -- this machine has: " +
 				This._Join(This.Languages())
 			return FALSE
 		ok
@@ -269,12 +269,12 @@ class stzVoice
 		if NOT This.IsUsable()  return FALSE ok
 		if StzEngineVoiceSelectVoice(@nV, pnIndex) != 0
 			@nRefusals++
-			@cLastError = StzEngineVoiceLastError()
+			@tLastError = StzEngineVoiceLastError()
 			return FALSE
 		ok
 		@nCurrent = pnIndex
 		@bWarm = FALSE          # a different voice has its own start-up cost
-		@cLastError = ""
+		@tLastError = ""
 		return TRUE
 
 	def UseVoiceQ(pnIndex)
@@ -423,7 +423,7 @@ class stzVoice
 	def _Render(pcText, pbSsml)
 		if NOT This.IsUsable()
 			@nRefusals++
-			@cLastError = "there is no usable voice on this machine"
+			@tLastError = "there is no usable voice on this machine"
 			return ""
 		ok
 		_n_ = 0
@@ -434,7 +434,7 @@ class stzVoice
 		ok
 		if _n_ = 0
 			@nRefusals++
-			@cLastError = StzEngineVoiceLastError()
+			@tLastError = StzEngineVoiceLastError()
 			return ""
 		ok
 		@bWarm = TRUE
@@ -444,7 +444,7 @@ class stzVoice
 		_buf_ = StzEngineSoundLoadMemory(StzEngineVoiceLastBytes(@nV))
 		if _buf_ = 0
 			@nRefusals++
-			@cLastError = "the sound tier could not decode the voice's bytes: " +
+			@tLastError = "the sound tier could not decode the voice's bytes: " +
 				StzEngineSoundLastError()
 			return ""
 		ok

@@ -533,7 +533,7 @@ class stzLoweringBridge from stzObject
 #   see        stzPlatformProfile, stzSystemScope
 class stzAppProfile from stzObject
 
-	@cName = ""
+	@tName = ""
 	@cKind = "app"        # app / server / superapp / ...
 	@oDeploySystem = ""
 	@oScope = ""        # the scope its feature code is written in (retained,
@@ -548,14 +548,14 @@ class stzAppProfile from stzObject
 	#   note       usually made by WithPart of the profile that owns it
 	#   see        To, SetKind, stzPlatformProfile
 	def init(pcName)
-		@cName = StzLower(ring_trim("" + pcName))
+		@tName = StzLower(ring_trim("" + pcName))
 
 	# Returns the part's name, in lower case.
 	#
 	#   returns    a text
 	#   see        SetName
 	def Name()
-		return @cName
+		return @tName
 
 	# Sets the part's name, kept in lower case.
 	#
@@ -563,7 +563,7 @@ class stzAppProfile from stzObject
 	#   returns    the part itself, so calls chain
 	#   see        Name
 	def SetName(pcName)
-		@cName = StzLower(ring_trim("" + pcName))
+		@tName = StzLower(ring_trim("" + pcName))
 		return This
 
 	# Returns the kind of part: app, server, superapp or another word.
@@ -704,7 +704,7 @@ class stzAppProfile from stzObject
 	#   returns    nothing; it prints
 	#   see        DeploymentOSName
 	def Show()
-		? @cKind + " '" + @cName + "' deploys to " + This.DeploymentOSName()
+		? @cKind + " '" + @tName + "' deploys to " + This.DeploymentOSName()
 
 
   #=====================#
@@ -741,7 +741,7 @@ class stzAppProfile from stzObject
 #   see        stzAppProfile, stzSystemScope, stzLoweringBridge, stzPlatform
 class stzPlatformProfile from stzObject
 
-	@cName = ""
+	@tName = ""
 	@oDevSystem = ""
 	@aApps = []
 	@aFeatureOps = []     # PLAIN-DATA feature operations authored per constituent
@@ -754,14 +754,14 @@ class stzPlatformProfile from stzObject
 	#   see        DevelopedOn, WithApp, WithServer
 	#@ aka  [ appName, cap, verb, args, desc, status ] -- plain data so they survive the profile being copied into a stzPlatform, and can be lowered at deploy time.
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the solution's name.
 	#
 	#   returns    a text
 	#   see        SetName
 	def Name()
-		return @cName
+		return @tName
 
 	# Sets the solution's name.
 	#
@@ -769,7 +769,7 @@ class stzPlatformProfile from stzObject
 	#   returns    the profile itself, so calls chain
 	#   see        Name
 	def SetName(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		return This
 
 	# Declares the development system, from a friendly token or a system profile, and gives it the role development.
@@ -940,7 +940,7 @@ class stzPlatformProfile from stzObject
 	def App(pcName)
 		_i_ = This._IndexOfApp(pcName)
 		if _i_ = 0
-			StzRaise("No part '" + pcName + "' in platform '" + @cName + "'.")
+			StzRaise("No part '" + pcName + "' in platform '" + @tName + "'.")
 		ok
 		return @aApps[_i_]
 
@@ -958,7 +958,7 @@ class stzPlatformProfile from stzObject
 	def _RecordFeature(pcName, pcCap, pcVerb, paArgs, pcDesc)
 		_i_ = This._IndexOfApp(pcName)
 		if _i_ = 0
-			StzRaise("No part '" + pcName + "' in platform '" + @cName + "'.")
+			StzRaise("No part '" + pcName + "' in platform '" + @tName + "'.")
 		ok
 		_oScope_ = new stzSystemScope(@aApps[_i_].DeploymentSystem())
 		_cStatus_ = _oScope_.UseOp(pcCap, pcVerb, paArgs, pcDesc)
@@ -1110,7 +1110,7 @@ class stzPlatformProfile from stzObject
 	def ToStzPlatform()
 		_nl_ = char(10)
 		_c_ = "# .stzplatform -- a Softanza solution profile" + _nl_
-		_c_ += "platform: " + @cName + _nl_
+		_c_ += "platform: " + @tName + _nl_
 		if @oDevSystem != ""
 			_c_ += "developed_on: " + @oDevSystem.OSName() + _nl_
 		ok
@@ -1183,7 +1183,7 @@ class stzPlatformProfile from stzObject
 	#   returns    nothing; it prints
 	#   see        ToStzPlatform
 	def Show()
-		? "Platform: " + @cName
+		? "Platform: " + @tName
 		if @oDevSystem != ""
 			? "  developed on: " + @oDevSystem.OSName()
 		ok

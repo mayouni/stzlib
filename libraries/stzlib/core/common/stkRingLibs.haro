@@ -38,54 +38,54 @@ load "../../engine/stk_string.haro"
 #                  ledger as exposure.closed when the program opens one
 #   returns        1 to load, 0 to skip; a skipped domain's handle is NULL and a
 #                  call into it raises R3 at its line, naming the function
-func StzDomainWanted(ptDomain)
-	tC = Lower(String(ptDomain))
-	if not IsGlobal("$aStzDomainsDenied")
-		$aStzDomainsDenied = _stzReadDomainDeny()
-		$aStzDomainsSkipped = []
-		$aStzDomainsRefused = []
+func StzDomainWanted(pxDomain)
+	tC = Lower(String(pxDomain))
+	if not IsGlobal("$xStzDomainsDenied")
+		$xStzDomainsDenied = _stzReadDomainDeny()
+		$vStzDomainsSkipped = []
+		$vStzDomainsRefused = []
 	end
-	nN = Len($aStzDomainsDenied)
+	nN = Len($xStzDomainsDenied)
 	for i = 1 to nN
-		if $aStzDomainsDenied[i][1] = tC
-			$aStzDomainsRefused + $aStzDomainsDenied[i]
+		if $xStzDomainsDenied[i][1] = tC
+			$vStzDomainsRefused + $xStzDomainsDenied[i]
 			return false
 		end
 	end
 	if Find([ "string", "list", "unicode", "stats", "meta", "hashmap" ], tC) > 0
 		return true
 	end
-	aM = []
-	if IsGlobal("$aStzDomains")
-		aM = $aStzDomains
+	xM = []
+	if IsGlobal("$xStzDomains")
+		xM = $xStzDomains
 	else
 		tEnv = SysGet("STZ_DOMAINS")
 		if tEnv = ""  return true  end
-		aM = _stzFields(tEnv, ",")
+		xM = _stzFields(tEnv, ",")
 	end
-	nM = Len(aM)
+	nM = Len(xM)
 	for i = 1 to nM
-		if Lower(Trim(String(aM[i]))) = tC  return true  end
+		if Lower(Trim(String(xM[i]))) = tC  return true  end
 	end
-	$aStzDomainsSkipped + tC
+	$vStzDomainsSkipped + tC
 	return false
 end
 # a text cut at one separator character (stdlib's split reads the NL global,
 # which a caller can overwrite)
-func _stzFields(ptText, ptSep)
-	aA = []
+func _stzFields(pxText, pxSep)
+	xA = []
 	tCur = ""
-	nN = Len(ptText)
+	nN = Len(pxText)
 	for i = 1 to nN
-		if ptText[i] = ptSep
-			aA + tCur
+		if pxText[i] = pxSep
+			xA + tCur
 			tCur = ""
 		else
-			tCur += ptText[i]
+			tCur += pxText[i]
 		end
 	end
-	aA + tCur
-	return aA
+	xA + tCur
+	return xA
 end
 # where the deny list lives: a program's $tStzDomainDenyFile, else the
 # STZ_DOMAIN_DENY variable, else <engineDir>/DENIED (one engine folder serves
@@ -100,12 +100,12 @@ func StzDomainDenyFile
 end
 # the domains a manifest left out, and those the deny list refused: [ [ domain, advisoryId, why ], ... ]
 func StzDomainsSkipped
-	if not IsGlobal("$aStzDomainsSkipped")  return []  end
-	return $aStzDomainsSkipped
+	if not IsGlobal("$vStzDomainsSkipped")  return []  end
+	return $vStzDomainsSkipped
 end
 func StzDomainsRefused
-	if not IsGlobal("$aStzDomainsRefused")  return []  end
-	return $aStzDomainsRefused
+	if not IsGlobal("$vStzDomainsRefused")  return []  end
+	return $vStzDomainsRefused
 end
 # The folder holding base/ and engine/ of the library being run, by searching
 # upward from the working directory for a source file every checkout carries.
@@ -142,19 +142,19 @@ func _stzDiscoverLibDir
 end
 # the deny list, read once: [ [ domain, advisoryId, why ], ... ]
 func _stzReadDomainDeny
-	aA = []
+	xA = []
 	xP = StzDomainDenyFile()
-	if not FExists(xP)  return aA  end
-	aL = Str2List(Read(xP))
-	nN = Len(aL)
+	if not FExists(xP)  return xA  end
+	xL = Str2List(Read(xP))
+	nN = Len(xL)
 	for i = 1 to nN
-		tL = Trim(aL[i])
+		tL = Trim(xL[i])
 		if tL = "" or Left(tL, 1) = "#"  loop  end
-		aF = _stzFields(tL, "|")
-		while Len(aF) < 3  aF + ""  end
-		aA + [ Lower(Trim(aF[1])), Trim(aF[2]), Trim(aF[3]) ]
+		xF = _stzFields(tL, "|")
+		while Len(xF) < 3  xF + ""  end
+		xA + [ Lower(Trim(xF[1])), Trim(xF[2]), Trim(xF[3]) ]
 	end
-	return aA
+	return xA
 end
 func _stzDiscoverEngineDir
 	# STZ_ENGINE_DIR names the engine folder outright: the Ring++ copy of the

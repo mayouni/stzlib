@@ -1,0 +1,84 @@
+THE TILED MATMUL, OFF AGAINST ON -- 2026-11-12, engine built by git archive from stzlib 56d1cd4ad (D:\GitHub\_wti_r18c_engine),
+haro.exe at haro f1d002c, this machine's CPU (AVX2), instrument _measure_tiled_mm.haro, four processes alternating 0 1 0 1.
+
+READING
+  prefill, median of 3 (about 450 tokens; processes 2-4; process 1 excluded, see below)
+    Qwen3 0.6B Q4_K_M      off 2358 ms   on 1479 / 1511 ms   1.6x
+    Granite 4.2 3B Q4_K_M  off 14082 ms  on 7379 / 6660 ms   2.0x
+    Bolt E4B Q4_K_M        off 17525 ms  on 7794 / 9085 ms   2.0x
+  control, 24 tokens from a 5-token prompt (the kernel never takes it)
+    Qwen3    off 418-434 ms   on 494-555 ms   (same 118 bytes)
+    Granite  off 1662-1777 ms on 1594-2038 ms (same 100 bytes)
+    Bolt     not comparable: the TEXT differs -- off writes 73 bytes, on stops after " Paris." (7 bytes)
+  long-prompt answer: the same text in both arms for all three models
+  process 1 (off) ran 2-3x slower in every column, the control included (Qwen generation 1110-1382 ms against 418-434):
+    a cold file cache and ambient load, not the kernel; its rows are kept below and left out of the medians
+
+CORRECTNESS (probes g4_det / g4_rep, Bolt, same engine)
+  each arm is deterministic: four identical prefills give bit-identical logits, in both arms
+  the arms differ from each other: top logit 23.818401 on against 23.740021 off (haiku prompt), second-best 19.665867
+    against 19.226469; on the French prompt the second-best TOKEN changes (1017 on, 29536 off)
+  so with tiled ON one prompt can give two texts in one process: the haiku generated twice gave 77 bytes (a full
+    prefill, 13 rows, tiled) and then 79 bytes, llama.cpp's text (the prefix cache reused the prompt, the few rows left
+    are under 8, vec_dot sums them). OFF gives llama.cpp's 79 bytes both times. This is the decoder_gemma4 Scene 1
+    failure seen with tiled on: not a race, a second summation order chosen by batch size.
+
+VERDICT
+  keep it OFF. The speed is real (2x prefill on the K-quant models, decode untouched), but an answer that depends on
+  whether the prefix cache hit breaks "same prompt, same text". Candidate next measurement: GGML_CPU_TILED_MM_FORCE=1
+  makes the kernel take every batch size, which would give one summation order again -- what it costs decode, and
+  whether decoder_gemma4 Scene 1 then holds.
+
+RAW (ROW arm model rep loaded load_ms prefill_ms gen_ms gen_bytes)
+ROW	0	Qwen3-0.6B-Q4_K_M.gguf	1	1	777	8959	1382	118
+ROW	0	Qwen3-0.6B-Q4_K_M.gguf	2	1	777	8018	1118	118
+ROW	0	Qwen3-0.6B-Q4_K_M.gguf	3	1	777	8425	1110	118
+TEXT	0	Qwen3-0.6B-Q4_K_M.gguf	 the barges that passed the locks.
+ROW	0	granite-4.2-3b-Q4_K_M.gguf	1	1	5843	45406	4831	100
+ROW	0	granite-4.2-3b-Q4_K_M.gguf	2	1	5843	43067	4481	100
+ROW	0	granite-4.2-3b-Q4_K_M.gguf	3	1	5843	44262	4725	100
+TEXT	0	granite-4.2-3b-Q4_K_M.gguf	 The clerks count the barges that passed the locks.
+ROW	0	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	1	1	15757	39998	1935	73
+ROW	0	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	2	1	15757	16597	1929	73
+ROW	0	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	3	1	15757	16347	2070	73
+TEXT	0	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	 the barges that passed the locks.
+PROC arm=0 exit=0 499s
+ROW	1	Qwen3-0.6B-Q4_K_M.gguf	1	1	489	1479	555	118
+ROW	1	Qwen3-0.6B-Q4_K_M.gguf	2	1	489	1529	501	118
+ROW	1	Qwen3-0.6B-Q4_K_M.gguf	3	1	489	1451	494	118
+TEXT	1	Qwen3-0.6B-Q4_K_M.gguf	 the barges that passed the locks.
+ROW	1	granite-4.2-3b-Q4_K_M.gguf	1	1	2604	7379	1899	100
+ROW	1	granite-4.2-3b-Q4_K_M.gguf	2	1	2604	7353	2038	100
+ROW	1	granite-4.2-3b-Q4_K_M.gguf	3	1	2604	7608	1698	100
+TEXT	1	granite-4.2-3b-Q4_K_M.gguf	 The clerks count the barges that passed the locks.
+ROW	1	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	1	1	7575	7794	413	7
+ROW	1	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	2	1	7575	7872	405	7
+ROW	1	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	3	1	7575	7397	437	7
+TEXT	1	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	 the barges that passed the locks.
+PROC arm=1 exit=0 105s
+ROW	0	Qwen3-0.6B-Q4_K_M.gguf	1	1	480	2343	418	118
+ROW	0	Qwen3-0.6B-Q4_K_M.gguf	2	1	480	2358	434	118
+ROW	0	Qwen3-0.6B-Q4_K_M.gguf	3	1	480	2390	418	118
+TEXT	0	Qwen3-0.6B-Q4_K_M.gguf	 the barges that passed the locks.
+ROW	0	granite-4.2-3b-Q4_K_M.gguf	1	1	2626	16614	1777	100
+ROW	0	granite-4.2-3b-Q4_K_M.gguf	2	1	2626	13570	1662	100
+ROW	0	granite-4.2-3b-Q4_K_M.gguf	3	1	2626	14082	1709	100
+TEXT	0	granite-4.2-3b-Q4_K_M.gguf	 The clerks count the barges that passed the locks.
+ROW	0	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	1	1	7797	20245	2013	73
+ROW	0	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	2	1	7797	17525	2231	73
+ROW	0	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	3	1	7797	17012	1905	73
+TEXT	0	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	 the barges that passed the locks.
+PROC arm=0 exit=0 202s
+ROW	1	Qwen3-0.6B-Q4_K_M.gguf	1	1	519	1426	494	118
+ROW	1	Qwen3-0.6B-Q4_K_M.gguf	2	1	519	1511	532	118
+ROW	1	Qwen3-0.6B-Q4_K_M.gguf	3	1	519	1575	529	118
+TEXT	1	Qwen3-0.6B-Q4_K_M.gguf	 the barges that passed the locks.
+ROW	1	granite-4.2-3b-Q4_K_M.gguf	1	1	2606	7952	1701	100
+ROW	1	granite-4.2-3b-Q4_K_M.gguf	2	1	2606	6660	1594	100
+ROW	1	granite-4.2-3b-Q4_K_M.gguf	3	1	2606	6625	1609	100
+TEXT	1	granite-4.2-3b-Q4_K_M.gguf	 The clerks count the barges that passed the locks.
+ROW	1	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	1	1	8420	9085	417	7
+ROW	1	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	2	1	8420	9096	441	7
+ROW	1	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	3	1	8420	8570	442	7
+TEXT	1	Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf	 the barges that passed the locks.
+PROC arm=1 exit=0 121s

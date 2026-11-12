@@ -71,7 +71,7 @@ class stzSoundScheduler
 	@nPlaced = 0
 	@nRefusedPosts = 0
 	@nUnderruns = 0         # read from the device's ring while it still exists
-	@cLastError = ""
+	@tLastError = ""
 	@nRefusals = 0
 	@bPrepared = FALSE
 
@@ -84,11 +84,11 @@ class stzSoundScheduler
 	#   see        StzSoundSchedulerQ, Prepare
 	def init(poScore)
 		if NOT StzSoundEngineLoaded()
-			@cLastError = "stz_sound.dll is not loaded"
+			@tLastError = "stz_sound.dll is not loaded"
 			return
 		ok
 		if NOT isObject(poScore)
-			@cLastError = "a scheduler needs a stzSoundScore"
+			@tLastError = "a scheduler needs a stzSoundScore"
 			@nRefusals++
 			return
 		ok
@@ -140,14 +140,14 @@ class stzSoundScheduler
 		if NOT isObject(@oScore)  return FALSE ok
 		_aP_ = @oR.Plan()
 		if len(_aP_) = 0
-			@cLastError = "the score has no notes that could be rendered: " + @oR.LastError()
+			@tLastError = "the score has no notes that could be rendered: " + @oR.LastError()
 			@nRefusals++
 			return FALSE
 		ok
 		@oGraph = StzSoundGraphOfQ(@oR.Channels(), @oR.Rate())
 		@nTl = @oGraph.AddTimeline()
 		if @nTl = 0
-			@cLastError = @oGraph.LastError()
+			@tLastError = @oGraph.LastError()
 			@nRefusals++
 			return FALSE
 		ok
@@ -183,7 +183,7 @@ class stzSoundScheduler
 		This._Post(This.Lookahead())               # prime, THEN start
 		@oT.Play()
 		if NOT @oT.IsPlaying()
-			@cLastError = @oT.LastError()
+			@tLastError = @oT.LastError()
 			@nRefusals++
 		ok
 		return This
@@ -252,14 +252,14 @@ class stzSoundScheduler
 		_cap_.MakeSilence(_total_ / _rate_, _nch_, _rate_)
 		_total_ = _cap_.Frames()
 		if NOT @oGraph.Prepare()
-			@cLastError = @oGraph.LastError()
+			@tLastError = @oGraph.LastError()
 			@nRefusals++
 			return NULL
 		ok
 		This._Post(This.Lookahead())               # prime, THEN start
 		_s_ = StzEngineSoundStreamStart(@oGraph.GraphId(), @nRing)
 		if _s_ = 0
-			@cLastError = StzEngineSoundGraphLastError()
+			@tLastError = StzEngineSoundGraphLastError()
 			@nRefusals++
 			return NULL
 		ok
@@ -351,7 +351,7 @@ class stzSoundScheduler
 	#   returns    a text
 	#   see        Refusals
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns how many times the scheduler refused to go on.
 	#
@@ -400,7 +400,7 @@ class stzSoundScheduler
 			if StzEngineSoundGraphTimelinePlace(@oGraph.GraphId(), @nTl, _p_[2],
 			                                    _p_[1] + 1, @oR.Gain()) != 0
 				@nRefusedPosts++
-				@cLastError = StzEngineSoundGraphLastError()
+				@tLastError = StzEngineSoundGraphLastError()
 				exit
 			ok
 			@nPlaced++

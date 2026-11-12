@@ -989,7 +989,7 @@ class stzListOfEntities from stzList
 #              #--> [ ]
 #   see        stzListOfEntities, stzEntity
 class stzSupposition
-	@cName = ""
+	@tName = ""
 
 	# Builds a supposition about one name, trimmed and lowercased.
 	#
@@ -997,7 +997,7 @@ class stzSupposition
 	#   returns    nothing; the object is built
 	#   see        IsAQ, Name
 	def init(pcName)
-		@cName = StzLower(trim(pcName))
+		@tName = StzLower(trim(pcName))
 
 	# Records the assumption that the name is of this type in the shared overlay, once, and returns the supposition so a sentence can go on.
 	#
@@ -1011,12 +1011,12 @@ class stzSupposition
 		_cT_ = StzLower(trim("" + pcType))
 		_nSp_ = len($aStzSuppositions)
 		for _iSp_ = 1 to _nSp_
-			if $aStzSuppositions[_iSp_][1] = @cName and
+			if $aStzSuppositions[_iSp_][1] = @tName and
 			   $aStzSuppositions[_iSp_][2] = _cT_
 				return This
 			ok
 		next
-		$aStzSuppositions + [ @cName, _cT_ ]
+		$aStzSuppositions + [ @tName, _cT_ ]
 		return This
 
 	# Returns the supposition unchanged, so that a sentence such as Suppose tomato is a fruit and a company reads naturally.
@@ -1032,4 +1032,4 @@ class stzSupposition
 	#   returns    a text
 	#   see        init, IsAQ
 	def Name()
-		return @cName
+		return @tName

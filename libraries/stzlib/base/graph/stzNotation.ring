@@ -108,7 +108,7 @@ func StzNotations()
 #   see        stzDiagram, stzRuleReport, StzRegisterNotation, StzNotation
 class stzNotation from stzObject
 
-	@cName = "default"
+	@tName = "default"
 	@aKinds = []          # [ kind, glyph ] rows; authority when closed
 	@bClosed = 0          # 0 = open vocabulary: unknown kinds pass through
 	@aEdgeKinds = []      # named edge kinds (adornments arrive at DN4)
@@ -137,7 +137,7 @@ class stzNotation from stzObject
 	#   returns    nothing; the object is built
 	#   see        Name_, AddKind, StzRegisterNotation
 	def init(pcName)
-		@cName = StzLower(ring_trim("" + pcName))
+		@tName = StzLower(ring_trim("" + pcName))
 
 	# Returns the notation's name, trimmed and in lower case.
 	#
@@ -145,7 +145,7 @@ class stzNotation from stzObject
 	#   note       the registry looks a notation up by this name
 	#   see        init, StzNotation
 	def Name_()
-		return @cName
+		return @tName
 
 	# Declares a kind of node and the glyph that draws it, replacing the glyph when the kind is already declared.
 	#
@@ -484,10 +484,10 @@ class stzNotation from stzObject
 				if _k_ != "" and NOT This.KnowsKind(_k_)
 					_aOut_ + [ :rule = "notation-unknown-kind",
 						:subject = "" + _nd_[:id],
-						:where = @cName,
+						:where = @tName,
 						:severity = :warning,
 						:message = "'" + _nd_[:id] + "' is a '" + _k_ +
-							"', which the " + @cName + " notation does " +
+							"', which the " + @tName + " notation does " +
 							"not declare. Its kinds: " +
 							This._KindsLine() ]
 				ok
@@ -503,7 +503,7 @@ class stzNotation from stzObject
 				if StzLower("" + _e_[:from]) = StzLower("" + _e_[:to])
 					_aOut_ + [ :rule = "notation-self-link",
 						:subject = "" + _e_[:from],
-						:where = @cName,
+						:where = @tName,
 						:severity = :error,
 						:message = _cSelfMsg_ ]
 				ok
@@ -534,7 +534,7 @@ class stzNotation from stzObject
 					if _aSeen_[_nAt_][2] = 2
 						_aOut_ + [ :rule = "notation-second-parent",
 							:subject = _t_,
-							:where = @cName,
+							:where = @tName,
 							:severity = :error,
 							:message = _cPar_ ]
 					ok
@@ -556,7 +556,7 @@ class stzNotation from stzObject
 				if poDiagram.PathExists(_t_, _f_)
 					_aOut_ + [ :rule = "notation-cycle",
 						:subject = _f_ + ">" + _t_,
-						:where = @cName,
+						:where = @tName,
 						:severity = :error,
 						:message = _cCyc_ ]
 				ok
@@ -576,7 +576,7 @@ class stzNotation from stzObject
 				if _cIn_ != ""
 					_aOut_ + [ :rule = "notation-inbound",
 						:subject = "" + _e_[:from] + ">" + _e_[:to],
-						:where = @cName,
+						:where = @tName,
 						:severity = :error,
 						:message = _cIn_ ]
 				ok
@@ -585,7 +585,7 @@ class stzNotation from stzObject
 				if _cOut_ != ""
 					_aOut_ + [ :rule = "notation-outbound",
 						:subject = "" + _e_[:from] + ">" + _e_[:to],
-						:where = @cName,
+						:where = @tName,
 						:severity = :error,
 						:message = _cOut_ ]
 				ok

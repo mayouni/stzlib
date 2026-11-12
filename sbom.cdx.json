@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:3452a4c1-da9c-52e8-be40-756488def579",
+  "serialNumber": "urn:uuid:58af5e84-3f21-5493-ad55-65bc1442a7e3",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-11-11T23:38:07Z",
+    "timestamp": "2026-11-12T12:49:30Z",
     "tools": {
       "components": [
         {
@@ -20,7 +20,7 @@
       "properties": [
         {
           "name": "softanza:generated-from-commit",
-          "value": "b65accf4c3e19db30068bf611749b35caaa0b673"
+          "value": "6475f02e009216dedafea9387a2b5be0fa3399ed"
         }
       ]
     }
@@ -117,7 +117,7 @@
         },
         {
           "name": "softanza:tree-digest",
-          "value": "30f101841e310b34270a0e29f511f1ef5f38f5258586ac8c11daed7330296e8d"
+          "value": "5a1714ead791b48e05e25b59007290e859c87768bc057f8ff03fe828be3b9b5d"
         },
         {
           "name": "softanza:archive-sha-256",

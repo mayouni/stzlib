@@ -1,6 +1,6 @@
 class stkMemory
     @bIsValid = true
-    @aAllocatedBuffers = []  # Track allocations
+    @vAllocatedBuffers = []  # Track allocations
 
 	def init
 	end
@@ -12,7 +12,7 @@ class stkMemory
         end
         
         tBuffer = Space(nSize)
-        @aAllocatedBuffers + tBuffer # Track allocation
+        @vAllocatedBuffers + tBuffer # Track allocation
         return tBuffer
     end
     def Deallocate(pBuffer)
@@ -20,9 +20,9 @@ class stkMemory
             Raise("Cannot deallocate a null pointer")
         end
         
-        nIndex = Find(@aAllocatedBuffers, pBuffer)
+        nIndex = Find(@vAllocatedBuffers, pBuffer)
         if nIndex > 0
-            Del(@aAllocatedBuffers, nIndex)
+            Del(@vAllocatedBuffers, nIndex)
         	# In Ring, memory is automatically managed
         	# This method exists for API compatibility
             return true
@@ -36,7 +36,7 @@ class stkMemory
 	        return false
 	    end
 	    
-	    nIndex = Find(@aAllocatedBuffers, pBuffer)
+	    nIndex = Find(@vAllocatedBuffers, pBuffer)
 	    return nIndex > 0
 	end
 	def Copy(pSrc, pDest, nSize)
@@ -71,9 +71,9 @@ class stkMemory
 	    tFilledBuffer = @copy(tFillChar, nSize)
 	    
 	    # Update the buffer in our tracking array
-	    nIndex = Find(@aAllocatedBuffers, pBuffer)
+	    nIndex = Find(@vAllocatedBuffers, pBuffer)
 	    if nIndex > 0
-	        @aAllocatedBuffers[nIndex] = tFilledBuffer
+	        @vAllocatedBuffers[nIndex] = tFilledBuffer
 	    end
 	    
 	    return tFilledBuffer

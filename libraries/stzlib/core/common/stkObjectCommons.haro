@@ -37,9 +37,9 @@ func ObjectsAreEqual(xObj1, xObj2)
 	if ClassName(xObj1) != ClassName(xObj2)
 		return false
 	end
-	aAttrs1 = Attributes(xObj1)
-	aAttrs2 = Attributes(xObj2)
-	if Len(aAttrs1) != Len(aAttrs2)
+	xAttrs1 = Attributes(xObj1)
+	xAttrs2 = Attributes(xObj2)
+	if Len(xAttrs1) != Len(xAttrs2)
 		return false
 	end
 	return true

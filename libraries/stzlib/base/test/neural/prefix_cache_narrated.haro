@@ -22,7 +22,7 @@ $tModels = Slashes(SysGet("STZ_MODELS_DIR"))
 $tTmp = Slashes(SysGet("TEMP")) + "/stz_prefixkv"
 $nPass = 0
 $nFail = 0
-$aNotRun = []
+$vNotRun = []
 LoadLib($tEngine + "/zig-out/bin/stz_neural.dll")
 System("mkdir " + Char(34) + SysGet("TEMP") + "\stz_prefixkv" + Char(34) + " 2>nul")
 $tSmol = $tModels + "/smollm2-135m-instruct-q8_0.gguf"
@@ -30,7 +30,7 @@ $tQwen = $tModels + "/qwen2.5-coder-0.5b-instruct-q8_0.gguf"
 $tBolt = $tModels + "/Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf"
 $tSys = "You are the triage assistant of a software company's support desk. Every message is one ticket from a customer. " +
         "Classify it as bug, billing or other, and answer with that one word only."
-$aTickets = [ "The app closes as soon as I open the camera screen.", "I was charged twice for the March invoice.",
+$xTickets = [ "The app closes as soon as I open the camera screen.", "I was charged twice for the March invoice.",
               "Could you add a dark theme to the dashboard?", "Exports to CSV stop at 1000 rows." ]
 
 if FExists($tSmol)
@@ -39,9 +39,9 @@ if FExists($tSmol)
 	Scenario("1. in memory: the shared prefix kept, the logits the same to the bit")
 	nSame = 0
 	nKept = 0
-	nLen = Len($aTickets)
+	nLen = Len($xTickets)
 	for i = 1 to nLen
-		tP = ChatMl($tSys, $aTickets[i])
+		tP = ChatMl($tSys, $xTickets[i])
 		StzEngineNeuralGenSetPrefixReuse(0)
 		StzEngineNeuralPrefillLogits(tP)
 		nOff = StzEngineNeuralGenLogitsHash()
@@ -59,7 +59,7 @@ if FExists($tSmol)
 	Then("every prompt's logits equal a full read's", nSame, nLen)
 	Then("...and the system turn was not read again", nKept, nLen)
 	StzEngineNeuralGenSetPrefixReuse(0)
-	StzEngineNeuralPrefillLogits(ChatMl($tSys, $aTickets[1]))
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $xTickets[1]))
 	Then("with reuse off nothing is kept", StzEngineNeuralGenReusedTokens(), 0)
 	StzEngineNeuralGenSetPrefixReuse(1)
 
@@ -70,7 +70,7 @@ if FExists($tSmol)
 	Then("the system turn is written", StzEngineNeuralGenPrefixSave(tKv, nPre), 1)
 	StzEngineNeuralModelLoad($tSmol)
 	Then("...and comes back whole into an empty cache", StzEngineNeuralGenPrefixLoad(tKv), nPre)
-	StzEngineNeuralPrefillLogits(ChatMl($tSys, $aTickets[2]))
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $xTickets[2]))
 	nDisk = StzEngineNeuralGenLogitsHash()
 	# the file holds the system turn and the opening of the user turn; a ticket shares all but the last few of those
 	# tokens (the tokenizer joins the turn's opening to what follows it), and the engine keeps exactly what is shared
@@ -78,7 +78,7 @@ if FExists($tSmol)
 	? "  the file held " + String(nPre) + " tokens; the ticket shared " + String(nReused) + " of them"
 	Then("the next prompt reads only its tail: the system turn comes from the file", nReused >= 40 and nReused <= nPre, true)
 	StzEngineNeuralGenSetPrefixReuse(0)
-	StzEngineNeuralPrefillLogits(ChatMl($tSys, $aTickets[2]))
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $xTickets[2]))
 	StzEngineNeuralGenSetPrefixReuse(1)
 	Then("...and its logits equal a full read's, to the bit", nDisk, StzEngineNeuralGenLogitsHash())
 
@@ -96,10 +96,10 @@ if FExists($tSmol)
 		StzEngineNeuralModelLoad($tQwen)
 		Then("another model's prefix is refused (3)", StzEngineNeuralGenPrefixLoad(tKv) * 10 + StzEngineNeuralGenPrefixStatus(), 3)
 	else
-		$aNotRun + "scene 3, another model (no qwen2.5-coder-0.5b)"
+		$vNotRun + "scene 3, another model (no qwen2.5-coder-0.5b)"
 	end
 else
-	$aNotRun + ("scenes 1-3 (no " + $tSmol + ")")
+	$vNotRun + ("scenes 1-3 (no " + $tSmol + ")")
 end
 
 Scenario("4. the same on Gemma 4")
@@ -107,7 +107,7 @@ if FExists($tBolt)
 	StzEngineNeuralModelLoad($tBolt)
 	nSame = 0
 	for i = 1 to 2
-		tP = Gemma($tSys, $aTickets[i])
+		tP = Gemma($tSys, $xTickets[i])
 		StzEngineNeuralGenSetPrefixReuse(0)
 		StzEngineNeuralPrefillLogits(tP)
 		nOff = StzEngineNeuralGenLogitsHash()
@@ -120,11 +120,11 @@ if FExists($tBolt)
 	end
 	Then("Bolt: the prefix kept and the logits the same to the bit, on both prompts", nSame, 2)
 else
-	$aNotRun + ("scene 4 (no " + $tBolt + ")")
+	$vNotRun + ("scene 4 (no " + $tBolt + ")")
 end
 
 ? ""
-for t in $aNotRun
+for t in $vNotRun
 	? "NOT RUN: " + t
 end
 ? "================================================"

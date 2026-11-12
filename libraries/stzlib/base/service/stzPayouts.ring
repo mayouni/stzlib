@@ -350,7 +350,7 @@ class stzPayoutPlan from stzObject
 #   see        stzPayoutPlan, stzPayoutDesk, stzRuleReport
 class stzPayoutPolicy from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aVisaRules = []     # [ [ amount, visas ], ... ]
 	@bProposerOut = 0
 
@@ -362,14 +362,14 @@ class stzPayoutPolicy from stzObject
 	#              port: add yours with RequireVisasAbove and ProposerCannotVisa
 	#   see        RequireVisasAbove, StzDikoPayoutPolicyQ
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the title the policy was given when it was built.
 	#
 	#   returns    a text
 	#   see        init
 	def Name()
-		return @cName
+		return @tName
 
 	# Adds a rule: a plan whose total is strictly above an amount needs a number of visas from distinct people.
 	#

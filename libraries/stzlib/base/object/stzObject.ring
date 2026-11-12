@@ -522,7 +522,7 @@ func StzNamedObject(paNamed)
 		return StzNamedObject(paNamed)
 
 func StzNamedObjectFrom(pcObjName)
-	? @@($_avars)
+	? @@($vVars)
 	if CheckingParams()
 
 	ok
@@ -712,7 +712,7 @@ func StzIsPluralOfRingType(_cPlural_)
 	#>
 
 func StzRingTypesXT()
-	return $_aRingTypesXT
+	return $vRingTypesXT
 
 	func RingTypesXT()
 		return StzRingTypesXT()
@@ -6789,7 +6789,7 @@ class stzObject
 	#@ aka  are updated directly without using UpdateWith().
 	def AddHistoricValue(value)
 
-		$_aHisto + value
+		$vHisto + value
 
 		# Appends a value to the shared history list, in the short wording.
 		#
@@ -6826,8 +6826,8 @@ class stzObject
 			return This.HistoricValuesXT()
 		ok
 
-		_aResult_ = $_aHisto
-		$_aHisto = []
+		_aResult_ = $vHisto
+		$vHisto = []
 		return _aResult_
 		
 		# Returns the shared history and empties it, in the short wording.
@@ -6857,13 +6857,13 @@ class stzObject
 	#   warning    the next HistoricValues answers [ ]
 	#   see        HistoricValues, AddHistoricValue
 	def CleanHistory()
-		$_aHisto = []
+		$vHisto = []
 
 
 	#== XT
 
 	def AddHistoricValueXT(value)
-		$_aHistoXT + value
+		$vHistoXT + value
 
 		def AddHistValueXT(value)
 			AddHistoricValueXT(value)
@@ -6875,8 +6875,8 @@ class stzObject
 			AddHistoricValueXT(value)
 
 	def HistoricValuesXT()
-		_aResult_ = $_aHistoXT
-		$_aHistoXT = []
+		_aResult_ = $vHistoXT
+		$vHistoXT = []
 		return _aResult_
 
 		def HistValuesXT()
@@ -6889,7 +6889,7 @@ class stzObject
 			return HistoricValuesXT()
 
 	def CleanHistoryXT()
-		$_aHistoXT = []
+		$vHistoXT = []
 
 	  #---------------------------------#
 	 #  TRACING OBJECT EXECUTION TIME  #
@@ -6901,7 +6901,7 @@ class stzObject
 	#   warning    one global reading serves every object
 	#   see        ExecutionTime
 	def StartTime()
-		return $_nStartTimeInClocks // A global variable
+		return $nStartTimeInClocks // A global variable
 
 		def StartingTime()
 			return This.StartTime()
@@ -6924,7 +6924,7 @@ class stzObject
 			StzRaise("Can't proceed! Keeping object execution time must be turned ON.")
 		ok
 
-		_nResult_ = ( clock() - $_nStartTimeInClocks ) / clockspersecond()
+		_nResult_ = ( clock() - $nStartTimeInClocks ) / clockspersecond()
 
 		return _nResult_
 
@@ -8056,7 +8056,7 @@ class stzObject
 		# a stream); a tense device must not read another chain's
 		# leftovers -- the stream belongs to THIS object only if its
 		# latest state IS this object's current content
-		_aTense_ = $_aHisto
+		_aTense_ = $vHisto
 		_nTe_ = len(_aTense_)
 		if _nTe_ = 0
 			return []

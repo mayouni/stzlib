@@ -89,7 +89,7 @@ func ToolActor(pcName)
 #   see        stzSystemCapabilities, stzSystemProfile, stzNode
 class stzSystemActor from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aKinds = []
 	@cPosture = "trusted"
 
@@ -101,7 +101,7 @@ class stzSystemActor from stzObject
 	#   warning    an unknown kind raises an error
 	#   see        GrantKind, Can
 	def init(pcName, paKinds)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		This.SetKinds(paKinds)
 
 	# Returns the actor's name.
@@ -109,7 +109,7 @@ class stzSystemActor from stzObject
 	#   returns    a text
 	#   see        SetName
 	def Name()
-		return @cName
+		return @tName
 
 	# Changes the actor's name.
 	#
@@ -117,7 +117,7 @@ class stzSystemActor from stzObject
 	#   returns    the actor itself, so calls chain
 	#   see        Name
 	def SetName(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		return This
 
 	# Returns the four capability kinds the lattice knows: effectful, sensing, compute and inference.
@@ -253,6 +253,6 @@ class stzSystemActor from stzObject
 	#   returns    nothing; it prints
 	#   see        Kinds, Posture
 	def Show()
-		? "Actor '" + @cName + "'  posture: " + @cPosture
+		? "Actor '" + @tName + "'  posture: " + @cPosture
 		? "  capabilities: " + _StzJoinComma(@aKinds)
 		? "  can effect reality: " + This.IsEffectful()

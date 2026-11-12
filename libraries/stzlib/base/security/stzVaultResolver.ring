@@ -55,7 +55,7 @@ func StzVaultResolverQ(pcName)
 #   see        stzVaultHttpResolver, stzSecret, stzSecretStore
 class stzVaultResolver from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aEntries = []   # [ [ locator, value ], ... ]  -- in-memory stand-in for a real vault
 
 	# Builds an empty in-memory vault resolver with a name, the reference stand-in for a real secret manager.
@@ -64,14 +64,14 @@ class stzVaultResolver from stzObject
 	#   returns    nothing; the object is built
 	#   see        Register, Resolve
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the name the resolver was built with.
 	#
 	#   returns    a text
 	#   see        init
 	def Name()
-		return @cName
+		return @tName
 
 	# Seeds a value under a vault locator, replacing the value already there.
 	#
@@ -122,7 +122,7 @@ class stzVaultResolver from stzObject
 	def Resolve(pcLocator)
 		_i_ = This._Index("" + pcLocator)
 		if _i_ = 0
-			StzRaise("stzVaultResolver '" + @cName + "': no entry for '" + pcLocator + "'.")
+			StzRaise("stzVaultResolver '" + @tName + "': no entry for '" + pcLocator + "'.")
 		ok
 		return @aEntries[_i_][2]
 
@@ -132,7 +132,7 @@ class stzVaultResolver from stzObject
 	#   note       values are never printed
 	#   see        NumberOfEntries
 	def Show()
-		? "Vault resolver '" + @cName + "': " + len(@aEntries) + " entry/entries"
+		? "Vault resolver '" + @tName + "': " + len(@aEntries) + " entry/entries"
 		_n_ = len(@aEntries)
 		for _i_ = 1 to _n_
 			? "  " + @aEntries[_i_][1] + " -> ********"   # locators shown, values never

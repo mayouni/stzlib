@@ -42,7 +42,7 @@ func StzNodeQ(pcName, pnPort)
 #   see        stzNodeSupervisor, stzNodeApp, stzNodeRegistry
 class stzNode from stzObject
 
-	@cName = "node"
+	@tName = "node"
 	@cHost = "127.0.0.1"
 	@nPort = 0
 	@oReactor = ""
@@ -77,11 +77,11 @@ class stzNode from stzObject
 	#   see        Run, Port, On
 	#@ aka  pcName speaks the plane's address vocabulary: "indexer" binds loopback; "indexer@10.0.0.7" binds that interface (the deployed form -- same vocabulary Send/Ask resolve).
 	def init(pcName, pnPort)
-		@cName = StzLower("" + pcName)
-		nAt = StzFindFirst("@", @cName)
+		@tName = StzLower("" + pcName)
+		nAt = StzFindFirst("@", @tName)
 		if nAt > 0
-			@cHost = StzRight(@cName, StzLen(@cName) - nAt)
-			@cName = StzLeft(@cName, nAt - 1)
+			@cHost = StzRight(@tName, StzLen(@tName) - nAt)
+			@tName = StzLeft(@tName, nAt - 1)
 		ok
 		@nPort = 0 + pnPort
 		@oReactor = new stzReactor()
@@ -92,7 +92,7 @@ class stzNode from stzObject
 	#   returns    a text
 	#   see        init
 	def Name_()
-		return @cName
+		return @tName
 
 	# Returns the port the node is actually bound to, which differs from the one asked for when 0 was given.
 	#
@@ -320,7 +320,7 @@ class stzNode from stzObject
 			# binding, the inbox contract, and the security counters
 			@nProcessed++
 			if (nFlags & 2) = 2
-				vInfo = [ @cName, @cHost, @nInboxCap, @cInboxPolicy,
+				vInfo = [ @tName, @cHost, @nInboxCap, @cInboxPolicy,
 					@nProcessed, This.Overflow(), @nRejected, @nDenied ]
 				# NOT cR: that name IS the CR carriage-return constant.
 				cReply = StzEngineStzmPack(vInfo, 0, nCorr, 0)

@@ -1,0 +1,316 @@
+#--------------------------------------------------------------#
+#        SOFTANZA LIBRARY (V0.9) - STZSTATEMACHINE             #
+#   An accelerative library for Ring applications, and more!   #
+#--------------------------------------------------------------#
+#                                                              #
+#   Description  : Finite state machine class backed by the    #
+#                  Softanza Engine (stz_statemachine module).   #
+#   Version      : V0.9 (2026)                                #
+#   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
+#                                                              #
+#--------------------------------------------------------------#
+
+
+  #=============#
+ #  FUNCTIONS  #
+#=============#
+
+func StzStateMachineQ(tName)
+	return new stzStateMachine(tName)
+end
+func IsStzStateMachine(pxObj)
+	if IsObject(pxObj) and ClassName(pxObj) = "stzstatemachine"
+		return true
+	else
+		return false
+	end
+end
+	func IsAStzStateMachine(pxObj)
+		return IsStzStateMachine(pxObj)
+	end
+	func @IsStzStateMachine(pxObj)
+		return IsStzStateMachine(pxObj)
+	end
+
+  #///////////////
+ #/   CLASS   ///
+#///////////////
+
+# A finite state machine kept in the engine: add states and transitions, send events, and read the state the machine is in.
+#
+# Declare the states, then the transitions as [ from, event, to ]. Send follows the matching
+# transition and answers the new state. The first state added is the starting state. Mistakes are
+# not reported by the machine: an event that matches no transition, a SetState to an unknown state
+# and a transition naming an unknown state are all ignored without an error, so check CurrentState
+# after the call that matters.
+#
+#   receiver   o1 = new stzStateMachine("door") o1.AddStates([ "closed", "open", "locked" ])
+#              o1.AddTransitions([ [ "closed", "open", "open" ], [ "open", "close", "closed" ], [
+#              "closed", "lock", "locked" ] ])
+#   example    ? o1.CurrentState()
+#              #--> closed
+#              ? o1.Send("open")
+#              #--> open
+#              ? o1.Send("lock")
+#              #--> open
+#              ? o1.NumberOfTransitions()
+#              #--> 3
+#   see        stzPattern, stzDeployment
+class stzStateMachine from stzObject
+
+	@tName = ""
+	@nHandle = -1
+
+	  #--------------#
+	 #     INIT     #
+	#--------------#
+
+	# Creates an empty finite state machine in the engine, identified by a name.
+	#
+	#   cName      the machine's name, a non-empty text
+	#   returns    nothing; the object is built
+	#   warning    a name that is empty or not a text raises an error
+	#   see        AddState, AddTransition
+	def init(tName)
+
+		if CheckingParams()
+			if not IsString(tName) or tName = ""
+				StzRaise("Can't create stzStateMachine! cName must be a non-empty string.")
+			end
+		end
+
+		@tName = tName
+		@nHandle = StzEngineFsmCreate(tName)
+
+		if @nHandle < 0
+			StzRaise("Can't create stzStateMachine! Engine returned error code: " + String(@nHandle))
+		end
+	end
+	  #--------------#
+	 #     NAME     #
+	#--------------#
+
+	# Returns the name the machine was created with.
+	#
+	#   returns    a text
+	#   see        init
+	def Name
+		return @tName
+	end
+	  #-------------------------------#
+	 #     STATES AND TRANSITIONS    #
+	#-------------------------------#
+
+	# Adds a state to the machine; the first state added becomes the current one.
+	#
+	#   cState     the name of the state, a non-empty text
+	#   returns    nothing; use AddStateQ to chain
+	#   note       an empty or non-text name raises an error
+	#   warning    adding a name twice counts it twice in NumberOfStates
+	#   see        AddStates, SetState, NumberOfStates
+	def AddState(tState)
+		if CheckingParams()
+			if not IsString(tState) or tState = ""
+				StzRaise("Incorrect param! cState must be a non-empty string.")
+			end
+		end
+
+		nResult = StzEngineFsmAddState(@nHandle, tState)
+		if nResult < 0
+			StzRaise("Can't add state! Engine returned error code: " + String(nResult))
+		end
+	end
+		def AddStateQ(tState)
+			this.AddState(tState)
+			return this
+		end
+	# Adds several states in the order given, by calling AddState for each.
+	#
+	#   paStates   a list of state names, each a non-empty text
+	#   returns    nothing
+	#   see        AddState
+	def AddStates(pxStates)
+		if CheckingParams()
+			if not IsList(pxStates)
+				StzRaise("Incorrect param! paStates must be a list of strings.")
+			end
+		end
+
+		nLen = Len(pxStates)
+		for i = 1 to nLen
+			this.AddState(pxStates[i])
+		end
+	end
+		def AddStatesQ(pxStates)
+			this.AddStates(pxStates)
+			return this
+		end
+	# Adds a transition that moves the machine from one state to another when an event is sent.
+	#
+	#   cFrom      the state the transition leaves
+	#   cEvent     the event that triggers it
+	#   cTo        the state it arrives in
+	#   returns    nothing; use AddTransitionQ to chain
+	#   note       all three must be texts, else an error is raised
+	#   warning    a transition naming a state that was not added is silently dropped:
+	#              NumberOfTransitions does not grow and nothing is raised
+	#   see        AddTransitions, Send
+	def AddTransition(tFrom, tEvent, tTo)
+		if CheckingParams()
+			if not IsString(tFrom) or not IsString(tEvent) or not IsString(tTo)
+				StzRaise("Incorrect params! cFrom, cEvent, and cTo must be strings.")
+			end
+		end
+
+		nResult = StzEngineFsmAddTransition(@nHandle, tFrom, tEvent, tTo)
+		if nResult < 0
+			StzRaise("Can't add transition! Engine returned error code: " + String(nResult))
+		end
+	end
+		def AddTransitionQ(tFrom, tEvent, tTo)
+			this.AddTransition(tFrom, tEvent, tTo)
+			return this
+		end
+	# Adds several transitions, each given as a [ from, event, to ] list.
+	#
+	#   paTransitions   a list of [ cFrom, cEvent, cTo ] lists
+	#   returns         nothing
+	#   see             AddTransition
+	def AddTransitions(pxTransitions)
+		if CheckingParams()
+			if not IsList(pxTransitions)
+				StzRaise("Incorrect param! paTransitions must be a list of [from, event, to] lists.")
+			end
+		end
+
+		nLen = Len(pxTransitions)
+		for i = 1 to nLen
+			xTr = pxTransitions[i]
+			this.AddTransition(xTr[1], xTr[2], xTr[3])
+		end
+	end
+		def AddTransitionsQ(pxTransitions)
+			this.AddTransitions(pxTransitions)
+			return this
+		end
+	  #-------------------#
+	 #     CURRENT STATE #
+	#-------------------#
+
+	# Forces the machine into a state without going through a transition.
+	#
+	#   cState     the name of the state to enter
+	#   returns    nothing; use SetStateQ to chain
+	#   warning    an unknown state is silently ignored and the current state stays: the error the
+	#              code intends is never raised
+	#   see        CurrentState, Send
+	def SetState(tState)
+		if CheckingParams()
+			if not IsString(tState) or tState = ""
+				StzRaise("Incorrect param! cState must be a non-empty string.")
+			end
+		end
+
+		nResult = StzEngineFsmSetState(@nHandle, tState)
+		if nResult < 0
+			StzRaise("Can't set state! State may not exist.")
+		end
+	end
+		def SetStateQ(tState)
+			this.SetState(tState)
+			return this
+		end
+	# Returns the name of the state the machine is in; empty before any state is added.
+	#
+	#   returns    a text
+	#   see        SetState, Send
+	def CurrentState
+		return StzEngineFsmCurrentState(@nHandle)
+	end
+		def State
+			return this.CurrentState()
+		end
+	  #-------------------#
+	 #     EVENTS        #
+	#-------------------#
+
+	# Feeds an event to the machine, which follows the matching transition from its current state, and returns the state it is in after.
+	#
+	#   cEvent     the event to send, a non-empty text
+	#   returns    the name of the current state, a text
+	#   note       an empty or non-text event raises an error
+	#   warning    an event with no transition from the current state is silently ignored and the
+	#              state stays: the error the code intends is never raised; checked with two
+	#              unmatched events
+	#   see        CurrentState, AddTransition
+	def Send(tEvent)
+		if CheckingParams()
+			if not IsString(tEvent) or tEvent = ""
+				StzRaise("Incorrect param! cEvent must be a non-empty string.")
+			end
+		end
+
+		nResult = StzEngineFsmSend(@nHandle, tEvent)
+		if nResult < 0
+			StzRaise("Can't send event '" + tEvent + "'! No matching transition from current state.")
+		end
+
+		return this.CurrentState()
+	end
+		def SendQ(tEvent)
+			this.Send(tEvent)
+			return this
+		end
+		def Trigger(tEvent)
+			return this.Send(tEvent)
+		end
+		def TriggerQ(tEvent)
+			this.Send(tEvent)
+			return this
+		end
+	  #-------------------#
+	 #     COUNTING      #
+	#-------------------#
+
+	# Returns how many states were added.
+	#
+	#   returns    a number
+	#   see        AddState
+	def NumberOfStates
+		return StzEngineFsmStateCount(@nHandle)
+	end
+		def StateCount
+			return this.NumberOfStates()
+		end
+		def CountStates
+			return this.NumberOfStates()
+		end
+	# Returns how many transitions were accepted by the engine.
+	#
+	#   returns    a number
+	#   see        AddTransition
+	def NumberOfTransitions
+		return StzEngineFsmTransitionCount(@nHandle)
+	end
+		def TransitionCount
+			return this.NumberOfTransitions()
+		end
+		def CountTransitions
+			return this.NumberOfTransitions()
+		end
+	  #-------------------#
+	 #     CLEANUP       #
+	#-------------------#
+
+	# Frees the engine machine and marks the object unusable.
+	#
+	#   returns    nothing
+	#   warning    afterwards CurrentState answers an empty text
+	#   see        init
+	def Destroy
+		if @nHandle >= 0
+			StzEngineFsmDestroy(@nHandle)
+			@nHandle = -1
+		end
+	end
+end

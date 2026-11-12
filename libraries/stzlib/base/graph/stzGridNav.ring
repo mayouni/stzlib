@@ -64,7 +64,7 @@ func IsStzGridNav(pObj)
 #   see        stzObject, stzGraph
 class stzGridNav from stzObject
 
-	@cName = ""
+	@tName = ""
 	@nRows = 0
 	@nCols = 0
 	@nRow  = 0
@@ -99,7 +99,7 @@ class stzGridNav from stzObject
 			StzRaise("Incorrect param! nCols must be a positive whole number, at most 2147483647.")
 		ok
 
-		@cName = cName
+		@tName = cName
 		@nRows = nRows
 		@nCols = nCols
 		@nRow  = 0
@@ -319,7 +319,7 @@ class stzGridNav from stzObject
 	#   returns    the label as text
 	#   see        init
 	def Name()
-		return @cName
+		return @tName
 
 	# Puts the current cell back on row 0, column 0 and keeps the grid.
 	#

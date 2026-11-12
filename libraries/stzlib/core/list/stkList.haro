@@ -9,12 +9,12 @@ end
 class stkList from stkObject
 	@xContent = []
 
-	def init(pvList)
-		if not IsList(pvList)
+	def init(pxList)
+		if not IsList(pxList)
 			return Raise( "ERR-"+ StkError(:IncorrectParamType) )
 		end
 
-		@xContent = pvList
+		@xContent = pxList
 	end
 	#--
 
@@ -125,7 +125,7 @@ class stkList from stkObject
 			xN2 = nTemp
 		end
 
-		aResult = []
+		xResult = []
 
 		for i = xN1 to xN2
 			@xContent[i] = xItem
@@ -169,7 +169,7 @@ class stkList from stkObject
 			xN2 = nTemp
 		end
 
-		aResult = []
+		xResult = []
 
 		for i = xN2 to xN1 step -1
 			ring_remove(@xContent, i)
@@ -188,13 +188,13 @@ class stkList from stkObject
 			xN2 = nTemp
 		end
 
-		aResult = []
+		xResult = []
 
 		for i = xN1 to xN2
-			aResult + @xContent[i]
+			xResult + @xContent[i]
 		end
 
-		return aResult
+		return xResult
 	end
 	#--
 

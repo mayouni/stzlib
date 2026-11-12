@@ -32,7 +32,7 @@
 #   see        stzPIAgent, stzLLMFunction, stzAgentGraph
 class stzLLMAgent from stzObject
 
-	@cName = ""
+	@tName = ""
 	@oFn = ""
 	@oMem = ""
 
@@ -42,7 +42,7 @@ class stzLLMAgent from stzObject
 	#   returns    nothing; the object is built
 	#   see        SetSkillFrom, Propose
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@oMem = new stzAgentMemory(pcName)
 
 	# Returns the name the agent was built with.
@@ -50,7 +50,7 @@ class stzLLMAgent from stzObject
 	#   returns    a text
 	#   see        init, Kind
 	def Name_()
-		return @cName
+		return @tName
 
 	# Returns the agent's memory, a stzAgentMemory built under the same name.
 	#

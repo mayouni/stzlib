@@ -298,7 +298,7 @@ func StzBuildEngineWasm()
 #   see        stzWebBundle, stzDeployment, stzSystemProfile
 class stzBuilder from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aSources = []
 	@cLanguage = "c"       # c / cpp / zig / ring
 	@cKind = "exe"         # exe / lib
@@ -334,7 +334,7 @@ class stzBuilder from stzObject
 	#   note       nothing is compiled until Build
 	#   see        AddSource, Build
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Adds a source file to compile.
 	#
@@ -622,7 +622,7 @@ class stzBuilder from stzObject
 		if @cOutput != ""
 			return @cOutput
 		ok
-		return @cName + This._DefaultExt()
+		return @tName + This._DefaultExt()
 
 	# Adds a preprocessor definition NAME=value for a C or C++ build.
 	#
@@ -1015,7 +1015,7 @@ class stzBuilder from stzObject
 	#              builders
 	#   see        ToCommand, Args
 	def Show()
-		? "Builder '" + @cName + "'"
+		? "Builder '" + @tName + "'"
 		if @cTriple = ""
 			? "  target:  host (native)"
 		else

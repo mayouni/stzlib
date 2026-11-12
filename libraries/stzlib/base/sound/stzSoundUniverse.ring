@@ -89,13 +89,13 @@ class stzSoundDegreePattern from stzPattern
 class stzSoundUniverse
 
 	@aU = []                # the declaration, as loaded
-	@cName = ""
+	@tName = ""
 	@aMode = []             # the chosen mode
 	@aCycle = []            # the chosen cycle
 	@cTonic = ""
 	@nTempo = 0
 	@cMelody = ""           # the instrument the phrase is played on
-	@cLastError = ""
+	@tLastError = ""
 	@nRefusals = 0
 	@aNotes = []            # [ beat, degree, cents, hz, ornament ] -- what the last Perform played
 	@aSonified = []         # MU7: the degrees the last SonifyQ chose
@@ -120,7 +120,7 @@ class stzSoundUniverse
 		ok
 		_f_ = "stzsounduniversedata_" + _c_
 		@aU = call _f_()
-		@cName = _c_
+		@tName = _c_
 		# the universe's own tempo and melody first: a RHYTHM universe has no
 		# mode to carry them, and the first cut left its tempo at 0, which the
 		# score refused -- the West African bell then played at 120, not 360
@@ -141,14 +141,14 @@ class stzSoundUniverse
 	#   returns    a text such as maqam; an empty text when unusable
 	#   see        Title
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the declaration's full heading.
 	#
 	#   returns    a text such as Arabic maqam
 	#   see        Name, Sources
 	def Title()
-		return This._Get(@aU, :title, @cName)
+		return This._Get(@aU, :title, @tName)
 
 	# Returns the whole declaration as a list of key and value pairs.
 	#
@@ -212,7 +212,7 @@ class stzSoundUniverse
 			ok
 		next
 		if _c_ != ""
-			This._Refuse("Mode: " + @cName + " declares no mode '" + pName + "' -- it has: " +
+			This._Refuse("Mode: " + @tName + " declares no mode '" + pName + "' -- it has: " +
 			             This._Joined(This.ModeNames()))
 		ok
 		return This
@@ -232,7 +232,7 @@ class stzSoundUniverse
 			ok
 		next
 		if _c_ != ""
-			This._Refuse("Cycle: " + @cName + " declares no cycle '" + pName + "' -- it has: " +
+			This._Refuse("Cycle: " + @tName + " declares no cycle '" + pName + "' -- it has: " +
 			             This._Joined(This.CycleNames()))
 		ok
 		return This
@@ -329,7 +329,7 @@ class stzSoundUniverse
 	def LadderQ()
 		# in steps: a method called on an object returned INSIDE a method's
 		# return dies silently in Ring (MU5's finding, met again here)
-		_o_ = StzSoundLadderQ(@cName, This.ModeName())
+		_o_ = StzSoundLadderQ(@tName, This.ModeName())
 		_o_.Tonic(@cTonic)
 		return _o_
 
@@ -506,7 +506,7 @@ class stzSoundUniverse
 			if This._Get(_s_, :text, "") = lower("" + pcText)  _aSent_ = _s_ ok
 		next
 		if len(_aSent_) = 0
-			This._Refuse("SentenceQ: " + @cName + " declares no sentence '" + pcText + "' -- it has: " +
+			This._Refuse("SentenceQ: " + @tName + " declares no sentence '" + pcText + "' -- it has: " +
 			             This._Joined(This.Sentences()))
 			return _oS_
 		ok
@@ -820,7 +820,7 @@ class stzSoundUniverse
 	#   warning    it is never cleared by a later success
 	#   see        Refusals
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns how many calls the universe has refused.
 	#
@@ -918,7 +918,7 @@ class stzSoundUniverse
 
 	def _Refuse(pcWhy)
 		@nRefusals++
-		@cLastError = pcWhy
+		@tLastError = pcWhy
 
 	def _Joined(paList)
 		_s_ = ""

@@ -1,0 +1,517 @@
+# Named Variables Management System for Softanza
+# Extracted from stzExtinCode.ring - handles dynamic variable creation and management
+
+  #/////////////////
+ #/  VARIABLES  ///
+#/////////////////
+
+$vTempVars = []
+$vVars = []	# the list of all temp vars and their values
+
+$bVarReset = false
+$xVar = []	# Current temp var and its value
+$xOldVar = []	# A copy of the temp var before it is changed
+
+  #/////////////////
+ #/  FUNCTIONS  ///
+#/////////////////
+
+func StzTempVars
+	xResult = []
+	nLen = Len($vVars)
+	for i = 1 to nLen
+		xResult + $vVars[i][1]
+	end
+
+	return xResult
+end
+	func TempVars
+		return StzTempVars()
+	end
+	func StzTempVarsNames
+		return StzTempVars()
+	end
+	func TempVarsNames
+		return StzTempVars()
+	end
+	func StzTempVarNames
+		return StzTempVars()
+	end
+	func TempVarNames
+		return StzTempVars()
+	end
+	func @TempVars
+		return StzTempVars()
+	end
+	func @TempVarsNames
+		return StzTempVars()
+	end
+	func @TempVarNames
+		return StzTempVars()
+	end
+func StzTempVals
+	xResult = []
+	nLen = Len($vVars)
+	for i = 1 to nLen
+		xResult + $vVars[i][2]
+	end
+
+	return xResult
+end
+	func TempVals
+		return StzTempVals()
+	end
+	func @TempVals
+		return StzTempVals()
+	end
+func StzTempVarsVals
+	return $vVars
+end
+	func TempVarsVals
+		return StzTempVarsVals()
+	end
+	func StzTempVarsXT
+		return StzTempVarsVals()
+	end
+	func TempVarsXT
+		return StzTempVarsVals()
+	end
+	func @TempVarsVals
+		return StzTempVarsVals()
+	end
+func StzTempVar
+	if Len($xVar) = 0
+		return []
+	else
+		return $xVar[1]
+	end
+end
+	func TempVar
+		return StzTempVar()
+	end
+	func StzTempVarName
+		return StzTempVar()
+	end
+	func TempVarName
+		return StzTempVar()
+	end
+	func @TempVar
+		return StzTempVar()
+	end
+	func @TempVarName
+		return StzTempVar()
+	end
+func StzTempVal
+	if Len($xVar) = 0
+		return ""
+	else
+		return $xVar[2]
+	end
+end
+	func TempVal
+		return StzTempVal()
+	end
+	func @TempVal
+		return StzTempVal()
+	end
+func StzTempVarVal
+	return $xVar
+end
+	func TempVarVal
+		return StzTempVarVal()
+	end
+	func StzTempVarXT
+		return StzTempVarVal()
+	end
+	func TempVarXT
+		return StzTempVarVal()
+	end
+	func @TempVarVal
+		return StzTempVarVal()
+	end
+	func @TempVarXT
+		return StzTempVarVal()
+	end
+func StzV(xP)
+	if IsList(xP) and Q(xP).IsPair()
+		vTemp = []
+		vTemp + xP
+		StzSetV(vTemp)
+
+	elseif IsList(xP) and @IsHashList(xP)
+		StzSetV(xP)
+
+	elseif IsList(xP) and @IsListOfStrings(xP)
+		return StzReadManyV(xP)
+
+	else
+		return StzReadV(xP)
+	end
+end
+	func V(xP)
+		return StzV(xP)
+	end
+	func @V(xP)
+		return StzV(xP)
+	end
+func StzVrVl(xP)
+	xVal = StzV(xP)
+	if IsEmpty(xVal)
+		xVal = []
+		nLen = Len(xP)
+		for i = 1 to nLen
+			xVal + ""
+		end
+	end
+
+	xResult = Association([ xP, xVal ])
+	return xResult
+end
+	func VrVl(xP)
+		return StzVrVl(xP)
+	end
+	func StzVarVal(xP)
+		return StzVrVl(xP)
+	end
+	func VarVal(xP)
+		return StzVrVl(xP)
+	end
+	func @VrVl(xP)
+		return StzVrVl(xP)
+	end
+	func @VarVal(xP)
+		return StzVrVl(xP)
+	end
+func StzVxt(tVarName)
+	if not IsString(tVarName)
+		StzRaise("Incorrect param type! cVarName must be a string.")
+	end
+
+	tVarName = StzLower(tVarName)
+
+	if not StzFindFirst(tVarName, TempVarNames())
+		StzRaise("Variable name does not exist!")
+	end
+
+	xResult = [ tVarName, StzV(tVarName) ]
+	return xResult
+end
+	func vxt(tVarName)
+		return StzVxt(tVarName)
+	end
+	func @vxt(tVarName)
+		return StzVxt(tVarName)
+	end
+func StzSetV(pxVarNamesAndTheirValues)
+	if IsList(pxVarNamesAndTheirValues) and
+	   Len(pxVarNamesAndTheirValues) = 2 and
+	   IsString(pxVarNamesAndTheirValues[1])
+
+		vTemp = []
+		vTemp + pxVarNamesAndTheirValues
+		pxVarNamesAndTheirValues = vTemp
+	end
+
+	if not ( IsList(pxVarNamesAndTheirValues) and @IsHashList(pxVarNamesAndTheirValues) )
+		StzRaise("Incorrect param type! paVarNamesAndTheirValues must be a hashlist.")
+	end
+
+	# Memorizing the current var
+
+	if Len($vVars) = 0
+		$xOldVar = []
+	else
+		$xOldVar = $vVars[ Len($vVars) ]
+	end
+
+	# Setting the new var
+
+	nLen = Len(pxVarNamesAndTheirValues)
+	oHash = new stzHashList($vVars)
+
+	for i = 1 to nLen
+		xN = oHash.FindKey(pxVarNamesAndTheirValues[i][1])
+		if xN = 0
+			$vVars + pxVarNamesAndTheirValues[i]
+		else
+			$vVars[xN] = pxVarNamesAndTheirValues[i]
+		end
+	end
+
+	# The new var is the temp var
+
+	$xVar = $vVars[Len($vVars)]
+end
+	func SetV(pxVarNamesAndTheirValues)
+		StzSetV(pxVarNamesAndTheirValues)
+	end
+	func @SetV(pxVarNamesAndTheirValues)
+		StzSetV(pxVarNamesAndTheirValues)
+	end
+func StzReadV(xP)
+	oHash = new stzHashList($vVars)
+	xN = oHash.FindKey(xP)
+	if xN = 0
+		StzRaise("Undefined named variable!")
+	else
+		return $vVars[xN][2]
+	end
+end
+	func ReadV(xP)
+		return StzReadV(xP)
+	end
+	func @ReadV(xP)
+		return StzReadV(xP)
+	end
+func StzReadManyV(pxVars)
+	nLen = Len(pxVars)
+
+	xResult = []
+	for i = 1 to nLen
+		xResult + StzReadV(pxVars[i])
+	end
+
+	return xResult
+end
+	func ReadManyV(pxVars)
+		return StzReadManyV(pxVars)
+	end
+	func @ReadManyV(pxVars)
+		return StzReadManyV(pxVars)
+	end
+func StzDataVars
+	nLen = Len($vVars)
+	xResult = []
+	for i = 1 to nLen
+		xResult + $vVars[i]
+	end
+	return xResult
+end
+	func DataVars
+		return StzDataVars()
+	end
+	func @DataVars
+		return StzDataVars()
+	end
+func StzDataVarsXT
+	return $vVars
+end
+	func DataVarsXT
+		return StzDataVarsXT()
+	end
+	func @DataVarsXT
+		return StzDataVarsXT()
+	end
+func StzVr(pxVars)
+
+	if IsString(pxVars)
+		vTemp = []
+		vTemp + pxVars
+		pxVars = vTemp
+	end
+
+	if not ( IsList(pxVars) and IsListOfStrings(pxVars) )
+		StzRaise("Incorrect param type! pcVars must be a list of strings.")
+	end
+
+	$vTempVars = []
+	nLen = Len(pxVars)
+
+	for i = 1 to nLen
+
+		$vTempVars + [ pxVars[i], "" ]
+
+		oHash = StzHashListQ($vVars)
+		xN = oHash.FindKey(pxVars[i])
+		if xN = 0
+			$vVars + [ pxVars[i], "" ]
+		else
+			$vVars[xN][2] = []
+		end
+	end
+
+	# Set _var to the last one for consistency
+	$xVar = [ pxVars[nLen], "" ]
+end
+	func Vr(pxVars)
+		return StzVr(pxVars)
+	end
+	func @Vr(pxVars)
+		return StzVr(pxVars)
+	end
+func StzOldVar
+	return $xOldVar
+end
+	func OldVar
+		return StzOldVar()
+	end
+	func @OldVar
+		return StzOldVar()
+	end
+func StzOldVarname
+	if Len(StzOldVar()) = 0
+		return []
+	else
+		return StzOldVar()[1]
+	end
+end
+	func OldVarname
+		return StzOldVarname()
+	end
+	func @OldVarname
+		return StzOldVarname()
+	end
+func StzOldVal
+	if Len(StzOldVar()) = 0
+		return ""
+	else
+		return StzOldVar()[2]
+	end
+end
+	func OldVal
+		return StzOldVal()
+	end
+	func @OldVal
+		return StzOldVal()
+	end
+func StzVl(pxVals)
+	# Checking the paVals param
+	if Len($vTempVars) = 0 or (IsList(pxVals) and Len(pxVals) = 0)
+		return
+	end
+
+	# In case one value is provided (not a list), make it a list
+	if not IsList(pxVals)
+		vTemp = []
+		vTemp + pxVals
+		pxVals = vTemp
+	end
+
+	# Taking a copy of the current temp var
+	$xOldVar = $xVar
+
+	# Doing the job
+	nLen = @Min([ Len($vTempVars), Len(pxVals) ])
+	oHash = new stzHashList($vVars)
+
+	for i = 1 to nLen
+		$vTempVars[i][2] = pxVals[i]
+		xN = oHash.FindKey($vTempVars[i][1])
+		if xN > 0
+			$vVars[xN][2] = pxVals[i]
+			if ObjectIsStzObject(pxVals[i])
+				pxVals[i].SetObjectVarNameTo($vVars[xN][1])
+			end
+		else
+			$vVars + [ $vTempVars[i][1], pxVals[i] ]
+			if ObjectIsStzObject(pxVals[i])
+				pxVals[i].SetObjectVarNameTo($vTempVars[i][1])
+			end
+		end
+	end
+
+	# Memorizing the last variable/value processed
+	$xVar = [ $vTempVars[nLen][1], pxVals[nLen] ]
+	if StzOldVal() = ""
+		$xOldVar = $xVar
+	end
+end
+	func Vl(pxVals)
+		StzVl(pxVals)
+	end
+	func @Vl(pxVals)
+		StzVl(pxVals)
+	end
+# Clear all named variables
+func StzClearVars
+	$vTempVars = []
+	$vVars = []
+	$xVar = []
+	$xOldVar = []
+	$bVarReset = false
+end
+	func ClearVars
+		StzClearVars()
+	end
+	func @ClearVars
+		StzClearVars()
+	end
+	func StzResetVars
+		StzClearVars()
+	end
+	func ResetVars
+		StzClearVars()
+	end
+	func @ResetVars
+		StzClearVars()
+	end
+# Check if a variable exists
+func StzVarExists(tVarName)
+	if not IsString(tVarName)
+		return false
+	end
+
+	oHash = new stzHashList($vVars)
+	return (oHash.FindKey(tVarName) > 0)
+end
+	func VarExists(tVarName)
+		return StzVarExists(tVarName)
+	end
+	func @VarExists(tVarName)
+		return StzVarExists(tVarName)
+	end
+	func StzHasVar(tVarName)
+		return StzVarExists(tVarName)
+	end
+	func HasVar(tVarName)
+		return StzVarExists(tVarName)
+	end
+	func @HasVar(tVarName)
+		return StzVarExists(tVarName)
+	end
+# Remove a variable
+func StzRemoveVar(tVarName)
+	if not IsString(tVarName)
+		StzRaise("Incorrect param type! cVarName must be a string.")
+	end
+
+	oHash = new stzHashList($vVars)
+	xN = oHash.FindKey(tVarName)
+	if xN > 0
+		Del($vVars, xN)
+	end
+end
+	func RemoveVar(tVarName)
+		StzRemoveVar(tVarName)
+	end
+	func @RemoveVar(tVarName)
+		StzRemoveVar(tVarName)
+	end
+	func StzDeleteVar(tVarName)
+		StzRemoveVar(tVarName)
+	end
+	func DeleteVar(tVarName)
+		StzRemoveVar(tVarName)
+	end
+	func @DeleteVar(tVarName)
+		StzRemoveVar(tVarName)
+	end
+# Get number of variables
+func StzNumberOfVars
+	return Len($vVars)
+end
+	func NumberOfVars
+		return StzNumberOfVars()
+	end
+	func @NumberOfVars
+		return StzNumberOfVars()
+	end
+	func StzVarsCount
+		return StzNumberOfVars()
+	end
+	func VarsCount
+		return StzNumberOfVars()
+	end
+	func @VarsCount
+		return StzNumberOfVars()
+	end

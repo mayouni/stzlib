@@ -62,7 +62,7 @@ func StzSuperAppQ(pcName)
 #   see        stzApp, stzGovernance, stzPlatform, stzGraph
 class stzSuperApp from stzObject
 
-	@cName    = ""
+	@tName    = ""
 	@oGraph   = ""       # world nodes + :bond edges
 	@aWorlds  = []         # [ name, obj, kind("app"|"super"), active ]
 	@oCommons = ""       # world-zero: an stzPlatform (identity/stores)
@@ -81,17 +81,17 @@ class stzSuperApp from stzObject
 	#   returns    nothing; the object is built
 	#   see        AddWorld, Bond
 	def init(pcName)
-		@cName = "" + pcName
-		@oGraph = new stzGraph("constellation-" + @cName)
-		@oCommons = new stzPlatform(@cName + "-commons")
-		@oGov = new stzGovernance(@cName)
+		@tName = "" + pcName
+		@oGraph = new stzGraph("constellation-" + @tName)
+		@oCommons = new stzPlatform(@tName + "-commons")
+		@oGov = new stzGovernance(@tName)
 
 	# Returns the constellation's name.
 	#
 	#   returns    a text
 	#   see        init
 	def Name_()
-		return @cName
+		return @tName
 
 	# Returns the reason given by the last CallAcross, whether it was allowed or refused.
 	#

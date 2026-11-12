@@ -83,7 +83,7 @@ func StzOptimStatusWord(pnStatus)
 #   see        stzLinearSolver, stzOptimFile, stzOptimSentence
 class stzOptimModel from stzObject
 
-	@acVars = []          # names, in declaration order
+	@vtVars = []          # names, in declaration order
 	@aLb = []
 	@aUb = []
 	@aHasUb = []
@@ -194,7 +194,7 @@ class stzOptimModel from stzObject
 			next
 		ok
 
-		@acVars + _cN_
+		@vtVars + _cN_
 		@aLb + _nLb_
 		@aUb + _nUb_
 		@aHasUb + _bHasUb_
@@ -205,7 +205,7 @@ class stzOptimModel from stzObject
 		return This
 
 	def _WidenRows()
-		_n_ = len(@acVars)
+		_n_ = len(@vtVars)
 		if len(@aObj) > 0 and len(@aObj) < _n_
 			while len(@aObj) < _n_
 				@aObj + 0
@@ -224,21 +224,21 @@ class stzOptimModel from stzObject
 	#   returns    TRUE or FALSE
 	#   see        VarNames, NumberOfVars
 	def HasVar(pcName)
-		return ring_find(@acVars, StzLower(ring_trim("" + pcName))) > 0
+		return ring_find(@vtVars, StzLower(ring_trim("" + pcName))) > 0
 
 	# Returns how many variables are declared.
 	#
 	#   returns    a number
 	#   see        VarNames, HasVar
 	def NumberOfVars()
-		return len(@acVars)
+		return len(@vtVars)
 
 	# Returns the names of the variables, in lower case, in declaration order.
 	#
 	#   returns    a list of text
 	#   see        NumberOfVars, BoundsOf
 	def VarNames()
-		return @acVars
+		return @vtVars
 
 	# Returns the declared bounds and kind of one variable.
 	#
@@ -247,7 +247,7 @@ class stzOptimModel from stzObject
 	#   note       :ub is 0 and :bounded is 0 when the variable has no upper bound
 	#   see        AddVar, VarNames
 	def BoundsOf(pcName)
-		_i_ = ring_find(@acVars, StzLower(ring_trim("" + pcName)))
+		_i_ = ring_find(@vtVars, StzLower(ring_trim("" + pcName)))
 		if _i_ = 0
 			return []
 		ok
@@ -283,11 +283,11 @@ class stzOptimModel from stzObject
 			return This.Minimize(pcExpr)
 
 	def _SetObjective(pcSense, pcExpr)
-		if len(@acVars) = 0
+		if len(@vtVars) = 0
 			stzraise("stzOptimModel: declare the variables before the " +
 				"objective -- an expression over nothing has no coefficients.")
 		ok
-		_a_ = StzLinearFormOf(pcExpr, @acVars)
+		_a_ = StzLinearFormOf(pcExpr, @vtVars)
 		if _a_[:ok] = 0
 			stzraise("stzOptimModel." + pcSense + ": " + _a_[:why])
 		ok
@@ -362,11 +362,11 @@ class stzOptimModel from stzObject
 	#   warning    the same errors as SubjectTo
 	#   see        AddConstraint, ConstraintAt
 	def AddNamedConstraint(pcName, pcText)
-		if len(@acVars) = 0
+		if len(@vtVars) = 0
 			stzraise("stzOptimModel: declare the variables before the " +
 				"constraints.")
 		ok
-		_a_ = StzLinearConstraintOf(pcText, @acVars)
+		_a_ = StzLinearConstraintOf(pcText, @vtVars)
 		if _a_[:ok] = 0
 			stzraise("stzOptimModel.SubjectTo: " + _a_[:why])
 		ok
@@ -402,9 +402,9 @@ class stzOptimModel from stzObject
 	#@ aka  -- THE AST ---------------------------------------------------------
 	def AST()
 		_aV_ = []
-		_n_ = len(@acVars)
+		_n_ = len(@vtVars)
 		for _i_ = 1 to _n_
-			_aV_ + [ @acVars[_i_], @aLb[_i_], @aUb[_i_],
+			_aV_ + [ @vtVars[_i_], @aLb[_i_], @aUb[_i_],
 				 @aHasUb[_i_], @aInt[_i_] ]
 		next
 		_aC_ = []
@@ -488,9 +488,9 @@ class stzOptimModel from stzObject
 			_c_ += "  " + @aCons[_i_][1] + ": " + @aCons[_i_][5] + char(10)
 		next
 		_c_ += "where:" + char(10)
-		_m_ = len(@acVars)
+		_m_ = len(@vtVars)
 		for _i_ = 1 to _m_
-			_c_ += "  " + @acVars[_i_] + " >= " + @aLb[_i_]
+			_c_ += "  " + @vtVars[_i_] + " >= " + @aLb[_i_]
 			if @aHasUb[_i_] = 1
 				_c_ += ", <= " + @aUb[_i_]
 			ok
@@ -551,7 +551,7 @@ class stzOptimModel from stzObject
 			stzraise("stzOptimModel.Solve: no objective -- Maximize() or " +
 				"Minimize() first.")
 		ok
-		_n_ = len(@acVars)
+		_n_ = len(@vtVars)
 		_m_ = len(@aCons)
 
 		_aMat_ = []
@@ -617,12 +617,12 @@ class stzOptimModel from stzObject
 		_c_ += ". Result: " + StzOptimStatusWord(@nStatus) + "."
 		if @nStatus = 0
 			_c_ += " Objective " + @nObjective + " at "
-			_n_ = len(@acVars)
+			_n_ = len(@vtVars)
 			for _i_ = 1 to _n_
 				if _i_ > 1
 					_c_ += ", "
 				ok
-				_c_ += @acVars[_i_] + " = " + @aX[_i_]
+				_c_ += @vtVars[_i_] + " = " + @aX[_i_]
 			next
 			_c_ += "."
 		but @nStatus = 4
@@ -684,9 +684,9 @@ class stzOptimModel from stzObject
 	#   see        ValueOf, Objective, IsOptimal
 	def Solution()
 		_a_ = []
-		_n_ = len(@acVars)
+		_n_ = len(@vtVars)
 		for _i_ = 1 to _n_
-			_a_ + [ @acVars[_i_], @aX[_i_] ]
+			_a_ + [ @vtVars[_i_], @aX[_i_] ]
 		next
 		return _a_
 
@@ -697,7 +697,7 @@ class stzOptimModel from stzObject
 	#   warning    raises an error for an unknown name and before any solve
 	#   see        Solution
 	def ValueOf(pcName)
-		_i_ = ring_find(@acVars, StzLower(ring_trim("" + pcName)))
+		_i_ = ring_find(@vtVars, StzLower(ring_trim("" + pcName)))
 		if _i_ = 0
 			stzraise("stzOptimModel.ValueOf: no variable '" + pcName + "'.")
 		ok
@@ -763,7 +763,7 @@ class stzOptimModel from stzObject
 		if @bSolved = 0 or @nStatus != 0
 			return _a_
 		ok
-		_n_ = len(@acVars)
+		_n_ = len(@vtVars)
 		_m_ = len(@aCons)
 		for _i_ = 1 to _m_
 			_nL_ = 0
@@ -788,14 +788,14 @@ class stzOptimModel from stzObject
 		# came back fractional is the same kind of lie
 		for _j_ = 1 to _n_
 			if @aX[_j_] < @aLb[_j_] - 0.000001
-				_a_ + [ "bound:" + @acVars[_j_], @aX[_j_], ">=", @aLb[_j_] ]
+				_a_ + [ "bound:" + @vtVars[_j_], @aX[_j_], ">=", @aLb[_j_] ]
 			ok
 			if @aHasUb[_j_] = 1 and @aX[_j_] > @aUb[_j_] + 0.000001
-				_a_ + [ "bound:" + @acVars[_j_], @aX[_j_], "<=", @aUb[_j_] ]
+				_a_ + [ "bound:" + @vtVars[_j_], @aX[_j_], "<=", @aUb[_j_] ]
 			ok
 			if @aInt[_j_] = 1
 				if fabs(@aX[_j_] - floor(@aX[_j_] + 0.5)) > 0.000001
-					_a_ + [ "integer:" + @acVars[_j_], @aX[_j_], "=", "whole" ]
+					_a_ + [ "integer:" + @vtVars[_j_], @aX[_j_], "=", "whole" ]
 				ok
 			ok
 		next

@@ -82,13 +82,13 @@ end
 	func @CurrentRound
 		return CurrentRound()
 	end
-func Round(pnNumber) # Effective Round of a number (independently form current round)
+func Round(pxNumber) # Effective Round of a number (independently form current round)
 
-	if IsNumber(pnNumber)
+	if IsNumber(pxNumber)
 
 		# In case of integer, no rounds
 
-		if IsInteger(pnNumber)
+		if IsInteger(pxNumber)
 			return 0
 		end
 
@@ -100,7 +100,7 @@ func Round(pnNumber) # Effective Round of a number (independently form current r
 
 		nMax = $xMAX_NUMBER_SIZE # the maximum possible (calculable) round in Ring
 		Decimals(nMax)
-		tTempStr = String(pnNumber)
+		tTempStr = String(pxNumber)
 
 		# Rounding the number to the most possible round depending
 		# on the positions taken by the decimal digits and the sign
@@ -110,7 +110,7 @@ func Round(pnNumber) # Effective Round of a number (independently form current r
 
 		nMaxPossibleRound = nMax - nDotPos
 
-		if pnNumber < 0
+		if pxNumber < 0
 			nMaxPossibleRound--
 		end
 
@@ -119,7 +119,7 @@ func Round(pnNumber) # Effective Round of a number (independently form current r
 		end
 	
 		Decimals(nMaxPossibleRound)
-		tTempStr = String(pnNumber)
+		tTempStr = String(pxNumber)
 
 		# Restoring the current round in the program
 
@@ -150,10 +150,10 @@ func Round(pnNumber) # Effective Round of a number (independently form current r
 
 		return nResult
 
-	elseif IsString(pnNumber)
+	elseif IsString(pxNumber)
 
-		tTempStr = Trim( ring_substr2(pnNumber, "_", "") )
-		nValue = 0+ tTempStr
+		tTempStr = Trim( ring_substr2(pxNumber, "_", "") )
+		nValue = Decimal(tTempStr)
 
 		if not IsNumber(nValue)
 			Raise("ERR-" + StkError(:IncorrectParamValue) + Char(10))
@@ -178,8 +178,8 @@ func Round(pnNumber) # Effective Round of a number (independently form current r
 		Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
 	end
 end
-	func @Round(pnNumber)
-		return Round(pnNumber)
+	func @Round(pxNumber)
+		return Round(pxNumber)
 	end
 func MaxInt(xN) # Maximum number of digits n can have in its integer part
 	if xN = 0 return end
@@ -216,8 +216,8 @@ func MaxRound(xN) # Maximum number of digits n can have in its fractional part
 
 	return nMaxFractDigits
 end
-	func @MaxRound(paNumbers)
-		return MaxRound(paNumbers)
+	func @MaxRound(pxNumbers)
+		return MaxRound(pxNumbers)
 	end
 #-- Absolute value of a number
 
@@ -242,7 +242,7 @@ func Val(tNumberInStr)
 		tNumberInStr = @trim( ring_substr2(tNumberInStr, "_", "") )
 	end
 
-	nResult = 0+ tNumberInStr
+	nResult = Decimal(tNumberInStr)
 
 	if not IsNumber(nResult)
 		Raise("ERR-" + StkErrror(:IncorrectParamType) + Char(10) )

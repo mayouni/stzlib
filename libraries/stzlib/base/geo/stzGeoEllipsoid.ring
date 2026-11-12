@@ -265,7 +265,7 @@ func StzLatLonToDms(pnLat, pnLon)
 #   see        stzGeoProjection, stzGeoFeatures, stzGeoMap
 class stzGeoEllipsoid from stzObject
 
-	@cName = "WGS84"
+	@tName = "WGS84"
 	@nA = 6378137
 	@nF = 0
 	@nB = 0
@@ -305,7 +305,7 @@ class stzGeoEllipsoid from stzObject
 				"'. The ones this library knows are: " +
 				_GeoEllipsoidNames() + ".")
 		ok
-		@cName = StzEngineGeoEllipsoidName(_i_)
+		@tName = StzEngineGeoEllipsoidName(_i_)
 		_v_ = StzEngineGeoEllipsoidAt(_i_)
 		@nA = _v_[1]
 		@nF = _v_[2]
@@ -323,7 +323,7 @@ class stzGeoEllipsoid from stzObject
 	#   see        Content, StzGeoEllipsoids
 	#@ aka  -- what it IS ----------------------------------------------------------
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the name and the defining numbers of this ellipsoid, the lengths in metres.
 	#
@@ -331,7 +331,7 @@ class stzGeoEllipsoid from stzObject
 	#              radius
 	#   see        EquatorialRadius, PolarRadius, Flattening
 	def Content()
-		return [ :name = @cName, :a = @nA, :f = @nF, :b = @nB ]
+		return [ :name = @tName, :a = @nA, :f = @nF, :b = @nB ]
 
 	# Returns the radius at the equator, the semi-major axis a, in metres.
 	#

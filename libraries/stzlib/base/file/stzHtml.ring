@@ -884,7 +884,7 @@ class stzHtmlBuilder from stzObject
 class stzHtmlBuildNode from stzObject
 
 	@cTag      = ""
-	@cText     = ""
+	@tText     = ""
 	@aChildren = []
 	@aAttrs    = []   # list of [name, value]
 	@bMarkup   = 0    # 1 when the text is markup, written as given
@@ -896,7 +896,7 @@ class stzHtmlBuildNode from stzObject
 	#   see        Tag, ToHtml
 	def init(pcTag)
 		@cTag      = pcTag
-		@cText     = ""
+		@tText     = ""
 		@aChildren = []
 		@aAttrs    = []
 		@bMarkup   = 0
@@ -916,7 +916,7 @@ class stzHtmlBuildNode from stzObject
 	#              says so with SetMarkup, the one door that writes as given
 	#   see        Text, SetMarkup, ToHtml
 	def SetText(pcText)
-		@cText = pcText
+		@tText = pcText
 		@bMarkup = 0
 		return self
 
@@ -931,7 +931,7 @@ class stzHtmlBuildNode from stzObject
 	#              raw-markup-door code rule; untrusted text goes through SetText
 	#   see        SetText, IsMarkup, ToHtml
 	def SetMarkup(pcHtml)
-		@cText = "" + pcHtml
+		@tText = "" + pcHtml
 		@bMarkup = 1
 		return self
 
@@ -950,7 +950,7 @@ class stzHtmlBuildNode from stzObject
 	#   returns    a text
 	#   see        SetText, ToHtml
 	def Text()
-		return @cText
+		return @tText
 
 	# Adds an attribute and returns the node.
 	#
@@ -1038,9 +1038,9 @@ class stzHtmlBuildNode from stzObject
 		for _i_ = 1 to _nA_
 			_cAttrs_ += " " + @aAttrs[_i_][1] + '="' + StzHtmlAttrEscaped(@aAttrs[_i_][2]) + '"'
 		next
-		_cInner_ = @cText
+		_cInner_ = @tText
 		if @bMarkup = 0
-			_cInner_ = StzHtmlEscaped(@cText)
+			_cInner_ = StzHtmlEscaped(@tText)
 		ok
 		return "<" + @cTag + _cAttrs_ + ">" + _cInner_ + This.ChildrenHtml() + "</" + @cTag + ">"
 

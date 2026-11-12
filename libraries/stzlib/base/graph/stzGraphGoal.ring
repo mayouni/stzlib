@@ -45,7 +45,7 @@ func StzGraphGoalQ(pcName)
 #   see        stzGraph, stzApp, stzWorldGraph
 class stzGraphGoal from stzObject
 
-	@cName = ""
+	@tName = ""
 	@cType = ""       # every instance of this thing...
 	@cRelation = ""   # ...must have an outgoing edge with this label
 	@cWhy = ""
@@ -58,14 +58,14 @@ class stzGraphGoal from stzObject
 	#              passed in when it is judged
 	#   see        RequireEveryHas, FromMeans
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the name the goal was built with.
 	#
 	#   returns    the name as text
 	#   see        Narrate, TypeName
 	def Name_()
-		return @cName
+		return @tName
 
 	# Returns the reason text of the goal.
 	#
@@ -149,7 +149,7 @@ class stzGraphGoal from stzObject
 	#@ aka  The GAP: instances of the type (isa-edges into the type node) lacking any outgoing edge labeled with the relation. Evaluates on the LIVE graph passed in (by-ref param).
 	def GapOn(poGraph)
 		if @cType = "" or @cRelation = ""
-			stzraise("stzGraphGoal.GapOn: the goal '" + @cName + "' has no pattern (FromMeans/RequireEveryHas first).")
+			stzraise("stzGraphGoal.GapOn: the goal '" + @tName + "' has no pattern (FromMeans/RequireEveryHas first).")
 		ok
 		_aEdges_ = poGraph.Edges()
 		_nLen_ = len(_aEdges_)
@@ -192,4 +192,4 @@ class stzGraphGoal from stzObject
 	#   note       before a pattern is set the type and the relation read as empty text
 	#   see        FromMeans, Name_
 	def Narrate()
-		return "goal " + @cName + ": every " + @cType + " has(" + @cRelation + ")"
+		return "goal " + @tName + ": every " + @cType + " has(" + @cRelation + ")"

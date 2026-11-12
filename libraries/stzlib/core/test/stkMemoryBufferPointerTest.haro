@@ -93,7 +93,7 @@ oBuff = CreateBuffer(200)
 	oReadPtr1 = CreatePointer(oBuff.Id(), "read")
 	oReadPtr2 = CreatePointer(oBuff.Id(), "read")
 	
-	? "Created " + Len(@aPointers) + " pointers"
+	? "Created " + Len(@xPointers) + " pointers"
 	#--> "Created 2 pointers"
 	
 	# Use pointers to read different segments
@@ -181,7 +181,7 @@ oMem {
 	? "After destruction - Pointer 2 valid: " + oPtr2.IsValid()
 	#--> "After destruction - Pointer 2 valid: false"
 	
-	? "Remaining buffers: " + Len(@aBuffers)
+	? "Remaining buffers: " + Len(@vBuffers)
 	#--> "Remaining buffers: 0"
 }
 
@@ -418,7 +418,7 @@ oMem {
 	? "Pipeline result: " + cResult
 	#--> "Pipeline result: [PROCESSED] HELLO WORLD FROM SOFTANZA SYSTEM [END]"
 	
-	? "Pipeline uses " + Len(@aBuffers) + " buffers and " + Len(@aPointers) + " pointers"
+	? "Pipeline uses " + Len(@vBuffers) + " buffers and " + Len(@xPointers) + " pointers"
 	#--> "Pipeline uses 3 buffers and 0 pointers"
 }
 
@@ -433,21 +433,21 @@ oMem {
 	init()
 	
 	# Create temporary buffers for batch processing
-	aTempBuffers = []
+	vTempBuffers = []
 	for i = 1 to 5
 		oBuff = CreateBuffer(100)
 		WriteToBuffer(oBuff.Id(), 0, "Batch item " + i)
-		aTempBuffers + oBuff
+		vTempBuffers + oBuff
 	}
 	
-	? "Created " + Len(aTempBuffers) + " temporary buffers"
+	? "Created " + Len(vTempBuffers) + " temporary buffers"
 	#--> "Created 5 temporary buffers"
 	
 	# Process all buffers
-	aOBuff188 = aTempBuffers {
-	nOBuff188 = Len(aOBuff188)
+	xOBuff188 = vTempBuffers {
+	nOBuff188 = Len(xOBuff188)
 	for iOBuff188 = 1 to nOBuff188
-		oBuff = aOBuff188[iOBuff188]
+		oBuff = xOBuff188[iOBuff188]
 		tData = ReadFromBuffer(oBuff.Id(), 0, oBuff.Size())
 		? "Processing: " + tData
 		#--> "Processing: Batch item 1"
@@ -458,14 +458,14 @@ oMem {
 	}
 	
 	# Cleanup temporary buffers
-	aOBuff189 = aTempBuffers {
-	nOBuff189 = Len(aOBuff189)
+	xOBuff189 = vTempBuffers {
+	nOBuff189 = Len(xOBuff189)
 	for iOBuff189 = 1 to nOBuff189
-		oBuff = aOBuff189[iOBuff189]
+		oBuff = xOBuff189[iOBuff189]
 		DestroyBuffer(oBuff.Id())
 	}
 	
-	? "Cleanup complete. Remaining buffers: " + Len(@aBuffers)
+	? "Cleanup complete. Remaining buffers: " + Len(@vBuffers)
 	#--> "Cleanup complete. Remaining buffers: 0"
 }
 

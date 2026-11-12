@@ -692,11 +692,11 @@ class stkPointer
     end
     def Show
         ? "stkPointer Info:"
-        ? "  Pointer ID: " + @nPointerId
+        ? "  Pointer ID: " + String(@nPointerId)
         ? "  Buffer ID: " + @tBufferId
         ? "  Access Mode: " + @tAccessMode
-        ? "  Offset: " + @nOffset
-        ? "  Length: " + @nLength
+        ? "  Offset: " + String(@nOffset)
+        ? "  Length: " + String(@nLength)
         ? "  Valid: " + this.IsValid()
         ? "  Has Low-Level Ptr: " + (@hLowLevelPtr != "")
         ? "  Memory Address: " + Upper(Hex(this.GetMemoryAddress()))

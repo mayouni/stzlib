@@ -58,27 +58,27 @@ end
 	func EngineIsNamedParam(tKeyword)
 		return StzMetaIsNamedParam(tKeyword)
 	end
-func StzMetaIsOneOfTheseNamedParams(paList, pvtNames)
+func StzMetaIsOneOfTheseNamedParams(pxList, pxNames)
     if not IsPointer($hStzMetaHandle)
         return false
     end
 
-    if not IsList(paList)
+    if not IsList(pxList)
         return false
     end
 
-    if Len(paList) != 2
+    if Len(pxList) != 2
         return false
     end
 
-    if not IsString(paList[1])
+    if not IsString(pxList[1])
         return false
     end
 
-    nLen = Len(pvtNames)
+    nLen = Len(pxNames)
     for i = 1 to nLen
-        if ring_lower(paList[1]) = ring_lower(pvtNames[i])
-            if StzMetaIsNamedParam(pvtNames[i])
+        if ring_lower(pxList[1]) = ring_lower(pxNames[i])
+            if StzMetaIsNamedParam(pxNames[i])
                 return true
             end
         end
@@ -86,26 +86,26 @@ func StzMetaIsOneOfTheseNamedParams(paList, pvtNames)
 
     return false
 end
-	func EngineIsOneOfTheseNamedParams(paList, pvtNames)
-		return StzMetaIsOneOfTheseNamedParams(paList, pvtNames)
+	func EngineIsOneOfTheseNamedParams(pxList, pxNames)
+		return StzMetaIsOneOfTheseNamedParams(pxList, pxNames)
 	end
-func StzMetaIsAnyNamedParam(paList)
-    if not IsList(paList)
+func StzMetaIsAnyNamedParam(pxList)
+    if not IsList(pxList)
         return 0
     end
 
-    if Len(paList) != 2
+    if Len(pxList) != 2
         return 0
     end
 
-    if not IsString(paList[1])
+    if not IsString(pxList[1])
         return 0
     end
 
-    return StzMetaIsNamedParam(paList[1])
+    return StzMetaIsNamedParam(pxList[1])
 end
-	func EngineIsAnyNamedParam(paList)
-		return StzMetaIsAnyNamedParam(paList)
+	func EngineIsAnyNamedParam(pxList)
+		return StzMetaIsAnyNamedParam(pxList)
 	end
 #------------------------------------------------------------#
 #  PARAM CHECKING TOGGLE                                     #
@@ -133,40 +133,40 @@ end
 #  ERROR CATALOG (replaces hand-crafted StzRaise strings)    #
 #------------------------------------------------------------#
 
-func StzMetaFormatError(tCode, paParams)
+func StzMetaFormatError(tCode, pxParams)
     if not IsPointer($hStzMetaHandle)
         return "Error: " + tCode
     end
 
-    nLen = Len(paParams)
+    nLen = Len(pxParams)
 
     switch nLen
     case 0
         return stz_meta_format_error(tCode)
     case 1
         return stz_meta_format_error(tCode,
-            paParams[1][1], paParams[1][2])
+            pxParams[1][1], pxParams[1][2])
     case 2
         return stz_meta_format_error(tCode,
-            paParams[1][1], paParams[1][2],
-            paParams[2][1], paParams[2][2])
+            pxParams[1][1], pxParams[1][2],
+            pxParams[2][1], pxParams[2][2])
     case 3
         return stz_meta_format_error(tCode,
-            paParams[1][1], paParams[1][2],
-            paParams[2][1], paParams[2][2],
-            paParams[3][1], paParams[3][2])
+            pxParams[1][1], pxParams[1][2],
+            pxParams[2][1], pxParams[2][2],
+            pxParams[3][1], pxParams[3][2])
     case 4
         return stz_meta_format_error(tCode,
-            paParams[1][1], paParams[1][2],
-            paParams[2][1], paParams[2][2],
-            paParams[3][1], paParams[3][2],
-            paParams[4][1], paParams[4][2])
+            pxParams[1][1], pxParams[1][2],
+            pxParams[2][1], pxParams[2][2],
+            pxParams[3][1], pxParams[3][2],
+            pxParams[4][1], pxParams[4][2])
     else
         return "Error: " + tCode
     end
 end
-	func EngineFormatError(tCode, paParams)
-		return StzMetaFormatError(tCode, paParams)
+	func EngineFormatError(tCode, pxParams)
+		return StzMetaFormatError(tCode, pxParams)
 	end
 #------------------------------------------------------------#
 #  ALIAS ENGINE (replaces addmethod() init loops in XT)      #
@@ -199,18 +199,18 @@ end
 	func EngineAliasCount(tClass)
 		return StzMetaAliasCount(tClass)
 	end
-func StzMetaRegisterAliases(tClass, aAliases)
+func StzMetaRegisterAliases(tClass, xAliases)
     if not IsPointer($hStzMetaHandle)
         return
     end
 
-    nLen = Len(aAliases)
+    nLen = Len(xAliases)
     for i = 1 to nLen
-        stz_meta_register_alias(tClass, aAliases[i][1], aAliases[i][2])
+        stz_meta_register_alias(tClass, xAliases[i][1], xAliases[i][2])
     end
 end
-	func EngineRegisterAliases(tClass, aAliases)
-		StzMetaRegisterAliases(tClass, aAliases)
+	func EngineRegisterAliases(tClass, xAliases)
+		StzMetaRegisterAliases(tClass, xAliases)
 	end
 #------------------------------------------------------------#
 #  METHOD GENERATION (CS/Q/Passive auto-dispatch)            #

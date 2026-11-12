@@ -156,7 +156,7 @@ func StzDefaultDetectionSet()
 #   see        stzDetectionSet, stzSecurityLedger, stzSecurityEvent
 class stzDetection from stzObject
 
-	@cName = ""
+	@tName = ""
 	@cKind = ""		# the kind watched
 	@cThenKind = ""		# sequence: the kind that must follow
 	@cShape = ""		# burst | sequence | any
@@ -182,14 +182,14 @@ class stzDetection from stzObject
 	#   returns    nothing; the object is built
 	#   see        WhenKind, Explaining
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the detection's name, the rule its findings carry.
 	#
 	#   returns    a text
 	#   see        Explain
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the event kind the detection watches, trimmed and in lower case.
 	#
@@ -430,7 +430,7 @@ class stzDetection from stzObject
 	def CheckAgainst(poLedger)
 		@aEvidence = []
 		if @cKind = ""
-			stzraise("stzDetection '" + @cName + "': nothing is watched -- say WhenKind(...) first.")
+			stzraise("stzDetection '" + @tName + "': nothing is watched -- say WhenKind(...) first.")
 		ok
 		_aAll_ = poLedger.All()
 		@nEvicted = poLedger.Count() - poLedger.Size()
@@ -459,7 +459,7 @@ class stzDetection from stzObject
 	#@ aka  -- legibility --------------------------------------------------
 	def Explain()
 		_aL_ = []
-		_cD_ = "Detection " + @cName + " [" + @cSeverity + "] -- "
+		_cD_ = "Detection " + @tName + " [" + @cSeverity + "] -- "
 		if @cShape = "burst"
 			_cD_ += ("" + @nRepeats + "x " + @cKind + " within " + @nWindowMs + "ms")
 			if @bPerActor
@@ -741,11 +741,11 @@ class stzDetection from stzObject
 				_cMsg_ += " (single signal: reported as a warning until a second, independent signal corroborates it)"
 			ok
 		ok
-		_cWhere_ = @cName
+		_cWhere_ = @tName
 		if pcWho != "" and pcWho != "*"
 			_cWhere_ += ("/" + pcWho)
 		ok
-		return [ :rule = @cName, :subject = "security", :where = _cWhere_,
+		return [ :rule = @tName, :subject = "security", :where = _cWhere_,
 			:severity = _cSev_, :message = _cMsg_ ]
 
 	def _DistinctKinds(paEvidence)
@@ -777,7 +777,7 @@ class stzDetection from stzObject
 #   see        stzDetection, stzSecurityLedger
 class stzDetectionSet from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aDetections = []
 
 	# Builds an empty set of detections with a name.
@@ -786,14 +786,14 @@ class stzDetectionSet from stzObject
 	#   returns    nothing; the object is built
 	#   see        Add, StzDefaultDetectionSet
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the name of the set.
 	#
 	#   returns    a text
 	#   see        Explain
 	def Name()
-		return @cName
+		return @tName
 
 	# Adds a detection to the set, kept in the order added.
 	#
@@ -841,7 +841,7 @@ class stzDetectionSet from stzObject
 				return @aDetections[_i_]
 			ok
 		next
-		stzraise("stzDetectionSet '" + @cName + "': no detection named '" + pcName + "'.")
+		stzraise("stzDetectionSet '" + @tName + "': no detection named '" + pcName + "'.")
 
 	# Judges a ledger with every detection and returns all findings, in the unified rule shape.
 	#
@@ -887,7 +887,7 @@ class stzDetectionSet from stzObject
 	#   see        Show, Names
 	def Explain()
 		_aL_ = []
-		_aL_ + ("Detection set " + @cName + " -- " + ring_len(@aDetections) + " detection(s).")
+		_aL_ + ("Detection set " + @tName + " -- " + ring_len(@aDetections) + " detection(s).")
 		_n_ = ring_len(@aDetections)
 		for _i_ = 1 to _n_
 			_aSub_ = @aDetections[_i_].Explain()

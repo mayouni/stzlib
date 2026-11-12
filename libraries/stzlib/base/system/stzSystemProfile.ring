@@ -455,7 +455,7 @@ class stzSystemCapabilities from stzObject
 #   see        DeclareSystem, stzDevSystem, stzCurrentSystem, stzOperatingSystem
 class stzSystemProfile from stzObject
 
-	@cName = ""
+	@tName = ""
 	@cRole = "declared"
 	@cOSName = "unknown"
 	@cArch = "unknown"
@@ -474,7 +474,7 @@ class stzSystemProfile from stzObject
 	#   see        DeclareSystem, SetOSName, SetCapabilityList
 	def init(pcName)
 		if isString(pcName)
-			@cName = pcName
+			@tName = pcName
 		ok
 		@oCaps = new stzSystemCapabilities([])
 
@@ -484,7 +484,7 @@ class stzSystemProfile from stzObject
 	#   see        SetName, Role
 	#@ aka  -- identity / role ------------------------------------
 	def Name()
-		return @cName
+		return @tName
 
 	# Sets the profile's name.
 	#
@@ -492,7 +492,7 @@ class stzSystemProfile from stzObject
 	#   returns    the profile itself, so calls chain
 	#   see        Name
 	def SetName(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		return This
 
 	# Returns the role of this scope: development, runtime, deployment, or declared when none was set.
@@ -963,7 +963,7 @@ class stzSystemProfile from stzObject
 	def ToStzSystem()
 		_nl_ = char(10)
 		_c_ = "# .stzsystem -- a Softanza system profile" + _nl_
-		_c_ += "name: " + @cName + _nl_
+		_c_ += "name: " + @tName + _nl_
 		_c_ += "role: " + @cRole + _nl_
 		_c_ += "os: " + @cOSName + _nl_
 		_c_ += "arch: " + @cArch + _nl_
@@ -1079,7 +1079,7 @@ class stzSystemProfile from stzObject
 	#@ aka  -- info / show ----------------------------------------
 	def Info()
 		return [
-			[ "name", @cName ],
+			[ "name", @tName ],
 			[ "role", @cRole ],
 			[ "os", @cOSName ],
 			[ "arch", @cArch ],
@@ -1095,7 +1095,7 @@ class stzSystemProfile from stzObject
 	#   returns    nothing; it prints
 	#   see        Info
 	def Show()
-		? "System Profile: " + @cName + "  [role: " + @cRole + "]"
+		? "System Profile: " + @tName + "  [role: " + @cRole + "]"
 		? "  os:    " + @cOSName + " (" + This.SystemClass() + "), " +
 		  @cArch + ", " + @nBits + "-bit, " + @cEndianness
 		? "  cpu:   " + @nCpuCount

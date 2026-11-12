@@ -71,7 +71,7 @@ class stzOverlay from stzObject
 
 	@cFolder = ""
 	@tId = ""
-	@cName = ""
+	@tName = ""
 	@aFacts = []
 
 	# Opens an overlay folder and reads its overlay.zknw, whose is-a overlay fact gives the overlay its name.
@@ -92,7 +92,7 @@ class stzOverlay from stzObject
 			_nL_ = len(@aFacts)
 			for _i_ = 1 to _nL_
 				if StzLower(@aFacts[_i_][2]) = "is-a" and StzLower(@aFacts[_i_][3]) = "overlay"
-					@cName = @aFacts[_i_][1]
+					@tName = @aFacts[_i_][1]
 				ok
 			next
 		ok
@@ -117,14 +117,14 @@ class stzOverlay from stzObject
 	#   returns    a text such as bank
 	#   see        Id, HasManifest
 	def Name()
-		return @cName
+		return @tName
 
 	# TRUE if overlay.zknw names the overlay, which is the one thing an overlay cannot do without.
 	#
 	#   returns    TRUE or FALSE
 	#   see        Name, Check
 	def HasManifest()
-		return @cName != ""
+		return @tName != ""
 
 	# Returns the ids of the programs the manifest says the overlay is laid over.
 	#
@@ -132,7 +132,7 @@ class stzOverlay from stzObject
 	#   note       Check demands that it names the id of the program it is judged against
 	#   see        Check, Languages
 	def Extends()
-		return _EduObjects(@aFacts, @cName, "extends")
+		return _EduObjects(@aFacts, @tName, "extends")
 
 	# Returns the languages the overlay says it speaks, in the order the manifest gives them.
 	#
@@ -141,7 +141,7 @@ class stzOverlay from stzObject
 	#              natural pack, not declared here
 	#   see        Check, Extends
 	def Languages()
-		return _EduObjects(@aFacts, @cName, "speaks")
+		return _EduObjects(@aFacts, @tName, "speaks")
 
 	# Returns the brand the manifest gives the institution, or an empty text when there is none.
 	#
@@ -149,7 +149,7 @@ class stzOverlay from stzObject
 	#   note       the brand is one word, since a value with a space cannot be read
 	#   see        Name, ReplacedWorlds
 	def Brand()
-		_ac_ = _EduObjects(@aFacts, @cName, "branded")
+		_ac_ = _EduObjects(@aFacts, @tName, "branded")
 		if len(_ac_) = 0
 			return ""
 		ok
@@ -161,7 +161,7 @@ class stzOverlay from stzObject
 	#   note       Check requires worlds/<id>.zknw to be shipped for each
 	#   see        Check, Files
 	def ReplacedWorlds()
-		return _EduObjects(@aFacts, @cName, "replaces-world")
+		return _EduObjects(@aFacts, @tName, "replaces-world")
 
 	# Returns the relative path of every file under the overlay's folder, subfolders included.
 	#
@@ -196,8 +196,8 @@ class stzOverlay from stzObject
 		# what it extends is the program it is laid over
 		_acExt_ = This.Extends()
 		if len(_acExt_) = 0 or StzLower(_acExt_[1]) != StzLower(poProgram.Id())
-			_aF_ + This._Finding("overlay-extends", @cName, "overlay.zknw", "error",
-				"the overlay must say `" + @cName + " | extends | " + poProgram.Id() + "`, the id of the program it is laid over")
+			_aF_ + This._Finding("overlay-extends", @tName, "overlay.zknw", "error",
+				"the overlay must say `" + @tName + " | extends | " + poProgram.Id() + "`, the id of the program it is laid over")
 		ok
 		# every language it speaks is one the core teaches in
 		_acCoreLangs_ = poProgram.Languages()
@@ -205,7 +205,7 @@ class stzOverlay from stzObject
 		_nL_ = len(_acL_)
 		for _i_ = 1 to _nL_
 			if StzFindFirst(_acL_[_i_], _acCoreLangs_) = 0
-				_aF_ + This._Finding("overlay-language", @cName, "overlay.zknw", "error",
+				_aF_ + This._Finding("overlay-language", @tName, "overlay.zknw", "error",
 					"'" + _acL_[_i_] + "' is not a language of the core program (" + @@(_acCoreLangs_) + "); a new language is added to the natural pack, not declared here")
 			ok
 		next
@@ -225,7 +225,7 @@ class stzOverlay from stzObject
 				_acMsg_ = StzEduWorldFindings(_cW_ + "/" + _acWf_[_i_])
 				_nM_ = len(_acMsg_)
 				for _j_ = 1 to _nM_
-					_aF_ + This._Finding("overlay-world", @cName, "worlds/" + _acWf_[_i_], "error", _acMsg_[_j_])
+					_aF_ + This._Finding("overlay-world", @tName, "worlds/" + _acWf_[_i_], "error", _acMsg_[_j_])
 				next
 			next
 			# a world's PAGE, if the overlay writes one: in every language the
@@ -237,7 +237,7 @@ class stzOverlay from stzObject
 		_nR_ = len(_acRw_)
 		for _i_ = 1 to _nR_
 			if NOT fexists(_cW_ + "/" + _acRw_[_i_] + ".zknw")
-				_aF_ + This._Finding("overlay-world", @cName, "worlds/" + _acRw_[_i_] + ".zknw", "error",
+				_aF_ + This._Finding("overlay-world", @tName, "worlds/" + _acRw_[_i_] + ".zknw", "error",
 					"the overlay says it replaces world '" + _acRw_[_i_] + "' but ships no worlds/" + _acRw_[_i_] + ".zknw")
 			ok
 		next
@@ -260,7 +260,7 @@ class stzOverlay from stzObject
 					_oGov_ = new stzGovernance("check")
 					_oGov_.LoadFrom(_cG_ + "/" + _acGf_[_i_])
 				catch
-					_aF_ + This._Finding("overlay-governance", @cName, "governance/" + _acGf_[_i_], "error",
+					_aF_ + This._Finding("overlay-governance", @tName, "governance/" + _acGf_[_i_], "error",
 						"the regime does not load: " + StzLeft(cCatchError, 120))
 				done
 			next
@@ -294,22 +294,22 @@ class stzOverlay from stzObject
 			for _j_ = 1 to _nL_
 				_cRel_ = "worlds/" + _acWorlds_[_i_] + "." + _acL_[_j_] + ".md"
 				if NOT fexists(@cFolder + "/" + _cRel_)
-					paFindings + This._Finding("overlay-world-page", @cName, _cRel_, "error",
+					paFindings + This._Finding("overlay-world-page", @tName, _cRel_, "error",
 						"world '" + _acWorlds_[_i_] + "' has a page, so it needs one in every language the overlay speaks; '" + _acL_[_j_] + "' is missing (law 7)")
 					loop
 				ok
 				try
 					_oCh_ = _oP_.RunWorldPageQ(_acWorlds_[_i_], _acL_[_j_])
 					if _oCh_.HasStoredOutput()
-						paFindings + This._Finding("overlay-world-page", @cName, _cRel_, "error",
+						paFindings + This._Finding("overlay-world-page", @tName, _cRel_, "error",
 							"the page stores an output; a page stores none, it runs (law 2)")
 					ok
 					if NOT _oCh_.AllCellsRan() or NOT _oCh_.AllPromisesKept()
-						paFindings + This._Finding("overlay-world-page", @cName, _cRel_, "error",
+						paFindings + This._Finding("overlay-world-page", @tName, _cRel_, "error",
 							"run over the world, a cell raised or a promise was not kept")
 					ok
 				catch
-					paFindings + This._Finding("overlay-world-page", @cName, _cRel_, "error",
+					paFindings + This._Finding("overlay-world-page", @tName, _cRel_, "error",
 						"the page cannot be run: " + StzLeft(cCatchError, 120))
 				done
 			next
@@ -318,7 +318,7 @@ class stzOverlay from stzObject
 	def _CheckCourse(poProgram, pcSlug, paFindings, pacCoreLangs)
 		_cCoreCourse_ = poProgram.Core() + "/courses/" + pcSlug
 		if NOT StzEngineDirExists(_cCoreCourse_)
-			paFindings + This._Finding("overlay-course", @cName, "courses/" + pcSlug, "error",
+			paFindings + This._Finding("overlay-course", @tName, "courses/" + pcSlug, "error",
 				"the core has no course '" + pcSlug + "'; an overlay adds to a course, it does not create one")
 			return
 		ok
@@ -330,7 +330,7 @@ class stzOverlay from stzObject
 			_nF_ = len(_acF_)
 			for _i_ = 1 to _nF_
 				if fexists(_cCoreCourse_ + "/chapters/" + _acF_[_i_])
-					paFindings + This._Finding("overlay-no-fork", @cName, "courses/" + pcSlug + "/chapters/" + _acF_[_i_], "error",
+					paFindings + This._Finding("overlay-no-fork", @tName, "courses/" + pcSlug + "/chapters/" + _acF_[_i_], "error",
 						"this file would replace a core chapter; an overlay adds chapters and replaces worlds, it never rewrites the core (law 5)")
 				else
 					_cBase_ = _acF_[_i_]
@@ -348,7 +348,7 @@ class stzOverlay from stzObject
 				_nLg_ = len(pacCoreLangs)
 				for _j_ = 1 to _nLg_
 					if NOT fexists(_cCh_ + "/" + _acAddedIds_[_i_] + "." + pacCoreLangs[_j_] + ".md")
-						paFindings + This._Finding("overlay-chapter", @cName, "courses/" + pcSlug + "/chapters/" + _acAddedIds_[_i_], "error",
+						paFindings + This._Finding("overlay-chapter", @tName, "courses/" + pcSlug + "/chapters/" + _acAddedIds_[_i_], "error",
 							"an added chapter must exist in every language of the program; '" + pacCoreLangs[_j_] + "' is missing (law 7)")
 					ok
 				next
@@ -361,7 +361,7 @@ class stzOverlay from stzObject
 			_nD_ = len(_acD_)
 			for _i_ = 1 to _nD_
 				if StzEngineDirExists(_cCoreCourse_ + "/exercises/" + _acD_[_i_])
-					paFindings + This._Finding("overlay-no-fork", @cName, "courses/" + pcSlug + "/exercises/" + _acD_[_i_], "error",
+					paFindings + This._Finding("overlay-no-fork", @tName, "courses/" + pcSlug + "/exercises/" + _acD_[_i_], "error",
 						"this folder would replace the core exercise '" + _acD_[_i_] + "'; give yours another id")
 					loop
 				ok
@@ -370,20 +370,20 @@ class stzOverlay from stzObject
 					_nLg_ = len(pacCoreLangs)
 					for _j_ = 1 to _nLg_
 						if NOT _oE_.HasTaskIn(pacCoreLangs[_j_])
-							paFindings + This._Finding("overlay-exercise", @cName, "courses/" + pcSlug + "/exercises/" + _acD_[_i_], "error",
+							paFindings + This._Finding("overlay-exercise", @tName, "courses/" + pcSlug + "/exercises/" + _acD_[_i_], "error",
 								"the task is missing in '" + pacCoreLangs[_j_] + "' (law 7)")
 						ok
 					next
 					_aP_ = _oE_.ProveItself()
 					if _aP_[:wrong] < 1 or _aP_[:right] < 1
-						paFindings + This._Finding("overlay-exercise", @cName, "courses/" + pcSlug + "/exercises/" + _acD_[_i_], "error",
+						paFindings + This._Finding("overlay-exercise", @tName, "courses/" + pcSlug + "/exercises/" + _acD_[_i_], "error",
 							"an exercise ships at least one answer that must fail (wrong/) and one that must pass (right/)")
 					but len(_aP_[:failures]) > 0
-						paFindings + This._Finding("overlay-exercise", @cName, "courses/" + pcSlug + "/exercises/" + _acD_[_i_], "error",
+						paFindings + This._Finding("overlay-exercise", @tName, "courses/" + pcSlug + "/exercises/" + _acD_[_i_], "error",
 							"the exercise does not prove itself: " + @@(_aP_[:failures]))
 					ok
 				catch
-					paFindings + This._Finding("overlay-exercise", @cName, "courses/" + pcSlug + "/exercises/" + _acD_[_i_], "error",
+					paFindings + This._Finding("overlay-exercise", @tName, "courses/" + pcSlug + "/exercises/" + _acD_[_i_], "error",
 						"the exercise folder is not usable: " + StzLeft(cCatchError, 120))
 				done
 			next

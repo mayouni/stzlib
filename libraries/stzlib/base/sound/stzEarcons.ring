@@ -91,7 +91,7 @@ class stzEarcons
 	@aMotifs = []        # [ value, oSound or NULL for muted ]
 	@oPool = NULL
 	@bStarted = FALSE
-	@cLastError = ""
+	@tLastError = ""
 	@cLastReason = ""
 	@nRefusals = 0
 
@@ -197,7 +197,7 @@ class stzEarcons
 		if _p_[1] = ""
 			# say WHY, or a caller holding an empty result has to guess
 			# between "no such value" and "no such step"
-			@cLastError = _p_[3]
+			@tLastError = _p_[3]
 			return ""
 		ok
 		if _p_[1] = "muted"  return "" ok
@@ -433,11 +433,11 @@ class stzEarcons
 		next
 		@oPool.Start()
 		if NOT @oPool.IsStarted()
-			@cLastError = @oPool.LastError()
+			@tLastError = @oPool.LastError()
 			return This
 		ok
 		@bStarted = TRUE
-		@cLastError = ""
+		@tLastError = ""
 		return This
 
 	def StartQ()
@@ -454,7 +454,7 @@ class stzEarcons
 	#   see        WouldFireAt, Start, DuckUnder
 	def Fire(pMeaning)
 		if NOT @bStarted
-			@cLastError = "Fire: call Start() first"
+			@tLastError = "Fire: call Start() first"
 			@nRefusals++
 			return This
 		ok
@@ -485,7 +485,7 @@ class stzEarcons
 	def SetDuckDepth(pnDb)
 		if pnDb > 0
 			@nRefusals++
-			@cLastError = "SetDuckDepth: a duck is an attenuation -- give a " +
+			@tLastError = "SetDuckDepth: a duck is an attenuation -- give a " +
 			              "NEGATIVE dB value"
 			return This
 		ok
@@ -612,12 +612,12 @@ class stzEarcons
 		This._EnsureVoice()
 		if NOT isObject(@oVoice)
 			@nRefusals++
-			@cLastError = "no voice on this machine to speak with"
+			@tLastError = "no voice on this machine to speak with"
 			return FALSE
 		ok
 		if NOT @oVoice.UseLanguage(pcTag)
 			@nRefusals++
-			@cLastError = @oVoice.LastError()
+			@tLastError = @oVoice.LastError()
 			return FALSE
 		ok
 		@cVoiceLang = pcTag
@@ -654,7 +654,7 @@ class stzEarcons
 		_p_ = This._Parse(pMeaning)
 		if _p_[1] = ""
 			@nRefusals++
-			@cLastError = _p_[3]
+			@tLastError = _p_[3]
 			return ""
 		ok
 		This._EnsureVoice()
@@ -708,7 +708,7 @@ class stzEarcons
 		_p_ = This._Parse(pMeaning)
 		if _p_[1] = ""
 			@nRefusals++
-			@cLastError = _p_[3]
+			@tLastError = _p_[3]
 			return This
 		ok
 		# :Muted has no earcon and no phrase. Silence is its rendering, and
@@ -974,7 +974,7 @@ class stzEarcons
 	#   note       ToSoundOf also sets it when a meaning is refused
 	#   see        Refusals, LastReason
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns how many calls were refused, for example Fire before Start or a positive duck depth.
 	#

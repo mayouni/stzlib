@@ -105,7 +105,7 @@ class stzSoundLive
 	@nTagNext = 1
 	@nRenderedLive = 0      # notes rendered while playing (a pattern past its period)
 	@nSecondsRendering = 0
-	@cLastError = ""
+	@tLastError = ""
 	@nRefusals = 0
 	# capture mode: the ring drained here instead of by a device
 	@bCapture = FALSE
@@ -696,7 +696,7 @@ class stzSoundLive
 	#   returns    a text
 	#   see        Refusals
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns how many calls the session has refused.
 	#
@@ -725,7 +725,7 @@ class stzSoundLive
 		@nDrainShort = 0
 		@nUnderruns = 0
 		@nRenderedLive = 0
-		@cLastError = ""
+		@tLastError = ""
 		_nLoops_ = len(@aLoops)
 		for _i_ = 1 to _nLoops_
 			_aV_ = @aLoops[_i_][3]
@@ -736,7 +736,7 @@ class stzSoundLive
 
 	def _Refuse(pcWhy)
 		@nRefusals++
-		@cLastError = pcWhy
+		@tLastError = pcWhy
 
 	def _Ctr(pnWhich)
 		if @nTl = 0  return 0 ok
