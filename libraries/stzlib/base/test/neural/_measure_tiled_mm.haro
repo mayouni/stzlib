@@ -1,0 +1,46 @@
+# THE TILED MATMUL, OFF AGAINST ON -- the speed half of the question "should ggml's tiled kernel be turned on?"
+#
+# ggml 0.29's tiled kernel (vendor/ggml/src/ggml-cpu/tiled) takes a matmul only when the weights are a K-quant or IQ
+# type that is not repacked and the batch has 8 rows or more: prompt prefill, never one-token decode. It is OFF in this
+# engine (SOFTANZA PATCH, NOTICE) and GGML_CPU_TILED_MM=1 turns it on; the engine reads the switch on every call but the
+# C runtime reads the environment at start, so ONE ARM PER PROCESS. Run the arms alternating (0 1 0 1) so ambient load
+# falls on both; the first process of a session also pays a cold file cache.
+#
+# Per Q4_K_M model: load time, three prefills of about 450 tokens (each with a different first token, so the prefix
+# cache reuses nothing) and, as the CONTROL, a 24-token generation from a 5-token prompt -- under 8 rows, so the
+# kernel never takes it and its time should not move. Then one long-prompt answer, to compare texts across arms.
+# Rows: ROW arm model rep loaded load_ms prefill_ms gen_ms gen_bytes. Results and reading: results/tiled_mm_ab.txt.
+#
+#   for a in 0 1 0 1; do GGML_CPU_TILED_MM=$a haro _measure_tiled_mm.haro; done
+#
+# RUNS ON haro.exe; STZ_ENGINE_DIR an engine with ggml 0.29 (3df690c09 or later), STZ_MODELS_DIR with the three models.
+
+$tEngine = SysGet("STZ_ENGINE_DIR")
+$tModels = SysGet("STZ_MODELS_DIR")
+LoadLib($tEngine + "/zig-out/bin/stz_neural.dll")
+tArm = SysGet("GGML_CPU_TILED_MM")
+if tArm = ""
+	tArm = "unset"
+end
+vModels = [ "Qwen3-0.6B-Q4_K_M.gguf", "granite-4.2-3b-Q4_K_M.gguf", "Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf" ]
+tBody = ""
+for i = 1 to 15
+	tBody = tBody + "The river towns of the northern valley keep their records in stone halls, and every spring the clerks count the barges that passed the locks. "
+end
+for i = 1 to Len(vModels)
+	nT0 = Clock()
+	nOk = StzEngineNeuralModelLoad($tModels + "/" + vModels[i])
+	nLoad = Clock() - nT0
+	StzEngineNeuralPrefillLogits("Warm up " + tBody)
+	for j = 1 to 3
+		nT0 = Clock()
+		StzEngineNeuralPrefillLogits("Record " + String(j) + " of the ledger. " + tBody)
+		nPre = Clock() - nT0
+		nT0 = Clock()
+		tOut = StzEngineNeuralGenerate("The capital of France is", 24)
+		nGen = Clock() - nT0
+		? "ROW" + Char(9) + tArm + Char(9) + vModels[i] + Char(9) + String(j) + Char(9) + String(nOk) + Char(9) + String(nLoad) + Char(9) + String(nPre) + Char(9) + String(nGen) + Char(9) + String(Len(tOut))
+	end
+	tLongOut = StzEngineNeuralGenerate("Record 9 of the ledger. " + tBody + Char(10) + "Question: what do the clerks count every spring?" + Char(10) + "Answer:", 16)
+	? "TEXT" + Char(9) + tArm + Char(9) + vModels[i] + Char(9) + tLongOut
+end
