@@ -20,6 +20,9 @@
 //   /auth           -> 401 unless an Authorization header is present
 //   /setcookie      -> 200 + "Set-Cookie: sid=abc123"
 //   /checkcookie    -> 200, body = the received Cookie header (or "none")
+//   /reqheaders     -> 200, body = the request's header block, and its X-Key
+//                      header sent back as "X-Seen-Key" (the credential broker's
+//                      echo case: the value must come back masked in both)
 //   (anything else) -> 200 "ok"
 
 const std = @import("std");
@@ -159,6 +162,10 @@ fn handle(stream: std.net.Stream) void {
         } else {
             respond(stream, 200, "redirected", "");
         }
+    } else if (std.mem.eql(u8, path, "/reqheaders")) {
+        var hbuf: [9000]u8 = undefined;
+        const seen = std.fmt.bufPrint(&hbuf, "X-Seen-Key: {s}\r\n", .{headerValue(req, "x-key") orelse "none"}) catch "";
+        respondBytes(stream, 200, req[0..header_end], seen);
     } else if (std.mem.eql(u8, path, "/auth")) {
         if (hasHeader(req, "authorization")) {
             respond(stream, 200, "authed", "");

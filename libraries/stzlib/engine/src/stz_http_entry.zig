@@ -9,4 +9,7 @@ fn ringlib_init(pState: ?*anyopaque) callconv(.c) void {
     if (pState) |s| ring_bridge.registerAll(s);
 }
 
-test { _ = http; }
+test {
+    _ = http;
+    _ = @import("cred_broker.zig");
+}
