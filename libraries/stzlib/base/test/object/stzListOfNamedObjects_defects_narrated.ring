@@ -554,7 +554,7 @@ func NbRaised(cCode)
 # stzHashList object!". That is not this class's rule and is not mended here; the guard clears the registry after each
 # SetName, which it needs because the rules under test are about objects that share a name.
 func NbResetRegistry()
-	$_aVars = [ [ "say", "" ] ]
+	$vVars = [ [ "say", "" ] ]
 
 func NbMakeS(cText, cName)
 	oMade = new stzString(cText)

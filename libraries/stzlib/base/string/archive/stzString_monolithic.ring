@@ -82056,7 +82056,7 @@ class stzString from stzObject
 	#== @FunctionPartialForm
 
 	def @Remove()
-		This.RemoveSections($TEMP_LIST)
+		This.RemoveSections($xTEMP_LIST)
 
 		def @RemoveQ()
 			This.@Remove()

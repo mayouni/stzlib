@@ -759,7 +759,7 @@ func StzGraphRuleQ(pcName)
 #   see        stzGraphRuleSet, stzGraph, stzRuleReport
 class stzGraphRule from stzObject
 
-	@cName      = ""
+	@tName      = ""
 	@cType      = "validation"     # validation | constraint | derivation
 	@cDomain    = "custom"         # the registry GROUP this rule joins
 	@cSeverity  = "error"          # error | warning | info
@@ -809,7 +809,7 @@ class stzGraphRule from stzObject
 		if ring_trim("" + pcName) = ""
 			stzraise("stzGraphRule: a rule needs a name.")
 		ok
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Sets whether the rule validates a finished graph, guards an operation, or derives new edges and nodes.
 	#
@@ -1065,7 +1065,7 @@ class stzGraphRule from stzObject
 	#   returns    a text
 	#   see        Name, init
 	def Name_()
-		return @cName
+		return @tName
 	# Returns what the rule claims, as set by SetMessage.
 	#
 	#   returns    a text; empty when none was set
@@ -1125,7 +1125,7 @@ class stzGraphRule from stzObject
 	#   see        Name_, init
 	#@ aka  -- reads ---------------------------------------------------------
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the rule's type, in lower case.
 	#
@@ -1254,7 +1254,7 @@ class stzGraphRule from stzObject
 		This.RegisterQ()
 
 	def RegisterQ()
-		StzRegisterRule(@cDomain, @cName, [
+		StzRegisterRule(@cDomain, @tName, [
 			:type     = This._RegistryType(),
 			:function = StzGraphRuleValidationFn(),
 			:params   = This._Spec(),
@@ -1271,7 +1271,7 @@ class stzGraphRule from stzObject
 	#@ aka  The registry entry this rule produces (without registering) -- for inspection and for the equivalence guard.
 	def RegistryEntry()
 		return [
-			:name     = Upper(@cName),
+			:name     = Upper(@tName),
 			:type     = This._RegistryType(),
 			:function = StzGraphRuleValidationFn(),
 			:params   = This._Spec(),
@@ -1284,7 +1284,7 @@ class stzGraphRule from stzObject
 	#   returns    the rule itself, so calls chain; it prints
 	#   see        Clauses, ViolationMessage
 	def Show()
-		? "graph rule '" + @cName + "' [" + @cType + "] in '" + @cDomain +
+		? "graph rule '" + @tName + "' [" + @cType + "] in '" + @cDomain +
 		  "' (" + @cSeverity + ")"
 		? "  when: " + This._ClausesText()
 		? "  then: " + This.ViolationMessage()
@@ -1294,7 +1294,7 @@ class stzGraphRule from stzObject
 
 	def _Spec()
 		return [
-			:name         = @cName,
+			:name         = @tName,
 			:subject      = @cDomain,
 			:clauses      = @aClauses,
 			:requirements = @aRequirements,
@@ -1378,7 +1378,7 @@ func StzGraphRuleSetQ(pcName)
 #   see        stzGraphRule, stzGraph, stzRuleReport
 class stzGraphRuleSet from stzObject
 
-	@cName   = ""
+	@tName   = ""
 	@cDomain = ""
 	@aRules  = []          # a list of stzGraphRule objects
 
@@ -1388,7 +1388,7 @@ class stzGraphRuleSet from stzObject
 	#   returns    nothing; the object is built
 	#   see        AddRule, Check
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Sets the domain the set gives to the rules added after it that have none of their own, kept in lower case.
 	#
@@ -1429,7 +1429,7 @@ class stzGraphRuleSet from stzObject
 	#   see        init, Domain
 	#@ aka  -- reads -----------------------------------------------------------
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the domain the set gives to its rules.
 	#
@@ -1536,7 +1536,7 @@ class stzGraphRuleSet from stzObject
 	#   returns    the set itself, so calls chain; it prints
 	#   see        Rules, RuleNames
 	def Show()
-		? "rule set '" + @cName + "' [" + @cDomain + "] -- " + len(@aRules) + " rule(s)"
+		? "rule set '" + @tName + "' [" + @cDomain + "] -- " + len(@aRules) + " rule(s)"
 		_n_ = len(@aRules)
 		for _i_ = 1 to _n_
 			? "  - " + @aRules[_i_].Name() + " (" + @aRules[_i_].Severity() + ")"

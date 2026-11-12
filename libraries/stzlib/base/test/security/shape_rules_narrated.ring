@@ -12,9 +12,9 @@ load "../_narrated.ring"
 nl = char(10)
 
 Scenario("1. global-restored-by-hand: PHP2Shell's shape")
-	cPlanted = "func Cycle()" + nl + "	_cPrev_ = $cStzCaller" + nl + "	$cStzCaller = @cName" + nl +
+	cPlanted = "func Cycle()" + nl + "	_cPrev_ = $cStzCaller" + nl + "	$cStzCaller = @tName" + nl +
 		"	DoWork()" + nl + "	$cStzCaller = _cPrev_" + nl
-	cGuarded = "func Cycle()" + nl + "	_cPrev_ = $cStzCaller" + nl + "	$cStzCaller = @cName" + nl +
+	cGuarded = "func Cycle()" + nl + "	_cPrev_ = $cStzCaller" + nl + "	$cStzCaller = @tName" + nl +
 		"	try" + nl + "		DoWork()" + nl + "	catch" + nl + "		$cStzCaller = _cPrev_" + nl + "		raise(cCatchError)" + nl + "	done" + nl +
 		"	$cStzCaller = _cPrev_" + nl
 	cUnrelated = "func Cycle()" + nl + "	_n_ = $nCount" + nl + "	$nCount = 0" + nl + "	DoWork()" + nl

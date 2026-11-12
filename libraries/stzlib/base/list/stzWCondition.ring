@@ -532,7 +532,7 @@ class stzMethodExpr
 	@aNamed
 	@aTokens = []
 	@nPos = 1
-	@cText = ""
+	@tText = ""
 
 	def init(poObject, pcExpr, paNamed)
 		if NOT isString(pcExpr)
@@ -540,9 +540,9 @@ class stzMethodExpr
 		ok
 		@oObject = poObject
 		@aNamed = paNamed
-		@cText = trim(pcExpr)
-		if len(@cText) >= 2 and left(@cText, 1) = "{" and right(@cText, 1) = "}"
-			@cText = trim(substr(@cText, 2, len(@cText) - 2))
+		@tText = trim(pcExpr)
+		if len(@tText) >= 2 and left(@tText, 1) = "{" and right(@tText, 1) = "}"
+			@tText = trim(substr(@tText, 2, len(@tText) - 2))
 		ok
 		This._Tokenize()
 
@@ -558,12 +558,12 @@ class stzMethodExpr
 		return xValue
 
 	def _Refuse(pcWhy)
-		StzRaise("Can't read the expression '" + @cText + "': " + pcWhy + ".")
+		StzRaise("Can't read the expression '" + @tText + "': " + pcWhy + ".")
 
 	# tokens are [ kind, text ]: num, str, name, global, op
 	def _Tokenize()
 		@aTokens = []
-		cS = @cText
+		cS = @tText
 		nLen = len(cS)
 		i = 1
 		while i <= nLen

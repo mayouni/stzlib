@@ -135,7 +135,7 @@ func _StzSecretKindFactory(pcKind)
 #   see        stzSecurityPosture, stzSecurityLedger, StzSecretStoreFromSealedFile
 class stzSecretStore from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aSecrets = []   # [ [ name, secretObject ], ... ]
 	@aLog = []       # [ [ seq, actorName, secretName, outcome ], ... ]  -- the audit trail
 	@aOwned = []     # names whose value THIS store made (RotateToFresh): wiped when replaced or revoked
@@ -146,14 +146,14 @@ class stzSecretStore from stzObject
 	#   returns    nothing; the object is built
 	#   see        Register, Reveal
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the store's name.
 	#
 	#   returns    a text
 	#   see        init
 	def Name()
-		return @cName
+		return @tName
 
 	# Adds a secret under its own name, in lower case; a name already registered is replaced, which is rotation.
 	#
@@ -212,7 +212,7 @@ class stzSecretStore from stzObject
 	def RotateToFresh(pcName, poActor)
 		_s_ = This.Secret(pcName)
 		if NOT isObject(_s_)
-			stzraise("stzSecretStore '" + @cName + "': no secret '" + pcName + "' to rotate.")
+			stzraise("stzSecretStore '" + @tName + "': no secret '" + pcName + "' to rotate.")
 		ok
 		if NOT (isObject(poActor) and poActor.IsEffectful() and poActor.Posture() != "sandboxed")
 			StzNoteRefusal("secret.reveal.refused", "" + poActor.Name(), "secret:" + _s_.Name(),
@@ -415,9 +415,9 @@ class stzSecretStore from stzObject
 	#@ aka  As SaveSealedTo, with the KEY fetched through a vault resolver (R4).
 	def SaveSealedToVia(pcPath, poKeySecret, poResolver, poActor)
 		if NOT (isObject(poActor) and poActor.IsEffectful() and poActor.Posture() != "sandboxed")
-			StzNoteRefusal("secret.reveal.refused", "" + poActor.Name(), "store:" + @cName,
+			StzNoteRefusal("secret.reveal.refused", "" + poActor.Name(), "store:" + @tName,
 				"sealing a store reads its secrets -- the actor may not")
-			stzraise("Refused: sealing store '" + @cName + "' reads its secrets; only an effectful, non-sandboxed actor may.")
+			stzraise("Refused: sealing store '" + @tName + "' reads its secrets; only an effectful, non-sandboxed actor may.")
 		ok
 		_cKey_ = poKeySecret.RevealVia(poResolver, poActor)
 		_cBody_ = ""
@@ -436,8 +436,8 @@ class stzSecretStore from stzObject
 			_cBody_ += _s_.Kind() + char(9) + _s_.Name() + char(9) + _cSrc_ + char(9) +
 				StzEngineCryptoHexEncode(_cVal_) + char(9) + _nExp_ + char(10)
 		next
-		_cBlob_ = StzSeal(_cKey_, _cBody_, "stzsecrets:" + @cName)
-		write("" + pcPath, "stzsecrets v1" + char(10) + "store=" + @cName + char(10) + _cBlob_ + char(10))
+		_cBlob_ = StzSeal(_cKey_, _cBody_, "stzsecrets:" + @tName)
+		write("" + pcPath, "stzsecrets v1" + char(10) + "store=" + @tName + char(10) + _cBlob_ + char(10))
 		return This
 
 	# Returns the audit trail: who read, or was refused, which secret, in order.
@@ -478,7 +478,7 @@ class stzSecretStore from stzObject
 	#   note       no value is printed
 	#   see        DescriptorOf, AccessLog
 	def Show()
-		? "Secret store '" + @cName + "': " + len(@aSecrets) + " secret(s), " +
+		? "Secret store '" + @tName + "': " + len(@aSecrets) + " secret(s), " +
 			len(@aLog) + " access(es), " + This.RefusedAccesses() + " refused"
 		_n_ = len(@aSecrets)
 		for _i_ = 1 to _n_

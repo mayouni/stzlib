@@ -27,30 +27,30 @@
  #  FUNCTIONS  #
 #=============#
 
-func StzLogQ(pcName)
-	return new stzLog(pcName)
-
+func StzLogQ(pxName)
+	return new stzLog(pxName)
+end
 # level rank for threshold comparison; -1 for an unknown level.
-func StzLogLevelRank(pcLevel)
-	_l_ = StzLower(ring_trim("" + pcLevel))
-	if _l_ = "trace"
+func StzLogLevelRank(pxLevel)
+	xL = StzLower(ring_trim("" + pxLevel))
+	if xL = "trace"
 		return 0
-	but _l_ = "debug"
+	elseif xL = "debug"
 		return 1
-	but _l_ = "info"
+	elseif xL = "info"
 		return 2
-	but _l_ = "warn"
+	elseif xL = "warn"
 		return 3
-	but _l_ = "error"
+	elseif xL = "error"
 		return 4
-	but _l_ = "fatal"
+	elseif xL = "fatal"
 		return 5
-	ok
+	end
 	return -1
-
-func StzLogLevels()
+end
+func StzLogLevels
 	return [ "trace", "debug", "info", "warn", "error", "fatal" ]
-
+end
 
   #==========#
  #  STZLOG  #
@@ -81,28 +81,28 @@ func StzLogLevels()
 #   see        StzLogQ, StzLogLevels, stzPerfMonitor
 class stzLog from stzObject
 
-	@cName = ""              # the category (e.g. "deploy", "auth")
-	@cThreshold = "info"     # entries below this level are dropped
-	@aEntries = []           # [ [ :seq, :ts, :level, :category, :message, :fields ], ... ]
+	@tName = ""              # the category (e.g. "deploy", "auth")
+	@tThreshold = "info"     # entries below this level are dropped
+	@xEntries = []           # [ [ :seq, :ts, :level, :category, :message, :fields ], ... ]
 	@nSeq = 0
 	@nCap = 0                # max retained entries (0 = unbounded); FIFO evict
-	@bEcho = 0           # also print each recorded entry to the console
+	@bEcho = false           # also print each recorded entry to the console
 
 	# Builds an empty log for one category, with the threshold info, no echo and no cap on the entries kept.
 	#
 	#   pcName     the category stamped on every entry, such as deploy
 	#   returns    nothing; the object is built
 	#   see        SetLevel, SetCap, SetEcho
-	def init(pcName)
-		@cName = "" + pcName
-
+	def init(pxName)
+		@tName = "" + pxName
+	end
 	# Returns the category the log was built with, which every entry carries.
 	#
 	#   returns    a text such as deploy
 	#   see        Level
-	def Name()
-		return @cName
-
+	def Name
+		return @tName
+	end
 	# Sets the lowest level that is recorded, so that anything below it is dropped from now on.
 	#
 	#   pcLevel    one of trace, debug, info, warn, error or fatal, in any case
@@ -112,23 +112,23 @@ class stzLog from stzObject
 	#              level
 	#   see        Level, Record, SetLevelQ
 	#@ aka  -- configuration (Q-fluent) ----------------------------------------
-	def SetLevel(pcLevel)
-		This.SetLevelQ(pcLevel)
-
-	def SetLevelQ(pcLevel)
-		if StzLogLevelRank(pcLevel) < 0
-			StzRaise("stzLog: unknown level '" + pcLevel + "'. Levels: trace/debug/info/warn/error/fatal.")
-		ok
-		@cThreshold = StzLower(ring_trim("" + pcLevel))
-		return This
-
+	def SetLevel(pxLevel)
+		this.SetLevelQ(pxLevel)
+	end
+	def SetLevelQ(pxLevel)
+		if StzLogLevelRank(pxLevel) < 0
+			StzRaise("stzLog: unknown level '" + pxLevel + "'. Levels: trace/debug/info/warn/error/fatal.")
+		end
+		@tThreshold = StzLower(ring_trim("" + pxLevel))
+		return this
+	end
 	# Returns the lowest level that is recorded, in lowercase.
 	#
 	#   returns    a text such as info; info on a new log
 	#   see        SetLevel
-	def Level()
-		return @cThreshold
-
+	def Level
+		return @tThreshold
+	end
 	# Turns on or off the printing of each entry to the console as it is recorded.
 	#
 	#   pbOn       1 to print every new entry, 0 to keep quiet
@@ -136,12 +136,12 @@ class stzLog from stzObject
 	#   note       the printed line is the same as one line of AsText
 	#   see        Record, Show
 	def SetEcho(pbOn)
-		This.SetEchoQ(pbOn)
-
+		this.SetEchoQ(pbOn)
+	end
 	def SetEchoQ(pbOn)
 		@bEcho = pbOn
-		return This
-
+		return this
+	end
 	# Sets how many entries the log keeps, evicting the oldest first; 0 means no limit.
 	#
 	#   pnCap      the most entries to keep, or 0 for no limit
@@ -150,13 +150,13 @@ class stzLog from stzObject
 	#              at once
 	#   see        NumberOfEntries, Clear
 	#@ aka  retain at most n entries (0 = unbounded); oldest are evicted first.
-	def SetCap(pnCap)
-		This.SetCapQ(pnCap)
-
-	def SetCapQ(pnCap)
-		@nCap = pnCap
-		return This
-
+	def SetCap(pxCap)
+		this.SetCapQ(pxCap)
+	end
+	def SetCapQ(pxCap)
+		@nCap = pxCap
+		return this
+	end
 	# Records one entry with a level, a message and structured fields, unless the level is below the threshold.
 	#
 	#   pcLevel    the level of the entry, such as warn
@@ -170,107 +170,112 @@ class stzLog from stzObject
 	#              argument that is not a list is ignored
 	#   see        Info, Where, Entries, SetLevel
 	#@ aka  -- writing (returns This, so writes chain) -------------------------
-	def Record(pcLevel, pcMsg, paFields)
-		_lvl_ = StzLower(ring_trim("" + pcLevel))
-		if StzLogLevelRank(_lvl_) < StzLogLevelRank(@cThreshold)
-			return This
-		ok
-		_flds_ = []
-		if isList(paFields)
-			_flds_ = paFields
-		ok
+	def Record(pxLevel, pxMsg, pxFields)
+		xLvl = StzLower(ring_trim("" + pxLevel))
+		if StzLogLevelRank(xLvl) < StzLogLevelRank(@tThreshold)
+			return this
+		end
+		xFlds = []
+		if IsList(pxFields)
+			xFlds = pxFields
+		end
 		# perf P9: inside a trace scope (the observed server opens one
 		# around every request; StzOpenTraceScope opens one anywhere),
 		# every record stamps the active trace id -- log lines and
 		# request traces correlate with no plumbing. Outside a scope,
 		# nothing is added.
-		_cTP_ = StzEnginePerfTraceScopeGet()
-		if _cTP_ != ""
-			_flds_ + [ "traceId", StzEngineTraceId(_cTP_) ]
-		ok
+		tTP = StzEnginePerfTraceScopeGet()
+		if tTP != ""
+			xFlds + [ "traceId", StzEngineTraceId(tTP) ]
+		end
 		@nSeq++
-		_entry_ = [ :seq = @nSeq, :ts = StzEngineTimeNowMs(), :level = _lvl_,
-			:category = @cName, :message = "" + pcMsg, :fields = _flds_ ]
-		@aEntries + _entry_
-		if @nCap > 0 and len(@aEntries) > @nCap
-			This._EvictOldest()
-		ok
+		vEntry = [ [:seq, @nSeq], [:ts, StzEngineTimeNowMs()], [:level, xLvl],
+			[:category, @tName], [:message, "" + pxMsg], [:fields, xFlds] ]
+		@xEntries + vEntry
+		if @nCap > 0 and Len(@xEntries) > @nCap
+			this._EvictOldest()
+		end
 		if @bEcho
-			? This._FormatEntry(_entry_)
-		ok
-		return This
-
+			? this._FormatEntry(vEntry)
+		end
+		return this
+	end
 	# Records a message at the lowest level, trace, with no fields.
 	#
 	#   pcMsg      the message text
 	#   returns    the log itself, so writes chain
 	#   see        Record, Debug
 	#@ aka  level shortcuts (no fields) -- the common case.
-	def Trace(pcMsg)
-		return This.Record("trace", pcMsg, [])
+	def Trace(pxMsg)
+		return this.Record("trace", pxMsg, [])
+	end
 	# Records a message at level debug with no fields.
 	#
 	#   pcMsg      the message text
 	#   returns    the log itself, so writes chain
 	#   see        Record, Info
-	def Debug(pcMsg)
-		return This.Record("debug", pcMsg, [])
+	def Debug(pxMsg)
+		return this.Record("debug", pxMsg, [])
+	end
 	# Records a message at level info with no fields.
 	#
 	#   pcMsg      the message text
 	#   returns    the log itself, so writes chain
 	#   see        Record, Warn
-	def Info(pcMsg)
-		return This.Record("info", pcMsg, [])
+	def Info(pxMsg)
+		return this.Record("info", pxMsg, [])
+	end
 	# Records a message at level warn with no fields.
 	#
 	#   pcMsg      the message text
 	#   returns    the log itself, so writes chain
 	#   see        Record, Error
-	def Warn(pcMsg)
-		return This.Record("warn", pcMsg, [])
+	def Warn(pxMsg)
+		return this.Record("warn", pxMsg, [])
+	end
 	# Records a message at level error with no fields.
 	#
 	#   pcMsg      the message text
 	#   returns    the log itself, so writes chain
 	#   see        Record, Fatal
-	def Error(pcMsg)
-		return This.Record("error", pcMsg, [])
+	def Error(pxMsg)
+		return this.Record("error", pxMsg, [])
+	end
 	# Records a message at the highest level, fatal, with no fields.
 	#
 	#   pcMsg      the message text
 	#   returns    the log itself, so writes chain
 	#   see        Record, Error
-	def Fatal(pcMsg)
-		return This.Record("fatal", pcMsg, [])
-
+	def Fatal(pxMsg)
+		return this.Record("fatal", pxMsg, [])
+	end
 	# Returns every entry kept, oldest first.
 	#
 	#   returns    a list of hash-lists with seq, ts, level, category, message and fields
 	#   note       ts is the epoch time in milliseconds, so it changes on every run
 	#   see        NumberOfEntries, LastEntry, EntriesOfLevel
 	#@ aka  -- query (logs as data) --------------------------------------------
-	def Entries()
-		return @aEntries
-
+	def Entries
+		return @xEntries
+	end
 	# Returns how many entries the log holds now.
 	#
 	#   returns    a number
 	#   see        Entries, SetCap
-	def NumberOfEntries()
-		return len(@aEntries)
-
+	def NumberOfEntries
+		return Len(@xEntries)
+	end
 	# Returns the newest entry, or an empty list when the log holds none.
 	#
 	#   returns    a hash-list with seq, ts, level, category, message and fields; [ ] for an empty
 	#              log
 	#   see        Entries
-	def LastEntry()
-		if len(@aEntries) = 0
+	def LastEntry
+		if Len(@xEntries) = 0
 			return []
-		ok
-		return @aEntries[len(@aEntries)]
-
+		end
+		return @xEntries[Len(@xEntries)]
+	end
 	# Returns the entries recorded at exactly the given level.
 	#
 	#   pcLevel    the level to keep, in any case
@@ -278,25 +283,25 @@ class stzLog from stzObject
 	#   note       it is an exact match, so asking for warn does not return error
 	#   see        CountOfLevel, Where
 	#@ aka  every entry at exactly this level.
-	def EntriesOfLevel(pcLevel)
-		_l_ = StzLower(ring_trim("" + pcLevel))
-		_out_ = []
-		_n_ = len(@aEntries)
-		for _i_ = 1 to _n_
-			if @aEntries[_i_][:level] = _l_
-				_out_ + @aEntries[_i_]
-			ok
-		next
-		return _out_
-
+	def EntriesOfLevel(pxLevel)
+		xL = StzLower(ring_trim("" + pxLevel))
+		vOut = []
+		nN = Len(@xEntries)
+		for i = 1 to nN
+			if @xEntries[i][:level] = xL
+				vOut + @xEntries[i]
+			end
+		end
+		return vOut
+	end
 	# Returns how many entries were recorded at exactly the given level.
 	#
 	#   pcLevel    the level to count, in any case
 	#   returns    a number; 0 for an unknown level
 	#   see        EntriesOfLevel
-	def CountOfLevel(pcLevel)
-		return len(This.EntriesOfLevel(pcLevel))
-
+	def CountOfLevel(pxLevel)
+		return Len(this.EntriesOfLevel(pxLevel))
+	end
 	# Returns the entries that carry a field with the given key and value.
 	#
 	#   pcKey      the field key to look for, such as part
@@ -305,119 +310,119 @@ class stzLog from stzObject
 	#   note       key and value are compared as text, so 2 and "2" match
 	#   see        OfTrace, Record
 	#@ aka  every entry carrying a field key = value (structured query).
-	def Where(pcKey, pValue)
-		_k_ = "" + pcKey
-		_v_ = "" + pValue
-		_out_ = []
-		_n_ = len(@aEntries)
-		for _i_ = 1 to _n_
-			_flds_ = @aEntries[_i_][:fields]
-			_m_ = len(_flds_)
-			for _j_ = 1 to _m_
-				if ("" + _flds_[_j_][1]) = _k_ and ("" + _flds_[_j_][2]) = _v_
-					_out_ + @aEntries[_i_]
+	def Where(pxKey, pxValue)
+		tK = "" + pxKey
+		tV = "" + pxValue
+		vOut = []
+		nN = Len(@xEntries)
+		for i = 1 to nN
+			xFlds = @xEntries[i][:fields]
+			nM = Len(xFlds)
+			for j = 1 to nM
+				if ("" + xFlds[j][1]) = tK and ("" + xFlds[j][2]) = tV
+					vOut + @xEntries[i]
 					exit
-				ok
-			next
-		next
-		return _out_
-
+				end
+			end
+		end
+		return vOut
+	end
 	# Returns the entries stamped with the given trace id, which links a request's trace to its log lines.
 	#
 	#   pcTraceId   the trace id text
 	#   returns     a list of entries; [ ] when none carries that id
 	#   see         Where, Record
 	#@ aka  every entry stamped with this trace id (perf P9) -- the bridge from an alert's trip trace-ids to the log lines of those trips.
-	def OfTrace(pcTraceId)
-		return This.Where("traceId", pcTraceId)
-
+	def OfTrace(pxTraceId)
+		return this.Where("traceId", pxTraceId)
+	end
 	# Returns the entries recorded at or after a time given in epoch milliseconds.
 	#
 	#   pnMs       the earliest time to keep, in epoch milliseconds
 	#   returns    a list of entries, oldest first
 	#   see        Entries
 	#@ aka  entries at or after an epoch-ms timestamp.
-	def Since(pnMs)
-		_out_ = []
-		_n_ = len(@aEntries)
-		for _i_ = 1 to _n_
-			if @aEntries[_i_][:ts] >= pnMs
-				_out_ + @aEntries[_i_]
-			ok
-		next
-		return _out_
-
+	def Since(pxMs)
+		vOut = []
+		nN = Len(@xEntries)
+		for i = 1 to nN
+			if @xEntries[i][:ts] >= pxMs
+				vOut + @xEntries[i]
+			end
+		end
+		return vOut
+	end
 	# Removes every entry and restarts the numbering at 1.
 	#
 	#   returns    the log itself, so calls chain
 	#   note       the level, the cap and the echo flag are kept
 	#   see        Entries, SetCap
-	def Clear()
-		@aEntries = []
+	def Clear
+		@xEntries = []
 		@nSeq = 0
-		return This
-
+		return this
+	end
 	# Renders the entries as lines of timestamp, level, category and message, followed by the fields in braces.
 	#
 	#   returns    a text with one line per entry, no final line break; empty text for an empty log
 	#   see        AsJson, Show, WriteToFile
 	#@ aka  -- rendering -------------------------------------------------------
-	def AsText()
-		_c_ = ""
-		_n_ = len(@aEntries)
-		for _i_ = 1 to _n_
-			_c_ += This._FormatEntry(@aEntries[_i_])
-			if _i_ < _n_
-				_c_ += char(10)
-			ok
-		next
-		return _c_
-
+	def AsText
+		tC = ""
+		nN = Len(@xEntries)
+		for i = 1 to nN
+			tC += this._FormatEntry(@xEntries[i])
+			if i < nN
+				tC += Char(10)
+			end
+		end
+		return tC
+	end
 	# Prints the entries as text on the console, one line each.
 	#
 	#   returns    nothing
 	#   see        AsText, SetEcho
-	def Show()
-		? This.AsText()
-
+	def Show
+		? this.AsText()
+	end
 	# Renders the entries as a JSON array, with the fields placed beside ts, level, category and message.
 	#
 	#   returns    a text holding the array
 	#   note       field values come out as JSON text, so 2 is written as "2"
 	#   see        OtelJson, WriteJsonToFile
 	#@ aka  a JSON array of the entries -- ship to any log pipeline. Fields are inlined as top-level keys alongside ts / level / category / message.
-	def AsJson()
-		_q_ = char(34)
-		_c_ = "[" + char(10)
-		_n_ = len(@aEntries)
-		for _i_ = 1 to _n_
-			_c_ += "  " + This._EntryJson(@aEntries[_i_])
-			if _i_ < _n_
-				_c_ += ","
-			ok
-			_c_ += char(10)
-		next
-		_c_ += "]" + char(10)
-		return _c_
-
+	def AsJson
+		tQ = Char(34)
+		tC = "[" + Char(10)
+		nN = Len(@xEntries)
+		for i = 1 to nN
+			tC += "  " + this._EntryJson(@xEntries[i])
+			if i < nN
+				tC += ","
+			end
+			tC += Char(10)
+		end
+		tC += "]" + Char(10)
+		return tC
+	end
 	# Writes the text rendering of the entries to a file, replacing its contents.
 	#
 	#   pcPath     the file to write
 	#   returns    the log itself, so calls chain
 	#   see        AsText, WriteJsonToFile
-	def WriteToFile(pcPath)
-		write("" + pcPath, This.AsText())
-		return This
-
+	def WriteToFile(pxPath)
+		Write("" + pxPath, this.AsText())
+		return this
+	end
 	# Writes the JSON rendering of the entries to a file, replacing its contents.
 	#
 	#   pcPath     the file to write
 	#   returns    the log itself, so calls chain
 	#   see        AsJson, WriteToFile
-	def WriteJsonToFile(pcPath)
-		write("" + pcPath, This.AsJson())
-		return This
-
+	def WriteJsonToFile(pxPath)
+		Write("" + pxPath, this.AsJson())
+		return this
+	end
 	# Renders the entries as the OpenTelemetry logs envelope that a collector accepts, with the category as the service name.
 	#
 	#   returns    a text holding the JSON; the trace id of an entry is promoted to the record's own
@@ -426,102 +431,104 @@ class stzLog from stzObject
 	#              and 17 for error
 	#   see        AsJson
 	#@ aka  The OTLP logs envelope (perf P9) -- what a collector ingests at /v1/logs, completing the OTel triad (spans P0/P7, metrics P2, logs here). Each record carries timeUnixNano (exact ms + zeros), severityText/Number, the body, the fields as attributes -- and the trace id PROMOTED to the logRecord's first-class traceId field, where tracing backends expect it.
-	def OtelJson()
-		_q_ = char(34)
-		_cRecs_ = ""
-		_n_ = len(@aEntries)
-		for _i_ = 1 to _n_
-			if _i_ > 1
-				_cRecs_ += ","
-			ok
-			_cRecs_ += This._OtelLogRecordJson(@aEntries[_i_])
-		next
-		_cJ_ = '{"resourceLogs":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"'
-		_cJ_ += @cName
-		_cJ_ += '"}}]},"scopeLogs":[{"scope":{"name":"softanza.log"},"logRecords":['
-		_cJ_ += _cRecs_
-		_cJ_ += ']}]}]}'
-		return _cJ_
-
+	def OtelJson
+		tQ = Char(34)
+		tRecs = ""
+		nN = Len(@xEntries)
+		for i = 1 to nN
+			if i > 1
+				tRecs += ","
+			end
+			tRecs += this._OtelLogRecordJson(@xEntries[i])
+		end
+		tJ = '{"resourceLogs":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"'
+		tJ += @tName
+		tJ += '"}}]},"scopeLogs":[{"scope":{"name":"softanza.log"},"logRecords":['
+		tJ += tRecs
+		tJ += ']}]}]}'
+		return tJ
+	end
 	# OTLP severityNumber: trace=1 debug=5 info=9 warn=13 error=17 fatal=21.
-	def _OtelSeverityNumber(pcLevel)
-		return 1 + StzLogLevelRank(pcLevel) * 4
-
-	def _OtelLogRecordJson(paEntry)
-		_cR_ = '{"timeUnixNano":"' + ("" + paEntry[:ts]) + '000000"'
-		_cR_ += (',"severityText":"' + upper("" + paEntry[:level]) + '"')
-		_cR_ += (',"severityNumber":' + This._OtelSeverityNumber(paEntry[:level]))
-		_cR_ += (',"body":{"stringValue":"' + This._JsonEscape(paEntry[:message]) + '"}')
-		_cTid_ = ""
-		_cAttrs_ = ""
-		_flds_ = paEntry[:fields]
-		_m_ = len(_flds_)
-		for _j_ = 1 to _m_
-			if ("" + _flds_[_j_][1]) = "traceId"
-				_cTid_ = "" + _flds_[_j_][2]
+	def _OtelSeverityNumber(pxLevel)
+		return 1 + StzLogLevelRank(pxLevel) * 4
+	end
+	def _OtelLogRecordJson(pxEntry)
+		tR = '{"timeUnixNano":"' + ("" + pxEntry[:ts]) + '000000"'
+		tR += (',"severityText":"' + Upper("" + pxEntry[:level]) + '"')
+		tR += (',"severityNumber":' + this._OtelSeverityNumber(pxEntry[:level]))
+		tR += (',"body":{"stringValue":"' + this._JsonEscape(pxEntry[:message]) + '"}')
+		tTid = ""
+		tAttrs = ""
+		xFlds = pxEntry[:fields]
+		nM = Len(xFlds)
+		for j = 1 to nM
+			if ("" + xFlds[j][1]) = "traceId"
+				tTid = "" + xFlds[j][2]
 				loop
-			ok
-			if _cAttrs_ != ""
-				_cAttrs_ += ","
-			ok
-			_cAttrs_ += ('{"key":"' + ("" + _flds_[_j_][1]) + '","value":{"stringValue":"' +
-				This._JsonEscape("" + _flds_[_j_][2]) + '"}}')
-		next
-		if _cAttrs_ != ""
-			_cR_ += (',"attributes":[' + _cAttrs_ + ']')
-		ok
-		if _cTid_ != ""
-			_cR_ += (',"traceId":"' + _cTid_ + '"')
-		ok
-		_cR_ += "}"
-		return _cR_
-
+			end
+			if tAttrs != ""
+				tAttrs += ","
+			end
+			tAttrs += ('{"key":"' + ("" + xFlds[j][1]) + '","value":{"stringValue":"' +
+				this._JsonEscape("" + xFlds[j][2]) + '"}}')
+		end
+		if tAttrs != ""
+			tR += (',"attributes":[' + tAttrs + ']')
+		end
+		if tTid != ""
+			tR += (',"traceId":"' + tTid + '"')
+		end
+		tR += "}"
+		return tR
+	end
 	  #-- internals -------------------------------------------------------
 
-	def _EvictOldest()
-		_aNew_ = []
-		_n_ = len(@aEntries)
-		_drop_ = _n_ - @nCap
-		for _i_ = 1 to _n_
-			if _i_ > _drop_
-				_aNew_ + @aEntries[_i_]
-			ok
-		next
-		@aEntries = _aNew_
-
-	def _FormatEntry(paEntry)
-		_c_ = "" + paEntry[:ts] + " " + upper("" + paEntry[:level]) + " " +
-			paEntry[:category] + ": " + paEntry[:message]
-		_flds_ = paEntry[:fields]
-		_m_ = len(_flds_)
-		if _m_ > 0
-			_c_ += "  {"
-			for _j_ = 1 to _m_
-				_c_ += "" + _flds_[_j_][1] + "=" + _flds_[_j_][2]
-				if _j_ < _m_
-					_c_ += ", "
-				ok
-			next
-			_c_ += "}"
-		ok
-		return _c_
-
-	def _EntryJson(paEntry)
-		_q_ = char(34)
-		_c_ = "{ " + _q_ + "ts" + _q_ + ": " + paEntry[:ts]
-		_c_ += ", " + _q_ + "level" + _q_ + ": " + _q_ + paEntry[:level] + _q_
-		_c_ += ", " + _q_ + "category" + _q_ + ": " + _q_ + paEntry[:category] + _q_
-		_c_ += ", " + _q_ + "message" + _q_ + ": " + _q_ + This._JsonEscape(paEntry[:message]) + _q_
-		_flds_ = paEntry[:fields]
-		_m_ = len(_flds_)
-		for _j_ = 1 to _m_
-			_c_ += ", " + _q_ + ("" + _flds_[_j_][1]) + _q_ + ": " +
-				_q_ + This._JsonEscape("" + _flds_[_j_][2]) + _q_
-		next
-		_c_ += " }"
-		return _c_
-
-	def _JsonEscape(pcStr)
-		_s_ = StzReplace("" + pcStr, char(92), char(92) + char(92))   # backslash
-		_s_ = StzReplace(_s_, char(34), char(92) + char(34))          # quote
-		return _s_
+	def _EvictOldest
+		vNew = []
+		nN = Len(@xEntries)
+		xDrop = nN - @nCap
+		for i = 1 to nN
+			if i > xDrop
+				vNew + @xEntries[i]
+			end
+		end
+		@xEntries = vNew
+	end
+	def _FormatEntry(pxEntry)
+		tC = "" + pxEntry[:ts] + " " + Upper("" + pxEntry[:level]) + " " +
+			pxEntry[:category] + ": " + pxEntry[:message]
+		xFlds = pxEntry[:fields]
+		nM = Len(xFlds)
+		if nM > 0
+			tC += "  {"
+			for j = 1 to nM
+				tC += "" + xFlds[j][1] + "=" + xFlds[j][2]
+				if j < nM
+					tC += ", "
+				end
+			end
+			tC += "}"
+		end
+		return tC
+	end
+	def _EntryJson(pxEntry)
+		tQ = Char(34)
+		tC = "{ " + tQ + "ts" + tQ + ": " + pxEntry[:ts]
+		tC += ", " + tQ + "level" + tQ + ": " + tQ + pxEntry[:level] + tQ
+		tC += ", " + tQ + "category" + tQ + ": " + tQ + pxEntry[:category] + tQ
+		tC += ", " + tQ + "message" + tQ + ": " + tQ + this._JsonEscape(pxEntry[:message]) + tQ
+		xFlds = pxEntry[:fields]
+		nM = Len(xFlds)
+		for j = 1 to nM
+			tC += ", " + tQ + ("" + xFlds[j][1]) + tQ + ": " +
+				tQ + this._JsonEscape("" + xFlds[j][2]) + tQ
+		end
+		tC += " }"
+		return tC
+	end
+	def _JsonEscape(pxStr)
+		xS = StzReplace("" + pxStr, Char(92), Char(92) + Char(92))   # backslash
+		xS = StzReplace(xS, Char(34), Char(92) + Char(34))          # quote
+		return xS
+	end
+end

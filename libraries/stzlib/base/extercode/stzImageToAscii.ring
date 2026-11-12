@@ -53,7 +53,7 @@ class stzImgToAscii from stzObject
     @cOutFile  = ""        # user-specified output file
     @cOutDir   = "output"
     @cTempDir  = "temp"
-    @cContent  = ""
+    @tContent  = ""
     @cFile     = ""
     @bRan      = 0
     @bVerbose  = 0
@@ -238,7 +238,7 @@ class stzImgToAscii from stzObject
         This.EnsureDirs()
 
         @bRan     = 0
-        @cContent = ""
+        @tContent = ""
         @cFile    = ""
 
         if @cImage = ""
@@ -289,7 +289,7 @@ class stzImgToAscii from stzObject
             @cFile = _cDestFile_
         else
             # captured stdout (ansi / ascii)
-            @cContent = _oCall_.Output()
+            @tContent = _oCall_.Output()
         ok
 
         @bRan = 1
@@ -320,10 +320,10 @@ class stzImgToAscii from stzObject
         if NOT @bRan
             This.Execute()
         ok
-        if @cContent = "" and @cFile != ""
-            @cContent = read(@cFile)
+        if @tContent = "" and @cFile != ""
+            @tContent = read(@cFile)
         ok
-        return @cContent
+        return @tContent
 
     # Prints the converted image, or opens the file the tool wrote in the program the system associates with it.
     #

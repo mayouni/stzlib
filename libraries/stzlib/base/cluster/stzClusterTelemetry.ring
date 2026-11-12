@@ -53,7 +53,7 @@ func StzClusterTelemetryQ(pcName)
 #   see        stzLatencyHistogram, stzClusterSupervisor, stzTraceContext
 class stzClusterTelemetry from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aHist = []          # [ [ facetTag, stzLatencyHistogram ], ... ] (engine-backed)
 	@aTraces = []        # bounded ring: [ id, facet, endpoint, status, durMs, attempts ]
 	@nMaxTraces = 512    # keep the most recent N request records
@@ -66,7 +66,7 @@ class stzClusterTelemetry from stzObject
 	#   returns    nothing; the object is built
 	#   see        RecordRequest, NewTraceId
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@aHist = []
 		@aTraces = []
 		@cBase = "" + StzEngineTimeNowMs()
@@ -76,7 +76,7 @@ class stzClusterTelemetry from stzObject
 	#   returns    a text
 	#   see        init
 	def Name_()
-		return @cName
+		return @tName
 
 	# Returns a fresh trace id of the form t-<start time in ms>-<sequence number>, unique within this recorder.
 	#
@@ -266,7 +266,7 @@ class stzClusterTelemetry from stzObject
 	#   returns    a text
 	#   see        LatencyStats
 	def Narrate()
-		_cR_ = "telemetry " + @cName + ": " + len(@aTraces) + " trace(s), " +
+		_cR_ = "telemetry " + @tName + ": " + len(@aTraces) + " trace(s), " +
 			len(@aHist) + " facet histogram(s)"
 		_n_ = len(@aHist)
 		for _i_ = 1 to _n_

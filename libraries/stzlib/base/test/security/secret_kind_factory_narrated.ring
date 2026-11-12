@@ -71,6 +71,6 @@ func CleanUp
 class demoFamilySecret from stzToken
 	@cPart = ""
 	def init(pcName, pcPart)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@cPart = "" + pcPart
 		@cKind = "demo-" + pcPart

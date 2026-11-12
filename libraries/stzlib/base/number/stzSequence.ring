@@ -61,7 +61,7 @@ func IsStzSequence(pObj)
 #   see        stzNumber, stzListOfNumbers
 class stzSequence from stzObject
 
-	@cName = ""
+	@tName = ""
 
 	  #--------------#
 	 #     INIT     #
@@ -98,7 +98,7 @@ class stzSequence from stzObject
 			ok
 		ok
 
-		@cName = cName
+		@tName = cName
 		_nResult_ = StzEngineSeqCreate(cName, nStart, nStep, nMode)
 
 		if _nResult_ < 0
@@ -114,7 +114,7 @@ class stzSequence from stzObject
 	#   returns    a text
 	#   see        init
 	def Name()
-		return @cName
+		return @tName
 
 	  #-------------------------------#
 	 #     BOUNDS                    #
@@ -136,7 +136,7 @@ class stzSequence from stzObject
 			ok
 		ok
 
-		_nResult_ = StzEngineSeqSetBounds(@cName, nMin, nMax)
+		_nResult_ = StzEngineSeqSetBounds(@tName, nMin, nMax)
 		if _nResult_ < 0
 			StzRaise("Can't set bounds! Sequence not found.")
 		ok
@@ -155,7 +155,7 @@ class stzSequence from stzObject
 	#   note       Advance is the same method; Current shows the value the next call will return
 	#   see        Current, NextNValues
 	def NextValue()
-		return StzEngineSeqNext(@cName)
+		return StzEngineSeqNext(@tName)
 
 		def Advance()
 			return This.NextValue()
@@ -166,7 +166,7 @@ class stzSequence from stzObject
 	#   note       Value is the same method; after Destroy it answers 0
 	#   see        NextValue, Iteration
 	def Current()
-		return StzEngineSeqCurrent(@cName)
+		return StzEngineSeqCurrent(@tName)
 
 		def Value()
 			return This.Current()
@@ -177,7 +177,7 @@ class stzSequence from stzObject
 	#   note       IterationNumber is the same method
 	#   see        Current, Reset
 	def Iteration()
-		return StzEngineSeqIteration(@cName)
+		return StzEngineSeqIteration(@tName)
 
 		def IterationNumber()
 			return This.Iteration()
@@ -210,7 +210,7 @@ class stzSequence from stzObject
 	#   returns    nothing; use ResetQ to chain
 	#   see        NextValue, Destroy
 	def Reset()
-		StzEngineSeqReset(@cName)
+		StzEngineSeqReset(@tName)
 
 		def ResetQ()
 			This.Reset()
@@ -223,4 +223,4 @@ class stzSequence from stzObject
 	#              object again
 	#   see        Reset
 	def Destroy()
-		StzEngineSeqDestroy(@cName)
+		StzEngineSeqDestroy(@tName)

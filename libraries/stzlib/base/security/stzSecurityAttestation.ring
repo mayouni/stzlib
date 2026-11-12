@@ -54,7 +54,7 @@ func StzVerifyAttestation(pcPath, pcKey)
 #   see        stzSecurityLedger, StzVerifyAttestation, stzSecurityPosture
 class stzSecurityAttestation from stzObject
 
-	@cName = ""
+	@tName = ""
 	@oLedger = ""
 	@cKey = ""
 	@cPath = ""
@@ -70,14 +70,14 @@ class stzSecurityAttestation from stzObject
 	#   returns    nothing; the object is built
 	#   see        Of, WriteTo
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the name the attestation was built with.
 	#
 	#   returns    a text
 	#   see        init
 	def Name()
-		return @cName
+		return @tName
 
 	# Chooses the security ledger whose events will be exported.
 	#
@@ -138,7 +138,7 @@ class stzSecurityAttestation from stzObject
 	#@ aka  Seal the ledger to a file, attested by this actor. Returns TRUE when written; FALSE (with the refusal recorded) when the actor may not.
 	def WriteTo(pcPath, poActor)
 		if @oLedger = ""
-			stzraise("stzSecurityAttestation '" + @cName + "': nothing to attest -- say Of(oLedger) first.")
+			stzraise("stzSecurityAttestation '" + @tName + "': nothing to attest -- say Of(oLedger) first.")
 		ok
 		if NOT This.MayAttest(poActor)
 			StzNoteRefusal("evidence.export_refused", "" + poActor.Name(),
@@ -205,7 +205,7 @@ class stzSecurityAttestation from stzObject
 	#@ aka  -- the custody statement ----------------------------------------
 	def Statement()
 		if NOT @bWritten
-			return "Attestation " + @cName + ": nothing written yet."
+			return "Attestation " + @tName + ": nothing written yet."
 		ok
 		_aL_ = This.Explain()
 		_c_ = ""
@@ -225,10 +225,10 @@ class stzSecurityAttestation from stzObject
 	def Explain()
 		_aL_ = []
 		if NOT @bWritten
-			_aL_ + ("Attestation " + @cName + " -- nothing written yet.")
+			_aL_ + ("Attestation " + @tName + " -- nothing written yet.")
 			return _aL_
 		ok
-		_aL_ + ("Attestation " + @cName)
+		_aL_ + ("Attestation " + @tName)
 		_aL_ + ("  file      : " + @cPath)
 		_aL_ + ("  attestor  : " + @cAttestor)
 		_aL_ + ("  at        : " + @nAt + " (epoch ms, wall)")

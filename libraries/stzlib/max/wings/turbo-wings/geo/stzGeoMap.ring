@@ -18,7 +18,7 @@ $acCountriesByContinent = [
 
 class stzGeoMap
 	@cType = $cDefaultMapType  # [ :World, :Continent, :Country ]
-	@cName
+	@tName
 
 	@acParts
 	@acHilightedParts
@@ -34,11 +34,11 @@ class stzGeoMap
 
 			but IsContinent(pType)
 				@cType = :Continent
-				@cName = pType
+				@tName = pType
 
 			but IsCountry(pType)
 				@cType = :Country
-				@cName = pType
+				@tName = pType
 			ok
 
 		but isList(pType) and len(pType) = 2 and
@@ -49,11 +49,11 @@ class stzGeoMap
 
 			but IsContinent(pType[1])
 				@cType = :Continent
-				@cName = pType[1]
+				@tName = pType[1]
 
 			but IsCountry(pType[1])
 				@cType = :Country
-				@cName = pType[1]
+				@tName = pType[1]
 			ok
 		ok
 
@@ -63,10 +63,10 @@ class stzGeoMap
 			@acParts = $acContinents
 
 		but @cType = :Continent
-			@acParts = $acCountriesByContinent[@cName]
+			@acParts = $acCountriesByContinent[@tName]
 
 		but @cType = :Country
-			@acParts = $acTownsByCountry[@cName]
+			@acParts = $acTownsByCountry[@tName]
 		ok
 
 	# Hilight the given parts

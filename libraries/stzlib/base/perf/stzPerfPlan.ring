@@ -67,7 +67,7 @@ func StzPerfPlan(pcName)
 #   see        stzAppCluster, stzSla, stzPerfSentinel
 class stzPerfPlan from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aActions = []		# [ kind(lower), tag, rationale ]
 	@aAudit = []		# [ n, verdict, kind, tag, actor, why ]
 	@bExecuted = 0
@@ -80,14 +80,14 @@ class stzPerfPlan from stzObject
 	#              committing it is governed
 	#   see        Propose, ExecuteOn
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the name the plan was built with.
 	#
 	#   returns    the name as text
 	#   see        Explain
 	def Name()
-		return @cName
+		return @tName
 
 	# Adds one action to the plan, with the reason for it; nothing is executed.
 	#
@@ -231,7 +231,7 @@ class stzPerfPlan from stzObject
 	#@ aka  -- Legibility -----------------------------------------------
 	def Explain()
 		_aL_ = []
-		_aL_ + ("Perf plan " + @cName + " -- " + ring_len(@aActions) + " proposed action(s).")
+		_aL_ + ("Perf plan " + @tName + " -- " + ring_len(@aActions) + " proposed action(s).")
 		_nLen_ = ring_len(@aActions)
 		for _i_ = 1 to _nLen_
 			_aL_ + ("  " + _i_ + ". " + @aActions[_i_][1] + " '" + @aActions[_i_][2] +

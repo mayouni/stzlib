@@ -38,8 +38,8 @@ load "../../engine/stk_string.haro"
 #                  ledger as exposure.closed when the program opens one
 #   returns        1 to load, 0 to skip; a skipped domain's handle is NULL and a
 #                  call into it raises R3 at its line, naming the function
-func StzDomainWanted(ptDomain)
-	tC = Lower(String(ptDomain))
+func StzDomainWanted(pxDomain)
+	tC = Lower(String(pxDomain))
 	if not IsGlobal("$xStzDomainsDenied")
 		$xStzDomainsDenied = _stzReadDomainDeny()
 		$vStzDomainsSkipped = []
@@ -72,20 +72,20 @@ func StzDomainWanted(ptDomain)
 end
 # a text cut at one separator character (stdlib's split reads the NL global,
 # which a caller can overwrite)
-func _stzFields(ptText, ptSep)
-	vA = []
+func _stzFields(pxText, pxSep)
+	xA = []
 	tCur = ""
-	nN = Len(ptText)
+	nN = Len(pxText)
 	for i = 1 to nN
-		if ptText[i] = ptSep
-			vA + tCur
+		if pxText[i] = pxSep
+			xA + tCur
 			tCur = ""
 		else
-			tCur += ptText[i]
+			tCur += pxText[i]
 		end
 	end
-	vA + tCur
-	return vA
+	xA + tCur
+	return xA
 end
 # where the deny list lives: a program's $tStzDomainDenyFile, else the
 # STZ_DOMAIN_DENY variable, else <engineDir>/DENIED (one engine folder serves
@@ -142,9 +142,9 @@ func _stzDiscoverLibDir
 end
 # the deny list, read once: [ [ domain, advisoryId, why ], ... ]
 func _stzReadDomainDeny
-	vA = []
+	xA = []
 	xP = StzDomainDenyFile()
-	if not FExists(xP)  return vA  end
+	if not FExists(xP)  return xA  end
 	xL = Str2List(Read(xP))
 	nN = Len(xL)
 	for i = 1 to nN
@@ -152,9 +152,9 @@ func _stzReadDomainDeny
 		if tL = "" or Left(tL, 1) = "#"  loop  end
 		xF = _stzFields(tL, "|")
 		while Len(xF) < 3  xF + ""  end
-		vA + [ Lower(Trim(xF[1])), Trim(xF[2]), Trim(xF[3]) ]
+		xA + [ Lower(Trim(xF[1])), Trim(xF[2]), Trim(xF[3]) ]
 	end
-	return vA
+	return xA
 end
 func _stzDiscoverEngineDir
 	# STZ_ENGINE_DIR names the engine folder outright: the Ring++ copy of the

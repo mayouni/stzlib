@@ -73,7 +73,7 @@ func StzPerfMonitor(pcName)
 #   see        stzMetric, StzPerfMonitor, stzLog
 class stzPerfMonitor from stzObject
 
-	@cName = "perf-monitor"
+	@tName = "perf-monitor"
 	@aMetrics = []		# rows: [ name, oMetric ] -- write through the index
 	@nEveryMs = 1000
 	@nNextDueMs = 0
@@ -96,7 +96,7 @@ class stzPerfMonitor from stzObject
 	#   see        WatchMemory, Every, Sample
 	def init(pcName)
 		if isString(pcName) and pcName != ""
-			@cName = pcName
+			@tName = pcName
 		ok
 
 	# Returns the monitor's name.
@@ -104,7 +104,7 @@ class stzPerfMonitor from stzObject
 	#   returns    a text, such as shop
 	#   see        Name_
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the monitor's name under the spelling the agent-host contract expects.
 	#
@@ -112,7 +112,7 @@ class stzPerfMonitor from stzObject
 	#   see        Name, Cycle
 	#@ aka  The agent-host contract spells it Name_().
 	def Name_()
-		return @cName
+		return @tName
 
 	# Declares that every sample reads the process memory, and registers the gauges process.memory.rss and process.memory.peak.
 	#
@@ -297,7 +297,7 @@ class stzPerfMonitor from stzObject
 
 	def _Register(poMetric)
 		if This._IndexOf(poMetric.Name()) > 0
-			stzraise("stzPerfMonitor '" + @cName + "': a metric named '" + poMetric.Name() + "' is already registered.")
+			stzraise("stzPerfMonitor '" + @tName + "': a metric named '" + poMetric.Name() + "' is already registered.")
 		ok
 		@aMetrics + [ poMetric.Name(), poMetric ]
 		return @aMetrics[ring_len(@aMetrics)][2]
@@ -329,7 +329,7 @@ class stzPerfMonitor from stzObject
 	def MetricQ(pcName)
 		_n_ = This._IndexOf(pcName)
 		if _n_ = 0
-			stzraise("stzPerfMonitor '" + @cName + "': no metric named '" + pcName + "'.")
+			stzraise("stzPerfMonitor '" + @tName + "': no metric named '" + pcName + "'.")
 		ok
 		return @aMetrics[_n_][2]
 
@@ -490,7 +490,7 @@ class stzPerfMonitor from stzObject
 			_cMs_ += @aMetrics[_i_][2].OtelMetricJson()
 		next
 		_cJ_ = '{"resourceMetrics":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"'
-		_cJ_ += @cName
+		_cJ_ += @tName
 		_cJ_ += '"}}]},"scopeMetrics":[{"scope":{"name":"softanza.perf"},"metrics":['
 		_cJ_ += _cMs_
 		_cJ_ += ']}]}]}'
@@ -503,7 +503,7 @@ class stzPerfMonitor from stzObject
 	#@ aka  -- Legibility -----------------------------------------------
 	def Explain()
 		_aLines_ = []
-		_aLines_ + ("Monitor " + @cName + " -- " + ring_len(@aMetrics) + " metric(s), sampling every " + @nEveryMs + " ms, " + @nSamples + " sample(s) taken.")
+		_aLines_ + ("Monitor " + @tName + " -- " + ring_len(@aMetrics) + " metric(s), sampling every " + @nEveryMs + " ms, " + @nSamples + " sample(s) taken.")
 		_nLen_ = ring_len(@aMetrics)
 		for _i_ = 1 to _nLen_
 			_aSub_ = @aMetrics[_i_][2].Explain()

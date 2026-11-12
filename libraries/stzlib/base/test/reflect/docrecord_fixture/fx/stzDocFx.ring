@@ -24,10 +24,10 @@ class stzDocFxBase
 #   see        stzString
 class stzDocFx from stzDocFxBase
 
-	@cContent = ""
+	@tContent = ""
 
 	def init(pcContent)
-		@cContent = pcContent
+		@tContent = pcContent
 
 	#===# Finding #===#
 
@@ -67,7 +67,7 @@ class stzDocFx from stzDocFxBase
 		return 1
 
 	def IsEmpty()
-		return @cContent = ""
+		return @tContent = ""
 
 	# this line has a single space after the word, so it is prose, not a field:
 	#   see the manual
@@ -86,14 +86,14 @@ class stzDocFx from stzDocFxBase
 		return 1
 
 	def Show()
-		return @cContent
+		return @tContent
 
 	func MidClassMethod()
 		return 2
 
 	# Returns the content once it is shown.
 	def AfterFunc()
-		return @cContent
+		return @tContent
 
 # a global that landed after the class by position: not a method
 func StzDocFxQ(pcContent)

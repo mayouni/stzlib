@@ -21,7 +21,7 @@ class stkMemory
 	        Raise("Buffer size must be positive")
 	    end
 	    
-	    tBufferId = "buf" + @nNextBufferId
+	    tBufferId = "buf" + String(@nNextBufferId)
 	    @nNextBufferId++
 	    
 	    oBuffer = new stkBuffer(this, tBufferId, nSize)
@@ -53,7 +53,7 @@ class stkMemory
 	    
 	    # Add the pointer to the @aPointers container
 
-	    tPointerId = "ptr" + @nNextPointerId
+	    tPointerId = "ptr" + String(@nNextPointerId)
 	    @nNextPointerId++
 	    oPointer = new stkPointer(this, tBufferId, tAccessMode, 0, oBuffer.Capacity(), tPointerId)
 	    @xPointers + [ tPointerId, oPointer]
@@ -84,7 +84,7 @@ class stkMemory
         
         # Create new stkPointer instance with view
 
-	tPointerId = "ptr" + @nNextPointerId
+	tPointerId = "ptr" + String(@nNextPointerId)
         oPointer = new stkPointer(this, tBufferId, tAccessMode, nOffset, nLength, tPointerId)
         
         # Add to managed pointers
@@ -265,10 +265,10 @@ class stkMemory
 
   	  ? "stkMemory Container:"
 	    ? "  Valid: " + @bIsValid
-	    ? "  Buffers: " + nLenBuf
-	    ? "  Pointers: " + nLenPtr
-	    ? "  Next Buffer ID: " + @nNextBufferId
-	    ? "  Next Pointer ID: " + @nNextPointerId
+	    ? "  Buffers: " + String(nLenBuf)
+	    ? "  Pointers: " + String(nLenPtr)
+	    ? "  Next Buffer ID: " + String(@nNextBufferId)
+	    ? "  Next Pointer ID: " + String(@nNextPointerId)
 	    
 	    if nLenBuf > 0
 	        ? "  Buffer Details:"

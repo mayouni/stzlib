@@ -130,7 +130,7 @@ func Reduce(vList, fStep, pxInitial)
 	end
 	nLength = Len(vList)
 	if not IsFunction(fStep)
-		Raise(fStep + " is not a function.")
+		Raise(String(fStep) + " is not a function.")
 	end
 	nStart = 1
 	if IsString(pxInitial) and pxInitial = ""
@@ -173,7 +173,7 @@ end
 # is native on both runtimes, so it is the whole wait here.
 func Sleep(nSeconds)
 	if IsString(nSeconds)
-		nSeconds = Number(nSeconds)
+		nSeconds = Decimal(nSeconds)
 	end
 	if not IsNumber(nSeconds)
 		Raise("Bad parameter type!")

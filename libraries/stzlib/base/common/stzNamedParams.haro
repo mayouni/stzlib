@@ -1,0 +1,1546 @@
+
+#=================================================================#
+#  NAMED PARAM CHECKING -- Pure Ring Implementation               #
+#  Replaces 1,566 IsXxxNamedParam() methods in stzList with       #
+#  a single hash-lookup against an embedded keyword registry.     #
+#=================================================================#
+
+# 768 registered named-param keywords (lowercase for O(n) scan).
+# This list mirrors engine/src/named_params.zig and replaces the
+# engine call StzMetaIsNamedParam() with a pure Ring lookup.
+
+$vtStzNamedParams = [
+	"after", "afterchar", "afterchars", "aftercharsw", "aftercharswhere",
+	"aftercharswhereext", "aftercharswxt", "aftereach", "afterfirst", "afterib",
+	"afteritem", "afteritemib", "afteritems", "afteritemsib", "afterlast",
+	"aftermany", "aftermanypositions", "aftermanypositionsib", "afternth",
+	"afterposition", "afterpositionib", "afterpositions", "afterpositionsib",
+	"aftersection", "aftersectionib", "aftersections", "aftersectionsib",
+	"aftersubstring", "aftersubstringib", "aftersubstringposition",
+	"aftersubstrings", "aftersubstringsib", "aftersubstringspositions",
+	"afterthese", "aftertheseitems", "aftertheseitemsib", "afterthesepositions",
+	"afterthesepositionsib", "afterthesesections", "afterthesesubstrings",
+	"afterthesesubstringsib", "afterthesesubstringspositions", "afterthisitem",
+	"afterthisitemib", "afterthisposition", "afterthispositionib",
+	"afterthissection", "afterthissubstring", "afterthissubstringib",
+	"afterthissubstringposition", "afterwhere", "afterwhereext",
+	"alongwith", "alongwiththeir", "among", "and", "andchar", "andcol",
+	"andcolat", "andcolatposition", "andcolnamed", "andcolumn", "andcolumnat",
+	"andcolumnatposition", "andcolumnnamed", "andharvest", "andharvestsection",
+	"andharvestsections", "anditem", "anditemat", "anditematposition",
+	"andposition", "andpositions", "andreturnas", "andreturnedas",
+	"andreturnitas", "andreturnthemas", "androw", "androwat",
+	"androwatposition", "andsection", "andsections", "andstring",
+	"andstringat", "andstringatposition", "andsubstring", "andsubstrings",
+	"andthat", "andtheir", "andthen", "andthenharvest", "andthenharvestsection",
+	"andthenharvestsections", "andthenyield", "andthenyieldsection",
+	"andthenyieldsections", "andthis", "andyield", "andyieldsection",
+	"andyieldsections",
+	"around", "aroundchar", "aroundchars", "aroundeach", "aroundfirst",
+	"aroundib", "arounditemib", "arounditemsib", "aroundlast", "aroundmany",
+	"aroundnth", "aroundposition", "aroundpositionib", "aroundpositions",
+	"aroundpositionsib", "aroundsection", "aroundsectionib", "aroundsections",
+	"aroundsectionsib", "aroundsubstring", "aroundsubstringib",
+	"aroundsubstrings", "aroundsubstringsib", "aroundthese",
+	"aroundtheseitemsib", "aroundthesepositionsib", "aroundthesesubstringsib",
+	"aroundthisitemib", "aroundthispositionib", "aroundthissubstringib",
+	"as", "at", "atchar", "atchars", "atcharsw", "atcharswhere",
+	"atcharswhereext", "atcharswxt", "atib", "atitem", "atitemib", "atitems",
+	"atitemsib", "atlist", "atlistofchars", "atlistofhashlists",
+	"atlistoflists", "atlistofnumbers", "atlistofpairs", "atlistofranges",
+	"atlistofsections", "atlistofsectionsib", "atlistofstrings",
+	"atlistofsublists", "atlists", "atmanychars", "atmanyitems", "atmanylists",
+	"atmanynumbers", "atmanyobjects", "atmanypairs", "atmanypositions",
+	"atmanypositionsib", "atmanyranges", "atmanysections", "atmanysectionsib",
+	"atmanystrings", "atmanysublists", "atmanysubstrings",
+	"atmanysubstringsib", "atnumber", "atnumbers", "atobject", "atobjects",
+	"atpair", "atpairs", "atposition", "atpositionib", "atpositions",
+	"atpositionsib", "atrange", "atranges", "atsection", "atsectionib",
+	"atsections", "atsectionsib", "atstring", "atstrings", "atsublist",
+	"atsublists", "atsubstring", "atsubstringib", "atsubstrings",
+	"atsubstringsib", "atthesechars", "attheseitems", "attheselists",
+	"atthesenumbers", "attheseobjects", "atthesepairs", "atthesepositions",
+	"atthesepositionsib", "attheseranges", "atthesesections",
+	"atthesesectionsib", "atthesestrings", "atthesesublists",
+	"atthesesubstrings", "atthesesubstringsib", "atthischar", "atthisitem",
+	"atthislist", "atthisnumber", "atthisobject", "atthispair",
+	"atthisposition", "atthispositionib", "atthisrange", "atthissection",
+	"atthissectionib", "atthisstring", "atthissublist", "atthissubstring",
+	"atthissubstringib", "atwhere", "atwhereext",
+	"backward", "before", "beforechar", "beforechars", "beforecharsw",
+	"beforecharswhere", "beforecharswhereext", "beforecharswxt", "beforeeach",
+	"beforefirst", "beforeib", "beforeitem", "beforeitemib", "beforeitems",
+	"beforeitemsib", "beforelast", "beforemany", "beforemanypositions",
+	"beforemanypositionsib", "beforenth", "beforeposition", "beforepositionib",
+	"beforepositions", "beforepositionsib", "beforesection", "beforesectionib",
+	"beforesections", "beforesectionsib", "beforesubstring",
+	"beforesubstringib", "beforesubstringposition", "beforesubstrings",
+	"beforesubstringsib", "beforesubstringspositions", "beforethese",
+	"beforetheseitems", "beforetheseitemsib", "beforethesepositions",
+	"beforethesepositionsib", "beforethesesections", "beforethesesubstrings",
+	"beforethesesubstringsib", "beforethesesubstringspositions",
+	"beforethisitem", "beforethisitemib", "beforethisposition",
+	"beforethispositionib", "beforethissection", "beforethissubstring",
+	"beforethissubstringib", "beforethissubstringposition", "beforewhere",
+	"beforewhereext",
+	"between", "betweencs", "betweenib", "betweenposition",
+	"betweenpositionib", "betweenpositions", "betweenpositionsib",
+	"betweensection", "betweensubstring", "betweensubstrings",
+	"betweensubstringsib", "betweenxt",
+	"boundedby", "boundedbyib", "bounds", "boundsib",
+	"by", "bymany", "bymanyxt", "byxt",
+	"cs", "casesensitive",
+	"cell", "cellpart", "cells", "cellvalue",
+	"char", "charat", "charatposition", "chars",
+	"col", "colnumber", "cols", "colsnumbers",
+	"column", "columnnumber", "columns", "columnsnumbers",
+	"coming", "concatenated", "concatenatedusing", "concatenatedwith",
+	"direction", "do", "downto",
+	"each", "eachnchars", "eachnitems",
+	"else", "end", "endat", "endatoccurrence", "endatposition",
+	"endingat", "endingatoccurrence", "endingatposition",
+	"endofline", "endoflist", "endofsentence", "endofstring", "endofword",
+	"endsat", "endsatoccurrence", "endsatposition",
+	"equals", "equalto", "eval", "evaldirection", "evalfrom",
+	"evaluate", "evaluatefrom", "evaluationdirection",
+	"exactly", "except", "expression",
+	"first", "firstchars", "firstnchars", "firstposition",
+	"for", "foreach", "forward",
+	"from", "fromend", "fromendoflist", "fromendofstring", "fromposition",
+	"frompositionofchar", "frompositionofitem", "frompositionofstring",
+	"frompositions", "fromstart", "fromstartoflist", "fromstartofstring",
+	"going", "grandtotal", "greaterthan", "grid", "group",
+	"harvest", "harvestsection", "harvestsections", "hashlist",
+	"id", "if", "in",
+	"ina", "inalistof", "inalistofn", "inalistofnitems", "inalistofsize",
+	"inalistofsizen",
+	"incell", "incells", "inchar", "incol", "incolnumber", "incols",
+	"incolsnumbers", "incolumn", "incolumnnumber", "incolumns",
+	"incolumnsnumbers", "inhashlist", "inlist", "inlistof", "inlistofn",
+	"inlistofnitems", "inlistofsize", "inlistofsizen",
+	"innumber", "inobject", "inpair", "inplan", "inposition", "inpositions",
+	"inrange", "inrow", "inrownumber", "inrows", "inrowsnumbers",
+	"insection", "insections", "inset", "inside",
+	"insidea", "insidechar", "insidehashlist", "insidelist", "insidenumber",
+	"insideobject", "insidepair", "insideset", "insidestring",
+	"insidesubstring",
+	"instring", "instringof", "instringofsizen", "insubstring",
+	"insubstrings", "intertotal",
+	"isboundedby", "isboundof", "isfirstboundof", "isgreaterthan",
+	"islastboundof", "isleftboundof", "islessthan", "isofitem",
+	"isrightboundof",
+	"it", "item", "itemat", "itematposition", "itemfrom", "itemfromposition",
+	"items", "jump", "label",
+	"last", "lastchars", "lastnchars", "lastposition", "lastsep",
+	"lessthan", "like", "list", "listoflists", "listsize",
+	"madeof", "n", "name", "named", "namedas",
+	"ncharsafter", "ncharsbefore", "next", "nextnth",
+	"nfirstchars", "nfirstitems", "nlastchars", "nlastitems",
+	"nor", "not", "nstep", "nsteps", "nth", "nthnext", "nthoccurrence",
+	"nthprevious", "nthtofirst", "nthtolast",
+	"number", "numberofchars", "numberofitems", "numbers",
+	"object", "occurrence",
+	"of", "ofcell", "ofcellpart", "ofcells", "ofcellvalue",
+	"ofchar", "ofcol", "ofcolnumber", "ofcols", "ofcolsnumbers",
+	"ofcolumn", "ofcolumnnumber", "ofcolumns", "ofcolumnsnumbers",
+	"ofhashlist", "oflist", "ofnumber", "ofobject", "ofpair", "ofpart",
+	"ofplan", "ofrow", "ofrownumber", "ofrows", "ofrowsnumbers",
+	"ofsection", "ofsections", "ofset", "ofsize", "ofstring",
+	"ofsubpart", "ofsubstring", "ofsubstrings", "ofsubvalue", "ofsubvalues",
+	"ofthese", "ofthesechars", "oftheseletters", "oftheselists",
+	"ofthesenumbers", "oftheseobjects", "ofthesesubstrings", "ofvalue",
+	"on", "onchar", "oncomplete", "onerror", "onhashlist", "onlist",
+	"onnumber", "onobject", "onpair", "onposition", "onpositions",
+	"onsection", "onsectionib", "onsections", "onsectionsib", "onset",
+	"onstring", "onsubstring", "onsuccess", "onupdate",
+	"or", "ora", "oran", "orthat", "orthis", "otherwise",
+	"pair", "paramname", "part", "pattern", "person",
+	"position", "positionib", "positions", "positionsib",
+	"previous", "previousnth",
+	"respectively", "return", "returnas", "returnedas", "returnitas",
+	"returnthemas",
+	"row", "rows",
+	"section", "sectionib", "sections", "sectionsib",
+	"seed", "separator", "size",
+	"start", "startat", "startatoccurrence", "startatposition", "startfrom",
+	"startingat", "startingatoccurrence", "startingatposition", "startingfrom",
+	"startoflist", "startofstring", "startsatoccurrence", "startsatposition",
+	"startsfrom",
+	"step", "stepping", "steps", "stop", "stopat", "stopatoccurrence",
+	"stoppingat", "stoppingatoccurrence", "stoppingatposition", "stopsat",
+	"stopsatoccurrence",
+	"string", "stringat", "stringatposition", "strings", "stringsize",
+	"subpart", "substring", "substrings", "subtotal", "subvalue", "subvalues",
+	"table", "than", "that", "then",
+	"thenharvest", "thenharvestsection", "thenharvestsections",
+	"thenyield", "thenyieldsection", "thenyieldsections",
+	"thesechars", "theseitems", "theselists", "thesenumbers", "theseobjects",
+	"thesepositions", "thesepositionsib", "thesesections", "thesesectionsib",
+	"thesestrings", "thesesubstrings",
+	"this", "thischar", "thisitem", "thislist", "thisnumber", "thisobject",
+	"thisposition", "thispositionib", "thissection", "thissectionib",
+	"thisstring", "thissubstring",
+	"to", "tochar", "tocharat", "tocharatposition", "toeach", "toend",
+	"toendofline", "toendoflist", "toendofsentence", "toendofstring",
+	"toendofword", "tofirst", "toitem", "toitemat", "toitematposition",
+	"toitems", "tolast", "tolist", "tomany", "tonchars", "tonitems",
+	"tonth", "tonumber", "toobject", "topair", "toposition", "topositionof",
+	"topositionofchar", "topositionofitem", "topositionofstring",
+	"topositions", "tosection", "tosections", "toset", "tostart",
+	"tostartoflist", "tostartofstring", "tostring", "tostringat",
+	"tostringatposition", "tostrings", "tosubstring", "tosubstrings",
+	"tothis",
+	"type", "under",
+	"until", "untilchar", "untilitem", "untillist", "untilnumber",
+	"untilobject", "untilposition", "untilstring", "untilsubstring",
+	"untilxt",
+	"upto", "uptochar", "uptoitem", "uptolist", "upton", "uptonbounds",
+	"uptonchars", "uptonitems", "uptonumber", "uptoobject", "uptoposition",
+	"uptostring", "uptosubstring",
+	"using", "usingitem", "usingitems", "usingmany", "usingmanyxt",
+	"usingstring", "usingstrings", "usingsubstring", "usingsubstrings",
+	"usingtheseitems", "usingthesestrings", "usingthesesubstrings",
+	"usingthisitem", "usingthisstring", "usingthissubstring",
+	"value", "values", "when", "where", "wherext", "while", "width",
+	"with", "withchar", "withhashlist", "withlist", "withmany", "withmanyxt",
+	"withnumber", "withobject", "withpair", "withset", "withstring",
+	"withsubstring", "withtheir",
+	"yield", "yieldsection", "yieldsections"
+]
+
+  #/////////////////
+ #/  CHECKPARAM  ///
+#/////////////////
+
+func StzCheckParam(pxValue, xP2, xP3)
+
+	if IsList(xP2) and Len(xP2) = 2 and IsString(xP2[1]) and xP2[1] = :Skipping
+		vtSkipping = xP2[2]
+	else
+		vtSkipping = xP2
+	end
+
+	if IsList(xP3) and Len(xP3) = 2 and IsString(xP3[1]) and xP3[1] = :MustBe
+		tMustBe = xP3[2]
+	else
+		tMustBe = xP3
+	end
+
+	if IsList(pxValue) and Len(pxValue) = 2 and IsString(pxValue[1])
+		tKey = StzLower(pxValue[1])
+		nLen = Len(vtSkipping)
+		for i = 1 to nLen
+			if tKey = StzLower(vtSkipping[i])
+				pxValue = pxValue[2]
+				exit
+			end
+		end
+	end
+
+	if CheckingParams()
+		bOk = _CheckType(pxValue, tMustBe)
+		if not bOk
+			StzRaise("Incorrect param type! " +
+				 "Expected " + tMustBe + ".")
+		end
+	end
+
+	return pxValue
+end
+	func CheckParam(pxValue, xP2, xP3)
+		return StzCheckParam(pxValue, xP2, xP3)
+	end
+  #//////////////////////
+ #/  CHECKPARAM (CS)  ///
+#//////////////////////
+
+func StzCheckParamCS(pxValue)
+	if IsList(pxValue) and Len(pxValue) = 2 and IsString(pxValue[1])
+		tKey = StzLower(pxValue[1])
+		if tKey = "casesensitive" or tKey = "cs"
+			pxValue = pxValue[2]
+		end
+	end
+
+	if not IsNumber(pxValue)
+		if CheckingParams()
+			StzRaise("Incorrect param type! " +
+				 "CaseSensitive must be a number (0 or 1).")
+		end
+		return 1
+	end
+
+	return pxValue
+end
+	func CheckParamCS(pxValue)
+		return StzCheckParamCS(pxValue)
+	end
+  #//////////////////////////
+ #/  NAMED PARAM CHECKS  ///
+#//////////////////////////
+
+func StzIsNamedParamList(pxList)
+	if not IsList(pxList)
+		return false
+	end
+
+	if Len(pxList) != 2
+		return false
+	end
+
+	if not IsString(pxList[1])
+		return false
+	end
+
+	return ring_find($vtStzNamedParams, StzLower(pxList[1])) > 0
+end
+	func IsNamedParamList(pxList)
+		return StzIsNamedParamList(pxList)
+	end
+func StzIsThisNamedParam(pxList, tKeyword)
+	if not IsList(pxList)
+		return false
+	end
+
+	if Len(pxList) != 2
+		return false
+	end
+
+	if not IsString(pxList[1])
+		return false
+	end
+
+	if StzLower(pxList[1]) = StzLower(tKeyword)
+		return true
+	end
+
+	return false
+end
+	func IsThisNamedParam(pxList, tKeyword)
+		return StzIsThisNamedParam(pxList, tKeyword)
+	end
+func StzIsOneOfTheseNamedParamsList(pxList, pxKeywords)
+	if not IsList(pxList)
+		return false
+	end
+
+	if Len(pxList) != 2
+		return false
+	end
+
+	if not IsString(pxList[1])
+		return false
+	end
+
+	tParam = StzLower(pxList[1])
+	nLen = Len(pxKeywords)
+
+	for i = 1 to nLen
+		if tParam = StzLower(pxKeywords[i])
+			return true
+		end
+	end
+
+	return false
+end
+	func IsOneOfTheseNamedParamsList(pxList, pxKeywords)
+		return StzIsOneOfTheseNamedParamsList(pxList, pxKeywords)
+	end
+  #///////////////////////
+ #/  TYPE CHECK LOGIC  ///
+#///////////////////////
+
+func _CheckType(pxValue, tExpected)
+	switch tExpected
+	case :string
+		return IsString(pxValue)
+	case :number
+		return IsNumber(pxValue)
+	case :list
+		return IsList(pxValue)
+	case :object
+		return IsObject(pxValue)
+	case :string_or_number
+		return IsString(pxValue) or IsNumber(pxValue)
+	case :number_or_string
+		return IsString(pxValue) or IsNumber(pxValue)
+	case :string_or_list
+		return IsString(pxValue) or IsList(pxValue)
+	case :list_or_string
+		return IsString(pxValue) or IsList(pxValue)
+	case :any
+		return true
+	else
+		return true
+	end
+end
+  #////////////////////////////////
+ #/  SPECIFIC PARAM CHECKERS  ///
+#////////////////////////////////
+
+func StzIsOfNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Of
+end
+	func IsOfNamedParamList(pxList)
+		return StzIsOfNamedParamList(pxList)
+	end
+func StzIsCaseSensitiveNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	if not IsNumber(pxList[2]) return false end
+	if not (pxList[1] = :CaseSensitive or pxList[1] = :CS) return false end
+	if not (pxList[2] = 0 or pxList[2] = 1) return false end
+	return true
+end
+	func IsCaseSensitiveNamedParamList(pxList)
+		return StzIsCaseSensitiveNamedParamList(pxList)
+	end
+func StzIsAndNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :And or pxList[1] = :And@
+end
+	func IsAndNamedParamList(pxList)
+		return StzIsAndNamedParamList(pxList)
+	end
+func StzIsWithOrByNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	tKey = pxList[1]
+	return tKey = :With or tKey = :With@ or tKey = :By or tKey = :By@
+end
+	func IsWithOrByNamedParamList(pxList)
+		return StzIsWithOrByNamedParamList(pxList)
+	end
+func StzIsToNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :To
+end
+	func IsToNamedParamList(pxList)
+		return StzIsToNamedParamList(pxList)
+	end
+func StzIsStartingAtNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :StartingAt
+end
+	func IsStartingAtNamedParamList(pxList)
+		return StzIsStartingAtNamedParamList(pxList)
+	end
+func StzIsStartingAtOrStartingAtPositionNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :StartingAt or pxList[1] = :StartingAtPosition
+end
+	func IsStartingAtOrStartingAtPositionNamedParamList(pxList)
+		return StzIsStartingAtOrStartingAtPositionNamedParamList(pxList)
+	end
+func StzIsAtNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :At
+end
+	func IsAtNamedParamList(pxList)
+		return StzIsAtNamedParamList(pxList)
+	end
+func StzIsAtOrAtSubStringNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :At or pxList[1] = :AtSubString
+end
+	func IsAtOrAtSubStringNamedParamList(pxList)
+		return StzIsAtOrAtSubStringNamedParamList(pxList)
+	end
+func StzIsAtOrAtItemNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :At or pxList[1] = :AtItem
+end
+	func IsAtOrAtItemNamedParamList(pxList)
+		return StzIsAtOrAtItemNamedParamList(pxList)
+	end
+func StzIsInNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :In
+end
+	func IsInNamedParamList(pxList)
+		return StzIsInNamedParamList(pxList)
+	end
+func StzIsBoundedByNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :BoundedBy
+end
+	func IsBoundedByNamedParamList(pxList)
+		return StzIsBoundedByNamedParamList(pxList)
+	end
+func StzIsBoundedByOrBoundsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :BoundedBy or pxList[1] = :Bounds
+end
+	func IsBoundedByOrBoundsNamedParamList(pxList)
+		return StzIsBoundedByOrBoundsNamedParamList(pxList)
+	end
+func StzIsBoundsOrBoundedByNamedParamList(pxList)
+	return StzIsBoundedByOrBoundsNamedParamList(pxList)
+end
+	func IsBoundsOrBoundedByNamedParamList(pxList)
+		return StzIsBoundsOrBoundedByNamedParamList(pxList)
+	end
+func StzIsPatternNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Pattern
+end
+	func IsPatternNamedParamList(pxList)
+		return StzIsPatternNamedParamList(pxList)
+	end
+func StzIsWithOrByOrUsingNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :With or pxList[1] = :By or pxList[1] = :Using
+end
+	func IsWithOrByOrUsingNamedParamList(pxList)
+		return StzIsWithOrByOrUsingNamedParamList(pxList)
+	end
+func StzIsWhereNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Where
+end
+	func IsWhereNamedParamList(pxList)
+		return StzIsWhereNamedParamList(pxList)
+	end
+func StzIsFromNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :From or pxList[1] = :FromPosition
+end
+	func IsFromNamedParamList(pxList)
+		return StzIsFromNamedParamList(pxList)
+	end
+func StzIsByNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :By or pxList[1] = :By@
+end
+	func IsByNamedParamList(pxList)
+		return StzIsByNamedParamList(pxList)
+	end
+func StzIsEachNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Each or pxList[1] = :Each@
+end
+	func IsEachNamedParamList(pxList)
+		return StzIsEachNamedParamList(pxList)
+	end
+func StzIsReturnedAsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :ReturnedAs
+end
+	func IsReturnedAsNamedParamList(pxList)
+		return StzIsReturnedAsNamedParamList(pxList)
+	end
+func StzIsBetweenNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Between
+end
+	func IsBetweenNamedParamList(pxList)
+		return StzIsBetweenNamedParamList(pxList)
+	end
+func StzIsItemNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Item
+end
+	func IsItemNamedParamList(pxList)
+		return StzIsItemNamedParamList(pxList)
+	end
+func StzIsWithNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :With or pxList[1] = :With@
+end
+	func IsWithNamedParamList(pxList)
+		return StzIsWithNamedParamList(pxList)
+	end
+func StzIsOfOrOfSubStringNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Of or pxList[1] = :OfSubString
+end
+	func IsOfOrOfSubStringNamedParamList(pxList)
+		return StzIsOfOrOfSubStringNamedParamList(pxList)
+	end
+func StzIsOrNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Or
+end
+	func IsOrNamedParamList(pxList)
+		return StzIsOrNamedParamList(pxList)
+	end
+func StzIsUsingOrWithOrByOrWhereNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Using or pxList[1] = :With or pxList[1] = :By or pxList[1] = :Where
+end
+	func IsUsingOrWithOrByOrWhereNamedParamList(pxList)
+		return StzIsUsingOrWithOrByOrWhereNamedParamList(pxList)
+	end
+func StzIsPositionNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Position
+end
+	func IsPositionNamedParamList(pxList)
+		return StzIsPositionNamedParamList(pxList)
+	end
+func StzIsNorNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Nor
+end
+	func IsNorNamedParamList(pxList)
+		return StzIsNorNamedParamList(pxList)
+	end
+func StzIsInSectionNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :InSection
+end
+	func IsInSectionNamedParamList(pxList)
+		return StzIsInSectionNamedParamList(pxList)
+	end
+func StzIsThanNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Than
+end
+	func IsThanNamedParamList(pxList)
+		return StzIsThanNamedParamList(pxList)
+	end
+func StzIsToOrToPositionNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :To or pxList[1] = :ToPosition
+end
+	func IsToOrToPositionNamedParamList(pxList)
+		return StzIsToOrToPositionNamedParamList(pxList)
+	end
+func StzIsWithOrUsingOrByNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :With or pxList[1] = :Using or pxList[1] = :By
+end
+	func IsWithOrUsingOrByNamedParamList(pxList)
+		return StzIsWithOrUsingOrByNamedParamList(pxList)
+	end
+func StzIsPositionOrPositionsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Position or pxList[1] = :Positions
+end
+	func IsPositionOrPositionsNamedParamList(pxList)
+		return StzIsPositionOrPositionsNamedParamList(pxList)
+	end
+func StzIsPositionOrSubStringNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Position or pxList[1] = :SubString
+end
+	func IsPositionOrSubStringNamedParamList(pxList)
+		return StzIsPositionOrSubStringNamedParamList(pxList)
+	end
+func StzIsAndThenNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :AndThen
+end
+	func IsAndThenNamedParamList(pxList)
+		return StzIsAndThenNamedParamList(pxList)
+	end
+func StzIsForNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :For
+end
+	func IsForNamedParamList(pxList)
+		return StzIsForNamedParamList(pxList)
+	end
+func StzIsSubStringNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :SubString
+end
+	func IsSubStringNamedParamList(pxList)
+		return StzIsSubStringNamedParamList(pxList)
+	end
+func StzIsUpToNCharsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :UpToNChars
+end
+	func IsUpToNCharsNamedParamList(pxList)
+		return StzIsUpToNCharsNamedParamList(pxList)
+	end
+func StzIsAsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :As
+end
+	func IsAsNamedParamList(pxList)
+		return StzIsAsNamedParamList(pxList)
+	end
+func StzIsNthNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Nth
+end
+	func IsNthNamedParamList(pxList)
+		return StzIsNthNamedParamList(pxList)
+	end
+func StzIsBeforeNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Before
+end
+	func IsBeforeNamedParamList(pxList)
+		return StzIsBeforeNamedParamList(pxList)
+	end
+func StzIsUsingNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Using
+end
+	func IsUsingNamedParamList(pxList)
+		return StzIsUsingNamedParamList(pxList)
+	end
+func StzIsAfterNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :After
+end
+	func IsAfterNamedParamList(pxList)
+		return StzIsAfterNamedParamList(pxList)
+	end
+func StzIsAtOrAtPositionNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :At or pxList[1] = :AtPosition
+end
+	func IsAtOrAtPositionNamedParamList(pxList)
+		return StzIsAtOrAtPositionNamedParamList(pxList)
+	end
+func StzIsAtPositionNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :AtPosition
+end
+	func IsAtPositionNamedParamList(pxList)
+		return StzIsAtPositionNamedParamList(pxList)
+	end
+func StzIsAtPositionsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :AtPositions
+end
+	func IsAtPositionsNamedParamList(pxList)
+		return StzIsAtPositionsNamedParamList(pxList)
+	end
+func StzIsBeforePositionNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :BeforePosition
+end
+	func IsBeforePositionNamedParamList(pxList)
+		return StzIsBeforePositionNamedParamList(pxList)
+	end
+func StzIsAfterPositionNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :AfterPosition
+end
+	func IsAfterPositionNamedParamList(pxList)
+		return StzIsAfterPositionNamedParamList(pxList)
+	end
+func StzIsBeforeOrAfterNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Before or pxList[1] = :After
+end
+	func IsBeforeOrAfterNamedParamList(pxList)
+		return StzIsBeforeOrAfterNamedParamList(pxList)
+	end
+func StzIsBetweenIBNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :BetweenIB
+end
+	func IsBetweenIBNamedParamList(pxList)
+		return StzIsBetweenIBNamedParamList(pxList)
+	end
+func StzIsBoundedByIBNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :BoundedByIB
+end
+	func IsBoundedByIBNamedParamList(pxList)
+		return StzIsBoundedByIBNamedParamList(pxList)
+	end
+func StzIsByOrWithNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :By or pxList[1] = :With
+end
+	func IsByOrWithNamedParamList(pxList)
+		return StzIsByOrWithNamedParamList(pxList)
+	end
+func StzIsDirectionNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Direction
+end
+	func IsDirectionNamedParamList(pxList)
+		return StzIsDirectionNamedParamList(pxList)
+	end
+func StzIsDirectionOrGoingNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Direction or pxList[1] = :Going
+end
+	func IsDirectionOrGoingNamedParamList(pxList)
+		return StzIsDirectionOrGoingNamedParamList(pxList)
+	end
+func StzIsEqualToNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :EqualTo
+end
+	func IsEqualToNamedParamList(pxList)
+		return StzIsEqualToNamedParamList(pxList)
+	end
+func StzIsFirstNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :First
+end
+	func IsFirstNamedParamList(pxList)
+		return StzIsFirstNamedParamList(pxList)
+	end
+func StzIsLastNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Last
+end
+	func IsLastNamedParamList(pxList)
+		return StzIsLastNamedParamList(pxList)
+	end
+func StzIsListNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :List
+end
+	func IsListNamedParamList(pxList)
+		return StzIsListNamedParamList(pxList)
+	end
+func StzIsRangeNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Range
+end
+	func IsRangeNamedParamList(pxList)
+		return StzIsRangeNamedParamList(pxList)
+	end
+func StzIsRespectivelyNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Respectively
+end
+	func IsRespectivelyNamedParamList(pxList)
+		return StzIsRespectivelyNamedParamList(pxList)
+	end
+func StzIsReturnTypeNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :ReturnType
+end
+	func IsReturnTypeNamedParamList(pxList)
+		return StzIsReturnTypeNamedParamList(pxList)
+	end
+func StzIsSectionsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Sections
+end
+	func IsSectionsNamedParamList(pxList)
+		return StzIsSectionsNamedParamList(pxList)
+	end
+func StzIsStringNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :String
+end
+	func IsStringNamedParamList(pxList)
+		return StzIsStringNamedParamList(pxList)
+	end
+func StzIsStringOrSubStringNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :String or pxList[1] = :SubString
+end
+	func IsStringOrSubStringNamedParamList(pxList)
+		return StzIsStringOrSubStringNamedParamList(pxList)
+	end
+func StzIsSubStringsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :SubStrings
+end
+	func IsSubStringsNamedParamList(pxList)
+		return StzIsSubStringsNamedParamList(pxList)
+	end
+func StzIsSubStringOrSubStringsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :SubString or pxList[1] = :SubStrings
+end
+	func IsSubStringOrSubStringsNamedParamList(pxList)
+		return StzIsSubStringOrSubStringsNamedParamList(pxList)
+	end
+func StzIsUsingOrByOrWithNamedParamList(pxList)
+	return StzIsWithOrByOrUsingNamedParamList(pxList)
+end
+	func IsUsingOrByOrWithNamedParamList(pxList)
+		return StzIsUsingOrByOrWithNamedParamList(pxList)
+	end
+func StzIsUsingOrWithOrByNamedParamList(pxList)
+	return StzIsWithOrByOrUsingNamedParamList(pxList)
+end
+	func IsUsingOrWithOrByNamedParamList(pxList)
+		return StzIsUsingOrWithOrByNamedParamList(pxList)
+	end
+func StzIsWithOrUsingNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :With or pxList[1] = :Using
+end
+	func IsWithOrUsingNamedParamList(pxList)
+		return StzIsWithOrUsingNamedParamList(pxList)
+	end
+func StzIsWithOrUsingOrInNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :With or pxList[1] = :Using or pxList[1] = :In
+end
+	func IsWithOrUsingOrInNamedParamList(pxList)
+		return StzIsWithOrUsingOrInNamedParamList(pxList)
+	end
+func StzIsInOrInsideNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :In or pxList[1] = :Inside
+end
+	func IsInOrInsideNamedParamList(pxList)
+		return StzIsInOrInsideNamedParamList(pxList)
+	end
+func StzIsOfTypeNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :OfType
+end
+	func IsOfTypeNamedParamList(pxList)
+		return StzIsOfTypeNamedParamList(pxList)
+	end
+func StzIsOrOrAndNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Or or pxList[1] = :And
+end
+	func IsOrOrAndNamedParamList(pxList)
+		return StzIsOrOrAndNamedParamList(pxList)
+	end
+func StzIsStartingAtOrAfterNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :StartingAt or pxList[1] = :After
+end
+	func IsStartingAtOrAfterNamedParamList(pxList)
+		return StzIsStartingAtOrAfterNamedParamList(pxList)
+	end
+func StzIsStartingAtOrBeforeNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :StartingAt or pxList[1] = :Before
+end
+	func IsStartingAtOrBeforeNamedParamList(pxList)
+		return StzIsStartingAtOrBeforeNamedParamList(pxList)
+	end
+func StzIsStoppingAtNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :StoppingAt
+end
+	func IsStoppingAtNamedParamList(pxList)
+		return StzIsStoppingAtNamedParamList(pxList)
+	end
+func StzIsANamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :A
+end
+	func IsANamedParamList(pxList)
+		return StzIsANamedParamList(pxList)
+	end
+func StzIsNameOrNamedNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Name or pxList[1] = :Named
+end
+	func IsNameOrNamedNamedParamList(pxList)
+		return StzIsNameOrNamedNamedParamList(pxList)
+	end
+func StzIsNCharsAfterNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :NCharsAfter
+end
+	func IsNCharsAfterNamedParamList(pxList)
+		return StzIsNCharsAfterNamedParamList(pxList)
+	end
+func StzIsNCharsBeforeNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :NCharsBefore
+end
+	func IsNCharsBeforeNamedParamList(pxList)
+		return StzIsNCharsBeforeNamedParamList(pxList)
+	end
+func StzIsLastCharsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :LastChars
+end
+	func IsLastCharsNamedParamList(pxList)
+		return StzIsLastCharsNamedParamList(pxList)
+	end
+func StzIsLastNCharsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :LastNChars
+end
+	func IsLastNCharsNamedParamList(pxList)
+		return StzIsLastNCharsNamedParamList(pxList)
+	end
+func StzIsNLastCharsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :NLastChars
+end
+	func IsNLastCharsNamedParamList(pxList)
+		return StzIsNLastCharsNamedParamList(pxList)
+	end
+func StzIsUpToOrUpToNItemsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :UpTo or pxList[1] = :UpToNItems
+end
+	func IsUpToOrUpToNItemsNamedParamList(pxList)
+		return StzIsUpToOrUpToNItemsNamedParamList(pxList)
+	end
+func StzIsAndOrAndPositionOrAndSubStringNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :And or pxList[1] = :AndPosition or pxList[1] = :AndSubString
+end
+	func IsAndOrAndPositionOrAndSubStringNamedParamList(pxList)
+		return StzIsAndOrAndPositionOrAndSubStringNamedParamList(pxList)
+	end
+func StzIsOfOrToNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Of or pxList[1] = :To
+end
+	func IsOfOrToNamedParamList(pxList)
+		return StzIsOfOrToNamedParamList(pxList)
+	end
+func StzIsSayOrReturnNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Say or pxList[1] = :Return
+end
+	func IsSayOrReturnNamedParamList(pxList)
+		return StzIsSayOrReturnNamedParamList(pxList)
+	end
+func StzIsElseOrOtherwiseNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Else or pxList[1] = :Otherwise
+end
+	func IsElseOrOtherwiseNamedParamList(pxList)
+		return StzIsElseOrOtherwiseNamedParamList(pxList)
+	end
+# --- Batch-generated named param checkers (M-S2 test hardening) ---
+
+func StzIsByOrInColNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :By or pxList[1] = :InCol
+end
+	func IsByOrInColNamedParamList(pxList)
+		return StzIsByOrInColNamedParamList(pxList)
+	end
+func StzIsByOrInRowNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :By or pxList[1] = :InRow
+end
+	func IsByOrInRowNamedParamList(pxList)
+		return StzIsByOrInRowNamedParamList(pxList)
+	end
+func StzIsByOrWithOrUsingNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :By or pxList[1] = :With or pxList[1] = :Using
+end
+	func IsByOrWithOrUsingNamedParamList(pxList)
+		return StzIsByOrWithOrUsingNamedParamList(pxList)
+	end
+func StzIsDoNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Do
+end
+	func IsDoNamedParamList(pxList)
+		return StzIsDoNamedParamList(pxList)
+	end
+func StzIsEndOrToNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :End or pxList[1] = :To
+end
+	func IsEndOrToNamedParamList(pxList)
+		return StzIsEndOrToNamedParamList(pxList)
+	end
+func StzIsFromOrBetweenNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :From or pxList[1] = :Between
+end
+	func IsFromOrBetweenNamedParamList(pxList)
+		return StzIsFromOrBetweenNamedParamList(pxList)
+	end
+func StzIsFromOrFromNodeNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :From or pxList[1] = :FromNode
+end
+	func IsFromOrFromNodeNamedParamList(pxList)
+		return StzIsFromOrFromNodeNamedParamList(pxList)
+	end
+func StzIsFromOrFromPathNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :From or pxList[1] = :FromPath
+end
+	func IsFromOrFromPathNamedParamList(pxList)
+		return StzIsFromOrFromPathNamedParamList(pxList)
+	end
+func StzIsFromPathNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :FromPath
+end
+	func IsFromPathNamedParamList(pxList)
+		return StzIsFromPathNamedParamList(pxList)
+	end
+func StzIsGrandTotalNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :GrandTotal
+end
+	func IsGrandTotalNamedParamList(pxList)
+		return StzIsGrandTotalNamedParamList(pxList)
+	end
+func StzIsInGroupNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :InGroup
+end
+	func IsInGroupNamedParamList(pxList)
+		return StzIsInGroupNamedParamList(pxList)
+	end
+func StzIsInPlanNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :InPlan
+end
+	func IsInPlanNamedParamList(pxList)
+		return StzIsInPlanNamedParamList(pxList)
+	end
+func StzIsItNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :It
+end
+	func IsItNamedParamList(pxList)
+		return StzIsItNamedParamList(pxList)
+	end
+func StzIsLabelNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Label
+end
+	func IsLabelNamedParamList(pxList)
+		return StzIsLabelNamedParamList(pxList)
+	end
+func StzIsNodeNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Node
+end
+	func IsNodeNamedParamList(pxList)
+		return StzIsNodeNamedParamList(pxList)
+	end
+func StzIsNodeOrNodesOrFromOrFromNodeNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Node or pxList[1] = :Nodes or pxList[1] = :From or pxList[1] = :FromNode
+end
+	func IsNodeOrNodesOrFromOrFromNodeNamedParamList(pxList)
+		return StzIsNodeOrNodesOrFromOrFromNodeNamedParamList(pxList)
+	end
+func StzIsOfOrOfPlanNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Of or pxList[1] = :OfPlan
+end
+	func IsOfOrOfPlanNamedParamList(pxList)
+		return StzIsOfOrOfPlanNamedParamList(pxList)
+	end
+func StzIsOfOrOfPlanOrInOrInPlanNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Of or pxList[1] = :OfPlan or pxList[1] = :In or pxList[1] = :InPlan
+end
+	func IsOfOrOfPlanOrInOrInPlanNamedParamList(pxList)
+		return StzIsOfOrOfPlanOrInOrInPlanNamedParamList(pxList)
+	end
+func StzIsOnOrOfNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :On or pxList[1] = :Of
+end
+	func IsOnOrOfNamedParamList(pxList)
+		return StzIsOnOrOfNamedParamList(pxList)
+	end
+func StzIsPlanOrInPlanNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Plan or pxList[1] = :InPlan
+end
+	func IsPlanOrInPlanNamedParamList(pxList)
+		return StzIsPlanOrInPlanNamedParamList(pxList)
+	end
+func StzIsRaiseNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Raise
+end
+	func IsRaiseNamedParamList(pxList)
+		return StzIsRaiseNamedParamList(pxList)
+	end
+func StzIsRingsNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Rings
+end
+	func IsRingsNamedParamList(pxList)
+		return StzIsRingsNamedParamList(pxList)
+	end
+func StzIsStartOrFromNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Start or pxList[1] = :From
+end
+	func IsStartOrFromNamedParamList(pxList)
+		return StzIsStartOrFromNamedParamList(pxList)
+	end
+func StzIsStartingFromNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :StartingFrom
+end
+	func IsStartingFromNamedParamList(pxList)
+		return StzIsStartingFromNamedParamList(pxList)
+	end
+func StzIsStepNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Step
+end
+	func IsStepNamedParamList(pxList)
+		return StzIsStepNamedParamList(pxList)
+	end
+func StzIsSubTotalNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :SubTotal
+end
+	func IsSubTotalNamedParamList(pxList)
+		return StzIsSubTotalNamedParamList(pxList)
+	end
+func StzIsTextBoxedOptionsNamedParamList(pxList)
+	# Validates boxing option hashlists -- permissive for backward compat
+	if not IsList(pxList) return false end
+	return true
+end
+	func IsTextBoxedOptionsNamedParamList(pxList)
+		return StzIsTextBoxedOptionsNamedParamList(pxList)
+	end
+func StzIsToOrAndNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :To or pxList[1] = :And
+end
+	func IsToOrAndNamedParamList(pxList)
+		return StzIsToOrAndNamedParamList(pxList)
+	end
+func StzIsToOrToColOrToRowNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :To or pxList[1] = :ToCol or pxList[1] = :ToRow
+end
+	func IsToOrToColOrToRowNamedParamList(pxList)
+		return StzIsToOrToColOrToRowNamedParamList(pxList)
+	end
+func StzIsToOrToNodeNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :To or pxList[1] = :ToNode
+end
+	func IsToOrToNodeNamedParamList(pxList)
+		return StzIsToOrToNodeNamedParamList(pxList)
+	end
+func StzIsToOrToNodeOrAndNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :To or pxList[1] = :ToNode or pxList[1] = :And
+end
+	func IsToOrToNodeOrAndNamedParamList(pxList)
+		return StzIsToOrToNodeOrAndNamedParamList(pxList)
+	end
+func StzIsToOrToNodeOrAndOrAndNodeNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :To or pxList[1] = :ToNode or pxList[1] = :And or pxList[1] = :AndNode
+end
+	func IsToOrToNodeOrAndOrAndNodeNamedParamList(pxList)
+		return StzIsToOrToNodeOrAndOrAndNodeNamedParamList(pxList)
+	end
+func StzIsToOrToNodeOrUntilReachFNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :To or pxList[1] = :ToNode or pxList[1] = :UntilReachF or pxList[1] = :UntilYouReachF
+end
+	func IsToOrToNodeOrUntilReachFNamedParamList(pxList)
+		return StzIsToOrToNodeOrUntilReachFNamedParamList(pxList)
+	end
+func StzIsToOrToPathNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :To or pxList[1] = :ToPath
+end
+	func IsToOrToPathNamedParamList(pxList)
+		return StzIsToOrToPathNamedParamList(pxList)
+	end
+func StzIsToOrToPositionOrToNodeNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :To or pxList[1] = :ToPosition or pxList[1] = :ToNode
+end
+	func IsToOrToPositionOrToNodeNamedParamList(pxList)
+		return StzIsToOrToPositionOrToNodeNamedParamList(pxList)
+	end
+func StzIsToOrWithNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :To or pxList[1] = :With
+end
+	func IsToOrWithNamedParamList(pxList)
+		return StzIsToOrWithNamedParamList(pxList)
+	end
+func StzIsToPathNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :ToPath
+end
+	func IsToPathNamedParamList(pxList)
+		return StzIsToPathNamedParamList(pxList)
+	end
+func StzIsWhenOrIfOrForNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :When or pxList[1] = :If or pxList[1] = :For
+end
+	func IsWhenOrIfOrForNamedParamList(pxList)
+		return StzIsWhenOrIfOrForNamedParamList(pxList)
+	end
+func StzIsWidthNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :Width
+end
+	func IsWidthNamedParamList(pxList)
+		return StzIsWidthNamedParamList(pxList)
+	end
+func StzIsWithOrLabelNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :With or pxList[1] = :Label
+end
+	func IsWithOrLabelNamedParamList(pxList)
+		return StzIsWithOrLabelNamedParamList(pxList)
+	end
+func StzIsWithOrToNamedParamList(pxList)
+	if not IsList(pxList) return false end
+	if Len(pxList) != 2 return false end
+	if not IsString(pxList[1]) return false end
+	return pxList[1] = :With or pxList[1] = :To
+end
+	func IsWithOrToNamedParamList(pxList)
+		return StzIsWithOrToNamedParamList(pxList)
+	end

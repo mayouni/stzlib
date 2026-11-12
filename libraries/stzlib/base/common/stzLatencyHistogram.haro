@@ -1,10 +1,10 @@
 /*
 	Softanza latency histogram -- gap-analysis Tier 1 item 6.
 
-	Wraps the engine histogram (engine/src/histogram.zig,
+	Wraps the engine Histogram (engine/src/histogram.zig,
 	stz_histogram.dll): log-scale buckets for request / job latency, with
 	O(1) memory and record cost. Percentile queries return the upper
-	bound (ms) of the bucket the percentile falls in.
+	Bound (ms) of the bucket the percentile falls in.
 
 		oH = new stzLatencyHistogram
 		oH.Record(12.5)        # ms
@@ -16,9 +16,9 @@
 		oH.Destroy()
 */
 
-func StzLatencyHistogram()
+func StzLatencyHistogram
 	return new stzLatencyHistogram
-
+end
 # Tallies latency samples in an engine histogram and reads percentiles from it, such as the median and the 99th.
 #
 # Record samples in milliseconds, then ask for P50, P95, P99 or any Percentile. The histogram is
@@ -36,33 +36,33 @@ func StzLatencyHistogram()
 #   see        stzRateLimiter, stzEngineTimeline
 class stzLatencyHistogram from stzObject
 
-	pHandle = ""
-	bReady  = 0
-	bAdopted = 0	# handle owned elsewhere (a perf family child)
+	hHandle = ""
+	bReady  = false
+	bAdopted = false	# handle owned elsewhere (a perf family child)
 
 	# Creates the engine histogram that will tally latency samples, in milliseconds.
 	#
 	#   returns    nothing; the object is built
 	#   see        Record, Destroy
-	def init()
-		This._Ensure()
-
+	def init
+		this._Ensure()
+	end
 	# Lazy handle creation -- robust whether or not init() ran (paren-less
 	# `new` skips init in Ring); guarded by a plain boolean.
-	def _Ensure()
-		if bReady = 0
-			pHandle = StzEngineHistogramCreate()
-			bReady = 1
-		ok
-
+	def _Ensure
+		if bReady = false
+			hHandle = StzEngineHistogramCreate()
+			bReady = true
+		end
+	end
 	# Returns the engine handle of the histogram, to share it with another object through AdoptHandle.
 	#
 	#   returns    a pointer
 	#   see        AdoptHandle
-	def Handle()
-		This._Ensure()
+	def Handle
+		this._Ensure()
 		return pHandle
-
+	end
 	# Makes this object read and write an engine histogram owned elsewhere, and frees the one it created itself.
 	#
 	#   pEngineHandle   the handle of an engine histogram, such as the one Handle returns
@@ -73,15 +73,15 @@ class stzLatencyHistogram from stzObject
 	#                   same samples, and Destroy on the adopter does not free it
 	#   see             Handle, Destroy
 	#@ aka  Adopt an engine histogram OWNED ELSEWHERE (a perf metric family's child): frees any self-created handle; Destroy() will not free an adopted one -- the owner does.
-	def AdoptHandle(pEngineHandle)
-		if bReady and NOT bAdopted
-			StzEngineHistogramDestroy(pHandle)
-		ok
-		pHandle = pEngineHandle
-		bReady = 1
-		bAdopted = 1
-		return This
-
+	def AdoptHandle(pxEngineHandle)
+		if bReady and not bAdopted
+			StzEngineHistogramDestroy(hHandle)
+		end
+		hHandle = pxEngineHandle
+		bReady = true
+		bAdopted = true
+		return this
+	end
 	# Tallies one latency sample, in milliseconds.
 	#
 	#   nMs        the latency to tally, in milliseconds
@@ -90,10 +90,10 @@ class stzLatencyHistogram from stzObject
 	#   see        Count, Percentile
 	#@ aka  Tally one latency sample, in milliseconds.
 	def Record(nMs)
-		This._Ensure()
+		this._Ensure()
 		StzEngineHistogramRecord(pHandle, nMs)
-		return This
-
+		return this
+	end
 	# Returns the upper bound of the bucket in which a percentile of the samples falls, so the answer is approximate.
 	#
 	#   nP         the percentile to read, from 0 to 100
@@ -104,68 +104,70 @@ class stzLatencyHistogram from stzObject
 	#   see        P50, P95, P99
 	#@ aka  Upper bound (ms) of the bucket holding percentile nP (0..100).
 	def Percentile(nP)
-		This._Ensure()
+		this._Ensure()
 		return StzEngineHistogramPercentile(pHandle, nP)
-
+	end
 	# Returns the median latency, as the upper bound of its bucket.
 	#
 	#   returns    a number
 	#   see        Percentile, P95
-	def P50()
-		return This.Percentile(50)
-
+	def P50
+		return this.Percentile(50)
+	end
 	# Returns the latency under which 95 percent of the samples fall, as the upper bound of its bucket.
 	#
 	#   returns    a number
 	#   see        Percentile, P99
-	def P95()
-		return This.Percentile(95)
-
+	def P95
+		return this.Percentile(95)
+	end
 	# Returns the latency under which 99 percent of the samples fall, as the upper bound of its bucket.
 	#
 	#   returns    a number
 	#   see        Percentile, P95
-	def P99()
-		return This.Percentile(99)
-
+	def P99
+		return this.Percentile(99)
+	end
 	# Returns how many samples were recorded.
 	#
 	#   returns    a number
 	#   see        Sum, Reset
-	def Count()
-		This._Ensure()
+	def Count
+		this._Ensure()
 		return StzEngineHistogramCount(pHandle)
-
+	end
 	# Returns the total of all recorded samples, in milliseconds.
 	#
 	#   returns    a number
 	#   see        Count
 	#@ aka  Exact running sum of every recorded value (the buckets quantize, the sum does not) -- lifetime mean = Sum()/Count().
-	def Sum()
-		This._Ensure()
+	def Sum
+		this._Ensure()
 		return StzEngineHistogramSum(pHandle)
-
+	end
 	# Forgets every sample and keeps the histogram usable.
 	#
 	#   returns    the histogram itself, so calls chain
 	#   see        Count, Destroy
-	def Reset()
-		This._Ensure()
+	def Reset
+		this._Ensure()
 		StzEngineHistogramReset(pHandle)
-		return This
-
+		return this
+	end
 	# Frees the engine histogram, unless it was adopted from another owner, and marks the object unusable.
 	#
 	#   returns    the histogram itself, so calls chain
 	#   warning    a later call builds a fresh, empty histogram
 	#   see        AdoptHandle
-	def Destroy()
-		if bReady = 1
-			if NOT bAdopted
-				StzEngineHistogramDestroy(pHandle)
-			ok
-			pHandle = ""
-			bReady = 0
-			bAdopted = 0
-		ok
-		return This
+	def Destroy
+		if bReady = true
+			if not bAdopted
+				StzEngineHistogramDestroy(hHandle)
+			end
+			hHandle = ""
+			bReady = false
+			bAdopted = false
+		end
+		return this
+	end
+end

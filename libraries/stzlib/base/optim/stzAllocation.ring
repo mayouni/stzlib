@@ -92,7 +92,7 @@ func _StzIsAgentMemory(pObj)
 #   see        stzOptimModel, stzAllocationSkill, stzGraphPlanner
 class stzAllocation from stzObject
 
-	@cName = ""
+	@tName = ""
 	@cShape = ""          # "assign" | "choose"
 	@cDemandType = ""
 	@cResourceType = ""
@@ -125,13 +125,13 @@ class stzAllocation from stzObject
 	#   returns    nothing; the object is built
 	#   see        Assign, Choose
 	def init(pcName)
-		@cName = StzLower(ring_trim("" + pcName))
+		@tName = StzLower(ring_trim("" + pcName))
 
 	# Returns the allocation's name.
 	#
 	#   returns    a text, in lower case
 	def Name_()
-		return @cName
+		return @tName
 
 	# Returns the type of the demands the allocation places or chooses.
 	#
@@ -432,7 +432,7 @@ class stzAllocation from stzObject
 			if @bEvery = 1
 				@bSolved = 1
 				@cVerdict = "infeasible"
-				@cWhy = "allocation '" + @cName + "' is INFEASIBLE and no engine " +
+				@cWhy = "allocation '" + @tName + "' is INFEASIBLE and no engine " +
 					"ran: no " + @cResourceType + " is known, and every " +
 					@cDemandType + " must be placed."
 			else
@@ -537,7 +537,7 @@ class stzAllocation from stzObject
 				@acUnplaced + pacOpen[_i_]
 			ok
 		next
-		@cWhy = "allocation '" + @cName + "' placed " + len(@aPlaced) + " of " +
+		@cWhy = "allocation '" + @tName + "' placed " + len(@aPlaced) + " of " +
 			_nO_ + " " + @cDemandType + "(s) on " + @cResourceType + "(s)"
 		if len(@aKept) > 0
 			@cWhy += ", keeping " + len(@aKept) + " already placed"
@@ -623,7 +623,7 @@ class stzAllocation from stzObject
 				@acUnplaced + _acD_[_i_]
 			ok
 		next
-		@cWhy = "allocation '" + @cName + "' chose a quantity for " +
+		@cWhy = "allocation '" + @tName + "' chose a quantity for " +
 			len(@aPlaced) + " of " + _nD_ + " " + @cDemandType + "(s); " +
 			"objective " + @nObjective + ". The solver: " + @oModel.Why()
 
@@ -638,15 +638,15 @@ class stzAllocation from stzObject
 		ok
 		if _nS_ = 2
 			@cVerdict = "infeasible"
-			@cWhy = "allocation '" + @cName + "' is INFEASIBLE: no allocation " +
+			@cWhy = "allocation '" + @tName + "' is INFEASIBLE: no allocation " +
 				"meets every requirement. The solver: " + @oModel.Why()
 		but _nS_ = 1
 			@cVerdict = "unbounded"
-			@cWhy = "allocation '" + @cName + "' is UNBOUNDED: nothing limits " +
+			@cWhy = "allocation '" + @tName + "' is UNBOUNDED: nothing limits " +
 				"the objective. The solver: " + @oModel.Why()
 		else
 			@cVerdict = @oModel.StatusWord()
-			@cWhy = "allocation '" + @cName + "' stopped short: " +
+			@cWhy = "allocation '" + @tName + "' stopped short: " +
 				@oModel.Why()
 		ok
 		@nObjective = 0
@@ -654,7 +654,7 @@ class stzAllocation from stzObject
 
 	def _Incomplete()
 		@cVerdict = "incomplete"
-		@cWhy = "allocation '" + @cName + "' did not run the solver: the " +
+		@cWhy = "allocation '" + @tName + "' did not run the solver: the " +
 			"knowledge is incomplete -- "
 		_n_ = len(@acMissing)
 		for _i_ = 1 to _n_
@@ -668,7 +668,7 @@ class stzAllocation from stzObject
 	def _Nothing(pcReason)
 		@bSolved = 1
 		@cVerdict = "allocated"
-		@cWhy = "allocation '" + @cName + "' had nothing to solve and no " +
+		@cWhy = "allocation '" + @tName + "' had nothing to solve and no " +
 			"engine ran: " + pcReason + "."
 
 	#@ aka  -- 3. READING THE ANSWER -----------------------------------------------

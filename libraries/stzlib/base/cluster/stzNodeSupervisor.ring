@@ -57,7 +57,7 @@ func StzNodeSupervisorQ()
 #   see        stzNode, stzNodeApp, stzClusterSupervisor
 class stzNodeSupervisor from stzObject
 
-	@cName = "node-supervisor"
+	@tName = "node-supervisor"
 	@oSpawner = ""
 	@cRingExe = "ring"
 	@cStrategy = :OneForOne
@@ -92,7 +92,7 @@ class stzNodeSupervisor from stzObject
 	#   returns    a text
 	#   see        SetName, Cycle
 	def Name_()
-		return @cName
+		return @tName
 
 	# Sets the name by which an agent host knows the supervisor.
 	#
@@ -100,7 +100,7 @@ class stzNodeSupervisor from stzObject
 	#   returns    the supervisor itself, so calls chain
 	#   see        Name_
 	def SetName(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		return This
 
 	# Declares a node process to supervise: its name, the Ring script that runs it and the port it listens on.

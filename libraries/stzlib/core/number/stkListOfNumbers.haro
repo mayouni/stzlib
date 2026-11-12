@@ -68,17 +68,17 @@ end
 	func @FindMax(viNumbers)
 		return FindMax(viNumbers)
 	end
-func Max(pviNumbers)
-	return pviNumbers[ FindMax(pviNumbers) ]
+func Max(pxNumbers)
+	return pxNumbers[ FindMax(pxNumbers) ]
 end
-	func @Max(pviNumbers)
-		return Max(pviNumbers)
+	func @Max(pxNumbers)
+		return Max(pxNumbers)
 	end
-func Min(pviNumbers)
-	return pviNumbers[ FindMin(pviNumbers) ]
+func Min(pxNumbers)
+	return pxNumbers[ FindMin(pxNumbers) ]
 end
-	func @Min(pviNumbers)
-		return Min(pviNumbers)
+	func @Min(pxNumbers)
+		return Min(pxNumbers)
 	end
 #~~~~~~~~~#
 #  CLASS  #

@@ -57,7 +57,7 @@
 #   see        stzGovernance, stzSecurityEvent, stzSecurityLedger
 class stzFieldTags from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aTags = []          # [ [field, tag], ... ]
 	@aPaths = []         # [ [path, [safeguards...]], ... ]
 	@cRegime = ""
@@ -70,13 +70,13 @@ class stzFieldTags from stzObject
 	#   returns    nothing; the object is built
 	#   see        Tag, DeclareRegime, GovernPath, MayReach
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the tag set's name.
 	#
 	#   returns    a text
 	def Name_()
-		return @cName
+		return @tName
 
 	# Returns the sentence that explains the last verdict.
 	#
@@ -256,7 +256,7 @@ class stzFieldTags from stzObject
 				_cHow_ = "a path governed in part (" + This._Join(_aMissing_, ", ") + " missing)"
 			ok
 			@cWhy = "refused: '" + _cF_ + "' is " + _cT_ + " and '" + _cP_ + "' is " + _cHow_ + " -- " + This._Rule(_cP_) + This._RegimeTail(_cP_)
-			@oLastEvent = StzSecurityRefusal("data.path.refused", @cName, "field:" + _cF_, @cWhy)
+			@oLastEvent = StzSecurityRefusal("data.path.refused", @tName, "field:" + _cF_, @cWhy)
 			return 0
 		next
 		if substr(@cWhy, "allowed: '") != 1 or _n_ = 0

@@ -75,7 +75,7 @@ func StzPerfSentinel(poSla, poMonitor)
 #   see        stzSla, stzPerfMonitor, stzEventBus, stzAgentHost
 class stzPerfSentinel from stzObject
 
-	@cName = "perf-sentinel"
+	@tName = "perf-sentinel"
 	@oSla = ""
 	@oMon = ""
 	@aBreached = []		# rule names currently in breach
@@ -111,14 +111,14 @@ class stzPerfSentinel from stzObject
 	#   returns    the name as text, perf-sentinel until SetName changes it
 	#   see        SetName, Name_
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the sentinel's name, the form an agent host asks for.
 	#
 	#   returns    the name as text, the same as Name
 	#   see        Name, Cycle
 	def Name_()
-		return @cName
+		return @tName
 
 	# Sets the sentinel's name.
 	#
@@ -127,7 +127,7 @@ class stzPerfSentinel from stzObject
 	#   see        Name
 	def SetName(pcName)
 		if isString(pcName) and pcName != ""
-			@cName = pcName
+			@tName = pcName
 		ok
 		return This
 
@@ -305,7 +305,7 @@ class stzPerfSentinel from stzObject
 		if ring_len(@aBreached) > 0
 			_cState_ = ring_len(@aBreached) + " active breach(es)"
 		ok
-		_aLines_ + ("Sentinel " + @cName + " -- " + @nChecks + " check(s), " + _cState_ + ".")
+		_aLines_ + ("Sentinel " + @tName + " -- " + @nChecks + " check(s), " + _cState_ + ".")
 		_nB_ = ring_len(@aBreached)
 		for _i_ = 1 to _nB_
 			_aLines_ + ("  BREACHED: " + @aBreached[_i_])

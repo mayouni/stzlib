@@ -13,21 +13,21 @@ ok
 
 # Loading files related tp the COMMON module
 
-    load "common/stzIntSeq.ring"
-    load "common/stzCounter.ring"
-    load "common/stzFuncs.ring"
+    load "common/stzIntSeq.haro"
+    load "common/stzCounter.haro"
+    load "common/stzFuncs.haro"
 
-    load "common/stzOccurrences.ring"
-    load "common/stzRingFuncs.ring"
+    load "common/stzOccurrences.haro"
+    load "common/stzRingFuncs.haro"
 
-    load "common/stzRingLibs.ring"
-    load "common/stzPrimitives.ring"
-    load "common/stzNamedParams.ring"
-    load "common/stzSmallFuncs.ring"
-    load "common/stzSplitter.ring"
+    load "common/stzRingLibs.haro"
+    load "common/stzPrimitives.haro"
+    load "common/stzNamedParams.haro"
+    load "common/stzSmallFuncs.haro"
+    load "common/stzSplitter.haro"
 
-    load "common/stzCCode.ring"
-    load "common/stzNamedVars.ring"
+    load "common/stzCCode.haro"
+    load "common/stzNamedVars.haro"
 
 # Loading files related to the DATA module
 
@@ -133,7 +133,7 @@ ok
     load "sound/stzSoundInstrument.ring"
     load "sound/stzSoundScore.ring"
     load "sound/stzSoundScheduler.ring"
-    load "common/stzPattern.ring"
+    load "common/stzPattern.haro"
     load "sound/stzSoundPattern.ring"
     load "sound/stzSoundLive.ring"
     load "sound/stzSoundUniverse.ring"
@@ -483,23 +483,23 @@ load "geo/stzGeoProcess.ring"
 
 # Loading files related to the ENGINE WRAPPER modules
 
-    load "common/stzStateMachine.ring"
-    load "common/stzValidator.ring"
-    load "common/stzCache.ring"
-    load "common/stzConstraint.ring"
+    load "common/stzStateMachine.haro"
+    load "common/stzValidator.haro"
+    load "common/stzCache.haro"
+    load "common/stzConstraint.haro"
     load "number/stzSequence.ring"
-    load "common/stzRelation.ring"
+    load "common/stzRelation.haro"
     load "number/stzSimilarity.ring"
-    load "common/stzEngineTimeline.ring"
-    load "common/stzCancelToken.ring"
-    load "common/stzRetryBudget.ring"
-    load "common/stzLatencyHistogram.ring"
-    load "common/stzRateLimiter.ring"
+    load "common/stzEngineTimeline.haro"
+    load "common/stzCancelToken.haro"
+    load "common/stzRetryBudget.haro"
+    load "common/stzLatencyHistogram.haro"
+    load "common/stzRateLimiter.haro"
     # structured, queryable, leveled logging (observability infra)
-    load "common/stzLog.ring"
+    load "common/stzLog.haro"
     # stzRequestSigner moved to base/security/ (HMAC request signing is a
     # security primitive); loaded in the security block.
-    load "common/stzTraceContext.ring"
+    load "common/stzTraceContext.haro"
     load "graph/stzGridNav.ring"
 
 # Loading files related to the VISUAL module

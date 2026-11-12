@@ -32,50 +32,50 @@
 
 */
 
-func StzConstraintQ(pObject, pConstraint)
-	return new stzConstraint(pObject, pConstraint)
+func StzConstraintQ(pxObject, pxConstraint)
+	return new stzConstraint(pxObject, pxConstraint)
+end
+func IsConstraint(pxObject, pxConstraint)
+	if not IsObject(pxObject)
+		return false
+	end
 
-func IsConstraint(pObject, pcConstraint)
-	if NOT isObject(pObject)
-		return 0
-	ok
-
-	if isString(pcConstraint)
-		_cConstraint_ = _StzConstraintBody(pcConstraint)
-		if _cConstraint_ = ""
+	if IsString(pxConstraint)
+		tConstraint = _StzConstraintBody(pxConstraint)
+		if tConstraint = ""
 			StzRaise("Constraint can't be empty!")
-		ok
+		end
 
 		# read by the closed grammar of StzMethodExprValue, where @ is the
 		# object: a condition that cannot be read, or names a method the
 		# object lacks, is no constraint -- and nothing in it is run as code
 		try
-			StzMethodExprValue(pObject, _cConstraint_, [])
-			return 1
+			StzMethodExprValue(pxObject, tConstraint, [])
+			return true
 		catch
-			return 0
-		done
+			return false
+		end
 	else
-		return 0
-	ok
-
-	func @IsConstraint(pObject, pcConstraint)
-		return IsConstraint(pObject, pcConstraint)
-
+		return false
+	end
+end
+	func @IsConstraint(pxObject, pxConstraint)
+		return IsConstraint(pxObject, pxConstraint)
+	end
 # The condition of a constraint text, ready to be put after an if: the ends are trimmed and ONE pair of
 # braces enclosing the whole text is taken off. Inner braces are left alone.
-func _StzConstraintBody(pcConstraint)
-	_cBody_ = StzTrim(pcConstraint)
-	_nBodyLen_ = StzLen(_cBody_)
-	if _nBodyLen_ >= 2
-		_cFirst_ = StzLeft(_cBody_, 1)
-		_cLast_ = StzRight(_cBody_, 1)
-		if _cFirst_ = "{" and _cLast_ = "}"
-			_cBody_ = StzTrim(StzMid(_cBody_, 2, _nBodyLen_ - 2))
-		ok
-	ok
-	return _cBody_
-
+func _StzConstraintBody(pxConstraint)
+	tBody = StzTrim(pxConstraint)
+	nBodyLen = StzLen(tBody)
+	if nBodyLen >= 2
+		tFirst = StzLeft(tBody, 1)
+		tLast = StzRight(tBody, 1)
+		if tFirst = "{" and tLast = "}"
+			tBody = StzTrim(StzMid(tBody, 2, nBodyLen - 2))
+		end
+	end
+	return tBody
+end
 
 # Pairs an object with a condition, written as text in the grammar of StzMethodExprValue, that the object is expected to obey, and checks it on demand.
 #
@@ -95,9 +95,9 @@ func _StzConstraintBody(pcConstraint)
 #   see        stzCCode
 class stzConstraint from stzObject
 	@oObject
-	@cConstraint
-	@cConstraintName
-	@cLastError
+	@tConstraint
+	@tConstraintName
+	@tLastError
 	
 	# Builds a constraint from the object to guard and the condition text, refusing a condition that cannot run on that object.
 	#
@@ -113,68 +113,68 @@ class stzConstraint from stzObject
 	#                 that raises on the object (a syntax error, a missing method) raises Constraint
 	#                 can't be evaluated on the given object!
 	#   see           IsConstraint
-	def init( pObject, pConstraint )
-		if NOT ( isObject(pObject) and isString(pConstraint) )
+	def init( pxObject, pxConstraint )
+		if not ( IsObject(pxObject) and IsString(pxConstraint) )
 			StzRaise("Incorrect types of object params!")
-		ok
+		end
 
-		if NOT IsConstraint(pObject, pConstraint)
+		if not IsConstraint(pxObject, pxConstraint)
 			StzRaise("Constraint can't be evaluated on the given object!")
-		ok
+		end
 
-		@oObject = pObject
-		@cConstraint = pConstraint
-		@cConstraintName = ""
-		@cLastError = ""
-
+		@oObject = pxObject
+		@tConstraint = pxConstraint
+		@tConstraintName = ""
+		@tLastError = ""
+	end
 	# Returns the condition text exactly as it was given, braces included.
 	#
 	#   returns    a text
 	#   see        Object
-	def Content()
-		return @cConstraint
-
-		def Value()
-			return This.Content()
-
-	def Constraint()
-		return This.Content()
-
+	def Content
+		return @tConstraint
+	end
+		def Value
+			return this.Content()
+		end
+	def Constraint
+		return this.Content()
+	end
 	# Returns the guarded object, the one the condition is checked against.
 	#
 	#   returns    the object
-	def Object()
+	def Object
 		return @oObject
-
+	end
 	# Returns the label given to the constraint, or an empty text when it has none.
 	#
 	#   returns    a text
 	#   note       it is the constraint's own label, set with SetName; VarName, the variable name every
 	#              object carries, is a different field and is not changed by SetName
 	#   see        SetName
-	def Name()
-		return @cConstraintName
-
-		def NameQ()
-			return new stzString( This.Name() )
-
+	def Name
+		return @tConstraintName
+	end
+		def NameQ
+			return new stzString( this.Name() )
+		end
 	# Gives the constraint a label that Name reads back, replacing any earlier one.
 	#
 	#   pcName     the label as a text; an empty text clears it
 	#   returns    nothing; SetNameQ returns the constraint for chaining
 	#   warning    a label that is not a text raises Incorrect param type! pcName must be a string.
 	#   see        Name
-	def SetName(pcName)
-		if NOT isString(pcName)
+	def SetName(pxName)
+		if not IsString(pxName)
 			StzRaise("Incorrect param type! pcName must be a string.")
-		ok
+		end
 
-		@cConstraintName = pcName
-
-		def SetNameQ(pcName)
-			This.SetName(pcName)
-			return This
-
+		@tConstraintName = pxName
+	end
+		def SetNameQ(pxName)
+			this.SetName(pxName)
+			return this
+		end
 	# Returns the Ring code that tests the condition on @ and raises Constraint unverified! when it fails.
 	#
 	#   returns    a text of Ring code: the condition without its braces, inside an if, with a branch
@@ -184,30 +184,30 @@ class stzConstraint from stzObject
 	#   note       the text is for reading only: CheckConstraint reads the condition itself, and runs
 	#              no code
 	#   see        CheckConstraint
-	def Expression()
+	def Expression
 
-		_cCode_ = "if " + _StzConstraintBody(@cConstraint) + char(10) +
-				char(9) + " // Pass" + char(10) +
-			"else" + char(10) +
-				char(9) + "StzRaise('Constraint unverified!')" + char(10) +
+		tCode = "if " + _StzConstraintBody(@tConstraint) + Char(10) +
+				Char(9) + " // Pass" + Char(10) +
+			"else" + Char(10) +
+				Char(9) + "StzRaise('Constraint unverified!')" + Char(10) +
 			"ok"
 
-		return _cCode_
-
+		return tCode
+	end
 	# Tells whether the guarded object obeys the condition, 1 when it does and 0 when it does not.
 	#
 	#   returns    1 or 0
 	#   note       0 also covers a condition that raises when it is run (the object failed inside the
 	#              condition); Verdict and LastError tell that case apart from a plain violation
 	#   see        Verdict, Expression
-	def CheckConstraint()
+	def CheckConstraint
 
-		_cVerdict_ = This.Verdict()
-		if _cVerdict_ = "holds"
-			return 1
-		ok
-		return 0
-
+		tVerdict = this.Verdict()
+		if tVerdict = "holds"
+			return true
+		end
+		return false
+	end
 	# Runs the check and says what happened: holds, violated, or broken when the condition itself raised.
 	#
 	#   returns    "holds" when the object obeys the condition, "violated" when the condition ran and
@@ -215,25 +215,27 @@ class stzConstraint from stzObject
 	#   note       the Ring error of a broken check is kept for LastError; a holding or a violated check
 	#              clears it; the condition is read by StzMethodExprHolds, never run as code
 	#   see        LastError, CheckConstraint
-	def Verdict()
+	def Verdict
 
-		@cLastError = ""
+		@tLastError = ""
 
 		try
-			_bHolds_ = StzMethodExprHolds(This.Object(), _StzConstraintBody(@cConstraint), [])
+			bHolds = StzMethodExprHolds(this.Object(), _StzConstraintBody(@tConstraint), [])
 		catch
-			@cLastError = StzTrim(cCatchError)
+			@tLastError = StzTrim(cCatchError)
 			return "broken"
-		done
+		end
 
-		if _bHolds_
+		if bHolds
 			return "holds"
-		ok
+		end
 		return "violated"
-
+	end
 	# Returns the Ring error kept by the last check that was broken, or an empty text.
 	#
 	#   returns    a text; empty before any check, after a check that holds, and after a violated one
 	#   see        Verdict
-	def LastError()
-		return @cLastError
+	def LastError
+		return @tLastError
+	end
+end

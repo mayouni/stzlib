@@ -66,7 +66,7 @@ class stzScreenReaderBridge from stzObject
 
 	@nId = 0
 	@nAnnounced = 0
-	@cLastError = ""
+	@tLastError = ""
 
 	# Connects a window to the operating system's accessibility service, or records why it could not.
 	#
@@ -88,19 +88,19 @@ class stzScreenReaderBridge from stzObject
 			# NOT an error. A machine with no vendored runtime, or a
 			# platform with no adapter, has no bridge -- and everything
 			# else about the program is unaffected. IsLive() says so.
-			@cLastError = "no accessibility runtime on this machine"
+			@tLastError = "no accessibility runtime on this machine"
 			return
 		ok
 		_nH_ = poWindow.NativeHandle()
 		if _nH_ = 0
-			@cLastError = "the window has no platform handle"
+			@tLastError = "the window has no platform handle"
 			return
 		ok
 		_n_ = StzEngineA11yAttach(_nH_)
 		if _n_ <= 0
-			@cLastError = "" + StzEngineA11yLastError()
-			if @cLastError = ""
-				@cLastError = "the platform refused the window (status " + _n_ + ")"
+			@tLastError = "" + StzEngineA11yLastError()
+			if @tLastError = ""
+				@tLastError = "the platform refused the window (status " + _n_ + ")"
 			ok
 			return
 		ok
@@ -123,7 +123,7 @@ class stzScreenReaderBridge from stzObject
 	#              runtime on this machine; an empty text when nothing went wrong
 	#   see        IsLive, Announce
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Hands the accessibility tree to the platform, to be called again whenever the interface changes.
 	#
@@ -150,7 +150,7 @@ class stzScreenReaderBridge from stzObject
 			StzRaise("stzScreenReaderBridge.Announce: give a tree or its JSON.")
 		ok
 		if StzEngineA11yUpdate(@nId, _c_) != 0
-			@cLastError = "" + StzEngineA11yLastError()
+			@tLastError = "" + StzEngineA11yLastError()
 			return FALSE
 		ok
 		@nAnnounced++

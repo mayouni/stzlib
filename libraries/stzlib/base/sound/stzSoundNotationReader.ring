@@ -111,7 +111,7 @@ func StzSoundScoreFromAbcQ(pcAbc)
 class stzSoundNotationReader
 
 	@aLosses = []
-	@cLastError = ""
+	@tLastError = ""
 	@cTitle = ""
 	@aVoicesRead = []      # [ voice id, instrument ] for the last ABC tune
 
@@ -164,7 +164,7 @@ class stzSoundNotationReader
 	#              a header, a MusicXML score-timewise and a text that is not well-formed XML
 	#   see        Losses, FromAbcQ
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns the title of the last tune or score read.
 	#
@@ -195,7 +195,7 @@ class stzSoundNotationReader
 	#@ aka  == MIDI ====================================================================
 	def FromMidiFileQ(pcPath)
 		@aLosses = []
-		@cLastError = ""
+		@tLastError = ""
 		@cTitle = ""
 		if NOT isString(pcPath) or NOT fexists(pcPath)
 			return This._Refuse("FromMidiFileQ: no file at '" + pcPath + "'")
@@ -218,7 +218,7 @@ class stzSoundNotationReader
 	#   see        FromMidiFileQ, Losses
 	def FromMidiBytesQ(pcBytes)
 		@aLosses = []
-		@cLastError = ""
+		@tLastError = ""
 		@cTitle = ""
 		if NOT isString(pcBytes)  return This._Refuse("FromMidiBytesQ: the bytes of a MIDI file, as a string") ok
 		return This._FromMidi(pcBytes)
@@ -565,7 +565,7 @@ class stzSoundNotationReader
 	#@ aka  == ABC 2.1 =================================================================
 	def FromAbcQ(pcAbc)
 		@aLosses = []
-		@cLastError = ""
+		@tLastError = ""
 		@cTitle = ""
 		@aVoicesRead = []
 		if NOT isString(pcAbc) or ring_trim(pcAbc) = ""
@@ -1591,7 +1591,7 @@ class stzSoundNotationReader
 
 	def _MxReset()
 		@aLosses = []
-		@cLastError = ""
+		@tLastError = ""
 		@cTitle = ""
 		@aVoicesRead = []
 		@nQ = 0
@@ -2304,7 +2304,7 @@ class stzSoundNotationReader
 	#== small things ============================================================
 
 	def _Refuse(pc)
-		@cLastError = pc
+		@tLastError = pc
 		return NULL
 
 	def _Loss(pc)

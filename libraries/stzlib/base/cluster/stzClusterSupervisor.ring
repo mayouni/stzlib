@@ -46,7 +46,7 @@ func StzClusterSupervisorQ(poCluster)
 #   see        stzClusterTelemetry, stzNodeSupervisor, stzAppCluster
 class stzClusterSupervisor from stzObject
 
-	@cName = "cluster-supervisor"
+	@tName = "cluster-supervisor"
 	@oCluster = ""
 	@aPolicy = []          # [ [ tag, min, max ], ... ]
 	@aLoad = []            # [ [ tag, ratio(0..1) ], ... ]  observed demand
@@ -68,7 +68,7 @@ class stzClusterSupervisor from stzObject
 	#   returns    a text
 	#   see        SetName, Cycle
 	def Name_()
-		return @cName
+		return @tName
 
 	# Sets the name by which an agent host knows the supervisor.
 	#
@@ -76,7 +76,7 @@ class stzClusterSupervisor from stzObject
 	#   returns    the supervisor itself, so calls chain
 	#   see        Name_
 	def SetName(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		return This
 
 	# Returns the cluster the supervisor was given.

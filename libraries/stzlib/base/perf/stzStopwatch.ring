@@ -76,7 +76,7 @@ func StzStopwatchXT(pcName)
 #   see        StzStopwatch, stzPerfProfile, stzPerfSeries
 class stzStopwatch from stzObject
 
-	@cName = ""
+	@tName = ""
 	@bStarted = 0
 	@bRunning = 0
 	@nStartMonoNs = 0	# engine monotonic ns at (re)start / resume
@@ -93,7 +93,7 @@ class stzStopwatch from stzObject
 	#   see        StzStopwatch, Name
 	def init(pcName)
 		if isString(pcName)
-			@cName = pcName
+			@tName = pcName
 		ok
 		This._Begin()
 
@@ -118,7 +118,7 @@ class stzStopwatch from stzObject
 	#   returns    a text; empty when none was given
 	#   see        SetName, Record
 	def Name()
-		return @cName
+		return @tName
 
 	# Sets the name of the span; a value that is not a text is ignored and the old name is kept.
 	#
@@ -127,7 +127,7 @@ class stzStopwatch from stzObject
 	#   see        Name, init
 	def SetName(pcName)
 		if isString(pcName)
-			@cName = pcName
+			@tName = pcName
 		ok
 		return This
 
@@ -274,7 +274,7 @@ class stzStopwatch from stzObject
 	def Record()
 		This._Ensure()
 		return [
-			:name = @cName,
+			:name = @tName,
 			:startWallMs = @nStartWallMs,
 			:stopWallMs = @nStopWallMs,
 			:durationMs = This.ElapsedMs(),
@@ -355,7 +355,7 @@ class stzStopwatch from stzObject
 			]
 		next
 		return [
-			:name = @cName,
+			:name = @tName,
 			:traceId = This.TraceId(),
 			:spanId = This.SpanId(),
 			:kind = "SPAN_KIND_INTERNAL",
@@ -418,7 +418,7 @@ class stzStopwatch from stzObject
 		if @bRunning
 			_cState_ = "running"
 		ok
-		_cN_ = @cName
+		_cN_ = @tName
 		if _cN_ = ""
 			_cN_ = "(unnamed)"
 		ok

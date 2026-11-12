@@ -58,7 +58,7 @@ end
 	func EngineIsNamedParam(tKeyword)
 		return StzMetaIsNamedParam(tKeyword)
 	end
-func StzMetaIsOneOfTheseNamedParams(pxList, pvtNames)
+func StzMetaIsOneOfTheseNamedParams(pxList, pxNames)
     if not IsPointer($hStzMetaHandle)
         return false
     end
@@ -75,10 +75,10 @@ func StzMetaIsOneOfTheseNamedParams(pxList, pvtNames)
         return false
     end
 
-    nLen = Len(pvtNames)
+    nLen = Len(pxNames)
     for i = 1 to nLen
-        if ring_lower(pxList[1]) = ring_lower(pvtNames[i])
-            if StzMetaIsNamedParam(pvtNames[i])
+        if ring_lower(pxList[1]) = ring_lower(pxNames[i])
+            if StzMetaIsNamedParam(pxNames[i])
                 return true
             end
         end
@@ -86,8 +86,8 @@ func StzMetaIsOneOfTheseNamedParams(pxList, pvtNames)
 
     return false
 end
-	func EngineIsOneOfTheseNamedParams(pxList, pvtNames)
-		return StzMetaIsOneOfTheseNamedParams(pxList, pvtNames)
+	func EngineIsOneOfTheseNamedParams(pxList, pxNames)
+		return StzMetaIsOneOfTheseNamedParams(pxList, pxNames)
 	end
 func StzMetaIsAnyNamedParam(pxList)
     if not IsList(pxList)

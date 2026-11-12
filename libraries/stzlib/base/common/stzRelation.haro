@@ -16,23 +16,23 @@
  #  FUNCTIONS  #
 #=============#
 
-func StzRelationQ()
+func StzRelationQ
 	return new stzRelation()
-
-func IsStzRelation(pObj)
-	if isObject(pObj) and classname(pObj) = "stzrelation"
-		return 1
+end
+func IsStzRelation(pxObj)
+	if IsObject(pxObj) and ClassName(pxObj) = "stzrelation"
+		return true
 	else
-		return 0
-	ok
+		return false
+	end
+end
+	func @IsStzRelation(pxObj)
+		return IsStzRelation(pxObj)
+	end
 
-	func @IsStzRelation(pObj)
-		return IsStzRelation(pObj)
-
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
+  #///////////////
+ #/   CLASS   ///
+#///////////////
 
 # Keeps weighted subject-relation-object triples in the engine, such as alice knows bob with weight 0.5, and reads them back by position.
 #
@@ -64,7 +64,8 @@ class stzRelation from stzObject
 	#   warning    the store is global to the process: relations added through one object are seen
 	#              by every other
 	#   see        Clear
-	def init()
+	def init
+	end
 		# Engine manages global relation store
 
 	  #-------------------------------#
@@ -81,26 +82,26 @@ class stzRelation from stzObject
 	#   note            positions are counted from 0, in the order of adding
 	#   warning         a non-text subject, type or object and a non-number weight raise an error
 	#   see             AddSimple, Count
-	def Add(cSubject, cRelationType, cObject, nWeight)
+	def Add(tSubject, tRelationType, tObject, nWeight)
 		if CheckingParams()
-			if NOT isString(cSubject) or NOT isString(cRelationType) or NOT isString(cObject)
+			if not IsString(tSubject) or not IsString(tRelationType) or not IsString(tObject)
 				StzRaise("Incorrect params! cSubject, cRelationType, and cObject must be strings.")
-			ok
-			if NOT isNumber(nWeight)
+			end
+			if not IsNumber(nWeight)
 				StzRaise("Incorrect param! nWeight must be a number.")
-			ok
-		ok
+			end
+		end
 
-		_nHandle_ = StzEngineRelAdd(cSubject, cRelationType, cObject, nWeight)
-		if _nHandle_ < 0
+		nHandle = StzEngineRelAdd(tSubject, tRelationType, tObject, nWeight)
+		if nHandle < 0
 			StzRaise("Can't add relation! Slots full.")
-		ok
-		return _nHandle_
-
-		def AddQ(cSubject, cRelationType, cObject, nWeight)
-			This.Add(cSubject, cRelationType, cObject, nWeight)
-			return This
-
+		end
+		return nHandle
+	end
+		def AddQ(tSubject, tRelationType, tObject, nWeight)
+			this.Add(tSubject, tRelationType, tObject, nWeight)
+			return this
+		end
 	# Appends a relation with the weight 1.
 	#
 	#   cSubject        the subject, a text
@@ -108,9 +109,9 @@ class stzRelation from stzObject
 	#   cObject         the object, a text
 	#   returns         nothing
 	#   see             Add
-	def AddSimple(cSubject, cRelationType, cObject)
-		return This.Add(cSubject, cRelationType, cObject, 1.0)
-
+	def AddSimple(tSubject, tRelationType, tObject)
+		return this.Add(tSubject, tRelationType, tObject, 1.0)
+	end
 	  #-------------------------------#
 	 #     QUERY RELATIONS           #
 	#-------------------------------#
@@ -122,7 +123,7 @@ class stzRelation from stzObject
 	#   see        Object, RelationType, Weight
 	def Subject(nIndex)
 		return StzEngineRelSubject(nIndex)
-
+	end
 	# Returns the object of the relation at a position, counted from 0.
 	#
 	#   nIndex     the position of the relation, starting at 0
@@ -130,7 +131,7 @@ class stzRelation from stzObject
 	#   see        Subject, RelationType
 	def Object(nIndex)
 		return StzEngineRelObject(nIndex)
-
+	end
 	# Returns the kind of the relation at a position, counted from 0.
 	#
 	#   nIndex     the position of the relation, starting at 0
@@ -138,10 +139,10 @@ class stzRelation from stzObject
 	#   see        Subject, Object
 	def RelationType(nIndex)
 		return StzEngineRelType(nIndex)
-
+	end
 		def Type(nIndex)
-			return This.RelationType(nIndex)
-
+			return this.RelationType(nIndex)
+		end
 	# Returns the weight of the relation at a position, counted from 0.
 	#
 	#   nIndex     the position of the relation, starting at 0
@@ -149,7 +150,7 @@ class stzRelation from stzObject
 	#   see        Add, Subject
 	def Weight(nIndex)
 		return StzEngineRelWeight(nIndex)
-
+	end
 	  #-------------------------------#
 	 #     COUNTING AND CLEANUP      #
 	#-------------------------------#
@@ -158,12 +159,12 @@ class stzRelation from stzObject
 	#
 	#   returns    a number
 	#   see        Add, Remove
-	def Count()
+	def Count
 		return StzEngineRelCount()
-
-		def NumberOfRelations()
-			return This.Count()
-
+	end
+		def NumberOfRelations
+			return this.Count()
+		end
 	# Removes the relation at a position; the others keep their positions and the removed one reads empty.
 	#
 	#   nIndex     the position of the relation to remove, starting at 0
@@ -174,10 +175,12 @@ class stzRelation from stzObject
 	#   see        Clear, Count
 	def Remove(nIndex)
 		StzEngineRelRemove(nIndex)
-
+	end
 	# Empties the store for every object that shares it.
 	#
 	#   returns    nothing
 	#   see        Remove, Count
-	def Clear()
+	def Clear
 		StzEngineRelClear()
+	end
+end

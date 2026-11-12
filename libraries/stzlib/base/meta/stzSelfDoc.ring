@@ -45,7 +45,7 @@ func StzSelfDocQ(pcTarget)
 #   see        stzLibDoc, StzSelfDocQ, stzDocRecord
 class stzSelfDoc from stzObject
 
-	@cName = ""       # class name (e.g. "stzText")
+	@tName = ""       # class name (e.g. "stzText")
 	@cSource = ""     # resolved source file path
 	@aMethods = []    # [ [name, description, aka, ownerClass], ... ] own + inherited
 	@aVectors = []    # per-method embedding (lazy; only when a model is loaded)
@@ -70,18 +70,18 @@ class stzSelfDoc from stzObject
 			# By-path form: harvest only this file's named class (no chain,
 			# since we resolve parents by name, not path).
 			@cSource = pcTarget
-			@cName = _StzNameFromPath(pcTarget)
+			@tName = _StzNameFromPath(pcTarget)
 			if @cSource != "" and fexists(@cSource)
-				_aM_ = _StzHarvestClass(@cSource, @cName)
+				_aM_ = _StzHarvestClass(@cSource, @tName)
 				_nM_ = len(_aM_)
 				for _i_ = 1 to _nM_
-					@aMethods + [ _aM_[_i_][1], _aM_[_i_][2], _aM_[_i_][3], @cName ]
+					@aMethods + [ _aM_[_i_][1], _aM_[_i_][2], _aM_[_i_][3], @tName ]
 				next
 			ok
 		else
 			# By-name form: harvest the full inherited method surface (own +
 			# domain ancestors), so Ask/Explain see what the object can REALLY do.
-			@cName = pcTarget
+			@tName = pcTarget
 			@cSource = _StzResolveSource(pcTarget)
 			@aMethods = _StzHarvestChain(pcTarget)
 		ok
@@ -97,7 +97,7 @@ class stzSelfDoc from stzObject
 	#   returns    a text
 	#   see        Source
 	def ClassName()
-		return @cName
+		return @tName
 
 	# Returns the path of the source file the class was found in.
 	#
@@ -163,7 +163,7 @@ class stzSelfDoc from stzObject
 		_n_ = 0
 		_nN_ = len(@aMethods)
 		for _i_ = 1 to _nN_
-			if lower(@aMethods[_i_][4]) != lower(@cName) _n_++ ok
+			if lower(@aMethods[_i_][4]) != lower(@tName) _n_++ ok
 		next
 		return _n_
 
@@ -181,14 +181,14 @@ class stzSelfDoc from stzObject
 	def ExplainMethod(pcName)
 		_ix_ = This._IndexOf(pcName)
 		if _ix_ = 0
-			return "No method '" + pcName + "' in " + @cName + "."
+			return "No method '" + pcName + "' in " + @tName + "."
 		ok
 		_cD_ = @aMethods[_ix_][2]
 		if _cD_ = ""
 			_cD_ = "(" + _StzSplitCamel(@aMethods[_ix_][1]) + ")"
 		ok
 		_cOut_ = @aMethods[_ix_][1] + " -- " + _cD_
-		if lower(@aMethods[_ix_][4]) != lower(@cName)
+		if lower(@aMethods[_ix_][4]) != lower(@tName)
 			_cOut_ += "  [inherited from " + @aMethods[_ix_][4] + "]"
 		ok
 		# Teach the function FORM (active mutates / passive returns a copy / ...).
@@ -259,7 +259,7 @@ class stzSelfDoc from stzObject
 	#   returns    the object itself
 	#   see        NumberOfMethods
 	def Show()
-		? "stzSelfDoc [ " + @cName + " : " + len(@aMethods) + " methods ]"
+		? "stzSelfDoc [ " + @tName + " : " + len(@aMethods) + " methods ]"
 		return This
 
 	  #==========================================================#
@@ -328,7 +328,7 @@ class stzSelfDoc from stzObject
 		_cCue_ = _StzQueryFormCue(pcQuestion)
 		for _i_ = 1 to _nM_
 			_nb_ = 0
-			if lower(@aMethods[_i_][4]) = lower(@cName) _nb_ = 0.05 ok
+			if lower(@aMethods[_i_][4]) = lower(@tName) _nb_ = 0.05 ok
 			_nb_ += _StzFormPreferenceBonus(@aMethods[_i_][1], _cCue_)
 			_nb_ -= 0.0002 * len(@aMethods[_i_][1])
 			_aBonus_ + _nb_
@@ -412,14 +412,14 @@ class stzSelfDoc from stzObject
 			ok
 		ok
 		if _cMethod_ = ""
-			return "No method in " + @cName + " matches: " + pcIntent
+			return "No method in " + @tName + " matches: " + pcIntent
 		ok
 		# owner = the class that DEFINES the method (may be an ancestor) -- its source
 		# is where the signature (and thus the arg types) live.
 		_ix_ = This._IndexOf(_cMethod_)
-		_cOwner_ = @cName
+		_cOwner_ = @tName
 		if _ix_ > 0 _cOwner_ = @aMethods[_ix_][4] ok
-		return _StzCallTemplate(@cName, _cMethod_, _cOwner_) + "   -- " + _cHow_ + " (" + _StzNameGloss(_cMethod_) + ")"
+		return _StzCallTemplate(@tName, _cMethod_, _cOwner_) + "   -- " + _cHow_ + " (" + _StzNameGloss(_cMethod_) + ")"
 
 	# Returns the name of the method that an intent resolves to, by grammar first and then by retrieval.
 	#
@@ -437,7 +437,7 @@ class stzSelfDoc from stzObject
 	# source when the method is its own and the object was opened by path
 	def _RecordFor(pnIx)
 		_cSrc_ = ""
-		if StzLower(@aMethods[pnIx][4]) = StzLower(@cName)
+		if StzLower(@aMethods[pnIx][4]) = StzLower(@tName)
 			_cSrc_ = @cSource
 		ok
 		return StzDocRecordOfIn(@aMethods[pnIx][4], @aMethods[pnIx][1], _cSrc_)
@@ -458,7 +458,7 @@ class stzSelfDoc from stzObject
 		for _i_ = 1 to _nN_ _aTexts_ + _StzMethodRetrievalText(@aMethods[_i_]) next
 		# Fast path: load the persisted embedding index instead of re-embedding
 		# every method (~80ms each). Keyed by model dims + texts signature.
-		_aV_ = _StzLoadEmbCache(@cName, _aTexts_)
+		_aV_ = _StzLoadEmbCache(@tName, _aTexts_)
 		if len(_aV_) = _nN_
 			@aVectors = _aV_
 			@bIndexed = 1
@@ -468,5 +468,5 @@ class stzSelfDoc from stzObject
 		for _i_ = 1 to _nN_
 			@aVectors + _StzEmbedInto(_aTexts_[_i_])
 		next
-		_StzSaveEmbCache(@cName, _aTexts_, @aVectors)
+		_StzSaveEmbCache(@tName, _aTexts_, @aVectors)
 		@bIndexed = 1

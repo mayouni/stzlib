@@ -1,0 +1,1207 @@
+
+
+# Returns the softanza object related to the type of p
+func StzQ(xP)
+
+	oResult = AFalseObject()
+
+	if IsString(xP)
+		oResult = new stzString(xP)
+
+	elseif IsNumber(xP)
+		oResult = new stzNumber(xP)
+
+	elseif IsList(xP)
+		oResult = new stzList(xP)
+
+	elseif IsObject(xP)
+		oResult = new stzObject(xP)
+	end
+
+	return oResult
+end
+	func Q(xP)
+		return StzQ(xP)
+	end
+	func @Q(xP)
+		return StzQ(xP)
+	end
+	func The(xP)
+		return StzQ(xP)
+	end
+	func TheQ(xP)
+		return StzQ(xP)
+	end
+	func TQ(xP)
+		return StzQ(xP)
+	end
+	# the LOCATIVE topic opener: "In [1, 2, 3], each item is a number"
+	func InQ(xP)
+		return StzQ(xP)
+	end
+	func @InQ(xP)
+		return StzQ(xP)
+	end
+func StzQC(xP)
+	if IsObject(xP)
+		# an stz object: clone THROUGH the content -- a fresh object
+		# gets a fresh engine handle
+		xQc = xP.Content()
+		if IsList(xQc)
+			vQc = xQc    # Ring copies lists on assignment
+			return StzQ(vQc)
+		end
+		return StzQ(xQc)
+	end
+	if IsList(xP)
+		vQc = xP            # Ring copies lists on assignment
+		return StzQ(vQc)
+	end
+	# numbers and strings are copied by Ring naturally
+	return StzQ(xP)
+end
+	func QC(xP)
+		return StzQC(xP)
+	end
+	func @QC(xP)
+		return StzQC(xP)
+	end
+func StzQH(xP)
+	#TODO // Review the code of all functions where loops are used
+	# on the main object and modify it many times
+
+	#~> // Use a copy on which the loop is used and then update
+	# the main object in on UpdateWith() call
+
+	# Turn history-keeping ON; the first history-aware fluent op opens
+	# the stream with its pre-op (initial) value, and every such op
+	# appends its result (see _StzHistoOpen / _StzHistoAdd).
+	StzKeepHistoryON()
+
+	return StzQ(xP)
+end
+# History snapshots at the PUBLIC fluent-op boundary (per-op values,
+# not the internal per-step Updates). _StzHistoOpen records the pre-op
+# value once per stream (History() consumes and clears the stream);
+# _StzHistoAdd records each op's result.
+func _StzHistoOpen(xV)
+	if StzKeepingHistory() and Len($vHisto) = 0
+		$vHisto + xV
+	end
+end
+func _StzHistoAdd(xV)
+	if StzKeepingHistory()
+		$vHisto + xV
+	end
+end
+# Global stub: history-tracking toggle. The full implementation will
+# weave through each mutating method; for now we just declare the
+# globals so callers don't R3.
+func SetKeepingHistoryTo(bOn)
+	# No-op stub.
+	return
+end
+func SetKeepingHistoryToXT(bOn, pxMode)
+	# No-op stub.
+	return
+
+	return StzQHHV(p) # tracing only the value (V)
+end
+	func QH(xP)
+		return StzQH(xP)
+	end
+	func StzQHHV(xP)
+		return StzQHH(xP)
+	end
+func StzQHH(xP)
+	SetKeepingTimeTo(true)
+	SetKeepingHistoryToXT(true, :VTMS)
+
+	return StzQ(xP)
+end
+	func QHH(xP)
+		return StzQHH(xP)
+	end
+	func QHHVTMS(xP) # Tracing Value, Type, Time and Size
+		return StzQHH(xP)
+	end
+	func StzQHHVTMS(xP)
+		return StzQHH(xP)
+	end
+func StzQHHVT(xP) # Tracing Value and Type
+	SetKeepingTimeTo(true)
+	SetKeepingHistoryToXT(true, :VT)
+
+	return StzQ(xP)
+end
+	func QHHVT(xP)
+		return StzQHHVT(xP)
+	end
+func StzQHHVM(xP) # Tacing Value and Time
+	SetKeepingTimeTo(true)
+	SetKeepingHistoryToXT(true, :VM)
+
+	return StzQ(xP)
+end
+	func QHHVM(xP)
+		return StzQHHVM(xP)
+	end
+func StzQHHVS(xP) # Tracing Value and Size
+	SetKeepingTimeTo(true)
+	SetKeepingHistoryToXT(true, :VS)
+
+	return StzQ(xP)
+end
+	func QHHVS(xP)
+		return StzQHHVS(xP)
+	end
+func StzQHHTM(xP) # Tracing Type and Time
+	SetKeepingTimeTo(true)
+	SetKeepingHistoryToXT(true, :TM)
+
+	return StzQ(xP)
+end
+	func QHHTM(xP)
+		return StzQHHTM(xP)
+	end
+func StzQHHTS(xP) # Tacing Type and Size
+	SetKeepingTimeTo(true)
+	SetKeepingHistoryToXT(true, :TS)
+
+	return StzQ(xP)
+end
+	func QHHTS(xP)
+		return StzQHHTS(xP)
+	end
+func StzQHHMS(xP) # Tracing Time and Size
+	SetKeepingTimeTo(true)
+	SetKeepingHistoryToXT(true, :MS)
+
+	return StzQ(xP)
+end
+	func QHHMS(xP)
+		return StzQHHMS(xP)
+	end
+func StzQHHVTM(xP) # Tracing Value, Type nad Time
+	SetKeepingTimeTo(true)
+	SetKeepingHistoryToXT(true, :TM)
+
+	return StzQ(xP)
+end
+	func QHHVTM(xP)
+		return StzQHHVTM(xP)
+	end
+func StzQHHVTS(xP) # Tracing Value, Type and Size
+	SetKeepingTimeTo(true)
+	SetKeepingHistoryToXT(true, :VTS)
+
+	return StzQ(xP)
+end
+	func QHHVTS(xP)
+		return StzQHHVTS(xP)
+	end
+func StzQHHTMS(xP) # Tracing Type, Time and Size
+	SetKeepingTimeTo(true)
+	SetKeepingHistoryToXT(true, :TMS)
+
+	return StzQ(xP)
+end
+	func QHHTMS(xP)
+		return StzQHHTMS(xP)
+	end
+#--
+
+func StzW(tType, pxMethodAndFilter)
+	/* EXAMPLE
+	? StzW(:Char, [ :Methods, :Where = 'Q(@Method).StartsWith("is")' ])
+	*/
+
+	if not ( IsList(pxMethodAndFilter) and Len(pxMethodAndFilter) = 2 and
+		 IsList(pxMethodAndFilter[2]) and
+		 Q(pxMethodAndFilter[2]).IsWhereNamedParam() and
+		 IsString(pxMethodAndFilter[2][2]) )
+
+		StzRaise('Incorrect param type! paMethodAndFilter must be a pair of the form [ :Methods, :Where = "@Method..." ], for example.')
+	end
+
+	xTempList = Stz(tType, pxMethodAndFilter[1])
+	tCondition = Q(pxMethodAndFilter[2][2])
+			.ReplaceCSQ("@Method", "@Item", 0)
+			.Content()
+
+	xResult = QRT(xTempList, :stzListOfStrings).StringsW(tCondition)
+
+	return xResult
+end
+func Stz(tType, pxInfo)
+	/* EXAMPLE
+		? Stz(:Char, :Methods) #--> [ :Init, :Content, ... ]
+	*/
+
+	if IsList(pxInfo) and Len(pxInfo) = 2 and
+		 IsList(pxInfo[2]) and
+		 Q(pxInfo[2]).IsWhereNamedParam() and
+		 IsString(pxInfo[2][2])
+
+		return StzW(tType, pxInfo)
+	end
+
+	tInfo = pxInfo
+
+	if not @BothAreStrings(tType, [:And, tInfo])
+		StzRaise("Incorrect params type! Botht cType and cInfo must be strings.")
+	end
+
+	tClass = 'stz' + tType
+
+	if not Q(tClass).IsStzClassName()
+		StzRaise("Incorrect param! cType must be a valid softanza type.")
+	end
+
+	oEmptyObject = Empty(tClass)
+
+	switch tInfo
+	case :Class
+		return tClass
+
+	case :ClassName
+		return tClass
+
+	case :Methods
+		return Methods(oEmptyObject)
+
+	case :Attributes
+		return Attributes(oEmptyObject)
+
+	else
+		StzRaise("Unsupported information! Allowed values are :Methods and :Attributes.")
+	end
+end
+
+# This function tries its best to infere a convenient type
+# by analysing a value hosted in a string
+
+func StzQQ(xP)
+
+	/* EXAMPLE 1
+
+	? StzQQ("19")		# stzNumber
+	#--> Note that this is a number in string:
+	? StzQ("19").IsNumberInString() #--> TRUE
+
+	EXAMPLE 2
+
+	? StzQQ("[1, 2, 3]")	#--> stzListOfNumbers
+	#--> Note that this is a list in string:
+	? StzQ("[1, 2, 3]").IsListOfNumbersInString() #--> TRUE
+
+	EXAMPLE 3
+
+	? StzQQ(' [ "one", "two", "three" ] ')	#--> stzListOfStrings
+	#--> Note that this is a list of strings in a string:
+	? StzQ(' [ "one", "two", "three" ] ').IsListOfStringsInString #--> TRUE
+
+	*/
+
+	if IsString(xP)
+
+		oParam = new stzString(xP)
+
+		# QQ elevates a string to its most-specific STRING-FAMILY type. A single
+		# char is one -> stzChar, checked FIRST: "3" is a single char, so QQ("3")
+		# is stzChar (NOT stzNumber -- converting "3" the STRING to 3 the NUMBER is
+		# a coercion, StzN()/ToStzNumber()'s job, not a Q-elevation).
+		if oParam.IsChar() or oParam.IsHexUnicode()
+			return new stzChar(xP)
+
+		# NOTE: these two still COERCE to non-string types (stzNumber / stzList),
+		# which strictly should be stzNumberInString / stzListInString -- but those
+		# classes don't exist yet. Kept as-is (option 1) until they land; then a
+		# multi-char "19" -> stzNumberInString, "[1,2,3]" -> stzListInString.
+		elseif oParam.IsNumberInString()
+			return new stzNumber(xP)
+
+		elseif oParam.IsListInString()
+			return new stzList(StzL(xP))
+
+		elseif StzIsDate(xP)
+			return new stzDate(xP)
+
+		end
+
+		# stzText hasn't been ported yet -- fall back to stzString so
+		# narrative chains like QQ("Ⓜ").IsCircledNumber() still resolve
+		# on the string surface.
+		return new stzString(xP)
+
+	elseif IsList(xP)
+
+		oQTemp = StzQ(xP)
+
+		# QQ = the FIRST LOGICAL secondary type. A list of chars is a list of
+		# STRINGS here (chars are single-char strings) -> stzListOfStrings; the
+		# more specific stzListOfChars is QQQ's job, not QQ's.
+		if oQTemp.IsListOfNumbers()
+			return new stzListOfNumbers(xP)
+
+		elseif oQTemp.IsListOfStrings()
+			return new stzListOfstrings(xP)
+
+		elseif oQTemp.IsListOfHashLists()
+			return new stzListOfHashLists(xP)
+
+		elseif oQTemp.IsListOfPairs()
+			return new stzListOfPairs(xP)
+
+		elseif oQTemp.IsListOfLists()
+			return new stzListOfLists(xP)
+
+		else
+			return new stzList(xP)
+		end
+
+	else
+		return StzQ(xP)
+	end
+end
+	func QQ(xP)
+		return StzQQ(xP)
+	end
+# QQQ = the MOST SPECIFIC type the content maps to. Past QQ's stzListOfStrings,
+# a list resolves further by what the items ACTUALLY are -- today the reliably
+# structurally-detectable refinement is chars -> stzListOfChars (a proper
+# IsListOfDates/Bytes/Words/Regex predicate would extend this). For non-lists it
+# falls back to StzQQ (whose string branch already detects char/date/number).
+# NOTE: for SOLID code where the content could be ambiguous, prefer the explicit
+# QRT(p, :stzExactType) over relying on QQQ's auto-detection.
+func StzQQQ(xP)
+	if IsList(xP)
+
+		oQTemp = StzQ(xP)
+
+		if oQTemp.IsListOfNumbers()
+			return new stzListOfNumbers(xP)
+
+		elseif oQTemp.IsListOfChars()
+			return new stzListOfChars(xP)
+
+		elseif oQTemp.IsListOfStrings()
+			return new stzListOfstrings(xP)
+
+		elseif oQTemp.IsListOfHashLists()
+			return new stzListOfHashLists(xP)
+
+		elseif oQTemp.IsListOfPairs()
+			return new stzListOfPairs(xP)
+
+		elseif oQTemp.IsListOfLists()
+			return new stzListOfLists(xP)
+
+		else
+			return new stzList(xP)
+		end
+
+	else
+		return StzQQ(xP)
+	end
+end
+	func QQQ(xP)
+		return StzQQQ(xP)
+	end
+#---
+
+func StzN(xP)
+	if IsNumber(xP)
+		return xP
+
+	elseif IsString(xP)
+
+		oParam = StzQ(xP)
+
+		if oParam.IsNumberInString()
+			return Decimal(xP)
+
+		elseif oParam.IsListInString()
+			return Len( StzQ(xP).ToList() )
+
+		else
+			return StzQ(xP).NumberOfChars()
+		end
+
+	elseif IsList(xP)
+		return Len(xP)
+
+	elseif IsObject(xP)
+		return Len( StzQ(xP).ObjectAttributes() )
+	end
+end
+	func N(xP)
+		return StzN(xP)
+	end
+	func StzNQ(xP)
+		return new stzNumber( StzN(xP) )
+	end
+	func NQ(xP)
+		return StzNQ(xP)
+	end
+	func QN(xP)
+		return StzNQ(xP)
+	end
+#---
+
+func StzS(xP)
+	if IsString(xP)
+		return xP
+
+	elseif IsNumber(xP)
+		return ""+ xP
+
+	elseif IsList(xP)
+		return StzQ(xP).ToCode()
+
+	elseif IsObject(xP)
+		return StzLQ(xP).ToCode()
+	end
+end
+	func S(xP)
+		return StzS(xP)
+	end
+	func StzSQ(xP)
+		return StzQ( StzS(xP) )
+	end
+	func SQ(xP)
+		return StzSQ(xP)
+	end
+	func QS(xP)
+		return StzSQ(xP)
+	end
+
+#---
+
+func StzUCS(xP, pxCaseSensitive)
+	/* EXAMPLE
+
+	? StzU([ "a", 1, 2, 2, "a", "a", 3 ]) # Or Unique() or WithoutDuplicates()
+	#--> [ "a", 1, 2, 3 ]
+
+	*/
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type!")
+		end
+	end
+
+	xResult = []
+	nLen = Len(xP)
+	for i = 1 to nLen
+		bFound = false
+		nResLen = Len(xResult)
+		for j = 1 to nResLen
+			if BothAreEqualCS(xResult[j], xP[i], pxCaseSensitive)
+				bFound = true
+				exit
+			end
+		end
+		if not bFound
+			xResult + xP[i]
+		end
+	end
+	return xResult
+end
+	func UCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func StzWithoutDuplicatesCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func WithoutDuplicatesCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func WithoutDupplicatesCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func StzUniqueCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func UniqueCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func @UCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func @WithoutDuplicatesCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func @WithoutDupplicatesCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func @UniqueCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func StzUniqueItemsCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func UniqueItemsCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func @UniqueItemsCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func UniqueItemsInCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func @UniqueItemsInCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func StzToSetCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func ToSetCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+	func @ToSetCS(xP, pxCaseSensitive)
+		return StzUCS(xP, pxCaseSensitive)
+	end
+
+func StzU(xP)
+	return StzUCS(xP, 1)
+end
+	func U(xP)
+		return StzU(xP)
+	end
+	func StzWithoutDuplicates(xP)
+		return StzU(xP)
+	end
+	func WithoutDuplicates(xP)
+		return StzU(xP)
+	end
+	func WithoutDupplicates(xP)
+		return StzU(xP)
+	end
+	func StzUnique(xP)
+		return StzU(xP)
+	end
+	func Unique(xP)
+		return StzU(xP)
+	end
+	func @U(xP)
+		return StzU(xP)
+	end
+	func @WithoutDuplicates(xP)
+		return StzU(xP)
+	end
+	func @WithoutDupplicates(xP)
+		return StzU(xP)
+	end
+	func @Unique(xP)
+		return StzU(xP)
+	end
+	func StzUniqueItems(xP)
+		return StzU(xP)
+	end
+	func UniqueItems(xP)
+		return StzU(xP)
+	end
+	func @UniqueItems(xP)
+		return StzU(xP)
+	end
+	func UniqueItemsIn(xP)
+		return StzU(xP)
+	end
+	func @UniqueItemsIn(xP)
+		return StzU(xP)
+	end
+	func StzToSet(xP)
+		return StzU(xP)
+	end
+	func ToSet(xP)
+		return StzU(xP)
+	end
+	func @ToSet(xP)
+		return StzU(xP)
+	end
+#--
+
+func StzL(xP)
+
+	if IsList(xP)
+		return xP
+
+	elseif IsString(xP)
+
+		# 1. A range expression like  "A" : "E"  /  "v1" : "v3"  /  1.02 : 1.05
+		#    (eval-free, codepoint- and decimal-aware).
+
+		xRange = StzParseRange(xP)
+		if IsList(xRange)
+			return xRange
+		end
+
+		# 2. A Ring list literal written inside the string, e.g. "[ 1, 2, 3 ]"
+
+		if StzStringQ(xP).IsListInString()
+			return StzStringQ(xP).ToList()
+		end
+
+		# 3. Fallback: split the string into its characters (codepoint-safe)
+
+		xResult = []
+		nLen = StzLen(xP)
+		for i = 1 to nLen
+			xResult + StzMid(xP, i, 1)
+		end
+		return xResult
+
+	elseif IsObject(xP)
+		return StzObject(xP).ObjectAttributesAndValues()
+
+	elseif IsNumber(xP)
+		xResult = []
+		for i = 1 to xP
+			xResult + ""
+		end
+
+		return xResult
+
+	else
+		StzRaise("Incorrect param! Can't tranform param to list.")
+	end
+end
+	func L(xP)
+		return StzL(xP)
+	end
+	func StzLQ(xP)
+		return new stzList(StzL(xP))
+	end
+	func LQ(xP)
+		return StzLQ(xP)
+	end
+#--- RANGE EXPRESSION PARSER (eval-free) for L() / StzL()
+
+# Expands a textual range "lhs : rhs" into the list it denotes. Returns
+# NULL (not a list) when the string is not a recognizable range, so the
+# caller can fall through to its other interpretations. Supports:
+#   "A" : "E"          -> codepoint char range  [ "A", "B", "C", "D", "E" ]
+#   "v1" : "v3"        -> numbered tokens        [ "v1", "v2", "v3" ]   (any prefix, incl. multibyte)
+#   1 : 5              -> integer range
+#   1.02 : 1.05        -> real range at the endpoints' decimal granularity
+# It is codepoint-correct (multibyte prefixes/chars preserved) and never
+# uses Ring's byte-oriented substr on the inner content.
+
+func StzParseRange(pxStr)
+
+	tStr = ring_trim(pxStr)
+	nLen = ring_len(tStr)
+	if nLen = 0
+		return ""
+	end
+
+	# Locate the top-level ':' separator (not inside a double-quoted token).
+	# ':' and '"' are ASCII single bytes, and every byte of a multibyte
+	# UTF-8 char is >= 0x80, so a raw byte scan is safe here.
+
+	nColon = 0
+	bInQuote = false
+	for i = 1 to nLen
+		xC = tStr[i]
+		if xC = '"'
+			bInQuote = not bInQuote
+		elseif xC = ':' and bInQuote = false
+			nColon = i
+			exit
+		end
+	end
+
+	if nColon = 0
+		return ""
+	end
+
+	tLhs = ring_trim( ring_left(tStr, nColon - 1) )
+	tRhs = ring_trim( ring_right(tStr, nLen - nColon) )
+
+	if ring_len(tLhs) = 0 or ring_len(tRhs) = 0
+		return ""
+	end
+
+	bLhsQuoted = _IsQuotedToken(tLhs)
+	bRhsQuoted = _IsQuotedToken(tRhs)
+
+	# --- Both sides are quoted string tokens ---
+
+	if bLhsQuoted and bRhsQuoted
+
+		tA = _Unquote(tLhs)
+		tB = _Unquote(tRhs)
+
+		# Single codepoint on each side -> char range
+		if StzLen(tA) = 1 and StzLen(tB) = 1
+			return StzCharsBetween(tA, tB)
+		end
+
+		# Numbered tokens: shared prefix + trailing integer
+		xA = _SplitTrailingDigits(tA)
+		xB = _SplitTrailingDigits(tB)
+		if xA[2] != "" and xB[2] != "" and xA[1] = xB[1]
+			viNums = NumbersBetween(Decimal(xA[2]), Decimal(xB[2]))
+			xResult = []
+			nN = Len(viNums)
+			for i = 1 to nN
+				xResult + ( xA[1] + viNums[i] )
+			end
+			return xResult
+		end
+
+		return ""
+	end
+
+	# --- Both sides are unquoted -> numeric range ---
+
+	if (not bLhsQuoted) and (not bRhsQuoted) and
+	   _IsNumericToken(tLhs) and _IsNumericToken(tRhs)
+
+		nDec = Max(_DecimalsOf(tLhs), _DecimalsOf(tRhs))
+
+		if nDec = 0
+			return NumbersBetween(Decimal(tLhs), Decimal(tRhs))
+		end
+
+		nFactor = Pow(10, nDec)
+		nStart = Floor( (Decimal(tLhs)) * nFactor + 0.5 )
+		if (Decimal(tLhs)) < 0
+			nStart = Ceil( (Decimal(tLhs)) * nFactor - 0.5 )
+		end
+		nEnd = Floor( (Decimal(tRhs)) * nFactor + 0.5 )
+		if (Decimal(tRhs)) < 0
+			nEnd = Ceil( (Decimal(tRhs)) * nFactor - 0.5 )
+		end
+
+		nStep = 1
+		if nStart > nEnd nStep = -1 end
+
+		xResult = []
+		for k = nStart to nEnd step nStep
+			xResult + ( k / nFactor )
+		end
+		return xResult
+	end
+
+	return ""
+end
+#--- range-parser local helpers
+
+# A BARE `n` HERE CLOBBERED THE CALLER'S GLOBAL `n` (the global-capture
+# trap: a plain assignment in a func BINDS an existing global of that
+# name rather than creating a local). A user script holding `n = 44`
+# got it silently rewritten to the length of whatever token these
+# helpers were parsing. Sigil'd, like every other local in the library.
+func _IsQuotedToken(xC)
+	xN = ring_len(xC)
+	if xN >= 2 and xC[1] = '"' and xC[xN] = '"'
+		return true
+	end
+	return false
+end
+func _Unquote(xC)
+	xN = ring_len(xC)
+	if xN >= 2 and xC[1] = '"' and xC[xN] = '"'
+		return ring_substr2(xC, 2, xN - 2)   # inner bytes between the ASCII quotes; multibyte kept intact
+	end
+	return xC
+end
+# Returns [ prefix, trailingDigitsAsString ]. Digits are ASCII so a
+# backward byte scan stops cleanly at the first non-digit byte, leaving
+# any multibyte prefix untouched.
+func _SplitTrailingDigits(xC)
+	xN = ring_len(xC)
+	nCut = xN
+	while nCut >= 1
+		nK = Ascii(xC[nCut])
+		if nK >= 48 and nK <= 57   # ASCII '0'..'9'
+			nCut--
+		else
+			exit
+		end
+	end
+	if nCut = xN
+		return [ xC, "" ]
+	end
+	tPrefix = ""
+	if nCut >= 1 tPrefix = ring_left(xC, nCut) end
+	tDigits = ring_right(xC, xN - nCut)
+	return [ tPrefix, tDigits ]
+end
+func _IsNumericToken(xC)
+	xN = ring_len(xC)
+	if xN = 0 return 0 end
+	nI = 1
+	if xC[1] = "-" or xC[1] = "+"
+		nI = 2
+	end
+	if nI > xN return 0 end
+	bDigitSeen = false
+	bDotSeen = false
+	while nI <= xN
+		nK = Ascii(xC[nI])
+		if nK >= 48 and nK <= 57   # ASCII '0'..'9'
+			bDigitSeen = true
+		elseif nK = 46               # ASCII '.'
+			if bDotSeen return 0 end
+			bDotSeen = true
+		else
+			return 0
+		end
+		nI++
+	end
+	return bDigitSeen
+end
+func _DecimalsOf(xC)
+	nDot = ring_substr1(xC, ".")
+	if nDot = 0
+		return 0
+	end
+	return ring_len(xC) - nDot
+end
+#---
+
+func StzLN(xP)
+
+	if  IsPair(xP) and
+	    IsPair(xP[1]) and IsPair(xP[2]) and
+	    IsString(xP[1][1]) and IsString(xP[2][1]) and
+	    xP[1][1] = :From and xP[2][1] = :To and
+	    IsNumber(xP[1][2]) and IsNumber(xP[2][2])
+
+		return NumbersBetween(xP[1][2], xP[2][2])
+
+	elseif IsList(xP)
+		xResult = []
+		nLen = Len(xP)
+		for i = 1 to nLen
+			if IsNumber(xP[i])
+				xResult + xP[i]
+			end
+		end
+		return xResult
+
+	elseif IsString(xP) and StzQ(xP).IsListInString()
+		xResult = StzQ(xP).ToListQ().OnlyNumbers()
+		return xResult
+
+	elseif IsNumber(xP)
+		xResult = []
+		for i = 1 to xP
+			xResult + 0
+		end
+		return xResult
+	end
+end
+	func LN(xP)
+		return StzLN(xP)
+	end
+	func StzLNQ(xP)
+		return StzQ(StzLN(xP))
+	end
+	func LNQ(xP)
+		return StzLNQ(xP)
+	end
+	func QLN(xP)
+		return StzLNQ(xP)
+	end
+	func StzLoN(xP)
+		return StzLN(xP)
+	end
+	func LoN(xP)
+		return StzLN(xP)
+	end
+	func LoNQ(xP)
+		return StzLNQ(xP)
+	end
+#---
+
+func StzLC(xP)
+	if IsList(xP)
+		xResult = []
+		nLen = Len(xP)
+		for i = 1 to nLen
+			if IsString(xP[i]) and Len(xP[i]) = 1
+				xResult + xP[i]
+			end
+		end
+		return xResult
+
+	elseif IsString(xP) and StzQ(xP).IsListInString()
+		xResult = StzQ(xP).ToListQ().OnlyChars()
+		return xResult
+
+	elseif IsNumber(xP)
+		xResult = []
+		for i = 1 to xP
+			xResult + ""
+		end
+		return xResult
+
+	end
+end
+	func LC(xP)
+		return StzLC(xP)
+	end
+	func StzLCQ(xP)
+		return StzQ(StzLC(xP))
+	end
+	func LCQ(xP)
+		return StzLCQ(xP)
+	end
+	func QLC(xP)
+		return StzLCQ(xP)
+	end
+	func StzLoC(xP)
+		return StzLC(xP)
+	end
+	func LoC(xP)
+		return StzLC(xP)
+	end
+	func LoCQ(xP)
+		return StzLCQ(xP)
+	end
+#---
+
+func StzLL(xP)
+	if IsList(xP)
+		xResult = []
+		nLen = Len(xP)
+		for i = 1 to nLen
+			if IsList(xP[i])
+				xResult + xP[i]
+			end
+		end
+		return xResult
+
+	elseif IsString(xP) and StzQ(xP).IsListInString()
+		xResult = StzQ(xP).ToListQ().OnlyLists()
+		return xResult
+
+	elseif IsNumber(xP)
+		xResult = []
+		for i = 1 to xP
+			xResult + []
+		end
+		return xResult
+
+	end
+end
+	func LL(xP)
+		return StzLL(xP)
+	end
+	func StzLLQ(xP)
+		return StzQ(StzLL(xP))
+	end
+	func LLQ(xP)
+		return StzLLQ(xP)
+	end
+	func QLL(xP)
+		return StzLLQ(xP)
+	end
+	func StzLoL(xP)
+		return StzLL(xP)
+	end
+	func LoL(xP)
+		return StzLL(xP)
+	end
+	func LoLQ(xP)
+		return StzLLQ(xP)
+	end
+#---
+
+func StzLS(xP)
+	if IsList(xP)
+		xResult = []
+		nLen = Len(xP)
+		for i = 1 to nLen
+			if IsString(xP[i])
+				xResult + xP[i]
+			end
+		end
+		return xResult
+
+	elseif IsString(xP) and StzQ(xP).IsListInString()
+		xResult = StzQ(xP).ToListQ().OnlyStrings()
+		return xResult
+
+	elseif IsNumber(xP)
+		xResult = []
+		for i = 1 to xP
+			xResult + ""
+		end
+		return xResult
+
+	end
+end
+	func LS(xP)
+		return StzLS(xP)
+	end
+	func StzLSQ(xP)
+		return StzQ(StzLS(xP))
+	end
+	func LSQ(xP)
+		return StzLSQ(xP)
+	end
+	func QLS(xP)
+		return StzLSQ(xP)
+	end
+	func StzLoS(xP)
+		return StzLS(xP)
+	end
+	func LoS(xP)
+		return StzLS(xP)
+	end
+	func LoSQ(xP)
+		return StzLSQ(xP)
+	end
+#---
+
+func StzWhere(tCode)
+	if not IsString(tCode)
+		StzRaise("Incorrect param type! cCode must be a string.")
+	end
+
+	xResult = [:Where, tCode]
+	return xResult
+end
+	func W(tCode)
+		return StzWhere(tCode)
+	end
+	func Where(tCode)
+		return StzWhere(tCode)
+	end
+func StzWhereXT(tCode)
+	if not IsString(tCode)
+		StzRaise("Incorrect param type! cCode must be a string.")
+	end
+
+	xResult = [:WhereXT, tCode]
+	return xResult
+end
+	func WXT(tCode)
+		return StzWhereXT(tCode)
+	end
+	func WhereXT(tCode)
+		return StzWhereXT(tCode)
+	end
+# Global Join() function. Mirrors stzList.Join() but works on raw
+# Ring lists too -- callers like stzCCode use it on intermediate
+# substring arrays without wrapping them first.
+
+# Join a list with a SEPARATOR. `Join` above takes none, which is fine for
+# concatenation and useless for a message -- and two call sites had already
+# been written against a StzJoinWith that did not exist, each of them inside
+# a StzRaise. Both raised R3 "calling function without definition" instead
+# of the message they were written to give, and both guards passed anyway
+# because they only asserted THAT it raised.
+func StzJoinWith(pxList, pxSep)
+	if not IsList(pxList)
+		StzRaise("StzJoinWith: give a list.")
+	end
+	tC = ""
+	nN = Len(pxList)
+	for i = 1 to nN
+		if i > 1  tC += ("" + pxSep)  end
+		tC += ("" + pxList[i])
+	end
+	return tC
+end
+func Join(pxList)
+	if not IsList(pxList)
+		StzRaise("Join: paList must be a list")
+	end
+	tJoined = ""
+	nLen = Len(pxList)
+	for i = 1 to nLen
+		if IsString(pxList[i])
+			tJoined += pxList[i]
+		elseif IsNumber(pxList[i])
+			tJoined += "" + pxList[i]
+		end
+	end
+	return tJoined
+
+# Global StzSubStr() -- thin alias for Ring's substr() with the
+# (str, start, length) signature. Used by stzRegex.PartialMatchInfo
+# and other engine-result formatters that build substring extracts
+# from raw byte positions.
+
+# Global stopwords status. The full stopwords feature lives in
+# libraries/stzlib/max/string/stxStringStopWords.ring (extended
+# layer); the simple status flag itself is base-layer territory so
+# narrative tests in the base/test corpus can flip it without
+# pulling in `max`.
+
+tStopWordsStatus = :MustNotBeRemoved
+end
+func StopWordsMustBeRemoved
+	tStopWordsStatus = :MustBeRemoved
+end
+	func StopWordsMustNotBeRemoved
+		tStopWordsStatus = :MustNotBeRemoved
+	end
+func StopWordsStatus
+	return tStopWordsStatus
+end
+func StzSubStr(tStr, nStart, nLen)
+	if not IsString(tStr)
+		StzRaise("StzSubStr: cStr must be a string")
+	end
+	if not (IsNumber(nStart) and IsNumber(nLen))
+		StzRaise("StzSubStr: nStart and nLen must be numbers")
+	end
+	if nLen <= 0 or nStart < 1
+		return ""
+	end
+	return StzMid(tStr, nStart, nLen)
+end
+	func JoinXT(pxList, pxSep)
+		if not IsList(pxList)
+			StzRaise("JoinXT: paList must be a list")
+		end
+		if not IsString(pxSep)
+			StzRaise("JoinXT: pcSep must be a string")
+		end
+		tJoinedSep = ""
+		nLn = Len(pxList)
+		for i = 1 to nLn
+			if IsString(pxList[i])
+				tJoinedSep += pxList[i]
+			elseif IsNumber(pxList[i])
+				tJoinedSep += "" + pxList[i]
+			end
+			if i < nLn
+				tJoinedSep += pxSep
+			end
+		end
+		return tJoinedSep
+	end
+# CenterText: pad cText so it occupies nWidth visible columns, with
+# the text centered (extra space biased to the right when nWidth is
+# even and the remainder is odd). Used by the pivot-table-show
+# row-rendering helper.
+func CenterText(tText, nWidth)
+	if not (IsString(tText) and IsNumber(nWidth)) return tText end
+	if nWidth < 1 return "" end
+	# Visible columns = codepoint count, not bytes; byte len()/left() over-
+	# counted and could split a multibyte char ('café' is 4 cols, 5 bytes).
+	nLen = StzLen(tText)
+	if nLen >= nWidth
+		return StzLeft(tText, nWidth)
+	end
+	nLeft = Floor((nWidth - nLen) / 2)
+	nRight = nWidth - nLen - nLeft
+	tOut = ""
+	for i = 1 to nLeft
+		tOut += " "
+	end
+	tOut += tText
+	for i = 1 to nRight
+		tOut += " "
+	end
+	return tOut
+end

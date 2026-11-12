@@ -89,7 +89,7 @@ func StzHeldSecrets()
 #   see        stzSecretStore, stzSystemActor, stzToken, stzPassword
 class stzSecret from stzObject
 
-	@cName    = ""
+	@tName    = ""
 	@cKind    = "secret"    # semantic kind: secret / apikey / password / deploykey / token
 	@cSource  = "unset"     # literal / env / file / vault / unset
 	@cLocator = ""          # env var NAME / file PATH / vault REF  (SAFE to show)
@@ -101,7 +101,7 @@ class stzSecret from stzObject
 	#   returns    nothing; the object is built
 	#   see        FromLiteral, FromEnv, FromFile, FromVault
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Sets the secret to a value held inline, for development and tests; it still appears redacted everywhere.
 	#
@@ -227,7 +227,7 @@ class stzSecret from stzObject
 	#   see        Descriptor
 	#@ aka  -- SAFE reads (never leak the value) --------------------------------
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the kind of credential, such as secret, apikey or token.
 	#
@@ -261,7 +261,7 @@ class stzSecret from stzObject
 		if @cLocator != "" and @cSource != "literal"
 			_src_ += ":" + @cLocator
 		ok
-		return "<secret '" + @cName + "' (" + @cKind + ") from " + _src_ + ">"
+		return "<secret '" + @tName + "' (" + @cKind + ") from " + _src_ + ">"
 
 	# Returns a fixed row of eight asterisks, which does not depend on the value.
 	#
@@ -322,7 +322,7 @@ class stzSecret from stzObject
 		This._GateReveal(poActor)
 		if @cSource = "vault"
 			if NOT isObject(poResolver)
-				StzRaise("Secret '" + @cName + "' is vault-sourced ('" + @cLocator +
+				StzRaise("Secret '" + @tName + "' is vault-sourced ('" + @cLocator +
 					"'). Pass a vault resolver: RevealVia(resolver, actor).")
 			ok
 			return poResolver.Resolve(@cLocator)
@@ -352,9 +352,9 @@ class stzSecret from stzObject
 			# the one that still went unremembered. The secret's NAME is a
 			# descriptor and safe to write; the value is never touched, which
 			# is why this line can sit inside the reveal path at all.
-			StzNoteRefusal("secret.reveal.refused", _name_, "secret:" + @cName,
+			StzNoteRefusal("secret.reveal.refused", _name_, "secret:" + @tName,
 				_who_ + " may not reveal this secret")
-			StzRaise("Refused: " + _who_ + " may not reveal secret '" + @cName +
+			StzRaise("Refused: " + _who_ + " may not reveal secret '" + @tName +
 				"'. Only an effectful, non-sandboxed actor can read a secret.")
 		ok
 
@@ -383,7 +383,7 @@ class stzSecret from stzObject
 			_h_ = StzEngineSecretHoldEnv(@cLocator)
 		but @cSource = "file"
 			if StzEngineFileExists(@cLocator) != 1
-				StzRaise("Secret '" + @cName + "': file source not found -- " + @cLocator)
+				StzRaise("Secret '" + @tName + "': file source not found -- " + @cLocator)
 			ok
 			_h_ = StzEngineSecretHoldFile(@cLocator)
 		else
@@ -399,19 +399,19 @@ class stzSecret from stzObject
 		if @cSource = "literal"
 			return StzEngineSecretReveal(@nCell)
 		but @cSource = "released"
-			StzRaise("Secret '" + @cName + "' was released: its value is wiped.")
+			StzRaise("Secret '" + @tName + "' was released: its value is wiped.")
 		but @cSource = "env"
 			return StzEngineSystemEnvGet(@cLocator)
 		but @cSource = "file"
 			if StzEngineFileExists(@cLocator) != 1
-				StzRaise("Secret '" + @cName + "': file source not found -- " + @cLocator)
+				StzRaise("Secret '" + @tName + "': file source not found -- " + @cLocator)
 			ok
 			return ring_trim(read(@cLocator))
 		but @cSource = "vault"
-			StzRaise("Secret '" + @cName + "' is vault-sourced ('" + @cLocator +
+			StzRaise("Secret '" + @tName + "' is vault-sourced ('" + @cLocator +
 				"'). Reveal it through a resolver: RevealVia(resolver, actor).")
 		else
-			StzRaise("Secret '" + @cName + "' has no source set (call FromLiteralQ / FromEnvQ / FromFileQ).")
+			StzRaise("Secret '" + @tName + "' has no source set (call FromLiteralQ / FromEnvQ / FromFileQ).")
 		ok
 		return ""
 
@@ -443,7 +443,7 @@ class stzApiKey from stzSecret
 	#   returns    nothing; the object is built
 	#   see        AuthorizationHeader, FromLiteral
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@cKind = "apikey"
 
 	# Returns the value of an HTTP Authorization header, Bearer followed by the key, which reveals the key.
@@ -488,7 +488,7 @@ class stzPassword from stzSecret
 	#   returns    nothing; the object is built
 	#   see        FromLiteral, HashedBy
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@cKind = "password"
 
 	# Returns a salted Argon2id hash of the password, safe to store.
@@ -545,7 +545,7 @@ class stzDeployKey from stzSecret
 	#   returns    nothing; the object is built
 	#   see        KeyMaterial, FromLiteral
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@cKind = "deploykey"
 
 	# the key material (governed).
@@ -581,7 +581,7 @@ class stzToken from stzSecret
 	#   returns    nothing; the object is built
 	#   see        SetExpiry, FromLiteral
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@cKind = "token"
 
 	# Sets the moment the token expires, in epoch seconds; 0 means it never expires.

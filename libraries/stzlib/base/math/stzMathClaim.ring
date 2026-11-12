@@ -299,7 +299,7 @@ class stzMathClaim from stzObject
 	@cLhs = ""
 	@cRhs = ""
 	@cOver = "real"
-	@acVars = []
+	@vtVars = []
 	@cLabel = ""
 	@cTactic = ""
 	@aLastCheck = []
@@ -372,13 +372,13 @@ class stzMathClaim from stzObject
 		if NOT isList(_aV_)
 			stzraise("stzMathClaim: :vars is a list of names.")
 		ok
-		@acVars = []
+		@vtVars = []
 		for _i_ = 1 to ring_len(_aV_)
 			_cV_ = ring_trim("" + _aV_[_i_])
 			if _cV_ = "" or NOT isalpha(_cV_[1])
 				stzraise("stzMathClaim: variable " + _i_ + " is not a name.")
 			ok
-			@acVars + _cV_
+			@vtVars + _cV_
 		next
 		@cLabel = ring_trim("" + _FfGet(paSpec, "label", ""))
 		if @cLabel = ""  @cLabel = @cLhs + " " + @cRelation + " " + @cRhs  ok
@@ -444,7 +444,7 @@ class stzMathClaim from stzObject
 	#   returns    a list of text; [ ] for a closed statement
 	#   see        SamplePoints, Over
 	def Vars()
-		return @acVars
+		return @vtVars
 	# Returns the label given to the claim, which names its theorem.
 	#
 	#   returns    a text
@@ -468,7 +468,7 @@ class stzMathClaim from stzObject
 	#-- THE FLOOR: the engine evaluates both sides at sampled points ---------------
 
 	def _Compile(pcExpr)
-		_acV_ = @acVars
+		_acV_ = @vtVars
 		if ring_len(_acV_) = 0  _acV_ = [ "zz" ]  ok
 		return new stzMathFunction(pcExpr, _acV_)
 
@@ -479,7 +479,7 @@ class stzMathClaim from stzObject
 	#   see        Check, Vars
 	#@ aka  the points the floor samples: one for a closed statement, sixteen per variable otherwise, integers where the domain is integers
 	def SamplePoints()
-		_nV_ = ring_len(@acVars)
+		_nV_ = ring_len(@vtVars)
 		if _nV_ = 0  return [ [ 0 ] ]  ok
 		_aS_ = StzMathClaimSamples()
 		if @cOver = "natural"  _aS_ = StzMathClaimNaturalSamples()  ok
@@ -547,9 +547,9 @@ class stzMathClaim from stzObject
 		_oR_.Free()
 		if ring_len(_aBad_) > 0
 			_cAt_ = ""
-			for _v_ = 1 to ring_len(@acVars)
+			for _v_ = 1 to ring_len(@vtVars)
 				if _cAt_ != ""  _cAt_ += ", "  ok
-				_cAt_ += @acVars[_v_] + " = " + _FfNum(_aBad_[_v_], 4)
+				_cAt_ += @vtVars[_v_] + " = " + _FfNum(_aBad_[_v_], 4)
 			next
 			_cE_ = "the sides are " + _FfNum(_nBadL_, 6) + " and " + _FfNum(_nBadR_, 6)
 			if _cAt_ != ""  _cE_ += " at " + _cAt_  ok
@@ -597,8 +597,8 @@ class stzMathClaim from stzObject
 	#@ aka  the tactic: the author's, or the one the kind and the variables call for
 	def LeanTactic()
 		if @cTactic != ""  return @cTactic  ok
-		if @cKind = "identity" and ring_len(@acVars) > 0  return "ring"  ok
-		if @cKind = "inequality" and ring_len(@acVars) > 0  return "nlinarith"  ok
+		if @cKind = "identity" and ring_len(@vtVars) > 0  return "ring"  ok
+		if @cKind = "inequality" and ring_len(@vtVars) > 0  return "nlinarith"  ok
 		return "norm_num"
 
 	# Returns the statement spelt for Lean, with the domain symbol attached to the left side.
@@ -616,11 +616,11 @@ class stzMathClaim from stzObject
 	#   see        LeanStatement, CheckWithLean, WriteLean
 	def ToLean()
 		_cB_ = ""
-		if ring_len(@acVars) > 0
+		if ring_len(@vtVars) > 0
 			_cB_ = " ("
-			for _i_ = 1 to ring_len(@acVars)
+			for _i_ = 1 to ring_len(@vtVars)
 				if _i_ > 1  _cB_ += " "  ok
-				_cB_ += @acVars[_i_]
+				_cB_ += @vtVars[_i_]
 			next
 			_cB_ += " : " + _LcType(@cOver) + ")"
 		ok
@@ -648,7 +648,7 @@ class stzMathClaim from stzObject
 		_cArt_ = "a "
 		if @cKind != "divisibility"  _cArt_ = "an "  ok
 		_c_ = _cArt_ + @cKind + " over the " + @cOver + "s, '" + This.Statement() + "'"
-		if ring_len(@acVars) > 0  _c_ += " in " + @@(@acVars)  ok
+		if ring_len(@vtVars) > 0  _c_ += " in " + @@(@vtVars)  ok
 		if _a_[:verdict]
 			_c_ += ": true on the floor, " + _a_[:evidence]
 		else

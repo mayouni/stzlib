@@ -27,7 +27,7 @@
 #   see        stzAgentMemory, stzPIAgent
 class stzAgentSkill from stzObject
 
-	@cName = ""
+	@tName = ""
 	@fWhen = ""
 	@fDoes = ""
 	@fVerify = ""
@@ -39,14 +39,14 @@ class stzAgentSkill from stzObject
 	#   returns    nothing; the object is built
 	#   see        SetWhen, SetDoes, SetVerifiedBy
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the name the skill was built with.
 	#
 	#   returns    a text
 	#   see        init, Kind
 	def Name_()
-		return @cName
+		return @tName
 
 	# Sets the precondition: a function of the memory that must answer true before the skill may run.
 	#
@@ -117,11 +117,11 @@ class stzAgentSkill from stzObject
 	def Apply(poMemory)
 		if This.PreconditionHolds(poMemory) = 0
 			return [ :ran = 0, :verified = 0,
-				:why = "skill '" + @cName + "' skipped: precondition not met" ]
+				:why = "skill '" + @tName + "' skipped: precondition not met" ]
 		ok
 		if @fDoes = ""
 			return [ :ran = 0, :verified = 0,
-				:why = "skill '" + @cName + "' has no action" ]
+				:why = "skill '" + @tName + "' has no action" ]
 		ok
 		call @fDoes(poMemory)
 		_bV_ = 1
@@ -130,7 +130,7 @@ class stzAgentSkill from stzObject
 		ok
 		if _bV_ = 1
 			return [ :ran = 1, :verified = 1,
-				:why = "skill '" + @cName + "' ran and VERIFIED" ]
+				:why = "skill '" + @tName + "' ran and VERIFIED" ]
 		ok
 		return [ :ran = 1, :verified = 0,
-			:why = "skill '" + @cName + "' ran but FAILED verification" ]
+			:why = "skill '" + @tName + "' ran but FAILED verification" ]

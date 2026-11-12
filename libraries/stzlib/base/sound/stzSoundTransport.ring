@@ -91,7 +91,7 @@ class stzSoundTransport
 	@nStopAtFrame = 0       # 0 = play until stopped
 	@nBaseFrames = 0        # frames consumed before the current stream started
 	@nLastFrames = 0
-	@cLastError = ""
+	@tLastError = ""
 	@nRefusals = 0
 	@nFadeMs = 10
 
@@ -110,7 +110,7 @@ class stzSoundTransport
 	#   see        StzSoundTransportOfQ, State
 	def init(poGraph)
 		if NOT isObject(poGraph)
-			@cLastError = "a transport needs a stzSoundGraph"
+			@tLastError = "a transport needs a stzSoundGraph"
 			return
 		ok
 		@oGraph = poGraph
@@ -168,7 +168,7 @@ class stzSoundTransport
 	#   warning    a successful move clears it
 	#   see        Refusals
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns how many moves the state machine refused.
 	#
@@ -328,7 +328,7 @@ class stzSoundTransport
 	#@ aka  Back to the top: the graph rewinds and the clock goes with it. Only legal when stopped, because rewinding under a running device is a jump.
 	def Rewind()
 		if NOT This.IsStopped()
-			@cLastError = "Rewind: stop first -- rewinding a running graph is a jump"
+			@tLastError = "Rewind: stop first -- rewinding a running graph is a jump"
 			@nRefusals++
 			return This
 		ok
@@ -395,7 +395,7 @@ class stzSoundTransport
 	#@ aka  THE REACTIVE CONVERGENCE. The transport does not own a loop; it owns a STEP. Hand it a stzReactive and the loop that already exists calls the step, alongside every timer, stream and task that loop is already carrying -- which is the whole point of there being one loop.
 	def DriveWith(poReactive)
 		if NOT isObject(poReactive)
-			@cLastError = "DriveWith needs a stzReactive"
+			@tLastError = "DriveWith needs a stzReactive"
 			@nRefusals++
 			return This
 		ok
@@ -485,31 +485,31 @@ class stzSoundTransport
 		_now_ = @oFsm.Send("" + pEvent)
 		if _now_ = _was_
 			@nRefusals++
-			@cLastError = "cannot " + pEvent + " while " + _was_
+			@tLastError = "cannot " + pEvent + " while " + _was_
 			return FALSE
 		ok
-		@cLastError = ""
+		@tLastError = ""
 		return TRUE
 
 	def _OpenDevice()
 		if NOT @oGraph.Prepare()
-			@cLastError = @oGraph.LastError()
+			@tLastError = @oGraph.LastError()
 			return FALSE
 		ok
 		if NOT StzAudioDevEngineLoaded() or StzEngineAudioDevIsAvailable() = 0
-			@cLastError = "no audio device on this machine"
+			@tLastError = "no audio device on this machine"
 			return FALSE
 		ok
 		@nStream = StzEngineSoundStreamStart(@oGraph.GraphId(), 16384)
 		if @nStream = 0
-			@cLastError = StzEngineSoundGraphLastError()
+			@tLastError = StzEngineSoundGraphLastError()
 			return FALSE
 		ok
 		sleep(0.12)             # let the producer get ahead of the device
 		@nDevice = StzEngineAudioDevPlaybackOpen(
 			StzEngineSoundStreamRingPtr(@nStream), 256)
 		if @nDevice = 0
-			@cLastError = StzEngineAudioDevLastError()
+			@tLastError = StzEngineAudioDevLastError()
 			StzEngineSoundStreamStop(@nStream)
 			@nStream = 0
 			return FALSE

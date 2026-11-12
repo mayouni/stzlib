@@ -45,7 +45,7 @@ class stzLinearSolver from stzObject
 	@objectiveType = "maximize"  # "maximize" or "minimize"
 	@aSolution = new stzHashList([])
 	@status = ""
-	@iterations = 0
+	@xIterations = 0
 	@solveTime = 0
 	@aCoeffCache = []   # rows [ expression text, [ [name, coeff], ... ] or "", ordered terms or "" ]
 	@nMaxNodes = 5000   # the most nodes branch and bound solves before it stops with an error
@@ -70,7 +70,7 @@ class stzLinearSolver from stzObject
 		@objectiveType = "maximize"
 		@aSolution = new stzHashList([])
 		@status = ""
-		@iterations = 0
+		@xIterations = 0
 		@solveTime = 0
 
 	  #------------------------#
@@ -350,7 +350,7 @@ class stzLinearSolver from stzObject
 	def solveWithGreedy()
 		# Greedy solver: maximize efficiency ratio for each variable
 		@status = "optimal"
-		@iterations = len(@variables)
+		@xIterations = len(@variables)
 		
 		# Parse objective coefficients
 		_aCoeffs_ = this.parseObjectiveCoefficients()
@@ -425,7 +425,7 @@ class stzLinearSolver from stzObject
 		# = an artificial. Floor scale (dense, small/mid models);
 		# the engine/HiGHS tiers are the R4 ladder's next rungs.
 		@status = "optimal"
-		@iterations = 0
+		@xIterations = 0
 		_aVarNames_ = this.variableNames()
 		_nV_ = len(_aVarNames_)
 		_aObjC_ = this.parseObjectiveCoefficients()
@@ -592,7 +592,7 @@ class stzLinearSolver from stzObject
 		ok
 
 		_nStatusCode_ = _aRunRes_[1]
-		@iterations = _aRunRes_[2]
+		@xIterations = _aRunRes_[2]
 
 		if _nStatusCode_ = 1
 			@status = "unbounded"
@@ -637,7 +637,7 @@ class stzLinearSolver from stzObject
 	#   see        solve, solveWithSimplex, addIntegerVariable, addBinaryVariable
 	def solveWithBranchAndBound()
 		@status = "optimal"
-		@iterations = 0
+		@xIterations = 0
 		_nV_ = len(@variables)
 		_nMaxNodes_ = @nMaxNodes
 		_nTol_ = 0.000000001
@@ -660,16 +660,16 @@ class stzLinearSolver from stzObject
 			_aNode_ = _aStack_[_nTop_]
 			del(_aStack_, _nTop_)
 
-			if @iterations >= _nMaxNodes_
+			if @xIterations >= _nMaxNodes_
 				@status = "node_limit"
 				raise("stzLinearSolver: branch and bound stopped after " + _nMaxNodes_ + " nodes without proving the best whole answer; use fewer integer variables or tighter bounds.")
 			ok
-			@iterations++
+			@xIterations++
 
 			_oNode_ = this._NodeProblem(_aNode_[1], _aNode_[2])
 			_aSol_ = _oNode_.solveWithSimplex()
 			_cStatus_ = _oNode_.status()
-			if @iterations = 1
+			if @xIterations = 1
 				_aRoot_ = _aSol_
 			ok
 
@@ -782,7 +782,7 @@ class stzLinearSolver from stzObject
 	def solveWithGenetic()
 		# Genetic algorithm for complex problems
 		@status = "optimal"
-		@iterations = 0
+		@xIterations = 0
 		
 		_nPopSize_ = 50
 		_nGenerations_ = 100
@@ -794,7 +794,7 @@ class stzLinearSolver from stzObject
 		_nBestFitness_ = this.calculateFitness(_aBestSolution_)
 		
 		for nGen = 1 to _nGenerations_
-			@iterations++
+			@xIterations++
 			
 			# Evaluate fitness for all individuals
 			_aFitness_ = []
@@ -1712,7 +1712,7 @@ class stzLinearSolver from stzObject
 	#   returns    a number; 0 before any solve
 	#   see        solve, status
 	def iterations()
-		return @iterations
+		return @xIterations
 
 	# Returns the time the last solve took, in seconds.
 	#
@@ -1774,11 +1774,11 @@ class stzLinearSolver from stzObject
 			? "========== Solution =========="
 			? "Status: " + @status
 			? "Solved in " + @solveTime + " seconds"
-			? "Iterations: " + @iterations
+			? "Iterations: " + @xIterations
 			? BoxRound("Solution")
 			? "• Status: " + @status
 			? "• Solved in " + @solveTime + " second(s)"
-			? "• Iterations: " + @iterations
+			? "• Iterations: " + @xIterations
 			? ""
 			? "Variable Values:"
 			? "• Variable Values:"
@@ -1831,7 +1831,7 @@ class stzLinearSolver from stzObject
 			_cContent_ += "Solution:" + char(10)
 			_cContent_ += "Status: " + @status + char(10)
 			_cContent_ += "Solve Time: " + @solveTime + " seconds" + char(10)
-			_cContent_ += "Iterations: " + @iterations + char(10)
+			_cContent_ += "Iterations: " + @xIterations + char(10)
 			_cContent_ += "Objective Value: " + this.objectiveValue() + char(10) + char(10)
 			
 			_cContent_ += "Variable Values:" + char(10)

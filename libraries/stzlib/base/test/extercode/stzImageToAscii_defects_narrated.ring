@@ -382,7 +382,7 @@ class stzImgToAsciiProbe from stzImgToAscii
 		return This.BuildArgs()
 
 	def KeptContent()
-		return @cContent
+		return @tContent
 
 	def Ran()
 		return @bRan

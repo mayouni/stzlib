@@ -63,22 +63,22 @@ end
 func ring_objects
 	return objects()
 end
-func ring_max(pvnNumbers)
-	nBest = pvnNumbers[1]
-	nLen = Len(pvnNumbers)
+func ring_max(pxNumbers)
+	nBest = pxNumbers[1]
+	nLen = Len(pxNumbers)
 	for i = 2 to nLen
-		if pvnNumbers[i] > nBest
-			nBest = pvnNumbers[i]
+		if pxNumbers[i] > nBest
+			nBest = pxNumbers[i]
 		end
 	end
 	return nBest
 end
-func ring_min(pvnNumbers)
-	nBest = pvnNumbers[1]
-	nLen = Len(pvnNumbers)
+func ring_min(pxNumbers)
+	nBest = pxNumbers[1]
+	nLen = Len(pxNumbers)
 	for i = 2 to nLen
-		if pvnNumbers[i] < nBest
-			nBest = pvnNumbers[i]
+		if pxNumbers[i] < nBest
+			nBest = pxNumbers[i]
 		end
 	end
 	return nBest
@@ -122,18 +122,18 @@ end
 func ring_read(tFilePath)
 	return Read(tFilePath)
 end
-func ring_write(tFilePath, ptStr)
-	return Write(tFilePath, ptStr)
+func ring_write(tFilePath, pxStr)
+	return Write(tFilePath, pxStr)
 end
-func ring_writeline(tFilePath, ptStr)
-	return WriteLine(tFilePath, ptStr) #TODO // check that it exists in Ring!
+func ring_writeline(tFilePath, pxStr)
+	return WriteLine(tFilePath, pxStr) #TODO // check that it exists in Ring!
 end
-func ring_insert(pvList, xN, xItem)
+func ring_insert(pxList, xN, xItem)
 	#NOTE
 	# We change the behaviour of the Ring function, since
 	# it actually means in Ring insertAfter() and not insert()
 
-	if not ( IsList(pvList)  or IsNumber(xN) )
+	if not ( IsList(pxList)  or IsNumber(xN) )
 		Raise( "ERR-" + StkError(:IncorrectParamType) )
 	end
 
@@ -141,11 +141,11 @@ func ring_insert(pvList, xN, xItem)
 		Raise( "ERR-" + StkError(:IncorrectParamValye) )
 	end
 
-	Insert(pvList, xN-1, xItem)
-	return pvList
+	Insert(pxList, xN-1, xItem)
+	return pxList
 end
-func ring_find(pvList, pxItem)
-	return Find(pvList, pxItem)
+func ring_find(pxList, pxItem)
+	return Find(pxList, pxItem)
 end
 func ring_type(xP)
 	return Type(xP)
@@ -156,22 +156,22 @@ func ring_reverse(pxStrOrList)
 
 	return Reverse(pxStrOrList)
 end
-func ring_sort(pvList)
-	return Sort(pvList)
+func ring_sort(pxList)
+	return Sort(pxList)
 end
-	func ring_sort1(pvList)
-		return ring_sort(pvList)
+	func ring_sort1(pxList)
+		return ring_sort(pxList)
 	end
-func ring_sort2(pvList, xN)
-	xResult = Sort(pvList, xN)
+func ring_sort2(pxList, xN)
+	xResult = Sort(pxList, xN)
 	return xResult
 end
-	func ring_sortXT(pvList, xN)
-		return Sort(pvList, xN)
+	func ring_sortXT(pxList, xN)
+		return Sort(pxList, xN)
 	end
-func ring_swap(pvList, xN1, xN2)
-	Swap(pvList, xN1, xN2)
-	return pvList
+func ring_swap(pxList, xN1, xN2)
+	Swap(pxList, xN1, xN2)
+	return pxList
 end
 func ring_methods(xObj)
 	return Methods(xObj)
@@ -251,10 +251,10 @@ end
 func ring_right(xStr, xN)
 	return Right(xStr, xN)
 end
-func ring_del(pvList, xN)
+func ring_del(pxList, xN)
 
-	Del(pvList, xN)
-	return pvList
+	Del(pxList, xN)
+	return pxList
 end
 	#NOTE
 	# Some Ring standard functions make the action in place and does not
@@ -274,26 +274,26 @@ end
 	# 	#--> [ 1, 2, 3 ]
 	
 
-	func ring_remove(pvList, xN) # An alternative I added to the Ring semantics
-		return ring_del(pvList, xN)
+	func ring_remove(pxList, xN) # An alternative I added to the Ring semantics
+		return ring_del(pxList, xN)
 	end
 func ring_file_remove(tFile)
 	Remove(tFile)
 end
-func ring_substr(pvParams)
-	if not IsList(pvParams)
+func ring_substr(pxParams)
+	if not IsList(pxParams)
 		Raise("ERR-" + StkError(:IncorrectParamType))
 	end
 
-	nLen = Len(pvParams)
+	nLen = Len(pxParams)
 	if nLen < 2 or nLen > 3
 		Raise("ERR-" + StkError(:IncorrectNumberOfParams))
 	end
 
 	if nLen = 2
-		return ring_substr1(pvParams[1], pvParams[2])
+		return ring_substr1(pxParams[1], pxParams[2])
 	elseif nLen = 3
-		return ring_substr2(pvParams[1], pvParams[2], pvParams[2])
+		return ring_substr2(pxParams[1], pxParams[2], pxParams[2])
 	end
 end
 func ring_substr1(xStr, xSubstr) # Finds substr in str
@@ -421,8 +421,8 @@ func StzInterpreterPath
 	end
 	return "rnxc"
 end
-func _StzIsInterpreterPath(ptPath, pvNames)
-	tP = Lower(SubStr(ptPath, Char(92), "/"))
+func _StzIsInterpreterPath(pxPath, pxNames)
+	tP = Lower(SubStr(pxPath, Char(92), "/"))
 	nSlash = 0
 	nLenP = Len(tP)
 	for i = nLenP to 1 step -1
@@ -438,9 +438,9 @@ func _StzIsInterpreterPath(ptPath, pvNames)
 	if Right(tBase, 4) = ".exe"
 		tBase = Left(tBase, Len(tBase) - 4)
 	end
-	nNames = Len(pvNames)
+	nNames = Len(pxNames)
 	for i = 1 to nNames
-		if tBase = pvNames[i]
+		if tBase = pxNames[i]
 			return true
 		end
 	end

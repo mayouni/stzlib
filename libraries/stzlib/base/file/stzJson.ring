@@ -110,7 +110,7 @@ Class stzJson from stzObject
 
 	@aData = []
 	@bIsArray = 0
-	@cLastError = ""
+	@tLastError = ""
 
 # Builds the object from a JSON text or from a Ring list; an empty or invalid text leaves it empty and records an error.
 #
@@ -125,11 +125,11 @@ def init(p)
     if isString(p)
         p = _TrimJson(p)
         if StzLen(p) = 0
-            @cLastError = "Empty JSON string"
+            @tLastError = "Empty JSON string"
             return
         ok
         if NOT _IsValidJsonStructure(p)
-            @cLastError = "Invalid JSON string"
+            @tLastError = "Invalid JSON string"
             return
         ok
         @aData = JsonToList(p)
@@ -162,7 +162,7 @@ def init(p)
 	#   note       an empty object built from a valid text is not null
 	#   see        IsEmpty, HasError
 	def IsNull()
-		return len(@aData) = 0 and @cLastError != ""
+		return len(@aData) = 0 and @tLastError != ""
 
 	# Returns how many keys the object holds, or how many items the array holds.
 	#
@@ -583,7 +583,7 @@ def init(p)
 	#   note       misusing a method, for example At on an object, makes it FALSE
 	#   see        HasError, LastError, ClearError
 	def IsValid()
-		return @cLastError = ""
+		return @tLastError = ""
 
 	# Returns the message of the last error recorded, or an empty text when there is none.
 	#
@@ -593,21 +593,21 @@ def init(p)
 	#   see        HasError, ClearError
 	#@ aka  Error Handling
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# TRUE if an error has been recorded and not cleared.
 	#
 	#   note       it is the opposite of IsValid
 	#   see        LastError, ClearError, IsValid
 	def HasError()
-		return @cLastError != ""
+		return @tLastError != ""
 
 	# Forgets the recorded error, in place; returns the object itself.
 	#
 	#   returns    the stzJson itself, so calls chain
 	#   see        HasError, LastError
 	def ClearError()
-		@cLastError = ""
+		@tLastError = ""
 		return This
 
 	# Returns a new stzJson built from the JSON text; the receiver is not changed.
@@ -664,4 +664,4 @@ def init(p)
 	private
 
 	def _SetError(cError)
-		@cLastError = cError
+		@tLastError = cError

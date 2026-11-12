@@ -1,0 +1,77 @@
+# Additional functions to stkRingFuncs.ring in CORE layer
+
+func @IsFunction(xP)
+	if IsList(xP) or IsNumber(xP) or IsObject(xP)
+		return false
+	end
+
+	return IsFunction(xP) # Ring function
+end
+func ceiling(xN)
+	return Ceil(xN)
+end
+func low(xStr)
+	return StzLower(xStr)
+end
+func ring_exeFolder
+	return ExeFolder()
+end
+func ring_currentDir
+	return CurrentDir()
+end
+func ring_dir(tFolderPath)
+	return Dir(tFolderPath)
+end
+func ring_dirExists(tDirPath)
+	return DirExists(tDirPath)
+end
+func ring_getPathType(tPath)
+	return GetPathType(tPath)
+end
+	#--->
+	# 0 if the path doesn't exists
+	# 1 if it corresponds to existing file
+	# 2 if it corresponds to existing directory
+	# -1 if the path exists but has an unknown type (e.g. a pipe)
+
+func ring_isdir(tPath)
+	return IsDir(tPath)
+end
+func ring_ChDir(tNewPath)
+	return ChDir(tNewPath)
+end
+func ring_fexists(tFile)
+	return FExists(tFile)
+end
+#---
+
+func ring_map(xList, xF)
+	return Map(xList, xF)
+end
+func ring_filter(xList, xF)
+	return Filter(xList, xF)
+end
+func ring_reduce(xList, xF1, xInitialVal)
+	return Reduce(xList, xF1, xInitialVal)
+end
+#---
+
+func ring_download(tURL)
+	return Download(tURL)
+end
+#---
+
+func ring_time
+	return Time()
+end
+	func CurrentTime
+		return Time()
+	end
+#---
+
+func ring_isalpha(xC)
+	return IsAlpha(xC)
+end
+func ring_isdigit(xN)
+	return IsDigit(xN)
+end

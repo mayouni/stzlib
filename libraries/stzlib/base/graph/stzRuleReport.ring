@@ -55,7 +55,7 @@ func StzRuleReportQ(pcName)
 #   see        stzRuleGovernance, stzGraphRule, stzErDiagram
 class stzRuleReport from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aFindings = []       # unified [ :rule, :subject, :where, :severity, :message ]
 
 	# Builds an empty report under a name, ready to collect findings from any domain.
@@ -65,7 +65,7 @@ class stzRuleReport from stzObject
 	#   note       StzRuleReportQ builds the same object
 	#   see        Run, Collect
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@aFindings = []
 
 	# Runs a rule set over a graph and adds the findings it produces to the report.
@@ -146,7 +146,7 @@ class stzRuleReport from stzObject
 	#   see        Explain
 	#@ aka  -- reads -----------------------------------------------------------
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns every finding collected so far, in the order they arrived.
 	#
@@ -248,7 +248,7 @@ class stzRuleReport from stzObject
 		if _nE_ > 0
 			_cV_ = "UNSOUND (errors present)"
 		ok
-		_out_ + ("Rule report '" + @cName + "': " + len(@aFindings) + " finding(s), " +
+		_out_ + ("Rule report '" + @tName + "': " + len(@aFindings) + " finding(s), " +
 		         _nE_ + " error(s), " + _nW_ + " warning(s) -> " + _cV_)
 		# grouped by subject
 		_aSubs_ = This.Subjects()

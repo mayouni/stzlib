@@ -1,0 +1,2105 @@
+
+/*
+This class is a numrical solution to splitting things.
+
+A splitter recieves a number of N positions.
+
+Then the splitter initializes an internal list of numbers from 1 to N.
+
+Then the several splitting features are provided (see the class methods).
+
+Each of these methods returns a list pof Sections (as pairs of numbers).
+
+In practice, stzSplitter is called from inside a stzString or stzList. In this
+case, the returned sections are passed to stzString.Sections() or stzList.Sections()
+to provide us with the splitted parts of the string or the list.
+	
+*/
+
+func StzSplitterQ(xP)
+	return new stzSplitter(xP)
+end
+# Holds a number of positions, 1 to N, and answers where a string or a list would be cut, as sections [ first, last ] and never as parts.
+#
+# A splitter knows only a size. It never sees the items: every Split method returns a list of
+# sections that a stzString or a stzList then hands to its own Sections method to get the parts. The
+# family has three axes. The cut can fall AT a position or section (the cut-out positions are left
+# out), BEFORE it (the position starts a new section) or AFTER it (the position ends a section);
+# each exists for one position, for several positions, for one section and for several sections,
+# plus SplitToNParts and SplitToPartsOfNItems for even cuts. The IB forms (inclusive bounds, such as
+# SplitAtSectionIB) grow the sections by one part width so the cut positions are kept. Known gaps
+# today, each carried as a warning on its method: SplitAround with a flat pair raises R19,
+# SplitAroundSection raises R14, SplitAroundPosition raises R21 for the last position,
+# SplitAtSections reads its first and last cuts before sorting, and the named forms of SplitAt
+# (:ToNParts, :ToPartsOfNItems) raise R14.
+#
+#   receiver   o1 = new stzSplitter(10)
+#   example    ? @@( o1.SplitAtSection(3, 5) )
+#              #--> [ [ 1, 2 ], [ 6, 10 ] ]
+#   see        stzString, stzList, stzListOfNumbers
+class stzSplitter from stzListOfNumbers
+
+	@nNumberOfPositions
+	@nLenPart = 1
+
+	  #--------------------------------#
+	 #    INITIALIZING THE SPLITTER   #
+	#--------------------------------#
+
+	# Builds a splitter over N positions, given as a number or as a pair [ N, part width ]; a string or a negative number raises an error.
+	#
+	#   p          the number of positions N, or a pair [ N, width of one part ]
+	#   returns    nothing; the splitter is built
+	#   note       A splitter of 0 positions answers [ 1, 0 ] as its content, because the range 1:0
+	#              counts down. Everything it answers is a list of sections, each [ first, last ],
+	#              to hand to a string or a list
+	#   see        NumberOfPositions, Content
+	def init(xP)
+
+		if not (IsNumber(xP) or @IsPairOfNumbers(xP))
+			StzRaise("Incorrect param type! p must be a number or a pair of numbers.")
+		end
+
+		if IsNumber(xP)
+
+			if xP < 0
+				StzRaise("p must be positive!") #--> TODO: stzListError
+			end
+
+			@nNumberOfPositions = xP
+
+		elseif IsList(xP)
+			@nNumberOfPositions = xP[1]
+			@nLenPart = xP[2]
+
+		end
+	end
+	# Returns how many positions the splitter covers.
+	#
+	#   returns    a number
+	#   note       NumberOfItems is the same method
+	#   see        Content, ToStzList
+	def NumberOfPositions
+		return @nNumberOfPositions
+	end
+		def NumberOfItems
+			return this.NumberOfPositions()
+		end
+	# Returns the positions 1 to N as a list of numbers.
+	#
+	#   returns    a list of numbers
+	#   note       Value is the same method
+	#   see        NumberOfPositions, ToStzList
+	def Content
+		xResult = 1:this.NumberOfPositions()
+		return xResult
+	end
+		# Returns the positions 1 to N as a list of numbers, the same answer as the content accessor.
+		#
+		#   returns    a list of numbers
+		#   see        Content, NumberOfPositions
+		def Value
+			return Content()
+		end
+	# Returns a new splitter over the same number of positions; a part width given as [ N, width ] is not carried over.
+	#
+	#   returns    a stzSplitter
+	#   note       A copy of a splitter built from a pair answers with the default width 1 where the
+	#              part width matters
+	#   see        NumberOfPositions
+	def Copy
+		return new stzSplitter( this.NumberOfPositions() )
+	end
+	  #========================================#
+	 #    SPLITTING : THE GENERIC FUNCTION    #
+	#========================================#
+
+	def SplitXT(xP)
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+
+		# Case of number or lit of numbers param
+
+		if IsNumber(xP)
+			return this.SplitAtPosition(xP)
+
+		elseif @IsListOfNumbers(xP)
+			return this.SplitAtPositions(xP)
+		end
+
+		# Cases of named params
+
+		oParam = Q(xP)
+
+		#-- :At
+
+		if oParam.IsAtNamedParam()
+			return this.SplitAtPosition(xP[2])
+
+		elseif oParam.IsAtIBNamedParam()
+			return this.SplitAtPositionIB(xP[2])
+
+		#-- :AtPosition
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:AtPosition, :AtThisPosition ])
+
+			return this.SplitAtPositionIB(xP[2])
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:AtPositionIB, :AtThisPositionIB ])
+
+			return this.SplitAtPositionIB(xP[2])
+
+		#-- :AtPositions
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:AtPositions, :AtThesePositions, :AtManyPositions ])
+
+			return this.SplitAtPositions(xP[2])
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:AtPositionsIB, :AtThesePositionsIB, :AtManyPositionsIB ])
+
+			return this.SplitAtPositionsIB(xP[2])
+
+		#-- :BeforePosition
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:Before, :BeforePosition, :BeforeThisPosition ])
+
+			return this.SplitAtPosition(xP[2])
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:BeforeIB, :BeforePositionIB, :BeforeThisPositionIB ])
+
+			return this.SplitAtPositionIB(xP[2])
+
+		#-- :BeforePositions
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:BeforePositions, :BeforeThesePositions, :BeforeManyPositions ])
+
+			return this.SplitBeforePositions(xP[2])
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:BeforePositionsIB, :BeforeThesePositionsIB, :BeforeManyPositionsIB ])
+
+			return this.SplitBeforePositionsIB(xP[2])
+
+		#-- :AfterPosition
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:After, :AfterPosition, :AfterThisPosition ])
+
+			return this.SplitAfterPosition(xP[2])
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:AfterIB, :AfterPositionIB, :AfterThisPositionIB ])
+
+			return this.SplitAfterPositionIB(xP[2])
+
+		# :AfterPositions
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:AfterPositions, :AfterThesePositions, :AfterManyPositions ])
+
+			return this.SplitAfterPositions(xP[2])
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:AfterPositionsIB, :AfterThesePositionsIB, :AfterManyPositionsIB ])
+
+			return this.SplitAfterPositionsIB(xP[2])
+
+		#-- :AtSection
+
+		elseif IsOneOfTheseNamedParamsList(xP,[ :AtSection, :AtThisSection ])
+			return this.SplitAtSection(xP[2][1], xP[2][2])
+
+		elseif IsOneOfTheseNamedParamsList(xP,[ :AtSectionIB, :AtThisSectionIB ])
+			return this.SplitAtSectionIB(xP[2][1], xP[2][2])
+
+		#-- :AtSections
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:AtSections, :AtTheseSections, :AtManySections ])
+
+			return this.SplitAtSections(xP[2])
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:AtSectionsIB, :AtTheseSectionsIB, :AtManySectionsIB ])
+
+			return this.SplitAtSectionsIB(xP[2])
+
+		#-- :BeforeSection
+
+		elseif IsOneOfTheseNamedParamsList(xP,[ :BeforeSection, :BeforeThisSection ])
+			return this.SplitBeforeSection(xP[2][1], xP[2][2])
+
+		elseif IsOneOfTheseNamedParamsList(xP,[ :BeforeSectionIB, :BeforeThisSectionIB ])
+			return this.SplitBeforeSectionIB(xP[2][1], xP[2][2])
+
+		#-- :BeforeSections
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:BeforeSections, :BeforeTheseSections, :BeforeManySections ])
+
+			return this.SplitBeforeSections(xP[2])
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:BeforeSectionsIB, :BeforeTheseSectionsIB, :BeforeManySectionsIB ])
+
+			return this.SplitBeforeSectionsIB(xP[2])
+
+		#-- :AfterSection
+
+		elseif IsOneOfTheseNamedParamsList(xP,[ :AfterSection, :AfterThisSection ])
+			return this.SplitAfterSection(xP[2][1], xP[2][2])
+
+		elseif IsOneOfTheseNamedParamsList(xP,[ :AfterSectionIB, :AfterThisSectionIB ])
+			return this.SplitAfterSectionIB(xP[2][1], xP[2][2])
+
+		#-- :AfterSections
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:AfterSections, :AfterTheseSections, :AfterManySections ])
+
+			return this.SplitAfterSections(xP[2])
+
+		elseif IsOneOfTheseNamedParamsList(xP,[
+			:AfterSectionsIB, :AfterTheseSectionsIB, :AfterManySectionsIB ])
+
+			return this.SplitAfterSectionsIB(xP[2])
+
+		#== Misc.
+
+		elseif oParam.IsToPartsOfNItemsNamedParam()
+			return this.SplitToPartsOfNItemsXT(xP[2])
+
+		elseif oParam.IsToPartsOfExactlyNItemsNamedParam()
+			return this.SplitToPartsOfNItems(xP[2])
+
+		elseif oParam.IsToNPartsNamedParam()
+			return this.SplitToNParts(xP[2])
+
+		else
+			StzRaise("Unsupported syntax!")
+		end
+	end
+		#< @FunctionAlternativeForms
+
+		def SplitsXT(xP)
+			return this.SplitXT(xP)
+		end
+		def SplitXTZZ(xP)
+			return this.SplitXT(xP)
+		end
+		def SplitsXTZZ(xP)
+			return this.SplitXT(xP)
+		end
+		#>
+
+	  #====================#
+	 #    SPLITTING AT    #
+	#====================#
+
+	# Returns the sections left when the given position, positions, section or sections are cut out of 1..N.
+	#
+	#   p          a position, a list of positions, a section, a list of sections, or a named pair
+	#              such as [ :Section, [ 3, 5 ] ]
+	#   returns    a list of sections, each [ first, last ]
+	#   note       SplitAt([ 3, 6 ]) on 10 positions gives [ [ 1, 2 ], [ 4, 5 ], [ 7, 10 ] ]; Split
+	#              and SplitsAt are the same method
+	#   warning    Named pairs :ToNParts, :ToPartsOfNItems, :PositionsIB and any unknown name raise
+	#              error R14 today (a method they call exists nowhere); an unknown name should raise
+	#              the Unsupported syntax error
+	#   see        SplitAtPosition, SplitAtPositions, SplitAtSection, SplitAtSections
+	def SplitAt(xP)
+
+		if IsNumber(xP)
+			return this.SplitAtPosition(xP)
+
+		elseif IsList(xP)
+			oParam = Q(xP)
+
+			if oParam.IsListOfNumbers()
+				return this.SplitAtPositions(xP)
+
+			elseif oParam.IsListOfPairsOfNumbers()
+				return this.SplitAtSections(xP)
+
+			#--
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :Position, :ThisPosition ])
+				return this.SplitAtPosition(xP[2])
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :PositionsIB, :ThesePositionsIB ])
+				return this.SplitAtPositionsIB(xP[2])
+
+			#--
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :Section, :ThisSection ])
+				return this.SplitAtSection(xP[2][1], xP[2][2])
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :SectionIB, :ThisSectionIB ])
+				return this.SplitAtSectionIB(xP[2][1], xP[2][2])
+
+			#--
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :Sections, :TheseSections ])
+				return this.SplitAtSections(xP[2])
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :SectionsIB, :TheseSectionsIB ])
+				return this.SplitAtSectionsIB(xP[2])
+
+			#==
+
+			elseif oParam.IsToPartsOfNItemsNamedParam() or
+			    oParam.IsToPartsOfExactlyNItemsNamedParam()
+
+				return this.SplitToPartsOfNItems(xP[2])
+
+			elseif oParam.IsToPartsOfNItemsXTNamedParam()
+
+				return this.SplitToPartsOfNItemsXT(xP[2])
+
+			elseif oParam.IsToNPartsNamedParam() or
+			    oParam.IsToExactlyNPartsNamedParam()
+
+				return this.SplitToNParts(xP[2])
+
+			elseif oParam.IsToNPartsXTNamedParam()
+				return this.SplitToNParts(xP[2])
+
+			else
+				StzRaise("Unsupported syntax of Split( :... = ... ).")
+			end
+		else
+			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
+		end
+	end
+		#< @FunctionAlternativeForms
+
+		def SplitsAt(xP)
+			return this.SplitAt(xP)
+		end
+		def Split(xP)
+			return this.SplitAt(xP)
+		end
+		def Splits(xP)
+			return this.SplitAt(xP)
+		end
+		#--
+
+		def SplitAtZZ(xP)
+			return this.SplitAt(xP)
+		end
+		def SplitsAtZZ(xP)
+			return this.SplitAt(xP)
+		end
+		def SplitZZ(xP)
+			return this.SplitAt(xP)
+		end
+		def SplitsZZ(xP)
+			return this.SplitAt(xP)
+		end
+		#>
+
+	  #-----------------------------------#
+	 #   SPLITTING AT A GIVEN POSITION   #
+	#-----------------------------------#
+
+	# Returns the sections on each side of one position, which is itself left out.
+	#
+	#   n          the position to cut out, from 1 to N
+	#   returns    a list of sections; [ [ 2, N ] ] for position 1, [ [ 1, N-1 ] ] for position N
+	#              and [ ] when N is 1
+	#   note       SplitAtPosition(4) on 10 positions gives [ [ 1, 3 ], [ 5, 10 ] ]; a position
+	#              outside 1..N raises an error
+	#   see        SplitAtPositions, SplitBeforePosition, SplitAfterPosition
+	def SplitAtPosition(xN)
+
+		this._CheckPosition(xN)
+
+		nLen = @nNumberOfPositions
+		xResult = []
+
+		if xN > 1
+			xResult + [ 1, xN-1 ]
+		end
+
+		if xN < nLen
+			xResult + [ xN+1, nLen ]
+		end
+
+		return xResult
+	end
+		#< @FunctionAlternativeForm
+
+		def SplitsAtPosition(xN)
+			return this.SplitAtPosition(xN)
+		end
+		#--
+
+		def SplitAtPositionZZ(xN)
+			return this.SplitAtPosition(xN)
+		end
+		def SplitsAtPositionZZ(xN)
+			return this.SplitAtPosition(xN)
+		end
+		#>
+
+	  #---------------------------------#
+	 #   SPLITTING AT MANY POSITIONS   #
+	#---------------------------------#
+
+	# Returns the sections between several positions, which are themselves left out.
+	#
+	#   panPos     the positions to cut out, from 1 to N, in any order
+	#   returns    a list of sections, each [ first, last ]; [ [ 1, N ] ] for an empty list
+	#   note       [ 3, 6 ] on 10 positions gives [ [ 1, 2 ], [ 4, 5 ], [ 7, 10 ] ]; adjacent or
+	#              repeated positions make no empty section; a position outside 1..N raises an error
+	#   see        SplitAtPosition, SplitBeforePositions, SplitAfterPositions
+	def SplitAtPositions(pxPos)
+
+		if not ( IsList(pxPos) and ( ring_len(pxPos) = 0 or @IsListOfNumbers(pxPos) ) )
+			StzRaise("Incorrect param type! panPos must be a list of numbers.")
+		end
+
+		nLenPos = ring_len(pxPos)
+		for i = 1 to nLenPos
+			this._CheckPosition(pxPos[i])
+		end
+
+		nLen = @nNumberOfPositions
+		viPos = ring_sort(pxPos)
+		xResult = []
+		nPrev = 0
+
+		# Each gap between two cut positions is a section; adjacent or
+		# repeated positions leave no gap, so no empty section is made
+		for i = 1 to nLenPos
+			if viPos[i] > nPrev + 1
+				xResult + [ nPrev + 1, viPos[i] - 1 ]
+			end
+			if viPos[i] > nPrev
+				nPrev = viPos[i]
+			end
+		end
+
+		if nPrev < nLen
+			xResult + [ nPrev + 1, nLen ]
+		end
+
+		return xResult
+	end
+		#< @FunctionAlternativeForms
+
+		def SplitAtThesePositions(pxPos)
+			return this.SplitAtPositions(pxPos)
+		end
+		def SplitAtManyPositions(pxPos)
+			return this.SplitAtPositions(pxPos)
+		end
+		#--
+
+		def SplitsAtPositions(pxPos)
+			return this.SplitAtPositions(pxPos)
+		end
+		def SplitsAtThesePositions(pxPos)
+			return this.SplitAtPositions(pxPos)
+		end
+		def SplitsAtManyPositions(pxPos)
+			return this.SplitAtPositions(pxPos)
+		end
+		#==
+
+		def SplitAtPositionsZZ(pxPos)
+			return this.SplitAtPositions(pxPos)
+		end
+		def SplitAtThesePositionsZZ(pxPos)
+			return this.SplitAtPositions(pxPos)
+		end
+		def SplitAtManyPositionsZZ(pxPos)
+			return this.SplitAtPositions(pxPos)
+		end
+		#--
+
+		def SplitsAtThesePositionsZZ(pxPos)
+			return this.SplitAtPositions(pxPos)
+		end
+		def SplitsAtManyPositionsZZ(pxPos)
+			return this.SplitAtPositions(pxPos)
+		end
+		#>
+
+	  #========================#
+	 #    SPLITTING BEFORE    #
+	#========================#
+
+	# Returns the sections cut just before a position, positions, section or sections, each cut position starting a new section.
+	#
+	#   p          a position, a list of positions, a section, a list of sections, or a named pair
+	#              such as [ :Position, 4 ]
+	#   returns    a list of sections, each [ first, last ]
+	#   note       SplitBefore(4) on 10 positions gives [ [ 1, 3 ], [ 4, 10 ] ]
+	#   warning    An unknown named pair answers an empty string instead of raising an error, and
+	#              :PositionIB raises R14
+	#   see        SplitBeforePosition, SplitBeforePositions, SplitBeforeSection,
+	#              SplitBeforeSections
+	def SplitBefore(xP)
+	
+		if IsNumber(xP)
+			return this.SplitBeforePosition(xP)
+
+		elseif IsList(xP)
+			oParam = Q(xP)
+			if oParam.IsListOfNumbers()
+				return this.SplitBeforePositions(xP)
+
+			elseif oParam.IsListOfPairsOfNumbers()
+				return this.SplitBeforeSections(xP)
+
+			#--
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :Position, :ThisPosition ])
+				return this.SplitBeforePosition(xP[2])
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :PositionIB, :ThisPositionIB ])
+				return this.SplitBeforePositionIB(xP[2])
+
+			#--
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :Positions, :ThesePositions ])
+				return this.SplitBeforePositions(xP[2])
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :PositionsIB, :ThesePositionsIB ])
+				return this.SplitBeforePositionsIB(xP[2])
+
+			#--
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :Section, :ThisSection ])
+				return this.SplitBeforeSection(xP[2][1], xP[2][2])
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :SectionIB, :ThisSectionIB ])
+				return this.SplitBeforeSectionIB(xP[2][1], xP[2][2])
+
+			#--
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :Sections, :TheseSections ])
+				return this.SplitBeforeSections(xP[2])
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :SectionsIB, :TheseSectionsIB ])
+				return this.SplitBeforeSectionsIB(xP[2])
+
+			end
+		else
+			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
+		end
+	end
+		def SplitsBefore(xP)
+			return this.SplitBefore(xP)
+		end
+	  #---------------------------------#
+	 #   SPLITTING BEFORE A POSITION   #
+	#---------------------------------#
+
+	# Returns two sections that meet at a position, which starts the second one.
+	#
+	#   n          the position that starts the second section
+	#   returns    a list of sections; [ [ 1, N ] ] for position 1
+	#   note       SplitBeforePosition(4) on 10 positions gives [ [ 1, 3 ], [ 4, 10 ] ]
+	#   warning    Raises an error for a position outside 1..N
+	#   see        SplitBeforePositions, SplitAtPosition, SplitAfterPosition
+	def SplitBeforePosition(xN)
+		return this.SplitBeforePositions([xN])
+	end
+		def SplitsBeforePosition(xN)
+			return this.SplitBeforePosition(xN)
+		end
+	  #-------------------------------------#
+	 #   SPLITTING BEFORE MANY POSITIONS   #
+	#-------------------------------------#
+
+	# Returns the sections cut just before each position, so every position starts a section.
+	#
+	#   returns    a list of sections, each [ first, last ]
+	#   note       Duplicates are ignored and the order does not matter; [ 3, 6 ] on 10 positions
+	#              gives [ [ 1, 2 ], [ 3, 5 ], [ 6, 10 ] ]
+	#   warning    Raises an error for a position outside 1..N or for an empty list
+	#   see        SplitBeforePosition, SplitAfterPositions, SplitAtPositions
+	def SplitBeforePositions(pxPos)
+
+		if CheckingParams()
+			if not ( IsList(pxPos) and @IsListOfNumbers(pxPos) )
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			end
+		end
+
+		# Resolving the positions correctness
+
+		nLen = this.NumberOfItems()
+
+		oTmpSpSort = new stzList(pxPos)
+		viPos = U( oTmpSpSort.Sorted() )
+		nLenPos = Len(viPos)
+
+		for i = 1 to nLenPos
+			if not (viPos[i] >= 1 and viPos[i] <= nLen)
+				StzRaise("Incorrect param type! panPos must contain unique numbers between 1 and " + String(nLen) + ".")
+			end
+		end
+
+		# Doing the job
+
+   		xResult = []
+   		nStart = 1
+
+		for i = 1 to nLenPos
+			nPos = viPos[i]
+	       		xResult + [ nStart, nPos-1 ]
+	        	nStart = nPos
+		end
+
+		if xResult[1][1] = 1 and xResult[1][2] = 0
+			Del(xResult, 1)
+		end
+
+		xResult + [nStart, nLen]
+
+    		return xResult
+	end
+
+		#< @FunctionAlternativeForms
+
+		def SplitBeforeThesePositions(pxPos)
+			return this.SplitBeforePositions(pxPos)
+		end
+		def SplitBeforeManyPositions(pxPos)
+			return this.SplitBeforePositions(pxPos)
+		end
+		#--
+
+		def SplitsBeforeThesePositions(pxPos)
+			return this.SplitBeforePositions(pxPos)
+		end
+		def SplitsBeforeManyPositions(pxPos)
+			return this.SplitBeforePositions(pxPos)
+		end
+		#>
+
+	  #=======================#
+	 #    SPLITTING AFTER    #
+	#=======================#
+
+	# Returns the sections cut just after a position, positions, section or sections, each cut position ending a section.
+	#
+	#   p          a position, a list of positions, a section, a list of sections, or a named pair
+	#              such as [ :Position, 4 ]
+	#   returns    a list of sections, each [ first, last ]
+	#   note       SplitAfter(4) on 10 positions gives [ [ 1, 4 ], [ 5, 10 ] ]
+	#   warning    An unknown named pair answers an empty string instead of raising an error, and
+	#              :PositionIB raises R14
+	#   see        SplitAfterPosition, SplitAfterPositions, SplitAfterSection, SplitAfterSections
+	def SplitAfter(xP)
+
+		if IsNumber(xP)
+			return this.SplitAfterPosition(xP)
+
+		elseif IsList(xP)
+			oParam = Q(xP)
+			if oParam.IsListOfNumbers()
+				return this.SplitAfterPositions(xP)
+
+			elseif oParam.IsListOfPairsOfNumbers()
+				return this.SplitAfterSections(xP)
+
+			#--
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :Position, :ThisPosition ])
+				return this.SplitAfterPosition(xP[2])
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :PositionIB, :ThisPositionIB ])
+				return this.SplitAfterPositionIB(xP[2])
+
+			#--
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :Positions, :ThesePositions ])
+				return this.SplitAfterPositions(xP[2])
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :PositionsIB, :ThesePositionsIB ])
+				return this.SplitAfterPositionsIB(xP[2])
+
+			#--
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :Section, :ThisSection ])
+				return this.SplitAfterSection(xP[2][1], xP[2][2])
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :SectionIB, :ThisSectionIB ])
+				return this.SplitAfterSectionIB(xP[2][1], xP[2][2])
+
+			#--
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :Sections, :TheseSections ])
+				return this.SplitAfterSections(xP[2])
+
+			elseif IsOneOfTheseNamedParamsList(xP,[ :SectionsIB, :TheseSectionsIB ])
+				return this.SplitAfterSectionsIB(xP[2])
+
+			end
+		else
+			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
+		end
+	end
+
+		def SplitsAfter(xP)
+			return this.SplitAfter(xP)
+		end
+	  #--------------------------------------#
+	 #   SPLITTING AFTER A GIVEN POSITION   #
+	#--------------------------------------#
+
+	# Returns two sections that meet after a position, which ends the first one.
+	#
+	#   n          the position that ends the first section
+	#   returns    a list of sections; [ [ 1, N ] ] for position N
+	#   note       SplitAfterPosition(4) on 10 positions gives [ [ 1, 4 ], [ 5, 10 ] ]
+	#   warning    Raises an error for a position outside 1..N
+	#   see        SplitAfterPositions, SplitAtPosition, SplitBeforePosition
+	def SplitAfterPosition(xN)
+		return this.SplitAfterPositions([xN])
+	end
+		def SplitsAfterPosition(xN)
+			return this.SplitAfterPosition(xN)
+		end
+	  #------------------------------------#
+	 #   SPLITTING AFTER MANY POSITIONS   #
+	#------------------------------------#
+
+	# Returns the sections cut just after each position, so every position ends a section.
+	#
+	#   returns    a list of sections, each [ first, last ]
+	#   note       Duplicates are ignored and the order does not matter; [ 3, 6 ] on 10 positions
+	#              gives [ [ 1, 3 ], [ 4, 6 ], [ 7, 10 ] ]
+	#   warning    Raises an error for a position outside 1..N or for an empty list
+	#   see        SplitAfterPosition, SplitBeforePositions, SplitAtPositions
+	def SplitAfterPositions(pxPos)
+		if CheckingParams()
+			if not ( IsList(pxPos) and @IsListOfNumbers(pxPos) )
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			end
+		end
+
+		# Resolving the positions correctness
+
+		nLen = this.NumberOfItems()
+
+		oTmpSpSort = new stzList(pxPos)
+		viPos = U( oTmpSpSort.Sorted() )
+		nLenPos = Len(viPos)
+
+		for i = 1 to nLenPos
+			if not (viPos[i] >= 1 and viPos[i] <= nLen)
+				StzRaise("Incorrect param type! panPos must contain unique numbers between 1 and " + String(nLen) + ".")
+			end
+		end
+
+		# Doing the job
+
+   		xResult = []
+   		nStart = 1
+
+		for i = 1 to nLenPos
+			nPos = viPos[i]
+	       		xResult + [ nStart, nPos ]
+	        	nStart = nPos + 1
+		end
+
+		if nStart <= nLen
+			xResult + [nStart, nLen]
+		end
+
+    		return xResult
+	end
+		#< @FunctionAlternativeForms
+
+		def SplitAfterThesePositions(pxPos)
+			return this.SplitAfterPositions(pxPos)
+		end
+		def SplitAfterManyPositions(pxPos)
+			return this.SplitAfterPositions(pxPos)
+		end
+		#--
+
+		def SplitsAfterPositions(pxPos)
+			return this.SplitAfterPositions(pxPos)
+		end
+		def SplitsAfterThesePositions(pxPos)
+			return this.SplitAfterPositions(pxPos)
+		end
+		def SplitsAfterManyPositions(pxPos)
+			return this.SplitAfterPositions(pxPos)
+		end
+		#>
+
+	def SplitAfterPositionsIB(pxPos)
+		xSections = this.SplitAfterPositions(pxPos)
+		xResult = this.pvtSectionsToSectionsIB(xSections)
+		return xResult
+	end
+		#< @FunctionAlternativeForms
+
+		def SplitAfterThesePositionsIB(pxPos)
+			return this.SplitAfterPositionsIB(pxPos)
+		end
+		def SplitAfterManyPositionsIB(pxPos)
+			return this.SplitAfterPositionsIB(pxPos)
+		end
+		#--
+
+		def SplitsAfterPositionsIB(pxPos)
+			return this.SplitAfterPositionsIB(pxPos)
+		end
+		def SplitsAfterThesePositionsIB(pxPos)
+			return this.SplitAfterPositionsIB(pxPos)
+		end
+		def SplitsAfterManyPositionsIB(pxPos)
+			return this.SplitAfterPositionsIB(pxPos)
+		end
+		#>
+
+	  #=================================#
+	 #  SPLITTING AT A GIVEN SECTION   #
+	#=================================#
+
+	# Returns the sections before and after a section, which is itself left out; one side is missing when the section touches an end.
+	#
+	#   _n1_       the first position of the section to cut out
+	#   _n2_       the last position of the section to cut out
+	#   returns    a list of 0, 1 or 2 sections
+	#   note       SplitAtSection(3, 5) on 10 positions gives [ [ 1, 2 ], [ 6, 10 ] ]; SplitBetween
+	#              is the same method
+	#   warning    Only the first position is checked against 1..N, so a last position past N is
+	#              accepted, and a reversed section such as 5, 3 answers overlapping sections
+	#   see        SplitAtSections, SplitBeforeSection, SplitAfterSection
+	def SplitAtSection(xN1, xN2)
+		/* EXAMPLE
+
+		oO1 = new stzSplitter(8)
+		? oO1.SplitAtSection([3,5])
+
+		# 1..2..3..4..5..8
+		#       ^-----^
+
+		#--> [ [1,2], [6,8] ]
+
+		# If you want to include the bounds of the sections
+		# in the result, use the ...IB() extension like this:
+
+		? oO1.SplitAtSectionIB([3,5])
+		#--> [ [1,3], [5,8] ]
+
+		*/
+
+		if not (IsNumber(xN1) and IsNumber(xN2))
+			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
+		end
+
+		nLen = this.NumberOfPositions()
+
+		if not ( (xN1 >= 1 and xN1 <= nLen) and (xN1 >= 1 and xN1 <= nLen) )
+
+			StzRaise("Can't split! Indices provided in panSection must be between 1 and " +
+				  String(nLen) + "." )
+		end
+
+		xResult = []
+
+		if xN1-1 >= 1 and xN1-1 <= nLen
+			xResult + [ 1, xN1 - 1 ]
+		end
+
+		if xN2+1 >= 1 and xN2+1 <= nLen
+			xResult + [ xN2 + 1, nLen ]
+		end
+
+		return xResult
+	end
+		#< @FunnctionAlternativeForms
+
+		def SplitAtThisSection(xN1, xN2)
+			return this.SplitAtSection(xN1, xN2)
+		end
+		def SplitBetween(xN1, xN2)
+			return this.SplitAtSection(xN1, xN2)
+		end
+		def SplitBetweenPositions(xN1, xN2)
+			return this.SplitAtSection(xN1, xN2)
+		end
+		def SplitBetweenThesePositions(xN1, xN2)
+			return this.SplitAtSection(xN1, xN2)
+		end
+		def SplitBetweenManyPositions(xN1, xN2)
+			return this.SplitAtSection(xN1, xN2)
+		end
+		#--
+
+		def SplitsAtSection(xN1, xN2)
+			return this.SplitAtSection(xN1, xN2)
+		end
+		def SplitsAtThisSection(xN1, xN2)
+			return this.SplitAtSection(xN1, xN2)
+		end
+		def SplitsBetween(xN1, xN2)
+			return this.SplitAtSection(xN1, xN2)
+		end
+		def SplitsBetweenPositions(xN1, xN2)
+			return this.SplitAtSection(xN1, xN2)
+		end
+		def SplitsBetweenThesePositions(xN1, xN2)
+			return this.SplitAtSection(xN1, xN2)
+		end
+		def SplitsBetweenManyPositions(xN1, xN2)
+			return this.SplitAtSection(xN1, xN2)
+		end
+		#>
+
+	def SplitAtSectionIB(xN1, xN2)
+
+		xSections = this.SplitAtSection(xN1, xN2)
+		xResult = this.pvtSectionsToSectionsIB(xSections)
+		return xResult
+	end
+		#< @FunnctionAlternativeForms
+
+		def SplitAtThisSectionIB(xN1, xN2)
+			return this.SplitAtSectionIB(xN1, xN2)
+		end
+		def SplitBetweenIB(xN1, xN2)
+			return this.SplitAtSectionIB(xN1, xN2)
+		end
+		def SplitBetweenPositionsIB(xN1, xN2)
+			return this.SplitAtSectionIB(xN1, xN2)
+		end
+		def SplitBetweenThesePositionsIB(xN1, xN2)
+			return this.SplitAtSectionIB(xN1, xN2)
+		end
+		def SplitBetweenManyPositionsIB(xN1, xN2)
+			return this.SplitAtSectionIB(xN1, xN2)
+		end
+		#--
+
+		def SplitsAtSectionIB(xN1, xN2)
+			return this.SplitAtSectionIB(xN1, xN2)
+		end
+		def SplitsAtThisSectionIB(xN1, xN2)
+			return this.SplitAtSectionIB(xN1, xN2)
+		end
+		def SplitsBetweenIB(xN1, xN2)
+			return this.SplitAtSectionIB(xN1, xN2)
+		end
+		def SplitsBetweenPositionsIB(xN1, xN2)
+			return this.SplitAtSectionIB(xN1, xN2)
+		end
+		def SplitsBetweenThesePositionsIB(xN1, xN2)
+			return this.SplitAtSectionIB(xN1, xN2)
+		end
+		def SplitsBetweenManyPositionsIB(xN1, xN2)
+			return this.SplitAtSectionIB(xN1, xN2)
+		end
+		#>
+
+	  #------------------------------#
+	 #  SPLITTING AT MANY SECTIONS  #
+	#------------------------------#
+
+	# Returns the sections left between and around several sections, which are themselves left out.
+	#
+	#   returns    a list of sections, each [ first, last ]
+	#   note       Pass the sections sorted and apart; [ [ 3, 5 ], [ 8, 9 ] ] on 10 positions gives
+	#              [ [ 1, 2 ], [ 6, 7 ], [ 10, 10 ] ]
+	#   warning    Sections that are not sorted give wrong sections, because the first and last cuts
+	#              are read before sorting; touching or overlapping sections give an empty or
+	#              reversed section such as [ 4, 3 ]; an empty list raises an error
+	#   see        SplitAtSection, SplitBeforeSections, SplitAfterSections
+	def SplitAtSections(pxSections)
+		/* EXAMPLE
+
+		oO1 = new stzSplitter(10)
+		? oO1.SplitAtSections([ [3,5], [8,9] ])
+
+		# 1..2..3..4..5..6..7..8..9..10
+		#       ^-----^        ^--^
+
+		#--> [ [1,2], [6,7], [10,10] ]
+
+		# If you want to include the bounds of the sections
+		# in the result, use the ...IB() extension like this:
+
+		? oO1.SplitAtSectionsIB([ [3,5], [8,9] ])
+		#--> [ [1,3], [5,8], [9,10] ]
+
+		*/
+
+		# Checking params
+
+		if not ( IsList(pxSections) and Len(pxSections) > 0 and Q(pxSections).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param type! paSections must be a non empty list of pairs of numbers.")
+		end
+
+		# Preparing the data
+
+		nLenSections = Len(pxSections)
+		xSections = QRT(pxSections, :stzListOfPairs).Sorted()
+		
+		nLenMain = this.NumberOfItems()
+		oMain = StzListQ(1:_nLenMain_)
+
+		# Managing the first and last splits
+
+		vFirstSplit = []
+		xN1 = pxSections[1][1]
+		if xN1 > 1
+			vFirstSplit = [ 1, xN1 - 1 ]
+		end
+
+		vLastSplit = []
+		xN2 = pxSections[nLenSections][2]
+		if xN2 < nLenMain
+			vLastSplit = [ xN2 + 1, nLenMain ]
+		end
+
+		# Getting other splits
+
+		xResult = []
+
+		if Len(vFirstSplit) > 0
+			xResult + vFirstSplit
+		end
+
+		for i = 1 to nLenSections - 1
+			xN1 = pxSections[i][2] + 1
+			xN2 = pxSections[i+1][1] - 1
+			xResult + [ xN1, xN2 ]
+		end
+
+		if Len(vLastSplit) > 0
+			xResult + vLastSplit
+		end
+
+		return xResult
+	end
+
+		#< @FunnctionAlternativeForms
+
+		def SplitAtTheseSections(pxSections)
+			return this.SplitAtSections(pxSections)
+		end
+		def SplitBetweenSections(pxSections)
+			return this.SplitAtSections(pxSections)
+		end
+		def SplitBetweenTheseSections(pxSections)
+			return this.SplitAtSections(pxSections)
+		end
+		def SplitAtManySections(pxSections)
+			return this.SplitAtSections(pxSections)
+		end
+		def SplitBetweenManySections(pxSections)
+			return this.SplitAtSections(pxSections)
+		end
+		#--
+
+		def SplitsAtSections(pxSections)
+			return this.SplitAtSections(pxSections)
+		end
+		def SplitsAtTheseSections(pxSections)
+			return this.SplitAtSections(pxSections)
+		end
+		def SplitsBetweenSections(pxSections)
+			return this.SplitAtSections(pxSections)
+		end
+		def SplitsBetweenTheseSections(pxSections)
+			return this.SplitAtSections(pxSections)
+		end
+		def SplitsAtManySections(pxSections)
+			return this.SplitAtSections(pxSections)
+		end
+		def SplitsBetweenManySections(pxSections)
+			return this.SplitAtSections(pxSections)
+		end
+		#>
+
+	def SplitAtSectionsIB(pxSections)
+		xSections = this.SplitAtSections(pxSections)
+		xResult = this.pvtSectionsToSectionsIB(xSections)
+		return xResult
+	end
+		#< @FunnctionAlternativeForms
+
+		def SplitAtTheseSectionsIB(pxSections)
+			return this.SplitAtSectionsIB(pxSections)
+		end
+		def SplitBetweenSectionsIB(pxSections)
+			return this.SplitAtSectionsIB(pxSections)
+		end
+		def SplitBetweenTheseSectionsIB(pxSections)
+			return this.SplitAtSectionsIB(pxSections)
+		end
+		def SplitAtManySectionsIB(pxSections)
+			return this.SplitAtSectionsIB(pxSections)
+		end
+		def SplitBetweenManySectionsIB(pxSections)
+			return this.SplitAtSectionsIB(pxSections)
+		end
+		#--
+
+		def SplitsAtSectionsIB(pxSections)
+			return this.SplitAtSectionsIB(pxSections)
+		end
+		def SplitsAtTheseSectionsIB(pxSections)
+			return this.SplitAtSectionsIB(pxSections)
+		end
+		def SplitsBetweenSectionsIB(pxSections)
+			return this.SplitAtSectionsIB(pxSections)
+		end
+		def SplitsBetweenTheseSectionsIB(pxSections)
+			return this.SplitAtSectionsIB(pxSections)
+		end
+		def SplitsAtManySectionsIB(pxSections)
+			return this.SplitAtSectionsIB(pxSections)
+		end
+		def SplitsBetweenManySectionsIB(pxSections)
+			return this.SplitAtSectionsIB(pxSections)
+		end
+		#>
+
+	  #=====================================#
+	 #  SPLITTING BEFORE A GIVEN SECTION   #
+	#=====================================#
+
+	# Returns the two sections that meet at the start of a section, which begins the second one.
+	#
+	#   _n1_       the first position of the section
+	#   _n2_       the last position of the section, which is ignored
+	#   returns    a list of sections
+	#   note       SplitBeforeSection(3, 5) on 10 positions gives [ [ 1, 2 ], [ 3, 10 ] ]
+	#   see        SplitBeforePosition, SplitBeforeSections, SplitAtSection
+	def SplitBeforeSection(xN1, xN2)
+
+		if not (IsNumber(xN1) and IsNumber(xN2))
+			StzRaise("Incorrect pram type! panSection must be a pair of numbers.")
+		end
+
+		return this.SplitBeforePosition(xN1)
+	end
+		#< @FunnctionAlternativeForm
+
+		def SplitBeforeThisSection(xN1, xN2)
+			return this.SplitBeforeSection(xN1, xN2)
+		end
+		#--
+
+		def SplitsBeforeSection(xN1, xN2)
+			return this.SplitBeforeSection(xN1, xN2)
+		end
+		def SplitsBeforeThisSection(xN1, xN2)
+			return this.SplitBeforeSection(xN1, xN2)
+		end
+		#>
+
+	def SplitBeforeSectionIB(xN1, xN2)
+		xSections = this.SplitBeforeSection(xN1, xN2)
+		xResult = this.pvtSectionsToSectionsIB(xSections)
+		return xResult
+	end
+		#< @FunnctionAlternativeForm
+
+		def SplitBeforeThisSectionIB(xN1, xN2)
+			return this.SplitBeforeSectionIB(xN1, xN2)
+		end
+		#--
+
+		def SplitsBeforeSectionIB(xN1, xN2)
+			return this.SplitBeforeSectionIB(xN1, xN2)
+		end
+		def SplitsBeforeThisSectionIB(xN1, xN2)
+			return this.SplitBeforeSectionIB(xN1, xN2)
+		end
+		#>
+
+	  #----------------------------------#
+	 #  SPLITTING BEFORE MANY SECTIONS  #
+	#----------------------------------#
+
+	# Returns the sections cut just before the start of each given section.
+	#
+	#   returns    a list of sections, each [ first, last ]
+	#   note       Only the first position of each section is used; [ [ 3, 5 ], [ 8, 9 ] ] on 10
+	#              positions gives [ [ 1, 2 ], [ 3, 7 ], [ 8, 10 ] ]
+	#   warning    Raises an error for a start position outside 1..N
+	#   see        SplitBeforeSection, SplitBeforePositions, SplitAtSections
+	def SplitBeforeSections(pxSections)
+		if not ( IsList(pxSections) and Q(pxSections).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+		end
+
+		viPos = StzListOfPairsQ(pxSections).FirstItems()
+		return this.SplitBeforePositions(viPos)
+	end
+		#< @FunctionAlternativeForms
+
+		def SplitBeforeTheseSections(pxSections)
+			return this.SplitBeforeSections(pxSections)
+		end
+		def SplitBeforeManySections(pxSections)
+			return this.SplitBeforeSections(pxSections)
+		end
+		#--
+
+		def SplitsBeforeSections(pxSections)
+			return this.SplitBeforeSections(pxSections)
+		end
+		def SplitsBeforeTheseSections(pxSections)
+			return this.SplitBeforeSections(pxSections)
+		end
+		def SplitsBeforeManySections(pxSections)
+			return this.SplitBeforeSections(pxSections)
+		end
+		#>
+
+	def SplitBeforeSectionsIB(pxSections)
+		xSections = this.SplitBeforeSections(pxSections)
+		xResult = this.pvtSectionsToSectionsIB(xSections)
+		return xResult
+	end
+		#< @FunctionAlternativeForms
+
+		def SplitBeforeTheseSectionsIB(pxSections)
+			return this.SplitBeforeSectionsIB(pxSections)
+		end
+		def SplitBeforeManySectionsIB(pxSections)
+			return this.SplitBeforeSectionsIB(pxSections)
+		end
+		#--
+
+		def SplitsBeforeSectionsIB(pxSections)
+			return this.SplitBeforeSectionsIB(pxSections)
+		end
+		def SplitsBeforeTheseSectionsIB(pxSections)
+			return this.SplitBeforeSectionsIB(pxSections)
+		end
+		def SplitsBeforeManySectionsIB(pxSections)
+			return this.SplitBeforeSectionsIB(pxSections)
+		end
+		#>
+
+	  #====================================#
+	 #  SPLITTING AFTER A GIVEN SECTION   #
+	#====================================#
+
+	# Returns the two sections that meet at the end of a section, which closes the first one.
+	#
+	#   _n1_       the first position of the section, which is ignored
+	#   _n2_       the last position of the section
+	#   returns    a list of sections
+	#   note       SplitAfterSection(3, 5) on 10 positions gives [ [ 1, 5 ], [ 6, 10 ] ]
+	#   see        SplitAfterPosition, SplitAfterSections, SplitAtSection
+	def SplitAfterSection(xN1, xN2)
+
+		if not (IsNumber(xN1) and IsNumber(xN2))
+			StzRaise("Incorrect pram type! n1 and n2 must be both numbers.")
+		end
+
+		return this.SplitAfterPosition(xN2)
+	end
+		#< @FunctionAlternativeForms
+
+		def SplitAfterThisSection(xN1, xN2)
+			return this.SplitAfterSection(xN1, xN2)
+		end
+		#--
+
+		def SplitsAfterSection(xN1, xN2)
+			return this.SplitAfterSection(xN1, xN2)
+		end
+		def SplitsAfterThisSection(xN1, xN2)
+			return this.SplitAfterSection(xN1, xN2)
+		end
+		#>
+
+	def SplitAfterSectionIB(xN1, xN2)
+		xSections = this.SplitAfterSection(xN1, xN2)
+		xResult = this.pvtSectionsToSectionsIB(xSections)
+		return xResult
+	end
+		#< @FunctionAlternativeForms
+
+		def SplitAfterThisSectionIB(xN1, xN2)
+			return this.SplitAfterSectionIB(xN1, xN2)
+		end
+		#--
+
+		def SplitsAfterSectionIB(xN1, xN2)
+			return this.SplitAfterSectionIB(xN1, xN2)
+		end
+		def SplitsAfterThisSectionIB(xN1, xN2)
+			return this.SplitAfterSectionIB(xN1, xN2)
+		end
+		#>
+
+	  #---------------------------------#
+	 #  SPLITTING AFTER MANY SECTIONS  #
+	#---------------------------------#
+
+	# Returns the sections cut just after the end of each given section.
+	#
+	#   returns    a list of sections, each [ first, last ]
+	#   note       Only the last position of each section is used; [ [ 3, 5 ], [ 8, 9 ] ] on 10
+	#              positions gives [ [ 1, 5 ], [ 6, 9 ], [ 10, 10 ] ]
+	#   warning    Raises an error for an end position outside 1..N
+	#   see        SplitAfterSection, SplitAfterPositions, SplitAtSections
+	def SplitAfterSections(pxSections)
+		if not ( IsList(pxSections) and Q(pxSections).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+		end
+
+		viPos = StzListOfPairsQ(pxSections).SecondItems()
+		return this.SplitAfterPositions(viPos)
+	end
+		#< @FunctionAlternativeForms
+
+		def SplitAfterTheseSections(pxSections)
+			return this.SplitAfterSections(pxSections)
+		end
+		def SplitAfterManySections(pxSections)
+			return this.SplitAfterSections(pxSections)
+		end
+		#--
+
+		def SplitsAfterSections(pxSections)
+			return this.SplitAfterSections(pxSections)
+		end
+		def SplitsAfterTheseSections(pxSections)
+			return this.SplitAfterSections(pxSections)
+		end
+		def SplitsAfterManySections(pxSections)
+			return this.SplitAfterSections(pxSections)
+		end
+		#>
+
+	def SplitAfterSectionsIB(pxSections)
+		xSections = this.SplitAfterSections(pxSections)
+		xResult = this.pvtSectionsToSectionsIB(xSections)
+		return xResult
+	end
+		#< @FunctionAlternativeForms
+
+		def SplitAfterTheseSectionsIB(pxSections)
+			return this.SplitAfterSectionsIB(pxSections)
+		end
+		def SplitAfterManySectionsIB(pxSections)
+			return this.SplitAfterSectionsIB(pxSections)
+		end
+		#--
+
+		def SplitsAfterSectionsIB(pxSections)
+			return this.SplitAfterSectionsIB(pxSections)
+		end
+		def SplitsAfterTheseSectionsIB(pxSections)
+			return this.SplitAfterSectionsIB(pxSections)
+		end
+		def SplitsAfterManySectionsIB(pxSections)
+			return this.SplitAfterSectionsIB(pxSections)
+		end
+		#>
+
+	  #===================================#
+	 #   SPLITTING TO PARTS OF N ITEMS   #
+	#===================================#
+
+	def SplitToPartsOfNItemsXT(xN)
+		if not IsNumber(xN)
+			StzRaise("Incorrect param type! n must be a number.")
+		end
+
+		nLen = this.NumberOfPositions()
+
+		xResult = []
+
+		for i = 1 to nLen step xN
+			nTemp = i + xN-1
+
+			if nTemp > nLen
+				nTemp = nLen
+			end
+
+			xResult + [ i, nTemp ]
+		end
+
+			return xResult
+	end
+		#< @FunctionAlternativeForm
+
+		def SplitToPartsOfNXT(xN)
+			return this.SplitToPartsOfNItemsXT(xN)
+		end
+		def SplitToPartsOfXT(xN)
+			return this.SplitToPartsOfNItemsXT(xN)
+		end
+		def SplitToPartsOfNPositionsXT(xN)
+			return this.SplitToPartsOfNItemsXT(xN)
+		end
+		#--
+
+		def SplitsToPartsOfNItemsXT(xN)
+			return this.SplitToPartsOfNItemsXT(xN)
+		end
+		def SplitsToPartsOfNXT(xN)
+			return this.SplitToPartsOfNItemsXT(xN)
+		end
+		def SplitsToPartsOfXT(xN)
+			return this.SplitToPartsOfNItemsXT(xN)
+		end
+		def SplitsToPartsOfNPositionsXT(xN)
+			return this.SplitToPartsOfNItemsXT(xN)
+		end
+		#==
+
+		def SplitToSectionsOfNItemsXT(xN)
+			return this.SplitToPartsOfNItemsXT(xN)
+		end
+		def SplitToSectionsOfNXT(xN)
+			return this.SplitToSectionsOfNItemsXT(xN)
+		end
+		def SplitToSectionsOfXT(xN)
+			return this.SplitToSectionsOfNItemsXT(xN)
+		end
+		def SplitToSectionsOfNPositionsXT(xN)
+			return this.SplitToSectionsOfNItemsXT(xN)
+		end
+		#--
+
+		def SplitsToSectionsOfNItemsXT(xN)
+			return this.SplitToSectionsOfNItemsXT(xN)
+		end
+		def SplitsToSectionsOfNXT(xN)
+			return this.SplitToSectionsOfNItemsXT(xN)
+		end
+		def SplitsToSectionsOfXT(xN)
+			return this.SplitToSectionsOfNItemsXT(xN)
+		end
+		def SplitsToSectionsOfNPositionsXT(xN)
+			return this.SplitToSectionsOfNItemsXT(xN)
+		end
+		#>
+
+	  #---------------------------------------------#
+	 #    SPLITTING TO PARTS OF EXACTLY N ITEMS    #
+	#---------------------------------------------#
+
+	# Returns the sections of exactly n positions each, dropping a shorter last section.
+	#
+	#   n          the number of positions in each section
+	#   returns    a list of sections, each [ first, last ]; [ ] when n is larger than N
+	#   note       On 10 positions, n = 3 gives [ [ 1, 3 ], [ 4, 6 ], [ 7, 9 ] ] and the position 10
+	#              is left out
+	#   warning    Raises error R2 for n = 0
+	#   see        SplitToNParts
+	def SplitToPartsOfNItems(xN)
+
+		xSections = this.SplitToPartsOfNItemsXT(xN)
+		
+		nLen = Len(xSections)
+		xLastPair = xSections[ nLen ]
+
+		if (xLastPair[2] - xLastPair[1] + 1) != xN
+			Del( xSections, nLen )
+		end
+
+		return xSections
+	end
+		#< @FunctionAlternativeForms
+
+		def SplitToPartsOfN(xN)
+			return this.SplitToPartsOfNItems(xN)
+		end
+		def SplitToPartsOf(xN)
+			return this.SplitToPartsOfNItems(xN)
+		end
+		def SplitToPartsOfNPositions(xN)
+			return this.SplitToPartsOfNItems(xN)
+		end
+		#--
+
+		def SplitsToPartsOfNItems(xN)
+			return this.SplitToPartsOfNItems(xN)
+		end
+		def SplitsToPartsOfN(xN)
+			return this.SplitToPartsOfNItems(xN)
+		end
+		def SplitsToPartsOf(xN)
+			return this.SplitToPartsOfNItems(xN)
+		end
+		def SplitsToPartsOfNPositions(xN)
+			return this.SplitToPartsOfNItems(xN)
+		end
+		#--
+
+		def SplitToPartsOfExactlyNItems(xN)
+			return this.SplitToPartsOfNItems(xN)
+		end
+		def SplitToPartsOfExactlyN(xN)
+			return this.SplitToPartsOfNItems(xN)
+		end
+		def SplitToPartsOfExactly(xN)
+			return this.SplitToPartsOfNItems(xN)
+		end
+		def SplitToPartsOfExactlyNPositions(xN)
+			return this.SplitToPartsOfNItems(xN)
+		end
+		#==
+
+		def SplitToSectionsOfNItems(xN)
+			return this.SplitToPartsOfNItems(xN)
+		end
+		def SplitToSectionsOfN(xN)
+			return this.SplitToSectionsOfNItems(xN)
+		end
+		def SplitToSectionsOf(xN)
+			return this.SplitToSectionsOfNItems(xN)
+		end
+		def SplitToSectionsOfNPositions(xN)
+			return this.SplitToSectionsOfNItems(xN)
+		end
+		#--
+
+		def SplitsToSectionsOfNItems(xN)
+			return this.SplitToSectionsOfNItems(xN)
+		end
+		def SplitsToSectionsOfN(xN)
+			return this.SplitToSectionsOfNItems(xN)
+		end
+		def SplitsToSectionsOf(xN)
+			return this.SplitToSectionsOfNItems(xN)
+		end
+		def SplitsToSectionsOfNPositions(xN)
+			return this.SplitToSectionsOfNItems(xN)
+		end
+		#--
+
+		def SplitToSectionsOfExactlyNItems(xN)
+			return this.SplitToSectionsOfNItems(xN)
+		end
+		def SplitToSectionsOfExactlyN(xN)
+			return this.SplitToSectionsOfNItems(xN)
+		end
+		def SplitToSectionsOfExactly(xN)
+			return this.SplitToSectionsOfNItems(xN)
+		end
+		def SplitToSectionsOfExactlyNPositions(xN)
+			return this.SplitToSectionsOfNItems(xN)
+		end
+		#>
+
+	  #----------------------------#
+	 #    SPLITTING TO N PARTS    #
+	#----------------------------#
+
+	# Returns n sections that cover all positions, the larger ones first and sizes differing by at most one.
+	#
+	#   n          how many sections to cut
+	#   returns    a list of n sections; [ ] for n = 0 or for a splitter of 0 positions
+	#   note       On 10 positions, n = 3 gives [ [ 1, 4 ], [ 5, 7 ], [ 8, 10 ] ]; SplitToNSections
+	#              is the same method
+	#   warning    Raises an error for n larger than N
+	#   see        SplitToPartsOfNItems
+	def SplitToNParts(xN)
+		if CheckingParams()
+			if not IsNumber(xN)
+				StzRaise("Incorrect param type! n must be a number.")
+			end
+		end
+
+		nLen = this.NumberOfItems()
+		if nLen = 0
+			return []
+		end
+
+		if not (xN >= 0 and xN <= nLen)
+			StzRaise("Incorrect value! n must be between 0 and " + String(nLen) + " (the size of the list).")
+		end
+		
+		xResult = []
+	
+		# Early checks
+	
+		if xN = 0
+			return []
+	
+		elseif xN = 1
+			return [ [ 1, nLen ] ]
+		end
+	
+		# Case where the list is even (simpler)
+		# ~> each part takes nLen / n items
+	
+		if nLen % xN = 0
+			nSize = nLen / xN
+	
+			xResult + [ 1, nSize ]
+			for i = 2 to xN
+				xN1 = xResult[i-1][2] + 1
+				xN2 = xN1 + nSize - 1
+				xResult + [xN1, xN2]
+			end
+	
+		else # Case where the list is odd (more complex)
+		     # We want the larger sections to be returned first
+
+			# if the number of splits is under the half of list
+
+			if xN <= nLen / 2
+
+				# We calculate the number of main parts and
+				# how many items are remaining
+
+				nRest = nLen % xN
+
+				nMain = nLen - nRest
+				nSize = nMain / xN
+
+				# We split the list to get the main parts
+
+				xResult = [ [ 1, nSize ] ]
+				for i = 2 to xN
+					xN1 = xResult[i-1][2] + 1
+					xN2 = xN1 + nSize - 1
+					xResult + [ xN1, xN2 ]
+				end
+
+				# We start adding the remaining items to
+				# the main parts (starting with first)
+
+				xResult[1][2]++
+				nResultLen = Len(xResult)
+				for i = 2 to nResultLen
+					xResult[i][1]++
+					xResult[i][2]++
+				end
+
+				# We do the same to add the remaining items
+				# to the main parts (other then the first)
+
+				if nRest > 1
+					for i = 2 to nRest
+						nDiff = xResult[i][2] - xResult[i][1]
+						xN1 = xResult[i-1][2] + 1
+						xN2 = xN1 + nDiff + 1
+						xResult[i][1] = xN1
+						xResult[i][2] = xN2
+					end
+
+				end
+
+				for i = nRest + 1 to xN
+					nDiff = xResult[i][2] - xResult[i][1]
+					xN1 = xResult[i-1][2] + 1
+					xN2 = xN1 + nDiff
+					xResult[i][1] = xN1
+					xResult[i][2] = xN2
+				end
+				#aResult[n][2] = nLen
+
+			else # The number of splits is higher than the half of the list
+
+				# We calculate the half of the list and
+				# the difference between the half and n
+
+				nHalf = Q(nLen / 2).IntegerPart()
+				nDiff = xN - nHalf
+
+				# We split the list on nHalf parts and we include
+				# just the (nHalf - ndiff) sections in the result
+
+				xSplits = this.SplitToNParts(nHalf)
+				xResult = []
+				for i = 1 to nHalf - nDiff
+					xResult + xSplits[i]
+				end
+
+				# We take the remaining (last nDiff) sections
+				# of the splits on half and we decompose them
+				# each section into two separate sections
+
+				nStart = Len(xResult) + 1
+				nEnd = nStart + nDiff - 1
+
+				for i = nStart to nEnd
+					xSection = xSplits[i]
+					xN1 = xSection[1]
+					xN2 = xSection[2]
+					xResult + [ xN1, xN1 ] + [ xN2, xN2 ]
+				end
+
+			end
+		end
+	
+		# Finally, we return the result
+		return xResult
+	end
+		#< @FunctionAlternativeForms
+
+		def SplitsToNParts(xN)
+			return this.SplitToNParts(xN)
+		end
+		#--
+
+		def SplitToNSections(xN)
+			return this.SplitToNParts(xN)
+		end
+		def SplitsToNSections(xN)
+			return this.SplitToNParts(xN)
+		end
+		#>
+
+	  #===============================================#
+	 #  SPLITTING AROUND POSITION(S) OR SECTION(s)  #
+	#===============================================#
+
+	# Returns the sections left around a position, a section given as a pair, several positions or several sections.
+	#
+	#   p          a position, a pair [ first, last ] taken as a section, a list of three or more
+	#              positions, or a list of sections
+	#   returns    a list of sections, each [ first, last ]
+	#   note       SplitAround([ 3, 6, 8 ]) on 10 positions gives [ [ 1, 2 ], [ 4, 5 ], [ 7, 7 ], [
+	#              9, 10 ] ]; a position outside 1..N raises an error
+	#   see        SplitAroundPosition, SplitAroundPositions, SplitAroundSections
+	def SplitAround(xP)
+		if IsNumber(xP)
+			return this.SplitAroundPosition(xP)
+		end
+
+		if IsList(xP)
+			oParam = Q(xP)
+			if oParam.IsPairOfNumbers()
+				return this.SplitAroundSection(xP[1], xP[2])
+
+			elseif oParam.IsListOfNumbers()
+				return this.SplitAroundPositions(xP)
+
+			elseif oParam.IsListOfPairsOfNumbers()
+				return this.SplitAroundSections(xP)
+			end
+		else
+			StzRaise("Incorrect param type! p must be a number or pair of numbers or list of numbers.")
+
+		end
+	end
+		def SplitsAround(xP)
+			return this.SplitAround(xP)
+		end
+	def SplitAroundIB(xP)
+		xSections = this.SplitAround(xP)
+		xResult = this.pvtSectionsToSectionsIB(xSections)
+		return xResult
+	end
+		def SplitsAroundIB(xP)
+			return this.SplitAroundIB(xP)
+		end
+	  #-------------------------------#
+	 #  SPLITTING AROUND A POSITION  #
+	#===============================#
+
+	# Returns the sections on each side of one position, which is itself left out.
+	#
+	#   n          the position to leave out, from 1 to N
+	#   returns    a list of sections; [ [ 1, 3 ], [ 5, 10 ] ] for position 4 on 10 positions
+	#   note       the same answer as SplitAtPosition; a position outside 1..N raises an error
+	#   see        SplitAtPosition, SplitAroundPositions
+	def SplitAroundPosition(xN)
+		return this.SplitAtPosition(xN)
+	end
+		def SplitsAroundPosition(xN)
+			return this.SplitAroundPosition(xN)
+		end
+	def SplitAroundPositionIB(xN)
+		xSections = this.SplitAroundPosition(xN)
+		xResult = this.pvtSectionsToSectionsIB(xSections)
+		return xResult
+	end
+		def SplitsAroundPositionIB(xN)
+			return this.SplitAroundPositionIB(xN)
+		end
+	  #------------------------------#
+	 #  SPLITTING AROUND POSITIONS  #
+	#------------------------------#
+
+	# Returns the sections left around several positions, which are left out.
+	#
+	#   panPos     the positions to leave out, from 1 to N, in any order
+	#   returns    a list of sections, each [ first, last ]
+	#   note       SplitAroundPositions([ 3, 6 ]) on 10 positions gives [ [ 1, 2 ], [ 4, 5 ], [ 7,
+	#              10 ] ]; the same answer as SplitAtPositions; a position outside 1..N raises an error
+	#   see        SplitAtPositions, SplitAroundPosition
+	def SplitAroundPositions(pxPos)
+		return this.SplitAtPositions(pxPos)
+	end
+		def SplitsAroundPositions(pxPos)
+			return this.SplitAroundPositions(pxPos)
+		end
+	def SplitAroundPositionsIB(pxPos)
+		xSections = this.SplitAroundPositions(pxPos)
+		xResult = this.pvtSectionsToSectionsIB(xSections)
+		return xResult
+	end
+		def SplitsAroundPositionsIB(pxPos)
+			return this.SplitAroundPositionsIB(pxPos)
+		end
+	  #------------------------------#
+	 #  SPLITTING AROUND A SECTION  #
+	#------------------------------#
+
+	# Returns the sections left on each side of one section, which is left out.
+	#
+	#   _n1_       the first position of the section, from 1 to N
+	#   _n2_       the last position of the section, from 1 to N
+	#   returns    a list of sections; [ [ 1, 1 ], [ 6, 10 ] ] for 2 to 5 on 10 positions
+	#   note       the two ends may come in either order; a position outside 1..N raises an error
+	#   see        SplitAroundSections, SplitAtSection
+	def SplitAroundSection(xN1, xN2)
+		this._CheckPosition(xN1)
+		this._CheckPosition(xN2)
+
+		if xN1 > xN2
+			nTemp = xN1
+			xN1 = xN2
+			xN2 = nTemp
+		end
+
+		xResult = []
+
+		if xN1 > 1
+			xResult + [ 1, xN1 - 1 ]
+		end
+
+		if xN2 < @nNumberOfPositions
+			xResult + [ xN2 + 1, @nNumberOfPositions ]
+		end
+
+		return xResult
+	end
+		def SplitsAroundSection(xN1, xN2)
+			return this.SplitAroundSection(xN1, xN2)
+		end
+	def SplitAroundSectionIB(xN1, xN2)
+		xSections = this.SplitAroundSection(xN1, xN2)
+		xResult = this.pvtSectionsToSectionsIB(xSections)
+		return xResult
+	end
+		def SplitsAroundSectionIB(xN1, xN2)
+			return this.SplitAroundSectionIB(xN1, xN2)
+		end
+	  #-----------------------------#
+	 #  SPLITTING AROUND SECTIONS  #
+	#-----------------------------#
+
+	# Returns the sections left around several sections, which are left out, sorting them first.
+	#
+	#   paSections   the sections to leave out, each [ first, last ] within 1..N
+	#   returns      a list of sections, each [ first, last ]
+	#   note         [ [ 8, 9 ], [ 2, 3 ] ] on 12 positions gives [ [ 1, 1 ], [ 4, 7 ], [ 10, 12 ] ];
+	#                overlapping sections are merged; a position outside 1..N raises an error
+	#   see          FindAntiSectionsZZ_local, SplitAtSections
+	def SplitAroundSections(pxSections)
+		if not IsList(pxSections)
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+		end
+
+		nLenSec = ring_len(pxSections)
+		for i = 1 to nLenSec
+			if not ( IsList(pxSections[i]) and ring_len(pxSections[i]) = 2 )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			end
+			this._CheckPosition(pxSections[i][1])
+			this._CheckPosition(pxSections[i][2])
+		end
+
+		xResult = this.FindAntiSectionsZZ_local(pxSections)
+		return xResult
+	end
+	# Returns the sections that no given section covers, after sorting the given ones by their first position.
+	#
+	#   paSections   the sections, each [ first, last ]
+	#   returns      a list of sections; [ ] when the argument is not a list
+	#   note         [ ] as the argument gives the whole range [ [ 1, N ] ]; overlapping sections
+	#                are merged
+	#   see          SplitAroundSections
+	def FindAntiSectionsZZ_local(pxSections)
+		if not IsList(pxSections) return [] end
+		xSorted = _ListCopy(pxSections)
+		nL = Len(xSorted)
+		for i = 2 to nL
+			xV = xSorted[i]; nJ = i - 1
+			while nJ >= 1 and IsList(xSorted[nJ]) and IsList(xV) and xSorted[nJ][1] > xV[1]
+				xSorted[nJ + 1] = xSorted[nJ]; nJ--
+			end
+			xSorted[nJ + 1] = xV
+		end
+		vRes = []
+		nPrev = 0
+		nTotal = @nNumberOfPositions
+		if not IsNumber(nTotal) nTotal = 0 end
+		for i = 1 to nL
+			xS = xSorted[i]
+			if IsList(xS) and Len(xS) >= 2
+				if xS[1] > nPrev + 1
+					vRes + [ nPrev + 1, xS[1] - 1 ]
+				end
+				# max, so a section inside an earlier one does not move back
+				if xS[2] > nPrev
+					nPrev = xS[2]
+				end
+			end
+		end
+		if nTotal > nPrev
+			vRes + [ nPrev + 1, nTotal ]
+		end
+		return vRes
+	end
+		def SplitsAroundSections(pxSections)
+			return this.SplitAroundSections(pxSections)
+		end
+	def SplitAroundSectionsIB(pxSections)
+		xSections = this.SplitAroundSections(pxSections)
+		xResult = this.pvtSectionsToSectionsIB(xSections)
+		return xResult
+	end
+		def SplitsAroundSectionsIB(pxSections)
+			return this.SplitAroundSectionsIB(pxSections)
+		end
+	  #=======================================================#
+	 #   Utility functions used by the other methods above   #
+	#=======================================================#
+
+	# Raises a clear error when n is not a position of the splitter, 1 to N.
+	#
+	#   n          the position to check
+	#   returns    nothing; raises an error for a position outside 1..N or for a non-number
+	#   see        SplitAtPosition, SplitAroundSection
+	def _CheckPosition(xN)
+		if not IsNumber(xN)
+			StzRaise("Incorrect param type! A position must be a number.")
+		end
+
+		if xN < 1 or xN > @nNumberOfPositions
+			StzRaise("Out of range! The position " + xN + " is outside 1.." +
+				 String(@nNumberOfPositions) + ".")
+		end
+	end
+	# Returns the consecutive pairs formed by the positions, with 1 and N added at the ends, for the splitting methods.
+	#
+	#   returns    a list of pairs of numbers
+	#   note       The positions are sorted and deduplicated; [ 3, 6, 8 ] on 10 positions gives [ [
+	#              1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
+	#   warning    Raises error R2 for [ 1 ] on 10 positions, because the helper compares the last
+	#              position with a literal 10
+	#   see        SplitAtPositions
+	#TODO // A general function, can move to stzListOfNumbers
+	def GetPairsFromPositions(pxPos)
+		/*
+		Main list 	--> 1:10
+		panPos		--> [ 3, 6, 8 ]
+		List of pairs	--> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
+		*/
+
+		nLen = this.NumberOfPositions()
+		pxPos + nLen
+
+		# Eliminating doubble positions
+		xPos = UCS(pxPos, 1)
+
+		# Doing the job
+
+		if Len(xPos) = 0
+			return [ [] ]
+		end
+		
+		# Adding 1 and (NumberOfItems()) if inexistant
+		if xPos[1] != 1 xPos + 1 end
+		if xPos[Len(xPos)] != 10 xPos + nLen end
+		
+		# Sorting the list
+		oChain = new stzList(xPos)
+		xPos = oChain.Sorted()
+		
+		# Getting the pairs of that list
+
+		vPairs = []
+		nPosLen = Len(xPos)
+		for i = 1 to nPosLen - 1
+			vPairs + [ xPos[i], xPos[i+1] ]
+		end
+
+		nLenPairs = Len(vPairs)
+		xLastPair = vPairs[nLenPairs]
+		xBeforeLastPair = vPairs[nLenPairs-1]
+
+		if xLastPair[1] = nLen and
+		   xLastPair[2] = nLen and
+		   xBeforeLastPair[2] = nLen
+
+			Del(vPairs, nLenPairs)
+		end
+
+		return vPairs
+	end
+	# Returns a stzList holding the positions 1 to N.
+	#
+	#   returns    a stzList
+	#   see        Content
+	def ToStzList
+		return StzListQ(this.Content())
+	end
+	private
+
+	# Widens each section by one part width on the side where it touches a cut, so the cut positions are included in the sections.
+	#
+	#   returns    a list of sections
+	#   note       Private: called by the IB forms such as SplitAtSectionIB. The first section grows
+	#              at its end, the last at its start, the ones between on both sides
+	#   see        SplitAtSection
+	def pvtSectionsToSectionsIB(xSections)
+
+		nLen = Len(xSections)
+
+		if nLen = 1
+			if xSections[1][1] > 1
+				xSections[1][1] -= @nLenPart
+			end
+
+			if xSections[1][2] < this.NumberOfItems()
+				xSections[1][2] += @nLenPart
+			end
+
+			return xSections
+		end
+
+		# Adding the first section
+
+		xResult = [] + [ xSections[1][1], xSections[1][2] + @nLenPart ]
+
+		# Adding the sections between the first and last sections
+
+		nLenBetween = nLen - 2
+
+		for i = 1 to nLenBetween
+			xResult + [ xSections[i+1][1] - @nLenPart, xSections[i+1][2] + @nLenPart ]
+		end
+
+		# adding the last section
+
+		xResult + [ xSections[nLen][1] - @nLenPart, xSections[nLen][2] ]
+		return xResult
+	end
+end

@@ -75,7 +75,7 @@ func StzMetricFamilyXT(pcName, pcKind, paLabelNames, pnWindow, pnMaxChildren)
 #   see        stzMetric, stzSla, stzPerfMonitor
 class stzMetricFamily from stzObject
 
-	@cName = ""
+	@tName = ""
 	@cKind = ""
 	@cHelp = ""
 	@aLabelNames = []
@@ -102,7 +102,7 @@ class stzMetricFamily from stzObject
 	#                   error ... a family WITHOUT labels is a plain stzMetric
 	#   see             Child, StzMetricFamily
 	def init(pcName, pcKind, paLabelNames, pnWindow, pnMaxChildren)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		_cK_ = StzLower("" + pcKind)
 		if _cK_ != "counter" and _cK_ != "gauge" and _cK_ != "timer"
 			stzraise("stzMetricFamily: kind must be :Counter, :Gauge or :Timer (got '" + _cK_ + "').")
@@ -139,7 +139,7 @@ class stzMetricFamily from stzObject
 	#   returns    the name as text, as given
 	#   see        PromName, Kind
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the kind of every child.
 	#
@@ -200,7 +200,7 @@ class stzMetricFamily from stzObject
 	#@ aka  -- Children -------------------------------------------------
 	def Child(paValues)
 		if NOT isList(paValues) or ring_len(paValues) != ring_len(@aLabelNames)
-			stzraise("stzMetricFamily '" + @cName + "': Child() takes " +
+			stzraise("stzMetricFamily '" + @tName + "': Child() takes " +
 				ring_len(@aLabelNames) + " value(s), one per label (" +
 				This._JoinNames() + ").")
 		ok
@@ -288,7 +288,7 @@ class stzMetricFamily from stzObject
 		This._NotOneMetric("Percentile")
 
 	def _NotOneMetric(pcVerb)
-		stzraise("stzMetricFamily '" + @cName + "': a family has no single " + pcVerb +
+		stzraise("stzMetricFamily '" + @tName + "': a family has no single " + pcVerb +
 			"() -- pick a Child([" + This._JoinNames() + "]) and ask it.")
 
 	# Returns the metric name in a form Prometheus accepts.
@@ -298,7 +298,7 @@ class stzMetricFamily from stzObject
 	#   see        PromText, Name
 	#@ aka  -- Exposition -----------------------------------------------
 	def PromName()
-		_cN_ = StzReplace(@cName, ".", "_")
+		_cN_ = StzReplace(@tName, ".", "_")
 		_cN_ = StzReplace(_cN_, "-", "_")
 		return _cN_
 
@@ -352,7 +352,7 @@ class stzMetricFamily from stzObject
 			_cPoints_ += This._ChildByKey(_aKeys_[_i_], StzSplit(_aKeys_[_i_], "|"))._OtelDataPointJson()
 		next
 		_oProto_ = This._ChildProto()
-		_cJ_ = '{"name":"' + @cName + '"'
+		_cJ_ = '{"name":"' + @tName + '"'
 		if @cHelp != ""
 			_cJ_ += (',"description":"' + @cHelp + '"')
 		ok
@@ -367,7 +367,7 @@ class stzMetricFamily from stzObject
 	#@ aka  -- Legibility -----------------------------------------------
 	def Explain()
 		_aL_ = []
-		_aL_ + ("Metric family " + @cName + " (:" + @cKind + ") over [" +
+		_aL_ + ("Metric family " + @tName + " (:" + @cKind + ") over [" +
 			This._JoinNames() + "] -- " + This.ChildCount() + " child(ren), max " +
 			@nMaxChildren + ".")
 		_aKeys_ = This.Keys()
@@ -469,5 +469,5 @@ class stzMetricFamily from stzObject
 	# family's. Reconstruction is two small Ring objects, no handles.
 	def _ChildProto()
 		_oC_ = new stzMetric
-		_oC_._InitChild(@cName, @cKind)
+		_oC_._InitChild(@tName, @cKind)
 		return _oC_

@@ -1405,7 +1405,7 @@ func StzOutputSchemaQ(paFields)
 #   see        stzLLMFunction, stzRuleReport, stzNeuralModel
 class stzOutputSchema from stzObject
 
-	@cName = "output"
+	@tName = "output"
 	@aFields = []
 	@bRefuseUnknown = 0
 
@@ -1429,7 +1429,7 @@ class stzOutputSchema from stzObject
 	#   see        SetName, Describe
 	#@ aka  -- reads -------------------------------------------------------
 	def Name()
-		return @cName
+		return @tName
 
 	# Sets the schema name, shown in descriptions and in the type a function reports.
 	#
@@ -1441,7 +1441,7 @@ class stzOutputSchema from stzObject
 
 	def SetNameQ(pcName)
 		if ring_trim("" + pcName) != ""
-			@cName = ring_trim("" + pcName)
+			@tName = ring_trim("" + pcName)
 		ok
 		return This
 
@@ -1789,7 +1789,7 @@ class stzOutputSchema from stzObject
 	#   see        Fields, PromptClause
 	#@ aka  The declaration read back as prose, for a narrated test or a reader who wants to see what was actually promised.
 	def Describe()
-		_c_ = "schema '" + @cName + "' -- " + len(@aFields) + " field(s)" + char(10)
+		_c_ = "schema '" + @tName + "' -- " + len(@aFields) + " field(s)" + char(10)
 		_n_ = len(@aFields)
 		for _i_ = 1 to _n_
 			_f_ = @aFields[_i_]

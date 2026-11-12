@@ -161,7 +161,7 @@ class stzPispiSecret from stzToken
 			StzRaise("stzPispiSecret: '" + pcPart + "' is not one of the five parts of a live payment " +
 				"(client, api-key, mtls-key, mtls-cert, webhook-secret).")
 		ok
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@cPart = _p_
 		@cKind = "pispi-" + _p_
 

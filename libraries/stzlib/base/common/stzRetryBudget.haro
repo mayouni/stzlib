@@ -16,18 +16,18 @@
 		...
 		oBudget.Destroy()
 
-	Internally: capacity = N, refill = floor(N / W) tokens/sec (min 1).
+	Internally: capacity = N, refill = Floor(N / W) tokens/sec (min 1).
 	Allow() takes one token; it succeeds while the budget has tokens and
 	refuses once spent, recovering as the window refills.
 
 	NOTE: the method is Allow() (with a Spend() alias), not Try() --
-	`try` is a Ring keyword (try/catch/done) and Ring is case-insensitive,
+	`try` is a Ring Keyword (try/catch/done) and Ring is case-insensitive,
 	so a `Try` method raises a C27 syntax error.
 */
 
 func StzRetryBudget(nBudget, nWindowSeconds)
 	return new stzRetryBudget(nBudget, nWindowSeconds)
-
+end
 # Caps the retries of a whole workload with an engine token bucket, so a storm of failures cannot turn into a retry storm.
 #
 # A budget of N retries refills over a window of W seconds, at floor(N / W) retries a second and
@@ -45,8 +45,8 @@ func StzRetryBudget(nBudget, nWindowSeconds)
 #   see        stzRateLimiter, stzCancelToken
 class stzRetryBudget from stzObject
 
-	pHandle = ""
-	bReady  = 0
+	hHandle = ""
+	bReady  = false
 	nBudget = 0
 	nWindow = 1
 	nRefill = 1
@@ -59,46 +59,46 @@ class stzRetryBudget from stzObject
 	#   warning           the refill rate is floor(pnBudget / pnWindowSeconds) tokens a second, with
 	#                     a minimum of 1
 	#   see               Allow, RefillPerSecond
-	def init(pnBudget, pnWindowSeconds)
-		nBudget = pnBudget
-		if pnWindowSeconds < 1
+	def init(pxBudget, pxWindowSeconds)
+		nBudget = pxBudget
+		if pxWindowSeconds < 1
 			nWindow = 1
 		else
-			nWindow = pnWindowSeconds
-		ok
-		This._Ensure()
-
+			nWindow = pxWindowSeconds
+		end
+		this._Ensure()
+	end
 	# Lazy handle creation -- robust whether or not init() ran (paren-less
 	# `new` skips init in Ring); guarded by a plain boolean.
-	def _Ensure()
-		if bReady = 0
+	def _Ensure
+		if bReady = false
 			nRefill = nBudget / nWindow
 			if nRefill < 1
 				nRefill = 1
-			ok
-			pHandle = StzEngineRateCreate(nBudget, nRefill)
-			bReady = 1
-		ok
-
+			end
+			hHandle = StzEngineRateCreate(nBudget, nRefill)
+			bReady = true
+		end
+	end
 	# Takes one retry from the budget and answers whether the retry may go ahead.
 	#
 	#   returns    TRUE or FALSE
 	#   warning    refuses once the budget is spent and recovers as the window refills
 	#   see        AllowN, Available, Spend
 	#@ aka  Spend one retry. Returns TRUE if the budget allowed it. (Named Allow, not Try -- `try` is a Ring keyword.)
-	def Allow()
-		This._Ensure()
+	def Allow
+		this._Ensure()
 		return StzEngineRateTryTake(pHandle, 1) = 1
-
+	end
 	# Takes one retry from the budget and answers whether it may go ahead, as the call with the other name does.
 	#
 	#   returns    TRUE or FALSE
 	#   see        Allow, AllowN
 	#@ aka  Alias for Allow().
-	def Spend()
-		This._Ensure()
+	def Spend
+		this._Ensure()
 		return StzEngineRateTryTake(pHandle, 1) = 1
-
+	end
 	# Takes n retries from the budget at once and answers whether they may all go ahead.
 	#
 	#   n          how many retries to take
@@ -106,10 +106,10 @@ class stzRetryBudget from stzObject
 	#   warning    a refused request takes nothing; n of 0 is allowed
 	#   see        Allow, Available
 	#@ aka  Spend n retries at once (all-or-nothing). Returns TRUE if granted.
-	def AllowN(n)
-		This._Ensure()
-		return StzEngineRateTryTake(pHandle, n) = 1
-
+	def AllowN(xN)
+		this._Ensure()
+		return StzEngineRateTryTake(pHandle, xN) = 1
+	end
 	# Returns how many retries are left in the budget, as a decimal.
 	#
 	#   returns    a number
@@ -117,41 +117,43 @@ class stzRetryBudget from stzObject
 	#              above the exact remainder
 	#   see        Allow, Budget
 	#@ aka  Tokens (retries) currently available -- a float, refills continuously.
-	def Available()
-		This._Ensure()
+	def Available
+		this._Ensure()
 		return StzEngineRateAvailable(pHandle)
-
+	end
 	# Returns the size of the budget, as given at construction.
 	#
 	#   returns    a number
 	#   see        Window, Available
-	def Budget()
+	def Budget
 		return nBudget
-
+	end
 	# Returns the refill window in seconds, with a minimum of 1.
 	#
 	#   returns    a number
 	#   see        Budget, RefillPerSecond
-	def Window()
+	def Window
 		return nWindow
-
+	end
 	# Returns how many retries the budget regains each second.
 	#
 	#   returns    a number
 	#   warning    floor(budget / window), never below 1
 	#   see        Window, Budget
-	def RefillPerSecond()
+	def RefillPerSecond
 		return nRefill
-
+	end
 	# Frees the engine bucket and marks the object unusable.
 	#
 	#   returns    the budget itself, so calls chain
 	#   warning    a later call builds a new full bucket
 	#   see        init
-	def Destroy()
-		if bReady = 1
-			StzEngineRateDestroy(pHandle)
-			pHandle = ""
-			bReady = 0
-		ok
-		return This
+	def Destroy
+		if bReady = true
+			StzEngineRateDestroy(hHandle)
+			hHandle = ""
+			bReady = false
+		end
+		return this
+	end
+end

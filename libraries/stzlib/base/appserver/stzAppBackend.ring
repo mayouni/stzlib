@@ -311,7 +311,7 @@ func StzLoadAppTopologyFrom(pcPath)
 #   see        stzAppTopology, stzAppServer, stzRequestSigner
 class stzAppBackend from stzObject
 
-	@cName = ""
+	@tName = ""
 	@oTopology = ""      # the MODEL -- a snapshot copy, deliberately
 	@oDb = ""            # the LIVE state (engine handle: copy-proof)
 	@oServer = ""        # the running host
@@ -345,7 +345,7 @@ class stzAppBackend from stzObject
 	#                live state is shared
 	#   see          Start, ConnectTo
 	def init(pcName, poTopology)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@oTopology = poTopology
 		@aTraffic = []
 
@@ -378,14 +378,14 @@ class stzAppBackend from stzObject
 	#@ aka  Bind a CHOSEN interface, so a backend can be reached from another MACHINE: StartOn("127.0.0.1", p) loopback -- this process and its children only StartOn("0.0.0.0", p) every interface -- reachable across the network StartOn("10.0.0.7", p) one specific NIC
 	def StartOn(pcHostAddr, pnPortNum)
 		if @bRunning
-			stzraise("stzAppBackend '" + @cName + "' is already live on port " + @nPort)
+			stzraise("stzAppBackend '" + @tName + "' is already live on port " + @nPort)
 		ok
 		_cH_ = ring_trim("" + pcHostAddr)
 		if _cH_ = ""
 			_cH_ = "127.0.0.1"
 		ok
 		if NOT This._IsLoopback(_cH_) and @cSignKeyId = ""
-			stzraise("stzAppBackend '" + @cName + "' refuses to bind " + _cH_ +
+			stzraise("stzAppBackend '" + @tName + "' refuses to bind " + _cH_ +
 			         " unauthenticated -- a backend that leaves the loopback is reachable " +
 			         "by anything that can route to it. Call SetSigningKey(id, secret) first.")
 		ok
@@ -451,7 +451,7 @@ class stzAppBackend from stzObject
 	#@ aka  Attach to a backend ALREADY RUNNING somewhere else. No database and no server are created here -- this object becomes a pure client, and every part-scoped call below goes over the wire instead of over the loopback.
 	def ConnectTo(pcHostAddr, pnPortNum)
 		if @bRunning
-			stzraise("stzAppBackend '" + @cName + "' is already live -- Stop() before connecting elsewhere.")
+			stzraise("stzAppBackend '" + @tName + "' is already live -- Stop() before connecting elsewhere.")
 		ok
 		@cHost = "" + pcHostAddr
 		@nPort = pnPortNum
@@ -508,7 +508,7 @@ class stzAppBackend from stzObject
 	# verifier and the client's signer are separate ledgers by design (in the
 	# real topology they are separate processes).
 	def _NewSigner()
-		_oS_ = new stzRequestSigner("backend-" + @cName)
+		_oS_ = new stzRequestSigner("backend-" + @tName)
 		_oS_.AddKey(@cSignKeyId, @cSignSecret)
 		return _oS_
 
@@ -605,14 +605,14 @@ class stzAppBackend from stzObject
 	#@ aka  Launch the host bound to a CHOSEN interface, so the spawned backend is reachable from other machines rather than only from this one. The child enforces the same leave-the-loopback-needs-a-key rule, because it runs the very same StartOn().
 	def SpawnRemoteOn(pcBindHost, pnPortNum, pnTtlMs)
 		if @bRunning
-			stzraise("stzAppBackend '" + @cName + "' is already live -- SpawnRemote() launches a separate host.")
+			stzraise("stzAppBackend '" + @tName + "' is already live -- SpawnRemote() launches a separate host.")
 		ok
 		_cBind_ = ring_trim("" + pcBindHost)
 		if _cBind_ = ""
 			_cBind_ = "127.0.0.1"
 		ok
 		if NOT This._IsLoopback(_cBind_) and @cSignKeyId = ""
-			stzraise("stzAppBackend '" + @cName + "' refuses to spawn a host on " + _cBind_ +
+			stzraise("stzAppBackend '" + @tName + "' refuses to spawn a host on " + _cBind_ +
 			         " unauthenticated -- call SetSigningKey(id, secret) first.")
 		ok
 		@cModelPath = This._ScratchPath("model")
@@ -687,7 +687,7 @@ class stzAppBackend from stzObject
 	#@ aka  A legible account of what a remote launch would do, and what it needs.
 	def ExplainRemoteLaunch(pcSshTarget, pcRemoteDir, pnPortNum, pnTtlMs)
 		_out_ = []
-		_out_ + ("Remote launch of backend '" + @cName + "' on " + pcSshTarget)
+		_out_ + ("Remote launch of backend '" + @tName + "' on " + pcSshTarget)
 		_out_ + ("  bind      : 0.0.0.0:" + pnPortNum + " (reachable from other machines)")
 		_out_ + ("  auth      : signed crossings, key id '" + @cSignKeyId + "'")
 		_out_ + ("  secret    : from the remote env var STZ_BACKEND_SECRET -- never in argv")
@@ -727,7 +727,7 @@ class stzAppBackend from stzObject
 		# the probe is a real client, so it needs the real key -- an unsigned
 		# probe against a signed host is a 401, and WaitReady would wait out its
 		# whole timeout on a backend that was up all along.
-		_oProbe_ = new stzAppBackend(@cName, @oTopology)
+		_oProbe_ = new stzAppBackend(@tName, @oTopology)
 		if @cSignKeyId != ""
 			_oProbe_.SetSigningKey(@cSignKeyId, @cSignSecret)
 		ok
@@ -794,7 +794,7 @@ class stzAppBackend from stzObject
 	#   returns    a text
 	#   see        init
 	def Name()
-		return @cName
+		return @tName
 
 	  #-------------------------------------#
 	 #  THE PARTS' VIEW OF THE LIVE STATE  #
@@ -1006,7 +1006,7 @@ class stzAppBackend from stzObject
 	#@ aka  a legible account of the live backend (a list of lines, per the plane's Explain() convention).
 	def Explain()
 		_out_ = []
-		_out_ + ("Live backend '" + @cName + "' -- " + This._StateWord() +
+		_out_ + ("Live backend '" + @tName + "' -- " + This._StateWord() +
 		         ", port " + @nPort + ", " + len(@aTraffic) + " crossing(s)")
 		if @bGoverned
 			_out_ + ("  governed: writes require an effectful actor")
@@ -1135,7 +1135,7 @@ class stzAppBackend from stzObject
 	# Both generated files sit beside this module, dot-prefixed, exactly where
 	# the cluster puts its generated worker.
 	def _ScratchPath(pcTag)
-		return $tEngineDir + "/../base/appserver/.stzbackend_" + pcTag + "_" + @cName
+		return $tEngineDir + "/../base/appserver/.stzbackend_" + pcTag + "_" + @tName
 
 	def _StzBasePath()
 		_nSlash_ = 0

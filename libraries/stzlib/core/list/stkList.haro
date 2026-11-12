@@ -9,12 +9,12 @@ end
 class stkList from stkObject
 	@xContent = []
 
-	def init(pvList)
-		if not IsList(pvList)
+	def init(pxList)
+		if not IsList(pxList)
 			return Raise( "ERR-"+ StkError(:IncorrectParamType) )
 		end
 
-		@xContent = pvList
+		@xContent = pxList
 	end
 	#--
 

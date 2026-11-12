@@ -1,0 +1,6433 @@
+
+#TODO // general - study the compatibility of softanza comments
+# with JSDoc (https://jsdoc.app/)
+#--> Create a generator of a static web site documentation
+
+tSoftanzaLogo = '
+╭━━━┳━━━┳━━━┳━━━━┳━━━┳━╮╱╭┳━━━━┳━━━╮
+┃╭━╮┃╭━╮┃╭━━┫╭╮╭╮┃╭━╮┃┃╰╮┃┣━━╮━┃╭━╮┃
+┃╰━━┫┃╱┃┃╰━━╋╯┃┃╰┫┃╱┃┃╭╮╰╯┃╱╭╯╭┫┃╱┃┃
+╰━━╮┃┃╱┃┃╭━━╯╱┃┃╱┃╰━╯┃┃╰╮┃┃╭╯╭╯┃╰━╯┃
+┃╰━╯┃╰━╯┃┃╱╱╱╱┃┃╱┃╭━╮┃┃╱┃┃┣╯━╰━┫╭━╮┃
+╰━━━┻━━━┻╯╱╱╱╱╰╯╱╰╯╱╰┻╯╱╰━┻━━━━┻╯╱╰━
+
+Programming, by Heart! By: M.Ayouni╭
+━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
+  ╰╯'
+
+#TODO // Add these alternatives to NumberOf...() functions, allover the library:
+#	- HowMany...() : in singular and plural forms, exp: HowManyItem() and HowManyItems()
+#	- Count...()
+# NB: Many have been added! Check those that haven't.
+
+  #/////////////////////////
+ #/  GLOBALS VARIABLES  ///
+#/////////////////////////
+
+$bInHistoryUpdate = false
+
+$xTEMP_LIST = [] # A temp list value used with @() inside objects
+$xTEMP_STRING = ""
+$xTEMP_NUMBER = 0
+$oTEMP_OBJECT = ""
+
+$bKeepHisto = false # for keeping objec update history
+$vHisto = []
+
+$vKeepHistoXT = [ 0, "" ]
+$vHistoXT = []
+
+$bKeepTime = false # for keeping object execution time
+nTimeInSeconds = 0
+$nStartTimeInClocks = 0
+
+$vRingTypes = [ :number, :string, :char, :list, :object, :cobject ]
+
+$vRingTypesXT = [
+		[ "number", "numbers" ],
+		[ "string", "strings" ],
+		[ "char", "chars" ],
+		[ "list", "lists" ],
+		[ "object", "objects" ]
+	]
+
+$iTruth = 0
+
+# Temporary Truth Statement and Negation (read X as Truth)
+$bXStatement = true
+
+$vStzFindableTypes = [
+	:stzListOfNumbers, :stzListOfUnicodes, :stzString, :stzMultiString,
+	:stzSubString, :stzItem, :stzStopWords,
+	:stzListOfStrings, :stzListInString, :stzListOfBytes,
+	:stzListOfChars, :stzList, :stzHashList,
+	:stzListOfHashLists, :stzSet, :stzListOfLists, :stzSplitter,
+	:stzListOfPairs, :stzPair, :stzPairOfNumbers, :stzPairOfLists,
+	:stzListOfSets, :stzTree, :stzWalker, :stzTable,
+	:stzGrid, :stzListOfEntities, :stzText,
+	:stzSection
+]
+
+xMainValue = ""
+$xLastValue = ""
+
+$bThese = false	     	# Used in case like: Q(1:5) - These(3:5) 	--> [1,2]
+$bTheseQ = false     	# Used in case like: Q(1:5) - TheseQ(3:5) 	--> Q([1,2])
+
+$bAsObject = false	# Used in case like: Q(1:2) + Obj(Q(3:4))	--> [ [1,2], Q([3,4]) ]
+$bAsObjectQ = false
+
+bModifiable = false	# Used with operators that modify stz objects
+
+$bParamCheck = true  	# Activates the "# Checking params region" in softanza functions
+		     	#--> Set it to FALSE if the functions are used inside large loops
+		    	# so you can gain performance (the checks can then be made once,
+		     	# by yourself, outside the loop).
+			# Use the SetParamCheckingTo(FALSE)
+
+$bEarlyCheck = true	# Used for the same reason as _bParamCheck
+
+$nVizWidth = 50		# Default wrap width (columns) for the VizFind* visuals.
+			#--> Change it with SetVizWidth(80); read it with DefaultVizWidth().
+
+tCacheFileName = "stzcache.txt"
+oCacheFileHandler = ""
+
+tCacheMemoryString = ""
+
+$vtRingFunctions = [ # #TODO // Add the new functions added in Ring 1.21
+	"acos",
+	"add",
+	"addattribute",
+	"adddays",
+	"addmethod",
+	"addsublistsbyfastcopy",
+	"addsublistsbymove",
+	"ascii",
+	"asin",
+	"assert",
+	"atan",
+	"atan2",
+	"attributes",
+	"binarysearch",
+	"bytes2double",
+	"bytes2float",
+	"bytes2int",
+	"callgarbagecollector",
+	"callgc",
+	"ceil",
+	"cfunctions",
+	"char",
+	"chdir",
+	"checkoverflow",
+	"classes",
+	"classname",
+	"clearerr",
+	"clock",
+	"clockspersecond",
+	"closelib",
+	"copy",
+	"cos",
+	"cosh",
+	"currentdir",
+	"date",
+	"dec",
+	"decimals",
+	"del",
+	"diffdays",
+	"dir",
+	"direxists",
+	"double2bytes",
+	"eval",
+	"exefilename",
+	"exefolder",
+	"exp",
+	"fabs",
+	"fclose",
+	"feof",
+	"ferror",
+	"fexists",
+	"fflush",
+	"fgetc",
+	"fgetpos",
+	"fgets",
+	"filename",
+	"find",
+	"float2bytes",
+	"floor",
+	"fopen",
+	"fputc",
+	"fputs",
+	"fread",
+	"freopen",
+	"fseek",
+	"fsetpos",
+	"ftell",
+	"functions",
+	"fwrite",
+	"getarch",
+	"getattribute",
+	"getchar",
+	"getpathtype",
+	"getpointer",
+	"getptr",
+	"globals",
+	"hex",
+	"hex2str",
+	"input",
+	"insert",
+	"int2bytes",
+	"intvalue",
+	"isalnum",
+	"isalpha",
+	"isandroid",
+	"isattribute",
+	"iscfunction",
+	"isclass",
+	"iscntrl",
+	"isdigit",
+	"isfreebsd",
+	"isfunction",
+	"isglobal",
+	"isgraph",
+	"islinux",
+	"islist",
+	"islocal",
+	"islower",
+	"ismacosx",
+	"ismethod",
+	"ismsdos",
+	"isnull",
+	"isnumber",
+	"isobject",
+	"ispackage",
+	"ispackageclass",
+	"ispointer",
+	"isprint",
+	"isprivateattribute",
+	"isprivatemethod",
+	"ispunct",
+	"isspace",
+	"isstring",
+	"isunix",
+	"isupper",
+	"iswindows",
+	"iswindows64",
+	"isxdigit",
+	"left",
+	"len",
+	"lines",
+	"list",
+	"list2str",
+	"loadlib",
+	"locals",
+	"log",
+	"log10",
+	"lower",
+	"max",
+	"memcpy",
+	"memorycopy",
+	"mergemethods",
+	"methods",
+	"min",
+	"murmur3hash",
+	"newlist",
+	"nofprocessors",
+	"nullpointer",
+	"nullptr",
+	"number",
+	"obj2ptr",
+	"object2pointer",
+	"objectid",
+	"packageclasses",
+	"packagename",
+	"packages",
+	"perror",
+	"pointer2object",
+	"pointer2string",
+	"pointercompare",
+	"pow",
+	"prevfilename",
+	"ptr2obj",
+	"ptr2str",
+	"ptrcmp",
+	"raise",
+	"random",
+	"randomize",
+	"read",
+	"remove",
+	"rename",
+	"reverse",
+	"rewind",
+	"right",
+	"ring_give",
+	"ring_see",
+	"ring_state_delete",
+	"ring_state_filetokens",
+	"ring_state_findvar",
+	"ring_state_init",
+	"ring_state_main",
+	"ring_state_mainfile",
+	"ring_state_new",
+	"ring_state_newvar",
+	"ring_state_runcode",
+	"ring_state_runfile",
+	"ring_state_runobjectfile",
+	"ring_state_scannererror",
+	"ring_state_setvar",
+	"ring_state_stringtokens",
+	"ringvm_callfunc",
+	"ringvm_calllist",
+	"ringvm_cfunctionslist",
+	"ringvm_classeslist",
+	"ringvm_evalinscope",
+	"ringvm_fileslist",
+	"ringvm_functionslist",
+	"ringvm_genarray",
+	"ringvm_give",
+	"ringvm_hideerrormsg",
+	"ringvm_info",
+	"ringvm_memorylist",
+	"ringvm_packageslist",
+	"ringvm_passerror",
+	"ringvm_scopescount",
+	"ringvm_see",
+	"ringvm_settrace",
+	"ringvm_tracedata",
+	"ringvm_traceevent",
+	"ringvm_tracefunc",
+	"setattribute",
+	"setpointer",
+	"setptr",
+	"shutdown",
+	"sin",
+	"sinh",
+	"sort",
+	"space",
+	"sqrt",
+	"srandom",
+	"str2hex",
+	"str2hexcstyle",
+	"str2list",
+	"strcmp",
+	"string",
+	"substr",
+	"swap",
+	"sysget",
+	"sysset",
+	"system",
+	"sysunset",
+	"tan",
+	"tanh",
+	"tempfile",
+	"tempname",
+	"time",
+	"timelist",
+	"trim",
+	"type",
+	"ungetc",
+	"unsigned",
+	"upper",
+	"uptime",
+	"variablepointer",
+	"varptr",
+	"version",
+	"windowsnl",
+	"write"
+]
+
+#TODO // Review the list for last ring version
+vtRingKeywords = [
+	"again",
+	"and",
+	"but",
+	"bye",
+	"call",
+	"case",
+	"catch",
+	"changeringkeyword",
+	"changeringoperator",
+	"class",
+	"def",
+	"do",
+	"done",
+	"else",
+	"elseif",
+	"end",
+	"exit",
+	"for",
+	"from",
+	"func",
+	"get",
+	"give",
+	"if",
+	"import",
+	"in",
+	"load",
+	"loadsyntax",
+	"loop",
+	"new",
+	"next",
+	"not",
+	"off",
+	"ok",
+	"on",
+	"or",
+	"other",
+	"package",
+	"private",
+	"put",
+	"return",
+	"see",
+	"step",
+	"switch",
+	"to",
+	"try",
+	"while",
+	"endfunc",
+	"endclass",
+	"endpackage"
+]
+
+$nQuietEqualityRatio = 0.09
+
+# Softanza keywords used in Conditaional Code (CCode)
+
+$vtStzCCKeywords = [
+	:@Number,
+		:@CurrentNumber,
+		:@PreviousNumber,
+		:@NextNumber,
+	
+	:@Char,
+		:@CurrentChar,
+		:@PreviousChar,
+		:@NextChar,
+	
+	:@String,
+		:@CurrentString,
+		:@PreviousString,
+		:@NextString,
+	
+	:@Line,
+		:@CurrentLine,
+		:@PreviousLine,
+		:@NextLine,
+	
+	:@Item,
+		:@CurrentItem,
+		:@PreviousItem,
+		:@NextItem,
+
+		:@Section,
+		:@Range,
+	
+	:@List,
+		:@CurrentList,
+		:@PreviousList,
+		:@NextList,
+
+	:@Pair,
+		:@CurrentPair,
+		:@PreviousPair,
+		:@NextPair,
+
+	:@Object,
+		:@CurrentObject,
+		:@PreviousObject,
+		:@NextObject
+	]
+
+  #////////////////////////
+ #/  GLOBAL FUNCTIONS  ///
+#////////////////////////
+
+# NEEDLE FIRST -- StzFindAll(what, wherein) -- like every other member of
+# this family: StzFind, StzFindFirst, StzFindLast and StzFindNth all take
+# the thing being looked FOR first.
+#
+# THESE TWO USED TO BE THE OTHER WAY ROUND, alone in the family, and the
+# mismatch could not be noticed by anyone calling them: both parameters
+# accept a string, so a needle-first call searched the NEEDLE for the
+# HAYSTACK, found nothing, and answered [] -- "not found". A wrong argument
+# order that raises costs a minute; one that answers "not found" is a bug in
+# the caller's logic that looks like data.
+#
+# It was found by a guard whose own instrument was the victim: an assertion
+# that "no cylinder cap is deeper than it is wide" scanned an SVG using
+# StzFindAll, got [] for a tag that was plainly there, and so PASSED while
+# reading a canvas that contained a deliberately broken cap.
+#
+# Safe to align: outside the alias forwarders just below, the whole library
+# had no caller of either name.
+func StzFindAllCS(pxThing, pxContainer, pxCaseSensitive)
+	xVal = pxThing
+	if CheckParams()
+		if not (IsString(pxContainer) or IsList(pxContainer))
+			StzRaise("Incorrect param type! the container searched must be " +
+				"a string or list -- StzFindAll takes what you are looking " +
+				"FOR first, then what to look IN.")
+		end
+	end
+
+	if IsString(pxContainer)
+		return StzStringQ(pxContainer).FindCS(xVal, pxCaseSensitive)
+
+	else
+		# Engine-backed find for string items
+		if IsString(xVal)
+			xFacList = StzEngineMarshalList(pxContainer)
+			xFacResult = StzEngineListFindAllStringCS(xFacList, xVal, CaseSensitive(pxCaseSensitive))
+			StzEngineListFree(xFacList)
+			if xFacResult != ""
+				xFacPositions = StzEngineContentFromList(xFacResult)
+				StzEngineListFree(xFacResult)
+				return xFacPositions
+			end
+			return []
+		end
+
+		# Fallback for non-string items
+		xResult = []
+		nLen = Len(pxContainer)
+		for i = 1 to nLen
+			if BothAreEqualCS(pxContainer[i], xVal, pxCaseSensitive)
+				xResult + i
+			end
+		end
+		return xResult
+	end
+end
+	func FindCS(pxThing, pxContainer, pxCaseSensitive)
+		return StzFindAllCS(pxThing, pxContainer, pxCaseSensitive)
+	end
+	func @FindCS(pxThing, pxContainer, pxCaseSensitive)
+		return StzFindAllCS(pxThing, pxContainer, pxCaseSensitive)
+	end
+	func FindAllCS(pxThing, pxContainer, pxCaseSensitive)
+		return StzFindAllCS(pxThing, pxContainer, pxCaseSensitive)
+	end
+	func @FindAllCS(pxThing, pxContainer, pxCaseSensitive)
+		return StzFindAllCS(pxThing, pxContainer, pxCaseSensitive)
+	end
+func StzFindAll(pxThing, pxContainer)
+	return StzFindAllCS(pxThing, pxContainer, 1)
+end
+	func @Find(pxThing, pxContainer)
+		return StzFindAll(pxThing, pxContainer)
+	end
+	func FindAll(pxThing, pxContainer)
+		return StzFindAll(pxThing, pxContainer)
+	end
+	func @FindAll(pxThing, pxContainer)
+		return StzFindAll(pxThing, pxContainer)
+	end
+
+#---
+
+func StzTruthStatement
+	return $bXStatement
+end
+	func TruthStatement
+		return StzTruthStatement()
+	end
+#---
+
+func StzKeepingTime
+	return $bKeepTime
+end
+	func KeepingTime
+		return StzKeepingTime()
+	end
+	func KeepingExecutionTime
+		return StzKeepingTime()
+	end
+	func ObjectKeepingTime
+		return StzKeepingTime()
+	end
+	func KeepingObjectTime
+		return StzKeepingTime()
+	end
+func StzSetKeepingTimeTo(bTrueOrFalse)
+	if CheckParams()
+		if not Type(bTrueOrFalse) = "BOOLEAN"
+			StzRaise("Incorrect param type! bTrueOrFalse must be true or false.")
+		end
+	end
+
+	$bKeepTime = bTrueOrFalse
+	$nStartTimeInClocks = Clock()
+end
+	func SetKeepingTimeTo(bTrueOrFalse)
+		StzSetKeepingTimeTo(bTrueOrFalse)
+	end
+	func SetKeepingTime(bTrueOrFalse)
+		StzSetKeepingTimeTo(bTrueOrFalse)
+	end
+	func SetKeepTime(bTrueOrFalse)
+		StzSetKeepingTimeTo(bTrueOrFalse)
+	end
+	func SetObjectKeepingTimeTo(bTrueOrFalse)
+		StzSetKeepingTimeTo(bTrueOrFalse)
+	end
+	func SetKeepingObjectTimeTo(bTrueOrFalse)
+		StzSetKeepingTimeTo(bTrueOrFalse)
+	end
+func StzStartObjectTime
+	$nStartTimeInClocks = Clock()
+end
+	func StartObjectTime
+		StzStartObjectTime()
+	end
+	func StartObjectTimeInClocks
+		StzStartObjectTime()
+	end
+#-- Managing temporal values (used with @() inside objects)
+
+func StzTempList
+	return $xTEMP_LIST
+end
+	func TempList
+		return StzTempList()
+	end
+func StzSetTempList(xList)
+	if not IsList(xList)
+		StzRaise("Incorrect param type! aList must be a list.")
+	end
+
+	$xTEMP_LIST = xList
+end
+	func SetTempList(xList)
+		StzSetTempList(xList)
+	end
+func StzEraseTempList
+	$xTEMP_LIST = []
+end
+	func EraseTempList
+		StzEraseTempList()
+	end
+#--
+
+func StzTempString
+	return $xTEMP_STRING
+end
+	func TempString
+		return StzTempString()
+	end
+func StzSetTempString(tStr)
+	if not IsString(tStr)
+		StzRaise("Incorrect param type! cStr must be a string.")
+	end
+
+	$xTEMP_STRING = tStr
+end
+	func SetTempString(tStr)
+		StzSetTempString(tStr)
+	end
+func StzEraseTempString
+	$xTEMP_STRING = ""
+end
+	func EraseTempString
+		StzEraseTempString()
+	end
+#--
+
+func StzTempNumber
+	return $xTEMP_NUMBER
+end
+	func TempNumber
+		return StzTempNumber()
+	end
+func StzSetTempNumber(xN)
+	if not IsNumber(xN)
+		StzRaise("Incorrect param type! n must be a number.")
+	end
+
+	$xTEMP_NUMBER = xN
+end
+	func SetTempNumber(xN)
+		StzSetTempNumber(xN)
+	end
+func StzEraseTempNumber
+	$xTEMP_NUMBER = 0
+end
+	func EraseTempnumber
+		StzEraseTempNumber()
+	end
+#--
+
+func StzTempObject
+	return $oTEMP_OBJECT
+end
+	func TempObject
+		return StzTempObject()
+	end
+func StzSetTempObject(pxObj)
+	if not IsObject(pxObj)
+		StzRaise("Incorrect param type! pObj must be an object.")
+	end
+
+	$oTEMP_OBJECT = pxObj
+end
+	func SetTempObject(pxObj)
+		StzSetTempObject(pxObj)
+	end
+func StzEraseTempObject
+	$xTEMP_STRING = ""
+end
+	func EraseTempObject
+		StzEraseTempObject()
+	end
+#===
+
+func AttributesValues(pxObject) # Compliments Ring attributes() function
+	if not IsObject(pxObject)
+		Raise("Incorrect param type! pObject must be an object.")
+	end
+
+	xResult = []
+
+	vtAttributes = Attributes(pxObject)
+	nLen = Len(vtAttributes)
+
+	for i = 1 to nLen
+		xValue = GetAttribute(pxObject, vtAttributes[i])   # no eval: Haro runs no text as code
+		xResult + xValue
+	end
+
+	return xResult
+end
+	func @AttributesValues(pxObject)
+		return AttributesValues(pxObject)
+	end
+#====== REPEATING A VALUE N TIMES
+
+func @N(xN, xItem)
+	# EXAMPLE
+	# ? @N(3 ,"A")	#--> [ "A", "A", "A" ]
+
+	if CheckParams()
+		if not IsNumber(xN)
+			StzRaise("Incorrect param type! n must be a number.")
+		end
+	end
+
+	return @NXT(xN, xItem, :InAList)
+end
+	#< @FunctionSpecificForms
+
+	func @1(xVal)
+		return @N(1, xVal)
+	end
+		func One(xVal)
+			return @N(1, xVal)
+		end
+	func @2(xVal)
+		return @N(2, xVal)
+	end
+		func Two(xVal)
+			return @N(2, xVal)
+		end
+	func @3(xVal)
+		return @N(3, xVal)
+	end
+		func Three(xVal)
+			return @N(3, xVal)
+		end
+	func @4(xVal)
+		return @N(4, xVal)
+	end
+		func Four(xVal)
+			return @N(4, xVal)
+		end
+	func @5(xVal)
+		return @N(5, xVal)
+	end
+		func Five(xVal)
+			return @N(5, xVal)
+		end
+	func @6(xVal)
+		return @N(6, xVal)
+	end
+		func Six(xVal)
+			return @N(6, xVal)
+		end
+	func @7(xVal)
+		return @N(7, xVal)
+	end
+		func Seven(xVal)
+			return @N(7, xVal)
+		end
+	func @8(xVal)
+		return @N(8, xVal)
+	end
+		func Eight(xVal)
+			return @N(8, xVal)
+		end
+	func @9(xVal)
+		return @N(9, xVal)
+	end
+		func Nine(xVal)
+			return @N(9, xVal)
+		end
+	func @10(xVal)
+		return @N(10, xVal)
+	end
+		func Ten(xVal)
+			return @N(10, xVal)
+		end
+	#>
+
+func @NXT(xN, pxStrOrItem, pxInStrOrList)
+	# EXAMPLES
+	# ? @NXT(3 ,"A", :InAString)	#--> "AAA"
+	# ? @NXT(3, "A", :InAList)	#--> [ "A", "A", "A" ]
+
+	if CheckParams()
+		if not IsNumber(xN)
+			StzRaise("Incorrect param type! n must be a number.")
+		end
+
+		if not IsString(pxInStrOrList)
+			StzRaise("Incorrect param type! pcInStrOrList must be a string.")
+		end
+	end
+
+	if pxInStrOrList = :InList or pxInStrOrList = :InAList or
+	   pxInStrOrList = :AsList or pxInStrOrList = :AsAList or
+	   pxInStrOrList = :List
+
+		xResult = []
+	
+		for i = 1 to xN
+			xResult + pxStrOrItem
+		end
+	
+		return xResult
+
+	elseif pxInStrOrList = :InString or pxInStrOrList = :InAString or
+	    pxInStrOrList = :AsString or pxInStrOrList = :AsAString or
+	    pxInStrOrList = :String
+
+		tResult = Copy(pxStrOrItem, xN)
+		return tResult
+
+	else
+		StzRaise("Incorrect syntax! pcInStrOrList must be a string equal to :InString or :InList.")
+	end
+end
+	#< @FunctionSpecificForms
+
+	func @1XT(pxStrOrItem, pxInStrOrList)
+		return @NXT(1, pxStrOrItem, pxInStrOrList)
+	end
+		func OneXT(pxStrOrItem, pxInStrOrList)
+			return @NXT(1, pxStrOrItem, pxInStrOrList)
+		end
+	func @2XT(pxStrOrItem, pxInStrOrList)
+		return @NXT(2, pxStrOrItem, pxInStrOrList)
+	end
+		func TwoXT(pxStrOrItem, pxInStrOrList)
+			return @NXT(2, pxStrOrItem, pxInStrOrList)
+		end
+	func @3XT(pxStrOrItem, pxInStrOrList)
+		return @NXT(3, pxStrOrItem, pxInStrOrList)
+	end
+		func ThreeXT(pxStrOrItem, pxInStrOrList)
+			return @NXT(3, pxStrOrItem, pxInStrOrList)
+		end
+	func @4XT(pxStrOrItem, pxInStrOrList)
+		return @NXT(4, pxStrOrItem, pxInStrOrList)
+	end
+		func FourXT(pxStrOrItem, pxInStrOrList)
+			return @NXT(4, pxStrOrItem, pxInStrOrList)
+		end
+	func @5XT(pxStrOrItem, pxInStrOrList)
+		return @NXT(5, pxStrOrItem, pxInStrOrList)
+	end
+		func FiveXT(pxStrOrItem, pxInStrOrList)
+			return @NXT(5, pxStrOrItem, pxInStrOrList)
+		end
+	func @6XT(pxStrOrItem, pxInStrOrList)
+		return @NXT(6, pxStrOrItem, pxInStrOrList)
+	end
+		func SixXT(pxStrOrItem, pxInStrOrList)
+			return @NXT(6, pxStrOrItem, pxInStrOrList)
+		end
+	func @7XT(pxStrOrItem, pxInStrOrList)
+		return @NXT(7, pxStrOrItem, pxInStrOrList)
+	end
+		func SevenXT(pxStrOrItem, pxInStrOrList)
+			return @NXT(7, pxStrOrItem, pxInStrOrList)
+		end
+	func @8XT(pxStrOrItem, pxInStrOrList)
+		return @NXT(8, pxStrOrItem, pxInStrOrList)
+	end
+		func EightXT(pxStrOrItem, pxInStrOrList)
+			return @NXT(8, pxStrOrItem, pxInStrOrList)
+		end
+	func @9XT(pxStrOrItem, pxInStrOrList)
+		return @NXT(9, pxStrOrItem, pxInStrOrList)
+	end
+		func NineXT(pxStrOrItem, pxInStrOrList)
+			return @NXT(9, pxStrOrItem, pxInStrOrList)
+		end
+	func @10XT(pxStrOrItem, pxInStrOrList)
+		return @NXT(10, pxStrOrItem, pxInStrOrList)
+	end
+		func TenXT(pxStrOrItem, pxInStrOrList)
+			return @NXT(10, pxStrOrItem, pxInStrOrList)
+		end
+	#>
+
+#====== FUNCTIONS USEDS WITH OPERATORS OVERLOADED ON STZLIST
+
+func Obj(pxObject)
+	# Used in the fellowing situation:
+	# Used in case like:
+
+	# ? Q([1, 2]) + AsObject( Q([3, 4]) )
+	#--> [ [1,2], Q([3,4]) ]
+
+	# ~> Q([3, 4]) which is is a stzList object is then added
+	# to the Q([1, 3]) list as an object.
+
+	# You will appreciate the role of this small function
+	# when you write the same expression without it and
+	# see the difference:
+
+	# Q([1, 2]) + Q([3, 4])
+	#--> A stzList object containing [ 1, 2, [ 3, 4 ] ]
+
+	# To add an object and return a stzList, use AsObjectQ():
+
+	# Q([1, 2]) + AsObjectQ( Q([3, 4]) )
+	# A stzList object containing 
+	
+	# REMINDER
+
+	# ? Q([1,2]) + [3, 4]
+	#--> [ 1, 2, [ 3, 4 ] ]
+
+	# ? Q([1, 2]) + These([3, 4])
+	#--> [ 1, 2, 3, 4 ]
+
+	# Q([1, 2]) + TheseQ([3, 4])
+	#--> A stzList object containing [1, 2, 3, 4 ]
+
+	if CheckingParams()
+		if not IsObject(pxObject)
+			StzRaise("Incorrect param type! pObject must be an object.")
+		end
+	end
+
+	$bAsObject = true
+	$bAsObjectQ = false
+
+	return pxObject
+end
+	# Must be reset to FALSE everytime These() is used.
+
+	#< @FunctionAlternativeForms
+
+	func AsObj(pxObject)
+		return Obj(pxObject)
+	end
+	func AsObject(pxObject)
+		return Obj(pxObject)
+	end
+	func O(pxObject)
+		return Obj(pxObject)
+	end
+	#>
+
+func ObjQ(pxObject)
+	if CheckingParams()
+		if not IsObject(pxObject)
+			StzRaise("Incorrect param type! pObject must be an object.")
+		end
+	end
+
+	$bAsObjectQ = true
+	$bAsObject = false
+
+	return pxObject
+end
+	# Must be reset to FALSE everytime These() is used.
+
+	#< @FunctionAlternativeForms
+
+	func AsObjQ(pxObject)
+		return ObjQ(pxObject)
+	end
+	func AsObjectQ(pxObject)
+		return ObjQ(pxObject)
+	end
+	func OQ(pxObject)
+		return ObjQ(pxObject)
+	end
+	#>
+
+func M(pxStzObject)
+
+	if CheckingParams()
+		if not (IsObject(pxStzObject) and IsStzObject(pxStzObject))
+			StzRaise("Incorrect param type! poStzObject must be a Softanza object.")
+		end
+	end
+
+	bModifiable = true
+	return pxStzObject
+end
+func These(xP)
+
+	# Used in the fellowing situation:
+	#  ? Q([ 1, 2, "x", 3, "y" ]) - These([ "x", "y"]) #--> [ 1, 2, 3 ]
+
+	# while not using These() and writing:
+	#  ? Q([ 1, 2, "x", 3, "y" ]) - [ "x", "y"] #--> [ 1, 2, "x", 3, "y" ]
+
+	# will not change any thing, because [ "x", "y" ] is treated as
+	# a hole item of type list, not two items. The main list does not
+	# contains an item like that, using the - operator has no effect.
+
+	# In the contrary, if [ "x", "y" ] was existant, it will be removed:
+	# ? Q([ 1, 2, ["x", "y"], 3 ]) - [ "x", "y"] #--> [ 1, 2, 3 ]
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	$bThese = true
+	$bTheseQ = false
+
+	return xP
+end
+	# Must be reset to FALSE everytime These() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfThese(xP)
+		return These(xP)
+	end
+	func EachOneOfThese(xP)
+		return These(xP)
+	end
+	func EachItemOfThese(xP)
+		return These(xP)
+	end
+	func AllThese(xP)
+		return These(xP)
+	end
+	func AllOfThese(xP)
+		return These(xP)
+	end
+	#--
+
+	func TheseItems(xP)
+		return These(xP)
+	end
+	func EachOfTheseItems(xP)
+		return These(xP)
+	end
+	func EachOneOfTheseItems(xP)
+		return These(xP)
+	end
+	func AllTheseItems(xP)
+		return These(xP)
+	end
+	func AllOfTheseItems(xP)
+		return These(xP)
+	end
+	#--
+
+	func EachIn(xP)
+		return These(xP)
+	end
+	func EachItemIn(xP)
+		return These(xP)
+	end
+	#==
+
+	func @These(xP)
+		return These(xP)
+	end
+	func @EachOfThese(xP)
+		return These(xP)
+	end
+	func @EachOneOfThese(xP)
+		return These(xP)
+	end
+	func @EachItemOfThese(xP)
+		return These(xP)
+	end
+	func @AllThese(xP)
+		return These(xP)
+	end
+	func @AllOfThese(xP)
+		return These(xP)
+	end
+	#--
+
+	func @TheseItems(xP)
+		return These(xP)
+	end
+	func @EachOfTheseItems(xP)
+		return These(xP)
+	end
+	func @EachOneOfTheseItems(xP)
+		return These(xP)
+	end
+	func @AllTheseItems(xP)
+		return These(xP)
+	end
+	func @AllOfTheseItems(xP)
+		return These(xP)
+	end
+	#--
+
+	func @EachIn(xP)
+		return These(xP)
+	end
+	func @EachItemIn(xP)
+		return These(xP)
+	end
+	#>
+
+func TheseNumbers(xP)
+	$bThese = true
+	$bTheseQ = false
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	nLen = Len(xP)
+	viResult = []
+
+	for i = 1 to nLen
+		if IsNumber(xP[i])
+			viResult + xP[i]
+		end
+	end
+
+	return viResult
+end
+	# Must be reset to FALSE everytime TheseNumbers() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseNumbers(xP)
+		return TheseNumbers(xP)
+	end
+	func EachOneOfTheseNumbers(xP)
+		return TheseNumbers(xP)
+	end
+	func AllTheseNumbers(xP)
+		return TheseNumbers(xP)
+	end
+	func AllOfTheseNumbers(xP)
+		return TheseNumbers(xP)
+	end
+
+	#==
+
+	func @TheseNumbers(xP)
+		return TheseNumbers(xP)
+	end
+	func @EachOfTheseNumbers(xP)
+		return TheseNumbers(xP)
+	end
+	func @EachOneOfTheseNumbers(xP)
+		return TheseNumbers(xP)
+	end
+	func @AllTheseNumbers(xP)
+		return TheseNumbers(xP)
+	end
+	func @AllOfTheseNumbers(xP)
+		return TheseNumbers(xP)
+	end
+	#>
+
+func TheseChars(xP)
+	$bThese = true
+	$bTheseQ = false
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	nLen = Len(xP)
+	vtResult = []
+
+	for i = 1 to nLen
+		if IsString(xP[i])
+			vtResult + xP[i]
+		end
+	end
+
+	return vtResult
+end
+	# Must be reset to FALSE everytime TheseChars() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseChars(xP)
+		return TheseChars(xP)
+	end
+	func EachOneOfTheseChars(xP)
+		return TheseChars(xP)
+	end
+	func AllTheseChars(xP)
+		return TheseChars(xP)
+	end
+	func AllOfTheseChars(xP)
+		return TheseChars(xP)
+	end
+
+	#==
+
+	func @TheseChars(xP)
+		return TheseChars(xP)
+	end
+	func @EachOfTheseChars(xP)
+		return TheseChars(xP)
+	end
+	func @EachOneOfTheseChars(xP)
+		return TheseChars(xP)
+	end
+	func @AllTheseChars(xP)
+		return TheseChars(xP)
+	end
+	func @AllOfTheseChars(xP)
+		return TheseChars(xP)
+	end
+	#>
+
+func TheseStrings(xP)
+	$bThese = true
+	$bTheseQ = false
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	nLen = Len(xP)
+	vtResult = []
+
+	for i = 1 to nLen
+		if IsString(xP[i])
+			vtResult + xP[i]
+		end
+	end
+
+	return vtResult
+end
+	# Must be reset to FALSE everytime TheseStrings() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStrings(xP)
+		return TheseStrings(xP)
+	end
+	func EachOneOfTheseStrings(xP)
+		return TheseStrings(xP)
+	end
+	func AllTheseStrings(xP)
+		return TheseStrings(xP)
+	end
+	func AllOfTheseStrings(xP)
+		return TheseStrings(xP)
+	end
+
+	#==
+
+	func @TheseStrings(xP)
+		return TheseStrings(xP)
+	end
+	func @EachOfTheseStrings(xP)
+		return TheseStrings(xP)
+	end
+	func @EachOneOfTheseStrings(xP)
+		return TheseStrings(xP)
+	end
+	func @AllTheseStrings(xP)
+		return TheseStrings(xP)
+	end
+	func @AllOfTheseStrings(xP)
+		return TheseStrings(xP)
+	end
+	#>
+
+func TheseLists(xP)
+	$bThese = true
+	$bTheseQ = false
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	nLen = Len(xP)
+	xResult = []
+
+	for i = 1 to nLen
+		if IsString(xP[i])
+			xResult + xP[i]
+		end
+	end
+
+	return xResult
+end
+	# Must be reset to FALSE everytime TheseLists() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseLists(xP)
+		return TheseLists(xP)
+	end
+	func EachOneOfTheseLists(xP)
+		return TheseLists(xP)
+	end
+	func AllTheseLists(xP)
+		return TheseLists(xP)
+	end
+	func AllOfTheseLists(xP)
+		return TheseLists(xP)
+	end
+
+	#==
+
+	func @TheseLists(xP)
+		return TheseLists(xP)
+	end
+	func @EachOfTheseLists(xP)
+		return TheseLists(xP)
+	end
+	func @EachOneOfTheseLists(xP)
+		return TheseLists(xP)
+	end
+	func @AllTheseLists(xP)
+		return TheseLists(xP)
+	end
+	func @AllOfTheseLists(xP)
+		return TheseLists(xP)
+	end
+	#>
+
+func TheseObjects(xP)
+	$bThese = true
+	$bTheseQ = false
+
+	if CheckingParams()
+		if not IsObject(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	nLen = Len(xP)
+	voResult = []
+
+	for i = 1 to nLen
+		if IsObject(xP[i])
+			voResult + xP[i]
+		end
+	end
+
+	return voResult
+end
+	# Must be reset to FALSE everytime TheseObjects() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseObjects(xP)
+		return TheseObjects(xP)
+	end
+	func EachOneOfTheseObjects(xP)
+		return TheseObjects(xP)
+	end
+	func AllTheseObjects(xP)
+		return TheseObjects(xP)
+	end
+	func AllOfTheseObjects(xP)
+		return TheseObjects(xP)
+	end
+
+	#==
+
+	func @TheseObjects(xP)
+		return TheseObjects(xP)
+	end
+	func @EachOfTheseObjects(xP)
+		return TheseObjects(xP)
+	end
+	func @EachOneOfTheseObjects(xP)
+		return TheseObjects(xP)
+	end
+	func @AllTheseObjects(xP)
+		return TheseObjects(xP)
+	end
+	func @AllOfTheseObjects(xP)
+		return TheseObjects(xP)
+	end
+	#>
+
+#--
+
+func TheseStzNumbers(xP)
+	$bThese = true
+	$bTheseQ = false
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	nLen = Len(xP)
+	voResult = []
+
+	for i = 1 to nLen
+		if IsObject(xP[i]) and IsStzNumber(xP[i])
+			voResult + xP[i]
+		end
+	end
+
+	return voResult
+end
+	# Must be reset to FALSE everytime TheseStzNumbers() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzNumbers(xP)
+		return TheseStzNumbers(xP)
+	end
+	func EachOneOfTheseStzNumbers(xP)
+		return TheseStzNumbers(xP)
+	end
+	func AllTheseStzNumbers(xP)
+		return TheseStzNumbers(xP)
+	end
+	func AllOfTheseStzNumbers(xP)
+		return TheseStzNumbers(xP)
+	end
+
+	#==
+
+	func @TheseStzNumbers(xP)
+		return TheseStzNumbers(xP)
+	end
+	func @EachOfTheseStzNumbers(xP)
+		return TheseStzNumbers(xP)
+	end
+	func @EachOneOfTheseStzNumbers(xP)
+		return TheseStzNumbers(xP)
+	end
+	func @AllTheseStzNumbers(xP)
+		return TheseStzNumbers(xP)
+	end
+	func @AllOfTheseStzNumbers(xP)
+		return TheseStzNumbers(xP)
+	end
+	#>
+
+func TheseStzChars(xP)
+	$bThese = true
+	$bTheseQ = false
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	nLen = Len(xP)
+	voResult = []
+
+	for i = 1 to nLen
+		if IsObject(xP[i]) and IsStzchar(xP[i])
+			voResult + xP[i]
+		end
+	end
+
+	return voResult
+end
+	# Must be reset to FALSE everytime TheseStzChars() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzChars(xP)
+		return TheseStzChars(xP)
+	end
+	func EachOneOfTheseStzChars(xP)
+		return TheseStzChars(xP)
+	end
+	func AllTheseStzChars(xP)
+		return TheseStzChars(xP)
+	end
+	func AllOfTheseStzChars(xP)
+		return TheseStzChars(xP)
+	end
+
+	#==
+
+	func @TheseStzChars(xP)
+		return TheseStzChars(xP)
+	end
+	func @EachOfTheseStzChars(xP)
+		return TheseStzChars(xP)
+	end
+	func @EachOneOfTheseStzChars(xP)
+		return TheseStzChars(xP)
+	end
+	func @AllTheseStzChars(xP)
+		return TheseStzChars(xP)
+	end
+	func @AllOfTheseStzChars(xP)
+		return TheseStzChars(xP)
+	end
+	#>
+
+func TheseStzStrings(xP)
+	$bThese = true
+	$bTheseQ = false
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	nLen = Len(xP)
+	voResult = []
+
+	for i = 1 to nLen
+		if IsObject(xP[i]) and IsStzString(xP[i])
+			voResult + xP[i]
+		end
+	end
+
+	return voResult
+end
+	# Must be reset to FALSE everytime TheseStzStrings() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzStrings(xP)
+		return TheseStzStrings(xP)
+	end
+	func EachOneOfTheseStzStrings(xP)
+		return TheseStzStrings(xP)
+	end
+	func AllTheseStzStrings(xP)
+		return TheseStzStrings(xP)
+	end
+	func AllOfTheseStzStrings(xP)
+		return TheseStzStrings(xP)
+	end
+
+	#==
+
+	func @TheseStzStrings(xP)
+		return TheseStzStrings(xP)
+	end
+	func @EachOfTheseStzStrings(xP)
+		return TheseStzStrings(xP)
+	end
+	func @EachOneOfTheseStzStrings(xP)
+		return TheseStzStrings(xP)
+	end
+	func @AllTheseStzStrings(xP)
+		return TheseStzStrings(xP)
+	end
+	func @AllOfTheseStzStrings(xP)
+		return TheseStzStrings(xP)
+	end
+	#>
+
+func TheseStzLists(xP)
+	$bThese = true
+	$bTheseQ = false
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	nLen = Len(xP)
+	voResult = []
+
+	for i = 1 to nLen
+		if IsObject(xP[i]) and IsStzlist(xP[i])
+			voResult + xP[i]
+		end
+	end
+
+	return voResult
+end
+	# Must be reset to FALSE everytime TheseStzLists() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzLists(xP)
+		return TheseStzLists(xP)
+	end
+	func EachOneOfTheseStzLists(xP)
+		return TheseStzLists(xP)
+	end
+	func AllTheseStzLists(xP)
+		return TheseStzLists(xP)
+	end
+	func AllOfTheseStzLists(xP)
+		return TheseStzLists(xP)
+	end
+
+	#==
+
+	func @TheseStzLists(xP)
+		return TheseStzLists(xP)
+	end
+	func @EachOfTheseStzLists(xP)
+		return TheseStzLists(xP)
+	end
+	func @EachOneOfTheseStzLists(xP)
+		return TheseStzLists(xP)
+	end
+	func @AllTheseStzLists(xP)
+		return TheseStzLists(xP)
+	end
+	func @AllOfTheseStzLists(xP)
+		return TheseStzLists(xP)
+	end
+	#>
+
+func TheseStzObjects(xP)
+	$bThese = true
+	$bTheseQ = false
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	nLen = Len(xP)
+	voResult = []
+
+	for i = 1 to nLen
+		if IsObject(xP[i]) and IsStzObject(xP[i])
+			voResult + xP[i]
+		end
+	end
+
+	return voResult
+end
+	# Must be reset to FALSE everytime TheseStzObjects() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzObjects(xP)
+		return TheseStzObjects(xP)
+	end
+	func EachOneOfTheseStzObjects(xP)
+		return TheseStzObjects(xP)
+	end
+	func AllTheseStzObjects(xP)
+		return TheseStzObjects(xP)
+	end
+	func AllOfTheseStzObjects(xP)
+		return TheseStzObjects(xP)
+	end
+
+	#==
+
+	func @TheseStzObjects(xP)
+		return TheseStzObjects(xP)
+	end
+	func @EachOfTheseStzObjects(xP)
+		return TheseStzObjects(xP)
+	end
+	func @EachOneOfTheseStzObjects(xP)
+		return TheseStzObjects(xP)
+	end
+	func @AllTheseStzObjects(xP)
+		return TheseStzObjects(xP)
+	end
+	func @AllOfTheseStzObjects(xP)
+		return TheseStzObjects(xP)
+	end
+	#>
+
+#---
+
+func TheseQ(xP)
+
+	# Used in the fellowing situation:
+	#  ? Q([ 1, 2, "x", 3, "y" ]) - TheseQ([ "x", "y"]) #--> Q([ 1, 2, 3 ])
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	$bTheseQ = true
+	$bThese = false
+
+	return xP
+end
+	# _bTheseQ Must be reset to FALSE everytime These() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseQ(xP)
+		return TheseQ(xP)
+	end
+	func EachOneOfTheseQ(xP)
+		return TheseQ(xP)
+	end
+	func EachItemOfTheseQ(xP)
+		return TheseQ(xP)
+	end
+	func AllTheseQ(xP)
+		return TheseQ(xP)
+	end
+	func AllOfTheseQ(xP)
+		return TheseQ(xP)
+	end
+	#--
+
+	func TheseItemsQ(xP)
+		return TheseQ(xP)
+	end
+	func EachOfTheseItemsQ(xP)
+		return TheseQ(xP)
+	end
+	func EachOneOfTheseItemsQ(xP)
+		return TheseQ(xP)
+	end
+	func AllTheseItemsQ(xP)
+		return TheseQ(xP)
+	end
+	func AllOfTheseItemsQ(xP)
+		return TheseQ(xP)
+	end
+	#--
+
+	func EachInQ(xP)
+		return TheseQ(xP)
+	end
+	func EachItemInQ(xP)
+		return TheseQ(xP)
+	end
+	#==
+
+	func @TheseQ(xP)
+		return TheseQ(xP)
+	end
+	func @EachOfTheseQ(xP)
+		return TheseQ(xP)
+	end
+	func @EachOneOfTheseQ(xP)
+		return TheseQ(xP)
+	end
+	func @EachItemOfTheseQ(xP)
+		return TheseQ(xP)
+	end
+	func @AllTheseQ(xP)
+		return TheseQ(xP)
+	end
+	func @AllOfTheseQ(xP)
+		return TheseQ(xP)
+	end
+	#--
+
+	func @TheseItemsQ(xP)
+		return TheseQ(xP)
+	end
+	func @EachOfTheseItemsQ(xP)
+		return TheseQ(xP)
+	end
+	func @EachOneOfTheseItemsQ(xP)
+		return TheseQ(xP)
+	end
+	func @AllTheseItemsQ(xP)
+		return TheseQ(xP)
+	end
+	func @AllOfTheseItemsQ(xP)
+		return TheseQ(xP)
+	end
+	#--
+
+	func @EachInQ(xP)
+		return TheseQ(xP)
+	end
+	func @EachItemInQ(xP)
+		return TheseQ(xP)
+	end
+	#>
+
+func TheseNumbersQ(xP)
+	
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	$bTheseQ = true
+	$bThese = false
+
+	nLen = Len(xP)
+	viResult = []
+
+	for i = 1 to nLen
+		if IsNumber(xP[i])
+			viResult + xP[i]
+		end
+	end
+
+	return new stzListOfNumbers(viResult)
+end
+	# _bTheseQ Must be reset to FALSE everytime TheseNumbers() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseNumbersQ(xP)
+		return TheseNumbersQ(xP)
+	end
+	func EachOneOfTheseNumbersQ(xP)
+		return TheseNumbersQ(xP)
+	end
+	func AllTheseNumbersQ(xP)
+		return TheseNumbersQ(xP)
+	end
+	func AllOfTheseNumbersQ(xP)
+		return TheseNumbersQ(xP)
+	end
+	#==
+
+	func @TheseNumbersQ(xP)
+		return TheseNumbersQ(xP)
+	end
+	func @EachOfTheseNumbersQ(xP)
+		return TheseNumbersQ(xP)
+	end
+	func @EachOneOfTheseNumbersQ(xP)
+		return TheseNumbersQ(xP)
+	end
+	func @AllTheseNumbersQ(xP)
+		return TheseNumbersQ(xP)
+	end
+	func @AllOfTheseNumbersQ(xP)
+		return TheseNumbersQ(xP)
+	end
+	#>
+
+func TheseCharsQ(xP)
+	
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	$bTheseQ = true
+	$bThese = false
+
+	nLen = Len(xP)
+	vtResult = []
+
+	for i = 1 to nLen
+		if IsString(xP[i])
+			vtResult + xP[i]
+		end
+	end
+
+	return new stzListOfChars(vtResult)
+end
+	# _bTheseQ Must be reset to FALSE everytime TheseChars() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseCharsQ(xP)
+		return TheseCharsQ(xP)
+	end
+	func EachOneOfTheseCharsQ(xP)
+		return TheseCharsQ(xP)
+	end
+	func AllTheseCharsQ(xP)
+		return TheseCharsQ(xP)
+	end
+	func AllOfTheseCharsQ(xP)
+		return TheseCharsQ(xP)
+	end
+	#==
+
+	func @TheseCharsQ(xP)
+		return TheseCharsQ(xP)
+	end
+	func @EachOfTheseCharsQ(xP)
+		return TheseCharsQ(xP)
+	end
+	func @EachOneOfTheseCharsQ(xP)
+		return TheseCharsQ(xP)
+	end
+	func @AllTheseCharsQ(xP)
+		return TheseCharsQ(xP)
+	end
+	func @AllOfTheseCharsQ(xP)
+		return TheseCharsQ(xP)
+	end
+	#>
+
+func TheseStringsQ(xP)
+	
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	$bTheseQ = true
+	$bThese = false
+
+	nLen = Len(xP)
+	vtResult = []
+
+	for i = 1 to nLen
+		if IsString(xP[i])
+			vtResult + xP[i]
+		end
+	end
+
+	return new stzListOfstrings(vtResult)
+end
+	# _bTheseQ Must be reset to FALSE everytime TheseStrings() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStringsQ(xP)
+		return TheseStringsQ(xP)
+	end
+	func EachOneOfTheseStringsQ(xP)
+		return TheseStringsQ(xP)
+	end
+	func AllTheseStringsQ(xP)
+		return TheseStringsQ(xP)
+	end
+	func AllOfTheseStringsQ(xP)
+		return TheseStringsQ(xP)
+	end
+	#==
+
+	func @TheseStringsQ(xP)
+		return TheseStringsQ(xP)
+	end
+	func @EachOfTheseStringsQ(xP)
+		return TheseStringsQ(xP)
+	end
+	func @EachOneOfTheseStringsQ(xP)
+		return TheseStringsQ(xP)
+	end
+	func @AllTheseStringsQ(xP)
+		return TheseStringsQ(xP)
+	end
+	func @AllOfTheseStringsQ(xP)
+		return TheseStringsQ(xP)
+	end
+	#>
+
+func TheseListsQ(xP)
+	
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	$bTheseQ = true
+	$bThese = false
+
+	nLen = Len(xP)
+	xResult = []
+
+	for i = 1 to nLen
+		if IsString(xP[i])
+			xResult + xP[i]
+		end
+	end
+
+	return new stzListOfLists(xResult)
+end
+	# _bTheseQ Must be reset to FALSE everytime TheseLists() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseListsQ(xP)
+		return TheseListsQ(xP)
+	end
+	func EachOneOfTheseListsQ(xP)
+		return TheseListsQ(xP)
+	end
+	func AllTheseListsQ(xP)
+		return TheseListsQ(xP)
+	end
+	func AllOfTheseListsQ(xP)
+		return TheseListsQ(xP)
+	end
+	#==
+
+	func @TheseListsQ(xP)
+		return TheseListsQ(xP)
+	end
+	func @EachOfTheseListsQ(xP)
+		return TheseListsQ(xP)
+	end
+	func @EachOneOfTheseListsQ(xP)
+		return TheseListsQ(xP)
+	end
+	func @AllTheseListsQ(xP)
+		return TheseListsQ(xP)
+	end
+	func @AllOfTheseListsQ(xP)
+		return TheseListsQ(xP)
+	end
+	#>
+
+func TheseObjectsQ(xP)
+	
+	if CheckingParams()
+		if not IsObject(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	$bTheseQ = true
+	$bThese = false
+
+	nLen = Len(xP)
+	voResult = []
+
+	for i = 1 to nLen
+		if IsObject(xP[i])
+			voResult + xP[i]
+		end
+	end
+
+	return new stzListOfObjects(voResult)
+end
+	# _bTheseQ Must be reset to FALSE everytime TheseObjects() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseObjectsQ(xP)
+		return TheseObjectsQ(xP)
+	end
+	func EachOneOfTheseObjectsQ(xP)
+		return TheseObjectsQ(xP)
+	end
+	func AllTheseObjectsQ(xP)
+		return TheseObjectsQ(xP)
+	end
+	func AllOfTheseObjectsQ(xP)
+		return TheseObjectsQ(xP)
+	end
+	#==
+
+	func @TheseObjectsQ(xP)
+		return TheseObjectsQ(xP)
+	end
+	func @EachOfTheseObjectsQ(xP)
+		return TheseObjectsQ(xP)
+	end
+	func @EachOneOfTheseObjectsQ(xP)
+		return TheseObjectsQ(xP)
+	end
+	func @AllTheseObjectsQ(xP)
+		return TheseObjectsQ(xP)
+	end
+	func @AllOfTheseObjectsQ(xP)
+		return TheseObjectsQ(xP)
+	end
+	#>
+
+func TheseStzNumbersQ(xP)
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	$bTheseQ = true
+	$bThese = false
+
+	nLen = Len(xP)
+	voResult = []
+
+	for i = 1 to nLen
+		if IsObject(xP[i]) and IsStzNumber(xP[i])
+			voResult + xP[i]
+		end
+	end
+
+	return new stzListOfNumbers(voResult)
+end
+	# _bTheseQ Must be reset to FALSE everytime TheseStzNumbers() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzNumbersQ(xP)
+		return TheseStzNumbersQ(xP)
+	end
+	func EachOneOfTheseStzNumbersQ(xP)
+		return TheseStzNumbersQ(xP)
+	end
+	func AllTheseStzNumbersQ(xP)
+		return TheseStzNumbersQ(xP)
+	end
+	func AllOfTheseStzNumbersQ(xP)
+		return TheseStzNumbersQ(xP)
+	end
+	#==
+
+	func @TheseStzNumbersQ(xP)
+		return TheseStzNumbersQ(xP)
+	end
+	func @EachOfTheseStzNumbersQ(xP)
+		return TheseStzNumbers(xP)
+	end
+	func @EachOneOfTheseStzNumbersQ(xP)
+		return TheseStzNumbersQ(xP)
+	end
+	func @AllTheseStzNumbersQ(xP)
+		return TheseStzNumbersQ(xP)
+	end
+	func @AllOfTheseStzNumbersQ(xP)
+		return TheseStzNumbersQ(xP)
+	end
+	#>
+
+func TheseStzCharsQ(xP)
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	$bTheseQ = true
+	$bThese = false
+
+	nLen = Len(xP)
+	voResult = []
+
+	for i = 1 to nLen
+		if IsObject(xP[i]) and IsStzchar(xP[i])
+			voResult + xP[i]
+		end
+	end
+
+	return voResult
+end
+	# _bTheseQ Must be reset to FALSE everytime TheseStzChars() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzCharsQ(xP)
+		return TheseStzCharsQ(xP)
+	end
+	func EachOneOfTheseStzCharsQ(xP)
+		return TheseStzCharsQ(xP)
+	end
+	func AllTheseStzCharsQ(xP)
+		return TheseStzCharsQ(xP)
+	end
+	func AllOfTheseStzCharsQ(xP)
+		return TheseStzCharsQ(xP)
+	end
+	#==
+
+	func @TheseStzCharsQ(xP)
+		return TheseStzCharsQ(xP)
+	end
+	func @EachOfTheseStzCharsQ(xP)
+		return TheseStzCharsQ(xP)
+	end
+	func @EachOneOfTheseStzCharsQ(xP)
+		return TheseStzCharsQ(xP)
+	end
+	func @AllTheseStzCharsQ(xP)
+		return TheseStzCharsQ(xP)
+	end
+	func @AllOfTheseStzCharsQ(xP)
+		return TheseStzCharsQ(xP)
+	end
+	#>
+
+func TheseStzStringsQ(xP)
+	
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	$bTheseQ = true
+	$bThese = false
+
+	nLen = Len(xP)
+	voResult = []
+
+	for i = 1 to nLen
+		if IsObject(xP[i]) and IsStzString(xP[i])
+			voResult + xP[i]
+		end
+	end
+
+	return new stzListOfstrings(voResult)
+end
+	# Must be reset to FALSE everytime TheseStzStrings() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzStringsQ(xP)
+		return TheseStzStringsQ(xP)
+	end
+	func EachOneOfTheseStzStringsQ(xP)
+		return TheseStzStringsQ(xP)
+	end
+	func AllTheseStzStringsQ(xP)
+		return TheseStzStringsQ(xP)
+	end
+	func AllOfTheseStzStringsQ(xP)
+		return TheseStzStringsQ(xP)
+	end
+	#==
+
+	func @TheseStzStringsQ(xP)
+		return TheseStzStringsQ(xP)
+	end
+	func @EachOfTheseStzStringsQ(xP)
+		return TheseStzStringsQ(xP)
+	end
+	func @EachOneOfTheseStzStringsQ(xP)
+		return TheseStzStringsQ(xP)
+	end
+	func @AllTheseStzStringsQ(xP)
+		return TheseStzStringsQ(xP)
+	end
+	func @AllOfTheseStzStringsQ(xP)
+		return TheseStzStringsQ(xP)
+	end
+	#>
+
+func TheseStzListsQ(xP)
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	$bTheseQ = true
+	$bThese = false
+
+	nLen = Len(xP)
+	voResult = []
+
+	for i = 1 to nLen
+		if IsObject(xP[i]) and IsStzlist(xP[i])
+			voResult + xP[i]
+		end
+	end
+
+	return new stzListOfLists(voResult)
+end
+	# _bTheseQ Must be reset to FALSE everytime TheseStzLists() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzListsQ(xP)
+		return TheseStzListsQ(xP)
+	end
+	func EachOneOfTheseStzListsQ(xP)
+		return TheseStzListsQ(xP)
+	end
+	func AllTheseStzListsQ(xP)
+		return TheseStzListsQ(xP)
+	end
+	func AllOfTheseStzListsQ(xP)
+		return TheseStzListsQ(xP)
+	end
+	#==
+
+	func @TheseStzListsQ(xP)
+		return TheseStzListsQ(xP)
+	end
+	func @EachOfTheseStzListsQ(xP)
+		return TheseStzListsQ(xP)
+	end
+	func @EachOneOfTheseStzListsQ(xP)
+		return TheseStzListsQ(xP)
+	end
+	func @AllTheseStzListsQ(xP)
+		return TheseStzListsQ(xP)
+	end
+	func @AllOfTheseStzListsQ(xP)
+		return TheseStzListsQ(xP)
+	end
+	#>
+
+func TheseStzObjectsQ(xP)
+
+	if CheckingParams()
+		if not IsList(xP)
+			StzRaise("Incorrect param type! p must be a list.")
+		end
+	end
+
+	$bTheseQ = true
+	$bThese = false
+
+	nLen = Len(xP)
+	voResult = []
+
+	for i = 1 to nLen
+		if IsObject(xP[i]) and IsStzObject(xP[i])
+			voResult + xP[i]
+		end
+	end
+
+	return new stzListOfObjects(voResult)
+end
+	# _bTheseQ = 1 must be reset to FALSE everytime TheseStzObjects() is used.
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzObjectsQ(xP)
+		return TheseStzObjectsQ(xP)
+	end
+	func EachOneOfTheseStzObjectsQ(xP)
+		return TheseStzObjectsQ(xP)
+	end
+	func AllTheseStzObjectsQ(xP)
+		return TheseStzObjectsQ(xP)
+	end
+	func AllOfTheseStzObjectsQ(xP)
+		return TheseStzObjectsQ(xP)
+	end
+
+	#==
+
+	func @TheseStzObjectsQ(xP)
+		return TheseStzObjectsQ(xP)
+	end
+	func @EachOfTheseStzObjectsQ(xP)
+		return TheseStzObjectsQ(xP)
+	end
+	func @EachOneOfTheseStzObjectsQ(xP)
+		return TheseStzObjectsQ(xP)
+	end
+	func @AllTheseStzObjectsQ(xP)
+		return TheseStzObjectsQ(xP)
+	end
+	func @AllOfTheseStzObjectsQ(xP)
+		return TheseStzObjectsQ(xP)
+	end
+	#>
+
+
+#===
+
+func @ForEach(xP, pxIn)
+	/* EXAMPLES -- the loop body is a function of the item's VALUES (Haro runs no text as code)
+
+	@ForEach( :Item, :In = [ "a", "b", "c" ] ) { X(func item { ? item }) }
+	#--> "a"
+	#--> "b"
+	#--> "c"
+
+	? ""
+
+	@ForEach( :Char, :In = "ABC" ) { X(func c { ? c }) }
+	#--> "A"
+	#--> "B"
+	#--> "C"
+
+	? ""
+
+	@ForEach( [ :Char, :Number ], :In = [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ] ) { X(func c, n { ? c + n }) }
+	#--> "A1"
+	#--> "B2"
+	#--> "C3'
+
+	*/
+
+	return new stzForEachObject(xP, pxIn)
+end
+
+# Setting the param checking state at the global level
+# --> Useful to decativate it when your functions are used
+# in large loops where performance gains are criticial!
+# --> In this case, you deactivate param checking inside
+# functions, and if you need it, do it by yourself outside teh loop/
+
+	#< @FunctionAlternatives
+
+	func SetCheckParamTo(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+	end
+	func SetCheckingParamTo(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+	end
+	#--
+
+	func SetParamsCheckTo(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+	end
+	func SetParamsCheckingTo(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+	end
+	func SetCheckParamsTo(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+	end
+	func SetCheckingParamsTo(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+	end
+	#==
+
+	func SetParamChecking(bTrueOrFalse)
+		if IsList(bTrueOrFalse) and Q(bTrueOrFalse).IsToNamedParam()
+			bTrueOrFalse = bTrueOrFalse[2]
+		end
+
+		SetParamCheckingTo(bTrueOrFalse)
+	end
+	func SetCheckParam(bTrueOrFalse)
+		SetParamChecking(bTrueOrFalse)
+	end
+	func SetCheckingParam(bTrueOrFalse)
+		SetParamChecking(bTrueOrFalse)
+	end
+	#--
+
+	func SetParamsCheck(bTrueOrFalse)
+		SetParamChecking(bTrueOrFalse)
+	end
+	func SetParamsChecking(bTrueOrFalse)
+		SetParamCheckingTo(bTrueOrFalse)
+	end
+	func SetCheckParams(bTrueOrFalse)
+		SetParamChecking(bTrueOrFalse)
+	end
+	func SetCheckingParams(bTrueOrFalse)
+		SetParamChecking(bTrueOrFalse)
+	end
+	#>
+
+func StzActivateParamChecking
+	$bParamCheck = true
+end
+	func ActivateParamChecking
+		StzActivateParamChecking()
+	end
+	func ActivateParamCheck
+		StzActivateParamChecking()
+	end
+	func ActivateParamsChecking
+		ActivateParamChecking()
+	end
+	func ActivateParamsCheck
+		ActivateParamChecking()
+	end
+	#--
+
+	func EnableParamCheck
+		DesactivateParamChecking()
+	end
+	func EnableParamsChecking
+		DesactivateParamChecking()
+	end
+	func EnableParamsCheck
+		DesactivateParamChecking()
+	end
+	#--
+
+	func CheckParamOn
+		ActivateParamChecking()
+	end
+	func ParamCheckOn
+		ActivateParamChecking()
+	end
+	func CheckParamsOn
+		ActivateParamChecking()
+	end
+	func ParamsCheckOn
+		ActivateParamChecking()
+	end
+	#>
+
+func StzDesactivateParamChecking
+	$bParamCheck = false
+end
+	func DesactivateParamChecking
+		StzDesactivateParamChecking()
+	end
+	#< @FunctionAlternativeForms
+
+	func DesactivateParamCheck
+		DesactivateParamChecking()
+	end
+	func DeasctivateParamsChecking
+		DesactivateParamChecking()
+	end
+	func DesactivateParamsCheck
+		DesactivateParamChecking()
+	end
+	#--
+
+	func DisableParamCheck
+		DesactivateParamChecking()
+	end
+	func DisableParamsChecking
+		DesactivateParamChecking()
+	end
+	func DisableParamsCheck
+		DesactivateParamChecking()
+	end
+	#--
+
+	func CheckParamOff
+		DesactivateParamChecking()
+	end
+	func ParamCheckOff
+		DesactivateParamChecking()
+	end
+	func CheckParamsOff
+		DesactivateParamChecking()
+	end
+	func ParamsCheckOff
+		DesactivateParamChecking()
+	end
+	#>
+
+func StzParamChecking
+	return $bParamCheck
+end
+	func ParamChecking
+		return StzParamChecking()
+	end
+	#< @FunctionAlternativeForms
+
+	func ParamsChecking
+		return $bParamCheck
+	end
+	func ParamCheck
+		return $bParamCheck
+	end
+	func ParamsCheck
+		return $bParamCheck
+	end
+	# NOTE: CheckParam(pValue, p2, p3) is defined in stznamedparams_engine.ring
+	# The 0-arg alias was removed to avoid Ring's redefinition error.
+
+	func CheckingParam
+		return $bParamCheck
+	end
+	func CheckParams
+		return $bParamCheck
+	end
+	#>
+
+	#< @FunctionMisspelledForms
+	# Forgetting the "c" in "Check"
+
+	func ParamCheking
+		return $bParamCheck
+	end
+	func ParamsCheking
+		return $bParamCheck
+	end
+	func ParamChek
+		return $bParamCheck
+	end
+	func ParamsChek
+		return $bParamCheck
+	end
+	func ChekParam
+		return $bParamCheck
+	end
+	func ChekingParam
+		return $bParamCheck
+	end
+	func ChekParams
+		return $bParamCheck
+	end
+	func ChekingParams
+		return $bParamCheck
+	end
+	func ChekcParams
+		return $bParamCheck
+	end
+	#>
+
+#-- VizFind* default wrap width (columns). The visuals split a too-wide render
+#-- into successive lines this wide. Read it with DefaultVizWidth(); change it
+#-- globally with SetVizWidth(80). A width < 1 restores the 50-column default.
+
+func DefaultVizWidth
+	return $nVizWidth
+end
+	func VizWidth
+		return $nVizWidth
+	end
+	func GetVizWidth
+		return $nVizWidth
+	end
+func SetVizWidth(xN)
+	if IsList(xN) and Len(xN) = 2 and IsString(xN[1])
+		xN = xN[2]
+	end
+	if not IsNumber(xN)
+		StzRaise("Can't set the Viz width! n must be a number.")
+	end
+	xN = Floor(xN)
+	if xN < 1
+		xN = 50
+	end
+	$nVizWidth = xN
+	return $nVizWidth
+end
+	func SetVizWidthTo(xN)
+		return SetVizWidth(xN)
+	end
+	func SetDefaultVizWidth(xN)
+		return SetVizWidth(xN)
+	end
+func ResetVizWidth
+	$nVizWidth = 50
+	return $nVizWidth
+end
+#--
+
+func StzEarlyCheck
+	return $bEarlyCheck
+end
+	func EarlyCheck
+		return StzEarlyCheck()
+	end
+	func EarlyChecks
+		return StzEarlyCheck()
+	end
+func StzEarlyCheckOn
+	$bEarlyCheck = true
+end
+	func EarlyCheckOn
+		StzEarlyCheckOn()
+	end
+	func ActivateEarlyCheck
+		$bEarlyCheck = true
+	end
+	func EarlyChecksOn
+		$bEarlyCheck = true
+	end
+	func ActivateEarlyChecks
+		$bEarlyCheck = true
+	end
+func StzEarlyCheckOff
+	$bEarlyCheck = false
+end
+	func EarlyCheckOff
+		StzEarlyCheckOff()
+	end
+	func DeactivateEarlyCheck
+		StzEarlyCheckOff()
+	end
+	func EarlyChecksOff
+		StzEarlyCheckOff()
+	end
+	func DectivateEarlyChecks
+		StzEarlyCheckOff()
+	end
+func StzSetEarlyCheck(xB)
+	if CheckingParams()
+		if not (IsNumber(xB) and (xB = 0 or xB = 1) )
+			StzRaise("Incorrect param! b must be a boolean (1 or FALSE).")
+		end
+	end
+
+	$bEarlyCheck = xB
+end
+	func SetEarlyCheck(xB)
+		StzSetEarlyCheck(xB)
+	end
+	func SetEarlyCheckTo(xB)
+		StzSetEarlyCheck(xB)
+	end
+	func SetEarlyChecks(xB)
+		StzSetEarlyCheck(xB)
+	end
+	func SetEarlyChecksTo(xB)
+		StzSetEarlyCheck(xB)
+	end
+#--
+
+func StzStartingAt(xP)
+	if IsNumber(xP)
+		return xP
+
+	elseif IsString(xP)
+		xP = StzLower(xP)
+
+		if xP = :first
+			return 1
+
+		elseif xP = :Last
+			# do nothing
+
+		else
+			StzRaise("Incorrect param type! p, when it is a string, must be a equal to :First or :Last")
+		end
+
+	elseif IsList(xP)
+		if Len(xP) = 2 and Q(xP).IsStartingAtNamedParam()
+			return xP[2]
+
+		else
+			StzRaise("Incorrect param! p, when it is a list, must be a named param of the form :StartingAt = number.")
+		end
+	end
+
+	StzRaise("Incorrect param type! p must be string or a list containing a named param.")
+end
+	func StartingAt(xP)
+		return StzStartingAt(xP)
+	end
+	func @StartingAt(xP)
+		return StzStartingAt(xP)
+	end
+func StzStoppingAt(xP)
+	if IsNumber(xP)
+		return xP
+
+	elseif IsString(xP)
+		xP = StzLower(xP)
+
+		if xP = :first
+			return 1
+
+		elseif xP = :Last
+			# do nothing
+
+		else
+			StzRaise("Incorrect param type! p, when it is a string, must be a equal to :First or :Last")
+		end
+
+	elseif IsList(xP)
+		if Len(xP) = 2 and Q(xP).IsStoppingAtNamedParam()
+			return xP[2]
+
+		else
+			StzRaise("Incorrect param! p, when it is a list, must be a named param of the form :StoppingAt = number.")
+		end
+	end
+
+	StzRaise("Incorrect param type! p must be string or a list containing a named param.")
+end
+	func StoppingAt(xP)
+		return StzStoppingAt(xP)
+	end
+	func @StoppingAt(xP)
+		return StzStoppingAt(xP)
+	end
+	func EndingAt(xP)
+		return StzStoppingAt(xP)
+	end
+	func @EndingAt(xP)
+		return StzStoppingAt(xP)
+	end
+#==
+
+func StzBounds(pxBounds)
+
+	if not ( IsString(pxBounds) or ( IsList(pxBounds) and Len(pxBounds) = 2 and IsString(pxBounds[1]) ) )
+			StzRaise("Incorrect param type! pBounds must be a string or a list of two strings.")
+	end
+
+	if IsString(pxBounds)
+		return [ pxBounds, pxBounds ]
+	end
+
+	# Now, pBounds is a list of two items where 1st item is a string
+
+	xP1 = pxBounds[1]
+	xP2 = pxBounds[2]
+
+	if IsList(xP2) and IsAndNamedParamList(xP2)
+		xP2 = xP2[2]
+	end
+
+	if not IsString(xP2)
+		StzRaise("Incorrect param type! The second item of pBounds must be also a string.")
+	end
+
+	return [ xP1, xP2 ]
+end
+	func Bounds(pxBounds)
+		return StzBounds(pxBounds)
+	end
+	func @Bounds(pxBounds)
+		return StzBounds(pxBounds)
+	end
+#--
+
+func StzDirection(xP)
+	if IsString(xP)
+
+		xP = StzLower(xP)
+
+		if xP = :Forward or xP = :Backward
+			return xP
+
+		else
+			StzRaise("Incorrect param! p must be a string containing :Forward or :Backward.")
+		end
+
+	elseif IsList(xP)
+		if Len(xP) = 2 and Q(xP).IsDirectionOrGoingNamedParam()
+			return xP[2]
+
+		else
+			StzRaise("Incorrect param! p must be a named param containing :Forward or :Backward.")
+		end
+
+	end
+
+	StzRaise("Incorrect param type! p must be string or a list containing a named param.")
+end
+	func Direction(xP)
+		return StzDirection(xP)
+	end
+	func @Direction(xP)
+		return StzDirection(xP)
+	end
+#--
+
+
+func StzIsCaseSensitive(xP)
+
+	if (IsNumber(xP) and xP = 1) or
+	   (IsList(xP) and Q(xP).IsCaseSensitiveNamedParam() and xP[2] = 1)
+
+		return true
+
+	elseif (IsNumber(xP) and xP = 0) or
+	   (IsList(xP) and Q(xP).IsCaseSensitiveNamedParam() and xP[2] = 0)
+
+		return false
+
+	else
+		StzRaise("Incorrect param! p must be 1 or FALSE.")
+	end
+end
+	func IsCaseSensitive(xP)
+		return StzIsCaseSensitive(xP)
+	end
+	func @IsCaseSensitive(xP)
+		return StzIsCaseSensitive(xP)
+	end
+func StzCaseSensitive(xP)
+
+	if Type(xP) = "BOOLEAN"
+		return xP
+
+	elseif IsNumber(xP)
+		if xP = 1
+			return true
+		elseif xP = 0
+			return false
+		end
+
+	elseif IsList(xP) and IsCaseSensitiveNamedParamList(xP)
+		xP = xP[2]
+
+		if Type(xP) = "BOOLEAN"
+			return xP
+		end
+		if IsNumber(xP)
+			if xP = 1
+				return true
+			elseif xP = 0
+				return false
+			end
+		end
+
+	else
+		StzRaise("Incorrect param type! p must be a bolean (1 or FALSE).")
+	end
+end
+	func CaseSensitive(xP)
+		return StzCaseSensitive(xP)
+	end
+	func @CaseSensitive(xP)
+		return StzCaseSensitive(xP)
+	end
+#--
+
+func StzKeywords
+	return $vtStzCCKeywords
+end
+	func StzCCodeKeywords
+		return StzKeywords()
+	end
+	func StzConditionalCodeKeywords
+		return StzKeywords()
+	end
+func StzASpace
+	return StzNSpaces(1)
+end
+	func ASpace
+		return StzASpace()
+	end
+	func SingleSpace
+		return StzASpace()
+	end
+	func BlankSpace
+		return StzASpace()
+	end
+	func OneSpace
+		return StzASpace()
+	end
+func StzDoubleSpace
+	return StzNSpaces(2)
+end
+	func DoubleSpace
+		return StzDoubleSpace()
+	end
+	func DoubleBlankSpace
+		return StzDoubleSpace()
+	end
+func StzNSpaces(xN)
+	return Copy(" ", xN)
+end
+	func NSpaces(xN)
+		return StzNSpaces(xN)
+	end
+	func NBlankSpaces(xN)
+		return StzNSpaces(xN)
+	end
+func StzQuietEqualityRatio
+	return $nQuietEqualityRatio
+end
+	func QuietEqualityRatio
+		return StzQuietEqualityRatio()
+	end
+	func ApproximateEqualityRatio
+		return StzQuietEqualityRatio()
+	end
+	func ApproximativeEqualityRatio
+		return StzQuietEqualityRatio()
+	end
+func StzSetQuietEqualityRatio(xN)
+	if not IsNumber(xN)
+		StzRaise("Incorrect param type! n must be a number.")
+	end
+
+	if xN >= 0 and xN <= 1
+		$nQuietEqualityRatio = xN
+	end
+end
+	func SetQuietEqualityRatio(xN)
+		StzSetQuietEqualityRatio(xN)
+	end
+	func SetApproximateEqualityRatio(xN)
+		StzSetQuietEqualityRatio(xN)
+	end
+	func SetApproximativeEqualityRation(xN)
+		StzSetQuietEqualityRatio(xN)
+	end
+func StzRingTypes
+	return $vRingTypes
+end
+	func RingTypes
+		return StzRingTypes()
+	end
+func StzRingFunctions
+	return $vtRingFunctions
+end
+	func RingFunctions
+		return StzRingFunctions()
+	end
+func StzRingKeywords
+	return vtRingKeywords()
+end
+	func RingKeywords
+		return StzRingKeywords()
+	end
+func StzRaise(pxMessage)
+	/*
+	WARNING: Do not use StzRaise to raise errors here
+	--> Stackoverflow!
+
+	Hence, this is the unique place in the library
+	where we use the native ring raise() function.
+
+	*/
+
+	if not ( IsString(pxMessage) or IsList(pxMessage) )
+
+		Raise("Error in StzRaise param type!" + Char(10))
+	end
+
+	if IsString(pxMessage)
+		Raise(pxMessage + Char(10))
+	end
+
+	# The hash form: a list of [key, value] pairs with keys among
+	# :Where / :What / :Why / :Todo.
+	bRaiseHash = false
+	if IsList(pxMessage) and Len(pxMessage) > 0
+		bRaiseHash = true
+		for iRhk = 1 to Len(pxMessage)
+			if not ( IsList(pxMessage[iRhk]) and Len(pxMessage[iRhk]) = 2 and
+			         IsString(pxMessage[iRhk][1]) and
+			         ring_find([ "where", "what", "why", "todo" ],
+			                   Lower(pxMessage[iRhk][1])) > 0 )
+				bRaiseHash = false
+				exit
+			end
+		end
+	end
+	if bRaiseHash
+		tWhere = pxMessage[ :Where  ]
+		tWhat  = pxMessage[ :What   ]
+		tWhy   = pxMessage[ :Why    ]
+		tTodo  = pxMessage[ :Todo   ]
+
+	
+
+		if not IsListOfStrings([ tWhere, tWhat, tWhy, tTodo ])
+			Raise("Error in StzRaise param type!")
+		end
+	
+		tFile = StzReplace(tWhere, " ", "")
+		if IsEmpty(tWhere)
+			Raise("Error in StzRaise --> Where the error happened!")
+		end
+	
+		tWhat = StringSimplified(tWhat)
+		xCwhay = StringSimplified(tWhy)
+		tTodo = StringSimplified(tTodo)
+	
+		tErrorMsg = "in file " + pxMessage[:Where] + ":" + Char(10)
+	
+		if tWhat != ""
+			tErrorMsg += "   What : " + pxMessage[:What] + Char(10)
+		end
+	
+		if tWhy != ""
+			tErrorMsg += "   Why  : " + pxMessage[:Why]  + Char(10)
+		end
+	
+		if tTodo != ""
+			tErrorMsg += "   Todo : " + pxMessage[:Todo] + Char(10)
+		end
+
+		Raise(tErrorMsg)
+	else
+		Raise("Error in StzRaise > Incorrect param type!")
+	end
+end
+	#< @FunctionMisspelledForm >
+
+	func StzRais(pxMessage)
+		return StzRaise(pxMessage)
+	end
+	func SzRaise(pxMessage)
+		return StzRaise(pxMessage)
+	end
+	#>
+
+#-----
+
+func StzIsClassName(tStr)
+	if CheckingParams()
+		if not IsString(tStr)
+			StzRaise("Incorrect param type! cStr must be a string.")
+		end
+	end
+
+	bResult = Find( ClassesNames(), tStr)
+	return bResult
+end
+	func IsClassName(tStr)
+		return StzIsClassName(tStr)
+	end
+	func @IsClassName(pxStr)
+		return StzIsClassName(pxStr)
+	end
+	func IsAClassName(pxStr)
+		return StzIsClassName(pxStr)
+	end
+func StzIsPackageName(tStr)
+	if CheckingParams()
+		if not IsString(tStr)
+			StzRaise("Incorrect param type! cStr must be a string.")
+		end
+	end
+
+	bResult = Find( Packages(), StzLower(tStr))
+	return bResult
+end
+	func IsPackageName(tStr)
+		return StzIsPackageName(tStr)
+	end
+	func @IsPackageName(tStr)
+		return StzIsPackageName(tStr)
+	end
+	func IsAPackageName(tStr)
+		return StzIsPackageName(tStr)
+	end
+	func @IsAPackageName(tStr)
+		return StzIsPackageName(tStr)
+	end
+
+func StzVars
+	return Globals()
+end
+	func Vars
+		return StzVars()
+	end
+#----
+
+func StzFindCS(pxThing, pxIn, pxCaseSensitive)
+
+	# :In marks the HAYSTACK and is natural only AFTER the needle:
+	# StzFind(needle, :In = haystack) == "find needle in haystack".
+	if IsList(pxIn) and StzIsInNamedParamList(pxIn)
+		pxIn = pxIn[2]
+	end
+
+	# String haystack -> ONE engine call for ALL positions.
+	#
+	# This was a Ring loop calling FindFirstFrom once per hit, which was
+	# wrong twice over:
+	#
+	#   OVERLAPPING. It advanced by the needle's LENGTH after each hit, so
+	#   StzFindCS("aa", "aaaa") answered [1, 3] while the class surface,
+	#   stzString("aaaa").Find("aa"), answered [1, 2, 3]. Two spellings of
+	#   one operation disagreeing. Overlapping is the Softanza behaviour
+	#   (see the BoundedBy family, which relies on it), so the global was
+	#   the outlier -- the engine primitive had it right all along.
+	#
+	#   COST. n matches meant n crossings, and each call re-resolved its
+	#   start position, which made collecting all occurrences quadratic.
+	#
+	# str_find_cs walks the string ONCE, counting codepoints incrementally,
+	# and hands back every position. Both problems are the same fix.
+	if IsString(pxIn) and IsString(pxThing) and pxThing != ""
+		bCase = CaseSensitive(pxCaseSensitive)
+		xH = StzEngineString(pxIn)
+		# THE DRAIN STAYS HERE, and only here -- measured, not assumed.
+		#
+		# stzString.FindCS uses the bulk StzEngineStringFindPositionsCS and is
+		# 1.40x faster for it, because it holds a PERSISTENT @pEngine and can
+		# `return <bulk call>` with nothing in between. This function cannot:
+		# its handle is temporary and must be freed before returning, which
+		# forces `_a_ = bulk(...)` / free / `return _a_` -- and that
+		# intermediate assignment copies the whole list. The in-place drain
+		# below builds the list once and copies it once.
+		#
+		# Same operation, opposite answers, for a reason that is entirely
+		# about handle LIFETIME rather than about find:
+		#
+		#     class  (persistent handle)  361 -> 258 ms   bulk WINS 1.40x
+		#     global (temp handle)        237 -> 325 ms   bulk LOSES 1.37x
+		#
+		# 5 runs each; the first 2-run reading of this was noise in both
+		# directions and said the opposite for the class.
+		xFcRes = StzEngineStringFindCS(xH, pxThing, StzBoolAsNumber(bCase))
+		xResult = []
+		nFcCount = StzEngineFindResultCount(xFcRes)
+		for nFcI = 1 to nFcCount
+			xResult + StzEngineFindResultGet(xFcRes, nFcI)
+		end
+		StzEngineFindResultFree(xFcRes)
+		StzEngineStringFree(xH)
+		return xResult
+	end
+
+	# Canonical (needle, haystack): list haystack -> engine-backed find-all
+	# (stzList.FindCS routes to the Zig stz_list_find_cs / *_string_cs / *_int
+	# / *_held_cs paths -- O(n) with no per-item Ring stringify).
+	if IsList(pxIn)
+		return StzListQ(pxIn).FindCS(pxThing, CaseSensitive(pxCaseSensitive))
+	end
+
+	# Backward-compat (haystack, needle) for list-first callers:
+	# pThing is the list, paIn the item -> find paIn in pThing (engine-backed).
+	if IsList(pxThing)
+		return StzListQ(pxThing).FindCS(pxIn, CaseSensitive(pxCaseSensitive))
+	end
+
+	return []
+end
+# StzFindFirstCS / StzFindFirst -- the FIRST position only (single number, 0 if
+# not found). This is the COMPATIBILITY surface preserving the historical
+# (polymorphic) StzFind behavior exactly, so callers renamed from StzFind keep
+# working unchanged:
+#   - StzFindFirst(item, list)        -> find item in list   (needle, haystack)
+#   - StzFindFirst(list, item)        -> find item in list   (haystack, needle)
+#   - StzFindFirst(haystackStr, sub)  -> find sub in haystack (two-string: p1 is
+#                                        the haystack, p2 the needle).
+# The canonical StzFind / StzFindCS instead return the full LIST of positions of
+# the NEEDLE (first arg) in the HAYSTACK (second arg).
+func StzFindFirstCS(xP1, xP2, pxCaseSensitive)
+
+	# Natural :In form -- StzFindFirst(needle, :In = haystack) -- resolves via
+	# the canonical StzFindCS and takes the first hit. (:In before the needle is
+	# not natural language and is not supported.) The legacy positional behavior
+	# below handles the no-:In calls.
+	if IsList(xP2) and StzIsInNamedParamList(xP2)
+		xFfPos = StzFindCS(xP1, xP2, pxCaseSensitive)
+		if IsList(xFfPos) and Len(xFfPos) > 0 return xFfPos[1] end
+		return 0
+	end
+
+	# p2 is a list -> find p1 in p2. Route through the engine (StzFindCS) so a
+	# LIST needle is matched structurally (Ring's "=" does not deep-compare lists).
+	if IsList(xP2)
+		xFfPos = StzFindCS(xP1, xP2, pxCaseSensitive)
+		if IsList(xFfPos) and Len(xFfPos) > 0 return xFfPos[1] end
+		return 0
+	end
+
+	# p1 is a list -> find p2 in p1 (backward-compat haystack-first). Engine-backed
+	# too, so a LIST needle (p2) is matched structurally.
+	if IsList(xP1)
+		xFfPos = StzFindCS(xP2, xP1, pxCaseSensitive)
+		if IsList(xFfPos) and Len(xFfPos) > 0 return xFfPos[1] end
+		return 0
+	end
+
+	# Both strings -> find p1 (needle/substr) in p2 (container), NEEDLE-FIRST,
+	# matching StzFind/StzFindCS and the library-wide (item/substr, container)
+	# convention. (Historically this path was haystack-first -- swapped 2026-07-18
+	# together with a library-wide caller migration.)
+	if IsString(xP1) and IsString(xP2) and xP1 != ""
+		bCase = CaseSensitive(pxCaseSensitive)
+		xH = StzEngineString(xP2)
+		nPos = StzEngineStringFindFirstFromCS(xH, xP1, 1, StzBoolAsNumber(bCase))
+		StzEngineStringFree(xH)
+		if nPos > 0 return nPos end
+	end
+
+	return 0
+end
+	func @StzFindFirstCS(xP1, xP2, pxCaseSensitive)
+		return StzFindFirstCS(xP1, xP2, pxCaseSensitive)
+	end
+func StzFindFirst(pxThing, pxIn)
+	return StzFindFirstCS(pxThing, pxIn, 1)
+end
+	func @StzFindFirst(pxThing, pxIn)
+		return StzFindFirst(pxThing, pxIn)
+	end
+# StzFindLast / StzFindNth -- same (pSubStrOrItem, pStrOrList) convention as
+# StzFindFirst: the substring/item to find comes FIRST, the container (a string
+# or a list) SECOND. The container may also be written [ :In, container ] for
+# expressiveness. They delegate to the canonical StzFindCS (all positions).
+
+func StzFindLastCS(pxSubStrOrItem, pxStrOrList, pxCaseSensitive)
+	xPos = StzFindCS(pxSubStrOrItem, pxStrOrList, pxCaseSensitive)
+	if IsList(xPos) and Len(xPos) > 0
+		return xPos[ Len(xPos) ]
+	end
+	return 0
+end
+	func @StzFindLastCS(pxSubStrOrItem, pxStrOrList, pxCaseSensitive)
+		return StzFindLastCS(pxSubStrOrItem, pxStrOrList, pxCaseSensitive)
+	end
+func StzFindLast(pxSubStrOrItem, pxStrOrList)
+	return StzFindLastCS(pxSubStrOrItem, pxStrOrList, 1)
+end
+	func @StzFindLast(pxSubStrOrItem, pxStrOrList)
+		return StzFindLast(pxSubStrOrItem, pxStrOrList)
+	end
+func StzFindNthCS(pxSubStrOrItem, pxStrOrList, xN, pxCaseSensitive)
+	if not IsNumber(xN) return 0 end
+	xPos = StzFindCS(pxSubStrOrItem, pxStrOrList, pxCaseSensitive)
+	if IsList(xPos) and xN >= 1 and Len(xPos) >= xN
+		return xPos[ xN ]
+	end
+	return 0
+end
+	func @StzFindNthCS(pxSubStrOrItem, pxStrOrList, xN, pxCaseSensitive)
+		return StzFindNthCS(pxSubStrOrItem, pxStrOrList, xN, pxCaseSensitive)
+	end
+func StzFindNth(pxSubStrOrItem, pxStrOrList, xN)
+	return StzFindNthCS(pxSubStrOrItem, pxStrOrList, xN, 1)
+end
+	func @StzFindNth(pxSubStrOrItem, pxStrOrList, xN)
+		return StzFindNth(pxSubStrOrItem, pxStrOrList, xN)
+	end
+# StzFind / StzFindCS ALWAYS return the LIST of all positions of pThing (needle)
+# in paIn (haystack), or an empty list if not found. Engine-backed; works for
+# string and list haystacks. For a single position use StzFindFirst.
+func StzFind(pxThing, pxIn)
+	return StzFindCS(pxThing, pxIn, 1)
+end
+	func @StzFind(pxThing, pxIn)
+		return StzFind(pxThing, pxIn)
+	end
+/*
+func StzFind(p1, p2)
+	if isList(p1)
+		return StzListQ(p1).Find(p2)
+	ok
+
+	# Named param support: StzFind(x, [:in, list])
+	if isList(p2) and len(p2) = 2 and isString(p2[1]) and p2[1] = :in
+		p2 = p2[2]
+	ok
+
+	# Case 1: p2 is a list -> find p1 in p2
+	if isList(p2)
+		nSfLen = len(p2)
+		for _nSfI_ = 1 to nSfLen
+			if p2[_nSfI_] = p1
+				return _nSfI_
+			ok
+		next
+		return 0
+	ok
+
+	# Case 2: p1 is a list -> find p2 in p1 (backward compat with stzGraph etc.)
+	if isList(p1)
+		nSfLen = len(p1)
+		for _nSfI_ = 1 to nSfLen
+			if p1[_nSfI_] = p2
+				return _nSfI_
+			ok
+		next
+		return 0
+	ok
+
+	# Case 3: Both strings -> find p2 as substring in p1
+	if isString(p1) and isString(p2)
+		hSfH = StzEngineString(p1)
+		nSfPos = StzEngineStringFindFirstFromCS(hSfH, p2, 1, 1)
+		StzEngineStringFree(hSfH)
+		if nSfPos > 0
+			return nSfPos
+		ok
+		return 0
+	ok
+
+	return 0
+*/
+
+#-----
+
+func StzIsNumberOrNumberInString(xP)
+	if IsNumber(xP) or IsNumberInString(xP)
+		return true
+	else
+		return false
+	end
+end
+	func IsNumberOrNumberInString(xP)
+		return StzIsNumberOrNumberInString(xP)
+	end
+	func @IsNumberOrNumberInString(xP)
+		return StzIsNumberOrNumberInString(xP)
+	end
+	func IsNumberInStringOrNumber(xP)
+		return StzIsNumberOrNumberInString(xP)
+	end
+	func @IsNumberInStringOrNumber(xP)
+		return StzIsNumberOrNumberInString(xP)
+	end
+func StzIsNumberOrString(xP)
+	if IsNumber(xP) or IsString(xP)
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func IsNumberOrString(xP)
+		return StzIsNumberOrString(xP)
+	end
+	func IsStringOrNumber(xP)
+		return StzIsNumberOrString(xP)
+	end
+	func @IsNumberOrString(xP)
+		return StzIsNumberOrString(xP)
+	end
+	func @IsStringOrNumber(xP)
+		return StzIsNumberOrString(xP)
+	end
+	func IsANumberOrString(xP)
+		return StzIsNumberOrString(xP)
+	end
+	func IsANumberOrAString(xP)
+		return StzIsNumberOrString(xP)
+	end
+	func IsAStringOrNumber(xP)
+		return StzIsNumberOrString(xP)
+	end
+	func IsAStringOrANumber(xP)
+		return StzIsNumberOrString(xP)
+	end
+	func @IsANumberOrString(xP)
+		return StzIsNumberOrString(xP)
+	end
+	func @IsANumberOrAString(xP)
+		return StzIsNumberOrString(xP)
+	end
+	func @IsAStringOrNumber(xP)
+		return StzIsNumberOrString(xP)
+	end
+	func @IsAStringOrANumber(xP)
+		return StzIsNumberOrString(xP)
+	end
+	#>
+
+func StzIsNumberOrList(xP)
+	if IsNumber(xP) or IsList(xP)
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func IsNumberOrList(xP)
+		return StzIsNumberOrList(xP)
+	end
+	func IsListOrNumber(xP)
+		return StzIsNumberOrList(xP)
+	end
+	func @IsNumberOrList(xP)
+		return StzIsNumberOrList(xP)
+	end
+	func @IsListOrNumber(xP)
+		return StzIsNumberOrList(xP)
+	end
+	func IsANumberOrList(xP)
+		return StzIsNumberOrList(xP)
+	end
+	func IsANumberOrAList(xP)
+		return StzIsNumberOrList(xP)
+	end
+	func IsAListOrNumber(xP)
+		return StzIsNumberOrList(xP)
+	end
+	func IsAListOrANumber(xP)
+		return StzIsNumberOrList(xP)
+	end
+	func @IsANumberOrList(xP)
+		return StzIsNumberOrList(xP)
+	end
+	func @IsANumberOrAList(xP)
+		return StzIsNumberOrList(xP)
+	end
+	func @IsAListOrNumber(xP)
+		return StzIsNumberOrList(xP)
+	end
+	func @IsAListOrANumber(xP)
+		return StzIsNumberOrList(xP)
+	end
+	#>
+
+func StzIsNumberOrObject(xP)
+	if IsNumber(xP) or IsObject(xP)
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func IsNumberOrObject(xP)
+		return StzIsNumberOrObject(xP)
+	end
+	func IsObjectOrNumber(xP)
+		return StzIsNumberOrObject(xP)
+	end
+	func @IsNumberOrSObject(xP)
+		return StzIsNumberOrObject(xP)
+	end
+	func @IsObjectOrNumber(xP)
+		return StzIsNumberOrObject(xP)
+	end
+	func IsANumberOrObject(xP)
+		return StzIsNumberOrObject(xP)
+	end
+	func IsANumberOrAObject(xP)
+		return StzIsNumberOrObject(xP)
+	end
+	func IsAObjectOrNumber(xP)
+		return StzIsNumberOrObject(xP)
+	end
+	func IsAObjectOrANumber(xP)
+		return StzIsNumberOrObject(xP)
+	end
+	func @IsANumberOrObject(xP)
+		return StzIsNumberOrObject(xP)
+	end
+	func @IsANumberOrAObject(xP)
+		return StzIsNumberOrObject(xP)
+	end
+	func @IsAObjectOrNumber(xP)
+		return StzIsNumberOrObject(xP)
+	end
+	func @IsAObjectOrANumber(xP)
+		return StzIsNumberOrObject(xP)
+	end
+	#>
+
+func StzIsStringOrList(xP)
+	if IsString(xP) or IsList(xP)
+		return true
+	else
+		return false
+	end
+end
+	func IsStringOrList(xP)
+		return StzIsStringOrList(xP)
+	end
+	func IsListOrString(xP)
+		return StzIsStringOrList(xP)
+	end
+	func @IsStringOrList(xP)
+		return StzIsStringOrList(xP)
+	end
+	func @IsListOrString(xP)
+		return StzIsStringOrList(xP)
+	end
+func StzIsStringOrListOfStrings(xP)
+	if IsString(xP) or IsListOfStrings(xP)
+		return true
+	else
+		return false
+	end
+end
+	func IsStringOrListOfStrings(xP)
+		return StzIsStringOrListOfStrings(xP)
+	end
+	func IsListOfStringsOrString(xP)
+		return StzIsStringOrListOfStrings(xP)
+	end
+	func @IsStringOrListOfStrings(xP)
+		return StzIsStringOrListOfStrings(xP)
+	end
+	func @IsListOfStringsOrString(xP)
+		return StzIsStringOrListOfStrings(xP)
+	end
+func StzIsStringOrObject(xP)
+	if IsString(xP) or IsObject(xP)
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func IsStringOrObject(xP)
+		return StzIsStringOrObject(xP)
+	end
+	func IsObjectOrString(xP)
+		return StzIsStringOrObject(xP)
+	end
+	func @IsStringOrObject(xP)
+		return StzIsStringOrObject(xP)
+	end
+	func @IsObjectOrString(xP)
+		return StzIsStringOrObject(xP)
+	end
+	func IsAStringOrObject(xP)
+		return StzIsStringOrObject(xP)
+	end
+	func IsAStringOrAObject(xP)
+		return StzIsStringOrObject(xP)
+	end
+	func IsAObjectOrString(xP)
+		return StzIsStringOrObject(xP)
+	end
+	func IsAObjectOrAString(xP)
+		return StzIsStringOrObject(xP)
+	end
+	func @IsAStringOrObject(xP)
+		return StzIsStringOrObject(xP)
+	end
+	func @IsAStringOrAObject(xP)
+		return StzIsStringOrObject(xP)
+	end
+	func @IsAObjectOrString(xP)
+		return StzIsStringOrObject(xP)
+	end
+	func @IsAObjectOrAString(xP)
+		return StzIsStringOrObject(xP)
+	end
+	#>
+
+func StzIsListOrObject(xP)
+	if IsList(xP) or IsObject(xP)
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func IsListOrObject(xP)
+		return StzIsListOrObject(xP)
+	end
+	func IsObjectOrList(xP)
+		return StzIsListOrObject(xP)
+	end
+	func @IsListOrObject(xP)
+		return StzIsListOrObject(xP)
+	end
+	func @IsObjectOrList(xP)
+		return StzIsListOrObject(xP)
+	end
+	func IsAListOrObject(xP)
+		return StzIsListOrObject(xP)
+	end
+	func IsAListOrAObject(xP)
+		return StzIsListOrObject(xP)
+	end
+	func IsAObjectOrList(xP)
+		return StzIsListOrObject(xP)
+	end
+	func IsAObjectOrAList(xP)
+		return StzIsListOrObject(xP)
+	end
+	func @IsAListOrObject(xP)
+		return StzIsListOrObject(xP)
+	end
+	func @IsAListOrAObject(xP)
+		return StzIsListOrObject(xP)
+	end
+	func @IsAObjectOrList(xP)
+		return StzIsListOrObject(xP)
+	end
+	func @IsAObjectOrAList(xP)
+		return StzIsListOrObject(xP)
+	end
+	#>
+
+func StzIsNumberOrStringOrList(xP)
+	if IsNumber(xP) or IsString(xP) or IsList(xP)
+		return true
+	else
+		return false
+	end
+end
+	#<@FunctionAlternativeForms
+
+	func IsNumberOrStringOrList(xP)
+		return StzIsNumberOrStringOrList(xP)
+	end
+	func IsNumberOrListOrString(xP)
+		return StzIsNumberOrStringOrList(xP)
+	end
+	func IsStringOrNumberOrList(xP)
+		return StzIsNumberOrStringOrList(xP)
+	end
+	func IsStringOrListOrNumber(xP)
+		return StzIsNumberOrStringOrList(xP)
+	end
+	func IsListOrNumberOrString(xP)
+		return StzIsNumberOrStringOrList(xP)
+	end
+	func IsListOrStringOrNumber(xP)
+		return StzIsNumberOrStringOrList(xP)
+	end
+	func @IsNumberOrStringOrList(xP)
+		return StzIsNumberOrStringOrList(xP)
+	end
+	func @IsNumberOrListOrString(xP)
+		return StzIsNumberOrStringOrList(xP)
+	end
+	func @IsStringOrNumberOrList(xP)
+		return StzIsNumberOrStringOrList(xP)
+	end
+	func @IsStringOrListOrNumber(xP)
+		return StzIsNumberOrStringOrList(xP)
+	end
+	func @IsListOrNumberOrString(xP)
+		return StzIsNumberOrStringOrList(xP)
+	end
+	func @IsListOrStringOrNumber(xP)
+		return StzIsNumberOrStringOrList(xP)
+	end
+	#>
+
+#--
+
+func StzIsCharOrNumber(xP)
+	if IsNumber(xP) or IsChar(xP)
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func IsCharOrNumber(xP)
+		return StzIsCharOrNumber(xP)
+	end
+	func IsNumberOrChar(xP)
+		return StzIsCharOrNumber(xP)
+	end
+	func @IsCharOrNumber(xP)
+		return StzIsCharOrNumber(xP)
+	end
+	func @IsNumberOrChar(xP)
+		return StzIsCharOrNumber(xP)
+	end
+	func IsACharOrNumber(xP)
+		return StzIsCharOrNumber(xP)
+	end
+	func IsACharOrANumber(xP)
+		return StzIsCharOrNumber(xP)
+	end
+	func IsANumberOrChar(xP)
+		return StzIsCharOrNumber(xP)
+	end
+	func IsANumberOrAChar(xP)
+		return StzIsCharOrNumber(xP)
+	end
+	func @IsACharOrNumber(xP)
+		return StzIsCharOrNumber(xP)
+	end
+	func @IsACharOrANumber(xP)
+		return StzIsCharOrNumber(xP)
+	end
+	func @IsANumberOrChar(xP)
+		return StzIsCharOrNumber(xP)
+	end
+	func @IsANumberOrAChar(xP)
+		return StzIsCharOrNumber(xP)
+	end
+	#>
+
+func StzIsCharOrString(xP)
+	if IsString(xP)
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func IsCharOrString(xP)
+		return StzIsCharOrString(xP)
+	end
+	func IsStringOrChar(xP)
+		return StzIsCharOrString(xP)
+	end
+	func @IsCharOrString(xP)
+		return StzIsCharOrString(xP)
+	end
+	func @IsStringOrChar(xP)
+		return StzIsCharOrString(xP)
+	end
+	func IsACharOrString(xP)
+		return StzIsCharOrString(xP)
+	end
+	func IsACharOrAString(xP)
+		return StzIsCharOrString(xP)
+	end
+	func IsAStringOrChar(xP)
+		return StzIsCharOrString(xP)
+	end
+	func IsAStringOrAChar(xP)
+		return StzIsCharOrString(xP)
+	end
+	func @IsACharOrString(xP)
+		return StzIsCharOrString(xP)
+	end
+	func @IsACharOrAString(xP)
+		return StzIsCharOrString(xP)
+	end
+	func @IsAStringOrChar(xP)
+		return StzIsCharOrString(xP)
+	end
+	func @IsAStringOrAChar(xP)
+		return StzIsCharOrString(xP)
+	end
+	#>
+
+func StzIsCharOrList(xP)
+	if IsList(xP) or IsChar(xP)
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func IsCharOrList(xP)
+		return StzIsCharOrList(xP)
+	end
+	func IsListOrChar(xP)
+		return StzIsCharOrList(xP)
+	end
+	func @IsCharOrList(xP)
+		return StzIsCharOrList(xP)
+	end
+	func @IsListOrChar(xP)
+		return StzIsCharOrList(xP)
+	end
+	func IsACharOrList(xP)
+		return StzIsCharOrList(xP)
+	end
+	func IsACharOrAList(xP)
+		return StzIsCharOrList(xP)
+	end
+	func IsAListOrChar(xP)
+		return StzIsCharOrList(xP)
+	end
+	func IsAListOrAChar(xP)
+		return StzIsCharOrList(xP)
+	end
+	func @IsACharOrList(xP)
+		return StzIsCharOrList(xP)
+	end
+	func @IsACharOrAList(xP)
+		return StzIsCharOrList(xP)
+	end
+	func @IsAListOrChar(xP)
+		return StzIsCharOrList(xP)
+	end
+	func @IsAListOrAChar(xP)
+		return StzIsCharOrList(xP)
+	end
+	#>
+
+func StzIsCharOrObject(xP)
+	if IsObject(xP) or IsChar(xP)
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func IsCharOrObject(xP)
+		return StzIsCharOrObject(xP)
+	end
+	func IsObjectOrChar(xP)
+		return StzIsCharOrObject(xP)
+	end
+	func @IsCharOrObject(xP)
+		return StzIsCharOrObject(xP)
+	end
+	func @IsObjectOrChar(xP)
+		return StzIsCharOrObject(xP)
+	end
+	func IsACharOrObject(xP)
+		return StzIsCharOrObject(xP)
+	end
+	func IsACharOrAObject(xP)
+		return StzIsCharOrObject(xP)
+	end
+	func IsAObjectOrChar(xP)
+		return StzIsCharOrObject(xP)
+	end
+	func IsAObjectOrAChar(xP)
+		return StzIsCharOrObject(xP)
+	end
+	func @IsACharOrObject(xP)
+		return StzIsCharOrObject(xP)
+	end
+	func @IsACharOrAObject(xP)
+		return StzIsCharOrObject(xP)
+	end
+	func @IsAObjectOrChar(xP)
+		return StzIsCharOrObject(xP)
+	end
+	func @IsAObjectOrAChar(xP)
+		return StzIsCharOrObject(xP)
+	end
+	#>
+
+#--
+
+func StzListOfListsOfStzTypes #TODO // complete the list
+	return [
+		:stzListOfObjects,
+		:stzListOfNumbers,
+		:stzListOfUnicodes,
+		:stzListOfStrings,
+		:stzListOfBytes,
+		:stzListOfChars,
+		:stzListOfHashLists,
+		:stzListOfLists,
+		:stzListOfPairs,
+		:stzListOfSets,
+		:stzListOfEntities
+	]
+end
+	func ListOfListsOfStzTypes
+		return StzListOfListsOfStzTypes()
+	end
+func StzBothAreNumbers(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	if IsNumber(xP1) and IsNumber(xP2)
+		return true
+	else
+		return false
+	end
+end
+	func BothAreNumbers(xP1, xP2)
+		return StzBothAreNumbers(xP1, xP2)
+	end
+	func AreBothNumbers(xP1, xP2)
+		return StzBothAreNumbers(xP1, xP2)
+	end
+	func @BothAreNumbers(xP1, xP2)
+		return StzBothAreNumbers(xP1, xP2)
+	end
+	func @AreBothNumbers(xP1, xP2)
+		return StzBothAreNumbers(xP1, xP2)
+	end
+func StzBothAreNumbersInStrings(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	if IsString(xP1) and IsString(xP2) and
+	   Q(xP1).IsNumberInString() and
+	   Q(xP2).IsNumberInString()
+
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func BothAreNumbersInStrings(xP1, xP2)
+		return StzBothAreNumbersInStrings(xP1, xP2)
+	end
+	func AreBothNumbersInStrings(xP1, xP2)
+		return StzBothAreNumbersInStrings(xP1, xP2)
+	end
+	func @BothAreNumbersInStrings(xP1, xP2)
+		return StzBothAreNumbersInStrings(xP1, xP2)
+	end
+	func @AreBothNumbersInStrings(xP1, xP2)
+		return StzBothAreNumbersInStrings(xP1, xP2)
+	end
+	#--
+
+	func BothAreNumbersInString(xP1, xP2)
+		return StzBothAreNumbersInStrings(xP1, xP2)
+	end
+	func AreBothNumbersInString(xP1, xP2)
+		return StzBothAreNumbersInStrings(xP1, xP2)
+	end
+	func @BothAreNumbersInString(xP1, xP2)
+		return StzBothAreNumbersInStrings(xP1, xP2)
+	end
+	func @AreBothNumbersInString(xP1, xP2)
+		return StzBothAreNumbersInStrings(xP1, xP2)
+	end
+	#>
+
+func StzBothAreIntegers(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	if IsNumber(xP1) and IsNumber(xP2) and Q(xP1).IsInteger() and Q(xP2).IsInteger()
+		return true
+	else
+		return false
+	end
+end
+	func BothAreIntegers(xP1, xP2)
+		return StzBothAreIntegers(xP1, xP2)
+	end
+	func AreBothIntegers(xP1, xP2)
+		return StzBothAreIntegers(xP1, xP2)
+	end
+	func @BothAreIntegers(xP1, xP2)
+		return StzBothAreIntegers(xP1, xP2)
+	end
+	func @AreBothIntegers(xP1, xP2)
+		return StzBothAreIntegers(xP1, xP2)
+	end
+func StzBothAreIntegersInStrings(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	if IsString(xP1) and IsString(xP2) and
+	   Q(xP1).IsIntegerInString() and Q(xP2).IsIntegerInString()
+
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func BothAreIntegersInStrings(xP1, xP2)
+		return StzBothAreIntegersInStrings(xP1, xP2)
+	end
+	func AreBothIntegersInStrings(xP1, xP2)
+		return StzBothAreIntegersInStrings(xP1, xP2)
+	end
+	func @BothAreIntegersInStrings(xP1, xP2)
+		return StzBothAreIntegersInStrings(xP1, xP2)
+	end
+	func @AreBothIntegersInStrings(xP1, xP2)
+		return StzBothAreIntegersInStrings(xP1, xP2)
+	end
+	#--
+
+	func BothAreIntegersInString(xP1, xP2)
+		return StzBothAreIntegersInStrings(xP1, xP2)
+	end
+	func AreBothIntegersInString(xP1, xP2)
+		return StzBothAreIntegersInStrings(xP1, xP2)
+	end
+	func @BothAreIntegersInString(xP1, xP2)
+		return StzBothAreIntegersInStrings(xP1, xP2)
+	end
+	func @AreBothIntegersInString(xP1, xP2)
+		return StzBothAreIntegersInStrings(xP1, xP2)
+	end
+	#>
+
+func StzBothAreReals(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	if IsNumber(xP1) and IsNumber(xP2) and Q(xP1).IsReal() and Q(xP2).IsReal()
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func BothAreReals(xP1, xP2)
+		return StzBothAreReals(xP1, xP2)
+	end
+	func AreBothReals(xP1, xP2)
+		return StzBothAreReals(xP1, xP2)
+	end
+	func @BothAreReals(xP1, xP2)
+		return StzBothAreReals(xP1, xP2)
+	end
+	func @AreBothReals(xP1, xP2)
+		return StzBothAreReals(xP1, xP2)
+	end
+	#--
+
+	func BothAreRealNumbers(xP1, xP2)
+		return StzBothAreReals(xP1, xP2)
+	end
+	func AreBothRealNumbers(xP1, xP2)
+		return StzBothAreReals(xP1, xP2)
+	end
+	func @BothAreRealNumbers(xP1, xP2)
+		return StzBothAreReals(xP1, xP2)
+	end
+	func @AreBothRealNumbers(xP1, xP2)
+		return StzBothAreReals(xP1, xP2)
+	end
+	#>
+
+func StzBothAreRealsInStrings(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	if IsString(xP1) and IsString(xP2) and
+	   Q(xP1).IsRealInString() and Q(xP2).IsRealInString()
+
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func BothAreRealsInStrings(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	func AreBothRealsInStrings(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	func @BothAreRealsInStrings(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	func @AreBothRealsInStrings(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	#--
+
+	func BothAreRealsInString(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	func AreBothRealsInString(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	func @BothAreRealsInString(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	func @AreBothRealsInString(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	#==
+
+	func BothAreRealInString(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	func AreBothRealInString(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	func @BothAreRealInString(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	func @AreBothRealInString(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	#--
+
+	func BothAreRealInStrings(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	func AreBothRealInStrings(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	func @BothAreRealInStrings(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	func @AreBothRealInStrings(xP1, xP2)
+		return StzBothAreRealsInStrings(xP1, xP2)
+	end
+	#>
+
+func StzBothArePairsOfNumbers(xP1, xP2)
+	if BothAreLists(xP1, xP2) and
+	   IsList(xP1) and Q(xP1).IsPairOfNumbers() and
+	   IsList(xP2) and Q(xP2).IsPairOfNumbers()
+
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func BothArePairsOfNumbers(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func AreBothPairsOfNumbers(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func @BothArePairsOfNumbers(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func @AreBothPairsOfNumbers(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func BothArePairOfNumbers(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func AreBothPairOfNumbers(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func @BothArePairOfNumbers(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func @AreBothPairOfNumbers(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func BothArePairOfNumber(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func AreBothPairOfNumber(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func @BothArePairOfNumber(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func @AreBothPairOfNumber(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func BothArePairsOfNumber(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func AreBothPairsOfNumber(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func @BothArePairsOfNumber(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	func @AreBothPairsOfNumber(xP1, xP2)
+		return StzBothArePairsOfNumbers(xP1, xP2)
+	end
+	#>
+
+func StzBothArePairsOfStrings(xP1, xP2)
+	if BothAreLists(xP1, xP2) and
+	   IsList(xP1) and Q(xP1).IsPairOfStrings() and
+	   IsList(xP2) and Q(xP2).IsPairOfStrings()
+
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func BothArePairsOfStrings(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func AreBothPairsOfStrings(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func @BothArePairsOfStrings(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func @AreBothPairsOfStrings(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func BothArePairOfStrings(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func AreBothPairOfStrings(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func @BothArePairOfStrings(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func @AreBothPairOfStrings(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func BothArePairOfString(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func AreBothPairOfString(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func @BothArePairOfString(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func @AreBothPairOfString(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func BothArePairsOfString(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func AreBothPairsOfString(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func @BothArePairsOfString(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	func @AreBothPairsOfString(xP1, xP2)
+		return StzBothArePairsOfStrings(xP1, xP2)
+	end
+	#>
+
+func StzBothArePairsOfLists(xP1, xP2)
+	if BothAreLists(xP1, xP2) and
+	   IsList(xP1) and Q(xP1).IsPairOfLists() and
+	   IsList(xP2) and Q(xP2).IsPairOfLists()
+
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func BothArePairsOfLists(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func AreBothPairsOfLists(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func @BothArePairsOfLists(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func @AreBothPairsOfLists(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func BothArePairOfLists(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func AreBothPairOfLists(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func @BothArePairOfLists(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func @AreBothPairOfLists(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func BothArePairOfList(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func AreBothPairOfList(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func @BothArePairOfList(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func @AreBothPairOfList(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func BothArePairsOfList(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func AreBothPairsOfList(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func @BothArePairsOfList(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	func @AreBothPairsOfList(xP1, xP2)
+		return StzBothArePairsOfLists(xP1, xP2)
+	end
+	#>
+
+func StzBothArePairsOfObjects(xP1, xP2)
+	if BothAreLists(xP1, xP2) and
+	   IsList(xP1) and Q(xP1).IsPairOfObjects() and
+	   IsList(xP2) and Q(xP2).IsPairOfObjects()
+
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func BothArePairsOfObjects(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func AreBothPairsOfObjects(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func @BothArePairsOfObjects(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func @AreBothPairsOfObjects(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func BothArePairOfObjects(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func AreBothPairOfObjects(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func @BothArePairOfObjects(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func @AreBothPairOfObjects(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func BothArePairOfObject(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func AreBothPairOfObject(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func @BothArePairOfObject(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func @AreBothPairOfObject(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func BothArePairsOfObject(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func AreBothPairsOfObject(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func @BothArePairsOfObject(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	func @AreBothPairsOfObject(xP1, xP2)
+		return StzBothArePairsOfObjects(xP1, xP2)
+	end
+	#>
+
+func StzBothAreCharsInComputableForm(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	bResult = false
+
+	if BothAreStringsInComputableForm(xP1, xP2)
+		tC1 = '"'
+		tC2 = "'"
+
+		tClean1 = StzReplace(StzReplace(xP1, tC1, ""), tC2, "")
+		bOk1 = (Len(tClean1) = 1)
+		tClean2 = StzReplace(StzReplace(xP2, tC1, ""), tC2, "")
+		bOk2 = (Len(tClean2) = 1)
+
+		if bOk1 and bOk2
+			bResult = true
+		end
+	end
+
+	return bResult
+end
+	func BothAreCharsInComputableForm(xP1, xP2)
+		return StzBothAreCharsInComputableForm(xP1, xP2)
+	end
+	func AreBothCharsInComputableForm(xP1, xP2)
+		return StzBothAreCharsInComputableForm(xP1, xP2)
+	end
+	func @BothAreCharsInComputableForm(xP1, xP2)
+		return StzBothAreCharsInComputableForm(xP1, xP2)
+	end
+	func @AreBothCharsInComputableForm(xP1, xP2)
+		return StzBothAreCharsInComputableForm(xP1, xP2)
+	end
+func StzBothAreStringsInComputableForm(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	tC1 = '"'
+	tC2 = "'"
+
+	if BothAreStrings(xP1, xP2) and
+
+	   ( ( Q(xP1).FirstChar() = tC1 and Q(xP1).LastChar() = tC1 ) or
+	     ( Q(xP1).LastChar()  = tC2 and Q(xP1).LastChar() = tC2 ) ) and
+
+	   ( ( Q(xP2).FirstChar() = tC1 and Q(xP2).LastChar() = tC1 ) or
+	     ( Q(xP2).LastChar()  = tC2 and Q(xP2).LastChar() = tC2 ) )
+
+		return true
+
+	else
+		return false
+	end
+end
+	func BothAreStringsInComputableForm(xP1, xP2)
+		return StzBothAreStringsInComputableForm(xP1, xP2)
+	end
+	func AreBothStringsInComputableForm(xP1, xP2)
+		return StzBothAreStringsInComputableForm(xP1, xP2)
+	end
+	func @BothAreStringsInComputableForm(xP1, xP2)
+		return StzBothAreStringsInComputableForm(xP1, xP2)
+	end
+	func @AreBothStringsInComputableForm(xP1, xP2)
+		return StzBothAreStringsInComputableForm(xP1, xP2)
+	end
+func StzBothAreStzNumbers(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	if IsStzNumber(xP1) and IsStzNumber(xP2)
+		return true
+	else
+		return false
+	end
+end
+	func BothAreStzNumbers(xP1, xP2)
+		return StzBothAreStzNumbers(xP1, xP2)
+	end
+	func AreBothStzNumbers(xP1, xP2)
+		return StzBothAreStzNumbers(xP1, xP2)
+	end
+	func @BothAreStzNumbers(xP1, xP2)
+		return StzBothAreStzNumbers(xP1, xP2)
+	end
+	func @AreBothStzNumbers(xP1, xP2)
+		return StzBothAreStzNumbers(xP1, xP2)
+	end
+func StzBothAreStrings(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	if IsString(xP1) and IsString(xP2)
+		return true
+	else
+		return false
+	end
+end
+	func BothAreStrings(xP1, xP2)
+		return StzBothAreStrings(xP1, xP2)
+	end
+	func AreBothStrings(xP1, xP2)
+		return StzBothAreStrings(xP1, xP2)
+	end
+	func @BothAreStrings(xP1, xP2)
+		return StzBothAreStrings(xP1, xP2)
+	end
+	func @AreBothStrings(xP1, xP2)
+		return StzBothAreStrings(xP1, xP2)
+	end
+func StzBothAreStzStrings(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	if IsStzString(xP1) and IsStzString(xP2)
+		return true
+	else
+		return false
+	end
+end
+	func BothAreStzStrings(xP1, xP2)
+		return StzBothAreStzStrings(xP1, xP2)
+	end
+	func AreBothStzStrings(xP1, xP2)
+		return StzBothAreStzStrings(xP1, xP2)
+	end
+	func @BothAreStzStrings(xP1, xP2)
+		return StzBothAreStzStrings(xP1, xP2)
+	end
+	func @AreBothStzStrings(xP1, xP2)
+		return StzBothAreStzStrings(xP1, xP2)
+	end
+func StzBothAreLists(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	if IsList(xP1) and IsList(xP2)
+		return true
+	else
+		return false
+	end
+end
+	func BothAreLists(xP1, xP2)
+		return StzBothAreLists(xP1, xP2)
+	end
+	func AreBothLists(xP1, xP2)
+		return StzBothAreLists(xP1, xP2)
+	end
+	func @BothAreLists(xP1, xP2)
+		return StzBothAreLists(xP1, xP2)
+	end
+	func @AreBothLists(xP1, xP2)
+		return StzBothAreLists(xP1, xP2)
+	end
+func StzBothAreStzLists(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	if IsStzlist(xP1) and IsStzlist(xP2)
+		return true
+	else
+		return false
+	end
+end
+	func BothAreStzLists(xP1, xP2)
+		return StzBothAreStzLists(xP1, xP2)
+	end
+	func AreBothStzLists(xP1, xP2)
+		return StzBothAreStzLists(xP1, xP2)
+	end
+	func @BothAreStzLists(xP1, xP2)
+		return StzBothAreStzLists(xP1, xP2)
+	end
+	func @AreBothStzLists(xP1, xP2)
+		return StzBothAreStzLists(xP1, xP2)
+	end
+func StzBothAreObjects(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	if IsObject(xP1) and IsObject(xP2)
+		return true
+	else
+		return false
+	end
+end
+	func BothAreObjects(xP1, xP2)
+		return StzBothAreObjects(xP1, xP2)
+	end
+	func AreBothObjects(xP1, xP2)
+		return StzBothAreObjects(xP1, xP2)
+	end
+	func @BothAreObjects(xP1, xP2)
+		return StzBothAreObjects(xP1, xP2)
+	end
+	func @AreBothObjects(xP1, xP2)
+		return StzBothAreObjects(xP1, xP2)
+	end
+func StzBothAreStzObjects(xP1, xP2)
+	if IsList(xP2) and Q(xP2).IsAndNamedParam()
+		xP2 = xP2[2]
+	end
+
+	if ObjectIsStzObject(xP1) and IsStzObject(xP2)
+		return true
+	else
+		return false
+	end
+end
+	func BothAreStzObjects(xP1, xP2)
+		return StzBothAreStzObjects(xP1, xP2)
+	end
+	func AreBothStzObjects(xP1, xP2)
+		return StzBothAreStzObjects(xP1, xP2)
+	end
+	func @BothAreStzObjects(xP1, xP2)
+		return StzBothAreStzObjects(xP1, xP2)
+	end
+	func @AreBothStzObjects(xP1, xP2)
+		return StzBothAreStzObjects(xP1, xP2)
+	end
+func StzBothHaveSameStzType(xP1, xP2)
+
+	if BothAreObjects(xP1, xP2) and
+	   xP1.StzType() = xP2.StzType()
+
+		return true
+	else
+		return false
+	end
+end
+	func BothHaveSameStzType(xP1, xP2)
+		return StzBothHaveSameStzType(xP1, xP2)
+	end
+# ARE TWO OBJECTS THE SAME?
+
+func StzAreSameObject(pxVarName1, pxVarName2) #TODO
+	if IsList(pxVarName2) and Q(pxVarName2).IsAndNamedParam()
+		pxVarName2 = pxVarName2[2]
+	end
+
+	return StzObjectQ(pxVarName1).IsEqualTo( pxVarName2 )
+end
+	func AreSameObject(pxVarName1, pxVarName2)
+		return StzAreSameObject(pxVarName1, pxVarName2)
+	end
+	func @AreSameObject(pxVarName1, pxVarName2)
+		return StzAreSameObject(pxVarName1, pxVarName2)
+	end
+# OTHER STAFF
+
+func IsStzType(pxStr)
+	if not IsString(pxStr)
+		StzRaise("Incorrect param type! pcStr must be a string.")
+	end
+
+	vtTypes = StzTypes() # Assumes they are lowercase strings
+
+	if Find(vtTypes, pxStr) > 0
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func IsStzClass(pxStr)
+		return IsStzType(pxStr)
+	end
+	func IsStzClassName(pxStr)
+		return IsStzType(pxStr)
+	end
+	#--
+
+	func IsAStzType(pxStr)
+		return IsStzType(pxStr)
+	end
+	func IsAStzClass(pxStr)
+		return IsStzType(pxStr)
+	end
+	func IsAStzClassName(pxStr)
+		return IsStzType(pxStr)
+	end
+	#==
+
+	func @IsStzType(pxStr)
+		return IsStzType(pxStr)
+	end
+	func @IsStzClass(pxStr)
+		return IsStzType(pxStr)
+	end
+	func @IsStzClassName(pxStr)
+		return IsStzType(pxStr)
+	end
+	#--
+
+	func @IsAStzType(pxStr)
+		return IsStzType(pxStr)
+	end
+	func @IsAStzClass(pxStr)
+		return IsStzType(pxStr)
+	end
+	func @IsAStzClassName(pxStr)
+		return IsStzType(pxStr)
+	end
+	#>
+
+func IsRingType(pxStr)
+	if not IsString(pxStr)
+		StzRaise("Incorrect param type! pcStr must be a string.")
+	end
+
+	pxStr = StzLower(pxStr)
+	vtRingTypes = RingTypes()
+
+	if Find( RingTypes(), pxStr) > 0
+		return true
+	else
+		return false
+	end
+end
+	#< @FunctionAlternativeForms
+
+	func @IsRingType(pxStr)
+		return IsRingType(pxStr)
+	end
+	func IsARingType(pxStr)
+		return IsRingType(pxStr)
+	end
+	func @IsARingType(pxStr)
+		return IsRingType(pxStr)
+	end
+	#>
+
+func IsRingOrStzType(pxStr)
+	if IsRingType(pxStr) or IsStzType(pxStr)
+		return true
+	else
+		return false
+	end
+end
+	func IsStzOrRingType(pxStr)
+		return IsRingOrStzType(pxStr)
+	end
+	func @IsRingOrStzType(pxStr)
+		return IsRingOrStzType(pxStr)
+	end
+	func @IsStzOrRingType(pxStr)
+		return IsRingOrStzType(pxStr)
+	end
+	#-- #TODO // Add other alternatives (see IsRingType() and IsStzType() functions)
+
+
+func StzHowMany(pxList)
+
+	if not IsList(pxList)
+		StzRaise("Incorrect param type! paList must be a list.")
+	end
+
+	return Len(pxList)
+end
+	#< @FunctionAlternativeForms
+
+	func HowMany(pxList)
+		return StzHowMany(pxList)
+	end
+	func @HowMany(pxList)
+		return StzHowMany(palist)
+	end
+	func HowManyItemsIn(pxList)
+		return StzHowMany(pxList)
+	end
+	func HowManyItems(pxList)
+		if IsList(pxList) and Q(pxList).IsInNamedParam()
+			pxList = pxList[2]
+		end
+
+		return StzHowMany(pxList)
+	end
+	func HwoMany(pxList)
+		return StzHowMany(pxList)
+	end
+	func HwoManyItemsIn(pxList)
+		return StzHowMany(pxList)
+	end
+	func HwoManyItems(pxList)
+		return StzHowMany(pxList)
+	end
+	#>
+
+func StzUnicode(xP)
+	if IsList(xP) and Q(xP).IsOfNamedParam()
+		xP = xP[2]
+	end
+
+	if IsString(xP)
+		nResult = StzStringQ(xP).Unicode()
+		return nResult
+
+	elseif IsList(xP)
+		viResult = StzListQ(xP).Unicode()
+		return viResult
+
+	else
+		StzRaise("Incorrect param type! p must be either a string or list.")
+	end
+end
+	func Unicode(xP)
+		return StzUnicode(xP)
+	end
+	func @Unicode(xP)
+		return StzUnicode(xP)
+	end
+	func UnicodeOf(xP)
+		return StzUnicode(xP)
+	end
+	func @UnicodeOf(xP)
+		return StzUnicode(xP)
+	end
+func StzHexUnicode(xP)
+	if IsList(xP) and Q(xP).IsOfNamedParam()
+		xP = xP[2]
+	end
+
+	if IsString(xP)
+		nResult = StzStringQ(xP).HexUnicode()
+		return nResult
+
+	elseif IsList(xP)
+		viResult = StzListQ(xP).HexUnicode()
+		return viResult
+
+	else
+		StzRaise("Incorrect param type! p must be either a string or list.")
+	end
+end
+	func HexUnicode(xP)
+		return StzHexUnicode(xP)
+	end
+	func @HexUnicode(xP)
+		return StzHexUnicode(xP)
+	end
+	func HexUnicodeOf(xP)
+		return StzHexUnicode(xP)
+	end
+	func @HexUnicodeOf(xP)
+		return StzHexUnicode(xP)
+	end
+func StzUnicodes(xP)
+	if IsList(xP) and Q(xP).IsOfNamedParam()
+		xP = xP[2]
+	end
+
+	if IsString(xP)
+		viResult = StzStringQ(xP).Unicodes()
+		return viResult
+
+	elseif IsList(xP)
+		viResult = StzListQ(xP).Unicodes()
+		return viResult
+
+	else
+		StzRaise("Incorrect param type! p must be either a string or list.")
+	end
+end
+	func Unicodes(xP)
+		return StzUnicodes(xP)
+	end
+	func @Unicodes(xP)
+		return StzUnicodes(xP)
+	end
+	func UnicodesOf(xP)
+		return StzUnicodes(xP)
+	end
+	func @UnicodesOf(xP)
+		return StzUnicodes(xP)
+	end
+func StzHexUnicodes(xP)
+	if IsList(xP) and Q(xP).IsOfNamedParam(xP)
+		xP = xP[2]
+	end
+
+	if IsString(xP)
+		viResult = StzStringQ(xP).HexUnicodes()
+		return viResult
+
+	elseif IsList(xP)
+		viResult = StzListQ(xP).HexUnicodes()
+		return viResult
+
+	else
+		StzRaise("Incorrect param type! p must be either a string or list.")
+	end
+end
+	func HexUnicodes(xP)
+		return StzHexUnicodes(xP)
+	end
+	func @HexUnicodes(xP)
+		return StzHexUnicodes(xP)
+	end
+	func HexUnicodesOf(xP)
+		return StzHexUnicodes(xP)
+	end
+	func @HexUnicodesOf(xP)
+		return StzHexUnicodes(xP)
+	end
+
+
+#---
+
+func YaAllah
+	return "يَا أَلله"
+end
+func YaMuhammed
+	return "يا مُحَمَّدْ"
+end
+func SalatNabee
+	return "صلّى الله على نبيّه الأكرم"
+end
+func StzNHearts(xN)
+	return Q(Heart()).RepeatedNTimes(xN)
+end
+	func NHearts(xN)
+		return StzNHearts(xN)
+	end
+	func 2Hearts
+		return NHearts(2)
+	end
+	func 3Hearts
+		return NHearts(3)
+	end
+	func 5Hearts
+		return NHearts(5)
+	end
+	func 7Hearts
+		return NHearts(7)
+	end
+	func 9Hearts
+		return NHearts(9)
+	end
+func StzNStars(xN)
+	return Q(Star()).RepeatedNTimes(xN)
+end
+	func NStars(xN)
+		return StzNStars(xN)
+	end
+	func 2Stars
+		return NStars(2)
+	end
+	func 3Stars
+		return NStars(3)
+	end
+	func 5Stars
+		return NStars(5)
+	end
+	func 7Stars
+		return NStars(7)
+	end
+	func 9Stars
+		return NStars(9)
+	end
+func StzEmpty(pxStzType)
+	if not IsString(pxStzType)
+		StzRaise("Incorrect param type! pcStzType must be a string.")
+	end
+
+	if not Q(pxStzType).IsStzClassName()
+		StzRaise("Incorrect param! pcStzType must be a valid class name.")
+	end
+
+	switch pxStzType
+	case :stzChar
+		return new stzChar("_")
+
+	case :stzString
+		return new stzString("")
+
+	case :stzNumber
+		return new stzNumber(0)
+
+	case :stzList
+		return new stzList([])
+
+	case :stzobject
+		return new stzObject( new stzString("") )
+
+	case :stzText
+		return new stzText("")
+
+	case :stzlistofobjects
+		return new stzListOfObjects([])
+
+	case :stzlistofnumbers
+		return new stzListOfNumbers([])
+
+	case :stzlistofstrings
+		return new stzListOfstrings([])
+		
+	case :stzlistofchars
+		return new stzListOfChars([])
+
+	case :stzhashlist
+		return new stzHashList([])
+
+	case :stzlistofhashlists
+		return new stzListOfHashLists([])
+
+	case :stzset
+		return new stzSet([])
+
+	case :stzlistoflists
+		return new stzListOfLists([])
+
+	case :stzlistofpairs
+		return new stzListOfPairs([])
+
+	case :stzpair
+		return new stzPair([])
+
+	case :stzlistofsets
+		return new stzListOfSets([])
+
+	case :stzpairoflists
+		return new stzPairOfLists([])
+
+	case :stztree
+		return new stzTree([])
+
+	case :stztable
+		return new stzTable([])
+
+	case :stzlocale
+		return new stzLocale([])
+
+	case :stzcountry
+		return new stzCountry([])
+
+	case :stzlanguage
+		return new stzLanguage([])
+
+	case :stzscript
+		return new stzScript([])
+
+	case :stzcurrency
+		return new stzCurrency("")
+
+	case :stzgrid
+		return new stzGrid([])
+
+	case :stzentity
+		return new stzEnity(:nothing)
+
+	case :stzlistofentities
+		return new stzListOfEntities([])
+
+	case :stzstringart
+		return new stzStringArt("")
+
+	end
+end
+	func Empty(pxStzType)
+		return StzEmpty(pxStzType)
+	end
+func StzSwap(xP1, xP2)
+	xTemp = xP2
+	xP2 = xP1
+	xP1 = xTemp
+
+	return [xP1, xP2]
+end
+	func Swap(xP1, xP2)
+		return StzSwap(xP1, xP2)
+	end
+	func @Swap(xP1, xP2)
+		return StzSwap(xP1, xP2)
+	end
+func new_stz(tType, xP)
+	
+	if not IsString(tType)
+		StzRaise("Incorrect param type! cType must be a string.")
+	end
+	
+	tCode = '_oObject_ = new stz' + tType + '(p)'
+
+	if not StzIsPlainIdentifier(tType)  StzRaise("Can't proceed! '" + tType + "' is not a plain name, and a name is all that is run here.")  end
+	Eval(tCode)
+
+	return oObject
+end
+	func StzTypedQ(tType, xP)
+		return Stz(tType, xP)
+	end
+	func Stz@(tType, xP)
+		return Stz(tType, xP)
+	end
+	func New@Stz(tType, xP)
+		return Stz(tType, xP)
+	end
+func StzSoftanzify(xP)
+	return Q(xP)
+end
+	func Softanzify(xP)
+		return StzSoftanzify(xP)
+	end
+func StzTheNumberQ(xN)
+	if not IsNumber(xN)
+		StzRaise("Incorrect param type! n must be a number.")
+	end
+
+	oObj = new stzNumber(xN)
+	return oObj
+end
+	func TheNumberQ(xN)
+		return StzTheNumberQ(xN)
+	end
+	func NumberQ(xN)
+		return StzTheNumberQ(xN)
+	end
+
+func StzTheListQ(xList)
+	if not IsList(xList)
+		StzRaise("Incorrect param type! aList must be a list.")
+	end
+
+	oObj = new stzList(xList)
+	return oObj
+end
+	func TheListQ(xList)
+		return StzTheListQ(xList)
+	end
+	func ListQ(xList)
+		return StzTheListQ(xList)
+	end
+
+func StzTheList(xList)
+	if not IsList(xList)
+		StzRaise("Incorrect param type! aList must be a list.")
+	end
+
+	return xList
+end
+	func TheList(xList)
+		return StzTheList(xList)
+	end
+func StzTheStringQ(xStr)
+	if not IsString(xStr)
+		StzRaise("Incorrect param type! str must be a string.")
+	end
+
+	oObj = new stzString(xStr)
+	return oObj
+end
+	func TheStringQ(xStr)
+		return StzTheStringQ(xStr)
+	end
+	func StringQ(xStr)
+		return StzTheStringQ(xStr)
+	end
+	func TheWordQ(xStr)
+		return StzTheStringQ(xStr)
+	end
+	func WordQ(xStr)
+		return StzTheStringQ(xStr)
+	end
+
+func StzTheString(xStr)
+	if not IsString(xStr)
+		StzRaise("Incorrect param type! str must be a string.")
+	end
+
+	return xStr
+end
+	func TheString(xStr)
+		return StzTheString(xStr)
+	end
+	func TheWord(xStr)
+		return StzTheString(xStr)
+	end
+
+
+
+func StzTodo
+	return StzTodoXT(:InCurrent)
+end
+	func Todo
+		return StzTodo()
+	end
+func StzTodoInFuture
+	return StzTodoXT(:InFuture)
+end
+	func TodoInFuture
+		return StzTodoInFuture()
+	end
+	func TodoFuture
+		return StzTodoInFuture()
+	end
+	func TodoInFutureRelease
+		return StzTodoInFuture()
+	end
+	func TodoFutureRelease
+		return StzTodoInFuture()
+	end
+func StzTodoInCurrent
+	return StzTodoXT(:InCurrent)
+end
+	func TodoInCurrent
+		return StzTodoInCurrent()
+	end
+	func TodoCurrent
+		return StzTodoInCurrent()
+	end
+	func TodoInCurrentRelease
+		return StzTodoInCurrent()
+	end
+	func TodoCurrentRelease
+		return StzTodoInCurrent()
+	end
+func StzTodoXT(pxCurrentOrFuture)
+	if not ( IsString(pxCurrentOrFuture) and
+	   	 StzFindFirst([
+			:Current, :InCurrent, :Future, :InFuture,
+			:CurrentRelease, :InCurrentRelease, :FutureRelease, :InFutureRelease,
+
+			# Misspelled variations
+			:Fture, :InFture, :FtureRelease, :InFtureRelease ], pxCurrentOrFuture) ) > 0
+
+		StzRaise("Incorrect param! pcCurrentOrFuture must be a string equal to :Current or :Future.")
+	end
+
+	if StzFindFirst([ :Future, :InFuture, :FutureRelase, :InFutureRelase ], pxCurrentOrFuture) > 0
+		StzRaise("Unavailable feature in current version (TODO in the future!)")
+
+	else
+		StzRaise("Feature not yet implemented, but it should be (TODO in current release)")
+	end
+end
+	func TodoXT(pxCurrentOrFuture)
+		return StzTodoXT(pxCurrentOrFuture)
+	end
+func StzAreBothListsOfNumbers(xList1, xList2)
+	if IsList(xList1) and
+	   IsList(xList2) and
+	   @IsListOfNumbers(xList1) and
+	   @IsListOfNumbers(xList2)
+
+		return true
+
+	else
+		return false
+	end
+end
+	func AreBothListsOfNumbers(xList1, xList2)
+		return StzAreBothListsOfNumbers(xList1, xList2)
+	end
+func StzAreBothListsOfStrings(xList1, xList2)
+	if IsList(xList1) and
+	   IsList(xList2) and
+	   @IsListOfStrings(xList1) and
+	   @IsListOfStrings(xList2)
+
+		return true
+
+	else
+		return false
+	end
+end
+	func AreBothListsOfStrings(xList1, xList2)
+		return StzAreBothListsOfStrings(xList1, xList2)
+	end
+func StzAreBothListsOfLists(xList1, xList2)
+	if IsList(xList1) and
+	   IsList(xList2) and
+	   @IsListOfLists(xList1) and
+	   @IsListOfLists(xList2)
+
+		return true
+
+	else
+		return false
+	end
+end
+	func AreBothListsOfLists(xList1, xList2)
+		return StzAreBothListsOfLists(xList1, xList2)
+	end
+func StzAreBothListsOfPairs(xList1, xList2)
+	if IsList(xList1) and
+	   IsList(xList2) and
+	   @IsListOfPairs(xList1) and
+	   @IsListOfPairs(xList2)
+
+		return true
+
+	else
+		return false
+	end
+end
+	func AreBothListsOfPairs(xList1, xList2)
+		return StzAreBothListsOfPairs(xList1, xList2)
+	end
+func StzAreBothListsOfSets(xList1, xList2)
+	if IsList(xList1) and
+	   IsList(xList2) and
+	   Q(xList1).IsListOfSets() and
+	   Q(xList2).IsListOfSets()
+
+		return true
+
+	else
+		return false
+	end
+end
+	func AreBothListsOfSets(xList1, xList2)
+		return StzAreBothListsOfSets(xList1, xList2)
+	end
+func StzAreBothListsOfHashLists(xList1, xList2)
+	if IsList(xList1) and
+	   IsList(xList2) and
+	   Q(xList1).IsListOfHashLists() and
+	   Q(xList2).IsListOfHashLists()
+
+		return true
+
+	else
+		return false
+	end
+end
+	func AreBothListsOfHashLists(xList1, xList2)
+		return StzAreBothListsOfHashLists(xList1, xList2)
+	end
+func StzAreBothListsOfObjects(xList1, xList2)
+	if IsList(xList1) and
+	   IsList(xList2) and
+	   Q(xList1).IsListOfObjects() and
+	   Q(xList2).IsListOfObjects()
+
+		return true
+
+	else
+		return false
+	end
+end
+	func AreBothListsOfObjects(xList1, xList2)
+		return StzAreBothListsOfObjects(xList1, xList2)
+	end
+func StzEuclideanDistance(viNumbers1, viNumbers2)
+
+	if CheckParams()
+		if IsList(viNumbers1) and IsBetweenNamedParamList(viNumbers1)
+			viNumbers1 = viNumbers1[1]
+		end
+		if IsList(viNumbers2) and IsAndNamedParamList(viNumbers2)
+			viNumbers2 = viNumbers2[1]
+		end
+		
+		if not AreBothListsOfNumbers(viNumbers1, viNumbers2)
+			StzRaise("Incorrect param types! anNumbers1 and anNumbers2 must be both lists of numbers.")
+		end
+		
+		if Len(viNumbers1) != Len(viNumbers2)
+			StzRaise("Incorrect lists sizes! anNumbers1 and anNumbers2 must both have the same size.")
+		end
+	end
+
+	nResult = euc_dist(viNumbers1, viNumbers2)
+	return nResult
+end
+	func EuclideanDistance(viNumbers1, viNumbers2)
+		return StzEuclideanDistance(viNumbers1, viNumbers2)
+	end
+func euc_dist(xA,xB)
+
+	if CheckParams()
+		if not ( IsNumber(xA) and IsNumber(xB) )
+			StzRaise("Incorrect param types! a and b must be bother numbers.")
+		end
+	end
+
+	nS = 0
+	nN = Len(xA)
+
+	for i = 1 to nN
+
+		xDist = xA[i] - xB[i]
+		nS += xDist * xDist
+	end
+
+	return Sqrt(nS)
+end
+func @IsList(pxList)
+	if IsList(pxList)
+		return true
+	else
+		return false
+	end
+end
+	func IsAList(pxList)
+		return IsList(pxList)
+	end
+	func @IsAList(pxList)
+		return IsList(pxList)
+	end
+func @IsNumber(xN)
+	if IsNumber(xN)
+		return true
+	else
+		return false
+	end
+end
+	func IsANumber(xN)
+		return IsNumber(xN)
+	end
+	func @IsANumber(xN)
+		return IsNumber(xN)
+	end
+func @IsString(xStr)
+	if IsString(xStr)
+		return true
+	else
+		return false
+	end
+end
+	func IsAString(xStr)
+		return IsString(xStr)
+	end
+	func @IsAString(xStr)
+		return IsString(xStr)
+	end
+	func IsAnObject(xObj)
+		return IsObject(xObj)
+	end
+	func @IsAnObject(xObj)
+		return IsObject(xObj)
+	end
+#--
+
+func StzIsNeitherNorCS(xP, xP1, xP2, pxCaseSensitive)
+	return Q(xP).IsNeitherCS(xP1, xP2, pxCaseSensitive)
+end
+	func IsNeitherNorCS(xP, xP1, xP2, pxCaseSensitive)
+		return StzIsNeitherNorCS(xP, xP1, xP2, pxCaseSensitive)
+	end
+	func @IsNeitherNorCS(xP, xP1, xP2, pxCaseSensitive)
+		return StzIsNeitherNorCS(xP, xP1, xP2, pxCaseSensitive)
+	end
+func StzIsNeitherNor(xP, xP1, xP2)
+	return Q(xP).IsNeither(xP1, xP2)
+end
+	func IsNeitherNor(xP, xP1, xP2)
+		return StzIsNeitherNor(xP, xP1, xP2)
+	end
+	func @IsNeitherNor(xP, xP1, xP2)
+		return StzIsNeitherNor(xP, xP1, xP2)
+	end
+#==
+
+func StzBothStartWithCS(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList, pxCaseSensitive)
+
+	if Q(pxStrOrList1).StartsWithCS(pxSubStrOrSubList, pxCaseSensitive) and
+	   Q(pxStrOrList2).StartsWithCS(pxSubStrOrSubList, pxCaseSensitive)
+
+		return true
+	else
+		return false
+	end
+end
+	func BothStartWithCS(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList, pxCaseSensitive)
+		return StzBothStartWithCS(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList, pxCaseSensitive)
+	end
+	func @BothStartWithCS(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList, pxCaseSensitive)
+		return StzBothStartWithCS(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList, pxCaseSensitive)
+	end
+func StzBothStartWith(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList)
+	return StzBothStartWithCS(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList, 1)
+end
+	func BothStartWith(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList)
+		return StzBothStartWith(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList)
+	end
+	func @BothStartWith(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList)
+		return StzBothStartWith(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList)
+	end
+#--
+
+func StzBothEndWithCS(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList, pxCaseSensitive)
+
+	if Q(pxStrOrList1).EndsWithCS(pxSubStrOrSubList, pxCaseSensitive) and
+	   Q(pxStrOrList2).EndsWithCS(pxSubStrOrSubList, pxCaseSensitive)
+
+		return true
+	else
+		return false
+	end
+end
+	func BothEndWithCS(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList, pxCaseSensitive)
+		return StzBothEndWithCS(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList, pxCaseSensitive)
+	end
+	func @BothEndWithCS(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList, pxCaseSensitive)
+		return StzBothEndWithCS(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList, pxCaseSensitive)
+	end
+func StzBothEndWith(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList)
+	return StzBothEndWithCS(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList, 1)
+end
+	func BothEndWith(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList)
+		return StzBothEndWith(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList)
+	end
+	func @BothEndWith(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList)
+		return StzBothEndWith(pxStrOrList1, pxStrOrList2, pxSubStrOrSubList)
+	end
+#==
+
+func StzBothStartWithANumber(xP1, xP2)
+	if Q(xP1).StartsWithANumber() and Q(xP2).StartsWithANumber()
+		return true
+	else
+		return false
+	end
+end
+	func BothStartWithANumber(xP1, xP2)
+		return StzBothStartWithANumber(xP1, xP2)
+	end
+func StzBothEndWithANumber(xP1, xP2)
+	if Q(xP1).EndsWithANumber() and Q(xP2).EndsWithANumber()
+		return true
+	else
+		return false
+	end
+end
+	func BothEndWithANumber(xP1, xP2)
+		return StzBothEndWithANumber(xP1, xP2)
+	end
+func StzNewLine
+	return Char(10)
+end
+	func NewLine
+		return StzNewLine()
+	end
+	# The NAME stays NL -- callers write NL() and that is public surface. Only
+	# the BODY changes, so this accessor answers a real newline even after a
+	# caller's `nL = 1254400` has replaced the global constant it used to read.
+	func NL
+		return Char(10)
+	end
+	func EmptyLine
+		return StzNewLine()
+	end
+func StzNumberOfStzFindableTypes
+	return Len($vStzFindableTypes)
+end
+	func NumberOfStzFindableTypes
+		return StzNumberOfStzFindableTypes()
+	end
+func IsStzFindableType(tType)
+	if not IsString(tType)
+		StzRaise("Incorrect param type! cType must be a string.")
+	end
+
+	tType = StzLower(tType)
+	if StzFindFirst( StzFindableTypes(), tType) > 0
+		return true
+	else
+		return false
+	end
+end
+	func IsAStzFindableType(tType)
+		return IsStzFindableType(tType)
+	end
+	func @IsStzFindableType(tType)
+		return IsStzFindableType(tType)
+	end
+	func @IsAStzFindableType(tType)
+		return IsStzFindableType(tType)
+	end
+func StzFindableTypes
+	return $vStzFindableTypes
+end
+func IsStzFindable(xP)
+	if not ( IsObject(xP) and IsStzObject(xP) )
+		return false
+	end
+
+	tStzType = xP.StzType()
+	if StzFindFirst( StzFindableTypes(), tStzType ) > 0
+		return true
+	else
+		return false
+	end
+end
+	func @IsStzFindable(xP)
+		return IsStzFindable(xP)
+	end
+#----
+
+
+func StzClasses
+	xResult = []
+	vtStzClassesXT = StzClassesXT()
+	nLen = Len(vtStzClassesXT)
+
+	for i = 1 to nLen
+		xResult + vtStzClassesXT[i][1]
+	end
+
+	return xResult
+end
+	func StzTypes
+		return StzClasses()
+	end
+func NumberOfStzClasses
+	return Len(StzClasses())
+end
+	func HowManyStzClasses
+		return NumberOfStzClasses()
+	end
+func StzClassesXT
+	#TODO // Update this list!
+	vStzClassesXT = [
+		# [ :Singular,			:Plural			]
+		[ :stzObject, 			:stzObjects 		],
+		[ :stzListOfObjects, 		:stzListsOfObjects 	],
+		[ :stzNumber, 			:stzNumbers		],
+
+		[ :stzListOfNumbers, 		:stzListsOfNumbers	],
+		[ :stzListOfUnicodes, 		:stzListsOfUnicodes	],
+		[ :stzBinaryNumber, 		:stzBinaryNumbers	],
+
+		[ :stzHexNumber, 		:stzHexNumbers		],
+		[ :stzOctalNumber, 		:stzOctalNumbers	],
+		[ :stzString, 			:stzStrings		],
+
+		[ :stzSplitter,			:stzSplitters		],
+		[ :stzMultiString, 		:stzMultiStrings	],
+		[ :stzMultilingualString, 	:stzMultilingualStrings ],
+		
+		[ :stzStopWords, 		:stzStopWords		],
+		[ :stzListOfStrings, 		:stzListsOfStrings	],
+		[ :stzListInString, 		:stzListsInStrings	],
+
+		[ :stzListOfBytes, 		:stzListsOfBytes	],
+		[ :stzChar, 			:stzChars		],
+		[ :stzUnicodeNames, 		:stzUnicodeNames	],
+
+		[ :stzListOfChars, 		:stzListsOfChars	],
+		[ :stzList, 			:stzLists		],
+		[ :stzHashList, 		:stzHashLists		],
+		[ :stzListOfHashLists,		:stzListsOfHashLists	],
+
+		[ :stzAssociativeList, 		:stzAssociativeLists	],
+		[ :stzSet, 			:stzSets		],
+		[ :stzListOfLists, 		:stzListsOfLists	],
+
+		[ :stzListOfPairs, 		:stzListsOfPairs	],
+		[ :stzPair, 			:stzPairs		],
+		[ :stzPairOfNumbers, 		:stzPairsOfNumbers	],
+		[ :stzPairOfLists,		:stzPairsOfList		],
+		
+		[ :stzListOfSets, 		:stzListsOfSets		],
+		[ :stzTree, 			:stzTrees		],
+
+		[ :stzWalker, 			:stzWalkers		],
+		[ :stzTable, 			:stzTables		],
+		[ :stzListOfTables,		:stzListsOfTables	],
+		[ :stzLocale, 			:stzLocales		],
+		
+		[ :stzCountry, 			:stzCountries		],
+		[ :stzLanguage, 		:stzLanguages		],
+		[ :stzScript, 			:stzScripts		],
+
+		[ :stzCurrency, 		:stzCurrencies		],
+		[ :stzListParser, 		:stzListsParsers	],
+		[ :stzGrid, 			:stzGrids		],
+		[ :stzListOfGrids,		:stzListsOfGrids	],
+
+		[ :stzCounter, 			:stzCounters		],
+		[ :stzDate, 			:stzDates		],
+		[ :stzTime, 			:stzTimes		],
+
+		[ :stzFile, 			:stzFiles		],
+		[ :stzFolder, 			:stzFolders		],
+		[ :stzRunTime, 			:stzRuntimes		],
+
+		[ :stzTextEncoding, 		:stzTextEncodings	],
+		[ :stzNaturalCode, 		:stzNaturalCodes	],
+		[ :stzChainOfValue, 		:stzChainsOfValues	],
+
+		[ :stzChainOfTruth, 		:stzChainsOfTruth	],
+		[ :stzEntity, 			:stzEntities		],
+		[ :stzListOfEntities, 		:stzListsOfEntities	],
+
+		[ :stzText, 			:stzTexts		],
+		[ :stzStringArt, 		:stzStringArts		],
+		[ :stzConstraints, 		:stzConstraints		],
+		
+		[ :stzCCode, 			:stzCCodes		],
+		[ :stzNullObject,		:stzNullObjects		],
+		[ :stzFalseObject,		:stzFalsebjects		],
+		[ :stzTrueObject,		:stzTruebjects		],
+
+		[ :stzExtCode,			:stzExtCodes		],
+		
+		[ :stzSection,			:stzSections		],
+
+		[ :stzNullObject,		:stzNullObjects		],
+		[ :stzTrueObject,		:stzTrueObjects		],
+		[ :stzFalseObjects,		:stzFalseObjects	]
+	]
+
+	return vStzClassesXT
+end
+	func StzTypesXT
+		return StzClassesXT()
+	end
+	func StzClassesAndTheirPluralForm
+		return StzClassesXT()
+	end
+func StzType(oStzObj)
+	if CheckingParams()
+		if not ( IsObject(oStzObj) and IsStzObject(oStzObj) )
+			StzRaise("Incorrect param type! oStzObject must be a stzObject.")
+		end
+	end
+
+	return oStzObj.StzType()
+end
+	func @StzType(oStzObj)
+		return StzType(oStzObj)
+	end
+func StzInfereType(tType)
+	return StzStringQ(tType).InfereType()
+end
+	func InfereType(tType)
+		return StzInfereType(tType)
+	end
+	func @InfereType(tType)
+		return StzInfereType(tType)
+	end
+# File-scope worker for stzString.InfereType() (kept out of the class so
+# StartsWith / StzFind / StzReplaceCS resolve to globals, not methods).
+func @StzInfereTypeName(tStr)
+	xC = StzLower(tStr)
+
+	if xC = "number" or xC = "numbers"   return :Number end
+	if xC = "string" or xC = "strings"   return :String end
+	if xC = "char"   or xC = "chars"     return :Char   end
+
+	if xC = "stznumber" or xC = "stznumbers" return :StzNumber end
+	if xC = "stzstring" or xC = "stzstrings" return :StzString end
+	if xC = "stzchar"   or xC = "stzchars"   return :StzChar   end
+
+	if StartsWith(xC, "stzlist")
+		tR = StzReplaceCS(tStr, "Lists", "List", true)
+		tR = StzReplaceCS(tR, "lists", "list", true)
+		return tR
+	end
+
+	# NEEDLE FIRST, and a PREFIX -- both were wrong here.
+	# `StzFindFirst(_c_, "list")` asks "does the type name appear inside
+	# the word 'list'", true only when the name IS a substring of it, so
+	# "lists" and "pairs" -- the plural forms this function exists to
+	# resolve -- fell through to :Unknown while "list" worked. The
+	# neighbouring stzlist branch already uses StartsWith, and the
+	# pre-refactor original (stzString_monolithic InfereType) tested
+	# `cStr = :lists or BeginsWith(:List)`, so prefix is the intended
+	# semantics -- and it is also the safe one: a "contains" test would
+	# call "blacklist" a :List.
+	if StartsWith(xC, "list") or StartsWith(xC, "pair")
+		return :List
+	end
+
+	return :Unknown
+end
+#---
+
+# Viewing a file in the default program in the system
+
+func StzView(tFileName)
+	if CheckParams()
+		if not IsString(tFileName)
+			StzRaise("Incorrect param type! cFileName mlust be a string.")
+		end
+	end
+
+	if FExists(tFileName)
+		oSysCall = new stzSystemCall("")
+		oSysCall.OpenFile(tFileName)
+
+	else
+		StzRaise("Can't proceed! The file you provided does not exist.")
+	end
+end
+	func View(tFileName)
+		StzView(tFileName)
+	end
+	func @View(tFileName)
+		StzView(tFileName)
+	end
+
+  #//////////////////////
+ #/  GLOBAL CLASSES  ///
+#//////////////////////
+
+#WARNING: Be careful! don't put global functions after theses classes,
+# because Ring will consider them as methods of the classes and not global functons!
+
+# Runs a piece of Ring code once for each item of a list, with every loop variable bound by name; the earlier form of stzForEachObject.
+#
+# Give the variable name or names and the data as :In = ... Then the code, passed as text to @, is
+# evaluated once per item with each name bound to that item's value, one name or several. It has no
+# positions and no reader function: stzForEachObject is the form to use, and this one is kept for
+# older code. Values always answers a list of lists, one inner list per item.
+#
+#   receiver   o1 = new stzForEachObjectOld([ :A, :B ], :In = [ [ "a", 1 ], [ "b", 2 ] ])
+#   example    aOut = []
+#              o1.@('aOut + (A + B)')
+#              ? @@( aOut )
+#              #--> [ "a1", "b2" ]
+#              ? @@( o1.Vars() )
+#              #--> [ "a", "b" ]
+#              ? o1.NumberOfIterations()
+#              #--> 2
+#              ? @@( o1.Values() )
+#              #--> [ [ "a", 1 ], [ "b", 2 ] ]
+#   see        stzForEachObject
+class stzForEachObjectOld from stzObject
+	@vtVars
+	@xValues
+
+	# Builds the earlier version of the loop, which runs Ring code once per item with every loop variable bound by name.
+	#
+	#   p          the name of the loop variable as text, or a list of names when each item is
+	#              itself a list
+	#   pIn        the data, written as a named parameter :In = ...
+	#   returns    nothing; the object is built
+	#   note       superseded by stzForEachObject, which adds positions and the v reader
+	#   warning    Raises an error unless pIn is written as :In = ...; a single name wraps each item
+	#              in a list of one, so Values answers [ [ 1 ], [ 2 ] ] for [ 1, 2 ]
+	#   see        @, stzForEachObject
+	def init(xP, pxIn)
+
+		# Checking params
+	
+		if IsList(pxIn) and Q(pxIn).IsInNamedParam()
+			pxIn = pxIn[2]
+		else
+			StzRaise("Syntax error! pIn must be a named param of the form :In = ...")
+		end
+	
+		if not ( IsString(xP) or ( IsList(xP) and @IsListOfStrings(xP) ) )
+			StzRaise("Incorrect param type! p must be a string or a list of strings.")
+		end
+	
+		if not (IsList(pxIn) or IsString(pxIn))
+			StzRaise("Incorrect param type! pIn must be a string or list.")
+		end
+	
+		if IsString(pxIn) and IsList(xP)
+			StzRaise("Incorrect params! pIn can't be a string when p is a List.")
+		end
+	
+		if IsList(xP)
+			nLen = Len(xP)
+			
+			if not IsListOfLists(pxIn)
+				StzRaise("Incorrect param! pIn must be a list of lists containing " + String(nLen) + " items in each list.")
+			end
+	
+			if not StzListOfListsQ(pxIn).SizeOfEach@Is(nLen)
+	
+				StzRaise("Syntax error! Each list in pIn must have the same size as the number of params in p.")
+			end
+	
+		end
+	
+		if IsString(xP)
+			vTemp = []
+			vTemp + xP
+			xP = vTemp
+
+			if IsList(pxIn)
+				nLen = Len(pxIn)
+				vTemp = []
+				for i = 1 to nLen
+					vTemp + [ pxIn[i] ]
+				end
+				pxIn = vTemp
+			end
+		end
+
+		@vtVars = xP
+ 		@xValues = pxIn
+	end
+	# Returns the names of the loop variables, in lowercase.
+	#
+	#   returns    a list of text, such as [ "a", "b" ]
+	#   see        NumberOfVars, Values
+	def Vars
+		return @vtVars
+	end
+		def VarNames
+			return this.Vars()
+		end
+	# Returns how many loop variables the loop has.
+	#
+	#   returns    a number
+	#   see        Vars
+	def NumberOfVars
+		return Len(@vtVars)
+	end
+		def NumbersOfVarNames
+			return this.NumberOfVars()
+		end
+		def HowManyVars
+			return this.NumberOfVars()
+		end
+		def HowManyVar
+			return this.NumberOfVars()
+		end
+		def HowManyVarNames
+			return this.NumberOfVars()
+		end
+		def HowManyVarName
+			return this.NumberOfVars()
+		end
+	# Returns the data as a list of items, each item a list holding one value per variable.
+	#
+	#   returns    a list of lists, such as [ [ 1 ], [ 2 ] ] for one variable
+	#   see        NumberOfIterations, Vars
+	def VALUES
+		return @xValues
+	end
+	# Returns how many items the loop will go through.
+	#
+	#   returns    a number
+	#   see        Values
+	def NumberOfIterations
+		return Len(@xValues)
+	end
+		def NumberOfValues
+			return this.NumberOfIterations()
+		end
+		def HowManyIterations
+			return this.NumberOfIterations()
+		end
+		def HowManyIteration
+			return this.NumberOfIterations()
+		end
+		def HowManyValues
+			return this.NumberOfIterations()
+		end
+		def HowManyValue
+			return this.NumberOfIterations()
+		end
+	# Calls a function once for each item, with the item's values as its arguments, one per loop variable.
+	#
+	#   pFunc      a function, such as func a, b { ? a + b }; code as text is refused (Haro runs no
+	#              text as code)
+	#   returns    nothing
+	#   see        Vars, Values
+	def @(pxFunc)
+		StzRequireFunction(pxFunc, "The loop body")
+		nItems = Len(@xValues)
+		for i = 1 to nItems
+			_StzCallWithValues(pxFunc, @xValues[i])
+		end
+end
+	end
+# Runs a piece of Ring code once for each item of a list, binding the item's values to named loop variables.
+#
+# Build it with @ForEach(p, pIn), giving the variable name or names and the data as :In = ... Then
+# Exec (or Run, X, @) takes the code as text and evaluates it once per item. With several names,
+# each item of the list is a list and every name is a variable inside the code; with one name, read
+# the item through v(:Name), because the name itself is not bound. ExecN runs the code only at
+# chosen positions, and @SetIterations narrows every later Exec to a list of positions. The code is
+# evaluated inside the object, so collect results in a global variable. A text can be walked with a
+# single name, but byte by byte, and an empty list or text raises an index error when run.
+#
+#   receiver   o1 = new stzForEachObject([ :Char, :Number ], :In = [ [ "A", 1 ], [ "B", 2 ], [ "C",
+#              3 ] ])
+#   example    aOut = []
+#              o1.Exec('aOut + (Char + Number)')
+#              ? @@( aOut )
+#              #--> [ "A1", "B2", "C3" ]
+#              aOut = []
+#              o1.ExecN([ 3, 1 ], 'aOut + v(:Char)')
+#              ? @@( aOut )
+#              #--> [ "C", "A" ]
+#              ? @@( o1.@Vars() )
+#              #--> [ "char", "number" ]
+#              ? o1.@NumberOfIterations()
+#              #--> 3
+#              ? @@( o1.@Content() )
+#              #--> [ [ "char", [ "A", "B", "C" ] ], [ "number", [ 1, 2, 3 ] ] ]
+#              o1.@SetIterations([ 2 ])
+#              aOut = []
+#              o1.Exec('aOut + v(:Number)')
+#              ? @@( aOut )
+#              #--> [ 2 ]
+#   see        @ForEach, stzForEachObjectOld, stzListOfLists
+class stzForEachObject from stzObject
+	@vtVars
+	@xValues
+
+	@xDataVars
+	@iI
+
+	@xIterations
+
+	# Builds a loop over a list or a text that runs a piece of Ring code once per item, with one or several loop variables.
+	#
+	#   p          the name of the loop variable as text, or a list of names when each item is
+	#              itself a list
+	#   pIn        the data, written as a named parameter :In = ... holding a list (or a text, for a
+	#              single variable)
+	#   returns    nothing; the object is built
+	#   note       use @ForEach(p, pIn) to build it
+	#   warning    Raises an error unless pIn is written as :In = ...; with several names every item
+	#              of the list must be a list with as many values as there are names; a text can
+	#              only be used with a single name and is walked byte by byte, so a multi-byte
+	#              letter splits into broken pieces; an empty list or text builds the loop, but
+	#              running it raises an index error
+	#   see        Exec, ExecN, v
+	def init(xP, pxIn)
+
+		# Checking params
+	
+		if IsList(pxIn) and Q(pxIn).IsInNamedParam()
+			pxIn = pxIn[2]
+		else
+			StzRaise("Syntax error! pIn must be a named param of the form :In = ...")
+		end
+	
+		if not ( IsString(xP) or ( IsList(xP) and @IsListOfStrings(xP) ) )
+			StzRaise("Incorrect param type! p must be a string or a list of strings.")
+		end
+	
+		if not (IsList(pxIn) or IsString(pxIn))
+			StzRaise("Incorrect param type! pIn must be a string or list.")
+		end
+	
+		if IsString(pxIn) and IsList(xP)
+			StzRaise("Incorrect params! pIn can't be a string when p is a List.")
+		end
+	
+		if IsList(xP)
+			nLen = Len(xP)
+
+			if not IsListOfLists(pxIn)
+				StzRaise("Incorrect param! pIn must be a list of lists containing " + String(nLen) + " items in each list.")
+			end
+	
+			if not StzListOfListsQ(pxIn).SizeOfEach@Is(nLen)
+	
+				StzRaise("Syntax error! Each list in pIn must have the same size as the number of params in p.")
+			end
+	
+		end
+	
+		if IsString(xP)
+			@xIterations = 1 : Len(pxIn)
+
+			vTemp = []
+			vTemp + [ xP, pxIn ]
+			xP = vTemp
+			@xDataVars = xP
+
+			@xValues = @xDataVars[1][2]
+			
+		else
+
+			@vtVars = xP
+	 		@xValues = pxIn
+	
+			@xDataVars = []
+	
+			nPLen = Len(xP)
+			for i = 1 to nPLen
+				@xDataVars + [ xP[i], [] ]
+			end
+	
+	
+			nDataVarsLen = Len(@xDataVars)
+			for i = 1 to nDataVarsLen
+				nValuesLen = Len(@xValues)
+				for j = 1 to nValuesLen
+					@xDataVars[i][2] + @xValues[j][i]
+				end
+			end
+
+			@xIterations = 1 : Len(@xValues)
+		end
+	end
+	
+
+	# Returns the names of the loop variables, in lowercase.
+	#
+	#   returns    a list of text, such as [ "char", "number" ]
+	#   see        @NumberOfVars, @Content
+	def @Vars
+		if this.@NumberOfVars() = 1
+			return [ @xDataVars[1][1] ]
+
+		else
+			return @vtVars
+		end
+	end
+		# Returns the names of the loop variables, in lowercase.
+		#
+		#   returns    a list of text, such as [ "item" ]
+		#   see        @NumberOfVars, @Content
+		def @VarNames
+			return this.@Vars()
+		end
+	# Returns how many loop variables the loop has.
+	#
+	#   returns    a number
+	#   see        @Vars
+	def @NumberOfVars
+		return Len(this.@VarsXT())
+	end
+		# Returns how many loop variables the loop has.
+		#
+		#   returns    a number
+		#   see        @Vars
+		def @NumbersOfVarNames
+			return this.@NumberOfVars()
+		end
+	# Returns the data exactly as it was given in the :In = ... part.
+	#
+	#   returns    the list, or the text, given at construction
+	#   see        @Content, @NumberOfIterations
+	def @Values
+		return @xValues
+	end
+	# Returns each loop variable paired with the list of all its values, one pair per variable.
+	#
+	#   returns    a list of pairs, such as [ [ "char", [ "A", "B" ] ], [ "number", [ 1, 2 ] ] ]
+	#   see        @Values, @Vars
+	def @Content
+		return @xDataVars
+	end
+		# Returns each loop variable paired with the list of all its values.
+		#
+		#   returns    a list of pairs such as [ [ "item", [ "a", "b" ] ] ]
+		#   see        @Content
+		#< @FunctionAlternativeForms
+		def @VarValues
+			return this.@Content()
+		end
+		# Returns each loop variable paired with the list of all its values.
+		#
+		#   returns    a list of pairs such as [ [ "item", [ "a", "b" ] ] ]
+		#   see        @Content
+		def @VarsAndValues
+			return this.@Content()
+		end
+		# Returns each loop variable paired with the list of all its values.
+		#
+		#   returns    a list of pairs such as [ [ "item", [ "a", "b" ] ] ]
+		#   see        @Content
+		def @VarsAndTheirValues
+			return this.@Content()
+		end
+		def @VarsXT
+			return this.@Content()
+		end
+		# Returns each loop variable paired with the list of all its values.
+		#
+		#   returns    a list of pairs such as [ [ "item", [ "a", "b" ] ] ]
+		#   see        @Content
+		def @VarVal
+			return this.@Content()
+		end
+	# Returns how many items the data holds, which is how many times a full run executes the code.
+	#
+	#   returns    a number; the length in bytes for a text
+	#   see        @Iterations, Exec
+		#>
+	def @NumberOfIterations
+		return Len(@xValues)
+	end
+		# Returns how many items the data holds.
+		#
+		#   returns    a number
+		#   see        @NumberOfIterations
+		def @NumberOfValues
+			return this.@NumberOfIterations()
+		end
+	# Returns the position of the item the running code is on, and keeps the last one reached after the run.
+	#
+	#   returns    a number; the text NULL before any run
+	#   see        v, Exec
+	def @CurrentIteration
+		return @iI
+	end
+		# Returns the position of the item the running code is on, and keeps the last one reached after the run.
+		#
+		#   returns    a number; the text NULL before any run
+		#   see        @CurrentIteration
+		def @CurrentIndex
+			return this.@CurrentIteration()
+		end
+	# Restricts the next runs of Exec to these positions, in this order.
+	#
+	#   panPos     a list of positions in the data, such as [ 3, 1 ]
+	#   returns    nothing
+	#   note       it stays in force for every later Exec until set again
+	#   warning    Raises an error at run time for a position beyond the data, and when panPos is a
+	#              single number instead of a list
+	#   see        ExecN, @NumberOfIterations
+	def @SetIterations(pxPos)
+		@xIterations = pxPos
+	end
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
+		def @xIterations(pxPos)
+			@SetIterations(pxPos)
+		end
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
+		def @Scope(pxPos)
+			@SetIterations(pxPos)
+		end
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
+		def @SetScope(pxPos)
+			@SetIterations(pxPos)
+		end
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
+		def @IterateOn(pxPos)
+			@SetIterations(pxPos)
+		end
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
+		def @IterateOnThesePositions(pxPos)
+			@SetIterations(pxPos)
+		end
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
+		def @IterateOnlyOn(pxPos)
+			@SetIterations(pxPos)
+		end
+		# Restricts the next runs of Exec to these positions, in this order.
+		#
+		#   panPos     a list of positions in the data
+		#   returns    nothing
+		#   see        @SetIterations
+		def @IterateOnLyOnThesePositions(pxPos)
+			@SetIterations(pxPos)
+		end
+	# Calls the loop's function once for each item in scope, with that item's values as its arguments.
+	#
+	#   pcCode     a function, called with the item's values, one argument per loop variable
+	#   returns    nothing
+	#   note       the code is evaluated in the method, so collect results in a global variable
+	#   warning    with several variables each name is a variable inside the code (Char, Number);
+	#              with a single variable the name is NOT bound and using it raises an
+	#              uninitialized-variable error, so read the item with v; running over an empty list
+	#              or text raises an index error
+	#   see        ExecN, v, @SetIterations
+	def exec(pxCode)
+
+		if IsList(pxCode) and Len(pxCode) = 2
+			ExecN(pxCode[1], pxCode[2])
+			return
+		end
+
+		this._ExecAt(@xIterations, pxCode)
+	end
+	# Calls the loop's function at each of the positions, in order, with that item's values.
+	#
+	#   panPos     the positions
+	#   pFunc      the function; one argument per loop variable
+	#   returns    nothing
+	#   see        Exec, ExecN
+	def _ExecAt(pxPos, pxFunc)
+		StzRequireFunction(pxFunc, "The loop body")
+		nPos = Len(pxPos)
+		bOne = ( this.@NumberOfVars() = 1 )
+		for i = 1 to nPos
+			@iI = pxPos[i]
+			if bOne
+				_StzCallWithValues(pxFunc, [ @xValues[@iI] ])
+			else
+				_StzCallWithValues(pxFunc, @xValues[@iI])
+			end
+		end
+	end
+		# Calls the loop's function once for each item in scope, with that item's values as its arguments.
+		#
+		#   pcCode     a function, called with the item's values
+		#   returns    nothing
+		#   warning    with a single loop variable use v(:Name), as the name itself is not bound
+		#   see        Exec
+		def Execute(pxCode)
+			this.exec(pxCode)
+		end
+		# Calls the loop's function once for each item in scope, with that item's values as its arguments.
+		#
+		#   pcCode     a function, called with the item's values
+		#   returns    nothing
+		#   warning    with a single loop variable use v(:Name), as the name itself is not bound
+		#   see        Exec
+		def Run(pxCode)
+			this.exec(pxCode)
+		end
+		# Calls the loop's function once for each item in scope, with that item's values as its arguments.
+		#
+		#   pcCode     a function, called with the item's values
+		#   returns    nothing
+		#   warning    with a single loop variable use v(:Name), as the name itself is not bound
+		#   see        Exec
+		def @(pxCode)
+			this.exec(pxCode)
+		end
+		def _(pxCode)
+			this.exec(pxCode)
+		end
+		# Calls the loop's function once for each item in scope, with that item's values as its arguments.
+		#
+		#   pcCode     a function, called with the item's values
+		#   returns    nothing
+		#   warning    with a single loop variable use v(:Name), as the name itself is not bound
+		#   see        Exec
+		def X(pxCode)
+			this.exec(pxCode)
+		end
+	# Calls the loop's function only for the item at one position, or for the items at a list of positions, in the order given.
+	#
+	#   _n_        a position or a list of positions in the data
+	#   pcCode     a function, called with the item's values
+	#   returns    nothing
+	#   note       the positions given here do not change the scope that Exec uses
+	#   warning    a position given as text does nothing and raises no error; with a single loop
+	#              variable use v(:Name)
+	#   see        Exec, @SetIterations
+	def ExecN(xN, pxCode)
+		viPos = []
+
+		if IsNumber(xN)
+			viPos + xN
+
+		elseif IsList(xN) and @IsListOfNumbers(xN)
+			viPos = xN
+		end
+
+		this._ExecAt(viPos, pxCode)
+	end
+		# Calls the loop's function only for the item at one position, or for the items at a list of positions.
+		#
+		#   _n_        a position or a list of positions in the data
+		#   pcCode     a function, called with the item's values
+		#   returns    nothing
+		#   see        ExecN
+		def ExecuteN(xN, pxCode)
+			this.ExecN(xN, pxCode)
+		end
+		# Calls the loop's function only for the item at one position, or for the items at a list of positions.
+		#
+		#   _n_        a position or a list of positions in the data
+		#   pcCode     a function, called with the item's values
+		#   returns    nothing
+		#   see        ExecN
+		def RunN(xN, pxCode)
+			this.ExecN(xN, pxCode)
+		end
+		# Calls the loop's function only for the item at one position, or for the items at a list of positions.
+		#
+		#   _n_        a position or a list of positions in the data
+		#   pcCode     a function, called with the item's values
+		#   returns    nothing
+		#   see        ExecN
+		def @n(xN, pxCode)
+			this.ExecN(xN, pxCode)
+		end
+		def _n(xN, pxCode)
+			this.ExecN(xN, pxCode)
+		end
+		# Calls the loop's function only for the item at one position, or for the items at a list of positions.
+		#
+		#   _n_        a position or a list of positions in the data
+		#   pcCode     a function, called with the item's values
+		#   returns    nothing
+		#   see        ExecN
+		def Xn(xN, pxCode)
+			this.ExecN(xN, pxCode)
+		end
+	# Returns the value of a loop variable for the item the code is on, the way to read a variable from inside the code.
+	#
+	#   pcVar      the name of the loop variable, such as :Item
+	#   returns    the value of the variable at the current position; the last item reached after a
+	#              run
+	#   see        Exec, @CurrentIteration
+	def V(pxVar)
+
+		if this.@NumberOfVars() = 1
+			return this.@VarsXT()[1][2][@iI]
+
+		else
+			return this.@VarsXT()[pxVar][@iI]
+		end
+	end
+#WARNING
+# DO NOT ADD GLOBAL FUNCTIONS HERE BECAUSE THIS IS A CLASS REGION
+
+# Calls pFunc with the values of paValues as its arguments (at most 4), for the @ForEach loops.
+def _StzCallWithValues(pxFunc, pxValues)
+	switch Len(pxValues)
+	case 0
+		call pxFunc()
+	case 1
+		call pxFunc(pxValues[1])
+	case 2
+		call pxFunc(pxValues[1], pxValues[2])
+	case 3
+		call pxFunc(pxValues[1], pxValues[2], pxValues[3])
+	case 4
+		call pxFunc(pxValues[1], pxValues[2], pxValues[3], pxValues[4])
+	else
+		StzRaise("Can't call the loop body! At most 4 loop variables are passed.")
+	end
+end
+end

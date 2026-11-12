@@ -63,7 +63,7 @@ class stzSoundLadder
 
 	@oU = NULL
 	@aMode = []
-	@cLastError = ""
+	@tLastError = ""
 	@nPx = 0.55                 # pixels a cent
 
 	# Reads one mode of a declared universe and prepares to show its degrees as a ladder.
@@ -81,7 +81,7 @@ class stzSoundLadder
 	def init(pUniverse, pMode)
 		@oU = StzSoundUniverseQ(pUniverse)
 		if NOT @oU.IsUsable()
-			@cLastError = @oU.LastError()
+			@tLastError = @oU.LastError()
 			return
 		ok
 		if "" + pMode != ""  @oU.Mode(pMode) ok
@@ -89,7 +89,7 @@ class stzSoundLadder
 			if This._Get(_m_, :name, "") = @oU.ModeName()  @aMode = _m_ ok
 		next
 		if len(This._Get(@aMode, :degrees, [])) = 0
-			@cLastError = "a ladder needs a mode with degrees: " + @oU.Name() + " / '" + pMode + "' declares none"
+			@tLastError = "a ladder needs a mode with degrees: " + @oU.Name() + " / '" + pMode + "' declares none"
 		ok
 
 	# Sets the note the ladder is built on.
@@ -108,14 +108,14 @@ class stzSoundLadder
 	#   returns    TRUE or FALSE, as 1 or 0
 	#   see        LastError, init
 	def IsUsable()
-		return @cLastError = ""
+		return @tLastError = ""
 
 	# Returns why the ladder is not usable.
 	#
 	#   returns    the reason as text; an empty text when it is usable
 	#   see        IsUsable
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns the name of the mode on show.
 	#

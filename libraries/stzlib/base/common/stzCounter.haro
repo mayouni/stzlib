@@ -1,0 +1,218 @@
+func IsCounterNamedParamList(pxParams)
+	if not IsList(pxParams)
+		return false
+	end
+
+	# The validator's allowed-keys list was missing :WhenYouReach
+	# (the init() method honours it at line 42 but the validator
+	# rejected it). Length cap was 4 but there are 5 valid keys;
+	# raised to 5.
+	nLen = Len(pxParams)
+	if nLen >= 1 and nLen <= 5 and
+	   IsHashList(pxParams) and
+	   StzHashListQ(pxParams).KeysQ().IsMadeOfSome([ :StartAt, :AfterYouSkip, :WhenYouReach, :RestartAt, :Step ])
+
+			return true
+	else
+		return false
+	end
+end
+	func @IsCounterNamedParamList(pxParams)
+		return IsCounterNamedParamList(pxParams)
+	end
+func StzCounterQ(pxParams)
+	return new stzCounter(pxParams)
+end
+# Counts in cycles: it starts at a number, steps by a number, and starts over when a limit is reached or after a number of values.
+#
+# Give it a hashlist of options and ask for the first N numbers. :WhenYouReach names the value at
+# which the count restarts, :AfterYouSkip names how many values to skip before it restarts, and
+# :RestartAt is the value it restarts from. The options :StartAt and :Step alone are not enough
+# today: without one of the two cycle options every number comes out as 0.
+#
+#   receiver   o1 = new stzCounter([ :StartAt = 1, :WhenYouReach = 4, :RestartAt = 0 ])
+#   example    ? @@( o1.Counting(10) )
+#              #--> [ 1, 2, 3, 0, 1, 2, 3, 0, 1, 2 ]
+#   see        stzIntSeq
+class stzCounter from stzObject
+	@nStartAt = 1
+	@nAfterYouSkip = 0
+	@nWhenYouReach = 0
+	@nRestartAt = 0
+	@nStep = 1
+
+	# Builds a cyclic counter from a hashlist of options that say where to start, how far to step and when to start over.
+	#
+	#   paParams   a hashlist with any of :StartAt, :Step, :WhenYouReach, :AfterYouSkip and
+	#              :RestartAt, for example [ :StartAt = 1, :WhenYouReach = 4, :RestartAt = 0 ]
+	#   returns    nothing; the object is built
+	#   see        Counting
+	def init(pxParams)
+
+		if IsList(pxParams) and
+		   IsCounterNamedParamList(pxParams)
+
+			if HasKey(pxParams, :StartAt)
+				@nStartAt = pxParams[ :StartAt ]
+			end
+
+			if HasKey(pxParams, :AfterYouSkip)
+				@nAfterYouSkip = pxParams[ :AfterYouSkip ]
+			end
+	
+			if HasKey(pxParams, :WhenYouReach)
+
+				@nWhenYouReach = pxParams[ :WhenYouReach ]
+			end
+
+			if HasKey(pxParams, :RestartAt)
+				@nRestartAt = pxParams[ :RestartAt ]
+			end
+	
+			if HasKey(pxParams, :Step)
+				@nStep = pxParams[ :Step ]
+			else
+				@nStep = 1
+			end
+
+		elseif IsEmptyList(pxParams)
+			# Do nothing, defaults are used
+
+		else
+			StzRaise(stzCounterError(:CanNotCreateCounter))
+		end		
+	end
+	# Returns the first N numbers the counter produces, as a list, restarting at RestartAt each time a cycle ends.
+	#
+	#   _nNumber_   how many numbers to produce, or [ :To = n ]
+	#   returns     a list of numbers
+	#   note        with :WhenYouReach = 4 and :RestartAt = 0 the count runs 1, 2, 3, 0, 1, 2, 3, 0;
+	#               with :AfterYouSkip = 2 it runs 1, 2, 0, 1, 2, 0
+	#   warning     without :WhenYouReach or :AfterYouSkip every number is 0 today, whatever
+	#               :StartAt and :Step say (checked with three different option sets)
+	#   see         init
+	#@ aka  -- Counting (engine-backed, Ring-list-shaped).
+	def Counting(nNumber)
+		hHandle = this._CountingHandle(nNumber)
+		viResult = StzEngineIntSeqToRingList(hHandle)
+		StzEngineIntSeqFree(hHandle)
+		return viResult
+	end
+		def CountingTo(nNumber)
+			return this.Counting(nNumber)
+		end
+		def Count(nNumber)
+			return this.Counting(nNumber)
+		end
+		def CountTo(nNumber)
+			return this.Counting(nNumber)
+		end
+	# Internal: build the engine-side IntSeq and return its handle.
+	# Caller is responsible for either materialising via
+	# StzEngineIntSeqToRingList + StzEngineIntSeqFree, OR wrapping
+	# in stzIntSeq which owns the handle and frees it on Release().
+
+	def _CountingHandle(nNumber)
+		if IsList(nNumber) and Q(nNumber).IsToNamedParam()
+			nNumber = nNumber[2]
+		end
+		if not IsNumber(nNumber)
+			StzRaise("Counting: nNumber must be a number.")
+		end
+
+		nMode = 0
+		nCycleParam = 0
+		if @nWhenYouReach != 0
+			nMode = 1
+			nCycleParam = @nWhenYouReach
+		elseif @nAfterYouSkip != 0
+			nMode = 2
+			nCycleParam = @nAfterYouSkip
+		end
+
+		return StzEngineIntSeqCreateCycle(
+			@nStartAt, @nStep, nCycleParam, @nRestartAt, nNumber, nMode
+		)
+	end
+	# CountingQ: returns a live stzIntSeq wrapping the engine handle.
+	# Use this when you want engine-fast Sum/Min/Max/At/Len without
+	# materialising to a Ring list. The Q suffix is the Softanza
+	# convention for "give me the wrapping object", same as
+	# StzStringQ etc. -- it is NOT engine-flavoured naming.
+
+	def CountingQ(nNumber)
+		return new stzIntSeq( this._CountingHandle(nNumber) )
+	end
+		def CountQ(nNumber)
+			return this.CountingQ(nNumber)
+		end
+		def CountToQ(nNumber)
+			return this.CountingQ(nNumber)
+		end
+		def CountingToQ(nNumber)
+			return this.CountingQ(nNumber)
+		end
+	def CountingXT(nNumber, pxReturnNth)
+		/* Example
+		oO1 = new stzCounter([
+			:StartAt = 1,
+			:WhenYouReach = 5,
+			:RestartAt = 1
+		])
+
+		? oO1.CountToXT(9, :ReturnNth = 7)
+		#--> 2
+		*/
+
+		if IsList(nNumber) and Q(nNumber).IsToNamedParam()
+			nNumber = nNumber[2]
+		end
+
+		if not IsNumber(nNumber)
+			StzRaise("Incorrect param type! nNumber must be a number.")
+		end
+
+		if IsList(pxReturnNth) and
+			( Q(pxReturnNth).IsReturnNthNamedParam() or
+			  Q(pxReturnNth).IsReturnNamedParam() or
+			  Q(pxReturnNth).IsAndReturnNthNamedParam() or
+			  Q(pxReturnNth).IsAndReturnNamedParam() or
+
+ 			Q(pxReturnNth).IsReturningNthNamedParam() or
+			  Q(pxReturnNth).IsReturningNamedParam() or
+			  Q(pxReturnNth).IsAndReturningNthNamedParam() or
+			  Q(pxReturnNth).IsAndReturningNamedParam()
+			)
+
+			pxReturnNth = pxReturnNth[2]
+		end
+
+		if IsString(pxReturnNth)
+			if pxReturnNth = :First
+				pxReturnNth = 1
+
+			elseif pxReturnNth = :Last
+				pxReturnNth = nNumber
+			end
+		end
+
+		if not ( IsNumber(pxReturnNth) and pxReturnNth > 0 )
+			StzRaise("Incorrect param type! paReturnNth must be a non null number.")
+		end
+
+		nResult = this.Counting(nNumber)[ pxReturnNth ]
+		return nResult
+	end
+		#< @FunctionAlternativeForms
+
+		def CountingToXT(nNumber, pxReturnNth)
+			return this.CountingXT(nNumber, pxReturnNth)
+		end
+		def CountXT(nNumber, pxReturnNth)
+			return this.CountingXT(nNumber, pxReturnNth)
+		end
+		def CountToXT(nNumber, pxReturnNth)
+			return this.CountingXT(nNumber, pxReturnNth)
+end
+		end
+		#>

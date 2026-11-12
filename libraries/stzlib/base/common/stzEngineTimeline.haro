@@ -17,23 +17,23 @@
  #  FUNCTIONS  #
 #=============#
 
-func StzEngineTimelineQ()
+func StzEngineTimelineQ
 	return new stzEngineTimeline()
-
-func IsStzEngineTimeline(pObj)
-	if isObject(pObj) and classname(pObj) = "stzenginetimeline"
-		return 1
+end
+func IsStzEngineTimeline(pxObj)
+	if IsObject(pxObj) and ClassName(pxObj) = "stzenginetimeline"
+		return true
 	else
-		return 0
-	ok
+		return false
+	end
+end
+	func @IsStzEngineTimeline(pxObj)
+		return IsStzEngineTimeline(pxObj)
+	end
 
-	func @IsStzEngineTimeline(pObj)
-		return IsStzEngineTimeline(pObj)
-
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
+  #///////////////
+ #/   CLASS   ///
+#///////////////
 
 # Keeps named events with timestamps in the engine and answers questions about them, such as how many fall in a range.
 #
@@ -64,7 +64,8 @@ class stzEngineTimeline from stzObject
 	#   warning    the store is global to the process: events added through one object are seen by
 	#              every other
 	#   see        Clear
-	def init()
+	def init
+	end
 		# Engine manages global timeline store
 
 	  #-------------------------------#
@@ -80,35 +81,35 @@ class stzEngineTimeline from stzObject
 	#   warning      a label that is empty or not a text, and a timestamp that is not a number,
 	#                raise an error
 	#   see          EventCount, RemoveEvent
-	def AddEvent(cLabel, nTimestamp)
+	def AddEvent(tLabel, nTimestamp)
 		if CheckingParams()
-			if NOT isString(cLabel) or cLabel = ""
+			if not IsString(tLabel) or tLabel = ""
 				StzRaise("Incorrect param! cLabel must be a non-empty string.")
-			ok
-			if NOT isNumber(nTimestamp)
+			end
+			if not IsNumber(nTimestamp)
 				StzRaise("Incorrect param! nTimestamp must be a number.")
-			ok
-		ok
+			end
+		end
 
-		_nResult_ = StzEngineTimelineAddEvent(cLabel, nTimestamp)
-		if _nResult_ < 0
+		nResult = StzEngineTimelineAddEvent(tLabel, nTimestamp)
+		if nResult < 0
 			StzRaise("Can't add event! Event slots full.")
-		ok
-
-		def AddEventQ(cLabel, nTimestamp)
-			This.AddEvent(cLabel, nTimestamp)
-			return This
-
+		end
+	end
+		def AddEventQ(tLabel, nTimestamp)
+			this.AddEvent(tLabel, nTimestamp)
+			return this
+		end
 	# Returns how many events the timeline holds.
 	#
 	#   returns    a number
 	#   see        AddEvent, Clear
-	def EventCount()
+	def EventCount
 		return StzEngineTimelineEventCount()
-
-		def NumberOfEvents()
-			return This.EventCount()
-
+	end
+		def NumberOfEvents
+			return this.EventCount()
+		end
 	# Returns the label of the event at a position, counted from 0 in the order the events were added.
 	#
 	#   nIndex     the position of the event, starting at 0
@@ -116,7 +117,7 @@ class stzEngineTimeline from stzObject
 	#   see        EventTime, EventCount
 	def EventLabel(nIndex)
 		return StzEngineTimelineEventLabel(nIndex)
-
+	end
 	# Returns the timestamp of the event at a position, counted from 0 in the order the events were added.
 	#
 	#   nIndex     the position of the event, starting at 0
@@ -124,10 +125,10 @@ class stzEngineTimeline from stzObject
 	#   see        EventLabel, EventCount
 	def EventTime(nIndex)
 		return StzEngineTimelineEventTime(nIndex)
-
+	end
 		def EventTimestamp(nIndex)
-			return This.EventTime(nIndex)
-
+			return this.EventTime(nIndex)
+		end
 	# Returns how many events have a timestamp from nStartTime to nEndTime, both included.
 	#
 	#   nStartTime   the lower end of the time range
@@ -138,19 +139,19 @@ class stzEngineTimeline from stzObject
 	#   see          EventsSorted, EventTime
 	def EventsBetween(nStartTime, nEndTime)
 		return StzEngineTimelineEventsBetween(nStartTime, nEndTime)
-
+	end
 	# Returns how many events the timeline holds, after asking the engine to sort them by time.
 	#
 	#   returns    a number
 	#   warning    the labels read back by position keep their insertion order afterwards, so the
 	#              sort is not visible through EventLabel or EventTime
 	#   see        EventCount
-	def EventsSorted()
+	def EventsSorted
 		return StzEngineTimelineEventsSorted()
-
-		def SortedEvents()
-			return This.EventsSorted()
-
+	end
+		def SortedEvents
+			return this.EventsSorted()
+		end
 	# Returns 0 on every call today, whatever the events are.
 	#
 	#   returns    0
@@ -158,12 +159,12 @@ class stzEngineTimeline from stzObject
 	#              1700000000 and 1700000060, sorted or not; the span between the first and the last
 	#              event is not computed
 	#   see        EventTime
-	def Duration()
+	def Duration
 		return StzEngineTimelineDuration()
-
-		def TotalDuration()
-			return This.Duration()
-
+	end
+		def TotalDuration
+			return this.Duration()
+		end
 	  #-------------------------------#
 	 #     REMOVAL AND CLEANUP       #
 	#-------------------------------#
@@ -175,15 +176,17 @@ class stzEngineTimeline from stzObject
 	#   warning    an unknown label is silently ignored: the not-found error the code intends is
 	#              never raised
 	#   see        AddEvent, Clear
-	def RemoveEvent(cLabel)
-		_nResult_ = StzEngineTimelineRemove(cLabel)
-		if _nResult_ < 0
-			StzRaise("Event '" + cLabel + "' not found!")
-		ok
-
+	def RemoveEvent(tLabel)
+		nResult = StzEngineTimelineRemove(tLabel)
+		if nResult < 0
+			StzRaise("Event '" + tLabel + "' not found!")
+		end
+	end
 	# Empties the timeline for every object that shares it.
 	#
 	#   returns    nothing
 	#   see        EventCount, RemoveEvent
-	def Clear()
+	def Clear
 		StzEngineTimelineClear()
+	end
+end
