@@ -307,6 +307,9 @@ func StzImplementationAvailable(paImpl, pcLang)
 			return [ 0, "exists only on " + _StzJoinComma(_aP_) + "; this is " + StzPlacementOS() ]
 		ok
 	ok
+	# MP2: an implementation in an optional pack needs the memory the pack names, on this machine or the target profile's
+	_aPk_ = StzModelPackAvailable(paImpl)
+	if _aPk_[1] = 0 return _aPk_ ok
 	# MP3: the files the catalogue says it needs (for this language) must be here -- a floor that needs a model file included
 	if HasKey(paImpl, :faculty) and isString(paImpl[:faculty]) and paImpl[:faculty] != ""
 		_aFiles_ = StzImplementationFilesAvailable(paImpl[:faculty], paImpl[:id], pcLang)
@@ -347,6 +350,11 @@ func StzImplementationIsInstalled(paImpl)
 	if paImpl[:kind] = "floor" return 1 ok
 	if paImpl[:kind] = "service" return 1 ok       # reachability is the service's own concern; it is never implicit
 	if paImpl[:needle] = "" return 1 ok            # nothing to install: the implementation carries its own code or weights
+	# MP2: under a target profile, an optional pack's implementation is installed where the profile installs the pack
+	if StzPlacementIsProfile() = 1
+		_cPk_ = StzModelPackOf(paImpl)
+		if _cPk_ != "" return StzModelPackInstalled(_cPk_) ok
+	ok
 	# a graph names its weights file by its path under the models directory (the engine loads it, not the slot)
 	if paImpl[:kind] = "graph" return fexists(StzModelsDir() + "/" + paImpl[:needle]) ok
 	return StzModelFileFor(paImpl[:needle]) != ""
@@ -474,7 +482,9 @@ func StzResolveFaculty(pReq, paPins)
 			ok
 			loop
 		ok
-		if _aReq_[:licence] = "permissive" and len(StzFind(lower(_a_[:licence]), [ "apache-2.0", "mit", "bsd-3-clause", "bsd-2-clause", "isc", "n/a", "cc0-1.0" ])) = 0
+		# OpenMDW (the Linux Foundation's Open Model, Data and Weights licence) is permissive: it asks that the licence and notices travel
+		# with the weights, and limits no use -- Nemotron 3.5 Bolt's (MP2, 2026-11-12)
+		if _aReq_[:licence] = "permissive" and len(StzFind(lower(_a_[:licence]), [ "apache-2.0", "mit", "bsd-3-clause", "bsd-2-clause", "isc", "n/a", "cc0-1.0", "openmdw-1.0", "openmdw-1.1" ])) = 0
 			add(_aRej_, [ _a_[:id], "licence '" + _a_[:licence] + "' is not permissive" ])
 			loop
 		ok

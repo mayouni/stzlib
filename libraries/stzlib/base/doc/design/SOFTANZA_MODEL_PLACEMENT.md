@@ -108,6 +108,17 @@ All of them read the registry's own data; none decides anything the registry doe
 - **MP1 done**: `StzModelsReport()`, `StzModelsReportText()`, `StzModelsReportPage(path)`.
 - **MP2 begun**: `StzModelsReportFor("linux" | "macos" | "windows")` resolves the operating-system axis. A probe that reads THIS machine (an OCR
   pack) is not yet replaced by the target's: profiles with packs and shipped models are MP2's remaining half.
+- **MP2 packs and profiles** (2026-11-12, BOLT-PLACEMENT-01): the catalogue gains `pack` rows -- a set of files Softanza never needs
+  and never chooses by default, the machine memory they need, a title and a note -- and Bolt E4B is the first, `support-quality` (6.2 GB,
+  16 GB machines). An implementation belongs to a pack when its needle names a pack file or its requires rows do; it can run only where
+  the memory is there, and is chosen only where it is installed and the court upheld it. `StzModelsReportFor` takes a PROFILE,
+  `[ :os, :memory, :packs ]`: the packs it lists are installed there and no other is. `StzModelPacks()`, `StzModelPackState(name, digest)`,
+  `StzModelPackPlanText(name)` (what it is, costs, comes from and changes, faculty by faculty, from the court's record), and one line per
+  absent pack at the end of the setup plan. The code is `.haro` (`base/faculty/stzModelPack.haro`); guard `model_pack_narrated.haro` (27).
+  Two things the first pack found: the default requirement's permissive list did not name OpenMDW (the Linux Foundation's model licence,
+  permissive: the licence and notices travel with the weights, no use is limited), so an installed Bolt could never have been chosen; and
+  the catalogue's size check read a 6.2 GB file as -1 bytes (a 32-bit `ftell`) -- it reads the engine's size now. The CI status is MP2's
+  last part.
 - **MP3 done** (2026-11-05): `models/catalog.zcat` -- every file a faculty needs (26), what each implementation requires (20 rows, per
   language where it differs), what a platform implementation needs from the operating system (2), and which conversions were replayed;
   `StzModelCatalog()`, `StzImplementationFiles()`, `StzModelFileState()`, `StzModelVerify()`, `StzModelSetupPlan(faculty)` and

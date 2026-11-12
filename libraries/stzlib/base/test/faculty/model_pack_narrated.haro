@@ -1,0 +1,143 @@
+# AN OPTIONAL PACK -- model placement MP2, narrated
+#
+# The Principal ruled on 2026-11-11 (BOLT-PLACEMENT-01): Nemotron 3.5 Bolt E4B is offered as an OPTIONAL quality pack for
+# machines with 16 GB or more, never a default; where it is installed the registry chooses it only where the court upheld
+# it -- the support desk's extraction (0.94 against 0.72 on the English set, 24/24 in French and in Arabic on a fresh one).
+# The catalogue now carries packs: a set of files, the memory the machine needs, what installing it changes. A target
+# profile says which packs and how much memory another machine has, so the report answers for it without being on it.
+#
+#   Scene 1  the catalogue names the pack: its file, size, sha256, licence, source, and the memory it needs
+#   Scene 2  here: the pack is installed (every byte checked against the sha256), and this machine has the memory
+#   Scene 3  the choice here: Bolt answers triage-extract, where the court upheld it, and nothing else
+#   Scene 4  the choice THERE: a target without the pack, or with too little memory, answers as before -- and says why
+#   Scene 5  the plan a person reads: what it is, what it costs, where it comes from, what it changes, faculty by faculty
+#
+# RUNS ON haro.exe with the library and the support-desk bed (_ticket_app.ring) and its measured results; STZ_ENGINE_DIR
+# names a built engine, STZ_MODELS_DIR the models folder. Scenes 2 and 3 need the Bolt file in it; without it they are
+# NOT RUN, by name. The catalogue read is this repository's own (models/catalog.zcat).
+
+load "../../stzBase.ring"
+load "_ticket_app.ring"
+$nPass = 0
+$nFail = 0
+$aNotRun = []
+$tPack = "support-quality"
+$tBoltFile = "Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf"
+StzModelCatalogUseFile("../../../models/catalog.zcat")
+StzLoadMeasurements("results/measurements.zmdl.txt")
+StzLoadCourt("results/court.zcourt.txt")
+StzTicketAppDeclare()
+
+Scenario("1. the catalogue names the pack")
+aPk = StzModelPack($tPack)
+Then("the catalogue has a pack named " + $tPack, Len(aPk) > 0, true)
+Then("...holding one file, the Bolt GGUF", Len(aPk[:paths]) = 1 and aPk[:paths][1] = $tBoltFile, true)
+Then("...for machines with 16 GB (16384 MB)", aPk[:memory], 16384)
+aE = StzModelCatalogEntry($tBoltFile)
+Then("the file is catalogued: 6,180,446,208 bytes", aE[:bytes], 6180446208)
+Then("...its sha256 the one MODELS.md and SHA256SUMS hold", aE[:sha256], "c8af2b8aea10a690a1d9491db744a9446660173cb38fc489612b556615a69612")
+Then("...its licence OpenMDW-1.1", aE[:licence], "OpenMDW-1.1")
+Then("...downloaded from NVIDIA's own repository, never republished", StzModelFetchSource($tBoltFile),
+	"https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-4GB/resolve/main/" + $tBoltFile)
+aImpl = [ [:id, "bolt-e4b-choice"], [:kind, "model"], [:needle, "nemotron-3.5-bolt"] ]
+Then("an implementation whose needle names the file belongs to the pack", StzModelPackOf(aImpl), $tPack)
+aOther = [ [:id, "granite-1b-choice"], [:kind, "model"], [:needle, "granite-4.0-1b"] ]
+Then("...and granite-1b's belongs to none", StzModelPackOf(aOther), "")
+
+bHere = StzModelPackInstalled($tPack) = 1
+if bHere
+	Scenario("2. here: the pack is installed and the machine can run it")
+	aS = StzModelPackState($tPack, true)
+	Then("every file is here, every byte matching its sha256", aS[:files][1][2][:digest], "ok")
+	Then("...so the pack is installed", aS[:installed], 1)
+	Then("this machine's memory is read, and is 16 GB or more", aS[:memoryok], 1)
+	? "  (this machine: " + String(aS[:machinememory]) + " MB)"
+
+	Scenario("3. the choice here: Bolt answers extraction, where the court upheld it, and nothing else")
+	Then("triage-extract: Bolt read by probability", ChosenFor("", "triage_extract"), "bolt-e4b-choice")
+	Then("kind: the keyword floor still (the court refused Bolt there, 8 better and 4 worse)", ChosenFor("", "kind"), "keyword-rules")
+	Then("brief: the first-clause floor still (refused, 6 and 6)", ChosenFor("", "brief"), "first-clause")
+else
+	$aNotRun + ("scenes 2 and 3 (" + $tBoltFile + " is not in " + StzModelsDir() + ")")
+end
+
+Scenario("4. the choice THERE: a target profile, resolved without being on it")
+aWith = [ [:os, "linux"], [:memory, 32768], [:packs, [ $tPack ]] ]
+aWithout = [ [:os, "linux"], [:memory, 32768], [:packs, []] ]
+aSmall = [ [:os, "windows"], [:memory, 8192], [:packs, [ $tPack ]] ]
+Then("a 32 GB Linux machine WITH the pack: Bolt answers triage-extract", ChosenFor(aWith, "triage_extract"), "bolt-e4b-choice")
+Then("the same machine WITHOUT it: the faculty answers as it does today", ChosenFor(aWithout, "triage_extract"), "keyword-rules")
+Then("...and Bolt reads as not installed there", ImplFor(aWithout, "triage_extract", "bolt-e4b-choice")[:installed], 0)
+Then("an 8 GB machine with the pack: Bolt is set aside", ChosenFor(aSmall, "triage_extract"), "keyword-rules")
+tWhy = ImplFor(aSmall, "triage_extract", "bolt-e4b-choice")[:unavailable]
+Then("...and the reason names the pack and the memory", StzFindFirst("optional pack 'support-quality', which needs a machine with 16384 MB of memory; this one has 8192 MB", tWhy) > 0, true)
+Then("the profile is put back after the report: this machine reads its own memory again", StzPlacementIsProfile(), 0)
+tHead = StzModelsReportTextFor(aSmall)
+Then("the text report names the target it answers for", StzFindFirst("windows, 8192 MB, optional packs: support-quality (a target profile)", tHead) > 0, true)
+
+Scenario("5. the plan a person reads")
+tPlan = StzModelPackPlanText($tPack)
+? tPlan
+Then("it says the pack is never a default", StzFindFirst("never a default", tPlan) > 0, true)
+Then("...gives the size, the licence and the line that fetches it", StzFindFirst("6180446208 bytes; licence OpenMDW-1.1", tPlan) > 0 and StzFindFirst("StzModelFetchFile('" + $tBoltFile + "')", tPlan) > 0, true)
+Then("...says extraction gains, from the court's own record",
+	StzFindFirst(":triage_extract / bolt-e4b-choice -- measured 0.94 and UPHELD by the court", tPlan) > 0, true)
+Then("...and says where it changes nothing, from the same record",
+	StzFindFirst(":kind / bolt-e4b-choice -- measured 0.81 but REFUSED", tPlan) > 0, true)
+StzPlacementProfileSet(aWithout)
+tSetup = StzModelPacksSetupText()
+StzPlacementProfileClear()
+Then("where the pack is absent, the setup plan ends with one line that points to it", StzFindFirst("optional pack 'support-quality'", tSetup) > 0, true)
+
+? ""
+for t in $aNotRun
+	? "NOT RUN: " + t
+end
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# the implementation the report chooses for a faculty's whole golden set, for a target ("" = this machine)
+func ChosenFor(xTarget, tFaculty)
+	aR = StzModelsReportFor(xTarget)
+	nLenaR = Len(aR)
+	for i = 1 to nLenaR
+		if aR[i][:faculty] = tFaculty and aR[i][:lang] = ""
+			return aR[i][:chosen]
+		end
+	end
+	return ""
+end
+# one implementation's row in the report for a target
+func ImplFor(xTarget, tFaculty, tImpl)
+	aR = StzModelsReportFor(xTarget)
+	nLenaR = Len(aR)
+	for i = 1 to nLenaR
+		if aR[i][:faculty] = tFaculty and aR[i][:lang] = ""
+			aI = aR[i][:impls]
+			nLenaI = Len(aI)
+			for k = 1 to nLenaI
+				if aI[k][:id] = tImpl
+					return aI[k]
+				end
+			end
+		end
+	end
+	return []
+end
+func Scenario(tName)
+	? ""
+	? "SCENARIO: " + tName
+end
+func Then(tWhat, xGot, xExpected)
+	if xGot = xExpected
+		$nPass = $nPass + 1
+		? "  THEN  " + tWhat + "  [PASS]"
+	else
+		$nFail = $nFail + 1
+		? "  THEN  " + tWhat + "  [FAIL]"
+		? "    expected: " + String(xExpected)
+		? "    got:      " + String(xGot)
+	end
+end

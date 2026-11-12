@@ -18,7 +18,7 @@
 #                                                              #
 #--------------------------------------------------------------#
 
-$aStzCatalog = []          # [ :files, :requires, :platforms, :replayed ] once read
+$aStzCatalog = []          # [ :files, :requires, :platforms, :replayed, :repos, :releases, :packs ] once read
 $bStzCatalogRead = 0
 $cStzCatalogPath = ""      # "" = models/catalog.zcat; a guard may point it at another file
 
@@ -33,7 +33,8 @@ func StzModelCatalogFile()
 #   returns    [ :files = [ [ :path, :bytes, :sha256, :licence, :how, :url, :sourcebytes, :sourcesha256, :steps ] ... ],
 #                :requires = [ [ :faculty, :impl, :paths, :langs ] ... ], :platforms = [ [ :faculty, :impl, :os, :needs, :how ] ... ],
 #                :replayed = [ [ :path, :date, :result ] ... ], :repos = [ [ :repo, :paths, :licencefile, :upstream, :title ] ... ],
-#                :releases = [ [ :repo, :version, :state, :revision, :date ] ... ] ]
+#                :releases = [ [ :repo, :version, :state, :revision, :date ] ... ],
+#                :packs = [ [ :name, :paths, :memory, :title, :note ] ... ] ]
 #   see        StzModelSetupPlan, StzImplementationFiles, StzModelFileState
 func StzModelCatalog()
 	if $bStzCatalogRead = 1 return $aStzCatalog ok
@@ -43,6 +44,7 @@ func StzModelCatalog()
 	_aY_ = []
 	_aRp_ = []
 	_aRl_ = []
+	_aPk_ = []
 	_cPath_ = StzModelCatalogFile()
 	if _cPath_ != "" and fexists(_cPath_)
 		_aL_ = str2list(read(_cPath_))
@@ -68,10 +70,14 @@ func StzModelCatalog()
 				_aRp_ + [ :repo = _a_[2], :paths = _StzFieldsBy(_a_[3], ","), :licencefile = _a_[4], :upstream = _a_[5], :title = _a_[6] ]
 			but _a_[1] = "release" and len(_a_) >= 6
 				_aRl_ + [ :repo = _a_[2], :version = _a_[3], :state = _a_[4], :revision = _a_[5], :date = _a_[6] ]
+			but _a_[1] = "pack" and len(_a_) >= 5
+				_cNote_ = ""
+				if len(_a_) >= 6 _cNote_ = _a_[6] ok
+				_aPk_ + [ :name = _a_[2], :paths = _StzFieldsBy(_a_[3], ","), :memory = 0 + _a_[4], :title = _a_[5], :note = _cNote_ ]
 			ok
 		next
 	ok
-	$aStzCatalog = [ :files = _aF_, :requires = _aR_, :platforms = _aP_, :replayed = _aY_, :repos = _aRp_, :releases = _aRl_ ]
+	$aStzCatalog = [ :files = _aF_, :requires = _aR_, :platforms = _aP_, :replayed = _aY_, :repos = _aRp_, :releases = _aRl_, :packs = _aPk_ ]
 	$bStzCatalogRead = 1
 	return $aStzCatalog
 
@@ -79,6 +85,12 @@ func StzModelCatalog()
 func StzModelCatalogReload()
 	$bStzCatalogRead = 0
 	$aStzCatalog = []
+
+# reads another catalogue file from now on ("" = models/catalog.zcat), forgetting the one read: a .haro caller cannot assign the
+# c-lettered global itself
+func StzModelCatalogUseFile(pcPath)
+	$cStzCatalogPath = pcPath
+	StzModelCatalogReload()
 
 # the fields of a catalogue line, split on "|" by scanning (a field may hold any character but the bar)
 func _StzCatalogFields(pcLine)
@@ -131,7 +143,10 @@ func StzModelFileState(pcPath, pbDigest)
 	ok
 	return [ :present = 1, :sizeok = 1, :digest = "", :reason = "present, the catalogued size" ]
 
+# the engine's size (64-bit): ftell's is a 32-bit long on Windows and read -1 for the 6.2 GB Bolt file (MP2, 2026-11-12)
 func _StzFileSize(pcPath)
+	_n_ = StzEngineFileSize(pcPath)
+	if _n_ >= 0 return _n_ ok
 	_h_ = fopen(pcPath, "rb")
 	if isNull(_h_) or NOT isPointer(_h_) return -1 ok
 	fseek(_h_, 0, 2)
@@ -260,7 +275,8 @@ func StzModelSetupPlanText(pcFaculty)
 	      "Softanza fetches nothing by itself: each step is yours to run. A 'fetch' line is one call that downloads the file and keeps it only" + char(10) +
 	      "with the sha256 written here (StzModelFetch); every other file is checked against it before use (StzModelVerify)." + char(10)
 	if len(_aP_) = 0
-		return _c_ + char(10) + "Nothing to do: every file the catalogue says these faculties need is here, and every platform implementation can run." + char(10)
+		return _c_ + char(10) + "Nothing to do: every file the catalogue says these faculties need is here, and every platform implementation can run." + char(10) +
+		       StzModelPacksSetupText()
 	ok
 	_nBytes_ = 0
 	for _i_ = 1 to len(_aP_)
@@ -282,6 +298,8 @@ func StzModelSetupPlanText(pcFaculty)
 		_c_ += "  value     " + _s_[:value] + char(10)
 	next
 	if _nBytes_ > 0 _c_ += char(10) + "files to fetch or make: " + _nBytes_ + " bytes in all" + char(10) ok
+	# MP2: the optional packs not installed here, one line each -- never in the steps above, which are what the faculties NEED
+	_c_ += StzModelPacksSetupText()
 	return _c_
 
 # THE SHA256SUMS of one models subdirectory ("vision", "ocr"), written from the catalogue: the file the engine reads before it parses a
