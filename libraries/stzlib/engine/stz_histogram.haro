@@ -21,10 +21,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("histogram")
-    $hStzHistogramHandle = null
+    $hStzHistogramHandle = ""
 elseif FExists($tStzHistogramLib)
     $hStzHistogramHandle = LoadLib($tStzHistogramLib)
 else
     ? "WARNING: stz_histogram not found at: " + $tStzHistogramLib
-    $hStzHistogramHandle = null
+    $hStzHistogramHandle = ""
 end

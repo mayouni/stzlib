@@ -16,10 +16,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("reaxis")
-    $hStzReaxisHandle = null
+    $hStzReaxisHandle = ""
 elseif FExists($tStzReaxisLib)
     $hStzReaxisHandle = LoadLib($tStzReaxisLib)
 else
     ? "WARNING: stz_reaxis not found at: " + $tStzReaxisLib
-    $hStzReaxisHandle = null
+    $hStzReaxisHandle = ""
 end

@@ -19,5 +19,5 @@ if FExists($tStkFileLib)
     $hStkFileHandle = LoadLib($tStkFileLib)
 else
     ? "WARNING: stk_file not found at: " + $tStkFileLib
-    $hStkFileHandle = null
+    $hStkFileHandle = ""
 end

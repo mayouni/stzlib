@@ -16,7 +16,7 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("stats")
-    $hStzStatsHandle = null
+    $hStzStatsHandle = ""
 elseif FExists($tStzStatsLib)
     $hStzStatsHandle = LoadLib($tStzStatsLib)
     # GS6a: t-SNE epochs can run on the GPU -- record WHERE the wgpu runtime
@@ -25,5 +25,5 @@ elseif FExists($tStzStatsLib)
     StzEngineTsneGpuRuntimePath($tEngineDir + "/zig-out/bin/wgpu_native.dll")
 else
     ? "WARNING: stz_stats not found at: " + $tStzStatsLib
-    $hStzStatsHandle = null
+    $hStzStatsHandle = ""
 end

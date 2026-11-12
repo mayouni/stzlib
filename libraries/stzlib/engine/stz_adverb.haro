@@ -13,10 +13,10 @@ elseif isMacOS()
 end
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("adverb")
-    $hStzAdverbHandle = null
+    $hStzAdverbHandle = ""
 elseif FExists($tStzAdverbLib)
     $hStzAdverbHandle = LoadLib($tStzAdverbLib)
 else
     ? "WARNING: stz_adverb not found at: " + $tStzAdverbLib
-    $hStzAdverbHandle = null
+    $hStzAdverbHandle = ""
 end

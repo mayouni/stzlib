@@ -17,7 +17,7 @@ class stkBuffer
 
 	def init(oMemory, tId, nSize)
 	    # Can only be created by stkMemory - no standalone creation
-	    if IsNull(oMemory) or not IsObject(oMemory)
+	    if IsEmpty(oMemory) or not IsObject(oMemory)
 	        Raise("ERROR: stkBuffer must be created by stkMemory container")
 	    end
 	    
@@ -25,7 +25,7 @@ class stkBuffer
 	        Raise("ERROR: Invalid memory container type")
 	    end
 	    
-	    if IsNull(tId) or not IsString(tId) or Len(tId) = 0
+	    if IsEmpty(tId) or not IsString(tId) or Len(tId) = 0
 	        Raise("ERROR: Buffer ID must be a non-empty string")
 	    end
 	    
@@ -48,7 +48,7 @@ class stkBuffer
         # Helper method for stkMemory to initialize with data
         this.ValidateBuffer()
         
-        if IsNull(pxData)
+        if IsEmpty(pxData)
             Raise("ERROR: Cannot initialize buffer with null data")
         end
         
@@ -137,7 +137,7 @@ class stkBuffer
             Raise("ERROR: Range exceeds buffer size")
         end
         
-        if IsNull(pxData)
+        if IsEmpty(pxData)
             Raise("ERROR: Cannot update with null data")
         end
         
@@ -231,11 +231,11 @@ class stkBuffer
         return this.Read(nOffset-1, nLength)
     end
     def Slice(nOffset, nLength)
-        if IsNull(nOffset)
+        if IsEmpty(nOffset)
             nOffset = 0
         end
         
-        if IsNull(nLength)
+        if IsEmpty(nLength)
             nLength = @nSize - nOffset
         end
         
@@ -278,14 +278,14 @@ class stkBuffer
     #----------------------------------#
 
     def Append(pxData)
-        if IsNull(pxData)
+        if IsEmpty(pxData)
             Raise("ERROR: Cannot append null data")
         end
         
         this.Write(@nSize, pxData)
     end
     def Prepend(pxData)
-        if IsNull(pxData)
+        if IsEmpty(pxData)
             Raise("ERROR: Cannot prepend null data")
         end
         
@@ -305,7 +305,7 @@ class stkBuffer
             Raise("ERROR: Invalid offset for insertion")
         end
         
-        if IsNull(pxData)
+        if IsEmpty(pxData)
             Raise("ERROR: Cannot insert null data")
         end
         
@@ -398,7 +398,7 @@ class stkBuffer
     def IndexOfXT(pxPattern, nStartOffset)
         this.ValidateBuffer()
         
-        if IsNull(nStartOffset)
+        if IsEmpty(nStartOffset)
             nStartOffset = 0
         end
         
@@ -406,7 +406,7 @@ class stkBuffer
             return -1
         end
         
-        if IsNull(pxPattern)
+        if IsEmpty(pxPattern)
             return -1
         end
         
@@ -507,7 +507,7 @@ class stkBuffer
 	    return oNewBuffer
     end
     def Equals(oOther)
-        if IsNull(oOther) or not IsObject(oOther)
+        if IsEmpty(oOther) or not IsObject(oOther)
             return false
         end
         
@@ -601,7 +601,7 @@ class stkBuffer
     def LoadFromFile(tFileName)
         this.ValidateBuffer()
         
-        if IsNull(tFileName) or not IsString(tFileName)
+        if IsEmpty(tFileName) or not IsString(tFileName)
             Raise("ERROR: Invalid filename - must be a non-null string")
         end
         
@@ -615,7 +615,7 @@ class stkBuffer
         
         tFileContent = ring_read(tFileName)
         
-        if IsNull(tFileContent)
+        if IsEmpty(tFileContent)
             Raise("ERROR: Failed to read file '" + tFileName + "'")
         end
         
@@ -625,11 +625,11 @@ class stkBuffer
     def LoadFromFileXT(tFileName, nOffset, nLength)
         this.ValidateBuffer()
         
-        if IsNull(tFileName) or not IsString(tFileName)
+        if IsEmpty(tFileName) or not IsString(tFileName)
             Raise("ERROR: Invalid filename - must be a non-null string")
         end
         
-        if IsNull(nOffset)
+        if IsEmpty(nOffset)
             nOffset = 0
         end
         
@@ -643,7 +643,7 @@ class stkBuffer
         
         tFileContent = ring_read(tFileName)
         
-        if IsNull(tFileContent)
+        if IsEmpty(tFileContent)
             Raise("ERROR: Failed to read file '" + tFileName + "'")
         end
         
@@ -653,7 +653,7 @@ class stkBuffer
             Raise("ERROR: Offset (" + nOffset + ") beyond file size (" + nFileSize + ")")
         end
         
-        if IsNull(nLength)
+        if IsEmpty(nLength)
             nLength = nFileSize - nOffset
         end
         
@@ -680,7 +680,7 @@ class stkBuffer
     def AppendFromFile(tFileName)
         this.ValidateBuffer()
         
-        if IsNull(tFileName) or not IsString(tFileName)
+        if IsEmpty(tFileName) or not IsString(tFileName)
             Raise("ERROR: Invalid filename - must be a non-null string")
         end
         
@@ -690,7 +690,7 @@ class stkBuffer
         
         tFileContent = ring_read(tFileName)
         
-        if IsNull(tFileContent)
+        if IsEmpty(tFileContent)
             Raise("ERROR: Failed to read file '" + tFileName + "'")
         end
         
@@ -699,15 +699,15 @@ class stkBuffer
     def SaveToFile(tFileName, nOffset, nLength)
         this.ValidateBuffer()
         
-        if IsNull(tFileName) or not IsString(tFileName)
+        if IsEmpty(tFileName) or not IsString(tFileName)
             Raise("ERROR: Invalid filename - must be a non-null string")
         end
         
-        if IsNull(nOffset)
+        if IsEmpty(nOffset)
             nOffset = 0
         end
         
-        if IsNull(nLength)
+        if IsEmpty(nLength)
             nLength = @nSize - nOffset
         end
         

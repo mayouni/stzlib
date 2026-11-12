@@ -16,10 +16,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("csv")
-    $hStzCsvHandle = null
+    $hStzCsvHandle = ""
 elseif FExists($tStzCsvLib)
     $hStzCsvHandle = LoadLib($tStzCsvLib)
 else
     ? "WARNING: stz_csv not found at: " + $tStzCsvLib
-    $hStzCsvHandle = null
+    $hStzCsvHandle = ""
 end

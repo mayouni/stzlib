@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("stringart")
-    $hStzStringartHandle = null
+    $hStzStringartHandle = ""
 elseif FExists($tStzStringartLib)
     $hStzStringartHandle = LoadLib($tStzStringartLib)
 else
     ? "WARNING: stz_stringart not found at: " + $tStzStringartLib
-    $hStzStringartHandle = null
+    $hStzStringartHandle = ""
 end

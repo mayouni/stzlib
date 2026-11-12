@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("bits")
-    $hStzBitsHandle = null
+    $hStzBitsHandle = ""
 elseif FExists($tStzBitsLib)
     $hStzBitsHandle = LoadLib($tStzBitsLib)
 else
     ? "WARNING: stz_bits not found at: " + $tStzBitsLib
-    $hStzBitsHandle = null
+    $hStzBitsHandle = ""
 end

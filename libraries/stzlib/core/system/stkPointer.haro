@@ -15,7 +15,7 @@ class stkPointer
 
     def init(oMemory, tBufferId, tAccessMode, nOffset, nLength, nPointerId)
         # Can only be created by stkMemory - no standalone creation
-        if IsNull(oMemory) or not IsObject(oMemory)
+        if IsEmpty(oMemory) or not IsObject(oMemory)
             Raise("ERROR: stkPointer must be created by stkMemory container")
         end
         
@@ -23,7 +23,7 @@ class stkPointer
             Raise("ERROR: Invalid memory container type")
         end
         
-	    if IsNull(tBufferId) or Len(tBufferId) = 0
+	    if IsEmpty(tBufferId) or Len(tBufferId) = 0
 	        Raise("ERROR: Buffer ID cannot be empty")
 	    end
         
@@ -57,11 +57,11 @@ class stkPointer
     def Read(nOffset, nLength)
         this.ValidatePointer()
         
-        if IsNull(nOffset)
+        if IsEmpty(nOffset)
             nOffset = 0
         end
         
-        if IsNull(nLength)
+        if IsEmpty(nLength)
             nLength = @nLength - nOffset
         end
         
@@ -112,11 +112,11 @@ class stkPointer
     def ReadDirect(nOffset, nLength)
         this.ValidatePointer()
         
-        if IsNull(nOffset)
+        if IsEmpty(nOffset)
             nOffset = 0
         end
         
-        if IsNull(nLength)
+        if IsEmpty(nLength)
             nLength = @nLength - nOffset
         end
         
@@ -146,7 +146,7 @@ class stkPointer
             Raise("ERROR: Write operation not allowed - pointer is read-only")
         end
         
-        if IsNull(nOffset)
+        if IsEmpty(nOffset)
             nOffset = 0
         end
         
@@ -154,7 +154,7 @@ class stkPointer
             Raise("ERROR: Negative offset not allowed")
         end
         
-        if IsNull(pxData)
+        if IsEmpty(pxData)
             Raise("ERROR: Cannot write null data")
         end
         
@@ -174,7 +174,7 @@ class stkPointer
         
 		# Write directly to buffer to avoid circular call
 		oBuffer = @oMemory.GetBufferById(@tBufferId)
-		if IsNull(oBuffer)
+		if IsEmpty(oBuffer)
 		    Raise("ERROR: Buffer not found")
 		end
 		oBuffer.Write(nAbsoluteOffset, tData)
@@ -215,11 +215,11 @@ class stkPointer
             Raise("ERROR: Fill operation not allowed - pointer is read-only")
         end
         
-        if IsNull(nStart)
+        if IsEmpty(nStart)
             nStart = 0
         end
         
-        if IsNull(nLength)
+        if IsEmpty(nLength)
             nLength = @nLength - nStart
         end
         
@@ -252,7 +252,7 @@ class stkPointer
     def IndexOf(pxPattern, nStartPos)
         this.ValidatePointer()
         
-        if IsNull(nStartPos)
+        if IsEmpty(nStartPos)
             nStartPos = 0
         end
         
@@ -260,7 +260,7 @@ class stkPointer
             return -1
         end
         
-        if IsNull(pxPattern)
+        if IsEmpty(pxPattern)
             return -1
         end
         
@@ -329,11 +329,11 @@ class stkPointer
     def Slice(nOffset, nLength)
         this.ValidatePointer()
         
-        if IsNull(nOffset)
+        if IsEmpty(nOffset)
             nOffset = 0
         end
         
-        if IsNull(nLength)
+        if IsEmpty(nLength)
             nLength = @nLength - nOffset
         end
         
@@ -364,7 +364,7 @@ class stkPointer
             Raise("ERROR: Copy operation not allowed - pointer is read-only")
         end
         
-        if IsNull(oSourcePointer) or not IsObject(oSourcePointer)
+        if IsEmpty(oSourcePointer) or not IsObject(oSourcePointer)
             Raise("ERROR: Invalid source pointer")
         end
         
@@ -376,15 +376,15 @@ class stkPointer
             Raise("ERROR: Source pointer is invalid")
         end
         
-        if IsNull(nSourceOffset)
+        if IsEmpty(nSourceOffset)
             nSourceOffset = 0
         end
         
-        if IsNull(nDestOffset)
+        if IsEmpty(nDestOffset)
             nDestOffset = 0
         end
         
-        if IsNull(nLength)
+        if IsEmpty(nLength)
             nLength = Min(oSourcePointer.Length() - nSourceOffset, @nLength - nDestOffset)
         end
         
@@ -413,7 +413,7 @@ class stkPointer
     def CopyTo(oDestPointer, nSourceOffset, nDestOffset, nLength)
         this.ValidatePointer()
         
-        if IsNull(oDestPointer) or not IsObject(oDestPointer)
+        if IsEmpty(oDestPointer) or not IsObject(oDestPointer)
             Raise("ERROR: Invalid destination pointer")
         end
         
@@ -461,7 +461,7 @@ class stkPointer
     end
     def ComparePointer(oOther)
         # Compare raw pointer addresses
-        if IsNull(oOther) or not IsObject(oOther)
+        if IsEmpty(oOther) or not IsObject(oOther)
             return 0
         end
         
@@ -506,7 +506,7 @@ class stkPointer
     end
     def FromPointerReference(pxReference)
         # Restore pointer from reference (static-like method)
-        if IsNull(pxReference) or not isptr(pxReference)
+        if IsEmpty(pxReference) or not isptr(pxReference)
             Raise("ERROR: Invalid pointer reference")
         end
         
@@ -548,7 +548,7 @@ class stkPointer
             Raise("ERROR: Write operation not allowed - pointer is read-only")
         end
         
-        if IsNull(nOffset)
+        if IsEmpty(nOffset)
             nOffset = 0
         end
         
@@ -637,7 +637,7 @@ class stkPointer
         return this.Content()
     end
     def Equals(oOther)
-        if IsNull(oOther) or not IsObject(oOther)
+        if IsEmpty(oOther) or not IsObject(oOther)
             return false
         end
         
@@ -665,7 +665,7 @@ class stkPointer
         return true
     end
     def SameBuffer(oOther)
-        if IsNull(oOther) or not IsObject(oOther)
+        if IsEmpty(oOther) or not IsObject(oOther)
             return false
         end
         
@@ -738,7 +738,7 @@ class stkPointer
 
 	    oBufferInfo = @oMemory.GetBufferInfo(@tBufferId)
 
-	    if IsNull(oBufferInfo)
+	    if IsEmpty(oBufferInfo)
 	        Raise("ERROR: Referenced buffer no longer exists")
 	    end
 

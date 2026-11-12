@@ -39,7 +39,7 @@ class stkMemory
 	def CreatePointer(tBufferId, tAccessMode)
 
 		oBuffer = @aBuffers[tBufferId]
-		if IsNull(oBuffer)
+		if IsEmpty(oBuffer)
 	        Raise("Invalid buffer ID (" + tBufferId + ")")
 	    end
 
@@ -64,7 +64,7 @@ class stkMemory
     def CreatePointerView(tBufferId, tAccessMode, nOffset, nLength)
 
 	oBuffer = @aBuffers[tBufferId]
-	if IsNull(oBuffer)
+	if IsEmpty(oBuffer)
             Raise("Invalid buffer ID: " + tBufferId)
         end
         
@@ -104,7 +104,7 @@ class stkMemory
 	def ReadFromBuffer(tBufferId, nOffset, nLength)
 
 	    oBuffer = @aBuffers[tBufferId]
-	    if IsNull(oBuffer)
+	    if IsEmpty(oBuffer)
 	        Raise("Buffer not found: " + tBufferId)
 	    end
 
@@ -113,7 +113,7 @@ class stkMemory
 
     def GetBuffer(tBufferId)
         oBuffer = @aBufferId[tBufferId]
-		if IsNull(oBuffer)
+		if IsEmpty(oBuffer)
 			Raise("Invalid buffer ID: " + tBufferId)
 		end
 
@@ -122,7 +122,7 @@ class stkMemory
 
 	def DestroyBuffer(tBufferId)
 		oBuffer = @aBuffers[tBufferId]
-	    if IsNull(oBuffer)
+	    if IsEmpty(oBuffer)
 	        return false
 	    end
 	    
@@ -152,14 +152,14 @@ class stkMemory
     end
     def DestroyPointer(tPointerId)
 		oPointer = @aPointers[tPointerId]
-        if IsNull(oPointer)
+        if IsEmpty(oPointer)
 			return false
 		end
          
         # If it is a write pointer, release the buffer's write lock
         if oPointer.AccessMode() = "write"
 			oBuffers = @aBuffers[oPointer.BufferId()]
-            if not IsNull(oBuffer)
+            if not IsEmpty(oBuffer)
                 oBuffer.ReleaseWritePointer()
             end
         end
@@ -181,7 +181,7 @@ class stkMemory
     end
     def ValidatePointer(tPointerId)
 		oPointer = @aPointers[tPointerId]
-        if IsNull(oPointer)
+        if IsEmpty(oPointer)
             return false
         end
 
@@ -191,7 +191,7 @@ class stkMemory
 
 	def BufferInfo(tBufferId)
 		oBuffer = @aBuffers[tBufferId]
-		if IsNull(oBuffer)
+		if IsEmpty(oBuffer)
 			return []
 		end
 	    

@@ -207,6 +207,7 @@ ok
     load "faculty/stzFlow.ring"
     load "faculty/stzModelCatalog.ring"    # MP3: the model catalogue (models/catalog.zcat) and the setup plan -- it fetches nothing
     load "faculty/stzModelPack.haro"       # MP2: the catalogue's optional packs and the target profile (packs, memory)
+    load "faculty/stzModelsCheck.haro"     # MP2: the status a deployment script fails on -- each required faculty, answered there or not
     load "faculty/stzModelsReport.ring"    # MP1/MP2: the real picture of the models -- what can run here, what answers, where (SOFTANZA_MODEL_PLACEMENT.md)
     load "faculty/stzModelRelease.ring"    # MP3b: the release of converted model files (publish gate, stager, upload script) and the verified fetch
 

@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("crypto")
-    $hStzCryptoHandle = null
+    $hStzCryptoHandle = ""
 elseif FExists($tStzCryptoLib)
     $hStzCryptoHandle = LoadLib($tStzCryptoLib)
 else
     ? "WARNING: stz_crypto not found at: " + $tStzCryptoLib
-    $hStzCryptoHandle = null
+    $hStzCryptoHandle = ""
 end

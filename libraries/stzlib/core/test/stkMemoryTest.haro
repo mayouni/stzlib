@@ -94,13 +94,13 @@ block1 = mem.Allocate(50)
 block2 = mem.Allocate(50)
 
 # Set memory content
-filledBlock = mem.Set(NULL, 65, 10)  // Fill with 'A' characters
+filledBlock = mem.Set("", 65, 10)  // Fill with 'A' characters
 ? filledBlock
 #--> "AAAAAAAAAA"
 
 # Copy operation
 sourceData = "Test data to copy"
-copiedData = mem.Copy(sourceData, NULL, len(sourceData))
+copiedData = mem.Copy(sourceData, "", len(sourceData))
 ? copiedData
 #--> "Test data to copy"
 
@@ -156,7 +156,7 @@ memMgr = mainBuf.Memory()
 
 # 3. Create additional memory block
 extraBlock = memMgr.Allocate(20)
-extraBlock = memMgr.Set(NULL, 88, 20)  // Fill with 'X'
+extraBlock = memMgr.Set("", 88, 20)  // Fill with 'X'
 
 # 4. Create pointer to buffer data
 bufPtr = mainBuf.GetPointer(0)

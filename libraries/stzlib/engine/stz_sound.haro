@@ -66,12 +66,12 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("sound")
-    $hStzSoundHandle = null
+    $hStzSoundHandle = ""
 elseif FExists($tStzSoundLib)
     $hStzSoundHandle = LoadLib($tStzSoundLib)
 else
     ? "WARNING: stz_sound not found at: " + $tStzSoundLib
-    $hStzSoundHandle = null
+    $hStzSoundHandle = ""
 end
 
 func StzSoundEngineLoaded

@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("constraint")
-    $hStzConstraintHandle = null
+    $hStzConstraintHandle = ""
 elseif FExists($tStzConstraintLib)
     $hStzConstraintHandle = LoadLib($tStzConstraintLib)
 else
     ? "WARNING: stz_constraint not found at: " + $tStzConstraintLib
-    $hStzConstraintHandle = null
+    $hStzConstraintHandle = ""
 end

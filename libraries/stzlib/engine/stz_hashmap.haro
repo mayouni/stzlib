@@ -17,10 +17,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("hashmap")
-    $hStzHashMapHandle = null
+    $hStzHashMapHandle = ""
 elseif FExists($tStzHashMapLib)
     $hStzHashMapHandle = LoadLib($tStzHashMapLib)
 else
     ? "WARNING: stz_hashmap not found at: " + $tStzHashMapLib
-    $hStzHashMapHandle = null
+    $hStzHashMapHandle = ""
 end

@@ -14,10 +14,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("geo")
-    $hStzGeoHandle = null
+    $hStzGeoHandle = ""
 elseif FExists($tStzGeoLib)
     $hStzGeoHandle = LoadLib($tStzGeoLib)
 else
     ? "WARNING: stz_geo not found at: " + $tStzGeoLib
-    $hStzGeoHandle = null
+    $hStzGeoHandle = ""
 end

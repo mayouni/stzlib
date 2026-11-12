@@ -19,5 +19,5 @@ if FExists($tStkLocaleLib)
     $hStkLocaleHandle = LoadLib($tStkLocaleLib)
 else
     ? "WARNING: stk_locale not found at: " + $tStkLocaleLib
-    $hStkLocaleHandle = null
+    $hStkLocaleHandle = ""
 end

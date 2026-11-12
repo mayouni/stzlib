@@ -316,12 +316,12 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("gpu")
-    $hStzGpuHandle = null
+    $hStzGpuHandle = ""
 elseif FExists($tStzGpuLib)
     $hStzGpuHandle = LoadLib($tStzGpuLib)
 else
     ? "WARNING: stz_gpu not found at: " + $tStzGpuLib
-    $hStzGpuHandle = null
+    $hStzGpuHandle = ""
 end
 
 # ---- calibration persistence (G5) ------------------------------------

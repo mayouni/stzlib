@@ -16,10 +16,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("graph")
-    $hStzGraphHandle = null
+    $hStzGraphHandle = ""
 elseif FExists($tStzGraphLib)
     $hStzGraphHandle = LoadLib($tStzGraphLib)
 else
     ? "WARNING: stz_graph not found at: " + $tStzGraphLib
-    $hStzGraphHandle = null
+    $hStzGraphHandle = ""
 end

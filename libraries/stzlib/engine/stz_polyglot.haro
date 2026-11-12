@@ -17,10 +17,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("polyglot")
-    $hStzPolyglotHandle = null
+    $hStzPolyglotHandle = ""
 elseif FExists($tStzPolyglotLib)
     $hStzPolyglotHandle = LoadLib($tStzPolyglotLib)
 else
     ? "WARNING: stz_polyglot not found at: " + $tStzPolyglotLib
-    $hStzPolyglotHandle = null
+    $hStzPolyglotHandle = ""
 end

@@ -19,5 +19,5 @@ if FExists($tStkDateTimeLib)
     $hStkDateTimeHandle = LoadLib($tStkDateTimeLib)
 else
     ? "WARNING: stk_datetime not found at: " + $tStkDateTimeLib
-    $hStkDateTimeHandle = null
+    $hStkDateTimeHandle = ""
 end

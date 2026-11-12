@@ -30,12 +30,12 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("resilience")
-    $hStzResilienceHandle = null
+    $hStzResilienceHandle = ""
 elseif FExists($tStzResilienceLib)
     $hStzResilienceHandle = LoadLib($tStzResilienceLib)
 else
     ? "WARNING: stz_resilience not found at: " + $tStzResilienceLib
-    $hStzResilienceHandle = null
+    $hStzResilienceHandle = ""
 end
 
 # State constants (mirror engine CircuitState enum)

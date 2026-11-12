@@ -30,7 +30,7 @@ class stkBuffer
         @bIsValid = true
     end
     def InitWithData(pData)
-        if IsNull(pData)
+        if IsEmpty(pData)
             Raise("Cannot initialize buffer with null data")
         end
         
@@ -128,7 +128,7 @@ class stkBuffer
             Raise("ERROR: Range exceeds buffer size")
         end
         
-        if IsNull(pData)
+        if IsEmpty(pData)
             Raise("ERROR: Cannot update with null data")
         end
         
@@ -220,11 +220,11 @@ class stkBuffer
         return this.Read(nOffset-1, nLength)
     end
     def Slice(nOffset, nLength) # Range() in Softanza semantics, uses 0-index
-        if IsNull(nOffset)
+        if IsEmpty(nOffset)
             nOffset = 0
         end
         
-        if IsNull(nLength)
+        if IsEmpty(nLength)
             nLength = @nSize - nOffset
         end
         
@@ -267,14 +267,14 @@ class stkBuffer
     #----------------------------------#
 
     def Append(pData)
-        if IsNull(pData)
+        if IsEmpty(pData)
             Raise("Cannot append null data")
         end
         
         this.Write(@nSize, pData)
     end
     def Prepend(pData)
-        if IsNull(pData)
+        if IsEmpty(pData)
             Raise("Cannot prepend null data")
         end
         
@@ -294,7 +294,7 @@ class stkBuffer
             Raise("Invalid offset for insertion")
         end
         
-        if IsNull(pData)
+        if IsEmpty(pData)
             Raise("Cannot insert null data")
         end
         
@@ -414,7 +414,7 @@ class stkBuffer
 			Raise("Invalid buffer - buffer was not properly initialized.")
 		end
 
-        if IsNull(nStartOffset)
+        if IsEmpty(nStartOffset)
             nStartOffset = 0
         end
         
@@ -422,7 +422,7 @@ class stkBuffer
             return -1
         end
         
-        if IsNull(pPattern)
+        if IsEmpty(pPattern)
             return -1
         end
         
@@ -556,7 +556,7 @@ class stkBuffer
         return oNewBuffer
     end
     def Equals(oOther)
-        if IsNull(oOther) or not IsObject(oOther)
+        if IsEmpty(oOther) or not IsObject(oOther)
             return false
         end
         
@@ -646,7 +646,7 @@ class stkBuffer
 			Raise("Invalid buffer - buffer was not properly initialized.")
 		end
 
-        if IsNull(nOffset)
+        if IsEmpty(nOffset)
             nOffset = 0
         end
         
@@ -701,7 +701,7 @@ class stkBuffer
     def LoadFromFile(tFileName)
         this.ValidateBuffer()
         
-        if IsNull(tFileName) or not IsString(tFileName)
+        if IsEmpty(tFileName) or not IsString(tFileName)
             Raise("ERROR: Invalid filename - must be a non-null string")
         end
         
@@ -717,7 +717,7 @@ class stkBuffer
         # Read file content (works for both text and binary)
         tFileContent = ring_read(tFileName)
         
-        if IsNull(tFileContent)
+        if IsEmpty(tFileContent)
             Raise("ERROR: Failed to read file '" + tFileName + "'")
         end
         
@@ -730,7 +730,7 @@ class stkBuffer
     def LoadFromFileXT(tFileName, nOffset, nLength)
         this.ValidateBuffer()
         
-        if IsNull(tFileName) or not IsString(tFileName)
+        if IsEmpty(tFileName) or not IsString(tFileName)
             Raise("ERROR: Invalid filename - must be a non-null string")
         end
         
@@ -738,7 +738,7 @@ class stkBuffer
             Raise("ERROR: Empty filename not allowed")
         end
         
-        if IsNull(nOffset)
+        if IsEmpty(nOffset)
             nOffset = 0
         end
         
@@ -754,7 +754,7 @@ class stkBuffer
         # Read entire file first
         tFileContent = ring_read(tFileName)
         
-        if IsNull(tFileContent)
+        if IsEmpty(tFileContent)
             Raise("ERROR: Failed to read file '" + tFileName + "'")
         end
         
@@ -765,7 +765,7 @@ class stkBuffer
         end
         
         # Determine length to read
-        if IsNull(nLength)
+        if IsEmpty(nLength)
             nLength = nFileSize - nOffset
         end
         
@@ -797,7 +797,7 @@ class stkBuffer
     def AppendFromFile(tFileName)
         this.ValidateBuffer()
         
-        if IsNull(tFileName) or not IsString(tFileName)
+        if IsEmpty(tFileName) or not IsString(tFileName)
             Raise("ERROR: Invalid filename - must be a non-null string")
         end
         
@@ -813,7 +813,7 @@ class stkBuffer
         # Read file content
         tFileContent = ring_read(tFileName)
         
-        if IsNull(tFileContent)
+        if IsEmpty(tFileContent)
             Raise("ERROR: Failed to read file '" + tFileName + "'")
         end
         
@@ -826,7 +826,7 @@ class stkBuffer
     def AppendFromFileXT(tFileName, nOffset, nLength)
         this.ValidateBuffer()
         
-        if IsNull(tFileName) or not IsString(tFileName)
+        if IsEmpty(tFileName) or not IsString(tFileName)
             Raise("ERROR: Invalid filename - must be a non-null string")
         end
         
@@ -834,7 +834,7 @@ class stkBuffer
             Raise("ERROR: Empty filename not allowed")
         end
         
-        if IsNull(nOffset)
+        if IsEmpty(nOffset)
             nOffset = 0
         end
         
@@ -850,7 +850,7 @@ class stkBuffer
         # Read entire file first
         tFileContent = ring_read(tFileName)
         
-        if IsNull(tFileContent)
+        if IsEmpty(tFileContent)
             Raise("ERROR: Failed to read file '" + tFileName + "'")
         end
         
@@ -861,7 +861,7 @@ class stkBuffer
         end
         
         # Determine length to read
-        if IsNull(nLength)
+        if IsEmpty(nLength)
             nLength = nFileSize - nOffset
         end
         
@@ -894,7 +894,7 @@ class stkBuffer
     def SaveToFile(tFileName, nOffset, nLength)
         this.ValidateBuffer()
         
-        if IsNull(tFileName) or not IsString(tFileName)
+        if IsEmpty(tFileName) or not IsString(tFileName)
             Raise("ERROR: Invalid filename - must be a non-null string")
         end
         
@@ -902,11 +902,11 @@ class stkBuffer
             Raise("ERROR: Empty filename not allowed")
         end
         
-        if IsNull(nOffset)
+        if IsEmpty(nOffset)
             nOffset = 0
         end
         
-        if IsNull(nLength)
+        if IsEmpty(nLength)
             nLength = @nSize - nOffset
         end
         

@@ -21,10 +21,10 @@ end
 
 # the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
 if not StzDomainWanted("tracectx")
-    $hStzTraceCtxHandle = null
+    $hStzTraceCtxHandle = ""
 elseif FExists($tStzTraceCtxLib)
     $hStzTraceCtxHandle = LoadLib($tStzTraceCtxLib)
 else
     ? "WARNING: stz_tracectx not found at: " + $tStzTraceCtxLib
-    $hStzTraceCtxHandle = null
+    $hStzTraceCtxHandle = ""
 end
