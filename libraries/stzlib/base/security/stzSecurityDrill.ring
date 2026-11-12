@@ -511,6 +511,11 @@ class stzSecurityDrill from stzObject
 		return StzInterpreterPath()
 
 	def _DeriveStzBasePath()
+		# the source tree the core found by its own files; the engine may be a
+		# build outside the tree (STZ_ENGINE_DIR), with no base/ beside it
+		if isglobal("$tStzLibDir") and $tStzLibDir != ""
+			return $tStzLibDir + "/base/stzBase.ring"
+		ok
 		_nSlash_ = 0
 		_nL_ = len($tEngineDir)
 		for _i_ = 1 to _nL_
@@ -523,7 +528,13 @@ class stzSecurityDrill from stzObject
 	# The application under attack: real auth, a real signing gate, its
 	# own ledger, and one route that seals the evidence on request.
 	def _GenerateTargetScript()
-		@cScript = $tEngineDir + "/../base/security/.stzdrilltarget_gen.ring"
+		# the SOURCE tree, found by the core apart from the engine: an engine built
+		# outside the tree (STZ_ENGINE_DIR, Haro's engine build) has no base/ beside it
+		_cBase_ = $tEngineDir + "/../base"
+		if isglobal("$tStzLibDir") and $tStzLibDir != ""
+			_cBase_ = $tStzLibDir + "/base"
+		ok
+		@cScript = _cBase_ + "/security/.stzdrilltarget_gen.ring"
 		_nl_ = char(10)
 		_c_ = 'load "' + @cBaseRing + '"' + _nl_
 		# THE TARGET'S GLOBALS ARE $-PREFIXED AND UNIQUE ON PURPOSE. They were
