@@ -31,15 +31,15 @@ ok
 
 # Loading files related to the DATA module
 
-    load "data/stzCharData.ring"
-    load "data/stzUnicodeData.ring"
-    load "data/stzLocaleData.ring"
-    load "data/stzRegexData.ring"
-    load "data/stzRandomData.ring"
-    load "data/stzSystemCallData.ring"
+    load "data/stzCharData.haro"
+    load "data/stzUnicodeData.haro"
+    load "data/stzLocaleData.haro"
+    load "data/stzRegexData.haro"
+    load "data/stzRandomData.haro"
+    load "data/stzSystemCallData.haro"
 
     # stzDatabase -- the sqlite-backed data store (data domain, R7)
-    load "data/stzDatabase.ring"
+    load "data/stzDatabase.haro"
 
 # Loading files related to the OBJECT module
 

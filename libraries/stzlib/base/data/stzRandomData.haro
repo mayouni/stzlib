@@ -1,7 +1,7 @@
 
 # A random 100 words in english, french and arabic
 
-$_a100Words = [ 
+$vHundredWords = [ 
   [ "apple", "pomme", "تفاحة" ], 
   [ "book", "livre", "كتاب" ], 
   [ "chair", "chaise", "كرسيّ" ], 
@@ -107,75 +107,75 @@ $_a100Words = [
 ]
 
 
-func 100WordsXT()
-	return $_a100Words
-
-func 100Words()
+func 100WordsXT
+	return $vHundredWords
+end
+func 100Words
 	return 100EnglishWords()
-
-	func Words()
+end
+	func Words
 		return 100EnglishWords()
-
-func AWord()
+	end
+func AWord
 	return ARandomItemIn( 100Words() )
-
-	func ARandomWord()
+end
+	func ARandomWord
 		return AWord()
+	end
+func 100EnglishWords
+	vtResult = []
+	nLen = Len($vHundredWords)
 
-func 100EnglishWords()
-	_acResult_ = []
-	_nLen_ = len($_a100Words)
+	for i = 1 to nLen
+		vtResult + $vHundredWords[i][1]
+	end
 
-	for i = 1 to _nLen_
-		_acResult_ + $_a100Words[i][1]
-	next
-
-	return _acResult_
-
-	func EnglishWords()
+	return vtResult
+end
+	func EnglishWords
 		return 100EnglishWords()
-
-func AnEnglishWord()
+	end
+func AnEnglishWord
 	return ARandomItemIn( 100EnglishWords() )
-
-	func ARandomEnglishWord()
+end
+	func ARandomEnglishWord
 		return AnEnglishWord()
+	end
+func 100FrenchWords
+	vtResult = []
+	nLen = Len($vHundredWords)
 
-func 100FrenchWords()
-	_acResult_ = []
-	_nLen_ = len($_a100Words)
+	for i = 1 to nLen
+		vtResult + $vHundredWords[i][2]
+	end
 
-	for i = 1 to _nLen_
-		_acResult_ + $_a100Words[i][2]
-	next
-
-	return _acResult_
-
-	func FrenchWords()
+	return vtResult
+end
+	func FrenchWords
 		return 100FrenchWords()
-
-func AFrenchWord()
+	end
+func AFrenchWord
 	return ARandomItemIn( 100FrenchWords() )
-
-	func ARandomFrenchWord()
+end
+	func ARandomFrenchWord
 		return AFrenchWord()
+	end
+func 100ArabicWords
+	vtResult = []
+	nLen = Len($vHundredWords)
 
-func 100ArabicWords()
-	_acResult_ = []
-	_nLen_ = len($_a100Words)
+	for i = 1 to nLen
+		vtResult + $vHundredWords[i][3]
+	end
 
-	for i = 1 to _nLen_
-		_acResult_ + $_a100Words[i][3]
-	next
-
-	return _acResult_
-
-	func ArabicWords()
+	return vtResult
+end
+	func ArabicWords
 		return 100ArabicWords()
-
-func AnArabicWord()
+	end
+func AnArabicWord
 	return ARandomItemIn( 100ArabicWords() )
-
-	func ARandomArabicWord()
+end
+	func ARandomArabicWord
 		return AnArabicWord()
-
+	end

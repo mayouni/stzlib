@@ -475,7 +475,7 @@ func StzLocaleToTitlecase(cStr)
 	return StzEngineLocaleToTitlecase(cStr)
 
 func StzLocaleAbbreviationsXT()
-	return $_aLocaleAbbreviationsXT
+	return $xLocaleAbbreviationsXT
 
 	func LocaleAbbreviationsXT()
 		return StzLocaleAbbreviationsXT()
@@ -505,7 +505,7 @@ func StzLocaleAbbreviations()
 		return StzLocaleAbbreviations()
 
 func StzLocaleAbbreviationsAsString()
-	return $_cLocaleAbbreviations
+	return $tLocaleAbbreviations
 
 	func LocaleAbbreviationsAsString()
 		return StzLocaleAbbreviationsAsString()
@@ -572,7 +572,7 @@ func StzScriptsforWhichDefaultLanguageIs(_cLangCode_)
 		return StzScriptsforWhichDefaultLanguageIs(_cLangCode_)
 
 func StzLocaleMeasurementSystems()
-	return $_aLocaleMeasurementsystems
+	return $xLocaleMeasurementSystems
 
 	func LocaleMeasurementSystems()
 		return StzLocaleMeasurementSystems()

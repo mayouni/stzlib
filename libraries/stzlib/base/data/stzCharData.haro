@@ -11,9 +11,9 @@ Author: Mansour Ayouni (kalidianow@gmail.com)
 */
 
 
-  ////////////////////////////////
- ///   OUTLINE OF THIS FILE   ///
-////////////////////////////////
+  #//////////////////////////////
+ #/   OUTLINE OF THIS FILE   ///
+#//////////////////////////////
 
 /*
 General Unicode info
@@ -71,9 +71,9 @@ Dotless LETTERS
 
 */
 
-  ////////////////////////
- ///   DATA SECTION   ///
-////////////////////////
+  #//////////////////////
+ #/   DATA SECTION   ///
+#//////////////////////
 
 
 	  #--------------------------------------------------------------------#
@@ -82,12 +82,12 @@ Dotless LETTERS
 
 	# Number of chars in Unicode
 
-	$_nNumberOfCharsInUnicode = 149_186 # Version 15.0
+	$nNumberOfCharsInUnicode = 149_186 # Version 15.0
 
 	# Vowel chars
 
-	$_acVowels = [ "A", "a", "E", "e", "I", "i", "O", "o", "U", "u" ]
-	anVowelsUnicodes = [ 65, 97, 69, 101, 73, 105, 79, 111, 85, 117 ]
+	$vtVowels = [ "A", "a", "E", "e", "I", "i", "O", "o", "U", "u" ]
+	viVowelsUnicodes = [ 65, 97, 69, 101, 73, 105, 79, 111, 85, 117 ]
 
 	#NOTE:
 	# the letter "Y" is not considered a vowel to stay consistent with
@@ -109,7 +109,7 @@ Dotless LETTERS
 	# data, and the engine has no opinion on it. Columns 1 and 3 (the old
 	# numeric code and the range lists) are dead weight kept only so the row
 	# shape stays stable for that one lookup.
-	$_aUnicodeScriptsXT = [
+	$xUnicodeScriptsXT = [
 		# code, name, ranges, languages
 		[ "0", :Unknown, [[]], [] ],
 		[ "1", :Inherited, [[]], [] ],
@@ -318,7 +318,7 @@ Dotless LETTERS
 
 	# Unicode directions
 
-	$_aUnicodeDirectionsXT = [
+	$xUnicodeDirectionsXT = [
 		# Nbr > ShortName > StzName > Description
 		[ "0", :DirL, :LeftToRight, "Left-to-right" ],
 		[ "1", :DirR, :RightToLeft, "Right-to-left" ],
@@ -347,7 +347,7 @@ Dotless LETTERS
 	
 	# Unicode categories
 
-	$_aUnicodeCategoriesXT = [
+	$xUnicodeCategoriesXT = [
 		# utf8proc category numbering (matches Zig engine)
 		[ "1", :Letter_Uppercase ],
 		[ "2", :Letter_Lowercase ],
@@ -389,13 +389,13 @@ Dotless LETTERS
 	
 	# Unicode versions
 
-	$_acUnicodeVersions = [ 
+	$vtUnicodeVersions = [ 
 		"0.9", "1.0", "1.2", "1.4", "1.5",
 		"3.2", "3.3", "3.4", "3.5", "3.8",
 		"4.0", "4.2", "4.3", "4.5", "4.8",
 		"5.0", "5.2", "5.3", "5.5", "5.8",
 		"10.0", "12.0", "13.0"
-	] // #TODO Put correct values (see how CurrentUnicodeversion() works)
+	] # #TODO Put correct values (see how CurrentUnicodeversion() works)
 
 	  #-----------------#
 	 #   PUNCTUATION   #
@@ -411,29 +411,29 @@ Dotless LETTERS
 	# Add them to this list of unicodes herefater, otherwise the
 	# use of Punctuations() function would lead the user to error...
 
-	_anOtherPunctuationUnicodes	= [] #TODO // Comptete it
-	$_anGeneralPunctuationUnicodes   = 8192  : 8303
-	$_anSupplementalPunctuationCodes = 11766 : 11903
+	vOtherPunctuationUnicodes	= [] #TODO // Comptete it
+	$viGeneralPunctuationUnicodes   = 8192  : 8303
+	$viSupplementalPunctuationCodes = 11766 : 11903
 
 	# Merging the three lists above
-	$_anPunctuationUnicodes = []
-	n_anOtherPunctuationUnico1Len = len(_anOtherPunctuationUnicodes)
-	for iLoop_anOtherPunctuationUnico1 = 1 to n_anOtherPunctuationUnico1Len
-		item = _anOtherPunctuationUnicodes[iLoop_anOtherPunctuationUnico1]
-		$_anPunctuationUnicodes + item
-	next
+	$viPunctuationUnicodes = []
+	nOtherPunctuationUnicoLen = Len(vOtherPunctuationUnicodes)
+	for iLoop_anOtherPunctuationUnico1 = 1 to nOtherPunctuationUnicoLen
+		xItem2 = vOtherPunctuationUnicodes[iLoop_anOtherPunctuationUnico1]
+		$viPunctuationUnicodes + xItem2
+	end
 
-	n_anGeneralPunctuationUni1Len = len($_anGeneralPunctuationUnicodes)
-	for iLoop_anGeneralPunctuationUni1 = 1 to n_anGeneralPunctuationUni1Len
-		item = $_anGeneralPunctuationUnicodes[iLoop_anGeneralPunctuationUni1]
-		$_anPunctuationUnicodes + item
-	next
+	nGeneralPunctuationUniLen = Len($viGeneralPunctuationUnicodes)
+	for iLoop_anGeneralPunctuationUni1 = 1 to nGeneralPunctuationUniLen
+		xItem2 = $viGeneralPunctuationUnicodes[iLoop_anGeneralPunctuationUni1]
+		$viPunctuationUnicodes + xItem2
+	end
 
-	n_anSupplementalPunctuati1Len = len($_anSupplementalPunctuationCodes)
-	for iLoop_anSupplementalPunctuati1 = 1 to n_anSupplementalPunctuati1Len
-		item = $_anSupplementalPunctuationCodes[iLoop_anSupplementalPunctuati1]
-		$_anPunctuationUnicodes + item
-	next
+	nSupplementalPunctuatiLen = Len($viSupplementalPunctuationCodes)
+	for iLoop_anSupplementalPunctuati1 = 1 to nSupplementalPunctuatiLen
+		xItem2 = $viSupplementalPunctuationCodes[iLoop_anSupplementalPunctuati1]
+		$viPunctuationUnicodes + xItem2
+	end
 
 	  #-------------------#
 	 #   ARABIC STAFF    #
@@ -441,112 +441,112 @@ Dotless LETTERS
 
 	# Arabic Basmalah
 
-	$_cAllahAsChar = "ﷲ"
-	$_cAllahAsString = "اللَّه"
+	$tAllahAsChar = "ﷲ"
+	$tAllahAsString = "اللَّه"
 
-	$_cBasmalahAsChar = "﷽"
-	_cBasmalahCharUnicode = 65021
+	$tBasmalahAsChar = "﷽"
+	nBasmalahCharUnicode = 65021
 
-	$_cBasmalahAsString = "بِسْمِ اللَّهِ الرَّحْمَانِ الرَّحِيمِ"
+	$tBasmalahAsString = "بِسْمِ اللَّهِ الرَّحْمَانِ الرَّحِيمِ"
 
-	$_cMuhammedAsChar = "ﷴ"
-	$_cMuhammedAsString = "مُحَمَّد"
-	$_cSalatAlaMuhammedAsChar = "ﷺ"
-	_cSalatAlaMuhammedAsString = "صَلَّى اللّهُ عَلَيْهِ وَ سَلَّمَ"
+	$tMuhammedAsChar = "ﷴ"
+	$tMuhammedAsString = "مُحَمَّد"
+	$tSalatAlaMuhammedAsChar = "ﷺ"
+	tSalatAlaMuhammedAsString = "صَلَّى اللّهُ عَلَيْهِ وَ سَلَّمَ"
 
 	# Arabic letters
-	$_acArabicLetters   = ["أ", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر", "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ع", "غ", "ف", "ق", "ك", "ل", "م", "ن", "ه", "و", "ي"]
-	$_acArabicLettersXT = [ "ا","أ","ئ","ء","آ","ب","ت","ة","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","و","ه","ي", "ّ" ]
+	$vtArabicLetters   = ["أ", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر", "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ع", "غ", "ف", "ق", "ك", "ل", "م", "ن", "ه", "و", "ي"]
+	$vtArabicLettersXT = [ "ا","أ","ئ","ء","آ","ب","ت","ة","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","و","ه","ي", "ّ" ]
 
 	# Arabic 7arakets
 
-	$_cArabicDhammah = "ُ"		_cArabicDhammahUnicode = 1615
-	$_cArabicFat7ah = "َ"		_cArabicFat7ahUnicode  = 1614
-	$_cArabicKasrah = "ِ"		_cArabicKasrahUnicode  = 1616
-	$_cArabicSukoon = "ْ"		_cArabicSukoonUnicode  = 1618
-	$_cArabicDoubleDhammah = "ُُ"
-	$_ArabicDoubleFat7ah = "ََ"
-	$_ArabicDoubleKasrah = "ِِ"
+	$tArabicDhammah = "ُ"		nArabicDhammahUnicode = 1615
+	$tArabicFat7ah = "َ"		nArabicFat7ahUnicode  = 1614
+	$tArabicKasrah = "ِ"		nArabicKasrahUnicode  = 1616
+	$tArabicSukoon = "ْ"		nArabicSukoonUnicode  = 1618
+	$tArabicDoubleDhammah = "ُُ"
+	$tArabicDoubleFat7ah = "ََ"
+	$tArabicDoubleKasrah = "ِِ"
 
 	
-	$_anArabic7araketUnicodes = [
-		_cArabicDhammahUnicode, _cArabicFat7ahUnicode,
-		_cArabicKasrahUnicode, _cArabicSukoonUnicode
+	$viArabic7araketUnicodes = [
+		nArabicDhammahUnicode, nArabicFat7ahUnicode,
+		nArabicKasrahUnicode, nArabicSukoonUnicode
 	]
 
 	# Arabic Shaddah
 
-	$_cArabicShaddah = "ّ"
+	$tArabicShaddah = "ّ"
 	
 	# Arabic Tamdeed
 
-	$_cArabicTamdeed = "ـ" # used to extend arabic words like in حُسَيْـــــن
+	$tArabicTamdeed = "ـ" # used to extend arabic words like in حُسَيْـــــن
 
 	# Arabic Tinween
 
-	_anArabicTinweenUnicodes = 1611:1613
+	viArabicTinweenUnicodes = 1611:1613
 
 	# Arabic chars unicodes
 
-	_anArabicBasicUnicodes = 1536 : 1791
-	$_anArabicSupplementUnicodes = 1872 : 1919
-	$_anArabicExtendedAUnicodes = 2208 : 2303
-	$_anArabicPresentationFormAUnicodes = 64336 : 65023
-	$_anArabicPresentationFormBUnicodes = 65136 : 65279
-	$_anArabicMathAlphabeticSymbolUnicodes = 126464 : 126719
+	viArabicBasicUnicodes = 1536 : 1791
+	$viArabicSupplementUnicodes = 1872 : 1919
+	$viArabicExtendedAUnicodes = 2208 : 2303
+	$viArabicPresentationFormAUnicodes = 64336 : 65023
+	$viArabicPresentationFormBUnicodes = 65136 : 65279
+	$viArabicMathAlphabeticSymbolUnicodes = 126464 : 126719
 
-	$_anQuranicSignUnicodes = 1750 : 1773
+	$viQuranicSignUnicodes = 1750 : 1773
 	
 	# Arabic Presentation Form unicodes
 
-	$_anArabicPresentationFormUnicodes = []
+	$viArabicPresentationFormUnicodes = []
 
-	n_anArabicPresentationFor4Len = len($_anArabicPresentationFormAUnicodes)
-	for iLoop_anArabicPresentationFor4 = 1 to n_anArabicPresentationFor4Len
-		item = $_anArabicPresentationFormAUnicodes[iLoop_anArabicPresentationFor4]
-		$_anArabicPresentationFormUnicodes + item
-	next
+	nArabicPresentationFor4Len = Len($viArabicPresentationFormAUnicodes)
+	for iLoop_anArabicPresentationFor4 = 1 to nArabicPresentationFor4Len
+		xItem2 = $viArabicPresentationFormAUnicodes[iLoop_anArabicPresentationFor4]
+		$viArabicPresentationFormUnicodes + xItem2
+	end
 
-	n_anArabicPresentationFor3Len = len($_anArabicPresentationFormBUnicodes)
-	for iLoop_anArabicPresentationFor3 = 1 to n_anArabicPresentationFor3Len
-		item = $_anArabicPresentationFormBUnicodes[iLoop_anArabicPresentationFor3]
-		$_anArabicPresentationFormUnicodes + item
-	next
+	nArabicPresentationFor3Len = Len($viArabicPresentationFormBUnicodes)
+	for iLoop_anArabicPresentationFor3 = 1 to nArabicPresentationFor3Len
+		xItem2 = $viArabicPresentationFormBUnicodes[iLoop_anArabicPresentationFor3]
+		$viArabicPresentationFormUnicodes + xItem2
+	end
 
 	# All Arabic unicodes #TODO PErf
 
-	_anArabicUnicodes = []
+	vArabicUnicodes = []
 
-	n_anArabicBasicUnicodes1Len = len(_anArabicBasicUnicodes)
-	for iLoop_anArabicBasicUnicodes1 = 1 to n_anArabicBasicUnicodes1Len
-		item = _anArabicBasicUnicodes[iLoop_anArabicBasicUnicodes1]
-		_anArabicUnicodes + item
-	next
-	n_anArabicSupplementUnico1Len = len($_anArabicSupplementUnicodes)
-	for iLoop_anArabicSupplementUnico1 = 1 to n_anArabicSupplementUnico1Len
-		item = $_anArabicSupplementUnicodes[iLoop_anArabicSupplementUnico1]
-		_anArabicUnicodes + item
-	next
-	n_anArabicExtendedAUnicod1Len = len($_anArabicExtendedAUnicodes)
-	for iLoop_anArabicExtendedAUnicod1 = 1 to n_anArabicExtendedAUnicod1Len
-		item = $_anArabicExtendedAUnicodes[iLoop_anArabicExtendedAUnicod1]
-		_anArabicUnicodes + item
-	next
-	n_anArabicPresentationFor2Len = len($_anArabicPresentationFormAUnicodes)
-	for iLoop_anArabicPresentationFor2 = 1 to n_anArabicPresentationFor2Len
-		item = $_anArabicPresentationFormAUnicodes[iLoop_anArabicPresentationFor2]
-		_anArabicUnicodes + item
-	next
-	n_anArabicPresentationFor1Len = len($_anArabicPresentationFormBUnicodes)
-	for iLoop_anArabicPresentationFor1 = 1 to n_anArabicPresentationFor1Len
-		item = $_anArabicPresentationFormBUnicodes[iLoop_anArabicPresentationFor1]
-		_anArabicUnicodes + item
-	next
-	n_anArabicMathAlphabeticS1Len = len($_anArabicMathAlphabeticSymbolUnicodes)
-	for iLoop_anArabicMathAlphabeticS1 = 1 to n_anArabicMathAlphabeticS1Len
-		item = $_anArabicMathAlphabeticSymbolUnicodes[iLoop_anArabicMathAlphabeticS1]
-		_anArabicUnicodes + item
-	next
+	nArabicBasicUnicodesLen = Len(viArabicBasicUnicodes)
+	for iLoop_anArabicBasicUnicodes1 = 1 to nArabicBasicUnicodesLen
+		xItem2 = viArabicBasicUnicodes[iLoop_anArabicBasicUnicodes1]
+		vArabicUnicodes + xItem2
+	end
+	nArabicSupplementUnicoLen = Len($viArabicSupplementUnicodes)
+	for iLoop_anArabicSupplementUnico1 = 1 to nArabicSupplementUnicoLen
+		xItem2 = $viArabicSupplementUnicodes[iLoop_anArabicSupplementUnico1]
+		vArabicUnicodes + xItem2
+	end
+	nArabicExtendedAUnicodLen = Len($viArabicExtendedAUnicodes)
+	for iLoop_anArabicExtendedAUnicod1 = 1 to nArabicExtendedAUnicodLen
+		xItem2 = $viArabicExtendedAUnicodes[iLoop_anArabicExtendedAUnicod1]
+		vArabicUnicodes + xItem2
+	end
+	nArabicPresentationFor2Len = Len($viArabicPresentationFormAUnicodes)
+	for iLoop_anArabicPresentationFor2 = 1 to nArabicPresentationFor2Len
+		xItem2 = $viArabicPresentationFormAUnicodes[iLoop_anArabicPresentationFor2]
+		vArabicUnicodes + xItem2
+	end
+	nArabicPresentationForLen = Len($viArabicPresentationFormBUnicodes)
+	for iLoop_anArabicPresentationFor1 = 1 to nArabicPresentationForLen
+		xItem2 = $viArabicPresentationFormBUnicodes[iLoop_anArabicPresentationFor1]
+		vArabicUnicodes + xItem2
+	end
+	nArabicMathAlphabeticSLen = Len($viArabicMathAlphabeticSymbolUnicodes)
+	for iLoop_anArabicMathAlphabeticS1 = 1 to nArabicMathAlphabeticSLen
+		xItem2 = $viArabicMathAlphabeticSymbolUnicodes[iLoop_anArabicMathAlphabeticS1]
+		vArabicUnicodes + xItem2
+	end
 
 	# Arabic Dotless letters
 	# (classic caligraphy without dots, called also Rasm script)
@@ -564,7 +564,7 @@ Dotless LETTERS
 		# Equivalent in hebrew of the arabic tinkeet and shaddah :
 		# https://en.wikipedia.org/wiki/Dagesh
 
-	$_anArabicDotlessUnicodes = [
+	$viArabicDotlessUnicodes = [
 		1609, 1575, 1581, 1583, 1585,
 		1587, 1589, 1591, 1593, 1605,
 		1607, 1608, 1646, 1647, 1697,
@@ -572,7 +572,7 @@ Dotless LETTERS
 	]
 
 	
-	$_aArabicDotlessCharsXT = [
+	$xArabicDotlessCharsXT = [
 
 	#TODO // Wa may need a better data structure
 	# to manage some special Dotless letters
@@ -626,8 +626,8 @@ Dotless LETTERS
 
 	# Arabic Hamzahs
 
-	_nArabicHamzahWasliahMadhmoumahUnicode = 1649
-	_anArabicHamzahWasliahMaksoorahUnicode = [1575,1615]
+	nArabicHamzahWasliahMadhmoumahUnicode = 1649
+	viArabicHamzahWasliahMaksoorahUnicode = [1575,1615]
 		# You may ask: Why 2 unicodes to define just one Hamzah? Read below:
 	
 		/* While Unicode defines one code (1569) for the "اُ" (Hamzah Wasliah Madhmoomah),
@@ -661,21 +661,21 @@ Dotless LETTERS
 			StzStringQ("اِ").IsDiacritic() --> 1
 	*/
 
-	_anArabicHamzahKat3iahUnicodes = 1571:1574 + 1569
-	_anArabicHamzahWasliahUnicodes = _anArabicHamzahWasliahMaksoorahUnicode + _nArabicHamzahWasliahMadhmoumahUnicode
+	viArabicHamzahKat3iahUnicodes = 1571:1574 + 1569
+	xArabicHamzahWasliahUnicodes = viArabicHamzahWasliahMaksoorahUnicode + nArabicHamzahWasliahMadhmoumahUnicode
 	
-	$_anArabicHamzahUnicodes = []
+	$viArabicHamzahUnicodes = []
 
-	n_anArabicHamzahKat3iahUn1Len = len(_anArabicHamzahKat3iahUnicodes)
-	for iLoop_anArabicHamzahKat3iahUn1 = 1 to n_anArabicHamzahKat3iahUn1Len
-		item = _anArabicHamzahKat3iahUnicodes[iLoop_anArabicHamzahKat3iahUn1]
-		$_anArabicHamzahUnicodes + item
-	next
-	n_anArabicHamzahWasliahUn1Len = len(_anArabicHamzahWasliahUnicodes)
-	for iLoop_anArabicHamzahWasliahUn1 = 1 to n_anArabicHamzahWasliahUn1Len
-		item = _anArabicHamzahWasliahUnicodes[iLoop_anArabicHamzahWasliahUn1]
-		$_anArabicHamzahUnicodes + item
-	next
+	nArabicHamzahKat3iahUnLen = Len(viArabicHamzahKat3iahUnicodes)
+	for iLoop_anArabicHamzahKat3iahUn1 = 1 to nArabicHamzahKat3iahUnLen
+		xItem2 = viArabicHamzahKat3iahUnicodes[iLoop_anArabicHamzahKat3iahUn1]
+		$viArabicHamzahUnicodes + xItem2
+	end
+	nArabicHamzahWasliahUnLen = Len(xArabicHamzahWasliahUnicodes)
+	for iLoop_anArabicHamzahWasliahUn1 = 1 to nArabicHamzahWasliahUnLen
+		xItem2 = xArabicHamzahWasliahUnicodes[iLoop_anArabicHamzahWasliahUn1]
+		$viArabicHamzahUnicodes + xItem2
+	end
 
 	  #-------------------#
 	 #   LANTIN STAFF    #
@@ -683,64 +683,64 @@ Dotless LETTERS
 
 	# Latin chars unicodes
 
-	_anLatinBasicUnicodes = 0 : 127
-	$_anLatin1SupplementUnicodes = 128 : 255
-	$_anLatinExtendedAUnicodes = 256 : 383
-	$_anLatinExtendedBUnicodes = 384 : 591
-	$_anLatinExtendedAdditionalUnicodes = 7680 : 7935
-	$_anLatinExtendedCUnicodes = 11360 : 11391
-	$_anLatinExtendedDUnicodes = 42784 : 43007
-	$_anLatinExtendedEUnicodes = 43824 : 43887
+	viLatinBasicUnicodes = 0 : 127
+	$viLatin1SupplementUnicodes = 128 : 255
+	$viLatinExtendedAUnicodes = 256 : 383
+	$viLatinExtendedBUnicodes = 384 : 591
+	$viLatinExtendedAdditionalUnicodes = 7680 : 7935
+	$viLatinExtendedCUnicodes = 11360 : 11391
+	$viLatinExtendedDUnicodes = 42784 : 43007
+	$viLatinExtendedEUnicodes = 43824 : 43887
 	
-	_anLatinUnicodes = []
+	vLatinUnicodes = []
 	
-	n_anLatinBasicUnicodes1Len = len(_anLatinBasicUnicodes)
-	for iLoop_anLatinBasicUnicodes1 = 1 to n_anLatinBasicUnicodes1Len
-		item = _anLatinBasicUnicodes[iLoop_anLatinBasicUnicodes1]
-		_anLatinUnicodes + item
-	next
-	n_anLatin1SupplementUnico1Len = len($_anLatin1SupplementUnicodes)
-	for iLoop_anLatin1SupplementUnico1 = 1 to n_anLatin1SupplementUnico1Len
-		item = $_anLatin1SupplementUnicodes[iLoop_anLatin1SupplementUnico1]
-		_anLatinUnicodes + item
-	next
-	n_anLatinExtendedAUnicode1Len = len($_anLatinExtendedAUnicodes)
-	for iLoop_anLatinExtendedAUnicode1 = 1 to n_anLatinExtendedAUnicode1Len
-		item = $_anLatinExtendedAUnicodes[iLoop_anLatinExtendedAUnicode1]
-		_anLatinUnicodes + item
-	next
-	n_anLatinExtendedBUnicode1Len = len($_anLatinExtendedBUnicodes)
-	for iLoop_anLatinExtendedBUnicode1 = 1 to n_anLatinExtendedBUnicode1Len
-		item = $_anLatinExtendedBUnicodes[iLoop_anLatinExtendedBUnicode1]
-		_anLatinUnicodes + item
-	next
-	n_anLatinExtendedAddition1Len = len($_anLatinExtendedAdditionalUnicodes)
-	for iLoop_anLatinExtendedAddition1 = 1 to n_anLatinExtendedAddition1Len
-		item = $_anLatinExtendedAdditionalUnicodes[iLoop_anLatinExtendedAddition1]
-		_anLatinUnicodes + item
-	next
-	n_anLatinExtendedCUnicode1Len = len($_anLatinExtendedCUnicodes)
-	for iLoop_anLatinExtendedCUnicode1 = 1 to n_anLatinExtendedCUnicode1Len
-		item = $_anLatinExtendedCUnicodes[iLoop_anLatinExtendedCUnicode1]
-		_anLatinUnicodes + item
-	next
-	n_anLatinExtendedDUnicode1Len = len($_anLatinExtendedDUnicodes)
-	for iLoop_anLatinExtendedDUnicode1 = 1 to n_anLatinExtendedDUnicode1Len
-		item = $_anLatinExtendedDUnicodes[iLoop_anLatinExtendedDUnicode1]
-		_anLatinUnicodes + item
-	next
-	n_anLatinExtendedEUnicode1Len = len($_anLatinExtendedEUnicodes)
-	for iLoop_anLatinExtendedEUnicode1 = 1 to n_anLatinExtendedEUnicode1Len
-		item = $_anLatinExtendedEUnicodes[iLoop_anLatinExtendedEUnicode1]
-		_anLatinUnicodes + item
-	next
+	nLatinBasicUnicodesLen = Len(viLatinBasicUnicodes)
+	for iLoop_anLatinBasicUnicodes1 = 1 to nLatinBasicUnicodesLen
+		xItem2 = viLatinBasicUnicodes[iLoop_anLatinBasicUnicodes1]
+		vLatinUnicodes + xItem2
+	end
+	nLatin1SupplementUnicoLen = Len($viLatin1SupplementUnicodes)
+	for iLoop_anLatin1SupplementUnico1 = 1 to nLatin1SupplementUnicoLen
+		xItem2 = $viLatin1SupplementUnicodes[iLoop_anLatin1SupplementUnico1]
+		vLatinUnicodes + xItem2
+	end
+	nLatinExtendedAUnicodeLen = Len($viLatinExtendedAUnicodes)
+	for iLoop_anLatinExtendedAUnicode1 = 1 to nLatinExtendedAUnicodeLen
+		xItem2 = $viLatinExtendedAUnicodes[iLoop_anLatinExtendedAUnicode1]
+		vLatinUnicodes + xItem2
+	end
+	nLatinExtendedBUnicodeLen = Len($viLatinExtendedBUnicodes)
+	for iLoop_anLatinExtendedBUnicode1 = 1 to nLatinExtendedBUnicodeLen
+		xItem2 = $viLatinExtendedBUnicodes[iLoop_anLatinExtendedBUnicode1]
+		vLatinUnicodes + xItem2
+	end
+	nLatinExtendedAdditionLen = Len($viLatinExtendedAdditionalUnicodes)
+	for iLoop_anLatinExtendedAddition1 = 1 to nLatinExtendedAdditionLen
+		xItem2 = $viLatinExtendedAdditionalUnicodes[iLoop_anLatinExtendedAddition1]
+		vLatinUnicodes + xItem2
+	end
+	nLatinExtendedCUnicodeLen = Len($viLatinExtendedCUnicodes)
+	for iLoop_anLatinExtendedCUnicode1 = 1 to nLatinExtendedCUnicodeLen
+		xItem2 = $viLatinExtendedCUnicodes[iLoop_anLatinExtendedCUnicode1]
+		vLatinUnicodes + xItem2
+	end
+	nLatinExtendedDUnicodeLen = Len($viLatinExtendedDUnicodes)
+	for iLoop_anLatinExtendedDUnicode1 = 1 to nLatinExtendedDUnicodeLen
+		xItem2 = $viLatinExtendedDUnicodes[iLoop_anLatinExtendedDUnicode1]
+		vLatinUnicodes + xItem2
+	end
+	nLatinExtendedEUnicodeLen = Len($viLatinExtendedEUnicodes)
+	for iLoop_anLatinExtendedEUnicode1 = 1 to nLatinExtendedEUnicodeLen
+		xItem2 = $viLatinExtendedEUnicodes[iLoop_anLatinExtendedEUnicode1]
+		vLatinUnicodes + xItem2
+	end
 
 	# Dotless chars
 
-	$_anLatinDotlessUnicodes = [ 97, 101, 111, 117, 305, 567 ]
+	$viLatinDotlessUnicodes = [ 97, 101, 111, 117, 305, 567 ]
 	#TODO // Add unicodes of uppercased "a", "e", "o", and "u"
 
-	$_aLatinDotlessLettersXT = [
+	$xLatinDotlessLettersXT = [
 		[ "ı", "ı" ],
 		[ "i", "ı" ],
 		[ "î", "ı" ],
@@ -769,13 +769,13 @@ Dotless LETTERS
 
 	# Romans numbers
 	
-	$_anRomanNumbersUnicodes = [
+	$viRomanNumbersUnicodes = [
 		8544, 8545, 8546, 8547, 8548, 8549, 8550,
 		8551, 8552, 8553, 8560, 8561, 8562, 8563,
 		8564, 8565, 8566, 8567, 8569, 8570
 	]
 
-	$_acRomanNumbers = [
+	$vtRomanNumbers = [
 		"Ⅰ", "ⅰ", "Ⅱ", "ⅱ", "Ⅲ", "ⅲ", "Ⅳ", "ⅳ", "Ⅴ", "ⅴ",
 		"Ⅵ", "ⅵ", "Ⅶ", "ⅶ", "Ⅷ", "ⅷ", "Ⅸ", "ⅺ", "Ⅹ", "ⅹ",
 
@@ -787,7 +787,7 @@ Dotless LETTERS
 		"ↈ"	
 	]
 
-	$_aRomanNumbersXT = [
+	$xRomanNumbersXT = [
 		["Ⅰ" , 1],	["ⅰ" , 1],	["Ⅱ" , 2], 	["ⅱ" , 2],
 		["Ⅲ" , 3],	["ⅲ" , 3],	["Ⅳ" , 4],	["ⅳ" , 4],
 		["Ⅴ" , 5],	["ⅴ" , 5],	["Ⅵ" , 6],	["ⅵ" , 6],
@@ -813,20 +813,20 @@ Dotless LETTERS
 
 	# Mandarin numbers
 
-	$_anMandarinNumbersUnicodes = [
+	$viMandarinNumbersUnicodes = [
 		12295, 19968, 19971, 19975, 19977,
 		20061, 20108, 20116, 20843, 20845,
 		21313, 21315, 22235, 30334
 	]
 
-	$_acMandarinNumbers = [
+	$vtMandarinNumbers = [
 		"〇", "一", "二", "三",
 		"四", "五", "六", "七",
 		"八", "九", "十", "百",
 		"千", "万"
 	]
 
-	$_aMandarinNumbersXT = [
+	$xMandarinNumbersXT = [
 		["〇", 0], 	["一", 1], 	["二", 2], 	["三", 3],
 		["四", 4],	["五", 5],	["六", 6],	["七", 7],
 		["八", 8],	["九", 9],	["十", 10],	["百", 100],
@@ -842,13 +842,13 @@ Dotless LETTERS
 		
 	# Arabic number fractions
 
-	_anArabicNumberFractionsUnicodes = [
+	vArabicNumberFractionsUnicodes = [
 		188, 189, 190, 8528, 8529, 8530,
 		8531, 8532, 8533, 8534, 8535, 8536,
 		8537, 8538, 8539, 8540, 8541, 8542
 	]
 
-	$_aArabicNumberFractionsXT = [
+	$xArabicNumberFractionsXT = [
 		[ "1/4", 188 ], #--> "¼"
 		[ "1/2", 189 ], #--> "½"
 		[ "3/4", 190 ], #--> "¾"
@@ -881,19 +881,19 @@ Dotless LETTERS
 
 	# Decimal chars
 
-	$_acDecimalchars = "0" : "9"
+	$vtDecimalchars = "0" : "9"
 
 	# Binary chars
 
-	$_acBinaryChars = [ "0", "1" ]
+	$vtBinaryChars = [ "0", "1" ]
 
 	# Octal chars
 
-	$_acOctalChars = "0":"7"
+	$vtOctalChars = "0":"7"
 
 	# Hex chars
 
-	$_acHexChars = [ "0","1", "2", "3", "4", "5", "6", "7", "8",
+	$vtHexChars = [ "0","1", "2", "3", "4", "5", "6", "7", "8",
 		       "9", "10", "11", "12", "13", "14", "15",
 		       "A", "B", "C", "D", "E", "F",
 		       "a", "b", "c", "d", "e", "f" ]
@@ -925,7 +925,7 @@ Dotless LETTERS
 
 	# Invertible chars
 
-	$_anInvertibleCharsUnicodes = [
+	$viInvertibleCharsUnicodes = [
 		36, 38, 40, 41, 42, 44, 45, 46, 47, 48, 50, 51, 54,
 		57, 59, 60, 61, 62, 65, 69, 70, 71, 73, 75, 76, 77,
 		79, 83, 84, 86, 88, 89, 92, 97, 101, 103, 104, 105,
@@ -944,7 +944,7 @@ Dotless LETTERS
 		43856, 43857
 	]
 
-	$_aInvertibleCharsXT = [
+	$xInvertibleCharsXT = [
 		[ "δ" , "ƍ" ], 	[ "Ɑ" , "Ɒ" ], 	[ "ɑ" , "ɒ" ], 	[ "A" , "Ɐ" ],
 		[ "a" , "ɐ" ],	[ "E" , "Ǝ" ],	[ "e" , "ǝ" ],	[ "h" , "ɥ" ],
 		
@@ -977,11 +977,11 @@ Dotless LETTERS
 
 	# Turned chars : TODO - Solve confusion with invertible chars!
 
-	$_anTurnableNumbersUnicodes = [2, 3]
+	$viTurnableNumbersUnicodes = [2, 3]
 
-	$_anTurnedNumbersUnicodes = [ 8586, 8587 ]
+	$viTurnedNumbersUnicodes = [ 8586, 8587 ]
 
-	$_anTurnedCharsUnicodes = [
+	$viTurnedCharsUnicodes = [
 		73, 397,398,412,477,581,592,594,613,623,624,633,634,
 		635,647,652,653,654,670,686,687,692,693,699,786,
 		1376,2275,4345,6848,7353,7426,7432,7433,7444,7450,
@@ -997,7 +997,7 @@ Dotless LETTERS
 		129580,129581,129582,129583
 	]
 
-	$_aTurnableCharsXT = $_aInvertibleCharsXT
+	$xTurnableCharsXT = $xInvertibleCharsXT
 
 	#WARNING: Makes it possilbe to check if a char is turnable
 	# in uncode using the IsTurnable() function.
@@ -1013,27 +1013,27 @@ Dotless LETTERS
 
 	# Circled Chars
 
-	$_anCircledDigitUnicodes = 9312:9320 + 9450
+	$viCircledDigitUnicodes = 9312:9320 + 9450
 
-	$_anLatinCircledCapitalLetterUnicodes = 9398:9423
-	$_anLatinCircledSmallLetterUnicodes = 9424:9449
+	$viLatinCircledCapitalLetterUnicodes = 9398:9423
+	$viLatinCircledSmallLetterUnicodes = 9424:9449
 
-	$_anLatinCircledLetterUnicodes = []
+	$viLatinCircledLetterUnicodes = []
 
-	n_anLatinCircledCapitalLe1Len = len($_anLatinCircledCapitalLetterUnicodes)
-	for iLoop_anLatinCircledCapitalLe1 = 1 to n_anLatinCircledCapitalLe1Len
-		item = $_anLatinCircledCapitalLetterUnicodes[iLoop_anLatinCircledCapitalLe1]
-		$_anLatinCircledLetterUnicodes + item
-	next
-	n_anLatinCircledSmallLett1Len = len($_anLatinCircledSmallLetterUnicodes)
-	for iLoop_anLatinCircledSmallLett1 = 1 to n_anLatinCircledSmallLett1Len
-		item = $_anLatinCircledSmallLetterUnicodes[iLoop_anLatinCircledSmallLett1]
-		$_anLatinCircledLetterUnicodes + item
-	next
+	nLatinCircledCapitalLeLen = Len($viLatinCircledCapitalLetterUnicodes)
+	for iLoop_anLatinCircledCapitalLe1 = 1 to nLatinCircledCapitalLeLen
+		xItem2 = $viLatinCircledCapitalLetterUnicodes[iLoop_anLatinCircledCapitalLe1]
+		$viLatinCircledLetterUnicodes + xItem2
+	end
+	nLatinCircledSmallLettLen = Len($viLatinCircledSmallLetterUnicodes)
+	for iLoop_anLatinCircledSmallLett1 = 1 to nLatinCircledSmallLettLen
+		xItem2 = $viLatinCircledSmallLetterUnicodes[iLoop_anLatinCircledSmallLett1]
+		$viLatinCircledLetterUnicodes + xItem2
+	end
 
 	# Invisible chars
 
-	$_anInvisibleUnicodes = [
+	$viInvisibleUnicodes = [
 		9, 160, 8192, 8193, 8194, 8195, 8196, 8197,
 		8198, 8199, 8200, 8201, 8202, 8203, 8204, 8205,
 		8206, 8207, 8232, 8233, 8238, 8239, 8287, 12288, 12644,
@@ -1046,7 +1046,7 @@ Dotless LETTERS
 
 	# Icons chars TODO
 
-	_aIconNamesAndTheirUniocdes = [
+	vIconNamesAndTheirUniocdes = [
 		# Complete the list
 	]
 
@@ -1054,39 +1054,39 @@ Dotless LETTERS
 	 #   WORD STAFF   #
 	#----------------#
 
-	$_cHyphenShort = "-"
+	$tHyphenShort = "-"
 
-	$_cHyphenLong = "—" # used to —delimiet a portion of text— in the sentence.
+	$tHyphenLong = "—" # used to —delimiet a portion of text— in the sentence.
 
-	$_cUnderscore = "_" # used as a separator inside some_how_long_words
+	$tUnderscore = "_" # used as a separator inside some_how_long_words
 
 	# Word and sentence separators
 
-	$_acWordSeparators = [ " ", ".", ",", ";", ":", "!", "?", "؟", "،", "'", "’", "—"  ]
-	$_acSentenceSeparators = [ ".", "!", "?", "؟" ]
+	$vtWordSeparators = [ " ", ".", ",", ";", ":", "!", "?", "؟", "،", "'", "’", "—"  ]
+	$vtSentenceSeparators = [ ".", "!", "?", "؟" ]
 
 	# Word bounding chars
 
-	$_acWordBoundingChars = [
+	$vWordBoundingChars = [
 		[ "(", ")" ], [ "[", "]" ], [ "{", "}" ], [ "'", "'" ], [ '"', '"' ]
 	]
 
 	# Word non letter chars (TODO: Complete the list)
 
-	$_acWordNonLetterChars = []
+	$vtWordNonLetterChars = []
 
-	a_1 = [ "_", "-", "*", "/", "\", "+" ]
-	n_1Len = len(a_1)
-	for iLoop_1 = 1 to n_1Len
-		item = a_1[iLoop_1]
-		$_acWordNonLetterChars + item
-	next
-	aArabicNumbers1 = ArabicNumbers()
-	nArabicNumbers1Len = len(aArabicNumbers1)
+	vItems1 = [ "_", "-", "*", "/", "\", "+" ]
+	nItemsLen = Len(vItems1)
+	for iLoop_1 = 1 to nItemsLen
+		xItem2 = vItems1[iLoop_1]
+		$vtWordNonLetterChars + xItem2
+	end
+	xArabicNumbers1 = ArabicNumbers()
+	nArabicNumbers1Len = Len(xArabicNumbers1)
 	for iLoopArabicNumbers1 = 1 to nArabicNumbers1Len
-		item = aArabicNumbers1[iLoopArabicNumbers1]
-		$_acWordNonLetterChars + item
-	next
+		xItem2 = xArabicNumbers1[iLoopArabicNumbers1]
+		$vtWordNonLetterChars + xItem2
+	end
 
 	/* Example of words containing those non-letter chars:
 		_C_++
@@ -1101,7 +1101,7 @@ Dotless LETTERS
 
 	# Latin diactritics
 
-	$_anLatinDiacriticsUnicodes = [
+	$viLatinDiacriticsUnicodes = [
 		192, 193, 194, 195, 196, 197, 198, 199, 
 		200, 201, 202, 203, 204, 205, 206, 207, 
 		208, 209, 210, 211, 212, 213, 214, 216, 
@@ -1128,7 +1128,7 @@ Dotless LETTERS
 		378, 379, 380, 381, 382, 383, 7923
 	]
 
-	$_aLatinDiacriticsXT = [
+	$xLatinDiacriticsXT = [
 		[ "À", "A", "Capital A, grave accent" ],
 		[ "Á", "A", "Capital A, acute accent" ],
 		[ "Â", "A", "Capital A, circumflex accent" ],
@@ -1324,12 +1324,12 @@ Dotless LETTERS
 
 	# Arabic diacritics
 
-	$_anArabicDiacriticsUnicodes = [
+	$viArabicDiacriticsUnicodes = [
 		1569, 1611, 1612, 1613, 1614, 1615,
 		1616, 1617, 1618, 1648, 1649, 1570
 	]
 	
-	$_aArabicDiacriticsXT = [
+	$xArabicDiacriticsXT = [
 	
 		# Unicode > WithoutDiacritic > Description > Example of removal of diacritic
 	
@@ -1362,11 +1362,11 @@ Dotless LETTERS
 	
 	# Greek diacritics
 
-	_anGreekDiacriticsUnicodes = [
-		// TODO
+	vGreekDiacriticsUnicodes = [
+		# TODO
 	]
 
-	_aGreekDiacriticsXT = [
+	vGreekDiacriticsXT = [
 		[ "ᾳ", "&" , "Greek, aplpha" ],
 		[ "εͅ", "e", "Greek, epsilon" ],
 		[ "ῃ", "n", "Greek, eta" ],
@@ -1381,100 +1381,100 @@ Dotless LETTERS
 
 	# Hebrew diacritics (TODO)
 
-	_anHebrewDiacriticsUnicodes = [
-		// TODO
+	vHebrewDiacriticsUnicodes = [
+		# TODO
 	]
 
-	_aHebrewDiacriticsXT = [
-		// TODO
+	vHebrewDiacriticsXT = [
+		# TODO
 	]
 
 	# Diacritics
 
-	$_anDiacriticsUnicodes = []
-	n_anLatinDiacriticsUnicod2Len = len($_anLatinDiacriticsUnicodes)
-	for iLoop_anLatinDiacriticsUnicod2 = 1 to n_anLatinDiacriticsUnicod2Len
-		item = $_anLatinDiacriticsUnicodes[iLoop_anLatinDiacriticsUnicod2]
-		$_anDiacriticsUnicodes + item
-	next
-	n_anArabicDiacriticsUnico1Len = len($_anArabicDiacriticsUnicodes)
-	for iLoop_anArabicDiacriticsUnico1 = 1 to n_anArabicDiacriticsUnico1Len
-		item = $_anArabicDiacriticsUnicodes[iLoop_anArabicDiacriticsUnico1]
-		$_anDiacriticsUnicodes + item
-	next
-	n_anGreekDiacriticsUnicod2Len = len(_anGreekDiacriticsUnicodes)
-	for iLoop_anGreekDiacriticsUnicod2 = 1 to n_anGreekDiacriticsUnicod2Len
-		item = _anGreekDiacriticsUnicodes[iLoop_anGreekDiacriticsUnicod2]
-		$_anDiacriticsUnicodes + item
-	next
-	n_anHebrewDiacriticsUnico1Len = len(_anHebrewDiacriticsUnicodes)
-	for iLoop_anHebrewDiacriticsUnico1 = 1 to n_anHebrewDiacriticsUnico1Len
-		item = _anHebrewDiacriticsUnicodes[iLoop_anHebrewDiacriticsUnico1]
-		$_anDiacriticsUnicodes + item
-	next
+	$viDiacriticsUnicodes = []
+	nLatinDiacriticsUnicod2Len = Len($viLatinDiacriticsUnicodes)
+	for iLoop_anLatinDiacriticsUnicod2 = 1 to nLatinDiacriticsUnicod2Len
+		xItem2 = $viLatinDiacriticsUnicodes[iLoop_anLatinDiacriticsUnicod2]
+		$viDiacriticsUnicodes + xItem2
+	end
+	nArabicDiacriticsUnicoLen = Len($viArabicDiacriticsUnicodes)
+	for iLoop_anArabicDiacriticsUnico1 = 1 to nArabicDiacriticsUnicoLen
+		xItem2 = $viArabicDiacriticsUnicodes[iLoop_anArabicDiacriticsUnico1]
+		$viDiacriticsUnicodes + xItem2
+	end
+	nGreekDiacriticsUnicod2Len = Len(vGreekDiacriticsUnicodes)
+	for iLoop_anGreekDiacriticsUnicod2 = 1 to nGreekDiacriticsUnicod2Len
+		xItem2 = vGreekDiacriticsUnicodes[iLoop_anGreekDiacriticsUnicod2]
+		$viDiacriticsUnicodes + xItem2
+	end
+	nHebrewDiacriticsUnicoLen = Len(vHebrewDiacriticsUnicodes)
+	for iLoop_anHebrewDiacriticsUnico1 = 1 to nHebrewDiacriticsUnicoLen
+		xItem2 = vHebrewDiacriticsUnicodes[iLoop_anHebrewDiacriticsUnico1]
+		$viDiacriticsUnicodes + xItem2
+	end
 	
 	# Diacricized chars
 
-	$_anDiacricizedUnicodes = []
+	$viDiacricizedUnicodes = []
 
-	n_anLatinDiacriticsUnicod1Len = len($_anLatinDiacriticsUnicodes)
-	for iLoop_anLatinDiacriticsUnicod1 = 1 to n_anLatinDiacriticsUnicod1Len
-		item = $_anLatinDiacriticsUnicodes[iLoop_anLatinDiacriticsUnicod1]
-		$_anDiacricizedUnicodes + item
-	next
-	n_anGreekDiacriticsUnicod1Len = len(_anGreekDiacriticsUnicodes)
-	for iLoop_anGreekDiacriticsUnicod1 = 1 to n_anGreekDiacriticsUnicod1Len
-		item = _anGreekDiacriticsUnicodes[iLoop_anGreekDiacriticsUnicod1]
-		$_anDiacricizedUnicodes + item
-	next
+	nLatinDiacriticsUnicodLen = Len($viLatinDiacriticsUnicodes)
+	for iLoop_anLatinDiacriticsUnicod1 = 1 to nLatinDiacriticsUnicodLen
+		xItem2 = $viLatinDiacriticsUnicodes[iLoop_anLatinDiacriticsUnicod1]
+		$viDiacricizedUnicodes + xItem2
+	end
+	nGreekDiacriticsUnicodLen = Len(vGreekDiacriticsUnicodes)
+	for iLoop_anGreekDiacriticsUnicod1 = 1 to nGreekDiacriticsUnicodLen
+		xItem2 = vGreekDiacriticsUnicodes[iLoop_anGreekDiacriticsUnicod1]
+		$viDiacricizedUnicodes + xItem2
+	end
 
 	# Diacricized chars -- EXTENDED
 
-	_aDiacricizedCharsXT = []
+	vDiacricizedCharsXT = []
 
-	n_aLatinDiacriticsXT1Len = len($_aLatinDiacriticsXT)
-	for iLoop_aLatinDiacriticsXT1 = 1 to n_aLatinDiacriticsXT1Len
-		item = $_aLatinDiacriticsXT[iLoop_aLatinDiacriticsXT1]
-		_aDiacricizedCharsXT + item
-	next
-	n_aGreekDiacriticsXT1Len = len(_aGreekDiacriticsXT)
-	for iLoop_aGreekDiacriticsXT1 = 1 to n_aGreekDiacriticsXT1Len
-		item = _aGreekDiacriticsXT[iLoop_aGreekDiacriticsXT1]
-		_aDiacricizedCharsXT + item
-	next
+	nLatinDiacriticsXTLen = Len($xLatinDiacriticsXT)
+	for iLoop_aLatinDiacriticsXT1 = 1 to nLatinDiacriticsXTLen
+		xItem2 = $xLatinDiacriticsXT[iLoop_aLatinDiacriticsXT1]
+		vDiacricizedCharsXT + xItem2
+	end
+	nGreekDiacriticsXTLen = Len(vGreekDiacriticsXT)
+	for iLoop_aGreekDiacriticsXT1 = 1 to nGreekDiacriticsXTLen
+		xItem2 = vGreekDiacriticsXT[iLoop_aGreekDiacriticsXT1]
+		vDiacricizedCharsXT + xItem2
+	end
 
 	  #----------------------------------#
 	 #  NUMBER OF LETTERS PER LANGUAGE  #
 	#----------------------------------#
 
-	_aNumberOfLettersPerLanguage = []
+	vNumberOfLettersPerLanguage = []
 
 
 	  #--------------------------------------#
 	 #  CHARS CORRESPONDINH TO PAPER CARDS  #
 	#--------------------------------------#
 
-	$_aCardsXT = [
-	    :Ace = "🂡",
-	    :Two = "🂢",
-	    :Three = "🂣",
-	    :Four = "🂤",
-	    :Five = "🂥",
-	    :Six = "🂦",
-	    :Seven = "🂧",
-	    :Eight = "🂨",
-	    :Nine = "🂩",
-	    :Ten = "🂪",
-	    :Jack = "🂫",
-	    :Queen = "🂭",
-	    :King = "🂮"
+	$xCardsXT = [
+	    [:Ace, "🂡"],
+	    [:Two, "🂢"],
+	    [:Three, "🂣"],
+	    [:Four, "🂤"],
+	    [:Five, "🂥"],
+	    [:Six, "🂦"],
+	    [:Seven, "🂧"],
+	    [:Eight, "🂨"],
+	    [:Nine, "🂩"],
+	    [:Ten, "🂪"],
+	    [:Jack, "🂫"],
+	    [:Queen, "🂭"],
+	    [:King, "🂮"]
 	]
 
-$_cMarquerChar = "#"
+$tMarquerChar = "#"
 
 	#---------------------------------------
 	#  LIST OF SUPPRTED 
-	$_acWorldLanguages = [
+	$vtWorldLanguages = [
 		:c, :abkhazian, :oromo, :afar, :afrikaans, :albanian, :amharic,
 		:arabic, :armenian, :assamese, :aymara, :azerbaijani, :bashkir,
 		:basque, :bengali, :dzongkha, :bislama, :breton, :bulgarian,
@@ -1526,132 +1526,132 @@ $_cMarquerChar = "#"
 		:chickasaw, :muscogee, :silesian
 	]
 
-  /////////////////////
- ///   FUNCTIONS   ///
-/////////////////////
+  #///////////////////
+ #/   FUNCTIONS   ///
+#///////////////////
 
-	func Vowels()
-		return $_acVowels
-
-	func VowelsUnicodes()
+	func Vowels
+		return $vtVowels
+	end
+	func VowelsUnicodes
 		return _anVowelsUnicodes()
-
-	func WorldLanguages()
-		return $_acWorldLanguages
-
-		func Languages()
-			return $_acWorldLanguages
-
-	func LanguagesInScript(cScript)	
-		if NOT isString(cScript)
+	end
+	func WorldLanguages
+		return $vtWorldLanguages
+	end
+		func Languages
+			return $vtWorldLanguages
+		end
+	func LanguagesInScript(tScript)	
+		if not IsString(tScript)
 			StzRaise("Incorrect param type! cScript must be a string")
-		ok
+		end
 
-		_acUnicodeScriptsXT_ = UnicodeScriptsXT()
-		_nLen_ = len(_acUnicodeScriptsXT_)
+		vtUnicodeScriptsXT = UnicodeScriptsXT()
+		nLen = Len(vtUnicodeScriptsXT)
 
-		_acResult_ = []
-		for i = 1 to _nLen_
-			if _acUnicodeScriptsXT_[i][2] = cScript
-				_oChain_ = new stzList(_acUnicodeScriptsXT_[i][4])
-				_acResult_ = _oChain_.Sorted()
+		vtResult = []
+		for i = 1 to nLen
+			if vtUnicodeScriptsXT[i][2] = tScript
+				oChain = new stzList(vtUnicodeScriptsXT[i][4])
+				vtResult = oChain.Sorted()
 				exit
-			ok
-		next
+			end
+		end
 
-		return _acResult_
-
-	func CommonLanguagesInScripts(pacScripts)
-		if NOT ( isList(pacScripts) and @IsListOfStrings(pacScripts) )
+		return vtResult
+	end
+	func CommonLanguagesInScripts(pxScripts)
+		if not ( IsList(pxScripts) and @IsListOfStrings(pxScripts) )
 			StzRaise("Incorrect param type! pacScripts must be a list of strings.")
-		ok
+		end
 
-		_nLen_ = len(pacScripts)
-		_aListOfLists_ = []
+		nLen = Len(pxScripts)
+		vListOfLists = []
 
-		for i = 1 to _nLen_
-			_aListOfLists_ + LanguagesInScript(pacScripts[i])
-		next
+		for i = 1 to nLen
+			vListOfLists + LanguagesInScript(pxScripts[i])
+		end
 
-		_acResult_ = Common(_aListOfLists_)
-		return _acResult_
-
-	func ScriptsForLanguage(pcLang)
-		return StzLanguageQ(pcLang).Scripts()
-
-	func CommonScriptsForLanguages(pacLangs)
-		if NOT ( isList(pacLangs) and @IsListOfStrings(pacLangs) )
+		vtResult = Common(vListOfLists)
+		return vtResult
+	end
+	func ScriptsForLanguage(pxLang)
+		return StzLanguageQ(pxLang).Scripts()
+	end
+	func CommonScriptsForLanguages(pxLangs)
+		if not ( IsList(pxLangs) and @IsListOfStrings(pxLangs) )
 			StzRaise("Incorrect param type! pacLangs must be a list of strings.")
-		ok
+		end
 
-		_nLen_ = len(pacLangs)
-		_acResult_ = []
-		for i = 1 to _nLen_
-			_acResult_ + StzLanguageQ(pacLangs[i]).Script()
-		next
-		return _acResult_
-
-	func QuranicSignUnicodes()
-		return $_anQuranicSignUnicodes
-
-	func QuranicSigns()
-		_aResult_ = []
-		_n_anQuranicSignUnicodes1Len_ = len($_anQuranicSignUnicodes)
-		for _iLoop_anQuranicSignUnicodes1_ = 1 to _n_anQuranicSignUnicodes1Len_
-			_n_ = $_anQuranicSignUnicodes[_iLoop_anQuranicSignUnicodes1_]
-			_oChar_ = new stzChar(_n_)
-			_aResult_ + _oChar_.Content()
-		next
-		return _aResult_
-
-	func LatinLetters()
-		_aLetters_ = "a":"z"
+		nLen = Len(pxLangs)
+		vtResult = []
+		for i = 1 to nLen
+			vtResult + StzLanguageQ(pxLangs[i]).Script()
+		end
+		return vtResult
+	end
+	func QuranicSignUnicodes
+		return $viQuranicSignUnicodes
+	end
+	func QuranicSigns
+		xResult = []
+		nAnQuranicSignUnicodes1Len = Len($viQuranicSignUnicodes)
+		for iLoop_anQuranicSignUnicodes1 = 1 to nAnQuranicSignUnicodes1Len
+			xN = $viQuranicSignUnicodes[iLoop_anQuranicSignUnicodes1]
+			oChar = new StzChar(xN)
+			xResult + oChar.Content()
+		end
+		return xResult
+	end
+	func LatinLetters
+		xLetters = "a":"z"
 	
-		_aAZ1_ = "A":"Z"
-		_nAZ1Len_ = len(_aAZ1_)
-		for _iLoopAZ1_ = 1 to _nAZ1Len_
-			_C_ = _aAZ1_[_iLoopAZ1_]
-			_aLetters_ + _C_
-		next
+		xAZ1 = "A":"Z"
+		nAZ1Len = Len(xAZ1)
+		for iLoopAZ1 = 1 to nAZ1Len
+			tChar = xAZ1[iLoopAZ1]
+			xLetters + tChar
+		end
 	
-		return _aLetters_
-	
-	func ArabicLetters()
-		return $_acArabicLetters
-
-	func ArabicLettersXT()
-		return $_acArabicLettersXT
-
-	func ArabicAndLatinLetters()
-		_aLetters_ = ArabicLetters()
-		_aLatinLetters1_ = LatinLetters()
-		_nLatinLetters1Len_ = len(_aLatinLetters1_)
-		for _iLoopLatinLetters1_ = 1 to _nLatinLetters1Len_
-			_C_ = _aLatinLetters1_[_iLoopLatinLetters1_]
-			_aLetters_ + _C_
-		next
-		return _aLetters_
-
-	func ArabicHamzahUnicodes()
-		return $_anArabicHamzahUnicodes
-
-	func LatinAndArabicLetters()
-		_aLetters_ = LatinLetters()
-		_aArabicLetters1_ = ArabicLetters()
-		_nArabicLetters1Len_ = len(_aArabicLetters1_)
-		for _iLoopArabicLetters1_ = 1 to _nArabicLetters1Len_
-			_C_ = _aArabicLetters1_[_iLoopArabicLetters1_]
-			_aLetters_ + _C_
-		next
-		return _aLetters_
-
-	func ArabicDigits()
+		return xLetters
+	end
+	func ArabicLetters
+		return $vtArabicLetters
+	end
+	func ArabicLettersXT
+		return $vtArabicLettersXT
+	end
+	func ArabicAndLatinLetters
+		xLetters = ArabicLetters()
+		xLatinLetters1 = LatinLetters()
+		nLatinLetters1Len = Len(xLatinLetters1)
+		for iLoopLatinLetters1 = 1 to nLatinLetters1Len
+			tChar = xLatinLetters1[iLoopLatinLetters1]
+			xLetters + tChar
+		end
+		return xLetters
+	end
+	func ArabicHamzahUnicodes
+		return $viArabicHamzahUnicodes
+	end
+	func LatinAndArabicLetters
+		xLetters = LatinLetters()
+		xArabicLetters1 = ArabicLetters()
+		nArabicLetters1Len = Len(xArabicLetters1)
+		for iLoopArabicLetters1 = 1 to nArabicLetters1Len
+			tChar = xArabicLetters1[iLoopArabicLetters1]
+			xLetters + tChar
+		end
+		return xLetters
+	end
+	func ArabicDigits
 		return "0":"9"
-
-		func ArabicNumbers()
+	end
+		func ArabicNumbers
 			return ArabicDigits()
-
-	func IndianDigits()
+		end
+	func IndianDigits
 		return [
 			"۰", "٠",	# Be carefeul: they are different Chars!
 			"۱", "١",	# Read this discussion to understand why:
@@ -1661,10 +1661,10 @@ $_cMarquerChar = "#"
 			"۸", "٨",
 			"۹", "٩"
 			]
-
-		func IndianNumbers()
+	end
+		func IndianNumbers
 			return IndianDigits()
-
+		end
 		/*
 		Try this code in Ring:
 
@@ -1696,1240 +1696,1243 @@ $_cMarquerChar = "#"
 		the third is Cyrillic "О".
 		*/
 		
-	func ArabicAndIndianDigits()
-		_aDigits_ = ArabicDigits()
-		_aIndianDigits1_ = IndianDigits()
-		_nIndianDigits1Len_ = len(_aIndianDigits1_)
-		for _iLoopIndianDigits1_ = 1 to _nIndianDigits1Len_
-			_C_ = _aIndianDigits1_[_iLoopIndianDigits1_]
-			_aDigits_ + _C_
-		next
-		return _aDigits_
+	func ArabicAndIndianDigits
+		xDigits = ArabicDigits()
+		xIndianDigits1 = IndianDigits()
+		nIndianDigits1Len = Len(xIndianDigits1)
+		for iLoopIndianDigits1 = 1 to nIndianDigits1Len
+			tChar = xIndianDigits1[iLoopIndianDigits1]
+			xDigits + tChar
+		end
+		return xDigits
+	end
+	func RomanNumbersUnicodes
+		return $viRomanNumbersUnicodes
+	end
+	func RomanNumbers
+		return $vtRomanNumbers
+	end
+	func RomanNumbersAndTheirUnicodes
+		xResult = []
 
-	func RomanNumbersUnicodes()
-		return $_anRomanNumbersUnicodes
+		xRomanNumbersXT1 = RomanNumbersXT()
+		nRomanNumbersXT1Len = Len(xRomanNumbersXT1)
+		for iLoopRomanNumbersXT1 = 1 to nRomanNumbersXT1Len
+			xItem = xRomanNumbersXT1[iLoopRomanNumbersXT1]
+			xResult + [ xItem[1], StzCharQ(xItem[1]).Unicode() ]
+		end
 
-	func RomanNumbers()
-		return $_acRomanNumbers
-
-	func RomanNumbersAndTheirUnicodes()
-		_aResult_ = []
-
-		_aRomanNumbersXT1_ = RomanNumbersXT()
-		_nRomanNumbersXT1Len_ = len(_aRomanNumbersXT1_)
-		for _iLoopRomanNumbersXT1_ = 1 to _nRomanNumbersXT1Len_
-			_aItem_ = _aRomanNumbersXT1_[_iLoopRomanNumbersXT1_]
-			_aResult_ + [ _aItem_[1], StzCharQ(_aItem_[1]).Unicode() ]
-		next
-
-		return _aResult_
-
-	func RomanNumbersXT()
-		return $_aRomanNumbersXT
-
-	func RomanToArabicNumber(pcRomanNumber)
+		return xResult
+	end
+	func RomanNumbersXT
+		return $xRomanNumbersXT
+	end
+	func RomanToArabicNumber(pxRomanNumber)
 		# Uses the data available in RomanNumbersXT()
 		#TODO // In the future, make a more general algorithm
-		return RomanNumbersXT()[pcRomanNumber]
+		return RomanNumbersXT()[pxRomanNumber]
+	end
+		func RomanToDecimalNumber(pxRomanNumber)
+			return RomanToArabicNumber(pxRomanNumber)
+		end
+	func MandarinNumbersUnicodes
+		return $viMandarinNumbersUnicodes
+	end
+	func MandarinNumbers
+		return $vtMandarinNumbers
+	end
+	func MandarinNumbersAndTheirUnicodes
+		xResult = []
 
-		func RomanToDecimalNumber(pcRomanNumber)
-			return RomanToArabicNumber(pcRomanNumber)
+		xMandarinNumbersXT1 = MandarinNumbersXT()
+		nMandarinNumbersXT1Len = Len(xMandarinNumbersXT1)
+		for iLoopMandarinNumbersXT1 = 1 to nMandarinNumbersXT1Len
+			xItem = xMandarinNumbersXT1[iLoopMandarinNumbersXT1]
+			xResult + [ xItem[1], StzCharQ(xItem[1]).Unicode() ]
+		end
 
-	func MandarinNumbersUnicodes()
-		return $_anMandarinNumbersUnicodes
-
-	func MandarinNumbers()
-		return $_acMandarinNumbers
-
-	func MandarinNumbersAndTheirUnicodes()
-		_aResult_ = []
-
-		_aMandarinNumbersXT1_ = MandarinNumbersXT()
-		_nMandarinNumbersXT1Len_ = len(_aMandarinNumbersXT1_)
-		for _iLoopMandarinNumbersXT1_ = 1 to _nMandarinNumbersXT1Len_
-			_aItem_ = _aMandarinNumbersXT1_[_iLoopMandarinNumbersXT1_]
-			_aResult_ + [ _aItem_[1], StzCharQ(_aItem_[1]).Unicode() ]
-		next
-
-		return _aResult_
-
-	func MandarinNumbersXT()
-		return $_aMandarinNumbersXT
-
-	func MandarinToArabicNumber(pcMandarinNumber)
+		return xResult
+	end
+	func MandarinNumbersXT
+		return $xMandarinNumbersXT
+	end
+	func MandarinToArabicNumber(pxMandarinNumber)
 		# Uses the data available in MandarinNumbersXT()
 		#TODO // In the future, make a more general algorithm
-		return MandarinNumbersXT()[pcMandarinNumber]
-
-	func ArabicNumberFractions()
-		_aResult_ = []
-		_n_aArabicNumberFractionsX2Len_ = len($_aArabicNumberFractionsXT)
-		for _iLoop_aArabicNumberFractionsX2_ = 1 to _n_aArabicNumberFractionsX2Len_
-			item = $_aArabicNumberFractionsXT[_iLoop_aArabicNumberFractionsX2_]
-			_nUnicode_ = item[2]
-			_oChar_ = new stzChar(_nUnicode_)
-			_aResult_ + _oChar_.Content()
-		next
-		return _aResult_ 
-
-	func ArabicNumberFractionsUnicodes()
-		_aResult_ = []
-		_n_aArabicNumberFractionsX1Len_ = len($_aArabicNumberFractionsXT)
-		for _iLoop_aArabicNumberFractionsX1_ = 1 to _n_aArabicNumberFractionsX1Len_
-			item = $_aArabicNumberFractionsXT[_iLoop_aArabicNumberFractionsX1_]
-			_aResult_ + item[2]
-		next
-		return _aResult_
-
-		func ArabicFractionsUnicodes()
+		return MandarinNumbersXT()[pxMandarinNumber]
+	end
+	func ArabicNumberFractions
+		xResult = []
+		nAArabicNumberFractionsX2Len = Len($xArabicNumberFractionsXT)
+		for iLoop_aArabicNumberFractionsX2 = 1 to nAArabicNumberFractionsX2Len
+			xItem = $xArabicNumberFractionsXT[iLoop_aArabicNumberFractionsX2]
+			nUnicode = xItem[2]
+			oChar = new StzChar(nUnicode)
+			xResult + oChar.Content()
+		end
+		return xResult 
+	end
+	func ArabicNumberFractionsUnicodes
+		xResult = []
+		nAArabicNumberFractionsX1Len = Len($xArabicNumberFractionsXT)
+		for iLoop_aArabicNumberFractionsX1 = 1 to nAArabicNumberFractionsX1Len
+			xItem = $xArabicNumberFractionsXT[iLoop_aArabicNumberFractionsX1]
+			xResult + xItem[2]
+		end
+		return xResult
+	end
+		func ArabicFractionsUnicodes
 			return ArabicNumberFractionsUnicodes()
-
-	func ArabicShaddah()
-		return $_cArabicShaddah
-		       
-	func Arabic7araket()
+		end
+	func ArabicShaddah
+		return $tArabicShaddah
+	end
+	func Arabic7araket
 		return UnicodesToChars( Arabic7araketUnicodes() )
-
-	func Arabic7araketUnicodes()
-		return $_anArabic7araketUnicodes
-
-	func Underscore()
-		return $_cUnderscore
-
-	func HyphenShort()
-		return $_cHyphenShort
-
-	func HyphenLong()
-		return $_cHyphenLong
+	end
+	func Arabic7araketUnicodes
+		return $viArabic7araketUnicodes
+	end
+	func Underscore
+		return $tUnderscore
+	end
+	func HyphenShort
+		return $tHyphenShort
+	end
+	func HyphenLong
+		return $tHyphenLong
+	end
 		# "—" : used to —delimiet a portion of text— in the sentence.
 
-	func ArabicTamdeed()
-		return $_cArabicTamdeed = "ـ"
+	func ArabicTamdeed
+		return $tArabicTamdeed = "ـ"
+	end
 		# used to extend arabic words like in حُسَيْـــــن
 
-	func TurnedDigitUnicodes()
+	func TurnedDigitUnicodes
 		return [8586,8587]
+	end
+	func TurnedCharsAndTheirUnicodes
+		xResult = []
 
-	func TurnedCharsAndTheirUnicodes()
-		_aResult_ = []
+		xTurnedCharsUnicodes1 = TurnedCharsUnicodes()
+		nTurnedCharsUnicodes1Len = Len(xTurnedCharsUnicodes1)
+		for iLoopTurnedCharsUnicodes1 = 1 to nTurnedCharsUnicodes1Len
+			xN = xTurnedCharsUnicodes1[iLoopTurnedCharsUnicodes1]
+			xResult + [ StzCharQ(xN).Content(), xN ]
+		end
 
-		_aTurnedCharsUnicodes1_ = TurnedCharsUnicodes()
-		_nTurnedCharsUnicodes1Len_ = len(_aTurnedCharsUnicodes1_)
-		for _iLoopTurnedCharsUnicodes1_ = 1 to _nTurnedCharsUnicodes1Len_
-			_n_ = _aTurnedCharsUnicodes1_[_iLoopTurnedCharsUnicodes1_]
-			_aResult_ + [ StzCharQ(_n_).Content(), _n_ ]
-		next
+		return xResult
+	end
+	func TurnedDigits
+		xResult = []
+		xTurnedDigitUnicodes1 = TurnedDigitUnicodes()
+		nTurnedDigitUnicodes1Len = Len(xTurnedDigitUnicodes1)
+		for iLoopTurnedDigitUnicodes1 = 1 to nTurnedDigitUnicodes1Len
+			xN = xTurnedDigitUnicodes1[iLoopTurnedDigitUnicodes1]
+			oTempChar = new StzChar(xN)
+			xResult + oTempChar.Content()
+		end
+		return xResult
+	end
+	func CircledCharUnicodes
+		viResult = Q( CircledDigitUnicodes() )
+				.MergedWith( CircledLatinLetterUnicodes() )
 
-		return _aResult_
-
-	func TurnedDigits()
-		_aResult_ = []
-		_aTurnedDigitUnicodes1_ = TurnedDigitUnicodes()
-		_nTurnedDigitUnicodes1Len_ = len(_aTurnedDigitUnicodes1_)
-		for _iLoopTurnedDigitUnicodes1_ = 1 to _nTurnedDigitUnicodes1Len_
-			_n_ = _aTurnedDigitUnicodes1_[_iLoopTurnedDigitUnicodes1_]
-			_oTempChar_ = new stzChar(_n_)
-			_aResult_ + _oTempChar_.Content()
-		next
-		return _aResult_
-
-	func CircledCharUnicodes()
-		_anResult_ = Q( CircledDigitUnicodes() ).
-				MergedWith( CircledLatinLetterUnicodes() )
-
-		return _anResult_
-
-		func CircledCharsUnicodes()
+		return viResult
+	end
+		func CircledCharsUnicodes
 			return CircledCharUnicodes()
+		end
+	func CircledChars
+		viResult = Q( CircledDigits() )
+				.MergedWith( CircledLatinLetters() )
 
-	func CircledChars()
-		_anResult_ = Q( CircledDigits() ).
-				MergedWith( CircledLatinLetters() )
-
-		return _anResult_
-
-	func CircledDigitUnicodes()
-		return $_anCircledDigitUnicodes
-
-		func CircledDigitsUnicodes()
+		return viResult
+	end
+	func CircledDigitUnicodes
+		return $viCircledDigitUnicodes
+	end
+		func CircledDigitsUnicodes
 			return CircledDigitUnicodes()
-
-		func CircledNumberUnicodes()
+		end
+		func CircledNumberUnicodes
 			return CircledDigitUnicodes()
-
-		func CircledNumbersUnicodes()
+		end
+		func CircledNumbersUnicodes
 			return CircledDigitUnicodes()
-
-	func CircledDigits()
-		_aResult_ = []
-		_aCircledDigitUnicodes1_ = CircledDigitUnicodes()
-		_nCircledDigitUnicodes1Len_ = len(_aCircledDigitUnicodes1_)
-		for _iLoopCircledDigitUnicodes1_ = 1 to _nCircledDigitUnicodes1Len_
-			_n_ = _aCircledDigitUnicodes1_[_iLoopCircledDigitUnicodes1_]
-			_oTempChar_ = new stzChar(_n_)
-			_aResult_ + _oTempChar_.Content()
-		next
-		return _aResult_
-
-		func CircledNumbers()
+		end
+	func CircledDigits
+		xResult = []
+		xCircledDigitUnicodes1 = CircledDigitUnicodes()
+		nCircledDigitUnicodes1Len = Len(xCircledDigitUnicodes1)
+		for iLoopCircledDigitUnicodes1 = 1 to nCircledDigitUnicodes1Len
+			xN = xCircledDigitUnicodes1[iLoopCircledDigitUnicodes1]
+			oTempChar = new StzChar(xN)
+			xResult + oTempChar.Content()
+		end
+		return xResult
+	end
+		func CircledNumbers
 			return CircledDigits()
+		end
+	func CircledDigitsAndUnicodes
+		oTempList = new stzList(CircledDigits())
+		xResult = oTempList.AssociatedWith( CircledDigitUnicodes() )
+		return xResult
+	end
+	func CircledLatinLetterUnicodes
+		return $viLatinCircledLetterUnicodes 
+	end
+	func CircledLatinLetters
+		xResult = []
+		xCircledLatinLetterUnicod1 = CircledLatinLetterUnicodes()
+		nCircledLatinLetterUnicod1Len = Len(xCircledLatinLetterUnicod1)
+		for iLoopCircledLatinLetterUnicod1 = 1 to nCircledLatinLetterUnicod1Len
+			xN = xCircledLatinLetterUnicod1[iLoopCircledLatinLetterUnicod1]
+			oTempChar = new StzChar(xN)
+			xResult + oTempChar.Content()
+		end
+		return xResult
+	end
+	func CircledLatinSmallLetterUnicodes
+		return $viLatinCircledSmallLetterUnicodes
+	end
+	func CircledLatinSmallLetters
+		xResult = []
+		xCircledLatinSmallLetterU1 = CircledLatinSmallLetterUnicodes()
+		nCircledLatinSmallLetterU1Len = Len(xCircledLatinSmallLetterU1)
+		for iLoopCircledLatinSmallLetterU1 = 1 to nCircledLatinSmallLetterU1Len
+			xN = xCircledLatinSmallLetterU1[iLoopCircledLatinSmallLetterU1]
+			oTempChar = new StzChar(xN)
+			xResult + oTempChar.Content()
+		end
+		return xResult
+	end
+	func CircledLatinCapitalLetterUnicodes #TODO // resolve the semantics lower/lowercase/small and upper/uppercase/capital
+		return $viLatinCircledCapitalLetterUnicodes
+	end
+	func CircledLatinCapitalLetters
+		xResult = []
+		xCircledLatinCapitalLett1 = _CircledLatinCapitalLetterUnicodes()
+		nCircledLatinCapitalLett1Len = Len(xCircledLatinCapitalLett1)
+		for iLoop_CircledLatinCapitalLett1 = 1 to nCircledLatinCapitalLett1Len
+			xN = xCircledLatinCapitalLett1[iLoop_CircledLatinCapitalLett1]
+			oTempChar = new StzChar(xN)
+			xResult + oTempChar.Content()
+		end
+		return xResult
+	end
+	func DecimalChars
+		return $vtDecimalchars
+	end
+	func BinaryChars
+		return $vtBinaryChars
+	end
+	func OctalChars
+		return $vtOctalChars
+	end
+	func HexChars
+		return $vtHexChars
+	end
+	func UnicodeScriptsXT
+		return $xUnicodeScriptsXT
+	end
+	func UnicodeScripts
+		vtResult = []
 
-	func CircledDigitsAndUnicodes()
-		_oTempList_ = new stzList(CircledDigits())
-		_aResult_ = _oTempList_.AssociatedWith( CircledDigitUnicodes() )
-		return _aResult_
+		xUnicodeScriptsXT1 = UnicodeScriptsXT()
+		nUnicodeScriptsXT1Len = Len(xUnicodeScriptsXT1)
+		for iLoopUnicodeScriptsXT1 = 1 to nUnicodeScriptsXT1Len
+			xItem = xUnicodeScriptsXT1[iLoopUnicodeScriptsXT1]
+			vtResult + xItem[2]
+		end
 
-	func CircledLatinLetterUnicodes()
-		return $_anLatinCircledLetterUnicodes 
-
-	func CircledLatinLetters()
-		_aResult_ = []
-		_aCircledLatinLetterUnicod1_ = CircledLatinLetterUnicodes()
-		_nCircledLatinLetterUnicod1Len_ = len(_aCircledLatinLetterUnicod1_)
-		for _iLoopCircledLatinLetterUnicod1_ = 1 to _nCircledLatinLetterUnicod1Len_
-			_n_ = _aCircledLatinLetterUnicod1_[_iLoopCircledLatinLetterUnicod1_]
-			_oTempChar_ = new stzChar(_n_)
-			_aResult_ + _oTempChar_.Content()
-		next
-		return _aResult_
-
-	func CircledLatinSmallLetterUnicodes()
-		return $_anLatinCircledSmallLetterUnicodes
-
-	func CircledLatinSmallLetters()
-		_aResult_ = []
-		_aCircledLatinSmallLetterU1_ = CircledLatinSmallLetterUnicodes()
-		_nCircledLatinSmallLetterU1Len_ = len(_aCircledLatinSmallLetterU1_)
-		for _iLoopCircledLatinSmallLetterU1_ = 1 to _nCircledLatinSmallLetterU1Len_
-			_n_ = _aCircledLatinSmallLetterU1_[_iLoopCircledLatinSmallLetterU1_]
-			_oTempChar_ = new stzChar(_n_)
-			_aResult_ + _oTempChar_.Content()
-		next
-		return _aResult_
-
-	func CircledLatinCapitalLetterUnicodes() #TODO // resolve the semantics lower/lowercase/small and upper/uppercase/capital
-		return $_anLatinCircledCapitalLetterUnicodes
-
-	func CircledLatinCapitalLetters()
-		_aResult_ = []
-		_a_CircledLatinCapitalLett1_ = _CircledLatinCapitalLetterUnicodes()
-		_n_CircledLatinCapitalLett1Len_ = len(_a_CircledLatinCapitalLett1_)
-		for _iLoop_CircledLatinCapitalLett1_ = 1 to _n_CircledLatinCapitalLett1Len_
-			_n_ = _a_CircledLatinCapitalLett1_[_iLoop_CircledLatinCapitalLett1_]
-			_oTempChar_ = new stzChar(_n_)
-			_aResult_ + _oTempChar_.Content()
-		next
-		return _aResult_
-
-	func DecimalChars()
-		return $_acDecimalchars
-
-	func BinaryChars()
-		return $_acBinaryChars
-
-	func OctalChars()
-		return $_acOctalChars
-
-	func HexChars()
-		return $_acHexChars
-
-	func UnicodeScriptsXT()
-		return $_aUnicodeScriptsXT
-
-	func UnicodeScripts()
-		_acResult_ = []
-
-		_aUnicodeScriptsXT1_ = UnicodeScriptsXT()
-		_nUnicodeScriptsXT1Len_ = len(_aUnicodeScriptsXT1_)
-		for _iLoopUnicodeScriptsXT1_ = 1 to _nUnicodeScriptsXT1Len_
-			item = _aUnicodeScriptsXT1_[_iLoopUnicodeScriptsXT1_]
-			_acResult_ + item[2]
-		next
-
-		return _acResult_
-
+		return vtResult
+	end
 	# ScriptByCode() is RETIRED. It looked up the numeric code that indexed
 	# this table, and that numbering no longer means anything -- the engine's
 	# script codes are PCRE2's and are an internal detail. It was also broken:
 	# it iterated UnicodeScripts(), which returns NAME strings, then subscripted
 	# them as if they were rows. Ask the engine for the name instead.
 
-	func UnicodeScriptByCode(_n_)
-			return ScriptByCode(_n_)
+	func UnicodeScriptByCode(xN)
+			return ScriptByCode(xN)
+	end
+	func UnicodeCategoriesXT
+		return $xUnicodeCategoriesXT
+	end
+	func UnicodeCategories
+		vtResult = []
 
-	func UnicodeCategoriesXT()
-		return $_aUnicodeCategoriesXT
+		xUnicodeCategoriesXT1 = UnicodeCategoriesXT()
+		nUnicodeCategoriesXT1Len = Len(xUnicodeCategoriesXT1)
+		for iLoopUnicodeCategoriesXT1 = 1 to nUnicodeCategoriesXT1Len
+			xItem = xUnicodeCategoriesXT1[iLoopUnicodeCategoriesXT1]
+			vtResult + xItem[2]
+		end
 
-	func UnicodeCategories()
-		_acResult_ = []
+		return vtResult
+	end
+	func UnicodeDirectionsXT
+		return $xUnicodeDirectionsXT
+	end
+	func UnicodeDirections
+		vtResult = []
 
-		_aUnicodeCategoriesXT1_ = UnicodeCategoriesXT()
-		_nUnicodeCategoriesXT1Len_ = len(_aUnicodeCategoriesXT1_)
-		for _iLoopUnicodeCategoriesXT1_ = 1 to _nUnicodeCategoriesXT1Len_
-			_aItem_ = _aUnicodeCategoriesXT1_[_iLoopUnicodeCategoriesXT1_]
-			_acResult_ + _aItem_[2]
-		next
+		xUnicodeDirectionsXT1 = UnicodeDirectionsXT()
+		nUnicodeDirectionsXT1Len = Len(xUnicodeDirectionsXT1)
+		for iLoopUnicodeDirectionsXT1 = 1 to nUnicodeDirectionsXT1Len
+			xItem = xUnicodeDirectionsXT1[iLoopUnicodeDirectionsXT1]
+			vtResult + xItem[3]
+		end
 
-		return _acResult_
+		return vtResult
+	end
 
-	func UnicodeDirectionsXT()
-		return $_aUnicodeDirectionsXT
-
-	func UnicodeDirections()
-		_acResult_ = []
-
-		_aUnicodeDirectionsXT1_ = UnicodeDirectionsXT()
-		_nUnicodeDirectionsXT1Len_ = len(_aUnicodeDirectionsXT1_)
-		for _iLoopUnicodeDirectionsXT1_ = 1 to _nUnicodeDirectionsXT1Len_
-			_aItem_ = _aUnicodeDirectionsXT1_[_iLoopUnicodeDirectionsXT1_]
-			_acResult_ + _aItem_[3]
-		next
-
-		return _acResult_
-
-
-	func WordSeparators()
-		return $_acWordSeparators
-	
-	func SentenceSeparators()
-		return $_acSentenceSeparators
-
-		func SentenceSeperators()
-			return $_acSentenceSeparators
-	
-	func WordNonLetterChars()
-		return $_acWordNonLetterChars
-
-	func WordBoundingChars()
-		return $_acWordBoundingChars
-
+	func WordSeparators
+		return $vtWordSeparators
+	end
+	func SentenceSeparators
+		return $vtSentenceSeparators
+	end
+		func SentenceSeperators
+			return $vtSentenceSeparators
+		end
+	func WordNonLetterChars
+		return $vtWordNonLetterChars
+	end
+	func WordBoundingChars
+		return $vWordBoundingChars
+	end
 	#--
 
-	func WordSeperator()
-		return $_acWordSeparators
-
+	func WordSeperator
+		return $vtWordSeparators
+	end
 
 	# Dotless letters
 
-	func ArabicDotlessUnicodes()
-		return $_anArabicDotlessUnicodes
-
-		func ArabicDotlessLettersUnicodes()
-			return $_anArabicDotlessUnicodes
-
-	func ArabicDotlessLetters()
-		_acResult_ = UnicodesToChars($_anArabicDotlessUnicodes)
-		return _acResult_
-	
-	func ArabicDotlessLettersXT()
-		return $_aArabicDotlessCharsXT
-
-	func ArabicDotlessLettersAndTheirUnicodes()
-		_aResult_ = Association([ ArabicDotlessLetters(), ArabicDotlessUnicodes() ])
-		return _aResult_
-
-	func ArabicDotlessUnicodesAndTheirLetters()
-		_aResult_ = Association([ ArabicDotlessUnicodes(), ArabicDotlessLetters() ])
-		return _aResult_
-
+	func ArabicDotlessUnicodes
+		return $viArabicDotlessUnicodes
+	end
+		func ArabicDotlessLettersUnicodes
+			return $viArabicDotlessUnicodes
+		end
+	func ArabicDotlessLetters
+		vtResult = UnicodesToChars($viArabicDotlessUnicodes)
+		return vtResult
+	end
+	func ArabicDotlessLettersXT
+		return $xArabicDotlessCharsXT
+	end
+	func ArabicDotlessLettersAndTheirUnicodes
+		xResult = Association([ ArabicDotlessLetters(), ArabicDotlessUnicodes() ])
+		return xResult
+	end
+	func ArabicDotlessUnicodesAndTheirLetters
+		xResult = Association([ ArabicDotlessUnicodes(), ArabicDotlessLetters() ])
+		return xResult
+	end
 	#--
 
-	func LatinDotlessUnicodes()
-		return $_anLatinDotlessUnicodes
-
-		func LatinDotlessLettersUnicodes()
-			return $_anLatinDotlessUnicodes
-
-	func LatinDotlessLetters()
-		_acResult_ = UnicodesToChars(LatinDotlessUnicodes())
-		return _acResult_
-	
-	func LatinDotlessLettersXT()
-		return $_aLatinDotlessLettersXT
-
-	func LatinDotlessLettersAndTheirUnicodes()
-		_aResult_ = Association([ LatinDotlessLetters(), LatinDotlessUnicodes() ])
-		return _aResult_
-
-	func LatinDotlessUnicodesAndTheirLetters()
-		_aResult_ = Association([ LatinDotlessUnicodes(), LatinDotlessLetters() ])
-		return _aResult_
-
+	func LatinDotlessUnicodes
+		return $viLatinDotlessUnicodes
+	end
+		func LatinDotlessLettersUnicodes
+			return $viLatinDotlessUnicodes
+		end
+	func LatinDotlessLetters
+		vtResult = UnicodesToChars(LatinDotlessUnicodes())
+		return vtResult
+	end
+	func LatinDotlessLettersXT
+		return $xLatinDotlessLettersXT
+	end
+	func LatinDotlessLettersAndTheirUnicodes
+		xResult = Association([ LatinDotlessLetters(), LatinDotlessUnicodes() ])
+		return xResult
+	end
+	func LatinDotlessUnicodesAndTheirLetters
+		xResult = Association([ LatinDotlessUnicodes(), LatinDotlessLetters() ])
+		return xResult
+	end
 	#--
 
-	func DotlessUnicodes()
-		_anResult_ = ArabicDotlessUnicodes()
-		_anLatin_ = LatinDotlessUnicodes()
-		_nLen_ = len(_anLatin_)
+	func DotlessUnicodes
+		viResult = ArabicDotlessUnicodes()
+		viLatin = LatinDotlessUnicodes()
+		nLen = Len(viLatin)
 
-		for i = 1 to _nLen_
-			_anResult_ + _anLatin_[i]
-		next
+		for i = 1 to nLen
+			viResult + viLatin[i]
+		end
 
-		return _anResult_
+		return viResult
+	end
+	func DotlessLetters
+		vtResult = UnicodesToChars(DotlessUnicodes())
+		return vtResult
+	end
+	func DotlessLettersXT
+		xResult = ArabicDotlessLettersXT()
+		xLatin = LatinDotlessLettersXT()
+		nLen = Len(xLatin)
 
-	func DotlessLetters()
-		_acResult_ = UnicodesToChars(DotlessUnicodes())
-		return _acResult_
+		for i = 1 to nLen
+			xResult + xLatin[i]
+		end
 
-	func DotlessLettersXT()
-		_aResult_ = ArabicDotlessLettersXT()
-		_aLatin_ = LatinDotlessLettersXT()
-		_nLen_ = len(_aLatin_)
-
-		for i = 1 to _nLen_
-			_aResult_ + _aLatin_[i]
-		next
-
-		return _aResult_
-
-	func DotlessLettersAndTheirUnicodes()
-		_aResult_ = Association([ DotlessLetters(), DotlessUnicodes() ])
-		return _aResult_
-
-	func DotlessUnicodesAndTheirLetters()
-		_aResult_ = Association([ DotlessUnicodes(), DotlessLetters() ])
-		return _aResult_
-
+		return xResult
+	end
+	func DotlessLettersAndTheirUnicodes
+		xResult = Association([ DotlessLetters(), DotlessUnicodes() ])
+		return xResult
+	end
+	func DotlessUnicodesAndTheirLetters
+		xResult = Association([ DotlessUnicodes(), DotlessLetters() ])
+		return xResult
+	end
 	#--
 
-	func Dotless(pcStr)
-		_cResult_ = StzStringQ(pcStr).Dotless()
-		return _cResult_
-
-		func WithoutDots(pcStr)
-			return Dotless(pcStr)
-
+	func Dotless(pxStr)
+		tResult = StzStringQ(pxStr).Dotless()
+		return tResult
+	end
+		func WithoutDots(pxStr)
+			return Dotless(pxStr)
+		end
 	# Diacritics
 
-	func DiacriticsXT()
-		_aResult_ = []
+	func DiacriticsXT
+		xResult = []
 
-		_aLatinDiacriticsXT2_ = LatinDiacriticsXT()
-		_nLatinDiacriticsXT2Len_ = len(_aLatinDiacriticsXT2_)
-		for _iLoopLatinDiacriticsXT2_ = 1 to _nLatinDiacriticsXT2Len_
-			item = _aLatinDiacriticsXT2_[_iLoopLatinDiacriticsXT2_]
-			_aResult_ + item
-		next
-		_aArabicDiacriticsXT1_ = ArabicDiacriticsXT()
-		_nArabicDiacriticsXT1Len_ = len(_aArabicDiacriticsXT1_)
-		for _iLoopArabicDiacriticsXT1_ = 1 to _nArabicDiacriticsXT1Len_
-			item = _aArabicDiacriticsXT1_[_iLoopArabicDiacriticsXT1_]
-			_aResult_ + item
-		next
+		xLatinDiacriticsXT2 = LatinDiacriticsXT()
+		nLatinDiacriticsXT2Len = Len(xLatinDiacriticsXT2)
+		for iLoopLatinDiacriticsXT2 = 1 to nLatinDiacriticsXT2Len
+			xItem = xLatinDiacriticsXT2[iLoopLatinDiacriticsXT2]
+			xResult + xItem
+		end
+		xArabicDiacriticsXT1 = ArabicDiacriticsXT()
+		nArabicDiacriticsXT1Len = Len(xArabicDiacriticsXT1)
+		for iLoopArabicDiacriticsXT1 = 1 to nArabicDiacriticsXT1Len
+			xItem = xArabicDiacriticsXT1[iLoopArabicDiacriticsXT1]
+			xResult + xItem
+		end
 
-		return _aResult_
+		return xResult
+	end
+	func LatinDiacriticsUnicodes
+		return $viLatinDiacriticsUnicodes
+	end
+	func LatinDiacriticsXT
+		return $xLatinDiacriticsXT
+	end
+	func LatinDiacritics
+		xResult = []
+		xLatinDiacriticsUnicodes1 = LatinDiacriticsUnicodes()
+		nLatinDiacriticsUnicodes1Len = Len(xLatinDiacriticsUnicodes1)
+		for iLoopLatinDiacriticsUnicodes1 = 1 to nLatinDiacriticsUnicodes1Len
+			xN = xLatinDiacriticsUnicodes1[iLoopLatinDiacriticsUnicodes1]
+			xResult + StzCharQ(xN).Content()
+		end
+		return xResult
+	end
+	func ArabicDiacriticsUnicodes
+		return $viArabicDiacriticsUnicodes
+	end
+	func ArabicDiacriticsXT
+		return $xArabicDiacriticsXT
+	end
+	func DiacriticsUnicodes
+		return $viDiacriticsUnicodes
+	end
+	func DiacricizedUnicodes
+		return $viDiacricizedUnicodes
+	end
 
-	func LatinDiacriticsUnicodes()
-		return $_anLatinDiacriticsUnicodes
+	func DiacriticDescription(pxChar)
+		if @IsChar(pxChar) and StzCharQ(pxChar).IsDiacritic()
+			xDiacriticsXT1 = DiacriticsXT()
+			nDiacriticsXT1Len = Len(xDiacriticsXT1)
+			for iLoopDiacriticsXT1 = 1 to nDiacriticsXT1Len
+				xItem = xDiacriticsXT1[iLoopDiacriticsXT1]
+				if xItem[1] = pxChar
+					return xItem[3]
+				end
+			end
+		end
+	end
+	func DiacriticsOfAsciiLetter(pxChar)
+		if StzCharQ(pxChar).IsAsciiLetter()
+			xResult = []
+			xLatinDiacriticsXT1 = LatinDiacriticsXT()
+			nLatinDiacriticsXT1Len = Len(xLatinDiacriticsXT1)
+			for iLoopLatinDiacriticsXT1 = 1 to nLatinDiacriticsXT1Len
+				xItem = xLatinDiacriticsXT1[iLoopLatinDiacriticsXT1]
+				if xItem[2] = pxChar
+					xResult + xItem[1]
+				end
+			end
 
-	func LatinDiacriticsXT()
-		return $_aLatinDiacriticsXT
-
-	func LatinDiacritics()
-		_aResult_ = []
-		_aLatinDiacriticsUnicodes1_ = LatinDiacriticsUnicodes()
-		_nLatinDiacriticsUnicodes1Len_ = len(_aLatinDiacriticsUnicodes1_)
-		for _iLoopLatinDiacriticsUnicodes1_ = 1 to _nLatinDiacriticsUnicodes1Len_
-			_n_ = _aLatinDiacriticsUnicodes1_[_iLoopLatinDiacriticsUnicodes1_]
-			_aResult_ + StzCharQ(_n_).Content()
-		next
-		return _aResult_
-
-	func ArabicDiacriticsUnicodes()
-		return $_anArabicDiacriticsUnicodes
-
-	func ArabicDiacriticsXT()
-		return $_aArabicDiacriticsXT
-
-	func DiacriticsUnicodes()
-		return $_anDiacriticsUnicodes
-
-	func DiacricizedUnicodes()
-		return $_anDiacricizedUnicodes
-
-
-	func DiacriticDescription(_C_)
-		if @IsChar(_C_) and StzCharQ(_C_).IsDiacritic()
-			_aDiacriticsXT1_ = DiacriticsXT()
-			_nDiacriticsXT1Len_ = len(_aDiacriticsXT1_)
-			for _iLoopDiacriticsXT1_ = 1 to _nDiacriticsXT1Len_
-				item = _aDiacriticsXT1_[_iLoopDiacriticsXT1_]
-				if item[1] = _C_
-					return item[3]
-				ok
-			next
-		ok
-
-	func DiacriticsOfAsciiLetter(_C_)
-		if StzCharQ(_C_).IsAsciiLetter()
-			_aResult_ = []
-			_aLatinDiacriticsXT1_ = LatinDiacriticsXT()
-			_nLatinDiacriticsXT1Len_ = len(_aLatinDiacriticsXT1_)
-			for _iLoopLatinDiacriticsXT1_ = 1 to _nLatinDiacriticsXT1Len_
-				item = _aLatinDiacriticsXT1_[_iLoopLatinDiacriticsXT1_]
-				if item[2] = _C_
-					_aResult_ + item[1]
-				ok
-			next
-
-			return _aResult_
-		ok
-
+			return xResult
+		end
+	end
 	# Turnable numbers
 
-	func NumberOfTurnableNumbersUnicodes()
-		_nResult_ = len(TurnableNumbersUnicodes())
-		return _nResult_
-
-		func HowManyTurnableNumbersUnicodes()
+	func NumberOfTurnableNumbersUnicodes
+		nResult = Len(TurnableNumbersUnicodes())
+		return nResult
+	end
+		func HowManyTurnableNumbersUnicodes
 			return NumberOfTurnableNumbersUnicodes()
-
-		func HowManyTurnableNumbersUnicode()
+		end
+		func HowManyTurnableNumbersUnicode
 			return NumberOfTurnableNumbersUnicodes()
-
-	func TurnableNumbersUnicodes()
-		return $_anTurnableNumbersUnicodes
-
-		func ReversibleNumbersUnicodes()
+		end
+	func TurnableNumbersUnicodes
+		return $viTurnableNumbersUnicodes
+	end
+		func ReversibleNumbersUnicodes
 			return TurnableNumbersUnicodes()
-
-		func InvertibleNumberUnicodes()
+		end
+		func InvertibleNumberUnicodes
 			return TurnableNumbersUnicodes()
-
-		func InversibleNumbersUnicodes()
+		end
+		func InversibleNumbersUnicodes
 			return TurnableNumbersUnicodes()
-		
-	func TurnableNumbersUnicodesXT()
-		_aResult_ = Association([ TurnableNumbersUnicodes(), TurnableNumbers() ])
-		return _aResult_
-
-	func TurnableNumbersAndTheirUnicodes()
-		_aResult_ = Association([ TurnableNumbers(), TuranbleUnicodes() ])
-		return _aResult_
-
-	func TurnableNumbers()
-		return $_anTurnableNumbersUnicodes
-
-		func ReversibleNumbers()
+		end
+	func TurnableNumbersUnicodesXT
+		xResult = Association([ TurnableNumbersUnicodes(), TurnableNumbers() ])
+		return xResult
+	end
+	func TurnableNumbersAndTheirUnicodes
+		xResult = Association([ TurnableNumbers(), TuranbleUnicodes() ])
+		return xResult
+	end
+	func TurnableNumbers
+		return $viTurnableNumbersUnicodes
+	end
+		func ReversibleNumbers
 			return TurnableNumbers()
-
-		func InvertibleNumbers()
+		end
+		func InvertibleNumbers
 			return TurnableNumbers()
-
-		func InversibleNumbers()
+		end
+		func InversibleNumbers
 			return TurnableNumbers()
-
-	func TurnableNumbersXT()
+		end
+	func TurnableNumbersXT
 		return Association([ TurnableNumbers(), TurnedNumbers() ])
-
-		func ReversibleNumbersXT()
+	end
+		func ReversibleNumbersXT
 			return TurnableNumbersXT()
-
-		func InvertibleNumbersXT()
+		end
+		func InvertibleNumbersXT
 			return TurnableNumbersXT()
-
-		func InversibleNumbersXT()
+		end
+		func InversibleNumbersXT
 			return TurnableNumbersXT()
-
+		end
 	# Turned numbers
 
-	func NumberOfTurnedNumbersUnicodes()
-		_nResult_ = len(TurnedNumbersUnicodes())
-		return _nResult_
-
-		func HowManyTurnedNumbersUnicodes()
+	func NumberOfTurnedNumbersUnicodes
+		nResult = Len(TurnedNumbersUnicodes())
+		return nResult
+	end
+		func HowManyTurnedNumbersUnicodes
 			return NumberOfTurnedNumbersUnicodes()
-
-		func HowManyTurnedNumbersUnicode()
+		end
+		func HowManyTurnedNumbersUnicode
 			return NumberOfTurnedNumbersUnicodes()
-
-	func TurnedNumbersUnicodes()
-		return $_anTurnedNumbersUnicodes
-
-	func TurnedNumbers()
+		end
+	func TurnedNumbersUnicodes
+		return $viTurnedNumbersUnicodes
+	end
+	func TurnedNumbers
 		return UnicodesToChars( TurnedNumbersUnicodes() )
-
-	func TurnedNumbersXT()
-		_aResult_ = Association([ TurnedNumbers(), TurnableNumbers() ])
-		return _aResult_
-
-	func TurnedNumbersAndTheirUnicodes()
+	end
+	func TurnedNumbersXT
+		xResult = Association([ TurnedNumbers(), TurnableNumbers() ])
+		return xResult
+	end
+	func TurnedNumbersAndTheirUnicodes
 		return Association([ TurnedNumbers(), TurnedNumbersUnicodes() ])
-
+	end
 	#-- Turnable chars
 
-	func NumberOfTurnableUnicodes()
-		_nResult_ = len(TurnableUnicodes())
-		return _nResult_
-
-		func HowManyTurnableUnicodes()
+	func NumberOfTurnableUnicodes
+		nResult = Len(TurnableUnicodes())
+		return nResult
+	end
+		func HowManyTurnableUnicodes
 			return NumberOfTurnableUnicodes()
-
-		func HowManyTurnableUnicode()
+		end
+		func HowManyTurnableUnicode
 			return NumberOfTurnableUnicodes()
-
-	func TurnableUnicodes()
-		return $_anInvertibleCharsUnicodes
-
+		end
+	func TurnableUnicodes
+		return $viInvertibleCharsUnicodes
+	end
 		#< @FunctionAlternativeForms
 
-		func TurnableCharsUnicodes()
+		func TurnableCharsUnicodes
 			return TurnableUnicodes()
-
-		func ReversibleUnicodes()
+		end
+		func ReversibleUnicodes
 			return TurnableUnicodes()
-
-		func ReversibleCharsUnicodes()
+		end
+		func ReversibleCharsUnicodes
 			return TurnableUnicodes()
-
-		func InversibleUnicodes()
+		end
+		func InversibleUnicodes
 			return TurnableUnicodes()
-
-		func InversibleCharsUnicodes()
+		end
+		func InversibleCharsUnicodes
 			return TurnableUnicodes()
-
-		func RevertibleUnicodes()
+		end
+		func RevertibleUnicodes
 			return TurnableUnicodes()
-
-		func RevertibleCharsUnicodes()
+		end
+		func RevertibleCharsUnicodes
 			return TurnableUnicodes()
-
-		func InvertibleUnicodes()
+		end
+		func InvertibleUnicodes
 			return TurnableUnicodes()
-
-		func InvertibleCharsUnicodes()
+		end
+		func InvertibleCharsUnicodes
 			return TurnableUnicodes()
-
+		end
 		#>
 
-	func TurnableUnicodesXT()
-		_aResult_ = Association([ TurnableUnicodes(), TurnableChars() ])
-		return _aResult_
-
-	func NumberOfTurnableChars()
-		_nResult_ = len(TurnableChars())
-		return _nResult_
-
-		func HowManyTurnableChars()
+	func TurnableUnicodesXT
+		xResult = Association([ TurnableUnicodes(), TurnableChars() ])
+		return xResult
+	end
+	func NumberOfTurnableChars
+		nResult = Len(TurnableChars())
+		return nResult
+	end
+		func HowManyTurnableChars
 			return NumberOfTurnableChars()
-
-		func HowManyTurnableChar()
+		end
+		func HowManyTurnableChar
 			return NumberOfTurnableChars()
-
-	func TurnableChars()
+		end
+	func TurnableChars
 		return UnicodesToChars( TurnableUnicodes() )
-
+	end
 		#< @FunctionAlternativeForms
 
-		func ReversibleChars()
+		func ReversibleChars
 			return TurnableChars()
-
-		func InversibleChars()
+		end
+		func InversibleChars
 			return TurnableChars()
-
-		func RevertibleChars()
+		end
+		func RevertibleChars
 			return TurnableChars()
-
-		func InvertibleChars()
+		end
+		func InvertibleChars
 			return TurnableChars()
-
+		end
 		#>
 
-	func TurnableCharsXT()
-		return $_aTurnableCharsXT
-
+	func TurnableCharsXT
+		return $xTurnableCharsXT
+	end
 		#< @FunctionAlternativeForms
 
-		func ReversibleCharsXT()
+		func ReversibleCharsXT
 			return TurnableCharsXT()
-
-		func InversibleCharsXT()
+		end
+		func InversibleCharsXT
 			return TurnableCharsXT()
-
-		func RevertibleCharsXT()
+		end
+		func RevertibleCharsXT
 			return TurnableCharsXT()
-
-		func InvertibleCharsXT()
+		end
+		func InvertibleCharsXT
 			return TurnableCharsXT()
-
+		end
 		#>
 
-	func TurnableCharsAndTheirUnciodes()
-		_aResult_ = Association([ TurnableChars(), TurnableUnicodes() ])
-		return _aResult_
-
+	func TurnableCharsAndTheirUnciodes
+		xResult = Association([ TurnableChars(), TurnableUnicodes() ])
+		return xResult
+	end
 	#-- Turnable chars
 
-	func NumberOfTurnedUnicodes()
-		_nResult_ = len(TurnedUnicodes())
-		return _nResult_
-
-		func HowManyTurnedUnicodes()
+	func NumberOfTurnedUnicodes
+		nResult = Len(TurnedUnicodes())
+		return nResult
+	end
+		func HowManyTurnedUnicodes
 			return NumberOfTurnedUnicodes()
-
-		func HowManyTurnedUnicode()
+		end
+		func HowManyTurnedUnicode
 			return NumberOfTurnedUnicodes()
-
-	func TurnedUnicodes()
-		return $_anTurnedCharsUnicodes
-
+		end
+	func TurnedUnicodes
+		return $viTurnedCharsUnicodes
+	end
 		#< @FunctionAlternativeForms
 
-		func TurnedCharsUnicodes()
+		func TurnedCharsUnicodes
 			return TurnedUnicodes()
-
-		func ReversedUnicodes()
+		end
+		func ReversedUnicodes
 			return TurnedUnicodes()
-
-		func ReversedCharsUnicodes()
+		end
+		func ReversedCharsUnicodes
 			return TurnedUnicodes()
-
-		func InversedUnicodes()
+		end
+		func InversedUnicodes
 			return TurnedUnicodes()
-
-		func InversedCharsUnicodes()
+		end
+		func InversedCharsUnicodes
 			return TurnedUnicodes()
-
-		func RevertedUnicodes()
+		end
+		func RevertedUnicodes
 			return TurnedUnicodes()
-
-		func RevertedCharsUnicodes()
+		end
+		func RevertedCharsUnicodes
 			return TurnedUnicodes()
-
-		func InvertedUnicodes()
+		end
+		func InvertedUnicodes
 			return TurnedUnicodes()
-
-		func InvertedCharsUnicodes()
+		end
+		func InvertedCharsUnicodes
 			return TurnedUnicodes()
-
+		end
 		#>
 
-	func NumberOfTurnedChars()
-		_nResult_ = len(TurnedChars())
-		return _nResult_
-
-		func HowManyTurnedChars()
+	func NumberOfTurnedChars
+		nResult = Len(TurnedChars())
+		return nResult
+	end
+		func HowManyTurnedChars
 			return NumberOfTurnedChars()
-
-		func HowManyTurnedChar()
+		end
+		func HowManyTurnedChar
 			return NumberOfTurnedChars()
-
-	func TurnedChars()
+		end
+	func TurnedChars
 		return UnicodesToChars( TurnedUnicodes() )
-
+	end
 		#< @FunctionAlternativeForms
 
-		func ReversedChars()
+		func ReversedChars
 			return TurnedChars()
-
-		func InversedChars()
+		end
+		func InversedChars
 			return TurnedChars()
-
-		func RevertedChars()
+		end
+		func RevertedChars
 			return TurnedChars()
-
-		func InvertedChars()
+		end
+		func InvertedChars
 			return TurnedChars()
-
+		end
 		#>
 
-	func TurnedCharsXT()
-		_oPairs_ = StzListOfPairsQ($_aInvertibleCharsXT)
-		_aResult_ = Association([ _oPairs_.SecondItems(), _oPairs_.FirstItems() ])
-		return _aResult_
-
+	func TurnedCharsXT
+		oPairs = StzListOfPairsQ($xInvertibleCharsXT)
+		xResult = Association([ oPairs.SecondItems(), oPairs.FirstItems() ])
+		return xResult
+	end
 		#< @FunctionAlternativeForms
 
-		func ReversedCharsXT()
+		func ReversedCharsXT
 			return TurnedCharsXT()
-
-		func InversedCharsXT()
+		end
+		func InversedCharsXT
 			return TurnedCharsXT()
-
-		func RevertedCharsXT()
+		end
+		func RevertedCharsXT
 			return TurnedCharsXT()
-
-		func InvertedCharsXT()
+		end
+		func InvertedCharsXT
 			return TurnedCharsXT()
-
+		end
 		#>
 
-	func TurnableCharsAndtheirUnicodes()
-		_aResult_ = Association([ TurnableChars(), TurnableUnicodes() ])
-		return _aResult_
-
+	func TurnableCharsAndtheirUnicodes
+		xResult = Association([ TurnableChars(), TurnableUnicodes() ])
+		return xResult
+	end
 	# Punctuation
 
-	func GeneralPunctuationUnicodes()
-		return $_anGeneralPunctuationUnicodes
+	func GeneralPunctuationUnicodes
+		return $viGeneralPunctuationUnicodes
+	end
+	func GeneralPunctuationChars
+		xResult = []
 	
-	func GeneralPunctuationChars()
-		_aResult_ = []
+		xGeneralPunctuationUnicod1 = GeneralPunctuationUnicodes()
+		nGeneralPunctuationUnicod1Len = Len(xGeneralPunctuationUnicod1)
+		for iLoopGeneralPunctuationUnicod1 = 1 to nGeneralPunctuationUnicod1Len
+			xN = xGeneralPunctuationUnicod1[iLoopGeneralPunctuationUnicod1]
+			xResult + UnicodeToChar(xN)
+		end
 	
-		_aGeneralPunctuationUnicod1_ = GeneralPunctuationUnicodes()
-		_nGeneralPunctuationUnicod1Len_ = len(_aGeneralPunctuationUnicod1_)
-		for _iLoopGeneralPunctuationUnicod1_ = 1 to _nGeneralPunctuationUnicod1Len_
-			_n_ = _aGeneralPunctuationUnicod1_[_iLoopGeneralPunctuationUnicod1_]
-			_aResult_ + UnicodeToChar(_n_)
-		next
-	
-		return _aResult_
-	
-		func GeneralPunctuations()
+		return xResult
+	end
+		func GeneralPunctuations
 			return GeneralPunctuationChars()
-
-	func NumberOfGeneralPunctuationChars()
-		return len( GeneralPunctuationUnicodes() )
-
-		func NumberOfGeneralPunctuations()
+		end
+	func NumberOfGeneralPunctuationChars
+		return Len( GeneralPunctuationUnicodes() )
+	end
+		func NumberOfGeneralPunctuations
 			return NumberOfGeneralPunctuationChars()
-
-		func HowManyGeneralPunctuationChars()
+		end
+		func HowManyGeneralPunctuationChars
 			return NumberOfGeneralPunctuationChars()
-
-		func HowManyGeneralPunctuationChar()
+		end
+		func HowManyGeneralPunctuationChar
 			return NumberOfGeneralPunctuationChars()
-
-	func SupplementalPunctuationUnicodes()
-		return $_anSupplementalPunctuationCodes
+		end
+	func SupplementalPunctuationUnicodes
+		return $viSupplementalPunctuationCodes
+	end
+	func SupplementalPunctuationChars
+		xResult = []
 	
-	func SupplementalPunctuationChars()
-		_aResult_ = []
+		xSupplementalPunctuationU1 = SupplementalPunctuationUnicodes()
+		nSupplementalPunctuationU1Len = Len(xSupplementalPunctuationU1)
+		for iLoopSupplementalPunctuationU1 = 1 to nSupplementalPunctuationU1Len
+			xN = xSupplementalPunctuationU1[iLoopSupplementalPunctuationU1]
+			xResult + UnicodeToChar(xN)
+		end
 	
-		_aSupplementalPunctuationU1_ = SupplementalPunctuationUnicodes()
-		_nSupplementalPunctuationU1Len_ = len(_aSupplementalPunctuationU1_)
-		for _iLoopSupplementalPunctuationU1_ = 1 to _nSupplementalPunctuationU1Len_
-			_n_ = _aSupplementalPunctuationU1_[_iLoopSupplementalPunctuationU1_]
-			_aResult_ + UnicodeToChar(_n_)
-		next
-	
-		return _aResult_
-	
-		func SupplementalPunctuations()
+		return xResult
+	end
+		func SupplementalPunctuations
 			return SupplementalPunctuationChars()
-	
-	func NumberOfSupplementalPunctuationChars()
-		return len( SupplementalPunctuationUnicodes() )
-
-		func NumberOfSupplementalPunctuations()
+		end
+	func NumberOfSupplementalPunctuationChars
+		return Len( SupplementalPunctuationUnicodes() )
+	end
+		func NumberOfSupplementalPunctuations
 			return NumberOfSupplementalPunctuationChars()
-
-		func HowManyupplementalPunctuationChars()
+		end
+		func HowManyupplementalPunctuationChars
 			return NumberOfSupplementalPunctuationChars()
-
-		func HowManyupplementalPunctuationChar()
+		end
+		func HowManyupplementalPunctuationChar
 			return NumberOfSupplementalPunctuationChars()
-
-	func PunctuationUnicodes()
-		return $_anPunctuationUnicodes
-	
-	func PunctuationChars()	#TODO // Review its content
+		end
+	func PunctuationUnicodes
+		return $viPunctuationUnicodes
+	end
+	func PunctuationChars	#TODO // Review its content
 			  	# Some punctuations are not present (".", ",", ";"...")
 				# Read the note at the beginning of this file while
 				# defining the content of the _anPunctuationUniCodes
 				# global variable (needs to be completed!)
 
-		_aResult_ = []
+		xResult = []
 	
-		_aPunctuationUnicodes1_ = PunctuationUnicodes()
-		_nPunctuationUnicodes1Len_ = len(_aPunctuationUnicodes1_)
-		for _iLoopPunctuationUnicodes1_ = 1 to _nPunctuationUnicodes1Len_
-			_n_ = _aPunctuationUnicodes1_[_iLoopPunctuationUnicodes1_]
-			_aResult_ + UnicodeToChar(_n_)
-		next
+		xPunctuationUnicodes1 = PunctuationUnicodes()
+		nPunctuationUnicodes1Len = Len(xPunctuationUnicodes1)
+		for iLoopPunctuationUnicodes1 = 1 to nPunctuationUnicodes1Len
+			xN = xPunctuationUnicodes1[iLoopPunctuationUnicodes1]
+			xResult + UnicodeToChar(xN)
+		end
 	
-		return _aResult_
-	
-		func Punctuations()
+		return xResult
+	end
+		func Punctuations
 			return PunctuationChars()
-
-	func NumberOfPunctuationChars()
-		return len( PunctuationUnicodes() )
-
-		func NumberOfPunctuations()
+		end
+	func NumberOfPunctuationChars
+		return Len( PunctuationUnicodes() )
+	end
+		func NumberOfPunctuations
 			return NumberOfPunctuationChars()
-
-		func HowManyPunctuationChars()
+		end
+		func HowManyPunctuationChars
 			return NumberOfPunctuationChars()
-
-		func HowManyPunctuationChar()
+		end
+		func HowManyPunctuationChar
 			return NumberOfPunctuationChars()
-
-		func HowManyPunctuations()
+		end
+		func HowManyPunctuations
 			return NumberOfPunctuationChars()
-
-		func HowManyPunctuation()
+		end
+		func HowManyPunctuation
 			return NumberOfPunctuationChars()
-
+		end
 	# Arabic staff
 
-	func Allah()
+	func Allah
 		return AllahAsChar()
-
-	func AllahAsChar()
-		return $_cAllahAsChar
-
-	func AllahAsString()
-		return $_cAllahAsString
-
-	func Basmalah()
-		return $_cBasmalahAsChar
-
-		func Bismillah()
-			return $_cBasmalahAsChar
-
-		func BasmalahAsChar()
-			return $_cBasmalahAsChar
-
-		func BismillahAsChar()
-			return $_cBasmalahAsChar
-
-	func BasmalahAsString()
-		return $_cBasmalahAsString
-
-		func BismillahAsString()
-			return $_cBasmalahAsString
-
-	func Muhammed()
-		return $_cMuhammedAsChar
-
-		func Muhammad()
-			return $_cMuhammedAsChar
-
-		func MuhammedAsChar()
-			return $_cMuhammedAsChar
-
-		func Mohammed()
-			return $_cMuhammedAsChar
-
-		func Mohammad()
-			return $_cMuhammedAsChar
-
-	func MuhammedAsString()
-		return $_cMuhammedAsString
-
-		func MuhammadAsString()
-			return $_cMuhammedAsString
-
-		func MohammedAsString()
-			return $_cMuhammedAsString
-
-		func MohammadAsString()
-			return $_cMuhammedAsString
-
-	func SalatAlaMuhammed()
-		return $_cSalatAlaMuhammedAsChar
-
-		func SalatAlaMuhammad()
-			return $_cSalatAlaMuhammedAsChar
-
-		func SalatAlaMohammed()
-			return $_cSalatAlaMuhammedAsChar
-
-		func SalatAlMohammad()
-			return $_cSalatAlaMuhammedAsChar
-
-		func SalatAlaMuhammedAsChar()
-			return $_cSalatAlaMuhammedAsChar
-
-	func SalatAlaMuhammedAsString()
+	end
+	func AllahAsChar
+		return $tAllahAsChar
+	end
+	func AllahAsString
+		return $tAllahAsString
+	end
+	func Basmalah
+		return $tBasmalahAsChar
+	end
+		func Bismillah
+			return $tBasmalahAsChar
+		end
+		func BasmalahAsChar
+			return $tBasmalahAsChar
+		end
+		func BismillahAsChar
+			return $tBasmalahAsChar
+		end
+	func BasmalahAsString
+		return $tBasmalahAsString
+	end
+		func BismillahAsString
+			return $tBasmalahAsString
+		end
+	func Muhammed
+		return $tMuhammedAsChar
+	end
+		func Muhammad
+			return $tMuhammedAsChar
+		end
+		func MuhammedAsChar
+			return $tMuhammedAsChar
+		end
+		func Mohammed
+			return $tMuhammedAsChar
+		end
+		func Mohammad
+			return $tMuhammedAsChar
+		end
+	func MuhammedAsString
+		return $tMuhammedAsString
+	end
+		func MuhammadAsString
+			return $tMuhammedAsString
+		end
+		func MohammedAsString
+			return $tMuhammedAsString
+		end
+		func MohammadAsString
+			return $tMuhammedAsString
+		end
+	func SalatAlaMuhammed
+		return $tSalatAlaMuhammedAsChar
+	end
+		func SalatAlaMuhammad
+			return $tSalatAlaMuhammedAsChar
+		end
+		func SalatAlaMohammed
+			return $tSalatAlaMuhammedAsChar
+		end
+		func SalatAlMohammad
+			return $tSalatAlaMuhammedAsChar
+		end
+		func SalatAlaMuhammedAsChar
+			return $tSalatAlaMuhammedAsChar
+		end
+	func SalatAlaMuhammedAsString
 		return _cSalatAlMuhammedAsString
-
-		func SalatAlaMuhammadAsString()
+	end
+		func SalatAlaMuhammadAsString
 			_cSalatAlMuhammedAsString
-
-		func SalatAlaMohammadAsString()
+		end
+		func SalatAlaMohammadAsString
 			_cSalatAlMuhammedAsString
-
-	func ArabicDhammah()
-		return $_cArabicDhammah
-
-	func ArabicFat7ah()
-		return $_cArabicFat7ah
-
-	func ArabicKasrah()
-		return $_cArabicKasrah
-
-	func ArabicSukoon()
-		return $_cArabicSukoon
-
-	func ArabicDoubleDhammah()
-		return $_cArabicDoubleDhammah
-
-	func ArabicDoubleFat7ah()
-		return $_ArabicDoubleFat7ah
-
-	func ArabicDoubleKasrah()
-		return $_ArabicDoubleKasrah
-
-	func InvisibleUnicodes()
-		return $_anInvisibleUnicodes
-
-		def InvisibleCharsUnicodes()
+		end
+	func ArabicDhammah
+		return $tArabicDhammah
+	end
+	func ArabicFat7ah
+		return $tArabicFat7ah
+	end
+	func ArabicKasrah
+		return $tArabicKasrah
+	end
+	func ArabicSukoon
+		return $tArabicSukoon
+	end
+	func ArabicDoubleDhammah
+		return $tArabicDoubleDhammah
+	end
+	func ArabicDoubleFat7ah
+		return $tArabicDoubleFat7ah
+	end
+	func ArabicDoubleKasrah
+		return $tArabicDoubleKasrah
+	end
+	func InvisibleUnicodes
+		return $viInvisibleUnicodes
+	end
+		func InvisibleCharsUnicodes
 			return _anInvisibleCharsUnicodes
-
-		func @InvisibleUnicodes()
+		end
+		func @InvisibleUnicodes
 			return _anInvisibleCharsUnicodes
-
-		func @InvisibleCharsUnicodes()
+		end
+		func @InvisibleCharsUnicodes
 			return _anInvisibleCharsUnicodes
+		end
+	func InvisibleChars
+		viUnicodes = InvisibleUnicodes()
+		nLen = Len(viUnicodes)
+		vtResult = []
 
-	func InvisibleChars()
-		_anUnicodes_ = InvisibleUnicodes()
-		_nLen_ = len(_anUnicodes_)
-		_acResult_ = []
+		for i = 1 to nLen
+			vtResult + Char(viUnicodes[i])
+		end
 
-		for i = 1 to _nLen_
-			_acResult_ + Char(_anUnicodes_[i])
-		next
-
-		return _acResult_
-
-		func @InvisibleChars()
+		return vtResult
+	end
+		func @InvisibleChars
 			return InvisibleChars()
+		end
+	func InvisibleCharsNames
+		viUnicodes = InvisibleUnicodes()
+		nLen = Len(viUnicodes)
+		vtResult = []
 
-	func InvisibleCharsNames()
-		_anUnicodes_ = InvisibleUnicodes()
-		_nLen_ = len(_anUnicodes_)
-		_acResult_ = []
+		for i = 1 to nLen
+			vtResult + CharName(viUnicodes[i])
+		end
 
-		for i = 1 to _nLen_
-			_acResult_ + CharName(_anUnicodes_[i])
-		next
-
-		return _acResult_
-
-		func @InvisibleCharsNames()
+		return vtResult
+	end
+		func @InvisibleCharsNames
 			return InvisibleCharsNames()
-
+		end
 	#---
 
-	func NumberOfCharsInUnicode()
-		return $_nNumberOfCharsInUnicode
-
-		func HowManyCharsInUnicode()
+	func NumberOfCharsInUnicode
+		return $nNumberOfCharsInUnicode
+	end
+		func HowManyCharsInUnicode
 			return NumberOfCharsInUnicode()
-
-		func HowManyCharInUnicode()
+		end
+		func HowManyCharInUnicode
 			return NumberOfCharsInUnicode()
-
+		end
 	  #---------------------#
 	 #  SOME USEFUL CHARS  #
 	#---------------------#
 
-	func Heart()
+	func Heart
 		return "♥"
-
-		func AHeart()
+	end
+		func AHeart
 			return Heart()
-
-		func TheHeart()
+		end
+		func TheHeart
 			return Heart()
-
-	func Smile()
+		end
+	func Smile
 		return "😆"
-
-		func ASmile()
+	end
+		func ASmile
 			return Smile()
-
-		func TheSmile()
+		end
+		func TheSmile
 			return Smile()
-
-	func Handshake()
+		end
+	func Handshake
 		return "🤝"
-
-		func AHandshake()
+	end
+		func AHandshake
 			return Handshake()
-
-		func TheHandshake()
+		end
+		func TheHandshake
 			return Handshake()
-
-	func Sun()
+		end
+	func Sun
 		return "🌞"
-
-		func ASun()
+	end
+		func ASun
 			return Sun()
-
-		func TheSun()
+		end
+		func TheSun
 			return Sun()
-
-	func Star()
+		end
+	func Star
 		return "★"
-
-		func AStar()
+	end
+		func AStar
 			return Star()
-
-		func TheStar()
+		end
+		func TheStar
 			return Star()
-
-	func CheckMark()
+		end
+	func CheckMark
 		return "✓"
-
-		func ACheckMark()
+	end
+		func ACheckMark
 			return CheckMark()
-
-			func TheCheckMark()
+		end
+			func TheCheckMark
 				return CheckMark()
-
-		func Check()
+			end
+		func Check
 			return CheckMark()
-
-			func ACheck()
+		end
+			func ACheck
 				return CheckMark()
-
-			func TheCheck()
+			end
+			func TheCheck
 				return CheckMark()
-	
-		func Tick()
+			end
+		func Tick
 			return CheckMark()
-
-			func ATick()
+		end
+			func ATick
 				return Tick()
-	
-			func TheTick()
+			end
+			func TheTick
 				return Tick()
-
-	func Dot()
+			end
+	func Dot
 		return "•"
-
-		func ADot()
+	end
+		func ADot
 			return Dot()
-
-		func TheDot()
+		end
+		func TheDot
 			return Dot()
-
-	func Flower()
+		end
+	func Flower
 		return "✤"
-
-		func AFlower()
+	end
+		func AFlower
 			return Flower()
-
-		func TheFlower()
+		end
+		func TheFlower
 			return Flower()
-
-	func Moon()
+		end
+	func Moon
 		return "🌔"
-
-		func AMoon()
+	end
+		func AMoon
 			return Moon()
-
-		func TheMoon()
+		end
+		func TheMoon
 			return Moon()
-
+		end
 	#--
 
-	func CardsXT()
-		return $_aCardsXT
+	func CardsXT
+		return $xCardsXT
+	end
+	func Cards
 	
-	func Cards()
+		nLen = Len($xCardsXT)
 	
-		_nLen_ = len($_aCardsXT)
+		vtResult = []
 	
-		_acResult_ = []
+		for i = 1 to nLen
+			vtResult + $xCardsXT[i][2]
+		end
 	
-		for i = 1 to _nLen_
-			_acResult_ + $_aCardsXT[i][2]
-		next
+		return vtResult
+	end
+	func Card(pxCard)
 	
-		return _acResult_
-	
-	func Card(pcCard)
-	
-		if NOT isString(pcCard)
+		if not IsString(pxCard)
 			StzRaise("Incorrect param type!")
-		ok
+		end
 	
-		_cResult_ = $_aCardsXT[pcCard]
+		tResult = $xCardsXT[pxCard]
 	
-		if _cResult_ = ""
+		if tResult = ""
 			StzRaise("Incorrect param value!")
-		ok 
+		end 
 	
-		return _cResult_
-
-	func TheseCards(acCards)
-		if NOT (isList(acCards) and IsListOfStrings(acCards))
+		return tResult
+	end
+	func TheseCards(vtCards)
+		if not (IsList(vtCards) and IsListOfStrings(vtCards))
 			StzRaise("Incorrect param type! acCards must be a list of strings.")
-		ok
+		end
 
-		_acResult_ = []
-		_nLen_ = len(acCards)
+		vtResult = []
+		nLen = Len(vtCards)
 
-		for i = 1 to _nLen_
+		for i = 1 to nLen
 			
-			_cCard_ = $_aCardsXT[acCards[i]]
+			tCard = $xCardsXT[vtCards[i]]
 
-			if _cCard_ != ""
-				_acResult_ + _cCard_
-			ok
-		next
+			if tCard != ""
+				vtResult + tCard
+			end
+		end
 
-		return _acResult_
-
-	func TheseCardsXT(acCards)
-		if NOT (isList(acCards) and IsListOfStrings(acCards))
+		return vtResult
+	end
+	func TheseCardsXT(vtCards)
+		if not (IsList(vtCards) and IsListOfStrings(vtCards))
 			StzRaise("Incorrect param type! acCards must be a list of strings.")
-		ok
+		end
 
-		_acResult_ = []
-		_nLen_ = len(acCards)
+		vtResult = []
+		nLen = Len(vtCards)
 
-		for i = 1 to _nLen_
+		for i = 1 to nLen
 			
-			_cCard_ = $_aCardsXT[acCards[i]]
+			tCard = $xCardsXT[vtCards[i]]
 
-			if _cCard_ != ""
-				_acResult_ + [ acCards[i], _cCard_ ]
-			ok
-		next
+			if tCard != ""
+				vtResult + [ vtCards[i], tCard ]
+			end
+		end
 
-		return _acResult_
-
-	func NCards(_n_)
-		return NRandomItemsFrom(_n_, Cards())
-
-		func NRandomCards(_n_)
-			return NCards(_n_)
-
-	func ACard()
+		return vtResult
+	end
+	func NCards(xN)
+		return NRandomItemsFrom(xN, Cards())
+	end
+		func NRandomCards(xN)
+			return NCards(xN)
+		end
+	func ACard
 		return NCards(1)
-
-		func OneCard()
+	end
+		func OneCard
 			return ACard()
-
-		func 1Card()
+		end
+		func 1Card
 			return ACard()
-
-		func ARandomCard()
+		end
+		func ARandomCard
 			return ACard()
-
-		func OneRandomCard()
+		end
+		func OneRandomCard
 			return ACard()
-
-		func 1RandomCard()
+		end
+		func 1RandomCard
 			return ACard()
-
-	func TwoCards()
+		end
+	func TwoCards
 		return NCards(2)
-
-		func 2Cards()
+	end
+		func 2Cards
 			return TwoCards()
-
-		func TwoRandomCards()
+		end
+		func TwoRandomCards
 			return TwoCards()
-
-		func 2RandomCards()
+		end
+		func 2RandomCards
 			return TwoCards()
-
-	func ThreeCards()
+		end
+	func ThreeCards
 		return NCards(3)
-
-		func 3Cards()
+	end
+		func 3Cards
 			return ThreeCards()
-
-		func ThreeRandomCards()
+		end
+		func ThreeRandomCards
 			return ThreeCards()
-
-		func 3RandomCards()
+		end
+		func 3RandomCards
 			return ThreeCards()
+		end

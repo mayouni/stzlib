@@ -14417,14 +14417,6 @@ class stzString from stzObject
 	def ReplaceSubStringsWithMarkers(paReplacements)
 		This.ReplaceSubStringsWithMarquers(paReplacements)
 
-	# Stands in for UnicodeDataAsString while a script runs, and does nothing.
-	#
-	#   returns    nothing
-	#   see        CharName
-	#@ aka  UnicodeDataAsString() and MarquersPositions(): missing globals called inside the test scripts. We make them top-level stubs so the R3 misses resolve. The full UnicodeDataAsString returns the entire Unicode database as a string (engine call); for now we return "" so the test load completes -- it's only used by perf-comparison narratives.
-	def UnicodeDataAsStringEmpty()
-		return ""
-
 	# Last-char trim mirror of RemoveThisFirstCharXT.
 	def RemoveThisLastCharXT(pcChar)
 		_nLen_ = This._EngineCount(This.Content())

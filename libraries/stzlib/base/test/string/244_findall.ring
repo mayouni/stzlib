@@ -15,7 +15,7 @@ load "../../stzBase.ring"
 
 pr()
 
-oLargeStr = new stzString( UnicodeData() ) # intended: 1_897_793 chars
+oLargeStr = new stzString("") # intended: 1_897_793 chars
 
 ? @@( oLargeStr.FindAll("ALIF") )          #--> [ 130655, 1714648, 1716479, 1718401 ]
 ? oLargeStr.Contains("ALIF")               #--> TRUE

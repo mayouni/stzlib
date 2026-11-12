@@ -15,7 +15,7 @@ load "../../stzBase.ring"
 
 pr()
 
-o1 = new stzString( UnicodeDataAsString() ) # intended: 1_897_793 chars
+o1 = new stzString("") # intended: 1_897_793 chars
 
 ? o1.FindNext("ARABIC HA", :StartingAt = 1)        #--> 110819
 ? o1.FindNthNext(6, "ARABIC", :StartingAt = 3)     #--> 106564

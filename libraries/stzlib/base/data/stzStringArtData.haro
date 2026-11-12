@@ -28,7 +28,7 @@
 # on a dark background with faint grid lines in the background evokes the
 # aesthetics of old-school computer graphics or architectural blueprints.
 
-$STZ_STR_ART_STYLE_001 = [
+$vSTZ_STR_ART_STYLE_001 = [
 	[ "A" , [
 		"░▄███▄░",
 		"██▀░▀██",
@@ -368,7 +368,7 @@ $STZ_STR_ART_STYLE_001 = [
 # signs. The font has a modern, sleek appearance with rounded
 # corners and a consistent thickness throughout.
 
-$STZ_STR_ART_STYLE_002 = [
+$vSTZ_STR_ART_STYLE_002 = [
 	[ "A", [
 		"╭━━━╮",
 		"┃╭━╮┃",
@@ -695,7 +695,7 @@ $STZ_STR_ART_STYLE_002 = [
 # logos, or any application where you want to combine a tech-savvy feel with
 # a touch of elegance.
 
-$STZ_STR_ART_STYLE_003 = [
+$vSTZ_STR_ART_STYLE_003 = [
     [ "A", [
 	"  ╭─╮  ",
 	" ╱   ╲ ",
@@ -1020,7 +1020,7 @@ $STZ_STR_ART_STYLE_003 = [
 # Description : This style creates floral and plant-like shapes.
 # Source : http://www.jave.de/figlet/fonts/details/flowerpower.html
 
-$STZ_STR_ART_STYLE_004 = [
+$vSTZ_STR_ART_STYLE_004 = [
     [ "A", [
 	"   ____    ", 
 	" .'  __ `. ",
@@ -1519,11 +1519,11 @@ $STZ_STR_ART_STYLE_004 = [
 
 # GLOBAL CONSTANT
 
-$STZ_STR_ART_STYLES_XT = [
-	:retro	= $STZ_STR_ART_STYLE_001,
-	:neon 	= $STZ_STR_ART_STYLE_002,
-	:geo	= $STZ_STR_ART_STYLE_003,
-	:flower	= $STZ_STR_ART_STYLE_004
+$vSTZ_STR_ART_STYLES_XT = [
+	[:retro, $vSTZ_STR_ART_STYLE_001],
+	[:neon, $vSTZ_STR_ART_STYLE_002],
+	[:geo, $vSTZ_STR_ART_STYLE_003],
+	[:flower, $vSTZ_STR_ART_STYLE_004]
 ]
 
 #------------------------------#
@@ -1653,11 +1653,11 @@ $xSOFTANZALOGO =
 Programming, by Heart! By: M.Ayouni╭
 ━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
   ╰╯"
-$SOFTANZA = $xSOFTANZALOGO
+$xSOFTANZA = $xSOFTANZALOGO
 
 #--- Collectibles
 
-$STZ_STR_ART_COINS =
+$xSTZ_STR_ART_COINS =
 "  ┌───────┐
  │   $$$   │
 │  $     $  │
@@ -1668,21 +1668,21 @@ $STZ_STR_ART_COINS =
  │   $$$   │
   └───────┘"
 
-$STZ_STR_ART_STARS =
+$xSTZ_STR_ART_STARS =
 "    ★
   ☆   ☆
 ☆       ☆
   ☆   ☆ 
     ★"
 
-$STZ_STR_ART_HEARTS =
+$xSTZ_STR_ART_HEARTS =
 " ❤️❤️   ❤️❤️
 ❤️❤️❤️ ❤️❤️❤️
  ❤️❤️❤️❤️❤️
    ❤️❤️❤️
      ❤️"
 
-$STZ_STR_ART_KEY =
+$xSTZ_STR_ART_KEY =
 " ┌───┐
 ┌┘ □ └┐
 │ ┌─┐ │
@@ -1692,7 +1692,7 @@ $STZ_STR_ART_KEY =
  ┌─┴─┐
  └───┘"
 
-$STZ_STR_ART_GEM =
+$xSTZ_STR_ART_GEM =
 "   /\   
   /  \
  /    \
@@ -1702,7 +1702,7 @@ $STZ_STR_ART_GEM =
   \  /
    \/"
 
-$STZ_STR_ART_RING =
+$xSTZ_STR_ART_RING =
 '  .-""-.
  /      \
 |        |
@@ -1711,7 +1711,7 @@ $STZ_STR_ART_RING =
 
 #--- Environment
 
-$STZ_STR_ART_TREE =
+$xSTZ_STR_ART_TREE =
 "    🍃
    🍃🍃
   🍃🍃🍃
@@ -1721,7 +1721,7 @@ $STZ_STR_ART_TREE =
     ┃━┃
  ▔▔▔▔▔▔▔"
 
-$STZ_STR_ART_CLOUD =
+$xSTZ_STR_ART_CLOUD =
 "         .-~~~-.
  .- ~ ~-(       )_ _
 /                     ~ -.
@@ -1729,13 +1729,13 @@ $STZ_STR_ART_CLOUD =
  \                         .'
    ~- . _____________ . -~"
 
-$STZ_STR_ART_PLATFORM =
+$xSTZ_STR_ART_PLATFORM =
 "┏━━━━━━━━━━━━━━━┓
 ┗━━━━━━━━━━━━━━━┛"
 
 #--- Game Elements
 
-$STZ_STR_ART_CHECKPOINT =
+$xSTZ_STR_ART_CHECKPOINT =
 "   ┌┐ 
   ┌┘└┐
  ┌┘  └┐
@@ -1745,7 +1745,7 @@ $STZ_STR_ART_CHECKPOINT =
 │ │✓│ │
 └─┴──┴─┘"
 
-$STZ_STR_ART_ARROW =
+$xSTZ_STR_ART_ARROW =
 "   ▲
   ▲ ▲
  ▲   ▲
@@ -1755,7 +1755,7 @@ $STZ_STR_ART_ARROW =
    █
    █"
 
-$STZ_STR_ART_EXCLAMATION =
+$xSTZ_STR_ART_EXCLAMATION =
 "▓▓
 ▓▓
 ▓▓
@@ -1764,7 +1764,7 @@ $STZ_STR_ART_EXCLAMATION =
   
 ▓▓"
 
-$STZ_STR_ART_QUESTION =
+$xSTZ_STR_ART_QUESTION =
 " ▓▓▓▓▓
 ▓▓   ▓▓
     ▓▓
@@ -1773,7 +1773,7 @@ $STZ_STR_ART_QUESTION =
   
   ▓▓"
 
-$STZ_STR_ART_SPRING =
+$xSTZ_STR_ART_SPRING =
 "┌───────────┐
 │▀▀▀▀▀▀▀▀▀▀▀│
 │▄▄▄▄▄▄▄▄▄▄▄│
@@ -1782,7 +1782,7 @@ $STZ_STR_ART_SPRING =
 
 #--- Enemies
 
-$STZ_STR_ART_GOOMBA =
+$xSTZ_STR_ART_GOOMBA =
 "   ______
   /      \
  /  ^  ^  \
@@ -1790,7 +1790,7 @@ $STZ_STR_ART_GOOMBA =
  \   <    /
   \______/"
 
-$STZ_STR_ART_SPIKE =
+$xSTZ_STR_ART_SPIKE =
 "    /\
    /  \
   /    \
@@ -1798,7 +1798,7 @@ $STZ_STR_ART_SPIKE =
 /        \
 ----------"
 
-$STZ_STR_ART_GOBLIN =
+$xSTZ_STR_ART_GOBLIN =
 '   ,      ,
   /(.-""-.)\\
 \\/        \\/
@@ -1807,7 +1807,7 @@ $STZ_STR_ART_GOBLIN =
   (   _)  )
    \\____/'
 
-$STZ_STR_ART_SKELETON =
+$xSTZ_STR_ART_SKELETON =
 "   ___
   (___)
   (_o_ _o_)
@@ -1816,7 +1816,7 @@ $STZ_STR_ART_SKELETON =
 (       )
  \\___//"
 
-$STZ_STR_ART_SPIDER =
+$xSTZ_STR_ART_SPIDER =
 "   /\\oo/\\
   ( (  ) )
    \\/__\\/
@@ -1825,7 +1825,7 @@ $STZ_STR_ART_SPIDER =
    \\\\  //
     \\\\//"
 
-$STZ_STR_ART_GHOST =
+$xSTZ_STR_ART_GHOST =
 '   .--""--.
   /        \\
  /  _o_    _o_  \\
@@ -1833,7 +1833,7 @@ $STZ_STR_ART_GHOST =
  \\ /    \\ _/
   `\"`"`\"`"`'
 
-$STZ_STR_ART_DRAGON =
+$xSTZ_STR_ART_DRAGON =
 "   /\\__/\\
   (  @@  )
  /\\  )\(  /\\
@@ -1841,7 +1841,7 @@ $STZ_STR_ART_DRAGON =
    | /\\ |
    \\(__)/
     `''`"
-$STZ_STR_ART_DRAGON2 =
+$xSTZ_STR_ART_DRAGON2 =
 "/\    /\
                   //\  //\
                  //  \/  \
@@ -1866,7 +1866,7 @@ $STZ_STR_ART_DRAGON2 =
 
 #--- Transportation
 
-$STZ_STR_ART_ROCKET =
+$xSTZ_STR_ART_ROCKET =
 "     △
     ╱▲╲
    ╱╱ ╲╲
@@ -1881,7 +1881,7 @@ $STZ_STR_ART_ROCKET =
   │ ███ │
   ╰─────╯"
 
-$STZ_STR_ART_FLAGPOLE =
+$xSTZ_STR_ART_FLAGPOLE =
 "┌─┐
 │█│
 │█│
@@ -1892,29 +1892,29 @@ $STZ_STR_ART_FLAGPOLE =
 │█│
 └─┘"
 
-$STZ_STR_ART_PLANE =
+$xSTZ_STR_ART_PLANE =
 "      ✈
     __|__
 --_o_--(_)--_o_--"
 
-$STZ_STR_ART_CAR =
+$xSTZ_STR_ART_CAR =
 "    ____
  __/  |_ \_
 |  _     _``-.
 '-(_)---(_)--'"
 
-$STZ_STR_ART_TRUCK =
+$xSTZ_STR_ART_TRUCK =
 "   _____
  _| ____|__
 |__[°  °]__|
 '-(o)--(o)-'"
 
-$STZ_STR_ART_BIKE =
+$xSTZ_STR_ART_BIKE =
 "   __o
  _`\<,_
 (*)/ (*)"
 
-$STZ_STR_ART_SPACESHIP =
+$xSTZ_STR_ART_SPACESHIP =
 "   /\
  _/__\_
 |  \/  |
@@ -1924,14 +1924,14 @@ $STZ_STR_ART_SPACESHIP =
 
 #--- Animals
 
-$STZ_STR_ART_CAT =
+$xSTZ_STR_ART_CAT =
 "  /\___/\
  (  _o_ _o_  )
  /   ∧   \
 |  \___/  |
  \_______/"
 
-$STZ_STR_ART_DOG =
+$xSTZ_STR_ART_DOG =
 " ╱▔╲▂╱╱╱╱▂╱▔╲
 ▕▔╲┈╱▔╲┈┈╱╲╱▔▏
 ▕▏┈▏╱▉╲┈┈╱▉╲▕▏
@@ -1940,7 +1940,7 @@ $STZ_STR_ART_DOG =
   ▕╲▂┊╰━━┻━╱
 ┈┈╱┈┈▔▔╲▂▂╱╲┈┈┈"
 
-$STZ_STR_ART_TEDDY =
+$xSTZ_STR_ART_TEDDY =
 "          wannahug?
        _     _  /
     _ (_o_\-~-/_o_) _
@@ -1954,7 +1954,7 @@ _____/   )_(   \____
     (__/    \__)"
 # From: 'Hayley Jane Wakenshaw'
 
-$STZ_STR_ART_TEDDY2 =
+$xSTZ_STR_ART_TEDDY2 =
 "              ____               ____
              /,,,,\_____________/,,,,\
             |,(  )/,,,,,,,,,,,,,\(  ),|
@@ -1988,13 +1988,13 @@ $STZ_STR_ART_TEDDY2 =
 # From: J.Visch@math.canterbury.ac.nz
 # (or From: y0l8009@zeus.tamu.edu (R.G.Z. Lee)?)
 
-$STZ_STR_ART_LEFTFEET =
+$xSTZ_STR_ART_LEFTFEET =
 "Oooo
 ( )
 ) /
 (_/"
 
-$STZ_STR_ART_RIGHTFEET =
+$xSTZ_STR_ART_RIGHTFEET =
 "oooO
 ( )
 \ (
@@ -2002,46 +2002,46 @@ $STZ_STR_ART_RIGHTFEET =
 
 #--- Persons
 
-$STZ_STR_ART_HERO =
+$xSTZ_STR_ART_HERO =
 "  ◯
  /██\
  /  \
 /    \"
 
-$STZ_STR_ART_WIZARD =
+$xSTZ_STR_ART_WIZARD =
 "  ▲
  /Θ\
 ╭|⋋|╮
  ┃Θ┃
  ┗━┛"
 
-$STZ_STR_ART_KNIGHT =
+$xSTZ_STR_ART_KNIGHT =
 "  ⍟
  /▼\
 ╭|‗|╮
  ┃ ┃
  ┗━┛"
 
-$STZ_STR_ART_VILLAGER =
+$xSTZ_STR_ART_VILLAGER =
 " ◯
 /Ω\
 ┃ ┃
 ╰─╯"
 
-$STZ_STR_ART_MERCHANT =
+$xSTZ_STR_ART_MERCHANT =
 " ◯
 ┌╦╦┐
 ┃$$┃
 ┗━━┛"
 
-$STZ_STR_ART_PRINCESS =
+$xSTZ_STR_ART_PRINCESS =
 "  ♔
  /◠◠\
 ╭|◡◡|╮
  ┃  ┃
  ┗━━┛"
 
-$STZ_STR_ART_PRINCESS2 =
+$xSTZ_STR_ART_PRINCESS2 =
 "         .....
          WWWWW
         ((. .))    
@@ -2067,7 +2067,7 @@ $STZ_STR_ART_PRINCESS2 =
 
 #--- Buildings
 
-$STZ_STR_ART_HOUSE =
+$xSTZ_STR_ART_HOUSE =
 "    🏠
  ┏━━━━━━┓
 ┏┻━━━━━━┻┓
@@ -2076,7 +2076,7 @@ $STZ_STR_ART_HOUSE =
 ┃┣╯╰┫┣╯╰┫┃
 ┗┻━━┻┻━━┻┛"
 
-$STZ_STR_ART_CASTLE =
+$xSTZ_STR_ART_CASTLE =
 "                                |>>>
                                   |
                     |>>>      _  _|_  _         |>>>
@@ -2096,7 +2096,7 @@ $STZ_STR_ART_CASTLE =
      ____--`~    '--~~__|.    |+++++__|----~    ~`---,              ___
 -~--~                   ~---__|,--~'                  ~~----_____-~'"
 
-$STZ_STR_ART_CASTLE2 =
+$xSTZ_STR_ART_CASTLE2 =
 "                           o
                        _---|         _ _ _ _ _
                     _o_   ---|     _o_   ]-I-I-I-[
@@ -2122,41 +2122,41 @@ $STZ_STR_ART_CASTLE2 =
 
 #--- Special Effects
 
-$STZ_STR_ART_SUNRISE =
+$xSTZ_STR_ART_SUNRISE =
 "   \   🌞  /
   \  \│/  /
 ─ ─ ─ ☀ ─ ─ ─
   /  /│\  \
     /    \  \"
 
-$STZ_STR_ART_EXPLOSION =
+$xSTZ_STR_ART_EXPLOSION =
 "    \   /
   *  .  *
 *  * 💥 *  *
   *  ..  *
     /   \"
 
-$STZ_STR_ART_SPARKLE =
+$xSTZ_STR_ART_SPARKLE =
 "    .  ✦
   * ✧  .
 ✦   ✨  ✧
   . ✦  *
     ✧  ."
 
-$STZ_STR_ART_RAIN =
+$xSTZ_STR_ART_RAIN =
 " ╱ ╲ ╱ ╲ ╱ ╲
    ‖ ‖ ‖ ‖
  ╲ ╱ ╲ ╱ ╲ ╱
    ‖ ‖ ‖ ‖"
 
-$STZ_STR_ART_SNOW =
+$xSTZ_STR_ART_SNOW =
 "  ❄   ❅
     ❆
  ❅   ❄   ❆
    ❆   ❅
  ❄   ❅"
 
-$STZ_STR_ART_FIRE =
+$xSTZ_STR_ART_FIRE =
 "  )\
  (  )
 (    )
@@ -2164,14 +2164,14 @@ $STZ_STR_ART_FIRE =
 ( 🔥 (
  ) 🔥 )"
 
-$STZ_STR_ART_BUBBLE =
+$xSTZ_STR_ART_BUBBLE =
 "  .--.
  /    \
 (      )
  \    /
   '--'"
 
-$STZ_STR_ART_TELEPORT =
+$xSTZ_STR_ART_TELEPORT =
 "   ↑↑
 ┌──┴┴──┐
 │ ◊◊◊◊ │
@@ -2179,7 +2179,7 @@ $STZ_STR_ART_TELEPORT =
 └──↑↑──┘
    ↑↑"
 
-$STZ_STR_ART_SHIELD =
+$xSTZ_STR_ART_SHIELD =
 " .─────.
 / ┌───┐ \
 │ │ ▓ │ │
@@ -2189,7 +2189,7 @@ $STZ_STR_ART_SHIELD =
 
 #--- Weapons
 
-$STZ_STR_ART_SWORD =
+$xSTZ_STR_ART_SWORD =
 "   /\
   |  |
   |  |
@@ -2198,7 +2198,7 @@ $STZ_STR_ART_SWORD =
  (    )
   `--'"
 
-$STZ_STR_ART_BOW =
+$xSTZ_STR_ART_BOW =
 "   ,
   / \
  /   \
@@ -2207,7 +2207,7 @@ $STZ_STR_ART_BOW =
   \ /
    '"
 
-$STZ_STR_ART_WAND =
+$xSTZ_STR_ART_WAND =
 "   *
    │
    │
@@ -2215,7 +2215,7 @@ $STZ_STR_ART_WAND =
    │
   ─┴─"
 
-$STZ_STR_ART_AXE =
+$xSTZ_STR_ART_AXE =
 "   ,
  //'\\ 
 |  |  |
@@ -2224,7 +2224,7 @@ $STZ_STR_ART_AXE =
    │
    │"
 
-$STZ_STR_ART_SHIELD =
+$xSTZ_STR_ART_SHIELD =
 " .─────.
 / ┌───┐ \\
 │ │ ▓ │ │
@@ -2232,31 +2232,31 @@ $STZ_STR_ART_SHIELD =
 \\ └───┘ /
  `─────'"
 
-$STZ_STR_ART_FIREBALL =
+$xSTZ_STR_ART_FIREBALL =
 "  (  )
  (    )
 (  🔥  )
  (    )
   (  )"
 
-$STZ_STR_ART_PISTOL =
+$xSTZ_STR_ART_PISTOL =
 "  __,_
  [_____\___
  ()____|---;
     L   J"
 
-$STZ_STR_ART_ASSAULTRIFLE =
+$xSTZ_STR_ART_ASSAULTRIFLE =
 "  _________,__
  /   _____|___|=======
 /__/'"
 
-$STZ_STR_ART_SNIPPERRIFLE =
+$xSTZ_STR_ART_SNIPPERRIFLE =
 "   \
  ___\__,_
 [________\_____▄▄▄
 [_|___|_|_____|---;"
 
-$STZ_STR_ART_GRENADE = 
+$xSTZ_STR_ART_GRENADE = 
 "   ,-.
   /   \
  /     \
@@ -2264,7 +2264,7 @@ $STZ_STR_ART_GRENADE =
  \     /
   \___/"
 
-$STZ_STR_ART_ROCKETLAUNCHER =
+$xSTZ_STR_ART_ROCKETLAUNCHER =
 "
   ____
  /    \========[}
@@ -2272,7 +2272,7 @@ $STZ_STR_ART_ROCKETLAUNCHER =
  \____/
 "
 
-$STZ_STR_ART_TASER =
+$xSTZ_STR_ART_TASER =
 " ___
 |___|==≈≈≈
 |___\
@@ -2284,7 +2284,7 @@ $STZ_STR_ART_TASER =
 # Existing categories and icons...
 
 # Human Body Parts
-$STZ_STR_ART_HEAD = 
+$xSTZ_STR_ART_HEAD = 
 "  .---.
  /     \\
 |  _o_ _o_  |
@@ -2292,7 +2292,7 @@ $STZ_STR_ART_HEAD =
  \  ‿  /
   '---'"
 
-$STZ_STR_ART_TORSO =
+$xSTZ_STR_ART_TORSO =
 "  ___
  /   \\
 |     |
@@ -2301,7 +2301,7 @@ $STZ_STR_ART_TORSO =
   | |
   | |"
 
-$STZ_STR_ART_ARM =
+$xSTZ_STR_ART_ARM =
 "   __
  /  \\
 |    |
@@ -2311,7 +2311,7 @@ $STZ_STR_ART_ARM =
   ||
  _||_"
 
-$STZ_STR_ART_LEG =
+$xSTZ_STR_ART_LEG =
 "  ||
   ||
   ||
@@ -2321,21 +2321,21 @@ $STZ_STR_ART_LEG =
  \  /
   \/"
 
-$STZ_STR_ART_HAND =
+$xSTZ_STR_ART_HAND =
 " _   _
 | \-/ |
 |  |  |
 |  |  |
  \___/"
 
-$STZ_STR_ART_FOOT =
+$xSTZ_STR_ART_FOOT =
 "   ____
   /    \\
  /  ()  \\
 |   __   |
  \_/  \_/"
 
-$STZ_STR_ART_HEART =
+$xSTZ_STR_ART_HEART =
 "  __  __
  /  \/  \\
 |   \/   |
@@ -2344,7 +2344,7 @@ $STZ_STR_ART_HEART =
    \  /
     \/"
 
-$STZ_STR_ART_BRAIN =
+$xSTZ_STR_ART_BRAIN =
 "  .---.
  /     \\
 | ≋≋≋≋≋ |
@@ -2354,7 +2354,7 @@ $STZ_STR_ART_BRAIN =
 
 #--- Misc
 
-$STZ_STR_ART_HEART2 =
+$xSTZ_STR_ART_HEART2 =
 ",d88b.d88b,
 88888888888
 `Y8888888Y'
@@ -2362,7 +2362,7 @@ $STZ_STR_ART_HEART2 =
     `Y'"
 # By David S. Issel
 
-$STZ_STR_ART_GIFT =
+$xSTZ_STR_ART_GIFT =
 "                      _-_      _-_
                      //^\\__._//^\\___.
                     /\\__\\/_//__/'__/|

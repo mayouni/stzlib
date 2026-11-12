@@ -12,50 +12,16 @@
 
 /* GENERAL NOTES
 
-	RATIONALE : Why this class and related large file are necessary
-	---------------------------------------------------------------
+	THE UNICODE DATABASE LIVES IN THE ENGINE
+	----------------------------------------
 
-	The Unicode database is a large file provided by the Unicode foundation here:
-	https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt
+	The Softanza engine holds the whole Unicode database: character names,
+	categories, case mappings and the search by name, answered by indexed
+	queries (see the Stz*ByUnicode and StzUnicode* functions below).
 
-	Programming languages and frameworkks supporting Unicode have different
-	strategies in including this data. Hence, some of them prefer not including
-	it and relying on its presence on the hosting OS where the application runs.
-
-	The Softanza Engine (Zig-based) includes Unicode support via utf8proc,
-	which enables us to have most of the data we need with good performance.
-
-	Some features, like getting character names or finding chars by their
-	names (and not their Unicode codes), require additional data.
-
-	That's why Softanza included its own copy of the Unicode database.
-
-	In practice, Softanza will use the Engine for available Unicode features,
-	otherwise its own text file is used (called stzUnicodeData.txt).
-
-	The current file contains a class (stzUnicodeData) with the functions
-	added specifically by Softanza. The others can be found in stzChar.ring class.
-
-	DATA STRUCTURE OF THE UNICODE TEXT FILE
-	---------------------------------------
-
-	Fields separated by (details here http://www.unicode.org/L2/L1999/UnicodeData.html):
-
-	01. Code value
-	02. Character name
-	03. General category
-	04. Canonical combining classes
-	05. Bidirectional category
-	06. Character decomposition mapping
-	07. Decimal digit value
-	08. Digit value
-	09. Numeric value
-	10. Mirrored
-	11. Unicode 1.0 Name
-	12. 10646 comment field()
-	13. Uppercase mapping
-	14. Lowercase mapping
-	15. Titlecase mapping
+	This file gives Softanza's own view of that data: the stzUnicodeData class,
+	which asks the engine, and the tables of Unicode blocks and ranges that
+	the char and string layers use. The other character functions are in stzChar.
 
 	TODO (futute)
 	-------------
@@ -69,14 +35,12 @@ $nNumberOfUnicodeChars = 149_186
 
 $nMaxUnicode = 1_114_112
 
-$nNumberOfLinesInUnicodeDataFile = 34_931
-
 # Engine-backed Unicode lookups (O(1) via SQLite indexed queries)
 # The engine manages the database internally -- Ring never sees it.
 
 
 # --- Lifted globals (Ring only runs $var = ... before the first func) ---
-$anMathUnicodes = [
+$viMathUnicodes = [
 	172, 176, 177, 188, 189, 190, 215, 247, 915, 916, 920, 923,
 	926, 928, 931, 933, 934, 936, 937, 945, 946, 947, 948, 949,
 	950, 951, 952, 953, 954, 955, 956, 957, 958, 959, 960, 961,
@@ -84,7 +48,7 @@ $anMathUnicodes = [
 	8707, 8709, 8711, 8712, 8713, 8719, 8721, 8730, 8733, 8734,
 	8736, 8743, 8744, 8747, 8754, 8756, 8776, 8800, 8801, 8804, 8805
 ]
-$aUnicodeBlocksXT = [
+$vUnicodeBlocksXT = [
 	[ "Basic Latin", [0, 127] ],
 	[ "Latin-1 Supplement", [128, 255] ],
 	[ "Latin Extended-A", [256, 383] ],
@@ -423,32 +387,32 @@ $aUnicodeBlocksXT = [
 	[ "Supplementary Private Use Area-A", [983040, 1048575] ],
 	[ "Supplementary Private Use Area-B", [1048576, 1114111] ]
 ]
-$anUnicodesOfBoxCharsdeBlocksXT = 9472:9599
+$viUnicodesOfBoxCharsdeBlocksXT = 9472:9599
 
 func StzCharNameByUnicode(nCodepoint)
     return StzEngineUnidataCharName(nCodepoint)
-
+end
 func StzCharCategoryByUnicode(nCodepoint)
     return StzEngineUnidataCharCategory(nCodepoint)
-
+end
 func StzCharInfoByUnicode(nCodepoint)
     return StzEngineUnidataCharInfo(nCodepoint)
-
-func StzUnicodeFindByName(cPattern)
-    return StzEngineUnidataFindByName(cPattern)
-
+end
+func StzUnicodeFindByName(tPattern)
+    return StzEngineUnidataFindByName(tPattern)
+end
 func StzUnicodeCharsInRange(nFrom, nTo)
     return StzEngineUnidataCharsInRange(nFrom, nTo)
-
-func StzUnicodeCharCount()
+end
+func StzUnicodeCharCount
     return StzEngineUnidataCount()
-
-func StzCodepointByName(cName)
-    return StzEngineUnidataCodepointByName(cName)
-
-func StzUnicodeContainsName(cName)
-    return StzEngineUnidataContainsName(cName)
-
+end
+func StzCodepointByName(tName)
+    return StzEngineUnidataCodepointByName(tName)
+end
+func StzUnicodeContainsName(tName)
+    return StzEngineUnidataContainsName(tName)
+end
 #TODO Read this discussion:
 # https://groups.google.com/g/ring-lang/c/yCGeILp49O4/m/FWC5XWpsAQAJ
 
@@ -457,270 +421,263 @@ func StzUnicodeContainsName(cName)
 
 
 
-func UnicodesOfBoxChars()
-	return $anUnicodesOfBoxCharsdeBlocksXT
+func UnicodesOfBoxChars
+	return $viUnicodesOfBoxCharsdeBlocksXT
+end
+func UnicodeBoxChars
+	return UnicodesToChars($viUnicodesOfBoxCharsdeBlocksXT)
+end
+func StzUnicodeDataQ
+	return new stzUnicodeData()
+end
 
-func UnicodeBoxChars()
-	return UnicodesToChars($anUnicodesOfBoxCharsdeBlocksXT)
-
-func UnicodeData()
-	# Deprecated: use StzCharNameByUnicode() and StzUnicodeFindByName() instead
-	return ""
-	
-	func StzUnicodeDataQ()
-		return new stzUnicodeData()
-
-
-func MaxUnicode()
+func MaxUnicode
 	return $nMaxUnicode
-
-	func LastUnicode()
+end
+	func LastUnicode
 		return MaxUnicode()
-
-	func MaxUnicodeNumber()
+	end
+	func MaxUnicodeNumber
 		return MaxUnicode()
-
-func NumberOfUnicodeChars()
+	end
+func NumberOfUnicodeChars
 	return $nNumberOfUnicodeChars
-
-	func NumberOfUnicodes()
+end
+	func NumberOfUnicodes
 		return NumberOfUnicodeChars1()
-
-	func @NumberOfUnicodeChars()
+	end
+	func @NumberOfUnicodeChars
 		return NumberOfUnicodeChars()
-
-	func @NumberOfUnicodes()
+	end
+	func @NumberOfUnicodes
 		return NumberOfUnicodeChars()
-
-func NumberOfLinesInUnicodeDataFile()
-	return $nNumberOfLinesInUnicodeDataFile
-
-func MathUnicodes()
-	return $anMathUnicodes
-
-func NumberOfMathChars()
-	return len($anMathUnicodes)
-
-	func HowManyMathChars()
+	end
+func MathUnicodes
+	return $viMathUnicodes
+end
+func NumberOfMathChars
+	return Len($viMathUnicodes)
+end
+	func HowManyMathChars
 		return NumberOfMathChars()
-
-func MathChars()
+	end
+func MathChars
 	return UnicodesToChars(MathUnicodes())
-
-	func MathCharsQ()
+end
+	func MathCharsQ
 		return MathCharsQRT(:stzList)
+	end
+	func MathCharsQRT(pxReturnType)
 
-	func MathCharsQRT(pcReturnType)
-
-		switch pcReturnType
-		on :stzList
+		switch pxReturnType
+		case :stzList
 			return new stzList(MathChars())
 
-		on :stzListOfChars
-			return new stzListOfChars(MathChars())
+		case :stzListOfChars
+			return new StzListOfChars(MathChars())
 
-		on :stzListOfStrings
-			return new stzListOfStrings(MathChars())
+		case :stzListOfStrings
+			return new StzListOfStrings(MathChars())
 
-		other
+		else
 			StzRaise("Unsupported return type!")
-		off
-
-func NumberOfUnicodeBlocks()
-	return len( UnicodeBlocks() )
-
-	func HowManyUnicodeBlocks()
+		end
+	end
+func NumberOfUnicodeBlocks
+	return Len( UnicodeBlocks() )
+end
+	func HowManyUnicodeBlocks
 		return NumberOfUnicodeBlocks()
-
-func UnicodeBlocksXT()
-	return $aUnicodeBlocksXT
-
-	func UnicodeBlocksAndTheirRanges()
+	end
+func UnicodeBlocksXT
+	return $vUnicodeBlocksXT
+end
+	func UnicodeBlocksAndTheirRanges
 		return UnicodeBlocksXT()
+	end
+func UnicodeBlocks
+	vtResult = []
+	nLen = Len($vUnicodeBlocksXT)
 
-func UnicodeBlocks()
-	_acResult_ = []
-	_nLen_ = len($aUnicodeBlocksXT)
+	for i = 1 to nLen
+		vtResult + $vUnicodeBlocksXT[i][1]
+	end
 
-	for i = 1 to _nLen_
-		_acResult_ + $aUnicodeBlocksXT[i][1]
-	next
-
-	return _acResult_
-
-	func UnicodeBlocksNames()
+	return vtResult
+end
+	func UnicodeBlocksNames
 		return UnicodeBlocks()
+	end
+func UnicodeBlocksRanges
+	xResult = []
+	nLen = Len($vUnicodeBlocksXT)
 
-func UnicodeBlocksRanges()
-	_aResult_ = []
-	_nLen_ = len($aUnicodeBlocksXT)
+	for i = 1 to nLen
+		xResult + $vUnicodeBlocksXT[i][2]
+	end
 
-	for i = 1 to _nLen_
-		_aResult_ + $aUnicodeBlocksXT[i][2]
-	next
+	return xResult
+end
+func UnicodeBlocksContaining(pxStr)
+	vtResult = []
+	nLen = Len($vUnicodeBlocksXT)
 
-	return _aResult_
+	for i = 1 to nLen
+		xStr = StzLower($vUnicodeBlocksXT[i][1])
+		if ring_substr1(xStr, pxStr) > 0
+			vtResult + $vUnicodeBlocksXT[i][1]
+		end
+	end
 
-func UnicodeBlocksContaining(pcStr)
-	_acResult_ = []
-	_nLen_ = len($aUnicodeBlocksXT)
-
-	for i = 1 to _nLen_
-		_str_ = StzLower($aUnicodeBlocksXT[i][1])
-		if ring_substr1(_str_, pcStr) > 0
-			_acResult_ + $aUnicodeBlocksXT[i][1]
-		ok
-	next
-
-	return _acResult_
-
+	return vtResult
+end
 	#< @FunctionAlternativeForms
 
-	func UnicodeBlocksNamesContaining(pcStr)
-		return UnicodeBlocksContaining(pcStr)
-
-	func UnicodeBlocksContainingInTheirName(pcStr)
-		return UnicodeBlocksContaining(pcStr)
-
-	func UnicodeBlocksContainingInTheirNames(pcStr)
-		return UnicodeBlocksContaining(pcStr)
-
+	func UnicodeBlocksNamesContaining(pxStr)
+		return UnicodeBlocksContaining(pxStr)
+	end
+	func UnicodeBlocksContainingInTheirName(pxStr)
+		return UnicodeBlocksContaining(pxStr)
+	end
+	func UnicodeBlocksContainingInTheirNames(pxStr)
+		return UnicodeBlocksContaining(pxStr)
+	end
 	#--
 
-	func @UnicodeBlocksContaining(pcStr)
-		return UnicodeBlocksContaining(pcStr)
-
-	func @UnicodeBlocksNamesContaining(pcStr)
-		return UnicodeBlocksContaining(pcStr)
-
-	func @UnicodeBlocksContainingInTheirName(pcStr)
-		return UnicodeBlocksContaining(pcStr)
-
-	func @UnicodeBlocksContainingInTheirNames(pcStr)
-		return UnicodeBlocksContaining(pcStr)
-
+	func @UnicodeBlocksContaining(pxStr)
+		return UnicodeBlocksContaining(pxStr)
+	end
+	func @UnicodeBlocksNamesContaining(pxStr)
+		return UnicodeBlocksContaining(pxStr)
+	end
+	func @UnicodeBlocksContainingInTheirName(pxStr)
+		return UnicodeBlocksContaining(pxStr)
+	end
+	func @UnicodeBlocksContainingInTheirNames(pxStr)
+		return UnicodeBlocksContaining(pxStr)
+	end
 	#>
 
-func UnicodeBlocksContainingXT(pcStr)
-	_aResult_ = []
-	_nLen_ = len($aUnicodeBlocksXT)
+func UnicodeBlocksContainingXT(pxStr)
+	xResult = []
+	nLen = Len($vUnicodeBlocksXT)
 
-	for i = 1 to _nLen_
-		_str_ = StzLower($aUnicodeBlocksXT[i][1])
-		if ring_substr1(_str_, pcStr) > 0
-			_aResult_ + $aUnicodeBlocksXT[i]
-		ok
-	next
+	for i = 1 to nLen
+		xStr = StzLower($vUnicodeBlocksXT[i][1])
+		if ring_substr1(xStr, pxStr) > 0
+			xResult + $vUnicodeBlocksXT[i]
+		end
+	end
 
-	return _aResult_
-
+	return xResult
+end
 	#< @FunctionAlternativeForms
 
-	func UnicodeBlocksContainingAlongWithTheirRanges(pcStr)
-		return UnicodeBlocksContainingXT(pcStr)
-
-	func UnicodeBlocksNamesContainingXT(pcStr)
-		return UnicodeBlocksContainingXT(pcStr)
-
-	func UnicodeBlocksNamesContainingAlongWithTheirRanges(pcStr)
-		return UnicodeBlocksContainingXT(pcStr)
-
+	func UnicodeBlocksContainingAlongWithTheirRanges(pxStr)
+		return UnicodeBlocksContainingXT(pxStr)
+	end
+	func UnicodeBlocksNamesContainingXT(pxStr)
+		return UnicodeBlocksContainingXT(pxStr)
+	end
+	func UnicodeBlocksNamesContainingAlongWithTheirRanges(pxStr)
+		return UnicodeBlocksContainingXT(pxStr)
+	end
 	#--
 
-	func @UnicodeBlocksContainingXT(pcStr)
-		return UnicodeBlocksContainingXT(pcStr)
-
-	func @UnicodeBlocksNamesContainingXT(pcStr)
-		return UnicodeBlocksContainingXT(pcStr)
-
-	func @UnicodeBlocksContainingInTheirNameXT(pcStr)
-		return UnicodeBlocksContainingXT(pcStr)
-
-	func @UnicodeBlocksContainingInTheirNamesXT(pcStr)
-		return UnicodeBlocksContainingXT(pcStr)
-
+	func @UnicodeBlocksContainingXT(pxStr)
+		return UnicodeBlocksContainingXT(pxStr)
+	end
+	func @UnicodeBlocksNamesContainingXT(pxStr)
+		return UnicodeBlocksContainingXT(pxStr)
+	end
+	func @UnicodeBlocksContainingInTheirNameXT(pxStr)
+		return UnicodeBlocksContainingXT(pxStr)
+	end
+	func @UnicodeBlocksContainingInTheirNamesXT(pxStr)
+		return UnicodeBlocksContainingXT(pxStr)
+	end
 	#>
 
 
-func CharsContainingInTheirName(pcPartOfName)
+func CharsContainingInTheirName(pxPartOfName)
 	# Engine SQLite LIKE search — returns "HEX;NAME\n" lines
-	_cResult_ = StzUnicodeFindByName(pcPartOfName)
-	if _cResult_ = ""
+	tResult = StzUnicodeFindByName(pxPartOfName)
+	if tResult = ""
 		return []
-	ok
-	_aLines_ = ring_split(_cResult_, char(10))
-	_nLen_ = len(_aLines_)
-	_acResult_ = []
-	for _i_ = 1 to _nLen_
-		if _aLines_[_i_] != ""
+	end
+	xLines = ring_split(tResult, Char(10))
+	nLen = Len(xLines)
+	vtResult = []
+	for i = 1 to nLen
+		if xLines[i] != ""
 			# Each line is "HEX;NAME" — extract the hex, convert to char
-			_nSemicolon_ = ring_substr1(_aLines_[_i_], ";")
-			if _nSemicolon_ > 0
-				_cHex_ = ring_left(_aLines_[_i_], _nSemicolon_ - 1)
-				_nCodepoint_ = dec("0x" + _cHex_)
-				_acResult_ + StzChar(_nCodepoint_)
-			ok
-		ok
-	next
-	return _acResult_
+			nSemicolon = ring_substr1(xLines[i], ";")
+			if nSemicolon > 0
+				tHex = ring_left(xLines[i], nSemicolon - 1)
+				nCodepoint = Dec("0x" + tHex)
+				vtResult + StzChar(nCodepoint)
+			end
+		end
+	end
+	return vtResult
+end
+	func CharsContaining(pxPartOfName)
+		return CharsContainingInTheirName(pxPartOfName)
+	end
+	func @CharsContainingInTheirName(pxPartOfName)
+		return CharsContainingInTheirName(pxPartOfName)
+	end
+	func @CharsContaining(pxPartOfName)
+		return CharsContainingInTheirName(pxPartOfName)
+	end
 
-	func CharsContaining(pcPartOfName)
-		return CharsContainingInTheirName(pcPartOfName)
-
-	func @CharsContainingInTheirName(pcPartOfName)
-		return CharsContainingInTheirName(pcPartOfName)
-
-	func @CharsContaining(pcPartOfName)
-		return CharsContainingInTheirName(pcPartOfName)
-
-
-func CharsAndNames(pacChars)
+func CharsAndNames(pxChars)
 	# For each char in pacChars, return [char, unicode_name].
-	if NOT isList(pacChars)
+	if not IsList(pxChars)
 		return []
-	ok
-	_aResult_ = []
-	_nLen_ = len(pacChars)
-	for _i_ = 1 to _nLen_
-		_c_ = pacChars[_i_]
-		if isString(_c_) and len(_c_) >= 1
-			_n_ = StzCharToUnicode(_c_)
-			_aResult_ + [ _c_, StzCharNameByUnicode(_n_) ]
-		ok
-	next
-	return _aResult_
-
-	func CharsAndTheirNames(pacChars)
-		return CharsAndNames(pacChars)
-
-func CharsNamesContaining(pcPartOfName)
+	end
+	xResult = []
+	nLen = Len(pxChars)
+	for i = 1 to nLen
+		xC = pxChars[i]
+		if IsString(xC) and Len(xC) >= 1
+			xN = StzCharToUnicode(xC)
+			xResult + [ xC, StzCharNameByUnicode(xN) ]
+		end
+	end
+	return xResult
+end
+	func CharsAndTheirNames(pxChars)
+		return CharsAndNames(pxChars)
+	end
+func CharsNamesContaining(pxPartOfName)
 	# Engine SQLite LIKE search — returns "HEX;NAME\n" lines
-	_cResult_ = StzUnicodeFindByName(pcPartOfName)
-	if _cResult_ = ""
+	tResult = StzUnicodeFindByName(pxPartOfName)
+	if tResult = ""
 		return []
-	ok
-	_aLines_ = ring_split(_cResult_, char(10))
-	_nLen_ = len(_aLines_)
-	_acResult_ = []
-	for _i_ = 1 to _nLen_
-		if _aLines_[_i_] != ""
-			_nSemicolon_ = ring_substr1(_aLines_[_i_], ";")
-			if _nSemicolon_ > 0
-				_acResult_ + ring_substr2(_aLines_[_i_], _nSemicolon_ + 1)
-			ok
-		ok
-	next
-	return _acResult_
-
-	func CharNamesContaining(pcPartOfName)
-		return CharsNamesContaining(pcPartOfName)
-
-	func @CharsNamesContaining(pcPartOfName)
-		return CharsNamesContaining(pcPartOfName)
-
-	func @CharNamesContaining(pcPartOfName)
-		return CharsNamesContaining(pcPartOfName)
-
+	end
+	xLines = ring_split(tResult, Char(10))
+	nLen = Len(xLines)
+	vtResult = []
+	for i = 1 to nLen
+		if xLines[i] != ""
+			nSemicolon = ring_substr1(xLines[i], ";")
+			if nSemicolon > 0
+				vtResult + ring_substr2(xLines[i], nSemicolon + 1)
+			end
+		end
+	end
+	return vtResult
+end
+	func CharNamesContaining(pxPartOfName)
+		return CharsNamesContaining(pxPartOfName)
+	end
+	func @CharsNamesContaining(pxPartOfName)
+		return CharsNamesContaining(pxPartOfName)
+	end
+	func @CharNamesContaining(pxPartOfName)
+		return CharsNamesContaining(pxPartOfName)
+	end
 
 # Looks up characters by their Unicode name and names by their code point, through the engine's Unicode database.
 #
@@ -743,19 +700,20 @@ class stzUnicodeData from stzObject
 	#   returns    nothing; the object is built
 	#   see        ContainsCharName, CharNameByUnicode
 	#@ aka  All methods now delegate to engine SQLite — no text file needed
-	def init()
+	def init
+	end
 	# TRUE if a character has exactly this name, compared without regard to case; a part of a name does not count.
 	#
 	#   pcCharName   the full Unicode name, such as LATIN SMALL LETTER A
 	#   returns      1 or 0, numbers
 	#   see          FindCharName, SearchCharName, CharByName
 	#@ aka  Nothing to load — engine handles the database internally
-	def ContainsCharName(pcCharName)
-		return StzUnicodeContainsName(pcCharName)
-
-		def ContainsName(pcCharName)
-			return This.ContainsCharName(pcCharName)
-
+	def ContainsCharName(pxCharName)
+		return StzUnicodeContainsName(pxCharName)
+	end
+		def ContainsName(pxCharName)
+			return this.ContainsCharName(pxCharName)
+		end
 	# TRUE if a character has exactly this name; it is the same answer as ContainsCharName, with a check that the argument is a text.
 	#
 	#   pcCharName   the full Unicode name
@@ -763,44 +721,44 @@ class stzUnicodeData from stzObject
 	#   note         it answers 1 or 0, never a position
 	#   warning      raises Incorrect param type for a name that is not a text
 	#   see          ContainsCharName, SearchCharName
-	def FindCharName(pcCharName)
+	def FindCharName(pxCharName)
 		# Returns 1 if found, 0 if not (position is meaningless with engine)
-		if NOT isString(pcCharName)
+		if not IsString(pxCharName)
 			StzRaise("Incorrect param type! pcCharName must be a string.")
-		ok
-		return StzUnicodeContainsName(pcCharName)
-
-		def FindcharByName(pcCharName)
-			return This.FindCharName(pcCharName)
-
+		end
+		return StzUnicodeContainsName(pxCharName)
+	end
+		def FindcharByName(pxCharName)
+			return this.FindCharName(pxCharName)
+		end
 	# Returns the names that contain the given words, found by a case-insensitive substring search.
 	#
 	#   pcCharName   the part of a name to look for
 	#   returns      a list of text, in table order; [ ] when no name matches
 	#   see          CharsNamesContaining, UnicodesOfCharsContaining
-	def SearchCharName(pcCharName)
+	def SearchCharName(pxCharName)
 		# Returns names containing the search term
-		return CharsNamesContaining(pcCharName)
-
-		def SearchForCharName(pcCharName)
-			return This.SearchCharName(pcCharName)
-
-		def SearchCharByName(pcCharName)
-			return This.SearchCharName(pcCharName)
-
+		return CharsNamesContaining(pxCharName)
+	end
+		def SearchForCharName(pxCharName)
+			return this.SearchCharName(pxCharName)
+		end
+		def SearchCharByName(pxCharName)
+			return this.SearchCharName(pxCharName)
+		end
 	# Returns the character with exactly this name, as a one-character text.
 	#
 	#   pcCharName   the full Unicode name
 	#   returns      a text such as a
 	#   warning      raises Character name not found for a name that does not exist
 	#   see          CharUnicodeByName, CharHexCodeByName, ContainsCharName
-	def CharByName(pcCharName)
-		_nCp_ = StzCodepointByName(pcCharName)
-		if _nCp_ < 0
-			StzRaise("Character name not found: " + pcCharName)
-		ok
-		return StzChar(_nCp_)
-
+	def CharByName(pxCharName)
+		nCp = StzCodepointByName(pxCharName)
+		if nCp < 0
+			StzRaise("Character name not found: " + pxCharName)
+		end
+		return StzChar(nCp)
+	end
 	# Returns the code point of a named character as a hexadecimal text with the 0x prefix.
 	#
 	#   pcCharName   the full Unicode name
@@ -808,46 +766,46 @@ class stzUnicodeData from stzObject
 	#   note         digits above 9 are upper case, 0x1F600
 	#   warning      an unknown name is not reported, it gives the prefix alone
 	#   see          CharUnicodeByName, CharNameByHexCode
-	def CharHexCodeByName(pcCharName)
+	def CharHexCodeByName(pxCharName)
 		if CheckingParams()
-			if NOT isString(pcCharName)
+			if not IsString(pxCharName)
 				StzRaise("Incorrect param type! pcCharName must be a string.")
-			ok
-		ok
-		_nCp_ = StzCodepointByName(pcCharName)
-		if _nCp_ < 0
+			end
+		end
+		nCp = StzCodepointByName(pxCharName)
+		if nCp < 0
 			return HexPrefix()
-		ok
-		return HexPrefix() + upper(hex(_nCp_))
-
+		end
+		return HexPrefix() + Upper(Hex(nCp))
+	end
 	# Returns the decimal code point of a named character.
 	#
 	#   pcCharName   the full Unicode name
 	#   returns      a number, -1 for a name that does not exist
 	#   see          CharHexCodeByName, CharByName
-	def CharUnicodeByName(pcCharName)
-		return StzCodepointByName(pcCharName)
-
-		def CharDecimalCodeByName(pcCharName)
-			return This.CharUnicodeByName(pcCharName)
-
+	def CharUnicodeByName(pxCharName)
+		return StzCodepointByName(pxCharName)
+	end
+		def CharDecimalCodeByName(pxCharName)
+			return this.CharUnicodeByName(pxCharName)
+		end
 	# Returns the character at a hexadecimal code point, with or without the 0x prefix.
 	#
 	#   pcHex      the code point in hexadecimal, such as 0x41 or 05D0
 	#   returns    a one-character text such as A
 	#   see        CharByUnicode, CharNameByHexCode
-	def CharByHexCode(pcHex)
-		_cHex_ = pcHex
+	def CharByHexCode(pxHex)
+		tHex = pxHex
 		# Strip prefix if present
-		if len(_cHex_) > 2
-			_cPfx_ = ring_left(_cHex_, 2)
-			if _cPfx_ = "0x" or _cPfx_ = "0X"
-				_cHex_ = StzMidToEnd(_cHex_, 3)
-			ok
-		ok
-		_nUnicode_ = dec("0x" + _cHex_)
-		return StzChar(_nUnicode_)
-
+		if Len(tHex) > 2
+			tPfx = ring_left(tHex, 2)
+			if tPfx = "0x" or tPfx = "0X"
+				tHex = StzMidToEnd(tHex, 3)
+			end
+		end
+		nUnicode = Dec("0x" + tHex)
+		return StzChar(nUnicode)
+	end
 	# Returns the character at a decimal code point.
 	#
 	#   nUnicode   the code point as a number
@@ -855,31 +813,31 @@ class stzUnicodeData from stzObject
 	#   see        CharByHexCode, CharNameByUnicode
 	def CharByUnicode(nUnicode)
 		return StzChar(nUnicode)
-
+	end
 		def CharByDecimalCode(nUnicode)
-			return This.CharByUnicode(nUnicode)
-
+			return this.CharByUnicode(nUnicode)
+		end
 	# Returns the Unicode name of the character at a hexadecimal code point, with or without the 0x prefix.
 	#
 	#   pcHex      the code point in hexadecimal, such as 0x41
 	#   returns    a text such as LATIN CAPITAL LETTER A; an empty text for an empty code or an
 	#              unassigned point
 	#   see        CharNameByUnicode, CharByHexCode
-	def CharNameByHexCode(pcHex)
+	def CharNameByHexCode(pxHex)
 		# Strip hex prefix if present
-		_cHex_ = pcHex
-		if len(_cHex_) > 2
-			_cPfx_ = ring_left(_cHex_, 2)
-			if _cPfx_ = "0x" or _cPfx_ = "0X"
-				_cHex_ = StzMidToEnd(_cHex_, 3)
-			ok
-		ok
-		if _cHex_ = ""
+		tHex = pxHex
+		if Len(tHex) > 2
+			tPfx = ring_left(tHex, 2)
+			if tPfx = "0x" or tPfx = "0X"
+				tHex = StzMidToEnd(tHex, 3)
+			end
+		end
+		if tHex = ""
 			return ""
-		ok
-		_nCp_ = dec("0x" + _cHex_)
-		return StzCharNameByUnicode(_nCp_)
-
+		end
+		nCp = Dec("0x" + tHex)
+		return StzCharNameByUnicode(nCp)
+	end
 	# Returns the Unicode name of the character at a decimal code point.
 	#
 	#   nUnicode   the code point as a number
@@ -888,81 +846,81 @@ class stzUnicodeData from stzObject
 	#   see        CharNameByHexCode, CharByUnicode
 	def CharNameByUnicode(nUnicode)
 		return StzCharNameByUnicode(nUnicode)
-
+	end
 	# Returns the code points of the characters whose name contains the given words.
 	#
 	#   cPartOfName   the part of a name to look for, a text
 	#   returns       a list of numbers; [ ] when none
 	#   see           CharsContaining, SearchCharName
 	#@ aka  ==
-	def UnicodesOfCharsContaining(cPartOfName)
+	def UnicodesOfCharsContaining(tPartOfName)
 		if CheckingParams()
-			if NOT isString(cPartOfName)
+			if not IsString(tPartOfName)
 				StzRaise("Incorrect param type! cPartOfName must be a string.")
-			ok
-		ok
+			end
+		end
 		# Engine SQLite LIKE search — returns "HEX;NAME\n" lines
-		_cResult_ = StzUnicodeFindByName(cPartOfName)
-		if _cResult_ = ""
+		tResult = StzUnicodeFindByName(tPartOfName)
+		if tResult = ""
 			return []
-		ok
-		_aLines_ = ring_split(_cResult_, char(10))
-		_nLen_ = len(_aLines_)
-		_anResult_ = []
-		for _i_ = 1 to _nLen_
-			if _aLines_[_i_] != ""
-				_nSemicolon_ = ring_substr1(_aLines_[_i_], ";")
-				if _nSemicolon_ > 0
-					_cHex_ = ring_left(_aLines_[_i_], _nSemicolon_ - 1)
-					_anResult_ + dec("0x" + _cHex_)
-				ok
-			ok
-		next
-		return _anResult_
-
+		end
+		xLines = ring_split(tResult, Char(10))
+		nLen = Len(xLines)
+		viResult = []
+		for i = 1 to nLen
+			if xLines[i] != ""
+				nSemicolon = ring_substr1(xLines[i], ";")
+				if nSemicolon > 0
+					tHex = ring_left(xLines[i], nSemicolon - 1)
+					viResult + Dec("0x" + tHex)
+				end
+			end
+		end
+		return viResult
+	end
 	# Returns the characters whose name contains the given words, as a list of one-character texts.
 	#
 	#   cPartOfName   the part of a name to look for
 	#   returns       a list of text; [ ] when none
 	#   see           UnicodesOfCharsContaining, CharsNamesContaining
-	def CharsContaining(cPartOfName)
-		return CharsContainingInTheirName(cPartOfName)
-
+	def CharsContaining(tPartOfName)
+		return CharsContainingInTheirName(tPartOfName)
+	end
 	# Returns the full names of the characters whose name contains the given words.
 	#
 	#   pcPartOfName   the part of a name to look for, in any case
 	#   returns        a list of text, in table order; [ ] when none
 	#   see            CharNamesContaining, SearchCharName
-	def CharsNamesContaining(pcPartOfName)
-		return CharNamesContaining(pcPartOfName)
-
+	def CharsNamesContaining(pxPartOfName)
+		return CharNamesContaining(pxPartOfName)
+	end
 		# Returns the full names of the characters whose name contains the given words, as CharsNamesContaining does.
 		#
 		#   pcPartOfName   the part of a name to look for, in any case
 		#   returns        a list of text; [ ] when none
 		#   note           the other spelling of CharsNamesContaining, which calls it
 		#   see            CharsNamesContaining, SearchCharName
-		def CharNamesContaining(pcPartOfName)
+		def CharNamesContaining(pxPartOfName)
 			# Delegates to the global function already engine-backed
-			_cResult_ = StzUnicodeFindByName(pcPartOfName)
-			if _cResult_ = ""
+			tResult = StzUnicodeFindByName(pxPartOfName)
+			if tResult = ""
 				return []
-			ok
-			_aLines_ = ring_split(_cResult_, char(10))
-			_nLen_ = len(_aLines_)
-			_acResult_ = []
-			for _i_ = 1 to _nLen_
-				if _aLines_[_i_] != ""
-					_nSemicolon_ = ring_substr1(_aLines_[_i_], ";")
-					if _nSemicolon_ > 0
+			end
+			xLines = ring_split(tResult, Char(10))
+			nLen = Len(xLines)
+			vtResult = []
+			for i = 1 to nLen
+				if xLines[i] != ""
+					nSemicolon = ring_substr1(xLines[i], ";")
+					if nSemicolon > 0
 						# ring_substr2(str, old, new) was the wrong
 						# spelling -- we want the from-N tail.
-						_acResult_ + StzMidToEnd(_aLines_[_i_], _nSemicolon_ + 1)
-					ok
-				ok
-			next
-			return _acResult_
-
+						vtResult + StzMidToEnd(xLines[i], nSemicolon + 1)
+					end
+				end
+			end
+			return vtResult
+		end
 	# Returns how many entries the engine's Unicode table holds, which is not the count of characters.
 	#
 	#   returns    a number, 34939 today
@@ -973,20 +931,22 @@ class stzUnicodeData from stzObject
 	#              global function NumberOfUnicodeChars() gives
 	#   see        CharNamesContaining
 	#@ aka  ==
-	def NumberOfUnicodeChars()
+	def NumberOfUnicodeChars
 		return StzUnicodeCharCount()
-
-		def NumberOfChars()
-			return This.NumberOfUnicodeChars()
-
-		def NumberOfUnicodes()
-			return This.NumberOfUnicodeChars()
-
-		def HowManyUnicodeChars()
-			return This.NumberOfUnicodeChars()
-
-		def HowManyChars()
-			return This.NumberOfUnicodeChars()
-
-		def HowManyUnicodes()
-			return This.NumberOfUnicodeChars()
+	end
+		def NumberOfChars
+			return this.NumberOfUnicodeChars()
+		end
+		def NumberOfUnicodes
+			return this.NumberOfUnicodeChars()
+		end
+		def HowManyUnicodeChars
+			return this.NumberOfUnicodeChars()
+		end
+		def HowManyChars
+			return this.NumberOfUnicodeChars()
+		end
+		def HowManyUnicodes
+			return this.NumberOfUnicodeChars()
+		end
+end

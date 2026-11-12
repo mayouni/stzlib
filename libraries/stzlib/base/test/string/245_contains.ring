@@ -14,7 +14,7 @@ load "../../stzBase.ring"
 
 pr()
 
-oLargeStr = new stzString( UnicodeData() ) # intended: 1_897_793 chars
+oLargeStr = new stzString("") # intended: 1_897_793 chars
 
 ? oLargeStr.Contains("Plane 15 Private Use")  #--> TRUE
 ? oLargeStr.HowMany("Plane 15 Private Use")   #--> 2

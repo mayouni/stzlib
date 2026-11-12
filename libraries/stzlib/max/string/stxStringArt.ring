@@ -14,7 +14,7 @@ $DEFAULT_STR_ART_STYLE = :retro
 #-------------------------------#
 
 func StringArtStylesXT()
-	return $STZ_STR_ART_STYLES_XT
+	return $vSTZ_STR_ART_STYLES_XT
 
 func StringArtStyles()
 	aStylesXT = StringArtStylesXT()
