@@ -32,8 +32,12 @@ const win = struct {
     const UNCHANGED_REFCOUNT: u32 = 0x2;
 };
 
+const ShutFn = *const fn ([*]const u8, usize, [*]const u8, usize, [*]u8, usize) callconv(.c) i32;
+
 var door: ?DoorFn = null;
+var shut_fn: ?ShutFn = null;
 var looked = false;
+var shut_unknown: u64 = 0;
 var missed: u64 = 0;
 var written: u64 = 0;
 
@@ -59,9 +63,31 @@ fn find() ?DoorFn {
     looked = true;
     if (builtin.os.tag != .windows) return null;
     const m = win.GetModuleHandleA("stz_seclog.dll") orelse loadBeside() orelse return null;
+    if (win.GetProcAddress(m, "stz_seclog_door_shut_query")) |q| shut_fn = @ptrCast(@alignCast(q));
     const f = win.GetProcAddress(m, "stz_seclog_door_fact") orelse return null;
     door = @ptrCast(@alignCast(f));
     return door;
+}
+
+/// SECURITY-R18c: the advisory that shut the door of this kind to this name, copied
+/// into out, or null when it is open. An engine entry point asks this BEFORE it acts
+/// and refuses when it answers. When the list cannot be reached (no stz_seclog, POSIX
+/// until R14) the answer is null and the miss is counted: shutUnknownCount() > 0
+/// says the refusal could not be checked, so the gap is a number, never a silence.
+pub fn isShut(kind: []const u8, name: []const u8, out: []u8) ?[]const u8 {
+    _ = find();
+    const q = shut_fn orelse {
+        shut_unknown += 1;
+        return null;
+    };
+    const n = q(kind.ptr, kind.len, name.ptr, name.len, out.ptr, out.len);
+    if (n < 0) return null;
+    return out[0..@intCast(n)];
+}
+
+/// Checks that could not reach the shut list -- 0 is the only right answer.
+pub fn shutUnknownCount() u64 {
+    return shut_unknown;
 }
 
 /// Write one observed fact to the process ledger, opening it if none is open.
