@@ -541,15 +541,45 @@ class stzRegex from stzObject
 		def MatchSegment(pcStr)
 			return This.MatchSegmentsIn(pcStr)
 
-	# Searches the text for the pattern, with . crossing line breaks and ^ and $ binding at each line; TRUE if it occurs.
+	# Searches the text for the pattern within ONE segment, stopping at the first close rather than running to the last; TRUE if it occurs.
 	#
 	#   returns    TRUE or FALSE (1 or 0)
+	#   note       this is the LAZY half of the segment scope. Over
+	#              "<div>First</div><div>Second</div>" the pattern "<div>.*</div>" matches the
+	#              FIRST div here, where MatchSegmentsIn matches both
+	#   note       MatchOneSegmentIn and MatchOneSegment are the same call, and are the names
+	#              SCOPE_ORIENTED_PROGRAMMING.md and the regex deepdive give this act
 	#   see        MatchSegmentsIn, MatchLinesIn, MatchFirst
 	def MatchFirstSegmentIn(pcStr)
-		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :DotMatchesAll, :MultiLine ])
-		return _nKind_ = 1
+		# 2026-11-12: this was BYTE-IDENTICAL to MatchSegmentsIn -- both passed
+		# [ :DotMatchesAll, :MultiLine ] -- so the segment scope's whole stated
+		# payoff, "greedy vs lazy by verb, not by ?", was a comment rather than
+		# something the library acted on. :NonGreedy sat in the option table and
+		# the compile switch and was passed by NO scope verb at all.
+		#
+		# The engine always supported it: flag 16 maps to PCRE2_UNGREEDY, and the
+		# flags take effect because MatchXT recompiles when they change. Measured
+		# on haro.exe over "<p>First</p><p>Second</p>" with "<p>.*</p>",
+		# CapturedLength answers 25 greedy and 12 with :NonGreedy -- the whole
+		# text against the first paragraph. So the document was right and the code
+		# lagged by one option, rather than the document over-promising.
+		nKind = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :DotMatchesAll, :MultiLine, :NonGreedy ])
+		return nKind = 1
 
 		def MatchFirstSegment(pcStr)
+			return This.MatchFirstSegmentIn(pcStr)
+
+		# The names the design document (:108) and the deepdive (:117, :141) use
+		# for this act. ONE and FIRST are not synonyms: one names how far a single
+		# match extends, first names which occurrence you get. The act performed
+		# here is the first of those, so MatchOneSegment is the better name for it
+		# -- and it is the one the published example reaches for. Both names reach
+		# the same call; neither is deprecated, because MatchFirstSegment is what
+		# the shipped tests already use.
+		def MatchOneSegmentIn(pcStr)
+			return This.MatchFirstSegmentIn(pcStr)
+
+		def MatchOneSegment(pcStr)
 			return This.MatchFirstSegmentIn(pcStr)
 
 	# TRUE if the pattern matches the whole text from the first character to the last; a text that merely contains a match gives FALSE.
