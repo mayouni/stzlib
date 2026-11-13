@@ -1,0 +1,504 @@
+# stzPiaCheck -- what a .pia agent file SAYS, judged at load (RADAR-SKILLSPECTOR-PIACHECK-01).
+#
+# stzAgentDeclaration judges a .pia file's STRUCTURE: its keys, its verbs, its postures, the
+# functions it may name. An agent file is data -- it may come from a folder, a colleague or a
+# language model composing agents -- and its TEXT reaches a model: the prompt, the seed facts,
+# the coverage sentence. This module reads that text, and every finding refuses the file at
+# load, in the unified rule shape the declaration's own findings use:
+#
+#   pia-role-override     a value telling a model to drop its instructions or take a new role
+#   pia-hidden-text       invisible or direction-changing characters, or control bytes, in a value
+#   pia-endpoint          a URL, a www. host or an e-mail address naming a host code did not allow
+#   pia-exfil-image       a markdown image -- the shape that makes a renderer fetch a URL
+#   pia-encoded-payload   a run of 48 or more base64 characters: a value nobody can read at review
+#   pia-unused-grant      a governance grant no skill's effect names: privilege beyond the task
+#
+# Code decides which hosts an agent file may name, as it decides which functions it may call:
+#
+#   StzAllowPiaEndpoint("api.example.com")
+#
+# The host must match exactly; a subdomain is a different host. A file that names no host
+# needs no allowance. An MCP server block, or any other key outside the format, is already
+# refused by the declaration as an unknown key.
+#
+# WHAT THIS DOES NOT DO: it matches phrases, shapes and byte sequences. A paraphrased
+# instruction, a host written without a scheme or www., or a payload split across values
+# passes. It narrows what a file can carry past review; it does not make the file's agent safe.
+
+$vStzPiaEndpointAllow = []
+
+func StzAllowPiaEndpoint(tHost)
+    tH = Lower(Trim("" + tHost))
+    if tH = ""
+        StzRaise("stzPiaCheck: an endpoint allowance names a host.")
+    end
+    if not StzPiaEndpointAllowed(tH)
+        $vStzPiaEndpointAllow + tH
+    end
+    return true
+end
+
+func StzDisallowPiaEndpoint(tHost)
+    tH = Lower(Trim("" + tHost))
+    vOut = []
+    nN = Len($vStzPiaEndpointAllow)
+    for i = 1 to nN
+        if $vStzPiaEndpointAllow[i] != tH
+            vOut + $vStzPiaEndpointAllow[i]
+        end
+    end
+    $vStzPiaEndpointAllow = vOut
+    return true
+end
+
+func StzPiaAllowedEndpoints
+    return $vStzPiaEndpointAllow
+end
+
+func StzPiaEndpointAllowed(tHost)
+    tH = Lower(tHost)
+    nN = Len($vStzPiaEndpointAllow)
+    for i = 1 to nN
+        if $vStzPiaEndpointAllow[i] = tH
+            return true
+        end
+    end
+    return false
+end
+
+func StzPiaCheckRules
+    return ["pia-role-override", "pia-hidden-text", "pia-endpoint", "pia-exfil-image", "pia-encoded-payload", "pia-unused-grant"]
+end
+
+# The findings for a .pia text: a list of [[:rule, r], [:subject, s], [:where, w], [:severity, e],
+# [:message, m]], empty when the text says nothing these rules refuse. A text the memo parser
+# cannot read gives no finding here: the declaration already refuses it as pia-parse.
+func StzPiaCheckText(tText)
+    vF = []
+    vP = _StzOutputParseMemo("" + tText)
+    if vP[:ok] != 1
+        return vF
+    end
+    vLeaves = PiaLeaves(vP[:value], "", [])
+    nL = Len(vLeaves)
+    for i = 1 to nL
+        vF = PiaJudgeLeaf(vLeaves[i][1], vLeaves[i][2], vF)
+    end
+    vF = PiaJudgeGrants(vP[:value], vF)
+    return vF
+end
+
+func PiaFinding(tRule, tWhere, tMessage)
+    return [[:rule, tRule], [:subject, "pi-agent-declaration"], [:where, tWhere], [:severity, "error"], [:message, tMessage]]
+end
+
+# Every text in the parsed file, as [path, text]. A two-item list whose first item is a text is
+# read as a key and its value; the key's text is judged too, so a misread shape loses nothing.
+func PiaLeaves(xV, tPath, vOut)
+    if IsString(xV)
+        vOut + [tPath, xV]
+        return vOut
+    end
+    if IsNumber(xV)
+        return vOut
+    end
+    if not IsList(xV)
+        return vOut
+    end
+    if Len(xV) = 2 and IsString(xV[1]) and not IsString(xV[2])
+        return PiaLeaves(xV[2], PiaJoin(tPath, xV[1]), vOut)
+    end
+    if Len(xV) = 2 and IsString(xV[1]) and IsString(xV[2]) and PiaLooksLikeKey(xV[1])
+        vOut + [PiaJoin(tPath, xV[1]), xV[2]]
+        return vOut
+    end
+    nN = Len(xV)
+    for i = 1 to nN
+        vOut = PiaLeaves(xV[i], tPath, vOut)
+    end
+    return vOut
+end
+
+func PiaJoin(tPath, tKey)
+    if tPath = ""
+        return Lower(Trim(tKey))
+    end
+    return tPath + "." + Lower(Trim(tKey))
+end
+
+# a key of the format is one word of letters, digits and dashes
+func PiaLooksLikeKey(tK)
+    nN = Len(tK)
+    if nN = 0 or nN > 40
+        return false
+    end
+    for i = 1 to nN
+        nC = Ascii(tK[i])
+        bOk = (nC >= 97 and nC <= 122) or (nC >= 65 and nC <= 90) or (nC >= 48 and nC <= 57) or nC = 45 or nC = 95
+        if not bOk
+            return false
+        end
+    end
+    return true
+end
+
+func PiaJudgeLeaf(tWhere, tText, vF)
+    tLow = Lower(tText)
+    tWhy = PiaRoleOverride(tLow)
+    if tWhy != ""
+        vF + PiaFinding("pia-role-override", tWhere, "this value tells a model to drop its instructions or take a new role ('" + tWhy + "'); an agent file states a task, it does not re-instruct the model.")
+    end
+    tWhy = PiaHiddenText(tText)
+    if tWhy != ""
+        vF + PiaFinding("pia-hidden-text", tWhere, "this value holds " + tWhy + ", which a reviewer does not see and a model reads.")
+    end
+    if SubStr(tLow, "![") > 0
+        vF + PiaFinding("pia-exfil-image", tWhere, "this value holds a markdown image: a renderer fetches its URL, which can carry what the model was given out of the process.")
+    end
+    vHosts = PiaHostsIn(tLow)
+    nH = Len(vHosts)
+    for i = 1 to nH
+        if not StzPiaEndpointAllowed(vHosts[i])
+            vF + PiaFinding("pia-endpoint", tWhere, "this value names the host '" + vHosts[i] + "', which code has not allowed; allow it with StzAllowPiaEndpoint(" + Char(34) + vHosts[i] + Char(34) + ") if the agent is meant to name it.")
+        end
+    end
+    nRun = PiaLongestBase64Run(tText)
+    if nRun >= 48
+        vF + PiaFinding("pia-encoded-payload", tWhere, "this value holds a run of " + String(nRun) + " base64 characters: a reviewer cannot read it, and a model can be asked to decode it.")
+    end
+    return vF
+end
+
+# --- role override ---------------------------------------------------------------------------
+
+func PiaRolePhrases
+    return [
+        "ignore previous", "ignore all previous", "ignore the previous", "ignore the above", "ignore your instructions",
+        "ignore all instructions", "ignore any previous", "disregard previous", "disregard all previous",
+        "disregard the above", "disregard your instructions", "forget your instructions", "forget all previous",
+        "forget everything above", "you are now", "from now on you are", "new instructions", "system prompt",
+        "pretend to be", "pretend you are", "act as", "developer mode", "jailbreak", "do anything now",
+        "override your", "reveal your instructions", "<|im_start|>", "<|system|>", "[inst]", "<<sys>>", "### system",
+        "system:", "assistant:"
+    ]
+end
+
+func PiaRoleOverride(tLow)
+    vP = PiaRolePhrases()
+    nP = Len(vP)
+    for i = 1 to nP
+        if PiaHasPhrase(tLow, vP[i])
+            return vP[i]
+        end
+    end
+    return ""
+end
+
+# the phrase at a word boundary: "act as" is not found in "contact as"
+func PiaHasPhrase(tLow, tPhrase)
+    nLen = Len(tLow)
+    nP = Len(tPhrase)
+    nFrom = 1
+    while nFrom <= nLen - nP + 1
+        nAt = PiaFindFrom(tLow, tPhrase, nFrom)
+        if nAt = 0
+            return false
+        end
+        bLeft = (nAt = 1)
+        if not bLeft
+            bLeft = not PiaIsWordByte(tLow[nAt - 1])
+        end
+        bRight = (nAt + nP > nLen)
+        if not bRight
+            bRight = not PiaIsWordByte(tLow[nAt + nP])
+        end
+        if not PiaIsWordByte(tPhrase[1])
+            bLeft = true
+        end
+        if not PiaIsWordByte(tPhrase[nP])
+            bRight = true
+        end
+        if bLeft and bRight
+            return true
+        end
+        nFrom = nAt + 1
+    end
+    return false
+end
+
+func PiaIsWordByte(tC)
+    nC = Ascii(tC)
+    return (nC >= 97 and nC <= 122) or (nC >= 65 and nC <= 90) or (nC >= 48 and nC <= 57) or nC = 95
+end
+
+func PiaFindFrom(tText, tWord, nFrom)
+    if nFrom > Len(tText)
+        return 0
+    end
+    nAt = SubStr(SubStr(tText, nFrom, Len(tText) - nFrom + 1), tWord)
+    if nAt = 0
+        return 0
+    end
+    return nAt + nFrom - 1
+end
+
+# --- hidden text -----------------------------------------------------------------------------
+
+# Zero-width and joiner characters (U+200B..U+200F), direction embeddings and overrides
+# (U+202A..U+202E), invisible operators and isolates (U+2060..U+2064, U+2066..U+2069), the
+# zero-width no-break space (U+FEFF), Unicode tag characters (U+E0000..U+E007F), and control
+# bytes other than a tab (an escape sequence repaints a terminal). Read as UTF-8 bytes.
+func PiaHiddenText(tText)
+    nN = Len(tText)
+    for i = 1 to nN
+        nC = Ascii(tText[i])
+        if nC < 32 and nC != 9
+            return "the control byte " + String(nC)
+        end
+        if nC = 127
+            return "the control byte 127"
+        end
+        if nC = 226 and i + 2 <= nN
+            nB = Ascii(tText[i + 1])
+            nD = Ascii(tText[i + 2])
+            if nB = 128 and nD >= 139 and nD <= 143
+                return "a zero-width or direction mark (U+200B..U+200F)"
+            end
+            if nB = 128 and nD >= 170 and nD <= 174
+                return "a direction embedding or override (U+202A..U+202E)"
+            end
+            if nB = 129 and ((nD >= 160 and nD <= 164) or (nD >= 166 and nD <= 169))
+                return "an invisible operator or direction isolate (U+2060..U+2069)"
+            end
+        end
+        if nC = 239 and i + 2 <= nN
+            if Ascii(tText[i + 1]) = 187 and Ascii(tText[i + 2]) = 191
+                return "a zero-width no-break space (U+FEFF)"
+            end
+        end
+        if nC = 243 and i + 1 <= nN
+            if Ascii(tText[i + 1]) = 160
+                return "a Unicode tag character (U+E0000..U+E007F)"
+            end
+        end
+    end
+    return ""
+end
+
+# --- endpoints -------------------------------------------------------------------------------
+
+# Every host the text names: after "://", a "www." word, or the domain of an e-mail address.
+func PiaHostsIn(tLow)
+    vOut = []
+    nN = Len(tLow)
+    nFrom = 1
+    while nFrom <= nN
+        nAt = PiaFindFrom(tLow, "://", nFrom)
+        if nAt = 0
+            exit
+        end
+        vOut = PiaAddHost(vOut, PiaHostAt(PiaAfterUser(PiaAuthorityAt(tLow, nAt + 3)), 1))
+        nFrom = nAt + 3
+    end
+    nFrom = 1
+    while nFrom <= nN
+        nAt = PiaFindFrom(tLow, "www.", nFrom)
+        if nAt = 0
+            exit
+        end
+        bStart = (nAt = 1)
+        if not bStart
+            bStart = not PiaIsHostByte(tLow[nAt - 1]) and tLow[nAt - 1] != "/"
+        end
+        if bStart
+            vOut = PiaAddHost(vOut, PiaHostAt(tLow, nAt))
+        end
+        nFrom = nAt + 4
+    end
+    for i = 2 to nN - 1
+        if tLow[i] = "@" and PiaIsHostByte(tLow[i - 1]) and PiaIsHostByte(tLow[i + 1])
+            tH = PiaHostAt(tLow, i + 1)
+            if SubStr(tH, ".") > 0
+                vOut = PiaAddHost(vOut, tH)
+            end
+        end
+    end
+    return vOut
+end
+
+# a URL's authority: from after "://" to the first byte that ends it
+func PiaAuthorityAt(tLow, nAt)
+    nN = Len(tLow)
+    tEnd = "/?# " + Char(34) + "')]>,;" + Char(9)
+    tOut = ""
+    for i = nAt to nN
+        if SubStr(tEnd, tLow[i]) > 0
+            exit
+        end
+        tOut = tOut + tLow[i]
+    end
+    return tOut
+end
+
+# the authority without its user part: what follows the last @
+func PiaAfterUser(tAuth)
+    nN = Len(tAuth)
+    for i = nN to 1 step -1
+        if tAuth[i] = "@"
+            return SubStr(tAuth, i + 1, nN - i)
+        end
+    end
+    return tAuth
+end
+
+# the host bytes from nAt on: letters, digits, dots and dashes (a port's ':' ends it)
+func PiaHostAt(tLow, nAt)
+    nN = Len(tLow)
+    tOut = ""
+    if nAt > nN
+        return tOut
+    end
+    for i = nAt to nN
+        tC = tLow[i]
+        if PiaIsHostByte(tC)
+            tOut = tOut + tC
+        else
+            exit
+        end
+    end
+    while Len(tOut) > 0 and Right(tOut, 1) = "."
+        tOut = Left(tOut, Len(tOut) - 1)
+    end
+    return tOut
+end
+
+func PiaIsHostByte(tC)
+    nC = Ascii(tC)
+    return (nC >= 97 and nC <= 122) or (nC >= 48 and nC <= 57) or nC = 45 or nC = 46 or nC = 95
+end
+
+func PiaAddHost(vOut, tH)
+    if tH = ""
+        return vOut
+    end
+    nN = Len(vOut)
+    for i = 1 to nN
+        if vOut[i] = tH
+            return vOut
+        end
+    end
+    vOut + tH
+    return vOut
+end
+
+# --- encoded payloads ------------------------------------------------------------------------
+
+# The longest run of base64 characters holding at least one letter and one digit.
+func PiaLongestBase64Run(tText)
+    nBest = 0
+    nRun = 0
+    bL = false
+    bD = false
+    nN = Len(tText)
+    for i = 1 to nN
+        nC = Ascii(tText[i])
+        bAlpha = (nC >= 97 and nC <= 122) or (nC >= 65 and nC <= 90)
+        bDigit = nC >= 48 and nC <= 57
+        if bAlpha or bDigit or nC = 43 or nC = 47 or nC = 61 or nC = 45 or nC = 95
+            nRun = nRun + 1
+            if bAlpha
+                bL = true
+            end
+            if bDigit
+                bD = true
+            end
+            if bL and bD and nRun > nBest
+                nBest = nRun
+            end
+        else
+            nRun = 0
+            bL = false
+            bD = false
+        end
+    end
+    return nBest
+end
+
+# --- grants beyond the task ------------------------------------------------------------------
+
+# A grant no skill's effect names is a privilege the agent's task does not use: refused, so the
+# file grants exactly what its skills do.
+func PiaJudgeGrants(vDoc, vF)
+    vGrants = []
+    vEffects = []
+    nN = Len(vDoc)
+    for i = 1 to nN
+        if IsList(vDoc[i]) and Len(vDoc[i]) = 2 and IsString(vDoc[i][1])
+            tK = Lower(Trim(vDoc[i][1]))
+            if tK = "governance" and IsList(vDoc[i][2])
+                vGrants = PiaGrantsOf(vDoc[i][2])
+            elseif tK = "skills" and IsList(vDoc[i][2])
+                vEffects = PiaEffectsOf(vDoc[i][2])
+            end
+        end
+    end
+    nG = Len(vGrants)
+    for i = 1 to nG
+        if not PiaInList(vEffects, vGrants[i])
+            vF + PiaFinding("pia-unused-grant", "governance.grants." + vGrants[i], "the file grants '" + vGrants[i] + "' and no skill's effect names it: a grant beyond the declared task. Grant only what a skill does.")
+        end
+    end
+    return vF
+end
+
+func PiaGrantsOf(vGov)
+    vOut = []
+    nN = Len(vGov)
+    for i = 1 to nN
+        if IsList(vGov[i]) and Len(vGov[i]) = 2 and IsString(vGov[i][1])
+            if Lower(Trim(vGov[i][1])) = "grants"
+                xL = vGov[i][2]
+                if IsString(xL)
+                    vOut + Lower(Trim(xL))
+                elseif IsList(xL)
+                    nM = Len(xL)
+                    for j = 1 to nM
+                        if IsString(xL[j])
+                            vOut + Lower(Trim(xL[j]))
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return vOut
+end
+
+func PiaEffectsOf(vSkills)
+    vOut = []
+    nN = Len(vSkills)
+    for i = 1 to nN
+        if IsList(vSkills[i])
+            nM = Len(vSkills[i])
+            for j = 1 to nM
+                xKv = vSkills[i][j]
+                if IsList(xKv) and Len(xKv) = 2 and IsString(xKv[1]) and IsString(xKv[2])
+                    if Lower(Trim(xKv[1])) = "effect"
+                        vOut + Lower(Trim(xKv[2]))
+                    end
+                end
+            end
+        end
+    end
+    return vOut
+end
+
+func PiaInList(vL, tX)
+    nN = Len(vL)
+    for i = 1 to nN
+        if vL[i] = tX
+            return true
+        end
+    end
+    return false
+end

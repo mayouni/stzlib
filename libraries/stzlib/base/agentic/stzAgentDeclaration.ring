@@ -504,6 +504,15 @@ class stzAgentDeclaration from stzObject
 		This._JudgeProposes(_aDoc_)
 		This._JudgeLlmIsNotEffectful()
 
+		# what the file SAYS, beside how it is built: role overrides, hidden text,
+		# endpoints, encoded payloads, grants beyond the task (base/security/
+		# stzPiaCheck.haro, RADAR-SKILLSPECTOR-PIACHECK-01)
+		_aPc_ = StzPiaCheckText(@tText)
+		_nPc_ = len(_aPc_)
+		for _i_ = 1 to _nPc_
+			@aFindings + _aPc_[_i_]
+		next
+
 		if len(@aFindings) = 0
 			@bValid = 1
 		else

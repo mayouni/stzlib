@@ -639,6 +639,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "security/stzAdvisoryFeed.ring"
     load "security/stzExposureResponder.ring"
     load "security/stzCredentialBroker.haro"   # an agent names a credential; the engine attaches it (CREDBROKER-01)
+    load "security/stzPiaCheck.haro"           # what a .pia agent file says, judged at load (PIACHECK-01)
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
