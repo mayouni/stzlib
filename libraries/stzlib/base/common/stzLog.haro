@@ -32,7 +32,7 @@ func StzLogQ(pxName)
 end
 # level rank for threshold comparison; -1 for an unknown level.
 func StzLogLevelRank(pxLevel)
-	xL = StzLower(ring_trim("" + pxLevel))
+	xL = StzLower(ring_trim(String(pxLevel)))
 	if xL = "trace"
 		return 0
 	elseif xL = "debug"
@@ -94,7 +94,7 @@ class stzLog from stzObject
 	#   returns    nothing; the object is built
 	#   see        SetLevel, SetCap, SetEcho
 	def init(pxName)
-		@tName = "" + pxName
+		@tName = String(pxName)
 	end
 	# Returns the category the log was built with, which every entry carries.
 	#
@@ -119,7 +119,7 @@ class stzLog from stzObject
 		if StzLogLevelRank(pxLevel) < 0
 			StzRaise("stzLog: unknown level '" + pxLevel + "'. Levels: trace/debug/info/warn/error/fatal.")
 		end
-		@tThreshold = StzLower(ring_trim("" + pxLevel))
+		@tThreshold = StzLower(ring_trim(String(pxLevel)))
 		return this
 	end
 	# Returns the lowest level that is recorded, in lowercase.
@@ -171,7 +171,7 @@ class stzLog from stzObject
 	#   see        Info, Where, Entries, SetLevel
 	#@ aka  -- writing (returns This, so writes chain) -------------------------
 	def Record(pxLevel, pxMsg, pxFields)
-		xLvl = StzLower(ring_trim("" + pxLevel))
+		xLvl = StzLower(ring_trim(String(pxLevel)))
 		if StzLogLevelRank(xLvl) < StzLogLevelRank(@tThreshold)
 			return this
 		end
@@ -190,7 +190,7 @@ class stzLog from stzObject
 		end
 		@nSeq++
 		vEntry = [ [:seq, @nSeq], [:ts, StzEngineTimeNowMs()], [:level, xLvl],
-			[:category, @tName], [:message, "" + pxMsg], [:fields, xFlds] ]
+			[:category, @tName], [:message, String(pxMsg)], [:fields, xFlds] ]
 		@xEntries + vEntry
 		if @nCap > 0 and Len(@xEntries) > @nCap
 			this._EvictOldest()
@@ -284,7 +284,7 @@ class stzLog from stzObject
 	#   see        CountOfLevel, Where
 	#@ aka  every entry at exactly this level.
 	def EntriesOfLevel(pxLevel)
-		xL = StzLower(ring_trim("" + pxLevel))
+		xL = StzLower(ring_trim(String(pxLevel)))
 		vOut = []
 		nN = Len(@xEntries)
 		for i = 1 to nN
@@ -311,15 +311,15 @@ class stzLog from stzObject
 	#   see        OfTrace, Record
 	#@ aka  every entry carrying a field key = value (structured query).
 	def Where(pxKey, pxValue)
-		tK = "" + pxKey
-		tV = "" + pxValue
+		tK = String(pxKey)
+		tV = String(pxValue)
 		vOut = []
 		nN = Len(@xEntries)
 		for i = 1 to nN
 			xFlds = @xEntries[i][:fields]
 			nM = Len(xFlds)
 			for j = 1 to nM
-				if ("" + xFlds[j][1]) = tK and ("" + xFlds[j][2]) = tV
+				if String(xFlds[j][1]) = tK and String(xFlds[j][2]) = tV
 					vOut + @xEntries[i]
 					exit
 				end
@@ -411,7 +411,7 @@ class stzLog from stzObject
 	#   returns    the log itself, so calls chain
 	#   see        AsText, WriteJsonToFile
 	def WriteToFile(pxPath)
-		Write("" + pxPath, this.AsText())
+		Write(String(pxPath), this.AsText())
 		return this
 	end
 	# Writes the JSON rendering of the entries to a file, replacing its contents.
@@ -420,7 +420,7 @@ class stzLog from stzObject
 	#   returns    the log itself, so calls chain
 	#   see        AsJson, WriteToFile
 	def WriteJsonToFile(pxPath)
-		Write("" + pxPath, this.AsJson())
+		Write(String(pxPath), this.AsJson())
 		return this
 	end
 	# Renders the entries as the OpenTelemetry logs envelope that a collector accepts, with the category as the service name.
@@ -453,24 +453,24 @@ class stzLog from stzObject
 		return 1 + StzLogLevelRank(pxLevel) * 4
 	end
 	def _OtelLogRecordJson(pxEntry)
-		tR = '{"timeUnixNano":"' + ("" + pxEntry[:ts]) + '000000"'
-		tR += (',"severityText":"' + Upper("" + pxEntry[:level]) + '"')
-		tR += (',"severityNumber":' + this._OtelSeverityNumber(pxEntry[:level]))
+		tR = '{"timeUnixNano":"' + String(pxEntry[:ts]) + '000000"'
+		tR += (',"severityText":"' + Upper(String(pxEntry[:level])) + '"')
+		tR += (',"severityNumber":' + String(this._OtelSeverityNumber(pxEntry[:level])))
 		tR += (',"body":{"stringValue":"' + this._JsonEscape(pxEntry[:message]) + '"}')
 		tTid = ""
 		tAttrs = ""
 		xFlds = pxEntry[:fields]
 		nM = Len(xFlds)
 		for j = 1 to nM
-			if ("" + xFlds[j][1]) = "traceId"
-				tTid = "" + xFlds[j][2]
+			if String(xFlds[j][1]) = "traceId"
+				tTid = String(xFlds[j][2])
 				loop
 			end
 			if tAttrs != ""
 				tAttrs += ","
 			end
-			tAttrs += ('{"key":"' + ("" + xFlds[j][1]) + '","value":{"stringValue":"' +
-				this._JsonEscape("" + xFlds[j][2]) + '"}}')
+			tAttrs += ('{"key":"' + String(xFlds[j][1]) + '","value":{"stringValue":"' +
+				this._JsonEscape(String(xFlds[j][2])) + '"}}')
 		end
 		if tAttrs != ""
 			tR += (',"attributes":[' + tAttrs + ']')
@@ -495,14 +495,14 @@ class stzLog from stzObject
 		@xEntries = vNew
 	end
 	def _FormatEntry(pxEntry)
-		tC = "" + pxEntry[:ts] + " " + Upper("" + pxEntry[:level]) + " " +
+		tC = String(pxEntry[:ts]) + " " + Upper(String(pxEntry[:level])) + " " +
 			pxEntry[:category] + ": " + pxEntry[:message]
 		xFlds = pxEntry[:fields]
 		nM = Len(xFlds)
 		if nM > 0
 			tC += "  {"
 			for j = 1 to nM
-				tC += "" + xFlds[j][1] + "=" + xFlds[j][2]
+				tC += String(xFlds[j][1]) + "=" + String(xFlds[j][2])
 				if j < nM
 					tC += ", "
 				end
@@ -513,21 +513,21 @@ class stzLog from stzObject
 	end
 	def _EntryJson(pxEntry)
 		tQ = Char(34)
-		tC = "{ " + tQ + "ts" + tQ + ": " + pxEntry[:ts]
+		tC = "{ " + tQ + "ts" + tQ + ": " + String(pxEntry[:ts])
 		tC += ", " + tQ + "level" + tQ + ": " + tQ + pxEntry[:level] + tQ
 		tC += ", " + tQ + "category" + tQ + ": " + tQ + pxEntry[:category] + tQ
 		tC += ", " + tQ + "message" + tQ + ": " + tQ + this._JsonEscape(pxEntry[:message]) + tQ
 		xFlds = pxEntry[:fields]
 		nM = Len(xFlds)
 		for j = 1 to nM
-			tC += ", " + tQ + ("" + xFlds[j][1]) + tQ + ": " +
-				tQ + this._JsonEscape("" + xFlds[j][2]) + tQ
+			tC += ", " + tQ + String(xFlds[j][1]) + tQ + ": " +
+				tQ + this._JsonEscape(String(xFlds[j][2])) + tQ
 		end
 		tC += " }"
 		return tC
 	end
 	def _JsonEscape(pxStr)
-		xS = StzReplace("" + pxStr, Char(92), Char(92) + Char(92))   # backslash
+		xS = StzReplace(String(pxStr), Char(92), Char(92) + Char(92))   # backslash
 		xS = StzReplace(xS, Char(34), Char(92) + Char(34))          # quote
 		return xS
 	end
