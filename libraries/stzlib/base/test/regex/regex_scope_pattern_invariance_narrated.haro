@@ -46,14 +46,16 @@ EndScenario()
 
 Scenario("2. The word boundary is still applied DURING the call -- the control")
 
+	# 1 and 0, not true and false: these verbs are defined in a .ring file, where
+	# `return nKind = 1` yields a NUMBER, and Haro compares types (v0.61).
 	oYes = new stzRegex("pre")
-	Then("pre matches the whole word pre", oYes.MatchWord("pre"), true)
+	Then("pre matches the whole word pre", oYes.MatchWord("pre"), 1)
 
 	oNope = new stzRegex("pre")
-	Then("pre does not match inside prefix", oNope.MatchWord("prefix"), false)
+	Then("pre does not match inside prefix", oNope.MatchWord("prefix"), 0)
 
 	oNope2 = new stzRegex("pre")
-	Then("and not inside suppress either", oNope2.MatchWord("suppress"), false)
+	Then("and not inside suppress either", oNope2.MatchWord("suppress"), 0)
 
 EndScenario()
 

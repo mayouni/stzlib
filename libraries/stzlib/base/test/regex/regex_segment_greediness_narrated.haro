@@ -24,12 +24,14 @@ Scenario("1. The verb chooses the greediness, and the spans differ")
 
 	tTxt = "<div>First</div><div>Second</div>"
 
+	# 1, not true: these verbs come from a .ring file, where `return nKind = 1`
+	# yields a NUMBER, and Haro compares types (v0.61).
 	oGreedy = new stzRegex("<div>.*</div>")
-	Then("the greedy verb matches at all", oGreedy.MatchSegmentsIn(tTxt), true)
+	Then("the greedy verb matches at all", oGreedy.MatchSegmentsIn(tTxt), 1)
 	Then("and spans the whole text, both divs", oGreedy.CapturedLength(), 33)
 
 	oLazy = new stzRegex("<div>.*</div>")
-	Then("the lazy verb matches at all", oLazy.MatchFirstSegmentIn(tTxt), true)
+	Then("the lazy verb matches at all", oLazy.MatchFirstSegmentIn(tTxt), 1)
 	Then("and stops at the first close", oLazy.CapturedLength(), 16)
 
 EndScenario()
