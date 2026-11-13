@@ -1,0 +1,559 @@
+# _measure_lowbit.haro -- RADAR-LITTLEBIT-LOWBIT-01, the instrument
+#
+# Samsung's LittleBit shows a model can keep much of its quality far below 4 bits per weight. The question for this
+# machine: what is the SMALLEST Bolt E4B file that keeps its triage-extract win -- the court upholding Bolt over
+# granite-1b-choice on the English held-out set and on the fresh French and Arabic sets -- and what does each smaller
+# file save in memory and cost in speed?
+#
+#   the questions   kind, product, severity on the 36 held-out tickets; product and severity on the 48 fresh tickets
+#                   (French, Arabic) -- 204 per file, asked word for word as _measure_arc_escalate.haro asks them, read
+#                   by probability as _TkChoice reads them, the prefix cache on
+#   triage-extract  product and severity per ticket, scored as the faculty's "fields" checker scores (a ticket is right
+#                   when both fields are; this gives the registry's 0.94 / 0.72 / 0.75 / 0.67); the court is the faculty's: an exact one-sided sign test over the tickets where two
+#                   implementations differ, upheld at P <= 0.05. Granite's answers are its rows in
+#                   results/arc_escalate.tsv, which reproduce the registry's court counts (10-2, 6-0, 8-0)
+#   the costs       the file's size, its load time, the process's resident memory after the load and its peak (one
+#                   file per process, so the peak is that file's), the prompt tokens read per second over the 204
+#                   questions, and the tokens per second of one 48-token generation
+#
+#   haro _measure_lowbit.haro run <label> <model file> <size in bytes>   one file: replaces its rows in the table
+#   haro _measure_lowbit.haro speed <label> <model file> <round>         speed only: appends to results/lowbit_speed.tsv
+#   haro _measure_lowbit.haro analyse                                       results/lowbit.tsv -> results/lowbit.txt
+#
+# The speed of a "run" is read while the machine does whatever else it is doing, and on a shared machine that moved
+# one file's decode from 0.7 to 6.4 tokens per second between two runs. So the speeds the report gives come from
+# "speed": a short process per file (a 3-time prefill of one fixed prompt of 8 tickets with the prefix cache off, and a
+# 3-time 48-token generation), run over every file in turn and then over every file again in the reverse order, so
+# a drift in the machine falls on all files alike. The report gives each file's median.
+#
+# Run from base/test/faculty on haro.exe with STZ_ENGINE_DIR (an engine with stz_neural and stz_perf). A file is read
+# only if its folder's SHA256SUMS records its digest. The label "q4km" is the reference every other file is compared
+# with; run it in the same session as the others so the speeds share one machine state.
+
+$tTsv = "results/lowbit.tsv"
+$tSpeed = "results/lowbit_speed.tsv"
+$tReport = "results/lowbit.txt"
+$tArc = "results/arc_escalate.tsv"
+$tSys = "You triage customer-support tickets."
+$vQ = [
+	[ "kind", "Classify the ticket as exactly one of: bug (something is broken or behaves wrongly), billing (money: charges, refunds, invoices, plans, prices), other (a question, request or feedback).", [ "bug", "billing", "other" ] ],
+	[ "product", "Which product is the ticket about: app (the mobile app), web (the website, dashboard, account or billing pages), api (the developer API, SDKs, webhooks), or other?", [ "app", "web", "api", "other" ] ],
+	[ "severity", "How severe is it: high (it blocks the customer's work, loses money or data, is an outage, or has a deadline today or tomorrow) or low (anything else)?", [ "high", "low" ] ]
+]
+$tHeader = "set" + Char(9) + "lang" + Char(9) + "model" + Char(9) + "question" + Char(9) + "item" + Char(9) + "golden" + Char(9) + "answer" + Char(9) + "right" + Char(9) + "p_bp" + Char(9) + "mass_bp" + Char(9) + "ms" + Char(9) + "tokens_read"
+$nRead = 0
+$tLog = ""
+
+nArgs = Len(SysArgv)
+bDone = false
+for i = 1 to nArgs
+	if SysArgv[i] = "run" and i + 3 <= nArgs
+		RunOne(SysArgv[i + 1], SysArgv[i + 2], SysArgv[i + 3])
+		bDone = true
+	end
+	if SysArgv[i] = "speed" and i + 3 <= nArgs
+		SpeedOne(SysArgv[i + 1], SysArgv[i + 2], SysArgv[i + 3])
+		bDone = true
+	end
+end
+if bDone = false
+	Analyse()
+end
+
+# ---- one file ----
+
+func RunOne(tLabel, tFile, tSize)
+	tBin = Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/"
+	LoadLib(tBin + "stz_neural.dll")
+	LoadLib(tBin + "stz_perf.dll")
+	nStart = Clock()
+	nOk = StzEngineNeuralModelLoad(Slashes(tFile))
+	nLoad = Ms(nStart)
+	if nOk = 0
+		? tLabel + ": the load was refused, status " + String(StzEngineNeuralModelLoadStatus())
+		return
+	end
+	nRssLoad = Mb(StzEnginePerfMemRss())
+	? tLabel + ": loaded in " + String(nLoad) + " ms, resident " + String(nRssLoad) + " MB"
+	vItems = []
+	vH = ReadTsv("_data/tickets_heldout.tsv")
+	for i = 1 to Len(vH)
+		if Len(vH[i]) = 5
+			vItems + [ "heldout", "en", vH[i][1], [ vH[i][4], vH[i][2], vH[i][3] ] ]
+		end
+	end
+	vF = ReadTsv("_data/tickets_fresh_frar.tsv")
+	for i = 1 to Len(vF)
+		if Len(vF[i]) = 4
+			vItems + [ "fresh", vF[i][1], vF[i][4], [ "", vF[i][2], vF[i][3] ] ]
+		end
+	end
+	tOut = ""
+	StzEngineNeuralGenSetPrefixReuse(1)
+	for j = 1 to Len($vQ)
+		nRight = 0
+		nAsked = 0
+		for i = 1 to Len(vItems)
+			tGold = vItems[i][4][j]
+			if tGold != ""
+				$nRead = 0
+				nStart = Clock()
+				vA = Ask($tSys + " " + $vQ[j][2] + " Answer with the single word.", "Ticket: " + vItems[i][3], $vQ[j][3])
+				nMs = Ms(nStart)
+				nRight1 = 0
+				if vA[1] = tGold
+					nRight1 = 1
+					nRight = nRight + 1
+				end
+				nAsked = nAsked + 1
+				tOut = tOut + Row([ vItems[i][1], vItems[i][2], tLabel, $vQ[j][1], String(i), tGold, vA[1], String(nRight1), String(vA[2]), String(vA[3]), String(nMs), String($nRead) ])
+			end
+		end
+		? "  " + $vQ[j][1] + ": " + String(nRight) + "/" + String(nAsked)
+	end
+	# one generation, for the decode speed: a prompt that keeps the model writing
+	tP = Chat("You are a helpful assistant.", "Count from 1 to 200, separated by commas, and nothing else.")
+	nStart = Clock()
+	tGen = StzEngineNeuralGenerate(tP, 48)
+	nDec = Ms(nStart)
+	nGenTok = StzEngineNeuralGenTokenize(tGen)
+	? "  decode: " + String(nGenTok) + " tokens in " + String(nDec) + " ms"
+	tOut = tOut + Row([ "-", "-", tLabel, "(load)", "0", tSize, "-", "0", "0", "0", String(nLoad), "0" ])
+	tOut = tOut + Row([ "-", "-", tLabel, "(decode)", "0", "-", "-", "0", "0", "0", String(nDec), String(nGenTok) ])
+	tOut = tOut + Row([ "-", "-", tLabel, "(rss_load_mb)", "0", "-", "-", "0", "0", "0", String(nRssLoad), "0" ])
+	tOut = tOut + Row([ "-", "-", tLabel, "(rss_end_mb)", "0", "-", "-", "0", "0", "0", String(Mb(StzEnginePerfMemRss())), "0" ])
+	tOut = tOut + Row([ "-", "-", tLabel, "(peak_mb)", "0", "-", "-", "0", "0", "0", String(Mb(StzEnginePerfMemPeak())), "0" ])
+	# replace this label's earlier rows, keep every other label's
+	tKeep = $tHeader + Char(10)
+	if FExists($tTsv)
+		vOld = ReadTsv($tTsv)
+		for i = 2 to Len(vOld)
+			if Len(vOld[i]) = 12 and vOld[i][3] != tLabel
+				tKeep = tKeep + Row(vOld[i])
+			end
+		end
+	end
+	Write($tTsv, tKeep + tOut)
+	? tLabel + ": rows written to " + $tTsv
+end
+
+# ---- one file's speed: 3 prefills of one long prompt (prefix cache off), 3 generations of 48 tokens ----
+
+func SpeedOne(tLabel, tFile, tRound)
+	tBin = Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/"
+	LoadLib(tBin + "stz_neural.dll")
+	if StzEngineNeuralModelLoad(Slashes(tFile)) = 0
+		? tLabel + ": the load was refused, status " + String(StzEngineNeuralModelLoadStatus())
+		return
+	end
+	StzEngineNeuralGenSetPrefixReuse(0)
+	tBody = ""
+	vT = ReadTsv("_data/tickets_heldout.tsv")
+	for i = 1 to 8
+		if Len(vT[i]) = 5
+			tBody = tBody + vT[i][1] + Char(10)
+		end
+	end
+	tLong = Chat($tSys, "Here are this week's tickets." + Char(10) + tBody + "Which product do most of them concern?")
+	tGenP = Chat("You are a helpful assistant.", "Count from 1 to 200, separated by commas, and nothing else.")
+	StzEngineNeuralPrefillLogits(tLong)
+	tOut = ""
+	if FExists($tSpeed) = false
+		tOut = "label" + Char(9) + "round" + Char(9) + "rep" + Char(9) + "prompt_tokens" + Char(9) + "prompt_ms" + Char(9) + "gen_tokens" + Char(9) + "gen_ms" + Char(10)
+	end
+	for j = 1 to 3
+		nStart = Clock()
+		StzEngineNeuralPrefillLogits(tLong)
+		nPms = Ms(nStart)
+		nPtok = StzEngineNeuralGenPromptTokens()
+		nStart = Clock()
+		tGen = StzEngineNeuralGenerate(tGenP, 48)
+		nGms = Ms(nStart)
+		nGtok = StzEngineNeuralGenTokenize(tGen)
+		? tLabel + " round " + tRound + " rep " + String(j) + ": prompt " + String(nPtok) + " tok in " + String(nPms) + " ms, generation " + String(nGtok) + " tok in " + String(nGms) + " ms"
+		tOut = tOut + Row([ tLabel, tRound, String(j), String(nPtok), String(nPms), String(nGtok), String(nGms) ])
+	end
+	if FExists($tSpeed)
+		tOut = Read($tSpeed) + tOut
+	end
+	Write($tSpeed, tOut)
+end
+
+# a label's median prompt and generation speed from the speed table: [ prompt tok/s, generation tok/s ] as text
+func SpeedMedians(vSp, tL)
+	vP = []
+	vG = []
+	for i = 2 to Len(vSp)
+		if Len(vSp[i]) = 7 and vSp[i][1] = tL
+			vP + Number(String(Divide(Number(vSp[i][4]) * 10000, Number(vSp[i][5]), 0)))
+			vG + Number(String(Divide(Number(vSp[i][6]) * 10000, Number(vSp[i][7]), 0)))
+		end
+	end
+	if Len(vP) = 0
+		return [ "", "" ]
+	end
+	return [ String(Divide(Median(vP), 10, 1)), String(Divide(Median(vG), 10, 1)) ]
+end
+
+func Median(vN)
+	vS = Sort(vN)
+	nN = Len(vS)
+	# half of nN, rounded down, as a whole number: a Divide result is a DECIMAL and a list index refuses one
+	nH = 0
+	while (nH + 1) * 2 <= nN
+		nH = nH + 1
+	end
+	if nH * 2 < nN
+		return vS[nH + 1]
+	end
+	return Divide(vS[nH] + vS[nH + 1], 2, 0)
+end
+
+func Row(vF)
+	tR = ""
+	for i = 1 to Len(vF)
+		if i > 1
+			tR = tR + Char(9)
+		end
+		tR = tR + vF[i]
+	end
+	return tR + Char(10)
+end
+
+func Mb(nBytes)
+	return Divide(nBytes, 1048576, 0)
+end
+
+# one option question: [ best option, its share of the options' probability in basis points, the options' total
+# probability in basis points ] -- _measure_arc_escalate.haro's Ask, unchanged
+func Ask(tSystem, tUser, vOpt)
+	tP = Chat(tSystem, tUser)
+	StzEngineNeuralPrefillLogits(tP)
+	$nRead = $nRead + StzEngineNeuralGenPromptTokens() - StzEngineNeuralGenReusedTokens()
+	fLse = StzEngineNeuralLogitLse()
+	tBest = ""
+	fBest = Float(-1)
+	fSum = Float(0)
+	for i = 1 to Len(vOpt)
+		tCap = Upper(Left(vOpt[i], 1)) + Right(vOpt[i], Len(vOpt[i]) - 1)
+		fP = Exp(StzEngineNeuralLogitAt(FirstId(vOpt[i])) - fLse) + Exp(StzEngineNeuralLogitAt(FirstId(tCap)) - fLse)
+		fSum = fSum + fP
+		if fP > fBest
+			fBest = fP
+			tBest = vOpt[i]
+		end
+	end
+	return [ tBest, Bp(fBest / fSum), Bp(fSum) ]
+end
+
+func Bp(fX)
+	return Number(String(Decimal(fX * Float(10000), 0)))
+end
+
+func Ms(nStart)
+	return Divide((Clock() - nStart) * 1000, ClocksPerSecond(), 0)
+end
+
+func FirstId(tWord)
+	StzEngineNeuralGenTokenize("a")
+	nIdA = StzEngineNeuralGenTokenAt(0)
+	StzEngineNeuralGenTokenize("b")
+	nSkip = 0
+	if StzEngineNeuralGenTokenAt(0) = nIdA
+		nSkip = 1
+	end
+	StzEngineNeuralGenTokenize(tWord)
+	return StzEngineNeuralGenTokenAt(nSkip)
+end
+
+# Bolt E4B's turn format (Gemma 4), as _measure_arc_escalate.haro writes it
+func Chat(tSystem, tUser)
+	return "<|turn>system" + Char(10) + tSystem + "<turn|>" + Char(10) + "<|turn>user" + Char(10) + tUser + "<turn|>" + Char(10) + "<|turn>model" + Char(10)
+end
+
+# ---- the analysis: no model needed ----
+
+func Analyse
+	if FExists($tTsv) = false
+		? "analyse: no " + $tTsv + " yet"
+		return
+	end
+	vRows = ReadTsv($tTsv)
+	vLabels = []
+	for i = 2 to Len(vRows)
+		if Len(vRows[i]) = 12 and Find(vLabels, vRows[i][3]) = 0
+			vLabels + vRows[i][3]
+		end
+	end
+	# granite-1b-choice's triage-extract fields from the ARC run: [ "set|item" , points out of 2 ]
+	vGran = Fields(ReadTsv($tArc), "granite")
+	vRef = Fields(vRows, "q4km")
+	vSets = [ [ "heldout", "the 36 English held-out tickets" ], [ "fresh-fr", "the 24 fresh French tickets" ], [ "fresh-ar", "the 24 fresh Arabic tickets" ] ]
+	Say("RADAR-LITTLEBIT-LOWBIT-01: Bolt E4B files against granite-1b-choice and against NVIDIA's Q4_K_M")
+	Say("")
+	vSp = []
+	if FExists($tSpeed)
+		vSp = ReadTsv($tSpeed)
+	end
+	if Len(vSp) > 1
+		Say("speeds: the median of the speed runs (" + $tSpeed + ", every file in turn, then again in the reverse order)")
+	else
+		Say("speeds: read during the question runs, on a machine shared with other work")
+	end
+	Say(Pad("file", 10) + Pad("size", 9) + Pad("load", 8) + Pad("resident", 10) + Pad("peak", 9) + Pad("prompt tok/s", 14) + "decode tok/s")
+	for k = 1 to Len(vLabels)
+		tL = vLabels[k]
+		vC = Costs(vRows, tL)
+		tPs = PerSec(vC[5], vC[6])
+		tDs = PerSec(vC[8], vC[7])
+		vM = SpeedMedians(vSp, tL)
+		if vM[1] != ""
+			tPs = vM[1]
+			tDs = vM[2]
+		elseif Len(vSp) > 1
+			tPs = "-"
+			tDs = "-"
+		end
+		Say(Pad(tL, 10) + Pad(Gb(vC[1]) + " GB", 9) + Pad(Secs(vC[2]) + " s", 8) + Pad(String(vC[3]) + " MB", 10) + Pad(String(vC[4]) + " MB", 9) + Pad(tPs, 14) + tDs)
+	end
+	if Len(vSp) > 1
+		Say("(a file the speed runs did not take shows -; one prompt of 243 tokens and one 48-token generation, 3 times a")
+		Say(" process, 6 times a file; the median puts aside a single reading a sleeping machine stretched)")
+	end
+	Say("")
+	Say("RIGHT ANSWERS (kind, product, severity on 36 English; product, severity on 24 French and 24 Arabic)")
+	for k = 1 to Len(vLabels)
+		tL = vLabels[k]
+		Say("  " + Pad(tL, 10) + "en " + Right3(vRows, tL, "heldout", "en", "kind") + " " + Right3(vRows, tL, "heldout", "en", "product") + " " + Right3(vRows, tL, "heldout", "en", "severity") + "   fr " + Right3(vRows, tL, "fresh", "fr", "product") + " " + Right3(vRows, tL, "fresh", "fr", "severity") + "   ar " + Right3(vRows, tL, "fresh", "ar", "product") + " " + Right3(vRows, tL, "fresh", "ar", "severity"))
+	end
+	Say("")
+	Say("TRIAGE-EXTRACT: the faculty's score, and the court (gains-losses, one-sided sign test P)")
+	Say("  " + Pad("file", 10) + Pad("set", 10) + Pad("score", 7) + Pad("over granite-1b-choice", 30) + "against q4km (q4km's gains-losses)")
+	nKeeps = 0
+	for k = 1 to Len(vLabels)
+		tL = vLabels[k]
+		vMine = Fields(vRows, tL)
+		nUpheld = 0
+		for j = 1 to Len(vSets)
+			vG = Court(vMine, vGran, vSets[j][1])
+			tVsRef = "-"
+			if tL != "q4km" and Len(vRef) > 0
+				vR = Court(vRef, vMine, vSets[j][1])
+				tVsRef = String(vR[1]) + "-" + String(vR[2]) + "  P " + PFmt(vR[3]) + Verdict(vR[3], " q4km better", " no difference shown")
+			end
+			if vG[3] <= 500
+				nUpheld = nUpheld + 1
+			end
+			Say("  " + Pad(tL, 10) + Pad(vSets[j][1], 10) + Pad(Score(vMine, vSets[j][1]), 7) + Pad(String(vG[1]) + "-" + String(vG[2]) + "  P " + PFmt(vG[3]) + Verdict(vG[3], " upheld", " REFUSED"), 30) + tVsRef)
+		end
+		if nUpheld = Len(vSets)
+			Say("  " + Pad("", 10) + "-> keeps the win on all three sets")
+		else
+			Say("  " + Pad("", 10) + "-> loses the win on " + String(Len(vSets) - nUpheld) + " of the three sets")
+		end
+	end
+	Write($tReport, $tLog)
+end
+
+func Verdict(nPbp, tYes, tNo)
+	if nPbp <= 500
+		return tYes
+	end
+	return tNo
+end
+
+# [ size bytes, load ms, resident MB after load, peak MB, prompt tokens read, prompt ms, decode ms, decode tokens ]
+func Costs(vRows, tL)
+	vC = [ 0, 0, 0, 0, 0, 0, 0, 0 ]
+	for i = 2 to Len(vRows)
+		vR = vRows[i]
+		if Len(vR) = 12 and vR[3] = tL
+			if vR[4] = "(load)"
+				vC[1] = Number(vR[6])
+				vC[2] = Number(vR[11])
+			elseif vR[4] = "(rss_load_mb)"
+				vC[3] = Number(vR[11])
+			elseif vR[4] = "(peak_mb)"
+				vC[4] = Number(vR[11])
+			elseif vR[4] = "(decode)"
+				vC[7] = Number(vR[11])
+				vC[8] = Number(vR[12])
+			elseif Left(vR[4], 1) != "("
+				vC[5] = vC[5] + Number(vR[12])
+				vC[6] = vC[6] + Number(vR[11])
+			end
+		end
+	end
+	return vC
+end
+
+# a label's product and severity points per ticket: [ [ "heldout|7", 2 ], ... ] (one point a right field)
+func Fields(vRows, tL)
+	vOut = []
+	vKeys = []
+	for i = 2 to Len(vRows)
+		vR = vRows[i]
+		if Len(vR) = 12 and vR[3] = tL and (vR[4] = "product" or vR[4] = "severity")
+			tSet = vR[1]
+			if tSet = "fresh"
+				tSet = "fresh-" + vR[2]
+			end
+			tKey = tSet + "|" + vR[5]
+			nAt = Find(vKeys, tKey)
+			if nAt = 0
+				vKeys + tKey
+				vOut + [ tKey, Number(vR[8]) ]
+			else
+				vOut[nAt][2] = vOut[nAt][2] + Number(vR[8])
+			end
+		end
+	end
+	return vOut
+end
+
+# the faculty's score on a set: the share of tickets with both fields right
+func Score(vF, tSet)
+	nRight = 0
+	nN = 0
+	for i = 1 to Len(vF)
+		if Left(vF[i][1], Len(tSet) + 1) = tSet + "|"
+			if vF[i][2] = 2
+				nRight = nRight + 1
+			end
+			nN = nN + 1
+		end
+	end
+	if nN = 0
+		return "-"
+	end
+	return String(Divide(nRight * 100, nN, 0)) + "%"
+end
+
+# the court, A over B on a set: [ A's gains, A's losses, P in basis points that the gains are chance ]
+func Court(vA, vB, tSet)
+	nG = 0
+	nL = 0
+	vKeysB = []
+	for i = 1 to Len(vB)
+		vKeysB + vB[i][1]
+	end
+	for i = 1 to Len(vA)
+		if Left(vA[i][1], Len(tSet) + 1) = tSet + "|"
+			nAt = Find(vKeysB, vA[i][1])
+			if nAt > 0
+				if vA[i][2] = 2 and vB[nAt][2] != 2
+					nG = nG + 1
+				elseif vA[i][2] != 2 and vB[nAt][2] = 2
+					nL = nL + 1
+				end
+			end
+		end
+	end
+	return [ nG, nL, SignP(nG, nG + nL) ]
+end
+
+# P(X >= g) for X ~ Binomial(n, 1/2), in basis points, rounded up; 10000 when nothing is discordant
+func SignP(nG, nN)
+	if nN = 0
+		return 10000
+	end
+	nC = 1
+	nTail = 0
+	for i = 0 to nN
+		if i >= nG
+			nTail = nTail + nC
+		end
+		nC = Divide(nC * (nN - i), i + 1, 0)
+	end
+	nAll = 1
+	for i = 1 to nN
+		nAll = nAll * 2
+	end
+	return Divide(nTail * 10000 + nAll - 1, nAll, 0)
+end
+
+func PFmt(nBp)
+	if nBp >= 10000
+		return "1"
+	end
+	return String(Divide(nBp, 10000, 4))
+end
+
+func Right3(vRows, tL, tSet, tLang, tQ)
+	nR = 0
+	nN = 0
+	for i = 2 to Len(vRows)
+		vR = vRows[i]
+		if Len(vR) = 12 and vR[3] = tL and vR[1] = tSet and vR[2] = tLang and vR[4] = tQ
+			nR = nR + Number(vR[8])
+			nN = nN + 1
+		end
+	end
+	return String(nR) + "/" + String(nN)
+end
+
+func Gb(nBytes)
+	return String(Divide(nBytes, 1000000000, 2))
+end
+
+func PerSec(nTok, nMs)
+	if nMs = 0
+		return "-"
+	end
+	return String(Divide(nTok * 1000, nMs, 1))
+end
+
+func Say(tLine)
+	? tLine
+	$tLog = $tLog + tLine + Char(10)
+end
+
+func Secs(nMs)
+	return String(Divide(nMs, 1000, 1))
+end
+
+func Pad(tText, nWidth)
+	tOut = tText
+	while Len(tOut) < nWidth
+		tOut = tOut + " "
+	end
+	return tOut
+end
+
+func ReadTsv(tPath)
+	vOut = []
+	vLines = Str2List(Read(tPath))
+	for i = 1 to Len(vLines)
+		tLine = vLines[i]
+		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
+			tLine = Left(tLine, Len(tLine) - 1)
+		end
+		vF = []
+		tCur = ""
+		for j = 1 to Len(tLine)
+			if tLine[j] = Char(9)
+				vF + tCur
+				tCur = ""
+			else
+				tCur = tCur + tLine[j]
+			end
+		end
+		vF + tCur
+		if Len(tLine) > 0
+			vOut + vF
+		end
+	end
+	return vOut
+end
+
+func Slashes(tPath)
+	tOut = ""
+	for i = 1 to Len(tPath)
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end

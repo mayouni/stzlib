@@ -1,0 +1,53 @@
+RADAR-LITTLEBIT-LOWBIT-01: Bolt E4B files against granite-1b-choice and against NVIDIA's Q4_K_M
+
+speeds: the median of the speed runs (results/lowbit_speed.tsv, every file in turn, then again in the reverse order)
+file      size     load    resident  peak     prompt tok/s  decode tok/s
+q4km      6.18 GB  14.2 s  5913 MB   7453 MB  9.4           3.6
+iq2m      3.53 GB  13.1 s  3389 MB   4929 MB  4.0           1.8
+iq3xxs    3.70 GB  5.0 s   3552 MB   5092 MB  2.3           1.2
+q2kxl     3.74 GB  43.2 s  3584 MB   5124 MB  2.4           1.2
+q3kxl     4.22 GB  6.6 s   4039 MB   5579 MB  6.0           2.4
+q4kxl     5.06 GB  6.4 s   4841 MB   6382 MB  5.6           2.0
+q4km2     6.18 GB  12.3 s  5909 MB   7450 MB  -             -
+(a file the speed runs did not take shows -; one prompt of 243 tokens and one 48-token generation, 3 times a
+ process, 6 times a file; the median puts aside a single reading a sleeping machine stretched)
+
+RIGHT ANSWERS (kind, product, severity on 36 English; product, severity on 24 French and 24 Arabic)
+  q4km      en 29/36 34/36 36/36   fr 24/24 24/24   ar 24/24 24/24
+  iq2m      en 30/36 33/36 36/36   fr 24/24 24/24   ar 23/24 24/24
+  iq3xxs    en 29/36 33/36 36/36   fr 24/24 24/24   ar 23/24 24/24
+  q2kxl     en 29/36 34/36 36/36   fr 24/24 23/24   ar 23/24 24/24
+  q3kxl     en 29/36 34/36 36/36   fr 24/24 24/24   ar 23/24 24/24
+  q4kxl     en 29/36 34/36 36/36   fr 24/24 24/24   ar 24/24 24/24
+  q4km2     en 29/36 34/36 36/36   fr 24/24 24/24   ar 24/24 24/24
+
+TRIAGE-EXTRACT: the faculty's score, and the court (gains-losses, one-sided sign test P)
+  file      set       score  over granite-1b-choice        against q4km (q4km's gains-losses)
+  q4km      heldout   94%    10-2  P 0.0194 upheld         -
+  q4km      fresh-fr  100%   6-0  P 0.0157 upheld          -
+  q4km      fresh-ar  100%   8-0  P 0.0040 upheld          -
+            -> keeps the win on all three sets
+  iq2m      heldout   92%    9-2  P 0.0328 upheld          1-0  P 0.5000 no difference shown
+  iq2m      fresh-fr  100%   6-0  P 0.0157 upheld          0-0  P 1 no difference shown
+  iq2m      fresh-ar  96%    7-0  P 0.0079 upheld          1-0  P 0.5000 no difference shown
+            -> keeps the win on all three sets
+  iq3xxs    heldout   92%    10-3  P 0.0462 upheld         1-0  P 0.5000 no difference shown
+  iq3xxs    fresh-fr  100%   6-0  P 0.0157 upheld          0-0  P 1 no difference shown
+  iq3xxs    fresh-ar  96%    7-0  P 0.0079 upheld          1-0  P 0.5000 no difference shown
+            -> keeps the win on all three sets
+  q2kxl     heldout   94%    10-2  P 0.0194 upheld         0-0  P 1 no difference shown
+  q2kxl     fresh-fr  96%    5-0  P 0.0313 upheld          1-0  P 0.5000 no difference shown
+  q2kxl     fresh-ar  96%    7-0  P 0.0079 upheld          1-0  P 0.5000 no difference shown
+            -> keeps the win on all three sets
+  q3kxl     heldout   94%    10-2  P 0.0194 upheld         0-0  P 1 no difference shown
+  q3kxl     fresh-fr  100%   6-0  P 0.0157 upheld          0-0  P 1 no difference shown
+  q3kxl     fresh-ar  96%    7-0  P 0.0079 upheld          1-0  P 0.5000 no difference shown
+            -> keeps the win on all three sets
+  q4kxl     heldout   94%    10-2  P 0.0194 upheld         0-0  P 1 no difference shown
+  q4kxl     fresh-fr  100%   6-0  P 0.0157 upheld          0-0  P 1 no difference shown
+  q4kxl     fresh-ar  100%   8-0  P 0.0040 upheld          0-0  P 1 no difference shown
+            -> keeps the win on all three sets
+  q4km2     heldout   94%    10-2  P 0.0194 upheld         0-0  P 1 no difference shown
+  q4km2     fresh-fr  100%   6-0  P 0.0157 upheld          0-0  P 1 no difference shown
+  q4km2     fresh-ar  100%   8-0  P 0.0040 upheld          0-0  P 1 no difference shown
+            -> keeps the win on all three sets
