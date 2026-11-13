@@ -78,6 +78,11 @@ pub const CTR_TEXTURE_LIVE = 13; // live textures/targets right now
 pub const CTR_VARIANT_DISPATCH = 14; // gpu.variant.count -- dispatches served by a non-generic op VARIANT (GK2)
 const N_COUNTERS = 15;
 
+/// A write staged by wgpuQueueWriteBuffer reaches the device only with the next submit. Until then the buffer it
+/// names AND wgpu's staging copy stay alive, even after BufferFree drops the engine's reference. Set by every
+/// upload, cleared by every counted submit; Sync sends an empty submit while it is set.
+var writes_pending: bool = false;
+
 var counters: [N_COUNTERS]f64 = @splat(0);
 
 // ---------------------------------------------------------------- wgpu, loaded at runtime
@@ -667,6 +672,7 @@ fn openDeviceOn(idx: usize) i32 {
 /// Tear down device-scoped state (buffers, kernels, tile uniform, device).
 /// Keeps the instance + adapter list so SelectAdapter/Init can rebuild.
 fn closeDevice() void {
+    writes_pending = false; // the writes die with the queue that held them
     if (!available and device == null) return;
     available = false;
     runCloseHooks(); // render/scene layers: abort pass, drop device objects
@@ -896,6 +902,7 @@ pub fn stz_gpu_buffer_write(id: i64, data: [*]const u8, nbytes: f64) callconv(.c
     const n: usize = @intFromFloat(nbytes);
     if (n > buffers.items[slot].size) return BAD_ARG;
     fns.wgpuQueueWriteBuffer(queue, buffers.items[slot].buf, 0, data, n);
+    writes_pending = true;
     counters[CTR_TRANSFER_BYTES] += nbytes;
     return OK;
 }
@@ -926,6 +933,7 @@ pub fn stz_gpu_buffer_read(id: i64, out: [*]u8, nbytes: f64) callconv(.c) i32 {
     fns.wgpuQueueSubmit(queue, 1, &cmd);
     fns.wgpuCommandBufferRelease(cmd);
     counters[CTR_SUBMIT_COUNT] += 1;
+    writes_pending = false;
 
     g_map_done = false;
     g_map_ok = false;
@@ -1521,6 +1529,7 @@ pub fn stz_gpu_frame_end() callconv(.c) i32 {
     fns.wgpuQueueSubmit(queue, 1, &cmd);
     fns.wgpuCommandBufferRelease(cmd);
     counters[CTR_SUBMIT_COUNT] += 1;
+    writes_pending = false;
     for (frame_end_hooks) |h| {
         if (h) |f| f();
     }
@@ -1560,6 +1569,7 @@ pub fn stz_gpu_batch_end() callconv(.c) i32 {
     fns.wgpuQueueSubmit(queue, 1, &cmd);
     fns.wgpuCommandBufferRelease(cmd);
     counters[CTR_SUBMIT_COUNT] += 1;
+    writes_pending = false;
     // the pass is submitted; its bind groups may go
     for (0..g_batch_n) |i| {
         if (g_batch_bgs[i]) |bg| fns.wgpuBindGroupRelease(bg);
@@ -1713,6 +1723,7 @@ fn dispatchInternal(kernel: i64, params: ?[]const u8, buf_ids: [*]const i64, nbu
             fns.wgpuQueueSubmit(queue, 1, &cmd);
             fns.wgpuCommandBufferRelease(cmd);
             counters[CTR_SUBMIT_COUNT] += 1;
+            writes_pending = false;
         }
         off += chunk;
     }
@@ -1727,6 +1738,14 @@ pub fn stz_gpu_sync() callconv(.c) i32 {
     if (!deviceAlive()) {
         counters[CTR_FALLBACK_COUNT] += 1;
         return FALLBACK;
+    }
+    // Sync means everything asked is done, uploads included: a staged write is sent first. Found by the outside
+    // witness (GT3b, 2026-11-13): six cycles of upload, Sync and BufferFree of 64 MB, with no op between, held
+    // 1,092 MB of the card that the engine counted as 0 live buffers; with a submit the same cycles stay flat.
+    if (writes_pending) {
+        fns.wgpuQueueSubmit(queue, 0, null);
+        counters[CTR_SUBMIT_COUNT] += 1;
+        writes_pending = false;
     }
     while (fns.wgpuDevicePoll(device, 1, null) == 0) {}
     return OK;
