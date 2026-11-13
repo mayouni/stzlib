@@ -1,0 +1,4 @@
+load "../error/stkerror.haro"
+
+? StkError(:IncorrectParamType)
+#--> 1

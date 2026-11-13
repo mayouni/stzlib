@@ -77,9 +77,9 @@ func StzZoptVersion()
 #   see        stzOptimModel, stzOptimSentence, StzOptimModelFromZopt
 class stzOptimFile from stzObject
 
-	@cText = ""
+	@tText = ""
 	@cPath = ""
-	@cName = ""
+	@tName = ""
 	@aSets = []        # [ [ name, [ members ] ] ]
 	@aParams = []      # [ [ name, indexSet, [ values ] ] ]
 	@aVarFam = []      # [ [ name, indexSet("" = scalar), lb, ub, hasUb, int ] ]
@@ -101,7 +101,7 @@ class stzOptimFile from stzObject
 			if NOT StzFileExists(@cPath)
 				stzraise("stzOptimFile: no file at '" + @cPath + "'.")
 			ok
-			@cText = StzFileRead(@cPath)
+			@tText = StzFileRead(@cPath)
 			This._Parse()
 		ok
 
@@ -111,7 +111,7 @@ class stzOptimFile from stzObject
 	#   returns    the file reader itself, so calls chain
 	#   see        Findings, ToModel, StzOptimModelFromZopt
 	def SetText(pcText)
-		@cText = "" + pcText
+		@tText = "" + pcText
 		This._Parse()
 		return This
 
@@ -152,7 +152,7 @@ class stzOptimFile from stzObject
 	#   returns    a text
 	#   see        SetText
 	def Name_()
-		return @cName
+		return @tName
 
 	# Returns the sets declared by set lines, with their members in lower case.
 	#
@@ -214,7 +214,7 @@ class stzOptimFile from stzObject
 		@cObjSense = ""
 		@cObjExpr = ""
 
-		_cClean_ = StzReplace(@cText, char(13), "")
+		_cClean_ = StzReplace(@tText, char(13), "")
 		_ac_ = StzSplit(_cClean_, char(10))
 		_bInCons_ = 0
 		_bVersion_ = 0
@@ -253,7 +253,7 @@ class stzOptimFile from stzObject
 			ok
 
 			if StzLower(StzLeft(_cL_, 6)) = "model:"
-				@cName = ring_trim(StzMid(_cL_, 7, StzLen(_cL_) - 6))
+				@tName = ring_trim(StzMid(_cL_, 7, StzLen(_cL_) - 6))
 				loop
 			ok
 
@@ -728,7 +728,7 @@ class stzOptimFile from stzObject
 	#@ aka  -- the round trip ---------------------------------------------------
 	def ToZopt()
 		_oM_ = This.ToModel()
-		return StzModelToZopt(_oM_, @cName)
+		return StzModelToZopt(_oM_, @tName)
 
 	# Writes the expanded model to a file, adding the .zopt extension when the path lacks it.
 	#

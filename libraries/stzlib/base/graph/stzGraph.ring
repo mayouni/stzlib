@@ -85,7 +85,7 @@ func IsStzGraph(pObj)
 #   see        stzGraphFinder, stzGraphComparison, stzKnowledgeGraph, stzGraphRule
 class stzGraph from stzObject
 
-	@cId = ""
+	@tId = ""
 	@cGraphType = $cDefaultGraphType  # "structural", "flow", "semantic", "dependency"
 	@aNodes = []
 	@aEdges = []
@@ -161,7 +161,7 @@ class stzGraph from stzObject
 			stzraise("Inncorrect Id! pcName must be a string without spaces nor new lines.")
 		ok
 
-		@cId = StzLower(pcName)
+		@tId = StzLower(pcName)
 
 	#--------------------------#
 	#  ENGINE ADAPTER LAYER    #
@@ -172,8 +172,8 @@ class stzGraph from stzObject
 		# ringlib_init (not as Ring funcs), so isFunction() can't see them
 		# -- using it here silently disabled the ENTIRE engine graph path
 		# and forced every op onto the slow pure-Ring fallbacks. Detect via
-		# the loader handle ($pStzGraphHandle, set in engine/stz_graph.ring).
-		return isPointer($pStzGraphHandle)
+		# the loader handle ($hStzGraphHandle, set in engine/stz_graph.haro).
+		return isPointer($hStzGraphHandle)
 
 	def _EngineHandle()
 		return @pEngineGraph
@@ -300,14 +300,14 @@ class stzGraph from stzObject
 	#   returns    text
 	#   see        Name, SetGraphType
 	def Id()
-		return @cId
+		return @tId
 
 		# Returns the graph id, the same text as the id accessor.
 		#
 		#   returns    text
 		#   see        Id
 		def Name()
-			return @cId
+			return @tId
 
 	# Returns the graph type: "structural" until SetGraphType says otherwise.
 	#
@@ -4713,7 +4713,7 @@ class stzGraph from stzObject
 	#   see        ExportToJSON, Nodes, Edges
 	def ToHashlist()
 		return [
-			:id = @cId,
+			:id = @tId,
 			:nodes = @aNodes,
 			:edges = @aEdges,
 			:properties = This.Properties()
@@ -4961,7 +4961,7 @@ class stzGraph from stzObject
 		_cXML_ += char(10)
 		
 		# Graph element
-		_cXML_ += '  <graph id="' + @cId + '" edgedefault="directed">' + char(10)
+		_cXML_ += '  <graph id="' + @tId + '" edgedefault="directed">' + char(10)
 		_cXML_ += '    <data key="type">' + @cGraphType + '</data>' + char(10) + char(10)
 		
 		# Nodes
@@ -5096,7 +5096,7 @@ class stzGraph from stzObject
 		# Extract graph id
 		_cValue_ = This._GraphMLBetween(_cHead_, '<graph id="', '"')
 		if _cValue_ != ""
-			@cId = This._XMLUnescape(_cValue_)
+			@tId = This._XMLUnescape(_cValue_)
 		ok
 
 		# Extract graph type
@@ -5773,7 +5773,7 @@ class stzGraph from stzObject
 
 	def _OwnRuleSet()
 		if @oOwnRuleSet = ""
-			@oOwnRuleSet = new stzGraphRuleSet("" + @cId)
+			@oOwnRuleSet = new stzGraphRuleSet("" + @tId)
 		ok
 		return @oOwnRuleSet
 
@@ -5861,7 +5861,7 @@ class stzGraph from stzObject
 	#   see        CheckRules, RulesAreSound
 	#@ aka  Print the graph's own rule findings, grouped and gated -- via stzRuleReport (the graph collects itself into it, then shows it).
 	def RulesReport()
-		_oRep_ = new stzRuleReport("" + @cId)
+		_oRep_ = new stzRuleReport("" + @tId)
 		_oRep_.Ingest(This.CheckRules())
 		_oRep_.Report()
 		return This
@@ -7156,7 +7156,7 @@ class stzGraph from stzObject
 	#   note       edge properties are not written
 	#   see        SaveToStzGraf, LoadFromStzGraf
 	def ExportToStzGraf()
-		_cOutput_ = 'graph "' + @cId + '"' + char(10)
+		_cOutput_ = 'graph "' + @tId + '"' + char(10)
 		_cOutput_ += '    type: ' + @cGraphType + char(10) + char(10)
 		
 		# Nodes section
@@ -7281,7 +7281,7 @@ class stzGraph from stzObject
 					_cQuoted_ = StzMid(_cLine_, _nPos_ + 1, stzlen(_cLine_) - _nPos_)
 					_nEnd_ = StzFindFirst('"', _cQuoted_)
 					if _nEnd_ > 0
-						@cId = StzMid(_cQuoted_, 1, _nEnd_ - 1)
+						@tId = StzMid(_cQuoted_, 1, _nEnd_ - 1)
 					ok
 				ok
 				loop
@@ -7399,7 +7399,7 @@ class stzGraph from stzObject
 	#   returns    text
 	#   see        SaveToStzRulz, LoadFromStzRulz
 	def ExportToStzRulz()
-		_cOutput_ = 'ruleset "' + @cId + ' Rules"' + char(10)
+		_cOutput_ = 'ruleset "' + @tId + ' Rules"' + char(10)
 		_cOutput_ += '    ruleGroup: ' + @cGraphType + char(10)
 		_cOutput_ += '    version: 1.0' + char(10) + char(10)
 		
@@ -7722,7 +7722,7 @@ class stzGraph from stzObject
 	#   returns          text
 	#   see              ApplySimulation, SaveToStzSim, CompareWith
 	def ExportToStzSim(oBaselineGraph)
-		_cOutput_ = 'simulation "' + @cId + ' Comparison"' + char(10)
+		_cOutput_ = 'simulation "' + @tId + ' Comparison"' + char(10)
 		_cOutput_ += '    description: "Changes from baseline"' + char(10)
 		_cOutput_ += '    date: ' + Date() + char(10) + char(10)
 		

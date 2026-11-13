@@ -743,4 +743,5 @@ test {
     _ = statemachine;
     _ = tracectx;
     _ = @import("stzm.zig"); // STZM message-plane framing (pure, no C deps)
+    _ = @import("door_shut.zig"); // SECURITY-R18c: the engine-side shut list (pure, no C deps)
 }

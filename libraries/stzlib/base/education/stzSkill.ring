@@ -32,7 +32,7 @@ func StzSkillQ(pcFolder, pcId)
 class stzSkill from stzObject
 
 	@cFolder = ""
-	@cId = ""
+	@tId = ""
 	@aFacts = []
 	@aText = []     # [ [ lang, [ :title, :question, :foundation, :practitioner, :expert ] ] ]
 
@@ -48,18 +48,18 @@ class stzSkill from stzObject
 	#   see        StzSkillQ, Languages
 	def init(pcFolder, pcId)
 		@cFolder = _EduNoSlash(pcFolder)
-		@cId = StzLower(pcId)
-		_cF_ = @cFolder + "/" + @cId + ".zknw"
+		@tId = StzLower(pcId)
+		_cF_ = @cFolder + "/" + @tId + ".zknw"
 		if NOT fexists(_cF_)
-			StzRaise("No skill '" + @cId + "' under " + @cFolder + ".")
+			StzRaise("No skill '" + @tId + "' under " + @cFolder + ".")
 		ok
 		@aFacts = _EduFactsOf(_cF_)
 		_acFiles_ = StzEngineDirListFiles(@cFolder)
 		_nL_ = len(_acFiles_)
 		for _i_ = 1 to _nL_
 			_cN_ = _acFiles_[_i_]
-			if StzLeft(_cN_, StzLen(@cId) + 1) = @cId + "." and StzRight(_cN_, 3) = ".md"
-				_cLang_ = StzMid(_cN_, StzLen(@cId) + 2, StzLen(_cN_) - StzLen(@cId) - 4)
+			if StzLeft(_cN_, StzLen(@tId) + 1) = @tId + "." and StzRight(_cN_, 3) = ".md"
+				_cLang_ = StzMid(_cN_, StzLen(@tId) + 2, StzLen(_cN_) - StzLen(@tId) - 4)
 				@aText + [ _cLang_, This._ParseText(read(@cFolder + "/" + _cN_)) ]
 			ok
 		next
@@ -94,14 +94,14 @@ class stzSkill from stzObject
 	#   returns    a text, such as cr-01
 	#   see        Family, Title
 	def Id()
-		return @cId
+		return @tId
 
 	# Returns the family the skill belongs to, as declared in its structure file.
 	#
 	#   returns    a text such as craft; an empty text when no family is declared
 	#   see        Anchors, Study
 	def Family()
-		_ac_ = _EduObjects(@aFacts, @cId, "family")
+		_ac_ = _EduObjects(@aFacts, @tId, "family")
 		if len(_ac_) = 0
 			return ""
 		ok
@@ -112,14 +112,14 @@ class stzSkill from stzObject
 	#   returns    a list of text; [ ] when none is declared
 	#   see        Anchors, Evidence
 	def Study()
-		return _EduObjects(@aFacts, @cId, "study")
+		return _EduObjects(@aFacts, @tId, "study")
 
 	# Returns the names of the workplace worlds that anchor the skill's examples.
 	#
 	#   returns    a list of text, such as school and cooperative; [ ] when none is declared
 	#   see        Family, Study
 	def Anchors()
-		return _EduObjects(@aFacts, @cId, "anchor")
+		return _EduObjects(@aFacts, @tId, "anchor")
 
 	# Returns what the skill's structure file says proves one level: an exercise for foundation, a project for practitioner and expert.
 	#
@@ -131,7 +131,7 @@ class stzSkill from stzObject
 	#   see        Level, Study
 	#@ aka  "foundation" | "practitioner" | "expert"
 	def Evidence(pcLevel)
-		_ac_ = _EduObjects(@aFacts, @cId, StzLower(pcLevel) + "-evidence")
+		_ac_ = _EduObjects(@aFacts, @tId, StzLower(pcLevel) + "-evidence")
 		if len(_ac_) = 0
 			return ""
 		ok
@@ -157,7 +157,7 @@ class stzSkill from stzObject
 				return @aText[_i_][2]
 			ok
 		next
-		StzRaise("Skill '" + @cId + "' has no text in '" + pcLang + "'.")
+		StzRaise("Skill '" + @tId + "' has no text in '" + pcLang + "'.")
 
 	# Returns the skill's title in one language, without its CR-01 style id prefix.
 	#

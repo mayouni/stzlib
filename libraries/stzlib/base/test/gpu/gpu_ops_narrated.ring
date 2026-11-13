@@ -22,10 +22,10 @@
 # Standalone like the G1 guard (loads only the engine bridge): a broken
 # face elsewhere in the library must not mask an op regression.
 
-$cEngineDir = "../../../engine"
+$tEngineDir = "../../../engine"
 # the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
-load "../../../core/common/stkRingLibs.ring"
-load "../../../engine/stz_gpu.ring"
+load "../../../core/common/stkRingLibs.haro"
+load "../../../engine/stz_gpu.haro"
 
 decimals(12)  # the measured-error printouts are the point; 2 decimals hides them
 
@@ -43,7 +43,7 @@ C_FALL = 3
 aRes = StzEngineGpuOpSum(1, 100)
 chk("sum before Init answers [FALLBACK, 0]", aRes[1] = S_FALLBACK and aRes[2] = 0)
 
-nInit = StzEngineGpuInit($cStzGpuRuntime)
+nInit = StzEngineGpuInit($tStzGpuRuntime)
 if StzEngineGpuIsAvailable() = 0
     ? "  NO GPU ON THIS MACHINE -- parity scenes need a device; fallback scene above is the CI coverage"
 else

@@ -1,0 +1,40 @@
+
+
+$nTime0 = 0
+
+func pr
+	$nTime0 = Clock()
+end
+func pf
+
+	nElapsed = (Clock() - $nTime0) / ClocksPerSecond()
+	tElapsed = String(nElapsed)
+	if nElapsed = 0 
+		tElapsed = "almost 0"
+	end
+
+	? Char(10) + "Executed in " + tElapsed + " second(s)"
+	$nTime0 = 0
+	STOP()
+end
+# Same as pf() but without STOP(): it prints the elapsed time and returns.
+# A guard ends on pfq() then shutdown(<fail count>), so its exit code is its
+# verdict; pf() raises, and nothing after it runs (2026-11-06).
+func pfq
+
+	nElapsed = (Clock() - $nTime0) / ClocksPerSecond()
+	tElapsed = String(nElapsed)
+	if nElapsed = 0
+		tElapsed = "almost 0"
+	end
+
+	? Char(10) + "Executed in " + tElapsed + " second(s)"
+	$nTime0 = 0
+end
+func STOP
+	Raise( Char(10) + 
+	    "----------------" + Char(10) +
+	    "    STOPPED!    " + Char(10) +
+	    "----------------"
+	)
+end

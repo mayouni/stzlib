@@ -1,0 +1,36 @@
+ARC-ESCALATE on the support desk: 204 option questions per model (kind, product, severity; English, French, Arabic)
+
+EACH MODEL ALONE
+  granite-4.0-1b  right 167/204   kind 24/36   product 69/84   severity 74/84   159.1 s answering, 2.1 s to load
+  bolt-e4b        right 195/204   kind 29/36   product 82/84   severity 84/84   283.5 s answering, 9.5 s to load
+
+IS GRANITE'S TOP PROBABILITY CALIBRATED? (the top option's share of the options' probability)
+  granite-4.0-1b
+    band          n   right   mean p   accuracy
+    0-50%       4    1       45.1%    25.0%
+    50-70%      17   10      60.7%    58.8%
+    70-85%      19   10      78.3%    52.6%
+    85-95%      27   21      91.2%    77.8%
+    95-99%      32   28      97.6%    87.5%
+    99-100%     105  97      99.8%    92.4%
+    calibration error 10.1%;  a right answer surer than a wrong one: 0.785
+  bolt-e4b
+    band          n   right   mean p   accuracy
+    85-95%      2    2       91.0%    100.0%
+    95-99%      5    5       97.7%    100.0%
+    99-100%     197  188     100.0%   95.4%
+    calibration error 4.5%;  a right answer surer than a wrong one: 0.704
+
+THE CASCADE: Granite answers; below the threshold the question goes to Bolt
+  threshold  escalated   right    batched s   swapping s
+  never      0/204      167/204  161.2       161.2
+  50%        4/204      170/204  175.2       212.2
+  60%        12/204     173/204  186.9       317.0
+  70%        21/204     175/204  198.9       433.7
+  80%        32/204     178/204  212.9       575.7
+  85%        40/204     182/204  226.4       682.2
+  90%        49/204     186/204  240.0       800.6
+  95%        67/204     186/204  264.9       1034.9
+  99%        99/204     189/204  314.7       1457.0
+  always     204/204    195/204  454.2       2818.2
+  Bolt alone: 195/204 in 293.1 s;  escalating exactly Granite's 37 errors would reach 198/204

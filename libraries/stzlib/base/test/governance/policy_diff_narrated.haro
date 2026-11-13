@@ -1,0 +1,269 @@
+# THE ACCESS A GOVERNANCE CHANGE ADDS -- RADAR-OPENSHELL-POLICYDIFF-01, narrated
+#
+# Before a change of rules is accepted, show what an agent could reach after it and not before: the actions an actor
+# may carry out, the work an executor may perform, the functions an agent file may call and under which posture, and
+# the capabilities, tools and secrets an actor reaches -- each asked of the library's own decision function.
+#
+#   Scene 1  two .zgov files three lines apart: the access they add, said as a reviewer reads it
+#   Scene 2  a change that names no actor (one risk tier lowered) still gives one actor a new action
+#   Scene 3  a change that only takes away: status 0, and what was removed is still said
+#   Scene 4  the functions an agent file may call: a wider allowance adds postures, a new name adds a function
+#   Scene 5  the security graph: a new tool edge, a delegation and an attached secret, each with its path
+#   Scene 6  facts from another surface (an endpoint a secret may be sent to) diff the same way
+#   Scene 7  exact, not sampled: 40 generated regime pairs checked against an independent evaluator in this guard,
+#            and a name neither policy holds refused by both
+#   Scene 8  the house rule shape (stzRuleReport.Ingest), and the command-line gate's exit codes
+#
+# RUNS ON haro.exe with the library; STZ_ENGINE_DIR names a built engine. No model, no network.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+
+Scenario("1. two regime files, three lines apart")
+xD = StzPolicyDiff([ [:regime, "_data/policy/before.zgov"] ], [ [:regime, "_data/policy/after.zgov"] ])
+? StzPolicyDiffText(xD)
+Then("status 1: the change adds access", xD[:status], 1)
+Then("...three accesses", Len(xD[:added]), 3)
+Then("billing-agent may now send invoices", HasFact(xD[:added], "proceed", "billing-agent", "send-invoice"), true)
+Then("...and the line says why: the after regime's own verdict", StzFindFirst("'autonomous' authority (level 3) covers risk tier 3", FactWhy(xD[:added], "proceed", "billing-agent", "send-invoice")) > 0, true)
+Then("support-agent may now issue refunds", HasFact(xD[:added], "proceed", "support-agent", "refund"), true)
+Then("invoice-runner may now perform compensable work", HasFact(xD[:added], "execute", "invoice-runner", "compensable"), true)
+Then("what billing-agent could already do is not listed: read-ledger", HasFact(xD[:added], "proceed", "billing-agent", "read-ledger"), false)
+Then("nothing is removed", Len(xD[:removed]), 0)
+
+Scenario("2. a change that names no actor")
+oB = new stzGovernance("tier-before")
+oB.DeclareRisk("close-account", 3).GrantPermission("care-agent", "close-account").SetAuthority("care-agent", "delegated")
+oA = new stzGovernance("tier-after")
+oA.DeclareRisk("close-account", 2).GrantPermission("care-agent", "close-account").SetAuthority("care-agent", "delegated")
+xD = StzPolicyDiff([ [:regime, oB] ], [ [:regime, oA] ])
+? StzPolicyDiffText(xD)
+Then("lowering a risk tier gives care-agent a new action", HasFact(xD[:added], "proceed", "care-agent", "close-account"), true)
+Then("...one access, though the changed line names only the action", Len(xD[:added]), 1)
+
+Scenario("3. a change that only takes away")
+xD = StzPolicyDiff([ [:regime, "_data/policy/after.zgov"] ], [ [:regime, "_data/policy/before.zgov"] ])
+? StzPolicyDiffText(xD)
+Then("status 0: it adds no access", xD[:status], 0)
+Then("...and its three removals are said", Len(xD[:removed]), 3)
+Then("...in the text too", StzFindFirst("'billing-agent' may no longer carry out 'send-invoice'", StzPolicyDiffText(xD)) > 0, true)
+Then("...with the after regime's own refusal", StzFindFirst("'billing-agent' may no longer carry out 'send-invoice' -- refused: 'billing-agent' holds 'delegated' authority (level 2)", StzPolicyDiffText(xD)) > 0, true)
+xD = StzPolicyDiff([ [:regime, "_data/policy/before.zgov"] ], [ [:regime, "_data/policy/before.zgov"] ])
+Then("a regime against itself: no difference at all", Len(xD[:added]) + Len(xD[:removed]), 0)
+
+Scenario("4. the functions an agent file may call")
+vBefore = [ [ "StockIsCritical", "sandboxed" ] ]
+vAfter = [ [ "StockIsCritical", "trusted" ], [ "SendRestockOrder", "external" ] ]
+xD = StzPolicyDiff([ [:functions, vBefore] ], [ [:functions, vAfter] ])
+? StzPolicyDiffText(xD)
+Then("StockIsCritical may now run under the external posture", HasFact(xD[:added], "call", "stockiscritical", "external"), true)
+Then("...and the trusted one", HasFact(xD[:added], "call", "stockiscritical", "trusted"), true)
+Then("SendRestockOrder may now be called, up to external", HasFact(xD[:added], "call", "sendrestockorder", "external"), true)
+Then("...not as trusted", HasFact(xD[:added], "call", "sendrestockorder", "trusted"), false)
+Then("a function's postures are said on one line", StzFindFirst("call 'stockiscritical' under the external and trusted postures", StzPolicyDiffText(xD)) > 0, true)
+Then("four accesses in all: two postures for StockIsCritical, two for the new function", Len(xD[:added]), 4)
+xR = StzPolicyReach([ [:functions, []] ])
+Then("the library's roster functions are in every allowance list", HasFact(xR, "call", "boardfinddeadruns", "trusted"), true)
+
+Scenario("5. the security graph")
+oG1 = StoreGraph("before")
+oG2 = StoreGraph("after")
+oG2.AddTool("deploy-tool").Uses("triage-llm", "deploy-tool").Grants("deploy-tool", "effectful")
+oG2.AddActor("ops-bot", "trusted").AttachSecret("ops-bot", "stripe-key").Delegates("billing-bot", "ops-bot")
+xD = StzPolicyDiff([ [:graph, oG1] ], [ [:graph, oG2] ])
+? StzPolicyDiffText(xD)
+Then("the sandboxed triage-llm now reaches effectful", HasFact(xD[:added], "capability", "triage-llm", "effectful"), true)
+Then("...and the line gives the path, the edge to cut", FactWhy(xD[:added], "capability", "triage-llm", "effectful"), "triage-llm -> deploy-tool -> effectful")
+Then("billing-bot now reaches the stripe key, through a delegation", FactWhy(xD[:added], "secret", "billing-bot", "stripe-key"), "billing-bot -> ops-bot -> stripe-key")
+Then("a new actor's own reach is all new: ops-bot holds the key", HasFact(xD[:added], "secret", "ops-bot", "stripe-key"), true)
+Then("...and runs under the trusted posture", HasFact(xD[:added], "posture", "ops-bot", "trusted"), true)
+Then("...said on one line", StzFindFirst("'ops-bot' may now run under the sandboxed, external and trusted postures -- its posture is trusted", StzPolicyDiffText(xD)) > 0, true)
+oG3 = StoreGraph("lowered")
+oG3.AddActor("billing-bot", "sandboxed")
+xD = StzPolicyDiff([ [:graph, oG1] ], [ [:graph, oG3] ])
+Then("lowering billing-bot to sandboxed adds nothing: status 0", xD[:status], 0)
+Then("...and removes the external posture, saying what it is now", StzFindFirst("'billing-bot' may no longer run under the external posture -- its posture is sandboxed", StzPolicyDiffText(xD)) > 0, true)
+Then("what was reachable before is not listed: billing-bot's own tool", HasFact(xD[:added], "tool", "billing-bot", "invoice-tool"), false)
+
+Scenario("6. another surface's facts: the endpoint a secret may be sent to")
+vE1 = [ [ "endpoint", "stripe-key", "api.stripe.com" ] ]
+vE2 = [ [ "endpoint", "stripe-key", "api.stripe.com" ], [ "endpoint", "stripe-key", "hooks.example.net", "approved in review 41" ] ]
+xD = StzPolicyDiff([ [:facts, vE1] ], [ [:facts, vE2] ])
+? StzPolicyDiffText(xD)
+Then("one new endpoint for the stripe key", Len(xD[:added]), 1)
+Then("...named", HasFact(xD[:added], "endpoint", "stripe-key", "hooks.example.net"), true)
+
+Scenario("7. exact, not sampled")
+# An evaluator written here, from the rules' text, independent of stzGovernance: an actor proceeds when it holds the
+# permission and its authority level reaches the action's declared tier. 40 generated pairs of regimes; every fact the
+# diff names, and every fact it does not, must agree with it.
+$nSeed = 12345
+vActors = [ "a1", "a2", "a3" ]
+vActions = [ "x1", "x2", "x3", "x4" ]
+vLevels = [ "advisory", "delegated", "autonomous", "emergencyoverride" ]
+nAgree = 0
+nCases = 0
+for k = 1 to 40
+	vR1 = GenRegime(vActors, vActions, vLevels)
+	vR2 = GenRegime(vActors, vActions, vLevels)
+	xD = StzPolicyDiff([ [:regime, BuildRegime(vR1)] ], [ [:regime, BuildRegime(vR2)] ])
+	for i = 1 to 3
+		for j = 1 to 4
+			bB = Oracle(vR1, vActors[i], vActions[j])
+			bA = Oracle(vR2, vActors[i], vActions[j])
+			nCases = nCases + 1
+			if HasFact(xD[:added], "proceed", vActors[i], vActions[j]) = (bA and not bB)
+				if HasFact(xD[:removed], "proceed", vActors[i], vActions[j]) = (bB and not bA)
+					nAgree = nAgree + 1
+				end
+			end
+		end
+	end
+end
+? "  " + String(nAgree) + " of " + String(nCases) + " actor-action pairs agree with the independent evaluator"
+Then("every pair of every generated regime agrees", nAgree, nCases)
+oGh = BuildRegime(vR2)
+Then("a name neither regime holds is refused: an actor", oGh.MayProceed("ghost", "x1"), 0)
+Then("...and an action", oGh.MayProceed("a1", "ghost-action"), 0)
+
+Scenario("8. the house rule shape, and the command-line gate")
+xD = StzPolicyDiff([ [:regime, "_data/policy/before.zgov"] ], [ [:regime, "_data/policy/after.zgov"] ])
+oRep = StzRuleReportQ("policy-review")
+oRep.Ingest(StzPolicyDiffFindings(xD))
+Then("stzRuleReport takes the findings with no adapter: three", oRep.NumberOfFindings(), 3)
+Then("...as warnings, the change waiting for review", Len(oRep.Warnings()), 3)
+tDir = StzReplace(CurrentDir(), "/", Char(92))
+tRun = "cd ..\..\..\tools && " + SysArgv[1] + " policy_diff.haro " + tDir + "\_data\policy\"
+tOut = " > " + SysGet("TEMP") + "\stz_pdiff.txt 2>&1"
+Then("the gate on a change that adds access: exit 1", System(tRun + "before.zgov " + tDir + "\_data\policy\after.zgov" + tOut), 1)
+Then("...on one that only takes away: exit 0", System(tRun + "after.zgov " + tDir + "\_data\policy\before.zgov" + tOut), 0)
+Then("...on a file that is not there: exit 2", System(tRun + "before.zgov " + tDir + "\_data\policy\nowhere.zgov" + tOut), 2)
+
+? ""
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+func StoreGraph(tName)
+	oS = new stzSecurityGraph("store-" + tName)
+	oS.AddActor("triage-llm", "sandboxed").AddActor("billing-bot", "external")
+	oS.AddTool("invoice-tool").Uses("billing-bot", "invoice-tool").Grants("invoice-tool", "billing")
+	oS.AddSecret("stripe-key")
+	return oS
+end
+
+func NextRand(nMax)
+	$nSeed = ($nSeed * 1103515245 + 12345) % 2147483648
+	return ($nSeed % nMax) + 1
+end
+
+# [ risks, permissions, authorities ]: each action a tier or none, each actor-action pair a permission or not, each
+# actor an authority or none
+func GenRegime(vActors, vActions, vLevels)
+	vRisks = []
+	for j = 1 to Len(vActions)
+		nT = NextRand(5) - 1
+		if nT > 0
+			vRisks + [ vActions[j], nT ]
+		end
+	end
+	vPerms = []
+	for i = 1 to Len(vActors)
+		for j = 1 to Len(vActions)
+			if NextRand(2) = 1
+				vPerms + [ vActors[i], vActions[j] ]
+			end
+		end
+	end
+	vAuths = []
+	for i = 1 to Len(vActors)
+		nL = NextRand(5) - 1
+		if nL > 0
+			vAuths + [ vActors[i], vLevels[nL] ]
+		end
+	end
+	return [ vRisks, vPerms, vAuths ]
+end
+
+func BuildRegime(vR)
+	oG = new stzGovernance("generated")
+	for i = 1 to Len(vR[1])
+		oG.DeclareRisk(vR[1][i][1], vR[1][i][2])
+	end
+	for i = 1 to Len(vR[2])
+		oG.GrantPermission(vR[2][i][1], vR[2][i][2])
+	end
+	for i = 1 to Len(vR[3])
+		oG.SetAuthority(vR[3][i][1], vR[3][i][2])
+	end
+	return oG
+end
+
+func Oracle(vR, tActor, tAction)
+	nTier = 0
+	for i = 1 to Len(vR[1])
+		if vR[1][i][1] = tAction
+			nTier = vR[1][i][2]
+		end
+	end
+	if nTier = 0
+		return false
+	end
+	bPerm = false
+	for i = 1 to Len(vR[2])
+		if vR[2][i][1] = tActor and vR[2][i][2] = tAction
+			bPerm = true
+		end
+	end
+	if bPerm = false
+		return false
+	end
+	nLevel = 0
+	vNames = [ "advisory", "delegated", "autonomous", "emergencyoverride" ]
+	for i = 1 to Len(vR[3])
+		if vR[3][i][1] = tActor
+			for j = 1 to 4
+				if vNames[j] = vR[3][i][2]
+					nLevel = j
+				end
+			end
+		end
+	end
+	return nLevel >= nTier
+end
+
+func HasFact(vFacts, tKind, tSubject, tObject)
+	for i = 1 to Len(vFacts)
+		if vFacts[i][1] = tKind and vFacts[i][2] = tSubject and vFacts[i][3] = tObject
+			return true
+		end
+	end
+	return false
+end
+
+func FactWhy(vFacts, tKind, tSubject, tObject)
+	for i = 1 to Len(vFacts)
+		if vFacts[i][1] = tKind and vFacts[i][2] = tSubject and vFacts[i][3] = tObject
+			return vFacts[i][4]
+		end
+	end
+	return ""
+end
+
+func Scenario(tName)
+	? ""
+	? "SCENARIO: " + tName
+end
+func Then(tWhat, xGot, xExpected)
+	if xGot = xExpected
+		$nPass = $nPass + 1
+		? "  THEN  " + tWhat + "  [PASS]"
+	else
+		$nFail = $nFail + 1
+		? "  THEN  " + tWhat + "  [FAIL]"
+		? "    expected: " + String(xExpected)
+		? "    got:      " + String(xGot)
+	end
+end

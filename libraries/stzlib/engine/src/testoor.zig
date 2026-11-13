@@ -18,11 +18,13 @@ pub const runner = @import("testoor_runner.zig");
 pub const ladder = @import("testoor_ladder.zig");
 pub const domain = @import("testoor_domain.zig");
 pub const property = @import("testoor_property.zig");
+pub const reader = @import("testoor_reader.zig");
 
 test {
     _ = ladder;
     _ = domain;
     _ = property;
+    _ = reader;
     _ = clock;
     _ = graph;
     _ = routes;

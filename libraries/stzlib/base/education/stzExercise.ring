@@ -62,7 +62,7 @@ func _EduFirstErrorLine(pcText)
 class stzExercise from stzObject
 
 	@cFolder = ""
-	@cId = ""
+	@tId = ""
 	@acPromises = []
 	@aFacts = []
 	@cHarness = ""
@@ -80,13 +80,13 @@ class stzExercise from stzObject
 	#   see        Id, Promises, HasHarness
 	def init(pcFolder)
 		@cFolder = _EduNoSlash(pcFolder)
-		@cId = _EduLastSegment(@cFolder)
+		@tId = _EduLastSegment(@cFolder)
 		if NOT fexists(@cFolder + "/promise.ring")
-			StzRaise("Exercise '" + @cId + "' has no promise.ring: nothing could check it.")
+			StzRaise("Exercise '" + @tId + "' has no promise.ring: nothing could check it.")
 		ok
 		@acPromises = StzEduPromisesIn(read(@cFolder + "/promise.ring"))
 		if len(@acPromises) = 0
-			StzRaise("Exercise '" + @cId + "': promise.ring holds no #--> line.")
+			StzRaise("Exercise '" + @tId + "': promise.ring holds no #--> line.")
 		ok
 		if fexists(@cFolder + "/exercise.zknw")
 			@aFacts = _EduFactsOf(@cFolder + "/exercise.zknw")
@@ -96,7 +96,7 @@ class stzExercise from stzObject
 		# the library's own court on it. %SUBMISSION% names the file.
 		if fexists(@cFolder + "/check.ring")
 			@cHarness = read(@cFolder + "/check.ring")
-			_acX_ = _EduObjects(@aFacts, @cId, "submits")
+			_acX_ = _EduObjects(@aFacts, @tId, "submits")
 			if len(_acX_) > 0
 				@cExt = "." + _acX_[1]
 			ok
@@ -107,7 +107,7 @@ class stzExercise from stzObject
 	#   returns    a text such as ex-01-01
 	#   see        Folder
 	def Id()
-		return @cId
+		return @tId
 
 	# Returns the exercise's folder path, without a trailing slash.
 	#
@@ -130,7 +130,7 @@ class stzExercise from stzObject
 	#   returns    a list of text such as finds and applies; [ ] when exercise.zknw names none
 	#   see        StepWords, GapText
 	def NeededSteps()
-		return _EduObjects(@aFacts, @cId, "needs-step")
+		return _EduObjects(@aFacts, @tId, "needs-step")
 
 	# Returns the words in a learner's code that show a step of the exercise was attempted.
 	#
@@ -182,7 +182,7 @@ class stzExercise from stzObject
 		if StzFindFirst(StzLower(pcStep), [ "asks", "finds", "applies" ]) > 0
 			return _EduSay(pcLang, "gap-" + StzLower(pcStep), "")
 		ok
-		StzRaise("Exercise '" + @cId + "' has no question for step '" + pcStep + "' in '" + pcLang +
+		StzRaise("Exercise '" + @tId + "' has no question for step '" + pcStep + "' in '" + pcLang +
 			"': add `" + pcStep + ": ...` to gaps." + pcLang + ".md (law 7: never another language instead).")
 
 	# Returns the task text a learner reads, in one language, with carriage returns removed so that a CRLF checkout reads like an LF one.
@@ -196,7 +196,7 @@ class stzExercise from stzObject
 	def Task(pcLang)
 		_cF_ = @cFolder + "/task." + pcLang + ".md"
 		if NOT fexists(_cF_)
-			StzRaise("Exercise '" + @cId + "' has no task in '" + pcLang + "'.")
+			StzRaise("Exercise '" + @tId + "' has no task in '" + pcLang + "'.")
 		ok
 		# the same text from an LF tree and from a CRLF checkout (autocrlf):
 		# found by MATH-FINDING-EDU-INST-01, which failed on a fresh checkout
@@ -306,7 +306,7 @@ class stzExercise from stzObject
 		next
 		_aRes_ = []
 		for _i_ = 1 to _nL_
-			_oK_ = new stzExerciseCheck(@cId, @acPromises, pacCodes[_i_], _aRuns_[_i_])
+			_oK_ = new stzExerciseCheck(@tId, @acPromises, pacCodes[_i_], _aRuns_[_i_])
 			if @cHarness != ""
 				_oK_.SetKind("decl")
 			ok
@@ -400,7 +400,7 @@ class stzExercise from stzObject
 
 class stzExerciseCheck from stzObject
 
-	@cId = ""
+	@tId = ""
 	@cOutput = ""
 	@cError = ""
 	@nExit = 0
@@ -433,7 +433,7 @@ class stzExerciseCheck from stzObject
 	#                 passes
 	#   see           Passed, Evidence
 	def init(pcId, pacPromises, pcCode, paRun)
-		@cId = pcId
+		@tId = pcId
 		_aR_ = paRun
 		if len(_aR_) = 0
 			_aR_ = StzEduRunSoftanza(pcCode)
@@ -464,7 +464,7 @@ class stzExerciseCheck from stzObject
 	#   returns    a text such as ex-01-01
 	#   see        Evidence
 	def Id()
-		return @cId
+		return @tId
 
 	# TRUE if every promise was kept in order and the program exited cleanly, or the exercise promises an error.
 	#
@@ -530,7 +530,7 @@ class stzExerciseCheck from stzObject
 	#   see        Hash, CheckedAtMs, Passed
 	#@ aka  The evidence a progress fact carries: what was run, and when.
 	def Evidence()
-		return [ :exercise = @cId, :sha256 = @cHash, :checkedatms = @nCheckedAtMs, :passed = @bPassed ]
+		return [ :exercise = @tId, :sha256 = @cHash, :checkedatms = @nCheckedAtMs, :passed = @bPassed ]
 
 	# Returns, in English and in the learner's own terms, what went well or what to look at, never the expected value.
 	#

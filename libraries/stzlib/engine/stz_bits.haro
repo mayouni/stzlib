@@ -1,0 +1,23 @@
+# Softanza Engine -- Bit Manipulation
+#
+# Loads stz_bits.dll for popcount, set/clear/toggle, rotate, extract, etc.
+#
+# Function prefix: StzEngineBits*
+
+if IsWindows()
+    $tStzBitsLib = $tEngineDir + "/zig-out/bin/stz_bits.dll"
+elseif IsLinux()
+    $tStzBitsLib = $tEngineDir + "/zig-out/lib/libstz_bits.so"
+elseif isMacOS()
+    $tStzBitsLib = $tEngineDir + "/zig-out/lib/libstz_bits.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("bits")
+    $hStzBitsHandle = ""
+elseif FExists($tStzBitsLib)
+    $hStzBitsHandle = LoadLib($tStzBitsLib)
+else
+    ? "WARNING: stz_bits not found at: " + $tStzBitsLib
+    $hStzBitsHandle = ""
+end

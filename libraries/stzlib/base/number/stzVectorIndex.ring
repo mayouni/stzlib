@@ -383,7 +383,7 @@ class stzVectorIndex from stzObject
 			return
 		ok
 		if StzEngineGpuIsAvailable() = 0
-			StzEngineGpuInit($cStzGpuRuntime)
+			StzEngineGpuInit($tStzGpuRuntime)
 		ok
 		if StzEngineGpuIsAvailable() = 1
 			# per-adapter truth may refine the default-file threshold

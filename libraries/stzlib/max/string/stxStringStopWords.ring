@@ -6,13 +6,13 @@
 _cStopwordsStatus = :MustNotBeRemoved	# or :MustBeRemoved
 
 func StopWordsStatus()
-	return _cStopWordsStatus
+	return tStopWordsStatus
 
 func StopWordsMustBeRemoved()
-	_cStopWordsStatus = :MustBeRemoved
+	tStopWordsStatus = :MustBeRemoved
 
 func StopWordsMustNotBeRemoved()
-	_cStopWordsStatus = :MustNotBeRemoved
+	tStopWordsStatus = :MustNotBeRemoved
 
 func SetStopWordsStatusTo(pcStatus)
 	if pcString = :MustBeRemoved

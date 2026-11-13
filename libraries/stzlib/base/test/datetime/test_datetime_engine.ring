@@ -4,7 +4,7 @@ load "../string/_diagnostics/test_stubs.ring"
 
 # Explicitly load the engine DLLs this test needs. test_stubs declares
 # the LoadLib pattern but Ring's load-of-load semantics don't propagate
-# its top-level $cStzStringLib / $pStzStringHandle assignments to this
+# its top-level $tStzStringLib / $hStzStringHandle assignments to this
 # loader scope -- so we re-run the discovery + LoadLib here to make
 # stzDate.ToStringXT (which calls StzLower -> StzEngineString) work.
 

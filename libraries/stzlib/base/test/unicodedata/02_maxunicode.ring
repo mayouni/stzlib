@@ -14,7 +14,5 @@ pr()
 ? NumberOfUnicodeChars()
 #--> 149_186
 
-? NumberOfLinesInUnicodeDataFile() + NL
-#--> 34_931
 
 pf()

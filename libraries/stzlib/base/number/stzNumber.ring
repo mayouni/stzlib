@@ -2709,7 +2709,7 @@ class stzDecimalNumber from stzNumber
 #   see        stzListOfNumbers, stzString, stzDecimalToBinary
 class stzNumber from stzObject
 
-	@cContent = ""
+	@tContent = ""
 	# What init() was HANDED, verbatim -- number, string or pair. Stored
 	# because InitialContent() used to `return pNumber`, init's own
 	# parameter, which is gone the moment init returns: the accessor raised
@@ -2783,7 +2783,7 @@ class stzNumber from stzObject
 			# So the rendering is checked, and only REPLACED WHEN IT LOSES the value.
 			# A number that renders as "0.10" has lost nothing and is left exactly as
 			# it was; this is a loss fix, not a reformatting.
-			@cContent = _StzNumberContentWithoutLoss(pNumber)
+			@tContent = _StzNumberContentWithoutLoss(pNumber)
 			@nRound = StzCurrentRound()
 			@cReturnType = :Number
 
@@ -2837,7 +2837,7 @@ class stzNumber from stzObject
 				# let the ordinary string paths judge it.
 				_nUniVal_ = StzEngineUnicodeNumericValue(StzUnicode(pNumber))
 				if _nUniVal_ >= 0
-					@cContent = "" + _nUniVal_
+					@tContent = "" + _nUniVal_
 					@nRound = StzCurrentRound()
 
 					return
@@ -2846,7 +2846,7 @@ class stzNumber from stzObject
 
 			# Case where the string provided is empty
 			if pNumber = ""
-				@cContent = "0"
+				@tContent = "0"
 				@nRound = StzCurrentRound()
 
 			# A RATIONAL, written p/q (numeric foundation phase 1, slice 3).
@@ -2857,7 +2857,7 @@ class stzNumber from stzObject
 				if _cRat_ = ""
 					StzRaise(stzNumberError(:CanNotCreateDecimalNumber1))
 				ok
-				@cContent = _cRat_
+				@tContent = _cRat_
 				@nRound = StzCurrentRound()
 
 			# Case where the user provides a number in string
@@ -2866,9 +2866,9 @@ class stzNumber from stzObject
 			   StringRepresentsNumberInDecimalForm(StzMid(pNumber, 1, StzLen(pNumber) - 1))
 
 				# FIXED 2026-07-25: this appended "0" to the LOCAL pNumber and then
-				# fell out of the chain without ever assigning @cContent, so
+				# fell out of the chain without ever assigning @tContent, so
 				# new stzNumber("12.") had empty content and a value of 0.
-				@cContent = pNumber + "0"
+				@tContent = pNumber + "0"
 				@nRound = 1
 	
 			# Case where pNumber is a non null string
@@ -2898,9 +2898,9 @@ class stzNumber from stzObject
 						# find/contain, use StzFind/StzFindFirst/StzReplace" -- and
 						# those globals answer without allocating.
 						if StzFindFirst("_", pNumber) > 0
-							@cContent = StzReplace(pNumber, "_", "")
+							@tContent = StzReplace(pNumber, "_", "")
 						else
-							@cContent = pNumber
+							@tContent = pNumber
 						ok
 
 						_nDotAt_ = StzFindFirst(".", pNumber)
@@ -2953,11 +2953,11 @@ class stzNumber from stzObject
 				StzDecimals(@nRound)
 				# same guard as CASE 1: an explicit round must not silently destroy
 				# the value it was given
-				@cContent = _StzNumberContentWithoutLoss(pNumber[1])
+				@tContent = _StzNumberContentWithoutLoss(pNumber[1])
 				StzDecimals(_nCurrentRound_)
 
 			but isString(pNumber[1])
-				@cContent = pNumber[1]
+				@tContent = pNumber[1]
 				@cReturnType = :String
 
 			ok
@@ -2982,7 +2982,7 @@ class stzNumber from stzObject
 	#              #--> "007.50"
 	#@ aka  The number as it is held: a STRING (use NumericValue for the number).
 	def Content()
-		return @cContent
+		return @tContent
 
 		def ContentQ()
 			return new stzNumber(This.Content())
@@ -3107,12 +3107,12 @@ class stzNumber from stzObject
 		# a fraction has to be divided out before it can be an f64 -- and the
 		# result is an APPROXIMATION of an exact value, which is the whole reason
 		# rationals exist (1/3 has no finite decimal form)
-		if _StzIsRationalString(@cContent)
-			return _StzRationalToFloat(@cContent)
+		if _StzIsRationalString(@tContent)
+			return _StzRationalToFloat(@tContent)
 		ok
 		# number() not 0+ : Ring's 0+str coercion returns 0 on the first
 		# use after ANY caught raise (VM quirk); number() is immune
-		return ring_number(@cContent)
+		return ring_number(@tContent)
 
 		# The numeric value of the number.
 		def Value()
@@ -3147,7 +3147,7 @@ class stzNumber from stzObject
 
 		# Casting the number in a string using the round above
 
-		@cContent = "" + This.NumbericValue()
+		@tContent = "" + This.NumbericValue()
 
 		# Resetting the round active in the program
 
@@ -3155,7 +3155,7 @@ class stzNumber from stzObject
 
 		# Returning the string form of the number
 
-		return @cContent
+		return @tContent
 
 		def StringValueQ()
 			return new stzString( This.StringValue() )
@@ -3237,7 +3237,7 @@ class stzNumber from stzObject
 			@cReturnType = :String
 
 			_oStr_ = new stzString(pNumber)
-			@cContent = _oStr_.RemoveQ("_").Content()
+			@tContent = _oStr_.RemoveQ("_").Content()
 
 			@nRound = StzCurrentRound()
 
@@ -3249,12 +3249,12 @@ class stzNumber from stzObject
 
 			@cReturnType = :Number
 
-			@cContent = ""+ pNumber
+			@tContent = ""+ pNumber
 			@nRound = StzCurrentRound()
 		ok
 
 	    # Tracing the history of updates (only if not already in history update)
-	    if $_bInHistoryUpdate = 0
+	    if $bInHistoryUpdate = 0
 	        @TraceObjectHistory(This)
 	    ok
 
@@ -5409,18 +5409,18 @@ class stzNumber from stzObject
 		# through NumericValue() handed the tie to whoever formats numbers: Ring
 		# 1.27 rounded 2.5 to 3, Ring++ (rnxc) rounds it to 2, half-even, so
 		# RoundedTo(0) of 2.5 changed answer with the interpreter (2026-11-06).
-		_cNum_ = ring_trim("" + @cContent)
+		_cNum_ = ring_trim("" + @tContent)
 		if _cNum_ != "" and _StzIsPlainDecimal(_cNum_)
-			@cContent = _StzRoundDecimalString(_cNum_, _nRound_, :HalfUp)
+			@tContent = _StzRoundDecimalString(_cNum_, _nRound_, :HalfUp)
 		else
 			_nCurrentRound_ = StzCurrentRound()
 			StzDecimals(_nRound_)
-			@cContent = ""+ This.NumericValue()
+			@tContent = ""+ This.NumericValue()
 
 			if This.IsInteger() and _nRound_ > 0
-				@cContent += "."
+				@tContent += "."
 				for _i_ = 1 to _nRound_
-					@cContent += "0"
+					@tContent += "0"
 				next
 			ok
 
@@ -8792,20 +8792,9 @@ class stzNumber from stzObject
 
 			if _bRoundItWhenRestricted_ = 1
 
-				# Memorise the active round
-				_nCurrentRound_ = GetActiveRound()
-
-				# Setting the rounding system to the number of restricted digits
-				# (ring_decimals: a bare decimals() here is This.Decimals(), R20)
-				ring_decimals(_nNumberOfDigitsInFractionalPart_)
-
-				# Composing a dummy number with the restricted fraction part
-				_cTempNumber_ = "0." + _cFractionalPart_
-
-				# Rounding that number
-				_nTempNumber_ = 0+ _cTempNumber_
-				# Saving the rounded number in a string
-				_cTempNumber_ = ""+ _nTempNumber_
+				# The restricted fraction, rounded per value to its number of digits
+				# (no places setting is read or changed)
+				_cTempNumber_ = StkRoundedFractionText(_cFractionalPart_, _nNumberOfDigitsInFractionalPart_)
 
 				# Reading the rounded fraction part
 				_cFractionalPart_ = ""
@@ -8813,9 +8802,6 @@ class stzNumber from stzObject
 				for _i_ = StzFindFirst(".", _cTempNumber_) + 1 to _nTempNumberLen_
 					_cFractionalPart_ += _cTempNumber_[_i_]
 				next
-
-				# Restoring the active round memorised above
-				ring_decimals(_nCurrentRound_)
 			ok
 		ok
 

@@ -1,0 +1,33 @@
+# Softanza Engine -- Integer Sequence (IntSeq)
+#
+# Loads stz_intseq.dll. Exposes a generic typed integer sequence
+# handle: bulk-allocated []i64 backing store, fast O(1) accessors,
+# O(N) bulk operations that stay in Zig (no per-item FFI). Designed
+# to bypass the host language's per-item list-append cost.
+#
+# Function prefix: StzEngineIntSeq*
+#
+# Typical usage from Ring:
+#   hSeq = StzEngineIntSeqCreateCycle(1, 1, 4, 1, 1000000, 1)
+#   nLen = StzEngineIntSeqLen(hSeq)          # O(1)
+#   nSum = StzEngineIntSeqSum(hSeq)          # O(N) in Zig, no FFI loop
+#   nV   = StzEngineIntSeqAt(hSeq, 999999)   # O(1)
+#   aR   = StzEngineIntSeqToRingList(hSeq)   # opt-in marshal (slow on Ring)
+#   StzEngineIntSeqFree(hSeq)
+
+if IsWindows()
+    $tStzIntSeqLib = $tEngineDir + "/zig-out/bin/stz_intseq.dll"
+elseif IsLinux()
+    $tStzIntSeqLib = $tEngineDir + "/zig-out/lib/libstz_intseq.so"
+elseif isMacOS()
+    $tStzIntSeqLib = $tEngineDir + "/zig-out/lib/libstz_intseq.dylib"
+end
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("intseq")
+    $hStzIntSeqHandle = ""
+elseif FExists($tStzIntSeqLib)
+    $hStzIntSeqHandle = LoadLib($tStzIntSeqLib)
+else
+    ? "WARNING: stz_intseq not found at: " + $tStzIntSeqLib
+    $hStzIntSeqHandle = ""
+end

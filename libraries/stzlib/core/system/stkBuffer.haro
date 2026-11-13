@@ -1,0 +1,775 @@
+#Note : The pointer system still needs buffer IDs internally,
+# but user-facing API should work with buffer objects directly.
+
+
+class stkBuffer
+    @tId = ""                # Unique identifier assigned by stkMemory
+    @oMemory = ""          # Reference to containing stkMemory
+    @xBuffer = ""             # Actual data storage
+    @nSize = 0               # Current size in bytes
+    @nCapacity = 0           # Maximum capacity
+    @bIsValid = false        # Validity flag
+    @bHasWritePointer = false # Write access control
+
+    #-------------------------------#
+    #  INITIALIZATION AND CREATION  #
+    #-------------------------------#
+
+	def init(oMemory, tId, nSize)
+	    # Can only be created by stkMemory - no standalone creation
+	    if IsEmpty(oMemory) or not IsObject(oMemory)
+	        Raise("ERROR: stkBuffer must be created by stkMemory container")
+	    end
+	    
+	    if ClassName(oMemory) != "stkmemory"
+	        Raise("ERROR: Invalid memory container type")
+	    end
+	    
+	    if IsEmpty(tId) or not IsString(tId) or Len(tId) = 0
+	        Raise("ERROR: Buffer ID must be a non-empty string")
+	    end
+	    
+	    if nSize <= 0
+	        Raise("ERROR: Buffer size must be positive")
+	    end
+	    
+	    @oMemory = oMemory
+	    @tId = tId
+	    @nSize = 0
+	    @nCapacity = nSize
+	    @xBuffer = ""  # Start empty, not filled with spaces
+	    @bIsValid = true
+	    @bHasWritePointer = false
+	end
+	def Id
+		return @tId
+	end
+    def InitWithData(pxData)
+        # Helper method for stkMemory to initialize with data
+        this.ValidateBuffer()
+        
+        if IsEmpty(pxData)
+            Raise("ERROR: Cannot initialize buffer with null data")
+        end
+        
+        tData = ""
+        if IsString(pxData)
+            tData = pxData
+        else
+            tData = String(pxData)
+        end
+        
+        @xBuffer = tData
+        @nSize = Len(tData)
+        @nCapacity = Max(@nCapacity, @nSize)
+    end
+    #------------------------#
+    #  WRITING AND UPDATING  #
+    #------------------------#
+
+	def Write(nOffset, pxData)
+	    if nOffset < 0
+	        Raise("ERROR: Negative offset not allowed")
+	    end
+	    tData = ""
+	    if IsString(pxData)
+	        tData = pxData
+	    else
+	        tData = String(pxData)
+	    end
+	    nLenData = Len(tData)
+#	    ? "DEBUG: nLenData = " + nLenData
+	    if nLenData = 0
+#	        ? "WARNING: Writing empty data - no changes made"
+	        return
+	    end
+#	    ? "DEBUG: About to write data, current buffer size: " + @nSize
+	    nRequiredSize = nOffset + nLenData
+#	    ? "DEBUG: nRequiredSize = " + nRequiredSize + ", capacity = " + @nCapacity
+	    if nRequiredSize > @nCapacity
+	        @nCapacity = nRequiredSize
+	    end
+	    tNewBuffer = ""
+	    nLenBuffer = Len(@xBuffer)
+#	    ? "DEBUG: nLenBuffer = " + nLenBuffer + ", nOffset = " + nOffset
+	    if nOffset >= nLenBuffer
+#	        ? "DEBUG: Taking first branch (nOffset >= nLenBuffer)"
+	        tNewBuffer = @xBuffer
+	        if nOffset > nLenBuffer
+#	            ? "DEBUG: Adding padding of " + (nOffset - nLenBuffer) + " bytes"
+	            tNewBuffer += @copy(Char(0), nOffset - nLenBuffer)
+	        end
+	        tNewBuffer += tData
+#	        ? "DEBUG: After adding data, cNewBuffer length = " + len(cNewBuffer)
+	    else
+#	        ? "DEBUG: Taking second branch (nOffset < nLenBuffer)"
+	        tNewBuffer = Left(@xBuffer, nOffset) + tData
+	        nEndPos = nOffset + nLenData
+	        if nEndPos < nLenBuffer
+	            tNewBuffer += Right(@xBuffer, nLenBuffer - nEndPos)
+	        end
+#	        ? "DEBUG: After building, cNewBuffer length = " + len(cNewBuffer)
+	    end
+	    @xBuffer = tNewBuffer
+	    @nSize = Len(@xBuffer)
+	end
+#	    ? "DEBUG: Final buffer size: " + @nSize + ", buffer content: '" + @xBuffer + "'"
+	
+
+    def Write0(nOffset, pxData)
+        this.Write(nOffset, pxData)
+    end
+    def Write1(nOffset, pxData)
+        this.Write(nOffset-1, pxData)
+    end
+    def UpdateRange(nStart, nLength, pxData)
+        this.ValidateBuffer()
+        
+        if nStart < 0 or nLength < 0
+            Raise("ERROR: Negative start position or length not allowed")
+        end
+        
+        if nStart >= @nSize
+            Raise("ERROR: Start position beyond buffer size")
+        end
+        
+        if nStart + nLength > @nSize
+            Raise("ERROR: Range exceeds buffer size")
+        end
+        
+        if IsEmpty(pxData)
+            Raise("ERROR: Cannot update with null data")
+        end
+        
+        tData = ""
+        if IsString(pxData)
+            tData = pxData
+        else
+            tData = String(pxData)
+        end
+        
+        # Replace the range with new data
+        tNewBuffer = Left(@xBuffer, nStart) + tData + Right(@xBuffer, @nSize - (nStart + nLength))
+        @xBuffer = tNewBuffer
+        @nSize = Len(@xBuffer)
+        @nCapacity = Max(@nCapacity, @nSize)
+    end
+    def UpdateRange0(nStart, nLength, pxData)
+        this.UpdateRange(nStart, nLength, pxData)
+    end
+    def UpdateRange1(nStart, nLength, pxData)
+        this.UpdateRange(nStart-1, nLength, pxData)
+    end
+    def UpdateSection(nStart, nEnd, pxData)
+        this.ValidateBuffer()
+        
+        if nStart < 0 or nEnd < 0
+            Raise("ERROR: Negative start or end position not allowed")
+        end
+        
+        if nStart > nEnd
+            Raise("ERROR: Start position cannot be greater than end position")
+        end
+        
+        if nEnd >= @nSize
+            Raise("ERROR: End position beyond buffer size")
+        end
+        
+        nLength = nEnd - nStart + 1
+        this.UpdateRange(nStart, nLength, pxData)
+    end
+    def UpdateSection0(nStart, nEnd, pxData)
+        this.UpdateSection(nStart, nEnd, pxData)
+    end
+    def UpdateSection1(nStart, nEnd, pxData)
+        this.UpdateSection(nStart-1, nEnd-1, pxData)
+    end
+    #-----------------------#
+    #  READING AND SLICING  #
+    #-----------------------#
+
+    def Read(nOffset, nLength)
+        this.ValidateBuffer()
+ ? "DEBUG Read: @nSize = " + String(@nSize) + ", nOffset = " + String(nOffset) + ", nLength = " + String(nLength)
+
+        if nOffset < 0 or nLength < 0
+            Raise("ERROR: Negative offset (" + String(nOffset) + ") or length (" + String(nLength) + ") not allowed")
+        end
+        
+        if @nSize = 0
+       ? "DEBUG: Buffer is empty, @xBuffer = '" + @xBuffer + "'"
+            Raise("ERROR: Cannot read from empty buffer (size=0)")
+        end
+        
+        if nOffset >= @nSize
+            Raise("ERROR: Offset (" + String(nOffset) + ") beyond buffer size (" + String(@nSize) + ")")
+        end
+        
+        if nOffset + nLength > @nSize
+            Raise("ERROR: Read request (offset:" + String(nOffset) + " + length:" + String(nLength) + 
+                  ") exceeds buffer size (" + String(@nSize) + ")")
+        end
+        
+        if nLength = 0
+            ? "WARNING: Reading zero bytes - returning empty string"
+            return ""
+        end
+        
+        # Buffer integrity check
+        if Len(@xBuffer) != @nSize
+            Raise("CRITICAL ERROR: Buffer corruption detected - internal size mismatch")
+        end
+        
+        if nOffset = 0
+            return Left(@xBuffer, nLength)
+        else
+            tTemp = Right(@xBuffer, @nSize - nOffset)
+            return Left(tTemp, nLength)
+        end
+    end
+    def Read1(nOffset, nLength)
+        return this.Read(nOffset-1, nLength)
+    end
+    def Slice(nOffset, nLength)
+        if IsEmpty(nOffset)
+            nOffset = 0
+        end
+        
+        if IsEmpty(nLength)
+            nLength = @nSize - nOffset
+        end
+        
+        if nOffset < 0 or nLength < 0
+            Raise("ERROR: Negative offset or length not allowed")
+        end
+        
+        if nOffset + nLength > @nSize
+            Raise("ERROR: Slice beyond buffer size")
+        end
+        
+        return this.Read(nOffset, nLength)
+    end
+    def Range(nOffset, nLength)
+        return this.Slice(nOffset, nLength)
+    end
+    def Slice0(nOffset, nLength)
+        return this.Slice(nOffset, nLength)
+    end
+    def Range0(nOffset, nLength)
+        return this.Slice(nOffset, nLength)
+    end
+    def Slice1(nOffset, nLength)
+        return this.Slice(nOffset-1, nLength)
+    end
+    def Range1(nOffset, nLength)
+        return this.Slice(nOffset-1, nLength)
+    end
+    def Section(xN1, xN2)
+        return this.Range(xN1, xN2 - xN1 + 1)
+    end
+    def Section0(xN1, xN2)
+        return this.Section(xN1, xN2)
+    end
+    def Section1(xN1, xN2)
+        return this.Section(xN1-1, xN2-1)
+    end
+    #----------------------------------#
+    #  INSERTING, APPENDING, REMOVING  #
+    #----------------------------------#
+
+    def Append(pxData)
+        if IsEmpty(pxData)
+            Raise("ERROR: Cannot append null data")
+        end
+        
+        this.Write(@nSize, pxData)
+    end
+    def Prepend(pxData)
+        if IsEmpty(pxData)
+            Raise("ERROR: Cannot prepend null data")
+        end
+        
+        tData = ""
+        if IsString(pxData)
+            tData = pxData
+        else
+            tData = String(pxData)
+        end
+        
+        @xBuffer = tData + @xBuffer
+        @nSize += Len(tData)
+        @nCapacity = Max(@nCapacity, @nSize)
+    end
+    def Insert(nOffset, pxData)
+        if nOffset < 0 or nOffset > @nSize
+            Raise("ERROR: Invalid offset for insertion")
+        end
+        
+        if IsEmpty(pxData)
+            Raise("ERROR: Cannot insert null data")
+        end
+        
+        tData = ""
+        if IsString(pxData)
+            tData = pxData
+        else
+            tData = String(pxData)
+        end
+        
+        tNewBuffer = Left(@xBuffer, nOffset) + tData + Right(@xBuffer, Len(@xBuffer) - nOffset)
+        @xBuffer = tNewBuffer
+        @nSize += Len(tData)
+        @nCapacity = Max(@nCapacity, @nSize)
+    end
+    def Insert0(nOffset, pxData)
+        this.Insert(nOffset, pxData)
+    end
+    def Insert1(nOffset, pxData)
+        this.Insert(nOffset-1, pxData)
+    end
+    def Remove(nOffset, nLength)
+        if nOffset < 0 or nLength < 0
+            Raise("ERROR: Negative offset or length not allowed")
+        end
+        
+        if nOffset + nLength > @nSize
+            Raise("ERROR: Cannot remove beyond buffer size")
+        end
+        
+        if nLength = 0
+            return
+        end
+        
+        @xBuffer = Left(@xBuffer, nOffset) + Right(@xBuffer, Len(@xBuffer) - (nOffset + nLength))
+        @nSize -= nLength
+        @nCapacity = Max(@nCapacity, @nSize)
+    end
+    def Remove0(nOffset, nLength)
+        this.Remove(nOffset, nLength)
+    end
+    def Remove1(nOffset, nLength)
+        this.Remove(nOffset-1, nLength)
+    end
+    def RemoveSection(nStart, nEnd)
+        this.ValidateBuffer()
+        
+        if nStart < 0 or nEnd < 0
+            Raise("ERROR: Negative start or end position not allowed")
+        end
+        
+        if nStart > nEnd
+            Raise("ERROR: Start position cannot be greater than end position")
+        end
+        
+        if nEnd >= @nSize
+            Raise("ERROR: End position beyond buffer size")
+        end
+        
+        nLength = nEnd - nStart + 1
+        this.Remove(nStart, nLength)
+    end
+    def RemoveSection0(nStart, nEnd)
+        this.RemoveSection(nStart, nEnd)
+    end
+    def RemoveSection1(nStart, nEnd)
+        this.RemoveSection(nStart-1, nEnd-1)
+    end
+    #---------------------------#
+    #  SEARCHING AND INDEXING   #
+    #---------------------------#
+
+    def IndexOf(pxPattern)
+        if IsList(pxPattern) and Len(pxPattern) = 2
+            return this.IndexOfXT(pxPattern[1], pxPattern[2])
+        end
+        return this.IndexOfXT(pxPattern, 0)
+    end
+    def IndexOf0(pxPattern)
+        return this.IndexOf(pxPattern)
+    end
+    def IndexOf1(pxPattern)
+        nResult = this.IndexOf(pxPattern)
+        if nResult = -1
+            return 0  # Ring convention: 0 means not found
+        else
+            return nResult + 1
+        end
+    end
+    def IndexOfXT(pxPattern, nStartOffset)
+        this.ValidateBuffer()
+        
+        if IsEmpty(nStartOffset)
+            nStartOffset = 0
+        end
+        
+        if nStartOffset < 0 or nStartOffset >= @nSize
+            return -1
+        end
+        
+        if IsEmpty(pxPattern)
+            return -1
+        end
+        
+        tPattern = ""
+        if IsString(pxPattern)
+            tPattern = pxPattern
+        else
+            tPattern = String(pxPattern)
+        end
+        
+        if Len(tPattern) = 0
+            return nStartOffset
+        end
+        
+        tSearchBuffer = Right(@xBuffer, Len(@xBuffer) - nStartOffset)
+        nPos = SubStr(tSearchBuffer, tPattern)
+        
+        if nPos > 0
+            return nStartOffset + nPos - 1
+        else
+            return -1
+        end
+    end
+    def IndexOfXT0(pxPattern, nStartOffset)
+        return this.IndexOfXT(pxPattern, nStartOffset)
+    end
+    def IndexOfXT1(pxPattern, nStartOffset)
+        nResult = this.IndexOfXT(pxPattern, nStartOffset)
+        if nResult = -1
+            return 0  # Ring convention: 0 means not found
+        else
+            return nResult + 1
+        end
+    end
+    #------------------------------#
+    #  BUFFER MANAGEMENT METHODS   #
+    #------------------------------#
+
+    def Resize(nNewSize)
+        this.ValidateBuffer()
+        
+        if nNewSize <= 0
+            Raise("ERROR: New size must be positive")
+        end
+        
+        tNewBuffer = ""
+        
+        if nNewSize > Len(@xBuffer)
+            # Extend with null bytes
+            tNewBuffer = @xBuffer + @copy(Char(0), nNewSize - Len(@xBuffer))
+        elseif nNewSize < Len(@xBuffer)
+            tNewBuffer = Left(@xBuffer, nNewSize)
+        else
+            tNewBuffer = @xBuffer
+        end
+        
+        @xBuffer = tNewBuffer
+        @nCapacity = nNewSize
+        
+        if @nSize > nNewSize
+            @nSize = nNewSize
+        end
+    end
+    def Clear
+        @xBuffer = ""
+        @nSize = 0
+    end
+    def Fill(nByte, nStartPos, nLength)
+        this.ValidateBuffer()
+        
+        if nByte < 0 or nByte > 255
+            Raise("ERROR: Byte value must be between 0 and 255")
+        end
+        
+        if nLength <= 0
+            Raise("ERROR: Length must be positive")
+        end
+        
+        # Create string of repeated byte character
+        tFillData = @copy(Char(nByte), nLength)
+        
+        # Use existing Write() method
+        this.Write(nStartPos, tFillData)
+    end
+    def Compact
+        if @nSize < @nCapacity and @nSize > 0
+            this.Resize(@nSize)
+        end
+    end
+    def Copy
+	    # Create new buffer through our memory container
+	    oNewBuffer = @oMemory.CreateBuffer(@nSize)
+	    
+	    if @nSize > 0
+	        oNewBuffer.Write(0, this.Read(0, @nSize))
+	    end
+	    
+	    return oNewBuffer
+    end
+    def Equals(oOther)
+        if IsEmpty(oOther) or not IsObject(oOther)
+            return false
+        end
+        
+        if ClassName(oOther) != "stkbuffer"
+            return false
+        end
+        
+        if @nSize != oOther.Size()
+            return false
+        end
+        
+        return @xBuffer = oOther.RawData()
+    end
+    def Free
+        if @bIsValid
+            @oMemory.DestroyBuffer(@tId)  # Notify container
+            @xBuffer = ""
+            @nSize = 0
+            @nCapacity = 0
+            @bIsValid = false
+            @bHasWritePointer = false
+        end
+    end
+    def Destroy
+        this.Free()
+    end
+    #-----------------------------#
+    #  POINTER ACCESS CONTROL     #
+    #-----------------------------#
+
+    def GetReadPointer
+        # Always allowed - multiple read pointers OK
+        return @oMemory.CreatePointer(@tId, "read")
+    end
+    def GetWritePointer
+        # Only if no write pointer exists
+        if @bHasWritePointer = true
+            Raise("ERROR: Buffer already has a write pointer")
+        end
+        
+        @bHasWritePointer = true
+        return @oMemory.CreatePointer(@tId, "write")
+    end
+    def ReleaseWritePointer
+        # Called when write pointer is destroyed
+        @bHasWritePointer = false
+    end
+    def HasWritePointer
+        return @bHasWritePointer
+    end
+    #-----------------------------#
+    #  INFORMATION AND METADATA   #
+    #-----------------------------#
+
+	def Size
+	    return @nSize
+	end
+    def SizeInBytes
+        return this.Size()
+    end
+    def Capacity
+        this.ValidateBuffer()
+        return @nCapacity
+    end
+    def RawData
+        this.ValidateBuffer()
+        return @xBuffer
+    end
+    def Content
+        this.ValidateBuffer()
+        return @xBuffer
+    end
+    def Info
+        this.ValidateBuffer()
+        return [ 
+            [:id, @tId],
+            [:size, @nSize], 
+            [:capacity, @nCapacity],
+            [:hasWritePointer, @bHasWritePointer],
+            [:isValid, @bIsValid]
+        ]
+    end
+    def IsValid
+        return @bIsValid and @oMemory != ""
+    end
+
+    #--------------------------------------------------------#
+    #  LOADING AND SAVING EXTERNAL FILES TO/FROM THE BUFFER  #
+    #--------------------------------------------------------#
+
+    def LoadFromFile(tFileName)
+        this.ValidateBuffer()
+        
+        if IsEmpty(tFileName) or not IsString(tFileName)
+            Raise("ERROR: Invalid filename - must be a non-null string")
+        end
+        
+        if Len(tFileName) = 0
+            Raise("ERROR: Empty filename not allowed")
+        end
+        
+        if not FExists(tFileName)
+            Raise("ERROR: File '" + tFileName + "' does not exist")
+        end
+        
+        tFileContent = ring_read(tFileName)
+        
+        if IsEmpty(tFileContent)
+            Raise("ERROR: Failed to read file '" + tFileName + "'")
+        end
+        
+        # Replace buffer content with file content
+        this.InitWithData(tFileContent)
+    end
+    def LoadFromFileXT(tFileName, nOffset, nLength)
+        this.ValidateBuffer()
+        
+        if IsEmpty(tFileName) or not IsString(tFileName)
+            Raise("ERROR: Invalid filename - must be a non-null string")
+        end
+        
+        if IsEmpty(nOffset)
+            nOffset = 0
+        end
+        
+        if nOffset < 0
+            Raise("ERROR: Negative offset (" + String(nOffset) + ") not allowed")
+        end
+        
+        if not FExists(tFileName)
+            Raise("ERROR: File '" + tFileName + "' does not exist")
+        end
+        
+        tFileContent = ring_read(tFileName)
+        
+        if IsEmpty(tFileContent)
+            Raise("ERROR: Failed to read file '" + tFileName + "'")
+        end
+        
+        nFileSize = Len(tFileContent)
+        
+        if nOffset >= nFileSize
+            Raise("ERROR: Offset (" + String(nOffset) + ") beyond file size (" + String(nFileSize) + ")")
+        end
+        
+        if IsEmpty(nLength)
+            nLength = nFileSize - nOffset
+        end
+        
+        if nLength < 0
+            Raise("ERROR: Negative length (" + String(nLength) + ") not allowed")
+        end
+        
+        if nOffset + nLength > nFileSize
+            Raise("ERROR: Read request exceeds file size")
+        end
+        
+        # Extract requested portion
+        tData = ""
+        if nOffset = 0
+            tData = Left(tFileContent, nLength)
+        else
+            tTemp = Right(tFileContent, nFileSize - nOffset)
+            tData = Left(tTemp, nLength)
+        end
+        
+        # Replace buffer content with extracted data
+        this.InitWithData(tData)
+    end
+    def AppendFromFile(tFileName)
+        this.ValidateBuffer()
+        
+        if IsEmpty(tFileName) or not IsString(tFileName)
+            Raise("ERROR: Invalid filename - must be a non-null string")
+        end
+        
+        if not FExists(tFileName)
+            Raise("ERROR: File '" + tFileName + "' does not exist")
+        end
+        
+        tFileContent = ring_read(tFileName)
+        
+        if IsEmpty(tFileContent)
+            Raise("ERROR: Failed to read file '" + tFileName + "'")
+        end
+        
+        this.Append(tFileContent)
+    end
+    def SaveToFile(tFileName, nOffset, nLength)
+        this.ValidateBuffer()
+        
+        if IsEmpty(tFileName) or not IsString(tFileName)
+            Raise("ERROR: Invalid filename - must be a non-null string")
+        end
+        
+        if IsEmpty(nOffset)
+            nOffset = 0
+        end
+        
+        if IsEmpty(nLength)
+            nLength = @nSize - nOffset
+        end
+        
+        if nOffset < 0 or nLength < 0
+            Raise("ERROR: Negative offset or length not allowed")
+        end
+        
+        if @nSize = 0
+            Raise("ERROR: Cannot save from empty buffer")
+        end
+        
+        if nOffset >= @nSize
+            Raise("ERROR: Offset beyond buffer size")
+        end
+        
+        if nOffset + nLength > @nSize
+            Raise("ERROR: Save request exceeds buffer size")
+        end
+        
+        # Read data from buffer
+        tData = this.Read(nOffset, nLength)
+        
+        # Write to file
+        ring_write(tFileName, tData)
+    end
+    def SaveToFileAll(tFileName)
+        this.SaveToFile(tFileName, 0, @nSize)
+    end
+    #--------------------------------#
+    #  PRIVATE KITCHEN OF THE CLASS  #
+    #--------------------------------#
+
+    private
+
+    def ValidateBuffer
+        if not @bIsValid
+            Raise("ERROR: Invalid buffer - buffer was not properly initialized")
+        end
+        
+        if @oMemory = "" or not @oMemory.IsValid()
+            Raise("ERROR: Buffer has invalid memory container reference")
+        end
+        
+        if @nSize < 0
+            Raise("ERROR: Buffer size is negative - invalid state")
+        end
+        
+        if @nCapacity < 0
+            Raise("ERROR: Buffer capacity is negative - invalid state")
+        end
+        
+        if @nSize > @nCapacity
+            Raise("ERROR: Buffer size exceeds capacity - corruption detected")
+        end
+        
+        if not IsString(@xBuffer)
+            Raise("ERROR: Buffer is not a string - type corruption detected")
+        end
+        
+        nActualLen = Len(@xBuffer)
+        if nActualLen != @nSize and @nSize > 0
+            @nSize = nActualLen  # Auto-correct minor discrepancies
+        end
+    end
+end

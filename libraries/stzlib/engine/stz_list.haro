@@ -1,0 +1,26 @@
+# Softanza Engine -- Base List Ring Bridge
+#
+# Loads stz_list.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: base/list/stzList.ring
+# Function prefix: StzEngineList*
+
+if IsWindows()
+    $tStzListLib = $tEngineDir + "/zig-out/bin/stz_list.dll"
+elseif IsLinux()
+    $tStzListLib = $tEngineDir + "/zig-out/lib/libstz_list.so"
+elseif isMacOS()
+    $tStzListLib = $tEngineDir + "/zig-out/lib/libstz_list.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("list")
+    $hStzListHandle = ""
+elseif FExists($tStzListLib)
+    $hStzListHandle = LoadLib($tStzListLib)
+else
+    ? "WARNING: stz_list not found at: " + $tStzListLib
+    $hStzListHandle = ""
+end

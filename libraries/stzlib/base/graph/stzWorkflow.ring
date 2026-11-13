@@ -1244,7 +1244,7 @@ class stzWorkflow from stzDiagram
 	#              and transitions are not written
 	#   see        ImportFlow
 	def ToWorkflow()
-		_cResult_ = 'workflow "' + @cId + '"' + char(10)
+		_cResult_ = 'workflow "' + @tId + '"' + char(10)
 		_cResult_ += '    type: ' + @cWorkflowType + char(10) + char(10)
 		
 		if This.IsSequential()

@@ -176,24 +176,24 @@ const OPT_STABLE_COMPOSE: c_int = 2 | 8; // UTF8PROC_STABLE | UTF8PROC_COMPOSE: 
 const Cp = struct { cp: u21, len: usize };
 
 /// The codepoint at s[i]; a byte that is not valid UTF-8 is its own codepoint (it cannot occur after NFC, which rejects nothing but is kept total).
-fn cpAt(s: []const u8, i: usize) Cp {
+pub fn cpAt(s: []const u8, i: usize) Cp {
     const n = std.unicode.utf8ByteSequenceLength(s[i]) catch return .{ .cp = s[i], .len = 1 };
     if (i + n > s.len) return .{ .cp = s[i], .len = 1 };
     const cp = std.unicode.utf8Decode(s[i .. i + n]) catch return .{ .cp = s[i], .len = 1 };
     return .{ .cp = cp, .len = n };
 }
 
-fn isLetterCp(cp: u21) bool {
+pub fn isLetterCp(cp: u21) bool {
     if (cp < 128) return (cp >= 'a' and cp <= 'z') or (cp >= 'A' and cp <= 'Z');
     const cat = u8p.utf8proc_category(@intCast(cp));
     return cat >= 1 and cat <= 5; // Lu Ll Lt Lm Lo
 }
-fn isNumberCp(cp: u21) bool {
+pub fn isNumberCp(cp: u21) bool {
     if (cp < 128) return cp >= '0' and cp <= '9';
     const cat = u8p.utf8proc_category(@intCast(cp));
     return cat >= 9 and cat <= 11; // Nd Nl No
 }
-fn isSpaceCp(cp: u21) bool {
+pub fn isSpaceCp(cp: u21) bool {
     return switch (cp) {
         ' ', '\t', '\n', '\r', 0x0B, 0x0C, 0x85, 0xA0, 0x1680, 0x2028, 0x2029, 0x202F, 0x205F, 0x3000 => true,
         0x2000...0x200A => true,

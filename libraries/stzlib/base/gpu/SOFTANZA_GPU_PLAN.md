@@ -4608,6 +4608,58 @@ loss), answers FALLBACK for three ops while down, comes back on `Init`, and give
   fourth did not, so no claim is made about reopening. It is a speed verdict (a time below the measured floors),
   never a wrong answer; the guard keeps it apart from the answers and bounds its plain rate at 2%.
 
+## GT3b STATUS — the outside witness, and the leak it found on its first run (2026-11-13)
+
+**Why.** GT3's "flat" was the engine counting its own buffers, and an identity is not a self-check. gputaskman
+(shanselman/gputaskman, MIT), a GPU task manager read for this desk on 2026-11-13, shows per-process GPU memory from
+the counters Windows' graphics kernel keeps for every process. The same counters, read for our own process, are a
+second measurement the engine does not make.
+
+**What landed.**
+- `StzEngineGpuProcessMemory(n)`: this process's GPU memory as Windows counts it, through PDH, summed over every
+  adapter (n 0 dedicated, 1 shared, 2 committed; bytes; -1 when the reading is unavailable, never 0 for unknown).
+  About 0.1 s a reading: a checkpoint instrument, not a hot path. A Zig test pins the -1 contract.
+- `Sync` now sends staged uploads before it waits (the defect below), with a `writes_pending` flag that every
+  counted submit clears; the empty submit is counted.
+- `gpu_soak_narrated.haro` replaces `gpu_soak_narrated.ring` and runs on haro.exe. Every flat check of GT3 is now
+  asserted a second time by the witness, and scene 5 tests the witness itself.
+
+**Measured on the RTX 3050 Laptop, haro.exe, an engine built for Haro at e89ea8f07.**
+- Opening the device puts 196 to 198 MB on the card with 0 engine buffers: the driver's and wgpu's own, which no
+  engine counter names.
+- The witness reads 198.3 MB after round 1, after every one of five reopenings, at every reopening of the loop, through
+  the engine-alone loop and after three simulated losses; about 3 MB while the device is closed.
+- The allocator suballocates: one 64 MB upload can fit in room already reserved and move nothing (it moved +64 MB on
+  a fresh device). Four 64 MB buffers held at once raised the count by 320 MB, so the negative sibling holds four.
+
+**The defect.** An upload written and freed with no submit between kept its buffer and wgpu's staging copy on the
+card: `wgpuQueueWriteBuffer` stages a write that reaches the device only with the next submit, and `Sync` only
+polled. Six cycles of a 64 MB upload, Sync and BufferFree climbed 324 -> 580 -> 708 -> 708 -> 1,092 -> 1,092 MB while
+the engine counted 0 live buffers (and its VRAM budget agreed). With one dispatch per cycle the same loop held 262 MB.
+After the fix the cycles hold flat at 260 to 263 MB. Negative control: the guard against the engine from before the
+fix (14d02df50) fails exactly that check, 966 -> 1,607 MB, and passes every engine-counted one.
+
+**The GPU gate on haro.exe, the same day.** The soak moved to Haro, so the whole folder was run on haro.exe against
+the fixed engine, with `STZ_ENGINE_DIR` pointing at an engine built for Haro. 41 guards are owned (40 `.ring`, run by
+haro.exe as they are, and the soak). Two defects of the move to `.haro` stood between them and green, both of the same
+kind, a number joined to text without `String()` (Haro refuses it by name, NO_COERCION):
+- `engine/stz_gpu.haro`, the calibration save: four lines (the timings, and the shape, ladder and variant rows). Every
+  guard that saves a calibration stopped there: calibration, calibration_shaped, compact, foundry, scan, segscan,
+  sort, spmv.
+- `base/common/stzLog.haro`: the text and JSON forms of a log entry joined the timestamp, the OTLP severity number and
+  the field values as `"" + x`, the Ring way to turn a value into text. deploy_gate stopped there; every
+  `"" + x` in the file is now `String(x)`.
+The submit counts the scan, compact, sort, segscan and spmv guards assert are unchanged by the new `Sync`: each reads
+the counter after a dispatch has already sent the staged writes.
+With both fixed, all 41 guards pass on haro.exe: the soak 36/36, the puzzle guard 95/95 (999 s), and every other guard at
+its full count. The puzzle guard (kp-05) and the when guard each refused a right answer once in an earlier run and passed
+on the next: that is KP-PROVE-FLAKE, still open, not a defect of this change. The heaviest guards are long on haro.exe:
+spmv 1,094 s, puzzle 999 s, when 796 s, segscan 653 s, sort 609 s, scan 601 s, run one at a time.
+
+**What the witness does not cover.** Windows only (Linux and macOS answer -1 and the checks are skipped by name); one
+process's own memory, not other processes on the card; allocator blocks, not single buffers, so a leak smaller than
+the allocator's spare room shows only once it outgrows it.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can

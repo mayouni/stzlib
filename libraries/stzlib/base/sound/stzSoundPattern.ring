@@ -97,7 +97,7 @@ class stzSoundPattern from stzPattern
 	#   see        HasStroke, ToScoreQ
 	#@ aka  True when every word is a stroke: the pattern names its own drum.
 	def IsAllStrokes()
-		if isNull(@aRoot)  return FALSE ok
+		if isNull(@xRoot)  return FALSE ok
 		_n_ = 0
 		for _e_ in This.CycleEvents(0)
 			if _e_[3] != "stroke"  return FALSE ok

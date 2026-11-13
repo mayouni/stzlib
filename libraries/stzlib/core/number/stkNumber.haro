@@ -1,0 +1,604 @@
+
+	
+#~~~~~~~~~~~~~~~~~~~#
+#  STZ CORE NUMBER  #
+#~~~~~~~~~~~~~~~~~~~#
+
+class stzCoreNumber from stkNumber
+end
+class stkNumber
+	@xContent
+	@nRound
+
+	@bSpacify = false
+	@nSpaceStep = 3
+	@tSpaceChar = "_"
+
+	#----------------------------------------------------------------#
+	#  INITIALISING THE NUMBER, FROM A NUMBER OR A NUMBER IN STRING  #
+	#----------------------------------------------------------------#
+
+	def init(pxNumber)
+		if not (IsNumber(pxNumber) or IsString(pxNumber))
+			Raise("ERR-" + StkErrror(:IncorrectParamType) + Char(10) )
+		end
+
+		if IsNumber(pxNumber)
+
+			@xContent = pxNumber
+			@nRound = @Round(""= @xContent)
+
+		else # the number is provided in a string
+			if ring_substr1(pxNumber, '_') > 0
+
+				@bSpacify = true
+			else
+				@bSpacify = false
+			end
+
+			@xContent = @Val(pxNumber)
+			@nRound = @Round(@xContent)
+
+		end
+	end
+	#--------------------------------------------#
+	#  NUMBER VALUE, IN NUMBER AND STRING FORMS  #
+	#--------------------------------------------#
+
+	def Copy
+		oCopy = this
+		return oCopy
+	end
+	def Content
+		return @xContent
+	end
+		def NValue
+			return @xContent
+		end
+		def Value
+			return @xContent
+		end
+	def SValue
+		
+		tResult = this.SIntPart() + "." + SFractPartWithoutZeroDot()
+		return tResult
+	end
+	#-----------------------------------------------------#
+	#  UPDATING THE NUMBER WITH A NUMBER OR STRING FORM   #
+	#-----------------------------------------------------#
+
+	def Update(pxNumber)
+
+		if IsNumber(pxNumber)
+
+			@xContent = pxNumber
+			
+
+		else # the number is provided in a string
+
+			@xContent = @Val(pxNumber)
+
+			if ring_substr1(pxNumber, '_') > 0
+				@bSpacify = true
+			else
+				@bSpacify = false
+			end
+		end
+
+		@nRound = @Round(pxNumber)
+
+		if KeepingHisto() = 1
+			this.AddHistoricValue(this.Content())  # From the parent stzObject
+		end
+	end
+	#-------------------------------------------------------#
+	#  GETTING THE INTEGER PART IN NUMBER AND STRING FORMS  #
+	#-------------------------------------------------------#
+
+	def IntPart
+		if @xContent > 0
+			return Floor(@xContent)
+		else
+			return Ceil(@xContent)
+		end
+	end
+	def SIntPart
+
+		tSpaceChar = ""
+		if @bSpacify
+			tSpaceChar = @tSpaceChar
+		end
+
+		nInt = this.IntPart()
+		nRound = @Round(nInt)
+		tResult = NStringify(nInt, tSpaceChar, @nSpaceStep, nRound)
+
+		return tResult
+	end
+
+	#------------------------------------------------------#
+	#  GETTING THE STRING PART IN NUMBER AND STRING FORMS  #
+	#------------------------------------------------------#
+
+	def FractPart
+
+		xN = @xContent
+		if xN < 0
+			xN = -xN
+		end
+
+		nResult = xN - Floor(xN)
+		return nResult
+	end
+		def FPart
+			return this.FractPart()
+		end
+		def FractValue
+			return this.FractPart()
+		end
+		def FValue
+			return this.FractPart()
+		end
+	def SFractPart
+		# The number's text is already exact (no places setting to read or change)
+		nRound = @Round(@xContent)
+
+		tTempStr = String(@xContent)
+		nLen = Len(tTempStr)
+
+		nPos = ring_substr1(tTempStr, ".")
+
+		if nPos = 0
+			return ""
+
+		else
+			if @xContent < 0
+				tResult = "-0."
+			else
+				tResult = "0."
+			end
+
+			xN1 = nPos + 1
+			xN2 = nPos + nRound
+
+			for i = xN1 to xN2
+				tResult += tTempStr[i]
+			end
+		end
+
+		return tResult
+	end
+		#< @FunctionAlternativeForms
+
+		def SFPart
+			return this.SFractPart()
+		end
+		def SFractValue
+			return this.SFractPart()
+		end
+		def SFValue
+			return this.SFractPart()
+		end
+		def SFraction
+			return this.SFractPart()
+		end
+		#>
+
+	def HasFractPart
+		if ring_substr1( this.SValue(), "." ) > 0
+			return true
+		else
+			return false
+		end
+	end
+		#< @FunctionAlternativeForms
+
+		def HasFraction
+			return this.HasFractPart()
+		end
+		def IsRealNumber
+			return this.HasFractPart()
+		end
+		def IsReal
+			return this.HasFractPart()
+		end
+		def HasFValue
+			return this.HasFractPart()
+		end
+		def HasFPart
+			return this.HasFractPart()
+		end
+		#>
+
+	def SFractPartWithoutZeroDot
+
+		tResult = this.SFractPart()
+		tResult = ring_substr2(tResult, "0.", "")
+		tResult = ring_substr2(tResult, "+", "")
+		tResult = ring_substr2(tResult, "-", "")
+
+		return tResult
+	end
+		#< @FunctionAlternativeForms
+
+		def SFractValueWithoutZeroDot
+			return this.SFractPartWithoutZeroDot()
+		end
+		def SFPartWithoutZeroDot
+			return this.SFractPartWithoutZeroDot()
+		end
+		def SFValueWithoutZeroDot
+			return this.SFractPartWithoutZeroDot()
+		end
+		def SFractionWithoutZeroDot
+			return this.SFractPartWithoutZeroDot()
+		end
+		#>
+
+	#-----------------------------------------------#
+	#  GETTING AND SETTING THE ROUND OF THE NUMBER  #
+	#-----------------------------------------------#
+
+	def Round
+		return @nRound
+	end
+	def SetRound(xN)
+		if not IsNumber(xN)
+			Raise("ERR-" + StkError(:IncorrectParamType))
+		end
+
+		@nRound = xN
+	end
+	def RoundedTo(xN)
+		if not IsNumber(xN)
+			Raise(StkError(:IncorrectParamType))
+		end
+
+		# Rounded per value, to xN places (no places setting is changed)
+		if IsInteger(@xContent)
+			return @xContent
+		end
+		return Decimal(@xContent, xN)
+	end
+
+	def SRoundedTo(xN)
+		if not IsNumber(xN)
+			Raise(StkError(:IncorrectParamType))
+		end
+
+		# The text of the number written with exactly xN places
+		return String(Decimal(@xContent, xN))
+	end
+	#----------------------------------#
+	#  GETTING THE SIGN OF THE NUMBER  #
+	#----------------------------------#
+
+	def Sign
+		if @xContent < 0
+			return "-"
+		else
+			return "+"
+		end
+	end
+	#----------------------------------------------------#
+	#  GETTING THE SDTRING FORM OF THE NUMBER SPACIFIED  #
+	#----------------------------------------------------#
+
+	def Spacify
+		@bSpacify = true
+	end
+	def Unspacify
+		@bSpacify = false
+	end
+	def UnSpacified
+		bTemp = @bSpacify
+		@bSpacify = false
+		tResult this.SValue()
+		@bSpacify = bTemp
+	end
+	def Spacified
+		
+		tResult = NStringify(@xContent, @tSpaceChar, @nSpaceStep, @Round(@xContent))
+		return tResult
+	end
+	#-------------------------------------------#
+	#  SETTING AND GETTING SPACE CHAR AND STEP  #
+	#-------------------------------------------#
+
+	def SpaceChar
+		return @tSpaceChar
+	end
+	def SetSpaceChar(xC)
+		@tSpaceChar = xC
+	end
+	def SpaceStep
+		return @nSpaceStep
+	end
+	def SetSpaceStep(xN)
+		@nSpaceStep = xN
+	end
+	#-------------------------#
+	#  ARITHMETIC OPERATIONS  #
+	#-------------------------#
+
+	def Add(pxNumber)
+		if IsNumber(pxNumber)
+			@xContent += pxNumber
+
+		elseif IsString(pxNumber)
+			@xContent += @Val(pxNumber)
+
+		else
+			Raise(StkError(:IncorrectParamType))
+		end
+	end
+	def Substruct(pxNumber)
+		if IsNumber(pxNumber)
+			@xContent -= pxNumber
+
+		elseif IsString(pxNumber)
+			@xContent -= @Val(pxNumber)
+
+		else
+			Raise(StkError(:IncorrectParamType))
+		end
+	end
+		def Substract(pxNumber)
+			this.Substruct(pxNumber)
+		end
+	def MultiplyBy(pxNumber)
+		if IsNumber(pxNumber)
+			@xContent *= pxNumber
+
+		elseif IsString(pxNumber)
+			@xContent *= @Val(pxNumber)
+
+		else
+			Raise(StkError(:IncorrectParamType))
+		end
+	end
+		def Multiply(pxNumber)
+			this.MultiplyBy(pxNumber)
+		end
+	def DivideBy(pxNumber)
+		if IsNumber(pxNumber)
+			@xContent /= pxNumber
+
+		elseif IsString(pxNumber)
+			@xContent /= @Val(pxNumber)
+
+		else
+			Raise(StkError(:IncorrectParamType))
+		end
+	end
+		def Divide(pxNumber)
+			return this.DivideBy(pxNumber)
+		end
+	def Abs
+		if @xContent > 0
+			return @xContent
+		else
+			return -@xContent
+		end
+	end
+	def SAbs
+		if @xContent > 0
+			return this.SValue()
+		else
+			return "-" + SValue()
+		end	
+	end
+	#------------------------------------------#
+	#  CHECKING EQUALITY WITH AN OTHER NUMBER  #
+	#------------------------------------------#
+
+	def IsEqual(xN)
+		oOtherNumber = new stkNumber(xN)
+		if this.SNumber() = oOtherNumber.SNumber()
+			return true
+		else
+			return false
+		end
+	end
+		def Equals(xN)
+			return IsEqual(xN)
+		end
+		def IsEqualTo(xN)
+			return IsEqual(xN)
+		end
+	#------------------------#
+	#  OVERLOADED OPERATORS  #
+	#------------------------#
+
+	def Operator(xOp, xValue)
+
+		if xOp = "="
+			return this.Equals(xValue)
+
+		elseif xOp = "+"
+
+			if IsNumber(xValue)
+				return @xContent + xValue
+
+			elseif IsString(xValue)
+
+				# Removing potential "_"
+
+				tTempStr = Trim( ring_substr2(xValue, "_", "") )
+
+				# Getting the numeric value
+
+				nValue = @xContent + (Decimal(tTempStr))
+
+				if not IsNumber(nValue)
+					Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+				end
+
+				# Using NStringify to get the string value of the number
+
+				tSpaceChar = @tSpaceChar
+				if not @bSpacify
+					tSpaceChar = ""
+				end
+
+				nRound1 = @Round(nValue)
+				nRound2 = this.Round()
+
+				if nRound1 < nRound2
+					nRound = nRound1
+				else
+					nRound = nRound2
+				end
+				
+				tResult = NStringify(nValue, @bSpacify, tSpaceChar, nRound)
+
+				# Returning the result
+
+				return tResult
+
+			else
+				Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+			end
+
+
+		elseif xOp = "-"
+
+			if IsNumber(xValue)
+				return @xContent + xValue
+
+			elseif IsString(xValue)
+
+				# Removing potential "_"
+
+				tTempStr = Trim( ring_substr2(xValue, "_", "") )
+
+				# Getting the numeric value
+
+				nValue = @xContent - (Decimal(tTempStr))
+
+				if not IsNumber(nValue)
+					Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+				end
+
+				# Using NStringify to get the string value of the number
+
+				tSpaceChar = @tSpaceChar
+				if not @bSpacify
+					tSpaceChar = ""
+				end
+
+				nRound1 = @Round(nValue)
+				nRound2 = this.Round()
+
+				if nRound1 < nRound2
+					nRound = nRound1
+				else
+					nRound = nRound2
+				end
+
+				tResult = NStringify(nValue, @bSpacify, tSpaceChar, nRound)
+
+				# Returning the result
+
+				return tResult
+
+			else
+				Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+			end
+
+
+		elseif xOp = "*"
+
+			if IsNumber(xValue)
+				return @xContent + xValue
+
+			elseif IsString(xValue)
+
+				# Removing potential "_"
+
+				tTempStr = Trim( ring_substr2(xValue, "_", "") )
+
+				# Getting the numeric value
+
+				nValue = @xContent * (Decimal(tTempStr))
+
+				if not IsNumber(nValue)
+					Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+				end
+
+				# Using NStringify to get the string value of the number
+
+				tSpaceChar = @tSpaceChar
+				if not @bSpacify
+					tSpaceChar = ""
+				end
+
+				nRound1 = @Round(nValue)
+				nRound2 = this.Round()
+
+				if nRound1 < nRound2
+					nRound = nRound1
+				else
+					nRound = nRound2
+				end
+
+				tResult = NStringify(nValue, @bSpacify, tSpaceChar, nRound)
+
+				# Returning the result
+
+				return tResult
+
+			else
+				Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+			end
+
+		elseif xOp = "/"
+
+			if IsNumber(xValue)
+				return @xContent + xValue
+
+			elseif IsString(xValue)
+
+				# Removing potential "_"
+
+				tTempStr = Trim( ring_substr2(xValue, "_", "") )
+
+				# Getting the numeric value
+
+				nValue = @xContent + (Decimal(tTempStr))
+
+				if not IsNumber(nValue)
+					Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+				end
+
+				# Using NStringify to get the string value of the number
+
+				tSpaceChar = @tSpaceChar
+				if not @bSpacify
+					tSpaceChar = ""
+				end
+
+				nRound1 = nValue
+				nRound2 = this.Round()
+
+				if nRound1 < nRound2
+					nRound = nRound1
+				else
+					nRound = nRound2
+				end
+
+				tResult = NStringify(nValue, @bSpacify, tSpaceChar, nRound)
+
+				# Returning the result
+
+				return tResult
+
+			else
+				Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+			end
+
+		else
+			Raise("ERR-" + StkError(:UnsupportedOperator) + Char(10))
+		end
+	end
+end

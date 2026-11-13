@@ -1,0 +1,694 @@
+#---------------------------------------------------------------------------#
+#  STZPATTERN -- a pattern is a function of time, in any domain             #
+#---------------------------------------------------------------------------#
+#
+#     oP = StzPatternQ("red ~ blue [green green]")
+#     ? oP.CycleEvents(0)       # [ onset, length, "word", "red" ], ...
+#     oP.Fast(2).Every(3, :Rev).Off(0.25, NULL)
+#
+# THE ABSTRACT HALF OF MU3's PATTERN LANGUAGE. It was written for sound (as
+# stzPattern, 2026-09-26) and, on the author's word the same day, split: what
+# a pattern IS -- a function from a cycle number to the events in that cycle,
+# the mini-notation that writes one, and the algebra that combines them --
+# lives here and knows no domain. What a WORD means lives in a subclass:
+# stzSoundPattern (base/sound) reads notes and drum strokes. A light show, an
+# animation, a rota of tasks would each be a subclass with its own _Value.
+#
+# THE IDEA IS TIDALCYCLES': every verb builds a new function out of old ones,
+# which is why they compose -- Fast(2) of an alternation still alternates.
+#
+# ONE WHOLE CYCLE AT A TIME: events come back as an onset in [0, 1) of the
+# cycle asked plus a length, computed from the cycle NUMBER, never by adding
+# up cycles -- exact across hours. The price: a fast or slow factor is a whole
+# number, because 1.5 does not map whole cycles onto whole cycles.
+#
+# THE MINI-NOTATION:
+#
+#     a b c       a sequence: each step gets an equal share of the cycle
+#     ~           a rest
+#     [a b]       a group: the steps share ONE step's time
+#     [a, b]      a stack: both at once (also at the top level: "a b, c d")
+#     <a b c>     alternation: a on cycle 0, b on cycle 1, c on cycle 2, ...
+#     a*2 / a/2   the step twice as fast / half as fast (whole numbers)
+#     a?          on about half the cycles -- DETERMINISTICALLY, from the
+#                 cycle number and a seed, so a guard can hold it
+#     a!3 / a@3   the step as three steps / weighing three steps
+#
+# A WORD is any run of characters that is not one of  [ ] < > , * / ? ! @ ~
+# or white space. What it means is the subclass's.
+
+func StzPatternQ(pxText)
+	return new stzPattern(pxText)
+end
+# A pattern is a function of time: it tells which events happen in cycle 0, cycle 1, and so on, written in a small mini-notation.
+#
+# The notation is that of TidalCycles: words in a sequence share the cycle equally, ~ is a rest, [a
+# b] a group, <a b c> alternates one step per cycle, a*2 and a/2 speed a step up or down, a? plays
+# about half the cycles. Fast, Slow, Rev, Every and Off build a new pattern out of the old one, in
+# place, and return the pattern so they chain. The class knows no domain: what a word means belongs
+# to a subclass such as stzSoundPattern. A text that does not parse never raises: IsValid says so
+# and LastError tells why.
+#
+#   receiver   o1 = StzPatternQ("red ~ blue [green green]")
+#   example    ? @@( o1.CycleEvents(0) )
+#              #--> [ [ 0, 0.25, "word", "red" ], [ 0.50, 0.25, "word", "blue" ], [ 0.75, 0.13, "word", "green" ], [ 0.88, 0.13, "word", "green" ] ]
+#              ? o1.Period()
+#              #--> 1
+#   see        stzStateMachine, stzIntSeq
+class stzPattern
+
+	@xRoot = ""          # the tree; NULL when the text did not parse
+	@tText = ""
+	@tLastError = ""
+	@nRefusals = 0
+	@nSeed = 7             # for ?, so two patterns with the same text agree
+
+	# parser state
+	@vChars = []
+	@nPos = 1
+	@nDegrades = 0
+
+	# Parses a pattern written in mini-notation, such as 'red ~ blue [green green]', into a tree of steps.
+	#
+	#   pcText     the pattern in mini-notation: words, ~ for a rest, [ ] groups, < > alternation, *
+	#              and / for speed, ? ! @
+	#   returns    nothing; the object is built
+	#   warning    a text that does not parse leaves the object invalid instead of raising: read
+	#              IsValid and LastError
+	#   see        IsValid, LastError
+	def init(pxText)
+		@tText = "" + pxText
+		@xRoot = this._Parse(@tText)
+	end
+	# TRUE if the text parsed into a pattern.
+	#
+	#   returns    TRUE or FALSE
+	#   see        LastError, Text
+	def IsValid
+		return not IsEmpty(@xRoot)
+	end
+	# Returns the mini-notation the pattern was built from, as given.
+	#
+	#   returns    a text
+	#   see        Tree
+	def Text
+		return @tText
+	end
+	# Returns the message of the last parse error or refused verb, empty when there was none.
+	#
+	#   returns    a text
+	#   warning    the message of a refused verb (Fast with 1.5, Off with 2) replaces the parse
+	#              message
+	#   see        Refusals, IsValid
+	def LastError
+		return @tLastError
+	end
+	# Returns how many times a verb refused its argument since the pattern was built.
+	#
+	#   returns    a number
+	#   warning    a refused verb leaves the pattern unchanged and does not raise
+	#   see        LastError
+	def Refusals
+		return @nRefusals
+	end
+	# Returns the parsed pattern as nested lists, each node tagged seq, atom, rest, fast, slow, rev, every or off.
+	#
+	#   returns    a list; NULL when the text did not parse
+	#   see        Text, CycleEvents
+	def Tree
+		return @xRoot
+	end
+	# Returns the events of one cycle, each as [ onset, length, kind, value ], sorted by onset; onset and length are fractions of the cycle.
+	#
+	#   pnCycle    the cycle number, counted from 0
+	#   returns    a list of lists; empty when the pattern is invalid
+	#   warning    rests give no event; the events of a cycle are computed from its number, so cycle
+	#              100000 costs the same as cycle 0
+	#   see        DistinctValues, Period
+	#@ aka  -- querying ------------------------------------------------------------
+	def CycleEvents(pxCycle)
+		if IsEmpty(@xRoot)  return [] end
+		xA = this._Q(@xRoot, pxCycle)
+		vOut = []
+		for e in xA
+			vOut + [ e[1], e[2], e[3][1], e[3][2] ]
+		end
+		return this._SortByOnset(vOut)
+	end
+	# Returns the distinct [ kind, value, length ] triples that occur over the first pnCycles cycles.
+	#
+	#   pnCycles   how many cycles to scan, starting at cycle 0
+	#   returns    a list of lists
+	#   see        CycleEvents, Period
+	#@ aka  Every distinct [ kind, name, length ] over the pattern's first `pnCycles` cycles -- what a player prepares BEFORE it starts (in sound: renders), so nothing is prepared while a cycle is being posted.
+	def DistinctValues(pxCycles)
+		xA = []
+		for c = 0 to pxCycles - 1
+			for e in this.CycleEvents(c)
+				vK = [ e[3], e[4], e[2] ]
+				xFound = false
+				for x in xA
+					if x[1] = vK[1] and x[2] = vK[2] and x[3] = vK[3]
+						xFound = true
+						exit
+					end
+				end
+				if not xFound  xA + vK end
+			end
+		end
+		return xA
+	end
+	# Returns after how many cycles the pattern repeats exactly, at most 64; 1 for an invalid pattern.
+	#
+	#   returns    a number
+	#   warning    '<a b c>' has period 3, a plain sequence has period 1
+	#   see        CycleEvents
+	#@ aka  How many cycles before the pattern repeats -- alternations, slow factors and Every all lengthen it. Capped at 64: a pattern that takes longer than that to come round is rendered as it arrives.
+	def Period
+		if IsEmpty(@xRoot)  return 1 end
+		xP = this._Period(@xRoot)
+		if xP > 64  xP = 64 end
+		return xP
+	end
+	# Plays the pattern pnFactor times faster, in place, so its events squeeze into 1/pnFactor of a cycle and repeat.
+	#
+	#   pnFactor   a whole number of 1 or more
+	#   returns    the pattern itself, so calls chain
+	#   note       the pattern is changed in place
+	#   warning    a fractional factor is refused and counted in Refusals
+	#   see        Slow, Every
+	def Fast(pxFactor)
+		if not this._WholeFactor(pxFactor, "Fast")  return this end
+		if IsEmpty(@xRoot)  return this end
+		xT = @xRoot
+		@xRoot = [ :fast, xT, pxFactor ]
+		return this
+	end
+	# Plays the pattern pnFactor times slower, in place, so one cycle shows 1/pnFactor of it.
+	#
+	#   pnFactor   a whole number of 1 or more
+	#   returns    the pattern itself, so calls chain
+	#   note       the pattern is changed in place
+	#   warning    a fractional factor is refused and counted in Refusals
+	#   see        Fast, Every
+	def Slow(pxFactor)
+		if not this._WholeFactor(pxFactor, "Slow")  return this end
+		if IsEmpty(@xRoot)  return this end
+		xT = @xRoot
+		@xRoot = [ :slow, xT, pxFactor ]
+		return this
+	end
+	# Reverses the order of the events inside each cycle, in place.
+	#
+	#   returns    the pattern itself, so calls chain
+	#   warning    the pattern is changed in place
+	#   see        Every
+	#@ aka  Each cycle backwards: an event at onset o of length d moves to 1-o-d.
+	def Rev
+		if IsEmpty(@xRoot)  return this end
+		xT = @xRoot
+		@xRoot = [ :rev, xT ]
+		return this
+	end
+	# Applies a transformation to the pattern on every pnN-th cycle, in place, and plays it unchanged on the others.
+	#
+	#   pnN        a whole number of cycles, 1 or more
+	#   pXform     :Rev, [ :Fast, n ] or [ :Slow, n ]
+	#   returns    the pattern itself, so calls chain
+	#   note       the transformed cycle is the first of each group: Every(2, :Rev) reverses cycles
+	#              0, 2, 4
+	#   warning    an unknown transformation or a pnN below 1 is refused and counted in Refusals
+	#   see        Fast, Slow, Rev
+	#@ aka  On cycles 0, n, 2n, ... apply a transformation: :Rev, or [ :Fast, k ], or [ :Slow, k ]. The other cycles are left alone.
+	def Every(pxN, pxXform)
+		if not IsNumber(pxN) or pxN < 1 or pxN != Floor(pxN)
+			this._Refuse("Every: a whole number of cycles, 1 or more")
+			return this
+		end
+		xX = this._Xform(pxXform)
+		if IsEmpty(xX)  return this end
+		if IsEmpty(@xRoot)  return this end
+		xT = @xRoot
+		@xRoot = [ :every, xT, pxN, xX ]
+		return this
+	end
+	# Layers a copy of the pattern shifted later by a fraction of a cycle on top of it, in place.
+	#
+	#   pnCycles   the shift, strictly between 0 and 1
+	#   pArg       a value the subclass uses to alter the shifted copy, NULL for none
+	#   returns    the pattern itself, so calls chain
+	#   note       the pattern is changed in place
+	#   warning    a shift of 0 or of 1 and more is refused and counted in Refusals
+	#   see        Every
+	#@ aka  The pattern PLUS a copy of itself `pnCycles` later (0 < t < 1). What the shift pushes past the end of a cycle arrives at the start of the next. `pArg` is handed to _Shift for every copied value: here it changes nothing; a domain gives it a meaning (in sound: semitones).
+	def off(pxCycles, pxArg)
+		if not IsNumber(pxCycles) or pxCycles <= 0 or pxCycles >= 1
+			this._Refuse("Off: a shift strictly between 0 and 1 cycle")
+			return this
+		end
+		if IsEmpty(@xRoot)  return this end
+		xT = @xRoot
+		@xRoot = [ :off, xT, pxCycles, pxArg ]
+		return this
+	end
+	# One cycle of a node: [ [ onset, length, value ], ... ], onset in [0, 1).
+	# A share of a cycle: exact when the quotient has a decimal (1/4 -> 0.25), else rounded to
+	# 15 places (1/3), the precision a cycle position always had. Decimals still mix with integers.
+	def _Share(pxA, pxB)
+		try
+			return pxA / pxB
+		catch
+			return Decimal(Float(pxA) / Float(pxB), 15)
+		end
+	end
+
+	def _Q(pxN, pxC)
+		switch pxN[1]
+		case :atom
+			return [ [ 0, 1, pxN[2] ] ]
+		case :rest
+			return []
+		case :seq
+			xOut = []
+			xSt = pxN[2]
+			nW = 0
+			for s in xSt  nW += s[2] end
+			nAt = 0
+			for s in xSt
+				xShare = this._Share(s[2], nW)
+				for e in this._Q(s[1], pxC)
+					xOut + [ nAt + e[1] * xShare, e[2] * xShare, e[3] ]
+				end
+				nAt += xShare
+			end
+			return xOut
+		case :stack
+			xOut = []
+			for xK in pxN[2]
+				for e in this._Q(xK, pxC)  xOut + e end
+			end
+			return xOut
+		case :alt
+			nN = Len(pxN[2])
+			xI = (pxC % nN) + 1
+			return this._Q(pxN[2][xI], (pxC - pxC % nN) / nN)
+		case :fast
+			xK = pxN[3]
+			xOut = []
+			for j = 0 to xK - 1
+				for e in this._Q(pxN[2], pxC * xK + j)
+					xOut + [ this._Share(j + e[1], xK), this._Share(e[2], xK), e[3] ]
+				end
+			end
+			return xOut
+		case :slow
+			xK = pxN[3]
+			xM = pxC % xK
+			xOut = []
+			for e in this._Q(pxN[2], (pxC - pxC % xK) / xK)
+				xO = e[1] * xK - xM
+				if xO >= 0 and xO < 1
+					xOut + [ xO, e[2] * xK, e[3] ]
+				end
+			end
+			return xOut
+		case :degrade
+			xOut = []
+			xI = 0
+			for e in this._Q(pxN[2], pxC)
+				xI++
+				if this._Keep(pxC, pxN[3], xI)  xOut + e end
+			end
+			return xOut
+		case :rev
+			xOut = []
+			for e in this._Q(pxN[2], pxC)
+				xOut + [ 1 - e[1] - e[2], e[2], e[3] ]
+			end
+			return xOut
+		case :every
+			if pxC % pxN[3] = 0
+				return this._Q(this._Wrap(pxN[4], pxN[2]), pxC)
+			end
+			return this._Q(pxN[2], pxC)
+		case :off
+			xT = pxN[3]
+			xOut = this._Q(pxN[2], pxC)
+			for e in this._Q(pxN[2], pxC)
+				if e[1] + xT < 1
+					xOut + [ e[1] + xT, e[2], this._Shift(e[3], pxN[4]) ]
+				end
+			end
+			# the copy of the previous cycle that the shift pushed into this one
+			if pxC > 0
+				for e in this._Q(pxN[2], pxC - 1)
+					if e[1] + xT >= 1
+						xOut + [ e[1] + xT - 1, e[2], this._Shift(e[3], pxN[4]) ]
+					end
+				end
+			end
+			return xOut
+		end
+		return []
+	end
+	# the transformation Every applies, as a node wrapped around `paChild`
+	def _Wrap(pxX, pxChild)
+		switch pxX[1]
+		case :rev   return [ :rev, pxChild ]
+		case :fast  return [ :fast, pxChild, pxX[2] ]
+		case :slow  return [ :slow, pxChild, pxX[2] ]
+		end
+		return pxChild
+	end
+	def _Xform(pxX)
+		if IsString(pxX) and Lower(pxX) = "rev"  return [ :rev ] end
+		if IsList(pxX) and Len(pxX) = 2 and IsString(pxX[1])
+			tC = Lower(pxX[1])
+			if (tC = "fast" or tC = "slow") and IsNumber(pxX[2]) and pxX[2] >= 1 and
+			   pxX[2] = Floor(pxX[2])
+				return [ tC, pxX[2] ]
+			end
+		end
+		this._Refuse("Every: the transformation is :Rev, [ :Fast, n ] or [ :Slow, n ]")
+		return ""
+	end
+	# deterministic "about half": a hash of the cycle, the node's seed and the
+	# event's place -- the same pattern plays the same thing every time
+	#
+	# THE FIRST HASH KEPT 2 OF 12 in the smoke test -- a sum of the inputs
+	# mod a prime, one multiply, then the LOW digits, which a multiplicative
+	# generator leaves poorly mixed. Now: the inputs folded one at a time, each
+	# followed by three rounds of the Park-Miller step, and the decision taken
+	# from the HIGH end (the value as a fraction of the modulus). All in whole
+	# numbers below 2^53, so a double holds every step exactly.
+	def _Keep(pxC, pxSeed, pxI)
+		nM = 2147483647
+		xH = 1 + (@nSeed % 1000)
+		for v in [ pxC, pxSeed, pxI ]
+			xH = (xH + (v % 1000000) * 7919 + 1) % nM
+			for r = 1 to 3  xH = (xH * 48271) % nM end
+		end
+		return xH * 2 < nM
+	end
+	def _Period(pxN)
+		switch pxN[1]
+		case :atom   return 1
+		case :rest   return 1
+		case :seq
+			xP = 1
+			for s in pxN[2]  xP = this._Lcm(xP, this._Period(s[1])) end
+			return xP
+		case :stack
+			xP = 1
+			for k in pxN[2]  xP = this._Lcm(xP, this._Period(k)) end
+			return xP
+		case :alt
+			xP = 1
+			for k in pxN[2]  xP = this._Lcm(xP, this._Period(k)) end
+			return Len(pxN[2]) * xP
+		case :fast
+			xP = this._Period(pxN[2])
+			return xP / this._Gcd(xP, pxN[3])
+		case :slow     return this._Period(pxN[2]) * pxN[3]
+		case :degrade  return this._Period(pxN[2])
+		case :rev      return this._Period(pxN[2])
+		case :every    return this._Lcm(this._Period(pxN[2]), pxN[3])
+		case :off      return this._Period(pxN[2])
+		end
+		return 1
+	end
+	def _Gcd(xA, xB)
+		while xB != 0
+			xT = xB
+			xB = xA % xB
+			xA = xT
+		end
+		return xA
+	end
+	def _Lcm(xA, xB)
+		if xA > 4096 or xB > 4096  return 4096 end
+		return xA / this._Gcd(xA, xB) * xB
+	end
+	#-- private: the parser -------------------------------------------------
+	#
+	# Recursive descent over the characters. Every refusal names the place
+	# (1-based) and what was expected there, and a pattern that does not parse
+	# is NULL -- never half a pattern.
+
+	def _Parse(pxText)
+		@vChars = []
+		for k = 1 to Len(pxText)  @vChars + pxText[k] end
+		@nPos = 1
+		this._ResetParse()
+		@nDegrades = 0
+		@tLastError = ""
+		this._Ws()
+		if @nPos > Len(@vChars)
+			this._Refuse("an empty pattern")
+			return ""
+		end
+		xN = this._Stack("")
+		if IsEmpty(xN)  return "" end
+		this._Ws()
+		if @nPos <= Len(@vChars)
+			this._Refuse("at " + String(@nPos) + ": unexpected '" + @vChars[@nPos] + "'")
+			return ""
+		end
+		return xN
+	end
+	# sequences separated by commas, up to `pcClose` (or the end, for "")
+	def _Stack(pxClose)
+		vSeqs = []
+		while true
+			xS = this._Seq(pxClose)
+			if IsEmpty(xS)  return "" end
+			vSeqs + xS
+			this._Ws()
+			if @nPos <= Len(@vChars) and @vChars[@nPos] = ","
+				@nPos++
+				loop
+			end
+			exit
+		end
+		if Len(vSeqs) = 1  return vSeqs[1] end
+		return [ :stack, vSeqs ]
+	end
+	# steps up to a comma, `pcClose`, or the end
+	def _Seq(pxClose)
+		xSt = []
+		while true
+			this._Ws()
+			if @nPos > Len(@vChars)
+				if pxClose != ""
+					this._Refuse("at the end: '" + pxClose + "' is missing")
+					return ""
+				end
+				exit
+			end
+			xC = @vChars[@nPos]
+			if xC = "," or xC = pxClose  exit end
+			if xC = "]" or xC = ">"
+				this._Refuse("at " + String(@nPos) + ": '" + xC + "' closes nothing")
+				return ""
+			end
+			xR = this._Step()
+			if IsEmpty(xR)  return "" end
+			for x in xR  xSt + x end
+		end
+		if Len(xSt) = 0
+			this._Refuse("at " + String(@nPos) + ": an empty sequence")
+			return ""
+		end
+		if Len(xSt) = 1 and xSt[1][2] = 1  return xSt[1][1] end
+		return [ :seq, xSt ]
+	end
+	# a term and its modifiers -> a list of [ node, weight ] (a list, because
+	# ! turns one step into several)
+	def _Step
+		xStart = @nPos
+		xN = this._Term()
+		if IsEmpty(xN)  return "" end
+		xW = 1
+		xRep = 1
+		while @nPos <= Len(@vChars)
+			xC = @vChars[@nPos]
+			if xC = "*" or xC = "/"
+				@nPos++
+				xK = this._Number()
+				if IsString(xK)  xK = 0 end
+				if xK < 1 or xK != Floor(xK)
+					this._Refuse("at " + String(@nPos) + ": '" + xC + "' takes a whole number, 1 or more " +
+					             "(a fractional factor does not map cycles onto cycles)")
+					return ""
+				end
+				# THROUGH A TEMPORARY: "x = [ :fast, x, k ]" in Ring built a list
+				# that lost its last element -- the first run of the guard's
+				# smoke test died on it
+				xT = xN
+				if xC = "*"  xN = [ :fast, xT, xK ] else xN = [ :slow, xT, xK ] end
+			elseif xC = "?"
+				@nPos++
+				@nDegrades++
+				xT = xN
+				xN = [ :degrade, xT, @nDegrades ]
+			elseif xC = "!"
+				@nPos++
+				xK = this._Number()
+				if IsString(xK)
+					xRep = 2
+				else
+					if xK < 1 or xK != Floor(xK)
+						this._Refuse("at " + String(@nPos) + ": '!' takes a whole number")
+						return ""
+					end
+					xRep = xK
+				end
+			elseif xC = "@"
+				@nPos++
+				xK = this._Number()
+				if IsString(xK)  xK = 0 end
+				if xK <= 0
+					this._Refuse("at " + String(@nPos) + ": '@' takes a positive weight")
+					return ""
+				end
+				xW = xK
+			else
+				exit
+			end
+		end
+		vOut = []
+		for r = 1 to xRep  vOut + [ xN, xW ] end
+		return vOut
+	end
+	def _Term
+		xC = @vChars[@nPos]
+		if xC = "~"
+			@nPos++
+			return [ :rest ]
+		end
+		if xC = "["
+			xOpen = @nPos
+			@nPos++
+			xN = this._Stack("]")
+			if IsEmpty(xN)  return "" end
+			@nPos++          # the ]
+			return xN
+		end
+		if xC = "<"
+			@nPos++
+			vAlt = []
+			while true
+				this._Ws()
+				if @nPos > Len(@vChars)
+					this._Refuse("at the end: '>' is missing")
+					return ""
+				end
+				if @vChars[@nPos] = ">"
+					@nPos++
+					exit
+				end
+				if @vChars[@nPos] = ","
+					this._Refuse("at " + String(@nPos) + ": a ',' inside < > -- alternate whole steps, or stack in [ ]")
+					return ""
+				end
+				xR = this._Step()
+				if IsEmpty(xR)  return "" end
+				for x in xR  vAlt + x[1] end
+			end
+			if Len(vAlt) = 0
+				this._Refuse("at " + String(@nPos) + ": '< >' with nothing to alternate")
+				return ""
+			end
+			return [ :alt, vAlt ]
+		end
+		return this._Word()
+	end
+	def _Word
+		tW = ""
+		while @nPos <= Len(@vChars)
+			xC = @vChars[@nPos]
+			if xC = " " or xC = Char(9) or xC = Char(10) or xC = Char(13) or
+			   ring_find([ "[", "]", "<", ">", ",", "*", "/", "?", "!", "@", "~" ], xC) > 0
+				exit
+			end
+			tW += xC
+			@nPos++
+		end
+		if tW = ""
+			this._Refuse("at " + String(@nPos) + ": expected a word, ~, [ or <")
+			return ""
+		end
+		xV = this._Value(tW)
+		if IsEmpty(xV)  return "" end
+		return [ :atom, xV ]
+	end
+	def _Number
+		tS = ""
+		while @nPos <= Len(@vChars)
+			xC = @vChars[@nPos]
+			if IsDigit(xC) or xC = "."
+				tS += xC
+				@nPos++
+			else
+				exit
+			end
+		end
+		if tS = "" or tS = "."  return "" end     # "" = no number here
+		return Decimal(tS)
+	end
+	def _Ws
+		while @nPos <= Len(@vChars)
+			xC = @vChars[@nPos]
+			if xC = " " or xC = Char(9) or xC = Char(10) or xC = Char(13)
+				@nPos++
+			else
+				exit
+			end
+		end
+	end
+	def _Refuse(pxWhy)
+		@nRefusals++
+		@tLastError = pxWhy
+	end
+	def _WholeFactor(xPn, pxWho)
+		if not IsNumber(xPn) or xPn < 1 or xPn != Floor(xPn)
+			this._Refuse(pxWho + ": a whole number, 1 or more (a fractional factor does not map cycles onto cycles)")
+			return false
+		end
+		return true
+	end
+	def _SortByOnset(pxE)
+		xA = pxE
+		nN = Len(xA)
+		for i = 2 to nN
+			xE = xA[i]
+			xJ = i - 1
+			while xJ >= 1 and xA[xJ][1] > xE[1]
+				xA[xJ + 1] = xA[xJ]
+				xJ--
+			end
+			xA[xJ + 1] = xE
+		end
+		return xA
+	end
+	#-- the domain's hooks ---------------------------------------------------
+	#
+	# THE ONLY THREE PLACES A DOMAIN SPEAKS. The grammar, the query and the
+	# algebra above know nothing of what a word MEANS; these say it. Left as
+	# they are, every word is a value of kind "word" and a shifted copy is the
+	# same value -- a pattern of anything: light cues, animation keys, tasks.
+	# stzSoundPattern overrides them with notes, strokes and semitones.
+
+	# a word -> [ kind, name ], or NULL (after _Refuse) when it is not one
+	def _Value(pxWord)
+		return [ "word", pxWord ]
+	end
+	# the value an Off copy carries, given Off's argument
+	def _Shift(pxV, pxArg)
+		return pxV
+	end
+	# called before each parse: reset whatever reading left to right carries
+	def _ResetParse
+		return
+	end
+end

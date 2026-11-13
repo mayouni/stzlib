@@ -131,6 +131,11 @@ pub fn verify(path_c: [*c]const u8) i32 {
     return if (std.mem.eql(u8, &got, &want)) OK else ERR_MISMATCH;
 }
 
+/// The digest the last verify() computed (64 lowercase hex characters): the loader keeps it as the model's identity.
+pub fn lastHex() [HEX]u8 {
+    return g_last_hex[0..HEX].*;
+}
+
 /// Register the digest `path` must have, for this process. 1 ok, 0 bad hex.
 pub fn stz_model_expect(path_c: [*c]const u8, hex_c: [*c]const u8, hex_len: usize) callconv(.c) i32 {
     if (path_c == null or hex_c == null) return 0;

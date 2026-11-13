@@ -50,7 +50,7 @@ func StzRequestSigner(pcName)
 #   see        stzSecurityLedger, stzSecretStore, stzTotp
 class stzRequestSigner from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aKeys = []          # [ keyId, secret ]
 	@aSeen = []          # replay cache: [ kidNonce, ts ]
 	@nMaxSeen = 4096
@@ -62,7 +62,7 @@ class stzRequestSigner from stzObject
 	#   returns    nothing; the object is built
 	#   see        AddKey, Sign
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@aKeys = []
 		@aSeen = []
 
@@ -71,7 +71,7 @@ class stzRequestSigner from stzObject
 	#   returns    a text
 	#   see        init
 	def Name_()
-		return @cName
+		return @tName
 	# Returns the reason for the last refusal, or an empty text after a success.
 	#
 	#   returns    a text
@@ -300,13 +300,13 @@ class stzRequestSigner from stzObject
 		ok
 		if NOT isString(pcSig) or pcSig = ""
 			@cWhy = "unsigned"
-			StzNoteRefusal("webhook.unsigned", @cName, "body:" + StzLen("" + pcBody) + " bytes", @cWhy)
+			StzNoteRefusal("webhook.unsigned", @tName, "body:" + StzLen("" + pcBody) + " bytes", @cWhy)
 			return 0
 		ok
 		_cExpect_ = This._Hmac("" + pcBody, @aKeys[_i_][2])
 		if NOT This._SecureEq(_cExpect_, "" + pcSig)
 			@cWhy = "signature mismatch (tampered body, or the wrong key)"
-			StzNoteRefusal("webhook.signature.forged", @cName, "key:" + pcKeyId, @cWhy)
+			StzNoteRefusal("webhook.signature.forged", @tName, "key:" + pcKeyId, @cWhy)
 			return 0
 		ok
 		return 1
@@ -328,7 +328,7 @@ class stzRequestSigner from stzObject
 		@cWhy = ""
 		if NOT isString(pcSig) or pcSig = ""
 			@cWhy = "unsigned"
-			StzNoteRefusal("webhook.unsigned", @cName, "body:" + StzLen("" + pcBody) + " bytes", @cWhy)
+			StzNoteRefusal("webhook.unsigned", @tName, "body:" + StzLen("" + pcBody) + " bytes", @cWhy)
 			return ""
 		ok
 		_cKid_ = ""
@@ -342,14 +342,14 @@ class stzRequestSigner from stzObject
 		next
 		if _cKid_ = ""
 			@cWhy = "signature mismatch (tampered body, or a secret this receiver does not hold)"
-			StzNoteRefusal("webhook.signature.forged", @cName, "body:" + StzLen("" + pcBody) + " bytes", @cWhy)
+			StzNoteRefusal("webhook.signature.forged", @tName, "body:" + StzLen("" + pcBody) + " bytes", @cWhy)
 			return ""
 		ok
 		This._EvictSeen(pnNowMs, pnWindowMs)
 		_cMark_ = "webhook:" + _cKid_ + ":" + pcSig
 		if This._SeenIndex(_cMark_) > 0
 			@cWhy = "replay detected (this body was already believed inside the window)"
-			StzNoteRefusal("webhook.replayed", @cName, "key:" + _cKid_, @cWhy)
+			StzNoteRefusal("webhook.replayed", @tName, "key:" + _cKid_, @cWhy)
 			return ""
 		ok
 		@aSeen + [ _cMark_, pnNowMs ]

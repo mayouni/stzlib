@@ -96,7 +96,7 @@ func _PgSolvePicture(poDg)
 #   see        stzScopedRule, stzRuleReport, stzGraphRule
 class stzRuleGovernance from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aoRules = []
 	# the scopes and counters of every rule over every picture, built by
 	# CheckRules once and read by every question it asks
@@ -113,7 +113,7 @@ class stzRuleGovernance from stzObject
 	#   note       StzRuleGovernanceQ and StzPlasticGovernance build the same object
 	#   see        AddRule, AddCase
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@aoRules = []
 		@aoCorpus = []
 		@aFindings = []
@@ -123,18 +123,21 @@ class stzRuleGovernance from stzObject
 	#
 	#   returns    the name as text
 	#   see        Rules
-	def Name_()     return @cName
+	def Name_()
+		return @tName
 	# Returns the rules added so far, in the order they were added.
 	#
 	#   returns    a list of stzScopedRule objects
 	#   see        AddRule, ScopeTable
-	def Rules()     return @aoRules
+	def Rules()
+		return @aoRules
 	# Returns the findings of the last CheckRules or CheckAll.
 	#
 	#   returns    a list of findings; [ ] before either has run
 	#   note       CheckCases does not store its findings here
 	#   see        CheckAll, IsSound
-	def Findings()  return @aFindings
+	def Findings()
+		return @aFindings
 
 	# Adds a rule to judge, in the order it will be listed.
 	#

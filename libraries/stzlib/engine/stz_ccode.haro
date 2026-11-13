@@ -1,0 +1,23 @@
+# Softanza Engine -- C Code Generation
+#
+# Loads stz_ccode.dll for C type names, function signatures, struct fields.
+#
+# Function prefix: StzEngineCCode*
+
+if IsWindows()
+    $tStzCcodeLib = $tEngineDir + "/zig-out/bin/stz_ccode.dll"
+elseif IsLinux()
+    $tStzCcodeLib = $tEngineDir + "/zig-out/lib/libstz_ccode.so"
+elseif isMacOS()
+    $tStzCcodeLib = $tEngineDir + "/zig-out/lib/libstz_ccode.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("ccode")
+    $hStzCcodeHandle = ""
+elseif FExists($tStzCcodeLib)
+    $hStzCcodeHandle = LoadLib($tStzCcodeLib)
+else
+    ? "WARNING: stz_ccode not found at: " + $tStzCcodeLib
+    $hStzCcodeHandle = ""
+end

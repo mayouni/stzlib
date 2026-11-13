@@ -85,8 +85,8 @@ func StzModelsDir()
 	if isString(_d_) and _d_ != ""
 		return StzReplace(_d_, char(92), "/")
 	ok
-	if isglobal("$cStzLibDir") and isString($cStzLibDir) and $cStzLibDir != ""
-		return $cStzLibDir + "/models"
+	if isglobal("$tStzLibDir") and isString($tStzLibDir) and $tStzLibDir != ""
+		return $tStzLibDir + "/models"
 	ok
 	_e_ = $cEngineDir
 	if isString(_e_) and len(_e_) >= 7 and right(_e_, 7) = "/engine"
@@ -528,6 +528,14 @@ func StzChatPrompt(pcSystem, pcUser)
 			"<|start_of_role|>user<|end_of_role|>" + StzChatSafeText(pcUser) + "<|end_of_text|>" + char(10) +
 			"<|start_of_role|>assistant<|end_of_role|>"
 	ok
+	# Gemma 4 (and Nemotron 3.5 Bolt, built on it): the turns its model card's template renders with thinking off --
+	# the BOS the tokenizer adds, then <|turn>role ... <turn|> per turn and an open model turn (written down by hand
+	# 2026-11-11, GEMMA4-01: no code here reads or runs a template carried in a model file)
+	if _cArch_ = "gemma4" and StzChatHasToken("<|turn>") = 1
+		return "<|turn>system" + char(10) + ring_trim(pcSystem) + "<turn|>" + char(10) +
+			"<|turn>user" + char(10) + StzChatSafeText(pcUser) + "<turn|>" + char(10) +
+			"<|turn>model" + char(10)
+	ok
 	_cTail_ = ""
 	if _cArch_ = "qwen3"
 		_cTail_ = "<think>" + char(10) + char(10) + "</think>" + char(10) + char(10)
@@ -535,7 +543,12 @@ func StzChatPrompt(pcSystem, pcUser)
 		# a reasoning model in ChatML (Granite 4.2): its own template's thinking-off form is an empty block
 		_cTail_ = "<think></think>"
 	ok
-	return "<|im_start|>system" + char(10) + pcSystem + "<|im_end|>" + char(10) +
+	# LFM3's turns open with its BOS, which its tokenizer does not add (add_bos_token false) and its turns begin with
+	_cHead_ = ""
+	if _cArch_ = "lfm3" and StzChatHasToken("<|startoftext|>") = 1
+		_cHead_ = "<|startoftext|>"
+	ok
+	return _cHead_ + "<|im_start|>system" + char(10) + pcSystem + "<|im_end|>" + char(10) +
 		"<|im_start|>user" + char(10) + StzChatSafeText(pcUser) + "<|im_end|>" + char(10) +
 		"<|im_start|>assistant" + char(10) + _cTail_
 
@@ -565,6 +578,12 @@ func StzChatSafeText(pcText)
 	# Since the tokenizer matches a model's USER-DEFINED added tokens as one token (Qwen3's <think>, </think>,
 	# <tool_call> ...), those structural tags are neutralised too, or untrusted text could write the real token.
 	for _t_ in [ "<think>", "</think>", "<tool_call>", "</tool_call>", "<tool_response>", "</tool_response>" ]
+		_c_ = StzReplace(_c_, _t_, "< " + right(_t_, len(_t_) - 1))
+	next
+	# Gemma 4 closes its structures with "<name|>" and names its control tokens bare ("<eos>"): "<|" above does not
+	# reach them, and each is ONE token to the tokenizer, so "<turn|>" in untrusted text would end the user's turn
+	for _t_ in [ "<turn|>", "<channel|>", "<tool|>", "<tool_call|>", "<tool_response|>", "<image|>", "<audio|>",
+		     "<eos>", "<bos>", "<pad>", "<unk>", "<mask>" ]
 		_c_ = StzReplace(_c_, _t_, "< " + right(_t_, len(_t_) - 1))
 	next
 	return _c_

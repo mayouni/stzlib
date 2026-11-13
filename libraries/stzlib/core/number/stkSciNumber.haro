@@ -1,0 +1,104 @@
+
+func IsSciForm(tNumber)
+	if not IsString(tNumber)
+		return false
+	end
+
+	nPos = ring_substr1(tNumber, "e")
+	if nPos = 0
+		return false
+	end
+
+	tBase = ""
+	for i = 1 to nPos-1
+		tBase += tNumberInStr[i]
+	end
+
+	tExp = ""
+	nLen = Len(tNumberInStr)
+	for i = nPos+1 to nLen
+		tExp += tNumberInStr[i]
+	end
+
+	nBase = Decimal(tBase)
+	if not IsNumber(nBase)
+		return false
+	end
+
+	nExp = Decimal(tExp)
+	if not IsNumber(nExp)
+		return false
+	end
+
+	return true
+end
+func Number2Sci(xN)
+	return StzEngineNumberToScientific(Decimal(xN))
+end
+func Sci2Number(tNumberInStr)
+	tClean = Trim( ring_substr2(tNumberInStr, "_", "") )
+	return StzEngineNumberFromScientific(tClean)
+end
+class stzCoreSciNumber from stkSciNumber
+end
+class stkSciNumber
+	@nBase
+	@nExp
+
+	@tStrValue
+
+	def init(tNumberInSciForm)
+		if not IsString(tNumberInSciForm)
+			return Raise("ERR-" + StkError(:IncorrectParamType))
+		end
+	
+		nPos = ring_substr1(tNumberInSciForm, "e")
+		if nPos = 0
+			return 0
+		end
+	
+		tBase = ""
+		for i = 1 to nPos-1
+			tBase += tNumberInStr[i]
+		end
+	
+		tExp = ""
+		nLen = Len(tNumberInSciForm)
+		for i = nPos+1 to nLen
+			tExp += tNumberInStr[i]
+		end
+	
+		nBase = Decimal(tBase)
+		if not IsNumber(nBase)
+			return Raise("ERR-" + StkError(:IncorrectParamType))
+		end
+	
+		nExp = Decimal(tExp)
+		if not IsNumber(nExp)
+			return Raise("ERR-" + StkError(:IncorrectParamType))
+		end
+	
+		@nBase = nBase
+		@nExp = nExp
+
+		@tStrValue = tNumberInSciForm
+	end
+	def Content
+		return @tStrValue
+	end
+		def SciForm
+			return @tStrValue
+		end
+	def Value
+		nResult = @nBase * Pow(10, @nExp)
+		return nResult
+	end
+		def NValue
+		end
+	def Base
+		return @nBase
+	end
+	def Exp
+		return @nExp
+	end
+end

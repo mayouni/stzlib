@@ -1,0 +1,26 @@
+# Softanza Engine -- Base JSON Ring Bridge
+#
+# Loads stz_json.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: base/file/stzJson.ring
+# Function prefix: StzEngine*
+
+if IsWindows()
+    $tStzJsonLib = $tEngineDir + "/zig-out/bin/stz_json.dll"
+elseif IsLinux()
+    $tStzJsonLib = $tEngineDir + "/zig-out/lib/libstz_json.so"
+elseif isMacOS()
+    $tStzJsonLib = $tEngineDir + "/zig-out/lib/libstz_json.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("json")
+    $hStzJsonHandle = ""
+elseif FExists($tStzJsonLib)
+    $hStzJsonHandle = LoadLib($tStzJsonLib)
+else
+    ? "WARNING: stz_json not found at: " + $tStzJsonLib
+    $hStzJsonHandle = ""
+end

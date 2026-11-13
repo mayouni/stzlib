@@ -120,7 +120,7 @@ func StzPostureReversibilityRefusal(pcPosture, pcRevClass)
 #   see        stzAgentDeclaration, stzSecurityLedger
 class stzGovernance from stzObject
 
-	@cName = ""
+	@tName = ""
 	# The answer to the LAST QUESTION THIS FACE ASKED -- deliberately NOT
 	# in the table. Sharing it would let one face's question overwrite
 	# another face's answer between the call and the read.
@@ -141,7 +141,7 @@ class stzGovernance from stzObject
 	#              raises
 	#   see        DeclareRisk, GrantPermission, SetAuthority, MayProceed
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		$nStzGovernanceSeq = $nStzGovernanceSeq + 1
 		@nId = $nStzGovernanceSeq
 		$aStzGovernances + This._EmptySlot(@nId)
@@ -157,14 +157,14 @@ class stzGovernance from stzObject
 	#   returns    nothing
 	#   see        Name_, Save
 	def SetName(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the governance's name.
 	#
 	#   returns    a text
 	#   see        SetName
 	def Name_()
-		return @cName
+		return @tName
 
 	# Returns the sentence that explains the last verdict this object gave.
 	#
@@ -1064,7 +1064,7 @@ class stzGovernance from stzObject
 		if StzRight(pcFile, 5) != ".zgov"
 			pcFile += ".zgov"
 		ok
-		_c_ = 'governance "' + @cName + '"' + char(10)
+		_c_ = 'governance "' + @tName + '"' + char(10)
 		_c_ += "risks" + char(10)
 		_aSec_ = This._Risks()
 		_n_ = len(_aSec_)

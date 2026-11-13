@@ -71,7 +71,7 @@ Scenario("The publish gate: converted files with a permissive licence and its te
 	next
 	? "   gate: " + nPass + " publishable, " + nDownload + " linked to their upstream, " + nDerive + " derived"
 	Then("every converted file passes: 17", nPass, 17)
-	Then("every downloaded file is linked, never republished: 8", nDownload, 8)
+	Then("every downloaded file is linked, never republished: 9 (the 9th is the optional pack's Bolt GGUF, MP2)", nDownload, 9)
 	Then("the derived file (the refused shift patch) is not published", nDerive, 1)
 	Then("no file is refused for any other reason: " + @@(aOther), len(aOther), 0)
 	nInRepos = 0

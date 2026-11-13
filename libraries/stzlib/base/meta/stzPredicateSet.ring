@@ -49,7 +49,7 @@ func StzSectionAfter(pcLine)
 #   see        stzCodeRuleSet, stzAgentRuleSet, StzCheckCode
 class stzPredicateSet from stzObject
 
-	@cName = ""
+	@tName = ""
 	@acRules = []        # code rules (stzCodeRules names)
 	@acInvariants = []   # agent-graph invariants (stzGovernanceChecks)
 	@cSeal = ""
@@ -60,7 +60,7 @@ class stzPredicateSet from stzObject
 	#   returns    nothing; the object is built
 	#   see        AddRule, AddInvariant, Save
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Changes the name under which the set is saved, replacing the one it was built with.
 	#
@@ -69,7 +69,7 @@ class stzPredicateSet from stzObject
 	#   note       LoadFrom also replaces the name with the one in the file
 	#   see        Name_
 	def SetName(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		return This
 
 	# Returns the name of the set.
@@ -77,7 +77,7 @@ class stzPredicateSet from stzObject
 	#   returns    a text
 	#   see        SetName
 	def Name_()
-		return @cName
+		return @tName
 
 	# Adds a code rule to the set by name; adding one already held changes nothing.
 	#
@@ -136,7 +136,7 @@ class stzPredicateSet from stzObject
 		return @acInvariants
 
 	def _Body()
-		_c_ = 'predicateset "' + @cName + '"' + char(10) + "rules" + char(10)
+		_c_ = 'predicateset "' + @tName + '"' + char(10) + "rules" + char(10)
 		_n_ = len(@acRules)
 		for _i_ = 1 to _n_
 			_c_ += "    " + @acRules[_i_] + char(10)

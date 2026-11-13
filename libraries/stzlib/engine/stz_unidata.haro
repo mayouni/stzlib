@@ -1,0 +1,26 @@
+# Softanza Engine -- Unicode Data
+#
+# Loads stz_unidata.dll which auto-opens the pre-built unicode.db
+# on DLL load. Ring functions take no handle -- the engine manages
+# the database internally, like utf8proc manages its own tables.
+#
+# Used by: base/common/stzUnicodeData.ring
+# Function prefix: StzEngineUnidata*
+
+if IsWindows()
+    $tStzUnidataLib = $tEngineDir + "/zig-out/bin/stz_unidata.dll"
+elseif IsLinux()
+    $tStzUnidataLib = $tEngineDir + "/zig-out/lib/libstz_unidata.so"
+elseif isMacOS()
+    $tStzUnidataLib = $tEngineDir + "/zig-out/lib/libstz_unidata.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("unidata")
+    $hStzUnidataHandle = ""
+elseif FExists($tStzUnidataLib)
+    $hStzUnidataHandle = LoadLib($tStzUnidataLib)
+else
+    ? "WARNING: stz_unidata not found at: " + $tStzUnidataLib
+    $hStzUnidataHandle = ""
+end

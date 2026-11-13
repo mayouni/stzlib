@@ -108,7 +108,7 @@ func StzThemeTokenOf(paTokens, pcName)
 #   see        stzColor, stzCanvas, stzGraphCanvas
 class stzTheme from stzObject
 
-	@cName = ""
+	@tName = ""
 
 	# Builds a theme by name, keeping its name in lower case.
 	#
@@ -133,14 +133,14 @@ class stzTheme from stzObject
 			StzRaise("stzTheme: '" + _c_ + "' is not a theme. The themes " +
 				"are: " + StzJoinWith(StzColorThemes(), ", ") + ".")
 		ok
-		@cName = _c_
+		@tName = _c_
 
 	# Returns the lower-case name of the theme.
 	#
 	#   returns    the name as text, such as pro
 	#   see        Roles
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the roles a theme fills in: primary, success, warning, danger, info, muted, neutral and background.
 	#
@@ -161,7 +161,7 @@ class stzTheme from stzObject
 	#   see        StepOf, OnColorOf, Tokens
 	#@ aka  -- reading it ----------------------------------------------------------
 	def ColorOf(pcRole)
-		_e_ = StzThemeColor(@cName, pcRole)
+		_e_ = StzThemeColor(@tName, pcRole)
 		if _e_ = ""  return ""  ok
 		return StzResolveColor(_e_)
 
@@ -174,7 +174,7 @@ class stzTheme from stzObject
 	#   see        ColorOf, OnColorOf
 	#@ aka  The C2 step of a role, through this theme's colour for it.
 	def StepOf(pcRole, pcStep)
-		_e_ = StzThemeColor(@cName, pcRole)
+		_e_ = StzThemeColor(@tName, pcRole)
 		if _e_ = ""  return ""  ok
 		_l_ = StzRoleStepL(pcStep)
 		if _l_ < 0  return ""  ok
@@ -233,7 +233,7 @@ class stzTheme from stzObject
 	#@ aka  -- exporting -----------------------------------------------------------
 	def ToCSS()
 		_p_ = StzThemeCssPrefix()
-		_c_ = "/* Softanza theme: " + @cName + " */" + char(10)
+		_c_ = "/* Softanza theme: " + @tName + " */" + char(10)
 		_c_ += ":root {" + char(10)
 		_aT1_ = This.Tokens()
 		_nT1_ = len(_aT1_)
@@ -249,7 +249,7 @@ class stzTheme from stzObject
 	#   returns    a text holding a theme key and a tokens object
 	#   see        Tokens, ToCSS
 	def ToJSON()
-		_c_ = "{" + char(10) + '  "theme": "' + @cName + '",' + char(10)
+		_c_ = "{" + char(10) + '  "theme": "' + @tName + '",' + char(10)
 		_c_ += '  "tokens": {' + char(10)
 		_a_ = This.Tokens()
 		_n_ = len(_a_)
@@ -268,9 +268,9 @@ class stzTheme from stzObject
 	#   note       a dash in a token name becomes an underscore, as in :primary_surface
 	#   see        Tokens, ToCSS
 	def ToRing()
-		_c_ = "# Softanza theme: " + @cName + char(10)
-		_c_ += "aTheme" + StzUpper(StzSubStr(@cName, 1, 1)) +
-			StzSubStr(@cName, 2, len(@cName) - 1) + " = [" + char(10)
+		_c_ = "# Softanza theme: " + @tName + char(10)
+		_c_ += "aTheme" + StzUpper(StzSubStr(@tName, 1, 1)) +
+			StzSubStr(@tName, 2, len(@tName) - 1) + " = [" + char(10)
 		_a_ = This.Tokens()
 		_n_ = len(_a_)
 		for _i_ = 1 to _n_

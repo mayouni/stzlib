@@ -28,7 +28,7 @@ nFfn = 1536
 nLayers = 6
 nCpuFullMs = 36.6   # measured, same machine/seq (neural_gpu_routing guard)
 
-StzEngineGpuInit($cStzGpuRuntime)
+StzEngineGpuInit($tStzGpuRuntime)
 if StzEngineGpuIsAvailable() = 0
     ? "no GPU -- the spike needs the device"
     return

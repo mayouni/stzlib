@@ -1,0 +1,14 @@
+# the fixed screen requests (RADAR-A2UI-SLMFORMAT-01), written before any format was run.
+# id<TAB>request<TAB>elements an A2UI screen must show (lowercase, each found in some text, label or option)<TAB>verbs a Zane declaration must hold (in SATISFIES or ALWAYS_REACHABLE)
+signin	A sign-in screen: the email, the password, and a Sign in button.	email,password,sign in	ACT
+room	Book a meeting room: pick the date, the start time and the room (Atlas, Borealis or Cedar), then Confirm or Cancel.	date,time,atlas,borealis,cedar,confirm,cancel	SELECT,CONFIRM,CANCEL
+plan	Ask the user to choose a plan, Basic, Pro or Team, and a Continue button.	basic,pro,team,continue	SELECT,ACT
+order	An order summary: the item, the quantity and the total, with two buttons, Pay now and Back.	item,quantity,total,pay now,back	READ,ACT
+contact	A contact form: the name, the email, the message, and Send.	name,email,message,send	ACT
+delete	Confirm deleting the file report.pdf, which cannot be undone: Delete or Cancel.	report.pdf,delete,cancel	CONFIRM,CANCEL
+settings	Settings: a checkbox for email notifications, a checkbox for dark mode, and Save.	notifications,dark mode,save	ACT
+rating	Rate the support you received from 1 to 5, leave a comment, then Submit.	rate,comment,submit	ACT
+search	A search screen: a search box, a filter by status (Open or Closed), and a Search button.	search,open,closed	FILTER
+expense	Approve or reject an expense of 120 euros for a taxi, with an optional note.	120,taxi,note,approve,reject	CONFIRM,ACT
+address	Choose a delivery address among two saved addresses, or add a new one.	address,add	SELECT,ACT
+failed	The payment failed: offer Retry and Contact support.	payment failed,retry,contact support	RETRY

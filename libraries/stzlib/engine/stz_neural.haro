@@ -1,0 +1,30 @@
+# Softanza Engine -- Neural / modern tier (ggml)
+#
+# Loads stz_neural.dll: the vendored ggml (CPU-only) inference runtime for the
+# modern NLP tier (embeddings, semantic search, zero-shot, transformer NER).
+# Unlike the classical @embedFile'd models, neural models load at RUNTIME.
+#
+# Function prefix: StzEngineNeural*
+
+if IsWindows()
+    $tStzNeuralLib = $tEngineDir + "/zig-out/bin/stz_neural.dll"
+elseif IsLinux()
+    $tStzNeuralLib = $tEngineDir + "/zig-out/lib/libstz_neural.so"
+elseif isMacOS()
+    $tStzNeuralLib = $tEngineDir + "/zig-out/lib/libstz_neural.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("neural")
+    $hStzNeuralHandle = ""
+elseif FExists($tStzNeuralLib)
+    $hStzNeuralHandle = LoadLib($tStzNeuralLib)
+    # GPU routing (post-G6 constructive route): record WHERE the wgpu runtime
+    # lives -- a string store only, zero startup cost. The device initializes
+    # lazily at the first matmul big enough to clear the calibrated threshold;
+    # machines without a GPU (or without the runtime) stay silently on CPU.
+    StzEngineNeuralGpuRuntimePath($tEngineDir + "/zig-out/bin/wgpu_native.dll")
+else
+    ? "WARNING: stz_neural not found at: " + $tStzNeuralLib
+    $hStzNeuralHandle = ""
+end

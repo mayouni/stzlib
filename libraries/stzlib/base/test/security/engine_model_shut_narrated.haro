@@ -1,0 +1,155 @@
+# A SHUT MODEL DOES NOT RUN, WHOEVER CALLS IT -- SECURITY-R18c, the stz_neural half, narrated
+#
+# stzlib-security moved the shut list into the engine (stz_seclog, door_shut.zig): an advisory shuts a door by kind and
+# name, and any engine library can ask. stz_neural now asks before every model run and every model load, BEFORE the
+# file is read: a shut model answers the entry point's own failure value ([], "" or 0), writes capability.refused with
+# the advisory as its origin and never model.run, and Refusal() says why. Since the check is in the
+# engine, a direct StzEngineNeural* call that goes round every Ring door is refused all the same.
+#
+#   Scene 1  nothing shut: a model runs and leaves its model.run record, and the refusal text is empty
+#   Scene 2  the loaded model is shut: the next run is refused, with the advisory, and nothing runs
+#   Scene 3  a shut model is never read: a load of a path that does not exist answers "shut" (-4), not "unreadable"
+#   Scene 4  a refused load leaves the loaded model as it was
+#   Scene 5  generation and prefill refuse too; reopening the advisory lets the model run again
+#   Scene 6  the picture models: a shut file is refused before it is opened, and the OCR-graph error text says why
+#   Scene 7  the counters: every refusal counted, no check that could not reach the list
+#
+# RUNS ON haro.exe; STZ_ENGINE_DIR names an engine whose stz_neural and stz_seclog carry R18c, STZ_MODELS_DIR a folder
+# with all-MiniLM-L6-v2.Q8_0.gguf and smollm2-135m-instruct-q8_0.gguf.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+tMini = StzModelsDir() + "/all-MiniLM-L6-v2.Q8_0.gguf"
+tSmol = StzModelsDir() + "/smollm2-135m-instruct-q8_0.gguf"
+tMiniName = "all-minilm-l6-v2.q8_0.gguf"
+tSmolName = "smollm2-135m-instruct-q8_0.gguf"
+StzCloseSecurityLedger()
+StzForgetShutDoors()
+vR0 = StzEngineNeuralRunRecords()
+
+Scenario("1. nothing shut")
+Then("the engine's shut list is empty", StzEngineSecLogDoorShutCount(), 0)
+Then("MiniLM loads", StzEngineNeuralModelLoad(tMini), 1)
+Then("...and embeds (384 numbers)", StzEngineNeuralEmbed("a model that is not shut"), 384)
+Then("...leaving one model.run record", Len(Kind("model.run")), 1)
+Then("no refusal", Refusal(), "")
+
+Scenario("2. the loaded model is shut")
+Then("an advisory shuts it (the name in another case: the list ignores case)", StzEngineSecLogDoorShut("model", "All-MiniLM-L6-v2.Q8_0.GGUF", "ADV-R18C-1"), 1)
+nRuns = Len(Kind("model.run"))
+Then("the next embed is refused: 0 numbers", StzEngineNeuralEmbed("the same model, now shut"), 0)
+Then("...and nothing ran: no new model.run", Len(Kind("model.run")), nRuns)
+Then("...the refusal says which model and which advisory", Refusal(), "refused: the model '" + tMiniName + "' is shut by advisory ADV-R18C-1")
+vRef = Kind("capability.refused")
+Then("one capability.refused record", Len(vRef), 1)
+Then("...naming the model", Last("capability.refused")[:subject], tMiniName)
+Then("...with the advisory as its origin", Last("capability.refused")[:origin], "ADV-R18C-1")
+Then("...written by the model's actor", Last("capability.refused")[:actor], "stzNeuralModel")
+Then("NER refuses the same way", StzEngineNeuralNer("Paris is in France"), 0)
+
+Scenario("3. a shut model is never read")
+Then("a path that does not exist, with the shut name, loads nothing", StzEngineNeuralModelLoad("D:/nowhere/models/ALL-MINILM-L6-V2.Q8_0.gguf"), 0)
+Then("...and the status is -4, shut, not -1, unreadable: the list was asked first", StzEngineNeuralModelLoadStatus(), -4)
+Then("an unshut path that does not exist is -1, as before", StzEngineNeuralModelLoad("D:/nowhere/models/other.gguf") = 0 and StzEngineNeuralModelLoadStatus() = -1, true)
+Then("a drafter is refused the same way, before it is read", StzEngineNeuralDraftLoad("D:/nowhere/" + tMiniName) = 0 and StzEngineNeuralModelLoadStatus() = -4, true)
+
+Scenario("4. a refused load leaves the loaded model as it was")
+Then("SmolLM2 loads", StzEngineNeuralModelLoad(tSmol), 1)
+Then("loading the shut MiniLM over it is refused", StzEngineNeuralModelLoad(tMini), 0)
+nRuns = Len(Kind("model.run"))
+tOut = StzEngineNeuralGenerate("The capital of France is", 4)
+Then("SmolLM2 still answers", Len(tOut) > 0, true)
+Then("...and its run is recorded under its own name", Last("model.run")[:subject], tSmolName)
+
+Scenario("5. generation refuses too, and reopening lets it run")
+StzEngineSecLogDoorShut("model", tSmolName, "ADV-R18C-2")
+nRuns = Len(Kind("model.run"))
+Then("generate answers nothing", StzEngineNeuralGenerate("The capital of France is", 4), "")
+Then("generate with options answers nothing", StzEngineNeuralGenerateXT("The capital of France is", 4, 0, 1, 0, 1), "")
+Then("prefill answers 0", StzEngineNeuralPrefillLogits("The capital of France is"), 0)
+Then("a stream does not start", StzEngineNeuralGenStart("The capital of France is", 4, 0, 1, 0, 1), 0)
+Then("...and none of the four ran", Len(Kind("model.run")), nRuns)
+Then("...each refused under the second advisory", Last("capability.refused")[:origin], "ADV-R18C-2")
+Then("reopening the advisory reopens one door", StzEngineSecLogDoorReopen("ADV-R18C-2"), 1)
+Then("SmolLM2 generates again", Len(StzEngineNeuralGenerate("The capital of France is", 4)) > 0, true)
+Then("...with a model.run record", Len(Kind("model.run")), nRuns + 1)
+Then("...and no refusal", Refusal(), "")
+Then("MiniLM is still shut by the first", StzEngineSecLogDoorIsShut("model", tMiniName), "ADV-R18C-1")
+
+Scenario("6. the picture models: refused before the file is opened")
+StzEngineSecLogDoorShut("model", "crafted.gguf", "ADV-R18C-3")
+nRuns = Len(Kind("model.run"))
+vOut = StzEngineNeuralVisionClassify("D:/nowhere/models/Crafted.GGUF", "abc", 1, 1, 3, 5, 1)
+Then("classify answers []", Len(vOut), 0)
+Then("...no model.run", Len(Kind("model.run")), nRuns)
+Then("...a capability.refused under the third advisory", Last("capability.refused")[:origin], "ADV-R18C-3")
+Then("...and the picture error text says why", StzEngineNeuralOcrGraphError(), "refused: the model 'crafted.gguf' is shut by advisory ADV-R18C-3")
+vOut = StzEngineNeuralVisionFaces("D:/nowhere/models/crafted.gguf", "abc", 1, 1, 3, 0, 0, 1)
+Then("faces answer [] too", Len(vOut), 0)
+Then("a picture model nobody shut is asked to run, and recorded (it fails later: no file)", Len(StzEngineNeuralVisionClassify("D:/nowhere/models/other.gguf", "abc", 1, 1, 3, 5, 1)) = 0 and Len(Kind("model.run")) = nRuns + 1, true)
+
+Scenario("7. the counters")
+vR = StzEngineNeuralRunRecords()
+Then("five numbers: asked, written, missed, refused, unchecked", Len(vR), 5)
+Then("every refusal of this process counted", Pick(vR, 4) - Pick(vR0, 4), Len(Kind("capability.refused")))
+Then("no check failed to reach the shut list", Pick(vR, 5), 0)
+Then("no record missed", vR[3], 0)
+
+? ""
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+StzEngineSecLogDoorReopen("ADV-R18C-1")
+StzEngineSecLogDoorReopen("ADV-R18C-3")
+Shutdown($nFail)
+
+func Kind(tKind)
+	if StzSecurityLedgerIsOpen() = 0
+		return []
+	end
+	return StzSecurityLedgerQ().OfKind(tKind)
+end
+
+# the engine's refusal sentence; an engine built before R18c has no such function, and its control run reads that
+# rather than stopping
+func Refusal
+	tR = "(this engine has no StzEngineNeuralRefusal)"
+	try
+		tR = StzEngineNeuralRefusal()
+	catch
+	end
+	return tR
+end
+
+func Last(tKind)
+	vK = Kind(tKind)
+	if Len(vK) = 0
+		return [ [:subject, ""], [:origin, ""], [:actor, ""] ]
+	end
+	return vK[Len(vK)]
+end
+
+# an item of the counters; -1 when an older engine answered fewer
+func Pick(vList, nAt)
+	if Len(vList) < nAt
+		return -1
+	end
+	return vList[nAt]
+end
+
+func Scenario(tName)
+	? ""
+	? "SCENARIO: " + tName
+end
+func Then(tWhat, xGot, xExpected)
+	if xGot = xExpected
+		$nPass = $nPass + 1
+		? "  THEN  " + tWhat + "  [PASS]"
+	else
+		$nFail = $nFail + 1
+		? "  THEN  " + tWhat + "  [FAIL]"
+		? "    expected: " + String(xExpected)
+		? "    got:      " + String(xGot)
+	end
+end

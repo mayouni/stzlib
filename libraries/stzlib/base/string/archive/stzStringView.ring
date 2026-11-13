@@ -1,7 +1,7 @@
 
 class stzStringView from stzObject
 
-	@cContent
+	@tContent
 
 	// Initializes the content of the softanza string object
 	def init(pcStr)
@@ -15,13 +15,13 @@ class stzStringView from stzObject
 
 			if isList(pcStr) and Q(pcStr).IsPairOfStrings() # Named string
 				@cVarName = pcStr[1] # Inherited from stzObject
-				@cContent = pcStr[2]
+				@tContent = pcStr[2]
 				return
 			ok
 
 		ok
 
-		@cContent = pcStr
+		@tContent = pcStr
 
 	  #=======================================#
 	 #     GETTING CONTENT OF THE STRING     #
@@ -29,7 +29,7 @@ class stzStringView from stzObject
 
 	def Content()
 
-		return @cContent
+		return @tContent
 
 		#< @FunctionFluentForm
 

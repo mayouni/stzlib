@@ -48,7 +48,7 @@ class stzMusic
 	@nTempo = 120
 	@cInstrument = "piano"
 	@nSwing = 0.5
-	@cLastError = ""
+	@tLastError = ""
 	@nRefusals = 0
 	@oLast = NULL           # the score the last Play or ToSound made
 	@oLive = NULL           # MU3: the live session, made on first use
@@ -65,7 +65,7 @@ class stzMusic
 	def Tempo(pnBpm)
 		if NOT isNumber(pnBpm) or pnBpm < 20 or pnBpm > 400
 			@nRefusals++
-			@cLastError = "Tempo: beats per minute, 20 to 400"
+			@tLastError = "Tempo: beats per minute, 20 to 400"
 			return This
 		ok
 		@nTempo = pnBpm
@@ -81,7 +81,7 @@ class stzMusic
 		_c_ = lower("" + pInstrument)
 		if StzEngineSoundInstrumentIndex(_c_) = 0
 			@nRefusals++
-			@cLastError = "With: no instrument named '" + pInstrument + "'"
+			@tLastError = "With: no instrument named '" + pInstrument + "'"
 			return This
 		ok
 		@cInstrument = _c_
@@ -111,7 +111,7 @@ class stzMusic
 		_oS_ = This.ScoreOf(pcNotes)
 		if _oS_.NumberOfEvents() = 0  return This ok
 		_oS_.Play()
-		if _oS_.LastError() != ""  @cLastError = _oS_.LastError() ok
+		if _oS_.LastError() != ""  @tLastError = _oS_.LastError() ok
 		return This
 
 	# Renders a string of note names to a sound in memory, with the chosen instrument, speed and swing.
@@ -141,7 +141,7 @@ class stzMusic
 		if @nSwing != 0.5  _oS_.Swing(@nSwing) ok
 		if _oS_.Refusals() > 0
 			@nRefusals += _oS_.Refusals()
-			@cLastError = _oS_.LastError()
+			@tLastError = _oS_.LastError()
 		ok
 		@oLast = _oS_
 		return _oS_
@@ -169,7 +169,7 @@ class stzMusic
 		_o_ = StzSoundUniverseQ(pUniverse)
 		if NOT _o_.IsUsable()
 			@nRefusals++
-			@cLastError = _o_.LastError()
+			@tLastError = _o_.LastError()
 			return This
 		ok
 		if "" + pMode != ""  _o_.Mode(pMode) ok
@@ -180,7 +180,7 @@ class stzMusic
 		ok
 		if _o_.Refusals() > 0
 			@nRefusals += _o_.Refusals()
-			@cLastError = _o_.LastError()
+			@tLastError = _o_.LastError()
 			return This
 		ok
 		@oUniverse = _o_
@@ -207,11 +207,11 @@ class stzMusic
 	def PhraseToSound(pcDegrees, pnCycles)
 		if NOT isObject(@oUniverse)
 			@nRefusals++
-			@cLastError = "PhraseToSound: choose a universe first -- In(:Maqam, :Rast, :C)"
+			@tLastError = "PhraseToSound: choose a universe first -- In(:Maqam, :Rast, :C)"
 			return NULL
 		ok
 		_oS_ = @oUniverse.PerformQ(pcDegrees, pnCycles)
-		if @oUniverse.LastError() != ""  @cLastError = @oUniverse.LastError() ok
+		if @oUniverse.LastError() != ""  @tLastError = @oUniverse.LastError() ok
 		return _oS_.ToSound()
 
 	# Plays a phrase of degrees live in the chosen universe for two cycles and returns when they have sounded.
@@ -225,7 +225,7 @@ class stzMusic
 	def PlayPhrase(pcDegrees)
 		if NOT isObject(@oUniverse)
 			@nRefusals++
-			@cLastError = "PlayPhrase: choose a universe first -- In(:Maqam, :Rast, :C)"
+			@tLastError = "PlayPhrase: choose a universe first -- In(:Maqam, :Rast, :C)"
 			return This
 		ok
 		@oUniverse.PerformQ(pcDegrees, 2).Play()
@@ -252,7 +252,7 @@ class stzMusic
 		_o_ = _oR_.Sing(pcLyrics, pcNotes)
 		if NOT isObject(_o_)
 			@nRefusals++
-			@cLastError = _oR_.LastError()
+			@tLastError = _oR_.LastError()
 		ok
 		return _o_
 
@@ -360,7 +360,7 @@ class stzMusic
 	#   returns    a text
 	#   see        Refusals
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns how many calls this object has refused, including those of the scores it made.
 	#

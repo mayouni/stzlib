@@ -51,7 +51,7 @@ func _StzFlowStageRow(paStages, pcId)
 #   see        stzFaculty, stzParcel, stzModelRegistry, stzGraph
 class stzFlow from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aStages = []
 	@aEdges = []              # [ from, to ]
 	@oGraph = ""
@@ -67,7 +67,7 @@ class stzFlow from stzObject
 	#              before it runs
 	#   see        StzFlowQ, AddStage
 	def init(pcName)
-		@cName = pcName
+		@tName = pcName
 		@oGraph = new stzGraph(pcName)
 
 	# Returns the name the flow was built with.
@@ -75,7 +75,7 @@ class stzFlow from stzObject
 	#   returns    a text
 	#   see        StzFlowQ, Explain
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the stzGraph the flow composes, with one node per stage and one edge per connection.
 	#
@@ -139,7 +139,7 @@ class stzFlow from stzObject
 	#@ aka  -- building: active verbs, each with its Q twin ----------------------------------------------
 	def AddStage(pcId, pcFaculty, paParams)
 		if _StzFlowStageRow(@aStages, pcId) > 0
-			stzraise("AddStage: the flow '" + @cName + "' already has a stage '" + pcId + "'.")
+			stzraise("AddStage: the flow '" + @tName + "' already has a stage '" + pcId + "'.")
 		ok
 		if NOT StzHasFaculty(pcFaculty)
 			stzraise("AddStage: no faculty named '" + pcFaculty + "' is declared (declared: " + @@(StzFacultyNames()) + ").")
@@ -335,11 +335,11 @@ class stzFlow from stzObject
 	def CheckRules()
 		_aF_ = []
 		if len(@aStages) = 0
-			add(_aF_, _StzFlowFinding("empty-flow", @cName, "the flow has no stage"))
+			add(_aF_, _StzFlowFinding("empty-flow", @tName, "the flow has no stage"))
 		ok
 		_aOrder_ = This.TopologicalOrder()
 		if len(@aStages) > 0 and len(_aOrder_) = 0
-			add(_aF_, _StzFlowFinding("cycle", @cName, "the flow has a cycle: a data flow must be acyclic"))
+			add(_aF_, _StzFlowFinding("cycle", @tName, "the flow has a cycle: a data flow must be acyclic"))
 		ok
 		for _i_ = 1 to len(@aStages)
 			_cId_ = @aStages[_i_][:id]
@@ -430,7 +430,7 @@ class stzFlow from stzObject
 	#@ aka  One sentence per stage
 	def Why()
 		_aP_ = This.ResolvePlan()
-		_c_ = "flow '" + @cName + "'"
+		_c_ = "flow '" + @tName + "'"
 		for _i_ = 1 to len(_aP_[:stages])
 			_a_ = _aP_[:stages][_i_]
 			_c_ += char(10) + "  " + _a_[:stage] + " (" + _a_[:faculty] + "): "
@@ -446,7 +446,7 @@ class stzFlow from stzObject
 	#              pick: Why does that
 	#   see        Why, Stages, Edges
 	def Explain()
-		_c_ = "flow '" + @cName + "': " + len(@aStages) + " stage(s)"
+		_c_ = "flow '" + @tName + "': " + len(@aStages) + " stage(s)"
 		for _i_ = 1 to len(@aStages)
 			_a_ = @aStages[_i_]
 			_cPin_ = "registry choice"
@@ -503,7 +503,7 @@ class stzFlow from stzObject
 			next
 			_oP_._SetProvenance(_aProv_)
 			_oP_._SealKey()
-			_oP_._SetTrace(@cName + ":" + @aStages[_i_][:id])
+			_oP_._SetTrace(@tName + ":" + @aStages[_i_][:id])
 			add(@aParcels, [ @aStages[_i_][:id], _oP_ ])
 			_oLast_ = _oP_
 		next

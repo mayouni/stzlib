@@ -20,6 +20,7 @@ const L = @import("testoor_logbook.zig");
 const G = @import("testoor_graph.zig");
 const A = @import("testoor_api.zig");
 const Ev = @import("testoor_evidence.zig");
+const Rd = @import("testoor_reader.zig");
 
 const Allocator = std.mem.Allocator;
 
@@ -277,6 +278,35 @@ test "protocol 3: the impact record widened by an open node, and the nodes it ca
         try got.appendSlice(a, try A.impactJson(a, req));
         try got.append(a, '\n');
         try expectFile(a, dir, try std.fs.path.join(a, &.{ "protocol3/impact", case, "expected.json" }), got.items);
+    }
+    try std.testing.expectEqual(@as(usize, 0), failures);
+}
+
+test "the Haro face judges a narrated tour from its THEN lines only (P3.6)" {
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const dir = try goldenDir(a);
+    failures = 0;
+    try judgeCases(a, dir, "haro/judge", 1);
+    try std.testing.expectEqual(@as(usize, 0), failures);
+}
+
+test "the Haro face reads a .haro tour into the record the judge reads (P3.6)" {
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const dir = try goldenDir(a);
+    const cases = try caseNames(a, dir, "haro/reader");
+    try std.testing.expect(cases.len >= 2);
+    failures = 0;
+    for (cases) |case| {
+        const path = try std.fs.path.join(a, &.{ dir, "haro/reader", case, "tour.haro" });
+        const src = try std.fs.cwd().readFileAlloc(a, path, 1 << 20);
+        var b = T.Buf.init(a);
+        try Rd.writeRecord(&b, try Rd.readHaro(a, "tour.haro", src));
+        try b.c('\n');
+        try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/reader", case, "expected.json" }), try b.done());
     }
     try std.testing.expectEqual(@as(usize, 0), failures);
 }

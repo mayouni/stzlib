@@ -1,0 +1,27 @@
+# Softanza Engine -- engine-side time primitives.
+# Owns the clock so every host language sees identical semantics.
+#
+# StzEngineTimeNowMs()        -> monotonic ns/1e6
+# StzEngineTimeNowUs()        -> monotonic ns/1e3
+# StzEngineTimeNowNs()        -> monotonic ns (Float64; exact to ~104d)
+# StzEngineTimeWallMs()       -> wall-clock UTC ms since epoch
+# StzEngineTimeSleepMs(ms)    -> blocking sleep
+# StzEngineTimeResolutionNs() -> claimed resolution
+
+if IsWindows()
+    $tStzTimeLib = $tEngineDir + "/zig-out/bin/stz_time.dll"
+elseif IsLinux()
+    $tStzTimeLib = $tEngineDir + "/zig-out/lib/libstz_time.so"
+elseif isMacOS()
+    $tStzTimeLib = $tEngineDir + "/zig-out/lib/libstz_time.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("time")
+    $hStzTimeHandle = ""
+elseif FExists($tStzTimeLib)
+    $hStzTimeHandle = LoadLib($tStzTimeLib)
+else
+    ? "WARNING: stz_time not found at: " + $tStzTimeLib
+    $hStzTimeHandle = ""
+end

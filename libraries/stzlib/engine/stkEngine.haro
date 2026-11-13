@@ -1,0 +1,13 @@
+# Softanza Engine -- Core All-in-One FFI Bridge
+#
+# Loads all Core-tier Engine bridges.
+# For selective loading, load individual bridges instead:
+#   load "engine/stk_string.haro"
+#   load "engine/stk_datetime.haro"
+#   load "engine/stk_file.haro"
+#   load "engine/stk_locale.haro"
+
+load "stk_string.haro"
+load "stk_datetime.haro"
+load "stk_file.haro"
+load "stk_locale.haro"

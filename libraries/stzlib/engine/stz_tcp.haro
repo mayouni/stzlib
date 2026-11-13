@@ -1,0 +1,32 @@
+# Softanza Engine -- TCP Client + Server (libuv-free)
+#
+# Loads stz_tcp.dll. Replaces the libuv-based stzTcp* surface.
+# Backed by Zig std.net -- synchronous (blocking) operations.
+#
+# Function prefix: StzEngineTcp*
+#   StzEngineTcpConnect(cHost, nPort)              -> client handle
+#   StzEngineTcpSend(hClient, cData)               -> bytes sent
+#   StzEngineTcpRecv(hClient, nMaxBytes)           -> received string
+#   StzEngineTcpClose(hClient)
+#   StzEngineTcpListen(cHost, nPort)               -> server handle
+#   StzEngineTcpAccept(hServer)                    -> client handle
+#   StzEngineTcpServerClose(hServer)
+#   StzEngineTcpLastError()                        -> last error message
+
+if IsWindows()
+    $tStzTcpLib = $tEngineDir + "/zig-out/bin/stz_tcp.dll"
+elseif IsLinux()
+    $tStzTcpLib = $tEngineDir + "/zig-out/lib/libstz_tcp.so"
+elseif isMacOS()
+    $tStzTcpLib = $tEngineDir + "/zig-out/lib/libstz_tcp.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("tcp")
+    $hStzTcpHandle = ""
+elseif FExists($tStzTcpLib)
+    $hStzTcpHandle = LoadLib($tStzTcpLib)
+else
+    ? "WARNING: stz_tcp not found at: " + $tStzTcpLib
+    $hStzTcpHandle = ""
+end

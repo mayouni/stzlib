@@ -1,19 +1,23 @@
-ggml 0.15.3 (upstream commit eced84c86f8b012c752c016f7fe789adea168e1e, 2026-06-26), built as 0.0.0-stz
+ggml 0.29.0 (upstream commit 57e2c2ca2a7cae756b1c4dfafa0cdfef9051d234, 2026-11-04), built as 0.0.0-stz
 
-Pinned 2026-11-11 (RADAR-NVIDIA-GGMLPIN-01) by matching this copy against upstream's history: of the 90 files here that
-NOTICE does not name as patched, 89 are byte for byte the files at the same paths in tag v0.15.3; the 90th is this
-folder's own .gitignore. The same 89 files are unchanged through upstream commit 14372131 (2026-07-09), since the
-commits in between touch only the GPU backends pruned here; v0.15.3 was master's tip on the day the copy was taken
-(2026-07-07, stzlib 3f3fd7288). The four patched files are listed in NOTICE beside this file.
+Taken 2026-11-12 over 0.15.3 (pinned 2026-11-11, RADAR-NVIDIA-GGMLPIN-01). Of the 100 files here other than this one,
+92 are byte for byte the files at the same paths in tag v0.29.0; the four NOTICE names as patched carry the same
+patches re-applied, and src/ggml-cpu/tiled/tiled.cpp carries one of its own (the tiled matmul off by default); NOTICE and this folder's own .gitignore are ours; and src/ggml-version.h is ours too, standing in
+for the header upstream's CMake writes from ggml-version.h.in (it defines GGML_VERSION and GGML_COMMIT only where the
+build has not). The four files of src/ggml-cpu/tiled/ and that header were missing from the first commit of 0.29.0
+(ee2663143), which was made from a diff, and a diff carries no new file: a clean checkout could not build stz_neural
+or stz_matrix until they were added the same day. The pruning is unchanged: CPU only,
+x86 only, as NOTICE describes. Upstream's history between the two tags was read from a local clone of
+github.com/ggml-org/ggml.
 
 GGML_VERSION/GGML_COMMIT stay defined as 0.0.0-stz / stz at build time: a patched, pruned CPU build is not upstream's
-0.15.3, and neural_runtime_narrated.ring reads that name.
+0.29.0, and neural_runtime_narrated.ring reads that name.
 
 --- SBOM record (read by engine/tools/sbom.py; keep the keys) ---
 Component:        ggml
-Version:          0.15.3 (patched, CPU only; built as 0.0.0-stz)
+Version:          0.29.0 (patched, CPU only; built as 0.0.0-stz)
 Source:           https://github.com/ggml-org/ggml
 Licence:          MIT
-Purl:             pkg:github/ggml-org/ggml@v0.15.3
-Archive-SHA-256:  not recorded -- no archive was fetched; pinned to tag v0.15.3 by matching upstream's git history file by file
-Tree-Digest:      41e7681348f67d1a53f53d80a20137382592a12d25a0f9179dbad10c4734911d
+Purl:             pkg:github/ggml-org/ggml@v0.29.0
+Archive-SHA-256:  not recorded -- no archive was fetched; taken from tag v0.29.0 of a git clone, matched file by file
+Tree-Digest:      5a1714ead791b48e05e25b59007290e859c87768bc057f8ff03fe828be3b9b5d

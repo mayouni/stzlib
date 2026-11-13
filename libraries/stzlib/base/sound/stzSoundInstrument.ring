@@ -136,10 +136,10 @@ func StzNoteToHz(pcNote)
 class stzSoundInstrument
 
 	@nId = 0
-	@cName = ""
+	@tName = ""
 	@nVelocity = 0.8
 	@nRate = 48000
-	@cLastError = ""
+	@tLastError = ""
 	@nRefusals = 0
 	@nRawCents = 0
 	@nTuningCents = 0
@@ -157,18 +157,18 @@ class stzSoundInstrument
 	#   see        IsUsable, ToSoundOfNote
 	def init(pName)
 		if NOT StzSoundEngineLoaded()
-			@cLastError = "stz_sound.dll is not loaded"
+			@tLastError = "stz_sound.dll is not loaded"
 			return
 		ok
 		_i_ = StzEngineSoundInstrumentIndex(lower("" + pName))
 		if _i_ = 0
 			@nRefusals++
-			@cLastError = "no instrument named '" + pName + "' -- this engine has: " +
+			@tLastError = "no instrument named '" + pName + "' -- this engine has: " +
 			              This._Joined(StzSoundInstruments())
 			return
 		ok
 		@nId = _i_
-		@cName = StzEngineSoundInstrumentName(_i_)
+		@tName = StzEngineSoundInstrumentName(_i_)
 
 	# TRUE if the instrument was found and can render.
 	#
@@ -183,7 +183,7 @@ class stzSoundInstrument
 	#   returns    the name as text in lower case, such as oud; an empty text when it is not usable
 	#   see        HonestName
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the name the instrument ships under if the ear says the real one is a lie.
 	#
@@ -257,7 +257,7 @@ class stzSoundInstrument
 	def SetVelocity(pnVelocity)
 		if NOT isNumber(pnVelocity) or pnVelocity <= 0 or pnVelocity > 1
 			@nRefusals++
-			@cLastError = "SetVelocity: a velocity is above 0 and at most 1"
+			@tLastError = "SetVelocity: a velocity is above 0 and at most 1"
 			return
 		ok
 		@nVelocity = pnVelocity
@@ -296,7 +296,7 @@ class stzSoundInstrument
 		_hz_ = StzNoteToHz(pcNote)
 		if _hz_ = 0
 			@nRefusals++
-			@cLastError = "ToSoundOfNote: '" + pcNote + "' is not a note name " +
+			@tLastError = "ToSoundOfNote: '" + pcNote + "' is not a note name " +
 			              "(A4, C#3, Bb2, D4+50)"
 			return ""
 		ok
@@ -337,7 +337,7 @@ class stzSoundInstrument
 	def ToSoundOfStroke(pStroke, pnHz, pnSeconds)
 		if This.Engine() != "membrane"
 			@nRefusals++
-			@cLastError = "ToSoundOfStroke: " + @cName + " is not struck -- it has no strokes"
+			@tLastError = "ToSoundOfStroke: " + @tName + " is not struck -- it has no strokes"
 			return ""
 		ok
 		_v_ = -1
@@ -358,7 +358,7 @@ class stzSoundInstrument
 		off
 		if _v_ < 0
 			@nRefusals++
-			@cLastError = "ToSoundOfStroke: '" + pStroke + "' is not a stroke " +
+			@tLastError = "ToSoundOfStroke: '" + pStroke + "' is not a stroke " +
 			              "(dum, tak, ka -- or kick, snare, hihat, openhat, crash, ride, hightom, midtom, floortom on the kit)"
 			return ""
 		ok
@@ -390,7 +390,7 @@ class stzSoundInstrument
 	#   returns    the reason as text; an empty text when the last call went well
 	#   see        Refusals
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns how many calls were refused.
 	#
@@ -406,19 +406,19 @@ class stzSoundInstrument
 	def _Note(pnHz, pnHzEnd, pnSeconds, pnVariant)
 		if @nId = 0
 			@nRefusals++
-			@cLastError = "this instrument is not usable: " + @cLastError
+			@tLastError = "this instrument is not usable: " + @tLastError
 			return ""
 		ok
 		_b_ = StzEngineSoundNoteOf(@nId, pnHz, pnHzEnd, pnSeconds, @nVelocity,
 		                           pnVariant, @nRate)
 		if _b_ = 0
 			@nRefusals++
-			@cLastError = StzEngineSoundLastError()
+			@tLastError = StzEngineSoundLastError()
 			return ""
 		ok
 		@nRawCents = StzEngineSoundNoteRawCents()
 		@nTuningCents = StzEngineSoundNoteTuningCents()
-		@cLastError = ""
+		@tLastError = ""
 		return StzSoundFromBufferQ(_b_)
 
 	def _Joined(paList)

@@ -160,13 +160,15 @@ class stzFrameGraph from stzObject
 	#
 	#   returns    a number
 	#   see        ResourceCount, AddPass
-	def PassCount()      return len(@aPasses)
+	def PassCount()
+		return len(@aPasses)
 	# Returns how many distinct resources the passes read or write.
 	#
 	#   returns    a number
 	#   note       a resource is counted once however many passes use it
 	#   see        PassCount, TargetsSaved
-	def ResourceCount()  return len(@aResources)
+	def ResourceCount()
+		return len(@aResources)
 
 	# Derives the execution order, the lifetimes and the aliasing from the declarations, and proves the frame sound.
 	#

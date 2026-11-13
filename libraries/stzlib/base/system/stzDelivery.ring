@@ -246,7 +246,7 @@ class stzCapabilityCatalog from stzObject
 #              StzDeliveryQ
 class stzDelivery from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aParts = []       # [ name, kind, targetname, [caps] ]  -- plain data (survives copy)
 	@oCat = ""
 	@aBindings = []    # [ partName, siteObject ] -- WHERE each part deploys (production)
@@ -264,7 +264,7 @@ class stzDelivery from stzObject
 	#   returns    nothing; the planner is built
 	#   see        AddPart, NeedsIn, Plan
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@oCat = new stzCapabilityCatalog()
 		@oLog = new stzLog("delivery")
 		@oLog.SetLevel(:trace)
@@ -274,7 +274,7 @@ class stzDelivery from stzObject
 	#   returns    a text
 	#   see        init
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the structured log of the delivery phases, which Deploy writes to.
 	#
@@ -822,7 +822,7 @@ class stzDelivery from stzObject
 	#   see        stzBuildPlan, Deploy
 	#@ aka  REHEARSE the placement & scope plan -- no bytes built. This is Build()'s thinking made visible (VSF rehearse->plan->commit).
 	def Plan()
-		_oPlan_ = new stzBuildPlan(@cName)
+		_oPlan_ = new stzBuildPlan(@tName)
 		_nLen_ = len(@aParts)
 		for i = 1 to _nLen_
 			_name_ = @aParts[i][1]
@@ -967,7 +967,7 @@ class stzDelivery from stzObject
 #   see        stzDelivery, stzCapabilityCatalog, stzEmulator
 class stzBuildPlan from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aParts = []   # [ name, kind, tname, class, [ [key, display, vector, reason, kb], ... ] ]
 	@aExtDeps = [] # [ [ :service, :posture, :secret, :bound, :parts ], ... ] (phase 7)
 
@@ -978,14 +978,14 @@ class stzBuildPlan from stzObject
 	#   note       stzDelivery.Plan builds one from the parts and needs declared there
 	#   see        AddPart, Explain
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the name of the solution the plan is for.
 	#
 	#   returns    a text
 	#   see        init
 	def Name()
-		return @cName
+		return @tName
 
 	# Adds one part with its target and the delivery decision of each capability it uses.
 	#
@@ -1198,7 +1198,7 @@ class stzBuildPlan from stzObject
 	#   returns    a list of text lines
 	#   see        Show, VectorFor
 	def Explain()
-		_c_ = "Solution '" + @cName + "' -- placement & scope plan (rehearsal; nothing built yet)" + char(10)
+		_c_ = "Solution '" + @tName + "' -- placement & scope plan (rehearsal; nothing built yet)" + char(10)
 		_c_ += "==============================================================================" + char(10)
 		_tot_ = 0
 		_nat_ = 0

@@ -16,7 +16,7 @@ load "../../stzBase.ring"
 $nPass = 0
 $nFail = 0
 
-# counter indices (see engine/stz_sound.ring)
+# counter indices (see engine/stz_sound.haro)
 C_LIVE = 0
 C_CREATED = 1
 C_STALE = 8

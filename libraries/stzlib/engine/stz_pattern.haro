@@ -1,0 +1,23 @@
+# Softanza Engine -- Pattern Detection
+#
+# Loads stz_pattern.dll for palindrome/repeat/sequence/prefix/suffix.
+#
+# Function prefix: StzEnginePattern*
+
+if IsWindows()
+    $tStzPatternLib = $tEngineDir + "/zig-out/bin/stz_pattern.dll"
+elseif IsLinux()
+    $tStzPatternLib = $tEngineDir + "/zig-out/lib/libstz_pattern.so"
+elseif isMacOS()
+    $tStzPatternLib = $tEngineDir + "/zig-out/lib/libstz_pattern.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("pattern")
+    $hStzPatternHandle = ""
+elseif FExists($tStzPatternLib)
+    $hStzPatternHandle = LoadLib($tStzPatternLib)
+else
+    ? "WARNING: stz_pattern not found at: " + $tStzPatternLib
+    $hStzPatternHandle = ""
+end

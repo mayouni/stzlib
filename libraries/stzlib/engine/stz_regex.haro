@@ -1,0 +1,46 @@
+# Softanza Engine -- Base Regex Ring Bridge
+#
+# Loads stz_regex.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: base/regex/stzRegex.ring
+# Function prefix: StzEngine*
+
+if IsWindows()
+    $tStzRegexLib = $tEngineDir + "/zig-out/bin/stz_regex.dll"
+elseif IsLinux()
+    $tStzRegexLib = $tEngineDir + "/zig-out/lib/libstz_regex.so"
+elseif isMacOS()
+    $tStzRegexLib = $tEngineDir + "/zig-out/lib/libstz_regex.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("regex")
+    $hStzRegexHandle = ""
+elseif FExists($tStzRegexLib)
+    $hStzRegexHandle = LoadLib($tStzRegexLib)
+else
+    ? "WARNING: stz_regex not found at: " + $tStzRegexLib
+    $hStzRegexHandle = ""
+end
+
+#------------------------------------------------------------#
+#  HIGH-LEVEL REGEX WRAPPERS                                 #
+#------------------------------------------------------------#
+
+func StzRegexMatchAll(tPattern, tInput)
+    hHandle = StzEngineRegexNew(tPattern, 0)
+    nCount = StzEngineRegexMatchAll(hHandle, tInput)
+    xResult = []
+    for i = 1 to nCount
+        tText = StzEngineRegexCaptureText(hHandle, i)
+        nStart = StzEngineRegexCaptureStart(hHandle, i)
+        xResult + [ [:text, tText], [:position, nStart] ]
+    end
+    StzEngineRegexFree(hHandle)
+    return xResult
+end
+func StzRegexSetLimits(hHandle, nMaxSteps, nMaxMatches, nMaxCaptures)
+    StzEngineRegexSetLimits(hHandle, nMaxSteps, nMaxMatches, nMaxCaptures)
+end

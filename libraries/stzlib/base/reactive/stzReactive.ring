@@ -13,7 +13,7 @@
 # through the reactor (async, drained on the same loop). Callbacks
 # still DISPATCH on the Ring thread -- Ring is not thread-safe, so no
 # callback ever crosses from libuv into Ring. When stz_reactor.dll is
-# absent ($pStzReactorHandle = NULL) the old cooperative sleep-poller
+# absent ($hStzReactorHandle = NULL) the old cooperative sleep-poller
 # runs instead -- the documented no-DLL fallback (LAW 2).
 
 #=====================#
@@ -96,7 +96,7 @@ class stzReactiveSystem from stzObject
 		# COPIES that share the engine handle -- safe because the
 		# handle is never destroyed while the system lives.)
 		@oReactor = ""
-		if $pStzReactorHandle != ""
+		if $hStzReactorHandle != ""
 			@oReactor = new stzReactor()
 			@timerManager.SetReactor(@oReactor)
 			http.SetReactor(@oReactor)

@@ -50,7 +50,7 @@ nD = 8
 nN = 2000
 aData = blobs(nN, nD)
 
-if StzEngineGpuInit($cStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
+if StzEngineGpuInit($tStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
 	? ""
 	? "  NO GPU ON THIS MACHINE -- the CPU witness above is the coverage; the device route refuses silently"
 	chk("forcing the device without one falls back to the CPU's number", StzEngineEmbeddingTrustworthiness([0, 1, 2, 3, 10], 5, 1, [0, 1, 2, 3, 0.5], 1, 1, 2) = 0.4)

@@ -143,7 +143,7 @@ class stzAllocationSkill from stzAgentSkill
 	def Apply(poMemory)
 		if This.PreconditionHolds(poMemory) = 0
 			return [ :ran = 0, :verified = 0,
-				:why = "skill '" + @cName + "' skipped: precondition not met" ]
+				:why = "skill '" + @tName + "' skipped: precondition not met" ]
 		ok
 		_oA_ = @oAllocation
 		_oA_.SolveOn(poMemory)
@@ -154,7 +154,7 @@ class stzAllocationSkill from stzAgentSkill
 
 		if _oA_.IsAllocated() = 0
 			return [ :ran = 1, :verified = 0,
-				:why = "skill '" + @cName + "' could not allocate (" +
+				:why = "skill '" + @tName + "' could not allocate (" +
 					_oA_.Verdict() + "): " + _oA_.Why() ]
 		ok
 
@@ -180,10 +180,10 @@ class stzAllocationSkill from stzAgentSkill
 		ok
 		if _bV_ = 1
 			return [ :ran = 1, :verified = 1,
-				:why = "skill '" + @cName + "' ran and VERIFIED: " + _oA_.Why() ]
+				:why = "skill '" + @tName + "' ran and VERIFIED: " + _oA_.Why() ]
 		ok
 		return [ :ran = 1, :verified = 0,
-			:why = "skill '" + @cName + "' ran but FAILED verification: " + _oA_.Why() ]
+			:why = "skill '" + @tName + "' ran but FAILED verification: " + _oA_.Why() ]
 
 	# Returns the allocation's Why from the skill's last solve on this object.
 	#

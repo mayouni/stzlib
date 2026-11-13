@@ -79,7 +79,7 @@ func StzSoundFromBufferQ(pnBufferId)
 class stzSound
 
 	@nBuf = 0            # the engine's sample-buffer id; 0 = nothing held
-	@cLastError = ""
+	@tLastError = ""
 
 	# Loads a sound from an audio file, or builds an empty sound that holds nothing when the path is empty.
 	#
@@ -91,13 +91,13 @@ class stzSound
 	#   see        MakeSilence, StzSoundQ
 	def init(pcPath)
 		if NOT StzSoundEngineLoaded()
-			@cLastError = "stz_sound.dll is not loaded"
+			@tLastError = "stz_sound.dll is not loaded"
 			return
 		ok
 		if isString(pcPath) and pcPath != ""
 			@nBuf = StzEngineSoundLoadFile(pcPath)
 			if @nBuf = 0
-				@cLastError = StzEngineSoundLastError()
+				@tLastError = StzEngineSoundLastError()
 			ok
 		ok
 
@@ -115,7 +115,7 @@ class stzSound
 		This.Release()
 		@nBuf = StzEngineSoundNewSilent(floor(pnSeconds * pnRate), pnChannels, pnRate)
 		if @nBuf = 0
-			@cLastError = StzEngineSoundLastError()
+			@tLastError = StzEngineSoundLastError()
 		ok
 
 	def MakeSilenceQ(pnSeconds, pnChannels, pnRate)
@@ -164,7 +164,7 @@ class stzSound
 	#   warning    an error stays until the next failure replaces it; a success does not clear it
 	#   see        init, SaveAs
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns how many frames, one sample per channel each, the sound holds.
 	#
@@ -272,7 +272,7 @@ class stzSound
 		if @nBuf = 0  return ok
 		_new_ = StzEngineSoundResample(@nBuf, pnRate, StzSoundQualitySinc())
 		if _new_ = 0
-			@cLastError = StzEngineSoundLastError()
+			@tLastError = StzEngineSoundLastError()
 			return
 		ok
 		StzEngineSoundFree(@nBuf)
@@ -293,7 +293,7 @@ class stzSound
 		if @nBuf = 0  return ok
 		_new_ = StzEngineSoundResample(@nBuf, pnRate, StzSoundQualityLinear())
 		if _new_ = 0
-			@cLastError = StzEngineSoundLastError()
+			@tLastError = StzEngineSoundLastError()
 			return
 		ok
 		StzEngineSoundFree(@nBuf)
@@ -314,7 +314,7 @@ class stzSound
 		if @nBuf = 0  return ok
 		_new_ = StzEngineSoundToChannels(@nBuf, pnChannels)
 		if _new_ = 0
-			@cLastError = StzEngineSoundLastError()
+			@tLastError = StzEngineSoundLastError()
 			return
 		ok
 		StzEngineSoundFree(@nBuf)
@@ -370,7 +370,7 @@ class stzSound
 		if @nBuf = 0 or NOT isObject(poSound)  return This ok
 		_at_ = floor(pnSeconds * StzEngineSoundRate(@nBuf)) + 1
 		if StzEngineSoundMixInto(@nBuf, poSound.BufferId(), _at_, pnGain) < 0
-			@cLastError = StzEngineSoundLastError()
+			@tLastError = StzEngineSoundLastError()
 		ok
 		return This
 
@@ -384,7 +384,7 @@ class stzSound
 	def SaveAs(pcPath)
 		if @nBuf = 0  return ok
 		if StzEngineSoundSaveWav(@nBuf, pcPath, 16) != 0
-			@cLastError = StzEngineSoundLastError()
+			@tLastError = StzEngineSoundLastError()
 		ok
 
 	def SaveAsQ(pcPath)
@@ -400,7 +400,7 @@ class stzSound
 	def SaveAsFloat(pcPath)
 		if @nBuf = 0  return ok
 		if StzEngineSoundSaveWav(@nBuf, pcPath, 32) != 0
-			@cLastError = StzEngineSoundLastError()
+			@tLastError = StzEngineSoundLastError()
 		ok
 
 	def SaveAsFloatQ(pcPath)
@@ -433,11 +433,11 @@ class stzSound
 	def PlayFor(pnSeconds)
 		if @nBuf = 0  return ok
 		if NOT StzAudioDevEngineLoaded()
-			@cLastError = "no audio device tier on this machine"
+			@tLastError = "no audio device tier on this machine"
 			return
 		ok
 		if StzEngineAudioDevIsAvailable() = 0
-			@cLastError = "no audio device on this machine"
+			@tLastError = "no audio device on this machine"
 			return
 		ok
 		_nCh_ = StzEngineSoundChannels(@nBuf)
@@ -445,7 +445,7 @@ class stzSound
 		_n_ = StzEngineSoundGraphAddSource(_g_, @nBuf, 0)
 		StzEngineSoundGraphSetOutput(_g_, _n_)
 		if StzEngineSoundGraphPrepare(_g_) != 0
-			@cLastError = StzEngineSoundGraphLastError()
+			@tLastError = StzEngineSoundGraphLastError()
 			StzEngineSoundGraphFree(_g_)
 			return
 		ok
@@ -453,7 +453,7 @@ class stzSound
 		sleep(0.12)
 		_d_ = StzEngineAudioDevPlaybackOpen(StzEngineSoundStreamRingPtr(_s_), 256)
 		if _d_ = 0
-			@cLastError = StzEngineAudioDevLastError()
+			@tLastError = StzEngineAudioDevLastError()
 			StzEngineSoundStreamStop(_s_)
 			StzEngineSoundGraphFree(_g_)
 			return
@@ -486,7 +486,7 @@ class stzSound
 		if @nBuf = 0  return "" ok
 		_g_ = StzEngineSoundSpectrum(@nBuf, pnChannel, pnStartFrame, pnFftSize)
 		if _g_ = 0
-			@cLastError = StzEngineSoundAnalysisLastError()
+			@tLastError = StzEngineSoundAnalysisLastError()
 			return ""
 		ok
 		return new stzSoundGrid(_g_)
@@ -515,7 +515,7 @@ class stzSound
 		if @nBuf = 0  return "" ok
 		_g_ = StzEngineSoundSpectrogram(@nBuf, pnChannel, pnFftSize, pnHop, pnThreads)
 		if _g_ = 0
-			@cLastError = StzEngineSoundAnalysisLastError()
+			@tLastError = StzEngineSoundAnalysisLastError()
 			return ""
 		ok
 		return new stzSoundGrid(_g_)
@@ -551,7 +551,7 @@ class stzSound
 		if @nBuf = 0  return "" ok
 		_g_ = StzEngineSoundOnsets(@nBuf, pnChannel, 2048, 512, pnSensitivity)
 		if _g_ = 0
-			@cLastError = StzEngineSoundAnalysisLastError()
+			@tLastError = StzEngineSoundAnalysisLastError()
 			return ""
 		ok
 		return new stzSoundGrid(_g_)
@@ -580,7 +580,7 @@ class stzSound
 		ok
 		_tmp_ = StzEngineSoundResample(@nBuf, 48000, StzSoundQualitySinc())
 		if _tmp_ = 0
-			@cLastError = StzEngineSoundLastError()
+			@tLastError = StzEngineSoundLastError()
 			return -1000
 		ok
 		_l_ = StzEngineSoundLoudness(_tmp_)
@@ -633,7 +633,7 @@ class stzSound
 		if StzEngineSoundRate(@nBuf) != 48000
 			_tmp_ = StzEngineSoundResample(@nBuf, 48000, StzSoundQualitySinc())
 			if _tmp_ = 0
-				@cLastError = StzEngineSoundLastError()
+				@tLastError = StzEngineSoundLastError()
 				return -1000
 			ok
 			_id_ = _tmp_

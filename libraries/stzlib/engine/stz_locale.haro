@@ -1,0 +1,26 @@
+# Softanza Engine -- Base Locale Ring Bridge
+#
+# Loads stz_locale.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: base/locale/stzLocale.ring
+# Function prefix: StzEngine* (distinct from Core StkEngine*)
+
+if IsWindows()
+    $tStzLocaleLib = $tEngineDir + "/zig-out/bin/stz_locale.dll"
+elseif IsLinux()
+    $tStzLocaleLib = $tEngineDir + "/zig-out/lib/libstz_locale.so"
+elseif isMacOS()
+    $tStzLocaleLib = $tEngineDir + "/zig-out/lib/libstz_locale.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("locale")
+    $hStzLocaleHandle = ""
+elseif FExists($tStzLocaleLib)
+    $hStzLocaleHandle = LoadLib($tStzLocaleLib)
+else
+    ? "WARNING: stz_locale not found at: " + $tStzLocaleLib
+    $hStzLocaleHandle = ""
+end

@@ -77,7 +77,14 @@ pub const Line = struct { text: []const u8, at: f64 };
 pub const Ending = struct { text: []const u8, ending: []const u8 };
 
 /// a face's ending rules, as DATA (TESTOOR_PROTOCOL.md section 5)
-pub const Face = struct { ignore: []const u8 = "", endings: []const Ending = &.{} };
+pub const Face = struct {
+    ignore: []const u8 = "",
+    endings: []const Ending = &.{},
+    /// P3.6: in a NARRATED tour, a verdict is only a line that begins (spaces aside) with this -- the Haro face says
+    /// `THEN `, so a report the program under test prints (`  FAIL     :x -- ...`) is output, not a failed claim.
+    /// Empty: any line that carries a verdict's shape, as before
+    verdicts: []const u8 = "",
+};
 
 pub const Meta = struct {
     exit: i64,
@@ -238,6 +245,11 @@ fn keptAnErrorPromise(a: Allocator, stops: []const Stop) !bool {
 // ── THE JUDGEMENT of one tour ────────────────────────────────
 
 pub fn judge(a: Allocator, rec: Record, lines: []const Line, end: []const u8, exit: i64, wall: f64) !Run {
+    return judgeOnly(a, rec, lines, end, exit, wall, "");
+}
+
+/// the judgement, reading a verdict only from a line that begins with `only` when it is not empty (Face.verdicts)
+pub fn judgeOnly(a: Allocator, rec: Record, lines: []const Line, end: []const u8, exit: i64, wall: f64, only: []const u8) !Run {
     var stops: std.ArrayList(Stop) = .empty;
     for (rec.stops) |rs| {
         var st = Stop{ .title = rs.title, .line = rs.line };
@@ -258,7 +270,7 @@ pub fn judge(a: Allocator, rec: Record, lines: []const Line, end: []const u8, ex
             if (stops.items[cur - 1].opened < 0) stops.items[cur - 1].opened = ln.at;
             continue;
         }
-        const v = try verdictOf(a, ln.text);
+        const v = if (only.len > 0 and !T.startsWith(T.trimSp(ln.text), only)) Verdict{ .state = .none, .text = "" } else try verdictOf(a, ln.text);
         if (v.state != .none) {
             if (claimNamed(v.text, stops.items)) |w| {
                 stops.items[w.s].claims.items[w.c].state = v.state;
@@ -510,7 +522,8 @@ pub fn verdict(a: Allocator, rec: Record, lines: []const Line, meta: Meta) !Tour
         r = ad.rec;
         ls = ad.lines;
     }
-    var run = try judge(a, r, ls, end, meta.exit, meta.wall_ms);
+    const only = if (std.mem.eql(u8, r.dialect, "narrated")) meta.face.verdicts else "";
+    var run = try judgeOnly(a, r, ls, end, meta.exit, meta.wall_ms, only);
     // the seed the child walked with: the runner's, unless the tour printed its own
     run.seed = meta.seed;
     var weather: std.ArrayList([]const u8) = .empty;
@@ -575,8 +588,10 @@ pub fn recordFromValue(a: Allocator, v: J.Value) !Record {
 pub fn metaFromValue(a: Allocator, v: J.Value) !Meta {
     var endings: std.ArrayList(Ending) = .empty;
     var ignore: []const u8 = "";
+    var verdicts: []const u8 = "";
     if (v.get("face")) |f| {
         if (f.get("ignore")) |ig| ignore = ig.str_();
+        if (f.get("verdicts")) |vd| verdicts = vd.str_();
         if (f.get("endings")) |ev| {
             for (ev.items()) |e| {
                 const pair = e.items();
@@ -596,7 +611,7 @@ pub fn metaFromValue(a: Allocator, v: J.Value) !Meta {
         .wall_ms = (try need(v, "wall_ms")).num_(),
         .seed = seed,
         .unreadable = if (v.get("unreadable")) |u| u.truthy() else false,
-        .face = .{ .ignore = ignore, .endings = endings.items },
+        .face = .{ .ignore = ignore, .endings = endings.items, .verdicts = verdicts },
     };
 }
 

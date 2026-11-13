@@ -1,0 +1,74 @@
+# models_check.haro -- the status a deployment script fails on: would each required faculty answer on the target?
+#
+#   haro models_check.haro --require ocr,ocr/ar,faces [--os linux] [--memory 8192] [--pack support-quality ...]
+#
+#   --require   comma-separated requirements: "ocr" (the faculty answers), "ocr/ar" (in that language),
+#               "faces=yunet" (and that implementation answers it)
+#   --os        the target's operating system (linux, macos, windows); absent, this machine's
+#   --memory    the target's memory in MB; absent, this machine's
+#   --pack      an optional pack the target has installed (repeat it for several); with --os or --memory and no
+#               --pack, the target has none
+#
+# Exits 0 when every requirement is met, 1 when one is not, 2 when a requirement names no declared faculty -- the
+# library's own faculties here; a program with faculties of its own declares them, then calls
+# StzModelsCheckExit(target, requirements) itself (SOFTANZA_MODEL_PLACEMENT.md, MP2).
+# Run from this folder.
+
+load "../base/stzBase.ring"
+
+xArgs = SysArgv
+nLenArgs = Len(xArgs)
+tOs = ""
+nMemory = 0
+vPacks = []
+bProfile = false
+xRequire = []
+# the arguments after this program's own name, whatever the runner puts before it
+nFirst = 1
+for i = 1 to nLenArgs
+	if StzFindFirst("models_check", xArgs[i]) > 0
+		nFirst = i + 1
+	end
+end
+nAt = nFirst
+while nAt <= nLenArgs
+	tA = xArgs[nAt]
+	tV = ""
+	if nAt < nLenArgs
+		tV = xArgs[nAt + 1]
+	end
+	if tA = "--require"
+		xRequire = StzSplit(tV, ",")
+		nAt = nAt + 2
+	elseif tA = "--os"
+		tOs = tV
+		bProfile = true
+		nAt = nAt + 2
+	elseif tA = "--memory"
+		nMemory = Number(tV)
+		bProfile = true
+		nAt = nAt + 2
+	elseif tA = "--pack"
+		vPacks + tV
+		bProfile = true
+		nAt = nAt + 2
+	else
+		? "models_check: unknown argument '" + tA + "' (--require, --os, --memory, --pack)"
+		Shutdown(2)
+	end
+end
+if Len(xRequire) = 0
+	? "models_check: name what the program needs with --require, e.g. --require ocr,faces"
+	Shutdown(2)
+end
+xTarget = ""
+if bProfile
+	if tOs = ""
+		tOs = StzPlacementOS()
+	end
+	xTarget = [ [:os, tOs], [:packs, vPacks] ]
+	if nMemory > 0
+		xTarget + [ :memory, nMemory ]
+	end
+end
+Shutdown(StzModelsCheckExit(xTarget, xRequire))

@@ -1,0 +1,23 @@
+# Softanza Engine -- String Art
+#
+# Loads stz_stringart.dll for pad/center/box/indent/truncate.
+#
+# Function prefix: StzEngineStringArt*
+
+if IsWindows()
+    $tStzStringartLib = $tEngineDir + "/zig-out/bin/stz_stringart.dll"
+elseif IsLinux()
+    $tStzStringartLib = $tEngineDir + "/zig-out/lib/libstz_stringart.so"
+elseif isMacOS()
+    $tStzStringartLib = $tEngineDir + "/zig-out/lib/libstz_stringart.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("stringart")
+    $hStzStringartHandle = ""
+elseif FExists($tStzStringartLib)
+    $hStzStringartHandle = LoadLib($tStzStringartLib)
+else
+    ? "WARNING: stz_stringart not found at: " + $tStzStringartLib
+    $hStzStringartHandle = ""
+end

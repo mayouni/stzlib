@@ -16,7 +16,7 @@ load "../_narrated.ring"
 $cDir = currentdir()
 $cDeny = "_dm_deny.txt"
 $aChildren = []
-$cStzDomainDenyFile = $cDeny
+$tStzDomainDenyFile = $cDeny
 if fexists($cDeny)  remove($cDeny)  ok
 
 oBase = new stzExposure()
@@ -30,7 +30,7 @@ Scenario("1. no manifest: every domain loads, as before W7b")
 EndScenario()
 
 Scenario("2. a manifest of two: the floor and the two, nothing else")
-	a = Child("two", "$aStzDomains = [ " + char(34) + "crypto" + char(34) + ", " + char(34) + "seclog" + char(34) + " ]", "", "")
+	a = Child("two", "$xStzDomains = [ " + char(34) + "crypto" + char(34) + ", " + char(34) + "seclog" + char(34) + " ]", "", "")
 	Then("NUMBER -- six floor domains, the core's stk_string, and the two named", 0 + a[:domains], 9)
 	Then("crypto is loaded", 0 + a[:crypto], 1)
 	Then("hashmap is loaded: the floor, which the library's own load needs", 0 + a[:hashmap], 1)
@@ -52,7 +52,7 @@ Scenario("4. the deny list beats the manifest, and the refusal reaches the ledge
 	Then("a denied domain is not loaded with no manifest", 0 + a[:compress], 0)
 	Then("...and is counted as refused, not skipped", "" + a[:refused] + "/" + a[:skipped], "1/0")
 	Then("opening a ledger writes exposure.closed under the advisory", a[:closed], "domain compress@DRILL-2026-0701")
-	b = Child("denyasked", "$aStzDomains = [ " + char(34) + "compress" + char(34) + " ]", "", $cDeny)
+	b = Child("denyasked", "$xStzDomains = [ " + char(34) + "compress" + char(34) + " ]", "", $cDeny)
 	Then("a manifest that asks for it is refused all the same", 0 + b[:compress], 0)
 	remove($cDeny)
 EndScenario()

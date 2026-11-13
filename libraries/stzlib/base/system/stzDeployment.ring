@@ -331,7 +331,7 @@ class stzResourceSpec from stzObject
 #   see        StzDeploymentSiteQ, stzDeployment, stzResourceSpec, stzSecretStore
 class stzDeploymentSite from stzObject
 
-	@cName = ""
+	@tName = ""
 	@cKind = "localrepo"
 	@cEndpoint = ""
 	@cProtocol = ""
@@ -351,7 +351,7 @@ class stzDeploymentSite from stzObject
 	#   returns    nothing; the object is built
 	#   see        SetKind, SetEndpoint
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Sets the kind of the site, which decides how it is reached: localrepo, server, gitrepo, registry, device or objectstore.
 	#
@@ -515,7 +515,7 @@ class stzDeploymentSite from stzObject
 	#   see        init
 	#@ aka  -- reads ----------------------------------------------
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the kind of the site in lower case.
 	#
@@ -599,7 +599,7 @@ class stzDeploymentSite from stzObject
 	#@ aka  the LIVE auth value -- GOVERNED. For a directly-held stzSecret it reveals with the actor gate; for a plain ref string it returns it as-is. A STORE-BACKED secret cannot be revealed here -- the store must be passed by reference so its audit is real; use ResolveAuthVia(store, actor).
 	def ResolveAuth(poActor)
 		if @bStoreBacked
-			StzRaise("Site '" + @cName + "': auth is store-backed ('" + @cAuthStoreName +
+			StzRaise("Site '" + @tName + "': auth is store-backed ('" + @cAuthStoreName +
 				"'). Reveal it through the store so the access is audited: " +
 				"ResolveAuthVia(store, actor).")
 		but isObject(@oAuthSecret)
@@ -681,7 +681,7 @@ class stzDeploymentSite from stzObject
 			_cap_ = @oCapacity.Text()
 		ok
 		return [
-			[ "name",    @cName ],
+			[ "name",    @tName ],
 			[ "kind",    @cKind ],
 			[ "connection", [ [ "endpoint", @cEndpoint ], [ "protocol", This.Protocol() ], [ "auth", @cAuthRef ] ] ],
 			[ "storage", @cStorage ],
@@ -696,7 +696,7 @@ class stzDeploymentSite from stzObject
 	#              capacity and provider when set
 	#   see        Config, Show
 	def ConfigText()
-		_c_ = "site '" + @cName + "' [" + @cKind + "]" + char(10)
+		_c_ = "site '" + @tName + "' [" + @cKind + "]" + char(10)
 		_c_ += "  connection: " + This.Protocol() + " -> " + _StzSiteOr(@cEndpoint, "(local)")
 		if @cAuthRef != ""
 			_c_ += "   auth: " + @cAuthRef
@@ -730,7 +730,7 @@ class stzDeploymentSite from stzObject
 	def ConfigJson()
 		_q_ = char(34)
 		_c_ = "{" + char(10)
-		_c_ += "  " + _q_ + "name" + _q_ + ": " + _q_ + @cName + _q_ + "," + char(10)
+		_c_ += "  " + _q_ + "name" + _q_ + ": " + _q_ + @tName + _q_ + "," + char(10)
 		_c_ += "  " + _q_ + "kind" + _q_ + ": " + _q_ + @cKind + _q_ + "," + char(10)
 		_c_ += "  " + _q_ + "connection" + _q_ + ": { " + _q_ + "endpoint" + _q_ + ": " + _q_ + @cEndpoint + _q_
 		_c_ += ", " + _q_ + "protocol" + _q_ + ": " + _q_ + This.Protocol() + _q_
@@ -913,7 +913,7 @@ class stzDeploymentSite from stzObject
 			return ""
 		ok
 		if @cProvider = "proxmox"
-			return "qm create --name " + @cName + " --memory " + poReq.MemoryMB() + " --cores " + poReq.ComputeVCPU() + " --scsi0 local:" + poReq.StorageGB()
+			return "qm create --name " + @tName + " --memory " + poReq.MemoryMB() + " --cores " + poReq.ComputeVCPU() + " --scsi0 local:" + poReq.StorageGB()
 		but @cProvider = "aws"
 			return "aws ec2 run-instances --instance-type " + _StzAwsType(poReq)
 		ok
@@ -1666,7 +1666,7 @@ class stzDeployment from stzObject
 		if poSite.IsLocal()
 			# the local machine can answer for ITSELF -- probe the device
 			if StzEngineGpuIsAvailable() = 0
-				StzEngineGpuInit($cStzGpuRuntime)
+				StzEngineGpuInit($tStzGpuRuntime)
 			ok
 			return StzEngineGpuIsAvailable() = 1
 		ok

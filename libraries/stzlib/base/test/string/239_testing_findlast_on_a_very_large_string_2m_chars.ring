@@ -13,7 +13,7 @@ load "../../stzBase.ring"
 
 pr()
 
-o1 = new stzString( UnicodeDataAsString() ) # intended: 1_897_793 chars
+o1 = new stzString("") # intended: 1_897_793 chars
 ? o1.Contains("جميل")   #--> FALSE (absent)
 ? o1.FindLast("جميل")   #--> FALSE / 0 (absent)
 

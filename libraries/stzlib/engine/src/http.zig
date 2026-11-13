@@ -23,7 +23,7 @@ pub fn http_last_body_len() callconv(.c) usize {
     return last_body_len_v;
 }
 
-fn setError(msg: []const u8) void {
+pub fn setError(msg: []const u8) void {
     const n = @min(msg.len, last_error_buf.len);
     @memcpy(last_error_buf[0..n], msg[0..n]);
     last_error_len = n;
@@ -219,7 +219,7 @@ pub fn http_last_headers_len() callconv(.c) usize {
 
 // ── core round-trip ──────────────────────────────────────────
 
-fn doRequest(
+pub fn doRequest(
     method_code: i32,
     url: []const u8,
     ct: []const u8,

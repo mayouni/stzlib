@@ -62,7 +62,7 @@
 #   see        stzMathDiagram, StzCheckPictures
 class stzStoryboard from stzObject
 
-	@cName = ""
+	@tName = ""
 	@oPic = NULL
 	@cFolio = "."
 	@aFrames = []      # [ cRaw, cFilled, cFile, aHoles, aFindings, nMarks ]
@@ -88,8 +88,8 @@ class stzStoryboard from stzObject
 		if NOT isObject(poPicture)
 			stzraise("stzStoryboard: give the picture the frames are about.")
 		ok
-		@cName = ring_trim("" + pcName)
-		if @cName = ""
+		@tName = ring_trim("" + pcName)
+		if @tName = ""
 			stzraise("stzStoryboard: a storyboard needs a name -- its frames are " +
 				"written to files named after it.")
 		ok
@@ -402,9 +402,9 @@ class stzStoryboard from stzObject
 		_n_ = len(@aFrames) + 1
 		_cN_ = "" + _n_
 		if _n_ < 10  _cN_ = "0" + _n_  ok
-		_cFile_ = @cName + "_" + _cN_ + ".png"
+		_cFile_ = @tName + "_" + _cN_ + ".png"
 		@oPic.ToPNG(@cFolio + "/" + _cFile_)
-		_aF_ = StzCheckPictures([ [ @cName + "/" + _cN_, @oPic ] ]).Findings()
+		_aF_ = StzCheckPictures([ [ @tName + "/" + _cN_, @oPic ] ]).Findings()
 		@aFrames + [ @cOpen, _c_, _cFile_, _aH_, _aF_, @oPic.NumberOfMarks(), @bExpect ]
 		@bOpen = FALSE
 		@bExpect = FALSE
@@ -512,14 +512,14 @@ class stzStoryboard from stzObject
 				# frame working -- and finding NOTHING is the frame lying
 				if len(@aFrames[_i_][5]) = 0
 					_a_ + [ :rule = "expected_a_finding_and_got_none", :subject = :frame,
-					        :where = @cName + " frame " + _i_, :severity = :error,
+					        :where = @tName + " frame " + _i_, :severity = :error,
 					        :message = "this frame says it shows something the gate finds, " +
 					          "and the gate finds nothing in it" ]
 				ok
 			else
 				for _k_ = 1 to len(@aFrames[_i_][5])
 					_a_ + [ :rule = "" + @aFrames[_i_][5][_k_][:rule], :subject = :frame,
-					        :where = @cName + " frame " + _i_, :severity = :error,
+					        :where = @tName + " frame " + _i_, :severity = :error,
 					        :message = "" + @aFrames[_i_][5][_k_][:message] ]
 				next
 			ok
@@ -527,7 +527,7 @@ class stzStoryboard from stzObject
 				_aE_ = @aFrames[_i_][4][_k_][4]
 				if len(_aE_) = 0
 					_a_ + [ :rule = "fact_bound_but_never_shown", :subject = :frame,
-					        :where = @cName + " frame " + _i_, :severity = :error,
+					        :where = @tName + " frame " + _i_, :severity = :error,
 					        :message = "the fact '" + @aFrames[_i_][4][_k_][1] + "' was " +
 					          "bound and the caption never quotes it" ]
 					loop
@@ -535,7 +535,7 @@ class stzStoryboard from stzObject
 				for _q_ = 1 to len(_aE_)
 					if StzFindFirst(_aE_[_q_], @aFrames[_i_][2]) = 0
 						_a_ + [ :rule = "hole_not_filled_from_its_fact", :subject = :frame,
-						        :where = @cName + " frame " + _i_, :severity = :error,
+						        :where = @tName + " frame " + _i_, :severity = :error,
 						        :message = "the caption does not show '" + _aE_[_q_] +
 						          "', which is what the fact '" +
 						          @aFrames[_i_][4][_k_][1] + "' reports" ]
@@ -544,7 +544,7 @@ class stzStoryboard from stzObject
 			next
 			if StzFindFirst("{", @aFrames[_i_][2]) > 0
 				_a_ + [ :rule = "hole_left_open", :subject = :frame,
-				        :where = @cName + " frame " + _i_, :severity = :error,
+				        :where = @tName + " frame " + _i_, :severity = :error,
 				        :message = "the caption still holds a hole nothing was bound to: " +
 				          @aFrames[_i_][2] ]
 			ok
@@ -568,7 +568,7 @@ class stzStoryboard from stzObject
 	def Render()
 		This._CloseOpen()
 		_c_ = "<!doctype html>" + char(10) +
-			"<html><head><meta charset='utf-8'><title>" + @cName + "</title>" + char(10) +
+			"<html><head><meta charset='utf-8'><title>" + @tName + "</title>" + char(10) +
 			"<style>body{font:16px/1.6 system-ui,sans-serif;max-width:820px;margin:2rem auto;" +
 			"padding:0 1rem;color:#1e2230;background:#fafaf7}" +
 			"h1{font-size:1.7rem;font-weight:600}figure{margin:2rem 0}" +
@@ -577,7 +577,7 @@ class stzStoryboard from stzObject
 			".n{color:#4b57cc;font-weight:600}" +
 			".v{margin-top:2rem;padding-top:1rem;border-top:1px solid #dcdde4;color:#676c7e;font-size:.95rem}" +
 			"</style></head><body>" + char(10) +
-			"<h1>" + @cName + "</h1>" + char(10)
+			"<h1>" + @tName + "</h1>" + char(10)
 		for _i_ = 1 to len(@aFrames)
 			_c_ += "<figure><img src='" + @aFrames[_i_][3] + "' alt='frame " + _i_ + "'>" +
 				"<figcaption><span class='n'>" + _i_ + "</span><span>" +
@@ -597,8 +597,8 @@ class stzStoryboard from stzObject
 			_c_ += "</ul>" + char(10)
 		ok
 		_c_ += "</body></html>" + char(10)
-		write(@cFolio + "/" + @cName + ".html", _c_)
-		return @cFolio + "/" + @cName + ".html"
+		write(@cFolio + "/" + @tName + ".html", _c_)
+		return @cFolio + "/" + @tName + ".html"
 
 	# Writes the storyboard as a .narration document, with each caption as prose with its holes open and each number as a cell.
 	#
@@ -615,10 +615,10 @@ class stzStoryboard from stzObject
 		# this must be told about rather than one it silently diverges from.
 		This._CloseOpen()
 		_q_ = char(34)
-		_c_ = "-- " + @cName + ".narration -- " + @cName + ", told in " +
+		_c_ = "-- " + @tName + ".narration -- " + @tName + ", told in " +
 			len(@aFrames) + " frames" + char(10) + char(10) +
-			"DEFINE NARRATION " + This._Snake(@cName) + " (" + char(10) +
-			"    TITLE " + _q_ + @cName + _q_ + char(10) +
+			"DEFINE NARRATION " + This._Snake(@tName) + " (" + char(10) +
+			"    TITLE " + _q_ + @tName + _q_ + char(10) +
 			"    PINS   [ commons:1.0 ]" + char(10) +
 			") RATIONALE " + _q_ + "Emitted by stzStoryboard against .narration " +
 			"grammar v0; every number in the prose is a cell below, never a " +
@@ -687,14 +687,14 @@ class stzStoryboard from stzObject
 		_k_ = StzLower(ring_trim("" + pcKind))
 		if _k_ = "markup"
 			return StzRendition(:markup, "text/html", read(This.Render()), "",
-				@cName + ", told in " + len(@aFrames) + " frames")
+				@tName + ", told in " + len(@aFrames) + " frames")
 		but _k_ = "text"
 			_c_ = ""
 			for _i_ = 1 to len(@aFrames)
 				_c_ += "" + _i_ + ". " + @aFrames[_i_][2] + char(10)
 			next
 			return StzRendition(:text, "text/plain", _c_, "",
-				@cName + ", told in " + len(@aFrames) + " frames")
+				@tName + ", told in " + len(@aFrames) + " frames")
 		ok
 		stzraise("stzStoryboard.RenditionAs: '" + _k_ + "' is not a way a storyboard " +
 			"shows itself -- markup or text.")
@@ -715,7 +715,7 @@ class stzStoryboard from stzObject
 	#   returns    a text
 	#   see        Folio, FileOf
 	def PictureName()
-		return @cName
+		return @tName
 
 	# Returns the folder that receives the frame files and the page.
 	#

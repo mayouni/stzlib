@@ -1,0 +1,26 @@
+# Softanza Engine -- Security Event Ledger (incident I1)
+#
+# Loads stz_seclog.dll: the bounded, hash-chained ledger of security
+# events. Evidence, not logging -- each entry's digest includes the
+# previous one, so a retroactive edit breaks the chain and Verify()
+# names the first broken link.
+#
+# Function prefix: StzEngineSecLog*
+
+if IsWindows()
+    $tStzSecLogLib = $tEngineDir + "/zig-out/bin/stz_seclog.dll"
+elseif IsLinux()
+    $tStzSecLogLib = $tEngineDir + "/zig-out/lib/libstz_seclog.so"
+elseif isMacOS()
+    $tStzSecLogLib = $tEngineDir + "/zig-out/lib/libstz_seclog.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("seclog")
+    $hStzSecLogHandle = ""
+elseif FExists($tStzSecLogLib)
+    $hStzSecLogHandle = LoadLib($tStzSecLogLib)
+else
+    ? "WARNING: stz_seclog not found at: " + $tStzSecLogLib
+    $hStzSecLogHandle = ""
+end

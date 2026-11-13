@@ -1,0 +1,146 @@
+# _measure_d1shape.haro -- RADAR-LFM3-DECISIONSHAPE-01, the instrument. Three option questions about each of the 36 golden
+# support tickets (kind, product, severity), read by probability as _TkChoice reads them, asked three ways:
+#   today, reuse off   the question in the system turn, the ticket after it, everything read every call (until 0a5f6c321)
+#   today, reuse on    the same prompts, question by question: the question's system turn is read once and shared
+#   d1 shape           LFM3's: one short system turn, the ticket, then each question -- the ticket read once and shared
+# The question's words are the same in every shape; only where they stand moves. Printed: right answers per question and
+# the tokens actually read (a prompt's tokens minus those the cache already held). Run from base/test/faculty on haro.exe
+# with STZ_ENGINE_DIR and STZ_MODELS_DIR set; it needs Bolt E4B and granite-4.0-1b in models/. Results: results/README.txt.
+LoadLib(Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/stz_neural.dll")
+$tModels = Slashes(SysGet("STZ_MODELS_DIR")) + "/"
+$xTickets = Tickets("_data/tickets_heldout.tsv")
+$tSys = "You triage customer-support tickets."
+# [ name, the question (the same words in both shapes), options, the golden column ]
+$vQ = [
+	[ "kind", "Classify the ticket as exactly one of: bug (something is broken or behaves wrongly), billing (money: charges, refunds, invoices, plans, prices), other (a question, request or feedback).", [ "bug", "billing", "other" ], 4 ],
+	[ "product", "Which product is the ticket about: app (the mobile app), web (the website, dashboard, account or billing pages), api (the developer API, SDKs, webhooks), or other?", [ "app", "web", "api", "other" ], 2 ],
+	[ "severity", "How severe is it: high (it blocks the customer's work, loses money or data, is an outage, or has a deadline today or tomorrow) or low (anything else)?", [ "high", "low" ], 3 ]
+]
+$tFormat = ""
+$nRead = 0
+
+? "tickets: " + String(Len($xTickets))
+for tModel in [ "Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf", "granite-4.0-1b-Q8_0.gguf" ]
+	StzEngineNeuralModelLoad($tModels + tModel)
+	$tFormat = "granite"
+	if Left(tModel, 8) = "Nemotron"
+		$tFormat = "gemma"
+	end
+	? ""
+	? tModel
+	nQ = Len($vQ)
+	nT = Len($xTickets)
+	for tPass in [ "today, reuse off", "today, reuse on", "d1 shape" ]
+		StzEngineNeuralGenSetPrefixReuse(1)
+		if tPass = "today, reuse off"
+			StzEngineNeuralGenSetPrefixReuse(0)
+		end
+		$nRead = 0
+		vRight = [ 0, 0, 0 ]
+		vAns = []
+		nStart = Clock()
+		if tPass = "d1 shape"
+			for t = 1 to nT
+				for q = 1 to nQ
+					tA = Ask($tSys + " Answer with the single word.", "Ticket: " + $xTickets[t][1] + Char(10) + Char(10) + $vQ[q][2], $vQ[q][3])
+					vAns + tA
+					if tA = $xTickets[t][$vQ[q][4]]
+						vRight[q] = vRight[q] + 1
+					end
+				end
+			end
+		else
+			for q = 1 to nQ
+				for t = 1 to nT
+					tA = Ask($tSys + " " + $vQ[q][2] + " Answer with the single word.", "Ticket: " + $xTickets[t][1], $vQ[q][3])
+					vAns + tA
+					if tA = $xTickets[t][$vQ[q][4]]
+						vRight[q] = vRight[q] + 1
+					end
+				end
+			end
+		end
+		nMs = Divide((Clock() - nStart) * 1000, ClocksPerSecond(), 0)
+		? "  " + tPass + ": kind " + String(vRight[1]) + "/36, product " + String(vRight[2]) + "/36, severity " + String(vRight[3]) + "/36; tokens read " + String($nRead) + "; " + String(nMs) + " ms"
+	end
+end
+
+# one option question: the best option by the summed probability of its lower-case and capitalised first token
+func Ask(tSystem, tUser, vOpt)
+	tP = Chat(tSystem, tUser)
+	StzEngineNeuralPrefillLogits(tP)
+	$nRead = $nRead + StzEngineNeuralGenPromptTokens() - StzEngineNeuralGenReusedTokens()
+	nLse = StzEngineNeuralLogitLse()
+	tBest = ""
+	nBest = Float(-1)
+	nOpt = Len(vOpt)
+	for i = 1 to nOpt
+		tCap = Upper(Left(vOpt[i], 1)) + Right(vOpt[i], Len(vOpt[i]) - 1)
+		nP = Exp(StzEngineNeuralLogitAt(FirstId(vOpt[i])) - nLse) + Exp(StzEngineNeuralLogitAt(FirstId(tCap)) - nLse)
+		if nP > nBest
+			nBest = nP
+			tBest = vOpt[i]
+		end
+	end
+	return tBest
+end
+# the first token of a word, after the BOS the tokenizer may prepend
+func FirstId(tWord)
+	nN = StzEngineNeuralGenTokenize(tWord)
+	nA = StzEngineNeuralGenTokenize("a")
+	nIdA = StzEngineNeuralGenTokenAt(0)
+	StzEngineNeuralGenTokenize("b")
+	nSkip = 0
+	if StzEngineNeuralGenTokenAt(0) = nIdA
+		nSkip = 1
+	end
+	StzEngineNeuralGenTokenize(tWord)
+	return StzEngineNeuralGenTokenAt(nSkip)
+end
+func Chat(tSystem, tUser)
+	if $tFormat = "gemma"
+		return "<|turn>system" + Char(10) + tSystem + "<turn|>" + Char(10) + "<|turn>user" + Char(10) + tUser + "<turn|>" + Char(10) + "<|turn>model" + Char(10)
+	end
+	return "<|start_of_role|>system<|end_of_role|>" + tSystem + "<|end_of_text|>" + Char(10) + "<|start_of_role|>user<|end_of_role|>" + tUser + "<|end_of_text|>" + Char(10) + "<|start_of_role|>assistant<|end_of_role|>"
+end
+# the golden tickets: [ text, product, severity, kind, keyword ] per line
+func Tickets(tPath)
+	vOut = []
+	xLines = Str2List(Read(tPath))
+	nL = Len(xLines)
+	for i = 1 to nL
+		tLine = xLines[i]
+		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
+			tLine = Left(tLine, Len(tLine) - 1)
+		end
+		xF = []
+		tCur = ""
+		nC = Len(tLine)
+		for j = 1 to nC
+			if tLine[j] = Char(9)
+				xF + tCur
+				tCur = ""
+			else
+				tCur = tCur + tLine[j]
+			end
+		end
+		xF + tCur
+		if Len(xF) = 5
+			vOut + xF
+		end
+	end
+	return vOut
+end
+
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for i = 1 to nLen
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end

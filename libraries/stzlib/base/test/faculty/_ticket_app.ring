@@ -19,7 +19,11 @@ $aTkModels = [
 	[ "granite-1b",    "granite-4.0-1b",     "apache-2.0", 1800 ],
 	[ "qwen25c-0.5b",  "qwen2.5-coder-0.5b", "apache-2.0",  800 ],
 	[ "qwen25c-1.5b",  "qwen2.5-coder-1.5b", "apache-2.0", 1900 ],
-	[ "granite42-3b",  "granite-4.2-3b",     "apache-2.0", 3000 ]
+	[ "granite42-3b",  "granite-4.2-3b",     "apache-2.0", 3000 ],
+	# NVIDIA's Nemotron 3.5 Bolt E4B (Gemma 4), the challenger of RADAR-NVIDIA-BOLTCOURT-01 (2026-11-11)
+	[ "bolt-e4b",      "nemotron-3.5-bolt",  "openmdw-1.1", 6400 ],
+	# Liquid AI's LFM3-1.7B (convolutions and gated attention), RADAR-LFM3-FAMILY-01 (2026-11-11)
+	[ "lfm3-1.7b",     "lfm3-1.7b",          "lfm-1.0",     2100 ]
 ]
 
 # THE GOLDEN SET: 36 tickets written by an INDEPENDENT author who never saw a floor (so a floor cannot be tuned to it),
@@ -33,6 +37,47 @@ func StzTicketTickets()
 		if len(trim(_c_)) = 0 loop ok
 		_aF_ = StzSplit(_c_, char(9))
 		if len(_aF_) = 5 add(_aOut_, _aF_) ok
+	next
+	return _aOut_
+
+# THE FRESH TICKETS of one language: [ [ text, product, severity ] ... ] from _data/tickets_fresh_frar.tsv (lang, product,
+# severity, text a line)
+func StzTicketFresh(pcLang)
+	_aOut_ = []
+	_aL_ = split(read("_data/tickets_fresh_frar.tsv"), char(10))
+	for _i_ = 1 to len(_aL_)
+		_c_ = _aL_[_i_]
+		if right(_c_, 1) = char(13) _c_ = left(_c_, len(_c_) - 1) ok
+		if len(trim(_c_)) = 0 loop ok
+		_aF_ = StzSplit(_c_, char(9))
+		if len(_aF_) = 4 and _aF_[1] = pcLang add(_aOut_, [ _aF_[4], _aF_[2], _aF_[3] ]) ok
+	next
+	return _aOut_
+
+# THE RETRIEVAL SET'S OTHER LANGUAGES (v2): [ [ lang, articles, [ [ question, number of the right article ] ... ] ] ... ]
+# read from _data/retrieval_v2.tsv -- lang, doc|query, number, text -- written before any challenger ran on it
+func StzTicketRetrievalV2()
+	_aOut_ = []
+	_aL_ = split(read("_data/retrieval_v2.tsv"), char(10))
+	for _i_ = 1 to len(_aL_)
+		_c_ = _aL_[_i_]
+		if right(_c_, 1) = char(13) _c_ = left(_c_, len(_c_) - 1) ok
+		if len(trim(_c_)) = 0 loop ok
+		_aF_ = StzSplit(_c_, char(9))
+		if len(_aF_) != 4 loop ok
+		_k_ = 0
+		for _j_ = 1 to len(_aOut_)
+			if _aOut_[_j_][1] = _aF_[1] _k_ = _j_ ok
+		next
+		if _k_ = 0
+			add(_aOut_, [ _aF_[1], [], [] ])
+			_k_ = len(_aOut_)
+		ok
+		if _aF_[2] = "doc"
+			add(_aOut_[_k_][2], _aF_[4])
+		but _aF_[2] = "query"
+			add(_aOut_[_k_][3], [ _aF_[4], 0 + _aF_[3] ])
+		ok
 	next
 	return _aOut_
 
@@ -103,13 +148,27 @@ func StzTicketAppDeclare()
 	_aQ_ = StzTicketQueries()
 
 	# ---- FLOW 1: retrieval -------------------------------------------------------------------
+	# v2 (RADAR-NVIDIA-EMBEDSET-01, 2026-11-11): the 12 English questions, and 12 French and 12 Arabic ones, each over
+	# its own language's help articles (_data/retrieval_v2.tsv), so a multilingual embedder is judged per language
 	_o_ = StzFacultyQ(:retrieve)
-	_o_.SetInputTypeQ(:record).SetOutputTypeQ(:record).SetFloorQ("word-idf", "_TkRetrieveFloor").SetGoldenCheckerQ("indocs")
+	_o_.SetInputTypeQ(:record).SetOutputTypeQ(:record).SetFloorQ("word-idf", "_TkRetrieveFloor").SetGoldenCheckerQ("indocs").
+	    SetGoldenVersionQ("v2").SetGoldenLanguageKeyQ(:lang)
 	for _i_ = 1 to len(_aQ_)
-		_o_.AddGolden([ :query = _aQ_[_i_][1], :docs = _aDocs_ ], _aDocs_[_aQ_[_i_][2]])
+		_o_.AddGolden([ :query = _aQ_[_i_][1], :docs = _aDocs_, :lang = "en" ], _aDocs_[_aQ_[_i_][2]])
+	next
+	_aML_ = StzTicketRetrievalV2()
+	for _l_ = 1 to len(_aML_)
+		_aD_ = _aML_[_l_][2]
+		_aQL_ = _aML_[_l_][3]
+		for _i_ = 1 to len(_aQL_)
+			_o_.AddGolden([ :query = _aQL_[_i_][1], :docs = _aD_, :lang = _aML_[_l_][1] ], _aD_[_aQL_[_i_][2]])
+		next
 	next
 	_o_.AddImplementation([ :id = "minilm-cosine", :kind = "model", :fn = "_TkRetrieveEmbed", :needle = "all-minilm",
 				:licence = "apache-2.0", :memory = 60 ])
+	# SigLIP2's text tower (the image plane's, multilingual by its Gemma vocabulary): a second embedder on the same set
+	_o_.AddImplementation([ :id = "siglip2-text", :kind = "graph", :fn = "_TkRetrieveSiglip", :needle = "vision/siglip2_text.gguf",
+				:licence = "apache-2.0", :memory = 1200 ])
 	_o2_ = StzFacultyQ(:rerank)
 	_o2_.SetInputTypeQ(:record).SetOutputTypeQ(:ranking).SetFloorQ("stem-overlap", "_TkRerankFloor").SetGoldenCheckerQ("first")
 	for _i_ = 1 to len(_aQ_)
@@ -123,9 +182,22 @@ func StzTicketAppDeclare()
 	_o3_ = StzFacultyQ(:triage_extract)
 	_o3_.SetInputTypeQ(:text).SetOutputTypeQ(:record).SetParamsQ([ :schema = _oSchema_ ]).SetFloorQ("keyword-rules", "_TkExtractFloor").
 	     SetGoldenCheckerQ("fields")
-	for _i_ = 1 to len(_aTick_)
-		_o3_.AddGolden(_aTick_[_i_][1], [ :product = _aTick_[_i_][2], :severity = _aTick_[_i_][3] ])
-	next
+	# STZ_TICKETS_FRESH = fr | ar: the FRESH tickets of that language instead (_data/tickets_fresh_frar.tsv, written
+	# 2026-11-12 by an author who saw no floor, no model and no result), golden version fresh1-fr / fresh1-ar -- the
+	# set that confirms or overturns, before Bolt is ever a default, its extraction win on the English set
+	# (BOLT-PLACEMENT-01 (c)). The English set stays v1.
+	_cFresh_ = sysget("STZ_TICKETS_FRESH")
+	if _cFresh_ = "fr" or _cFresh_ = "ar"
+		_o3_.SetGoldenVersion("fresh1-" + _cFresh_)
+		_aF_ = StzTicketFresh(_cFresh_)
+		for _i_ = 1 to len(_aF_)
+			_o3_.AddGolden(_aF_[_i_][1], [ :product = _aF_[_i_][2], :severity = _aF_[_i_][3] ])
+		next
+	else
+		for _i_ = 1 to len(_aTick_)
+			_o3_.AddGolden(_aTick_[_i_][1], [ :product = _aTick_[_i_][2], :severity = _aTick_[_i_][3] ])
+		next
+	ok
 
 	# ---- FLOW 3: brief -> kind -> route ---------------------------------------------------------
 	_o4_ = StzFacultyQ(:brief)
@@ -282,6 +354,30 @@ func _TkRetrieveEmbed(aRec, aParams)
 	next
 	return [ :query = aRec[:query], :docs = _aTop_ ]
 
+# the same ranking by SigLIP2's text tower: its vectors are L2-normalized, so the dot product is the cosine
+func _TkRetrieveSiglip(aRec, aParams)
+	_aQv_ = StzVisionTextEmbedding(aRec[:query])
+	_aScored_ = []
+	for _i_ = 1 to len(aRec[:docs])
+		add(_aScored_, [ aRec[:docs][_i_], _TkCosine(_aQv_, StzVisionTextEmbedding(aRec[:docs][_i_])) ])
+	next
+	for _i_ = 1 to len(_aScored_) - 1
+		_m_ = _i_
+		for _j_ = _i_ + 1 to len(_aScored_)
+			if _aScored_[_j_][2] > _aScored_[_m_][2] _m_ = _j_ ok
+		next
+		if _m_ != _i_
+			_t_ = _aScored_[_i_]
+			_aScored_[_i_] = _aScored_[_m_]
+			_aScored_[_m_] = _t_
+		ok
+	next
+	_aTop_ = []
+	for _i_ = 1 to min([4, len(_aScored_)])
+		add(_aTop_, _aScored_[_i_][1])
+	next
+	return [ :query = aRec[:query], :docs = _aTop_ ]
+
 func _TkRerankFloor(aRec, aParams)
 	return _TkScoreDocs(aRec[:query], aRec[:docs], 1)
 
@@ -360,19 +456,38 @@ func _TkKindModel(cText, aParams)
 # may begin either way) and returns the best label with its probability among the candidates and the mass they hold.
 func _TkChoice(cSystem, cUser, acOptions)
 	_cP_ = StzChatPrompt(cSystem, cUser)
+	# each option and its capitalised twin -- the twin only when its first token is no other option's first token
+	# (2026-11-11: in LFM3's vocabulary "Bug" and "Billing" both begin with "B", and StzOptionProbabilities refuses
+	# options it cannot tell apart, so every :kind reading of that model failed; no model measured before had a clash)
+	_aFirst_ = []
+	for _i_ = 1 to len(acOptions)
+		add(_aFirst_, _TkFirstToken(acOptions[_i_]))
+	next
 	_aAll_ = []
+	_aOwner_ = []
 	for _i_ = 1 to len(acOptions)
 		add(_aAll_, acOptions[_i_])
-		add(_aAll_, upper(left(acOptions[_i_], 1)) + right(acOptions[_i_], len(acOptions[_i_]) - 1))
+		add(_aOwner_, _i_)
+	next
+	for _i_ = 1 to len(acOptions)
+		_cCap_ = upper(left(acOptions[_i_], 1)) + right(acOptions[_i_], len(acOptions[_i_]) - 1)
+		_nT_ = _TkFirstToken(_cCap_)
+		if len(StzFind(_nT_, _aFirst_)) = 0
+			add(_aAll_, _cCap_)
+			add(_aOwner_, _i_)
+			add(_aFirst_, _nT_)
+		ok
 	next
 	_aR_ = StzOptionProbabilities(_cP_, _aAll_)
 	if len(_aR_) = 0 stzraise("no generative model is loaded") ok
 	_aSum_ = []
-	_nTot_ = 0
 	for _i_ = 1 to len(acOptions)
-		_p_ = _aR_[:probabilities][2 * _i_ - 1][2] + _aR_[:probabilities][2 * _i_][2]
-		add(_aSum_, _p_)
-		_nTot_ += _p_
+		add(_aSum_, 0)
+	next
+	_nTot_ = 0
+	for _k_ = 1 to len(_aAll_)
+		_aSum_[_aOwner_[_k_]] += _aR_[:probabilities][_k_][2]
+		_nTot_ += _aR_[:probabilities][_k_][2]
 	next
 	_nBest_ = 1
 	for _i_ = 2 to len(acOptions)
@@ -381,6 +496,16 @@ func _TkChoice(cSystem, cUser, acOptions)
 	_nShare_ = 0
 	if _nTot_ > 0 _nShare_ = _aSum_[_nBest_] / _nTot_ ok
 	return [ acOptions[_nBest_], _nShare_, _nTot_ ]
+
+# the first token of a word, after a BOS the tokenizer may prepend (found as StzOptionProbabilities finds it)
+func _TkFirstToken(cWord)
+	StzEngineNeuralGenTokenize("a")
+	_nA_ = StzEngineNeuralGenTokenAt(0)
+	StzEngineNeuralGenTokenize("b")
+	_nSkip_ = 0
+	if StzEngineNeuralGenTokenAt(0) = _nA_ _nSkip_ = 1 ok
+	StzEngineNeuralGenTokenize(cWord)
+	return StzEngineNeuralGenTokenAt(_nSkip_)
 
 func _TkNoteChoice(nShare)
 	$aStzImplNote = [ :certainty = StzBandOfProbability(nShare), :p = nShare, :detail = "read by probability" ]

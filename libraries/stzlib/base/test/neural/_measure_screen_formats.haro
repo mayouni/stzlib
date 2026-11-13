@@ -1,0 +1,1032 @@
+# _measure_screen_formats.haro -- which screen format a small local model writes validly (RADAR-A2UI-SLMFORMAT-01)
+#
+#     haro _measure_screen_formats.haro [model file name] [formats] [modes]
+#
+#   model     a GGUF in STZ_MODELS_DIR; granite-4.0-1b-Q8_0.gguf when absent
+#   formats   comma-separated: zane, a2ui_json, a2ui_express (all three when absent)
+#   modes     comma-separated: grammar (the engine's constrained decoding), free (no grammar) (both when absent)
+#
+# For each of the twelve requests in _data/screens/requests.tsv, the model is asked for one screen in each format, from
+# that format's guide (the same catalogue and the same worked example in each), greedily, at most 700 tokens. Each
+# answer is judged three ways, each by its own instrument:
+#
+#   shape     the answer is a whole sentence of the format's own syntax (_data/screens/<format>_syntax.gbnf: any JSON
+#             value; Express's statement syntax; Zane's EBNF, whose closed keywords and verbs ARE its syntax), with any
+#             spacing the format allows -- the "grammar" runs are constrained by the stricter <format>.gbnf, whose
+#             sentences are all sentences of the syntax
+#   law       the screen is one its consumer would take: for A2UI (JSON and Express alike, parsed into one component
+#             list) the v1.0 message envelope, the catalogue's components, required properties and values, every child
+#             id defined, exactly one root, no cycle;
+#             for Zane the verifier of the stzzui repository (node tools/zane/cli.js check), clean at its level 2
+#   coverage  the screen holds what the request asked for: for A2UI every listed element in some text, label or
+#             option; for Zane every listed verb in SATISFIES or ALWAYS_REACHABLE
+#
+# and costs: output tokens (the model's own tokenizer) and seconds. VALID = shape and law. Rows go to
+# results/screen_formats.tsv, the answers themselves to results/screen_formats_answers.txt.
+# STZ_ENGINE_DIR names a built engine, STZ_MODELS_DIR the models folder; ZANE_VERIFIER the verifier's cli.js
+# (D:/GitHub/stzzui/tools/zane/cli.js when absent).
+
+load "../../stzBase.ring"
+
+$tD = "_data/screens/"
+$tVerifier = SysGet("ZANE_VERIFIER")
+if $tVerifier = ""
+	$tVerifier = "D:/GitHub/stzzui/tools/zane/cli.js"
+end
+$tTmp = SysGet("TEMP")
+$nJp = 1
+$tJs = ""
+$nAuto = 0
+$vComps = []
+$tWhy = ""
+
+xArgs = SysArgv
+tModel = "granite-4.0-1b-Q8_0.gguf"
+xFormats = [ "zane", "a2ui_json", "a2ui_express" ]
+xModes = [ "grammar", "free" ]
+nFirst = 1
+nLenArgs = Len(xArgs)
+for i = 1 to nLenArgs
+	if StzFindFirst("_measure_screen_formats", xArgs[i]) > 0
+		nFirst = i + 1
+	end
+end
+if nLenArgs >= nFirst
+	tModel = xArgs[nFirst]
+end
+if nLenArgs >= nFirst + 1
+	xFormats = StzSplit(xArgs[nFirst + 1], ",")
+end
+if nLenArgs >= nFirst + 2
+	xModes = StzSplit(xArgs[nFirst + 2], ",")
+end
+
+xReq = Requests()
+oM = StzNeuralModelQ(StzModelsDir() + "/" + tModel)
+? "MODEL " + tModel + "  -- " + String(Len(xReq)) + " requests"
+System("mkdir results 2>nul")
+tRows = "# screen_formats 1 -- RADAR-A2UI-SLMFORMAT-01; model|format|mode|request|shape|law|valid|coverage|out_tokens|seconds|complete|why" + Char(10)
+tAnswers = ""
+nLenF = Len(xFormats)
+nLenMo = Len(xModes)
+nLenR = Len(xReq)
+for f = 1 to nLenF
+	tF = xFormats[f]
+	tG = Read($tD + tF + ".gbnf")
+	tSyntax = Read($tD + tF + "_syntax.gbnf")
+	tGuide = Read($tD + "guide_" + tF + ".txt")
+	for m = 1 to nLenMo
+		tMode = xModes[m]
+		nValid = 0
+		nShape = 0
+		nCover = 0
+		nTokSum = 0
+		nTokValid = 0
+		nSec = 0
+		for r = 1 to nLenR
+			xR = xReq[r]
+			tPrompt = StzChatPrompt(tGuide, xR[2])
+			vOpt = [ [ "maxtokens", 700 ], [ "temperature", 0 ] ]
+			if tMode = "grammar"
+				vOpt + [ "grammar", tG ]
+			end
+			nT0 = Clock()
+			tOut = StzGenerateXT(tPrompt, vOpt)
+			nS = (Clock() - nT0) / ClocksPerSecond()
+			nComplete = -1
+			if tMode = "grammar"
+				nComplete = StzLastGrammarRun()[:complete]
+			end
+			tText = Cleaned(tOut)
+			nTok = StzEngineNeuralGenTokenize(tText)
+			nShapeOk = StzGrammarAccepts(tSyntax, tText)
+			nLaw = 0
+			nCov = 0
+			$tWhy = ""
+			if nShapeOk = 1
+				if tF = "zane"
+					nLaw = ZaneLaw(tText)
+					nCov = ZaneCoverage(tText, xR[4])
+				else
+					if tF = "a2ui_json"
+						nParsed = ParseJsonScreen(tText)
+					else
+						nParsed = ParseExpressScreen(tText)
+					end
+					if nParsed = 1
+						nLaw = A2uiLaw()
+					end
+					nCov = A2uiCoverage(xR[3])
+				end
+			else
+				$tWhy = "not a sentence of the format's syntax"
+			end
+			nV = 0
+			if nShapeOk = 1 and nLaw = 1
+				nV = 1
+				nTokValid = nTokValid + nTok
+			end
+			nValid = nValid + nV
+			nShape = nShape + nShapeOk
+			nCover = nCover + nCov
+			nTokSum = nTokSum + nTok
+			nSec = nSec + nS
+			tRows = tRows + tModel + "|" + tF + "|" + tMode + "|" + xR[1] + "|" + String(nShapeOk) + "|" + String(nLaw) + "|" + String(nV) + "|" +
+				String(nCov) + "|" + String(nTok) + "|" + String(nS) + "|" + String(nComplete) + "|" + $tWhy + Char(10)
+			tAnswers = tAnswers + "=== " + tF + " / " + tMode + " / " + xR[1] + "  valid " + String(nV) + "  coverage " + String(nCov) + "  " + $tWhy + Char(10) + tText + Char(10) + Char(10)
+			? "  " + tF + " " + tMode + " " + xR[1] + ": shape " + String(nShapeOk) + " law " + String(nLaw) + " coverage " + String(nCov) + " tokens " + String(nTok) + " s " + String(nS) + "  " + $tWhy
+			Write("results/screen_formats.tsv", tRows)
+			Write("results/screen_formats_answers.txt", tAnswers)
+		end
+		tMean = "-"
+		if nValid > 0
+			tMean = String(Floor(nTokValid / nValid))
+		end
+		? "SUMMARY " + tF + " / " + tMode + ": valid " + String(nValid) + " of " + String(nLenR) + ", shape " + String(nShape) + ", covered " + String(nCover) +
+		  ", tokens per valid screen " + tMean + ", tokens in all " + String(nTokSum) + ", seconds " + String(Floor(nSec))
+	end
+end
+
+# ---- the requests ------------------------------------------------------------------------------------------------
+func Requests
+	vOut = []
+	xL = StzSplit(StzReplace(Read($tD + "requests.tsv"), Char(13), ""), Char(10))
+	nLenL = Len(xL)
+	for i = 1 to nLenL
+		if Len(xL[i]) > 0
+			if Left(xL[i], 1) != "#"
+				xF = StzSplit(xL[i], Char(9))
+				if Len(xF) = 4
+					vOut + [ xF[1], xF[2], StzSplit(xF[3], ","), StzSplit(xF[4], ",") ]
+				end
+			end
+		end
+	end
+	return vOut
+end
+
+# the answer as a renderer would be handed it: trimmed, and a ``` fence around it removed -- the same for every format
+func Cleaned(tOut)
+	tC = StzTrim(StzReplace(tOut, Char(13), ""))
+	if Left(tC, 3) = "```"
+		nNl = StzFindFirst(Char(10), tC)
+		if nNl > 0
+			tC = Right(tC, Len(tC) - nNl)
+		end
+		if Right(tC, 3) = "```"
+			tC = Left(tC, Len(tC) - 3)
+		end
+		tC = StzTrim(tC)
+	end
+	return tC
+end
+
+# ---- Zane: the verifier is the law -------------------------------------------------------------------------------
+func ZaneLaw(tText)
+	tFile = $tTmp + "\stz_screen.zane"
+	tOutFile = $tTmp + "\stz_screen_verdict.txt"
+	Write(tFile, tText)
+	nRc = System("node " + $tVerifier + " check " + tFile + " > " + tOutFile + " 2>&1")
+	if nRc = 0
+		return 1
+	end
+	tV = Read(tOutFile)
+	xL = StzSplit(StzReplace(tV, Char(13), ""), Char(10))
+	nLenL = Len(xL)
+	tCodes = ""
+	for i = 1 to nLenL
+		nE = StzFindFirst("  error  ", xL[i])
+		if nE > 0
+			tRest = StzTrim(Right(xL[i], Len(xL[i]) - nE - 8))
+			nSp = StzFindFirst(" ", tRest)
+			if nSp > 0
+				tRest = Left(tRest, nSp - 1)
+			end
+			if tCodes != ""
+				tCodes = tCodes + ","
+			end
+			tCodes = tCodes + tRest
+		end
+	end
+	$tWhy = "verifier exit " + String(nRc) + ": " + tCodes
+	return 0
+end
+
+func ZaneCoverage(tText, xVerbs)
+	# every verb list, wherever its lines break: from SATISFIES or ALWAYS_REACHABLE to the next ]
+	tFlat = StzReplace(StzReplace(tText, Char(10), " "), Char(13), " ")
+	tHeld = " "
+	vKeys = [ "SATISFIES", "ALWAYS_REACHABLE" ]
+	for k = 1 to 2
+		tRest = tFlat
+		nAt = StzFindFirst(vKeys[k], tRest)
+		while nAt > 0
+			tRest = Right(tRest, Len(tRest) - nAt + 1)
+			nEnd = StzFindFirst("]", tRest)
+			if nEnd = 0
+				exit
+			end
+			tList = Left(tRest, nEnd)
+			tList = StzReplace(StzReplace(StzReplace(tList, "[", " "), "]", " "), ",", " ")
+			tHeld = tHeld + tList + " "
+			tRest = Right(tRest, Len(tRest) - nEnd)
+			nAt = StzFindFirst(vKeys[k], tRest)
+		end
+	end
+	nLenV = Len(xVerbs)
+	for i = 1 to nLenV
+		if StzFindFirst(" " + xVerbs[i] + " ", tHeld) = 0
+			$tWhy = $tWhy + " missing verb " + xVerbs[i]
+			return 0
+		end
+	end
+	return 1
+end
+
+# ---- A2UI: one component list, whichever form it came in ---------------------------------------------------------
+# a node: [ "s", text ] [ "n", number ] [ "b", 1|0 ] [ "path", "/x" ] [ "ref", name ] [ "arr", nodes ] [ "obj", [ [key, node] ... ] ]
+#         [ "call", name, args ] (Express only; an arg is [ "", node ] positional or [ name, node ] keyword) [ "skip" ]
+# a component: [ id, type, [ [property, node] ... ] ]
+
+func ParseJsonScreen(tText)
+	$tJs = tText
+	$nJp = 1
+	$vComps = []
+	xMsg = JValue()
+	# the v1.0 envelope: a version "1.0" and a createSurface with a surfaceId and a list of components
+	xVer = ObjGet(xMsg, "version")
+	if Len(xVer) = 0
+		$tWhy = "the message has no version"
+		return 0
+	end
+	if xVer[1] != "s"
+		$tWhy = "the version is not 1.0"
+		return 0
+	end
+	if xVer[2] != "1.0"
+		$tWhy = "the version is not 1.0"
+		return 0
+	end
+	xSurf = ObjGet(xMsg, "createSurface")
+	if Len(xSurf) = 0
+		$tWhy = "the message has no createSurface"
+		return 0
+	end
+	if Len(ObjGet(xSurf, "surfaceId")) = 0
+		$tWhy = "createSurface has no surfaceId"
+		return 0
+	end
+	xCs = ObjGet(xSurf, "components")
+	if Len(xCs) = 0
+		$tWhy = "no components"
+		return 0
+	end
+	if xCs[1] != "arr"
+		$tWhy = "components is not a list"
+		return 0
+	end
+	xItems = xCs[2]
+	nLenI = Len(xItems)
+	for i = 1 to nLenI
+		if xItems[i][1] != "obj"
+			$tWhy = "a component is not an object"
+			return 0
+		end
+		xPairs = xItems[i][2]
+		tId = ""
+		tType = ""
+		xProps = []
+		nLenP = Len(xPairs)
+		for k = 1 to nLenP
+			tK = xPairs[k][1]
+			xV = xPairs[k][2]
+			if tK = "id" or tK = "component"
+				if xV[1] != "s"
+					$tWhy = "a component's " + tK + " is not a text"
+					return 0
+				end
+				if tK = "id"
+					tId = xV[2]
+				else
+					tType = xV[2]
+				end
+			else
+				xProps + [ tK, JsonToNode(tK, xV) ]
+			end
+		end
+		if tId = "" or tType = ""
+			$tWhy = "a component lacks its id or its type"
+			return 0
+		end
+		$vComps + [ tId, tType, xProps ]
+	end
+	return 1
+end
+
+# JSON's own spellings to the common node: a child id string is a reference, {"@path": p} a path, an event object an event
+func JsonToNode(tProp, xN)
+	if tProp = "child" and xN[1] = "s"
+		return [ "ref", xN[2] ]
+	end
+	if tProp = "children" and xN[1] = "arr"
+		vOut = []
+		xIt = xN[2]
+		nLenIt = Len(xIt)
+		for i = 1 to nLenIt
+			if xIt[i][1] = "s"
+				vOut + [ "ref", xIt[i][2] ]
+			else
+				vOut + xIt[i]
+			end
+		end
+		return [ "arr", vOut ]
+	end
+	if xN[1] = "obj"
+		xP = ObjGet(xN, "@path")
+		if Len(xP) > 0
+			return [ "path", xP[2] ]
+		end
+		xE = ObjGet(xN, "event")
+		if Len(xE) > 0
+			xName = ObjGet(xE, "name")
+			if Len(xName) > 0
+				return [ "event", xName[2] ]
+			end
+		end
+	end
+	return xN
+end
+
+func ObjGet(xN, tKey)
+	if Len(xN) < 2
+		return []
+	end
+	if xN[1] != "obj"
+		return []
+	end
+	xP = xN[2]
+	nLenP = Len(xP)
+	for i = 1 to nLenP
+		if xP[i][1] = tKey
+			return xP[i][2]
+		end
+	end
+	return []
+end
+
+# a small JSON reader over $tJs from $nJp: the grammar has already accepted the text, so it reads, it does not judge
+func JValue
+	JSkip()
+	tC = $tJs[$nJp]
+	if tC = "{"
+		$nJp = $nJp + 1
+		xPairs = []
+		JSkip()
+		if $tJs[$nJp] = "}"
+			$nJp = $nJp + 1
+			return [ "obj", xPairs ]
+		end
+		while true
+			JSkip()
+			tKey = JString()
+			JSkip()
+			$nJp = $nJp + 1
+			xV = JValue()
+			xPairs + [ tKey, xV ]
+			JSkip()
+			tC2 = $tJs[$nJp]
+			$nJp = $nJp + 1
+			if tC2 = "}"
+				exit
+			end
+		end
+		return [ "obj", xPairs ]
+	end
+	if tC = "["
+		$nJp = $nJp + 1
+		xItems = []
+		JSkip()
+		if $tJs[$nJp] = "]"
+			$nJp = $nJp + 1
+			return [ "arr", xItems ]
+		end
+		while true
+			xItems + JValue()
+			JSkip()
+			tC2 = $tJs[$nJp]
+			$nJp = $nJp + 1
+			if tC2 = "]"
+				exit
+			end
+		end
+		return [ "arr", xItems ]
+	end
+	if tC = Char(34)
+		return [ "s", JString() ]
+	end
+	if Left(Right($tJs, Len($tJs) - $nJp + 1), 4) = "true"
+		$nJp = $nJp + 4
+		return [ "b", 1 ]
+	end
+	if Left(Right($tJs, Len($tJs) - $nJp + 1), 5) = "false"
+		$nJp = $nJp + 5
+		return [ "b", 0 ]
+	end
+	if Left(Right($tJs, Len($tJs) - $nJp + 1), 4) = "null"
+		$nJp = $nJp + 4
+		return [ "skip" ]
+	end
+	tNum = ""
+	nLenJs = Len($tJs)
+	while $nJp <= nLenJs
+		tD1 = $tJs[$nJp]
+		if StzFindFirst(tD1, "-+0123456789.eE") = 0
+			exit
+		end
+		tNum = tNum + tD1
+		$nJp = $nJp + 1
+	end
+	return [ "n", tNum ]
+end
+
+func JSkip
+	nLenJs = Len($tJs)
+	while $nJp <= nLenJs
+		tC = $tJs[$nJp]
+		if tC != " " and tC != Char(10) and tC != Char(9) and tC != Char(13)
+			exit
+		end
+		$nJp = $nJp + 1
+	end
+end
+
+func JString
+	$nJp = $nJp + 1
+	tOut = ""
+	nLenJs = Len($tJs)
+	while $nJp <= nLenJs
+		tC = $tJs[$nJp]
+		if tC = Char(34)
+			$nJp = $nJp + 1
+			exit
+		end
+		if tC = Char(92)
+			$nJp = $nJp + 1
+			tE = $tJs[$nJp]
+			if tE = "n"
+				tOut = tOut + Char(10)
+			elseif tE = "t"
+				tOut = tOut + Char(9)
+			else
+				tOut = tOut + tE
+			end
+		else
+			tOut = tOut + tC
+		end
+		$nJp = $nJp + 1
+	end
+	return tOut
+end
+
+# ---- A2UI Express: compiled into the same component list ---------------------------------------------------------
+# the positional order of each component's arguments: the basic catalogue's property order (catalog.json, v1.0)
+func ExpressOrder(tType)
+	if tType = "Text"
+		return [ "text", "variant" ]
+	elseif tType = "Button"
+		return [ "child", "variant", "action" ]
+	elseif tType = "Row" or tType = "Column"
+		return [ "children", "justify", "align" ]
+	elseif tType = "Card"
+		return [ "child" ]
+	elseif tType = "Divider"
+		return [ "axis" ]
+	elseif tType = "TextField"
+		return [ "label", "value", "placeholder", "variant" ]
+	elseif tType = "CheckBox"
+		return [ "label", "value" ]
+	elseif tType = "ChoicePicker"
+		return [ "label", "variant", "options", "value", "displayStyle", "filterable" ]
+	elseif tType = "Slider"
+		return [ "label", "min", "max", "value", "steps" ]
+	elseif tType = "DateTimeInput"
+		return [ "value", "enableDate", "enableTime", "min", "max", "label" ]
+	end
+	return []
+end
+
+func ParseExpressScreen(tText)
+	$vComps = []
+	$nAuto = 0
+	xL = StzSplit(StzReplace(tText, Char(13), ""), Char(10))
+	nLenL = Len(xL)
+	for i = 1 to nLenL
+		tLine = StzTrim(xL[i])
+		if tLine = "" or tLine = "<a2ui>" or tLine = "</a2ui>" or Left(tLine, 1) = "$"
+			loop
+		end
+		nEq = StzFindFirst("=", tLine)
+		tName = StzTrim(Left(tLine, nEq - 1))
+		$tJs = StzTrim(Right(tLine, Len(tLine) - nEq))
+		$nJp = 1
+		xCall = XValue()
+		if xCall[1] != "call"
+			$tWhy = "statement " + tName + " is not a component"
+			return 0
+		end
+		if xCall[2] = "Event"
+			$tWhy = "statement " + tName + " is an event, not a component"
+			return 0
+		end
+		if CompileCall(tName, xCall) = 0
+			return 0
+		end
+	end
+	return 1
+end
+
+# one call into a component (and its inline children into theirs); its id is the variable's name, or id=...
+func CompileCall(tId, xCall)
+	tType = xCall[2]
+	xOrder = ExpressOrder(tType)
+	if Len(xOrder) = 0
+		$tWhy = "the component " + tId + " is a " + tType + ", which the catalogue does not hold"
+		return 0
+	end
+	xProps = []
+	xArgs = xCall[3]
+	nLenA = Len(xArgs)
+	nPos = 0
+	for i = 1 to nLenA
+		tKey = xArgs[i][1]
+		xV = xArgs[i][2]
+		if tKey = ""
+			nPos = nPos + 1
+			if nPos > Len(xOrder)
+				$tWhy = tType + " takes " + String(Len(xOrder)) + " positional arguments, " + tId + " gives more"
+				return 0
+			end
+			tKey = xOrder[nPos]
+		end
+		if tKey = "id"
+			tId = xV[2]
+			loop
+		end
+		if xV[1] = "ref" and xV[2] = "_"
+			loop
+		end
+		xProps + [ tKey, Inline(xV) ]
+	end
+	$vComps + [ tId, tType, xProps ]
+	return 1
+end
+
+# an inline component becomes its own component with a generated id, referred to by it
+func Inline(xV)
+	if xV[1] = "call"
+		if xV[2] = "Event"
+			if Len(xV[3]) > 0
+				return [ "event", xV[3][1][2][2] ]
+			end
+			return [ "event", "" ]
+		end
+		$nAuto = $nAuto + 1
+		tAuto = "auto_" + String($nAuto)
+		CompileCall(tAuto, xV)
+		return [ "ref", tAuto ]
+	end
+	if xV[1] = "arr"
+		vOut = []
+		xIt = xV[2]
+		nLenIt = Len(xIt)
+		for i = 1 to nLenIt
+			vOut + Inline(xIt[i])
+		end
+		return [ "arr", vOut ]
+	end
+	return xV
+end
+
+# an Express value over $tJs from $nJp
+func XValue
+	XSkip()
+	tC = $tJs[$nJp]
+	if tC = Char(34)
+		return [ "s", JString() ]
+	end
+	if tC = "["
+		$nJp = $nJp + 1
+		xItems = []
+		while true
+			XSkip()
+			if $tJs[$nJp] = "]"
+				$nJp = $nJp + 1
+				exit
+			end
+			xItems + XValue()
+			XSkip()
+			if $tJs[$nJp] = ","
+				$nJp = $nJp + 1
+			end
+		end
+		return [ "arr", xItems ]
+	end
+	if tC = "{"
+		$nJp = $nJp + 1
+		xPairs = []
+		while true
+			XSkip()
+			if $tJs[$nJp] = "}"
+				$nJp = $nJp + 1
+				exit
+			end
+			tKey = ""
+			if $tJs[$nJp] = Char(34)
+				tKey = JString()
+			else
+				tKey = XIdent()
+			end
+			XSkip()
+			$nJp = $nJp + 1
+			xPairs + [ tKey, XValue() ]
+			XSkip()
+			if $tJs[$nJp] = ","
+				$nJp = $nJp + 1
+			end
+		end
+		return [ "obj", xPairs ]
+	end
+	if tC = "$"
+		$nJp = $nJp + 1
+		tP = ""
+		nLenJs = Len($tJs)
+		while $nJp <= nLenJs
+			tD1 = $tJs[$nJp]
+			if StzFindFirst(tD1, ",)]} " + Char(9)) > 0
+				exit
+			end
+			tP = tP + tD1
+			$nJp = $nJp + 1
+		end
+		return [ "path", tP ]
+	end
+	if StzFindFirst(tC, "-0123456789") > 0
+		tNum = ""
+		nLenJs = Len($tJs)
+		while $nJp <= nLenJs
+			tD1 = $tJs[$nJp]
+			if StzFindFirst(tD1, "-0123456789.") = 0
+				exit
+			end
+			tNum = tNum + tD1
+			$nJp = $nJp + 1
+		end
+		return [ "n", tNum ]
+	end
+	tId = XIdent()
+	if tId = "true"
+		return [ "b", 1 ]
+	end
+	if tId = "false"
+		return [ "b", 0 ]
+	end
+	XSkip()
+	if $nJp <= Len($tJs)
+		if $tJs[$nJp] = "("
+			$nJp = $nJp + 1
+			xArgs = []
+			while true
+				XSkip()
+				if $tJs[$nJp] = ")"
+					$nJp = $nJp + 1
+					exit
+				end
+				# keyword or positional: an identifier followed by "=" names the argument
+				nSave = $nJp
+				tKey = ""
+				tMaybe = XIdent()
+				XSkip()
+				if tMaybe != "" and $nJp <= Len($tJs)
+					if $tJs[$nJp] = "="
+						tKey = tMaybe
+						$nJp = $nJp + 1
+					else
+						$nJp = nSave
+					end
+				else
+					$nJp = nSave
+				end
+				xArgs + [ tKey, XValue() ]
+				XSkip()
+				if $tJs[$nJp] = ","
+					$nJp = $nJp + 1
+				end
+			end
+			return [ "call", tId, xArgs ]
+		end
+	end
+	return [ "ref", tId ]
+end
+
+func XSkip
+	nLenJs = Len($tJs)
+	while $nJp <= nLenJs
+		tC = $tJs[$nJp]
+		if tC != " " and tC != Char(9)
+			exit
+		end
+		$nJp = $nJp + 1
+	end
+end
+
+func XIdent
+	tOut = ""
+	nLenJs = Len($tJs)
+	while $nJp <= nLenJs
+		tC = $tJs[$nJp]
+		if StzFindFirst(tC, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_") = 0
+			exit
+		end
+		tOut = tOut + tC
+		$nJp = $nJp + 1
+	end
+	return tOut
+end
+
+# ---- the A2UI law, on the component list -------------------------------------------------------------------------
+func Allowed(tType)
+	if tType = "Text"
+		return [ "text", "variant" ]
+	elseif tType = "Button"
+		return [ "child", "variant", "action" ]
+	elseif tType = "Row" or tType = "Column"
+		return [ "children", "justify", "align" ]
+	elseif tType = "Card"
+		return [ "child" ]
+	elseif tType = "Divider"
+		return [ "axis" ]
+	end
+	return ExpressOrder(tType)
+end
+
+func Required(tType)
+	if tType = "Text"
+		return [ "text" ]
+	elseif tType = "Button"
+		return [ "child", "action" ]
+	elseif tType = "Row" or tType = "Column"
+		return [ "children" ]
+	elseif tType = "Card"
+		return [ "child" ]
+	elseif tType = "TextField" or tType = "CheckBox"
+		return [ "label", "value" ]
+	elseif tType = "ChoicePicker"
+		return [ "options", "value" ]
+	elseif tType = "Slider"
+		return [ "max", "value" ]
+	elseif tType = "DateTimeInput"
+		return [ "value" ]
+	end
+	return []
+end
+
+func EnumOf(tType, tProp)
+	if tProp = "variant"
+		if tType = "Text"
+			return [ "caption", "body" ]
+		elseif tType = "Button"
+			return [ "default", "primary", "borderless" ]
+		elseif tType = "TextField"
+			return [ "longText", "number", "shortText", "obscured" ]
+		elseif tType = "ChoicePicker"
+			return [ "multipleSelection", "mutuallyExclusive" ]
+		end
+	end
+	if tProp = "justify"
+		return [ "center", "end", "spaceAround", "spaceBetween", "spaceEvenly", "start", "stretch" ]
+	end
+	if tProp = "align"
+		return [ "start", "center", "end", "stretch" ]
+	end
+	if tProp = "axis"
+		return [ "horizontal", "vertical" ]
+	end
+	if tProp = "displayStyle"
+		return [ "checkbox", "chips" ]
+	end
+	return []
+end
+
+func A2uiLaw
+	nLenC = Len($vComps)
+	if nLenC = 0
+		$tWhy = "no components"
+		return 0
+	end
+	vIds = []
+	nRoots = 0
+	for i = 1 to nLenC
+		tId = $vComps[i][1]
+		if Len(StzFind(tId, vIds)) > 0
+			$tWhy = "the id " + tId + " is used twice"
+			return 0
+		end
+		vIds + tId
+		if tId = "root"
+			nRoots = nRoots + 1
+		end
+	end
+	if nRoots != 1
+		$tWhy = "no component has the id root"
+		return 0
+	end
+	for i = 1 to nLenC
+		tId = $vComps[i][1]
+		tType = $vComps[i][2]
+		xProps = $vComps[i][3]
+		if Len(StzFind(tType, [ "Text", "Button", "Row", "Column", "Card", "Divider", "TextField", "CheckBox", "ChoicePicker", "Slider", "DateTimeInput" ])) = 0
+			$tWhy = "the component " + tId + " is a " + tType + ", which the catalogue does not hold"
+			return 0
+		end
+		xAllowed = Allowed(tType)
+		vNames = []
+		nLenP = Len(xProps)
+		for k = 1 to nLenP
+			tP = xProps[k][1]
+			xV = xProps[k][2]
+			if Len(StzFind(tP, xAllowed)) = 0
+				$tWhy = tType + " " + tId + " has no property " + tP
+				return 0
+			end
+			vNames + tP
+			xEnum = EnumOf(tType, tP)
+			if Len(xEnum) > 0
+				if xV[1] != "s"
+					$tWhy = tType + " " + tId + ": " + tP + " is not one of its names"
+					return 0
+				end
+				if Len(StzFind(xV[2], xEnum)) = 0
+					$tWhy = tType + " " + tId + ": " + tP + " '" + xV[2] + "' is not one of its values"
+					return 0
+				end
+			end
+			if tP = "child"
+				if xV[1] != "ref" or Len(StzFind(xV[2], vIds)) = 0
+					$tWhy = tType + " " + tId + ": its child is not a defined component"
+					return 0
+				end
+			end
+			if tP = "children"
+				if xV[1] != "arr"
+					$tWhy = tType + " " + tId + ": children is not a list"
+					return 0
+				end
+				xIt = xV[2]
+				nLenIt = Len(xIt)
+				for j = 1 to nLenIt
+					if xIt[j][1] != "ref" or Len(StzFind(xIt[j][2], vIds)) = 0
+						$tWhy = tType + " " + tId + ": a child is not a defined component"
+						return 0
+					end
+				end
+			end
+			# a bare name is a component reference, and only child and children hold those: anywhere else it names nothing
+			if tP != "child" and tP != "children" and xV[1] = "ref"
+				$tWhy = tType + " " + tId + ": " + tP + " is the bare name '" + xV[2] + "', not a value"
+				return 0
+			end
+			if tP = "action" and xV[1] != "event"
+				$tWhy = tType + " " + tId + ": the action is not an event"
+				return 0
+			end
+			if tP = "options"
+				if OptionsOk(xV) = 0
+					$tWhy = tType + " " + tId + ": options are not label/value pairs"
+					return 0
+				end
+			end
+			if (tP = "text" or tP = "label" or tP = "placeholder") and xV[1] != "s" and xV[1] != "path"
+				$tWhy = tType + " " + tId + ": " + tP + " is neither a text nor a data path"
+				return 0
+			end
+		end
+		xReq = Required(tType)
+		nLenRq = Len(xReq)
+		for k = 1 to nLenRq
+			if Len(StzFind(xReq[k], vNames)) = 0
+				$tWhy = tType + " " + tId + " lacks " + xReq[k]
+				return 0
+			end
+		end
+	end
+	if Cycles() = 1
+		$tWhy = "a component contains itself"
+		return 0
+	end
+	return 1
+end
+
+func OptionsOk(xV)
+	if xV[1] != "arr"
+		return 0
+	end
+	xIt = xV[2]
+	nLenIt = Len(xIt)
+	if nLenIt = 0
+		return 0
+	end
+	for i = 1 to nLenIt
+		if Len(ObjGet(xIt[i], "label")) = 0 or Len(ObjGet(xIt[i], "value")) = 0
+			return 0
+		end
+	end
+	return 1
+end
+
+# a depth-first walk from root: a component met again on its own path is a cycle
+func Cycles
+	return Walk("root", [])
+end
+
+func Walk(tId, xPath)
+	if Len(StzFind(tId, xPath)) > 0
+		return 1
+	end
+	if Len(xPath) > 64
+		return 1
+	end
+	xPath + tId
+	xC = CompById(tId)
+	if Len(xC) = 0
+		return 0
+	end
+	xProps = xC[3]
+	nLenP = Len(xProps)
+	for k = 1 to nLenP
+		xV = xProps[k][2]
+		if xProps[k][1] = "child" and xV[1] = "ref"
+			if Walk(xV[2], xPath) = 1
+				return 1
+			end
+		end
+		if xProps[k][1] = "children" and xV[1] = "arr"
+			xIt = xV[2]
+			nLenIt = Len(xIt)
+			for j = 1 to nLenIt
+				if xIt[j][1] = "ref"
+					if Walk(xIt[j][2], xPath) = 1
+						return 1
+					end
+				end
+			end
+		end
+	end
+	return 0
+end
+
+func CompById(tId)
+	nLenC = Len($vComps)
+	for i = 1 to nLenC
+		if $vComps[i][1] = tId
+			return $vComps[i]
+		end
+	end
+	return []
+end
+
+# every element the request listed, in some text, label, placeholder or option label of the screen
+func A2uiCoverage(xElements)
+	tAll = " "
+	nLenC = Len($vComps)
+	for i = 1 to nLenC
+		xProps = $vComps[i][3]
+		nLenP = Len(xProps)
+		for k = 1 to nLenP
+			tP = xProps[k][1]
+			xV = xProps[k][2]
+			if (tP = "text" or tP = "label" or tP = "placeholder") and xV[1] = "s"
+				tAll = tAll + StzLower(xV[2]) + " | "
+			end
+			if tP = "options" and xV[1] = "arr"
+				xIt = xV[2]
+				nLenIt = Len(xIt)
+				for j = 1 to nLenIt
+					xLb = ObjGet(xIt[j], "label")
+					if Len(xLb) > 0
+						if xLb[1] = "s"
+							tAll = tAll + StzLower(xLb[2]) + " | "
+						end
+					end
+				end
+			end
+		end
+	end
+	nLenE = Len(xElements)
+	for i = 1 to nLenE
+		if StzFindFirst(xElements[i], tAll) = 0
+			$tWhy = $tWhy + " missing '" + xElements[i] + "'"
+			return 0
+		end
+	end
+	return 1
+end

@@ -1,0 +1,29 @@
+# Softanza Engine -- Stats Ring Bridge
+#
+# Loads stz_stats.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Function prefix: StzEngineStats*
+
+if IsWindows()
+    $tStzStatsLib = $tEngineDir + "/zig-out/bin/stz_stats.dll"
+elseif IsLinux()
+    $tStzStatsLib = $tEngineDir + "/zig-out/lib/libstz_stats.so"
+elseif isMacOS()
+    $tStzStatsLib = $tEngineDir + "/zig-out/lib/libstz_stats.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("stats")
+    $hStzStatsHandle = ""
+elseif FExists($tStzStatsLib)
+    $hStzStatsHandle = LoadLib($tStzStatsLib)
+    # GS6a: t-SNE epochs can run on the GPU -- record WHERE the wgpu runtime
+    # lives; the device is opened lazily at the first eligible fit, and a
+    # machine without a GPU (or the runtime) stays silently on the CPU
+    StzEngineTsneGpuRuntimePath($tEngineDir + "/zig-out/bin/wgpu_native.dll")
+else
+    ? "WARNING: stz_stats not found at: " + $tStzStatsLib
+    $hStzStatsHandle = ""
+end

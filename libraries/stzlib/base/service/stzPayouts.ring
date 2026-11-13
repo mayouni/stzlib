@@ -117,7 +117,7 @@ func _StzPayoutFinding(pcRule, pcWhere, pcMessage)
 #   see        stzPayoutDesk, stzPayoutPolicy, stzPaymentsPort
 class stzPayoutPlan from stzObject
 
-	@cId = ""
+	@tId = ""
 	@cProposer = ""
 	@aItems = []       # [ [ kind, key, amount ], ... ]
 	@aObjects = []     # the order or batch behind a pay / bulk item, "" for the others
@@ -139,7 +139,7 @@ class stzPayoutPlan from stzObject
 	#   see        Id, Paying
 	#@ aka  a plan starts empty and says what it pays
 	def WithId(pcId)
-		@cId = "" + pcId
+		@tId = "" + pcId
 		return This
 
 	# Returns the identifier of the plan.
@@ -147,7 +147,7 @@ class stzPayoutPlan from stzObject
 	#   returns    a text; empty until WithId is called
 	#   see        WithId
 	def Id()
-		return @cId
+		return @tId
 
 	# Sets the name of whoever proposes the plan, an agent or a person.
 	#
@@ -325,7 +325,7 @@ class stzPayoutPlan from stzObject
 		for _i_ = 1 to ring_len(@aVisas)
 			_aVisas_ + [ [ "role", @aVisas[_i_][1] ], [ "name", @aVisas[_i_][2] ] ]
 		next
-		return ListToJson([ [ "plan", @cId ], [ "proposer", @cProposer ], [ "items", _aItems_ ], [ "visas", _aVisas_ ] ])
+		return ListToJson([ [ "plan", @tId ], [ "proposer", @cProposer ], [ "items", _aItems_ ], [ "visas", _aVisas_ ] ])
 
 
   #===============#
@@ -350,7 +350,7 @@ class stzPayoutPlan from stzObject
 #   see        stzPayoutPlan, stzPayoutDesk, stzRuleReport
 class stzPayoutPolicy from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aVisaRules = []     # [ [ amount, visas ], ... ]
 	@bProposerOut = 0
 
@@ -362,14 +362,14 @@ class stzPayoutPolicy from stzObject
 	#              port: add yours with RequireVisasAbove and ProposerCannotVisa
 	#   see        RequireVisasAbove, StzDikoPayoutPolicyQ
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the title the policy was given when it was built.
 	#
 	#   returns    a text
 	#   see        init
 	def Name()
-		return @cName
+		return @tName
 
 	# Adds a rule: a plan whose total is strictly above an amount needs a number of visas from distinct people.
 	#

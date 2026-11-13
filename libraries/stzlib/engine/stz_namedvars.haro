@@ -1,0 +1,22 @@
+# Softanza Engine -- Named Variables
+#
+# Loads stz_namedvars.dll for named parameter store with type tracking.
+#
+# Function prefix: StzEngineNamedvars*
+
+if IsWindows()
+    $tStzNamedvarsLib = $tEngineDir + "/zig-out/bin/stz_namedvars.dll"
+elseif IsLinux()
+    $tStzNamedvarsLib = $tEngineDir + "/zig-out/lib/libstz_namedvars.so"
+elseif isMacOS()
+    $tStzNamedvarsLib = $tEngineDir + "/zig-out/lib/libstz_namedvars.dylib"
+end
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("namedvars")
+    $hStzNamedvarsHandle = ""
+elseif FExists($tStzNamedvarsLib)
+    $hStzNamedvarsHandle = LoadLib($tStzNamedvarsLib)
+else
+    ? "WARNING: stz_namedvars not found at: " + $tStzNamedvarsLib
+    $hStzNamedvarsHandle = ""
+end

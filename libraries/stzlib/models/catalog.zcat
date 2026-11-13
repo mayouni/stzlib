@@ -13,6 +13,11 @@
 #        linked to its upstream, never republished (StzModelPublishGate)
 #   release|<hub repository>|<version>|<state>|<revision>|<date>      state = staged | published; revision = the hub commit (or tag) the
 #        files were uploaded in, from which StzModelFetch reads them. The sha256 a fetched file must have is this catalogue's, never the hub's
+#   pack|<name>|<path>[,<path>...]|<memory MB>|<title>|<note>
+#        an OPTIONAL PACK (MP2): files Softanza never needs and never chooses by default, offered where the court measured a gain
+#        worth their size. An implementation belongs to a pack when its files are the pack's (its needle names one, or its requires rows
+#        do); it can run only on a machine with the memory written here, and is chosen only where it is installed and the court upheld it
+#        (StzModelPacks, StzModelPackState, StzModelPackPlanText; a target profile says which packs it has: StzModelsReportFor)
 #
 # Every row was written from MODELS.md, the commit that made the file, and a sha256 of the file on the machine that measured it.
 
@@ -42,6 +47,7 @@ file|ocr/ppocr_rec.gguf|21291904|243acf5d162c9239d105b66050ff2116f9d84f4c4c81dc0
 file|ocr/ppocr_cls.gguf|536480|e97b5b1cd558889cc9029c81a065131aa75f2d3783d0e4841d88ecb88aaf955a|Apache-2.0|convert|https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv4/cls/ch_ppocr_mobile_v2.0_cls_mobile.onnx||e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c|python engine/tools/onnx_to_gguf.py ch_ppocr_mobile_v2.0_cls_mobile.onnx ocr/ppocr_cls.gguf --kind=cls
 file|ocr/ppocr_rec_arabic.gguf|7937728|c1563b1f5f9f412d927c3a48b1b6c9863ed0176efdcaafa9ca658c6a9abae8d3|Apache-2.0|convert|https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv5/rec/arabic_PP-OCRv5_rec_mobile.onnx||c1192e632d0baa9146ae5b756a0e635e3dc63c1733737ebfd1629e87144e9295|python engine/tools/onnx_to_gguf.py arabic_PP-OCRv5_rec_mobile.onnx ocr/ppocr_rec_arabic.gguf --kind=rec --direction=rtl --classifier=off
 file|ocr/ppocr_rec_cyrillic.gguf|7988640|02b1adf6774c19e44bb4851d7eebc63bc9eed9cb3d2f14a42babdcf40f176b01|Apache-2.0|convert|https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv5/rec/cyrillic_PP-OCRv5_rec_mobile.onnx||90f761b4bfcce0c8c561c0cb5c887b0971d3ec01c32164bdf7374a35b0982711|python engine/tools/onnx_to_gguf.py cyrillic_PP-OCRv5_rec_mobile.onnx ocr/ppocr_rec_cyrillic.gguf --kind=rec
+file|Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf|6180446208|c8af2b8aea10a690a1d9491db744a9446660173cb38fc489612b556615a69612|OpenMDW-1.1|download|https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-4GB/resolve/main/Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf|6180446208|c8af2b8aea10a690a1d9491db744a9446660173cb38fc489612b556615a69612|download, save as Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf
 
 requires|faces|yunet|vision/yunet_2023mar.gguf|
 requires|objects|yolox-nano|vision/yolox_nano.gguf|
@@ -67,6 +73,10 @@ requires|ocr|ppocr|ocr/ppocr_rec_cyrillic.gguf|lang=ru,uk,bg
 platform|ocr|platform|windows|a Windows OCR language pack for the language read|Settings > Time & language > Language & region > Add a language (with Optical character recognition); or, as administrator: Add-WindowsCapability -Online -Name "Language.OCR~~~<tag>~0.0.1.0" (Get-WindowsCapability -Online -Name "Language.OCR*" lists them)
 platform|faces|platform|windows|Windows.Media.FaceAnalysis, part of Windows 10 and later|nothing to install on Windows; on another system this implementation does not exist
 
+# the optional packs (MP2). support-quality: BOLT-PLACEMENT-01, ruled 2026-11-11 -- an optional quality pack for machines with 16 GB or
+# more, never a default; its gain is triage-extract's (0.94 against granite-1b's 0.72 on the English set, upheld 10-2; 24/24 in French
+# and in Arabic on a fresh set, upheld 6-0 and 8-0)
+pack|support-quality|Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf|16384|the support desk's quality pack: Nemotron 3.5 Bolt E4B reads a ticket into its record|optional, never a default: without it the faculty answers as it does today (StzModelsReport says with what) and nothing breaks; about 6.4 GB in memory while it runs
 # replayed on 2026-11-05 by base/test/image/_rig/catalog_replay.py (Windows, the Docling environment's python, onnx and numpy)
 replayed|vision/yunet_2023mar.gguf|2026-11-05|reproduced byte for byte
 replayed|vision/yolox_nano.gguf|2026-11-05|reproduced byte for byte

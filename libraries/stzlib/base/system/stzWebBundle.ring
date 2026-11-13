@@ -122,7 +122,7 @@ func _StzWebManifest(pcName, paFiles, pcMain)
 #   see        stzBuilder, stzEmulator, stzDeployment
 class stzWebBundle from stzObject
 
-	@cName = ""
+	@tName = ""
 	@cTitle = ""
 	@cOutDir = ""
 	@aParts = []       # [ name, wasmPath ]
@@ -135,7 +135,7 @@ class stzWebBundle from stzObject
 	#   returns    nothing; the object is built
 	#   see        AddWasm, Build
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@cTitle = "" + pcName
 
 	# Sets the title of the generated HTML page.
@@ -196,7 +196,7 @@ class stzWebBundle from stzObject
 		if @cOutDir != ""
 			return @cOutDir
 		ok
-		return @cName + "_web"
+		return @tName + "_web"
 
 	# Copies the wasm modules into the bundle folder and writes the bridge stz.js, the page index.html and the manifest bundle.json.
 	#
@@ -230,7 +230,7 @@ class stzWebBundle from stzObject
 		@aFiles + "stz.js"
 		write(_cDir_ + "/index.html", _StzWebShellHtml(@cTitle, _cMain_))
 		@aFiles + "index.html"
-		write(_cDir_ + "/bundle.json", _StzWebManifest(@cName, @aFiles, _cMain_))
+		write(_cDir_ + "/bundle.json", _StzWebManifest(@tName, @aFiles, _cMain_))
 		@aFiles + "bundle.json"
 
 		@bBuilt = 1
@@ -288,7 +288,7 @@ class stzWebBundle from stzObject
 	#   returns    nothing; it prints
 	#   see        Files, Build
 	def Show()
-		? "WebBundle '" + @cName + "' (" + This.NumberOfParts() + " wasm part(s))"
+		? "WebBundle '" + @tName + "' (" + This.NumberOfParts() + " wasm part(s))"
 		? "  dir:   " + This.BundleDir()
 		if @bBuilt
 			? "  files: " + @@(@aFiles)

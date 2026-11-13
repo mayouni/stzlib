@@ -1,0 +1,24 @@
+# Softanza Engine -- Text Operations
+#
+# Loads stz_text.dll for paragraph/sentence segmentation,
+# word/char/line counting, readability metrics, and truncation.
+#
+# Function prefix: StzEngineText*
+
+if IsWindows()
+    $tStzTextLib = $tEngineDir + "/zig-out/bin/stz_text.dll"
+elseif IsLinux()
+    $tStzTextLib = $tEngineDir + "/zig-out/lib/libstz_text.so"
+elseif isMacOS()
+    $tStzTextLib = $tEngineDir + "/zig-out/lib/libstz_text.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("text")
+    $hStzTextHandle = ""
+elseif FExists($tStzTextLib)
+    $hStzTextHandle = LoadLib($tStzTextLib)
+else
+    ? "WARNING: stz_text not found at: " + $tStzTextLib
+    $hStzTextHandle = ""
+end

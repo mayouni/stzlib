@@ -1,0 +1,22 @@
+# Softanza Engine -- Similarity Metrics
+#
+# Loads stz_similarity.dll for similarity metrics.
+#
+# Function prefix: StzEngineSimilarity*
+
+if IsWindows()
+    $tStzSimilarityLib = $tEngineDir + "/zig-out/bin/stz_similarity.dll"
+elseif IsLinux()
+    $tStzSimilarityLib = $tEngineDir + "/zig-out/lib/libstz_similarity.so"
+elseif isMacOS()
+    $tStzSimilarityLib = $tEngineDir + "/zig-out/lib/libstz_similarity.dylib"
+end
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("similarity")
+    $hStzSimilarityHandle = ""
+elseif FExists($tStzSimilarityLib)
+    $hStzSimilarityHandle = LoadLib($tStzSimilarityLib)
+else
+    ? "WARNING: stz_similarity not found at: " + $tStzSimilarityLib
+    $hStzSimilarityHandle = ""
+end

@@ -1,0 +1,449 @@
+
+# Wrappers to ring functions, that we use inside a softanza class
+# where the same name is needed (example: insert() inside stzString)
+#--> This will allow us to avoid conflicts!
+#--> For you as a Ring programmer, this won't alter you Ring experience
+#     when you want to use native Ring form. But if you are inside a
+#     softanza object, then the softanza version will apply, unless you
+#     you opt for the Ring's version using ring_...()
+
+#TODO // Add the ring_...() form of all Ring functions
+
+func SoftanzaLogo
+	if not IsGlobal(:$xSOFTANZALOGO)
+		$xSOFTANZALOGO = "Softanza"
+	end
+	return $xSOFTANZALOGO
+end
+	func Softanza
+		if not IsGlobal(:$xSOFTANZALOGO)
+			$xSOFTANZALOGO = "Softanza"
+		end
+		return $xSOFTANZALOGO
+	end
+func StzVersion
+	return "0.9"
+end
+	func stz_version
+		return StzVersion()
+	end
+func ring_version
+	return Version()
+end
+	func RingVersion
+		return Version()
+	end
+func ring_char(xN)
+	return Char(xN)
+end
+# The fraction digits tFraction (the text after "0.") rounded to nPlaces places, as the text of
+# that number: StkRoundedFractionText("4567", 2) is "0.46", and "999" to 2 places is "1.00".
+# It rounds per value; no places setting is read or changed.
+func StkRoundedFractionText(tFraction, nPlaces)
+	return String(Decimal(Decimal("0." + tFraction), nPlaces))
+end
+func ring_EvenOrOdd(xN) # Inverses the output to be more logic (odd -> 1, even -> 2)
+	if EvenOrOdd(xN) = 1
+		return 2
+	else
+		return 1
+	end
+end
+	func ring_OddOrEven(xN)
+		return EvenOrOdd(xN)
+	end
+func ring_packages
+	return Packages()
+end
+func ring_globals
+	return Globals()
+end
+func ring_locals
+	return Locals()
+end
+func ring_objects
+	return objects()
+end
+func ring_max(pxNumbers)
+	nBest = pxNumbers[1]
+	nLen = Len(pxNumbers)
+	for i = 2 to nLen
+		if pxNumbers[i] > nBest
+			nBest = pxNumbers[i]
+		end
+	end
+	return nBest
+end
+func ring_min(pxNumbers)
+	nBest = pxNumbers[1]
+	nLen = Len(pxNumbers)
+	for i = 2 to nLen
+		if pxNumbers[i] < nBest
+			nBest = pxNumbers[i]
+		end
+	end
+	return nBest
+end
+func ring_trim(xStr)
+	return Trim(xStr)
+end
+func ring_split(xStr, xSep)
+	# Ring's stdlib Split(), line for line, with char(10) where it reads
+	# the global NL. Ring is case-insensitive, so a caller writing
+	# `nL = len(aLines)` makes NL a number, and every later split() then
+	# raises "Bad parameter type" inside substr(), far from that line.
+	# Library code calls ring_split(), never split() (NL-SPLIT-SWEEP-01).
+	# Same semantics as split(): a tab or space delimiter collapses runs
+	# of blanks, the string is trimmed, and a newline always splits too.
+
+	if xSep = ""
+		vOut = []
+		nLen = Len(xStr)
+		for i = 1 to nLen
+			vOut + xStr[i]
+		end
+		return vOut
+	end
+
+	if xSep = Char(9)
+		xSep = " "
+	end
+
+	if xSep = " "
+		while SubStr(xStr, Char(9)) > 0
+			xStr = SubStr(xStr, Char(9), " ")
+		end
+		while SubStr(xStr, "  ") > 0
+			xStr = SubStr(xStr, "  ", " ")
+		end
+	end
+
+	return Str2List(SubStr(Trim(xStr), xSep, Char(10)))
+end
+func ring_read(tFilePath)
+	return Read(tFilePath)
+end
+func ring_write(tFilePath, pxStr)
+	return Write(tFilePath, pxStr)
+end
+func ring_writeline(tFilePath, pxStr)
+	return WriteLine(tFilePath, pxStr) #TODO // check that it exists in Ring!
+end
+func ring_insert(pxList, xN, xItem)
+	#NOTE
+	# We change the behaviour of the Ring function, since
+	# it actually means in Ring insertAfter() and not insert()
+
+	if not ( IsList(pxList)  or IsNumber(xN) )
+		Raise( "ERR-" + StkError(:IncorrectParamType) )
+	end
+
+	if not xN > 0
+		Raise( "ERR-" + StkError(:IncorrectParamValye) )
+	end
+
+	Insert(pxList, xN-1, xItem)
+	return pxList
+end
+func ring_find(pxList, pxItem)
+	return Find(pxList, pxItem)
+end
+func ring_type(xP)
+	return Type(xP)
+end
+func ring_reverse(pxStrOrList)
+	#WARNING // can't revese unicode string other then ASCII latin chars
+	# --> use Softanza @Reverse() instead
+
+	return Reverse(pxStrOrList)
+end
+func ring_sort(pxList)
+	return Sort(pxList)
+end
+	func ring_sort1(pxList)
+		return ring_sort(pxList)
+	end
+func ring_sort2(pxList, xN)
+	xResult = Sort(pxList, xN)
+	return xResult
+end
+	func ring_sortXT(pxList, xN)
+		return Sort(pxList, xN)
+	end
+func ring_swap(pxList, xN1, xN2)
+	Swap(pxList, xN1, xN2)
+	return pxList
+end
+func ring_methods(xObj)
+	return Methods(xObj)
+end
+func ring_attributes(xObj)
+	return Attributes(xObj)
+end
+# Needed inside a class body: stzObject defines a ClassName() METHOD, so
+# every stz class inherits one and a bare classname(obj) there resolves to
+# THAT -- a 0-param method called with 1 argument -> R20. The inherited
+# method is no substitute either: it returns the literal "stzobject"
+# unless a class overrides it, so it cannot tell a stzBarChart from a
+# stzHBarPlot. Only the builtin knows the runtime class.
+func ring_classname(xObj)
+	return ClassName(xObj)
+end
+func ring_factors(xN)
+	return Factors(xN)
+end
+func ring_LCM(xN1, xN2)
+	return LCM(xN1, xN2)
+end
+func ring_GCD(xN1, xN2)
+	return GCD(xN1, xN2)
+end
+func ring_log10(xN)
+	return Log10(xN)
+end
+func ring_log(xN)
+	return Log(xN)
+end
+func ring_tanhh(xN)
+	return TanH(xN)
+end
+func ring_tanh(xN)
+	return TanH(xN)
+end
+func ring_atan(xN)
+	return ATan(xN)
+end
+func ring_cosh(xN)
+	return CosH(xN)
+end
+func ring_sinh(xN)
+	return SinH(xN)
+end
+func ring_atan2(xY, xX)
+	return ATan2(xY, xX)
+end
+func ring_acos(xN)
+	return ACos(xN)
+end
+func ring_asin(xN)
+	return ASin(xN)
+end
+func ring_tan(xN)
+	return Tan(xN)
+end
+func ring_cos(xN)
+	return Cos(xN)
+end
+func ring_sin(xN)
+	return Sin(xN)
+end
+func ring_exp(xN)
+	return Exp(xN) # #TODO What's the difference with pow() ?
+end
+func ring_pow(xN, nPower)
+	return Pow(xN, nPower)
+end
+	func power(xN, nPower)
+		return Pow(xN, nPower)
+	end
+func ring_left(xStr, xN)
+	return Left(xStr, xN)
+end
+func ring_right(xStr, xN)
+	return Right(xStr, xN)
+end
+func ring_del(pxList, xN)
+
+	Del(pxList, xN)
+	return pxList
+end
+	#NOTE
+	# Some Ring standard functions make the action in place and does not
+	# return anything. Others do the action and return the result.
+	#~>
+	# The ring_...() functions family always do the action and return
+	# the result. So you are free to say:
+
+	# 	aList = [ 1, 1, 2, 3 ]
+	# 	ring_insert(aList, 1, 1)
+	# 	? aList
+	# 	#--> [ 1, 2, 3 ]
+
+	# Or directly:
+
+	# 	? ring_insert([ 1, 1, 2, 3 ], 1, 1)
+	# 	#--> [ 1, 2, 3 ]
+	
+
+	func ring_remove(pxList, xN) # An alternative I added to the Ring semantics
+		return ring_del(pxList, xN)
+	end
+func ring_file_remove(tFile)
+	Remove(tFile)
+end
+func ring_substr(pxParams)
+	if not IsList(pxParams)
+		Raise("ERR-" + StkError(:IncorrectParamType))
+	end
+
+	nLen = Len(pxParams)
+	if nLen < 2 or nLen > 3
+		Raise("ERR-" + StkError(:IncorrectNumberOfParams))
+	end
+
+	if nLen = 2
+		return ring_substr1(pxParams[1], pxParams[2])
+	elseif nLen = 3
+		return ring_substr2(pxParams[1], pxParams[2], pxParams[2])
+	end
+end
+func ring_substr1(xStr, xSubstr) # Finds substr in str
+	if xStr = "" or xSubstr = ''
+		return 0
+	end
+
+	return SubStr(xStr, xSubstr)
+end
+func ring_substr2(xStr, xSubstr1, xSubstr2) # Replaces substr1 by substr2 in str
+	if xStr = "" or xSubstr1 = ''
+		return ""
+	end
+
+	return SubStr(xStr, xSubstr1, xSubstr2)
+end
+func ring_copy(xP1, xP2)
+	return Copy(xP1, xP2)
+end
+	func @copy(xP1, xP2)
+		return Copy(xP1, xP2)
+	end
+	func RepeatChar(xP1, xP2) #TODO// Should be located in stzChar or stzSring
+		return Copy(xP1, xP2)
+	end
+func ring_len(xP)
+	return Len(xP)
+end
+func ring_islower(xStr)
+	return IsLower(xStr)
+end
+func ring_isupper(xStr)
+	return IsUpper(xStr)
+end
+func ring_lower(xStr)
+	return Lower(xStr)
+end
+func ring_upper(xStr)
+	return Upper(xStr)
+end
+func ring_isPrime(xN)
+	return IsPrime(xN)
+end
+func ring_random(xN)
+	return Random(xN)
+end
+func ring_srandom(xN)
+	return SRandom(xN)
+end
+func ring_isvowel(xC)
+	return IsVowel(xC)
+end
+func ring_sqrt(xN)
+	return Sqrt(xN)
+end
+func ring_ceil(xN)
+	return Ceil(xN)
+end
+func ring_floor(xN)
+	return Floor(xN)
+end
+#-- #TODO need InternetLib.ring to work! Test them
+
+func ring_md5(xStr)
+	return md5(xStr)
+end
+func ring_sha1(xStr)
+	return sha1(xStr)
+end
+func ring_sha256(xStr)
+	return sha256(xStr)
+end
+func ring_sha384(xStr)
+	return sha384(xStr)
+end
+func ring_sha224(xStr)
+	return sha224(xStr)
+end
+func ring_sha512(xStr)
+	return sha512(xStr)
+end
+func ring_supportedCiphers
+	return SupportedCiphers()
+end
+func ring_encrypt1(tString, tKey, tIV)
+	return encrypt(tString, tKey, tIV)
+end
+func ring_encrypt2(tString, tKey, tIV, tCipherAlgorithmName)
+	return encrypt(tString, tKey, tIV, tCipherAlgorithmName)
+end
+func ring_decrypt1(tString, tKey, tIV)
+	return decrypt(tString, tKey, tIV)
+end
+func ring_decrypt2(tString, tKey, tIV, tCipherAlgorithmName)
+	return decrypt(tString, tKey, tIV, tCipherAlgorithmName)
+end
+#--
+
+func ring_randbytes(xN)
+	return randbytes(xN)
+end
+func CatchError
+	return cCatchError
+end
+#--
+
+# The interpreter running this program, so a worker or child process runs on
+# the same one. exefilename() names it on Ring++ (rnxc) as on Ring; a program
+# built into its own executable falls back to an interpreter named in sysargv,
+# then to "rnxc". The lookups this replaces looked only for "ring", so under
+# rnxc every worker was launched on the retired interpreter (2026-11-06).
+
+func StzInterpreterPath
+	vNames = [ "rnxc", "ring", "haro" ]
+	tExe = String(ExeFileName())
+	if _StzIsInterpreterPath(tExe, vNames)
+		return tExe
+	end
+	xArgs = sysargv
+	nArgs = Len(xArgs)
+	for i = 1 to nArgs
+		if _StzIsInterpreterPath(String(xArgs[i]), vNames)
+			return String(xArgs[i])
+		end
+	end
+	return "rnxc"
+end
+func _StzIsInterpreterPath(pxPath, pxNames)
+	tP = Lower(SubStr(pxPath, Char(92), "/"))
+	nSlash = 0
+	nLenP = Len(tP)
+	for i = nLenP to 1 step -1
+		if tP[i] = "/"
+			nSlash = i
+			exit
+		end
+	end
+	tBase = tP
+	if nSlash > 0
+		tBase = Right(tP, nLenP - nSlash)
+	end
+	if Right(tBase, 4) = ".exe"
+		tBase = Left(tBase, Len(tBase) - 4)
+	end
+	nNames = Len(pxNames)
+	for i = 1 to nNames
+		if tBase = pxNames[i]
+			return true
+		end
+	end
+	return false
+end

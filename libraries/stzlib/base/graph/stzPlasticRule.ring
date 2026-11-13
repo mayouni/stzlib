@@ -133,7 +133,7 @@ func StzPlasticRule(pcName)
 #   see        stzRuleGovernance, stzGraphRule, stzRuleReport
 class stzScopedRule from stzObject
 
-	@cName    = ""
+	@tName    = ""
 	@cClaim   = ""
 	@pScope   = NULL     # func(oDg) -> list of subject keys it governs
 	@pClaimFn = NULL     # func(oDg, cSubject) -> [ bHolds, cWhy ]
@@ -152,7 +152,7 @@ class stzScopedRule from stzObject
 	#              build the same object
 	#   see        SetClaim, SetScope
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@acReads = []
 		@acWrites = []
 
@@ -160,34 +160,40 @@ class stzScopedRule from stzObject
 	#
 	#   returns    the name as text
 	#   see        Claim
-	def Name_()      return @cName
+	def Name_()
+		return @tName
 	# Returns the sentence the rule asserts.
 	#
 	#   returns    the sentence as text; an empty text until SetClaim is called
 	#   note       the rule governance reports a rule with an empty claim as claim_unstated
 	#   see        SetClaim, Check
-	def Claim()      return @cClaim
+	def Claim()
+		return @cClaim
 	# Returns the quantities the rule reads, as it declared them.
 	#
 	#   returns    a list of text; [ ] until SetReads is called
 	#   see        SetReads, Writes
-	def Reads()      return @acReads
+	def Reads()
+		return @acReads
 	# Returns the quantities the rule writes, as it declared them.
 	#
 	#   returns    a list of text; [ ] until SetWrites is called
 	#   see        SetWrites, Reads
-	def Writes()     return @acWrites
+	def Writes()
+		return @acWrites
 	# Returns when the rule runs relative to other rules.
 	#
 	#   returns    a number; 0 until SetOrder is called
 	#   note       only the comparison with another rule's order means anything
 	#   see        SetOrder
-	def Order()      return @nOrder
+	def Order()
+		return @nOrder
 	# Returns the severity the rule's findings carry.
 	#
 	#   returns    the severity as text; error until SetSeverity is called
 	#   see        SetSeverity, Check
-	def Severity()   return @cSeverity
+	def Severity()
+		return @cSeverity
 
 	# Sets the sentence the rule asserts, in words a reader can disagree with.
 	#
@@ -291,12 +297,14 @@ class stzScopedRule from stzObject
 	#
 	#   returns    TRUE or FALSE, as 1 or 0
 	#   see        SetUniversal, UniversalWhy
-	def IsUniversal()   return @cUniversal != ""
+	def IsUniversal()
+		return @cUniversal != ""
 	# Returns the reason the rule was declared universal.
 	#
 	#   returns    the reason as text; an empty text when it was not
 	#   see        SetUniversal, IsUniversal
-	def UniversalWhy()  return @cUniversal
+	def UniversalWhy()
+		return @cUniversal
 
 	# Returns the subjects the rule governs in a case, by calling its scope.
 	#
@@ -340,7 +348,7 @@ class stzScopedRule from stzObject
 		but isObject(paAnswer)
 			_cKind_ = "object"
 		ok
-		StzRaise("rule '" + @cName + "': its " + pcWhich + " answered a " +
+		StzRaise("rule '" + @tName + "': its " + pcWhich + " answered a " +
 			_cKind_ + _cShown_ + ", not a list of subject keys -- return " +
 			"[ ] for none and [ 'key', ... ] otherwise")
 
@@ -364,7 +372,7 @@ class stzScopedRule from stzObject
 			if isList(_aV_) and len(_aV_) = 2 and _aV_[1]  loop  ok
 			_cWhy_ = ""
 			if isList(_aV_) and len(_aV_) = 2  _cWhy_ = "" + _aV_[2]  ok
-			_aF_ + [ :rule = @cName, :subject = :plastic,
+			_aF_ + [ :rule = @tName, :subject = :plastic,
 				:where = "" + pcWhere + " / " + _aSub_[_iSub_],
 				:severity = @cSeverity,
 				:message = @cClaim + " -- " + _cWhy_ ]

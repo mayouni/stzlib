@@ -28,7 +28,7 @@ pr()
 
 decimals(4)
 
-if StzEngineGpuInit($cStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
+if StzEngineGpuInit($tStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
 	? "  NO GPU ON THIS MACHINE -- the foundry cannot run; the table's refusal is the coverage"
 	chk("the neural table refuses the broken attention variant without a device", StzEngineNeuralVariantSet("attention", 130, 384, 32, 4) != 0)
 else

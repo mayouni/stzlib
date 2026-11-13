@@ -699,7 +699,7 @@ func _StzFacultyCheckType(pcType)
 #   see        StzFacultyQ, stzFlow, stzModelRegistry, stzParcel, stzRequirement
 class stzFaculty from stzObject
 
-	@cName = ""
+	@tName = ""
 
 	# Builds a handle on the faculty declared under that name; it declares nothing itself.
 	#
@@ -712,7 +712,7 @@ class stzFaculty from stzObject
 	#              unknown-faculty refusal; declare the faculty with StzFacultyQ first
 	#   see        StzFacultyQ, Name
 	def init(pcName)
-		@cName = pcName
+		@tName = pcName
 
 	# Returns the name the faculty is known by, lower case when it was made by StzFacultyQ.
 	#
@@ -722,7 +722,7 @@ class stzFaculty from stzObject
 	#   see        init, Why
 	#@ aka  -- reading (data) ---------------------------------------------------------------------
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the payload type the faculty takes in, or an empty text until one is set.
 	#
@@ -731,7 +731,7 @@ class stzFaculty from stzObject
 	#              of the stage before, in CheckRules
 	#   see        SetInputType, OutputType
 	def InputType()
-		return $aStzFaculties[_StzFacultyRow(@cName)][:in]
+		return $aStzFaculties[_StzFacultyRow(@tName)][:in]
 
 	# Returns the payload type every answer of the faculty is judged against.
 	#
@@ -740,7 +740,7 @@ class stzFaculty from stzObject
 	#              shape is refused
 	#   see        SetOutputType, InputType
 	def OutputType()
-		return $aStzFaculties[_StzFacultyRow(@cName)][:out]
+		return $aStzFaculties[_StzFacultyRow(@tName)][:out]
 
 	# Returns the default call parameters, which every call of the faculty starts from.
 	#
@@ -749,7 +749,7 @@ class stzFaculty from stzObject
 	#              are labels, dim, schema, min and max
 	#   see        SetParams, Run
 	def Params()
-		return $aStzFaculties[_StzFacultyRow(@cName)][:params]
+		return $aStzFaculties[_StzFacultyRow(@tName)][:params]
 
 	# Returns the full row of every implementation, the floor included, in the order declared.
 	#
@@ -758,7 +758,7 @@ class stzFaculty from stzObject
 	#   note       the list is empty until a floor or an implementation is declared
 	#   see        ImplementationIds, Floor, AddImplementation
 	def Implementations()
-		return $aStzFaculties[_StzFacultyRow(@cName)][:impls]
+		return $aStzFaculties[_StzFacultyRow(@tName)][:impls]
 
 	# Returns the ids of the implementations in the order declared, the floor's included.
 	#
@@ -797,7 +797,7 @@ class stzFaculty from stzObject
 	#   returns    a list of pairs, in the order added; [ ] when none
 	#   see        AddGolden, GoldenChecker, GoldenVersion
 	def Goldens()
-		return $aStzFaculties[_StzFacultyRow(@cName)][:golden]
+		return $aStzFaculties[_StzFacultyRow(@tName)][:golden]
 
 	# Returns the name of the rule that decides whether an answer agrees with a golden's expected answer.
 	#
@@ -809,7 +809,7 @@ class stzFaculty from stzObject
 	#              first asks that the best ranked item be the expected one
 	#   see        SetGoldenChecker, Goldens
 	def GoldenChecker()
-		return $aStzFaculties[_StzFacultyRow(@cName)][:checker]
+		return $aStzFaculties[_StzFacultyRow(@tName)][:checker]
 
 	# Returns the label under which the faculty's measurements are filed, v1 by default.
 	#
@@ -818,7 +818,7 @@ class stzFaculty from stzObject
 	#              SetGoldenVersion the earlier ones stop counting until the goldens are run again
 	#   see        SetGoldenVersion, Goldens
 	def GoldenVersion()
-		return $aStzFaculties[_StzFacultyRow(@cName)][:goldenversion]
+		return $aStzFaculties[_StzFacultyRow(@tName)][:goldenversion]
 
 	# Returns what keeps the faculty from being complete, one sentence each.
 	#
@@ -830,7 +830,7 @@ class stzFaculty from stzObject
 	#@ aka  a faculty is only COMPLETE with types, a floor and a golden set; Problems() says what is missing
 	def Problems()
 		_aP_ = []
-		_i_ = _StzFacultyRow(@cName)
+		_i_ = _StzFacultyRow(@tName)
 		if $aStzFaculties[_i_][:in] = "" add(_aP_, "no input type") ok
 		if $aStzFaculties[_i_][:out] = "" add(_aP_, "no output type") ok
 		if NOT This.HasFloor() add(_aP_, "no floor: a faculty without a deterministic floor is refused (LAW 2)") ok
@@ -856,7 +856,7 @@ class stzFaculty from stzObject
 	#@ aka  -- declaring: active verbs, each with its Q twin -------------------------------------------
 	def SetInputType(pcType)
 		_StzFacultyCheckType(pcType)
-		$aStzFaculties[_StzFacultyRow(@cName)][:in] = lower(pcType)
+		$aStzFaculties[_StzFacultyRow(@tName)][:in] = lower(pcType)
 
 		def SetInputTypeQ(pcType)
 			This.SetInputType(pcType)
@@ -871,7 +871,7 @@ class stzFaculty from stzObject
 	#   see        OutputType, SetInputType
 	def SetOutputType(pcType)
 		_StzFacultyCheckType(pcType)
-		$aStzFaculties[_StzFacultyRow(@cName)][:out] = lower(pcType)
+		$aStzFaculties[_StzFacultyRow(@tName)][:out] = lower(pcType)
 
 		def SetOutputTypeQ(pcType)
 			This.SetOutputType(pcType)
@@ -889,7 +889,7 @@ class stzFaculty from stzObject
 	#              grows at every call
 	#   see        Params, Run
 	def SetParams(paParams)
-		$aStzFaculties[_StzFacultyRow(@cName)][:params] = paParams
+		$aStzFaculties[_StzFacultyRow(@tName)][:params] = paParams
 
 		def SetParamsQ(paParams)
 			This.SetParams(paParams)
@@ -907,13 +907,13 @@ class stzFaculty from stzObject
 	#   see        AddImplementation, Floor, HasFloor
 	#@ aka  The floor: the deterministic implementation every faculty must have. pcFn is the NAME of a Ring function taking (pInput, aParams) and returning the value. Replaces a previous floor.
 	def SetFloor(pcId, pcFn)
-		_i_ = _StzFacultyRow(@cName)
+		_i_ = _StzFacultyRow(@tName)
 		_aI_ = $aStzFaculties[_i_][:impls]
 		for _k_ = len(_aI_) to 1 step -1
 			if _aI_[_k_][:kind] = "floor" del($aStzFaculties[_i_][:impls], _k_) ok
 		next
 		add($aStzFaculties[_i_][:impls], _StzImplRecord([ :id = pcId, :kind = "floor", :fn = pcFn, :version = "1",
-			:deterministic = 1, :licence = "n/a", :memory = 0, :languages = [ "*" ], :needle = "", :faculty = @cName ]))
+			:deterministic = 1, :licence = "n/a", :memory = 0, :languages = [ "*" ], :needle = "", :faculty = @tName ]))
 
 		def SetFloorQ(pcId, pcFn)
 			This.SetFloor(pcId, pcFn)
@@ -932,7 +932,7 @@ class stzFaculty from stzObject
 	#                 and the probe's answer are stored as given and not checked here
 	#   see           SetFloor, Implementations
 	def SetAvailability(pcImplId, paPlatforms, pcProbe)
-		_i_ = _StzFacultyRow(@cName)
+		_i_ = _StzFacultyRow(@tName)
 		_aI_ = $aStzFaculties[_i_][:impls]
 		for _k_ = 1 to len(_aI_)
 			if _aI_[_k_][:id] = pcImplId
@@ -941,7 +941,7 @@ class stzFaculty from stzObject
 				return
 			ok
 		next
-		stzraise("SetAvailability: the faculty '" + @cName + "' has no implementation '" + pcImplId + "'.")
+		stzraise("SetAvailability: the faculty '" + @tName + "' has no implementation '" + pcImplId + "'.")
 
 		def SetAvailabilityQ(pcImplId, paPlatforms, pcProbe)
 			This.SetAvailability(pcImplId, paPlatforms, pcProbe)
@@ -970,14 +970,14 @@ class stzFaculty from stzObject
 		if _aR_[:id] = "" or _aR_[:fn] = ""
 			stzraise("AddImplementation: an implementation needs an :id and a :fn (the name of a Ring function).")
 		ok
-		_i_ = _StzFacultyRow(@cName)
+		_i_ = _StzFacultyRow(@tName)
 		_aI_ = $aStzFaculties[_i_][:impls]
 		for _k_ = 1 to len(_aI_)
 			if _aI_[_k_][:id] = _aR_[:id]
-				stzraise("AddImplementation: the faculty '" + @cName + "' already has an implementation '" + _aR_[:id] + "'.")
+				stzraise("AddImplementation: the faculty '" + @tName + "' already has an implementation '" + _aR_[:id] + "'.")
 			ok
 		next
-		_aR_[:faculty] = @cName    # MP3: capability asks the catalogue which files this implementation of THIS faculty needs
+		_aR_[:faculty] = @tName    # MP3: capability asks the catalogue which files this implementation of THIS faculty needs
 		add($aStzFaculties[_i_][:impls], _aR_)
 
 		def AddImplementationQ(paSpec)
@@ -995,7 +995,7 @@ class stzFaculty from stzObject
 	#               twice
 	#   see         Goldens, SetGoldenChecker, SetGoldenVersion
 	def AddGolden(pInput, pExpected)
-		add($aStzFaculties[_StzFacultyRow(@cName)][:golden], [ pInput, pExpected ])
+		add($aStzFaculties[_StzFacultyRow(@tName)][:golden], [ pInput, pExpected ])
 
 		def AddGoldenQ(pInput, pExpected)
 			This.AddGolden(pInput, pExpected)
@@ -1010,7 +1010,7 @@ class stzFaculty from stzObject
 	#               implementation, the floor included, scores 0
 	#   see         GoldenChecker, AddGolden
 	def SetGoldenChecker(pcChecker)
-		$aStzFaculties[_StzFacultyRow(@cName)][:checker] = pcChecker
+		$aStzFaculties[_StzFacultyRow(@tName)][:checker] = pcChecker
 
 		def SetGoldenCheckerQ(pcChecker)
 			This.SetGoldenChecker(pcChecker)
@@ -1025,7 +1025,7 @@ class stzFaculty from stzObject
 	#               label changes, so the floor answers until RunGoldens is run again
 	#   see         GoldenVersion, AddGolden
 	def SetGoldenVersion(pcVersion)
-		$aStzFaculties[_StzFacultyRow(@cName)][:goldenversion] = pcVersion
+		$aStzFaculties[_StzFacultyRow(@tName)][:goldenversion] = pcVersion
 
 		def SetGoldenVersionQ(pcVersion)
 			This.SetGoldenVersion(pcVersion)
@@ -1045,7 +1045,7 @@ class stzFaculty from stzObject
 	#              and the plan says so
 	#   see        GoldenLanguageKey, StzGoldenLanguageOf, SetGoldenVersion
 	def SetGoldenLanguageKey(pcKey)
-		$aStzFaculties[_StzFacultyRow(@cName)][:langkey] = lower("" + pcKey)
+		$aStzFaculties[_StzFacultyRow(@tName)][:langkey] = lower("" + pcKey)
 
 		def SetGoldenLanguageKeyQ(pcKey)
 			This.SetGoldenLanguageKey(pcKey)
@@ -1055,7 +1055,7 @@ class stzFaculty from stzObject
 	#
 	#   returns    a text such as "lang", or ""
 	def GoldenLanguageKey()
-		_a_ = $aStzFaculties[_StzFacultyRow(@cName)]
+		_a_ = $aStzFaculties[_StzFacultyRow(@tName)]
 		if NOT HasKey(_a_, :langkey) return "" ok
 		return _a_[:langkey]
 
@@ -1063,7 +1063,7 @@ class stzFaculty from stzObject
 
 	# One named implementation (a pin for ONE call): the parcel, or a refusal -- never a silent substitute.
 	def RunWithQ(pcImplId, pInput, paParams)
-		return StzRunImplementation(@cName, pcImplId, pInput, paParams)
+		return StzRunImplementation(@tName, pcImplId, pInput, paParams)
 
 	# Runs the one implementation named by its id and returns the value of its answer; the registry is not asked.
 	#
@@ -1083,7 +1083,7 @@ class stzFaculty from stzObject
 
 	# Resolve through the registry (requirement-driven) and run: the parcel, or a refusal.
 	def RunQ(pInput, paParams)
-		return StzRunFaculty(@cName, pInput, paParams, [], [], 0)
+		return StzRunFaculty(@tName, pInput, paParams, [], [], 0)
 
 	# Asks the registry for the implementation that best meets the default requirement, runs it and returns the value of its answer.
 	#
@@ -1100,7 +1100,7 @@ class stzFaculty from stzObject
 	#   see        RunQ, RunWith, ResolvePlan
 	#@ aka  the VALUE of the parcel, or an empty list when it was refused (use RunQ to see why)
 	def Run(pInput, paParams)
-		_oP_ = StzRunFaculty(@cName, pInput, paParams, [], [], 0)
+		_oP_ = StzRunFaculty(@tName, pInput, paParams, [], [], 0)
 		return _oP_.Value()
 
 	# Returns the plan the registry would follow for this faculty under the default requirement; nothing runs.
@@ -1111,7 +1111,7 @@ class stzFaculty from stzObject
 	#              findings, not an error
 	#   see        stzModelRegistry, stzModelPlan, stzRequirement
 	def ResolvePlan()
-		return StzResolveFaculty(@cName, [])
+		return StzResolveFaculty(@tName, [])
 
 	# Returns one sentence naming the faculty, its payload types, its implementations with their kinds and the size of its golden set.
 	#
@@ -1122,7 +1122,7 @@ class stzFaculty from stzObject
 	#   see        ResolvePlan, Problems
 	#@ aka  -- saying what it is (LAW 3 / LAW 6) -----------------------------------------------------------
 	def Why()
-		_c_ = "faculty '" + @cName + "': " + This.InputType() + " -> " + This.OutputType() + "; implementations: "
+		_c_ = "faculty '" + @tName + "': " + This.InputType() + " -> " + This.OutputType() + "; implementations: "
 		_aI_ = This.Implementations()
 		for _i_ = 1 to len(_aI_)
 			if _i_ > 1 _c_ += ", " ok

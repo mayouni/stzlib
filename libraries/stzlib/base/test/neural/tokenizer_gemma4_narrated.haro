@@ -1,0 +1,128 @@
+# THE GEMMA 4 TOKENIZER -- GEMMA4-01 step 1, narrated
+#
+# Gemma 4 (and NVIDIA's Nemotron 3.5 Bolt E4B, built on it) tokenizes by SPM-style BPE over raw UTF-8: spaces become
+# U+2581, the text splits only at runs of newlines, each run merges its characters lowest merge rank first, and a piece
+# the vocabulary lacks is written as its bytes, <0xXX>. The engine reads it from the model's own GGUF
+# (tokenizer.ggml.model = "gemma4"; neural_gen.zig, spmSegment). Every expected id below is llama.cpp b12283's
+# (llama-tokenize --ids on the same text and the same file), written into this file by a script, never by hand.
+#
+#   Scene 1  21 texts -- spaces, newlines, tabs, Arabic, French, Chinese, emoji with a ZWJ, code, rare characters, one
+#            line of 3,374 characters -- give llama.cpp's ids exactly, BOS first
+#   Scene 2  each decodes back to its exact text
+#
+# RUNS ON haro.exe, the engine's own functions only: STZ_ENGINE_DIR names a built engine, STZ_MODELS_DIR the models
+# folder holding Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf (6.2 GB, models/MODELS.md); without it the scenes say NOT RUN.
+
+$tEngine = Slashes(SysGet("STZ_ENGINE_DIR"))
+$tModels = Slashes(SysGet("STZ_MODELS_DIR"))
+$nPass = 0
+$nFail = 0
+$vNotRun = []
+$vCases = []
+LoadLib($tEngine + "/zig-out/bin/stz_neural.dll")
+$tBolt = $tModels + "/Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf"
+
+$vCases + [ "a short sentence", "The capital of France is", [ 2, 818, 5279, 529, 7001, 563 ] ]
+$vCases + [ "two words", "Hello world", [ 2, 9259, 1902 ] ]
+$vCases + [ "a leading space", " leading space", [ 2, 5830, 2557 ] ]
+$vCases + [ "runs of spaces", "two  spaces   three    four", [ 2, 13498, 138, 35220, 139, 19891, 140, 19025 ] ]
+$vCases + [ "a trailing space", "trailing space ", [ 2, 136697, 2557, 236743 ] ]
+$vCases + [ "one newline", "line one" + Char(10) + "line two", [ 2, 1257, 886, 107, 1257, 1156 ] ]
+$vCases + [ "blank lines and three newlines", "para one" + Char(10) + Char(10) + "para two" + Char(10) + Char(10) + Char(10) + "three newlines", [ 2, 16847, 886, 108, 16847, 1156, 109, 19891, 861, 8721 ] ]
+$vCases + [ "a lone newline", Char(10), [ 2, 107 ] ]
+$vCases + [ "five newlines", Char(10) + Char(10) + Char(10) + Char(10) + Char(10), [ 2, 111 ] ]
+$vCases + [ "tabs", "tab" + Char(9) + "here" + Char(9) + Char(9) + "and two", [ 2, 4823, 255968, 8472, 255969, 624, 1156 ] ]
+$vCases + [ "Arabic", "مرحبا بالعالم، كيف حالك اليوم؟", [ 2, 236873, 150345, 107602, 17193, 237108, 43923, 22818, 237005, 23075, 238084 ] ]
+$vCases + [ "French accents", "L'été dernier, nous sommes allés à Marseille avec François et Zoé.", [ 2, 236798, 236789, 19932, 37695, 236764, 7653, 41780, 784, 1875, 1608, 82706, 4902, 65801, 1008, 36004, 236859, 236761 ] ]
+$vCases + [ "Chinese", "北京是中国的首都，人口超过两千万。", [ 2, 32707, 237026, 110323, 120211, 236900, 51086, 41886, 237982, 114512, 236924 ] ]
+$vCases + [ "emoji, one joined by ZWJ", "Emoji: 😀🚀👩‍💻 done", [ 2, 127268, 236787, 163543, 242015, 243767, 237243, 244862, 3028 ] ]
+$vCases + [ "indented code", "def f(x):" + Char(10) + "    return x * 2  # double" + Char(10) + Char(10) + "print(f(21))", [ 2, 2063, 517, 236769, 236781, 1473, 107, 140, 2060, 1123, 808, 236743, 236778, 138, 236865, 3972, 108, 1995, 236769, 236760, 236769, 236778, 236770, 1223 ] ]
+$vCases + [ "chat-turn marks written as text", "<start_of_turn>user" + Char(10) + "What is 2+2?<end_of_turn>" + Char(10) + "<start_of_turn>model" + Char(10), [ 2, 236820, 3041, 236779, 1340, 236779, 887, 236813, 2364, 107, 3689, 563, 236743, 236778, 236862, 236778, 145912, 643, 236779, 1340, 236779, 887, 236813, 107, 236820, 3041, 236779, 1340, 236779, 887, 236813, 4368, 107 ] ]
+$vCases + [ "numbers", "Numbers 1234567890 3.14159 -42 1e10", [ 2, 37091, 236743, 236770, 236778, 236800, 236812, 236810, 236825, 236832, 236828, 236819, 236771, 236743, 236800, 236761, 236770, 236812, 236770, 236810, 236819, 753, 236812, 236778, 236743, 236770, 236744, 236770, 236771 ] ]
+$vCases + [ "six scripts in one line", "Mixed: café naïve résumé Ελληνικά русский עברית", [ 2, 105367, 236787, 33443, 120362, 118515, 23883, 109959, 42220, 170362, 11173, 104154, 237270 ] ]
+$vCases + [ "rare characters (byte fallback)", "rare: ༺༻ ⩽ 𝒜 🧬", [ 2, 43128, 236787, 236743, 248302, 248262, 236743, 247870, 236743, 255184, 236743, 253633 ] ]
+$vCases + [ "SQL", "SELECT name, SUM(amount) FROM orders GROUP BY name ORDER BY 2 DESC LIMIT 10;", [ 2, 12874, 1463, 236764, 39185, 236769, 13304, 236768, 10912, 10400, 57736, 13222, 1463, 44586, 13222, 236743, 236778, 75467, 34056, 236743, 236770, 236771, 236793 ] ]
+tLong = "The river towns of the northern valley keep their records in stone halls."
+for i = 2 to 45
+	tLong = tLong + " The river towns of the northern valley keep their records in stone halls."
+end
+$vCases + [ "one line of 3,374 characters", tLong, [ 2, 818, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761, 669, 8858, 21274, 529, 506, 16962, 23844, 2514, 910, 8735, 528, 10810, 58413, 236761 ] ]
+
+if FExists($tBolt)
+	? "load: " + String(StzEngineNeuralModelLoad($tBolt)) + " (digest status " + String(StzEngineNeuralModelLoadStatus()) + ")"
+	nCases = Len($vCases)
+
+	Scenario("1. the ids are llama.cpp's, case by case")
+	nSame = 0
+	for i = 1 to nCases
+		xExp = $vCases[i][3]
+		nGot = StzEngineNeuralGenTokenize($vCases[i][2])
+		bSame = (nGot = Len(xExp))
+		if bSame
+			for j = 1 to nGot
+				if StzEngineNeuralGenTokenAt(j - 1) != xExp[j]
+					bSame = false
+					exit
+				end
+			end
+		end
+		if bSame
+			nSame = nSame + 1
+		else
+			? "  differs: " + $vCases[i][1] + " (" + String(nGot) + " ids, llama.cpp " + String(Len(xExp)) + ")"
+		end
+	end
+	? "  " + String(nSame) + " of " + String(nCases) + " texts give llama.cpp's ids exactly"
+	Then("every text gives llama.cpp's ids, BOS first", nSame, nCases)
+
+	Scenario("2. the ids decode back to the text")
+	nBack = 0
+	for i = 1 to nCases
+		StzEngineNeuralGenTokenize($vCases[i][2])
+		if StzEngineNeuralGenProbeText() = $vCases[i][2]
+			nBack = nBack + 1
+		else
+			? "  does not come back: " + $vCases[i][1]
+		end
+	end
+	Then("every text comes back byte for byte (spaces from U+2581, bytes from <0xXX>)", nBack, nCases)
+else
+	$vNotRun + ("both scenes (no " + $tBolt + ")")
+end
+
+? ""
+for t in $vNotRun
+	? "NOT RUN: " + t
+end
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+func Scenario(tName)
+	? ""
+	? "SCENARIO: " + tName
+end
+func Then(tWhat, xGot, xExpected)
+	if xGot = xExpected
+		$nPass = $nPass + 1
+		? "  THEN  " + tWhat + "  [PASS]"
+	else
+		$nFail = $nFail + 1
+		? "  THEN  " + tWhat + "  [FAIL]"
+		? "    expected: " + String(xExpected)
+		? "    got:      " + String(xGot)
+	end
+end
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for i = 1 to nLen
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end

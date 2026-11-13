@@ -2,7 +2,7 @@
 class stzCryptoFile from stzCrypto
     
     @cFilePath = ""
-    @cContent = ""
+    @tContent = ""
     @bLoaded = False
     
     def init(cFilePath)
@@ -19,10 +19,10 @@ class stzCryptoFile from stzCrypto
     
     def LoadFile()
         try
-            @cContent = read(@cFilePath)
+            @tContent = read(@cFilePath)
             @bLoaded = True
         catch
-            @cContent = ""
+            @tContent = ""
             @bLoaded = False
             raise("Could not read file: " + @cFilePath)
         done
@@ -33,7 +33,7 @@ class stzCryptoFile from stzCrypto
             cFilePath = @cFilePath
         ok
         try
-            write(cFilePath, @cContent)
+            write(cFilePath, @tContent)
         catch
             raise("Could not write file: " + cFilePath)
         done
@@ -43,10 +43,10 @@ class stzCryptoFile from stzCrypto
         if not @bLoaded
             LoadFile()
         ok
-        return @cContent
+        return @tContent
     
     def SetContent(cContent)
-        @cContent = cContent
+        @tContent = cContent
         @bLoaded = True
         return self
     
@@ -54,43 +54,43 @@ class stzCryptoFile from stzCrypto
         if not @bLoaded
             LoadFile()
         ok
-        return super.Hash(@cContent, nAlgorithm)
+        return super.Hash(@tContent, nAlgorithm)
     
     def MD5()
         if not @bLoaded
             LoadFile()
         ok
-        return super.MD5(@cContent)
+        return super.MD5(@tContent)
     
     def SHA1()
         if not @bLoaded
             LoadFile()
         ok
-        return super.SHA1(@cContent)
+        return super.SHA1(@tContent)
     
     def SHA256()
         if not @bLoaded
             LoadFile()
         ok
-        return super.SHA256(@cContent)
+        return super.SHA256(@tContent)
     
     def SHA384()
         if not @bLoaded
             LoadFile()
         ok
-        return super.SHA384(@cContent)
+        return super.SHA384(@tContent)
     
     def SHA512()
         if not @bLoaded
             LoadFile()
         ok
-        return super.SHA512(@cContent)
+        return super.SHA512(@tContent)
     
     def SHA224()
         if not @bLoaded
             LoadFile()
         ok
-        return super.SHA224(@cContent)
+        return super.SHA224(@tContent)
     
     def HashLarge(nAlgorithm)
         # For large files, use incremental hashing
@@ -114,7 +114,7 @@ class stzCryptoFile from stzCrypto
         if not @bLoaded
             LoadFile()
         ok
-        @cContent = super.Encrypt(@cContent, cKey, cIV, cCipher)
+        @tContent = super.Encrypt(@tContent, cKey, cIV, cCipher)
         return self
     
     def EncryptAndSave(cKey, cIV, cCipher, cOutputPath)
@@ -126,7 +126,7 @@ class stzCryptoFile from stzCrypto
         if not @bLoaded
             LoadFile()
         ok
-        @cContent = super.Decrypt(@cContent, cKey, cIV, cCipher)
+        @tContent = super.Decrypt(@tContent, cKey, cIV, cCipher)
         return self
     
     def DecryptAndSave(cKey, cIV, cCipher, cOutputPath)
@@ -138,27 +138,27 @@ class stzCryptoFile from stzCrypto
         if not @bLoaded
             LoadFile()
         ok
-        @cContent = super.RSAEncrypt(pRSAKey, @cContent, nPadding)
+        @tContent = super.RSAEncrypt(pRSAKey, @tContent, nPadding)
         return self
     
     def RSADecrypt(pRSAKey, nPadding)
         if not @bLoaded
             LoadFile()
         ok
-        @cContent = super.RSADecrypt(pRSAKey, @cContent, nPadding)
+        @tContent = super.RSADecrypt(pRSAKey, @tContent, nPadding)
         return self
     
     def RSASign(pRSAKey, nPadding, nHashAlgorithm)
         if not @bLoaded
             LoadFile()
         ok
-        return super.RSASign(pRSAKey, @cContent, nPadding, nHashAlgorithm)
+        return super.RSASign(pRSAKey, @tContent, nPadding, nHashAlgorithm)
     
     def RSAVerify(pRSAKey, cSignature, nPadding, nHashAlgorithm)
         if not @bLoaded
             LoadFile()
         ok
-        return super.RSAVerify(pRSAKey, @cContent, cSignature, nPadding, nHashAlgorithm)
+        return super.RSAVerify(pRSAKey, @tContent, cSignature, nPadding, nHashAlgorithm)
     
     def IsValidSignature(pRSAKey, cSignature, nPadding, nHashAlgorithm)
         return RSAVerify(pRSAKey, cSignature, nPadding, nHashAlgorithm) = 1
@@ -178,7 +178,7 @@ class stzCryptoFile from stzCrypto
         if not @bLoaded
             LoadFile()
         ok
-        return len(@cContent)
+        return len(@tContent)
     
     def Exists()
         # Check if file exists
@@ -195,7 +195,7 @@ class stzCryptoFile from stzCrypto
     
     def DownloadFrom(cURL)
         # Download content from URL and save to file
-        @cContent = super.Download(cURL)
+        @tContent = super.Download(cURL)
         @bLoaded = True
         Save(@cFilePath)
         return self

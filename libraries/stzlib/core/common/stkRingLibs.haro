@@ -1,0 +1,210 @@
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#  LOADING NECESSARY RING LIBS AND ENGINE BRIDGES      #
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+# Ring's standard library is not loaded (haro D50): the sixteen functions
+# the library used from it are its own, in stkRingStdFuncs.ring.
+load "stkRingStdFuncs.haro"
+
+# Load Core Engine bridge (string + char)
+# The Engine replaces Qt -- no qtcore.ring, no Ring extensions.
+
+$tEngineDir = _stzDiscoverEngineDir()
+# the library's own source folder (the one holding base/ and engine/), found
+# apart from the engine: STZ_ENGINE_DIR may name a copy outside the tree
+$tStzLibDir = _stzDiscoverLibDir()
+
+load "../../engine/stk_string.haro"
+
+# --- Helper function (Ring compiles funcs first, so it's callable above) ---
+
+# THE DOMAIN DOOR (SOFTANZA_ONE_HOUR.md ruling 3, rung W7b). Every engine
+# loader asks this before its LoadLib. A domain not loaded is surface a
+# process does not carry, and the only kind W6 can shut: a loaded library
+# cannot be unloaded from a running process.
+#
+#   the manifest   a program may name its domains BEFORE load "stzBase.ring":
+#                  $aStzDomains = [ "crypto", "seclog" ]   (or STZ_DOMAINS=crypto,seclog)
+#                  absent, every domain loads as before
+#   the floor      the domains stzBase's own load needs always load: string, list,
+#                  unicode, stats, meta and hashmap (found by RUNNING a do-nothing
+#                  program under an empty manifest, 2026-11-05: the static reach said
+#                  five, and missed hashmap, which a class attribute block reaches);
+#                  the core's stk_* libraries are not asked
+#   the deny list  <engineDir>/DENIED, one line per domain: name|advisoryId|why,
+#                  written by stzExposureResponder.ShutDomain -- refused even when
+#                  the manifest names it; the refusal is written to the security
+#                  ledger as exposure.closed when the program opens one
+#   returns        1 to load, 0 to skip; a skipped domain's handle is NULL and a
+#                  call into it raises R3 at its line, naming the function
+func StzDomainWanted(pxDomain)
+	tC = Lower(String(pxDomain))
+	if not IsGlobal("$xStzDomainsDenied")
+		$xStzDomainsDenied = _stzReadDomainDeny()
+		$vStzDomainsSkipped = []
+		$vStzDomainsRefused = []
+	end
+	nN = Len($xStzDomainsDenied)
+	for i = 1 to nN
+		if $xStzDomainsDenied[i][1] = tC
+			$vStzDomainsRefused + $xStzDomainsDenied[i]
+			return false
+		end
+	end
+	if Find([ "string", "list", "unicode", "stats", "meta", "hashmap" ], tC) > 0
+		return true
+	end
+	xM = []
+	if IsGlobal("$xStzDomains")
+		xM = $xStzDomains
+	else
+		tEnv = SysGet("STZ_DOMAINS")
+		if tEnv = ""  return true  end
+		xM = _stzFields(tEnv, ",")
+	end
+	nM = Len(xM)
+	for i = 1 to nM
+		if Lower(Trim(String(xM[i]))) = tC  return true  end
+	end
+	$vStzDomainsSkipped + tC
+	return false
+end
+# a text cut at one separator character (stdlib's split reads the NL global,
+# which a caller can overwrite)
+func _stzFields(pxText, pxSep)
+	xA = []
+	tCur = ""
+	nN = Len(pxText)
+	for i = 1 to nN
+		if pxText[i] = pxSep
+			xA + tCur
+			tCur = ""
+		else
+			tCur += pxText[i]
+		end
+	end
+	xA + tCur
+	return xA
+end
+# where the deny list lives: a program's $tStzDomainDenyFile, else the
+# STZ_DOMAIN_DENY variable, else <engineDir>/DENIED (one engine folder serves
+# many programs, so a deny there reaches them all)
+func StzDomainDenyFile
+	if IsGlobal("$tStzDomainDenyFile") and $tStzDomainDenyFile != ""
+		return $tStzDomainDenyFile
+	end
+	xP = SysGet("STZ_DOMAIN_DENY")
+	if xP != ""  return xP  end
+	return $tEngineDir + "/DENIED"
+end
+# the domains a manifest left out, and those the deny list refused: [ [ domain, advisoryId, why ], ... ]
+func StzDomainsSkipped
+	if not IsGlobal("$vStzDomainsSkipped")  return []  end
+	return $vStzDomainsSkipped
+end
+func StzDomainsRefused
+	if not IsGlobal("$vStzDomainsRefused")  return []  end
+	return $vStzDomainsRefused
+end
+# The folder holding base/ and engine/ of the library being run, by searching
+# upward from the working directory for a source file every checkout carries.
+# Empty when none is found (a program run from outside any tree).
+func _stzDiscoverLibDir
+	tDir = ""
+	tCur = CurrentDir()
+	nN = Len(tCur)
+	for i = 1 to nN
+		if tCur[i] = Char(92)
+			tDir += "/"
+		else
+			tDir += tCur[i]
+		end
+	end
+	for nDepth = 1 to 12
+		if FExists(tDir + "/engine/stk_string.haro") and FExists(tDir + "/base/stzBase.ring")
+			return tDir
+		end
+		if FExists(tDir + "/libraries/stzlib/base/stzBase.ring")
+			return tDir + "/libraries/stzlib"
+		end
+		nLast = 0
+		for j = Len(tDir) to 1 step -1
+			if tDir[j] = "/"
+				nLast = j
+				exit
+			end
+		end
+		if nLast < 2  exit  end
+		tDir = Left(tDir, nLast - 1)
+	end
+	return ""
+end
+# the deny list, read once: [ [ domain, advisoryId, why ], ... ]
+func _stzReadDomainDeny
+	xA = []
+	xP = StzDomainDenyFile()
+	if not FExists(xP)  return xA  end
+	xL = Str2List(Read(xP))
+	nN = Len(xL)
+	for i = 1 to nN
+		tL = Trim(xL[i])
+		if tL = "" or Left(tL, 1) = "#"  loop  end
+		xF = _stzFields(tL, "|")
+		while Len(xF) < 3  xF + ""  end
+		xA + [ Lower(Trim(xF[1])), Trim(xF[2]), Trim(xF[3]) ]
+	end
+	return xA
+end
+func _stzDiscoverEngineDir
+	# STZ_ENGINE_DIR names the engine folder outright: the Ring++ copy of the
+	# engine (bench/engine_copy.py builds it beside the official one) is the only
+	# build rnxc loads, and it lives outside this tree -- RING-RETIRED-01, 2026-11-05.
+	tEnv = SysGet("STZ_ENGINE_DIR")
+	if tEnv != "" and (FExists(tEnv + "/zig-out/bin/stz_string.dll") or FExists(tEnv + "/zig-out/lib/libstz_string.so"))
+		return tEnv
+	end
+	# Strategy: search upward from currentdir() for engine/zig-out/bin/
+	# This works regardless of where Ring is installed.
+	tDir = CurrentDir()
+	# Normalize backslashes to forward slashes
+	nLen = Len(tDir)
+	tNorm = ""
+	for i = 1 to nLen
+		if tDir[i] = "\"
+			tNorm += "/"
+		else
+			tNorm += tDir[i]
+		end
+	end
+	tDir = tNorm
+
+	# Try up to 10 parent levels
+	for nDepth = 1 to 10
+		tCandidate = tDir + "/engine"
+		tProbe = tCandidate + "/zig-out/bin"
+		if FExists(tProbe + "/stz_string.dll") or FExists(tProbe + "/stz_sequence.dll")
+			return tCandidate
+		end
+		# Also try libraries/stzlib/engine (for when cwd is the repo root)
+		tCandidate2 = tDir + "/libraries/stzlib/engine"
+		tProbe2 = tCandidate2 + "/zig-out/bin"
+		if FExists(tProbe2 + "/stz_string.dll") or FExists(tProbe2 + "/stz_sequence.dll")
+			return tCandidate2
+		end
+		# Go up one level
+		nLast = 0
+		for j = Len(tDir) to 1 step -1
+			if tDir[j] = "/"
+				nLast = j
+				exit
+			end
+		end
+		if nLast < 2
+			exit
+		end
+		tDir = Left(tDir, nLast - 1)
+	end
+	# Fallback: old exefolder() approach
+	return ExeFolder() + "/../libraries/stzlib/engine"
+end

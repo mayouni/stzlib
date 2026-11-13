@@ -1,0 +1,46 @@
+#---------------------------------#
+#  COMMON FOR ALL OBJECT CLASSES  #
+#---------------------------------#
+
+func @IsObject(xP)
+	return IsObject(xP)
+end
+func @IsStzObject(xP)
+	if not IsObject(xP)
+		return 0
+	end
+	try
+		return xP.IsStzObject()
+	catch
+		return 0
+	end
+end
+func ObjectClassName(xObj)
+	return ClassName(xObj)
+end
+	func @ObjectClassName(xObj)
+		return ObjectClassName(xObj)
+	end
+func ObjectAttributes(xObj)
+	return Attributes(xObj)
+end
+	func @ObjectAttributes(xObj)
+		return ObjectAttributes(xObj)
+	end
+func ObjectMethods(xObj)
+	return Methods(xObj)
+end
+	func @ObjectMethods(xObj)
+		return ObjectMethods(xObj)
+	end
+func ObjectsAreEqual(xObj1, xObj2)
+	if ClassName(xObj1) != ClassName(xObj2)
+		return false
+	end
+	xAttrs1 = Attributes(xObj1)
+	xAttrs2 = Attributes(xObj2)
+	if Len(xAttrs1) != Len(xAttrs2)
+		return false
+	end
+	return true
+end

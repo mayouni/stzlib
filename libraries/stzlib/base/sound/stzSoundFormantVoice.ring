@@ -85,7 +85,7 @@ class stzSoundFormantVoice
 	@nBreath = 0.2
 	@nVibrato = 25          # +- cents; 0 holds the pitch dead still
 	@nVelocity = 0.8
-	@cLastError = ""
+	@tLastError = ""
 	@nRefusals = 0
 
 	# Builds a formant voice that sings the five vowels, noting whether the sound engine is loaded.
@@ -96,7 +96,7 @@ class stzSoundFormantVoice
 	#   see        Vowel, Sing
 	def init()
 		if NOT StzSoundEngineLoaded()
-			@cLastError = "stz_sound.dll is not loaded"
+			@tLastError = "stz_sound.dll is not loaded"
 		ok
 
 	# Sets how much breath noise is mixed into the voice.
@@ -199,7 +199,7 @@ class stzSoundFormantVoice
 			This._Refuse(StzEngineSoundLastError())
 			return NULL
 		ok
-		@cLastError = ""
+		@tLastError = ""
 		return StzSoundFromBufferQ(_id_)
 
 	# A line of vowels, one per note, at a tempo: "a e i o u" over
@@ -271,7 +271,7 @@ class stzSoundFormantVoice
 	#   returns    the reason as text; an empty text when the last call went well
 	#   see        Refusals
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns how many calls were refused.
 	#
@@ -329,4 +329,4 @@ class stzSoundFormantVoice
 
 	def _Refuse(pcWhy)
 		@nRefusals++
-		@cLastError = pcWhy
+		@tLastError = pcWhy

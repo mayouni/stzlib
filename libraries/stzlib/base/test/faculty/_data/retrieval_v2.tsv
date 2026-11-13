@@ -1,0 +1,48 @@
+fr	doc	1	Pour réinitialiser votre mot de passe, ouvrez Paramètres, choisissez Sécurité, puis Réinitialiser le mot de passe.
+fr	doc	2	Les factures sont envoyées par courriel le premier jour de chaque mois au contact de facturation.
+fr	doc	3	L'application mobile plante au démarrage quand le cache est plein ; videz le cache pour la rétablir.
+fr	doc	4	La limite de débit de notre API est de 100 requêtes par minute et par clé.
+fr	doc	5	Vous pouvez exporter toutes vos données au format CSV depuis la page Compte.
+fr	doc	6	L'authentification à deux facteurs peut être activée avec n'importe quelle application d'authentification.
+fr	doc	7	Les remboursements sont traités dans les cinq jours ouvrables suivant leur approbation.
+fr	doc	8	La page d'état affiche les incidents en cours et les maintenances planifiées.
+fr	doc	9	Les membres de l'équipe peuvent être invités par courriel depuis l'onglet Membres.
+fr	doc	10	Le mode sombre suit le réglage du système et peut être imposé dans les Préférences.
+fr	doc	11	Les webhooks réessaient trois fois les livraisons échouées, avec un délai qui double à chaque essai.
+fr	doc	12	Les forfaits annuels sont facturés d'avance et peuvent être résiliés contre un remboursement au prorata.
+fr	query	1	J'ai oublié mon code secret de connexion, comment le changer ?
+fr	query	7	Quand est-ce que je récupère mon argent ?
+fr	query	3	l'appli se ferme juste après l'ouverture sur mon téléphone
+fr	query	4	combien d'appels puis-je faire chaque minute
+fr	query	5	télécharger tout ce que j'ai enregistré sous forme de tableur
+fr	query	6	ajouter une seconde étape de vérification à mon compte
+fr	query	8	où voir si le service est en panne
+fr	query	9	faire venir un collègue dans mon groupe de travail
+fr	query	10	assombrir l'écran
+fr	query	11	que se passe-t-il quand mon adresse de rappel ne répond pas
+fr	query	12	arrêter mon abonnement de l'année avant la fin
+fr	query	2	à quelle date arrive la note du mois
+ar	doc	1	لإعادة تعيين كلمة المرور، افتح الإعدادات واختر الأمان، ثم إعادة تعيين كلمة المرور.
+ar	doc	2	تُرسَل الفواتير بالبريد الإلكتروني في اليوم الأول من كل شهر إلى جهة الاتصال المسؤولة عن الفوترة.
+ar	doc	3	يتعطل تطبيق الهاتف عند التشغيل إذا امتلأت الذاكرة المؤقتة؛ امسح الذاكرة المؤقتة لاستعادته.
+ar	doc	4	حدّ الطلبات في واجهتنا البرمجية هو 100 طلب في الدقيقة لكل مفتاح.
+ar	doc	5	يمكنك تصدير جميع بياناتك بصيغة CSV من صفحة الحساب.
+ar	doc	6	يمكن تفعيل المصادقة الثنائية باستخدام أي تطبيق للمصادقة.
+ar	doc	7	تُعالَج المبالغ المستردة خلال خمسة أيام عمل من الموافقة عليها.
+ar	doc	8	تعرض صفحة الحالة الأعطال الجارية وأعمال الصيانة المجدولة.
+ar	doc	9	يمكن دعوة أعضاء الفريق بالبريد الإلكتروني من تبويب الأعضاء.
+ar	doc	10	يتبع الوضع الداكن إعداد النظام ويمكن فرضه من التفضيلات.
+ar	doc	11	تعيد خطافات الويب محاولة الإرسال الفاشل ثلاث مرات بفواصل زمنية تتضاعف كل مرة.
+ar	doc	12	تُدفع الخطط السنوية مقدماً ويمكن إلغاؤها مقابل استرداد جزء من المبلغ بالتناسب.
+ar	query	1	نسيت الرمز السري للدخول، كيف أغيّره؟
+ar	query	7	متى أستعيد نقودي؟
+ar	query	3	التطبيق يُغلق مباشرة بعد فتحه على جوالي
+ar	query	4	كم نداءً يمكنني إجراؤه في كل دقيقة
+ar	query	5	تنزيل كل ما خزّنته في شكل جدول بيانات
+ar	query	6	إضافة خطوة تحقق ثانية إلى حسابي
+ar	query	8	أين أعرف إن كانت الخدمة متوقفة
+ar	query	9	ضمّ زميل إلى مجموعتي
+ar	query	10	جعل الشاشة معتمة
+ar	query	11	ماذا يحدث عندما يكون عنوان الاستدعاء عندي غير متاح
+ar	query	12	إنهاء اشتراكي السنوي قبل موعده
+ar	query	2	متى يصلني كشف الحساب الشهري

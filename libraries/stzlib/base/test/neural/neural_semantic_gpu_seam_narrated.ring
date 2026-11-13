@@ -80,7 +80,7 @@ chk("...for the fifth hit too (not only the perfect match)",
 	fabs(aCpuHits[5][2] - gsdot(aQ, oCpu.Vectors()[aCpuHits[5][3]])) < 0.000000001)
 chk("...and the fifth hit is a different text scoring strictly below 1", aCpuHits[5][3] != 17 and aCpuHits[5][2] < 0.99)
 
-if StzEngineGpuInit($cStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
+if StzEngineGpuInit($tStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
 	? ""
 	? "  NO GPU ON THIS MACHINE -- the seam can never engage; the CPU contract above is the coverage"
 else
@@ -149,7 +149,7 @@ else
 
 	? ""
 	? "-- Scene 5: the seam's OWN calibration, on a tiny ladder (files kept and restored) --"
-	StzEngineGpuInit($cStzGpuRuntime)
+	StzEngineGpuInit($tStzGpuRuntime)
 	oGk = new stzGpu
 	cBakA = ""
 	cBakD = ""
@@ -202,7 +202,7 @@ else
 		? ""
 		? "-- Scene 6: a real MiniLM corpus, both routes timed the same way (informational) --"
 		chk("MiniLM loads", StzEngineNeuralModelLoad(cModel) = 1)
-		StzEngineGpuInit($cStzGpuRuntime)
+		StzEngineGpuInit($tStzGpuRuntime)
 		acBig = []
 		for i = 1 to 800
 			acBig + ("sentence " + i + " speaks of subject " + (i % 23) + " in tone " + (i % 5) + " with detail " + (i * 7 % 101))

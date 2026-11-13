@@ -199,7 +199,7 @@ func StzPlatformStoreGetRoute(oReq, oResp)
 #   see        StzPlatformQ, stzApp, stzPlatformProfile, stzGovernance, stzAppServer
 class stzPlatform from stzObject
 
-	@cName = ""
+	@tName = ""
 	@cWhy = ""
 
 	# harvested world (plain records -- see header)
@@ -242,7 +242,7 @@ class stzPlatform from stzObject
 	#   returns    nothing; the object is built
 	#   see        SetProfile, SetWorld, Log
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@oLog = new stzLog("platform")
 		@oLog.SetLevel(:trace)
 
@@ -260,7 +260,7 @@ class stzPlatform from stzObject
 	#   returns    a text
 	#   see        init
 	def Name_()
-		return @cName
+		return @tName
 
 	# Returns the reason of the last refusal by Granted, RegisterIdentity, OpenSession or CallAcross.
 	#
@@ -621,7 +621,7 @@ class stzPlatform from stzObject
 		_c_ += 'load "stzlib.ring"' + _cNL_
 		_c_ += "# desktop shell: restore the world body and serve it locally" + _cNL_
 		_c_ += 'oApp = StzAppQ("' + @cWorldName + '")' + _cNL_
-		_c_ += "oPlat = StzPlatformQ('" + @cName + "')" + _cNL_
+		_c_ += "oPlat = StzPlatformQ('" + @tName + "')" + _cNL_
 		_c_ += "oPlat.SetWorld(oApp)" + _cNL_
 		_c_ += "oPlat.ServeBody(8080)" + _cNL_
 		_c_ += "oPlat.HostQ().Run()" + _cNL_

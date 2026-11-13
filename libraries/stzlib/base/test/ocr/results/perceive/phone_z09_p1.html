@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>OCR inspection: phone_z09_p1.pdf (fr-FR)</title>
+<style>
+:root { --bg:#fbfaf7; --fg:#1d1d1b; --soft:#4a4844; --line:#d9d5cc; --card:#ffffff; --hi:#c2410c; --hifill:rgba(194,65,12,0.14); --box:rgba(37,99,235,0.55); --on:#fff1e6; --ok:#1f6f3f; --bad:#a3271f; --miss:#8a5a00; }
+@media (prefers-color-scheme: dark) { :root { --bg:#1b1b1a; --fg:#ecebe6; --soft:#c9c6bd; --line:#3a3936; --card:#242422; --hi:#fb923c; --hifill:rgba(251,146,60,0.18); --box:rgba(96,165,250,0.6); --on:#3a2a1c; --ok:#7fd39b; --bad:#ff8d84; --miss:#f0c36a; } }
+* { box-sizing:border-box; }
+body { margin:0; padding:16px; background:var(--bg); color:var(--fg); font:17px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif; }
+h1 { font-size:24px; margin:0 0 4px; }
+h2 { font-size:20px; margin:28px 0 8px; }
+p { max-width:75ch; margin:4px 0 12px; }
+.pair { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; align-items:start; }
+@media (max-width:900px) { .pair { grid-template-columns:1fr; } }
+.fig { position:relative; border:1px solid var(--line); background:#fff; cursor:crosshair; }
+@media (min-width:901px) { .fig { position:sticky; top:8px; } }
+.fig img { display:block; width:100%; height:auto; }
+.fig svg { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.fig rect.all { fill:none; stroke:var(--box); stroke-width:1; vector-effect:non-scaling-stroke; }
+.fig rect.hi { fill:var(--hifill); stroke:var(--hi); stroke-width:2.5; vector-effect:non-scaling-stroke; }
+.bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 8px; }
+.bar button { font:inherit; padding:4px 12px; border:1px solid var(--line); background:var(--card); color:var(--fg); border-radius:6px; cursor:pointer; }
+.bar button[aria-pressed='true'] { border-color:var(--hi); box-shadow:inset 0 0 0 1px var(--hi); }
+.bar label { display:flex; gap:6px; align-items:center; }
+.list { background:var(--card); border:1px solid var(--line); border-radius:6px; }
+.item { display:grid; grid-template-columns:auto auto minmax(0,1fr); gap:10px; padding:6px 10px; border-bottom:1px solid var(--line); cursor:default; }
+.item:last-child { border-bottom:0; }
+.item.on { background:var(--on); }
+.item.on .t { text-decoration:underline; text-decoration-color:var(--hi); text-decoration-thickness:2px; text-underline-offset:4px; }
+.item.pinned { outline:2px solid var(--hi); outline-offset:-2px; }
+.kind { font-family:ui-monospace, Consolas, monospace; white-space:nowrap; }
+.mark { font-weight:700; min-width:1ch; }
+.mark.ok { color:var(--ok); } .mark.bad { color:var(--bad); } .mark.miss { color:var(--miss); } .mark.extra { color:var(--bad); }
+.note { color:var(--soft); display:block; }
+.t { unicode-bidi:plaintext; white-space:pre-wrap; overflow-wrap:anywhere; }
+.nobox { opacity:1; border-left:4px solid var(--miss); }
+</style>
+</head>
+<body>
+<h1>OCR inspection: phone_z09_p1.pdf (fr-FR)</h1>
+<p>Each page: the image the OCR read, and what was read from it. Move over the image to find the line or block
+read there; move over a line or block to see where it was read. Click one to keep it marked.</p>
+<div id='pages'></div>
+<script>
+const D = {pages:[{n:1,img:'phone_z09_p1_files/page1.png',summary:'read by platform, 77 lines',blocks:[{kind:'heading',text:'Plaine Mobilité',box:[78.00,42.50,366.00,85.50],mark:'',note:''},{kind:'page_header',text:'Horaires 2026-2027',box:[964.00,58.90,1166.00,83.10],mark:'',note:''},{kind:'heading',text:'Ligne 12 : Gare routière - Hôpital Saint-Lazare',box:[195.00,199.11,1096.00,243.89],mark:'',note:''},{kind:'paragraph',text:'La ligne 12 relie la gare routière à l\'hôpital Saint-Lazare en vingt-quatre minutes. Elle circule toute l\'année du lundi au samedi, de 6h40 à 20h15.',box:[76.00,298.94,1124.00,351.97],mark:'',note:''},{kind:'heading',text:'Horaires en semaine (du lundi au vendredi)',box:[77.00,372.80,608.00,401.20],mark:'',note:''},{kind:'heading',text:'Direction Hôpital Saint-Lazare',box:[76.00,421.99,371.00,446.01],mark:'',note:''},{kind:'heading',text:'Direction Gare routière',box:[635.00,421.08,860.00,443.92],mark:'',note:''},{kind:'table',text:'Arrêt 6h40 7h20 8h00 Gare routière 6h40 7h20 8h00 Place Carnot 6h44 7h24 8h04 Lycée Descartes 6h47 7h27 8h07 Marché couvert 6h51 7h31 8h11 Pont-Neuf 6h55 7h35 8h15 Clinique des Tilleuls 6h59 7h39 8h19 Hôpital Saint-Lazare 7h04 7h44 8h24',box:[75.00,454.00,608.00,739.50],mark:'',note:''},{kind:'heading',text:'A savoir',box:[75.00,770.39,179.00,798.61],mark:'',note:''},{kind:'list_item',text:'• Les horaires du samedi sont affichés à chaque arrêt.',box:[82.00,816.99,621.00,841.01],mark:'',note:''},{kind:'table',text:'Arrêt 6h55 7h35 8h15 Hôpital Saint-Lazare 6h55 7h35 8h15 Clinique des Tilleuls 7h00 7h40 8h20 Pont-Neuf 7h04 7h44 8h24 Marché couvert 7h08 7h48 8h28 Lycée Descartes 7h12 7h52 8h32 Place Camot 7h15 7h55 8h35 Gare routière 7h19 7h59 8h39',box:[633.00,449.00,1166.00,739.50],mark:'',note:''},{kind:'list_item',text:'Le bus s\'arrête à la demande entre deux arrêts après 20h00.',box:[113.00,853.99,700.00,878.01],mark:'',note:''},{kind:'list_item',text:'• Les poussettes et les fauteuils roulants montent par la porte centrale.',box:[82.00,889.94,781.00,915.06],mark:'',note:''},{kind:'page_footer',text:'plainemobilite.example',box:[75.00,1689.17,255.00,1708.83],mark:'',note:''}],lines:[{text:'Plaine Mobilité',box:[78,48,366,80]},{text:'Horaires 2026-2027',box:[964,62,1166,80]},{text:'Ligne 12 : Gare routière - Hôpital Saint-Lazare',box:[195,201,1096,242]},{text:'La ligne 12 relie la gare routière à l\'hôpital Saint-Lazare en vingt-quatre minutes. Elle circule toute l\'année du',box:[76,300,1124,323]},{text:'lundi au samedi, de 6h40 à 20h15.',box:[76,330,410,351]},{text:'Horaires en semaine (du lundi au vendredi)',box:[77,374,608,400]},{text:'Direction Hôpital Saint-Lazare',box:[76,423,371,445]},{text:'Arrêt',box:[83,464,128,480]},{text:'Gare routière',box:[84,499,194,515]},{text:'Place Carnot',box:[84,534,192,550]},{text:'Lycée Descartes',box:[84,570,223,590]},{text:'Marché couvert',box:[84,605,213,621]},{text:'Pont-Neuf',box:[84,641,169,657]},{text:'Clinique des Tilleuls',box:[84,676,250,696]},{text:'Hôpital Saint-Lazare',box:[84,712,253,731]},{text:'A savoir',box:[75,774,179,795]},{text:'6h40',box:[325,465,367,480]},{text:'6h40',box:[325,500,367,515]},{text:'6h44',box:[326,534,366,550]},{text:'6h47',box:[325,570,367,586]},{text:'6h51',box:[325,606,364,621]},{text:'6h55',box:[325,642,367,657]},{text:'6h59',box:[325,677,366,692]},{text:'7h04',box:[325,713,366,728]},{text:'7h20',box:[429,465,471,480]},{text:'7h20',box:[429,500,471,515]},{text:'7h24',box:[429,534,471,550]},{text:'7h27',box:[429,571,471,586]},{text:'7h31',box:[429,606,469,621]},{text:'7h35',box:[429,642,471,657]},{text:'7h39',box:[429,677,471,692]},{text:'7h44',box:[429,713,471,728]},{text:'8h00',box:[534,465,575,480]},{text:'8h00',box:[534,500,575,515]},{text:'8h04',box:[534,534,575,550]},{text:'8h07',box:[534,571,575,586]},{text:'8h11',box:[534,606,573,621]},{text:'8h15',box:[534,642,575,658]},{text:'8h19',box:[534,677,575,692]},{text:'8h24',box:[534,713,575,728]},{text:'Direction Gare routière',box:[635,424,860,441]},{text:'Arrêt',box:[642,464,687,480]},{text:'Hôpital Saint-Lazare',box:[643,500,812,519]},{text:'Clinique des Tilleuls',box:[642,534,809,554]},{text:'Pont-Neuf',box:[642,570,728,586]},{text:'Marché couvert',box:[642,606,772,621]},{text:'Lycée Descartes',box:[643,641,782,661]},{text:'Place Camot',box:[643,677,751,692]},{text:'Gare routière',box:[642,713,752,728]},{text:'6h55',box:[884,465,926,480]},{text:'6h55',box:[884,500,925,515]},{text:'7h00',box:[884,535,925,550]},{text:'7h04',box:[884,571,925,586]},{text:'7h08',box:[884,606,925,621]},{text:'7h12',box:[884,642,925,657]},{text:'7h15',box:[884,677,925,692]},{text:'7h19',box:[884,713,925,728]},{text:'7h35',box:[987,465,1030,480]},{text:'7h35',box:[988,500,1030,515]},{text:'7h40',box:[988,535,1030,550]},{text:'7h44',box:[989,571,1029,586]},{text:'7h48',box:[988,606,1029,621]},{text:'7h52',box:[988,642,1029,657]},{text:'7h55',box:[988,677,1030,692]},{text:'7h59',box:[988,713,1029,728]},{text:'8h15',box:[1092,465,1134,480]},{text:'8h15',box:[1092,500,1134,515]},{text:'8h20',box:[1092,535,1134,550]},{text:'8h24',box:[1092,571,1134,586]},{text:'8h28',box:[1092,606,1134,621]},{text:'8h32',box:[1092,642,1134,657]},{text:'8h35',box:[1092,677,1134,692]},{text:'8h39',box:[1092,713,1134,728]},{text:'• Les horaires du samedi sont affichés à chaque arrêt.',box:[82,818,621,840]},{text:'Le bus s\'arrête à la demande entre deux arrêts après 20h00.',box:[113,855,700,877]},{text:'• Les poussettes et les fauteuils roulants montent par la porte centrale.',box:[82,891,781,914]},{text:'plainemobilite.example',box:[75,1690,255,1708]}]}]};
+const SVGNS = 'http://www.w3.org/2000/svg';
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+function markClass(m) { return m === '=' ? 'ok' : m === 'x' ? 'bad' : m === '-' ? 'miss' : m === '+' ? 'extra' : ''; }
+D.pages.forEach(function (pg) {
+  const sec = el('section'); sec.appendChild(el('h2', '', 'Page ' + pg.n + (pg.summary ? ' — ' + pg.summary : '')));
+  const pair = el('div', 'pair');
+  const fig = el('div', 'fig'); const img = el('img'); img.src = pg.img; img.alt = 'page ' + pg.n;
+  const svg = document.createElementNS(SVGNS, 'svg'); svg.setAttribute('preserveAspectRatio', 'none');
+  fig.appendChild(img); fig.appendChild(svg);
+  const side = el('div'); const bar = el('div', 'bar'); const list = el('div', 'list');
+  const layers = { blocks: pg.blocks, lines: pg.lines };
+  let layer = pg.blocks.length ? 'blocks' : 'lines'; let pinned = -1; let showAll = false;
+  const bBlocks = el('button', '', 'Blocks (' + pg.blocks.length + ')'); const bLines = el('button', '', 'OCR lines (' + pg.lines.length + ')');
+  const all = el('label'); const cb = el('input'); cb.type = 'checkbox'; all.appendChild(cb); all.appendChild(document.createTextNode('show every box'));
+  bar.appendChild(bBlocks); bar.appendChild(bLines); bar.appendChild(all);
+  side.appendChild(bar); side.appendChild(list);
+  pair.appendChild(fig); pair.appendChild(side); sec.appendChild(pair);
+  document.getElementById('pages').appendChild(sec);
+  function rectOf(it) { return it.box; }
+  function draw(i) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    const items = layers[layer];
+    if (showAll) items.forEach(function (it) { if (!it.box) return; const r = document.createElementNS(SVGNS, 'rect'); r.setAttribute('class', 'all');
+      r.setAttribute('x', it.box[0]); r.setAttribute('y', it.box[1]); r.setAttribute('width', it.box[2] - it.box[0]); r.setAttribute('height', it.box[3] - it.box[1]); svg.appendChild(r); });
+    const j = i >= 0 ? i : pinned;
+    if (j >= 0 && items[j] && items[j].box) { const b = items[j].box; const r = document.createElementNS(SVGNS, 'rect'); r.setAttribute('class', 'hi');
+      r.setAttribute('x', b[0]); r.setAttribute('y', b[1]); r.setAttribute('width', b[2] - b[0]); r.setAttribute('height', b[3] - b[1]); svg.appendChild(r); }
+    Array.prototype.forEach.call(list.children, function (row, k) { row.classList.toggle('on', k === j); row.classList.toggle('pinned', k === pinned); });
+  }
+  function fill() {
+    list.textContent = ''; pinned = -1;
+    bBlocks.setAttribute('aria-pressed', layer === 'blocks'); bLines.setAttribute('aria-pressed', layer === 'lines');
+    layers[layer].forEach(function (it, k) {
+      const row = el('div', 'item' + (it.box ? '' : ' nobox'));
+      row.appendChild(el('span', 'mark ' + markClass(it.mark || ''), it.mark || ''));
+      row.appendChild(el('span', 'kind', it.kind || ''));
+      const t = el('span', 't', it.text); t.dir = 'auto';
+      if (it.note) { const n = el('span', 'note', it.note); n.dir = 'auto'; t.appendChild(n); }
+      row.appendChild(t);
+      row.addEventListener('mouseenter', function () { draw(k); });
+      row.addEventListener('mouseleave', function () { draw(-1); });
+      row.addEventListener('click', function () { pinned = pinned === k ? -1 : k; draw(-1); });
+      list.appendChild(row);
+    });
+    draw(-1);
+  }
+  function at(ev) {
+    const r = img.getBoundingClientRect(); const x = (ev.clientX - r.left) * img.naturalWidth / r.width; const y = (ev.clientY - r.top) * img.naturalHeight / r.height;
+    let best = -1; let area = Infinity;
+    layers[layer].forEach(function (it, k) { const b = it.box; if (!b) return;
+      if (x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3]) { const a = (b[2] - b[0]) * (b[3] - b[1]); if (a < area) { area = a; best = k; } } });
+    return best;
+  }
+  fig.addEventListener('mousemove', function (ev) { const k = at(ev); draw(k); if (k >= 0) { const row = list.children[k]; const rr = row.getBoundingClientRect();
+    if (rr.top < 0 || rr.bottom > window.innerHeight) row.scrollIntoView({ block: 'nearest' }); } });
+  fig.addEventListener('mouseleave', function () { draw(-1); });
+  fig.addEventListener('click', function (ev) { const k = at(ev); pinned = pinned === k ? -1 : k; draw(-1); });
+  img.addEventListener('load', function () { svg.setAttribute('viewBox', '0 0 ' + img.naturalWidth + ' ' + img.naturalHeight); });
+  bBlocks.addEventListener('click', function () { layer = 'blocks'; fill(); });
+  bLines.addEventListener('click', function () { layer = 'lines'; fill(); });
+  cb.addEventListener('change', function () { showAll = cb.checked; draw(-1); });
+  fill();
+});
+</script>
+</body>
+</html>

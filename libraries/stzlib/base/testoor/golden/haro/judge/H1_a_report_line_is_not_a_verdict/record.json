@@ -1,0 +1,1 @@
+{"file":"faculty_check_narrated.haro","readable":1,"why":"","dialect":"narrated","lines":20,"asserts":2,"stops":[{"title":"a target without the pack","line":5,"claims":[{"line":7,"kind":"sees","claim":"status 1: a requirement is not met","want":""},{"line":8,"kind":"sees","claim":"the report names what fails","want":""}]}],"routes":[]}

@@ -173,7 +173,7 @@ class stzRegex from stzObject
 	@pRegexHandle = ""
 	@cMatchType = ""
 	@cPattern = ""
-	@cStr = ""
+	@tStr = ""
 
 	@nFlags = 0
 	@nCompiledFlags = -1
@@ -267,7 +267,7 @@ class stzRegex from stzObject
 	#   returns    text
 	#   see        Pattern, Match, MatchFirst
 	def String()
-		return @cStr
+		return @tStr
 
 	# Returns the pattern text this object was built with or last given, as written.
 	#
@@ -415,7 +415,7 @@ class stzRegex from stzObject
 		ok
 
 		@acMatchOptions = pacOptions
-		@cStr = pcStr
+		@tStr = pcStr
 		@cMatchType = pcMatchType
 
 		# The position goes over 1-based and is converted ONCE, in the
@@ -718,7 +718,7 @@ class stzRegex from stzObject
 		_acResults_ = []
 		_nPos_ = 1
 
-		while This.MatchAt(@cStr, _nPos_)
+		while This.MatchAt(@tStr, _nPos_)
 			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 1)
 
 			if _cMatch_ != ""
@@ -814,7 +814,7 @@ class stzRegex from stzObject
 		_anResults_ = []
 		_nPos_ = 1
 
-		while This.MatchAt(@cStr, _nPos_)
+		while This.MatchAt(@tStr, _nPos_)
 			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 1)
 
 			if _cMatch_ != ""
@@ -867,7 +867,7 @@ class stzRegex from stzObject
 		_aResults_ = []
 		_nPos_ = 1
 
-		while This.MatchAt(@cStr, _nPos_)
+		while This.MatchAt(@tStr, _nPos_)
 			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 1)
 
 			if _cMatch_ != ""
@@ -915,7 +915,7 @@ class stzRegex from stzObject
 		_aResults_ = []
 		_nPos_ = 1
 
-		while This.MatchAt(@cStr, _nPos_)
+		while This.MatchAt(@tStr, _nPos_)
 			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 1)
 
 			if _cMatch_ != ""
@@ -962,7 +962,7 @@ class stzRegex from stzObject
 		_aResults_ = []
 		_nPos_ = 1
 
-		while This.MatchAt(@cStr, _nPos_)
+		while This.MatchAt(@tStr, _nPos_)
 			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 1)
 
 			if _cMatch_ != ""

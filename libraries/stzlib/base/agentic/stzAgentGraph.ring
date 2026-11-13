@@ -44,7 +44,7 @@
 #   see        stzGraph, stzAgentHost, stzAgentRuleSet
 class stzAgentGraph from stzObject
 
-	@cName = ""
+	@tName = ""
 	@oG = ""
 	# THE SEALED RECORD (threat-model R1, 2026-09-29). GraphQ() hands out the
 	# raw graph, so any property on it can be set around the governed doors.
@@ -61,7 +61,7 @@ class stzAgentGraph from stzObject
 	#   returns    nothing; the object is built
 	#   see        AddLLMActor, IsSound, Explain
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@oG = new stzGraph("agentgraph-" + pcName)
 
 	# Returns the underlying graph, for drawing or inspection.
@@ -474,10 +474,10 @@ class stzAgentGraph from stzObject
 	def Explain()
 		_aV_ = This.Violations()
 		if len(_aV_) = 0
-			return "GOVERNED: '" + @cName +
+			return "GOVERNED: '" + @tName +
 				"' passes every invariant (no llm-effectful, effects guarded, open text contained, effects traced)."
 		ok
-		_c_ = "REFUSED: '" + @cName + "' has " + len(_aV_) + " violation(s):" + char(10)
+		_c_ = "REFUSED: '" + @tName + "' has " + len(_aV_) + " violation(s):" + char(10)
 		_n_ = len(_aV_)
 		for _i_ = 1 to _n_
 			_c_ += "  - " + _aV_[_i_][:invariant] + " @ " + _aV_[_i_][:node] +

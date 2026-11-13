@@ -126,7 +126,8 @@ func _PlOffTheLine(poDg, pcId)
 	if _me_ < -999999999  return 0  ok
 	return _me_ > _min_ + 2
 
-func _PlKeyNode(pcId)   return "node:" + StzLower("" + pcId)
+func _PlKeyNode(pcId)
+	return "node:" + StzLower("" + pcId)
 
 # DOES A CELL STAND ON THE STRAIGHT RUN between two ends that share a
 # column? Read off the drawn rectangles: same cross coordinate as both

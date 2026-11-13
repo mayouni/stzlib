@@ -922,11 +922,11 @@ class stzAppCluster from stzObject
 
 	def _DeriveStzBasePath()
 		_nSlash_ = 0
-		_nL_ = len($cEngineDir)
+		_nL_ = len($tEngineDir)
 		for _i_ = 1 to _nL_
-			if $cEngineDir[_i_] = "/"  _nSlash_ = _i_  ok
+			if $tEngineDir[_i_] = "/"  _nSlash_ = _i_  ok
 		next
-		_cRoot_ = StzLeft($cEngineDir, _nSlash_ - 1)      # .../stzlib
+		_cRoot_ = StzLeft($tEngineDir, _nSlash_ - 1)      # .../stzlib
 		return _cRoot_ + "/base/stzBase.ring"
 
 	# The worker entry: a standalone stzAppServer tagged with its profile,
@@ -934,7 +934,7 @@ class stzAppCluster from stzObject
 	# (not shipped as a fixed file) so the absolute stzBase load is a
 	# compile-time literal regardless of the launch cwd.
 	def _GenerateWorkerScript()
-		@cWorkerScript = $cEngineDir + "/../base/cluster/.stzworker_gen.ring"
+		@cWorkerScript = $tEngineDir + "/../base/cluster/.stzworker_gen.ring"
 		_cNL_ = char(10)
 		_cW_ = 'load "' + @cBaseRing + '"' + _cNL_ +
 		       '_a_ = sysargv' + _cNL_ +

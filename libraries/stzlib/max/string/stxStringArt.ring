@@ -14,7 +14,7 @@ $DEFAULT_STR_ART_STYLE = :retro
 #-------------------------------#
 
 func StringArtStylesXT()
-	return $STZ_STR_ART_STYLES_XT
+	return $vSTZ_STR_ART_STYLES_XT
 
 func StringArtStyles()
 	aStylesXT = StringArtStylesXT()
@@ -167,7 +167,7 @@ func StringArtPainting(cPaintingName)
 #==========================#
 
 class stzStringArt
-	@cContent
+	@tContent
 	@cStyle = DefaultStringArtStyle()
 
 	def init(str)
@@ -175,13 +175,13 @@ class stzStringArt
 			raise("ERR-" + StkError(:IncorrectParamType))
 		ok
 
-		@cContent = upper(str)
+		@tContent = upper(str)
 
 	def Content()
-		return @cContent
+		return @tContent
 
 		def String()
-			return @cContent
+			return @tContent
 
 	def Style()
 		return @cStyle
@@ -214,8 +214,8 @@ class stzStringArt
 
 	def Artify()
  
-		cSpacified = pvtSpacify(@cContent)
-		nLenStr = len(@cContent) // #NOTE: work only for latin
+		cSpacified = pvtSpacify(@tContent)
+		nLenStr = len(@tContent) // #NOTE: work only for latin
 
 		aCharSetXT = StringArtStylesXT()[This.Style()]
 
@@ -239,7 +239,7 @@ class stzStringArt
 		
 		for i = 1 to nHight
 			for j = 1 to nLenStr
-				c = @cContent[j]
+				c = @tContent[j]
 				cResult += pvtCharArtLayers(c)[i] + " "	
 			next
 

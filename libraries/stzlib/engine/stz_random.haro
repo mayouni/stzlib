@@ -1,0 +1,25 @@
+# Softanza Engine -- Random Ring Bridge
+#
+# Loads stz_random.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Function prefix: StzEngineRandom*
+
+if IsWindows()
+    $tStzRandomLib = $tEngineDir + "/zig-out/bin/stz_random.dll"
+elseif IsLinux()
+    $tStzRandomLib = $tEngineDir + "/zig-out/lib/libstz_random.so"
+elseif isMacOS()
+    $tStzRandomLib = $tEngineDir + "/zig-out/lib/libstz_random.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("random")
+    $hStzRandomHandle = ""
+elseif FExists($tStzRandomLib)
+    $hStzRandomHandle = LoadLib($tStzRandomLib)
+else
+    ? "WARNING: stz_random not found at: " + $tStzRandomLib
+    $hStzRandomHandle = ""
+end

@@ -1,0 +1,23 @@
+# Softanza Engine -- Display Engine
+#
+# Loads stz_display.dll for number/percent/bytes formatting, bar charts, trees.
+#
+# Function prefix: StzEngineDisplay*
+
+if IsWindows()
+    $tStzDisplayLib = $tEngineDir + "/zig-out/bin/stz_display.dll"
+elseif IsLinux()
+    $tStzDisplayLib = $tEngineDir + "/zig-out/lib/libstz_display.so"
+elseif isMacOS()
+    $tStzDisplayLib = $tEngineDir + "/zig-out/lib/libstz_display.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("display")
+    $hStzDisplayHandle = ""
+elseif FExists($tStzDisplayLib)
+    $hStzDisplayHandle = LoadLib($tStzDisplayLib)
+else
+    ? "WARNING: stz_display not found at: " + $tStzDisplayLib
+    $hStzDisplayHandle = ""
+end

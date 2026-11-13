@@ -86,6 +86,12 @@ pub fn curl_last_headers(out: [*]u8, max: usize) callconv(.c) i32 {
     return @intCast(n);
 }
 
+/// The captured response headers, writable: the credential broker masks a granted
+/// value out of them before anything can read them back (cred_broker.zig).
+pub fn curl_headers_mut() []u8 {
+    return hdr_buf[0..hdr_len];
+}
+
 fn headerCb(ptr: [*c]u8, size: usize, nitems: usize, userdata: ?*anyopaque) callconv(.c) usize {
     _ = userdata;
     const total = size * nitems;

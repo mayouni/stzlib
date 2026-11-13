@@ -9,37 +9,37 @@ ok
 
 # Loding the files related to the CORE layer
 
-    load "../core/stzCore.ring" 
+    load "../core/stzCore.haro" 
 
 # Loading files related tp the COMMON module
 
-    load "common/stzIntSeq.ring"
-    load "common/stzCounter.ring"
-    load "common/stzFuncs.ring"
+    load "common/stzIntSeq.haro"
+    load "common/stzCounter.haro"
+    load "common/stzFuncs.haro"
 
-    load "common/stzOccurrences.ring"
-    load "common/stzRingFuncs.ring"
+    load "common/stzOccurrences.haro"
+    load "common/stzRingFuncs.haro"
 
-    load "common/stzRingLibs.ring"
-    load "common/stzPrimitives.ring"
-    load "common/stzNamedParams.ring"
-    load "common/stzSmallFuncs.ring"
-    load "common/stzSplitter.ring"
+    load "common/stzRingLibs.haro"
+    load "common/stzPrimitives.haro"
+    load "common/stzNamedParams.haro"
+    load "common/stzSmallFuncs.haro"
+    load "common/stzSplitter.haro"
 
-    load "common/stzCCode.ring"
-    load "common/stzNamedVars.ring"
+    load "common/stzCCode.haro"
+    load "common/stzNamedVars.haro"
 
 # Loading files related to the DATA module
 
-    load "data/stzCharData.ring"
-    load "data/stzUnicodeData.ring"
-    load "data/stzLocaleData.ring"
-    load "data/stzRegexData.ring"
-    load "data/stzRandomData.ring"
-    load "data/stzSystemCallData.ring"
+    load "data/stzCharData.haro"
+    load "data/stzUnicodeData.haro"
+    load "data/stzLocaleData.haro"
+    load "data/stzRegexData.haro"
+    load "data/stzRandomData.haro"
+    load "data/stzSystemCallData.haro"
 
     # stzDatabase -- the sqlite-backed data store (data domain, R7)
-    load "data/stzDatabase.ring"
+    load "data/stzDatabase.haro"
 
 # Loading files related to the OBJECT module
 
@@ -133,7 +133,7 @@ ok
     load "sound/stzSoundInstrument.ring"
     load "sound/stzSoundScore.ring"
     load "sound/stzSoundScheduler.ring"
-    load "common/stzPattern.ring"
+    load "common/stzPattern.haro"
     load "sound/stzSoundPattern.ring"
     load "sound/stzSoundLive.ring"
     load "sound/stzSoundUniverse.ring"
@@ -206,6 +206,8 @@ ok
     load "faculty/stzCalibration.ring"
     load "faculty/stzFlow.ring"
     load "faculty/stzModelCatalog.ring"    # MP3: the model catalogue (models/catalog.zcat) and the setup plan -- it fetches nothing
+    load "faculty/stzModelPack.haro"       # MP2: the catalogue's optional packs and the target profile (packs, memory)
+    load "faculty/stzModelsCheck.haro"     # MP2: the status a deployment script fails on -- each required faculty, answered there or not
     load "faculty/stzModelsReport.ring"    # MP1/MP2: the real picture of the models -- what can run here, what answers, where (SOFTANZA_MODEL_PLACEMENT.md)
     load "faculty/stzModelRelease.ring"    # MP3b: the release of converted model files (publish gate, stager, upload script) and the verified fetch
 
@@ -481,23 +483,23 @@ load "geo/stzGeoProcess.ring"
 
 # Loading files related to the ENGINE WRAPPER modules
 
-    load "common/stzStateMachine.ring"
-    load "common/stzValidator.ring"
-    load "common/stzCache.ring"
-    load "common/stzConstraint.ring"
+    load "common/stzStateMachine.haro"
+    load "common/stzValidator.haro"
+    load "common/stzCache.haro"
+    load "common/stzConstraint.haro"
     load "number/stzSequence.ring"
-    load "common/stzRelation.ring"
+    load "common/stzRelation.haro"
     load "number/stzSimilarity.ring"
-    load "common/stzEngineTimeline.ring"
-    load "common/stzCancelToken.ring"
-    load "common/stzRetryBudget.ring"
-    load "common/stzLatencyHistogram.ring"
-    load "common/stzRateLimiter.ring"
+    load "common/stzEngineTimeline.haro"
+    load "common/stzCancelToken.haro"
+    load "common/stzRetryBudget.haro"
+    load "common/stzLatencyHistogram.haro"
+    load "common/stzRateLimiter.haro"
     # structured, queryable, leveled logging (observability infra)
-    load "common/stzLog.ring"
+    load "common/stzLog.haro"
     # stzRequestSigner moved to base/security/ (HMAC request signing is a
     # security primitive); loaded in the security block.
-    load "common/stzTraceContext.ring"
+    load "common/stzTraceContext.haro"
     load "graph/stzGridNav.ring"
 
 # Loading files related to the VISUAL module
@@ -636,6 +638,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     # reports (SOFTANZA_ONE_HOUR.md, B2 and B4).
     load "security/stzAdvisoryFeed.ring"
     load "security/stzExposureResponder.ring"
+    load "security/stzCredentialBroker.haro"   # an agent names a credential; the engine attaches it (CREDBROKER-01)
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
@@ -956,6 +959,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     # decommission contracts, decision lineage, trust postures.
     load "governance/stzGovernance.ring"
     load "governance/stzFieldTags.ring"
+    load "governance/stzPolicyDiff.haro"     # the access a governance change adds, before it is accepted
 
     # platform/ -- THE OPERATIONAL ENVELOPE (5.10, R7): stzPlatform =
     # generation (Reach -> shells), the governance-gated capability

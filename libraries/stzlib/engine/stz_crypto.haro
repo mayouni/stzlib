@@ -1,0 +1,23 @@
+# Softanza Engine -- Cryptographic Hashing
+#
+# Loads stz_crypto.dll for SHA-256, MD5, CRC-32, FNV hashing.
+#
+# Function prefix: StzEngineCrypto*
+
+if IsWindows()
+    $tStzCryptoLib = $tEngineDir + "/zig-out/bin/stz_crypto.dll"
+elseif IsLinux()
+    $tStzCryptoLib = $tEngineDir + "/zig-out/lib/libstz_crypto.so"
+elseif isMacOS()
+    $tStzCryptoLib = $tEngineDir + "/zig-out/lib/libstz_crypto.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("crypto")
+    $hStzCryptoHandle = ""
+elseif FExists($tStzCryptoLib)
+    $hStzCryptoHandle = LoadLib($tStzCryptoLib)
+else
+    ? "WARNING: stz_crypto not found at: " + $tStzCryptoLib
+    $hStzCryptoHandle = ""
+end

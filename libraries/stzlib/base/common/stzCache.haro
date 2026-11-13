@@ -1,0 +1,549 @@
+func StzCache(tFile)
+	return new stzCache(tFile)
+end
+func StzCacheQ(tFile)
+	return new stzCache(tFile)
+end
+# Creates cache file, depending on its type, only if it is inexistant
+# Otherwise, the cache file is open, and a handler of that file is returned
+func CacheCreateIfInexistant(pxCacheName,pxStorageType)
+	tCompleteCacheFileName = CacheCompleteFileName(pxCacheName)
+
+	switch pxStorageType
+	case :InFile
+		if not TextFileExists(tCompleteCacheFileName)
+			oCacheFileHandler = new stzCache(tCompleteCacheFileName, pxStorageType)
+		else
+			hFileHandler = TextFileOpen(tCompleteCacheFileName)	
+		end
+
+		return oCacheFileHandler		
+
+	case :InMemory
+		# TODO
+
+	case :InDatabase
+		# TODO
+	end
+end
+func CacheActivate(pxCacheName)
+	tCompleteCacheFileName = CacheCompleteFileName(pxCacheName)
+
+	oTempHashList = new stzHashList(_aStzCaches)
+	xN = oTempHashList.FindInKeys(tCompleteCacheFileName)
+	_aStzCaches[xN][2] = 1
+	return true
+end
+func CacheDeactivate(pxFileName)
+	tCompleteCacheFileName = CacheCompleteFileName(tCacheName)
+	oTempHashList = new stzHashList(_aStzCaches)
+	xN = oTempHashList.FindInKeys(tCompleteCacheFileName)
+	_aStzCaches[xN][2] = 0
+	return true
+end
+func IsCacheActivated(pxFileName)
+	tCompleteCacheFileName = CacheCompleteFileName(tCacheName)
+	oTempHashList = new stzHashList(_aStzCaches)
+	xN = oTempHashList.FindInKeys(tCompleteCacheFileName)
+	return _aSteCaches[xN][2]
+end
+	func @IsCacheActivated(pxFileName)
+		return IsCacheActivated(pxFileName)
+	end
+func CacheCompleteFileName(pxCacheName)
+	return "cache/" + pxCacheName + ".txt"
+end
+func CacheComposeLine(pxPieces)
+	return TransformListToString(pxPieces, ["|",","])
+end
+	#--> This function is undefined
+
+func CacheAddLine(pxCacheName,pxEntry,pxStorageType)
+	switch pxStorageType
+	case :InFile	TextFileAddLine(CacheFileHandler(pxCacheName), tCacheLine)
+	case :InMemomry	_cMemCache + tCacheLine
+	case :InDatabase	DatabaseAddLine(_cCacheDatabase, _cCacheTable, tCacheLine)
+	else
+		stzError(:UnsupportedCacheStorage)
+	end
+end
+func CacheFileHandler(pxCacheName)
+	# A global variable that maintains the list of caches and their related file handlers
+	# needs to be addedd
+	tCompleteCacheFileName = CacheCompleteFileName(pxCacheName)
+	nN = Find(_aStzCaches,tCompleteCacheFileName)
+	return xStzCaches[tCompleteCacheFileName][1]
+end
+# Remembers the result of a function call, keyed by the function's name and its arguments, in a text file.
+#
+# A cache entry is one line of the cache file: the function name, the argument values as text and
+# the result, joined by a bar (build it with ComposeLine, store it with AddLine). A lookup answers
+# from the first line whose name and arguments both match exactly, upper and lower case
+# included, so the same call after storing is a hit and any other argument is a miss. The
+# file is "cache/<name>.txt" under the current folder, created when the cache is built, and it
+# outlives the object: a new cache of the same name reads what an earlier one stored. A cache
+# starts NOT activated and an inactive cache answers no lookup: call Activate first. Only the
+# :InFile storage is implemented; :InMemory and :InDatabase are accepted by the constructor but
+# keep nothing, and AddLine and CacheOpen raise for them.
+#
+#   receiver   o1 = new stzCache("sums", :InFile)
+#   example    o1.Activate()
+#              o1.AddLine( o1.ComposeLine([ "Add", "2,3", "5" ]) )
+#              ? o1.CacheGetCachedResult("Add", "2,3")
+#              #--> 5
+#              ? o1.CacheFindEntry("Add", "2,4")
+#              #--> 0
+#   see        stzCacheStorage
+class stzCache from stzObject
+	tCacheName
+	tCacheContent
+
+	oCacheStorage
+
+	bActivated = false
+
+	# Returns the cached content, which nothing in the class ever sets.
+	#
+	#   returns    the text NULL, always
+	#   see        Activate, IsActivated
+	def Content
+		return tCacheContent
+	end
+		def Value
+			return this.Content()
+		end
+	# Builds a cache whose entries are kept in the file "cache/<name>.txt", creating the folder and the file when missing.
+	#
+	#   pcCacheName     the cache's name, used as the file's name; it may not be empty, hold a
+	#                   slash, a backslash or a colon, or contain two dots in a row
+	#   pcStorageType   where entries are kept: :InFile is the only one implemented
+	#   returns         the new cache, which is NOT activated
+	#   note            the file is relative to the current folder; an existing file is kept as it is
+	#   warning         :InMemory and :InDatabase build an object that keeps nothing, and a name
+	#                   or type that is not text raises; any other type raises
+	#   see             StzCache, Activate
+	def init(pxCacheName, pxStorageType)
+		tCacheName = pxCacheName
+		oCacheStorage = new stzCacheStorage(pxCacheName, "cache", pxStorageType)
+	end
+	# Returns where the cache keeps its entries, as the constructor was given it.
+	#
+	#   returns    the storage type as lower-case text, such as infile for :InFile
+	#   see        init, CacheFileHandler
+	def StorageType
+		return oCacheStorage.StorageType()
+	end
+	# Marks the cache as activated, so that lookups answer.
+	#
+	#   returns    nothing
+	#   see        Deactivate, IsActivated
+	def Activate
+		bActivated = true
+	end
+	# Marks the cache as not activated, so that lookups answer nothing.
+	#
+	#   returns    nothing
+	#   see        Activate, IsActivated
+	def Deactivate
+		bActivated = false
+	end
+	# TRUE if the cache was marked as activated and not deactivated since.
+	#
+	#   returns    TRUE or FALSE; FALSE on a new cache
+	#   see        Activate, Deactivate
+	def IsActivated
+		return bActivated
+	end
+	# Makes sure the cache's file exists and returns its handle.
+	#
+	#   returns    the handle of the cache file, which is its path
+	#   warning    raises an error for :InMemory and :InDatabase, which have no file and no database
+	#              layer behind them
+	#   see        CacheFileHandler, StorageType
+	def CacheOpen
+		switch this.StorageType()
+		case :InFile
+			if StzFileExists(this.CacheFileHandler()) = 0
+				StzFileWrite(this.CacheFileHandler(), "")
+			end
+			return this.CacheFileHandler()
+		else
+			StzRaise("stzCache.CacheOpen: the storage type '" + this.StorageType() + "' is not implemented, only :InFile is.")
+		end
+	end
+	# Returns the handle of the cache's file, which is the path of that file.
+	#
+	#   returns    the path "cache/<name>.txt", or the empty text for a storage that has no file
+	#   note       the library's file functions work on paths, so the path is the handle
+	#   see        CacheOpen, CacheFileClose
+	def CacheFileHandler
+		return oCacheStorage.FileHandler()
+	end
+	# Releases the cache's file, which here holds nothing open between calls.
+	#
+	#   returns    1
+	#   note       every call opens and closes the file by itself, so the file survives closing and
+	#              can be read at once; CacheFileColse is the same call under the old misspelling
+	#   see        CacheOpen, CacheFileHandler
+	def CacheFileClose
+		return true
+	end
+	# Releases the cache's file under the old misspelling of its name.
+	#
+	#   returns    1
+	#   see        CacheFileClose
+	def CacheFileColse
+		return this.CacheFileClose()
+	end
+	# Returns the number of the first line stored for a function called with given arguments, or 0 when there is none.
+	#
+	#   pcFunc          the name of the function whose result is cached
+	#   pcParamValues   the argument values of the call, as text
+	#   returns         the line number from 1, or 0 on a miss
+	#   warning         answers 0 on a cache that is not activated, whatever the file holds; both
+	#                   parts must match exactly, upper and lower case included
+	#   see             CacheGetCachedResult, CacheFileLines
+	def CacheFindEntry(pxFunc, pxParamValues)
+		if not bActivated
+			return 0
+		end
+
+		xLines = this.CacheFileLines()
+		nLines = ring_len(xLines)
+		for iLine = 1 to nLines
+			xFields = this._SplitCacheLine(xLines[iLine])
+			if ring_len(xFields) >= 3
+				if StrCmp(xFields[1], "" + pxFunc) = 0 and StrCmp(xFields[2], "" + pxParamValues) = 0
+					return iLine
+				end
+			end
+		end
+		return 0
+	end
+	# Returns the result stored for a function called with given arguments.
+	#
+	#   pcFunc          the name of the function whose result is cached
+	#   pcParamValues   the argument values of the call, as text
+	#   returns         the stored result, as text, or the empty text when the cache is not activated
+	#   warning         raises an error when the cache is activated and holds no entry for that call;
+	#                   a stored number comes back as its text
+	#   see             CacheFindEntry, CacheGetResultInLineNumber
+	def CacheGetCachedResult( pxFunc, pxParamValues)
+		if not bActivated
+			return ""
+		end
+
+		xN = this.CacheFindEntry(pxFunc, pxParamValues)
+		if xN > 0
+			return this.CacheGetResultInLineNumber(xN)
+		end
+		StzRaise("stzCache.CacheGetCachedResult: no cached entry for " + pxFunc + " with " + pxParamValues + ".")
+	end
+	# Returns the result held on one line of the cache file, whether or not the cache is activated.
+	#
+	#   pnLineNumber   the number of the line to read, from 1
+	#   returns        the third part of that line, as text, with its escapes undone
+	#   warning        raises an error when the line does not exist or has fewer than three parts
+	#   see            CacheFileLines, CacheGetCachedResult
+	def CacheGetResultInLineNumber(pxLineNumber)
+		xFields = this._SplitCacheLine( this.CacheFileLineNumber(pxLineNumber) )
+		if ring_len(xFields) < 3
+			StzRaise("stzCache.CacheGetResultInLineNumber: line " + pxLineNumber + " is not a cache entry of three parts.")
+		end
+		return xFields[3]
+	end
+	# Returns the lines of the cache file, as they are written, one text per line.
+	#
+	#   returns    a list of texts; empty when the file is missing or empty
+	#   note       a line keeps its bars and escapes; a carriage return before the end of a line is
+	#              dropped, and so is the empty text after the last end of line
+	#   see        CacheFileLineNumber, CacheFileNumberOfLines
+	def CacheFileLines
+		tData = StzFileRead(oCacheStorage.CompleteFileName())
+		if not IsString(tData)
+			tData = ""
+		end
+
+		xResult = []
+		tLine = ""
+		nData = ring_len(tData)
+		for iByte = 1 to nData
+			xC = tData[iByte]
+			if xC = Char(10)
+				xResult + tLine
+				tLine = ""
+			else
+				tLine += xC
+			end
+		end
+		if tLine != ""
+			xResult + tLine
+		end
+
+		nResult = ring_len(xResult)
+		for iLine = 1 to nResult
+			tOne = xResult[iLine]
+			nOne = ring_len(tOne)
+			if nOne > 0 and tOne[nOne] = Char(13)
+				xResult[iLine] = Left(tOne, nOne - 1)
+			end
+		end
+		return xResult
+	end
+	# Returns one line of the cache file, as it is written.
+	#
+	#   _n_        the number of the line to read, from 1
+	#   returns    the text of that line
+	#   warning    raises an error when the file has no such line
+	#   see        CacheFileLines, CacheFileNumberOfLines
+	def CacheFileLineNumber(xN)
+		xLines = this.CacheFileLines()
+		if not IsNumber(xN) or xN < 1 or xN > ring_len(xLines)
+			StzRaise("stzCache.CacheFileLineNumber: the cache file has no line " + xN + ".")
+		end
+		return xLines[xN]
+	end
+	# Returns how many lines the cache file holds.
+	#
+	#   returns    a number, 0 for a missing or empty file
+	#   see        CacheFileLines, CacheFileLineNumber
+	def CacheFileNumberOfLines
+		return ring_len(this.CacheFileLines())
+	end
+	# Joins the parts of an entry into one line, with a bar between the parts.
+	#
+	#   paParts    the parts of the entry, as a list of texts or numbers; a part that is a list is
+	#              first joined with commas
+	#   returns    the line, in which each backslash, bar, line feed and carriage return of a part
+	#              is escaped so that it reads back unchanged; a number is written as Ring writes
+	#              it as text, so 3.5 becomes 3.50
+	#   warning    raises an error when paParts is not a list or a part is an object
+	#   see        AddLine, CacheGetResultInLineNumber
+	def ComposeLine(pxParts)
+		if not IsList(pxParts)
+			StzRaise("stzCache.ComposeLine: the parts must be a list.")
+		end
+
+		tLine = ""
+		nParts = ring_len(pxParts)
+		for iPart = 1 to nParts
+			xPart = pxParts[iPart]
+			if IsList(xPart)
+				tText = ""
+				nItems = ring_len(xPart)
+				for iItem = 1 to nItems
+					if IsList(xPart[iItem]) or IsObject(xPart[iItem])
+						StzRaise("stzCache.ComposeLine: a part cannot hold a list or an object inside a list.")
+					end
+					if iItem > 1
+						tText += ","
+					end
+					tText += xPart[iItem]
+				end
+				xPart = tText
+			elseif IsObject(xPart)
+				StzRaise("stzCache.ComposeLine: a part cannot be an object.")
+			end
+
+			if iPart > 1
+				tLine += "|"
+			end
+			tLine += this._EscapeCacheField("" + xPart)
+		end
+		return tLine
+	end
+	# Appends one entry to the end of the cache file.
+	#
+	#   pcEntry    the entry to append, as one line of text, such as the answer of ComposeLine
+	#   returns    1
+	#   warning    raises an error for a line that holds a line feed or a carriage return, for a
+	#              text that is not a string, and for :InMemory and :InDatabase, which keep nothing
+	#   see        ComposeLine, CacheFileLines
+	def AddLine(pxEntry)
+		if not IsString(pxEntry) or StzFindFirst(Char(10), pxEntry) > 0 or StzFindFirst(Char(13), pxEntry) > 0
+			StzRaise("stzCache.AddLine: the entry must be one line of text, build it with ComposeLine.")
+		end
+
+		switch this.StorageType()
+		case :InFile
+			StzFileAppend(this.CacheFileHandler(), pxEntry + Char(10))
+			return true
+		else
+			StzRaise("stzCache.AddLine: the storage type '" + this.StorageType() + "' is not implemented, only :InFile is.")
+		end
+	end
+	# Returns a text with each backslash, bar, line feed and carriage return replaced by a two-character escape.
+	#
+	#   pcText    the text to escape
+	#   returns   the escaped text, which holds no bar and no end of line
+	#   see       ComposeLine, _UnescapeCacheField
+	def _EscapeCacheField(pxText)
+		tOut = ""
+		nText = ring_len(pxText)
+		for i = 1 to nText
+			xC = pxText[i]
+			if xC = "\"
+				tOut += "\\"
+			elseif xC = "|"
+				tOut += "\p"
+			elseif xC = Char(10)
+				tOut += "\n"
+			elseif xC = Char(13)
+				tOut += "\r"
+			else
+				tOut += xC
+			end
+		end
+		return tOut
+	end
+	# Returns a text with the two-character escapes of an entry part turned back into the characters they stand for.
+	#
+	#   pcText    the escaped text
+	#   returns   the original text
+	#   see       _EscapeCacheField, _SplitCacheLine
+	def _UnescapeCacheField(pxText)
+		tOut = ""
+		nText = ring_len(pxText)
+		nI = 1
+		while nI <= nText
+			xC = pxText[nI]
+			if xC = "\" and nI < nText
+				xD = pxText[nI + 1]
+				if xD = "\"
+					tOut += "\"
+					nI += 2
+				elseif xD = "p"
+					tOut += "|"
+					nI += 2
+				elseif xD = "n"
+					tOut += Char(10)
+					nI += 2
+				elseif xD = "r"
+					tOut += Char(13)
+					nI += 2
+				else
+					tOut += xC
+					nI++
+				end
+			else
+				tOut += xC
+				nI++
+			end
+		end
+		return tOut
+	end
+	# Returns the parts of one cache line, split at its bars and unescaped.
+	#
+	#   pcLine    one line of the cache file
+	#   returns   a list of texts, one per part
+	#   see       ComposeLine, _UnescapeCacheField
+	def _SplitCacheLine(pxLine)
+		xParts = []
+		tPart = ""
+		nLine = ring_len(pxLine)
+		for i = 1 to nLine
+			xC = pxLine[i]
+			if xC = "|"
+				xParts + this._UnescapeCacheField(tPart)
+				tPart = ""
+			else
+				tPart += xC
+			end
+		end
+		xParts + this._UnescapeCacheField(tPart)
+		return xParts
+end
+	end
+# Holds where a stzCache keeps its entries: the storage type, the folder, the file name and the file's handle.
+#
+# It replaces the stzStorage class of the future folder, which is not loaded. For :InFile it builds
+# the folder and an empty file when they are missing and leaves an existing file untouched; the
+# handle of the file is its path, since the library's file functions work on paths. For :InMemory
+# and :InDatabase it builds nothing and the handle is the empty text.
+#
+#   receiver   o1 = new stzCacheStorage("sums", "cache", :InFile)
+#   example    ? o1.CompleteFileName()
+#              #--> cache/sums.txt
+#   see        stzCache
+class stzCacheStorage from stzObject
+	tStorageType
+	tStoragePath
+	tFileName
+	tCompleteFileName
+	tFileHandler
+
+	# Builds the storage behind a cache, creating its folder and file for :InFile when they are missing.
+	#
+	#   pcCacheName     the cache's name, used as the storage file's name with ".txt" added; it may not
+	#                   be empty, hold a slash, a backslash or a colon, or contain two dots in a row
+	#   pcStoragePath   the folder that holds the storage file, relative to the current folder or absolute
+	#   pcStorageType   where entries are kept: :InFile, :InMemory or :InDatabase
+	#   returns         the new storage
+	#   warning         only :InFile has a file; a name or path that is not usable text, or a type
+	#                   other than the three, raises an error
+	#   see             stzCache
+	def init(pxCacheName, pxStoragePath, pxStorageType)
+		if not IsString(pxCacheName) or ring_trim(pxCacheName) = "" or
+		   StzFindFirst("/", pxCacheName) > 0 or StzFindFirst("\", pxCacheName) > 0 or
+		   StzFindFirst(":", pxCacheName) > 0 or StzFindFirst("..", pxCacheName) > 0
+			StzRaise("stzCacheStorage: the cache name must be a non-empty text without a slash, a backslash, a colon or two dots.")
+		end
+		if not IsString(pxStoragePath) or ring_trim(pxStoragePath) = "" or StzFindFirst("..", pxStoragePath) > 0
+			StzRaise("stzCacheStorage: the storage path must be a non-empty text without two dots.")
+		end
+		if not IsString(pxStorageType)
+			StzRaise("stzCacheStorage: the storage type must be a text.")
+		end
+
+		tFileName = pxCacheName + ".txt"
+		tStoragePath = pxStoragePath
+		tCompleteFileName = pxStoragePath + "/" + tFileName
+		tStorageType = StzLower(pxStorageType)
+		tFileHandler = ""
+
+		switch tStorageType
+		case :InFile
+			if not StzDirExists(pxStoragePath)
+				StzDirCreatePath(pxStoragePath)
+			end
+			if not StzFileExists(tCompleteFileName)
+				StzFileWrite(tCompleteFileName, "")
+			end
+			tFileHandler = tCompleteFileName
+		case :InMemory
+			# nothing is kept
+		case :InDatabase
+			# nothing is kept
+		else
+			StzRaise("stzCacheStorage: unsupported storage type '" + pxStorageType + "'.")
+		end
+	end
+	# Returns the handle of the storage file, which is its path.
+	#
+	#   returns    the path of the file for :InFile, the empty text for the other types
+	#   see        CompleteFileName, FileName
+	def FileHandler
+		return tFileHandler
+	end
+	# Returns the storage file's name, without its folder.
+	#
+	#   returns    the cache's name with ".txt" added
+	#   see        CompleteFileName, FileHandler
+	def FileName
+		return tFileName
+	end
+	# Returns the storage file's name with its folder.
+	#
+	#   returns    the folder, a slash and the file name, as it was built
+	#   see        FileName, FileHandler
+	def CompleteFileName
+		return tCompleteFileName
+	end
+	# Returns where the storage keeps its entries, as it was given.
+	#
+	#   returns    the storage type as lower-case text, such as infile for :InFile
+	#   see        FileHandler
+	def StorageType
+		return tStorageType
+	end
+end

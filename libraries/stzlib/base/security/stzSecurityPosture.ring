@@ -72,7 +72,7 @@ func StzSecurityPostureIsSound(poPosture)
 #   see        stzSecretStore, stzServiceRegistry, stzSystemActor
 class stzSecurityPosture from stzObject
 
-	@cName = ""
+	@tName = ""
 	@oStore = ""     # the project's central stzSecretStore (or NULL)
 	@aSites = []       # deployment sites to audit
 	@aActors = []      # actors to audit
@@ -84,7 +84,7 @@ class stzSecurityPosture from stzObject
 	#   returns    nothing; the object is built
 	#   see        SetStore, AddSite, AddActor
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Sets the project's central secret store, so the audit can see its refused reveals and tell a store-backed site from an inline key.
 	#
@@ -234,7 +234,7 @@ class stzSecurityPosture from stzObject
 	#   see        Findings, IsSound
 	def Report()
 		_aF_ = This.Findings()
-		? "Security posture of '" + @cName + "': " + This.NumberOf(:error) +
+		? "Security posture of '" + @tName + "': " + This.NumberOf(:error) +
 			" error(s), " + This.NumberOf(:warn) + " warning(s)  -> " +
 			_StzPostureVerdict(This.IsSound())
 		_n_ = len(_aF_)
@@ -288,7 +288,7 @@ class stzSecurityPosture from stzObject
 		for _i_ = 1 to _n_
 			if @aSites[_i_].HasSecretAuth()
 				_aF_ + [ :invariant = "no-central-store", :severity = :warn,
-					:where = "" + @cName,
+					:where = "" + @tName,
 					:message = "the project has secret-bearing sites but no central store -- " +
 					"register secrets in a stzSecretStore for one governed, audited surface" ]
 				return _aF_

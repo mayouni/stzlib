@@ -1,0 +1,37 @@
+# a narrated tour in Haro: claims at the top level and inside a function of its own
+# Then("a claim in a comment is not a claim", 1, 1)
+
+Then("a claim before any scenario", 1, 1)
+
+Scenario("the first place")
+nOne = 1
+Then("one is one", nOne, 1)
+tWhere = "here"
+Then("a claim built " + tWhere, 1, 1)
+
+Scenario("the second place")
+CheckTwo()
+
+Shutdown($nFail)
+
+func CheckTwo()
+	Then("two is two", 2, 2)
+	if 1 = 1
+		Then('a quoted claim', 1, 1)
+	end
+end
+
+func Scenario(tName)
+	? ""
+	? "SCENARIO: " + tName
+end
+
+func Then(tWhat, xGot, xExpected)
+	if xGot = xExpected
+		$nPass = $nPass + 1
+		? "  THEN  " + tWhat + "  [PASS]"
+	else
+		$nFail = $nFail + 1
+		? "  THEN  " + tWhat + "  [FAIL]"
+	end
+end

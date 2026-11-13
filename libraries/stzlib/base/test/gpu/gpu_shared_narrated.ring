@@ -138,7 +138,7 @@ for aCase in aRef
 next
 ? "  (scene 0: " + ((clock() - $t0) / clockspersecond()) + " s)"
 
-bDevice = (StzEngineGpuInit($cStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0)
+bDevice = (StzEngineGpuInit($tStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0)
 if bDevice
 	? ""
 	? "-- Scene 1: the same forms on the device, at a visible and a hidden shape --"

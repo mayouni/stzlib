@@ -62,7 +62,7 @@ class stzSoundRetunedVoice
 	@oV = NULL
 	@nRate = 48000
 	@nVibrato = 20
-	@cLastError = ""
+	@tLastError = ""
 	@nRefusals = 0
 	@nFromHz = 0            # the last syllable's own pitch, as spoken
 	@nMarks = 0             # how many glottal periods the retune found
@@ -189,7 +189,7 @@ class stzSoundRetunedVoice
 		# form returns the same object, so that release would free the very
 		# buffer _r_ held
 		_o_.ResampleTo(@nRate)
-		@cLastError = ""
+		@tLastError = ""
 		return _o_
 
 	# Sings syllables on notes, one beat each, laid end to end into one sound.
@@ -257,7 +257,7 @@ class stzSoundRetunedVoice
 	#   returns    the reason as text; an empty text when the last call went well
 	#   see        Refusals
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns how many calls were refused.
 	#
@@ -299,4 +299,4 @@ class stzSoundRetunedVoice
 
 	def _Refuse(pcWhy)
 		@nRefusals++
-		@cLastError = pcWhy
+		@tLastError = pcWhy

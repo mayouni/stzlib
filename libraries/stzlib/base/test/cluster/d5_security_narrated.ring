@@ -103,7 +103,7 @@ EndScenario()
 
 Scenario("the STZM plane rides MUTUAL TLS on the existing channel")
 	Given("an STZM listener terminating TLS with the house test certs")
-	cCertDir = $cEngineDir + "/src/mtls_certs"
+	cCertDir = $tEngineDir + "/src/mtls_certs"
 	oA = new stzReactor()
 	nSrv = oA.ListenStzmTls("127.0.0.1", $nPortTls, cCertDir + "/node.crt.pem",
 		cCertDir + "/node.key.pem", cCertDir + "/ca.crt.pem", TRUE)

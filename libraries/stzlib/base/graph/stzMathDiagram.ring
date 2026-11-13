@@ -2670,7 +2670,7 @@ func StzMathComputedFnList()
 #   see        stzMathSubstance, stzMathStyle, stzMathDiagram, StzSetTheoryDomain
 class stzMathDomain from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aTypes = []        # [ [ cType, cSuper ] ] -- cSuper "" at the root
 	@aPredicates = []   # [ [ cName, acArgTypes, bSymmetric ] ]
 	@aFunctions = []    # [ [ cName, acArgTypes, cOutType ] ]
@@ -2681,14 +2681,14 @@ class stzMathDomain from stzObject
 	#   returns    nothing; the object is built
 	#   see        AddType, AddPredicate
 	def init(pcName)
-		@cName = StzLower(ring_trim("" + pcName))
+		@tName = StzLower(ring_trim("" + pcName))
 
 	# Returns the domain's name, trimmed and in lower case.
 	#
 	#   returns    a text
 	#   see        init
 	def Name_()
-		return @cName
+		return @tName
 
 	# Declares a type of object, such as Set or Atom, and returns the domain so calls chain.
 	#
@@ -4505,12 +4505,14 @@ class stzMathDiagram from stzObject
 	#   returns    a number
 	#   see        CanvasHeight, ToCanvas
 	#@ aka  the paper, and what a shape is beyond its geometry -- for the rules that judge a picture rather than solve it (DN8c)
-	def CanvasWidth()   return @oStyle.CanvasWidth()
+	def CanvasWidth()
+		return @oStyle.CanvasWidth()
 	# Returns the height of the paper, in pixels, as the style fixes it.
 	#
 	#   returns    a number
 	#   see        CanvasWidth, ToCanvas
-	def CanvasHeight()  return @oStyle.CanvasHeight()
+	def CanvasHeight()
+		return @oStyle.CanvasHeight()
 
 	# Returns the name of the object a shape draws, such as A for A.icon.
 	#

@@ -1,0 +1,311 @@
+#--------------------------------------------------------------#
+#      SOFTANZA LIBRARY (V1.2) - STZMODELPACK                   #
+#--------------------------------------------------------------#
+#                                                              #
+#   Description  : MP2 of SOFTANZA_MODEL_PLACEMENT.md: the     #
+#                  OPTIONAL PACKS of the model catalogue, and  #
+#                  the target PROFILE that says which packs    #
+#                  and how much memory a machine has.          #
+#                                                              #
+#                  A pack is a set of model files Softanza     #
+#                  never needs and never chooses by default:   #
+#                  it is offered where the court measured a    #
+#                  gain worth its size. Where it is installed, #
+#                  and the machine has the memory it names,    #
+#                  its implementations take part in the        #
+#                  registry's choice like any other; where it  #
+#                  is not, the faculty answers as before.      #
+#                  It fetches NOTHING: StzModelFetchFile is     #
+#                  the developer's act.                        #
+#                                                              #
+#--------------------------------------------------------------#
+
+# a target profile (StzModelsReportFor): "" reads this machine; "profile" takes the packs and the memory from the profile
+$tStzPlacementProfile = ""
+$xStzPlacementPacks = []
+$nStzPlacementMemoryMB = 0
+
+# Every optional pack the catalogue names.
+#
+#   returns    [ [ :name, :paths, :memory, :title, :note ] ... ] -- :memory is the machine memory it needs, in MB
+#   example    aP = StzModelPacks()
+#   see        StzModelPackState, StzModelPackPlanText
+func StzModelPacks
+	return StzModelCatalog()[:packs]
+end
+
+# One pack by its name; [] when the catalogue has none of that name.
+func StzModelPack(tName)
+	xP = StzModelPacks()
+	nLenaP = Len(xP)
+	for i = 1 to nLenaP
+		if xP[i][:name] = tName
+			return xP[i]
+		end
+	end
+	return []
+end
+
+# The machine's memory in MB: the profile's when a target profile is set, else this machine's (0 when it cannot be read).
+func StzPlacementMemoryMB
+	if $tStzPlacementProfile = "profile" and $nStzPlacementMemoryMB > 0
+		return $nStzPlacementMemoryMB
+	end
+	nBytes = StzEnginePerfSysMemTotal()
+	if nBytes <= 0
+		return 0
+	end
+	return Floor(nBytes / 1048576)
+end
+
+# 1 while a target profile decides which packs are installed (StzModelsReportFor with a profile), else 0.
+func StzPlacementIsProfile
+	if $tStzPlacementProfile = "profile"
+		return 1
+	end
+	return 0
+end
+
+# Sets a target profile: [ [:os, "linux"], [:memory, 8192], [:packs, [ "support-quality" ]] ] -- each key optional. The operating
+# system is the registry's own ($cStzPlacementOS, set by StzModelsReportFor); this keeps the packs and the memory.
+func StzPlacementProfileSet(xProfile)
+	$tStzPlacementProfile = "profile"
+	$xStzPlacementPacks = []
+	$nStzPlacementMemoryMB = 0
+	if HasKey(xProfile, :packs) = 1
+		$xStzPlacementPacks = xProfile[:packs]
+	end
+	if HasKey(xProfile, :memory) = 1
+		$nStzPlacementMemoryMB = xProfile[:memory]
+	end
+end
+
+func StzPlacementProfileClear
+	$tStzPlacementProfile = ""
+	$xStzPlacementPacks = []
+	$nStzPlacementMemoryMB = 0
+end
+
+# The pack an implementation belongs to: the one holding a file its needle names (a fragment of a file name), or a file the catalogue's
+# requires rows say it needs. "" when it belongs to none.
+func StzModelPackOf(vImpl)
+	tNeedle = ""
+	if HasKey(vImpl, :needle) = 1
+		tNeedle = StzLower("" + vImpl[:needle])
+	end
+	xNeeds = []
+	if HasKey(vImpl, :faculty) = 1 and HasKey(vImpl, :id) = 1
+		if vImpl[:faculty] != ""
+			xNeeds = StzImplementationFiles(vImpl[:faculty], vImpl[:id], "")
+		end
+	end
+	xP = StzModelPacks()
+	nLenaP = Len(xP)
+	for i = 1 to nLenaP
+		xPaths = xP[i][:paths]
+		nLenaPaths = Len(xPaths)
+		for k = 1 to nLenaPaths
+			if tNeedle != ""
+				if StzFindFirst(tNeedle, StzLower(StzEnginePathBasename(xPaths[k]))) > 0
+					return xP[i][:name]
+				end
+			end
+			if Len(StzFind(xPaths[k], xNeeds)) > 0
+				return xP[i][:name]
+			end
+		end
+	end
+	return ""
+end
+
+# 1 when the pack is installed: under a target profile, when the profile lists it; here, when every file it holds is in the models
+# directory at its catalogued size (StzModelPackState checks the digests).
+func StzModelPackInstalled(tName)
+	if $tStzPlacementProfile = "profile"
+		if Len(StzFind(tName, $xStzPlacementPacks)) > 0
+			return 1
+		end
+		return 0
+	end
+	xPk = StzModelPack(tName)
+	if Len(xPk) = 0
+		return 0
+	end
+	xPaths = xPk[:paths]
+	nLenaPaths = Len(xPaths)
+	for i = 1 to nLenaPaths
+		xS = StzModelFileState(xPaths[i], 0)
+		if xS[:present] = 0 or xS[:sizeok] = 0
+			return 0
+		end
+	end
+	return 1
+end
+
+# MP2 capability: [ 1, "" ] when the implementation is in no pack, or its pack's memory need is met here (or on the profile's machine);
+# else [ 0, the reason ]. The registry asks it for every implementation (StzImplementationAvailable).
+func StzModelPackAvailable(vImpl)
+	tPack = StzModelPackOf(vImpl)
+	if tPack = ""
+		return [ 1, "" ]
+	end
+	nNeed = StzModelPack(tPack)[:memory]
+	nHave = StzPlacementMemoryMB()
+	if nHave > 0 and nHave < nNeed
+		return [ 0, "in the optional pack '" + tPack + "', which needs a machine with " + String(nNeed) + " MB of memory; this one has " + String(nHave) + " MB" ]
+	end
+	return [ 1, "" ]
+end
+
+# The state of a pack here.
+#
+#   returns    [ :name, :title, :note, :installed, :bytes, :memory, :machinememory, :memoryok, :files = [ [ path, state ] ... ] ]
+#              -- a state is StzModelFileState's; the digests are read only when bDigest is 1 (about three seconds a gigabyte)
+func StzModelPackState(tName, bDigest)
+	xPk = StzModelPack(tName)
+	if Len(xPk) = 0
+		StzRaise("StzModelPackState: the catalogue names no pack '" + tName + "'")
+	end
+	nDigest = 0
+	if bDigest
+		nDigest = 1
+	end
+	vFiles = []
+	nBytes = 0
+	nInstalled = 1
+	xPaths = xPk[:paths]
+	nLenaPaths = Len(xPaths)
+	for i = 1 to nLenaPaths
+		xS = StzModelFileState(xPaths[i], nDigest)
+		vFiles + [ xPaths[i], xS ]
+		xE = StzModelCatalogEntry(xPaths[i])
+		if Len(xE) > 0
+			nBytes = nBytes + xE[:bytes]
+		end
+		if xS[:present] = 0 or xS[:sizeok] = 0 or xS[:digest] = "differs"
+			nInstalled = 0
+		end
+	end
+	nHave = StzPlacementMemoryMB()
+	nMemOk = 1
+	if nHave > 0 and nHave < xPk[:memory]
+		nMemOk = 0
+	end
+	return [ [:name, tName], [:title, xPk[:title]], [:note, xPk[:note]], [:installed, nInstalled], [:bytes, nBytes],
+		 [:memory, xPk[:memory]], [:machinememory, nHave], [:memoryok, nMemOk], [:files, vFiles] ]
+end
+
+# What a pack would change, faculty by faculty: every declared implementation that belongs to it, with what the measurements and the court
+# say installing it changes (the setup plan's own wording). Returns [ [ faculty, implementation, value ] ... ].
+func StzModelPackServes(tName)
+	vOut = []
+	xN = StzFacultyNames()
+	nLenaN = Len(xN)
+	for j = 1 to nLenaN
+		oF = StzFacultyQ(xN[j])
+		xI = oF.Implementations()
+		nLenaI = Len(xI)
+		for i = 1 to nLenaI
+			xRow = xI[i]
+			xRow + [ :faculty, xN[j] ]
+			if StzModelPackOf(xRow) = tName
+				vOut + [ xN[j], xI[i][:id], _StzSetupValue(xN[j], xI[i][:id], "") ]
+			end
+		end
+	end
+	return vOut
+end
+
+# THE PACK'S SETUP PLAN, as text: what it is, what it holds, what it needs, what it changes here -- never done for you.
+#
+#   example    ? StzModelPackPlanText("support-quality")
+#   see        StzModelPackState, StzModelFetchFile
+func StzModelPackPlanText(tName)
+	xS = StzModelPackState(tName, false)
+	tNl = Char(10)
+	tOut = "OPTIONAL PACK " + tName + " -- " + xS[:title] + tNl
+	tOut = tOut + "  optional  never a default: Softanza answers without it. Where it is installed, its implementations are chosen only where the court upheld them" + tNl
+	if xS[:installed] = 1
+		tOut = tOut + "  state     installed here (every file present at its catalogued size; StzModelPackState(name, 1) checks the sha256)" + tNl
+	else
+		tOut = tOut + "  state     not installed here" + tNl
+	end
+	tMem = "  memory    needs a machine with " + String(xS[:memory]) + " MB; "
+	if xS[:machinememory] = 0
+		tMem = tMem + "this machine's memory could not be read"
+	elseif xS[:memoryok] = 1
+		tMem = tMem + "this one has " + String(xS[:machinememory]) + " MB: it can run here"
+	else
+		tMem = tMem + "this one has " + String(xS[:machinememory]) + " MB: it cannot run here, installed or not"
+	end
+	tOut = tOut + tMem + tNl
+	xF = xS[:files]
+	nLenaF = Len(xF)
+	for i = 1 to nLenaF
+		xE = StzModelCatalogEntry(xF[i][1])
+		tOut = tOut + "  file      " + xF[i][1] + " -- " + xF[i][2][:reason] + tNl
+		if Len(xE) > 0
+			tOut = tOut + "  size      " + String(xE[:bytes]) + " bytes; licence " + xE[:licence] + tNl
+			tOut = tOut + "  source    " + xE[:url] + tNl
+			tOut = tOut + "  check     sha256 " + xE[:sha256] + tNl
+			tFrom = StzModelFetchSource(xF[i][1])
+			if tFrom != ""
+				tOut = tOut + "  fetch     StzModelFetchFile('" + xF[i][1] + "')   from " + tFrom + tNl
+			end
+		end
+	end
+	xV = StzModelPackServes(tName)
+	if Len(xV) = 0
+		tOut = tOut + "  serves    no declared faculty in this program" + tNl
+	end
+	nLenaV = Len(xV)
+	for i = 1 to nLenaV
+		tOut = tOut + "  serves    :" + xV[i][1] + " / " + xV[i][2] + " -- " + xV[i][3] + tNl
+	end
+	if xS[:note] != ""
+		tOut = tOut + "  note      " + xS[:note] + tNl
+	end
+	return tOut
+end
+
+# One line per pack that is not installed here, for the end of the setup plan ("" when every pack is installed or none exists).
+func StzModelPacksSetupText
+	tOut = ""
+	xP = StzModelPacks()
+	nLenaP = Len(xP)
+	for i = 1 to nLenaP
+		if StzModelPackInstalled(xP[i][:name]) = 0
+			tOut = tOut + "  optional pack '" + xP[i][:name] + "' -- " + xP[i][:title] + "; see StzModelPackPlanText('" + xP[i][:name] + "')" + Char(10)
+		end
+	end
+	if tOut = ""
+		return ""
+	end
+	return Char(10) + "OPTIONAL PACKS (never needed, never a default)" + Char(10) + tOut
+end
+
+# A target profile in words, for a report's title: "linux, 8192 MB, packs: support-quality".
+func StzPlacementProfileText(xProfile)
+	tOut = ""
+	if HasKey(xProfile, :os) = 1
+		tOut = "" + xProfile[:os]
+	else
+		tOut = StzPlacementOS()
+	end
+	if HasKey(xProfile, :memory) = 1
+		tOut = tOut + ", " + String(xProfile[:memory]) + " MB"
+	end
+	tPacks = "none"
+	if HasKey(xProfile, :packs) = 1
+		xPk = xProfile[:packs]
+		nLenaPk = Len(xPk)
+		for i = 1 to nLenaPk
+			if i = 1
+				tPacks = "" + xPk[i]
+			else
+				tPacks = tPacks + ", " + xPk[i]
+			end
+		end
+	end
+	return tOut + ", optional packs: " + tPacks + " (a target profile)"
+end

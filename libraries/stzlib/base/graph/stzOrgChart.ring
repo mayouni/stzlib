@@ -2120,7 +2120,7 @@ class stzOrgChart from stzDiagram
 		_nPos_ = len(@aPositions)
 		_nPeople_ = len(@aPeople)
 		_nDepts_ = len(@aDepartments)
-		_aExplanation_[:structure] = "Organization '" + @cId + "' has " + _nPos_ + 
+		_aExplanation_[:structure] = "Organization '" + @tId + "' has " + _nPos_ + 
 		                           " positions, " + _nPeople_ + " people, and " + 
 		                           _nDepts_ + " departments."
 		

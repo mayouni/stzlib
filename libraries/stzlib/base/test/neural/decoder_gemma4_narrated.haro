@@ -1,0 +1,136 @@
+# THE GEMMA 4 DECODER -- GEMMA4-01 steps 2 and 3, narrated
+#
+# NVIDIA's Nemotron 3.5 Bolt E4B (a Gemma 4 E4B) runs in the engine's own decoder (neural_gen.zig, buildGemma4Graph):
+# per-layer embeddings, sliding and global attention by the file's pattern, the last 18 layers reading earlier layers'
+# cache, GELU-gated feed-forward, soft-capped logits -- wired as llama.cpp b12283 wires it. Every reference text below
+# is llama.cpp's (llama-completion, greedy, f32 cache, flash attention off, the same GGUF), written in by a script.
+#
+#   Scene 1  three prompts give llama.cpp's text byte for byte -- one of 826 tokens, past the 512-token window, so the
+#            sliding layers' window is in play
+#   Scene 2  five prompts where the two runtimes part on a near tie: fed llama.cpp's text token by token, the engine's
+#            best token is llama.cpp's at least 90 percent of the steps, and where it is not, llama.cpp's token is
+#            within 1 logit of it (the logits are capped at +-30). Exact text cannot be the bar there: llama.cpp itself
+#            writes a different text for "The capital of France is" with its default f16 cache than with an f32 one --
+#            the sums of two builds (ggml 0.15.3 here, 0.29 there, Q4_K repacked there) part on near ties.
+#   Scene 3  the decoder answers as a generator and stops on the model's end of text
+#
+# MEASURED, not asserted (the wall clock varies): about 10 tokens/s decoding on this machine's CPU, llama.cpp 12.4.
+# RUNS ON haro.exe, the engine's functions only: STZ_ENGINE_DIR, STZ_MODELS_DIR with Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf
+# (6.2 GB, models/MODELS.md); without it every scene says NOT RUN. About 90 s.
+
+$tEngine = Slashes(SysGet("STZ_ENGINE_DIR"))
+$tModels = Slashes(SysGet("STZ_MODELS_DIR"))
+$nPass = 0
+$nFail = 0
+$vNotRun = []
+$vExact = []
+$vForced = []
+LoadLib($tEngine + "/zig-out/bin/stz_neural.dll")
+$tBolt = $tModels + "/Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf"
+tLong = ""
+for i = 1 to 30
+	tLong = tLong + "The river towns of the northern valley keep their records in stone halls, and every spring the clerks count the barges that passed the locks. "
+end
+tLong = tLong + Char(10) + "Question: what do the clerks count every spring?" + Char(10) + "Answer:"
+$vExact + [ "Les trois plus grands fleuves de France sont", " la Loire, le Rhône et la Seine." + Char(10) + Char(10) + "**Question:** Quel est le plus grand fleuve de France parmi ceux mentionnés ?" + Char(10) + Char(10) + "**Réponse:** Le texte ne spécifie pas lequel est le plus grand parmi la Loire, le" ]
+$vExact + [ tLong, " the barges that passed the locks." ]
+$vExact + [ "A haiku about a cat sleeping on a keyboard:" + Char(10), "Soft fur on the keys," + Char(10) + "Silent, rhythmic, gentle breath," + Char(10) + "Code waits for the dawn." ]
+$vForced + [ "The capital of France is", " Paris." ]
+$vForced + [ "Question: Why does the sky look blue?" + Char(10) + "Answer:", " The sky looks blue because of a phenomenon called **Rayleigh scattering**." + Char(10) + Char(10) + "**Explanation:**" + Char(10) + "1. **Sunlight Composition:** Sunlight, which appears white, is actually composed of all colors of the rainbow (red, orange, yellow," ]
+$vForced + [ "المدينة الأكثر سكانا في المغرب هي", " مدينة الدار البيضاء." + Char(10) + Char(10) + "**ملاحظة:** على الرغم من أن الدار البيضاء هي الأكبر من حيث عدد السكان، فإن بعض المدن الأخرى قد تكون أكثر كثافة سكانية في مناطق محددة (مثل المد" ]
+$vForced + [ "def fibonacci(n):" + Char(10) + "    " + Char(34) + Char(34) + Char(34) + "Return the n-th Fibonacci number." + Char(34) + Char(34) + Char(34) + Char(10), "    if n <= 0:" + Char(10) + "        return 0" + Char(10) + "    elif n == 1:" + Char(10) + "        return 1" + Char(10) + "    else:" + Char(10) + "        # Recursive step: F(n) = F(n-1) +" ]
+$vForced + [ "Five unusual uses for a paperclip:" + Char(10) + "1.", " **Temporary Zipper Fix:** If a zipper is snagged or a tiny pull tab is missing, a paperclip can temporarily bridge the gap or act as a makeshift pull tab." + Char(10) + "2. **SIM Card Tray Ejector:** This" ]
+
+if FExists($tBolt)
+	? "load: " + String(StzEngineNeuralModelLoad($tBolt)) + " (digest status " + String(StzEngineNeuralModelLoadStatus()) + ")"
+
+	Scenario("1. llama.cpp's greedy text, byte for byte")
+	nExact = Len($vExact)
+	nSame = 0
+	for i = 1 to nExact
+		tOut = StzEngineNeuralGenerate($vExact[i][1], 48)
+		? "  " + String(StzEngineNeuralGenPromptTokens()) + " prompt tokens -> " + String(Len(tOut)) + " bytes"
+		if tOut = $vExact[i][2]
+			nSame = nSame + 1
+		end
+	end
+	Then("the 3 texts are llama.cpp's, the 826-token prompt among them", nSame, nExact)
+
+	Scenario("2. where the runtimes part, they part on a near tie")
+	nForced = Len($vForced)
+	nOk = 0
+	for i = 1 to nForced
+		tP = $vForced[i][1]
+		nP = StzEngineNeuralGenTokenize(tP)
+		nAll = StzEngineNeuralGenTokenize(tP + $vForced[i][2])
+		vAll = []
+		for j = 0 to nAll - 1
+			vAll + StzEngineNeuralGenTokenAt(j)
+		end
+		StzEngineNeuralPrefillLogits(tP)
+		nAgree = 0
+		nWorst = Float(0)
+		for j = nP + 1 to nAll
+			xTop = StzEngineNeuralVlmTop(1)
+			if xTop[1][1] = vAll[j]
+				nAgree = nAgree + 1
+			else
+				nGap = xTop[1][2] - StzEngineNeuralLogitAt(vAll[j])
+				if nGap > nWorst
+					nWorst = nGap
+				end
+			end
+			StzEngineNeuralVlmFeed(vAll[j])
+		end
+		nSteps = nAll - nP
+		? "  prompt " + String(i) + ": llama.cpp's token is the engine's best at " + String(nAgree) + " of " + String(nSteps) + " steps; widest gap " + String(nWorst)
+		if nAgree * 10 >= nSteps * 9 and nWorst < Float(1)
+			nOk = nOk + 1
+		end
+	end
+	Then("each of the 5: agreement at 90 percent of the steps or more, every gap under 1 logit", nOk, nForced)
+
+	Scenario("3. a generator that stops")
+	Then("the model answers as a generator", StzEngineNeuralHasGenerator(), 1)
+	tOut = StzEngineNeuralGenerate("The capital of France is", 64)
+	Then("...and stops on its end of text before 64 tokens (no truncation, no error)", StzEngineNeuralGenLastError() = 0 and Len(tOut) < 200, true)
+else
+	$vNotRun + ("every scene (no " + $tBolt + ")")
+end
+
+? ""
+for t in $vNotRun
+	? "NOT RUN: " + t
+end
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+func Scenario(tName)
+	? ""
+	? "SCENARIO: " + tName
+end
+func Then(tWhat, xGot, xExpected)
+	if xGot = xExpected
+		$nPass = $nPass + 1
+		? "  THEN  " + tWhat + "  [PASS]"
+	else
+		$nFail = $nFail + 1
+		? "  THEN  " + tWhat + "  [FAIL]"
+		? "    expected: " + String(xExpected)
+		? "    got:      " + String(xGot)
+	end
+end
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for i = 1 to nLen
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end

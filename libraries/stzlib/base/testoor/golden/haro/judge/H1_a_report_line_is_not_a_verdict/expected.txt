@@ -1,0 +1,1 @@
+KEPT        faculty_check_narrated.haro  1 stops: 2 kept  (1.38 s)

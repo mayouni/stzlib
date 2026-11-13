@@ -1,0 +1,59 @@
+
+#~~~~~~~~~~~~~~~~~#
+#  STK CORE CHAR  #
+#~~~~~~~~~~~~~~~~~#
+
+class stkChar from stzCoreChar
+end
+class stzCoreChar from stzCoreObject
+	@xContent
+	@nUnicode = 0
+
+	def init(xP)
+		if IsString(xP)
+			@nUnicode = StkEngineCharUnicode(xP)
+			@xContent = xP
+
+		elseif IsNumber(xP)
+			@nUnicode = xP
+			tBuf = Space(4)
+			nLen = StkEngineCharToUtf8(xP, tBuf, 4)
+			@xContent = Left(tBuf, nLen)
+
+		else
+			Raise( "ERR-" + StkError(:CanNotCreateObject) )
+		end
+	end
+	def Content
+		if IsString(@xContent) return @xContent end
+		tBuf = Space(4)
+		nLen = StkEngineCharToUtf8(@nUnicode, tBuf, 4)
+		return Left(tBuf, nLen)
+	end
+		def Char
+			return this.Content()
+		end
+	def Unicode
+		return @nUnicode
+	end
+	def IsLetter
+		return StkEngineCharIsLetter(@nUnicode) = 1
+	end
+	def IsDigit
+		return StkEngineCharIsDigit(@nUnicode) = 1
+	end
+	def IsUpper
+		tChar = this.Content()
+		if Len(tChar) = 1
+			return Upper(tChar) = tChar and Lower(tChar) != tChar
+		end
+		return false
+	end
+	def IsLower
+		tChar = this.Content()
+		if Len(tChar) = 1
+			return Lower(tChar) = tChar and Upper(tChar) != tChar
+		end
+		return false
+	end
+end

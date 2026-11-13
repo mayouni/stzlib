@@ -1,0 +1,1566 @@
+
+
+# Globals to using in drawing ascii-based boxes
+# TODO: use them instead of the hardcoded instances
+
+$tLightH = "─"
+$tHeavyH = "━"
+$tLightV = "│"
+$tHeavyV = "┃"
+
+$tLightTripleDashH = "┄"
+$tHeavyTripleDashH = "┅"
+$tLightTripleDashV = "┆"
+$tHeavyTripleDashV = "┇"
+
+$tLightQuadDashH = "┈"
+$tHeavyQuadDashH = "┉"
+$tLightQuadDashV = "┊"
+$tHeavyQuadDashV = "┋"
+
+$tLightDownRight = "┌"
+$tDownLightRightHeavy = "┍"
+$tDownHeavyRightLight = "┎"
+$tHeavyDownRight = "┏"
+
+$tLightDownLeft = "┐"
+$tDownLightLeftHeavy = "┑"
+$tDownHeavyLeftLight = "┒"
+$tHeavyDownLeft = "┓"
+
+$tLightUpRight = "└"
+$tUpLightRightHeavy = "┕"
+$tUpHeavyRightLight = "┖"
+$tHeavyUpRight = "┗"
+
+$tLightUpLeft = "┘"
+$tUpLightLeftHeavy = "┙"
+$tUpHeavyLeftLight = "┚"
+$tHeavyUpLeft = "┛"
+
+$tLightVAndRight = "├"
+$tVLightRightHeavy = "┝"
+$tUpHeavyRightDownLight = "┞"
+$tDownHeavyRightUpLight = "┟"
+$tVHeavyRightLight = "┠"
+$tDownLightRightUpHeavy = ""
+$tUpLightRightDownHeavy = "┢"
+$tHeavyVAndRight = "┣"
+
+$tLightVAndLeft = "┤"
+$tVLightLeftHeavy = "┥"
+$tUpHeavyLeftDownLight = "┦"
+$tDownHeavyLeftUpLight = "┧"
+$tVHeavyLeftLight = "┨"
+$tDownLightLeftUpHeavy = "┩"
+$tUpLightLeftDownHeavy = "┪"
+$tHeavyVAndLeft = "┫"
+
+$tLightDownH = "┬"
+$tLeftHeavyRightDownLight = "┭"
+$tRightHeavyLeftDownLight = "┮"
+$tDownLightHHeavy = "┯"
+$tDownHeavyHLight = "┰"
+$tRightLightLeftDownHeavy = "┱"
+$tLeftLightRightDownHeavy = "┲"
+$tHeavyDownH = "┳"
+
+$tLightUpH = "┴"
+$tLeftHeavyRightUpLight = "┵"
+$tRightHeavyLeftUpLight = "┶"
+$tUpLightHHeavy = "┷"
+$tUpHeavyHLight = "┸"
+$tRightLightLeftUpHeavy = "┹"
+$tLeftLightRightUpHeavy = "┺"
+$tHeavyUpH = "┻"
+
+$tLightVAndH = "┼"
+$tLeftHeavyRightVLight = "┽"
+$tRightHeavyLeftVLight = "┾"
+$tVLightHHeavy = "┿"
+$tUpHeavyDownHLight = "╀"
+$tDownHeavyUpHLight = "╁"
+$tVHeavyHLight = "╂"
+$tLeftUpHeavyRightDownLight = "╃"
+$tRightUpHeavyLeftDownLight = "╄"
+$tLeftDownHeavyRightUpLight = "╅"
+$tRightDownHeavyLeftUpLight = "╆"
+$tDownLightUpHHeavy = "╇"
+$tUpLightDownHHeavy = "╈"
+$tRightLightLeftVHeavy = "╉"
+$tLeftLightRightVHeavy = "╊"
+$tHeavyVAndH = "╋"
+
+$tLightDoubleDashH = "╌"
+$tHeavyDoubleDashH = "╍"
+$tLightDoubleDashV = "╎"
+$tHeavyDoubleDashV = "╏"
+
+$tDoubleH = "═"
+$tDoubleV = "║"
+
+$tDownSingleRightDouble = "╒"
+$tDownDoubleRightSingle = "╓"
+$tDoubleDownRight = "╔"
+$tDownSingleLeftDouble = "╕"
+$tDownDoubleLeftSingle = "╖"
+$tDoubleDownLeft = "╗"
+
+$tUpSingleRightDouble = "╘"
+$tUpDoubleRightSingle = "╙"
+$tDoubleUpRight = "╚"
+$tUpSingleLeftDouble = "╛"
+$tUpDoubleLeftSingle = "╜"
+$tDoubleUpLeft = "╝"
+
+$tVSingleRightDouble = "╞"
+$tVDoubleRightSingle = "╟"
+$tDoubleVRight = "╠"
+$tVSingleLeftDouble = "╡"
+$tVDoubleLeftSingle = "╢"
+$tDoubleVLeft = "╣"
+
+$tDownSingleHDouble = "╤"
+$tDownDoubleHSingle = "╥"
+$tDoubleDownH = "╦"
+$tUpSingleHDouble = "╧"
+$tUpDoubleHSingle = "╨"
+$tDoubleUpH = "╩"
+
+$tVSingleHDouble = "╪"
+$tVDoubleHSingle = "╫"
+$tDoubleVH = "╬"
+
+$tArcDownRight = "╭"
+$tArcDownLeft = "╮"
+$tArcUpLeft = "╯"
+$tArcUpRight = "╰"
+
+$tDiagonalUpperRightToLowerLeft = "╱"
+$tDiagonalUpperLeftToLowerRight = "╲"
+$tDiagonalCross = "╳"
+
+$tLightLeftHalf = "╴"
+$tLightUpHalf = "╵"
+$tLightRightHalf = "╶"
+$tLightDownHalf = "╷"
+
+$tHeavyLeftHalf = "╸"
+$tHeavyUpHalf = "╹"
+$tHeavyRightHalf = "╺"
+$tHeavyDownHalf = "╻"
+
+$tLightLeftHeavyRight = "╼"
+$tLightUpHeavyDown = "╽"
+$tHeavyLeftLightRight = "╾"
+$tHeavyUpLightDown = "╿"
+
+
+# Functions
+func LightH
+    return $tLightH
+end
+
+func SetLightH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightH = xC
+end
+
+func HeavyH
+    return $tHeavyH
+end
+
+func SetHeavyH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyH = xC
+end
+
+func LightV
+    return $tLightV
+end
+
+func SetLightV(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightV = xC
+end
+
+func HeavyV
+    return $tHeavyV
+end
+
+func SetHeavyV(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyV = xC
+end
+
+func LightTripleDashH
+    return $tLightTripleDashH
+end
+
+func SetLightTripleDashH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightTripleDashH = xC
+end
+
+func HeavyTripleDashH
+    return $tHeavyTripleDashH
+end
+
+func SetHeavyTripleDashH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyTripleDashH = xC
+end
+
+func LightTripleDashV
+    return $tLightTripleDashV
+end
+
+func SetLightTripleDashV(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightTripleDashV = xC
+end
+
+func HeavyTripleDashV
+    return $tHeavyTripleDashV
+end
+
+func SetHeavyTripleDashV(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyTripleDashV = xC
+end
+
+func LightQuadDashH
+    return $tLightQuadDashH
+end
+
+func SetLightQuadDashH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightQuadDashH = xC
+end
+
+func HeavyQuadDashH
+    return $tHeavyQuadDashH
+end
+
+func SetHeavyQuadDashH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyQuadDashH = xC
+end
+
+func LightQuadDashV
+    return $tLightQuadDashV
+end
+
+func SetLightQuadDashV(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightQuadDashV = xC
+end
+
+func HeavyQuadDashV
+    return $tHeavyQuadDashV
+end
+
+func SetHeavyQuadDashV(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyQuadDashV = xC
+end
+
+func LightDownRight
+    return $tLightDownRight
+end
+
+func SetLightDownRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightDownRight = xC
+end
+
+func DownLightRightHeavy
+    return $tDownLightRightHeavy
+end
+
+func SetDownLightRightHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownLightRightHeavy = xC
+end
+
+func DownHeavyRightLight
+    return $tDownHeavyRightLight
+end
+
+func SetDownHeavyRightLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownHeavyRightLight = xC
+end
+
+func HeavyDownRight
+    return $tHeavyDownRight
+end
+
+func SetHeavyDownRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyDownRight = xC
+end
+
+func LightDownLeft
+    return $tLightDownLeft
+end
+
+func SetLightDownLeft(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightDownLeft = xC
+end
+
+func DownLightLeftHeavy
+    return $tDownLightLeftHeavy
+end
+
+func SetDownLightLeftHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownLightLeftHeavy = xC
+end
+
+func DownHeavyLeftLight
+    return $tDownHeavyLeftLight
+end
+
+func SetDownHeavyLeftLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownHeavyLeftLight = xC
+end
+
+func HeavyDownLeft
+    return $tHeavyDownLeft
+end
+
+func SetHeavyDownLeft(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyDownLeft = xC
+end
+
+func LightUpRight
+    return $tLightUpRight
+end
+
+func SetLightUpRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightUpRight = xC
+end
+
+func UpLightRightHeavy
+    return $tUpLightRightHeavy
+end
+
+func SetUpLightRightHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpLightRightHeavy = xC
+end
+
+func UpHeavyRightLight
+    return $tUpHeavyRightLight
+end
+
+func SetUpHeavyRightLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpHeavyRightLight = xC
+end
+
+func HeavyUpRight
+    return $tHeavyUpRight
+end
+
+func SetHeavyUpRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyUpRight = xC
+end
+
+func LightUpLeft
+    return $tLightUpLeft
+end
+
+func SetLightUpLeft(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightUpLeft = xC
+end
+
+func UpLightLeftHeavy
+    return $tUpLightLeftHeavy
+end
+
+func SetUpLightLeftHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpLightLeftHeavy = xC
+end
+
+func UpHeavyLeftLight
+    return $tUpHeavyLeftLight
+end
+
+func SetUpHeavyLeftLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpHeavyLeftLight = xC
+end
+
+func HeavyUpLeft
+    return $tHeavyUpLeft
+end
+
+func SetHeavyUpLeft(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyUpLeft = xC
+end
+
+func LightVAndRight
+    return $tLightVAndRight
+end
+
+func SetLightVAndRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightVAndRight = xC
+end
+
+func VLightRightHeavy
+    return $tVLightRightHeavy
+end
+
+func SetVLightRightHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tVLightRightHeavy = xC
+end
+
+func UpHeavyRightDownLight
+    return $tUpHeavyRightDownLight
+end
+
+func SetUpHeavyRightDownLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpHeavyRightDownLight = xC
+end
+
+func DownHeavyRightUpLight
+    return $tDownHeavyRightUpLight
+end
+
+func SetDownHeavyRightUpLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownHeavyRightUpLight = xC
+end
+
+func VHeavyRightLight
+    return $tVHeavyRightLight
+end
+
+func SetVHeavyRightLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tVHeavyRightLight = xC
+end
+
+func DownLightRightUpHeavy
+    return $tDownLightRightUpHeavy
+end
+
+func SetDownLightRightUpHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownLightRightUpHeavy = xC
+end
+
+func UpLightRightDownHeavy
+    return $tUpLightRightDownHeavy
+end
+
+func SetUpLightRightDownHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpLightRightDownHeavy = xC
+end
+
+func HeavyVAndRight
+    return $tHeavyVAndRight
+end
+
+func SetHeavyVAndRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyVAndRight = xC
+end
+
+func LightVAndLeft
+    return $tLightVAndLeft
+end
+
+func SetLightVAndLeft(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightVAndLeft = xC
+end
+
+func VLightLeftHeavy
+    return $tVLightLeftHeavy
+end
+
+func SetVLightLeftHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tVLightLeftHeavy = xC
+end
+
+func UpHeavyLeftDownLight
+    return $tUpHeavyLeftDownLight
+end
+
+func SetUpHeavyLeftDownLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpHeavyLeftDownLight = xC
+end
+
+func DownHeavyLeftUpLight
+    return $tDownHeavyLeftUpLight
+end
+
+func SetDownHeavyLeftUpLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownHeavyLeftUpLight = xC
+end
+
+func VHeavyLeftLight
+    return $tVHeavyLeftLight
+end
+
+func SetVHeavyLeftLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tVHeavyLeftLight = xC
+end
+
+func DownLightLeftUpHeavy
+    return $tDownLightLeftUpHeavy
+end
+
+func SetDownLightLeftUpHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownLightLeftUpHeavy = xC
+end
+
+func UpLightLeftDownHeavy
+    return $tUpLightLeftDownHeavy
+end
+
+func SetUpLightLeftDownHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpLightLeftDownHeavy = xC
+end
+
+func HeavyVAndLeft
+    return $tHeavyVAndLeft
+end
+
+func SetHeavyVAndLeft(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyVAndLeft = xC
+end
+
+func LightDownH
+    return $tLightDownH
+end
+
+func SetLightDownH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightDownH = xC
+end
+
+func LeftHeavyRightDownLight
+    return $tLeftHeavyRightDownLight
+end
+
+func SetLeftHeavyRightDownLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLeftHeavyRightDownLight = xC
+end
+
+func RightHeavyLeftDownLight
+    return $tRightHeavyLeftDownLight
+end
+
+func SetRightHeavyLeftDownLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tRightHeavyLeftDownLight = xC
+end
+
+func DownLightHHeavy
+    return $tDownLightHHeavy
+end
+
+func SetDownLightHHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownLightHHeavy = xC
+end
+
+func DownHeavyHLight
+    return $tDownHeavyHLight
+end
+
+func SetDownHeavyHLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownHeavyHLight = xC
+end
+
+func RightLightLeftDownHeavy
+    return $tRightLightLeftDownHeavy
+end
+
+func SetRightLightLeftDownHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tRightLightLeftDownHeavy = xC
+end
+
+func LeftLightRightDownHeavy
+    return $tLeftLightRightDownHeavy
+end
+
+func SetLeftLightRightDownHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLeftLightRightDownHeavy = xC
+end
+
+func HeavyDownH
+    return $tHeavyDownH
+end
+
+func SetHeavyDownH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyDownH = xC
+end
+
+func LightUpH
+    return $tLightUpH
+end
+
+func SetLightUpH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightUpH = xC
+end
+
+func LeftHeavyRightUpLight
+    return $tLeftHeavyRightUpLight
+end
+
+func SetLeftHeavyRightUpLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLeftHeavyRightUpLight = xC
+end
+
+func RightHeavyLeftUpLight
+    return $tRightHeavyLeftUpLight
+end
+
+func SetRightHeavyLeftUpLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tRightHeavyLeftUpLight = xC
+end
+
+func UpLightHHeavy
+    return $tUpLightHHeavy
+end
+
+func SetUpLightHHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpLightHHeavy = xC
+end
+
+func UpHeavyHLight
+    return $tUpHeavyHLight
+end
+
+func SetUpHeavyHLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpHeavyHLight = xC
+end
+
+func RightLightLeftUpHeavy
+    return $tRightLightLeftUpHeavy
+end
+
+func SetRightLightLeftUpHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tRightLightLeftUpHeavy = xC
+end
+
+func LeftLightRightUpHeavy
+    return $tLeftLightRightUpHeavy
+end
+
+func SetLeftLightRightUpHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLeftLightRightUpHeavy = xC
+end
+
+func HeavyUpH
+    return $tHeavyUpH
+end
+
+func SetHeavyUpH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyUpH = xC
+end
+
+func LightVAndH
+    return $tLightVAndH
+end
+
+func SetLightVAndH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightVAndH = xC
+end
+
+func LeftHeavyRightVLight
+    return $tLeftHeavyRightVLight
+end
+
+func SetLeftHeavyRightVLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLeftHeavyRightVLight = xC
+end
+
+func RightHeavyLeftVLight
+    return $tRightHeavyLeftVLight
+end
+
+func SetRightHeavyLeftVLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tRightHeavyLeftVLight = xC
+end
+
+func VLightHHeavy
+    return $tVLightHHeavy
+end
+
+func SetVLightHHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tVLightHHeavy = xC
+end
+
+func UpHeavyDownHLight
+    return $tUpHeavyDownHLight
+end
+
+func SetUpHeavyDownHLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpHeavyDownHLight = xC
+end
+
+func DownHeavyUpHLight
+    return $tDownHeavyUpHLight
+end
+
+func SetDownHeavyUpHLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownHeavyUpHLight = xC
+end
+
+func VHeavyHLight
+    return $tVHeavyHLight
+end
+
+func SetVHeavyHLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tVHeavyHLight = xC
+end
+
+func LeftUpHeavyRightDownLight
+    return $tLeftUpHeavyRightDownLight
+end
+
+func SetLeftUpHeavyRightDownLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLeftUpHeavyRightDownLight = xC
+end
+
+func RightUpHeavyLeftDownLight
+    return $tRightUpHeavyLeftDownLight
+end
+
+func SetRightUpHeavyLeftDownLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tRightUpHeavyLeftDownLight = xC
+end
+
+func LeftDownHeavyRightUpLight
+    return $tLeftDownHeavyRightUpLight
+end
+
+func SetLeftDownHeavyRightUpLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLeftDownHeavyRightUpLight = xC
+end
+
+func RightDownHeavyLeftUpLight
+    return $tRightDownHeavyLeftUpLight
+end
+
+func SetRightDownHeavyLeftUpLight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tRightDownHeavyLeftUpLight = xC
+end
+
+func DownLightUpHHeavy
+    return $tDownLightUpHHeavy
+end
+
+func SetDownLightUpHHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownLightUpHHeavy = xC
+end
+
+func UpLightDownHHeavy
+    return $tUpLightDownHHeavy
+end
+
+func SetUpLightDownHHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpLightDownHHeavy = xC
+end
+
+func RightLightLeftVHeavy
+    return $tRightLightLeftVHeavy
+end
+
+func SetRightLightLeftVHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tRightLightLeftVHeavy = xC
+end
+
+func LeftLightRightVHeavy
+    return $tLeftLightRightVHeavy
+end
+
+func SetLeftLightRightVHeavy(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLeftLightRightVHeavy = xC
+end
+
+func HeavyVAndH
+    return $tHeavyVAndH
+end
+
+func SetHeavyVAndH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyVAndH = xC
+end
+
+func LightDoubleDashH
+    return $tLightDoubleDashH
+end
+
+func SetLightDoubleDashH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightDoubleDashH = xC
+end
+
+func HeavyDoubleDashH
+    return $tHeavyDoubleDashH
+end
+
+func SetHeavyDoubleDashH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyDoubleDashH = xC
+end
+
+func LightDoubleDashV
+    return $tLightDoubleDashV
+end
+
+func SetLightDoubleDashV(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightDoubleDashV = xC
+end
+
+func HeavyDoubleDashV
+    return $tHeavyDoubleDashV
+end
+
+func SetHeavyDoubleDashV(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyDoubleDashV = xC
+end
+
+func DoubleH
+    return $tDoubleH
+end
+
+func SetDoubleH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDoubleH = xC
+end
+
+func DoubleV
+    return $tDoubleV
+end
+
+func SetDoubleV(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDoubleV = xC
+end
+
+func DownSingleRightDouble
+    return $tDownSingleRightDouble
+end
+
+func SetDownSingleRightDouble(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownSingleRightDouble = xC
+end
+
+func DownDoubleRightSingle
+    return $tDownDoubleRightSingle
+end
+
+func SetDownDoubleRightSingle(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownDoubleRightSingle = xC
+end
+
+func DoubleDownRight
+    return $tDoubleDownRight
+end
+
+func SetDoubleDownRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDoubleDownRight = xC
+end
+
+func DownSingleLeftDouble
+    return $tDownSingleLeftDouble
+end
+
+func SetDownSingleLeftDouble(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownSingleLeftDouble = xC
+end
+
+func DownDoubleLeftSingle
+    return $tDownDoubleLeftSingle
+end
+
+func SetDownDoubleLeftSingle(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownDoubleLeftSingle = xC
+end
+
+func DoubleDownLeft
+    return $tDoubleDownLeft
+end
+
+func SetDoubleDownLeft(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDoubleDownLeft = xC
+end
+
+func UpSingleRightDouble
+    return $tUpSingleRightDouble
+end
+
+func SetUpSingleRightDouble(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpSingleRightDouble = xC
+end
+
+func UpDoubleRightSingle
+    return $tUpDoubleRightSingle
+end
+
+func SetUpDoubleRightSingle(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpDoubleRightSingle = xC
+end
+
+func DoubleUpRight
+    return $tDoubleUpRight
+end
+
+func SetDoubleUpRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDoubleUpRight = xC
+end
+
+func UpSingleLeftDouble
+    return $tUpSingleLeftDouble
+end
+
+func SetUpSingleLeftDouble(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpSingleLeftDouble = xC
+end
+
+func UpDoubleLeftSingle
+    return $tUpDoubleLeftSingle
+end
+
+func SetUpDoubleLeftSingle(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpDoubleLeftSingle = xC
+end
+
+func DoubleUpLeft
+    return $tDoubleUpLeft
+end
+
+func SetDoubleUpLeft(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDoubleUpLeft = xC
+end
+
+func VSingleRightDouble
+    return $tVSingleRightDouble
+end
+
+func SetVSingleRightDouble(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tVSingleRightDouble = xC
+end
+
+func VDoubleRightSingle
+    return $tVDoubleRightSingle
+end
+
+func SetVDoubleRightSingle(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tVDoubleRightSingle = xC
+end
+
+func DoubleVRight
+    return $tDoubleVRight
+end
+
+func SetDoubleVRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDoubleVRight = xC
+end
+
+func VSingleLeftDouble
+    return $tVSingleLeftDouble
+end
+
+func SetVSingleLeftDouble(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tVSingleLeftDouble = xC
+end
+
+func VDoubleLeftSingle
+    return $tVDoubleLeftSingle
+end
+
+func SetVDoubleLeftSingle(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tVDoubleLeftSingle = xC
+end
+
+func DoubleVLeft
+    return $tDoubleVLeft
+end
+
+func SetDoubleVLeft(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDoubleVLeft = xC
+end
+
+func DownSingleHDouble
+    return $tDownSingleHDouble
+end
+
+func SetDownSingleHDouble(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownSingleHDouble = xC
+end
+
+func DownDoubleHSingle
+    return $tDownDoubleHSingle
+end
+
+func SetDownDoubleHSingle(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDownDoubleHSingle = xC
+end
+
+func DoubleDownH
+    return $tDoubleDownH
+end
+
+func SetDoubleDownH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDoubleDownH = xC
+end
+
+func UpSingleHDouble
+    return $tUpSingleHDouble
+end
+
+func SetUpSingleHDouble(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpSingleHDouble = xC
+end
+
+func UpDoubleHSingle
+    return $tUpDoubleHSingle
+end
+
+func SetUpDoubleHSingle(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tUpDoubleHSingle = xC
+end
+
+func DoubleUpH
+    return $tDoubleUpH
+end
+
+func SetDoubleUpH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDoubleUpH = xC
+end
+
+func VSingleHDouble
+    return $tVSingleHDouble
+end
+
+func SetVSingleHDouble(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tVSingleHDouble = xC
+end
+
+func VDoubleHSingle
+    return $tVDoubleHSingle
+end
+
+func SetVDoubleHSingle(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tVDoubleHSingle = xC
+end
+
+func DoubleVH
+    return $tDoubleVH
+end
+
+func SetDoubleVH(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDoubleVH = xC
+end
+
+func ArcDownRight
+    return $tArcDownRight
+end
+
+func SetArcDownRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tArcDownRight = xC
+end
+
+func ArcDownLeft
+    return $tArcDownLeft
+end
+
+func SetArcDownLeft(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tArcDownLeft = xC
+end
+
+func ArcUpLeft
+    return $tArcUpLeft
+end
+
+func SetArcUpLeft(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tArcUpLeft = xC
+end
+
+func ArcUpRight
+    return $tArcUpRight
+end
+
+func SetArcUpRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tArcUpRight = xC
+end
+
+func DiagonalUpperRightToLowerLeft
+    return $tDiagonalUpperRightToLowerLeft
+end
+
+func SetDiagonalUpperRightToLowerLeft(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDiagonalUpperRightToLowerLeft = xC
+end
+
+func DiagonalUpperLeftToLowerRight
+    return $tDiagonalUpperLeftToLowerRight
+end
+
+func SetDiagonalUpperLeftToLowerRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDiagonalUpperLeftToLowerRight = xC
+end
+
+func DiagonalCross
+    return $tDiagonalCross
+end
+
+func SetDiagonalCross(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tDiagonalCross = xC
+end
+
+func LightLeftHalf
+    return $tLightLeftHalf
+end
+
+func SetLightLeftHalf(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightLeftHalf = xC
+end
+
+func LightUpHalf
+    return $tLightUpHalf
+end
+
+func SetLightUpHalf(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightUpHalf = xC
+end
+
+func LightRightHalf
+    return $tLightRightHalf
+end
+
+func SetLightRightHalf(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightRightHalf = xC
+end
+
+func LightDownHalf
+    return $tLightDownHalf
+end
+
+func SetLightDownHalf(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightDownHalf = xC
+end
+
+func HeavyLeftHalf
+    return $tHeavyLeftHalf
+end
+
+func SetHeavyLeftHalf(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyLeftHalf = xC
+end
+
+func HeavyUpHalf
+    return $tHeavyUpHalf
+end
+
+func SetHeavyUpHalf(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyUpHalf = xC
+end
+
+func HeavyRightHalf
+    return $tHeavyRightHalf
+end
+
+func SetHeavyRightHalf(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyRightHalf = xC
+end
+
+func HeavyDownHalf
+    return $tHeavyDownHalf
+end
+
+func SetHeavyDownHalf(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyDownHalf = xC
+end
+
+func LightLeftHeavyRight
+    return $tLightLeftHeavyRight
+end
+
+func SetLightLeftHeavyRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightLeftHeavyRight = xC
+end
+
+func LightUpHeavyDown
+    return $tLightUpHeavyDown
+end
+
+func SetLightUpHeavyDown(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tLightUpHeavyDown = xC
+end
+
+func HeavyLeftLightRight
+    return $tHeavyLeftLightRight
+end
+
+func SetHeavyLeftLightRight(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyLeftLightRight = xC
+end
+
+func HeavyUpLightDown
+    return $tHeavyUpLightDown
+end
+
+func SetHeavyUpLightDown(xC)
+    if not (IsString(xC) and Len(xC) = 1)
+        error("Incorrect param type! c must be a char.")
+    end
+    $tHeavyUpLightDown = xC
+end

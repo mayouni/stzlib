@@ -1,0 +1,378 @@
+# stkPointer.ring
+# Simplified pointer abstraction for Softanza library
+
+func StkPointerQ(pParams)
+    return new stkPointer(pParams)
+end
+func StkStringPointerQ(tString, nBufferSize)
+    if IsEmpty(nBufferSize) nBufferSize = Len(tString) + 1 end
+    return new stkPointer([tString, "string", nBufferSize])
+end
+
+class stkPointer
+
+    @pointer = ""
+    @buffer = ""
+    @tLogicalType = ""
+    @nBufferSize = 0
+    @bIsValid = false
+    @bIsManaged = false
+	@oMemory = ""
+
+
+	def init(pParams)
+	    @oMemory = new stkMemory()
+	    
+	    if IsEmpty(pParams)
+	        this.CreateNullPointer()
+	    elseif IsList(pParams) and Len(pParams) >= 2
+	        this.CreateFromParams(pParams)
+	    else
+	        this.CreateFromValue(pParams)
+	    end
+	end
+
+    def CreateNullPointer
+
+        @pointer = NullPointer()
+        @tLogicalType = "null"
+        @bIsValid = true
+        @bIsManaged = false
+    end
+
+    def CreateFromParams(xParams)
+
+        pValue = xParams[1]
+        tType = xParams[2]
+        nSize = 0
+
+        if Len(xParams) > 2
+			nSize = xParams[3]
+		end
+        
+        this.CreateFromValue([ pValue, tType, nSize ])
+    end
+
+    def CreateFromValue(pParams)
+
+        pValue = ""
+        tType = ""
+        nSize = 0
+        
+        if IsList(pParams) and Len(pParams) >= 2
+
+            pValue = pParams[1]
+            tType = pParams[2]
+
+            if Len(pParams) > 2
+				nSize = pParams[3]
+			end
+
+        else
+            pValue = pParams
+            tType = this.DetectType(pValue)
+
+        end
+        
+        @tLogicalType = tType
+        
+        switch tType
+
+            case "string"
+                this.CreateStringPointer(pValue, nSize)
+
+            case "int"
+                this.CreateIntPointer(pValue)
+
+            case "double"
+                this.CreateDoublePointer(pValue)
+
+            case "list"
+                this.CreateObjectPointer(pValue)
+
+            case "object"
+                this.CreateObjectPointer(pValue)
+
+            else
+                Raise("Unsupported type: " + tType)
+
+        end
+        
+        @bIsValid = true
+        @bIsManaged = true
+    end
+
+	def CreateStringPointer(tString, nSize)
+	    if nSize = 0
+	        nSize = Len(tString) + 1
+	    end
+	    
+	    @nBufferSize = nSize
+	    
+	    # Use memory allocation
+	    @buffer = @oMemory.Allocate(nSize)
+	    @oMemory.Fill(@buffer, 0, nSize)  # Initialize with zeros
+	    
+	    # Copy string data
+	    if Len(tString) > 0
+	        nCopySize = Min([Len(tString), nSize - 1])
+	        for i = 1 to nCopySize
+	            @buffer[i] = tString[i]
+	        end
+	    end
+	    
+	    @pointer = VarPtr("@buffer", "char")
+	end
+
+	def CreateIntPointer(nValue)
+	    @buffer = @oMemory.Allocate(4)
+	    @oMemory.Set(@buffer, 0, 4)
+	    
+	    # Store the integer value
+	    @buffer = nValue
+	    @pointer = VarPtr("@buffer", "int")
+	    @nBufferSize = 4
+	end
+	def CreateDoublePointer(nValue)
+	    @buffer = @oMemory.Allocate(8)
+	    @oMemory.Set(@buffer, 0, 8)
+	    
+	    # Store the double value
+	    @buffer = nValue
+	    @pointer = VarPtr("@buffer", "double")
+	    @nBufferSize = 8
+	end
+
+    def CreateObjectPointer(pObject)
+
+		#NOTE // For objects, we don't need memory allocation since
+		# Ring manages object memory automatically - we just store
+		# the object reference directly and use object2pointer()
+		# to get the pointer
+
+        @buffer = pObject
+        @pointer = Object2Pointer(pObject)
+        @nBufferSize = -1
+    end
+
+    def DetectType(pValue)
+
+        if IsString(pValue)
+			return "string"
+
+        elseif IsNumber(pValue)
+
+            if Floor(pValue) = pValue
+				return "int"
+            else
+				return "double"
+			end
+
+        elseif IsList(pValue)
+			return "list"
+
+		elseif IsObject(pValue)
+			return "object"
+
+        else
+			return "string"
+		end
+    end
+
+    # Proper CopyFrom implementation
+
+	def CopyFrom(pSource, nSize)
+	    this.ValidatePointer()
+	    
+	    if IsEmpty(nSize)
+	        nSize = @nBufferSize
+	    end
+	    
+	    # Get source data properly
+	    tSourceData = ""
+	    
+	    if IsObject(pSource) and ClassName(pSource) = "stkpointer"
+	        tSourceData = pSource.RingValue()
+	    else
+	        tSourceData = Pointer2String(pSource, 0, nSize)
+	    end
+	    
+	    # For string pointers, merge with existing buffer
+	    if @tLogicalType = "string"
+	        tCurrentBuffer = @buffer
+	        tNewBuffer = ""
+	        
+	        # Copy specified bytes from source to beginning of buffer
+	        for i = 1 to nSize
+	            if i <= Len(tSourceData)
+	                tNewBuffer += tSourceData[i]
+	            else
+	                tNewBuffer += Char(0)
+	            end
+	        end
+	        
+	        # Append remaining original data after the copied portion
+	        if Len(tCurrentBuffer) > nSize
+	            tNewBuffer += Right(tCurrentBuffer, Len(tCurrentBuffer) - nSize)
+	        end
+	        
+	        @buffer = tNewBuffer
+	        @pointer = VarPtr("@buffer", "char")
+	    else
+	        # For other types, use Ring's built-in memory functions
+	        MemCpy(@pointer, pSource, nSize)
+	    end
+	end
+	
+	def CopyTo(pDest, nSize)
+	    this.ValidatePointer()
+	    
+	    if IsEmpty(nSize)
+	        nSize = @nBufferSize
+	    end
+	    
+	    if IsObject(pDest) and ClassName(pDest) = "stkpointer"
+	        pDest.CopyFrom(this, nSize)
+	    else
+	        # Use memory copy for Ring types
+	        if @tLogicalType = "string"
+	            tData = @oMemory.Copy(@buffer, "", nSize)
+	            MemCpy(pDest, VarPtr("cData", "char"), nSize)
+	        else
+	            MemCpy(pDest, @pointer, nSize)
+	        end
+	    end
+	end
+	def Memory
+	    return @oMemory
+	end
+
+    def RingValue
+
+        this.ValidatePointer()
+
+        switch @tLogicalType
+
+            case "string"
+                return @buffer
+
+            case "int"
+                return @buffer
+
+            case "double"
+                return @buffer
+
+            case "object"
+                return @buffer
+
+            case "null"
+                return ""
+
+            else
+                return @buffer
+
+        end
+    end
+
+    def RawPointer
+
+        this.ValidatePointer()
+        return @pointer
+    end
+
+    def Address
+
+        this.ValidatePointer()
+        return GetPointer(@pointer)
+    end
+
+    def AddressHex
+        return Upper(Hex(this.Address()))
+    end
+
+    def Type
+        return @tLogicalType
+    end
+
+    def Status
+
+        if IsEmpty(@pointer)
+			return -1
+		end
+
+        if Len(@pointer) >= 3
+			return @pointer[3]
+		end
+
+        return 0
+    end
+ 
+    def IsValidPointer
+        return @bIsValid and not IsEmpty(@pointer)
+    end
+
+    def IsNullPointer
+        return IsEmpty(@pointer) or this.Address() = 0
+    end
+
+    def Equals(oOther)
+
+        if IsObject(oOther) and ClassName(oOther) = "stkpointer"
+            return PtrCmp(@pointer, oOther.RawPointer()) = 1
+
+        else
+            return false
+        end
+    end
+
+    def Info
+
+        return [
+
+            [ "address", this.AddressHex() ],
+            [ "type", this.Type() ],
+            [ "status", this.Status() ],
+            [ "valid", this.IsValidPointer() ],
+            [ "managed", @bIsManaged ],
+            [ "buffer_size", @nBufferSize ]
+        ]
+    end
+
+    def debug
+
+        return [
+            [ "logical_type", @tLogicalType ],
+            [ "isvalid", @bIsValid ],
+            [ "buffer_size", @nBufferSize ],
+            [ "buffer_content", @buffer ],
+            [ "ring_value", this.RingValue() ]
+        ]
+    end
+	def Free
+	    if @bIsManaged and @oMemory != ""
+	        if @oMemory.IsAllocated(@buffer)
+	            @oMemory.Deallocate(@buffer)
+	        end
+	        @buffer = ""
+	        @pointer = NullPointer()
+	        @bIsValid = false
+	        @bIsManaged = false
+	    end
+	end
+
+    	def Destroy
+        	this.Free()
+    	end
+	#--------------------------------#
+	#  PRIVATE KITCHEN OF THE CLASS  #
+	#--------------------------------#
+
+    private
+
+
+    def ValidatePointer
+        if not @bIsValid
+            Raise("Invalid pointer")
+        end
+    end
+end

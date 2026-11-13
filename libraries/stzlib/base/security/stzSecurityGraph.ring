@@ -57,7 +57,7 @@ func StzSecurityGraphQ(pcName)
 #   see        stzSecurityPosture, stzGraph, stzIncident
 class stzSecurityGraph from stzObject
 
-	@cName = ""
+	@tName = ""
 	@oG = ""
 	# THE SEALED RECORD (threat-model R1, 2026-09-29). GraphQ() hands out the
 	# raw graph, so any property on it can be set around the governed doors.
@@ -74,7 +74,7 @@ class stzSecurityGraph from stzObject
 	#   returns    nothing; the object is built
 	#   see        AddActor, GraphQ
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 		@oG = new stzGraph("secgraph-" + pcName)
 
 	# Returns the underlying stzGraph, to draw or query directly.
@@ -91,7 +91,7 @@ class stzSecurityGraph from stzObject
 	#   returns    a text
 	#   see        GraphQ
 	def Name()
-		return @cName
+		return @tName
 
 	# Declares an actor node with a trust posture, and records the posture where gates read it.
 	#

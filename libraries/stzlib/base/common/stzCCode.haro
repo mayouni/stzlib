@@ -1,0 +1,602 @@
+
+/*
+	Inside a conditional code you can use these keywords:
+	@item
+	@EachItem (...Char, ...String, ...List, ...Pair, ...Section, ...Number, ...Object)
+	@CurrentItem
+	@NextItem
+	@PreviousItem
+	
+	@iI
+	@CurrentI
+	@NextI
+	@PreviousI
+	
+	This[ @iI ] # Instead of ItemAt()
+*/
+
+func StzCCodeQ(tCode)
+	return new stzCCode(tCode)
+end
+func StzConditionalCodeQ(tCode)
+	return new stzConditionalCode(tCode)
+end
+class stzConditionalCode from stzCCode 
+end
+# Holds a piece of conditional code, the Ring expression of a W or WXT condition, and rewrites it to its basic form.
+#
+# The code is written with the keywords @i and This[@i], or with friendlier words such as
+# @CurrentItem, @NextItem and @PreviousItem. Transpiled turns the friendly words into the basic
+# forms; ExecutableSection says over which positions of a list the code can run without reading
+# outside it.
+#
+#   receiver   o1 = new stzCCode("{ @CurrentItem = @NextItem }")
+#   example    ? o1.Transpiled()
+#              #--> This[@i] = This[@i + 1]
+#              ? o1.Content()
+#              #--> @CurrentItem = @NextItem
+#   see        stzConstraint, stzString
+class stzCCode from stzObject
+
+	@tContent
+
+	  #---------------------------------#
+	 #  INITIALIZING THE CCODE OBJECT  #
+	#---------------------------------#
+
+	# Builds a conditional-code object from a Ring expression written in a string, with its outer braces and extra spaces removed.
+	#
+	#   cCode      the conditional code as text, such as '{ This[@i] = This[@i-1] + 1 }'
+	#   returns    nothing; the object is built
+	#   warning    a non-string raises an error
+	#   see        Content
+	def init(tCode)
+
+		if not IsString(tCode)
+			
+			StzRaise([
+				[:Where, "stzCCode > Init()"],
+				[:What, "Can't create the stzConditionalCode object."],
+				[:Why, "The parameter you provided is not in a correct type."],
+				[:Todo, "Provide a conditional code as a Ring expression inside a string."]
+			])
+
+		end
+
+		@tContent = StzStringQ(tCode)
+			.SimplifyQ()
+			.RemoveTheseBoundsQ("{", "}")
+			.Content()
+	end
+	  #-------------------------------------------#
+	 #  GETTING THE CONTENT OF THE CCODE OBJECT  #
+	#-------------------------------------------#
+
+	# Returns the stored code as text, without the outer braces.
+	#
+	#   returns    a text
+	#   see        Update, Transpiled
+	def Content
+		return @tContent
+	end
+		def ContentQ
+			return new stzString( this.Content() )
+		end
+		def CCode
+			return this.Content()
+		end
+			def CCodeQ
+				return this.ContentQ()
+			end
+			def Code
+				return this.Content()
+			end
+			def CodeQ
+				return this.ContentQ()
+			end
+	  #--------------------------------------#
+	 #  GETTING A COPY OF THE CCODE OBJECT  #
+	#--------------------------------------#
+
+	# Replaces the stored code with a new text, kept exactly as given: braces and spacing are not cleaned up.
+	#
+	#   _cNewCode_   the new code as text, or a named param such as [ :With = '...' ]
+	#   returns      nothing; use UpdateQ to chain
+	#   note         the code is stored as passed, so '{ x }' keeps its braces, unlike the text
+	#                given to the constructor
+	#   warning      a non-string raises an error when parameter checking is on
+	#   see          Updated, UpdateBy
+	def Update(tNewCode)
+		if CheckingParams()
+			if IsList(tNewCode) and Q(tNewCode).IsWithOrByOrUsingNamedParam()
+				tNewCode = tNewCode[2]
+			end
+
+			if not IsString(tNewCode)
+				StzRaise("Incorrect param type! cNewCode must be a string.")
+			end
+		end
+
+		@tContent = tNewCode
+	end
+		#< @FunctionFluentForm
+
+		def UpdateQ(tNewCode)
+			this.Update(tNewCode)
+			return this
+		end
+		# Replaces the stored code with a new text, as the call with the shorter name does.
+		#
+		#   _cNewCode_   the new code as text
+		#   returns      nothing; use UpdateWithQ to chain
+		#   see          Update, UpdateBy, UpdateUsing
+		#>
+		#< @FunctionAlternativeForms
+		def UpdateWith(tNewCode)
+			this.Update(tNewCode)
+		end
+			def UpdateWithQ(tNewCode)
+				return this.UpdateQ(tNewCode)
+			end
+		# Replaces the stored code with a new text, as the call with the shorter name does.
+		#
+		#   _cNewCode_   the new code as text
+		#   returns      nothing; use UpdateByQ to chain
+		#   see          Update, UpdateWith, UpdateUsing
+		def UpdateBy(tNewCode)
+			this.Update(tNewCode)
+		end
+			def UpdateByQ(tNewCode)
+				return this.UpdateQ(tNewCode)
+			end
+		# Replaces the stored code with a new text, as the call with the shorter name does.
+		#
+		#   _cNewCode_   the new code as text
+		#   returns      nothing; use UpdateUsingQ to chain
+		#   see          Update, UpdateWith, UpdateBy
+		def UpdateUsing(tNewCode)
+			this.Update(tNewCode)
+		end
+			def UpdateUsingQ(tNewCode)
+				return this.UpdateQ(tNewCode)
+			end
+	# Hands back the text it was given and leaves the object untouched.
+	#
+	#   _cNewCode_   the text to hand back
+	#   returns      the text that was passed in
+	#   warning      does not build a new stzCCode: it returns the argument itself, so it cannot be
+	#                used to get an updated copy of the object
+	#   see          Update
+		#>
+	def Updated(tNewCode)
+		return tNewCode
+	end
+		#< @FunctionAlternativeForms
+
+		def UpdatedWith(tNewCode)
+			return this.Updated(tNewCode)
+		end
+		def UpdatedBy(tNewCode)
+			return this.Updated(tNewCode)
+		end
+		def UpdatedUsing(tNewCode)
+			return this.Updated(tNewCode)
+		end
+		#>
+
+	  #--------------------------------------#
+	 #  GETTING A COPY OF THE CCODE OBJECT  #
+	#--------------------------------------#
+
+	# Returns a new stzCCode holding the same code, so changes to one do not reach the other.
+	#
+	#   returns    a new stzCCode
+	#   see        Content
+	def Copy
+		return new stzCCode( this.Content() )
+	end
+	  #----------------------------------------------------------------------------#
+	 #  TRANSPILING THE CODE BY TURNING SOPHISTICATED KEYWORDS TO BASIC KEYWORDS  #
+	#============================================================================#
+
+	# Rewrites the stored code in place, turning words such as @CurrentItem and @NextItem into the basic forms This[@i] and This[@i + 1].
+	#
+	#   returns    nothing; use TranspileQ to chain
+	#   warning    the stored code is changed; call Transpiled to keep the original
+	#   see        Transpiled, ExecutableSection
+	def Transpile
+
+		#INFO
+		# Transpiling is the process of translating the provided
+		# conditional code by replacing sophisticated keywords
+		# (like @CurrentItem, @NextItem, etc.) with their
+		# basic equivalents using only @i and This[@i]. For example:
+	
+		# 	- @CurrentItem becomes This[@i]
+		# 	- @NextItem becomes This[@i+1]
+		# 	- @PreviousItem becomes This[@i-1]
+	
+		# By escence, Softanza uses it internaali with `..WXT()`
+		# forms of conditiobal functions, enabling them to be more
+		# expressive, but it also introduces a performance overhead.
+
+		tCode = StzStringQ(this.Code())
+			.TrimQ()
+			.RemoveTheseBoundsQ("{","}")
+
+			.ReplaceAllQ("(", [:By, "( "])
+
+			.ReplaceAllQ(")", [:By, " )"])
+
+			.ReplaceAllQ("[", [:By, "[ "])
+			.ReplaceAllQ("]", [:By, " ]"])
+
+			.Content()
+
+		#TODO // Automate the addition of new keywords
+		# Example : for "@split", all the necessary variations
+		# are generated as found in the fellowing list:
+		# ~> we can also add Keywords()
+
+		tCode = Q(tCode).TheseSubstringsSpacifiedCS([
+			"@items", "@allItems", "@item",
+		
+			"@chars", "@allChars", "@char",
+
+			"@strings", "@allStrings", "@string",
+			"@SubStrings", "@allSubStrings", "@SubString",
+			"@Lines", "@allLines", "@Line",
+
+			"@numbers","@allNumbers", "@number",
+			
+			"@lists", "@allLists", "@list",
+			"@pairs", "@allPairs", "@pair",
+
+			"@splits", "@allSplits", "@split",
+
+			"@objects", "@allObjects", "@object",
+
+			"@positions", "@position", "@CurrentPosition",
+			"@EachPosition",
+
+			"-@Number",
+
+			"@NextItem",
+			"@NextChar", "@NextString", "@NextSubString",
+			"@NextLine",
+
+			"@NextNumber",
+			
+			"@NextList","@NextPair",
+
+			"@NextSplit",
+
+			"@NextObject",
+
+			"@PreviousPosition",
+
+			"@PreviousItem",
+			"@PreviousChar",
+			"@PreviousString", "@PreviousSubString",
+			"@PreviousLine",
+			"@PreviousNumber",
+
+			"@PreviousList","@PreviousPair",
+			"@PreviousSplit",
+			"@PreviousObject"
+			
+		], 0)
+
+		oResult = StzStringQ(" " + tCode + " ")
+
+		oResult.ReplaceManyCS([
+			" @items ","@allItems",
+							
+			" @chars ","@allChars",
+			" @strings ","@allStrings",
+			" @SubStrings ","@allSubStrings",
+			" @Lines ",
+			" @numbers ","@allNumbers",
+			
+			" @lists ","@allLists",
+			" @Splits ", "@allSplits",
+			" @pairs ","@allPairs",
+			
+			" @objects ","@allObjects" ],
+
+			" This.Content() ", 0)
+
+		oResult.ReplaceManyCS([
+			" @position ", " @CurrentPosition ",
+			" @Current@i ", " @CurrentI ",
+			" @EachPosition ", " @EachI " ],
+
+			" @i ", 0)
+
+		oResult.ReplaceManyCS([				
+			" @item ", " @EachItem ", " @CurrentItem ",
+			" @char ", " @EachChar ", " @CurrentChar ",
+			" @string", " @EachString ", " @CurrentString ",
+			" @SubString", " @EachSubString ", " @CurrentSubString ",
+			" @line", " @EachLine ", " @CurrentLine ",
+
+			" @number ", " @EachNumber ", " @CurrentNumber ",
+
+			" @list ", " @EachList ", " @CurrentList ",
+			" @pair ", " @EachPair ", " @CurrentPair ",
+			" @section ", " @EachSection ", " @CurrentSection ",
+
+			" @Split ", " @EachSplit ", " @CurrentSplit ",
+
+			" @object ", " @EachObject ", " @CurrentObject " ],
+
+			" This[@i] ", 0 )
+			
+		oResult.ReplaceCS(" -@Number ", " - This[@i] ", false)
+
+		oResult.ReplaceManyCS([
+			" @NextPosition ", " @NextI "],
+
+			" @i + 1 ", 0)
+			
+		oResult.ReplaceManyCS([
+			" @NextItem ",
+			" @NextChar ", " @NextString ", " @NextSubString ",
+			" @NextLine ",
+			" @NextNumber ",
+			
+			" @NextList ", " @NextPair ",
+			" @NextSplit ",
+			" @NextObject " ],
+
+			" This[@i + 1] ", 0)
+
+		oResult.ReplaceManyCS([
+			" @PreviousPosition ", " @PreviousI "],
+
+			" @i - 1 ", 0)
+
+		oResult.ReplaceManyCS([
+			" @PreviousItem ",
+			" @PreviousChar ",
+			" @PreviousString ", " @PreviousSubString ",
+			" @PreviousLine ",
+			" @PreviousNumber ",
+
+			" @PreviousList ", " @PreviousPair ",
+			" @PreviousSplit ",
+			" @PreviousObject "
+			],
+
+			" This[@i - 1] ", 0)
+
+		# Undo the "( " / " )" / "[ " / " ]" padding the normalization added (and
+		# collapse the double-spaces left where a keyword was expanded next to a
+		# bracket), so the transpiled code reads cleanly: Q(This[@i + 1]).Foo().
+		oResult.ReplaceCS("  ", " ", true)
+		oResult.ReplaceCS("  ", " ", true)
+		oResult.ReplaceCS("( ", "(", true)
+		oResult.ReplaceCS(" )", ")", true)
+		oResult.ReplaceCS("[ ", "[", true)
+		oResult.ReplaceCS(" ]", "]", true)
+
+		tResult = oResult.Trimmed()
+
+		@tContent = tResult
+	end
+		def TranspileQ
+			this.Transpile()
+			return this
+		end
+	# Returns the code with its sophisticated keywords turned into This[@i] forms, leaving the object itself unchanged.
+	#
+	#   returns    a text
+	#   see        Transpile
+	def Transpiled
+		tResult = this.Copy().TranspileQ().Content()
+		return tResult
+	end
+	  #-----------------------------------------------------#
+	 #  IDENTIFIYING THE EXECUTABLE SECTION FROM THE CODE  #
+	#=====================================================#
+
+	# Returns the stretch of positions [ start, end ] of a list over which the code can run without reading outside it.
+	#
+	#   returns    a list [ nStart, nEnd ] where nEnd is a number or the text last
+	#   note       start moves up with the deepest look-behind (This[@i-2] gives 3) and end moves
+	#              down with the deepest look-ahead (This[@i+2] gives -2, counted from the last
+	#              position)
+	#   warning    raises an error when the code contains neither @i nor This[@i]
+	#   see        Transpile
+	def ExecutableSection
+
+		#WARNING
+
+		# An important detail: In general, ExectuableSection, returnes a
+		# section of the form [ 3, 12 ], for example, to say that the
+		# conditional code can run from item 3 to item 12 without raising
+		# the rather distrupting "Out of range access" error. But, if the
+		# last item is envolved, and because stzCCode class does not know
+		# it, then [ 3, :last ] is returned instead.
+
+		# Therefore, it's the responsibility of the the code that called
+		# stzCCode, to check that speciefic case, and replace :last with
+		# the NumberOfItems() value applied to the calling object scope.
+
+		oCode = new stzString( this.Code() )
+
+		# The first check we must do, is that the conditional code must
+		# contain the @i or This[@i] keywords
+
+		#NOTE # If you include sophisticated keywords like @CurrentItem,
+		# @NextItem and so on, they will be ignored. To instruct Softanza
+		# to understand them and apply them, you must use the ..XT()
+		# alternative of this function instead (ExecutableSectionXT())
+
+		if not oCode.Copy().RemoveSpacesQ().ContainsOneOfTheseCS([ "@i", "This[@i]" ], 0)
+			StzRaise("Can't proceed! The conditional code provided does not contain @i or This[@i] keywords.")
+		end
+
+		vtSubStr = oCode.WithoutSpacesQ().SubStringsBoundedBy([ "[","]" ])
+
+		# Getting the indexs after the @i
+
+		oRx = new stzRegex("(?<=@i)([+-]\d+)")
+		oRx.MatchFirst(Join(vtSubStr))
+
+		vtNumbersAfter = oRx.Matches()
+		nLenAfter = Len(vtNumbersAfter)
+
+		if nLenAfter = 0
+			return [ 1, :Last ]
+		end
+
+		viNumbers = []
+		for i = 1 to nLenAfter
+			viNumbers + (Decimal(vtNumbersAfter[i]))
+		end
+
+		oNumbers = new stzList(viNumbers)
+
+		viResult = [ 1, :Last ]
+
+		if nLenAfter = 1
+			xN =  viNumbers[1]
+
+			if xN > 0
+				viResult = [ 1, -xN ]
+
+			elseif xN < 0
+				viResult = [ Abs(xN) + 1, :Last ]
+
+			end
+		else
+			nMin = oNumbers.Smallest()
+			nMax = oNumbers.Greatest()
+	
+			if BothAreNegative( nMin, nMax )
+				nMin = Abs( nMin )
+				nMax = :Last
+	
+			elseif BothArePositive( nMin, nMax )
+				nMin = 1
+				nMax = - nMax
+
+			elseif nMin < 0 and nMax > 0
+				nMin = Abs(nMin) + 1
+				nMax = - nMax
+	
+			else
+				nMin = 1
+				nMax = :Last
+			end
+	
+			viResult = [ nMin, nMax ]
+		end
+
+		return viResult
+	end
+		#NOTE
+		# A small but important detail: in WXT() you can bound
+		# the conditional code by { and }, but in the normal W()
+		# form, you can't. The rationale behind this is always
+		# the same: expressiveness against performance.
+
+
+	def ExecutableSectionXT
+		# A less performant version with more chekcs.
+
+		# Use it when you want to be more expressive
+		# in your conditional code and use @NextItem,
+		# @PreviousItem, @EachItem, @EachItemQ, and
+		# alike keywords, instead beeing restricted
+		# to using only This[@i+1], This[@i-1], etc.
+
+		# In this case, there is a performance tax
+		# you should pay for. Hence, if you need to
+		# be efficient, then you should use
+		# ExecutableSection(), without ...XT(), instead.
+
+		/* EXAMPLE
+
+		oO1 = new stzCCode('{ @CurrentItem = This[ @i + 3 ] }')
+		? oO1.ExecutableSection()
+		#--> [ 1, -4 ]
+
+		*/
+
+		#NOTE # The fellowing line is the sole difference between
+		# ExectuableSection() and ExecutablesSectionXT() alternatives.
+
+		# Transpiling the conditional code provided to turn any
+		# sophisticaed keyword (like @CurrentItem, @NextItem, etc)
+		# to their basic alternatives (This[@i], This[@+i], etc)
+
+		oCode = new stzString( this.Transpiled() )
+	
+		# Doing the job to get the borners of the executable section
+
+		if not oCode.Copy().RemoveSpacesQ().ContainsOneOfTheseCS([ "@i", "This[@i]" ], 0)
+			StzRaise("Can't proceed! The conditional code provided does not contain @i or This[@i] keywords.")
+		end
+
+		vtSubStr = oCode.SubStringsBoundedBy([ "[","]" ])
+
+		# Getting the indexs after the @i
+
+		oRx = new stzRegex("(?<=@i)([+-]\d+)")
+		oRx.MatchFirst(Join(vtSubStr))
+
+		vtNumbersAfter = oRx.Matches()
+		nLenAfter = Len(vtNumbersAfter)
+
+		if nLenAfter = 0
+			return [ 1, :Last ]
+		end
+
+		viNumbers = []
+		for i = 1 to nLenAfter
+			viNumbers + (Decimal(vtNumbersAfter[i]))
+		end
+
+		oNumbers = new stzList(viNumbers)
+
+		viResult = [ 1, :Last ]
+
+		if nLenAfter = 1
+			xN =  viNumbers[1]
+
+			if xN > 0
+				viResult = [ 1, -xN ]
+
+			elseif xN < 0
+				viResult = [ Abs(xN) + 1, :Last ]
+
+			end
+		else
+			nMin = oNumbers.Smallest()
+			nMax = oNumbers.Greatest()
+	
+			if BothAreNegative( nMin, nMax )
+				nMin = Abs( nMin )
+				nMax = :Last
+	
+			elseif BothArePositive( nMin, nMax )
+				nMin = 1
+				nMax = - nMax
+
+			elseif nMin < 0 and nMax > 0
+				nMin = Abs(nMin) + 1
+				nMax = - nMax
+	
+			else
+				nMin = 1
+				nMax = :Last
+			end
+	
+			viResult = [ nMin, nMax ]
+		end
+
+		return viResult
+	end
+end

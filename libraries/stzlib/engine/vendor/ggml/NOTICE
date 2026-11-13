@@ -1,11 +1,18 @@
 ggml -- tensor library for machine learning (https://github.com/ggml-org/ggml)
-Copyright (c) 2023-2024 The ggml authors. MIT License.
+Copyright (c) 2023-2026 The ggml authors. MIT License.
 
 Vendored into Softanza as the modern/neural NLP tier's inference core. Pruned to
 CPU-only: GPU backends (CUDA/Vulkan/Metal/SYCL/etc.) and non-x86 arch dirs
 (arm/riscv/powerpc/s390/loongarch/wasm) removed. Compiled from source via Zig's
 clang (no cmake) -- see engine/build.zig addGgml(). GGML_VERSION/GGML_COMMIT
 (normally injected by cmake) are defined as "0.0.0-stz" at build time.
+
+Upstream version: v0.29.0 (commit 57e2c2ca2a7cae756b1c4dfafa0cdfef9051d234,
+2026-11-04), taken 2026-11-12 over v0.15.3; VERSION.txt holds the record. Every
+patch below was re-applied to it: gguf.cpp's switch again; ggml-threading.cpp and
+ggml-cpu/traits.cpp as whole files, since upstream left both unchanged between
+the two tags; and ggml-cpu.c's two llamafile call sites, which upstream now also
+guards with `!params->use_ref` -- the F32-weights test is added beside it.
 
 ROOT CAUSE for all the C++ patches below: the Zig-built (mingw/gnu-ABI) DLL does
 NOT run C++ static initializers on Windows -- neither namespace-scope global
@@ -56,3 +63,14 @@ numbers do not move. Measured on the seven OCR golden pages: the PP-OCR
 recogniser 20.2-20.8 s -> 16.0-17.4 s, every line's text and confidence
 identical; BERT parity vs numpy still passes, its max difference 1.6e-7 -> 4.2e-6
 (a different summation order). sgemm.cpp holds no state needing a constructor.
+
+SOFTANZA PATCH (src/ggml-cpu/tiled/tiled.cpp, 2026-11-12): v0.29.0's tiled K-quant
+matmul (src/ggml-cpu/tiled/, new in this version) is compiled but OFF unless
+GGML_CPU_TILED_MM is set to a non-zero number -- upstream has it on by default. On,
+it moves a K-quant model's greedy text against llama.cpp's reference: Nemotron
+Bolt E4B (Q4_K_M) gives llama.cpp's text on 2 of 3 prompts instead of 3 of 3
+(decoder_gemma4_narrated.haro); Q8_0 and F32 models are untouched by it (LFM3's
+perplexity 15.57 either way). Every guard and measurement since 0.29.0 ran with it
+off. Both switch readers (ggml_tiled_matmul_enabled, ggml_tiled_matmul_forced)
+also lose their function-local std::once_flag, a static this DLL never constructs
+(the root cause above): each reads its variable on every call.

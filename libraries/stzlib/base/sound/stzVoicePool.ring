@@ -90,7 +90,7 @@ class stzVoicePool
 	@aVoices = []
 	@aNames = []
 	@bStarted = FALSE
-	@cLastError = ""
+	@tLastError = ""
 	@nRefusals = 0
 
 	# Builds an empty voice pool and its audio graph, stereo at a sample rate, without opening a device.
@@ -119,7 +119,7 @@ class stzVoicePool
 	#@ aka  -- building it ---------------------------------------------------------
 	def AddVoice(pName, poSound, pnSlots)
 		if @bStarted
-			@cLastError = "AddVoice: the pool is already started -- build it first"
+			@tLastError = "AddVoice: the pool is already started -- build it first"
 			@nRefusals++
 			return
 		ok
@@ -156,7 +156,7 @@ class stzVoicePool
 	#@ aka  A voice made from an oscillator and an envelope -- a blip, a coin, a beep. pnSeconds is how long one shot lasts.
 	def AddToneVoice(pName, pWave, pnHz, pnSeconds, pnSlots)
 		if @bStarted
-			@cLastError = "AddToneVoice: the pool is already started"
+			@tLastError = "AddToneVoice: the pool is already started"
 			@nRefusals++
 			return
 		ok
@@ -190,7 +190,7 @@ class stzVoicePool
 	def Start()
 		if @bStarted  return This ok
 		if len(@aVoices) = 0
-			@cLastError = "Start: the pool has no voices"
+			@tLastError = "Start: the pool has no voices"
 			@nRefusals++
 			return This
 		ok
@@ -219,11 +219,11 @@ class stzVoicePool
 
 		@oTransport.Play()
 		if NOT @oTransport.IsPlaying()
-			@cLastError = @oTransport.LastError()
+			@tLastError = @oTransport.LastError()
 			return This
 		ok
 		@bStarted = TRUE
-		@cLastError = ""
+		@tLastError = ""
 		return This
 
 	def StartQ()
@@ -245,12 +245,12 @@ class stzVoicePool
 	def Fire(pName)
 		_i_ = This._IndexOf(pName)
 		if _i_ = 0
-			@cLastError = "no voice is named '" + pName + "'"
+			@tLastError = "no voice is named '" + pName + "'"
 			@nRefusals++
 			return This
 		ok
 		if NOT @bStarted
-			@cLastError = "Fire: call Start() first"
+			@tLastError = "Fire: call Start() first"
 			@nRefusals++
 			return This
 		ok
@@ -292,18 +292,18 @@ class stzVoicePool
 	def SetVoiceGain(pName, pnGain, pnRampMs)
 		_i_ = This._IndexOf(pName)
 		if _i_ = 0
-			@cLastError = "no voice is named '" + pName + "'"
+			@tLastError = "no voice is named '" + pName + "'"
 			@nRefusals++
 			return This
 		ok
 		if NOT @bStarted
-			@cLastError = "SetVoiceGain: the bus does not exist until Start()"
+			@tLastError = "SetVoiceGain: the bus does not exist until Start()"
 			@nRefusals++
 			return This
 		ok
 		_n_ = @aVoices[_i_][8]
 		if _n_ = 0
-			@cLastError = "SetVoiceGain: '" + pName + "' has no bus"
+			@tLastError = "SetVoiceGain: '" + pName + "' has no bus"
 			@nRefusals++
 			return This
 		ok
@@ -390,7 +390,7 @@ class stzVoicePool
 	#   returns    the reason as text; an empty text when nothing was refused
 	#   see        Refusals
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Returns how many calls were refused.
 	#

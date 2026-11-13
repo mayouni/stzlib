@@ -55,7 +55,7 @@ func StzAppTopologyQ(pcName)
 #   see        stzDeployment, stzEmulator
 class stzAppTopology from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aDatasets = []    # [ [ name, [ rows ] ], ... ]  -- rows are lists (real domain data)
 	@aRoles = []       # [ [ partName, role, datasetName ], ... ]
 	@aDevices = []     # [ [ partName, [ pins ], [ rule ] ], ... ]  -- firmware parts
@@ -67,7 +67,7 @@ class stzAppTopology from stzObject
 	#   returns    nothing; the object is built
 	#   see        AddDataset, SetPartRole
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Adds a named dataset of rows, or replaces the one of that name; names are stored in lower case.
 	#
@@ -143,7 +143,7 @@ class stzAppTopology from stzObject
 	#   see        init
 	#@ aka  -- reads -----------------------------------------------------------
 	def Name()
-		return @cName
+		return @tName
 
 	# Returns the dataset names in the order they were declared, lower-cased.
 	#

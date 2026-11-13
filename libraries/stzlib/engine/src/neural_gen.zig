@@ -14,6 +14,7 @@ const std = @import("std");
 const embed = @import("neural_embed.zig");
 const gr = @import("gguf_read.zig"); // SECURITY-MODELDATA-01b: every metadata read checks its type first
 const gm = @import("gbnf_machine.zig");
+const clip = @import("clip_text.zig"); // its Unicode classes (utf8proc), for the LLAMA3 pre-tokenizer
 const c = @cImport({
     @cInclude("ggml.h");
     @cInclude("ggml-cpu.h");
@@ -143,9 +144,11 @@ fn getTOpt(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, b: []u8
 pub export fn neural_model_has_generator() callconv(.c) c_int {
     if (gguf() == null or mctx() == null) return 0;
     const arch = archName();
+    // LFM3 mixes convolution and attention layers: its own contract decides (l3Read)
+    if (std.mem.eql(u8, arch, "lfm3")) return if (l3Ok(mctx())) 1 else 0;
     const known = std.mem.eql(u8, arch, "llama") or std.mem.eql(u8, arch, "qwen2") or
         std.mem.eql(u8, arch, "qwen3") or std.mem.eql(u8, arch, "smollm") or
-        std.mem.eql(u8, arch, "granite");
+        std.mem.eql(u8, arch, "granite") or std.mem.eql(u8, arch, "gemma4");
     if (!known) return 0;
     var nb: [64]u8 = undefined;
     if (getTOpt(mctx(), "blk.0.attn_norm.weight", .{}, &nb) == null) return 0;
@@ -262,15 +265,23 @@ fn buildBpe() bool {
         }
     }
 
+    g_spm = if (kvStr("tokenizer.ggml.model")) |tm| std.mem.eql(u8, std.mem.span(tm), "gemma4") else false;
     g_bos = kvI32("tokenizer.ggml.bos_token_id", -1);
     g_eos = kvI32("tokenizer.ggml.eos_token_id", -1);
     g_add_bos = kvBool("tokenizer.ggml.add_bos_token", false);
+    // llama.cpp b12283 cuts an "lfm2" tokenizer's text by the LLAMA3 pattern; whether a BOS opens it is the file's
+    // own add_bos_token (llama.cpp reads it after the pre-type's default, so the file's value stands)
+    g_pre_llama3 = if (kvStr("tokenizer.ggml.pre")) |pre| std.mem.eql(u8, std.mem.span(pre), "lfm2") else false;
     if (g_eos >= 0) g_eog.append(gpa, g_eos) catch {};
     // ChatML end marker doubles as end-of-generation when present
     if (g_tok_map.get("<|im_end|>")) |id| {
         if (id != g_eos) g_eog.append(gpa, id) catch {};
     }
     if (g_tok_map.get("<|endoftext|>")) |id| {
+        if (id != g_eos) g_eog.append(gpa, id) catch {};
+    }
+    // Gemma 4 ends a turn with <turn|> (llama.cpp counts it end-of-generation)
+    if (g_tok_map.get("<turn|>")) |id| {
         if (id != g_eos) g_eog.append(gpa, id) catch {};
     }
     g_bpe_gen = embed.model_generation;
@@ -392,7 +403,7 @@ fn encode(text: []const u8, out: *std.ArrayList(i32)) void {
             }
         }
         if (matched) |sp| {
-            if (i > seg_start) bpeSegment(text[seg_start..i], out);
+            if (i > seg_start) segment(text[seg_start..i], out);
             out.append(gpa, sp.id) catch {};
             i += sp.s.len;
             seg_start = i;
@@ -400,7 +411,11 @@ fn encode(text: []const u8, out: *std.ArrayList(i32)) void {
             i += 1;
         }
     }
-    if (text.len > seg_start) bpeSegment(text[seg_start..], out);
+    if (text.len > seg_start) segment(text[seg_start..], out);
+}
+
+fn segment(text: []const u8, out: *std.ArrayList(i32)) void {
+    if (g_spm) spmSegment(text, out) else if (g_pre_llama3) llama3Segment(text, out) else bpeSegment(text, out);
 }
 
 // Decode ids -> bytes (reverse byte-unicode mapping; control tokens skipped).
@@ -416,6 +431,10 @@ fn decodeInto(ids: []const i32, out: *std.ArrayList(u8)) void {
         }
         if (is_special) continue;
         const s = vocabToken(@intCast(id));
+        if (g_spm) {
+            spmDecodeInto(s, out);
+            continue;
+        }
         var view = std.unicode.Utf8View.init(s) catch continue;
         var it = view.iterator();
         while (it.nextCodepoint()) |cp| {
@@ -454,6 +473,9 @@ pub export fn neural_gen_set_threads(one: c_int, many: c_int) callconv(.c) void 
     g_threads_one = std.math.clamp(one, 1, 64);
     g_threads_many = std.math.clamp(many, 1, 64);
 }
+var g_kv_ids: std.ArrayList(i32) = .{}; // the token ids the cache holds, in order (-1: a picture's row); see prefixKeep
+var g_prefix_reuse: bool = true;
+var g_reused: usize = 0;
 var g_rows_out: usize = 1; // rows of logits a forward computes: 1, or k+1 for speculative decoding's verification
 var g_row_best: std.ArrayList(i32) = .{}; // the best token of each of those rows (filled only when there are several)
 
@@ -480,6 +502,8 @@ fn resetKv() void {
     g_cap = 0;
     g_kv_shape = .{ 0, 0 };
     g_n_past = 0;
+    g_kv_ids.clearRetainingCapacity();
+    resetConv();
 }
 
 /// The cache holds `need` tokens of n_layer layers x n_kv heads x hd: allocated, or grown by doubling with the valid part copied
@@ -832,6 +856,8 @@ fn forwardDecode(ids: []const i32) bool {
 
 // forwardDecode with the input rows given (n_embd floats per id) instead of looked up: the embedding entry
 fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
+    if (isGemma4()) return if (embd == null) forwardGemma4(ids) else false; // GEMMA4-01: its own graph, text rows only
+    if (isLfm3()) return if (embd == null) forwardLfm3(ids) else false; // LFM3: its own graph, text rows only
     const m = mctx() orelse return false;
     const n_new = ids.len;
     if (n_new == 0) return false;
@@ -925,6 +951,7 @@ fn forwardDecodeX(ids: []const i32, embd: ?[]const f32) bool {
     tp = std.time.nanoTimestamp();
 
     g_n_past = n_past + n_new;
+    kvIdsSet(n_past, ids, embd != null);
     g_phase[4] = msSince(tp);
     tp = std.time.nanoTimestamp();
 
@@ -1290,6 +1317,14 @@ var g_seen: std.ArrayList(u8) = .{}; // scratch: one flag per vocabulary id
 var g_line_cur: std.ArrayList(u8) = .{};
 var g_line_prev: std.ArrayList(u8) = .{};
 var g_line_run: usize = 0;
+// THE STOP SEES A REPEATED BLOCK, NOT ONLY A REPEATED LINE (2026-11-11). Granite-Docling looped on page v20_c22 by
+// writing one line 88 times, which "the same line N times" ended; after 0f31cb56e moved its numbers by their last bits
+// it looped on a ten-line footer instead ("in" / "England" / "and" / "Wales" / "·" / "Company" / ...), each line
+// different from the one before, and ran to the 2048-token cap. So each finished line's hash is kept, and the stop fires
+// when the last k*N lines are N copies of the last k, for any block of k <= stop_period lines; k = 1 is the old rule.
+// stop_period was 8 first and missed that footer by two lines; 16 covers a page header or footer written word by word.
+var g_line_hashes: std.ArrayList(u64) = .{};
+const stop_period: usize = 16;
 
 // Install the aids for the generations that follow. rep_penalty <= 1 and
 // stop_repeat <= 0 and end_bias == 0 mean "off" for that aid.
@@ -1311,6 +1346,7 @@ pub export fn neural_gen_stopped_on_repeat() callconv(.c) c_int {
 
 fn resetTermination() void {
     g_hist.clearRetainingCapacity();
+    g_line_hashes.clearRetainingCapacity();
     g_line_cur.clearRetainingCapacity();
     g_line_prev.clearRetainingCapacity();
     g_line_run = 0;
@@ -1350,6 +1386,31 @@ fn trimmedLine(line: []const u8) []const u8 {
     return std.mem.trim(u8, line, " \t\r");
 }
 
+fn noteLineForCycle(line: []const u8) void {
+    const keep = stop_period * g_stop_repeat;
+    if (g_line_hashes.items.len >= keep and keep > 0) _ = g_line_hashes.orderedRemove(0);
+    g_line_hashes.append(gpa, std.hash.Wyhash.hash(0x5107, line)) catch return;
+    const h = g_line_hashes.items;
+    var k: usize = 1;
+    while (k <= stop_period) : (k += 1) {
+        const need = k * g_stop_repeat;
+        if (h.len < need) break;
+        const tail = h[h.len - need ..];
+        var same = true;
+        var i: usize = k;
+        while (i < need) : (i += 1) {
+            if (tail[i] != tail[i - k]) {
+                same = false;
+                break;
+            }
+        }
+        if (same) {
+            g_stopped_on_repeat = true;
+            return;
+        }
+    }
+}
+
 // Feed the text of one emitted token to the repeated-line detector.
 fn trackLines(piece: []const u8) void {
     for (piece) |b| {
@@ -1367,6 +1428,7 @@ fn trackLines(piece: []const u8) void {
                 g_line_run = 1;
             }
             if (g_stop_repeat > 0 and g_line_run >= g_stop_repeat) g_stopped_on_repeat = true;
+            if (g_stop_repeat > 0) noteLineForCycle(cur);
         }
         g_line_cur.clearRetainingCapacity();
     }
@@ -1437,7 +1499,6 @@ pub export fn neural_gen_start_x(text: [*c]const u8, len: usize, max_new: c_int,
         return 0;
     }
     if (text == null or len == 0) return 0;
-    if (reset != 0) resetKv();
     var ids: std.ArrayList(i32) = .{};
     defer ids.clearAndFree(gpa);
     encode(text[0..len], &ids);
@@ -1448,6 +1509,17 @@ pub export fn neural_gen_start_x(text: [*c]const u8, len: usize, max_new: c_int,
     if (reset == 0 and g_add_bos and prompt.len > 0 and prompt[0] == g_bos)
         prompt = prompt[1..];
     g_last_prompt_tokens = prompt.len;
+    // a fresh prompt keeps what the cache already holds of it (RADAR-SNAPSHOT-PREFIXKV-01) and reads the rest
+    g_reused = 0;
+    if (reset != 0) {
+        const keep = prefixKeep(prompt);
+        if (keep == 0) resetKv() else {
+            g_n_past = keep;
+            g_kv_ids.shrinkRetainingCapacity(keep);
+            prompt = prompt[keep..];
+            g_reused = keep;
+        }
+    }
     // the prompt, plus what is already cached, plus room for at least one new
     // token, must fit the window; otherwise REFUSE (never trim)
     if (g_n_past + prompt.len >= contextWindow()) {
@@ -1788,6 +1860,12 @@ const GenSlot = struct {
     cap: usize = 0,
     kv_shape: [2]usize = .{ 0, 0 },
     n_past: usize = 0,
+    kv_ids: std.ArrayList(i32) = .{},
+    cvctx: ?*c.ggml_context = null,
+    cv: std.ArrayList(*c.ggml_tensor) = .{},
+    cv_cap: usize = 0,
+    cv_shape: [2]usize = .{ 0, 0 },
+    pre_llama3: bool = false,
     logits: std.ArrayList(f32) = .{},
     bpe_built: bool = false,
     bpe_gen: usize = 0,
@@ -1799,6 +1877,7 @@ const GenSlot = struct {
     add_bos: bool = false,
     specials: std.ArrayList(Special) = .{},
     eog: std.ArrayList(i32) = .{},
+    spm: bool = false,
     dc_gen: usize = std.math.maxInt(usize),
     dc_ok: bool = false,
     dc_rows: i64 = 0,
@@ -1811,6 +1890,12 @@ fn swapGen(s: *GenSlot) void {
     std.mem.swap(usize, &g_cap, &s.cap);
     std.mem.swap([2]usize, &g_kv_shape, &s.kv_shape);
     std.mem.swap(usize, &g_n_past, &s.n_past);
+    std.mem.swap(std.ArrayList(i32), &g_kv_ids, &s.kv_ids);
+    std.mem.swap(?*c.ggml_context, &g_cvctx, &s.cvctx);
+    std.mem.swap(std.ArrayList(*c.ggml_tensor), &g_cv, &s.cv);
+    std.mem.swap(usize, &g_cv_cap, &s.cv_cap);
+    std.mem.swap([2]usize, &g_cv_shape, &s.cv_shape);
+    std.mem.swap(bool, &g_pre_llama3, &s.pre_llama3);
     std.mem.swap(std.ArrayList(f32), &g_logits, &s.logits);
     std.mem.swap(bool, &g_bpe_built, &s.bpe_built);
     std.mem.swap(usize, &g_bpe_gen, &s.bpe_gen);
@@ -1822,6 +1907,7 @@ fn swapGen(s: *GenSlot) void {
     std.mem.swap(bool, &g_add_bos, &s.add_bos);
     std.mem.swap(std.ArrayList(Special), &g_specials, &s.specials);
     std.mem.swap(std.ArrayList(i32), &g_eog, &s.eog);
+    std.mem.swap(bool, &g_spm, &s.spm);
     std.mem.swap(usize, &g_dc_gen, &s.dc_gen);
     std.mem.swap(bool, &g_dc_ok, &s.dc_ok);
     std.mem.swap(i64, &g_dc_rows, &s.dc_rows);
@@ -2091,6 +2177,1176 @@ pub export fn neural_generate_spec(text: [*c]const u8, len: usize, max_new: c_in
     g_gen_text.append(gpa, 0) catch return -1;
     if (g_spec_status != SPEC_OK) return -1;
     return @intCast(g_gen_text.items.len - 1);
+}
+
+// ---- the read prompt kept (RADAR-SNAPSHOT-PREFIXKV-01, 2026-11-11) ----------------------------------------------------
+//
+// NVIDIA's Snapshot restores a warmed GPU process instead of starting it cold; Radar's lesson for Softanza: the warm
+// state worth keeping here is a prompt already READ. Two levels:
+//   IN MEMORY  the cache remembers which token ids it holds (g_kv_ids). A fresh prompt that begins as the cache does
+//              keeps that common prefix and reads only the rest -- a fixed system prompt is read once, not per call.
+//              At least one token is always read, so the logits are fresh.
+//   ON DISK    neural_gen_prefix_save writes the cache's tokens and K/V rows, keyed by the model's SHA-256 and shapes;
+//              neural_gen_prefix_load puts them back, and the next prompt that begins with those tokens reuses them.
+// THE ANSWER IS THE SAME, BIT FOR BIT: a position's K and V depend only on the tokens before it (causal attention), and
+// since 0f31cb56e a token's numbers do not depend on how many tokens were read with it (kv_pad) -- so the logits after
+// a reused prefix are the logits a full read gives. neural_gen_logits_hash() lets a guard check that over the whole
+// vocabulary.
+
+fn kvIdsSet(n_past: usize, ids: []const i32, rows: bool) void {
+    if (g_kv_ids.items.len > n_past) g_kv_ids.shrinkRetainingCapacity(n_past);
+    if (g_kv_ids.items.len != n_past) { // a gap: the record cannot say what the cache holds any more
+        g_kv_ids.clearRetainingCapacity();
+        return;
+    }
+    for (ids) |t| g_kv_ids.append(gpa, if (rows) -1 else t) catch {
+        g_kv_ids.clearRetainingCapacity();
+        return;
+    };
+}
+
+// how much of `prompt` the cache already holds, leaving at least its last token to read
+fn prefixKeep(prompt: []const i32) usize {
+    if (!g_prefix_reuse or prompt.len < 2 or g_kv_ids.items.len < g_n_past) return 0;
+    const held = g_kv_ids.items[0..g_n_past];
+    var n: usize = 0;
+    while (n < held.len and n < prompt.len - 1 and held[n] >= 0 and held[n] == prompt[n]) n += 1;
+    return n;
+}
+
+pub export fn neural_gen_set_prefix_reuse(on: c_int) callconv(.c) void {
+    g_prefix_reuse = on != 0;
+}
+/// tokens of the last fresh prompt that the cache already held (not read again)
+pub export fn neural_gen_reused_tokens() callconv(.c) c_int {
+    return @intCast(g_reused);
+}
+/// a 32-bit hash of the whole last logits vector, bit for bit (equal hashes: equal logits, to the bit)
+pub export fn neural_gen_logits_hash() callconv(.c) f64 {
+    const h = std.hash.Wyhash.hash(0x10917, std.mem.sliceAsBytes(g_logits.items));
+    return @floatFromInt(@as(u32, @truncate(h)));
+}
+
+const PREFIX_MAGIC = "STZKV001";
+const PX_OK: c_int = 0;
+const PX_UNREADABLE: c_int = 1;
+const PX_NOT_PREFIX: c_int = 2;
+const PX_OTHER_MODEL: c_int = 3;
+const PX_OTHER_SHAPE: c_int = 4;
+const PX_SIZE: c_int = 5;
+const PX_VALUES: c_int = 6;
+const PX_NOTHING: c_int = 7;
+var g_prefix_status: c_int = PX_OK;
+pub export fn neural_gen_prefix_status() callconv(.c) c_int {
+    return g_prefix_status;
+}
+
+// the cache shape this model's forward uses: [layers with a cache, kv heads, head width]
+fn modelKvShape() ?[3]usize {
+    const m = mctx() orelse return null;
+    if (isGemma4()) {
+        if (!g4Ok(m)) return null;
+        return .{ g_g4.own, g_g4.kv, g_g4.hd_g };
+    }
+    const n_embd: usize = @intCast(@max(0, kvArchInt(".embedding_length", 0)));
+    const n_head: usize = @intCast(@max(0, kvArchInt(".attention.head_count", 0)));
+    const n_layer: usize = @intCast(@max(0, kvArchInt(".block_count", 0)));
+    if (n_embd == 0 or n_head == 0 or n_layer == 0) return null;
+    const n_kv: usize = @intCast(@max(0, kvArchInt(".attention.head_count_kv", @intCast(n_head))));
+    const hd: usize = @intCast(@max(0, kvArchInt(".attention.key_length", @intCast(n_embd / n_head))));
+    if (n_kv == 0 or hd == 0) return null;
+    return .{ n_layer, n_kv, hd };
+}
+
+/// Write the first n tokens the cache holds (n <= 0: all of them) to `path`, keyed by the model's SHA-256 and shapes.
+/// 1 written; 0 with neural_gen_prefix_status() saying why.
+pub export fn neural_gen_prefix_save(path: [*c]const u8, n_c: c_int) callconv(.c) c_int {
+    g_prefix_status = PX_NOTHING;
+    if (path == null) return 0;
+    const hex = embed.modelHex() orelse return 0;
+    if (g_kvctx == null or g_n_past == 0 or g_kv_ids.items.len < g_n_past) return 0;
+    if (g_cv.items.len > 0) return 0; // a convolution's state is not in the file format (LFM3): in-memory reuse only
+    const n: usize = if (n_c <= 0) g_n_past else @min(@as(usize, @intCast(n_c)), g_n_past);
+    for (g_kv_ids.items[0..n]) |t| if (t < 0) return 0; // picture rows have no token to key them by
+    const layers = g_kt.items.len;
+    const kv = g_kv_shape[0];
+    const hd = g_kv_shape[1];
+    g_prefix_status = PX_UNREADABLE;
+    const f = std.fs.cwd().createFile(std.mem.span(@as([*:0]const u8, @ptrCast(path))), .{}) catch return 0;
+    defer f.close();
+    var buf: [65536]u8 = undefined;
+    var w = f.writer(&buf);
+    const io = &w.interface;
+    io.writeAll(PREFIX_MAGIC) catch return 0;
+    io.writeAll(hex) catch return 0;
+    for ([_]u32{ @intCast(layers), @intCast(kv), @intCast(hd), @intCast(n) }) |v| io.writeInt(u32, v, .little) catch return 0;
+    io.writeAll(std.mem.sliceAsBytes(g_kv_ids.items[0..n])) catch return 0;
+    for (0..layers) |L| {
+        const k: [*]const f32 = @ptrCast(@alignCast(g_kt.items[L].*.data));
+        const v: [*]const f32 = @ptrCast(@alignCast(g_vt.items[L].*.data));
+        for (0..kv) |g| io.writeAll(std.mem.sliceAsBytes(k[hd * g_cap * g ..][0 .. hd * n])) catch return 0;
+        for (0..kv) |g| for (0..hd) |d| io.writeAll(std.mem.sliceAsBytes(v[g_cap * (d + hd * g) ..][0..n])) catch return 0;
+    }
+    io.flush() catch return 0;
+    g_prefix_status = PX_OK;
+    return 1;
+}
+
+/// Put a saved prefix back into the cache: refused, with a status, unless it was written for THIS model file (its
+/// SHA-256), with this model's cache shape, is exactly the size its header says, and holds finite numbers only -- a
+/// prefix file is model data, read as SECURITY-MODELDATA-01 reads one. The next fresh prompt that begins with its
+/// tokens reads only the rest. Returns the number of tokens restored, 0 on a refusal.
+pub export fn neural_gen_prefix_load(path: [*c]const u8) callconv(.c) c_int {
+    g_prefix_status = PX_UNREADABLE;
+    if (path == null) return 0;
+    if (neural_model_has_generator() == 0 or !buildBpe()) return 0;
+    const hex = embed.modelHex() orelse return 0;
+    g_prefix_status = PX_OTHER_SHAPE;
+    if (isLfm3()) return 0; // its convolution state is not in the file format
+    g_prefix_status = PX_UNREADABLE;
+    const shape = modelKvShape() orelse return 0;
+    const bytes = std.fs.cwd().readFileAlloc(gpa, std.mem.span(@as([*:0]const u8, @ptrCast(path))), 1 << 32) catch return 0;
+    defer gpa.free(bytes);
+    const head = PREFIX_MAGIC.len + 64 + 16;
+    g_prefix_status = PX_NOT_PREFIX;
+    if (bytes.len < head or !std.mem.eql(u8, bytes[0..8], PREFIX_MAGIC)) return 0;
+    g_prefix_status = PX_OTHER_MODEL;
+    if (!std.mem.eql(u8, bytes[8..72], hex)) return 0;
+    const layers = std.mem.readInt(u32, bytes[72..76], .little);
+    const kv = std.mem.readInt(u32, bytes[76..80], .little);
+    const hd = std.mem.readInt(u32, bytes[80..84], .little);
+    const n = std.mem.readInt(u32, bytes[84..88], .little);
+    g_prefix_status = PX_OTHER_SHAPE;
+    if (layers != shape[0] or kv != shape[1] or hd != shape[2]) return 0;
+    g_prefix_status = PX_SIZE;
+    if (n == 0 or n >= contextWindow()) return 0;
+    const per_layer = @as(u64, 2) * kv * hd * n * 4;
+    const want = @as(u64, head) + @as(u64, n) * 4 + per_layer * layers;
+    if (bytes.len != want) return 0;
+    var ids: std.ArrayList(i32) = .{};
+    defer ids.clearAndFree(gpa);
+    ids.ensureTotalCapacity(gpa, n) catch return 0;
+    for (0..n) |i| {
+        const t = std.mem.readInt(i32, bytes[head + 4 * i ..][0..4], .little);
+        g_prefix_status = PX_VALUES;
+        if (t < 0 or t >= g_n_vocab) return 0;
+        ids.appendAssumeCapacity(t);
+    }
+    const data = bytes[head + 4 * n ..];
+    var off: usize = 0;
+    while (off < data.len) : (off += 4) {
+        const x: f32 = @bitCast(std.mem.readInt(u32, data[off..][0..4], .little));
+        if (!std.math.isFinite(x)) return 0;
+    }
+    resetKv();
+    g_prefix_status = PX_UNREADABLE;
+    if (!ensureKv(layers, kv, hd, padKv(n))) return 0;
+    off = 0;
+    const take = struct {
+        fn f(src: []const u8, at: *usize, dst: []f32) void {
+            @memcpy(std.mem.sliceAsBytes(dst), src[at.* .. at.* + dst.len * 4]);
+            at.* += dst.len * 4;
+        }
+    }.f;
+    for (0..layers) |L| {
+        const k: [*]f32 = @ptrCast(@alignCast(g_kt.items[L].*.data));
+        const v: [*]f32 = @ptrCast(@alignCast(g_vt.items[L].*.data));
+        for (0..kv) |g| take(data, &off, k[hd * g_cap * g ..][0 .. hd * n]);
+        for (0..kv) |g| for (0..hd) |d| take(data, &off, v[g_cap * (d + hd * g) ..][0..n]);
+    }
+    g_n_past = n;
+    g_kv_ids.clearRetainingCapacity();
+    g_kv_ids.appendSlice(gpa, ids.items) catch {
+        resetKv();
+        return 0;
+    };
+    g_prefix_status = PX_OK;
+    return @intCast(n);
+}
+
+// ---- the Gemma 4 decoder (general.architecture = "gemma4"; GEMMA4-01 step 2, 2026-11-11) -----------------------------
+//
+// Gemma 4 E4B (and NVIDIA's Nemotron 3.5 Bolt E4B, post-trained from it), wired as llama.cpp b12283 wires it
+// (src/models/gemma4.cpp, read line by line):
+//   - the token rows are scaled by sqrt(n_embd);
+//   - PER-LAYER EMBEDDINGS: a second table gives every token P numbers per layer; they are added to a projection of the
+//     token's row (RMS-normed, eps folded), scaled by 1/sqrt(2), and each block multiplies its slice into a gated
+//     branch: gelu(inp_gate x) * slice -> proj -> RMS norm -> added to the residual;
+//   - two kinds of attention by the file's own pattern: SLIDING layers (head hd_s, window W, rope base b_s) and GLOBAL
+//     ones (head hd_g, rope base b_g with the file's frequency factors). Q and K are RMS-normed per head with weights,
+//     V without; the attention scale is 1 (the norms do its work); rope is NEOX;
+//   - the last `shared_kv_layers` layers write no cache: they read the cache of the last own layer of their kind;
+//   - norms after attention and after the feed-forward; a GELU gated feed-forward; each layer's output scaled by its
+//     own scalar; the logits soft-capped: c * tanh(x / c).
+// THE CACHE: every own layer's K and V are allocated at the widest head (hd_g) and a sliding layer reads its first hd_s
+// columns through views -- the llama path's cache unchanged; sliding layers hold twice what they need (0.8 GB at 4,096
+// tokens for E4B, against 0.47 GB packed). The attention width is padded as everywhere (kv_pad).
+
+const G4 = struct {
+    n_layer: usize,
+    d: usize, // n_embd
+    h: usize, // query heads
+    kv: usize, // kv heads
+    hd_g: usize,
+    hd_s: usize,
+    f: usize,
+    p: usize, // per-layer embedding width
+    own: usize, // layers with their own cache: n_layer - shared_kv_layers
+    window: usize,
+    base_g: f32,
+    base_s: f32,
+    eps: f32,
+    softcap: f32,
+    n_ctx_train: c_int,
+    rows: i64, // vocabulary rows of token_embd
+    swa: [256]bool,
+};
+
+var g_g4_gen: usize = std.math.maxInt(usize);
+var g_g4_ok: bool = false;
+var g_g4: G4 = undefined;
+
+fn isGemma4() bool {
+    return std.mem.eql(u8, archName(), "gemma4");
+}
+
+fn g4Hd(d: *const G4, il: usize) usize {
+    return if (d.swa[il]) d.hd_s else d.hd_g;
+}
+fn g4Src(d: *const G4, il: usize) usize {
+    if (il < d.own) return il;
+    return d.own - (if (d.swa[il]) @as(usize, 2) else 1);
+}
+
+fn g4Mat(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, ne0: usize, ne1: usize) bool {
+    var nb: [96]u8 = undefined;
+    const t = getTOpt(m, fmt, args, &nb) orelse return false;
+    return t.*.ne[0] == ne0 and t.*.ne[1] == ne1 and t.*.ne[2] == 1 and t.*.ne[3] == 1;
+}
+fn g4Vec(m: ?*c.ggml_context, comptime fmt: []const u8, args: anytype, n: usize) bool {
+    var nb: [96]u8 = undefined;
+    const t = getTOpt(m, fmt, args, &nb) orelse return false;
+    return t.*.type == c.GGML_TYPE_F32 and t.*.ne[0] == n and t.*.ne[1] == 1 and t.*.ne[2] == 1 and t.*.ne[3] == 1;
+}
+
+// THE CONTRACT (SECURITY-MODELDATA-01's rule): every tensor the graph reads is present and shaped to the file's own
+// sizes, checked once per model, before ggml sees any of it -- a file that lies about a shape is refused, not run.
+fn g4Read(m: ?*c.ggml_context) ?G4 {
+    const ctx = gguf() orelse return null;
+    var d: G4 = undefined;
+    const L = kvArchInt(".block_count", 0);
+    if (L < 2 or L > 256) return null;
+    d.n_layer = @intCast(L);
+    d.d = @intCast(@max(0, kvArchInt(".embedding_length", 0)));
+    d.h = @intCast(@max(0, kvArchInt(".attention.head_count", 0)));
+    d.kv = @intCast(@max(0, kvArchInt(".attention.head_count_kv", 0)));
+    d.hd_g = @intCast(@max(0, kvArchInt(".attention.key_length", 0)));
+    d.hd_s = @intCast(@max(0, kvArchInt(".attention.key_length_swa", 0)));
+    d.f = @intCast(@max(0, kvArchInt(".feed_forward_length", 0)));
+    d.p = @intCast(@max(0, kvArchInt(".embedding_length_per_layer_input", 0)));
+    const shared: usize = @intCast(@max(0, kvArchInt(".attention.shared_kv_layers", 0)));
+    d.window = @intCast(@max(0, kvArchInt(".attention.sliding_window", 0)));
+    if (d.d == 0 or d.h == 0 or d.kv == 0 or d.h % d.kv != 0 or d.hd_g == 0 or d.hd_s == 0 or d.hd_s > d.hd_g or
+        d.f == 0 or d.p == 0 or d.window == 0 or shared + 2 > d.n_layer) return null;
+    if (d.d > 1 << 16 or d.f > 1 << 18 or d.hd_g > 4096 or d.h > 1024) return null;
+    if (kvArchInt(".attention.value_length", @intCast(d.hd_g)) != d.hd_g or
+        kvArchInt(".attention.value_length_swa", @intCast(d.hd_s)) != d.hd_s) return null;
+    d.own = d.n_layer - shared;
+    d.base_g = kvArchF32(".rope.freq_base", 10000.0);
+    d.base_s = kvArchF32(".rope.freq_base_swa", 10000.0);
+    d.eps = kvArchF32(".attention.layer_norm_rms_epsilon", 1e-6);
+    d.softcap = kvArchF32(".final_logit_softcapping", 0.0);
+    if (!(d.eps >= 0) or !(d.softcap >= 0) or !(d.base_g > 0) or !(d.base_s > 0)) return null;
+    d.n_ctx_train = @intCast(std.math.clamp(kvArchInt(".context_length", 2048), 1, 1 << 24));
+    // the rope turns the whole head of each kind (dimension_count = key_length): another split is not this wiring
+    if (kvArchInt(".rope.dimension_count", @intCast(d.hd_g)) != d.hd_g or
+        kvArchInt(".rope.dimension_count_swa", @intCast(d.hd_s)) != d.hd_s) return null;
+    var key: [96]u8 = undefined;
+    const pk = std.fmt.bufPrintZ(&key, "{s}.attention.sliding_window_pattern", .{archName()}) catch return null;
+    const pat = gr.arrBool(ctx, gr.find(ctx, pk)) orelse return null;
+    if (pat.len != d.n_layer) return null;
+    for (0..d.n_layer) |i| d.swa[i] = pat[i] != 0;
+    // a shared layer reads the last own layer of its kind: that layer must be of its kind
+    for (d.own..d.n_layer) |il| if (d.swa[g4Src(&d, il)] != d.swa[il]) return null;
+
+    const D = d.d;
+    const PL = d.p * d.n_layer;
+    var nb: [96]u8 = undefined;
+    const te = getTOpt(m, "token_embd.weight", .{}, &nb) orelse return null;
+    if (te.*.ne[0] != D or te.*.ne[1] < 1 or te.*.ne[2] != 1) return null;
+    d.rows = te.*.ne[1];
+    const V: usize = @intCast(d.rows);
+    if (getTOpt(m, "output.weight", .{}, &nb) != null and !g4Mat(m, "output.weight", .{}, D, V)) return null;
+    if (!g4Mat(m, "per_layer_token_embd.weight", .{}, PL, V)) return null;
+    if (!g4Mat(m, "per_layer_model_proj.weight", .{}, D, PL)) return null;
+    if (!g4Vec(m, "per_layer_proj_norm.weight", .{}, d.p) or !g4Vec(m, "output_norm.weight", .{}, D)) return null;
+    for (0..d.n_layer) |il| {
+        const hd = g4Hd(&d, il);
+        if (!g4Vec(m, "blk.{d}.attn_norm.weight", .{il}, D)) return null;
+        if (!g4Mat(m, "blk.{d}.attn_q.weight", .{il}, D, d.h * hd)) return null;
+        if (!g4Vec(m, "blk.{d}.attn_q_norm.weight", .{il}, hd)) return null;
+        if (!g4Mat(m, "blk.{d}.attn_output.weight", .{il}, d.h * hd, D)) return null;
+        if (il < d.own) {
+            if (!g4Mat(m, "blk.{d}.attn_k.weight", .{il}, D, d.kv * hd)) return null;
+            if (!g4Vec(m, "blk.{d}.attn_k_norm.weight", .{il}, hd)) return null;
+            if (getTOpt(m, "blk.{d}.attn_v.weight", .{il}, &nb) != null and !g4Mat(m, "blk.{d}.attn_v.weight", .{il}, D, d.kv * hd)) return null;
+        }
+        if (!d.swa[il] and !g4Vec(m, "rope_freqs.weight", .{}, hd / 2)) return null;
+        if (!g4Vec(m, "blk.{d}.post_attention_norm.weight", .{il}, D) or !g4Vec(m, "blk.{d}.ffn_norm.weight", .{il}, D)) return null;
+        if (!g4Mat(m, "blk.{d}.ffn_gate.weight", .{il}, D, d.f) or !g4Mat(m, "blk.{d}.ffn_up.weight", .{il}, D, d.f)) return null;
+        if (!g4Mat(m, "blk.{d}.ffn_down.weight", .{il}, d.f, D) or !g4Vec(m, "blk.{d}.post_ffw_norm.weight", .{il}, D)) return null;
+        if (!g4Mat(m, "blk.{d}.inp_gate.weight", .{il}, D, d.p) or !g4Mat(m, "blk.{d}.proj.weight", .{il}, d.p, D)) return null;
+        if (!g4Vec(m, "blk.{d}.post_norm.weight", .{il}, D)) return null;
+        if (getTOpt(m, "blk.{d}.layer_output_scale.weight", .{il}, &nb) != null and !g4Vec(m, "blk.{d}.layer_output_scale.weight", .{il}, 1)) return null;
+        if (getTOpt(m, "blk.{d}.ffn_gate_inp.weight", .{il}, &nb) != null) return null; // the mixture-of-experts variant: not this wiring
+    }
+    return d;
+}
+
+fn g4Ok(m: ?*c.ggml_context) bool {
+    if (g_g4_gen != embed.model_generation) {
+        g_g4_gen = embed.model_generation;
+        if (g4Read(m)) |d| {
+            g_g4 = d;
+            g_g4_ok = true;
+        } else g_g4_ok = false;
+    }
+    return g_g4_ok;
+}
+
+fn g4Norm(ctx: *c.ggml_context, x: *c.ggml_tensor, w: *c.ggml_tensor, eps: f32) *c.ggml_tensor {
+    return c.ggml_mul(ctx, c.ggml_rms_norm(ctx, x, eps).?, w).?;
+}
+
+fn buildGemma4Graph(
+    ctx: *c.ggml_context,
+    m: ?*c.ggml_context,
+    ids: []const i32,
+    d: *const G4,
+    n_past: usize,
+    fill: bool,
+    kouts: *std.ArrayList(*c.ggml_tensor),
+) ?DecodeGraph {
+    const n = ids.len;
+    const kv_len = padKv(n_past + n);
+    const grp = d.h / d.kv;
+    const D = d.d;
+    var nb: [96]u8 = undefined;
+    var nb2: [96]u8 = undefined;
+
+    const tokens = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n)).?;
+    const positions = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n)).?;
+    const mask_g = c.ggml_new_tensor_2d(ctx, c.GGML_TYPE_F32, @intCast(kv_len), @intCast(n * grp)).?;
+    const mask_s = c.ggml_new_tensor_2d(ctx, c.GGML_TYPE_F32, @intCast(kv_len), @intCast(n * grp)).?;
+    if (fill) {
+        const td: [*]i32 = @ptrCast(@alignCast(tokens.*.data));
+        const pd: [*]i32 = @ptrCast(@alignCast(positions.*.data));
+        for (0..n) |i| {
+            td[i] = ids[i];
+            pd[i] = @intCast(n_past + i);
+        }
+        const mg: [*]f32 = @ptrCast(@alignCast(mask_g.*.data));
+        const ms: [*]f32 = @ptrCast(@alignCast(mask_s.*.data));
+        for (0..n * grp) |x| {
+            const q = n_past + x % n; // this query's position
+            for (0..kv_len) |k| {
+                const seen = k <= q;
+                mg[x * kv_len + k] = if (seen) 0.0 else -1.0e9;
+                // llama.cpp LLAMA_SWA_TYPE_STANDARD: a key W or more positions back is out of the window
+                ms[x * kv_len + k] = if (seen and q - k < d.window) 0.0 else -1.0e9;
+            }
+        }
+    }
+
+    // the token rows, scaled by sqrt(n_embd)
+    var inpL = c.ggml_get_rows(ctx, getT(m, "token_embd.weight", .{}, &nb), tokens).?;
+    inpL = c.ggml_scale(ctx, inpL, @sqrt(@as(f32, @floatFromInt(D)))).?;
+
+    // the per-layer inputs [P, n, L]: the table's rows plus the normed projection of the scaled token row
+    const P = d.p;
+    const L = d.n_layer;
+    var ple = c.ggml_get_rows(ctx, getT(m, "per_layer_token_embd.weight", .{}, &nb), tokens).?;
+    ple = c.ggml_scale(ctx, ple, @sqrt(@as(f32, @floatFromInt(P))) / @sqrt(2.0)).?;
+    ple = c.ggml_reshape_3d(ctx, ple, @intCast(P), @intCast(L), @intCast(n)).?;
+    var proj = c.ggml_mul_mat(ctx, getT(m, "per_layer_model_proj.weight", .{}, &nb), inpL).?;
+    proj = c.ggml_reshape_3d(ctx, proj, @intCast(P), @intCast(L), @intCast(n)).?;
+    proj = c.ggml_rms_norm(ctx, proj, d.eps * @as(f32, @floatFromInt(D))).?; // eps / (1/sqrt(D))^2
+    const pnorm = c.ggml_scale(ctx, getT(m, "per_layer_proj_norm.weight", .{}, &nb), 1.0 / @sqrt(2.0)).?;
+    proj = c.ggml_mul(ctx, proj, pnorm).?;
+    ple = c.ggml_add(ctx, proj, ple).?;
+    ple = c.ggml_cont(ctx, c.ggml_permute(ctx, ple, 0, 2, 1, 3)).?; // [P, n, L]
+
+    const rope_f = getTOpt(m, "rope_freqs.weight", .{}, &nb2);
+    for (0..L) |il| {
+        const hd = g4Hd(d, il);
+        const is_swa = d.swa[il];
+        const base = if (is_swa) d.base_s else d.base_g;
+        const ff: ?*c.ggml_tensor = if (is_swa) null else rope_f;
+
+        var cur = g4Norm(ctx, inpL, getT(m, "blk.{d}.attn_norm.weight", .{il}, &nb), d.eps);
+        var Q = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_q.weight", .{il}, &nb), cur).?;
+        Q = c.ggml_reshape_3d(ctx, Q, @intCast(hd), @intCast(d.h), @intCast(n)).?;
+        Q = g4Norm(ctx, Q, getT(m, "blk.{d}.attn_q_norm.weight", .{il}, &nb), d.eps);
+        Q = c.ggml_rope_ext(ctx, Q, positions, ff, @intCast(hd), c.GGML_ROPE_TYPE_NEOX, d.n_ctx_train, base, 1.0, 0.0, 1.0, 0.0, 0.0).?;
+
+        const src = g4Src(d, il);
+        const kt = g_kt.items[src];
+        const vt = g_vt.items[src];
+        if (il < d.own) {
+            var K = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_k.weight", .{il}, &nb), cur).?;
+            const V = if (getTOpt(m, "blk.{d}.attn_v.weight", .{il}, &nb2)) |wv| c.ggml_mul_mat(ctx, wv, cur).? else K;
+            K = c.ggml_reshape_3d(ctx, K, @intCast(hd), @intCast(d.kv), @intCast(n)).?;
+            K = g4Norm(ctx, K, getT(m, "blk.{d}.attn_k_norm.weight", .{il}, &nb), d.eps);
+            K = c.ggml_rope_ext(ctx, K, positions, ff, @intCast(hd), c.GGML_ROPE_TYPE_NEOX, d.n_ctx_train, base, 1.0, 0.0, 1.0, 0.0, 0.0).?;
+            var V3 = c.ggml_reshape_3d(ctx, V, @intCast(hd), @intCast(d.kv), @intCast(n)).?;
+            V3 = c.ggml_rms_norm(ctx, V3, d.eps).?;
+            const Kcur = c.ggml_cont(ctx, c.ggml_permute(ctx, K, 0, 2, 1, 3)).?; // [hd, n, kv]
+            const Vcur = c.ggml_cont(ctx, c.ggml_permute(ctx, V3, 0, 2, 1, 3)).?;
+            const kview = c.ggml_view_3d(ctx, kt, @intCast(hd), @intCast(n), @intCast(d.kv), kt.*.nb[1], kt.*.nb[2], n_past * kt.*.nb[1]).?;
+            const vview = c.ggml_view_3d(ctx, vt, @intCast(n), @intCast(hd), @intCast(d.kv), vt.*.nb[1], vt.*.nb[2], n_past * vt.*.nb[0]).?;
+            kouts.append(gpa, c.ggml_cpy(ctx, Kcur, kview).?) catch return null;
+            kouts.append(gpa, c.ggml_cpy(ctx, c.ggml_permute(ctx, Vcur, 1, 0, 2, 3), vview).?) catch return null;
+        }
+        const K_all = c.ggml_view_3d(ctx, kt, @intCast(hd), @intCast(kv_len), @intCast(d.kv), kt.*.nb[1], kt.*.nb[2], 0).?;
+        const Vt = c.ggml_view_3d(ctx, vt, @intCast(kv_len), @intCast(hd), @intCast(d.kv), vt.*.nb[1], vt.*.nb[2], 0).?;
+        const Qp = c.ggml_cont(ctx, c.ggml_permute(ctx, Q, 0, 2, 1, 3)).?; // [hd, n, h]
+        const Qv = c.ggml_reshape_3d(ctx, Qp, @intCast(hd), @intCast(n * grp), @intCast(d.kv)).?;
+        var KQ = c.ggml_mul_mat(ctx, K_all, Qv).?;
+        KQ = c.ggml_soft_max_ext(ctx, KQ, if (is_swa) mask_s else mask_g, 1.0, 0.0).?;
+        var KQV = c.ggml_mul_mat(ctx, Vt, KQ).?;
+        KQV = c.ggml_reshape_3d(ctx, KQV, @intCast(hd), @intCast(n), @intCast(d.h)).?;
+        KQV = c.ggml_cont(ctx, c.ggml_permute(ctx, KQV, 0, 2, 1, 3)).?;
+        KQV = c.ggml_reshape_2d(ctx, KQV, @intCast(hd * d.h), @intCast(n)).?;
+        cur = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_output.weight", .{il}, &nb), KQV).?;
+        cur = g4Norm(ctx, cur, getT(m, "blk.{d}.post_attention_norm.weight", .{il}, &nb), d.eps);
+        const attn_out = c.ggml_add(ctx, cur, inpL).?;
+
+        // the GELU-gated feed-forward, normed before and after
+        var h2 = g4Norm(ctx, attn_out, getT(m, "blk.{d}.ffn_norm.weight", .{il}, &nb), d.eps);
+        const up = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_up.weight", .{il}, &nb), h2).?;
+        const gate = c.ggml_gelu(ctx, c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_gate.weight", .{il}, &nb), h2).?).?;
+        h2 = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_down.weight", .{il}, &nb), c.ggml_mul(ctx, gate, up).?).?;
+        h2 = g4Norm(ctx, h2, getT(m, "blk.{d}.post_ffw_norm.weight", .{il}, &nb), d.eps);
+        cur = c.ggml_add(ctx, h2, attn_out).?;
+
+        // the per-layer embedding branch
+        var pe = c.ggml_gelu(ctx, c.ggml_mul_mat(ctx, getT(m, "blk.{d}.inp_gate.weight", .{il}, &nb), cur).?).?;
+        const slice = c.ggml_view_2d(ctx, ple, @intCast(P), @intCast(n), ple.*.nb[1], il * ple.*.nb[2]).?;
+        pe = c.ggml_mul(ctx, pe, slice).?;
+        pe = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.proj.weight", .{il}, &nb), pe).?;
+        pe = g4Norm(ctx, pe, getT(m, "blk.{d}.post_norm.weight", .{il}, &nb), d.eps);
+        cur = c.ggml_add(ctx, cur, pe).?;
+
+        if (getTOpt(m, "blk.{d}.layer_output_scale.weight", .{il}, &nb2)) |os| cur = c.ggml_mul(ctx, cur, os).?;
+        inpL = cur;
+    }
+
+    const xF = g4Norm(ctx, inpL, getT(m, "output_norm.weight", .{}, &nb), d.eps);
+    const n_out: usize = @max(1, @min(g_rows_out, n));
+    const last = c.ggml_cont(ctx, c.ggml_view_2d(ctx, xF, @intCast(D), @intCast(n_out), xF.*.nb[1], @intCast((n - n_out) * xF.*.nb[1])).?).?;
+    const lm_w = getTOpt(m, "output.weight", .{}, &nb) orelse getT(m, "token_embd.weight", .{}, &nb);
+    var logits = c.ggml_mul_mat(ctx, lm_w, last).?;
+    if (d.softcap > 0) {
+        logits = c.ggml_scale(ctx, logits, 1.0 / d.softcap).?;
+        logits = c.ggml_tanh(ctx, logits).?;
+        logits = c.ggml_scale(ctx, logits, d.softcap).?;
+    }
+    const graph = c.ggml_new_graph_custom(ctx, decode_graph_nodes, false) orelse return null;
+    for (kouts.items) |t| c.ggml_build_forward_expand(graph, t);
+    c.ggml_build_forward_expand(graph, logits);
+    return .{ .graph = graph, .logits = logits };
+}
+
+fn forwardGemma4(ids: []const i32) bool {
+    const m = mctx() orelse return false;
+    const n_new = ids.len;
+    if (n_new == 0 or !g4Ok(m)) return false;
+    const d = &g_g4;
+    for (ids) |t| if (t < 0 or t >= d.rows) return false;
+    if (!ensureKv(d.own, d.kv, d.hd_g, padKv(g_n_past + n_new))) return false;
+    const n_past = g_n_past;
+    var kouts: std.ArrayList(*c.ggml_tensor) = .{};
+    defer kouts.clearAndFree(gpa);
+
+    var tp = std.time.nanoTimestamp();
+    var pool_bytes: usize = 0;
+    {
+        const meta = c.ggml_init(.{ .mem_size = 64 * 1024 * 1024, .mem_buffer = null, .no_alloc = true }) orelse return false;
+        defer c.ggml_free(meta);
+        if (buildGemma4Graph(meta, m, ids, d, n_past, false, &kouts) == null) return false;
+        pool_bytes = graphPoolBytes(meta);
+    }
+    kouts.clearRetainingCapacity();
+    g_last_pool_bytes = pool_bytes;
+    g_phase[0] = msSince(tp);
+    tp = std.time.nanoTimestamp();
+    const ctx = c.ggml_init(.{ .mem_size = pool_bytes + 64 * 1024, .mem_buffer = null, .no_alloc = false }) orelse return false;
+    defer c.ggml_free(ctx);
+    g_phase[1] = msSince(tp);
+    tp = std.time.nanoTimestamp();
+    const built = buildGemma4Graph(ctx, m, ids, d, n_past, true, &kouts) orelse return false;
+    g_phase[2] = msSince(tp);
+    tp = std.time.nanoTimestamp();
+    var plan = c.ggml_graph_plan(built.graph, if (n_new > 1) g_threads_many else g_threads_one, null);
+    var wbuf: ?[]u8 = null;
+    if (plan.work_size > 0) {
+        wbuf = gpa.alloc(u8, plan.work_size) catch return false;
+        plan.work_data = wbuf.?.ptr;
+    }
+    defer if (wbuf) |w| gpa.free(w);
+    _ = c.ggml_graph_compute(built.graph, &plan);
+    g_phase[3] = msSince(tp);
+    g_n_past = n_past + n_new;
+    kvIdsSet(n_past, ids, false);
+    return readLogits(built.logits);
+}
+
+// the logits of the last row into g_logits, and each row's best token into g_row_best when there are several
+fn readLogits(logits: *c.ggml_tensor) bool {
+    const tp = std.time.nanoTimestamp();
+    const n_vocab_t: usize = @intCast(logits.*.ne[0]);
+    const n_rows: usize = @intCast(logits.*.ne[1]);
+    const ld_all: [*]const f32 = @ptrCast(@alignCast(logits.*.data));
+    g_row_best.clearRetainingCapacity();
+    if (n_rows > 1) {
+        g_row_best.ensureTotalCapacity(gpa, n_rows) catch return false;
+        for (0..n_rows) |r| {
+            const row = ld_all[r * n_vocab_t ..][0..n_vocab_t];
+            var best: usize = 0;
+            var bestv: f32 = -3.4e38;
+            for (row, 0..) |v, i| {
+                if (v > bestv) {
+                    bestv = v;
+                    best = i;
+                }
+            }
+            g_row_best.appendAssumeCapacity(@intCast(best));
+        }
+    }
+    const ld = ld_all + (n_rows - 1) * n_vocab_t;
+    g_logits.clearRetainingCapacity();
+    g_logits.ensureTotalCapacity(gpa, n_vocab_t) catch return false;
+    for (0..n_vocab_t) |i| g_logits.appendAssumeCapacity(ld[i]);
+    g_phase[5] = msSince(tp);
+    return true;
+}
+
+// ---- the LLAMA3 pre-tokenizer (tokenizer.ggml.pre = "lfm2"; RADAR-LFM3-FAMILY-01, 2026-11-11) -----------------------
+//
+// LFM3's tokenizer is byte-level BPE, as GPT-2's, but its text is cut into pieces by the LLAMA3 pattern, which
+// llama.cpp b12283 maps "lfm2" to (with ignore_merges and BOS forced on): Unicode letters, not ASCII only; digits in
+// threes; contractions; and its own whitespace rules. bpeSegment approximates GPT-2's cut and stays the cut of the
+// families already guarded; this one is exact, alternative by alternative, in the pattern's order:
+//   (?:'[sS]|'[tT]|'[rR][eE]|'[vV][eE]|'[mM]|'[lL][lL]|'[dD])|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}|
+//    ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+
+// A piece the vocabulary holds whole is that token (ignore_merges); any other goes through the merges.
+
+var g_pre_llama3: bool = false;
+
+fn l3Nl(cp: u21) bool {
+    return cp == '\r' or cp == '\n';
+}
+
+// the length in bytes of the piece the pattern matches at text[i..]
+fn llama3PieceLen(t: []const u8, i: usize) usize {
+    const c0 = clip.cpAt(t, i);
+    const cp = c0.cp;
+    // 1: a contraction
+    if (cp == '\'' and i + 1 < t.len) {
+        const a = std.ascii.toLower(t[i + 1]);
+        if (a == 's' or a == 't' or a == 'm' or a == 'd') return 2;
+        if (i + 2 < t.len) {
+            const b = std.ascii.toLower(t[i + 2]);
+            if ((a == 'r' and b == 'e') or (a == 'v' and b == 'e') or (a == 'l' and b == 'l')) return 3;
+        }
+    }
+    // 2: [^\r\n\p{L}\p{N}]? \p{L}+
+    {
+        var j = i;
+        if (!clip.isLetterCp(cp) and !clip.isNumberCp(cp) and !l3Nl(cp) and i + c0.len < t.len and clip.isLetterCp(clip.cpAt(t, i + c0.len).cp)) j = i + c0.len;
+        if (clip.isLetterCp(clip.cpAt(t, j).cp)) {
+            while (j < t.len and clip.isLetterCp(clip.cpAt(t, j).cp)) j += clip.cpAt(t, j).len;
+            return j - i;
+        }
+    }
+    // 3: \p{N}{1,3}
+    if (clip.isNumberCp(cp)) {
+        var j = i;
+        var k: usize = 0;
+        while (j < t.len and k < 3 and clip.isNumberCp(clip.cpAt(t, j).cp)) : (k += 1) j += clip.cpAt(t, j).len;
+        return j - i;
+    }
+    // 4: ' '? [^\s\p{L}\p{N}]+ [\r\n]*
+    {
+        var j = i;
+        if (cp == ' ') j += 1;
+        const st = j;
+        while (j < t.len) {
+            const x = clip.cpAt(t, j);
+            if (clip.isSpaceCp(x.cp) or clip.isLetterCp(x.cp) or clip.isNumberCp(x.cp)) break;
+            j += x.len;
+        }
+        if (j > st) {
+            while (j < t.len and (t[j] == '\r' or t[j] == '\n')) j += 1;
+            return j - i;
+        }
+    }
+    if (clip.isSpaceCp(cp)) {
+        // the whitespace run, and where its last newline ends
+        var w = i;
+        var last_nl: usize = 0;
+        var last_len: usize = 0;
+        while (w < t.len) {
+            const x = clip.cpAt(t, w);
+            if (!clip.isSpaceCp(x.cp)) break;
+            if (l3Nl(x.cp)) last_nl = w + x.len;
+            last_len = x.len;
+            w += x.len;
+        }
+        // 5: \s*[\r\n]+ -- up to the run's last newline
+        if (last_nl > i) return last_nl - i;
+        // 6: \s+(?!\S) -- all of it at the end of the text, else all but its last character
+        if (w == t.len) return w - i;
+        if (w - i > last_len) return w - i - last_len;
+        // 7: \s+
+        return w - i;
+    }
+    // anything else (an unpaired byte): one codepoint
+    return c0.len;
+}
+
+fn llama3Segment(text: []const u8, out: *std.ArrayList(i32)) void {
+    var mapped: std.ArrayList(u8) = .{};
+    defer mapped.clearAndFree(gpa);
+    var i: usize = 0;
+    while (i < text.len) {
+        const n = @max(1, llama3PieceLen(text, i));
+        const piece = text[i..@min(text.len, i + n)];
+        i += n;
+        // ignore_merges: a piece the vocabulary holds whole is that one token
+        mapped.clearRetainingCapacity();
+        for (piece) |b| {
+            var ub: [4]u8 = undefined;
+            const un = std.unicode.utf8Encode(g_b2u[b], &ub) catch continue;
+            mapped.appendSlice(gpa, ub[0..un]) catch return;
+        }
+        if (g_tok_map.get(mapped.items)) |id| {
+            out.append(gpa, id) catch {};
+            continue;
+        }
+        bpeWord(piece, out);
+    }
+}
+
+// ---- the LFM3 decoder (general.architecture = "lfm3"; RADAR-LFM3-FAMILY-01, 2026-11-11) ---------------------------
+//
+// Liquid AI's LFM3, wired as llama.cpp b12283 wires it (src/models/lfm3.cpp and lfm-base.cpp, read line by line):
+//   - layers of two kinds, by the file's per-layer head_count_kv: 0 is a SHORT CONVOLUTION, more is ATTENTION
+//     (sliding or global by the file's pattern);
+//   - a convolution layer: in_proj gives b, c and x; b*x goes through a causal convolution of width l_cache (7) per
+//     channel; c times that; out_proj. Its state is the last l_cache-1 values of b*x, so the engine KEEPS b*x for every
+//     position, in a cache shaped as the attention's (g_cv, one [cap, n_embd] tensor a layer, l_cache-1 zero rows
+//     first): reuse of a prefix, a rollback and a drafter's cut work on it exactly as on K and V;
+//   - an attention layer: Q and K RMS-normed per head with weights, V not; NEOX rope over the whole head, the global
+//     layers with the file's frequency factors (half the head turns); scale 1/sqrt(head); every head's output scaled by
+//     sigmoid(attn_gate x) -- the gate reads the block's normed input;
+//   - norms after each block when the file has them (both or neither); a SiLU-gated feed-forward; no logit cap; the
+//     token rows not scaled. A decision model (attention.causal = false) is the other graph: refused here.
+// THE CONTRACT, before ggml sees a tensor, as for Gemma 4: every tensor present and shaped to the file's own sizes.
+
+const L3 = struct {
+    n_layer: usize,
+    d: usize,
+    h: usize,
+    kv: usize,
+    hd: usize,
+    f: usize,
+    dconv: usize, // l_cache - 1
+    window: usize,
+    base_g: f32,
+    base_s: f32,
+    eps: f32,
+    n_ctx_train: c_int,
+    rows: i64,
+    n_attn: usize,
+    n_conv: usize,
+    post: bool,
+    attn: [256]bool,
+    swa: [256]bool,
+    idx: [256]usize, // the layer's slot in its kind's cache
+};
+
+var g_l3_gen: usize = std.math.maxInt(usize);
+var g_l3_ok: bool = false;
+var g_l3: L3 = undefined;
+
+fn isLfm3() bool {
+    return std.mem.eql(u8, archName(), "lfm3");
+}
+
+fn l3Key(suffix: []const u8, buf: *[96]u8) ?[*:0]const u8 {
+    const k = std.fmt.bufPrintZ(buf, "{s}{s}", .{ archName(), suffix }) catch return null;
+    return k.ptr;
+}
+
+fn l3Read(m: ?*c.ggml_context) ?L3 {
+    const ctx = gguf() orelse return null;
+    var d: L3 = undefined;
+    var kb: [96]u8 = undefined;
+    const L = kvArchInt(".block_count", 0);
+    if (L < 2 or L > 256) return null;
+    d.n_layer = @intCast(L);
+    d.d = @intCast(@max(0, kvArchInt(".embedding_length", 0)));
+    d.h = @intCast(@max(0, kvArchInt(".attention.head_count", 0)));
+    d.hd = @intCast(@max(0, kvArchInt(".attention.key_length", 0)));
+    d.f = @intCast(@max(0, kvArchInt(".feed_forward_length", 0)));
+    const lc = kvArchInt(".shortconv.l_cache", 0);
+    if (lc < 2 or lc > 64) return null;
+    d.dconv = @intCast(lc - 1);
+    d.window = @intCast(@max(0, kvArchInt(".attention.sliding_window", 0)));
+    if (d.d == 0 or d.h == 0 or d.hd == 0 or d.f == 0 or d.window == 0) return null;
+    if (d.d > 1 << 16 or d.f > 1 << 18 or d.hd > 4096 or d.h > 1024) return null;
+    if (kvArchInt(".attention.value_length", @intCast(d.hd)) != d.hd) return null;
+    if (kvArchInt(".rope.dimension_count", @intCast(d.hd)) != d.hd) return null;
+    // the decision variant (non-causal attention) is another graph
+    if (gr.find(ctx, l3Key(".attention.causal", &kb) orelse return null) >= 0 and !gr.boolOr(ctx, l3Key(".attention.causal", &kb).?, true)) return null;
+    d.base_g = kvArchF32(".rope.freq_base", 10000.0);
+    d.base_s = kvArchF32(".rope.freq_base_swa", 10000.0);
+    d.eps = kvArchF32(".attention.layer_norm_rms_epsilon", 1e-5);
+    if (!(d.eps >= 0) or !(d.base_g > 0) or !(d.base_s > 0)) return null;
+    d.n_ctx_train = @intCast(std.math.clamp(kvArchInt(".context_length", 2048), 1, 1 << 24));
+    // the per-layer kv heads (0: a convolution) and the sliding pattern
+    const kid = gr.find(ctx, l3Key(".attention.head_count_kv", &kb) orelse return null);
+    var kvs: [256]i64 = undefined;
+    if (gr.arrOf(u32, ctx, kid)) |a| {
+        if (a.len != d.n_layer) return null;
+        for (a, 0..) |x, i| kvs[i] = x;
+    } else if (gr.arrOf(i32, ctx, kid)) |a| {
+        if (a.len != d.n_layer) return null;
+        for (a, 0..) |x, i| kvs[i] = x;
+    } else return null;
+    const pat = gr.arrBool(ctx, gr.find(ctx, l3Key(".attention.sliding_window_pattern", &kb) orelse return null)) orelse return null;
+    if (pat.len != d.n_layer) return null;
+    d.kv = 0;
+    d.n_attn = 0;
+    d.n_conv = 0;
+    for (0..d.n_layer) |i| {
+        d.swa[i] = pat[i] != 0;
+        if (kvs[i] < 0) return null;
+        d.attn[i] = kvs[i] > 0;
+        if (d.attn[i]) {
+            if (d.kv == 0) d.kv = @intCast(kvs[i]) else if (kvs[i] != d.kv) return null;
+            d.idx[i] = d.n_attn;
+            d.n_attn += 1;
+        } else {
+            if (d.swa[i]) return null;
+            d.idx[i] = d.n_conv;
+            d.n_conv += 1;
+        }
+    }
+    if (d.n_attn == 0 or d.kv == 0 or d.h % d.kv != 0) return null;
+
+    const D = d.d;
+    var nb: [96]u8 = undefined;
+    const te = getTOpt(m, "token_embd.weight", .{}, &nb) orelse return null;
+    if (te.*.ne[0] != D or te.*.ne[1] < 1 or te.*.ne[2] != 1) return null;
+    d.rows = te.*.ne[1];
+    const V: usize = @intCast(d.rows);
+    if (getTOpt(m, "output.weight", .{}, &nb) != null and !g4Mat(m, "output.weight", .{}, D, V)) return null;
+    if (!g4Vec(m, "output_norm.weight", .{}, D)) return null;
+    d.post = getTOpt(m, "blk.0.post_attention_norm.weight", .{}, &nb) != null;
+    for (0..d.n_layer) |il| {
+        if (!g4Vec(m, "blk.{d}.attn_norm.weight", .{il}, D) or !g4Vec(m, "blk.{d}.ffn_norm.weight", .{il}, D)) return null;
+        if (d.post) {
+            if (!g4Vec(m, "blk.{d}.post_attention_norm.weight", .{il}, D) or !g4Vec(m, "blk.{d}.post_ffw_norm.weight", .{il}, D)) return null;
+        } else if (getTOpt(m, "blk.{d}.post_attention_norm.weight", .{il}, &nb) != null or getTOpt(m, "blk.{d}.post_ffw_norm.weight", .{il}, &nb) != null) return null;
+        if (!g4Mat(m, "blk.{d}.ffn_gate.weight", .{il}, D, d.f) or !g4Mat(m, "blk.{d}.ffn_up.weight", .{il}, D, d.f)) return null;
+        if (!g4Mat(m, "blk.{d}.ffn_down.weight", .{il}, d.f, D)) return null;
+        if (d.attn[il]) {
+            if (!g4Mat(m, "blk.{d}.attn_q.weight", .{il}, D, d.h * d.hd) or !g4Mat(m, "blk.{d}.attn_k.weight", .{il}, D, d.kv * d.hd)) return null;
+            if (!g4Mat(m, "blk.{d}.attn_v.weight", .{il}, D, d.kv * d.hd) or !g4Mat(m, "blk.{d}.attn_output.weight", .{il}, d.h * d.hd, D)) return null;
+            if (!g4Vec(m, "blk.{d}.attn_q_norm.weight", .{il}, d.hd) or !g4Vec(m, "blk.{d}.attn_k_norm.weight", .{il}, d.hd)) return null;
+            if (!g4Mat(m, "blk.{d}.attn_gate.weight", .{il}, D, d.h)) return null;
+            if (!d.swa[il] and !g4Vec(m, "rope_freqs.weight", .{}, d.hd / 2)) return null;
+        } else {
+            const cw = getTOpt(m, "blk.{d}.shortconv.conv.weight", .{il}, &nb) orelse return null;
+            if (cw.*.type != c.GGML_TYPE_F32 or cw.*.ne[0] != d.dconv + 1 or cw.*.ne[1] != D or cw.*.ne[2] != 1) return null;
+            if (!g4Mat(m, "blk.{d}.shortconv.in_proj.weight", .{il}, D, 3 * D) or !g4Mat(m, "blk.{d}.shortconv.out_proj.weight", .{il}, D, D)) return null;
+        }
+    }
+    return d;
+}
+
+fn l3Ok(m: ?*c.ggml_context) bool {
+    if (g_l3_gen != embed.model_generation) {
+        g_l3_gen = embed.model_generation;
+        if (l3Read(m)) |d| {
+            g_l3 = d;
+            g_l3_ok = true;
+        } else g_l3_ok = false;
+    }
+    return g_l3_ok;
+}
+
+// the convolution cache: one [cap, n_embd] tensor a convolution layer, its first dconv rows always zero
+var g_cvctx: ?*c.ggml_context = null;
+var g_cv: std.ArrayList(*c.ggml_tensor) = .{};
+var g_cv_cap: usize = 0;
+var g_cv_shape: [2]usize = .{ 0, 0 }; // n_embd, dconv
+
+fn resetConv() void {
+    if (g_cvctx) |k| c.ggml_free(k);
+    g_cvctx = null;
+    g_cv.clearAndFree(gpa);
+    g_cv_cap = 0;
+    g_cv_shape = .{ 0, 0 };
+}
+
+fn ensureConv(n_conv: usize, d: usize, dconv: usize, need: usize) bool {
+    if (g_cv.items.len == n_conv and g_cv_shape[0] == d and g_cv_shape[1] == dconv and g_cv_cap >= need) return true;
+    if (g_cv.items.len != 0 and (g_cv.items.len != n_conv or g_cv_shape[0] != d or g_cv_shape[1] != dconv)) resetConv();
+    var cap: usize = if (g_cv_cap == 0) 256 else g_cv_cap;
+    while (cap < need) cap *= 2;
+    const bytes = n_conv * (cap * d * 4 + c.ggml_tensor_overhead() + 128) + 65536;
+    const nctx = c.ggml_init(.{ .mem_size = bytes, .mem_buffer = null, .no_alloc = false }) orelse return false;
+    @memset(@as([*]u8, @ptrCast(c.ggml_get_mem_buffer(nctx).?))[0..c.ggml_get_mem_size(nctx)], 0);
+    var nt: std.ArrayList(*c.ggml_tensor) = .{};
+    for (0..n_conv) |_| {
+        const t = c.ggml_new_tensor_2d(nctx, c.GGML_TYPE_F32, @intCast(cap), @intCast(d)) orelse {
+            nt.clearAndFree(gpa);
+            c.ggml_free(nctx);
+            return false;
+        };
+        nt.append(gpa, t) catch {
+            nt.clearAndFree(gpa);
+            c.ggml_free(nctx);
+            return false;
+        };
+    }
+    if (g_cvctx != null and g_cv.items.len == n_conv) {
+        const keep = dconv + g_n_past; // the zero rows and every position held
+        for (0..n_conv) |L| {
+            const o: [*]const f32 = @ptrCast(@alignCast(g_cv.items[L].*.data));
+            const n_: [*]f32 = @ptrCast(@alignCast(nt.items[L].*.data));
+            for (0..d) |ch| @memcpy(n_[cap * ch ..][0..@min(keep, g_cv_cap)], o[g_cv_cap * ch ..][0..@min(keep, g_cv_cap)]);
+        }
+    }
+    if (g_cvctx) |old| c.ggml_free(old);
+    g_cv.deinit(gpa);
+    g_cv = nt;
+    g_cvctx = nctx;
+    g_cv_cap = cap;
+    g_cv_shape = .{ d, dconv };
+    return true;
+}
+
+fn buildLfm3Graph(
+    ctx: *c.ggml_context,
+    m: ?*c.ggml_context,
+    ids: []const i32,
+    d: *const L3,
+    n_past: usize,
+    fill: bool,
+    kouts: *std.ArrayList(*c.ggml_tensor),
+) ?DecodeGraph {
+    const n = ids.len;
+    const kv_len = padKv(n_past + n);
+    const grp = d.h / d.kv;
+    const D = d.d;
+    const hd = d.hd;
+    var nb: [96]u8 = undefined;
+    var nb2: [96]u8 = undefined;
+
+    const tokens = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n)).?;
+    const positions = c.ggml_new_tensor_1d(ctx, c.GGML_TYPE_I32, @intCast(n)).?;
+    const mask_g = c.ggml_new_tensor_2d(ctx, c.GGML_TYPE_F32, @intCast(kv_len), @intCast(n * grp)).?;
+    const mask_s = c.ggml_new_tensor_2d(ctx, c.GGML_TYPE_F32, @intCast(kv_len), @intCast(n * grp)).?;
+    if (fill) {
+        const td: [*]i32 = @ptrCast(@alignCast(tokens.*.data));
+        const pd: [*]i32 = @ptrCast(@alignCast(positions.*.data));
+        for (0..n) |i| {
+            td[i] = ids[i];
+            pd[i] = @intCast(n_past + i);
+        }
+        const mg: [*]f32 = @ptrCast(@alignCast(mask_g.*.data));
+        const ms: [*]f32 = @ptrCast(@alignCast(mask_s.*.data));
+        for (0..n * grp) |x| {
+            const q = n_past + x % n;
+            for (0..kv_len) |k| {
+                const seen = k <= q;
+                mg[x * kv_len + k] = if (seen) 0.0 else -1.0e9;
+                ms[x * kv_len + k] = if (seen and q - k < d.window) 0.0 else -1.0e9;
+            }
+        }
+    }
+
+    var inpL = c.ggml_get_rows(ctx, getT(m, "token_embd.weight", .{}, &nb), tokens).?;
+    const rope_f = getTOpt(m, "rope_freqs.weight", .{}, &nb2);
+    const scale: f32 = 1.0 / @sqrt(@as(f32, @floatFromInt(hd)));
+    for (0..d.n_layer) |il| {
+        const cur_in = g4Norm(ctx, inpL, getT(m, "blk.{d}.attn_norm.weight", .{il}, &nb), d.eps);
+        var cur: *c.ggml_tensor = undefined;
+        if (d.attn[il]) {
+            const is_swa = d.swa[il];
+            const base = if (is_swa) d.base_s else d.base_g;
+            const ff: ?*c.ggml_tensor = if (is_swa) null else rope_f;
+            var Q = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_q.weight", .{il}, &nb), cur_in).?;
+            Q = c.ggml_reshape_3d(ctx, Q, @intCast(hd), @intCast(d.h), @intCast(n)).?;
+            Q = g4Norm(ctx, Q, getT(m, "blk.{d}.attn_q_norm.weight", .{il}, &nb), d.eps);
+            Q = c.ggml_rope_ext(ctx, Q, positions, ff, @intCast(hd), c.GGML_ROPE_TYPE_NEOX, d.n_ctx_train, base, 1.0, 0.0, 1.0, 0.0, 0.0).?;
+            var K = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_k.weight", .{il}, &nb), cur_in).?;
+            K = c.ggml_reshape_3d(ctx, K, @intCast(hd), @intCast(d.kv), @intCast(n)).?;
+            K = g4Norm(ctx, K, getT(m, "blk.{d}.attn_k_norm.weight", .{il}, &nb), d.eps);
+            K = c.ggml_rope_ext(ctx, K, positions, ff, @intCast(hd), c.GGML_ROPE_TYPE_NEOX, d.n_ctx_train, base, 1.0, 0.0, 1.0, 0.0, 0.0).?;
+            const V = c.ggml_reshape_3d(ctx, c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_v.weight", .{il}, &nb), cur_in).?, @intCast(hd), @intCast(d.kv), @intCast(n)).?;
+            const kt = g_kt.items[d.idx[il]];
+            const vt = g_vt.items[d.idx[il]];
+            const Kcur = c.ggml_cont(ctx, c.ggml_permute(ctx, K, 0, 2, 1, 3)).?;
+            const Vcur = c.ggml_cont(ctx, c.ggml_permute(ctx, V, 0, 2, 1, 3)).?;
+            const kview = c.ggml_view_3d(ctx, kt, @intCast(hd), @intCast(n), @intCast(d.kv), kt.*.nb[1], kt.*.nb[2], n_past * kt.*.nb[1]).?;
+            const vview = c.ggml_view_3d(ctx, vt, @intCast(n), @intCast(hd), @intCast(d.kv), vt.*.nb[1], vt.*.nb[2], n_past * vt.*.nb[0]).?;
+            kouts.append(gpa, c.ggml_cpy(ctx, Kcur, kview).?) catch return null;
+            kouts.append(gpa, c.ggml_cpy(ctx, c.ggml_permute(ctx, Vcur, 1, 0, 2, 3), vview).?) catch return null;
+            const K_all = c.ggml_view_3d(ctx, kt, @intCast(hd), @intCast(kv_len), @intCast(d.kv), kt.*.nb[1], kt.*.nb[2], 0).?;
+            const Vt = c.ggml_view_3d(ctx, vt, @intCast(kv_len), @intCast(hd), @intCast(d.kv), vt.*.nb[1], vt.*.nb[2], 0).?;
+            const Qp = c.ggml_cont(ctx, c.ggml_permute(ctx, Q, 0, 2, 1, 3)).?;
+            const Qv = c.ggml_reshape_3d(ctx, Qp, @intCast(hd), @intCast(n * grp), @intCast(d.kv)).?;
+            var KQ = c.ggml_mul_mat(ctx, K_all, Qv).?;
+            KQ = c.ggml_soft_max_ext(ctx, KQ, if (is_swa) mask_s else mask_g, scale, 0.0).?;
+            var KQV = c.ggml_mul_mat(ctx, Vt, KQ).?;
+            KQV = c.ggml_reshape_3d(ctx, KQV, @intCast(hd), @intCast(n), @intCast(d.h)).?;
+            KQV = c.ggml_cont(ctx, c.ggml_permute(ctx, KQV, 0, 2, 1, 3)).?; // [hd, h, n]
+            // every head's output scaled by sigmoid(attn_gate x)
+            var gate = c.ggml_sigmoid(ctx, c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_gate.weight", .{il}, &nb), cur_in).?).?;
+            gate = c.ggml_reshape_3d(ctx, gate, 1, @intCast(d.h), @intCast(n)).?;
+            KQV = c.ggml_mul(ctx, KQV, gate).?;
+            KQV = c.ggml_reshape_2d(ctx, KQV, @intCast(hd * d.h), @intCast(n)).?;
+            cur = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.attn_output.weight", .{il}, &nb), KQV).?;
+        } else {
+            const bcx = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.shortconv.in_proj.weight", .{il}, &nb), cur_in).?; // [3D, n]
+            const es = c.ggml_element_size(bcx);
+            const b = c.ggml_view_2d(ctx, bcx, @intCast(D), @intCast(n), bcx.*.nb[1], 0).?;
+            const cc = c.ggml_view_2d(ctx, bcx, @intCast(D), @intCast(n), bcx.*.nb[1], D * es).?;
+            const x = c.ggml_view_2d(ctx, bcx, @intCast(D), @intCast(n), bcx.*.nb[1], 2 * D * es).?;
+            const bxT = c.ggml_cont(ctx, c.ggml_transpose(ctx, c.ggml_mul(ctx, b, x).?).?).?; // [n, D]
+            const ct = g_cv.items[d.idx[il]];
+            const cview = c.ggml_view_2d(ctx, ct, @intCast(n), @intCast(D), ct.*.nb[1], (d.dconv + n_past) * ct.*.nb[0]).?;
+            kouts.append(gpa, c.ggml_cpy(ctx, bxT, cview).?) catch return null;
+            // the window: the dconv values before this read and the n it writes (the cache's zero rows stand before position 0)
+            const win = c.ggml_cont(ctx, c.ggml_view_2d(ctx, ct, @intCast(d.dconv + n), @intCast(D), ct.*.nb[1], n_past * ct.*.nb[0]).?).?;
+            const sx = c.ggml_reshape_3d(ctx, win, @intCast(d.dconv + n), @intCast(D), 1).?;
+            const conv = c.ggml_ssm_conv(ctx, sx, getT(m, "blk.{d}.shortconv.conv.weight", .{il}, &nb)).?; // [D, n, 1]
+            const y = c.ggml_mul(ctx, cc, c.ggml_reshape_2d(ctx, conv, @intCast(D), @intCast(n)).?).?;
+            cur = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.shortconv.out_proj.weight", .{il}, &nb), y).?;
+        }
+        if (d.post) cur = g4Norm(ctx, cur, getT(m, "blk.{d}.post_attention_norm.weight", .{il}, &nb), d.eps);
+        cur = c.ggml_add(ctx, inpL, cur).?;
+        const fn_ = g4Norm(ctx, cur, getT(m, "blk.{d}.ffn_norm.weight", .{il}, &nb), d.eps);
+        const up = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_up.weight", .{il}, &nb), fn_).?;
+        const gt = c.ggml_silu(ctx, c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_gate.weight", .{il}, &nb), fn_).?).?;
+        var ffo = c.ggml_mul_mat(ctx, getT(m, "blk.{d}.ffn_down.weight", .{il}, &nb), c.ggml_mul(ctx, gt, up).?).?;
+        if (d.post) ffo = g4Norm(ctx, ffo, getT(m, "blk.{d}.post_ffw_norm.weight", .{il}, &nb), d.eps);
+        inpL = c.ggml_add(ctx, cur, ffo).?;
+    }
+
+    const xF = g4Norm(ctx, inpL, getT(m, "output_norm.weight", .{}, &nb), d.eps);
+    const n_out: usize = @max(1, @min(g_rows_out, n));
+    const last = c.ggml_cont(ctx, c.ggml_view_2d(ctx, xF, @intCast(D), @intCast(n_out), xF.*.nb[1], @intCast((n - n_out) * xF.*.nb[1])).?).?;
+    const lm_w = getTOpt(m, "output.weight", .{}, &nb) orelse getT(m, "token_embd.weight", .{}, &nb);
+    const logits = c.ggml_mul_mat(ctx, lm_w, last).?;
+    const graph = c.ggml_new_graph_custom(ctx, decode_graph_nodes, false) orelse return null;
+    for (kouts.items) |t| c.ggml_build_forward_expand(graph, t);
+    c.ggml_build_forward_expand(graph, logits);
+    return .{ .graph = graph, .logits = logits };
+}
+
+fn forwardLfm3(ids: []const i32) bool {
+    const m = mctx() orelse return false;
+    const n_new = ids.len;
+    if (n_new == 0 or !l3Ok(m)) return false;
+    const d = &g_l3;
+    for (ids) |t| if (t < 0 or t >= d.rows) return false;
+    if (!ensureKv(d.n_attn, d.kv, d.hd, padKv(g_n_past + n_new))) return false;
+    if (d.n_conv > 0 and !ensureConv(d.n_conv, d.d, d.dconv, d.dconv + g_n_past + n_new)) return false;
+    const n_past = g_n_past;
+    var kouts: std.ArrayList(*c.ggml_tensor) = .{};
+    defer kouts.clearAndFree(gpa);
+    var tp = std.time.nanoTimestamp();
+    var pool_bytes: usize = 0;
+    {
+        const meta = c.ggml_init(.{ .mem_size = 64 * 1024 * 1024, .mem_buffer = null, .no_alloc = true }) orelse return false;
+        defer c.ggml_free(meta);
+        if (buildLfm3Graph(meta, m, ids, d, n_past, false, &kouts) == null) return false;
+        pool_bytes = graphPoolBytes(meta);
+    }
+    kouts.clearRetainingCapacity();
+    g_last_pool_bytes = pool_bytes;
+    g_phase[0] = msSince(tp);
+    tp = std.time.nanoTimestamp();
+    const ctx = c.ggml_init(.{ .mem_size = pool_bytes + 64 * 1024, .mem_buffer = null, .no_alloc = false }) orelse return false;
+    defer c.ggml_free(ctx);
+    const built = buildLfm3Graph(ctx, m, ids, d, n_past, true, &kouts) orelse return false;
+    g_phase[2] = msSince(tp);
+    tp = std.time.nanoTimestamp();
+    var plan = c.ggml_graph_plan(built.graph, if (n_new > 1) g_threads_many else g_threads_one, null);
+    var wbuf: ?[]u8 = null;
+    if (plan.work_size > 0) {
+        wbuf = gpa.alloc(u8, plan.work_size) catch return false;
+        plan.work_data = wbuf.?.ptr;
+    }
+    defer if (wbuf) |w| gpa.free(w);
+    _ = c.ggml_graph_compute(built.graph, &plan);
+    g_phase[3] = msSince(tp);
+    g_n_past = n_past + n_new;
+    kvIdsSet(n_past, ids, false);
+    return readLogits(built.logits);
+}
+
+// ---- SPM-style BPE (tokenizer.ggml.model = "gemma4"; GEMMA4-01, 2026-11-11) -----------------------------------------
+//
+// Gemma 4's tokenizer is BPE over RAW UTF-8, not GPT-2's byte-to-unicode map: the text's spaces become U+2581 ("▁"),
+// no space is prepended, the text splits only into runs of newlines and runs of everything else, and each run merges
+// its characters pair by pair, lowest merge rank first (leftmost on a tie) -- the whole line is one word. A piece the
+// vocabulary does not hold is written as its bytes, each the token "<0xXX>". This is llama.cpp's llm_tokenizer_bpe
+// with LLAMA_VOCAB_PRE_TYPE_GEMMA4 (b12283, src/llama-vocab.cpp), read line by line; the guard compares ids with it.
+// A line can be thousands of characters, so the merges run on a priority queue with stale pairs skipped (the
+// rescanning loop of bpeWord would be quadratic in the line).
+
+var g_spm: bool = false; // the model in place tokenizes SPM-style (set by buildBpe from tokenizer.ggml.model)
+
+const SpmSym = struct { start: usize, n: usize, prev: isize, next: isize };
+const SpmPair = struct { rank: i32, left: usize, right: usize, len: usize };
+fn spmPairLess(_: void, a: SpmPair, b: SpmPair) std.math.Order {
+    if (a.rank != b.rank) return std.math.order(a.rank, b.rank);
+    return std.math.order(a.left, b.left);
+}
+
+fn spmUtf8Len(b: u8) usize {
+    if (b < 0x80) return 1;
+    if (b >> 5 == 0b110) return 2;
+    if (b >> 4 == 0b1110) return 3;
+    if (b >> 3 == 0b11110) return 4;
+    return 1;
+}
+
+fn spmRank(word: []const u8, syms: []const SpmSym, l: usize, r: usize, kb: *std.ArrayList(u8)) ?i32 {
+    const a = word[syms[l].start..][0..syms[l].n];
+    const b = word[syms[r].start..][0..syms[r].n];
+    kb.clearRetainingCapacity();
+    kb.appendSlice(gpa, a) catch return null;
+    kb.append(gpa, ' ') catch return null;
+    kb.appendSlice(gpa, b) catch return null;
+    return g_merge_map.get(kb.items);
+}
+
+fn spmPush(q: *std.PriorityQueue(SpmPair, void, spmPairLess), word: []const u8, syms: []const SpmSym, l: isize, r: isize, kb: *std.ArrayList(u8)) void {
+    if (l < 0 or r < 0) return;
+    const li: usize = @intCast(l);
+    const ri: usize = @intCast(r);
+    const rank = spmRank(word, syms, li, ri, kb) orelse return;
+    q.add(.{ .rank = rank, .left = li, .right = ri, .len = syms[li].n + syms[ri].n }) catch {};
+}
+
+fn spmWord(word: []const u8, out: *std.ArrayList(i32)) void {
+    if (word.len == 0) return;
+    var syms: std.ArrayList(SpmSym) = .{};
+    defer syms.clearAndFree(gpa);
+    var off: usize = 0;
+    while (off < word.len) {
+        const n = @min(word.len - off, spmUtf8Len(word[off]));
+        const idx: isize = @intCast(syms.items.len);
+        syms.append(gpa, .{ .start = off, .n = n, .prev = idx - 1, .next = if (off + n == word.len) -1 else idx + 1 }) catch return;
+        off += n;
+    }
+    var kb: std.ArrayList(u8) = .{};
+    defer kb.clearAndFree(gpa);
+    var q = std.PriorityQueue(SpmPair, void, spmPairLess).init(gpa, {});
+    defer q.deinit();
+    var i: usize = 1;
+    while (i < syms.items.len) : (i += 1) spmPush(&q, word, syms.items, @intCast(i - 1), @intCast(i), &kb);
+    while (q.removeOrNull()) |p| {
+        const s = syms.items;
+        // stale: either side was merged away, or grew, since this pair was queued
+        if (s[p.left].n == 0 or s[p.right].n == 0) continue;
+        if (s[p.left].next != @as(isize, @intCast(p.right)) or s[p.left].n + s[p.right].n != p.len) continue;
+        s[p.left].n += s[p.right].n;
+        s[p.right].n = 0;
+        s[p.left].next = s[p.right].next;
+        if (s[p.right].next >= 0) s[@intCast(s[p.right].next)].prev = @intCast(p.left);
+        spmPush(&q, word, s, s[p.left].prev, @intCast(p.left), &kb);
+        spmPush(&q, word, s, @intCast(p.left), s[p.left].next, &kb);
+    }
+    // the pieces, in order; a piece the vocabulary lacks becomes its bytes as <0xXX>
+    var at: isize = 0;
+    while (at >= 0) {
+        const sym = syms.items[@intCast(at)];
+        at = sym.next;
+        if (sym.n == 0) continue;
+        const piece = word[sym.start..][0..sym.n];
+        if (g_tok_map.get(piece)) |id| {
+            out.append(gpa, id) catch {};
+        } else {
+            const hex = "0123456789ABCDEF";
+            for (piece) |ch| {
+                const bt = [6]u8{ '<', '0', 'x', hex[ch >> 4], hex[ch & 15], '>' };
+                if (g_tok_map.get(bt[0..])) |id| out.append(gpa, id) catch {};
+            }
+        }
+    }
+}
+
+fn spmSegment(text: []const u8, out: *std.ArrayList(i32)) void {
+    var buf: std.ArrayList(u8) = .{};
+    defer buf.clearAndFree(gpa);
+    for (text) |b| {
+        if (b == ' ') buf.appendSlice(gpa, "\u{2581}") catch return else buf.append(gpa, b) catch return;
+    }
+    const t = buf.items;
+    var i: usize = 0;
+    while (i < t.len) {
+        const start = i;
+        const nl = t[i] == '\n';
+        while (i < t.len and (t[i] == '\n') == nl) i += 1;
+        const run = t[start..i];
+        // a run of newlines that is itself a token is that token (llama.cpp PR 21343); otherwise it merges
+        if (nl) {
+            if (g_tok_map.get(run)) |id| {
+                out.append(gpa, id) catch {};
+                continue;
+            }
+        }
+        spmWord(run, out);
+    }
+}
+
+// one SPM token's text: "<0xXX>" is that byte, U+2581 is a space
+fn spmDecodeInto(s: []const u8, out: *std.ArrayList(u8)) void {
+    if (s.len == 6 and s[0] == '<' and s[1] == '0' and s[2] == 'x' and s[5] == '>') {
+        const v = std.fmt.parseInt(u8, s[3..5], 16) catch {
+            out.appendSlice(gpa, s) catch {};
+            return;
+        };
+        out.append(gpa, v) catch {};
+        return;
+    }
+    var k: usize = 0;
+    while (k < s.len) {
+        if (k + 3 <= s.len and s[k] == 0xE2 and s[k + 1] == 0x96 and s[k + 2] == 0x81) {
+            out.append(gpa, ' ') catch {};
+            k += 3;
+        } else {
+            out.append(gpa, s[k]) catch {};
+            k += 1;
+        }
+    }
+}
+
+/// The text of the ids the last neural_gen_tokenize produced, decoded as generation decodes (a round trip for a guard).
+pub export fn neural_gen_probe_text() callconv(.c) [*c]const u8 {
+    g_gen_text.clearRetainingCapacity();
+    decodeInto(g_probe_ids.items, &g_gen_text);
+    g_gen_text.append(gpa, 0) catch return @ptrCast("");
+    return @ptrCast(g_gen_text.items.ptr);
 }
 
 // tokenizer probe: BPE-encode into a shared buffer (count returned; ids via

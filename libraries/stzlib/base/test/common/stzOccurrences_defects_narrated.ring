@@ -3,8 +3,8 @@ load "../_narrated.ring"
 
 # stzOccurrences -- the positions of a substring in a string, as a value object that acts on them.
 # Register rows (all "answers an empty text", "raises R14" or "empty body" before this guard):
-#   SubString   read @cSubStr while the constructor wrote @pcSubStr
-#   String      read @cStr while the constructor wrote @pcStr
+#   SubString   read @tSubStr while the constructor wrote @pcSubStr
+#   String      read @tStr while the constructor wrote @pcStr
 #   Removed     called RemoveSubStringAtPositionsCSQ, a method stzString does not have
 #   ReplacedWithCS, Uppercased, Lowercased   empty bodies
 # The guard drives every row with plain ASCII, accented letters and Hebrew (built from char codes, so the

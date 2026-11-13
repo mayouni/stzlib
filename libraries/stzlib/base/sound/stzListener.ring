@@ -79,7 +79,7 @@ class stzListener
 
 	@nL = 0
 	@aPhrases = []
-	@cLastError = ""
+	@tLastError = ""
 	@nRefusals = 0
 	# DECLARED HERE, ABOVE THE FIRST def: Ring only registers attributes
 	# written before the first method. One declared among the private helpers
@@ -97,15 +97,15 @@ class stzListener
 	#   see        StzListenerQ, IsUsable
 	def init()
 		if NOT StzVoiceEngineLoaded()
-			@cLastError = "stz_voice.dll is not loaded"
+			@tLastError = "stz_voice.dll is not loaded"
 			return
 		ok
 		if StzEngineListenIsAvailable() = 0
-			@cLastError = "no speech recognizer is installed on this machine"
+			@tLastError = "no speech recognizer is installed on this machine"
 			return
 		ok
 		@nL = StzEngineListenOpen()
-		if @nL = 0  @cLastError = StzEngineListenLastError() ok
+		if @nL = 0  @tLastError = StzEngineListenLastError() ok
 
 	# Frees the recognizer handle held by the listener.
 	#
@@ -132,7 +132,7 @@ class stzListener
 	#   warning    a successful call does not clear it, apart from Accept, which does
 	#   see        Refusals
 	def LastError()
-		if @cLastError != ""  return @cLastError ok
+		if @tLastError != ""  return @tLastError ok
 		if StzVoiceEngineLoaded()  return StzEngineListenLastError() ok
 		return ""
 
@@ -208,7 +208,7 @@ class stzListener
 	def Accept(paPhrases)
 		if NOT This.IsUsable()
 			@nRefusals++
-			@cLastError = "Accept: there is no usable recognizer on this machine"
+			@tLastError = "Accept: there is no usable recognizer on this machine"
 			return FALSE
 		ok
 		_c_ = ""
@@ -225,16 +225,16 @@ class stzListener
 		next
 		if _n_ = 0
 			@nRefusals++
-			@cLastError = "Accept: no usable phrases were given"
+			@tLastError = "Accept: no usable phrases were given"
 			return FALSE
 		ok
 		if StzEngineListenSetPhrases(@nL, _c_) != 0
 			@nRefusals++
-			@cLastError = StzEngineListenLastError()
+			@tLastError = StzEngineListenLastError()
 			return FALSE
 		ok
 		@aPhrases = paPhrases
-		@cLastError = ""
+		@tLastError = ""
 		return TRUE
 
 	def AcceptQ(paPhrases)
@@ -261,7 +261,7 @@ class stzListener
 	def AcceptMeanings(paPairs)
 		if NOT isList(paPairs) or len(paPairs) = 0
 			@nRefusals++
-			@cLastError = "AcceptMeanings: give [ [phrase, meaning], ... ]"
+			@tLastError = "AcceptMeanings: give [ [phrase, meaning], ... ]"
 			return FALSE
 		ok
 		_ph_ = []
@@ -270,7 +270,7 @@ class stzListener
 			_row_ = paPairs[_i_]
 			if NOT isList(_row_) or len(_row_) < 2
 				@nRefusals++
-				@cLastError = "AcceptMeanings: row " + _i_ + " is not [phrase, meaning]"
+				@tLastError = "AcceptMeanings: row " + _i_ + " is not [phrase, meaning]"
 				return FALSE
 			ok
 			_p_ = trim("" + _row_[1])
@@ -282,7 +282,7 @@ class stzListener
 			# is hardest to see.
 			if ring_find(StzSemanticValues(), _m_) = 0
 				@nRefusals++
-				@cLastError = "AcceptMeanings: '" + _row_[2] + "' is not one of the " +
+				@tLastError = "AcceptMeanings: '" + _row_[2] + "' is not one of the " +
 				              "five semantic values: " + This._Joined(StzSemanticValues())
 				return FALSE
 			ok
@@ -348,18 +348,18 @@ class stzListener
 	def HearSound(poSound)
 		if NOT This.IsUsable()
 			@nRefusals++
-			@cLastError = "there is no usable recognizer"
+			@tLastError = "there is no usable recognizer"
 			return FALSE
 		ok
 		if NOT isObject(poSound)
 			@nRefusals++
-			@cLastError = "HearSound needs a stzSound"
+			@tLastError = "HearSound needs a stzSound"
 			return FALSE
 		ok
 		_wav_ = poSound.ToWavBytes()
 		if _wav_ = ""
 			@nRefusals++
-			@cLastError = "could not read that sound as WAV bytes"
+			@tLastError = "could not read that sound as WAV bytes"
 			return FALSE
 		ok
 		return This._Result(StzEngineListenToWav(@nL, _wav_))
@@ -377,7 +377,7 @@ class stzListener
 	def HearMicrophoneFor(pnSeconds)
 		if NOT This.IsUsable()
 			@nRefusals++
-			@cLastError = "there is no usable recognizer"
+			@tLastError = "there is no usable recognizer"
 			return FALSE
 		ok
 		return This._Result(StzEngineListenToMicrophone(@nL, pnSeconds * 1000))
@@ -444,7 +444,7 @@ class stzListener
 		if pnRc = 0  return TRUE ok
 		if pnRc != 4                       # 4 = NO_MATCH, which is not a refusal
 			@nRefusals++
-			@cLastError = StzEngineListenLastError()
+			@tLastError = StzEngineListenLastError()
 		ok
 		return FALSE
 

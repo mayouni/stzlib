@@ -52,7 +52,7 @@
 class stzMathFunction from stzObject
 
 	@cExpr = ""
-	@acVars = []
+	@vtVars = []
 	@pProg = ""
 
 	# Compiles a formula of named variables, such as "x^2 + 3*x*y", so its value and exact derivatives can be asked at any point.
@@ -74,7 +74,7 @@ class stzMathFunction from stzObject
 		ok
 
 		@cExpr = pcExpression
-		@acVars = []
+		@vtVars = []
 		_cJoined_ = ""
 		_n_ = len(pacVariables)
 		for _i_ = 1 to _n_
@@ -82,7 +82,7 @@ class stzMathFunction from stzObject
 			if _cV_ = ""
 				stzraise("Variable " + _i_ + " has no name.")
 			ok
-			@acVars + _cV_
+			@vtVars + _cV_
 			if _cJoined_ != ""
 				_cJoined_ += ","
 			ok
@@ -107,14 +107,14 @@ class stzMathFunction from stzObject
 	#   returns    a list of texts
 	#   see        NumberOfVariables
 	def Variables()
-		return @acVars
+		return @vtVars
 
 	# Returns how many variables the formula has.
 	#
 	#   returns    a number
 	#   see        Variables
 	def NumberOfVariables()
-		return len(@acVars)
+		return len(@vtVars)
 
 	# Returns the value of the formula at a point, without computing derivatives.
 	#
@@ -141,7 +141,7 @@ class stzMathFunction from stzObject
 	def GradientAt(paPoint)
 		This._CheckPoint(paPoint)
 		_a_ = StzEngineGradAt(@pProg, paPoint)
-		if NOT isList(_a_) or len(_a_) != len(@acVars) + 1
+		if NOT isList(_a_) or len(_a_) != len(@vtVars) + 1
 			stzraise("The engine refused the point.")
 		ok
 		_aG_ = []
@@ -159,7 +159,7 @@ class stzMathFunction from stzObject
 	def ValueAndGradientAt(paPoint)
 		This._CheckPoint(paPoint)
 		_a_ = StzEngineGradAt(@pProg, paPoint)
-		if NOT isList(_a_) or len(_a_) != len(@acVars) + 1
+		if NOT isList(_a_) or len(_a_) != len(@vtVars) + 1
 			stzraise("The engine refused the point.")
 		ok
 		_aG_ = []
@@ -178,22 +178,22 @@ class stzMathFunction from stzObject
 	#@ aka  the partial derivative with respect to one named variable
 	def DerivativeAt(pcVar, paPoint)
 		_nAt_ = 0
-		_n_ = len(@acVars)
+		_n_ = len(@vtVars)
 		for _i_ = 1 to _n_
-			if StzLower(@acVars[_i_]) = StzLower("" + pcVar)
+			if StzLower(@vtVars[_i_]) = StzLower("" + pcVar)
 				_nAt_ = _i_
 				exit
 			ok
 		next
 		if _nAt_ = 0
 			stzraise("'" + pcVar + "' is not one of this function's variables (" +
-				@@(@acVars) + ").")
+				@@(@vtVars) + ").")
 		ok
 		return This.GradientAt(paPoint)[_nAt_]
 
 	def _CheckPoint(paPoint)
-		if NOT isList(paPoint) or len(paPoint) != len(@acVars)
-			stzraise("This function has " + len(@acVars) + " variable(s); " +
+		if NOT isList(paPoint) or len(paPoint) != len(@vtVars)
+			stzraise("This function has " + len(@vtVars) + " variable(s); " +
 				"the point has " + len(paPoint) + ".")
 		ok
 

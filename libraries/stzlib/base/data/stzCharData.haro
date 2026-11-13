@@ -1,0 +1,2938 @@
+/*
+Softanza Library
+
+This file contains data used with the stzChar class, that
+is not made available in the Unicode standard directly.
+
+Or that are available but we simplify it, or enrich it
+here for our own use.
+
+Author: Mansour Ayouni (kalidianow@gmail.com)
+*/
+
+
+  #//////////////////////////////
+ #/   OUTLINE OF THIS FILE   ///
+#//////////////////////////////
+
+/*
+General Unicode info
+	Unicode scripts
+	Unicode directions
+	Unicode categories
+	Unicode blocks (TODO)
+	Unicode versions
+
+Arabic chars
+	Arabic Basmalah
+	Arabic 7arakets
+	Arabic Shaddah
+	Arabic Tamdeed
+	Arabic Tinween
+	Arabic chars unicodes
+	Arabic Rasm chars
+	Arabic Hamzahs
+
+Latin chars
+	Latin chars unicodes
+
+Numbers staff
+	Romans numbers
+	Mandarin numbers
+	Arabic number fractions
+	Octal chars
+	Hex chars
+
+Special chars
+	Turned chars
+	Invertible chars
+	Circled chars
+	Invisible chars
+
+	Icons chars (TODO)
+	Other special chars
+
+Word staff
+	Word and sentence separators
+	Word non-letter chars
+
+Diacritics
+	Latin diactritics
+	Arabic diacritics
+	Greek diacritics (TODO)
+	Hebrew diacritics (TODO)
+
+Dotless LETTERS
+	Arabic dottles letters
+	Latin Dotless letters
+
+	Mathematical Dotless letters (TODO)
+	Any others (TODO)
+
+*/
+
+  #//////////////////////
+ #/   DATA SECTION   ///
+#//////////////////////
+
+
+	  #--------------------------------------------------------------------#
+	 #   UNICODE SCRIPTS, DIRECTIONS, CATEGORIES, BLOCKS, AND VERSIONS    #
+	#--------------------------------------------------------------------#
+
+	# Number of chars in Unicode
+
+	$nNumberOfCharsInUnicode = 149_186 # Version 15.0
+
+	# Vowel chars
+
+	$vtVowels = [ "A", "a", "E", "e", "I", "i", "O", "o", "U", "u" ]
+	viVowelsUnicodes = [ 65, 97, 69, 101, 73, 105, 79, 111, 85, 117 ]
+
+	#NOTE:
+	# the letter "Y" is not considered a vowel to stay consistent with
+	# the standard Ring function isvowel()
+
+	#TODO // Manage the cases where "Y" could be a vowel in stzText class
+
+	# Unicode scripts
+
+	# NOT a Unicode classifier any more.
+	#
+	# This table used to answer "which script is this codepoint" via
+	# _CharScriptCode, and that job is RETIRED -- the engine reads PCRE2's UCD
+	# and knows all 172 scripts, where these ranges knew 8 approximately.
+	# Nothing here classifies characters now.
+	#
+	# What survives is column 4: the script -> LANGUAGES association behind
+	# LanguagesInScript(). That is i18n domain data, not Unicode character
+	# data, and the engine has no opinion on it. Columns 1 and 3 (the old
+	# numeric code and the range lists) are dead weight kept only so the row
+	# shape stays stable for that one lookup.
+	$xUnicodeScriptsXT = [
+		# code, name, ranges, languages
+		[ "0", :Unknown, [[]], [] ],
+		[ "1", :Inherited, [[]], [] ],
+		[ "2", :Common, [[]], [] ],
+		[ "3", :Latin, [ [0,591] , [7680,7935] , [11360,11391] , [42784,43007] , [43824,43887] ],
+			[:Acehnese, :Adyghe, :Afar, :Afrikaans, :Albanian, :Aragonese,
+			:Asturian, :Aymara, :Azeri, :Bai, :Banjar, :Basque, :BearyBashe,
+			:Belarusian, :Belarusian, :Betawi, :Bislama, :Boholano, :Bosnian,
+			:Breton, :BritishLatin, :Bulgarian, :Catalan, :Cebuano, :Chamorro,
+			:Cherokee, :Cornish, :Corsican, :Cree, :Croatian, :Czech, :Danish,
+			:Dayak, :Dutch, :English, :Esperanto, :Estonian, :Faroese, :Fijian,
+			:Filipino, :Finnish, :French, :Fula, :Gaelic, :Galician, :Gaulish,
+			:German, :Gikuyu, :Guaraní, :HaitianCreole, :Hausa, :Hawaiian,
+			:HiriMotu, :Hmong, :Hungarian, :Hungarian, :Icelandic, :Ido, :Igbo,
+			:Ilocano, :Indonesian, :InnuAimun, :Interlingua, :Irish, :Italian,
+			:Javanese, :JudeoSpanish, :Kabylian, :Kazakh, :Khasi, :Kinyarwanda,
+			:Kirundi, :Klingon, :Kongo, :Konkani, :Kurdish, :Ladino, :Latin,
+			:Latvian, :Laz, :Leonese, :Lingala, :Lithuanian, :Luganda, :Luxembourgish,
+			:Malagasy, :Malay, :Malé, :Maltese, :Manx, :Māori, :Marshallese,
+			:MauritianCreole, :Minangkabau, :Moldovan, :Mongolian, :Montenegrin,
+			:Nahuatl, :Nauruan, :Navaho, :NdebeleNorthern, :Ngai, :Nias, :Nobiin,
+			:NorthFrisian, :Norwegian, :Occitan, :OldDanish, :OldDutch, :OldEnglish,
+			:OldFrisian, :OldHighGerman, :OldScandinavian, :Oromo, :Palauan,
+			:Picard, :Polish, :Portuguese, :quechua, :Rohingya, :Romanian,
+			:Romansh, :Samoan, :Sasak, :SaterlandFrisian, :Scots, :Serbian,
+			:Serbian, :SeychelloisCreole, :Shona, :Slovak, :Slovene, :Somali,
+			:SothoNorthern, :SothoSouthern, :Spanish, :Sundanese, :Swahili,
+			:Swati, :Swedish, :Tagalog, :Tahitian, :Tamazight, :Tatar, :Tetum,
+			:TokPisin, :Tongan, :Tsonga, :Tswana, :TunisianArabic, :Turkish,
+			:Turkmen, :Turoyo, :Uzbek, :Vastese, :Venda, :Vietnamese, :Volapük,
+			:Võro, :Walloon, :Welsh, :WestFrisian, :Wolof, :Xhosa, :Yoruba,
+			:Zazaki, :Zhuang, :Zulu] ],
+		[ "4", :Greek, [ [880,1023], [7936,8191], [65856,65935] ], [:Greek,:Coptic] ],
+		[ "5", :Cyrillic, [ [1024,1279], [1280,1327], [7296,7311], [11744,11775], [42560,42655] ],
+			[:Belarusian, :Bosnian, :Bulgarian, :Ladino, :Kazakh, :Kyrgyz, :Macedonian,
+			:Mongolian, :Montenegrin, :Russian, :Serbian, :Ukrainian, :Persian] ],
+		[ "6", :Armenian, [[1328,1423]], [:Armenian] ],
+		[ "7", :Hebrew, [[1424,1535]], [:Hebrew] ],
+		[ "8", :Arabic, [ [1536,1791], [1872,1919], [2208,2303], [64336,65023], [65136,65279], [126464,126719] ],
+			[:Acehnese, :Adyghe, :Afrikaans, :Arabic, :Algerian, :Egyptian,
+			:Lebanese, :Moroccan, :Iraqi, :Tunisian, :Afar, :Azerbaijani,
+			:Arwi, :Bakhtiari, :Balochi, :Balti, :Banjar, :Bashkir,
+			:Belarusian, :Bengali, :Amazigh, :Bhadrawahi, :Bosnian,
+			:Brahui, :Burushaski , :CentralKurdish, :Cham, :Chechen,
+			:Chinese, :Comorian, :CrimeanTatar, :Dari, :Dungan, :Dogri,
+			:Dyula, :French, :Filipino, :Fulani, :Gilaki, :Greek, :Harari,
+			:Hausa, :Ingush, :Javanese, :JolaFonyi, :JudeoArabic, :JudeoTunisianArabic,
+			:JudaeoSpanish, :Kanuri, :Karakalpak, :Kashmiri, :Kazakh, :Khowar,
+			:Kurdish, :Kyrgyz, :Lak, :Lezgin, :Luri, :Madurese, :Malagasy,
+			:Malay, :Mandinka, :Marwari, :Mazanderani, :Minangkabau,
+			:Mozarabic, :Nobiin, :Ngai, :OttomanTurkish, :Pashtu, :Persian,
+			:Punjabi, :qashqai, :Rohingya, :Salar, :Saraiki, :Sindhi,
+			:Somali, :Songhay, :Spanish, :Swahili, :Tajik, :Talysh,
+			:Tatar, :Tausug, :Tuareg, :Turkish, :Turkmen, :Urdu, :Uyghur,
+			:Uzbek, :Wakhi, :Wolio, :Wolof, :Yoruba, :Zarma] ],
+		[ "9", :Syriac, [[]], [] ],
+		[ "10", :Thaana, [[]], [] ],
+		[ "11", :Devanagari, [[]], [] ],
+		[ "12", :Bengali, [2432,2559], [:Bengali] ],
+		[ "13", :Gurmukhi, [[]], [] ],
+		[ "14", :Gujarati, [[]], [] ],
+		[ "15", :Oriya, [[]], [] ],
+		[ "16", :Tamil, [[2944,3007]], [:Tamil] ],
+		[ "17", :Telugu, [[3072,3199]], [:Telugu] ],
+		[ "18", :Kannada, [[]], [] ],
+		[ "19", :Malayalam, [[]], [] ],
+		[ "20", :Sinhala, [[]], [] ],
+		[ "21", :Thai, [[]], [] ],
+		[ "22", :Lao, [[]], [] ],
+		[ "23", :Tibetan, [[]], [] ],
+		[ "24", :Myanmar, [[]], [] ],
+		[ "25", :Georgian, [[]], [] ],
+		[ "26", :Hangul, [[]], [] ],
+		[ "27", :Ethiopic, [[]], [] ],
+		[ "28", :Cherokee, [[]], [] ],
+		[ "29", :CanadianAboriginal, [[]], [] ],
+		[ "30", :Ogham, [[]], [] ],
+		[ "31", :Runic, [[]], [] ],
+		[ "32", :Khmer, [[]], [] ],
+		[ "33", :Mongolian, [[]], [] ],
+		[ "34", :Hiragana, [[]], [] ],
+		[ "35", :Katakana, [[]], [] ],
+		[ "36", :Bopomofo, [[]], [] ],
+		[ "37", :Han, [[]], [] ],
+		[ "38", :Yi, [[]], [] ],
+		[ "39", :OldItalic, [[]], [] ],
+		[ "40", :Gothic, [[]], [] ],
+		[ "41", :Deseret, [[]], [] ],
+		[ "42", :Tagalog, [[]], [] ],
+		[ "43", :Hanunoo, [[]], [] ],
+		[ "44", :Buhid, [[]], [] ],
+		[ "45", :Tagbanwa, [[]], [] ],
+		[ "46", :Coptic, [[]], [] ],
+		[ "47", :Limbu, [[]], [] ],
+		[ "48", :TaiLe, [[]], [] ],
+		[ "49", :LinearB, [[]], [] ],
+		[ "50", :Ugaritic, [[]], [] ],
+		[ "51", :Shavian, [[]], [] ],
+		[ "52", :Osmanya, [[]], [] ],
+		[ "53", :Cypriot, [[]], [] ],
+		[ "54", :Braille, [[]], [] ],
+		[ "55", :Buginese, [[]], [] ],
+		[ "56", :NewTaiLue, [[]], [] ],
+		[ "57", :Glagolitic, [[]], [] ],
+		[ "58", :Tifinagh, [[]], [] ],
+		[ "59", :SylotiNagri, [[]], [] ],
+		[ "60", :OldPersian, [[]], [] ],
+		[ "61", :Kharoshthi, [[]], [] ],
+		[ "62", :Balinese, [[]], [] ],
+		[ "63", :Cuneiform, [[]], [] ],
+		[ "64", :Phoenician, [[]], [] ],
+		[ "65", :PhagsPa, [[]], [] ],
+		[ "66", :Nko, [[]], [] ],
+		[ "67", :Sundanese, [[]], [] ],
+		[ "68", :Lepcha, [[]], [] ],
+		[ "69", :OlChiki, [[]], [] ],
+		[ "70", :Vai, [[]], [] ],
+		[ "71", :Saurashtra, [[]], [] ],
+		[ "72", :KayahLi, [[]], [] ],
+		[ "73", :Rejang, [[]], [] ],
+		[ "74", :Lycian, [[]], [] ],
+		[ "75", :Carian, [[]], [] ],
+		[ "76", :Lydian, [[]], [] ],
+		[ "77", :Cham, [[]], [] ],
+		[ "78", :TaiTham, [[]], [] ],
+		[ "79", :TaiViet, [[]], [] ],
+		[ "80", :Avestan, [[]], [] ],
+		[ "81", :EgyptianHieroglyphs, [[]], [] ],
+		[ "82", :Samaritan, [[]], [] ],
+		[ "83", :Lisu, [[]], [] ],
+		[ "84", :Bamum, [[]], [] ],
+		[ "85", :Javanese, [[]], [] ],
+		[ "86", :MeeteiMayek, [[]], [] ],
+		[ "87", :ImperialAramaic, [[]], [] ],
+		[ "88", :OldSouthArabian, [[]], [] ],
+		[ "89", :InscriptionalParthian, [[]], [] ],
+		[ "90", :InscriptionalPahlavi, [[]], [] ],
+		[ "91", :OldTurkic, [[]], [] ],
+		[ "92", :Kaithi, [[]], [] ],
+		[ "93", :Batak, [[]], [] ],
+		[ "94", :Brahmi, [[]], [] ],
+		[ "95", :Mandaic, [[]], [] ],
+		[ "96", :Chakma, [[]], [] ],
+		[ "97", :MeroiticCursive, [[]], [] ],
+		[ "98", :MeroiticHieroglyphs, [[]], [] ],
+		[ "99", :Miao, [[]], [] ],
+		[ "100", :Sharada, [[]], [] ],
+		[ "101", :SoraSompeng, [[]], [] ],
+		[ "102", :Takri, [[]], [] ],
+		[ "103", :CaucasianAlbanian, [[]], [] ],
+		[ "104", :BassaVah, [[]], [] ],
+		[ "105", :Duployan, [[]], [] ],
+		[ "106", :Elbasan ],
+		[ "107", :Grantha, [[]], [] ],
+		[ "108", :PahawhHmong, [[]], [] ],
+		[ "109", :Khojki, [[]], [] ],
+		[ "110", :LinearA, [[]], [] ],
+		[ "111", :Mahajani, [[]], [] ],
+		[ "112", :Manichaean, [[]], [] ],
+		[ "113", :MendeKikakui, [[]], [] ],
+		[ "114", :Modi, [[]], [] ],
+		[ "115", :Mro, [[]], [] ],
+		[ "116", :OldNorthArabian, [[]], [] ],
+		[ "117", :Nabataean, [[]], [] ],
+		[ "118", :Palmyrene, [[]], [] ],
+		[ "119", :PauCinHau, [[]], [] ],
+		[ "120", :OldPermic, [[]], [] ],
+		[ "121", :PsalterPahlavi, [[]], [] ],
+		[ "122", :Siddham, [[]], [] ],
+		[ "123", :Khudawadi, [[]], [] ],
+		[ "124", :Tirhuta, [[]], [] ],
+		[ "125", :WarangCiti, [[]], [] ],
+		[ "126", :Ahom, [[]], [] ],
+		[ "127", :AnatolianHieroglyphs, [[]], [] ],
+		[ "128", :Hatran, [[]], [] ],
+		[ "129", :Multani, [[]], [] ],
+		[ "130", :OldHungarian, [[]], [] ],
+		[ "131", :SignWriting, [[]], [] ],
+		[ "132", :Adlam, [[]], [] ],
+		[ "133", :Bhaiksuki, [[]], [] ],
+		[ "134", :Marchen, [[]], [] ],
+		[ "135", :Newa, [[]], [] ],
+		[ "136", :Osage, [[]], [] ],
+		[ "137", :Tangut, [[]], [] ],
+		[ "138", :MasaramGondi, [[]], [] ],
+		[ "139", :Nushu, [[]], [] ],
+		[ "140", :Soyombo, [[]], [] ],
+		[ "141", :ZanabazarSquare, [[]], [] ],
+		[ "142", :Dogra, [[]], [] ],
+		[ "143", :GunjalaGondi, [[73056,73135]], [:Gondi] ],
+		[ "144", :HanifiRohingya, [[68864,68927]], [:Rohingya] ],
+		[ "145", :Makasar, [[73440,73455]], [:Makasar] ],
+		[ "146", :Medefaidrin, [[93760,93855]], [:Medefaidrin] ],
+		[ "147", :OldSogdian, [[69376,69423]], [:Sogdian] ],
+		[ "148", :Sogdian, [[69424,69487]], [:Sogdian] ],
+		[ "149", :Elymaic, [[69600,69631]], [:Aramaic] ],
+		[ "150", :Nandinagari, [[72096,72191]], [:Sansknada] ],
+		[ "151", :NyiakengPuachueHmong, [[123136,123215]], [:Hmong] ],
+		[ "152", :Wancho, [[123584,123647]], [:Konyak]  ],
+		[ "153", :Chorasmian, [[69552,69599]], [:Khwarezmian] ],
+		[ "154", :DivesAkuru, [[71936,72031]], [:Maldivian] ],
+		[ "155", :KhitanSmallScript, [[101120, 101631]], [:Chineese] ],
+		[ "156", :Yezidi, [[69248, 69311]], [:Kurdish] ]	
+		
+	]
+
+	# Unicode directions
+
+	$xUnicodeDirectionsXT = [
+		# Nbr > ShortName > StzName > Description
+		[ "0", :DirL, :LeftToRight, "Left-to-right" ],
+		[ "1", :DirR, :RightToLeft, "Right-to-left" ],
+		[ "2", :DirEN, :EuropeanNumber, "European Number" ],
+		[ "3", :DirES, :EuropeanNumberSeparator, "European Number Separator" ],
+		[ "4", :DirET, :EuropeanNumberTerminator, "European Number Terminator" ],
+		[ "5", :DirAN, :ArabicNumber, "Arabic Number" ],
+		[ "6", :DirCS, :CommonNumberSeparator, "Common Number Separator" ],
+		[ "7", :DirB, :ParagraphSeparator, "Paragraph Separator" ],
+		[ "8", :DirS, :SectionSeparator, "Section Separator" ],
+		[ "9", :DirWS, :Whitespace, "Whitespace" ],
+		[ "10", :DirON, :OtherNeutrals, "Other Neutrals" ],
+		[ "11", :DirLRE, :LeftToRightEmbedding, "Left-to-right Embedding" ],
+		[ "12", :DirLRO, :LeftToRightOverride, "Left-to-right Override" ],
+		[ "13", :DirAL, :RightToLeftArabic, "Right-to-left Arabic" ],
+		[ "14", :DirRLE, :RightToLeftEmbedding, "Right-to-left Embedding" ],
+		[ "15", :DirRLO, :RightToLeftOverride, "Right-to-left Override" ],
+		[ "16", :DirPDF, :PopDirectionalFormat, "Pop Directional Format" ],
+		[ "17", :DirNSM, :NonSpacingMark, "Non-Spacing Mark" ],
+		[ "18", :DirBN, :BoundaryNeutral, "Boundary Neutral" ]
+	
+		/*
+		TODO: Check for right-to-left Isolate...
+		*/
+	]
+	
+	# Unicode categories
+
+	$xUnicodeCategoriesXT = [
+		# utf8proc category numbering (matches Zig engine)
+		[ "1", :Letter_Uppercase ],
+		[ "2", :Letter_Lowercase ],
+		[ "3", :Letter_Titlecase ],
+		[ "4", :Letter_Modifier ],
+		[ "5", :Letter_Other ],
+
+		[ "6", :Mark_NonSpacing ],
+		[ "7", :Mark_SpacingCombining ],
+		[ "8", :Mark_Enclosing ],
+
+		[ "9", :Number_DecimalDigit ],
+		[ "10", :Number_Letter ],
+		[ "11", :Number_Other ],
+
+		[ "12", :Punctuation_Connector ],
+		[ "13", :Punctuation_Dash ],
+		[ "14", :Punctuation_Open ],
+		[ "15", :Punctuation_Close ],
+		[ "16", :Punctuation_InitialQuote ],
+		[ "17", :Punctuation_FinalQuote ],
+		[ "18", :Punctuation_Other ],
+
+		[ "19", :Symbol_Math ],
+		[ "20", :Symbol_Currency ],
+		[ "21", :Symbol_Modifier ],
+		[ "22", :Symbol_Other ],
+
+		[ "23", :Separator_Space ],
+		[ "24", :Separator_Line ],
+		[ "25", :Separator_Paragraph ],
+
+		[ "26", :Other_Control ],
+		[ "27", :Other_Format ],
+		[ "28", :Other_Surrogate ],
+		[ "29", :Other_PrivateUse ],
+		[ "0", :Other_NotAssigned ]
+	]
+	
+	# Unicode versions
+
+	$vtUnicodeVersions = [ 
+		"0.9", "1.0", "1.2", "1.4", "1.5",
+		"3.2", "3.3", "3.4", "3.5", "3.8",
+		"4.0", "4.2", "4.3", "4.5", "4.8",
+		"5.0", "5.2", "5.3", "5.5", "5.8",
+		"10.0", "12.0", "13.0"
+	] # #TODO Put correct values (see how CurrentUnicodeversion() works)
+
+	  #-----------------#
+	 #   PUNCTUATION   #
+	#-----------------#
+
+	#WARNING
+	# The two unicode blocks GENERAL_PUNC and SUPPLEMENTAL_PUNCT
+	# do not contain basic punctuations like ",",";", and so on.
+	# Those are classified in the category "Other Punctuation". Listed here:
+	# https://www.compart.com/en/unicode/category/Po
+
+	#TODO
+	# Add them to this list of unicodes herefater, otherwise the
+	# use of Punctuations() function would lead the user to error...
+
+	vOtherPunctuationUnicodes	= [] #TODO // Comptete it
+	$viGeneralPunctuationUnicodes   = 8192  : 8303
+	$viSupplementalPunctuationCodes = 11766 : 11903
+
+	# Merging the three lists above
+	$viPunctuationUnicodes = []
+	nOtherPunctuationUnicoLen = Len(vOtherPunctuationUnicodes)
+	for iLoop_anOtherPunctuationUnico1 = 1 to nOtherPunctuationUnicoLen
+		xItem2 = vOtherPunctuationUnicodes[iLoop_anOtherPunctuationUnico1]
+		$viPunctuationUnicodes + xItem2
+	end
+
+	nGeneralPunctuationUniLen = Len($viGeneralPunctuationUnicodes)
+	for iLoop_anGeneralPunctuationUni1 = 1 to nGeneralPunctuationUniLen
+		xItem2 = $viGeneralPunctuationUnicodes[iLoop_anGeneralPunctuationUni1]
+		$viPunctuationUnicodes + xItem2
+	end
+
+	nSupplementalPunctuatiLen = Len($viSupplementalPunctuationCodes)
+	for iLoop_anSupplementalPunctuati1 = 1 to nSupplementalPunctuatiLen
+		xItem2 = $viSupplementalPunctuationCodes[iLoop_anSupplementalPunctuati1]
+		$viPunctuationUnicodes + xItem2
+	end
+
+	  #-------------------#
+	 #   ARABIC STAFF    #
+	#-------------------#
+
+	# Arabic Basmalah
+
+	$tAllahAsChar = "ﷲ"
+	$tAllahAsString = "اللَّه"
+
+	$tBasmalahAsChar = "﷽"
+	nBasmalahCharUnicode = 65021
+
+	$tBasmalahAsString = "بِسْمِ اللَّهِ الرَّحْمَانِ الرَّحِيمِ"
+
+	$tMuhammedAsChar = "ﷴ"
+	$tMuhammedAsString = "مُحَمَّد"
+	$tSalatAlaMuhammedAsChar = "ﷺ"
+	tSalatAlaMuhammedAsString = "صَلَّى اللّهُ عَلَيْهِ وَ سَلَّمَ"
+
+	# Arabic letters
+	$vtArabicLetters   = ["أ", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر", "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ع", "غ", "ف", "ق", "ك", "ل", "م", "ن", "ه", "و", "ي"]
+	$vtArabicLettersXT = [ "ا","أ","ئ","ء","آ","ب","ت","ة","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","و","ه","ي", "ّ" ]
+
+	# Arabic 7arakets
+
+	$tArabicDhammah = "ُ"		nArabicDhammahUnicode = 1615
+	$tArabicFat7ah = "َ"		nArabicFat7ahUnicode  = 1614
+	$tArabicKasrah = "ِ"		nArabicKasrahUnicode  = 1616
+	$tArabicSukoon = "ْ"		nArabicSukoonUnicode  = 1618
+	$tArabicDoubleDhammah = "ُُ"
+	$tArabicDoubleFat7ah = "ََ"
+	$tArabicDoubleKasrah = "ِِ"
+
+	
+	$viArabic7araketUnicodes = [
+		nArabicDhammahUnicode, nArabicFat7ahUnicode,
+		nArabicKasrahUnicode, nArabicSukoonUnicode
+	]
+
+	# Arabic Shaddah
+
+	$tArabicShaddah = "ّ"
+	
+	# Arabic Tamdeed
+
+	$tArabicTamdeed = "ـ" # used to extend arabic words like in حُسَيْـــــن
+
+	# Arabic Tinween
+
+	viArabicTinweenUnicodes = 1611:1613
+
+	# Arabic chars unicodes
+
+	viArabicBasicUnicodes = 1536 : 1791
+	$viArabicSupplementUnicodes = 1872 : 1919
+	$viArabicExtendedAUnicodes = 2208 : 2303
+	$viArabicPresentationFormAUnicodes = 64336 : 65023
+	$viArabicPresentationFormBUnicodes = 65136 : 65279
+	$viArabicMathAlphabeticSymbolUnicodes = 126464 : 126719
+
+	$viQuranicSignUnicodes = 1750 : 1773
+	
+	# Arabic Presentation Form unicodes
+
+	$viArabicPresentationFormUnicodes = []
+
+	nArabicPresentationFor4Len = Len($viArabicPresentationFormAUnicodes)
+	for iLoop_anArabicPresentationFor4 = 1 to nArabicPresentationFor4Len
+		xItem2 = $viArabicPresentationFormAUnicodes[iLoop_anArabicPresentationFor4]
+		$viArabicPresentationFormUnicodes + xItem2
+	end
+
+	nArabicPresentationFor3Len = Len($viArabicPresentationFormBUnicodes)
+	for iLoop_anArabicPresentationFor3 = 1 to nArabicPresentationFor3Len
+		xItem2 = $viArabicPresentationFormBUnicodes[iLoop_anArabicPresentationFor3]
+		$viArabicPresentationFormUnicodes + xItem2
+	end
+
+	# All Arabic unicodes #TODO PErf
+
+	vArabicUnicodes = []
+
+	nArabicBasicUnicodesLen = Len(viArabicBasicUnicodes)
+	for iLoop_anArabicBasicUnicodes1 = 1 to nArabicBasicUnicodesLen
+		xItem2 = viArabicBasicUnicodes[iLoop_anArabicBasicUnicodes1]
+		vArabicUnicodes + xItem2
+	end
+	nArabicSupplementUnicoLen = Len($viArabicSupplementUnicodes)
+	for iLoop_anArabicSupplementUnico1 = 1 to nArabicSupplementUnicoLen
+		xItem2 = $viArabicSupplementUnicodes[iLoop_anArabicSupplementUnico1]
+		vArabicUnicodes + xItem2
+	end
+	nArabicExtendedAUnicodLen = Len($viArabicExtendedAUnicodes)
+	for iLoop_anArabicExtendedAUnicod1 = 1 to nArabicExtendedAUnicodLen
+		xItem2 = $viArabicExtendedAUnicodes[iLoop_anArabicExtendedAUnicod1]
+		vArabicUnicodes + xItem2
+	end
+	nArabicPresentationFor2Len = Len($viArabicPresentationFormAUnicodes)
+	for iLoop_anArabicPresentationFor2 = 1 to nArabicPresentationFor2Len
+		xItem2 = $viArabicPresentationFormAUnicodes[iLoop_anArabicPresentationFor2]
+		vArabicUnicodes + xItem2
+	end
+	nArabicPresentationForLen = Len($viArabicPresentationFormBUnicodes)
+	for iLoop_anArabicPresentationFor1 = 1 to nArabicPresentationForLen
+		xItem2 = $viArabicPresentationFormBUnicodes[iLoop_anArabicPresentationFor1]
+		vArabicUnicodes + xItem2
+	end
+	nArabicMathAlphabeticSLen = Len($viArabicMathAlphabeticSymbolUnicodes)
+	for iLoop_anArabicMathAlphabeticS1 = 1 to nArabicMathAlphabeticSLen
+		xItem2 = $viArabicMathAlphabeticSymbolUnicodes[iLoop_anArabicMathAlphabeticS1]
+		vArabicUnicodes + xItem2
+	end
+
+	# Arabic Dotless letters
+	# (classic caligraphy without dots, called also Rasm script)
+
+		# List of arabic letters without dots:
+		# https://en.wikipedia.org/wiki/Rasm
+
+		# Read about the lacking support in Unicode of
+		# rasm not dotter letters for classic arabic calugraphy
+		# https://unicode.org/L2/L2014/14109-inline-chars.pdf
+
+		# Equivalent in hebrew of the arabic 7araket:
+		# https://en.wikipedia.org/wiki/Niqqud
+
+		# Equivalent in hebrew of the arabic tinkeet and shaddah :
+		# https://en.wikipedia.org/wiki/Dagesh
+
+	$viArabicDotlessUnicodes = [
+		1609, 1575, 1581, 1583, 1585,
+		1587, 1589, 1591, 1593, 1605,
+		1607, 1608, 1646, 1647, 1697,
+		1705, 1722
+	]
+
+	
+	$xArabicDotlessCharsXT = [
+
+	#TODO // Wa may need a better data structure
+	# to manage some special Dotless letters
+	# like ٯ in the word مٯاومه
+
+	[ "ى" , "ى" ],
+	[ "ي" , "ٮ" ],
+
+	[ "ح" , "ح" ],
+[ "خ" , "ح" ],
+[ "ج" , "ح" ],
+
+	[ "د" , "د" ],
+	[ "ذ" , "د" ],
+
+	[ "ر" , "ر" ],
+	[ "ز" , "ر" ],
+
+	[ "س" , "س" ],
+	[ "ش" , "س" ],
+
+	[ "ص" , "ص" ],
+	[ "ض" , "ص" ],
+
+	[ "ط" , "ط" ],
+	[ "ظ" , "ط" ],
+
+	[ "ک" , "ک" ],
+	[ "ك" , "ک" ],
+
+	[ "ع" , "ع" ],
+	[ "غ" , "ع" ],
+
+	[ "ٮ" , "ٮ" ],
+	[ "ب" , "ٮ" ],
+[ "ت" , "ٮ" ],
+[ "ث" , "ٮ" ],
+
+	[ "ٯ" ,"ٯ" ],
+	[ "ق" ,"ٯ" ],
+[ "ف" ,"ٯ" ],
+
+	
+[ "ں" ,"ں" ],
+[ "ن" ,"ں" ],
+
+[ "ه", "ه" ],
+[ "ة", "ه" ]
+
+]
+
+	# Arabic Hamzahs
+
+	nArabicHamzahWasliahMadhmoumahUnicode = 1649
+	viArabicHamzahWasliahMaksoorahUnicode = [1575,1615]
+		# You may ask: Why 2 unicodes to define just one Hamzah? Read below:
+	
+		/* While Unicode defines one code (1569) for the "اُ" (Hamzah Wasliah Madhmoomah),
+		it does not recognize the other variant "اِ" (Hamzah Wasliah Maksoorah) that
+		we find in a word like اِنفتاح.
+	
+		The difficulty we have here is that "اِ" is in fact two chars (Alif + Kasrah),
+		while stzChar deels only with one char at a time! So, it will be impossible
+		to say:
+	
+			StzCharQ("اِ").RemoveDiacritic() or
+			StzCharQ("اِ").IsDiacritic()
+		 
+		because "اِ" is not a char but two chars. By contrast, StzString will do
+		it correctly:
+	
+			StzStringQ("اِ").RemoveDiacritic()
+			--> returns only Alif as a result ("ا")
+	
+		Because the Kasrah is recognized as a diacritic that is replaced with NULL.
+	
+		Clearly, there is a need to add a stzLetter class and use it to manage
+		those situations where many chars collaborate in defining only one letter.
+		But, for the mean time, stzString should (TODO) also be able to recognize "اِ"
+		as beeign one letter:
+	
+			StzStringQ("اِ").IsLetter() --> 1
+	
+		and as beeing a diacritic:
+	
+			StzStringQ("اِ").IsDiacritic() --> 1
+	*/
+
+	viArabicHamzahKat3iahUnicodes = 1571:1574 + 1569
+	xArabicHamzahWasliahUnicodes = viArabicHamzahWasliahMaksoorahUnicode + nArabicHamzahWasliahMadhmoumahUnicode
+	
+	$viArabicHamzahUnicodes = []
+
+	nArabicHamzahKat3iahUnLen = Len(viArabicHamzahKat3iahUnicodes)
+	for iLoop_anArabicHamzahKat3iahUn1 = 1 to nArabicHamzahKat3iahUnLen
+		xItem2 = viArabicHamzahKat3iahUnicodes[iLoop_anArabicHamzahKat3iahUn1]
+		$viArabicHamzahUnicodes + xItem2
+	end
+	nArabicHamzahWasliahUnLen = Len(xArabicHamzahWasliahUnicodes)
+	for iLoop_anArabicHamzahWasliahUn1 = 1 to nArabicHamzahWasliahUnLen
+		xItem2 = xArabicHamzahWasliahUnicodes[iLoop_anArabicHamzahWasliahUn1]
+		$viArabicHamzahUnicodes + xItem2
+	end
+
+	  #-------------------#
+	 #   LANTIN STAFF    #
+	#-------------------#
+
+	# Latin chars unicodes
+
+	viLatinBasicUnicodes = 0 : 127
+	$viLatin1SupplementUnicodes = 128 : 255
+	$viLatinExtendedAUnicodes = 256 : 383
+	$viLatinExtendedBUnicodes = 384 : 591
+	$viLatinExtendedAdditionalUnicodes = 7680 : 7935
+	$viLatinExtendedCUnicodes = 11360 : 11391
+	$viLatinExtendedDUnicodes = 42784 : 43007
+	$viLatinExtendedEUnicodes = 43824 : 43887
+	
+	vLatinUnicodes = []
+	
+	nLatinBasicUnicodesLen = Len(viLatinBasicUnicodes)
+	for iLoop_anLatinBasicUnicodes1 = 1 to nLatinBasicUnicodesLen
+		xItem2 = viLatinBasicUnicodes[iLoop_anLatinBasicUnicodes1]
+		vLatinUnicodes + xItem2
+	end
+	nLatin1SupplementUnicoLen = Len($viLatin1SupplementUnicodes)
+	for iLoop_anLatin1SupplementUnico1 = 1 to nLatin1SupplementUnicoLen
+		xItem2 = $viLatin1SupplementUnicodes[iLoop_anLatin1SupplementUnico1]
+		vLatinUnicodes + xItem2
+	end
+	nLatinExtendedAUnicodeLen = Len($viLatinExtendedAUnicodes)
+	for iLoop_anLatinExtendedAUnicode1 = 1 to nLatinExtendedAUnicodeLen
+		xItem2 = $viLatinExtendedAUnicodes[iLoop_anLatinExtendedAUnicode1]
+		vLatinUnicodes + xItem2
+	end
+	nLatinExtendedBUnicodeLen = Len($viLatinExtendedBUnicodes)
+	for iLoop_anLatinExtendedBUnicode1 = 1 to nLatinExtendedBUnicodeLen
+		xItem2 = $viLatinExtendedBUnicodes[iLoop_anLatinExtendedBUnicode1]
+		vLatinUnicodes + xItem2
+	end
+	nLatinExtendedAdditionLen = Len($viLatinExtendedAdditionalUnicodes)
+	for iLoop_anLatinExtendedAddition1 = 1 to nLatinExtendedAdditionLen
+		xItem2 = $viLatinExtendedAdditionalUnicodes[iLoop_anLatinExtendedAddition1]
+		vLatinUnicodes + xItem2
+	end
+	nLatinExtendedCUnicodeLen = Len($viLatinExtendedCUnicodes)
+	for iLoop_anLatinExtendedCUnicode1 = 1 to nLatinExtendedCUnicodeLen
+		xItem2 = $viLatinExtendedCUnicodes[iLoop_anLatinExtendedCUnicode1]
+		vLatinUnicodes + xItem2
+	end
+	nLatinExtendedDUnicodeLen = Len($viLatinExtendedDUnicodes)
+	for iLoop_anLatinExtendedDUnicode1 = 1 to nLatinExtendedDUnicodeLen
+		xItem2 = $viLatinExtendedDUnicodes[iLoop_anLatinExtendedDUnicode1]
+		vLatinUnicodes + xItem2
+	end
+	nLatinExtendedEUnicodeLen = Len($viLatinExtendedEUnicodes)
+	for iLoop_anLatinExtendedEUnicode1 = 1 to nLatinExtendedEUnicodeLen
+		xItem2 = $viLatinExtendedEUnicodes[iLoop_anLatinExtendedEUnicode1]
+		vLatinUnicodes + xItem2
+	end
+
+	# Dotless chars
+
+	$viLatinDotlessUnicodes = [ 97, 101, 111, 117, 305, 567 ]
+	#TODO // Add unicodes of uppercased "a", "e", "o", and "u"
+
+	$xLatinDotlessLettersXT = [
+		[ "ı", "ı" ],
+		[ "i", "ı" ],
+		[ "î", "ı" ],
+
+		[ "ȷ", "ȷ" ],
+		[ "j", "ȷ" ],
+
+		[ "à", "a" ],
+		[ "â", "a" ],
+
+		[ "é", "e" ],
+		[ "è", "e" ],
+		[ "ê", "e" ],
+
+		[ "ô", "o" ],
+
+		[ "ù", "u" ],
+		[ "û", "u"]
+
+		#TODO // #TODO // Add unicodes of uppercased "a", "e", "o", and "u"
+	]
+
+	  #--------------------#
+	 #   NUMBERS STAFF    #
+	#--------------------#
+
+	# Romans numbers
+	
+	$viRomanNumbersUnicodes = [
+		8544, 8545, 8546, 8547, 8548, 8549, 8550,
+		8551, 8552, 8553, 8560, 8561, 8562, 8563,
+		8564, 8565, 8566, 8567, 8569, 8570
+	]
+
+	$vtRomanNumbers = [
+		"Ⅰ", "ⅰ", "Ⅱ", "ⅱ", "Ⅲ", "ⅲ", "Ⅳ", "ⅳ", "Ⅴ", "ⅴ",
+		"Ⅵ", "ⅵ", "Ⅶ", "ⅶ", "Ⅷ", "ⅷ", "Ⅸ", "ⅺ", "Ⅹ", "ⅹ",
+
+		"Ⅺ", "ⅺ", "Ⅻ", "ⅻ", "Ⅼ", "ⅼ", "Ⅽ", "ⅽ",
+		"Ↄ", "ↄ", "Ⅾ",	"ⅾ",
+
+		"Ⅿ", "ⅿ", "ↀ", "ↁ",
+		"ↂ", "ↅ", "ↆ", "ↇ",
+		"ↈ"	
+	]
+
+	$xRomanNumbersXT = [
+		["Ⅰ" , 1],	["ⅰ" , 1],	["Ⅱ" , 2], 	["ⅱ" , 2],
+		["Ⅲ" , 3],	["ⅲ" , 3],	["Ⅳ" , 4],	["ⅳ" , 4],
+		["Ⅴ" , 5],	["ⅴ" , 5],	["Ⅵ" , 6],	["ⅵ" , 6],
+
+		["Ⅶ" , 7],	["ⅶ" , 7],	["Ⅷ" , 8],	["ⅷ" , 8],
+		["Ⅸ" , 9],	["ⅸ" , 9],	["Ⅹ" , 10],	["ⅹ" , 10],
+
+		["Ⅺ" , 11],	["ⅺ" , 11],	["Ⅻ" , 12],	["ⅻ" , 12],
+		["Ⅼ" , 50],	["ⅼ" , 50],	["Ⅽ" , 100],	["ⅽ" , 100],
+		["Ↄ" , 100],	["ↄ" , 100],	["Ⅾ" , 500],	["ⅾ" , 500],
+
+		["Ⅿ" , 1_000],	["ⅿ" , 1_000],	["ↀ" , 1_000],	["ↁ" , 5_000],
+		["ↂ" , 10_000],	["ↅ" , 6],	["ↆ" , 50],	["ↇ" , 50_000],
+		["ↈ" , 100_000]	
+		/*
+		Just for fun:
+		253 in roman is ⅭⅭⅬⅢ
+		And that's how:
+		253 = 100 + 100 + 50 + 3
+		       Ⅽ    Ⅽ    Ⅼ  Ⅲ
+		*/
+	]
+
+	# Mandarin numbers
+
+	$viMandarinNumbersUnicodes = [
+		12295, 19968, 19971, 19975, 19977,
+		20061, 20108, 20116, 20843, 20845,
+		21313, 21315, 22235, 30334
+	]
+
+	$vtMandarinNumbers = [
+		"〇", "一", "二", "三",
+		"四", "五", "六", "七",
+		"八", "九", "十", "百",
+		"千", "万"
+	]
+
+	$xMandarinNumbersXT = [
+		["〇", 0], 	["一", 1], 	["二", 2], 	["三", 3],
+		["四", 4],	["五", 5],	["六", 6],	["七", 7],
+		["八", 8],	["九", 9],	["十", 10],	["百", 100],
+		["千", 1_000],	["万", 10_000]
+		/*
+		Just for fun:
+		253 in mandarin is 二百五十三
+		And that's how:
+		253 = 2 * 100 + 5 * 10 +  3
+		      二   百   五   十   三
+		*/
+	]
+		
+	# Arabic number fractions
+
+	vArabicNumberFractionsUnicodes = [
+		188, 189, 190, 8528, 8529, 8530,
+		8531, 8532, 8533, 8534, 8535, 8536,
+		8537, 8538, 8539, 8540, 8541, 8542
+	]
+
+	$xArabicNumberFractionsXT = [
+		[ "1/4", 188 ], #--> "¼"
+		[ "1/2", 189 ], #--> "½"
+		[ "3/4", 190 ], #--> "¾"
+	
+		[ "1/7", 8528 ], #--> "⅐"	# could not be printed because of the font
+		[ "1/9", 8529 ], #--> "⅑"	# idem
+		[ "1/10",8530 ], #--> "⅒"
+	
+		[ "1/3", 8531 ], #--> "⅓"
+		[ "2/3", 8532 ], #--> "⅔"
+	
+		[ "1/5", 8533 ], #--> "⅕"
+		[ "2/5", 8534 ], #--> "⅖"
+		[ "3/5", 8535 ], #--> "⅗"
+		[ "4/5", 8536 ], #--> "⅘"
+	
+		[ "1/6", 8537 ], #--> "⅙"
+		[ "5/6", 8538 ], #--> "⅚"
+	
+		[ "1/8", 8539 ], #--> "⅛"
+	
+		[ "3/8", 8540 ], #--> "⅜"
+		[ "5/8", 8541 ], #--> "⅝"
+		[ "7/8", 8542 ], #--> "⅞"
+	
+		[ "1/", 8543 ], #--> "⅟"
+	
+		[ "0/3", 8585 ] #--> "↉"	# idem
+	]
+
+	# Decimal chars
+
+	$vtDecimalchars = "0" : "9"
+
+	# Binary chars
+
+	$vtBinaryChars = [ "0", "1" ]
+
+	# Octal chars
+
+	$vtOctalChars = "0":"7"
+
+	# Hex chars
+
+	$vtHexChars = [ "0","1", "2", "3", "4", "5", "6", "7", "8",
+		       "9", "10", "11", "12", "13", "14", "15",
+		       "A", "B", "C", "D", "E", "F",
+		       "a", "b", "c", "d", "e", "f" ]
+
+	  #-------------------------------------------------------#
+	 #   INVERTIBLE, TURNED, CIRCLED, AND INVISIBLE CHARS    #
+	#-------------------------------------------------------#
+
+	#NOTE: Unicode distinsguishes between:
+	# 	- a turned char
+	# 	- an inverted char
+	# 	- a reversed char
+	# 	- a rotated char
+	# 	- an inversed char
+	# 
+	#--> You can read about them here:
+	#     https://unicode.org/faq/casemap_charprop.html#16
+	# 
+	# But this is semantically confusing! That's why Softanza
+	# has a different opinion to gain clarity and peace of mind, so:
+	# 
+	# Rule: All these terms are equivalent : turned, inverted, reversed,
+	# inverted, and reverted. And they all mean that the char is turned up
+	# or down (the only two options I find them useful in the mean time).
+	# 
+	# Of course, this may be changed in the future, to cope with the
+	# UNICODE standard and benefit from all its features. 
+	
+
+	# Invertible chars
+
+	$viInvertibleCharsUnicodes = [
+		36, 38, 40, 41, 42, 44, 45, 46, 47, 48, 50, 51, 54,
+		57, 59, 60, 61, 62, 65, 69, 70, 71, 73, 75, 76, 77,
+		79, 83, 84, 86, 88, 89, 92, 97, 101, 103, 104, 105,
+		107, 108, 109, 109, 111, 114, 115, 116, 118, 119,
+		120, 121, 123, 124, 125, 126, 164, 171, 172, 187,
+		339, 397, 398, 412, 477, 581, 592, 593, 594, 603,
+		613, 623, 633, 634, 636, 637, 640, 647, 652, 653,
+		654, 670, 948, 953, 7432, 7433, 7444, 7450, 7491,
+		7492, 7543, 7545, 8216, 8217, 8220, 8221, 8224,
+		8364, 8364, 8489, 8498, 8513, 8514, 8516, 8523,
+		8526, 8586, 8587, 8736, 8985, 9750, 9751, 9929,
+		9930, 10075, 10076, 10077, 10078, 10658, 11039,
+		11202, 11373, 11375, 11376, 11385, 11826, 11829,
+		11832, 42800, 42877, 42878, 42879, 42880, 42881,
+		42893, 42928, 42929, 43002, 43468, 43469, 43843,
+		43856, 43857
+	]
+
+	$xInvertibleCharsXT = [
+		[ "δ" , "ƍ" ], 	[ "Ɑ" , "Ɒ" ], 	[ "ɑ" , "ɒ" ], 	[ "A" , "Ɐ" ],
+		[ "a" , "ɐ" ],	[ "E" , "Ǝ" ],	[ "e" , "ǝ" ],	[ "h" , "ɥ" ],
+		
+		[ "M" , "Ɯ" ],	[ "m" , "ɯ" ],	[ "r" , "ɹ" ],	[ "ɼ" , "ɺ" ],
+		
+		[ "t" , "ʇ" ],	[ "V" , "Ʌ" ],	[ "v" , "ʌ" ],	[ "w" , "ʍ" ],
+		[ "y" , "ʎ" ],	[ "k" , "ʞ" ],	[ "ɛ" , "ᴈ" ],	[ "i" , "ᴉ" ],
+		[ "œ" , "ᴔ" ],	[ "ʀ" , "ᴚ" ],	[ "ᵃ" , "ᵄ" ],	[ "g" , "ᵷ" ],
+		[ "’" , "‘" ],	[ "“" , "”" ],	[ "ι" , "℩" ],	[ "Ⅎ" , "F" ],
+	
+		[ "G" , "⅁" ],	[ "L" , "⅂" ],	[ "Y" , "⅄" ],	[ "&" , "⅋" ],
+		[ "ꜰ" , "ⅎ" ],	[ "2" , "↊" ], 	[ "3" , "↋" ], 	[ "¬" , "⌙" ],
+		[ "☖" , "⛉" ],	[ "☗" , "⛊" ],	[ "❜" , "❛" ], [ "❞" , "❝" ],
+	
+		[ "∠" , "⦢" ], [ "⬟" , "⯂" ],	[ "ɽ" , "ⱹ" ], 	[ "," , "⸲" ],
+		[ ";" , "⸵" ], 	[ "†" , "⸸" ], 	[ "Ᵹ" , "Ꝿ" ],	[ "ᵹ" , "ꝿ" ],
+		[ "L" , "Ꞁ" ],	[ "l" , "ꞁ" ], 	[ "H" , "Ɥ" ],	[ "K" , "Ʞ" ],
+		[ "T" , "Ʇ" ],	[ "m" , "ꟺ" ], 	[ "꧌" , "꧍" ],	[ "ɛ" , "ꭃ" ],
+		[ "ꭐ" , "ꭑ" ], [ "X", "X" ], [ "x", "x" ], [ "I", "I" ],
+		[ "H", "H" ], [ "o", "o" ], [ "O", "O" ], [ "s", "s" ], [ "S", "S" ],
+
+		[ "0", "0" ], [ "9", "6" ],
+
+		[ ".", "." ], [ "-", "-" ], [ "=", "=" ], [ "*", "*" ],
+		[ "/", "\" ], [ "(", ")" ], [ "{", "}" ], [ "<", ">" ],
+		[ "«", "»" ], [ "¤", "¤" ], [ "|", "|" ], [ "~", "~" ],
+		[ "$", "$" ], [ "€", "€" ]
+		
+	]
+
+	# Turned chars : TODO - Solve confusion with invertible chars!
+
+	$viTurnableNumbersUnicodes = [2, 3]
+
+	$viTurnedNumbersUnicodes = [ 8586, 8587 ]
+
+	$viTurnedCharsUnicodes = [
+		73, 397,398,412,477,581,592,594,613,623,624,633,634,
+		635,647,652,653,654,670,686,687,692,693,699,786,
+		1376,2275,4345,6848,7353,7426,7432,7433,7444,7450,
+		7455,7492,7494,7500,7502,7514,7543,7579,7587,7597,
+		7610,8216,8220,8489,8498,8513,8514,8516,8523,8526,
+		8586,8587,8985,9929,9930,10075,10077,8354,11202,
+		11375,11376,11385,11387,11826,11829,11832,42878,
+		42879,42880,42881,42893,42928,42929,43002,43469,
+		43841,43842,43843,43844,43857,43864,43865,68506,
+		71276,128399,128596,128597,128598,128599,128630,
+		129567,129567,129568,129569,129570,129571,129572,
+		129573,129574,129575,129576,129577,129578,129579,
+		129580,129581,129582,129583
+	]
+
+	$xTurnableCharsXT = $xInvertibleCharsXT
+
+	#WARNING: Makes it possilbe to check if a char is turnable
+	# in uncode using the IsTurnable() function.
+
+	# But what we do here is that we use the same data as
+	# "INVERTIBLE" chars (see _aInvertibleCharsXT) above,
+	# which may be different, in Unicode, then "TURNABLE"!
+
+	#TODO // Check this and fix it accordingly
+	#--> Read this to understand the problem:
+	#     https://unicode.org/faq/casemap_charprop.html#16
+
+
+	# Circled Chars
+
+	$viCircledDigitUnicodes = 9312:9320 + 9450
+
+	$viLatinCircledCapitalLetterUnicodes = 9398:9423
+	$viLatinCircledSmallLetterUnicodes = 9424:9449
+
+	$viLatinCircledLetterUnicodes = []
+
+	nLatinCircledCapitalLeLen = Len($viLatinCircledCapitalLetterUnicodes)
+	for iLoop_anLatinCircledCapitalLe1 = 1 to nLatinCircledCapitalLeLen
+		xItem2 = $viLatinCircledCapitalLetterUnicodes[iLoop_anLatinCircledCapitalLe1]
+		$viLatinCircledLetterUnicodes + xItem2
+	end
+	nLatinCircledSmallLettLen = Len($viLatinCircledSmallLetterUnicodes)
+	for iLoop_anLatinCircledSmallLett1 = 1 to nLatinCircledSmallLettLen
+		xItem2 = $viLatinCircledSmallLetterUnicodes[iLoop_anLatinCircledSmallLett1]
+		$viLatinCircledLetterUnicodes + xItem2
+	end
+
+	# Invisible chars
+
+	$viInvisibleUnicodes = [
+		9, 160, 8192, 8193, 8194, 8195, 8196, 8197,
+		8198, 8199, 8200, 8201, 8202, 8203, 8204, 8205,
+		8206, 8207, 8232, 8233, 8238, 8239, 8287, 12288, 12644,
+		4447, 65440
+	]
+
+	  #------------------#
+	 #   ICONS CHARS    #
+	#------------------#
+
+	# Icons chars TODO
+
+	vIconNamesAndTheirUniocdes = [
+		# Complete the list
+	]
+
+	  #----------------#
+	 #   WORD STAFF   #
+	#----------------#
+
+	$tHyphenShort = "-"
+
+	$tHyphenLong = "—" # used to —delimiet a portion of text— in the sentence.
+
+	$tUnderscore = "_" # used as a separator inside some_how_long_words
+
+	# Word and sentence separators
+
+	$vtWordSeparators = [ " ", ".", ",", ";", ":", "!", "?", "؟", "،", "'", "’", "—"  ]
+	$vtSentenceSeparators = [ ".", "!", "?", "؟" ]
+
+	# Word bounding chars
+
+	$vWordBoundingChars = [
+		[ "(", ")" ], [ "[", "]" ], [ "{", "}" ], [ "'", "'" ], [ '"', '"' ]
+	]
+
+	# Word non letter chars (TODO: Complete the list)
+
+	$vtWordNonLetterChars = []
+
+	vItems1 = [ "_", "-", "*", "/", "\", "+" ]
+	nItemsLen = Len(vItems1)
+	for iLoop_1 = 1 to nItemsLen
+		xItem2 = vItems1[iLoop_1]
+		$vtWordNonLetterChars + xItem2
+	end
+	xArabicNumbers1 = ArabicNumbers()
+	nArabicNumbers1Len = Len(xArabicNumbers1)
+	for iLoopArabicNumbers1 = 1 to nArabicNumbers1Len
+		xItem2 = xArabicNumbers1[iLoopArabicNumbers1]
+		$vtWordNonLetterChars + xItem2
+	end
+
+	/* Example of words containing those non-letter chars:
+		_C_++
+		Win32,
+		ART*F,
+		AS/400
+	*/
+
+	  #----------------#
+	 #   DIACRITICS   #
+	#----------------#
+
+	# Latin diactritics
+
+	$viLatinDiacriticsUnicodes = [
+		192, 193, 194, 195, 196, 197, 198, 199, 
+		200, 201, 202, 203, 204, 205, 206, 207, 
+		208, 209, 210, 211, 212, 213, 214, 216, 
+		217, 218, 219, 220, 221, 222, 223, 224, 
+		225, 226, 227, 228, 229, 230, 231, 232, 
+		233, 234, 235, 236, 237, 238, 239, 240, 
+		241, 242, 243, 244, 245, 246, 248, 249, 
+		250, 251, 252, 253, 254, 255, 256, 257, 
+		258, 259, 260, 261, 262, 263, 264, 265, 
+		266, 267, 268, 269, 270, 271, 272, 273, 
+		274, 275, 276, 277, 278, 279, 280, 281, 
+		282, 283, 284, 285, 286, 287, 288, 289, 
+		290, 291, 292, 293, 294, 295, 296, 297, 
+		298, 299, 300, 301, 302, 303, 304, 305, 
+		306, 307, 308, 309, 310, 311, 312, 313, 
+		314, 315, 316, 317, 318, 319, 320, 321, 
+		322, 323, 324, 325, 326, 327, 328, 329, 
+		330, 331, 332, 333, 334, 335, 336, 337, 
+		338, 339, 340, 341, 342, 343, 344, 345, 
+		346, 347, 348, 349, 350, 351, 352, 353, 
+		354, 355, 356, 357, 358, 359, 360, 361, 
+		362, 363, 364, 365, 366, 367, 368, 369, 
+		370, 371, 372, 373, 374, 375, 376, 377, 
+		378, 379, 380, 381, 382, 383, 7923
+	]
+
+	$xLatinDiacriticsXT = [
+		[ "À", "A", "Capital A, grave accent" ],
+		[ "Á", "A", "Capital A, acute accent" ],
+		[ "Â", "A", "Capital A, circumflex accent" ],
+		[ "Ã", "A", "Capital A, tilde" ],
+		[ "Ä", "A", "Capital A, dieresis or umlaut mark" ],
+		[ "Å", "A", "Capital A, ring" ],
+		[ "Æ", "AE", "Capital AE diphthong" ],
+		[ "Ç", "C", "Capital C, cedilla" ],
+		[ "È", "E", "Capital E, grave accent" ],
+		[ "É", "E", "Capital E, acute accent" ],
+		[ "Ê", "E", "Capital E, circumflex accent" ],
+		[ "Ë", "E", "Capital E, dieresis or umlaut mark" ],
+		[ "Ì", "I", "Capital I, grave accent" ],
+		[ "Í", "I", "Capital I, acute accent" ],
+		[ "Î", "I", "Capital I, circumflex accent" ],
+		[ "Ï", "I", "Capital I, dieresis or umlaut mark" ],
+		[ "Ð", "E", "Capital Eth, Icelandic" ],
+		[ "Ñ", "N", "Capital N, tilde" ],
+		[ "Ò", "O", "Capital O, grave accent" ],
+		[ "Ó", "O", "Capital O, acute accent" ],
+		[ "Ô", "O", "Capital O, circumflex accent" ],
+		[ "Õ", "O", "Capital O, tilde" ],
+		[ "Ö", "O", "Capital O, dieresis or umlaut mark" ],
+		[ "Ø", "O", "Capital O, slash" ],
+		[ "Ù", "U", "Capital U, grave accent" ],
+		[ "Ú", "U", "Capital U, acute accent" ],
+		[ "Û", "U", "Capital U, circumflex accent" ],
+		[ "Ü", "U", "Capital U, dieresis or umlaut mark" ],
+		[ "Ý", "Y", "Capital Y, acute accent" ],
+		[ "Þ", "P", "Capital thorn, Icelandic" ],
+		[ "ß", "s", "Small sharp s, German" ],
+		[ "à", "a", "Small a, grave accent" ],
+		[ "á", "a", "Small a, acute accent" ],
+		[ "â", "a", "Small a, circumflex accent" ],
+		[ "ã", "a", "Small a, tilde" ],
+		[ "ä", "a", "Small a, dieresis or umlaut mark" ],
+		[ "å", "a", "Small a, ring" ],
+		[ "æ", "ae", "Small ae diphthong" ],
+		[ "ç", "c", "Small c, cedilla" ],
+		[ "è", "e", "Small e, grave accent" ],
+		[ "é", "e", "Small e, acute accent" ],
+		[ "ê", "e", "Small e, circumflex accent" ],
+		[ "ë", "e", "Small e, dieresis or umlaut mark" ],
+		[ "ì", "i", "Small i, grave accent" ],
+		[ "í", "i", "Small i, acute accent" ],
+		[ "î", "i", "Small i, circumflex accent" ],
+		[ "ï", "i", "Small i, dieresis or umlaut mark" ],
+		[ "ð", "e", "Small eth, Icelandic" ],
+		[ "ñ", "n", "Small n, tilde" ],
+		[ "ò", "o", "Small o, grave accent" ],
+		[ "ó", "o", "Small o, acute accent" ],
+		[ "ô", "o", "Small o, circumflex accent" ],
+		[ "õ", "o", "Small o, tilde" ],
+		[ "ö", "o", "Small o, dieresis or umlaut mark" ],
+		[ "ø", "o", "Small o, slash" ],
+		[ "ù", "u", "Small u, grave accent" ],
+		[ "ú", "u", "Small u, acute accent" ],
+		[ "û", "u", "Small u, circumflex accent" ],
+		[ "ü", "u", "Small u, dieresis or umlaut mark" ],
+		[ "ý", "y", "Small y, acute accent" ],
+		[ "þ", "p", "Small thorn, Icelandic" ],
+		[ "ÿ", "y", "Small y, dieresis or umlaut mark" ],
+		[ "Ā", "A", "Capital A, macron accent" ],
+		[ "ā", "a", "Small a, macron accent" ],
+		[ "Ă", "A", "Capital A, breve accent" ],
+		[ "ă", "a", "Small a, breve accent" ],
+		[ "Ą", "A", "Capital A, ogonek accent" ],
+		[ "ą", "a", "Small a, ogonek accent" ],
+		[ "Ć", "C", "Capital C, acute accent" ],
+		[ "ć", "c", "Small c, acute accent" ],
+		[ "Ĉ", "C", "Capital C, circumflex accent" ],
+		[ "ĉ", "c", "Small c, circumflex accent" ],
+		[ "Ċ", "C", "Capital C, dot accent" ],
+		[ "ċ", "c", "Small c, dot accent" ],
+		[ "Č", "C", ",Capital C, caron accent" ],
+		[ "č", "c", "Small c, caron accent" ],
+		[ "Ď", "D", "Capital D, caron accent" ],
+		[ "ď", "d", "Small d, caron accent" ],
+		[ "Đ", "D", "Capital D, with stroke accent" ],
+		[ "đ", "d", "Small d, with stroke accent" ],
+		[ "Ē", "E", "Capital E, macron accent" ],
+		[ "ē", "e", "Small e, macron accent" ],
+		[ "Ĕ", "E", "Capital E, breve accent" ],
+		[ "ĕ", "e", "Small e, breve accent" ],
+		[ "Ė", "E", "Capital E, dot accent" ],
+		[ "ė", "e", "Small e, dot accent" ],
+		[ "Ę", "E", "Capital E, ogonek accent" ],
+		[ "ę", "e", "Small e, ogonek accent" ],
+		[ "Ě", "E", "Capital E, caron accent" ],
+		[ "ě", "e", "Small e, caron accent" ],
+		[ "Ĝ", "G", "Capital G, circumflex accent" ],
+		[ "ĝ", "g", "Small g, circumflex accent" ],
+		[ "Ğ", "G", "Capital G, breve accent" ],
+		[ "ğ", "g", "Small g, breve accent" ],
+		[ "Ġ", "G", "Capital G, dot accent" ],
+		[ "ġ", "g", "Small g, dot accent" ],
+		[ "Ģ", "G", "Capital G, cedilla accent" ],
+		[ "ģ", "g", "Small g, cedilla accent" ],
+		[ "Ĥ", "H", "Capital H, circumflex accent" ],
+		[ "ĥ", "h", "Small h, circumflex accent" ],
+		[ "Ħ", "H", "Capital H, with stroke accent" ],
+		[ "ħ", "h", "Small h, with stroke accent" ],
+		[ "Ĩ", "I", "Capital I, tilde accent" ],
+		[ "ĩ", "i", "Small i, tilde accent" ],
+		[ "Ī", "I", "Capital I, macron accent" ],
+		[ "ī", "i", "Small i, macron accent" ],
+		[ "Ĭ", "I", "Capital I, breve accent" ],
+		[ "ĭ", "i", "Small i, breve accent" ],
+		[ "Į", "I", "Capital I, ogonek accent" ],
+		[ "į", "i", "Small i, ogonek accent" ],
+		[ "İ", "I", "Capital I, dot accent" ],
+		[ "ı", "i", "Small dotless i" ],
+		[ "Ĳ", "IJ", "Capital ligature IJ" ],
+		[ "ĳ", "ij", "Small ligature ij" ],
+		[ "Ĵ", "J", "Capital J, circumflex accent" ],
+		[ "ĵ", "j", "Small j, circumflex accent" ],
+		[ "Ķ", "K", "Capital K, cedilla accent" ],
+		[ "ķ", "k", "Small k, cedilla accent" ],
+		[ "ĸ", "k", "Small Kra" ],
+		[ "Ĺ", "L", "Capital L, acute accent" ],
+		[ "ĺ", "l", "Small l, acute accent" ],
+		[ "Ļ", "L", "Capital L, cedilla accent" ],
+		[ "ļ", "l", "Small l, cedilla accent" ],
+		[ "Ľ", "L", "Capital L, caron accent" ],
+		[ "ľ", "l", "Small L, caron accent" ],
+		[ "Ŀ", "L", "Capital L, middle dot accent" ],
+		[ "ŀ", "l", "Small l, middle dot accent" ],
+		[ "Ł", "L", "Capital L, with stroke accent" ],
+		[ "ł", "l", "Small l, with stroke accent" ],
+		[ "Ń", "N", "Capital N, acute accent" ],
+		[ "ń", "n", "Small n, acute accent" ],
+		[ "Ņ", "N", "Capital N, cedilla accent" ],
+		[ "ņ", "n", "Small n, cedilla accent" ],
+		[ "Ň", "N", "Capital N, caron accent" ],
+		[ "ň", "n", "Small n, caron accent" ],
+		[ "ŉ", "n", "Small n, preceded by apostrophe" ],
+		[ "Ŋ", "N", "Capital Eng" ],
+		[ "ŋ", "n", "Small Eng" ],
+		[ "Ō", "O", "Capital O, macron accent" ],
+		[ "ō", "o", "Small o, macron accent" ],
+		[ "Ŏ", "O", "Capital O, breve accent" ],
+		[ "ŏ", "o", "Small o, breve accent" ],
+		[ "Ő", "O", "Capital O, with double acute accent" ],
+		[ "ő", "o", "Small O, with double acute accent" ],
+		[ "Œ", "OE", "Capital Ligature OE" ],
+		[ "œ", "oe", "Small Ligature oe" ],
+		[ "Ŕ", "R", "Capital R, acute accent" ],
+		[ "ŕ", "r", "Small r, acute accent" ],
+		[ "Ŗ", "R", "Capital R, cedilla accent" ],
+		[ "ŗ", "r", "Small r, cedilla accent" ],
+		[ "Ř", "R", "Capital R, caron accent" ],
+		[ "ř", "r", "Small r, caron accent" ],
+		[ "Ś", "S", "Capital S, acute accent" ],
+		[ "ś", "s", "Small s, acute accent" ],
+		[ "Ŝ", "S", "Capital S, circumflex accent" ],
+		[ "ŝ", "s", "Small s, circumflex accent" ],
+		[ "Ş", "S", "Capital S, cedilla accent" ],
+		[ "ş", "s", "Small s, cedilla accent" ],
+		[ "Š", "S", "Capital S, caron accent" ],
+		[ "š", "s", "Small s, caron accent" ],
+		[ "Ţ", "T", "Capital T, cedilla accent" ],
+		[ "ţ", "t", "Small t, cedilla accent" ],
+		[ "Ť", "T", "Capital T, caron accent" ],
+		[ "ť", "t", "Small t, caron accent" ],
+		[ "Ŧ", "T", "Capital T, with stroke accent" ],
+		[ "ŧ", "t", "Small t, with stroke accent" ],
+		[ "Ũ", "U", "Capital U, tilde accent" ],
+		[ "ũ", "u", "Small u, tilde accent" ],
+		[ "Ū", "U", "Capital U, macron accent" ],
+		[ "ū", "u", "Small u, macron accent" ],
+		[ "Ŭ", "U", "Capital U, breve accent" ],
+		[ "ŭ", "u", "Small u, breve accent" ],
+		[ "Ů", "U", "Capital U with ring above" ],
+		[ "ů", "u", "Small u with ring above" ],
+		[ "Ű", "U", "Capital U, double acute accent" ],
+		[ "ű", "u", "Small u, double acute accent" ],
+		[ "Ų", "U", "Capital U, ogonek accent" ],
+		[ "ų", "u", "Small u, ogonek accent" ],
+		[ "Ŵ", "W", "Capital W, circumflex accent" ],
+		[ "ŵ", "w", "Small w, circumflex accent" ],
+		[ "Ŷ", "Y", "Capital Y, circumflex accent" ],
+		[ "ŷ", "y", "Small y, circumflex accent" ],
+		[ "Ÿ", "Y", "Capital Y, diaeresis accent" ],
+		[ "Ź", "Z", "Capital Z, acute accent" ],
+		[ "ź", "z", "Small z, acute accent" ],
+		[ "Ż", "Z", "Capital Z, dot accent" ],
+		[ "ż", "z", "Small Z, dot accent" ],
+		[ "Ž", "Z", "Capital Z, caron accent" ],
+		[ "ž", "z", "Small z, caron accent" ],
+		[ "ſ", "s", "Small long s" ],
+		[ "ỳ", "y", "Small y" ]
+	]
+
+	# Arabic diacritics
+
+	$viArabicDiacriticsUnicodes = [
+		1569, 1611, 1612, 1613, 1614, 1615,
+		1616, 1617, 1618, 1648, 1649, 1570
+	]
+	
+	$xArabicDiacriticsXT = [
+	
+		# Unicode > WithoutDiacritic > Description > Example of removal of diacritic
+	
+		[ 1571, 1569, "Arabic Hamza Kat3ia ontop of Aleef", "أ --> ء" ],
+		[ 1572, 1569, "Arabic Hamza Kat3ia ontop of Waw", "ؤ --> ء" ],
+		[ 1573, 1569, "Arabic Hamza Kat3ia under Aleef", "إ --> ء" ],
+		[ 1574, 1569, "Arabic Hamza Kat3ia ontop of Waw", "ئ --> ء" ],
+	
+		[ 1611, "", "Arabic Tinween of Fat7ah", "عََ --> ع" ],
+		[ 1612, "", "Arabic Tinween of Dhammah", "عُُ --> ع" ],
+		[ 1613, "", "Arabic Tinween of Kasrah", "عِِ --> ع" ],
+	
+		[ 1614, "", "Arabic Fat7ah", "عَ --> ع" ],
+		[ 1615, "", "Arabic Dhammah", "عُ --> ع" ],
+		[ 1616, "", "Arabic Kasrah", "عِ --> ع" ],
+		[ 1618, "", "Arabic Sukoon", "عْ --> ع" ],
+	
+		[ 1617, "", "Arabic Shaddah", "عّ --> ع" ],
+	
+		[ 1648, "", "Arabic small Alif Mamdoodah", "لٰكن --> لكن" ],
+	
+		[ 1649, 1575, "Arabic Hamzah Wasliah Madhmoomah", "ٱ --> ا" ],
+		# The case of Arabic Hamzah Wasliah Maksoorah "اِ" is managed automatically
+		# by the fact that these are two chars (Hamzah + Kasrah), and that
+		# Kasrah is recognized as a diacritic and replaced by NULL.
+
+		[ 1570, 1575, "Arabic ََAlif Mamdoodah", "آ --> ا" ]
+		
+	]
+	
+	# Greek diacritics
+
+	vGreekDiacriticsUnicodes = [
+		# TODO
+	]
+
+	vGreekDiacriticsXT = [
+		[ "ᾳ", "&" , "Greek, aplpha" ],
+		[ "εͅ", "e", "Greek, epsilon" ],
+		[ "ῃ", "n", "Greek, eta" ],
+		[ "ῳ", "w", "Greek, omega" ],
+		[ "ιͅ", "i", "Greek, unavailable" ],
+		[ "οͅ", "o", "Greek, unavailable" ],
+		[ "υͅ", "u", "Greek, unavailable" ],
+		[ "ὺ", "u", "Ancient Greek, Unvailable" ],
+		[ "ῦ", "u", "Ancient Greek, Unvailable" ],
+		[ "ὸ", "o", "Ancient Greek, Unavailable" ]
+	]
+
+	# Hebrew diacritics (TODO)
+
+	vHebrewDiacriticsUnicodes = [
+		# TODO
+	]
+
+	vHebrewDiacriticsXT = [
+		# TODO
+	]
+
+	# Diacritics
+
+	$viDiacriticsUnicodes = []
+	nLatinDiacriticsUnicod2Len = Len($viLatinDiacriticsUnicodes)
+	for iLoop_anLatinDiacriticsUnicod2 = 1 to nLatinDiacriticsUnicod2Len
+		xItem2 = $viLatinDiacriticsUnicodes[iLoop_anLatinDiacriticsUnicod2]
+		$viDiacriticsUnicodes + xItem2
+	end
+	nArabicDiacriticsUnicoLen = Len($viArabicDiacriticsUnicodes)
+	for iLoop_anArabicDiacriticsUnico1 = 1 to nArabicDiacriticsUnicoLen
+		xItem2 = $viArabicDiacriticsUnicodes[iLoop_anArabicDiacriticsUnico1]
+		$viDiacriticsUnicodes + xItem2
+	end
+	nGreekDiacriticsUnicod2Len = Len(vGreekDiacriticsUnicodes)
+	for iLoop_anGreekDiacriticsUnicod2 = 1 to nGreekDiacriticsUnicod2Len
+		xItem2 = vGreekDiacriticsUnicodes[iLoop_anGreekDiacriticsUnicod2]
+		$viDiacriticsUnicodes + xItem2
+	end
+	nHebrewDiacriticsUnicoLen = Len(vHebrewDiacriticsUnicodes)
+	for iLoop_anHebrewDiacriticsUnico1 = 1 to nHebrewDiacriticsUnicoLen
+		xItem2 = vHebrewDiacriticsUnicodes[iLoop_anHebrewDiacriticsUnico1]
+		$viDiacriticsUnicodes + xItem2
+	end
+	
+	# Diacricized chars
+
+	$viDiacricizedUnicodes = []
+
+	nLatinDiacriticsUnicodLen = Len($viLatinDiacriticsUnicodes)
+	for iLoop_anLatinDiacriticsUnicod1 = 1 to nLatinDiacriticsUnicodLen
+		xItem2 = $viLatinDiacriticsUnicodes[iLoop_anLatinDiacriticsUnicod1]
+		$viDiacricizedUnicodes + xItem2
+	end
+	nGreekDiacriticsUnicodLen = Len(vGreekDiacriticsUnicodes)
+	for iLoop_anGreekDiacriticsUnicod1 = 1 to nGreekDiacriticsUnicodLen
+		xItem2 = vGreekDiacriticsUnicodes[iLoop_anGreekDiacriticsUnicod1]
+		$viDiacricizedUnicodes + xItem2
+	end
+
+	# Diacricized chars -- EXTENDED
+
+	vDiacricizedCharsXT = []
+
+	nLatinDiacriticsXTLen = Len($xLatinDiacriticsXT)
+	for iLoop_aLatinDiacriticsXT1 = 1 to nLatinDiacriticsXTLen
+		xItem2 = $xLatinDiacriticsXT[iLoop_aLatinDiacriticsXT1]
+		vDiacricizedCharsXT + xItem2
+	end
+	nGreekDiacriticsXTLen = Len(vGreekDiacriticsXT)
+	for iLoop_aGreekDiacriticsXT1 = 1 to nGreekDiacriticsXTLen
+		xItem2 = vGreekDiacriticsXT[iLoop_aGreekDiacriticsXT1]
+		vDiacricizedCharsXT + xItem2
+	end
+
+	  #----------------------------------#
+	 #  NUMBER OF LETTERS PER LANGUAGE  #
+	#----------------------------------#
+
+	vNumberOfLettersPerLanguage = []
+
+
+	  #--------------------------------------#
+	 #  CHARS CORRESPONDINH TO PAPER CARDS  #
+	#--------------------------------------#
+
+	$xCardsXT = [
+	    [:Ace, "🂡"],
+	    [:Two, "🂢"],
+	    [:Three, "🂣"],
+	    [:Four, "🂤"],
+	    [:Five, "🂥"],
+	    [:Six, "🂦"],
+	    [:Seven, "🂧"],
+	    [:Eight, "🂨"],
+	    [:Nine, "🂩"],
+	    [:Ten, "🂪"],
+	    [:Jack, "🂫"],
+	    [:Queen, "🂭"],
+	    [:King, "🂮"]
+	]
+
+$tMarquerChar = "#"
+
+	#---------------------------------------
+	#  LIST OF SUPPRTED 
+	$vtWorldLanguages = [
+		:c, :abkhazian, :oromo, :afar, :afrikaans, :albanian, :amharic,
+		:arabic, :armenian, :assamese, :aymara, :azerbaijani, :bashkir,
+		:basque, :bengali, :dzongkha, :bislama, :breton, :bulgarian,
+		:burmese, :belarusian, :khmer, :catalan, :chinese, :corsican,
+		:croatian, :czech, :danish, :dutch, :english, :esperanto, :estonian,
+		:faroese, :fijian, :finnish, :french, :western_frisian, :gaelic,
+		:galician, :georgian, :german, :greek, :greenlandic, :guarani,
+		:gujarati, :hausa, :hebrew, :hindi, :hungarian, :icelandic,
+		:indonesian, :interlingua, :interlingue, :inuktitut, :inupiak,
+		:irish, :italian, :japanese, :javanese, :kannada, :kashmiri,
+		:kazakh, :kinyarwanda, :kirghiz, :korean, :kurdish, :rundi,
+		:lao, :latin, :latvian, :lingala, :lithuanian, :macedonian,
+		:malagasy, :malay, :malayalam, :maltese, :maori, :marathi,
+		:marshallese, :mongolian, :nauruan, :nepali, :norwegian_bokmal,
+		:occitan, :oriya, :pashto, :persian, :polish, :portuguese, :punjabi,
+		:quechua, :romansh, :romanian, :russian, :samoan, :sango, :sanskrit,
+		:serbian, :ossetic, :southern_sotho, :tswana, :shona, :sindhi, :sinhala,
+		:swati, :slovak, :slovenian, :somali, :spanish, :sundanese, :swahili,
+		:swedish, :sardinian, :tajik, :tamil, :tatar, :telugu, :thai, :tibetan,
+		:tigrinya, :tongan, :tsonga, :turkish, :turkmen, :tahitian, :uighur,
+		:ukrainian, :urdu, :uzbek, :vietnamese, :volapuk, :welsh, :wolof,
+		:xhosa, :yiddish, :yoruba, :zhuang, :zulu, :norwegian_nynorsk, :bosnian,
+		:divehi, :manx, :cornish, :akan, :konkani, :ga, :igbo, :kamba, :syriac,
+		:blin, :geez, :koro, :sidamo, :atsam, :tigre, :jju, :friulian, :venda,
+		:ewe, :walamo, :hawaiian, :tyap, :nyanja, :filipino, :swiss_german,
+		:sichuan_yi, :kpelle, :low_german, :south_ndebele, :northern_sotho,
+		:northern_sami, :taroko, :gusii, :taita, :fulah, :kikuyu, :samburu,
+		:sena, :north_ndebele, :rombo, :tachelhit, :kabyle, :nyankole, :bena,
+		:vunjo, :bambara, :embu, :cherokee, :mauritian, :makonde, :langi, :ganda,
+		:bemba, :kabuverdianu, :meru, :kalenjin, :nama, :machame, :colognian,
+		:masai, :soga, :luyia, :asu, :teso, :saho, :koyra_chiini, :rwa, :luo,
+		:chiga, :standard_morocco_tamazight, :koyraboro_senni, :shambala, :bodo,
+		:avaric, :chamorro, :chechen, :church, :chuvash, :cree, :haitian, :herero,
+		:hiri_motu, :kanuri, :komi, :kongo, :kwanyama, :limburgish, :luba_katanga,
+		:luxembourgish, :navaho, :ndonga, :ojibwa, :pali, :walloon, :aghem, :basaa,
+		:zarma, :duala, :jola_fonyi, :ewondo, :bafia, :makhuwa_meetto, :mundang,
+		:kwasio, :coptic, :sakha, :sangu, :tasawaq, :vai, :walser, :yangben,
+		:avestan, :ngomba, :kako, :meta, :ngiemboon, :aragonese, :akkadian,
+		:ancient_egyptian, :ancient_greek, :aramaic, :balinese, :bamun, :batak_toba,
+		:buginese, :chakma, :dogri, :gothic, :ingush, :mandingo, :manipuri, :old_irish,
+		:old_norse, :old_persian, :pahlavi, :phoenician, :santali, :saurashtra,
+		:tai_dam, :tai_nua, :ugaritic, :akoose, :lakota, :standard_moroccan_tamazight,
+		:mapuche, :central_kurdish, :lower_sorbian, :upper_sorbian, :kenyang, :mohawk,
+		:nko, :prussian, :kiche, :southern_sami, :lule_sami, :inari_sami, :skolt_sami,
+		:warlpiri, :mende, :maithili, :american_sign_language, :bhojpuri,
+		:literary_chinese, :mazanderani, :newari, :northern_luri, :palauan,
+		:papiamento, :tokelauan, :tok_pisin, :tuvaluan, :cantonese, :osage, :ido,
+		:lojban, :sicilian, :southern_kurdish, :western_balochi, :cebuano, :erzya,
+		:chickasaw, :muscogee, :silesian
+	]
+
+  #///////////////////
+ #/   FUNCTIONS   ///
+#///////////////////
+
+	func Vowels
+		return $vtVowels
+	end
+	func VowelsUnicodes
+		return _anVowelsUnicodes()
+	end
+	func WorldLanguages
+		return $vtWorldLanguages
+	end
+		func Languages
+			return $vtWorldLanguages
+		end
+	func LanguagesInScript(tScript)	
+		if not IsString(tScript)
+			StzRaise("Incorrect param type! cScript must be a string")
+		end
+
+		vtUnicodeScriptsXT = UnicodeScriptsXT()
+		nLen = Len(vtUnicodeScriptsXT)
+
+		vtResult = []
+		for i = 1 to nLen
+			if vtUnicodeScriptsXT[i][2] = tScript
+				oChain = new stzList(vtUnicodeScriptsXT[i][4])
+				vtResult = oChain.Sorted()
+				exit
+			end
+		end
+
+		return vtResult
+	end
+	func CommonLanguagesInScripts(pxScripts)
+		if not ( IsList(pxScripts) and @IsListOfStrings(pxScripts) )
+			StzRaise("Incorrect param type! pacScripts must be a list of strings.")
+		end
+
+		nLen = Len(pxScripts)
+		vListOfLists = []
+
+		for i = 1 to nLen
+			vListOfLists + LanguagesInScript(pxScripts[i])
+		end
+
+		vtResult = Common(vListOfLists)
+		return vtResult
+	end
+	func ScriptsForLanguage(pxLang)
+		return StzLanguageQ(pxLang).Scripts()
+	end
+	func CommonScriptsForLanguages(pxLangs)
+		if not ( IsList(pxLangs) and @IsListOfStrings(pxLangs) )
+			StzRaise("Incorrect param type! pacLangs must be a list of strings.")
+		end
+
+		nLen = Len(pxLangs)
+		vtResult = []
+		for i = 1 to nLen
+			vtResult + StzLanguageQ(pxLangs[i]).Script()
+		end
+		return vtResult
+	end
+	func QuranicSignUnicodes
+		return $viQuranicSignUnicodes
+	end
+	func QuranicSigns
+		xResult = []
+		nAnQuranicSignUnicodes1Len = Len($viQuranicSignUnicodes)
+		for iLoop_anQuranicSignUnicodes1 = 1 to nAnQuranicSignUnicodes1Len
+			xN = $viQuranicSignUnicodes[iLoop_anQuranicSignUnicodes1]
+			oChar = new StzChar(xN)
+			xResult + oChar.Content()
+		end
+		return xResult
+	end
+	func LatinLetters
+		xLetters = "a":"z"
+	
+		xAZ1 = "A":"Z"
+		nAZ1Len = Len(xAZ1)
+		for iLoopAZ1 = 1 to nAZ1Len
+			tChar = xAZ1[iLoopAZ1]
+			xLetters + tChar
+		end
+	
+		return xLetters
+	end
+	func ArabicLetters
+		return $vtArabicLetters
+	end
+	func ArabicLettersXT
+		return $vtArabicLettersXT
+	end
+	func ArabicAndLatinLetters
+		xLetters = ArabicLetters()
+		xLatinLetters1 = LatinLetters()
+		nLatinLetters1Len = Len(xLatinLetters1)
+		for iLoopLatinLetters1 = 1 to nLatinLetters1Len
+			tChar = xLatinLetters1[iLoopLatinLetters1]
+			xLetters + tChar
+		end
+		return xLetters
+	end
+	func ArabicHamzahUnicodes
+		return $viArabicHamzahUnicodes
+	end
+	func LatinAndArabicLetters
+		xLetters = LatinLetters()
+		xArabicLetters1 = ArabicLetters()
+		nArabicLetters1Len = Len(xArabicLetters1)
+		for iLoopArabicLetters1 = 1 to nArabicLetters1Len
+			tChar = xArabicLetters1[iLoopArabicLetters1]
+			xLetters + tChar
+		end
+		return xLetters
+	end
+	func ArabicDigits
+		return "0":"9"
+	end
+		func ArabicNumbers
+			return ArabicDigits()
+		end
+	func IndianDigits
+		return [
+			"۰", "٠",	# Be carefeul: they are different Chars!
+			"۱", "١",	# Read this discussion to understand why:
+			"۲", "٢",	# shorturl.at/lHK12
+			"۳", "٣",
+			"٤","٥","٦","٧",
+			"۸", "٨",
+			"۹", "٩"
+			]
+	end
+		func IndianNumbers
+			return IndianDigits()
+		end
+		/*
+		Try this code in Ring:
+
+		# Ring code	Output		Unicodes
+		? "۰" = "٠"	# FALSE		01776	01632
+		? "۱" = "١"	# FALSE		01777	01633
+		? "۲" = "٢"	# FALSE		01778	01634
+		? "۳" = "٣"	# FALSE		01779	01635
+		
+		? "٤" = "٤"	# 1		01636	01636
+		? "٥" = "٥"	# 1		01637	01637
+		? "٦" = "٦"	# 1		01638	01638
+		? "٧" = "٧"	# 1		01639	01639
+		
+		? "۸" = "٨"	# FALSE		01784	01640	
+		? "۹" = "٩"	# FALSE		01785	01641
+
+		The point is that Unicode assigns unique code to Chars and
+		not to their visual glyfs. To give a clear example:
+
+		"O", "Ο", and "О" seam the same for us, and for the particular
+		font we use in our system to render them, but from a unicode
+		stand point, they are different.
+
+		If you try to get their unicode code points, you find them
+		respectively: 79, 927, and 1054.
+
+		In fact, the first is Latin "O", the second is Greek "Ο", and
+		the third is Cyrillic "О".
+		*/
+		
+	func ArabicAndIndianDigits
+		xDigits = ArabicDigits()
+		xIndianDigits1 = IndianDigits()
+		nIndianDigits1Len = Len(xIndianDigits1)
+		for iLoopIndianDigits1 = 1 to nIndianDigits1Len
+			tChar = xIndianDigits1[iLoopIndianDigits1]
+			xDigits + tChar
+		end
+		return xDigits
+	end
+	func RomanNumbersUnicodes
+		return $viRomanNumbersUnicodes
+	end
+	func RomanNumbers
+		return $vtRomanNumbers
+	end
+	func RomanNumbersAndTheirUnicodes
+		xResult = []
+
+		xRomanNumbersXT1 = RomanNumbersXT()
+		nRomanNumbersXT1Len = Len(xRomanNumbersXT1)
+		for iLoopRomanNumbersXT1 = 1 to nRomanNumbersXT1Len
+			xItem = xRomanNumbersXT1[iLoopRomanNumbersXT1]
+			xResult + [ xItem[1], StzCharQ(xItem[1]).Unicode() ]
+		end
+
+		return xResult
+	end
+	func RomanNumbersXT
+		return $xRomanNumbersXT
+	end
+	func RomanToArabicNumber(pxRomanNumber)
+		# Uses the data available in RomanNumbersXT()
+		#TODO // In the future, make a more general algorithm
+		return RomanNumbersXT()[pxRomanNumber]
+	end
+		func RomanToDecimalNumber(pxRomanNumber)
+			return RomanToArabicNumber(pxRomanNumber)
+		end
+	func MandarinNumbersUnicodes
+		return $viMandarinNumbersUnicodes
+	end
+	func MandarinNumbers
+		return $vtMandarinNumbers
+	end
+	func MandarinNumbersAndTheirUnicodes
+		xResult = []
+
+		xMandarinNumbersXT1 = MandarinNumbersXT()
+		nMandarinNumbersXT1Len = Len(xMandarinNumbersXT1)
+		for iLoopMandarinNumbersXT1 = 1 to nMandarinNumbersXT1Len
+			xItem = xMandarinNumbersXT1[iLoopMandarinNumbersXT1]
+			xResult + [ xItem[1], StzCharQ(xItem[1]).Unicode() ]
+		end
+
+		return xResult
+	end
+	func MandarinNumbersXT
+		return $xMandarinNumbersXT
+	end
+	func MandarinToArabicNumber(pxMandarinNumber)
+		# Uses the data available in MandarinNumbersXT()
+		#TODO // In the future, make a more general algorithm
+		return MandarinNumbersXT()[pxMandarinNumber]
+	end
+	func ArabicNumberFractions
+		xResult = []
+		nAArabicNumberFractionsX2Len = Len($xArabicNumberFractionsXT)
+		for iLoop_aArabicNumberFractionsX2 = 1 to nAArabicNumberFractionsX2Len
+			xItem = $xArabicNumberFractionsXT[iLoop_aArabicNumberFractionsX2]
+			nUnicode = xItem[2]
+			oChar = new StzChar(nUnicode)
+			xResult + oChar.Content()
+		end
+		return xResult 
+	end
+	func ArabicNumberFractionsUnicodes
+		xResult = []
+		nAArabicNumberFractionsX1Len = Len($xArabicNumberFractionsXT)
+		for iLoop_aArabicNumberFractionsX1 = 1 to nAArabicNumberFractionsX1Len
+			xItem = $xArabicNumberFractionsXT[iLoop_aArabicNumberFractionsX1]
+			xResult + xItem[2]
+		end
+		return xResult
+	end
+		func ArabicFractionsUnicodes
+			return ArabicNumberFractionsUnicodes()
+		end
+	func ArabicShaddah
+		return $tArabicShaddah
+	end
+	func Arabic7araket
+		return UnicodesToChars( Arabic7araketUnicodes() )
+	end
+	func Arabic7araketUnicodes
+		return $viArabic7araketUnicodes
+	end
+	func Underscore
+		return $tUnderscore
+	end
+	func HyphenShort
+		return $tHyphenShort
+	end
+	func HyphenLong
+		return $tHyphenLong
+	end
+		# "—" : used to —delimiet a portion of text— in the sentence.
+
+	func ArabicTamdeed
+		return $tArabicTamdeed = "ـ"
+	end
+		# used to extend arabic words like in حُسَيْـــــن
+
+	func TurnedDigitUnicodes
+		return [8586,8587]
+	end
+	func TurnedCharsAndTheirUnicodes
+		xResult = []
+
+		xTurnedCharsUnicodes1 = TurnedCharsUnicodes()
+		nTurnedCharsUnicodes1Len = Len(xTurnedCharsUnicodes1)
+		for iLoopTurnedCharsUnicodes1 = 1 to nTurnedCharsUnicodes1Len
+			xN = xTurnedCharsUnicodes1[iLoopTurnedCharsUnicodes1]
+			xResult + [ StzCharQ(xN).Content(), xN ]
+		end
+
+		return xResult
+	end
+	func TurnedDigits
+		xResult = []
+		xTurnedDigitUnicodes1 = TurnedDigitUnicodes()
+		nTurnedDigitUnicodes1Len = Len(xTurnedDigitUnicodes1)
+		for iLoopTurnedDigitUnicodes1 = 1 to nTurnedDigitUnicodes1Len
+			xN = xTurnedDigitUnicodes1[iLoopTurnedDigitUnicodes1]
+			oTempChar = new StzChar(xN)
+			xResult + oTempChar.Content()
+		end
+		return xResult
+	end
+	func CircledCharUnicodes
+		viResult = Q( CircledDigitUnicodes() )
+				.MergedWith( CircledLatinLetterUnicodes() )
+
+		return viResult
+	end
+		func CircledCharsUnicodes
+			return CircledCharUnicodes()
+		end
+	func CircledChars
+		viResult = Q( CircledDigits() )
+				.MergedWith( CircledLatinLetters() )
+
+		return viResult
+	end
+	func CircledDigitUnicodes
+		return $viCircledDigitUnicodes
+	end
+		func CircledDigitsUnicodes
+			return CircledDigitUnicodes()
+		end
+		func CircledNumberUnicodes
+			return CircledDigitUnicodes()
+		end
+		func CircledNumbersUnicodes
+			return CircledDigitUnicodes()
+		end
+	func CircledDigits
+		xResult = []
+		xCircledDigitUnicodes1 = CircledDigitUnicodes()
+		nCircledDigitUnicodes1Len = Len(xCircledDigitUnicodes1)
+		for iLoopCircledDigitUnicodes1 = 1 to nCircledDigitUnicodes1Len
+			xN = xCircledDigitUnicodes1[iLoopCircledDigitUnicodes1]
+			oTempChar = new StzChar(xN)
+			xResult + oTempChar.Content()
+		end
+		return xResult
+	end
+		func CircledNumbers
+			return CircledDigits()
+		end
+	func CircledDigitsAndUnicodes
+		oTempList = new stzList(CircledDigits())
+		xResult = oTempList.AssociatedWith( CircledDigitUnicodes() )
+		return xResult
+	end
+	func CircledLatinLetterUnicodes
+		return $viLatinCircledLetterUnicodes 
+	end
+	func CircledLatinLetters
+		xResult = []
+		xCircledLatinLetterUnicod1 = CircledLatinLetterUnicodes()
+		nCircledLatinLetterUnicod1Len = Len(xCircledLatinLetterUnicod1)
+		for iLoopCircledLatinLetterUnicod1 = 1 to nCircledLatinLetterUnicod1Len
+			xN = xCircledLatinLetterUnicod1[iLoopCircledLatinLetterUnicod1]
+			oTempChar = new StzChar(xN)
+			xResult + oTempChar.Content()
+		end
+		return xResult
+	end
+	func CircledLatinSmallLetterUnicodes
+		return $viLatinCircledSmallLetterUnicodes
+	end
+	func CircledLatinSmallLetters
+		xResult = []
+		xCircledLatinSmallLetterU1 = CircledLatinSmallLetterUnicodes()
+		nCircledLatinSmallLetterU1Len = Len(xCircledLatinSmallLetterU1)
+		for iLoopCircledLatinSmallLetterU1 = 1 to nCircledLatinSmallLetterU1Len
+			xN = xCircledLatinSmallLetterU1[iLoopCircledLatinSmallLetterU1]
+			oTempChar = new StzChar(xN)
+			xResult + oTempChar.Content()
+		end
+		return xResult
+	end
+	func CircledLatinCapitalLetterUnicodes #TODO // resolve the semantics lower/lowercase/small and upper/uppercase/capital
+		return $viLatinCircledCapitalLetterUnicodes
+	end
+	func CircledLatinCapitalLetters
+		xResult = []
+		xCircledLatinCapitalLett1 = _CircledLatinCapitalLetterUnicodes()
+		nCircledLatinCapitalLett1Len = Len(xCircledLatinCapitalLett1)
+		for iLoop_CircledLatinCapitalLett1 = 1 to nCircledLatinCapitalLett1Len
+			xN = xCircledLatinCapitalLett1[iLoop_CircledLatinCapitalLett1]
+			oTempChar = new StzChar(xN)
+			xResult + oTempChar.Content()
+		end
+		return xResult
+	end
+	func DecimalChars
+		return $vtDecimalchars
+	end
+	func BinaryChars
+		return $vtBinaryChars
+	end
+	func OctalChars
+		return $vtOctalChars
+	end
+	func HexChars
+		return $vtHexChars
+	end
+	func UnicodeScriptsXT
+		return $xUnicodeScriptsXT
+	end
+	func UnicodeScripts
+		vtResult = []
+
+		xUnicodeScriptsXT1 = UnicodeScriptsXT()
+		nUnicodeScriptsXT1Len = Len(xUnicodeScriptsXT1)
+		for iLoopUnicodeScriptsXT1 = 1 to nUnicodeScriptsXT1Len
+			xItem = xUnicodeScriptsXT1[iLoopUnicodeScriptsXT1]
+			vtResult + xItem[2]
+		end
+
+		return vtResult
+	end
+	# ScriptByCode() is RETIRED. It looked up the numeric code that indexed
+	# this table, and that numbering no longer means anything -- the engine's
+	# script codes are PCRE2's and are an internal detail. It was also broken:
+	# it iterated UnicodeScripts(), which returns NAME strings, then subscripted
+	# them as if they were rows. Ask the engine for the name instead.
+
+	func UnicodeScriptByCode(xN)
+			return ScriptByCode(xN)
+	end
+	func UnicodeCategoriesXT
+		return $xUnicodeCategoriesXT
+	end
+	func UnicodeCategories
+		vtResult = []
+
+		xUnicodeCategoriesXT1 = UnicodeCategoriesXT()
+		nUnicodeCategoriesXT1Len = Len(xUnicodeCategoriesXT1)
+		for iLoopUnicodeCategoriesXT1 = 1 to nUnicodeCategoriesXT1Len
+			xItem = xUnicodeCategoriesXT1[iLoopUnicodeCategoriesXT1]
+			vtResult + xItem[2]
+		end
+
+		return vtResult
+	end
+	func UnicodeDirectionsXT
+		return $xUnicodeDirectionsXT
+	end
+	func UnicodeDirections
+		vtResult = []
+
+		xUnicodeDirectionsXT1 = UnicodeDirectionsXT()
+		nUnicodeDirectionsXT1Len = Len(xUnicodeDirectionsXT1)
+		for iLoopUnicodeDirectionsXT1 = 1 to nUnicodeDirectionsXT1Len
+			xItem = xUnicodeDirectionsXT1[iLoopUnicodeDirectionsXT1]
+			vtResult + xItem[3]
+		end
+
+		return vtResult
+	end
+
+	func WordSeparators
+		return $vtWordSeparators
+	end
+	func SentenceSeparators
+		return $vtSentenceSeparators
+	end
+		func SentenceSeperators
+			return $vtSentenceSeparators
+		end
+	func WordNonLetterChars
+		return $vtWordNonLetterChars
+	end
+	func WordBoundingChars
+		return $vWordBoundingChars
+	end
+	#--
+
+	func WordSeperator
+		return $vtWordSeparators
+	end
+
+	# Dotless letters
+
+	func ArabicDotlessUnicodes
+		return $viArabicDotlessUnicodes
+	end
+		func ArabicDotlessLettersUnicodes
+			return $viArabicDotlessUnicodes
+		end
+	func ArabicDotlessLetters
+		vtResult = UnicodesToChars($viArabicDotlessUnicodes)
+		return vtResult
+	end
+	func ArabicDotlessLettersXT
+		return $xArabicDotlessCharsXT
+	end
+	func ArabicDotlessLettersAndTheirUnicodes
+		xResult = Association([ ArabicDotlessLetters(), ArabicDotlessUnicodes() ])
+		return xResult
+	end
+	func ArabicDotlessUnicodesAndTheirLetters
+		xResult = Association([ ArabicDotlessUnicodes(), ArabicDotlessLetters() ])
+		return xResult
+	end
+	#--
+
+	func LatinDotlessUnicodes
+		return $viLatinDotlessUnicodes
+	end
+		func LatinDotlessLettersUnicodes
+			return $viLatinDotlessUnicodes
+		end
+	func LatinDotlessLetters
+		vtResult = UnicodesToChars(LatinDotlessUnicodes())
+		return vtResult
+	end
+	func LatinDotlessLettersXT
+		return $xLatinDotlessLettersXT
+	end
+	func LatinDotlessLettersAndTheirUnicodes
+		xResult = Association([ LatinDotlessLetters(), LatinDotlessUnicodes() ])
+		return xResult
+	end
+	func LatinDotlessUnicodesAndTheirLetters
+		xResult = Association([ LatinDotlessUnicodes(), LatinDotlessLetters() ])
+		return xResult
+	end
+	#--
+
+	func DotlessUnicodes
+		viResult = ArabicDotlessUnicodes()
+		viLatin = LatinDotlessUnicodes()
+		nLen = Len(viLatin)
+
+		for i = 1 to nLen
+			viResult + viLatin[i]
+		end
+
+		return viResult
+	end
+	func DotlessLetters
+		vtResult = UnicodesToChars(DotlessUnicodes())
+		return vtResult
+	end
+	func DotlessLettersXT
+		xResult = ArabicDotlessLettersXT()
+		xLatin = LatinDotlessLettersXT()
+		nLen = Len(xLatin)
+
+		for i = 1 to nLen
+			xResult + xLatin[i]
+		end
+
+		return xResult
+	end
+	func DotlessLettersAndTheirUnicodes
+		xResult = Association([ DotlessLetters(), DotlessUnicodes() ])
+		return xResult
+	end
+	func DotlessUnicodesAndTheirLetters
+		xResult = Association([ DotlessUnicodes(), DotlessLetters() ])
+		return xResult
+	end
+	#--
+
+	func Dotless(pxStr)
+		tResult = StzStringQ(pxStr).Dotless()
+		return tResult
+	end
+		func WithoutDots(pxStr)
+			return Dotless(pxStr)
+		end
+	# Diacritics
+
+	func DiacriticsXT
+		xResult = []
+
+		xLatinDiacriticsXT2 = LatinDiacriticsXT()
+		nLatinDiacriticsXT2Len = Len(xLatinDiacriticsXT2)
+		for iLoopLatinDiacriticsXT2 = 1 to nLatinDiacriticsXT2Len
+			xItem = xLatinDiacriticsXT2[iLoopLatinDiacriticsXT2]
+			xResult + xItem
+		end
+		xArabicDiacriticsXT1 = ArabicDiacriticsXT()
+		nArabicDiacriticsXT1Len = Len(xArabicDiacriticsXT1)
+		for iLoopArabicDiacriticsXT1 = 1 to nArabicDiacriticsXT1Len
+			xItem = xArabicDiacriticsXT1[iLoopArabicDiacriticsXT1]
+			xResult + xItem
+		end
+
+		return xResult
+	end
+	func LatinDiacriticsUnicodes
+		return $viLatinDiacriticsUnicodes
+	end
+	func LatinDiacriticsXT
+		return $xLatinDiacriticsXT
+	end
+	func LatinDiacritics
+		xResult = []
+		xLatinDiacriticsUnicodes1 = LatinDiacriticsUnicodes()
+		nLatinDiacriticsUnicodes1Len = Len(xLatinDiacriticsUnicodes1)
+		for iLoopLatinDiacriticsUnicodes1 = 1 to nLatinDiacriticsUnicodes1Len
+			xN = xLatinDiacriticsUnicodes1[iLoopLatinDiacriticsUnicodes1]
+			xResult + StzCharQ(xN).Content()
+		end
+		return xResult
+	end
+	func ArabicDiacriticsUnicodes
+		return $viArabicDiacriticsUnicodes
+	end
+	func ArabicDiacriticsXT
+		return $xArabicDiacriticsXT
+	end
+	func DiacriticsUnicodes
+		return $viDiacriticsUnicodes
+	end
+	func DiacricizedUnicodes
+		return $viDiacricizedUnicodes
+	end
+
+	func DiacriticDescription(pxChar)
+		if @IsChar(pxChar) and StzCharQ(pxChar).IsDiacritic()
+			xDiacriticsXT1 = DiacriticsXT()
+			nDiacriticsXT1Len = Len(xDiacriticsXT1)
+			for iLoopDiacriticsXT1 = 1 to nDiacriticsXT1Len
+				xItem = xDiacriticsXT1[iLoopDiacriticsXT1]
+				if xItem[1] = pxChar
+					return xItem[3]
+				end
+			end
+		end
+	end
+	func DiacriticsOfAsciiLetter(pxChar)
+		if StzCharQ(pxChar).IsAsciiLetter()
+			xResult = []
+			xLatinDiacriticsXT1 = LatinDiacriticsXT()
+			nLatinDiacriticsXT1Len = Len(xLatinDiacriticsXT1)
+			for iLoopLatinDiacriticsXT1 = 1 to nLatinDiacriticsXT1Len
+				xItem = xLatinDiacriticsXT1[iLoopLatinDiacriticsXT1]
+				if xItem[2] = pxChar
+					xResult + xItem[1]
+				end
+			end
+
+			return xResult
+		end
+	end
+	# Turnable numbers
+
+	func NumberOfTurnableNumbersUnicodes
+		nResult = Len(TurnableNumbersUnicodes())
+		return nResult
+	end
+		func HowManyTurnableNumbersUnicodes
+			return NumberOfTurnableNumbersUnicodes()
+		end
+		func HowManyTurnableNumbersUnicode
+			return NumberOfTurnableNumbersUnicodes()
+		end
+	func TurnableNumbersUnicodes
+		return $viTurnableNumbersUnicodes
+	end
+		func ReversibleNumbersUnicodes
+			return TurnableNumbersUnicodes()
+		end
+		func InvertibleNumberUnicodes
+			return TurnableNumbersUnicodes()
+		end
+		func InversibleNumbersUnicodes
+			return TurnableNumbersUnicodes()
+		end
+	func TurnableNumbersUnicodesXT
+		xResult = Association([ TurnableNumbersUnicodes(), TurnableNumbers() ])
+		return xResult
+	end
+	func TurnableNumbersAndTheirUnicodes
+		xResult = Association([ TurnableNumbers(), TuranbleUnicodes() ])
+		return xResult
+	end
+	func TurnableNumbers
+		return $viTurnableNumbersUnicodes
+	end
+		func ReversibleNumbers
+			return TurnableNumbers()
+		end
+		func InvertibleNumbers
+			return TurnableNumbers()
+		end
+		func InversibleNumbers
+			return TurnableNumbers()
+		end
+	func TurnableNumbersXT
+		return Association([ TurnableNumbers(), TurnedNumbers() ])
+	end
+		func ReversibleNumbersXT
+			return TurnableNumbersXT()
+		end
+		func InvertibleNumbersXT
+			return TurnableNumbersXT()
+		end
+		func InversibleNumbersXT
+			return TurnableNumbersXT()
+		end
+	# Turned numbers
+
+	func NumberOfTurnedNumbersUnicodes
+		nResult = Len(TurnedNumbersUnicodes())
+		return nResult
+	end
+		func HowManyTurnedNumbersUnicodes
+			return NumberOfTurnedNumbersUnicodes()
+		end
+		func HowManyTurnedNumbersUnicode
+			return NumberOfTurnedNumbersUnicodes()
+		end
+	func TurnedNumbersUnicodes
+		return $viTurnedNumbersUnicodes
+	end
+	func TurnedNumbers
+		return UnicodesToChars( TurnedNumbersUnicodes() )
+	end
+	func TurnedNumbersXT
+		xResult = Association([ TurnedNumbers(), TurnableNumbers() ])
+		return xResult
+	end
+	func TurnedNumbersAndTheirUnicodes
+		return Association([ TurnedNumbers(), TurnedNumbersUnicodes() ])
+	end
+	#-- Turnable chars
+
+	func NumberOfTurnableUnicodes
+		nResult = Len(TurnableUnicodes())
+		return nResult
+	end
+		func HowManyTurnableUnicodes
+			return NumberOfTurnableUnicodes()
+		end
+		func HowManyTurnableUnicode
+			return NumberOfTurnableUnicodes()
+		end
+	func TurnableUnicodes
+		return $viInvertibleCharsUnicodes
+	end
+		#< @FunctionAlternativeForms
+
+		func TurnableCharsUnicodes
+			return TurnableUnicodes()
+		end
+		func ReversibleUnicodes
+			return TurnableUnicodes()
+		end
+		func ReversibleCharsUnicodes
+			return TurnableUnicodes()
+		end
+		func InversibleUnicodes
+			return TurnableUnicodes()
+		end
+		func InversibleCharsUnicodes
+			return TurnableUnicodes()
+		end
+		func RevertibleUnicodes
+			return TurnableUnicodes()
+		end
+		func RevertibleCharsUnicodes
+			return TurnableUnicodes()
+		end
+		func InvertibleUnicodes
+			return TurnableUnicodes()
+		end
+		func InvertibleCharsUnicodes
+			return TurnableUnicodes()
+		end
+		#>
+
+	func TurnableUnicodesXT
+		xResult = Association([ TurnableUnicodes(), TurnableChars() ])
+		return xResult
+	end
+	func NumberOfTurnableChars
+		nResult = Len(TurnableChars())
+		return nResult
+	end
+		func HowManyTurnableChars
+			return NumberOfTurnableChars()
+		end
+		func HowManyTurnableChar
+			return NumberOfTurnableChars()
+		end
+	func TurnableChars
+		return UnicodesToChars( TurnableUnicodes() )
+	end
+		#< @FunctionAlternativeForms
+
+		func ReversibleChars
+			return TurnableChars()
+		end
+		func InversibleChars
+			return TurnableChars()
+		end
+		func RevertibleChars
+			return TurnableChars()
+		end
+		func InvertibleChars
+			return TurnableChars()
+		end
+		#>
+
+	func TurnableCharsXT
+		return $xTurnableCharsXT
+	end
+		#< @FunctionAlternativeForms
+
+		func ReversibleCharsXT
+			return TurnableCharsXT()
+		end
+		func InversibleCharsXT
+			return TurnableCharsXT()
+		end
+		func RevertibleCharsXT
+			return TurnableCharsXT()
+		end
+		func InvertibleCharsXT
+			return TurnableCharsXT()
+		end
+		#>
+
+	func TurnableCharsAndTheirUnciodes
+		xResult = Association([ TurnableChars(), TurnableUnicodes() ])
+		return xResult
+	end
+	#-- Turnable chars
+
+	func NumberOfTurnedUnicodes
+		nResult = Len(TurnedUnicodes())
+		return nResult
+	end
+		func HowManyTurnedUnicodes
+			return NumberOfTurnedUnicodes()
+		end
+		func HowManyTurnedUnicode
+			return NumberOfTurnedUnicodes()
+		end
+	func TurnedUnicodes
+		return $viTurnedCharsUnicodes
+	end
+		#< @FunctionAlternativeForms
+
+		func TurnedCharsUnicodes
+			return TurnedUnicodes()
+		end
+		func ReversedUnicodes
+			return TurnedUnicodes()
+		end
+		func ReversedCharsUnicodes
+			return TurnedUnicodes()
+		end
+		func InversedUnicodes
+			return TurnedUnicodes()
+		end
+		func InversedCharsUnicodes
+			return TurnedUnicodes()
+		end
+		func RevertedUnicodes
+			return TurnedUnicodes()
+		end
+		func RevertedCharsUnicodes
+			return TurnedUnicodes()
+		end
+		func InvertedUnicodes
+			return TurnedUnicodes()
+		end
+		func InvertedCharsUnicodes
+			return TurnedUnicodes()
+		end
+		#>
+
+	func NumberOfTurnedChars
+		nResult = Len(TurnedChars())
+		return nResult
+	end
+		func HowManyTurnedChars
+			return NumberOfTurnedChars()
+		end
+		func HowManyTurnedChar
+			return NumberOfTurnedChars()
+		end
+	func TurnedChars
+		return UnicodesToChars( TurnedUnicodes() )
+	end
+		#< @FunctionAlternativeForms
+
+		func ReversedChars
+			return TurnedChars()
+		end
+		func InversedChars
+			return TurnedChars()
+		end
+		func RevertedChars
+			return TurnedChars()
+		end
+		func InvertedChars
+			return TurnedChars()
+		end
+		#>
+
+	func TurnedCharsXT
+		oPairs = StzListOfPairsQ($xInvertibleCharsXT)
+		xResult = Association([ oPairs.SecondItems(), oPairs.FirstItems() ])
+		return xResult
+	end
+		#< @FunctionAlternativeForms
+
+		func ReversedCharsXT
+			return TurnedCharsXT()
+		end
+		func InversedCharsXT
+			return TurnedCharsXT()
+		end
+		func RevertedCharsXT
+			return TurnedCharsXT()
+		end
+		func InvertedCharsXT
+			return TurnedCharsXT()
+		end
+		#>
+
+	func TurnableCharsAndtheirUnicodes
+		xResult = Association([ TurnableChars(), TurnableUnicodes() ])
+		return xResult
+	end
+	# Punctuation
+
+	func GeneralPunctuationUnicodes
+		return $viGeneralPunctuationUnicodes
+	end
+	func GeneralPunctuationChars
+		xResult = []
+	
+		xGeneralPunctuationUnicod1 = GeneralPunctuationUnicodes()
+		nGeneralPunctuationUnicod1Len = Len(xGeneralPunctuationUnicod1)
+		for iLoopGeneralPunctuationUnicod1 = 1 to nGeneralPunctuationUnicod1Len
+			xN = xGeneralPunctuationUnicod1[iLoopGeneralPunctuationUnicod1]
+			xResult + UnicodeToChar(xN)
+		end
+	
+		return xResult
+	end
+		func GeneralPunctuations
+			return GeneralPunctuationChars()
+		end
+	func NumberOfGeneralPunctuationChars
+		return Len( GeneralPunctuationUnicodes() )
+	end
+		func NumberOfGeneralPunctuations
+			return NumberOfGeneralPunctuationChars()
+		end
+		func HowManyGeneralPunctuationChars
+			return NumberOfGeneralPunctuationChars()
+		end
+		func HowManyGeneralPunctuationChar
+			return NumberOfGeneralPunctuationChars()
+		end
+	func SupplementalPunctuationUnicodes
+		return $viSupplementalPunctuationCodes
+	end
+	func SupplementalPunctuationChars
+		xResult = []
+	
+		xSupplementalPunctuationU1 = SupplementalPunctuationUnicodes()
+		nSupplementalPunctuationU1Len = Len(xSupplementalPunctuationU1)
+		for iLoopSupplementalPunctuationU1 = 1 to nSupplementalPunctuationU1Len
+			xN = xSupplementalPunctuationU1[iLoopSupplementalPunctuationU1]
+			xResult + UnicodeToChar(xN)
+		end
+	
+		return xResult
+	end
+		func SupplementalPunctuations
+			return SupplementalPunctuationChars()
+		end
+	func NumberOfSupplementalPunctuationChars
+		return Len( SupplementalPunctuationUnicodes() )
+	end
+		func NumberOfSupplementalPunctuations
+			return NumberOfSupplementalPunctuationChars()
+		end
+		func HowManyupplementalPunctuationChars
+			return NumberOfSupplementalPunctuationChars()
+		end
+		func HowManyupplementalPunctuationChar
+			return NumberOfSupplementalPunctuationChars()
+		end
+	func PunctuationUnicodes
+		return $viPunctuationUnicodes
+	end
+	func PunctuationChars	#TODO // Review its content
+			  	# Some punctuations are not present (".", ",", ";"...")
+				# Read the note at the beginning of this file while
+				# defining the content of the _anPunctuationUniCodes
+				# global variable (needs to be completed!)
+
+		xResult = []
+	
+		xPunctuationUnicodes1 = PunctuationUnicodes()
+		nPunctuationUnicodes1Len = Len(xPunctuationUnicodes1)
+		for iLoopPunctuationUnicodes1 = 1 to nPunctuationUnicodes1Len
+			xN = xPunctuationUnicodes1[iLoopPunctuationUnicodes1]
+			xResult + UnicodeToChar(xN)
+		end
+	
+		return xResult
+	end
+		func Punctuations
+			return PunctuationChars()
+		end
+	func NumberOfPunctuationChars
+		return Len( PunctuationUnicodes() )
+	end
+		func NumberOfPunctuations
+			return NumberOfPunctuationChars()
+		end
+		func HowManyPunctuationChars
+			return NumberOfPunctuationChars()
+		end
+		func HowManyPunctuationChar
+			return NumberOfPunctuationChars()
+		end
+		func HowManyPunctuations
+			return NumberOfPunctuationChars()
+		end
+		func HowManyPunctuation
+			return NumberOfPunctuationChars()
+		end
+	# Arabic staff
+
+	func Allah
+		return AllahAsChar()
+	end
+	func AllahAsChar
+		return $tAllahAsChar
+	end
+	func AllahAsString
+		return $tAllahAsString
+	end
+	func Basmalah
+		return $tBasmalahAsChar
+	end
+		func Bismillah
+			return $tBasmalahAsChar
+		end
+		func BasmalahAsChar
+			return $tBasmalahAsChar
+		end
+		func BismillahAsChar
+			return $tBasmalahAsChar
+		end
+	func BasmalahAsString
+		return $tBasmalahAsString
+	end
+		func BismillahAsString
+			return $tBasmalahAsString
+		end
+	func Muhammed
+		return $tMuhammedAsChar
+	end
+		func Muhammad
+			return $tMuhammedAsChar
+		end
+		func MuhammedAsChar
+			return $tMuhammedAsChar
+		end
+		func Mohammed
+			return $tMuhammedAsChar
+		end
+		func Mohammad
+			return $tMuhammedAsChar
+		end
+	func MuhammedAsString
+		return $tMuhammedAsString
+	end
+		func MuhammadAsString
+			return $tMuhammedAsString
+		end
+		func MohammedAsString
+			return $tMuhammedAsString
+		end
+		func MohammadAsString
+			return $tMuhammedAsString
+		end
+	func SalatAlaMuhammed
+		return $tSalatAlaMuhammedAsChar
+	end
+		func SalatAlaMuhammad
+			return $tSalatAlaMuhammedAsChar
+		end
+		func SalatAlaMohammed
+			return $tSalatAlaMuhammedAsChar
+		end
+		func SalatAlMohammad
+			return $tSalatAlaMuhammedAsChar
+		end
+		func SalatAlaMuhammedAsChar
+			return $tSalatAlaMuhammedAsChar
+		end
+	func SalatAlaMuhammedAsString
+		return _cSalatAlMuhammedAsString
+	end
+		func SalatAlaMuhammadAsString
+			_cSalatAlMuhammedAsString
+		end
+		func SalatAlaMohammadAsString
+			_cSalatAlMuhammedAsString
+		end
+	func ArabicDhammah
+		return $tArabicDhammah
+	end
+	func ArabicFat7ah
+		return $tArabicFat7ah
+	end
+	func ArabicKasrah
+		return $tArabicKasrah
+	end
+	func ArabicSukoon
+		return $tArabicSukoon
+	end
+	func ArabicDoubleDhammah
+		return $tArabicDoubleDhammah
+	end
+	func ArabicDoubleFat7ah
+		return $tArabicDoubleFat7ah
+	end
+	func ArabicDoubleKasrah
+		return $tArabicDoubleKasrah
+	end
+	func InvisibleUnicodes
+		return $viInvisibleUnicodes
+	end
+		func InvisibleCharsUnicodes
+			return _anInvisibleCharsUnicodes
+		end
+		func @InvisibleUnicodes
+			return _anInvisibleCharsUnicodes
+		end
+		func @InvisibleCharsUnicodes
+			return _anInvisibleCharsUnicodes
+		end
+	func InvisibleChars
+		viUnicodes = InvisibleUnicodes()
+		nLen = Len(viUnicodes)
+		vtResult = []
+
+		for i = 1 to nLen
+			vtResult + Char(viUnicodes[i])
+		end
+
+		return vtResult
+	end
+		func @InvisibleChars
+			return InvisibleChars()
+		end
+	func InvisibleCharsNames
+		viUnicodes = InvisibleUnicodes()
+		nLen = Len(viUnicodes)
+		vtResult = []
+
+		for i = 1 to nLen
+			vtResult + CharName(viUnicodes[i])
+		end
+
+		return vtResult
+	end
+		func @InvisibleCharsNames
+			return InvisibleCharsNames()
+		end
+	#---
+
+	func NumberOfCharsInUnicode
+		return $nNumberOfCharsInUnicode
+	end
+		func HowManyCharsInUnicode
+			return NumberOfCharsInUnicode()
+		end
+		func HowManyCharInUnicode
+			return NumberOfCharsInUnicode()
+		end
+	  #---------------------#
+	 #  SOME USEFUL CHARS  #
+	#---------------------#
+
+	func Heart
+		return "♥"
+	end
+		func AHeart
+			return Heart()
+		end
+		func TheHeart
+			return Heart()
+		end
+	func Smile
+		return "😆"
+	end
+		func ASmile
+			return Smile()
+		end
+		func TheSmile
+			return Smile()
+		end
+	func Handshake
+		return "🤝"
+	end
+		func AHandshake
+			return Handshake()
+		end
+		func TheHandshake
+			return Handshake()
+		end
+	func Sun
+		return "🌞"
+	end
+		func ASun
+			return Sun()
+		end
+		func TheSun
+			return Sun()
+		end
+	func Star
+		return "★"
+	end
+		func AStar
+			return Star()
+		end
+		func TheStar
+			return Star()
+		end
+	func CheckMark
+		return "✓"
+	end
+		func ACheckMark
+			return CheckMark()
+		end
+			func TheCheckMark
+				return CheckMark()
+			end
+		func Check
+			return CheckMark()
+		end
+			func ACheck
+				return CheckMark()
+			end
+			func TheCheck
+				return CheckMark()
+			end
+		func Tick
+			return CheckMark()
+		end
+			func ATick
+				return Tick()
+			end
+			func TheTick
+				return Tick()
+			end
+	func Dot
+		return "•"
+	end
+		func ADot
+			return Dot()
+		end
+		func TheDot
+			return Dot()
+		end
+	func Flower
+		return "✤"
+	end
+		func AFlower
+			return Flower()
+		end
+		func TheFlower
+			return Flower()
+		end
+	func Moon
+		return "🌔"
+	end
+		func AMoon
+			return Moon()
+		end
+		func TheMoon
+			return Moon()
+		end
+	#--
+
+	func CardsXT
+		return $xCardsXT
+	end
+	func Cards
+	
+		nLen = Len($xCardsXT)
+	
+		vtResult = []
+	
+		for i = 1 to nLen
+			vtResult + $xCardsXT[i][2]
+		end
+	
+		return vtResult
+	end
+	func Card(pxCard)
+	
+		if not IsString(pxCard)
+			StzRaise("Incorrect param type!")
+		end
+	
+		tResult = $xCardsXT[pxCard]
+	
+		if tResult = ""
+			StzRaise("Incorrect param value!")
+		end 
+	
+		return tResult
+	end
+	func TheseCards(vtCards)
+		if not (IsList(vtCards) and IsListOfStrings(vtCards))
+			StzRaise("Incorrect param type! acCards must be a list of strings.")
+		end
+
+		vtResult = []
+		nLen = Len(vtCards)
+
+		for i = 1 to nLen
+			
+			tCard = $xCardsXT[vtCards[i]]
+
+			if tCard != ""
+				vtResult + tCard
+			end
+		end
+
+		return vtResult
+	end
+	func TheseCardsXT(vtCards)
+		if not (IsList(vtCards) and IsListOfStrings(vtCards))
+			StzRaise("Incorrect param type! acCards must be a list of strings.")
+		end
+
+		vtResult = []
+		nLen = Len(vtCards)
+
+		for i = 1 to nLen
+			
+			tCard = $xCardsXT[vtCards[i]]
+
+			if tCard != ""
+				vtResult + [ vtCards[i], tCard ]
+			end
+		end
+
+		return vtResult
+	end
+	func NCards(xN)
+		return NRandomItemsFrom(xN, Cards())
+	end
+		func NRandomCards(xN)
+			return NCards(xN)
+		end
+	func ACard
+		return NCards(1)
+	end
+		func OneCard
+			return ACard()
+		end
+		func 1Card
+			return ACard()
+		end
+		func ARandomCard
+			return ACard()
+		end
+		func OneRandomCard
+			return ACard()
+		end
+		func 1RandomCard
+			return ACard()
+		end
+	func TwoCards
+		return NCards(2)
+	end
+		func 2Cards
+			return TwoCards()
+		end
+		func TwoRandomCards
+			return TwoCards()
+		end
+		func 2RandomCards
+			return TwoCards()
+		end
+	func ThreeCards
+		return NCards(3)
+	end
+		func 3Cards
+			return ThreeCards()
+		end
+		func ThreeRandomCards
+			return ThreeCards()
+		end
+		func 3RandomCards
+			return ThreeCards()
+		end

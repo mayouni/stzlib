@@ -81,7 +81,7 @@ class stzSoundGraph
 	@aNames = []          # [ [name, nodeIndex], ... ]
 	@nLast = 0            # the last node added -- what NameIt labels
 	@nOut = 0
-	@cLastError = ""
+	@tLastError = ""
 	@nChannels = 2
 	@nRate = 48000
 	@nBlock = 512
@@ -94,7 +94,7 @@ class stzSoundGraph
 	#   see        StzSoundGraphQ, Reshape
 	def init()
 		if NOT StzSoundEngineLoaded()
-			@cLastError = "stz_sound.dll is not loaded"
+			@tLastError = "stz_sound.dll is not loaded"
 			return
 		ok
 		@nG = StzEngineSoundGraphNew(@nChannels, @nRate, @nBlock)
@@ -140,7 +140,7 @@ class stzSoundGraph
 	#              success does not clear it
 	#   see        Prepare
 	def LastError()
-		if @cLastError != ""  return @cLastError ok
+		if @tLastError != ""  return @tLastError ok
 		return StzEngineSoundGraphLastError()
 
 	# Returns how many nodes the graph holds.
@@ -195,12 +195,12 @@ class stzSoundGraph
 	def AddMasterGain()
 		if @nG = 0  return 0 ok
 		if @nOut = 0
-			@cLastError = "AddMasterGain: the graph has no output yet"
+			@tLastError = "AddMasterGain: the graph has no output yet"
 			return 0
 		ok
 		_n_ = StzEngineSoundGraphAddGain(@nG, @nOut, 1.0)
 		if _n_ = 0
-			@cLastError = StzEngineSoundGraphLastError()
+			@tLastError = StzEngineSoundGraphLastError()
 			return 0
 		ok
 		@nLast = _n_
@@ -217,7 +217,7 @@ class stzSoundGraph
 	#@ aka  -- naming --------------------------------------------------------------
 	def NameIt(pcName)
 		if @nLast = 0
-			@cLastError = "NameIt: nothing has been added yet to name"
+			@tLastError = "NameIt: nothing has been added yet to name"
 			return
 		ok
 		@aNames + [ lower("" + pcName), @nLast ]
@@ -244,7 +244,7 @@ class stzSoundGraph
 				return @aNames[_i_][2]
 			ok
 		next
-		@cLastError = "no node is named '" + pName + "'"
+		@tLastError = "no node is named '" + pName + "'"
 		return 0
 
 	# TRUE if a label resolves to a node.
@@ -292,7 +292,7 @@ class stzSoundGraph
 		ok
 		@nLast = StzEngineSoundGraphAddSource(@nG, _id_, 0)
 		if @nLast = 0
-			@cLastError = StzEngineSoundGraphLastError()
+			@tLastError = StzEngineSoundGraphLastError()
 		ok
 		@nOut = @nLast
 
@@ -326,7 +326,7 @@ class stzSoundGraph
 		if @nG = 0  return 0 ok
 		@nLast = StzEngineSoundGraphAddTimeline(@nG)
 		if @nLast = 0
-			@cLastError = StzEngineSoundGraphLastError()
+			@tLastError = StzEngineSoundGraphLastError()
 			return 0
 		ok
 		@nOut = @nLast
@@ -462,11 +462,11 @@ class stzSoundGraph
 		for _i_ = 1 to _n_
 			_node_ = This.NodeNamed(paNames[_i_])
 			if _node_ = 0
-				@cLastError = "AddMixOf: no node named '" + paNames[_i_] + "'"
+				@tLastError = "AddMixOf: no node named '" + paNames[_i_] + "'"
 				loop
 			ok
 			if StzEngineSoundGraphMixAdd(@nG, _m_, _node_) != 0
-				@cLastError = StzEngineSoundGraphLastError()
+				@tLastError = StzEngineSoundGraphLastError()
 			ok
 		next
 		@nLast = _m_
@@ -507,7 +507,7 @@ class stzSoundGraph
 			return 1
 		ok
 		if StzEngineSoundGraphPrepare(@nG) != 0
-			@cLastError = StzEngineSoundGraphLastError()
+			@tLastError = StzEngineSoundGraphLastError()
 			return 0
 		ok
 		return 1
@@ -526,7 +526,7 @@ class stzSoundGraph
 		if NOT This.Prepare()  return "" ok
 		_b_ = StzEngineSoundGraphToBuffer(@nG, floor(pnSeconds * @nRate))
 		if _b_ = 0
-			@cLastError = StzEngineSoundGraphLastError()
+			@tLastError = StzEngineSoundGraphLastError()
 			return ""
 		ok
 		return StzSoundFromBufferQ(_b_)
@@ -541,7 +541,7 @@ class stzSoundGraph
 	def ToFile(pcPath, pnSeconds)
 		if NOT This.Prepare()  return ok
 		if StzEngineSoundGraphToFile(@nG, floor(pnSeconds * @nRate), pcPath, 16) != 0
-			@cLastError = StzEngineSoundGraphLastError()
+			@tLastError = StzEngineSoundGraphLastError()
 		ok
 
 	def ToFileQ(pcPath, pnSeconds)
@@ -574,18 +574,18 @@ class stzSoundGraph
 	def PlayFor(pnSeconds)
 		if NOT This.Prepare()  return ok
 		if NOT StzAudioDevEngineLoaded() or StzEngineAudioDevIsAvailable() = 0
-			@cLastError = "no audio device on this machine"
+			@tLastError = "no audio device on this machine"
 			return
 		ok
 		_s_ = StzEngineSoundStreamStart(@nG, 16384)
 		if _s_ = 0
-			@cLastError = StzEngineSoundGraphLastError()
+			@tLastError = StzEngineSoundGraphLastError()
 			return
 		ok
 		sleep(0.12)                     # let the producer get ahead of the device
 		_d_ = StzEngineAudioDevPlaybackOpen(StzEngineSoundStreamRingPtr(_s_), 256)
 		if _d_ = 0
-			@cLastError = StzEngineAudioDevLastError()
+			@tLastError = StzEngineAudioDevLastError()
 			StzEngineSoundStreamStop(_s_)
 			return
 		ok
@@ -614,7 +614,7 @@ class stzSoundGraph
 	def _Chain(pnInput, pKind, paArgs)
 		if @nG = 0  return ok
 		if pnInput = 0
-			@cLastError = "that node does not exist"
+			@tLastError = "that node does not exist"
 			return
 		ok
 		_new_ = 0
@@ -632,7 +632,7 @@ class stzSoundGraph
 			_new_ = StzEngineSoundGraphAddPan(@nG, pnInput, paArgs[1])
 		off
 		if _new_ = 0
-			@cLastError = StzEngineSoundGraphLastError()
+			@tLastError = StzEngineSoundGraphLastError()
 			return
 		ok
 		@nLast = _new_
@@ -647,7 +647,7 @@ class stzSoundGraph
 		on "sawtooth"  return StzSoundWaveSaw()
 		on "triangle"  return StzSoundWaveTriangle()
 		off
-		@cLastError = "unknown waveform '" + pWave + "' -- use :Sine :Square :Saw :Triangle"
+		@tLastError = "unknown waveform '" + pWave + "' -- use :Sine :Square :Saw :Triangle"
 		return StzSoundWaveSine()
 
 	def _FilterCode(pKind)
@@ -660,5 +660,5 @@ class stzSoundGraph
 		on "bandpass"  return StzSoundFilterBandPass()
 		on "band"      return StzSoundFilterBandPass()
 		off
-		@cLastError = "unknown filter '" + pKind + "' -- use :LowPass :HighPass :BandPass"
+		@tLastError = "unknown filter '" + pKind + "' -- use :LowPass :HighPass :BandPass"
 		return StzSoundFilterLowPass()

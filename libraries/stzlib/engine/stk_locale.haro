@@ -1,0 +1,23 @@
+# Softanza Engine -- Core Locale Ring Bridge
+#
+# Loads stk_locale.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: core/locale/stkLocale.ring
+# Function prefix: StkEngine* (distinct from Base StzEngine*)
+
+if IsWindows()
+    $tStkLocaleLib = $tEngineDir + "/zig-out/bin/stk_locale.dll"
+elseif IsLinux()
+    $tStkLocaleLib = $tEngineDir + "/zig-out/lib/libstk_locale.so"
+elseif isMacOS()
+    $tStkLocaleLib = $tEngineDir + "/zig-out/lib/libstk_locale.dylib"
+end
+
+if FExists($tStkLocaleLib)
+    $hStkLocaleHandle = LoadLib($tStkLocaleLib)
+else
+    ? "WARNING: stk_locale not found at: " + $tStkLocaleLib
+    $hStkLocaleHandle = ""
+end

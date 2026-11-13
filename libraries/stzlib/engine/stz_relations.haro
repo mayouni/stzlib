@@ -1,0 +1,22 @@
+# Softanza Engine -- Relations Engine
+#
+# Loads stz_relations.dll for relations engine.
+#
+# Function prefix: StzEngineRelations*
+
+if IsWindows()
+    $tStzRelationsLib = $tEngineDir + "/zig-out/bin/stz_relations.dll"
+elseif IsLinux()
+    $tStzRelationsLib = $tEngineDir + "/zig-out/lib/libstz_relations.so"
+elseif isMacOS()
+    $tStzRelationsLib = $tEngineDir + "/zig-out/lib/libstz_relations.dylib"
+end
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("relations")
+    $hStzRelationsHandle = ""
+elseif FExists($tStzRelationsLib)
+    $hStzRelationsHandle = LoadLib($tStzRelationsLib)
+else
+    ? "WARNING: stz_relations not found at: " + $tStzRelationsLib
+    $hStzRelationsHandle = ""
+end

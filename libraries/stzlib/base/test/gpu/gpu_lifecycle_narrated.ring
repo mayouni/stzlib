@@ -32,15 +32,15 @@
 # Ring traps avoided: main code before the first func; helper temps
 # underscored; no keyword-bearing names.
 
-$cEngineDir = "../../../engine"
+$tEngineDir = "../../../engine"
 # the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
-load "../../../core/common/stkRingLibs.ring"
-load "../../../engine/stz_gpu.ring"
+load "../../../core/common/stkRingLibs.haro"
+load "../../../engine/stz_gpu.haro"
 
 $nPass = 0
 $nFail = 0
 
-# counter indices (documented in engine/stz_gpu.ring)
+# counter indices (documented in engine/stz_gpu.haro)
 C_DISP  = 0
 C_DMS   = 1
 C_BYTES = 2
@@ -74,8 +74,8 @@ chk("ShouldDispatch answers CPU while the device is absent, even calibrated",
 
 ? ""
 ? "-- Scene 2: Init against the vendored runtime --"
-nInit = StzEngineGpuInit($cStzGpuRuntime)
-? "  Init(" + $cStzGpuRuntime + ") = " + nInit
+nInit = StzEngineGpuInit($tStzGpuRuntime)
+? "  Init(" + $tStzGpuRuntime + ") = " + nInit
 if StzEngineGpuIsAvailable() = 0
     ? "  NO GPU ON THIS MACHINE -- device scenes skipped, fallback scenes above ARE the coverage"
 else
@@ -247,7 +247,7 @@ else
     nFall0 = StzEngineGpuCounter(C_FALL)
     chk("post-shutdown buffer ask refuses", StzEngineGpuBufferNew(1024) = 0)
     chk("and was counted", StzEngineGpuCounter(C_FALL) = nFall0 + 1)
-    chk("re-Init restores the device", StzEngineGpuInit($cStzGpuRuntime) = 1)
+    chk("re-Init restores the device", StzEngineGpuInit($tStzGpuRuntime) = 1)
     chk("available again", StzEngineGpuIsAvailable() = 1)
     StzEngineGpuShutdown()
 ok

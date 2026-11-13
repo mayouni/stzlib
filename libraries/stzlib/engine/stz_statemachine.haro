@@ -1,0 +1,22 @@
+# Softanza Engine -- State Machine
+#
+# Loads stz_statemachine.dll for state machine.
+#
+# Function prefix: StzEngineStatemachine*
+
+if IsWindows()
+    $tStzStatemachineLib = $tEngineDir + "/zig-out/bin/stz_statemachine.dll"
+elseif IsLinux()
+    $tStzStatemachineLib = $tEngineDir + "/zig-out/lib/libstz_statemachine.so"
+elseif isMacOS()
+    $tStzStatemachineLib = $tEngineDir + "/zig-out/lib/libstz_statemachine.dylib"
+end
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("statemachine")
+    $hStzStatemachineHandle = ""
+elseif FExists($tStzStatemachineLib)
+    $hStzStatemachineHandle = LoadLib($tStzStatemachineLib)
+else
+    ? "WARNING: stz_statemachine not found at: " + $tStzStatemachineLib
+    $hStzStatemachineHandle = ""
+end

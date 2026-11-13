@@ -31,6 +31,7 @@ const L = @import("testoor_logbook.zig");
 const W = @import("testoor_walk.zig");
 const K = @import("testoor_clock.zig");
 const Ev = @import("testoor_evidence.zig");
+const Rd = @import("testoor_reader.zig");
 
 pub const TourSpec = struct {
     file: []const u8,
@@ -99,6 +100,54 @@ pub fn walkOnce(a: Allocator, ts: TourSpec, seed: f64, timeout_ms: f64) !V.Tour 
 }
 
 pub const OnTour = *const fn (V.Tour) void;
+
+// ── P3.6: tours found under a folder, read by the Haro face ──────────
+
+fn lessThan(_: void, x: []const u8, y: []const u8) bool {
+    return std.mem.lessThan(u8, x, y);
+}
+
+/// The tours under `root`: files whose name ends with `suffix`, in any folder below it, sorted. A file or a folder whose
+/// name begins with `_` or `.` is not a tour (measurement scripts, planted fixtures, data), so it is never walked.
+pub fn discover(a: Allocator, root: []const u8, suffix: []const u8) ![]const []const u8 {
+    var dir = try std.fs.cwd().openDir(root, .{ .iterate = true });
+    defer dir.close();
+    var walker = try dir.walk(a);
+    defer walker.deinit();
+    var out: std.ArrayList([]const u8) = .empty;
+    while (try walker.next()) |e| {
+        if (e.kind != .file) continue;
+        if (!std.mem.endsWith(u8, e.basename, suffix)) continue;
+        var hidden = false;
+        var parts = std.mem.tokenizeAny(u8, e.path, "/\\");
+        while (parts.next()) |part| {
+            if (part.len > 0 and (part[0] == '_' or part[0] == '.')) hidden = true;
+        }
+        if (hidden) continue;
+        const rel = try a.dupe(u8, e.path);
+        for (rel) |*ch| if (ch.* == '\\') {
+            ch.* = '/';
+        };
+        try out.append(a, rel);
+    }
+    std.mem.sort([]const u8, out.items, {}, lessThan);
+    return out.items;
+}
+
+/// One `.haro` tour as the native runner walks it: read by the Haro face, launched as `<haro> <file>` from the tour's
+/// own folder (a guard loads the library by a path relative to it), its endings the Haro face's. A file that cannot be
+/// read is named and not walked.
+pub fn haroTour(a: Allocator, root: []const u8, rel: []const u8, program: []const u8) !TourSpec {
+    const path = try std.fmt.allocPrint(a, "{s}/{s}", .{ std.mem.trimRight(u8, root, "/\\"), rel });
+    const text = std.fs.cwd().readFileAlloc(a, path, 64 * 1024 * 1024) catch {
+        return .{ .file = path, .readable = false, .record = .{ .file = path, .dialect = "unknown", .asserts = 0, .stops = &.{}, .routes = &.{} }, .face = Rd.face };
+    };
+    const rd = try Rd.readHaro(a, path, text);
+    const argv = try a.alloc([]const u8, 2);
+    argv[0] = program;
+    argv[1] = std.fs.path.basename(path);
+    return .{ .file = path, .cwd = std.fs.path.dirname(path) orelse ".", .argv = argv, .record = rd.record, .face = Rd.face };
+}
 
 /// Walk every tour of the manifest, each once and, when `repeat` asks for more, again with the same
 /// seed: a tour whose verdict differs between its walks is FLAKY, and the walk that differed is the

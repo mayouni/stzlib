@@ -1,0 +1,26 @@
+# Softanza Engine -- Base Matrix Ring Bridge
+#
+# Loads stz_matrix.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: base/number/stzMatrix.ring
+# Function prefix: StzEngineMatrix*
+
+if IsWindows()
+    $tStzMatrixLib = $tEngineDir + "/zig-out/bin/stz_matrix.dll"
+elseif IsLinux()
+    $tStzMatrixLib = $tEngineDir + "/zig-out/lib/libstz_matrix.so"
+elseif isMacOS()
+    $tStzMatrixLib = $tEngineDir + "/zig-out/lib/libstz_matrix.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("matrix")
+    $hStzMatrixHandle = ""
+elseif FExists($tStzMatrixLib)
+    $hStzMatrixHandle = LoadLib($tStzMatrixLib)
+else
+    ? "WARNING: stz_matrix not found at: " + $tStzMatrixLib
+    $hStzMatrixHandle = ""
+end

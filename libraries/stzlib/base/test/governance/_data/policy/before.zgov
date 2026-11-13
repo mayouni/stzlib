@@ -1,0 +1,18 @@
+governance "billing-before"
+risks
+    send-invoice | 3
+    read-ledger | 1
+    refund | 2
+permissions
+    billing-agent | send-invoice
+    billing-agent | read-ledger
+    support-agent | refund
+authorities
+    billing-agent | delegated
+    support-agent | advisory
+postures
+    invoice-runner | sandboxed
+    ledger-reader | external
+reversibility
+    send-invoice | compensable
+decisions

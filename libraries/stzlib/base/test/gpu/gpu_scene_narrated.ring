@@ -32,10 +32,10 @@
 #
 # STANDALONE like the other gpu guards: loads only the engine bridge.
 
-$cEngineDir = "../../../engine"
+$tEngineDir = "../../../engine"
 # the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
-load "../../../core/common/stkRingLibs.ring"
-load "../../../engine/stz_gpu.ring"
+load "../../../core/common/stkRingLibs.haro"
+load "../../../engine/stz_gpu.haro"
 
 $nPass = 0
 $nFail = 0
@@ -184,7 +184,7 @@ chk("the scene's text is as wide as the pipeline says", aArLay[1] > 0)
 
 ? ""
 ? "-- Scene 9: with a device, the GPU tier draws the SAME model --"
-nInit = StzEngineGpuInit($cStzGpuRuntime)
+nInit = StzEngineGpuInit($tStzGpuRuntime)
 if StzEngineGpuIsAvailable() = 0
     ? "  NO GPU ON THIS MACHINE -- GPU tier skipped; scenes 1-8 ARE the coverage"
 else

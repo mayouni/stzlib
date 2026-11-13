@@ -39,13 +39,13 @@ func StzKernelPuzzleQ(pcId)
 # The folder the puzzles live in, from the engine directory the library discovered at load.
 func StzKernelPuzzlesFolder()
 	_nSlash_ = 0
-	_nL_ = len($cEngineDir)
+	_nL_ = len($tEngineDir)
 	for _i_ = 1 to _nL_
-		if $cEngineDir[_i_] = "/"
+		if $tEngineDir[_i_] = "/"
 			_nSlash_ = _i_
 		ok
 	next
-	return StzLeft($cEngineDir, _nSlash_ - 1) + "/base/education/program/courses/kernel-puzzles/exercises"
+	return StzLeft($tEngineDir, _nSlash_ - 1) + "/base/education/program/courses/kernel-puzzles/exercises"
 
 # Builds a stzKernelMaker from a description text, so a description read from a file or typed in a page becomes a maker.
 #
@@ -198,7 +198,7 @@ func StzKernelMakerFromSpec(pcSpec)
 #              verified
 #
 class stzKernelPuzzle from stzObject
-	@cId = ""
+	@tId = ""
 	@cFolder = ""
 	@aFacts = []
 	@cReference = ""
@@ -211,13 +211,13 @@ class stzKernelPuzzle from stzObject
 	#              reference.txt is missing
 	#   see        Grade
 	def init(pcId)
-		@cId = lower("" + pcId)
-		@cFolder = StzKernelPuzzlesFolder() + "/" + @cId
+		@tId = lower("" + pcId)
+		@cFolder = StzKernelPuzzlesFolder() + "/" + @tId
 		if NOT fexists(@cFolder + "/exercise.zknw")
-			StzRaise("stzKernelPuzzle: no puzzle '" + @cId + "' (no exercise.zknw at " + @cFolder + ").")
+			StzRaise("stzKernelPuzzle: no puzzle '" + @tId + "' (no exercise.zknw at " + @cFolder + ").")
 		ok
 		if NOT fexists(@cFolder + "/reference.txt")
-			StzRaise("stzKernelPuzzle '" + @cId + "': reference.txt is missing; nothing could grade it.")
+			StzRaise("stzKernelPuzzle '" + @tId + "': reference.txt is missing; nothing could grade it.")
 		ok
 		@aFacts = This._FactsOf(read(@cFolder + "/exercise.zknw"))
 		@cReference = StzReplace(read(@cFolder + "/reference.txt"), char(13), "")
@@ -230,7 +230,7 @@ class stzKernelPuzzle from stzObject
 	#   returns    a text
 	#   see        Folder
 	def Id()
-		return @cId
+		return @tId
 
 	# Returns the folder the puzzle was read from.
 	#
@@ -383,7 +383,7 @@ class stzKernelPuzzle from stzObject
 		_oRef_ = StzKernelMakerFromSpec(@cReference)
 		_aB_ = This.Bindings()
 		_nN_ = This.Elements()
-		if StzEngineGpuInit($cStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0
+		if StzEngineGpuInit($tStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0
 			_oG_ = new stzGpu
 			_aOpt_ = [ :n = _nN_, :band = This.Band() ]
 			if This.HiddenElements() > 0
@@ -431,7 +431,7 @@ class stzKernelPuzzle from stzObject
 			return _r_
 		ok
 		_oK_ = _r_
-		if NOT (StzEngineGpuInit($cStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0)
+		if NOT (StzEngineGpuInit($tStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0)
 			return "no device"
 		ok
 		_oRef_ = StzKernelMakerFromSpec(@cReference)
@@ -643,7 +643,7 @@ class stzKernelPuzzle from stzObject
 			on "mod7"
 				_a_ + ((_i_ * 3) % 7)
 			other
-				StzRaise("stzKernelPuzzle '" + @cId + "': unknown data recipe '" + pcRecipe + "' (ramp, half, mod13, mod7, ones, tenths).")
+				StzRaise("stzKernelPuzzle '" + @tId + "': unknown data recipe '" + pcRecipe + "' (ramp, half, mod13, mod7, ones, tenths).")
 			end
 		next
 		return _a_

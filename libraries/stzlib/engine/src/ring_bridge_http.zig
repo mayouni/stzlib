@@ -4,6 +4,8 @@ const resilience = @import("resilience.zig");
 const curlcore = @import("curlcore.zig");
 const std = @import("std");
 const R = @import("ring_api.zig");
+const broker = @import("cred_broker.zig");
+const door = @import("seclog_door.zig");
 
 const gs = R.ring_vm_api_getstring;
 const gss = R.ring_vm_api_getstringsize;
@@ -379,6 +381,109 @@ fn ring_HttpDownloadBytes(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(curlcore.curl_download_last_bytes()));
 }
 
+// ── the credential broker (RADAR-OPENSHELL-CREDBROKER-01, cred_broker.zig) ──
+
+var broker_err: [256]u8 = undefined;
+var broker_err_len: usize = 0;
+
+fn brokerSay(msg: []const u8) void {
+    const n = @min(msg.len, broker_err.len);
+    @memcpy(broker_err[0..n], msg[0..n]);
+    broker_err_len = n;
+}
+
+fn arg(p: *anyopaque, i: c_int) []const u8 {
+    const ptr: [*]const u8 = @ptrCast(gs(p, i));
+    return ptr[0..@intCast(gss(p, i))];
+}
+
+/// StzEngineHttpBrokerGrant(cName, cSource, cHost, cHeader, cPrefix) -> 1, or a
+/// negative code with its reason in StzEngineHttpBrokerLastError(). cSource is
+/// "env:NAME" or "file:PATH": the engine reads the value itself, never Ring.
+fn ring_BrokerGrant(p: *anyopaque) callconv(.c) void {
+    const e = broker.grant(arg(p, 1), arg(p, 2), arg(p, 3), arg(p, 4), arg(p, 5));
+    brokerSay(broker.grantErrorText(e));
+    _ = door.recordFact(if (e == .ok) "secret.broker.granted" else "secret.broker.refused", "stz_http", arg(p, 1), arg(p, 3), broker.grantErrorText(e));
+    rn(p, @floatFromInt(@intFromEnum(e)));
+}
+
+/// StzEngineHttpBrokerSeal() -> 1. No grant can be added after it in this process.
+fn ring_BrokerSeal(p: *anyopaque) callconv(.c) void {
+    _ = broker.seal();
+    _ = door.recordFact("secret.broker.sealed", "stz_http", "broker", "", "no grant can be added in this process");
+    rn(p, 1);
+}
+
+fn ring_BrokerIsSealed(p: *anyopaque) callconv(.c) void {
+    rn(p, if (broker.isSealed()) 1 else 0);
+}
+
+/// StzEngineHttpBrokerRevoke(cName) -> 1 when the grant existed; its value is wiped.
+fn ring_BrokerRevoke(p: *anyopaque) callconv(.c) void {
+    const ok = broker.revoke(arg(p, 1));
+    if (ok) _ = door.recordFact("secret.broker.revoked", "stz_http", arg(p, 1), "", "value wiped");
+    rn(p, if (ok) 1 else 0);
+}
+
+fn ring_BrokerCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(broker.count()));
+}
+
+/// StzEngineHttpBrokerDescribe() -> "name TAB host TAB header TAB attached TAB refused"
+/// lines; never a value.
+fn ring_BrokerDescribe(p: *anyopaque) callconv(.c) void {
+    var buf: [16 * 1024]u8 = undefined;
+    const n = broker.describe(&buf);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, @constCast(""));
+}
+
+fn ring_BrokerLastError(p: *anyopaque) callconv(.c) void {
+    if (broker_err_len > 0) rs2(p, &broker_err, @intCast(broker_err_len)) else rs(p, @constCast(""));
+}
+
+/// StzEngineHttpRequestBrokered(cGrant, method_code, cUrl, cHeaders, cContentType,
+/// cBody, nConnectMs, nRequestMs) -> body, with the granted value masked out of it
+/// and out of StzEngineHttpLastHeaders(). A refusal sends nothing: the status is -3
+/// and StzEngineHttpBrokerLastError() says why. Redirects are not followed.
+fn ring_RequestBrokered(p: *anyopaque) callconv(.c) void {
+    const name = arg(p, 1);
+    const method_code: i32 = @intFromFloat(gn(p, 2));
+    const url = arg(p, 3);
+    var hb: [32 * 1024]u8 = undefined;
+    defer std.crypto.secureZero(u8, &hb);
+    var hn: usize = 0;
+    var host: [256]u8 = undefined;
+    var host_n: usize = 0;
+    const r = broker.prepare(name, url, arg(p, 4), &hb, &hn, &host, &host_n);
+    if (r != .none) {
+        brokerSay(broker.refusalText(r));
+        _ = door.recordFact("secret.broker.refused", "stz_http", name, host[0..host_n], broker.refusalText(r));
+        last_request_status = -3;
+        rs(p, @constCast(""));
+        return;
+    }
+    var adv: [64]u8 = undefined;
+    const shut = door.isShut("fetch", host[0..host_n], &adv) orelse door.isShut("secret", name, &adv);
+    if (shut) |a| {
+        std.crypto.secureZero(u8, &hb);
+        brokerSay("the door is shut by an advisory");
+        _ = door.recordFact("capability.refused", "stz_http", name, host[0..host_n], a);
+        last_request_status = -3;
+        rs(p, @constCast(""));
+        return;
+    }
+    const status = http.doRequest(method_code, url, arg(p, 5), arg(p, 6), hb[0..hn], &body_buf, BODY_CAP, @intFromFloat(gn(p, 7)), @intFromFloat(gn(p, 8)), "followredirects=0");
+    std.crypto.secureZero(u8, &hb);
+    last_request_status = status;
+    const blen = if (status > 0) http.http_last_body_len() else 0;
+    const masked = broker.mask(name, body_buf[0..blen]) + broker.mask(name, curlcore.curl_headers_mut());
+    brokerSay(if (masked > 0) "attached; the value came back and was masked" else "attached");
+    var what: [64]u8 = undefined;
+    const w = std.fmt.bufPrint(&what, "status {d}, masked {d}", .{ status, masked }) catch "";
+    _ = door.recordFact("secret.broker.attached", "stz_http", name, host[0..host_n], w);
+    if (blen > 0) rs2(p, &body_buf, @intCast(blen)) else rs(p, @constCast(""));
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginehttpdownloadverified", .func = ring_HttpDownloadVerified },
     .{ .name = "stzenginehttpdownloadsha256", .func = ring_HttpDownloadSha256 },
@@ -414,6 +519,15 @@ const regs = [_]R.Reg{
     .{ .name = "stzengineoutlierrecord", .func = ring_OutlierRecord },
     .{ .name = "stzengineoutliershouldeject", .func = ring_OutlierShouldEject },
     .{ .name = "stzengineoutlierreset", .func = ring_OutlierReset },
+
+    .{ .name = "stzenginehttpbrokergrant", .func = ring_BrokerGrant },
+    .{ .name = "stzenginehttpbrokerseal", .func = ring_BrokerSeal },
+    .{ .name = "stzenginehttpbrokerissealed", .func = ring_BrokerIsSealed },
+    .{ .name = "stzenginehttpbrokerrevoke", .func = ring_BrokerRevoke },
+    .{ .name = "stzenginehttpbrokercount", .func = ring_BrokerCount },
+    .{ .name = "stzenginehttpbrokerdescribe", .func = ring_BrokerDescribe },
+    .{ .name = "stzenginehttpbrokerlasterror", .func = ring_BrokerLastError },
+    .{ .name = "stzenginehttprequestbrokered", .func = ring_RequestBrokered },
 };
 
 pub fn registerAll(state: *anyopaque) void {

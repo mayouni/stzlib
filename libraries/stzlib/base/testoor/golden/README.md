@@ -100,6 +100,22 @@ harness only. A run here is built from `protocol2/judge/` cases.
 | `L13_floor_grade_refused` | a floor of `exhausted` over the impact set: 3 of 6 below, the first named in the reach's order; exit 1 |
 | `L14_floor_grade_met` | a floor of `exemplified` over the same walk, the ladder not asked: met, a cap does not bite at grade 2; exit 0 |
 
+## The Haro face (`haro/`, P3.6)
+
+The face for `.haro` tours is in the core (`TESTOOR_PROTOCOL_3.md` section 6). These cases are written by hand and read by the
+Zig harness only: there is no generator for them, so a case's `expected.*` is the author's reading of section 6.
+
+| folder | one case is | inputs | expected |
+|---|---|---|---|
+| `haro/reader/<case>/` | one `.haro` source read by the face | `tour.haro` | `expected.json`: the record, on one line |
+| `haro/judge/<case>/` | one narrated Haro tour judged with the face's `verdicts` rule | the inputs of `protocol2/judge/`, `meta.json` carrying the face | `expected.json`, `expected.txt` |
+
+| case | what it pins down |
+|---|---|
+| `R1_narrated` | claims at the top level, inside the file's own function and inside an `if`; a claim before any scenario opens `(the tour)`; a commented claim, a built claim (counted, not recorded) and the helpers' bodies left out; a single-quoted literal |
+| `R2_self_describing` | no `Scenario(` and no `Then(`: dialect `unknown`, no stop |
+| `H1_a_report_line_is_not_a_verdict` | a program's `  FAIL     :...` report before two `THEN` lines: 2 kept, finished |
+
 ## Adding a case
 
 Write the three input files (or `run.json`), run `golden_update.ring`, **read** the expected prose and JSON against what you meant the case to show, add the case to the intent table in the guard, and commit them together. Never edit an `expected.*` by hand.

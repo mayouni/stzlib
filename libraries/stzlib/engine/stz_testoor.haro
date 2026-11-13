@@ -1,0 +1,21 @@
+# Testoor core loader. The engine core is optional: when the library is absent the Ring
+# reference in base/testoor judges instead, and nothing else changes.
+
+if IsWindows()
+    $tStzTestoorLib = $tEngineDir + "/zig-out/bin/stz_testoor.dll"
+elseif IsLinux()
+    $tStzTestoorLib = $tEngineDir + "/zig-out/lib/libstz_testoor.so"
+elseif isMacOS()
+    $tStzTestoorLib = $tEngineDir + "/zig-out/lib/libstz_testoor.dylib"
+end
+
+$bStzTestoorCore = false
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("testoor")
+    $hStzTestoorHandle = ""
+elseif FExists($tStzTestoorLib)
+    $hStzTestoorHandle = LoadLib($tStzTestoorLib)
+    $bStzTestoorCore = true
+else
+    $hStzTestoorHandle = ""
+end

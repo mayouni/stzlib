@@ -18,12 +18,6 @@ func StzStringQ(_str_)
 		return StzStringQ(_str_)
 
 # Global helpers used by string-test narratives.
-# Full UnicodeDataAsString returns the Unicode database; the cheap
-# stub returns "" so the test load completes (used by perf
-# narratives).
-func UnicodeDataAsString()
-	return ""
-
 # MarquersPositions(cMarkers) returns the codepoint positions of
 # each marker token "#1", "#2", etc. in the given string.
 func MarquersPositions(_cStr_)
@@ -2166,7 +2160,7 @@ func StzIsPunct(p)
 #--
 
 func StzMarquerChar()
-	return $_cMarquerChar
+	return $tMarquerChar
 
 	func MarquerChar()
 		return StzMarquerChar()
@@ -2188,22 +2182,22 @@ func StzSetMarquerChar(c)
 		StzRaise("Incorrect param type! c must be a char.")
 	ok
 
-	$_cMarquerChar = c
+	$tMarquerChar = c
 
 	func SetMarquerChar(c)
 		StzSetMarquerChar(c)
 
 	func SetDefaultMarquerChar()
-		$_cMarquerChar = c
+		$tMarquerChar = c
 
 	func @SetMarquerChar()
-		$_cMarquerChar = c
+		$tMarquerChar = c
 
 	func SetMarquer()
-		$_cMarquerChar = c
+		$tMarquerChar = c
 
 	func @SetMarquer()
-		$_cMarquerChar = c
+		$tMarquerChar = c
 
 func StzSplitAtCS(cData, cSubStr, pCaseSensitive)
 	if NOT (isString(cData) and isString(cSubStr))

@@ -1,0 +1,25 @@
+# Softanza Engine -- Number Ring Bridge
+#
+# Loads stz_number.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Function prefix: StzEngineBigInt*, StzEngineNumber*
+
+if IsWindows()
+    $tStzNumberLib = $tEngineDir + "/zig-out/bin/stz_number.dll"
+elseif IsLinux()
+    $tStzNumberLib = $tEngineDir + "/zig-out/lib/libstz_number.so"
+elseif isMacOS()
+    $tStzNumberLib = $tEngineDir + "/zig-out/lib/libstz_number.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("number")
+    $hStzNumberHandle = ""
+elseif FExists($tStzNumberLib)
+    $hStzNumberHandle = LoadLib($tStzNumberLib)
+else
+    ? "WARNING: stz_number not found at: " + $tStzNumberLib
+    $hStzNumberHandle = ""
+end

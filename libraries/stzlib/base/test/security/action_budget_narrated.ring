@@ -86,10 +86,10 @@ func Pump oHost, nPasses
 
 # an agent that fires one skill on every cycle -- the runaway's shape
 class actingAgent from stzObject
-	@cName = ""
+	@tName = ""
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 	def Name_()
-		return @cName
+		return @tName
 	def Cycle()
 		return 1

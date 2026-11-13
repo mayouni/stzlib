@@ -1,0 +1,44 @@
+# Softanza Engine -- resilience primitives for web / cloud / agentic loops.
+#
+# Retry (pure):
+#   StzEngineRetryDelayMs(nAttempt, nBaseMs, nMaxMs, nSeed)
+#     -> jittered backoff delay (use seed=0 for OS RNG)
+#
+# Token bucket rate limiter:
+#   StzEngineRateCreate(nCapacity, nRefillPerSec)
+#   StzEngineRateTryTake(hRate, nTokens)            -> 1 ok / 0 denied
+#   StzEngineRateWaitFor(hRate, nTokens)            -> ms waited (blocks)
+#   StzEngineRateAvailable(hRate)                   -> tokens (float)
+#   StzEngineRateDestroy(hRate)
+#
+# Circuit breaker (3-state: closed / open / half_open):
+#   StzEngineCircuitCreate(nFailureThreshold, nResetAfterMs)
+#   StzEngineCircuitCanPass(hCircuit)               -> 1 pass / 0 block
+#   StzEngineCircuitRecordSuccess(hCircuit)
+#   StzEngineCircuitRecordFailure(hCircuit)
+#   StzEngineCircuitState(hCircuit)                 -> 0=closed 1=open 2=half_open
+#   StzEngineCircuitReset(hCircuit)
+#   StzEngineCircuitDestroy(hCircuit)
+
+if IsWindows()
+    $tStzResilienceLib = $tEngineDir + "/zig-out/bin/stz_resilience.dll"
+elseif IsLinux()
+    $tStzResilienceLib = $tEngineDir + "/zig-out/lib/libstz_resilience.so"
+elseif isMacOS()
+    $tStzResilienceLib = $tEngineDir + "/zig-out/lib/libstz_resilience.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("resilience")
+    $hStzResilienceHandle = ""
+elseif FExists($tStzResilienceLib)
+    $hStzResilienceHandle = LoadLib($tStzResilienceLib)
+else
+    ? "WARNING: stz_resilience not found at: " + $tStzResilienceLib
+    $hStzResilienceHandle = ""
+end
+
+# State constants (mirror engine CircuitState enum)
+bSTZ_CIRCUIT_CLOSED    = false
+bSTZ_CIRCUIT_OPEN      = true
+iSTZ_CIRCUIT_HALF_OPEN = 2

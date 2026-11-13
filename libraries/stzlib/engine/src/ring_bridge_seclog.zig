@@ -1,5 +1,6 @@
 const std = @import("std");
 const seclog = @import("seclog.zig");
+const shutlist = @import("door_shut.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -227,8 +228,50 @@ fn stz_seclog_door_fact(
     return 1;
 }
 
+/// The exported shut-list query (SECURITY-R18c): the advisory that shut the door
+/// of this kind to this name, copied into out; its length, or -1 when the door
+/// is open. An engine domain asks this before it acts (seclog_door.isShut).
+fn stz_seclog_door_shut_query(
+    kind: [*]const u8, kind_len: usize,
+    name: [*]const u8, name_len: usize,
+    out: [*]u8, out_cap: usize,
+) callconv(.c) i32 {
+    const got = shutlist.query(kind[0..kind_len], name[0..name_len], out[0..out_cap]) orelse return -1;
+    return @intCast(got.len);
+}
+
 comptime {
     @export(&stz_seclog_door_fact, .{ .name = "stz_seclog_door_fact" });
+    @export(&stz_seclog_door_shut_query, .{ .name = "stz_seclog_door_shut_query" });
+}
+
+// StzEngineSecLogDoorShut(cKind, cName, cAdvisoryId) -> 1 when the door is in the
+// engine's shut list, 0 when refused (an empty or oversized field, a full table)
+fn ring_SecLogDoorShut(p: *anyopaque) callconv(.c) void {
+    const k = gs(p, 1)[0..@intCast(gss(p, 1))];
+    const n = gs(p, 2)[0..@intCast(gss(p, 2))];
+    const a = gs(p, 3)[0..@intCast(gss(p, 3))];
+    rn(p, if (shutlist.shut(k, n, a)) 1 else 0);
+}
+
+// StzEngineSecLogDoorReopen(cAdvisoryId) -> how many doors that advisory had shut
+fn ring_SecLogDoorReopen(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(shutlist.reopen(gs(p, 1)[0..@intCast(gss(p, 1))])));
+}
+
+// StzEngineSecLogDoorIsShut(cKind, cName) -> the advisory that shut it, or ""
+fn ring_SecLogDoorIsShut(p: *anyopaque) callconv(.c) void {
+    var buf: [64]u8 = undefined;
+    const got = shutlist.query(gs(p, 1)[0..@intCast(gss(p, 1))], gs(p, 2)[0..@intCast(gss(p, 2))], &buf) orelse {
+        rs(p, "");
+        return;
+    };
+    rs2(p, got.ptr, @intCast(got.len));
+}
+
+// StzEngineSecLogDoorShutCount() -> rows in the engine's shut list
+fn ring_SecLogDoorShutCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(shutlist.count()));
 }
 
 // StzEngineSecLogDoorRecords() -> records written through the engine door in this process
@@ -238,6 +281,10 @@ fn ring_SecLogDoorRecords(p: *anyopaque) callconv(.c) void {
 
 pub const regs = [_]R.Reg{
     .{ .name = "stzengineseclogdoorrecords", .func = &ring_SecLogDoorRecords },
+    .{ .name = "stzengineseclogdoorshut", .func = &ring_SecLogDoorShut },
+    .{ .name = "stzengineseclogdoorreopen", .func = &ring_SecLogDoorReopen },
+    .{ .name = "stzengineseclogdoorisshut", .func = &ring_SecLogDoorIsShut },
+    .{ .name = "stzengineseclogdoorshutcount", .func = &ring_SecLogDoorShutCount },
     .{ .name = "stzengineseclogsetcurrent", .func = &ring_SecLogSetCurrent },
     .{ .name = "stzengineseclogclearcurrent", .func = &ring_SecLogClearCurrent },
     .{ .name = "stzenginesecloghascurrent", .func = &ring_SecLogHasCurrent },

@@ -804,14 +804,14 @@ Summary()
 # ---------------------------------------------------------------- fixtures
 
 class rxFakeWorld
-	@cName = ""
+	@tName = ""
 	def init(pcName)
-		@cName = pcName
+		@tName = pcName
 	def Name()
-		return @cName
+		return @tName
 	def Surfaces()
 		return [ "web" ]
 	def Things()
 		return [ [ "thing1", [ "f1" ] ] ]
 	def ScreenNames()
-		return [ "home", @cName ]
+		return [ "home", @tName ]

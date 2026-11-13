@@ -1,0 +1,23 @@
+# Softanza Engine -- HTML Utilities
+#
+# Loads stz_html.dll for HTML entity encoding/decoding, tag stripping.
+#
+# Function prefix: StzEngineHtml*
+
+if IsWindows()
+    $tStzHtmlLib = $tEngineDir + "/zig-out/bin/stz_html.dll"
+elseif IsLinux()
+    $tStzHtmlLib = $tEngineDir + "/zig-out/lib/libstz_html.so"
+elseif isMacOS()
+    $tStzHtmlLib = $tEngineDir + "/zig-out/lib/libstz_html.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("html")
+    $hStzHtmlHandle = ""
+elseif FExists($tStzHtmlLib)
+    $hStzHtmlHandle = LoadLib($tStzHtmlLib)
+else
+    ? "WARNING: stz_html not found at: " + $tStzHtmlLib
+    $hStzHtmlHandle = ""
+end

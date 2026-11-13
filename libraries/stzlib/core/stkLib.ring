@@ -1,2 +1,0 @@
-
-load "stzCore.ring"

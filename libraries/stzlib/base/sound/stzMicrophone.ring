@@ -74,7 +74,7 @@ class stzMicrophone
 	@nChannels = 1
 	@nRate = 48000
 	@bRecording = 0
-	@cLastError = ""
+	@tLastError = ""
 
 	# Builds a recorder with one channel at 48000 hertz, noting whether the sound engine is loaded.
 	#
@@ -84,7 +84,7 @@ class stzMicrophone
 	#   see        StartRecording, RecordFor
 	def init()
 		if NOT StzSoundEngineLoaded()
-			@cLastError = "stz_sound.dll is not loaded"
+			@tLastError = "stz_sound.dll is not loaded"
 		ok
 
 	# TRUE if there is an input to record with.
@@ -169,7 +169,7 @@ class stzMicrophone
 	#   note       after StopRecording with nothing running it reads not recording
 	#   see        StartRecording, StopRecording
 	def LastError()
-		return @cLastError
+		return @tLastError
 
 	# Sets how many channels the next recording has.
 	#
@@ -229,27 +229,27 @@ class stzMicrophone
 	#@ aka  Open the input and start filling. nMaxSeconds sizes the recording buffer up front -- growing it mid-capture is exactly the pause that costs frames.
 	def StartRecording(pnMaxSeconds)
 		if @bRecording
-			@cLastError = "already recording"
+			@tLastError = "already recording"
 			return 0
 		ok
 		if NOT This.IsAvailable()
-			@cLastError = "no capture device on this machine"
+			@tLastError = "no capture device on this machine"
 			return 0
 		ok
 		@nRec = StzEngineSoundRecorderNew(@nChannels, @nRate, pnMaxSeconds)
 		if @nRec = 0
-			@cLastError = StzEngineSoundLastError()
+			@tLastError = StzEngineSoundLastError()
 			return 0
 		ok
 		@nDev = StzEngineAudioDevCaptureOpen(StzEngineSoundRecorderRingPtr(@nRec), 256)
 		if @nDev = 0
-			@cLastError = StzEngineAudioDevLastError()
+			@tLastError = StzEngineAudioDevLastError()
 			StzEngineSoundRecorderFree(@nRec)
 			@nRec = 0
 			return 0
 		ok
 		if StzEngineAudioDevCaptureStart(@nDev) != 0
-			@cLastError = StzEngineAudioDevLastError()
+			@tLastError = StzEngineAudioDevLastError()
 			StzEngineAudioDevCaptureClose(@nDev)
 			StzEngineSoundRecorderFree(@nRec)
 			@nDev = 0
@@ -285,7 +285,7 @@ class stzMicrophone
 	#@ aka  Stop, and hand back what was recorded as a stzSound. NULL if nothing was captured -- an empty recording is a failure worth hearing about, not a silent buffer of zeros.
 	def StopRecording()
 		if @nRec = 0
-			@cLastError = "not recording"
+			@tLastError = "not recording"
 			return ""
 		ok
 		if @nDev != 0
@@ -298,7 +298,7 @@ class stzMicrophone
 		_b_ = StzEngineSoundRecorderFinish(@nRec)  # then the ring is freed
 		@nRec = 0
 		if _b_ = 0
-			@cLastError = StzEngineSoundLastError()
+			@tLastError = StzEngineSoundLastError()
 			return ""
 		ok
 		return StzSoundFromBufferQ(_b_)

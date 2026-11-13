@@ -1,0 +1,25 @@
+# Softanza Engine -- CSV Ring Bridge
+#
+# Loads stz_csv.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Function prefix: StzEngineCsv*
+
+if IsWindows()
+    $tStzCsvLib = $tEngineDir + "/zig-out/bin/stz_csv.dll"
+elseif IsLinux()
+    $tStzCsvLib = $tEngineDir + "/zig-out/lib/libstz_csv.so"
+elseif isMacOS()
+    $tStzCsvLib = $tEngineDir + "/zig-out/lib/libstz_csv.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("csv")
+    $hStzCsvHandle = ""
+elseif FExists($tStzCsvLib)
+    $hStzCsvHandle = LoadLib($tStzCsvLib)
+else
+    ? "WARNING: stz_csv not found at: " + $tStzCsvLib
+    $hStzCsvHandle = ""
+end

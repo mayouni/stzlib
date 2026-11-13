@@ -1,0 +1,22 @@
+# Softanza Engine -- Sequence Generator
+#
+# Loads stz_sequence.dll for sequence generator.
+#
+# Function prefix: StzEngineSequence*
+
+if IsWindows()
+    $tStzSequenceLib = $tEngineDir + "/zig-out/bin/stz_sequence.dll"
+elseif IsLinux()
+    $tStzSequenceLib = $tEngineDir + "/zig-out/lib/libstz_sequence.so"
+elseif isMacOS()
+    $tStzSequenceLib = $tEngineDir + "/zig-out/lib/libstz_sequence.dylib"
+end
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("sequence")
+    $hStzSequenceHandle = ""
+elseif FExists($tStzSequenceLib)
+    $hStzSequenceHandle = LoadLib($tStzSequenceLib)
+else
+    ? "WARNING: stz_sequence not found at: " + $tStzSequenceLib
+    $hStzSequenceHandle = ""
+end

@@ -5,9 +5,9 @@ load "../_narrated.ring"
 # Register rows (all four were "raises R14", "answers an empty text", "raises R24" or "answers 0"):
 #   init              IsConstraint called RemoveFirstBoundQ, a method stzString does not have, so no
 #                     constraint could be built at all
-#   Name              read @cConstraintName, which nothing assigned (the inherited SetName writes the
+#   Name              read @tConstraintName, which nothing assigned (the inherited SetName writes the
 #                     OBJECT's variable name, a different field)
-#   Expression        read _cConstraint_, a variable nobody assigns (the field is @cConstraint)
+#   Expression        read _cConstraint_, a variable nobody assigns (the field is @tConstraint)
 #   CheckConstraint   always 0: Expression raised inside the try, and the failure was reported as a
 #                     broken constraint
 # The guard drives every method with a small guarded class (a Box holding a Value) and a stzString, with

@@ -1,0 +1,284 @@
+# Softanza Engine -- Meta-Engine Ring Bridge
+#
+# Loads stz_meta.dll and provides high-level Ring functions
+# that wrap the native meta-engine. This replaces:
+#
+#   - 1,566 IsXxxNamedParam() methods  -> StzMetaIsNamedParam()
+#   - CheckingParams() boilerplate     -> engine-side param validation
+#   - StzRaise() hand-crafted strings  -> StzMetaFormatError()
+#   - addmethod() alias loops          -> StzMetaRegisterAlias()
+#   - CS/Q/Passive wrapper methods     -> StzMetaApplyGenRules()
+#
+# Used by: base/common/stzFuncs.ring, all Stz* classes
+
+if IsWindows()
+    $tStzMetaLib = $tEngineDir + "/zig-out/bin/stz_meta.dll"
+elseif IsLinux()
+    $tStzMetaLib = $tEngineDir + "/zig-out/lib/libstz_meta.so"
+elseif isMacOS()
+    $tStzMetaLib = $tEngineDir + "/zig-out/lib/libstz_meta.dylib"
+end
+
+if FExists($tStzMetaLib)
+    $hStzMetaHandle = LoadLib($tStzMetaLib)
+else
+    $hStzMetaHandle = ""
+end
+
+#------------------------------------------------------------#
+#  INITIALIZATION                                            #
+#------------------------------------------------------------#
+
+func StzMetaInit
+    if IsPointer($hStzMetaHandle)
+        stz_meta_init()
+    end
+end
+	func EngineMetaInit
+		StzMetaInit()
+	end
+func StzMetaShutdown
+    if IsPointer($hStzMetaHandle)
+        stz_meta_shutdown()
+    end
+end
+	func EngineMetaShutdown
+		StzMetaShutdown()
+	end
+#------------------------------------------------------------#
+#  NAMED PARAM REGISTRY (replaces 1,566 IsXxxNamedParam)     #
+#------------------------------------------------------------#
+
+func StzMetaIsNamedParam(tKeyword)
+    if not IsPointer($hStzMetaHandle)
+        return 0
+    end
+    return stz_meta_is_named_param(tKeyword)
+end
+	func EngineIsNamedParam(tKeyword)
+		return StzMetaIsNamedParam(tKeyword)
+	end
+func StzMetaIsOneOfTheseNamedParams(pxList, pxNames)
+    if not IsPointer($hStzMetaHandle)
+        return false
+    end
+
+    if not IsList(pxList)
+        return false
+    end
+
+    if Len(pxList) != 2
+        return false
+    end
+
+    if not IsString(pxList[1])
+        return false
+    end
+
+    nLen = Len(pxNames)
+    for i = 1 to nLen
+        if ring_lower(pxList[1]) = ring_lower(pxNames[i])
+            if StzMetaIsNamedParam(pxNames[i])
+                return true
+            end
+        end
+    end
+
+    return false
+end
+	func EngineIsOneOfTheseNamedParams(pxList, pxNames)
+		return StzMetaIsOneOfTheseNamedParams(pxList, pxNames)
+	end
+func StzMetaIsAnyNamedParam(pxList)
+    if not IsList(pxList)
+        return 0
+    end
+
+    if Len(pxList) != 2
+        return 0
+    end
+
+    if not IsString(pxList[1])
+        return 0
+    end
+
+    return StzMetaIsNamedParam(pxList[1])
+end
+	func EngineIsAnyNamedParam(pxList)
+		return StzMetaIsAnyNamedParam(pxList)
+	end
+#------------------------------------------------------------#
+#  PARAM CHECKING TOGGLE                                     #
+#------------------------------------------------------------#
+
+func StzMetaParamCheckEnabled
+    if not IsPointer($hStzMetaHandle)
+        return $bParamCheck
+    end
+    return stz_meta_param_check_enabled()
+end
+	func EngineParamCheckEnabled
+		return StzMetaParamCheckEnabled()
+	end
+func StzMetaSetParamCheck(bValue)
+    if IsPointer($hStzMetaHandle)
+        stz_meta_set_param_check(bValue)
+    end
+    $bParamCheck = bValue
+end
+	func EngineSetParamCheck(bValue)
+		StzMetaSetParamCheck(bValue)
+	end
+#------------------------------------------------------------#
+#  ERROR CATALOG (replaces hand-crafted StzRaise strings)    #
+#------------------------------------------------------------#
+
+func StzMetaFormatError(tCode, pxParams)
+    if not IsPointer($hStzMetaHandle)
+        return "Error: " + tCode
+    end
+
+    nLen = Len(pxParams)
+
+    switch nLen
+    case 0
+        return stz_meta_format_error(tCode)
+    case 1
+        return stz_meta_format_error(tCode,
+            pxParams[1][1], pxParams[1][2])
+    case 2
+        return stz_meta_format_error(tCode,
+            pxParams[1][1], pxParams[1][2],
+            pxParams[2][1], pxParams[2][2])
+    case 3
+        return stz_meta_format_error(tCode,
+            pxParams[1][1], pxParams[1][2],
+            pxParams[2][1], pxParams[2][2],
+            pxParams[3][1], pxParams[3][2])
+    case 4
+        return stz_meta_format_error(tCode,
+            pxParams[1][1], pxParams[1][2],
+            pxParams[2][1], pxParams[2][2],
+            pxParams[3][1], pxParams[3][2],
+            pxParams[4][1], pxParams[4][2])
+    else
+        return "Error: " + tCode
+    end
+end
+	func EngineFormatError(tCode, pxParams)
+		return StzMetaFormatError(tCode, pxParams)
+	end
+#------------------------------------------------------------#
+#  ALIAS ENGINE (replaces addmethod() init loops in XT)      #
+#------------------------------------------------------------#
+
+func StzMetaRegisterAlias(tClass, tAlias, tCanonical)
+    if not IsPointer($hStzMetaHandle)
+        return
+    end
+    stz_meta_register_alias(tClass, tAlias, tCanonical)
+end
+	func EngineRegisterAlias(tClass, tAlias, tCanonical)
+		StzMetaRegisterAlias(tClass, tAlias, tCanonical)
+	end
+func StzMetaResolveAlias(tClass, tMethod)
+    if not IsPointer($hStzMetaHandle)
+        return ""
+    end
+    return stz_meta_resolve_alias(tClass, tMethod)
+end
+	func EngineResolveAlias(tClass, tMethod)
+		return StzMetaResolveAlias(tClass, tMethod)
+	end
+func StzMetaAliasCount(tClass)
+    if not IsPointer($hStzMetaHandle)
+        return 0
+    end
+    return stz_meta_alias_count(tClass)
+end
+	func EngineAliasCount(tClass)
+		return StzMetaAliasCount(tClass)
+	end
+func StzMetaRegisterAliases(tClass, xAliases)
+    if not IsPointer($hStzMetaHandle)
+        return
+    end
+
+    nLen = Len(xAliases)
+    for i = 1 to nLen
+        stz_meta_register_alias(tClass, xAliases[i][1], xAliases[i][2])
+    end
+end
+	func EngineRegisterAliases(tClass, xAliases)
+		StzMetaRegisterAliases(tClass, xAliases)
+	end
+#------------------------------------------------------------#
+#  METHOD GENERATION (CS/Q/Passive auto-dispatch)            #
+#------------------------------------------------------------#
+
+func StzMetaApplyGenRules(oObject, tClass)
+    if not IsPointer($hStzMetaHandle)
+        return
+    end
+
+    nCount = stz_meta_gen_rule_count(tClass)
+    if nCount = 0
+        return
+    end
+
+    for i = 1 to nCount
+        tRule = stz_meta_gen_rule_get(tClass, i)
+        if tRule = ""
+            loop
+        end
+
+        xAparts = ring_split(tRule, "|")
+        if Len(xAparts) != 3
+            loop
+        end
+
+        tKind      = xAparts[1]
+        tGenerated = xAparts[2]
+        tCanonical = xAparts[3]
+
+        switch tKind
+        case "cs"
+            _StzMetaAddCSWrapper(oObject, tGenerated, tCanonical)
+        case "fluent_q"
+            AddMethod(oObject, tGenerated, tCanonical)
+        case "passive"
+            AddMethod(oObject, tGenerated, tCanonical)
+        end
+    end
+end
+	func EngineApplyGenRules(oObject, tClass)
+		StzMetaApplyGenRules(oObject, tClass)
+	end
+func _StzMetaAddCSWrapper(oObject, tNonCS, tCS)
+    AddMethod(oObject, tNonCS, tCS)
+end
+	func _EngineAddCSWrapper(oObject, tNonCS, tCS)
+		_StzMetaAddCSWrapper(oObject, tNonCS, tCS)
+	end
+#------------------------------------------------------------#
+#  HISTORY TRACKING                                          #
+#------------------------------------------------------------#
+
+func StzMetaHistoryEnabled
+    if not IsPointer($hStzMetaHandle)
+        return $bKeepHisto
+    end
+    return stz_meta_history_enabled()
+end
+	func EngineHistoryEnabled
+		return StzMetaHistoryEnabled()
+	end
+func StzMetaSetHistory(bValue)
+    if IsPointer($hStzMetaHandle)
+        stz_meta_set_history(bValue)
+    end
+    $bKeepHisto = bValue
+end
+	func EngineSetHistory(bValue)
+		StzMetaSetHistory(bValue)
+	end

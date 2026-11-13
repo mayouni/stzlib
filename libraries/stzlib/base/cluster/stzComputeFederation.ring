@@ -58,7 +58,7 @@ func StzComputeFederationQ(pcName)
 #   see        stzGovernance, stzReactor, stzRequestSigner, stzSuperApp
 class stzComputeFederation from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aMembers = []       # [ name, endpoint(host:port), [facets], active ]
 	@oGov = ""         # governance: who may invoke which facet (the SLA layer)
 	@aBonds = []         # [ caller, facet ]  a caller may request this facet
@@ -81,17 +81,17 @@ class stzComputeFederation from stzObject
 	#   returns    nothing; the object is built
 	#   see        Join, FederatedCall
 	def init(pcName)
-		@cName = "" + pcName
-		@oGov = new stzGovernance(@cName)
+		@tName = "" + pcName
+		@oGov = new stzGovernance(@tName)
 		@oReactor = new stzReactor()
-		@oSigner = new stzRequestSigner(@cName)
+		@oSigner = new stzRequestSigner(@tName)
 
 	# Returns the name the federation was built with.
 	#
 	#   returns    a text
 	#   see        Join
 	def Name_()
-		return @cName
+		return @tName
 
 	# Returns the reason of the last federated call: why it was allowed, or why it was refused.
 	#

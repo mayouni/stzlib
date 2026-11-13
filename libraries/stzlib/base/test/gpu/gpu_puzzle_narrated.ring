@@ -86,7 +86,7 @@ chk("...the cheat (twice the INDEX, right where a[i] = i) is caught at the hidde
 cV = oPz.GradeOnCpu("in b" + char(10) + "out c" + char(10) + "body { @c = @b * 2 }")
 chk("...an input not the task's is refused, naming yours and the task's", StzLeft(cV, 8) = "refused:" and StzFindFirst('"b"', cV) > 0 and StzFindFirst('"a"', cV) > 0)
 
-if StzEngineGpuInit($cStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
+if StzEngineGpuInit($tStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
 	? "  NO GPU ON THIS MACHINE -- the device scenes need one; Scenes 0 and 1 are the coverage"
 else
 	? ""
@@ -149,7 +149,7 @@ for cId in acPuzzles
 	chk(cId + ": the task reads in four languages", oQ.Task("en") != "" and oQ.Task("fr") != "" and oQ.Task("ar") != "" and oQ.Task("ha") != "")
 	chk(cId + ": the task ends with what the GPU did differently from a loop", StzFindFirst("differently from a loop", oQ.Task("en")) > 0)
 next
-bDevice = (StzEngineGpuInit($cStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0)
+bDevice = (StzEngineGpuInit($tStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0)
 for aCase in aCases
 	oQ = StzKernelPuzzleQ(aCase[1])
 	if bDevice

@@ -1,0 +1,23 @@
+# Softanza Engine -- Reactive Streams
+#
+# Loads stz_reactive.dll for observable channels and event dispatch.
+#
+# Function prefix: StzEngineReactive*
+
+if IsWindows()
+    $tStzReactiveLib = $tEngineDir + "/zig-out/bin/stz_reactive.dll"
+elseif IsLinux()
+    $tStzReactiveLib = $tEngineDir + "/zig-out/lib/libstz_reactive.so"
+elseif isMacOS()
+    $tStzReactiveLib = $tEngineDir + "/zig-out/lib/libstz_reactive.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("reactive")
+    $hStzReactiveHandle = ""
+elseif FExists($tStzReactiveLib)
+    $hStzReactiveHandle = LoadLib($tStzReactiveLib)
+else
+    ? "WARNING: stz_reactive not found at: " + $tStzReactiveLib
+    $hStzReactiveHandle = ""
+end

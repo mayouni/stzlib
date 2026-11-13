@@ -139,7 +139,7 @@ func StzServicesAreSound(poRegistry)
 #   see        stzSecretStore, stzMailSandbox, stzPispiHttpAdapter, stzPiSpiSandbox
 class stzServiceRegistry from stzObject
 
-	@cName = ""
+	@tName = ""
 	@nId = 0     # the slot in $aStzServiceRegistries -- survives Ring's copy
 
 	# Builds an empty registry for one solution, whose name every finding and report line points at.
@@ -149,8 +149,8 @@ class stzServiceRegistry from stzObject
 	#   returns    nothing; the object is built
 	#   see        Declare, Bind
 	def init(pcName)
-		@cName = ring_trim("" + pcName)
-		if @cName = ""
+		@tName = ring_trim("" + pcName)
+		if @tName = ""
 			StzRaise("stzServiceRegistry: a name is required (it is what the findings point at).")
 		ok
 		$nStzServiceRegistrySeq = $nStzServiceRegistrySeq + 1
@@ -163,7 +163,7 @@ class stzServiceRegistry from stzObject
 	#   returns    a text
 	#   see        init
 	def Name()
-		return @cName
+		return @tName
 
 	# Records a service the solution depends on before anything serves it, so that an unserved one is a finding and not a surprise.
 	#
@@ -387,7 +387,7 @@ class stzServiceRegistry from stzObject
 	def Service(pcService)
 		_i_ = This._BoundIndex(pcService)
 		if _i_ = 0
-			StzRaise("stzServiceRegistry(" + @cName + "): nothing is bound for service '" +
+			StzRaise("stzServiceRegistry(" + @tName + "): nothing is bound for service '" +
 			         This._Key(pcService) + "'. Bind it (or BindLive it) before use.")
 		ok
 		return $aStzServiceRegistries[This._Slot()][3][_i_][2]
@@ -690,7 +690,7 @@ class stzServiceRegistry from stzObject
 	#   see        Report, FindingsVia
 	def ReportVia(poStore)
 		_aF_ = This.FindingsVia(poStore)
-		? "Service registry '" + @cName + "' [" + $aStzServiceRegistries[This._Slot()][4] + "] -- " +
+		? "Service registry '" + @tName + "' [" + $aStzServiceRegistries[This._Slot()][4] + "] -- " +
 		  len($aStzServiceRegistries[This._Slot()][3]) + " bound: " + len(This.SandboxedServices()) + " sandboxed, " +
 		  len(This.LocalServices()) + " local, " + len(This.LiveServices()) + " live" +
 		  This._ConformanceNote()
@@ -806,7 +806,7 @@ class stzServiceRegistry from stzObject
 	#@ aka  -- the graph projection (phase 7) -----------------------------------
 	def AsRuleGraph()
 		_oG_ = new stzGraph("services-rules")
-		_app_ = "app:" + @cName
+		_app_ = "app:" + @tName
 		_oG_.AddNode(_app_)
 		_oG_.SetNodeProperty(_app_, "kind", "application")
 		_oG_.SetNodeProperty(_app_, "phase", "" + $aStzServiceRegistries[This._Slot()][4])
@@ -854,7 +854,7 @@ class stzServiceRegistry from stzObject
 	#   returns    nothing; it prints
 	#   see        Report
 	def Show()
-		? "stzServiceRegistry(" + @cName + ", " + $aStzServiceRegistries[This._Slot()][4] + ", " +
+		? "stzServiceRegistry(" + @tName + ", " + $aStzServiceRegistries[This._Slot()][4] + ", " +
 		  len($aStzServiceRegistries[This._Slot()][3]) + "/" + len($aStzServiceRegistries[This._Slot()][2]) + " bound)"
 
 	  #==== internals ======================================================
@@ -875,7 +875,7 @@ class stzServiceRegistry from stzObject
 		_n_ = len(_a_)
 		for _i_ = 1 to _n_
 			_aF_ + [ :invariant = "unbound-service", :severity = :error,
-			         :where = @cName + "/" + _a_[_i_],
+			         :where = @tName + "/" + _a_[_i_],
 			         :message = "declared but never bound -- asking for it will raise" ]
 		next
 		return _aF_
@@ -889,7 +889,7 @@ class stzServiceRegistry from stzObject
 		_n_ = len(_a_)
 		for _i_ = 1 to _n_
 			_aF_ + [ :invariant = "sandbox-in-production", :severity = :error,
-			         :where = @cName + "/" + _a_[_i_],
+			         :where = @tName + "/" + _a_[_i_],
 			         :message = "still bound to a SANDBOX in a production phase -- " +
 			                    "a fake must never ship" ]
 		next
@@ -917,7 +917,7 @@ class stzServiceRegistry from stzObject
 			done
 			if _bGone_
 				_aF_ + [ :invariant = "ephemeral-in-production", :severity = :error,
-				         :where = @cName + "/" + $aStzServiceRegistries[This._Slot()][3][_i_][1],
+				         :where = @tName + "/" + $aStzServiceRegistries[This._Slot()][3][_i_][1],
 				         :message = "a LOCAL source that vanishes on restart (in-memory) " +
 				                    "is bound in a production phase" ]
 			ok
@@ -942,7 +942,7 @@ class stzServiceRegistry from stzObject
 			done
 			if _bFree_
 				_aF_ + [ :invariant = "ungoverned-payouts-in-production", :severity = :error,
-				         :where = @cName + "/" + $aStzServiceRegistries[This._Slot()][3][_i_][1],
+				         :where = @tName + "/" + $aStzServiceRegistries[This._Slot()][3][_i_][1],
 				         :message = "a payments port that skips the payout plan is bound in a production phase -- " +
 				                    "money out must be a plan a human commits" ]
 			ok
@@ -959,7 +959,7 @@ class stzServiceRegistry from stzObject
 		_n_ = len(_a_)
 		for _i_ = 1 to _n_
 			_aF_ + [ :invariant = "conformance-in-production", :severity = :error,
-			         :where = @cName + "/" + _a_[_i_],
+			         :where = @tName + "/" + _a_[_i_],
 			         :message = "still bound to a CONFORMANCE sandbox in a production phase -- " +
 			                    "virtual money must never ship" ]
 		next
@@ -993,7 +993,7 @@ class stzServiceRegistry from stzObject
 			if _cert_ = ""
 				loop
 			ok
-			_cWhere_ = @cName + "/" + _svc_
+			_cWhere_ = @tName + "/" + _svc_
 			if NOT poStore.Has(_cert_)
 				_aF_ + [ :invariant = "live-without-certificate", :severity = :error, :where = _cWhere_,
 				         :message = "the mTLS certificate '" + _cert_ + "' is not in the secret store" ]
@@ -1033,20 +1033,20 @@ class stzServiceRegistry from stzObject
 			_sec_ = $aStzServiceRegistries[This._Slot()][3][_i_][4]
 			if _sec_ = ""
 				_aF_ + [ :invariant = "inline-credential", :severity = :warn,
-				         :where = @cName + "/" + _svc_,
+				         :where = @tName + "/" + _svc_,
 				         :message = "live adapter bound without naming a store secret" ]
 				loop
 			ok
 			if isObject(poStore)
 				if NOT poStore.Has(_sec_)
 					_aF_ + [ :invariant = "live-without-secret", :severity = :error,
-					         :where = @cName + "/" + _svc_,
+					         :where = @tName + "/" + _svc_,
 					         :message = "credential '" + _sec_ + "' is not in the secret store" ]
 				else
 					# a descriptor registered and never given a value is a NAME, not a credential
 					if poStore.Secret(_sec_).SourceKind() = "unset"
 						_aF_ + [ :invariant = "live-without-secret", :severity = :error,
-						         :where = @cName + "/" + _svc_,
+						         :where = @tName + "/" + _svc_,
 						         :message = "credential '" + _sec_ + "' is in the secret store but has no value" ]
 					ok
 				ok

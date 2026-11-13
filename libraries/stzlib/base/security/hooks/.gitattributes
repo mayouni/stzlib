@@ -1,0 +1,2 @@
+# a shell script run by git: CRLF line endings break it on a Windows checkout
+pre-commit text eol=lf

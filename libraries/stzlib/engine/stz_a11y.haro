@@ -1,0 +1,80 @@
+# Softanza Engine -- the accessibility bridge (G4b, base/gui/SOFTANZA_GUI_PLAN.md)
+#
+# Loads stz_a11y.dll: the accessibility tree, handed to the operating
+# system's own assistive-technology API by way of AccessKit.
+#
+# WHY THIS IS A SEPARATE DLL, and not part of stz_gui: AccessKit is
+# per-OS. It talks to UI Automation on Windows, NSAccessibility on macOS
+# and AT-SPI on Linux, which is exactly the property that made GR5 put
+# windows in stz_window and the sound plan put devices in stz_audiodev.
+# The portable half of a plane does not carry a per-OS dependency.
+#
+# THE RUNTIME IS LOADED BY NAME, NEVER LINKED -- the same arrangement
+# stz_gpu has with wgpu_native.dll, and it buys the same thing: this DLL
+# always loads, and a machine without accesskit.dll simply has no
+# screen-reader bridge. That is a state, not an error. See
+# engine/vendor/accesskit/VERSION for why a prebuilt binary is the
+# house's shape rather than a new kind of decision.
+#
+# Function prefix: StzEngineA11y*
+#
+#   StzEngineA11yLoad(cPath)      -- 1 when the runtime opened
+#   StzEngineA11yIsAvailable()
+#   StzEngineA11yLastError()
+#   StzEngineA11yAttach(nNativeWindowHandle) -> id, or a negative status
+#       The handle comes from StzEngineWindowNativeHandle. Attaching
+#       HIDES and RE-SHOWS the window, because AccessKit's subclassing
+#       adapter refuses a window that is already visible -- do it right
+#       after creating the window and nothing flickers.
+#   StzEngineA11yUpdate(id, cTreeJson) -> status
+#       The JSON is stzAccessibilityTree.ToJSON() unchanged.
+#   StzEngineA11yDetach(id) / StzEngineA11yIsLive(id)
+#   StzEngineA11yStats(id) -> [ updates, activations, nodes ]
+#       ACTIVATIONS is the number that matters: it counts the times an
+#       assistive technology actually ASKED for the tree. `updates` only
+#       says we pushed one, and a bridge reporting pushes alone would
+#       look identical with and without a screen reader running.
+#
+# Statuses: 0 = OK  -1 = BAD_ARG  -2 = UNAVAILABLE  -3 = REFUSED
+
+if IsWindows()
+	$tStzA11yLib = $tEngineDir + "/zig-out/bin/stz_a11y.dll"
+	$tStzA11yRuntime = $tEngineDir + "/zig-out/bin/accesskit.dll"
+elseif IsLinux()
+	$tStzA11yLib = $tEngineDir + "/zig-out/lib/libstz_a11y.so"
+	$tStzA11yRuntime = $tEngineDir + "/zig-out/lib/libaccesskit.so"
+elseif isMacOS()
+	$tStzA11yLib = $tEngineDir + "/zig-out/lib/libstz_a11y.dylib"
+	$tStzA11yRuntime = $tEngineDir + "/zig-out/lib/libaccesskit.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("a11y")
+	$hStzA11yHandle = ""
+elseif FExists($tStzA11yLib)
+	$hStzA11yHandle = LoadLib($tStzA11yLib)
+else
+	$hStzA11yHandle = ""
+end
+
+# Open the runtime once, lazily. A caller never has to know where the
+# vendored DLL lives -- which is the whole reason this function exists
+# rather than making every face pass a path.
+$bStzA11yTried_ = false
+
+func StzA11yReady
+	if not IsPointer($hStzA11yHandle)
+		return false
+	end
+	if StzEngineA11yIsAvailable() = 1
+		return true
+	end
+	if $bStzA11yTried_
+		return false          # tried once, failed; do not retry per call
+	end
+	$bStzA11yTried_ = true
+	if not FExists($tStzA11yRuntime)
+		return false
+	end
+	return StzEngineA11yLoad($tStzA11yRuntime) = 1
+end

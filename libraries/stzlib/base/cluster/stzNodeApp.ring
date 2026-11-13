@@ -98,7 +98,7 @@ func StzNodeAppFromDescription(aDesc)
 #   see        stzNode, stzNodeSupervisor, stzNodeRegistry
 class stzNodeApp from stzObject
 
-	@cName = "app"
+	@tName = "app"
 	# one spec ROW per node: [ cName, cHost, nPort, aOn, aRequires,
 	#                          nInboxCap, cInboxPolicy, cBootCode ]
 	@aSpecs = []
@@ -117,14 +117,14 @@ class stzNodeApp from stzObject
 	#   returns    nothing; the object is built
 	#   see        Node, Describe
 	def init(pcName)
-		@cName = StzLower("" + pcName)
+		@tName = StzLower("" + pcName)
 
 	# Returns the application's name, in lower case.
 	#
 	#   returns    a text
 	#   see        init
 	def Name_()
-		return @cName
+		return @tName
 
 	# Declares a node by name, or makes the existing one current, so that the next On, Requires, Boot, AtHost and AtPort calls apply to it.
 	#
@@ -274,7 +274,7 @@ class stzNodeApp from stzObject
 				@aSpecs[i][4], @aSpecs[i][5], @aSpecs[i][6], @aSpecs[i][7],
 				@aSpecs[i][8] ]
 		next
-		return [ "app", @cName, aNodes, @aGroups,
+		return [ "app", @tName, aNodes, @aGroups,
 			[ @nBudgetMax, @nBudgetWindowMs ] ]
 
 	# Starts every declared node as a real child process on this machine, on loopback, under a real supervisor.
@@ -297,7 +297,7 @@ class stzNodeApp from stzObject
 			ok
 		next
 		@oSup = new stzNodeSupervisor()
-		@oSup.SetName(@cName + "-supervisor")
+		@oSup.SetName(@tName + "-supervisor")
 		@oSup.RestartBudget(@nBudgetMax, @nBudgetWindowMs)
 		if ring_len(@aGroups) > 0
 			@oSup.Strategy(@aGroups[1][2])
@@ -423,7 +423,7 @@ class stzNodeApp from stzObject
 	# every generated newline into the literal "40". Hence the fetch-first
 	# style and the _br_-prefixed locals below.
 	def _GenerateScript(i)
-		cFile = ".stznode_" + @cName + "_" + @aSpecs[i][1] + "_gen.ring"
+		cFile = ".stznode_" + @tName + "_" + @aSpecs[i][1] + "_gen.ring"
 		cBasePath = This._BaseRing()
 		cNlChar = char(10)
 		cAddr = @aSpecs[i][1]
@@ -455,10 +455,10 @@ class stzNodeApp from stzObject
 
 	def _BaseRing()
 		_nBrSlash_ = 0
-		_nBrLen_ = StzLen($cEngineDir)
+		_nBrLen_ = StzLen($tEngineDir)
 		for _iBr_ = 1 to _nBrLen_
-			if $cEngineDir[_iBr_] = "/"
+			if $tEngineDir[_iBr_] = "/"
 				_nBrSlash_ = _iBr_
 			ok
 		next
-		return StzLeft($cEngineDir, _nBrSlash_ - 1) + "/base/stzBase.ring"
+		return StzLeft($tEngineDir, _nBrSlash_ - 1) + "/base/stzBase.ring"

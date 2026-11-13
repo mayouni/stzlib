@@ -1,0 +1,30 @@
+# Softanza Engine -- W3C Trace Context (traceparent).
+#
+# Loads stz_tracectx.dll. Generate / derive / validate distributed-trace
+# headers for cross-service + agentic request correlation. Pure, no deps.
+#
+# Function prefix: StzEngineTrace*
+#   StzEngineTraceNew()            -> fresh sampled traceparent
+#   StzEngineTraceChild(cParent)   -> child header (same trace, new span)
+#   StzEngineTraceIsValid(cParent) -> 1 / 0
+#   StzEngineTraceId(cParent)      -> 32-hex trace-id
+#   StzEngineTraceSpanId(cParent)  -> 16-hex span-id
+#   StzEngineTraceSampled(cParent) -> 1 / 0
+
+if IsWindows()
+    $tStzTraceCtxLib = $tEngineDir + "/zig-out/bin/stz_tracectx.dll"
+elseif IsLinux()
+    $tStzTraceCtxLib = $tEngineDir + "/zig-out/lib/libstz_tracectx.so"
+elseif isMacOS()
+    $tStzTraceCtxLib = $tEngineDir + "/zig-out/lib/libstz_tracectx.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("tracectx")
+    $hStzTraceCtxHandle = ""
+elseif FExists($tStzTraceCtxLib)
+    $hStzTraceCtxHandle = LoadLib($tStzTraceCtxLib)
+else
+    ? "WARNING: stz_tracectx not found at: " + $tStzTraceCtxLib
+    $hStzTraceCtxHandle = ""
+end

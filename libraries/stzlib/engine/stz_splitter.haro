@@ -1,0 +1,23 @@
+# Softanza Engine -- Advanced Splitter
+#
+# Loads stz_splitter.dll for split-by-str/width/chars/lines/words.
+#
+# Function prefix: StzEngineSplitter*
+
+if IsWindows()
+    $tStzSplitterLib = $tEngineDir + "/zig-out/bin/stz_splitter.dll"
+elseif IsLinux()
+    $tStzSplitterLib = $tEngineDir + "/zig-out/lib/libstz_splitter.so"
+elseif isMacOS()
+    $tStzSplitterLib = $tEngineDir + "/zig-out/lib/libstz_splitter.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("splitter")
+    $hStzSplitterHandle = ""
+elseif FExists($tStzSplitterLib)
+    $hStzSplitterHandle = LoadLib($tStzSplitterLib)
+else
+    ? "WARNING: stz_splitter not found at: " + $tStzSplitterLib
+    $hStzSplitterHandle = ""
+end

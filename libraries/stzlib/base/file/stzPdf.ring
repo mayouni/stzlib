@@ -42,7 +42,7 @@ class stzPdf from stzObject
 	@cPath = ""
 	@aInfo = []
 	@aBlocks = []
-	@cText = ""
+	@tText = ""
 	@aImages = []
 	@aOcrBy = []
 	@aOcrMarks = []
@@ -66,7 +66,7 @@ class stzPdf from stzObject
 		ok
 		@aInfo = StzEnginePdfInfo()
 		@aBlocks = StzEnginePdfBlocks()
-		@cText = StzEnginePdfText()
+		@tText = StzEnginePdfText()
 		@aImages = StzEnginePdfImages()
 		StzEnginePdfClose()
 
@@ -122,7 +122,7 @@ class stzPdf from stzObject
 	#
 	#   returns    text
 	def Text()
-		return @cText
+		return @tText
 
 	# Returns the text of the blocks of page pnPage in reading order, page headers and footers left out.
 	#
@@ -379,7 +379,7 @@ class stzPdf from stzObject
 	#   pcLang     the language pack for the recognition, used only when there is no text layer
 	#   returns    a text
 	def TextOrOcr(pcLang)
-		if This.HasText() return @cText ok
+		if This.HasText() return @tText ok
 		return This.Ocr(pcLang).Text()
 
 	# Reads the document again with its scanned pages recognised from their images.
@@ -583,7 +583,7 @@ class stzPdf from stzObject
 		ok
 		@aInfo = StzEnginePdfInfo()
 		@aBlocks = StzEnginePdfBlocks()
-		@cText = StzEnginePdfText()
+		@tText = StzEnginePdfText()
 		StzEnginePdfClose()
 		@cOcrLang = "" + pcLang
 

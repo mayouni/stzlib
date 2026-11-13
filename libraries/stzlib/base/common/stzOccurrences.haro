@@ -1,0 +1,244 @@
+
+func StzOccurrenceQ(pxOccurr, pxSubStr, pxStr)
+	return new stzOccurrences(pxOccurr, pxSubStr, pxStr)
+end
+# Carries the positions where a substring occurs in a string, and cuts, replaces or recases the text at them.
+#
+# The object holds three things: the positions (codepoint positions, counted from 1), the substring that
+# was searched and the string it was searched in. Removed, ReplacedWithCS, Uppercased and Lowercased each
+# answer a NEW text and leave the object unchanged. A position counts only where the text really holds the
+# substring (a stale position is skipped, so nothing is cut at the wrong place), and positions that
+# overlap are taken left to right without overlap, the way Remove and Replace of stzString treat
+# "aa" in "aaaa". An empty substring has nothing to act on: the string comes back unchanged.
+#
+#   receiver   o1 = new stzOccurrences([ 2, 4 ], "an", "banana")
+#   example    ? o1.Removed()
+#              #--> ba
+#              ? o1.Uppercased()
+#              #--> bANANa
+#   see        stzString, stzItem
+class stzOccurrences from stzObject
+	@viOccurrences
+	@tSubStr
+	@tStr
+
+	# Stores the positions where a substring occurs in a string, together with the substring and the string.
+	#
+	#   panOccurr   the positions found, as a list of numbers
+	#   pcSubStr    the substring that was searched, or the named form :Of = '...'
+	#   pcStr       the string that was searched, or the named form :In = '...'
+	#   returns     nothing; the object is built
+	#   note        checked with plain texts and with the :Of and :In named forms; SubString and
+	#               String answer the two texts afterwards
+	#   see         Occurrences
+	def init(pxOccurr, pxSubStr, pxStr)
+		if IsList(pxSubStr) and Q(pxSubStr).IsOfOrOfSubStringNamedParam()
+			pxSubStr = pxSubStr[2]
+		end
+
+		if IsList(pxStr) and Q(pxStr).IsInOrInStringNamedParam()
+			pxStr = pxStr[2]
+		end
+
+		@viOccurrences = pxOccurr
+		@tSubStr = pxSubStr
+		@tStr = pxStr
+	end
+	# Returns the list of positions given at construction, unchanged.
+	#
+	#   returns    a list of numbers
+	#   see        SubString, String
+	def Occurrences
+		return @viOccurrences
+	end
+		def Content
+			return this.Occurrences()
+		end
+		# Returns the list of positions given at construction, as the call with the other name does.
+		#
+		#   returns    a list of numbers
+		#   see        Occurrences
+		def Value
+			return Content()
+		end
+	# Returns the substring that was searched, as given at construction.
+	#
+	#   returns    a text; the plain text even when the object was built with the named form :Of = '...'
+	#   see        String, init
+	def SubString
+		return @tSubStr
+	end
+		def SubStringQ
+			return new stzString(this.SubString())
+		end
+	# Returns the string that was searched, as given at construction.
+	#
+	#   returns    a text; the plain text even when the object was built with the named form :In = '...'
+	#   see        SubString, init
+	def String
+		return @tStr
+	end
+		def StringQ
+			return new stzString(this.String())
+		end
+	#--
+
+	# Returns the positions that really hold the substring, left to right and without overlap.
+	#
+	#   pCaseSensitive   1 to compare the text at a position to the substring letter by letter, 0 to
+	#                    ignore case
+	#   returns          a sorted list of positions: numbers inside the string, listed once, whose text
+	#                    equals the substring, each starting after the end of the previous one
+	#   note             an empty substring has no hit; a position that does not fit is skipped
+	#   see              Occurrences
+	def ValidOccurrencesCS(pxCaseSensitive)
+		bCase = @CaseSensitive(pxCaseSensitive)
+		vHits = []
+		nSubLen = StzLen(@tSubStr)
+		if nSubLen = 0 or not IsList(@viOccurrences)
+			return vHits
+		end
+
+		nStrLen = StzLen(@tStr)
+		xNums = []
+		nAll = ring_len(@viOccurrences)
+		for i = 1 to nAll
+			if IsNumber(@viOccurrences[i])
+				xNums + @viOccurrences[i]
+			end
+		end
+		xNums = Sort(xNums)
+
+		tWanted = @tSubStr
+		if not bCase
+			tWanted = StzLower(@tSubStr)
+		end
+
+		nFree = 1
+		nNums = ring_len(xNums)
+		for i = 1 to nNums
+			nPos = xNums[i]
+			if nPos < nFree or nPos != Floor(nPos) or nPos + nSubLen - 1 > nStrLen
+				loop
+			end
+			tSeg = StzMid(@tStr, nPos, nSubLen)
+			if not bCase
+				tSeg = StzLower(tSeg)
+			end
+			if StrCmp(tSeg, tWanted) = 0
+				vHits + nPos
+				nFree = nPos + nSubLen
+			end
+		end
+
+		return vHits
+	end
+	# Returns the string with the text at each hit changed: dropped, replaced, upper-cased or lower-cased.
+	#
+	#   paHits     the positions to act on, as ValidOccurrencesCS answers them
+	#   pcMode     "remove", "replace", "upper" or "lower"
+	#   pcNew      the text put instead, used by the mode "replace" only
+	#   returns    a text; the characters between the hits are copied as they are
+	#   see        ValidOccurrencesCS
+	def RebuiltWith(pxHits, pxMode, pxNew)
+		nSubLen = StzLen(@tSubStr)
+		tOut = ""
+		nCursor = 1
+		nHits = ring_len(pxHits)
+		for i = 1 to nHits
+			nPos = pxHits[i]
+			if nPos > nCursor
+				tOut = tOut + StzMid(@tStr, nCursor, nPos - nCursor)
+			end
+			tSeg = StzMid(@tStr, nPos, nSubLen)
+			if StrCmp(pxMode, "replace") = 0
+				tOut = tOut + pxNew
+			elseif StrCmp(pxMode, "upper") = 0
+				tOut = tOut + StzUpper(tSeg)
+			elseif StrCmp(pxMode, "lower") = 0
+				tOut = tOut + StzLower(tSeg)
+			end
+			nCursor = nPos + nSubLen
+		end
+		tOut = tOut + StzMidToEnd(@tStr, nCursor)
+		return tOut
+	end
+	# Returns the string with the substring cut out at every occurrence, the case flag deciding what matches.
+	#
+	#   pCaseSensitive   1 to cut only where the text equals the substring letter by letter, 0 to
+	#                    ignore case
+	#   returns          a new text; the object and its string are unchanged. With no occurrence, or an
+	#                    empty substring, it is the string itself
+	#   note             overlapping positions are cut left to right without overlap: "aa" at 1, 2 and
+	#                    3 in "aaaa" leaves an empty text, as Remove("aa") does on the string
+	#   see              Removed, ReplacedWithCS
+	def RemovedCS(pxCaseSensitive)
+		return this.RebuiltWith(this.ValidOccurrencesCS(pxCaseSensitive), "remove", "")
+	end
+	# Returns the string with the substring cut out at every occurrence, matching letter by letter.
+	#
+	#   returns    a new text; the object and its string are unchanged
+	#   example    o1 = new stzOccurrences([ 2, 4 ], "an", "banana")
+	#              ? o1.Removed()
+	#              #--> ba
+	#   see        RemovedCS
+	def Removed
+		nCs = 1
+		return this.RemovedCS(nCs)
+	end
+	# Returns the string with the text at every occurrence put instead by another, the case flag deciding what matches.
+	#
+	#   pcNew            the text to put instead; :With = text and :By = text are accepted
+	#   pCaseSensitive   1 to replace only where the text equals the substring letter by letter, 0 to
+	#                    ignore case
+	#   returns          a new text; the object and its string are unchanged
+	#   note             overlapping positions are taken left to right without overlap
+	#   example          o1 = new stzOccurrences([ 2, 4 ], "an", "banana")
+	#                    ? o1.ReplacedWithCS("XY", 1)
+	#                    #--> bXYXYa
+	#   see              ReplacedWith, RemovedCS
+	def ReplacedWithCS(pxNew, pxCaseSensitive)
+		if IsList(pxNew) and ring_len(pxNew) = 2 and IsString(pxNew[1]) and
+		   (StrCmp(StzLower(pxNew[1]), "with") = 0 or StrCmp(StzLower(pxNew[1]), "by") = 0)
+			pxNew = pxNew[2]
+		end
+		if not IsString(pxNew)
+			StzRaise("Incorrect param type! pcNew must be a string.")
+		end
+		return this.RebuiltWith(this.ValidOccurrencesCS(pxCaseSensitive), "replace", pxNew)
+	end
+	# Returns the string with the text at every occurrence put instead by another, matching letter by letter.
+	#
+	#   pcNew      the text to put instead; :With = text and :By = text are accepted
+	#   returns    a new text; the object and its string are unchanged
+	#   see        ReplacedWithCS
+	def ReplacedWith(pxNew)
+		nCs = 1
+		return this.ReplacedWithCS(pxNew, nCs)
+	end
+	# Returns the string with the text at every occurrence in capitals and the rest unchanged.
+	#
+	#   returns    a new text; the object and its string are unchanged. The capitals follow the
+	#              Unicode rules, so an accented letter is capitalised and a German sharp s becomes SS
+	#   note       a position whose text differs from the substring only by case still counts
+	#   example    o1 = new stzOccurrences([ 2, 4 ], "an", "banana")
+	#              ? o1.Uppercased()
+	#              #--> bANANa
+	#   see        Lowercased
+	def Uppercased
+		nCs = 0
+		return this.RebuiltWith(this.ValidOccurrencesCS(nCs), "upper", "")
+	end
+	# Returns the string with the text at every occurrence in small letters and the rest unchanged.
+	#
+	#   returns    a new text; the object and its string are unchanged
+	#   note       a position whose text differs from the substring only by case still counts
+	#   example    o1 = new stzOccurrences([ 2, 4 ], "AN", "bANANa")
+	#              ? o1.Lowercased()
+	#              #--> banana
+	#   see        Uppercased
+	def Lowercased
+		nCs = 0
+		return this.RebuiltWith(this.ValidOccurrencesCS(nCs), "lower", "")
+	end
+end

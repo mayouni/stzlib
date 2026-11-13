@@ -48,7 +48,7 @@ func StzLearnerQ(pcFolder)
 class stzLearner from stzObject
 
 	@cFolder = ""
-	@cId = ""
+	@tId = ""
 	@aFacts = []
 
 	# Opens a learner's folder, creating it with its work folder when absent, and reads the progress file if there is one.
@@ -65,7 +65,7 @@ class stzLearner from stzObject
 	#   see        Id, Folder, Reload, Submit
 	def init(pcFolder)
 		@cFolder = _EduNoSlash(pcFolder)
-		@cId = _EduLastSegment(@cFolder)
+		@tId = _EduLastSegment(@cFolder)
 		StzEngineDirCreatePath(@cFolder + "/work")
 		if fexists(This.ProgressFile())
 			@aFacts = _EduFactsOf(This.ProgressFile())
@@ -76,7 +76,7 @@ class stzLearner from stzObject
 	#   returns    a text such as ada
 	#   see        Folder, ProgressFile
 	def Id()
-		return @cId
+		return @tId
 
 	# Returns the path of the learner's folder as it was given, without a trailing slash.
 	#
@@ -140,7 +140,7 @@ class stzLearner from stzObject
 		write(This.WorkFile(_cEx_), pcCode)
 		_oCheck_ = poExercise.Check(pcCode)
 		_cKey_ = This._Key(_cEx_)
-		This._Add(@cId, "worked-on", _cEx_)
+		This._Add(@tId, "worked-on", _cEx_)
 		This._Set(_cKey_, "last-attempt", "attempt:" + _oCheck_.Hash())
 		if _oCheck_.Passed()
 			This._Set(_cKey_, "verdict", "passed")
@@ -165,7 +165,7 @@ class stzLearner from stzObject
 			return This.Submit(poExercise, read(pcFile))
 
 	def _Key(pcExerciseId)
-		return pcExerciseId + "-by-" + @cId
+		return pcExerciseId + "-by-" + @tId
 
 	# TRUE if the learner has submitted for that exercise and the work file is still on disk.
 	#
@@ -174,7 +174,7 @@ class stzLearner from stzObject
 	#   note           a project id answers FALSE: a project has no work file, use HasPassedProject
 	#   see            Submit, WorkFile, LastVerdict
 	def HasTried(pcExerciseId)
-		return This._Has(@cId, "worked-on", pcExerciseId) and fexists(This.WorkFile(pcExerciseId))
+		return This._Has(@tId, "worked-on", pcExerciseId) and fexists(This.WorkFile(pcExerciseId))
 
 	# Returns the checker's verdict on the newest submission for an exercise or a project.
 	#
@@ -255,11 +255,11 @@ class stzLearner from stzObject
 		_cPr_ = poProject.Id()
 		_cDir_ = This.ProjectFolder(_cPr_)
 		if NOT StzEngineDirExists(_cDir_)
-			StzRaise("Learner '" + @cId + "' has no folder for project '" + _cPr_ + "' yet.")
+			StzRaise("Learner '" + @tId + "' has no folder for project '" + _cPr_ + "' yet.")
 		ok
 		_oCheck_ = poProject.Check(_cDir_)
-		_cKey_ = _cPr_ + "-by-" + @cId
-		This._Add(@cId, "worked-on", _cPr_)
+		_cKey_ = _cPr_ + "-by-" + @tId
+		This._Add(@tId, "worked-on", _cPr_)
 		# `attempt:` and `folder:` keep the two hashes two nodes (one edge per pair)
 		This._Set(_cKey_, "last-attempt", "attempt:" + _EduFolderHash(_cDir_))
 		if _oCheck_.Passed()
@@ -387,7 +387,7 @@ class stzLearner from stzObject
 		@aFacts = _aKeep_
 
 	def _Save()
-		_c_ = 'knowledge "' + @cId + '"' + char(10) + char(10) + "facts" + char(10)
+		_c_ = 'knowledge "' + @tId + '"' + char(10) + char(10) + "facts" + char(10)
 		_nL_ = len(@aFacts)
 		for _i_ = 1 to _nL_
 			_c_ += "    " + @aFacts[_i_][1] + " | " + @aFacts[_i_][2] + " | " + @aFacts[_i_][3] + char(10)

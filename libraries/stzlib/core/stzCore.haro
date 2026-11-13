@@ -1,0 +1,46 @@
+# This file loads the CORE layer of SoftanzaLib
+
+# Loading external extensions
+
+    #load "lightguilib.ring"
+
+# Loading files in COMMON module
+
+    load "common/stkGlobals.haro"
+    load "common/stkListCommons.haro"
+    load "common/stkLowLevelFuncs.haro"
+    load "common/stkNumberCommons.haro"
+    load "common/stkObjectCommons.haro"
+    load "common/stkRingFuncs.haro"
+    load "common/stkRingLibs.haro"
+    load "common/stkStringCommons.haro"
+    load "common/stkProfiler.haro"
+
+# Loading files in ERROR module
+
+    load "error/stkError.haro"
+
+# Loading files in OBJECT module
+
+    load "object/stkObject.haro"
+
+# Loading files in LIST module
+
+    load "list/stkList.haro"
+
+# Loading files in NUMBER module
+
+    load "number/stkNumber.haro"
+    load "number/stkListOfNumbers.haro"
+    load "number/stkSciNumber.haro"
+
+# Loading files in STRING module
+
+    load "string/stkString.haro"
+    load "string/stkChar.haro"
+
+# Loading files in SYSTEM module
+
+    load "system/stkPointer.haro"
+    load "system/stkBuffer.haro"
+    load "system/stkMemory.haro"

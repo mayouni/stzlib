@@ -62,7 +62,7 @@ func StzXmlBuilderQ(pcRootName)
 #   see        stzXmlBuilder, stzXmlNode, stzHtml
 class stzXml from stzObject
 
-	@cText = ""
+	@tText = ""
 
 	# Builds a document object from XML text; the text is kept as given and parsed again at every read.
 	#
@@ -71,7 +71,7 @@ class stzXml from stzObject
 	#   note       text that is not XML is accepted too: the object is built and IsValid answers 0
 	#   see        IsValid, Content, StzXmlQ
 	def init(pcText)
-		@cText = "" + pcText
+		@tText = "" + pcText
 
 	# Returns the XML text the object was built from, unchanged.
 	#
@@ -79,7 +79,7 @@ class stzXml from stzObject
 	#   see        Pretty, Size
 	#@ aka  -- what it is ------------------------------------------------------
 	def Content()
-		return @cText
+		return @tText
 
 	# Returns the XML text the object was built from, unchanged.
 	#
@@ -88,7 +88,7 @@ class stzXml from stzObject
 	#              that
 	#   see        Content, Pretty
 	def Text()
-		return @cText
+		return @tText
 
 	# Returns TRUE if the engine accepts the text as one well-formed XML document.
 	#
@@ -97,14 +97,14 @@ class stzXml from stzObject
 	#              closes XXE), so it answers FALSE, as does an unclosed tag or plain text
 	#   see        Root, Pretty
 	def IsValid()
-		return StzXmlIsValid(@cText)
+		return StzXmlIsValid(@tText)
 
 	# Returns the name of the root element, or the empty text when the document is not valid.
 	#
 	#   returns    a text
 	#   see        RootQ, IsValid
 	def Root()
-		return StzXmlRoot(@cText)
+		return StzXmlRoot(@tText)
 
 	def RootQ()
 		return This.NodeQ( This.Root() )
@@ -114,7 +114,7 @@ class stzXml from stzObject
 	#   returns    a number
 	#   see        Content
 	def Size()
-		return len(@cText)
+		return len(@tText)
 
 	# Returns the text of the element at a path; the empty text when there is no such element or it holds only child elements.
 	#
@@ -126,7 +126,7 @@ class stzXml from stzObject
 	#   see        NumberAt, TextsAt, AttributeAt
 	#@ aka  -- reading ---------------------------------------------------------
 	def TextAt(pcPath)
-		return StzXmlGet(@cText, pcPath)
+		return StzXmlGet(@tText, pcPath)
 
 	# Returns the text of the element at a path read as a number; 0 when there is no element or it is empty.
 	#
@@ -135,7 +135,7 @@ class stzXml from stzObject
 	#   note       text that is not a number raises the error Invalid numeric string
 	#   see        TextAt, NumberOf
 	def NumberAt(pcPath)
-		return StzXmlGetInt(@cText, pcPath)
+		return StzXmlGetInt(@tText, pcPath)
 
 	# Returns the value of one attribute of the element at a path; the empty text when it is absent.
 	#
@@ -145,7 +145,7 @@ class stzXml from stzObject
 	#   note       library/book reads the first book, library/book[2] the second
 	#   see        TextAt, NamespaceAt
 	def AttributeAt(pcPath, pcName)
-		return StzXmlAttr(@cText, pcPath, pcName)
+		return StzXmlAttr(@tText, pcPath, pcName)
 
 	# Returns the namespace URI that applies to the element at a path; the empty text when there is none.
 	#
@@ -155,7 +155,7 @@ class stzXml from stzObject
 	#              ns:note and answers its URI
 	#   see        AttributeAt, TextAt
 	def NamespaceAt(pcPath)
-		return StzXmlNamespace(@cText, pcPath)
+		return StzXmlNamespace(@tText, pcPath)
 
 	# Returns how many elements match a path.
 	#
@@ -165,7 +165,7 @@ class stzXml from stzObject
 	#              titles of the first book
 	#   see        Has, TextsAt, NodesQ
 	def NumberOf(pcPath)
-		return StzXmlCount(@cText, pcPath)
+		return StzXmlCount(@tText, pcPath)
 
 	# Returns TRUE if at least one element matches the path.
 	#
@@ -173,7 +173,7 @@ class stzXml from stzObject
 	#   returns    TRUE or FALSE
 	#   see        NumberOf, NodeQ
 	def Has(pcPath)
-		return StzXmlHas(@cText, pcPath)
+		return StzXmlHas(@tText, pcPath)
 
 	# Returns the names of the child elements of the element at a path, in document order, repeats included.
 	#
@@ -183,7 +183,7 @@ class stzXml from stzObject
 	#              dropped from the names
 	#   see        NodesQ, NumberOf
 	def ChildrenOf(pcPath)
-		return StzXmlChildren(@cText, pcPath)
+		return StzXmlChildren(@tText, pcPath)
 
 	# Returns the text of each element matching a path, as a list.
 	#
@@ -211,7 +211,7 @@ class stzXml from stzObject
 	#   see        NodesQ, RootQ
 	#@ aka  -- navigating (a node is a PATH into this document) -----------------
 	def NodeQ(pcPath)
-		return new stzXmlNode(@cText, pcPath)
+		return new stzXmlNode(@tText, pcPath)
 
 	# Returns one node object for each element matching a path, in document order.
 	#
@@ -223,7 +223,7 @@ class stzXml from stzObject
 		_out_ = []
 		_n_ = This.NumberOf(pcPath)
 		for _i_ = 1 to _n_
-			_out_ + new stzXmlNode(@cText, This._Indexed(pcPath, _i_))
+			_out_ + new stzXmlNode(@tText, This._Indexed(pcPath, _i_))
 		next
 		return _out_
 
@@ -234,7 +234,7 @@ class stzXml from stzObject
 	#   see        PrettyQ, Show
 	#@ aka  -- presenting ------------------------------------------------------
 	def Pretty()
-		return StzXmlPretty(@cText)
+		return StzXmlPretty(@tText)
 
 	def PrettyQ()
 		return new stzXml( This.Pretty() )
@@ -246,7 +246,7 @@ class stzXml from stzObject
 	#   note       it writes the original text, not the pretty form; the folder must exist
 	#   see        Content, Pretty
 	def SaveTo(pcPath)
-		write("" + pcPath, @cText)
+		write("" + pcPath, @tText)
 		return This
 
 	# Prints the document, laid out as Pretty does, to the console.
@@ -261,7 +261,7 @@ class stzXml from stzObject
 	#   returns    a stzString
 	#   see        Content
 	def ToStzString()
-		return new stzString(@cText)
+		return new stzString(@tText)
 
 	  #-- internals -------------------------------------------------------
 
@@ -303,7 +303,7 @@ class stzXml from stzObject
 #   see        stzXml
 class stzXmlNode from stzObject
 
-	@cText = ""
+	@tText = ""
 	@cPath = ""
 
 	# Builds a node object bound to a document text and a path; nothing is checked at once.
@@ -314,7 +314,7 @@ class stzXmlNode from stzObject
 	#   note       normally made by NodeQ or NodesQ of stzXml rather than by hand
 	#   see        Path, Exists, NodeQ
 	def init(pcText, pcPath)
-		@cText = "" + pcText
+		@tText = "" + pcText
 		@cPath = "" + pcPath
 
 	# Returns the path this node was made with.
@@ -329,7 +329,7 @@ class stzXmlNode from stzObject
 	#   returns    TRUE or FALSE
 	#   see        Name, Text
 	def Exists()
-		return StzXmlHas(@cText, @cPath)
+		return StzXmlHas(@tText, @cPath)
 
 	# Returns the element name, which is the last step of the path without its [n] index.
 	#
@@ -354,7 +354,7 @@ class stzXmlNode from stzObject
 	#   note       &amp; is read back as &
 	#   see        Number, TextAt
 	def Text()
-		return StzXmlGet(@cText, @cPath)
+		return StzXmlGet(@tText, @cPath)
 
 	# Returns the text of the element read as a number; 0 when it is empty or absent.
 	#
@@ -362,14 +362,14 @@ class stzXmlNode from stzObject
 	#   note       text that is not a number raises the error Invalid numeric string
 	#   see        Text
 	def Number()
-		return StzXmlGetInt(@cText, @cPath)
+		return StzXmlGetInt(@tText, @cPath)
 
 	# Returns the namespace URI that applies to the element; the empty text when there is none.
 	#
 	#   returns    a text
 	#   see        Attribute, Text
 	def Namespace()
-		return StzXmlNamespace(@cText, @cPath)
+		return StzXmlNamespace(@tText, @cPath)
 
 	# Returns the value of one attribute of the element; the empty text when it is absent.
 	#
@@ -377,14 +377,14 @@ class stzXmlNode from stzObject
 	#   returns    a text
 	#   see        AttributeAt, Text
 	def Attribute(pcName)
-		return StzXmlAttr(@cText, @cPath, pcName)
+		return StzXmlAttr(@tText, @cPath, pcName)
 
 	# Returns the names of the child elements, in document order, repeats included.
 	#
 	#   returns    a list of texts
 	#   see        NodesQ, NumberOf
 	def ChildNames()
-		return StzXmlChildren(@cText, @cPath)
+		return StzXmlChildren(@tText, @cPath)
 
 	# Returns the text of a descendant, found by a path read from this node.
 	#
@@ -394,7 +394,7 @@ class stzXmlNode from stzObject
 	#   see          Text, AttributeAt
 	#@ aka  read a descendant relative to THIS node.
 	def TextAt(pcRelative)
-		return StzXmlGet(@cText, @cPath + "/" + pcRelative)
+		return StzXmlGet(@tText, @cPath + "/" + pcRelative)
 
 	# Returns the value of an attribute of a descendant, found by a path read from this node.
 	#
@@ -403,7 +403,7 @@ class stzXmlNode from stzObject
 	#   returns      a text; empty when absent
 	#   see          Attribute, TextAt
 	def AttributeAt(pcRelative, pcName)
-		return StzXmlAttr(@cText, @cPath + "/" + pcRelative, pcName)
+		return StzXmlAttr(@tText, @cPath + "/" + pcRelative, pcName)
 
 	# Returns how many descendants match a path read from this node.
 	#
@@ -411,7 +411,7 @@ class stzXmlNode from stzObject
 	#   returns      a number
 	#   see          NodesQ, ChildNames
 	def NumberOf(pcRelative)
-		return StzXmlCount(@cText, @cPath + "/" + pcRelative)
+		return StzXmlCount(@tText, @cPath + "/" + pcRelative)
 
 	# Returns a node object for a descendant, so reads can go deeper step by step.
 	#
@@ -420,7 +420,7 @@ class stzXmlNode from stzObject
 	#   note         it is also built for a path that matches nothing
 	#   see          NodesQ, DocumentQ
 	def NodeQ(pcRelative)
-		return new stzXmlNode(@cText, @cPath + "/" + pcRelative)
+		return new stzXmlNode(@tText, @cPath + "/" + pcRelative)
 
 	# Returns one node object for each descendant matching a path, in document order.
 	#
@@ -432,7 +432,7 @@ class stzXmlNode from stzObject
 		_out_ = []
 		_n_ = This.NumberOf(pcRelative)
 		for _i_ = 1 to _n_
-			_out_ + new stzXmlNode(@cText, @cPath + "/" + pcRelative + "[" + _i_ + "]")
+			_out_ + new stzXmlNode(@tText, @cPath + "/" + pcRelative + "[" + _i_ + "]")
 		next
 		return _out_
 
@@ -441,7 +441,7 @@ class stzXmlNode from stzObject
 	#   returns    a stzXml
 	#   see        NodeQ
 	def DocumentQ()
-		return new stzXml(@cText)
+		return new stzXml(@tText)
 
 	# Prints the node path and its text to the console.
 	#

@@ -32,10 +32,10 @@
 #
 # STANDALONE like the other gpu guards: loads only the engine bridge.
 
-$cEngineDir = "../../../engine"
+$tEngineDir = "../../../engine"
 # the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
-load "../../../core/common/stkRingLibs.ring"
-load "../../../engine/stz_gpu.ring"
+load "../../../core/common/stkRingLibs.haro"
+load "../../../engine/stz_gpu.haro"
 
 $nPass = 0
 $nFail = 0
@@ -116,7 +116,7 @@ chk("a freed scene answers STALE", StzEngineGpuScene3dFree(hSc) = 2)
 
 ? ""
 ? "-- Scene 5: with a device, the 3D layer draws --"
-nInit = StzEngineGpuInit($cStzGpuRuntime)
+nInit = StzEngineGpuInit($tStzGpuRuntime)
 if StzEngineGpuIsAvailable() = 0
     ? "  NO GPU ON THIS MACHINE -- render scenes skipped; scenes 1-4 ARE the coverage"
 else

@@ -58,7 +58,7 @@ func StzAppQ(pcName)
 #   see        StzAppQ, stzPlatform, stzGraph, stzGraphGoal
 class stzApp from stzObject
 
-    @cName        = ""
+    @tName        = ""
     @oGraph       = ""          # the world's domain graph (node registry)   (Being)
     @aThings      = []            # [ [ name, [fields], [ [field,expr] ], [ [rel,to] ] ], ... ]
     @aKnows       = []            # [ [ from, relation, to ], ... ]   (free relations)
@@ -111,7 +111,7 @@ class stzApp from stzObject
     #   returns    nothing; the object is built
     #   see        AddThing, GraphQ, Explain
     def init(pcName)
-        @cName        = pcName
+        @tName        = pcName
         @oGraph       = new stzGraph(pcName)
         @aThings      = []
         @aKnows       = []
@@ -132,7 +132,7 @@ class stzApp from stzObject
     #   see        init
     #@ aka  == Identity & substance =================================================
     def Name()
-        return @cName
+        return @tName
 
     # Returns the graph that holds the world's things and instances.
     #
@@ -783,7 +783,7 @@ class stzApp from stzObject
         @oReactive = new stzReactiveSystem()
         @bLive = 1
         This.Pulse()
-        ? "[" + @cName + "] is live -- " + len(@aThings) + " thing(s), " +
+        ? "[" + @tName + "] is live -- " + len(@aThings) + " thing(s), " +
           len(@aFlows) + " flow(s), " + len(@aReactions) + " reaction(s), " +
           len(@aGoals) + " goal(s); " + len(@aProposals) + " proposal(s)"
         return This
@@ -924,7 +924,7 @@ class stzApp from stzObject
     #@ aka  == PRESENCE (emergent) -- make the world visible ========================
     def Explain()
         This._FlushCursors()
-        ? "WORLD " + @cName + "   lives in: " + This._BodyLabel()
+        ? "WORLD " + @tName + "   lives in: " + This._BodyLabel()
         ? "  BEING"
         for i = 1 to len(@aThings)
             cLine = "    " + @aThings[i][1]
@@ -1062,7 +1062,7 @@ class stzApp from stzObject
 #              #--> wants Visited -> reached by planning
 #   see        stzApp, stzAppBody, stzGraphGoal
 class stzAppGoal from stzObject
-    @cName = ""
+    @tName = ""
     Means      = ""
     ReachedBy  = :planning
     Within     = ""
@@ -1073,14 +1073,14 @@ class stzAppGoal from stzObject
     #   returns    nothing; the object is built
     #   see        Name, Profile
     def init(pcName)
-        @cName = pcName
+        @tName = pcName
         Respecting = []
     # Returns the goal's name as it was declared.
     #
     #   returns    a text
     #   see        Profile, Narrate
     def Name()
-        return @cName
+        return @tName
     # Returns how the goal is reached, planning unless the declaration said otherwise.
     #
     #   returns    a text such as planning
@@ -1093,7 +1093,7 @@ class stzAppGoal from stzObject
     #   see        Name, Profile
     def Narrate()
         cW = "" if Within != ""  cW = " within " + Within  ok
-        return "wants " + @cName + cW + " -> reached by " + ReachedBy
+        return "wants " + @tName + cW + " -> reached by " + ReachedBy
 
 
 # Holds a readable snapshot of where an application's world is kept, as oApp.BodyQ returns it.

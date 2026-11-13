@@ -51,7 +51,7 @@ func StzGraphicsDevice()
 		return FALSE
 	ok
 	$bStzGraphicsDeviceTried = TRUE
-	StzEngineGpuInit($cStzGpuRuntime)
+	StzEngineGpuInit($tStzGpuRuntime)
 	return StzEngineGpuIsAvailable() = 1
 
 # Holds a 2D picture described once, as shapes and text, and gives it back as vector SVG or as pixels drawn on the graphics device.

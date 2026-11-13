@@ -3,6 +3,7 @@
 
 #include "ggml-cpu-impl.h"
 #include "simd-mappings.h"
+#include "vec.h"
 #include "ggml-quants.h"
 #include "quants.h"
 
@@ -24,6 +25,10 @@
 
 void quantize_row_q1_0(const float * GGML_RESTRICT x, void * GGML_RESTRICT y, int64_t k) {
     quantize_row_q1_0_ref(x, y, k);
+}
+
+void quantize_row_q2_0(const float * GGML_RESTRICT x, void * GGML_RESTRICT y, int64_t k) {
+    quantize_row_q2_0_ref(x, y, k);
 }
 
 void quantize_row_q4_0(const float * GGML_RESTRICT x, void * GGML_RESTRICT y, int64_t k) {
@@ -56,6 +61,10 @@ void quantize_row_mxfp4(const float * GGML_RESTRICT x, void * GGML_RESTRICT y, i
 
 void quantize_row_nvfp4(const float * GGML_RESTRICT x, void * GGML_RESTRICT y, int64_t k) {
     quantize_row_nvfp4_ref(x, y, k);
+}
+
+void quantize_row_f8_e4m3(const float * GGML_RESTRICT x, void * GGML_RESTRICT y, int64_t k) {
+    quantize_row_f8_e4m3_ref(x, y, k);
 }
 
 //
@@ -170,6 +179,53 @@ void ggml_vec_dot_q1_0_q8_0_generic(int n, float * GGML_RESTRICT s, size_t bs, c
     *s = sumf;
 }
 
+void ggml_vec_dot_q2_0_q8_0_generic(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc) {
+    const int qk = QK2_0;
+    const int nb = n / qk;
+
+    assert(n % qk == 0);
+    assert(nrc == 1);
+    UNUSED(nrc);
+    UNUSED(bx);
+    UNUSED(by);
+    UNUSED(bs);
+
+    const block_q2_0 * GGML_RESTRICT x = vx;
+    const block_q8_0 * GGML_RESTRICT y = vy;
+
+    float sumf = 0.0f;
+
+    for (int i = 0; i < nb; i++) {
+        const float d0 = GGML_CPU_FP16_TO_FP32(x[i].d);
+
+        float sumi = 0.0f;
+
+        // group 64: one Q2_0 block (64 weights) maps to two Q8_0 blocks (2 * 32 = 64)
+        for (int k = 0; k < 2; k++) {
+            const block_q8_0 * GGML_RESTRICT yb = &y[i * 2 + k];
+            const float d1 = GGML_CPU_FP16_TO_FP32(yb->d);
+            int sumi_block = 0;
+
+            const uint8_t * GGML_RESTRICT qs = &x[i].qs[k * 8];
+            const int8_t  * GGML_RESTRICT qy = yb->qs;
+
+            for (int b = 0; b < 8; ++b) {
+                const uint8_t byte = qs[b];
+                // Extract 4 two-bit values, map {0,1,2,3} -> {-1,0,1,2}
+                sumi_block += ((int)((byte >> 0) & 3) - 1) * qy[b*4 + 0];
+                sumi_block += ((int)((byte >> 2) & 3) - 1) * qy[b*4 + 1];
+                sumi_block += ((int)((byte >> 4) & 3) - 1) * qy[b*4 + 2];
+                sumi_block += ((int)((byte >> 6) & 3) - 1) * qy[b*4 + 3];
+            }
+
+            sumi += d1 * sumi_block;
+        }
+
+        sumf += d0 * sumi;
+    }
+
+    *s = sumf;
+}
 
 void ggml_vec_dot_q4_0_q8_0_generic(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc) {
     const int qk = QK8_0;
@@ -307,6 +363,49 @@ void ggml_vec_dot_nvfp4_q8_0_generic(int n, float * GGML_RESTRICT s, size_t bs, 
 
             sumf += dy * d * (sumi_lo + sumi_hi);
         }
+    }
+    *s = sumf;
+}
+
+void ggml_vec_dot_f8_e4m3_f32(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc) {
+    assert(nrc == 1);
+    UNUSED(nrc);
+    UNUSED(bx);
+    UNUSED(by);
+    UNUSED(bs);
+
+    const ggml_fp8_e4m3_t * GGML_RESTRICT x = vx;
+    const float * GGML_RESTRICT y = vy;
+
+    float sumf = 0.0f;
+    int pos = 0;
+#if defined(GGML_SIMD) && !defined(__ARM_FEATURE_SVE) && !defined(__riscv_v_intrinsic)
+    GGML_F32_VEC sum[GGML_F32_ARR] = { GGML_F32_VEC_ZERO };
+    const int np = n - n % GGML_F32_STEP;
+    for (; pos < np; pos += GGML_F32_STEP) {
+        for (int j = 0; j < GGML_F32_ARR; ++j) {
+            const int offset = pos + j*GGML_F32_EPR;
+            GGML_F32_VEC ax;
+#if defined(__AVX512F__) && defined(__AVX512BW__)
+            const __m128i codes = _mm_loadu_si128((const __m128i *) (x + offset));
+            ax = _mm512_i32gather_ps(_mm512_cvtepu8_epi32(codes), ggml_table_f32_f8_e4m3, sizeof(float));
+#elif defined(__AVX2__) && !defined(__AVX512F__)
+            const __m128i codes = _mm_loadl_epi64((const __m128i *) (x + offset));
+            ax = _mm256_i32gather_ps(ggml_table_f32_f8_e4m3, _mm256_cvtepu8_epi32(codes), sizeof(float));
+#else
+            float values[GGML_F32_EPR];
+            for (int k = 0; k < GGML_F32_EPR; ++k) {
+                values[k] = ggml_table_f32_f8_e4m3[x[offset + k].bits];
+            }
+            ax = GGML_F32_VEC_LOAD(values);
+#endif
+            sum[j] = GGML_F32_VEC_FMA(sum[j], ax, GGML_F32_VEC_LOAD(y + offset));
+        }
+    }
+    GGML_F32_VEC_REDUCE(sumf, sum);
+#endif
+    for (; pos < n; ++pos) {
+        sumf += ggml_table_f32_f8_e4m3[x[pos].bits] * y[pos];
     }
     *s = sumf;
 }

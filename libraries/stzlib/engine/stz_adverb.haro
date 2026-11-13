@@ -1,0 +1,22 @@
+# Softanza Engine -- Adverbs
+#
+# Loads stz_adverb.dll for composable operation modifiers.
+#
+# Function prefix: StzEngineAdverb*
+
+if IsWindows()
+    $tStzAdverbLib = $tEngineDir + "/zig-out/bin/stz_adverb.dll"
+elseif IsLinux()
+    $tStzAdverbLib = $tEngineDir + "/zig-out/lib/libstz_adverb.so"
+elseif isMacOS()
+    $tStzAdverbLib = $tEngineDir + "/zig-out/lib/libstz_adverb.dylib"
+end
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("adverb")
+    $hStzAdverbHandle = ""
+elseif FExists($tStzAdverbLib)
+    $hStzAdverbHandle = LoadLib($tStzAdverbLib)
+else
+    ? "WARNING: stz_adverb not found at: " + $tStzAdverbLib
+    $hStzAdverbHandle = ""
+end

@@ -3,7 +3,7 @@
 #------------------------#
 
 class stzRingStateInfo
-    @cName
+    @tName
     @pState
     @nCreatedTime
     @nLastUsedTime
@@ -11,7 +11,7 @@ class stzRingStateInfo
     @bDestroyed
     
     def init(cName, pState)
-        @cName = cName
+        @tName = cName
         @pState = pState
         @nCreatedTime = clock()
         @nLastUsedTime = @nCreatedTime
@@ -19,7 +19,7 @@ class stzRingStateInfo
         @bDestroyed = false
     
     def Name()
-        return @cName
+        return @tName
     
     def State()
         return @pState

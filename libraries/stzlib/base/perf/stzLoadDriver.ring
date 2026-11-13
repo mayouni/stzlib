@@ -346,20 +346,20 @@ class stzLoadDriver from stzObject
 
 	def _DeriveStzBasePath()
 		_nSlash_ = 0
-		_nL_ = len($cEngineDir)
+		_nL_ = len($tEngineDir)
 		for _i_ = 1 to _nL_
-			if $cEngineDir[_i_] = "/"
+			if $tEngineDir[_i_] = "/"
 				_nSlash_ = _i_
 			ok
 		next
-		_cRoot_ = StzLeft($cEngineDir, _nSlash_ - 1)
+		_cRoot_ = StzLeft($tEngineDir, _nSlash_ - 1)
 		return _cRoot_ + "/base/stzBase.ring"
 
 	# The target child: /health + a /work handler burning nBusyMs of
 	# CPU on the monotonic clock (real service demand, not a sleep --
 	# a sleeping handler would not saturate anything).
 	def _GenerateTargetScript()
-		@cTargetScript = $cEngineDir + "/../base/perf/.stzloadtarget_gen.ring"
+		@cTargetScript = $tEngineDir + "/../base/perf/.stzloadtarget_gen.ring"
 		_cNL_ = char(10)
 		_cW_ = 'load "' + @cBaseRing + '"' + _cNL_
 		_cW_ += '_a_ = sysargv' + _cNL_
@@ -385,7 +385,7 @@ class stzLoadDriver from stzObject
 	# monotonic clock ARRIVAL-TO-ANSWER (connect + queue wait +
 	# service), all durations printed for exact parent-side stats.
 	def _GenerateDriverScript()
-		@cDriverScript = $cEngineDir + "/../base/perf/.stzloaddriver_gen.ring"
+		@cDriverScript = $tEngineDir + "/../base/perf/.stzloaddriver_gen.ring"
 		_cNL_ = char(10)
 		_cW_ = 'load "' + @cBaseRing + '"' + _cNL_
 		_cW_ += '_a_ = sysargv' + _cNL_

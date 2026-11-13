@@ -1,0 +1,122 @@
+class stkMemory
+    @bIsValid = true
+    @vAllocatedBuffers = []  # Track allocations
+
+	def init
+	end
+		# Does nothing
+
+    def Allocate(nSize)
+        if nSize <= 0
+            Raise("Allocation size must be positive")
+        end
+        
+        tBuffer = Space(nSize)
+        @vAllocatedBuffers + tBuffer # Track allocation
+        return tBuffer
+    end
+    def Deallocate(pBuffer)
+        if IsEmpty(pBuffer)
+            Raise("Cannot deallocate a null pointer")
+        end
+        
+        nIndex = Find(@vAllocatedBuffers, pBuffer)
+        if nIndex > 0
+            Del(@vAllocatedBuffers, nIndex)
+        	# In Ring, memory is automatically managed
+        	# This method exists for API compatibility
+            return true
+        else
+            # In Ring, this is just a warning, not an error
+            return false
+        end
+    end
+	def IsAllocated(pBuffer)
+	    if IsEmpty(pBuffer)
+	        return false
+	    end
+	    
+	    nIndex = Find(@vAllocatedBuffers, pBuffer)
+	    return nIndex > 0
+	end
+	def Copy(pSrc, pDest, nSize)
+	    if IsEmpty(pSrc)
+	        Raise("Source is null")
+	    end
+	    
+	    if nSize <= 0
+	        return ""
+	    end
+	    
+	    if IsString(pSrc)
+	        return Left(pSrc, nSize)
+	    else
+	        Raise("Unsupported source type for copy")
+	    end
+        
+        # Ring string-based copy
+        if IsString(pSrc)
+            tSrcData = Left(pSrc, nSize)
+            return tSrcData
+        else
+            Raise("Unsupported source type for copy")
+        end
+	end
+	def Fill(pBuffer, nValue, nSize)
+	    if nSize <= 0
+	        return pBuffer
+	    end
+	    
+	    tFillChar = Char(nValue)
+	    tFilledBuffer = @copy(tFillChar, nSize)
+	    
+	    # Update the buffer in our tracking array
+	    nIndex = Find(@vAllocatedBuffers, pBuffer)
+	    if nIndex > 0
+	        @vAllocatedBuffers[nIndex] = tFilledBuffer
+	    end
+	    
+	    return tFilledBuffer
+	end
+	def Read(pBuffer, nSize)
+	    if IsEmpty(pBuffer)
+	        Raise("Cannot read from null buffer")
+	    end
+	    
+	    if nSize <= 0
+	        return ""
+	    end
+	    
+	    return Left(pBuffer, nSize)
+	end
+    def Compare(pBuffer1, pBuffer2, nSize)
+        if IsEmpty(pBuffer1) or IsEmpty(pBuffer2)
+            Raise("Cannot compare null buffers")
+        end
+        
+        if nSize <= 0
+            return 0
+        end
+        
+        tStr1 = Left(pBuffer1, nSize)
+        tStr2 = Left(pBuffer2, nSize)
+        
+        if tStr1 = tStr2
+            return 0
+        elseif tStr1 < tStr2
+            return -1
+        else
+            return 1
+        end
+    end
+    def Move(pSrc, pDest, nSize)
+        # Ring handles overlapping moves automatically
+        return this.Copy(pSrc, pDest, nSize)
+    end
+    def IsValid
+        return @bIsValid
+    end
+    def Show
+        ? "stkMemory(valid=" + @bIsValid + ")"
+    end
+end

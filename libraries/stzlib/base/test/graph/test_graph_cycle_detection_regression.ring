@@ -48,8 +48,8 @@ aCases = [
 ? ""
 ? "--- Engine path ---"
 
-pSaved = $pStzGraphHandle
-chk("engine DLL is loaded (this path is really the engine)", isPointer($pStzGraphHandle))
+pSaved = $hStzGraphHandle
+chk("engine DLL is loaded (this path is really the engine)", isPointer($hStzGraphHandle))
 
 aEngine = []
 nCases = len(aCases)
@@ -62,15 +62,15 @@ next
 # ------------------------------------------------------------
 # Path 2 -- the pure-Ring fallback
 #
-# _EngineAvailable() reads $pStzGraphHandle, so clearing it is what forces
+# _EngineAvailable() reads $hStzGraphHandle, so clearing it is what forces
 # the fallback. Assert the switch actually happened before trusting a
 # single result below it.
 # ------------------------------------------------------------
 ? ""
 ? "--- Pure-Ring fallback path ---"
 
-$pStzGraphHandle = NULL
-chk("fallback is really engaged (handle cleared)", NOT isPointer($pStzGraphHandle))
+$hStzGraphHandle = NULL
+chk("fallback is really engaged (handle cleared)", NOT isPointer($hStzGraphHandle))
 
 for i = 1 to nCases
 	nGot = CycleOf(aCases[i][2], aCases[i][3])
@@ -95,7 +95,7 @@ PopIt(aStack)
 chk("ring_del in a callee shrinks the caller's list", len(aStack) = 2)
 chk("...and removes the LAST item",                   len(aStack) = 2 and aStack[2] = "b")
 
-$pStzGraphHandle = pSaved
+$hStzGraphHandle = pSaved
 
 # ------------------------------------------------------------
 ? ""

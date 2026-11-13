@@ -47,16 +47,16 @@ func StzEduRingExe()
 	return _cExe_
 
 # Absolute path of stzBase.ring, derived from the engine directory the
-# library discovered at load ($cEngineDir = .../libraries/stzlib/engine).
+# library discovered at load ($tEngineDir = .../libraries/stzlib/engine).
 func StzEduBaseFile()
 	_nSlash_ = 0
-	_nL_ = len($cEngineDir)
+	_nL_ = len($tEngineDir)
 	for _i_ = 1 to _nL_
-		if $cEngineDir[_i_] = "/"
+		if $tEngineDir[_i_] = "/"
 			_nSlash_ = _i_
 		ok
 	next
-	return StzLeft($cEngineDir, _nSlash_ - 1) + "/base/stzBase.ring"
+	return StzLeft($tEngineDir, _nSlash_ - 1) + "/base/stzBase.ring"
 
 # Runs Ring source in a fresh process whose working directory is this
 # one. Returns [ stdout, exit code, stderr ]. The script file is written

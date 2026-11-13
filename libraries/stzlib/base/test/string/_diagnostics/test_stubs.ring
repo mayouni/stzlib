@@ -6,7 +6,7 @@
 #
 # Only the code BEFORE the first func is a Ring file's main section.
 # Everything after it is compiled but never executed, so when this block
-# sat lower down it silently did nothing: $cStzStringLib came back
+# sat lower down it silently did nothing: $tStzStringLib came back
 # uninitialized, no DLL was ever loaded, and every diagnostic that used
 # this stub died on "Calling Function without definition: stzenginestring"
 # the moment it touched the engine.
@@ -19,16 +19,16 @@
 $aStzLibConfig = []
 
 # --- Auto-load DLLs at load time ---
-$cStzStringLib = _stzFindDll("stz_string.dll")
-if $cStzStringLib != ""
-	$pStzStringHandle = LoadLib($cStzStringLib)
+$tStzStringLib = _stzFindDll("stz_string.dll")
+if $tStzStringLib != ""
+	$hStzStringHandle = LoadLib($tStzStringLib)
 else
 	? "WARNING: stz_string.dll not found! Engine functions will fail."
 ok
 
-$cStzUnicodeLib = _stzFindDll("stz_unicode.dll")
-if $cStzUnicodeLib != ""
-	$pStzUnicodeHandle = LoadLib($cStzUnicodeLib)
+$tStzUnicodeLib = _stzFindDll("stz_unicode.dll")
+if $tStzUnicodeLib != ""
+	$hStzUnicodeHandle = LoadLib($tStzUnicodeLib)
 else
 	? "WARNING: stz_unicode.dll not found! Unicode engine functions will fail."
 ok

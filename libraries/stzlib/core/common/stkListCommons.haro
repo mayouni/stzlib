@@ -1,0 +1,87 @@
+#-------------------------------#
+#  COMMON FOR ALL LIST CLASSES  #
+#-------------------------------#
+
+func ListReverse(vList)
+	xResult = []
+	for i = Len(vList) to 1 step -1
+		xResult + vList[i]
+	end
+	return xResult
+end
+	func @ListReverse(vList)
+		return ListReverse(vList)
+	end
+# Deep value-equality for list items: Ring's `=` does NOT compare two
+# lists by content, so membership/contains on lists needs this.
+func ListsDeepEqual(pxA, pxB)
+	if IsList(pxA) and IsList(pxB)
+		if Len(pxA) != Len(pxB) return false end
+		nLde = Len(pxA)
+		for iIdx = 1 to nLde
+			if not ListsDeepEqual(pxA[iIdx], pxB[iIdx]) return false end
+		end
+		return true
+	elseif IsList(pxA) or IsList(pxB)
+		return false
+	end
+	return pxA = pxB
+end
+func ListContains(vList, pxItem)
+	nLen = Len(vList)
+	for i = 1 to nLen
+		if ListsDeepEqual(vList[i], pxItem)
+			return true
+		end
+	end
+	return false
+end
+	func @ListContains(vList, pxItem)
+		return ListContains(vList, pxItem)
+	end
+func ListFlatten(vList)
+	xResult = []
+	nLen = Len(vList)
+	for i = 1 to nLen
+		if IsList(vList[i])
+			xFlat = ListFlatten(vList[i])
+			xItem9 = xFlat
+			nItem9 = Len(xItem9)
+			for iItem9 = 1 to nItem9
+				xItem = xItem9[iItem9]
+				xResult + xItem
+			end
+		else
+			xResult + vList[i]
+		end
+	end
+	return xResult
+end
+	func @ListFlatten(vList)
+		return ListFlatten(vList)
+	end
+func ListUnique(vList)
+	xResult = []
+	nLen = Len(vList)
+	for i = 1 to nLen
+		if not ListContains(xResult, vList[i])
+			xResult + vList[i]
+		end
+	end
+	return xResult
+end
+	func @ListUnique(vList)
+		return ListUnique(vList)
+	end
+func ListSection(vList, xN1, xN2)
+	xResult = []
+	if xN1 < 1 xN1 = 1 end
+	if xN2 > Len(vList) xN2 = Len(vList) end
+	for i = xN1 to xN2
+		xResult + vList[i]
+	end
+	return xResult
+end
+	func @ListSection(vList, xN1, xN2)
+		return ListSection(vList, xN1, xN2)
+	end

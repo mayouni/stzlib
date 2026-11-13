@@ -1,0 +1,23 @@
+# Softanza Engine -- Numerical Solver
+#
+# Loads stz_solver.dll for equation solving, interpolation, integration.
+#
+# Function prefix: StzEngineSolver*
+
+if IsWindows()
+    $tStzSolverLib = $tEngineDir + "/zig-out/bin/stz_solver.dll"
+elseif IsLinux()
+    $tStzSolverLib = $tEngineDir + "/zig-out/lib/libstz_solver.so"
+elseif isMacOS()
+    $tStzSolverLib = $tEngineDir + "/zig-out/lib/libstz_solver.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("solver")
+    $hStzSolverHandle = ""
+elseif FExists($tStzSolverLib)
+    $hStzSolverHandle = LoadLib($tStzSolverLib)
+else
+    ? "WARNING: stz_solver not found at: " + $tStzSolverLib
+    $hStzSolverHandle = ""
+end

@@ -29,14 +29,22 @@ func StzModelsReport()
 # The report as it would be on another operating system ("linux", "macos", "windows"; "" = this machine). An implementation that exists
 # only on another operating system is set aside, exactly as the registry would there. A probe that reads THIS machine (an OCR language
 # pack) cannot know the target's: the entry then says so (:assumed).
+# MP2: pcOS may be a PROFILE, [ :os = "linux", :memory = 8192, :packs = [ "support-quality" ] ]: the optional packs it lists are
+# installed there and no other is, and a pack's memory need is judged against the profile's memory (StzPlacementProfileSet).
 func StzModelsReportFor(pcOS)
 	# the simulated OS is set inside the try and restored on every exit; the error is raised again unchanged
 	# (SECURITY-AMBIENT-02): a report that raises must not leave the registry choosing for another machine
 	_cKeep_ = $cStzPlacementOS
 	_cErr_ = ""
 	_aOut_ = []
+	_cOS_ = pcOS
 	try
-		$cStzPlacementOS = pcOS
+		if isList(pcOS)
+			_cOS_ = ""
+			if HasKey(pcOS, :os) _cOS_ = pcOS[:os] ok
+			StzPlacementProfileSet(pcOS)
+		ok
+		$cStzPlacementOS = _cOS_
 		_StzReportDeclareShipped()
 		_aN_ = StzFacultyNames()
 		for _f_ = 1 to len(_aN_)
@@ -54,6 +62,7 @@ func StzModelsReportFor(pcOS)
 		_cErr_ = cCatchError
 	done
 	$cStzPlacementOS = _cKeep_
+	StzPlacementProfileClear()
 	if _cErr_ != ""
 		raise(_cErr_)
 	ok
@@ -146,8 +155,12 @@ func StzModelsReportText()
 
 func StzModelsReportTextFor(pcOS)
 	_aR_ = StzModelsReportFor(pcOS)
-	_cOS_ = pcOS
-	if _cOS_ = "" _cOS_ = StzPlacementOS() + ", this machine" ok
+	if isList(pcOS)
+		_cOS_ = StzPlacementProfileText(pcOS)
+	else
+		_cOS_ = pcOS
+		if _cOS_ = "" _cOS_ = StzPlacementOS() + ", this machine" ok
+	ok
 	_c_ = "SOFTANZA MODELS -- " + _cOS_ + char(10)
 	for _i_ = 1 to len(_aR_)
 		_e_ = _aR_[_i_]

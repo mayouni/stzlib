@@ -1,0 +1,129 @@
+# TESTOOR P3.6 -- THE HARO FACE, narrated. The native runner finds the .haro tours under a folder, reads each with the
+# Haro face of the Zig core and walks it on haro.exe, with no other language involved (PRINCIPAL-NORING-01). This is
+# Testoor's first guard written in Haro.
+#
+# It plants five tours, a measurement script and a file of another name in a folder, walks the folder with
+# `testoor walk`, and reads the logbook. Every positive has its sibling: a tour whose claims hold beside one with a
+# failing claim (its own TOTAL line says it FINISHED: the failure is a diverged claim, not a break), one that breaks
+# midway and one Haro refuses a statement of (each leaves its later claim unreached), one that describes itself, and
+# two files that are never walked.
+#
+# RUNS ON haro.exe. Needs the native runner (cd engine && zig build testoor-exe -j2, or TESTOOR_EXE); without it every
+# scene says SKIPPED by name. HARO_EXE names the haro.exe the tours run on, else the one running this guard.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+
+tHere = CurrentDir()
+tPlant = tHere + "/_planted_walk"
+tExe = SysGet("TESTOOR_EXE")
+if tExe = ""
+	tExe = tHere + "/../../../engine/zig-out/bin/testoor.exe"
+end
+tHaro = SysGet("HARO_EXE")
+if tHaro = ""
+	tHaro = SysArgv[1]
+end
+
+? "TESTOOR P3.6 -- the Haro face"
+if FExists(tExe)
+	Plant(tPlant)
+
+	Scenario("1. the tours under a folder: the narrated ones are walked, a measurement script and another name are not")
+	oProc = new stzProcess()
+	oProc.SpawnIn(tHere, [ tExe, "walk", tPlant, "--haro", tHaro, "--seed", "5", "--json" ])
+	tOut = oProc.ReadOutputAll()
+	nExit = oProc.Wait()
+	oProc.Close()
+	xRun = StzJsonToList(tOut)
+	Then("five tours owned, five run", String(xRun[:owned]) + "/" + String(xRun[:run]), "5/5")
+	Then("and the run exits 1, for the failing, broken and refused tours", nExit, 1)
+
+	Scenario("2. a tour whose claims hold, read by the Haro face before it runs")
+	xKept = TourNamed(xRun, tPlant, "kept_narrated.haro")
+	Then("kept, finished, two claims kept", xKept[:state] + "/" + xKept[:end] + "/" + String(xKept[:kept]), "kept/finished/2")
+	Then("its stop carries the title its Scenario() gave it", xKept[:stops][1][:title], "the first place")
+	Then("its dialect is the narrated one", xKept[:dialect], "narrated")
+
+	Scenario("3. a failing claim: the tour FINISHED -- it printed its own TOTAL -- and the claim diverged")
+	xFails = TourNamed(xRun, tPlant, "fails_narrated.haro")
+	Then("diverged, finished, one kept and one diverged", xFails[:state] + "/" + xFails[:end] + "/" + String(xFails[:kept]) + "/" + String(xFails[:diverged]), "diverged/finished/1/1")
+	Then("the claim that diverged is named", xFails[:stops][1][:claims][2][:claim] + ":" + xFails[:stops][1][:claims][2][:state], "this does not:diverged")
+
+	Scenario("4. a runtime error and a refused statement each break the tour, and leave the claim after them unreached")
+	xBroke = TourNamed(xRun, tPlant, "broke_narrated.haro")
+	Then("an index past the end: broke, one kept, one unreached", xBroke[:end] + "/" + String(xBroke[:kept]) + "/" + String(xBroke[:unreached]), "broke/1/1")
+	xRefused = TourNamed(xRun, tPlant, "refused_narrated.haro")
+	Then("a statement Haro refused: broke, one kept, one unreached", xRefused[:end] + "/" + String(xRefused[:kept]) + "/" + String(xRefused[:unreached]), "broke/1/1")
+
+	Scenario("5. a tour that describes itself is judged from the lines it prints")
+	xSelf = TourNamed(xRun, tPlant, "describe_narrated.haro")
+	Then("kept, one claim, its stop the one it named", xSelf[:state] + "/" + String(xSelf[:kept]) + "/" + xSelf[:stops][1][:title], "kept/1/it says what it is")
+
+	StzDirDeleteAll(tPlant)
+else
+	? "SKIPPED by name, because the native runner is not built:"
+	? "  every scene (cd engine && zig build testoor-exe -j2, or set TESTOOR_EXE)"
+end
+
+? ""
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+Shutdown($nFail)
+
+# the tour of the logbook whose file is the planted one of that name
+func TourNamed(xRun, tPlant, tName)
+	nTours = Len(xRun[:tours])
+	for i = 1 to nTours
+		if xRun[:tours][i][:file] = tPlant + "/" + tName
+			return xRun[:tours][i]
+		end
+	end
+	return [ [ "state", "absent" ], [ "end", "absent" ], [ "kept", -1 ], [ "diverged", -1 ], [ "unreached", -1 ], [ "dialect", "absent" ],
+	         [ "stops", [ [ [ "title", "absent" ], [ "claims", [ [ [ "claim", "absent" ], [ "state", "absent" ] ], [ [ "claim", "absent" ], [ "state", "absent" ] ] ] ] ] ] ] ]
+end
+
+# the five tours, a measurement script and a file of another name; each tour carries its own Scenario and Then, as the
+# estate's narrated guards do
+func Plant(tDir)
+	if FExists(tDir + "/kept_narrated.haro")
+		StzDirDeleteAll(tDir)
+	end
+	StzMakeDir(tDir)
+	tN = Char(10)
+	tTop = "$nPass = 0" + tN + "$nFail = 0" + tN
+	tEnd = "? 'TOTAL: ' + String($nPass + $nFail) + ' assertions, ' + String($nPass) + ' pass, ' + String($nFail) + ' fail'" + tN +
+	       "Shutdown($nFail)" + tN +
+	       "func Scenario(tName)" + tN + "	? 'SCENARIO: ' + tName" + tN + "end" + tN +
+	       "func Then(tWhat, xGot, xExpected)" + tN +
+	       "	if xGot = xExpected" + tN + "		$nPass = $nPass + 1" + tN + "		? '  THEN  ' + tWhat + '  [PASS]'" + tN +
+	       "	else" + tN + "		$nFail = $nFail + 1" + tN + "		? '  THEN  ' + tWhat + '  [FAIL]'" + tN + "	end" + tN + "end" + tN
+	Write(tDir + "/kept_narrated.haro", tTop + "Scenario('the first place')" + tN + "Then('one is one', 1, 1)" + tN +
+	      "Then('two is two', 2, 2)" + tN + tEnd)
+	Write(tDir + "/fails_narrated.haro", tTop + "Scenario('a failing place')" + tN + "Then('this holds', 1, 1)" + tN +
+	      "Then('this does not', 1, 2)" + tN + tEnd)
+	Write(tDir + "/broke_narrated.haro", tTop + "Scenario('a breaking place')" + tN + "Then('before the break', 1, 1)" + tN +
+	      "vItems = [ 1, 2 ]" + tN + "? vItems[5]" + tN + "Then('never reached', 1, 1)" + tN + tEnd)
+	Write(tDir + "/refused_narrated.haro", tTop + "Scenario('a refused place')" + tN + "Then('before the refusal', 1, 1)" + tN +
+	      "v = 2" + tN + "Then('after the refusal', 1, 1)" + tN + tEnd)
+	Write(tDir + "/describe_narrated.haro", "? '[testoor stop it says what it is]'" + tN + "? '[testoor ok it said so]'" + tN)
+	Write(tDir + "/_measure_never_walked.haro", "? 'a measurement script is not a tour'" + tN)
+	Write(tDir + "/notes.haro", "? 'a file of another name is not a tour'" + tN)
+end
+
+func Scenario(tName)
+	? ""
+	? "SCENARIO: " + tName
+end
+
+func Then(tWhat, xGot, xExpected)
+	if xGot = xExpected
+		$nPass = $nPass + 1
+		? "  THEN  " + tWhat + "  [PASS]"
+	else
+		$nFail = $nFail + 1
+		? "  THEN  " + tWhat + "  [FAIL]"
+		? "    expected: " + String(xExpected)
+		? "    got:      " + String(xGot)
+	end
+end

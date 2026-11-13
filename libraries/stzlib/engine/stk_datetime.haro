@@ -1,0 +1,23 @@
+# Softanza Engine -- Core DateTime Ring Bridge
+#
+# Loads stk_datetime.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: core/datetime/stkDate.ring, stkTime.ring
+# Function prefix: StkEngine* (distinct from Base StzEngine*)
+
+if IsWindows()
+    $tStkDateTimeLib = $tEngineDir + "/zig-out/bin/stk_datetime.dll"
+elseif IsLinux()
+    $tStkDateTimeLib = $tEngineDir + "/zig-out/lib/libstk_datetime.so"
+elseif isMacOS()
+    $tStkDateTimeLib = $tEngineDir + "/zig-out/lib/libstk_datetime.dylib"
+end
+
+if FExists($tStkDateTimeLib)
+    $hStkDateTimeHandle = LoadLib($tStkDateTimeLib)
+else
+    ? "WARNING: stk_datetime not found at: " + $tStkDateTimeLib
+    $hStkDateTimeHandle = ""
+end

@@ -88,7 +88,7 @@ func StzSla(pcName)
 #   see        stzPerfMonitor, stzPerfSentinel, stzRuleReport
 class stzSla from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aExpectations = []	# [ cRule, cKind, cMetric, cOp, nBound, cSeverity ]
 	@bPending = 0
 	@cPendKind = ""
@@ -104,14 +104,14 @@ class stzSla from stzObject
 	#   note       StzSla builds the same object
 	#   see        Expect, CheckAgainst
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Returns the name the SLA was built with.
 	#
 	#   returns    the name as text
 	#   see        Explain
 	def Name()
-		return @cName
+		return @tName
 
 	# Opens an expectation on one of the well-known measured subjects, to be closed with a bound.
 	#
@@ -298,7 +298,7 @@ class stzSla from stzObject
 				@aVerdicts + [ :rule = _aE_[1], :ok = 0, :actual = 0,
 					:bound = _aE_[5], :message = _cMsg_ ]
 				_aFindings_ + [ :rule = _aE_[1], :subject = "perf",
-					:where = @cName + "/" + This._WhereOf(_aE_),
+					:where = @tName + "/" + This._WhereOf(_aE_),
 					:severity = "error", :message = _cMsg_ ]
 				@nBreaches++
 				loop
@@ -310,7 +310,7 @@ class stzSla from stzObject
 				:bound = _aE_[5], :message = _cMsg_ ]
 			if NOT _bOk_
 				_aFindings_ + [ :rule = _aE_[1], :subject = "perf",
-					:where = @cName + "/" + This._WhereOf(_aE_),
+					:where = @tName + "/" + This._WhereOf(_aE_),
 					:severity = _aE_[6], :message = _cMsg_ ]
 				@nBreaches++
 			ok
@@ -330,7 +330,7 @@ class stzSla from stzObject
 				_cRule_ = @aVerdicts[_i_][:rule]
 				_aE_ = This._ExpectationOf(_cRule_)
 				_aOut_ + [ :rule = _cRule_, :subject = "perf",
-					:where = @cName + "/" + This._WhereOf(_aE_),
+					:where = @tName + "/" + This._WhereOf(_aE_),
 					:severity = _aE_[6], :message = @aVerdicts[_i_][:message] ]
 			ok
 		next
@@ -372,7 +372,7 @@ class stzSla from stzObject
 		if @nBreaches > 0
 			_cV_ = "BREACHED (" + @nBreaches + ")"
 		ok
-		_aLines_ + ("SLA " + @cName + " -- " + ring_len(@aExpectations) +
+		_aLines_ + ("SLA " + @tName + " -- " + ring_len(@aExpectations) +
 			" expectation(s), last check: " + _cV_ + ".")
 		_nLen_ = ring_len(@aVerdicts)
 		for _i_ = 1 to _nLen_

@@ -1,0 +1,26 @@
+# Softanza Engine -- Base Bytes Ring Bridge
+#
+# Loads stz_bytes.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
+# Used by: base/number/stzListOfBytes.ring
+# Function prefix: StzEngine*
+
+if IsWindows()
+    $tStzBytesLib = $tEngineDir + "/zig-out/bin/stz_bytes.dll"
+elseif IsLinux()
+    $tStzBytesLib = $tEngineDir + "/zig-out/lib/libstz_bytes.so"
+elseif isMacOS()
+    $tStzBytesLib = $tEngineDir + "/zig-out/lib/libstz_bytes.dylib"
+end
+
+# the domain door (SOFTANZA_ONE_HOUR.md W7b): skipped when a manifest leaves it out or DENIED names it
+if not StzDomainWanted("bytes")
+    $hStzBytesHandle = ""
+elseif FExists($tStzBytesLib)
+    $hStzBytesHandle = LoadLib($tStzBytesLib)
+else
+    ? "WARNING: stz_bytes not found at: " + $tStzBytesLib
+    $hStzBytesHandle = ""
+end

@@ -47,6 +47,13 @@ var g_arch_len: usize = 0;
 // variable until a second model could be held aside (RADAR-NVIDIA-SPECDEC-01): putting a held model back restores ITS
 // generation, so every cache keyed on it stays valid, and a later load must still get a number no model ever had.
 var g_gen_issued: usize = 0;
+
+// The loaded model's SHA-256 (verified at load): what a saved KV prefix is keyed by (RADAR-SNAPSHOT-PREFIXKV-01).
+var g_model_hex: [64]u8 = undefined;
+var g_model_hex_ok: bool = false;
+pub fn modelHex() ?[]const u8 {
+    return if (g_model_hex_ok) g_model_hex[0..] else null;
+}
 fn issueGeneration() void {
     g_gen_issued = @max(g_gen_issued, model_generation) + 1;
     model_generation = g_gen_issued;
@@ -61,6 +68,8 @@ pub const ModelSlot = struct {
     arch: [64]u8 = undefined,
     arch_len: usize = 0,
     gen: usize = 0,
+    hex: [64]u8 = undefined,
+    hex_ok: bool = false,
 };
 
 pub fn swapModel(s: *ModelSlot) void {
@@ -69,6 +78,8 @@ pub fn swapModel(s: *ModelSlot) void {
     std.mem.swap([64]u8, &g_arch, &s.arch);
     std.mem.swap(usize, &g_arch_len, &s.arch_len);
     std.mem.swap(usize, &model_generation, &s.gen);
+    std.mem.swap([64]u8, &g_model_hex, &s.hex);
+    std.mem.swap(bool, &g_model_hex_ok, &s.hex_ok);
 }
 
 /// Free the model a slot holds (never the one in place).
@@ -104,6 +115,8 @@ pub export fn neural_model_load(path: [*c]const u8) callconv(.c) c_int {
     g_ctx = mctx;
     g_arch_len = 0;
     issueGeneration();
+    g_model_hex = digest.lastHex();
+    g_model_hex_ok = true;
     if (kvStr("general.architecture")) |a| {
         const s = std.mem.span(a);
         const n = @min(s.len, g_arch.len);
@@ -115,6 +128,7 @@ pub export fn neural_model_load(path: [*c]const u8) callconv(.c) c_int {
 
 pub export fn neural_model_free() callconv(.c) void {
     issueGeneration();
+    g_model_hex_ok = false;
     if (g_gguf) |x| {
         c.gguf_free(x);
         g_gguf = null;

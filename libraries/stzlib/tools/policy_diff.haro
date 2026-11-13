@@ -1,0 +1,36 @@
+# policy_diff.haro -- the access a governance change adds, as a review gate
+#
+#   haro policy_diff.haro <before.zgov> <after.zgov>
+#
+# Prints, one line each, every action an actor may carry out and every class of work an executor may perform under the
+# after regime and not under the before regime, and what it no longer may. Exits 0 when the change adds no access,
+# 1 when it adds some (it waits for review), 2 when a file cannot be read. Each line is asked of stzGovernance's own
+# MayProceed and MayExecuteFor; base/governance/stzPolicyDiff.haro says why that covers every case.
+# Run from this folder.
+
+load "../base/stzBase.ring"
+
+vArgs = SysArgv
+nFirst = 0
+for i = 1 to Len(vArgs)
+	if StzFindFirst("policy_diff", vArgs[i]) > 0
+		nFirst = i + 1
+	end
+end
+if nFirst = 0 or nFirst + 1 > Len(vArgs)
+	? "policy_diff: name the regime before and after, e.g. haro policy_diff.haro before.zgov after.zgov"
+	Shutdown(2)
+end
+tBefore = vArgs[nFirst]
+tAfter = vArgs[nFirst + 1]
+if StzFileExists(tBefore) = 0
+	? "policy_diff: no file '" + tBefore + "'"
+	Shutdown(2)
+end
+if StzFileExists(tAfter) = 0
+	? "policy_diff: no file '" + tAfter + "'"
+	Shutdown(2)
+end
+xD = StzPolicyDiff([ [:regime, tBefore] ], [ [:regime, tAfter] ])
+? StzPolicyDiffText(xD)
+Shutdown(xD[:status])

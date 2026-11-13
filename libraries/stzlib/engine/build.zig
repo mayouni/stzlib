@@ -296,6 +296,8 @@ fn addGgml(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) 
             g ++ "/src/ggml-cpu/unary-ops.cpp",
             g ++ "/src/ggml-cpu/traits.cpp",
             g ++ "/src/ggml-cpu/repack.cpp",
+            g ++ "/src/ggml-cpu/tiled/tiled.cpp",
+            g ++ "/src/ggml-cpu/tiled/tiled-kernel.cpp",
             g ++ "/src/ggml-cpu/arch/x86/cpu-feats.cpp",
             g ++ "/src/ggml-cpu/arch/x86/repack.cpp",
         },

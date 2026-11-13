@@ -164,7 +164,7 @@ func _StzRingVMSources(pcRoot, pbWindowsTarget)
 
 # Where `zig build wasm` writes stz.wasm (the engine's install dir).
 func StzEngineWasmPath()
-	return $cEngineDir + "/zig-out/bin/stz.wasm"
+	return $tEngineDir + "/zig-out/bin/stz.wasm"
 
 # A plan capability KEY -> the engine wasm GROUP that backs it on the edge, or
 # "" when no wasm logic exists for it yet (so it is simply not shipped). This is
@@ -216,7 +216,7 @@ func StzBuildEngineWasmSubset(paGroups, pcDestPath)
 		_cGroups_ += "," + paGroups[_i_]
 	next
 	_cZig_ = _StzFindZig()
-	_cEng_ = $cEngineDir
+	_cEng_ = $tEngineDir
 	if NOT (isString(_cEng_) and _cEng_ != "")
 		return ""
 	ok
@@ -247,7 +247,7 @@ func StzBuildEngineWasmSubset(paGroups, pcDestPath)
 # Returns the artifact path on success, "" on failure. Needs Zig on the machine.
 func StzBuildEngineWasm()
 	_cZig_ = _StzFindZig()
-	_cEng_ = $cEngineDir
+	_cEng_ = $tEngineDir
 	if NOT (isString(_cEng_) and _cEng_ != "")
 		return ""
 	ok
@@ -298,7 +298,7 @@ func StzBuildEngineWasm()
 #   see        stzWebBundle, stzDeployment, stzSystemProfile
 class stzBuilder from stzObject
 
-	@cName = ""
+	@tName = ""
 	@aSources = []
 	@cLanguage = "c"       # c / cpp / zig / ring
 	@cKind = "exe"         # exe / lib
@@ -334,7 +334,7 @@ class stzBuilder from stzObject
 	#   note       nothing is compiled until Build
 	#   see        AddSource, Build
 	def init(pcName)
-		@cName = "" + pcName
+		@tName = "" + pcName
 
 	# Adds a source file to compile.
 	#
@@ -622,7 +622,7 @@ class stzBuilder from stzObject
 		if @cOutput != ""
 			return @cOutput
 		ok
-		return @cName + This._DefaultExt()
+		return @tName + This._DefaultExt()
 
 	# Adds a preprocessor definition NAME=value for a C or C++ build.
 	#
@@ -1015,7 +1015,7 @@ class stzBuilder from stzObject
 	#              builders
 	#   see        ToCommand, Args
 	def Show()
-		? "Builder '" + @cName + "'"
+		? "Builder '" + @tName + "'"
 		if @cTriple = ""
 			? "  target:  host (native)"
 		else

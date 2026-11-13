@@ -1,0 +1,473 @@
+=== zane / grammar / signin  valid 1  coverage 1  
+DEFINE SCREEN sign_in_screen (
+  SATISFIES [ACT],
+  ALWAYS_REACHABLE [UNDO, CANCEL, EXIT],
+  ACTOR user
+)
+
+=== zane / grammar / room  valid 1  coverage 0   missing verb SELECT
+DEFINE SCREEN book_meeting_room (
+  SATISFIES [ACT, CONFIRM, CANCEL],
+  ALWAYS_REACHABLE [UNDO, EXIT],
+  ACTOR user
+)
+
+=== zane / grammar / plan  valid 0  coverage 0  verifier exit 1: MISSING_UNDO missing verb SELECT
+DEFINE SCREEN choose_plan (
+  SATISFIES [ACT],
+  ALWAYS_REACHABLE [CANCEL, EXIT],
+  ACTOR user
+)
+
+=== zane / grammar / order  valid 1  coverage 0   missing verb READ
+DEFINE SCREEN order_summary (
+  INTENT_FLOW pay_or_view_order,
+  ALWAYS_REACHABLE [CANCEL, EXIT],
+  VISIBLE_ENTITIES [item, quantity, total],
+  VISIBLE_STATE [pay_now, back],
+  ACTOR customer
+)
+
+=== zane / grammar / contact  valid 0  coverage 1  verifier exit 1: FIELD_MISPLACED,FIELD_MISPLACED
+DEFINE INTENT_FLOW submit_contact_form (
+  SATISFIES [ACT],
+  ALWAYS_REACHABLE [UNDO, CANCEL, EXIT],
+  ACTOR user
+)
+
+DEFINE FORM contact_form (
+  INTENT_FLOW submit_contact_form,
+  VISIBLE_ENTITIES [name, email, message],
+  LABEL send,
+  TARGET submit
+)
+
+=== zane / grammar / delete  valid 1  coverage 0   missing verb CONFIRM
+DEFINE INTERACTION confirm_delete_report (
+  SATISFIES [ACT],
+  ALWAYS_REACHABLE [UNDO, CANCEL],
+  ACTOR user
+)
+
+=== zane / grammar / settings  valid 1  coverage 1  
+DEFINE SCREEN settings_screen (
+  SATISFIES [ACT],
+  ALWAYS_REACHABLE [UNDO, CANCEL, EXIT],
+  ACTOR user
+)
+
+=== zane / grammar / rating  valid 0  coverage 1  verifier exit 1: FIELD_MISPLACED,FIELD_MISPLACED
+DEFINE SCREEN support_feedback_screen (
+  SATISFIES [ACT, CONFIRM, EXIT],
+  ALWAYS_REACHABLE [CANCEL, UNDO],
+  ACTOR user,
+  REPORTS [feedback, comment],
+  VISIBLE_ENTITIES [rating_field, comment_field],
+  VISIBLE_STATE [rating_value, comment_value],
+  INTENT_FLOWS [submit]
+)
+
+=== zane / grammar / search  valid 0  coverage 0  verifier exit 1: FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED missing verb FILTER
+DEFINE SCREEN search_screen (
+  SATISFIES [SCAN, SELECT, HIGHLIGHT],
+  ALWAYS_REACHABLE [EXIT],
+  VISIBLE_ENTITIES [search_box, filter_status, search_button],
+  VISIBLE_STATE [search_query, status_filter],
+  INTENT_FLOWS [discover, understand],
+  STEPS [search, filter, confirm],
+  REPORTS [search_results],
+  ENTRIES [search_query, status_filter]
+)
+
+=== zane / grammar / expense  valid 0  coverage 1  verifier exit 1: MISSING_UNDO,FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED
+DEFINE SCREEN approve_taxi_expense (
+  SATISFIES [ACT, CONFIRM],
+  ALWAYS_REACHABLE [CANCEL, EXIT],
+  ACTOR user,
+  TARGET expense_120_euros,
+  LABEL approve_or_reject,
+  INTENT_FLOW approve_expense
+)
+
+DEFINE COMPONENT note_input (
+  VISIBLE_ENTITIES [note],
+  LABEL optional_note
+)
+
+=== zane / grammar / address  valid 0  coverage 0  verifier exit 1: FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED missing verb SELECT
+DEFINE SCREEN choose_delivery_address (
+  SATISFIES [ACT],
+  ALWAYS_REACHABLE [UNDO, CANCEL, EXIT],
+  ACTOR user,
+  VISIBLE_ENTITIES [saved_address_1, saved_address_2, new_address],
+  VISIBLE_STATE [current_address],
+  INTENT_FLOWS [select_saved_address, add_new_address],
+  STEPS [display_saved_addresses, select_address, add_new],
+  REPORTS [address_selected],
+  ENTRIES [selected_address]
+)
+
+=== zane / grammar / failed  valid 0  coverage 1  verifier exit 1: MISSING_UNDO
+DEFINE INTERACTION payment_failed (
+  SATISFIES [ACT, CONFIRM],
+  ALWAYS_REACHABLE [RETRY, CANCEL, EXIT],
+  ACTOR user
+)
+
+=== zane / free / signin  valid 0  coverage 0  not a sentence of the format's syntax
+DEFINE SCREEN sign_in_screen (
+   SATISFIES [ACT],
+   ALWAYS_
+
+=== zane / free / room  valid 0  coverage 0  not a sentence of the format's syntax
+DEFINE SCREEN book_meeting_room (
+
+=== zane / free / plan  valid 0  coverage 0  not a sentence of the format's syntax
+DEFINE SCREEN choose_plan (
+
+=== zane / free / order  valid 0  coverage 0  not a sentence of the format's syntax
+DEFINE SCREEN order_summary (
+
+=== zane / free / contact  valid 0  coverage 0  not a sentence of the format's syntax
+DEFINE INTENT_FLOW submit_contact_form (
+
+=== zane / free / delete  valid 0  coverage 0  not a sentence of the format's syntax
+DEFINE INTERACTION confirm_delete_report (
+
+=== zane / free / settings  valid 0  coverage 0  not a sentence of the format's syntax
+DEFINE SCREEN settings_screen (
+   SATISFIES [ACT],
+
+=== zane / free / rating  valid 0  coverage 0  not a sentence of the format's syntax
+DEFINE SCREEN support_feedback_screen (
+   SATISFIES [ACT, COMMENT, SUBMIT],
+   ALWAYS_
+
+=== zane / free / search  valid 0  coverage 0  verifier exit 1: UNKNOWN_INTENT,UNKNOWN_SIGNAL,FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED,FIELD_MISPLACED missing verb FILTER
+DEFINE SCREEN search_screen (
+   SATISFIES [SCAN, SELECT, HIGHLIGHT],
+   ALWAYS_REACHABLE [EXIT],
+   VISIBLE_ENTITIES [search_box, filter_status, search_button],
+   VISIBLE_STATE [search_query, status_filter],
+   INTENT_FLOWS [discover, understand],
+   STEPS [search, filter, confirm],
+   REPORTS [search_results],
+   SUPPRESSES [exit],
+   SIGNALS [search_query_changed],
+   ENTRIES [search_query, status_filter]
+)
+
+=== zane / free / expense  valid 0  coverage 0  not a sentence of the format's syntax
+DEFINE SCREEN approve_taxi_expense (
+
+=== zane / free / address  valid 0  coverage 0  not a sentence of the format's syntax
+DEFINE SCREEN choose_delivery_address (
+
+=== zane / free / failed  valid 0  coverage 0  not a sentence of the format's syntax
+DEFINE INTERACTION payment_failed (
+
+=== a2ui_json / grammar / signin  valid 1  coverage 1  
+{"version": "1.0", "createSurface": {"surfaceId": "signIn", "components": [{"id": "root", "component": "Column", "children": ["email", "password", "signin"]}, {"id": "email", "component": "Text", "text": "Email"}, {"id": "password", "component": "TextField", "label": "Password", "value": {"@path": "/form/password"}}, {"id": "signin", "component": "Button", "child": "signin_label", "variant": "primary", "action": {"event": {"name": "signIn"}}}, {"id": "signin_label", "component": "Text", "text": "Sign In"}]}}
+
+=== a2ui_json / grammar / room  valid 0  coverage 1  Card root has no property children
+{"version": "1.0", "createSurface": {"surfaceId": "bookMeetingRoom", "components": [{"id": "root", "component": "Card", "children": ["date", "time", "room", "confirm", "cancel"]}, {"id": "date", "component": "Text", "text": "Date"}, {"id": "time", "component": "Text", "text": "Time"}, {"id": "room", "component": "ChoicePicker", "label": "Room", "options": [{"label": "Atlas", "value": "Atlas"}, {"label": "Borealis", "value": "Borealis"}, {"label": "Cedar", "value": "Cedar"}], "value": {"@path": "/form/room"}}, {"id": "confirm", "component": "Button", "child": "confirm_label", "variant": "primary", "action": {"event": {"name": "confirm"}}}, {"id": "cancel", "component": "Button", "child": "cancel_label", "variant": "default", "action": {"event": {"name": "cancel"}}}, {"id": "confirm_label", "component": "Text", "text": "Confirm"}, {"id": "cancel_label", "component": "Text", "text": "Cancel"}]}}
+
+=== a2ui_json / grammar / plan  valid 0  coverage 1  Card root has no property children
+{"version": "1.0", "createSurface": {"surfaceId": "planSelection", "components": [{"id": "root", "component": "Card", "children": ["planOptions", "continue"]}, {"id": "planOptions", "component": "Row", "children": ["basic", "pro", "team"]}, {"id": "basic", "component": "ChoicePicker", "label": "Choose a plan", "options": [{"label": "Basic", "value": "basic"}, {"label": "Pro", "value": "pro"}, {"label": "Team", "value": "team"}], "value": {"@path": "/form/plan"}}, {"id": "pro", "component": "ChoicePicker", "options": [{"label": "Basic", "value": "basic"}, {"label": "Pro", "value": "pro"}, {"label": "Team", "value": "team"}], "value": {"@path": "/form/plan"}}, {"id": "team", "component": "ChoicePicker", "options": [{"label": "Basic", "value": "basic"}, {"label": "Pro", "value": "pro"}, {"label": "Team", "value": "team"}], "value": {"@path": "/form/plan"}}, {"id": "continue", "component": "Button", "child": "continue_label", "variant": "primary", "action": {"event": {"name": "continue"}}}, {"id": "continue_label", "component": "Text", "text": "Continue"}]}}
+
+=== a2ui_json / grammar / order  valid 1  coverage 1  
+{"version": "1.0", "createSurface": {"surfaceId": "orderSummary", "components": [{"id": "root", "component": "Column", "children": ["item", "quantity", "total", "pay", "back"]}, {"id": "item", "component": "Text", "text": "Item:"}, {"id": "quantity", "component": "Text", "text": "Quantity:"}, {"id": "total", "component": "Text", "text": "Total:"}, {"id": "pay", "component": "Button", "child": "pay_label", "variant": "primary", "action": {"event": {"name": "pay"}}}, {"id": "back", "component": "Button", "child": "back_label", "variant": "default", "action": {"event": {"name": "back"}}}, {"id": "pay_label", "component": "Text", "text": "Pay Now"}, {"id": "back_label", "component": "Text", "text": "Back"}]}}
+
+=== a2ui_json / grammar / contact  valid 1  coverage 1  
+{"version": "1.0", "createSurface": {"surfaceId": "contactForm", "components": [{"id": "root", "component": "Column", "children": ["name", "email", "message", "send"]}, {"id": "name", "component": "Text", "text": "Name"}, {"id": "email", "component": "TextField", "label": "Email", "value": {"@path": "/form/email"}}, {"id": "message", "component": "TextField", "label": "Message", "value": {"@path": "/form/message"}}, {"id": "send", "component": "Button", "child": "send_label", "variant": "primary", "action": {"event": {"name": "send"}}}, {"id": "send_label", "component": "Text", "text": "Send"}]}}
+
+=== a2ui_json / grammar / delete  valid 0  coverage 1  Button cancel_button lacks child
+{"version": "1.0", "createSurface": {"surfaceId": "delete_report", "components": [{"id": "root", "component": "Row", "children": ["delete_or_cancel"]}, {"id": "delete_or_cancel", "component": "Row", "children": ["delete_button", "cancel_button"]}, {"id": "delete_button", "component": "Button", "child": "delete_label", "variant": "primary", "action": {"event": {"name": "delete"}}}, {"id": "delete_label", "component": "Text", "text": "Delete report.pdf"}, {"id": "cancel_button", "component": "Button", "variant": "default", "action": {"event": {"name": "cancel"}}}, {"id": "cancel_label", "component": "Text", "text": "Cancel"}]}}
+
+=== a2ui_json / grammar / settings  valid 0  coverage 1  Card root has no property children
+{"version": "1.0", "createSurface": {"surfaceId": "settings", "components": [{"id": "root", "component": "Card", "children": ["emailNotifications", "darkMode", "save"]}, {"id": "emailNotifications", "component": "CheckBox", "label": "Email notifications", "value": {"@path": "/settings/emailNotifications"}}, {"id": "darkMode", "component": "CheckBox", "label": "Dark mode", "value": {"@path": "/settings/darkMode"}}, {"id": "save", "component": "Button", "child": "save_label", "variant": "primary", "action": {"event": {"name": "save"}}}, {"id": "save_label", "component": "Text", "text": "Save changes"}]}}
+
+=== a2ui_json / grammar / rating  valid 1  coverage 0   missing 'rate'
+{"version": "1.0", "createSurface": {"surfaceId": "support_feedback", "components": [{"id": "root", "component": "Row", "children": ["rating", "comment", "submit"]}, {"id": "rating", "component": "ChoicePicker", "label": "Rating", "options": [{"label": "1", "value": "1"}, {"label": "2", "value": "2"}, {"label": "3", "value": "3"}, {"label": "4", "value": "4"}, {"label": "5", "value": "5"}], "value": {"@path": "/form/support_rating"}}, {"id": "comment", "component": "TextField", "label": "Comment", "value": {"@path": "/form/support_comment"}}, {"id": "submit", "component": "Button", "child": "submit_label", "variant": "primary", "action": {"event": {"name": "submit"}}}, {"id": "submit_label", "component": "Text", "text": "Submit"}]}}
+
+=== a2ui_json / grammar / search  valid 1  coverage 1  
+{"version": "1.0", "createSurface": {"surfaceId": "searchScreen", "components": [{"id": "root", "component": "Column", "children": ["searchBox", "statusFilter", "searchButton"]}, {"id": "searchBox", "component": "TextField", "label": "Search", "value": {"@path": "/form/search"}}, {"id": "statusFilter", "component": "ChoicePicker", "label": "Filter by Status", "options": [{"label": "Open", "value": "open"}, {"label": "Closed", "value": "closed"}], "value": {"@path": "/form/status"}}, {"id": "searchButton", "component": "Button", "child": "searchLabel", "variant": "primary", "action": {"event": {"name": "search"}}}, {"id": "searchLabel", "component": "Text", "text": "Search"}]}}
+
+=== a2ui_json / grammar / expense  valid 0  coverage 0  Card root has no property children missing '120'
+{"version": "1.0", "createSurface": {"surfaceId": "expense_approval", "components": [{"id": "root", "component": "Card", "children": ["approval", "note", "action"]}, {"id": "approval", "component": "Text", "text": "Approve or Reject"}, {"id": "note", "component": "Text", "text": "Enter optional note"}, {"id": "action", "component": "Row", "children": ["approve_button", "reject_button"]}, {"id": "approve_button", "component": "Button", "child": "approve_label", "variant": "primary", "action": {"event": {"name": "approve"}}}, {"id": "reject_button", "component": "Button", "child": "reject_label", "variant": "primary", "action": {"event": {"name": "reject"}}}, {"id": "approve_label", "component": "Text", "text": "Approve"}, {"id": "reject_label", "component": "Text", "text": "Reject"}]}}
+
+=== a2ui_json / grammar / address  valid 0  coverage 1  Card root has no property children
+{"version": "1.0", "createSurface": {"surfaceId": "deliveryAddress", "components": [{"id": "root", "component": "Card", "children": ["address1", "address2", "addNew"]}, {"id": "address1", "component": "Text", "text": "Address 1"}, {"id": "address2", "component": "Text", "text": "Address 2"}, {"id": "addNew", "component": "Button", "child": "addNew_label", "variant": "primary", "action": {"event": {"name": "addNew"}}}, {"id": "addNew_label", "component": "Text", "text": "Add New Address"}]}}
+
+=== a2ui_json / grammar / failed  valid 1  coverage 1  
+{"version": "1.0", "createSurface": {"surfaceId": "payment_error", "components": [{"id": "root", "component": "Column", "children": ["title", "details", "retry", "contact"]}, {"id": "title", "component": "Text", "text": "Payment Failed"}, {"id": "details", "component": "Text", "text": "The payment failed. Please check your payment details and try again."}, {"id": "retry", "component": "Button", "child": "retry_label", "variant": "primary", "action": {"event": {"name": "retry"}}}, {"id": "retry_label", "component": "Text", "text": "Retry Payment"}, {"id": "contact", "component": "Button", "child": "contact_label", "variant": "primary", "action": {"event": {"name": "contact_support"}}}, {"id": "contact_label", "component": "Text", "text": "Contact Support"}]}}
+
+=== a2ui_json / free / signin  valid 1  coverage 1  
+{"version": "1.0", "createSurface": {"surfaceId": "signIn", "components": [{"id": "root", "component": "Column", "children": ["email", "password", "signin"]}, {"id": "email", "component": "Text", "text": "Email"}, {"id": "password", "component": "TextField", "label": "Password", "value": {"@path": "/form/password"}}, {"id": "signin", "component": "Button", "child": "signin_label", "variant": "primary", "action": {"event": {"name": "signIn"}}}, {"id": "signin_label", "component": "Text", "text": "Sign In"}]}}
+
+=== a2ui_json / free / room  valid 0  coverage 1  Card root has no property children
+{"version": "1.0", "createSurface": {"surfaceId": "bookMeetingRoom", "components": [{"id": "root", "component": "Card", "children": ["date", "time", "room", "confirm", "cancel"]}, {"id": "date", "component": "Text", "text": "Date"}, {"id": "time", "component": "Text", "text": "Time"}, {"id": "room", "component": "ChoicePicker", "label": "Room", "options": [{"label": "Atlas", "value": "Atlas"}, {"label": "Borealis", "value": "Borealis"}, {"label": "Cedar", "value": "Cedar"}], "value": {"@path": "/form/room"}}, {"id": "confirm", "component": "Button", "child": "confirm_label", "variant": "primary", "action": {"event": {"name": "confirm"}}}, {"id": "cancel", "component": "Button", "child": "cancel_label", "variant": "default", "action": {"event": {"name": "cancel"}}}, {"id": "confirm_label", "component": "Text", "text": "Confirm"}, {"id": "cancel_label", "component": "Text", "text": "Cancel"}]}}
+
+=== a2ui_json / free / plan  valid 0  coverage 1  Card root has no property children
+{"version": "1.0", "createSurface": {"surfaceId": "planSelection", "components": [{"id": "root", "component": "Card", "children": ["planOptions", "continue"]}, {"id": "planOptions", "component": "Row", "children": ["basic", "pro", "team"]}, {"id": "basic", "component": "ChoicePicker", "label": "Choose a plan", "options": [{"label": "Basic", "value": "basic"}, {"label": "Pro", "value": "pro"}, {"label": "Team", "value": "team"}], "value": {"@path": "/form/plan"}}, {"id": "pro", "component": "ChoicePicker", "options": [{"label": "Basic", "value": "basic"}, {"label": "Pro", "value": "pro"}, {"label": "Team", "value": "team"}], "value": {"@path": "/form/plan"}}, {"id": "team", "component": "ChoicePicker", "options": [{"label": "Basic", "value": "basic"}, {"label": "Pro", "value": "pro"}, {"label": "Team", "value": "team"}], "value": {"@path": "/form/plan"}}, {"id": "continue", "component": "Button", "child": "continue_label", "variant": "primary", "action": {"event": {"name": "continue"}}}, {"id": "continue_label", "component": "Text", "text": "Continue"}]}}
+
+=== a2ui_json / free / order  valid 1  coverage 1  
+{"version": "1.0", "createSurface": {"surfaceId": "orderSummary", "components": [{"id": "root", "component": "Column", "children": ["item", "quantity", "total", "pay", "back"]}, {"id": "item", "component": "Text", "text": "Item:"}, {"id": "quantity", "component": "Text", "text": "Quantity:"}, {"id": "total", "component": "Text", "text": "Total:"}, {"id": "pay", "component": "Button", "child": "pay_label", "variant": "primary", "action": {"event": {"name": "pay"}}}, {"id": "back", "component": "Button", "child": "back_label", "variant": "default", "action": {"event": {"name": "back"}}}, {"id": "pay_label", "component": "Text", "text": "Pay Now"}, {"id": "back_label", "component": "Text", "text": "Back"}]}}
+
+=== a2ui_json / free / contact  valid 0  coverage 1  the component message is a TextArea, which the catalogue does not hold
+{"version": "1.0", "createSurface": {"surfaceId": "contactForm", "components": [{"id": "root", "component": "Column", "children": ["name", "email", "message", "send"]}, {"id": "name", "component": "Text", "text": "Name"}, {"id": "email", "component": "TextField", "label": "Email", "value": {"@path": "/form/email"}}, {"id": "message", "component": "TextArea", "label": "Message"}, {"id": "send", "component": "Button", "child": "send_label", "variant": "primary", "action": {"event": {"name": "submit"}}}, {"id": "send_label", "component": "Text", "text": "Send"}]}}
+
+=== a2ui_json / free / delete  valid 0  coverage 0  not a sentence of the format's syntax
+{"version": "1.0", "createSurface": {"surfaceId": "delete_report", "components": [{"id": "root", "component": "Row", "children": ["delete_or_cancel"]}, {"id": "delete_or_cancel", "component": "Row", "children": ["delete_button", "cancel_button"]}, {"id": "delete_button", "component": "Button", "child": "delete_label", "variant": "primary", "action": {"event": {"name": "delete"}}}, {"id": "delete_label", "component": "Text", "text": "Delete report.pdf"}, {"id": "cancel_button", "component": "Button", "variant": "default", "action": {"event": {"name": "cancel"}}}, {"id": "cancel_label", "component": "Text", "text": "Cancel"}]}}}
+
+=== a2ui_json / free / settings  valid 0  coverage 0  not a sentence of the format's syntax
+{"version": "1.0", "createSurface": {"surfaceId": "settings", "components": [{"id": "root", "component": "Card", "children": ["emailNotifications", "darkMode", "save"]}, {"id": "emailNotifications", "component": "CheckBox", "label": "Email notifications", "value": {"@path": "/settings/emailNotifications"}}, {"id": "darkMode", "component": "CheckBox", "label": "Dark mode", "value": {"@path": "/settings/darkMode"}}, {"id": "save", "component": "Button", "child": "save_label", "variant": "primary", "action": {"event": {"name": "save"}}}, {"id": "save_label", "component": "Text", "text": "Save"}}]}
+
+=== a2ui_json / free / rating  valid 0  coverage 0  not a sentence of the format's syntax
+{"version": "1.0", "createSurface": {"surfaceId": "support_feedback", "components": [{"id": "root", "component": "Row", "children": ["rating", "comment", "submit"]}, {"id": "rating", "component": "ChoicePicker", "label": "Rating", "options": [{"label": "1", "value": "1"}, {"label": "2", "value": "2"}, {"label": "3", "value": "3"}, {"label": "4", "value": "4"}, {"label": "5", "value": "5"}], "value": {"@path": "/form/support_rating"}}, {"id": "comment", "component": "TextField", "label": "Comment", "value": {"@path": "/form/support_comment"}}, {"id": "submit", "component": "Button", "child": "submit_label", "variant": "primary", "action": {"event": {"name": "submit"}}}, {"id": "submit_label", "component": "Text", "text": "Submit"}}]}
+
+=== a2ui_json / free / search  valid 1  coverage 1  
+{"version": "1.0", "createSurface": {"surfaceId": "searchScreen", "components": [{"id": "root", "component": "Column", "children": ["searchBox", "statusFilter", "searchButton"]}, {"id": "searchBox", "component": "TextField", "label": "Search", "value": {"@path": "/form/search"}}, {"id": "statusFilter", "component": "ChoicePicker", "label": "Filter by Status", "options": [{"label": "Open", "value": "open"}, {"label": "Closed", "value": "closed"}], "value": {"@path": "/form/status"}}, {"id": "searchButton", "component": "Button", "child": "searchLabel", "variant": "primary", "action": {"event": {"name": "search"}}}, {"id": "searchLabel", "component": "Text", "text": "Search"}]}}
+
+=== a2ui_json / free / expense  valid 0  coverage 0  Card root has no property children missing '120'
+{"version": "1.0", "createSurface": {"surfaceId": "expense_approval", "components": [{"id": "root", "component": "Card", "children": ["approval", "note", "action"]}, {"id": "approval", "component": "Text", "text": "Approve or Reject"}, {"id": "note", "component": "Text", "text": "Enter optional note"}, {"id": "action", "component": "Row", "children": ["approve_button", "reject_button"]}, {"id": "approve_button", "component": "Button", "child": "approve_label", "variant": "primary", "action": {"event": {"name": "approve"}}}, {"id": "reject_button", "component": "Button", "child": "reject_label", "variant": "primary", "action": {"event": {"name": "reject"}}}, {"id": "approve_label", "component": "Text", "text": "Approve"}, {"id": "reject_label", "component": "Text", "text": "Reject"}]}}
+
+=== a2ui_json / free / address  valid 0  coverage 1  Card root has no property children
+{"version": "1.0", "createSurface": {"surfaceId": "deliveryAddress", "components": [{"id": "root", "component": "Card", "children": ["address1", "address2", "addNew"]}, {"id": "address1", "component": "Text", "text": "Address 1"}, {"id": "address2", "component": "Text", "text": "Address 2"}, {"id": "addNew", "component": "Button", "child": "addNew_label", "variant": "primary", "action": {"event": {"name": "addNew"}}}, {"id": "addNew_label", "component": "Text", "text": "Add New Address"}]}}
+
+=== a2ui_json / free / failed  valid 1  coverage 1  
+{"version": "1.0", "createSurface": {"surfaceId": "payment_error", "components": [{"id": "root", "component": "Column", "children": ["title", "details", "retry", "contact"]}, {"id": "title", "component": "Text", "text": "Payment Failed"}, {"id": "details", "component": "Text", "text": "The payment failed. Please check your payment details and try again."}, {"id": "retry", "component": "Button", "child": "retry_label", "variant": "primary", "action": {"event": {"name": "retry"}}}, {"id": "retry_label", "component": "Text", "text": "Retry Payment"}, {"id": "contact", "component": "Button", "child": "contact_label", "variant": "primary", "action": {"event": {"name": "contact_support"}}}, {"id": "contact_label", "component": "Text", "text": "Contact Support"}]}}
+
+=== a2ui_express / grammar / signin  valid 1  coverage 1  
+<a2ui>
+root = Column([email, password, sign_in])
+email = TextField("Email", $/user/email)
+password = TextField("Password", $/user/password)
+sign_in = Button(sign_in_label, "primary", Event("signIn"))
+sign_in_label = Text("Sign In")
+</a2ui>
+
+=== a2ui_express / grammar / room  valid 0  coverage 1  DateTimeInput date: value is the bare name 'undefined', not a value
+<a2ui>
+root = Row([date, time, room, confirm, cancel])
+date = DateTimeInput(value=undefined, enableDate=true, enableTime=false, min=undefined, max=undefined, label="Date")
+time = DateTimeInput(value=undefined, enableDate=false, enableTime=true, min=undefined, max=undefined, label="Time")
+room = ChoicePicker(label="Room", variant="default", options=[{label: "Atlas", value: "Atlas"}, {label: "Borealis", value: "Borealis"}, {label: "Cedar", value: "Cedar"}], value="")
+confirm = Button(confirm_label, "primary", Event("confirm_meeting"))
+confirm_label = Text("Confirm")
+cancel = Button(cancel_label, "default", Event("cancel_meeting"))
+cancel_label = Text("Cancel")
+</a2ui>
+
+=== a2ui_express / grammar / plan  valid 0  coverage 1  the id continue is used twice
+<a2ui>
+root = Row([plan, continue])
+plan = ChoicePicker("Choose a plan", "default", [{label: "Basic", value: "basic"}, {label: "Pro", value: "pro"}, {label: "Team", value: "team"}])
+continue = Button("Continue", "primary", Event("continue"))
+continue = Text("Continue")
+</a2ui>
+
+=== a2ui_express / grammar / order  valid 0  coverage 0  TextField quantity lacks value missing 'total'
+<a2ui>
+root = Column([item, quantity, total, pay_now, back])
+item = Text("Item")
+quantity = TextField("Quantity")
+total = Text("$")
+pay_now = Button("Pay now", "primary", Event("pay"))
+back = Button("Back", "default", Event("back"))
+</a2ui>
+
+=== a2ui_express / grammar / contact  valid 0  coverage 1  Button send: its child is not a defined component
+<a2ui>
+root = Column([name, email, message, send])
+name = TextField("Name", $/form/name)
+email = TextField("Email", $/form/email)
+message = TextField("Message", $/form/message)
+send = Button("Send", "primary", Event("send_form"))
+send_label = Text("Send")
+</a2ui>
+
+=== a2ui_express / grammar / delete  valid 0  coverage 0  Button delete: its child is not a defined component missing 'report.pdf'
+<a2ui>
+root = Row([delete, cancel])
+delete = Button("Delete", "primary", Event("delete_report"))
+cancel = Button("Cancel", "default", Event("cancel"))
+</a2ui>
+
+=== a2ui_express / grammar / settings  valid 0  coverage 0  Button save: its child is not a defined component missing 'save'
+<a2ui>
+root = Row([email_notifications, dark_mode, save])
+email_notifications = CheckBox("Email notifications", $/settings/email_notifications)
+dark_mode = CheckBox("Dark mode", $/settings/dark_mode)
+save = Button("Save", Event("save_settings"))
+</a2ui>
+
+=== a2ui_express / grammar / rating  valid 0  coverage 1  the id rating is used twice
+<a2ui>
+root = Row([rating, comment, submit])
+rating = Text("Rate the support")
+rating = TextField("Rate (1-5)", $/rating)
+comment = TextField("Leave a comment", $/comment)
+submit = Button("Submit", "primary", Event("submit"))
+submit_label = Text("Submit")
+</a2ui>
+
+=== a2ui_express / grammar / search  valid 0  coverage 1  ChoicePicker status_filter: variant 'default' is not one of its values
+<a2ui>
+root = Column([search_box, status_filter, search_button])
+search_box = TextField("Search", $/search)
+status_filter = ChoicePicker("Status", "default", [{label: "Open", value: "open"}, {label: "Closed", value: "closed"}], $/status)
+search_button = Button("Search", "primary", Event("search"))
+</a2ui>
+
+=== a2ui_express / grammar / expense  valid 0  coverage 0  TextField note lacks value missing '120'
+<a2ui>
+root = Row([approve, reject, note])
+approve = Button(approve_label, "primary", Event("approve_expense"))
+approve_label = Text("Approve")
+reject = Button(reject_label, "primary", Event("reject_expense"))
+reject_label = Text("Reject")
+note = TextField("Note", _)
+</a2ui>
+
+=== a2ui_express / grammar / address  valid 0  coverage 1  the id title is used twice
+<a2ui>
+root = Row([address1, address2, add_new])
+address1 = Card([title, street, city, state, zip])
+title = Text("Delivery Address")
+street = TextField("Street Address")
+city = TextField("City")
+state = TextField("State")
+zip = TextField("ZIP Code")
+address2 = Card([title, street, city, state, zip])
+title = Text("Alternate Delivery Address")
+street = TextField("Alternate Street Address")
+city = TextField("Alternate City")
+state = TextField("Alternate State")
+zip = TextField("Alternate ZIP Code")
+add_new = Button("Add New Address", "primary", Event("add_new_address"))
+add_new_address = Text("Add New Address")
+</a2ui>
+
+=== a2ui_express / grammar / failed  valid 0  coverage 1  Button contact: variant 'secondary' is not one of its values
+<a2ui>
+root = Row([error, retry, contact])
+error = Text("Payment failed: Please try again or contact support.")
+retry = Button(retry_label, "primary", Event("retry_payment"))
+retry_label = Text("Retry")
+contact = Button(contact_label, "secondary", Event("contact_support"))
+contact_label = Text("Contact Support")
+</a2ui>
+
+=== a2ui_express / free / signin  valid 1  coverage 1  
+<a2ui>
+root = Column([email, password, sign_in])
+email = TextField("Email", $/user/email)
+password = TextField("Password", $/user/password)
+sign_in = Button(sign_in_label, "primary", Event("signIn"))
+sign_in_label = Text("Sign In")
+</a2ui>
+
+=== a2ui_express / free / room  valid 0  coverage 0  not a sentence of the format's syntax
+<a2ui>
+root = Row([date, time, room, confirm, cancel])
+date = DateTimeInput(value= $/meeting/date, enableDate, enableTime, min= $/date/year, max= $/date/year)
+time = DateTimeInput(value= $/meeting/time, enableDate, enableTime, min= $/time/hour, max= $/time/hour)
+room = ChoicePicker("Room", "primary", [{"Atlas", "Borealis", "Cedar"}], $/meeting/room)
+confirm = Button("Confirm", "primary", Event("confirm_meeting"))
+cancel = Button("Cancel", "default", Event("cancel_meeting"))
+</a2ui>
+
+=== a2ui_express / free / plan  valid 0  coverage 1  the id continue is used twice
+<a2ui>
+root = Row([plan, continue])
+plan = ChoicePicker("Choose a plan", "default", [{"label": "Basic", "value": "basic"}, {"label": "Pro", "value": "pro"}, {"label": "Team", "value": "team"}], $/plan)
+continue = Button("Continue", "primary", Event("continue"))
+continue = Text("Continue")
+</a2ui>
+
+=== a2ui_express / free / order  valid 0  coverage 0  not a sentence of the format's syntax
+<a2ui>
+root = Column([item, quantity, total, pay_now, back])
+item = Text("Item")
+quantity = TextField("Quantity")
+total = Text("$" + $/order/total)
+pay_now = Button("Pay now", "primary", Event("pay"))
+back = Button("Back", "default", Event("back"))
+</a2ui>
+
+=== a2ui_express / free / contact  valid 0  coverage 0  the component message is a TextArea, which the catalogue does not hold missing 'message'
+<a2ui>
+root = Column([name, email, message, send])
+name = TextField("Name", $/form/name)
+email = TextField("Email", $/form/email)
+message = TextArea("Message", $/form/message)
+send = Button("Send", "primary", Event("send_form"))
+send_label = Text("Send")
+</a2ui>
+
+=== a2ui_express / free / delete  valid 0  coverage 0  Button delete: its child is not a defined component missing 'report.pdf'
+<a2ui>
+root = Row([delete, cancel])
+delete = Button("Delete", "primary", Event("delete_report"))
+cancel = Button("Cancel", "default", Event("cancel"))
+</a2ui>
+
+=== a2ui_express / free / settings  valid 0  coverage 0  Button save: its child is not a defined component missing 'save'
+<a2ui>
+root = Row([email_notifications, dark_mode, save])
+email_notifications = CheckBox("Email notifications", $/settings/email_notifications)
+dark_mode = CheckBox("Dark mode", $/settings/dark_mode)
+save = Button("Save", Event("save_settings"))
+</a2ui>
+
+=== a2ui_express / free / rating  valid 0  coverage 0  not a sentence of the format's syntax
+<
+
+=== a2ui_express / free / search  valid 0  coverage 1  ChoicePicker status_filter: variant 'default' is not one of its values
+<a2ui>
+root = Column([search_box, status_filter, search_button])
+search_box = TextField("Search", $/search)
+status_filter = ChoicePicker("Status", "default", [{"label": "Open", "value": "open"}, {"label": "Closed", "value": "closed"}], $/status)
+search_button = Button("Search", "primary", Event("search"))
+</a2ui>
+
+=== a2ui_express / free / expense  valid 0  coverage 0  TextField note lacks value missing '120'
+<a2ui>
+root = Row([approve, reject, note])
+approve = Button(approve_label, "primary", Event("approve_expense"))
+approve_label = Text("Approve")
+reject = Button(reject_label, "primary", Event("reject_expense"))
+reject_label = Text("Reject")
+note = TextField("Note", _)
+</a2ui>
+
+=== a2ui_express / free / address  valid 0  coverage 1  statement add_new_address is an event, not a component
+<a2ui>
+root = Row([address1, address2, add_new])
+address1 = Card([title, street, city, state, zip])
+title = Text("Delivery Address")
+street = TextField("Street Address")
+city = TextField("City")
+state = TextField("State")
+zip = TextField("ZIP Code")
+address2 = Card([title, street, city, state, zip])
+title = Text("Alternate Delivery Address")
+street = TextField("Alternate Street Address")
+city = TextField("Alternate City")
+state = TextField("Alternate State")
+zip = TextField("Alternate ZIP Code")
+add_new = Button("Add New Address", "primary", Event("add_new_address"))
+add_new_address = Event("add_new_address")
+</a2ui>
+
+=== a2ui_express / free / failed  valid 0  coverage 1  Button contact: variant 'secondary' is not one of its values
+<a2ui>
+root = Row([error, retry, contact])
+error = Text("Payment failed: Please try again or contact support.")
+retry = Button(retry_label, "primary", Event("retry_payment"))
+retry_label = Text("Retry")
+contact = Button(contact_label, "secondary", Event("contact_support"))
+contact_label = Text("Contact Support")
+</a2ui>
+

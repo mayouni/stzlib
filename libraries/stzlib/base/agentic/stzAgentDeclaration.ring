@@ -283,13 +283,13 @@ func StzAgentDeclarationFromFileQ(pcPath)
 #   see        stzDeclaredPIAgent, stzDeclaredLLMAgent, stzDeclaredSkill, stzGovernance
 class stzAgentDeclaration from stzObject
 
-	@cText = ""
+	@tText = ""
 	@cSource = ""
 	@aFindings = []
 	@bValid = 0
 	@nVer = 0
 
-	@cName = ""
+	@tName = ""
 	@cKind = "pi"
 	@cCoverage = ""
 	@cRev = ""
@@ -312,7 +312,7 @@ class stzAgentDeclaration from stzObject
 	#              IsValid says no
 	#   see        IsValid, CiteFindings, ToAgent
 	def init(pcText, pcSource)
-		@cText = "" + pcText
+		@tText = "" + pcText
 		@cSource = "" + pcSource
 		@aSchedule = [ :mode = "", :timer = 0, :channel = "" ]
 		@aGov = [ :authority = "", :risks = [], :grants = [] ]
@@ -355,7 +355,7 @@ class stzAgentDeclaration from stzObject
 	#   returns    a text; the empty text when the declaration has none
 	#   see        Kind
 	def Name_()
-		return @cName
+		return @tName
 
 	# Returns the declared kind of agent: pi, which acts, or llm, which only proposes.
 	#
@@ -457,7 +457,7 @@ class stzAgentDeclaration from stzObject
 		if @bValid = 0
 			return "REFUSED (" + @cSource + "):" + char(10) + This.CiteFindings()
 		ok
-		_c_ = "agent '" + @cName + "' -- kind " + @cKind +
+		_c_ = "agent '" + @tName + "' -- kind " + @cKind +
 			", " + @cRev + ", " + len(@aSkills) + " skill(s)" + char(10)
 		_c_ += "  covers: " + @cCoverage + char(10)
 		if @aSchedule[:mode] = "timer"
@@ -479,7 +479,7 @@ class stzAgentDeclaration from stzObject
 
 	def _Judge()
 		@aFindings = []
-		_aP_ = _StzOutputParseMemo(@cText)
+		_aP_ = _StzOutputParseMemo(@tText)
 		if _aP_[:ok] = 0
 			@aFindings + _StzPiaFinding("pia-parse", "(the whole file)",
 				"this is not a readable declaration: " + _aP_[:why])
@@ -544,9 +544,9 @@ class stzAgentDeclaration from stzObject
 
 	def _JudgeIdentity(paDoc)
 		if HasKey(paDoc, "name")
-			@cName = StzLower(ring_trim("" + paDoc[:name]))
+			@tName = StzLower(ring_trim("" + paDoc[:name]))
 		ok
-		if @cName = ""
+		if @tName = ""
 			@aFindings + _StzPiaFinding("pia-name", "name",
 				"an agent needs a name -- it is how the host supervises it, " +
 				"cancels it and retires it.")
@@ -1126,7 +1126,7 @@ class stzAgentDeclaration from stzObject
 		ok
 		_aIn_ = This._Clause(_cInput_, "when", "proposes.input")
 		if _cInto_ = ""
-			_cInto_ = @cName
+			_cInto_ = @tName
 		ok
 		if _nBudget_ < 1
 			@aFindings + _StzPiaFinding("pia-proposes", "proposes.budget",
@@ -1230,7 +1230,7 @@ class stzAgentDeclaration from stzObject
 			if @aSkills[_i_][:effect] != ""
 				@aFindings + _StzPiaFinding("no-llm-effectful",
 					"skills." + @aSkills[_i_][:name] + ".effect",
-					"REFUSED: granting 'effectful' to llm actor '" + @cName +
+					"REFUSED: granting 'effectful' to llm actor '" + @tName +
 					"' -- an LLM proposes, only a pi-gate commits " +
 					"(no-llm-effectful, enforced at CONSTRUCTION, not merely " +
 					"audited).")
@@ -1282,7 +1282,7 @@ class stzAgentDeclaration from stzObject
 	# objects to functions by reference, which is why a skill's clause can
 	# write through the poMemory it is handed.
 	def _ToPiAgent()
-		_oAg_ = new stzDeclaredPIAgent(@cName)
+		_oAg_ = new stzDeclaredPIAgent(@tName)
 		_oAg_.SetDeclared(@cCoverage, @cRev)
 
 		_n_ = len(@aMemory)
@@ -1298,10 +1298,10 @@ class stzAgentDeclaration from stzObject
 		_aG_ = @aGov[:grants]
 		_n_ = len(_aG_)
 		for _i_ = 1 to _n_
-			_oAg_.GovernanceQ().GrantPermission(@cName, _aG_[_i_])
+			_oAg_.GovernanceQ().GrantPermission(@tName, _aG_[_i_])
 		next
 		if @aGov[:authority] != ""
-			_oAg_.GovernanceQ().SetAuthority(@cName, @aGov[:authority])
+			_oAg_.GovernanceQ().SetAuthority(@tName, @aGov[:authority])
 		ok
 
 		_n_ = len(@aSkills)
@@ -1319,7 +1319,7 @@ class stzAgentDeclaration from stzObject
 		# CONTRACT 6 (ruling 3.2): the file's reversibility class lands in
 		# the agent's OWN governance table, not only in the loop gate's
 		# answer -- so R4b can be asked how undoable this agent's work is.
-		_oAg_.GovernanceQ().DeclareReversibility(@cName, @cRev)
+		_oAg_.GovernanceQ().DeclareReversibility(@tName, @cRev)
 
 		# ...and every ring: function's declared execution posture (5.8),
 		# so MayExecute / MayExecuteFor answer for the code the file names.
@@ -1340,7 +1340,7 @@ class stzAgentDeclaration from stzObject
 		return _oAg_
 
 	def _ToLlmAgent()
-		_oAg_ = new stzDeclaredLLMAgent(@cName)
+		_oAg_ = new stzDeclaredLLMAgent(@tName)
 		_oAg_.SetDeclared(@cCoverage, @cRev)
 		_n_ = len(@aMemory)
 		for _i_ = 1 to _n_

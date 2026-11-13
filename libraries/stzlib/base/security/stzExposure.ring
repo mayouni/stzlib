@@ -46,12 +46,12 @@ func StzForgetListeners()
 	$aStzListeners = []
 
 # The engine folder of the library's SOURCE tree -- vendor/, tools/ and src/ --
-# which is not $cEngineDir when STZ_ENGINE_DIR names a built copy elsewhere.
+# which is not $tEngineDir when STZ_ENGINE_DIR names a built copy elsewhere.
 func StzSourceEngineDir()
-	if isglobal("$cStzLibDir") and $cStzLibDir != "" and fexists($cStzLibDir + "/engine/stk_string.ring")
-		return $cStzLibDir + "/engine"
+	if isglobal("$tStzLibDir") and $tStzLibDir != "" and fexists($tStzLibDir + "/engine/stk_string.haro")
+		return $tStzLibDir + "/engine"
 	ok
-	return $cEngineDir
+	return $tEngineDir
 
 func StzExposureQ()
 	return new stzExposure()
@@ -304,22 +304,23 @@ class stzExposure from stzObject
 
 	  #-- internals ------------------------------------------------------------
 
-	# the loaded domains: every $pStz<Name>Handle global that is not null
+	# the loaded domains: every $hStz<Name>Handle global that is not null ($pStz before
+	# the .haro move renamed the handles, 2026-11-11; both are read)
 	def _ReadDomains()
 		@aDomains = []
 		_aG_ = globals()
 		_n_ = len(_aG_)
 		for _i_ = 1 to _n_
 			_g_ = StzLower(_aG_[_i_])
-			if left(_g_, 4) = "$pst" and right(_g_, 6) = "handle" and StzIsPlainIdentifier(right(_aG_[_i_], len(_aG_[_i_]) - 1))
+			if (left(_g_, 4) = "$pst" or left(_g_, 4) = "$hst") and right(_g_, 6) = "handle" and StzIsPlainIdentifier(right(_aG_[_i_], len(_aG_[_i_]) - 1))
 				_v_ = eval("return " + _aG_[_i_])
 				if NOT (isString(_v_) and _v_ = "")
 					if isPointer(_v_) or isNumber(_v_)
-						_g_ = _aG_[_i_]                       # $pStzCryptoHandle -> crypto
+						_g_ = _aG_[_i_]                       # $hStzCryptoHandle -> crypto
 						_cN_ = StzLower(left(right(_g_, len(_g_) - 5), len(_g_) - 11))
-						# the core's own libraries ($pStkStringHandle) are named stk_<name>:
+						# the core's own libraries ($hStkStringHandle) are named stk_<name>:
 						# read as "string" they were counted twice (W7b, 2026-11-05)
-						if StzLower(left(_g_, 5)) = "$pstk"  _cN_ = "stk_" + _cN_  ok
+						if StzLower(left(_g_, 5)) = "$pstk" or StzLower(left(_g_, 5)) = "$hstk"  _cN_ = "stk_" + _cN_  ok
 						@aDomains + _cN_
 					ok
 				ok
