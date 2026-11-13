@@ -213,11 +213,8 @@ func _NcRingExe()
 	return StzInterpreterPath()
 
 func _NcBaseRing()
-	_nc_nSlash_ = 0
-	_nc_nBl_ = StzLen($tEngineDir)
-	for _nc_iB_ = 1 to _nc_nBl_
-		if $tEngineDir[_nc_iB_] = "/"
-			_nc_nSlash_ = _nc_iB_
-		ok
-	next
-	return StzLeft($tEngineDir, _nc_nSlash_ - 1) + "/base/stzBase.ring"
+	# 2026-11-13: this walked back one segment from $tEngineDir to reach the tree,
+	# which only works while the engine sits inside it. Haro's is built outside.
+	# SECURITY-ENGINEDIR-PATHS-01, the second shape of it. Not named in the report
+	# -- found by sweeping the class rather than the four sites it listed.
+	return _StzBaseDir() + "/stzBase.ring"

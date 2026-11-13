@@ -345,15 +345,11 @@ class stzLoadDriver from stzObject
 		return StzInterpreterPath()
 
 	def _DeriveStzBasePath()
-		_nSlash_ = 0
-		_nL_ = len($tEngineDir)
-		for _i_ = 1 to _nL_
-			if $tEngineDir[_i_] = "/"
-				_nSlash_ = _i_
-			ok
-		next
-		_cRoot_ = StzLeft($tEngineDir, _nSlash_ - 1)
-		return _cRoot_ + "/base/stzBase.ring"
+		# 2026-11-13: this walked back one segment from $tEngineDir to reach the
+		# tree, which only works while the engine sits inside it. Haro's is built
+		# outside, so both generated children were given a stzBase.ring that is not
+		# there. SECURITY-ENGINEDIR-PATHS-01, the second shape of it.
+		return _StzBaseDir() + "/stzBase.ring"
 
 	# The target child: /health + a /work handler burning nBusyMs of
 	# CPU on the monotonic clock (real service demand, not a sleep --

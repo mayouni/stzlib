@@ -454,11 +454,8 @@ class stzNodeApp from stzObject
 		return cFile
 
 	def _BaseRing()
-		_nBrSlash_ = 0
-		_nBrLen_ = StzLen($tEngineDir)
-		for _iBr_ = 1 to _nBrLen_
-			if $tEngineDir[_iBr_] = "/"
-				_nBrSlash_ = _iBr_
-			ok
-		next
-		return StzLeft($tEngineDir, _nBrSlash_ - 1) + "/base/stzBase.ring"
+		# 2026-11-13: this walked back one segment from $tEngineDir to reach the
+		# tree, which only works while the engine sits inside it. Haro's is built
+		# outside. SECURITY-ENGINEDIR-PATHS-01, the second shape of it. Not named
+		# in the report -- found by sweeping the class rather than the four sites.
+		return _StzBaseDir() + "/stzBase.ring"

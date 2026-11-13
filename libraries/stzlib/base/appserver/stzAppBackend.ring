@@ -1146,14 +1146,12 @@ class stzAppBackend from stzObject
 		return _StzBaseDir() + "/appserver/.stzbackend_" + pcTag + "_" + @tName
 
 	def _StzBasePath()
-		_nSlash_ = 0
-		_nL_ = len($tEngineDir)
-		for _i_ = 1 to _nL_
-			if $tEngineDir[_i_] = "/"
-				_nSlash_ = _i_
-			ok
-		next
-		return StzLeft($tEngineDir, _nSlash_ - 1) + "/base/stzBase.ring"
+		# 2026-11-13: this walked back one segment from $tEngineDir to reach the
+		# tree. With the engine built outside it -- Haro's is -- that yields
+		# <engine parent>/base/stzBase.ring, which does not exist, so every
+		# generated child script loaded a path that is not there.
+		# SECURITY-ENGINEDIR-PATHS-01, the second shape of it.
+		return _StzBaseDir() + "/stzBase.ring"
 
 	# The ring interpreter running US -- so the child is the same build.
 	def _RingExecutable()

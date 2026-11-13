@@ -921,13 +921,11 @@ class stzAppCluster from stzObject
 		return StzInterpreterPath()
 
 	def _DeriveStzBasePath()
-		_nSlash_ = 0
-		_nL_ = len($tEngineDir)
-		for _i_ = 1 to _nL_
-			if $tEngineDir[_i_] = "/"  _nSlash_ = _i_  ok
-		next
-		_cRoot_ = StzLeft($tEngineDir, _nSlash_ - 1)      # .../stzlib
-		return _cRoot_ + "/base/stzBase.ring"
+		# 2026-11-13: this walked back one segment from $tEngineDir to reach the
+		# tree, which only works while the engine sits inside it. Haro's is built
+		# outside, so the worker script was given a stzBase.ring that is not there.
+		# SECURITY-ENGINEDIR-PATHS-01, the second shape of it.
+		return _StzBaseDir() + "/stzBase.ring"
 
 	# The worker entry: a standalone stzAppServer tagged with its profile,
 	# serving /health + /work, self-terminating on its TTL. Generated
