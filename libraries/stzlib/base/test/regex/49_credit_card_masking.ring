@@ -12,7 +12,9 @@ pr()
 
 cText = "Card numbers: 4111-1111-1111-1111 and 4111111111111111"
 
-o1 = new stzRegex("")
+# 2026-11-13: was new stzRegex(""), which the constructor refuses, so nothing in
+# this file ran and its promises were being charged as divergences.
+o1 = new stzRegex("(?:\d{4}[-\s]?){4}")
 
 # Validate card format
 

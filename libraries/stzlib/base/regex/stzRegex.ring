@@ -212,15 +212,36 @@ class stzRegex from stzObject
 	#
 	#   returns    nothing; the object changes
 	#   note       a pattern holding a line break turns on the multi-line flag
-	#   warning    an empty pattern is accepted and one that fails to compile is accepted silently
-	#              (IsValid answers FALSE); the stored text and match kind of the last match are
-	#              kept
+	#   note       an empty pattern is refused here, exactly as init refuses one
+	#   warning    a pattern that fails to compile is accepted silently (IsValid answers FALSE);
+	#              the stored text and match kind of the last match are kept
 	#   see        Pattern, IsValid, init
 	def SetPattern(pcPattern)
 		if CheckParams()
 			if NOT isString(pcPattern)
 				StzRaise("Incorrect param type! pcPattern must be a string.")
 			ok
+		ok
+
+		# 2026-11-13: init has always refused an empty pattern and this accepted
+		# one, so the object REFUSED AT BIRTH A STATE IT ALLOWED ONE LINE LATER:
+		#
+		#     o = new stzRegex("")   # refused
+		#     o = new stzRegex("x")
+		#     o.SetPattern("")       # accepted
+		#
+		# and the state is useless when you reach it. Measured on haro.exe with an
+		# empty pattern set this way: Match("any text will match") answers 0,
+		# Match("") answers 0, MatchFirst("abc") answers 0. The object reports
+		# success and then silently answers no to everything, which is the facade
+		# shape the contract work has been removing all week.
+		#
+		# So the two halves agree now, and they agree the way init already did.
+		# No library path can reach this: the only callers are init, guarded
+		# above, and the two word verbs, which restore a pattern that was legal
+		# when they took it.
+		if @trim(pcPattern) = ""
+			StzRaise("Can't set the pattern! You must provide a non-empty pattern string.")
 		ok
 
 		if @pRegexHandle != ""

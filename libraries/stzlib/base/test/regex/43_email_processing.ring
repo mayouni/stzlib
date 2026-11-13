@@ -13,7 +13,9 @@ pr()
 emailText = "Contact us at support@example.com or john.doe+label@sub.domain.co.uk
 Invalid emails: missing@domain, @nodomain.com, just.text"
 
-o = new stzRegex("")
+# 2026-11-13: was new stzRegex(""), which the constructor refuses, so nothing in
+# this file ran and its promises were being charged as divergences.
+o = new stzRegex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
 
 # Basic email validation
 
