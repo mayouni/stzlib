@@ -11,7 +11,9 @@ pr()
 
 txt = "Hello World"
 
-o = new stzRegex("")
+# 2026-11-13: was new stzRegex(""), which the constructor refuses, so nothing in
+# this file ran and its promises were being charged as divergences.
+o = new stzRegex("hello world")
 o.SetPattern("hello world")
 
 # Case sensitive (default)

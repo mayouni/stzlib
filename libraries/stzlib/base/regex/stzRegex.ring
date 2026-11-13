@@ -212,15 +212,36 @@ class stzRegex from stzObject
 	#
 	#   returns    nothing; the object changes
 	#   note       a pattern holding a line break turns on the multi-line flag
-	#   warning    an empty pattern is accepted and one that fails to compile is accepted silently
-	#              (IsValid answers FALSE); the stored text and match kind of the last match are
-	#              kept
+	#   note       an empty pattern is refused here, exactly as init refuses one
+	#   warning    a pattern that fails to compile is accepted silently (IsValid answers FALSE);
+	#              the stored text and match kind of the last match are kept
 	#   see        Pattern, IsValid, init
 	def SetPattern(pcPattern)
 		if CheckParams()
 			if NOT isString(pcPattern)
 				StzRaise("Incorrect param type! pcPattern must be a string.")
 			ok
+		ok
+
+		# 2026-11-13: init has always refused an empty pattern and this accepted
+		# one, so the object REFUSED AT BIRTH A STATE IT ALLOWED ONE LINE LATER:
+		#
+		#     o = new stzRegex("")   # refused
+		#     o = new stzRegex("x")
+		#     o.SetPattern("")       # accepted
+		#
+		# and the state is useless when you reach it. Measured on haro.exe with an
+		# empty pattern set this way: Match("any text will match") answers 0,
+		# Match("") answers 0, MatchFirst("abc") answers 0. The object reports
+		# success and then silently answers no to everything, which is the facade
+		# shape the contract work has been removing all week.
+		#
+		# So the two halves agree now, and they agree the way init already did.
+		# No library path can reach this: the only callers are init, guarded
+		# above, and the two word verbs, which restore a pattern that was legal
+		# when they took it.
+		if @trim(pcPattern) = ""
+			StzRaise("Can't set the pattern! You must provide a non-empty pattern string.")
 		ok
 
 		if @pRegexHandle != ""
@@ -486,15 +507,27 @@ class stzRegex from stzObject
 	# Searches the text for the pattern as a whole word, by wrapping the pattern in word boundaries; TRUE if it occurs.
 	#
 	#   returns    TRUE or FALSE (1 or 0)
-	#   note       call SetPattern again to get the original back
-	#   warning    the pattern is replaced for good by its word-bounded form, and each further call
-	#              adds another pair of boundaries: "pre" becomes \bpre\b, then \b\bpre\b\b
+	#   note       the pattern is unchanged when the call returns
 	#   see        MatchFirstWordIn, MatchFirst
 	def MatchWordsIn(pcStr)
-		_cWordPattern_ = "\b" + This.Pattern() + "\b"
-		This.SetPattern(_cWordPattern_)
-		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
-		return _nKind_ = 1
+		# 2026-11-12: this used to SetPattern the word-bounded form and LEAVE IT
+		# THERE, so the object came back changed and a second call anchored the
+		# anchors. Measured on haro.exe, calling it three times on "pre":
+		#
+		#   pre  ->  \bpre\b  ->  \b\bpre\b\b  ->  \b\b\bpre\b\b\b
+		#
+		# and every one of those calls still answered TRUE, which is why nothing
+		# ever failed and the warning that used to stand here described the defect
+		# as if it were the contract.
+		#
+		# A frame named at the call site must not outlive the call -- the same
+		# principle that rules out ambient state everywhere else in the paradigm.
+		# The original is restored before returning.
+		cOriginalPattern = This.Pattern()
+		This.SetPattern("\b" + cOriginalPattern + "\b")
+		nKind = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
+		This.SetPattern(cOriginalPattern)
+		return nKind = 1
 
 		def MatchWord(pcStr)
 			return This.MatchWordsIn(pcStr)
@@ -502,15 +535,18 @@ class stzRegex from stzObject
 	# Searches the text for the pattern as a whole word, by wrapping the pattern in word boundaries; TRUE if it occurs.
 	#
 	#   returns    TRUE or FALSE (1 or 0)
-	#   note       call SetPattern again to get the original back
-	#   warning    the pattern is replaced for good by its word-bounded form, and each further call
-	#              adds another pair of boundaries
+	#   note       the pattern is unchanged when the call returns
 	#   see        MatchWordsIn, MatchFirst
 	def MatchFirstWordIn(pcStr)
-		_cWordPattern_ = "\b" + This.Pattern() + "\b"
-		This.SetPattern(_cWordPattern_)
-		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
-		return _nKind_ = 1
+		# Same repair as MatchWordsIn, 2026-11-12. This verb carried the identical
+		# mutation, so two calls to EITHER of them compound, and one call to each
+		# compounds too. The brief that reported it had it right: this class of
+		# defect rarely occurs alone.
+		cOriginalPattern = This.Pattern()
+		This.SetPattern("\b" + cOriginalPattern + "\b")
+		nKind = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
+		This.SetPattern(cOriginalPattern)
+		return nKind = 1
 
 		def MatchFirstWord(pcStr)
 			return This.MatchFirstWordIn(pcStr)
@@ -526,15 +562,45 @@ class stzRegex from stzObject
 		def MatchSegment(pcStr)
 			return This.MatchSegmentsIn(pcStr)
 
-	# Searches the text for the pattern, with . crossing line breaks and ^ and $ binding at each line; TRUE if it occurs.
+	# Searches the text for the pattern within ONE segment, stopping at the first close rather than running to the last; TRUE if it occurs.
 	#
 	#   returns    TRUE or FALSE (1 or 0)
+	#   note       this is the LAZY half of the segment scope. Over
+	#              "<div>First</div><div>Second</div>" the pattern "<div>.*</div>" matches the
+	#              FIRST div here, where MatchSegmentsIn matches both
+	#   note       MatchOneSegmentIn and MatchOneSegment are the same call, and are the names
+	#              SCOPE_ORIENTED_PROGRAMMING.md and the regex deepdive give this act
 	#   see        MatchSegmentsIn, MatchLinesIn, MatchFirst
 	def MatchFirstSegmentIn(pcStr)
-		_nKind_ = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :DotMatchesAll, :MultiLine ])
-		return _nKind_ = 1
+		# 2026-11-12: this was BYTE-IDENTICAL to MatchSegmentsIn -- both passed
+		# [ :DotMatchesAll, :MultiLine ] -- so the segment scope's whole stated
+		# payoff, "greedy vs lazy by verb, not by ?", was a comment rather than
+		# something the library acted on. :NonGreedy sat in the option table and
+		# the compile switch and was passed by NO scope verb at all.
+		#
+		# The engine always supported it: flag 16 maps to PCRE2_UNGREEDY, and the
+		# flags take effect because MatchXT recompiles when they change. Measured
+		# on haro.exe over "<p>First</p><p>Second</p>" with "<p>.*</p>",
+		# CapturedLength answers 25 greedy and 12 with :NonGreedy -- the whole
+		# text against the first paragraph. So the document was right and the code
+		# lagged by one option, rather than the document over-promising.
+		nKind = This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [ :DotMatchesAll, :MultiLine, :NonGreedy ])
+		return nKind = 1
 
 		def MatchFirstSegment(pcStr)
+			return This.MatchFirstSegmentIn(pcStr)
+
+		# The names the design document (:108) and the deepdive (:117, :141) use
+		# for this act. ONE and FIRST are not synonyms: one names how far a single
+		# match extends, first names which occurrence you get. The act performed
+		# here is the first of those, so MatchOneSegment is the better name for it
+		# -- and it is the one the published example reaches for. Both names reach
+		# the same call; neither is deprecated, because MatchFirstSegment is what
+		# the shipped tests already use.
+		def MatchOneSegmentIn(pcStr)
+			return This.MatchFirstSegmentIn(pcStr)
+
+		def MatchOneSegment(pcStr)
 			return This.MatchFirstSegmentIn(pcStr)
 
 	# TRUE if the pattern matches the whole text from the first character to the last; a text that merely contains a match gives FALSE.

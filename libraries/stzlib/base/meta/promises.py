@@ -17,8 +17,23 @@
 
 import io, os, re, subprocess, sys, collections
 
-RING = "D:/ring127/bin/ring.exe"
+# 2026-11-12: this named D:/ring127/bin/ring.exe, and ring.exe CANNOT LOAD THIS
+# LIBRARY any more. base/faculty/stzModelRegistry.ring:286 calls `call` on an
+# indexed expression, which is valid Haro and invalid Ring 1.27, so every test
+# raised at load and the harness could only report that nothing ran. haro.exe is
+# the runtime (PRINCIPAL-NORING-01) and needs STZ_ENGINE_DIR pointing at a
+# Haro-ABI engine build -- stzlib's own zig-out is a PLAIN-Ring build and has no
+# rpp_init export, so it cannot be used here. Both are read from the environment
+# first, so a desk whose engine sits elsewhere does not edit this file.
+RUNNER = os.environ.get("STZ_RUNNER", "D:/GitHub/haro/vm/zig-out/bin/haro.exe")
+ENGINE_DIR = os.environ.get("STZ_ENGINE_DIR", "D:/GitHub/haro/runtime/engine")
+
 TOPIC = sys.argv[1] if len(sys.argv) > 1 else "char"
+
+# The tree THIS FILE lives in, so a worktree measures its own files. ROOT used to
+# name D:/GitHub/stzlib absolutely, so a run from a worktree silently graded the
+# main checkout and reported it as the worktree's own result.
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # A topic name, or an explicit directory. The second form exists so the
 # harness can be pointed at a scratch folder of DELIBERATELY WRONG promises
@@ -26,9 +41,18 @@ TOPIC = sys.argv[1] if len(sys.argv) > 1 else "char"
 if ':' in TOPIC or '/' in TOPIC or os.path.isdir(TOPIC):
     ROOT = TOPIC
 else:
-    ROOT = "D:/GitHub/stzlib/libraries/stzlib/base/test/" + TOPIC
+    ROOT = os.path.join(BASE_DIR, "test", TOPIC)
 
 TRAILING = re.compile(r'^\s*\?.*?#-->\s*(.+?)\s*$')
+
+# The STANDALONE form -- the promise on its own line, under the ? line that
+# produced the output. It is the form this library mostly uses: measured
+# 2026-11-12 across base/test, 6,249 standalone against 1,320 trailing, with
+# 2,433 files annotated in the standalone form ONLY. Until that date this
+# harness matched TRAILING alone, so it read about one promise in six and
+# skipped 2,433 files in silence.
+ALONE = re.compile(r'^\s*#-->\s*(.+?)\s*$')
+QLINE = re.compile(r'^\s*\?')
 
 # A promise that argues with itself is a NOTE, not an expectation.
 #
@@ -157,18 +181,62 @@ def expectations(path):
         # is not prose in any way a keyword list would catch ("Leads to a
         # normal Ring list" contains nothing suspicious). The SHAPE is what
         # gives it away, so the shape is what is read.
+        # ...and the old code stopped there, skipping the label and then never
+        # reading the value underneath it, so a labelled promise was dropped
+        # ENTIRELY rather than read correctly. The standalone branch below now
+        # picks that value up, which is what this comment always claimed.
         nxt = lines[i + 1].strip() if i + 1 < len(lines) else ''
         if nxt.startswith('#-->'):
             continue
 
         out.append((i + 1, m.group(1)))
+
+    # THE STANDALONE FORM, which is most of this library.
+    #
+    # A promise on its own line belongs to the nearest ? line above it, across
+    # any other standalone lines in between -- several in a row are one
+    # multi-line expected output, and each is kept in order because the walk
+    # downstream is an ordered subsequence match.
+    #
+    # A #--> that is NOT under a ? line is left alone: the design documents and
+    # the module headers use the same arrow in prose, and reading those as
+    # promises would invent divergences the library never made.
+    for i, l in enumerate(lines):
+        a = ALONE.match(l)
+        if not a:
+            continue
+
+        # A COMMENTED-OUT CALL IS NOT A PROMISE. One file writes
+        #
+        #     ? rx.Names()
+        #     #--> ? rx.RecursiveNames()
+        #     #--> [ "outermost", "middle", "innermost" ]
+        #
+        # where the first arrow carries a LINE OF CODE somebody parked, and the
+        # second carries the value. Read literally the parked call diverges every
+        # time. Exactly one site in the library does this (2026-11-12, all
+        # topics), so this is a shape rule and not a workaround for many files.
+        if a.group(1).lstrip().startswith('?'):
+            continue
+
+        j = i - 1
+        while j >= 0 and ALONE.match(lines[j]):
+            j -= 1
+        if j < 0 or not QLINE.match(lines[j]):
+            continue
+
+        out.append((i + 1, a.group(1)))
+
+    out.sort(key=lambda pair: pair[0])
     return out
 
 
 def run(path):
     try:
-        p = subprocess.run([RING, os.path.basename(path)], cwd=os.path.dirname(path),
-                           capture_output=True, timeout=120)
+        env = dict(os.environ)
+        env["STZ_ENGINE_DIR"] = ENGINE_DIR
+        p = subprocess.run([RUNNER, os.path.basename(path)], cwd=os.path.dirname(path),
+                           capture_output=True, timeout=120, env=env)
         return (p.stdout + p.stderr).decode('utf-8', 'replace').replace('\r\n', '\n').split('\n')
     except subprocess.TimeoutExpired:
         return None
@@ -177,6 +245,7 @@ def run(path):
 matched = missing = 0
 timeouts = []
 didnotrun = []
+unread = []
 notreached = 0
 raisedfiles = {}
 annotated = 0
@@ -188,6 +257,15 @@ for fn in files:
     path = os.path.join(ROOT, fn)
     exp = expectations(path)
     if not exp:
+        # "NO PROMISES THIS EXTRACTOR COULD READ" IS NOT "NO PROMISES", and the
+        # bare `continue` that used to stand here made the difference invisible.
+        # Measured 2026-11-12: the regex topic has 50 files carrying #--> and this
+        # harness reported "files with expectations : 5". Estate-wide, 2,433 test
+        # files annotate ONLY in the standalone form, which TRAILING cannot match.
+        # A run that grades 5 of 50 and prints a clean summary is a green nobody
+        # earned, so the count is reported below whatever the cause.
+        if '#-->' in io.open(path, encoding='utf-8', errors='replace').read():
+            unread.append(fn)
         continue
     out = run(path)
     if out is None:
@@ -230,7 +308,25 @@ for fn in files:
     # -- and the twenty expectations under it were never reached. Counting them
     # as divergences turns ONE finding into twenty and buries it. The raise is
     # the finding; everything after it is unknown, not wrong.
-    raised = re.search(r'Error \(R[0-9]+\)[^\n]*', chr(10).join(out))
+    # ...AND THE LIBRARY'S OWN RAISE IS A RAISE TOO, which this missed until
+    # 2026-11-12. StzRaise prints its message on a "Line NNNN ..." line and a
+    # trace through stzraise(), with NO Error (R...) code anywhere, so the test
+    # above answered no and every promise under a StzRaise was reported as a
+    # DIVERGENCE -- the exact confusion the paragraph above says is worse than
+    # having no harness, committed by the harness that says it.
+    #
+    # Found while classifying the regex topic: 29_test_2_case_sensitivity and
+    # 30_test_3_greedy_vs_non-greedy both open with `new stzRegex("")`, which the
+    # constructor has refused since it was tightened to demand a non-empty
+    # pattern. Nothing in either file ran, and their promises were being counted
+    # as broken rather than unreached.
+    _joined_out = chr(10).join(out)
+    raised = re.search(r'Error \(R[0-9]+\)[^\n]*', _joined_out)
+    if not raised and re.search(r'in function stzraise\(\)', _joined_out, re.I):
+        # The trace proves the raise; the "Line NNNN <message>" line above it is
+        # what a reader needs, so prefer it and fall back to the trace itself.
+        raised = (re.search(r'^Line [0-9]+ (?!Error)\S.*$', _joined_out, re.M)
+                  or re.search(r'In function stzraise\(\)[^\n]*', _joined_out, re.I))
 
     pos = 0
     for lineno, raw in exp:
@@ -367,6 +463,10 @@ if timeouts:
     print("  timed out (not checked) : %d  %s" % (len(timeouts), ', '.join(safe(x) for x in timeouts[:4])))
 if didnotrun:
     print("  DID NOT COMPILE         : %d  %s" % (len(didnotrun), ', '.join(safe(x) for x in didnotrun[:4])))
+if unread:
+    print("  PROMISES NOT READ       : %d files carry #--> that this extractor could not parse" % len(unread))
+    print("                            (standalone '#--> v' on its own line; TRAILING matches only '? expr  #--> v')")
+    print("                            %s" % ', '.join(safe(x) for x in unread[:6]))
     print("     (nothing ran in these -- they are not divergences)")
 if raisedfiles:
     print("  RAISED part-way        : %d files, %d expectations never reached" % (len(raisedfiles), notreached))

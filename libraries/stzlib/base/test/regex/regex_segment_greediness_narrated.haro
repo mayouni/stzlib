@@ -1,0 +1,77 @@
+load "../../stzBase.ring"
+load "../_narrated.ring"
+
+# "Greedy vs lazy by verb, not by ?" -- the segment scope's stated payoff, and for
+# a long time a comment.
+#
+# SCOPE_ORIENTED_PROGRAMMING.md:108 names two verbs for the segment scope,
+# MatchSegment() and MatchOneSegment(), and promises the verb chooses the
+# greediness. The code had MatchSegmentsIn and MatchFirstSegmentIn BYTE-IDENTICAL,
+# both passing [ :DotMatchesAll, :MultiLine ], and :NonGreedy was passed by no
+# scope verb at all -- so M4's own example of a scope the library computes with was
+# the one row where it did not.
+#
+# TWO SHIPPED TESTS ASSERTED THE INTENT AND COULD NOT SEE IT. 30_test_3 and
+# 35_test_3 both call the greedy verb and the lazy verb and assert #--> TRUE for
+# each. Both arms are TRUE whichever way the flag goes, so the pair passes
+# unchanged over a library that implements neither. The extent is the whole
+# question, and a boolean cannot carry it -- which is why every assertion below is
+# a SPAN.
+#
+# Spans measured on haro.exe, 2026-11-12, over a 33-character text.
+
+Scenario("1. The verb chooses the greediness, and the spans differ")
+
+	tTxt = "<div>First</div><div>Second</div>"
+
+	# 1, not true: these verbs come from a .ring file, where `return nKind = 1`
+	# yields a NUMBER, and Haro compares types (v0.61).
+	oGreedy = new stzRegex("<div>.*</div>")
+	Then("the greedy verb matches at all", oGreedy.MatchSegmentsIn(tTxt), 1)
+	Then("and spans the whole text, both divs", oGreedy.CapturedLength(), 33)
+
+	oLazy = new stzRegex("<div>.*</div>")
+	Then("the lazy verb matches at all", oLazy.MatchFirstSegmentIn(tTxt), 1)
+	Then("and stops at the first close", oLazy.CapturedLength(), 16)
+
+EndScenario()
+
+Scenario("2. The names the design document uses reach the lazy act")
+
+	tTxt = "<div>First</div><div>Second</div>"
+
+	oOneIn = new stzRegex("<div>.*</div>")
+	oOneIn.MatchOneSegmentIn(tTxt)
+	Then("MatchOneSegmentIn, the documented verb", oOneIn.CapturedLength(), 16)
+
+	oOne = new stzRegex("<div>.*</div>")
+	oOne.MatchOneSegment(tTxt)
+	Then("MatchOneSegment, as the deepdive writes it", oOne.CapturedLength(), 16)
+
+EndScenario()
+
+Scenario("3. What must NOT have moved -- the controls")
+
+	tTxt = "<div>First</div><div>Second</div>"
+
+	# The cheap way to make scenario 1 pass would be to make the GREEDY verb lazy
+	# as well, or to let the lazy flag leak into the other scopes. Both are caught
+	# here.
+
+	oStillGreedy = new stzRegex("<div>.*</div>")
+	oStillGreedy.MatchSegment(tTxt)
+	Then("MatchSegment, the alias, is still greedy", oStillGreedy.CapturedLength(), 33)
+
+	oWhole = new stzRegex("<div>.*</div>")
+	oWhole.MatchFirst(tTxt)
+	Then("the whole-string scope is untouched and still greedy", oWhole.CapturedLength(), 33)
+
+	oPat = new stzRegex("<div>.*</div>")
+	oPat.MatchFirstSegmentIn(tTxt)
+	Then("and the lazy verb leaves the pattern as it found it",
+		oPat.Pattern(), "<div>.*</div>")
+
+EndScenario()
+
+Summary()
+Shutdown($_zst_fail)

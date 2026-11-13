@@ -43,6 +43,7 @@
 #   StzEngineGpuOpSpmm(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nK)         Y = A X, X ncols x nK row-major
 #   StzEngineGpuSimulateDeviceLoss() -> 1 when a device destroyed under the engine was noticed: a test of the recovery path, not for production (GT3)
 #   StzEngineGpuCloseHooks(0) -> device-close hooks registered; (1) -> registrations dropped because the registry was full (must be 0) (GT3)
+#   StzEngineGpuProcessMemory(n) -> this process's GPU memory in bytes AS WINDOWS COUNTS IT (n 0 dedicated, 1 shared, 2 committed); -1 when unavailable: the outside witness (GT3b)
 # OUT buffers must be distinct from inputs (WebGPU aliasing validation).
 #
 # Kernel binding contract (every kernel compiled through this layer):
@@ -495,7 +496,7 @@ func StzGpuSaveCalibration(pxOps)
 	for i = 1 to nL
 		nT = StzEngineGpuCalibGet(pxOps[i])
 		if nT > 0
-			tOut += pxOps[i] + Char(9) + nT + Char(10)
+			tOut += pxOps[i] + Char(9) + String(nT) + Char(10)
 		end
 	end
 	if tOut = ""
@@ -506,21 +507,21 @@ func StzGpuSaveCalibration(pxOps)
 	for i = 1 to nS
 		xR = $vStzGpuCalibShaped_[i]
 		if Find(pxOps, xR[1]) > 0 and xR[4] > 0
-			tOut += "shape" + Char(9) + xR[1] + Char(9) + xR[2] + Char(9) + xR[3] + Char(9) + xR[4] + Char(10)
+			tOut += "shape" + Char(9) + xR[1] + Char(9) + String(xR[2]) + Char(9) + String(xR[3]) + Char(9) + String(xR[4]) + Char(10)
 		end
 	end
 	nS = Len($vStzGpuCalibLadder_)
 	for i = 1 to nS
 		xR = $vStzGpuCalibLadder_[i]
 		if Find(pxOps, xR[1]) > 0
-			tOut += "ladder" + Char(9) + xR[1] + Char(9) + xR[2] + Char(9) + xR[3] + Char(9) + xR[4] + Char(9) + xR[5] + Char(10)
+			tOut += "ladder" + Char(9) + xR[1] + Char(9) + String(xR[2]) + Char(9) + String(xR[3]) + Char(9) + String(xR[4]) + Char(9) + String(xR[5]) + Char(10)
 		end
 	end
 	nS = Len($vStzGpuVariants_)
 	for i = 1 to nS
 		xR = $vStzGpuVariants_[i]
 		if Find(pxOps, xR[1]) > 0 and xR[5] > 0
-			tOut += "variant" + Char(9) + xR[1] + Char(9) + xR[2] + Char(9) + xR[3] + Char(9) + xR[4] + Char(9) + xR[5] + Char(10)
+			tOut += "variant" + Char(9) + xR[1] + Char(9) + String(xR[2]) + Char(9) + String(xR[3]) + Char(9) + String(xR[4]) + Char(9) + String(xR[5]) + Char(10)
 		end
 	end
 	Write(StzGpuCalibFileDefault(), tOut)

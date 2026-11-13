@@ -8870,18 +8870,43 @@ class stzNumber from stzObject
 
 		# Managing round
 
-		_cFractionalPart_ = _cNewFractionalPart_
+		# 2026-11-12: this assignment used to run UNCONDITIONALLY, and the value it assigns
+		# is built just above from _nNumberOfDigitsInFractionalPart_ -- which DEFAULTS TO 0,
+		# meaning "no precision was asked for". With that default the test at 8872 is 0 <= 2,
+		# true, so the loop runs ZERO times and _cNewFractionalPart_ stays empty. This line
+		# then replaced the correct fractional part, computed earlier from the number itself,
+		# with "".
+		#
+		# So every decimal formatted without an explicit precision option lost its fraction:
+		# stzNumber(1234.56).Format() answered +1.234. It also made :FractionalSeparator look
+		# ignored, because the branch that places the separator is guarded by
+		# _cFractionalPart_ != "" and could never fire.
+		#
+		# The recomputation is a RESTRICTION, so it applies only when one was requested.
+		if _nNumberOfDigitsInFractionalPart_ > 0
+			_cFractionalPart_ = _cNewFractionalPart_
+		ok
 
+		# _cFractionalSeparator_ is the variable the OPTION writes. These emit
+		# sites used to read `cFractionalSep`, assigned nowhere in this method or
+		# anywhere else, so :FractionalSeparator was read into one name and a
+		# different, empty one was printed.
+		#
+		# That was HALF the defect, and naming it alone would have fixed nothing
+		# visible: the guard below tests _cFractionalPart_ != "", which the
+		# unconditional overwrite above always made false. Both had to go, and
+		# each hid the other -- with the separator empty the output looked like a
+		# missing separator, and with the fraction empty the option looked ignored.
 		if NOT _bRounded_ #TODO // review the round() mechanism! #DONE
 			if _cFractionalPart_ != ""
-				_cFormattedNumber_ += (cFractionalSep + _cFractionalPart_)
+				_cFormattedNumber_ += (_cFractionalSeparator_ + _cFractionalPart_)
 			ok
 		else
 			_oTempNumber_ = new stzNumber(This.RoundTo(_nRoundTo_))
 
 			if _oTempNumber_.FractionalPartWithoutZerodot() != ""
 
-				_cFormattedNumber_ += cFractionalSep
+				_cFormattedNumber_ += _cFractionalSeparator_
 
 				if _nNumberOfDigitsInFractionalPart_ <= len(_oTempNumber_.FractionalPartWithoutZerodot())
 					for _i_ = 1 to _nNumberOfDigitsInFractionalPart_
@@ -8963,7 +8988,7 @@ class stzNumber from stzObject
 		ok
 
 		if _oNumber_.FractionalPart() != ""
-			_cNumber_ += cFractionalSep + _oNumber_.FractionalPartWithoutZerodot()
+			_cNumber_ += _cFractionalSeparator_ + _oNumber_.FractionalPartWithoutZerodot()
 		ok
 
 		if bPercent = 1

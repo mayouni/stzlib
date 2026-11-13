@@ -55,7 +55,9 @@ pf()
 
 pr()
 
-o1 = new stzRegex("")
+# 2026-11-13: was new stzRegex(""), which the constructor refuses, so nothing in
+# this file ran from here down and its promises were being charged as divergences.
+o1 = new stzRegex("(\+\d{1,3}[-. ])?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}")
 
 cPhoneText = "Call me at +1 (555) 123-4567 or 555.123.8901 or 5551234567"
 

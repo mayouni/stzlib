@@ -107,6 +107,32 @@ Softanza names four scopes and puts them in the verb:
 | word | `MatchWord()` | `\b` boundaries automatic; `.` stays within a word |
 | segment | `MatchSegment()` / `MatchOneSegment()` | multi-line structure; greedy vs lazy by verb, not by `?` |
 
+**The segment row was a comment until 2026-11-12, and this note stays because a
+plan records its outcomes.** `MatchSegment()` and the lazy verb were
+byte-identical in `base/regex/stzRegex.ring` — both passed
+`[ :DotMatchesAll, :MultiLine ]` — and the `:NonGreedy` option existed in the
+option table and the compile switch while no scope verb passed it. So the one row
+M4 cites as the paradigm's clearest demonstration was the one row where the scope
+was not acted on, for as long as the instance has shipped.
+
+It is implemented now, and the claim above is measured rather than asserted: over
+a 33-character `<div>First</div><div>Second</div>` with the pattern
+`<div>.*</div>`, `MatchSegmentsIn` spans 33 and `MatchOneSegmentIn` spans 16.
+Guard: `base/test/regex/regex_segment_greediness_narrated.haro`.
+
+Two shipped tests had asserted this intent and could not see it — both called the
+greedy verb and the lazy verb and asserted only that each found *a* match, which
+is true whichever way the greediness goes. **A scope that selects behaviour cannot
+be guarded by a boolean**; the assertion has to name the extent. That is the
+transferable lesson for the next instance adopting M4, and it cost nothing to
+learn here only because the engine already supported the flag.
+
+`MatchOneSegment()` is the name this document and the regex deepdive use, and it
+is the better one: *one* names how far a single match extends, *first* names which
+occurrence you get, and this verb does the former. The code also carries
+`MatchFirstSegment()` for the same call, since that is what its own tests call.
+Neither is deprecated.
+
 The payoff (from the regex deepdive): clearer intent, fewer concepts, more
 maintainable and self-documenting patterns, and a natural mapping from problem
 to scope (log line -> `MatchLine`, HTML block -> `MatchSegment`, token ->

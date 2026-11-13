@@ -1,0 +1,111 @@
+#!/bin/sh
+# pre-commit -- the secret gate on exactly what is being committed
+# (SECRETNAME-SWEEP-01 (1); the Principal's ruling PRINCIPAL-SECRETNAME-01 / SECRETNAME-GATE-01).
+#
+# Reads the STAGED content of every added, copied, modified, renamed or retyped file -- the
+# bytes the commit will hold, not the working tree -- with secret_spill.haro taken from
+# stzlib's origin/main, and stops the commit when:
+#   - a spill is found          (SPILL <file>:<line> <shape> (<n> chars) -- never the value)
+#   - a staged file was not read (the count of files read and binary files differs from the
+#                                 staged count)
+#   - the gate cannot run       (no haro, no secret_spill, the run crashed)
+# A gate that could not run never passes in silence.
+#
+# A spill is a candidate: read each one. When every one is a reference or a fixture and not
+# a secret, commit again with the count you read:
+#     SECRET_SPILL_READ=<n> git commit ...
+# The gate passes only when <n> equals the spills found now, so one more spill stops it again.
+#
+# Configuration -- machine-local, so no path on this machine is written in a public file.
+# Each is a git config key (set once with --global) or the environment variable beside it:
+#     secretgate.haro      HARO_EXE      haro.exe; default: haro on PATH
+#     secretgate.stzlib    STZLIB        a stzlib clone; the gate reads origin/main from it
+#     secretgate.script    SECRET_SPILL  a secret_spill.haro file, used when no stzlib is named
+# In stzlib itself, origin/main of this repository is used.
+#
+# Install: copy this file to .git/hooks/pre-commit (or set core.hooksPath to its folder).
+
+say() { printf '%s\n' "secret gate: $*" >&2; }
+
+cfg() { # git config key, then environment variable
+    v=$(git config --get "$1" 2>/dev/null)
+    [ -n "$v" ] || v=$(eval "printf '%s' \"\${$2:-}\"")
+    printf '%s' "$v"
+}
+
+# --- the staged set: every file whose staged content the commit will hold --------------
+list=$(git rev-parse --git-path secret-gate.list) || exit 1
+git diff --cached --name-only -z --diff-filter=ACMRT --ignore-submodules=all >"$list" || {
+    say "could not read the staged set"; rm -f "$list"; exit 1; }
+nstaged=$(tr -cd '\0' <"$list" | wc -c | tr -d ' ')
+if [ "$nstaged" -eq 0 ]; then rm -f "$list"; exit 0; fi
+
+# --- the runtime and the check ----------------------------------------------------------
+haro=$(cfg secretgate.haro HARO_EXE)
+[ -n "$haro" ] || haro=$(command -v haro 2>/dev/null || command -v haro.exe 2>/dev/null)
+if [ -z "$haro" ]; then
+    say "STOPPED -- no haro.exe (set secretgate.haro or HARO_EXE); the gate did not run"
+    rm -f "$list"; exit 1
+fi
+
+work=$(git rev-parse --git-path "secret-gate.$$") || exit 1
+rm -rf "$work"; mkdir -p "$work/staged" || exit 1
+trap 'rm -rf "$work" "$list"' EXIT
+
+spill="$work/secret_spill.haro"
+rel=libraries/stzlib/base/security/secret_spill.haro
+stzlib=$(cfg secretgate.stzlib STZLIB)
+if [ -n "$stzlib" ]; then
+    # git sets GIT_DIR (and GIT_INDEX_FILE) for a hook; they would point -C at this repository
+    (unset GIT_DIR GIT_INDEX_FILE GIT_WORK_TREE GIT_COMMON_DIR GIT_OBJECT_DIRECTORY
+     git -C "$stzlib" show "origin/main:$rel") >"$spill" 2>/dev/null
+elif git cat-file -e "origin/main:$rel" 2>/dev/null; then
+    git show "origin/main:$rel" >"$spill"
+else
+    script=$(cfg secretgate.script SECRET_SPILL)
+    [ -n "$script" ] && cp "$script" "$spill" 2>/dev/null
+fi
+if [ ! -s "$spill" ]; then
+    say "STOPPED -- no secret_spill.haro (set secretgate.stzlib, STZLIB or SECRET_SPILL); the gate did not run"
+    exit 1
+fi
+
+# --- the staged bytes, at their own paths -----------------------------------------------
+git checkout-index -z --stdin --prefix="$work/staged/" <"$list" || {
+    say "STOPPED -- could not write the staged content out"; exit 1; }
+
+# --- the run ------------------------------------------------------------------------------
+out="$work/out"
+"$haro" "$spill" "$work/staged" >"$out" 2>&1
+code=$?
+# the paths it prints are the staged copies: show them as the repository's own paths
+sed -E -e "s#^(SPILL|SKIP) .*secret-gate\.$$[/\\\\]staged[/\\\\]#\1 #" -e '/^(SPILL|SKIP) /s#\\#/#g' "$out" >&2
+
+summary=$(grep '^files read ' "$out" | tail -n 1)
+if [ -z "$summary" ]; then
+    say "STOPPED -- secret_spill did not finish (exit $code); the gate did not run"
+    exit 1
+fi
+nread=$(printf '%s' "$summary" | sed -n 's/^files read \([0-9]*\),.*/\1/p')
+nbin=$(printf '%s' "$summary" | sed -n 's/.*binary files skipped in folders \([0-9]*\).*/\1/p')
+nspill=$(printf '%s' "$summary" | sed -n 's/.*, spills \([0-9]*\),.*/\1/p')
+
+if [ $((nread + nbin)) -ne "$nstaged" ]; then
+    say "STOPPED -- $nstaged files staged, $nread read and $nbin binary: a staged file was not read"
+    exit 1
+fi
+if [ "$code" -ge 254 ] || [ "$code" -lt 0 ]; then
+    say "STOPPED -- secret_spill exited $code"
+    exit 1
+fi
+if [ "$nspill" -gt 0 ]; then
+    if [ "${SECRET_SPILL_READ:-}" = "$nspill" ]; then
+        say "passed -- $nspill candidate(s) read and declared not secrets (SECRET_SPILL_READ=$nspill); $nstaged staged, $nread read, $nbin binary"
+        exit 0
+    fi
+    say "STOPPED -- $nspill candidate(s) above. Read each one: a typed secret is removed and named instead"
+    say "  (\$NAME, \$env:NAME, a file read at run time). If none is a secret: SECRET_SPILL_READ=$nspill git commit ..."
+    exit 1
+fi
+say "passed -- $nstaged staged, $nread read, $nbin binary, no spill"
+exit 0

@@ -12,7 +12,9 @@ pr()
 txt = "Start: Line1
 End: Line2"
 
-o = new stzRegex("")
+# 2026-11-13: was new stzRegex(""), which the constructor refuses, so nothing in
+# this file ran and its promises were being charged as divergences.
+o = new stzRegex("^End:.*$")
 o.SetPattern("^End:.*$") # ^ only matches start of string
 
 # Without MultiLine

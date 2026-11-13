@@ -15,7 +15,9 @@ logText = "
 2024-01-12 10:15:35 [INFO] Retry attempt 1
 2024-01-12 10:15:40 [ERROR] Connection refused"
 
-o1 = new stzRegex("")
+# 2026-11-13: was new stzRegex(""), which the constructor refuses, so nothing in
+# this file ran and its promises were being charged as divergences.
+o1 = new stzRegex("^.*\[ERROR\].*$")
 
 # Match error lines
 o1.SetPattern("^.*\[ERROR\].*$")

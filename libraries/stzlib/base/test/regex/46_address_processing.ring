@@ -15,7 +15,9 @@ addressText = "John Doe
 New York, NY 10001
 USA"
 
-o1 = new stzRegex("")
+# 2026-11-13: was new stzRegex(""), which the constructor refuses, so nothing in
+# this file ran and its promises were being charged as divergences.
+o1 = new stzRegex("\d{5}(-\d{4})?")
 
 # Match ZIP code
 
