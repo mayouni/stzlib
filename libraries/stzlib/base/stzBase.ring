@@ -639,6 +639,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "security/stzAdvisoryFeed.ring"
     load "security/stzExposureResponder.ring"
     load "security/stzCredentialBroker.haro"   # an agent names a credential; the engine attaches it (CREDBROKER-01)
+    load "security/stzPiaCheck.haro"           # what a .pia agent file says, judged at load (PIACHECK-01)
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
@@ -992,6 +993,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     # agents as FILES: the .pia declaration, its court, and the folder
     # convention. A front-end onto the classes above -- no new runtime.
     load "agentic/stzAgentDeclaration.ring"
+    load "agentic/stzFactSource.haro"           # where an agent's fact came from (SPILLWAY part A)
     load "agentic/stzAgentFolder.ring"
     # the roster: the estate's own PowerShell mechanisms as ring:
     # functions behind softanza/roster/*.pia (prompt 46). A front-end

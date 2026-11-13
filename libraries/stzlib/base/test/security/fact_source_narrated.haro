@@ -1,0 +1,128 @@
+# WHERE A FACT CAME FROM -- LOOKOUT-W45-SPILLWAY-01 part A, narrated
+#
+# An agent's memory records a :source on every fact. Until part A the library wrote every fact
+# with the default, agent:<name>; a seed fact, a model's proposal and a read were the same to
+# anyone asking. This guard shows the library's writes saying which they are.
+#
+#   Scene 1  a declaration's seed facts read declared:<where the declaration came from>
+#   Scene 2  a model's proposed fields read model:<agent> -- untrusted free text
+#   Scene 3  a read from a typed identity field reads read:<reader>:<kind>; a body is refused as a kind
+#   Scene 4  the four shapes classified, and which a target may come from
+#   Scene 5  the first source of a fact stays: a model repeating a seeded fact does not demote it
+#   Scene 6  nothing else moved: a plain Learn still reads agent:<name>
+#
+# RUNS ON haro.exe with the library; STZ_ENGINE_DIR names a built engine. No model: the proposal
+# is seeded and validated exactly as a generated one is.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+
+Scenario("1. seed facts are the declaration's")
+oPi = StzAgentDeclarationQ(PiText()).ToAgent()
+Then("a seed fact from text", SourceOf(oPi, "stock", "level", "low"), "declared:(text)")
+tFile = "../agentic/agents/kitchen-bot.pia"
+oPiF = StzAgentDeclarationFromFileQ(tFile).ToAgent()
+Then("a seed fact from a file names the file", SourceOf(oPiF, "stock", "level", "low"), "declared:" + tFile)
+
+Scenario("2. a model's fields are the model's")
+oLlm = StzAgentDeclarationQ(LlmText("")).ToAgent()
+oLlm.SeedProposal("hello-world", "topic: greeting" + Char(10) + "mood: positive")
+Then("one tick proposes", oLlm.Cycle(), 1)
+Then("the proposed topic reads model:summarizer", SourceOf(oLlm, "summary", "topic", "greeting"), "model:summarizer")
+Then("so does the mood", SourceOf(oLlm, "summary", "mood", "positive"), "model:summarizer")
+Then("the agent's own seed fact is still declared", SourceOf(oLlm, "inbox", "holds", "hello-world"), "declared:(text)")
+Then("a model's field is not admissible as a target", StzFactSourceIsAdmissible(SourceOf(oLlm, "summary", "topic", "greeting")), false)
+
+Scenario("3. a read from a typed identity field")
+StzAgentLearnRead(oPi.MemoryQ(), "customer", "email", "ada@example.org", "ReadOrders", "email")
+Then("the memory passed in is the agent's own", oPi.MemoryQ().Fact("customer", "email", "ada@example.org"), 1)
+Then("it reads read:ReadOrders:email", SourceOf(oPi, "customer", "email", "ada@example.org"), "read:ReadOrders:email")
+Then("it is admissible as a target", StzFactSourceIsAdmissible(SourceOf(oPi, "customer", "email", "ada@example.org")), true)
+Then("a body is not an identity field: refused", ReadKindRefused("body"), true)
+Then("negative sibling: a host is one", ReadKindRefused("Host"), false)
+
+Scenario("4. the four shapes")
+Then("declared", StzFactSourceClass("declared:a.pia"), "declared")
+Then("read", StzFactSourceClass("read:R:uri"), "read")
+Then("model", StzFactSourceClass("model:x"), "model")
+Then("agent", StzFactSourceClass("agent:x"), "agent")
+Then("a caller's own is other", StzFactSourceClass("sensor-3"), "other")
+Then("'declaredx:' is not declared", StzFactSourceClass("declaredx:a"), "other")
+Then("only declared and read are admissible", Admissible(["declared:a", "read:R:uri", "model:x", "agent:x", "sensor-3"]), "1 1 0 0 0")
+
+Scenario("5. the first source stays")
+oBoth = StzAgentDeclarationQ(LlmText("  - summary topic greeting" + Char(10))).ToAgent()
+oBoth.SeedProposal("hello-world", "topic: greeting" + Char(10) + "mood: negative")
+Then("the tick proposes", oBoth.Cycle(), 1)
+Then("a model repeating a seeded fact leaves it declared", SourceOf(oBoth, "summary", "topic", "greeting"), "declared:(text)")
+Then("the field it added is the model's", SourceOf(oBoth, "summary", "mood", "negative"), "model:summarizer")
+
+Scenario("6. nothing else moved")
+oPi.MemoryQ().Learn("shelf", "holds", "flour")
+Then("a plain Learn still reads agent:<name>", SourceOf(oPi, "shelf", "holds", "flour"), "agent:kitchen-bot")
+
+? ""
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+func SourceOf(oAgent, tS, tP, tO)
+    vM = oAgent.MemoryQ().ProvenanceOf(tS, tP, tO)
+    if Len(vM) = 0
+        return "(no such fact)"
+    end
+    return vM[:source]
+end
+
+func ReadKindRefused(tKind)
+    try
+        StzFactSourceRead("R", tKind)
+    catch
+        return true
+    end
+    return false
+end
+
+func Admissible(vSources)
+    tOut = ""
+    nN = Len(vSources)
+    for i = 1 to nN
+        if i > 1
+            tOut = tOut + " "
+        end
+        if StzFactSourceIsAdmissible(vSources[i])
+            tOut = tOut + "1"
+        else
+            tOut = tOut + "0"
+        end
+    end
+    return tOut
+end
+
+func PiText
+    return "pia: 1" + Char(10) + "name: kitchen-bot" + Char(10) + "kind: pi" + Char(10) + "coverage: watches stock levels" + Char(10) + "reversibility: compensable" + Char(10) + "schedule:" + Char(10) + "  timer: 20" + Char(10) + "memory:" + Char(10) + "  - stock level low" + Char(10) + "governance:" + Char(10) + "  authority: delegated" + Char(10) + "  risks:" + Char(10) + "    order-stock: 2" + Char(10) + "  grants:" + Char(10) + "    - order-stock" + Char(10) + "skills:" + Char(10) + "  - name: restock" + Char(10) + "    when: fact stock level low" + Char(10) + "    does: learn stock level ordered" + Char(10) + "    verify: fact stock level ordered" + Char(10) + "    effect: order-stock"
+end
+
+# the summarizer, with tExtraMemory added under its memory block
+func LlmText(tExtraMemory)
+    return "pia: 1" + Char(10) + "name: summarizer" + Char(10) + "kind: llm" + Char(10) + "coverage: proposes a topic and a mood for the inbox" + Char(10) + "reversibility: reversible" + Char(10) + "schedule:" + Char(10) + "  timer: 20" + Char(10) + "memory:" + Char(10) + "  - inbox holds hello-world" + Char(10) + tExtraMemory + "proposes:" + Char(10) + "  prompt: Summarize this text: {input}" + Char(10) + "  input: recall inbox holds" + Char(10) + "  into: summary" + Char(10) + "  budget: 2" + Char(10) + "  structure:" + Char(10) + "    - field: topic" + Char(10) + "      type: string" + Char(10) + "    - field: mood" + Char(10) + "      type: oneof" + Char(10) + "      choices: positive, negative"
+end
+
+func Scenario(tName)
+    ? ""
+    ? "SCENARIO: " + tName
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end
