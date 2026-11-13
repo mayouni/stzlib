@@ -1296,7 +1296,8 @@ class stzAgentDeclaration from stzObject
 
 		_n_ = len(@aMemory)
 		for _i_ = 1 to _n_
-			_oAg_.MemoryQ().Learn(@aMemory[_i_][1], @aMemory[_i_][2], @aMemory[_i_][3])
+			_oAg_.MemoryQ().LearnXT(@aMemory[_i_][1], @aMemory[_i_][2], @aMemory[_i_][3],
+				[ :source = StzFactSourceDeclared(@cSource) ])   # the governance wrote it (stzFactSource.haro)
 		next
 
 		_aR_ = @aGov[:risks]
@@ -1353,7 +1354,8 @@ class stzAgentDeclaration from stzObject
 		_oAg_.SetDeclared(@cCoverage, @cRev)
 		_n_ = len(@aMemory)
 		for _i_ = 1 to _n_
-			_oAg_.MemoryQ().Learn(@aMemory[_i_][1], @aMemory[_i_][2], @aMemory[_i_][3])
+			_oAg_.MemoryQ().LearnXT(@aMemory[_i_][1], @aMemory[_i_][2], @aMemory[_i_][3],
+				[ :source = StzFactSourceDeclared(@cSource) ])   # the governance wrote it (stzFactSource.haro)
 		next
 		_oAg_.SetProposal(@aProposes)
 		return _oAg_
@@ -1745,7 +1747,8 @@ class stzDeclaredLLMAgent from stzLLMAgent
 		_cInto_ = @aProp[:into]
 		_n_ = len(_aV_)
 		for _i_ = 1 to _n_
-			This.MemoryQ().Learn(_cInto_, "" + _aV_[_i_][1], "" + _aV_[_i_][2])
+			This.MemoryQ().LearnXT(_cInto_, "" + _aV_[_i_][1], "" + _aV_[_i_][2],
+				[ :source = StzFactSourceModel(This.Name_()) ])   # untrusted free text (stzFactSource.haro)
 		next
 		@nProposals++
 		@cWhyTick = "proposed " + _n_ + " field(s) into '" + _cInto_ +

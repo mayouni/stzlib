@@ -1,0 +1,86 @@
+# stzFactSource -- where an agent's fact came from (LOOKOUT-W45-SPILLWAY-01, part A).
+#
+# An agent's memory records a :source on every fact (stzAgentMemory.LearnXT). Until this module
+# every library write used the default, agent:<name>, so a fact the governance seeded, a field a
+# model proposed and a value read from the world could not be told apart. The library's writes
+# now say which they are, in four shapes:
+#
+#   declared:<file>          a seed fact written by the agent's .pia declaration -- the governance's
+#   model:<agent>            a field a language model proposed -- untrusted free text
+#   read:<reader>:<kind>     a value a read-only function took from a typed identity field
+#   agent:<name>             the memory's default: anything learned with no stated source
+#
+# StzFactSourceClass names the shape; StzFactSourceIsAdmissible answers whether a value from that
+# source may become the target of an effect under the target admission rule of
+# base/security/SOFTANZA_TARGET_ADMISSION_STUDY.md -- declared or read, and nothing else. No gate
+# asks it yet: this part records, it decides nothing.
+#
+#   oAgent.MemoryQ().LearnXT("customer", "email", tAddress, [[:source, StzFactSourceRead("ReadOrders", "email")]])
+#   StzAgentLearnRead(oAgent.MemoryQ(), "customer", "email", tAddress, "ReadOrders", "email")
+#   ? StzFactSourceClass(oAgent.MemoryQ().ProvenanceOf("customer", "email", tAddress)[:source])   # read
+
+# The typed identity fields a read may index -- the paper's identity formats and routing roles,
+# with the targets Softanza's sinks take (a path, a payee).
+func StzFactIdentityKinds
+    return ["email", "uri", "host", "ip", "uuid", "id", "phone", "path", "payee", "recipient", "sender", "participant", "channel"]
+end
+
+func StzFactSourceDeclared(tFile)
+    return "declared:" + tFile
+end
+
+func StzFactSourceModel(tAgent)
+    return "model:" + tAgent
+end
+
+# A read source names its reader and the kind of identity field the value came from; a kind
+# outside StzFactIdentityKinds raises -- a body, a subject or a description is not an identity.
+func StzFactSourceRead(tReader, tKind)
+    tK = Lower(Trim("" + tKind))
+    vK = StzFactIdentityKinds()
+    nN = Len(vK)
+    for i = 1 to nN
+        if vK[i] = tK
+            return "read:" + tReader + ":" + tK
+        end
+    end
+    StzRaise("stzFactSource: '" + tKind + "' is not a typed identity field; the kinds are " + StzFactKindsText() + ".")
+end
+
+func StzFactKindsText
+    vK = StzFactIdentityKinds()
+    tOut = ""
+    nN = Len(vK)
+    for i = 1 to nN
+        if i > 1
+            tOut = tOut + ", "
+        end
+        tOut = tOut + vK[i]
+    end
+    return tOut
+end
+
+# "declared", "read", "model", "agent", or "other" for a source in none of the four shapes
+# (a caller's own, such as "sensor-3").
+func StzFactSourceClass(tSource)
+    tS = "" + tSource
+    vC = ["declared", "read", "model", "agent"]
+    nN = Len(vC)
+    for i = 1 to nN
+        if Left(tS, Len(vC[i]) + 1) = vC[i] + ":"
+            return vC[i]
+        end
+    end
+    return "other"
+end
+
+func StzFactSourceIsAdmissible(tSource)
+    tC = StzFactSourceClass(tSource)
+    return tC = "declared" or tC = "read"
+end
+
+# Learns a fact a read-only function took from a typed identity field, with its read source.
+func StzAgentLearnRead(oMemory, tS, tP, tO, tReader, tKind)
+    oMemory.LearnXT(tS, tP, tO, [[:source, StzFactSourceRead(tReader, tKind)]])
+    return oMemory
+end
