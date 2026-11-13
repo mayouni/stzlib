@@ -359,7 +359,11 @@ class stzLoadDriver from stzObject
 	# CPU on the monotonic clock (real service demand, not a sleep --
 	# a sleeping handler would not saturate anything).
 	def _GenerateTargetScript()
-		@cTargetScript = $tEngineDir + "/../base/perf/.stzloadtarget_gen.ring"
+		# 2026-11-13: was $tEngineDir + "/../base/...". The engine is no longer inside
+		# the source tree -- Haro's is built outside it -- so walking up from it finds
+		# no base/. _StzBaseDir() asks the core, and falls back to the old derivation.
+		# SECURITY-ENGINEDIR-PATHS-01.
+		@cTargetScript = _StzBaseDir() + "/perf/.stzloadtarget_gen.ring"
 		_cNL_ = char(10)
 		_cW_ = 'load "' + @cBaseRing + '"' + _cNL_
 		_cW_ += '_a_ = sysargv' + _cNL_
@@ -385,7 +389,8 @@ class stzLoadDriver from stzObject
 	# monotonic clock ARRIVAL-TO-ANSWER (connect + queue wait +
 	# service), all durations printed for exact parent-side stats.
 	def _GenerateDriverScript()
-		@cDriverScript = $tEngineDir + "/../base/perf/.stzloaddriver_gen.ring"
+		# Same repair as _GenerateTargetScript above. SECURITY-ENGINEDIR-PATHS-01.
+		@cDriverScript = _StzBaseDir() + "/perf/.stzloaddriver_gen.ring"
 		_cNL_ = char(10)
 		_cW_ = 'load "' + @cBaseRing + '"' + _cNL_
 		_cW_ += '_a_ = sysargv' + _cNL_

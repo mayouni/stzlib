@@ -934,7 +934,11 @@ class stzAppCluster from stzObject
 	# (not shipped as a fixed file) so the absolute stzBase load is a
 	# compile-time literal regardless of the launch cwd.
 	def _GenerateWorkerScript()
-		@cWorkerScript = $tEngineDir + "/../base/cluster/.stzworker_gen.ring"
+		# 2026-11-13: was $tEngineDir + "/../base/...". The engine is no longer inside
+		# the source tree -- Haro's is built outside it -- so walking up from it finds
+		# no base/. _StzBaseDir() asks the core, and falls back to the old derivation.
+		# SECURITY-ENGINEDIR-PATHS-01.
+		@cWorkerScript = _StzBaseDir() + "/cluster/.stzworker_gen.ring"
 		_cNL_ = char(10)
 		_cW_ = 'load "' + @cBaseRing + '"' + _cNL_ +
 		       '_a_ = sysargv' + _cNL_ +

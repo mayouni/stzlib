@@ -1135,7 +1135,15 @@ class stzAppBackend from stzObject
 	# Both generated files sit beside this module, dot-prefixed, exactly where
 	# the cluster puts its generated worker.
 	def _ScratchPath(pcTag)
-		return $tEngineDir + "/../base/appserver/.stzbackend_" + pcTag + "_" + @tName
+		# 2026-11-13: was $tEngineDir + "/../base/appserver/...", which derives the
+		# SOURCE tree by walking up from the engine folder. That holds only while the
+		# engine sits inside the tree, and it no longer does: Haro's engine is built
+		# outside it (STZ_ENGINE_DIR names the copy, e.g. haro/runtime/engine), whose
+		# /../base does not exist. _StzBaseDir() asks the core for the tree it found
+		# from the library's own source files and falls back to the old derivation.
+		# Reported as SECURITY-ENGINEDIR-PATHS-01; same defect stzlib-docs found on
+		# 2026-11-05 in StzSelfDoc, stzSemanticResolver and stzEmulator.
+		return _StzBaseDir() + "/appserver/.stzbackend_" + pcTag + "_" + @tName
 
 	def _StzBasePath()
 		_nSlash_ = 0
