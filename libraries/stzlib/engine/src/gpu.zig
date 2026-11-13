@@ -40,6 +40,7 @@
 //! VM is the only caller.
 
 const std = @import("std");
+const builtin = @import("builtin");
 // pub: gpu_render.zig (GR1) must share THIS @cImport -- a second @cImport of
 // the same headers is a distinct type universe and nothing would assign.
 pub const c = @cImport({
@@ -1154,6 +1155,73 @@ pub fn stz_gpu_close_hooks(which: i32) callconv(.c) f64 {
     return @floatFromInt(n);
 }
 
+/// The OUTSIDE WITNESS (GT3b): this process's GPU memory as WINDOWS counts it, from the kernel's own per-process
+/// counters (the "GPU Process Memory" set, read with PDH), summed over every adapter the process touches. It does
+/// not ask the engine anything, so it can disagree with the engine's own count: an engine that says its buffers
+/// are flat while Windows says the process is growing has a leak the engine cannot see (wgpu's own allocations,
+/// a pool, a pipeline cache). which: 0 dedicated (memory on the card), 1 shared (system memory the GPU maps),
+/// 2 total committed. Bytes; 0 when Windows records no GPU memory for this process; -1 when the reading itself is
+/// unavailable (not Windows, PDH missing, the counter set absent) -- never a 0 for "unknown". About a millisecond
+/// or two: a test instrument, not a hot path. Learned from gputaskman (shanselman/gputaskman, MIT), which reads the
+/// same counters from outside every process.
+pub fn stz_gpu_process_memory(which: i32) callconv(.c) f64 {
+    if (which < 0 or which > 2) return -1;
+    if (builtin.os.tag == .windows) return pdhProcessMemory(which) else return -1;
+}
+
+const PdhItem = extern struct { name: ?[*:0]const u16, status: u32, value: extern union { long: i32, double: f64, large: i64 } };
+const PdhOpenQueryW_t = *const fn (?[*:0]const u16, usize, *?*anyopaque) callconv(.winapi) i32;
+const PdhAddEnglishCounterW_t = *const fn (?*anyopaque, [*:0]const u16, usize, *?*anyopaque) callconv(.winapi) i32;
+const PdhCollectQueryData_t = *const fn (?*anyopaque) callconv(.winapi) i32;
+const PdhGetFormattedCounterArrayW_t = *const fn (?*anyopaque, u32, *u32, *u32, ?[*]PdhItem) callconv(.winapi) i32;
+const PdhCloseQuery_t = *const fn (?*anyopaque) callconv(.winapi) i32;
+const PDH_MORE_DATA: i32 = @bitCast(@as(u32, 0x800007D2));
+const PDH_FMT_LARGE: u32 = 0x00000400;
+
+fn pdhProcessMemory(which: i32) f64 {
+    var lib = std.DynLib.open("pdh.dll") catch return -1;
+    defer lib.close();
+    const open = lib.lookup(PdhOpenQueryW_t, "PdhOpenQueryW") orelse return -1;
+    const add = lib.lookup(PdhAddEnglishCounterW_t, "PdhAddEnglishCounterW") orelse return -1;
+    const collect = lib.lookup(PdhCollectQueryData_t, "PdhCollectQueryData") orelse return -1;
+    const items = lib.lookup(PdhGetFormattedCounterArrayW_t, "PdhGetFormattedCounterArrayW") orelse return -1;
+    const close = lib.lookup(PdhCloseQuery_t, "PdhCloseQuery") orelse return -1;
+
+    var q: ?*anyopaque = null;
+    if (open(null, 0, &q) != 0) return -1;
+    defer _ = close(q);
+    const path = switch (which) {
+        0 => std.unicode.utf8ToUtf16LeStringLiteral("\\GPU Process Memory(*)\\Dedicated Usage"),
+        1 => std.unicode.utf8ToUtf16LeStringLiteral("\\GPU Process Memory(*)\\Shared Usage"),
+        else => std.unicode.utf8ToUtf16LeStringLiteral("\\GPU Process Memory(*)\\Total Committed"),
+    };
+    var h: ?*anyopaque = null;
+    if (add(q, path, 0, &h) != 0) return -1;
+    if (collect(q) != 0) return -1;
+
+    var size: u32 = 0;
+    var count: u32 = 0;
+    const first = items(h, PDH_FMT_LARGE, &size, &count, null);
+    if (first != PDH_MORE_DATA) return if (first == 0) 0 else -1; // 0 instances: nobody holds GPU memory
+    const buf = alloc.alignedAlloc(u8, .of(PdhItem), size) catch return -1;
+    defer alloc.free(buf);
+    const arr: [*]PdhItem = @ptrCast(buf.ptr);
+    if (items(h, PDH_FMT_LARGE, &size, &count, arr) != 0) return -1;
+
+    // instances are named pid_<pid>_luid_<hi>_<lo>_phys_<n>: one per adapter the process touches
+    var prefix_buf: [32]u8 = undefined;
+    const prefix = std.fmt.bufPrint(&prefix_buf, "pid_{d}_", .{std.os.windows.GetCurrentProcessId()}) catch return -1;
+    var total: f64 = 0;
+    for (arr[0..count]) |it| {
+        const name = it.name orelse continue;
+        if (it.status != 0) continue;
+        var k: usize = 0;
+        while (k < prefix.len and name[k] != 0 and name[k] == prefix[k]) : (k += 1) {}
+        if (k == prefix.len) total += @floatFromInt(it.value.large);
+    }
+    return total;
+}
+
 fn runCloseHooks() void {
     for (close_hooks) |h| {
         if (h) |f| f();
@@ -1895,6 +1963,16 @@ fn TestHook(comptime i: usize) *const fn () void {
             test_hook_hits += 1;
         }
     }.f;
+}
+
+test "the outside witness: a reading or -1, never a made-up zero; an unknown kind is -1" {
+    try std.testing.expectEqual(@as(f64, -1), stz_gpu_process_memory(3));
+    try std.testing.expectEqual(@as(f64, -1), stz_gpu_process_memory(-1));
+    const d = stz_gpu_process_memory(0);
+    if (builtin.os.tag == .windows) {
+        // PDH is part of Windows: the reading exists, and a test process that made no device holds none
+        try std.testing.expect(d >= 0);
+    } else try std.testing.expectEqual(@as(f64, -1), d);
 }
 
 test "the close-hook registry holds every module that registers one, counts a full registry, and runs each hook once" {

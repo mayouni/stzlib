@@ -43,6 +43,7 @@
 #   StzEngineGpuOpSpmm(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nK)         Y = A X, X ncols x nK row-major
 #   StzEngineGpuSimulateDeviceLoss() -> 1 when a device destroyed under the engine was noticed: a test of the recovery path, not for production (GT3)
 #   StzEngineGpuCloseHooks(0) -> device-close hooks registered; (1) -> registrations dropped because the registry was full (must be 0) (GT3)
+#   StzEngineGpuProcessMemory(n) -> this process's GPU memory in bytes AS WINDOWS COUNTS IT (n 0 dedicated, 1 shared, 2 committed); -1 when unavailable: the outside witness (GT3b)
 # OUT buffers must be distinct from inputs (WebGPU aliasing validation).
 #
 # Kernel binding contract (every kernel compiled through this layer):
