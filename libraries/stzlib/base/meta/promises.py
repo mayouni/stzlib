@@ -45,6 +45,15 @@ else:
 
 TRAILING = re.compile(r'^\s*\?.*?#-->\s*(.+?)\s*$')
 
+# The STANDALONE form -- the promise on its own line, under the ? line that
+# produced the output. It is the form this library mostly uses: measured
+# 2026-11-12 across base/test, 6,249 standalone against 1,320 trailing, with
+# 2,433 files annotated in the standalone form ONLY. Until that date this
+# harness matched TRAILING alone, so it read about one promise in six and
+# skipped 2,433 files in silence.
+ALONE = re.compile(r'^\s*#-->\s*(.+?)\s*$')
+QLINE = re.compile(r'^\s*\?')
+
 # A promise that argues with itself is a NOTE, not an expectation.
 #
 #     #--> "C" but should be "sm_AS"
@@ -172,11 +181,53 @@ def expectations(path):
         # is not prose in any way a keyword list would catch ("Leads to a
         # normal Ring list" contains nothing suspicious). The SHAPE is what
         # gives it away, so the shape is what is read.
+        # ...and the old code stopped there, skipping the label and then never
+        # reading the value underneath it, so a labelled promise was dropped
+        # ENTIRELY rather than read correctly. The standalone branch below now
+        # picks that value up, which is what this comment always claimed.
         nxt = lines[i + 1].strip() if i + 1 < len(lines) else ''
         if nxt.startswith('#-->'):
             continue
 
         out.append((i + 1, m.group(1)))
+
+    # THE STANDALONE FORM, which is most of this library.
+    #
+    # A promise on its own line belongs to the nearest ? line above it, across
+    # any other standalone lines in between -- several in a row are one
+    # multi-line expected output, and each is kept in order because the walk
+    # downstream is an ordered subsequence match.
+    #
+    # A #--> that is NOT under a ? line is left alone: the design documents and
+    # the module headers use the same arrow in prose, and reading those as
+    # promises would invent divergences the library never made.
+    for i, l in enumerate(lines):
+        a = ALONE.match(l)
+        if not a:
+            continue
+
+        # A COMMENTED-OUT CALL IS NOT A PROMISE. One file writes
+        #
+        #     ? rx.Names()
+        #     #--> ? rx.RecursiveNames()
+        #     #--> [ "outermost", "middle", "innermost" ]
+        #
+        # where the first arrow carries a LINE OF CODE somebody parked, and the
+        # second carries the value. Read literally the parked call diverges every
+        # time. Exactly one site in the library does this (2026-11-12, all
+        # topics), so this is a shape rule and not a workaround for many files.
+        if a.group(1).lstrip().startswith('?'):
+            continue
+
+        j = i - 1
+        while j >= 0 and ALONE.match(lines[j]):
+            j -= 1
+        if j < 0 or not QLINE.match(lines[j]):
+            continue
+
+        out.append((i + 1, a.group(1)))
+
+    out.sort(key=lambda pair: pair[0])
     return out
 
 
@@ -257,7 +308,25 @@ for fn in files:
     # -- and the twenty expectations under it were never reached. Counting them
     # as divergences turns ONE finding into twenty and buries it. The raise is
     # the finding; everything after it is unknown, not wrong.
-    raised = re.search(r'Error \(R[0-9]+\)[^\n]*', chr(10).join(out))
+    # ...AND THE LIBRARY'S OWN RAISE IS A RAISE TOO, which this missed until
+    # 2026-11-12. StzRaise prints its message on a "Line NNNN ..." line and a
+    # trace through stzraise(), with NO Error (R...) code anywhere, so the test
+    # above answered no and every promise under a StzRaise was reported as a
+    # DIVERGENCE -- the exact confusion the paragraph above says is worse than
+    # having no harness, committed by the harness that says it.
+    #
+    # Found while classifying the regex topic: 29_test_2_case_sensitivity and
+    # 30_test_3_greedy_vs_non-greedy both open with `new stzRegex("")`, which the
+    # constructor has refused since it was tightened to demand a non-empty
+    # pattern. Nothing in either file ran, and their promises were being counted
+    # as broken rather than unreached.
+    _joined_out = chr(10).join(out)
+    raised = re.search(r'Error \(R[0-9]+\)[^\n]*', _joined_out)
+    if not raised and re.search(r'in function stzraise\(\)', _joined_out, re.I):
+        # The trace proves the raise; the "Line NNNN <message>" line above it is
+        # what a reader needs, so prefer it and fall back to the trace itself.
+        raised = (re.search(r'^Line [0-9]+ (?!Error)\S.*$', _joined_out, re.M)
+                  or re.search(r'In function stzraise\(\)[^\n]*', _joined_out, re.I))
 
     pos = 0
     for lineno, raw in exp:
