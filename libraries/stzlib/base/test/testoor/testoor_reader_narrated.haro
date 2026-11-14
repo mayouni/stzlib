@@ -1,0 +1,297 @@
+load "../../stzBase.ring"
+load "_narrate.haro"
+
+# TESTOOR TR0 -- THE READER. Every test Softanza already has, read as a
+# TOUR, and not one of them edited.
+#
+# WHY THIS GUARD EXISTS. The five runners this plane replaces read a test
+# file five different ways, and none of them as data: _sweepall.sh greps the
+# OUTPUT for "[OK]" (case-sensitive, so a file printing "[ok]" counted as
+# not asserting), promises.py pairs `?` with `#-->` in Python, the CLI calls
+# every pf() ending a FAIL. The reader is the one place a test file is
+# understood, and this guard is where that understanding is measured:
+#
+#   1. one narrated tour, read, and the file byte-identical afterwards
+#   2. the three Ring dialects and Zin's .zst -- planted, so the counts are
+#      exact and the guard does not move when the corpus does -- and the
+#      real files of each dialect, for the shape
+#   3. the three states the launch prompt names: a planted lower-case [ok]
+#      counts as asserting; a planted file with no claim "runs, asserts
+#      nothing"; an unknown dialect is NAMED, not edited
+#   4. the corpus read: every *_narrated.ring under base/test, once, one
+#      line per file, JSON and prose from the same read, what was skipped
+#      named. This is the heavy section and it runs ONCE per task.
+#
+# Planted files are written to the system temp folder and removed at the
+# end -- nothing is written under base/test by a guard whose whole claim is
+# that it writes nothing there.
+#
+# Every positive claim has its negative sibling (ruling 3): a path that is
+# not there is unreadable WITH a reason; a comment that merely contains
+# "#-->" is not a promise; a `?` followed by a plain comment is not a claim.
+
+? "TESTOOR TR0 -- the reader"
+nTrStart = Clock()
+$vtTrPlanted = []
+tTrTemp = _TrTempDir()
+
+#============================================================================
+Scenario("A narrated tour is read as data, and the file is not edited")
+	nTrSec = Clock()
+	tPath = "../uuid/00_uuid_narrated.ring"
+	Given("the uuid narrated suite, Given/When/Then from _narrated.ring")
+	tBefore = Read(tPath)
+	When("Tour(path) reads it")
+	xT = Tour(tPath)
+	tAfter = Read(tPath)
+	Then("it is readable", xT[:readable], 1)
+	Then("its dialect is narrated", xT[:dialect], "narrated")
+	Then("it has four stops, one per Scenario()", Len(xT[:stops]), 4)
+	Then("it makes 17 claims, one per Then()", Len(TourQ(tPath).Claims()), 17)
+	Then("the first stop is titled by its Scenario()",
+		xT[:stops][1][:title], "A generated UUID has the v4 format and metadata")
+	Then("its first claim is the Then() text",
+		xT[:stops][1][:claims][1][:claim], "it is 36 chars (8-4-4-4-12 + hyphens)")
+	Then("the claim carries its line", xT[:stops][1][:claims][1][:line], 14)
+	Then("it ends with Summary()", xT[:ending], "summary")
+	Then("it asserts", xT[:asserts], 1)
+	Then("the file is byte-identical after the read", tAfter = tBefore, true)
+	Then("the record's JSON is valid JSON", StzJsonIsValid(TourQ(tPath).Json()), true)
+	Then("the prose names the dialect and the counts",
+		StzFindFirst("narrated, 4 stops, 17 claims", TourQ(tPath).Prose()) > 0, true)
+	# the negative sibling: a path that is not there
+	xNo = Tour(tTrTemp + "/stz_testoor_does_not_exist.ring")
+	Then("a missing file is unreadable", xNo[:readable], 0)
+	Then("and says why", StzFindFirst("cannot read", xNo[:why]) > 0, true)
+	Then("an unreadable tour asserts nothing", xNo[:asserts], 0)
+EndScenario()
+? "        [section took " + String((Clock() - nTrSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("The three Ring dialects and Zin's .zst are faces of one grammar")
+	nTrSec = Clock()
+	Given("a planted file of each dialect, so the counts are exact")
+
+	tChk = _TrPlant("planted_chk.ring",
+		"load " + '"' + "../../stzBase.ring" + '"' + Char(10) +
+		"nPass = 0  nFail = 0" + Char(10) +
+		'? "-- Scene 1: the first scene --"' + Char(10) +
+		'Chk("one is one", 1 = 1)' + Char(10) +
+		'Chk("two is two", 2 = 2)' + Char(10) +
+		'? "-- Scene 2: the second scene --"' + Char(10) +
+		'Chk("three is three", 3 = 3)' + Char(10) +
+		"pf()" + Char(10) +
+		"func Chk(cWhat, bCond)" + Char(10) +
+		Char(9) + "if bCond nPass++ ? " + '"  [OK] "' + " + cWhat else nFail++ ? " + '"  [FAIL] "' + " + cWhat ok" + Char(10))
+	xC = Tour(tChk)
+	When("the self-contained helper is read")
+	Then("the dialect is chk", xC[:dialect], "chk")
+	Then("one helper is found by its body", Len(xC[:helpers]), 1)
+	Then("under its own name, lower-cased as Ring reads names", xC[:helpers][1], "chk")
+	Then("the two scene banners are two stops", Len(xC[:stops]), 2)
+	Then("the second stop is the second scene", xC[:stops][2][:title], "-- Scene 2: the second scene --")
+	Then("three Chk() calls are three claims", Len(TourQ(tChk).Claims()), 3)
+	Then("the third claim sits at the second stop", Len(xC[:stops][2][:claims]), 1)
+	Then("it ends finished-timed, which pf() means", xC[:ending], "finished-timed")
+	Then("the helper's own [OK] print is not a claim of the file",
+		Len(TourQ(tChk).Claims()), 3)
+
+	tGate = _TrPlant("planted_gate.ring",
+		"nOk = 0  nBad = 0" + Char(10) +
+		'sec("-- 1. the first section --")' + Char(10) +
+		'chk("a is a", 1 = 1)' + Char(10) +
+		'discharges("TR0")' + Char(10) +
+		'sec("-- 2. the second section --")' + Char(10) +
+		'chkeq("b is b", 2, 2)' + Char(10) +
+		'? "TOTAL: " + nOk + " ok"' + Char(10) +
+		"func sec cTitle" + Char(10) + Char(9) + "? cTitle" + Char(10) +
+		"func chk cWhat, bCond" + Char(10) + Char(9) + "if bCond nOk++ else nBad++ ok" + Char(10) +
+		"func chkeq cWhat, xGot, xWant" + Char(10) + Char(9) + "chk(cWhat, xGot = xWant)" + Char(10) +
+		"func discharges cItem" + Char(10) + Char(9) + "? cItem" + Char(10))
+	xG = Tour(tGate)
+	When("the gate dialect is read")
+	Then("the dialect is gate", xG[:dialect], "gate")
+	Then("sec() opens a stop", Len(xG[:stops]), 2)
+	Then("chk() and chkeq() are claims", Len(TourQ(tGate).Claims()), 2)
+	Then("discharges() is a route", Len(xG[:routes]), 1)
+	Then("the route names the plan item", xG[:routes][1][:item], "TR0")
+	Then("the route records the stop it sits in", xG[:routes][1][:stop], "-- 1. the first section --")
+	Then("a printed TOTAL: is its own ending", xG[:ending], "own-total")
+
+	tProm = _TrPlant("planted_promises.ring",
+		"? 1 + 1" + Char(10) + "#--> 2" + Char(10) + Char(10) +
+		'? "a"  #--> a' + Char(10) +
+		"# a comment that merely mentions #--> is not a promise" + Char(10) +
+		"? 3" + Char(10) + "# a plain comment after a ? is not a claim" + Char(10))
+	xP = Tour(tProm)
+	When("bare promises are read")
+	Then("the dialect is promises", xP[:dialect], "promises")
+	Then("a next-line #--> and a trailing #--> are both claims", Len(TourQ(tProm).Claims()), 2)
+	Then("the first promise's expression", xP[:stops][1][:claims][1][:claim], "1 + 1")
+	Then("the first promise's value", xP[:stops][1][:claims][1][:want], "2")
+	Then("the trailing form keeps its value", xP[:stops][1][:claims][2][:want], "a")
+	Then("the claims are of kind promise", xP[:stops][1][:claims][2][:kind], "promise")
+	Then("the comment mentioning #--> is not counted", xP[:promises], 2)
+
+	tZst = _TrPlant("planted_narrated.zst",
+		"DEFINE NARRATED_TEST planted AS (" + Char(10) +
+		'    TITLE "Planted",' + Char(10) +
+		"    STEP A1 (" + Char(10) +
+		'        COMMAND "zin version",' + Char(10) +
+		'        EXPECT "zin"' + Char(10) + "    )," + Char(10) +
+		"    STEP A2 (" + Char(10) +
+		'        COMMAND "zin info",' + Char(10) +
+		'        EXPECT_EXIT 0' + Char(10) + "    )" + Char(10) + ")" + Char(10))
+	xZ = Tour(tZst)
+	When("Zin's .zst is read")
+	Then("the dialect is the DEFINE kind", xZ[:dialect], "zst:NARRATED_TEST")
+	Then("each STEP is a stop", Len(xZ[:stops]), 2)
+	Then("the stop is named by its STEP", xZ[:stops][1][:title], "STEP A1")
+	Then("EXPECT and EXPECT_EXIT are claims", Len(TourQ(tZst).Claims()), 2)
+
+	Given("the real files of each dialect, for the shape")
+	xR1 = Tour("../agentic/agentfile_narrated.ring")
+	Then("agentfile_narrated.ring is the chk dialect", xR1[:dialect], "chk")
+	Then("with scene banners as stops", Len(xR1[:stops]) >= 8, true)
+	xR2 = Tour("../graphics/gg_adversarial.ring")
+	Then("gg_adversarial.ring is the gate dialect", xR2[:dialect], "gate")
+	Then("with more than a hundred sections", Len(xR2[:stops]) > 100, true)
+	Then("and routes declared by discharges()", Len(xR2[:routes]) > 0, true)
+	Then("the first route is GG6", xR2[:routes][1][:item], "GG6")
+	xR3 = Tour("../uuid/01_basic_generation.ring")
+	Then("01_basic_generation.ring is the promises dialect", xR3[:dialect], "promises")
+	Then("with its promise on the line after the ?",
+		xR3[:stops][1][:claims][1][:claim], "o1.Content()")
+	xR4 = Tour("../world/world_contract_narrated.ring")
+	Then("world_contract's Assert, which raises on failure, is a helper",
+		ring_find(xR4[:helpers], "assert") > 0, true)
+	Then("so the file is the chk dialect, not unknown", xR4[:dialect], "chk")
+EndScenario()
+? "        [section took " + String((Clock() - nTrSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("A lower-case [ok] asserts; a file with no claim runs and asserts nothing; an unknown dialect is named, not edited")
+	nTrSec = Clock()
+	Given("a planted file printing a lower-case [ok] with no helper at all")
+	tOk = _TrPlant("planted_lower_ok.ring",
+		'? "  [ok]   the planted marker counts as asserting"' + Char(10))
+	xOk = Tour(tOk)
+	Then("it asserts", xOk[:asserts], 1)
+	Then("its dialect is markers", xOk[:dialect], "markers")
+	Then("the marker is a claim of kind marker", xOk[:stops][1][:claims][1][:kind], "marker")
+	Then("one marker was counted", xOk[:markers], 1)
+
+	Given("a planted file that runs and asserts nothing")
+	tNo = _TrPlant("planted_nothing.ring", "x = 1 + 1" + Char(10) + '? "hello"' + Char(10))
+	xNo = Tour(tNo)
+	Then("it is readable", xNo[:readable], 1)
+	Then("it asserts nothing", xNo[:asserts], 0)
+	Then("the prose says so, in those words",
+		StzFindFirst("RUNS, ASSERTS NOTHING", TourQ(tNo).Prose()) > 0, true)
+	Then("the logbook lists it under asserting nothing",
+		Len(StzLogbookQ().Read(tNo).AssertingNothing()), 1)
+
+	Given("a planted file in no dialect the reader knows")
+	tUnk = _TrPlant("planted_unknown.ring", "this is not a test file in any dialect" + Char(10) + "blah = 1" + Char(10))
+	tUnkBefore = Read(tUnk)
+	xUnk = Tour(tUnk)
+	tUnkAfter = Read(tUnk)
+	Then("its dialect is unknown", xUnk[:dialect], "unknown")
+	Then("the prose names it as unknown and not edited",
+		StzFindFirst("UNKNOWN DIALECT, named, not edited", TourQ(tUnk).Prose()) > 0, true)
+	Then("and the file is byte-identical after the read", tUnkAfter = tUnkBefore, true)
+	Then("the logbook lists it under unknown", Len(StzLogbookQ().Read(tUnk).Unknown()), 1)
+
+	Given("a planted .zst of a DEFINE kind the Zst spec does not declare")
+	tWz = _TrPlant("planted_weird.zst", "DEFINE WEIRD_THING nope AS ( )" + Char(10))
+	xWz = Tour(tWz)
+	Then("it is unknown", xWz[:dialect], "unknown")
+	Then("and the why names the kind", StzFindFirst("WEIRD_THING", xWz[:why]) > 0, true)
+EndScenario()
+? "        [section took " + String((Clock() - nTrSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("The logbook reads every narrated file under base/test, once, and reports per file")
+	nTrSec = Clock()
+	Given("base/test, every *_narrated.ring under it, in one read")
+	oL = StzLogbookQ().ReadTree("..", "_narrated.ring")
+	nRead = oL.Count()
+	When("each tour is reported on one line")
+	for k = 1 to nRead
+		? "  " + oL.ProseOf(k)
+	end
+	? ""
+	? oL.Summary()
+	nWalk = _TrCountNarrated("..")
+	Then("the count equals an independent walk of the tree", nRead, nWalk)
+	Then("every narrated file was readable", Len(oL.Unreadable()), 0)
+	xUnknown = oL.Unknown()
+	nUnknown = Len(xUnknown)
+	for k = 1 to nUnknown
+		? "  UNKNOWN: " + xUnknown[k][:file]
+	end
+	Then("no narrated file is of a dialect the reader cannot name", nUnknown, 0)
+	xNothing = oL.AssertingNothing()
+	nNothing = Len(xNothing)
+	for k = 1 to nNothing
+		? "  ASSERTS NOTHING: " + xNothing[k][:file]
+	end
+	Then("the helper _narrated.ring was skipped by name, and named",
+		ring_find(oL.Skipped(), "../_narrated.ring") > 0, true)
+	tJson = oL.Json()
+	Then("the logbook's JSON is valid JSON", StzJsonIsValid(tJson), true)
+	Then("the JSON carries the same count as the prose",
+		StzFindFirst('"read":' + String(nRead) + ',', tJson) > 0, true)
+	Then("the JSON names what was skipped",
+		StzFindFirst('"../_narrated.ring"', tJson) > 0, true)
+	Then("more claims than tours were read", oL.ClaimsCount() > nRead, true)
+EndScenario()
+? "        [section took " + String((Clock() - nTrSec) / ClocksPerSecond()) + "s]"
+
+_TrUnplant()
+? ""
+? "[TR0 took " + String((Clock() - nTrStart) / ClocksPerSecond()) + "s]"
+Summary()
+Shutdown($nNarFail)
+
+#============================================================================
+# THE HELPERS LIVE AFTER THE TOP-LEVEL CODE. Ring runs a file until its
+# first func; a helper defined above would end the guard silently.
+
+func _TrTempDir
+	tT = SysGet("TEMP")
+	if tT = ""  tT = SysGet("TMPDIR")  end
+	if tT = ""  tT = "/tmp"  end
+	return SubStr(tT, "\", "/")
+end
+func _TrPlant(tName, tText)
+	tP = _TrTempDir() + "/stz_testoor_" + tName
+	Write(tP, tText)
+	$vtTrPlanted + tP
+	return tP
+end
+func _TrUnplant
+	nN = Len($vtTrPlanted)
+	for i = 1 to nN
+		if FExists($vtTrPlanted[i])  Remove($vtTrPlanted[i])  end
+	end
+end
+# an independent count of *_narrated.ring files, written differently from
+# the logbook's own walker: recursion, not a queue; no sort; no skip list
+# beyond the one convention (a name opening with "_" is not a tour)
+func _TrCountNarrated(tDir)
+	nN = 0
+	xE = Dir(tDir)
+	nE = Len(xE)
+	for i = 1 to nE
+		tN = xE[i][1]
+		if xE[i][2] != 0
+			if tN != "." and tN != ".." and Left(tN, 1) != "_" and Left(tN, 1) != "."
+				nN += _TrCountNarrated(tDir + "/" + tN)
+			end
+		else
+			if Left(tN, 1) != "_" and Right(Lower(tN), 14) = "_narrated.ring"  nN++  end
+		end
+	end
+	return nN
+end
