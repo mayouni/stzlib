@@ -45,7 +45,7 @@ The five logbook cases cover an all-kept run (exit 0), a mixed run with skipped 
 
 ## How it is used
 
-- `base/test/testoor/testoor_golden_narrated.ring` regenerates every expected file from the inputs and compares byte for byte, then checks the verdicts against an **intent table written separately from the oracle's answers**. A golden that was only ever produced by the code it tests proves nothing, so the table says what each case is *supposed* to show.
+- `base/test/testoor/testoor_golden_narrated.haro` regenerates every expected file from the inputs and compares byte for byte, then checks the verdicts against an **intent table written separately from the oracle's answers**. A golden that was only ever produced by the code it tests proves nothing, so the table says what each case is *supposed* to show.
 - `base/testoor/golden_update.ring` rewrites the expected files. A human reads the diff in git before it is committed.
 - A port passes when it reproduces every `expected.*` from the inputs.
 
@@ -116,6 +116,7 @@ Zig harness only: there is no generator for them, so a case's `expected.*` is th
 | `R2_self_describing` | no `Scenario(` and no `Then(`: dialect `unknown`, no stop |
 | `H1_a_report_line_is_not_a_verdict` | a program's `  FAIL     :...` report before two `THEN` lines: 2 kept, finished |
 | `H2_a_repeated_claim_is_a_second_check` | `FAIL  x` then `ok  x`: two claims, one diverged; a claim already judged is never judged again |
+| `H4_a_picture_report_is_not_a_verdict` | a GIVEN line saying a picture DOES NOT MATCH, under the Haro face: output, not a verdict; the tour is kept |
 | `H3_a_slow_start_is_named` | first output at 121.39 s: `first_output_ms` in the tour's JSON, and its line says `first output at 121.39 s` |
 
 ## Adding a case

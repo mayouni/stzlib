@@ -325,9 +325,13 @@ pub fn judgeOnly(a: Allocator, rec: Record, lines: []const Line, end: []const u8
 
     // PICTURES: a success prints nothing, so which picture failed cannot be read from the
     // output, only that one did and which row. A mismatch joins the stop in progress as a
-    // diverged claim of its own, and the file's picture claims are unjudged.
+    // diverged claim of its own, and the file's picture claims are unjudged. A face that names
+    // its verdicts (`only`, the Haro face's THEN) has no picture claims, and a report of a
+    // mismatch its tour prints is output, as any other report is (TESTOOR_PROTOCOL_3.md 6.2):
+    // found 2026-11-14 on testoor_promises_narrated.haro, whose GIVEN line names the phrase
     var mis: []const u8 = "";
     for (lines, 0..) |ln, i| {
+        if (only.len != 0) break;
         if (T.find(ln.text, "DOES NOT MATCH") > 0) {
             mis = T.trimSp(ln.text);
             if (i + 2 < nl and T.find(lines[i + 2].text, "first difference at row") > 0) {

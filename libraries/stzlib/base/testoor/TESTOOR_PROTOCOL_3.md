@@ -268,7 +268,9 @@ and it prints `SCENARIO: <title>`, `  THEN  <claim>  [PASS]` or `[FAIL]` and a c
 - **A verdict, in a narrated tour, is only a line that begins (spaces aside) with `THEN `.** A program under test prints
   reports of its own (`  FAIL     :triage_extract=... -- ...`), and a report that says FAIL is output, not a failed claim.
   The face carries the rule as data (`verdicts` beside `ignore` and `endings`); a face that leaves it empty reads a verdict
-  from any line of a verdict's shape, as in protocol 2.
+  from any line of a verdict's shape, as in protocol 2. **The same holds for a picture:** a face that names its verdicts has no
+  picture claims, and a line saying a picture `DOES NOT MATCH` is output (2026-11-14, golden H4; found when `testoor walk`
+  judged `testoor_promises_narrated.haro`, whose GIVEN line names the phrase).
 
 ### 6.3 How a Haro tour ends
 
@@ -337,11 +339,12 @@ Written by hand from section 2 before the code, and reproduced by the core on it
 | `haro/reader/R1_narrated` | the Haro face's reader (6.2): a claim before any scenario opens `(the tour)`; a claim in a comment, a claim built at run time and the bodies of the helpers `Scenario` and `Then` are not recorded, the built claim counted in `asserts`; claims inside the file's own function and inside an `if` are; a single-quoted claim is a literal |
 | `haro/reader/R2_self_describing` | a `.haro` file with no `Scenario(` and no `Then(`: dialect `unknown`, no stop, judged from what it prints |
 | `haro/judge/H3_a_slow_start_is_named` | 6.5: a tour whose first output arrived at 121.39 s: `first_output_ms` written after `wall_ms`, and its line naming the start -- written by hand; the core printed `121.30` where the hand wrote `121.3`, and both now print it as the wall time is printed, `121.39` |
+| `haro/judge/H4_a_picture_report_is_not_a_verdict` | 6.2: a narrated Haro tour whose GIVEN line says a picture DOES NOT MATCH, its two THEN lines PASS: kept -- the picture rule had read the GIVEN line as a diverged claim |
 | `haro/judge/H2_a_repeated_claim_is_a_second_check` | 6.4: an unknown-dialect tour printing `FAIL  x`, then `ok  x`, then another claim: three claims, the tour diverged -- protocol 2's landing read it as kept |
 | `haro/judge/H1_a_report_line_is_not_a_verdict` | a narrated Haro tour whose program prints `  FAIL     :...` before its two `THEN` lines: 2 kept, finished, exit 0 -- under protocol 2's rule the report line was a diverged claim |
 
 The same requests with the ladder NOT asked for write protocol 2 and no `ladder` key: the core guard and the native guard each
-assert it. `testoor_property_narrated.ring` holds the Ring face to section 4: the domains through the seam, `TestoorProperty`
+assert it. `testoor_property_narrated.haro` holds the Ring face to section 4: the domains through the seam, `TestoorProperty`
 in-process (a failure shrunk to the same smallest input from two seeds), and two property tours walked as children.
 `testoor_walk_narrated.haro` holds `testoor walk` to section 6 on haro.exe: five planted tours (kept, diverged, refused,
 a runtime error, self-describing) judged from their folder, a `_` file and a non-matching name never walked.

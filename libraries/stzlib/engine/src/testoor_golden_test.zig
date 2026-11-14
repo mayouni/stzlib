@@ -288,7 +288,7 @@ test "the Haro face judges a narrated tour from its THEN lines only (P3.6)" {
     const a = arena.allocator();
     const dir = try goldenDir(a);
     failures = 0;
-    try judgeCases(a, dir, "haro/judge", 3);
+    try judgeCases(a, dir, "haro/judge", 4);
     try std.testing.expectEqual(@as(usize, 0), failures);
 }
 

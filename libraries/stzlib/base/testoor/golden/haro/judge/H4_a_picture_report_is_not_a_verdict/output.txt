@@ -1,0 +1,5 @@
+250	SCENARIO: a picture that does not match is named
+500	  GIVEN a planted tour whose Shows() prints PICTURE DOES NOT MATCH and raises
+750	  THEN  the planted tour is diverged  [PASS]
+1000	  THEN  and names its row  [PASS]
+1250	TOTAL: 2 assertions, 2 pass, 0 fail
