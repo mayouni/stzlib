@@ -1,0 +1,267 @@
+load "../../stzBase.ring"
+load "_narrate.haro"
+
+# TESTOOR TR3 -- ROUTES BEFORE ROADS, AND THE MAP. Coverage is first the
+# count of ROUTES (plan items) that have a TOUR (a test that declares it walks
+# them with discharges("X") or Route("X")), joined from the court's own plan
+# reader and the tour reader. OWNED and WALKED are two figures and are never
+# summed, and no percentage is printed (ruling 8). Then the map: the public
+# methods of a class that no tour NAMES, from the code graph -- a static name
+# join, a proxy for a route and not execution coverage, said in every report.
+#
+# WHAT IS PLANTED. A plan of three items, ZA1 and ZA2 read closed and ZA3 reads
+# open; tours that walk them; a class with three public methods, an init and a
+# private one. The planted files live in _planted_routes/ beside this guard
+# (a leading "_" is what the reader skips; git ignores it) and are removed.
+#
+# THE GUARD THE LAUNCH PROMPT ASKED FOR: one plan item with no tour reports
+# ONE route unwalked; adding the tour clears it. Every positive has its
+# sibling: a closed route is a WARNING and an open one is INFO; a tour naming
+# a route the plan does not define is a finding and a tour naming a known one
+# is not; a method defined in a tour is not a method touched.
+#
+# AND AN INDEPENDENT CHECK on the real gate: the routes the tour reader finds
+# in gg_adversarial.ring equal what the court's own StzSuiteDischargesOf finds
+# in it -- two readers written apart, one answer.
+
+? "TESTOOR TR3 -- routes and the map"
+nTrStart = Clock()
+tTrHere = CurrentDir()
+tTrPlant = tTrHere + "/_planted_routes"
+_TrPlantAll(tTrPlant)
+tTrPlan2 = "### ZA1 -- first" + Char(10) + "CLOSED: shipped." + Char(10) +
+           "### ZA2 -- second" + Char(10) + "CLOSED: shipped." + Char(10)
+
+#============================================================================
+Scenario("Route() and discharges() are read as walks, in every dialect")
+	nTrSec = Clock()
+	Given('a plain tour that declares Route("ZA1"), and a gate section that discharges("ZA2")')
+	xA = Tour(tTrPlant + "/tours/one.ring")
+	xB = Tour(tTrPlant + "/tours/two_gate.ring")
+	Then("the plain tour has one route", Len(xA[:routes]), 1)
+	Then("it names the plan item", xA[:routes][1][:item], "ZA1")
+	Then("the gate has one route", Len(xB[:routes]), 1)
+	Then("it names its item and the section it sits in", xB[:routes][1][:item] + "|" + xB[:routes][1][:stop], "ZA2|-- 1. the second route --")
+	Then("a tour that declares nothing has none", Len(Tour(tTrPlant + "/tours/silent.ring")[:routes]), 0)
+	Then("Route() is harmless when the tour runs", Route("ZA1"), 1)
+EndScenario()
+? "        [section took " + String((Clock() - nTrSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("One plan item with no tour is ONE route unwalked; adding the tour clears it")
+	nTrSec = Clock()
+	Given("a plan of two closed items and only the tour for ZA1")
+	oM = StzRouteMapQ().AddPlan("plan", tTrPlan2).AddTour(Tour(tTrPlant + "/tours/one.ring"))
+	Then("two routes are owned", oM.OwnedCount(), 2)
+	Then("one is walked", oM.WalkedCount(), 1)
+	Then("one is unwalked", oM.UnwalkedCount(), 1)
+	Then("and it is ZA2", oM.Unwalked()[1][1], "ZA2")
+	Then("the court has exactly one route_without_tour", _TrCountRule(oM.Findings(), :route_without_tour), 1)
+	Then("the prose names it, as counts and never a percentage",
+		StzFindFirst("owned 2, walked 1, unwalked 1", oM.Prose()) > 0 and StzFindFirst("%", oM.Prose()) = 0, true)
+	Given("the same plan once the tour for ZA2 is added")
+	oM.AddTour(Tour(tTrPlant + "/tours/two_gate.ring"))
+	Then("two are walked", oM.WalkedCount(), 2)
+	Then("none is unwalked", oM.UnwalkedCount(), 0)
+	Then("the court has no route_without_tour", _TrCountRule(oM.Findings(), :route_without_tour), 0)
+	Then("and nothing needs attention", oM.NeedsAttention(), 0)
+EndScenario()
+? "        [section took " + String((Clock() - nTrSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("A closed route nobody walks is a warning; an open one is information; a typo is a finding")
+	nTrSec = Clock()
+	Given("a plan with ZA1 closed and ZA3 open, and no tour at all")
+	oM = StzRouteMapQ().AddPlan("plan", "### ZA1 -- a" + Char(10) + "CLOSED." + Char(10) + "### ZA3 -- c" + Char(10) + "NEXT: not started." + Char(10))
+	xF = oM.Findings()
+	Then("two routes are unwalked", oM.UnwalkedCount(), 2)
+	Then("the closed one is a WARNING", _TrSeverityOf(xF, "ZA1"), "warning")
+	Then("the open one is INFO", _TrSeverityOf(xF, "ZA3"), "info")
+	Then("the warning needs attention", oM.NeedsAttention(), 1)
+	Given("only the open route unwalked")
+	oO = StzRouteMapQ().AddPlan("plan", "### ZA3 -- c" + Char(10) + "NEXT: not started." + Char(10))
+	Then("an open route alone needs no attention", oO.NeedsAttention(), 0)
+	Given("a tour that declares a route the plan does not define")
+	oU = StzRouteMapQ().AddPlan("plan", tTrPlan2).AddTour(Tour(tTrPlant + "/tours/typo.ring"))
+	Then("the typo is one unknown walk", Len(oU.UnknownWalks()), 1)
+	Then("named", oU.UnknownWalks()[1][1], "ZA9")
+	Then("the court says so, under its own rule", _TrCountRule(oU.Findings(), :guard_discharges_unknown_item), 1)
+	Then("whereas a tour naming a known route says nothing of the kind",
+		_TrCountRule(StzRouteMapQ().AddPlan("plan", tTrPlan2).AddTour(Tour(tTrPlant + "/tours/one.ring")).Findings(), :guard_discharges_unknown_item), 0)
+EndScenario()
+? "        [section took " + String((Clock() - nTrSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("The findings are the court's shape and one rule report ingests them")
+	nTrSec = Clock()
+	Given("a map with an unwalked closed route and an untouched method")
+	oM = StzRouteMapQ().AddPlan("plan", tTrPlan2).AddTour(Tour(tTrPlant + "/tours/one.ring"))
+	oM.MapMethods(tTrPlant + "/classes/stzPlanted.ring", [ tTrPlant + "/tours/calls_alpha.ring" ])
+	xF = oM.Findings()
+	Then("every finding has the five keys",
+		_TrAllHaveKeys(xF), true)
+	oRep = new stzRuleReport("tr3")
+	oRep.Ingest(xF)
+	Then("the one rule report holds them all", Len(oRep.Findings()), Len(xF))
+	Then("and counts the warning by severity", Len(oRep.FindingsOfSeverity(:warning)) >= 1, true)
+EndScenario()
+? "        [section took " + String((Clock() - nTrSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("The map names the public methods no tour names, by a static name join")
+	nTrSec = Clock()
+	Given("a class with Alpha, Beta, Gamma, init and _Hidden, and a tour calling .Alpha() and beta(1)")
+	xU = StzUntouchedMethods(tTrPlant + "/classes/stzPlanted.ring", [ tTrPlant + "/tours/calls_alpha.ring" ])
+	Then("exactly one method is untouched", Len(xU), 1)
+	Then("it is Gamma", xU[1][3], "Gamma")
+	Then("it is named with its class", xU[1][1], "stzPlanted")
+	Then("Beta is touched though the tour wrote it in another case", _TrListHas(xU, "Beta"), false)
+	Then("init and the private method are not public surface", _TrListHas(xU, "init") or _TrListHas(xU, "_Hidden"), false)
+	Given("a tour that only DEFINES Gamma")
+	xD = StzUntouchedMethods(tTrPlant + "/classes/stzPlanted.ring", [ tTrPlant + "/tours/calls_alpha.ring", tTrPlant + "/tours/defines_gamma.ring" ])
+	Then("a definition is not a touch: Gamma is still untouched", _TrListHas(xD, "Gamma"), true)
+	Given("a tour that calls Gamma")
+	xC = StzUntouchedMethods(tTrPlant + "/classes/stzPlanted.ring", [ tTrPlant + "/tours/calls_alpha.ring", tTrPlant + "/tours/calls_gamma.ring" ])
+	Then("nothing is untouched any more", Len(xC), 0)
+	Then("the court names the one untouched method as information",
+		_TrCountRule(StzRouteMapQ().MapMethods(tTrPlant + "/classes/stzPlanted.ring", [ tTrPlant + "/tours/calls_alpha.ring" ]).Findings(), :method_without_tour), 1)
+EndScenario()
+? "        [section took " + String((Clock() - nTrSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("On the real gate, the tour reader and the court's own reader find the same routes")
+	nTrSec = Clock()
+	tGate = tTrHere + "/../graphics/gg_adversarial.ring"
+	Given("gg_adversarial.ring, 161 sections, read by two readers written apart")
+	xRec = Tour(tGate)
+	vtMine = _TrIdsOf(xRec[:routes], 1)
+	xTheirs = StzSuiteDischargesOf([ tGate ])
+	vtTheirs = _TrIdsOf(xTheirs, 1)
+	? "        (the tour reader: " + String(Len(vtMine)) + " discharges; the court's: " + String(Len(vtTheirs)) + ")"
+	Then("both found some", Len(vtMine) > 0 and Len(vtTheirs) > 0, true)
+	Then("the same number", Len(vtMine), Len(vtTheirs))
+	Then("the same items, in the same order", _TrJoin(vtMine), _TrJoin(vtTheirs))
+	Given("the real graphics plan and every graphics tour, read and not run")
+	oRg = StzRouteMapQ().AddPlanFile(tTrHere + "/../../graphics/SOFTANZA_GRAPHICS_PLAN.md").AddToursUnder(tTrHere + "/../graphics")
+	? "        " + _TrFirstLine(oRg.Prose())
+	Then("the plan owns routes", oRg.OwnedCount() > 0, true)
+	Then("some are walked", oRg.WalkedCount() > 0, true)
+	Then("walked never exceeds owned", oRg.WalkedCount() <= oRg.OwnedCount(), true)
+	Given("the real uuid class and the real uuid tours")
+	xUu = StzUntouchedMethods(tTrHere + "/../../system/stzUUID.ring", _TrFilesOf(tTrHere + "/../uuid"))
+	? "        (stzUUID: " + String(Len(xUu)) + " public methods named by no uuid tour)"
+	Then("the map ran on a real class", Len(xUu) >= 0, true)
+	Then("Content() is touched: the uuid tours call it", _TrListHas(xUu, "Content"), false)
+EndScenario()
+? "        [section took " + String((Clock() - nTrSec) / ClocksPerSecond()) + "s]"
+
+_TrUnplantAll(tTrPlant)
+? ""
+? "[TR3 took " + String((Clock() - nTrStart) / ClocksPerSecond()) + "s]"
+Summary()
+Shutdown($nNarFail)
+
+#============================================================================
+# HELPERS AFTER THE TOP-LEVEL CODE
+
+func _TrPlantAll(tRoot)
+	_TrUnplantAll(tRoot)
+	StzMakeDir(tRoot)
+	StzMakeDir(tRoot + "/tours")
+	StzMakeDir(tRoot + "/classes")
+	tNl = Char(10)
+	Write(tRoot + "/tours/one.ring",
+		'Route("ZA1")' + tNl + '? "  [OK] a claim on route one"' + tNl)
+	Write(tRoot + "/tours/two_gate.ring",
+		'nOk = 0' + tNl + 'sec("-- 1. the second route --")' + tNl +
+		'discharges("ZA2")' + tNl + 'chk("a claim on route two", 1 = 1)' + tNl +
+		"func sec cTitle" + tNl + Char(9) + "? cTitle" + tNl +
+		"func chk cWhat, bCond" + tNl + Char(9) + "if bCond nOk++ ok" + tNl +
+		"func discharges cItem" + tNl + Char(9) + "? cItem" + tNl)
+	Write(tRoot + "/tours/typo.ring",
+		'Route("ZA9")' + tNl + '? "  [OK] a claim on a route nobody defined"' + tNl)
+	Write(tRoot + "/tours/silent.ring", '? "  [OK] a claim that declares no route"' + tNl)
+	Write(tRoot + "/classes/stzPlanted.ring",
+		"class stzPlanted" + tNl +
+		Char(9) + "def init()" + tNl + Char(9) + Char(9) + "return" + tNl +
+		Char(9) + "def Alpha()" + tNl + Char(9) + Char(9) + "return 1" + tNl +
+		Char(9) + "def Beta(n)" + tNl + Char(9) + Char(9) + "return n" + tNl +
+		Char(9) + "def Gamma()" + tNl + Char(9) + Char(9) + "return 3" + tNl +
+		Char(9) + "def _Hidden()" + tNl + Char(9) + Char(9) + "return 0" + tNl)
+	Write(tRoot + "/tours/calls_alpha.ring",
+		'o = new stzPlanted()' + tNl + '? o.Alpha()' + tNl + '? BETA(1)' + tNl)
+	Write(tRoot + "/tours/defines_gamma.ring",
+		'func Gamma()' + tNl + Char(9) + 'return 0' + tNl)
+	Write(tRoot + "/tours/calls_gamma.ring",
+		'o = new stzPlanted()' + tNl + '? o.Gamma()' + tNl)
+end
+func _TrUnplantAll(tRoot)
+	if FExists(tRoot + "/tours/one.ring")
+		StzDirDeleteAll(tRoot)
+	end
+end
+func _TrCountRule(xFindings, tRule)
+	nN = 0
+	nF = Len(xFindings)
+	for i = 1 to nF
+		if NarText(xFindings[i][:rule]) = NarText(tRule)  nN++  end
+	end
+	return nN
+end
+func _TrSeverityOf(xFindings, tRoute)
+	nF = Len(xFindings)
+	for i = 1 to nF
+		if NarText(xFindings[i][:rule]) = "route_without_tour" and StzFindFirst("route " + tRoute + " ", xFindings[i][:message]) > 0
+			return NarText(xFindings[i][:severity])
+		end
+	end
+	return ""
+end
+func _TrAllHaveKeys(xFindings)
+	nF = Len(xFindings)
+	if nF = 0  return false  end
+	for i = 1 to nF
+		xF = xFindings[i]
+		if Len(xF) != 5  return false  end
+		if not (IsString("" + xF[:rule]) and ("" + xF[:subject]) != "" and ("" + xF[:where]) != "" and ("" + xF[:severity]) != "" and ("" + xF[:message]) != "")
+			return false
+		end
+	end
+	return true
+end
+func _TrListHas(xU, tMethod)
+	nN = Len(xU)
+	for i = 1 to nN
+		if Lower(NarText(xU[i][3])) = Lower(tMethod)  return true  end
+	end
+	return false
+end
+func _TrIdsOf(xList, nCol)
+	vAc = []
+	nN = Len(xList)
+	for i = 1 to nN
+		if IsList(xList[i]) and nCol = 1 and Len(xList[i]) >= 1 and IsString(xList[i][1])
+			vAc + xList[i][1]
+		elseif IsList(xList[i])
+			vAc + xList[i][:item]
+		end
+	end
+	return vAc
+end
+func _TrJoin(xAc)
+	tC = ""
+	nN = Len(xAc)
+	for i = 1 to nN
+		tC += xAc[i] + ","
+	end
+	return tC
+end
+func _TrFirstLine(xC)
+	xN = StzFindFirst(Char(10), xC)
+	if xN = 0  return xC  end
+	return SubStr(xC, 1, xN - 1)
+end
+func _TrFilesOf(tDir)
+	xTwo = _TourFilesUnder(tDir, "")
+	return xTwo[1]
+end

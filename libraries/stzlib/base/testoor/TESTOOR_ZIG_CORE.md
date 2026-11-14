@@ -530,6 +530,7 @@ it. Testoor's guards move one commit each, the core guard first.
   | core | 79 | 188 | 40 texts joined with a number; the core's flag; 4 pairs; 7 names lettered a |
   | golden | 75 | 98 | 2 texts joined with numbers; a Ring predicate as a condition |
   | reader | 74 | 902 | a text joined with a number; `Dir()`'s folder flag, Ring's 1 or 0, compared to 0 |
+  | routes | 44 | 85 | 6 texts joined with numbers or values of any kind |
   | refine | 34 | 59 | a lambda; `.to(` spelled `.To(`; a name lettered r |
   | counters | 29 | 60 of 64 | 17 texts joined with numbers; a bare name `x`; the core's flag. The 4 other lines are the measured cost of a hit, different on every run, printed to two places by `NarTwo` |
 
