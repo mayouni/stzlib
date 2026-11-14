@@ -106,3 +106,19 @@ questions side by side in one process (slots, 6.5 GB budget, prompt cache off), 
     than Bolt. So on this CPU the gate costs what Bolt costs (4.36 s a question) and holds more memory: the fabric's economy
     needs small models far cheaper than the large one, and these are not.
 
+
+2026-11-14 (FABRIC-SPECIALIST-01 (a), ../_measure_specialist.haro): the cheapest member a fabric can have -- a TRAINED head per
+sub-task (kind, product, severity), a logistic regression in the engine over MiniLM's embedding, the ticket's hashed byte
+n-grams, or both. Trained on _data/tickets_train.tsv (48 scenarios written in English, French and Arabic, 144 tickets,
+labelled by their writer under the test set's rules); every setting, each head's feature set and the gate's thresholds
+chosen by 4-fold cross-validation inside those tickets; judged once on the fabric's 204 questions. Table: specialist.txt.
+  - alone, the heads answer 160 to 166 of 204 (granite-1b 167, Bolt 195) in 5 ms a question -- MiniLM's embedding, 11 ms a
+    ticket, is nearly all of it: about 370 times less than granite-1b and 880 times less than Bolt, in 29 MB.
+  - MiniLM was trained on English: on kind it equals Bolt (29 of 36) and on Arabic product it gets 12 of 24; the byte n-grams
+    get 21 of 24 there. Together they lead (166).
+  - the gate (a head answers when its probability reaches the threshold chosen in training, else Bolt) answers 192 of 204,
+    passing 152 to Bolt: 3.27 s a question against Bolt's 4.38, a quarter saved, with Bolt still held (6,012 MB). The
+    thresholds training chose keep few answers; the curve on the test shows 185 at 81 passed and 191 at 118.
+  - the learning curve still rises: 116, 152, 161, 166 of 204 for 12, 24, 36, 48 scenarios -- more labels help, by less
+    each time.
+  - no test ticket repeats a training one: the nearest training ticket's cosine has median 0.60 (MiniLM), one of 84 at 0.90.

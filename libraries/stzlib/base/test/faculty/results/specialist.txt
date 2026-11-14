@@ -1,0 +1,60 @@
+FABRIC-SPECIALIST-01 (a): trained specialists over MiniLM and byte n-grams, judged on the fabric's 204 questions
+
+training: 144 tickets (48 scenarios x en, fr, ar); test: 84 tickets, 204 questions, never seen in training
+
+cross-validated accuracy inside training (4 folds by scenario), best settings per head:
+sub-task  features  lr    epochs  right / 144
+kind      minilm    0.2   10      57
+kind      ngram     0.5   25      64
+kind      both      0.2   10      59
+product   minilm    0.05  40      95
+product   ngram     0.2   40      87
+product   both      0.5   25      107
+severity  minilm    0.2   10      85
+severity  ngram     0.5   25      92
+severity  both      0.2   40      101
+(cross-validation took 1.9 s)
+
+the specialists alone on the test (each head's settings chosen in training):
+                      kind en  prod en  prod fr  prod ar  sev en  sev fr  sev ar  all /204
+specialist minilm     29       33       21       12       27      18      21      161
+specialist ngram      19       21       17       21       31      20      21      150
+specialist both       25       31       21       20       27      19      23      166
+specialist, chosen    19       31       21       20       27      19      23      160
+bolt-e4b              29       34       24       24       36      24      24      195
+granite-1b            24       27       23       19       35      19      20      167
+(test questions per column: 36, 36, 24, 24, 36, 24, 24)
+chosen in training: kind = ngram, product = both, severity = both
+
+the gate: a head answers when its top probability reaches its threshold, else Bolt answers
+thresholds chosen in training (kept answers right >= 96 % out of fold): kind 0.84, product 0.79, severity 0.93
+                                  right     to Bolt   MB      s per question
+bolt-e4b alone                    195/204   all       5983    4.38
+granite-1b alone                  167/204   -         1710    1.84
+specialists alone (chosen)        160/204   -         29      0.005
+gate: specialists, else Bolt      192/204   152/204   6012    3.27
+kept by the heads: 48 right of 52; passed to Bolt: 144 right of 152
+specialist time on the test: MiniLM 949 ms, n-grams 11 ms, heads 13 ms, for 84 tickets and 204 questions
+Bolt's and granite-1b's times: the median per question in results/fabric_pace.tsv (4383 ms, 1843 ms)
+
+the same gate at one threshold for all three heads, on the test (a curve for the reader; not how the gate was set):
+threshold   right     to Bolt
+0.50        171/204   20/204
+0.60        180/204   53/204
+0.70        185/204   81/204
+0.80        191/204   118/204
+0.90        192/204   164/204
+0.95        195/204   192/204
+0.99        195/204   204/204
+
+the learning curve: the heads trained on part of the training tickets, judged on the same 204 test questions:
+scenarios   tickets   minilm   ngram    both     chosen
+12          36        97       106      116      113
+24          72        133      128      152      146
+36          108       151      147      161      154
+48          144       161      150      166      160
+(out of 204; each head keeps the settings cross-validation chose on all 48 scenarios)
+
+nearest training ticket to each test ticket (cosine; a check that the test is not the training set again):
+  minilm  median 0.60, highest 0.90, above 0.90: 1 of 84
+  ngram   median 0.46, highest 0.74, above 0.90: 0 of 84

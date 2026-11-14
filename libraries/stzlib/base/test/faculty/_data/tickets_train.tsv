@@ -1,0 +1,144 @@
+en	app	high	bug	After this morning's update the Android app logs me out every few seconds, so my drivers cannot scan a single parcel.
+en	app	high	bug	The iOS app freezes on the payment screen at checkout and our shop has taken zero mobile orders since noon.
+en	app	high	billing	I upgraded inside the Android app, Google charged me 89 dollars, but the app still shows the free plan and my team is locked out of our shared projects.
+en	app	high	bug	Photos attached in the app upload as blank grey squares. Our inspectors must file their reports with them by 5 pm today.
+en	app	high	other	One of our field phones was lost with the app signed in to the admin account. How do I sign it out remotely right now?
+en	app	high	bug	Offline edits made in the tablet app vanished when it reconnected. Three days of site measurements are gone.
+en	app	low	other	Could the app remember my last selected project when I reopen it? Small thing, would save a tap.
+en	app	low	bug	The settings icon in the iOS app is slightly cut off on the iPhone mini. Everything still works.
+en	app	low	billing	Where in the app can I see the date of my next renewal? Just planning my budget.
+en	app	low	other	URGENT!!! Please add a home screen widget, my colleagues all want one!!!
+en	app	low	bug	The app shows comment timestamps one hour off, wrong time zone I guess. Not blocking anything.
+en	app	low	billing	Is the yearly plan cheaper if I buy it in the app or on the website? No hurry.
+en	web	high	bug	Our admin panel on the website throws an error 500 whenever we save a user, and we are onboarding forty new staff this morning.
+en	web	high	billing	The website renewed our plan at the old price and then again at the new price. That is two charges of 1,200 euros on our company card.
+en	web	high	bug	Password reset emails from the web login never arrive, and half our office is locked out today.
+en	web	high	bug	The reports page in the dashboard shows last quarter's revenue as zero. Our board meets tomorrow at 9.
+en	web	high	billing	The invoice I download from the billing page is an empty PDF, and our accountant must file the VAT return by tomorrow.
+en	web	high	other	Our lawyer asks us to transfer ownership of the workspace to our new managing partner before tomorrow's audit. How do we do that on the website?
+en	web	low	other	Can I switch the web dashboard to Spanish? Just a preference.
+en	web	low	bug	On the pricing page the comparison table overlaps the footer when the window is narrow.
+en	web	low	billing	Could you add our VAT number to the invoices shown on the account page? Next month is fine.
+en	web	low	bug	The search on the help site ignores accents, so resume and résumé give different results. Minor.
+en	web	low	other	This is extremely important to me: could the dashboard charts have rounded corners? It would look so much nicer!
+en	web	low	billing	What happens to my saved projects if I downgrade from Business to Starter on the website?
+en	api	high	bug	Since 06:00 UTC every call to the orders endpoint returns 503. Our warehouse integration has stopped shipping.
+en	api	high	bug	The Java SDK sends every webhook acknowledgement twice, and our system is now crediting customers twice.
+en	api	high	billing	We were billed 3,400 dollars of API overage this month though our dashboard shows we stayed under quota. Finance has blocked the payment.
+en	api	high	bug	OAuth token refresh fails with invalid_grant for all our users since your deploy last night. Nobody can sync.
+en	api	high	other	We go live with your API tomorrow morning and still have no production key. Who can issue one today?
+en	api	high	bug	Webhook payloads have carried the amount in cents instead of euros since yesterday, so our ledger is off by a factor of 100.
+en	api	low	other	Is there an official Go client for the API, or should we generate one from the OpenAPI file?
+en	api	low	bug	The API docs example for pagination uses a parameter name that was renamed. The real one works fine.
+en	api	low	other	Could you raise our rate limit to 200 requests per minute sometime next quarter?
+en	api	low	bug	The Python SDK prints a deprecation warning on every start. Harmless but noisy.
+en	api	low	billing	Are sandbox API calls counted against our monthly quota?
+en	api	low	other	CRITICAL question about the API: is the orders list sorted by date? It is for a small side project.
+en	other	high	other	Our hospital's security team must receive your penetration test summary by tomorrow noon or the purchase is cancelled.
+en	other	high	billing	Your sales rep promised a 30 percent discount in writing but the quote says 10 percent. We sign today, please fix it before 5 pm.
+en	other	high	other	A journalist publishes tomorrow claiming your company leaked customer data. We need an official statement from you today.
+en	other	high	billing	The bank transfer we sent for the enterprise contract came back, and the contract lapses at midnight. Which account details should we use?
+en	other	high	other	Our town council must present your letter on where our data is hosted at tomorrow's vote.
+en	other	high	other	Someone is impersonating your support team by phone and asking our staff for passwords. What should we do today?
+en	other	low	other	Do you have stickers you could send for our meetup next month?
+en	other	low	other	I am writing a book on remote work; may I quote an article from your blog?
+en	other	low	billing	Do you accept payment by cheque for annual contracts? Just exploring options.
+en	other	low	other	Are you hiring support agents who speak Portuguese?
+en	other	low	billing	Could you send me your price list for twenty seats? We are comparing vendors this quarter.
+en	other	low	other	Loved your webinar on security, keep them coming!
+fr	app	high	bug	Depuis la mise à jour, l'appli Android se ferme dès qu'on scanne un code-barres. Nos préparateurs ne peuvent plus sortir une seule commande.
+fr	app	high	bug	L'application iPad affiche un écran noir au lancement, et notre salon professionnel commence dans deux heures.
+fr	app	high	billing	J'ai acheté le forfait Équipe via l'App Store, le paiement est passé mais l'appli me laisse en version gratuite et mes collègues ne voient plus nos dossiers.
+fr	app	high	bug	Les signatures des clients saisies dans l'appli ne s'enregistrent plus, nous ne pouvons clôturer aucune intervention aujourd'hui.
+fr	app	high	other	Un technicien a perdu son téléphone avec l'appli connectée au compte administrateur. Comment le déconnecter à distance tout de suite ?
+fr	app	high	bug	La synchronisation de l'appli a écrasé nos fiches clients avec d'anciennes versions. Une semaine de travail perdue.
+fr	app	low	other	Serait-il possible d'ajouter un widget pour l'écran d'accueil d'Android ? Ce serait pratique.
+fr	app	low	bug	Dans l'appli iOS, le bouton Partager est un peu décalé vers la droite. Il fonctionne quand même.
+fr	app	low	billing	Où voir dans l'application la date de mon prochain prélèvement ? C'est juste pour mon budget.
+fr	app	low	other	TRÈS IMPORTANT !!! Pouvez-vous mettre une couleur plus jolie au menu de l'appli ? Merci !!!
+fr	app	low	bug	L'appli affiche les dates au format américain alors que mon téléphone est réglé en français. Rien de bloquant.
+fr	app	low	billing	L'abonnement annuel est-il moins cher dans l'appli ou sur le site ? Aucune urgence.
+fr	web	high	bug	Le back-office du site renvoie une erreur 500 à chaque création d'utilisateur, et nous accueillons trente nouveaux salariés ce matin.
+fr	web	high	billing	Le site a renouvelé notre abonnement deux fois ce mois-ci : deux fois 900 € débités sur la carte de l'entreprise.
+fr	web	high	bug	Les courriels de réinitialisation du mot de passe n'arrivent jamais, la moitié du bureau est bloquée depuis ce matin.
+fr	web	high	bug	Le tableau de bord affiche zéro pour tout le chiffre d'affaires du trimestre. Notre conseil d'administration se réunit demain à 9 h.
+fr	web	high	billing	La facture téléchargée depuis l'espace facturation est un PDF vide, et notre comptable doit déposer la déclaration de TVA demain.
+fr	web	high	other	Notre avocat nous demande de transférer la propriété de l'espace de travail à notre nouveau gérant avant l'audit de demain. Comment faire sur le site ?
+fr	web	low	other	Peut-on afficher le tableau de bord en espagnol ? C'est une simple préférence.
+fr	web	low	bug	Sur la page des tarifs, le tableau déborde sur le pied de page quand la fenêtre est étroite.
+fr	web	low	billing	Pourriez-vous ajouter notre numéro de TVA intracommunautaire sur les factures ? Le mois prochain suffira.
+fr	web	low	bug	La recherche du centre d'aide ne trouve rien si on tape « facturé » au lieu de « facture ». Détail mineur.
+fr	web	low	other	C'est capital pour moi : les graphiques du tableau de bord pourraient-ils avoir des coins arrondis ?
+fr	web	low	billing	Que deviennent mes projets si je passe de l'offre Business à l'offre Starter sur le site ?
+fr	api	high	bug	Depuis 6 h, tous les appels à l'endpoint des commandes renvoient une erreur 503. Notre entrepôt ne peut plus expédier.
+fr	api	high	bug	Le SDK Java envoie chaque webhook en double et notre système crédite deux fois les clients.
+fr	api	high	billing	On nous facture 3 000 € de dépassement d'API alors que le tableau de bord indique que nous sommes restés sous le quota. La comptabilité bloque le paiement.
+fr	api	high	bug	Le rafraîchissement des jetons OAuth échoue pour tous nos utilisateurs depuis votre mise en production d'hier soir. Plus personne ne synchronise.
+fr	api	high	other	Nous passons en production demain matin et nous n'avons toujours pas de clé d'API de production. Qui peut nous en délivrer une aujourd'hui ?
+fr	api	high	bug	Les montants des webhooks arrivent en centimes au lieu d'euros depuis hier, notre comptabilité est fausse d'un facteur cent.
+fr	api	low	other	Existe-t-il un client officiel en Go pour l'API, ou faut-il le générer depuis le fichier OpenAPI ?
+fr	api	low	bug	Dans la documentation de l'API, l'exemple de pagination utilise un ancien nom de paramètre. Le vrai fonctionne très bien.
+fr	api	low	other	Pourriez-vous augmenter notre limite à 200 requêtes par minute au prochain trimestre ?
+fr	api	low	bug	Le SDK Python affiche un avertissement d'obsolescence à chaque démarrage. Inoffensif mais bruyant.
+fr	api	low	billing	Les appels d'API en mode bac à sable sont-ils décomptés de notre quota mensuel ?
+fr	api	low	other	QUESTION CRITIQUE sur l'API : la liste des commandes est-elle triée par date ? C'est pour un petit projet personnel.
+fr	other	high	other	L'équipe sécurité de notre clinique doit recevoir le résumé de votre test d'intrusion avant demain midi, sinon l'achat est annulé.
+fr	other	high	billing	Votre commercial nous a promis 30 % de remise par écrit mais le devis indique 10 %. Nous signons aujourd'hui, merci de corriger avant 17 h.
+fr	other	high	other	Un journaliste publie demain un article affirmant que vous avez divulgué des données clients. Il nous faut une déclaration officielle aujourd'hui.
+fr	other	high	billing	Notre virement pour le contrat entreprise a été rejeté et le contrat expire à minuit. Quelles coordonnées bancaires utiliser ?
+fr	other	high	other	Notre mairie doit présenter votre attestation d'hébergement des données au conseil municipal de demain.
+fr	other	high	other	Quelqu'un se fait passer pour votre support au téléphone et demande leurs mots de passe à nos employés. Que faire dès aujourd'hui ?
+fr	other	low	other	Auriez-vous des autocollants à nous envoyer pour notre meetup du mois prochain ?
+fr	other	low	other	J'écris un livre sur le télétravail ; puis-je citer un article de votre blog ?
+fr	other	low	billing	Acceptez-vous le paiement par chèque pour un contrat annuel ? Je me renseigne simplement.
+fr	other	low	other	Recrutez-vous des conseillers support parlant portugais ?
+fr	other	low	billing	Pourriez-vous m'envoyer votre grille tarifaire pour vingt licences ? Nous comparons plusieurs fournisseurs ce trimestre.
+fr	other	low	other	J'ai adoré votre webinaire sur la sécurité, continuez comme ça !
+ar	app	high	bug	منذ التحديث يُغلق تطبيق أندرويد فور مسح الباركود، ولم يعد بإمكان موظفي المستودع إخراج أي طلب.
+ar	app	high	bug	تطبيق الآيباد يعرض شاشة سوداء عند التشغيل، ومعرضنا التجاري يبدأ بعد ساعتين.
+ar	app	high	billing	اشتريت باقة الفريق من متجر التطبيقات وتم الدفع، لكن التطبيق ما زال يعاملني كمستخدم مجاني وزملائي لا يرون ملفاتنا.
+ar	app	high	bug	توقيعات العملاء في التطبيق لم تعد تُحفظ، ولا نستطيع إغلاق أي مهمة صيانة اليوم.
+ar	app	high	other	فقد أحد الفنيين هاتفه والتطبيق مفتوح على حساب المسؤول. كيف نسجّل خروجه عن بُعد فورًا؟
+ar	app	high	bug	مزامنة التطبيق استبدلت بطاقات عملائنا بنسخ قديمة، وضاع عمل أسبوع كامل.
+ar	app	low	other	هل يمكن إضافة أداة للشاشة الرئيسية في أندرويد؟ ستكون مفيدة.
+ar	app	low	bug	في تطبيق آيفون زر المشاركة منزاح قليلًا، لكنه يعمل.
+ar	app	low	billing	أين أجد في التطبيق تاريخ الخصم القادم؟ فقط لأخطط لميزانيتي.
+ar	app	low	other	مهم جدًا!!! هل يمكنكم تغيير لون قائمة التطبيق إلى لون أجمل؟ شكرًا!!!
+ar	app	low	bug	التطبيق يعرض التواريخ بالصيغة الأمريكية مع أن هاتفي مضبوط على العربية. ليس أمرًا معطلًا.
+ar	app	low	billing	هل الاشتراك السنوي أرخص داخل التطبيق أم على الموقع؟ لا استعجال.
+ar	web	high	bug	لوحة إدارة الموقع تعطي خطأ 500 عند إنشاء أي مستخدم، ونحن نستقبل ثلاثين موظفًا جديدًا هذا الصباح.
+ar	web	high	billing	جدّد الموقع اشتراكنا مرتين هذا الشهر، وخُصم 900 دولار مرتين من بطاقة الشركة.
+ar	web	high	bug	رسائل إعادة تعيين كلمة المرور لا تصل أبدًا، ونصف المكتب لا يستطيع الدخول منذ الصباح.
+ar	web	high	bug	لوحة التحكم تعرض صفرًا لكل مبيعات الربع، واجتماع مجلس الإدارة غدًا الساعة التاسعة.
+ar	web	high	billing	الفاتورة التي ننزّلها من صفحة الفوترة ملف PDF فارغ، ومحاسبنا يجب أن يقدّم الإقرار الضريبي غدًا.
+ar	web	high	other	يطلب محامينا نقل ملكية مساحة العمل إلى شريكنا الجديد قبل التدقيق غدًا. كيف نفعل ذلك من الموقع؟
+ar	web	low	other	هل يمكن عرض لوحة التحكم باللغة الإسبانية؟ مجرد تفضيل.
+ar	web	low	bug	في صفحة الأسعار يتداخل الجدول مع تذييل الصفحة عندما تكون النافذة ضيقة.
+ar	web	low	billing	هل يمكنكم إضافة رقمنا الضريبي إلى الفواتير في صفحة الحساب؟ الشهر القادم يكفي.
+ar	web	low	bug	البحث في مركز المساعدة لا يجد الكلمة إذا كتبتها بالتشكيل. تفصيل بسيط.
+ar	web	low	other	هذا مهم جدًا بالنسبة لي: هل يمكن جعل زوايا الرسوم البيانية في لوحة التحكم مستديرة؟
+ar	web	low	billing	ماذا يحدث لمشاريعي إذا انتقلت من باقة الأعمال إلى الباقة الأساسية على الموقع؟
+ar	api	high	bug	منذ السادسة صباحًا كل الطلبات إلى واجهة الطلبات البرمجية ترجع الخطأ 503، ومستودعنا توقف عن الشحن.
+ar	api	high	bug	حزمة SDK للغة جافا ترسل كل إشعار webhook مرتين، ونظامنا يضيف الرصيد للعملاء مرتين.
+ar	api	high	billing	فُوترنا بثلاثة آلاف دولار تجاوزًا لاستخدام الواجهة البرمجية مع أن لوحة التحكم تقول إننا لم نتجاوز الحصة. قسم المالية أوقف الدفع.
+ar	api	high	bug	تجديد رموز OAuth يفشل لكل مستخدمينا منذ نشركم ليلة أمس، ولا أحد يستطيع المزامنة.
+ar	api	high	other	ننطلق في الإنتاج صباح الغد وليس لدينا مفتاح API للإنتاج بعد. من يستطيع إصداره اليوم؟
+ar	api	high	bug	المبالغ في رسائل webhook تصل بالسنتات بدل الدولارات منذ أمس، وحساباتنا خاطئة بمعامل مئة.
+ar	api	low	other	هل توجد مكتبة رسمية للغة Go للواجهة البرمجية، أم نولّدها من ملف OpenAPI؟
+ar	api	low	bug	مثال الترقيم في توثيق الواجهة البرمجية يستخدم اسم معامل قديمًا، والاسم الصحيح يعمل جيدًا.
+ar	api	low	other	هل يمكنكم رفع حدّ الطلبات إلى 200 في الدقيقة في الربع القادم؟
+ar	api	low	bug	حزمة SDK لبايثون تطبع تحذيرًا عن دالة قديمة عند كل تشغيل. غير ضار لكنه مزعج.
+ar	api	low	billing	هل تُحتسب طلبات بيئة الاختبار من حصتنا الشهرية؟
+ar	api	low	other	سؤال حرج عن الواجهة البرمجية: هل قائمة الطلبات مرتبة حسب التاريخ؟ إنه لمشروع شخصي صغير.
+ar	other	high	other	فريق الأمن في مستشفانا يحتاج ملخص اختبار الاختراق لديكم قبل ظهر الغد وإلا أُلغي الشراء.
+ar	other	high	billing	وعدنا مندوب المبيعات بخصم 30٪ كتابيًا لكن عرض السعر يذكر 10٪. نوقّع اليوم، يرجى التصحيح قبل الخامسة.
+ar	other	high	other	صحفي سينشر غدًا مقالًا يزعم أنكم سرّبتم بيانات العملاء. نحتاج بيانًا رسميًا منكم اليوم.
+ar	other	high	billing	أُعيد التحويل البنكي الذي أرسلناه لعقد المؤسسات، والعقد ينتهي عند منتصف الليل. ما بيانات الحساب الصحيحة؟
+ar	other	high	other	بلديتنا يجب أن تقدّم شهادة استضافة البيانات إلى المجلس غدًا.
+ar	other	high	other	شخص ينتحل صفة فريق الدعم لديكم عبر الهاتف ويطلب كلمات مرور موظفينا. ماذا نفعل اليوم؟
+ar	other	low	other	هل لديكم ملصقات يمكن إرسالها لملتقانا الشهر القادم؟
+ar	other	low	other	أكتب كتابًا عن العمل عن بُعد، هل يمكنني الاقتباس من مدونتكم؟
+ar	other	low	billing	هل تقبلون الدفع بشيك للعقود السنوية؟ أستفسر فقط.
+ar	other	low	other	هل توظّفون موظفي دعم يتحدثون البرتغالية؟
+ar	other	low	billing	هل يمكن إرسال قائمة أسعاركم لعشرين مستخدمًا؟ نقارن بين عدة موردين هذا الربع.
+ar	other	low	other	أعجبتني ندوتكم عن الأمن، استمروا!

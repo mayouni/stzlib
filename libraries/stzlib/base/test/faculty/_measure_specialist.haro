@@ -1,0 +1,850 @@
+# _measure_specialist.haro -- FABRIC-SPECIALIST-01 (a), the instrument
+#
+# FABRIC-SELECTOR-01 found that the small generative models cost too much next to the large one on this CPU: Bolt E4B
+# reads a question in 4.38 s and the cheapest useful member, granite-1b, in 1.84 s. A fabric saves only when its
+# members are far cheaper than that. This instrument measures the cheapest kind of member the support desk can have:
+# a TRAINED SPECIALIST per sub-task, a linear head over a ticket's features, with no generation at all.
+#
+#   the sub-tasks  the support desk's three: kind (bug, billing, other), product (app, web, api, other), severity
+#                  (high, low) -- (c) of FABRIC-SELECTOR-01, a task made of distinct sub-tasks
+#   the features   minilm   MiniLM's sentence embedding (384 numbers, one embedding per ticket serves all three
+#                           heads); MiniLM was trained on English
+#                  ngram    the ticket's byte n-grams (3, 4 and 5 bytes of the lowercased text) hashed into 1,024
+#                           counts, L2-normalised: no model at all, the same for every language
+#                  both     the two side by side (1,408 numbers)
+#   the heads      one-vs-rest logistic regression in the engine (StzEngineLogisticTrain), its probabilities
+#                  normalised over the sub-task's options
+#   the training   _data/tickets_train.tsv: 48 scenarios, each written in English, French and Arabic (144 tickets),
+#                  labelled by their writer under the test set's rules. Its settings (learning rate, epochs) and the
+#                  feature set of each head are chosen by 4-fold cross-validation INSIDE the training tickets, a
+#                  scenario's three languages always in one fold
+#   the test       the 204 questions of results/fabric.tsv (36 held-out English tickets, 48 fresh French and Arabic
+#                  ones), untouched by training: scored once, with the settings training chose
+#   the gate       a head answers when its top probability reaches a threshold, else the question goes to Bolt
+#                  (its recorded answer in results/fabric.tsv). The threshold is chosen in training: the lowest at
+#                  which the cross-validated answers kept are right at least 96 % of the time (Bolt's own rate on the
+#                  test, 195/204, rounded)
+#   the curve      the same heads trained on the first 12, 24, 36 and 48 scenarios: what more labels buy
+#   the costs      time: the features and heads measured here, per question; Bolt's and granite-1b's median time per
+#                  question from results/fabric_pace.tsv. Memory: MiniLM ready 29 MB (results/ready.txt)
+#
+#   haro _measure_specialist.haro       -> results/specialist.txt
+#
+# Run from base/test/faculty on haro.exe with STZ_ENGINE_DIR (an engine with stz_neural and stz_stats) and
+# STZ_MODELS_DIR (the folder holding all-MiniLM-L6-v2.Q8_0.gguf). One process, about ten seconds.
+
+$tTrainFile = "_data/tickets_train.tsv"
+$tReport = "results/specialist.txt"
+$tLarge = "bolt-e4b"
+$tSmall = "granite-1b"
+$nBuckets = 1024
+$fTarget = 0.96f
+$vTasks = [ [ "kind", [ "bug", "billing", "other" ] ], [ "product", [ "app", "web", "api", "other" ] ], [ "severity", [ "high", "low" ] ] ]
+$vSets = [ "minilm", "ngram", "both" ]
+$vGrid = [ [ 0.05f, 10 ], [ 0.05f, 40 ], [ 0.2f, 10 ], [ 0.2f, 40 ], [ 0.5f, 25 ] ]
+$tOutText = ""
+$vChosenSets = []
+
+Run()
+
+func Run
+	tBin = Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/"
+	LoadLib(tBin + "stz_neural.dll")
+	LoadLib(tBin + "stz_stats.dll")
+	tModel = Slashes(SysGet("STZ_MODELS_DIR")) + "/all-MiniLM-L6-v2.Q8_0.gguf"
+	if StzEngineNeuralModelLoad(tModel) = 0
+		? "MiniLM: the load was refused, status " + String(StzEngineNeuralModelLoadStatus())
+		return
+	end
+	vTrain = TrainItems()
+	vTest = TestItems()
+	? "training tickets " + String(Len(vTrain)) + ", test tickets " + String(Len(vTest))
+
+	vTrF = Features(vTrain)
+	vTeF = Features(vTest)
+	nTestMiniMs = vTeF[4]
+	nTestGramMs = vTeF[5]
+
+	vOrder = TrainOrder(vTrain)
+	vRef = Recorded()
+	vPace = PaceTable()
+	nLargeMs = PaceMs(vPace, $tLarge)
+	nSmallMs = PaceMs(vPace, $tSmall)
+
+	Say("FABRIC-SPECIALIST-01 (a): trained specialists over MiniLM and byte n-grams, judged on the fabric's 204 questions")
+	Say("")
+	Say("training: " + String(Len(vTrain)) + " tickets (48 scenarios x en, fr, ar); test: " + String(Len(vTest)) + " tickets, 204 questions, never seen in training")
+	Say("")
+
+	# ---- cross-validation inside the training tickets: settings per (sub-task, feature set)
+	Say("cross-validated accuracy inside training (4 folds by scenario), best settings per head:")
+	Say(Pad("sub-task", 10) + Pad("features", 10) + Pad("lr", 6) + Pad("epochs", 8) + "right / " + String(Len(vTrain)))
+	vChosen = []     # per task: [ set number, grid number, out-of-fold [ best, top prob ] per training item ]
+	vGridOf = []     # per task: per feature set, the grid number cross-validation chose
+	nCvAll = Clock()
+	for t = 1 to Len($vTasks)
+		vClasses = $vTasks[t][2]
+		vLab = Labels(vTrain, t)
+		nBestSet = 0
+		nBestGrid = 0
+		nBestRight = -1
+		vBestOof = []
+		vSetGrids = []
+		for s = 1 to Len($vSets)
+			nSetRight = -1
+			nSetGrid = 0
+			for g = 1 to Len($vGrid)
+				vOof = OutOfFold(vTrF[s], vLab, vClasses, vOrder, vTrain, g)
+				nR = RightOf(vOof, vLab)
+				if nR > nSetRight
+					nSetRight = nR
+					nSetGrid = g
+				end
+				if nR > nBestRight
+					nBestRight = nR
+					nBestSet = s
+					nBestGrid = g
+					vBestOof = vOof
+				end
+			end
+			vSetGrids + nSetGrid
+			Say(Pad($vTasks[t][1], 10) + Pad($vSets[s], 10) + Pad(String($vGrid[nSetGrid][1]), 6) + Pad(String($vGrid[nSetGrid][2]), 8) + String(nSetRight))
+		end
+		vChosen + [ nBestSet, nBestGrid, vBestOof ]
+		vGridOf + vSetGrids
+		$vChosenSets + nBestSet
+	end
+	Say("(cross-validation took " + Secs(Ms(nCvAll)) + " s)")
+	Say("")
+
+	# ---- the threshold of each head, from its out-of-fold answers
+	vTau = []
+	for t = 1 to Len($vTasks)
+		vTau + Threshold(vChosen[t][3], Labels(vTrain, t))
+	end
+
+	# ---- final heads on all training tickets; every feature set scored on the test, for the record
+	vAllIdx = vOrder
+	vTestIdx = []
+	for i = 1 to Len(vTest)
+		vTestIdx + i
+	end
+	vPred = []       # [ task ][ set ] -> per test item [ best, top prob ]
+	nHeadMs = 0
+	for t = 1 to Len($vTasks)
+		vClasses = $vTasks[t][2]
+		vLab = Labels(vTrain, t)
+		vPerSet = []
+		for s = 1 to Len($vSets)
+			nG = vGridOf[t][s]
+			vModel = TrainHead(vTrF[s], vAllIdx, vLab, vClasses, $vGrid[nG][1], $vGrid[nG][2])
+			nP0 = Clock()
+			vP = PredictHead(vModel, vTeF[s], vTestIdx, vClasses)
+			if s = vChosen[t][1]
+				nHeadMs = nHeadMs + Ms(nP0)
+			end
+			vPerSet + vP
+		end
+		vPred + vPerSet
+	end
+
+	# ---- the specialists alone, by feature set
+	Say("the specialists alone on the test (each head's settings chosen in training):")
+	Say(Pad("", 22) + Pad("kind en", 9) + Pad("prod en", 9) + Pad("prod fr", 9) + Pad("prod ar", 9) + Pad("sev en", 8) + Pad("sev fr", 8) + Pad("sev ar", 8) + "all /204")
+	for s = 1 to Len($vSets)
+		vCol = SetColumns(vTest, vPred, s)
+		Say(Row("specialist " + $vSets[s], vCol))
+	end
+	vColC = SetColumns(vTest, vPred, 0)
+	Say(Row("specialist, chosen", vColC))
+	Say(Row($tLarge, RecordedColumns(vTest, vRef, $tLarge)))
+	Say(Row($tSmall, RecordedColumns(vTest, vRef, $tSmall)))
+	Say("(test questions per column: 36, 36, 24, 24, 36, 24, 24)")
+	tCh = ""
+	for t = 1 to Len($vTasks)
+		if t > 1
+			tCh = tCh + ", "
+		end
+		tCh = tCh + $vTasks[t][1] + " = " + $vSets[vChosen[t][1]]
+	end
+	Say("chosen in training: " + tCh)
+	Say("")
+
+	# ---- the gate
+	nQ = 0
+	nRight = 0
+	nPass = 0
+	nPassRight = 0
+	nKeptRight = 0
+	nKept = 0
+	for i = 1 to Len(vTest)
+		for t = 1 to Len($vTasks)
+			tGold = vTest[i][3][t]
+			if tGold != ""
+				nQ = nQ + 1
+				vA = vPred[t][vChosen[t][1]][i]
+				if vA[2] >= vTau[t]
+					nKept = nKept + 1
+					if vA[1] = tGold
+						nRight = nRight + 1
+						nKeptRight = nKeptRight + 1
+					end
+				else
+					nPass = nPass + 1
+					if RecordedBest(vRef, $tLarge, vTest[i], t) = tGold
+						nRight = nRight + 1
+						nPassRight = nPassRight + 1
+					end
+				end
+			end
+		end
+	end
+	tTau = ""
+	for t = 1 to Len($vTasks)
+		if t > 1
+			tTau = tTau + ", "
+		end
+		tTau = tTau + $vTasks[t][1] + " " + String(Decimal(vTau[t], 2))
+	end
+	nSpecMs = nTestMiniMs + nTestGramMs + nHeadMs
+	fSpecQ = Float(nSpecMs) / Float(nQ)
+	fGateQ = fSpecQ + Float(nPass) * Float(nLargeMs) / Float(nQ)
+	Say("the gate: a head answers when its top probability reaches its threshold, else Bolt answers")
+	Say("thresholds chosen in training (kept answers right >= 96 % out of fold): " + tTau)
+	Say(Pad("", 34) + Pad("right", 10) + Pad("to Bolt", 10) + Pad("MB", 8) + "s per question")
+	Say(Pad($tLarge + " alone", 34) + Pad(String(RecordedRight(vTest, vRef, $tLarge)) + "/204", 10) + Pad("all", 10) + Pad("5983", 8) + String(Decimal(Float(nLargeMs) / 1000.0f, 2)))
+	Say(Pad($tSmall + " alone", 34) + Pad(String(RecordedRight(vTest, vRef, $tSmall)) + "/204", 10) + Pad("-", 10) + Pad("1710", 8) + String(Decimal(Float(nSmallMs) / 1000.0f, 2)))
+	Say(Pad("specialists alone (chosen)", 34) + Pad(String(ColumnsTotal(vColC)) + "/204", 10) + Pad("-", 10) + Pad("29", 8) + String(Decimal(fSpecQ / 1000.0f, 3)))
+	Say(Pad("gate: specialists, else Bolt", 34) + Pad(String(nRight) + "/204", 10) + Pad(String(nPass) + "/204", 10) + Pad("6012", 8) + String(Decimal(fGateQ / 1000.0f, 2)))
+	Say("kept by the heads: " + String(nKeptRight) + " right of " + String(nKept) + "; passed to Bolt: " + String(nPassRight) + " right of " + String(nPass))
+	Say("specialist time on the test: MiniLM " + String(nTestMiniMs) + " ms, n-grams " + String(nTestGramMs) + " ms, heads " + String(nHeadMs) + " ms, for " + String(Len(vTest)) + " tickets and " + String(nQ) + " questions")
+	Say("Bolt's and granite-1b's times: the median per question in results/fabric_pace.tsv (" + String(nLargeMs) + " ms, " + String(nSmallMs) + " ms)")
+	Say("")
+
+	# ---- the curve, on the test, for the record only: the gate's thresholds are the ones chosen above
+	Say("the same gate at one threshold for all three heads, on the test (a curve for the reader; not how the gate was set):")
+	Say(Pad("threshold", 12) + Pad("right", 10) + "to Bolt")
+	vSteps = [ 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 0.95f, 0.99f ]
+	for c = 1 to Len(vSteps)
+		vR = GateAt(vTest, vPred, vChosen, vRef, vSteps[c])
+		Say(Pad(String(Decimal(vSteps[c], 2)), 12) + Pad(String(vR[1]) + "/204", 10) + String(vR[2]) + "/204")
+	end
+	Say("")
+
+	# ---- the learning curve: the same heads trained on the first scenarios of the training order only
+	Say("the learning curve: the heads trained on part of the training tickets, judged on the same 204 test questions:")
+	Say(Pad("scenarios", 12) + Pad("tickets", 10) + Pad("minilm", 9) + Pad("ngram", 9) + Pad("both", 9) + "chosen")
+	vSizes = [ 12, 24, 36, 48 ]
+	for c = 1 to Len(vSizes)
+		vPart = []
+		for i = 1 to vSizes[c] * 3
+			vPart + vOrder[i]
+		end
+		tLine = Pad(String(vSizes[c]), 12) + Pad(String(Len(vPart)), 10)
+		nChosenRight = 0
+		for s = 1 to Len($vSets)
+			nSetRight = 0
+			for t = 1 to Len($vTasks)
+				vClasses = $vTasks[t][2]
+				vModel = TrainHead(vTrF[s], vPart, Labels(vTrain, t), vClasses, $vGrid[vGridOf[t][s]][1], $vGrid[vGridOf[t][s]][2])
+				vP = PredictHead(vModel, vTeF[s], vTestIdx, vClasses)
+				nR = 0
+				for i = 1 to Len(vTest)
+					if vTest[i][3][t] != "" and vP[i][1] = vTest[i][3][t]
+						nR = nR + 1
+					end
+				end
+				nSetRight = nSetRight + nR
+				if s = vChosen[t][1]
+					nChosenRight = nChosenRight + nR
+				end
+			end
+			tLine = tLine + Pad(String(nSetRight), 9)
+		end
+		Say(tLine + String(nChosenRight))
+	end
+	Say("(out of 204; each head keeps the settings cross-validation chose on all 48 scenarios)")
+	Say("")
+
+	# ---- how close the test tickets are to the training tickets
+	Say("nearest training ticket to each test ticket (cosine; a check that the test is not the training set again):")
+	for s = 1 to 2
+		vNear = Nearest(vTeF[s], vTrF[s])
+		Say("  " + Pad($vSets[s], 8) + "median " + String(Decimal(MedianF(vNear), 2)) + ", highest " + String(Decimal(MaxF(vNear), 2)) + ", above 0.90: " + String(CountAbove(vNear, 0.9f)) + " of " + String(Len(vNear)))
+	end
+	Write($tReport, $tOutText)
+	? "written " + $tReport
+end
+
+# ---- the tickets
+
+# [ lang, text, [ kind, product, severity ], scenario, set, item ]
+func TrainItems
+	vOut = []
+	vR = ReadTsv($tTrainFile)
+	vSeen = [ 0, 0, 0 ]
+	vLangs = [ "en", "fr", "ar" ]
+	for i = 1 to Len(vR)
+		if Len(vR[i]) = 5
+			nLang = Find(vLangs, vR[i][1])
+			vSeen[nLang] = vSeen[nLang] + 1
+			vOut + [ vR[i][1], vR[i][5], [ vR[i][4], vR[i][2], vR[i][3] ], vSeen[nLang], "train", i ]
+		end
+	end
+	return vOut
+end
+
+func TestItems
+	vOut = []
+	vH = ReadTsv("_data/tickets_heldout.tsv")
+	nH = 0
+	for i = 1 to Len(vH)
+		if Len(vH[i]) = 5
+			nH = nH + 1
+			vOut + [ "en", vH[i][1], [ vH[i][4], vH[i][2], vH[i][3] ], 0, "heldout", nH ]
+		end
+	end
+	vF = ReadTsv("_data/tickets_fresh_frar.tsv")
+	nF = 0
+	for i = 1 to Len(vF)
+		if Len(vF[i]) = 4
+			nF = nF + 1
+			vOut + [ vF[i][1], vF[i][4], [ "", vF[i][2], vF[i][3] ], 0, "fresh", nF ]
+		end
+	end
+	return vOut
+end
+
+func Labels(vItems, nTask)
+	vOut = []
+	for i = 1 to Len(vItems)
+		vOut + vItems[i][3][nTask]
+	end
+	return vOut
+end
+
+# the training order: scenarios in a fixed scattered order (29 is prime to 48), each with its three languages, so
+# a pass of the learner never sees one product or one language in a long run
+func TrainOrder(vItems)
+	vOut = []
+	for q = 0 to 47
+		nS = ((q * 29) % 48) + 1
+		for i = 1 to Len(vItems)
+			if vItems[i][4] = nS
+				vOut + i
+			end
+		end
+	end
+	return vOut
+end
+
+# ---- the features: [ minilm rows, ngram rows, both rows, minilm ms, ngram ms ]
+
+func Features(vItems)
+	vMini = []
+	vGram = []
+	vBoth = []
+	nMini = 0
+	nGram = 0
+	for i = 1 to Len(vItems)
+		tText = vItems[i][2]
+		nT0 = Clock()
+		vE = Embed(tText)
+		nMini = nMini + Ms(nT0)
+		nT1 = Clock()
+		vG = Grams(tText)
+		nGram = nGram + Ms(nT1)
+		vMini + [ vE ]
+		vGram + [ vG ]
+		vB = vE
+		for d = 1 to Len(vG)
+			vB + vG[d]
+		end
+		vBoth + [ vB ]
+	end
+	return [ Unwrap(vMini), Unwrap(vGram), Unwrap(vBoth), nMini, nGram ]
+end
+
+# a list built as list + [ row ] holds [ row ] items; take the rows out
+func Unwrap(vL)
+	vOut = []
+	for i = 1 to Len(vL)
+		vOut + vL[i][1]
+	end
+	return vOut
+end
+
+func Embed(tText)
+	nD = StzEngineNeuralEmbed(tText)
+	vOut = []
+	for d = 1 to nD
+		vOut + Float(StzEngineNeuralEmbedAt(d - 1))
+	end
+	return vOut
+end
+
+func Grams(tText)
+	vC = []
+	for d = 1 to $nBuckets
+		vC + Float(0)
+	end
+	tL = Lower(tText)
+	nLen = Len(tL)
+	vB = []
+	for i = 1 to nLen
+		vB + Ascii(tL[i])
+	end
+	for u = 3 to 5
+		for i = 1 to nLen - u + 1
+			nH = u
+			for j = i to i + u - 1
+				nH = (nH * 257 + vB[j]) % 1000003
+			end
+			nAt = (nH % $nBuckets) + 1
+			vC[nAt] = vC[nAt] + 1.0f
+		end
+	end
+	fN = Float(0)
+	for d = 1 to $nBuckets
+		fN = fN + vC[d] * vC[d]
+	end
+	if fN > Float(0)
+		fN = Float(Sqrt(fN))
+		for d = 1 to $nBuckets
+			vC[d] = vC[d] / fN
+		end
+	end
+	return vC
+end
+
+# ---- the heads
+
+func Flatten(vX, vIdx)
+	vOut = []
+	for i = 1 to Len(vIdx)
+		vRow = vX[vIdx[i]]
+		for d = 1 to Len(vRow)
+			vOut + vRow[d]
+		end
+	end
+	return vOut
+end
+
+# per class, the engine's weights then its bias
+func TrainHead(vX, vIdx, vLab, vClasses, fLr, nEp)
+	vFlat = Flatten(vX, vIdx)
+	nD = Len(vX[1])
+	vModel = []
+	for c = 1 to Len(vClasses)
+		vY = []
+		for i = 1 to Len(vIdx)
+			if vLab[vIdx[i]] = vClasses[c]
+				vY + 1.0f
+			else
+				vY + 0.0f
+			end
+		end
+		vW = StzEngineLogisticTrain(vFlat, vY, Len(vIdx), nD, fLr, nEp)
+		vModel + [ vW ]
+	end
+	return Unwrap(vModel)
+end
+
+# per item of vIdx: [ the best option, its probability ] -- the classes' probabilities normalised to sum 1
+func PredictHead(vModel, vX, vIdx, vClasses)
+	vFlat = Flatten(vX, vIdx)
+	nD = Len(vX[1])
+	vPs = []
+	for c = 1 to Len(vClasses)
+		vWc = vModel[c]
+		vW = []
+		for d = 1 to nD
+			vW + vWc[d]
+		end
+		vPs + [ StzEngineLogisticPredict(vFlat, Len(vIdx), nD, vW, vWc[nD + 1]) ]
+	end
+	vPs = Unwrap(vPs)
+	vOut = []
+	for i = 1 to Len(vIdx)
+		fSum = Float(0)
+		fTop = Float(-1)
+		tTop = ""
+		for c = 1 to Len(vClasses)
+			fP = Float(vPs[c][i])
+			fSum = fSum + fP
+			if fP > fTop
+				fTop = fP
+				tTop = vClasses[c]
+			end
+		end
+		vOut + [ [ tTop, fTop / fSum ] ]
+	end
+	return Unwrap(vOut)
+end
+
+# the out-of-fold answers of every training item, 4 folds by scenario
+func OutOfFold(vX, vLab, vClasses, vOrder, vItems, nGrid)
+	vOut = []
+	for i = 1 to Len(vItems)
+		vOut + [ [ "", Float(0) ] ]
+	end
+	vOut = Unwrap(vOut)
+	for f = 0 to 3
+		vTr = []
+		vTe = []
+		for i = 1 to Len(vOrder)
+			if (vItems[vOrder[i]][4] % 4) = f
+				vTe + vOrder[i]
+			else
+				vTr + vOrder[i]
+			end
+		end
+		vModel = TrainHead(vX, vTr, vLab, vClasses, $vGrid[nGrid][1], $vGrid[nGrid][2])
+		vP = PredictHead(vModel, vX, vTe, vClasses)
+		for i = 1 to Len(vTe)
+			vOut[vTe[i]] = vP[i]
+		end
+	end
+	return vOut
+end
+
+func RightOf(vOof, vLab)
+	nR = 0
+	for i = 1 to Len(vOof)
+		if vOof[i][1] = vLab[i]
+			nR = nR + 1
+		end
+	end
+	return nR
+end
+
+# the lowest threshold at which the kept out-of-fold answers are right >= the target; 1.01 keeps none
+func Threshold(vOof, vLab)
+	vCand = []
+	for i = 1 to Len(vOof)
+		vCand + vOof[i][2]
+	end
+	vCand = Sort(vCand)
+	for c = 1 to Len(vCand)
+		nKept = 0
+		nRight = 0
+		for i = 1 to Len(vOof)
+			if vOof[i][2] >= vCand[c]
+				nKept = nKept + 1
+				if vOof[i][1] = vLab[i]
+					nRight = nRight + 1
+				end
+			end
+		end
+		if nKept > 0 and Float(nRight) >= $fTarget * Float(nKept)
+			return vCand[c]
+		end
+	end
+	return 1.01f
+end
+
+# ---- the recorded answers of results/fabric.tsv: [ key, model, best, golden ]
+
+func Recorded
+	vOut = []
+	vR = ReadTsv("results/fabric.tsv")
+	for i = 2 to Len(vR)
+		if Len(vR[i]) >= 7 and (vR[i][6] = $tLarge or vR[i][6] = $tSmall)
+			vOut + [ vR[i][1] + "|" + vR[i][3] + "|" + vR[i][4], vR[i][6], Best(ParseDist(vR[i][7])), vR[i][5] ]
+		end
+	end
+	return vOut
+end
+
+func RecordedBest(vRef, tModel, vIt, nTask)
+	tKey = vIt[5] + "|" + String(vIt[6]) + "|" + $vTasks[nTask][1]
+	for i = 1 to Len(vRef)
+		if vRef[i][1] = tKey and vRef[i][2] = tModel
+			return vRef[i][3]
+		end
+	end
+	return "(none)"
+end
+
+func RecordedRight(vTest, vRef, tModel)
+	return ColumnsTotal(RecordedColumns(vTest, vRef, tModel))
+end
+
+# ---- the columns: kind en, product en/fr/ar, severity en/fr/ar
+
+func ColumnOf(nTask, tLang)
+	if nTask = 1
+		return 1
+	end
+	vL = [ "en", "fr", "ar" ]
+	return 1 + (nTask - 2) * 3 + Find(vL, tLang)
+end
+
+# s = 0: each task's chosen set (vPred carries it at the chosen index through $vChosenSets)
+func SetColumns(vTest, vPred, nSet)
+	vCol = [ 0, 0, 0, 0, 0, 0, 0 ]
+	for i = 1 to Len(vTest)
+		for t = 1 to Len($vTasks)
+			tGold = vTest[i][3][t]
+			if tGold != ""
+				nS = nSet
+				if nSet = 0
+					nS = $vChosenSets[t]
+				end
+				if vPred[t][nS][i][1] = tGold
+					nC = ColumnOf(t, vTest[i][1])
+					vCol[nC] = vCol[nC] + 1
+				end
+			end
+		end
+	end
+	return vCol
+end
+
+func RecordedColumns(vTest, vRef, tModel)
+	vCol = [ 0, 0, 0, 0, 0, 0, 0 ]
+	for i = 1 to Len(vTest)
+		for t = 1 to Len($vTasks)
+			tGold = vTest[i][3][t]
+			if tGold != "" and RecordedBest(vRef, tModel, vTest[i], t) = tGold
+				nC = ColumnOf(t, vTest[i][1])
+				vCol[nC] = vCol[nC] + 1
+			end
+		end
+	end
+	return vCol
+end
+
+func ColumnsTotal(vCol)
+	nT = 0
+	for i = 1 to Len(vCol)
+		nT = nT + vCol[i]
+	end
+	return nT
+end
+
+func Row(tName, vCol)
+	tOut = Pad(tName, 22)
+	vW = [ 9, 9, 9, 9, 8, 8, 8 ]
+	for i = 1 to Len(vCol)
+		tOut = tOut + Pad(String(vCol[i]), vW[i])
+	end
+	return tOut + String(ColumnsTotal(vCol))
+end
+
+func GateAt(vTest, vPred, vChosen, vRef, fTau)
+	nRight = 0
+	nPass = 0
+	for i = 1 to Len(vTest)
+		for t = 1 to Len($vTasks)
+			tGold = vTest[i][3][t]
+			if tGold != ""
+				vA = vPred[t][vChosen[t][1]][i]
+				if vA[2] >= fTau
+					if vA[1] = tGold
+						nRight = nRight + 1
+					end
+				else
+					nPass = nPass + 1
+					if RecordedBest(vRef, $tLarge, vTest[i], t) = tGold
+						nRight = nRight + 1
+					end
+				end
+			end
+		end
+	end
+	return [ nRight, nPass ]
+end
+
+# ---- nearest neighbours
+
+func Nearest(vA, vB)
+	vOut = []
+	for i = 1 to Len(vA)
+		fBest = Float(-2)
+		for j = 1 to Len(vB)
+			fS = Float(0)
+			vX = vA[i]
+			vY = vB[j]
+			for d = 1 to Len(vX)
+				fS = fS + vX[d] * vY[d]
+			end
+			if fS > fBest
+				fBest = fS
+			end
+		end
+		vOut + fBest
+	end
+	return vOut
+end
+
+func MedianF(vN)
+	vS = Sort(vN)
+	nH = 1
+	while nH * 2 < Len(vS)
+		nH = nH + 1
+	end
+	return vS[nH]
+end
+
+func MaxF(vN)
+	fM = Float(-2)
+	for i = 1 to Len(vN)
+		if vN[i] > fM
+			fM = vN[i]
+		end
+	end
+	return fM
+end
+
+func CountAbove(vN, fX)
+	nC = 0
+	for i = 1 to Len(vN)
+		if vN[i] > fX
+			nC = nC + 1
+		end
+	end
+	return nC
+end
+
+# ---- the pace of results/fabric_pace.tsv: [ [ model, median ms ], ... ]
+
+func PaceTable
+	vOut = []
+	if FExists("results/fabric_pace.tsv") = false
+		return vOut
+	end
+	vRows = ReadTsv("results/fabric_pace.tsv")
+	vNames = []
+	vMs = []
+	for i = 2 to Len(vRows)
+		if Len(vRows[i]) = 4
+			nAt = Find(vNames, vRows[i][1])
+			if nAt = 0
+				vNames + vRows[i][1]
+				vMs + []
+				nAt = Len(vNames)
+			end
+			vMs[nAt] + Number(vRows[i][4])
+		end
+	end
+	for i = 1 to Len(vNames)
+		vOut + [ vNames[i], Median(vMs[i]) ]
+	end
+	return vOut
+end
+
+func PaceMs(vPace, tName)
+	for i = 1 to Len(vPace)
+		if vPace[i][1] = tName
+			return vPace[i][2]
+		end
+	end
+	return -1
+end
+
+func Median(vN)
+	vS = Sort(vN)
+	nN = Len(vS)
+	nH = 0
+	while (nH + 1) * 2 <= nN
+		nH = nH + 1
+	end
+	if nH * 2 < nN
+		return vS[nH + 1]
+	end
+	return Number(String(Divide(vS[nH] + vS[nH + 1], 2, 0)))
+end
+
+# ---- small helpers
+
+func Best(vD)
+	tBest = ""
+	nBest = -1
+	for o = 1 to Len(vD)
+		if vD[o][2] > nBest
+			nBest = vD[o][2]
+			tBest = vD[o][1]
+		end
+	end
+	return tBest
+end
+
+func ParseDist(tD)
+	if Left(tD, 1) = "("
+		return []
+	end
+	vOut = []
+	vParts = Split(tD, "|")
+	for i = 1 to Len(vParts)
+		vKv = Split(vParts[i], ":")
+		if Len(vKv) = 2
+			vOut + [ [ vKv[1], Number(vKv[2]) ] ]
+		end
+	end
+	return Unwrap(vOut)
+end
+
+func ReadTsv(tPath)
+	vOut = []
+	vLines = Str2List(Read(tPath))
+	for i = 1 to Len(vLines)
+		tLine = vLines[i]
+		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
+			tLine = Left(tLine, Len(tLine) - 1)
+		end
+		if Len(tLine) > 0
+			vOut + Split(tLine, Char(9))
+		end
+	end
+	return vOut
+end
+
+func Split(tText, tSep)
+	vOut = []
+	tCur = ""
+	nLen = Len(tText)
+	for i = 1 to nLen
+		if tText[i] = tSep
+			vOut + tCur
+			tCur = ""
+		else
+			tCur = tCur + tText[i]
+		end
+	end
+	vOut + tCur
+	return vOut
+end
+
+func Ms(nStart)
+	return Number(String(Divide((Clock() - nStart) * 1000, ClocksPerSecond(), 0)))
+end
+
+func Secs(nMs)
+	return String(Divide(nMs, 1000, 1))
+end
+
+func Say(tLine)
+	? tLine
+	$tOutText = $tOutText + tLine + Char(10)
+end
+
+func Pad(tText, nWidth)
+	tOut = tText
+	while Len(tOut) < nWidth
+		tOut = tOut + " "
+	end
+	return tOut
+end
+
+func Slashes(tPath)
+	tOut = ""
+	for i = 1 to Len(tPath)
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end
