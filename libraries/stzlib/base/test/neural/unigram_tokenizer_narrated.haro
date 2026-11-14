@@ -1,0 +1,168 @@
+# A SENTENCEPIECE UNIGRAM VOCABULARY, READ AS ONE -- FABRIC-SPECIALIST-02, narrated
+#
+# The multilingual sentence models (paraphrase-multilingual-MiniLM-L12-v2 and its family) carry XLM-R's vocabulary:
+# 250,037 SentencePiece pieces with their scores (tokenizer.ggml.model "t5"). The engine read it as classic BERT
+# WordPiece, because ONE of its pieces begins with "##": every word after its first piece became <unk>, and the
+# sentence opened with piece 101 instead of <s>. A word is now cut where the pieces' scores sum highest (Viterbi),
+# the vocabulary's scheme is its majority, and a vocabulary without a [CLS] id opens with its <s>.
+#
+#   Scene 1  the pieces: <s> first, </s> last, and no <unk> in an English, a French and an Arabic ticket
+#   Scene 2  meaning over language: a crash in English is nearer the same crash in Arabic than a billing complaint in
+#            English (with the old reading it was the reverse: 0.86 against 0.72)
+#   Scene 3  MiniLM's vocabulary keeps its reading: [CLS] first, the same pieces as before
+#   Scene 4  the two held at once in slots: each tokenizes as it does alone, in any order
+#
+# RUNS ON haro.exe, the engine's functions only: STZ_ENGINE_DIR names a built engine, STZ_MODELS_DIR the models folder.
+
+$tEngine = Slashes(SysGet("STZ_ENGINE_DIR"))
+$tModels = Slashes(SysGet("STZ_MODELS_DIR"))
+$nPass = 0
+$nFail = 0
+$vNotRun = []
+LoadLib($tEngine + "/zig-out/bin/stz_neural.dll")
+$tMulti = $tModels + "/paraphrase-multilingual-MiniLM-L12-118M-v2-Q8_0.gguf"
+$tMini = $tModels + "/all-MiniLM-L6-v2.Q8_0.gguf"
+$tEn = "The app crashes when I open it."
+$tFr = "L'application plante quand je l'ouvre."
+$tAr = "التطبيق يتعطل عندما أفتحه."
+$tBill = "I was charged twice for my plan."
+
+if FExists($tMulti)
+	StzEngineNeuralModelLoad($tMulti)
+	Scenario("1. the pieces of a unigram vocabulary")
+	Then("the English ticket is cut into XLM-R's pieces", Pieces($tEn), "<s> ▁The ▁app ▁crash es ▁when ▁I ▁open ▁it . </s>")
+	Then("...the French ticket holds no <unk>, and opens with <s>", UnkAndFirst($tFr), "0 <s>")
+	Then("...nor the Arabic one", UnkAndFirst($tAr), "0 <s>")
+	Then("...and every ticket closes with </s>", LastPiece($tAr), "</s>")
+
+	Scenario("2. meaning over language")
+	vEn = Vec($tEn)
+	vAr = Vec($tAr)
+	vBill = Vec($tBill)
+	fSame = Dot(vEn, vAr)
+	fOther = Dot(vEn, vBill)
+	Then("a crash in English is nearer the same crash in Arabic than a billing complaint in English", fSame > fOther, true)
+	Then("...by a clear margin (more than 0.3)", fSame - fOther > 0.3f, true)
+	tMultiEn = Pieces($tEn)
+	StzEngineNeuralModelFree()
+else
+	$vNotRun + "scenes 1, 2 and 4 (no " + $tMulti + ")"
+end
+
+if FExists($tMini)
+	StzEngineNeuralModelLoad($tMini)
+	Scenario("3. MiniLM's vocabulary keeps its reading")
+	Then("[CLS] first and [SEP] last", Pieces("open it"), "[CLS] ▁open ▁it [SEP]")
+	Then("...and the English ticket holds no [UNK]", UnkAndFirst($tEn), "0 [CLS]")
+	tMiniEn = Pieces($tEn)
+	StzEngineNeuralModelFree()
+else
+	$vNotRun + "scenes 3 and 4 (no " + $tMini + ")"
+end
+
+if FExists($tMulti) and FExists($tMini)
+	Scenario("4. both held at once, each tokenizing as alone")
+	Then("the multilingual model is loaded into the slot 'multi'", StzEngineNeuralSlotLoad("multi", $tMulti), 1)
+	Then("MiniLM is loaded into the slot 'mini'", StzEngineNeuralSlotLoad("mini", $tMini), 1)
+	nSame = 0
+	vOrder = [ "multi", "mini", "mini", "multi", "mini", "multi" ]
+	for i = 1 to Len(vOrder)
+		StzEngineNeuralSlotSelect(vOrder[i])
+		tWant = tMiniEn
+		if vOrder[i] = "multi"
+			tWant = tMultiEn
+		end
+		if Pieces($tEn) = tWant
+			nSame = nSame + 1
+		end
+	end
+	Then("six selects in mixed order: each slot cuts the ticket as its model does alone", nSame, 6)
+	StzEngineNeuralSlotFree("multi")
+	StzEngineNeuralSlotFree("mini")
+	StzEngineNeuralModelFree()
+end
+
+? ""
+for i = 1 to Len($vNotRun)
+	? "NOT RUN: " + $vNotRun[i]
+end
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# the pieces of a text, as the vocabulary writes them, space-separated
+func Pieces(tText)
+	nN = StzEngineNeuralTokenize(tText)
+	tOut = ""
+	for i = 1 to nN
+		if i > 1
+			tOut = tOut + " "
+		end
+		tOut = tOut + StzEngineNeuralVocabToken(StzEngineNeuralTokenAt(i - 1))
+	end
+	return tOut
+end
+
+# how many unknown pieces, and the first piece
+func UnkAndFirst(tText)
+	nN = StzEngineNeuralTokenize(tText)
+	nUnk = 0
+	for i = 1 to nN
+		tP = StzEngineNeuralVocabToken(StzEngineNeuralTokenAt(i - 1))
+		if tP = "<unk>" or tP = "[UNK]"
+			nUnk = nUnk + 1
+		end
+	end
+	return String(nUnk) + " " + StzEngineNeuralVocabToken(StzEngineNeuralTokenAt(0))
+end
+
+func LastPiece(tText)
+	nN = StzEngineNeuralTokenize(tText)
+	return StzEngineNeuralVocabToken(StzEngineNeuralTokenAt(nN - 1))
+end
+
+func Vec(tText)
+	nDim = StzEngineNeuralEmbed(tText)
+	vOut = []
+	for i = 1 to nDim
+		vOut + Float(StzEngineNeuralEmbedAt(i - 1))
+	end
+	return vOut
+end
+
+func Dot(vA, vB)
+	fS = Float(0)
+	for i = 1 to Len(vA)
+		fS = fS + vA[i] * vB[i]
+	end
+	return fS
+end
+
+func Scenario(tName)
+	? ""
+	? "SCENARIO: " + tName
+end
+func Then(tWhat, xGot, xExpected)
+	if xGot = xExpected
+		$nPass = $nPass + 1
+		? "  THEN  " + tWhat + "  [PASS]"
+	else
+		$nFail = $nFail + 1
+		? "  THEN  " + tWhat + "  [FAIL]"
+		? "    expected: " + String(xExpected)
+		? "    got:      " + String(xGot)
+	end
+end
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for i = 1 to nLen
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end

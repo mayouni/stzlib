@@ -12,6 +12,9 @@
 #                  ngram    the ticket's byte n-grams (3, 4 and 5 bytes of the lowercased text) hashed into 1,024
 #                           counts, L2-normalised: no model at all, the same for every language
 #                  both     the two side by side (1,408 numbers)
+#                  multi    a MULTILINGUAL sentence model's embedding (paraphrase-multilingual-MiniLM-L12-v2, 384
+#                           numbers, trained so a sentence and its translation get one vector; FABRIC-SPECIALIST-02)
+#                  multi+ngram  the two side by side
 #   the heads      one-vs-rest logistic regression in the engine (StzEngineLogisticTrain), its probabilities
 #                  normalised over the sub-task's options
 #   the training   _data/tickets_train.tsv: 48 scenarios, each written in English, French and Arabic (144 tickets),
@@ -31,7 +34,7 @@
 #   haro _measure_specialist.haro       -> results/specialist.txt
 #
 # Run from base/test/faculty on haro.exe with STZ_ENGINE_DIR (an engine with stz_neural and stz_stats) and
-# STZ_MODELS_DIR (the folder holding all-MiniLM-L6-v2.Q8_0.gguf). One process, about ten seconds.
+# STZ_MODELS_DIR (the folder holding all-MiniLM-L6-v2.Q8_0.gguf and $tMulti). One process, about ten seconds.
 
 $tTrainFile = "_data/tickets_train.tsv"
 $tReport = "results/specialist.txt"
@@ -40,7 +43,8 @@ $tSmall = "granite-1b"
 $nBuckets = 1024
 $fTarget = 0.96f
 $vTasks = [ [ "kind", [ "bug", "billing", "other" ] ], [ "product", [ "app", "web", "api", "other" ] ], [ "severity", [ "high", "low" ] ] ]
-$vSets = [ "minilm", "ngram", "both" ]
+$vSets = [ "minilm", "ngram", "both", "multi", "multi+ngram" ]
+$tMulti = "paraphrase-multilingual-MiniLM-L12-118M-v2-Q8_0.gguf"
 $vGrid = [ [ 0.05f, 10 ], [ 0.05f, 40 ], [ 0.2f, 10 ], [ 0.2f, 40 ], [ 0.5f, 25 ] ]
 $tOutText = ""
 $vChosenSets = []
@@ -60,10 +64,23 @@ func Run
 	vTest = TestItems()
 	? "training tickets " + String(Len(vTrain)) + ", test tickets " + String(Len(vTest))
 
-	vTrF = Features(vTrain)
-	vTeF = Features(vTest)
-	nTestMiniMs = vTeF[4]
-	nTestGramMs = vTeF[5]
+	nMiniMb = Floor(Float(StzEngineNeuralSlotHeldBytes()) / 1048576.0f)
+	vTrA = Features(vTrain)
+	vTeA = Features(vTest)
+	nTestMiniMs = vTeA[4]
+	nTestGramMs = vTeA[5]
+
+	# the multilingual sentence model replaces MiniLM in place
+	if StzEngineNeuralModelLoad(Slashes(SysGet("STZ_MODELS_DIR")) + "/" + $tMulti) = 0
+		? "the multilingual model: the load was refused, status " + String(StzEngineNeuralModelLoadStatus())
+		return
+	end
+	nMultiMb = Floor(Float(StzEngineNeuralSlotHeldBytes()) / 1048576.0f)
+	vTrB = MultiFeatures(vTrain, vTrA[2])
+	vTeB = MultiFeatures(vTest, vTeA[2])
+	nTestMultiMs = vTeB[3]
+	vTrF = [ vTrA[1], vTrA[2], vTrA[3], vTrB[1], vTrB[2] ]
+	vTeF = [ vTeA[1], vTeA[2], vTeA[3], vTeB[1], vTeB[2] ]
 
 	vOrder = TrainOrder(vTrain)
 	vRef = Recorded()
@@ -71,14 +88,14 @@ func Run
 	nLargeMs = PaceMs(vPace, $tLarge)
 	nSmallMs = PaceMs(vPace, $tSmall)
 
-	Say("FABRIC-SPECIALIST-01 (a): trained specialists over MiniLM and byte n-grams, judged on the fabric's 204 questions")
+	Say("FABRIC-SPECIALIST-01/02: trained specialists over MiniLM, a multilingual sentence model and byte n-grams, judged on the fabric's 204 questions")
 	Say("")
 	Say("training: " + String(Len(vTrain)) + " tickets (48 scenarios x en, fr, ar); test: " + String(Len(vTest)) + " tickets, 204 questions, never seen in training")
 	Say("")
 
 	# ---- cross-validation inside the training tickets: settings per (sub-task, feature set)
 	Say("cross-validated accuracy inside training (4 folds by scenario), best settings per head:")
-	Say(Pad("sub-task", 10) + Pad("features", 10) + Pad("lr", 6) + Pad("epochs", 8) + "right / " + String(Len(vTrain)))
+	Say(Pad("sub-task", 10) + Pad("features", 13) + Pad("lr", 6) + Pad("epochs", 8) + "right / " + String(Len(vTrain)))
 	vChosen = []     # per task: [ set number, grid number, out-of-fold [ best, top prob ] per training item ]
 	vGridOf = []     # per task: per feature set, the grid number cross-validation chose
 	nCvAll = Clock()
@@ -108,7 +125,7 @@ func Run
 				end
 			end
 			vSetGrids + nSetGrid
-			Say(Pad($vTasks[t][1], 10) + Pad($vSets[s], 10) + Pad(String($vGrid[nSetGrid][1]), 6) + Pad(String($vGrid[nSetGrid][2]), 8) + String(nSetRight))
+			Say(Pad($vTasks[t][1], 10) + Pad($vSets[s], 13) + Pad(String($vGrid[nSetGrid][1]), 6) + Pad(String($vGrid[nSetGrid][2]), 8) + String(nSetRight))
 		end
 		vChosen + [ nBestSet, nBestGrid, vBestOof ]
 		vGridOf + vSetGrids
@@ -150,7 +167,7 @@ func Run
 
 	# ---- the specialists alone, by feature set
 	Say("the specialists alone on the test (each head's settings chosen in training):")
-	Say(Pad("", 22) + Pad("kind en", 9) + Pad("prod en", 9) + Pad("prod fr", 9) + Pad("prod ar", 9) + Pad("sev en", 8) + Pad("sev fr", 8) + Pad("sev ar", 8) + "all /204")
+	Say(Pad("", 24) + Pad("kind en", 9) + Pad("prod en", 9) + Pad("prod fr", 9) + Pad("prod ar", 9) + Pad("sev en", 8) + Pad("sev fr", 8) + Pad("sev ar", 8) + "all /204")
 	for s = 1 to Len($vSets)
 		vCol = SetColumns(vTest, vPred, s)
 		Say(Row("specialist " + $vSets[s], vCol))
@@ -206,7 +223,39 @@ func Run
 		end
 		tTau = tTau + $vTasks[t][1] + " " + String(Decimal(vTau[t], 2))
 	end
-	nSpecMs = nTestMiniMs + nTestGramMs + nHeadMs
+	# the chosen heads' features: each embedding model any of them reads, and the n-grams if any reads them
+	bMini = false
+	bGram = false
+	bMulti = false
+	for t = 1 to Len($vTasks)
+		nS = vChosen[t][1]
+		if nS = 1 or nS = 3
+			bMini = true
+		end
+		if nS = 2 or nS = 3 or nS = 5
+			bGram = true
+		end
+		if nS = 4 or nS = 5
+			bMulti = true
+		end
+	end
+	nSpecMs = nHeadMs
+	nSpecMb = 0
+	tUses = ""
+	if bMini
+		nSpecMs = nSpecMs + nTestMiniMs
+		nSpecMb = nSpecMb + nMiniMb
+		tUses = tUses + "MiniLM " + String(nTestMiniMs) + " ms, "
+	end
+	if bMulti
+		nSpecMs = nSpecMs + nTestMultiMs
+		nSpecMb = nSpecMb + nMultiMb
+		tUses = tUses + "the multilingual model " + String(nTestMultiMs) + " ms, "
+	end
+	if bGram
+		nSpecMs = nSpecMs + nTestGramMs
+		tUses = tUses + "n-grams " + String(nTestGramMs) + " ms, "
+	end
 	fSpecQ = Float(nSpecMs) / Float(nQ)
 	fGateQ = fSpecQ + Float(nPass) * Float(nLargeMs) / Float(nQ)
 	Say("the gate: a head answers when its top probability reaches its threshold, else Bolt answers")
@@ -214,10 +263,11 @@ func Run
 	Say(Pad("", 34) + Pad("right", 10) + Pad("to Bolt", 10) + Pad("MB", 8) + "s per question")
 	Say(Pad($tLarge + " alone", 34) + Pad(String(RecordedRight(vTest, vRef, $tLarge)) + "/204", 10) + Pad("all", 10) + Pad("5983", 8) + String(Decimal(Float(nLargeMs) / 1000.0f, 2)))
 	Say(Pad($tSmall + " alone", 34) + Pad(String(RecordedRight(vTest, vRef, $tSmall)) + "/204", 10) + Pad("-", 10) + Pad("1710", 8) + String(Decimal(Float(nSmallMs) / 1000.0f, 2)))
-	Say(Pad("specialists alone (chosen)", 34) + Pad(String(ColumnsTotal(vColC)) + "/204", 10) + Pad("-", 10) + Pad("29", 8) + String(Decimal(fSpecQ / 1000.0f, 3)))
-	Say(Pad("gate: specialists, else Bolt", 34) + Pad(String(nRight) + "/204", 10) + Pad(String(nPass) + "/204", 10) + Pad("6012", 8) + String(Decimal(fGateQ / 1000.0f, 2)))
+	Say(Pad("specialists alone (chosen)", 34) + Pad(String(ColumnsTotal(vColC)) + "/204", 10) + Pad("-", 10) + Pad(String(nSpecMb), 8) + String(Decimal(fSpecQ / 1000.0f, 3)))
+	Say(Pad("gate: specialists, else Bolt", 34) + Pad(String(nRight) + "/204", 10) + Pad(String(nPass) + "/204", 10) + Pad(String(5983 + nSpecMb), 8) + String(Decimal(fGateQ / 1000.0f, 2)))
 	Say("kept by the heads: " + String(nKeptRight) + " right of " + String(nKept) + "; passed to Bolt: " + String(nPassRight) + " right of " + String(nPass))
-	Say("specialist time on the test: MiniLM " + String(nTestMiniMs) + " ms, n-grams " + String(nTestGramMs) + " ms, heads " + String(nHeadMs) + " ms, for " + String(Len(vTest)) + " tickets and " + String(nQ) + " questions")
+	Say("the chosen heads' time on the test: " + tUses + "heads " + String(nHeadMs) + " ms, for " + String(Len(vTest)) + " tickets and " + String(nQ) + " questions")
+	Say("every feature on the test: MiniLM " + String(nTestMiniMs) + " ms (" + String(nMiniMb) + " MB held), the multilingual model " + String(nTestMultiMs) + " ms (" + String(nMultiMb) + " MB held), n-grams " + String(nTestGramMs) + " ms")
 	Say("Bolt's and granite-1b's times: the median per question in results/fabric_pace.tsv (" + String(nLargeMs) + " ms, " + String(nSmallMs) + " ms)")
 	Say("")
 
@@ -233,7 +283,7 @@ func Run
 
 	# ---- the learning curve: the same heads trained on the first scenarios of the training order only
 	Say("the learning curve: the heads trained on part of the training tickets, judged on the same 204 test questions:")
-	Say(Pad("scenarios", 12) + Pad("tickets", 10) + Pad("minilm", 9) + Pad("ngram", 9) + Pad("both", 9) + "chosen")
+	Say(Pad("scenarios", 12) + Pad("tickets", 10) + Pad("minilm", 9) + Pad("ngram", 9) + Pad("both", 9) + Pad("multi", 9) + Pad("multi+ngram", 13) + "chosen")
 	vSizes = [ 12, 24, 36, 48 ]
 	for c = 1 to Len(vSizes)
 		vPart = []
@@ -259,7 +309,11 @@ func Run
 					nChosenRight = nChosenRight + nR
 				end
 			end
-			tLine = tLine + Pad(String(nSetRight), 9)
+			if s = 5
+				tLine = tLine + Pad(String(nSetRight), 13)
+			else
+				tLine = tLine + Pad(String(nSetRight), 9)
+			end
 		end
 		Say(tLine + String(nChosenRight))
 	end
@@ -268,9 +322,11 @@ func Run
 
 	# ---- how close the test tickets are to the training tickets
 	Say("nearest training ticket to each test ticket (cosine; a check that the test is not the training set again):")
-	for s = 1 to 2
-		vNear = Nearest(vTeF[s], vTrF[s])
-		Say("  " + Pad($vSets[s], 8) + "median " + String(Decimal(MedianF(vNear), 2)) + ", highest " + String(Decimal(MaxF(vNear), 2)) + ", above 0.90: " + String(CountAbove(vNear, 0.9f)) + " of " + String(Len(vNear)))
+	vNearSets = [ 1, 2, 4 ]
+	for c = 1 to Len(vNearSets)
+		nSet = vNearSets[c]
+		vNear = Nearest(vTeF[nSet], vTrF[nSet])
+		Say("  " + Pad($vSets[nSet], 8) + "median " + String(Decimal(MedianF(vNear), 2)) + ", highest " + String(Decimal(MaxF(vNear), 2)) + ", above 0.90: " + String(CountAbove(vNear, 0.9f)) + " of " + String(Len(vNear)))
 	end
 	Write($tReport, $tOutText)
 	? "written " + $tReport
@@ -363,6 +419,26 @@ func Features(vItems)
 		vBoth + [ vB ]
 	end
 	return [ Unwrap(vMini), Unwrap(vGram), Unwrap(vBoth), nMini, nGram ]
+end
+
+# [ multi rows, multi+ngram rows, multi ms ]: the multilingual model in place; vGram the n-gram rows already made
+func MultiFeatures(vItems, vGram)
+	vMulti = []
+	vBoth = []
+	nMs = 0
+	for i = 1 to Len(vItems)
+		nT0 = Clock()
+		vE = Embed(vItems[i][2])
+		nMs = nMs + Ms(nT0)
+		vMulti + [ vE ]
+		vB = vE
+		vG = vGram[i]
+		for d = 1 to Len(vG)
+			vB + vG[d]
+		end
+		vBoth + [ vB ]
+	end
+	return [ Unwrap(vMulti), Unwrap(vBoth), nMs ]
 end
 
 # a list built as list + [ row ] holds [ row ] items; take the rows out
@@ -624,7 +700,7 @@ func ColumnsTotal(vCol)
 end
 
 func Row(tName, vCol)
-	tOut = Pad(tName, 22)
+	tOut = Pad(tName, 24)
 	vW = [ 9, 9, 9, 9, 8, 8, 8 ]
 	for i = 1 to Len(vCol)
 		tOut = tOut + Pad(String(vCol[i]), vW[i])

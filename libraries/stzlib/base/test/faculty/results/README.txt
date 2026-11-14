@@ -122,3 +122,18 @@ chosen by 4-fold cross-validation inside those tickets; judged once on the fabri
   - the learning curve still rises: 116, 152, 161, 166 of 204 for 12, 24, 36, 48 scenarios -- more labels help, by less
     each time.
   - no test ticket repeats a training one: the nearest training ticket's cosine has median 0.60 (MiniLM), one of 84 at 0.90.
+
+2026-11-14 (FABRIC-SPECIALIST-02, the same instrument): the heads given a MULTILINGUAL sentence model beside MiniLM --
+paraphrase-multilingual-MiniLM-L12-v2 (Q8_0, 126 MB, Apache-2.0), trained so a sentence and its translation get one vector.
+Its XLM-R vocabulary first had to be read as what it is: the engine took it for classic WordPiece (one of its 250,037
+pieces begins with "##") and turned every word after its first piece into <unk>; it now cuts a word where the pieces'
+scores sum highest (neural_embed.zig; base/test/neural/unigram_tokenizer_narrated.haro, 11 assertions). Table: specialist.txt.
+  - cross-validation in training chose the multilingual model for kind and severity (106 and 123 of 144, against 64 and 101
+    before) and MiniLM with n-grams for product. Judged once: 174 of 204 alone (granite-1b 167, Bolt 195), the multilingual
+    heads 30 of 36 on English kind (Bolt 29).
+  - the gate answers 191 of 204 and passes 94 to Bolt (152 before): 2.04 s a question against Bolt's 4.38 -- half of Bolt's
+    time, for four questions; on the test the same gate gives 194 at 113 passed and 197 at 151, above Bolt alone.
+  - the heads' own time is 15 to 25 ms a question on a shared machine (the multilingual model 20 to 45 ms a ticket, MiniLM
+    about 12), and 142 MB held for both embedding models.
+  - the learning curve of the multilingual heads: 130, 166, 176, 168 of 204 for 12, 24, 36, 48 scenarios -- it no longer
+    rises monotonically at this size, so more scenarios are now worth less than other labels (a second writer, real tickets).
