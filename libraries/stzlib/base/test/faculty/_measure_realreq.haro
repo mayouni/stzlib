@@ -1,0 +1,646 @@
+# _measure_realreq.haro -- FABRIC-SPECIALIST-02 (a), the instrument on REAL requests
+#
+# The specialist heads and the gate to Bolt were measured on support tickets written for the test (specialist.txt).
+# This instrument measures them on real text: remarks taken from the author's own consulting projects -- mails,
+# meeting minutes, feedback on documents -- each labelled. The items and their labels are PRIVATE: they live in a
+# folder outside every repository, named by STZ_PRIVATE_REQ, and nothing here prints or writes a word of them.
+# Only the scores reach results/realreq.txt.
+#
+#   the items    one per line of $STZ_PRIVATE_REQ: id, source, language, remark (yes/no), request (yes/no), text
+#   the tasks    remark   is the text something a client or partner said or wrote, or is it a heading, a mail header,
+#                         a form question, a document fragment, a script (the noise a real stream carries)
+#                request  does the text ask for something to be done, changed, added or delivered
+#   the heads    a binary logistic head in the engine (StzEngineLogisticTrain) over one feature set: the multilingual
+#                sentence model's embedding (multi), the byte n-grams (ngram), or the two side by side
+#   the judging  5 folds over the items: every item is answered by heads trained on the other four fifths. Inside
+#                those four fifths, 4 folds again choose the feature set, the learning rate and epochs, and the gate's
+#                threshold -- nothing is chosen on the fold being judged
+#   the gate     a head answers when its confidence reaches the threshold, else the item goes to Bolt. The threshold
+#                is the lowest at which the training fifths' cross-validated answers kept are right at least as often
+#                as Bolt is on those same fifths
+#   Bolt         asked each task as a yes/no question, read by probability, as _measure_fabric.haro asks
+#
+#   haro _measure_realreq.haro ask <label> <model file>   Bolt's (or any model's) answers -> $STZ_PRIVATE_REQ.answers.tsv
+#   haro _measure_realreq.haro                            the heads, Bolt and the gate -> results/realreq.txt
+#
+# Run from base/test/faculty on haro.exe with STZ_ENGINE_DIR (an engine with stz_neural and stz_stats),
+# STZ_MODELS_DIR (the folder holding $tMulti) and STZ_PRIVATE_REQ.
+
+$tData = Slashes(SysGet("STZ_PRIVATE_REQ"))
+$tAnswers = $tData + ".answers.tsv"
+$tReport = "results/realreq.txt"
+$tMulti = "paraphrase-multilingual-MiniLM-L12-118M-v2-Q8_0.gguf"
+$nBuckets = 1024
+$tSys = "You sort short texts taken from a consultant's project files: mails, meeting minutes, feedback, documents."
+$vTasks = [
+	[ "remark", "Answer yes if the text is something a client or partner said or wrote (a remark, a request, a question, a decision, or information they give). Answer no if it is not (a heading, a title, a mail header, a survey or form question, a fragment of a document, a sales script)." ],
+	[ "request", "Answer yes if the text asks for something to be done, changed, added or delivered. Answer no otherwise." ]
+]
+$vSets = [ "multi", "ngram", "multi+ngram" ]
+$vGrid = [ [ 0.05f, 10 ], [ 0.05f, 40 ], [ 0.2f, 10 ], [ 0.2f, 40 ], [ 0.5f, 25 ] ]
+$tOutText = ""
+$nRead = 0
+
+nArgs = Len(SysArgv)
+bDone = false
+for i = 1 to nArgs
+	if SysArgv[i] = "ask" and i + 2 <= nArgs
+		AskAll(SysArgv[i + 1], SysArgv[i + 2])
+		bDone = true
+	end
+end
+if bDone = false
+	Analyse()
+end
+
+# ---- a generative model, every item and task: only ids, distributions and times are written ----
+
+func AskAll(tLabel, tFile)
+	tBin = Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/"
+	LoadLib(tBin + "stz_neural.dll")
+	if StzEngineNeuralModelLoad(Slashes(tFile)) = 0
+		? tLabel + ": the load was refused, status " + String(StzEngineNeuralModelLoadStatus())
+		return
+	end
+	StzEngineNeuralGenSetPrefixReuse(1)
+	vItems = Items()
+	tOut = ""
+	vRight = [ 0, 0 ]
+	nAll = Clock()
+	for i = 1 to Len(vItems)
+		for t = 1 to Len($vTasks)
+			nStart = Clock()
+			vA = Ask(tLabel, $tSys + " " + $vTasks[t][2] + " Answer with the single word.", "Text: " + vItems[i][6], [ "yes", "no" ])
+			nMs = Ms(nStart)
+			if Best(ParseDist(vA[1])) = vItems[i][3 + t]
+				vRight[t] = vRight[t] + 1
+			end
+			tOut = tOut + Row([ vItems[i][1], $vTasks[t][1], tLabel, vA[1], String(nMs) ])
+		end
+	end
+	? tLabel + ": remark " + String(vRight[1]) + "/" + String(Len(vItems)) + ", request " + String(vRight[2]) + "/" + String(Len(vItems)) + ", in " + String(Ms(nAll)) + " ms"
+	Write($tAnswers, tOut)
+end
+
+func Items
+	vOut = []
+	vRows = ReadTsv($tData)
+	for i = 1 to Len(vRows)
+		if Len(vRows[i]) = 6
+			vOut + [ vRows[i] ]
+		end
+	end
+	return Unwrap(vOut)
+end
+
+# ---- the analysis ----
+
+func Analyse
+	tBin = Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/"
+	LoadLib(tBin + "stz_neural.dll")
+	LoadLib(tBin + "stz_stats.dll")
+	vItems = Items()
+	nAll = Len(vItems)
+	if StzEngineNeuralModelLoad(Slashes(SysGet("STZ_MODELS_DIR")) + "/" + $tMulti) = 0
+		? "the multilingual model: the load was refused, status " + String(StzEngineNeuralModelLoadStatus())
+		return
+	end
+	nMultiMb = Floor(Float(StzEngineNeuralSlotHeldBytes()) / 1048576.0f)
+	vMulti = []
+	vGram = []
+	vBoth = []
+	nMultiMs = 0
+	nGramMs = 0
+	for i = 1 to nAll
+		nT0 = Clock()
+		vE = Embed(vItems[i][6])
+		nMultiMs = nMultiMs + Ms(nT0)
+		nT0 = Clock()
+		vG = Grams(vItems[i][6])
+		nGramMs = nGramMs + Ms(nT0)
+		vB = []
+		for d = 1 to Len(vE)
+			vB + vE[d]
+		end
+		for d = 1 to Len(vG)
+			vB + vG[d]
+		end
+		vMulti + [ vE ]
+		vGram + [ vG ]
+		vBoth + [ vB ]
+	end
+	vX = [ Unwrap(vMulti), Unwrap(vGram), Unwrap(vBoth) ]
+
+	vBolt = BoltAnswers(vItems)
+	bBolt = vBolt[3] > 0
+
+	nNoise = 0
+	for i = 1 to nAll
+		if vItems[i][4] = "no"
+			nNoise = nNoise + 1
+		end
+	end
+	Say("FABRIC-SPECIALIST-02 (a): the specialist heads and the gate to Bolt on REAL requests")
+	Say("")
+	Say(String(nAll) + " items from the author's own consulting projects (mails, meeting minutes, feedback on documents),")
+	Say("labelled by Claude with proper nouns masked (the author may correct the labels); the items stay private.")
+	Say(String(nAll - nNoise) + " are a client's or partner's own words, " + String(nNoise) + " are noise (headings, mail headers, form questions, a sales script).")
+	Say("Every answer below is held out: 5 folds, each item answered by heads trained on the other four fifths.")
+	Say("")
+
+	for t = 1 to Len($vTasks)
+		vLab = []
+		for i = 1 to nAll
+			vLab + vItems[i][3 + t]
+		end
+		vHead = []
+		vGate = []
+		for i = 1 to nAll
+			vHead + ""
+			vGate + ""
+		end
+		nPassed = 0
+		tChoices = ""
+		for f = 0 to 4
+			vTr = []
+			vTe = []
+			for i = 1 to nAll
+				if ((i - 1) % 5) = f
+					vTe + i
+				else
+					vTr + i
+				end
+			end
+			vPick = ChooseInside(vX, vTr, vLab)
+			fTarget = 0.96f
+			if bBolt
+				nBr = 0
+				for j = 1 to Len(vTr)
+					if vBolt[t][vTr[j]] = vLab[vTr[j]]
+						nBr = nBr + 1
+					end
+				end
+				fTarget = Float(nBr) / Float(Len(vTr))
+			end
+			vLabTr = []
+			for j = 1 to Len(vTr)
+				vLabTr + vLab[vTr[j]]
+			end
+			fThr = Threshold(vPick[3], vPick[4], vLabTr, fTarget)
+			nS = vPick[1]
+			nG = vPick[2]
+			vW = TrainBin(vX[nS], vTr, vLab, $vGrid[nG][1], $vGrid[nG][2])
+			vP = PredBin(vW, vX[nS], vTe)
+			for j = 1 to Len(vTe)
+				vHead[vTe[j]] = vP[1][j]
+				vGate[vTe[j]] = vP[1][j]
+				if bBolt and vP[2][j] < fThr
+					vGate[vTe[j]] = vBolt[t][vTe[j]]
+					nPassed = nPassed + 1
+				end
+			end
+			if f > 0
+				tChoices = tChoices + "; "
+			end
+			tChoices = tChoices + $vSets[nS] + " lr " + String(Decimal($vGrid[nG][1], 2)) + " x" + String($vGrid[nG][2]) + " thr " + String(Decimal(fThr, 2))
+		end
+
+		nYes = 0
+		for i = 1 to nAll
+			if vLab[i] = "yes"
+				nYes = nYes + 1
+			end
+		end
+		nMaj = nYes
+		tMaj = "yes"
+		if nAll - nYes > nYes
+			nMaj = nAll - nYes
+			tMaj = "no"
+		end
+		Say("TASK " + $vTasks[t][1] + "   (" + String(nYes) + " yes, " + String(nAll - nYes) + " no)")
+		Say("  " + Pad("", 26) + Pad("right", 12) + Pad("yes found", 12) + Pad("yes right", 12) + "items to Bolt")
+		Say("  " + Pad("always '" + tMaj + "'", 26) + Pad(String(nMaj) + "/" + String(nAll), 12))
+		Say(ScoreRow("heads alone", vHead, vLab, "0"))
+		if bBolt
+			Say(ScoreRow("Bolt alone", vBolt[t], vLab, String(nAll)))
+			Say(ScoreRow("heads, gate to Bolt", vGate, vLab, String(nPassed)))
+		end
+		Say("  chosen inside the training fifths: " + tChoices)
+		Say("")
+	end
+
+	Say("COSTS per item")
+	Say("  heads: the multilingual embedding " + String(Decimal(Float(nMultiMs) / Float(nAll), 1)) + " ms + n-grams " + String(Decimal(Float(nGramMs) / Float(nAll), 1)) + " ms, " + String(nMultiMb) + " MB held")
+	if bBolt
+		Say("  Bolt: median " + String(vBolt[4]) + " ms per question (5,983 MB ready, results/ready.txt)")
+	else
+		Say("  Bolt: no answers recorded -- run: haro _measure_realreq.haro ask bolt-e4b <Bolt's file>")
+	end
+	Write($tReport, $tOutText)
+	? "-> " + $tReport
+end
+
+# [ remark answers, request answers, how many read, median ms ] aligned to the items; "" where none
+func BoltAnswers(vItems)
+	vA = []
+	vB = []
+	for i = 1 to Len(vItems)
+		vA + ""
+		vB + ""
+	end
+	if FExists($tAnswers) = false
+		return [ vA, vB, 0, 0 ]
+	end
+	vRows = ReadTsv($tAnswers)
+	vMs = []
+	nGot = 0
+	for r = 1 to Len(vRows)
+		if Len(vRows[r]) = 5
+			vMs + Number(vRows[r][5])
+			for i = 1 to Len(vItems)
+				if vItems[i][1] = vRows[r][1]
+					nGot = nGot + 1
+					if vRows[r][2] = "remark"
+						vA[i] = Best(ParseDist(vRows[r][4]))
+					else
+						vB[i] = Best(ParseDist(vRows[r][4]))
+					end
+				end
+			end
+		end
+	end
+	return [ vA, vB, nGot, Median(vMs) ]
+end
+
+func ScoreRow(tName, vAns, vLab, tPassed)
+	nR = 0
+	nTp = 0
+	nFp = 0
+	nYes = 0
+	for i = 1 to Len(vLab)
+		if vAns[i] = vLab[i]
+			nR = nR + 1
+		end
+		if vLab[i] = "yes"
+			nYes = nYes + 1
+		end
+		if vAns[i] = "yes"
+			if vLab[i] = "yes"
+				nTp = nTp + 1
+			else
+				nFp = nFp + 1
+			end
+		end
+	end
+	return "  " + Pad(tName, 26) + Pad(String(nR) + "/" + String(Len(vLab)), 12) + Pad(String(nTp) + "/" + String(nYes), 12) + Pad(String(nTp) + "/" + String(nTp + nFp), 12) + tPassed
+end
+
+# inside vTr: 4 folds by position choose the set and grid; [ set, grid, the chosen answers, their confidences ]
+func ChooseInside(vX, vTr, vLab)
+	nTr = Len(vTr)
+	nG = Len($vGrid)
+	vAns = []
+	vConf = []
+	for s = 1 to Len($vSets)
+		for g = 1 to nG
+			for p = 1 to nTr
+				vAns + ""
+				vConf + 0.0f
+			end
+		end
+	end
+	for s = 1 to Len($vSets)
+		for q = 0 to 3
+			vA = []
+			vB = []
+			vPos = []
+			for p = 1 to nTr
+				if ((p - 1) % 4) = q
+					vB + vTr[p]
+					vPos + p
+				else
+					vA + vTr[p]
+				end
+			end
+			for g = 1 to nG
+				vW = TrainBin(vX[s], vA, vLab, $vGrid[g][1], $vGrid[g][2])
+				vP = PredBin(vW, vX[s], vB)
+				nBase = ((s - 1) * nG + (g - 1)) * nTr
+				for j = 1 to Len(vB)
+					vAns[nBase + vPos[j]] = vP[1][j]
+					vConf[nBase + vPos[j]] = vP[2][j]
+				end
+			end
+		end
+	end
+	nBest = -1
+	nBs = 1
+	nBg = 1
+	for s = 1 to Len($vSets)
+		for g = 1 to nG
+			nBase = ((s - 1) * nG + (g - 1)) * nTr
+			nR = 0
+			for p = 1 to nTr
+				if vAns[nBase + p] = vLab[vTr[p]]
+					nR = nR + 1
+				end
+			end
+			if nR > nBest
+				nBest = nR
+				nBs = s
+				nBg = g
+			end
+		end
+	end
+	nBase = ((nBs - 1) * nG + (nBg - 1)) * nTr
+	vOa = []
+	vOc = []
+	for p = 1 to nTr
+		vOa + vAns[nBase + p]
+		vOc + vConf[nBase + p]
+	end
+	return [ nBs, nBg, vOa, vOc ]
+end
+
+# the lowest confidence at which the kept answers are right >= fTarget of the time; 1.01 keeps none
+func Threshold(vAns, vConf, vLab, fTarget)
+	vCand = Sort(vConf)
+	for c = 1 to Len(vCand)
+		nKept = 0
+		nRight = 0
+		for i = 1 to Len(vConf)
+			if vConf[i] >= vCand[c]
+				nKept = nKept + 1
+				if vAns[i] = vLab[i]
+					nRight = nRight + 1
+				end
+			end
+		end
+		if nKept > 0 and Float(nRight) >= fTarget * Float(nKept)
+			return vCand[c]
+		end
+	end
+	return 1.01f
+end
+
+# ---- the binary head: the engine's weights then its bias, for "yes"
+
+func Flatten(vX, vIdx)
+	vOut = []
+	for i = 1 to Len(vIdx)
+		vRow = vX[vIdx[i]]
+		for d = 1 to Len(vRow)
+			vOut + vRow[d]
+		end
+	end
+	return vOut
+end
+
+func TrainBin(vX, vIdx, vLab, fLr, nEp)
+	vY = []
+	for i = 1 to Len(vIdx)
+		if vLab[vIdx[i]] = "yes"
+			vY + 1.0f
+		else
+			vY + 0.0f
+		end
+	end
+	return StzEngineLogisticTrain(Flatten(vX, vIdx), vY, Len(vIdx), Len(vX[1]), fLr, nEp)
+end
+
+# [ answers, confidences ] for the items of vIdx
+func PredBin(vModel, vX, vIdx)
+	nD = Len(vX[1])
+	vW = []
+	for d = 1 to nD
+		vW + vModel[d]
+	end
+	vPs = StzEngineLogisticPredict(Flatten(vX, vIdx), Len(vIdx), nD, vW, vModel[nD + 1])
+	vAns = []
+	vConf = []
+	for i = 1 to Len(vIdx)
+		fP = Float(vPs[i])
+		if fP >= 0.5f
+			vAns + "yes"
+			vConf + fP
+		else
+			vAns + "no"
+			vConf + (1.0f - fP)
+		end
+	end
+	return [ vAns, vConf ]
+end
+
+# ---- features
+
+func Unwrap(vL)
+	vOut = []
+	for i = 1 to Len(vL)
+		vOut + vL[i][1]
+	end
+	return vOut
+end
+
+func Embed(tText)
+	nD = StzEngineNeuralEmbed(tText)
+	vOut = []
+	for d = 1 to nD
+		vOut + Float(StzEngineNeuralEmbedAt(d - 1))
+	end
+	return vOut
+end
+
+func Grams(tText)
+	vC = []
+	for d = 1 to $nBuckets
+		vC + Float(0)
+	end
+	tL = Lower(tText)
+	nLen = Len(tL)
+	vB = []
+	for i = 1 to nLen
+		vB + Ascii(tL[i])
+	end
+	for u = 3 to 5
+		for i = 1 to nLen - u + 1
+			nH = u
+			for j = i to i + u - 1
+				nH = (nH * 257 + vB[j]) % 1000003
+			end
+			nAt = (nH % $nBuckets) + 1
+			vC[nAt] = vC[nAt] + 1.0f
+		end
+	end
+	fN = Float(0)
+	for d = 1 to $nBuckets
+		fN = fN + vC[d] * vC[d]
+	end
+	if fN > Float(0)
+		fN = Float(Sqrt(fN))
+		for d = 1 to $nBuckets
+			vC[d] = vC[d] / fN
+		end
+	end
+	return vC
+end
+
+# ---- asking a generative model, as _measure_fabric.haro does
+
+# one option question: [ the options' shares as "opt:bp|opt:bp", their total probability in basis points ]
+func Ask(tLabel, tSystem, tUser, vOpt)
+	StzEngineNeuralPrefillLogits(Prompt(tLabel, tSystem, tUser))
+	$nRead = $nRead + StzEngineNeuralGenPromptTokens() - StzEngineNeuralGenReusedTokens()
+	fLse = StzEngineNeuralLogitLse()
+	vP = []
+	fSum = Float(0)
+	for i = 1 to Len(vOpt)
+		tCap = Upper(Left(vOpt[i], 1)) + Right(vOpt[i], Len(vOpt[i]) - 1)
+		fP = Exp(StzEngineNeuralLogitAt(FirstId(vOpt[i])) - fLse) + Exp(StzEngineNeuralLogitAt(FirstId(tCap)) - fLse)
+		vP + fP
+		fSum = fSum + fP
+	end
+	tDist = ""
+	for i = 1 to Len(vOpt)
+		if i > 1
+			tDist = tDist + "|"
+		end
+		tDist = tDist + vOpt[i] + ":" + String(Bp(vP[i] / fSum))
+	end
+	return [ tDist, Bp(fSum) ]
+end
+
+func FirstId(tWord)
+	StzEngineNeuralGenTokenize("a")
+	nIdA = StzEngineNeuralGenTokenAt(0)
+	StzEngineNeuralGenTokenize("b")
+	nSkip = 0
+	if StzEngineNeuralGenTokenAt(0) = nIdA
+		nSkip = 1
+	end
+	StzEngineNeuralGenTokenize(tWord)
+	return StzEngineNeuralGenTokenAt(nSkip)
+end
+
+# each family's own turn format
+func Prompt(tLabel, tSystem, tUser)
+	if Left(tLabel, 4) = "bolt"
+		return "<|turn>system" + Char(10) + tSystem + "<turn|>" + Char(10) + "<|turn>user" + Char(10) + tUser + "<turn|>" + Char(10) + "<|turn>model" + Char(10)
+	end
+	if Left(tLabel, 7) = "granite"
+		return "<|start_of_role|>system<|end_of_role|>" + tSystem + "<|end_of_text|>" + Char(10) + "<|start_of_role|>user<|end_of_role|>" + tUser + "<|end_of_text|>" + Char(10) + "<|start_of_role|>assistant<|end_of_role|>"
+	end
+	tChat = "<|im_start|>system" + Char(10) + tSystem + "<|im_end|>" + Char(10) + "<|im_start|>user" + Char(10) + tUser + "<|im_end|>" + Char(10) + "<|im_start|>assistant" + Char(10)
+	if Left(tLabel, 5) = "qwen3"
+		return tChat + "<think>" + Char(10) + Char(10) + "</think>" + Char(10) + Char(10)
+	end
+	return tChat
+end
+
+# ---- helpers
+
+func Best(vD)
+	tBest = ""
+	nBest = -1
+	for o = 1 to Len(vD)
+		if vD[o][2] > nBest
+			nBest = vD[o][2]
+			tBest = vD[o][1]
+		end
+	end
+	return tBest
+end
+
+func ParseDist(tD)
+	vOut = []
+	vParts = Split(tD, "|")
+	for i = 1 to Len(vParts)
+		vKv = Split(vParts[i], ":")
+		if Len(vKv) = 2
+			vOut + [ [ vKv[1], Number(vKv[2]) ] ]
+		end
+	end
+	return Unwrap(vOut)
+end
+
+func Median(vN)
+	if Len(vN) = 0
+		return 0
+	end
+	vS = Sort(vN)
+	return vS[Floor(Float(Len(vS) + 1) / 2.0f)]
+end
+
+func ReadTsv(tPath)
+	vOut = []
+	vLines = Str2List(Read(tPath))
+	for i = 1 to Len(vLines)
+		tLine = vLines[i]
+		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
+			tLine = Left(tLine, Len(tLine) - 1)
+		end
+		if Len(tLine) > 0
+			vOut + Split(tLine, Char(9))
+		end
+	end
+	return vOut
+end
+
+func Split(tText, tSep)
+	vOut = []
+	tCur = ""
+	nLen = Len(tText)
+	for i = 1 to nLen
+		if tText[i] = tSep
+			vOut + tCur
+			tCur = ""
+		else
+			tCur = tCur + tText[i]
+		end
+	end
+	vOut + tCur
+	return vOut
+end
+
+func Row(vF)
+	tR = ""
+	for i = 1 to Len(vF)
+		if i > 1
+			tR = tR + Char(9)
+		end
+		tR = tR + vF[i]
+	end
+	return tR + Char(10)
+end
+
+func Bp(fX)
+	return Number(String(Decimal(fX * Float(10000), 0)))
+end
+
+func Ms(nStart)
+	return Number(String(Divide((Clock() - nStart) * 1000, ClocksPerSecond(), 0)))
+end
+
+func Say(tLine)
+	? tLine
+	$tOutText = $tOutText + tLine + Char(10)
+end
+
+func Pad(tText, nWidth)
+	tOut = tText
+	while Len(tOut) < nWidth
+		tOut = tOut + " "
+	end
+	return tOut
+end
+
+func Slashes(tPath)
+	tOut = ""
+	for i = 1 to Len(tPath)
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end

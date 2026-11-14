@@ -137,3 +137,20 @@ scores sum highest (neural_embed.zig; base/test/neural/unigram_tokenizer_narrate
     about 12), and 142 MB held for both embedding models.
   - the learning curve of the multilingual heads: 130, 166, 176, 168 of 204 for 12, 24, 36, 48 scenarios -- it no longer
     rises monotonically at this size, so more scenarios are now worth less than other labels (a second writer, real tickets).
+
+2026-11-14 (FABRIC-SPECIALIST-02 (a), ../_measure_realreq.haro): the heads and the gate on REAL text -- 175 items taken
+from the author's own consulting projects (mails, meeting minutes, feedback on documents), French and English, labelled
+by Claude with proper nouns masked. The items and labels are private, outside every repository; only scores are here.
+Every answer is held out (5 folds; feature set, settings and threshold chosen inside the training fifths). Table:
+realreq.txt.
+  - REMARK (is it a client's or partner's own words, or noise -- headings, mail headers, form questions, a script): the
+    heads answer 146 of 175 (always "yes" 124), finding 117 of the 124 remarks. Bolt, asked once in a fixed prompt,
+    answers 87: it calls most remarks noise (42 of 124 found). The gate has nothing to pass -- the heads lead at 29 ms an
+    item against Bolt's 4.41 s.
+  - REQUEST (does it ask for something to be done, changed, added or delivered; 36 of 175): the heads alone answer 138,
+    one under always "no", finding 7 of 36 -- 140 training items do not teach what a request is. Bolt answers 154, finding
+    21 of 36. The gate answers 150 and passes 107 to Bolt: 2.73 s an item against 4.41, 38 % saved for 4 items.
+  - so on real text the split is the task's own: noise is a matter of form, which a small head learns from a few dozen
+    examples; a request is a matter of meaning, which still needs the large model or many more labels.
+  - the labels are one reader's (Claude's); the author's corrections in the private sheet replace them, and the SNV
+    items (45, under that study's AI charter) wait for the author.
