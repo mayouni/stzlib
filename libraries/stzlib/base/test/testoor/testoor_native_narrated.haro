@@ -1,0 +1,287 @@
+load "../../stzBase.ring"
+load "_narrate.haro"
+
+# TESTOOR P3.5 -- THE NATIVE RUNNER. The walk loop, the judge and the logbook now run in a program
+# with no Ring virtual machine in it (engine/src/testoor_main.zig, `testoor run MANIFEST`), so that a
+# command line that is not Ring -- the stz CLI -- can call Testoor's runner as a child and read its
+# logbook and its exit code. This guard holds that program to the Ring runner: THE SAME TOURS, WALKED
+# BY EACH, MUST READ THE SAME. State, ending, exit code, seed, every stop and every claim; only the
+# milliseconds differ, because two walks never take the same time.
+#
+# The Ring face still READS the tours (reading a source file into a tour record is the face's work);
+# TestoorManifestJson hands the native runner what it read, the argv and the ending rules, and the
+# native runner walks, judges and logs.
+#
+# Every positive has its sibling: a tour that fails reads diverged on both; one that breaks midway
+# reads broke; one that hangs is killed at the deadline on both AND the native runner itself returns
+# promptly (a grandchild once kept it alive for 29 s); a flaky tour is found flaky by each; a manifest
+# that cannot be read is refused with exit 2, not walked.
+#
+# The native runner is built with `cd engine && zig build testoor-exe -j2` and found through the
+# TESTOOR_EXE variable or engine/zig-out/bin/testoor.exe beside the library. When it is not there this
+# guard says so by name and runs nothing: a gate owned and not run.
+
+? "TESTOOR P3.5 -- the native runner"
+nNvStart = Clock()
+tNvExe = TestoorNativeExe()
+tNvHere = CurrentDir()
+tNvPlant = tNvHere + "/_planted_native"
+
+if tNvExe = ""
+	? ""
+	? "SKIPPED by name, because the native runner is not built:"
+	? "  every section (the parity of the Ring runner and the native one, flakiness, the deadline, a self-describing tour, a refusal)"
+	? "  build it with: cd engine && zig build testoor-exe -j2, then set TESTOOR_EXE to zig-out/bin/testoor.exe"
+else
+
+_NvPlantAll(tNvPlant)
+vtNvFiles = [ tNvPlant + "/kept.ring", tNvPlant + "/fails.ring", tNvPlant + "/broke.ring", tNvPlant + "/hang.ring", tNvPlant + "/selfdesc.ring" ]
+
+#============================================================================
+Scenario("The native runner answers, and refuses what it cannot read")
+	nNvSec = Clock()
+	xV = _NvRun([ "version" ])
+	Then("it says what it is", StzFindFirst("testoor 3.5", xV[2]) > 0, true)
+	xMissing = _NvRun([ "run", tNvPlant + "/no_such_manifest.json", "--json" ])
+	Then("a manifest that is not there is refused: exit 2", xMissing[1], 2)
+	Then("with a logbook that says why", StzFindFirst('"refusal":"cannot read the manifest', xMissing[2]) > 0, true)
+	Write(tNvPlant + "/not_json.json", "this is not json")
+	xBad = _NvRun([ "run", tNvPlant + "/not_json.json", "--json" ])
+	Then("a manifest that is not JSON is refused too", xBad[1], 2)
+	xNoArgs = _NvRun([ "run" ])
+	Then("and a command with no manifest is a usage error: exit 2", xNoArgs[1], 2)
+EndScenario()
+? "        [section took " + String((Clock() - nNvSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("Five tours, walked by the Ring runner and by the native one, read the same")
+	nNvSec = Clock()
+	Given("a tour that holds, one that fails, one that breaks midway, one that hangs, and one that describes itself")
+	oRing = TravellerQ().Silent().Timeout(3000).Seed(5)
+	for i = 1 to Len(vtNvFiles)
+		oRing.Walk(vtNvFiles[i])
+	end
+	tRingJson = oRing.Json()
+	nRingExit = oRing.ExitCode()
+	tManifest = TestoorManifestJson(vtNvFiles, [ [:by, "native"], [:seed, 5], [:repeat, 1], [:timeout_ms, 3000] ])
+	Write(tNvPlant + "/manifest.json", tManifest)
+	xNative = _NvRun([ "run", tNvPlant + "/manifest.json", "--json" ])
+	Then("the native runner gave a logbook", Left(xNative[2], 19), '{"testoor":"logbook')
+	xR = StzJsonToList(tRingJson)
+	xN = StzJsonToList(xNative[2])
+	Then("both walked five tours", NarText(xR[:owned]) + "/" + NarText(xR[:run]) + " " + NarText(xN[:owned]) + "/" + NarText(xN[:run]), "5/5 5/5")
+	Then("the run's exit code is the same: the runner's, not a tour's", xNative[1], nRingExit)
+	Then("and it is 1: one tour failed, one broke, one hung", nRingExit, 1)
+	Then("the run reads the same: seed, claims, how the tours ended", _NvRunCanon(xN), _NvRunCanon(xR))
+	nBad = 0
+	for i = 1 to 5
+		tR = _NvTourCanon(xR[:tours][i])
+		tN = _NvTourCanon(xN[:tours][i])
+		if tR != tN
+			nBad++
+			? "        DIFFERS: " + vtNvFiles[i]
+			? "          ring   " + tR
+			? "          native " + tN
+		end
+	end
+	Then("every tour reads the same: state, ending, exit, seed, stops and claims", nBad, 0)
+	Then("the one that holds is kept", xN[:tours][1][:state], "kept")
+	Then("the one that fails is diverged", xN[:tours][2][:state], "diverged")
+	Then("the one that breaks ended broke", xN[:tours][3][:end], "broke")
+	Then("the one that hangs ended hung, killed at the deadline", xN[:tours][4][:end], "hung")
+	Then("and the self-describing one, with no record in the manifest, is kept", xN[:tours][5][:state] + "/" + xN[:tours][5][:dialect], "kept/protocol")
+EndScenario()
+? "        [section took " + String((Clock() - nNvSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("A flaky tour is found flaky by both, and a stable one is not")
+	nNvSec = Clock()
+	vtFlaky = [ tNvPlant + "/flaky.ring", tNvPlant + "/kept.ring" ]
+	_NvClearMarker(tNvPlant)
+	oRingF = TravellerQ().Silent().Timeout(6000).Seed(5).Repeat(2)
+	oRingF.Walk(vtFlaky[1])
+	oRingF.Walk(vtFlaky[2])
+	xRF = StzJsonToList(oRingF.Json())
+	_NvClearMarker(tNvPlant)
+	Write(tNvPlant + "/manifest_flaky.json", TestoorManifestJson(vtFlaky, [ [:seed, 5], [:repeat, 2], [:timeout_ms, 6000] ]))
+	xNF = StzJsonToList(_NvRun([ "run", tNvPlant + "/manifest_flaky.json", "--json" ])[2])
+	_NvClearMarker(tNvPlant)
+	Then("the Ring runner finds the first tour flaky and not the second", NarText(xRF[:tours][1][:flaky]) + "/" + NarText(xRF[:tours][2][:flaky]), "1/0")
+	Then("so does the native runner", NarText(xNF[:tours][1][:flaky]) + "/" + NarText(xNF[:tours][2][:flaky]), "1/0")
+	Then("a flaky tour makes the run exit 1 in both", NarText(xRF[:exit]) + "/" + NarText(xNF[:exit]), "1/1")
+EndScenario()
+? "        [section took " + String((Clock() - nNvSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("The deadline holds: a hung tour is killed, and the native runner itself returns promptly")
+	nNvSec = Clock()
+	Write(tNvPlant + "/manifest_hang.json", TestoorManifestJson([ tNvPlant + "/hang.ring" ], [ [:seed, 5], [:timeout_ms, 2500] ]))
+	nT0 = Clock()
+	xH = _NvRun([ "run", tNvPlant + "/manifest_hang.json", "--json" ])
+	nWholeS = (Clock() - nT0) / ClocksPerSecond()
+	xHJ = StzJsonToList(xH[2])
+	? "        the whole native process took " + NarTwo(nWholeS) + " s for a 2.5 s deadline"
+	Then("the tour ended hung", xHJ[:tours][1][:end], "hung")
+	Then("the runner exits 1", xH[1], 1)
+	Then("the kill reads as the Ring runner's: exit -3", xHJ[:tours][1][:exit], -3)
+	Then("and the process returned within seconds of the deadline, not when the child would have", nWholeS < 9, true)
+EndScenario()
+? "        [section took " + String((Clock() - nNvSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("A gate's floor of evidence: a run whose every tour holds still exits 1 when the walk is too thin")
+	nNvSec = Clock()
+	vtThin = [ tNvPlant + "/kept.ring" ]
+	Given("one tour that holds, with two kept claims and no route walked")
+	tFloorA = '{"posture":"human","tier":"normal","floor":{"min_kept":2}}'
+	tFloorB = '{"posture":"llm","tier":"critical","floor":{"min_kept":3}}'
+	tFloorC = '{"posture":"llm","tier":"critical","floor":{"min_kept":1,"min_routes":1}}'
+	Write(tNvPlant + "/manifest_a.json", TestoorManifestJson(vtThin, [ [:seed, 5], [:timeout_ms, 6000], [:evidence_json, tFloorA] ]))
+	Write(tNvPlant + "/manifest_b.json", TestoorManifestJson(vtThin, [ [:seed, 5], [:timeout_ms, 6000], [:evidence_json, tFloorB] ]))
+	Write(tNvPlant + "/manifest_c.json", TestoorManifestJson(vtThin, [ [:seed, 5], [:timeout_ms, 6000], [:evidence_json, tFloorC] ]))
+	xFA = _NvRun([ "run", tNvPlant + "/manifest_a.json", "--json" ])
+	xFB = _NvRun([ "run", tNvPlant + "/manifest_b.json", "--json" ])
+	xFC = _NvRun([ "run", tNvPlant + "/manifest_c.json", "--json" ])
+	xJA = StzJsonToList(xFA[2])
+	xJB = StzJsonToList(xFB[2])
+	xJC = StzJsonToList(xFC[2])
+	Then("a floor of two kept claims is met: the gate accepts, exit 0", NarText(xFA[1]) + "/" + NarText(xJA[:evidence][:met]), "0/1")
+	Then("a floor of three is not, though the tour is kept: the gate refuses, exit 1", NarText(xFB[1]) + "/" + NarText(xJB[:evidence][:met]), "1/0")
+	Then("and the record says why", xJB[:evidence][:why], "kept 2 is below the floor's min_kept 3")
+	Then("a floor that asks for a route nobody walked is not met either", NarText(xFC[1]) + "/" + NarText(xJC[:evidence][:met]), "1/0")
+	Then("naming the routes", xJC[:evidence][:why], "routes walked 0 is below the floor's min_routes 1")
+	Then("the tour itself is kept in every one of them: the floor is the gate's verdict, not the tour's", xJB[:tours][1][:state], "kept")
+	Then("a run with no floor carries no evidence record and no protocol key", StzFindFirst('"evidence":{', xNative[2]) + StzFindFirst('"protocol":2', xNative[2]), 0)
+EndScenario()
+? "        [section took " + String((Clock() - nNvSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("V1 -- the evidence ladder from the native runner: a node a kept tour reached is exemplified, one only a failing tour reached is observed")
+	nNvSec = Clock()
+	vtLad = [ tNvPlant + "/nodes_kept.ring", tNvPlant + "/nodes_fails.ring" ]
+	Given("a tour that reaches Total and Rate and keeps its claim, and one that reaches Net and Total and fails")
+	Write(tNvPlant + "/manifest_l.json", TestoorManifestJson(vtLad, [ [:seed, 5], [:timeout_ms, 6000], [:ladder, true] ]))
+	Write(tNvPlant + "/manifest_n.json", TestoorManifestJson(vtLad, [ [:seed, 5], [:timeout_ms, 6000] ]))
+	xLL = _NvRun([ "run", tNvPlant + "/manifest_l.json", "--json" ])
+	xLJ = StzJsonToList(xLL[2])
+	Then("the run says protocol 3", xLJ[:protocol], 3)
+	Then("two nodes exemplified, one observed", NarText(xLJ[:ladder][:exemplified]) + "/" + NarText(xLJ[:ladder][:observed]), "2/1")
+	Then("rows follow first observation: Total, Rate, Net",
+	     xLJ[:ladder][:nodes][1][:id] + "," + xLJ[:ladder][:nodes][2][:id] + "," + xLJ[:ladder][:nodes][3][:id], "stzTax.Total,stzTax.Rate,stzTax.Net")
+	Then("Total is exemplified by the kept tour alone, though the failing one reached it too",
+	     xLJ[:ladder][:nodes][1][:grade] + ":" + String(Len(xLJ[:ladder][:nodes][1][:tours])) + ":" + xLJ[:ladder][:nodes][1][:tours][1], "exemplified:1:" + xLJ[:tours][1][:file])
+	Then("Net, reached only by the failing tour, is observed and names that tour",
+	     xLJ[:ladder][:nodes][3][:grade] + ":" + xLJ[:ladder][:nodes][3][:tours][1], "observed:" + xLJ[:tours][2][:file])
+	Then("with no graph, no owned and no named figure is written", StzFindFirst('"ladder":{"observed":', xLL[2]) > 0, true)
+	Then("the ladder changes no exit code: 1, for the failing tour", xLL[1], 1)
+	xLN = _NvRun([ "run", tNvPlant + "/manifest_n.json", "--json" ])
+	Then("the same tours with no ladder asked for: no ladder, and protocol 2 for their nodes",
+	     NarText(StzFindFirst('"ladder":', xLN[2])) + "/" + NarText((StzFindFirst('"protocol":2,', xLN[2]) > 0)), "0/1")
+	xLF = _NvRun([ "run", tNvPlant + "/manifest_n.json", "--prose", "--ladder" ])
+	Then("--ladder asks for it from the command line, and the prose says what a reader can count",
+	     StzFindFirst("ladder: 2 exemplified, 1 observed; no graph, so named nodes are not counted", xLF[2]) > 0, true)
+EndScenario()
+? "        [section took " + String((Clock() - nNvSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("V4 -- a floor that asks for a grade, through the native runner: met when every node of the set stands on it, refused naming the first that does not")
+	nNvSec = Clock()
+	vtG = [ tNvPlant + "/nodes_kept.ring" ]
+	Given("one kept tour that reaches Total and Rate, and a floor of exemplified over two impact sets")
+	tGFloor = '{"posture":"llm","tier":"critical","floor":{"min_grade":"exemplified","over":"impact"}}'
+	Write(tNvPlant + "/manifest_g1.json", TestoorManifestJson(vtG, [ [:seed, 5], [:timeout_ms, 6000], [:evidence_json, tGFloor],
+	      [:impact_json, '{"reach":["stzTax.Total","stzTax.Rate"],"capped":[]}'] ]))
+	Write(tNvPlant + "/manifest_g2.json", TestoorManifestJson(vtG, [ [:seed, 5], [:timeout_ms, 6000], [:evidence_json, tGFloor],
+	      [:impact_json, '{"reach":["stzTax.Total","stzTax.Net"],"capped":[]}'] ]))
+	Write(tNvPlant + "/manifest_g3.json", TestoorManifestJson(vtG, [ [:seed, 5], [:timeout_ms, 6000], [:evidence_json, tGFloor] ]))
+	xG1 = _NvRun([ "run", tNvPlant + "/manifest_g1.json", "--json" ])
+	xG2 = _NvRun([ "run", tNvPlant + "/manifest_g2.json", "--json" ])
+	xG3 = _NvRun([ "run", tNvPlant + "/manifest_g3.json", "--json" ])
+	xJG1 = StzJsonToList(xG1[2])
+	xJG2 = StzJsonToList(xG2[2])
+	xJG3 = StzJsonToList(xG3[2])
+	Then("both nodes of the set were exemplified: met, exit 0, protocol 3", NarText(xG1[1]) + "/" + NarText(xJG1[:evidence][:met]) + "/" + NarText(xJG1[:protocol]), "0/1/3")
+	Then("a set holding a node no tour reached: refused, exit 1, though the tour is kept", NarText(xG2[1]) + "/" + NarText(xJG2[:evidence][:met]) + "/" + NarText(xJG2[:tours][1][:state]), "1/0/kept")
+	Then("and the reason names that node and its grade", xJG2[:evidence][:why], "stzTax.Net is named, below the floor's min_grade exemplified")
+	Then("the record counts the set and the nodes below it", NarText(xJG2[:evidence][:reach]) + "/" + NarText(xJG2[:evidence][:below]), "2/1")
+	Then("a floor that asks for a grade with no impact record is refused, never guessed", xJG3[:evidence][:why],
+	     "the floor asks for a grade over the impact set, and the run carries no impact record")
+EndScenario()
+? "        [section took " + String((Clock() - nNvSec) / ClocksPerSecond()) + "s]"
+
+_NvUnplantAll(tNvPlant)
+
+end
+
+? ""
+? "[P3.5 took " + String((Clock() - nNvStart) / ClocksPerSecond()) + "s]"
+Summary()
+Shutdown($nNarFail)
+
+#============================================================================
+# HELPERS AFTER THE TOP-LEVEL CODE
+
+# run the native runner with these arguments: [ exit code, what it printed ]
+func _NvRun(pvtArgs)
+	oP = new stzProcess()
+	vArgv = [ TestoorNativeExe() ]
+	nN = Len(pvtArgs)
+	for i = 1 to nN
+		vArgv + pvtArgs[i]
+	end
+	oP.SpawnIn(CurrentDir(), vArgv)
+	tOut = oP.ReadOutputAll()
+	nX = oP.Wait()
+	oP.Close()
+	return [ nX, tOut ]
+end
+# one tour, as text, without the milliseconds two walks never share
+func _NvTourCanon(pxT)
+	xC = NarText(pxT[:file]) + "|" + NarText(pxT[:dialect]) + "|" + NarText(pxT[:state]) + "|" + NarText(pxT[:end]) + "|exit " + NarText(pxT[:exit]) + "|seed " + NarText(pxT[:seed]) +
+	      "|flaky " + NarText(pxT[:flaky]) + "|" + NarText(pxT[:kept]) + "/" + NarText(pxT[:diverged]) + "/" + NarText(pxT[:unreached]) + "/" + NarText(pxT[:unjudged])
+	nS = Len(pxT[:stops])
+	for s = 1 to nS
+		xC += "|[" + NarText(pxT[:stops][s][:title]) + ":" + NarText(pxT[:stops][s][:line]) + ":" + NarText(pxT[:stops][s][:state])
+		nC = Len(pxT[:stops][s][:claims])
+		for k = 1 to nC
+			xC += "{" + NarText(pxT[:stops][s][:claims][k][:claim]) + ":" + NarText(pxT[:stops][s][:claims][k][:state]) + "}"
+		end
+		xC += "]"
+	end
+	return xC
+end
+# the run, as text, without its times
+func _NvRunCanon(pxR)
+	return "exit " + NarText(pxR[:exit]) + "|owned " + NarText(pxR[:owned]) + "|run " + NarText(pxR[:run]) + "|seed " + NarText(pxR[:seed]) + "|repeat " + NarText(pxR[:repeat]) + "|flaky " + NarText(pxR[:flaky]) +
+	       "|claims " + NarText(pxR[:claims][:kept]) + "/" + NarText(pxR[:claims][:diverged]) + "/" + NarText(pxR[:claims][:unreached]) + "/" + NarText(pxR[:claims][:unjudged]) +
+	       "|ends " + NarText(pxR[:tours_by_end][:finished]) + "/" + NarText(pxR[:tours_by_end]["finished-timed"]) + "/" + NarText(pxR[:tours_by_end]["not-started"]) + "/" +
+	       NarText(pxR[:tours_by_end][:broke]) + "/" + NarText(pxR[:tours_by_end][:hung]) + "/" + NarText(pxR[:tours_by_end][:unreadable])
+end
+func _NvClearMarker(ptRoot)
+	if FExists(ptRoot + "/nv_flaky_marker.txt")  Remove(ptRoot + "/nv_flaky_marker.txt")  end
+end
+func _NvPlantAll(ptRoot)
+	_NvUnplantAll(ptRoot)
+	StzMakeDir(ptRoot)
+	tN = Char(10)
+	Write(ptRoot + "/kept.ring", '? "  [OK] the first thing holds"' + tN + '? "  [OK] the second thing holds"' + tN)
+	Write(ptRoot + "/fails.ring", '? "  [OK] this one holds"' + tN + '? "  [FAIL] this one does not"' + tN)
+	Write(ptRoot + "/broke.ring", '? "  [OK] before the break"' + tN + 'x = 0 + "abc"' + tN + '? "  [OK] never printed"' + tN)
+	Write(ptRoot + "/hang.ring", '? "  [OK] alive"' + tN + "while 1" + tN + "end" + tN)
+	Write(ptRoot + "/selfdesc.ring", '? "[testoor stop it says what it is]"' + tN + '? "[testoor ok it said so]"' + tN)
+	Write(ptRoot + "/nodes_kept.ring", '? "[testoor node stzTax.Total]"' + tN + '? "[testoor node stzTax.Rate 2]"' + tN + '? "  [OK] the total holds"' + tN)
+	Write(ptRoot + "/nodes_fails.ring", '? "[testoor node stzTax.Net]"' + tN + '? "[testoor node stzTax.Total]"' + tN + '? "  [FAIL] the net does not"' + tN)
+	Write(ptRoot + "/flaky.ring",
+		'cM = "nv_flaky_marker.txt"' + tN +
+		"if fexists(cM)" + tN +
+		'	? "  [OK] second time lucky"' + tN +
+		"else" + tN +
+		'	write(cM, "1")' + tN +
+		'	? "  [FAIL] first time unlucky"' + tN +
+		"ok" + tN)
+end
+func _NvUnplantAll(ptRoot)
+	if FExists(ptRoot + "/kept.ring")
+		StzDirDeleteAll(ptRoot)
+	end
+end
