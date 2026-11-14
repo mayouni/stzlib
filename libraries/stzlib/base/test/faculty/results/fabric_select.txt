@@ -1,0 +1,15 @@
+FABRIC-SELECTOR-01: a learned selector over the small models, judged on tickets it never saw
+two folds: learned on the odd tickets and judged on the even ones, then the reverse -- all 204 questions judged
+
+fabric                                                              even  odd  all      to bolt-e4b   MB     s per question
+bolt-e4b alone                                                      98    97   195/204  204/204       5983   4.38
+granite-1b alone                                                    82    85   167/204  -             1710   1.84
+learned weights, all 8 small                                        88    90   178/204  -             9464   13.07
+gate: granite-1b, else bolt-e4b                                     95    97   192/204  117/204       7693   4.36
+gate: granite-1b+lfm3-1.7b, else bolt-e4b                           96    96   192/204  86/204        9516   5.56
+gate: granite-1b+lfm3-1.7b+qwen3-0.6b+granite-350m, else bolt-e4b   92    96   188/204  80/204        10588  6.57
+
+chosen inside the training halves: alpha 20 power 4; alpha 5 power 8;
+to bolt-e4b = questions the fabric passed to the large model; MB = the models held together (ready memory,
+results/ready.txt); s per question = from fabric_pace.tsv, the members' times summed, plus the large model's on the
+questions passed to it, averaged over all the questions

@@ -23,6 +23,13 @@
 #
 #   haro _measure_fabric.haro ask <label> <model file>    one model, 204 questions: replaces its rows in results/fabric.tsv
 #   haro _measure_fabric.haro analyse                     results/fabric.tsv -> results/fabric.txt
+#   haro _measure_fabric.haro select                      FABRIC-SELECTOR-01: the learned selector and the gate, two
+#                                                         folds over results/fabric.tsv -> results/fabric_select.txt
+#   haro _measure_fabric.haro pace <label=file,...> <n> <budget MB>
+#                                                         the models in slots under the budget, n test questions asked
+#                                                         of each in rotating order: results/fabric_pace.tsv. A model
+#                                                         evicted is read back by the select, which is not timed; the
+#                                                         prompt cache is off, so a time is a whole question's reading
 #   haro _measure_fabric.haro serve <label=file,...>      the fabric RUN: its members held at once in slots, every test
 #                                                         question asked of each and their shares summed; appends its
 #                                                         right count, wall time and held memory to results/fabric_serve.tsv
@@ -51,6 +58,14 @@ $vBestDev = [ -1, "" ]  # the fabric best on dev: [ its dev right count, its lin
 nArgs = Len(SysArgv)
 bDone = false
 for i = 1 to nArgs
+	if SysArgv[i] = "select"
+		SelectAnalyse()
+		bDone = true
+	end
+	if SysArgv[i] = "pace" and i + 3 <= nArgs
+		Pace(SysArgv[i + 1], SysArgv[i + 2], SysArgv[i + 3])
+		bDone = true
+	end
 	if SysArgv[i] = "serve" and i + 1 <= nArgs
 		Serve(SysArgv[i + 1])
 		bDone = true
@@ -107,6 +122,501 @@ func AskAll(tLabel, tFile)
 		end
 	end
 	Write($tTsv, tKeep + tOut)
+end
+
+# ---- FABRIC-SELECTOR-01: a LEARNED selector, and the gate to the large model ----
+#
+# Every number here is a held-out one: the rows are split in two by ticket (odd and even), what is learned is learned
+# on one half and judged on the other, and then the halves swap, so all 204 questions are judged by a selector that
+# never saw them. A setting the selector needs (alpha, power, threshold) is chosen INSIDE the training half -- split
+# again by ticket -- and never on the half being judged.
+#
+#   learned weights   each small model's reliability for a question type and language, learned on the training half
+#                     and shrunk toward its overall reliability (alpha), weights every member's vote: the answer is
+#                     the option with the largest sum of weight x log(share), the weight being reliability^power
+#   the gate          a few small models answer as the learned weights combine them; when the margin between the two
+#                     best options is below a threshold, the question goes to the large model. The threshold is the
+#                     smallest that keeps training accuracy within one question of the large model's on training
+#
+# The costs come from results/fabric_pace.tsv: the members and the large model asked the same questions in one
+# process, held at once in slots, in rotating order -- a time per question for each, measured side by side.
+
+func SelectAnalyse
+	vL = LoadFabric()
+	vModels = vL[1]
+	vTab = vL[2]
+	vKeys = vL[3]
+	vGold = vL[4]
+	nL = Find(vModels, $tLarge)
+	vSmall = []
+	for i = 1 to Len(vModels)
+		if vModels[i] != $tLarge
+			vSmall + i
+		end
+	end
+	vOdd = []
+	vEven = []
+	for nK = 1 to Len(vKeys)
+		if Odd(TicketOf(vKeys[nK]))
+			vOdd + nK
+		else
+			vEven + nK
+		end
+	end
+	vFolds = [ [ vOdd, vEven ], [ vEven, vOdd ] ]
+	vPace = PaceTable()
+	$tOutText = ""
+	Say("FABRIC-SELECTOR-01: a learned selector over the small models, judged on tickets it never saw")
+	Say("two folds: learned on the odd tickets and judged on the even ones, then the reverse -- all " + String(Len(vKeys)) + " questions judged")
+	Say("")
+	Say(Pad("fabric", 68) + Pad("even", 6) + Pad("odd", 5) + Pad("all", 9) + Pad("to " + $tLarge, 14) + Pad("MB", 7) + "s per question")
+	nBoltAll = 0
+	vBoltF = []
+	for f = 1 to 2
+		nC = 0
+		for t = 1 to Len(vFolds[f][2])
+			if Best(vTab[nL][vFolds[f][2][t]][1]) = vGold[vFolds[f][2][t]]
+				nC = nC + 1
+			end
+		end
+		vBoltF + nC
+		nBoltAll = nBoltAll + nC
+	end
+	SayRow($tLarge + " alone", vBoltF, Len(vKeys), Len(vKeys), MemOf($tLarge), PaceOf(vPace, [ $tLarge ]))
+	nG = Find(vModels, "granite-1b")
+	vG = []
+	for f = 1 to 2
+		vG + Acc(vTab, [ nG ], vKeys, vGold, vFolds[f][2])
+	end
+	SayRow("granite-1b alone", vG, 0, Len(vKeys), MemOf("granite-1b"), PaceOf(vPace, [ "granite-1b" ]))
+	# learned weights over all the small models, alpha and power chosen inside each training half
+	vW = []
+	tChosen = ""
+	for f = 1 to 2
+		vCfg = ChooseInside(vTab, vSmall, vKeys, vGold, vFolds[f][1])
+		vRel = LearnRel(vTab, vSmall, vKeys, vGold, vFolds[f][1], vCfg[1])
+		nC = 0
+		for t = 1 to Len(vFolds[f][2])
+			nK = vFolds[f][2][t]
+			if Weighted(vTab, vSmall, vRel, vKeys[nK], nK, vCfg[2]) = vGold[nK]
+				nC = nC + 1
+			end
+		end
+		vW + nC
+		tChosen = tChosen + " alpha " + String(vCfg[1]) + " power " + String(vCfg[2]) + ";"
+	end
+	vNames = []
+	for s = 1 to Len(vSmall)
+		vNames + vModels[vSmall[s]]
+	end
+	SayRow("learned weights, all 8 small", vW, 0, Len(vKeys), MemSum(vNames), PaceOf(vPace, vNames))
+	# the gates
+	vSets = [ [ "granite-1b" ], [ "granite-1b", "lfm3-1.7b" ], [ "granite-1b", "lfm3-1.7b", "qwen3-0.6b", "granite-350m" ] ]
+	for g = 1 to Len(vSets)
+		vIdx = []
+		for q = 1 to Len(vSets[g])
+			vIdx + Find(vModels, vSets[g][q])
+		end
+		vRes = []
+		nPass = 0
+		for f = 1 to 2
+			vR = GateFold(vTab, vIdx, nL, vKeys, vGold, vFolds[f][1], vFolds[f][2])
+			vRes + vR[1]
+			nPass = nPass + vR[2]
+		end
+		tName = "gate: " + JoinNames(vSets[g], "+") + ", else " + $tLarge
+		nMem = MemSum(vSets[g]) + MemOf($tLarge)
+		tSec = PaceGate(vPace, vSets[g], nPass, Len(vKeys))
+		SayRow(tName, vRes, nPass, Len(vKeys), nMem, tSec)
+	end
+	Say("")
+	Say("chosen inside the training halves:" + tChosen)
+	Say("to " + $tLarge + " = questions the fabric passed to the large model; MB = the models held together (ready memory,")
+	Say("results/ready.txt); s per question = from fabric_pace.tsv, the members' times summed, plus the large model's on the")
+	Say("questions passed to it, averaged over all the questions")
+	if Len(vPace) = 0
+		Say("(no fabric_pace.tsv yet: run 'pace' for the times)")
+	end
+	Write("results/fabric_select.txt", $tOutText)
+	? "written results/fabric_select.txt"
+end
+
+func SayRow(tName, vF, nPass, nAll, nMem, tSec)
+	tPass = "-"
+	if nPass > 0
+		tPass = String(nPass) + "/" + String(nAll)
+	end
+	Say(Pad(tName, 68) + Pad(String(vF[1]), 6) + Pad(String(vF[2]), 5) + Pad(String(vF[1] + vF[2]) + "/" + String(nAll), 9) + Pad(tPass, 14) + Pad(String(nMem), 7) + tSec)
+end
+
+# [ alpha, power ]: the pair whose inner folds (the training half split again by ticket) answer the most
+func ChooseInside(vTab, vSmall, vKeys, vGold, vTrain)
+	vA = []
+	vB = []
+	for t = 1 to Len(vTrain)
+		if Odd(Half(TicketOf(vKeys[vTrain[t]])))
+			vA + vTrain[t]
+		else
+			vB + vTrain[t]
+		end
+	end
+	vBest = [ 0, 0 ]
+	nBest = -1
+	vAlphas = [ 5, 20, 100 ]
+	vPowers = [ 1, 4, 8 ]
+	for a = 1 to Len(vAlphas)
+		vRelA = LearnRel(vTab, vSmall, vKeys, vGold, vA, vAlphas[a])
+		vRelB = LearnRel(vTab, vSmall, vKeys, vGold, vB, vAlphas[a])
+		for p = 1 to Len(vPowers)
+			nC = 0
+			for t = 1 to Len(vB)
+				if Weighted(vTab, vSmall, vRelA, vKeys[vB[t]], vB[t], vPowers[p]) = vGold[vB[t]]
+					nC = nC + 1
+				end
+			end
+			for t = 1 to Len(vA)
+				if Weighted(vTab, vSmall, vRelB, vKeys[vA[t]], vA[t], vPowers[p]) = vGold[vA[t]]
+					nC = nC + 1
+				end
+			end
+			if nC > nBest
+				nBest = nC
+				vBest = [ vAlphas[a], vPowers[p] ]
+			end
+		end
+	end
+	return vBest
+end
+
+# [ cells, per cell the members' reliabilities (floats), the members' overall reliabilities ] learned on vTrain
+func LearnRel(vTab, vMembers, vKeys, vGold, vTrain, nAlpha)
+	vAcc = []
+	for m = 1 to Len(vMembers)
+		vAcc + Float(Acc(vTab, [ vMembers[m] ], vKeys, vGold, vTrain)) / Float(Len(vTrain))
+	end
+	vCells = []
+	vIdx = []
+	for t = 1 to Len(vTrain)
+		tC = CellOf(vKeys[vTrain[t]])
+		nAt = Find(vCells, tC)
+		if nAt = 0
+			vCells + tC
+			vIdx + [ vTrain[t] ]
+		else
+			vIdx[nAt] + vTrain[t]
+		end
+	end
+	vRel = []
+	for c = 1 to Len(vCells)
+		vR = []
+		for m = 1 to Len(vMembers)
+			nRight = Acc(vTab, [ vMembers[m] ], vKeys, vGold, vIdx[c])
+			vR + (Float(nRight) + Float(nAlpha) * vAcc[m]) / Float(Len(vIdx[c]) + nAlpha)
+		end
+		vRel + vR
+	end
+	return [ vCells, vRel, vAcc ]
+end
+
+# the option with the largest sum of reliability^power x log(share) over the members
+func Weighted(vTab, vMembers, vRel, tKey, nK, nPower)
+	vScores = WeightedScores(vTab, vMembers, vRel, tKey, nK, nPower)
+	tBest = ""
+	fBest = Float(-1000000000)
+	for o = 1 to Len(vScores[1])
+		if vScores[2][o] > fBest
+			fBest = vScores[2][o]
+			tBest = vScores[1][o]
+		end
+	end
+	return tBest
+end
+
+# [ options, their scores ]
+func WeightedScores(vTab, vMembers, vRel, tKey, nK, nPower)
+	nAt = Find(vRel[1], CellOf(tKey))
+	vR = vRel[3]
+	if nAt > 0
+		vR = vRel[2][nAt]
+	end
+	vOpt = []
+	vSum = []
+	for m = 1 to Len(vMembers)
+		fW = Float(1)
+		for p = 1 to nPower
+			fW = fW * vR[m]
+		end
+		vD = vTab[vMembers[m]][nK][1]
+		for o = 1 to Len(vD)
+			nV = vD[o][2]
+			if nV < 1
+				nV = 1
+			end
+			fL = fW * Float(Log(Float(nV) / Float(10000)))
+			nPos = Find(vOpt, vD[o][1])
+			if nPos = 0
+				vOpt + vD[o][1]
+				vSum + fL
+			else
+				vSum[nPos] = vSum[nPos] + fL
+			end
+		end
+	end
+	return [ vOpt, vSum ]
+end
+
+# the margin between the two best scores, in units of 1/10000, as a whole number
+func Margin(vScores)
+	fA = Float(-1000000000)
+	fB = Float(-1000000000)
+	for o = 1 to Len(vScores[2])
+		if vScores[2][o] > fA
+			fB = fA
+			fA = vScores[2][o]
+		elseif vScores[2][o] > fB
+			fB = vScores[2][o]
+		end
+	end
+	return Number(String(Decimal((fA - fB) * Float(10000), 0)))
+end
+
+# one fold of a gate: [ right on the judged half, questions passed to the large model ]
+func GateFold(vTab, vIdx, nL, vKeys, vGold, vTrain, vJudge)
+	# the members' overall reliabilities on the training half (no cells: a gate is a few members)
+	vRel = [ [], [], [] ]
+	for m = 1 to Len(vIdx)
+		vRel[3] + Float(Acc(vTab, [ vIdx[m] ], vKeys, vGold, vTrain)) / Float(Len(vTrain))
+	end
+	nLargeTrain = Acc(vTab, [ nL ], vKeys, vGold, vTrain)
+	vCand = [ 0 ]
+	for t = 1 to Len(vTrain)
+		nMg = Margin(WeightedScores(vTab, vIdx, vRel, vKeys[vTrain[t]], vTrain[t], 4))
+		if Find(vCand, nMg) = 0
+			vCand + nMg
+		end
+	end
+	vCand = Sort(vCand)
+	nT = vCand[Len(vCand)] + 1
+	for c = 1 to Len(vCand)
+		if GateRight(vTab, vIdx, vRel, nL, vKeys, vGold, vTrain, vCand[c])[1] >= nLargeTrain - 1
+			nT = vCand[c]
+			exit
+		end
+	end
+	return GateRight(vTab, vIdx, vRel, nL, vKeys, vGold, vJudge, nT)
+end
+
+func GateRight(vTab, vIdx, vRel, nL, vKeys, vGold, vSet, nT)
+	nC = 0
+	nPass = 0
+	for t = 1 to Len(vSet)
+		nK = vSet[t]
+		vS = WeightedScores(vTab, vIdx, vRel, vKeys[nK], nK, 4)
+		if Margin(vS) < nT
+			nPass = nPass + 1
+			if Best(vTab[nL][nK][1]) = vGold[nK]
+				nC = nC + 1
+			end
+		else
+			if Weighted(vTab, vIdx, vRel, vKeys[nK], nK, 4) = vGold[nK]
+				nC = nC + 1
+			end
+		end
+	end
+	return [ nC, nPass ]
+end
+
+# ---- the pace: the models held together in slots, asked the same questions in rotating order ----
+
+func Pace(tSpec, tCount, tBudgetMb)
+	tBin = Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/"
+	LoadLib(tBin + "stz_neural.dll")
+	StzEngineNeuralSlotSetBudget(Number(tBudgetMb) * 1048576)
+	vSpec = Split(tSpec, ",")
+	vNames = []
+	for i = 1 to Len(vSpec)
+		vKv = Split(vSpec[i], "=")
+		if StzEngineNeuralSlotLoad(vKv[1], Slashes(vKv[2])) = 0
+			? vKv[1] + ": the slot load was refused, status " + String(StzEngineNeuralSlotStatus())
+			return
+		end
+		vNames + vKv[1]
+	end
+	StzEngineNeuralGenSetPrefixReuse(0)
+	nMax = Number(tCount)
+	vItems = Items()
+	tOut = "model" + Char(9) + "seq" + Char(9) + "position" + Char(9) + "ms" + Char(10)
+	nSeq = 0
+	for i = 1 to Len(vItems)
+		vIt = vItems[i]
+		for j = 1 to Len($vQ)
+			tGold = vIt[4][j]
+			if tGold != "" and nSeq < nMax and Odd(vIt[5]) = false
+				nSeq = nSeq + 1
+				nN = Len(vNames)
+				for r = 1 to nN
+					# rotate who goes first, so a drift in the machine falls on every model alike
+					nM = r + nSeq
+					while nM > nN
+						nM = nM - nN
+					end
+					StzEngineNeuralSlotSelect(vNames[nM])
+					nStart = Clock()
+					Ask(vNames[nM], $tSys + " " + $vQ[j][2] + " Answer with the single word.", "Ticket: " + vIt[3], $vQ[j][3])
+					tOut = tOut + Row([ vNames[nM], String(nSeq), String(r), String(Ms(nStart)) ])
+				end
+			end
+		end
+	end
+	Write("results/fabric_pace.tsv", tOut)
+	? "written results/fabric_pace.tsv: " + String(nSeq) + " questions, " + String(Len(vNames)) + " models side by side"
+end
+
+# [ [ model, median ms ], ... ] from results/fabric_pace.tsv
+func PaceTable
+	vOut = []
+	if FExists("results/fabric_pace.tsv") = false
+		return vOut
+	end
+	vRows = ReadTsv("results/fabric_pace.tsv")
+	vNames = []
+	vMs = []
+	for i = 2 to Len(vRows)
+		if Len(vRows[i]) = 4
+			nAt = Find(vNames, vRows[i][1])
+			if nAt = 0
+				vNames + vRows[i][1]
+				vMs + []
+				nAt = Len(vNames)
+			end
+			vMs[nAt] + Number(vRows[i][4])
+		end
+	end
+	for i = 1 to Len(vNames)
+		vOut + [ vNames[i], Median(vMs[i]) ]
+	end
+	return vOut
+end
+
+func PaceMs(vPace, tName)
+	for i = 1 to Len(vPace)
+		if vPace[i][1] = tName
+			return vPace[i][2]
+		end
+	end
+	return -1
+end
+
+# the members' median times summed, in seconds; "-" when one is missing
+func PaceOf(vPace, vNames)
+	nMs = 0
+	for i = 1 to Len(vNames)
+		nP = PaceMs(vPace, vNames[i])
+		if nP < 0
+			return "-"
+		end
+		nMs = nMs + nP
+	end
+	return String(Divide(nMs, 1000, 2))
+end
+
+# a gate's time per question: its members on every question, the large model on the share passed to it
+func PaceGate(vPace, vNames, nPass, nAll)
+	tM = PaceOf(vPace, vNames)
+	nL = PaceMs(vPace, $tLarge)
+	if tM = "-" or nL < 0
+		return "-"
+	end
+	nMs = 0
+	for i = 1 to Len(vNames)
+		nMs = nMs + PaceMs(vPace, vNames[i])
+	end
+	return String(Divide(nMs * nAll + nL * nPass, nAll * 1000, 2))
+end
+
+func Median(vN)
+	vS = Sort(vN)
+	nN = Len(vS)
+	nH = 0
+	while (nH + 1) * 2 <= nN
+		nH = nH + 1
+	end
+	if nH * 2 < nN
+		return vS[nH + 1]
+	end
+	return Number(String(Divide(vS[nH] + vS[nH + 1], 2, 0)))
+end
+
+func MemSum(vNames)
+	nM = 0
+	for i = 1 to Len(vNames)
+		nM = nM + MemOf(vNames[i])
+	end
+	return nM
+end
+
+func JoinNames(vNames, tSep)
+	tOut = ""
+	for i = 1 to Len(vNames)
+		if i > 1
+			tOut = tOut + tSep
+		end
+		tOut = tOut + vNames[i]
+	end
+	return tOut
+end
+
+func TicketOf(tKey)
+	return Number(Split(tKey, "|")[3])
+end
+
+func Half(nN)
+	nH = 0
+	while (nH + 1) * 2 <= nN
+		nH = nH + 1
+	end
+	return nH
+end
+
+# [ models, per model per key [ dist, ms ], keys, golden answers ] from results/fabric.tsv
+func LoadFabric
+	vRows = ReadTsv($tTsv)
+	vModels = []
+	vData = []
+	vKeys = []
+	vGold = []
+	for i = 2 to Len(vRows)
+		vR = vRows[i]
+		if Len(vR) = 10
+			tKey = vR[1] + "|" + vR[2] + "|" + vR[3] + "|" + vR[4]
+			nM = Find(vModels, vR[6])
+			if nM = 0
+				vModels + vR[6]
+				vData + [ [], [] ]
+				nM = Len(vModels)
+			end
+			vData[nM][1] + tKey
+			vData[nM][2] + [ ParseDist(vR[7]), Number(vR[9]) ]
+			if Find(vKeys, tKey) = 0
+				vKeys + tKey
+				vGold + vR[5]
+			end
+		end
+	end
+	vTab = []
+	for i = 1 to Len(vModels)
+		vT = []
+		for nK = 1 to Len(vKeys)
+			nAt = Find(vData[i][1], vKeys[nK])
+			if nAt > 0
+				vT + vData[i][2][nAt]
+			else
+				vT + [ [], 0 ]
+			end
+		end
+		vTab + vT
+	end
+	return [ vModels, vTab, vKeys, vGold ]
 end
 
 # ---- the fabric served: members in slots, one process, the test half ----

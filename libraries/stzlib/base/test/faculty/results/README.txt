@@ -93,3 +93,16 @@ the options kept (fabric.tsv). Every combination is CHOSEN on the odd tickets (1
     of 102 the analysis counts (fabric_serve.tsv) -- the slots and the per-model rows agree.
   - the times are the machine's on a day shared with other sessions: Bolt took 921 s for 204 questions here, 283 s on 11-12.
 
+2026-11-14 (FABRIC-SELECTOR-01, ../_measure_fabric.haro select / pace): a LEARNED selector over the small models, and a gate
+that passes the questions the fabric is unsure of to Bolt. Two folds by ticket, so all 204 questions are judged by a selector
+that never saw them; every setting chosen inside the training half. Times: fabric_pace.tsv, the nine models asked 30 test
+questions side by side in one process (slots, 6.5 GB budget, prompt cache off), medians. Table: fabric_select.txt.
+  - learned weights (each small model's reliability per question type and language, shrunk toward its overall one) lift the
+    eight small models from 167 (granite-1b alone) to 178 of 204, against Bolt's 195 -- with 9.5 GB and 13 s a question.
+  - the gate comes within three questions of Bolt: granite-1b answers what it is sure of and passes 117 of 204 to Bolt (192);
+    granite-1b and LFM3 together pass 86 for the same 192 -- two small models agreeing is a better "sure" than one model's
+    own confidence.
+  - side by side, Bolt reads a question in 4.38 s and granite-1b in 1.84 s, a ratio of 2.4; granite42-3b takes 5.76 s, more
+    than Bolt. So on this CPU the gate costs what Bolt costs (4.36 s a question) and holds more memory: the fabric's economy
+    needs small models far cheaper than the large one, and these are not.
+
