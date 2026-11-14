@@ -354,7 +354,9 @@ fn buildVocab() bool {
     // cased models (bert-base-cased) have thousands of uppercase tokens; uncased
     // has ~none among regular tokens.
     g_cased = upper_count > 32;
-    g_wp_classic = hash_count > meta_count;
+    // a vocab with any "##" piece stays classic unless its metaspace pieces outnumber them (XLM-R: 1 against 154,629);
+    // a tie keeps the old reading (the Jina reranker's byte-level vocab holds one of each)
+    g_wp_classic = hash_count > 0 and hash_count >= meta_count;
     if (kvStr("tokenizer.ggml.model")) |m| {
         if (std.mem.eql(u8, std.mem.span(m), "t5")) {
             if (gr.arrOf(f32, ctx, gr.find(ctx, "tokenizer.ggml.scores"))) |sc| {
