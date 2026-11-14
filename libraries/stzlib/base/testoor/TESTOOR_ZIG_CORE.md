@@ -530,6 +530,7 @@ it. Testoor's guards move one commit each, the core guard first.
   | core | 79 | 188 | 40 texts joined with a number; the core's flag; 4 pairs; 7 names lettered a |
   | golden | 75 | 98 | 2 texts joined with numbers; a Ring predicate as a condition |
   | reader | 74 | 902 | a text joined with a number; `Dir()`'s folder flag, Ring's 1 or 0, compared to 0 |
+  | runner | 80 | 137 of 138, 9 child wall times and their drawn seeds masked | 6 joins; `oN`, lowercased by haroport into `case`, renamed; a name lettered a; 4 times computed in Ring (floats) compared through `Float()`, since haro.exe refuses a float beside an integer. The other line is the topic run's total wall time, 199 s with the children's images cold and 1.1 s with them ready |
   | promises | 52 | 90 of 91 | 3 joins; 4 names lettered a. The other line is the wall time of a child tour, whose image the `.ring` run compiled first |
   | native | 44 | 76 of 77 | 12 joins; 32 fields of the two canonical forms; a name lettered a. The other line is the measured time the native runner took, different on every run |
   | impact | 51 | 88 | 3 report lines joining 17 numbers; two flags given 1 where `true` was meant; 2 names lettered a |
@@ -540,7 +541,10 @@ it. Testoor's guards move one commit each, the core guard first.
   | counters | 29 | 60 of 64 | 17 texts joined with numbers; a bare name `x`; the core's flag. The 4 other lines are the measured cost of a hit, different on every run, printed to two places by `NarTwo` |
 
   A join written `"" + a + "/" + b` is rewritten mechanically, each operand not a text literal wrapped in `NarText`; the
-  script that does it is kept with this desk's scratch tools, not in the tree, since it serves only this move.
+  script that does it is kept with this desk's scratch tools, not in the tree, since it serves only this move. Its first
+  version also rewrote a `"" + n` INSIDE a text literal -- the source of a planted child, which would then have called a
+  function it does not have; found on the runner guard before its commit, and no committed guard carries it (a scan of
+  every `.haro` guard for `NarText` inside a literal found that one line only).
 
   `testoor walk base/test/testoor` judges the moved core guard KEPT, 14 stops, 79 claims, beside the walk guard.
 
