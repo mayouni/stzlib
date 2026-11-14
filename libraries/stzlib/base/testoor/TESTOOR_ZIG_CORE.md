@@ -527,6 +527,7 @@ it. Testoor's guards move one commit each, the core guard first.
   |---|---|---|---|
   | core | 79 | 188 | 40 texts joined with a number; the core's flag; 4 pairs; 7 names lettered a |
   | golden | 75 | 98 | 2 texts joined with numbers; a Ring predicate as a condition |
+  | counters | 29 | 60 of 64 | 17 texts joined with numbers; a bare name `x`; the core's flag. The 4 other lines are the measured cost of a hit, different on every run, printed to two places by `NarTwo` |
 
   `testoor walk base/test/testoor` judges the moved core guard KEPT, 14 stops, 79 claims, beside the walk guard.
 

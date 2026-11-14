@@ -112,3 +112,14 @@ end
 func NarIs(xV)
 	return NarNumber(xV) != 0
 end
+
+# a measured number cut to two places, as a reader wants it: Haro prints a decimal with every place it holds. Cut as
+# text, because the library defines a Round of its own
+func NarTwo(nV)
+	tV = String(nV)
+	nDot = SubStr(tV, ".")
+	if nDot = 0
+		return tV
+	end
+	return Left(tV, nDot + 2)
+end
