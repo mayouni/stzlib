@@ -530,6 +530,7 @@ it. Testoor's guards move one commit each, the core guard first.
   | core | 79 | 188 | 40 texts joined with a number; the core's flag; 4 pairs; 7 names lettered a |
   | golden | 75 | 98 | 2 texts joined with numbers; a Ring predicate as a condition |
   | reader | 74 | 902 | a text joined with a number; `Dir()`'s folder flag, Ring's 1 or 0, compared to 0 |
+  | impact | 51 | 88 | 3 report lines joining 17 numbers; two flags given 1 where `true` was meant; 2 names lettered a |
   | protocol | 55 | 96 | 3 joins; `oK` and `oN`, which haroport lowercased into the keywords `ok` and `case`, renamed `oKept` and `oNoStart` |
   | property | 43 | 78 | 10 texts joined with numbers (9 by `narjoin.py`, below); a name lettered a and one lettered o for a list |
   | routes | 44 | 85 | 6 texts joined with numbers or values of any kind |

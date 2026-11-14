@@ -1,0 +1,355 @@
+load "../../stzBase.ring"
+load "_narrate.haro"
+
+# TESTOOR P1a -- IMPACT RECALL. The graph-first premise, measured before any Zig
+# is written: when a method changes, does the set of tours the subject's own code
+# graph selects contain EVERY tour that actually fails?
+#
+# The experiment is exact because the subject is planted: three classes with
+# known call edges (stzInvoice -> stzTax -> stzNet), seven public methods, eight
+# tours that each name a different part of it. For every method a MUTANT is made
+# (the first return of the method gets + 1), every tour is walked against it, and
+# the tours that fail are the ground truth. The graph's selection is compared
+# with that truth, tour by tour, for all seven mutants: 56 real walks.
+#
+#   RECALL is the safety claim and it is asserted: a tour that fails and is not
+#   selected would be a verdict silently lost. PRECISION is reported, not
+#   asserted: a selected tour that did not fail costs time, never a verdict.
+#
+# Then the blind spot, measured the same way. A subject whose method reaches
+# another by a name built at run time (eval) has an edge the graph cannot see.
+# The naive selection MISSES a failing tour; the graph reads such a subject as
+# INCOMPLETE and selects every tour, and recall is back to 100 percent.
+#
+# This measures the planted subject, which proves the method and not the real
+# library; the real library's recall (dynamic dispatch, inheritance, Q-chains) is
+# the next measurement in SOFTANZA_TESTOOR_ROADMAP.md, P4.
+
+? "TESTOOR P1a -- impact recall"
+nImStart = Clock()
+tImHere = CurrentDir()
+tImRoot = tImHere + "/_planted_impact"
+_ImPlantAll(tImRoot)
+tImDir = tImRoot + "/lib"
+tImSubj = tImDir + "/_subject.ring"
+tImOrig = Read(tImSubj)
+tImOrigFile = tImDir + "/_orig.ring"
+Write(tImOrigFile, tImOrig)
+vtImTours = _ImTours(tImDir)
+
+#============================================================================
+Scenario("The reach of a change is the closure of its callers in the subject's own graph")
+	nImSec = Clock()
+	Given("a subject of three classes: stzInvoice calls stzTax calls stzNet")
+	xI = StzImpactOf(tImSubj, "Of")
+	Then("a change to Of reaches Vat, which calls it", _ImHas(xI[:names], "vat"), true)
+	Then("and Gross, which calls Vat: the closure is transitive", _ImHas(xI[:names], "gross"), true)
+	Then("it does not reach the other branch", _ImHas(xI[:names], "duty") or _ImHas(xI[:names], "landed"), false)
+	Then("nor an unrelated method", _ImHas(xI[:names], "label"), false)
+	Then("the graph can see every edge of this subject", xI[:complete], 1)
+	xD = StzImpactOf(tImSubj, "Round2")
+	Then("the other branch is reached from its own end: Duty and Landed", _ImHas(xD[:names], "duty") and _ImHas(xD[:names], "landed"), true)
+	Then("and not the first branch", _ImHas(xD[:names], "vat"), false)
+	Then("a method nobody calls reaches only itself", Len(StzImpactOf(tImSubj, "Label")[:names]), 1)
+	xC = StzImpactOf(tImSubj, "stzTax.init")
+	Then("a changed constructor reaches whoever builds its class", _ImHas(xC[:names], "stzinvoice"), true)
+	Then("but not a class built the other way round", _ImHas(xC[:names], "stznet"), false)
+EndScenario()
+? "        [section took " + String((Clock() - nImSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("Selection: the tours that name the reach are re-walked and the rest are skipped by name")
+	nImSec = Clock()
+	Given("a change to Vat")
+	xS = StzImpactedTours(tImSubj, "Vat", vtImTours)
+	Then("three tours name Vat or a caller of it", Len(xS[:selected]), 3)
+	Then("five are skipped", Len(xS[:skipped]), 5)
+	Then("the Vat tour is selected", _ImListed(xS[:selected], "t2_vat"), true)
+	Then("the Gross tour is selected, because Gross calls Vat", _ImListed(xS[:selected], "t3_gross"), true)
+	Then("the Label tour is skipped", _ImListed(xS[:skipped], "t6_label"), true)
+	Then("and the tour that names nothing of the subject", _ImListed(xS[:skipped], "t8_unrelated"), true)
+	Given("a change to Label")
+	xL = StzImpactedTours(tImSubj, "Label", vtImTours)
+	Then("one tour of eight is re-walked", Len(xL[:selected]), 1)
+EndScenario()
+? "        [section took " + String((Clock() - nImSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("RECALL: for every mutant of the subject, every tour that fails is in the graph's selection")
+	nImSec = Clock()
+	Given("the eight tours walked against the unchanged subject")
+	vtBase = _ImStates(vtImTours)
+	Then("all eight pass at the start: the runner exits 0 on each", _ImCount(vtBase, "kept"), 8)
+	vtMethods = [ "Of", "Round2", "Vat", "Duty", "Gross", "Landed", "Label" ]
+	nRuns = 0  nSel = 0  nFail = 0  nMissed = 0  nWasted = 0
+	for nM = 1 to Len(vtMethods)
+		tMeth = vtMethods[nM]
+		Write(tImSubj, _ImMutate(tImOrig, tMeth))
+		vtNow = _ImStates(vtImTours)
+		xSel = StzImpactedTours(tImOrigFile, tMeth, vtImTours)
+		nMissedHere = 0
+		nSelHere = Len(xSel[:selected])
+		nFailHere = 0
+		for nT = 1 to Len(vtImTours)
+			bFails = (vtNow[nT] != "kept")
+			bSelected = ring_find(xSel[:selected], vtImTours[nT]) > 0
+			if bFails  nFailHere++  end
+			if bFails and not bSelected  nMissedHere++  end
+			if bSelected and not bFails  nWasted++  end
+		end
+		nRuns += Len(vtImTours)
+		nSel += nSelHere
+		nFail += nFailHere
+		nMissed += nMissedHere
+		? "        " + tMeth + ": " + String(nFailHere) + " tours fail, " + String(nSelHere) + " selected, " + String(nMissedHere) + " missed"
+		Then("mutant " + tMeth + ": at least one tour notices it", nFailHere >= 1, true)
+		Then("mutant " + tMeth + ": no failing tour is outside the selection", nMissedHere, 0)
+	end
+	Write(tImSubj, tImOrig)
+	? "        (" + String(Len(vtMethods)) + " mutants x " + String(Len(vtImTours)) + " tours = " + String(nRuns) + " walks; the graph selected " + String(nSel) + ", " + String(nFail) + " failed, " + String(nMissed) + " missed, " + String(nWasted) + " selected without need)"
+	Then("recall is total across all mutants", nMissed, 0)
+	Then("and the selection is smaller than walking everything", nSel < nRuns, true)
+EndScenario()
+? "        [section took " + String((Clock() - nImSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("The blind spot: a call by a name built at run time is an edge the graph cannot see, and it says so")
+	nImSec = Clock()
+	tDynDir = tImRoot + "/dyn"
+	tDynSubj = tDynDir + "/_subject.ring"
+	tDynOrig = Read(tDynSubj)
+	vtDyn = _ImTours(tDynDir)
+	Given("a subject whose Gross reaches VatOf through eval, and three tours")
+	Then("they all pass at the start", _ImCount(_ImStates(vtDyn), "kept"), 3)
+	xG = StzImpactOf(tDynSubj, "VatOf")
+	Then("the graph reads the subject as incomplete", xG[:complete], 0)
+	Then("and names the line", StzFindFirst("dispatches by a name built at run time", xG[:why]) > 0, true)
+	Write(tDynSubj, _ImMutate(tDynOrig, "VatOf"))
+	vtNow = _ImStates(vtDyn)
+	Write(tDynSubj, tDynOrig)
+	nFailing = 0
+	nNaiveMiss = 0
+	nSafeMiss = 0
+	xSafe = StzImpactedTours(tDynSubj, "VatOf", vtDyn)
+	for nT = 1 to Len(vtDyn)
+		if vtNow[nT] != "kept"
+			nFailing++
+			# the NAIVE selection: tours that name the reach, ignoring that the graph is incomplete
+			vtT = _RouteCalledNames(Read(vtDyn[nT]))
+			bNaive = false
+			for nN = 1 to Len(xG[:names])
+				if _RouteIndexOf(vtT, xG[:names][nN]) > 0  bNaive = true  end
+			end
+			if not bNaive  nNaiveMiss++  end
+			if ring_find(xSafe[:selected], vtDyn[nT]) = 0  nSafeMiss++  end
+		end
+	end
+	? "        (" + String(nFailing) + " tours fail; the naive selection misses " + String(nNaiveMiss) + "; the honest one misses " + String(nSafeMiss) + ")"
+	Then("two tours fail on the mutant", nFailing, 2)
+	Then("the naive name join MISSES one of them: that is the hole", nNaiveMiss >= 1, true)
+	Then("the honest selection misses none", nSafeMiss, 0)
+	Then("because it selected every tour", Len(xSafe[:selected]), Len(vtDyn))
+	Then("and its prose says the graph was incomplete", StzFindFirst("GRAPH INCOMPLETE", StzImpactProse(xSafe, "VatOf")) > 0, true)
+EndScenario()
+? "        [section took " + String((Clock() - nImSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("At the shell: --impacted-by lists the tours to re-walk, and --run walks only those")
+	nImSec = Clock()
+	Given("testoor.ring asked what a change to Label reaches")
+	xOut = _ImShell([ "--impacted-by", tImSubj + "#Label", "--root", tImRoot, "--topic", "lib" ])
+	Then("it exits 0", xOut[1], 0)
+	Then("and lists the one tour to re-walk", StzFindFirst("RE-WALK", xOut[2]) > 0 and StzFindFirst("t6_label", xOut[2]) > 0, true)
+	Then("exactly one, not eight", _ImOccurrences(xOut[2], "RE-WALK"), 1)
+	Then("and the others are named as skipped", _ImOccurrences(xOut[2], "skipped  "), 7)
+	xJ = _ImShell([ "--impacted-by", tImSubj + "#Label", "--root", tImRoot, "--topic", "lib", "--json" ])
+	tJ = _ImJsonOnly(xJ[2])
+	Then("--json answers valid JSON", StzJsonIsValid(tJ), true)
+	Then("naming the selection", StzFindFirst('"selected":["', tJ) > 0, true)
+	xR = _ImShell([ "--impacted-by", tImSubj + "#Label", "--root", tImRoot, "--topic", "lib", "--run" ])
+	Then("--run walks the selected tour and exits 0", xR[1], 0)
+	Then("owning one tour, not eight", StzFindFirst("owned 1 tours", xR[2]) > 0, true)
+	xBad = _ImShell([ "--impacted-by", tImSubj, "--root", tImRoot, "--topic", "lib" ])
+	Then("a request without #Method is refused, exit 2", xBad[1], 2)
+EndScenario()
+? "        [section took " + String((Clock() - nImSec) / ClocksPerSecond()) + "s]"
+
+Write(tImSubj, tImOrig)
+_ImUnplantAll(tImRoot)
+? ""
+? "[P1a took " + String((Clock() - nImStart) / ClocksPerSecond()) + "s]"
+Summary()
+Shutdown($nNarFail)
+
+#============================================================================
+# HELPERS AFTER THE TOP-LEVEL CODE
+
+func _ImHas(vtNames, tName)
+	return ring_find(vtNames, Lower(tName)) > 0
+end
+func _ImListed(vtFiles, tStem)
+	nN = Len(vtFiles)
+	for i = 1 to nN
+		if StzFindFirst(tStem, vtFiles[i]) > 0  return true  end
+	end
+	return false
+end
+func _ImCount(vtList, tWhat)
+	nN = 0
+	for i = 1 to Len(vtList)
+		if vtList[i] = tWhat  nN++  end
+	end
+	return nN
+end
+# the tours of a folder: its .ring files, in name order; names opening with _ are not tours
+func _ImTours(tDir)
+	xTwo = _TourFilesUnder(tDir, "")
+	return xTwo[1]
+end
+# Walk every tour once and answer the RUNNER'S verdict on each: "kept" when it
+# exits 0, "fails" otherwise. The exit code is what an agent in a loop reads, and
+# it is the right test for "this tour noticed the change": a planted tour prints
+# either an OK or a FAIL line, so its other branch is always unjudged, which is
+# not a failure and would have read as one if the state had been compared.
+func _ImStates(vtTours)
+	vOut = []
+	for i = 1 to Len(vtTours)
+		oT = TravellerQ().Silent().Timeout(30000).Seed(1).Walk(vtTours[i])
+		if oT.ExitCode() = 0
+			vOut + "kept"
+		else
+			vOut + "fails"
+		end
+	end
+	return vOut
+end
+# the first return of a method gets + 1: the smallest change that is still a change
+func _ImMutate(tSrc, tName)
+	vLn = Str2List(SubStr(tSrc, Char(13), ""))
+	nN = Len(vLn)
+	tA = "def " + Lower(tName) + "("
+	tB = "func " + Lower(tName) + "("
+	bIn = false
+	for i = 1 to nN
+		tT = Lower(Trim(vLn[i]))
+		if not bIn
+			if Left(tT, Len(tA)) = tA or Left(tT, Len(tB)) = tB  bIn = true  end
+		else
+			if Left(tT, 7) = "return "
+				nInd = 0
+				while nInd < Len(vLn[i]) and (vLn[i][nInd + 1] = Char(9) or vLn[i][nInd + 1] = " ")  nInd++  end
+				tTr = Trim(vLn[i])
+				vLn[i] = Left(vLn[i], nInd) + "return (" + SubStr(tTr, 8, Len(tTr) - 7) + ") + 1"
+				exit
+			end
+		end
+	end
+	tC = ""
+	for i = 1 to nN
+		tC += vLn[i] + Char(10)
+	end
+	return tC
+end
+func _ImOccurrences(tText, tSub)
+	nN = 0
+	tRest = tText
+	while true
+		nP = SubStr(tRest, tSub)
+		if nP = 0  exit  end
+		nN++
+		tRest = SubStr(tRest, nP + Len(tSub), Len(tRest) - nP - Len(tSub) + 1)
+	end
+	return nN
+end
+# testoor.ring as a child: [ exit code, output ]
+func _ImShell(vtArgs)
+	oP = new stzProcess()
+	vtArgv = [ TestoorProgram(), "testoor.ring" ]
+	for i = 1 to Len(vtArgs)
+		vtArgv + vtArgs[i]
+	end
+	oP.SpawnIn(CurrentDir() + "/../../testoor", vtArgv)
+	tOut = oP.ReadOutputAll()
+	nX = oP.Wait()
+	oP.Close()
+	return [ nX, tOut ]
+end
+# the engine may print warnings about DLLs this build lacks; the JSON is the line that starts with {
+func _ImJsonOnly(tOut)
+	xAc = Str2List(SubStr(tOut, Char(13), ""))
+	for i = 1 to Len(xAc)
+		if Left(Trim(xAc[i]), 1) = "{"  return Trim(xAc[i])  end
+	end
+	return ""
+end
+func _ImPlantAll(tRoot)
+	_ImUnplantAll(tRoot)
+	StzMakeDir(tRoot)
+	StzMakeDir(tRoot + "/lib")
+	StzMakeDir(tRoot + "/dyn")
+	tT = Char(9)
+	tN = Char(10)
+	# the planted subject: stzInvoice calls stzTax calls stzNet
+	Write(tRoot + "/lib/_subject.ring",
+		"class stzNet" + tN +
+		tT + "def init()" + tN + tT + tT + "return" + tN +
+		tT + "def Of(n)" + tN + tT + tT + "return n" + tN +
+		tT + "def Round2(n)" + tN + tT + tT + "return n" + tN +
+		"class stzTax" + tN +
+		tT + '@oNet = ""' + tN +
+		tT + "def init()" + tN + tT + tT + "@oNet = new stzNet()" + tN +
+		tT + "def Vat(n)" + tN + tT + tT + "return @oNet.Of(n) * 2 / 10" + tN +
+		tT + "def Duty(n)" + tN + tT + tT + "return @oNet.Round2(n) / 100" + tN +
+		"class stzInvoice" + tN +
+		tT + '@oTax = ""' + tN +
+		tT + "def init()" + tN + tT + tT + "@oTax = new stzTax()" + tN +
+		tT + "def Gross(n)" + tN + tT + tT + "return n + @oTax.Vat(n)" + tN +
+		tT + "def Landed(n)" + tN + tT + tT + "return n + @oTax.Duty(n)" + tN +
+		tT + "def Label()" + tN + tT + tT + "return 7" + tN)
+	_ImTour(tRoot + "/lib/t1_net.ring", "stzNet", "Of(5)", "5", "Of returns its argument")
+	_ImTour(tRoot + "/lib/t2_vat.ring", "stzTax", "Vat(100)", "20", "a fifth of the net is the vat")
+	_ImTour(tRoot + "/lib/t3_gross.ring", "stzInvoice", "Gross(100)", "120", "gross is net plus vat")
+	_ImTour(tRoot + "/lib/t4_duty.ring", "stzTax", "Duty(1000)", "10", "a hundredth is the duty")
+	_ImTour(tRoot + "/lib/t5_landed.ring", "stzInvoice", "Landed(1000)", "1010", "landed is net plus duty")
+	_ImTour(tRoot + "/lib/t6_label.ring", "stzInvoice", "Label()", "7", "the label is seven")
+	Write(tRoot + "/lib/t7_both.ring",
+		'load "_subject.ring"' + tN +
+		"oI = new stzInvoice()" + tN +
+		'if oI.Gross(100) = 120 ? "  [OK] gross holds" else ? "  [FAIL] gross holds" ok' + tN +
+		'if oI.Landed(1000) = 1010 ? "  [OK] landed holds" else ? "  [FAIL] landed holds" ok' + tN)
+	Write(tRoot + "/lib/t8_unrelated.ring", '? "  [OK] this tour names nothing of the subject"' + tN)
+	# the dynamic subject: Gross reaches VatOf through eval, a name the graph cannot read
+	Write(tRoot + "/dyn/_subject.ring",
+		"func VatOf(n)" + tN + tT + "return n * 2 / 10" + tN +
+		"class stzInvoice" + tN +
+		tT + "def init()" + tN + tT + tT + "return" + tN +
+		tT + "def Gross(n)" + tN +
+		tT + tT + "eval('$nRes = VatOf(' + n + ')')" + tN +
+		tT + tT + "return n + $nRes" + tN)
+	_ImTour(tRoot + "/dyn/d1_gross.ring", "stzInvoice", "Gross(100)", "120", "gross is net plus vat")
+	_ImTour(tRoot + "/dyn/d2_vat.ring", "", "VatOf(100)", "20", "vat is a fifth")
+	Write(tRoot + "/dyn/d3_unrelated.ring", '? "  [OK] this tour names nothing"' + tN)
+end
+# a tour that loads the subject, builds the object when there is a class, and
+# prints one OK or one FAIL line: Ring does not chain a call onto new X()
+func _ImTour(tPath, tClass, tCall, tExpect, tText)
+	tSetup = ""
+	tCall = tCall
+	if tClass != ""
+		tSetup = "o = new " + tClass + "()" + Char(10)
+		tCall = "o." + tCall
+	end
+	Write(tPath,
+		'load "_subject.ring"' + Char(10) +
+		tSetup +
+		"if " + tCall + " = " + tExpect + Char(10) +
+		Char(9) + '? "  [OK] ' + tText + '"' + Char(10) +
+		"else" + Char(10) +
+		Char(9) + '? "  [FAIL] ' + tText + '"' + Char(10) +
+		"ok" + Char(10))
+end
+func _ImUnplantAll(tRoot)
+	if FExists(tRoot + "/lib/_subject.ring")
+		StzDirDeleteAll(tRoot)
+	end
+end
