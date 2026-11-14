@@ -603,7 +603,7 @@ class stzUpdatePlan from stzObject
 	# Commits every active operation through the bridge after the reviewer, scope and capability gates, and returns a summary with the log.
 	#
 	#   returns    a list [ [ committed, n ], [ skipped, n ], [ log, rows ] ], each row [ index,
-	#              status, text ] with a status COMMITTED, FAILED, REJECTED, REFUSED-BY-SCOPE or
+	#              status, text ] with a status COMMITTED, FAILED, REJECTED, REFUSED-BY-SCOPE, REFUSED-BY-TARGET or
 	#              REFUSED-BY-GOVERNANCE
 	#   note       refusals reach the security ledger as scope.refused, capability.refused and
 	#              posture.refused
@@ -660,6 +660,14 @@ class stzUpdatePlan from stzObject
 						"op:" + _oOp_.Type(), "max operations reached")
 					loop
 				ok
+			ok
+			# TARGET gate (SPILLWAY part C): while an agent acts, a path the plan
+			# writes is one code allows or the agent's memory vouches for
+			_cTgtWhy_ = StzPlanTargetRefusal(_oOp_)
+			if _cTgtWhy_ != ""
+				_nSkipped_++
+				_aLog_ + [ _i_, "REFUSED-BY-TARGET", _cTgtWhy_ ]
+				loop
 			ok
 			# GOVERNANCE gate: the executor must hold the capability the
 			# operation requires. An LLM actor (effect-capability set EMPTY)

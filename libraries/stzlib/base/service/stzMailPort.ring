@@ -95,6 +95,8 @@ class stzMailSandbox from stzObject
 	#   see         Sent, InboxOf
 	#@ aka  -- the PORT contract -----------------------------------------------
 	def Send(pcTo, pcSubject, pcBody)
+		# while an agent acts, the recipient must be one code allows or the agent's memory vouches for (SPILLWAY part C)
+		StzRequireTarget("recipient", pcTo)
 		_i_ = This._SinkIndex()
 		_seq_ = len($aStzMailSinks[_i_][2]) + 1
 		$aStzMailSinks[_i_][2] + [ :to = "" + pcTo, :subject = "" + pcSubject,

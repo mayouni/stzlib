@@ -116,6 +116,8 @@ flag, a guard. Medium: the largest part, and the part that makes the rule hold a
 
 ### Part C -- admit the target again at the sinks (the backstop)
 
+*Delivered 2026-11-14 as `base/security/stzTargetAdmission.haro`, ahead of Part B: the broker (host), the mail port (recipient) and `stzUpdatePlan.Execute` (path) ask it; payouts and SMS wait for a payee and a phone at their sinks. Guard: `base/test/security/target_admission_narrated.haro`.*
+
 For code that acts outside a declared skill, one function the sinks call while an agent cycle runs (`$cStzCaller` is
 set, `stzPIAgent.ring:200-207`):
 

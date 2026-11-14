@@ -1,0 +1,230 @@
+# WHERE AN EFFECT MAY GO -- LOOKOUT-W45-SPILLWAY-01 part C, narrated
+#
+# While an agent acts, the sinks ask base/security/stzTargetAdmission.haro whether the target of the
+# effect -- the recipient, the host, the path -- came from code, from the agent's declaration or from
+# a typed identity field a reader took; a value from free text or a model is refused.
+#
+#   Scene 1  outside an agent cycle every target is admitted: application code is unchanged
+#   Scene 2  the rule against a memory: which sources admit, which refuse, and a model's text taints
+#   Scene 3  the study's path: a reader learns a reply-to from a message BODY, the reply is refused
+#   Scene 4  the same agent with a typed reader: the sender field is admitted and the mail is sent
+#   Scene 5  the broker: a host nobody vouches for is refused before anything is sent
+#   Scene 6  the update plan: a path nobody vouches for is REFUSED-BY-TARGET, a vouched one commits
+#   Scene 7  the agent leaves nothing behind: caller and memory are cleared after the cycle
+#
+# RUNS ON haro.exe with the library; STZ_ENGINE_DIR names a built engine. No network, no model.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+$oMail = StzMailSandboxQ()
+$tMode = "body"
+$vBrokerReply = []
+$vPlanResult = []
+$tPlanPath = ""
+
+StzAllowAgentFunction("TaReadInbox", "trusted")
+StzAllowAgentFunction("TaReply", "trusted")
+StzAllowAgentFunction("TaFetch", "trusted")
+StzAllowAgentFunction("TaWritePlan", "trusted")
+
+Scenario("1. outside an agent cycle")
+Then("a recipient nobody vouches for is admitted", StzAdmitTarget("recipient", "eve@evil.example"), 1)
+Then("...because no agent is acting", StzTargetAdmissionWhy(), "no agent is acting")
+$oMail.Send("eve@evil.example", "hi", "hello")
+Then("the sandbox captured the application's mail", Len($oMail.Sent()), 1)
+
+Scenario("2. the rule against a memory")
+oM = new stzAgentMemory("probe")
+oM.LearnXT("shop", "owner", "boss@shop.example", [[:source, StzFactSourceDeclared("probe.pia")]])
+StzAgentLearnRead(oM, "message", "sender", "ada@example.org", "ReadInbox", "sender")
+oM.LearnXT("summary", "topic", "mallory@evil.example", [[:source, StzFactSourceModel("probe")]])
+oM.Learn("message", "replyto", "eve@evil.example")
+Then("a declared value is admitted", StzAdmitTargetIn(oM, "recipient", "boss@shop.example"), 1)
+Then("a value from a typed read is admitted", StzAdmitTargetIn(oM, "recipient", "ada@example.org"), 1)
+Then("...whatever its case", StzAdmitTargetIn(oM, "recipient", "  ADA@Example.org "), 1)
+Then("a value only an agent:<name> fact holds is refused", StzAdmitTargetIn(oM, "recipient", "eve@evil.example"), 0)
+Then("...and the why names its source", SubStr(StzTargetAdmissionWhy(), "agent:probe") > 0, true)
+Then("a value a model's text carries is refused", StzAdmitTargetIn(oM, "recipient", "mallory@evil.example"), 0)
+Then("a value no fact holds is refused", StzAdmitTargetIn(oM, "recipient", "nobody@nowhere.example"), 0)
+oM.LearnXT("summary", "replyto", "to:ada@example.org", [[:source, StzFactSourceModel("probe")]])
+Then("a read value a model repeats is refused: the model may be steering it", StzAdmitTargetIn(oM, "recipient", "ada@example.org"), 0)
+Then("negative sibling: 'nada@example.org' in model text is another token", StzTargetHasToken("ask nada@example.org", "ada@example.org"), false)
+StzAllowTarget("recipient", "eve@evil.example")
+Then("code allowing a value admits it", StzAdmitTargetIn(oM, "recipient", "eve@evil.example"), 1)
+StzDisallowTarget("recipient", "eve@evil.example")
+Then("withdrawn, it is refused again", StzAdmitTargetIn(oM, "recipient", "eve@evil.example"), 0)
+Then("a kind outside the list raises", KindRaises("subject"), true)
+
+Scenario("3. the study's path: a reply-to read from a message body")
+$tMode = "body"
+nBefore = Len($oMail.Sent())
+oA = StzAgentDeclarationQ(MailerPia()).ToAgent()
+oA.Cycle()
+Then("the reader ran", oA.MemoryQ().Fact("inbox", "was", "read"), 1)
+Then("the reply was refused", DecisionOf(oA, "reply"), "refused")
+Then("...by the target rule", Left(WhyOf(oA, "reply"), 17), "target-admission:")
+Then("nothing reached the mail sandbox", Len($oMail.Sent()), nBefore)
+
+Scenario("4. the same agent with a typed reader")
+$tMode = "typed"
+oB = StzAgentDeclarationQ(MailerPia()).ToAgent()
+oB.Cycle()
+Then("the reply ran", DecisionOf(oB, "reply"), "ran")
+Then("one mail was sent", Len($oMail.Sent()), nBefore + 1)
+Then("...to the sender field's value", LastTo(), "ada@example.org")
+
+Scenario("5. the broker")
+$tMode = "fetch-evil"
+oC = StzAgentDeclarationQ(FetcherPia()).ToAgent()
+oC.Cycle()
+Then("the request was refused", $vBrokerReply[:status], -3)
+Then("...by the target rule, before the broker", Left($vBrokerReply[:refusal], 17), "target-admission:")
+StzAllowTarget("host", "api.shop.example")
+$tMode = "fetch-allowed"
+oC2 = StzAgentDeclarationQ(FetcherPia()).ToAgent()
+oC2.Cycle()
+Then("an allowed host passes the target rule to the broker's own check", Left($vBrokerReply[:refusal], 17) != "target-admission:", true)
+StzDisallowTarget("host", "api.shop.example")
+
+Scenario("6. the update plan")
+$tPlanPath = "/out/report.txt"
+oD = StzAgentDeclarationQ(PlannerPia()).ToAgent()
+oD.Cycle()
+Then("a path nobody vouches for is not committed", $vPlanResult[1][2], 0)
+Then("...its row is REFUSED-BY-TARGET", $vPlanResult[3][2][1][2], "REFUSED-BY-TARGET")
+StzAllowTarget("path", "/out/report.txt")
+oD2 = StzAgentDeclarationQ(PlannerPia()).ToAgent()
+oD2.Cycle()
+Then("a path code allows is committed", $vPlanResult[1][2], 1)
+StzDisallowTarget("path", "/out/report.txt")
+oPlan = new stzUpdatePlan([new stzVirtualOperation("create_file", [[:path, "/out/elsewhere.txt"], [:content, "x"]])], new TaBridge)
+Then("outside an agent the plan commits as before", oPlan.Execute()[1][2], 1)
+
+Scenario("7. nothing left behind")
+Then("no caller", $cStzCaller, "")
+Then("no memory", $xStzCallerMemory, "")
+
+? ""
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# --- the agents' functions -------------------------------------------------------------------
+
+# reads the newest message: in "body" mode the reply-to is parsed out of the body with a plain Learn,
+# in "typed" mode the sender field is learned as a typed read
+func TaReadInbox(oMem)
+    if $tMode = "body"
+        oMem.Learn("message", "replyto", "eve@evil.example")
+    else
+        StzAgentLearnRead(oMem, "message", "replyto", "ada@example.org", "TaReadInbox", "sender")
+    end
+    oMem.Learn("inbox", "was", "read")
+    return true
+end
+
+func TaReply(oMem)
+    vTo = oMem.Recall("message", "replyto")
+    $oMail.Send(vTo[1], "re: your message", "done")
+    oMem.Learn("reply", "was", "sent")
+    return true
+end
+
+func TaFetch(oMem)
+    if $tMode = "fetch-evil"
+        $vBrokerReply = StzBrokerRequest("no-such-grant", "GET", "https://collect.evil.example/in", "", "")
+    else
+        $vBrokerReply = StzBrokerRequest("no-such-grant", "GET", "https://api.shop.example/orders", "", "")
+    end
+    oMem.Learn("fetch", "was", "tried")
+    return true
+end
+
+func TaWritePlan(oMem)
+    oPlan = new stzUpdatePlan([new stzVirtualOperation("create_file", [[:path, $tPlanPath], [:content, "x"]])], new TaBridge)
+    $vPlanResult = oPlan.Execute()
+    oMem.Learn("plan", "was", "run")
+    return true
+end
+
+class TaBridge from stzObject
+    def ExecuteOperation(oOp)
+        return true
+    end
+end
+
+# --- the agent files -------------------------------------------------------------------------
+
+func AgentPia(tName, tSkills)
+    return "pia: 2" + Char(10) + "name: " + tName + Char(10) + "kind: pi" + Char(10) + "coverage: answers its inbox" + Char(10) + "reversibility: reversible" + Char(10) + "schedule:" + Char(10) + "  timer: 20" + Char(10) + "skills:" + Char(10) + tSkills
+end
+
+func Skill(tName, tWhen, tFn, tVerify)
+    return "  - name: " + tName + Char(10) + "    when: " + tWhen + Char(10) + "    does: ring:" + tFn + Char(10) + "    verify: " + tVerify + Char(10) + "    posture: trusted" + Char(10)
+end
+
+func MailerPia
+    return AgentPia("mailer", Skill("read", "always", "TaReadInbox", "fact inbox was read") + Skill("reply", "fact inbox was read", "TaReply", "fact reply was sent"))
+end
+
+func FetcherPia
+    return AgentPia("fetcher", Skill("fetch", "always", "TaFetch", "fact fetch was tried"))
+end
+
+func PlannerPia
+    return AgentPia("planner", Skill("write", "always", "TaWritePlan", "fact plan was run"))
+end
+
+# --- reading the trace -----------------------------------------------------------------------
+
+func TraceRow(oAgent, tSkill)
+    vT = oAgent.Trace()
+    nN = Len(vT)
+    for i = nN to 1 step -1
+        if vT[i][:skill] = tSkill
+            return vT[i]
+        end
+    end
+    return [[:decision, "(none)"], [:why, "(none)"]]
+end
+
+func DecisionOf(oAgent, tSkill)
+    return TraceRow(oAgent, tSkill)[:decision]
+end
+
+func WhyOf(oAgent, tSkill)
+    return "" + TraceRow(oAgent, tSkill)[:why]
+end
+
+func LastTo
+    vS = $oMail.Sent()
+    return vS[Len(vS)][:to]
+end
+
+func KindRaises(tKind)
+    try
+        StzAdmitTargetIn("", tKind, "x")
+    catch
+        return true
+    end
+    return false
+end
+
+func Scenario(tName)
+    ? ""
+    ? "SCENARIO: " + tName
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end

@@ -1,0 +1,259 @@
+# stzTargetAdmission -- may an acting agent's effect go to this target? (LOOKOUT-W45-SPILLWAY-01, part C)
+#
+# The target admission rule of base/security/SOFTANZA_TARGET_ADMISSION_STUDY.md, asked at the sinks:
+# while an agent cycle runs ($cStzCaller names the agent), the host a request goes to, the recipient
+# a message goes to and the path a plan writes are admitted when
+#
+#   - code fixed the target:  StzAllowTarget("recipient", "ops@example.org"), as code allows a function
+#   - or the acting agent's memory holds the value in a fact whose source is admissible
+#     (declared:<file> or read:<reader>:<identity kind>, base/agentic/stzFactSource.haro),
+#
+# and no fact a model proposed (model:<agent>) carries the value as a whole token. Everything else is
+# refused: a value no source vouches for, a value only an agent:<name> or caller's own fact holds,
+# a value a model wrote. The lookup is a set membership, casefolded; no model judges anything.
+#
+# Outside an agent cycle every target is admitted, so application code is unchanged.
+#
+#   StzAdmitTarget("host", "api.example.com")      # 1 or 0; StzTargetAdmissionWhy() says why
+#   StzRequireTarget("recipient", tTo)             # raises "target-admission: ..." when refused
+#
+# The sinks wired: StzBrokerRequestXT (host: answers status -3 with the refusal, nothing is sent),
+# stzMailSandbox.Send (recipient: raises), stzUpdatePlan.Execute (path: the row is REFUSED-BY-TARGET).
+# stzPIAgent.Cycle traces a raised refusal as a refused skill, rule target-admission, and goes on.
+#
+# The memory read is the agent's memory as it stood when the skill's effect began: a value the same
+# effect learns before it sends is admitted on the next tick, not in the same one.
+
+$vStzTargetAllow = []
+$xStzCallerMemory = ""
+$tStzTargetWhy = ""
+
+func StzTargetKinds
+    return ["host", "recipient", "path", "payee", "phone", "channel"]
+end
+
+func StzTargetKindChecked(tKind)
+    tK = Lower(Trim("" + tKind))
+    vK = StzTargetKinds()
+    nN = Len(vK)
+    for i = 1 to nN
+        if vK[i] = tK
+            return tK
+        end
+    end
+    StzRaise("stzTargetAdmission: '" + tKind + "' is not a target kind; the kinds are host, recipient, path, payee, phone, channel.")
+end
+
+# Code fixes a target: the value is admitted for that kind whatever memory holds.
+func StzAllowTarget(tKind, tValue)
+    tK = StzTargetKindChecked(tKind)
+    tV = StzTargetNorm(tValue)
+    if tV = ""
+        StzRaise("stzTargetAdmission: an allowance names a value.")
+    end
+    if not StzTargetAllowed(tK, tV)
+        $vStzTargetAllow + (tK + " " + tV)
+    end
+    return true
+end
+
+func StzDisallowTarget(tKind, tValue)
+    tE = StzTargetKindChecked(tKind) + " " + StzTargetNorm(tValue)
+    vOut = []
+    nN = Len($vStzTargetAllow)
+    for i = 1 to nN
+        if $vStzTargetAllow[i] != tE
+            vOut + $vStzTargetAllow[i]
+        end
+    end
+    $vStzTargetAllow = vOut
+    return true
+end
+
+func StzAllowedTargets
+    return $vStzTargetAllow
+end
+
+func StzTargetAllowed(tKind, tValue)
+    tE = Lower(Trim("" + tKind)) + " " + StzTargetNorm(tValue)
+    nN = Len($vStzTargetAllow)
+    for i = 1 to nN
+        if $vStzTargetAllow[i] = tE
+            return true
+        end
+    end
+    return false
+end
+
+func StzTargetNorm(tValue)
+    return StzLower(Trim("" + tValue))
+end
+
+# Why the last StzAdmitTarget or StzAdmitTargetIn answered as it did.
+func StzTargetAdmissionWhy
+    return $tStzTargetWhy
+end
+
+# The rule, against the acting agent's memory; every target is admitted outside an agent cycle.
+func StzAdmitTarget(tKind, tValue)
+    if $cStzCaller = ""
+        $tStzTargetWhy = "no agent is acting"
+        return 1
+    end
+    nOk = StzAdmitTargetIn($xStzCallerMemory, tKind, tValue)
+    if nOk = 0
+        StzNoteRefusal("target.refused", $cStzCaller, StzTargetKindChecked(tKind) + ":" + tValue, $tStzTargetWhy)
+    end
+    return nOk
+end
+
+# The rule against a memory the caller names; oMemory "" holds nothing.
+func StzAdmitTargetIn(oMemory, tKind, tValue)
+    tK = StzTargetKindChecked(tKind)
+    tV = StzTargetNorm(tValue)
+    if tV = ""
+        $tStzTargetWhy = "the " + tK + " is empty"
+        return 0
+    end
+    if StzTargetAllowed(tK, tV)
+        $tStzTargetWhy = "code allows " + tK + " '" + tV + "'"
+        return 1
+    end
+    if not IsObject(oMemory)
+        $tStzTargetWhy = "the " + tK + " '" + tV + "' is not allowed by code and no memory vouches for it"
+        return 0
+    end
+    tGood = ""
+    tTaint = ""
+    tOther = ""
+    vE = oMemory.GraphQ().Edges()
+    nN = Len(vE)
+    for i = 1 to nN
+        tS = "" + vE[i][:from]
+        tP = "" + vE[i][:label]
+        tO = "" + vE[i][:to]
+        tSrc = StzTargetSourceOf(oMemory, tS, tP, tO)
+        if StzFactSourceClass(tSrc) = "model"
+            if StzTargetHasToken(tO, tV) or StzTargetHasToken(tS, tV)
+                tTaint = tSrc
+            end
+        elseif tO = tV or tS = tV
+            if StzFactSourceIsAdmissible(tSrc)
+                if tGood = ""
+                    tGood = tSrc
+                end
+            elseif tOther = ""
+                tOther = tSrc
+            end
+        end
+    end
+    if tTaint != ""
+        $tStzTargetWhy = "the " + tK + " '" + tV + "' is carried by text a model proposed (" + tTaint + ")"
+        return 0
+    end
+    if tGood != ""
+        $tStzTargetWhy = "the " + tK + " '" + tV + "' comes from " + tGood
+        return 1
+    end
+    if tOther != ""
+        $tStzTargetWhy = "the " + tK + " '" + tV + "' is held only by a fact from " + tOther + ", which is neither declared nor a typed read"
+        return 0
+    end
+    $tStzTargetWhy = "the " + tK + " '" + tV + "' is not allowed by code and no fact in the agent's memory holds it"
+    return 0
+end
+
+# Raises "target-admission: <why>" when the target is refused; answers 1 otherwise.
+func StzRequireTarget(tKind, tValue)
+    if StzAdmitTarget(tKind, tValue) = 0
+        StzRaise("target-admission: " + $tStzTargetWhy)
+    end
+    return 1
+end
+
+func StzTargetSourceOf(oMemory, tS, tP, tO)
+    vM = oMemory.ProvenanceOf(tS, tP, tO)
+    if Len(vM) = 0
+        return ""
+    end
+    return "" + vM[:source]
+end
+
+# tText holds tValue as a whole token: the bytes on either side are not letters, digits or @-_+%/
+func StzTargetHasToken(tText, tValue)
+    nT = Len(tText)
+    nV = Len(tValue)
+    if nV = 0 or nV > nT
+        return false
+    end
+    nFrom = 1
+    while nFrom <= nT - nV + 1
+        nAt = StzTargetFindFrom(tText, tValue, nFrom)
+        if nAt = 0
+            return false
+        end
+        bLeft = (nAt = 1)
+        if not bLeft
+            bLeft = not StzTargetIsTokenByte(tText[nAt - 1])
+        end
+        bRight = (nAt + nV > nT)
+        if not bRight
+            bRight = not StzTargetIsTokenByte(tText[nAt + nV])
+        end
+        if bLeft and bRight
+            return true
+        end
+        nFrom = nAt + 1
+    end
+    return false
+end
+
+func StzTargetFindFrom(tText, tWord, nFrom)
+    nT = Len(tText)
+    if nFrom > nT
+        return 0
+    end
+    nAt = SubStr(SubStr(tText, nFrom, nT - nFrom + 1), tWord)
+    if nAt = 0
+        return 0
+    end
+    return nAt + nFrom - 1
+end
+
+func StzTargetIsTokenByte(tC)
+    if SubStr("@-_+%/", tC) > 0
+        return true
+    end
+    nC = Ascii(tC)
+    return (nC >= 48 and nC <= 57) or (nC >= 65 and nC <= 90) or (nC >= 97 and nC <= 122) or nC >= 128
+end
+
+# The host a URL goes to: its authority without user part and port.
+func StzTargetHostOfUrl(tUrl)
+    tLow = Lower("" + tUrl)
+    nAt = SubStr(tLow, "://")
+    if nAt = 0
+        return ""
+    end
+    return PiaHostAt(PiaAfterUser(PiaAuthorityAt(tLow, nAt + 3)), 1)
+end
+
+# For stzUpdatePlan.Execute: why an operation's paths are refused while an agent acts, or "" when
+# admitted. A variable or a spawn is not a path target: the commit scope judges those.
+func StzPlanTargetRefusal(oOp)
+    if $cStzCaller = ""
+        return ""
+    end
+    tT = oOp.Type()
+    if tT = "set_var" or tT = "unset_var" or tT = "spawn_process"
+        return ""
+    end
+    vI = oOp.Impact()
+    nN = Len(vI)
+    for i = 1 to nN
+        if StzAdmitTarget("path", vI[i]) = 0
+            return "target-admission: " + $tStzTargetWhy
+        end
+    end
+    return ""
+end

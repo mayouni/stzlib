@@ -229,7 +229,28 @@ class stzPIAgent from stzObject
 					@oGov.RecordDecision(@tName + "-" + _oSk_.Name_(),
 						"skill fired on met precondition", @tName, _cAction_)
 				ok
-				_aR_ = _oSk_.Apply(@oMem)
+				# TARGET ADMISSION (SPILLWAY part C): a sink asks StzAdmitTarget against this
+				# memory as it stands now; a sink's refusal is this skill's, traced, not the cycle's
+				_xPrevMem_ = $xStzCallerMemory
+				$xStzCallerMemory = @oMem
+				_cTgt_ = ""
+				try
+					_aR_ = _oSk_.Apply(@oMem)
+				catch
+					# the prefix before the marker is ASCII, so its position is a byte position too
+					_nTg_ = StzFindFirst("target-admission:", cCatchError)
+					if _nTg_ = 0
+						$xStzCallerMemory = _xPrevMem_
+						raise(cCatchError)
+					ok
+					_cTgt_ = ring_trim(StzReplace(right(cCatchError, ring_len(cCatchError) - _nTg_ + 1), char(10), ""))
+				done
+				$xStzCallerMemory = _xPrevMem_
+				if _cTgt_ != ""
+					@aTrace + [ :skill = _oSk_.Name_(), :decision = "refused",
+						:verified = 0, :why = _cTgt_ ]
+					loop
+				ok
 				@aTrace + [ :skill = _oSk_.Name_(),
 					:decision = "ran", :verified = _aR_[:verified],
 					:why = _aR_[:why] ]

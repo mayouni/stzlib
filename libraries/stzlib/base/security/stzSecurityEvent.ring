@@ -131,6 +131,7 @@ func StzSecurityEventKinds()
 		[ "scope.refused",                "warning", "T1068",     "an operation fell outside the commit scope" ],
 		[ "posture.refused",              "error",   "T1068",     "the executing posture was not admitted" ],
 		[ "data.path.refused",            "error",   "",          "a tagged field was refused an analytics, log or model path -- the weaves W3 and W4 (stzFieldTags; haro D35)" ],
+		[ "target.refused",               "warning", "",          "an acting agent's effect named a target no code, declaration or typed read vouches for (stzTargetAdmission; SPILLWAY part C)" ],
 		[ "plan.op.failed",               "warning", "",          "a committed operation failed at the bridge" ],
 		[ "http.request.unauthorized",    "warning", "T1190",     "a request failed the transport gate (401)" ],
 		[ "http.request.forbidden",       "warning", "T1190",     "a request was refused by policy (403)" ],
