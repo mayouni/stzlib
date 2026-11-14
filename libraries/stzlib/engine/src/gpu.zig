@@ -598,7 +598,7 @@ pub fn stz_gpu_init(path: [*:0]const u8) callconv(.c) i32 {
 }
 
 /// Opens the device on adapter `idx` under the GPU LEASE (RADAR-GPU-OWNER-01): one process at a time owns an
-/// adapter, so a second process waits for it, then runs without a device (every route falls back to the CPU)
+/// adapter, so a second process waits for it, then runs without a device, as on a machine without a GPU,
 /// and says so in its last error. Two processes computing on the RTX 3050 at once crashed the driver on
 /// 2026-11-03 (a segfault under nvoglv64.dll, "Parent device is lost"); the lease makes that a wait.
 fn openDeviceOn(idx: usize) i32 {
@@ -1254,7 +1254,7 @@ fn pdhProcessMemory(which: i32) f64 {
 pub const LEASE_NONE: i32 = 0; // no device opened yet
 pub const LEASE_TAKEN: i32 = 1; // the lease was free
 pub const LEASE_TAKEN_AFTER_WAIT: i32 = 2; // another process held it, then let it go
-pub const LEASE_REFUSED: i32 = 3; // another process held it for the whole wait: no device, the CPU route
+pub const LEASE_REFUSED: i32 = 3; // another process held it for the whole wait: no device, as on a machine without a GPU
 pub const LEASE_OFF: i32 = 4; // STZ_GPU_LEASE=off
 pub const LEASE_UNAVAILABLE: i32 = 5; // no temp folder or no file lock here: opened without a lease
 
@@ -1319,7 +1319,7 @@ fn acquireLease(idx: usize) bool {
     lease_file = r.file;
     if (r.outcome == LEASE_REFUSED) {
         var ebuf: [160]u8 = undefined;
-        const msg = std.fmt.bufPrint(&ebuf, "the GPU is leased by process {d}: no device, the CPU route runs (waited {d} ms)", .{ @as(u64, @intFromFloat(r.other_pid)), @as(u64, @intFromFloat(r.waited_ms)) }) catch "the GPU is leased by another process";
+        const msg = std.fmt.bufPrint(&ebuf, "the GPU is leased by process {d}: no device here, this process runs as on a machine without a GPU (waited {d} ms)", .{ @as(u64, @intFromFloat(r.other_pid)), @as(u64, @intFromFloat(r.waited_ms)) }) catch "the GPU is leased by another process";
         setLastError(msg);
         return false;
     }

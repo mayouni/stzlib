@@ -1,0 +1,17 @@
+# The second process of gpu_lease_narrated.haro: it opens the GPU and writes what the lease said, one value a line,
+# to the file STZ_LEASE_OUT names -- the device it got (1/0), the lease's outcome, the milliseconds it waited, the
+# other holder's process id, whether it holds the lease, and the device's last error. With STZ_LEASE_EXIT=abrupt it
+# ends WITHOUT closing the device, as a crashed process would, so the guard can show the OS drops the lease.
+load "../../stzBase.ring"
+
+nUp = StzEngineGpuInit($tStzGpuRuntime)
+tR = String(nUp) + Char(10)
+tR += String(StzEngineGpuLease(0)) + Char(10)
+tR += String(StzEngineGpuLease(1)) + Char(10)
+tR += String(StzEngineGpuLease(2)) + Char(10)
+tR += String(StzEngineGpuLease(3)) + Char(10)
+tR += StzEngineGpuLastError() + Char(10)
+Write(SysGet("STZ_LEASE_OUT"), tR)
+if SysGet("STZ_LEASE_EXIT") != "abrupt"
+	StzEngineGpuShutdown()
+end

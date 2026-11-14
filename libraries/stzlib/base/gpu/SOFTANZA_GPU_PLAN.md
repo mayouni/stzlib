@@ -4660,6 +4660,31 @@ spmv 1,094 s, puzzle 999 s, when 796 s, segscan 653 s, sort 609 s, scan 601 s, r
 process's own memory, not other processes on the card; allocator blocks, not single buffers, so a leak smaller than
 the allocator's spare room shows only once it outgrows it.
 
+## RADAR-GPU-OWNER-01 (a) STATUS — one owner of the GPU at a time (2026-11-14)
+
+**Why.** On 2026-11-03 a second process computing on the RTX 3050 beside a neural job ended in "Parent device is
+lost" and a segfault under nvoglv64.dll. Several sessions run on this machine at once, so two GPU jobs meeting is
+a matter of time. Radar proposed a machine-wide lease (stzradar 0ff26be, after OpenInfer's "The GPU Needs an
+Operating System"); this desk took part (a).
+
+**What landed.** Before it opens a device, the engine takes a lock on `stz_gpu_lease_<vendor>_<device>.lock` in the
+temp folder, one per adapter, and holds it until the device closes. The OS drops it when the process ends, however
+it ends. A second process waits up to `STZ_GPU_LEASE_WAIT_MS` (default 30,000), then runs with no device, as on a
+machine without a GPU, and its last error names the holder's process id. `StzEngineGpuLease(n)` reads the outcome
+(taken, taken after a wait, refused, off, unavailable), the wait, and the other holder. `STZ_GPU_LEASE=off` opens
+without one. Every device in the engine is opened in `gpu.zig`, so the neural, render and compute layers are all
+under it. Zig's own `File.tryLock` does not compile on Windows in 0.15 (its `.none` branch returns nothing from a
+function returning a bool); the engine calls the OS lock directly.
+
+**Measured, haro.exe, two real processes.** A holder opened the 3050; a second process with a 2 s wait was refused
+after 2,000 ms naming the holder; a third with a 30 s wait took the lease 12.4 s later, when the holder closed.
+`gpu_lease_narrated.haro`: 17/17 in 27 s. Two Zig tests drive the lock through two handles of one process, which the
+OS treats as two holders.
+
+**What it does not do.** It orders whole openings, not dispatches: a process that holds a device for an hour keeps
+every other process off that adapter for an hour (they wait, then run without it). Part (b), one decode step read
+against the measured peak and bandwidth, goes with GQ0, which measures the same forward.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
