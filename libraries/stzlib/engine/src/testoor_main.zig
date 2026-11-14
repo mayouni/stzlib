@@ -2,9 +2,13 @@
 //! not Ring (the `stz` command line, a Haro program, a continuous-integration step) calls it as a
 //! CHILD, hands it a manifest of tours, and reads the logbook and the exit code.
 //!
-//!   testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--ladder]
+//!   testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder]
 //!   testoor walk FOLDER [--suffix S] [--haro PATH] [the same options]
 //!   testoor version
+//!
+//! `--timeout` is the tour's deadline, counted from its first output; `--start` is the deadline for that first output,
+//! counted from the tour's start (0, the default of `run`, is the tour's deadline). `walk` defaults to 20 minutes to
+//! start and 10 to run: the start of a .haro tour is haro.exe compiling its image of the library.
 //!
 //! `walk` finds the `.haro` tours under FOLDER itself (names ending with `_narrated.haro` unless `--suffix` says
 //! otherwise; a name beginning with `_` or `.` is never walked), reads each with the Haro face and launches it on
@@ -46,7 +50,7 @@ fn say(s: []const u8) void {
 }
 
 fn usage() noreturn {
-    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--ladder]\n       testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--ladder]\n       testoor version\n");
+    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder]\n       testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder]\n       testoor version\n");
     std.process.exit(2);
 }
 
@@ -102,6 +106,7 @@ pub fn main() !void {
     var seed: ?f64 = null;
     var repeat: ?f64 = null;
     var timeout: ?f64 = null;
+    var start: ?f64 = null;
     var ladder = false;
     var i: usize = 3;
     while (i < args.len) : (i += 1) {
@@ -117,9 +122,9 @@ pub fn main() !void {
             mode = .json;
         } else if (eq(args[i], "--prose")) {
             mode = .prose;
-        } else if ((eq(args[i], "--seed") or eq(args[i], "--repeat") or eq(args[i], "--timeout")) and i + 1 < args.len) {
+        } else if ((eq(args[i], "--seed") or eq(args[i], "--repeat") or eq(args[i], "--timeout") or eq(args[i], "--start")) and i + 1 < args.len) {
             const v = T.parseNumber(args[i + 1]) orelse refuse(a, mode, "a number is wanted after the flag");
-            if (eq(args[i], "--seed")) seed = v else if (eq(args[i], "--repeat")) repeat = v else timeout = v;
+            if (eq(args[i], "--seed")) seed = v else if (eq(args[i], "--repeat")) repeat = v else if (eq(args[i], "--start")) start = v else timeout = v;
             i += 1;
         } else {
             usage();
@@ -133,9 +138,10 @@ pub fn main() !void {
             refuse(a, mode, try std.fmt.allocPrint(a, "no such root: {s} ({s})", .{ args[2], @errorName(e) }));
         var specs = try a.alloc(R.TourSpec, found.len);
         for (found, 0..) |rel, k| specs[k] = try R.haroTour(a, args[2], rel, haro);
-        // a guard's FIRST run on haro.exe after the library changes compiles its image of the library: measured 5 to 11
-        // minutes a guard on 2026-11-12 (49.5 MB each), then seconds. A two-minute deadline would call every first run hung
-        m = .{ .settings = .{ .root = args[2], .timeout_ms = 1_200_000 }, .tours = specs };
+        // a guard's FIRST run on haro.exe after the library changes compiles its image of the library before it prints:
+        // measured 5 to 11 minutes a guard on 2026-11-12 (49.5 MB each), 20 s to 182 s on 2026-11-13, then seconds. So
+        // 20 minutes to start, and 10 to run once it has printed (TESTOOR-COLD-DEADLINE-01)
+        m = .{ .settings = .{ .root = args[2], .timeout_ms = 600_000, .start_ms = 1_200_000 }, .tours = specs };
     } else {
         const text = (if (eq(args[2], "-"))
             std.fs.File.stdin().readToEndAlloc(a, 256 * 1024 * 1024)
@@ -148,6 +154,7 @@ pub fn main() !void {
     if (seed) |v| m.settings.seed = v;
     if (repeat) |v| m.settings.repeat = v;
     if (timeout) |v| m.settings.timeout_ms = v;
+    if (start) |v| m.settings.start_ms = v;
     if (ladder) m.settings.ladder = true;
     if (m.settings.by.len == 0 or eq(m.settings.by, "shell")) m.settings.by = "testoor";
 

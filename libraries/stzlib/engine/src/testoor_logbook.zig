@@ -62,6 +62,11 @@ fn tourJsonIn(b: *Buf, t: V.Tour, detail: bool, v3: bool) !void {
     try b.int(r.exit);
     try b.s(",\"wall_ms\":");
     try b.num(r.wall_ms);
+    // TESTOOR-COLD-DEADLINE-01: when the first output arrived, written only when the walk measured one
+    if (r.first_output_ms) |f| {
+        try b.s(",\"first_output_ms\":");
+        try b.num(f);
+    }
     try b.s(",\"seed\":");
     try seedJson(b, r);
     try b.s(",\"flaky\":");
@@ -205,6 +210,15 @@ pub fn tourProse(b: *Buf, t: V.Tour) !void {
     try b.num(r.wall_ms / 1000.0);
     try b.s(" s");
     if (eq(r.end, "finished-timed")) try b.s(", finished, timed");
+    // a start of 10 s or more is named: a warm haro.exe start measured 0.3 to 1.4 s, a cold image of the library 20 s
+    // to 11 minutes, so the line says why the tour was slow (TESTOOR-COLD-DEADLINE-01)
+    if (r.first_output_ms) |f| {
+        if (f >= 10000) {
+            try b.s(", first output at ");
+            try b.num(f / 1000.0);
+            try b.s(" s");
+        }
+    }
     try b.c(')');
     for (r.stops) |st| {
         if (st.state == .kept) continue;
@@ -241,7 +255,10 @@ pub const Settings = struct {
     refusal: []const u8 = "",
     seed: f64 = -1,
     repeat: f64 = 1,
+    /// the tour's deadline, counted from the child's first output (testoor_walk.zig, TWO DEADLINES)
     timeout_ms: f64 = 120000,
+    /// the deadline for that first output, counted from the child's start; 0 is the tour's deadline
+    start_ms: f64 = 0,
     skipped: []const []const u8 = &.{},
     topics_skipped: []const []const u8 = &.{},
     /// protocol 2: the graph the run was walked against, when it had one
@@ -401,6 +418,11 @@ pub fn runJson(b: *Buf, st: Settings, tours: []const V.Tour) !void {
     try b.num(st.wall_ms orelse c.wall_ms);
     try b.s(",\"timeout_ms\":");
     try b.num(st.timeout_ms);
+    // written only when a start deadline was set, so a logbook of a run that set none keeps its bytes
+    if (st.start_ms > 0) {
+        try b.s(",\"start_ms\":");
+        try b.num(st.start_ms);
+    }
     try b.s(",\"seed\":");
     try b.num(st.seed);
     try b.s(",\"repeat\":");

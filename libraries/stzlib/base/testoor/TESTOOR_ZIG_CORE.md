@@ -486,6 +486,24 @@ already judged is now never judged again; the second verdict is a claim of its o
 - **`zig build test-testoor`:** 100 of 100, 102 expected files.
 - **The Foundry, walked again:** nine of nine agree with the guards' own "passed N, failed M".
 
+### Two deadlines, 2026-11-14 -- DONE (TESTOOR-COLD-DEADLINE-01)
+
+A child that loads the library on haro.exe compiles its image before it prints, and a deadline counted from its start
+killed that compile: the image was never written and the tour read HUNG on every run (2026-11-13, the plot tour twice at
+60 s). `testoor_walk.zig` now holds a child to a START deadline until its first output and to the tour's deadline from
+there (`TESTOOR_PROTOCOL_3.md` 6.5); the arrival of the first output is answered and written to the logbook.
+
+- **Written first, by hand:** `haro/judge/H3`. The core printed `121.30` where the hand wrote `121.3`; the line now prints
+  the start as it prints the wall time, `121.39`, and the golden says so. No other golden moved.
+- **`zig build test-testoor`:** 105 of 105 -- four walks of real children (a slow start not counted; the tour's deadline
+  counted from the first output; a silent child hung at its start deadline; no start deadline holding the start to the
+  tour's) and the manifest's `start_ms` read and written.
+- **On haro.exe, one tour that loads the library, its image cold, `--timeout 5000`:** with the start deadline of `walk`,
+  KEPT, first output at 41.11 s, then 0.14 s warm. The same tour at another path with `--start 5000` (one deadline, as
+  before): HUNG at 5.00 s, twice -- killed before its image was written, as on 2026-11-13.
+- **Not changed:** the Ring traveller's own loop (`stzTraveller._WalkOnce`), retired; the guards that walk children
+  through it still need those children compiled once after a library change.
+
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 
 1. **One domain `stz_testoor`** (recommended) or one per module.

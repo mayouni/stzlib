@@ -21,6 +21,14 @@
 //! looked at the clock when nothing had arrived); and on a system that is not Windows the wait for
 //! the exit AFTER the stream ended is not time-limited yet (the stream's end is).
 //!
+//! TWO DEADLINES (TESTOOR-COLD-DEADLINE-01, 2026-11-14). Until its first output the child is held to
+//! the START deadline; the tour's own deadline counts from that output. The time before a child prints
+//! anything is its runtime's, not the tour's: haro.exe compiles a program's image of the library before
+//! the program prints its first line, 20 s to 182 s on 2026-11-13 and 5 to 11 minutes on 2026-11-12,
+//! and a deadline that counted it killed the child before the image was written, so the same tour read
+//! HUNG on every run. A start deadline of 0 is the tour's deadline. The arrival of the first output is
+//! answered, so a slow start reads as slow in the logbook and not as hung.
+//!
 //! Imports no Ring. Arrival times are whole milliseconds from a monotonic clock, as seconds.
 
 const std = @import("std");
@@ -92,7 +100,10 @@ pub const Spec = struct {
     cwd: ?[]const u8 = null,
     /// added to this process's environment for the child
     env: []const Env = &.{},
+    /// the tour's deadline, counted from the child's first output
     timeout_ms: f64 = 120000,
+    /// the deadline for that first output, counted from the start; 0 is the tour's deadline
+    start_ms: f64 = 0,
 };
 
 pub const Walked = struct {
@@ -102,12 +113,20 @@ pub const Walked = struct {
     exit: i64,
     hung: bool,
     wall_ms: f64,
+    /// when the child's first output arrived, in whole ms from its start; null when it printed nothing
+    first_output_ms: ?f64 = null,
 };
+
+const no_output: u64 = std.math.maxInt(u64);
 
 const Pipe = struct {
     file: std.fs.File,
     start: std.time.Instant,
     done: std.Thread.ResetEvent = .{},
+    /// set at the first bytes read, or at the stream's end when there were none
+    first: std.Thread.ResetEvent = .{},
+    /// ns from the start to the first bytes read; `no_output` until then
+    first_ns: std.atomic.Value(u64) = std.atomic.Value(u64).init(no_output),
     mutex: std.Thread.Mutex = .{},
     lines: std.ArrayList(V.Line) = .empty,
     raw: std.ArrayList(u8) = .empty,
@@ -137,6 +156,7 @@ fn addLine(p: *Pipe, gpa: Allocator, raw: []const u8, at: f64) void {
 /// the output stream: lines, each stamped with the time of the read that completed it
 fn readLines(p: *Pipe) void {
     defer p.done.set();
+    defer p.first.set();
     const gpa = std.heap.smp_allocator;
     var buf: [64 * 1024]u8 = undefined;
     var pend: std.ArrayList(u8) = .empty;
@@ -144,6 +164,11 @@ fn readLines(p: *Pipe) void {
     while (true) {
         const n = p.file.read(&buf) catch break;
         if (n == 0) break;
+        if (p.first_ns.load(.acquire) == no_output) {
+            const now = std.time.Instant.now() catch p.start;
+            p.first_ns.store(now.since(p.start), .release);
+            p.first.set();
+        }
         const at = sinceSec(p.start);
         pend.appendSlice(gpa, buf[0..n]) catch break;
         var from: usize = 0;
@@ -186,6 +211,11 @@ fn finish(t: std.Thread, p: *Pipe) bool {
     };
     t.join();
     return true;
+}
+
+/// a deadline in ms as ns: below 1 ms it is 1 ms, and it is never more than 1e9 ms
+fn nsOf(ms: f64) u64 {
+    return if (ms < 1) 1_000_000 else @intFromFloat(@min(ms, 1.0e9) * 1.0e6);
 }
 
 fn remainingNs(start: std.time.Instant, timeout_ns: u64) u64 {
@@ -259,14 +289,22 @@ pub fn walk(a: Allocator, spec: Spec) !Walked {
         return e;
     };
 
-    const timeout_ns: u64 = if (spec.timeout_ms < 1) 1_000_000 else @intFromFloat(@min(spec.timeout_ms, 1.0e9) * 1.0e6);
+    const timeout_ns = nsOf(spec.timeout_ms);
+    // the start deadline holds until the first output; the tour's deadline counts from it. A child that ends
+    // its stream having printed nothing stays held to the start deadline for its exit
+    var deadline_ns: u64 = if (spec.start_ms <= 0) timeout_ns else nsOf(spec.start_ms);
     var hung = false;
     var exit: i64 = -2;
-    out.done.timedWait(remainingNs(start, timeout_ns)) catch {
+    out.first.timedWait(remainingNs(start, deadline_ns)) catch {
+        hung = true;
+    };
+    const first_ns = out.first_ns.load(.acquire);
+    if (!hung and first_ns != no_output) deadline_ns = first_ns +| timeout_ns;
+    if (!hung) out.done.timedWait(remainingNs(start, deadline_ns)) catch {
         hung = true;
     };
     if (!hung) {
-        const left_ms: u32 = @intCast(@min(remainingNs(start, timeout_ns) / std.time.ns_per_ms + 1, std.math.maxInt(u32) - 1));
+        const left_ms: u32 = @intCast(@min(remainingNs(start, deadline_ns) / std.time.ns_per_ms + 1, std.math.maxInt(u32) - 1));
         if (waitExit(&child, left_ms)) |code| {
             exit = code;
         } else {
@@ -313,7 +351,8 @@ pub fn walk(a: Allocator, spec: Spec) !Walked {
         err.raw.deinit(gpa);
         gpa.destroy(err);
     }
-    return .{ .lines = lines.items, .stderr = stderr_text, .exit = exit, .hung = hung, .wall_ms = wall_ms };
+    const first_ms: ?f64 = if (first_ns == no_output) null else @floor(@as(f64, @floatFromInt(first_ns)) / 1.0e6);
+    return .{ .lines = lines.items, .stderr = stderr_text, .exit = exit, .hung = hung, .wall_ms = wall_ms, .first_output_ms = first_ms };
 }
 
 // ── tests ────────────────────────────────────────────────────
@@ -407,4 +446,57 @@ test "the environment is the parent's plus what the spec adds" {
     const w = try walk(a, .{ .argv = try argvFor(a, "echo %TESTOOR_WALK_PROBE%"), .env = &env, .timeout_ms = 20000 });
     try testing.expectEqual(@as(usize, 1), w.lines.len);
     try testing.expectEqualStrings("hello-from-the-spec", w.lines[0].text);
+}
+
+test "TWO DEADLINES: a slow start is not the tour's time -- a child silent for two seconds, then quick, is not hung" {
+    if (builtin.os.tag != .windows) return error.SkipZigTest;
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    // `ping -n 3` waits about two seconds: the start of a runtime that compiles before the tour prints
+    const w = try walk(a, .{ .argv = try argvFor(a, "ping -n 3 127.0.0.1 >nul&& echo first&& echo second"), .timeout_ms = 1500, .start_ms = 20000 });
+    try testing.expect(!w.hung);
+    try testing.expectEqual(@as(i64, 0), w.exit);
+    try testing.expectEqual(@as(usize, 2), w.lines.len);
+    try testing.expect(w.first_output_ms != null);
+    try testing.expect(w.first_output_ms.? >= 1000);
+    try testing.expect(w.wall_ms >= w.first_output_ms.?);
+}
+
+test "TWO DEADLINES: the tour's deadline counts from the first output" {
+    if (builtin.os.tag != .windows) return error.SkipZigTest;
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const w = try walk(a, .{ .argv = try argvFor(a, "ping -n 3 127.0.0.1 >nul&& echo alive&& ping -n 30 127.0.0.1 >nul"), .timeout_ms = 1500, .start_ms = 20000 });
+    try testing.expect(w.hung);
+    try testing.expectEqual(@as(i64, -3), w.exit);
+    try testing.expect(w.first_output_ms.? >= 1000);
+    // killed about 1.5 s after the first output, which arrived about 2 s after the start
+    try testing.expect(w.wall_ms >= w.first_output_ms.? + 1400);
+    try testing.expect(w.wall_ms < w.first_output_ms.? + 6000);
+    try testing.expectEqualStrings("alive", w.lines[0].text);
+}
+
+test "TWO DEADLINES: a child silent past its start deadline is hung, and its first output is null" {
+    if (builtin.os.tag != .windows) return error.SkipZigTest;
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const w = try walk(a, .{ .argv = try argvFor(a, "ping -n 30 127.0.0.1 >nul"), .timeout_ms = 60000, .start_ms = 1500 });
+    try testing.expect(w.hung);
+    try testing.expectEqual(@as(i64, -3), w.exit);
+    try testing.expect(w.first_output_ms == null);
+    try testing.expect(w.wall_ms < 6000);
+}
+
+test "TWO DEADLINES: with no start deadline, the tour's deadline holds the start too" {
+    if (builtin.os.tag != .windows) return error.SkipZigTest;
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const w = try walk(a, .{ .argv = try argvFor(a, "ping -n 30 127.0.0.1 >nul"), .timeout_ms = 1500 });
+    try testing.expect(w.hung);
+    try testing.expect(w.first_output_ms == null);
+    try testing.expect(w.wall_ms < 6000);
 }

@@ -13,7 +13,7 @@
 //! `[testoor stop ...]`, `[testoor ok ...]`) and is judged from what it says.
 //!
 //! The manifest, one JSON document:
-//!   {"run":{"by","root","topic","subject","seed","repeat","timeout_ms","refusal"},
+//!   {"run":{"by","root","topic","subject","seed","repeat","timeout_ms","start_ms","refusal"},
 //!    "skipped":[..],"topics_skipped":[..],
 //!    "tours":[{"file","cwd","argv":[..],"env":{..},"readable":1,"record":{..},
 //!              "face":{"ignore":"","endings":[[text,ending],..]}}]}
@@ -83,11 +83,11 @@ pub fn seedArgv(a: Allocator, argv: []const []const u8, seed: f64) ![]const []co
 }
 
 /// ONE walk of ONE tour, judged: the tour as the logbook writes it
-pub fn walkOnce(a: Allocator, ts: TourSpec, seed: f64, timeout_ms: f64) !V.Tour {
+pub fn walkOnce(a: Allocator, ts: TourSpec, seed: f64, timeout_ms: f64, start_ms: f64) !V.Tour {
     if (!ts.readable or ts.argv.len == 0) {
         return V.verdict(a, ts.record, &.{}, .{ .exit = -1, .hung = false, .stderr = "", .wall_ms = 0, .seed = null, .unreadable = true, .face = ts.face });
     }
-    const w = try W.walk(a, .{ .argv = try seedArgv(a, ts.argv, seed), .cwd = ts.cwd, .env = ts.env, .timeout_ms = timeout_ms });
+    const w = try W.walk(a, .{ .argv = try seedArgv(a, ts.argv, seed), .cwd = ts.cwd, .env = ts.env, .timeout_ms = timeout_ms, .start_ms = start_ms });
     return V.verdict(a, ts.record, w.lines, .{
         .exit = w.exit,
         .hung = w.hung,
@@ -96,6 +96,7 @@ pub fn walkOnce(a: Allocator, ts: TourSpec, seed: f64, timeout_ms: f64) !V.Tour 
         .seed = seed,
         .unreadable = false,
         .face = ts.face,
+        .first_output_ms = w.first_output_ms,
     });
 }
 
@@ -160,13 +161,13 @@ pub fn run(a: Allocator, m: Manifest, on_tour: ?OnTour) !Result {
     var tours: std.ArrayList(V.Tour) = .empty;
     var wall: f64 = 0;
     for (m.tours) |ts| {
-        var first = try walkOnce(a, ts, st.seed, st.timeout_ms);
+        var first = try walkOnce(a, ts, st.seed, st.timeout_ms, st.start_ms);
         wall += first.run.wall_ms;
         if (ts.readable and ts.argv.len > 0) {
             const sig = try signature(a, first);
             var k: usize = 2;
             while (k <= repeat) : (k += 1) {
-                const again = try walkOnce(a, ts, st.seed, st.timeout_ms);
+                const again = try walkOnce(a, ts, st.seed, st.timeout_ms, st.start_ms);
                 wall += again.run.wall_ms;
                 if (!std.mem.eql(u8, sig, try signature(a, again))) {
                     first.flaky = true;
@@ -220,6 +221,7 @@ pub fn fromValue(a: Allocator, v: J.Value) !Manifest {
         if (rv.get("seed")) |x| m.settings.seed = x.num_();
         if (rv.get("repeat")) |x| m.settings.repeat = x.num_();
         if (rv.get("timeout_ms")) |x| m.settings.timeout_ms = x.num_();
+        if (rv.get("start_ms")) |x| m.settings.start_ms = x.num_();
         if (rv.get("evidence")) |x| m.settings.evidence = Ev.fromValue(x);
         if (rv.get("ladder")) |x| m.settings.ladder = x.truthy();
         if (rv.get("impact")) |x| m.settings.impact = try Ev.impactFromValue(a, x);
@@ -297,6 +299,25 @@ test "a manifest is read: settings, skipped, a tour with a record and one that d
     try testing.expectEqualStrings("protocol", m.tours[0].record.dialect);
     try testing.expectEqualStrings("V", m.tours[0].env[0].value);
     try testing.expect(!m.tours[1].readable);
+    // a manifest that names no start deadline has none, and its logbook does not mention one
+    try testing.expectEqual(@as(f64, 0), m.settings.start_ms);
+    var b = T.Buf.init(a);
+    try L.runJson(&b, m.settings, &.{});
+    try testing.expect(T.find(try b.done(), "start_ms") == 0);
+}
+
+test "TWO DEADLINES: a manifest's start deadline is read, and the logbook says it was applied" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const doc =
+        \\{"run":{"by":"stz","root":"t","seed":7,"timeout_ms":5000,"start_ms":1200000},"tours":[]}
+    ;
+    const m = try fromValue(a, try J.parse(a, doc));
+    try testing.expectEqual(@as(f64, 1200000), m.settings.start_ms);
+    var b = T.Buf.init(a);
+    try L.runJson(&b, m.settings, &.{});
+    try testing.expect(T.find(try b.done(), "\"timeout_ms\":5000,\"start_ms\":1200000,") > 0);
 }
 
 test "a tour that cannot be read is named and not run; a refused run walks nothing" {

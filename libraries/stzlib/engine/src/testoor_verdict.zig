@@ -94,6 +94,9 @@ pub const Meta = struct {
     seed: ?f64,
     unreadable: bool,
     face: Face,
+    /// TESTOOR-COLD-DEADLINE-01: when the child's first output arrived, in ms from its start, as the native walk
+    /// measures it; null when nothing was printed or nothing measured it (a golden, the Ring reference)
+    first_output_ms: ?f64 = null,
     /// protocol 2: the program's graph and the names the tour's source mentions, both from the
     /// face; without a graph a tour's node lines are listed as reported
     graph: ?G.Graph = null,
@@ -119,6 +122,8 @@ pub const Run = struct {
     exit: i64,
     wall_ms: f64,
     seed: ?f64,
+    /// TESTOOR-COLD-DEADLINE-01: Meta.first_output_ms, carried to the logbook
+    first_output_ms: ?f64 = null,
     state: State,
     kept: i64,
     diverged: i64,
@@ -529,6 +534,7 @@ pub fn verdict(a: Allocator, rec: Record, lines: []const Line, meta: Meta) !Tour
     var run = try judgeOnly(a, r, ls, end, meta.exit, meta.wall_ms, only);
     // the seed the child walked with: the runner's, unless the tour printed its own
     run.seed = meta.seed;
+    run.first_output_ms = meta.first_output_ms;
     var weather: std.ArrayList([]const u8) = .empty;
     var hits: std.ArrayList(G.Hit) = .empty;
     var props: std.ArrayList(Pr.Record) = .empty;
@@ -615,6 +621,10 @@ pub fn metaFromValue(a: Allocator, v: J.Value) !Meta {
         .seed = seed,
         .unreadable = if (v.get("unreadable")) |u| u.truthy() else false,
         .face = .{ .ignore = ignore, .endings = endings.items, .verdicts = verdicts },
+        .first_output_ms = if (v.get("first_output_ms")) |f| switch (f) {
+            .num => |n| n,
+            else => null,
+        } else null,
     };
 }
 

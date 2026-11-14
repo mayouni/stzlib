@@ -484,7 +484,7 @@ Ring. Four differences between the VMs bit this plane: no `binarysearch()` on rn
 
 **The judge is written in Zig (P3, 2026-11-05).** `engine/src/testoor_*.zig` is the core and `base/testoor/*.ring` is
 its reference; the golden logbooks in `base/testoor/golden/` are the acceptance test. **FAST PATH for the core:
-`cd engine && zig build test-testoor -j2` is 30 s cold and 5 s to run, 100 tests (the walker and the runner spawn real children), with no Ring involved.**
+`cd engine && zig build test-testoor -j2` is 30 s cold and 12 s to run, 105 tests (the walker and the runner spawn real children), with no Ring involved.**
 **`testoor walk FOLDER` (P3.6) judges the `*_narrated.haro` tours under a folder on haro.exe with no manifest:** the Haro face is
 `engine/src/testoor_reader.zig`, and `base/test/testoor/testoor_walk_narrated.haro` is its guard. It reads
 `golden/` and compares 43 expected files byte for byte. `TESTOOR_CORE=ring` (or `TestoorCore("ring")`) makes

@@ -241,7 +241,7 @@ Since 2026-11-09 no new code is written in the retired language (PRINCIPAL-NORIN
 
 ### 6.1 `testoor walk`
 
-    testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--ladder]
+    testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder]
 
 - **The tours** are the files under FOLDER, in any folder below it, whose name ends with `_narrated.haro` (or `--suffix`),
   sorted by path. A file or a folder whose name begins with `_` or `.` is never walked: measurement scripts, planted
@@ -293,6 +293,26 @@ which checks "it signs and installs" twice; the walk counted 19 claims where the
 1 to 3 changed. The Ring reference (`TESTOOR_CORE=ring`) keeps the old landing: it is the retired language's, and the
 core is the judge.
 
+### 6.5 Two deadlines (every tour the core walks)
+
+A tour walked by the core (`testoor run`, `testoor walk`) is held to **two deadlines**:
+
+- **the start deadline**, from the child's start to its first output (the first bytes on its standard output) --
+  `--start MS`, the manifest's `run.start_ms`; 0 is the tour's deadline;
+- **the tour's deadline**, from that first output to the child's exit -- `--timeout MS`, `run.timeout_ms`.
+
+The time before a tour prints anything is its runtime's, not the tour's. haro.exe compiles a program's image of the
+library before the program prints its first line: 20 s to 182 s on 2026-11-13, 5 to 11 minutes on 2026-11-12. One
+deadline counted from the start killed that compile, the image was never written, and the same tour read `hung` on every
+later run. `testoor walk` gives a tour 20 minutes to start and 10 to run; `testoor run` keeps 0 (the tour's deadline) unless
+its manifest names one.
+
+A child past either deadline is `hung`, killed with everything it started. The logbook writes, beside `timeout_ms`, the
+`start_ms` the run applied when it applied one, and in each tour **`first_output_ms`**, when the first output arrived,
+whenever the walk measured one; the tour's line names it when it is 10 s or more (`(121.73 s, first output at 121.39 s)`),
+so a slow start reads as slow. Both are absent from a logbook that applied or measured neither, whose bytes are those of
+protocol 2. The Ring runner (`stzTraveller`, retired) keeps one deadline from the start.
+
 ## 7. Conformance
 
 Written by hand from section 2 before the code, and reproduced by the core on its first run (`zig build test-testoor`).
@@ -316,6 +336,7 @@ Written by hand from section 2 before the code, and reproduced by the core on it
 
 | `haro/reader/R1_narrated` | the Haro face's reader (6.2): a claim before any scenario opens `(the tour)`; a claim in a comment, a claim built at run time and the bodies of the helpers `Scenario` and `Then` are not recorded, the built claim counted in `asserts`; claims inside the file's own function and inside an `if` are; a single-quoted claim is a literal |
 | `haro/reader/R2_self_describing` | a `.haro` file with no `Scenario(` and no `Then(`: dialect `unknown`, no stop, judged from what it prints |
+| `haro/judge/H3_a_slow_start_is_named` | 6.5: a tour whose first output arrived at 121.39 s: `first_output_ms` written after `wall_ms`, and its line naming the start -- written by hand; the core printed `121.30` where the hand wrote `121.3`, and both now print it as the wall time is printed, `121.39` |
 | `haro/judge/H2_a_repeated_claim_is_a_second_check` | 6.4: an unknown-dialect tour printing `FAIL  x`, then `ok  x`, then another claim: three claims, the tour diverged -- protocol 2's landing read it as kept |
 | `haro/judge/H1_a_report_line_is_not_a_verdict` | a narrated Haro tour whose program prints `  FAIL     :...` before its two `THEN` lines: 2 kept, finished, exit 0 -- under protocol 2's rule the report line was a diverged claim |
 

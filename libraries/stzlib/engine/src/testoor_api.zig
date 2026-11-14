@@ -116,6 +116,10 @@ pub fn tourFromValue(a: Allocator, v: J.Value) Error!V.Tour {
             .exit = (try field(v, "exit")).int_(),
             .wall_ms = (try field(v, "wall_ms")).num_(),
             .seed = seed,
+            .first_output_ms = if (v.get("first_output_ms")) |f| switch (f) {
+                .num => |n| n,
+                else => null,
+            } else null,
             .state = stateFromName((try field(v, "state")).str_()),
             .kept = (try field(v, "kept")).int_(),
             .diverged = (try field(v, "diverged")).int_(),
@@ -146,6 +150,7 @@ fn readRun(a: Allocator, request: []const u8) Error!Run {
     if (rv.get("seed")) |x| st.seed = x.num_();
     if (rv.get("repeat")) |x| st.repeat = x.num_();
     if (rv.get("timeout_ms")) |x| st.timeout_ms = x.num_();
+    if (rv.get("start_ms")) |x| st.start_ms = x.num_();
     if (rv.get("graph")) |gv| st.graph = .{
         .complete = if (gv.get("complete")) |x| x.truthy() else true,
         .why = if (gv.get("why")) |x| x.str_() else "",

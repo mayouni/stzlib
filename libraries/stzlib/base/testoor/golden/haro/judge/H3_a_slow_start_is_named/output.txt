@@ -1,0 +1,3 @@
+121400	  ok    the image is built
+121650	  ok    the tour runs
+121700	passed 2, failed 0
