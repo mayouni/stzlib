@@ -597,8 +597,19 @@ pub fn stz_gpu_init(path: [*:0]const u8) callconv(.c) i32 {
     return openDeviceOn(pick);
 }
 
+/// Opens the device on adapter `idx` under the GPU LEASE (RADAR-GPU-OWNER-01): one process at a time owns an
+/// adapter, so a second process waits for it, then runs without a device (every route falls back to the CPU)
+/// and says so in its last error. Two processes computing on the RTX 3050 at once crashed the driver on
+/// 2026-11-03 (a segfault under nvoglv64.dll, "Parent device is lost"); the lease makes that a wait.
 fn openDeviceOn(idx: usize) i32 {
     if (idx >= adapters.len) return 0;
+    if (!acquireLease(idx)) return 0;
+    const r = openDeviceOnLeased(idx);
+    if (r == 0) releaseLease();
+    return r;
+}
+
+fn openDeviceOnLeased(idx: usize) i32 {
     var desc = std.mem.zeroes(c.WGPUDeviceDescriptor);
     desc.label = sv("stz_gpu");
     desc.uncapturedErrorCallbackInfo = .{ .nextInChain = null, .callback = onUncapturedError, .userdata1 = null, .userdata2 = null };
@@ -673,7 +684,10 @@ fn openDeviceOn(idx: usize) i32 {
 /// Keeps the instance + adapter list so SelectAdapter/Init can rebuild.
 fn closeDevice() void {
     writes_pending = false; // the writes die with the queue that held them
-    if (!available and device == null) return;
+    if (!available and device == null) {
+        releaseLease();
+        return;
+    }
     available = false;
     runCloseHooks(); // render/scene layers: abort pass, drop device objects
     for (buffers.items, 0..) |s, i| {
@@ -713,6 +727,7 @@ fn closeDevice() void {
     if (device) |d| fns.wgpuDeviceRelease(d);
     device = null;
     selected_adapter = -1;
+    releaseLease(); // after the device is gone, so the next owner never meets this one's objects
 }
 
 pub fn stz_gpu_shutdown() callconv(.c) void {
@@ -1228,6 +1243,160 @@ fn pdhProcessMemory(which: i32) f64 {
         if (k == prefix.len) total += @floatFromInt(it.value.large);
     }
     return total;
+}
+
+// ---------------------------------------------------------------- the GPU lease (RADAR-GPU-OWNER-01)
+// A lock on a file in the temp folder, one per adapter (vendor and device id), held from the device's opening
+// to its closing. The OS drops the lock when the process ends, however it ends, so a crashed owner never
+// strands the card. Byte 0 is the lock; the owner's process id is written from byte 8, where a waiting
+// process can still read it. STZ_GPU_LEASE=off opens with no lease; STZ_GPU_LEASE_WAIT_MS sets the wait
+// (default 30000; 0 = try once).
+pub const LEASE_NONE: i32 = 0; // no device opened yet
+pub const LEASE_TAKEN: i32 = 1; // the lease was free
+pub const LEASE_TAKEN_AFTER_WAIT: i32 = 2; // another process held it, then let it go
+pub const LEASE_REFUSED: i32 = 3; // another process held it for the whole wait: no device, the CPU route
+pub const LEASE_OFF: i32 = 4; // STZ_GPU_LEASE=off
+pub const LEASE_UNAVAILABLE: i32 = 5; // no temp folder or no file lock here: opened without a lease
+
+var lease_file: ?std.fs.File = null;
+var lease_outcome: i32 = LEASE_NONE;
+var lease_waited_ms: f64 = 0;
+var lease_other_pid: f64 = 0;
+
+fn envOwned(name: []const u8) ?[]u8 {
+    return std.process.getEnvVarOwned(alloc, name) catch null;
+}
+
+fn leaseWaitMs() u64 {
+    const v = envOwned("STZ_GPU_LEASE_WAIT_MS") orelse return 30000;
+    defer alloc.free(v);
+    return std.fmt.parseInt(u64, std.mem.trim(u8, v, " "), 10) catch 30000;
+}
+
+fn myPid() u64 {
+    if (builtin.os.tag == .windows) return std.os.windows.GetCurrentProcessId();
+    return @intCast(std.c.getpid());
+}
+
+/// The process id the current holder wrote, or 0 when it cannot be read.
+fn leaseHolderPid(f: std.fs.File) u64 {
+    var buf: [24]u8 = undefined;
+    const n = f.preadAll(&buf, 8) catch return 0;
+    const t = std.mem.trim(u8, buf[0..n], " \r\n\x00");
+    return std.fmt.parseInt(u64, t, 10) catch 0;
+}
+
+fn acquireLease(idx: usize) bool {
+    if (lease_file != null) return true; // already ours (a reopen on the same adapter goes through closeDevice)
+    lease_waited_ms = 0;
+    lease_other_pid = 0;
+    if (envOwned("STZ_GPU_LEASE")) |v| {
+        defer alloc.free(v);
+        if (std.ascii.eqlIgnoreCase(std.mem.trim(u8, v, " "), "off")) {
+            lease_outcome = LEASE_OFF;
+            return true;
+        }
+    }
+    var info = std.mem.zeroes(c.WGPUAdapterInfo);
+    _ = fns.wgpuAdapterGetInfo(adapters[idx], &info);
+    const vendor = info.vendorID;
+    const dev = info.deviceID;
+    fns.wgpuAdapterInfoFreeMembers(info);
+    const tmp = envOwned("TEMP") orelse envOwned("TMP") orelse envOwned("TMPDIR") orelse (alloc.dupe(u8, "/tmp") catch {
+        lease_outcome = LEASE_UNAVAILABLE;
+        return true;
+    });
+    defer alloc.free(tmp);
+    var pbuf: [1024]u8 = undefined;
+    const path = std.fmt.bufPrint(&pbuf, "{s}/stz_gpu_lease_{x}_{x}.lock", .{ tmp, vendor, dev }) catch {
+        lease_outcome = LEASE_UNAVAILABLE;
+        return true;
+    };
+    const r = takeLeaseAt(path, leaseWaitMs());
+    lease_outcome = r.outcome;
+    lease_waited_ms = r.waited_ms;
+    lease_other_pid = r.other_pid;
+    lease_file = r.file;
+    if (r.outcome == LEASE_REFUSED) {
+        var ebuf: [160]u8 = undefined;
+        const msg = std.fmt.bufPrint(&ebuf, "the GPU is leased by process {d}: no device, the CPU route runs (waited {d} ms)", .{ @as(u64, @intFromFloat(r.other_pid)), @as(u64, @intFromFloat(r.waited_ms)) }) catch "the GPU is leased by another process";
+        setLastError(msg);
+        return false;
+    }
+    return true;
+}
+
+/// An exclusive, non-blocking lock on byte 0 -- what std.fs.File.tryLock does, which Zig 0.15 cannot compile on
+/// Windows (its `.none` branch returns nothing from a function that returns a bool).
+fn tryLockFile(f: std.fs.File) !bool {
+    if (builtin.os.tag == .windows) {
+        const w = std.os.windows;
+        var iosb: w.IO_STATUS_BLOCK = undefined;
+        const off: w.LARGE_INTEGER = 0;
+        const len: w.LARGE_INTEGER = 1;
+        w.LockFile(f.handle, null, null, null, &iosb, &off, &len, null, w.TRUE, w.TRUE) catch |err| switch (err) {
+            error.WouldBlock => return false,
+            else => |e| return e,
+        };
+        return true;
+    }
+    std.posix.flock(f.handle, std.posix.LOCK.EX | std.posix.LOCK.NB) catch |err| switch (err) {
+        error.WouldBlock => return false,
+        else => |e| return e,
+    };
+    return true;
+}
+
+const LeaseTry = struct { outcome: i32, waited_ms: f64 = 0, other_pid: f64 = 0, file: ?std.fs.File = null };
+
+/// Takes the lock on `path`, waiting up to `wait_ms` for another holder to let it go. Pure file work, so a test
+/// can hold the lock through one handle and meet it through another, as a second process would.
+fn takeLeaseAt(path: []const u8, wait_ms: u64) LeaseTry {
+    const f = std.fs.cwd().createFile(path, .{ .read = true, .truncate = false }) catch return .{ .outcome = LEASE_UNAVAILABLE };
+    var timer = std.time.Timer.start() catch null;
+    var waited = false;
+    var other: f64 = 0;
+    while (true) {
+        const got = tryLockFile(f) catch {
+            f.close();
+            return .{ .outcome = LEASE_UNAVAILABLE };
+        };
+        if (got) break;
+        waited = true;
+        other = @floatFromInt(leaseHolderPid(f));
+        const el: u64 = if (timer) |*t| t.read() / std.time.ns_per_ms else wait_ms;
+        if (el >= wait_ms) {
+            f.close();
+            return .{ .outcome = LEASE_REFUSED, .waited_ms = @floatFromInt(el), .other_pid = other };
+        }
+        std.Thread.sleep(50 * std.time.ns_per_ms);
+    }
+    const el: f64 = if (timer) |*t| @floatFromInt(t.read() / std.time.ns_per_ms) else 0;
+    var nbuf: [24]u8 = undefined;
+    const pid_txt = std.fmt.bufPrint(&nbuf, "{d:<20}", .{myPid()}) catch "";
+    f.pwriteAll(pid_txt, 8) catch {};
+    return .{ .outcome = if (waited) LEASE_TAKEN_AFTER_WAIT else LEASE_TAKEN, .waited_ms = el, .other_pid = other, .file = f };
+}
+
+
+fn releaseLease() void {
+    if (lease_file) |f| {
+        f.unlock();
+        f.close();
+        lease_file = null;
+    }
+}
+
+/// The lease's state for the last opening: 0 its outcome (LEASE_*), 1 the milliseconds waited for it, 2 the
+/// process id of the other holder when one was met (0 if none), 3 whether this process holds a lease now (1/0).
+pub fn stz_gpu_lease(which: i32) callconv(.c) f64 {
+    return switch (which) {
+        0 => @floatFromInt(lease_outcome),
+        1 => lease_waited_ms,
+        2 => lease_other_pid,
+        3 => if (lease_file != null) 1 else 0,
+        else => -1,
+    };
 }
 
 fn runCloseHooks() void {
@@ -1982,6 +2151,45 @@ fn TestHook(comptime i: usize) *const fn () void {
             test_hook_hits += 1;
         }
     }.f;
+}
+
+test "the lease: a second holder is refused after its wait, names the holder, and takes it once it is let go" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+    const dir = try tmp.dir.realpathAlloc(std.testing.allocator, ".");
+    defer std.testing.allocator.free(dir);
+    const path = try std.fs.path.join(std.testing.allocator, &.{ dir, "stz_gpu_lease_test.lock" });
+    defer std.testing.allocator.free(path);
+
+    const a = takeLeaseAt(path, 0);
+    try std.testing.expectEqual(LEASE_TAKEN, a.outcome);
+    // a second handle meets the lock exactly as a second process would
+    const b = takeLeaseAt(path, 120);
+    try std.testing.expectEqual(LEASE_REFUSED, b.outcome);
+    try std.testing.expect(b.waited_ms >= 120);
+    try std.testing.expectEqual(@as(f64, @floatFromInt(myPid())), b.other_pid);
+    try std.testing.expect(b.file == null);
+
+    // the holder lets go while the second one waits: it takes the lease and says it waited
+    const Release = struct {
+        fn run(f: std.fs.File) void {
+            std.Thread.sleep(150 * std.time.ns_per_ms);
+            f.unlock();
+            f.close();
+        }
+    };
+    const th = try std.Thread.spawn(.{}, Release.run, .{a.file.?});
+    const c2 = takeLeaseAt(path, 5000);
+    th.join();
+    try std.testing.expectEqual(LEASE_TAKEN_AFTER_WAIT, c2.outcome);
+    try std.testing.expect(c2.waited_ms >= 100 and c2.waited_ms < 5000);
+    c2.file.?.unlock();
+    c2.file.?.close();
+}
+
+test "the lease's state reading: an unknown kind is -1, and no lease is held before a device opens" {
+    try std.testing.expectEqual(@as(f64, -1), stz_gpu_lease(9));
+    try std.testing.expectEqual(@as(f64, 0), stz_gpu_lease(3));
 }
 
 test "the outside witness: a reading or -1, never a made-up zero; an unknown kind is -1" {

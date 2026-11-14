@@ -127,6 +127,11 @@ fn ring_ProcessMemory(p: *anyopaque) callconv(.c) void {
     rn(p, gpu.stz_gpu_process_memory(@intFromFloat(gn(p, 1))));
 }
 
+// RADAR-GPU-OWNER-01: the GPU lease of the last opening (0 outcome, 1 ms waited, 2 the other holder's pid, 3 held now)
+fn ring_Lease(p: *anyopaque) callconv(.c) void {
+    rn(p, gpu.stz_gpu_lease(@intFromFloat(gn(p, 1))));
+}
+
 fn ring_CountersReset(p: *anyopaque) callconv(.c) void {
     gpu.stz_gpu_counters_reset();
     rn(p, 1);
@@ -2558,6 +2563,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpucounter", .func = &ring_Counter },
     .{ .name = "stzenginegpuclosehooks", .func = &ring_CloseHooks },
     .{ .name = "stzenginegpuprocessmemory", .func = &ring_ProcessMemory },
+    .{ .name = "stzenginegpulease", .func = &ring_Lease },
     .{ .name = "stzenginegpusimulatedeviceloss", .func = &ring_SimulateDeviceLoss },
     .{ .name = "stzenginegpucountersreset", .func = &ring_CountersReset },
     .{ .name = "stzenginegpulasterror", .func = &ring_LastError },

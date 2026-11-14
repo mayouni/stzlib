@@ -44,6 +44,7 @@
 #   StzEngineGpuSimulateDeviceLoss() -> 1 when a device destroyed under the engine was noticed: a test of the recovery path, not for production (GT3)
 #   StzEngineGpuCloseHooks(0) -> device-close hooks registered; (1) -> registrations dropped because the registry was full (must be 0) (GT3)
 #   StzEngineGpuProcessMemory(n) -> this process's GPU memory in bytes AS WINDOWS COUNTS IT (n 0 dedicated, 1 shared, 2 committed); -1 when unavailable: the outside witness (GT3b)
+#   StzEngineGpuLease(n) -> the GPU lease of the last opening (RADAR-GPU-OWNER-01): n 0 its outcome (0 none, 1 taken, 2 taken after a wait, 3 refused: another process held the adapter for the whole wait and the CPU route runs, 4 off by STZ_GPU_LEASE=off, 5 no lease possible here), 1 milliseconds waited, 2 the other holder's process id, 3 held now (1/0); STZ_GPU_LEASE_WAIT_MS sets the wait (default 30000)
 # OUT buffers must be distinct from inputs (WebGPU aliasing validation).
 #
 # Kernel binding contract (every kernel compiled through this layer):
