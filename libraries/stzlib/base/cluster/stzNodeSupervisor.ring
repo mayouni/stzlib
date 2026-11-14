@@ -31,6 +31,17 @@
 #   It never loops.
 # - monitors: on any death, each subscribed node is Sent
 #   [ "node.down", cChildName, nRestartsSoFar ] through the plane
+#
+# BOUNDED CHILDREN (OSBOUNDARY rung B3, base/security/SOFTANZA_OS_BOUNDARY_STUDY.md):
+#   oSup.ChildGrant("shop", [ :profile = "stz.node.shop", :reads = [...],
+#       :writes = [...], :memoryMB = 256, :cache = "...", :output = "..." ])
+# runs that child inside an OS boundary (an AppContainer and a job object,
+# StzEngineBoundary*) instead of as a plain process. Death is the end of the
+# boundary's run; KillChild and StopAll end the whole job. Each run leaves a
+# run record (RunsOf): exit code, the job's messages, the limits it met, peak
+# memory, wall time; a run that met a limit is also written to the security
+# ledger as node.limit. A bounded child is never sent a heartbeat: loopback is
+# closed to a container, so it talks to its supervisor through files.
 # -----------------------------------------------------------------------------
 
 func StzNodeSupervisorQ()
@@ -77,6 +88,9 @@ class stzNodeSupervisor from stzObject
 	@aChildMisses = []     # consecutive heartbeat misses
 	@aRestartTimes = []    # window: monotonic ms of every restart
 	@aMonitors = []        # [ cChildName, cSubscriberAddr ]
+	@aChildGrants = []     # "" for a plain child, or the grant of a bounded one (B3)
+	@aChildBounds = []     # the boundary id of a bounded child's current run (0 = none)
+	@aChildRuns = []       # the run records of a bounded child, newest last
 	@nLastHbMs = 0
 
 	# Creates a supervisor of node processes, one-for-one, with 3 restarts per 10 seconds and no heartbeat; starts nothing.
@@ -120,7 +134,44 @@ class stzNodeSupervisor from stzObject
 		@aChildJobs + 0
 		@aChildRestarts + 0
 		@aChildMisses + 0
+		@aChildGrants + ""
+		@aChildBounds + 0
+		@aChildRuns + []
 		return This
+
+	# Runs a declared child inside an OS boundary described by a grant, instead of as a plain process.
+	#
+	#   pcName     the child's name, matched without regard to case
+	#   paGrant    a list of pairs: :profile (the AppContainer, 1 to 64 letters, digits, '.', '-', '_'),
+	#              :reads and :writes (lists of paths), :network (1 for the internetClient capability),
+	#              :children (how many processes it may start), :memoryMB (256 by default),
+	#              :processorSeconds, :output (its stdout and stderr file), :cache (its HARO_CACHE),
+	#              :interpreter (the haro.exe it runs on; the supervisor's own by default)
+	#   returns    the supervisor itself, so calls chain
+	#   warning    the grant must name the interpreter's folder and the script's folder among its reads;
+	#              a bounded child is never sent a heartbeat (loopback is closed to a container)
+	#   see        RunsOf, StzBoundaryInstall
+	def ChildGrant(pcName, paGrant)
+		_i_ = This._ChildIndex(StzLower("" + pcName))
+		if _i_ > 0
+			@aChildGrants[_i_] = paGrant
+		ok
+		return This
+
+	# Returns the run records of a bounded child, newest last: each is a list of pairs
+	# :pid, :exit, :messages, :limits, :peakMB, :wallMs, :error.
+	#
+	#   pcName     the child's name, matched without regard to case
+	#   returns    a list; empty for a plain child or an unknown name
+	#   note       Windows' peak counts a commit it refused, so a record's :peakMB can pass the ceiling;
+	#              :limits, read from the job's messages, is what says a limit was met
+	#   see        ChildGrant
+	def RunsOf(pcName)
+		_i_ = This._ChildIndex(StzLower("" + pcName))
+		if _i_ = 0
+			return []
+		ok
+		return @aChildRuns[_i_]
 
 	# Sets the host on which a child's name resolves on the node plane, so a deployment can move it.
 	#
@@ -148,7 +199,7 @@ class stzNodeSupervisor from stzObject
 	def KillChild(pcName)
 		_i_ = This._ChildIndex(StzLower("" + pcName))
 		if _i_ > 0 and @aChildJobs[_i_] != 0
-			@oSpawner.KillSpawn(@aChildJobs[_i_], 9)
+			This._KillJob(_i_)
 		ok
 		return This
 
@@ -293,6 +344,9 @@ class stzNodeSupervisor from stzObject
 					if @aChildJobs[i] = 0
 						loop
 					ok
+					if NOT isString(@aChildGrants[i])
+						loop
+					ok
 					if StzFindFirst(i, aDead) > 0
 						loop
 					ok
@@ -304,7 +358,7 @@ class stzNodeSupervisor from stzObject
 						if @aChildMisses[i] >= @nHbTolerance
 							# a WEDGED node is dead: kill the process so
 							# the port frees before the restart
-							@oSpawner.KillSpawn(@aChildJobs[i], 9)
+							This._KillJob(i)
 							aDead + i
 						ok
 					ok
@@ -331,7 +385,8 @@ class stzNodeSupervisor from stzObject
 		nLen = ring_len(@aChildNames)
 		for i = 1 to nLen
 			if @aChildJobs[i] != 0
-				@oSpawner.KillSpawn(@aChildJobs[i], 9)
+				This._KillJob(i)
+				This._DrainJob(i)
 				@aChildJobs[i] = 0
 			ok
 		next
@@ -358,16 +413,141 @@ class stzNodeSupervisor from stzObject
 		return 0
 
 	def _SpawnChild(i)
-		@aChildJobs[i] = @oSpawner.SubmitSpawn([ @cRingExe,
-			@aChildScripts[i], "" + @aChildPorts[i] ])
 		@aChildMisses[i] = 0
+		if NOT isString(@aChildGrants[i])
+			This._StartBounded(i)
+		else
+			@aChildJobs[i] = @oSpawner.SubmitSpawn([ @cRingExe,
+				@aChildScripts[i], "" + @aChildPorts[i] ])
+		ok
 		NodeRegister(@aChildNames[i], @aChildHosts[i], @aChildPorts[i])
 
+	# A bounded child: one boundary per run. Its job slot holds -1 while the run is
+	# the supervisor's, so every "is it running" test above reads it unchanged.
+	def _StartBounded(i)
+		_g_ = @aChildGrants[i]
+		@aChildJobs[i] = -1
+		@aChildBounds[i] = 0
+		_nB_ = StzEngineBoundaryNew(This._GrantText(_g_, :profile, ""))
+		if _nB_ = 0
+			This._KeepRun(i, [ :pid = 0, :exit = -1, :messages = "", :limits = [], :peakMB = 0,
+				:wallMs = 0, :error = StzEngineBoundaryError(0) ])
+			return
+		ok
+		_aR_ = This._GrantList(_g_, :reads)
+		_nR_ = len(_aR_)
+		for _r_ = 1 to _nR_
+			StzEngineBoundaryRead(_nB_, _aR_[_r_])
+		next
+		_aW_ = This._GrantList(_g_, :writes)
+		_nW_ = len(_aW_)
+		for _w_ = 1 to _nW_
+			StzEngineBoundaryWrite(_nB_, _aW_[_w_])
+		next
+		StzEngineBoundaryNetwork(_nB_, This._GrantNumber(_g_, :network, 0))
+		StzEngineBoundaryChildren(_nB_, This._GrantNumber(_g_, :children, 0))
+		StzEngineBoundaryMemory(_nB_, This._GrantNumber(_g_, :memoryMB, 256))
+		StzEngineBoundaryProcessor(_nB_, This._GrantNumber(_g_, :processorSeconds, 0))
+		_cOut_ = This._GrantText(_g_, :output, "")
+		StzEngineBoundaryOutput(_nB_, _cOut_, _cOut_)
+		_cExe_ = This._GrantText(_g_, :interpreter, @cRingExe)
+		_cCmd_ = char(34) + _cExe_ + char(34) + " " + char(34) + @aChildScripts[i] + char(34) + " " + string(@aChildPorts[i])
+		_cCache_ = This._GrantText(_g_, :cache, "")
+		_cOldCache_ = SysGet("HARO_CACHE")
+		if _cCache_ != ""
+			SysSet("HARO_CACHE", _cCache_)
+		ok
+		_nPid_ = StzEngineBoundaryStart(_nB_, _cCmd_)
+		if _cCache_ != ""
+			SysSet("HARO_CACHE", _cOldCache_)
+		ok
+		if _nPid_ = 0
+			This._KeepRun(i, [ :pid = 0, :exit = -1, :messages = "", :limits = [], :peakMB = 0,
+				:wallMs = 0, :error = StzEngineBoundaryError(_nB_) ])
+			StzEngineBoundaryFree(_nB_)
+			return
+		ok
+		@aChildBounds[i] = _nB_
+
 	def _HasExited(i)
+		if NOT isString(@aChildGrants[i])
+			if @aChildBounds[i] = 0
+				return 1
+			ok
+			return StzEngineBoundaryWait(@aChildBounds[i], 0) = 1
+		ok
 		# JobState: -1 still running, 0 result ready (= process exited),
 		# -2 unknown (already drained -- treat as exited)
 		nState = @oSpawner.JobState(@aChildJobs[i])
 		return nState = 0 or nState = -2
+
+	def _KillJob(i)
+		if NOT isString(@aChildGrants[i])
+			if @aChildBounds[i] != 0
+				StzEngineBoundaryEnd(@aChildBounds[i])
+			ok
+			return
+		ok
+		@oSpawner.KillSpawn(@aChildJobs[i], 9)
+
+	# The end of a bounded run: its record, and a node.limit event for each limit it met.
+	def _EndBounded(i)
+		_nB_ = @aChildBounds[i]
+		if _nB_ = 0
+			return
+		ok
+		StzEngineBoundaryWait(_nB_, 5000)
+		_cMsgs_ = StzEngineBoundaryMessages(_nB_)
+		_aLim_ = []
+		_aNames_ = [ "JOB_MEMORY_LIMIT", "END_OF_JOB_TIME", "ACTIVE_PROCESS_LIMIT" ]
+		for _k_ = 1 to 3
+			if len(StzFindCS(_aNames_[_k_], _cMsgs_, 1)) > 0
+				_aLim_ + _aNames_[_k_]
+				StzNoteRefusalFrom("node.limit", @tName, @aChildNames[i],
+					_aNames_[_k_] + " (exit " + string(StzEngineBoundaryExitCode(_nB_)) + ")",
+					This._GrantText(@aChildGrants[i], :profile, ""))
+			ok
+		next
+		This._KeepRun(i, [ :pid = StzEngineBoundaryPid(_nB_), :exit = StzEngineBoundaryExitCode(_nB_),
+			:messages = _cMsgs_, :limits = _aLim_, :peakMB = StzEngineBoundaryPeakMb(_nB_),
+			:wallMs = StzEngineBoundaryWallMs(_nB_), :error = "" ])
+		StzEngineBoundaryFree(_nB_)
+		@aChildBounds[i] = 0
+
+	# keeps the last 20 run records of a child
+	def _KeepRun(i, paRun)
+		@aChildRuns[i] + paRun
+		if len(@aChildRuns[i]) > 20
+			del(@aChildRuns[i], 1)
+		ok
+
+	# a grant's keys are read without regard to case: a key written in Haro keeps its capitals
+	def _GrantText(paGrant, pcKey, pcDefault)
+		_n_ = len(paGrant)
+		for _k_ = 1 to _n_
+			if StzLower("" + paGrant[_k_][1]) = StzLower("" + pcKey)
+				return "" + paGrant[_k_][2]
+			ok
+		next
+		return pcDefault
+
+	def _GrantNumber(paGrant, pcKey, pnDefault)
+		_n_ = len(paGrant)
+		for _k_ = 1 to _n_
+			if StzLower("" + paGrant[_k_][1]) = StzLower("" + pcKey)
+				return 0 + paGrant[_k_][2]
+			ok
+		next
+		return pnDefault
+
+	def _GrantList(paGrant, pcKey)
+		_n_ = len(paGrant)
+		for _k_ = 1 to _n_
+			if StzLower("" + paGrant[_k_][1]) = StzLower("" + pcKey)
+				return paGrant[_k_][2]
+			ok
+		next
+		return []
 
 	# A death: notify monitors, then apply the strategy under the budget.
 	def _HandleDeath(i)
@@ -405,7 +585,7 @@ class stzNodeSupervisor from stzObject
 			nAll = ring_len(@aChildNames)
 			for c = 1 to nAll
 				if c != i and @aChildJobs[c] != 0
-					@oSpawner.KillSpawn(@aChildJobs[c], 9)
+					This._KillJob(c)
 					This._DrainJob(c)
 				ok
 				This._Restart(c)
@@ -421,6 +601,11 @@ class stzNodeSupervisor from stzObject
 
 	# Drain the finished spawn job so the reactor can reap it.
 	def _DrainJob(i)
+		if NOT isString(@aChildGrants[i])
+			This._EndBounded(i)
+			@aChildJobs[i] = 0
+			return
+		ok
 		if @aChildJobs[i] != 0
 			@oSpawner.AwaitSpawn(@aChildJobs[i], 100)
 			@aChildJobs[i] = 0

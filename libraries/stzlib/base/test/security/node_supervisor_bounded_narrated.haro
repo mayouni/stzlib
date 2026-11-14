@@ -1,0 +1,256 @@
+# THE SUPERVISOR RUNS A NODE INSIDE ITS GRANT -- rung B3 of SOFTANZA_OS_BOUNDARY_STUDY.md, narrated
+#
+# stzNodeSupervisor.ChildGrant(name, grant) makes a declared child a BOUNDED one: each of its runs starts inside an OS
+# boundary (StzEngineBoundary*), the supervisor's restart policy applies to it unchanged, and each run leaves a record
+# -- exit code, the job's messages, the limits met, peak memory, wall time. A run that met a limit is written to the
+# security ledger as node.limit.
+#
+#   Scene 1  a bounded child that exits is restarted under the budget, and each run is recorded
+#   Scene 2  a run past its memory ceiling: the record names JOB_MEMORY_LIMIT and the ledger holds node.limit
+#   Scene 3  a run past its processor time: END_OF_JOB_TIME, exit 0xC0000044
+#   Scene 4  KillChild ends the bounded run, and the supervisor sees the death
+#   Scene 5  StopAll ends a running bounded child and records its run
+#   Scene 6  heartbeats are not sent to a bounded child: a spinning one is not taken for wedged
+#   Scene 7  a grant that cannot start is recorded with its reason, and the budget stops the retries
+#   Scene 8  the grant holds through the supervisor: the child's read outside it is refused
+#
+# RUNS ON haro.exe, on Windows. STZ_ENGINE_DIR names an engine whose stz_process carries B1 and B2; HARO_EXE names
+# haro.exe when it is not on the PATH. The work folder is %TEMP%\stz_b3, the profile stz.b3.guard.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+tBS = Char(92)
+tName = "stz.b3.guard"
+
+tWork = SysGet("TEMP") + tBS + "stz_b3"
+tBin = tWork + tBS + "bin"
+tNode = tWork + tBS + "node"
+tRuns = tWork + tBS + "runs"
+tOutside = tWork + tBS + "outside"
+System("if exist " + Q(tWork) + " rmdir /s /q " + Q(tWork))
+for tDir in [tBin, tNode, tRuns, tOutside]
+    System("mkdir " + Q(tDir))
+end
+tHaroSrc = SysGet("HARO_EXE")
+if tHaroSrc = ""
+    tHaroSrc = Trim(FirstLine(SystemCmd("where haro.exe 2>nul")))
+end
+if tHaroSrc = ""
+    ? "HARO_EXE is not set and haro.exe is not on the PATH: nothing can run"
+    Shutdown(1)
+end
+System("copy /y " + Q(tHaroSrc) + " " + Q(tBin + tBS + "haro.exe") + " >nul")
+Write(tOutside + tBS + "key.txt", "stand-in key")
+StzEngineBoundaryDeleteProfile(tName)
+
+Write(tNode + tBS + "quick.haro", "? " + Char(34) + "quick ran" + Char(34) + Char(10))
+Write(tNode + tBS + "mem.haro", "tS = " + Char(34) + "x" + Char(34) + Char(10) + "for i = 1 to 29" + Char(10) + "    tS = tS + tS" + Char(10) + "end" + Char(10))
+Write(tNode + tBS + "spin.haro", "nN = 0" + Char(10) + "while true" + Char(10) + "    nN = nN + 1" + Char(10) + "end" + Char(10))
+Write(tNode + tBS + "reach.haro", "try" + Char(10) + "Read(" + Q(tOutside + tBS + "key.txt") + ")" + Char(10) + "? " + Char(34) + "R reached" + Char(34) + Char(10) +
+      "catch" + Char(10) + "? " + Char(34) + "R refused" + Char(34) + Char(10) + "end" + Char(10))
+
+StzCloseSecurityLedger()
+StzOpenSecurityLedger(1000)
+
+Scenario("1. a bounded child that exits is restarted under the budget")
+oSup = Supervisor("quick", 45901, Grant("quick", 256, 0))
+oSup.RestartBudget(2, 60000)
+oSup.StartAll()
+CycleUntilEscalated(oSup, 60000)
+vRuns = oSup.RunsOf("quick")
+Then("the supervisor escalated after its budget", oSup.Escalated(), 1)
+Then("...naming the child", Has(oSup.EscalationReason(), "quick"), true)
+Then("it restarted the child twice", oSup.RestartsOf("quick"), 2)
+Then("three runs are recorded", Len(vRuns), 3)
+Then("each ended with 0", vRuns[1][:exit] = 0 and vRuns[2][:exit] = 0 and vRuns[3][:exit] = 0, true)
+Then("...and met no limit", Len(vRuns[1][:limits]) + Len(vRuns[2][:limits]) + Len(vRuns[3][:limits]), 0)
+Then("a record carries the job's messages", Has(vRuns[1][:messages], "ACTIVE_PROCESS_ZERO"), true)
+Then("...and a process id", vRuns[1][:pid] > 0, true)
+Then("the child wrote its output", Has(ReadOr(OutPath("quick")), "quick ran"), true)
+oSup.Destroy()
+
+Scenario("2. a run past its memory ceiling")
+oSup = Supervisor("mem", 45902, Grant("mem", 256, 0))
+oSup.RestartBudget(0, 60000)
+oSup.StartAll()
+CycleUntilEscalated(oSup, 60000)
+vRuns = oSup.RunsOf("mem")
+Then("one run is recorded", Len(vRuns), 1)
+Then("its limits name JOB_MEMORY_LIMIT", Has(Joined(vRuns[1][:limits]), "JOB_MEMORY_LIMIT"), true)
+vLimit = StzSecurityLedgerQ().OfKind("node.limit")
+Then("the ledger holds one node.limit", Len(vLimit), 1)
+Then("...a warning", "" + vLimit[1][:severity], "warning")
+Then("...about the child", "" + vLimit[1][:subject], "mem")
+Then("...from the supervisor", "" + vLimit[1][:actor], "node-supervisor")
+Then("...whose reason names the limit", Has("" + vLimit[1][:reason], "JOB_MEMORY_LIMIT"), true)
+oSup.Destroy()
+
+Scenario("3. a run past its processor time")
+oSup = Supervisor("spin", 45903, Grant("spin", 256, 1))
+oSup.RestartBudget(0, 60000)
+oSup.StartAll()
+CycleUntilEscalated(oSup, 60000)
+vRuns = oSup.RunsOf("spin")
+Then("its limits name END_OF_JOB_TIME", Has(Joined(vRuns[1][:limits]), "END_OF_JOB_TIME"), true)
+Then("...exit 0xC0000044", vRuns[1][:exit], 3221225540)
+Then("the ledger now holds two node.limit", Len(StzSecurityLedgerQ().OfKind("node.limit")), 2)
+oSup.Destroy()
+
+Scenario("4. KillChild ends the bounded run")
+oSup = Supervisor("spin", 45904, Grant("spin", 256, 0))
+oSup.RestartBudget(0, 60000)
+oSup.StartAll()
+SysSleep(500)
+oSup.Cycle()
+Then("half a second in, nothing is recorded: the child runs", Len(oSup.RunsOf("spin")), 0)
+oSup.KillChild("spin")
+CycleUntilEscalated(oSup, 30000)
+vRuns = oSup.RunsOf("spin")
+Then("the death is seen and recorded", Len(vRuns), 1)
+Then("...with the code of an ended job, 0xC000013A", vRuns[1][:exit], 3221225786)
+oSup.Destroy()
+
+Scenario("5. StopAll ends a running bounded child")
+oSup = Supervisor("spin", 45905, Grant("spin", 256, 0))
+oSup.StartAll()
+SysSleep(300)
+oSup.StopAll()
+vRuns = oSup.RunsOf("spin")
+Then("its run is recorded", Len(vRuns), 1)
+Then("...as ended by the supervisor", vRuns[1][:exit], 3221225786)
+Then("...and the child holds no job", oSup.JobOf("spin"), 0)
+oSup.Destroy()
+
+Scenario("6. no heartbeat to a bounded child")
+oSup = Supervisor("spin", 45906, Grant("spin", 256, 0))
+oSup.Heartbeat(100, 1)
+oSup.StartAll()
+nT = Clock()
+while Clock() - nT < 800
+    oSup.Cycle()
+    SysSleep(50)
+end
+Then("a spinning child is not taken for wedged: no run ended", Len(oSup.RunsOf("spin")), 0)
+Then("...no restart", oSup.RestartsOf("spin"), 0)
+oSup.StopAll()
+oSup.Destroy()
+
+Scenario("7. a grant that cannot start")
+vBad = Grant("quick", 256, 0)
+vBad[:writes] = [tWork + tBS + "no-such-folder"]
+oSup = Supervisor("quick", 45907, vBad)
+oSup.RestartBudget(1, 60000)
+oSup.StartAll()
+CycleUntilEscalated(oSup, 30000)
+vRuns = oSup.RunsOf("quick")
+Then("the attempts are recorded: the first and one restart", Len(vRuns), 2)
+Then("...each with exit -1", vRuns[1][:exit] = -1 and vRuns[2][:exit] = -1, true)
+Then("...and the reason", Has(vRuns[1][:error], "does not exist"), true)
+Then("the budget stopped the retries", oSup.Escalated(), 1)
+oSup.Destroy()
+
+Scenario("8. the grant holds through the supervisor")
+oSup = Supervisor("reach", 45908, Grant("reach", 256, 0))
+oSup.RestartBudget(0, 60000)
+oSup.StartAll()
+CycleUntilEscalated(oSup, 30000)
+Then("the child ran and ended with 0", oSup.RunsOf("reach")[1][:exit], 0)
+Then("...and its read outside the grant was refused", Has(ReadOr(OutPath("reach")), "R refused"), true)
+oSup.Destroy()
+
+for tP in [tBin, tNode, tRuns]
+    StzEngineBoundaryRevoke(tName, tP)
+end
+nLeft = StzEngineBoundaryRulesLeft(tName, tWork, 0)
+Then("the guard's grants are revoked: no entry of its work folder names the container", nLeft, 0)
+Then("the profile is deleted", StzEngineBoundaryDeleteProfile(tName), 0)
+StzCloseSecurityLedger()
+
+? ""
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# --- helpers -----------------------------------------------------------------------------------------------------------
+
+func Supervisor(tChild, nPort, vGrant)
+    oS = new stzNodeSupervisor()
+    oS.Child(tChild, SysGet("TEMP") + Char(92) + "stz_b3" + Char(92) + "node" + Char(92) + tChild + ".haro", nPort)
+    oS.ChildGrant(tChild, vGrant)
+    return oS
+end
+
+func Grant(tChild, nMB, nSeconds)
+    tW = SysGet("TEMP") + Char(92) + "stz_b3"
+    return [[:profile, "stz.b3.guard"],
+            [:reads, [tW + Char(92) + "bin", tW + Char(92) + "node"]],
+            [:writes, [tW + Char(92) + "runs"]],
+            [:memoryMB, nMB], [:processorSeconds, nSeconds],
+            [:output, OutPath(tChild)], [:cache, tW + Char(92) + "runs"],
+            [:interpreter, tW + Char(92) + "bin" + Char(92) + "haro.exe"]]
+end
+
+func CycleUntilEscalated(oS, nMs)
+    nT0 = Clock()
+    while Clock() - nT0 < nMs
+        oS.Cycle()
+        if oS.Escalated() = 1
+            return
+        end
+        SysSleep(50)
+    end
+end
+
+func OutPath(tTag)
+    return SysGet("TEMP") + Char(92) + "stz_b3" + Char(92) + "runs" + Char(92) + tTag + ".txt"
+end
+
+func ReadOr(tPath)
+    if not FExists(tPath)
+        return ""
+    end
+    return Trim(Read(tPath))
+end
+
+func Joined(vL)
+    tOut = ""
+    for tX in vL
+        tOut = tOut + tX + ","
+    end
+    return tOut
+end
+
+func Q(tS)
+    return Char(34) + tS + Char(34)
+end
+
+func Has(tIn, tPart)
+    return SubStr(tIn, tPart) > 0
+end
+
+func FirstLine(tS)
+    nAt = SubStr(tS, Char(10))
+    if nAt = 0
+        return tS
+    end
+    return Left(tS, nAt - 1)
+end
+
+func Scenario(tTitle)
+    ? ""
+    ? "SCENARIO: " + tTitle
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end

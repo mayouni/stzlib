@@ -152,8 +152,7 @@ Five consequences for the design:
 
 1. **Rung B1, the spawn in the engine -- BUILT 2026-11-14**, below.
 2. **Rung B2, install and removal -- BUILT 2026-11-14**, below.
-3. **Rung B3, stzNodeSupervisor takes the grant**, passed unchanged from the Foundry's AF7 data, and writes the job's
-   messages into the run record.
+3. **Rung B3, stzNodeSupervisor takes the grant -- BUILT 2026-11-14**, below.
 4. **The shared capability SID** (consequence 4), measured before B2 is closed.
 
 The Linux half stays HAROBANDA-WORKER-01.
@@ -255,4 +254,44 @@ Measured before the design, by probes:
 - **A changed pack or library makes the image stale**, and the next start compiles again: on the prefix that is the
   673 MB above, without it the 2.3 GB, both over a 256 MB ceiling. So an update of either is a new install (rung B3
   decides when). This follows from the two measured peaks; the stale start itself was not run.
+
+## Rung B3, built
+
+`stzNodeSupervisor` (base/cluster) gains one declaration and one reading:
+
+    oSup.Child("shop", "node.haro", 45810)
+    oSup.ChildGrant("shop", [ :profile = "stz.node.shop", :reads = [...], :writes = [...],
+                              :memoryMB = 256, :processorSeconds = 0, :output = "...", :cache = "...",
+                              :interpreter = "...haro.exe" ])
+    oSup.RunsOf("shop")      # the run records, newest last
+
+A child with a grant is started inside its boundary at every start and restart; the strategy, the restart budget, the
+monitors and the escalation apply to it unchanged. Its death is the end of the boundary's run; KillChild and StopAll
+end the whole job. Each run leaves a record of pairs -- :pid, :exit, :messages, :limits, :peakMB, :wallMs, :error --
+and the supervisor keeps the last twenty. A run whose job said JOB_MEMORY_LIMIT, END_OF_JOB_TIME or
+ACTIVE_PROCESS_LIMIT is also written to the security ledger as **node.limit**, a warning from the supervisor about the
+child, its origin the profile -- a new row of the closed catalogue. The supervisor sets the child's HARO_CACHE for the
+start only.
+
+A bounded child is never sent a heartbeat: the heartbeat is a request over the node plane on loopback, which a
+container cannot reach, so its liveness is its process, and it talks to its supervisor through files.
+
+**Measured** by `base/test/security/node_supervisor_bounded_narrated.haro`, 35 of 35 on haro.exe:
+
+| scene | what came back |
+|---|---|
+| a child that exits at once, budget 2 | two restarts, three records each exit 0 and no limit, then escalation naming the child |
+| memory past 256 MB | the record's limits name JOB_MEMORY_LIMIT; the ledger holds one node.limit, a warning from node-supervisor about the child |
+| processor time past 1 s | END_OF_JOB_TIME, exit 0xC0000044; a second node.limit |
+| KillChild | the death seen at the next Cycle, recorded with 0xC000013A |
+| StopAll | the run recorded with 0xC000013A, the child holding no job |
+| heartbeats on, a spinning bounded child | not taken for wedged: no run ended, no restart |
+| a grant whose write path does not exist | each attempt recorded with exit -1 and the reason; the budget stops the retries |
+| the child reads outside its grant | refused, through the supervisor as through B1 |
+
+Two things the supervisor does not decide. **When to re-install**: a pack or library change makes the node's image
+stale, and its next start meets JOB_MEMORY_LIMIT, which is now a node.limit record the caller can act on by running
+StzBoundaryInstall again. **What the plain children's guard says on haro**: `test/cluster/d3_supervision_narrated.ring`
+is 20 of 25 on haro.exe, with the same five failures with and without this rung (its children answer after boot too
+late for its timeouts); the rung leaves plain children as they were.
 
