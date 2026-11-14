@@ -36,16 +36,10 @@
 func StzKernelPuzzleQ(pcId)
 	return new stzKernelPuzzle(pcId)
 
-# The folder the puzzles live in, from the engine directory the library discovered at load.
+# The folder the puzzles live in, under the library's own base folder. Found apart from the
+# engine, so an engine built outside the tree (STZ_ENGINE_DIR) still finds the course.
 func StzKernelPuzzlesFolder()
-	_nSlash_ = 0
-	_nL_ = len($tEngineDir)
-	for _i_ = 1 to _nL_
-		if $tEngineDir[_i_] = "/"
-			_nSlash_ = _i_
-		ok
-	next
-	return StzLeft($tEngineDir, _nSlash_ - 1) + "/base/education/program/courses/kernel-puzzles/exercises"
+	return _StzBaseDir() + "/education/program/courses/kernel-puzzles/exercises"
 
 # Builds a stzKernelMaker from a description text, so a description read from a file or typed in a page becomes a maker.
 #
