@@ -142,6 +142,8 @@ func StzSecurityEventKinds()
 		[ "service.production_fake_refused", "warning", "",       "a production deploy refused a virtualized service" ],
 		[ "crossworld.call.refused",      "warning", "T1068",     "a cross-world call was refused" ],
 		[ "federation.call.refused",      "warning", "T1068",     "a federated call was refused" ],
+		[ "federation.admitted",          "info",    "",          "a host joined a compute federation on a signed statement of what it runs that matched the approved reference (stzFederationAdmission; RADAR-FEDERATION-ADMIT-01)" ],
+		[ "federation.admit.refused",     "warning", "T1078",     "a host's statement of what it runs was refused at Join or at a recheck -- an unknown key, a bad signature, a replayed challenge, a digest off the reference; a member refused at a recheck is retired" ],
 		[ "graph.escalation_path_found",  "error",   "T1078",     "a sandboxed actor can reach an effectful capability" ],
 		# The response is part of the story (incident I6): who contained
 		# what, and who was refused the attempt. No detection watches

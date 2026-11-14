@@ -1,0 +1,165 @@
+# A HOST IS ADMITTED FOR WHAT IT RUNS -- RADAR-FEDERATION-ADMIT-01, narrated
+#
+# stzFederationAdmission (base/security/stzFederationAdmission.haro) joins a host to a stzComputeFederation only when
+# a statement it signed with its own ES256 key -- its engine build digest and the SHA-256 of each model it serves,
+# with a challenge the federation issued -- matches a reference list an approver signed; it repeats the check and
+# retires a member whose statement stops matching. Every refusal goes to the security ledger.
+#
+#   Scene 1  the reference list is accepted only with its approver's signature
+#   Scene 2  a host whose statement matches is joined, on DECLARED evidence, and the rule says what that means
+#   Scene 3  a host with ONE changed model byte is refused at Join
+#   Scene 4  a statement under the wrong key, or naming another host, is refused
+#   Scene 5  a fresh statement passes the recheck; Due() lists a member once its period has passed
+#   Scene 6  a host changed after Join is retired at the next check
+#   Scene 7  a replayed statement is refused: the challenge is used once
+#   Scene 8  the cost: the statement's digests, an Admit, a Recheck
+#
+# RUNS ON haro.exe with the library; STZ_ENGINE_DIR names a built engine (its DLLs are the engine build digested).
+# No network: the federation's calls are never made.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+tBS = Char(92)
+tWork = SysGet("TEMP") + tBS + "stz_fed"
+System("if exist " + Q(tWork) + " rmdir /s /q " + Q(tWork))
+System("mkdir " + Q(tWork))
+tEngine = SysGet("STZ_ENGINE_DIR")
+
+# two "models" and a copy of the first with one byte changed
+tBody = ""
+for i = 1 to 4096
+    tBody = tBody + "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcde" + Char(10)
+end
+tM1 = tWork + tBS + "embed.gguf"
+tM2 = tWork + tBS + "rank.gguf"
+tM1x = tWork + tBS + "embed-x.gguf"
+Write(tM1, tBody)
+Write(tM2, "rank:" + tBody)
+Write(tM1x, "X" + Right(tBody, Len(tBody) - 1))
+
+StzCloseSecurityLedger()
+StzOpenSecurityLedger(1000)
+vOps = Keys()
+vGpu = Keys()
+vMath = Keys()
+vEve = Keys()
+
+nT = Clock()
+tEngineDigest = StzEngineBuildDigest(tEngine)
+nEngineColdMs = Clock() - nT
+nT = Clock()
+tEngineDigest2 = StzEngineBuildDigest(tEngine)
+nEngineWarmMs = Clock() - nT
+tD1 = StzEngineModelDigest(tM1)
+tD2 = StzEngineModelDigest(tM2)
+
+oFed = new stzComputeFederation("guard-grid")
+oAdm = new stzFederationAdmission()
+oAdm.RegisterApprover("ops", vOps[2], vOps[3])
+oAdm.RegisterHostKey("gpu-farm", vGpu[2], vGpu[3])
+oAdm.RegisterHostKey("math-farm", vMath[2], vMath[3])
+
+Scenario("1. the reference list")
+tRef = StzFederationReference([tEngineDigest], [tD1, tD2])
+Then("a list signed by another key is refused", oAdm.ApproveReference(tRef, StzSignStatement(tRef, vEve[1]), "ops"), 0)
+Then("...saying so", Has(oAdm.Why(), "does not verify"), true)
+Then("the list signed by the approver is accepted", oAdm.ApproveReference(tRef, StzSignStatement(tRef, vOps[1]), "ops"), 1)
+Then("...one engine build and two models", Has(oAdm.Why(), "1 engine build(s), 2 model(s)"), true)
+
+Scenario("2. a host whose statement matches")
+Then("the engine build digest is 64 hex", Len(tEngineDigest), 64)
+Then("...and stable", tEngineDigest2, tEngineDigest)
+tSt = StzHostStatement("gpu-farm", oAdm.Challenge("gpu-farm"), tEngine, [tM1, tM2])
+Then("it is admitted", oAdm.Admit(oFed, "gpu-farm", "10.0.0.7:8080", [:neural], tSt, StzSignStatement(tSt, vGpu[1])), 1)
+nAdmitMs = oAdm.LastMs()
+Then("...and is a member of the federation", oFed.IsActive("gpu-farm"), 1)
+Then("...offering its facet", oFed.MembersOffering(:neural)[1], "gpu-farm")
+Then("its evidence is DECLARED", oAdm.MemberEvidence("gpu-farm"), "declared")
+Then("...and the rule says what that means", Has(oAdm.Why(), "a host that lies passes"), true)
+Then("the ledger holds one federation.admitted", Len(StzSecurityLedgerQ().OfKind("federation.admitted")), 1)
+
+Scenario("3. one changed model byte")
+tSt = StzHostStatement("math-farm", oAdm.Challenge("math-farm"), tEngine, [tM1x, tM2])
+Then("the host is refused at Join", oAdm.Admit(oFed, "math-farm", "10.0.0.8:8080", [:math], tSt, StzSignStatement(tSt, vMath[1])), 0)
+Then("...the reason names the model", Has(oAdm.Why(), "model " + Left(StzEngineModelDigest(tM1x), 12) + " is not on the reference list"), true)
+Then("...it never joined", oFed.NumberOfMembers(), 1)
+Then("...and the ledger holds the refusal", Len(StzSecurityLedgerQ().OfKind("federation.admit.refused")), 2)
+
+Scenario("4. the wrong key, another host's name")
+tSt = StzHostStatement("math-farm", oAdm.Challenge("math-farm"), tEngine, [tM1, tM2])
+Then("a statement signed by another key is refused", oAdm.Admit(oFed, "math-farm", "10.0.0.8:8080", [:math], tSt, StzSignStatement(tSt, vEve[1])), 0)
+Then("...as a signature that does not verify", Has(oAdm.Why(), "does not verify"), true)
+tSt = StzHostStatement("gpu-farm", oAdm.Challenge("math-farm"), tEngine, [tM1, tM2])
+Then("math-farm presenting a statement naming gpu-farm is refused", oAdm.Admit(oFed, "math-farm", "10.0.0.8:8080", [:math], tSt, StzSignStatement(tSt, vMath[1])), 0)
+Then("...as naming another host", Has(oAdm.Why(), "names another host"), true)
+Then("a host with no registered key is refused", oAdm.Admit(oFed, "eve", "10.0.0.9:8080", [:neural], tSt, StzSignStatement(tSt, vEve[1])), 0)
+
+Scenario("5. the recheck")
+tSt = StzHostStatement("gpu-farm", oAdm.Challenge("gpu-farm"), tEngine, [tM1, tM2])
+Then("a fresh statement passes", oAdm.Recheck(oFed, "gpu-farm", tSt, StzSignStatement(tSt, vGpu[1])), 1)
+nRecheckMs = oAdm.LastMs()
+Then("...the member stays active", oFed.IsActive("gpu-farm"), 1)
+Then("with an hour's period nothing is due", Len(oAdm.Due()), 0)
+oAdm.SetPeriod(0)
+Then("with a period of 0 the member is due", oAdm.Due()[1], "gpu-farm")
+
+Scenario("6. a host changed after Join")
+Write(tM2, "rank:" + Left(tBody, Len(tBody) - 2) + "Z" + Char(10))
+Then("the changed model reads a new digest at once", StzEngineModelDigest(tM2) != tD2, true)
+tSt = StzHostStatement("gpu-farm", oAdm.Challenge("gpu-farm"), tEngine, [tM1, tM2])
+Then("its next check fails", oAdm.Recheck(oFed, "gpu-farm", tSt, StzSignStatement(tSt, vGpu[1])), 0)
+Then("...and it is retired", oFed.IsActive("gpu-farm"), 0)
+Then("...out of discovery", Len(oFed.MembersOffering(:neural)), 0)
+vRef = StzSecurityLedgerQ().OfKind("federation.admit.refused")
+Then("...and the ledger says retired", Has("" + vRef[Len(vRef)][:reason], "retired"), true)
+
+Scenario("7. a replayed statement")
+Write(tM2, "rank:" + tBody)
+tSt = StzHostStatement("math-farm", oAdm.Challenge("math-farm"), tEngine, [tM1, tM2])
+tSig = StzSignStatement(tSt, vMath[1])
+Then("math-farm is admitted on a fresh statement", oAdm.Admit(oFed, "math-farm", "10.0.0.8:8080", [:math], tSt, tSig), 1)
+Then("the same statement, presented again at the recheck, is refused", oAdm.Recheck(oFed, "math-farm", tSt, tSig), 0)
+Then("...as a replay", Has(oAdm.Why(), "a replay"), true)
+Then("...and the member is retired", oFed.IsActive("math-farm"), 0)
+
+oFed.Shutdown()
+StzCloseSecurityLedger()
+
+? ""
+? "engine build digest over " + tEngine + ": " + String(nEngineColdMs) + " ms cold, " + String(nEngineWarmMs) + " ms cached"
+? "an Admit: " + String(nAdmitMs) + " ms; a Recheck: " + String(nRecheckMs) + " ms (each building nothing: the statement is the host's)"
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# an ES256 key pair as [d, x, y]
+func Keys
+    return StzSplit(StzEngineCryptoEs256KeyPair(""), "|")
+end
+
+func Q(tS)
+    return Char(34) + tS + Char(34)
+end
+
+func Has(tIn, tPart)
+    return SubStr(tIn, tPart) > 0
+end
+
+func Scenario(tTitle)
+    ? ""
+    ? "SCENARIO: " + tTitle
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end

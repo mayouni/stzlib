@@ -1,0 +1,332 @@
+# ADMITTING A HOST FOR WHAT IT RUNS -- RADAR-FEDERATION-ADMIT-01 (stzradar, from NVIDIA FLARE 2.9.1's confidential computing)
+#
+# stzComputeFederation.Join admits a host on a name, an endpoint and facets. This admits it on WHAT IT RUNS: the host
+# signs a statement -- its engine build digest and the SHA-256 of every model it serves -- with its own ES256 key; the
+# federation checks the signature against the key it registered for that host, checks a one-time challenge it issued
+# (so a statement cannot be replayed), and compares the digests with a reference list an approver signed. A host that
+# matches is joined; one that does not is refused, and the refusal goes to the security ledger. The check repeats on a
+# period (Due), and a host whose statement stops matching is retired.
+#
+#   oAdm = new stzFederationAdmission()
+#   oAdm.RegisterApprover("ops", tX, tY)                 # the approver's public key
+#   oAdm.ApproveReference(tReference, tSig, "ops")         # the signed list of engine and model digests
+#   oAdm.RegisterHostKey("gpu-farm", tX, tY)             # each host's public key
+#   tNonce = oAdm.Challenge("gpu-farm")
+#   # the host: tSt = StzHostStatement("gpu-farm", tNonce, tEngineDir, vModels); tSig = StzSignStatement(tSt, tD)
+#   oAdm.Admit(oFed, "gpu-farm", "10.0.0.7:8080", [ :neural ], tSt, tSig)
+#   ...
+#   oAdm.Recheck(oFed, "gpu-farm", tSt2, tSig2)          # for every name in oAdm.Due()
+#
+# THE RULE'S STRENGTH, said where it is used: a statement is DECLARED by the host. It proves the host holds its key
+# and says these digests; a host that lies about what it runs passes. Hardware evidence (Intel TDX, AMD SEV-SNP, an
+# NVIDIA confidential GPU) is the stronger form and takes the same seat -- MemberEvidence() names the kind a member
+# was admitted on, "declared" for every member today. And a valid proof of any kind shows WHICH code runs: whether
+# that code is safe, whether its outputs stay private, and whether the host stays available are separate questions.
+
+# --- the host's side ------------------------------------------------------------------------------------------------
+
+# the digest of an engine build: SHA-256 over the sorted lines "<file>=<sha256>" of every DLL in <dir>\zig-out\bin
+func StzEngineBuildDigest(tEngineDir)
+    tBin = tEngineDir + Char(92) + "zig-out" + Char(92) + "bin"
+    tList = SystemCmd("cmd /c dir /b /on " + Char(34) + tBin + Char(92) + "*.dll" + Char(34))
+    vNames = StzSplit(StzReplace(tList, Char(13), ""), Char(10))
+    tLines = ""
+    for tN in vNames
+        tFile = Trim(tN)
+        if tFile != ""
+            tLines = tLines + Lower(tFile) + "=" + StzEngineModelDigest(tBin + Char(92) + tFile) + Char(10)
+        end
+    end
+    if tLines = ""
+        return ""
+    end
+    return StzEngineCryptoSha256(tLines)
+end
+
+# the statement a host signs: its name, the challenge, its engine build and the sorted digests of its models
+func StzHostStatement(tHost, tNonce, tEngineDir, vModelPaths)
+    vD = []
+    for tP in vModelPaths
+        vD + StzEngineModelDigest(tP)
+    end
+    return StzHostStatementOf(tHost, tNonce, StzEngineBuildDigest(tEngineDir), vD)
+end
+
+func StzHostStatementOf(tHost, tNonce, tEngine, vModelDigests)
+    vD = Sort(vModelDigests)
+    tModels = ""
+    for tX in vD
+        if tModels != ""
+            tModels = tModels + ","
+        end
+        tModels = tModels + Lower(tX)
+    end
+    return "stz-host-statement:v1" + Char(10) + "host=" + tHost + Char(10) + "nonce=" + tNonce + Char(10) +
+           "evidence=declared" + Char(10) + "engine=" + Lower(tEngine) + Char(10) + "models=" + tModels + Char(10)
+end
+
+# the approver's list: the engine builds and model digests the federation accepts
+func StzFederationReference(vEngineDigests, vModelDigests)
+    return "stz-federation-reference:v1" + Char(10) + "engines=" + StzJoinLower(Sort(vEngineDigests)) + Char(10) +
+           "models=" + StzJoinLower(Sort(vModelDigests)) + Char(10)
+end
+
+func StzSignStatement(tText, tPrivateD)
+    return StzEngineCryptoSignEs256(tText, tPrivateD)
+end
+
+func StzJoinLower(vL)
+    tOut = ""
+    for tX in vL
+        if tOut != ""
+            tOut = tOut + ","
+        end
+        tOut = tOut + Lower(tX)
+    end
+    return tOut
+end
+
+# --- the federation's side ------------------------------------------------------------------------------------------
+
+class stzFederationAdmission from stzObject
+
+    vHostKeys = []       # [ host, x, y ]
+    vApprovers = []      # [ name, x, y ]
+    vEngines = []        # approved engine build digests
+    vModels = []         # approved model digests
+    vChallenges = []     # [ host, nonce ] -- one outstanding challenge per host, used once
+    vAdmitted = []       # [ host, evidence, last check (monotonic ms) ]
+    nPeriodMs = 3600000.0f   # a float: the engine's clock is one
+    tWhy = ""
+    nLastMs = 0
+
+    # Builds an admission rule with no key, no reference list and a period of one hour.
+    def init
+    end
+
+    # Registers the public key (ES256, JWK x and y) a host signs its statements with.
+    def RegisterHostKey(tHost, tX, tY)
+        vHostKeys + [Lower(tHost), tX, tY]
+        return this
+    end
+
+    # Registers the public key of an approver of the reference list.
+    def RegisterApprover(tName, tX, tY)
+        vApprovers + [Lower(tName), tX, tY]
+        return this
+    end
+
+    # Sets the reference list when the named approver's signature on it verifies; -> 1, or 0 with Why()
+    def ApproveReference(tReference, tSig, tApprover)
+        vK = this._KeyIn(vApprovers, tApprover)
+        if Len(vK) = 0
+            tWhy = "no approver '" + tApprover + "' is registered"
+            return 0
+        end
+        if StzEngineCryptoVerifyEs256(tReference, tSig, vK[2], vK[3]) != 1
+            tWhy = "the reference list's signature does not verify for approver '" + tApprover + "'"
+            StzNoteRefusal("federation.admit.refused", tApprover, "reference", tWhy)
+            return 0
+        end
+        vEngines = this._Field(tReference, "engines")
+        vModels = this._Field(tReference, "models")
+        tWhy = "reference approved by '" + tApprover + "': " + String(Len(vEngines)) + " engine build(s), " + String(Len(vModels)) + " model(s)"
+        return 1
+    end
+
+    # Issues a one-time challenge for a host; its next statement must carry it.
+    def Challenge(tHost)
+        tN = StzEngineCryptoRandomHex(16)
+        vKeep = []
+        for vC in vChallenges
+            if vC[1] != Lower(tHost)
+                vKeep + vC
+            end
+        end
+        vKeep + [Lower(tHost), tN]
+        vChallenges = vKeep
+        return tN
+    end
+
+    # Joins the host to the federation when its signed statement matches the reference; -> 1, or 0 with Why()
+    def Admit(oFed, tHost, tEndpoint, vFacets, tStatement, tSig)
+        nT0 = StzEngineWatchTimestampMs()
+        if not this._Judge(tHost, tStatement, tSig)
+            nLastMs = StzEngineWatchTimestampMs() - nT0
+            StzNoteRefusal("federation.admit.refused", tHost, "join", tWhy)
+            return 0
+        end
+        oFed.Join(tHost, tEndpoint, vFacets)
+        vAdmitted + [Lower(tHost), this._One(tStatement, "evidence"), StzEngineWatchTimestampMs()]
+        nLastMs = StzEngineWatchTimestampMs() - nT0
+        tWhy = "admitted on a " + this._One(tStatement, "evidence") + " statement: the host's key signed these digests; a host that lies passes"
+        StzNoteGrant("federation.admitted", tHost, "join")
+        return 1
+    end
+
+    # Judges a fresh statement of a member; retires it from the federation when it stops matching; -> 1, or 0 with Why()
+    def Recheck(oFed, tHost, tStatement, tSig)
+        nT0 = StzEngineWatchTimestampMs()
+        nI = this._AdmittedIndex(tHost)
+        if nI = 0
+            tWhy = "'" + tHost + "' was not admitted by this rule"
+            return 0
+        end
+        if not this._Judge(tHost, tStatement, tSig)
+            oFed.Retire(tHost)
+            nLastMs = StzEngineWatchTimestampMs() - nT0
+            StzNoteRefusal("federation.admit.refused", tHost, "recheck", "retired: " + tWhy)
+            return 0
+        end
+        vAdmitted[nI][3] = StzEngineWatchTimestampMs()
+        nLastMs = StzEngineWatchTimestampMs() - nT0
+        tWhy = "the statement still matches"
+        return 1
+    end
+
+    # The members whose last check is older than the period: ask each for a fresh statement and Recheck it.
+    def Due
+        vOut = []
+        nNow = StzEngineWatchTimestampMs()
+        for vA in vAdmitted
+            if nNow - vA[3] >= nPeriodMs
+                vOut + vA[1]
+            end
+        end
+        return vOut
+    end
+
+    def SetPeriod(nMs)
+        nPeriodMs = Float(nMs)
+        return this
+    end
+
+    # The kind of evidence a member was admitted on: "declared" today; a TEE's kind takes the same seat.
+    def MemberEvidence(tHost)
+        nI = this._AdmittedIndex(tHost)
+        if nI = 0
+            return ""
+        end
+        return vAdmitted[nI][2]
+    end
+
+    def Why
+        return tWhy
+    end
+
+    # how long the last Admit or Recheck took, in milliseconds
+    def LastMs
+        return nLastMs
+    end
+
+    # --- internals ---
+
+    # every check a statement passes, in order; sets Why on the first that fails
+    def _Judge(tHost, tStatement, tSig)
+        vK = this._KeyIn(vHostKeys, tHost)
+        if Len(vK) = 0
+            tWhy = "no key is registered for host '" + tHost + "'"
+            return false
+        end
+        if StzEngineCryptoVerifyEs256(tStatement, tSig, vK[2], vK[3]) != 1
+            tWhy = "the statement's signature does not verify with the key of '" + tHost + "'"
+            return false
+        end
+        if Left(tStatement, 22) != "stz-host-statement:v1" + Char(10)
+            tWhy = "not a host statement"
+            return false
+        end
+        if Lower(this._One(tStatement, "host")) != Lower(tHost)
+            tWhy = "the statement names another host"
+            return false
+        end
+        tNonce = this._One(tStatement, "nonce")
+        if not this._TakeChallenge(tHost, tNonce)
+            tWhy = "the statement does not carry the challenge issued to '" + tHost + "' (a replay, or no challenge)"
+            return false
+        end
+        if Len(vEngines) = 0
+            tWhy = "no reference list is approved"
+            return false
+        end
+        tEngine = this._One(tStatement, "engine")
+        if not this._In(tEngine, vEngines)
+            tWhy = "engine build " + Left(tEngine, 12) + " is not on the reference list"
+            return false
+        end
+        for tM in this._Field(tStatement, "models")
+            if not this._In(tM, vModels)
+                tWhy = "model " + Left(tM, 12) + " is not on the reference list"
+                return false
+            end
+        end
+        return true
+    end
+
+    def _TakeChallenge(tHost, tNonce)
+        bFound = false
+        vKeep = []
+        for vC in vChallenges
+            if vC[1] = Lower(tHost) and tNonce != "" and vC[2] = tNonce
+                bFound = true
+            else
+                vKeep + vC
+            end
+        end
+        vChallenges = vKeep
+        return bFound
+    end
+
+    def _KeyIn(vKeys, tName)
+        for vK in vKeys
+            if vK[1] = Lower(tName)
+                return vK
+            end
+        end
+        return []
+    end
+
+    def _AdmittedIndex(tHost)
+        nN = Len(vAdmitted)
+        for i = 1 to nN
+            if vAdmitted[i][1] = Lower(tHost)
+                return i
+            end
+        end
+        return 0
+    end
+
+    def _In(tX, vL)
+        for tY in vL
+            if tY = Lower(tX)
+                return true
+            end
+        end
+        return false
+    end
+
+    # the value of "key=" in a statement or reference
+    def _One(tText, tKey)
+        for tLine in StzSplit(tText, Char(10))
+            if Left(tLine, Len(tKey) + 1) = tKey + "="
+                return Right(tLine, Len(tLine) - Len(tKey) - 1)
+            end
+        end
+        return ""
+    end
+
+    # the comma-separated values of "key=", empty entries dropped
+    def _Field(tText, tKey)
+        vOut = []
+        tV = this._One(tText, tKey)
+        if tV = ""
+            return vOut
+        end
+        for tX in StzSplit(tV, ",")
+            if tX != ""
+                vOut + Lower(tX)
+            end
+        end
+        return vOut
+    end
+end
