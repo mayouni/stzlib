@@ -513,7 +513,9 @@ it. Testoor's guards move one commit each, the core guard first.
   base/stzBase.ring`, then by hand what it leaves: a pair written `:key = value` inside a nested list, a name lettered `a`,
   and every place a number is added to a text or a text to a number, which haro.exe refuses when it runs (`haro check`
   does not see it). A Ring flag read from a `.haro` condition is compared (`NarNumber(x) = 1`): haro.exe refuses a
-  condition on a number, and the core's loaded flag is a boolean there, not Ring's 1.
+  condition on a number, and the core's loaded flag is a boolean there, not Ring's 1. A lambda over several lines is
+  `func oCode`, its body, then `end` (haroport mangles Ring's braces, and haro.exe refuses them across lines); a method is
+  called in its declared spelling (`.To(`, not `.to(`).
 - **`base/test/testoor/_narrate.haro`** prints what `base/test/_narrated.ring` prints, line for line, and compares as Ring's
   `=` does: Haro's `true` and `false` are read as Ring's 1 and 0, a number beside a text that reads as it is the same, and
   a float beside a decimal is compared as they print. `NarText(x)` writes a value as Ring's `"" + x` did and `NarNumber(x)`
@@ -527,6 +529,7 @@ it. Testoor's guards move one commit each, the core guard first.
   |---|---|---|---|
   | core | 79 | 188 | 40 texts joined with a number; the core's flag; 4 pairs; 7 names lettered a |
   | golden | 75 | 98 | 2 texts joined with numbers; a Ring predicate as a condition |
+  | refine | 34 | 59 | a lambda; `.to(` spelled `.To(`; a name lettered r |
   | counters | 29 | 60 of 64 | 17 texts joined with numbers; a bare name `x`; the core's flag. The 4 other lines are the measured cost of a hit, different on every run, printed to two places by `NarTwo` |
 
   `testoor walk base/test/testoor` judges the moved core guard KEPT, 14 stops, 79 claims, beside the walk guard.
