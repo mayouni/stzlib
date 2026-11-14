@@ -1,6 +1,8 @@
 # Softanza Engine -- Process Info
 #
 # Loads stz_process.dll for process/platform introspection.
+# It also carries the OS boundary (StzEngineBoundary*, src/boundary.zig): a grant, a command started inside it, and
+# how the run ended -- base/security/SOFTANZA_OS_BOUNDARY_STUDY.md, rung B1.
 #
 # Function prefix: StzEngineProcess*
 

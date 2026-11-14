@@ -9,4 +9,7 @@ fn ringlib_init(pState: ?*anyopaque) callconv(.c) void {
     if (pState) |s| ring_bridge.registerAll(s);
 }
 
-test { _ = process; }
+test {
+    _ = process;
+    _ = @import("boundary.zig");
+}

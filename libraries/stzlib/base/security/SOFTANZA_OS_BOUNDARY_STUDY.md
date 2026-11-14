@@ -149,10 +149,7 @@ Five consequences for the design:
 
 ## What to build, in order
 
-1. **Rung B1, the spawn in the engine:** a function in stz_process that takes a grant and returns a handle, with a
-   wait that answers the exit code, the job messages and the peak memory. The grant has these fields: name (the
-   profile), read paths, write paths, network (internetClient or none), children (none, or a count), memory MB,
-   processor seconds, and the stdout and stderr files. Its guard is the spike's table turned into assertions.
+1. **Rung B1, the spawn in the engine -- BUILT 2026-11-14**, below.
 2. **Rung B2, install and removal:** create the profile, grant the shared trees, warm the image inside the container,
    and the reverse (revoke, delete the profile). The revoke must leave no container rule behind, checked as this study
    checked it.
@@ -161,3 +158,53 @@ Five consequences for the design:
 4. **The shared capability SID** (consequence 4), measured before B2 is closed.
 
 The Linux half stays HAROBANDA-WORKER-01.
+
+## Rung B1, built
+
+`engine/src/boundary.zig`, in stz_process. A grant is an id; its fields are set one call each, and a grant runs once.
+
+    nG = StzEngineBoundaryNew("stz.node.shop")         a grant on that AppContainer profile (made on first use, kept)
+    StzEngineBoundaryRead(nG, cPath)                    read and execute, a folder's tree or one file
+    StzEngineBoundaryWrite(nG, cPath)                   full access; the path must exist
+    StzEngineBoundaryNetwork(nG, 1)                     the internetClient capability
+    StzEngineBoundaryChildren(nG, n)                    the job's active-process limit is 1 + n
+    StzEngineBoundaryMemory(nG, nMB)                    the job's commit ceiling (256 by default)
+    StzEngineBoundaryProcessor(nG, nSeconds)            the job's processor-time ceiling (none by default)
+    StzEngineBoundaryOutput(nG, cStdout, cStderr)       NUL when empty; stdin is NUL
+    StzEngineBoundaryStart(nG, cCommandLine)            -> the process id, 0 with StzEngineBoundaryError(nG)
+    StzEngineBoundaryWait(nG, nMs)                      -> 1 ended, 0 still running
+    StzEngineBoundaryExitCode / Messages / PeakMb / WallMs / GrantMs / Granted / End / Free
+    StzEngineBoundaryHasRule(cName, cPath) / Revoke(cName, cPath) / DeleteProfile(cName)
+
+Three choices the spike did not make:
+
+- **The child inherits its three standard handles and nothing else** (`PROC_THREAD_ATTRIBUTE_HANDLE_LIST`). Without
+  the list, every inheritable handle the supervisor holds would reach the node.
+- **A rule is written once.** Before granting a path, start() reads its access list; when the list already gives the
+  container that access, the path is left alone. The second start of a node pays nothing for its grant.
+- **Closing a grant ends its run.** The job is created with kill-on-close, so a supervisor that frees a grant, or
+  exits, leaves no node behind.
+
+The guard is `base/test/security/os_boundary_spawn_narrated.haro`, 43 assertions over nine scenes, with haro.exe
+itself as the node wherever a Haro program can show the reach. It ran in 43 s on haro.exe, with the engine built for
+Haro from this commit's sources. Its first grant (profile and three folders) took 20 to 23 ms.
+
+| scene | what the node did | what came back |
+|---|---|---|
+| reads and writes | read the granted file, wrote in its runs folder | reached |
+| | read the stand-in key, read the guard's source, wrote beside the key | R35 in the node, nothing planted |
+| network | curl to 1.1.1.1 without the capability | exit 7, status 000 |
+| | the same with internetClient | the status the supervisor gets outside |
+| children | SystemCmd under the default grant | no output, ACTIVE_PROCESS_LIMIT |
+| | the same with two children counted | the shell's output, no limit message |
+| memory | a string doubled to 512 MB under 256 MB | out of memory, JOB_MEMORY_LIMIT |
+| processor time | a spinning node under 1 s | 0xC0000044, END_OF_JOB_TIME |
+| ended | End() on a spinning node | 0xC000013A |
+| grant once | a second start of the same node | 0 rules written |
+| revoke | Revoke on the three folders | no rule left on them or on a file inside |
+
+**One measured finding for the run record.** Windows' peak job memory counts the commit it refused. The memory node
+held 143 MB and asked for 256 MB more under a 256 MB ceiling: the peak read 399 MB. At 512 MB it read 784 MB, at
+128 MB 132 MB, and each time the allocation failed. So rung B3 writes the peak as *the most the node asked for*,
+and reads JOB_MEMORY_LIMIT, not the peak, as the sign that a node met its ceiling.
+

@@ -1,0 +1,274 @@
+# A NODE RUNS INSIDE ITS GRANT -- rung B1 of SOFTANZA_OS_BOUNDARY_STUDY.md (FOUNDRY-OSBOUNDARY-01), narrated
+#
+# StzEngineBoundary* (stz_process, src/boundary.zig) builds a grant -- read paths, write paths, network, children, a
+# memory ceiling, a processor-time ceiling, the output files -- starts a command inside it (an AppContainer plus a job
+# object) and answers how the run ended: the exit code, the job's messages, the peak memory. This guard is the study's
+# table turned into assertions, with haro.exe itself as the node wherever a Haro program can show the reach.
+#
+#   Scene 1  a haro node reads and writes what is granted, and is refused the rest (R35)
+#   Scene 2  the network: refused without the capability, reached with it when this machine reaches it at all
+#   Scene 3  children: refused under the default grant, allowed when the grant counts them
+#   Scene 4  memory: an allocation past the ceiling fails and the job says JOB_MEMORY_LIMIT
+#   Scene 5  processor time: a spinning node is ended with END_OF_JOB_TIME
+#   Scene 6  the supervisor ends a run itself
+#   Scene 7  a grant is written once: the next start finds the rules and writes none
+#   Scene 8  the grant's own refusals: a bad name, a missing path, a second start
+#   Scene 9  revoke leaves no rule behind, and the profile is deleted
+#
+# RUNS ON haro.exe, on Windows, as a standard user. STZ_ENGINE_DIR names an engine whose stz_process carries B1;
+# HARO_EXE names haro.exe when it is not on the PATH. The work folder is %TEMP%\stz_b1, the profile stz.b1.guard.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+$vSkipped = []
+tBS = Char(92)
+tName = "stz.b1.guard"
+
+# --- the work folder ---------------------------------------------------------------------------------------------------
+
+tWork = SysGet("TEMP") + tBS + "stz_b1"
+tBin = tWork + tBS + "bin"
+tIn = tWork + tBS + "in"
+tRuns = tWork + tBS + "runs"
+tOutside = tWork + tBS + "outside"
+System("if exist " + Q(tWork) + " rmdir /s /q " + Q(tWork))
+for tDir in [tBin, tIn, tRuns, tOutside]
+    System("mkdir " + Q(tDir))
+end
+Write(tIn + tBS + "granted.txt", "granted")
+Write(tOutside + tBS + "key.txt", "stand-in key")
+
+tHaro = SysGet("HARO_EXE")
+if tHaro = ""
+    tHaro = Trim(FirstLine(SystemCmd("where haro.exe 2>nul")))
+end
+if tHaro = ""
+    ? "HARO_EXE is not set and haro.exe is not on the PATH: nothing can run"
+    Shutdown(1)
+end
+System("copy /y " + Q(tHaro) + " " + Q(tBin + tBS + "haro.exe") + " >nul")
+tNode = tBin + tBS + "haro.exe"
+SysSet("HARO_CACHE", tRuns)
+tCurl = SysGet("SystemRoot") + tBS + "System32" + tBS + "curl.exe"
+StzEngineBoundaryDeleteProfile(tName)
+
+# the node's programs, written into the read-granted folder
+Write(tBin + tBS + "rw.haro", ReachProgram())
+Write(tBin + tBS + "child.haro", "? " + Char(34) + "C1 [" + Char(34) + " + Trim(SystemCmd(" + Char(34) + "echo hi" + Char(34) + ")) + " + Char(34) + "]" + Char(34) + Char(10))
+Write(tBin + tBS + "mem.haro", "tS = " + Char(34) + "x" + Char(34) + Char(10) + "for i = 1 to 29" + Char(10) + "    tS = tS + tS" + Char(10) + "end" + Char(10) + "? Len(tS)" + Char(10))
+Write(tBin + tBS + "spin.haro", "nN = 0" + Char(10) + "while true" + Char(10) + "    nN = nN + 1" + Char(10) + "end" + Char(10))
+
+Scenario("1. a haro node reads and writes what is granted")
+nG = NodeGrant("rw")
+Then("the node starts inside the boundary", StzEngineBoundaryStart(nG, Node("rw.haro")) > 0, true)
+Then("...and ends", StzEngineBoundaryWait(nG, 120000), 1)
+tOut = Out("rw")
+Then("it exits 0", StzEngineBoundaryExitCode(nG), 0)
+Then("R1 reads the granted file", Has(tOut, "R1 reached granted"), true)
+Then("R2 is refused the stand-in key outside the grant", Has(tOut, "R2 refused"), true)
+Then("R3 is refused this guard's own source", Has(tOut, "R3 refused"), true)
+Then("W1 writes in the granted runs folder", Has(tOut, "W1 reached"), true)
+Then("...and the file is there", Read(tRuns + tBS + "w1.txt"), "w1")
+Then("W2 is refused a write beside the key", Has(tOut, "W2 refused"), true)
+Then("...and nothing was planted", FExists(tOutside + tBS + "planted.txt"), false)
+Then("the job saw one node start and end", Has(StzEngineBoundaryMessages(nG), "ACTIVE_PROCESS_ZERO"), true)
+Then("the peak memory is read", StzEngineBoundaryPeakMb(nG) > Float(0), true)
+nGrantMs = StzEngineBoundaryGrantMs(nG)
+nWrote = StzEngineBoundaryGranted(nG)
+StzEngineBoundaryFree(nG)
+
+Scenario("2. the network")
+nG = Grant("net0")
+StzEngineBoundaryStart(nG, Q(tCurl) + " -s -o NUL -w %{http_code} --connect-timeout 5 http://1.1.1.1/")
+StzEngineBoundaryWait(nG, 30000)
+Then("without the capability curl cannot connect: exit 7", StzEngineBoundaryExitCode(nG), 7)
+Then("...status 000", Out("net0"), "000")
+StzEngineBoundaryFree(nG)
+tControl = Trim(SystemCmd(Q(tCurl) + " -s -o NUL -w %{http_code} --connect-timeout 5 http://1.1.1.1/"))
+if tControl = "000" or tControl = ""
+    $vSkipped + "scene 2 with the capability: this machine reaches no network outside the boundary either"
+else
+    nG = Grant("net1")
+    StzEngineBoundaryNetwork(nG, 1)
+    StzEngineBoundaryStart(nG, Q(tCurl) + " -s -o NUL -w %{http_code} --connect-timeout 5 http://1.1.1.1/")
+    StzEngineBoundaryWait(nG, 30000)
+    Then("with internetClient it reaches what the supervisor reaches", Out("net1"), tControl)
+    StzEngineBoundaryFree(nG)
+end
+
+Scenario("3. children")
+nG = NodeGrant("child0")
+StzEngineBoundaryStart(nG, Node("child.haro"))
+StzEngineBoundaryWait(nG, 120000)
+Then("the default grant refuses the shell: no output from it", Has(Out("child0"), "C1 []"), true)
+Then("...and the job says ACTIVE_PROCESS_LIMIT", Has(StzEngineBoundaryMessages(nG), "ACTIVE_PROCESS_LIMIT"), true)
+StzEngineBoundaryFree(nG)
+nG = NodeGrant("child2")
+StzEngineBoundaryChildren(nG, 2)
+StzEngineBoundaryStart(nG, Node("child.haro"))
+StzEngineBoundaryWait(nG, 120000)
+Then("a grant counting two children lets the shell run", Has(Out("child2"), "C1 [hi]"), true)
+Then("...and no limit message", Has(StzEngineBoundaryMessages(nG), "ACTIVE_PROCESS_LIMIT"), false)
+StzEngineBoundaryFree(nG)
+
+Scenario("4. memory")
+nG = NodeGrant("mem")
+StzEngineBoundaryMemory(nG, 256)
+StzEngineBoundaryStart(nG, Node("mem.haro"))
+StzEngineBoundaryWait(nG, 120000)
+Then("a 512 MB string under a 256 MB ceiling fails: the exit code is not 0", StzEngineBoundaryExitCode(nG) != 0, true)
+Then("...the job says JOB_MEMORY_LIMIT", Has(StzEngineBoundaryMessages(nG), "JOB_MEMORY_LIMIT"), true)
+nMemPeak = StzEngineBoundaryPeakMb(nG)
+Then("...the node never held the 512 MB string: its length is not printed", Has(Out("mem"), "536870912"), false)
+# Windows' peak counter includes the commit it REFUSED: 399 MB here, the 143 MB held plus the 256 MB asked
+# (measured 2026-11-14 at three ceilings). A run record reads it as "the most the node asked for", not as memory held.
+Then("...and the peak counter reads past the ceiling, by the refused request", nMemPeak > Float(256), true)
+StzEngineBoundaryFree(nG)
+
+Scenario("5. processor time")
+nG = NodeGrant("spin")
+StzEngineBoundaryProcessor(nG, 1)
+StzEngineBoundaryStart(nG, Node("spin.haro"))
+Then("a spinning node is ended", StzEngineBoundaryWait(nG, 60000), 1)
+Then("...with the quota code 0xC0000044", StzEngineBoundaryExitCode(nG), 3221225540)
+Then("...and the job says END_OF_JOB_TIME", Has(StzEngineBoundaryMessages(nG), "END_OF_JOB_TIME"), true)
+StzEngineBoundaryFree(nG)
+
+Scenario("6. the supervisor ends a run")
+nG = NodeGrant("ended")
+StzEngineBoundaryStart(nG, Node("spin.haro"))
+Then("half a second in, the node still runs", StzEngineBoundaryWait(nG, 500), 0)
+Then("End answers that it was running", StzEngineBoundaryEnd(nG), 1)
+Then("...and the run has ended with 0xC000013A", StzEngineBoundaryExitCode(nG), 3221225786)
+StzEngineBoundaryFree(nG)
+
+Scenario("7. a grant is written once")
+Then("the first start wrote the rules", nWrote > 0, true)
+nG = NodeGrant("again")
+StzEngineBoundaryStart(nG, Node("rw.haro"))
+StzEngineBoundaryWait(nG, 120000)
+Then("a later start finds them and writes none", StzEngineBoundaryGranted(nG), 0)
+StzEngineBoundaryFree(nG)
+
+Scenario("8. the grant's own refusals")
+Then("a name with a space is refused", StzEngineBoundaryNew("has space"), 0)
+Then("...and the error says what a name is", Has(StzEngineBoundaryError(0), "letters, digits"), true)
+nG = Grant("missing")
+StzEngineBoundaryWrite(nG, tWork + tBS + "no-such-folder")
+Then("a write path that does not exist stops the start", StzEngineBoundaryStart(nG, Q(tCurl) + " --version"), 0)
+Then("...and the error names it", Has(StzEngineBoundaryError(nG), "does not exist"), true)
+StzEngineBoundaryFree(nG)
+nG = Grant("twice")
+StzEngineBoundaryStart(nG, Q(tCurl) + " --version")
+StzEngineBoundaryWait(nG, 30000)
+Then("a grant runs once: a second start is refused", StzEngineBoundaryStart(nG, Q(tCurl) + " --version"), 0)
+Then("a freed grant is gone", StzEngineBoundaryFree(nG) and not StzEngineBoundaryFree(nG), true)
+
+Scenario("9. revoke and delete")
+for tPath in [tBin, tIn, tRuns]
+    Then("revoking " + tPath + " answers 0", StzEngineBoundaryRevoke(tName, tPath), 0)
+end
+Then("no rule is left on the granted folders", StzEngineBoundaryHasRule(tName, tBin) + StzEngineBoundaryHasRule(tName, tIn) + StzEngineBoundaryHasRule(tName, tRuns), 0)
+Then("...nor on a file inside one", StzEngineBoundaryHasRule(tName, tBin + tBS + "haro.exe"), 0)
+Then("the profile is deleted", StzEngineBoundaryDeleteProfile(tName), 0)
+
+? ""
+? "first grant: " + String(nGrantMs) + " ms for " + String(nWrote) + " paths; memory scene peak " + String(nMemPeak) + " MB"
+for tS in $vSkipped
+    ? "SKIPPED: " + tS
+end
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# --- the grants --------------------------------------------------------------------------------------------------------
+
+# a grant with its output in runs\<tag>.txt
+func Grant(tTag)
+    nG = StzEngineBoundaryNew("stz.b1.guard")
+    StzEngineBoundaryOutput(nG, OutPath(tTag), OutPath(tTag))
+    return nG
+end
+
+# a haro node: read on its program folder and the input, write on the runs folder (its output and its image cache)
+func NodeGrant(tTag)
+    nG = Grant(tTag)
+    StzEngineBoundaryRead(nG, SysGet("TEMP") + Char(92) + "stz_b1" + Char(92) + "bin")
+    StzEngineBoundaryRead(nG, SysGet("TEMP") + Char(92) + "stz_b1" + Char(92) + "in")
+    StzEngineBoundaryWrite(nG, SysGet("TEMP") + Char(92) + "stz_b1" + Char(92) + "runs")
+    StzEngineBoundaryMemory(nG, 512)
+    return nG
+end
+
+func Node(tProgram)
+    tBinDir = SysGet("TEMP") + Char(92) + "stz_b1" + Char(92) + "bin"
+    return Q(tBinDir + Char(92) + "haro.exe") + " " + Q(tBinDir + Char(92) + tProgram)
+end
+
+func OutPath(tTag)
+    return SysGet("TEMP") + Char(92) + "stz_b1" + Char(92) + "runs" + Char(92) + tTag + ".txt"
+end
+
+func Out(tTag)
+    if not FExists(OutPath(tTag))
+        return ""
+    end
+    return Trim(Read(OutPath(tTag)))
+end
+
+# the node's reach program: one line per check, "reached" or "refused"
+func ReachProgram
+    tW = SysGet("TEMP") + Char(92) + "stz_b1"
+    return TryLine("R1", "? " + Char(34) + "R1 reached " + Char(34) + " + Read(" + Lit(tW + Char(92) + "in" + Char(92) + "granted.txt") + ")") +
+           TryLine("R2", "Read(" + Lit(tW + Char(92) + "outside" + Char(92) + "key.txt") + ")" + Char(10) + "? " + Char(34) + "R2 reached" + Char(34)) +
+           TryLine("R3", "Read(" + Lit(CurrentFile()) + ")" + Char(10) + "? " + Char(34) + "R3 reached" + Char(34)) +
+           TryLine("W1", "Write(" + Lit(tW + Char(92) + "runs" + Char(92) + "w1.txt") + ", " + Char(34) + "w1" + Char(34) + ")" + Char(10) + "? " + Char(34) + "W1 reached" + Char(34)) +
+           TryLine("W2", "Write(" + Lit(tW + Char(92) + "outside" + Char(92) + "planted.txt") + ", " + Char(34) + "x" + Char(34) + ")" + Char(10) + "? " + Char(34) + "W2 reached" + Char(34))
+end
+
+func TryLine(tTag, tBody)
+    return "try" + Char(10) + tBody + Char(10) + "catch" + Char(10) + "? " + Char(34) + tTag + " refused" + Char(34) + Char(10) + "end" + Char(10)
+end
+
+func Lit(tS)
+    return Char(34) + tS + Char(34)
+end
+
+func CurrentFile
+    return SystemCmd("cd") + Char(92) + "os_boundary_spawn_narrated.haro"
+end
+
+func Q(tS)
+    return Char(34) + tS + Char(34)
+end
+
+func Has(tIn, tPart)
+    return SubStr(tIn, tPart) > 0
+end
+
+func FirstLine(tS)
+    nAt = SubStr(tS, Char(10))
+    if nAt = 0
+        return tS
+    end
+    return Left(tS, nAt - 1)
+end
+
+func Scenario(tName)
+    ? ""
+    ? "SCENARIO: " + tName
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end

@@ -30,6 +30,8 @@ const Domain = struct {
     // wgpu_native. So stz_a11y.dll always loads and a machine without the
     // vendored runtime simply has no screen-reader bridge.
     needs_accesskit: bool = false,
+    // the OS boundary (B1, src/boundary.zig): AppContainer profiles (userenv) and access rules (advapi32) on Windows
+    needs_boundary: bool = false,
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -97,7 +99,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_seclog", .entry = "src/stz_seclog_entry.zig", .needs_ring = true, .needs_sqlite = true },
     .{ .name = "stz_cache", .entry = "src/stz_cache_entry.zig", .needs_ring = true },
     .{ .name = "stz_stream", .entry = "src/stz_stream_entry.zig", .needs_ring = true },
-    .{ .name = "stz_process", .entry = "src/stz_process_entry.zig", .needs_ring = true },
+    .{ .name = "stz_process", .entry = "src/stz_process_entry.zig", .needs_ring = true, .needs_boundary = true },
     .{ .name = "stz_arith", .entry = "src/stz_arith_entry.zig", .needs_ring = true },
     .{ .name = "stz_profiler", .entry = "src/stz_profiler_entry.zig", .needs_ring = true },
     .{ .name = "stz_crypto", .entry = "src/stz_crypto_entry.zig", .needs_ring = true, .needs_mbedtls = true },
@@ -1297,6 +1299,9 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_miniaudio_dec) addMiniaudioDecode(mod, lib, b);
         if (dom.needs_miniaudio_dev) addMiniaudioDevice(mod, lib, b, target.result.os.tag);
         if (dom.needs_speech) addSpeech(lib, target.result.os.tag);
+        if (dom.needs_boundary and target.result.os.tag == .windows) {
+            for ([_][]const u8{ "userenv", "advapi32" }) |l| lib.linkSystemLibrary(l);
+        }
         if (dom.needs_accesskit) {
             mod.addIncludePath(b.path("vendor/accesskit/include"));
             // Ship the vendored runtime beside the engine DLLs, the same
