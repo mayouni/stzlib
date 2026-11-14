@@ -89,8 +89,9 @@ At a 1,024 MB ceiling the cold run failed with "compile failed: OutOfMemory" (JO
 library image needs more than 1 GB, while running a compiled image needs 233 MB.
 
 The image the control compiled outside was not used inside: a second 52 MB image was written beside it. Inside, the
-second run reused that second image. So a node pays one cold compile per container identity unless its cache is
-warmed inside that container.
+second run reused that second image. **Corrected by rung B2:** an image is kept per cache folder and root file,
+not per container. The control had used the user's default cache folder and the container run a granted one; with
+one HARO_CACHE for both, a node warmed outside started inside in 0.19 s at 233 MB.
 
 ## Costs
 
@@ -134,9 +135,9 @@ Five consequences for the design:
    and failed. Lifting that needs an administrator's loopback exemption. A node therefore talks to its supervisor
    through inherited handles (a pipe or a file) and never through a local port, and the Foundry's channel design should
    assume that.
-2. **The memory ceiling has two values.** A cold compile of the library peaks at 2.3 GB and a warm run at 233 MB. The
-   supervisor warms each node's image once, inside the node's own container at install, with a generous ceiling, and
-   then starts the node with the tight one.
+2. **The memory ceiling has two values.** A cold compile of the library peaks at 2.3 GB and a warm run at 233 MB.
+   Rung B2 lowered the first: the supervisor compiles the library prefix outside the boundary, and the node's warm
+   start inside, compiled on that prefix, peaks at 673 MB under a 1,024 MB ceiling. Later starts take 256 MB.
 3. **The processor-time ceiling is coarse.** Windows checks it late, so it suits budgets of seconds and not hundreds
    of milliseconds. A wall-clock deadline stays with the supervisor's own timer.
 4. **Grant the shared trees once.** The engine and the library are granted at install, about 4 s for the library.
@@ -150,9 +151,7 @@ Five consequences for the design:
 ## What to build, in order
 
 1. **Rung B1, the spawn in the engine -- BUILT 2026-11-14**, below.
-2. **Rung B2, install and removal:** create the profile, grant the shared trees, warm the image inside the container,
-   and the reverse (revoke, delete the profile). The revoke must leave no container rule behind, checked as this study
-   checked it.
+2. **Rung B2, install and removal -- BUILT 2026-11-14**, below.
 3. **Rung B3, stzNodeSupervisor takes the grant**, passed unchanged from the Foundry's AF7 data, and writes the job's
    messages into the run record.
 4. **The shared capability SID** (consequence 4), measured before B2 is closed.
@@ -207,4 +206,53 @@ Haro from this commit's sources. Its first grant (profile and three folders) too
 held 143 MB and asked for 256 MB more under a 256 MB ceiling: the peak read 399 MB. At 512 MB it read 784 MB, at
 128 MB 132 MB, and each time the allocation failed. So rung B3 writes the peak as *the most the node asked for*,
 and reads JOB_MEMORY_LIMIT, not the peak, as the sign that a node met its ceiling.
+
+## Rung B2, built
+
+`base/security/stzNodeBoundary.haro`: `StzBoundaryInstall(vPlan)` and `StzBoundaryRemove(vPlan)`, over three engine
+calls added to boundary.zig: `StzEngineBoundaryProfile(name)`, `StzEngineBoundaryGrantPath(name, path, bWrite)` and
+`StzEngineBoundaryRulesLeft(name, path, nMax)` with `StzEngineBoundaryWalked()`. A plan names the profile, the read
+paths, the write paths, the node's cache folder, the library root, haro.exe, the warm command and its ceiling.
+
+The install does five things, in this order:
+
+1. refuses a plan whose cache lies under a write path, before anything is made;
+2. creates the profile and grants each read and write path, writing a rule only where none gives that access;
+3. compiles the trusted library prefix (`haro prefix stzBase.ring`) OUTSIDE the boundary, into the node's cache;
+4. runs the node's warm start INSIDE the boundary, with write on its cache for that one run, under 1,024 MB;
+5. revokes the cache's write rule and grants read: the node uses its image and cannot rewrite it.
+
+No code of the node's pack runs outside the boundary. The removal revokes every path the plan names, walks each tree
+and counts the entries whose access list still names the container, and deletes the profile.
+
+**Measured** by `base/test/security/os_boundary_install_narrated.haro`, 30 of 30 on haro.exe, with this checkout's
+library tree (about 22,000 entries) and an engine copy granted for the run:
+
+| step | measured |
+|---|---|
+| grants at install (profile, library, engine, haro's folder, the node's folders) | 755 ms |
+| the library prefix, outside | 21.9 s |
+| the warm start, inside, on the prefix | 0.39 s, peak 673 MB |
+| a later start, inside, under 256 MB | 0.14 s, peak 233 MB, no rule written |
+| the node writing its image, the prefix, a new image | each refused (R35) |
+| a second install | 0 rules written |
+| revoke of the six paths | 0.80 s |
+| the walk of every tree, 22,392 entries | 0.51 s, 0 entries naming the container |
+| the profile and its folder under %LOCALAPPDATA%\Packages | deleted |
+
+Measured before the design, by probes:
+
+- **A node compiled whole inside needs about 2.3 GB once** (23.6 s here), then 233 MB. Compiled on the prefix it
+  needs 673 MB, and that peak is paid at every start when the node cannot keep its own image: a 512 MB ceiling
+  failed. So the warm start keeps its image, and only then is the cache made read-only.
+- **haro exits 0 when its compile fails for memory** ("compile failed: OutOfMemory" on its output, exit code 0). The
+  install therefore reads JOB_MEMORY_LIMIT in the job's messages as a failed warm start, whatever the exit code. A
+  question for the Haro desk.
+- **Revoking a folder does not remove a rule written on a folder inside it.** Windows re-propagates the inherited
+  rules and leaves explicit ones: a probe that had granted a folder and two of its subfolders separately kept five
+  entries naming its container after revoking the folder. The removal revokes every path it granted, one by one, and
+  the walk is what proves it.
+- **A changed pack or library makes the image stale**, and the next start compiles again: on the prefix that is the
+  673 MB above, without it the 2.3 GB, both over a 256 MB ceiling. So an update of either is a new install (rung B3
+  decides when). This follows from the two measured peaks; the stale start itself was not run.
 

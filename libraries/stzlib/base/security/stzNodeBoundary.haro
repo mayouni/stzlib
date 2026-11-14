@@ -1,0 +1,221 @@
+# INSTALLING AND REMOVING A NODE'S OS BOUNDARY -- rung B2 of SOFTANZA_OS_BOUNDARY_STUDY.md (FOUNDRY-OSBOUNDARY-01)
+#
+# Rung B1 (engine/src/boundary.zig, StzEngineBoundary*) starts a node inside a grant. This file is what happens once,
+# before the first start and after the last:
+#
+#   StzBoundaryInstall(vPlan)  creates the AppContainer profile, grants the shared trees and the node's own paths,
+#                              compiles the trusted library prefix OUTSIDE the boundary into the node's cache, runs the
+#                              node's warm start INSIDE the boundary with write on that cache, and then leaves the
+#                              cache READ-ONLY to the node: every later start uses the image the warm start wrote
+#                              (0.2 s, 233 MB) and the node cannot rewrite it.
+#   StzBoundaryRemove(vPlan)   revokes every path the plan names, walks each tree and counts the entries still naming
+#                              the container, and deletes the profile.
+#
+# No code of the node's pack runs outside the boundary: the supervisor compiles only the library it trusts (haro
+# prefix), and the pack's own program is compiled during the warm start, inside.
+#
+# A plan is a list of pairs:
+#   :name        the profile, 1 to 64 letters, digits, '.', '-', '_'
+#   :reads       paths the node reads: the shared trees (library, engine, haro's folder) and its own program
+#   :writes      paths the node writes; each must exist
+#   :cache       the node's own image folder (it must exist and lie under no write path)
+#   :library     the library root the prefix is compiled from (stzBase.ring), "" for none
+#   :haro        haro.exe, as the node runs it
+#   :warm        the node's command line for the warm start
+#   :warmMB      the warm start's memory ceiling (1024 by default: a node compiled on the prefix peaks near 700 MB)
+#   :output      the warm start's output file
+#
+# Measured 2026-11-14 (SOFTANZA_OS_BOUNDARY_STUDY.md, rung B2): an image is kept per cache folder and root file, not per
+# container; haro answers exit code 0 when its compile fails for memory, so the warm start is judged by the job's
+# JOB_MEMORY_LIMIT message as well as the exit code.
+
+func StzBoundaryInstall(vPlan)
+    tName = StzBoundaryPlanText(vPlan, :name, "")
+    tCache = StzBoundaryPlanText(vPlan, :cache, "")
+    vReads = StzBoundaryPlanList(vPlan, :reads)
+    vWrites = StzBoundaryPlanList(vPlan, :writes)
+    vR = [[:ok, 0], [:profile, -1], [:written, 0], [:grantMs, 0], [:prefixMs, 0], [:warmExit, -1], [:warmMs, 0],
+          [:warmPeakMB, 0], [:warmMessages, ""], [:error, ""]]
+    if tCache = ""
+        vR[:error] = "the plan names no :cache folder"
+        return vR
+    end
+    for tW in vWrites
+        if StzBoundaryUnder(tCache, tW)
+            vR[:error] = "the cache lies under the write path " + tW + ": the node could rewrite its own image"
+            return vR
+        end
+    end
+
+    nT = Clock()
+    vR[:profile] = StzEngineBoundaryProfile(tName)
+    if vR[:profile] < 0
+        vR[:error] = StzEngineBoundaryError(0)
+        return vR
+    end
+    for tP in vReads
+        nG = StzEngineBoundaryGrantPath(tName, tP, 0)
+        if nG < 0
+            vR[:error] = StzEngineBoundaryError(0)
+            return vR
+        end
+        vR[:written] = vR[:written] + nG
+    end
+    for tP in vWrites
+        nG = StzEngineBoundaryGrantPath(tName, tP, 1)
+        if nG < 0
+            vR[:error] = StzEngineBoundaryError(0)
+            return vR
+        end
+        vR[:written] = vR[:written] + nG
+    end
+    vR[:grantMs] = Clock() - nT
+
+    # the trusted library, compiled outside the boundary into the node's cache
+    tHaro = StzBoundaryPlanText(vPlan, :haro, "")
+    tLibrary = StzBoundaryPlanText(vPlan, :library, "")
+    tOldCache = SysGet("HARO_CACHE")
+    SysSet("HARO_CACHE", tCache)
+    if tLibrary != ""
+        nT = Clock()
+        tSaid = SystemCmd(Char(34) + Char(34) + tHaro + Char(34) + " prefix " + Char(34) + tLibrary + Char(34) + Char(34))
+        vR[:prefixMs] = Clock() - nT
+        if SubStr(tSaid, "prefix:") = 0
+            SysSet("HARO_CACHE", tOldCache)
+            vR[:error] = "the library prefix was not built: " + Left(tSaid, 300)
+            return vR
+        end
+    end
+
+    # the warm start, inside, with write on the cache for this one run
+    if StzEngineBoundaryGrantPath(tName, tCache, 1) < 0
+        SysSet("HARO_CACHE", tOldCache)
+        vR[:error] = StzEngineBoundaryError(0)
+        return vR
+    end
+    nG = StzEngineBoundaryNew(tName)
+    nWarmMB = StzBoundaryPlanNumber(vPlan, :warmMB, 1024)
+    StzEngineBoundaryMemory(nG, nWarmMB)
+    tOut = StzBoundaryPlanText(vPlan, :output, "")
+    StzEngineBoundaryOutput(nG, tOut, tOut)
+    if StzEngineBoundaryStart(nG, StzBoundaryPlanText(vPlan, :warm, "")) = 0
+        vR[:error] = "the warm start did not start: " + StzEngineBoundaryError(nG)
+    else
+        StzEngineBoundaryWait(nG, -1)
+        vR[:warmExit] = StzEngineBoundaryExitCode(nG)
+        vR[:warmMs] = StzEngineBoundaryWallMs(nG)
+        vR[:warmPeakMB] = StzEngineBoundaryPeakMb(nG)
+        vR[:warmMessages] = StzEngineBoundaryMessages(nG)
+    end
+    StzEngineBoundaryFree(nG)
+    SysSet("HARO_CACHE", tOldCache)
+
+    # the cache becomes read-only to the node: the write rule goes, a read rule stays
+    StzEngineBoundaryRevoke(tName, tCache)
+    StzEngineBoundaryGrantPath(tName, tCache, 0)
+    if vR[:error] != ""
+        return vR
+    end
+    if vR[:warmExit] != 0 or SubStr(vR[:warmMessages], "JOB_MEMORY_LIMIT") > 0
+        vR[:error] = "the warm start did not end well: exit " + String(vR[:warmExit]) + ", " + vR[:warmMessages]
+        return vR
+    end
+    vR[:ok] = 1
+    return vR
+end
+
+func StzBoundaryRemove(vPlan)
+    tName = StzBoundaryPlanText(vPlan, :name, "")
+    vPaths = StzBoundaryPlanList(vPlan, :reads)
+    for tP in StzBoundaryPlanList(vPlan, :writes)
+        vPaths + tP
+    end
+    tCache = StzBoundaryPlanText(vPlan, :cache, "")
+    if tCache != ""
+        vPaths + tCache
+    end
+    vR = [[:ok, 0], [:revoked, 0], [:rulesLeft, 0], [:walked, 0], [:revokeMs, 0], [:walkMs, 0], [:profileDeleted, 0], [:error, ""]]
+    nT = Clock()
+    for tP in vPaths
+        nE = StzEngineBoundaryRevoke(tName, tP)
+        if nE = 0
+            vR[:revoked] = vR[:revoked] + 1
+        elseif nE != 2
+            vR[:error] = "revoking " + tP + " answered " + String(nE)
+        end
+    end
+    vR[:revokeMs] = Clock() - nT
+    nT = Clock()
+    for tP in vPaths
+        nLeft = StzEngineBoundaryRulesLeft(tName, tP, 0)
+        if nLeft < 0
+            vR[:error] = "the tree " + tP + " could not be walked"
+        else
+            vR[:rulesLeft] = vR[:rulesLeft] + nLeft
+            vR[:walked] = vR[:walked] + StzEngineBoundaryWalked()
+        end
+    end
+    vR[:walkMs] = Clock() - nT
+    if StzEngineBoundaryDeleteProfile(tName) = 0
+        vR[:profileDeleted] = 1
+    end
+    if vR[:error] = "" and vR[:rulesLeft] = 0 and vR[:profileDeleted] = 1
+        vR[:ok] = 1
+    end
+    return vR
+end
+
+# --- reading a plan ---------------------------------------------------------------------------------------------------
+
+func StzBoundaryPlanText(vPlan, tKey, tDefault)
+    for vRow in vPlan
+        if vRow[1] = tKey
+            return "" + vRow[2]
+        end
+    end
+    return tDefault
+end
+
+func StzBoundaryPlanNumber(vPlan, tKey, nDefault)
+    for vRow in vPlan
+        if vRow[1] = tKey
+            return vRow[2]
+        end
+    end
+    return nDefault
+end
+
+func StzBoundaryPlanList(vPlan, tKey)
+    for vRow in vPlan
+        if vRow[1] = tKey
+            return vRow[2]
+        end
+    end
+    return []
+end
+
+# is tPath tFolder itself or inside it? (Windows paths: case is ignored, / and \ are one separator)
+func StzBoundaryUnder(tPath, tFolder)
+    tP = Lower(StzBoundarySlashes(tPath))
+    tF = Lower(StzBoundarySlashes(tFolder))
+    if Right(tF, 1) = "/"
+        tF = Left(tF, Len(tF) - 1)
+    end
+    if tP = tF
+        return true
+    end
+    return Left(tP, Len(tF) + 1) = tF + "/"
+end
+
+func StzBoundarySlashes(tPath)
+    tOut = ""
+    nN = Len(tPath)
+    for i = 1 to nN
+        if tPath[i] = Char(92)
+            tOut = tOut + "/"
+        else
+            tOut = tOut + tPath[i]
+        end
+    end
+    return tOut
+end

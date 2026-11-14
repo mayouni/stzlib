@@ -321,6 +321,53 @@ pub fn revoke(name: []const u8, path: []const u8) i64 {
     return win.revoke(name, path);
 }
 
+// --- install and removal (rung B2) ----------------------------------------------------------------------------------
+
+// creates the AppContainer profile; -> 1 created, 0 it already existed, -1 refused (error(0) says why)
+pub fn ensureProfile(name: []const u8) i64 {
+    if (!is_windows) {
+        setGlobalError(not_here, .{});
+        return -1;
+    }
+    if (!validName(name)) {
+        setGlobalError("a profile's name is 1 to 64 letters, digits, '.', '-' or '_'", .{});
+        return -1;
+    }
+    return win.ensureProfile(name);
+}
+
+// grants one path to the container without starting anything: the shared trees an install grants once.
+// -> 1 the rule was written, 0 the path already gave that access, -1 refused (error(0) says why)
+pub fn grantPath(name: []const u8, path: []const u8, write: bool) i64 {
+    if (!is_windows) {
+        setGlobalError(not_here, .{});
+        return -1;
+    }
+    if (!validName(name)) {
+        setGlobalError("a profile's name is 1 to 64 letters, digits, '.', '-' or '_'", .{});
+        return -1;
+    }
+    return win.grantPath(name, path, write);
+}
+
+var walked: i64 = 0;
+
+// walks the path's tree and counts the entries whose access list still names the container, examining at most
+// max entries (0: all). -> the count, or -1 when the path cannot be read. walkedCount() says how many were examined.
+pub fn rulesLeft(name: []const u8, path: []const u8, max: i64) i64 {
+    walked = 0;
+    if (!is_windows) {
+        setGlobalError(not_here, .{});
+        return -1;
+    }
+    if (!validName(name)) return -1;
+    return win.rulesLeft(name, path, max);
+}
+
+pub fn walkedCount() i64 {
+    return walked;
+}
+
 // deletes the AppContainer profile; -> 0 or the HRESULT
 pub fn deleteProfile(name: []const u8) i64 {
     if (!is_windows) {
@@ -715,6 +762,66 @@ const win = if (is_windows) struct {
         return setRule(p, sid, 0, 4, dir); // REVOKE_ACCESS
     }
 
+    fn ensureProfile(name: []const u8) i64 {
+        const n = w(name) orelse return -1;
+        defer alloc.free(n);
+        var sid: PVOID = null;
+        const hr = CreateAppContainerProfile(n, n, n, null, 0, &sid);
+        if (hr == 0) {
+            _ = FreeSid(sid);
+            return 1;
+        }
+        if (@as(u32, @bitCast(hr)) == 0x800700B7) return 0; // HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS)
+        setGlobalError("CreateAppContainerProfile refused '{s}': HRESULT 0x{X}", .{ name, @as(u32, @bitCast(hr)) });
+        return -1;
+    }
+
+    fn grantPath(name: []const u8, path: []const u8, write: bool) i64 {
+        const sid = containerSid(name, true) orelse {
+            setGlobalError("the profile '{s}' could not be created or found", .{name});
+            return -1;
+        };
+        defer _ = FreeSid(sid);
+        var tmp: Slot = .{};
+        const r = ensure(&tmp, path, sid, write) orelse {
+            setGlobalError("{s}", .{tmp.error_text[0..tmp.error_len]});
+            return -1;
+        };
+        return r;
+    }
+
+    fn rulesLeft(name: []const u8, path: []const u8, max: i64) i64 {
+        const sid = containerSid(name, false) orelse return -1;
+        defer _ = FreeSid(sid);
+        const root = w(path) orelse return -1;
+        defer alloc.free(root);
+        var left: i64 = 0;
+        const top = ruleMask(root, sid) orelse {
+            setGlobalError("the access list of {s} cannot be read", .{path[0..@min(path.len, 200)]});
+            return -1;
+        };
+        walked = 1;
+        if (top != 0) left += 1;
+        if (!(isDir(root) orelse false)) return left;
+        var d = std.fs.openDirAbsolute(path, .{ .iterate = true }) catch {
+            setGlobalError("the folder {s} cannot be walked", .{path[0..@min(path.len, 200)]});
+            return -1;
+        };
+        defer d.close();
+        var it = d.walk(alloc) catch return -1;
+        defer it.deinit();
+        while (it.next() catch null) |e| {
+            if (max > 0 and walked >= max) break;
+            const full = std.fmt.allocPrint(alloc, "{s}\\{s}", .{ path, e.path }) catch continue;
+            defer alloc.free(full);
+            const p = w(full) orelse continue;
+            defer alloc.free(p);
+            walked += 1;
+            if ((ruleMask(p, sid) orelse 0) != 0) left += 1;
+        }
+        return left;
+    }
+
     fn deleteProfile(name: []const u8) i64 {
         const n = w(name) orelse return -1;
         defer alloc.free(n);
@@ -733,6 +840,15 @@ const win = if (is_windows) struct {
         return -1;
     }
     fn revoke(_: []const u8, _: []const u8) i64 {
+        return -1;
+    }
+    fn ensureProfile(_: []const u8) i64 {
+        return -1;
+    }
+    fn grantPath(_: []const u8, _: []const u8, _: bool) i64 {
+        return -1;
+    }
+    fn rulesLeft(_: []const u8, _: []const u8, _: i64) i64 {
         return -1;
     }
     fn deleteProfile(_: []const u8) i64 {

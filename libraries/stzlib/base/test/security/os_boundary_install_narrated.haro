@@ -1,0 +1,214 @@
+# A NODE'S BOUNDARY IS INSTALLED ONCE AND REMOVED WITHOUT A TRACE -- rung B2 of SOFTANZA_OS_BOUNDARY_STUDY.md, narrated
+#
+# StzBoundaryInstall (base/security/stzNodeBoundary.haro) makes the profile, grants the shared trees, compiles the
+# trusted library outside the boundary and warms the node inside it, then leaves the node's image cache read-only.
+# StzBoundaryRemove revokes every path and walks every tree to count what still names the container.
+#
+#   Scene 1  a plan whose cache lies under a write path is refused before anything is made
+#   Scene 2  the install: profile, grants, prefix, a warm start inside that ends well
+#   Scene 3  the next start is warm under a 256 MB ceiling and writes no rule
+#   Scene 4  the node cannot rewrite its own image or the library prefix
+#   Scene 5  a second install finds every rule in place
+#   Scene 6  the removal: every path revoked, every tree walked, no rule left, the profile and its folder gone
+#
+# RUNS ON haro.exe, on Windows, as a standard user. STZ_ENGINE_DIR names an engine whose stz_process carries B2;
+# HARO_EXE names haro.exe when it is not on the PATH. It grants this checkout's library tree to the container for the
+# length of the run and revokes it. The work folder is %TEMP%\stz_b2, the profile stz.b2.guard.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+tBS = Char(92)
+tName = "stz.b2.guard"
+
+tWork = SysGet("TEMP") + tBS + "stz_b2"
+tBin = tWork + tBS + "bin"
+tNode = tWork + tBS + "node"
+tCache = tWork + tBS + "cache"
+tRuns = tWork + tBS + "runs"
+System("if exist " + Q(tWork) + " rmdir /s /q " + Q(tWork))
+for tDir in [tBin, tNode, tCache, tRuns]
+    System("mkdir " + Q(tDir))
+end
+
+tHaroSrc = SysGet("HARO_EXE")
+if tHaroSrc = ""
+    tHaroSrc = Trim(FirstLine(SystemCmd("where haro.exe 2>nul")))
+end
+tEngine = SysGet("STZ_ENGINE_DIR")
+if tHaroSrc = "" or tEngine = ""
+    ? "HARO_EXE (or haro.exe on the PATH) and STZ_ENGINE_DIR are needed: nothing can run"
+    Shutdown(1)
+end
+System("copy /y " + Q(tHaroSrc) + " " + Q(tBin + tBS + "haro.exe") + " >nul")
+tHaro = tBin + tBS + "haro.exe"
+tBase = Parent(Parent(Trim(SystemCmd("cd"))))
+tStzBase = tBase + tBS + "stzBase.ring"
+tLibRoot = Parent(tBase)
+StzEngineBoundaryDeleteProfile(tName)
+
+Write(tNode + tBS + "node.haro", "load " + Q(tStzBase) + Char(10) + "? " + Char(34) + "node up: " + Char(34) + " + String(StzLen(" + Char(34) + "hello" + Char(34) + "))" + Char(10))
+
+vPlan = [[:name, tName], [:reads, [tBin, tNode, tLibRoot, tEngine]], [:writes, [tRuns]], [:cache, tCache],
+         [:library, tStzBase], [:haro, tHaro], [:warm, Q(tHaro) + " " + Q(tNode + tBS + "node.haro")], [:warmMB, 1024],
+         [:output, tRuns + tBS + "warm.txt"]]
+
+Scenario("1. a cache under a write path is refused")
+vBad = [[:name, tName], [:reads, [tBin]], [:writes, [tWork]], [:cache, tCache]]
+vR = StzBoundaryInstall(vBad)
+Then("the install answers not ok", vR[:ok], 0)
+Then("...and says why", Has(vR[:error], "rewrite its own image"), true)
+Then("...before making the profile", vR[:profile], -1)
+
+Scenario("2. the install")
+vR = StzBoundaryInstall(vPlan)
+Then("it answers ok", vR[:ok], 1)
+Then("...with no error", vR[:error], "")
+Then("it created the profile", vR[:profile], 1)
+Then("it wrote a rule on each of the five paths", vR[:written], 5)
+Then("the library prefix was compiled outside", vR[:prefixMs] > 0, true)
+Then("the warm start ended with 0", vR[:warmExit], 0)
+Then("...and met no memory ceiling", Has(vR[:warmMessages], "JOB_MEMORY_LIMIT"), false)
+Then("...and said the node is up", Has(ReadOr(tRuns + tBS + "warm.txt"), "node up: 5"), true)
+Then("an image and the prefix are in the cache", Has(SystemCmd("dir /b " + Q(tCache)), ".haroi") and Has(SystemCmd("dir /b " + Q(tCache)), ".harop"), true)
+nInstallGrantMs = vR[:grantMs]
+nPrefixMs = vR[:prefixMs]
+nWarmMs = vR[:warmMs]
+nWarmPeak = vR[:warmPeakMB]
+
+Scenario("3. the next start is warm")
+SysSet("HARO_CACHE", tCache)
+nG = NodeGrant("start")
+StzEngineBoundaryMemory(nG, 256)
+StzEngineBoundaryStart(nG, Q(tHaro) + " " + Q(tNode + tBS + "node.haro"))
+StzEngineBoundaryWait(nG, 60000)
+Then("it ends with 0", StzEngineBoundaryExitCode(nG), 0)
+Then("...says the node is up", Has(Out("start"), "node up: 5"), true)
+Then("...under a 256 MB ceiling it never met", Has(StzEngineBoundaryMessages(nG), "JOB_MEMORY_LIMIT"), false)
+Then("...within two seconds", StzEngineBoundaryWallMs(nG) < Float(2000), true)
+Then("...and wrote no rule: the install wrote them all", StzEngineBoundaryGranted(nG), 0)
+nStartMs = StzEngineBoundaryWallMs(nG)
+nStartPeak = StzEngineBoundaryPeakMb(nG)
+StzEngineBoundaryFree(nG)
+
+Scenario("4. the node cannot rewrite its image")
+tImage = Trim(FirstLine(SystemCmd("dir /b " + Q(tCache + tBS + "*.haroi"))))
+tPrefix = Trim(FirstLine(SystemCmd("dir /b " + Q(tCache + tBS + "*.harop"))))
+Write(tNode + tBS + "tamper.haro", TryWrite("I1", tCache + tBS + tImage) + TryWrite("I2", tCache + tBS + tPrefix) + TryWrite("I3", tCache + tBS + "planted.haroi"))
+nG = NodeGrant("tamper")
+StzEngineBoundaryStart(nG, Q(tHaro) + " " + Q(tNode + tBS + "tamper.haro"))
+StzEngineBoundaryWait(nG, 60000)
+tSaid = Out("tamper")
+Then("replacing its image is refused", Has(tSaid, "I1 refused"), true)
+Then("replacing the library prefix is refused", Has(tSaid, "I2 refused"), true)
+Then("planting a new image is refused", Has(tSaid, "I3 refused"), true)
+StzEngineBoundaryFree(nG)
+Then("the image is still the warm start's", FileSize(tCache + tBS + tImage) > 1000000, true)
+
+Scenario("5. a second install")
+vR = StzBoundaryInstall(vPlan)
+Then("it answers ok", vR[:ok], 1)
+Then("the profile was there", vR[:profile], 0)
+Then("no rule was written", vR[:written], 0)
+
+Scenario("6. the removal")
+vR = StzBoundaryRemove(vPlan)
+Then("it answers ok", vR[:ok], 1)
+Then("all six paths were revoked", vR[:revoked], 6)
+Then("no entry of any tree still names the container", vR[:rulesLeft], 0)
+Then("...over the whole library tree, walked", vR[:walked] > 10000, true)
+Then("the profile is deleted", vR[:profileDeleted], 1)
+Then("...and its folder is gone", Has(SystemCmd("cmd /c if exist " + Q(SysGet("LOCALAPPDATA") + tBS + "Packages" + tBS + tName) + " (echo there) else (echo gone)"), "gone"), true)
+nRevokeMs = vR[:revokeMs]
+nWalkMs = vR[:walkMs]
+nWalked = vR[:walked]
+
+? ""
+? "install: grants " + String(nInstallGrantMs) + " ms, prefix " + String(nPrefixMs) + " ms, warm start " + String(nWarmMs) + " ms at " + String(nWarmPeak) + " MB"
+? "start after install: " + String(nStartMs) + " ms at " + String(nStartPeak) + " MB"
+? "removal: revoke " + String(nRevokeMs) + " ms, walk of " + String(nWalked) + " entries " + String(nWalkMs) + " ms"
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# --- helpers -----------------------------------------------------------------------------------------------------------
+
+# the node's grant at a start: the same paths the install granted
+func NodeGrant(tTag)
+    tW = SysGet("TEMP") + Char(92) + "stz_b2"
+    nG = StzEngineBoundaryNew("stz.b2.guard")
+    StzEngineBoundaryOutput(nG, OutPath(tTag), OutPath(tTag))
+    StzEngineBoundaryRead(nG, tW + Char(92) + "bin")
+    StzEngineBoundaryRead(nG, tW + Char(92) + "node")
+    StzEngineBoundaryWrite(nG, tW + Char(92) + "runs")
+    StzEngineBoundaryMemory(nG, 512)
+    return nG
+end
+
+func OutPath(tTag)
+    return SysGet("TEMP") + Char(92) + "stz_b2" + Char(92) + "runs" + Char(92) + tTag + ".txt"
+end
+
+func Out(tTag)
+    return ReadOr(OutPath(tTag))
+end
+
+func ReadOr(tPath)
+    if not FExists(tPath)
+        return ""
+    end
+    return Trim(Read(tPath))
+end
+
+func TryWrite(tTag, tPath)
+    return "try" + Char(10) + "Write(" + Q(tPath) + ", " + Char(34) + "x" + Char(34) + ")" + Char(10) + "? " + Char(34) + tTag + " reached" + Char(34) + Char(10) +
+           "catch" + Char(10) + "? " + Char(34) + tTag + " refused" + Char(34) + Char(10) + "end" + Char(10)
+end
+
+func FileSize(tPath)
+    return Len(Read(tPath))
+end
+
+func Parent(tPath)
+    nN = Len(tPath)
+    for i = nN to 1 step -1
+        if tPath[i] = Char(92)
+            return Left(tPath, i - 1)
+        end
+    end
+    return tPath
+end
+
+func Q(tS)
+    return Char(34) + tS + Char(34)
+end
+
+func Has(tIn, tPart)
+    return SubStr(tIn, tPart) > 0
+end
+
+func FirstLine(tS)
+    nAt = SubStr(tS, Char(10))
+    if nAt = 0
+        return tS
+    end
+    return Left(tS, nAt - 1)
+end
+
+func Scenario(tTitle)
+    ? ""
+    ? "SCENARIO: " + tTitle
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end

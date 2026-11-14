@@ -140,6 +140,25 @@ fn ring_BoundaryDeleteProfile(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(boundary.deleteProfile(str(p, 1))));
 }
 
+// --- install and removal (rung B2) ---
+
+// StzEngineBoundaryProfile(cName) -> 1 created, 0 it existed, -1 refused
+fn ring_BoundaryProfile(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(boundary.ensureProfile(str(p, 1))));
+}
+// StzEngineBoundaryGrantPath(cName, cPath, bWrite) -> 1 written, 0 already there, -1 refused
+fn ring_BoundaryGrantPath(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(boundary.grantPath(str(p, 1), str(p, 2), num(p, 3) != 0)));
+}
+// StzEngineBoundaryRulesLeft(cName, cPath, nMax) -> entries of the tree still naming the container, -1 unreadable
+fn ring_BoundaryRulesLeft(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(boundary.rulesLeft(str(p, 1), str(p, 2), @intFromFloat(num(p, 3)))));
+}
+// StzEngineBoundaryWalked() -> how many entries the last RulesLeft examined
+fn ring_BoundaryWalked(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(boundary.walkedCount()));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzengineboundarynew", .func = &ring_BoundaryNew },
     .{ .name = "stzengineboundaryread", .func = &ring_BoundaryRead },
@@ -164,6 +183,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineboundaryhasrule", .func = &ring_BoundaryHasRule },
     .{ .name = "stzengineboundaryrevoke", .func = &ring_BoundaryRevoke },
     .{ .name = "stzengineboundarydeleteprofile", .func = &ring_BoundaryDeleteProfile },
+    .{ .name = "stzengineboundaryprofile", .func = &ring_BoundaryProfile },
+    .{ .name = "stzengineboundarygrantpath", .func = &ring_BoundaryGrantPath },
+    .{ .name = "stzengineboundaryrulesleft", .func = &ring_BoundaryRulesLeft },
+    .{ .name = "stzengineboundarywalked", .func = &ring_BoundaryWalked },
     .{ .name = "stzengineprocesspid", .func = &ring_ProcessPid },
     .{ .name = "stzengineprocessuptimens", .func = &ring_ProcessUptimeNs },
     .{ .name = "stzengineprocessuptimems", .func = &ring_ProcessUptimeMs },
