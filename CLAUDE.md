@@ -485,11 +485,13 @@ Ring. Four differences between the VMs bit this plane: no `binarysearch()` on rn
 **The judge is written in Zig (P3, 2026-11-05).** `engine/src/testoor_*.zig` is the core and `base/testoor/*.ring` is
 its reference; the golden logbooks in `base/testoor/golden/` are the acceptance test. **FAST PATH for the core:
 `cd engine && zig build test-testoor -j2` is 30 s cold and 12 s to run, 105 tests (the walker and the runner spawn real children), with no Ring involved.**
+**Testoor's guards are moving to `.haro`, one commit each, beside a shared `base/test/testoor/_narrate.haro` that prints what
+`base/test/_narrated.ring` prints; a moved guard's output equals its `.ring`'s on haro.exe, timings and drawn seeds aside.**
 **`testoor walk FOLDER` (P3.6) judges the `*_narrated.haro` tours under a folder on haro.exe with no manifest:** the Haro face is
 `engine/src/testoor_reader.zig`, and `base/test/testoor/testoor_walk_narrated.haro` is its guard. It reads
 `golden/` and compares 43 expected files byte for byte. `TESTOOR_CORE=ring` (or `TestoorCore("ring")`) makes
 `TestoorVerdict` use the Ring reference instead of the `stz_testoor` library; the guard
-`testoor_core_narrated.ring` runs both in one process. Four Ring facts the port is built on, measured on both
+`testoor_core_narrated.haro` runs both in one process. Four Ring facts the port is built on, measured on both
 VMs: `trim` strips the byte 32 only, `0 + "abc"` raises R41, a number prints whole or with two decimals, and
 `0.125` prints `0.13` on Ring 1.27 and `0.12` on Ring++ (the core follows Ring++). `std.json` is the wrong writer
 for the logbook: Ring escapes five bytes and writes every other byte raw.

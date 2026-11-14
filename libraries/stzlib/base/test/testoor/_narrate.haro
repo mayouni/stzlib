@@ -1,0 +1,109 @@
+# The narration of Testoor's own guards, in Haro. Scenario, Given, When, Then, EndScenario and Summary print what
+# base/test/_narrated.ring prints, line for line, so a guard moved from .ring to .haro writes the same output and the
+# two can be compared byte for byte. Testoor's Haro face reads Then as a helper by its name and never reads its body.
+#
+# A file whose name begins with _ is never walked as a tour (TESTOOR_PROTOCOL_3.md 6.1). Load it after stzBase.ring.
+
+$nNarTotal = 0
+$nNarPass = 0
+$nNarFail = 0
+$nNarScenPass = 0
+$nNarScenFail = 0
+$tNarTitle = ""
+
+func Scenario(tTitle)
+	$tNarTitle = tTitle
+	$nNarScenPass = 0
+	$nNarScenFail = 0
+	? Char(10) + "SCENARIO: " + tTitle
+end
+
+func Given(tText)
+	? "  GIVEN " + tText
+end
+
+func When(tText)
+	? "  WHEN  " + tText
+end
+
+func Then(tText, xActual, xExpected)
+	if NarSame(xActual, xExpected)
+		? "  THEN  " + tText + "  [PASS]"
+		$nNarScenPass = $nNarScenPass + 1
+		$nNarPass = $nNarPass + 1
+	else
+		? "  THEN  " + tText + "  [FAIL]"
+		? "    expected: " + @@(xExpected)
+		? "    got:      " + @@(xActual)
+		$nNarScenFail = $nNarScenFail + 1
+		$nNarFail = $nNarFail + 1
+	end
+	$nNarTotal = $nNarTotal + 1
+end
+
+func EndScenario
+	? "  -> " + String($nNarScenPass) + " pass, " + String($nNarScenFail) + " fail"
+end
+
+func Summary
+	tSep = "================================================"
+	? Char(10) + tSep
+	? "TOTAL: " + String($nNarTotal) + " assertions, " + String($nNarPass) + " pass, " + String($nNarFail) + " fail"
+	? tSep
+	if $nNarFail > 0
+		? "STATUS: FAILED"
+	else
+		? "STATUS: OK"
+	end
+end
+
+# The comparison _narrated.ring makes with Ring's `=`. Ring's true and false are the numbers 1 and 0, so a boolean is
+# read as one; a number and a text that reads as that number are the same; two numbers Haro will not compare with `=`
+# (a float and a decimal) are compared as they print. Haro's `=` refuses a number beside a boolean or a text.
+func NarSame(xA, xB)
+	xA = NarPlain(xA)
+	xB = NarPlain(xB)
+	if IsNumber(xA) and IsNumber(xB)
+		try
+			return xA = xB
+		catch
+			return String(xA) = String(xB)
+		end
+	end
+	if IsNumber(xA) and IsString(xB)
+		return String(xA) = xB
+	end
+	if IsString(xA) and IsNumber(xB)
+		return xA = String(xB)
+	end
+	return xA = xB
+end
+
+# true and false as Ring's 1 and 0; any other value as it is
+func NarPlain(xV)
+	if Type(xV) = "BOOLEAN"
+		if xV
+			return 1
+		end
+		return 0
+	end
+	return xV
+end
+
+# a value as Ring's `"" + x` writes it into a text: a number as its digits, true and false as 1 and 0, a text as itself
+func NarText(xV)
+	xV = NarPlain(xV)
+	if IsNumber(xV)
+		return String(xV)
+	end
+	return xV
+end
+
+# a value as Ring's `0 + x` reads it: a text that holds a number as that number, true and false as 1 and 0
+func NarNumber(xV)
+	xV = NarPlain(xV)
+	if IsString(xV)
+		return Number(xV)
+	end
+	return xV
+end

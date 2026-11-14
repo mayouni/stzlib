@@ -47,7 +47,7 @@
 # core was written from; they run when the library is absent or TestoorCore("ring") or
 # TESTOOR_CORE=ring says so. Choosing who judges resets the world: its state sits in one place.
 #
-# DIFFERENCES FROM THE REFERENCE, all deliberate and all pinned in testoor_core_narrated.ring:
+# DIFFERENCES FROM THE REFERENCE, all deliberate and all pinned in testoor_core_narrated.haro:
 #   * a weather declared without a tick gets one from the SEED (splitmix64 over the seed and the
 #     number of picks since it was set), not from Ring's own generator. Ring's is the C runtime's
 #     rand(): the same seed picked another tick on each OS and VM. The core's pick is the same
@@ -326,7 +326,7 @@ func WeatherKill(poSupervisor, paFired)
 
 #=== THE REFERENCE ================================================================
 # What the core was written from, unchanged in behaviour: it runs when the core does not own the
-# world. Kept so the two can be walked side by side in one process (testoor_core_narrated.ring).
+# world. Kept so the two can be walked side by side in one process (testoor_core_narrated.haro).
 
 func _SeedRing(pxSeed)
 	_n_ = -1

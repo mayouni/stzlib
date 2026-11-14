@@ -1,0 +1,722 @@
+load "../../stzBase.ring"
+load "_narrate.haro"
+
+# TESTOOR P3.1 -- THE ZIG CORE BESIDE THE RING REFERENCE, in one process.
+#
+# The judge is written in Zig (engine/src/testoor_*.zig, the stz_testoor library) and the Ring
+# files in base/testoor are its reference. engine's own test (`zig build test-testoor`) holds
+# the core to the golden logbooks with no Ring involved; THIS guard holds the two together
+# through the seam Testoor actually uses: TestoorVerdict, asked of one and then of the other,
+# must write the same bytes for every golden tour, for a live-shaped tour the goldens do not
+# contain, and the run-level calls the Ring runner would make must give the committed logbooks.
+#
+# It also pins the one place the core and the reference are SUPPOSED to differ: a tour that
+# prints a seed or a plan that is not a number makes the reference raise (R41, measured on Ring
+# 1.27 and on Ring++) and the core ignore the line and judge the rest.
+#
+# P3.2 adds the WORLD of a tour -- its seed, its stepped clock, its weather (stzClock.ring, owned by
+# engine/src/testoor_clock.zig): one script of calls is walked on the reference and then on the core and
+# the two transcripts must be the same bytes; and the three differences the core is ALLOWED are each
+# pinned: a weather's tick is picked from the SEED (portable) and not from Ring's rand(), the stepped
+# clock and the weather want numbers, and a runner seed that is not a number is no seed.
+#
+# P3.3 adds the ROUTE JOIN and the GRAPH STORE (stzRoute.ring, stzImpact.ring; engine/src/testoor_routes.zig and
+# testoor_graph.zig): the route map's Json() and Prose() and impact's reach and selection are walked on the
+# reference and then on the core and must be the same bytes; and the cases only the core can judge, protocol 2's
+# nodes, its incomplete-graph run and its impact records (golden/protocol2/), are sent through the Ring seam.
+#
+# A machine without the core library (Ring 1.27 with no engine build) runs the first section
+# only and says, by name, what it did not run.
+
+? "TESTOOR P3.1 + P3.2 + P3.3 -- the core beside the reference"
+nCoStart = Clock()
+tCoRoot = CurrentDir() + "/../../testoor/golden"
+bCoLoaded = (NarNumber($bStzTestoorCore) = 1)
+
+#============================================================================
+Scenario("The judge is chosen, and a machine without the core falls back to the reference")
+	nCoSec = Clock()
+	Given("TestoorCore(ring)")
+	Then("the Ring reference judges", TestoorCore("ring"), "ring")
+	When("TestoorCore(auto) is asked")
+	tCoWant = "ring"
+	if bCoLoaded and SysGet("TESTOOR_CORE") != "ring"  tCoWant = "engine"  end
+	Then("the core judges exactly when its library is loaded", TestoorCore("auto"), tCoWant)
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+if not bCoLoaded
+	? ""
+	? "SKIPPED by name, because stz_testoor is not loaded on this virtual machine:"
+	? "  every core-versus-reference section (golden tours, run-level calls, live-shaped tour, bad requests, deviations, the world of a tour)"
+else
+
+#============================================================================
+Scenario("Every golden tour: the core and the reference write the same bytes")
+	nCoSec = Clock()
+	vtCoCases = _GoldenCases(tCoRoot + "/judge")
+	Given("the " + String(Len(vtCoCases)) + " committed tours, judged once by each")
+	nCoDiff = 0
+	for nCo = 1 to Len(vtCoCases)
+		TestoorCore("ring")
+		xCoRef = TestoorGoldenVerdict(tCoRoot + "/judge/" + vtCoCases[nCo])
+		tCoRef = _TravRunJson(xCoRef) + Char(10) + _TravRunProse(xCoRef)
+		TestoorCore("engine")
+		xCoEng = TestoorGoldenVerdict(tCoRoot + "/judge/" + vtCoCases[nCo])
+		tCoEng = _TravRunJson(xCoEng) + Char(10) + _TravRunProse(xCoEng)
+		if tCoRef != tCoEng
+			nCoDiff++
+			? "        DIFFERS: " + vtCoCases[nCo]
+		end
+	end
+	Then("there are at least fourteen", Len(vtCoCases) >= 14, true)
+	Then("and not one differs, in JSON or in prose", nCoDiff, 0)
+	Then("the engine library is the one answering: an empty run request comes back as a logbook", Left(StzEngineTestoorRunJson('{"run":{},"tours":[]}'), 19), '{"testoor":"logbook')
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("The run-level calls give the committed logbooks")
+	nCoSec = Clock()
+	vtCoRuns = _GoldenCases(tCoRoot + "/logbook")
+	Given("the " + String(Len(vtCoRuns)) + " committed runs, their tours written by the reference")
+	TestoorCore("ring")
+	nCoBad = 0
+	for nCo = 1 to Len(vtCoRuns)
+		tCoReq = _CoRunRequest(tCoRoot + "/logbook/" + vtCoRuns[nCo], tCoRoot + "/judge")
+		tCoDir = tCoRoot + "/logbook/" + vtCoRuns[nCo]
+		tWantJson = TestoorGoldenRead(tCoDir + "/expected.json")
+		tWantTxt = TestoorGoldenRead(tCoDir + "/expected.txt")
+		tWantExit = TestoorGoldenRead(tCoDir + "/expected.exit")
+		if StzEngineTestoorRunJson(tCoReq) + Char(10) != tWantJson
+			nCoBad++
+			? "        DIFFERS: " + vtCoRuns[nCo] + " json"
+		end
+		if StzEngineTestoorRunProse(tCoReq) + Char(10) != tWantTxt
+			nCoBad++
+			? "        DIFFERS: " + vtCoRuns[nCo] + " prose"
+		end
+		if NarText(StzEngineTestoorRunExit(tCoReq)) + Char(10) != tWantExit
+			nCoBad++
+			? "        DIFFERS: " + vtCoRuns[nCo] + " exit"
+		end
+	end
+	Then("the core writes every committed logbook, its prose and its exit code", nCoBad, 0)
+	When("the whole golden set is regenerated with the core judging")
+	TestoorCore("engine")
+	vtCoDiff = TestoorGoldenDiff(tCoRoot)
+	for nCo = 1 to Len(vtCoDiff)
+		? "        DIFFERS: " + vtCoDiff[nCo]
+	end
+	Then("not one expected file differs: the Ring runner on the core reproduces the goldens", Len(vtCoDiff), 0)
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("A live-shaped tour the goldens do not hold: a raw control byte, a carriage return inside a line")
+	nCoSec = Clock()
+	Given("a tour that printed an escape sequence and a progress line")
+	xCoLive = _CoLiveRecord()
+	vCoLines = [ [ "Live", 0.25 ], [ "  [OK] plain", 0.5 ],
+	             [ "  [OK] colour " + Char(27) + "[0m done", 0.75 ],
+	             [ "progress 50%" + Char(13) + "progress 100%", 1 ], [ "  [FAIL] last", 1.25 ] ]
+	xCoFace = [ [:name, "ring"], [:ext, ""], [:reader, ""], [:program, ""], [:launch, []], [:ignore, "eval "],
+	            [:endings, [ [ "STOPPED!", "finished-timed" ] ]] ]
+	When("the reference judges it")
+	xCoR = _TestoorVerdictRing(xCoLive, vCoLines, "", 0, 0, xCoFace, 1500, 7)
+	tCoR = _TravRunJson(xCoR)
+	When("the core judges the same request")
+	tCoReq = '{"record":' + _CoreRecordJson(xCoLive) + ',"output":' + _CoreLinesJson(vCoLines) +
+	         ',"meta":' + _CoreMetaJson("", 0, 0, xCoFace, 1500, 7) + "}"
+	tCoE = StzEngineTestoorVerdict(tCoReq)
+	Then("the two JSON documents are the same bytes, raw control byte and all", tCoE, tCoR)
+	Then("and the wrapper stays whole: it falls back to the reference for what the library's JSON reader refuses",
+	     _TravRunJson(TestoorVerdict(xCoLive, vCoLines, "", 0, 0, xCoFace, 1500, 7)), tCoR)
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("A request the core cannot read raises a Ring error and breaks nothing")
+	nCoSec = Clock()
+	nCoRaised = 0
+	try
+		StzEngineTestoorVerdict("this is not json")
+	catch
+		nCoRaised = 1
+	end
+	Then("a request that is not JSON raises", nCoRaised, 1)
+	nCoRaised = 0
+	try
+		StzEngineTestoorVerdict('{"record":{}}')
+	catch
+		nCoRaised = 1
+	end
+	Then("a request missing a field raises", nCoRaised, 1)
+	nCoRaised = 0
+	try
+		StzEngineTestoorRunExit('{"tours":[]}')
+	catch
+		nCoRaised = 1
+	end
+	Then("a run request with no run settings raises", nCoRaised, 1)
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("The one deviation: a seed or a plan that is not a number")
+	nCoSec = Clock()
+	Given("a self-describing tour that prints a stop, a claim kept, then a seed and a plan that are words")
+	vCoP = [ [:file, "tour.py"], [:readable, 1], [:why, ""], [:dialect, "protocol"], [:helpers, []], [:lines, 0],
+	         [:ending, "plain"], [:asserts, 0], [:promises, 0], [:markers, 0], [:stops, []], [:routes, []] ]
+	vCoPL = [ [ "[testoor stop First]", 0.25 ], [ "[testoor ok it holds]", 0.5 ],
+	          [ "[testoor seed abc]", 0.75 ], [ "[testoor plan many]", 1 ] ]
+	vCoPF = [ [:name, "python"], [:ext, ""], [:reader, ""], [:program, ""], [:launch, []], [:ignore, ""], [:endings, []] ]
+	nCoRaised = 0
+	try
+		_TestoorVerdictRing(vCoP, vCoPL, "", 0, 0, vCoPF, 1000, 9)
+	catch
+		nCoRaised = 1
+	end
+	Then("the reference raises on it (R41, Invalid numeric string)", nCoRaised, 1)
+	xCoCore = _CoreVerdict(vCoP, vCoPL, "", 0, 0, vCoPF, 1000, 9)
+	Then("the core answers a record", IsList(xCoCore), true)
+	Then("ignores both lines and judges the rest: one claim kept", xCoCore[:run][:kept], 1)
+	Then("keeps the runner's seed, since the tour's was not a number", xCoCore[:run][:seed], 9)
+	Then("and is finished", xCoCore[:run][:end], "finished")
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("P3.2 -- the world of a tour: the core and the reference answer the same script the same way")
+	nCoSec = Clock()
+	Given("one script of clock, seed and weather calls, walked on the reference and then on the core")
+	TestoorCore("ring")
+	tCoWorldRef = _CoWorldScript()
+	Then("with the reference the world is held in Ring", _TestoorWorldIsEngine(), false)
+	TestoorCore("engine")
+	Then("with the core the world is held in the engine: the library answers the world call", _TestoorWorldIsEngine(), true)
+	tCoWorldEng = _CoWorldScript()
+	Then("the two transcripts are the same bytes", tCoWorldEng, tCoWorldRef)
+	Then("and say what the script did: refusals, the stepped times, the weather fired once, the plan that is left",
+	     tCoWorldEng,
+	     "mode=live|tick-live=1|advance-live=1|skew-live=1|unknown-weather=1|unknown-mode=1|seed=42|clock=stepped|0=1000|1=1250|2=2000|3=2250|ticks=2|" +
+	     "w1=5|w2=3|skew=0|now=2750|declared=child_killed,child_killed,skew|plan=child_killed/5,child_killed/3,skew/0|" +
+	     "t3=child_killed/w2|t4=-|t5=child_killed/w1|plan-after=skew/0|now-after=3500|" +
+	     "restart=stepped|declared-after-restart=skew|ticks-after-restart=0|now-after-restart=0|frozen=frozen|live=live|reset-declared=|")
+	Given("TestoorDrawSeed and a runner's seed text, on each")
+	TestoorCore("ring")
+	nCoDrawRef = TestoorDrawSeed()
+	TestoorCore("engine")
+	nCoDrawEng = TestoorDrawSeed()
+	Then("the reference draws a seed from 1 to 90000", nCoDrawRef >= 1 and nCoDrawRef <= 90000, true)
+	Then("so does the core", nCoDrawEng >= 1 and nCoDrawEng <= 90000, true)
+	Then("the runner's seed text 42 is adopted", NarNumber(StzEngineTestoorWorld("seedrun", "42", 5, 0)), 42)
+	Then("and a seed of 0 is a seed", NarNumber(StzEngineTestoorWorld("seedrun", "0", 5, 0)), 0)
+	TestoorReset()
+	When("choosing who runs the world is done with weather declared")
+	TestoorCore("engine")
+	ClockTo(:stepped, [ 0, 100 ])
+	Weather(:child_killed, [ "w1", 3 ])
+	Then("the world holds it", Len(WeatherDeclared()), 1)
+	TestoorCore("ring")
+	Then("choosing again forgets it, so nothing is left behind in the other place", Len(WeatherDeclared()), 0)
+	TestoorCore("engine")
+	Then("and the other place has none either", Len(WeatherDeclared()), 0)
+	TestoorReset()
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("P3.2 -- the differences the world is allowed, each one pinned")
+	nCoSec = Clock()
+	Given("a weather with no tick, declared under seeds 42, 43 and 7")
+	TestoorCore("engine")
+	Then("the core picks 2, 5 and 3 -- the same on every machine, and pinned in the Zig tests too",
+	     NarText(_CoPick(42)) + "," + NarText(_CoPick(43)) + "," + NarText(_CoPick(7)), "2,5,3")
+	Then("the same seed picks the same tick twice", _CoPick(42), _CoPick(42))
+	TestoorCore("ring")
+	nCoPickRef = _CoPick(42)
+	Then("the reference picks one of the first six too, from Ring's own generator, which differs by machine",
+	     nCoPickRef >= 1 and nCoPickRef <= 6, true)
+	Then("and the same seed picks it twice on this machine", _CoPick(42), nCoPickRef)
+	Given("a tour that draws between seeding and declaring")
+	TestoorCore("engine")
+	TestoorReset()
+	Seed(42)
+	nCoNoise = Random(1000) + Random(1000)
+	nCoPicked = Weather(:child_killed, [ "w" ])
+	Then("the core's pick is not moved by the tour's other draws: still 2", nCoPicked, 2)
+	Given("a stepped clock started with a number held as text, and a tick the same way")
+	TestoorCore("ring")
+	Then("the reference took the text and stored it", _CoRefuses("start"), 0)
+	Then("and a tick given as text", _CoRefuses("tick"), 0)
+	TestoorCore("engine")
+	Then("the core wants numbers, and refuses a start given as text", _CoRefuses("start"), 1)
+	Then("and a tick given as text", _CoRefuses("tick"), 1)
+	Given("a runner that passed a seed that is not a number")
+	Then("the core takes it for no seed and draws one: 1 + 123456 mod 90000", NarNumber(StzEngineTestoorWorld("seedrun", "abc", 123456.7, 0)), 33457)
+	Then("and so does a negative one", NarNumber(StzEngineTestoorWorld("seedrun", "-3", 123456.7, 0)), 33457)
+	TestoorReset()
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("P3.3 -- the route join: the core and the reference write the same report")
+	nCoSec = Clock()
+	Given("two plans (an item met twice) and tours whose routes include one no plan owns")
+	oCoMap = StzRouteMapQ()
+	oCoMap.AddPlan("plan.md", "### ZA1 -- first" + Char(10) + "CLOSED: shipped." + Char(10) +
+	                          "### ZA2 -- second" + Char(10) + "CLOSED: shipped." + Char(10) +
+	                          "### ZA3 -- third" + Char(10) + "OPEN: not yet." + Char(10))
+	oCoMap.AddPlan("other.md", "### ZA3 -- third again" + Char(10) + "OPEN: later." + Char(10))
+	oCoMap.AddTour([ [:file, "t/a.ring"], [:routes, [ [ [:item, "ZA1"], [:stop, "first"], [:line, 3] ] ]] ])
+	oCoMap.AddTour([ [:file, "t/b.ring"], [:routes, [ [ [:item, "QQ9"], [:stop, ""], [:line, 7] ] ]] ])
+	Then("three routes are owned, one walked, one walk names a route no plan owns",
+	     NarText(oCoMap.OwnedCount()) + "/" + NarText(oCoMap.WalkedCount()) + "/" + String(Len(oCoMap.UnknownWalks())), "3/1/1")
+	TestoorCore("ring")
+	tCoRouteJsonRef = oCoMap.Json()
+	tCoRouteProseRef = oCoMap.Prose()
+	TestoorCore("engine")
+	Then("the core answers the report (a library built before the call existed would fall back, silently)", oCoMap._CoreRoutes("json") != "", true)
+	Then("its JSON is the reference's bytes", oCoMap.Json(), tCoRouteJsonRef)
+	Then("its prose is the reference's bytes", oCoMap.Prose(), tCoRouteProseRef)
+	Then("and the report counts, never sums", StzFindFirst('"owned":3,"walked":1,"unwalked":[{"route":"ZA2"', tCoRouteJsonRef) > 0, true)
+	Given("a map with no plan and no tour")
+	oCoEmpty = StzRouteMapQ()
+	TestoorCore("ring")
+	tCoEmptyRef = oCoEmpty.Json() + Char(10) + oCoEmpty.Prose()
+	TestoorCore("engine")
+	Then("the empty report is the same bytes too", oCoEmpty.Json() + Char(10) + oCoEmpty.Prose(), tCoEmptyRef)
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("P3.3 -- impact: the core and the reference reach the same names and select the same tours")
+	nCoSec = Clock()
+	tCoPlant = CurrentDir() + "/_planted_core"
+	_CoPlantImpact(tCoPlant)
+	Given("a planted subject (stzInvoice calls stzTax calls stzNet), seven tours, and a subject that dispatches by a built name")
+	TestoorCore("ring")
+	tCoImRef = _CoImpactTranscript(tCoPlant)
+	TestoorCore("engine")
+	tCoImEng = _CoImpactTranscript(tCoPlant)
+	xCoFace = _ImpactFace(tCoPlant + "/lib/_subject.ring", "Vat")
+	Then("the core is the one answering", Len(_ImpactCore(xCoFace, [ tCoPlant + "/lib/t2_vat.ring" ])) > 0, true)
+	Then("the two transcripts are the same bytes: names in order, tours selected and skipped, completeness", tCoImEng, tCoImRef)
+	Then("a change to Label re-walks one tour of seven", StzFindFirst("Label|names=label|sel=t6_label|skip=6|complete=1", tCoImRef) > 0, true)
+	Then("a change to Vat reaches Gross, which calls it, and the dynamic subject selects every tour",
+	     StzFindFirst("Vat|names=vat,gross|sel=t2_vat,t3_gross|", tCoImRef) > 0 and StzFindFirst("dyn:Gross|names=gross|sel=d1_gross,d2_vat,d3_unrelated|skip=0|complete=0", tCoImRef) > 0, true)
+	_CoUnplantImpact(tCoPlant)
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("P3.3 -- protocol 2 through the Ring seam: node evidence in a verdict, the incomplete-graph run, the impact record")
+	nCoSec = Clock()
+	tCoP2 = tCoRoot + "/protocol2"
+	Given("golden cases 15 and 16 sent to the core as the face would send them: the record, the output, the meta, the graph, the names")
+	tCoT15 = _CoVerdictP2(tCoP2 + "/judge/15_nodes_named_observed")
+	tCoT16 = _CoVerdictP2(tCoP2 + "/judge/16_node_line_count")
+	Then("case 15: a node reached three times, one named and never reached, one reached with a count",
+	     tCoT15, _CoChop(TestoorGoldenRead(tCoP2 + "/judge/15_nodes_named_observed/expected.json")))
+	Then("case 16: counts add, and a malformed count is ignored", tCoT16, _CoChop(TestoorGoldenRead(tCoP2 + "/judge/16_node_line_count/expected.json")))
+	Given("the run L6: those two tours against a graph that is not complete")
+	tCoRunReq = '{"run":' + TestoorGoldenRead(tCoP2 + "/logbook/L6_graph_incomplete/run.json") + ',"tours":[' + tCoT15 + "," + tCoT16 + "]}"
+	Then("its JSON carries protocol 2 and the three figures", StzEngineTestoorRunJson(tCoRunReq),
+	     _CoChop(TestoorGoldenRead(tCoP2 + "/logbook/L6_graph_incomplete/expected.json")))
+	Then("its prose says the graph is incomplete", StzEngineTestoorRunProse(tCoRunReq),
+	     _CoChop(TestoorGoldenRead(tCoP2 + "/logbook/L6_graph_incomplete/expected.txt")))
+	Then("and the run still exits 0: an incomplete graph is reported, not failed", StzEngineTestoorRunExit(tCoRunReq), 0)
+	Given("the three impact records")
+	vtCoImp = _GoldenCases(tCoP2 + "/impact")
+	nCoImpBad = 0
+	for nCo = 1 to Len(vtCoImp)
+		if StzEngineTestoorImpact(TestoorGoldenRead(tCoP2 + "/impact/" + vtCoImp[nCo] + "/request.json")) !=
+		   _CoChop(TestoorGoldenRead(tCoP2 + "/impact/" + vtCoImp[nCo] + "/expected.json"))
+			nCoImpBad++
+			? "        DIFFERS: " + vtCoImp[nCo]
+		end
+	end
+	Then("complete, open and two changed nodes: the core writes each record", nCoImpBad, 0)
+	Then("there are three", Len(vtCoImp), 3)
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("The evidence floor through the Ring seam: a gate's floor met, and a gate's floor refused")
+	nCoSec = Clock()
+	Given("golden case 17 (four kept claims, two routes walked) under the floors of L7 and L8")
+	tCoT17 = _CoChop(TestoorGoldenRead(tCoP2 + "/judge/17_routes_and_claims/expected.json"))
+	vtCoFloor = [ "L7_floor_met", "L8_floor_refused" ]
+	for nCo = 1 to Len(vtCoFloor)
+		tCoFloorReq = '{"run":' + TestoorGoldenRead(tCoP2 + "/logbook/" + vtCoFloor[nCo] + "/run.json") + ',"tours":[' + tCoT17 + "]}"
+		Then(vtCoFloor[nCo] + ": the JSON carries the evidence record", StzEngineTestoorRunJson(tCoFloorReq),
+		     _CoChop(TestoorGoldenRead(tCoP2 + "/logbook/" + vtCoFloor[nCo] + "/expected.json")))
+		Then(vtCoFloor[nCo] + ": the prose says met or NOT MET", StzEngineTestoorRunProse(tCoFloorReq),
+		     _CoChop(TestoorGoldenRead(tCoP2 + "/logbook/" + vtCoFloor[nCo] + "/expected.txt")))
+		Then(vtCoFloor[nCo] + ": the exit code a gate reads", NarText(StzEngineTestoorRunExit(tCoFloorReq)),
+		     _CoChop(TestoorGoldenRead(tCoP2 + "/logbook/" + vtCoFloor[nCo] + "/expected.exit")))
+	end
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("V1 -- the evidence ladder through the Ring seam: each node's highest grade, and the tours that gave it")
+	nCoSec = Clock()
+	Given("golden cases 18 (a tour that reached two nodes and DIVERGED) and 19 (one that reached a node and judged nothing)")
+	tCoT18 = _CoVerdictP2(tCoP2 + "/judge/18_nodes_on_a_diverged_tour")
+	tCoT19 = _CoVerdictP2(tCoP2 + "/judge/19_nodes_on_an_unjudged_tour")
+	Then("case 18: both nodes observed, the claim diverged", tCoT18, _CoChop(TestoorGoldenRead(tCoP2 + "/judge/18_nodes_on_a_diverged_tour/expected.json")))
+	Then("case 19: the node observed, the planned claim unjudged", tCoT19, _CoChop(TestoorGoldenRead(tCoP2 + "/judge/19_nodes_on_an_unjudged_tour/expected.json")))
+	tCoP3 = tCoRoot + "/protocol3/logbook"
+	Given("the run L9: cases 15, 16 (flaky), 18 and 19 against a complete graph of six nodes, the ladder asked for")
+	tCoT16F = StzReplace(tCoT16, '"flaky":0', '"flaky":1')
+	tCoL9 = '{"run":' + TestoorGoldenRead(tCoP3 + "/L9_ladder_graph/run.json") + ',"tours":[' + tCoT15 + "," + tCoT16F + "," + tCoT18 + "," + tCoT19 + "]}"
+	Then("its JSON is protocol 3 and carries the ladder: only the kept, finished, steady tour exemplifies", StzEngineTestoorRunJson(tCoL9),
+	     _CoChop(TestoorGoldenRead(tCoP3 + "/L9_ladder_graph/expected.json")))
+	Then("its prose gives the three grades of the six nodes", StzEngineTestoorRunProse(tCoL9), _CoChop(TestoorGoldenRead(tCoP3 + "/L9_ladder_graph/expected.txt")))
+	Then("and the ladder changes no exit code: 1, for the flaky and the diverged tours", NarText(StzEngineTestoorRunExit(tCoL9)),
+	     _CoChop(TestoorGoldenRead(tCoP3 + "/L9_ladder_graph/expected.exit")))
+	Given("the run L10: cases 15 and 16 with no graph")
+	tCoL10 = '{"run":' + TestoorGoldenRead(tCoP3 + "/L10_ladder_no_graph/run.json") + ',"tours":[' + tCoT15 + "," + tCoT16 + "]}"
+	Then("without a graph the ladder lists what was reached and counts no named node", StzEngineTestoorRunJson(tCoL10),
+	     _CoChop(TestoorGoldenRead(tCoP3 + "/L10_ladder_no_graph/expected.json")))
+	Then("and says so in its prose", StzEngineTestoorRunProse(tCoL10), _CoChop(TestoorGoldenRead(tCoP3 + "/L10_ladder_no_graph/expected.txt")))
+	Given("the same run as L9 with the ladder NOT asked for")
+	tCoL9Off = StzEngineTestoorRunJson(StzReplace(tCoL9, '"ladder": true', '"ladder": false'))
+	Then("no ladder is written, and the logbook stays protocol 2", NarText(StzFindFirst('"ladder":', tCoL9Off)) + "/" + NarText(StzFindFirst('"protocol":2,', tCoL9Off) > 0), "0/1")
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("V4 -- the floor asks for a GRADE over the change's impact set: the reach widened by an open node, the nodes it caps")
+	nCoSec = Clock()
+	tCoP3i = tCoRoot + "/protocol3/impact/04_reach_widened_capped"
+	Given("the ladder page's graph: a refinement point, its callers, and a template filler that dispatches by a built name")
+	tCoImp3 = StzEngineTestoorImpact(TestoorGoldenRead(tCoP3i + "/request.json"))
+	Then("asked for protocol 3, the impact record gives the reach as ids, widened by the open node, and the two nodes it caps",
+	     tCoImp3, _CoChop(TestoorGoldenRead(tCoP3i + "/expected.json")))
+	tCoImp2 = StzEngineTestoorImpact(StzReplace(TestoorGoldenRead(tCoP3i + "/request.json"), '"protocol": 3', '"protocol": 2'))
+	Then("asked for protocol 2, the same request writes protocol 2's record: no reach, no caps", NarText(StzFindFirst('"reach"', tCoImp2)) + "/" + NarText(StzFindFirst('"protocol":2,', tCoImp2) > 0), "0/1")
+	tCoP3j = tCoRoot + "/protocol3/judge"
+	tCoT23 = _CoVerdictP2(tCoP3j + "/23_invoice_rate_exhausted")
+	tCoT24 = _CoVerdictP2(tCoP3j + "/24_invoice_amount_exhausted")
+	tCoT25 = _CoVerdictP2(tCoP3j + "/25_invoice_report_generalised")
+	Then("three tours over it, judged through the seam: two exhaust their nodes, one generalises one node and exemplifies two",
+	     tCoT23 + tCoT24 + tCoT25, _CoChop(TestoorGoldenRead(tCoP3j + "/23_invoice_rate_exhausted/expected.json")) +
+	     _CoChop(TestoorGoldenRead(tCoP3j + "/24_invoice_amount_exhausted/expected.json")) + _CoChop(TestoorGoldenRead(tCoP3j + "/25_invoice_report_generalised/expected.json")))
+	vtCoV4 = [ "L13_floor_grade_refused", "L14_floor_grade_met" ]
+	for nCo = 1 to Len(vtCoV4)
+		tCoV4Req = '{"run":' + TestoorGoldenRead(tCoP3 + "/" + vtCoV4[nCo] + "/run.json") + ',"tours":[' + tCoT23 + "," + tCoT24 + "," + tCoT25 + "]}"
+		Then(vtCoV4[nCo] + ": the evidence record carries the grade, the set and the nodes below it", StzEngineTestoorRunJson(tCoV4Req),
+		     _CoChop(TestoorGoldenRead(tCoP3 + "/" + vtCoV4[nCo] + "/expected.json")))
+		Then(vtCoV4[nCo] + ": the prose names the first node that falls short", StzEngineTestoorRunProse(tCoV4Req),
+		     _CoChop(TestoorGoldenRead(tCoP3 + "/" + vtCoV4[nCo] + "/expected.txt")))
+		Then(vtCoV4[nCo] + ": the exit a gate reads", NarText(StzEngineTestoorRunExit(tCoV4Req)), _CoChop(TestoorGoldenRead(tCoP3 + "/" + vtCoV4[nCo] + "/expected.exit")))
+	end
+EndScenario()
+? "        [section took " + String((Clock() - nCoSec) / ClocksPerSecond()) + "s]"
+
+end
+
+? ""
+? "[P3.1 + P3.2 + P3.3 + the floor + V1 + V4 took " + String((Clock() - nCoStart) / ClocksPerSecond()) + "s]"
+Summary()
+Shutdown($nNarFail)
+
+#============================================================================
+# HELPERS AFTER THE TOP-LEVEL CODE
+
+# the run request the engine reads, built from a committed run.json and the reference's tours
+func _CoRunRequest(ptDir, ptJudgeRoot)
+	xJ = StzJsonToList(TestoorGoldenRead(ptDir + "/run.json"))
+	tRoot = xJ[:root]
+	tRef = ""
+	if xJ[:refuse_root] != ""
+		tRoot = xJ[:refuse_root]
+		tRef = "no such root: " + xJ[:refuse_root]
+	end
+	tC = '{"run":{"by":' + _TourJsonStr(xJ[:by]) + ',"root":' + _TourJsonStr(tRoot) + ',"topic":' + _TourJsonStr(xJ[:topic]) +
+	      ',"subject":' + _TourJsonStr(xJ[:subject]) + ',"refusal":' + _TourJsonStr(tRef) + ',"seed":' + NarText(xJ[:seed]) +
+	      ',"repeat":' + NarText(xJ[:repeat]) + ',"timeout_ms":' + NarText(xJ[:timeout_ms]) + ',"skipped":['
+	if tRef = ""
+		for i = 1 to Len(xJ[:skipped])
+			if i > 1  tC += ","  end
+			tC += _TourJsonStr(xJ[:skipped][i])
+		end
+	end
+	tC += '],"topics_skipped":['
+	if tRef = ""
+		for i = 1 to Len(xJ[:topics_skipped])
+			if i > 1  tC += ","  end
+			tC += _TourJsonStr(xJ[:topics_skipped][i])
+		end
+	end
+	tC += ']},"tours":['
+	if tRef = ""
+		nC = Len(xJ[:cases])
+		for i = 1 to nC
+			if i > 1  tC += ","  end
+			xRec = TestoorGoldenVerdict(ptJudgeRoot + "/" + xJ[:cases][i])
+			for k = 1 to Len(xJ[:flaky])
+				if xJ[:flaky][k] = xJ[:cases][i]  xRec[:flaky] = 1  end
+			end
+			tC += _TravRunJson(xRec)
+		end
+	end
+	return tC + "]}"
+end
+# a tour record as a reader would have made it: one stop, two claims
+func _CoLiveRecord
+	return [ [:file, "live.ring"], [:readable, 1], [:why, ""], [:dialect, "chk"], [:helpers, []], [:lines, 20],
+	         [:ending, "plain"], [:asserts, 3], [:promises, 0], [:markers, 0],
+	         [:stops, [ [ [:title, "Live"], [:line, 1], [:claims, [
+	                      [ [:line, 2], [:kind, "sees"], [:claim, "plain"], [:want, ""] ],
+	                      [ [:line, 3], [:kind, "sees"], [:claim, "colour " + Char(27) + "[0m done"], [:want, ""] ],
+	                      [ [:line, 4], [:kind, "sees"], [:claim, "last"], [:want, ""] ] ]] ] ]],
+	         [:routes, []] ]
+end
+#============================================================================
+# P3.2 HELPERS: the world of a tour, walked the same way on whichever implementation TestoorCore() chose
+
+func _CoJoin(pxList)
+	tC = ""
+	nN = Len(pxList)
+	for i = 1 to nN
+		if i > 1  tC += ","  end
+		tC += NarText(pxList[i])
+	end
+	return tC
+end
+func _CoPlanText(pxPlan)
+	tC = ""
+	nN = Len(pxPlan)
+	for i = 1 to nN
+		if i > 1  tC += ","  end
+		tC += NarText(pxPlan[i][1]) + "/" + NarText(pxPlan[i][2])
+	end
+	return tC
+end
+# the weather that fell due at a tick, by name and by what its spec named; "-" for none
+func _CoFiredText(pxFired)
+	if Len(pxFired) = 0  return "-"  end
+	tC = ""
+	nN = Len(pxFired)
+	for i = 1 to nN
+		if i > 1  tC += ","  end
+		tC += NarText(pxFired[i][1]) + "/" + NarText(pxFired[i][2][1])
+	end
+	return tC
+end
+# did the call raise? 1 or 0
+func _CoRaised(ptWhat)
+	nB = 0
+	try
+		if ptWhat = "tick"
+			ClockTick()
+		elseif ptWhat = "advance"
+			ClockAdvance(5)
+		elseif ptWhat = "skew"
+			Weather(:skew, [ 5 ])
+		elseif ptWhat = "unknown-weather"
+			Weather(:locusts, [ 1 ])
+		elseif ptWhat = "unknown-mode"
+			ClockTo(:sideways, "")
+		end
+	catch
+		nB = 1
+	end
+	return nB
+end
+# a start or a tick given as text: refused (1) or taken (0)
+func _CoRefuses(ptWhich)
+	TestoorReset()
+	nB = 0
+	try
+		if ptWhich = "start"
+			ClockTo(:stepped, [ "1000", 250 ])
+		else
+			ClockTo(:stepped, [ 0, 100 ])
+			Weather(:child_killed, [ "w", "3" ])
+		end
+	catch
+		nB = 1
+	end
+	TestoorReset()
+	return nB
+end
+# the tick a weather with none gets under a seed
+func _CoPick(pnSeed)
+	TestoorReset()
+	Seed(pnSeed)
+	xN = Weather(:child_killed, [ "w" ])
+	TestoorReset()
+	return xN
+end
+# ONE script on whichever implementation is chosen: what it returned, as text. It leaves out what
+# differs on purpose (the pick of a tick; the seed a hand-run draws from the clock).
+func _CoWorldScript
+	TestoorReset()
+	tC = "mode=" + NarText(ClockMode()) + "|"
+	tC += "tick-live=" + NarText(_CoRaised("tick")) + "|"
+	tC += "advance-live=" + NarText(_CoRaised("advance")) + "|"
+	tC += "skew-live=" + NarText(_CoRaised("skew")) + "|"
+	tC += "unknown-weather=" + NarText(_CoRaised("unknown-weather")) + "|"
+	tC += "unknown-mode=" + NarText(_CoRaised("unknown-mode")) + "|"
+	tC += "seed=" + NarText(Seed(42)) + "|"
+	tC += "clock=" + NarText(ClockTo(:stepped, [ 1000, 250 ])) + "|"
+	tC += "0=" + NarText(ClockNow()) + "|"
+	ClockTick()
+	tC += "1=" + NarText(ClockNow()) + "|"
+	ClockAdvance(750)
+	tC += "2=" + NarText(ClockNow()) + "|"
+	ClockTick()
+	tC += "3=" + NarText(ClockNow()) + "|"
+	tC += "ticks=" + NarText(ClockTicks()) + "|"
+	tC += "w1=" + NarText(Weather(:child_killed, [ "w1", 5 ])) + "|"
+	tC += "w2=" + NarText(Weather(:child_killed, [ "w2", 3 ])) + "|"
+	tC += "skew=" + NarText(Weather(:skew, [ 500 ])) + "|"
+	tC += "now=" + NarText(ClockNow()) + "|"
+	tC += "declared=" + _CoJoin(WeatherDeclared()) + "|"
+	tC += "plan=" + _CoPlanText(WeatherPlan()) + "|"
+	tC += "t3=" + _CoFiredText(ClockTick()) + "|"
+	tC += "t4=" + _CoFiredText(ClockTick()) + "|"
+	tC += "t5=" + _CoFiredText(ClockTick()) + "|"
+	tC += "plan-after=" + _CoPlanText(WeatherPlan()) + "|"
+	tC += "now-after=" + NarText(ClockNow()) + "|"
+	tC += "restart=" + NarText(ClockTo(:stepped, [ 0, 10 ])) + "|"
+	tC += "declared-after-restart=" + _CoJoin(WeatherDeclared()) + "|"
+	tC += "ticks-after-restart=" + NarText(ClockTicks()) + "|"
+	tC += "now-after-restart=" + NarText(ClockNow()) + "|"
+	tC += "frozen=" + NarText(ClockTo(:frozen, "2025-09-27 14:30:25")) + "|"
+	tC += "live=" + NarText(ClockTo(:live, "")) + "|"
+	TestoorReset()
+	tC += "reset-declared=" + _CoJoin(WeatherDeclared()) + "|"
+	return tC
+end
+#============================================================================
+# P3.3 HELPERS: routes, impact and protocol 2 through the Ring seam
+
+# a text without its last line feed: what a golden file holds beyond the JSON it names
+func _CoChop(ptText)
+	tC = NarText(ptText)
+	if Len(tC) > 0 and Right(tC, 1) = Char(10)
+		return Left(tC, Len(tC) - 1)
+	end
+	return tC
+end
+# the file name of a path, without its folder and its .ring
+func _CoStem(ptPath)
+	tC = NarText(ptPath)
+	nN = Len(tC)
+	nAt = 0
+	for i = 1 to nN
+		if tC[i] = "/" or tC[i] = "\"  nAt = i  end
+	end
+	tC = Right(tC, nN - nAt)
+	if Len(tC) > 5 and Right(tC, 5) = ".ring"  tC = Left(tC, Len(tC) - 5)  end
+	return tC
+end
+# names.txt (one name a line) as the JSON array the core reads
+func _CoNamesJson(ptText)
+	vL = Str2List(NarText(ptText))
+	tC = "["
+	bFirst = true
+	nN = Len(vL)
+	for i = 1 to nN
+		if Len(vL[i]) = 0  loop  end
+		if not bFirst  tC += ","  end
+		bFirst = false
+		tC += _TourJsonStr(vL[i])
+	end
+	return tC + "]"
+end
+# a golden file a case may not have: its text, or ""
+func _CoReadOpt(ptPath)
+	if FExists(ptPath)  return TestoorGoldenRead(ptPath)  end
+	return ""
+end
+# a protocol-2 judge case, sent to the core the way a face would send it
+func _CoVerdictP2(ptDir)
+	tReq = '{"record":' + TestoorGoldenRead(ptDir + "/record.json") + ',"output":' + _TourJsonStr(TestoorGoldenRead(ptDir + "/output.txt")) +
+	         ',"meta":' + TestoorGoldenRead(ptDir + "/meta.json") + ',"graph":' + TestoorGoldenRead(ptDir + "/graph.json") +
+	         ',"names":' + _CoNamesJson(_CoReadOpt(ptDir + "/names.txt")) + "}"
+	return StzEngineTestoorVerdict(tReq)
+end
+# the impact guard's planted subject, and tours that only NAME it (they are never run here)
+func _CoPlantImpact(ptRoot)
+	_CoUnplantImpact(ptRoot)
+	StzMakeDir(ptRoot)
+	StzMakeDir(ptRoot + "/lib")
+	StzMakeDir(ptRoot + "/dyn")
+	tT = Char(9)
+	tN = Char(10)
+	Write(ptRoot + "/lib/_subject.ring",
+		"class stzNet" + tN +
+		tT + "def init()" + tN + tT + tT + "return" + tN +
+		tT + "def Of(n)" + tN + tT + tT + "return n" + tN +
+		tT + "def Round2(n)" + tN + tT + tT + "return n" + tN +
+		"class stzTax" + tN +
+		tT + '@oNet = ""' + tN +
+		tT + "def init()" + tN + tT + tT + "@oNet = new stzNet()" + tN +
+		tT + "def Vat(n)" + tN + tT + tT + "return @oNet.Of(n) * 2 / 10" + tN +
+		tT + "def Duty(n)" + tN + tT + tT + "return @oNet.Round2(n) / 100" + tN +
+		"class stzInvoice" + tN +
+		tT + '@oTax = ""' + tN +
+		tT + "def init()" + tN + tT + tT + "@oTax = new stzTax()" + tN +
+		tT + "def Gross(n)" + tN + tT + tT + "return n + @oTax.Vat(n)" + tN +
+		tT + "def Landed(n)" + tN + tT + tT + "return n + @oTax.Duty(n)" + tN +
+		tT + "def Label()" + tN + tT + tT + "return 7" + tN)
+	Write(ptRoot + "/lib/t1_net.ring", "o = new stzNet()" + tN + "? o.Of(5)" + tN)
+	Write(ptRoot + "/lib/t2_vat.ring", "o = new stzTax()" + tN + "? o.Vat(100)" + tN)
+	Write(ptRoot + "/lib/t3_gross.ring", "o = new stzInvoice()" + tN + "? o.Gross(100)" + tN)
+	Write(ptRoot + "/lib/t4_duty.ring", "o = new stzTax()" + tN + "? o.Duty(1000)" + tN)
+	Write(ptRoot + "/lib/t5_landed.ring", "o = new stzInvoice()" + tN + "? o.Landed(1000)" + tN)
+	Write(ptRoot + "/lib/t6_label.ring", "o = new stzInvoice()" + tN + "? o.Label()" + tN)
+	Write(ptRoot + "/lib/t7_unrelated.ring", '? "names nothing of the subject"' + tN)
+	Write(ptRoot + "/dyn/_subject.ring",
+		"func VatOf(n)" + tN + tT + "return n * 2 / 10" + tN +
+		"class stzInvoice" + tN +
+		tT + "def init()" + tN + tT + tT + "return" + tN +
+		tT + "def Gross(n)" + tN +
+		tT + tT + "eval('$nRes = VatOf(' + n + ')')" + tN +
+		tT + tT + "return n + $nRes" + tN)
+	Write(ptRoot + "/dyn/d1_gross.ring", "o = new stzInvoice()" + tN + "? o.Gross(100)" + tN)
+	Write(ptRoot + "/dyn/d2_vat.ring", "? VatOf(100)" + tN)
+	Write(ptRoot + "/dyn/d3_unrelated.ring", '? "names nothing"' + tN)
+end
+func _CoUnplantImpact(ptRoot)
+	if FExists(ptRoot + "/lib/_subject.ring")
+		StzDirDeleteAll(ptRoot)
+	end
+end
+# the reach and the selection of a set of changes, as text: ONE script on whichever implementation is chosen
+func _CoImpactTranscript(ptRoot)
+	vLib = [ ptRoot + "/lib/t1_net.ring", ptRoot + "/lib/t2_vat.ring", ptRoot + "/lib/t3_gross.ring", ptRoot + "/lib/t4_duty.ring",
+	            ptRoot + "/lib/t5_landed.ring", ptRoot + "/lib/t6_label.ring", ptRoot + "/lib/t7_unrelated.ring" ]
+	vMeth = [ "Of", "Vat", "Gross", "Landed", "Label", "Round2", "stzTax.init", "init" ]
+	tC = ""
+	nM = Len(vMeth)
+	for i = 1 to nM
+		tC += _CoImpactLine("", ptRoot + "/lib/_subject.ring", vMeth[i], vLib)
+	end
+	vDyn = [ ptRoot + "/dyn/d1_gross.ring", ptRoot + "/dyn/d2_vat.ring", ptRoot + "/dyn/d3_unrelated.ring" ]
+	tC += _CoImpactLine("dyn:", ptRoot + "/dyn/_subject.ring", "Gross", vDyn)
+	return tC
+end
+func _CoImpactLine(ptTag, ptSubject, ptMethod, pvtTours)
+	xR = StzImpactedTours(ptSubject, ptMethod, pvtTours)
+	tNames = ""
+	nN = Len(xR[:names])
+	for i = 1 to nN
+		if i > 1  tNames += ","  end
+		tNames += NarText(xR[:names][i])
+	end
+	tSel = ""
+	nN = Len(xR[:selected])
+	for i = 1 to nN
+		if i > 1  tSel += ","  end
+		tSel += _CoStem(xR[:selected][i])
+	end
+	return ptTag + ptMethod + "|names=" + tNames + "|sel=" + tSel + "|skip=" + String(Len(xR[:skipped])) + "|complete=" + NarText(xR[:complete]) + Char(10)
+end

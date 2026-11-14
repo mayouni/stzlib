@@ -200,7 +200,7 @@ tick and the supervisor it kills a child of. The runner's own seed draw now call
 where there were two. Choosing who runs the world (`TestoorCore(...)`) forgets what was declared, so the state is never
 left behind in the other place. `base/testoor/stzClock.ring` explains who owns what.
 
-**Three differences from the reference, deliberate, each pinned in `testoor_core_narrated.ring`:**
+**Three differences from the reference, deliberate, each pinned in `testoor_core_narrated.haro` (`.ring` until 2026-11-14):**
 
 1. A weather declared without a tick gets one from the SEED (splitmix64 over the seed and the picks since it was set),
    not from Ring's `random(5)`. Ring's is the C runtime's `rand()`, so the same seed picked another tick on each OS and
@@ -503,6 +503,25 @@ there (`TESTOOR_PROTOCOL_3.md` 6.5); the arrival of the first output is answered
   before): HUNG at 5.00 s, twice -- killed before its image was written, as on 2026-11-13.
 - **Not changed:** the Ring traveller's own loop (`stzTraveller._WalkOnce`), retired; the guards that walk children
   through it still need those children compiled once after a library change.
+
+### The guards move to .haro, 2026-11-14 -- 1 of 13
+
+PRINCIPAL-NORING-01: code in the retired syntax moves to `.haro`, and no file is deleted before haro.exe runs what replaces
+it. Testoor's guards move one commit each, the core guard first.
+
+- **How a guard moves.** Haro's own tool, `python -B D:\GitHub\haro\port\haroport.py apply <copy> --out <dir> --unit
+  base/stzBase.ring`, then by hand what it leaves: a pair written `:key = value` inside a nested list, a name lettered `a`,
+  and every place a number is added to a text or a text to a number, which haro.exe refuses when it runs (`haro check`
+  does not see it). A Ring flag read from a `.haro` condition is compared (`NarNumber(x) = 1`): haro.exe refuses a
+  condition on a number, and the core's loaded flag is a boolean there, not Ring's 1.
+- **`base/test/testoor/_narrate.haro`** prints what `base/test/_narrated.ring` prints, line for line, and compares as Ring's
+  `=` does: Haro's `true` and `false` are read as Ring's 1 and 0, a number beside a text that reads as it is the same, and
+  a float beside a decimal is compared as they print. `NarText(x)` writes a value as Ring's `"" + x` did and `NarNumber(x)`
+  reads one as Ring's `0 + x` did. A file beginning with `_` is never walked.
+- **The proof for each guard:** the `.ring` and the `.haro` run on haro.exe, and their outputs are the same lines but for
+  the `[section took ...]` timings and the seeds `TestoorDrawSeed()` draws from the clock. Then the `.ring` is removed.
+- **The core guard:** 79 of 79, the output equal; `testoor walk base/test/testoor` judges it KEPT, 14 stops, 79 claims,
+  beside the walk guard.
 
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 
