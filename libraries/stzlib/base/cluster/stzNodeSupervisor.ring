@@ -147,6 +147,7 @@ class stzNodeSupervisor from stzObject
 	#              :children (how many processes it may start), :memoryMB (256 by default),
 	#              :processorSeconds, :output (its stdout and stderr file), :cache (its HARO_CACHE),
 	#              :interpreter (the haro.exe it runs on; the supervisor's own by default)
+	#              :capabilities (a list of capability names its token carries: the shared trees, rung B4)
 	#   returns    the supervisor itself, so calls chain
 	#   warning    the grant must name the interpreter's folder and the script's folder among its reads;
 	#              a bounded child is never sent a heartbeat (loopback is closed to a container)
@@ -443,6 +444,11 @@ class stzNodeSupervisor from stzObject
 		_nW_ = len(_aW_)
 		for _w_ = 1 to _nW_
 			StzEngineBoundaryWrite(_nB_, _aW_[_w_])
+		next
+		_aC_ = This._GrantList(_g_, :capabilities)
+		_nC_ = len(_aC_)
+		for _c_ = 1 to _nC_
+			StzEngineBoundaryCapability(_nB_, _aC_[_c_])
 		next
 		StzEngineBoundaryNetwork(_nB_, This._GrantNumber(_g_, :network, 0))
 		StzEngineBoundaryChildren(_nB_, This._GrantNumber(_g_, :children, 0))

@@ -71,6 +71,10 @@ fn ring_BoundaryRead(p: *anyopaque) callconv(.c) void {
 fn ring_BoundaryWrite(p: *anyopaque) callconv(.c) void {
     retBool(p, boundary.addWrite(id(p), str(p, 2)));
 }
+// StzEngineBoundaryCapability(nId, cName) -> 1 when the node's token will carry the capability (rung B4)
+fn ring_BoundaryCapability(p: *anyopaque) callconv(.c) void {
+    retBool(p, boundary.addCapability(id(p), str(p, 2)));
+}
 fn ring_BoundaryNetwork(p: *anyopaque) callconv(.c) void {
     retBool(p, boundary.setNetwork(id(p), num(p, 2) != 0));
 }
@@ -164,6 +168,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineboundaryread", .func = &ring_BoundaryRead },
     .{ .name = "stzengineboundarywrite", .func = &ring_BoundaryWrite },
     .{ .name = "stzengineboundarynetwork", .func = &ring_BoundaryNetwork },
+    .{ .name = "stzengineboundarycapability", .func = &ring_BoundaryCapability },
     .{ .name = "stzengineboundarychildren", .func = &ring_BoundaryChildren },
     .{ .name = "stzengineboundarymemory", .func = &ring_BoundaryMemory },
     .{ .name = "stzengineboundaryprocessor", .func = &ring_BoundaryProcessor },

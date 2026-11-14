@@ -18,6 +18,11 @@
 // access list already names the container with the access asked is left alone, so the 2.5 to 4 s a library tree
 // costs is paid at the first start and not on each one.
 //
+// A SHARED CAPABILITY (rung B4). A trustee written "cap:<name>" is the capability SID Windows derives from <name>
+// (DeriveCapabilitySidsFromName). grantPath, hasRule, revoke and rulesLeft take it where they take a profile, and a
+// grant carries it with addCapability: one rule on a shared tree for "cap:stz.library" serves every node whose token
+// holds that capability, so a node's own profile is granted only its own folders.
+//
 // Other systems: every call answers 0 with the reason in error(); the Linux half is HAROBANDA-WORKER-01.
 
 const std = @import("std");
@@ -29,6 +34,7 @@ const alloc = std.heap.page_allocator;
 pub const MAX_SLOTS = 16;
 pub const MAX_PATHS = 32;
 pub const MAX_MSGS = 32;
+pub const MAX_CAPS = 4;
 
 const Slot = struct {
     used: bool = false,
@@ -39,6 +45,9 @@ const Slot = struct {
     writes: [MAX_PATHS][]u8 = undefined,
     nwrites: usize = 0,
     network: bool = false,
+    caps: [MAX_CAPS][64]u8 = undefined,
+    cap_lens: [MAX_CAPS]usize = undefined,
+    ncaps: usize = 0,
     children: u32 = 0,
     memory_mb: usize = 256,
     processor_s: f64 = 0,
@@ -93,6 +102,12 @@ fn slotOf(id: i64) ?*Slot {
 }
 
 // an AppContainer name: 1 to 64 of letters, digits, '.', '-', '_'
+// a trustee is a profile name, or "cap:" and a capability name of the same alphabet
+pub fn validTrustee(name: []const u8) bool {
+    if (std.mem.startsWith(u8, name, "cap:")) return validName(name[4..]);
+    return validName(name);
+}
+
 pub fn validName(name: []const u8) bool {
     if (name.len == 0 or name.len > 64) return false;
     for (name) |c| {
@@ -146,6 +161,24 @@ pub fn addRead(id: i64, path: []const u8) bool {
 pub fn addWrite(id: i64, path: []const u8) bool {
     const s = slotOf(id) orelse return false;
     return addPath(s, &s.writes, &s.nwrites, path);
+}
+
+// adds a capability to the node's token (rung B4); -> false past MAX_CAPS or for a bad name
+pub fn addCapability(id: i64, name: []const u8) bool {
+    const s = slotOf(id) orelse return false;
+    if (s.started) return false;
+    if (!validName(name)) {
+        setError(s, "a capability's name is 1 to 64 letters, digits, '.', '-' or '_'", .{});
+        return false;
+    }
+    if (s.ncaps >= MAX_CAPS) {
+        setError(s, "a grant carries at most {d} capabilities", .{MAX_CAPS});
+        return false;
+    }
+    @memcpy(s.caps[s.ncaps][0..name.len], name);
+    s.cap_lens[s.ncaps] = name.len;
+    s.ncaps += 1;
+    return true;
 }
 
 pub fn setNetwork(id: i64, on: bool) bool {
@@ -305,6 +338,7 @@ pub fn errorText(id: i64) []const u8 {
 
 // -> 1 when the path's access list names the container (an explicit or an inherited rule), 0 when not, -1 on error
 pub fn hasRule(name: []const u8, path: []const u8) i64 {
+    if (!validTrustee(name)) return -1;
     if (!is_windows) {
         setGlobalError(not_here, .{});
         return -1;
@@ -314,6 +348,7 @@ pub fn hasRule(name: []const u8, path: []const u8) i64 {
 
 // removes every rule naming the container from the path and its tree; -> 0 or the Windows error
 pub fn revoke(name: []const u8, path: []const u8) i64 {
+    if (!validTrustee(name)) return -1;
     if (!is_windows) {
         setGlobalError(not_here, .{});
         return -1;
@@ -343,8 +378,8 @@ pub fn grantPath(name: []const u8, path: []const u8, write: bool) i64 {
         setGlobalError(not_here, .{});
         return -1;
     }
-    if (!validName(name)) {
-        setGlobalError("a profile's name is 1 to 64 letters, digits, '.', '-' or '_'", .{});
+    if (!validTrustee(name)) {
+        setGlobalError("a trustee is a profile name, or cap: and a capability name, of 1 to 64 letters, digits, '.', '-' or '_'", .{});
         return -1;
     }
     return win.grantPath(name, path, write);
@@ -360,7 +395,7 @@ pub fn rulesLeft(name: []const u8, path: []const u8, max: i64) i64 {
         setGlobalError(not_here, .{});
         return -1;
     }
-    if (!validName(name)) return -1;
+    if (!validTrustee(name)) return -1;
     return win.rulesLeft(name, path, max);
 }
 
@@ -466,6 +501,69 @@ const win = if (is_windows) struct {
     extern "advapi32" fn SetEntriesInAclW(n: u32, ea: *EXPLICIT_ACCESS_W, old: PVOID, new: *PVOID) callconv(.winapi) u32;
     extern "advapi32" fn GetAclInformation(acl: PVOID, info: *anyopaque, n: u32, class: u32) callconv(.winapi) i32;
     extern "advapi32" fn GetAce(acl: PVOID, i: u32, ace: *PVOID) callconv(.winapi) i32;
+    extern "advapi32" fn GetLengthSid(sid: PVOID) callconv(.winapi) u32;
+    extern "advapi32" fn CopySid(n: u32, dst: PVOID, src: PVOID) callconv(.winapi) i32;
+    extern "kernel32" fn GetModuleHandleW(n: [*:0]const u16) callconv(.winapi) ?*anyopaque;
+    extern "kernel32" fn LoadLibraryW(n: [*:0]const u16) callconv(.winapi) ?*anyopaque;
+    extern "kernel32" fn GetProcAddress(m: ?*anyopaque, n: [*:0]const u8) callconv(.winapi) ?*anyopaque;
+
+    // kernelbase's DeriveCapabilitySidsFromName, found at run time (no import library carries it)
+    const DeriveCapFn = *const fn (name: [*:0]const u16, groups: *?[*]PVOID, ngroups: *u32, caps: *?[*]PVOID, ncaps: *u32) callconv(.winapi) i32;
+    var derive_cap: ?DeriveCapFn = null;
+
+    fn deriveCapFn() ?DeriveCapFn {
+        if (derive_cap) |f| return f;
+        const kb = std.unicode.utf8ToUtf16LeStringLiteral("kernelbase.dll");
+        const m = GetModuleHandleW(kb) orelse LoadLibraryW(kb) orelse return null;
+        const f = GetProcAddress(m, "DeriveCapabilitySidsFromName") orelse return null;
+        derive_cap = @ptrCast(f);
+        return derive_cap;
+    }
+
+    // the capability SID of a name, copied into memory this module owns
+    fn capabilitySid(name: []const u8) ?[]u8 {
+        const f = deriveCapFn() orelse {
+            setGlobalError("DeriveCapabilitySidsFromName is not on this Windows", .{});
+            return null;
+        };
+        const n = w(name) orelse return null;
+        defer alloc.free(n);
+        var groups: ?[*]PVOID = null;
+        var ngroups: u32 = 0;
+        var caps: ?[*]PVOID = null;
+        var ncaps: u32 = 0;
+        if (f(n, &groups, &ngroups, &caps, &ncaps) == 0 or ncaps == 0) {
+            setGlobalError("the capability '{s}' could not be derived: Windows error {d}", .{ name, GetLastError() });
+            return null;
+        }
+        defer {
+            var k: u32 = 0;
+            while (k < ngroups) : (k += 1) _ = LocalFree(groups.?[k]);
+            k = 0;
+            while (k < ncaps) : (k += 1) _ = LocalFree(caps.?[k]);
+            _ = LocalFree(@ptrCast(groups));
+            _ = LocalFree(@ptrCast(caps));
+        }
+        return ownCopy(caps.?[0]);
+    }
+
+    fn ownCopy(sid: PVOID) ?[]u8 {
+        const len = GetLengthSid(sid);
+        const buf = alloc.alignedAlloc(u8, .@"8", len) catch return null;
+        if (CopySid(len, buf.ptr, sid) == 0) {
+            alloc.free(buf);
+            return null;
+        }
+        return buf;
+    }
+
+    // a trustee's SID, owned: a profile's container SID, or "cap:<name>"'s capability SID
+    fn trusteeSid(name: []const u8, create: bool) ?[]u8 {
+        if (std.mem.startsWith(u8, name, "cap:")) return capabilitySid(name[4..]);
+        const sid = containerSid(name, create) orelse return null;
+        defer _ = FreeSid(sid);
+        return ownCopy(sid);
+    }
 
     const GENERIC_READ: u32 = 0x80000000;
     const GENERIC_WRITE: u32 = 0x40000000;
@@ -595,9 +693,14 @@ const win = if (is_windows) struct {
         }
         if (t_grant) |t| s.grant_ms = elapsedMs(t);
 
-        // the capabilities: internetClient when the grant asks for the network
-        var caps: [1]SID_AND_ATTRIBUTES = undefined;
+        // the capabilities: internetClient when the grant asks for the network, and the named ones (rung B4)
+        var caps: [1 + MAX_CAPS]SID_AND_ATTRIBUTES = undefined;
         var capsid: [68]u8 align(8) = undefined;
+        var owned: [MAX_CAPS]?[]u8 = [_]?[]u8{null} ** MAX_CAPS;
+        defer for (owned) |o| {
+            if (o) |b| alloc.free(b);
+        };
+        var ncap: u32 = 0;
         var sc = SECURITY_CAPABILITIES{ .container = sid, .caps = null, .count = 0, .reserved = 0 };
         if (s.network) {
             var n: u32 = capsid.len;
@@ -605,9 +708,21 @@ const win = if (is_windows) struct {
                 setError(s, "the internetClient capability could not be built: Windows error {d}", .{GetLastError()});
                 return 0;
             }
-            caps[0] = .{ .sid = &capsid, .attributes = 4 };
+            caps[ncap] = .{ .sid = &capsid, .attributes = 4 };
+            ncap += 1;
+        }
+        for (0..s.ncaps) |k| {
+            const b = capabilitySid(s.caps[k][0..s.cap_lens[k]]) orelse {
+                setError(s, "{s}", .{last_error[0..last_error_len]});
+                return 0;
+            };
+            owned[k] = b;
+            caps[ncap] = .{ .sid = b.ptr, .attributes = 4 };
+            ncap += 1;
+        }
+        if (ncap > 0) {
             sc.caps = &caps;
-            sc.count = 1;
+            sc.count = ncap;
         }
 
         // the three standard handles, and ONLY they are inherited
@@ -743,9 +858,9 @@ const win = if (is_windows) struct {
     }
 
     fn hasRule(name: []const u8, path: []const u8) i64 {
-        if (!validName(name)) return -1;
-        const sid = containerSid(name, false) orelse return -1;
-        defer _ = FreeSid(sid);
+        const own = trusteeSid(name, false) orelse return -1;
+        defer alloc.free(own);
+        const sid: PVOID = own.ptr;
         const p = w(path) orelse return -1;
         defer alloc.free(p);
         const m = ruleMask(p, sid) orelse return -1;
@@ -753,9 +868,9 @@ const win = if (is_windows) struct {
     }
 
     fn revoke(name: []const u8, path: []const u8) i64 {
-        if (!validName(name)) return -1;
-        const sid = containerSid(name, false) orelse return -1;
-        defer _ = FreeSid(sid);
+        const own = trusteeSid(name, false) orelse return -1;
+        defer alloc.free(own);
+        const sid: PVOID = own.ptr;
         const p = w(path) orelse return -1;
         defer alloc.free(p);
         const dir = isDir(p) orelse return 2; // ERROR_FILE_NOT_FOUND
@@ -777,11 +892,12 @@ const win = if (is_windows) struct {
     }
 
     fn grantPath(name: []const u8, path: []const u8, write: bool) i64 {
-        const sid = containerSid(name, true) orelse {
-            setGlobalError("the profile '{s}' could not be created or found", .{name});
+        const own = trusteeSid(name, true) orelse {
+            if (!std.mem.startsWith(u8, name, "cap:")) setGlobalError("the profile '{s}' could not be created or found", .{name});
             return -1;
         };
-        defer _ = FreeSid(sid);
+        defer alloc.free(own);
+        const sid: PVOID = own.ptr;
         var tmp: Slot = .{};
         const r = ensure(&tmp, path, sid, write) orelse {
             setGlobalError("{s}", .{tmp.error_text[0..tmp.error_len]});
@@ -791,8 +907,9 @@ const win = if (is_windows) struct {
     }
 
     fn rulesLeft(name: []const u8, path: []const u8, max: i64) i64 {
-        const sid = containerSid(name, false) orelse return -1;
-        defer _ = FreeSid(sid);
+        const own = trusteeSid(name, false) orelse return -1;
+        defer alloc.free(own);
+        const sid: PVOID = own.ptr;
         const root = w(path) orelse return -1;
         defer alloc.free(root);
         var left: i64 = 0;
@@ -875,6 +992,14 @@ test "boundary: a grant is built, refuses a second start once fixed, and frees" 
     try std.testing.expect(!setMemory(id, 1));
     try std.testing.expect(free(id));
     try std.testing.expect(!free(id));
+}
+
+test "boundary: a trustee is a profile or cap: and a name" {
+    try std.testing.expect(validTrustee("stz.node-1"));
+    try std.testing.expect(validTrustee("cap:stz.library"));
+    try std.testing.expect(!validTrustee("cap:"));
+    try std.testing.expect(!validTrustee("cap:has space"));
+    try std.testing.expect(!validName("cap:stz.library"));
 }
 
 test "boundary: the job messages read as names" {

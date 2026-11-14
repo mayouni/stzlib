@@ -1,0 +1,246 @@
+# ONE RULE ON THE LIBRARY SERVES EVERY NODE -- rung B4 of SOFTANZA_OS_BOUNDARY_STUDY.md, narrated
+#
+# The shared trees -- the library, the engine, haro's folder -- are granted once to a capability ("cap:<name>",
+# the SID Windows derives from a name), and every node's token carries that capability. A node's own profile is
+# granted only its own folders, so the second node's install writes no rule on the library at all.
+#
+#   Scene 1  a plan naming shared trees and no capability is refused
+#   Scene 2  the first node's install grants the shared trees to the capability
+#   Scene 3  the second node's install writes no rule on them
+#   Scene 4  no node's profile has a rule anywhere in the library tree; the capability has one
+#   Scene 5  both nodes start warm through stzNodeSupervisor, each carrying the capability
+#   Scene 6  a node without the capability cannot read its program
+#   Scene 7  a node's TEMP is its container's own folder
+#   Scene 8  removing the first node leaves the second running
+#   Scene 9  after the last node, the shared trees are revoked from the capability and walked: nothing left
+#
+# RUNS ON haro.exe, on Windows. STZ_ENGINE_DIR names an engine whose stz_process carries B4; HARO_EXE names haro.exe
+# when it is not on the PATH. It grants this checkout's library tree to the capability for the run and revokes it.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+tBS = Char(92)
+tCap = "stz.b4.guard"
+
+tWork = SysGet("TEMP") + tBS + "stz_b4"
+tBin = tWork + tBS + "bin"
+System("if exist " + Q(tWork) + " rmdir /s /q " + Q(tWork))
+System("mkdir " + Q(tBin))
+for tN in ["a", "b"]
+    for tSub in ["node", "runs", "cache"]
+        System("mkdir " + Q(tWork + tBS + tN + tBS + tSub))
+    end
+end
+tHaroSrc = SysGet("HARO_EXE")
+if tHaroSrc = ""
+    tHaroSrc = Trim(FirstLine(SystemCmd("where haro.exe 2>nul")))
+end
+tEngine = SysGet("STZ_ENGINE_DIR")
+if tHaroSrc = "" or tEngine = ""
+    ? "HARO_EXE (or haro.exe on the PATH) and STZ_ENGINE_DIR are needed: nothing can run"
+    Shutdown(1)
+end
+System("copy /y " + Q(tHaroSrc) + " " + Q(tBin + tBS + "haro.exe") + " >nul")
+tHaro = tBin + tBS + "haro.exe"
+tBase = Parent(Parent(Trim(SystemCmd("cd"))))
+tStzBase = tBase + tBS + "stzBase.ring"
+tLibRoot = Parent(tBase)
+for tN in ["a", "b"]
+    StzEngineBoundaryDeleteProfile("stz.b4." + tN)
+    Write(NodeDir(tN) + tBS + "node.haro", "load " + Q(tStzBase) + Char(10) + "? " + Char(34) + "node up: " + Char(34) + " + String(StzLen(" + Char(34) + "hello" + Char(34) + "))" + Char(10))
+end
+Write(NodeDir("a") + tBS + "tmp.haro", "? " + Char(34) + "TEMP=" + Char(34) + " + SysGet(" + Char(34) + "TEMP" + Char(34) + ")" + Char(10))
+
+Scenario("1. shared trees need a capability")
+vBad = Plan("a")
+vBad[:capability] = ""
+vR = StzBoundaryInstall(vBad)
+Then("the install answers not ok", vR[:ok], 0)
+Then("...and says why", Has(vR[:error], "no :capability"), true)
+
+Scenario("2. the first node's install")
+vR = StzBoundaryInstall(Plan("a"))
+Then("it answers ok", vR[:ok], 1)
+Then("...with no error", vR[:error], "")
+Then("it wrote a rule on each of the three shared trees, for the capability", vR[:sharedWritten], 3)
+Then("...and on the node's own two paths", vR[:written], 2)
+Then("its warm start ended with 0", vR[:warmExit], 0)
+nGrantA = vR[:grantMs]
+
+Scenario("3. the second node's install")
+vR = StzBoundaryInstall(Plan("b"))
+Then("it answers ok", vR[:ok], 1)
+Then("it wrote no rule on the shared trees", vR[:sharedWritten], 0)
+Then("...only on its own two paths", vR[:written], 2)
+Then("its warm start ended with 0", vR[:warmExit], 0)
+nGrantB = vR[:grantMs]
+
+Scenario("4. the library tree names the capability, never a node")
+Then("profile a has no rule in the library tree", StzEngineBoundaryRulesLeft("stz.b4.a", tLibRoot, 0), 0)
+nWalkedLib = StzEngineBoundaryWalked()
+Then("...over the whole tree", nWalkedLib > 10000, true)
+Then("profile b has none either", StzEngineBoundaryRulesLeft("stz.b4.b", tLibRoot, 0), 0)
+Then("the capability holds the rule", StzEngineBoundaryHasRule("cap:" + tCap, tStzBase), 1)
+
+Scenario("5. both nodes start warm through the supervisor")
+for tN in ["a", "b"]
+    oSup = new stzNodeSupervisor()
+    oSup.Child(tN, NodeDir(tN) + tBS + "node.haro", 45950)
+    oSup.ChildGrant(tN, [[:profile, "stz.b4." + tN], [:reads, [NodeDir(tN)]], [:writes, [RunsDir(tN)]],
+                         [:capabilities, [tCap]], [:memoryMB, 256], [:output, RunsDir(tN) + tBS + "start.txt"],
+                         [:cache, tWork + tBS + tN + tBS + "cache"], [:interpreter, tHaro]])
+    oSup.RestartBudget(0, 60000)
+    oSup.StartAll()
+    CycleUntilEscalated(oSup, 60000)
+    vRuns = oSup.RunsOf(tN)
+    Then("node " + tN + " ran once and ended with 0", Len(vRuns) = 1 and vRuns[1][:exit] = 0, true)
+    Then("...said it is up", Has(ReadOr(RunsDir(tN) + tBS + "start.txt"), "node up: 5"), true)
+    Then("...met no limit under 256 MB", Len(vRuns[1][:limits]), 0)
+    Then("...within two seconds", vRuns[1][:wallMs] < Float(2000), true)
+    oSup.Destroy()
+end
+
+Scenario("6. without the capability")
+nG = StzEngineBoundaryNew("stz.b4.a")
+StzEngineBoundaryRead(nG, NodeDir("a"))
+StzEngineBoundaryWrite(nG, RunsDir("a"))
+StzEngineBoundaryMemory(nG, 512)
+StzEngineBoundaryOutput(nG, RunsDir("a") + tBS + "nocap.txt", RunsDir("a") + tBS + "nocap.txt")
+SysSet("HARO_CACHE", tWork + tBS + "a" + tBS + "cache")
+StzEngineBoundaryStart(nG, Q(tHaro) + " " + Q(NodeDir("a") + tBS + "node.haro"))
+StzEngineBoundaryWait(nG, 60000)
+tSaid = ReadOr(RunsDir("a") + tBS + "nocap.txt")
+Then("the node cannot read the library it loads", Has(tSaid, "AccessDenied") or Has(tSaid, "R35"), true)
+Then("...and never says it is up", Has(tSaid, "node up"), false)
+StzEngineBoundaryFree(nG)
+
+Scenario("7. a node's TEMP is its container's own")
+nG = StzEngineBoundaryNew("stz.b4.a")
+StzEngineBoundaryRead(nG, NodeDir("a"))
+StzEngineBoundaryWrite(nG, RunsDir("a"))
+StzEngineBoundaryCapability(nG, tCap)
+StzEngineBoundaryOutput(nG, RunsDir("a") + tBS + "tmp.txt", RunsDir("a") + tBS + "tmp.txt")
+StzEngineBoundaryStart(nG, Q(tHaro) + " " + Q(NodeDir("a") + tBS + "tmp.haro"))
+StzEngineBoundaryWait(nG, 60000)
+tTemp = ReadOr(RunsDir("a") + tBS + "tmp.txt")
+Then("it lies under the profile's Packages folder", Has(Lower(tTemp), Lower(tBS + "Packages" + tBS + "stz.b4.a" + tBS + "AC" + tBS + "Temp")), true)
+Then("...not the supervisor's TEMP", Has(Lower(tTemp), Lower(SysGet("TEMP")) + tBS), false)
+StzEngineBoundaryFree(nG)
+
+Scenario("8. removing the first node")
+vR = StzBoundaryRemove(Plan("a"))
+Then("it answers ok", vR[:ok], 1)
+Then("...and left no rule of profile a", vR[:rulesLeft], 0)
+Then("the shared rule stays: the library still names the capability", StzEngineBoundaryHasRule("cap:" + tCap, tStzBase), 1)
+nG = StzEngineBoundaryNew("stz.b4.b")
+StzEngineBoundaryRead(nG, NodeDir("b"))
+StzEngineBoundaryWrite(nG, RunsDir("b"))
+StzEngineBoundaryCapability(nG, tCap)
+StzEngineBoundaryMemory(nG, 256)
+StzEngineBoundaryOutput(nG, RunsDir("b") + tBS + "after.txt", RunsDir("b") + tBS + "after.txt")
+SysSet("HARO_CACHE", tWork + tBS + "b" + tBS + "cache")
+StzEngineBoundaryStart(nG, Q(tHaro) + " " + Q(NodeDir("b") + tBS + "node.haro"))
+StzEngineBoundaryWait(nG, 60000)
+Then("node b still starts and says it is up", Has(ReadOr(RunsDir("b") + tBS + "after.txt"), "node up: 5"), true)
+StzEngineBoundaryFree(nG)
+
+Scenario("9. after the last node")
+vR = StzBoundaryRemove(Plan("b"))
+Then("removing node b answers ok", vR[:ok], 1)
+vR = StzBoundaryRemoveShared(tCap, [tBin, tLibRoot, tEngine])
+Then("the shared trees are revoked from the capability", vR[:revoked], 3)
+Then("...walked", vR[:walked] > 10000, true)
+Then("...and no entry names it", vR[:rulesLeft], 0)
+Then("...answering ok", vR[:ok], 1)
+
+? ""
+? "install of node a: " + String(nGrantA) + " ms of grants (shared trees and its own); node b: " + String(nGrantB) + " ms (its own only)"
+? "library tree walked: " + String(nWalkedLib) + " entries"
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# --- helpers -----------------------------------------------------------------------------------------------------------
+
+func Plan(tN)
+    tW = SysGet("TEMP") + Char(92) + "stz_b4"
+    tH = tW + Char(92) + "bin" + Char(92) + "haro.exe"
+    tB = Parent(Parent(Trim(SystemCmd("cd"))))
+    return [[:name, "stz.b4." + tN], [:reads, [NodeDir(tN)]], [:writes, [RunsDir(tN)]],
+            [:cache, tW + Char(92) + tN + Char(92) + "cache"],
+            [:shared, [tW + Char(92) + "bin", Parent(tB), SysGet("STZ_ENGINE_DIR")]], [:capability, "stz.b4.guard"],
+            [:library, tB + Char(92) + "stzBase.ring"], [:haro, tH],
+            [:warm, Q(tH) + " " + Q(NodeDir(tN) + Char(92) + "node.haro")], [:warmMB, 1024],
+            [:output, RunsDir(tN) + Char(92) + "warm.txt"]]
+end
+
+func NodeDir(tN)
+    return SysGet("TEMP") + Char(92) + "stz_b4" + Char(92) + tN + Char(92) + "node"
+end
+
+func RunsDir(tN)
+    return SysGet("TEMP") + Char(92) + "stz_b4" + Char(92) + tN + Char(92) + "runs"
+end
+
+func CycleUntilEscalated(oS, nMs)
+    nT0 = Clock()
+    while Clock() - nT0 < nMs
+        oS.Cycle()
+        if oS.Escalated() = 1
+            return
+        end
+        SysSleep(50)
+    end
+end
+
+func ReadOr(tPath)
+    if not FExists(tPath)
+        return ""
+    end
+    return Trim(Read(tPath))
+end
+
+func Parent(tPath)
+    nN = Len(tPath)
+    for i = nN to 1 step -1
+        if tPath[i] = Char(92)
+            return Left(tPath, i - 1)
+        end
+    end
+    return tPath
+end
+
+func Q(tS)
+    return Char(34) + tS + Char(34)
+end
+
+func Has(tIn, tPart)
+    return SubStr(tIn, tPart) > 0
+end
+
+func FirstLine(tS)
+    nAt = SubStr(tS, Char(10))
+    if nAt = 0
+        return tS
+    end
+    return Left(tS, nAt - 1)
+end
+
+func Scenario(tTitle)
+    ? ""
+    ? "SCENARIO: " + tTitle
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end

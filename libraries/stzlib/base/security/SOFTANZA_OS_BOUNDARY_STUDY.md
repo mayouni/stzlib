@@ -142,8 +142,8 @@ Five consequences for the design:
    of milliseconds. A wall-clock deadline stays with the supervisor's own timer.
 4. **Grant the shared trees once.** The engine and the library are granted at install, about 4 s for the library.
    One capability SID shared by every node container would let one rule on the library serve all nodes: the
-   supervisor would grant the capability, never the tree, at each node's birth. That shape is the next probe and is
-   not measured here.
+   supervisor would grant the capability, never the tree, at each node's birth. **Measured and built as rung B4**: the
+   second node's install writes no rule on the shared trees.
 5. **The refusal the node sees is R35, "Can't create/open the file".** The record can say what was refused and
    where, but not that the operating system refused it. A Haro file error carrying the Windows error code would let a
    run record name the boundary. That is a question for the Haro desk.
@@ -153,7 +153,7 @@ Five consequences for the design:
 1. **Rung B1, the spawn in the engine -- BUILT 2026-11-14**, below.
 2. **Rung B2, install and removal -- BUILT 2026-11-14**, below.
 3. **Rung B3, stzNodeSupervisor takes the grant -- BUILT 2026-11-14**, below.
-4. **The shared capability SID** (consequence 4), measured before B2 is closed.
+4. **Rung B4, the shared capability SID -- BUILT 2026-11-14**, below.
 
 The Linux half stays HAROBANDA-WORKER-01.
 
@@ -294,4 +294,42 @@ stale, and its next start meets JOB_MEMORY_LIMIT, which is now a node.limit reco
 StzBoundaryInstall again. **What the plain children's guard says on haro**: `test/cluster/d3_supervision_narrated.ring`
 is 20 of 25 on haro.exe, with the same five failures with and without this rung (its children answer after boot too
 late for its timeouts); the rung leaves plain children as they were.
+
+## Rung B4, built
+
+A trustee written `cap:<name>` is the capability SID Windows derives from that name (`DeriveCapabilitySidsFromName`,
+found in kernelbase.dll at run time). `StzEngineBoundaryGrantPath`, `HasRule`, `Revoke` and `RulesLeft` take it where
+they take a profile, and `StzEngineBoundaryCapability(nG, name)` puts the capability in a node's token. An AppContainer
+token's capabilities are matched against access rules as its own SID is, so one rule for the capability on a shared
+tree opens it to every node carrying it.
+
+The install plan gains `:shared` (the trees every node reads: the library, the engine, haro's folder) and
+`:capability`; the shared trees are granted to `cap:<capability>` and never to a node's profile, and a plan naming
+shared trees without a capability is refused. `StzBoundaryRemoveShared(capability, paths)` revokes them after the last
+node. The supervisor's grant gains `:capabilities`. Grant and plan keys are read without regard to case.
+
+**Measured** by `base/test/security/os_boundary_shared_narrated.haro`, 36 of 36 on haro.exe, two nodes on this
+checkout's library tree:
+
+| | node a, first | node b, second |
+|---|---|---|
+| rules written on the shared trees | 3, for the capability | **0** |
+| rules written on its own folders | 2 | 2 |
+| grants at install | 3,737 ms | **37 ms** |
+| rules of its profile anywhere in the library tree (22,114 entries walked) | 0 | 0 |
+| a start through stzNodeSupervisor under 256 MB, carrying the capability | node up, exit 0, no limit, under 2 s | the same |
+
+- **Without the capability**, the same node cannot read the library it loads: haro reports AccessDenied and runs
+  nothing.
+- **Removing node a** leaves the capability's rule, and node b still starts.
+- **After the last node**, revoking the three shared trees from the capability and walking them finds no entry naming
+  it.
+- **A node's TEMP is its container's own folder**, `%LOCALAPPDATA%\Packages\<profile>\AC\Temp`, whatever the
+  supervisor's TEMP is: Windows sets it for a container process. A node is handed absolute paths and never builds
+  them from its TEMP. A probe that did read R35 on a file it was granted.
+- **haro.exe starts without any rule on its own file**: Windows opens the program under the supervisor's rights when
+  it creates the process. What the node then reads -- its program, the library -- is what the grant decides.
+
+With B4 the four rungs of this study are built. The supervisor's code is `.ring` (base/cluster) and moves to `.haro`
+with the cluster module.
 

@@ -24,6 +24,13 @@
 #   :warm        the node's command line for the warm start
 #   :warmMB      the warm start's memory ceiling (1024 by default: a node compiled on the prefix peaks near 700 MB)
 #   :output      the warm start's output file
+#   :shared      trees every node reads -- the library, the engine, haro's folder -- granted ONCE to the capability
+#   :capability  the capability every node's token carries (rung B4); with it, :shared is granted to "cap:<name>"
+#                and never to a node's own profile, so a second node's install writes no rule on those trees
+#
+# StzBoundaryRemoveShared(tCapability, vPaths) revokes the shared trees from the capability, after the last node.
+# A node's TEMP inside its container is the container's own folder (...\Packages\<profile>\AC\Temp), not the
+# supervisor's: hand a node absolute paths.
 #
 # Measured 2026-11-14 (SOFTANZA_OS_BOUNDARY_STUDY.md, rung B2): an image is kept per cache folder and root file, not per
 # container; haro answers exit code 0 when its compile fails for memory, so the warm start is judged by the job's
@@ -34,8 +41,14 @@ func StzBoundaryInstall(vPlan)
     tCache = StzBoundaryPlanText(vPlan, :cache, "")
     vReads = StzBoundaryPlanList(vPlan, :reads)
     vWrites = StzBoundaryPlanList(vPlan, :writes)
-    vR = [[:ok, 0], [:profile, -1], [:written, 0], [:grantMs, 0], [:prefixMs, 0], [:warmExit, -1], [:warmMs, 0],
-          [:warmPeakMB, 0], [:warmMessages, ""], [:error, ""]]
+    vShared = StzBoundaryPlanList(vPlan, :shared)
+    tCap = StzBoundaryPlanText(vPlan, :capability, "")
+    vR = [[:ok, 0], [:profile, -1], [:written, 0], [:sharedWritten, 0], [:grantMs, 0], [:prefixMs, 0], [:warmExit, -1],
+          [:warmMs, 0], [:warmPeakMB, 0], [:warmMessages, ""], [:error, ""]]
+    if Len(vShared) > 0 and tCap = ""
+        vR[:error] = "the plan names :shared trees and no :capability to grant them to"
+        return vR
+    end
     if tCache = ""
         vR[:error] = "the plan names no :cache folder"
         return vR
@@ -69,6 +82,14 @@ func StzBoundaryInstall(vPlan)
         end
         vR[:written] = vR[:written] + nG
     end
+    for tP in vShared
+        nG = StzEngineBoundaryGrantPath("cap:" + tCap, tP, 0)
+        if nG < 0
+            vR[:error] = StzEngineBoundaryError(0)
+            return vR
+        end
+        vR[:sharedWritten] = vR[:sharedWritten] + nG
+    end
     vR[:grantMs] = Clock() - nT
 
     # the trusted library, compiled outside the boundary into the node's cache
@@ -96,6 +117,9 @@ func StzBoundaryInstall(vPlan)
     nG = StzEngineBoundaryNew(tName)
     nWarmMB = StzBoundaryPlanNumber(vPlan, :warmMB, 1024)
     StzEngineBoundaryMemory(nG, nWarmMB)
+    if tCap != ""
+        StzEngineBoundaryCapability(nG, tCap)
+    end
     tOut = StzBoundaryPlanText(vPlan, :output, "")
     StzEngineBoundaryOutput(nG, tOut, tOut)
     if StzEngineBoundaryStart(nG, StzBoundaryPlanText(vPlan, :warm, "")) = 0
@@ -165,11 +189,35 @@ func StzBoundaryRemove(vPlan)
     return vR
 end
 
+# revokes the shared trees from the capability and walks them; -> [:ok, :revoked, :rulesLeft, :walked, :error]
+func StzBoundaryRemoveShared(tCapability, vPaths)
+    vR = [[:ok, 0], [:revoked, 0], [:rulesLeft, 0], [:walked, 0], [:error, ""]]
+    for tP in vPaths
+        nE = StzEngineBoundaryRevoke("cap:" + tCapability, tP)
+        if nE = 0
+            vR[:revoked] = vR[:revoked] + 1
+        else
+            vR[:error] = "revoking " + tP + " answered " + String(nE)
+        end
+        nLeft = StzEngineBoundaryRulesLeft("cap:" + tCapability, tP, 0)
+        if nLeft < 0
+            vR[:error] = "the tree " + tP + " could not be walked"
+        else
+            vR[:rulesLeft] = vR[:rulesLeft] + nLeft
+            vR[:walked] = vR[:walked] + StzEngineBoundaryWalked()
+        end
+    end
+    if vR[:error] = "" and vR[:rulesLeft] = 0
+        vR[:ok] = 1
+    end
+    return vR
+end
+
 # --- reading a plan ---------------------------------------------------------------------------------------------------
 
 func StzBoundaryPlanText(vPlan, tKey, tDefault)
     for vRow in vPlan
-        if vRow[1] = tKey
+        if Lower("" + vRow[1]) = Lower("" + tKey)
             return "" + vRow[2]
         end
     end
@@ -178,7 +226,7 @@ end
 
 func StzBoundaryPlanNumber(vPlan, tKey, nDefault)
     for vRow in vPlan
-        if vRow[1] = tKey
+        if Lower("" + vRow[1]) = Lower("" + tKey)
             return vRow[2]
         end
     end
@@ -187,7 +235,7 @@ end
 
 func StzBoundaryPlanList(vPlan, tKey)
     for vRow in vPlan
-        if vRow[1] = tKey
+        if Lower("" + vRow[1]) = Lower("" + tKey)
             return vRow[2]
         end
     end
