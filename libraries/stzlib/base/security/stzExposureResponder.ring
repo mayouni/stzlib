@@ -35,12 +35,18 @@
 #     says so (W7's load-on-need manifest is where a domain deny can live);
 #   * a listener ALREADY open stays open: the door refuses new binds, and
 #     StillOpen() names the sockets whose owner must stop them;
-#   * the model doors sit where the record is written, after the model ran:
-#     a shut model withholds the answer, it does not prevent the run
-#     (routed to stzlib-intelligence to move the check before the run).
+#   * a shut :model or :fetch door is also written into the engine's own
+#     shut list (stz_seclog, SECURITY-R18c), so stz_neural refuses a direct
+#     StzEngineNeural* call before the file is read and the credential broker
+#     refuses the host; :listener and :exposed have no engine door, so they
+#     bind the Ring paths only. A row the engine list refuses (full at 256,
+#     a name over 192 bytes) is said in the exposure.closed record, and
+#     StzEngineShutRefused() counts it.
 
 # the shut doors: [ [ kind, name, advisoryId, how ], ... ]
 $aStzShutDoors = []
+# shuts the engine list refused (StzEngineShutRefused)
+$nStzEngineShutRefused = 0
 
 # THE DOOR CHECK: every governed door calls this before its effect. Raises,
 # after recording the refusal, when a shut door covers the effect.
@@ -78,8 +84,18 @@ func StzNumberOfShutDoors()
 
 # Opens every door, without a record: for a guard's setup only. A program
 # reopens through stzExposureResponder.Reopen, which writes exposure.reopened.
+# The engine rows the responder wrote are reopened with them.
 func StzForgetShutDoors()
+	_n_ = len($aStzShutDoors)
+	for _i_ = 1 to _n_
+		StzEngineSecLogDoorReopen($aStzShutDoors[_i_][3])
+	next
 	$aStzShutDoors = []
+
+# Shuts that the engine's shut list refused (full, or a field too long): 0 is
+# the only right answer, since such a door binds the Ring paths only.
+func StzEngineShutRefused()
+	return $nStzEngineShutRefused
 
 # The host of a URL, lowercased: http://Example.org:8080/x -> example.org
 func StzUrlHost(pcUrl)
@@ -165,9 +181,10 @@ class stzExposureResponder from stzObject
 	def ShutFetch(pcAdvisoryId, pcHost, pcHow)
 		return This._Shut("fetch", pcHost, pcAdvisoryId, pcHow)
 
-	# Refuses the answer of every call to a model (file or architecture, or "*") at the model doors.
+	# Refuses every call to a model (file or architecture, or "*") at the model doors, before it runs.
 	#
-	#   warning    the door runs after the model did: the answer is withheld, the run is not prevented
+	#   note       the row is also written into the engine's shut list, so a direct StzEngineNeural* call on
+	#              that model file is refused before the file is read; an architecture name binds the Ring doors only
 	def ShutModel(pcAdvisoryId, pcModel, pcHow)
 		return This._Shut("model", pcModel, pcAdvisoryId, pcHow)
 
@@ -242,6 +259,7 @@ class stzExposureResponder from stzObject
 			ok
 		next
 		$aStzShutDoors = _aKeep_
+		StzEngineSecLogDoorReopen("" + pcAdvisoryId)
 		return _nOpened_
 
 	  #-- the reach table ---------------------------------------------------------#
@@ -361,7 +379,17 @@ class stzExposureResponder from stzObject
 			ok
 		next
 		$aStzShutDoors + [ pcKind, _cName_, "" + pcAdvisoryId, "" + pcHow ]
-		StzNoteExposureClosed(pcAdvisoryId, pcKind + " " + _cName_, pcKind + " door shut: " + pcHow)
+		# the engine checks model and fetch itself: write the row where it looks
+		_cEng_ = ""
+		if pcKind = "model" or pcKind = "fetch"
+			if StzEngineSecLogDoorShut(pcKind, _cName_, "" + pcAdvisoryId) = 1
+				_cEng_ = " (engine list holds it)"
+			else
+				$nStzEngineShutRefused++
+				_cEng_ = " (the engine list refused it: a direct engine call is not refused)"
+			ok
+		ok
+		StzNoteExposureClosed(pcAdvisoryId, pcKind + " " + _cName_, pcKind + " door shut: " + pcHow + _cEng_)
 		return This
 
 	# What an advisory on each vendored library and engine domain reaches, read

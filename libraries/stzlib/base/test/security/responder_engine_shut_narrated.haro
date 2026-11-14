@@ -1,0 +1,109 @@
+# THE RESPONDER SHUTS THE ENGINE'S DOOR TOO -- SECURITY-R18c, the responder half, narrated
+#
+# The engine holds its own shut list (stz_seclog, door_shut.zig) and asks it before a model runs (stz_neural) and before
+# the credential broker sends (stz_http). Until this half, stzExposureResponder wrote its shuts into the Ring list only,
+# so the engine's list stayed empty and a direct StzEngineNeural* call on a model the responder had shut still ran. Now
+# a :model or :fetch shut is written in both places, a reopen clears both, and a row the engine refuses is counted.
+#
+#   Scene 1  ShutModel writes the engine row: a direct engine call on the shut model is refused before it runs
+#   Scene 2  ShutFetch writes the engine row the broker reads
+#   Scene 3  a listener door has no engine door: the engine list does not grow
+#   Scene 4  shutting the same door twice writes one row in each list
+#   Scene 5  Reopen clears the engine rows of its advisory and leaves another advisory's
+#   Scene 6  a row the engine refuses (a name over 192 bytes) is said in the record and counted
+#   Scene 7  StzForgetShutDoors clears the engine rows the responder wrote
+#
+# RUNS ON haro.exe; STZ_ENGINE_DIR names an engine whose stz_neural and stz_seclog carry R18c, STZ_MODELS_DIR a folder
+# with all-MiniLM-L6-v2.Q8_0.gguf.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+tMini = StzModelsDir() + "/all-MiniLM-L6-v2.Q8_0.gguf"
+tMiniName = "all-minilm-l6-v2.q8_0.gguf"
+StzCloseSecurityLedger()
+StzForgetShutDoors()
+oResp = StzExposureResponderQ()
+
+Scenario("1. ShutModel writes the engine row")
+Then("the engine's shut list starts empty", StzEngineSecLogDoorShutCount(), 0)
+Then("MiniLM loads and embeds while open", StzEngineNeuralModelLoad(tMini) = 1 and StzEngineNeuralEmbed("open") = 384, true)
+oResp.ShutModel("ADV-RESP-1", tMiniName, "a crafted tokenizer reaches the embedder")
+Then("the engine list holds the model under the advisory", StzEngineSecLogDoorIsShut("model", tMiniName), "ADV-RESP-1")
+Then("a direct engine embed is refused: 0 numbers", StzEngineNeuralEmbed("shut by the responder"), 0)
+Then("...and the engine says which advisory", StzEngineNeuralRefusal(), "refused: the model '" + tMiniName + "' is shut by advisory ADV-RESP-1")
+Then("the exposure.closed record says the engine holds it", SubStr(LastReason("exposure.closed"), "engine list holds it") > 0, true)
+
+Scenario("2. ShutFetch writes the engine row the broker reads")
+oResp.ShutFetch("ADV-RESP-2", "API.Shop.Example", "the payment host answers forged receipts")
+Then("the engine list holds the host, lowercased", StzEngineSecLogDoorIsShut("fetch", "api.shop.example"), "ADV-RESP-2")
+Then("two engine rows", StzEngineSecLogDoorShutCount(), 2)
+
+Scenario("3. a listener door has no engine door")
+oResp.ShutListeners("ADV-RESP-3", "stzTcpServer", "the parser is exposed")
+Then("the Ring list has three doors", StzNumberOfShutDoors(), 3)
+Then("...the engine list still two", StzEngineSecLogDoorShutCount(), 2)
+
+Scenario("4. the same shut twice")
+oResp.ShutModel("ADV-RESP-1", tMiniName, "again")
+Then("the Ring list still three", StzNumberOfShutDoors(), 3)
+Then("...the engine list still two", StzEngineSecLogDoorShutCount(), 2)
+
+Scenario("5. Reopen clears its own advisory")
+Then("reopening ADV-RESP-1 opens one door", oResp.Reopen("ADV-RESP-1"), 1)
+Then("the engine row is gone", StzEngineSecLogDoorIsShut("model", tMiniName), "")
+Then("MiniLM embeds again", StzEngineNeuralEmbed("reopened"), 384)
+Then("ADV-RESP-2's engine row stays", StzEngineSecLogDoorIsShut("fetch", "api.shop.example"), "ADV-RESP-2")
+
+Scenario("6. a row the engine refuses is said and counted")
+tLong = Copies("x", 200) + ".gguf"
+oResp.ShutModel("ADV-RESP-6", tLong, "a name too long for the engine's row")
+Then("the Ring door still shuts it", StzNumberOfShutDoors(), 3)
+Then("the engine list did not take it", StzEngineSecLogDoorShutCount(), 1)
+Then("...the record says so", SubStr(LastReason("exposure.closed"), "engine list refused it") > 0, true)
+Then("...and the counter counts it", StzEngineShutRefused(), 1)
+
+Scenario("7. StzForgetShutDoors clears the engine rows too")
+StzForgetShutDoors()
+Then("the Ring list is empty", StzNumberOfShutDoors(), 0)
+Then("the engine list is empty", StzEngineSecLogDoorShutCount(), 0)
+
+? ""
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+func Copies(tC, nN)
+    tOut = ""
+    for i = 1 to nN
+        tOut = tOut + tC
+    end
+    return tOut
+end
+
+func LastReason(tKind)
+    vL = StzSecurityLedgerQ().OfKind(tKind)
+    nN = Len(vL)
+    if nN = 0
+        return ""
+    end
+    return "" + vL[nN][:reason]
+end
+
+func Scenario(tName)
+    ? ""
+    ? "SCENARIO: " + tName
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end
