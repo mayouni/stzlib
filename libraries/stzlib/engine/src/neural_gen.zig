@@ -3363,3 +3363,445 @@ pub export fn neural_gen_token_at(i: c_int) callconv(.c) c_int {
     if (idx >= g_probe_ids.items.len) return -1;
     return g_probe_ids.items[idx];
 }
+
+
+// ==== MODEL SLOTS (RADAR-TPUSYNC-BUDGET-01 b): several models held at once, one budget across them ====================
+//
+// The decoder keeps ONE model's state in globals: the model IN PLACE, which every neural function reads. A slot is a
+// named place beside it holding another model's whole state -- its weights, its tokenizers, its prompt cache -- in the
+// same two structures the drafter uses (embed.ModelSlot, GenSlot). Selecting a slot EXCHANGES states, so the selected
+// model runs through exactly the code the default model runs, and nothing is rebuilt: each model keeps its generation
+// number, its tokenizer and the prompt it last read. The model loaded the ordinary way (neural_model_load) is the
+// DEFAULT, held in place when no slot is selected; it is never evicted.
+//
+// THE BUDGET. Every model's weights are read whole into memory (never mapped), so a model costs its file's size plus its
+// prompt cache. With a budget set, a slot load or a select that brings the held total over it EVICTS the slot used
+// least recently (never the one in place, never the default): its memory is freed and the slot keeps its name and its
+// file, to be read back when it is selected again. Room for a file's size is made BEFORE it is read (see slotRead),
+// so what is held never passes the budget; a model too large for the budget beside the default alone is refused
+// unread. What no budget counts: a forward pass's working memory, 1.2 to 2.1 times a model's size at its peak
+// (measured), freed when the pass ends. The budget is checked when a model is loaded or selected; the prompt cache of
+// the model in place grows as it reads, and may pass the budget by that growth until the next load or select (3 MB
+// measured on the support desk's set under 4 GB). Measured before this was written (_measure_ready.haro): reading a file back in the
+// same process costs a third of a first load, because the engine keeps each file's digest.
+//
+// THE INVARIANT. The storage of whatever is in place -- a slot or the default -- is always empty: its state lives in
+// the globals. A select parks the state in place into its own storage, then brings the chosen one out of its storage.
+
+const MAX_SLOTS: usize = 32;
+const SLOT_NONE: usize = std.math.maxInt(usize); // the default model is in place
+
+const SLOT_OK: c_int = 0;
+const SLOT_UNKNOWN: c_int = 1; // no slot has that name
+const SLOT_FULL: c_int = 2; // all 32 slots are taken
+const SLOT_LOAD_REFUSED: c_int = 3; // the file did not load (neural_model_load_status says why)
+const SLOT_BAD_NAME: c_int = 4; // a name is 1 to 63 bytes, a path 1 to 1023
+const SLOT_OVER_BUDGET: c_int = 5; // the model, beside the default alone, is over the budget
+const SLOT_RELOAD_REFUSED: c_int = 6; // an evicted slot's file no longer loads (changed, moved, digest)
+
+const SlotRec = struct {
+    used: bool = false,
+    name: [64]u8 = undefined,
+    name_len: usize = 0,
+    path: [1024]u8 = undefined,
+    path_len: usize = 0,
+    resident: bool = false,
+    last_use: u64 = 0,
+    model: embed.ModelSlot = .{},
+    gen: GenSlot = .{},
+};
+
+var g_slots: [MAX_SLOTS]SlotRec = [_]SlotRec{.{}} ** MAX_SLOTS;
+var g_slot_in_place: usize = SLOT_NONE;
+var g_default_model: embed.ModelSlot = .{};
+var g_default_gen: GenSlot = .{};
+var g_slot_budget: usize = 0; // 0: no budget
+var g_slot_tick: u64 = 0;
+var g_slot_status: c_int = SLOT_OK;
+// [slot loads, reads back after an eviction, evictions, selects that changed the model in place, files read]
+var g_slot_stats: [5]usize = .{ 0, 0, 0, 0, 0 };
+
+const SlotStore = struct { m: *embed.ModelSlot, g: *GenSlot };
+
+fn slotStore(i: usize) SlotStore {
+    if (i == SLOT_NONE) return .{ .m = &g_default_model, .g = &g_default_gen };
+    return .{ .m = &g_slots[i].model, .g = &g_slots[i].gen };
+}
+
+fn slotExchange(i: usize) void {
+    const st = slotStore(i);
+    embed.swapModel(st.m);
+    swapGen(st.g);
+}
+
+// Put slot (or default) `to` in place; the state in place goes back into its own storage.
+fn slotPlace(to: usize) void {
+    if (to == g_slot_in_place) return;
+    slotExchange(g_slot_in_place);
+    slotExchange(to);
+    g_slot_in_place = to;
+}
+
+// Free the decoder's and the model's state in place (the globals), leaving them empty.
+fn freeInPlace() void {
+    neural_gen_release();
+    embed.neural_model_free();
+}
+
+/// Free the decoder's state for the model in place: its tokenizer, its prompt cache, its last logits. The ordinary
+/// model free calls it, so a freed model leaves no prompt cache behind (found by the slot budget: a freed model's cache
+/// still held its megabytes until another model reused the space).
+pub export fn neural_gen_release() callconv(.c) void {
+    freeBpe();
+    resetKv();
+    g_kv_ids.clearAndFree(gpa);
+    g_logits.clearAndFree(gpa);
+}
+
+// The bytes a prompt cache and the last logits hold.
+fn genBytes(kvctx: ?*c.ggml_context, cvctx: ?*c.ggml_context, logits: usize, ids: usize) usize {
+    var n: usize = logits * @sizeOf(f32) + ids * @sizeOf(i32);
+    if (kvctx) |k| n += c.ggml_get_mem_size(k);
+    if (cvctx) |k| n += c.ggml_get_mem_size(k);
+    return n;
+}
+
+fn bytesInPlace() usize {
+    return embed.heldBytes() + genBytes(g_kvctx, g_cvctx, g_logits.capacity, g_kv_ids.capacity);
+}
+
+fn bytesStored(i: usize) usize {
+    const st = slotStore(i);
+    return embed.slotBytes(st.m) + genBytes(st.g.kvctx, st.g.cvctx, st.g.logits.capacity, st.g.kv_ids.capacity);
+}
+
+fn slotBytesOf(i: usize) usize {
+    return if (i == g_slot_in_place) bytesInPlace() else bytesStored(i);
+}
+
+fn heldTotal() usize {
+    var n: usize = slotBytesOf(SLOT_NONE);
+    for (0..MAX_SLOTS) |i| {
+        if (g_slots[i].used and g_slots[i].resident) n += slotBytesOf(i);
+    }
+    return n;
+}
+
+// Free a slot's model; the slot keeps its name and file. Never called on the slot in place.
+fn slotEvict(i: usize) void {
+    slotExchange(i); // its state in place, the state in place in its storage
+    freeInPlace();
+    slotExchange(i); // back: the state in place again, its storage empty
+    g_slots[i].model = .{};
+    g_slots[i].gen = .{};
+    g_slots[i].resident = false;
+}
+
+// Evict the least recently used resident slots until the held total is within the budget. False when what is left --
+// the slot in place and the default -- is over it alone.
+fn slotFit() bool {
+    if (g_slot_budget == 0) return true;
+    while (heldTotal() > g_slot_budget) {
+        var lru: usize = SLOT_NONE;
+        for (0..MAX_SLOTS) |i| {
+            const r = &g_slots[i];
+            if (!r.used or !r.resident or i == g_slot_in_place) continue;
+            if (lru == SLOT_NONE or r.last_use < g_slots[lru].last_use) lru = i;
+        }
+        if (lru == SLOT_NONE) return false;
+        slotEvict(lru);
+        g_slot_stats[2] += 1;
+    }
+    return true;
+}
+
+// Put back what was in place before a refused call; a slot the budget evicted meanwhile gives way to the default.
+fn placeBack(before: usize) void {
+    if (before != SLOT_NONE and !(g_slots[before].used and g_slots[before].resident)) {
+        slotPlace(SLOT_NONE);
+    } else {
+        slotPlace(before);
+    }
+}
+
+// True when the model in place fits the budget beside the default alone -- so evicting other slots can make room.
+// Asked BEFORE anything is evicted, so a model refused for its size costs no other slot its place.
+fn fitsAlone() bool {
+    if (g_slot_budget == 0) return true;
+    const dflt: usize = if (g_slot_in_place == SLOT_NONE) 0 else bytesStored(SLOT_NONE);
+    return bytesInPlace() + dflt <= g_slot_budget;
+}
+
+fn slotFind(name: []const u8) usize {
+    for (0..MAX_SLOTS) |i| {
+        const r = &g_slots[i];
+        if (r.used and std.mem.eql(u8, r.name[0..r.name_len], name)) return i;
+    }
+    return SLOT_NONE;
+}
+
+fn cspan(p: [*c]const u8) []const u8 {
+    if (p == null) return "";
+    return std.mem.span(@as([*:0]const u8, @ptrCast(p)));
+}
+
+// Evict least recently used slots until `need` more bytes fit the budget. False when they cannot -- the default and
+// what nothing may evict are over it already -- and then nothing is read.
+fn makeRoom(need: usize) bool {
+    if (g_slot_budget == 0) return true;
+    // beside the default alone it must fit, or nothing is evicted for it
+    if (need + slotBytesOf(SLOT_NONE) > g_slot_budget) return false;
+    while (heldTotal() + need > g_slot_budget) {
+        var lru: usize = SLOT_NONE;
+        for (0..MAX_SLOTS) |k| {
+            const q = &g_slots[k];
+            if (!q.used or !q.resident or k == g_slot_in_place) continue;
+            if (lru == SLOT_NONE or q.last_use < g_slots[lru].last_use) lru = k;
+        }
+        if (lru == SLOT_NONE) return false;
+        slotEvict(lru);
+        g_slot_stats[2] += 1;
+    }
+    return true;
+}
+
+var g_read_over: bool = false; // the last slotRead was refused by the budget, before the file was read
+
+// Read slot i's file into it and put it in place. True when it loaded; false leaves it in place, empty.
+//
+// ROOM FIRST. The weights are read whole, so a model holds at least its file's size: that much is made room for BEFORE
+// the file is read, and a file larger than the budget beside the default is refused unread. Evicting after the read
+// let the process hold the new model on top of everything already held -- measured 2026-11-14: a 9.8 GB peak under a
+// 4 GB budget, the 6 GB Bolt file read in full only to be refused.
+fn slotRead(i: usize) bool {
+    const r = &g_slots[i];
+    var buf: [1025]u8 = undefined;
+    @memcpy(buf[0..r.path_len], r.path[0..r.path_len]);
+    buf[r.path_len] = 0;
+    g_read_over = false;
+    slotPlace(i);
+    const size: usize = blk: {
+        const st = std.fs.cwd().statFile(r.path[0..r.path_len]) catch break :blk 0;
+        break :blk @intCast(st.size);
+    };
+    if (!makeRoom(size)) {
+        g_read_over = true;
+        return false;
+    }
+    g_slot_stats[4] += 1;
+    if (embed.neural_model_load(@ptrCast(&buf)) != 1) {
+        freeInPlace();
+        return false;
+    }
+    r.resident = true;
+    return true;
+}
+
+/// Load a model file into the slot `name` (a slot of that name is replaced) and put it in place. 1 when it is in place;
+/// 0 with neural_slot_status() saying why, the model in place before the call left in place.
+pub export fn neural_slot_load(name_c: [*c]const u8, path_c: [*c]const u8) callconv(.c) c_int {
+    const name = cspan(name_c);
+    const path = cspan(path_c);
+    if (name.len == 0 or name.len > 63 or path.len == 0 or path.len > 1023) {
+        g_slot_status = SLOT_BAD_NAME;
+        return 0;
+    }
+    if (slotFind(name) != SLOT_NONE) _ = neural_slot_free(name_c);
+    const before = g_slot_in_place;
+    var i: usize = SLOT_NONE;
+    for (0..MAX_SLOTS) |k| {
+        if (!g_slots[k].used) {
+            i = k;
+            break;
+        }
+    }
+    if (i == SLOT_NONE) {
+        g_slot_status = SLOT_FULL;
+        return 0;
+    }
+    const r = &g_slots[i];
+    r.* = .{};
+    r.used = true;
+    r.name_len = name.len;
+    @memcpy(r.name[0..name.len], name);
+    r.path_len = path.len;
+    @memcpy(r.path[0..path.len], path);
+    if (!slotRead(i)) {
+        placeBack(before);
+        r.* = .{};
+        g_slot_status = if (g_read_over) SLOT_OVER_BUDGET else SLOT_LOAD_REFUSED;
+        return 0;
+    }
+    g_slot_tick += 1;
+    r.last_use = g_slot_tick;
+    g_slot_stats[0] += 1;
+    if (!fitsAlone() or !slotFit()) {
+        freeInPlace();
+        r.resident = false;
+        placeBack(before);
+        r.* = .{};
+        g_slot_status = SLOT_OVER_BUDGET;
+        return 0;
+    }
+    g_slot_status = SLOT_OK;
+    return 1;
+}
+
+/// Put the slot `name` in place ("" puts the default model back), reading its file again if it was evicted. 1 when it
+/// is in place; 0 with neural_slot_status() saying why, the model in place left as it was.
+pub export fn neural_slot_select(name_c: [*c]const u8) callconv(.c) c_int {
+    const name = cspan(name_c);
+    if (name.len == 0) {
+        if (g_slot_in_place != SLOT_NONE) g_slot_stats[3] += 1;
+        slotPlace(SLOT_NONE);
+        g_slot_status = SLOT_OK;
+        return 1;
+    }
+    const i = slotFind(name);
+    if (i == SLOT_NONE) {
+        g_slot_status = SLOT_UNKNOWN;
+        return 0;
+    }
+    const before = g_slot_in_place;
+    if (i != before) g_slot_stats[3] += 1;
+    if (!g_slots[i].resident) {
+        if (!slotRead(i)) {
+            placeBack(before);
+            g_slots[i].model = .{};
+            g_slots[i].gen = .{};
+            g_slot_status = if (g_read_over) SLOT_OVER_BUDGET else SLOT_RELOAD_REFUSED;
+            return 0;
+        }
+        g_slot_stats[1] += 1;
+    } else {
+        slotPlace(i);
+    }
+    g_slot_tick += 1;
+    g_slots[i].last_use = g_slot_tick;
+    if (!fitsAlone() or !slotFit()) {
+        // only a budget lowered since it was loaded can refuse it: evict it, put back what was in place
+        if (i != before) {
+            placeBack(before);
+            if (g_slot_in_place != i) slotEvict(i);
+        }
+        g_slot_status = SLOT_OVER_BUDGET;
+        return 0;
+    }
+    g_slot_status = SLOT_OK;
+    return 1;
+}
+
+/// Free the slot `name` and forget it. When it is in place, the default model is put back in place. 1 freed, 0 unknown.
+pub export fn neural_slot_free(name_c: [*c]const u8) callconv(.c) c_int {
+    const i = slotFind(cspan(name_c));
+    if (i == SLOT_NONE) {
+        g_slot_status = SLOT_UNKNOWN;
+        return 0;
+    }
+    if (g_slot_in_place == i) slotPlace(SLOT_NONE);
+    if (g_slots[i].resident) slotEvict(i);
+    g_slots[i] = .{};
+    g_slot_status = SLOT_OK;
+    return 1;
+}
+
+/// Set the budget in bytes across every model held (0: none) and evict down to it. 1 within it; 0 when the model in
+/// place and the default are over it alone (nothing in place is evicted).
+pub export fn neural_slot_set_budget(bytes: f64) callconv(.c) c_int {
+    g_slot_budget = if (bytes <= 0) 0 else @intFromFloat(bytes);
+    if (!slotFit()) {
+        g_slot_status = SLOT_OVER_BUDGET;
+        return 0;
+    }
+    g_slot_status = SLOT_OK;
+    return 1;
+}
+
+pub export fn neural_slot_budget() callconv(.c) f64 {
+    return @floatFromInt(g_slot_budget);
+}
+
+/// The bytes every model holds now: the default, the slot in place, every resident slot.
+pub export fn neural_slot_held_bytes() callconv(.c) f64 {
+    return @floatFromInt(heldTotal());
+}
+
+/// The bytes the slot `name` holds (0 when evicted); "" names the default model.
+pub export fn neural_slot_bytes(name_c: [*c]const u8) callconv(.c) f64 {
+    const name = cspan(name_c);
+    if (name.len == 0) return @floatFromInt(slotBytesOf(SLOT_NONE));
+    const i = slotFind(name);
+    if (i == SLOT_NONE or !g_slots[i].resident) return 0;
+    return @floatFromInt(slotBytesOf(i));
+}
+
+/// 1 when the slot `name` holds its model in memory, 0 when it was evicted to its file, -1 when no slot has that name.
+pub export fn neural_slot_resident(name_c: [*c]const u8) callconv(.c) c_int {
+    const i = slotFind(cspan(name_c));
+    if (i == SLOT_NONE) return -1;
+    return if (g_slots[i].resident) 1 else 0;
+}
+
+/// The slots in use.
+pub export fn neural_slot_count() callconv(.c) c_int {
+    var n: c_int = 0;
+    for (0..MAX_SLOTS) |i| {
+        if (g_slots[i].used) n += 1;
+    }
+    return n;
+}
+
+var g_slot_name_out: [64]u8 = undefined;
+
+fn slotNameOut(i: usize) [*c]const u8 {
+    if (i == SLOT_NONE) {
+        g_slot_name_out[0] = 0;
+    } else {
+        const r = &g_slots[i];
+        @memcpy(g_slot_name_out[0..r.name_len], r.name[0..r.name_len]);
+        g_slot_name_out[r.name_len] = 0;
+    }
+    return @ptrCast(&g_slot_name_out);
+}
+
+/// The name of the n-th slot in use (1-based), "" past the last.
+pub export fn neural_slot_name_at(n: c_int) callconv(.c) [*c]const u8 {
+    var k: c_int = 0;
+    for (0..MAX_SLOTS) |i| {
+        if (!g_slots[i].used) continue;
+        k += 1;
+        if (k == n) return slotNameOut(i);
+    }
+    return slotNameOut(SLOT_NONE);
+}
+
+/// The name of the slot in place ("" when the default model is).
+pub export fn neural_slot_in_place() callconv(.c) [*c]const u8 {
+    return slotNameOut(g_slot_in_place);
+}
+
+var g_slot_path_out: [1025]u8 = undefined;
+
+/// The file of the slot `name` ("" when no slot has that name).
+pub export fn neural_slot_path(name_c: [*c]const u8) callconv(.c) [*c]const u8 {
+    const i = slotFind(cspan(name_c));
+    if (i == SLOT_NONE) {
+        g_slot_path_out[0] = 0;
+    } else {
+        const r = &g_slots[i];
+        @memcpy(g_slot_path_out[0..r.path_len], r.path[0..r.path_len]);
+        g_slot_path_out[r.path_len] = 0;
+    }
+    return @ptrCast(&g_slot_path_out);
+}
+
+pub export fn neural_slot_status() callconv(.c) c_int {
+    return g_slot_status;
+}
+
+/// 1 slot loads, 2 reads back after an eviction, 3 evictions, 4 selects that changed the model in place, 5 model files
+/// read (a file refused by the budget is not read)
+pub export fn neural_slot_stat(k: c_int) callconv(.c) f64 {
+    if (k < 1 or k > 5) return 0;
+    return @floatFromInt(g_slot_stats[@intCast(k - 1)]);
+}

@@ -210,6 +210,8 @@ fn ring_NeuralModelLoad(p: *anyopaque) callconv(.c) void {
     load_shut = !allowed(path);
     if (load_shut) return rn(p, 0);
     slot_len = 0;
+    // the ordinary load replaces the DEFAULT model (RADAR-TPUSYNC-BUDGET-01 b): a slot in place is put back first
+    _ = gen.neural_slot_select("");
     const r = embed.neural_model_load(gs(p, 1));
     if (r == 1) {
         // the name is what matters, so a path longer than the buffer keeps its END
@@ -238,6 +240,8 @@ fn ring_ModelExpect(p: *anyopaque) callconv(.c) void {
 
 fn ring_NeuralModelFree(p: *anyopaque) callconv(.c) void {
     slot_len = 0;
+    _ = gen.neural_slot_select("");
+    gen.neural_gen_release();
     embed.neural_model_free();
     rn(p, 1);
 }
@@ -1700,7 +1704,102 @@ fn ring_VisionMs(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retnumber(p, vision_ms);
 }
 
+// --- model slots (RADAR-TPUSYNC-BUDGET-01 b): several models held at once, one budget across them -----------------
+// The file in place is what a run's model.run record names, so every slot call that changes the model in place sets
+// slot_file from the engine's own record of the file the model in place was read from.
+fn slotFileFromEngine() void {
+    const path = embed.loadedPath();
+    slot_len = @min(path.len, slot_file.len);
+    @memcpy(slot_file[0..slot_len], path[path.len - slot_len ..]);
+}
+
+/// StzEngineNeuralSlotLoad(cName, cPath) -> 1 when the file is loaded into the slot cName and in place, else 0
+/// (StzEngineNeuralSlotStatus says why; StzEngineNeuralModelLoadStatus why a digest refused the file)
+fn ring_NeuralSlotLoad(p: *anyopaque) callconv(.c) void {
+    const path = gs(p, 2)[0..@intCast(R.ring_vm_api_getstringsize(p, 2))];
+    load_shut = !allowed(path);
+    if (load_shut) return rn(p, 0);
+    const r = gen.neural_slot_load(gs(p, 1), gs(p, 2));
+    slotFileFromEngine();
+    rn(p, @floatFromInt(r));
+}
+
+/// StzEngineNeuralSlotSelect(cName) -> 1 when the slot cName is in place ("" puts the default model back), reading its
+/// file again if it was evicted; 0 when unknown, refused by the budget, or its model is shut
+fn ring_NeuralSlotSelect(p: *anyopaque) callconv(.c) void {
+    const name = gs(p, 1)[0..@intCast(R.ring_vm_api_getstringsize(p, 1))];
+    if (name.len > 0) {
+        const path = std.mem.span(@as([*:0]const u8, @ptrCast(gen.neural_slot_path(gs(p, 1)))));
+        if (path.len > 0 and !allowed(path)) return rn(p, 0);
+    }
+    const r = gen.neural_slot_select(gs(p, 1));
+    slotFileFromEngine();
+    rn(p, @floatFromInt(r));
+}
+
+/// StzEngineNeuralSlotFree(cName) -> 1 freed and forgotten (the default model is put back if it was in place), 0 unknown
+fn ring_NeuralSlotFree(p: *anyopaque) callconv(.c) void {
+    const r = gen.neural_slot_free(gs(p, 1));
+    slotFileFromEngine();
+    rn(p, @floatFromInt(r));
+}
+
+/// StzEngineNeuralSlotSetBudget(nBytes) -> 1 within it (least recently used slots evicted to fit), 0 when the model in
+/// place and the default are over it alone; 0 bytes: no budget
+fn ring_NeuralSlotSetBudget(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_slot_set_budget(R.ring_vm_api_getnumber(p, 1))));
+}
+fn ring_NeuralSlotBudget(p: *anyopaque) callconv(.c) void {
+    rn(p, gen.neural_slot_budget());
+}
+/// StzEngineNeuralSlotHeldBytes() -> the bytes every model holds now (the default, the slot in place, every resident slot)
+fn ring_NeuralSlotHeldBytes(p: *anyopaque) callconv(.c) void {
+    rn(p, gen.neural_slot_held_bytes());
+}
+/// StzEngineNeuralSlotBytes(cName) -> the bytes the slot holds, 0 when evicted; "" names the default model
+fn ring_NeuralSlotBytes(p: *anyopaque) callconv(.c) void {
+    rn(p, gen.neural_slot_bytes(gs(p, 1)));
+}
+/// StzEngineNeuralSlotResident(cName) -> 1 held in memory, 0 evicted to its file, -1 no such slot
+fn ring_NeuralSlotResident(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_slot_resident(gs(p, 1))));
+}
+fn ring_NeuralSlotCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_slot_count()));
+}
+/// StzEngineNeuralSlotNameAt(n) -> the n-th slot's name (1-based), "" past the last
+fn ring_NeuralSlotNameAt(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retstring(p, gen.neural_slot_name_at(@intFromFloat(R.ring_vm_api_getnumber(p, 1))));
+}
+/// StzEngineNeuralSlotInPlace() -> the name of the slot in place, "" when the default model is
+fn ring_NeuralSlotInPlace(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retstring(p, gen.neural_slot_in_place());
+}
+/// StzEngineNeuralSlotStatus() -> 0 ok, 1 unknown name, 2 all 32 slots taken, 3 the file did not load, 4 bad name or
+/// path, 5 over the budget, 6 an evicted slot's file no longer loads
+fn ring_NeuralSlotStatus(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_slot_status()));
+}
+/// StzEngineNeuralSlotStat(n) -> 1 slot loads, 2 reads back after an eviction, 3 evictions, 4 selects that changed the
+/// model in place, 5 model files read (a file the budget refuses is not read)
+fn ring_NeuralSlotStat(p: *anyopaque) callconv(.c) void {
+    rn(p, gen.neural_slot_stat(@intFromFloat(R.ring_vm_api_getnumber(p, 1))));
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzengineneuralslotload", .func = &ring_NeuralSlotLoad },
+    .{ .name = "stzengineneuralslotselect", .func = &ring_NeuralSlotSelect },
+    .{ .name = "stzengineneuralslotfree", .func = &ring_NeuralSlotFree },
+    .{ .name = "stzengineneuralslotsetbudget", .func = &ring_NeuralSlotSetBudget },
+    .{ .name = "stzengineneuralslotbudget", .func = &ring_NeuralSlotBudget },
+    .{ .name = "stzengineneuralslotheldbytes", .func = &ring_NeuralSlotHeldBytes },
+    .{ .name = "stzengineneuralslotbytes", .func = &ring_NeuralSlotBytes },
+    .{ .name = "stzengineneuralslotresident", .func = &ring_NeuralSlotResident },
+    .{ .name = "stzengineneuralslotcount", .func = &ring_NeuralSlotCount },
+    .{ .name = "stzengineneuralslotnameat", .func = &ring_NeuralSlotNameAt },
+    .{ .name = "stzengineneuralslotinplace", .func = &ring_NeuralSlotInPlace },
+    .{ .name = "stzengineneuralslotstatus", .func = &ring_NeuralSlotStatus },
+    .{ .name = "stzengineneuralslotstat", .func = &ring_NeuralSlotStat },
     .{ .name = "stzengineneuralocrgraphinfo", .func = &ring_OcrGraphInfo },
     .{ .name = "stzengineneuralocrgraphparity", .func = &ring_OcrGraphParity },
     .{ .name = "stzengineneuralocrgrapherror", .func = &ring_OcrGraphError },

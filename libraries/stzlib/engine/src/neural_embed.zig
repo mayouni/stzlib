@@ -51,6 +51,8 @@ var g_gen_issued: usize = 0;
 // The loaded model's SHA-256 (verified at load): what a saved KV prefix is keyed by (RADAR-SNAPSHOT-PREFIXKV-01).
 var g_model_hex: [64]u8 = undefined;
 var g_model_hex_ok: bool = false;
+var g_path: [1024]u8 = undefined;
+var g_path_len: usize = 0;
 pub fn modelHex() ?[]const u8 {
     return if (g_model_hex_ok) g_model_hex[0..] else null;
 }
@@ -70,6 +72,18 @@ pub const ModelSlot = struct {
     gen: usize = 0,
     hex: [64]u8 = undefined,
     hex_ok: bool = false,
+    // the file the model was read from (RADAR-TPUSYNC-BUDGET-01 b: a slot evicted to its file is read back from it)
+    path: [1024]u8 = undefined,
+    path_len: usize = 0,
+    // the WordPiece vocabulary of an embedding model: built from THIS model's tokens and not keyed by a generation, so
+    // it travels with the model (two embedding models held at once must never share one)
+    vocab: std.StringHashMap(i32) = undefined,
+    vocab_built: bool = false,
+    cls: i32 = 101,
+    sep: i32 = 102,
+    unk: i32 = 100,
+    cased: bool = false,
+    wp_classic: bool = false,
 };
 
 pub fn swapModel(s: *ModelSlot) void {
@@ -80,12 +94,37 @@ pub fn swapModel(s: *ModelSlot) void {
     std.mem.swap(usize, &model_generation, &s.gen);
     std.mem.swap([64]u8, &g_model_hex, &s.hex);
     std.mem.swap(bool, &g_model_hex_ok, &s.hex_ok);
+    std.mem.swap([1024]u8, &g_path, &s.path);
+    std.mem.swap(usize, &g_path_len, &s.path_len);
+    std.mem.swap(std.StringHashMap(i32), &g_vocab, &s.vocab);
+    std.mem.swap(bool, &g_vocab_built, &s.vocab_built);
+    std.mem.swap(i32, &g_cls, &s.cls);
+    std.mem.swap(i32, &g_sep, &s.sep);
+    std.mem.swap(i32, &g_unk, &s.unk);
+    std.mem.swap(bool, &g_cased, &s.cased);
+    std.mem.swap(bool, &g_wp_classic, &s.wp_classic);
+}
+
+/// The file the model in place was read from ("" when none).
+pub fn loadedPath() []const u8 {
+    return g_path[0..g_path_len];
+}
+
+/// The bytes the model in place holds: its weights' context (the GGUF read whole into memory, never mapped).
+pub fn heldBytes() usize {
+    return if (g_ctx) |x| c.ggml_get_mem_size(x) else 0;
+}
+
+/// The bytes a slot's model holds.
+pub fn slotBytes(s: *const ModelSlot) usize {
+    return if (s.ctx) |x| c.ggml_get_mem_size(x) else 0;
 }
 
 /// Free the model a slot holds (never the one in place).
 pub fn freeSlot(s: *ModelSlot) void {
     if (s.gguf) |x| c.gguf_free(x);
     if (s.ctx) |x| c.ggml_free(x);
+    if (s.vocab_built) s.vocab.deinit();
     s.* = .{};
 }
 
@@ -117,6 +156,9 @@ pub export fn neural_model_load(path: [*c]const u8) callconv(.c) c_int {
     issueGeneration();
     g_model_hex = digest.lastHex();
     g_model_hex_ok = true;
+    const ps = std.mem.span(@as([*:0]const u8, @ptrCast(path)));
+    g_path_len = @min(ps.len, g_path.len);
+    @memcpy(g_path[0..g_path_len], ps[0..g_path_len]);
     if (kvStr("general.architecture")) |a| {
         const s = std.mem.span(a);
         const n = @min(s.len, g_arch.len);
@@ -129,6 +171,7 @@ pub export fn neural_model_load(path: [*c]const u8) callconv(.c) c_int {
 pub export fn neural_model_free() callconv(.c) void {
     issueGeneration();
     g_model_hex_ok = false;
+    g_path_len = 0;
     if (g_gguf) |x| {
         c.gguf_free(x);
         g_gguf = null;

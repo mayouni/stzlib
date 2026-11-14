@@ -1,0 +1,222 @@
+# SEVERAL MODELS HELD AT ONCE -- RADAR-TPUSYNC-BUDGET-01 (b), narrated
+#
+# Google's TPU Sync keeps weights and prompt state in one memory hierarchy and evicts the least recently used. The
+# engine held ONE model per process until now. A slot holds another model's whole state beside it -- weights,
+# tokenizers, the prompt it last read -- and selecting a slot exchanges states, so every model runs through the same
+# code. One budget in bytes covers every model held; over it, the slot used least recently is evicted to its file and
+# read back when it is selected again.
+#
+#   Scene 1  two decoders held at once: each answers to the bit as it does loaded alone, in any order
+#   Scene 2  each keeps the prompt it read: a switch to another model and back keeps the first one's prefix
+#   Scene 3  two encoders held at once: each keeps its own vocabulary (the embedding model's and the reranker's)
+#   Scene 4  the budget: over it, the least recently used slot is evicted; selected again, it is read back whole --
+#            room is made from the file's size BEFORE the file is read, so what is held never passes the budget
+#   Scene 5  what is refused, and what a refusal leaves in place
+#   Scene 6  the ordinary load still works on the default model, beside the slots
+#
+# RUNS ON haro.exe, the engine's functions only: STZ_ENGINE_DIR names a built engine, STZ_MODELS_DIR the models folder.
+
+$tEngine = Slashes(SysGet("STZ_ENGINE_DIR"))
+$tModels = Slashes(SysGet("STZ_MODELS_DIR"))
+$nPass = 0
+$nFail = 0
+$vNotRun = []
+LoadLib($tEngine + "/zig-out/bin/stz_neural.dll")
+$tSmol = $tModels + "/smollm2-135m-instruct-q8_0.gguf"
+$tQwen = $tModels + "/qwen2.5-coder-0.5b-instruct-q8_0.gguf"
+$tMini = $tModels + "/all-MiniLM-L6-v2.Q8_0.gguf"
+$tJina = $tModels + "/jina-reranker-v1-turbo-en-Q8_0.gguf"
+$tSys = "You are the triage assistant of a software company's support desk. Every message is one ticket from a customer. " +
+        "Classify it as bug, billing or other, and answer with that one word only."
+$tTicket = "I was charged twice for the March invoice."
+$nMb = 1048576
+
+if FExists($tSmol) and FExists($tQwen)
+	# each model alone, the ordinary way: the reference every slot must equal
+	StzEngineNeuralGenSetPrefixReuse(0)
+	StzEngineNeuralModelLoad($tSmol)
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $tTicket))
+	nHashSmol = StzEngineNeuralGenLogitsHash()
+	StzEngineNeuralModelLoad($tQwen)
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $tTicket))
+	nHashQwen = StzEngineNeuralGenLogitsHash()
+	StzEngineNeuralModelFree()
+
+	Scenario("1. two decoders held at once, each the same as alone")
+	Then("smollm2 is loaded into the slot 'smol'", StzEngineNeuralSlotLoad("smol", $tSmol), 1)
+	Then("qwen2.5-coder-0.5b is loaded into the slot 'qwen'", StzEngineNeuralSlotLoad("qwen", $tQwen), 1)
+	Then("...both are held, and the last one loaded is in place", String(StzEngineNeuralSlotCount()) + " " + StzEngineNeuralSlotInPlace(), "2 qwen")
+	nSame = 0
+	vOrder = [ "smol", "qwen", "smol", "qwen", "qwen", "smol" ]
+	for i = 1 to Len(vOrder)
+		StzEngineNeuralSlotSelect(vOrder[i])
+		StzEngineNeuralPrefillLogits(ChatMl($tSys, $tTicket))
+		nWant = nHashQwen
+		if vOrder[i] = "smol"
+			nWant = nHashSmol
+		end
+		if StzEngineNeuralGenLogitsHash() = nWant
+			nSame = nSame + 1
+		end
+	end
+	Then("over six selects in mixed order, every read gives the logits of that model alone, to the bit", nSame, 6)
+	Then("...and neither was read again from its file", StzEngineNeuralSlotStat(2), 0)
+
+	Scenario("2. each keeps the prompt it read")
+	StzEngineNeuralGenSetPrefixReuse(1)
+	StzEngineNeuralSlotSelect("smol")
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, "The app closes when I open the camera."))
+	StzEngineNeuralSlotSelect("qwen")
+	StzEngineNeuralPrefillLogits(ChatMl("You summarize tickets in one line.", "Exports stop at 1000 rows."))
+	StzEngineNeuralSlotSelect("smol")
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $tTicket))
+	nKept = StzEngineNeuralGenReusedTokens()
+	? "  smollm2 kept " + String(nKept) + " tokens of its system turn across qwen's read"
+	Then("back on smollm2 after qwen read its own prompt, smollm2's system turn is still in its cache", nKept >= 30, true)
+	Then("...and the logits equal a full read's", StzEngineNeuralGenLogitsHash(), nHashSmol)
+	StzEngineNeuralGenSetPrefixReuse(0)
+	StzEngineNeuralSlotFree("smol")
+	StzEngineNeuralSlotFree("qwen")
+	Then("both slots freed: none is held, the default is in place", String(StzEngineNeuralSlotCount()) + "[" + StzEngineNeuralSlotInPlace() + "]", "0[]")
+else
+	$vNotRun + "scenes 1-2 (no smollm2 or qwen2.5-coder-0.5b)"
+end
+
+Scenario("3. two encoders held at once, each with its own vocabulary")
+if FExists($tMini) and FExists($tJina)
+	tText = "The dashboard shows the wrong invoice total after a refund."
+	StzEngineNeuralModelLoad($tMini)
+	tVecAlone = Vec(tText)
+	StzEngineNeuralModelLoad($tJina)
+	tScoreAlone = String(StzEngineNeuralRerank("refund shown wrongly", tText))
+	StzEngineNeuralModelFree()
+	StzEngineNeuralSlotLoad("minilm", $tMini)
+	StzEngineNeuralSlotLoad("jina", $tJina)
+	nSame = 0
+	vOrder = [ "minilm", "jina", "minilm", "jina" ]
+	for i = 1 to Len(vOrder)
+		StzEngineNeuralSlotSelect(vOrder[i])
+		if vOrder[i] = "minilm"
+			if Vec(tText) = tVecAlone
+				nSame = nSame + 1
+			end
+		else
+			if String(StzEngineNeuralRerank("refund shown wrongly", tText)) = tScoreAlone
+				nSame = nSame + 1
+			end
+		end
+	end
+	Then("MiniLM's embedding and Jina's score, alternated, each equal the model alone", nSame, 4)
+	StzEngineNeuralSlotFree("minilm")
+	StzEngineNeuralSlotFree("jina")
+else
+	$vNotRun + "scene 3 (no MiniLM or Jina reranker)"
+end
+
+if FExists($tSmol) and FExists($tQwen)
+	Scenario("4. the budget evicts the least recently used, and reads it back")
+	StzEngineNeuralSlotLoad("smol", $tSmol)
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $tTicket))
+	StzEngineNeuralSlotLoad("qwen", $tQwen)
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $tTicket))
+	nSmolB = StzEngineNeuralSlotBytes("smol")
+	nQwenB = StzEngineNeuralSlotBytes("qwen")
+	? "  smollm2 holds " + String(Divide(nSmolB, $nMb, 0)) + " MB, qwen " + String(Divide(nQwenB, $nMb, 0)) + " MB (weights and prompt cache)"
+	Then("the held total is the two slots' bytes", StzEngineNeuralSlotHeldBytes(), nSmolB + nQwenB)
+	Then("a budget that holds both evicts nothing", String(StzEngineNeuralSlotSetBudget(nSmolB + nQwenB + $nMb)) + " " + String(StzEngineNeuralSlotStat(3)), "1 0")
+	Then("a budget that holds only the larger one evicts smollm2, the least recently used", String(StzEngineNeuralSlotSetBudget(nQwenB + $nMb)) + " " + String(StzEngineNeuralSlotResident("smol")) + String(StzEngineNeuralSlotResident("qwen")), "1 01")
+	Then("...the evicted slot keeps its name and its file", String(StzEngineNeuralSlotCount()) + " " + String(StzEngineNeuralSlotBytes("smol")), "2 0")
+	Then("...and what is held is within the budget", StzEngineNeuralSlotHeldBytes() <= nQwenB + $nMb, true)
+	Then("selecting smollm2 reads it back from its file", String(StzEngineNeuralSlotSelect("smol")) + " " + String(StzEngineNeuralSlotStat(2)), "1 1")
+	Then("...which evicts qwen, now the least recently used", String(StzEngineNeuralSlotResident("smol")) + String(StzEngineNeuralSlotResident("qwen")), "10")
+	Then("...room made before the read: what is held stays within the budget", StzEngineNeuralSlotHeldBytes() <= nQwenB + $nMb, true)
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $tTicket))
+	Then("...and the model read back answers to the bit as before", StzEngineNeuralGenLogitsHash(), nHashSmol)
+	StzEngineNeuralSlotSelect("qwen")
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $tTicket))
+	Then("qwen read back answers to the bit as well", StzEngineNeuralGenLogitsHash(), nHashQwen)
+	Then("three evictions and two reads back in all", String(StzEngineNeuralSlotStat(3)) + " " + String(StzEngineNeuralSlotStat(2)), "3 2")
+
+	Scenario("5. what is refused, and what a refusal leaves in place")
+	StzEngineNeuralSlotSetBudget(0)
+	Then("an unknown slot is refused (1), the model in place stays", String(StzEngineNeuralSlotSelect("nobody")) + String(StzEngineNeuralSlotStatus()) + " " + StzEngineNeuralSlotInPlace(), "01 qwen")
+	Then("an empty name is refused (4)", String(StzEngineNeuralSlotLoad("", $tSmol)) + String(StzEngineNeuralSlotStatus()), "04")
+	tStray = Slashes(SysGet("TEMP")) + "/stz_slot_stray.gguf"
+	Write(tStray, "not a model and no recorded digest")
+	Then("a file with no recorded digest is refused (3), the model in place stays", String(StzEngineNeuralSlotLoad("stray", tStray)) + String(StzEngineNeuralSlotStatus()) + " " + StzEngineNeuralSlotInPlace() + " " + String(StzEngineNeuralSlotCount()), "03 qwen 2")
+	StzEngineNeuralSlotSelect("smol")
+	StzEngineNeuralSlotSetBudget(StzEngineNeuralSlotBytes("smol") + $nMb)
+	nEvBefore = StzEngineNeuralSlotStat(3)
+	nReadBefore = StzEngineNeuralSlotStat(5)
+	Then("a model larger than the budget alone is refused (5)...", String(StzEngineNeuralSlotLoad("qwen", $tQwen)) + String(StzEngineNeuralSlotStatus()), "05")
+	Then("...without evicting the model in place for it", String(StzEngineNeuralSlotInPlace()) + " " + String(StzEngineNeuralSlotResident("smol")) + " " + String(StzEngineNeuralSlotStat(3) - nEvBefore), "smol 1 0")
+	Then("...and without reading its file: room is made, or refused, from the file's size first", StzEngineNeuralSlotStat(5) - nReadBefore, 0)
+	Then("a budget below the model in place is refused (5) and evicts nothing in place", String(StzEngineNeuralSlotSetBudget($nMb)) + String(StzEngineNeuralSlotStatus()) + String(StzEngineNeuralSlotResident("smol")), "051")
+	StzEngineNeuralSlotSetBudget(0)
+
+	Scenario("6. the ordinary load works on the default model, beside the slots")
+	Then("with smollm2's slot in place, the ordinary load reads qwen as the default", StzEngineNeuralModelLoad($tQwen), 1)
+	Then("...the default is now in place, and smollm2's slot is still held", "[" + StzEngineNeuralSlotInPlace() + "] " + String(StzEngineNeuralSlotResident("smol")), "[] 1")
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $tTicket))
+	nDef = StzEngineNeuralGenLogitsHash()
+	StzEngineNeuralSlotSelect("smol")
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $tTicket))
+	nSlot = StzEngineNeuralGenLogitsHash()
+	Then("the default answers as qwen, the slot as smollm2", String(nDef) + " " + String(nSlot), String(nHashQwen) + " " + String(nHashSmol))
+	StzEngineNeuralSlotSelect("")
+	StzEngineNeuralPrefillLogits(ChatMl($tSys, $tTicket))
+	Then("selecting the empty name puts the default back, unchanged", StzEngineNeuralGenLogitsHash(), nHashQwen)
+	StzEngineNeuralSlotFree("smol")
+	StzEngineNeuralModelFree()
+else
+	$vNotRun + "scenes 4-6 (no smollm2 or qwen2.5-coder-0.5b)"
+end
+
+? ""
+for t in $vNotRun
+	? "NOT RUN: " + t
+end
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# an embedding as text, every dimension: equal text is an equal vector
+func Vec(tText)
+	nDim = StzEngineNeuralEmbed(tText)
+	tOut = String(nDim) + ":"
+	for i = 1 to nDim
+		tOut = tOut + String(StzEngineNeuralEmbedAt(i - 1)) + ","
+	end
+	return tOut
+end
+func Scenario(tName)
+	? ""
+	? "SCENARIO: " + tName
+end
+func Then(tWhat, xGot, xExpected)
+	if xGot = xExpected
+		$nPass = $nPass + 1
+		? "  THEN  " + tWhat + "  [PASS]"
+	else
+		$nFail = $nFail + 1
+		? "  THEN  " + tWhat + "  [FAIL]"
+		? "    expected: " + String(xExpected)
+		? "    got:      " + String(xGot)
+	end
+end
+func ChatMl(tSystem, tUser)
+	return "<|im_start|>system" + Char(10) + tSystem + "<|im_end|>" + Char(10) + "<|im_start|>user" + Char(10) + tUser + "<|im_end|>" + Char(10) + "<|im_start|>assistant" + Char(10)
+end
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for i = 1 to nLen
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end

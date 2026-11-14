@@ -65,3 +65,15 @@ What it shows:
     3.2 s with the reload counted). LFM3 refuses to save one by design (its convolution state is not in the format).
   - the times of the files over 2 GB moved up to three times between rounds on this machine, shared with other sessions;
     the ranges are in ready.tsv. The memory figures did not move.
+
+2026-11-14 (RADAR-TPUSYNC-BUDGET-01 (b), ../_measure_ready.haro slots <budget MB>): the engine holds several models at once,
+each in a named slot, under one budget in bytes (base/test/neural/model_slots_narrated.haro: 31 assertions). The support desk's
+eleven files in the models folder were loaded into slots under 4 GB and 8 GB, then served twice: every model in turn
+("cycle"), and the small models mostly ("skewed"). Table: slots.txt; rows: slots.tsv. What it shows:
+  - a request to a model held in memory is a select of 0 ms and a first token of about 75 ms (median); a model read back from
+    its file costs 1.1 to 2.7 s, so what a budget buys is the share of requests that find their model held.
+  - skewed: 22 of 29 and 22 of 30 requests found their model in memory; cycle: none -- every model in turn over a set larger
+    than the budget evicts each one just before it is asked again (the known limit of least-recently-used eviction).
+  - room is made from a file's size BEFORE the file is read: the process's peak was 5.9 GB under 4 GB and 10.1 GB under
+    8 GB, the rest being a forward pass's working memory, which no budget counts. The first run evicted AFTER the read
+    and peaked at 9.8 and 14.1 GB; Bolt E4B (6 GB) under 4 GB is now refused unread, in 0 ms, where it was read for 27 s.

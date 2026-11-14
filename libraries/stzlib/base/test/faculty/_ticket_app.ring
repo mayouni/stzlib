@@ -12,18 +12,20 @@
 #   FLOW 3  three stages  :brief -> :kind -> :route                a ticket summarised, classified, routed
 
 $aTkModels = [
-	# [ id, needle (a fragment of the GGUF name), licence, memory MB ]
-	[ "smollm2-135m",  "smollm2-135m",       "apache-2.0",  200 ],
-	[ "qwen3-0.6b",    "qwen3-0.6b-q8",      "apache-2.0",  700 ],
-	[ "granite-350m",  "granite-4.0-350m",   "apache-2.0",  450 ],
-	[ "granite-1b",    "granite-4.0-1b",     "apache-2.0", 1800 ],
-	[ "qwen25c-0.5b",  "qwen2.5-coder-0.5b", "apache-2.0",  800 ],
-	[ "qwen25c-1.5b",  "qwen2.5-coder-1.5b", "apache-2.0", 1900 ],
-	[ "granite42-3b",  "granite-4.2-3b",     "apache-2.0", 3000 ],
+	# [ id, needle (a fragment of the GGUF name), licence, memory MB ] -- the memory is the process's PEAK measured over the
+	# load and a first token, rounded up to 50 MB (results/ready.txt, RADAR-TPUSYNC-BUDGET-01, 2026-11-14): a flow sized by it
+	# holds what a load needs. Until that day the figures were estimates, every one below its measured peak
+	[ "smollm2-135m",  "smollm2-135m",       "apache-2.0",  350 ],
+	[ "qwen3-0.6b",    "qwen3-0.6b-q8",      "apache-2.0", 1100 ],
+	[ "granite-350m",  "granite-4.0-350m",   "apache-2.0",  700 ],
+	[ "granite-1b",    "granite-4.0-1b",     "apache-2.0", 2450 ],
+	[ "qwen25c-0.5b",  "qwen2.5-coder-0.5b", "apache-2.0", 1000 ],
+	[ "qwen25c-1.5b",  "qwen2.5-coder-1.5b", "apache-2.0", 2450 ],
+	[ "granite42-3b",  "granite-4.2-3b",     "apache-2.0", 4050 ],
 	# NVIDIA's Nemotron 3.5 Bolt E4B (Gemma 4), the challenger of RADAR-NVIDIA-BOLTCOURT-01 (2026-11-11)
-	[ "bolt-e4b",      "nemotron-3.5-bolt",  "openmdw-1.1", 6400 ],
+	[ "bolt-e4b",      "nemotron-3.5-bolt",  "openmdw-1.1", 7350 ],
 	# Liquid AI's LFM3-1.7B (convolutions and gated attention), RADAR-LFM3-FAMILY-01 (2026-11-11)
-	[ "lfm3-1.7b",     "lfm3-1.7b",          "lfm-1.0",     2100 ]
+	[ "lfm3-1.7b",     "lfm3-1.7b",          "lfm-1.0",     2400 ]
 ]
 
 # THE GOLDEN SET: 36 tickets written by an INDEPENDENT author who never saw a floor (so a floor cannot be tuned to it),

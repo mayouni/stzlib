@@ -21,6 +21,9 @@
 #   haro _measure_ready.haro purge <file>                          put one file out of the system's file cache
 #   haro _measure_ready.haro one <label> <file> <how> <round>      one process: appends rows to results/ready.tsv
 #   haro _measure_ready.haro analyse                               results/ready.tsv -> results/ready.txt
+#   haro _measure_ready.haro slots <budget MB>                     (b): the set in slots under a budget, then served;
+#                                                                  appends to results/slots.tsv (STZ_MODELS_DIR names the set)
+#   haro _measure_ready.haro slots-analyse                         results/slots.tsv -> results/slots.txt
 #
 # "purge" opens the file WITHOUT the system's buffering and closes it; Windows then drops the pages it cached for it.
 # Measured on this machine before it was used: a 378 MB file read in 55 ms from the cache and 332 ms after a purge
@@ -31,6 +34,8 @@
 
 $tTsv = "results/ready.tsv"
 $tReport = "results/ready.txt"
+$tSlots = "results/slots.tsv"
+$tSlotsReport = "results/slots.txt"
 $tSys = "You triage customer-support tickets. Classify the ticket as exactly one of: bug (something is broken or behaves wrongly), billing (money: charges, refunds, invoices, plans, prices), other (a question, request or feedback). Answer with the single word."
 $tHeader = "label" + Char(9) + "how" + Char(9) + "round" + Char(9) + "size_mb" + Char(9) + "rss_base_mb" + Char(9) + "load_ms" + Char(9) + "rss_load_mb" + Char(9) + "first_ms" + Char(9) + "prompt_tokens" + Char(9) + "rss_ready_mb" + Char(9) + "peak_mb" + Char(9) + "reload_ms" + Char(9) + "restore_ms" + Char(9) + "prefix_tokens" + Char(9) + "prefix_kb" + Char(9) + "tail_ms" + Char(9) + "reused_tokens" + Char(9) + "rss_end_mb"
 
@@ -39,6 +44,14 @@ bDone = false
 for i = 1 to nArgs
 	if SysArgv[i] = "purge" and i + 1 <= nArgs
 		Purge(SysArgv[i + 1])
+		bDone = true
+	end
+	if SysArgv[i] = "slots" and i + 1 <= nArgs
+		Slots(SysArgv[i + 1])
+		bDone = true
+	end
+	if SysArgv[i] = "slots-analyse"
+		SlotsAnalyse()
 		bDone = true
 	end
 	if SysArgv[i] = "one" and i + 4 <= nArgs
@@ -56,6 +69,172 @@ func Purge(tFile)
 	tWin = Backslashes(tFile)
 	tCmd = "$f = New-Object IO.FileStream('" + tWin + "', [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::ReadWrite, 4096, [IO.FileOptions]0x20000000); $f.Close()"
 	System("powershell -NoProfile -Command " + Char(34) + tCmd + Char(34))
+end
+
+# ---- RADAR-TPUSYNC-BUDGET-01 (b): the set held in slots under one budget, then served ----
+#
+# Every file of the support desk's set in STZ_MODELS_DIR is loaded into a slot of its own under the budget; then
+# requests are served, each a select and a first token (the prefix cache on, so each model keeps the system turn it
+# read). Two patterns: "cycle", every model in turn, twice -- the worst case for least-recently-used eviction once the
+# set is larger than the budget -- and "skewed", the small models asked most and a large one now and then, as a
+# fabric of small models would ask them. One row per request in results/slots.tsv.
+
+func Slots(tBudgetMb)
+	tBin = Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/"
+	LoadLib(tBin + "stz_neural.dll")
+	LoadLib(tBin + "stz_perf.dll")
+	tModels = Slashes(SysGet("STZ_MODELS_DIR")) + "/"
+	vSet = [ [ "smollm2-135m", "smollm2-135m-instruct-q8_0.gguf" ], [ "granite-350m", "granite-4.0-350m-Q8_0.gguf" ],
+	         [ "qwen25c-0.5b", "qwen2.5-coder-0.5b-instruct-q8_0.gguf" ], [ "qwen3-0.6b", "Qwen3-0.6B-Q8_0.gguf" ],
+	         [ "granite-1b", "granite-4.0-1b-Q8_0.gguf" ], [ "qwen25c-1.5b", "qwen2.5-coder-1.5b-instruct-q8_0.gguf" ],
+	         [ "lfm3-1.7b", "LFM3-1.7B-Q8_0.gguf" ], [ "granite42-3b", "granite-4.2-3b-Q4_K_M.gguf" ],
+	         [ "bolt-e4b", "Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf" ], [ "minilm", "all-MiniLM-L6-v2.Q8_0.gguf" ],
+	         [ "jina", "jina-reranker-v1-turbo-en-Q8_0.gguf" ] ]
+	nBudget = Number(tBudgetMb) * 1048576
+	StzEngineNeuralSlotSetBudget(nBudget)
+	StzEngineNeuralGenSetPrefixReuse(1)
+	vHeld = []
+	tOut = ""
+	if FExists($tSlots) = false
+		tOut = "budget_mb" + Char(9) + "pattern" + Char(9) + "seq" + Char(9) + "label" + Char(9) + "was_resident" + Char(9) + "select_ms" + Char(9) + "first_ms" + Char(9) + "held_mb" + Char(9) + "resident" + Char(9) + "status" + Char(10)
+	end
+	for i = 1 to Len(vSet)
+		tPath = tModels + vSet[i][2]
+		if FExists(tPath)
+			nStart = Clock()
+			nOk = StzEngineNeuralSlotLoad(vSet[i][1], tPath)
+			nMs = Ms(nStart)
+			if nOk = 1
+				vHeld + vSet[i][1]
+			end
+			? vSet[i][1] + ": load " + String(nOk) + " (status " + String(StzEngineNeuralSlotStatus()) + ") in " + String(nMs) + " ms; held " + String(Mb(StzEngineNeuralSlotHeldBytes())) + " MB, " + String(Resident(vHeld)) + " resident"
+			tOut = tOut + Row([ tBudgetMb, "load", String(i), vSet[i][1], "-", String(nMs), "0", String(Mb(StzEngineNeuralSlotHeldBytes())), String(Resident(vHeld)), String(StzEngineNeuralSlotStatus()) ])
+		end
+	end
+	# the requests: "cycle" every held model in turn, twice; "skewed" the small ones mostly
+	vCycle = []
+	for r = 1 to 2
+		for i = 1 to Len(vHeld)
+			vCycle + vHeld[i]
+		end
+	end
+	vSkew = [ "smollm2-135m", "minilm", "granite-350m", "qwen3-0.6b", "jina", "smollm2-135m", "granite-1b", "minilm",
+	          "granite-350m", "qwen3-0.6b", "smollm2-135m", "bolt-e4b", "minilm", "granite-350m", "jina", "qwen3-0.6b",
+	          "smollm2-135m", "granite-1b", "minilm", "granite-350m", "qwen3-0.6b", "smollm2-135m", "granite42-3b",
+	          "minilm", "jina", "granite-350m", "qwen3-0.6b", "smollm2-135m", "granite-1b", "minilm" ]
+	vPatterns = [ [ "cycle", vCycle ], [ "skewed", vSkew ] ]
+	tTicket = "The app closes as soon as I open the camera screen, and I lose the photo I was taking."
+	for k = 1 to Len(vPatterns)
+		vReq = vPatterns[k][2]
+		for j = 1 to Len(vReq)
+			tL = vReq[j]
+			if Find(vHeld, tL) > 0
+				nWas = StzEngineNeuralSlotResident(tL)
+				nStart = Clock()
+				nOk = StzEngineNeuralSlotSelect(tL)
+				nSel = Ms(nStart)
+				nStart = Clock()
+				if nOk = 1
+					tKind = KindOf(tL)
+					if tKind = "embed"
+						StzEngineNeuralEmbed(tTicket)
+					elseif tKind = "rerank"
+						StzEngineNeuralRerank("the app crashes on the camera screen", tTicket)
+					else
+						StzEngineNeuralPrefillLogits(Prompt(tL, $tSys, "Ticket " + String(j) + ": " + tTicket))
+					end
+				end
+				nFirst = Ms(nStart)
+				tOut = tOut + Row([ tBudgetMb, vPatterns[k][1], String(j), tL, String(nWas), String(nSel), String(nFirst), String(Mb(StzEngineNeuralSlotHeldBytes())), String(Resident(vHeld)), String(StzEngineNeuralSlotStatus()) ])
+			end
+		end
+		? vPatterns[k][1] + " done: " + String(StzEngineNeuralSlotStat(2)) + " reads back, " + String(StzEngineNeuralSlotStat(3)) + " evictions so far; peak " + String(Mb(StzEnginePerfMemPeak())) + " MB"
+	end
+	tOut = tOut + Row([ tBudgetMb, "(peak)", "0", "-", "-", "0", "0", String(Mb(StzEnginePerfMemPeak())), "0", "0" ])
+	if FExists($tSlots)
+		tOut = Read($tSlots) + tOut
+	end
+	Write($tSlots, tOut)
+	for i = 1 to Len(vHeld)
+		StzEngineNeuralSlotFree(vHeld[i])
+	end
+end
+
+func Resident(vNames)
+	nN = 0
+	for i = 1 to Len(vNames)
+		if StzEngineNeuralSlotResident(vNames[i]) = 1
+			nN = nN + 1
+		end
+	end
+	return nN
+end
+
+# results/slots.tsv -> results/slots.txt: per budget and pattern, how many were ready, and what a request cost
+func SlotsAnalyse
+	vRows = ReadTsv($tSlots)
+	vKeys = []
+	for i = 2 to Len(vRows)
+		if Len(vRows[i]) = 10 and vRows[i][2] != "load" and vRows[i][2] != "(peak)"
+			tK = vRows[i][1] + " " + vRows[i][2]
+			if Find(vKeys, tK) = 0
+				vKeys + tK
+			end
+		end
+	end
+	$tOutText = ""
+	Say("RADAR-TPUSYNC-BUDGET-01 (b): the support desk's set held in slots under one budget, then served")
+	Say("a request = a select and a first token; medians in milliseconds")
+	Say("")
+	Say(Pad("budget MB", 11) + Pad("pattern", 9) + Pad("requests", 10) + Pad("in memory", 11) + Pad("select (in)", 13) + Pad("read back", 11) + Pad("select (back)", 15) + Pad("request (in)", 14) + Pad("request (back)", 16) + "most held MB")
+	for k = 1 to Len(vKeys)
+		vIn = []
+		vBack = []
+		vReqIn = []
+		vReqBack = []
+		nMaxHeld = 0
+		tB = ""
+		tP = ""
+		for i = 2 to Len(vRows)
+			if Len(vRows[i]) = 10 and vRows[i][1] + " " + vRows[i][2] = vKeys[k]
+				tB = vRows[i][1]
+				tP = vRows[i][2]
+				nSel = Number(vRows[i][6])
+				nReq = nSel + Number(vRows[i][7])
+				if vRows[i][5] = "1"
+					vIn + nSel
+					vReqIn + nReq
+				else
+					vBack + nSel
+					vReqBack + nReq
+				end
+				if Number(vRows[i][8]) > nMaxHeld
+					nMaxHeld = Number(vRows[i][8])
+				end
+			end
+		end
+		Say(Pad(tB, 11) + Pad(tP, 9) + Pad(String(Len(vIn) + Len(vBack)), 10) + Pad(String(Len(vIn)), 11) + Pad(MedTxt(vIn), 13) + Pad(String(Len(vBack)), 11) + Pad(MedTxt(vBack), 15) + Pad(MedTxt(vReqIn), 14) + Pad(MedTxt(vReqBack), 16) + String(nMaxHeld))
+	end
+	Say("")
+	for i = 2 to Len(vRows)
+		if Len(vRows[i]) = 10 and vRows[i][2] = "load"
+			Say("budget " + vRows[i][1] + " MB: " + vRows[i][4] + " loaded in " + vRows[i][6] + " ms (status " + vRows[i][10] + "), then " + vRows[i][9] + " held, " + vRows[i][8] + " MB")
+		end
+		if Len(vRows[i]) = 10 and vRows[i][2] = "(peak)"
+			Say("budget " + vRows[i][1] + " MB: the process's peak was " + vRows[i][8] + " MB")
+		end
+	end
+	Say("")
+	Say("status 5 = the model alone is over the budget, refused before anything else was evicted for it")
+	Write($tSlotsReport, $tOutText)
+	? "written " + $tSlotsReport
+end
+
+func MedTxt(vN)
+	if Len(vN) = 0
+		return "-"
+	end
+	return String(Median(vN))
 end
 
 # ---- one process, one file ----
@@ -300,7 +479,7 @@ func SortByFirst(vIn)
 	return vOut
 end
 
-# the memory _ticket_app.ring declares for each model (MB), copied from its list
+# the memory _ticket_app.ring declared for each model (MB) when (a) was measured, 2026-11-14; it declares the peaks since
 func Declared(tL)
 	vD = [ [ "smollm2-135m", "200" ], [ "qwen3-0.6b", "700" ], [ "granite-350m", "450" ], [ "granite-1b", "1800" ],
 	       [ "qwen25c-0.5b", "800" ], [ "qwen25c-1.5b", "1900" ], [ "granite42-3b", "3000" ], [ "bolt-e4b", "6400" ],

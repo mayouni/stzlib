@@ -1,0 +1,35 @@
+RADAR-TPUSYNC-BUDGET-01 (b): the support desk's set held in slots under one budget, then served
+a request = a select and a first token; medians in milliseconds
+
+budget MB  pattern  requests  in memory  select (in)  read back  select (back)  request (in)  request (back)  most held MB
+4096       cycle    20        0          -            20         640            -             1259            4099
+4096       skewed   29        22         0            7          420            72            1092            3420
+8192       cycle    22        0          -            22         818            -             1514            8167
+8192       skewed   30        22         0            8          1423           79            2680            7171
+
+budget 4096 MB: smollm2-135m loaded in 140 ms (status 0), then 1 held, 136 MB
+budget 4096 MB: granite-350m loaded in 456 ms (status 0), then 2 held, 494 MB
+budget 4096 MB: qwen25c-0.5b loaded in 683 ms (status 0), then 3 held, 1133 MB
+budget 4096 MB: qwen3-0.6b loaded in 887 ms (status 0), then 4 held, 1737 MB
+budget 4096 MB: granite-1b loaded in 2242 ms (status 0), then 5 held, 3391 MB
+budget 4096 MB: qwen25c-1.5b loaded in 2380 ms (status 0), then 3 held, 4059 MB
+budget 4096 MB: lfm3-1.7b loaded in 2812 ms (status 0), then 2 held, 3554 MB
+budget 4096 MB: granite42-3b loaded in 3107 ms (status 0), then 2 held, 3890 MB
+budget 4096 MB: bolt-e4b loaded in 0 ms (status 5), then 2 held, 3890 MB
+budget 4096 MB: minilm loaded in 38 ms (status 0), then 3 held, 3913 MB
+budget 4096 MB: jina loaded in 69 ms (status 0), then 4 held, 3951 MB
+budget 4096 MB: the process's peak was 5894 MB
+budget 8192 MB: smollm2-135m loaded in 177 ms (status 0), then 1 held, 136 MB
+budget 8192 MB: granite-350m loaded in 423 ms (status 0), then 2 held, 494 MB
+budget 8192 MB: qwen25c-0.5b loaded in 835 ms (status 0), then 3 held, 1133 MB
+budget 8192 MB: qwen3-0.6b loaded in 763 ms (status 0), then 4 held, 1737 MB
+budget 8192 MB: granite-1b loaded in 2217 ms (status 0), then 5 held, 3391 MB
+budget 8192 MB: qwen25c-1.5b loaded in 2598 ms (status 0), then 6 held, 5192 MB
+budget 8192 MB: lfm3-1.7b loaded in 2672 ms (status 0), then 7 held, 6945 MB
+budget 8192 MB: granite42-3b loaded in 3340 ms (status 0), then 5 held, 7949 MB
+budget 8192 MB: bolt-e4b loaded in 10938 ms (status 0), then 2 held, 8016 MB
+budget 8192 MB: minilm loaded in 47 ms (status 0), then 3 held, 8039 MB
+budget 8192 MB: jina loaded in 72 ms (status 0), then 4 held, 8077 MB
+budget 8192 MB: the process's peak was 10115 MB
+
+status 5 = the model alone is over the budget, refused before anything else was evicted for it
