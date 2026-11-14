@@ -84,6 +84,8 @@ pub const ModelSlot = struct {
     unk: i32 = 100,
     cased: bool = false,
     wp_classic: bool = false,
+    unigram: bool = false,
+    scores: []const f32 = &.{},
 };
 
 pub fn swapModel(s: *ModelSlot) void {
@@ -103,6 +105,8 @@ pub fn swapModel(s: *ModelSlot) void {
     std.mem.swap(i32, &g_unk, &s.unk);
     std.mem.swap(bool, &g_cased, &s.cased);
     std.mem.swap(bool, &g_wp_classic, &s.wp_classic);
+    std.mem.swap(bool, &g_unigram, &s.unigram);
+    std.mem.swap([]const f32, &g_scores, &s.scores);
 }
 
 /// The file the model in place was read from ("" when none).
@@ -301,6 +305,12 @@ var g_unk: i32 = 100;
 //                initial, bare continuation, as in MiniLM).
 var g_cased: bool = false;
 var g_wp_classic: bool = false;
+//  g_unigram  -- true if the vocab is a SentencePiece UNIGRAM model (tokenizer.ggml.model "t5", with scores), as in
+//                the XLM-R vocabulary of the multilingual sentence models: a word is cut where the pieces' scores sum
+//                highest (Viterbi), not by longest match -- greedy longest match cuts a unigram vocab badly
+//  g_scores   -- the pieces' log-probabilities, a view into the model's own metadata (valid while it is loaded)
+var g_unigram: bool = false;
+var g_scores: []const f32 = &.{};
 var g_tok_ids: std.ArrayList(i32) = .{};
 
 fn kvI32(key: [*:0]const u8, dflt: i32) i32 {
@@ -316,14 +326,20 @@ fn buildVocab() bool {
     if (n == 0 or n > std.math.maxInt(i32)) return false;
     g_vocab = std.StringHashMap(i32).init(gpa);
     g_wp_classic = false;
+    g_unigram = false;
+    g_scores = &.{};
+    var hash_count: usize = 0; // "##..." tokens (classic WordPiece continuation)
+    var meta_count: usize = 0; // metaspace-initial tokens (SentencePiece word-initial)
     var upper_count: usize = 0; // uppercase-bearing REGULAR (non-special) tokens
     var i: usize = 0;
     while (i < n) : (i += 1) {
         const tok = gr.arrStr(ctx, tid, i).?; // i < n, checked above; stable slice while model loaded
         const s = std.mem.span(tok);
         g_vocab.put(s, @intCast(i)) catch {};
-        // classic-WordPiece scheme: any "##..." continuation token in the vocab
-        if (!g_wp_classic and s.len >= 2 and s[0] == '#' and s[1] == '#') g_wp_classic = true;
+        // the scheme is the vocab's MAJORITY: a SentencePiece vocab of 250,037 pieces (XLM-R) holds one "##" piece,
+        // and "any ## token" read it as classic WordPiece -- every word after its first piece became [UNK]
+        if (s.len >= 2 and s[0] == '#' and s[1] == '#') hash_count += 1;
+        if (s.len >= 3 and s[0] == META[0] and s[1] == META[1] and s[2] == META[2]) meta_count += 1;
         // Cased detection: count regular tokens carrying an uppercase letter.
         // SKIP special tokens like [CLS]/[SEP]/[MASK]/[unused*] -- their brackets/
         // uppercase would falsely flag an uncased vocab as cased.
@@ -338,8 +354,20 @@ fn buildVocab() bool {
     // cased models (bert-base-cased) have thousands of uppercase tokens; uncased
     // has ~none among regular tokens.
     g_cased = upper_count > 32;
-    g_cls = kvI32("tokenizer.ggml.cls_token_id", 101);
-    g_sep = kvI32("tokenizer.ggml.seperator_token_id", 102);
+    g_wp_classic = hash_count > meta_count;
+    if (kvStr("tokenizer.ggml.model")) |m| {
+        if (std.mem.eql(u8, std.mem.span(m), "t5")) {
+            if (gr.arrOf(f32, ctx, gr.find(ctx, "tokenizer.ggml.scores"))) |sc| {
+                if (sc.len == n) {
+                    g_scores = sc;
+                    g_unigram = true;
+                }
+            }
+        }
+    }
+    // a vocab without a [CLS] id opens with its beginning-of-sequence piece (<s> in XLM-R) and closes with its end
+    g_cls = kvI32("tokenizer.ggml.cls_token_id", kvI32("tokenizer.ggml.bos_token_id", 101));
+    g_sep = kvI32("tokenizer.ggml.seperator_token_id", kvI32("tokenizer.ggml.eos_token_id", 102));
     g_unk = kvI32("tokenizer.ggml.unknown_token_id", 100);
     g_vocab_built = true;
     return true;
@@ -406,8 +434,92 @@ fn wordpiece(word: []const u8, out: *std.ArrayList(i32)) void {
     }
 }
 
+// SentencePiece unigram: the word with its metaspace prefix, cut where the pieces' scores sum highest. A character no
+// piece covers is one [UNK] (a run of them is one), scored below every piece, as SentencePiece does.
+const UNI_MAX: usize = 1024; // bytes of one word handled at once; a longer run is cut into such spans
+const UNI_PIECE: usize = 96; // the longest piece looked up, in bytes
+fn unigramWord(word: []const u8, first: bool, unk_score: f32, out: *std.ArrayList(i32)) void {
+    var buf: [UNI_MAX + 3]u8 = undefined;
+    var n: usize = 0;
+    if (first) {
+        @memcpy(buf[0..3], &META);
+        n = 3;
+    }
+    const take = @min(word.len, UNI_MAX);
+    @memcpy(buf[n .. n + take], word[0..take]);
+    n += take;
+    const NEG = -std.math.inf(f32);
+    var best: [UNI_MAX + 4]f32 = undefined;
+    var from: [UNI_MAX + 4]u16 = undefined;
+    var piece: [UNI_MAX + 4]i32 = undefined;
+    for (0..n + 1) |i| best[i] = NEG;
+    best[0] = 0;
+    var st: usize = 0;
+    while (st < n) : (st += 1) {
+        if (best[st] == NEG) continue;
+        const lim = @min(n, st + UNI_PIECE);
+        var e = st + 1;
+        while (e <= lim) : (e += 1) {
+            if (g_vocab.get(buf[st..e])) |id| {
+                const ix: usize = @intCast(id);
+                const v = best[st] + (if (ix < g_scores.len) g_scores[ix] else unk_score);
+                if (v > best[e]) {
+                    best[e] = v;
+                    from[e] = @intCast(st);
+                    piece[e] = id;
+                }
+            }
+        }
+        // one whole UTF-8 character as [UNK]
+        const cl: usize = std.unicode.utf8ByteSequenceLength(buf[st]) catch 1;
+        const ce = @min(n, st + cl);
+        const v = best[st] + unk_score;
+        if (v > best[ce]) {
+            best[ce] = v;
+            from[ce] = @intCast(st);
+            piece[ce] = g_unk;
+        }
+    }
+    // back from the end, then out in order
+    var rev: [UNI_MAX + 4]i32 = undefined;
+    var k: usize = 0;
+    var at = n;
+    while (at > 0) {
+        rev[k] = piece[at];
+        k += 1;
+        at = from[at];
+    }
+    var last_unk = false;
+    while (k > 0) {
+        k -= 1;
+        const id = rev[k];
+        if (id == g_unk and last_unk) continue;
+        last_unk = id == g_unk;
+        out.append(gpa, id) catch {};
+    }
+    if (word.len > take) unigramWord(word[take..], false, unk_score, out);
+}
+
 fn tokenizeInto(text: []const u8, out: *std.ArrayList(i32)) void {
     out.append(gpa, g_cls) catch {};
+    if (g_unigram) {
+        // SentencePiece splits on whitespace only; punctuation stays inside the word for the scores to cut
+        var min_score: f32 = 0;
+        for (g_scores) |v| min_score = @min(min_score, v);
+        const unk_score = min_score - 10.0;
+        var i: usize = 0;
+        while (i < text.len) {
+            if (isSpace(text[i])) {
+                i += 1;
+                continue;
+            }
+            const b0 = i;
+            while (i < text.len and !isSpace(text[i])) : (i += 1) {}
+            unigramWord(text[b0..i], true, unk_score, out);
+        }
+        out.append(gpa, g_sep) catch {};
+        return;
+    }
     var wb: [256]u8 = undefined;
     var i: usize = 0;
     while (i < text.len) {
