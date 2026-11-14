@@ -530,6 +530,7 @@ it. Testoor's guards move one commit each, the core guard first.
   | core | 79 | 188 | 40 texts joined with a number; the core's flag; 4 pairs; 7 names lettered a |
   | golden | 75 | 98 | 2 texts joined with numbers; a Ring predicate as a condition |
   | reader | 74 | 902 | a text joined with a number; `Dir()`'s folder flag, Ring's 1 or 0, compared to 0 |
+  | promises | 52 | 90 of 91 | 3 joins; 4 names lettered a. The other line is the wall time of a child tour, whose image the `.ring` run compiled first |
   | native | 44 | 76 of 77 | 12 joins; 32 fields of the two canonical forms; a name lettered a. The other line is the measured time the native runner took, different on every run |
   | impact | 51 | 88 | 3 report lines joining 17 numbers; two flags given 1 where `true` was meant; 2 names lettered a |
   | protocol | 55 | 96 | 3 joins; `oK` and `oN`, which haroport lowercased into the keywords `ok` and `case`, renamed `oKept` and `oNoStart` |
