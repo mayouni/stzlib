@@ -1,0 +1,219 @@
+load "../../stzBase.ring"
+load "_narrate.haro"
+
+# TESTOOR P2b -- THE GOLDEN LOGBOOKS. The Zig core is built against the files in
+# base/testoor/golden/, so this guard does two things and keeps them apart.
+#
+#   1. The REFERENCE reproduces every committed expected file byte for byte from the
+#      committed inputs. That keeps the goldens true: if the Ring judge changes, this
+#      fails until a human has read the diff and re-blessed the files.
+#
+#   2. The goldens say what each case was MEANT to show. A golden produced only by
+#      the code it tests proves nothing, so the table below was written from the
+#      design of each case, before the oracle was run, and the verdicts are checked
+#      against it independently of the committed bytes.
+#
+# And the checker is shown not to be a rubber stamp: a tampered expected file, a
+# missing one, and an input changed without re-blessing are each caught.
+#
+# Everything here is pure: no process is started and no clock is read.
+
+? "TESTOOR P2b -- golden logbooks"
+nGdStart = Clock()
+tGdHere = CurrentDir()
+tGdRoot = tGdHere + "/../../testoor/golden"
+
+# case, state, ending, kept, diverged, unreached, unjudged
+vGdIntent = [
+	[ "01_kept_timed",           "kept",      "finished-timed", 3, 0, 0, 0 ],
+	[ "02_diverged",             "diverged",  "finished-timed", 2, 1, 0, 0 ],
+	[ "03_unjudged_branch",      "unjudged",  "finished",       1, 0, 0, 1 ],
+	[ "04_not_started",          "unreached", "not-started",    0, 0, 2, 0 ],
+	[ "05_broke_midway",         "unreached", "broke",          1, 0, 2, 0 ],
+	[ "06_hung",                 "unreached", "hung",           1, 0, 1, 0 ],
+	[ "07_promise_spellings",    "kept",      "finished-timed", 8, 0, 0, 0 ],
+	[ "08_promise_lie_and_prose", "diverged", "finished",       1, 2, 0, 1 ],
+	[ "09_error_promise",        "kept",      "finished",       2, 0, 0, 0 ],
+	[ "10_multiline_block",      "diverged",  "finished",       2, 1, 0, 0 ],
+	[ "11_picture",              "diverged",  "finished",       0, 1, 0, 2 ],
+	[ "12_protocol_python",      "diverged",  "finished-timed", 2, 1, 0, 2 ],
+	[ "13_unreadable",           "kept",      "unreadable",     0, 0, 0, 0 ],
+	[ "14_exact_case",           "diverged",  "finished",       2, 1, 0, 0 ]
+]
+
+#============================================================================
+Scenario("The reference reproduces every committed expected file, byte for byte")
+	nGdSec = Clock()
+	Given("the committed inputs of 14 tours and 5 runs")
+	xGdAll = TestoorGoldenAll(tGdRoot)
+	Then("they produce 43 expected files", Len(xGdAll), 43)
+	vtGdBad = TestoorGoldenDiff(tGdRoot)
+	for nGd = 1 to Len(vtGdBad)
+		? "        DIFFERS: " + vtGdBad[nGd]
+	end
+	Then("and not one differs from what is committed", Len(vtGdBad), 0)
+	xGdAgain = TestoorGoldenAll(tGdRoot)
+	Then("a second regeneration is identical to the first: the reference is deterministic", _GdJoin(xGdAgain), _GdJoin(xGdAll))
+	nGdValid = 0
+	for nGd = 1 to Len(xGdAll)
+		if Right(xGdAll[nGd][1], 13) = "expected.json" and NarIs(StzJsonIsValid(xGdAll[nGd][2]))  nGdValid++  end
+	end
+	Then("every expected.json is valid JSON", nGdValid, 19)
+EndScenario()
+? "        [section took " + String((Clock() - nGdSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("Each case shows what it was designed to show")
+	nGdSec = Clock()
+	for nGd = 1 to Len(vGdIntent)
+		xRow = vGdIntent[nGd]
+		xRec = TestoorGoldenVerdict(tGdRoot + "/judge/" + xRow[1])
+		tGdTag = xRow[1] + ": "
+		if xRow[3] = "unreadable"
+			Then(tGdTag + "it is unreadable", xRec[:run][:end], "unreadable")
+			loop
+		end
+		Then(tGdTag + "the tour is " + xRow[2], xRec[:run][:state], xRow[2])
+		Then(tGdTag + "it ended " + xRow[3], xRec[:run][:end], xRow[3])
+		Then(tGdTag + "claims kept/diverged/unreached/unjudged",
+			NarText(xRec[:run][:kept]) + "/" + NarText(xRec[:run][:diverged]) + "/" + NarText(xRec[:run][:unreached]) + "/" + NarText(xRec[:run][:unjudged]),
+			NarText(xRow[4]) + "/" + NarText(xRow[5]) + "/" + NarText(xRow[6]) + "/" + NarText(xRow[7]))
+	end
+	xGdP = TestoorGoldenVerdict(tGdRoot + "/judge/12_protocol_python")
+	Then("the self-describing tour's own seed won over the runner's", xGdP[:run][:seed], 7)
+	Then("it declared one weather", Len(xGdP[:weather]), 1)
+	Then("named with its tick", xGdP[:weather][1], "child_killed@3")
+	Then("it walked two routes", Len(xGdP[:routes]), 2)
+	Then("the first before any stop", xGdP[:routes][1][:item] + "|" + xGdP[:routes][1][:stop], "ZA1|")
+	Then("the second inside the second stop", xGdP[:routes][2][:item] + "|" + xGdP[:routes][2][:stop], "ZA2|second place")
+	Then("the claims it announced and never made are named", xGdP[:run][:stops][2][:claims][2][:claim], "(planned claim 4)")
+	xGdU = TestoorGoldenVerdict(tGdRoot + "/judge/02_diverged")
+	Then("non-ASCII text survives the whole path", xGdU[:run][:stops][1][:claims][2][:claim], "b is é à 日本")
+	xGdK = TestoorGoldenVerdict(tGdRoot + "/judge/01_kept_timed")
+	Then("a kept tour carries the runner's seed, not a tour's", xGdK[:run][:seed], 5)
+	Then("the first stop took what the arrival times say: opened at 0.5 s, the next at 2 s", xGdK[:run][:stops][1][:wall_ms], 1500)
+EndScenario()
+? "        [section took " + String((Clock() - nGdSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("The five runs, and the exit code the runner gives each")
+	nGdSec = Clock()
+	xL1 = TestoorGoldenLogbook(tGdRoot + "/logbook/L1_all_kept", tGdRoot + "/judge")
+	xL2 = TestoorGoldenLogbook(tGdRoot + "/logbook/L2_mixed", tGdRoot + "/judge")
+	xL3 = TestoorGoldenLogbook(tGdRoot + "/logbook/L3_trouble", tGdRoot + "/judge")
+	xL4 = TestoorGoldenLogbook(tGdRoot + "/logbook/L4_flaky", tGdRoot + "/judge")
+	xL5 = TestoorGoldenLogbook(tGdRoot + "/logbook/L5_refused", tGdRoot + "/judge")
+	Then("a run of kept, unjudged and promised-raise tours exits 0", xL1[3], 0)
+	Then("owning three and running three", StzFindFirst('"owned":3,"run":3', xL1[1]) > 0, true)
+	Then("a run with a diverged tour exits 1", xL2[3], 1)
+	Then("and names what it skipped", StzFindFirst('"skipped":["_helper.ring"]', xL2[1]) > 0, true)
+	Then("and the topics it did not walk", StzFindFirst('"topics_skipped":["alpha","beta"]', xL2[1]) > 0, true)
+	Then("a run of tours that did not start, broke, hung or could not be read exits 1", xL3[3], 1)
+	Then("owning four but running three: owned and run are two figures", StzFindFirst('"owned":4,"run":3', xL3[1]) > 0, true)
+	Then("a kept tour found flaky still exits 1", xL4[3], 1)
+	Then("and says so", StzFindFirst('"flaky":1', xL4[1]) > 0, true)
+	Then("a run refused at its root exits 2", xL5[3], 2)
+	Then("owning nothing", StzFindFirst('"owned":0,"run":0', xL5[1]) > 0, true)
+	Then("and saying why", StzFindFirst('"refusal":"no such root: no/such/root"', xL5[1]) > 0, true)
+	Then("the committed exit codes agree", TestoorGoldenRead(tGdRoot + "/logbook/L3_trouble/expected.exit"), "1" + Char(10))
+EndScenario()
+? "        [section took " + String((Clock() - nGdSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("The goldens carry every key the protocol publishes")
+	nGdSec = Clock()
+	xGdKeys = TestoorLogbookKeys()
+	nGdMissing = 0
+	for nGd = 1 to Len(xGdAll)
+		tGdPath = xGdAll[nGd][1]
+		if Right(tGdPath, 13) != "expected.json"  loop  end
+		if Left(tGdPath, 5) = "judge"
+			vtGdNeed = xGdKeys[:tour]
+		else
+			vtGdNeed = xGdKeys[:run]
+		end
+		for nGdK = 1 to Len(vtGdNeed)
+			if StzFindFirst('"' + vtGdNeed[nGdK] + '":', xGdAll[nGd][2]) = 0
+				nGdMissing++
+				? "        " + tGdPath + " lacks " + vtGdNeed[nGdK]
+			end
+		end
+	end
+	Then("no expected.json lacks a key of its level", nGdMissing, 0)
+EndScenario()
+? "        [section took " + String((Clock() - nGdSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("The checker is not a rubber stamp: a tampered file, a missing file and a changed input are each caught")
+	nGdSec = Clock()
+	tGdTmp = _GdTempDir() + "/stz_testoor_golden_copy"
+	_GdCopyTree(tGdRoot, tGdTmp)
+	TestoorGoldenUpdate(tGdTmp)
+	Then("a faithful copy is clean", Len(TestoorGoldenDiff(tGdTmp)), 0)
+	Write(tGdTmp + "/judge/01_kept_timed/expected.txt", "KEPT but not the way the reference says" + Char(10))
+	vtGdD1 = TestoorGoldenDiff(tGdTmp)
+	Then("a tampered expected file is reported", Len(vtGdD1), 1)
+	Then("by name", vtGdD1[1], "judge/01_kept_timed/expected.txt")
+	TestoorGoldenUpdate(tGdTmp)
+	Remove(tGdTmp + "/logbook/L1_all_kept/expected.exit")
+	vtGdD2 = TestoorGoldenDiff(tGdTmp)
+	Then("a missing expected file is reported as missing", vtGdD2[1], "logbook/L1_all_kept/expected.exit (missing)")
+	TestoorGoldenUpdate(tGdTmp)
+	tGdOut = TestoorGoldenRead(tGdTmp + "/judge/02_diverged/output.txt")
+	Write(tGdTmp + "/judge/02_diverged/output.txt", SubStr(tGdOut, "[FAIL]", "[PASS]"))
+	vtGdD3 = TestoorGoldenDiff(tGdTmp)
+	Then("an input changed without re-blessing is caught: the verdict no longer matches its file", Len(vtGdD3) >= 1, true)
+	Then("in the case it belongs to", _GdAnyStarts(vtGdD3, "judge/02_diverged/"), true)
+	Then("and in the run that contains the case", _GdAnyStarts(vtGdD3, "logbook/L2_mixed/"), true)
+	StzDirDeleteAll(tGdTmp)
+EndScenario()
+? "        [section took " + String((Clock() - nGdSec) / ClocksPerSecond()) + "s]"
+
+? ""
+? "[P2b took " + String((Clock() - nGdStart) / ClocksPerSecond()) + "s]"
+Summary()
+Shutdown($nNarFail)
+
+#============================================================================
+# HELPERS AFTER THE TOP-LEVEL CODE
+
+func _GdJoin(xPairs)
+	tC = ""
+	nN = Len(xPairs)
+	for i = 1 to nN
+		tC += xPairs[i][1] + "=" + xPairs[i][2] + Char(1)
+	end
+	return tC
+end
+func _GdAnyStarts(vtPaths, tPrefix)
+	nN = Len(vtPaths)
+	for i = 1 to nN
+		if Left(vtPaths[i], Len(tPrefix)) = tPrefix  return true  end
+	end
+	return false
+end
+func _GdTempDir
+	tT = SysGet("TEMP")
+	if tT = ""  tT = SysGet("TMPDIR")  end
+	if tT = ""  tT = "/tmp"  end
+	return SubStr(tT, "\", "/")
+end
+# the inputs of every case, copied: record.json, meta.json, output.txt, run.json
+func _GdCopyTree(tSrc, tDst)
+	if FExists(tDst + "/judge")  StzDirDeleteAll(tDst)  end
+	StzMakeDir(tDst)
+	StzMakeDir(tDst + "/judge")
+	StzMakeDir(tDst + "/logbook")
+	vtJ = _GoldenCases(tSrc + "/judge")
+	for i = 1 to Len(vtJ)
+		StzMakeDir(tDst + "/judge/" + vtJ[i])
+		for tF in [ "record.json", "meta.json", "output.txt" ]
+			Write(tDst + "/judge/" + vtJ[i] + "/" + tF, Read(tSrc + "/judge/" + vtJ[i] + "/" + tF))
+		end
+	end
+	vtL = _GoldenCases(tSrc + "/logbook")
+	for i = 1 to Len(vtL)
+		StzMakeDir(tDst + "/logbook/" + vtL[i])
+		Write(tDst + "/logbook/" + vtL[i] + "/run.json", Read(tSrc + "/logbook/" + vtL[i] + "/run.json"))
+	end
+end

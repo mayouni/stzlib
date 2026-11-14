@@ -504,7 +504,7 @@ there (`TESTOOR_PROTOCOL_3.md` 6.5); the arrival of the first output is answered
 - **Not changed:** the Ring traveller's own loop (`stzTraveller._WalkOnce`), retired; the guards that walk children
   through it still need those children compiled once after a library change.
 
-### The guards move to .haro, 2026-11-14 -- 1 of 13
+### The guards move to .haro, 2026-11-14
 
 PRINCIPAL-NORING-01: code in the retired syntax moves to `.haro`, and no file is deleted before haro.exe runs what replaces
 it. Testoor's guards move one commit each, the core guard first.
@@ -517,11 +517,18 @@ it. Testoor's guards move one commit each, the core guard first.
 - **`base/test/testoor/_narrate.haro`** prints what `base/test/_narrated.ring` prints, line for line, and compares as Ring's
   `=` does: Haro's `true` and `false` are read as Ring's 1 and 0, a number beside a text that reads as it is the same, and
   a float beside a decimal is compared as they print. `NarText(x)` writes a value as Ring's `"" + x` did and `NarNumber(x)`
-  reads one as Ring's `0 + x` did. A file beginning with `_` is never walked.
+  reads one as Ring's `0 + x` did, and `NarIs(x)` reads a Ring predicate's 1 or 0 as a condition. A file beginning with
+  `_` is never walked.
 - **The proof for each guard:** the `.ring` and the `.haro` run on haro.exe, and their outputs are the same lines but for
   the `[section took ...]` timings and the seeds `TestoorDrawSeed()` draws from the clock. Then the `.ring` is removed.
-- **The core guard:** 79 of 79, the output equal; `testoor walk base/test/testoor` judges it KEPT, 14 stops, 79 claims,
-  beside the walk guard.
+- **Moved** (each 'the same lines' on haro.exe, then the `.ring` removed):
+
+  | guard | assertions | the same lines | what the port needed by hand |
+  |---|---|---|---|
+  | core | 79 | 188 | 40 texts joined with a number; the core's flag; 4 pairs; 7 names lettered a |
+  | golden | 75 | 98 | 2 texts joined with numbers; a Ring predicate as a condition |
+
+  `testoor walk base/test/testoor` judges the moved core guard KEPT, 14 stops, 79 claims, beside the walk guard.
 
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 

@@ -107,3 +107,8 @@ func NarNumber(xV)
 	end
 	return xV
 end
+
+# a Ring predicate's answer as a condition: 1 or true is true, 0 or false is false. haro.exe refuses a condition on a number
+func NarIs(xV)
+	return NarNumber(xV) != 0
+end
