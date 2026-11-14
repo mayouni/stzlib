@@ -1,0 +1,75 @@
+# A FULL EVENT BUS REFUSES OUT LOUD -- FOUNDRY-BUSBOUND-01, narrated
+#
+# The engine's event bus (engine/src/reactive.zig) is one table for the whole process: 64 channels, 16 subscribers a
+# channel. stzfoundry supervised one agent per channel and never destroyed a channel: from the 36th agent on, the host
+# answered 0 ticks after an emit, with no error and nothing in Why. The bus had refused the channel, the host had not
+# asked, and the agent waited on a channel that did not exist. Now SuperviseOnEvent refuses the agent and says why,
+# and Emit answers -3, never "delivered to nobody". Destroying a channel makes room again.
+#
+# Run from base/test/eventbus on haro.exe with STZ_ENGINE_DIR set.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+
+oBus = new stzEventBus()
+oBus.ClearAll()
+
+Scenario("1. the bus holds 64 channels")
+for i = 1 to 64
+	oBus.Channel("fill-" + String(i))
+end
+Then("64 channels exist", oBus.NumberOfChannels(), 64)
+Then("a 65th cannot be made", oBus.HasChannel("one-too-many"), 0)
+Then("...and Emit on it says so: -3", oBus.Emit("one-too-many", "x"), -3)
+
+Scenario("2. supervising an agent on a channel the full bus cannot make")
+oHost = new stzAgentHost()
+oHost.SuperviseOnEvent(new busboundBot("late-bot"), "late")
+Then("the agent is not registered", oHost.IsSupervising("late-bot"), 0)
+Then("Why names the full bus", StzFindFirst("the event bus is full (64 channels per process, 64 in use)", oHost.Why()) > 0, true)
+? "  why: " + oHost.Why()
+
+Scenario("3. a destroyed channel makes room")
+oBus.DestroyChannel("fill-64")
+oHost.SuperviseOnEvent(new busboundBot("late-bot"), "late")
+Then("the agent is registered on its channel", oHost.ChannelOf("late-bot"), "late")
+oBus.Emit("late", "one")
+oBus.Emit("late", "two")
+oHost.RunFor(60)
+Then("two events, two ticks", oHost.TicksOf("late-bot"), 2)
+
+oBus.ClearAll()
+? ""
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+
+func Scenario(tName)
+	? ""
+	? "SCENARIO: " + tName
+end
+
+func Then(tWhat, xGot, xExpected)
+	if xGot = xExpected
+		$nPass = $nPass + 1
+		? "  THEN  " + tWhat + "  [PASS]"
+	else
+		$nFail = $nFail + 1
+		? "  THEN  " + tWhat + "  [FAIL]"
+		? "    expected: " + String(xExpected)
+		? "    got:      " + String(xGot)
+	end
+end
+
+# the smallest agent a host takes: a name and a cycle that acts once
+class busboundBot
+	tName = ""
+	def init(ptName)
+		tName = ptName
+	end
+	def Name_
+		return tName
+	end
+	def Cycle
+		return 1
+	end
+end

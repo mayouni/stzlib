@@ -242,13 +242,31 @@ class stzAgentHost from stzObject
 	#   poAgent     an agent that answers Name_ and Cycle, fully configured
 	#   pcChannel   the event bus channel to follow, created when absent
 	#   returns     the host itself, so calls chain
-	#   note        events emitted before the call are not replayed
-	#   see         Supervise, ChannelOf
+	#   note        events emitted before the call are not replayed. The bus holds at most 64
+	#               channels for the whole process: when the channel cannot be made, the agent is
+	#               NOT registered, Why says so and the trace records the refusal -- destroy the
+	#               channels you no longer need (stzEventBus.DestroyChannel)
+	#   see         Supervise, ChannelOf, IsSupervising
 	#@ aka  EVENT-DRIVEN supervision (R5 reactor-runtime): tick the agent once per EVENT emitted on pcChannel (the engine event bus, stzEventBus), not on a timer. The perceive-decide-act loop becomes a true event loop -- the agent reacts to what happens, when it happens. Past events are NOT replayed (the baseline is the channel's current count at registration).
 	def SuperviseOnEvent(poAgent, pcChannel)
-		stzengine_reactive_create_channel("" + pcChannel)   # ensure it exists
+		_nMade_ = stzengine_reactive_create_channel("" + pcChannel)   # ensure it exists
 		_nBase_ = stzengine_reactive_event_count("" + pcChannel)
-		if _nBase_ < 0  _nBase_ = 0  ok
+		if _nBase_ < 0
+			# FOUNDRY-BUSBOUND-01: an agent registered on a channel the bus could
+			# not make was ticked 0 times, silently. Refuse it and say why.
+			if _nMade_ = -3
+				@cWhy = "refused '" + poAgent.Name_() + "' on channel '" + pcChannel +
+				        "': the event bus is full (64 channels per process, " +
+				        string(stzengine_reactive_channel_count()) + " in use); destroy " +
+				        "channels no longer needed"
+			else
+				@cWhy = "refused '" + poAgent.Name_() + "' on channel '" + pcChannel +
+				        "': the bus could not make it (status " + string(_nMade_) +
+				        "; a name is 1 to 64 bytes)"
+			ok
+			@aTrace + [ StzEngineTimeNowMs(), poAgent.Name_(), 0, @cWhy ]
+			return This
+		ok
 		@aAgents + [ poAgent.Name_(), poAgent, 0, 1,
 		             0, 0, 0, "" + pcChannel, _nBase_,
 		             stzengine_reactive_channel_generation("" + pcChannel), -1 ]

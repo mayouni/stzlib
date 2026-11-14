@@ -106,12 +106,16 @@ class stzEventBus from stzObject
 	#
 	#   pcName     the name of the channel
 	#   pcData     the payload, turned into text
-	#   returns    how many subscribers it was delivered to; 0 when there are none
-	#   note       the event is counted and kept as the last event even when nobody is subscribed
-	#   see        EventCount, LastEvent, Subscribe
+	#   returns    how many subscribers it was delivered to; 0 when there are none; -3 when the
+	#              channel does not exist and the bus, full at 64 channels per process, cannot make it
+	#   note       the event is counted and kept as the last event even when nobody is subscribed;
+	#              a payload is kept to its first 256 bytes
+	#   see        EventCount, LastEvent, Subscribe, DestroyChannel
 	#@ aka  Emit a payload on a channel (auto-declares it). Returns how many subscribers it was delivered to.
 	def Emit(pcName, pcData)
-		stzengine_reactive_create_channel("" + pcName)
+		if stzengine_reactive_create_channel("" + pcName) = -3
+			return -3   # the bus is full: say so, never "delivered to nobody"
+		ok
 		return stzengine_reactive_emit("" + pcName, "" + pcData)
 
 	# Returns how many events were emitted on a channel since it was created.
@@ -158,9 +162,10 @@ class stzEventBus from stzObject
 
 	# Returns how many channels exist.
 	#
-	#   returns    a number
+	#   returns    a number, at most 64: the bus holds 64 channels per process, 16 subscribers per
+	#              channel, names of 1 to 64 bytes
 	#   note       the bus is process-wide, so channels made by other parts of the process count
-	#   see        HasChannel, ClearAll
+	#   see        HasChannel, ClearAll, DestroyChannel
 	def NumberOfChannels()
 		return stzengine_reactive_channel_count()
 
