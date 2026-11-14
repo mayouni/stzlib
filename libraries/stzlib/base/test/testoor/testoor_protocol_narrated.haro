@@ -1,0 +1,261 @@
+load "../../stzBase.ring"
+load "_narrate.haro"
+
+# TESTOOR PROTOCOL -- CONFORMANCE. The core of Testoor (runner, judge, routes,
+# seeds, logbook) must not know the language a tour is written in; what it
+# knows is TESTOOR_PROTOCOL.md. This guard proves it the only way that counts:
+# it runs tours written in PYTHON through the same runner, with a face that
+# is nothing but a registered profile, and gets the same logbook.
+#
+#   - a kept tour, a failing tour, a tour that breaks with claims still owed,
+#     one that never starts, one that ends with claims unmade, a seeded tour
+#     that fails at 42 and passes at 43, a tour that names its own seed, a
+#     tour that declares a route -- every one prints only protocol lines
+#   - one runner walks a folder holding a Ring tour and a Python tour and
+#     answers ONE logbook; a program that is not Ring (python) checks that
+#     logbook against the key list the protocol publishes
+#   - a language with no face is NAMED, not guessed and not run; a face that
+#     has no launch is read-only; a third face registered at run time works
+#
+# Python is the reference second language because it is on this machine; the
+# guard does not care which it is. It needs `python` on the path.
+#
+# WHAT THE PROTOCOL DOES NOT REACH, said plainly: a self-describing tour can
+# only be judged on what it prints. A claim it never announces is not a claim
+# the runner knows about; [testoor plan N] is the tour's own promise of N, and
+# the runner holds it to that.
+
+? "TESTOOR PROTOCOL -- conformance"
+nTpStart = Clock()
+tTpHere = CurrentDir()
+tTpPlant = tTpHere + "/_planted_protocol"
+TestoorUnregisterFaces()
+vTpPy = [ [:name, "python"], [:ext, ".py"], [:reader, "protocol"], [:program, "python"],
+          [:launch, [ "{program}", "{file}", "--testoor-seed", "{seed}" ]], [:ignore, ""],
+          [:endings, [ [ "SyntaxError", "not-started" ], [ "Traceback (most recent call last)", "broke" ] ]] ]
+TestoorRegisterFace(vTpPy)
+_TpPlantAll(tTpPlant)
+
+#============================================================================
+Scenario("A tour in another language is judged by the same runner, from the lines it prints")
+	nTpSec = Clock()
+	Given("a Python tour that prints two stops, three kept claims and the timed ending")
+	oKept = TravellerQ().Silent().Timeout(30000).Seed(5).Walk(tTpPlant + "/kept.py")
+	xK = oKept.Records()[1]
+	Then("the reader recognised a self-describing tour", xK[:dialect], "protocol")
+	Then("it is kept", xK[:run][:state], "kept")
+	Then("and finished, timed", xK[:run][:end], "finished-timed")
+	Then("two stops were announced", Len(xK[:run][:stops]), 2)
+	Then("named as the tour named them", xK[:run][:stops][1][:title], "first place")
+	Then("the first stop has two claims", Len(xK[:run][:stops][1][:claims]), 2)
+	Then("and the second claim is the text it printed", xK[:run][:stops][1][:claims][2][:claim], "two is two")
+	Then("three claims kept, none diverged", NarText(xK[:run][:kept]) + "/" + NarText(xK[:run][:diverged]), "3/0")
+	Then("the runner exits 0", oKept.ExitCode(), 0)
+	Given("a Python tour whose second claim fails")
+	oF = TravellerQ().Silent().Timeout(30000).Seed(5).Walk(tTpPlant + "/failing.py")
+	xF = oF.Records()[1]
+	Then("one claim is kept and one diverged", NarText(xF[:run][:kept]) + "/" + NarText(xF[:run][:diverged]), "1/1")
+	Then("the diverged claim is named", xF[:run][:stops][1][:claims][2][:claim], "the bad one")
+	Then("the tour is diverged", xF[:run][:state], "diverged")
+	Then("the runner exits 1", oF.ExitCode(), 1)
+EndScenario()
+? "        [section took " + String((Clock() - nTpSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("A tour that breaks leaves its owed claims unreached; one that never starts is not-started; one that ends early leaves them unjudged")
+	nTpSec = Clock()
+	Given("a Python tour that announces 3 claims, keeps 1 and then divides by zero")
+	oB = TravellerQ().Silent().Timeout(30000).Seed(5).Walk(tTpPlant + "/broke.py")
+	xB = oB.Records()[1]
+	Then("it broke, read from the face's own error text", xB[:run][:end], "broke")
+	Then("one claim is kept", xB[:run][:kept], 1)
+	Then("the two it owed are UNREACHED, not failed", xB[:run][:unreached], 2)
+	Then("none diverged", xB[:run][:diverged], 0)
+	Then("the runner exits 1: a tour that broke", oB.ExitCode(), 1)
+	Given("a Python file with a syntax error")
+	oNoStart = TravellerQ().Silent().Timeout(30000).Seed(5).Walk(tTpPlant + "/nostart.py")
+	Then("it did not start", oNoStart.Records()[1][:run][:end], "not-started")
+	Then("the runner exits 1", oNoStart.ExitCode(), 1)
+	Given("a Python tour that announces 3 claims, keeps 1 and ends normally")
+	oU = TravellerQ().Silent().Timeout(30000).Seed(5).Walk(tTpPlant + "/planned.py")
+	xU = oU.Records()[1]
+	Then("it ran to its end", xU[:run][:end], "finished")
+	Then("the two claims it never made are UNJUDGED", xU[:run][:unjudged], 2)
+	Then("not unreached", xU[:run][:unreached], 0)
+	Then("and not a failure: the runner exits 0", oU.ExitCode(), 0)
+EndScenario()
+? "        [section took " + String((Clock() - nTpSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("The seed crosses the language boundary: fails at 42, passes at 43, and the tour may name its own")
+	nTpSec = Clock()
+	Given("a Python tour that fails exactly when it is handed seed 42, walked twice")
+	oA = TravellerQ().Silent().Timeout(30000).Seed(42).Walk(tTpPlant + "/seeded.py")
+	oB2 = TravellerQ().Silent().Timeout(30000).Seed(42).Walk(tTpPlant + "/seeded.py")
+	Then("it fails", oA.Records()[1][:run][:state], "diverged")
+	Then("identically the second time", _TravSignature(oB2.Records()[1]), _TravSignature(oA.Records()[1]))
+	Then("the logbook carries the seed", oA.Records()[1][:run][:seed], 42)
+	oC = TravellerQ().Silent().Timeout(30000).Seed(43).Walk(tTpPlant + "/seeded.py")
+	Then("with seed 43 it passes", oC.Records()[1][:run][:state], "kept")
+	Then("the runner exits 0", oC.ExitCode(), 0)
+	Given("a Python tour that prints [testoor seed 7] under a runner offering 42")
+	oD = TravellerQ().Silent().Timeout(30000).Seed(42).Walk(tTpPlant + "/own_seed.py")
+	Then("the seed the tour named is the one recorded", oD.Records()[1][:run][:seed], 7)
+	Given("the same tour walked twice with --repeat")
+	oR2 = TravellerQ().Silent().Timeout(30000).Seed(42).Repeat(2).Walk(tTpPlant + "/seeded.py")
+	Then("a tour fully determined by its seed is not flaky", oR2.Records()[1][:flaky], 0)
+EndScenario()
+? "        [section took " + String((Clock() - nTpSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("Routes are declared the same way in any language")
+	nTpSec = Clock()
+	Given("a Python tour that prints [testoor route ZA1]")
+	oRt = TravellerQ().Silent().Timeout(30000).Seed(5).Walk(tTpPlant + "/route.py")
+	xRt = oRt.Records()[1]
+	Then("the route is in the tour's record", Len(xRt[:routes]), 1)
+	Then("named", xRt[:routes][1][:item], "ZA1")
+	Then("and at the stop it was declared in", xRt[:routes][1][:stop], "a routed place")
+	oMap = StzRouteMapQ().AddPlan("plan", "### ZA1 -- first" + Char(10) + "CLOSED: shipped." + Char(10) +
+	       "### ZA2 -- second" + Char(10) + "CLOSED: shipped." + Char(10)).AddTour(xRt)
+	Then("the map counts it walked", oMap.WalkedCount(), 1)
+	Then("and the other closed route unwalked", oMap.Unwalked()[1][1], "ZA2")
+EndScenario()
+? "        [section took " + String((Clock() - nTpSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("One runner, two languages, one logbook -- checked by a program that is not Ring")
+	nTpSec = Clock()
+	Given("a folder holding a Ring tour and a Python tour")
+	oMix = TravellerQ().Silent().Timeout(60000).Seed(5).WalkTree(tTpPlant + "/mix")
+	Then("both were owned and run", NarText(oMix.Owned()) + "/" + NarText(oMix.Run()), "2/2")
+	Then("both are kept", oMix.Counts()[:kept], 2)
+	Then("the runner exits 0", oMix.ExitCode(), 0)
+	tJson = oMix.Json()
+	Then("the logbook is valid JSON", StzJsonIsValid(tJson), true)
+	Write(tTpPlant + "/logbook.json", tJson)
+	Write(tTpPlant + "/need.json", TestoorLogbookKeysJson())
+	oP = new stzProcess()
+	oP.SpawnIn(tTpPlant, [ "python", "check_keys.py", "logbook.json", "need.json" ])
+	tOut = Trim(oP.ReadOutputAll())
+	oP.Wait()
+	oP.Close()
+	? "        (python says: " + tOut + ")"
+	Then("python finds every key the protocol publishes, at all four levels", Left(tOut, 7), "KEYS OK")
+	Then("in both tours", Right(tOut, 1), "2")
+	Given("a logbook with a key missing")
+	Write(tTpPlant + "/logbook_bad.json", SubStr(tJson, '"claims":', '"claimz":'))
+	oP2 = new stzProcess()
+	oP2.SpawnIn(tTpPlant, [ "python", "check_keys.py", "logbook_bad.json", "need.json" ])
+	tBad = Trim(oP2.ReadOutputAll())
+	oP2.Wait()
+	oP2.Close()
+	Then("the checker is not a rubber stamp: it names what is missing", Left(tBad, 7), "MISSING")
+EndScenario()
+? "        [section took " + String((Clock() - nTpSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("A language with no face is named, not guessed; a read-only face is not run; a face can be registered by anyone")
+	nTpSec = Clock()
+	Given("a file in a language nobody has given a face")
+	xH = Tour(tTpPlant + "/other/x.haro")
+	Then("it is readable text", xH[:readable], 1)
+	Then("and its dialect is unknown", xH[:dialect], "unknown")
+	Then("the record says why, naming the protocol", StzFindFirst("no face is registered", xH[:why]) > 0 and StzFindFirst("TESTOOR_PROTOCOL.md", xH[:why]) > 0, true)
+	Then("the folder walker does not even list it", _TpListed(tTpPlant + "/other", "x.haro"), false)
+	oH = TravellerQ().Silent().Timeout(30000).Walk(tTpPlant + "/other/x.haro")
+	Then("walked by name, it is not run: unreadable", oH.Records()[1][:run][:end], "unreadable")
+	Then("the runner exits 1", oH.ExitCode(), 1)
+	Given("Zin's .zst, which has a reader and no way to launch")
+	oZ = TravellerQ().Silent().Timeout(30000).Walk(tTpPlant + "/other/y.zst")
+	Then("it is not run either", oZ.Records()[1][:run][:end], "unreadable")
+	Then("and says it is read-only", StzFindFirst("read-only", oZ.Records()[1][:why]) > 0, true)
+	Given("a third face registered at run time for the extension .pyt")
+	xPyt = vTpPy
+	xPyt[:name] = "pyt"
+	xPyt[:ext] = ".pyt"
+	TestoorRegisterFace(xPyt)
+	oT = TravellerQ().Silent().Timeout(30000).Seed(5).Walk(tTpPlant + "/other/third.pyt")
+	Then("a tour in it is walked and kept", oT.Records()[1][:run][:state], "kept")
+	Then("and the folder walker now lists it", _TpListed(tTpPlant + "/other", "third.pyt"), true)
+	TestoorUnregisterFaces()
+	Then("unregistered, the extension is unknown again", Tour(tTpPlant + "/other/third.pyt")[:dialect], "unknown")
+	Given("a Ring tour, which has a face built in")
+	TestoorRegisterFace(vTpPy)
+	oG = TravellerQ().Silent().Timeout(60000).Seed(5).Walk(tTpPlant + "/mix/a_ring.ring")
+	Then("it is judged as it always was", oG.Records()[1][:run][:kept], 1)
+EndScenario()
+? "        [section took " + String((Clock() - nTpSec) / ClocksPerSecond()) + "s]"
+
+TestoorUnregisterFaces()
+_TpUnplantAll(tTpPlant)
+? ""
+? "[PROTOCOL took " + String((Clock() - nTpStart) / ClocksPerSecond()) + "s]"
+Summary()
+Shutdown($nNarFail)
+
+#============================================================================
+# HELPERS AFTER THE TOP-LEVEL CODE
+
+# the six-line helper a language needs (TESTOOR_PROTOCOL.md section 3), plus a body
+func _TpPy(vtBody)
+	tC = "import sys" + Char(10) +
+	    'def stop(t): print("[testoor stop " + t + "]", flush=True)' + Char(10) +
+	    'def ok(t): print("[testoor ok " + t + "]", flush=True)' + Char(10) +
+	    'def fail(t): print("[testoor fail " + t + "]", flush=True)' + Char(10)
+	nN = Len(vtBody)
+	for i = 1 to nN
+		tC += vtBody[i] + Char(10)
+	end
+	return tC
+end
+func _TpPlantAll(tRoot)
+	_TpUnplantAll(tRoot)
+	StzMakeDir(tRoot)
+	StzMakeDir(tRoot + "/mix")
+	StzMakeDir(tRoot + "/other")
+	Write(tRoot + "/kept.py", _TpPy([ 'stop("first place")', 'ok("one is one")', 'ok("two is two")',
+		'stop("second place")', 'ok("three is three")', 'print("[testoor end timed]")' ]))
+	Write(tRoot + "/failing.py", _TpPy([ 'stop("a place")', 'ok("the good one")', 'fail("the bad one")' ]))
+	Write(tRoot + "/broke.py", _TpPy([ 'print("[testoor plan 3]", flush=True)', 'stop("a place")',
+		'ok("before the break")', 'x = 1 / 0', 'ok("never reached")' ]))
+	Write(tRoot + "/nostart.py", "import sys" + Char(10) + "def (:" + Char(10) + 'print("[testoor ok never]")' + Char(10))
+	Write(tRoot + "/planned.py", _TpPy([ 'print("[testoor plan 3]", flush=True)', 'stop("a place")', 'ok("only one")' ]))
+	Write(tRoot + "/seeded.py", _TpPy([ 'seed = int(sys.argv[sys.argv.index("--testoor-seed") + 1])',
+		'print("[testoor seed " + str(seed) + "]", flush=True)', 'stop("the seeded place")',
+		'if seed == 42: fail("seed 42 is the unlucky one")', 'else: ok("this seed is lucky enough")' ]))
+	Write(tRoot + "/own_seed.py", _TpPy([ 'print("[testoor seed 7]", flush=True)', 'stop("a place")', 'ok("seeded by the tour itself")' ]))
+	Write(tRoot + "/route.py", _TpPy([ 'stop("a routed place")', 'print("[testoor route ZA1]", flush=True)', 'ok("walked")' ]))
+	Write(tRoot + "/mix/a_ring.ring", '? "  [OK] a ring claim in a mixed folder"' + Char(10))
+	Write(tRoot + "/mix/b_py.py", _TpPy([ 'stop("a python place in a mixed folder")', 'ok("a python claim")' ]))
+	Write(tRoot + "/other/x.haro", "this tour is written in a language with no face" + Char(10))
+	Write(tRoot + "/other/y.zst", "DEFINE NARRATED_TEST y AS ( )" + Char(10))
+	Write(tRoot + "/other/third.pyt", _TpPy([ 'stop("a third-party place")', 'ok("a third-party claim")' ]))
+	# the independent checker: a program that is not Ring reads the logbook
+	Write(tRoot + "/check_keys.py",
+		"import json, sys" + Char(10) +
+		'd = json.load(open(sys.argv[1], encoding="utf-8"))' + Char(10) +
+		'need = json.load(open(sys.argv[2], encoding="utf-8"))' + Char(10) +
+		'bad = [k for k in need["run"] if k not in d]' + Char(10) +
+		'for t in d.get("tours", []):' + Char(10) +
+		'    bad += ["tour." + k for k in need["tour"] if k not in t]' + Char(10) +
+		'    for s in t.get("stops", []):' + Char(10) +
+		'        bad += ["stop." + k for k in need["stop"] if k not in s]' + Char(10) +
+		'        for c in s.get("claims", []):' + Char(10) +
+		'            bad += ["claim." + k for k in need["claim"] if k not in c]' + Char(10) +
+		'print("KEYS OK " + str(len(d["tours"])) if not bad else "MISSING " + ",".join(sorted(set(bad))))' + Char(10))
+end
+# is a file of this name among the tours the folder walker lists?
+func _TpListed(tDir, tName)
+	xFiles = _TourFilesUnder(tDir, "")[1]
+	nN = Len(xFiles)
+	for i = 1 to nN
+		if Right(xFiles[i], Len(tName)) = tName  return true  end
+	end
+	return false
+end
+func _TpUnplantAll(tRoot)
+	if FExists(tRoot + "/kept.py")
+		StzDirDeleteAll(tRoot)
+	end
+end
