@@ -77,3 +77,19 @@ eleven files in the models folder were loaded into slots under 4 GB and 8 GB, th
   - room is made from a file's size BEFORE the file is read: the process's peak was 5.9 GB under 4 GB and 10.1 GB under
     8 GB, the rest being a forward pass's working memory, which no budget counts. The first run evicted AFTER the read
     and peaked at 9.8 and 14.1 GB; Bolt E4B (6 GB) under 4 GB is now refused unread, in 0 ms, where it was read for 27 s.
+
+2026-11-14 (PRINCIPAL-RELAY-FABRIC-01, ../_measure_fabric.haro): can several small models together do what the large one does?
+The 204 option questions, asked of Bolt E4B and of the eight other generative models, every model's whole distribution over
+the options kept (fabric.tsv). Every combination is CHOSEN on the odd tickets (102 questions) and JUDGED on the even ones
+(102), so no fabric is scored on the questions that chose it. Table: fabric.txt. What it shows:
+  - no fabric of small models matches Bolt: the one best on dev (five models, their shares summed) answers 88 of 102 against
+    Bolt's 98, and the court upholds Bolt (12-2, P 0.0066) -- with 7.9 GB of members against Bolt's 6.0 and 2.8 times its time.
+    Routers, the most confident member, the product of shares and a two-model cascade all land between 79 and 89.
+  - the knowledge is in the fabric and the SELECTION is what fails: on every one of the 102 test questions at least one small
+    model is right; per question and language a small one matches or leads Bolt in five of seven cells (LFM3 16 of 18 on
+    kind, against Bolt's 15); the best small model of each cell picked on test gives 93 -- a bound, since it sees the test.
+    Chosen on dev, the router reached 79: 12 to 18 questions a cell do not choose a specialist that holds on the other half.
+  - the fabric RUNS: served from one process with its five members held at once in slots (7,702 MB), it answers the same 88
+    of 102 the analysis counts (fabric_serve.tsv) -- the slots and the per-model rows agree.
+  - the times are the machine's on a day shared with other sessions: Bolt took 921 s for 204 questions here, 283 s on 11-12.
+

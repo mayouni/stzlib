@@ -24,7 +24,9 @@
 load "../../stzBase.ring"
 load "../_narrated.ring"
 
+# the models folder: STZ_MODELS_DIR when it is set (the folder the other neural guards read), else the repository's own
 cModelsDir = "../../../models/"
+if sysget("STZ_MODELS_DIR") != "" cModelsDir = sysget("STZ_MODELS_DIR") + "/" ok
 aModels = [ "smollm2-135m-instruct-q8_0.gguf", "qwen2.5-coder-0.5b-instruct-q8_0.gguf", "Qwen3-0.6B-Q8_0.gguf", "granite-4.0-350m-Q8_0.gguf" ]
 cPara = "The river towns of the northern valley keep their records in stone halls, and every spring the clerks count the barges that passed the locks. "
 cLong = ""
@@ -63,9 +65,15 @@ for m = 1 to len(aModels)
 		if HasLine(aExp, cLine) nSame++ ok
 	next
 next
-? "  " + nSame + " of " + nCompared + " greedy texts equal the pre-change decoder's, over " + nModels + " model families"
-Then("every model family present writes, on all three prompts, the text it wrote before", nCompared > 0 and nSame = nCompared, TRUE)
-Then("...including the prompt of 1100+ tokens, which crosses every doubling of the cache's capacity (256, 512, 1024, 2048)", nCompared >= 3, TRUE)
+if nModels = 0
+	# no model to compare is a scene NOT RUN, named below -- never a failure (it was reported as 2 FAIL until 2026-11-14)
+	aSkipped + "scene 1 (no generative model)"
+	? "  SKIPPED: no generative model in " + cModelsDir
+else
+	? "  " + nSame + " of " + nCompared + " greedy texts equal the pre-change decoder's, over " + nModels + " model families"
+	Then("every model family present writes, on all three prompts, the text it wrote before", nSame = nCompared, TRUE)
+	Then("...including the prompt of 1100+ tokens, which crosses every doubling of the cache's capacity (256, 512, 1024, 2048)", nCompared >= 3, TRUE)
+ok
 EndScenario()
 
 #=====================================================================#

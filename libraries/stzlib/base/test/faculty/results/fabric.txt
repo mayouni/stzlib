@@ -1,0 +1,46 @@
+PRINCIPAL-RELAY-FABRIC-01: can several small models together do what the large one does?
+the support desk's 204 option questions (en kind/product/severity, fr and ar product/severity), read by probability
+chosen on dev (102 questions, odd tickets), judged on test (102 questions, even tickets)
+
+model          all      dev     test    ready MB  s on test
+smollm2-135m   88/204   48      40      158       82.5
+granite-350m   82/204   46      36      387       119.2
+qwen25c-0.5b   99/204   55      44      669       42.1
+qwen3-0.6b     108/204  62      46      685       54.7
+granite-1b     167/204  85      82      1710      161.8
+qwen25c-1.5b   147/204  75      72      1840      334.4
+lfm3-1.7b      158/204  84      74      1823      140.7
+granite42-3b   174/204  85      89      2192      514.4
+bolt-e4b       195/204  97      98      5983      448.9
+
+ON THE TEST HALF, per question and language (right of n)
+cell          n   smollm2-1 granite-3 qwen25c-0 qwen3-0.6 granite-1 qwen25c-1 lfm3-1.7b granite42 bolt-e4b  
+kind/en       18  7         7         12        6         11        12        16        13        15        
+product/en    18  6         4         6         6         11        10        9         14        17        
+severity/en   18  5         8         6         14        18        16        16        18        18        
+product/fr    12  3         4         6         3         12        10        8         11        12        
+severity/fr   12  8         4         4         4         9         9         7         9         12        
+product/ar    12  3         3         6         6         9         7         8         12        12        
+severity/ar   12  8         6         4         7         12        8         10        12        12        
+the best small model of each cell, picked ON TEST (a bound no dev choice is held to): 93 of 102
+
+THE FABRICS, chosen on dev, judged on test (of 102); bolt-e4b alone: 98, 5983 MB, 448.9 s
+
+fabric                                dev  test  MB     s      vs bolt-e4b       members
+best one                              85   82    1710   161.8  1-17, P 0.0002    granite-1b
+router (question x language)          91   79    4218   137.1  3-22, P 0.0002    lfm3-1.7b, granite-1b, qwen3-0.6b
+ensemble                              94   88    7952   1270.6 2-12, P 0.0066    granite-1b, lfm3-1.7b, granite42-3b, qwen25c-1.5b, granite-350m
+ensemble within half the memory       87   80    2097   281.0  2-20, P 0.0002    granite-1b, granite-350m
+all the small ones summed             88   79    9464   1449.8 2-21, P 0.0001    smollm2-135m, granite-350m, qwen25c-0.5b, qwen3-0.6b, granite-1b, qwen25c-1.5b, lfm3-1.7b, granite42-3b
+ensemble, most confident member       93   84    6270   1018.7 2-16, P 0.0008    granite-1b, lfm3-1.7b, granite-350m, granite42-3b, smollm2-135m
+...within half the memory             87   80    2097   281.0  2-20, P 0.0002    granite-1b, granite-350m
+ensemble, product of shares           92   89    7565   1151.4 2-11, P 0.0113    granite-1b, lfm3-1.7b, granite42-3b, qwen25c-1.5b
+...within half the memory             87   79    2395   216.6  1-20, P 0.0001    granite-1b, qwen3-0.6b
+cascade below 85% (38 of 102 passed on)91   86    4015   567.4  1-13, P 0.0010    granite42-3b -> lfm3-1.7b
+(bound) any small model right              102
+
+THE FABRIC CHOSEN ON DEV (the largest dev count above; the first listed on a tie):
+ensemble                              94   88    7952   1270.6 2-12, P 0.0066    granite-1b, lfm3-1.7b, granite42-3b, qwen25c-1.5b, granite-350m
+
+test = right of 102; MB = the members' ready memory together; s = their answering time on the test questions,
+one after another; vs = the court on the test questions where the fabric and bolt-e4b differ: wins-losses, P

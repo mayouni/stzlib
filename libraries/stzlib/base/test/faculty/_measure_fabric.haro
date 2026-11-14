@@ -1,0 +1,938 @@
+# _measure_fabric.haro -- PRINCIPAL-RELAY-FABRIC-01, the first experiment
+#
+# The Principal's direction: a fabric of many small models doing the work of a large one, at a fraction of its cost.
+# Radar named what the record lacked: one task a large model does and no single small model does, done by several
+# small ones together, judged against the large one on the same golden set. This is that experiment.
+#
+#   the task     the support desk's 204 option questions -- kind, product and severity of the 36 held-out English
+#                tickets, product and severity of the 48 fresh French and Arabic ones -- asked word for word as
+#                _measure_lowbit.haro asks them and read by probability; every model's whole distribution over the
+#                options is kept, not only its answer
+#   the large    Bolt E4B (Nemotron 3.5 Bolt, Gemma 4), 5,983 MB ready (results/ready.txt)
+#   the small    the eight other generative models of the support desk, 158 to 2,192 MB ready
+#   the fabric   chosen on HALF the tickets (dev: odd ticket numbers), judged on the OTHER half (test: even), so no
+#                combination is scored on the questions that chose it. Four ways of combining:
+#                  best one    the single small model best on dev
+#                  router      for each question and language, the small model best on dev there
+#                  ensemble    the members' probabilities summed; members added one by one while dev accuracy rises
+#                  ensemble within half of Bolt's memory: the same, members limited to 2,991 MB together
+#                and, as a bound no selector reaches, "any member right"
+#   the costs    memory: the members' ready memory together (results/ready.txt), all held at once in slots; time: the
+#                members' answering time summed over the test questions (one CPU, one after another)
+#   the court    the faculty's: an exact one-sided sign test over the test questions where the two answers differ
+#
+#   haro _measure_fabric.haro ask <label> <model file>    one model, 204 questions: replaces its rows in results/fabric.tsv
+#   haro _measure_fabric.haro analyse                     results/fabric.tsv -> results/fabric.txt
+#   haro _measure_fabric.haro serve <label=file,...>      the fabric RUN: its members held at once in slots, every test
+#                                                         question asked of each and their shares summed; appends its
+#                                                         right count, wall time and held memory to results/fabric_serve.tsv
+#
+# Run from base/test/faculty on haro.exe with STZ_ENGINE_DIR (an engine with stz_neural). One model per process.
+
+$tTsv = "results/fabric.tsv"
+$tReport = "results/fabric.txt"
+$tSys = "You triage customer-support tickets."
+$vQ = [
+	[ "kind", "Classify the ticket as exactly one of: bug (something is broken or behaves wrongly), billing (money: charges, refunds, invoices, plans, prices), other (a question, request or feedback).", [ "bug", "billing", "other" ] ],
+	[ "product", "Which product is the ticket about: app (the mobile app), web (the website, dashboard, account or billing pages), api (the developer API, SDKs, webhooks), or other?", [ "app", "web", "api", "other" ] ],
+	[ "severity", "How severe is it: high (it blocks the customer's work, loses money or data, is an outage, or has a deadline today or tomorrow) or low (anything else)?", [ "high", "low" ] ]
+]
+$tHeader = "set" + Char(9) + "lang" + Char(9) + "item" + Char(9) + "question" + Char(9) + "golden" + Char(9) + "model" + Char(9) + "dist" + Char(9) + "mass_bp" + Char(9) + "ms" + Char(9) + "tokens_read"
+# ready memory in MB, results/ready.txt (2026-11-14)
+$vMem = [ [ "smollm2-135m", 158 ], [ "granite-350m", 387 ], [ "qwen25c-0.5b", 669 ], [ "qwen3-0.6b", 685 ], [ "granite-1b", 1710 ],
+          [ "qwen25c-1.5b", 1840 ], [ "lfm3-1.7b", 1823 ], [ "granite42-3b", 2192 ], [ "bolt-e4b", 5983 ] ]
+$tLarge = "bolt-e4b"
+$nRead = 0
+$tOutText = ""
+$tMode = "sum"       # how members' answers combine: sum (shares summed), max (the most confident member), log (product)
+$vDevIdx = []
+$vBestDev = [ -1, "" ]  # the fabric best on dev: [ its dev right count, its line ]
+
+nArgs = Len(SysArgv)
+bDone = false
+for i = 1 to nArgs
+	if SysArgv[i] = "serve" and i + 1 <= nArgs
+		Serve(SysArgv[i + 1])
+		bDone = true
+	end
+	if SysArgv[i] = "ask" and i + 2 <= nArgs
+		AskAll(SysArgv[i + 1], SysArgv[i + 2])
+		bDone = true
+	end
+end
+if bDone = false
+	Analyse()
+end
+
+# ---- one model, every question ----
+
+func AskAll(tLabel, tFile)
+	tBin = Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/"
+	LoadLib(tBin + "stz_neural.dll")
+	if StzEngineNeuralModelLoad(Slashes(tFile)) = 0
+		? tLabel + ": the load was refused, status " + String(StzEngineNeuralModelLoadStatus())
+		return
+	end
+	StzEngineNeuralGenSetPrefixReuse(1)
+	vItems = Items()
+	tOut = ""
+	nRight = 0
+	nAsked = 0
+	nAll = Clock()
+	for i = 1 to Len(vItems)
+		vIt = vItems[i]
+		for j = 1 to Len($vQ)
+			tGold = vIt[4][j]
+			if tGold != ""
+				$nRead = 0
+				nStart = Clock()
+				vA = Ask(tLabel, $tSys + " " + $vQ[j][2] + " Answer with the single word.", "Ticket: " + vIt[3], $vQ[j][3])
+				nMs = Ms(nStart)
+				if Best(ParseDist(vA[1])) = tGold
+					nRight = nRight + 1
+				end
+				nAsked = nAsked + 1
+				tOut = tOut + Row([ vIt[1], vIt[2], String(vIt[5]), $vQ[j][1], tGold, tLabel, vA[1], String(vA[2]), String(nMs), String($nRead) ])
+			end
+		end
+	end
+	? tLabel + ": " + String(nRight) + "/" + String(nAsked) + " right in " + String(Ms(nAll)) + " ms"
+	tKeep = $tHeader + Char(10)
+	if FExists($tTsv)
+		vOld = ReadTsv($tTsv)
+		for i = 2 to Len(vOld)
+			if Len(vOld[i]) = 10 and vOld[i][6] != tLabel
+				tKeep = tKeep + Row(vOld[i])
+			end
+		end
+	end
+	Write($tTsv, tKeep + tOut)
+end
+
+# ---- the fabric served: members in slots, one process, the test half ----
+#
+# The analysis sums the members' shares from rows each model wrote in its own process. Here the members run together,
+# held at once in the engine's slots, and the answers are combined as they come: the right count must equal the
+# analysis's for the same members (an independent second measurement of the same thing), and the wall time and the
+# memory held are the fabric's own.
+
+func Serve(tSpec)
+	tBin = Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/"
+	LoadLib(tBin + "stz_neural.dll")
+	LoadLib(tBin + "stz_perf.dll")
+	vSpec = Split(tSpec, ",")
+	vNames = []
+	tNames = ""
+	nLoad = Clock()
+	for i = 1 to Len(vSpec)
+		vKv = Split(vSpec[i], "=")
+		if StzEngineNeuralSlotLoad(vKv[1], Slashes(vKv[2])) = 0
+			? vKv[1] + ": the slot load was refused, status " + String(StzEngineNeuralSlotStatus())
+			return
+		end
+		vNames + vKv[1]
+		if tNames != ""
+			tNames = tNames + "+"
+		end
+		tNames = tNames + vKv[1]
+	end
+	nLoadMs = Ms(nLoad)
+	StzEngineNeuralGenSetPrefixReuse(1)
+	nHeld = Divide(StzEngineNeuralSlotHeldBytes(), 1048576, 0)
+	vItems = Items()
+	nRight = 0
+	nAsked = 0
+	nAll = Clock()
+	for i = 1 to Len(vItems)
+		vIt = vItems[i]
+		if Odd(vIt[5]) = false
+			for j = 1 to Len($vQ)
+				tGold = vIt[4][j]
+				if tGold != ""
+					vOpt = []
+					vSum = []
+					for m = 1 to Len(vNames)
+						StzEngineNeuralSlotSelect(vNames[m])
+						vA = Ask(vNames[m], $tSys + " " + $vQ[j][2] + " Answer with the single word.", "Ticket: " + vIt[3], $vQ[j][3])
+						vD = ParseDist(vA[1])
+						for o = 1 to Len(vD)
+							nAt = Find(vOpt, vD[o][1])
+							if nAt = 0
+								vOpt + vD[o][1]
+								vSum + vD[o][2]
+							else
+								vSum[nAt] = vSum[nAt] + vD[o][2]
+							end
+						end
+					end
+					if BestOf(vOpt, vSum) = tGold
+						nRight = nRight + 1
+					end
+					nAsked = nAsked + 1
+				end
+			end
+		end
+	end
+	nMs = Ms(nAll)
+	nPeak = Divide(StzEnginePerfMemPeak(), 1048576, 0)
+	? tNames + ": " + String(nRight) + "/" + String(nAsked) + " right on test in " + String(nMs) + " ms; " + String(nHeld) + " MB held in " + String(Len(vNames)) + " slots (loaded in " + String(nLoadMs) + " ms), peak " + String(nPeak) + " MB"
+	tOut = ""
+	if FExists("results/fabric_serve.tsv") = false
+		tOut = "members" + Char(9) + "right" + Char(9) + "asked" + Char(9) + "ms" + Char(9) + "held_mb" + Char(9) + "peak_mb" + Char(9) + "load_ms" + Char(10)
+	else
+		tOut = Read("results/fabric_serve.tsv")
+	end
+	tOut = tOut + Row([ tNames, String(nRight), String(nAsked), String(nMs), String(nHeld), String(nPeak), String(nLoadMs) ])
+	Write("results/fabric_serve.tsv", tOut)
+end
+
+# the 84 tickets: [ set, lang, text, [ kind, product, severity ], ticket number within its set ]
+func Items
+	vOut = []
+	vH = ReadTsv("_data/tickets_heldout.tsv")
+	nH = 0
+	for i = 1 to Len(vH)
+		if Len(vH[i]) = 5
+			nH = nH + 1
+			vOut + [ "heldout", "en", vH[i][1], [ vH[i][4], vH[i][2], vH[i][3] ], nH ]
+		end
+	end
+	vF = ReadTsv("_data/tickets_fresh_frar.tsv")
+	nF = 0
+	for i = 1 to Len(vF)
+		if Len(vF[i]) = 4
+			nF = nF + 1
+			vOut + [ "fresh", vF[i][1], vF[i][4], [ "", vF[i][2], vF[i][3] ], nF ]
+		end
+	end
+	return vOut
+end
+
+# one option question: [ the options' shares as "opt:bp|opt:bp", their total probability in basis points ]
+func Ask(tLabel, tSystem, tUser, vOpt)
+	StzEngineNeuralPrefillLogits(Prompt(tLabel, tSystem, tUser))
+	$nRead = $nRead + StzEngineNeuralGenPromptTokens() - StzEngineNeuralGenReusedTokens()
+	fLse = StzEngineNeuralLogitLse()
+	vP = []
+	fSum = Float(0)
+	for i = 1 to Len(vOpt)
+		tCap = Upper(Left(vOpt[i], 1)) + Right(vOpt[i], Len(vOpt[i]) - 1)
+		fP = Exp(StzEngineNeuralLogitAt(FirstId(vOpt[i])) - fLse) + Exp(StzEngineNeuralLogitAt(FirstId(tCap)) - fLse)
+		vP + fP
+		fSum = fSum + fP
+	end
+	tDist = ""
+	for i = 1 to Len(vOpt)
+		if i > 1
+			tDist = tDist + "|"
+		end
+		tDist = tDist + vOpt[i] + ":" + String(Bp(vP[i] / fSum))
+	end
+	return [ tDist, Bp(fSum) ]
+end
+
+func FirstId(tWord)
+	StzEngineNeuralGenTokenize("a")
+	nIdA = StzEngineNeuralGenTokenAt(0)
+	StzEngineNeuralGenTokenize("b")
+	nSkip = 0
+	if StzEngineNeuralGenTokenAt(0) = nIdA
+		nSkip = 1
+	end
+	StzEngineNeuralGenTokenize(tWord)
+	return StzEngineNeuralGenTokenAt(nSkip)
+end
+
+# each family's own turn format
+func Prompt(tLabel, tSystem, tUser)
+	if Left(tLabel, 4) = "bolt"
+		return "<|turn>system" + Char(10) + tSystem + "<turn|>" + Char(10) + "<|turn>user" + Char(10) + tUser + "<turn|>" + Char(10) + "<|turn>model" + Char(10)
+	end
+	if Left(tLabel, 7) = "granite"
+		return "<|start_of_role|>system<|end_of_role|>" + tSystem + "<|end_of_text|>" + Char(10) + "<|start_of_role|>user<|end_of_role|>" + tUser + "<|end_of_text|>" + Char(10) + "<|start_of_role|>assistant<|end_of_role|>"
+	end
+	tChat = "<|im_start|>system" + Char(10) + tSystem + "<|im_end|>" + Char(10) + "<|im_start|>user" + Char(10) + tUser + "<|im_end|>" + Char(10) + "<|im_start|>assistant" + Char(10)
+	if Left(tLabel, 5) = "qwen3"
+		# Qwen3 answers without its thinking turn when the turn is given empty
+		return tChat + "<think>" + Char(10) + Char(10) + "</think>" + Char(10) + Char(10)
+	end
+	return tChat
+end
+
+# ---- the analysis: no model needed ----
+
+func Analyse
+	vRows = ReadTsv($tTsv)
+	# per model: keys "set|lang|item|question" -> [ golden, [ [opt, bp], ... ], ms ]
+	vModels = []
+	vData = []
+	vKeys = []
+	vGold = []
+	for i = 2 to Len(vRows)
+		vR = vRows[i]
+		if Len(vR) = 10
+			tKey = vR[1] + "|" + vR[2] + "|" + vR[3] + "|" + vR[4]
+			nM = Find(vModels, vR[6])
+			if nM = 0
+				vModels + vR[6]
+				vData + [ [], [] ]
+				nM = Len(vModels)
+			end
+			vData[nM][1] + tKey
+			vData[nM][2] + [ ParseDist(vR[7]), Number(vR[9]) ]
+			if Find(vKeys, tKey) = 0
+				vKeys + tKey
+				vGold + vR[5]
+			end
+		end
+	end
+	nL = Find(vModels, $tLarge)
+	if nL = 0
+		? "no rows for " + $tLarge + " yet"
+		return
+	end
+	vSmall = []
+	for i = 1 to Len(vModels)
+		if vModels[i] != $tLarge and HasAll(vData[i][1], vKeys)
+			vSmall + i
+		end
+	end
+	# the halves: dev = odd ticket numbers, test = even
+	vDev = []
+	vTest = []
+	for nK = 1 to Len(vKeys)
+		vParts = Split(vKeys[nK], "|")
+		if Odd(Number(vParts[3]))
+			vDev + nK
+		else
+			vTest + nK
+		end
+	end
+	# every model's answer table, aligned to vKeys: [ [ dist, ms ] per key ]
+	vTab = []
+	for i = 1 to Len(vModels)
+		vT = []
+		for nK = 1 to Len(vKeys)
+			nAt = Find(vData[i][1], vKeys[nK])
+			if nAt > 0
+				vT + vData[i][2][nAt]
+			else
+				vT + [ [], 0 ]
+			end
+		end
+		vTab + vT
+	end
+	Say("PRINCIPAL-RELAY-FABRIC-01: can several small models together do what the large one does?")
+	Say("the support desk's 204 option questions (en kind/product/severity, fr and ar product/severity), read by probability")
+	Say("chosen on dev (" + String(Len(vDev)) + " questions, odd tickets), judged on test (" + String(Len(vTest)) + " questions, even tickets)")
+	Say("")
+	Say(Pad("model", 15) + Pad("all", 9) + Pad("dev", 8) + Pad("test", 8) + Pad("ready MB", 10) + "s on test")
+	for i = 1 to Len(vModels)
+		Say(Pad(vModels[i], 15) + Pad(String(Acc(vTab, [ i ], vKeys, vGold, AllIdx(Len(vKeys)))) + "/" + String(Len(vKeys)), 9) + Pad(String(Acc(vTab, [ i ], vKeys, vGold, vDev)), 8) + Pad(String(Acc(vTab, [ i ], vKeys, vGold, vTest)), 8) + Pad(String(MemOf(vModels[i])), 10) + Secs(TimeOf(vTab, [ i ], vTest)))
+	end
+	# per question and language, on the test half: where the large model's lead is, and where a small one leads it
+	vCellsT = []
+	for nK = 1 to Len(vKeys)
+		tC = CellOf(vKeys[nK])
+		if Find(vCellsT, tC) = 0
+			vCellsT + tC
+		end
+	end
+	Say("")
+	Say("ON THE TEST HALF, per question and language (right of n)")
+	tHead = Pad("cell", 14) + Pad("n", 4)
+	for i = 1 to Len(vModels)
+		tHead = tHead + Pad(Left(vModels[i], 9), 10)
+	end
+	Say(tHead)
+	nBoundCells = 0
+	for c = 1 to Len(vCellsT)
+		vIdx = []
+		for t = 1 to Len(vTest)
+			if CellOf(vKeys[vTest[t]]) = vCellsT[c]
+				vIdx + vTest[t]
+			end
+		end
+		tLine = Pad(vCellsT[c], 14) + Pad(String(Len(vIdx)), 4)
+		nTop = 0
+		for i = 1 to Len(vModels)
+			nA = Acc(vTab, [ i ], vKeys, vGold, vIdx)
+			tLine = tLine + Pad(String(nA), 10)
+			if i != nL and nA > nTop
+				nTop = nA
+			end
+		end
+		nBoundCells = nBoundCells + nTop
+		Say(tLine)
+	end
+	Say("the best small model of each cell, picked ON TEST (a bound no dev choice is held to): " + String(nBoundCells) + " of " + String(Len(vTest)))
+	nLargeTest = Acc(vTab, [ nL ], vKeys, vGold, vTest)
+	Say("")
+	Say("THE FABRICS, chosen on dev, judged on test (of " + String(Len(vTest)) + "); " + $tLarge + " alone: " + String(nLargeTest) + ", " + String(MemOf($tLarge)) + " MB, " + Secs(TimeOf(vTab, [ nL ], vTest)) + " s")
+	Say("")
+	$vDevIdx = vDev
+	Say(Pad("fabric", 38) + Pad("dev", 5) + Pad("test", 6) + Pad("MB", 7) + Pad("s", 7) + Pad("vs " + $tLarge, 18) + "members")
+	# best one
+	nBest = 0
+	nBestAcc = -1
+	for s = 1 to Len(vSmall)
+		nA = Acc(vTab, [ vSmall[s] ], vKeys, vGold, vDev)
+		if nA > nBestAcc or (nA = nBestAcc and MemOf(vModels[vSmall[s]]) < MemOf(vModels[nBest]))
+			nBestAcc = nA
+			nBest = vSmall[s]
+		end
+	end
+	Report("best one", vTab, [ nBest ], vKeys, vGold, vTest, vModels, nL, [])
+	# router: per question and language, the small model best on dev there
+	vCells = []
+	for nK = 1 to Len(vKeys)
+		tC = CellOf(vKeys[nK])
+		if Find(vCells, tC) = 0
+			vCells + tC
+		end
+	end
+	vRoute = []
+	for c = 1 to Len(vCells)
+		vDevC = []
+		for d = 1 to Len(vDev)
+			if CellOf(vKeys[vDev[d]]) = vCells[c]
+				vDevC + vDev[d]
+			end
+		end
+		nPick = vSmall[1]
+		nPickAcc = -1
+		for s = 1 to Len(vSmall)
+			nA = Acc(vTab, [ vSmall[s] ], vKeys, vGold, vDevC)
+			if nA > nPickAcc or (nA = nPickAcc and MemOf(vModels[vSmall[s]]) < MemOf(vModels[nPick]))
+				nPickAcc = nA
+				nPick = vSmall[s]
+			end
+		end
+		vRoute + nPick
+	end
+	Report("router (question x language)", vTab, [], vKeys, vGold, vTest, vModels, nL, [ vCells, vRoute ])
+	# ensembles
+	vEns = Greedy(vTab, vSmall, vKeys, vGold, vDev, vModels, 0)
+	Report("ensemble", vTab, vEns, vKeys, vGold, vTest, vModels, nL, [])
+	nHalf = Divide(MemOf($tLarge), 2, 0)
+	vEnsH = Greedy(vTab, vSmall, vKeys, vGold, vDev, vModels, nHalf)
+	Report("ensemble within half the memory", vTab, vEnsH, vKeys, vGold, vTest, vModels, nL, [])
+	# all the small ones summed, chosen by nothing
+	Report("all the small ones summed", vTab, vSmall, vKeys, vGold, vTest, vModels, nL, [])
+	$tMode = "max"
+	Report("ensemble, most confident member", vTab, Greedy(vTab, vSmall, vKeys, vGold, vDev, vModels, 0), vKeys, vGold, vTest, vModels, nL, [])
+	Report("...within half the memory", vTab, Greedy(vTab, vSmall, vKeys, vGold, vDev, vModels, nHalf), vKeys, vGold, vTest, vModels, nL, [])
+	$tMode = "log"
+	Report("ensemble, product of shares", vTab, Greedy(vTab, vSmall, vKeys, vGold, vDev, vModels, 0), vKeys, vGold, vTest, vModels, nL, [])
+	Report("...within half the memory", vTab, Greedy(vTab, vSmall, vKeys, vGold, vDev, vModels, nHalf), vKeys, vGold, vTest, vModels, nL, [])
+	$tMode = "sum"
+	CascadeBest(vTab, vSmall, vKeys, vGold, vDev, vTest, vModels, nL)
+	# the bound: any small model right
+	nAny = 0
+	for t = 1 to Len(vTest)
+		nK = vTest[t]
+		bAny = false
+		for s = 1 to Len(vSmall)
+			if Best(vTab[vSmall[s]][nK][1]) = vGold[nK]
+				bAny = true
+			end
+		end
+		if bAny
+			nAny = nAny + 1
+		end
+	end
+	Say(Pad("(bound) any small model right", 43) + String(nAny))
+	Say("")
+	Say("THE FABRIC CHOSEN ON DEV (the largest dev count above; the first listed on a tie):")
+	Say($vBestDev[2])
+	Say("")
+	Say("test = right of " + String(Len(vTest)) + "; MB = the members' ready memory together; s = their answering time on the test questions,")
+	Say("one after another; vs = the court on the test questions where the fabric and " + $tLarge + " differ: wins-losses, P")
+	Write($tReport, $tOutText)
+	? "written " + $tReport
+end
+
+func Report(tName, vTab, vMembers, vKeys, vGold, vTest, vModels, nL, vRoute)
+	nRight = 0
+	nW = 0
+	nLo = 0
+	nMs = 0
+	vUsed = []
+	for t = 1 to Len(vTest)
+		nK = vTest[t]
+		vM = vMembers
+		if Len(vRoute) > 0
+			vM = [ vRoute[2][Find(vRoute[1], CellOf(vKeys[nK]))] ]
+		end
+		for m = 1 to Len(vM)
+			nMs = nMs + vTab[vM[m]][nK][2]
+			if Find(vUsed, vM[m]) = 0
+				vUsed + vM[m]
+			end
+		end
+		nF = 0
+		if Combined(vTab, vM, nK) = vGold[nK]
+			nF = 1
+		end
+		nLg = 0
+		if Best(vTab[nL][nK][1]) = vGold[nK]
+			nLg = 1
+		end
+		nRight = nRight + nF
+		if nF = 1 and nLg = 0
+			nW = nW + 1
+		end
+		if nLg = 1 and nF = 0
+			nLo = nLo + 1
+		end
+	end
+	nMem = 0
+	tNames = ""
+	for u = 1 to Len(vUsed)
+		nMem = nMem + MemOf(vModels[vUsed[u]])
+		if tNames != ""
+			tNames = tNames + ", "
+		end
+		tNames = tNames + vModels[vUsed[u]]
+	end
+	tCourt = String(nW) + "-" + String(nLo) + ", P " + PFmt(SignP(nLo, nW + nLo))
+	if nW > nLo
+		tCourt = String(nW) + "-" + String(nLo) + ", P " + PFmt(SignP(nW, nW + nLo))
+	end
+	nDevR = 0
+	for t = 1 to Len($vDevIdx)
+		nK = $vDevIdx[t]
+		vM = vMembers
+		if Len(vRoute) > 0
+			vM = [ vRoute[2][Find(vRoute[1], CellOf(vKeys[nK]))] ]
+		end
+		if Combined(vTab, vM, nK) = vGold[nK]
+			nDevR = nDevR + 1
+		end
+	end
+	tLine = Pad(tName, 38) + Pad(String(nDevR), 5) + Pad(String(nRight), 6) + Pad(String(nMem), 7) + Pad(Secs(nMs), 7) + Pad(tCourt, 18) + tNames
+	Say(tLine)
+	if nDevR > $vBestDev[1]
+		$vBestDev = [ nDevR, tLine ]
+	end
+end
+
+# the cascade: a first small model answers; when its top share is below a threshold, a second answers instead. First,
+# second and threshold are the triple best on dev (on a tie, the one that asks the second least often)
+func CascadeBest(vTab, vSmall, vKeys, vGold, vDev, vTest, vModels, nL)
+	vT = [ 5000, 6000, 7000, 8000, 8500, 9000, 9500, 9900 ]
+	nBestR = -1
+	nBestEsc = 0
+	vPick = []
+	for a = 1 to Len(vSmall)
+		for b = 1 to Len(vSmall)
+			if a != b
+				for h = 1 to Len(vT)
+					vR = CascadeRun(vTab, vSmall[a], vSmall[b], vT[h], vKeys, vGold, vDev)
+					if vR[1] > nBestR or (vR[1] = nBestR and vR[2] < nBestEsc)
+						nBestR = vR[1]
+						nBestEsc = vR[2]
+						vPick = [ vSmall[a], vSmall[b], vT[h] ]
+					end
+				end
+			end
+		end
+	end
+	vR = CascadeRun(vTab, vPick[1], vPick[2], vPick[3], vKeys, vGold, vTest)
+	nW = 0
+	nLo = 0
+	for t = 1 to Len(vTest)
+		nK = vTest[t]
+		nF = 0
+		if CascadeAnswer(vTab, vPick[1], vPick[2], vPick[3], nK) = vGold[nK]
+			nF = 1
+		end
+		nLg = 0
+		if Best(vTab[nL][nK][1]) = vGold[nK]
+			nLg = 1
+		end
+		if nF = 1 and nLg = 0
+			nW = nW + 1
+		end
+		if nLg = 1 and nF = 0
+			nLo = nLo + 1
+		end
+	end
+	tCourt = String(nW) + "-" + String(nLo) + ", P " + PFmt(SignP(nLo, nW + nLo))
+	if nW > nLo
+		tCourt = String(nW) + "-" + String(nLo) + ", P " + PFmt(SignP(nW, nW + nLo))
+	end
+	nMem = MemOf(vModels[vPick[1]]) + MemOf(vModels[vPick[2]])
+	tName = "cascade below " + String(Divide(vPick[3], 100, 0)) + "% (" + String(vR[2]) + " of " + String(Len(vTest)) + " passed on)"
+	tLine = Pad(tName, 38) + Pad(String(nBestR), 5) + Pad(String(vR[1]), 6) + Pad(String(nMem), 7) + Pad(Secs(vR[3]), 7) + Pad(tCourt, 18) + vModels[vPick[1]] + " -> " + vModels[vPick[2]]
+	Say(tLine)
+	if nBestR > $vBestDev[1]
+		$vBestDev = [ nBestR, tLine ]
+	end
+end
+
+# [ right, passed on, ms ] over the given indexes
+func CascadeRun(vTab, nA, nB, nT, vKeys, vGold, vIdx)
+	nR = 0
+	nEsc = 0
+	nMs = 0
+	for t = 1 to Len(vIdx)
+		nK = vIdx[t]
+		nMs = nMs + vTab[nA][nK][2]
+		if TopShare(vTab[nA][nK][1]) < nT
+			nEsc = nEsc + 1
+			nMs = nMs + vTab[nB][nK][2]
+		end
+		if CascadeAnswer(vTab, nA, nB, nT, nK) = vGold[nK]
+			nR = nR + 1
+		end
+	end
+	return [ nR, nEsc, nMs ]
+end
+
+func CascadeAnswer(vTab, nA, nB, nT, nK)
+	if TopShare(vTab[nA][nK][1]) < nT
+		return Best(vTab[nB][nK][1])
+	end
+	return Best(vTab[nA][nK][1])
+end
+
+# members added one by one while dev accuracy rises; nCapMb > 0 limits their memory together
+func Greedy(vTab, vSmall, vKeys, vGold, vDev, vModels, nCapMb)
+	vSet = []
+	nCur = -1
+	nMem = 0
+	bGrow = true
+	while bGrow
+		bGrow = false
+		nPick = 0
+		nPickAcc = nCur
+		for s = 1 to Len(vSmall)
+			if Find(vSet, vSmall[s]) = 0
+				nM2 = nMem + MemOf(vModels[vSmall[s]])
+				if nCapMb = 0 or nM2 <= nCapMb
+					vTry = []
+					for q = 1 to Len(vSet)
+						vTry + vSet[q]
+					end
+					vTry + vSmall[s]
+					nA = Acc(vTab, vTry, vKeys, vGold, vDev)
+					if nA > nPickAcc
+						nPickAcc = nA
+						nPick = vSmall[s]
+					end
+				end
+			end
+		end
+		if nPick > 0
+			vSet + nPick
+			nMem = nMem + MemOf(vModels[nPick])
+			nCur = nPickAcc
+			bGrow = true
+		end
+	end
+	return vSet
+end
+
+# right answers of the members' summed distributions over the keys at the given indexes
+func Acc(vTab, vMembers, vKeys, vGold, vIdx)
+	nR = 0
+	for t = 1 to Len(vIdx)
+		nK = vIdx[t]
+		if Combined(vTab, vMembers, nK) = vGold[nK]
+			nR = nR + 1
+		end
+	end
+	return nR
+end
+
+# the option with the largest summed share across the members
+func Combined(vTab, vMembers, nK)
+	if $tMode = "max"
+		return MostSure(vTab, vMembers, nK)
+	end
+	if $tMode = "log"
+		return Product(vTab, vMembers, nK)
+	end
+	vOpt = []
+	vSum = []
+	for m = 1 to Len(vMembers)
+		vD = vTab[vMembers[m]][nK][1]
+		for o = 1 to Len(vD)
+			nAt = Find(vOpt, vD[o][1])
+			if nAt = 0
+				vOpt + vD[o][1]
+				vSum + vD[o][2]
+			else
+				vSum[nAt] = vSum[nAt] + vD[o][2]
+			end
+		end
+	end
+	return BestOf(vOpt, vSum)
+end
+
+# the answer of the member surest of its own answer (the largest top share)
+func MostSure(vTab, vMembers, nK)
+	tBest = ""
+	nBest = -1
+	for m = 1 to Len(vMembers)
+		vD = vTab[vMembers[m]][nK][1]
+		nTop = TopShare(vD)
+		if nTop > nBest
+			nBest = nTop
+			tBest = Best(vD)
+		end
+	end
+	return tBest
+end
+
+# the option with the largest product of the members' shares (a sum of logarithms; a share of 0 counts as 1 bp)
+func Product(vTab, vMembers, nK)
+	vOpt = []
+	vSum = []
+	for m = 1 to Len(vMembers)
+		vD = vTab[vMembers[m]][nK][1]
+		for o = 1 to Len(vD)
+			nV = vD[o][2]
+			if nV < 1
+				nV = 1
+			end
+			fL = Float(Log(Float(nV) / Float(10000)))
+			nAt = Find(vOpt, vD[o][1])
+			if nAt = 0
+				vOpt + vD[o][1]
+				vSum + fL
+			else
+				vSum[nAt] = vSum[nAt] + fL
+			end
+		end
+	end
+	tBest = ""
+	fBest = Float(-1000000)
+	for o = 1 to Len(vOpt)
+		if vSum[o] > fBest
+			fBest = vSum[o]
+			tBest = vOpt[o]
+		end
+	end
+	return tBest
+end
+
+func TopShare(vD)
+	nTop = -1
+	for o = 1 to Len(vD)
+		if vD[o][2] > nTop
+			nTop = vD[o][2]
+		end
+	end
+	return nTop
+end
+
+func Best(vD)
+	vOpt = []
+	vSum = []
+	for o = 1 to Len(vD)
+		vOpt + vD[o][1]
+		vSum + vD[o][2]
+	end
+	return BestOf(vOpt, vSum)
+end
+
+func BestOf(vOpt, vSum)
+	tBest = ""
+	nBest = -1
+	for o = 1 to Len(vOpt)
+		if vSum[o] > nBest
+			nBest = vSum[o]
+			tBest = vOpt[o]
+		end
+	end
+	return tBest
+end
+
+# "bug:9500|billing:300|other:200" -> [ [ "bug", 9500 ], ... ]; a stored text answer is a distribution too
+func ParseDist(tD)
+	if StzStartsWith(tD, "(")
+		return []
+	end
+	vOut = []
+	vParts = Split(tD, "|")
+	for i = 1 to Len(vParts)
+		vKv = Split(vParts[i], ":")
+		if Len(vKv) = 2
+			vOut + [ vKv[1], Number(vKv[2]) ]
+		end
+	end
+	return vOut
+end
+
+func StzStartsWith(tText, tPre)
+	return Left(tText, Len(tPre)) = tPre
+end
+
+func CellOf(tKey)
+	vP = Split(tKey, "|")
+	return vP[4] + "/" + vP[2]
+end
+
+func TimeOf(vTab, vMembers, vIdx)
+	nMs = 0
+	for t = 1 to Len(vIdx)
+		for m = 1 to Len(vMembers)
+			nMs = nMs + vTab[vMembers[m]][vIdx[t]][2]
+		end
+	end
+	return nMs
+end
+
+func MemOf(tLabel)
+	for i = 1 to Len($vMem)
+		if $vMem[i][1] = tLabel
+			return $vMem[i][2]
+		end
+	end
+	return 0
+end
+
+func HasAll(vHave, vKeys)
+	for nK = 1 to Len(vKeys)
+		if Find(vHave, vKeys[nK]) = 0
+			return false
+		end
+	end
+	return true
+end
+
+func AllIdx(nN)
+	vOut = []
+	for i = 1 to nN
+		vOut + i
+	end
+	return vOut
+end
+
+func Odd(nN)
+	nH = 0
+	while (nH + 1) * 2 <= nN
+		nH = nH + 1
+	end
+	return nH * 2 < nN
+end
+
+# P(X >= g) for X ~ Binomial(n, 1/2), in basis points, rounded up; 10000 when nothing is discordant
+func SignP(nG, nN)
+	if nN = 0
+		return 10000
+	end
+	nC = 1
+	nTail = 0
+	for i = 0 to nN
+		if i >= nG
+			nTail = nTail + nC
+		end
+		nC = Divide(nC * (nN - i), i + 1, 0)
+	end
+	nAll = 1
+	for i = 1 to nN
+		nAll = nAll * 2
+	end
+	return Divide(nTail * 10000 + nAll - 1, nAll, 0)
+end
+
+func PFmt(nBp)
+	if nBp >= 10000
+		return "1"
+	end
+	return String(Divide(nBp, 10000, 4))
+end
+
+func Split(tText, tSep)
+	vOut = []
+	tCur = ""
+	nLen = Len(tText)
+	for i = 1 to nLen
+		if tText[i] = tSep
+			vOut + tCur
+			tCur = ""
+		else
+			tCur = tCur + tText[i]
+		end
+	end
+	vOut + tCur
+	return vOut
+end
+
+func Row(vF)
+	tR = ""
+	for i = 1 to Len(vF)
+		if i > 1
+			tR = tR + Char(9)
+		end
+		tR = tR + vF[i]
+	end
+	return tR + Char(10)
+end
+
+func Bp(fX)
+	return Number(String(Decimal(fX * Float(10000), 0)))
+end
+
+func Ms(nStart)
+	return Number(String(Divide((Clock() - nStart) * 1000, ClocksPerSecond(), 0)))
+end
+
+func Secs(nMs)
+	return String(Divide(nMs, 1000, 1))
+end
+
+func Say(tLine)
+	? tLine
+	$tOutText = $tOutText + tLine + Char(10)
+end
+
+func Pad(tText, nWidth)
+	tOut = tText
+	while Len(tOut) < nWidth
+		tOut = tOut + " "
+	end
+	return tOut
+end
+
+func ReadTsv(tPath)
+	vOut = []
+	vLines = Str2List(Read(tPath))
+	for i = 1 to Len(vLines)
+		tLine = vLines[i]
+		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
+			tLine = Left(tLine, Len(tLine) - 1)
+		end
+		vF = []
+		tCur = ""
+		nLen = Len(tLine)
+		for j = 1 to nLen
+			if tLine[j] = Char(9)
+				vF + tCur
+				tCur = ""
+			else
+				tCur = tCur + tLine[j]
+			end
+		end
+		vF + tCur
+		if Len(tLine) > 0
+			vOut + vF
+		end
+	end
+	return vOut
+end
+
+func Slashes(tPath)
+	tOut = ""
+	for i = 1 to Len(tPath)
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end

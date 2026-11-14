@@ -17,6 +17,7 @@ load "../../stzBase.ring"
 $nPass = 0
 $nFail = 0
 $cModels = "../../../models/"
+if sysget("STZ_MODELS_DIR") != "" $cModels = sysget("STZ_MODELS_DIR") + "/" ok   # the folder the other neural guards read
 
 if NOT fexists($cModels + "smollm2-135m-instruct-q8_0.gguf") or NOT fexists($cModels + "all-MiniLM-L6-v2.Q8_0.gguf")
 	? "NOT RUN: smollm2-135m-instruct-q8_0.gguf or all-MiniLM-L6-v2.Q8_0.gguf is not in " + $cModels
