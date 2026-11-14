@@ -140,6 +140,21 @@ chk("...and quotes ATT&CK for the analyst", StzFindFirst("T1550", aL[len(aL)]) >
 chk("AsLine() reads as a sentence", StzFindFirst("REFUSED sig.nonce.replayed by peer-3", oNonce.AsLine()) = 1)
 
 ? ""
+? "-- Scene 11: a governed agent act (FOUNDRY-LEDGER-01) --"
+oAct = StzSecurityGrant("agent.act", HumanActor("node-7"), "act:write-report")
+chk("agent.act is in the catalog, info when granted", oAct.Kind() = "agent.act" and oAct.Severity() = "info" and NOT oAct.IsRefusal())
+oNo = StzSecurityRefusal("agent.act", HumanActor("node-7"), "act:send-mail", "target-admission: no fact holds the recipient").AsWarning()
+chk("...a refused act is a warning that carries the gate's words", oNo.Severity() = "warning" and oNo.IsRefusal() and StzFindFirst("target-admission:", oNo.Reason()) = 1)
+oL1 = StzSecurityLedger(4)
+oL1.AppendCanonical(oAct.CanonicalString(), 1000, 0)
+oL1.AppendCanonical(oNo.CanonicalString(), 2000, 1)
+oL2 = StzSecurityLedger(4)
+oL2.AppendCanonical(oAct.CanonicalString(), 1000, 0)
+oL2.AppendCanonical(oNo.CanonicalString(), 2000, 1)
+chk("two runs appending the same lines get the same chain", oL1.Digest() = oL2.Digest() and oL1.Count() = 2)
+chk("...and the act reads back by its kind", len(oL1.OfKind("agent.act")) = 2)
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="

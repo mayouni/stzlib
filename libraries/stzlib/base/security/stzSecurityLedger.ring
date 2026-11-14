@@ -455,10 +455,14 @@ class stzSecurityLedger from stzObject
 	#   pnWallMs         the event time, in epoch milliseconds
 	#   pnSeverityCode   0 for info, 1 for warning, 2 for error
 	#   returns          the ledger itself, so calls chain
-	#   note             the path that rebuilds a working ledger from a verified sealed file
-	#   warning          the chain is recomputed here and does not carry the digests of the file the
-	#                    line came from; a line that is not canonical is accepted and reads back
-	#                    with empty fields
+	#   note             two paths use it: rebuilding a working ledger from a verified sealed
+	#                    file, and a run that must replay to the same digests -- the digest is
+	#                    computed from the line alone, so two runs appending the same lines get
+	#                    the same chain, where Record stamps the wall time of the moment
+	#                    (stzfoundry; FOUNDRY-LEDGER-01)
+	#   warning          the chain is recomputed here and does not carry the digests of the file
+	#                    the line came from; a line that is not canonical, or whose kind is
+	#                    outside the catalog, is accepted and reads back with empty fields
 	#   see              Record, StzLedgerFromSealedFile
 	#@ aka  Append a canonical line directly -- the acquisition path (I8), used when rebuilding a ledger from verified evidence. The chain is recomputed here; it does not carry the original file's.
 	def AppendCanonical(pcCanonical, pnWallMs, pnSeverityCode)

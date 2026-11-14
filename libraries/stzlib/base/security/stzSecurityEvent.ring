@@ -132,6 +132,7 @@ func StzSecurityEventKinds()
 		[ "posture.refused",              "error",   "T1068",     "the executing posture was not admitted" ],
 		[ "data.path.refused",            "error",   "",          "a tagged field was refused an analytics, log or model path -- the weaves W3 and W4 (stzFieldTags; haro D35)" ],
 		[ "target.refused",               "warning", "",          "an acting agent's effect named a target no code, declaration or typed read vouches for (stzTargetAdmission; SPILLWAY part C)" ],
+		[ "agent.act",                    "info",    "",          "a governed agent act: info when granted; a refused act is recorded AsWarning with the gate's words as its reason (stzfoundry runs; FOUNDRY-LEDGER-01)" ],
 		[ "plan.op.failed",               "warning", "",          "a committed operation failed at the bridge" ],
 		[ "http.request.unauthorized",    "warning", "T1190",     "a request failed the transport gate (401)" ],
 		[ "http.request.forbidden",       "warning", "T1190",     "a request was refused by policy (403)" ],
