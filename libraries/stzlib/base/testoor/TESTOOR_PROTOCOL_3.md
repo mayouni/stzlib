@@ -283,6 +283,16 @@ of these:
 
 Otherwise a non-zero exit is `broke`, a zero exit `finished`, and a tour past its deadline `hung`, as for every face.
 
+### 6.4 A claim is judged once (every face)
+
+A verdict line lands on the first claim of its text that is **not judged yet**. When every claim of that text is already
+judged, the line is a **second check** and joins the stop in progress as its own claim, as a verdict the reader had no
+claim for always did. Until 2026-11-14 it landed on the first claim again and replaced its state, so a tour printing
+`FAIL  x` and then `ok  x` read as kept: a failure the logbook did not show. Found on the Foundry's `af2_rehearse.haro`,
+which checks "it signs and installs" twice; the walk counted 19 claims where the guard counted 20. No golden of protocols
+1 to 3 changed. The Ring reference (`TESTOOR_CORE=ring`) keeps the old landing: it is the retired language's, and the
+core is the judge.
+
 ## 7. Conformance
 
 Written by hand from section 2 before the code, and reproduced by the core on its first run (`zig build test-testoor`).
@@ -306,6 +316,7 @@ Written by hand from section 2 before the code, and reproduced by the core on it
 
 | `haro/reader/R1_narrated` | the Haro face's reader (6.2): a claim before any scenario opens `(the tour)`; a claim in a comment, a claim built at run time and the bodies of the helpers `Scenario` and `Then` are not recorded, the built claim counted in `asserts`; claims inside the file's own function and inside an `if` are; a single-quoted claim is a literal |
 | `haro/reader/R2_self_describing` | a `.haro` file with no `Scenario(` and no `Then(`: dialect `unknown`, no stop, judged from what it prints |
+| `haro/judge/H2_a_repeated_claim_is_a_second_check` | 6.4: an unknown-dialect tour printing `FAIL  x`, then `ok  x`, then another claim: three claims, the tour diverged -- protocol 2's landing read it as kept |
 | `haro/judge/H1_a_report_line_is_not_a_verdict` | a narrated Haro tour whose program prints `  FAIL     :...` before its two `THEN` lines: 2 kept, finished, exit 0 -- under protocol 2's rule the report line was a diverged claim |
 
 The same requests with the ladder NOT asked for write protocol 2 and no `ladder` key: the core guard and the native guard each

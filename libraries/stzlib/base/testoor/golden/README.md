@@ -115,6 +115,7 @@ Zig harness only: there is no generator for them, so a case's `expected.*` is th
 | `R1_narrated` | claims at the top level, inside the file's own function and inside an `if`; a claim before any scenario opens `(the tour)`; a commented claim, a built claim (counted, not recorded) and the helpers' bodies left out; a single-quoted literal |
 | `R2_self_describing` | no `Scenario(` and no `Then(`: dialect `unknown`, no stop |
 | `H1_a_report_line_is_not_a_verdict` | a program's `  FAIL     :...` report before two `THEN` lines: 2 kept, finished |
+| `H2_a_repeated_claim_is_a_second_check` | `FAIL  x` then `ok  x`: two claims, one diverged; a claim already judged is never judged again |
 
 ## Adding a case
 

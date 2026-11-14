@@ -209,6 +209,10 @@ const Where = struct { s: usize, c: usize };
 
 /// the claim a verdict text names, by exact text, else by the longest claim text the verdict
 /// text begins with (chkeq adds "  [got x, want y]" after the claim)
+/// The claim a verdict line lands on: the first one of that text not judged yet, else the longest one its text begins
+/// with, not judged yet. A claim already judged is never judged again: a second verdict of the same text is a SECOND
+/// check and joins the stop as its own (2026-11-14). Landing it on the first let a FAIL followed by an ok of the same
+/// text read as kept -- found on the Foundry's af2 guard, whose "it signs and installs" is checked twice
 fn claimNamed(text: []const u8, stops: []const Stop) ?Where {
     var best: ?Where = null;
     var n_best: usize = 0;
@@ -217,7 +221,6 @@ fn claimNamed(text: []const u8, stops: []const Stop) ?Where {
             if (cl.claim.len == 0) continue;
             if (std.mem.eql(u8, cl.claim, text)) {
                 if (cl.state == .none) return .{ .s = s, .c = c };
-                if (best == null) best = .{ .s = s, .c = c };
             } else if (T.startsWith(text, cl.claim) and cl.claim.len > n_best and cl.state == .none) {
                 best = .{ .s = s, .c = c };
                 n_best = cl.claim.len;

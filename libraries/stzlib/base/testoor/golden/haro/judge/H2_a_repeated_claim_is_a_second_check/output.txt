@@ -1,0 +1,5 @@
+250	1  build
+500	  FAIL  it signs and installs
+750	  ok    it signs and installs
+1000	  ok    two runs of one scenario emit the same text
+1250	passed 2, failed 1

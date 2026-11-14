@@ -474,6 +474,18 @@ Ring program wrote.
 - **Not built:** a reader that takes Haro's parsed program in place of source lines (P8 names it); the `stz guard` child calling
   `walk`; the move of Testoor's own thirteen `.ring` guards to `.haro`.
 
+### A claim is judged once, 2026-11-14 -- DONE
+
+Found while measuring the Testoor evidence report on a codebase that is not the library (BUSINESS-LEADS-DELIVER-01): the
+Foundry's nine guards, walked on a copy, agreed with their own totals on eight; `af2_rehearse.haro` counted 20 checks and
+the walk 19, because it checks "it signs and installs" twice. `claimNamed` landed a verdict on the first claim of its text
+even when that claim was judged, so a FAIL followed by an ok of the same text read as KEPT -- planted, it did. A claim
+already judged is now never judged again; the second verdict is a claim of its own (`TESTOOR_PROTOCOL_3.md` 6.4).
+
+- **Written first, by hand:** `haro/judge/H2`. The core reproduced it; no other golden moved.
+- **`zig build test-testoor`:** 100 of 100, 102 expected files.
+- **The Foundry, walked again:** nine of nine agree with the guards' own "passed N, failed M".
+
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 
 1. **One domain `stz_testoor`** (recommended) or one per module.
