@@ -3,7 +3,7 @@
 *Version 1.1 (2026-11-03: the optional `--testoor-subject`, section 2). What a tour, a face and the logbook owe each other, written so that no sentence depends on
 the language a tour is written in. Ring is the first face. Haro and anything else is the next.
 The Ring code reads this document's contracts and nothing else about a language: the guard
-`base/test/testoor/testoor_protocol_narrated.ring` proves it by running Python tours through
+`base/test/testoor/testoor_protocol_narrated.haro` proves it by running Python tours through
 the same runner and getting the same logbook.*
 
 ## 1. Three contracts, and nothing more

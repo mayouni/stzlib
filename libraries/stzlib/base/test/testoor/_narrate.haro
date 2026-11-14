@@ -3,6 +3,10 @@
 # two can be compared byte for byte. Testoor's Haro face reads Then as a helper by its name and never reads its body.
 #
 # A file whose name begins with _ is never walked as a tour (TESTOOR_PROTOCOL_3.md 6.1). Load it after stzBase.ring.
+#
+# Each Scenario, Then and Summary sends what was printed (FFlush(stdout)): haro.exe holds up to 64 KB of output before it
+# writes to a pipe, so a runner would read every line at the tour's end -- every stop's time 0, and the first output the
+# last (measured 2026-11-14: a line printed at once arrived 3.04 s later, when the program ended).
 
 $nNarTotal = 0
 $nNarPass = 0
@@ -16,6 +20,7 @@ func Scenario(tTitle)
 	$nNarScenPass = 0
 	$nNarScenFail = 0
 	? Char(10) + "SCENARIO: " + tTitle
+	FFlush(stdout)
 end
 
 func Given(tText)
@@ -39,6 +44,7 @@ func Then(tText, xActual, xExpected)
 		$nNarFail = $nNarFail + 1
 	end
 	$nNarTotal = $nNarTotal + 1
+	FFlush(stdout)
 end
 
 func EndScenario
@@ -55,6 +61,7 @@ func Summary
 	else
 		? "STATUS: OK"
 	end
+	FFlush(stdout)
 end
 
 # The comparison _narrated.ring makes with Ring's `=`. Ring's true and false are the numbers 1 and 0, so a boolean is

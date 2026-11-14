@@ -504,7 +504,7 @@ there (`TESTOOR_PROTOCOL_3.md` 6.5); the arrival of the first output is answered
 - **Not changed:** the Ring traveller's own loop (`stzTraveller._WalkOnce`), retired; the guards that walk children
   through it still need those children compiled once after a library change.
 
-### The guards move to .haro, 2026-11-14
+### The guards move to .haro, 2026-11-14 -- DONE, 13 of 13
 
 PRINCIPAL-NORING-01: code in the retired syntax moves to `.haro`, and no file is deleted before haro.exe runs what replaces
 it. Testoor's guards move one commit each, the core guard first.
@@ -527,6 +527,7 @@ it. Testoor's guards move one commit each, the core guard first.
 
   | guard | assertions | the same lines | what the port needed by hand |
   |---|---|---|---|
+  | clock | 66 | 120 | 7 joins; `sysargv` in its one spelling, `SysArgv`; the engine's timestamps compared through `Float()`; the worker's port drawn from `Clock()`, an integer, where a float timestamp was |
   | core | 79 | 188 | 40 texts joined with a number; the core's flag; 4 pairs; 7 names lettered a |
   | golden | 75 | 98 | 2 texts joined with numbers; a Ring predicate as a condition |
   | reader | 74 | 902 | a text joined with a number; `Dir()`'s folder flag, Ring's 1 or 0, compared to 0 |
@@ -546,7 +547,17 @@ it. Testoor's guards move one commit each, the core guard first.
   function it does not have; found on the runner guard before its commit, and no committed guard carries it (a scan of
   every `.haro` guard for `NarText` inside a literal found that one line only).
 
-  `testoor walk base/test/testoor` judges the moved core guard KEPT, 14 stops, 79 claims, beside the walk guard.
+  `testoor walk base/test/testoor` judges all fourteen `.haro` guards: **14 KEPT, 736 claims kept, 0 diverged, exit 0, in
+  393 s** with every guard's image cold (each about 20 s to build), the same 736 the gate counts. Its first run found two
+  things, both fixed before this closed:
+  - **a picture report read as a verdict** under the Haro face (the promises guard's GIVEN line): `TESTOOR_PROTOCOL_3.md` 6.2,
+    golden H4;
+  - **haro.exe holds up to 64 KB of output before it writes to a pipe** (`see`, Haro D60), so every line of a tour arrived at
+    its end: each stop's time 0, and the first output the last -- the runner guard's "first output" read 185 s of 185.
+    `_narrate.haro` now sends its output (`FFlush(stdout)`) at each Scenario, Then and Summary: after it, the clock guard's
+    first output is at 21 s of 104 and the runner guard's at 21 of 46, and the stops carry their times. A tour that does not
+    flush, a foreign codebase's guard among them, still reads as one block at its end; routed to haro-charter as
+    HARO-TOURFLUSH-01.
 
 ## 10. Decisions owed (taken 2026-11-05, the recommended answers)
 

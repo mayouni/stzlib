@@ -465,8 +465,11 @@ RUNNER's, never Ring's; a stop is kept, diverged, unreached, unjudged or
 unperceived; `pf()` is the state finished-timed, never a failure. Plan and law:
 `base/testoor/SOFTANZA_TESTOOR_PLAN.md`.
 
-**FAST PATH: `cd base/test/testoor && rnxc testoor_reader_narrated.ring` is 5 to 15 s
-for 74 assertions, including the read of every narrated file in the corpus.** The
+**FAST PATH: `cd base/test/testoor && haro testoor_reader_narrated.haro` (STZ_ENGINE_DIR naming an engine built for Haro)
+runs its 74 assertions, the read of every narrated file in the corpus included, in about 1 s once its image is built, and
+builds that image in about 20 s after a library change. Testoor's 13 guards are `.haro` since 2026-11-14, and
+`testoor walk base/test/testoor` judges all fourteen: 736 claims kept in 393 s, every image cold (2026-11-14).** Measured on
+Ring++ before the move: The
 runner guard beside it is 69 s for 80, and 41 of those are nine uuid children each
 loading the library: **a child Ring costs 4 to 5 s before its first line**, so a
 topic of N tours costs 4N seconds whatever the tours do (measured 2026-10-05; the
@@ -485,8 +488,9 @@ Ring. Four differences between the VMs bit this plane: no `binarysearch()` on rn
 **The judge is written in Zig (P3, 2026-11-05).** `engine/src/testoor_*.zig` is the core and `base/testoor/*.ring` is
 its reference; the golden logbooks in `base/testoor/golden/` are the acceptance test. **FAST PATH for the core:
 `cd engine && zig build test-testoor -j2` is 30 s cold and 12 s to run, 105 tests (the walker and the runner spawn real children), with no Ring involved.**
-**Testoor's guards are moving to `.haro`, one commit each, beside a shared `base/test/testoor/_narrate.haro` that prints what
-`base/test/_narrated.ring` prints; a moved guard's output equals its `.ring`'s on haro.exe, timings and drawn seeds aside.**
+**Testoor's guards are `.haro` (2026-11-14, one commit each), beside a shared `base/test/testoor/_narrate.haro` that prints
+what `base/test/_narrated.ring` prints; each moved guard's output equalled its `.ring`'s on haro.exe, timings and drawn seeds
+aside (`base/testoor/TESTOOR_ZIG_CORE.md`, "The guards move to .haro").**
 **`testoor walk FOLDER` (P3.6) judges the `*_narrated.haro` tours under a folder on haro.exe with no manifest:** the Haro face is
 `engine/src/testoor_reader.zig`, and `base/test/testoor/testoor_walk_narrated.haro` is its guard. It reads
 `golden/` and compares 43 expected files byte for byte. `TESTOOR_CORE=ring` (or `TestoorCore("ring")`) makes
@@ -508,7 +512,7 @@ A diverged or unreached claim fails every floor; unjudged is refused unless `all
 
 **The walk loop is the core's too (P3.5), as a native program.** `cd engine && zig build testoor-exe -j2` builds
 `zig-out/bin/testoor`; `testoor run MANIFEST.json [--json|--prose]` walks, judges and logs with no Ring VM, and exits 0, 1 or 2 as
-the Ring runner does. A face hands it a manifest (`TestoorManifestJson` in `stzManifest.ring`). `testoor_native_narrated.ring` skips
+the Ring runner does. A face hands it a manifest (`TestoorManifestJson` in `stzManifest.ring`). `testoor_native_narrated.haro` skips
 BY NAME when the program is not found: set `TESTOOR_EXE`. **Killing only a child leaves its grandchildren holding the output pipe**
 (a tour killed at 1.5 s kept the runner alive 29 s): the child goes in a Windows job object so the deadline kills the tree. And
 TESTOOR-POLL-07 is answered by a measurement: the Ring runner's wait costs ~0 CPU per second waited, so a high CPU figure for a
@@ -519,7 +523,7 @@ On Ring++ an empty Ring function call is 0.05 us, an engine call taking and retu
 returned a STRING was 10.81 us because every bridge call built a fresh arena over the page allocator (now one arena per thread,
 reused: 0.23 us). So a hot engine call takes and returns numbers; text is for the rare call. `TestoorNodeSlot` once, then
 `TestoorNodeHit(slot)` (0.19 us), and `TestoorNodesReport()` prints the `[testoor node ID N]` lines. Guard:
-`testoor_counters_narrated.ring`. The Ring trace hook (11.5 us an event) does not exist on Ring++.
+`testoor_counters_narrated.haro`. The Ring trace hook (11.5 us an event) does not exist on Ring++.
 
 **The world of a tour is the core's too (P3.2).** Its seed, stepped clock and weather live in `testoor_clock.zig`
 behind `StzEngineTestoorWorld`, one world per thread; `stzClock.ring` asks the core and keeps the old bodies

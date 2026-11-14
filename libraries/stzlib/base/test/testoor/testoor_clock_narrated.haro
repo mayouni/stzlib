@@ -1,0 +1,355 @@
+load "../../stzBase.ring"
+load "_narrate.haro"
+
+# TESTOOR TR4 -- THE CLOCK THAT RUNS BACKWARDS, AND THE WEATHER. A failing
+# tour prints its seed, and the same seed walks the same path. The clock is
+# the tour's to move; the weather is declared, never ambient; a tour that
+# says different things under one seed is FLAKY, and flaky is a latency defect.
+#
+# WHAT IS PLANTED. Tours in _planted_clock/ (git ignores it; removed at the
+# end). The seed tour is VM-independent on purpose: it fails exactly when its
+# draw equals the draw seed 42 produces, so it fails at 42 and passes at 43
+# whichever VM walks it (Ring's and Ring++'s generators differ). The flaky
+# tour reads and writes a marker file: its first walk fails and its second
+# passes, which is what an ambient fact looks like from outside.
+#
+# WHAT IS REAL. The weather on the distribution plane is the platform's own:
+# a real stzNodeSupervisor, a real worker (test/cluster/_d3_worker.ring, used
+# read-only), the supervisor's own KillChild, and its own restart counted.
+# No mock stands in for it (ruling 13).
+#
+# Every positive has its sibling: seed 42 fails and 43 passes; a stable tour
+# walked twice is NOT flaky; a stepped clock refuses a tick it was not
+# given; an unknown weather is refused; weather fires once.
+
+? "TESTOOR TR4 -- the clock and the weather"
+nTcStart = Clock()
+tTcHere = CurrentDir()
+tTcPlant = tTcHere + "/_planted_clock"
+_TcPlantAll(tTcPlant)
+
+#============================================================================
+Scenario("The stepped clock moves only when the tour moves it, and replays identically")
+	nTcSec = Clock()
+	Given("a stepped clock starting at 1000 ms, 250 ms a tick")
+	TestoorReset()
+	ClockTo(:stepped, [ 1000, 250 ])
+	vRunA = [ ClockNow() ]
+	ClockTick()
+	vRunA + ClockNow()
+	ClockAdvance(750)
+	vRunA + ClockNow()
+	ClockTick()
+	vRunA + ClockNow()
+	Then("it starts where it was told", vRunA[1], 1000)
+	Then("a tick adds its step", vRunA[2], 1250)
+	Then("ClockAdvance adds what it is given", vRunA[3], 2000)
+	Then("and a tick after that adds the step again", vRunA[4], 2250)
+	Then("two ticks have passed", ClockTicks(), 2)
+	Then("the clock did not move by itself while the tour did other things",
+		ClockNow() = vRunA[4], true)
+	Given("the same tour walked again from a reset")
+	TestoorReset()
+	ClockTo(:stepped, [ 1000, 250 ])
+	vRunB = [ ClockNow() ]
+	ClockTick()
+	vRunB + ClockNow()
+	ClockAdvance(750)
+	vRunB + ClockNow()
+	ClockTick()
+	vRunB + ClockNow()
+	Then("it reads the same four times", _TcJoin(vRunB), _TcJoin(vRunA))
+	Given("a clock that is not stepped")
+	TestoorReset()
+	bRefused = false
+	try
+		ClockTick()
+	catch
+		bRefused = true
+	end
+	Then("a tick on it is refused: the tour is not driving the time", bRefused, 1)
+	Given("the wall clock frozen, then thawed")
+	ClockTo(:frozen, "2025-09-27 14:30:25")
+	Then("the library's clock reads the frozen instant", StzFindFirst("27/09/2025 14:30:25", NarText(StzNow())) > 0, true)
+	ClockTo(:live, "")
+	Then("and reads today again once thawed", StzFindFirst("27/09/2025 14:30:25", NarText(StzNow())) = 0, true)
+	TestoorReset()
+EndScenario()
+? "        [section took " + String((Clock() - nTcSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("A seed replays the same draws; weather is declared and falls due once")
+	nTcSec = Clock()
+	Given("seed 42 drawn twice and seed 43 once")
+	TestoorReset()
+	Seed(42)
+	vD42a = [ Random(1000), Random(1000), Random(1000) ]
+	Seed(42)
+	vD42b = [ Random(1000), Random(1000), Random(1000) ]
+	Seed(43)
+	vD43 = [ Random(1000), Random(1000), Random(1000) ]
+	Then("the same seed draws the same numbers", _TcJoin(vD42b), _TcJoin(vD42a))
+	Then("another seed draws other numbers", _TcJoin(vD43) != _TcJoin(vD42a), true)
+	Given("a child_killed weather without a tick, declared under seed 42 twice")
+	TestoorReset()
+	Seed(42)
+	nT1 = Weather(:child_killed, [ "w1" ])
+	TestoorReset()
+	Seed(42)
+	nT2 = Weather(:child_killed, [ "w1" ])
+	Then("the seeded generator picks the same tick", nT1, nT2)
+	Then("one of the first six", nT1 >= 1 and nT1 <= 6, true)
+	Given("weather declared for tick 3 on a stepped clock")
+	TestoorReset()
+	ClockTo(:stepped, [ 0, 100 ])
+	Weather(:child_killed, [ "w1", 3 ])
+	Then("it is planned, not yet fallen due", Len(WeatherPlan()), 1)
+	Then("and declared by name", WeatherDeclared()[1], "child_killed")
+	xT1 = ClockTick()
+	xT2 = ClockTick()
+	Then("nothing falls due at ticks 1 and 2", Len(xT1) + Len(xT2), 0)
+	xT3 = ClockTick()
+	Then("it falls due at tick 3", Len(xT3), 1)
+	Then("named, with its spec", xT3[1][1] + "/" + xT3[1][2][1], "child_killed/w1")
+	xT4 = ClockTick()
+	Then("and only once", Len(xT4), 0)
+	Then("nothing is left planned", Len(WeatherPlan()), 0)
+	Given("a weather nobody has heard of")
+	bUnknown = false
+	try
+		Weather(:locusts, [ 1 ])
+	catch
+		bUnknown = true
+	end
+	Then("it is refused: weather is declared from a known list", bUnknown, 1)
+	TestoorReset()
+EndScenario()
+? "        [section took " + String((Clock() - nTcSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("A tour seeded to fail at 42 fails identically twice, and passes at 43")
+	nTcSec = Clock()
+	Given("a planted tour that fails exactly when its draw equals seed 42's draw")
+	oA = TravellerQ().Silent().Timeout(60000).Seed(42).Walk(tTcPlant + "/seeded_fail.ring")
+	oB = TravellerQ().Silent().Timeout(60000).Seed(42).Walk(tTcPlant + "/seeded_fail.ring")
+	xA = oA.Records()[1]
+	xB = oB.Records()[1]
+	Then("the first walk fails", xA[:run][:state], "diverged")
+	Then("the second walk fails", xB[:run][:state], "diverged")
+	Then("identically: the same signature", _TravSignature(xA), _TravSignature(xB))
+	Then("the same draw was printed both times", _TcDrawOf(xA), _TcDrawOf(xB))
+	Then("and a draw WAS printed", _TcDrawOf(xA) != "", true)
+	Then("the record carries the seed", xA[:run][:seed], 42)
+	Then("the failing tour's prose prints its seed", StzFindFirst("seed 42", _TravRunProse(xA)) > 0, true)
+	Then("and so does the JSON", StzFindFirst('"seed":42', oA.Json()) > 0, true)
+	Then("the tour itself printed the seed it adopted", _TcHasLine(xA, "[testoor seed 42]"), true)
+	Then("the runner exits 1", oA.ExitCode(), 1)
+	Given("the same tour walked with seed 43")
+	oC = TravellerQ().Silent().Timeout(60000).Seed(43).Walk(tTcPlant + "/seeded_fail.ring")
+	xC = oC.Records()[1]
+	Then("its one printed claim is kept", xC[:run][:kept], 1)
+	Then("nothing diverged: the claim in the branch not taken is unjudged, not a failure", NarText(xC[:run][:diverged]) + "/" + NarText(xC[:run][:unjudged]), "0/1")
+	Then("with another draw", _TcDrawOf(xC) != _TcDrawOf(xA), true)
+	Then("the runner exits 0", oC.ExitCode(), 0)
+	Then("a kept tour does not shout its seed", StzFindFirst("seed 43", _TravRunProse(xC)), 0)
+	Given("a tour that names its own seed under a runner that offers another")
+	oD = TravellerQ().Silent().Timeout(60000).Seed(42).Walk(tTcPlant + "/own_seed.ring")
+	Then("the seed the tour named is the one recorded", oD.Records()[1][:run][:seed], 7)
+	Given("a runner that was given no seed")
+	oE = TravellerQ().Silent().Timeout(60000).Walk(tTcPlant + "/stable.ring")
+	Then("chose one and REPORTED it, so the run can be walked again", oE.SeedUsed() >= 1, true)
+	Then("in the JSON", StzFindFirst('"seed":' + NarText(oE.SeedUsed()), oE.Json()) > 0, true)
+EndScenario()
+? "        [section took " + String((Clock() - nTcSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+Scenario("Undeclared weather is reported flaky; a stable tour is not; declared weather is named")
+	nTcSec = Clock()
+	_TcClearMarkers(tTcPlant)
+	Given("a tour whose verdict depends on a file it leaves behind, walked twice with one seed")
+	oF = TravellerQ().Silent().Timeout(60000).Seed(5).Repeat(2).Walk(tTcPlant + "/flaky_undeclared.ring")
+	xF = oF.Records()[1]
+	Then("it is FLAKY", xF[:flaky], 1)
+	Then("the court says so, as an error", Len(oF.Findings()), 1)
+	Then("under the rule tour_is_flaky", NarText(oF.Findings()[1][:rule]), "tour_is_flaky")
+	Then("severity error", NarText(oF.Findings()[1][:severity]), "error")
+	Then("naming undeclared weather", StzFindFirst("undeclared weather", oF.Findings()[1][:message]) > 0, true)
+	Then("and the walk that differed", StzFindFirst("both with seed 5", xF[:flaky_why]) > 0, true)
+	Then("the runner exits 1", oF.ExitCode(), 1)
+	Then("the prose says FLAKY and the seed", StzFindFirst("FLAKY", _TravRunProse(xF)) > 0 and StzFindFirst("seed 5", _TravRunProse(xF)) > 0, true)
+	_TcClearMarkers(tTcPlant)
+	Given("the same tour walked ONCE")
+	oG = TravellerQ().Silent().Timeout(60000).Seed(5).Walk(tTcPlant + "/flaky_undeclared.ring")
+	Then("one walk cannot see flakiness: it is merely diverged", oG.Records()[1][:flaky] = 0 and oG.Records()[1][:run][:state] = "diverged", true)
+	_TcClearMarkers(tTcPlant)
+	Given("a stable tour walked twice")
+	oH = TravellerQ().Silent().Timeout(60000).Seed(5).Repeat(2).Walk(tTcPlant + "/stable.ring")
+	Then("it is not flaky", oH.Records()[1][:flaky], 0)
+	Then("and the court is silent", Len(oH.Findings()), 0)
+	Then("and the runner exits 0", oH.ExitCode(), 0)
+	Given("a tour that DECLARED its weather and is still flaky")
+	oJ = TravellerQ().Silent().Timeout(60000).Seed(5).Repeat(2).Walk(tTcPlant + "/flaky_declared.ring")
+	xJ = oJ.Records()[1]
+	Then("it is flaky", xJ[:flaky], 1)
+	Then("the weather it declared is in the logbook", Len(xJ[:weather]) >= 1, true)
+	Then("by name", StzFindFirst("skew", xJ[:weather][1]) > 0, true)
+	Then("and the court says the declared weather did not pin it", StzFindFirst("declared weather did not pin it", oJ.Findings()[1][:message]) > 0, true)
+	_TcClearMarkers(tTcPlant)
+EndScenario()
+? "        [section took " + String((Clock() - nTcSec) / ClocksPerSecond()) + "s]"
+
+#============================================================================
+if _TcUnderRnxc()
+	? ""
+	? "SKIPPED under rnxc, by name: the weather on the distribution plane."
+	? "  stzNodeSupervisor._RingExecutable() finds no ring.exe in the arguments and falls back to"
+	? "  `ring`, so its worker would start on Ring 1.27 and load Ring++ libraries. A finding for the"
+	? "  cluster plane; it runs, green, on Ring 1.27 (see the roadmap, P2)."
+else
+Scenario("The weather on the distribution plane: a supervised child dies at the declared tick, and the supervisor restarts it")
+	nTcSec = Clock()
+	Given("a real stzNodeSupervisor with one real worker, OneForOne")
+	nPort = 46500 + (Clock() % 200)
+	oSup = new stzNodeSupervisor()
+	oSup.Child("w1", "../cluster/_d3_worker.ring", nPort)
+	oSup.Strategy(:OneForOne)
+	oSup.RestartBudget(5, 30000)
+	oSup.StartAll()
+	Then("the worker answers after boot", _TcAwaitPong("w1", 40000), true)
+	TestoorReset()
+	ClockTo(:stepped, [ 0, 100 ])
+	Seed(42)
+	nPlanned = Weather(:child_killed, [ "w1", 2 ])
+	Then("the weather is declared for tick 2", nPlanned, 2)
+	Then("no restart has happened yet", oSup.RestartsOf("w1"), 0)
+	When("the tour takes tick 1")
+	xF1 = ClockTick()
+	Then("nothing falls due", Len(xF1), 0)
+	Then("the worker still answers", _TcPong("w1"), true)
+	When("the tour takes tick 2")
+	xF2 = ClockTick()
+	Then("the weather falls due", Len(xF2), 1)
+	nKilled = WeatherKill(oSup, xF2)
+	Then("and the platform's own KillChild killed one child", nKilled, 1)
+	Given("the supervisor's own cycles, driven until it has restarted the child")
+	bRestarted = _TcDriveUntil(oSup, "w1", 1, 30000)
+	Then("the restart happened", bRestarted, true)
+	Then("and was COUNTED, exactly once", oSup.RestartsOf("w1"), 1)
+	Then("the restarted worker answers again", _TcAwaitPong("w1", 40000), true)
+	oSup.StopAll()
+	TestoorReset()
+EndScenario()
+? "        [section took " + String((Clock() - nTcSec) / ClocksPerSecond()) + "s]"
+end
+
+_TcUnplantAll(tTcPlant)
+? ""
+? "[TR4 took " + String((Clock() - nTcStart) / ClocksPerSecond()) + "s]"
+Summary()
+Shutdown($nNarFail)
+
+#============================================================================
+# HELPERS AFTER THE TOP-LEVEL CODE
+
+func _TcPlantAll(tRoot)
+	_TcUnplantAll(tRoot)
+	StzMakeDir(tRoot)
+	tNl = Char(10)
+	Write(tRoot + "/seeded_fail.ring",
+		'load "../../../stzBase.ring"' + tNl +
+		"Seed(:run)" + tNl +
+		"nDraw = random(1000)" + tNl +
+		"SeedRandom(42)" + tNl +
+		"nRef = random(1000)" + tNl +
+		'? "draw " + nDraw' + tNl +
+		"if nDraw = nRef" + tNl +
+		'	? "  [FAIL] the draw hit the value seed 42 produces"' + tNl +
+		"else" + tNl +
+		'	? "  [OK] the draw avoided the value seed 42 produces"' + tNl +
+		"ok" + tNl)
+	Write(tRoot + "/own_seed.ring",
+		'load "../../../stzBase.ring"' + tNl +
+		"Seed(7)" + tNl +
+		'? "  [OK] seeded by the tour itself"' + tNl)
+	Write(tRoot + "/stable.ring", '? "  [OK] the same every time"' + tNl)
+	Write(tRoot + "/flaky_undeclared.ring",
+		'cM = "flaky_marker_undeclared.txt"' + tNl +
+		"if fexists(cM)" + tNl +
+		'	? "  [OK] second time lucky"' + tNl +
+		"else" + tNl +
+		'	write(cM, "1")' + tNl +
+		'	? "  [FAIL] first time unlucky"' + tNl +
+		"ok" + tNl)
+	Write(tRoot + "/flaky_declared.ring",
+		'load "../../../stzBase.ring"' + tNl +
+		"Seed(:run)" + tNl +
+		"ClockTo(:stepped, [ 0, 100 ])" + tNl +
+		"Weather(:skew, [ 500 ])" + tNl +
+		'cM = "flaky_marker_declared.txt"' + tNl +
+		"if fexists(cM)" + tNl +
+		'	? "  [OK] second time lucky"' + tNl +
+		"else" + tNl +
+		'	write(cM, "1")' + tNl +
+		'	? "  [FAIL] first time unlucky"' + tNl +
+		"ok" + tNl)
+end
+# is this guard running on Ring++'s rnxc?
+func _TcUnderRnxc
+	return Len(SysArgv) >= 1 and StzFindFirst("rnxc", Lower(NarText(SysArgv[1]))) > 0
+end
+func _TcClearMarkers(tRoot)
+	for tF in [ "/flaky_marker_undeclared.txt", "/flaky_marker_declared.txt" ]
+		if FExists(tRoot + tF)  Remove(tRoot + tF)  end
+	end
+end
+func _TcUnplantAll(tRoot)
+	if FExists(tRoot + "/stable.ring")
+		StzDirDeleteAll(tRoot)
+	end
+end
+func _TcJoin(xList)
+	tC = ""
+	nN = Len(xList)
+	for i = 1 to nN
+		tC += NarText(xList[i]) + ","
+	end
+	return tC
+end
+# the "draw N" line a planted tour printed, or ""
+func _TcDrawOf(xRec)
+	nL = Len(xRec[:output])
+	for i = 1 to nL
+		if Left(Trim(xRec[:output][i][1]), 5) = "draw "  return Trim(xRec[:output][i][1])  end
+	end
+	return ""
+end
+func _TcHasLine(xRec, tLine)
+	nL = Len(xRec[:output])
+	for i = 1 to nL
+		if Trim(xRec[:output][i][1]) = tLine  return true  end
+	end
+	return false
+end
+func _TcPong(tChild)
+	xR = Ask(tChild, [ "ping", 1 ], 1500)
+	return NodeAskStatus() = :Ok
+end
+func _TcAwaitPong(tChild, nMaxMs)
+	nT0 = StzEngineWatchTimestampMs()
+	while Float(StzEngineWatchTimestampMs() - nT0) < Float(nMaxMs)
+		if _TcPong(tChild)  return true  end
+		nW = Clock()
+		while (Clock() - nW) / ClocksPerSecond() < 0.3  end
+	end
+	return false
+end
+func _TcDriveUntil(oSup, tChild, nRestarts, nMaxMs)
+	nT0 = StzEngineWatchTimestampMs()
+	while Float(StzEngineWatchTimestampMs() - nT0) < Float(nMaxMs)
+		oSup.Cycle()
+		if oSup.RestartsOf(tChild) >= nRestarts  return true  end
+		nW = Clock()
+		while (Clock() - nW) / ClocksPerSecond() < 0.1  end
+	end
+	return false
+end

@@ -55,7 +55,7 @@ asserts anything at all. Dialects read: the Given/When/Then helper of
 Assert ...), recognised by what its body does; the gate's `sec`/`chk`/`chkeq` with
 `discharges("GG6")` as routes; bare promises; hand-printed markers; Zin's `.zst`
 declarations. `stzLogbook` reads a tree and answers JSON and prose from one read,
-naming what it skipped. Guard: `base/test/testoor/testoor_reader_narrated.ring`.
+naming what it skipped. Guard: `base/test/testoor/testoor_reader_narrated.haro`.
 
 Measured at TR0: a planted lower-case `[ok]` counts as asserting (the sweep's grep
 was case-sensitive and did not count it); a planted file with no claim reports
@@ -75,7 +75,7 @@ broke or hung, a decision recorded in CONCLUSIONS; 2 when the runner refused. JS
 on a pipe, prose on a terminal, from one run. Wall time per stop from the arrival
 of its opening line. Owned and run as two figures. Skipped by name, and under
 `--topic` the other topics named. `pf()` is the state finished-timed, never a
-failure. Guard: `base/test/testoor/testoor_runner_narrated.ring`, 80 assertions,
+failure. Guard: `base/test/testoor/testoor_runner_narrated.haro`, 80 assertions,
 exit 0/1/2 read in-process and again through the OS from a child `ring
 testoor.ring`.
 
@@ -166,7 +166,7 @@ a touch, `init` and `_private` methods are not listed. At the shell:
 closed route has no tour or a tour names an unknown one, 2 when refused. All findings are in
 the court's shape and `stzRuleReport.Ingest()` takes them.
 
-Guard `base/test/testoor/testoor_routes_narrated.ring`, 44 assertions: one plan item with no
+Guard `base/test/testoor/testoor_routes_narrated.haro`, 44 assertions: one plan item with no
 tour is ONE route unwalked and adding the tour clears it; closed is a warning and open is
 information; an unknown route is a finding and a known one is not; and on the real gate the
 tour reader and the court's own `StzSuiteDischargesOf`, written apart, find the same 81
@@ -211,7 +211,7 @@ A failing tour PRINTS ITS SEED and the same seed walks the same path.
   weather was declared, prose `FLAKY`, exit 1. One walk cannot see flakiness; undeclared weather
   is found from outside, which is why the check is a repeat and not a claim.
 
-Guard `base/test/testoor/testoor_clock_narrated.ring`, 66 assertions in 29 s: the stepped clock
+Guard `base/test/testoor/testoor_clock_narrated.haro`, 66 assertions in 29 s: the stepped clock
 replays identically and refuses a tick it was not given; a seed replays its draws and another
 seed does not; weather falls due once and an unknown weather is refused; **a tour seeded to fail
 at 42 fails identically twice (same signature, same draw) and passes at 43**; a tour naming its
@@ -245,7 +245,7 @@ A tour that prints stop, ok and fail lines **describes itself** and needs no rea
 language at its cheapest is a six-line helper plus a ten-line profile. The judge is one judge:
 self-describing output is turned into the same record and lines the Ring reader produces.
 
-Guard `base/test/testoor/testoor_protocol_narrated.ring`, 55 assertions in about one second:
+Guard `base/test/testoor/testoor_protocol_narrated.haro`, 55 assertions in about one second:
 tours written in **Python** (kept, failing, broken with claims owed, never started, ended early,
 seeded to fail at 42, naming their own seed, declaring a route) go through the same runner and
 get the same states; one runner walks a folder holding a Ring tour and a Python tour and

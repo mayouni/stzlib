@@ -53,16 +53,16 @@ Each rung is a guard that fails before and passes after, a commit pushed to both
 CONCLUSIONS line. A rung does not open until the one it depends on has recorded its exit.
 
 ### P1 -- Prove the two premises. DONE 2026-11-03.
-- **P1a, impact recall.** `stzImpact.ring`; guard `testoor_impact_narrated.ring`. Graph-first selection
+- **P1a, impact recall.** `stzImpact.ring`; guard `testoor_impact_narrated.haro`. Graph-first selection
   is safe on a planted subject, and its one blind spot is detected and handled.
 - **P1b, refinement verified.** `stzSubject.ring`, `Subject()` on the traveller, protocol 1.1; guard
-  `testoor_refine_narrated.ring`. The tours plug into the refinement gate's existing derivation seam.
+  `testoor_refine_narrated.haro`. The tours plug into the refinement gate's existing derivation seam.
 
 ### P2 -- Make the gates honest and the core specifiable.
 - **P2a, the Ring++ engine copy. DONE 2026-11-04** (section 7b): all eight guards run under `rnxc`, and a
   tour that loads the library costs 0.07 s warm instead of 4 to 5 s.
 - **P2b, golden logbooks. DONE 2026-11-04** (`golden/`, 14 judge cases and 5 logbooks, 43 expected files; guard
-  `testoor_golden_narrated.ring`, 75 assertions on Ring 1.27 and on Ring++). The Zig core must reproduce them.
+  `testoor_golden_narrated.haro`, 75 assertions on Ring 1.27 and on Ring++). The Zig core must reproduce them.
 - **P2c, protocol 2. DRAFTED 2026-11-04** (`TESTOOR_PROTOCOL_2.md`, draft d1, four questions for the author). Adds the
   graph record, the `[testoor node ID]` line, the nodes record, the evidence floor and `refinements`; a version 2 key
   appears only when it has content, so the goldens stay the acceptance test.
