@@ -1,0 +1,400 @@
+# _measure_ready.haro -- RADAR-TPUSYNC-BUDGET-01 (a), the instrument
+#
+# Google's TPU Sync treats chip memory, host memory, storage and network as one hierarchy for weights and prompt state.
+# The question for this machine, before any budget can be set: what does each model of the support desk cost to be
+# READY -- from its file on disk to its first token -- and how much memory does it hold once it is?
+#
+#   the set       the support desk's model files: the nine generative models of _ticket_app.ring's list, the
+#                 embedding model (MiniLM) and the reranker (Jina), and Bolt E4B's smallest low-bit file (UD-IQ2_M)
+#   the ways      cold     a new process, the file just put out of the system's file cache
+#                 cached   a new process, the file in the system's file cache (it was read a moment before)
+#                 reload   the same process loads the file again: the system cache holds it AND the engine already
+#                          knows its SHA-256 (it keeps a file's digest for the process), so this is the parse alone --
+#                          what bringing an evicted model back costs a long-lived process
+#                 prefix   after the reload, the system turn's prompt state is put back from a prefix file, and the
+#                          first token reads only the ticket's own tokens
+#   the times     load (the digest, then the GGUF read), first token (the prompt read with the prefix cache off; for
+#                 the embedding model one embedding, for the reranker one score), restore (the prefix file read back)
+#   the memory    the process's resident memory before the load, after it, and once the first token is out (the
+#                 prompt cache and the graph's buffers are allocated then), and its peak
+#
+#   haro _measure_ready.haro purge <file>                          put one file out of the system's file cache
+#   haro _measure_ready.haro one <label> <file> <how> <round>      one process: appends rows to results/ready.tsv
+#   haro _measure_ready.haro analyse                               results/ready.tsv -> results/ready.txt
+#
+# "purge" opens the file WITHOUT the system's buffering and closes it; Windows then drops the pages it cached for it.
+# Measured on this machine before it was used: a 378 MB file read in 55 ms from the cache and 332 ms after a purge
+# (345 ms on a first read). A purge that did not happen shows in the table: cold would equal cached.
+#
+# Run from base/test/faculty on haro.exe with STZ_ENGINE_DIR (an engine with stz_neural, stz_perf). A file is read only
+# if its folder's SHA256SUMS records its digest. One model per process, one process at a time.
+
+$tTsv = "results/ready.tsv"
+$tReport = "results/ready.txt"
+$tSys = "You triage customer-support tickets. Classify the ticket as exactly one of: bug (something is broken or behaves wrongly), billing (money: charges, refunds, invoices, plans, prices), other (a question, request or feedback). Answer with the single word."
+$tHeader = "label" + Char(9) + "how" + Char(9) + "round" + Char(9) + "size_mb" + Char(9) + "rss_base_mb" + Char(9) + "load_ms" + Char(9) + "rss_load_mb" + Char(9) + "first_ms" + Char(9) + "prompt_tokens" + Char(9) + "rss_ready_mb" + Char(9) + "peak_mb" + Char(9) + "reload_ms" + Char(9) + "restore_ms" + Char(9) + "prefix_tokens" + Char(9) + "prefix_kb" + Char(9) + "tail_ms" + Char(9) + "reused_tokens" + Char(9) + "rss_end_mb"
+
+nArgs = Len(SysArgv)
+bDone = false
+for i = 1 to nArgs
+	if SysArgv[i] = "purge" and i + 1 <= nArgs
+		Purge(SysArgv[i + 1])
+		bDone = true
+	end
+	if SysArgv[i] = "one" and i + 4 <= nArgs
+		One(SysArgv[i + 1], SysArgv[i + 2], SysArgv[i + 3], SysArgv[i + 4])
+		bDone = true
+	end
+end
+if bDone = false
+	Analyse()
+end
+
+# ---- put one file out of the system's file cache: open it unbuffered (FILE_FLAG_NO_BUFFERING), close it ----
+
+func Purge(tFile)
+	tWin = Backslashes(tFile)
+	tCmd = "$f = New-Object IO.FileStream('" + tWin + "', [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::ReadWrite, 4096, [IO.FileOptions]0x20000000); $f.Close()"
+	System("powershell -NoProfile -Command " + Char(34) + tCmd + Char(34))
+end
+
+# ---- one process, one file ----
+
+func One(tLabel, tFile, tHow, tRound)
+	tBin = Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/"
+	LoadLib(tBin + "stz_neural.dll")
+	LoadLib(tBin + "stz_perf.dll")
+	tPath = Slashes(tFile)
+	nBase = Mb(StzEnginePerfMemRss())
+	nStart = Clock()
+	nOk = StzEngineNeuralModelLoad(tPath)
+	nLoad = Ms(nStart)
+	if nOk = 0
+		? tLabel + ": the load was refused, status " + String(StzEngineNeuralModelLoadStatus())
+		return
+	end
+	nRssLoad = Mb(StzEnginePerfMemRss())
+	tKind = KindOf(tLabel)
+	tTicket = "The app closes as soon as I open the camera screen, and I lose the photo I was taking."
+	nPrompt = 0
+	nStart = Clock()
+	if tKind = "embed"
+		nPrompt = StzEngineNeuralEmbed(tTicket)
+	elseif tKind = "rerank"
+		StzEngineNeuralRerank("the app crashes on the camera screen", tTicket)
+	else
+		StzEngineNeuralGenSetPrefixReuse(0)
+		StzEngineNeuralPrefillLogits(Prompt(tLabel, $tSys, "Ticket: " + tTicket))
+		nPrompt = StzEngineNeuralGenPromptTokens()
+	end
+	nFirst = Ms(nStart)
+	nRssReady = Mb(StzEnginePerfMemRss())
+	nPeak = Mb(StzEnginePerfMemPeak())
+	# the prefix: the system turn and the opening of the user turn, saved, as prefix_cache_narrated.haro saves it
+	tKv = Slashes(SysGet("TEMP")) + "/stz_ready_" + tLabel + ".stzkv"
+	nPre = 0
+	nKb = 0
+	if tKind = "gen"
+		StzEngineNeuralPrefillLogits(Prompt(tLabel, $tSys, ""))
+		nPre = StzEngineNeuralGenPromptTokens() - 3
+		if StzEngineNeuralGenPrefixSave(tKv, nPre) = 1
+			nKb = Divide(Len(Read(tKv)), 1024, 0)
+		else
+			? tLabel + ": the prefix was not saved, status " + String(StzEngineNeuralGenPrefixStatus())
+			nPre = 0
+		end
+	end
+	# the same file again, in the same process: the digest is known, the file is in the system's cache
+	nStart = Clock()
+	StzEngineNeuralModelLoad(tPath)
+	nReload = Ms(nStart)
+	nRestore = 0
+	nTail = 0
+	nReused = 0
+	if nPre > 0
+		nStart = Clock()
+		nBack = StzEngineNeuralGenPrefixLoad(tKv)
+		nRestore = Ms(nStart)
+		if nBack = nPre
+			StzEngineNeuralGenSetPrefixReuse(1)
+			nStart = Clock()
+			StzEngineNeuralPrefillLogits(Prompt(tLabel, $tSys, "Ticket: " + tTicket))
+			nTail = Ms(nStart)
+			nReused = StzEngineNeuralGenReusedTokens()
+		else
+			? tLabel + ": the prefix file was refused, status " + String(StzEngineNeuralGenPrefixStatus())
+			nPre = 0
+		end
+	end
+	nRssEnd = Mb(StzEnginePerfMemRss())
+	? tLabel + " " + tHow + " round " + tRound + ": load " + String(nLoad) + " ms, first " + String(nFirst) + " ms (" + String(nPrompt) + "), ready " + String(nRssReady) + " MB, reload " + String(nReload) + " ms, restore " + String(nRestore) + " ms, tail " + String(nTail) + " ms (" + String(nReused) + " of " + String(nPre) + " kept)"
+	tOut = ""
+	if FExists($tTsv) = false
+		tOut = $tHeader + Char(10)
+	end
+	tOut = tOut + Row([ tLabel, tHow, tRound, String(Mb(FileBytes(tPath))), String(nBase), String(nLoad), String(nRssLoad), String(nFirst), String(nPrompt), String(nRssReady), String(nPeak), String(nReload), String(nRestore), String(nPre), String(nKb), String(nTail), String(nReused), String(nRssEnd) ])
+	if FExists($tTsv)
+		tOut = Read($tTsv) + tOut
+	end
+	Write($tTsv, tOut)
+end
+
+func KindOf(tLabel)
+	if tLabel = "minilm"
+		return "embed"
+	end
+	if tLabel = "jina"
+		return "rerank"
+	end
+	return "gen"
+end
+
+# each family's turn format; the time to a first token depends on how many tokens the prompt holds, so each model
+# reads its own
+func Prompt(tLabel, tSystem, tUser)
+	if Left(tLabel, 4) = "bolt"
+		return "<|turn>system" + Char(10) + tSystem + "<turn|>" + Char(10) + "<|turn>user" + Char(10) + tUser + "<turn|>" + Char(10) + "<|turn>model" + Char(10)
+	end
+	if Left(tLabel, 7) = "granite"
+		return "<|start_of_role|>system<|end_of_role|>" + tSystem + "<|end_of_text|>" + Char(10) + "<|start_of_role|>user<|end_of_role|>" + tUser + "<|end_of_text|>" + Char(10) + "<|start_of_role|>assistant<|end_of_role|>"
+	end
+	return "<|im_start|>system" + Char(10) + tSystem + "<|im_end|>" + Char(10) + "<|im_start|>user" + Char(10) + tUser + "<|im_end|>" + Char(10) + "<|im_start|>assistant" + Char(10)
+end
+
+# the file's size in bytes, from the system (a model file is too large to read for its length)
+func FileBytes(tPath)
+	tOut = SystemCmd("powershell -NoProfile -Command " + Char(34) + "(Get-Item '" + Backslashes(tPath) + "').Length" + Char(34))
+	tNum = ""
+	for i = 1 to Len(tOut)
+		if tOut[i] >= "0" and tOut[i] <= "9"
+			tNum = tNum + tOut[i]
+		end
+	end
+	if tNum = ""
+		return 0
+	end
+	return Number(tNum)
+end
+
+# ---- the analysis: no model needed ----
+
+func Analyse
+	if FExists($tTsv) = false
+		? "no " + $tTsv + " yet: run 'one' first"
+		return
+	end
+	vRows = ReadTsv($tTsv)
+	vLabels = []
+	for i = 2 to Len(vRows)
+		if Len(vRows[i]) = 18 and Find(vLabels, vRows[i][1]) = 0
+			vLabels + vRows[i][1]
+		end
+	end
+	$tOutText = ""
+	Say("RADAR-TPUSYNC-BUDGET-01 (a): what each support-desk model costs to be ready, on this machine")
+	Say("medians over the rounds; times in seconds, memory in MB; 'ready' = after the first token, the process's own")
+	Say("memory before the load subtracted")
+	Say("")
+	Say(Pad("model", 14) + Pad("file", 7) + Pad("cold", 7) + Pad("cached", 8) + Pad("reload", 8) + Pad("first", 7) + Pad("prefix", 8) + Pad("loaded", 8) + Pad("ready", 7) + Pad("peak", 7) + "declared")
+	nSumReady = 0
+	nSumFile = 0
+	vReady = []
+	for k = 1 to Len(vLabels)
+		tL = vLabels[k]
+		nCold = MedianOf(vRows, tL, "cold", 6) + MedianOf(vRows, tL, "cold", 8)
+		nCached = MedianOf(vRows, tL, "cached", 6) + MedianOf(vRows, tL, "cached", 8)
+		nReload = MedianOf(vRows, tL, "", 12)
+		nFirst = MedianOf(vRows, tL, "", 8)
+		nPrefix = 0
+		tPrefix = "-"
+		if MedianOf(vRows, tL, "", 14) > 0
+			nPrefix = MedianOf(vRows, tL, "", 12) + MedianOf(vRows, tL, "", 13) + MedianOf(vRows, tL, "", 16)
+			tPrefix = Secs(nPrefix)
+		end
+		nBase = MedianOf(vRows, tL, "", 5)
+		nLoaded = MedianOf(vRows, tL, "", 7) - nBase
+		nReadyMb = MedianOf(vRows, tL, "", 10) - nBase
+		nPeak = MedianOf(vRows, tL, "", 11) - nBase
+		nFile = MedianOf(vRows, tL, "", 4)
+		nSumReady = nSumReady + nReadyMb
+		nSumFile = nSumFile + nFile
+		vReady + [ nReadyMb, tL, nReload ]
+		Say(Pad(tL, 14) + Pad(String(nFile), 7) + Pad(Secs(nCold), 7) + Pad(Secs(nCached), 8) + Pad(Secs(nReload), 8) + Pad(Secs(nFirst), 7) + Pad(tPrefix, 8) + Pad(String(nLoaded), 8) + Pad(String(nReadyMb), 7) + Pad(String(nPeak), 7) + Declared(tL))
+	end
+	Say("")
+	Say("cold   = load + first token, the file put out of the system's cache before a new process")
+	Say("cached = load + first token, a new process, the file in the system's cache")
+	Say("reload = the load again in the same process (digest known, file cached): the cost of bringing an evicted model back")
+	Say("prefix = reload + the system turn put back from its prefix file + the first token reading only the ticket")
+	Say("declared = the memory _ticket_app.ring's model list declares for the model, in MB")
+	Say("")
+	Say("all " + String(Len(vLabels)) + " files: " + String(nSumFile) + " MB on disk, " + String(nSumReady) + " MB ready together")
+	# how many fit in a budget: the smallest first, which is the most models any budget can hold at once
+	vSorted = SortByFirst(vReady)
+	vBudgets = [ 4096, 8192, 16384 ]
+	for b = 1 to Len(vBudgets)
+		nUsed = 0
+		nCount = 0
+		tNames = ""
+		for i = 1 to Len(vSorted)
+			if nUsed + vSorted[i][1] <= vBudgets[b]
+				nUsed = nUsed + vSorted[i][1]
+				nCount = nCount + 1
+				if tNames != ""
+					tNames = tNames + ", "
+				end
+				tNames = tNames + vSorted[i][2]
+			end
+		end
+		Say("a budget of " + String(vBudgets[b]) + " MB holds at most " + String(nCount) + " of them ready at once (" + String(nUsed) + " MB): " + tNames)
+	end
+	Write($tReport, $tOutText)
+	? "written " + $tReport
+end
+
+# the median of one column over a label's rows (and one way, when tHow is not empty), as a whole number
+func MedianOf(vRows, tL, tHow, nCol)
+	vN = []
+	for i = 2 to Len(vRows)
+		if Len(vRows[i]) = 18 and vRows[i][1] = tL
+			if tHow = "" or vRows[i][2] = tHow
+				vN + Number(vRows[i][nCol])
+			end
+		end
+	end
+	if Len(vN) = 0
+		return 0
+	end
+	return Median(vN)
+end
+
+func Median(vN)
+	vS = Sort(vN)
+	nN = Len(vS)
+	# half of nN, rounded down, as a whole number: a Divide result is a DECIMAL and a list index refuses one
+	nH = 0
+	while (nH + 1) * 2 <= nN
+		nH = nH + 1
+	end
+	if nH * 2 < nN
+		return vS[nH + 1]
+	end
+	return Number(String(Divide(vS[nH] + vS[nH + 1], 2, 0)))
+end
+
+func SortByFirst(vIn)
+	vOut = []
+	for i = 1 to Len(vIn)
+		vOut + vIn[i]
+	end
+	nN = Len(vOut)
+	for i = 1 to nN
+		for j = 1 to nN - i
+			if vOut[j][1] > vOut[j + 1][1]
+				vTmp = vOut[j]
+				vOut[j] = vOut[j + 1]
+				vOut[j + 1] = vTmp
+			end
+		end
+	end
+	return vOut
+end
+
+# the memory _ticket_app.ring declares for each model (MB), copied from its list
+func Declared(tL)
+	vD = [ [ "smollm2-135m", "200" ], [ "qwen3-0.6b", "700" ], [ "granite-350m", "450" ], [ "granite-1b", "1800" ],
+	       [ "qwen25c-0.5b", "800" ], [ "qwen25c-1.5b", "1900" ], [ "granite42-3b", "3000" ], [ "bolt-e4b", "6400" ],
+	       [ "lfm3-1.7b", "2100" ] ]
+	for i = 1 to Len(vD)
+		if vD[i][1] = tL
+			return vD[i][2]
+		end
+	end
+	return "-"
+end
+
+func Row(vF)
+	tR = ""
+	for i = 1 to Len(vF)
+		if i > 1
+			tR = tR + Char(9)
+		end
+		tR = tR + vF[i]
+	end
+	return tR + Char(10)
+end
+
+func Mb(nBytes)
+	return Number(String(Divide(nBytes, 1048576, 0)))
+end
+
+func Ms(nStart)
+	return Number(String(Divide((Clock() - nStart) * 1000, ClocksPerSecond(), 0)))
+end
+
+func Secs(nMs)
+	return String(Divide(nMs, 1000, 2))
+end
+
+func Say(tLine)
+	? tLine
+	$tOutText = $tOutText + tLine + Char(10)
+end
+
+func Pad(tText, nWidth)
+	tOut = tText
+	while Len(tOut) < nWidth
+		tOut = tOut + " "
+	end
+	return tOut
+end
+
+func ReadTsv(tPath)
+	vOut = []
+	vLines = Str2List(Read(tPath))
+	for i = 1 to Len(vLines)
+		tLine = vLines[i]
+		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
+			tLine = Left(tLine, Len(tLine) - 1)
+		end
+		vF = []
+		tCur = ""
+		for j = 1 to Len(tLine)
+			if tLine[j] = Char(9)
+				vF + tCur
+				tCur = ""
+			else
+				tCur = tCur + tLine[j]
+			end
+		end
+		vF + tCur
+		if Len(tLine) > 0
+			vOut + vF
+		end
+	end
+	return vOut
+end
+
+func Slashes(tPath)
+	tOut = ""
+	for i = 1 to Len(tPath)
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end
+
+func Backslashes(tPath)
+	tOut = ""
+	for i = 1 to Len(tPath)
+		if tPath[i] = "/"
+			tOut = tOut + Char(92)
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end

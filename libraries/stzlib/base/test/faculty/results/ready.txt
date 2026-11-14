@@ -1,0 +1,28 @@
+RADAR-TPUSYNC-BUDGET-01 (a): what each support-desk model costs to be ready, on this machine
+medians over the rounds; times in seconds, memory in MB; 'ready' = after the first token, the process's own
+memory before the load subtracted
+
+model         file   cold   cached  reload  first  prefix  loaded  ready  peak   declared
+smollm2-135m  138    0.40   0.36    0.06    0.21   0.15    140     158    332    200
+granite-350m  361    0.97   0.88    0.15    0.45   0.32    364     387    651    450
+qwen25c-0.5b  644    1.40   1.28    0.27    0.58   0.48    649     669    961    800
+qwen3-0.6b    610    1.69   1.56    0.28    0.82   0.58    614     685    1086   700
+granite-1b    1657   4.39   4.04    0.71    2.11   1.45    1660    1710   2404   1800
+qwen25c-1.5b  1807   5.16   4.04    0.80    1.94   1.47    1811    1840   2418   1900
+lfm3-1.7b     1761   4.36   5.00    0.80    2.17   -       1766    1823   2394   2100
+granite42-3b  2140   21.83  9.01    0.91    6.55   3.22    2143    2192   4040   3000
+bolt-e4b-iq2m 3368   65.91  74.24   4.18    48.57  21.51   3375    3459   4826   -
+bolt-e4b      5894   58.24  51.04   11.82   17.17  17.60   5900    5983   7349   6400
+minilm        24     0.12   0.12    0.03    0.04   -       24      29     38     -
+jina          40     0.20   0.19    0.06    0.06   -       41      47     60     -
+
+cold   = load + first token, the file put out of the system's cache before a new process
+cached = load + first token, a new process, the file in the system's cache
+reload = the load again in the same process (digest known, file cached): the cost of bringing an evicted model back
+prefix = reload + the system turn put back from its prefix file + the first token reading only the ticket
+declared = the memory _ticket_app.ring's model list declares for the model, in MB
+
+all 12 files: 18444 MB on disk, 18982 MB ready together
+a budget of 4096 MB holds at most 7 of them ready at once (3685 MB): minilm, jina, smollm2-135m, granite-350m, qwen25c-0.5b, qwen3-0.6b, granite-1b
+a budget of 8192 MB holds at most 9 of them ready at once (7348 MB): minilm, jina, smollm2-135m, granite-350m, qwen25c-0.5b, qwen3-0.6b, granite-1b, lfm3-1.7b, qwen25c-1.5b
+a budget of 16384 MB holds at most 11 of them ready at once (12999 MB): minilm, jina, smollm2-135m, granite-350m, qwen25c-0.5b, qwen3-0.6b, granite-1b, lfm3-1.7b, qwen25c-1.5b, granite42-3b, bolt-e4b-iq2m

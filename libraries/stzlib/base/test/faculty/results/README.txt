@@ -49,3 +49,19 @@ as golden versions fresh1-fr / fresh1-ar, read by probability, CPU unthrottled:
   fresh1-ar          0.21             0.67               1 (24/24)       8-0, P = 0.004, upheld
 Bolt's English win (0.94 against 0.72) holds in French and Arabic. A perfect score on 24 items also says this set may be
 easier than the English one; the floor's keywords are English, which its scores show.
+
+2026-11-14 (RADAR-TPUSYNC-BUDGET-01 (a), ../_measure_ready.haro): what each support-desk model costs to be READY -- from its
+file to its first token -- and the memory it holds then. Twelve files, each in a new process twice: the file put out of the
+system's cache first (cold), then in it (cached); and in the same process, the file loaded again (reload) and the system
+turn put back from a prefix file (prefix). Two rounds, the second in the reverse order. Table: ready.txt; rows: ready.tsv.
+What it shows:
+  - the loader READS the whole file into memory after hashing it; it does not map it. Ready memory is the file's size plus
+    5 to 92 MB, on every model, and does not move between rounds.
+  - the SHA-256 check is most of a load: a reload in the same process (the digest kept) takes a third to two fifths of a
+    new process's load (0.34 to 0.44 on 11 files), and a file of up to 2 GB put out of the cache loads at most 30 percent
+    slower than a cached one, because the hash, not the disk, sets the pace.
+  - the process's PEAK, over the load and the first token, is 1.2 to 2.1 times the ready memory: 2,404 MB for granite-1b, 7,349 MB for bolt-e4b.
+  - a prefix file comes back in 12 to 600 ms and cuts the first token to the ticket's own tokens (granite42-3b 6.6 s to
+    3.2 s with the reload counted). LFM3 refuses to save one by design (its convolution state is not in the format).
+  - the times of the files over 2 GB moved up to three times between rounds on this machine, shared with other sessions;
+    the ranges are in ready.tsv. The memory figures did not move.
