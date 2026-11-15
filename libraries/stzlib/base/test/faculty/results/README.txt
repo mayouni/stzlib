@@ -159,3 +159,8 @@ realreq.txt.
     a remark, two document corrections stopped counting as requests, and two survey answers became information.
     REMARK: heads 141 (always "yes" 116), Bolt 95, the gate passes 1. REQUEST (34 of 175): heads 143 (always "no" 141),
     Bolt 156, the gate 152 passing 93 to Bolt -- 2.37 s an item against 4.41, 46 % saved for 4 items. The split holds.
+  - 2026-11-15, all 220: the 45 items held back under one client's AI charter were labelled by Claude at the author's
+    request, read only after a stricter local mask (names, acronyms, job titles, long numbers). REMARK (147 of 220): heads
+    182 (always "yes" 147), Bolt 119. REQUEST (39 of 220): heads 188 (always "no" 181), Bolt 197, the gate 188 passing 95
+    to Bolt -- 1.89 s an item against 4.32, 56 % saved but 9 items lost, a worse trade than on 175: the request threshold
+    chosen inside the training fifths does not carry to the new project's documents.

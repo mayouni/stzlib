@@ -1,26 +1,26 @@
 FABRIC-SPECIALIST-02 (a): the specialist heads and the gate to Bolt on REAL requests
 
-175 items from the author's own consulting projects (mails, meeting minutes, feedback on documents),
+220 items from the author's own consulting projects (mails, meeting minutes, feedback on documents),
 labelled by Claude with proper nouns masked (the author may correct the labels); the items stay private.
-116 are a client's or partner's own words, 59 are noise (headings, mail headers, form questions, a sales script).
+147 are a client's or partner's own words, 73 are noise (headings, mail headers, form questions, a sales script).
 Every answer below is held out: 5 folds, each item answered by heads trained on the other four fifths.
 
-TASK remark   (116 yes, 59 no)
+TASK remark   (147 yes, 73 no)
                             right       yes found   yes right   items to Bolt
-  always 'yes'              116/175     
-  heads alone               141/175     108/116     108/134     0
-  Bolt alone                95/175      42/116      42/48       175
-  heads, gate to Bolt       141/175     108/116     108/134     1
-  chosen inside the training fifths: multi+ngram lr 0.20 x40 thr 0.52; multi+ngram lr 0.05 x40 thr 0.51; multi+ngram lr 0.05 x40 thr 0.50; multi+ngram lr 0.05 x40 thr 0.51; multi+ngram lr 0.50 x25 thr 0.52
+  always 'yes'              147/220     
+  heads alone               182/220     139/147     139/169     0
+  Bolt alone                119/220     52/147      52/58       220
+  heads, gate to Bolt       182/220     138/147     138/167     4
+  chosen inside the training fifths: multi+ngram lr 0.20 x40 thr 0.50; multi+ngram lr 0.20 x40 thr 0.51; multi+ngram lr 0.20 x10 thr 0.51; multi+ngram lr 0.05 x40 thr 0.52; multi+ngram lr 0.20 x10 thr 0.51
 
-TASK request   (34 yes, 141 no)
+TASK request   (39 yes, 181 no)
                             right       yes found   yes right   items to Bolt
-  always 'no'               141/175     
-  heads alone               143/175     9/34        9/16        0
-  Bolt alone                156/175     21/34       21/27       175
-  heads, gate to Bolt       152/175     16/34       16/21       93
-  chosen inside the training fifths: multi+ngram lr 0.20 x40 thr 0.69; multi lr 0.05 x40 thr 0.89; multi+ngram lr 0.20 x40 thr 0.91; multi lr 0.05 x40 thr 0.83; multi lr 0.50 x25 thr 0.98
+  always 'no'               181/220     
+  heads alone               188/220     9/39        9/11        0
+  Bolt alone                197/220     24/39       24/32       220
+  heads, gate to Bolt       188/220     15/39       15/23       95
+  chosen inside the training fifths: multi+ngram lr 0.20 x40 thr 0.95; multi+ngram lr 0.20 x40 thr 0.95; multi+ngram lr 0.20 x40 thr 0.88; ngram lr 0.50 x25 thr 0.79; multi+ngram lr 0.20 x40 thr 0.93
 
 COSTS per item
-  heads: the multilingual embedding 24.2 ms + n-grams 0.2 ms, 119 MB held
-  Bolt: median 4412 ms per question (5,983 MB ready, results/ready.txt)
+  heads: the multilingual embedding 23.4 ms + n-grams 0.2 ms, 119 MB held
+  Bolt: median 4317 ms per question (5,983 MB ready, results/ready.txt)
