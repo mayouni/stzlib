@@ -7,7 +7,13 @@
 //!   testoor graph FILE.haro [--haro PATH] [--out FILE.json]     or     testoor graph --lines LINES.txt [--root DIR] [--out FILE.json]
 //!   testoor impact GRAPH.json --changed ID [--changed ID ...] [--tours FOLDER [--suffix S]] [--protocol 2]
 //!   testoor probe FOLDER [--haro PATH] [--out FILE.json]
+//!   testoor report LOGBOOK.json --graph GRAPH.json [--impact IMPACT.json ...] [--title T] [--stamp LINE ...] [--out FILE.md]
 //!   testoor version
+//!
+//! `report` writes the evidence report (testoor_report.zig, TESTOOR_PROTOCOL_3.md 6.9): the ladder, what no tour ran, what
+//! only a failing tour ran, the tours, what each change reaches, where the evidence is thinnest, and what it does not claim,
+//! from a logbook `walk --ladder --graph` wrote, that graph, and the impact records named. `--stamp` lines say what it holds
+//! for: the commit, the runtime, the judge.
 //!
 //! `probe` puts a call in each function and method of the `.haro` files under FOLDER, where they stand, so a walk of the
 //! codebase's tours says which each reached (testoor_probe.zig, TESTOOR_PROTOCOL_3.md 6.8); it refuses a folder in a git
@@ -60,6 +66,7 @@ const A = @import("testoor_api.zig");
 const Rd = @import("testoor_reader.zig");
 const G = @import("testoor_graph.zig");
 const P = @import("testoor_probe.zig");
+const Rp = @import("testoor_report.zig");
 
 const version_line = "testoor 3.5 (protocol 2; the Zig core)";
 
@@ -77,7 +84,7 @@ fn say(s: []const u8) void {
 }
 
 fn usage() noreturn {
-    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor graph FILE.haro [--haro PATH] [--out FILE.json] | --lines LINES.txt [--out FILE.json]\n       testoor impact GRAPH.json --changed ID [--changed ID ...] [--tours FOLDER [--suffix S]] [--protocol 2]\n       testoor probe FOLDER [--haro PATH] [--out FILE.json]\n       testoor version\n");
+    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor graph FILE.haro [--haro PATH] [--out FILE.json] | --lines LINES.txt [--out FILE.json]\n       testoor impact GRAPH.json --changed ID [--changed ID ...] [--tours FOLDER [--suffix S]] [--protocol 2]\n       testoor probe FOLDER [--haro PATH] [--out FILE.json]\n       testoor report LOGBOOK.json --graph GRAPH.json [--impact IMPACT.json ...] [--title T] [--stamp LINE ...] [--out FILE.md]\n       testoor version\n");
     std.process.exit(2);
 }
 
@@ -116,6 +123,51 @@ fn refuse(a: std.mem.Allocator, mode: Mode, why: []const u8) noreturn {
 fn fail(why: []const u8) noreturn {
     std.fs.File.stderr().writeAll(why) catch {};
     std.process.exit(2);
+}
+
+/// `testoor report`: the evidence report, one page a person reads, from a walk's logbook, its graph and impact records
+fn report(a: std.mem.Allocator, args: []const []const u8) !void {
+    const logbook_file = args[2];
+    var graph_file: []const u8 = "";
+    var out: []const u8 = "";
+    var title: []const u8 = "";
+    var impacts: std.ArrayList(J.Value) = .empty;
+    var stamp: std.ArrayList([]const u8) = .empty;
+    var i: usize = 3;
+    while (i < args.len) : (i += 1) {
+        if (i + 1 >= args.len) usage();
+        const v = args[i + 1];
+        if (eq(args[i], "--graph")) {
+            graph_file = v;
+        } else if (eq(args[i], "--out")) {
+            out = v;
+        } else if (eq(args[i], "--title")) {
+            title = v;
+        } else if (eq(args[i], "--stamp")) {
+            try stamp.append(a, v);
+        } else if (eq(args[i], "--impact")) {
+            const t = std.fs.cwd().readFileAlloc(a, v, 1 << 30) catch |e|
+                fail(try std.fmt.allocPrint(a, "testoor report: cannot read {s}: {s}" ++ "\n", .{ v, @errorName(e) }));
+            try impacts.append(a, J.parse(a, t) catch fail(try std.fmt.allocPrint(a, "testoor report: {s} is not JSON" ++ "\n", .{v})));
+        } else usage();
+        i += 1;
+    }
+    if (graph_file.len == 0) usage();
+    const lt = std.fs.cwd().readFileAlloc(a, logbook_file, 1 << 30) catch |e|
+        fail(try std.fmt.allocPrint(a, "testoor report: cannot read {s}: {s}" ++ "\n", .{ logbook_file, @errorName(e) }));
+    const lb = J.parse(a, lt) catch fail(try std.fmt.allocPrint(a, "testoor report: {s} is not JSON" ++ "\n", .{logbook_file}));
+    const gt = std.fs.cwd().readFileAlloc(a, graph_file, 1 << 30) catch |e|
+        fail(try std.fmt.allocPrint(a, "testoor report: cannot read {s}: {s}" ++ "\n", .{ graph_file, @errorName(e) }));
+    const g = G.fromValue(a, J.parse(a, gt) catch fail("testoor report: the graph is not JSON" ++ "\n")) catch
+        fail("testoor report: the graph is not a graph record" ++ "\n");
+    const page = Rp.markdown(a, lb, g, impacts.items, .{ .title = title, .stamp = stamp.items }) catch |e|
+        fail(try std.fmt.allocPrint(a, "testoor report: {s} has no ladder -- walk with --ladder and --graph ({s})" ++ "\n", .{ logbook_file, @errorName(e) }));
+    if (out.len > 0) {
+        std.fs.cwd().writeFile(.{ .sub_path = out, .data = page }) catch |e|
+            fail(try std.fmt.allocPrint(a, "testoor report: cannot write {s}: {s}" ++ "\n", .{ out, @errorName(e) }));
+    } else {
+        say(page);
+    }
 }
 
 /// haro graph's first block for one file, run from the file's folder
@@ -171,8 +223,36 @@ fn probe(a: std.mem.Allocator, args: []const []const u8) !void {
         fail(try std.fmt.allocPrint(a, "testoor probe: cannot read {s}: {s}" ++ "\n", .{ folder, @errorName(e) }));
     if (files.len == 0) fail(try std.fmt.allocPrint(a, "testoor probe: no .haro file under {s}" ++ "\n", .{folder}));
 
+    // the unit: every file of the folder loaded by one, read by haro graph once before any file changes, so a call from one
+    // file into another is an edge of the record (testoor_probe.zig, ownRecord)
+    var unit = T.Buf.init(a);
+    try unit.s("# written by testoor probe for one reading of haro graph, and removed after it" ++ "\n");
+    for (files) |rel| {
+        try unit.s("load ");
+        try unit.js(rel);
+        try unit.s("\n");
+    }
+    const unit_path = try std.fs.path.join(a, &.{ folder, "_testoor_unit.haro" });
+    std.fs.cwd().writeFile(.{ .sub_path = unit_path, .data = unit.list.items }) catch |e|
+        fail(try std.fmt.allocPrint(a, "testoor probe: cannot write {s}: {s}" ++ "\n", .{ unit_path, @errorName(e) }));
+    const unit_argv = [_][]const u8{ haro, "graph", "_testoor_unit.haro" };
+    const unit_run = std.process.Child.run(.{
+        .allocator = a,
+        .argv = &unit_argv,
+        .cwd = folder,
+        .max_output_bytes = 1 << 30,
+    }) catch |e| fail(try std.fmt.allocPrint(a, "testoor probe: cannot run {s}: {s}" ++ "\n", .{ haro, @errorName(e) }));
+    if (std.mem.indexOf(u8, unit_run.stdout, "FILE|") == null) {
+        std.fs.cwd().deleteFile(unit_path) catch {};
+        fail(try std.fmt.allocPrint(a, "testoor probe: haro graph printed no unit for the folder" ++ "\n" ++ "{s}", .{unit_run.stderr}));
+    }
+    // read now, while the files are as the codebase has them: the face reads them for calls by a name built at run time
+    const subject = try Hg.normPath(a, folder);
+    const unit_record = try Hg.fromLinesWith(a, unit_run.stdout, folder, .{ .subject = subject, .tops = false });
+    std.fs.cwd().deleteFile(unit_path) catch {};
+
     var ids: std.ArrayList([]const u8) = .empty;
-    var lines = T.Buf.init(a);
+    var own: std.ArrayList(P.Own) = .empty;
     var notes = T.Buf.init(a);
     var n_skipped: usize = 0;
     var crlf = false;
@@ -181,13 +261,7 @@ fn probe(a: std.mem.Allocator, args: []const []const u8) !void {
     for (files) |rel| {
         const path = try std.fs.path.join(a, &.{ folder, rel });
         const blk = try graphBlock(a, haro, path);
-        try lines.s("FILE|");
-        try lines.s(rel);
-        try lines.s("\n");
-        for (blk.lines) |l| {
-            try lines.s(l);
-            try lines.s("\n");
-        }
+        for (blk.defs) |d| try own.append(a, .{ .def = d, .file = rel });
         if (blk.defs.len == 0) continue;
         const src = std.fs.cwd().readFileAlloc(a, path, 256 * 1024 * 1024) catch |e|
             fail(try std.fmt.allocPrint(a, "testoor probe: cannot read {s}: {s}" ++ "\n", .{ path, @errorName(e) }));
@@ -233,7 +307,7 @@ fn probe(a: std.mem.Allocator, args: []const []const u8) !void {
     }
     if (wrong.list.items.len > 0) fail(try std.fmt.allocPrint(a, "testoor probe: the check failed, and the copy under {s} is probed as it stands:" ++ "\n" ++ "{s}", .{ folder, wrong.list.items }));
 
-    const record = try Hg.fromLinesWith(a, lines.list.items, folder, .{ .subject = try Hg.normPath(a, folder), .tops = false });
+    const record = try P.ownRecord(a, unit_record, own.items, subject);
     if (out.len > 0) {
         std.fs.cwd().writeFile(.{ .sub_path = out, .data = record }) catch |e|
             fail(try std.fmt.allocPrint(a, "testoor probe: cannot write {s}: {s}" ++ "\n", .{ out, @errorName(e) }));
@@ -412,6 +486,7 @@ pub fn main() !void {
     if (args.len >= 3 and eq(args[1], "graph")) return graph(a, args);
     if (args.len >= 3 and eq(args[1], "impact")) return impact(a, args);
     if (args.len >= 3 and eq(args[1], "probe")) return probe(a, args);
+    if (args.len >= 3 and eq(args[1], "report")) return report(a, args);
     if (args.len < 3 or (!eq(args[1], "run") and !eq(args[1], "walk"))) usage();
     const walking = eq(args[1], "walk");
     var suffix: []const u8 = "_narrated.haro";

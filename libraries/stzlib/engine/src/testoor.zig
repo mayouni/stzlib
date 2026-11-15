@@ -21,6 +21,7 @@ pub const property = @import("testoor_property.zig");
 pub const reader = @import("testoor_reader.zig");
 pub const harograph = @import("testoor_harograph.zig");
 pub const probe = @import("testoor_probe.zig");
+pub const report = @import("testoor_report.zig");
 
 test {
     _ = ladder;
@@ -29,6 +30,7 @@ test {
     _ = reader;
     _ = harograph;
     _ = probe;
+    _ = report;
     _ = clock;
     _ = graph;
     _ = routes;

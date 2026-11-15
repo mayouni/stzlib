@@ -23,6 +23,7 @@ const Ev = @import("testoor_evidence.zig");
 const Rd = @import("testoor_reader.zig");
 const Hg = @import("testoor_harograph.zig");
 const P = @import("testoor_probe.zig");
+const Rp = @import("testoor_report.zig");
 
 const Allocator = std.mem.Allocator;
 
@@ -342,7 +343,39 @@ test "testoor probe: a call before the first statement of each body, no line mov
         }
         try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "expected_skipped.txt" }), try b.done());
         const root = try std.fs.path.join(a, &.{ dir, "haro/probe", case, "src" });
-        try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "expected_graph.json" }), try Hg.fromLinesWith(a, lines, root, .{ .subject = "src", .tops = false }));
+        // the record: cut from the unit's record -- one file that loads none is its own unit -- to the file's definitions
+        var own: std.ArrayList(P.Own) = .empty;
+        for (blk.defs) |d| try own.append(a, .{ .def = d, .file = name });
+        const unit = try Hg.fromLinesWith(a, lines, root, .{ .subject = "src", .tops = false });
+        try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "expected_graph.json" }), try P.ownRecord(a, unit, own.items, "src"));
+    }
+    try std.testing.expectEqual(@as(usize, 0), failures);
+}
+
+test "testoor report: the evidence report from a logbook, its graph and an impact (6.9)" {
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const dir = try goldenDir(a);
+    failures = 0;
+    const cases = try caseNames(a, dir, "haro/report");
+    try std.testing.expect(cases.len >= 1);
+    for (cases) |case| {
+        const lb = try J.parse(a, try readAll(a, dir, try std.fs.path.join(a, &.{ "haro/report", case, "logbook.json" })));
+        const g = try G.fromValue(a, try J.parse(a, try readAll(a, dir, try std.fs.path.join(a, &.{ "haro/report", case, "graph.json" }))));
+        const meta = try J.parse(a, try readAll(a, dir, try std.fs.path.join(a, &.{ "haro/report", case, "meta.json" })));
+        var stamp: std.ArrayList([]const u8) = .empty;
+        if (meta.get("stamp")) |s| for (s.items()) |l| try stamp.append(a, l.str_());
+        // the impact records: impact.json, then impact2.json, ... as the case holds them
+        var impacts: std.ArrayList(J.Value) = .empty;
+        var k: usize = 1;
+        while (true) : (k += 1) {
+            const name = if (k == 1) "impact.json" else try std.fmt.allocPrint(a, "impact{d}.json", .{k});
+            const t = (try readOpt(a, dir, try std.fs.path.join(a, &.{ "haro/report", case, name }))) orelse break;
+            try impacts.append(a, try J.parse(a, t));
+        }
+        const page = try Rp.markdown(a, lb, g, impacts.items, .{ .title = if (meta.get("title")) |t| t.str_() else "", .stamp = stamp.items });
+        try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/report", case, "expected.md" }), page);
     }
     try std.testing.expectEqual(@as(usize, 0), failures);
 }

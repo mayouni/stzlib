@@ -388,7 +388,11 @@ The ladder's grade 1, **observed**, needs to know which functions a tour ran (se
   what it finished, and read a call to `TestoorProbeHit` in each probed definition. Else probe exits 2 and names the file.
 - **A copy, never a repository**: a folder in a git work tree is refused, and so is one probed already.
 - **The record** (`--out`): the graph record of what was probed, subject the folder, for `--graph`. Its nodes are the files'
-  functions and methods; a file's own statements are no node of it, since the probe does not observe them.
+  functions and methods, each with the file and line its own file gave; a file's own statements are no node of it, since
+  the probe does not observe them. Its EDGES come from one reading of a unit that loads every file of the folder, made before
+  any file changes: haro graph on one file alone prints no line for a call into another file (`FoundryField(...)` in
+  `project.haro`, measured 2026-11-15), so a record of files read one by one missed every call between them, and read 19
+  Foundry functions as open. An edge is kept when both its ends are the codebase's; `complete` and `why` are the unit's.
 
 **The side file.** Every walk the core makes names a file of its own to the tour, by `TESTOOR_NODES`, and a child the tour
 starts inherits it. A `[testoor node ID]` line written there is the tour's, as if printed (protocol 2 section 3); nothing else
@@ -416,6 +420,38 @@ globals are named nowhere in stzlib; a codebase that defined one would shadow th
   51 to 103 of them, its child programs included. `PageShort` and `PageBodyList` stand on grade 1, reached only by
   `af6_page`, which diverged. `FoundryHex2` (`project.haro` line 385) stands on grade 0: it is called only to write a
   control character other than a tab, a line feed or a carriage return into a JSON text, and no guard writes one.
+
+### 6.9 The evidence report: `testoor report`
+
+    testoor report LOGBOOK.json --graph GRAPH.json [--impact IMPACT.json ...] [--title T] [--stamp LINE ...] [--out FILE.md]
+
+writes the evidence report (`engine/src/testoor_report.zig`) as one Markdown page a person reads, from a logbook that
+`walk --ladder --graph` wrote, the graph it was judged against, and the impact records of the changes named. Its sections
+are the parts of business lead offer 1 that are data (stz-business, `board/offers/testoor-evidence-report.md` section 5):
+
+| section | what it holds |
+|---|---|
+| the stamp | the `--stamp` lines: the commit, the runtime, the judge -- the caller states them, the report holds for them |
+| 1. the ladder | every function's grade, counted in all and file by file; a grade the ladder does not carry is not shown, `named` always |
+| 2. what no tour ran | the functions at grade 0, each with the functions that call it |
+| 3. run only by a tour that did not keep its claims | the functions at grade 1, each with the tours that ran it and their state |
+| 4. the tours | each tour's state, its claims by state, and how many functions it ran |
+| 5. what a change reaches | each impact record: the reach the compiler bound, the reach the open functions widen, the tours to walk again, and why every tour is walked again when the graph is not complete |
+| 6. where the evidence is thinnest | the functions below exemplified, the most called first, five of them: where a check buys most |
+| 7. what the report does not claim | seven lines, the same in every report |
+
+The report adds no figure the logbook, the graph and the impact records do not hold, except counts of what they list.
+Callers are DIRECT callers: a count of every function that depends on one at any depth is a walk of the graph per function,
+and on a library-sized graph (48,939 nodes) that is not a report's cost. The reading for a person -- one page on what is
+proven and what is not -- is the business desk's to shape (offer section 8); section 6 is the list it is read from.
+
+**Measured on the Foundry** (2026-11-15, the same copy and runtime as 6.8): probe 101 s, the walk 351 s, two impact
+records, and the report in 62 to 71 ms -- 79 lines. Its figures: 117 functions, 114 exemplified, 2 observed, 1
+named; `FoundryHex2` the one no tour ran, called by `FoundryJson`; a change to `FoundryField` reaches 39 functions by calls
+the compiler bound, and every guard is walked again because the unit's graph is not complete, which the report says with
+its reason (the library's: 12 functions haro.exe could not finish, 185 functions calling a method by a name no method carries, 160
+dispatching by a name built at run time). The same change read from one guard's unit reached 22, and from the files read one by one, 4:
+the record's edges come from the whole folder's unit for that reason (6.8).
 
 ## 7. Conformance
 
@@ -445,6 +481,7 @@ Written by hand from section 2 before the code, and reproduced by the core on it
 | `haro/graph/G2_a_call_by_a_built_name_opens_its_function` | 6.6: the unit's file read: `call tName(nX)` opens `Dispatch`; the word in a string and a comment does not |
 | `haro/impact/I1_names_select_a_tour` | 6.7: a complete graph, a change to `Vat`: the tour calling `Gross` is selected and the one calling `Label` skipped |
 | `haro/impact/I2_an_open_node_selects_every_tour` | 6.7: the same change over G2's graph, `Dispatch` open: the reach widened by it, it caps itself, every tour selected |
+| `haro/report/E1_a_small_codebase` | 6.9: five functions in two files, two tours, one change: every section of the report, the three functions below exemplified ranked by their callers -- written by hand before the module, and the module matched it on its first build |
 | `haro/probe/P1_a_call_before_each_body` | 6.8: eight functions and methods each given a call before the first statement of its body, with no line moved, the probe file, nothing left unprobed, and the record of what was probed, which holds no node for the file's own statements -- written by hand; the module runs on haro.exe with the same output plain, probed, and probed with a side file, which then holds the eight |
 | `haro/judge/H4_a_picture_report_is_not_a_verdict` | 6.2: a narrated Haro tour whose GIVEN line says a picture DOES NOT MATCH, its two THEN lines PASS: kept -- the picture rule had read the GIVEN line as a diverged claim |
 | `haro/judge/H2_a_repeated_claim_is_a_second_check` | 6.4: an unknown-dialect tour printing `FAIL  x`, then `ok  x`, then another claim: three claims, the tour diverged -- protocol 2's landing read it as kept |
