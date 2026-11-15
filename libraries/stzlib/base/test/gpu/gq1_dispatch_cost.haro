@@ -1,0 +1,96 @@
+# gq1_dispatch_cost.haro -- GQ1's first measurement: what one dispatch costs the device, with no work in it.
+#
+# A fusion merges passes; the most it can save is the dispatches it removes times what one dispatch costs when it
+# does almost nothing. GQ0 found the backbone's device wait about 2 ms above zero at no tokens (62 dispatches);
+# this measures that cost directly. One batch of K dispatches of a kernel that adds 1 to 256 numbers, in one
+# submit, as the backbone sends them: the CPU's encoding (begin to end) and the whole (begin to the sync), least of
+# nine, for K from 1 to 256. Two orders: every dispatch on the SAME buffer (each waits for the one before, as the
+# backbone's do) and on eight buffers in turn (the device may overlap them). The slope is the cost per dispatch.
+load "../../stzBase.ring"
+
+if StzEngineGpuInit($tStzGpuRuntime) = 0
+	? "  [SKIP] no device: " + StzEngineGpuLastError()
+	Shutdown(0)
+end
+tK = "struct T { xoff : u32, p0 : u32, p1 : u32, p2 : u32 }" + Char(10)
+tK += "@group(0) @binding(0) var<uniform> t : T;" + Char(10)
+tK += "@group(0) @binding(1) var<storage, read_write> a : array<f32>;" + Char(10)
+tK += "@compute @workgroup_size(64)" + Char(10)
+tK += "fn main(@builtin(global_invocation_id) id : vec3<u32>) {" + Char(10)
+tK += "  let i = id.x + t.xoff * 64u;" + Char(10)
+tK += "  if (i < arrayLength(&a)) { a[i] = a[i] + 1.0; }" + Char(10)
+tK += "}" + Char(10)
+nK = StzEngineGpuKernelCompile(tK)
+if nK = 0
+	? "  [FAIL] the kernel did not compile: " + StzEngineGpuLastError()
+	Shutdown(1)
+end
+vZeros = []
+for i = 1 to 256
+	vZeros + 0
+end
+vBufs = []
+for i = 1 to 8
+	nB = StzEngineGpuBufferNew(1024)
+	StzEngineGpuBufferUploadList(nB, vZeros)
+	vBufs + nB
+end
+StzEngineGpuSync()
+
+? "-- GQ1: the device's cost of a dispatch that does almost nothing (RTX 3050, haro.exe, least of 9) --"
+? "  K | same buffer: encode, whole | eight buffers: encode, whole"
+vK = [ 1, 2, 4, 8, 16, 32, 62, 128, 256 ]
+vSame = []
+vEight = []
+for i = 1 to Len(vK)
+	vS = Run(nK, vBufs, vK[i], 1)
+	vE = Run(nK, vBufs, vK[i], 8)
+	vSame + vS[2]
+	vEight + vE[2]
+	? "  " + String(vK[i]) + " | " + Us(vS[1]) + ", " + Us(vS[2]) + " | " + Us(vE[1]) + ", " + Us(vE[2])
+end
+nN = Len(vK)
+? ""
+? "  per dispatch, from K = 1 to 256: same buffer " + Us(IntDiv(vSame[nN] - vSame[1], 255)) + ", eight buffers " + Us(IntDiv(vEight[nN] - vEight[1], 255))
+? "  per dispatch, from K = 1 to 62:  same buffer " + Us(IntDiv(vSame[7] - vSame[1], 61)) + ", eight buffers " + Us(IntDiv(vEight[7] - vEight[1], 61))
+for i = 1 to 8
+	StzEngineGpuBufferFree(vBufs[i])
+end
+StzEngineGpuShutdown()
+
+# One batch of nCount dispatches over nSpread buffers in turn; [ encode ns, whole ns ], least of nine after a warm one.
+func Run(nKern, vB, nCount, nSpread)
+	nEnc = 1000000000000
+	nAll = 1000000000000
+	for r = 1 to 10
+		nT0 = StzEngineWatchTimestampNs()
+		StzEngineGpuBatchBegin()
+		for d = 1 to nCount
+			StzEngineGpuDispatch(nKern, [ vB[(d - 1) % nSpread + 1] ], 4, 1)
+		end
+		StzEngineGpuBatchEnd()
+		nT1 = StzEngineWatchTimestampNs()
+		StzEngineGpuSync()
+		nT2 = StzEngineWatchTimestampNs()
+		if r > 1
+			nEnc = Smaller(nEnc, nT1 - nT0)
+			nAll = Smaller(nAll, nT2 - nT0)
+		end
+	end
+	return [ nEnc, nAll ]
+end
+
+func Us(nNs)
+	return String(IntDiv(nNs, 1000)) + " us"
+end
+
+func IntDiv(nA, nB)
+	return (nA - nA % nB) / nB
+end
+
+func Smaller(nA, nB)
+	if nA < nB
+		return nA
+	end
+	return nB
+end

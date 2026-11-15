@@ -611,6 +611,50 @@ pub fn mmSourceW(v: usize, comptime bias: bool, comptime wf16: bool) []const u8 
     };
 }
 
+/// GQ1: the bias variant v writing THREE outputs. Column c of the product goes to output c / w at (r, c % w), where
+/// w = p.has_bias >> 1 (bit 0 still says whether a bias is read). One product of rows x k x 3w replaces three of
+/// rows x k x w -- the backbone's Q, K and V -- and each projection still lands in a buffer of its own, so nothing
+/// that reads them changes. Bindings: a 2, b 3, bias 4, the three outputs 5, 6 and 7.
+pub fn mmSourceTri(v: usize, comptime wf16: bool) []const u8 {
+    return switch (v) {
+        MM_TILE8 => comptime triStore(mmTileSource(8, true, wf16)),
+        MM_REG2 => comptime triStore(mmRegSource(2, true, false, wf16)),
+        MM_REG4 => comptime triStore(mmRegSource(4, true, false, wf16)),
+        MM_BROKEN => comptime triStore(mmRegSource(2, true, true, wf16)),
+        MM_REG4S => comptime triStore(mmStridedSource(4, 4, 16, true, wf16)),
+        MM_REG8 => comptime triStore(mmStridedSource(8, 8, 8, true, wf16)),
+        MM_REG8P => comptime triStore(mmStridedSourceP(8, 8, 8, true, true, wf16)),
+        else => comptime triStore(mmTileSource(16, true, wf16)),
+    };
+}
+
+const TRI_ONE_OUT = "@group(0) @binding(5) var<storage, read_write> cc : array<f32>;";
+const TRI_THREE_OUT = "@group(0) @binding(5) var<storage, read_write> cc0 : array<f32>;\n" ++
+    "@group(0) @binding(6) var<storage, read_write> cc1 : array<f32>;\n" ++
+    "@group(0) @binding(7) var<storage, read_write> cc2 : array<f32>;";
+const TRI_BIAS_ONE = "      if (p.has_bias == 1u) { v = v + bias[c]; }";
+const TRI_BIAS_BIT = "      if ((p.has_bias & 1u) == 1u) { v = v + bias[c]; }";
+const TRI_STORE_ONE = "      cc[r * p.n + c] = v;";
+const TRI_STORE_THREE = "      { let stz_w = p.has_bias >> 1u; let stz_o = r * stz_w + (c % stz_w); let stz_blk = c / stz_w; " ++
+    "if (stz_blk == 0u) { cc0[stz_o] = v; } else if (stz_blk == 1u) { cc1[stz_o] = v; } else { cc2[stz_o] = v; } }";
+
+fn triStore(comptime src: []const u8) []const u8 {
+    @setEvalBranchQuota(20000000);
+    return comptimeReplace(comptimeReplace(comptimeReplace(src, TRI_ONE_OUT, TRI_THREE_OUT), TRI_BIAS_ONE, TRI_BIAS_BIT), TRI_STORE_ONE, TRI_STORE_THREE);
+}
+
+test "the three-output product: every variant's text has three outputs and no single store left" {
+    inline for (.{ MM_GENERIC, MM_TILE8, MM_REG2, MM_REG4, MM_REG4S, MM_REG8, MM_REG8P }) |v| {
+        inline for (.{ false, true }) |h| {
+            const s = comptime mmSourceTri(v, h);
+            try std.testing.expect(std.mem.indexOf(u8, s, "cc2 : array<f32>") != null);
+            try std.testing.expect(std.mem.indexOf(u8, s, "cc[") == null);
+            try std.testing.expect(std.mem.indexOf(u8, s, "(p.has_bias & 1u) == 1u") != null);
+            try std.testing.expect(std.mem.indexOf(u8, s, "stz_blk") != null);
+        }
+    }
+}
+
 fn comptimeReplace(comptime s: []const u8, comptime needle: []const u8, comptime with: []const u8) []const u8 {
     @setEvalBranchQuota(1000000);
     comptime var out: []const u8 = "";

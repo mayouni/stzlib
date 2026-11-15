@@ -1,0 +1,134 @@
+# gq1_backbone_ab.haro -- GQ1's verdict: the backbone forward with Q, K and V as one product, against three.
+#
+# gq1_merge_qkv.haro showed the merged product alone faster (1.6x at 14 tokens, 1.3x at 38, 1.03x at 482). GK4's
+# rule decides whether a merge stays: the WHOLE forward must be faster beyond the clock's noise, or it is removed.
+# So: MiniLM on the RTX 3050, the two arms (StzEngineNeuralBackboneSetMergeQkv 1 and 0) run alternately, eleven
+# turns each, at four lengths, the least and the median of each. The gather phase is the control -- the merge does
+# not touch it, so if it moves the clock moved. And before any clock, the two arms must agree: the embeddings'
+# cosine, and the dispatch count, which is immune to load (62 three ways, 50 one way).
+load "../../stzBase.ring"
+
+tModels = SysGet("STZ_MODELS_DIR")
+if tModels = ""
+	tModels = $tStzLibDir + "/models"
+end
+$nPass = 0
+$nFail = 0
+if StzEngineNeuralModelLoad(tModels + "/all-MiniLM-L6-v2.Q8_0.gguf") != 1
+	? "  [SKIP] MiniLM not found in " + tModels + " (load status " + String(StzEngineNeuralModelLoadStatus()) + ")"
+	Shutdown(0)
+end
+nTurns = 11
+
+? "-- GQ1: the backbone forward, Q K V merged against split (MiniLM, RTX 3050, haro.exe, alternated, " + String(nTurns) + " turns) --"
+vReps = [ 3, 6, 13, 40 ]
+for i = 1 to Len(vReps)
+	tText = ""
+	for j = 1 to vReps[i]
+		tText += "the quick brown fox jumps over the lazy dog and runs away "
+	end
+	nTok = StzEngineNeuralTokenize(tText)
+	StzEngineNeuralBackboneSetMergeQkv(0)
+	vSplit = StzEngineNeuralBackboneEmbed(tText)
+	nDispSplit = StzEngineNeuralBackboneDispatches()
+	StzEngineNeuralBackboneSetMergeQkv(1)
+	vMerged = StzEngineNeuralBackboneEmbed(tText)
+	nDispMerged = StzEngineNeuralBackboneDispatches()
+	? ""
+	? "  " + String(nTok) + " tokens"
+	chk("both arms answered " + String(Len(vSplit)) + " dimensions", Len(vSplit) = 384 and Len(vMerged) = 384)
+	if Len(vSplit) = 384 and Len(vMerged) = 384
+		nCos = 0.0f
+		for k = 1 to 384
+			nCos += Float(vSplit[k]) * Float(vMerged[k])
+		end
+		chk("the embeddings agree: cosine " + String(nCos) + " (at least 0.999999)", nCos >= 0.999999f)
+	end
+	chk("the dispatch count falls by 12 (" + String(nDispSplit) + " -> " + String(nDispMerged) + ")", nDispSplit - nDispMerged = 12)
+	vS = []
+	vM = []
+	vGs = []
+	vGm = []
+	for r = 1 to nTurns
+		vT = Turn(tText, 0)
+		vS + vT[1]
+		vGs + vT[2]
+		vT = Turn(tText, 1)
+		vM + vT[1]
+		vGm + vT[2]
+	end
+	nSmin = Least(vS)
+	nMmin = Least(vM)
+	nSmed = Median(vS)
+	nMmed = Median(vM)
+	nWins = 0
+	for r = 1 to nTurns
+		if vM[r] < vS[r]
+			nWins += 1
+		end
+	end
+	? "    whole forward, least: split " + Us(nSmin) + ", merged " + Us(nMmin) + "  (" + Pct(nSmin - nMmin, nSmin) + " less)"
+	? "    whole forward, median: split " + Us(nSmed) + ", merged " + Us(nMmed) + "  (" + Pct(nSmed - nMmed, nSmed) + " less)"
+	? "    merged faster in " + String(nWins) + " of " + String(nTurns) + " turns; control (gather, untouched): median " + Us(Median(vGs)) + " vs " + Us(Median(vGm))
+end
+StzEngineNeuralBackboneSetMergeQkv(1)
+StzEngineNeuralModelFree()
+? ""
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+Shutdown($nFail)
+
+# One forward with the merge on or off: [ whole ms, gather ms ] as the engine timed them.
+func Turn(tText, nOn)
+	StzEngineNeuralBackboneSetMergeQkv(nOn)
+	StzEngineNeuralBackboneEmbed(tText)
+	return [ StzEngineNeuralBackbonePhaseMs(4), StzEngineNeuralBackbonePhaseMs(0) ]
+end
+
+func Least(vX)
+	nB = vX[1]
+	for i = 2 to Len(vX)
+		if vX[i] < nB
+			nB = vX[i]
+		end
+	end
+	return nB
+end
+
+# the middle value of an odd-length list (a copy is sorted by selection)
+func Median(vX)
+	vC = []
+	for i = 1 to Len(vX)
+		vC + vX[i]
+	end
+	nN = Len(vC)
+	for i = 1 to nN
+		nAt = i
+		for j = i + 1 to nN
+			if vC[j] < vC[nAt]
+				nAt = j
+			end
+		end
+		xT = vC[i]
+		vC[i] = vC[nAt]
+		vC[nAt] = xT
+	end
+	return vC[(nN + 1) / 2]
+end
+
+func Us(nMs)
+	return String(Floor(nMs * 1000.0f)) + " us"
+end
+
+func Pct(nPart, nWhole)
+	return String(Floor(nPart * 1000.0f / nWhole) / 10.0f) + "%"
+end
+
+func chk(tWhat, bOk)
+	if bOk
+		$nPass += 1
+		? "    [OK] " + tWhat
+	else
+		$nFail += 1
+		? "    [FAIL] " + tWhat
+	end
+end

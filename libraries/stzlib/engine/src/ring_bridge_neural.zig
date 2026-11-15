@@ -487,6 +487,14 @@ fn ring_BackboneDispatches(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retnumber(p, nbb.neural_backbone_dispatches());
 }
 
+// GQ1: Q, K and V as one product (1) or three (0) -- the A/B switch; MergeQkv() reads it
+fn ring_BackboneSetMergeQkv(p: *anyopaque) callconv(.c) void {
+    nbb.neural_backbone_set_merge_qkv(@intFromFloat(R.ring_vm_api_getnumber(p, 1)));
+}
+fn ring_BackboneMergeQkv(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retnumber(p, @floatFromInt(nbb.neural_backbone_merge_qkv()));
+}
+
 // GQ0: the last forward's phases in ms (0 gather+upload, 1 encode to the submit, 2 device wait, 3 readback, 4 whole)
 fn ring_BackbonePhaseMs(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retnumber(p, nbb.neural_backbone_phase_ms(@intFromFloat(R.ring_vm_api_getnumber(p, 1))));
@@ -1889,6 +1897,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralbackbonesetweightsf16", .func = &ring_BackboneSetWeightsF16 },
     .{ .name = "stzengineneuralbackbonedispatches", .func = &ring_BackboneDispatches },
     .{ .name = "stzengineneuralbackbonephasems", .func = &ring_BackbonePhaseMs },
+    .{ .name = "stzengineneuralbackbonesetmergeqkv", .func = &ring_BackboneSetMergeQkv },
+    .{ .name = "stzengineneuralbackbonemergeqkv", .func = &ring_BackboneMergeQkv },
     .{ .name = "stzengineneuralbackboneweightsf16", .func = &ring_BackboneWeightsF16 },
     .{ .name = "stzengineneuralbackbonef16available", .func = &ring_BackboneF16Available },
     .{ .name = "stzengineneuralbackboneweightbytes", .func = &ring_BackboneWeightBytes },

@@ -1,0 +1,99 @@
+# gq1_merge_qkv.haro -- GQ1's second measurement: does merging the backbone's Q, K and V projections pay on the clock?
+#
+# gq1_dispatch_cost.haro found an empty dispatch costs about 9 us (CPU and device together), so removing 12 of the
+# backbone's 62 dispatches can save about 0.1 ms on that count alone -- inside the noise GK4 measured. A merge can
+# pay for another reason: three small products may leave the card idle where one wide product fills it. This
+# measures that directly, with the engine's own matmul and the variant the table picks for each shape: six layers'
+# worth in one batch, as the backbone sends them -- SPLIT, three products of tokens x 384 x 384 a layer (18
+# dispatches), against MERGED, one product of tokens x 384 x 1152 a layer (6 dispatches). The same multiply-adds.
+# The two are run alternately (split, merged, split, merged ...), least of nine each, so ambient load falls on both.
+load "../../stzBase.ring"
+
+if StzEngineGpuInit($tStzGpuRuntime) = 0
+	? "  [SKIP] no device: " + StzEngineGpuLastError()
+	Shutdown(0)
+end
+nE = 384
+
+? "-- GQ1: Q, K and V as three products or one, six layers in one batch (RTX 3050, haro.exe, least of 9, alternated) --"
+? "  tokens | split (18 dispatches) | merged (6) | split / merged | variants split, merged"
+vTok = [ 14, 38, 158, 482 ]
+for i = 1 to Len(vTok)
+	nM = vTok[i]
+	nA = StzEngineGpuBufferNew(nM * nE * 4)
+	StzEngineGpuBufferFillLcg(nA, nM * nE, 11)
+	vW = []
+	vO = []
+	for j = 1 to 3
+		nB = StzEngineGpuBufferNew(nE * nE * 4)
+		StzEngineGpuBufferFillLcg(nB, nE * nE, 20 + j)
+		vW + nB
+		vO + StzEngineGpuBufferNew(nM * nE * 4)
+	end
+	nWm = StzEngineGpuBufferNew(nE * 3 * nE * 4)
+	StzEngineGpuBufferFillLcg(nWm, nE * 3 * nE, 30)
+	nOm = StzEngineGpuBufferNew(nM * 3 * nE * 4)
+	StzEngineGpuSync()
+	Split(nA, vW, vO, nM, nE)
+	Merged(nA, nWm, nOm, nM, nE)
+	nBestS = 1000000000000
+	nBestM = 1000000000000
+	for r = 1 to 9
+		nBestS = Smaller(nBestS, Split(nA, vW, vO, nM, nE))
+		nBestM = Smaller(nBestM, Merged(nA, nWm, nOm, nM, nE))
+	end
+	? "  " + String(nM) + " | " + Us(nBestS) + " | " + Us(nBestM) + " | " + Ratio(nBestS, nBestM) + " | " + StzEngineGpuMmVariantName(nM, nE, nE) + ", " + StzEngineGpuMmVariantName(nM, nE, 3 * nE)
+	StzEngineGpuBufferFree(nA)
+	for j = 1 to 3
+		StzEngineGpuBufferFree(vW[j])
+		StzEngineGpuBufferFree(vO[j])
+	end
+	StzEngineGpuBufferFree(nWm)
+	StzEngineGpuBufferFree(nOm)
+end
+StzEngineGpuShutdown()
+
+# Six layers of three products tokens x 384 x 384 in one batch, timed from the batch's opening to the sync (ns).
+func Split(nA, vW, vO, nM, nE)
+	nT0 = StzEngineWatchTimestampNs()
+	StzEngineGpuBatchBegin()
+	for nL = 1 to 6
+		for j = 1 to 3
+			StzEngineGpuOpMatmul(nA, vW[j], vO[j], nM, nE, nE)
+		end
+	end
+	StzEngineGpuBatchEnd()
+	StzEngineGpuSync()
+	return StzEngineWatchTimestampNs() - nT0
+end
+
+# Six layers of one product tokens x 384 x 1152 in one batch (ns).
+func Merged(nA, nWm, nOm, nM, nE)
+	nT0 = StzEngineWatchTimestampNs()
+	StzEngineGpuBatchBegin()
+	for nL = 1 to 6
+		StzEngineGpuOpMatmul(nA, nWm, nOm, nM, nE, 3 * nE)
+	end
+	StzEngineGpuBatchEnd()
+	StzEngineGpuSync()
+	return StzEngineWatchTimestampNs() - nT0
+end
+
+func Ratio(nS, nM)
+	return String(IntDiv(nS * 100, nM)) + "%"
+end
+
+func Us(nNs)
+	return String(IntDiv(nNs, 1000)) + " us"
+end
+
+func IntDiv(nA, nB)
+	return (nA - nA % nB) / nB
+end
+
+func Smaller(nA, nB)
+	if nA < nB
+		return nA
+	end
+	return nB
+end

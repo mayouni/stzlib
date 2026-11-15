@@ -561,7 +561,19 @@ pub fn ceilDiv(a: usize, b: usize) usize {
 // ---------------------------------------------------------------- residency
 
 const SLOTS = 256;
-const Slot = struct { ptr: usize = 0, id: i64 = 0, n: usize = 0, transposed: bool = false, half: bool = false };
+const Slot = struct { ptr: usize = 0, id: i64 = 0, n: usize = 0, transposed: bool = false, half: bool = false, qkv: bool = false };
+
+// GQ1: Q, K and V as ONE product of tokens x n_embd x 3 n_embd a layer, writing the three buffers they always had
+// (gpu_ops.mmSourceTri). Six layers of the three as one measured 1.6x faster at 14 tokens and 1.3x at 38 on the
+// RTX 3050 (base/test/gpu/gq1_merge_qkv.haro): three small products leave the card idle where one wide one fills
+// it. The switch is the A/B arm the forward is measured with.
+var g_merge_qkv = true;
+pub export fn neural_backbone_set_merge_qkv(on: c_int) callconv(.c) void {
+    g_merge_qkv = on != 0;
+}
+pub export fn neural_backbone_merge_qkv() callconv(.c) c_int {
+    return if (g_merge_qkv) 1 else 0;
+}
 
 // GK5: the matrix weights at f16 in VRAM, on a path BESIDE the f32 one so the
 // two can alternate (SOFTANZA_GPU_PLAN.md, GK5). Off unless asked; taken only
@@ -654,7 +666,7 @@ fn resident(w: *c.ggml_tensor, transpose: bool) i64 {
     const key = @intFromPtr(w.*.data);
     const half = transpose and g_half; // GK5: only a weight MATRIX goes to f16
     for (g_slots[0..g_slot_n]) |s| {
-        if (s.ptr == key and s.transposed == transpose and s.half == half) return s.id;
+        if (s.ptr == key and s.transposed == transpose and s.half == half and !s.qkv) return s.id;
     }
     if (g_slot_n == SLOTS) return 0;
 
@@ -701,6 +713,80 @@ fn resident(w: *c.ggml_tensor, transpose: bool) i64 {
     }
     g_slots[g_slot_n] = .{ .ptr = key, .id = id, .n = total, .transposed = transpose };
     g_slot_n += 1;
+    return id;
+}
+
+/// GQ1: layer L's Q, K and V weights side by side, resident: row i of the product's B is [Wq^T i | Wk^T i | Wv^T i]
+/// (k x 3n), f16 when this forward is, keyed by Wq's data so a new model rebuilds it.
+fn residentQkv(wq: *c.ggml_tensor, wk: *c.ggml_tensor, wv: *c.ggml_tensor) i64 {
+    const key = @intFromPtr(wq.*.data);
+    const half = g_half;
+    for (g_slots[0..g_slot_n]) |s| {
+        if (s.ptr == key and s.qkv and s.transposed and s.half == half) return s.id;
+    }
+    if (g_slot_n == SLOTS) return 0;
+    const k: usize = @intCast(wq.*.ne[0]);
+    const n: usize = @intCast(wq.*.ne[1]);
+    const rows = gpa.alloc(f32, k * n) catch return 0;
+    defer gpa.free(rows);
+    const merged = gpa.alloc(f32, k * 3 * n) catch return 0;
+    defer gpa.free(merged);
+    for ([_]*c.ggml_tensor{ wq, wk, wv }, 0..) |w, j| {
+        if (w.*.ne[0] != wq.*.ne[0] or w.*.ne[1] != wq.*.ne[1]) return 0;
+        if (!dequantRows(w, rows, k, n)) return 0;
+        // rows is n rows of k (out x in); B wants k rows of 3n (in x out), this weight at columns [j n, (j+1) n)
+        for (0..n) |o| {
+            for (0..k) |i| merged[i * 3 * n + j * n + o] = rows[o * k + i];
+        }
+    }
+    const id = uploadMatrix(merged, half) orelse return 0;
+    g_slots[g_slot_n] = .{ .ptr = key, .id = id, .n = k * 3 * n, .transposed = true, .half = half, .qkv = true };
+    g_slot_n += 1;
+    return id;
+}
+
+/// The matching [bq | bk | bv] (3n, always f32), keyed by bq's data.
+fn residentQkvBias(bq: *c.ggml_tensor, bk: *c.ggml_tensor, bv: *c.ggml_tensor) i64 {
+    const key = @intFromPtr(bq.*.data);
+    for (g_slots[0..g_slot_n]) |s| {
+        if (s.ptr == key and s.qkv and !s.transposed) return s.id;
+    }
+    if (g_slot_n == SLOTS) return 0;
+    const n: usize = @intCast(bq.*.ne[0]);
+    const all = gpa.alloc(f32, 3 * n) catch return 0;
+    defer gpa.free(all);
+    for ([_]*c.ggml_tensor{ bq, bk, bv }, 0..) |b, j| {
+        if (b.*.ne[0] != bq.*.ne[0]) return 0;
+        if (!dequantRows(b, all[j * n .. (j + 1) * n], n, 1)) return 0;
+    }
+    const id = uploadMatrix(all, false) orelse return 0;
+    g_slots[g_slot_n] = .{ .ptr = key, .id = id, .n = 3 * n, .transposed = false, .qkv = true };
+    g_slot_n += 1;
+    return id;
+}
+
+/// A new device buffer holding `vals`, as f16 (rounded once, an odd count padded with one zero) or f32.
+fn uploadMatrix(vals: []const f32, half: bool) ?i64 {
+    if (half) {
+        const hn = vals.len + (vals.len & 1);
+        const hb = gpa.alloc(f16, hn) catch return null;
+        defer gpa.free(hb);
+        for (vals, 0..) |x, i| hb[i] = @floatCast(x);
+        if (hn > vals.len) hb[vals.len] = 0;
+        const hid = gpu.stz_gpu_buffer_new(@floatFromInt(hn * 2));
+        if (hid == 0) return null;
+        if (gpu.stz_gpu_buffer_write(hid, @ptrCast(hb.ptr), @floatFromInt(hn * 2)) != gpu.OK) {
+            _ = gpu.stz_gpu_buffer_free(hid);
+            return null;
+        }
+        return hid;
+    }
+    const id = gpu.stz_gpu_buffer_new(@floatFromInt(vals.len * 4));
+    if (id == 0) return null;
+    if (gpu.stz_gpu_buffer_write(id, @ptrCast(vals.ptr), @floatFromInt(vals.len * 4)) != gpu.OK) {
+        _ = gpu.stz_gpu_buffer_free(id);
+        return null;
+    }
     return id;
 }
 
@@ -906,10 +992,14 @@ pub export fn neural_backbone_forward(ids_ptr: [*c]const i32, n_tok_in: c_int, o
 
     var L: usize = 0;
     while (L < n_layer and ok) : (L += 1) {
-        // Q, K, V from by
-        ok = ok and mmBias(K_MM, by, tensorId(ctx, "blk.{d}.attn_q.weight", .{L}, true), tensorId(ctx, "blk.{d}.attn_q.bias", .{L}, false), bq, n_tok, n_embd, n_embd);
-        ok = ok and mmBias(K_MM, by, tensorId(ctx, "blk.{d}.attn_k.weight", .{L}, true), tensorId(ctx, "blk.{d}.attn_k.bias", .{L}, false), bk, n_tok, n_embd, n_embd);
-        ok = ok and mmBias(K_MM, by, tensorId(ctx, "blk.{d}.attn_v.weight", .{L}, true), tensorId(ctx, "blk.{d}.attn_v.bias", .{L}, false), bv, n_tok, n_embd, n_embd);
+        // Q, K, V from by: one product writing the three (GQ1), or three products
+        if (g_merge_qkv) {
+            ok = ok and mmQkv(ctx, L, by, bq, bk, bv, n_tok, n_embd);
+        } else {
+            ok = ok and mmBias(K_MM, by, tensorId(ctx, "blk.{d}.attn_q.weight", .{L}, true), tensorId(ctx, "blk.{d}.attn_q.bias", .{L}, false), bq, n_tok, n_embd, n_embd);
+            ok = ok and mmBias(K_MM, by, tensorId(ctx, "blk.{d}.attn_k.weight", .{L}, true), tensorId(ctx, "blk.{d}.attn_k.bias", .{L}, false), bk, n_tok, n_embd, n_embd);
+            ok = ok and mmBias(K_MM, by, tensorId(ctx, "blk.{d}.attn_v.weight", .{L}, true), tensorId(ctx, "blk.{d}.attn_v.bias", .{L}, false), bv, n_tok, n_embd, n_embd);
+        }
         // fused attention -> bx
         const ap = AttParams{ .n_tok = @intCast(n_tok), .n_embd = @intCast(n_embd), .n_head = @intCast(n_head), .head_dim = @intCast(head_dim), .scale = scale };
         // GK2c: the table's attention variant for this shape, on the linear grid
@@ -986,6 +1076,30 @@ pub fn mmBias(kern_generic: i64, a: i64, b: i64, bias: i64, out: i64, m: usize, 
     const bb = if (bias != 0) bias else b; // a bound buffer is required either way
     const g = ops.mmGeometry(geo_v, m, n);
     return dispatchP(kern, &p, &.{ a, b, bb, out }, g.wx, g.wy);
+}
+
+/// GQ1: layer L's Q, K and V as one product of n_tok x n_embd x 3 n_embd, the table's variant for that shape,
+/// written straight into bq, bk and bv.
+fn mmQkv(ctx: *c.ggml_context, L: usize, a: i64, bq: i64, bk: i64, bv: i64, n_tok: usize, n_embd: usize) bool {
+    const wq = tensor(ctx, "blk.{d}.attn_q.weight", .{L}) orelse return false;
+    const wk = tensor(ctx, "blk.{d}.attn_k.weight", .{L}) orelse return false;
+    const wv = tensor(ctx, "blk.{d}.attn_v.weight", .{L}) orelse return false;
+    const tq = tensor(ctx, "blk.{d}.attn_q.bias", .{L}) orelse return false;
+    const tk = tensor(ctx, "blk.{d}.attn_k.bias", .{L}) orelse return false;
+    const tv = tensor(ctx, "blk.{d}.attn_v.bias", .{L}) orelse return false;
+    const w = residentQkv(wq, wk, wv);
+    const b = residentQkvBias(tq, tk, tv);
+    if (w == 0 or b == 0) return false;
+    const n3 = 3 * n_embd;
+    const v = ops.mmVariantFor(n_tok, n_embd, n3);
+    const src = if (g_half) ops.mmSourceTri(v, true) else ops.mmSourceTri(v, false);
+    const kern = gpu.stz_gpu_kernel_compile(src.ptr, @floatFromInt(src.len));
+    if (kern == 0) return false;
+    if (v != ops.MM_GENERIC) gpu.bumpCounter(gpu.CTR_VARIANT_DISPATCH, 1);
+    g_weight_bytes_last += @floatFromInt(n_embd * n3 * @as(usize, if (g_half) 2 else 4));
+    const p = MmParams{ .m = @intCast(n_tok), .k = @intCast(n_embd), .n = @intCast(n3), .has_bias = 1 | (@as(u32, @intCast(n_embd)) << 1) };
+    const g = ops.mmGeometry(v, n_tok, n3);
+    return dispatchP(kern, &p, &.{ a, w, b, bq, bk, bv }, g.wx, g.wy);
 }
 
 pub fn lnStep(kern: i64, x: i64, res: i64, w: i64, b: i64, out: i64, n_tok: usize, n_embd: usize, eps: f32, use_res: u32) bool {
