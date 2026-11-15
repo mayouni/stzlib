@@ -21,6 +21,18 @@ TASK request   (39 yes, 181 no)
   heads, gate to Bolt       188/220     15/39       15/23       95
   chosen inside the training fifths: multi+ngram lr 0.20 x40 thr 0.95; multi+ngram lr 0.20 x40 thr 0.95; multi+ngram lr 0.20 x40 thr 0.88; ngram lr 0.50 x25 thr 0.79; multi+ngram lr 0.20 x40 thr 0.93
 
+TASK request, trained with 4649 PUBLIC sentences added (Enron email intent, English, 2028 yes; 0 skipped, no embedding of the right width)
+  set and grid chosen on the public set's own split: ngram lr 0.05 x10, 814/992 right on its test split
+                            right       yes found   yes right   items to Bolt
+  public only               178/220     2/39        2/7         0
+  public + fifths, real x1  179/220     2/39        2/6         0
+    gate to Bolt, real x1   192/220     19/39       19/27       187
+  real x1: thresholds chosen inside the training fifths 0.91 0.92 0.92 0.93 0.89
+  public + fifths, real x5  179/220     2/39        2/6         0
+    gate to Bolt, real x5   192/220     17/39       17/23       125
+  real x5: thresholds chosen inside the training fifths 0.79 0.90 0.89 0.85 0.81
+  the public sentences' features 13.3 ms each; choosing 2.8 s; the folds 9.6 s
+
 COSTS per item
-  heads: the multilingual embedding 23.4 ms + n-grams 0.2 ms, 119 MB held
+  heads: the multilingual embedding 24.2 ms + n-grams 0.2 ms, 119 MB held
   Bolt: median 4317 ms per question (5,983 MB ready, results/ready.txt)

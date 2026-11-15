@@ -164,3 +164,13 @@ realreq.txt.
     182 (always "yes" 147), Bolt 119. REQUEST (39 of 220): heads 188 (always "no" 181), Bolt 197, the gate 188 passing 95
     to Bolt -- 1.89 s an item against 4.32, 56 % saved but 9 items lost, a worse trade than on 175: the request threshold
     chosen inside the training fifths does not carry to the new project's documents.
+  - 2026-11-15, the request task with PUBLIC examples added (STZ_PUBLIC_REQ: the Enron email intent set,
+    github.com/ParakweetLabs/EmailIntentDataSet, Apache-2.0, 4,649 English email sentences, 2,028 a request or a
+    proposal; kept outside every repository). A head trained on them answers 814 of 992 on that set's own test split,
+    and 178 of the author's 220 (always "no" 181), finding 2 of 39 requests: it learned the English mail's form, not
+    what a request is in French minutes and interview notes. Added to the real training fifths it answers 179 (real
+    alone 188); the gate answers 192 but passes 187 of 220 to Bolt (real x5: 192, 125 passed), against Bolt alone 197.
+    So 4,649 out-of-domain sentences do not buy the request head; labels from the target domain are what it needs.
+  - found on the way: StzEngineLogisticTrain walks the rows in the order given, with no shuffle. The public file came
+    sorted (every "no", then every "yes") and the head ended answering "yes" to 214 of 220. The instrument now shuffles
+    the public file with a fixed seed and spreads the real training items evenly through the public ones.

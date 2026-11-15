@@ -25,10 +25,17 @@
 #
 # Run from base/test/faculty on haro.exe with STZ_ENGINE_DIR (an engine with stz_neural and stz_stats),
 # STZ_MODELS_DIR (the folder holding $tMulti) and STZ_PRIVATE_REQ.
+#
+# STZ_PUBLIC_REQ, when set, names a file of PUBLIC labelled sentences (split train|test, yes|no, text -- the Enron
+# email intent set, github.com/ParakweetLabs/EmailIntentDataSet, Apache-2.0, where "yes" is a request or a proposal).
+# The request task is then measured again with those sentences added to every training set: the set and grid are
+# chosen on the public set's own train/test split, the gate's threshold inside the real training fifths, and the real
+# items are judged by the same 5 folds. The public file is not kept in this repository either.
 
 $tData = Slashes(SysGet("STZ_PRIVATE_REQ"))
 $tAnswers = $tData + ".answers.tsv"
 $tReport = "results/realreq.txt"
+$tPublic = Slashes(SysGet("STZ_PUBLIC_REQ"))
 $tMulti = "paraphrase-multilingual-MiniLM-L12-118M-v2-Q8_0.gguf"
 $nBuckets = 1024
 $tSys = "You sort short texts taken from a consultant's project files: mails, meeting minutes, feedback, documents."
@@ -228,6 +235,7 @@ func Analyse
 		Say("  chosen inside the training fifths: " + tChoices)
 		Say("")
 	end
+	PublicSection(vItems, vX, vBolt, bBolt)
 
 	Say("COSTS per item")
 	Say("  heads: the multilingual embedding " + String(Decimal(Float(nMultiMs) / Float(nAll), 1)) + " ms + n-grams " + String(Decimal(Float(nGramMs) / Float(nAll), 1)) + " ms, " + String(nMultiMb) + " MB held")
@@ -238,6 +246,248 @@ func Analyse
 	end
 	Write($tReport, $tOutText)
 	? "-> " + $tReport
+end
+
+# ---- the request task again, with public labelled sentences added to every training set ----
+
+func PublicItems
+	vOut = []
+	if $tPublic = ""
+		return vOut
+	end
+	vRows = ReadTsv($tPublic)
+	for i = 1 to Len(vRows)
+		if Len(vRows[i]) = 3
+			vOut + [ vRows[i] ]
+		end
+	end
+	return Unwrap(vOut)
+end
+
+func Join(vA, vB)
+	vOut = []
+	for i = 1 to Len(vA)
+		vOut + [ vA[i] ]
+	end
+	for i = 1 to Len(vB)
+		vOut + [ vB[i] ]
+	end
+	return Unwrap(vOut)
+end
+
+# the public indices with the real training indices (nWeight times each) spread evenly among them: the engine's
+# training walks the rows in order, so a block of one kind at the end would have the last word
+func TrainIdx(vPubIdx, vReal, nWeight)
+	vRep = []
+	for w = 1 to nWeight
+		for i = 1 to Len(vReal)
+			vRep + vReal[i]
+		end
+	end
+	nA = Len(vPubIdx)
+	nB = Len(vRep)
+	vOut = []
+	nNext = 1
+	for i = 1 to nA
+		vOut + vPubIdx[i]
+		while nNext <= nB and (nNext * nA) <= (i * nB)
+			vOut + vRep[nNext]
+			nNext = nNext + 1
+		end
+	end
+	while nNext <= nB
+		vOut + vRep[nNext]
+		nNext = nNext + 1
+	end
+	return vOut
+end
+
+func CountRight(vAns, vIdx, vLab)
+	nR = 0
+	for j = 1 to Len(vIdx)
+		if vAns[j] = vLab[vIdx[j]]
+			nR = nR + 1
+		end
+	end
+	return nR
+end
+
+func PublicSection(vItems, vX, vBolt, bBolt)
+	vPub = PublicItems()
+	if Len(vPub) = 0
+		return
+	end
+	nAll = Len(vItems)
+	nPub = Len(vPub)
+	vLab = []
+	for i = 1 to nAll
+		vLab + vItems[i][5]
+	end
+	vReal = []
+	for i = 1 to nAll
+		vReal + i
+	end
+	vTrPub = []
+	vTePub = []
+	vPubIdx = []
+	nPubYes = 0
+	vM = []
+	vG = []
+	vB = []
+	nDim = Len(vX[1][1])
+	nKept = 0
+	nSkipped = 0
+	nT0 = Clock()
+	for i = 1 to nPub
+		vE = Embed(vPub[i][3])
+		if Len(vE) != nDim
+			nSkipped = nSkipped + 1
+			loop
+		end
+		nKept = nKept + 1
+		vLab + vPub[i][2]
+		if vPub[i][2] = "yes"
+			nPubYes = nPubYes + 1
+		end
+		vPubIdx + (nAll + nKept)
+		if vPub[i][1] = "train"
+			vTrPub + (nAll + nKept)
+		else
+			vTePub + (nAll + nKept)
+		end
+		vGr = Grams(vPub[i][3])
+		vBo = []
+		for d = 1 to Len(vE)
+			vBo + vE[d]
+		end
+		for d = 1 to Len(vGr)
+			vBo + vGr[d]
+		end
+		vM + [ vE ]
+		vG + [ vGr ]
+		vB + [ vBo ]
+	end
+	nFeatMs = Ms(nT0)
+	nPub = nKept
+	vXa = [ Join(vX[1], Unwrap(vM)), Join(vX[2], Unwrap(vG)), Join(vX[3], Unwrap(vB)) ]
+
+	# the set and grid: trained on the public train split, judged on the public test split
+	nT0 = Clock()
+	nBest = -1
+	nS = 1
+	nG = 1
+	for s = 1 to Len($vSets)
+		for g = 1 to Len($vGrid)
+			vW = TrainBin(vXa[s], vTrPub, vLab, $vGrid[g][1], $vGrid[g][2])
+			nR = CountRight(PredBin(vW, vXa[s], vTePub)[1], vTePub, vLab)
+			if nR > nBest
+				nBest = nR
+				nS = s
+				nG = g
+			end
+		end
+	end
+	tChoice = $vSets[nS] + " lr " + String(Decimal($vGrid[nG][1], 2)) + " x" + String($vGrid[nG][2])
+	nPickMs = Ms(nT0)
+
+	# public only: every real item answered by a head that never saw a real item
+	nT0 = Clock()
+	vW = TrainBin(vXa[nS], vPubIdx, vLab, $vGrid[nG][1], $vGrid[nG][2])
+	vPubOnly = PredBin(vW, vXa[nS], vReal)[1]
+
+	vLabReal = []
+	for i = 1 to nAll
+		vLabReal + vLab[i]
+	end
+	Say("TASK request, trained with " + String(nKept) + " PUBLIC sentences added (Enron email intent, English, " + String(nPubYes) + " yes; " + String(nSkipped) + " skipped, no embedding of the right width)")
+	Say("  set and grid chosen on the public set's own split: " + tChoice + ", " + String(nBest) + "/" + String(Len(vTePub)) + " right on its test split")
+	Say("  " + Pad("", 26) + Pad("right", 12) + Pad("yes found", 12) + Pad("yes right", 12) + "items to Bolt")
+	Say(ScoreRow("public only", vPubOnly, vLabReal, "0"))
+
+	vWeights = [ 1, 5 ]
+	for x = 1 to Len(vWeights)
+		nWeight = vWeights[x]
+		vHead = []
+		vGate = []
+		for i = 1 to nAll
+			vHead + ""
+			vGate + ""
+		end
+		nPassed = 0
+		tThr = ""
+		for f = 0 to 4
+			vTr = []
+			vTe = []
+			for i = 1 to nAll
+				if ((i - 1) % 5) = f
+					vTe + i
+				else
+					vTr + i
+				end
+			end
+			# the gate's threshold: out-of-fold answers on the training fifths, 4 folds by position
+			vAnsIn = []
+			vConfIn = []
+			vLabIn = []
+			for p = 1 to Len(vTr)
+				vAnsIn + ""
+				vConfIn + 0.0f
+				vLabIn + vLab[vTr[p]]
+			end
+			for q = 0 to 3
+				vA = []
+				vBq = []
+				vPos = []
+				for p = 1 to Len(vTr)
+					if ((p - 1) % 4) = q
+						vBq + vTr[p]
+						vPos + p
+					else
+						vA + vTr[p]
+					end
+				end
+				vWq = TrainBin(vXa[nS], TrainIdx(vPubIdx, vA, nWeight), vLab, $vGrid[nG][1], $vGrid[nG][2])
+				vPq = PredBin(vWq, vXa[nS], vBq)
+				for j = 1 to Len(vBq)
+					vAnsIn[vPos[j]] = vPq[1][j]
+					vConfIn[vPos[j]] = vPq[2][j]
+				end
+			end
+			fTarget = 0.96f
+			if bBolt
+				nBr = 0
+				for j = 1 to Len(vTr)
+					if vBolt[2][vTr[j]] = vLab[vTr[j]]
+						nBr = nBr + 1
+					end
+				end
+				fTarget = Float(nBr) / Float(Len(vTr))
+			end
+			fThr = Threshold(vAnsIn, vConfIn, vLabIn, fTarget)
+			vWf = TrainBin(vXa[nS], TrainIdx(vPubIdx, vTr, nWeight), vLab, $vGrid[nG][1], $vGrid[nG][2])
+			vP = PredBin(vWf, vXa[nS], vTe)
+			for j = 1 to Len(vTe)
+				vHead[vTe[j]] = vP[1][j]
+				vGate[vTe[j]] = vP[1][j]
+				if bBolt and vP[2][j] < fThr
+					vGate[vTe[j]] = vBolt[2][vTe[j]]
+					nPassed = nPassed + 1
+				end
+			end
+			if f > 0
+				tThr = tThr + " "
+			end
+			tThr = tThr + String(Decimal(fThr, 2))
+		end
+		tW = "real x" + String(nWeight)
+		Say(ScoreRow("public + fifths, " + tW, vHead, vLabReal, "0"))
+		if bBolt
+			Say(ScoreRow("  gate to Bolt, " + tW, vGate, vLabReal, String(nPassed)))
+		end
+		Say("  " + tW + ": thresholds chosen inside the training fifths " + tThr)
+	end
+	Say("  the public sentences' features " + String(Decimal(Float(nFeatMs) / Float(nPub), 1)) + " ms each; choosing " + String(Decimal(Float(nPickMs) / 1000.0f, 1)) + " s; the folds " + String(Decimal(Float(Ms(nT0)) / 1000.0f, 1)) + " s")
+	Say("")
 end
 
 # [ remark answers, request answers, how many read, median ms ] aligned to the items; "" where none
