@@ -1257,6 +1257,11 @@ pub const LEASE_TAKEN_AFTER_WAIT: i32 = 2; // another process held it, then let 
 pub const LEASE_REFUSED: i32 = 3; // another process held it for the whole wait: no device, as on a machine without a GPU
 pub const LEASE_OFF: i32 = 4; // STZ_GPU_LEASE=off
 pub const LEASE_UNAVAILABLE: i32 = 5; // no temp folder or no file lock here: opened without a lease
+// another engine library of THIS process holds it: stz_gpu and stz_neural each carry a copy of this file, so one
+// process can open two devices, which it always could. The lease orders processes, not libraries: the second
+// opens at once and holds nothing; the first keeps the lock until its own device closes (2026-11-15: the f16
+// guard's backbone waited 30 s on its own process and ran without a device)
+pub const LEASE_SHARED: i32 = 6;
 
 var lease_file: ?std.fs.File = null;
 var lease_outcome: i32 = LEASE_NONE;
@@ -1362,8 +1367,13 @@ fn takeLeaseAt(path: []const u8, wait_ms: u64) LeaseTry {
             return .{ .outcome = LEASE_UNAVAILABLE };
         };
         if (got) break;
+        const holder = leaseHolderPid(f);
+        if (holder == myPid()) {
+            f.close();
+            return .{ .outcome = LEASE_SHARED, .other_pid = @floatFromInt(holder) };
+        }
         waited = true;
-        other = @floatFromInt(leaseHolderPid(f));
+        other = @floatFromInt(holder);
         const el: u64 = if (timer) |*t| t.read() / std.time.ns_per_ms else wait_ms;
         if (el >= wait_ms) {
             f.close();
@@ -2163,11 +2173,14 @@ test "the lease: a second holder is refused after its wait, names the holder, an
 
     const a = takeLeaseAt(path, 0);
     try std.testing.expectEqual(LEASE_TAKEN, a.outcome);
+    // two handles of one process are one owner (LEASE_SHARED, tested below); to stand for ANOTHER process, the
+    // holder's record names a process id that is not this one
+    try a.file.?.pwriteAll("999999999           ", 8);
     // a second handle meets the lock exactly as a second process would
     const b = takeLeaseAt(path, 120);
     try std.testing.expectEqual(LEASE_REFUSED, b.outcome);
     try std.testing.expect(b.waited_ms >= 120);
-    try std.testing.expectEqual(@as(f64, @floatFromInt(myPid())), b.other_pid);
+    try std.testing.expectEqual(@as(f64, 999999999), b.other_pid);
     try std.testing.expect(b.file == null);
 
     // the holder lets go while the second one waits: it takes the lease and says it waited
@@ -2185,6 +2198,25 @@ test "the lease: a second holder is refused after its wait, names the holder, an
     try std.testing.expect(c2.waited_ms >= 100 and c2.waited_ms < 5000);
     c2.file.?.unlock();
     c2.file.?.close();
+}
+
+test "the lease: a second engine library of the SAME process shares it at once, holding nothing" {
+    var tmp = std.testing.tmpDir(.{});
+    defer tmp.cleanup();
+    const dir = try tmp.dir.realpathAlloc(std.testing.allocator, ".");
+    defer std.testing.allocator.free(dir);
+    const path = try std.fs.path.join(std.testing.allocator, &.{ dir, "stz_gpu_lease_shared.lock" });
+    defer std.testing.allocator.free(path);
+
+    const a = takeLeaseAt(path, 0);
+    try std.testing.expectEqual(LEASE_TAKEN, a.outcome);
+    const b = takeLeaseAt(path, 5000);
+    try std.testing.expectEqual(LEASE_SHARED, b.outcome);
+    try std.testing.expect(b.waited_ms < 1000);
+    try std.testing.expect(b.file == null);
+    try std.testing.expectEqual(@as(f64, @floatFromInt(myPid())), b.other_pid);
+    a.file.?.unlock();
+    a.file.?.close();
 }
 
 test "the lease's state reading: an unknown kind is -1, and no lease is held before a device opens" {

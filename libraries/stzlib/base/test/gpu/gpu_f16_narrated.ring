@@ -86,7 +86,7 @@ if bDevice and fexists(cModel)
 	a32 = StzEngineNeuralBackboneEmbed(cHid)
 	n32 = StzEngineNeuralBackboneWeightBytes()
 	chk("asked off, the forward runs on f32 weights", StzEngineNeuralBackboneWeightsF16() = 0 and len(a32) = nDim)
-	chk("...in 62 dispatches (GK4's count: 1 + 10 per layer x 6 + 1; GELU stays a pass of its own)", StzEngineNeuralBackboneDispatches() = 62)
+	chk("...in 50 dispatches (1 + 8 per layer x 6 + 1: Q, K and V one product since GQ1; GELU stays a pass of its own, GK4)", StzEngineNeuralBackboneDispatches() = 50)
 	if StzEngineNeuralBackboneF16Available() = 1
 		StzEngineNeuralBackboneSetWeightsF16(1)
 		a16 = StzEngineNeuralBackboneEmbed(cHid)

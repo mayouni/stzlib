@@ -40,6 +40,25 @@ chk("it holds no lease", xC[5] = 0)
 chk("its last error says why, by name: " + xC[6], StzFindFirst("leased by process", xC[6]) > 0)
 ? "  (not run: a second process with STZ_GPU_LEASE=off while this one holds the card -- that is the crash itself)"
 
+? "-- Scene 1b: a second engine library of THIS process shares the lease at once --"
+# stz_gpu and stz_neural each carry the engine's GPU code, so one process opens two devices; the lease orders
+# processes, not libraries. Until 2026-11-15 the backbone waited the full 30 s on its own process and ran without one.
+tModel = $tStzLibDir + "/models/all-MiniLM-L6-v2.Q8_0.gguf"
+if StzEngineNeuralModelLoad(tModel) != 1
+	Skip("scene 1b: MiniLM is not in " + $tStzLibDir + "/models (load status " + String(StzEngineNeuralModelLoadStatus()) + ")")
+else
+	tText = ""
+	for j = 1 to 4
+		tText += "the quick brown fox jumps over the lazy dog and runs away "
+	end
+	nT = StzEngineWatchTimestampNs()
+	vE = StzEngineNeuralBackboneEmbed(tText)
+	nMs = (StzEngineWatchTimestampNs() - nT - (StzEngineWatchTimestampNs() - nT) % 1000000) / 1000000
+	chk("the backbone, in the other library, ran on its device while this one holds the lease (" + String(Len(vE)) + " dimensions)", Len(vE) = 384)
+	chk("and did not wait for its own process: " + String(nMs) + " ms, against a 30,000 ms wait", nMs < 10000)
+	StzEngineNeuralModelFree()
+end
+
 ? "-- Scene 2: this process lets go, and the next one takes the lease at once --"
 StzEngineGpuShutdown()
 chk("closing the device dropped the lease", StzEngineGpuLease(3) = 0)
