@@ -1,0 +1,80 @@
+=== adverb/00_adverb_narrated#099386a7
+Q("quick").Q("quickly")
+=== adverb/00_adverb_narrated#5385be05
+Q("africa").Q("african")
+=== common/hostile_globals_narrated#cd499d0d
+`Q(3).Q(1).Q(2).sort()`
+=== common/slice_primitives_narrated#a3e14428
+Q("abc").count(2).clamp(99).str()
+=== extincode/51_extincode_narrated#47b8c704
+Q(0).Q("yes").Q("no")
+=== extincode/51_extincode_narrated#1d0281a2
+`Q(3).range0`
+=== file/stzZipFile_defects_narrated#0719ff0b
+Q("a\\b\\c.zip").Q("folder").Q("path")
+=== i18n/00_i18n_narrated#7d807d92
+Q("105").language
+=== list/00_list_narrated#bf7d1f2e
+Q(30).index(3)
+=== list/00_list_narrated#41b6b7eb
+`Q(1).Q(2).Q(3).Q(4).reduce()`
+=== list/104_atat_display#c4befd1a
+`pr(Q("1"), Q("🌞"), Q("ring"))`
+=== list/117_unicodes#78b54fb8
+`Q(1).Q(2).Q(3)`
+=== list/189_find#0e3ff831
+`Q(1).find(Q(7)).map(Q(1).index)`
+=== list/650_operator_q_elevation_narrated#b55edccf
+`return ( * Q("ABC") ).Content() * 3`
+=== list/stzItem_defects_narrated#1810f241
+Q("a").Q("b").Q("A").Q(0).Q("LastPosition").Q("a").Q("b").Q("A").Q(0).Q("LastPosition").Q("a").Q("b").Q("A").Q(0).Q("LastPosition").Q("a").Q("b").Q("A").Q(0).Q("LastPosition").Q("a").Q("b").Q("A").Q(0).Q("LastPosition").Q("a").Q("b").Q("A").Q(0
+=== matrex/stzMatrex_defects_narrated#ada5f45e
+`Q(1).Q(4).Q(2).Q(3).Q(1).Q(4).Q(2).Q(3).Q(1).Q(4).Q(2).Q(3).Q(1).Q(4).Q(2).Q(3).Q(1).Q(4).Q(2).Q(3).Q(1).Q(4).Q(2).Q(3).Q(1).Q(4).Q(2).Q(3).Q(1).Q(4
+=== misc/00_misc_narrated#f56d3577
+Q(2).Q(3).Q('min')
+=== natural/evidentiality_narrated#e508f8fc
+Q(1).Q(0.7).Q("probably yes")
+=== number/listofnumbers_defects_narrated#84b809e8
+Q(9).Q(7).Q(5).Q(9).Q(7).Q(5).Q(9).Q(7).Q(5).Q(9).Q(7).Q(5).Q(9).Q(7).Q(5).Q(9).Q(7).Q(5).Q(9).Q(7).Q(5).Q(9).Q(7).Q(5).Q(9).Q(7).Q(5).Q(9).Q(7).Q(5).
+=== number/number_dead_calls_narrated#1cdce0cc
+Q(12).gcd(Q(18)).toString()
+=== number/number_dead_calls_narrated#5c816d99
+`Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10).Q(10
+=== number/numeric_complex_narrated#14d1e893
+Q(5).toString()
+=== number/numeric_exactness_narrated#fe0d1e8b
+Q("2").add(2).toString()
+=== number/numeric_handle_table_narrated#7e985570
+`Q("12.375").round(2)`
+=== number/numeric_no_loss_narrated#f3cc2261
+Q(2.5).toFixed(2)
+=== object/stzObject_defects_narrated#9330e734
+Q(7.5).toFixed(2)
+=== ocr/ocr_narrated#96e1b19f
+Q("الوثيقة بنص يؤخذ الاختلاف وعند").Q("الوثيقة بنص يؤخذ الاختلاف وعند").Q("الوثيقة بنص يؤخذ الاختلاف وعند").Q("الوثيقة بنص يؤخذ الاختلاف وعند").Q("الوثيقة بنص يؤخذ الاختلاف وعند").Q("الوثيقة بنص يؤخذ الاختلاف وعند").Q("الوثيقة بنص يؤخذ الاختلاف وعند").Q("الوثيقة بنص يؤ
+=== plural/00_plural_narrated#e2019d1b
+Q("cat").Q("plural")
+=== plural/00_plural_narrated#1262e613
+Q("child").Q("plural")
+=== security/advisory_watch_narrated#7d7fac2d
+`Q("NONE-0000").Q("advisory").Q("five").Q("kinds").Q("two").Q("numbers").Q("advisory").Q("nobody").Q("matched").Q("has").Q("no").Q("numbers").Q("return")`
+=== stats/plot_engine_parity_narrated#5cc53368
+`Q(1000).CompactForm`
+=== string/00_string_narrated#8567153f
+Q("héllo").length
+=== string/00_string_narrated#77c15625
+Q("   hi   ").trim().Q("hi")
+=== string/108_script#fbe3e607
+Q("משמש").script
+=== string/110_unicode#3befb937
+Q("ı").codepoint
+=== string/116_shortenedn#16a31365
+`Q("1234567890987654321").Q("ShortenedN").Q(2).Q("keep").Q("2").Q("each").Q("side").Q("return").Q("Q").Q("Q").Q("Q").Q("Q").Q("Q").Q("Q").Q("Q").Q("Q").Q("Q").Q("Q").Q("Q").Q("Q").Q("Q").Q("Q").Q("Q").Q("Q").Q("Q
+=== string/158_script#afd59518
+`Q("鶊").script`
+=== string/247_stringcase#1b4bc0c3
+Q("RING").is_uppercase()
+=== system/payments_live_adapter_narrated#367bb69d
+`Q("events").push("A").push("B").to_json()`
+=== system/sms_port_narrated#42526ed9
+`Q("Your code is 4821").segmentation().type()`

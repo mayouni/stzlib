@@ -1,15 +1,17 @@
 # THE AGENT DOOR -- what an agent writing Softanza code calls.
 #
 #     haro door.haro find <words>          the functions, methods and worked examples that match the words
+#     haro door.haro methods <class> [words]   the methods a class defines, narrowed by words
 #     haro door.haro run <file of code>    run Haro code with Softanza loaded: what it printed, then its value
-#     haro door.haro serve                 the same two tools over MCP (JSON-RPC 2.0 on stdin and stdout)
+#     haro door.haro serve                 the same three tools over MCP (JSON-RPC 2.0 on stdin and stdout)
 #
 # `find` answers from index.tsv (built by door_index.haro): every function and method the library defines, with its
 # class, signature, comment and file, and every narrated example, with the code that runs and what it gives. A word
 # counts by its rarity in the index (the log of rows over rows holding it), three times over when it is found in a
 # name (an example's name is its code) rather than only in a comment or a description; a definition of the core
 # classes (string, list, number, common) is preferred among near equals, then the shorter name.
-# It answers the best definitions first, then the best examples.
+# It answers the eight best definitions, then up to three narrated examples whose code uses one of them, or, when
+# none does, the two best examples for the words.
 #
 # `run` hands the code to door_run.haro, a child process, so code that prints, raises or crashes cannot touch the
 # door's own stream. The child writes to a file the door reads back: a captured pipe loses UTF-8 on Windows.
@@ -45,13 +47,16 @@ end
 if tVerb = "find"
 	LoadIndex()
 	? Find(tArg)
+elseif tVerb = "methods"
+	LoadIndex()
+	? Methods(tArg)
 elseif tVerb = "run"
 	? Run(Read(tArg))
 elseif tVerb = "serve"
 	LoadIndex()
 	Serve()
 else
-	? "usage: haro door.haro find <words> | run <file of code> | serve"
+	? "usage: haro door.haro find <words> | methods <class> [words] | run <file of code> | serve"
 	Shutdown(2)
 end
 
@@ -158,10 +163,10 @@ func Find(tQuery)
 			vExamples + [ nScore, i ]
 		end
 	end
-	vDefs = Best(vDefs, 12)
-	vExamples = Best(vExamples, 6)
+	vDefs = Best(vDefs, 8)
 	tOut = "definitions" + Char(10)
 	vSeen = []
+	vNames = []
 	for i = 1 to Len(vDefs)
 		vR = $vRows[vDefs[i]]
 		tKey = Lower(vR[3] + "." + vR[2])
@@ -169,20 +174,129 @@ func Find(tQuery)
 			loop
 		end
 		vSeen + tKey
+		if Len(vR[2]) >= 4 and IsIn(Lower(vR[2]), vNames) = false
+			vNames + Lower(vR[2])
+		end
 		tOwner = ""
 		if vR[3] != ""
 			tOwner = vR[3] + "  "
 		end
 		tOut = tOut + "  " + tOwner + vR[6] + "      " + vR[4] + ":" + vR[5] + Char(10)
 		if vR[7] != ""
-			tOut = tOut + "      " + Left(vR[7], 220) + Char(10)
+			tOut = tOut + "      " + Left(vR[7], 120) + Char(10)
 		end
 	end
-	tOut = tOut + Char(10) + "examples (narrated, the expected value after -->)" + Char(10)
+	vUsing = []
 	for i = 1 to Len(vExamples)
-		vR = $vRows[vExamples[i]]
-		tOut = tOut + "  " + vR[6] + "   --> " + vR[7] + Char(10)
-		tOut = tOut + "      " + vR[2] + "   (" + vR[4] + ":" + vR[5] + ")" + Char(10)
+		tCode = Lower($vRows[vExamples[i][2]][6])
+		for p = 1 to Len(vNames)
+			if SubStr(tCode, vNames[p]) > 0
+				vUsing + vExamples[i]
+				exit
+			end
+		end
+	end
+	vUsing = Best(vUsing, 3)
+	tHead = "examples that use them (narrated; the value after -->)"
+	if Len(vUsing) = 0
+		vUsing = Best(vExamples, 2)
+		tHead = "examples for these words (narrated; the value after -->)"
+	end
+	if Len(vUsing) > 0
+		tOut = tOut + Char(10) + tHead + Char(10)
+		for i = 1 to Len(vUsing)
+			vR = $vRows[vUsing[i]]
+			tOut = tOut + "  " + vR[6] + "   --> " + Left(vR[7], 100) + "      " + vR[2] + Char(10)
+		end
+	end
+	return tOut
+end
+
+# the methods one class defines, by name; with words, only those whose name or comment holds one of them
+func Methods(tArg)
+	vWords = Split1(tArg)
+	if Len(vWords) = 0
+		return "methods: give a class, and words to narrow it, e.g. methods stzList remove"
+	end
+	tClass = Lower(vWords[1])
+	vFilter = []
+	for p = 2 to Len(vWords)
+		AddWord(vFilter, vWords[p])
+	end
+	vOut = []
+	tFile = ""
+	nLen = Len($vRows)
+	for i = 1 to nLen
+		vR = $vRows[i]
+		if vR[1] != "def" or Lower(vR[3]) != tClass
+			loop
+		end
+		tFile = vR[4]
+		if Len(vFilter) > 0
+			bHit = false
+			for p = 1 to Len(vFilter)
+				if SubStr(vR[8], vFilter[p]) > 0
+					bHit = true
+				end
+			end
+			if bHit = false
+				loop
+			end
+		end
+		if IsIn(vR[2], vOut) = false
+			vOut + vR[2]
+		end
+	end
+	if tFile = "" and Len(vOut) = 0
+		return "methods: no class named " + vWords[1] + " (find " + vWords[1] + " lists the classes whose name holds it)"
+	end
+	nMax = 300
+	tOut = vWords[1] + ": " + String(Len(vOut)) + " methods"
+	if Len(vFilter) > 0
+		tOut = tOut + " holding " + Joined(vFilter, ", ")
+	end
+	if Len(vOut) > nMax
+		tOut = tOut + ", the first " + String(nMax) + " shown; add words to narrow"
+	end
+	tOut = tOut + Char(10)
+	tLine = " "
+	for i = 1 to Min(Len(vOut), nMax)
+		if Len(tLine) + Len(vOut[i]) > 110
+			tOut = tOut + tLine + Char(10)
+			tLine = " "
+		end
+		tLine = tLine + " " + vOut[i]
+	end
+	return tOut + tLine + Char(10)
+end
+
+func Split1(tText)
+	vOut = []
+	tCur = ""
+	nLen = Len(tText)
+	for i = 1 to nLen
+		if tText[i] = " "
+			if tCur != ""
+				vOut + tCur
+			end
+			tCur = ""
+		else
+			tCur = tCur + tText[i]
+		end
+	end
+	if tCur != ""
+		vOut + tCur
+	end
+	return vOut
+end
+
+func Joined(vList, tSep)
+	tOut = ""
+	for i = 1 to Len(vList)
+		if i > 1
+			tOut = tOut + tSep
+		end
+		tOut = tOut + vList[i]
 	end
 	return tOut
 end
@@ -301,6 +415,8 @@ func Serve
 			tTool = JsonStr(tAfter, "name")
 			if tTool = "softanza_find"
 				ReplyText(tId, Find(JsonStr(tAfter, "query")), false)
+			elseif tTool = "softanza_methods"
+				ReplyText(tId, Methods(JsonStr(tAfter, "class") + " " + JsonStr(tAfter, "words")), false)
 			elseif tTool = "softanza_run"
 				ReplyText(tId, Run(JsonStr(tAfter, "code")), false)
 			else
@@ -319,7 +435,8 @@ end
 func ToolList
 	tFind = "{" + Q2("name") + ":" + Q2("softanza_find") + "," + Q2("description") + ":" + JsonQuote("Find Softanza functions, methods and worked examples by words: what you want to do, or a name you think exists. Answers definitions (class, signature, comment, file:line) and narrated examples (code --> the value it gives).") + "," + Q2("inputSchema") + ":{" + Q2("type") + ":" + Q2("object") + "," + Q2("properties") + ":{" + Q2("query") + ":{" + Q2("type") + ":" + Q2("string") + "}}," + Q2("required") + ":[" + Q2("query") + "]}}"
 	tRun = "{" + Q2("name") + ":" + Q2("softanza_run") + "," + Q2("description") + ":" + JsonQuote("Run Haro code with Softanza loaded. The code is one expression, or lines of which the last is `return <expression>`. Answers what it printed, then '=== value' and the value as Softanza shows it, or '=== error' and the error.") + "," + Q2("inputSchema") + ":{" + Q2("type") + ":" + Q2("object") + "," + Q2("properties") + ":{" + Q2("code") + ":{" + Q2("type") + ":" + Q2("string") + "}}," + Q2("required") + ":[" + Q2("code") + "]}}"
-	return "{" + Q2("tools") + ":[" + tFind + "," + tRun + "]}"
+	tMethods = "{" + Q2("name") + ":" + Q2("softanza_methods") + "," + Q2("description") + ":" + JsonQuote("The methods one Softanza class defines (stzString, stzList, stzNumber...), by name; give words to keep only the methods whose name or comment holds one of them.") + "," + Q2("inputSchema") + ":{" + Q2("type") + ":" + Q2("object") + "," + Q2("properties") + ":{" + Q2("class") + ":{" + Q2("type") + ":" + Q2("string") + "}," + Q2("words") + ":{" + Q2("type") + ":" + Q2("string") + "}}," + Q2("required") + ":[" + Q2("class") + "]}}"
+	return "{" + Q2("tools") + ":[" + tFind + "," + tMethods + "," + tRun + "]}"
 end
 
 func Reply(tId, tResult)

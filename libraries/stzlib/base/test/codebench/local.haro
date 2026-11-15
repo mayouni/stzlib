@@ -1,0 +1,217 @@
+# THE SOFTANZA CODE BENCHMARK -- a local model answers the value tasks.
+#
+#     haro local.haro <label> <model file> <arm> [step]      every step-th value task (default 1: all 160)
+#
+#     arm   cold       the task alone
+#           door       the task and what the agent door's `find` answers for its words
+#           doorrun    as door, then the answer is run here; when it fails, the model sees what it gave and answers
+#                      once more
+#
+# Writes answers/<label>-<arm>.txt in the judge's format; score it with `haro judge.haro answers/<label>-<arm>.txt
+# <label>-<arm>`. The door is asked with STZ_DOOR_HOLDOUT set to this benchmark's bench.tsv, as for the agent arms,
+# so `find` serves no example from a file a task comes from. Greedy decoding, at most 120 new tokens an answer.
+#
+# Needs STZ_ENGINE_DIR (an engine with stz_neural.dll). A heavy job: one at a time on this machine.
+
+load "../../stzBase.ring"
+load "bench_lib.haro"
+
+$nMaxNew = 120
+$tSystem = "You write Haro code that uses the Softanza library. Answer with one Haro expression, or a few lines of which the last is `return <expression>`, that produces the expected value. Write only the code: no explanation, no code fences. Rules: use the Softanza functions given to you; true, false and null in small letters; Q(value) gives the value's Softanza object, whose methods chain; never write the expected value itself."
+
+$tLabel = ""
+tModel = ""
+tArm = ""
+nStep = 1
+nArgs = Len(SysArgv)
+for i = 1 to nArgs
+	if Right(SysArgv[i], 10) = "local.haro" and i + 3 <= nArgs
+		$tLabel = SysArgv[i + 1]
+		tModel = SysArgv[i + 2]
+		tArm = SysArgv[i + 3]
+		if i + 4 <= nArgs
+			nStep = Number(SysArgv[i + 4])
+		end
+	end
+end
+if tArm != "cold" and tArm != "door" and tArm != "doorrun"
+	? "usage: haro local.haro <label> <model file> <cold|door|doorrun> [step]"
+	Shutdown(2)
+end
+
+LoadLib(Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/stz_neural.dll")
+if StzEngineNeuralModelLoad(Slashes(tModel)) = 0
+	? "the model load was refused, status " + String(StzEngineNeuralModelLoadStatus())
+	Shutdown(1)
+end
+StzEngineNeuralGenSetPrefixReuse(1)
+
+vBench = ReadTsv("bench.tsv")
+tOut = ""
+nTasks = 0
+nRight = 0
+nStart = Clock()
+for i = 2 to Len(vBench)
+	vT = vBench[i]
+	if vT[4] != "value"
+		loop
+	end
+	nTasks++
+	if (nTasks - 1) % nStep != 0
+		loop
+	end
+	tTask = "Task: " + vT[5] + ": " + vT[6] + Char(10)
+	if vT[7] != ""
+		tTask = tTask + "Inputs: " + vT[7] + Char(10)
+	end
+	tTask = tTask + "Expected value: " + vT[8] + Char(10)
+	tContext = ""
+	if tArm != "cold"
+		tContext = "Softanza functions and examples that may help:" + Char(10) + DoorFind(vT[5] + " " + vT[6] + " " + vT[7]) + Char(10)
+	end
+	tCode = Answer(tContext + tTask + "Code:")
+	if tArm = "doorrun"
+		tGot = Printed(tCode)
+		if tGot != vT[8]
+			tCode = Answer(tContext + tTask + "Code:" + Char(10) + tCode + Char(10) + "That code gave: " + Left(tGot, 300) + Char(10) + "Write corrected code:")
+		end
+	end
+	if Printed(tCode) = vT[8]
+		nRight++
+	end
+	tOut = tOut + "=== " + vT[1] + Char(10) + tCode + Char(10)
+	? String(nTasks) + "  " + Left(vT[1], 50) + "  " + String(nRight) + " right so far, " + String(Floor((Clock() - nStart) / ClocksPerSecond())) + " s"
+end
+MakeDir("answers")
+Write("answers/" + $tLabel + "-" + tArm + ".txt", tOut)
+nAsked = Floor((nTasks - 1) / nStep) + 1
+? $tLabel + " " + tArm + ": " + String(nRight) + " of " + String(nAsked) + " printed right, " + String(Floor((Clock() - nStart) / ClocksPerSecond())) + " s"
+
+
+func Answer(tUser)
+	return CodeOf(StzEngineNeuralGenerate(Prompt($tSystem, tUser), $nMaxNew))
+end
+
+# the model's chat template, chosen by the label: bolt, granite, else ChatML (qwen)
+func Prompt(tSystem, tUser)
+	if Left($tLabel, 4) = "bolt"
+		return "<|turn>system" + Char(10) + tSystem + "<turn|>" + Char(10) + "<|turn>user" + Char(10) + tUser + "<turn|>" + Char(10) + "<|turn>model" + Char(10)
+	end
+	if Left($tLabel, 7) = "granite"
+		return "<|start_of_role|>system<|end_of_role|>" + tSystem + "<|end_of_text|>" + Char(10) + "<|start_of_role|>user<|end_of_role|>" + tUser + "<|end_of_text|>" + Char(10) + "<|start_of_role|>assistant<|end_of_role|>"
+	end
+	return "<|im_start|>system" + Char(10) + tSystem + "<|im_end|>" + Char(10) + "<|im_start|>user" + Char(10) + tUser + "<|im_end|>" + Char(10) + "<|im_start|>assistant" + Char(10)
+end
+
+# the code in a reply: fences, inline backticks and a trailing end-of-turn removed; a reply of several lines with no `return` keeps its
+# first line, read as the expression
+func CodeOf(tReply)
+	vLines = Str2List(tReply)
+	vKeep = []
+	bReturn = false
+	for i = 1 to Len(vLines)
+		tL = vLines[i]
+		if Left(Trim2(tL), 3) = "```" or Trim2(tL) = ""
+			loop
+		end
+		vEnds = [ "<|im_end|>", "<turn|>", "<|end_of_text|>" ]
+		for p = 1 to Len(vEnds)
+			nEnd = SubStr(tL, vEnds[p])
+			if nEnd > 0
+				tL = Left(tL, nEnd - 1)
+			end
+		end
+		if Left(Trim2(tL), 7) = "return "
+			bReturn = true
+		end
+		vKeep + tL
+	end
+	if Len(vKeep) = 0
+		return ""
+	end
+	if bReturn = false
+		return NoTicks(Trim2(vKeep[1]))
+	end
+	tOut = ""
+	for i = 1 to Len(vKeep)
+		tOut = tOut + vKeep[i] + Char(10)
+		if Left(Trim2(vKeep[i]), 7) = "return "
+			exit
+		end
+	end
+	return Trim2(tOut)
+end
+
+# a line wrapped in single backticks, as small models write code inline, without them
+func NoTicks(tLine)
+	if Len(tLine) >= 2 and Left(tLine, 1) = "`" and Right(tLine, 1) = "`"
+		return SubStr(tLine, 2, Len(tLine) - 2)
+	end
+	return tLine
+end
+
+# what the code prints as the judge sees it, or the error
+func Printed(tCode)
+	tBody = Trim2(tCode)
+	if tBody = ""
+		return "(no code)"
+	end
+	if SubStr(tBody, "return ") = 0
+		tBody = "return " + tBody
+	end
+	try
+		return Esc(@@(Eval(tBody)))
+	catch
+		return "error: " + cCatchError
+	end
+end
+
+# the agent door's find for some words, with this benchmark held out
+func DoorFind(tWords)
+	tClean = ""
+	nLen = Len(tWords)
+	for i = 1 to nLen
+		if IsAlnum(tWords[i])
+			tClean = tClean + tWords[i]
+		else
+			tClean = tClean + " "
+		end
+	end
+	tDoor = CurrentDir() + "/../../../door/"
+	tFile = tDoor + "_local_find.txt"
+	SysSet("STZ_DOOR_HOLDOUT", CurrentDir() + "/bench.tsv")
+	tCmd = Char(34) + ExeFileName() + Char(34) + " " + Char(34) + tDoor + "door.haro" + Char(34) + " find " + tClean + " > " + Char(34) + tFile + Char(34)
+	if IsWindows()
+		tCmd = Char(34) + tCmd + Char(34)
+	end
+	System(tCmd)
+	return Read(tFile)
+end
+
+func ReadTsv(tPath)
+	vOut = []
+	vLines = Split(Read(tPath), Char(10))
+	for i = 1 to Len(vLines)
+		tLine = vLines[i]
+		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
+			tLine = Left(tLine, Len(tLine) - 1)
+		end
+		if Len(tLine) > 0
+			vOut + Split(tLine, Char(9))
+		end
+	end
+	return vOut
+end
+
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for i = 1 to nLen
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end

@@ -1,0 +1,80 @@
+=== adverb/00_adverb_narrated#099386a7
+Q("quick").AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().AdverbsQC().
+=== adverb/00_adverb_narrated#5385be05
+This.EnglishQ().StemmedWordsInLanguage("africa")
+=== common/hostile_globals_narrated#cd499d0d
+@SortPaths([3, 1, 2])
+=== common/slice_primitives_narrated#a3e14428
+StzStringCountOverlapping("abc", 2, 99)
+=== extincode/51_extincode_narrated#47b8c704
+iif(0, "yes", "no")
+=== extincode/51_extincode_narrated#1d0281a2
+range0(3)
+=== file/stzZipFile_defects_narrated#0719ff0b
+SmallestPath("a\\b\\c.zip")
+=== i18n/00_i18n_narrated#7d807d92
+Q("105").IsLanguageCodeBQ()
+=== list/00_list_narrated#bf7d1f2e
+_([ 10, 20, 30, 40 ]).Nth(3)._
+=== list/00_list_narrated#41b6b7eb
+stzReactiveStream.accumulate((a, b) => a + b, 0)
+=== list/104_atat_display#c4befd1a
+pr(Q("scala: atat_ display example 6"))
+=== list/117_unicodes#78b54fb8
+UnicodeSectionToListOfChars(1, 3)
+=== list/189_find#0e3ff831
+Q(1).Find("example")
+=== list/650_operator_q_elevation_narrated#b55edccf
+( * Q(3) ).Content()
+=== list/stzItem_defects_narrated#1810f241
+Q("a").ring:475(0)
+=== matrex/stzMatrex_defects_narrated#ada5f45e
+oM. Determinant()
+=== misc/00_misc_narrated#f56d3577
+Q(2).Min
+=== natural/evidentiality_narrated#e508f8fc
+StzCalibrationBands().verbalize(0.7)
+=== number/listofnumbers_defects_narrated#84b809e8
+Q(9).SmallestNNumbersAndTheirPositions(1)
+=== number/number_dead_calls_narrated#1cdce0cc
+Q(GCD(12, 18))
+=== number/number_dead_calls_narrated#5c816d99
+stzNumber(10).FractionalPartToOctalForm()
+=== number/numeric_complex_narrated#14d1e893
+Q(5).RealPart()
+=== number/numeric_exactness_narrated#fe0d1e8b
+return StzIntegerSolution("2")
+=== number/numeric_handle_table_narrated#7e985570
+oF.GradientAt([12.375])
+=== number/numeric_no_loss_narrated#f3cc2261
+else_("2.50")
+=== object/stzObject_defects_narrated#9330e734
+7.50
+=== ocr/ocr_narrated#96e1b19f
+Q("الوثيقة بنص يؤخذ الاختلاف وعند").WordsReversed().IsRightToLeftArabic().StzOcrLogicalLineXT("عند الاختلاف يؤخذ بنص الوثيقة", "rtl")
+=== plural/00_plural_narrated#e2019d1b
+Q("cat").PluralsOfStzClassesNames()
+=== plural/00_plural_narrated#1262e613
+Q("child").ChildrenQ().Num
+=== security/advisory_watch_narrated#7d7fac2d
+-1
+=== stats/plot_engine_parity_narrated#5cc53368
+return Q(1000).ToCompactForm()
+=== string/00_string_narrated#8567153f
+oRev.NumberOfChars('héllo')
+=== string/00_string_narrated#77c15625
+Q("   hi   ").Trimmed()
+=== string/108_script#fbe3e607
+Q("משמש").ScriptName()
+=== string/110_unicode#3befb937
+Q("ı").codepoint
+=== string/116_shortenedn#16a31365
+stzString("1234567890987654321").ring:2040(2)
+=== string/158_script#afd59518
+Q("鶊").UnicodeScript()
+=== string/247_stringcase#1b4bc0c3
+StringIsUppercase("RING")
+=== system/payments_live_adapter_narrated#367bb69d
+StzJsonIsArray("events")
+=== system/sms_port_narrated#42526ed9
+stzGraphPlanner.UntilYouReachXTF("gsm7", Q("Your code is 4821"))

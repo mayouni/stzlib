@@ -5,10 +5,11 @@ Softanza, and connect the door below: it gives an agent the library's own vocabu
 
 ## The door
 
-Two tools, one program (`libraries/stzlib/door/door.haro`):
+Three tools, one program (`libraries/stzlib/door/door.haro`):
 
 - **find** -- the library's real functions and methods for some words, with their class, signature, comment and
   file, and the narrated examples that use them, each with the value it gives.
+- **methods** -- the methods one class defines (`stzString`, `stzList`, `stzNumber`...), narrowed by words.
 - **run** -- runs Haro code with Softanza loaded and answers what it printed, then `=== value` and the value as
   Softanza shows it, or `=== error` and the error.
 
@@ -29,6 +30,7 @@ As an MCP server (stdio), in the project's `.mcp.json`:
 From a shell, the same tools:
 
     haro door.haro find <words>
+    haro door.haro methods <class> [words]
     haro door.haro run <file of code>
 
 ## How to work
@@ -37,7 +39,7 @@ From a shell, the same tools:
    most common wrong answer: `find` with what you want to do ("remove many items from a list") or with the name you
    expect ("ManyRemoved").
 2. **Read the examples `find` returns.** They are the library's own narrated checks: the code and the value it
-   gives.
+   gives. To see what an object offers, ask `methods` for its class.
 3. **Run the answer before you give it.** `run` answers in well under a second once the library is cached.
 
 ## Haro, in the lines an agent most often gets wrong

@@ -63,3 +63,32 @@ Arms A and B answered the task list as it stood before the builder unwrapped `@@
   mostly off the subject. Shorter answers from `find`, and a way to list one class's methods, are the door's next
   changes; the same four arms then measure them.
 - The flag tasks were answered by the cold arm only: 56 of 119.
+
+**Door v0.2** (`find` answers eight definitions and only the examples that use them; `methods` lists a class's
+methods), arm C1 again: 145 / 160 for 213 k tokens and 45 tool calls (about 105 finds, 15 methods). The tokens fell
+by 16 %. Seven of the nine tasks it lost against v0.1 turn on the exact printed shape of a value (a list or its
+printed text, an aligned text), which v0.1's unrelated examples happened to show; `find` now adds the two best
+examples for the words when no example uses the definitions it shows. One run an arm cannot separate nine tasks from
+the run's own spread: a repeated arm is owed before either version is called the better.
+
+### Local models, through the same door
+
+`local.haro` runs a model of the engine on every fourth value task (40 tasks), greedy, 120 new tokens at most, in
+three arms: cold, door (the task with what `find` answers for its words), and doorrun (as door, then one repair with
+what the answer printed). Scored by the judge; a pass the model's own count gives to an answer that writes the
+expected value is refused here.
+
+| model | cold | door | doorrun | seconds a task (door) |
+|---|---|---|---|---|
+| qwen2.5-coder 1.5B instruct, Q8 | 1 / 40 * | 5 / 40 | 4 / 40 * | 12 |
+| Bolt E4B, Q4_K_M | 7 / 40 | 3 / 40 | -- | 28 |
+
+\* the 1.5B model's cold and doorrun arms ran before the extraction learned to strip inline backticks (and doorrun
+before `find`'s fallback examples); its door row is the re-run with both.
+
+- The same door that takes Claude from 108 to 145-160 of 160 takes the 1.5B coder from 1 to 5 of 40, and Bolt from 7
+  to 3: Bolt follows the door's definitions into names of its own (`MorphologicalAdverb`), the 1.5B model repeats a
+  method name until its tokens run out.
+- One repair from the printed result changed no answer.
+- A local model writes Softanza code only after it has learned the vocabulary: training a small model on the Haro
+  copy of the corpus is the step these numbers call for, and this benchmark is how it will be judged.
