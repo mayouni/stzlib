@@ -18,6 +18,8 @@
 #     desk, or a library one;
 #   - a reference written `@@( X )` expects X's printed form as a text; it becomes X, expecting X's value, so an
 #     answer that returns the value itself is judged right;
+#   - every gold check whose narrated file no kept task comes from is a training pair, written to _train/train.tsv
+#     (gitignored): the material a local model is trained on, kept apart from the tasks it is judged by;
 #   - a check whose expected value is written inside its own reference is dropped: an answer that names the result
 #     proves nothing, and the judge refuses it the same way;
 #   - a reference that calls nothing is dropped, as the judge refuses such an answer;
@@ -79,6 +81,7 @@ nSplit = 0
 nGold = 0
 nLeak = 0
 nNoCall = 0
+vGold = []
 nUnwrapped = 0
 nPorted = 0
 nToPort = 0
@@ -132,6 +135,7 @@ for i = 1 to nChecks
 			nUnwrapped++
 		end
 	end
+	vGold + [ vChecks[i][:id], vChecks[i][:file], Flat(vChecks[i][:scenario]), Flat(vChecks[i][:desc]), Inputs(tRef), Esc(tGotExp), tRef ]
 	if Leaks(tRef, tGotExp)
 		nLeak++
 		loop
@@ -184,6 +188,24 @@ Write("bench.tsv", tBench)
 Write("tasks.txt", tTasks)
 Write("tasks_value.txt", tValue)
 Write("gold_misses.tsv", tMiss)
+# the training pairs: every gold check whose narrated file no task of the benchmark comes from
+vHeld = []
+for i = 1 to Len(vRows)
+	tHeldFile = TaskFile(vRows[i][1])
+	if IsIn(tHeldFile, vHeld) = false
+		vHeld + tHeldFile
+	end
+end
+tTrain = Row([ "id", "file", "scenario", "description", "inputs", "expected", "code" ])
+nTrain = 0
+for i = 1 to Len(vGold)
+	if IsIn(NoExt(vGold[i][2]), vHeld) = false
+		tTrain = tTrain + Row(vGold[i])
+		nTrain++
+	end
+end
+MakeDir("_train")
+Write("_train/train.tsv", tTrain)
 if nToPort > 0
 	MakeDir("_port")
 	Write("_port/refs.ring", tPortOut)
@@ -198,6 +220,7 @@ end
 ? "@@( ) unwrapped         " + String(nUnwrapped)
 ? "expected inside the ref " + String(nLeak)
 ? "reference calls nothing " + String(nNoCall)
+? "training pairs (_train) " + String(nTrain) + ", from files no task comes from"
 ? "kept after the caps     " + String(Len(vRows))
 vCount = []
 vCountN = []
@@ -253,4 +276,30 @@ func PortedBody(tName)
 		end
 	end
 	return ""
+end
+
+
+# the narrated file a task id names, without its extension: its path under base/test, before the #
+func TaskFile(tId)
+	nHash = SubStr(tId, "#")
+	return Left(tId, nHash - 1)
+end
+
+func NoExt(tFile)
+	nLen = Len(tFile)
+	for i = nLen to 1 step -1
+		if tFile[i] = "."
+			return Left(tFile, i - 1)
+		end
+	end
+	return tFile
+end
+
+func IsIn(tItem, vList)
+	for i = 1 to Len(vList)
+		if vList[i] = tItem
+			return true
+		end
+	end
+	return false
 end
