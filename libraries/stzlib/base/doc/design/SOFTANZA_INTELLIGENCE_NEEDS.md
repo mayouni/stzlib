@@ -34,9 +34,9 @@ checks itself when it runs. The labels exist by the thousand, and haro.exe is th
 - **The agent door** (`libraries/stzlib/door`): `find`, `methods` and `run`, on the command line and as an MCP server,
   with an `AGENTS.md` for coding agents.
 
-**Measured:** a remote agent passes 108 of the 160 value tasks from what it knows, 148 reading the library's source,
-145 to 154 through the door's `find`, and 160 with `find` and `run`. Small local models pass 1 to 7 of 40 with or
-without the door: they have not learned the vocabulary.
+**Measured** (judged strictly, on the 150 value tasks every arm answered): a remote agent passes 102 from what it
+knows, 140 reading the library's source, 136 to 141 through the door's `find` with no file read, and 147 with `find`
+and `run`. Small local models pass 1 to 7 of 38 with or without the door: they have not learned the vocabulary.
 
 **Three ways to serve it**, in this order:
 - **(i) retrieval and a check loop around a model** -- the door. It needs no training, and with no model at all its
