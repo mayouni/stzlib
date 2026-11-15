@@ -1,4 +1,4 @@
-THE SOFTANZA CODE BENCHMARK -- 279 tasks.
+THE SOFTANZA CODE BENCHMARK -- 160 value tasks.
 
 For each task, write Haro code that uses Softanza to produce the expected value. The answer is either one
 expression, or several lines of which the last is `return <expression>`. Do not write the expected value

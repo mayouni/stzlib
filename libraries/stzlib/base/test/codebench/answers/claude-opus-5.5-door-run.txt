@@ -1,0 +1,330 @@
+=== adverb/00_adverb_narrated#099386a7
+return Adverb("quick")
+=== adverb/00_adverb_narrated#d93767f1
+return Adverb("happy")
+=== adverb/00_adverb_narrated#d0ae859b
+return Adverb("good")
+=== adverb/00_adverb_narrated#ce810ea8
+return Adverb("asia")
+=== adverb/00_adverb_narrated#5385be05
+return Adverb("africa")
+=== common/hostile_globals_narrated#475eeaf8
+return Q("hello").Uppercased()
+=== common/hostile_globals_narrated#3ce1a113
+return Q("hello").Find("l")
+=== common/hostile_globals_narrated#833b74bc
+return Q([3, 1, 3]).Find(3)
+=== common/hostile_globals_narrated#cd499d0d
+return Q([3, 1, 2]).Sorted()
+=== common/hostile_globals_narrated#f71dc236
+tS = "item42"
+tN = Q(tS).TrailingNumber()
+return @@([ Q(tS).NLeftChars(StzLen(tS) - StzLen(tN)), tN ])
+=== common/hostile_globals_narrated#ef504c22
+return Q(5).Factorial()
+=== common/hostile_globals_narrated#385a08a6
+return Q(10).Fibonacci()
+=== common/slice_primitives_narrated#a3e14428
+return Q("abc").SliceXT(2, 99)
+=== csv/00_csv_narrated#d9501a93
+return DefaultCSVSeparator()
+=== datetime/stzCalendar_defects_narrated#bc32caa8
+return Calendar("2026-12-31").NextDay()
+=== datetime/stzCalendar_defects_narrated#87953d7a
+return Calendar("2026-01-01").PreviousDay()
+=== extincode/51_extincode_narrated#47b8c704
+return iif(0, "yes", "no")
+=== extincode/51_extincode_narrated#d0991f9e
+return iif("1 = 1", "T", "F")
+=== extincode/51_extincode_narrated#8de35606
+return Length([1, 2, 3])
+=== extincode/51_extincode_narrated#6320e9b9
+return Length("abc")
+=== extincode/51_extincode_narrated#1d0281a2
+return range0(3)
+=== extincode/51_extincode_narrated#48e55f75
+return range0([1, 4])
+=== extincode/51_extincode_narrated#264a7e06
+return range1(3)
+=== extincode/51_extincode_narrated#dc8d6937
+return range1([2, 5])
+=== file/stzZipFile_defects_narrated#0719ff0b
+tD = StzPathDirname(StzReplace("a\b\c.zip", "\", "/"))
+if tD = ""
+  tD = "."
+end
+return tD
+=== file/stzZipFile_defects_narrated#c7eb50ed
+tD = StzPathDirname(StzReplace("c.zip", "\", "/"))
+if tD = ""
+  tD = "."
+end
+return tD
+=== graph/orgrule_narrated#6a0e0b0d
+return (new stzGDPRRuleBase()).NumberOfRules()
+=== graph/orgrule_narrated#7751146d
+return len((new stzHIPAARuleBase()).Rules())
+=== i18n/00_i18n_narrated#7d807d92
+return StzLanguageQ("105").Name()
+=== list/00_list_narrated#a57e8772
+return Q([10, 20, 30]).FirstItem()
+=== list/00_list_narrated#e52c4a85
+return Q([10, 20, 30]).LastItem()
+=== list/00_list_narrated#41190506
+return Sum([1, 2, 3, 4])
+=== list/00_list_narrated#bf7d1f2e
+return Q([10, 20, 30, 40]).NthItem(3)
+=== list/00_list_narrated#93829005
+return Max([3, 1, 2])
+=== list/00_list_narrated#a6f08a7a
+return Q([1, 2, 3, 4]).CountW('@item > 2')
+=== list/00_list_narrated#623235a5
+return Q([1, 2, 3, 2]).FindFirst(2)
+=== list/00_list_narrated#41b6b7eb
+return Q([1, 2, 3, 4]).Reduce()
+=== list/00_list_narrated#acc1ac4c
+return Q([1, 2, 3, 4]).ReduceXT('@accumulator + @item', 0)
+=== list/06_manyremoved#fd445fec
+return Q(1:10).ManyRemoved([3, 7, 9])
+=== list/104_atat_display#afc3761e
+return @@("🌞")
+=== list/104_atat_display#c4befd1a
+return @@(["1", "🌞", "ring"])
+=== list/10_replacemanybymany#84e05e47
+return SectionToRange(3, 7)
+=== list/10_replacemanybymany#50bb5520
+return RangeToSection(3, 5)
+=== list/114_unicode#6d171576
+return Q("Hi").Unicodes()
+=== list/117_unicodes#78b54fb8
+return Unicodes(1:3)
+=== list/117_unicodes#c7472956
+return Unicodes(["a", "b", "c"])
+=== list/136_sort#90826c5b
+return Q([4, 3, 5, 2, 1]).Sorted()
+=== list/16_association#b17cf117
+return @@(Association([ "A":"C", 1:3, "a":"c" ]))
+=== list/189_find#0e3ff831
+return Q([1, 2, 3, 4, 5, 3, 7]).Find(3)
+=== list/204_association#15dc63e2
+return @@(Association([ 1:3, ["One", "Two", "Three"] ]))
+=== list/21_intersection#18f487d3
+return Intersection([ 1:3, 2:7 ])
+=== list/650_operator_q_elevation_narrated#07cededb
+return Q("ABC") * 3
+=== list/650_operator_q_elevation_narrated#b55edccf
+return (Q("ABC") * Q(3)).Content()
+=== list/listoflists_defects_narrated#a21ad723
+return StzListOfListsQ([[1, 3, 2]]).SortNthListInDescendingQ(1).Content()
+=== list/listoflists_defects_narrated#a40d5b4d
+return @@(StzListOfListsQ([["b", "c", "a"]]).SortNthListInDescendingQ(1).Content())
+=== list/listoflists_defects_narrated#264f3710
+return StzListOfListsQ([[1, 2, 3]]).RemoveManyColumnsQ([3]).Content()
+=== list/stzItem_defects_narrated#1810f241
+return StzItemCSQ("a", ["a", "b", "A"], 0).LastPosition()
+=== list/stzItem_defects_narrated#5acc292d
+return StzItemQ("an", "banana").Content()
+=== listofnumbers/00_listofnumbers_narrated#ee0c795a
+return Divide([12, 2, 3])
+=== listofnumbers/00_listofnumbers_narrated#9e18fb8c
+return Multiply([10, 2, 3])
+=== matrex/stzMatrex_defects_narrated#ada5f45e
+return StzMatrixQ([[1, 2], [3, 4]]).Determinant()
+=== misc/00_misc_narrated#840d5b37
+return StzLen("softanza")
+=== misc/00_misc_narrated#d0ebe1f8
+return @substr("one five three", "five", "two")
+=== misc/00_misc_narrated#1e29144e
+return @substr("one two three", "two", 1)
+=== misc/00_misc_narrated#f56d3577
+return @Min([2, 3])
+=== misc/00_misc_narrated#d6b2c106
+return @Max([2, 3])
+=== misc/00_misc_narrated#9d647c69
+return CenterText("ab", 6)
+=== natural/evidentiality_narrated#171fd981
+return StzEvidentialVerdict(1, 0.95)
+=== natural/evidentiality_narrated#e508f8fc
+return StzEvidentialVerdict(1, 0.7)
+=== natural/evidentiality_narrated#bc163120
+return StzEvidentialAdverb(1)
+=== number/00_number_narrated#410d359e
+return Q(-7).Abs()
+=== number/listofnumbers_defects_narrated#3072ab3a
+return StzListOfNumbersQ([4, 6]).Cumulated()
+=== number/listofnumbers_defects_narrated#84b809e8
+return StzListOfNumbersQ([9, 7, 5]).MinZ()
+=== number/listofnumbers_defects_narrated#787d690b
+return StzListOfNumbersQ([1, 5, 9]).Neighbors(5)
+=== number/money_currency_narrated#44590ef5
+return (new stzAmount("12", "EUR")).MinorUnits()
+=== number/money_currency_narrated#ba938b5d
+return (new stzAmount("5000", "xof")).Currency()
+=== number/number_dead_calls_narrated#1cdce0cc
+return Q(12).GCD(18)
+=== number/number_dead_calls_narrated#d9e60102
+return StzListOfNumbersQ([4, 6, 8]).LCM()
+=== number/number_dead_calls_narrated#6316f5ba
+return Q(41).NextNumber()
+=== number/number_dead_calls_narrated#afc0eace
+return Q(41).PreviousNumber()
+=== number/number_dead_calls_narrated#5c816d99
+return Q(10).ToOctalFormWithoutPrefix()
+=== number/number_dead_calls_narrated#2c9d264e
+return StzNumberQ("10.5").FractionalPartToOctalForm()
+=== number/numeric_calculable_narrated#f408492d
+return MaxCalculableInteger()
+=== number/numeric_calculable_narrated#93567bec
+return StzNumberQ("0.5").Value()
+=== number/numeric_complex_narrated#14d1e893
+return (new stzComplex(5, 0)).Content()
+=== number/numeric_complex_narrated#aef5344f
+return (new stzComplex(0, 1)).Content()
+=== number/numeric_exactness_narrated#e4b5d8c9
+return (StzNumberQ("0.1") + StzNumberQ("0.2")).Content()
+=== number/numeric_exactness_narrated#fdbf184d
+return (StzNumberQ("0.1") * StzNumberQ("0.1")).Content()
+=== number/numeric_exactness_narrated#fe0d1e8b
+return (StzNumberQ("2") * StzNumberQ("2")).Content()
+=== number/numeric_exactness_narrated#bc4cb088
+return (StzNumberQ("1") / StzNumberQ("8")).Content()
+=== number/numeric_exactness_narrated#dd3da27d
+return (StzNumberQ("0.1") / StzNumberQ("4")).Content()
+=== number/numeric_exactness_narrated#4d04607a
+return StzNumberQ("1.234").Round()
+=== number/numeric_handle_table_narrated#7e985570
+return StzNumberQ("12.375").Value()
+=== number/numeric_handle_table_narrated#97dd246e
+return StzNumberQ("42").Value()
+=== number/numeric_handle_table_narrated#bbedab8a
+return StzNumberQ("12.375").Value()
+=== number/numeric_no_loss_narrated#201147e3
+return Q(0.1).Content()
+=== number/numeric_no_loss_narrated#f3cc2261
+return Q(2.5).Content()
+=== number/numeric_no_loss_narrated#e11f1311
+return StzNumberQ(1.0 / 3.0).Content()
+=== number/numeric_no_loss_narrated#682646db
+return StzNumberQ("42").Representation()
+=== number/numeric_no_loss_narrated#8f55c95b
+return StzNumberQ("-7").Representation()
+=== object/stzObject_defects_narrated#9330e734
+return Q(7.5).Numberified()
+=== object/stzObject_defects_narrated#daa86d0a
+return Q("12").Numberified()
+=== object/stzObject_defects_narrated#177ed0b2
+return Q(["ab", "cd"]).ALengthN()
+=== object/stzObject_defects_narrated#84690c8b
+return Q(["a", "b", "c", "d"]).ALengthN()
+=== ocr/ocr_narrated#96e1b19f
+return StzOcrLogicalLine("الوثيقة بنص يؤخذ الاختلاف وعند")
+=== ocr/ocr_narrated#70581545
+return StzOcrLogicalLine("1234 800 الساخن الخط")
+=== ordinal/00_ordinal_narrated#2cf90c15
+return Ordinal(1)
+=== ordinal/00_ordinal_narrated#d016dcd9
+return Ordinal(2)
+=== plural/00_plural_narrated#e2019d1b
+return Plural("cat")
+=== plural/00_plural_narrated#435edade
+return Plural("dog")
+=== plural/00_plural_narrated#203e8e19
+return Plural("city")
+=== plural/00_plural_narrated#1bb831a1
+return Plural("baby")
+=== plural/00_plural_narrated#1262e613
+return Plural("child")
+=== plural/00_plural_narrated#e9f50823
+return Plural("man")
+=== reflect/docgen_narrated#108405c9
+return StzLower(StzReplace(StzReplace("_NNLValueIs", "_NNL", ""), "Is", ""))
+=== reflect/docgen_narrated#ab66189d
+return StzLower(StzReplace(StzReplace("_NNLImmutable", "_NNL", ""), "Is", ""))
+=== security/advisory_watch_narrated#7d7fac2d
+return StzAdvisoryFeedQ().NumberOfMatches() - 1
+=== singular/00_singular_narrated#3f535e83
+return Singular("cities")
+=== singular/00_singular_narrated#6fec8744
+return Singular("babies")
+=== singular/00_singular_narrated#582c9d0f
+return Singular("men")
+=== stats/plot_engine_parity_narrated#5cc53368
+return Q(1000).CompactForm()
+=== string/00_string_narrated#dbbdadf0
+return Q("ring").Uppercased()
+=== string/00_string_narrated#fef3827c
+return Q("RING").Lowercased()
+=== string/00_string_narrated#68a108ba
+return Q("softanza").NumberOfChars()
+=== string/00_string_narrated#8567153f
+return Q("héllo").NumberOfChars()
+=== string/00_string_narrated#20d19a85
+return Q("abc").Reversed()
+=== string/00_string_narrated#463a9a8f
+return Q("aXbXc").Replaced("X", "-")
+=== string/00_string_narrated#87ed4de2
+return Q("naïve").Replaced("ï", "i")
+=== string/00_string_narrated#77c15625
+return Q("  hi  ").Trimmed()
+=== string/08_write_a#a45c67bf
+return @NXT(3, ".", :InAString)
+=== string/105_unicode#08a0a918
+return Q("I").Unicode()
+=== string/107_hexprefix#a8cfba19
+return HexPrefix()
+=== string/108_script#fbe3e607
+return Q("משמש").Script()
+=== string/109_ishexunicode#3f580dd9
+return StzCharQ("ڢ").HexUnicode()
+=== string/10_aligncenter#fc491a72
+return @@(Q("RING").CenterAligned(15))
+=== string/10_aligncenter#f0a66b4f
+return @@(Q("RING").LeftAligned(15))
+=== string/110_unicode#3befb937
+return Q("ı").Unicode()
+=== string/110_unicode#73522def
+return Q("ȷ").Unicode()
+=== string/112_repeatedntimes#31a2b15b
+return Q("♥").RepeatedNTimes(3)
+=== string/112_repeatedntimes#de75ea25
+return NCopies(3, "♥")
+=== string/116_shortenedn#16a31365
+return Q("1234567890987654321").ShortenedN(2)
+=== string/117_shortened#7683b917
+return Q("1234567890987654321").Shortened()
+=== string/117_shortened#423c9d20
+return Q("1234567890987654321").ShortenedN(5)
+=== string/130_negative_index#4e775743
+return Q("ABCDE")[-2]
+=== string/158_script#afd59518
+return Q("鶊").Script()
+=== string/158_script#1e5fb197
+return StzCharQ("鶊").Name()
+=== string/243_findlast#7dd7c543
+return PerfGain100(12.99, 2.45)
+=== string/243_findlast#785c70a7
+return SpeedUpX(12.99, 2.45)
+=== string/247_stringcase#1b4bc0c3
+return Q("RING").StringCase()
+=== string/247_stringcase#10fb5cae
+return Q("ring").StringCase()
+=== string/28_numberofoccurrenceofcharleftside#bfb41f16
+return Q("---ring").NumberOfOccurrenceOfCharLeftSide("-")
+=== system/payments_live_adapter_narrated#d7d5285e
+return StzPispiJson([ :transactions = [], :x = 1 ])
+=== system/payments_live_adapter_narrated#367bb69d
+return StzPispiJson([ :events = ["A", "B"] ])
+=== system/payments_qr_narrated#315e67cf
+return StzLen(StzPispiQrCrc16("aaaaaa"))
+=== system/payments_secrets_narrated#68cfc5c4
+return StzPispiSecretName("BIA", "mtls-cert")
+=== system/pispi_twin_narrated#e0af0a64
+return StzPaymentsReasonMeaning("DU03")
+=== system/sms_port_narrated#42526ed9
+return StzSmsSegments("Your code is 4821")[:encoding]
+=== system/sms_port_narrated#ebe7b0e8
+return StzSmsSegments(StzChar(8364))[:units]
+=== system/sms_port_narrated#9dcb99e8
+return StzSmsSegments(Q("{").RepeatedNTimes(100))[:units]
+=== time/00_time_narrated#e8fca91f
+return StzTimeQ("14:30").ToString()

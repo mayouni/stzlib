@@ -134,12 +134,18 @@ for i = 1 to nChecks
 end
 
 tBench = Row([ "id", "area", "topic", "kind", "scenario", "description", "inputs", "expected", "reference" ])
-tTasks = "THE SOFTANZA CODE BENCHMARK -- " + String(Len(vRows)) + " tasks." + Char(10) + Char(10)
-tTasks = tTasks + "For each task, write Haro code that uses Softanza to produce the expected value. The answer is either one" + Char(10)
+nValue = 0
+for i = 1 to Len(vRows)
+	if vRows[i][4] = "value"
+		nValue++
+	end
+end
+tTasks = "For each task, write Haro code that uses Softanza to produce the expected value. The answer is either one" + Char(10)
 tTasks = tTasks + "expression, or several lines of which the last is `return <expression>`. Do not write the expected value" + Char(10)
 tTasks = tTasks + "itself: an answer that contains it is refused. Expected values are printed as Softanza prints them (@@)." + Char(10)
 tTasks = tTasks + "A task of kind `flag` expects 0, 1, an empty text or an empty list: answer it by doing the check it names." + Char(10) + Char(10)
-tValue = tTasks
+tValue = "THE SOFTANZA CODE BENCHMARK -- " + String(nValue) + " value tasks." + Char(10) + Char(10) + tTasks
+tTasks = "THE SOFTANZA CODE BENCHMARK -- " + String(Len(vRows)) + " tasks." + Char(10) + Char(10) + tTasks
 for i = 1 to Len(vRows)
 	tBench = tBench + Row(vRows[i])
 	tOne = TaskText(vRows[i])

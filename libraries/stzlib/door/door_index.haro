@@ -1,0 +1,277 @@
+# THE AGENT DOOR -- the index builder.
+#
+#     haro door_index.haro          (from this folder)
+#
+# Reads the library once and writes index.tsv, the knowledge the door's `find` answers from:
+#
+#   def       every function and method the library defines (base/ and core/, its tests and archives left out):
+#             its name, its class, its signature, the comment lines written just above it, and its first body line
+#             (an alias shows there what it stands for)
+#   example   every narrated assertion `Then(description, actual, expected)` in base/test: the code that runs, what
+#             it gives, and the scenario it belongs to
+#
+# One row a line: kind, name, class, file, line, head, note, words. `head` is the signature or the example's code;
+# `note` the comment or the expected value; `words` the lowercased text `find` searches, the name's words split at
+# their capitals. A tab or a line break inside a field is written as a space.
+#
+# Needs no engine and does not load the library: it reads text and writes text.
+
+$tRoot = ".."
+$vSkipDirs = [ "test", "archive", "_tmp", "future", "max", "models", "engine", "cli", "tools", "atelier", "door", "zig-out", ".zig-cache" ]
+$hOut = FOpen("index.tsv", "wb")
+$nDefs = 0
+$nExamples = 0
+$nFiles = 0
+
+nStart = Clock()
+Walk("base", false)
+Walk("core", false)
+Walk("base/test", true)
+FClose($hOut)
+? "files read  " + String($nFiles)
+? "defs        " + String($nDefs)
+? "examples    " + String($nExamples)
+? "seconds     " + String(Floor((Clock() - nStart) / ClocksPerSecond()))
+
+
+# walk a folder: source files for their definitions, or (bTests) narrated test files for their examples
+func Walk(tRel, bTests)
+	vEntries = Dir($tRoot + "/" + tRel)
+	for i = 1 to Len(vEntries)
+		tName = vEntries[i][1]
+		if vEntries[i][2] = 1
+			if bTests = false and IsIn(tName, $vSkipDirs)
+				loop
+			end
+			if Left(tName, 1) = "."
+				loop
+			end
+			Walk(tRel + "/" + tName, bTests)
+			loop
+		end
+		bSource = Right(tName, 5) = ".ring" or Right(tName, 5) = ".haro"
+		if bSource = false
+			loop
+		end
+		if bTests
+			if SubStr(Lower(tName), "narrat") > 0
+				Examples(tRel + "/" + tName)
+			end
+		else
+			Defs(tRel + "/" + tName)
+		end
+	end
+end
+
+func Defs(tFile)
+	$nFiles++
+	vLines = Str2List(Read($tRoot + "/" + tFile))
+	tClass = ""
+	nLen = Len(vLines)
+	for i = 1 to nLen
+		tLine = Trim2(vLines[i])
+		tLow = Lower(Left(tLine, 6))
+		if Left(tLow, 6) = "class "
+			tClass = FirstWord(SubStr(tLine, 7, Len(tLine) - 6))
+			loop
+		end
+		bFunc = Left(tLow, 5) = "func "
+		bDef = Left(tLow, 4) = "def "
+		if bFunc = false and bDef = false
+			loop
+		end
+		if bFunc
+			tRest = SubStr(tLine, 6, Len(tLine) - 5)
+			tOwner = ""
+		else
+			tRest = SubStr(tLine, 5, Len(tLine) - 4)
+			tOwner = tClass
+		end
+		tName = FirstWord(tRest)
+		if tName = "" or Left(tName, 1) = "_"
+			loop
+		end
+		tComment = ""
+		nUp = i - 1
+		nTaken = 0
+		while nUp >= 1 and nTaken < 4 and Left(Trim2(vLines[nUp]), 1) = "#"
+			tComment = Trim2(SubStr(Trim2(vLines[nUp]), 2, Len(Trim2(vLines[nUp])) - 1)) + " " + tComment
+			nUp--
+			nTaken++
+		end
+		tBody = ""
+		if i < nLen
+			tBody = Left(Trim2(vLines[i + 1]), 100)
+		end
+		tNote = Trim2(tComment)
+		if Left(Lower(tBody), 6) = "return"
+			tNote = Trim2(tNote + "  | " + tBody)
+		end
+		tWords = Lower(SplitCaps(tName) + " " + tName + " " + tOwner + " " + tNote)
+		FWrite($hOut, Row([ "def", tName, tOwner, tFile, String(i), Left(tLine, 160), Left(tNote, 300), Left(tWords, 400) ]))
+		$nDefs++
+	end
+end
+
+func Examples(tFile)
+	$nFiles++
+	vLines = Str2List(Read($tRoot + "/" + tFile))
+	tScenario = ""
+	nLen = Len(vLines)
+	for i = 1 to nLen
+		tLine = Trim2(vLines[i])
+		if Left(tLine, 9) = "Scenario("
+			vA = Args(SubStr(tLine, 10, Len(tLine) - 9))
+			if Len(vA) >= 1
+				tScenario = Unquote(vA[1])
+			end
+			loop
+		end
+		if Left(tLine, 5) != "Then("
+			loop
+		end
+		vA = Args(SubStr(tLine, 6, Len(tLine) - 5))
+		if Len(vA) != 3
+			loop
+		end
+		tDesc = Unquote(vA[1])
+		tWords = Lower(tDesc + " " + tScenario + " " + vA[2])
+		FWrite($hOut, Row([ "example", tDesc, tScenario, tFile, String(i), Left(vA[2], 240), Left(vA[3], 160), Left(tWords, 500) ]))
+		$nExamples++
+	end
+end
+
+# the arguments of a call, from just after its opening bracket: split at the commas outside strings and brackets,
+# up to the bracket that closes the call
+func Args(tText)
+	vOut = []
+	tCur = ""
+	nDepth = 0
+	tQuote = ""
+	nLen = Len(tText)
+	for i = 1 to nLen
+		tC = tText[i]
+		if tQuote != ""
+			tCur = tCur + tC
+			if tC = tQuote
+				tQuote = ""
+			end
+			loop
+		end
+		if tC = Char(34) or tC = "'" or tC = "`"
+			tQuote = tC
+			tCur = tCur + tC
+			loop
+		end
+		if tC = "(" or tC = "[" or tC = "{"
+			nDepth++
+		end
+		if tC = ")" or tC = "]" or tC = "}"
+			if nDepth = 0
+				vOut + Trim2(tCur)
+				return vOut
+			end
+			nDepth--
+		end
+		if tC = "," and nDepth = 0
+			vOut + Trim2(tCur)
+			tCur = ""
+			loop
+		end
+		tCur = tCur + tC
+	end
+	return []
+end
+
+# the name a definition line starts with: letters, digits, _ @ $ and #
+func FirstWord(tText)
+	tT = Trim2(tText)
+	tOut = ""
+	nLen = Len(tT)
+	for i = 1 to nLen
+		tC = tT[i]
+		if IsAlnum(tC) or tC = "_" or tC = "@" or tC = "$" or tC = "#"
+			tOut = tOut + tC
+		else
+			return tOut
+		end
+	end
+	return tOut
+end
+
+# a name's words, split before each capital: ReplaceManyByMany -> Replace Many By Many
+func SplitCaps(tName)
+	tOut = ""
+	nLen = Len(tName)
+	for i = 1 to nLen
+		tC = tName[i]
+		if i > 1 and IsUpper(tC) and not IsUpper(tName[i - 1])
+			tOut = tOut + " "
+		end
+		if tC = "_" or tC = "@"
+			tOut = tOut + " "
+		else
+			tOut = tOut + tC
+		end
+	end
+	return tOut
+end
+
+func Unquote(tT)
+	if Len(tT) >= 2 and (Left(tT, 1) = Char(34) or Left(tT, 1) = "'" or Left(tT, 1) = "`") and Right(tT, 1) = Left(tT, 1)
+		return SubStr(tT, 2, Len(tT) - 2)
+	end
+	return tT
+end
+
+func IsIn(tItem, vList)
+	for i = 1 to Len(vList)
+		if vList[i] = tItem
+			return true
+		end
+	end
+	return false
+end
+
+func Trim2(tT)
+	nA = 1
+	nB = Len(tT)
+	while nA <= nB and (tT[nA] = " " or tT[nA] = Char(9) or tT[nA] = Char(13))
+		nA++
+	end
+	while nB >= nA and (tT[nB] = " " or tT[nB] = Char(9) or tT[nB] = Char(13))
+		nB--
+	end
+	if nB < nA
+		return ""
+	end
+	return SubStr(tT, nA, nB - nA + 1)
+end
+
+# one row: a tab, a line feed or a carriage return inside a field becomes a space
+func Row(vF)
+	tR = ""
+	for i = 1 to Len(vF)
+		if i > 1
+			tR = tR + Char(9)
+		end
+		tR = tR + Clean(vF[i])
+	end
+	return tR + Char(10)
+end
+
+func Clean(tT)
+	if SubStr(tT, Char(9)) = 0 and SubStr(tT, Char(10)) = 0 and SubStr(tT, Char(13)) = 0
+		return tT
+	end
+	tOut = ""
+	nLen = Len(tT)
+	for i = 1 to nLen
+		if tT[i] = Char(9) or tT[i] = Char(10) or tT[i] = Char(13)
+			tOut = tOut + " "
+		else
+			tOut = tOut + tT[i]
+		end
+	end
+	return tOut
+end

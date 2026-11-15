@@ -1,0 +1,56 @@
+# THE AGENT DOOR -- the runner.
+#
+#     haro door_run.haro <file of code>
+#
+# Loads Softanza, runs the code in the file and prints what it printed, then a line `=== value` and the value the
+# code gives, as Softanza shows it (@@), or `=== error` and the error. The code is one expression, or lines of which
+# the last is `return <expression>`; code with no `return` line is read as one expression.
+#
+# The door runs it as a child process, so code that prints, raises or crashes cannot touch the door's own stream.
+# The file name stays the same from run to run (the door writes the code to one place), so haro.exe keeps the
+# compiled library in its image cache and a run costs well under a second once the cache is warm.
+
+load "../base/stzBase.ring"
+
+tFile = ""
+nArgs = Len(SysArgv)
+for i = 1 to nArgs - 1
+	if Right(SysArgv[i], 13) = "door_run.haro"
+		tFile = SysArgv[i + 1]
+	end
+end
+if tFile = ""
+	? "usage: haro door_run.haro <file of code>"
+	Shutdown(2)
+end
+
+tBody = Read(tFile)
+if HasReturn(tBody) = false
+	tBody = "return " + tBody
+end
+try
+	tShown = @@(Eval(tBody))
+	? "=== value"
+	? tShown
+catch
+	? "=== error"
+	? cCatchError
+	if SubStr(cCatchError, "never mentions") > 0 or SubStr(cCatchError, "without definition") > 0 or SubStr(cCatchError, "class not found") > 0
+		? "(that name is not in Softanza: look up the real one with find)"
+	end
+end
+
+
+func HasReturn(tBody)
+	vLines = Str2List(tBody)
+	for i = 1 to Len(vLines)
+		tL = vLines[i]
+		while Len(tL) > 0 and (Left(tL, 1) = " " or Left(tL, 1) = Char(9))
+			tL = SubStr(tL, 2, Len(tL) - 1)
+		end
+		if Left(tL, 7) = "return "
+			return true
+		end
+	end
+	return false
+end

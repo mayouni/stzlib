@@ -1,0 +1,565 @@
+# THE AGENT DOOR -- what an agent writing Softanza code calls.
+#
+#     haro door.haro find <words>          the functions, methods and worked examples that match the words
+#     haro door.haro run <file of code>    run Haro code with Softanza loaded: what it printed, then its value
+#     haro door.haro serve                 the same two tools over MCP (JSON-RPC 2.0 on stdin and stdout)
+#
+# `find` answers from index.tsv (built by door_index.haro): every function and method the library defines, with its
+# class, signature, comment and file, and every narrated example, with the code that runs and what it gives. A word
+# counts by its rarity in the index (the log of rows over rows holding it), three times over when it is found in a
+# name (an example's name is its code) rather than only in a comment or a description; a definition of the core
+# classes (string, list, number, common) is preferred among near equals, then the shorter name.
+# It answers the best definitions first, then the best examples.
+#
+# `run` hands the code to door_run.haro, a child process, so code that prints, raises or crashes cannot touch the
+# door's own stream. The child writes to a file the door reads back: a captured pipe loses UTF-8 on Windows.
+#
+# STZ_DOOR_HOLDOUT, when set, names a benchmark's bench.tsv: `find` then leaves out the examples of every narrated
+# file a task of that benchmark comes from, so a measurement through the door is not answered by its own source.
+#
+# The door loads no library and no engine itself: it starts at once, and only `run` pays for Softanza's load.
+
+$tHere = ExeDir()
+$vRows = []
+$nHeld = 0
+$vStop = [ "the", "a", "an", "of", "to", "in", "is", "and", "it", "with", "for", "by", "on", "as", "that", "its",
+	"this", "be", "are", "from", "or", "at", "into", "how", "do", "i", "what", "which", "get", "give", "gives" ]
+
+tVerb = ""
+tArg = ""
+nArgs = Len(SysArgv)
+for i = 1 to nArgs
+	if Right(SysArgv[i], 9) = "door.haro"
+		if i + 1 <= nArgs
+			tVerb = SysArgv[i + 1]
+		end
+		for p = i + 2 to nArgs
+			if tArg != ""
+				tArg = tArg + " "
+			end
+			tArg = tArg + SysArgv[p]
+		end
+	end
+end
+
+if tVerb = "find"
+	LoadIndex()
+	? Find(tArg)
+elseif tVerb = "run"
+	? Run(Read(tArg))
+elseif tVerb = "serve"
+	LoadIndex()
+	Serve()
+else
+	? "usage: haro door.haro find <words> | run <file of code> | serve"
+	Shutdown(2)
+end
+
+
+# --- find ---------------------------------------------------------------------------------------------------------
+
+func LoadIndex
+	if FExists($tHere + "index.tsv") = false
+		? "the door has no index yet: run  haro door_index.haro  in " + $tHere + " (about two seconds)"
+		Shutdown(2)
+	end
+	vHeld = HeldFiles()
+	vLines = Str2List(Read($tHere + "index.tsv"))
+	nLen = Len(vLines)
+	for i = 1 to nLen
+		vF = Fields(vLines[i])
+		if Len(vF) < 8
+			loop
+		end
+		if vF[1] = "example" and Len(vHeld) > 0 and IsIn(vF[4], vHeld)
+			$nHeld++
+			loop
+		end
+		$vRows + vF
+	end
+end
+
+# the narrated files a benchmark's tasks come from: a task id is the file's path under base/test, a # and a hash
+func HeldFiles
+	vOut = []
+	tBench = SysGet("STZ_DOOR_HOLDOUT")
+	if tBench = ""
+		return vOut
+	end
+	vLines = Str2List(Read(tBench))
+	for i = 2 to Len(vLines)
+		nHash = SubStr(vLines[i], "#")
+		if nHash > 1
+			tFile = "base/test/" + Left(vLines[i], nHash - 1) + ".ring"
+			if IsIn(tFile, vOut) = false
+				vOut + tFile
+			end
+		end
+	end
+	return vOut
+end
+
+func Find(tQuery)
+	vWords = QueryWords(tQuery)
+	if Len(vWords) = 0
+		return "find: give some words, e.g. find split text into words"
+	end
+	nLen = Len($vRows)
+	vInName = []
+	vInText = []
+	for p = 1 to Len(vWords)
+		vInName + 0
+		vInText + 0
+	end
+	for i = 1 to nLen
+		vR = $vRows[i]
+		for p = 1 to Len(vWords)
+			if SubStr(vR[8], vWords[p]) > 0
+				vInText[p] = vInText[p] + 1
+				if SubStr(Lower(vR[2]), vWords[p]) > 0
+					vInName[p] = vInName[p] + 1
+				end
+			end
+		end
+	end
+	vWName = []
+	vWText = []
+	for p = 1 to Len(vWords)
+		vWName + (300 * Log2Of(nLen, 1 + vInName[p]) + 100)
+		vWText + (100 * Log2Of(nLen, 1 + vInText[p]) + 30)
+	end
+	vDefs = []
+	vExamples = []
+	for i = 1 to nLen
+		vR = $vRows[i]
+		nScore = 0
+		if vR[1] = "def"
+			tName = Lower(vR[2])
+		else
+			tName = Lower(vR[6])
+		end
+		for p = 1 to Len(vWords)
+			if SubStr(tName, vWords[p]) > 0
+				nScore = nScore + vWName[p]
+			elseif SubStr(vR[8], vWords[p]) > 0
+				nScore = nScore + vWText[p]
+			end
+		end
+		if nScore = 0
+			loop
+		end
+		if vR[1] = "def" and (SubStr(vR[4], "base/string/") > 0 or SubStr(vR[4], "base/list/") > 0 or SubStr(vR[4], "base/number/") > 0 or SubStr(vR[4], "base/common/") > 0)
+			nScore = nScore + 50
+		end
+		nScore = nScore - Min(Len(tName), 49)
+		if vR[1] = "def"
+			vDefs + [ nScore, i ]
+		else
+			vExamples + [ nScore, i ]
+		end
+	end
+	vDefs = Best(vDefs, 12)
+	vExamples = Best(vExamples, 6)
+	tOut = "definitions" + Char(10)
+	vSeen = []
+	for i = 1 to Len(vDefs)
+		vR = $vRows[vDefs[i]]
+		tKey = Lower(vR[3] + "." + vR[2])
+		if IsIn(tKey, vSeen)
+			loop
+		end
+		vSeen + tKey
+		tOwner = ""
+		if vR[3] != ""
+			tOwner = vR[3] + "  "
+		end
+		tOut = tOut + "  " + tOwner + vR[6] + "      " + vR[4] + ":" + vR[5] + Char(10)
+		if vR[7] != ""
+			tOut = tOut + "      " + Left(vR[7], 220) + Char(10)
+		end
+	end
+	tOut = tOut + Char(10) + "examples (narrated, the expected value after -->)" + Char(10)
+	for i = 1 to Len(vExamples)
+		vR = $vRows[vExamples[i]]
+		tOut = tOut + "  " + vR[6] + "   --> " + vR[7] + Char(10)
+		tOut = tOut + "      " + vR[2] + "   (" + vR[4] + ":" + vR[5] + ")" + Char(10)
+	end
+	return tOut
+end
+
+# how many times the denominator doubles before it passes the numerator: a whole-number log2 of their ratio
+func Log2Of(nNum, nDen)
+	nOut = 0
+	nD = nDen
+	while nD * 2 <= nNum
+		nD = nD * 2
+		nOut++
+	end
+	return nOut
+end
+
+# the words of a query, lowercased, split at anything not a letter or a digit, and at the capitals of a name
+func QueryWords(tQuery)
+	vOut = []
+	tCur = ""
+	nLen = Len(tQuery)
+	for i = 1 to nLen
+		tC = tQuery[i]
+		bBreak = not IsAlnum(tC)
+		if IsUpper(tC) and tCur != "" and not IsUpper(tQuery[i - 1])
+			AddWord(vOut, tCur)
+			tCur = ""
+		end
+		if bBreak
+			AddWord(vOut, tCur)
+			tCur = ""
+		else
+			tCur = tCur + tC
+		end
+	end
+	AddWord(vOut, tCur)
+	return vOut
+end
+
+func AddWord(vOut, tWord)
+	tW = Lower(tWord)
+	if Len(tW) < 2 or IsIn(tW, $vStop) or IsIn(tW, vOut)
+		return
+	end
+	vOut + tW
+end
+
+# the n best [score, row] pairs, highest score first, the earlier row first among equals
+func Best(vPairs, nWant)
+	vOut = []
+	for p = 1 to nWant
+		nBest = -1000
+		nAt = 0
+		for i = 1 to Len(vPairs)
+			if vPairs[i][1] > nBest
+				nBest = vPairs[i][1]
+				nAt = i
+			end
+		end
+		if nAt = 0
+			return vOut
+		end
+		vOut + vPairs[nAt][2]
+		vPairs[nAt][1] = -2000
+	end
+	return vOut
+end
+
+
+# --- run ----------------------------------------------------------------------------------------------------------
+
+func Run(tCode)
+	tFile = $tHere + "_door_code.txt"
+	Write(tFile, tCode)
+	tAnswer = $tHere + "_door_answer.txt"
+	tCmd = Quoted(ExeFileName()) + " " + Quoted($tHere + "door_run.haro") + " " + Quoted(tFile) + " > " + Quoted(tAnswer) + " 2>&1"
+	if IsWindows()
+		tCmd = Quoted(tCmd)
+	end
+	System(tCmd)
+	return Read(tAnswer)
+end
+
+func Quoted(tT)
+	return Char(34) + tT + Char(34)
+end
+
+
+# --- serve: MCP over stdio ----------------------------------------------------------------------------------------
+
+func Serve
+	while true
+		tLine = ""
+		try
+			tLine = FGets(stdin, 4194304)
+		catch
+			return
+		end
+		tLine = Trim2(tLine)
+		if tLine = ""
+			loop
+		end
+		tId = JsonRaw(tLine, "id")
+		tMethod = JsonStr(tLine, "method")
+		if tId = ""
+			loop
+		end
+		if tMethod = "initialize"
+			Reply(tId, "{" + Q2("protocolVersion") + ":" + Q2("2025-06-18") + "," + Q2("capabilities") + ":{" + Q2("tools") + ":{}}," + Q2("serverInfo") + ":{" + Q2("name") + ":" + Q2("softanza-door") + "," + Q2("version") + ":" + Q2("0.1") + "}," + Q2("instructions") + ":" + JsonQuote(Instructions()) + "}")
+		elseif tMethod = "ping"
+			Reply(tId, "{}")
+		elseif tMethod = "tools/list"
+			Reply(tId, ToolList())
+		elseif tMethod = "tools/call"
+			nParams = SubStr(tLine, Q2("params"))
+			tAfter = SubStr(tLine, nParams, Len(tLine) - nParams + 1)
+			tTool = JsonStr(tAfter, "name")
+			if tTool = "softanza_find"
+				ReplyText(tId, Find(JsonStr(tAfter, "query")), false)
+			elseif tTool = "softanza_run"
+				ReplyText(tId, Run(JsonStr(tAfter, "code")), false)
+			else
+				ReplyText(tId, "no tool named " + tTool, true)
+			end
+		else
+			Error(tId, -32601, "method not found: " + tMethod)
+		end
+	end
+end
+
+func Instructions
+	return "Softanza's own knowledge for writing Softanza code in Haro. softanza_find gives the library's real functions and methods, with worked examples and their results; look a name up before you use it. softanza_run runs Haro code with Softanza loaded and gives its value; run an answer before you give it."
+end
+
+func ToolList
+	tFind = "{" + Q2("name") + ":" + Q2("softanza_find") + "," + Q2("description") + ":" + JsonQuote("Find Softanza functions, methods and worked examples by words: what you want to do, or a name you think exists. Answers definitions (class, signature, comment, file:line) and narrated examples (code --> the value it gives).") + "," + Q2("inputSchema") + ":{" + Q2("type") + ":" + Q2("object") + "," + Q2("properties") + ":{" + Q2("query") + ":{" + Q2("type") + ":" + Q2("string") + "}}," + Q2("required") + ":[" + Q2("query") + "]}}"
+	tRun = "{" + Q2("name") + ":" + Q2("softanza_run") + "," + Q2("description") + ":" + JsonQuote("Run Haro code with Softanza loaded. The code is one expression, or lines of which the last is `return <expression>`. Answers what it printed, then '=== value' and the value as Softanza shows it, or '=== error' and the error.") + "," + Q2("inputSchema") + ":{" + Q2("type") + ":" + Q2("object") + "," + Q2("properties") + ":{" + Q2("code") + ":{" + Q2("type") + ":" + Q2("string") + "}}," + Q2("required") + ":[" + Q2("code") + "]}}"
+	return "{" + Q2("tools") + ":[" + tFind + "," + tRun + "]}"
+end
+
+func Reply(tId, tResult)
+	Send("{" + Q2("jsonrpc") + ":" + Q2("2.0") + "," + Q2("id") + ":" + tId + "," + Q2("result") + ":" + tResult + "}")
+end
+
+func ReplyText(tId, tText, bError)
+	tFlag = "false"
+	if bError
+		tFlag = "true"
+	end
+	Reply(tId, "{" + Q2("content") + ":[{" + Q2("type") + ":" + Q2("text") + "," + Q2("text") + ":" + JsonQuote(tText) + "}]," + Q2("isError") + ":" + tFlag + "}")
+end
+
+func Error(tId, nCode, tMessage)
+	Send("{" + Q2("jsonrpc") + ":" + Q2("2.0") + "," + Q2("id") + ":" + tId + "," + Q2("error") + ":{" + Q2("code") + ":" + String(nCode) + "," + Q2("message") + ":" + JsonQuote(tMessage) + "}}")
+end
+
+func Send(tJson)
+	FWrite(stdout, tJson + Char(10))
+	FFlush(stdout)
+end
+
+func Q2(tT)
+	return Char(34) + tT + Char(34)
+end
+
+# a text as a JSON string: quotes, backslashes and control characters escaped, other bytes as they are (UTF-8)
+func JsonQuote(tT)
+	tOut = Char(34)
+	nLen = Len(tT)
+	for i = 1 to nLen
+		tC = tT[i]
+		nC = Ascii(tC)
+		if tC = Char(34)
+			tOut = tOut + Char(92) + Char(34)
+		elseif tC = Char(92)
+			tOut = tOut + Char(92) + Char(92)
+		elseif tC = Char(10)
+			tOut = tOut + Char(92) + "n"
+		elseif tC = Char(13)
+			tOut = tOut + Char(92) + "r"
+		elseif tC = Char(9)
+			tOut = tOut + Char(92) + "t"
+		elseif nC < 32
+			tOut = tOut + Char(92) + "u00" + Hex2(nC)
+		else
+			tOut = tOut + tC
+		end
+	end
+	return tOut + Char(34)
+end
+
+func Hex2(nC)
+	tDigits = "0123456789abcdef"
+	return tDigits[Floor(nC / 16) + 1] + tDigits[(nC % 16) + 1]
+end
+
+# the raw value after "key": -- a number, true, false, null or a quoted string kept with its quotes; "" when absent
+func JsonRaw(tJson, tKey)
+	nAt = KeyAt(tJson, tKey)
+	if nAt = 0
+		return ""
+	end
+	if tJson[nAt] = Char(34)
+		nEnd = StringEnd(tJson, nAt)
+		return SubStr(tJson, nAt, nEnd - nAt + 1)
+	end
+	tOut = ""
+	nLen = Len(tJson)
+	for i = nAt to nLen
+		tC = tJson[i]
+		if tC = "," or tC = "}" or tC = "]" or tC = " "
+			return tOut
+		end
+		tOut = tOut + tC
+	end
+	return tOut
+end
+
+# the decoded string after "key": -- "" when absent or not a string
+func JsonStr(tJson, tKey)
+	nAt = KeyAt(tJson, tKey)
+	if nAt = 0 or tJson[nAt] != Char(34)
+		return ""
+	end
+	tOut = ""
+	nI = nAt + 1
+	nLen = Len(tJson)
+	while nI <= nLen
+		tC = tJson[nI]
+		if tC = Char(34)
+			return tOut
+		end
+		if tC = Char(92) and nI < nLen
+			nI++
+			tE = tJson[nI]
+			if tE = "n"
+				tOut = tOut + Char(10)
+			elseif tE = "t"
+				tOut = tOut + Char(9)
+			elseif tE = "r"
+				tOut = tOut + Char(13)
+			elseif tE = "b"
+				tOut = tOut + Char(8)
+			elseif tE = "f"
+				tOut = tOut + Char(12)
+			elseif tE = "u" and nI + 4 <= nLen
+				nCode = HexValue(SubStr(tJson, nI + 1, 4))
+				nI = nI + 4
+				if nCode >= 55296 and nCode <= 56319 and nI + 6 <= nLen and tJson[nI + 1] = Char(92) and tJson[nI + 2] = "u"
+					nLow = HexValue(SubStr(tJson, nI + 3, 4))
+					nCode = 65536 + (nCode - 55296) * 1024 + (nLow - 56320)
+					nI = nI + 6
+				end
+				tOut = tOut + Utf8(nCode)
+			else
+				tOut = tOut + tE
+			end
+		else
+			tOut = tOut + tC
+		end
+		nI++
+	end
+	return tOut
+end
+
+# where the value of "key": starts, past the colon and the spaces; 0 when the key is absent
+func KeyAt(tJson, tKey)
+	nAt = SubStr(tJson, Q2(tKey))
+	if nAt = 0
+		return 0
+	end
+	nI = nAt + Len(tKey) + 2
+	nLen = Len(tJson)
+	while nI <= nLen and (tJson[nI] = " " or tJson[nI] = ":")
+		nI++
+	end
+	if nI > nLen
+		return 0
+	end
+	return nI
+end
+
+func StringEnd(tJson, nStart)
+	nI = nStart + 1
+	nLen = Len(tJson)
+	while nI <= nLen
+		if tJson[nI] = Char(92)
+			nI = nI + 2
+			loop
+		end
+		if tJson[nI] = Char(34)
+			return nI
+		end
+		nI++
+	end
+	return nLen
+end
+
+func HexValue(tHex)
+	tDigits = "0123456789abcdef"
+	nOut = 0
+	tLow = Lower(tHex)
+	for p = 1 to Len(tLow)
+		nOut = nOut * 16 + SubStr(tDigits, tLow[p]) - 1
+	end
+	return nOut
+end
+
+func Utf8(nCode)
+	if nCode < 128
+		return Char(nCode)
+	end
+	if nCode < 2048
+		return Char(192 + Floor(nCode / 64)) + Char(128 + (nCode % 64))
+	end
+	if nCode < 65536
+		return Char(224 + Floor(nCode / 4096)) + Char(128 + (Floor(nCode / 64) % 64)) + Char(128 + (nCode % 64))
+	end
+	return Char(240 + Floor(nCode / 262144)) + Char(128 + (Floor(nCode / 4096) % 64)) + Char(128 + (Floor(nCode / 64) % 64)) + Char(128 + (nCode % 64))
+end
+
+
+# --- shared -------------------------------------------------------------------------------------------------------
+
+# the folder of this program, ending in a slash
+func ExeDir
+	nArgs = Len(SysArgv)
+	for i = 1 to nArgs
+		if Right(SysArgv[i], 9) = "door.haro"
+			tP = SysArgv[i]
+			nLen = Len(tP)
+			for p = nLen to 1 step -1
+				if tP[p] = "/" or tP[p] = Char(92)
+					return Left(tP, p)
+				end
+			end
+			return ""
+		end
+	end
+	return ""
+end
+
+func Fields(tLine)
+	vOut = []
+	tRest = tLine
+	nTab = SubStr(tRest, Char(9))
+	while nTab > 0
+		vOut + Left(tRest, nTab - 1)
+		tRest = SubStr(tRest, nTab + 1, Len(tRest) - nTab)
+		nTab = SubStr(tRest, Char(9))
+	end
+	if Len(tRest) > 0 and Right(tRest, 1) = Char(13)
+		tRest = Left(tRest, Len(tRest) - 1)
+	end
+	vOut + tRest
+	return vOut
+end
+
+func IsIn(tItem, vList)
+	for i = 1 to Len(vList)
+		if vList[i] = tItem
+			return true
+		end
+	end
+	return false
+end
+
+func Trim2(tT)
+	nA = 1
+	nB = Len(tT)
+	while nA <= nB and (tT[nA] = " " or tT[nA] = Char(9) or tT[nA] = Char(10) or tT[nA] = Char(13))
+		nA++
+	end
+	while nB >= nA and (tT[nB] = " " or tT[nB] = Char(9) or tT[nB] = Char(10) or tT[nB] = Char(13))
+		nB--
+	end
+	if nB < nA
+		return ""
+	end
+	return SubStr(tT, nA, nB - nA + 1)
+end
