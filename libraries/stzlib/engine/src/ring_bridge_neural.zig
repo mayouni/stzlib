@@ -487,6 +487,11 @@ fn ring_BackboneDispatches(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retnumber(p, nbb.neural_backbone_dispatches());
 }
 
+// GQ0: the last forward's phases in ms (0 gather+upload, 1 encode to the submit, 2 device wait, 3 readback, 4 whole)
+fn ring_BackbonePhaseMs(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retnumber(p, nbb.neural_backbone_phase_ms(@intFromFloat(R.ring_vm_api_getnumber(p, 1))));
+}
+
 fn ring_BackboneSetMinTokens(p: *anyopaque) callconv(.c) void {
     nbb.neural_backbone_set_min_tokens(R.ring_vm_api_getnumber(p, 1));
     rn(p, 1);
@@ -1883,6 +1888,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralbackbonesetmintokens", .func = &ring_BackboneSetMinTokens },
     .{ .name = "stzengineneuralbackbonesetweightsf16", .func = &ring_BackboneSetWeightsF16 },
     .{ .name = "stzengineneuralbackbonedispatches", .func = &ring_BackboneDispatches },
+    .{ .name = "stzengineneuralbackbonephasems", .func = &ring_BackbonePhaseMs },
     .{ .name = "stzengineneuralbackboneweightsf16", .func = &ring_BackboneWeightsF16 },
     .{ .name = "stzengineneuralbackbonef16available", .func = &ring_BackboneF16Available },
     .{ .name = "stzengineneuralbackboneweightbytes", .func = &ring_BackboneWeightBytes },

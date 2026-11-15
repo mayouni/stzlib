@@ -601,6 +601,16 @@ var g_dispatches_last: f64 = 0;
 pub export fn neural_backbone_dispatches() callconv(.c) f64 {
     return g_dispatches_last;
 }
+
+/// GQ0: where the last forward's wall time went, in milliseconds. 0 the CPU gather of the embedding rows and its
+/// upload; 1 the ENCODING -- every weight looked up by name, every uniform written and bind group made, from the
+/// batch's opening to its one submit; 2 the wait for the device; 3 the readback of the pooled vector; 4 the whole
+/// forward. Encoding is what a recorded submission could remove; the rest it cannot touch.
+var g_phase_ms: [5]f64 = @splat(0);
+pub export fn neural_backbone_phase_ms(which: c_int) callconv(.c) f64 {
+    if (which < 0 or which > 4) return -1;
+    return g_phase_ms[@intCast(which)];
+}
 var g_slots: [SLOTS]Slot = @splat(.{});
 var g_slot_n: usize = 0;
 var g_gen: usize = std.math.maxInt(usize);
@@ -840,6 +850,9 @@ pub export fn neural_backbone_forward(ids_ptr: [*c]const i32, n_tok_in: c_int, o
     g_half = g_want_f16 and gpu.hasF16();
     g_weight_bytes_last = 0;
     const disp0 = gpu.stz_gpu_counter(gpu.CTR_DISPATCH_COUNT);
+    var ph = std.time.Timer.start() catch unreachable;
+    const ph_start = ph.read();
+    g_phase_ms = @splat(0);
 
     // ---- CPU-side embedding gather (tiny: n_tok rows), then ONE upload
     const tok_w = tensor(ctx, "token_embd.weight", .{}) orelse return 0;
@@ -883,6 +896,7 @@ pub export fn neural_backbone_forward(ids_ptr: [*c]const i32, n_tok_in: c_int, o
     const K_GELU = g_kernels[3];
     const K_POOL = g_kernels[4];
 
+    const ph_gathered = ph.read();
     // one batched pass for the WHOLE encoder
     if (gpu.stz_gpu_batch_begin() != gpu.OK) return 0;
     var ok = true;
@@ -925,9 +939,20 @@ pub export fn neural_backbone_forward(ids_ptr: [*c]const i32, n_tok_in: c_int, o
     ok = ok and dispatchP(K_POOL, &pp, &.{ by, bp }, 1, 1);
 
     _ = gpu.stz_gpu_batch_end();
+    const ph_encoded = ph.read();
     if (!ok) return 0;
     if (gpu.stz_gpu_sync() != gpu.OK) return 0;
+    const ph_waited = ph.read();
     if (gpu.stz_gpu_buffer_read(bp, @ptrCast(out), @floatFromInt(n_embd * 4)) != gpu.OK) return 0;
+    const ph_read = ph.read();
+    const ns: f64 = std.time.ns_per_ms;
+    g_phase_ms = .{
+        @as(f64, @floatFromInt(ph_gathered - ph_start)) / ns,
+        @as(f64, @floatFromInt(ph_encoded - ph_gathered)) / ns,
+        @as(f64, @floatFromInt(ph_waited - ph_encoded)) / ns,
+        @as(f64, @floatFromInt(ph_read - ph_waited)) / ns,
+        @as(f64, @floatFromInt(ph_read - ph_start)) / ns,
+    };
     g_half_last = g_half;
     g_dispatches_last = gpu.stz_gpu_counter(gpu.CTR_DISPATCH_COUNT) - disp0;
     return 1;
