@@ -344,6 +344,28 @@ Measured on a Foundry guard's unit (`af1_pack.haro`, 2026-11-15): `testoor graph
 method by a name no method of the unit carries, and 161 calling by a name built at run time (`call f()` in
 `StzCallMethodOrFunction`, `call _fWork_()` in `stzWorkerPool.Drain`). So the record is not complete, and says why.
 
+### 6.7 The impact of a change over a Haro unit: `testoor impact`
+
+    testoor impact GRAPH.json --changed ID [--changed ID ...] [--tours FOLDER [--suffix S]] [--protocol 2]
+
+writes the impact record (section 5.1) of a change to the nodes named, over a graph record `testoor graph` wrote. A tour
+under FOLDER is selected when its source CALLS a name of the reach: the Haro face reads each tour's names
+(`testoor_reader.zig`, `namesOf`) -- every identifier followed by `(` in code, a function or a method after a dot, never in a
+string or a comment. A graph that is not complete still selects every tour (protocol 2's rule). One line of figures goes to the
+standard error, and it keeps two figures apart: **the reach the compiler bound**, and the reach once the open nodes and their
+callers widen it.
+
+**Measured on a Foundry guard's unit** (2026-11-15, `af1_pack.haro`'s graph): a change to `FoundryField` reaches 22 nodes by
+calls the compiler bound -- `FoundryPackBuild`, `FoundryPackInstall`, ... `<top>:af1_pack.haro` -- and 23,244 of 48,939 once
+222 open nodes of the library and their callers widen it; all 23,244 are capped; the graph is not complete, so the 9 guards are
+selected. About 30 s a change, most of it reading the 25.6 MB record. The open nodes are the library's: the reach a codebase's
+own change has by its own calls is the first figure, and fewer calls by a name built at run time in stzlib is what narrows the
+second.
+
+**The core's walks are indexed** (`testoor_graph.zig`, `Index`, 2026-11-15): each id's edges in and out, in the edges' order, so
+a reach follows the same edges in the same order as the scan it replaces, and every golden of protocols 2 and 3 is unchanged.
+Before it, a reach over that unit was a scan of every edge per reached node, billions of comparisons.
+
 ## 7. Conformance
 
 Written by hand from section 2 before the code, and reproduced by the core on its first run (`zig build test-testoor`).
@@ -370,6 +392,8 @@ Written by hand from section 2 before the code, and reproduced by the core on it
 | `haro/judge/H3_a_slow_start_is_named` | 6.5: a tour whose first output arrived at 121.39 s: `first_output_ms` written after `wall_ms`, and its line naming the start -- written by hand; the core printed `121.30` where the hand wrote `121.3`, and both now print it as the wall time is printed, `121.39` |
 | `haro/graph/G1_functions_methods_dispatch` | 6.6: functions, methods, a static call written in its node's spelling, two calls dispatched by name each to both methods named `Run`, an unfinished function open, a file's statements as a `top` node, a path's `.` and `..` resolved; read from lines alone, so not complete for that reason too |
 | `haro/graph/G2_a_call_by_a_built_name_opens_its_function` | 6.6: the unit's file read: `call tName(nX)` opens `Dispatch`; the word in a string and a comment does not |
+| `haro/impact/I1_names_select_a_tour` | 6.7: a complete graph, a change to `Vat`: the tour calling `Gross` is selected and the one calling `Label` skipped |
+| `haro/impact/I2_an_open_node_selects_every_tour` | 6.7: the same change over G2's graph, `Dispatch` open: the reach widened by it, it caps itself, every tour selected |
 | `haro/judge/H4_a_picture_report_is_not_a_verdict` | 6.2: a narrated Haro tour whose GIVEN line says a picture DOES NOT MATCH, its two THEN lines PASS: kept -- the picture rule had read the GIVEN line as a diverged claim |
 | `haro/judge/H2_a_repeated_claim_is_a_second_check` | 6.4: an unknown-dialect tour printing `FAIL  x`, then `ok  x`, then another claim: three claims, the tour diverged -- protocol 2's landing read it as kept |
 | `haro/judge/H1_a_report_line_is_not_a_verdict` | a narrated Haro tour whose program prints `  FAIL     :...` before its two `THEN` lines: 2 kept, finished, exit 0 -- under protocol 2's rule the report line was a diverged claim |

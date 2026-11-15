@@ -312,6 +312,64 @@ test "the Haro face reads haro graph's lines into the graph record (BUSINESS-LEA
     try std.testing.expectEqual(@as(usize, 0), failures);
 }
 
+test "testoor impact over a Haro unit: the face's names select the tours (BUSINESS-LEADS-DELIVER-01, A1 (3))" {
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const dir = try goldenDir(a);
+    failures = 0;
+    const cases = try caseNames(a, dir, "haro/impact");
+    try std.testing.expect(cases.len >= 2);
+    for (cases) |case| {
+        const graph = try readAll(a, dir, try std.fs.path.join(a, &.{ "haro/impact", case, "graph.json" }));
+        const changed = try readAll(a, dir, try std.fs.path.join(a, &.{ "haro/impact", case, "changed.txt" }));
+        // the tours, by name: what `testoor impact --tours` hands the core
+        var names: std.ArrayList([]const u8) = .empty;
+        const tdir = try std.fs.path.join(a, &.{ dir, "haro/impact", case, "tours" });
+        var d = try std.fs.cwd().openDir(tdir, .{ .iterate = true });
+        defer d.close();
+        var it = d.iterate();
+        while (try it.next()) |e| if (e.kind == .file) try names.append(a, try a.dupe(u8, e.name));
+        std.mem.sort([]const u8, names.items, {}, struct {
+            fn lt(_: void, x: []const u8, y: []const u8) bool {
+                return std.mem.lessThan(u8, x, y);
+            }
+        }.lt);
+        var b = T.Buf.init(a);
+        try b.s("{\"protocol\":3,\"graph\":");
+        try b.s(graph);
+        try b.s(",\"changed\":[");
+        var first = true;
+        var cl = std.mem.splitScalar(u8, changed, '\n');
+        while (cl.next()) |c| {
+            const id = std.mem.trim(u8, c, " \r");
+            if (id.len == 0) continue;
+            if (!first) try b.c(',');
+            first = false;
+            try b.js(id);
+        }
+        try b.s("],\"tours\":[");
+        for (names.items, 0..) |nm, k| {
+            if (k > 0) try b.c(',');
+            const src = try readAll(a, dir, try std.fs.path.join(a, &.{ "haro/impact", case, "tours", nm }));
+            try b.s("{\"file\":");
+            try b.js(nm);
+            try b.s(",\"names\":[");
+            for (try Rd.namesOf(a, src), 0..) |n, j| {
+                if (j > 0) try b.c(',');
+                try b.js(n);
+            }
+            try b.s("]}");
+        }
+        try b.s("]}");
+        var got: std.ArrayList(u8) = .empty;
+        try got.appendSlice(a, try A.impactJson(a, try b.done()));
+        try got.append(a, '\n');
+        try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/impact", case, "expected.json" }), got.items);
+    }
+    try std.testing.expectEqual(@as(usize, 0), failures);
+}
+
 test "the Haro face reads a .haro tour into the record the judge reads (P3.6)" {
     var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
     defer arena.deinit();

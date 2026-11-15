@@ -73,6 +73,65 @@ fn printsVerdict(t: []const u8) bool {
 
 const Stop = struct { title: []const u8, line: i64, claims: std.ArrayList(V.RClaim) = .empty };
 
+fn isNameChar(ch: u8) bool {
+    return std.ascii.isAlphanumeric(ch) or ch == '_' or ch == '@';
+}
+
+/// The names a tour's source CALLS, for impact's selection (TESTOOR_PROTOCOL_2.md section 5, a tour's `names`): every
+/// identifier followed by `(` in code -- a function, or a method after a dot -- in the order first met, each once under an
+/// ASCII fold, as the Haro graph folds. A string, a `#` or `//` comment and a `/* */` block are not code. A name the tour
+/// only defines is a name it calls too, when its body calls it; that over-selects, and a selection may, never under.
+pub fn namesOf(a: Allocator, source: []const u8) ![]const []const u8 {
+    var out: std.ArrayList([]const u8) = .empty;
+    var seen = std.StringHashMap(void).init(a);
+    var in_block = false;
+    var it = std.mem.splitScalar(u8, source, '\n');
+    while (it.next()) |line| {
+        var q: u8 = 0;
+        var i: usize = 0;
+        while (i < line.len) : (i += 1) {
+            const ch = line[i];
+            if (in_block) {
+                if (ch == '*' and i + 1 < line.len and line[i + 1] == '/') {
+                    in_block = false;
+                    i += 1;
+                }
+                continue;
+            }
+            if (q != 0) {
+                if (ch == q) q = 0;
+                continue;
+            }
+            if (ch == '"' or ch == '\'' or ch == '`') {
+                q = ch;
+                continue;
+            }
+            if (ch == '#') break;
+            if (ch == '/' and i + 1 < line.len and line[i + 1] == '/') break;
+            if (ch == '/' and i + 1 < line.len and line[i + 1] == '*') {
+                in_block = true;
+                i += 1;
+                continue;
+            }
+            if (!(std.ascii.isAlphabetic(ch) or ch == '_' or ch == '@') or (i > 0 and isNameChar(line[i - 1]))) continue;
+            var j = i;
+            while (j < line.len and isNameChar(line[j])) j += 1;
+            var k = j;
+            while (k < line.len and (line[k] == ' ' or line[k] == '\t')) k += 1;
+            if (k < line.len and line[k] == '(') {
+                const w = line[i..j];
+                const key = try T.lowerAscii(a, w);
+                if (!seen.contains(key)) {
+                    try seen.put(key, {});
+                    try out.append(a, w);
+                }
+            }
+            i = j - 1;
+        }
+    }
+    return out.items;
+}
+
 /// a `.haro` tour's source read into the record the judge reads
 pub fn readHaro(a: Allocator, file: []const u8, source: []const u8) !Read {
     const text = try T.removeCr(a, source);
@@ -216,4 +275,17 @@ test "a helper is named so, or prints a verdict; its body holds no claim" {
     try testing.expectEqual(@as(usize, 1), r.record.stops.len);
     try testing.expectEqual(@as(usize, 0), r.record.stops[0].claims.len);
     try testing.expectEqual(@as(i64, 0), r.record.asserts);
+}
+
+test "the names a tour calls: functions and methods, once each, never in a string or a comment" {
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const src = "load \"inv.haro\"\nScenario(\"gross\")\nThen(\"gross of 100\", Gross(100), 120)\noI = new stzInvoice\n? oI.Total ()  # Rate(1) is a comment\n? \"Label(x) in a string\"\n/* Vat(2)\n   still a comment */ then(\"again\", gross(1), 120)\n";
+    const ns = try namesOf(a, src);
+    try std.testing.expectEqual(@as(usize, 4), ns.len);
+    try std.testing.expectEqualStrings("Scenario", ns[0]);
+    try std.testing.expectEqualStrings("Then", ns[1]);
+    try std.testing.expectEqualStrings("Gross", ns[2]);
+    try std.testing.expectEqualStrings("Total", ns[3]);
 }

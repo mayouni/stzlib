@@ -109,6 +109,7 @@ Zig harness only: there is no generator for them, so a case's `expected.*` is th
 |---|---|---|---|
 | `haro/reader/<case>/` | one `.haro` source read by the face | `tour.haro` | `expected.json`: the record, on one line |
 | `haro/judge/<case>/` | one narrated Haro tour judged with the face's `verdicts` rule | the inputs of `protocol2/judge/`, `meta.json` carrying the face | `expected.json`, `expected.txt` |
+| `haro/impact/<case>/` | `testoor impact` over a Haro unit (`TESTOOR_PROTOCOL_3.md` 6.7): the tours' names read by the face | `graph.json`, `changed.txt`, `tours/` (named `.txt`) | `expected.json`: the impact record, protocol 3 |
 | `haro/graph/<case>/` | one unit's `haro graph` lines read into the graph record (`TESTOOR_PROTOCOL_3.md` 6.6) | `lines.txt`, and `src/` with the unit's files when the case reads them (named `.txt`, so no sweep of `.haro` files counts a fixture) | `expected.json` |
 
 | case | what it pins down |
@@ -117,6 +118,8 @@ Zig harness only: there is no generator for them, so a case's `expected.*` is th
 | `R2_self_describing` | no `Scenario(` and no `Then(`: dialect `unknown`, no stop |
 | `H1_a_report_line_is_not_a_verdict` | a program's `  FAIL     :...` report before two `THEN` lines: 2 kept, finished |
 | `H2_a_repeated_claim_is_a_second_check` | `FAIL  x` then `ok  x`: two claims, one diverged; a claim already judged is never judged again |
+| `impact/I1_names_select_a_tour` | a complete graph: the tour calling a name of the reach is selected, the other skipped |
+| `impact/I2_an_open_node_selects_every_tour` | an open node widens the reach and caps itself; every tour is selected |
 | `graph/G1_functions_methods_dispatch` | `haro graph`'s lines read into the graph record: dispatch to every method of the name, an unfinished function open |
 | `graph/G2_a_call_by_a_built_name_opens_its_function` | the unit's file read: a `call` by a built name opens its function; one in a string or a comment does not |
 | `H4_a_picture_report_is_not_a_verdict` | a GIVEN line saying a picture DOES NOT MATCH, under the Haro face: output, not a verdict; the tour is kept |

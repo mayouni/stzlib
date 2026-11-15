@@ -1,0 +1,1 @@
+{"testoor":"logbook","kind":"impact","protocol":3,"subject":"inv.haro","changed":["Vat"],"method":"Vat","complete":true,"why":"","names":["vat","gross","<top>"],"selected":["t_gross.txt"],"skipped":["t_label.txt"],"reach":["Vat","Gross","<top>:inv.haro"],"widened":[],"capped":[]}

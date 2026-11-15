@@ -1,0 +1,3 @@
+load "inv.haro"
+Scenario("gross")
+Then("gross of 100", Gross(100), 120)

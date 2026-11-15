@@ -39,6 +39,75 @@ pub fn sameId(fold: Fold, x: []const u8, y: []const u8) bool {
     }
 }
 
+/// hashing and comparing ids as the graph's fold compares them, so a map lookup needs no lowered copy
+pub const IdCtx = struct {
+    fold: Fold,
+    pub fn hash(self: IdCtx, s: []const u8) u64 {
+        var h = std.hash.Wyhash.init(0);
+        if (self.fold == .ascii) {
+            var buf: [64]u8 = undefined;
+            var i: usize = 0;
+            while (i < s.len) {
+                const n = @min(buf.len, s.len - i);
+                for (s[i .. i + n], 0..) |c, k| buf[k] = std.ascii.toLower(c);
+                h.update(buf[0..n]);
+                i += n;
+            }
+        } else h.update(s);
+        return h.final();
+    }
+    pub fn eql(self: IdCtx, x: []const u8, y: []const u8) bool {
+        return sameId(self.fold, x, y);
+    }
+};
+
+const IdSet = std.HashMapUnmanaged([]const u8, void, IdCtx, 80);
+const IdMap = std.HashMapUnmanaged([]const u8, usize, IdCtx, 80);
+const IdEdges = std.HashMapUnmanaged([]const u8, std.ArrayListUnmanaged(usize), IdCtx, 80);
+
+/// A graph's index (2026-11-15): the first node of each id, and each id's edges in and out, in the edges' order. Every walk
+/// below follows the same edges in the same order it did by scanning them all, so its answer is the same; on a Foundry
+/// guard's unit (48,939 nodes, 196,894 edges) a reach by scanning was billions of comparisons, and with the index it is a
+/// lookup per step.
+pub const Index = struct {
+    node_of: IdMap = .{},
+    into: IdEdges = .{},
+    out_of: IdEdges = .{},
+};
+
+pub fn buildIndex(a: Allocator, g: Graph) !*Index {
+    const ctx = IdCtx{ .fold = g.fold };
+    const ix = try a.create(Index);
+    ix.* = .{};
+    for (g.nodes, 0..) |n, i| {
+        const gop = try ix.node_of.getOrPutContext(a, n.id, ctx);
+        if (!gop.found_existing) gop.value_ptr.* = i;
+    }
+    for (g.edges, 0..) |e, i| {
+        const t = try ix.into.getOrPutContext(a, e.to, ctx);
+        if (!t.found_existing) t.value_ptr.* = .empty;
+        try t.value_ptr.append(a, i);
+        const f = try ix.out_of.getOrPutContext(a, e.from, ctx);
+        if (!f.found_existing) f.value_ptr.* = .empty;
+        try f.value_ptr.append(a, i);
+    }
+    return ix;
+}
+
+/// the graph's index: the one it was read with, else one built now
+fn ixOf(a: Allocator, g: Graph) !*const Index {
+    if (g.ix) |ix| return ix;
+    return buildIndex(a, g);
+}
+
+fn edgesInto(ix: *const Index, g: Graph, id: []const u8) []const usize {
+    return if (ix.into.getContext(id, .{ .fold = g.fold })) |l| l.items else &.{};
+}
+
+fn edgesOutOf(ix: *const Index, g: Graph, id: []const u8) []const usize {
+    return if (ix.out_of.getContext(id, .{ .fold = g.fold })) |l| l.items else &.{};
+}
+
 pub const Node = struct {
     id: []const u8,
     /// the identifier a tour mentions the node by; the id when the record gives none
@@ -59,9 +128,12 @@ pub const Graph = struct {
     why: []const u8 = "",
     nodes: []const Node = &.{},
     edges: []const Edge = &.{},
+    /// built when the record is read (fromValue); a graph made another way is indexed when a walk needs it
+    ix: ?*const Index = null,
 
     /// the index of the node with that id under the graph's fold
     pub fn indexOf(g: Graph, id: []const u8) ?usize {
+        if (g.ix) |ix| return ix.node_of.getContext(id, .{ .fold = g.fold });
         for (g.nodes, 0..) |n, i| if (sameId(g.fold, n.id, id)) return i;
         return null;
     }
@@ -123,6 +195,7 @@ pub fn fromValue(a: Allocator, v: J.Value) !Graph {
     }
     g.nodes = nodes.items;
     g.edges = edges.items;
+    g.ix = try buildIndex(a, g);
     return g;
 }
 
@@ -134,15 +207,20 @@ fn indexIn(fold: Fold, list: []const []const u8, id: []const u8) ?usize {
 /// The reach of a change: the ids that change, then the callers of those, then the callers of
 /// those, in the order they were found. An edge counts when its `to` is an id already reached.
 pub fn reach(a: Allocator, g: Graph, changed: []const []const u8) ![]const []const u8 {
+    const ix = try ixOf(a, g);
+    const ctx = IdCtx{ .fold = g.fold };
+    var seen: IdSet = .{};
     var out: std.ArrayList([]const u8) = .empty;
     for (changed) |c| {
-        if (indexIn(g.fold, out.items, c) == null) try out.append(a, c);
+        if ((try seen.getOrPutContext(a, c, ctx)).found_existing) continue;
+        try out.append(a, c);
     }
     var at: usize = 0;
     while (at < out.items.len) : (at += 1) {
-        const cur = out.items[at];
-        for (g.edges) |e| {
-            if (sameId(g.fold, e.to, cur) and indexIn(g.fold, out.items, e.from) == null) try out.append(a, e.from);
+        for (edgesInto(ix, g, out.items[at])) |k| {
+            const from = g.edges[k].from;
+            if ((try seen.getOrPutContext(a, from, ctx)).found_existing) continue;
+            try out.append(a, from);
         }
     }
     return out.items;
@@ -151,11 +229,14 @@ pub fn reach(a: Allocator, g: Graph, changed: []const []const u8) ![]const []con
 /// the names a tour would mention the reached ids by: a node's `name`, else the id itself; under
 /// an `ascii` fold they are lower-cased, which is how a name is compared, and each appears once
 pub fn reachNames(a: Allocator, g: Graph, ids: []const []const u8) ![]const []const u8 {
+    const ctx = IdCtx{ .fold = g.fold };
+    var seen: IdSet = .{};
     var out: std.ArrayList([]const u8) = .empty;
     for (ids) |id| {
         const raw = if (g.indexOf(id)) |i| g.nodes[i].name else id;
         const nm = if (g.fold == .ascii) try T.lowerAscii(a, raw) else raw;
-        if (indexIn(g.fold, out.items, nm) == null) try out.append(a, nm);
+        if ((try seen.getOrPutContext(a, nm, ctx)).found_existing) continue;
+        try out.append(a, nm);
     }
     return out.items;
 }
@@ -188,25 +269,36 @@ fn canon(g: Graph, id: []const u8) []const u8 {
 
 /// the first open node among a node and its callees, followed breadth first in the edges' order; null when none is
 pub fn openCause(a: Allocator, g: Graph, id: []const u8) !?[]const u8 {
+    const ix = try ixOf(a, g);
+    const ctx = IdCtx{ .fold = g.fold };
+    var seen: IdSet = .{};
+    defer seen.deinit(a);
     var queue: std.ArrayList([]const u8) = .empty;
-    try queue.append(a, canon(g, id));
+    defer queue.deinit(a);
+    const first = canon(g, id);
+    try queue.append(a, first);
+    try seen.putContext(a, first, {}, ctx);
     var at: usize = 0;
     while (at < queue.items.len) : (at += 1) {
         const cur = queue.items[at];
         if (g.indexOf(cur)) |i| if (g.nodes[i].open) return g.nodes[i].id;
-        for (g.edges) |e| {
-            if (sameId(g.fold, e.from, cur) and indexIn(g.fold, queue.items, e.to) == null) try queue.append(a, canon(g, e.to));
+        for (edgesOutOf(ix, g, cur)) |k| {
+            const to = g.edges[k].to;
+            if ((try seen.getOrPutContext(a, to, ctx)).found_existing) continue;
+            try queue.append(a, canon(g, to));
         }
     }
     return null;
 }
 
-fn addCallers(a: Allocator, g: Graph, out: *std.ArrayList([]const u8), from: usize) !void {
+fn addCallers(a: Allocator, g: Graph, ix: *const Index, seen: *IdSet, out: *std.ArrayList([]const u8), from: usize) !void {
+    const ctx = IdCtx{ .fold = g.fold };
     var at = from;
     while (at < out.items.len) : (at += 1) {
-        const cur = out.items[at];
-        for (g.edges) |e| {
-            if (sameId(g.fold, e.to, cur) and indexIn(g.fold, out.items, e.from) == null) try out.append(a, canon(g, e.from));
+        for (edgesInto(ix, g, out.items[at])) |k| {
+            const caller = g.edges[k].from;
+            if ((try seen.getOrPutContext(a, caller, ctx)).found_existing) continue;
+            try out.append(a, canon(g, caller));
         }
     }
 }
@@ -215,17 +307,22 @@ fn addCallers(a: Allocator, g: Graph, out: *std.ArrayList([]const u8), from: usi
 /// node through an edge no reader saw: every open node joins the reach, with its callers -- the graph widens, it never
 /// guesses. Then each reached node an open node caps.
 pub fn widenedReach(a: Allocator, g: Graph, changed: []const []const u8) !Widened {
+    const ix = try ixOf(a, g);
+    const ctx = IdCtx{ .fold = g.fold };
+    var seen: IdSet = .{};
     var out: std.ArrayList([]const u8) = .empty;
     for (try reach(a, g, changed)) |id| {
         const c = canon(g, id);
-        if (indexIn(g.fold, out.items, c) == null) try out.append(a, c);
+        if ((try seen.getOrPutContext(a, c, ctx)).found_existing) continue;
+        try out.append(a, c);
     }
     var widened: std.ArrayList([]const u8) = .empty;
     for (g.nodes) |n| {
-        if (!n.open or indexIn(g.fold, out.items, n.id) != null) continue;
+        if (!n.open) continue;
+        if ((try seen.getOrPutContext(a, n.id, ctx)).found_existing) continue;
         try widened.append(a, n.id);
         try out.append(a, n.id);
-        try addCallers(a, g, &out, out.items.len - 1);
+        try addCallers(a, g, ix, &seen, &out, out.items.len - 1);
     }
     var capped: std.ArrayList(Cap) = .empty;
     for (out.items) |id| {
