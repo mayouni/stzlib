@@ -1,0 +1,203 @@
+# THE SOFTANZA CODE BENCHMARK -- the judge.
+#
+#     haro judge.haro <answers file> <label>          (from this folder; STZ_ENGINE_DIR set)
+#     haro judge.haro reference                       (scores the reference answers: every task must pass)
+#
+# The answers file holds one block per task it answers:
+#
+#     === <task id>
+#     <Haro code: one expression, or lines of which the last is `return <expression>`>
+#
+# Each answer is run on haro.exe inside this one process, its printed value compared with the task's expected
+# value. A verdict is one of:
+#
+#     pass      the answer printed the expected value
+#     fail      it printed something else
+#     error     it did not compile or it raised
+#     refused   it writes the expected value itself (the builder dropped every task whose reference does that),
+#               or it calls nothing
+#     none      no answer was given for the task
+#
+# Writes results/<label>.txt: one line a task, then the score by kind and by area. The `value` score is the headline;
+# `flag` tasks (an expected 0, 1, "" or [ ]) are scored apart, since an answer can match them without the work.
+
+load "../../stzBase.ring"
+load "bench_lib.haro"
+
+tFile = ""
+tLabel = ""
+nArgs = Len(SysArgv)
+for i = 1 to nArgs
+	if SysArgv[i] = "reference"
+		tLabel = "reference"
+	end
+	if i + 1 <= nArgs and Right(SysArgv[i], 10) = "judge.haro"
+		tFile = SysArgv[i + 1]
+		if i + 2 <= nArgs
+			tLabel = SysArgv[i + 2]
+		end
+	end
+end
+if tLabel = ""
+	? "usage: haro judge.haro <answers file> <label>   |   haro judge.haro reference"
+	Shutdown(2)
+end
+
+vBench = ReadTsv("bench.tsv")
+vIds = []
+vCode = []
+if tLabel = "reference"
+	for i = 2 to Len(vBench)
+		vIds + vBench[i][1]
+		vCode + vBench[i][9]
+	end
+else
+	vRead = ReadAnswers(tFile)
+	vIds = vRead[1]
+	vCode = vRead[2]
+end
+
+tOut = "Softanza code benchmark -- " + tLabel + Char(10) + Char(10)
+vKeys = []
+vAll = []
+vPassKeys = []
+vPass = []
+nStart = Clock()
+for i = 2 to Len(vBench)
+	vT = vBench[i]
+	tAnswer = ""
+	bHas = false
+	for p = 1 to Len(vIds)
+		if vIds[p] = vT[1]
+			tAnswer = vCode[p]
+			bHas = true
+		end
+	end
+	tVerdict = "none"
+	tGot = ""
+	if bHas
+		tVerdict = Judge(tAnswer, vT[8])
+		tGot = $tLastGot
+	end
+	tOut = tOut + Row([ tVerdict, vT[1], vT[2], vT[4], Left(tGot, 80) ])
+	vGroups = [ "all " + vT[4], vT[2] + " " + vT[4] ]
+	for p = 1 to Len(vGroups)
+		Bump(vKeys, vAll, vGroups[p])
+		if tVerdict = "pass"
+			Bump(vPassKeys, vPass, vGroups[p])
+		end
+	end
+end
+nMs = Floor(Float(Clock() - nStart) * 1000.0f / Float(ClocksPerSecond()))
+
+tSum = Char(10) + "score                    pass / tasks" + Char(10)
+for i = 1 to Len(vKeys)
+	nP = 0
+	for p = 1 to Len(vPassKeys)
+		if vPassKeys[p] = vKeys[i]
+			nP = vPass[p]
+		end
+	end
+	tSum = tSum + "  " + Pad(vKeys[i], 22) + String(nP) + " / " + String(vAll[i]) + Char(10)
+end
+tSum = tSum + Char(10) + "judged in " + String(nMs) + " ms" + Char(10)
+? tSum
+MakeDir("results")
+Write("results/" + tLabel + ".txt", tOut + tSum)
+
+
+# the verdict for one answer; the value it printed is left in $tLastGot
+func Judge(tAnswer, tExpected)
+	$tLastGot = ""
+	tBody = Trim2(tAnswer)
+	if tBody = ""
+		return "none"
+	end
+	if IndexOf("(", tBody) = 0
+		return "refused"
+	end
+	if Leaks(tBody, tExpected)
+		return "refused"
+	end
+	if not HasReturn(tBody)
+		tBody = "return " + tBody
+	end
+	try
+		$tLastGot = Esc(@@(Eval(tBody)))
+	catch
+		$tLastGot = Esc(cCatchError)
+		return "error"
+	end
+	if $tLastGot = tExpected
+		return "pass"
+	end
+	return "fail"
+end
+
+func HasReturn(tBody)
+	vLines = Split(tBody, Char(10))
+	for i = 1 to Len(vLines)
+		if Left(Trim2(vLines[i]), 7) = "return "
+			return true
+		end
+	end
+	return false
+end
+
+# an answer file: === <id> starts a block, the lines after it are the answer
+func ReadAnswers(tPath)
+	vIdsOut = []
+	vCodeOut = []
+	vLines = Split(Read(tPath), Char(10))
+	tId = ""
+	tCur = ""
+	for i = 1 to Len(vLines)
+		tLine = vLines[i]
+		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
+			tLine = Left(tLine, Len(tLine) - 1)
+		end
+		if Left(tLine, 4) = "=== "
+			if tId != ""
+				vIdsOut + tId
+				vCodeOut + tCur
+			end
+			tId = Trim2(SubStr(tLine, 5, Len(tLine) - 4))
+			nSp = IndexOf(" ", tId)
+			if nSp > 0
+				tId = Left(tId, nSp - 1)
+			end
+			tCur = ""
+			loop
+		end
+		if tId != ""
+			tCur = tCur + tLine + Char(10)
+		end
+	end
+	if tId != ""
+		vIdsOut + tId
+		vCodeOut + tCur
+	end
+	return [ vIdsOut, vCodeOut ]
+end
+
+func Pad(tT, nWidth)
+	while Len(tT) < nWidth
+		tT = tT + " "
+	end
+	return tT
+end
+
+func ReadTsv(tPath)
+	vOut = []
+	vLines = Split(Read(tPath), Char(10))
+	for i = 1 to Len(vLines)
+		tLine = vLines[i]
+		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
+			tLine = Left(tLine, Len(tLine) - 1)
+		end
+		if Len(tLine) > 0
+			vOut + Split(tLine, Char(9))
+		end
+	end
+	return vOut
+end

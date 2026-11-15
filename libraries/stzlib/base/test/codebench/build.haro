@@ -1,0 +1,186 @@
+# THE SOFTANZA CODE BENCHMARK -- the builder.
+#
+#     haro build.haro          (from this folder; STZ_ENGINE_DIR set as for any run of the library)
+#
+# Directive 1 of the intelligence needs map (2026-11-15): the first need is writing Softanza solutions in Softanza
+# code and style, and the narrated suites already hold the labels. The Atelier's harvest (atelier/checks.json) keeps
+# every `Then(description, actual, expected)` whose two expressions stand on their own. This builder turns them into
+# tasks:
+#
+#   - its two expressions are evaluated here, on haro.exe, and the check is kept only when they print the same
+#     (the GOLD: the reference answer passes today, on this runtime);
+#   - the checks that do not pass go to gold_misses.tsv with what each side printed: a runtime finding for the Haro
+#     desk, or a library one;
+#   - a reference written `@@( X )` expects X's printed form as a text; it becomes X, expecting X's value, so an
+#     answer that returns the value itself is judged right;
+#   - a check whose expected value is written inside its own reference is dropped: an answer that names the result
+#     proves nothing, and the judge refuses it the same way;
+#   - a reference that calls nothing is dropped, as the judge refuses such an answer;
+#   - an object result is dropped (its printed form carries no content to compare);
+#   - each task has a KIND: `flag` when the expected value is 0, 1, "" or [ ] -- an answer can match it without doing
+#     the work, so a flag task is scored apart -- and `value` otherwise, the headline score;
+#   - at most 2 checks per scenario, and per test topic 30 value tasks and 10 flag tasks, in the harvest's order, so
+#     no topic decides the score.
+#
+# Each task gives the scenario, the description, the literal inputs the reference uses, and the value to produce.
+# Each is tagged with its test topic and the site area that topic belongs to, so one run scores directive 2(A) too.
+#
+# Writes bench.tsv (one task a row, the reference answer in the last column), tasks.txt (the same tasks without the
+# reference, the text an agent or a model is given) and tasks_value.txt (the value tasks alone). Read-only on the library and on the harvest.
+
+load "../../stzBase.ring"
+load "bench_lib.haro"
+
+$nPerScenario = 2
+$nPerTopic = 30
+$nFlagsPerTopic = 10
+$vAreas = [
+	[ "string", "string substring char chardata stringart ttext unicodedata" ],
+	[ "regex", "regex regexdata regexmaker regexuter regsweep numbrex" ],
+	[ "collections", "list list2d listex listexuter listofstrings listoflists listofpairs listofhashlists listofchars listofbytes listofentities listparser hashlist sortedlist tree grid splitter yielder counter" ],
+	[ "numeric", "number listofnumbers hexnumbert octalnumber binarynumber decimaltobinary math matrix matrex ordinal random randomdata linearsolver optim coeffextractor" ],
+	[ "tables", "table tablex pivottable pivottableshow csv dataset datawrangler database" ],
+	[ "stats", "stats plot" ],
+	[ "i18n", "i18n locale currency calendar date datetime time timex timeline duration world listoftimelines" ],
+	[ "nlp", "natural naturalcode naturalmarkup linguistic adverb plural singular conversation" ],
+	[ "neural", "neural faculty" ],
+	[ "agents", "agentic chainoftruth chainofvalue knowledgegraph" ],
+	[ "graphics", "graphics image render tile ocr" ],
+	[ "geo", "geo" ],
+	[ "diagramming", "diagram diagrambuilder diagramcolor graph graphex graphplanner graphquery orgchart" ],
+	[ "files", "file folder" ],
+	[ "system", "system systemcall systemcalldata systemfunc operationsystem platform globalsystem" ],
+	[ "concurrency", "cluster reactive reactivefunc reactivehttp reactiveobject reactivestream reactivetimer eventbus" ],
+	[ "web", "network appserver appservercluster html json" ],
+	[ "security", "security" ],
+	[ "extensibility", "extercode extincode extinc extincsharp extinjs extinperl extinphp extinpython extinsql pythoncode rcode ccode dotcode script" ],
+	[ "binary", "uuid" ],
+	[ "meta", "meta reflect func smallfunc object namedvars common global misc entity refine" ],
+	[ "testing", "testoor capstone" ],
+	[ "documentation", "education learning atelier" ],
+	[ "governance", "governance" ]
+]
+
+tJson = Read("../../../atelier/checks.json")
+vChecks = StzJsonToList(tJson)[:checks]
+nChecks = Len(vChecks)
+
+vRows = []
+vScen = []
+vScenN = []
+vTopic = []
+vTopicN = []
+nSplit = 0
+nGold = 0
+nLeak = 0
+nNoCall = 0
+nUnwrapped = 0
+tMiss = Row([ "id", "reference", "reference printed", "expected printed" ])
+nObject = 0
+
+for i = 1 to nChecks
+	tCode = vChecks[i][:code]
+	vArgs = ThenArgs(tCode)
+	if Len(vArgs) != 2
+		loop
+	end
+	nSplit++
+	tRef = HaroForm(vArgs[1])
+	tExp = HaroForm(vArgs[2])
+	tGotRef = Rep(tRef)
+	tGotExp = Rep(tExp)
+	if tGotRef = "#OBJ#" or tGotExp = "#OBJ#"
+		nObject++
+		loop
+	end
+	if Left(tGotRef, 5) = "#ERR#" or tGotRef != tGotExp
+		tMiss = tMiss + Row([ vChecks[i][:id], Esc(tRef), Left(Esc(tGotRef), 200), Left(Esc(tGotExp), 200) ])
+		loop
+	end
+	nGold++
+	tInner = AtAtInner(tRef)
+	if tInner != ""
+		tGotInner = Rep(tInner)
+		if tGotInner != "#OBJ#" and Left(tGotInner, 5) != "#ERR#" and tGotInner = Unquote(tGotExp)
+			tRef = tInner
+			tGotExp = tGotInner
+			nUnwrapped++
+		end
+	end
+	if Leaks(tRef, tGotExp)
+		nLeak++
+		loop
+	end
+	if IndexOf("(", tRef) = 0
+		nNoCall++
+		loop
+	end
+	tTopic = TopicOf(vChecks[i][:file])
+	tScenKey = vChecks[i][:file] + "|" + vChecks[i][:scenario]
+	if Bump(vScen, vScenN, tScenKey) > $nPerScenario
+		loop
+	end
+	tKind = KindOf(tGotExp)
+	if tKind = "flag"
+		if Bump(vTopic, vTopicN, tTopic + "|flag") > $nFlagsPerTopic
+			loop
+		end
+	else
+		if Bump(vTopic, vTopicN, tTopic) > $nPerTopic
+			loop
+		end
+	end
+	vRows + [ vChecks[i][:id], AreaOf(tTopic), tTopic, tKind, Flat(vChecks[i][:scenario]), Flat(vChecks[i][:desc]), Inputs(tRef), Esc(tGotExp), tRef ]
+end
+
+tBench = Row([ "id", "area", "topic", "kind", "scenario", "description", "inputs", "expected", "reference" ])
+tTasks = "THE SOFTANZA CODE BENCHMARK -- " + String(Len(vRows)) + " tasks." + Char(10) + Char(10)
+tTasks = tTasks + "For each task, write Haro code that uses Softanza to produce the expected value. The answer is either one" + Char(10)
+tTasks = tTasks + "expression, or several lines of which the last is `return <expression>`. Do not write the expected value" + Char(10)
+tTasks = tTasks + "itself: an answer that contains it is refused. Expected values are printed as Softanza prints them (@@)." + Char(10)
+tTasks = tTasks + "A task of kind `flag` expects 0, 1, an empty text or an empty list: answer it by doing the check it names." + Char(10) + Char(10)
+tValue = tTasks
+for i = 1 to Len(vRows)
+	tBench = tBench + Row(vRows[i])
+	tOne = TaskText(vRows[i])
+	tTasks = tTasks + tOne
+	if vRows[i][4] = "value"
+		tValue = tValue + tOne
+	end
+end
+
+Write("bench.tsv", tBench)
+Write("tasks.txt", tTasks)
+Write("tasks_value.txt", tValue)
+Write("gold_misses.tsv", tMiss)
+
+? "harvest checks          " + String(nChecks)
+? "split into two exprs    " + String(nSplit)
+? "object results dropped  " + String(nObject)
+? "gold: passes on haro    " + String(nGold)
+? "@@( ) unwrapped         " + String(nUnwrapped)
+? "expected inside the ref " + String(nLeak)
+? "reference calls nothing " + String(nNoCall)
+? "kept after the caps     " + String(Len(vRows))
+vCount = []
+vCountN = []
+for i = 1 to Len(vRows)
+	Bump(vCount, vCountN, vRows[i][2] + " " + vRows[i][4])
+end
+for i = 1 to Len(vCount)
+	? "  " + vCount[i] + "  " + String(vCountN[i])
+end
+
+
+
+
+# one task as an agent or a model reads it
+func TaskText(vR)
+	tT = "=== " + vR[1] + "   [" + vR[2] + ", " + vR[4] + "]" + Char(10)
+	tT = tT + "scenario:  " + vR[5] + Char(10)
+	tT = tT + "check:     " + vR[6] + Char(10)
+	if Len(vR[7]) > 0
+		tT = tT + "inputs:    " + vR[7] + Char(10)
+	end
+	return tT + "expected:  " + vR[8] + Char(10) + Char(10)
+end

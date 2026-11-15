@@ -1,0 +1,319 @@
+Softanza code benchmark -- cold
+
+pass	adverb/00_adverb_narrated#099386a7	nlp	value	"quickly"
+pass	adverb/00_adverb_narrated#d93767f1	nlp	value	"happily"
+pass	adverb/00_adverb_narrated#d0ae859b	nlp	value	"well"
+pass	adverb/00_adverb_narrated#ce810ea8	nlp	value	"asian"
+pass	adverb/00_adverb_narrated#5385be05	nlp	value	"african"
+error	capstone/restaurant_capstone_narrated#d7e90fb8	testing	flag	Error (E1) : eval: a name the program never mentions `Knows`
+pass	cluster/mtls_narrated#87613b8a	concurrency	flag	0
+pass	common/hostile_globals_narrated#475eeaf8	meta	value	"HELLO"
+pass	common/hostile_globals_narrated#3ce1a113	meta	value	[ 3, 4 ]
+pass	common/hostile_globals_narrated#833b74bc	meta	value	[ 1, 3 ]
+pass	common/hostile_globals_narrated#cd499d0d	meta	value	[ 1, 2, 3 ]
+pass	common/hostile_globals_narrated#52eb6ad6	meta	flag	1
+fail	common/hostile_globals_narrated#f71dc236	meta	value	[ "item", "42" ]
+error	common/hostile_globals_narrated#ef504c22	meta	value	Error (R3) : Calling Function without definition: factorial
+error	common/hostile_globals_narrated#385a08a6	meta	value	Error (R3) : Calling Function without definition: fibonacci
+error	common/slice_primitives_narrated#a3e14428	meta	value	Error (R3) : Calling Function without definition: _engineslice
+error	common/slice_primitives_narrated#f6d5563e	meta	flag	Error (R3) : Calling Function without definition: _engineslice
+error	csv/00_csv_narrated#d9501a93	tables	value	Error (R11) : Error in class name, class not found: stzcsv
+error	csv/00_csv_narrated#2857ec64	tables	flag	Error (R14) : Calling Method without definition: iscsv
+pass	date/00_date_narrated#c7e784c2	i18n	flag	0
+pass	datetime/dtfix_date_time_args_narrated#20f24c15	i18n	flag	1
+pass	datetime/dtfix_date_time_args_narrated#9b5c0790	i18n	flag	1
+fail	datetime/stzCalendar_defects_narrated#bc32caa8	i18n	value	"01/01/2027"
+fail	datetime/stzCalendar_defects_narrated#87953d7a	i18n	value	"31/12/2025"
+pass	extincode/51_extincode_narrated#47b8c704	extensibility	value	"no"
+pass	extincode/51_extincode_narrated#d0991f9e	extensibility	value	"T"
+pass	extincode/51_extincode_narrated#8de35606	extensibility	value	3
+pass	extincode/51_extincode_narrated#6320e9b9	extensibility	value	3
+pass	extincode/51_extincode_narrated#1d0281a2	extensibility	value	[ 0, 1, 2 ]
+pass	extincode/51_extincode_narrated#48e55f75	extensibility	value	[ 1, 2, 3 ]
+pass	extincode/51_extincode_narrated#264a7e06	extensibility	value	[ 1, 2, 3 ]
+pass	extincode/51_extincode_narrated#dc8d6937	extensibility	value	[ 2, 3, 4, 5 ]
+error	faculty/faculty_core_narrated#5bc6519b	neural	flag	Error (R14) : Calling Method without definition: issorteddown
+error	faculty/faculty_core_narrated#f52b12c3	neural	flag	Error (E1) : eval: a name the program never mentions `FailsConformance`
+error	faculty/placement_narrated#b5c19574	neural	flag	Error (E1) : eval: a name the program never mentions `CanRun`
+error	faculty/placement_narrated#f877ceb5	neural	flag	Error (E1) : eval: a name the program never mentions `CanRunOn`
+error	file/stzZipFile_defects_narrated#0719ff0b	files	value	Error (R14) : Calling Method without definition: folder
+error	file/stzZipFile_defects_narrated#c7eb50ed	files	value	Error (R14) : Calling Method without definition: folder
+error	file/xml_narrated#75ed1ded	files	flag	Error (E1) : eval: a name the program never mentions `IsXml`
+error	file/xml_narrated#82f354ad	files	flag	Error (E1) : eval: a name the program never mentions `IsXml`
+pass	func/00_func_narrated#92642c89	meta	flag	1
+pass	func/00_func_narrated#91169a21	meta	flag	1
+pass	func/00_func_narrated#ae4ffa77	meta	flag	0
+pass	func/00_func_narrated#43a42f92	meta	flag	0
+pass	func/00_func_narrated#2a750aa7	meta	flag	1
+pass	func/00_func_narrated#356e455a	meta	flag	1
+pass	func/00_func_narrated#0ec3751a	meta	flag	1
+pass	func/00_func_narrated#edeb6abd	meta	flag	0
+pass	func/00_func_narrated#57ec0cf2	meta	flag	1
+pass	func/00_func_narrated#369b51f8	meta	flag	0
+error	graph/orgrule_narrated#6a0e0b0d	diagramming	value	Error (E1) : eval: a name the program never mentions `NumberOfUniversalRules`
+error	graph/orgrule_narrated#7751146d	diagramming	value	Error (E1) : eval: a name the program never mentions `NumberOfUniversalRules`
+pass	graph/stzGridNav_defects_narrated#66ffdc35	diagramming	flag	0
+error	hexnumbert/00_hexnumber_narrated#73cf931d	numeric	flag	Error (R3) : Calling Function without definition: representsnumberinhexform
+pass	i18n/00_i18n_narrated#18b33b8d	i18n	flag	1
+error	i18n/00_i18n_narrated#7d807d92	i18n	value	Error (R3) : Calling Function without definition: languagename
+pass	json/00_json_narrated#d99c67d7	web	flag	1
+pass	json/00_json_narrated#eba3133d	web	flag	0
+pass	list/00_list_narrated#a57e8772	collections	value	10
+pass	list/00_list_narrated#e52c4a85	collections	value	30
+pass	list/00_list_narrated#41190506	collections	value	10
+pass	list/00_list_narrated#27549cfd	collections	flag	1
+pass	list/00_list_narrated#bf7d1f2e	collections	value	30
+pass	list/00_list_narrated#e9196570	collections	flag	1
+pass	list/00_list_narrated#93829005	collections	value	3
+pass	list/00_list_narrated#95410d72	collections	flag	1
+pass	list/00_list_narrated#3d881beb	collections	flag	0
+pass	list/00_list_narrated#a6f08a7a	collections	value	2
+pass	list/00_list_narrated#623235a5	collections	value	2
+pass	list/00_list_narrated#bbe833ed	collections	flag	1
+pass	list/00_list_narrated#c6e71cd3	collections	flag	1
+pass	list/00_list_narrated#41b6b7eb	collections	value	10
+pass	list/00_list_narrated#acc1ac4c	collections	value	10
+pass	list/01_deeplist_narrated#6e3bd090	collections	flag	1
+pass	list/01_deeplist_narrated#d8a01df2	collections	flag	0
+pass	list/06_manyremoved#fd445fec	collections	value	[ 1, 2, 4, 5, 6, 8, 10 ]
+pass	list/104_atat_display#afc3761e	collections	value	'"🌞"'
+pass	list/104_atat_display#c4befd1a	collections	value	'[ "1", "🌞", "ring" ]'
+error	list/10_replacemanybymany#84e05e47	collections	value	Incorrect param types! n1 and n2 must be both numbers.\n
+error	list/10_replacemanybymany#50bb5520	collections	value	Incorrect param type! pnStart and pnRange must be noth numbers.\n
+pass	list/112_containsthese#96fef609	collections	flag	1
+pass	list/114_unicode#6d171576	collections	value	[ 72, 105 ]
+pass	list/115_ischar#fa2db674	collections	flag	0
+pass	list/117_unicodes#78b54fb8	collections	value	[ 1, 2, 3 ]
+pass	list/117_unicodes#c7472956	collections	value	[ 97, 98, 99 ]
+pass	list/136_sort#90826c5b	collections	value	[ 1, 2, 3, 4, 5 ]
+fail	list/16_association#b17cf117	collections	value	[ [ "A", 1, "a" ], [ "B", 2, "b" ], [ "C", 3, "c" ] ]
+pass	list/189_find#0e3ff831	collections	value	[ 3, 6 ]
+fail	list/204_association#15dc63e2	collections	value	[ [ 1, "One" ], [ 2, "Two" ], [ 3, "Three" ] ]
+pass	list/21_intersection#18f487d3	collections	value	[ 2, 3 ]
+pass	list/650_operator_q_elevation_narrated#07cededb	collections	value	"ABCABCABC"
+pass	list/650_operator_q_elevation_narrated#b55edccf	collections	value	"ABCABCABC"
+pass	list/listoflists_defects_narrated#a21ad723	collections	value	[ [ 3, 2, 1 ] ]
+none	list/listoflists_defects_narrated#a40d5b4d	collections	value	
+none	list/listoflists_defects_narrated#264f3710	collections	value	
+none	list/stzItem_defects_narrated#1810f241	collections	value	
+none	list/stzItem_defects_narrated#5acc292d	collections	value	
+pass	listoflists/00_listoflists_narrated#e7b84f80	collections	flag	1
+pass	listoflists/00_listoflists_narrated#1ffa144f	collections	flag	0
+pass	listofnumbers/00_listofnumbers_narrated#ee0c795a	numeric	value	2
+pass	listofnumbers/00_listofnumbers_narrated#9e18fb8c	numeric	value	60
+pass	locale/01_languagename_narrated#9ae7dfa3	i18n	flag	""
+pass	matrex/stzMatrex_defects_narrated#ada5f45e	numeric	value	-2
+error	meta/coderule_narrated#8a88ecec	meta	flag	Error (R24) : Using uninitialized variable
+error	meta/coderule_narrated#46d5ed67	meta	flag	Error (R24) : Using uninitialized variable
+pass	misc/00_misc_narrated#840d5b37	meta	value	8
+pass	misc/00_misc_narrated#d0ebe1f8	meta	value	"one two three"
+fail	misc/00_misc_narrated#1e29144e	meta	value	"one  three"
+pass	misc/00_misc_narrated#f56d3577	meta	value	2
+pass	misc/00_misc_narrated#d6b2c106	meta	value	3
+pass	misc/00_misc_narrated#9d647c69	meta	value	"  ab  "
+error	natural/entity_world_narrated#7df7474b	nlp	flag	Error (R11) : Error in class name, class not found: stzentityworld
+error	natural/entity_world_narrated#cc7ae8b0	nlp	flag	Error (R11) : Error in class name, class not found: stzentityworld
+error	natural/entity_world_narrated#e9f9b623	nlp	flag	Error (R11) : Error in class name, class not found: stzentityworld
+error	natural/entity_world_narrated#43ddf056	nlp	flag	Error (E1) : eval: a name the program never mentions `EdgesOf`
+error	natural/evidentiality_narrated#171fd981	nlp	value	Error (R3) : Calling Function without definition: stzverbalizeverdict
+error	natural/evidentiality_narrated#e508f8fc	nlp	value	Error (R3) : Calling Function without definition: stzverbalizeverdict
+error	natural/evidentiality_narrated#2b714326	nlp	flag	Error (E1) : eval: a name the program never mentions `IsCertain`
+error	natural/evidentiality_narrated#bc163120	nlp	value	Error (R3) : Calling Function without definition: stzevidentialband
+error	natural/modality_narrated#f07f60ec	nlp	flag	Error (R3) : Calling Function without definition: can
+error	natural/modality_narrated#bffed122	nlp	flag	Error (E1) : eval: a name the program never mentions `AllHold`
+error	natural/multilingual_pack_narrated#b351aefa	nlp	flag	Error (R3) : Calling Function without definition: islanguagepackregistered
+error	natural/multilingual_pack_narrated#71de5b57	nlp	flag	Error (R3) : Calling Function without definition: islanguagepackregistered
+pass	natural/nnl_narrated#b0a2a508	nlp	flag	1
+error	network/57_tcp_hardening_narrated#1f7d9810	web	flag	Error (R20) : Calling function with extra number of parameters
+error	neural/engine_granite_narrated#ee3798f8	neural	flag	Error (E1) : eval: a name the program never mentions `HasToken`
+error	neural/engine_granite_narrated#563a61d1	neural	flag	Error (E1) : eval: a name the program never mentions `HasToken`
+error	neural/engine_termination_narrated#d7aace16	neural	flag	Error (E1) : eval: a name the program never mentions `StopOnRepeatFired`
+error	neural/engine_window_narrated#874fa60d	neural	flag	Error (E1) : eval: a name the program never mentions `WindowFilled`
+error	neural/engine_window_narrated#cf2a1a2e	neural	flag	Error (R11) : Error in class name, class not found: stzmodel
+error	neural/generative_narrated#d7e74a11	neural	flag	Error (R11) : Error in class name, class not found: stzmodel
+pass	number/00_number_narrated#cf94316b	numeric	flag	1
+pass	number/00_number_narrated#0ecb2a78	numeric	flag	0
+pass	number/00_number_narrated#410d359e	numeric	value	7
+pass	number/00_number_narrated#8b9a2afd	numeric	flag	1
+pass	number/listofnumbers_defects_narrated#3072ab3a	numeric	value	[ 4, 10 ]
+pass	number/listofnumbers_defects_narrated#84b809e8	numeric	value	[ 5, 3 ]
+pass	number/listofnumbers_defects_narrated#787d690b	numeric	value	[ 1, 9 ]
+error	number/money_currency_narrated#44590ef5	numeric	value	Error (R11) : Error in class name, class not found: stzmoney
+error	number/money_currency_narrated#ba938b5d	numeric	value	Error (R11) : Error in class name, class not found: stzmoney
+error	number/money_currency_narrated#8264c69c	numeric	flag	Error (R11) : Error in class name, class not found: stzmoney
+error	number/money_currency_narrated#765df4bc	numeric	flag	Error (R11) : Error in class name, class not found: stzmoney
+error	number/money_currency_narrated#36a88333	numeric	flag	Error (R3) : Calling Function without definition: currencyexponent
+error	number/money_currency_narrated#e1fcb964	numeric	flag	Error (R3) : Calling Function without definition: currencyexponent
+pass	number/number_dead_calls_narrated#1cdce0cc	numeric	value	"6"
+error	number/number_dead_calls_narrated#d9e60102	numeric	value	Error (TYPE_LETTER) : `nM` is lettered n, a number, and is given a vector
+pass	number/number_dead_calls_narrated#6316f5ba	numeric	value	"42"
+pass	number/number_dead_calls_narrated#afc0eace	numeric	value	"40"
+fail	number/number_dead_calls_narrated#5c816d99	numeric	value	"0o12"
+error	number/number_dead_calls_narrated#2c9d264e	numeric	value	Error (E1) : eval: a name the program never mentions `FractionalPartToOctal`
+error	number/number_dead_calls_narrated#250b9f82	numeric	flag	Error (E1) : eval: a name the program never mentions `IsInBillions`
+fail	number/numeric_calculable_narrated#1f2ac521	numeric	flag	0
+pass	number/numeric_calculable_narrated#f408492d	numeric	value	9007199254740992.00
+error	number/numeric_calculable_narrated#b4ca1164	numeric	flag	Error (E1) : eval: a name the program never mentions `IsCalculableNumber`
+pass	number/numeric_calculable_narrated#93567bec	numeric	value	0.50
+error	number/numeric_complex_narrated#14d1e893	numeric	value	Error (R11) : Error in class name, class not found: stzcomplexnumber
+error	number/numeric_complex_narrated#aef5344f	numeric	value	Error (R11) : Error in class name, class not found: stzcomplexnumber
+error	number/numeric_exactness_narrated#e4b5d8c9	numeric	value	Error (R3) : Calling Function without definition: exactadd
+error	number/numeric_exactness_narrated#fdbf184d	numeric	value	Error (R3) : Calling Function without definition: exactmultiply
+error	number/numeric_exactness_narrated#fe0d1e8b	numeric	value	Error (R3) : Calling Function without definition: exactadd
+error	number/numeric_exactness_narrated#bc4cb088	numeric	value	Error (R3) : Calling Function without definition: exactdivide
+error	number/numeric_exactness_narrated#dd3da27d	numeric	value	Error (R3) : Calling Function without definition: exactdivide
+pass	number/numeric_exactness_narrated#4d04607a	numeric	value	3
+pass	number/numeric_handle_table_narrated#7e985570	numeric	value	12.38
+pass	number/numeric_handle_table_narrated#97dd246e	numeric	value	42
+pass	number/numeric_handle_table_narrated#bbedab8a	numeric	value	12.38
+pass	number/numeric_no_loss_narrated#201147e3	numeric	value	"0.10"
+pass	number/numeric_no_loss_narrated#f3cc2261	numeric	value	"2.50"
+error	number/numeric_no_loss_narrated#e11f1311	numeric	value	Error (E1) : number `1.0f`
+pass	number/numeric_no_loss_narrated#682646db	numeric	value	"integer"
+pass	number/numeric_no_loss_narrated#8f55c95b	numeric	value	"integer"
+pass	object/stzObject_defects_narrated#712de691	meta	flag	0
+pass	object/stzObject_defects_narrated#0858f48c	meta	flag	0
+pass	object/stzObject_defects_narrated#9330e734	meta	value	7.50
+pass	object/stzObject_defects_narrated#daa86d0a	meta	value	12
+pass	object/stzObject_defects_narrated#cca1563a	meta	flag	1
+pass	object/stzObject_defects_narrated#809ec39f	meta	flag	0
+pass	object/stzObject_defects_narrated#177ed0b2	meta	value	2
+pass	object/stzObject_defects_narrated#84690c8b	meta	value	4
+error	ocr/ocr_model_narrated#2d20deee	graphics	flag	Error (R3) : Calling Function without definition: stzocrhaslanguage
+error	ocr/ocr_narrated#96e1b19f	graphics	value	Error (R14) : Calling Method without definition: concatenatedusing
+error	ocr/ocr_narrated#70581545	graphics	value	Error (R3) : Calling Function without definition: stzocrtologicalorder
+pass	ordinal/00_ordinal_narrated#2cf90c15	numeric	value	"1st"
+pass	ordinal/00_ordinal_narrated#d016dcd9	numeric	value	"2nd"
+pass	plural/00_plural_narrated#e2019d1b	nlp	value	"cats"
+pass	plural/00_plural_narrated#435edade	nlp	value	"dogs"
+pass	plural/00_plural_narrated#203e8e19	nlp	value	"cities"
+pass	plural/00_plural_narrated#1bb831a1	nlp	value	"babies"
+pass	plural/00_plural_narrated#1262e613	nlp	value	"children"
+pass	plural/00_plural_narrated#e9f50823	nlp	value	"men"
+error	reflect/docgen_narrated#108405c9	meta	value	Error (R3) : Calling Function without definition: nnlfamilyof
+error	reflect/docgen_narrated#ab66189d	meta	value	Error (R3) : Calling Function without definition: nnlfamilyof
+error	reflect/docrecord_narrated#b162cac8	meta	flag	Error (E1) : eval: a name the program never mentions `IsOneEditAwayFrom`
+error	reflect/docrecord_narrated#928e0312	meta	flag	Error (E1) : eval: a name the program never mentions `IsOneEditAwayFrom`
+pass	reflect/docrecord_narrated#5299d63f	meta	flag	0
+pass	reflect/docrecord_narrated#c979df84	meta	flag	0
+pass	render/escape_sinks_narrated#c03d5e8d	graphics	flag	""
+error	security/advisory_watch_narrated#933a7810	security	flag	Error (E1) : eval: a name the program never mentions `BudgetHolds`
+error	security/advisory_watch_narrated#7d7fac2d	security	value	Error (E1) : eval: a name the program never mentions `HoursToClose`
+error	security/at_rest_crypto_narrated#5410b4a9	security	flag	Error (R3) : Calling Function without definition: stzpasswordhash
+error	security/engine_door_narrated#b5aa2dbf	security	flag	Error (R3) : Calling Function without definition: stzenginedoorledgerisopen
+error	security/exposure_responder_narrated#0f7479a2	security	flag	Error (E1) : eval: a name the program never mentions `AdvisoryHolds`
+error	security/exposure_responder_narrated#e29ddbdd	security	flag	Error (E1) : eval: a name the program never mentions `NumberOfClosedDoors`
+error	security/model_digest_narrated#a652a6f9	security	flag	Error (R3) : Calling Function without definition: stzmodeldigestcheck
+pass	security/secret_memory_narrated#5ab417c8	security	flag	1
+pass	security/secret_memory_narrated#3a1be735	security	flag	0
+error	security/secret_memory_narrated#b0a69c70	security	flag	Error (R19) : Calling function with less number of parameters
+error	security/text_condition_not_code_narrated#6e50cc76	security	flag	Error (R3) : Calling Function without definition: stzissafecondition
+pass	singular/00_singular_narrated#3f535e83	nlp	value	"city"
+pass	singular/00_singular_narrated#6fec8744	nlp	value	"baby"
+pass	singular/00_singular_narrated#582c9d0f	nlp	value	"man"
+error	stats/plot_engine_parity_narrated#0ea7eed6	stats	flag	Error (R3) : Calling Function without definition: compactform
+error	stats/plot_engine_parity_narrated#5cc53368	stats	value	Error (R3) : Calling Function without definition: compactform
+pass	stats/stzDataSet_defects_narrated#d8c6f369	stats	flag	1
+pass	string/00_string_narrated#dbbdadf0	string	value	"RING"
+pass	string/00_string_narrated#fef3827c	string	value	"ring"
+pass	string/00_string_narrated#68a108ba	string	value	8
+pass	string/00_string_narrated#8567153f	string	value	5
+pass	string/00_string_narrated#20d19a85	string	value	"cba"
+pass	string/00_string_narrated#f5f5ef8f	string	flag	1
+pass	string/00_string_narrated#463a9a8f	string	value	"a-b-c"
+pass	string/00_string_narrated#87ed4de2	string	value	"naive"
+pass	string/00_string_narrated#77c15625	string	value	"hi"
+pass	string/00_string_narrated#f4a7e37d	string	flag	1
+pass	string/08_write_a#a45c67bf	string	value	"..."
+pass	string/08_write_a#ab3bb1b7	string	flag	1
+pass	string/105_unicode#08a0a918	string	value	73
+pass	string/107_hexprefix#a8cfba19	string	value	"0x"
+error	string/107_hexprefix#68950170	string	flag	Error (R14) : Calling Method without definition: ishexnumber
+pass	string/108_script#fbe3e607	string	value	"hebrew"
+error	string/109_ishexunicode#1bb8de8b	string	flag	Error (R3) : Calling Function without definition: ishexunicode
+pass	string/109_ishexunicode#3f580dd9	string	value	"U+06A2"
+error	string/10_aligncenter#fc491a72	string	value	Error (R14) : Calling Method without definition: aligncenterq
+error	string/10_aligncenter#f0a66b4f	string	value	Error (R14) : Calling Method without definition: alignleftq
+pass	string/110_unicode#3befb937	string	value	305
+pass	string/110_unicode#73522def	string	value	567
+pass	string/112_repeatedntimes#31a2b15b	string	value	"♥♥♥"
+pass	string/112_repeatedntimes#de75ea25	string	value	"♥♥♥"
+pass	string/116_shortenedn#16a31365	string	value	"12...21"
+pass	string/117_shortened#7683b917	string	value	"123...321"
+pass	string/117_shortened#423c9d20	string	value	"12345...54321"
+pass	string/130_negative_index#4e775743	string	value	"D"
+fail	string/134_ispluralofastztype#d5d1eabf	string	flag	0
+pass	string/14_isreverseof#4b6d1941	string	flag	1
+pass	string/14_isreverseof#76c7e726	string	flag	1
+pass	string/158_script#afd59518	string	value	"han"
+pass	string/158_script#1e5fb197	string	value	"CJK UNIFIED IDEOGRAPH-9D8A"
+pass	string/170_containsat#7654c171	string	flag	1
+pass	string/171_containsinsection#058c4bf1	string	flag	1
+pass	string/243_findlast#7dd7c543	string	value	81.14
+pass	string/243_findlast#785c70a7	string	value	5.30
+pass	string/247_stringcase#1b4bc0c3	string	value	"uppercase"
+pass	string/247_stringcase#10fb5cae	string	value	"lowercase"
+pass	string/28_numberofoccurrenceofcharleftside#bfb41f16	string	value	3
+error	system/52_uuid_engine_narrated#91b984fd	system	flag	Error (R3) : Calling Function without definition: stzisuuid
+error	system/52_uuid_engine_narrated#ebc4bf98	system	flag	Error (R3) : Calling Function without definition: stzisuuid
+error	system/auth_saml_narrated#39778c2c	system	flag	Error (R3) : Calling Function without definition: stzisreadablecertificate
+error	system/payments_governance_narrated#2911f999	system	flag	Error (E1) : eval: a name the program never mentions `IsDocumentedInvariant`
+error	system/payments_live_adapter_narrated#d7d5285e	system	value	Error (R3) : Calling Function without definition: stzwireencode
+error	system/payments_live_adapter_narrated#367bb69d	system	value	Error (R3) : Calling Function without definition: stzwireencode
+error	system/payments_qr_narrated#315e67cf	system	value	Error (R3) : Calling Function without definition: stzcrc16
+error	system/payments_qr_narrated#843b438c	system	flag	Error (R3) : Calling Function without definition: stzqrisvalid
+pass	system/payments_secrets_narrated#68cfc5c4	system	value	"pispi-bia-mtls-cert"
+error	system/payments_secrets_narrated#5be0659b	system	flag	Error (E1) : eval: a name the program never mentions `HasPart`
+error	system/pispi_twin_narrated#e0af0a64	system	value	Error (R3) : Calling Function without definition: pispireasontext
+error	system/pispi_twin_narrated#e504f0c9	system	flag	Error (R3) : Calling Function without definition: ispaymentadapter
+error	system/pispi_twin_narrated#e59b43fc	system	flag	Error (R3) : Calling Function without definition: pispiisfinalstatus
+error	system/sms_port_narrated#5e6b9082	system	flag	Error (R3) : Calling Function without definition: smssegmentcount
+error	system/sms_port_narrated#42526ed9	system	value	Error (R3) : Calling Function without definition: smsencoding
+error	system/sms_port_narrated#64b43598	system	flag	Error (R3) : Calling Function without definition: smssegmentcount
+error	system/sms_port_narrated#ebe7b0e8	system	value	Error (R3) : Calling Function without definition: smscharcost
+error	system/sms_port_narrated#9dcb99e8	system	value	Error (R3) : Calling Function without definition: smsseptets
+pass	testoor/testoor_refine_narrated#6e6afaba	testing	flag	""
+error	testoor/testoor_routes_narrated#bf78b333	testing	flag	Error (R11) : Error in class name, class not found: stztestoortour
+pass	time/00_time_narrated#e8fca91f	i18n	value	"14:30:00"
+pass	time/00_time_narrated#45a20d5a	i18n	flag	1
+pass	time/00_time_narrated#a2d78e2a	i18n	flag	0
+error	uuid/00_uuid_narrated#aba1aeb4	binary	flag	Error (R3) : Calling Function without definition: stzisuuid
+error	uuid/00_uuid_narrated#eaa5c7ad	binary	flag	Error (R3) : Calling Function without definition: stzisuuid
+
+score                    pass / tasks
+  all value             108 / 160
+  nlp value             14 / 17
+  all flag              56 / 119
+  testing flag          1 / 3
+  concurrency flag      1 / 1
+  meta value            13 / 20
+  meta flag             17 / 22
+  tables value          0 / 1
+  tables flag           0 / 1
+  i18n flag             7 / 7
+  i18n value            1 / 4
+  extensibility value   8 / 8
+  neural flag           0 / 10
+  files value           0 / 2
+  files flag            0 / 2
+  diagramming value     0 / 2
+  diagramming flag      1 / 1
+  numeric flag          3 / 11
+  web flag              2 / 3
+  collections value     21 / 29
+  collections flag      12 / 12
+  numeric value         22 / 35
+  nlp flag              1 / 10
+  graphics flag         1 / 2
+  graphics value        0 / 2
+  security flag         2 / 10
+  security value        0 / 1
+  stats flag            1 / 2
+  stats value           0 / 1
+  string value          28 / 30
+  string flag           7 / 10
+  system flag           0 / 10
+  system value          1 / 8
+  binary flag           0 / 2
+
+judged in 49 ms

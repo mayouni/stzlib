@@ -1,0 +1,961 @@
+THE SOFTANZA CODE BENCHMARK -- 279 tasks.
+
+For each task, write Haro code that uses Softanza to produce the expected value. The answer is either one
+expression, or several lines of which the last is `return <expression>`. Do not write the expected value
+itself: an answer that contains it is refused. Expected values are printed as Softanza prints them (@@).
+A task of kind `flag` expects 0, 1, an empty text or an empty list: answer it by doing the check it names.
+
+=== adverb/00_adverb_narrated#099386a7   [nlp, value]
+scenario:  Morphological adverbs (the previously-broken path)
+check:     quick -> quickly
+inputs:    "quick"
+expected:  "quickly"
+
+=== adverb/00_adverb_narrated#d93767f1   [nlp, value]
+scenario:  Morphological adverbs (the previously-broken path)
+check:     happy -> happily (y -> ily)
+inputs:    "happy"
+expected:  "happily"
+
+=== adverb/00_adverb_narrated#d0ae859b   [nlp, value]
+scenario:  Irregular adverbs
+check:     good -> well
+inputs:    "good"
+expected:  "well"
+
+=== adverb/00_adverb_narrated#ce810ea8   [nlp, value]
+scenario:  Whole-word geographic/language forms still fire
+check:     asia -> asian
+inputs:    "asia"
+expected:  "asian"
+
+=== adverb/00_adverb_narrated#5385be05   [nlp, value]
+scenario:  Whole-word geographic/language forms still fire
+check:     africa -> african
+inputs:    "africa"
+expected:  "african"
+
+=== common/hostile_globals_narrated#475eeaf8   [meta, value]
+scenario:  String hot paths stay correct under hostile globals
+check:     uppercase
+inputs:    "hello"
+expected:  "HELLO"
+
+=== common/hostile_globals_narrated#3ce1a113   [meta, value]
+scenario:  String hot paths stay correct under hostile globals
+check:     find
+inputs:    "l"  "hello"
+expected:  [ 3, 4 ]
+
+=== common/hostile_globals_narrated#833b74bc   [meta, value]
+scenario:  List hot paths stay correct under hostile globals
+check:     find
+inputs:    3  1
+expected:  [ 1, 3 ]
+
+=== common/hostile_globals_narrated#cd499d0d   [meta, value]
+scenario:  List hot paths stay correct under hostile globals
+check:     sort
+inputs:    3  1  2
+expected:  [ 1, 2, 3 ]
+
+=== common/hostile_globals_narrated#f71dc236   [meta, value]
+scenario:  The range-parser helpers keep their hands off the caller's globals
+check:     split trailing digits
+inputs:    "item42"
+expected:  '[ "item", "42" ]'
+
+=== common/hostile_globals_narrated#ef504c22   [meta, value]
+scenario:  Number hot paths keep their hands off the caller's globals
+check:     factorial
+inputs:    5
+expected:  "120"
+
+=== common/hostile_globals_narrated#385a08a6   [meta, value]
+scenario:  Number hot paths keep their hands off the caller's globals
+check:     fibonacci
+inputs:    10
+expected:  "55"
+
+=== common/slice_primitives_narrated#a3e14428   [meta, value]
+scenario:  degenerate input is lenient, never a panic
+check:     an over-long count clamps to the end
+inputs:    "abc"  2  99
+expected:  "bc"
+
+=== csv/00_csv_narrated#d9501a93   [tables, value]
+scenario:  The CSV separator setting
+check:     the default separator is ';'
+expected:  ";"
+
+=== datetime/stzCalendar_defects_narrated#bc32caa8   [i18n, value]
+scenario:  Day navigation on a calendar of one single day
+check:     the day after 31 December is 1 January
+inputs:    "2026-12-31"
+expected:  "2027-01-01"
+
+=== datetime/stzCalendar_defects_narrated#87953d7a   [i18n, value]
+scenario:  Day navigation on a calendar of one single day
+check:     the day before 1 January is 31 December
+inputs:    "2026-01-01"
+expected:  "2025-12-31"
+
+=== extincode/51_extincode_narrated#47b8c704   [extensibility, value]
+scenario:  iif handles boolean and string-expression inputs
+check:     the FALSE branch returns
+inputs:    0  "yes"  "no"
+expected:  "no"
+
+=== extincode/51_extincode_narrated#d0991f9e   [extensibility, value]
+scenario:  iif handles boolean and string-expression inputs
+check:     eval branch returns TRUE arm
+inputs:    "1 = 1"  "T"  "F"
+expected:  "T"
+
+=== extincode/51_extincode_narrated#8de35606   [extensibility, value]
+scenario:  Length() forwarder delegates to Ring len()
+check:     list length
+inputs:    1  2  3
+expected:  3
+
+=== extincode/51_extincode_narrated#6320e9b9   [extensibility, value]
+scenario:  Length() forwarder delegates to Ring len()
+check:     string byte length
+inputs:    "abc"
+expected:  3
+
+=== extincode/51_extincode_narrated#1d0281a2   [extensibility, value]
+scenario:  range0 follows Python end-exclusive semantics
+check:     range0(3) = [0..2]
+inputs:    3
+expected:  [ 0, 1, 2 ]
+
+=== extincode/51_extincode_narrated#48e55f75   [extensibility, value]
+scenario:  range0 follows Python end-exclusive semantics
+check:     range0([1, 4]) = [1..3]
+inputs:    1  4
+expected:  [ 1, 2, 3 ]
+
+=== extincode/51_extincode_narrated#264a7e06   [extensibility, value]
+scenario:  range1 is 1-based and end-inclusive
+check:     range1(3) = [1..3]
+inputs:    3
+expected:  [ 1, 2, 3 ]
+
+=== extincode/51_extincode_narrated#dc8d6937   [extensibility, value]
+scenario:  range1 is 1-based and end-inclusive
+check:     range1([2, 5]) = [2..5]
+inputs:    2  5
+expected:  [ 2, 3, 4, 5 ]
+
+=== file/stzZipFile_defects_narrated#0719ff0b   [files, value]
+scenario:  Small helpers: the folder of an archive path
+check:     a backslash path is read the same
+inputs:    "a\b\c.zip"
+expected:  "a/b"
+
+=== file/stzZipFile_defects_narrated#c7eb50ed   [files, value]
+scenario:  Small helpers: the folder of an archive path
+check:     a bare name gives .
+inputs:    "c.zip"
+expected:  "."
+
+=== graph/orgrule_narrated#6a0e0b0d   [diagramming, value]
+scenario:  the other compliance bases are real rule sets carrying the universal tier
+check:     GDPR carries the universal rules
+expected:  4
+
+=== graph/orgrule_narrated#7751146d   [diagramming, value]
+scenario:  the other compliance bases are real rule sets carrying the universal tier
+check:     ...HIPAA too
+expected:  4
+
+=== i18n/00_i18n_narrated#7d807d92   [i18n, value]
+scenario:  Language lookup by code
+check:     language 105 is sindhi
+inputs:    "105"
+expected:  "sindhi"
+
+=== list/00_list_narrated#a57e8772   [collections, value]
+scenario:  Add and slice
+check:     FirstItem is 10
+inputs:    10  20  30
+expected:  10
+
+=== list/00_list_narrated#e52c4a85   [collections, value]
+scenario:  Add and slice
+check:     LastItem is 30
+inputs:    10  20  30
+expected:  30
+
+=== list/00_list_narrated#41190506   [collections, value]
+scenario:  Reducers and emptiness
+check:     Sum([1,2,3,4]) is 10
+inputs:    1  2  3  4
+expected:  10
+
+=== list/00_list_narrated#bf7d1f2e   [collections, value]
+scenario:  Indexing and slicing
+check:     NthItem(3) of [10,20,30,40] is 30
+inputs:    10  20  30  40  3
+expected:  30
+
+=== list/00_list_narrated#93829005   [collections, value]
+scenario:  Numeric aggregates
+check:     Max([3,1,2]) is 3
+inputs:    3  1  2
+expected:  3
+
+=== list/00_list_narrated#a6f08a7a   [collections, value]
+scenario:  Transform and conditional find
+check:     CountW('@item > 2') on [1..4] is 2
+inputs:    1  2  3  4  "@item > 2"
+expected:  2
+
+=== list/00_list_narrated#623235a5   [collections, value]
+scenario:  Transform and conditional find
+check:     FindFirst(2) in [1,2,3,2] is 2
+inputs:    1  2  3
+expected:  2
+
+=== list/00_list_narrated#41b6b7eb   [collections, value]
+scenario:  Reduce / accumulate (guards the cross-DLL reduce-value fix)
+check:     Reduce() of [1,2,3,4] is 10 (numeric sum)
+inputs:    1  2  3  4
+expected:  10
+
+=== list/00_list_narrated#acc1ac4c   [collections, value]
+scenario:  Reduce / accumulate (guards the cross-DLL reduce-value fix)
+check:     ReduceXT('@accumulator + @item', 0) on [1..4] is 10
+inputs:    1  2  3  4  "@accumulator + @item"  0
+expected:  10
+
+=== list/06_manyremoved#fd445fec   [collections, value]
+scenario:  ///
+check:     manyremoved example 1
+inputs:    1  10  3  7  9
+expected:  [ 1, 2, 4, 5, 6, 8, 10 ]
+
+=== list/104_atat_display#afc3761e   [collections, value]
+scenario:  Turning on the @@() string-form pretty-printer with pr() and watching how it renders scala
+check:     atat_display example 2
+inputs:    "🌞"
+expected:  '"🌞"'
+
+=== list/104_atat_display#c4befd1a   [collections, value]
+scenario:  Turning on the @@() string-form pretty-printer with pr() and watching how it renders scala
+check:     atat_display example 6
+inputs:    "1"  "🌞"  "ring"
+expected:  '[ "1", "🌞", "ring" ]'
+
+=== list/10_replacemanybymany#84e05e47   [collections, value]
+scenario:  ReplaceManyByMany (1-to-1 mapping) and the Section<->Range conversions.
+check:     replacemanybymany example 2
+inputs:    3  7
+expected:  [ 3, 5 ]
+
+=== list/10_replacemanybymany#50bb5520   [collections, value]
+scenario:  ReplaceManyByMany (1-to-1 mapping) and the Section<->Range conversions.
+check:     replacemanybymany example 3
+inputs:    3  5
+expected:  [ 3, 7 ]
+
+=== list/114_unicode#6d171576   [collections, value]
+scenario:  Unicodes() maps a string to the list of its characters' Unicode codepoints.
+check:     unicode example 1
+inputs:    "Hi"
+expected:  [ 72, 105 ]
+
+=== list/117_unicodes#78b54fb8   [collections, value]
+scenario:  Unicodes() over a list: a recursive, structure-preserving codepoint map.
+check:     unicodes example 1
+inputs:    1  3
+expected:  [ 1, 2, 3 ]
+
+=== list/117_unicodes#c7472956   [collections, value]
+scenario:  Unicodes() over a list: a recursive, structure-preserving codepoint map.
+check:     unicodes example 3
+inputs:    "a"  "b"  "c"
+expected:  [ 97, 98, 99 ]
+
+=== list/136_sort#90826c5b   [collections, value]
+scenario:  Contrasts in-place sorting against copy-returning sorting across the Ring and Softanza idi
+check:     sort example 5
+inputs:    4  3  5  2  1
+expected:  [ 1, 2, 3, 4, 5 ]
+
+=== list/16_association#b17cf117   [collections, value]
+scenario:  association
+check:     association example 1
+inputs:    "A"  "C"  1  3  "a"  "c"
+expected:  '[ [ "A", 1, "a" ], [ "B", 2, "b" ], [ "C", 3, "c" ] ]'
+
+=== list/189_find#0e3ff831   [collections, value]
+scenario:  Find(value) returns every position at which a value appears in a list.
+check:     find example 1
+inputs:    1  2  3  4  5  7
+expected:  [ 3, 6 ]
+
+=== list/204_association#15dc63e2   [collections, value]
+scenario:  Association() zips two parallel lists into a list of [key, value] pairs.
+check:     association example 1
+inputs:    1  2  3  "One"  "Two"  "Three"
+expected:  '[ [ 1, "One" ], [ 2, "Two" ], [ 3, "Three" ] ]'
+
+=== list/21_intersection#18f487d3   [collections, value]
+scenario:  intersection
+check:     intersection example 1
+inputs:    1  3  2  7
+expected:  [ 2, 3 ]
+
+=== list/650_operator_q_elevation_narrated#07cededb   [collections, value]
+scenario:  stzString (*) and (/): same rule
+check:     "ABC" * 3 is the raw string ABCABCABC
+inputs:    "ABC"  3
+expected:  "ABCABCABC"
+
+=== list/650_operator_q_elevation_narrated#b55edccf   [collections, value]
+scenario:  stzString (*) and (/): same rule
+check:     ( * Q(3) ).Content() equals * 3
+inputs:    "ABC"  3
+expected:  "ABCABCABC"
+
+=== list/listoflists_defects_narrated#a21ad723   [collections, value]
+scenario:  Sorting the nth list in descending order
+check:     and its chaining form sorts DOWN, not up
+inputs:    1  3  2
+expected:  [ [ 3, 2, 1 ] ]
+
+=== list/listoflists_defects_narrated#a40d5b4d   [collections, value]
+scenario:  Sorting the nth list in descending order
+check:     a list of text sorts down too
+inputs:    "b"  "c"  "a"  1
+expected:  '[ [ "c", "b", "a" ] ]'
+
+=== list/listoflists_defects_narrated#264f3710   [collections, value]
+scenario:  Removing many columns at once
+check:     RemoveManyColqQ too
+inputs:    1  2  3
+expected:  [ [ 1, 2 ] ]
+
+=== list/stzItem_defects_narrated#1810f241   [collections, value]
+scenario:  The case flag given to init is now read by the plain methods
+check:     flag 0: LastPosition of a is the capital A closing a list
+inputs:    "a"  "b"  "A"  0
+expected:  3
+
+=== list/stzItem_defects_narrated#5acc292d   [collections, value]
+scenario:  Known limits that stay documented rather than fixed
+check:     but its accessors work
+inputs:    "an"  "banana"
+expected:  "an"
+
+=== listofnumbers/00_listofnumbers_narrated#ee0c795a   [numeric, value]
+scenario:  Global reduction helpers
+check:     Divide([12,2,3]) = 2
+inputs:    12  2  3
+expected:  2
+
+=== listofnumbers/00_listofnumbers_narrated#9e18fb8c   [numeric, value]
+scenario:  Global reduction helpers
+check:     Multiply([10,2,3]) = 60
+inputs:    10  2  3
+expected:  60
+
+=== matrex/stzMatrex_defects_narrated#ada5f45e   [numeric, value]
+scenario:  Stubs kept: a term with no stated meaning tests nothing
+check:     the determinant of [[1,2],[3,4]] is -2 (hand check)
+inputs:    1  4  2  3
+expected:  -2
+
+=== misc/00_misc_narrated#840d5b37   [meta, value]
+scenario:  Lowercase string primitives
+check:     stzlen('softanza') is 8
+inputs:    "softanza"
+expected:  8
+
+=== misc/00_misc_narrated#d0ebe1f8   [meta, value]
+scenario:  The @substr swiss-army helper
+check:     3-arg form replaces
+inputs:    "one five three"  "five"  "two"
+expected:  "one two three"
+
+=== misc/00_misc_narrated#1e29144e   [meta, value]
+scenario:  The @substr swiss-army helper
+check:     empty-new form finds the position
+inputs:    "one two three"  "two"
+expected:  5
+
+=== misc/00_misc_narrated#f56d3577   [meta, value]
+scenario:  @Min and @Max
+check:     @Min([2,3]) is 2
+inputs:    2  3
+expected:  2
+
+=== misc/00_misc_narrated#d6b2c106   [meta, value]
+scenario:  @Min and @Max
+check:     @Max([2,3]) is 3
+inputs:    2  3
+expected:  3
+
+=== misc/00_misc_narrated#9d647c69   [meta, value]
+scenario:  CenterText pads by visible columns (codepoint-correct)
+check:     'ab' centered in 6 cols
+inputs:    "ab"  6
+expected:  "  ab  "
+
+=== natural/evidentiality_narrated#171fd981   [nlp, value]
+scenario:  The evidential bands verbalize a verdict
+check:     strong evidence
+inputs:    1  0.95
+expected:  "certainly yes"
+
+=== natural/evidentiality_narrated#e508f8fc   [nlp, value]
+scenario:  The evidential bands verbalize a verdict
+check:     good evidence
+inputs:    1  0.7
+expected:  "probably yes"
+
+=== natural/evidentiality_narrated#bc163120   [nlp, value]
+scenario:  Deterministic verdicts are CERTAIN
+check:     ...
+expected:  "certainly"
+
+=== number/00_number_narrated#410d359e   [numeric, value]
+scenario:  Arithmetic and sign
+check:     Abs(-7) is 7
+inputs:    7
+expected:  7
+
+=== number/listofnumbers_defects_narrated#3072ab3a   [numeric, value]
+scenario:  Cumulate starts at the second number
+check:     two numbers add up
+inputs:    4  6
+expected:  [ 4, 10 ]
+
+=== number/listofnumbers_defects_narrated#84b809e8   [numeric, value]
+scenario:  The smallest and largest numbers, with positions, name the number's OWN position
+check:     MinZ of a descending list is its LAST number
+inputs:    9  7  5
+expected:  [ 5, 3 ]
+
+=== number/listofnumbers_defects_narrated#787d690b   [numeric, value]
+scenario:  Neighbors compares n with the MAXIMUM, not with the count
+check:     repeats count once
+inputs:    1  5  9
+expected:  [ 1, 9 ]
+
+=== number/money_currency_narrated#44590ef5   [numeric, value]
+scenario:  a euro has two places, a dinar three
+check:     12 is 1200 minor units
+inputs:    "12"  "EUR"
+expected:  1200
+
+=== number/money_currency_narrated#ba938b5d   [numeric, value]
+scenario:  an amount cannot exist without a currency
+check:     a lower-case code is the same currency
+inputs:    "5000"  "xof"
+expected:  "XOF"
+
+=== number/number_dead_calls_narrated#1cdce0cc   [numeric, value]
+scenario:  gcd and lcm: a short name that had become a SECOND implementation
+check:     the Q form works, which it never could
+inputs:    12  18
+expected:  "6"
+
+=== number/number_dead_calls_narrated#d9e60102   [numeric, value]
+scenario:  gcd and lcm: a short name that had become a SECOND implementation
+check:     lcm of a LIST works
+inputs:    4  6  8
+expected:  24
+
+=== number/number_dead_calls_narrated#6316f5ba   [numeric, value]
+scenario:  the operator hook: >=, <=, ++ and -- all pointed at nothing
+check:     next number
+inputs:    41
+expected:  "42"
+
+=== number/number_dead_calls_narrated#afc0eace   [numeric, value]
+scenario:  the operator hook: >=, <=, ++ and -- all pointed at nothing
+check:     previous number
+inputs:    41
+expected:  "40"
+
+=== number/number_dead_calls_narrated#5c816d99   [numeric, value]
+scenario:  octal: the fractional half of the conversion did not exist
+check:     an integer converts
+inputs:    10
+expected:  "12"
+
+=== number/number_dead_calls_narrated#2c9d264e   [numeric, value]
+scenario:  octal: the fractional half of the conversion did not exist
+check:     the fractional part alone
+inputs:    "10.5"
+expected:  "4"
+
+=== number/numeric_calculable_narrated#f408492d   [numeric, value]
+scenario:  the name now tells the truth
+check:     ...as do the other seven aliases
+expected:  9007199254740992.00
+
+=== number/numeric_calculable_narrated#93567bec   [numeric, value]
+scenario:  the error message that gave a wrong diagnosis
+check:     ...and reads back correctly
+inputs:    "0.5"
+expected:  0.50
+
+=== number/numeric_complex_narrated#14d1e893   [numeric, value]
+scenario:  the arithmetic a complex number owes
+check:     a real number prints without an i
+inputs:    5  0
+expected:  "5"
+
+=== number/numeric_complex_narrated#aef5344f   [numeric, value]
+scenario:  the arithmetic a complex number owes
+check:     ...and i itself prints as i
+inputs:    0  1
+expected:  "i"
+
+=== number/numeric_exactness_narrated#e4b5d8c9   [numeric, value]
+scenario:  money: the arithmetic a shop needs
+check:     0.1 + 0.2 is 0.3
+inputs:    "0.1"  "0.2"
+expected:  "0.3"
+
+=== number/numeric_exactness_narrated#fdbf184d   [numeric, value]
+scenario:  money: the arithmetic a shop needs
+check:     0.1 * 0.1 is 0.01, not 0.0
+inputs:    "0.1"
+expected:  "0.01"
+
+=== number/numeric_exactness_narrated#fe0d1e8b   [numeric, value]
+scenario:  integers past 2^53, which is where Ring's own numbers stop
+check:     small integer arithmetic is untouched
+inputs:    "2"
+expected:  "4"
+
+=== number/numeric_exactness_narrated#bc4cb088   [numeric, value]
+scenario:  division is exact when it terminates, and says so when it does not
+check:     1 / 8 is 0.125
+inputs:    "1"  "8"
+expected:  "0.125"
+
+=== number/numeric_exactness_narrated#dd3da27d   [numeric, value]
+scenario:  division is exact when it terminates, and says so when it does not
+check:     0.1 / 4 is 0.025
+inputs:    "0.1"  "4"
+expected:  "0.025"
+
+=== number/numeric_exactness_narrated#4d04607a   [numeric, value]
+scenario:  what did NOT change, which is most of it
+check:     the round is still readable
+inputs:    "1.234"
+expected:  3
+
+=== number/numeric_handle_table_narrated#7e985570   [numeric, value]
+scenario:  the exact loop that used to die at 1366
+check:     ...for a decimal too
+inputs:    "12.375"
+expected:  12.38
+
+=== number/numeric_handle_table_narrated#97dd246e   [numeric, value]
+scenario:  the constructor still reads every form it used to
+check:     a plain integer
+inputs:    "42"
+expected:  42
+
+=== number/numeric_handle_table_narrated#bbedab8a   [numeric, value]
+scenario:  the constructor still reads every form it used to
+check:     a decimal
+inputs:    "12.375"
+expected:  12.38
+
+=== number/numeric_no_loss_narrated#201147e3   [numeric, value]
+scenario:  ...and NOTHING else changed, which is the point
+check:     a tenth still renders as it did
+inputs:    0.1
+expected:  "0.10"
+
+=== number/numeric_no_loss_narrated#f3cc2261   [numeric, value]
+scenario:  ...and NOTHING else changed, which is the point
+check:     ...and two and a half
+inputs:    2.5
+expected:  "2.50"
+
+=== number/numeric_no_loss_narrated#e11f1311   [numeric, value]
+scenario:  the shortest PLAIN decimal, from the engine
+check:     a third needs sixteen
+inputs:    1.0  3.0
+expected:  "0.3333333333333333"
+
+=== number/numeric_no_loss_narrated#682646db   [numeric, value]
+scenario:  the representation ladder, observable rather than folklore
+check:     a small whole number
+inputs:    "42"
+expected:  "integer"
+
+=== number/numeric_no_loss_narrated#8f55c95b   [numeric, value]
+scenario:  the representation ladder, observable rather than folklore
+check:     ...negative too
+inputs:    "-7"
+expected:  "integer"
+
+=== object/stzObject_defects_narrated#9330e734   [meta, value]
+scenario:  Numberified turns the content into a number
+check:     a stzNumber 7.5 is 7.5
+inputs:    7.5
+expected:  7.50
+
+=== object/stzObject_defects_narrated#daa86d0a   [meta, value]
+scenario:  Numberified turns the content into a number
+check:     a text of digits is a number
+inputs:    "12"
+expected:  12
+
+=== object/stzObject_defects_narrated#177ed0b2   [meta, value]
+scenario:  ALengthN counts what the object holds
+check:     a stzList of two texts has 2, not 0 characters
+inputs:    "ab"  "cd"
+expected:  2
+
+=== object/stzObject_defects_narrated#84690c8b   [meta, value]
+scenario:  ALengthN counts what the object holds
+check:     a stzList of four letters has 4
+inputs:    "a"  "b"  "c"  "d"
+expected:  4
+
+=== ocr/ocr_narrated#96e1b19f   [graphics, value]
+scenario:  A right-to-left line the platform returned in visual order is put back in logical order
+check:     an Arabic line's words are reversed
+inputs:    "الوثيقة بنص يؤخذ الاختلاف وعند"
+expected:  "وعند الاختلاف يؤخذ بنص الوثيقة"
+
+=== ocr/ocr_narrated#70581545   [graphics, value]
+scenario:  A right-to-left line the platform returned in visual order is put back in logical order
+check:     two numbers apart keep the paragraph's order
+inputs:    "1234 800 الساخن الخط"
+expected:  "الخط الساخن 800 1234"
+
+=== ordinal/00_ordinal_narrated#2cf90c15   [numeric, value]
+scenario:  English ordinals
+check:     1 -> 1st
+inputs:    1
+expected:  "1st"
+
+=== ordinal/00_ordinal_narrated#d016dcd9   [numeric, value]
+scenario:  English ordinals
+check:     2 -> 2nd
+inputs:    2
+expected:  "2nd"
+
+=== plural/00_plural_narrated#e2019d1b   [nlp, value]
+scenario:  Regular plurals
+check:     cat -> cats
+inputs:    "cat"
+expected:  "cats"
+
+=== plural/00_plural_narrated#435edade   [nlp, value]
+scenario:  Regular plurals
+check:     dog -> dogs
+inputs:    "dog"
+expected:  "dogs"
+
+=== plural/00_plural_narrated#203e8e19   [nlp, value]
+scenario:  Morphological stem rewrites (the previously-broken path)
+check:     city -> cities (y -> ies)
+inputs:    "city"
+expected:  "cities"
+
+=== plural/00_plural_narrated#1bb831a1   [nlp, value]
+scenario:  Morphological stem rewrites (the previously-broken path)
+check:     baby -> babies
+inputs:    "baby"
+expected:  "babies"
+
+=== plural/00_plural_narrated#1262e613   [nlp, value]
+scenario:  Irregular and unchanged plurals
+check:     child -> children
+inputs:    "child"
+expected:  "children"
+
+=== plural/00_plural_narrated#e9f50823   [nlp, value]
+scenario:  Irregular and unchanged plurals
+check:     man -> men
+inputs:    "man"
+expected:  "men"
+
+=== reflect/docgen_narrated#108405c9   [meta, value]
+scenario:  The executor says the family, the name says the words
+check:     _NNLValueIs is the value family
+inputs:    "_NNLValueIs"
+expected:  "value"
+
+=== reflect/docgen_narrated#ab66189d   [meta, value]
+scenario:  The executor says the family, the name says the words
+check:     _NNLImmutable is the chainable-copy family
+inputs:    "_NNLImmutable"
+expected:  "immutable"
+
+=== security/advisory_watch_narrated#7d7fac2d   [security, value]
+scenario:  4. THE DRILL: one advisory through the five kinds, and the two numbers
+check:     an advisory nobody matched has no numbers
+inputs:    "NONE-0000"
+expected:  -1
+
+=== singular/00_singular_narrated#3f535e83   [nlp, value]
+scenario:  Morphological stem rewrites (previously broken)
+check:     cities -> city (ies -> y)
+inputs:    "cities"
+expected:  "city"
+
+=== singular/00_singular_narrated#6fec8744   [nlp, value]
+scenario:  Morphological stem rewrites (previously broken)
+check:     babies -> baby
+inputs:    "babies"
+expected:  "baby"
+
+=== singular/00_singular_narrated#582c9d0f   [nlp, value]
+scenario:  Irregular singulars
+check:     men -> man
+inputs:    "men"
+expected:  "man"
+
+=== stats/plot_engine_parity_narrated#5cc53368   [stats, value]
+scenario:  ...and CompactForm returns a number too small to abbreviate as ITSELF
+check:     1000 becomes 1K
+inputs:    1000
+expected:  "1K"
+
+=== string/00_string_narrated#dbbdadf0   [string, value]
+scenario:  Case mapping
+check:     Uppercased('ring') is RING
+inputs:    "ring"
+expected:  "RING"
+
+=== string/00_string_narrated#fef3827c   [string, value]
+scenario:  Case mapping
+check:     Lowercased('RING') is ring
+inputs:    "RING"
+expected:  "ring"
+
+=== string/00_string_narrated#68a108ba   [string, value]
+scenario:  Length is codepoint-correct
+check:     NumberOfChars('softanza') is 8
+inputs:    "softanza"
+expected:  8
+
+=== string/00_string_narrated#8567153f   [string, value]
+scenario:  Length is codepoint-correct
+check:     NumberOfChars('héllo') is 5 (not byte count)
+inputs:    "héllo"
+expected:  5
+
+=== string/00_string_narrated#20d19a85   [string, value]
+scenario:  Reverse and search
+check:     Reversed('abc') is cba
+inputs:    "abc"
+expected:  "cba"
+
+=== string/00_string_narrated#463a9a8f   [string, value]
+scenario:  Replace and split
+check:     Replaced swaps all occurrences
+inputs:    "aXbXc"  "X"  "-"
+expected:  "a-b-c"
+
+=== string/00_string_narrated#87ed4de2   [string, value]
+scenario:  Replace and split
+check:     Replaced is codepoint-correct on multibyte input
+inputs:    "naïve"  "ï"  "i"
+expected:  "naive"
+
+=== string/00_string_narrated#77c15625   [string, value]
+scenario:  Trim, equality and slicing
+check:     Trimmed strips surrounding spaces
+inputs:    "  hi  "
+expected:  "hi"
+
+=== string/08_write_a#a45c67bf   [string, value]
+scenario:  Writing N copies and matching prefixes/suffixes
+check:     @NXT(3,'.',:InAString) joins them
+inputs:    3  "."
+expected:  "..."
+
+=== string/105_unicode#08a0a918   [string, value]
+scenario:  The codepoint of a character
+check:     'I' is codepoint 73
+inputs:    "I"
+expected:  73
+
+=== string/107_hexprefix#a8cfba19   [string, value]
+scenario:  Recognising hex and U+ number literals
+check:     HexPrefix() is '0x'
+expected:  "0x"
+
+=== string/108_script#fbe3e607   [string, value]
+scenario:  Detecting the script of a string
+check:     its script is hebrew
+inputs:    "משמש"
+expected:  "hebrew"
+
+=== string/109_ishexunicode#3f580dd9   [string, value]
+scenario:  Hex-unicode recognition and codepoint -> hex
+check:     a stzChar's HexUnicode is 'U+06A2'
+inputs:    "ڢ"
+expected:  "U+06A2"
+
+=== string/10_aligncenter#fc491a72   [string, value]
+scenario:  Aligning RING within width 15
+check:     AlignCenter
+inputs:    "RING"  15
+expected:  '"     RING      "'
+
+=== string/10_aligncenter#f0a66b4f   [string, value]
+scenario:  Aligning RING within width 15
+check:     AlignLeft
+inputs:    "RING"  15
+expected:  '"RING           "'
+
+=== string/110_unicode#3befb937   [string, value]
+scenario:  Codepoints of strings and lists of strings
+check:     dotless-i is codepoint 305
+inputs:    "ı"
+expected:  305
+
+=== string/110_unicode#73522def   [string, value]
+scenario:  Codepoints of strings and lists of strings
+check:     dotless-j is codepoint 567
+inputs:    "ȷ"
+expected:  567
+
+=== string/112_repeatedntimes#31a2b15b   [string, value]
+scenario:  Repeating a character three times
+check:     RepeatedNTimes(3) is three hearts
+inputs:    "♥"  3
+expected:  "♥♥♥"
+
+=== string/112_repeatedntimes#de75ea25   [string, value]
+scenario:  Repeating a character three times
+check:     NCopies(3, '♥') is three hearts
+inputs:    3  "♥"
+expected:  "♥♥♥"
+
+=== string/116_shortenedn#16a31365   [string, value]
+scenario:  Shortening with N chars per side
+check:     ShortenedN(2) keeps 2 each side
+inputs:    "1234567890987654321"  2
+expected:  "12...21"
+
+=== string/117_shortened#7683b917   [string, value]
+scenario:  Shortening a long string
+check:     Shortened() keeps 3 each side
+inputs:    "1234567890987654321"
+expected:  "123...321"
+
+=== string/117_shortened#423c9d20   [string, value]
+scenario:  Shortening a long string
+check:     ShortenedN(5) keeps 5 each side
+inputs:    "1234567890987654321"  5
+expected:  "12345...54321"
+
+=== string/130_negative_index#4e775743   [string, value]
+scenario:  Indexing a string from the end
+check:     [-2] of 'ABCDE' is 'D'
+inputs:    "ABCDE"  2
+expected:  "D"
+
+=== string/158_script#afd59518   [string, value]
+scenario:  Script and Unicode name of a CJK character
+check:     its script is han
+inputs:    "鶊"
+expected:  "han"
+
+=== string/158_script#1e5fb197   [string, value]
+scenario:  Script and Unicode name of a CJK character
+check:     its Unicode name
+inputs:    "鶊"
+expected:  "CJK UNIFIED IDEOGRAPH-9D8A"
+
+=== string/243_findlast#7dd7c543   [string, value]
+scenario:  Performance-gain helpers
+check:     PerfGain100(12.99, 2.45) is 81.14%
+inputs:    00  12.99  2.45
+expected:  81.14
+
+=== string/243_findlast#785c70a7   [string, value]
+scenario:  Performance-gain helpers
+check:     SpeedUpX(12.99, 2.45) is 5.3X
+inputs:    12.99  2.45
+expected:  5.30
+
+=== string/247_stringcase#1b4bc0c3   [string, value]
+scenario:  Classifying the case of a string
+check:     'RING' is uppercase
+inputs:    "RING"
+expected:  "uppercase"
+
+=== string/247_stringcase#10fb5cae   [string, value]
+scenario:  Classifying the case of a string
+check:     'ring' is lowercase
+inputs:    "ring"
+expected:  "lowercase"
+
+=== string/28_numberofoccurrenceofcharleftside#bfb41f16   [string, value]
+scenario:  Counting the leading / trailing run of a char
+check:     '-' on the left of ---ring is 3
+inputs:    "---ring"  "-"
+expected:  3
+
+=== system/payments_live_adapter_narrated#d7d5285e   [system, value]
+scenario:  the wire codec, on its own
+check:     an empty array stays an array
+inputs:    "transactions"  "x"  1
+expected:  '{"transactions":[],"x":1}'
+
+=== system/payments_live_adapter_narrated#367bb69d   [system, value]
+scenario:  the wire codec, on its own
+check:     a list of strings is an array
+inputs:    "events"  "A"  "B"
+expected:  '{"events":["A","B"]}'
+
+=== system/payments_qr_narrated#315e67cf   [system, value]
+scenario:  the checksum: CRC-16/CCITT-FALSE, the one the BCEAO names
+check:     it is always four characters, zero-padded on the left
+inputs:    6  "a"
+expected:  4
+
+=== system/payments_secrets_narrated#68cfc5c4   [system, value]
+scenario:  five secrets, named for whose they are
+check:     a name says the participant and the part
+inputs:    "BIA"  "mtls-cert"
+expected:  "pispi-bia-mtls-cert"
+
+=== system/pispi_twin_narrated#e0af0a64   [system, value]
+scenario:  TxId is the platform's idempotency key
+check:     DU03 means what the reference says
+inputs:    "DU03"
+expected:  "the txId is not unique"
+
+=== system/sms_port_narrated#42526ed9   [system, value]
+scenario:  segmentation decides the bill, and it is not the character count
+check:     ...in the 7-bit alphabet
+inputs:    "Your code is 4821"
+expected:  "gsm7"
+
+=== system/sms_port_narrated#ebe7b0e8   [system, value]
+scenario:  the GSM extension table: nine characters that cost double
+check:     ...but bills as 2 units, not 1
+inputs:    8364
+expected:  2
+
+=== system/sms_port_narrated#9dcb99e8   [system, value]
+scenario:  the GSM extension table: nine characters that cost double
+check:     100 curly braces bill as 200 septets
+inputs:    "{"  100
+expected:  200
+
+=== time/00_time_narrated#e8fca91f   [i18n, value]
+scenario:  Construction and components
+check:     '14:30' normalises to 14:30:00
+inputs:    "14:30"
+expected:  "14:30:00"
+

@@ -1,0 +1,335 @@
+# The Softanza code benchmark -- the helpers the builder and the judge share.
+
+# flag when an answer could match the expected value without doing the work: 0, 1, "" or [ ]
+func KindOf(tPrinted)
+	if tPrinted = "0" or tPrinted = "1" or tPrinted = Char(34) + Char(34) or tPrinted = "[ ]" or tPrinted = "true" or tPrinted = "false"
+		return "flag"
+	end
+	return "value"
+end
+
+# the two arguments of `return AtelierThen(<actual>, <expected>)`, split at the comma that stands outside every
+# string and bracket
+func ThenArgs(tCode)
+	tKey = "AtelierThen("
+	nAt = IndexOf(tKey, tCode)
+	if nAt = 0
+		return []
+	end
+	nFrom = nAt + Len(tKey)
+	nDepth = 0
+	tQuote = ""
+	vOut = []
+	tCur = ""
+	nLen = Len(tCode)
+	for i = nFrom to nLen
+		tC = tCode[i]
+		if tQuote != ""
+			tCur = tCur + tC
+			if tC = tQuote
+				tQuote = ""
+			end
+			loop
+		end
+		if tC = Char(34) or tC = "'" or tC = "`"
+			tQuote = tC
+			tCur = tCur + tC
+			loop
+		end
+		if tC = "(" or tC = "[" or tC = "{"
+			nDepth++
+		end
+		if tC = ")" or tC = "]" or tC = "}"
+			if nDepth = 0
+				vOut + Trim2(tCur)
+				return vOut
+			end
+			nDepth--
+		end
+		if tC = "," and nDepth = 0
+			vOut + Trim2(tCur)
+			tCur = ""
+			loop
+		end
+		tCur = tCur + tC
+	end
+	return []
+end
+
+# the retired spelling of the three constants, in Haro's: TRUE, FALSE and NULL outside strings become true, false
+# and null (Haro's names are case-exact; the library's own code is untouched)
+func HaroForm(tExpr)
+	tOut = ""
+	tWord = ""
+	tQuote = ""
+	nLen = Len(tExpr)
+	for i = 1 to nLen
+		tC = tExpr[i]
+		if tQuote != ""
+			tOut = tOut + tC
+			if tC = tQuote
+				tQuote = ""
+			end
+			loop
+		end
+		if IsAlnum(tC) or tC = "_" or tC = "@" or tC = "$"
+			tWord = tWord + tC
+			loop
+		end
+		tOut = tOut + Word(tWord)
+		tWord = ""
+		if tC = Char(34) or tC = "'" or tC = "`"
+			tQuote = tC
+		end
+		tOut = tOut + tC
+	end
+	return tOut + Word(tWord)
+end
+
+func Word(tW)
+	if tW = "TRUE" or tW = "True"
+		return "true"
+	end
+	if tW = "FALSE" or tW = "False"
+		return "false"
+	end
+	if tW = "NULL" or tW = "Null"
+		return "null"
+	end
+	return tW
+end
+
+# what an expression prints as, or #ERR# and the error; #OBJ# for an object
+func Rep(tExpr)
+	try
+		if IsObject(Eval("return " + tExpr))
+			return "#OBJ#"
+		end
+		return @@(Eval("return " + tExpr))
+	catch
+		return "#ERR# " + cCatchError
+	end
+end
+
+# true when the code writes the expected value itself: its printed form, quotes and spaces removed, three
+# characters or more, found in the code with its spaces removed
+func Leaks(tCode, tPrinted)
+	tP = NoSpace(Unquote(tPrinted))
+	if Len(tP) < 3
+		return false
+	end
+	if tP = "true" or tP = "false"
+		return false
+	end
+	return IndexOf(tP, NoSpace(tCode)) > 0
+end
+
+func Unquote(tT)
+	if Len(tT) >= 2 and Left(tT, 1) = Char(34) and Right(tT, 1) = Char(34)
+		return SubStr(tT, 2, Len(tT) - 2)
+	end
+	return tT
+end
+
+func NoSpace(tT)
+	tOut = ""
+	nLen = Len(tT)
+	for i = 1 to nLen
+		if tT[i] != " " and tT[i] != Char(9)
+			tOut = tOut + tT[i]
+		end
+	end
+	return tOut
+end
+
+# the literals the reference uses -- strings and numbers -- the facts of the task, not its method
+func Inputs(tExpr)
+	vOut = []
+	tQuote = ""
+	tCur = ""
+	tNum = ""
+	tPrev = " "
+	nLen = Len(tExpr)
+	for i = 1 to nLen
+		tC = tExpr[i]
+		if tQuote != ""
+			tCur = tCur + tC
+			if tC = tQuote
+				AddOnce(vOut, tCur)
+				tCur = ""
+				tQuote = ""
+			end
+			loop
+		end
+		if tC = Char(34) or tC = "'" or tC = "`"
+			tQuote = tC
+			tCur = tC
+			loop
+		end
+		if IsDigit(tC) or (tC = "." and Len(tNum) > 0)
+			if Len(tNum) > 0 or not (IsAlpha(tPrev) or tPrev = "_")
+				tNum = tNum + tC
+			end
+		else
+			if Len(tNum) > 0
+				AddOnce(vOut, tNum)
+			end
+			tNum = ""
+		end
+		tPrev = tC
+	end
+	if Len(tNum) > 0
+		AddOnce(vOut, tNum)
+	end
+	tOut = ""
+	for i = 1 to Len(vOut)
+		if i > 1
+			tOut = tOut + "  "
+		end
+		tOut = tOut + vOut[i]
+	end
+	return Flat(tOut)
+end
+
+func AddOnce(vList, tItem)
+	for i = 1 to Len(vList)
+		if vList[i] = tItem
+			return
+		end
+	end
+	vList + tItem
+end
+
+func TopicOf(tFile)
+	nAt = IndexOf("/", tFile)
+	if nAt = 0
+		return tFile
+	end
+	return Left(tFile, nAt - 1)
+end
+
+func AreaOf(tTopic)
+	for i = 1 to Len($vAreas)
+		vWords = Split($vAreas[i][2], " ")
+		for p = 1 to Len(vWords)
+			if vWords[p] = tTopic
+				return $vAreas[i][1]
+			end
+		end
+	end
+	return tTopic
+end
+
+# count one more for a key, and answer the new count
+func Bump(vKeys, vCounts, tKey)
+	for i = 1 to Len(vKeys)
+		if vKeys[i] = tKey
+			vCounts[i] = vCounts[i] + 1
+			return vCounts[i]
+		end
+	end
+	vKeys + tKey
+	vCounts + 1
+	return 1
+end
+
+func CountOf(tNeedle, tHay)
+	nOut = 0
+	nN = Len(tNeedle)
+	nLen = Len(tHay) - nN + 1
+	for i = 1 to nLen
+		if SubStr(tHay, i, nN) = tNeedle
+			nOut++
+		end
+	end
+	return nOut
+end
+
+func IndexOf(tNeedle, tHay)
+	nN = Len(tNeedle)
+	nLen = Len(tHay) - nN + 1
+	for i = 1 to nLen
+		if SubStr(tHay, i, nN) = tNeedle
+			return i
+		end
+	end
+	return 0
+end
+
+func Trim2(tT)
+	nA = 1
+	nB = Len(tT)
+	while nA <= nB and (tT[nA] = " " or tT[nA] = Char(9) or tT[nA] = Char(10) or tT[nA] = Char(13))
+		nA++
+	end
+	while nB >= nA and (tT[nB] = " " or tT[nB] = Char(9) or tT[nB] = Char(10) or tT[nB] = Char(13))
+		nB--
+	end
+	if nB < nA
+		return ""
+	end
+	return SubStr(tT, nA, nB - nA + 1)
+end
+
+# one line of a TSV cell: a tab, a line feed or a carriage return is written as \t, \n or \r
+func Esc(tT)
+	tOut = ""
+	nLen = Len(tT)
+	for i = 1 to nLen
+		tC = tT[i]
+		if tC = Char(9)
+			tOut = tOut + Char(92) + "t"
+		elseif tC = Char(10)
+			tOut = tOut + Char(92) + "n"
+		elseif tC = Char(13)
+			tOut = tOut + Char(92) + "r"
+		else
+			tOut = tOut + tC
+		end
+	end
+	return tOut
+end
+
+func Flat(tT)
+	return Esc(tT)
+end
+
+func Split(tText, tSep)
+	vOut = []
+	tCur = ""
+	nLen = Len(tText)
+	for i = 1 to nLen
+		if tText[i] = tSep
+			vOut + tCur
+			tCur = ""
+		else
+			tCur = tCur + tText[i]
+		end
+	end
+	vOut + tCur
+	return vOut
+end
+
+func Row(vF)
+	tR = ""
+	for i = 1 to Len(vF)
+		if i > 1
+			tR = tR + Char(9)
+		end
+		tR = tR + vF[i]
+	end
+	return tR + Char(10)
+end
+
+# the X of a reference written `@@( X )`, or "" for any other
+func AtAtInner(tRef)
+	tR = Trim2(tRef)
+	if Left(tR, 3) != "@@(" or Right(tR, 1) != ")"
+		return ""
+	end
+	vArgs = ThenArgs("AtelierThen(" + SubStr(tR, 4, Len(tR) - 4) + ", 0)")
+	if Len(vArgs) != 2
+		return ""
+	end
+	return vArgs[1]
+end

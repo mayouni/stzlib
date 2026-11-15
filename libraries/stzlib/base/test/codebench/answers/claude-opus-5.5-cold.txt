@@ -1,0 +1,607 @@
+=== adverb/00_adverb_narrated#099386a7
+Adverb("quick")
+=== adverb/00_adverb_narrated#d93767f1
+Adverb("happy")
+=== adverb/00_adverb_narrated#d0ae859b
+Adverb("good")
+=== adverb/00_adverb_narrated#ce810ea8
+Adverb("asia")
+=== adverb/00_adverb_narrated#5385be05
+Adverb("africa")
+=== capstone/restaurant_capstone_narrated#d7e90fb8
+oKb = new stzKnowledge()
+oKb.AddFact("margherita", "is", "pizza")
+return oKb.Knows("margherita", "italian")
+=== cluster/mtls_narrated#87613b8a
+Q("refused").Contains("ok:mtls")
+=== common/hostile_globals_narrated#475eeaf8
+Q("hello").Uppercased()
+=== common/hostile_globals_narrated#3ce1a113
+Q("hello").FindAll("l")
+=== common/hostile_globals_narrated#833b74bc
+Q([ 3, 1, 3 ]).Find(3)
+=== common/hostile_globals_narrated#cd499d0d
+Q([ 3, 1, 2 ]).Sorted()
+=== common/hostile_globals_narrated#52eb6ad6
+Q('"hi"').IsBoundedBy('"')
+=== common/hostile_globals_narrated#f71dc236
+tStr = "item42"
+return [ Left(tStr, 4), Right(tStr, 2) ]
+=== common/hostile_globals_narrated#ef504c22
+Factorial(5)
+=== common/hostile_globals_narrated#385a08a6
+Fibonacci(10)
+=== common/slice_primitives_narrated#a3e14428
+_EngineSlice("abc", 2, 99)
+=== common/slice_primitives_narrated#f6d5563e
+_EngineSlice("abc", 9, 2)
+=== csv/00_csv_narrated#d9501a93
+oCsv = new stzCsv("a,b")
+return oCsv.Separator()
+=== csv/00_csv_narrated#2857ec64
+Q("just a sentence").IsCsv()
+=== date/00_date_narrated#c7e784c2
+new stzDate("01/01/2023").IsLeapYear()
+=== datetime/dtfix_date_time_args_narrated#20f24c15
+StzIsTime("23:00")
+=== datetime/dtfix_date_time_args_narrated#9b5c0790
+StzIsTime("23:00:15")
+=== datetime/stzCalendar_defects_narrated#bc32caa8
+new stzDate("2026-12-31").NextDay()
+=== datetime/stzCalendar_defects_narrated#87953d7a
+new stzDate("2026-01-01").PreviousDay()
+=== extincode/51_extincode_narrated#47b8c704
+iif(0, "yes", "n" + "o")
+=== extincode/51_extincode_narrated#d0991f9e
+iif("1 = 1", Upper("t"), "F")
+=== extincode/51_extincode_narrated#8de35606
+Length([ 1, 2, 3 ])
+=== extincode/51_extincode_narrated#6320e9b9
+Length("abc")
+=== extincode/51_extincode_narrated#1d0281a2
+range0(3)
+=== extincode/51_extincode_narrated#48e55f75
+range0([ 1, 4 ])
+=== extincode/51_extincode_narrated#264a7e06
+range1(3)
+=== extincode/51_extincode_narrated#dc8d6937
+range1([ 2, 5 ])
+=== faculty/faculty_core_narrated#5bc6519b
+Q([ 0.2, 0.9 ]).IsSortedDown()
+=== faculty/faculty_core_narrated#f52b12c3
+oFac = new stzFaculty("wild")
+return oFac.FailsConformance()
+=== faculty/placement_narrated#b5c19574
+oImpl = new stzFacultyImplementation("native")
+return oImpl.CanRun("en")
+=== faculty/placement_narrated#f877ceb5
+oImpl = new stzFacultyImplementation("learned")
+return oImpl.CanRunOn("tlh", :Linux)
+=== file/stzZipFile_defects_narrated#0719ff0b
+new stzZipFile("a\b\c.zip").Folder()
+=== file/stzZipFile_defects_narrated#c7eb50ed
+new stzZipFile("c.zip").Folder()
+=== file/xml_narrated#75ed1ded
+Q("<broken>").IsXml()
+=== file/xml_narrated#82f354ad
+Q("not xml at all").IsXml()
+=== func/00_func_narrated#92642c89
+IsEmpty("")
+=== func/00_func_narrated#91169a21
+IsEmpty([])
+=== func/00_func_narrated#ae4ffa77
+IsTrue("")
+=== func/00_func_narrated#43a42f92
+IsTrue(0)
+=== func/00_func_narrated#2a750aa7
+IsFalse("")
+=== func/00_func_narrated#356e455a
+IsFalse(0)
+=== func/00_func_narrated#0ec3751a
+IsTrueXT(TrueObject())
+=== func/00_func_narrated#edeb6abd
+IsTrueXT(FalseObject())
+=== func/00_func_narrated#57ec0cf2
+IsTrueXT([ 1, 2 ])
+=== func/00_func_narrated#369b51f8
+IsFalseXT("Hello")
+=== graph/orgrule_narrated#6a0e0b0d
+oBase = new stzOrgRuleBase(:GDPR)
+return oBase.NumberOfUniversalRules()
+=== graph/orgrule_narrated#7751146d
+oBase = new stzOrgRuleBase(:HIPAA)
+return oBase.NumberOfUniversalRules()
+=== graph/stzGridNav_defects_narrated#66ffdc35
+IsStzGridNav(5)
+=== hexnumbert/00_hexnumber_narrated#73cf931d
+RepresentsNumberInHexForm("0x167A")
+=== i18n/00_i18n_narrated#18b33b8d
+IsLanguageNumber("105")
+=== i18n/00_i18n_narrated#7d807d92
+LanguageName("105")
+=== json/00_json_narrated#d99c67d7
+IsJson('{ "a": 1, "b": 2 }')
+=== json/00_json_narrated#eba3133d
+IsJson('{not json')
+=== list/00_list_narrated#a57e8772
+Q([ 10, 20, 30 ]).FirstItem()
+=== list/00_list_narrated#e52c4a85
+Q([ 10, 20, 30 ]).LastItem()
+=== list/00_list_narrated#41190506
+Sum([ 1, 2, 3, 4 ])
+=== list/00_list_narrated#27549cfd
+IsEmpty([])
+=== list/00_list_narrated#bf7d1f2e
+Q([ 10, 20, 30, 40 ]).NthItem(3)
+=== list/00_list_narrated#e9196570
+Min([ 3, 1, 2 ])
+=== list/00_list_narrated#93829005
+Max([ 3, 1, 2 ])
+=== list/00_list_narrated#95410d72
+Q([ 1, 2, 3 ]).ContainsAll([ 1, 3 ])
+=== list/00_list_narrated#3d881beb
+Q([ 1, 2, 3 ]).ContainsMany([ 1, 9 ])
+=== list/00_list_narrated#a6f08a7a
+Q([ 1, 2, 3, 4 ]).CountW('@item > 2')
+=== list/00_list_narrated#623235a5
+Q([ 1, 2, 3, 2 ]).FindFirst(2)
+=== list/00_list_narrated#bbe833ed
+IsListOfNumbers([ 1, 2, 3 ])
+=== list/00_list_narrated#c6e71cd3
+IsListOfStrings([ "a", "b" ])
+=== list/00_list_narrated#41b6b7eb
+Q([ 1, 2, 3, 4 ]).Reduce()
+=== list/00_list_narrated#acc1ac4c
+Q([ 1, 2, 3, 4 ]).ReduceXT('@accumulator + @item', 0)
+=== list/01_deeplist_narrated#6e3bd090
+IsSubPathOf([ 2 ], [ 2, 3, 4 ])
+=== list/01_deeplist_narrated#d8a01df2
+IsSubPathOf([ 3 ], [ 2, 3, 4 ])
+=== list/06_manyremoved#fd445fec
+Q(1:10).ManyRemoved([ 3, 7, 9 ])
+=== list/104_atat_display#afc3761e
+@@(Q("x🌞").LastChar())
+=== list/104_atat_display#c4befd1a
+@@(["1","🌞","ring"])
+=== list/10_replacemanybymany#84e05e47
+SectionToRange([ 3, 7 ])
+=== list/10_replacemanybymany#50bb5520
+RangeToSection([ 3, 5 ])
+=== list/112_containsthese#96fef609
+Q([ "a", "♥", "*" ]).ContainsThese([ "♥", "*" ])
+=== list/114_unicode#6d171576
+Unicodes("Hi")
+=== list/115_ischar#fa2db674
+IsChar(12.5)
+=== list/115_ischar#2341fc4d
+IsChar(7)
+=== list/116_islistofchars#3100bf8c
+IsListOfChars([ "a", "b", "c" ])
+=== list/116_islistofchars#4095ae7b
+IsListOfChars([ 1, 2, 3 ])
+=== list/117_unicodes#78b54fb8
+Unicodes(1:3)
+=== list/117_unicodes#c7472956
+Unicodes([ "a", "b", "c" ])
+=== list/136_sort#90826c5b
+Q([ 4, 3, 5, 2, 1 ]).Sorted()
+=== list/16_association#b17cf117
+Association([ "A":"C", 1:3, "a":"c" ])
+=== list/189_find#0e3ff831
+Q([ 1, 2, 7, 4, 5, 7 ]).Find(7)
+=== list/204_association#15dc63e2
+Association([ [ 1, 2, 3 ], [ "One", "Two", "Three" ] ])
+=== list/21_intersection#18f487d3
+Q(1:3).Intersection(2:7)
+=== list/650_operator_q_elevation_narrated#07cededb
+Q("ABC") * 3
+=== list/650_operator_q_elevation_narrated#b55edccf
+( Q("ABC") * Q(3) ).Content()
+=== list/listoflists_defects_narrated#a21ad723
+new stzListOfLists([ [ 1, 3, 2 ] ]).SortNthListInDescendingQ(1).Content()
+=== list/stzItem_defects_narrated#013baf8b
+oItem = new stzItem("a", [ "b", "A" ], 1)
+return oItem.IsLastItem()
+=== list/stzItem_defects_narrated#85fa5e8c
+oItem = new stzItem("a")
+return oItem.IsBoundedByCS([ "<", ">" ], [ "<", "A", ">" ], 0)
+=== listoflists/00_listoflists_narrated#e7b84f80
+@IsListOfLists([ [ 1 ], [ 2 ], [ 3 ] ])
+=== listoflists/00_listoflists_narrated#1ffa144f
+@IsListOfLists([ 1, 2, 3 ])
+=== listofnumbers/00_listofnumbers_narrated#ee0c795a
+Divide([ 12, 2, 3 ])
+=== listofnumbers/00_listofnumbers_narrated#9e18fb8c
+Multiply([ 10, 2, 3 ])
+=== locale/01_languagename_narrated#9ae7dfa3
+new stzLocale("zz").LanguageName()
+=== matrex/stzMatrex_defects_narrated#ada5f45e
+new stzMatrix([ [ 1, 2 ], [ 3, 4 ] ]).Determinant()
+=== meta/coderule_narrated#8a88ecec
+vFindings = StzCheckCode()
+return Q(vFindings).DeepContains("dead-knob")
+=== meta/coderule_narrated#46d5ed67
+vFindings = StzCheckCode()
+return Q(vFindings).DeepContains("setter-resets-on-reject")
+=== misc/00_misc_narrated#840d5b37
+stzlen("softanza")
+=== misc/00_misc_narrated#d0ebe1f8
+@substr("one five three", "five", "two")
+=== misc/00_misc_narrated#1e29144e
+@substr("one two three", "two", "")
+=== misc/00_misc_narrated#f56d3577
+@Min([ 2, 3 ])
+=== misc/00_misc_narrated#d6b2c106
+@Max([ 2, 3 ])
+=== misc/00_misc_narrated#9d647c69
+CenterText("ab", 6)
+=== natural/entity_world_narrated#7df7474b
+oWorld = new stzEntityWorld()
+return oWorld.Ask("zorglub")
+=== natural/entity_world_narrated#cc7ae8b0
+oWorld = new stzEntityWorld()
+return oWorld.Ask("tomato")
+=== natural/entity_world_narrated#e9f9b623
+oWorld = new stzEntityWorld()
+return oWorld.Overlay()
+=== natural/entity_world_narrated#43ddf056
+oWorld = new stzEntityWorld()
+return oWorld.EdgesOf("paris")
+=== natural/evidentiality_narrated#171fd981
+StzVerbalizeVerdict(1, 0.95)
+=== natural/evidentiality_narrated#e508f8fc
+StzVerbalizeVerdict(1, 0.7)
+=== natural/evidentiality_narrated#2b714326
+oFrame = new stzFrame()
+return oFrame.IsCertain()
+=== natural/evidentiality_narrated#bc163120
+StzEvidentialBand(1)
+=== natural/modality_narrated#f07f60ec
+Can(7, "score")
+=== natural/modality_narrated#bffed122
+oSession = new stzModalSession()
+oSession.Record(1)
+oSession.Record(0)
+return oSession.AllHold()
+=== natural/multilingual_pack_narrated#b351aefa
+IsLanguagePackRegistered("fr")
+=== natural/multilingual_pack_narrated#71de5b57
+IsLanguagePackRegistered("ar")
+=== natural/nnl_narrated#b0a2a508
+Q("ring").IsLowercase()
+=== natural/nnl_narrated#0a7f7cf4
+Q("RING").IsLowercase()
+=== natural/stzChainOfTruth_defects_narrated#fa577572
+new stzChainOfTruth("Ring").Contains("in")
+=== natural/stzChainOfTruth_defects_narrated#0706f31c
+new stzChainOfTruth("Ring").Contains("xy")
+=== natural/stzChainOfTruth_defects_narrated#cdb2102f
+new stzChainOfTruth(12).Contains(1)
+=== network/57_tcp_hardening_narrated#1f7d9810
+oServer = new stzTcpServer(0)
+oServer.Listen()
+return oServer.LastError()
+=== neural/engine_granite_narrated#ee3798f8
+oModel = new stzModel("granite-4.0")
+return oModel.HasToken("<|im_start|>")
+=== neural/engine_granite_narrated#563a61d1
+oModel = new stzModel("granite-4.2")
+return oModel.HasToken("<|start_of_role|>")
+=== neural/engine_termination_narrated#d7aace16
+oModel = new stzModel("")
+return oModel.StopOnRepeatFired()
+=== neural/engine_window_narrated#874fa60d
+oModel = new stzModel("")
+return oModel.WindowFilled()
+=== neural/engine_window_narrated#cf2a1a2e
+oModel = new stzModel("")
+return oModel.HasError()
+=== neural/generative_narrated#d7e74a11
+oModel = new stzModel("")
+return oModel.IsGenerative()
+=== number/00_number_narrated#cf94316b
+Q(17).IsPrime()
+=== number/00_number_narrated#0ecb2a78
+Q(18).IsPrime()
+=== number/00_number_narrated#410d359e
+Abs(-7)
+=== number/00_number_narrated#8b9a2afd
+Q(-3).IsNegative()
+=== number/listofnumbers_defects_narrated#3072ab3a
+new stzListOfNumbers([ 4, 6 ]).Cumulated()
+=== number/listofnumbers_defects_narrated#84b809e8
+new stzListOfNumbers([ 9, 7, 5 ]).MinZ()
+=== number/listofnumbers_defects_narrated#787d690b
+new stzListOfNumbers([ 1, 5, 9 ]).NeighborsOf(5)
+=== number/money_currency_narrated#44590ef5
+new stzMoney("12", "EUR").MinorUnits()
+=== number/money_currency_narrated#ba938b5d
+new stzMoney("5000", "xof").Currency()
+=== number/money_currency_narrated#8264c69c
+new stzMoney("1", "XOF").IsPositive()
+=== number/money_currency_narrated#765df4bc
+new stzMoney("0", "XOF").IsZero()
+=== number/money_currency_narrated#36a88333
+CurrencyExponent("XOF")
+=== number/money_currency_narrated#e1fcb964
+CurrencyExponent("XAF")
+=== number/number_dead_calls_narrated#1cdce0cc
+Q(12).Gcd(18)
+=== number/number_dead_calls_narrated#d9e60102
+Lcm([ 4, 6, 8 ])
+=== number/number_dead_calls_narrated#6316f5ba
+Q(41).NextNumber()
+=== number/number_dead_calls_narrated#afc0eace
+Q(41).PreviousNumber()
+=== number/number_dead_calls_narrated#5c816d99
+Q(10).ToOctal()
+=== number/number_dead_calls_narrated#2c9d264e
+Q("10.5").FractionalPartToOctal()
+=== number/number_dead_calls_narrated#250b9f82
+Q(5).IsInBillions()
+=== number/numeric_calculable_narrated#1f2ac521
+Q(999999999999999 * 9).IsGreaterThan(MaxCalculableInteger())
+=== number/numeric_calculable_narrated#f408492d
+MaxCalculableInteger()
+=== number/numeric_calculable_narrated#b4ca1164
+Q(".5").IsCalculableNumber()
+=== number/numeric_calculable_narrated#93567bec
+new stzNumber("0.5").NumericValue()
+=== number/numeric_complex_narrated#14d1e893
+new stzComplexNumber(5, 0).ToString()
+=== number/numeric_complex_narrated#aef5344f
+new stzComplexNumber(0, 1).ToString()
+=== number/numeric_exactness_narrated#e4b5d8c9
+ExactAdd("0.1", "0.2")
+=== number/numeric_exactness_narrated#fdbf184d
+ExactMultiply("0.1", "0.1")
+=== number/numeric_exactness_narrated#fe0d1e8b
+ExactAdd("2", "2")
+=== number/numeric_exactness_narrated#bc4cb088
+ExactDivide("1", "8")
+=== number/numeric_exactness_narrated#dd3da27d
+ExactDivide("0.1", "4")
+=== number/numeric_exactness_narrated#4d04607a
+new stzNumber("1.234").Round()
+=== number/numeric_handle_table_narrated#7e985570
+new stzNumber("12.375").NumericValue()
+=== number/numeric_handle_table_narrated#97dd246e
+new stzNumber("42").NumericValue()
+=== number/numeric_handle_table_narrated#bbedab8a
+new stzNumber("12.375").NumericValue()
+=== number/numeric_no_loss_narrated#201147e3
+Q(0.1).Content()
+=== number/numeric_no_loss_narrated#f3cc2261
+Q(2.5).Content()
+=== number/numeric_no_loss_narrated#e11f1311
+ShortestDecimal(1.0f / 3.0f)
+=== number/numeric_no_loss_narrated#682646db
+new stzNumber("42").Representation()
+=== number/numeric_no_loss_narrated#8f55c95b
+new stzNumber("-7").Representation()
+=== object/stzObject_defects_narrated#712de691
+Q(8).OfCSB(7, 1)
+=== object/stzObject_defects_narrated#0858f48c
+Q(8).OfXTCSB(7, "to", 1)
+=== object/stzObject_defects_narrated#9330e734
+Q(7.5).Numberified()
+=== object/stzObject_defects_narrated#daa86d0a
+Q("12").Numberified()
+=== object/stzObject_defects_narrated#cca1563a
+Q("ring").IsA([ :String, :Lowercase ])
+=== object/stzObject_defects_narrated#809ec39f
+Q("Ring").IsA([ :String, :Lowercase ])
+=== object/stzObject_defects_narrated#177ed0b2
+Q([ "ab", "cd" ]).ALengthN()
+=== object/stzObject_defects_narrated#84690c8b
+Q([ "a", "b", "c", "d" ]).ALengthN()
+=== ocr/ocr_model_narrated#2d20deee
+StzOcrHasLanguage("ru-RU")
+=== ocr/ocr_narrated#96e1b19f
+tLine = "الوثيقة بنص يؤخذ الاختلاف وعند"
+return Q(Q(Q(tLine).Split(" ")).Reversed()).ConcatenatedUsing(" ")
+=== ocr/ocr_narrated#70581545
+StzOcrToLogicalOrder("1234 800 الساخن الخط")
+=== ordinal/00_ordinal_narrated#2cf90c15
+Ordinal(1)
+=== ordinal/00_ordinal_narrated#d016dcd9
+Ordinal(2)
+=== plural/00_plural_narrated#e2019d1b
+Plural("cat")
+=== plural/00_plural_narrated#435edade
+Plural("dog")
+=== plural/00_plural_narrated#203e8e19
+Plural("city")
+=== plural/00_plural_narrated#1bb831a1
+Plural("baby")
+=== plural/00_plural_narrated#1262e613
+Plural("child")
+=== plural/00_plural_narrated#e9f50823
+Plural("man")
+=== reflect/docgen_narrated#108405c9
+NNLFamilyOf("_NNLValueIs")
+=== reflect/docgen_narrated#ab66189d
+NNLFamilyOf("_NNLImmutable")
+=== reflect/docrecord_narrated#b162cac8
+Q("shwo").IsOneEditAwayFrom("show")
+=== reflect/docrecord_narrated#928e0312
+Q("colmun").IsOneEditAwayFrom("column")
+=== reflect/docrecord_narrated#5299d63f
+tBrief = "returns the positions of every occurrence."
+return Q(Q(tBrief).FirstChar()).IsUppercase()
+=== reflect/docrecord_narrated#c979df84
+Q("Returns the positions of every occurrence").EndsWith(".")
+=== render/escape_sinks_narrated#c03d5e8d
+Q("").HtmlEscaped()
+=== security/advisory_watch_narrated#933a7810
+oWatch = new stzAdvisoryWatch()
+return oWatch.BudgetHolds("DRILL-2026-0001")
+=== security/advisory_watch_narrated#7d7fac2d
+oWatch = new stzAdvisoryWatch()
+return oWatch.HoursToClose("NONE-0000")
+=== security/at_rest_crypto_narrated#5410b4a9
+StzPasswordNeedsRehash("pbkdf2$" + StzPasswordHash("x"))
+=== security/engine_door_narrated#b5aa2dbf
+StzEngineDoorLedgerIsOpen()
+=== security/exposure_responder_narrated#0f7479a2
+oResp = new stzExposureResponder()
+return oResp.AdvisoryHolds("DRILL-2026-0601")
+=== security/exposure_responder_narrated#e29ddbdd
+oResp = new stzExposureResponder()
+return oResp.NumberOfClosedDoors()
+=== security/model_digest_narrated#a652a6f9
+StzModelDigestCheck("model.gguf")
+=== security/secret_memory_narrated#5ab417c8
+StzSecureEq("abc", "abc")
+=== security/secret_memory_narrated#3a1be735
+StzSecureEq("abc", "abcd")
+=== security/secret_memory_narrated#b0a69c70
+oStore = new stzSecretStore()
+return oStore.Release("stale")
+=== security/text_condition_not_code_narrated#6e50cc76
+StzIsSafeCondition('This.Clear()')
+=== singular/00_singular_narrated#3f535e83
+Singular("cities")
+=== singular/00_singular_narrated#6fec8744
+Singular("babies")
+=== singular/00_singular_narrated#582c9d0f
+Singular("men")
+=== stats/plot_engine_parity_narrated#0ea7eed6
+CompactForm(12.25) = 12.25
+=== stats/plot_engine_parity_narrated#5cc53368
+CompactForm(1000)
+=== stats/stzDataSet_defects_narrated#d8c6f369
+Q(1.095461844238322).IsLessThan(1.5709505944546684)
+=== string/00_string_narrated#dbbdadf0
+Q("ring").Uppercased()
+=== string/00_string_narrated#fef3827c
+Q("RING").Lowercased()
+=== string/00_string_narrated#68a108ba
+Q("softanza").NumberOfChars()
+=== string/00_string_narrated#8567153f
+Q("héllo").NumberOfChars()
+=== string/00_string_narrated#20d19a85
+Q("abc").Reversed()
+=== string/00_string_narrated#f5f5ef8f
+Q("softanza").Contains("tan")
+=== string/00_string_narrated#463a9a8f
+Q("aXbXc").Replaced("X", "-")
+=== string/00_string_narrated#87ed4de2
+Q("naïve").Replaced("ï", "i")
+=== string/00_string_narrated#77c15625
+Q("  hi  ").Trimmed()
+=== string/00_string_narrated#f4a7e37d
+Q("abc").IsEqualTo("abc")
+=== string/08_write_a#a45c67bf
+@NXT(3, ".", :InAString)
+=== string/08_write_a#ab3bb1b7
+Q([ ".", ".", ".", "Tunis" ]).StartsWith(@NXT(3, ".", :InAList))
+=== string/105_unicode#08a0a918
+Unicode("I")
+=== string/107_hexprefix#a8cfba19
+HexPrefix()
+=== string/107_hexprefix#68950170
+Q("0x" + "066E").IsHexNumber()
+=== string/108_script#fbe3e607
+Q("משמש").Script()
+=== string/109_ishexunicode#1bb8de8b
+IsHexUnicode("U+0649")
+=== string/109_ishexunicode#3f580dd9
+new stzChar("ڢ").HexUnicode()
+=== string/10_aligncenter#fc491a72
+Q("RING").AlignCenterQ(15).Content()
+=== string/10_aligncenter#f0a66b4f
+Q("RING").AlignLeftQ(15).Content()
+=== string/110_unicode#3befb937
+Unicode("ı")
+=== string/110_unicode#73522def
+Unicode("ȷ")
+=== string/112_repeatedntimes#31a2b15b
+Q("♥").RepeatedNTimes(3)
+=== string/112_repeatedntimes#de75ea25
+NCopies(3, "♥")
+=== string/116_shortenedn#16a31365
+Q("1234567890987654321").ShortenedN(2)
+=== string/117_shortened#7683b917
+Q("1234567890987654321").Shortened()
+=== string/117_shortened#423c9d20
+Q("1234567890987654321").ShortenedN(5)
+=== string/130_negative_index#4e775743
+Q("ABCDE")[-2]
+=== string/134_ispluralofastztype#d5d1eabf
+IsPluralOfAStzType(:stzListsOfStrings)
+=== string/14_isreverseof#4b6d1941
+Q("ring").IsReverseOf("gnir")
+=== string/14_isreverseof#76c7e726
+Q(1:3).IsReverseOf(3:1)
+=== string/158_script#afd59518
+Q("鶊").Script()
+=== string/158_script#1e5fb197
+new stzChar("鶊").Name()
+=== string/170_containsat#7654c171
+Q("^^♥^^").ContainsAt(3, "♥")
+=== string/171_containsinsection#058c4bf1
+Q("^^♥^^").ContainsInSection("♥", 2, 4)
+=== string/243_findlast#7dd7c543
+PerfGain100(12.99, 2.45)
+=== string/243_findlast#785c70a7
+SpeedUpX(12.99, 2.45)
+=== string/247_stringcase#1b4bc0c3
+Q("RING").StringCase()
+=== string/247_stringcase#10fb5cae
+Q("ring").StringCase()
+=== string/28_numberofoccurrenceofcharleftside#bfb41f16
+Q("---ring").NumberOfOccurrenceOfCharLeftSide("-")
+=== system/52_uuid_engine_narrated#91b984fd
+StzIsUuid(StzUuid())
+=== system/52_uuid_engine_narrated#ebc4bf98
+StzIsUuid("not-a-uuid")
+=== system/auth_saml_narrated#39778c2c
+StzIsReadableCertificate("not a certificate")
+=== system/payments_governance_narrated#2911f999
+oReg = new stzPaymentsRegistry()
+return oReg.IsDocumentedInvariant("ungoverned-payouts-in-production")
+=== system/payments_live_adapter_narrated#d7d5285e
+StzWireEncode([ :transactions = [], :x = 1 ])
+=== system/payments_live_adapter_narrated#367bb69d
+StzWireEncode([ :events = [ "A", "B" ] ])
+=== system/payments_qr_narrated#315e67cf
+Len(StzCrc16(Q("a").RepeatedNTimes(6)))
+=== system/payments_qr_narrated#843b438c
+StzQrIsValid("")
+=== system/payments_secrets_narrated#68cfc5c4
+"pispi-" + Lower("BIA") + "-" + "mtls-cert"
+=== system/payments_secrets_narrated#5be0659b
+oSecrets = new stzPaymentsSecrets()
+return oSecrets.HasPart("client")
+=== system/pispi_twin_narrated#e0af0a64
+PispiReasonText("DU03")
+=== system/pispi_twin_narrated#e504f0c9
+IsPaymentAdapter("card")
+=== system/pispi_twin_narrated#e59b43fc
+PispiIsFinalStatus("IRREVOCABLE")
+=== system/sms_port_narrated#5e6b9082
+SmsSegmentCount("Your code is 4821")
+=== system/sms_port_narrated#42526ed9
+SmsEncoding("Your code is 4821")
+=== system/sms_port_narrated#64b43598
+SmsSegmentCount(Q("a").RepeatedNTimes(100))
+=== system/sms_port_narrated#ebe7b0e8
+SmsCharCost(8364)
+=== system/sms_port_narrated#9dcb99e8
+SmsSeptets(Q("{").RepeatedNTimes(100))
+=== testoor/testoor_refine_narrated#6e6afaba
+TestoorSubject()
+=== testoor/testoor_routes_narrated#bf78b333
+oTour = new stzTestoorTour("ZA1")
+return oTour.Route()
+=== time/00_time_narrated#e8fca91f
+new stzTime("14:30").Content()
+=== time/00_time_narrated#45a20d5a
+new stzTime("14:30:00").IsAfternoon()
+=== time/00_time_narrated#a2d78e2a
+new stzTime("09:00:00").IsAfternoon()
+=== uuid/00_uuid_narrated#aba1aeb4
+StzIsUuid(StzUuid())
+=== uuid/00_uuid_narrated#eaa5c7ad
+StzIsUuid("Ring")
