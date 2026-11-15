@@ -39,7 +39,9 @@ text is what a judge does, and the two calls are the only ones.
 
 `results/` holds one file per scored run, `answers/` the answers it scored. Built from the Atelier harvest of
 eb394a58d: 1,156 checks, 970 whose reference passes on haro.exe (103 of them after `haroport` moved their spelling),
-298 tasks kept (166 value, 132 flag). The reference passes all 298.
+298 tasks kept (166 value, 132 flag); and `authored.tsv`, 69 tasks written for the seven areas the narrations cannot
+reach -- regex, geo, gui, gpu (the kernel maker's CPU side), sound, performance, governance -- each verified on
+haro.exe. 367 tasks in all, 235 value and 132 flag. The reference passes all 367.
 
 **Build and judge with `HARO_NOCACHE=1`.** A program served from haro.exe's image cache lets `Eval` accept spellings
 that a fresh compile refuses (`:key = value`, a built-in in another case), so the same answer could pass from the
@@ -55,19 +57,22 @@ value tasks):
 | cold | the task text only | 102 | 41 | 135 k tokens, 3 tool calls |
 | source | the library's source, not its tests; runs nothing | 140 | 4 | 164 k tokens, 27 tool calls |
 | door v0.1, find | AGENTS.md and `find`; runs nothing | 138 | 8 | 252 k tokens, 41 tool calls |
-| door v0.2, find | AGENTS.md, `find` and `methods`; runs nothing | 136; repeated: 141 | 4; 4 | 213 k, 45 calls; 238 k, 62 calls |
+| door v0.2, find | AGENTS.md, `find` and `methods`; runs nothing | 136; 141; 146 | 4; 4; 2 | 213 k / 45 calls; 238 k / 62; 218 k / 54 |
 | door, find and run | AGENTS.md, `find` and `run` | 147 | 3 | 218 k tokens, 48 tool calls |
 
 The arms going through the door (`libraries/stzlib/door`) run with `STZ_DOOR_HOLDOUT` set, so `find` serves no
-example from a narrated file a task comes from. The v0.2 repeat ran on `find`'s fallback examples as well.
+example from a narrated file a task comes from. The second and third v0.2 runs had `find`'s fallback examples; the
+third was also told that the judge refuses the earlier spellings, and made 2 errors where the others made 4 to 8 --
+AGENTS.md now says so to every agent.
 
 - **The cold arm guesses Softanza's vocabulary**: its 41 errors are names the library does not have (`stzMoney`,
   `StzIsUuid`, `ExactAdd`). Reading the source, or asking the door, removes them.
-- **The door's `find` gives what reading the source gives** -- 136 to 141 against 140 -- with no file of the library
-  read: the service an agent working in another project needs. It costs more tokens than reading the source today.
+- **The door's `find` gives what reading the source gives** -- 136, 141 and 146 against 140 -- with no file of the
+  library read: the service an agent working in another project needs. It costs more tokens than reading the source.
 - **`run` adds the check**: 147 of 150. The agent reports four of its answers as fitted to the expected value rather
   than calling the function the task names; a value judge counts them.
-- **v0.1 against v0.2**: 138, 136 and 141 are one spread. The two versions are not told apart by these runs.
+- **v0.1 against v0.2**: 138 against 136, 141 and 146 -- a spread of ten tasks between runs of one version, wider
+  than any difference between the versions.
 - The flag tasks were answered by the cold arm only.
 
 ### Local models, through the same door
