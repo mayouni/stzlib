@@ -51,6 +51,8 @@ From a shell, the same tools:
 - `true`, `false` and `null` are written in small letters; built-in functions keep their exact spelling (`Len`,
   `Left`, `Right`, `SubStr`, `Lower`, `Upper`, `String`, `Read`, `Write`).
 - A function with no parameters is defined without brackets: `func Main`.
+- A name that reads as a keyword in any case is refused: `oK` is `ok`, `oR` is `or`. Name an object for what it
+  holds: `oKernel`, `oRule`.
 - Haro refuses the earlier spellings outright: a pair is a list, `[ "key", value ]`, never `:key = value`; a text
   joins a number through `String(n)`; `TRUE`, `FALSE` and `NULL` are `true`, `false` and `null`.
 - The library's source files keep an earlier spelling (`ok`, `next`, `TRUE`, `cName`, `aList`). Method and function

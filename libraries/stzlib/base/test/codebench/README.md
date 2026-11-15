@@ -75,6 +75,23 @@ AGENTS.md now says so to every agent.
   than any difference between the versions.
 - The flag tasks were answered by the cold arm only.
 
+### The seven authored areas, through the door
+
+The same agent, `find` and `methods` only, on the 69 authored tasks: 51 pass.
+
+| regex | geo | gui | gpu | sound | performance | governance |
+|---|---|---|---|---|---|---|
+| 6 / 9 | 9 / 10 | 10 / 10 | 0 / 10 | 10 / 10 | 9 / 10 | 7 / 10 |
+
+- **gpu, 0 of 10**: every answer named its kernel maker `oK`, which Haro reads as the keyword `ok`. AGENTS.md now
+  says that a name reading as a keyword in any case is refused.
+- **regex, three errors**: `find` served narrated examples calling `Nbx`, a helper one test file defines for itself.
+  The index now leaves out every example calling a function its own test file defines (5,081 of 18,569).
+- The agent reports what the door did not show: how to construct `stzGovernance` and `stzFieldTags`, the shape of
+  an argument (`EvaluateOn`'s bindings, a polygon's points), and what a function returns.
+- These tasks were written by the same family of model that answers them; the door arm, which may not read the
+  source, is the measurement they serve.
+
 ### Local models, through the same door
 
 `local.haro` runs a model of the engine on every fourth value task, greedy, 120 new tokens at most, in three arms:

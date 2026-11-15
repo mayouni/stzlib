@@ -8,7 +8,8 @@
 #             its name, its class, its signature, the comment lines written just above it, and its first body line
 #             (an alias shows there what it stands for)
 #   example   every narrated assertion `Then(description, actual, expected)` in base/test: the code that runs, what
-#             it gives, and the scenario it belongs to
+#             it gives, and the scenario it belongs to -- except an assertion calling a function its own test file
+#             defines (a helper of the test, which the library does not have)
 #
 # One row a line: kind, name, class, file, line, head, note, words. `head` is the signature or the example's code;
 # `note` the comment or the expected value; `words` the lowercased text `find` searches, the name's words split at
@@ -21,6 +22,7 @@ $vSkipDirs = [ "test", "archive", "_tmp", "future", "max", "models", "engine", "
 $hOut = FOpen("index.tsv", "wb")
 $nDefs = 0
 $nExamples = 0
+$nOwnSkipped = 0
 $nFiles = 0
 
 nStart = Clock()
@@ -30,7 +32,7 @@ Walk("base/test", true)
 FClose($hOut)
 ? "files read  " + String($nFiles)
 ? "defs        " + String($nDefs)
-? "examples    " + String($nExamples)
+? "examples    " + String($nExamples) + "  (left out: " + String($nOwnSkipped) + " calling a function their test file defines)"
 ? "seconds     " + String(Floor((Clock() - nStart) / ClocksPerSecond()))
 
 
@@ -118,6 +120,7 @@ func Examples(tFile)
 	vLines = Str2List(Read($tRoot + "/" + tFile))
 	tScenario = ""
 	nLen = Len(vLines)
+	vOwn = OwnFunctions(vLines)
 	for i = 1 to nLen
 		tLine = Trim2(vLines[i])
 		if Left(tLine, 9) = "Scenario("
@@ -134,11 +137,41 @@ func Examples(tFile)
 		if Len(vA) != 3
 			loop
 		end
+		if CallsOwn(vA[2], vOwn)
+			$nOwnSkipped++
+			loop
+		end
 		tDesc = Unquote(vA[1])
 		tWords = Lower(tDesc + " " + tScenario + " " + vA[2])
 		FWrite($hOut, Row([ "example", tDesc, tScenario, tFile, String(i), Left(vA[2], 240), Left(vA[3], 160), Left(tWords, 500) ]))
 		$nExamples++
 	end
+end
+
+# the functions a test file defines for itself, in small letters: an example calling one is not the library's
+func OwnFunctions(vLines)
+	vOut = []
+	nLen = Len(vLines)
+	for i = 1 to nLen
+		tLine = Trim2(vLines[i])
+		if Lower(Left(tLine, 5)) = "func "
+			tName = Lower(FirstWord(SubStr(tLine, 6, Len(tLine) - 5)))
+			if tName != ""
+				vOut + tName
+			end
+		end
+	end
+	return vOut
+end
+
+func CallsOwn(tCode, vOwn)
+	tLow = Lower(tCode)
+	for i = 1 to Len(vOwn)
+		if SubStr(tLow, vOwn[i] + "(") > 0
+			return true
+		end
+	end
+	return false
 end
 
 # the arguments of a call, from just after its opening bracket: split at the commas outside strings and brackets,
