@@ -4700,7 +4700,12 @@ every uniform written and bind group made, up to that submit. The forward now re
 | 14 | 0.56-0.63 ms | 3.8 ms | 4.6 ms | 12-13% |
 | 38 | 0.59-0.62 ms | 6.7-7.0 ms | 7.5-8.0 ms | 7% |
 | 158 | 0.51-0.65 ms | 18.9-21.2 ms | 19.9-22.0 ms | 2-3% |
-| 482 | 0.94-1.13 ms | 22.1-27.7 ms | 23.4-29.2 ms | 3-4% |
+| 242 | 1.08 ms | 29.7 ms | 32.0 ms | 3% |
+
+**Corrected the same day.** The first table carried a row for 482 tokens. The backbone takes at most 256 (`MAX_SEQ`);
+a longer input is refused before the forward's timers were reset, so that row was the previous 158-token forward read
+again. The timers now reset first, a refused forward reads as zeros, and the 242-token row above was measured in its
+place (the rows at 14, 38 and 158 tokens are from the first two runs, the 242 row from a third).
 
 **The verdict.** The backbone runs only from 32 tokens (`g_min_tokens`); shorter inputs take the CPU forward. On every
 shape it takes, encoding is 7% of the forward or less, under the 10% kill line: GQ0 is recorded and closed, and no
@@ -4716,6 +4721,57 @@ ms a token, reading its weights at about 27 GB/s; smollm2-135m (138 MB) takes 15
 dominated by work other than reading weights. Arithmetic on measured numbers, not a measurement: a Q8 decode step does
 about 2 operations per byte of weights; at this card's 76 GB/s copy that is about 0.15 TFLOP/s, 1.8% of its 8.36 TFLOP/s
 burst peak, and a floor of about 8.9 ms a token for qwen2.5-coder-0.5b (676 MB at 76 GB/s). Decode on this card is a bandwidth question.
+
+## GQ1 STATUS — one merge kept by the clock: Q, K and V as one product (2026-11-15)
+
+**What a merge can save, measured first** (`base/test/gpu/gq1_dispatch_cost.haro`). A dispatch of a kernel that does
+almost nothing costs about 9 us: 6 us of encoding on the CPU and 3 to 4 us on the device, the same whether the
+dispatches depend on each other or not. Removing dispatches alone therefore buys about 9 us each: 0.16 ms for every
+merge the backbone allows together (GELU's 6, Q K V's 12), about 2% of a 38-token forward. That is why GK4's GELU
+merge was lost in the noise, and the device's 3.8 ms wait at 14 tokens is the kernels' own work, not dispatch cost.
+
+**What a merge can save beyond the count** (`gq1_merge_qkv.haro`). Three small products leave the card idle where
+one wide one fills it. Six layers of Q, K and V in one batch, three products of tokens x 384 x 384 against one of
+tokens x 384 x 1152, the same multiply-adds, alternated, least of nine:
+
+| tokens | three products (18 dispatches) | one product (6) | three / one |
+|---|---|---|---|
+| 14 | 1.28 ms | 0.80 ms | 1.60 |
+| 38 | 2.01 ms | 1.56 ms | 1.29 |
+| 158 | 3.96 ms | 3.54 ms | 1.11 |
+| 482 | 10.67 ms | 10.30 ms | 1.03 |
+
+**What landed.** `gpu_ops.mmSourceTri`: every bias variant's text with three outputs, column c going to output c / w
+at (r, c mod w), w carried in the high bits of the bias flag. It is built at run time, once a variant; built at compile
+time, the same replace held 7.5 GB after fifteen minutes and was stopped before the machine ran out of memory. The
+backbone keeps each layer's [Wq | Wk | Wv] resident (f16 when the forward is) and sends one product a layer, written
+straight into the three buffers attention already read, so attention is unchanged. 62 dispatches become 50.
+`StzEngineNeuralBackboneSetMergeQkv(0/1)` is the A/B arm; on by default.
+
+**The whole forward, GK4's rule** (`gq1_backbone_ab.haro`, MiniLM, RTX 3050, haro.exe, the two arms alternated
+eleven turns, three runs; embeddings agree to a cosine of 1 within 1e-7 at every length):
+
+| tokens | merged faster | median gain, by run |
+|---|---|---|
+| 38 | 25 of 33 turns | 2.4%, 4.6%, 3.3% |
+| 74 | 24 of 33 | 2.8%, -0.8%, 2.4% |
+| 158 | 17 of 33 | 0.4%, 1.9%, -0.9% |
+| 242 | 12 of 22 | 2.2%, 1.3% |
+
+At 38 and 74 tokens the merged forward wins three turns in four, far beyond chance, and every run's median at 38
+tokens points the same way: about 0.2 to 0.4 ms of a 5 to 8 ms forward. From 158 tokens it is within the noise and
+never costs. **By GK4's rule the merge is kept**: short inputs, the sentences an embedding most often carries, are
+where the card is idle and where it pays. The control (the gather phase, which the merge does not touch) moved by a
+few microseconds both ways.
+
+**No general planner was built.** The planner's other candidates were measured or refused before: GELU into the
+up-projection (GK4, within the noise; the count alone buys 9 us a dispatch), add-LayerNorm and softmax's third pass
+(refused by structure, GK4). A planner with one candidate is a merge; it is recorded here as one.
+
+**Found on the way, and fixed.** (1) The GPU lease of 2026-11-14 ordered engine LIBRARIES, not processes: stz_gpu and
+stz_neural each carry gpu.zig, so the backbone in one process waited 30 s on its own process's lock and ran without a
+device (`gpu_f16_narrated` failed on every engine built since 2e4c4c45c). A lock held by this process id is now
+shared at once (`StzEngineGpuLease(0)` = 6); the lease guard's scene 1b holds it. (2) GQ0's 482-token row, above.
 
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
@@ -4751,7 +4807,7 @@ GK4 was.
 | **GL1** | subgroup operations where an adapter offers them, with the interpreter's own reading of them | a reduction measured faster with subgroups than with shared memory, on an adapter that offers them | no gain on the clock: recorded and removed, as GK4 | waits on an adapter that offers subgroups; neither on this machine does |
 | **GB0** | the library layer: convolution, scan, sort, top-k, segmented reductions, sparse-dense product, each through the foundry and the checker | each op has a CPU reference, a hidden shape, a roof fraction and a route | an op whose GPU route never wins on any measured shape is not routed | this desk; each op is a rung of its own |
 | **GQ0** | CLOSED 2026-11-15 BY ITS KILL LINE (see GQ0 STATUS): recorded submission: a forward's dispatches recorded once and replayed, the role CUDA graphs play | the backbone forward's submit cost measured before and after | under 10% of the forward: recorded and closed | this desk |
-| **GQ1** | a fusion planner that merges passes only where the dispatch count AND the clock agree | a merged pair kept by measurement, or the planner closed with its numbers | GK4's rule: within the clock's noise, removed | this desk; after GQ0 |
+| **GQ1** | DONE 2026-11-15 (see GQ1 STATUS): Q, K and V merged, kept by measurement at short inputs; no general planner: a fusion planner that merges passes only where the dispatch count AND the clock agree | a merged pair kept by measurement, or the planner closed with its numbers | GK4's rule: within the clock's noise, removed | this desk; after GQ0 |
 | **GV0** | a second backend for the hardware ceiling: Vulkan with cooperative matrices, reaching tensor cores on NVIDIA, AMD and Intel, under the same description and checker | a matmul measured through it against the WebGPU route and against cuBLAS | GC0 shows the WebGPU route within 2x of cuBLAS on Softanza's shapes; or the build needs an external SDK (G6's K2 invariant: SPIR-V must come from this repository's own code, the way WGSL does) | the Principal decides whether to open it, after GC0 |
 
 **Owed before any of these, and not this desk's alone:**
