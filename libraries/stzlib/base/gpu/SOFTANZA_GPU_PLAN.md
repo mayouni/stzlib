@@ -4685,6 +4685,38 @@ OS treats as two holders.
 every other process off that adapter for an hour (they wait, then run without it). Part (b), one decode step read
 against the measured peak and bandwidth, goes with GQ0, which measures the same forward.
 
+## GQ0 STATUS — recorded submission, measured and closed by its kill line (2026-11-15)
+
+**What a recording could remove.** The backbone already sends its whole encoder as ONE submit (one batched pass,
+62 dispatches for MiniLM's six layers). So a recording, which WebGPU offers for compute only as reused bind groups and
+uniforms, never as a replayable command buffer, could remove only the ENCODING: every weight looked up by name,
+every uniform written and bind group made, up to that submit. The forward now reports its phases
+(`StzEngineNeuralBackbonePhaseMs(n)`: gather and upload, encoding, the device's wait, the readback, the whole).
+
+**Measured, RTX 3050, haro.exe, MiniLM, warm, least of 7, two runs** (`base/test/gpu/gq0_submit_cost.haro`):
+
+| tokens | encoding | device wait | whole | encoding share |
+|---|---|---|---|---|
+| 14 | 0.56-0.63 ms | 3.8 ms | 4.6 ms | 12-13% |
+| 38 | 0.59-0.62 ms | 6.7-7.0 ms | 7.5-8.0 ms | 7% |
+| 158 | 0.51-0.65 ms | 18.9-21.2 ms | 19.9-22.0 ms | 2-3% |
+| 482 | 0.94-1.13 ms | 22.1-27.7 ms | 23.4-29.2 ms | 3-4% |
+
+**The verdict.** The backbone runs only from 32 tokens (`g_min_tokens`); shorter inputs take the CPU forward. On every
+shape it takes, encoding is 7% of the forward or less, under the 10% kill line: GQ0 is recorded and closed, and no
+recording is built. At 14 tokens the share is 12-13%, on a shape the gate already sends elsewhere.
+
+**What the table points at instead (for GQ1).** At 14 tokens the device waits 3.8 ms for 62 small dispatches, about
+60 us each, for work a single pass would finish far sooner. That per-dispatch cost on the device is what merging
+passes attacks and what a recording cannot touch.
+
+**RADAR-GPU-OWNER-01 (b), read the same day.** A decode step never reaches the GPU: over 33 generated tokens the router
+claimed 0 graph nodes, for both models measured. On the CPU, qwen2.5-coder-0.5b (644 MB of Q8 weights) takes 24.8-25.4
+ms a token, reading its weights at about 27 GB/s; smollm2-135m (138 MB) takes 15.1 ms, 9.6 GB/s, so its step is
+dominated by work other than reading weights. Arithmetic on measured numbers, not a measurement: a Q8 decode step does
+about 2 operations per byte of weights; at this card's 76 GB/s copy that is about 0.15 TFLOP/s, 1.8% of its 8.36 TFLOP/s
+burst peak, and a floor of about 8.9 ms a token for qwen2.5-coder-0.5b (676 MB at 76 GB/s). Decode on this card is a bandwidth question.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
@@ -4718,7 +4750,7 @@ GK4 was.
 | **GL0** | the language grows: integer and vector types, atomics, 2-D and 3-D grids, a general bounded loop, branches | each admission has a puzzle, a refusal list, and agreement between both readers | an admission that the interpreter cannot mirror exactly is refused | this desk; after GT0, so the fuzz covers each admission as it lands |
 | **GL1** | subgroup operations where an adapter offers them, with the interpreter's own reading of them | a reduction measured faster with subgroups than with shared memory, on an adapter that offers them | no gain on the clock: recorded and removed, as GK4 | waits on an adapter that offers subgroups; neither on this machine does |
 | **GB0** | the library layer: convolution, scan, sort, top-k, segmented reductions, sparse-dense product, each through the foundry and the checker | each op has a CPU reference, a hidden shape, a roof fraction and a route | an op whose GPU route never wins on any measured shape is not routed | this desk; each op is a rung of its own |
-| **GQ0** | recorded submission: a forward's dispatches recorded once and replayed, the role CUDA graphs play | the backbone forward's submit cost measured before and after | under 10% of the forward: recorded and closed | this desk |
+| **GQ0** | CLOSED 2026-11-15 BY ITS KILL LINE (see GQ0 STATUS): recorded submission: a forward's dispatches recorded once and replayed, the role CUDA graphs play | the backbone forward's submit cost measured before and after | under 10% of the forward: recorded and closed | this desk |
 | **GQ1** | a fusion planner that merges passes only where the dispatch count AND the clock agree | a merged pair kept by measurement, or the planner closed with its numbers | GK4's rule: within the clock's noise, removed | this desk; after GQ0 |
 | **GV0** | a second backend for the hardware ceiling: Vulkan with cooperative matrices, reaching tensor cores on NVIDIA, AMD and Intel, under the same description and checker | a matmul measured through it against the WebGPU route and against cuBLAS | GC0 shows the WebGPU route within 2x of cuBLAS on Softanza's shapes; or the build needs an external SDK (G6's K2 invariant: SPIR-V must come from this repository's own code, the way WGSL does) | the Principal decides whether to open it, after GC0 |
 

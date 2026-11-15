@@ -1,0 +1,109 @@
+# gq0_submit_cost.haro -- GQ0's measurement, and Radar's decode reading beside it (RADAR-GPU-OWNER-01 (b)).
+#
+# GQ0 asks whether a forward's dispatches should be RECORDED once and replayed, the role CUDA graphs play. Its kill
+# line, written before measuring: if what a recording could remove is under 10% of the forward, GQ0 is recorded and
+# closed. The backbone already sends its whole encoder as ONE submit, so a recording could remove only the
+# ENCODING: every weight looked up by name, every uniform written and bind group made, up to that submit.
+# StzEngineNeuralBackbonePhaseMs(n) splits a forward into gather+upload (0), encoding (1), the device's wait (2),
+# the readback (3) and the whole (4). This prints them for MiniLM at four lengths, warm, the least of seven runs.
+#
+# Then one DECODE step of two small causal models: the time per generated token, and the weights it must read,
+# against this card's measured copy bandwidth (76-79 GB/s, GK3) -- the reading Radar asked for.
+#
+# The models live in the library's models folder, which is not tracked; STZ_MODELS_DIR names another one.
+load "../../stzBase.ring"
+
+tModels = SysGet("STZ_MODELS_DIR")
+if tModels = ""
+	tModels = $tStzLibDir + "/models"
+end
+nReps = 7
+
+? "-- GQ0: where a backbone forward's time goes (MiniLM, RTX 3050, warm, least of " + String(nReps) + ") --"
+if StzEngineNeuralModelLoad(tModels + "/all-MiniLM-L6-v2.Q8_0.gguf") != 1
+	? "  [SKIP] MiniLM not found in " + tModels
+else
+	? "  tokens | gather+upload | ENCODING | device wait | readback | whole | encoding share | dispatches"
+	vReps = [ 1, 3, 13, 40 ]
+	for i = 1 to Len(vReps)
+		tText = ""
+		for j = 1 to vReps[i]
+			tText += "the quick brown fox jumps over the lazy dog and runs away "
+		end
+		nTok = StzEngineNeuralTokenize(tText)
+		StzEngineNeuralBackboneEmbed(tText)
+		vBest = [ 1000000.0f, 1000000.0f, 1000000.0f, 1000000.0f, 1000000.0f ]
+		for r = 1 to nReps
+			StzEngineNeuralBackboneEmbed(tText)
+			for k = 1 to 5
+				vBest[k] = Smaller(vBest[k], StzEngineNeuralBackbonePhaseMs(k - 1))
+			end
+		end
+		? "  " + String(nTok) + " | " + Ms(vBest[1]) + " | " + Ms(vBest[2]) + " | " + Ms(vBest[3]) + " | " + Ms(vBest[4]) + " | " + Ms(vBest[5]) + " | " + Pct(vBest[2], vBest[5]) + " | " + String(StzEngineNeuralBackboneDispatches())
+	end
+	StzEngineNeuralModelFree()
+end
+
+? ""
+? "-- RADAR-GPU-OWNER-01 (b): one decode step against the card's bandwidth --"
+# the file sizes, read from the folder: a decode step reads about all of them (the head is tied to the embeddings)
+vModels = [ "smollm2-135m-instruct-q8_0.gguf", "qwen2.5-coder-0.5b-instruct-q8_0.gguf" ]
+vBytes = [ 144811360, 675710848 ]
+for i = 1 to Len(vModels)
+	tPath = tModels + "/" + vModels[i]
+	if StzEngineNeuralModelLoad(tPath) != 1
+		? "  [SKIP] " + vModels[i] + " not found"
+		loop
+	end
+	tPrompt = "Once upon a time, a river crossed three countries. It"
+	StzEngineNeuralGenerate(tPrompt, 4)
+	nShort = 1000000000000
+	nLong = 1000000000000
+	nClaimed = 0
+	for r = 1 to 3
+		nT = StzEngineWatchTimestampNs()
+		StzEngineNeuralGenerate(tPrompt, 1)
+		nShort = Smaller(nShort, StzEngineWatchTimestampNs() - nT)
+		StzEngineNeuralGpuCountersReset()
+		nT = StzEngineWatchTimestampNs()
+		tOut = StzEngineNeuralGenerate(tPrompt, 33)
+		nLong = Smaller(nLong, StzEngineWatchTimestampNs() - nT)
+		nClaimed = StzEngineNeuralGpuCounter(0)
+	end
+	# the answer may end before 33 tokens: count what came out
+	nGen = StzEngineNeuralGenTokenize(tOut)
+	if nGen < 8
+		? "  " + vModels[i] + ": answered " + String(nGen) + " tokens, too few to time a step -- no reading"
+		StzEngineNeuralModelFree()
+		loop
+	end
+	nStepUs = IntDiv(nLong - nShort, (nGen - 1) * 1000)
+	nBytes = vBytes[i]
+	? "  " + vModels[i] + ": " + String(nStepUs) + " us a token (" + String(nGen) + " tokens less 1, least of 3); weights " + String(IntDiv(nBytes, 1048576)) + " MB"
+	? "    weights read per step at that pace: " + String(IntDiv(nBytes, nStepUs)) + " MB/s, against the card's 76,000-79,000 MB/s copy"
+	? "    graph nodes the GPU took over 33 tokens: " + String(nClaimed) + Pick(nClaimed = 0, " (the decode ran on the CPU)", "")
+	StzEngineNeuralModelFree()
+end
+
+func Ms(nV)
+	return String(Floor(nV * 1000.0f)) + " us"
+end
+
+func Pct(nPart, nWhole)
+	return String(Floor(nPart * 100.0f / nWhole)) + "%"
+end
+
+func IntDiv(nA, nB)
+	return (nA - nA % nB) / nB
+end
+
+func Smaller(nA, nB)
+	return Pick(nA < nB, nA, nB)
+end
+
+func Pick(bCond, xYes, xNo)
+	if bCond
+		return xYes
+	end
+	return xNo
+end
