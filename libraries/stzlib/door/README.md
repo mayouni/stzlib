@@ -18,3 +18,7 @@ process; haro.exe caches the compiled library, so a run after the first costs we
 
 `STZ_DOOR_HOLDOUT`, set to a benchmark's `bench.tsv`, makes `find` leave out the examples of the narrated files the
 benchmark's tasks come from. The code benchmark (`base/test/codebench`) measures agents through the door this way.
+
+`run` executes from haro.exe's image cache, and a cached program's `Eval` accepts some earlier spellings that a fresh
+compile refuses (`:key = value`, a built-in in another case). An answer that `run` accepts is judged by the code
+benchmark in a fresh compile, so write it in Haro's own forms, as AGENTS.md gives them.

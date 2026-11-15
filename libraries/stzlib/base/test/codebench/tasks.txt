@@ -1,4 +1,4 @@
-THE SOFTANZA CODE BENCHMARK -- 279 tasks.
+THE SOFTANZA CODE BENCHMARK -- 298 tasks.
 
 For each task, write Haro code that uses Softanza to produce the expected value. The answer is either one
 expression, or several lines of which the last is `return <expression>`. Do not write the expected value
@@ -148,6 +148,18 @@ check:     the day before 1 January is 31 December
 inputs:    "2026-01-01"
 expected:  "2025-12-31"
 
+=== datetime/stzDate_defects_narrated#a132c45e   [i18n, flag]
+scenario:  Case: every form that starts with a word is lower case, in the future as in the past
+check:     the harness itself tells In from in (strcmp, not =)
+inputs:    "In 3 days"  "in 3 days"  0
+expected:  1
+
+=== extercode/stzImageToAscii_defects_narrated#932b58d2   [extensibility, flag]
+scenario:  Row 2 -- EnsureDirs: both folders are made, from the fields the class really has
+check:     the folders are gone before the call
+inputs:    "temp"  "output"
+expected:  0
+
 === extincode/51_extincode_narrated#47b8c704   [extensibility, value]
 scenario:  iif handles boolean and string-expression inputs
 check:     the FALSE branch returns
@@ -196,6 +208,18 @@ check:     range1([2, 5]) = [2..5]
 inputs:    2  5
 expected:  [ 2, 3, 4, 5 ]
 
+=== faculty/calibration_narrated#4e23aba2   [neural, flag]
+scenario:  The guard is silent on a calibrated ledger and fails on an inverted one
+check:     a calibrated ledger raises no finding
+inputs:    "f"  "good"  5
+expected:  0
+
+=== faculty/faculty_core_narrated#750a3b0d   [neural, flag]
+scenario:  The court judges every output, and a record is judged by C9 unchanged
+check:     a label outside the closed enumeration is refused
+inputs:    "label"  "maybe"  "odd"  "even"
+expected:  0
+
 === faculty/faculty_core_narrated#5bc6519b   [neural, flag]
 scenario:  The court judges every output, and a record is judged by C9 unchanged
 check:     a ranking must be ordered best first
@@ -220,6 +244,18 @@ check:     the model, declared nowhere in particular, runs on Linux
 inputs:    "learned"  "tlh"  1
 expected:  1
 
+=== faculty/placement_narrated#334e03ed   [neural, flag]
+scenario:  A measurement does not count what could not run
+check:     there is NO Klingon row for the floor: not measured is not zero
+inputs:    "native"  "v1/tl"
+expected:  0
+
+=== faculty/release_narrated#bdece273   [neural, value]
+scenario:  SHA256SUMS beside the models is the catalogue's, line for line
+check:     ...one line per catalogued file under the directory
+inputs:    "ocr"
+expected:  5
+
 === file/stzZipFile_defects_narrated#0719ff0b   [files, value]
 scenario:  Small helpers: the folder of an archive path
 check:     a backslash path is read the same
@@ -242,6 +278,18 @@ expected:  0
 scenario:  a missing path is REPORTED, never guessed
 check:     junk is invalid
 inputs:    "not xml at all"
+expected:  0
+
+=== func/00_func_narrated#8aca9e4c   [meta, flag]
+scenario:  Nulliness -- only '' and NullObject are null
+check:     IsNull('') is TRUE
+inputs:    ""
+expected:  1
+
+=== func/00_func_narrated#628637bd   [meta, flag]
+scenario:  Nulliness -- only '' and NullObject are null
+check:     IsNull(0) is FALSE
+inputs:    0
 expected:  0
 
 === func/00_func_narrated#92642c89   [meta, flag]
@@ -289,18 +337,6 @@ scenario:  Extended truthiness recognises the sentinel objects
 check:     IsTrueXT(FalseObject()) is FALSE
 expected:  0
 
-=== func/00_func_narrated#57ec0cf2   [meta, flag]
-scenario:  An unconfigured falsity list means nothing marks a value false
-check:     a plain list is true
-inputs:    1  2
-expected:  1
-
-=== func/00_func_narrated#369b51f8   [meta, flag]
-scenario:  An unconfigured falsity list means nothing marks a value false
-check:     IsFalseXT agrees (it delegates here)
-inputs:    "Hello"
-expected:  0
-
 === graph/orgrule_narrated#6a0e0b0d   [diagramming, value]
 scenario:  the other compliance bases are real rule sets carrying the universal tier
 check:     GDPR carries the universal rules
@@ -335,17 +371,23 @@ check:     language 105 is sindhi
 inputs:    "105"
 expected:  "sindhi"
 
-=== json/00_json_narrated#d99c67d7   [web, flag]
+=== json/00_json_narrated#25f06553   [web, flag]
 scenario:  JSON predicates
-check:     a well-formed JSON string is recognised
-inputs:    '{ "a": 1, "b": 2 }'
+check:     a flat keyed list is a JSON list
+inputs:    10  20
 expected:  1
 
-=== json/00_json_narrated#eba3133d   [web, flag]
+=== json/00_json_narrated#f304c18a   [web, flag]
 scenario:  JSON predicates
-check:     malformed text is rejected
-inputs:    '{not json'
+check:     a list with an unkeyed nested element is not
+inputs:    10  30
 expected:  0
+
+=== json/00_json_narrated#8c1f2407   [web, value]
+scenario:  List to JSON string
+check:     ListToJson emits compact JSON
+inputs:    "John"  30
+expected:  '{"name":"John","age":30}'
 
 === list/00_list_narrated#a57e8772   [collections, value]
 scenario:  Add and slice
@@ -454,17 +496,17 @@ check:     manyremoved example 1
 inputs:    1  10  3  7  9
 expected:  [ 1, 2, 4, 5, 6, 8, 10 ]
 
+=== list/104_atat_display#9b08b4c4   [collections, flag]
+scenario:  Turning on the @@() string-form pretty-printer with pr() and watching how it renders scala
+check:     atat_display example 1
+inputs:    "'"
+expected:  0
+
 === list/104_atat_display#afc3761e   [collections, value]
 scenario:  Turning on the @@() string-form pretty-printer with pr() and watching how it renders scala
 check:     atat_display example 2
 inputs:    "🌞"
 expected:  '"🌞"'
-
-=== list/104_atat_display#c4befd1a   [collections, value]
-scenario:  Turning on the @@() string-form pretty-printer with pr() and watching how it renders scala
-check:     atat_display example 6
-inputs:    "1"  "🌞"  "ring"
-expected:  '[ "1", "🌞", "ring" ]'
 
 === list/10_replacemanybymany#84e05e47   [collections, value]
 scenario:  ReplaceManyByMany (1-to-1 mapping) and the Section<->Range conversions.
@@ -489,12 +531,6 @@ scenario:  Unicodes() maps a string to the list of its characters' Unicode codep
 check:     unicode example 1
 inputs:    "Hi"
 expected:  [ 72, 105 ]
-
-=== list/115_ischar#fa2db674   [collections, flag]
-scenario:  IsChar() answers whether a value qualifies as a single character.
-check:     ischar example 1
-inputs:    12.5
-expected:  0
 
 === list/117_unicodes#78b54fb8   [collections, value]
 scenario:  Unicodes() over a list: a recursive, structure-preserving codepoint map.
@@ -541,12 +577,6 @@ expected:  [ 2, 3 ]
 === list/650_operator_q_elevation_narrated#07cededb   [collections, value]
 scenario:  stzString (*) and (/): same rule
 check:     "ABC" * 3 is the raw string ABCABCABC
-inputs:    "ABC"  3
-expected:  "ABCABCABC"
-
-=== list/650_operator_q_elevation_narrated#b55edccf   [collections, value]
-scenario:  stzString (*) and (/): same rule
-check:     ( * Q(3) ).Content() equals * 3
 inputs:    "ABC"  3
 expected:  "ABCABCABC"
 
@@ -610,22 +640,27 @@ check:     an unresolvable code gives nothing
 inputs:    "zz"
 expected:  ""
 
+=== locale/01_languagename_narrated#ad6b207a   [i18n, value]
+scenario:  A locale chosen by SCRIPT still knows its language
+check:     the English name is untouched
+inputs:    1
+expected:  "saturday"
+
 === matrex/stzMatrex_defects_narrated#ada5f45e   [numeric, value]
 scenario:  Stubs kept: a term with no stated meaning tests nothing
 check:     the determinant of [[1,2],[3,4]] is -2 (hand check)
 inputs:    1  4  2  3
 expected:  -2
 
+=== meta/coderule_narrated#f25be3c6   [meta, value]
+scenario:  FROZEN behaviour: StzCheckCode reproduces the house findings
+check:     StzCodeRuleNames lists the house rules (21: the knob rules, the raw markup door, the markup concatenation, and the five bug shapes of 2026-11-05)
+expected:  21
+
 === meta/coderule_narrated#8a88ecec   [meta, flag]
 scenario:  FROZEN behaviour: StzCheckCode reproduces the house findings
 check:     ...including dead-knob
 inputs:    "dead-knob"  0
-expected:  1
-
-=== meta/coderule_narrated#46d5ed67   [meta, flag]
-scenario:  FROZEN behaviour: StzCheckCode reproduces the house findings
-check:     ...and setter-resets-on-reject
-inputs:    "setter-resets-on-reject"  0
 expected:  1
 
 === misc/00_misc_narrated#840d5b37   [meta, value]
@@ -664,11 +699,22 @@ check:     'ab' centered in 6 cols
 inputs:    "ab"  6
 expected:  "  ab  "
 
+=== misc/00_misc_narrated#d1e663d3   [meta, value]
+scenario:  CenterText pads by visible columns (codepoint-correct)
+check:     an accented word centers to its codepoint width (8)
+inputs:    "caf"  195  169  8
+expected:  8
+
 === natural/entity_world_narrated#7df7474b   [nlp, flag]
 scenario:  An empty world answers honestly
 check:     an unknown name yields the empty list
 inputs:    "zorglub"
 expected:  [ ]
+
+=== natural/entity_world_narrated#e94375cc   [nlp, flag]
+scenario:  An empty world answers honestly
+check:     the world object is reachable
+expected:  1
 
 === natural/entity_world_narrated#cc7ae8b0   [nlp, flag]
 scenario:  The hypothetical frontier: suppose -> ask -> commit or forget
@@ -732,12 +778,6 @@ check:     the Arabic pack is registered
 inputs:    "ar"
 expected:  1
 
-=== natural/nnl_narrated#b0a2a508   [nlp, flag]
-scenario:  The descriptor dispatch answers truthfully again
-check:     'ring' IS lowercase
-inputs:    "ring"
-expected:  1
-
 === network/57_tcp_hardening_narrated#1f7d9810   [web, flag]
 scenario:  Listen on the same port twice without close is OK in slice 2 (SO_REUSEADDR)
 check:     first bind OK
@@ -754,6 +794,12 @@ scenario:  Granite 4.2 gets ChatML and an empty thinking block, as its own templ
 check:     <|start_of_role|> is NOT one of its tokens
 inputs:    "<|start_of_role|>"
 expected:  0
+
+=== neural/engine_options_narrated#54b274c2   [neural, flag]
+scenario:  Options that cannot be told apart are refused, not merged
+check:     with no model loaded the read answers an empty list
+inputs:    "x"  "a"  0
+expected:  1
 
 === neural/engine_termination_narrated#d7aace16   [neural, flag]
 scenario:  Nothing changes unless asked
@@ -895,6 +941,18 @@ check:     a small number says no
 inputs:    5
 expected:  0
 
+=== number/number_digit_groups_narrated#31af5b62   [numeric, value]
+scenario:  what the grouping is FOR: a thousands separator
+check:     five digits
+inputs:    12590  "."
+expected:  "+12.590"
+
+=== number/number_digit_groups_narrated#6684ac8e   [numeric, value]
+scenario:  what the grouping is FOR: a thousands separator
+check:     seven digits
+inputs:    1234567  ","
+expected:  "+1,234,567"
+
 === number/numeric_calculable_narrated#1f2ac521   [numeric, flag]
 scenario:  the name now tells the truth
 check:     ...nine times larger, in fact
@@ -1002,17 +1060,11 @@ check:     a third needs sixteen
 inputs:    1.0  3.0
 expected:  "0.3333333333333333"
 
-=== number/numeric_no_loss_narrated#682646db   [numeric, value]
-scenario:  the representation ladder, observable rather than folklore
-check:     a small whole number
-inputs:    "42"
-expected:  "integer"
-
-=== number/numeric_no_loss_narrated#8f55c95b   [numeric, value]
-scenario:  the representation ladder, observable rather than folklore
-check:     ...negative too
-inputs:    "-7"
-expected:  "integer"
+=== object/stzObject_defects_narrated#798a6159   [meta, value]
+scenario:  WhichAreBoth keeps a pair and refuses anything else
+check:     a list of one is a false object
+inputs:    1
+expected:  "stzfalseobject"
 
 === object/stzObject_defects_narrated#712de691   [meta, flag]
 scenario:  The Of family compares with the last value remembered
@@ -1024,6 +1076,18 @@ expected:  0
 scenario:  The Of family compares with the last value remembered
 check:     OfXTCSB ignores the filler word and compares: no
 inputs:    8  7  "to"  1
+expected:  0
+
+=== object/stzObject_defects_narrated#97d5108b   [meta, flag]
+scenario:  OccursForTheNthTime, First, Last: the content is the nth occurrence at a position
+check:     in a list of texts: case-insensitive
+inputs:    "B"  "a"  "b"  2  0
+expected:  1
+
+=== object/stzObject_defects_narrated#4dfb3d1d   [meta, flag]
+scenario:  OccursForTheNthTime, First, Last: the content is the nth occurrence at a position
+check:     in a list of texts: case-sensitive refuses
+inputs:    "B"  "a"  "b"  2  1
 expected:  0
 
 === object/stzObject_defects_narrated#9330e734   [meta, value]
@@ -1140,6 +1204,42 @@ check:     _NNLImmutable is the chainable-copy family
 inputs:    "_NNLImmutable"
 expected:  "immutable"
 
+=== reflect/docgen_narrated#f84752e6   [meta, flag]
+scenario:  Each family writes a brief that passes the gate's form and restating checks
+check:     a forward whose noun is not a literal gets no derived brief
+inputs:    "XB"  "_NNLValueIs"  "pcMethod"
+expected:  0
+
+=== reflect/docgen_narrated#966b80e0   [meta, flag]
+scenario:  Each family writes a brief that passes the gate's form and restating checks
+check:     a method that forwards elsewhere gets none
+inputs:    "Content"  "ContentFast"
+expected:  0
+
+=== reflect/docgen_narrated#589d74f0   [meta, flag]
+scenario:  Is...NamedParam: the keyword is the name, an Or makes two
+check:     one keyword only
+inputs:    "IsOnPositionNamedParam"
+expected:  1
+
+=== reflect/docgen_narrated#e56b1d1e   [meta, flag]
+scenario:  Is...NamedParam: the keyword is the name, an Or makes two
+check:     an Or inside a word does not split (Order, Color)
+inputs:    "IsOrderByNamedParam"
+expected:  1
+
+=== reflect/docgen_narrated#21a587d4   [meta, value]
+scenario:  The parameter reader: a default value is not part of the name, and a one-line body is not a parameter
+check:     a quoted comma stays in the default
+inputs:    'def f(pc = "a,b", pn)'
+expected:  2
+
+=== reflect/docgen_narrated#befb0bde   [meta, flag]
+scenario:  The parameter reader: a default value is not part of the name, and a one-line body is not a parameter
+check:     a one-line method does not take its body for a parameter
+inputs:    "def Width()   return @oStyle.Width()"
+expected:  0
+
 === reflect/docrecord_narrated#b162cac8   [meta, flag]
 scenario:  The findings: dead forwards, internals shown, typos
 check:     one edit apart (a transposition) is detected
@@ -1199,6 +1299,11 @@ check:     the gate is not green yet, so the advisory does not hold
 inputs:    "DRILL-2026-0601"
 expected:  0
 
+=== security/exposure_responder_narrated#00cc312c   [security, flag]
+scenario:  3. the listener door: shut beyond loopback, a local bind still opens
+check:     ...and the listener was not recorded as open
+expected:  0
+
 === security/exposure_responder_narrated#e29ddbdd   [security, flag]
 scenario:  6. what no door reaches is reported, and no hour is claimed for it
 check:     every door is open at the end
@@ -1224,12 +1329,6 @@ expected:  0
 === security/secret_memory_narrated#b0a69c70   [security, flag]
 scenario:  5. rotation and revocation wipe the values the store made
 check:     releasing a stale copy is harmless
-expected:  0
-
-=== security/text_condition_not_code_narrated#6e50cc76   [security, flag]
-scenario:  a query method with arguments still works -- and cannot carry a call
-check:     ...nor a method of the list itself
-inputs:    'This.Clear()'
 expected:  0
 
 === singular/00_singular_narrated#3f535e83   [nlp, value]
@@ -1411,6 +1510,16 @@ check:     NCopies(3, '♥') is three hearts
 inputs:    3  "♥"
 expected:  "♥♥♥"
 
+=== string/113_localescripts#fb3f090c   [string, value]
+scenario:  The two script registries are populated
+check:     LocaleScripts() has 143 entries
+expected:  143
+
+=== string/113_localescripts#d9f43be0   [string, value]
+scenario:  The two script registries are populated
+check:     UnicodeScripts() has 157 entries
+expected:  157
+
 === string/116_shortenedn#16a31365   [string, value]
 scenario:  Shortening with N chars per side
 check:     ShortenedN(2) keeps 2 each side
@@ -1470,10 +1579,10 @@ check:     ContainsAt(3, '♥') is TRUE
 inputs:    "^^♥^^"  3  "♥"
 expected:  1
 
-=== string/171_containsinsection#058c4bf1   [string, flag]
-scenario:  Checking a char within sections
-check:     '♥' is in section 2..4
-inputs:    "^^♥^^"  "♥"  2  4
+=== string/170_containsat#0dd9a144   [string, flag]
+scenario:  Containment at a position
+check:     ContainsAt('♥', :Position=3) is TRUE
+inputs:    "^^♥^^"  "♥"  3
 expected:  1
 
 === string/243_findlast#7dd7c543   [string, value]
@@ -1493,18 +1602,6 @@ scenario:  Classifying the case of a string
 check:     'RING' is uppercase
 inputs:    "RING"
 expected:  "uppercase"
-
-=== string/247_stringcase#10fb5cae   [string, value]
-scenario:  Classifying the case of a string
-check:     'ring' is lowercase
-inputs:    "ring"
-expected:  "lowercase"
-
-=== string/28_numberofoccurrenceofcharleftside#bfb41f16   [string, value]
-scenario:  Counting the leading / trailing run of a char
-check:     '-' on the left of ---ring is 3
-inputs:    "---ring"  "-"
-expected:  3
 
 === system/52_uuid_engine_narrated#91b984fd   [system, flag]
 scenario:  Validation accepts uppercase + rejects garbage
@@ -1559,11 +1656,10 @@ check:     a name says the participant and the part
 inputs:    "BIA"  "mtls-cert"
 expected:  "pispi-bia-mtls-cert"
 
-=== system/payments_secrets_narrated#5be0659b   [system, flag]
+=== system/payments_secrets_narrated#c7c76d00   [system, value]
 scenario:  five secrets, named for whose they are
-check:     ...the OAuth client
-inputs:    "client"  0
-expected:  1
+check:     the five parts are the five things a live payment needs
+expected:  5
 
 === system/pispi_twin_narrated#e0af0a64   [system, value]
 scenario:  TxId is the platform's idempotency key
@@ -1611,6 +1707,17 @@ scenario:  the GSM extension table: nine characters that cost double
 check:     100 curly braces bill as 200 septets
 inputs:    "{"  100
 expected:  200
+
+=== system/sms_port_narrated#e7f13c39   [system, flag]
+scenario:  a number is validated, because the real gateway would
+check:     an E.164 number passes
+inputs:    64  "+21612345678"
+expected:  1
+
+=== testoor/testoor_clock_narrated#c9d820b1   [testing, flag]
+scenario:  A seed replays the same draws; weather is declared and falls due once
+check:     nothing is left planned
+expected:  0
 
 === testoor/testoor_refine_narrated#6e6afaba   [testing, flag]
 scenario:  The runner hands a tour its subject, and a refined subject becomes a program

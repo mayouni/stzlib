@@ -1,0 +1,343 @@
+Softanza code benchmark -- claude-opus-5.5-source
+
+pass	adverb/00_adverb_narrated#099386a7	nlp	value	"quickly"
+pass	adverb/00_adverb_narrated#d93767f1	nlp	value	"happily"
+pass	adverb/00_adverb_narrated#d0ae859b	nlp	value	"well"
+pass	adverb/00_adverb_narrated#ce810ea8	nlp	value	"asian"
+pass	adverb/00_adverb_narrated#5385be05	nlp	value	"african"
+none	capstone/restaurant_capstone_narrated#d7e90fb8	testing	flag	
+none	cluster/mtls_narrated#87613b8a	concurrency	flag	
+pass	common/hostile_globals_narrated#475eeaf8	meta	value	"HELLO"
+pass	common/hostile_globals_narrated#3ce1a113	meta	value	[ 3, 4 ]
+pass	common/hostile_globals_narrated#833b74bc	meta	value	[ 1, 3 ]
+pass	common/hostile_globals_narrated#cd499d0d	meta	value	[ 1, 2, 3 ]
+none	common/hostile_globals_narrated#52eb6ad6	meta	flag	
+fail	common/hostile_globals_narrated#f71dc236	meta	value	[ "item", "42" ]
+pass	common/hostile_globals_narrated#ef504c22	meta	value	"120"
+pass	common/hostile_globals_narrated#385a08a6	meta	value	"55"
+pass	common/slice_primitives_narrated#a3e14428	meta	value	"bc"
+none	common/slice_primitives_narrated#f6d5563e	meta	flag	
+pass	csv/00_csv_narrated#d9501a93	tables	value	";"
+none	csv/00_csv_narrated#2857ec64	tables	flag	
+none	date/00_date_narrated#c7e784c2	i18n	flag	
+none	datetime/dtfix_date_time_args_narrated#20f24c15	i18n	flag	
+none	datetime/dtfix_date_time_args_narrated#9b5c0790	i18n	flag	
+pass	datetime/stzCalendar_defects_narrated#bc32caa8	i18n	value	"2027-01-01"
+pass	datetime/stzCalendar_defects_narrated#87953d7a	i18n	value	"2025-12-31"
+none	datetime/stzDate_defects_narrated#a132c45e	i18n	flag	
+none	extercode/stzImageToAscii_defects_narrated#932b58d2	extensibility	flag	
+pass	extincode/51_extincode_narrated#47b8c704	extensibility	value	"no"
+pass	extincode/51_extincode_narrated#d0991f9e	extensibility	value	"T"
+pass	extincode/51_extincode_narrated#8de35606	extensibility	value	3
+pass	extincode/51_extincode_narrated#6320e9b9	extensibility	value	3
+pass	extincode/51_extincode_narrated#1d0281a2	extensibility	value	[ 0, 1, 2 ]
+pass	extincode/51_extincode_narrated#48e55f75	extensibility	value	[ 1, 2, 3 ]
+pass	extincode/51_extincode_narrated#264a7e06	extensibility	value	[ 1, 2, 3 ]
+pass	extincode/51_extincode_narrated#dc8d6937	extensibility	value	[ 2, 3, 4, 5 ]
+none	faculty/calibration_narrated#4e23aba2	neural	flag	
+none	faculty/faculty_core_narrated#750a3b0d	neural	flag	
+none	faculty/faculty_core_narrated#5bc6519b	neural	flag	
+none	faculty/faculty_core_narrated#f52b12c3	neural	flag	
+none	faculty/placement_narrated#b5c19574	neural	flag	
+none	faculty/placement_narrated#f877ceb5	neural	flag	
+none	faculty/placement_narrated#334e03ed	neural	flag	
+none	faculty/release_narrated#bdece273	neural	value	
+pass	file/stzZipFile_defects_narrated#0719ff0b	files	value	"a/b"
+pass	file/stzZipFile_defects_narrated#c7eb50ed	files	value	"."
+none	file/xml_narrated#75ed1ded	files	flag	
+none	file/xml_narrated#82f354ad	files	flag	
+none	func/00_func_narrated#8aca9e4c	meta	flag	
+none	func/00_func_narrated#628637bd	meta	flag	
+none	func/00_func_narrated#92642c89	meta	flag	
+none	func/00_func_narrated#91169a21	meta	flag	
+none	func/00_func_narrated#ae4ffa77	meta	flag	
+none	func/00_func_narrated#43a42f92	meta	flag	
+none	func/00_func_narrated#2a750aa7	meta	flag	
+none	func/00_func_narrated#356e455a	meta	flag	
+none	func/00_func_narrated#0ec3751a	meta	flag	
+none	func/00_func_narrated#edeb6abd	meta	flag	
+pass	graph/orgrule_narrated#6a0e0b0d	diagramming	value	4
+pass	graph/orgrule_narrated#7751146d	diagramming	value	4
+none	graph/stzGridNav_defects_narrated#66ffdc35	diagramming	flag	
+none	hexnumbert/00_hexnumber_narrated#73cf931d	numeric	flag	
+none	i18n/00_i18n_narrated#18b33b8d	i18n	flag	
+pass	i18n/00_i18n_narrated#7d807d92	i18n	value	"sindhi"
+none	json/00_json_narrated#25f06553	web	flag	
+none	json/00_json_narrated#f304c18a	web	flag	
+none	json/00_json_narrated#8c1f2407	web	value	
+pass	list/00_list_narrated#a57e8772	collections	value	10
+pass	list/00_list_narrated#e52c4a85	collections	value	30
+pass	list/00_list_narrated#41190506	collections	value	10
+none	list/00_list_narrated#27549cfd	collections	flag	
+pass	list/00_list_narrated#bf7d1f2e	collections	value	30
+none	list/00_list_narrated#e9196570	collections	flag	
+pass	list/00_list_narrated#93829005	collections	value	3
+none	list/00_list_narrated#95410d72	collections	flag	
+none	list/00_list_narrated#3d881beb	collections	flag	
+pass	list/00_list_narrated#a6f08a7a	collections	value	2
+pass	list/00_list_narrated#623235a5	collections	value	2
+none	list/00_list_narrated#bbe833ed	collections	flag	
+none	list/00_list_narrated#c6e71cd3	collections	flag	
+pass	list/00_list_narrated#41b6b7eb	collections	value	10
+pass	list/00_list_narrated#acc1ac4c	collections	value	10
+none	list/01_deeplist_narrated#6e3bd090	collections	flag	
+none	list/01_deeplist_narrated#d8a01df2	collections	flag	
+pass	list/06_manyremoved#fd445fec	collections	value	[ 1, 2, 4, 5, 6, 8, 10 ]
+none	list/104_atat_display#9b08b4c4	collections	flag	
+pass	list/104_atat_display#afc3761e	collections	value	'"🌞"'
+pass	list/10_replacemanybymany#84e05e47	collections	value	[ 3, 5 ]
+pass	list/10_replacemanybymany#50bb5520	collections	value	[ 3, 7 ]
+pass	list/112_containsthese#96fef609	collections	flag	1
+pass	list/114_unicode#6d171576	collections	value	[ 72, 105 ]
+pass	list/117_unicodes#78b54fb8	collections	value	[ 1, 2, 3 ]
+pass	list/117_unicodes#c7472956	collections	value	[ 97, 98, 99 ]
+pass	list/136_sort#90826c5b	collections	value	[ 1, 2, 3, 4, 5 ]
+fail	list/16_association#b17cf117	collections	value	[ [ "A", 1, "a" ], [ "B", 2, "b" ], [ "C", 3, "c" ] ]
+pass	list/189_find#0e3ff831	collections	value	[ 3, 6 ]
+fail	list/204_association#15dc63e2	collections	value	[ [ 1, "One" ], [ 2, "Two" ], [ 3, "Three" ] ]
+pass	list/21_intersection#18f487d3	collections	value	[ 2, 3 ]
+pass	list/650_operator_q_elevation_narrated#07cededb	collections	value	"ABCABCABC"
+pass	list/listoflists_defects_narrated#a21ad723	collections	value	[ [ 3, 2, 1 ] ]
+none	list/listoflists_defects_narrated#a40d5b4d	collections	value	
+none	list/listoflists_defects_narrated#264f3710	collections	value	
+none	list/stzItem_defects_narrated#1810f241	collections	value	
+none	list/stzItem_defects_narrated#5acc292d	collections	value	
+none	listoflists/00_listoflists_narrated#e7b84f80	collections	flag	
+none	listoflists/00_listoflists_narrated#1ffa144f	collections	flag	
+pass	listofnumbers/00_listofnumbers_narrated#ee0c795a	numeric	value	2
+pass	listofnumbers/00_listofnumbers_narrated#9e18fb8c	numeric	value	60
+none	locale/01_languagename_narrated#9ae7dfa3	i18n	flag	
+none	locale/01_languagename_narrated#ad6b207a	i18n	value	
+pass	matrex/stzMatrex_defects_narrated#ada5f45e	numeric	value	-2
+none	meta/coderule_narrated#f25be3c6	meta	value	
+none	meta/coderule_narrated#8a88ecec	meta	flag	
+pass	misc/00_misc_narrated#840d5b37	meta	value	8
+pass	misc/00_misc_narrated#d0ebe1f8	meta	value	"one two three"
+fail	misc/00_misc_narrated#1e29144e	meta	value	"one  three"
+pass	misc/00_misc_narrated#f56d3577	meta	value	2
+pass	misc/00_misc_narrated#d6b2c106	meta	value	3
+pass	misc/00_misc_narrated#9d647c69	meta	value	"  ab  "
+none	misc/00_misc_narrated#d1e663d3	meta	value	
+pass	natural/entity_world_narrated#7df7474b	nlp	flag	[ ]
+none	natural/entity_world_narrated#e94375cc	nlp	flag	
+pass	natural/entity_world_narrated#cc7ae8b0	nlp	flag	[ ]
+pass	natural/entity_world_narrated#e9f9b623	nlp	flag	[ ]
+pass	natural/entity_world_narrated#43ddf056	nlp	flag	[ ]
+pass	natural/evidentiality_narrated#171fd981	nlp	value	"certainly yes"
+pass	natural/evidentiality_narrated#e508f8fc	nlp	value	"probably yes"
+none	natural/evidentiality_narrated#2b714326	nlp	flag	
+pass	natural/evidentiality_narrated#bc163120	nlp	value	"certainly"
+none	natural/modality_narrated#f07f60ec	nlp	flag	
+none	natural/modality_narrated#bffed122	nlp	flag	
+none	natural/multilingual_pack_narrated#b351aefa	nlp	flag	
+none	natural/multilingual_pack_narrated#71de5b57	nlp	flag	
+none	network/57_tcp_hardening_narrated#1f7d9810	web	flag	
+none	neural/engine_granite_narrated#ee3798f8	neural	flag	
+none	neural/engine_granite_narrated#563a61d1	neural	flag	
+none	neural/engine_options_narrated#54b274c2	neural	flag	
+none	neural/engine_termination_narrated#d7aace16	neural	flag	
+none	neural/engine_window_narrated#874fa60d	neural	flag	
+none	neural/engine_window_narrated#cf2a1a2e	neural	flag	
+none	neural/generative_narrated#d7e74a11	neural	flag	
+none	number/00_number_narrated#cf94316b	numeric	flag	
+none	number/00_number_narrated#0ecb2a78	numeric	flag	
+pass	number/00_number_narrated#410d359e	numeric	value	7
+none	number/00_number_narrated#8b9a2afd	numeric	flag	
+pass	number/listofnumbers_defects_narrated#3072ab3a	numeric	value	[ 4, 10 ]
+pass	number/listofnumbers_defects_narrated#84b809e8	numeric	value	[ 5, 3 ]
+pass	number/listofnumbers_defects_narrated#787d690b	numeric	value	[ 1, 9 ]
+pass	number/money_currency_narrated#44590ef5	numeric	value	1200
+pass	number/money_currency_narrated#ba938b5d	numeric	value	"XOF"
+none	number/money_currency_narrated#8264c69c	numeric	flag	
+none	number/money_currency_narrated#765df4bc	numeric	flag	
+none	number/money_currency_narrated#36a88333	numeric	flag	
+none	number/money_currency_narrated#e1fcb964	numeric	flag	
+pass	number/number_dead_calls_narrated#1cdce0cc	numeric	value	"6"
+pass	number/number_dead_calls_narrated#d9e60102	numeric	value	24
+pass	number/number_dead_calls_narrated#6316f5ba	numeric	value	"42"
+pass	number/number_dead_calls_narrated#afc0eace	numeric	value	"40"
+pass	number/number_dead_calls_narrated#5c816d99	numeric	value	"12"
+pass	number/number_dead_calls_narrated#2c9d264e	numeric	value	"4"
+none	number/number_dead_calls_narrated#250b9f82	numeric	flag	
+none	number/number_digit_groups_narrated#31af5b62	numeric	value	
+none	number/number_digit_groups_narrated#6684ac8e	numeric	value	
+none	number/numeric_calculable_narrated#1f2ac521	numeric	flag	
+pass	number/numeric_calculable_narrated#f408492d	numeric	value	9007199254740992.00
+none	number/numeric_calculable_narrated#b4ca1164	numeric	flag	
+pass	number/numeric_calculable_narrated#93567bec	numeric	value	0.50
+error	number/numeric_complex_narrated#14d1e893	numeric	value	Error (R3) : Calling Function without definition: stzcomplexq
+error	number/numeric_complex_narrated#aef5344f	numeric	value	Error (R3) : Calling Function without definition: stzcomplexq
+pass	number/numeric_exactness_narrated#e4b5d8c9	numeric	value	"0.3"
+pass	number/numeric_exactness_narrated#fdbf184d	numeric	value	"0.01"
+pass	number/numeric_exactness_narrated#fe0d1e8b	numeric	value	"4"
+pass	number/numeric_exactness_narrated#bc4cb088	numeric	value	"0.125"
+pass	number/numeric_exactness_narrated#dd3da27d	numeric	value	"0.025"
+pass	number/numeric_exactness_narrated#4d04607a	numeric	value	3
+pass	number/numeric_handle_table_narrated#7e985570	numeric	value	12.38
+pass	number/numeric_handle_table_narrated#97dd246e	numeric	value	42
+pass	number/numeric_handle_table_narrated#bbedab8a	numeric	value	12.38
+pass	number/numeric_no_loss_narrated#201147e3	numeric	value	"0.10"
+pass	number/numeric_no_loss_narrated#f3cc2261	numeric	value	"2.50"
+pass	number/numeric_no_loss_narrated#e11f1311	numeric	value	"0.3333333333333333"
+none	object/stzObject_defects_narrated#798a6159	meta	value	
+none	object/stzObject_defects_narrated#712de691	meta	flag	
+none	object/stzObject_defects_narrated#0858f48c	meta	flag	
+none	object/stzObject_defects_narrated#97d5108b	meta	flag	
+none	object/stzObject_defects_narrated#4dfb3d1d	meta	flag	
+pass	object/stzObject_defects_narrated#9330e734	meta	value	7.50
+pass	object/stzObject_defects_narrated#daa86d0a	meta	value	12
+none	object/stzObject_defects_narrated#cca1563a	meta	flag	
+none	object/stzObject_defects_narrated#809ec39f	meta	flag	
+pass	object/stzObject_defects_narrated#177ed0b2	meta	value	2
+pass	object/stzObject_defects_narrated#84690c8b	meta	value	4
+none	ocr/ocr_model_narrated#2d20deee	graphics	flag	
+pass	ocr/ocr_narrated#96e1b19f	graphics	value	"وعند الاختلاف يؤخذ بنص الوثيقة"
+pass	ocr/ocr_narrated#70581545	graphics	value	"الخط الساخن 800 1234"
+pass	ordinal/00_ordinal_narrated#2cf90c15	numeric	value	"1st"
+pass	ordinal/00_ordinal_narrated#d016dcd9	numeric	value	"2nd"
+pass	plural/00_plural_narrated#e2019d1b	nlp	value	"cats"
+pass	plural/00_plural_narrated#435edade	nlp	value	"dogs"
+pass	plural/00_plural_narrated#203e8e19	nlp	value	"cities"
+pass	plural/00_plural_narrated#1bb831a1	nlp	value	"babies"
+pass	plural/00_plural_narrated#1262e613	nlp	value	"children"
+pass	plural/00_plural_narrated#e9f50823	nlp	value	"men"
+pass	reflect/docgen_narrated#108405c9	meta	value	"value"
+pass	reflect/docgen_narrated#ab66189d	meta	value	"immutable"
+none	reflect/docgen_narrated#f84752e6	meta	flag	
+none	reflect/docgen_narrated#966b80e0	meta	flag	
+none	reflect/docgen_narrated#589d74f0	meta	flag	
+none	reflect/docgen_narrated#e56b1d1e	meta	flag	
+none	reflect/docgen_narrated#21a587d4	meta	value	
+none	reflect/docgen_narrated#befb0bde	meta	flag	
+none	reflect/docrecord_narrated#b162cac8	meta	flag	
+none	reflect/docrecord_narrated#928e0312	meta	flag	
+none	reflect/docrecord_narrated#5299d63f	meta	flag	
+none	reflect/docrecord_narrated#c979df84	meta	flag	
+none	render/escape_sinks_narrated#c03d5e8d	graphics	flag	
+none	security/advisory_watch_narrated#933a7810	security	flag	
+pass	security/advisory_watch_narrated#7d7fac2d	security	value	-1
+none	security/at_rest_crypto_narrated#5410b4a9	security	flag	
+none	security/engine_door_narrated#b5aa2dbf	security	flag	
+none	security/exposure_responder_narrated#0f7479a2	security	flag	
+none	security/exposure_responder_narrated#00cc312c	security	flag	
+none	security/exposure_responder_narrated#e29ddbdd	security	flag	
+none	security/model_digest_narrated#a652a6f9	security	flag	
+none	security/secret_memory_narrated#5ab417c8	security	flag	
+none	security/secret_memory_narrated#3a1be735	security	flag	
+none	security/secret_memory_narrated#b0a69c70	security	flag	
+pass	singular/00_singular_narrated#3f535e83	nlp	value	"city"
+pass	singular/00_singular_narrated#6fec8744	nlp	value	"baby"
+pass	singular/00_singular_narrated#582c9d0f	nlp	value	"man"
+none	stats/plot_engine_parity_narrated#0ea7eed6	stats	flag	
+pass	stats/plot_engine_parity_narrated#5cc53368	stats	value	"1K"
+none	stats/stzDataSet_defects_narrated#d8c6f369	stats	flag	
+pass	string/00_string_narrated#dbbdadf0	string	value	"RING"
+pass	string/00_string_narrated#fef3827c	string	value	"ring"
+pass	string/00_string_narrated#68a108ba	string	value	8
+pass	string/00_string_narrated#8567153f	string	value	5
+pass	string/00_string_narrated#20d19a85	string	value	"cba"
+none	string/00_string_narrated#f5f5ef8f	string	flag	
+pass	string/00_string_narrated#463a9a8f	string	value	"a-b-c"
+pass	string/00_string_narrated#87ed4de2	string	value	"naive"
+pass	string/00_string_narrated#77c15625	string	value	"hi"
+none	string/00_string_narrated#f4a7e37d	string	flag	
+pass	string/08_write_a#a45c67bf	string	value	"..."
+none	string/08_write_a#ab3bb1b7	string	flag	
+pass	string/105_unicode#08a0a918	string	value	73
+pass	string/107_hexprefix#a8cfba19	string	value	"0x"
+none	string/107_hexprefix#68950170	string	flag	
+pass	string/108_script#fbe3e607	string	value	"hebrew"
+none	string/109_ishexunicode#1bb8de8b	string	flag	
+pass	string/109_ishexunicode#3f580dd9	string	value	"U+06A2"
+fail	string/10_aligncenter#fc491a72	string	value	"     RING      "
+fail	string/10_aligncenter#f0a66b4f	string	value	"RING           "
+pass	string/110_unicode#3befb937	string	value	305
+pass	string/110_unicode#73522def	string	value	567
+pass	string/112_repeatedntimes#31a2b15b	string	value	"♥♥♥"
+pass	string/112_repeatedntimes#de75ea25	string	value	"♥♥♥"
+none	string/113_localescripts#fb3f090c	string	value	
+none	string/113_localescripts#d9f43be0	string	value	
+pass	string/116_shortenedn#16a31365	string	value	"12...21"
+pass	string/117_shortened#7683b917	string	value	"123...321"
+pass	string/117_shortened#423c9d20	string	value	"12345...54321"
+pass	string/130_negative_index#4e775743	string	value	"D"
+none	string/134_ispluralofastztype#d5d1eabf	string	flag	
+none	string/14_isreverseof#4b6d1941	string	flag	
+none	string/14_isreverseof#76c7e726	string	flag	
+pass	string/158_script#afd59518	string	value	"han"
+pass	string/158_script#1e5fb197	string	value	"CJK UNIFIED IDEOGRAPH-9D8A"
+none	string/170_containsat#7654c171	string	flag	
+none	string/170_containsat#0dd9a144	string	flag	
+pass	string/243_findlast#7dd7c543	string	value	81.14
+pass	string/243_findlast#785c70a7	string	value	5.30
+pass	string/247_stringcase#1b4bc0c3	string	value	"uppercase"
+none	system/52_uuid_engine_narrated#91b984fd	system	flag	
+none	system/52_uuid_engine_narrated#ebc4bf98	system	flag	
+none	system/auth_saml_narrated#39778c2c	system	flag	
+none	system/payments_governance_narrated#2911f999	system	flag	
+error	system/payments_live_adapter_narrated#d7d5285e	system	value	Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for
+error	system/payments_live_adapter_narrated#367bb69d	system	value	Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for
+pass	system/payments_qr_narrated#315e67cf	system	value	4
+none	system/payments_qr_narrated#843b438c	system	flag	
+pass	system/payments_secrets_narrated#68cfc5c4	system	value	"pispi-bia-mtls-cert"
+none	system/payments_secrets_narrated#c7c76d00	system	value	
+pass	system/pispi_twin_narrated#e0af0a64	system	value	"the txId is not unique"
+none	system/pispi_twin_narrated#e504f0c9	system	flag	
+none	system/pispi_twin_narrated#e59b43fc	system	flag	
+none	system/sms_port_narrated#5e6b9082	system	flag	
+pass	system/sms_port_narrated#42526ed9	system	value	"gsm7"
+none	system/sms_port_narrated#64b43598	system	flag	
+pass	system/sms_port_narrated#ebe7b0e8	system	value	2
+pass	system/sms_port_narrated#9dcb99e8	system	value	200
+none	system/sms_port_narrated#e7f13c39	system	flag	
+none	testoor/testoor_clock_narrated#c9d820b1	testing	flag	
+none	testoor/testoor_refine_narrated#6e6afaba	testing	flag	
+none	testoor/testoor_routes_narrated#bf78b333	testing	flag	
+pass	time/00_time_narrated#e8fca91f	i18n	value	"14:30:00"
+none	time/00_time_narrated#45a20d5a	i18n	flag	
+none	time/00_time_narrated#a2d78e2a	i18n	flag	
+none	uuid/00_uuid_narrated#aba1aeb4	binary	flag	
+none	uuid/00_uuid_narrated#eaa5c7ad	binary	flag	
+
+score                    pass / tasks
+  all value             140 / 166
+  nlp value             17 / 17
+  answered value        140 / 150
+  all flag              5 / 132
+  testing flag          0 / 4
+  concurrency flag      0 / 1
+  meta value            18 / 24
+  meta flag             0 / 28
+  tables value          1 / 1
+  tables flag           0 / 1
+  i18n flag             0 / 8
+  i18n value            4 / 5
+  extensibility flag    0 / 1
+  extensibility value   8 / 8
+  neural flag           0 / 14
+  neural value          0 / 1
+  files value           2 / 2
+  files flag            0 / 2
+  diagramming value     2 / 2
+  diagramming flag      0 / 1
+  numeric flag          0 / 11
+  web flag              0 / 3
+  web value             0 / 1
+  collections value     21 / 27
+  collections flag      1 / 12
+  answered flag         5 / 5
+  numeric value         31 / 35
+  nlp flag              4 / 10
+  graphics flag         0 / 2
+  graphics value        2 / 2
+  security flag         0 / 10
+  security value        1 / 1
+  stats flag            0 / 2
+  stats value           1 / 1
+  string value          26 / 30
+  string flag           0 / 10
+  system flag           0 / 10
+  system value          6 / 9
+  binary flag           0 / 2
+
+judged in 76 ms

@@ -1,4 +1,4 @@
-THE SOFTANZA CODE BENCHMARK -- 160 value tasks.
+THE SOFTANZA CODE BENCHMARK -- 166 value tasks.
 
 For each task, write Haro code that uses Softanza to produce the expected value. The answer is either one
 expression, or several lines of which the last is `return <expression>`. Do not write the expected value
@@ -148,6 +148,12 @@ check:     range1([2, 5]) = [2..5]
 inputs:    2  5
 expected:  [ 2, 3, 4, 5 ]
 
+=== faculty/release_narrated#bdece273   [neural, value]
+scenario:  SHA256SUMS beside the models is the catalogue's, line for line
+check:     ...one line per catalogued file under the directory
+inputs:    "ocr"
+expected:  5
+
 === file/stzZipFile_defects_narrated#0719ff0b   [files, value]
 scenario:  Small helpers: the folder of an archive path
 check:     a backslash path is read the same
@@ -175,6 +181,12 @@ scenario:  Language lookup by code
 check:     language 105 is sindhi
 inputs:    "105"
 expected:  "sindhi"
+
+=== json/00_json_narrated#8c1f2407   [web, value]
+scenario:  List to JSON string
+check:     ListToJson emits compact JSON
+inputs:    "John"  30
+expected:  '{"name":"John","age":30}'
 
 === list/00_list_narrated#a57e8772   [collections, value]
 scenario:  Add and slice
@@ -242,12 +254,6 @@ check:     atat_display example 2
 inputs:    "🌞"
 expected:  '"🌞"'
 
-=== list/104_atat_display#c4befd1a   [collections, value]
-scenario:  Turning on the @@() string-form pretty-printer with pr() and watching how it renders scala
-check:     atat_display example 6
-inputs:    "1"  "🌞"  "ring"
-expected:  '[ "1", "🌞", "ring" ]'
-
 === list/10_replacemanybymany#84e05e47   [collections, value]
 scenario:  ReplaceManyByMany (1-to-1 mapping) and the Section<->Range conversions.
 check:     replacemanybymany example 2
@@ -314,12 +320,6 @@ check:     "ABC" * 3 is the raw string ABCABCABC
 inputs:    "ABC"  3
 expected:  "ABCABCABC"
 
-=== list/650_operator_q_elevation_narrated#b55edccf   [collections, value]
-scenario:  stzString (*) and (/): same rule
-check:     ( * Q(3) ).Content() equals * 3
-inputs:    "ABC"  3
-expected:  "ABCABCABC"
-
 === list/listoflists_defects_narrated#a21ad723   [collections, value]
 scenario:  Sorting the nth list in descending order
 check:     and its chaining form sorts DOWN, not up
@@ -362,11 +362,22 @@ check:     Multiply([10,2,3]) = 60
 inputs:    10  2  3
 expected:  60
 
+=== locale/01_languagename_narrated#ad6b207a   [i18n, value]
+scenario:  A locale chosen by SCRIPT still knows its language
+check:     the English name is untouched
+inputs:    1
+expected:  "saturday"
+
 === matrex/stzMatrex_defects_narrated#ada5f45e   [numeric, value]
 scenario:  Stubs kept: a term with no stated meaning tests nothing
 check:     the determinant of [[1,2],[3,4]] is -2 (hand check)
 inputs:    1  4  2  3
 expected:  -2
+
+=== meta/coderule_narrated#f25be3c6   [meta, value]
+scenario:  FROZEN behaviour: StzCheckCode reproduces the house findings
+check:     StzCodeRuleNames lists the house rules (21: the knob rules, the raw markup door, the markup concatenation, and the five bug shapes of 2026-11-05)
+expected:  21
 
 === misc/00_misc_narrated#840d5b37   [meta, value]
 scenario:  Lowercase string primitives
@@ -403,6 +414,12 @@ scenario:  CenterText pads by visible columns (codepoint-correct)
 check:     'ab' centered in 6 cols
 inputs:    "ab"  6
 expected:  "  ab  "
+
+=== misc/00_misc_narrated#d1e663d3   [meta, value]
+scenario:  CenterText pads by visible columns (codepoint-correct)
+check:     an accented word centers to its codepoint width (8)
+inputs:    "caf"  195  169  8
+expected:  8
 
 === natural/evidentiality_narrated#171fd981   [nlp, value]
 scenario:  The evidential bands verbalize a verdict
@@ -492,6 +509,18 @@ scenario:  octal: the fractional half of the conversion did not exist
 check:     the fractional part alone
 inputs:    "10.5"
 expected:  "4"
+
+=== number/number_digit_groups_narrated#31af5b62   [numeric, value]
+scenario:  what the grouping is FOR: a thousands separator
+check:     five digits
+inputs:    12590  "."
+expected:  "+12.590"
+
+=== number/number_digit_groups_narrated#6684ac8e   [numeric, value]
+scenario:  what the grouping is FOR: a thousands separator
+check:     seven digits
+inputs:    1234567  ","
+expected:  "+1,234,567"
 
 === number/numeric_calculable_narrated#f408492d   [numeric, value]
 scenario:  the name now tells the truth
@@ -588,17 +617,11 @@ check:     a third needs sixteen
 inputs:    1.0  3.0
 expected:  "0.3333333333333333"
 
-=== number/numeric_no_loss_narrated#682646db   [numeric, value]
-scenario:  the representation ladder, observable rather than folklore
-check:     a small whole number
-inputs:    "42"
-expected:  "integer"
-
-=== number/numeric_no_loss_narrated#8f55c95b   [numeric, value]
-scenario:  the representation ladder, observable rather than folklore
-check:     ...negative too
-inputs:    "-7"
-expected:  "integer"
+=== object/stzObject_defects_narrated#798a6159   [meta, value]
+scenario:  WhichAreBoth keeps a pair and refuses anything else
+check:     a list of one is a false object
+inputs:    1
+expected:  "stzfalseobject"
 
 === object/stzObject_defects_narrated#9330e734   [meta, value]
 scenario:  Numberified turns the content into a number
@@ -695,6 +718,12 @@ scenario:  The executor says the family, the name says the words
 check:     _NNLImmutable is the chainable-copy family
 inputs:    "_NNLImmutable"
 expected:  "immutable"
+
+=== reflect/docgen_narrated#21a587d4   [meta, value]
+scenario:  The parameter reader: a default value is not part of the name, and a one-line body is not a parameter
+check:     a quoted comma stays in the default
+inputs:    'def f(pc = "a,b", pn)'
+expected:  2
 
 === security/advisory_watch_narrated#7d7fac2d   [security, value]
 scenario:  4. THE DRILL: one advisory through the five kinds, and the two numbers
@@ -839,6 +868,16 @@ check:     NCopies(3, '♥') is three hearts
 inputs:    3  "♥"
 expected:  "♥♥♥"
 
+=== string/113_localescripts#fb3f090c   [string, value]
+scenario:  The two script registries are populated
+check:     LocaleScripts() has 143 entries
+expected:  143
+
+=== string/113_localescripts#d9f43be0   [string, value]
+scenario:  The two script registries are populated
+check:     UnicodeScripts() has 157 entries
+expected:  157
+
 === string/116_shortenedn#16a31365   [string, value]
 scenario:  Shortening with N chars per side
 check:     ShortenedN(2) keeps 2 each side
@@ -893,18 +932,6 @@ check:     'RING' is uppercase
 inputs:    "RING"
 expected:  "uppercase"
 
-=== string/247_stringcase#10fb5cae   [string, value]
-scenario:  Classifying the case of a string
-check:     'ring' is lowercase
-inputs:    "ring"
-expected:  "lowercase"
-
-=== string/28_numberofoccurrenceofcharleftside#bfb41f16   [string, value]
-scenario:  Counting the leading / trailing run of a char
-check:     '-' on the left of ---ring is 3
-inputs:    "---ring"  "-"
-expected:  3
-
 === system/payments_live_adapter_narrated#d7d5285e   [system, value]
 scenario:  the wire codec, on its own
 check:     an empty array stays an array
@@ -928,6 +955,11 @@ scenario:  five secrets, named for whose they are
 check:     a name says the participant and the part
 inputs:    "BIA"  "mtls-cert"
 expected:  "pispi-bia-mtls-cert"
+
+=== system/payments_secrets_narrated#c7c76d00   [system, value]
+scenario:  five secrets, named for whose they are
+check:     the five parts are the five things a live payment needs
+expected:  5
 
 === system/pispi_twin_narrated#e0af0a64   [system, value]
 scenario:  TxId is the platform's idempotency key

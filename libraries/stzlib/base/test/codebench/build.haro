@@ -1,6 +1,6 @@
 # THE SOFTANZA CODE BENCHMARK -- the builder.
 #
-#     haro build.haro          (from this folder; STZ_ENGINE_DIR set as for any run of the library)
+#     HARO_NOCACHE=1 haro build.haro     (from this folder; STZ_ENGINE_DIR set as for any run of the library)
 #
 # Directive 1 of the intelligence needs map (2026-11-15): the first need is writing Softanza solutions in Softanza
 # code and style, and the narrated suites already hold the labels. The Atelier's harvest (atelier/checks.json) keeps
@@ -9,6 +9,11 @@
 #
 #   - its two expressions are evaluated here, on haro.exe, and the check is kept only when they print the same
 #     (the GOLD: the reference answer passes today, on this runtime);
+#   - a check whose expressions raise on haro.exe -- most are written in the earlier spelling, which Haro's Eval
+#     refuses -- is written to _port/refs.ring; `python <haro>/port/haroport.py apply _port --out _ported` ports it,
+#     and every later build uses the ported pair (_ported/refs.haro) whenever it runs: a cached image of a program
+#     lets Eval accept the earlier spelling that a fresh compile refuses (found 2026-11-15), so the ported form is
+#     taken first, and the benchmark is the same whichever way the builder was compiled;
 #   - the checks that do not pass go to gold_misses.tsv with what each side printed: a runtime finding for the Haro
 #     desk, or a library one;
 #   - a reference written `@@( X )` expects X's printed form as a text; it becomes X, expecting X's value, so an
@@ -75,6 +80,10 @@ nGold = 0
 nLeak = 0
 nNoCall = 0
 nUnwrapped = 0
+nPorted = 0
+nToPort = 0
+tPortOut = ""
+$vPortedLines = ReadPorted()
 tMiss = Row([ "id", "reference", "reference printed", "expected printed" ])
 nObject = 0
 
@@ -89,6 +98,22 @@ for i = 1 to nChecks
 	tExp = HaroForm(vArgs[2])
 	tGotRef = Rep(tRef)
 	tGotExp = Rep(tExp)
+	vPorted = PortedPair(i)
+	if Len(vPorted) = 2
+		tGotRef2 = Rep(vPorted[1])
+		tGotExp2 = Rep(vPorted[2])
+		if Left(tGotRef2, 5) != "#ERR#" and Left(tGotExp2, 5) != "#ERR#"
+			tRef = vPorted[1]
+			tExp = vPorted[2]
+			tGotRef = tGotRef2
+			tGotExp = tGotExp2
+			nPorted++
+		end
+	elseif Left(tGotRef, 5) = "#ERR#" or Left(tGotExp, 5) = "#ERR#"
+		tPortOut = tPortOut + "func A" + String(i) + Char(10) + Char(9) + "return " + vArgs[1] + Char(10) + Char(10)
+		tPortOut = tPortOut + "func E" + String(i) + Char(10) + Char(9) + "return " + vArgs[2] + Char(10) + Char(10)
+		nToPort++
+	end
 	if tGotRef = "#OBJ#" or tGotExp = "#OBJ#"
 		nObject++
 		loop
@@ -159,10 +184,16 @@ Write("bench.tsv", tBench)
 Write("tasks.txt", tTasks)
 Write("tasks_value.txt", tValue)
 Write("gold_misses.tsv", tMiss)
+if nToPort > 0
+	MakeDir("_port")
+	Write("_port/refs.ring", tPortOut)
+end
 
 ? "harvest checks          " + String(nChecks)
 ? "split into two exprs    " + String(nSplit)
 ? "object results dropped  " + String(nObject)
+? "ported by haroport      " + String(nPorted)
+? "left for haroport       " + String(nToPort)
 ? "gold: passes on haro    " + String(nGold)
 ? "@@( ) unwrapped         " + String(nUnwrapped)
 ? "expected inside the ref " + String(nLeak)
@@ -189,4 +220,37 @@ func TaskText(vR)
 		tT = tT + "inputs:    " + vR[7] + Char(10)
 	end
 	return tT + "expected:  " + vR[8] + Char(10) + Char(10)
+end
+
+
+# the lines of _ported/refs.haro, haroport's output for the checks that raised; [] when there is none
+func ReadPorted
+	if FExists("_ported/refs.haro") = false
+		return []
+	end
+	return Str2List(Read("_ported/refs.haro"))
+end
+
+# the ported [actual, expected] of the check of rank nCheck, or [] when haroport did not give both
+func PortedPair(nCheck)
+	tA = PortedBody("A" + String(nCheck))
+	tE = PortedBody("E" + String(nCheck))
+	if tA = "" or tE = ""
+		return []
+	end
+	return [ tA, tE ]
+end
+
+func PortedBody(tName)
+	nLen = Len($vPortedLines)
+	for i = 1 to nLen
+		if Trim2($vPortedLines[i]) = "func " + tName and i < nLen
+			tBody = Trim2($vPortedLines[i + 1])
+			if Left(tBody, 7) = "return "
+				return SubStr(tBody, 8, Len(tBody) - 7)
+			end
+			return ""
+		end
+	end
+	return ""
 end

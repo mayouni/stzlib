@@ -24,6 +24,8 @@ none	datetime/dtfix_date_time_args_narrated#20f24c15	i18n	flag
 none	datetime/dtfix_date_time_args_narrated#9b5c0790	i18n	flag	
 none	datetime/stzCalendar_defects_narrated#bc32caa8	i18n	value	
 none	datetime/stzCalendar_defects_narrated#87953d7a	i18n	value	
+none	datetime/stzDate_defects_narrated#a132c45e	i18n	flag	
+none	extercode/stzImageToAscii_defects_narrated#932b58d2	extensibility	flag	
 error	extincode/51_extincode_narrated#47b8c704	extensibility	value	Error (R42) : Error in eval() function
 none	extincode/51_extincode_narrated#d0991f9e	extensibility	value	
 none	extincode/51_extincode_narrated#8de35606	extensibility	value	
@@ -32,14 +34,20 @@ pass	extincode/51_extincode_narrated#1d0281a2	extensibility	value	[ 0, 1, 2 ]
 none	extincode/51_extincode_narrated#48e55f75	extensibility	value	
 none	extincode/51_extincode_narrated#264a7e06	extensibility	value	
 none	extincode/51_extincode_narrated#dc8d6937	extensibility	value	
+none	faculty/calibration_narrated#4e23aba2	neural	flag	
+none	faculty/faculty_core_narrated#750a3b0d	neural	flag	
 none	faculty/faculty_core_narrated#5bc6519b	neural	flag	
 none	faculty/faculty_core_narrated#f52b12c3	neural	flag	
 none	faculty/placement_narrated#b5c19574	neural	flag	
 none	faculty/placement_narrated#f877ceb5	neural	flag	
+none	faculty/placement_narrated#334e03ed	neural	flag	
+none	faculty/release_narrated#bdece273	neural	value	
 error	file/stzZipFile_defects_narrated#0719ff0b	files	value	Error (E1) : eval: a name the program never mentions `get`
 none	file/stzZipFile_defects_narrated#c7eb50ed	files	value	
 none	file/xml_narrated#75ed1ded	files	flag	
 none	file/xml_narrated#82f354ad	files	flag	
+none	func/00_func_narrated#8aca9e4c	meta	flag	
+none	func/00_func_narrated#628637bd	meta	flag	
 none	func/00_func_narrated#92642c89	meta	flag	
 none	func/00_func_narrated#91169a21	meta	flag	
 none	func/00_func_narrated#ae4ffa77	meta	flag	
@@ -48,16 +56,15 @@ none	func/00_func_narrated#2a750aa7	meta	flag
 none	func/00_func_narrated#356e455a	meta	flag	
 none	func/00_func_narrated#0ec3751a	meta	flag	
 none	func/00_func_narrated#edeb6abd	meta	flag	
-none	func/00_func_narrated#57ec0cf2	meta	flag	
-none	func/00_func_narrated#369b51f8	meta	flag	
 none	graph/orgrule_narrated#6a0e0b0d	diagramming	value	
 none	graph/orgrule_narrated#7751146d	diagramming	value	
 none	graph/stzGridNav_defects_narrated#66ffdc35	diagramming	flag	
 none	hexnumbert/00_hexnumber_narrated#73cf931d	numeric	flag	
 none	i18n/00_i18n_narrated#18b33b8d	i18n	flag	
-error	i18n/00_i18n_narrated#7d807d92	i18n	value	Error (R3) : Calling Function without definition: stzstring
-none	json/00_json_narrated#d99c67d7	web	flag	
-none	json/00_json_narrated#eba3133d	web	flag	
+error	i18n/00_i18n_narrated#7d807d92	i18n	value	Error (E1) : a keyword in another case is no name -- `this` is a keyword; writte
+none	json/00_json_narrated#25f06553	web	flag	
+none	json/00_json_narrated#f304c18a	web	flag	
+none	json/00_json_narrated#8c1f2407	web	value	
 none	list/00_list_narrated#a57e8772	collections	value	
 none	list/00_list_narrated#e52c4a85	collections	value	
 none	list/00_list_narrated#41190506	collections	value	
@@ -76,22 +83,20 @@ none	list/00_list_narrated#acc1ac4c	collections	value
 none	list/01_deeplist_narrated#6e3bd090	collections	flag	
 none	list/01_deeplist_narrated#d8a01df2	collections	flag	
 none	list/06_manyremoved#fd445fec	collections	value	
+none	list/104_atat_display#9b08b4c4	collections	flag	
 none	list/104_atat_display#afc3761e	collections	value	
-error	list/104_atat_display#c4befd1a	collections	value	Error (E1) : a builtin called with the wrong number of arguments `list("1", "ðŸŒ
 none	list/10_replacemanybymany#84e05e47	collections	value	
 none	list/10_replacemanybymany#50bb5520	collections	value	
 none	list/112_containsthese#96fef609	collections	flag	
 none	list/114_unicode#6d171576	collections	value	
-none	list/115_ischar#fa2db674	collections	flag	
 error	list/117_unicodes#78b54fb8	collections	value	Error (R3) : Calling Function without definition: stzlist
 none	list/117_unicodes#c7472956	collections	value	
 none	list/136_sort#90826c5b	collections	value	
 none	list/16_association#b17cf117	collections	value	
-error	list/189_find#0e3ff831	collections	value	Bad parameter type!
+error	list/189_find#0e3ff831	collections	value	Error (E1) : a built-in is spelled `Find`; written `find`
 none	list/204_association#15dc63e2	collections	value	
 none	list/21_intersection#18f487d3	collections	value	
 none	list/650_operator_q_elevation_narrated#07cededb	collections	value	
-error	list/650_operator_q_elevation_narrated#b55edccf	collections	value	Error (E1) : eval: a name the program never mentions `stzList`
 none	list/listoflists_defects_narrated#a21ad723	collections	value	
 none	list/listoflists_defects_narrated#a40d5b4d	collections	value	
 none	list/listoflists_defects_narrated#264f3710	collections	value	
@@ -102,16 +107,19 @@ none	listoflists/00_listoflists_narrated#1ffa144f	collections	flag
 none	listofnumbers/00_listofnumbers_narrated#ee0c795a	numeric	value	
 none	listofnumbers/00_listofnumbers_narrated#9e18fb8c	numeric	value	
 none	locale/01_languagename_narrated#9ae7dfa3	i18n	flag	
+none	locale/01_languagename_narrated#ad6b207a	i18n	value	
 error	matrex/stzMatrex_defects_narrated#ada5f45e	numeric	value	Error (R3) : Calling Function without definition: stzmatrix
+none	meta/coderule_narrated#f25be3c6	meta	value	
 none	meta/coderule_narrated#8a88ecec	meta	flag	
-none	meta/coderule_narrated#46d5ed67	meta	flag	
 none	misc/00_misc_narrated#840d5b37	meta	value	
 none	misc/00_misc_narrated#d0ebe1f8	meta	value	
 none	misc/00_misc_narrated#1e29144e	meta	value	
 error	misc/00_misc_narrated#f56d3577	meta	value	Error (R24) : Using uninitialized variable: stzlistsorter
 none	misc/00_misc_narrated#d6b2c106	meta	value	
 none	misc/00_misc_narrated#9d647c69	meta	value	
+none	misc/00_misc_narrated#d1e663d3	meta	value	
 none	natural/entity_world_narrated#7df7474b	nlp	flag	
+none	natural/entity_world_narrated#e94375cc	nlp	flag	
 none	natural/entity_world_narrated#cc7ae8b0	nlp	flag	
 none	natural/entity_world_narrated#e9f9b623	nlp	flag	
 none	natural/entity_world_narrated#43ddf056	nlp	flag	
@@ -123,10 +131,10 @@ none	natural/modality_narrated#f07f60ec	nlp	flag
 none	natural/modality_narrated#bffed122	nlp	flag	
 none	natural/multilingual_pack_narrated#b351aefa	nlp	flag	
 none	natural/multilingual_pack_narrated#71de5b57	nlp	flag	
-none	natural/nnl_narrated#b0a2a508	nlp	flag	
 none	network/57_tcp_hardening_narrated#1f7d9810	web	flag	
 none	neural/engine_granite_narrated#ee3798f8	neural	flag	
 none	neural/engine_granite_narrated#563a61d1	neural	flag	
+none	neural/engine_options_narrated#54b274c2	neural	flag	
 none	neural/engine_termination_narrated#d7aace16	neural	flag	
 none	neural/engine_window_narrated#874fa60d	neural	flag	
 none	neural/engine_window_narrated#cf2a1a2e	neural	flag	
@@ -151,6 +159,8 @@ none	number/number_dead_calls_narrated#afc0eace	numeric	value
 error	number/number_dead_calls_narrated#5c816d99	numeric	value	Error (R24) : Using uninitialized variable: stznumber
 none	number/number_dead_calls_narrated#2c9d264e	numeric	value	
 none	number/number_dead_calls_narrated#250b9f82	numeric	flag	
+none	number/number_digit_groups_narrated#31af5b62	numeric	value	
+none	number/number_digit_groups_narrated#6684ac8e	numeric	value	
 none	number/numeric_calculable_narrated#1f2ac521	numeric	flag	
 none	number/numeric_calculable_narrated#f408492d	numeric	value	
 none	number/numeric_calculable_narrated#b4ca1164	numeric	flag	
@@ -169,10 +179,11 @@ none	number/numeric_handle_table_narrated#bbedab8a	numeric	value
 none	number/numeric_no_loss_narrated#201147e3	numeric	value	
 pass	number/numeric_no_loss_narrated#f3cc2261	numeric	value	"2.50"
 none	number/numeric_no_loss_narrated#e11f1311	numeric	value	
-none	number/numeric_no_loss_narrated#682646db	numeric	value	
-none	number/numeric_no_loss_narrated#8f55c95b	numeric	value	
+none	object/stzObject_defects_narrated#798a6159	meta	value	
 none	object/stzObject_defects_narrated#712de691	meta	flag	
 none	object/stzObject_defects_narrated#0858f48c	meta	flag	
+none	object/stzObject_defects_narrated#97d5108b	meta	flag	
+none	object/stzObject_defects_narrated#4dfb3d1d	meta	flag	
 error	object/stzObject_defects_narrated#9330e734	meta	value	Error (R24) : Using uninitialized variable: stzobject
 none	object/stzObject_defects_narrated#daa86d0a	meta	value	
 none	object/stzObject_defects_narrated#cca1563a	meta	flag	
@@ -192,6 +203,12 @@ error	plural/00_plural_narrated#1262e613	nlp	value	Error (R3) : Calling Function
 none	plural/00_plural_narrated#e9f50823	nlp	value	
 none	reflect/docgen_narrated#108405c9	meta	value	
 none	reflect/docgen_narrated#ab66189d	meta	value	
+none	reflect/docgen_narrated#f84752e6	meta	flag	
+none	reflect/docgen_narrated#966b80e0	meta	flag	
+none	reflect/docgen_narrated#589d74f0	meta	flag	
+none	reflect/docgen_narrated#e56b1d1e	meta	flag	
+none	reflect/docgen_narrated#21a587d4	meta	value	
+none	reflect/docgen_narrated#befb0bde	meta	flag	
 none	reflect/docrecord_narrated#b162cac8	meta	flag	
 none	reflect/docrecord_narrated#928e0312	meta	flag	
 none	reflect/docrecord_narrated#5299d63f	meta	flag	
@@ -202,12 +219,12 @@ error	security/advisory_watch_narrated#7d7fac2d	security	value	Error (R42) : Err
 none	security/at_rest_crypto_narrated#5410b4a9	security	flag	
 none	security/engine_door_narrated#b5aa2dbf	security	flag	
 none	security/exposure_responder_narrated#0f7479a2	security	flag	
+none	security/exposure_responder_narrated#00cc312c	security	flag	
 none	security/exposure_responder_narrated#e29ddbdd	security	flag	
 none	security/model_digest_narrated#a652a6f9	security	flag	
 none	security/secret_memory_narrated#5ab417c8	security	flag	
 none	security/secret_memory_narrated#3a1be735	security	flag	
 none	security/secret_memory_narrated#b0a69c70	security	flag	
-none	security/text_condition_not_code_narrated#6e50cc76	security	flag	
 none	singular/00_singular_narrated#3f535e83	nlp	value	
 none	singular/00_singular_narrated#6fec8744	nlp	value	
 none	singular/00_singular_narrated#582c9d0f	nlp	value	
@@ -238,6 +255,8 @@ error	string/110_unicode#3befb937	string	value	Error (E1) : eval: a name the pro
 none	string/110_unicode#73522def	string	value	
 none	string/112_repeatedntimes#31a2b15b	string	value	
 none	string/112_repeatedntimes#de75ea25	string	value	
+none	string/113_localescripts#fb3f090c	string	value	
+none	string/113_localescripts#d9f43be0	string	value	
 error	string/116_shortenedn#16a31365	string	value	Error (R24) : Using uninitialized variable: stzstring
 none	string/117_shortened#7683b917	string	value	
 none	string/117_shortened#423c9d20	string	value	
@@ -248,12 +267,10 @@ none	string/14_isreverseof#76c7e726	string	flag
 error	string/158_script#afd59518	string	value	Error (E1) : eval: a name the program never mentions `stzStringLocale`
 none	string/158_script#1e5fb197	string	value	
 none	string/170_containsat#7654c171	string	flag	
-none	string/171_containsinsection#058c4bf1	string	flag	
+none	string/170_containsat#0dd9a144	string	flag	
 none	string/243_findlast#7dd7c543	string	value	
 none	string/243_findlast#785c70a7	string	value	
 error	string/247_stringcase#1b4bc0c3	string	value	Error (R14) : Calling Method without definition: stringisuppercase
-none	string/247_stringcase#10fb5cae	string	value	
-none	string/28_numberofoccurrenceofcharleftside#bfb41f16	string	value	
 none	system/52_uuid_engine_narrated#91b984fd	system	flag	
 none	system/52_uuid_engine_narrated#ebc4bf98	system	flag	
 none	system/auth_saml_narrated#39778c2c	system	flag	
@@ -263,7 +280,7 @@ error	system/payments_live_adapter_narrated#367bb69d	system	value	Error (R42) : 
 none	system/payments_qr_narrated#315e67cf	system	value	
 none	system/payments_qr_narrated#843b438c	system	flag	
 none	system/payments_secrets_narrated#68cfc5c4	system	value	
-none	system/payments_secrets_narrated#5be0659b	system	flag	
+none	system/payments_secrets_narrated#c7c76d00	system	value	
 none	system/pispi_twin_narrated#e0af0a64	system	value	
 none	system/pispi_twin_narrated#e504f0c9	system	flag	
 none	system/pispi_twin_narrated#e59b43fc	system	flag	
@@ -272,6 +289,8 @@ error	system/sms_port_narrated#42526ed9	system	value	Error (R3) : Calling Functi
 none	system/sms_port_narrated#64b43598	system	flag	
 none	system/sms_port_narrated#ebe7b0e8	system	value	
 none	system/sms_port_narrated#9dcb99e8	system	value	
+none	system/sms_port_narrated#e7f13c39	system	flag	
+none	testoor/testoor_clock_narrated#c9d820b1	testing	flag	
 none	testoor/testoor_refine_narrated#6e6afaba	testing	flag	
 none	testoor/testoor_routes_narrated#bf78b333	testing	flag	
 none	time/00_time_narrated#e8fca91f	i18n	value	
@@ -281,26 +300,30 @@ none	uuid/00_uuid_narrated#aba1aeb4	binary	flag
 none	uuid/00_uuid_narrated#eaa5c7ad	binary	flag	
 
 score                    pass / tasks
-  all value             3 / 160
+  all value             3 / 166
   nlp value             1 / 17
-  all flag              0 / 119
-  testing flag          0 / 3
+  answered value        3 / 38
+  all flag              0 / 132
+  testing flag          0 / 4
   concurrency flag      0 / 1
-  meta value            0 / 20
-  meta flag             0 / 22
+  meta value            0 / 24
+  meta flag             0 / 28
   tables value          0 / 1
   tables flag           0 / 1
-  i18n flag             0 / 7
-  i18n value            0 / 4
+  i18n flag             0 / 8
+  i18n value            0 / 5
+  extensibility flag    0 / 1
   extensibility value   1 / 8
-  neural flag           0 / 10
+  neural flag           0 / 14
+  neural value          0 / 1
   files value           0 / 2
   files flag            0 / 2
   diagramming value     0 / 2
   diagramming flag      0 / 1
   numeric flag          0 / 11
   web flag              0 / 3
-  collections value     0 / 29
+  web value             0 / 1
+  collections value     0 / 27
   collections flag      0 / 12
   numeric value         1 / 35
   nlp flag              0 / 10
@@ -313,7 +336,7 @@ score                    pass / tasks
   string value          0 / 30
   string flag           0 / 10
   system flag           0 / 10
-  system value          0 / 8
+  system value          0 / 9
   binary flag           0 / 2
 
-judged in 13 ms
+judged in 19 ms

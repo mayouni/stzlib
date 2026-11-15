@@ -13,18 +13,13 @@ cluster/hardening_narrated#2ade38d1	cR	"\r"	""
 cluster/hardening_narrated#a594002e	cR = null	#ERR# Error (E1) : `null` is no value of Haro -- the empty text is "", and absence is none; written `null`	1
 cluster/mtls_narrated#a208f293	StzFindFirst("ok:mtls", cR) > 0	0	1
 cluster/mtls_narrated#6df668ec	len(cR)	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	0
-common/hostile_globals_narrated#2d56d20e	IsHashList([ :a = 1, :b = 2 ])	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:a = 1`	1
 common/hostile_globals_narrated#d69da9a5	_Unquote('"hello"')	#ERR# Error (TYPE_MISMATCH) : integer = text -- = compares two values of one type	"hello"
 csv/00_csv_narrated#d31bad0a	CSVSeparator()	";"	","
 datetime/stzCalendar_defects_narrated#94b080ab	len(cR.AvailableWeeks())	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	2
 datetime/stzCalendar_defects_narrated#90e4b488	cR.AvailableWeeksN()	#ERR# Bad parameter type!	1
-datetime/stzDate_defects_narrated#a132c45e	strcmp("In 3 days", "in 3 days") != 0	#ERR# Error (E1) : a built-in is spelled `StrCmp`; written `strcmp`	1
-extercode/stzImageToAscii_defects_narrated#aea2249e	direxists("temp")	#ERR# Error (E1) : a built-in is spelled `DirExists`; written `direxists`	1
-extercode/stzImageToAscii_defects_narrated#e933e07c	direxists("output")	#ERR# Error (E1) : a built-in is spelled `DirExists`; written `direxists`	1
-extercode/stzImageToAscii_defects_narrated#932b58d2	direxists("temp") + direxists("output")	#ERR# Error (E1) : a built-in is spelled `DirExists`; written `direxists`	0
-extercode/stzImageToAscii_defects_narrated#7f457a89	direxists("temp") + direxists("output")	#ERR# Error (E1) : a built-in is spelled `DirExists`; written `direxists`	2
-faculty/calibration_narrated#4e23aba2	len(StzCalibrationFindings("f", "good", 5))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	0
-faculty/faculty_core_narrated#750a3b0d	StzJudgeParcelValue("label", "maybe", [ :labels = [ "odd", "even" ] ])[:ok]	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:labels = [ "odd", "even	0
+extercode/stzImageToAscii_defects_narrated#aea2249e	DirExists("temp")	0	1
+extercode/stzImageToAscii_defects_narrated#e933e07c	DirExists("output")	0	1
+extercode/stzImageToAscii_defects_narrated#7f457a89	DirExists("temp") + DirExists("output")	0	2
 faculty/faculty_core_narrated#cb3b447e	StzModelRegistryQ().MeasurementOf(:parity, "last-digit")[:score]	""	0.50
 faculty/faculty_core_narrated#f7276fc4	StzModelRegistryQ().MeasurementOf(:parity, "better")[:score]	""	1
 faculty/faculty_core_narrated#787fc767	StzModelRegistryQ().MeasurementOf(:parity, "worse")[:score]	""	0.25
@@ -32,33 +27,21 @@ faculty/faculty_core_narrated#6748d1e5	StzModelRegistryQ().MeasurementOf(:parity
 faculty/faculty_core_narrated#6e67b6d3	StzModelRegistryQ().ResolveQ(StzRequirementQ(:parity)).Chosen()	""	"last-digit"
 faculty/faculty_core_narrated#18c3a5a2	StzFindFirst("deterministic", StzModelRegistryQ().ResolveQ(StzRequirementQ(:parity)).Why()) > 0	0	1
 faculty/faculty_core_narrated#d14c4879	StzModelRegistryQ().ResolveQ(StzRequirementQ(:parity)).Chosen()	""	"better"
-faculty/faculty_core_narrated#f6bd0ef8	len(StzModelTrace()) >= 1	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	1
+faculty/faculty_core_narrated#f6bd0ef8	Len(StzModelTrace()) >= 1	0	1
 faculty/faculty_core_narrated#93bef620	StzModelTrace()[1][:chosen]	#ERR# Error (R2) : Array Access (Index out of range)	"better"
-faculty/faculty_core_narrated#34e311c5	len(StzMeasurements())	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	0
+faculty/faculty_core_narrated#34e311c5	Len(StzMeasurements())	37	0
 faculty/faculty_perlang_narrated#b57c023b	StzMeasurementOf(:shout, "learned", "v1/fr")[:score]	""	1
-faculty/flows_narrated#5292e01a	len(StzModelTrace()) >= 3	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	1
+faculty/flows_narrated#5292e01a	Len(StzModelTrace()) >= 3	0	1
 faculty/flows_narrated#3250aa30	StzModelTrace()[1][:chosen]	#ERR# Error (R2) : Array Access (Index out of range)	"first-clause"
 faculty/placement_narrated#a1676c2e	StzImplementationAvailable(_StzImplRow(:greet, "native"), "tlh")[2]	""	"no 'tlh' pack here"
 faculty/placement_narrated#2e0a7315	StzMeasurementOf(:greet, "learned", "v1")[:n]	""	9
-faculty/placement_narrated#334e03ed	len(StzMeasurementOf(:greet, "native", "v1/tl"))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	0
-faculty/placement_narrated#f853ce9e	len(StzMeasurementOf(:greet, "native", "v1/tl")) > 0	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	1
-faculty/release_narrated#bdece273	len(str2list(StzModelSumsText("ocr")))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	5
-func/00_func_narrated#8aca9e4c	IsNull("")	#ERR# Error (E1) : one spelling: `IsEmpty`; written `IsNull`	1
-func/00_func_narrated#12083cba	IsNull([])	#ERR# Error (E1) : one spelling: `IsEmpty`; written `IsNull`	0
-func/00_func_narrated#628637bd	IsNull(0)	#ERR# Error (E1) : one spelling: `IsEmpty`; written `IsNull`	0
-func/00_func_narrated#f27050f2	IsNull(NullObject())	#ERR# Error (E1) : one spelling: `IsEmpty`; written `IsNull`	1
-func/00_func_narrated#943f69ab	IsNull(TrueObject())	#ERR# Error (E1) : one spelling: `IsEmpty`; written `IsNull`	0
-func/00_func_narrated#ab4c1de0	IsNull(FalseObject())	#ERR# Error (E1) : one spelling: `IsEmpty`; written `IsNull`	0
+faculty/placement_narrated#f853ce9e	Len(StzMeasurementOf(:greet, "native", "v1/tl")) > 0	0	1
+func/00_func_narrated#12083cba	IsEmpty([])	1	0
 func/00_func_narrated#2fd68726	IsTrueXT("no way")	1	0
 func/00_func_narrated#26e4722a	IsFalseXT("no way")	0	1
-func/00_func_narrated#6b1a5337	NOT IsListOfStrings([ 1, 2 ])	#ERR# Error (E1) : a keyword in another case is no name -- `not` is a keyword; written `NOT`	1
 graph/graphrule_object_narrated#8b8061a6	isList(StzGetRule("agentic", "no-llm-effectful-reg"))	#ERR# Error (E1) : a built-in is spelled `IsList`; written `isList`	1
 hexnumbert/00_hexnumber_narrated#a79efa93	HexToDecimal("0x167A")	"5754"	5754
-json/00_json_narrated#25f06553	IsJsonList([ :a = 10, :b = 20 ])	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:a = 10`	1
-json/00_json_narrated#f304c18a	IsJsonList([ :a = 10, [ :d = 30 ] ])	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:a = 10`	0
-json/00_json_narrated#8c1f2407	ListToJson([ :name = "John", :age = 30 ])	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:name = "John"`	'{"name":"John","age":30}'
 json/00_json_narrated#438816b1	ListToJson([ :a = 1, :c = [ :d = 30 ] ])	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:a = 1`	'{"a":1,"c":{"d":30}}'
-list/104_atat_display#9b08b4c4	@@( isNumber([ "'" ]) )	#ERR# Error (E1) : a built-in is spelled `IsNumber`; written `isNumber`	"0"
 list/117_unicodes#9f45edbf	@@( Unicodes([ "How", "are", "you?" ]) )	#ERR# Error (TYPE_LETTER) : `viResult` is lettered vi, a vector of integers, and its item 1 is a vector	"[ [ 72, 111, 119 ], [ 97, 114, 101 ], [ 121, 111, 117, 63 ] ]"
 list/117_unicodes#8527eca4	@@( Unicodes([ "A", "HI", [ 1, 2 ] ]) )	#ERR# Error (TYPE_LETTER) : `viResult` is lettered vi, a vector of integers, and its item 2 is a vector	"[ 65, [ 72, 73 ], [ 1, 2 ] ]"
 list/117_unicodes#b60c737e	@@( Unicodes([ "a", [ 1, ["b","c"], 2], "d" ]) )	#ERR# Error (TYPE_LETTER) : `viResult` is lettered vi, a vector of integers, and its item 2 is a vector	"[ 97, [ 1, [ 98, 99 ], 2 ], 100 ]"
@@ -70,28 +53,12 @@ list/216_repeatedxt#341ff8d7	@@( Q(5).RepeatedXT( :NTimes = 3, :InAList ) )	#ERR
 list/216_repeatedxt#dd1d1d8c	@@( Q(5).RepeatedXT([ 3, :Times ], :InAList ) )	#ERR# Incorrect param! pIn must be a string representing one ofthese Softanza types: :String, :List, :Pair, :ListOfNumbers, :ListOfStrings, :ListOfLists, :ListOfPairs, :Grid, :Table, and :StzTable.\n	"[ 5, 5, 5 ]"
 list/216_repeatedxt#a57af7e4	@@( Q(5).RepeatedXT( :NTimes = 3, :InAString ) )	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:NTimes = 3`	'"555"'
 list/216_repeatedxt#5208483f	@@( Q(5).RepeatedXT([ 3, :Times ], :InString ) )	#ERR# Incorrect param! pIn must be a string representing one ofthese Softanza types: :String, :List, :Pair, :ListOfNumbers, :ListOfStrings, :ListOfLists, :ListOfPairs, :Grid, :Table, and :StzTable.\n	"[ 5, 5, 5 ]"
-list/650_operator_q_elevation_narrated#b20f340f	isList( Q([1,2,3]) * 4 )	#ERR# Error (E1) : a built-in is spelled `IsList`; written `isList`	1
-list/650_operator_q_elevation_narrated#4c062f37	isObject( Q([1,2,3]) * Q(4) )	#ERR# Error (E1) : a built-in is spelled `IsObject`; written `isObject`	1
-list/650_operator_q_elevation_narrated#c1369ea4	isList( Q([1,2,3,4,5,6]) / 3 )	#ERR# Error (E1) : a built-in is spelled `IsList`; written `isList`	1
-list/650_operator_q_elevation_narrated#faf7e995	isObject( Q([1,2,3,4,5,6]) / Q(3) )	#ERR# Error (E1) : a built-in is spelled `IsObject`; written `isObject`	1
-list/650_operator_q_elevation_narrated#affcbe82	isList( Q(1:5) - 3 )	#ERR# Error (E1) : a built-in is spelled `IsList`; written `isList`	1
-list/650_operator_q_elevation_narrated#684d4c7b	isObject( Q(1:5) - Q(3) )	#ERR# Error (E1) : a built-in is spelled `IsObject`; written `isObject`	1
-list/650_operator_q_elevation_narrated#aa11e07e	isObject( Q("ABC") * Q(3) )	#ERR# Error (E1) : a built-in is spelled `IsObject`; written `isObject`	1
-list/650_operator_q_elevation_narrated#6ddd3a29	isList( Q("ABCDEF") / 3 )	#ERR# Error (E1) : a built-in is spelled `IsList`; written `isList`	1
-list/650_operator_q_elevation_narrated#1d724fe4	isObject( Q("ABCDEF") / Q(3) )	#ERR# Error (E1) : a built-in is spelled `IsObject`; written `isObject`	1
-list/stzSetOfSections_defects_narrated#81760c07	isNumber(@IsSetOfSections([ [ 1, 3 ] ]))	#ERR# Error (E1) : a built-in is spelled `IsNumber`; written `isNumber`	1
-list/stzSet_defects_narrated#9c9ddffb	pow(2, 4) = 15	#ERR# Error (E1) : a built-in is spelled `Pow`; written `pow`	0
 locale/01_languagename_narrated#c093f963	NativeNthDayOfWeek(1)	#ERR# Error (R3) : Calling Function without definition: nativenthdayofweek	"السبت"
 locale/01_languagename_narrated#3c7feef1	StzLeft(NativeNthDayOfWeekAbbreviation(1), 2)	#ERR# Error (R3) : Calling Function without definition: nativenthdayofweekabbreviation	"ال"
-locale/01_languagename_narrated#ad6b207a	StzLocaleQ([ :Script = :Arabic ]).NthDayOfWeek(1)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:Script = :Arabic`	"saturday"
-meta/coderule_narrated#f25be3c6	len(StzCodeRuleNames())	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	21
-misc/00_misc_narrated#d1e663d3	StzLen(CenterText("caf" + char(195) + char(169), 8))	#ERR# Error (E1) : a built-in is spelled `Char`; written `char`	8
-misc/00_misc_narrated#48e50c6e	CenterText("caf" + char(195) + char(169), 2)	#ERR# Error (E1) : a built-in is spelled `Char`; written `char`	"ca"
 namedvars/00_namedvars_narrated#6ab3e187	v(:name1)	#ERR# Undefined named variable!\n	10
 namedvars/00_namedvars_narrated#a9f5428c	v(:name3)	#ERR# Undefined named variable!\n	30
 namedvars/00_namedvars_narrated#51895b0a	v(:name5)	#ERR# Undefined named variable!\n	50
 namedvars/00_namedvars_narrated#a9fe7aeb	v(:name3)	#ERR# Undefined named variable!\n	44
-natural/entity_world_narrated#e94375cc	isObject(WorldEntities())	#ERR# Error (E1) : a built-in is spelled `IsObject`; written `isObject`	1
 natural/entity_world_narrated#5375bae2	@@( WhatIs("microsoft") )	"[ ]"	'[ "organization" ]'
 natural/entity_world_narrated#9629774b	@@( WhatIs("tomato") )	"[ ]"	'[ "fruit" ]'
 natural/entity_world_narrated#2375fbfc	AreRelated("paris", "france")	""	"capital-of"
@@ -116,7 +83,7 @@ natural/nnl_narrated#7fdfebd0	Why()	"no: nothing is known about being a 'score' 
 natural/nnl_narrated#53582664	Q("hello brave world").TheNth(2, :Words)	#ERR# Error (E1) : a keyword in another case is no name -- `this` is a keyword; written `This`	"brave"
 natural/nnl_narrated#77a4be3c	Q("softanza").TheFirst(:Vowels)	#ERR# Error (E1) : a keyword in another case is no name -- `this` is a keyword; written `This`	"o"
 natural/nnl_narrated#3530546b	Q("softanza").TheLast(:Vowels)	#ERR# Error (E1) : a keyword in another case is no name -- `this` is a keyword; written `This`	"a"
-natural/nnl_narrated#8a3806cc	classname( Q(123).IsAQ(:Number) )	#ERR# Error (E1) : a built-in is spelled `ClassName`; written `classname`	"stznumber"
+natural/nnl_narrated#8a3806cc	ClassName( Q(123).IsAQ(:Number) )	"stzstring"	"stznumber"
 natural/nnl_narrated#28ba74d6	Why()	"no: nothing is known about being a 'score' (no constraints were declared)"	'no: firstchar is "h", expected "x"'
 natural/nnl_narrated#9aea8842	Why()	"no: nothing is known about being a 'score' (no constraints were declared)"	'yes: state 2 ("RING") was uppercase'
 natural/nnl_narrated#6547cf9e	Why()	"no: nothing is known about being a 'score' (no constraints were declared)"	"no: no history was kept (open the chain with QH)"
@@ -139,7 +106,6 @@ neural/engine_granite_narrated#aad49e3c	StzChatHasToken("<|start_of_role|>")	0	1
 neural/engine_granite_narrated#476858fe	StzFindFirst("<|start_of_role|>", StzChatPrompt("", "hi")) > 0	0	1
 neural/engine_granite_narrated#fc7903c6	StzChatHasToken("<|im_start|>")	0	1
 neural/engine_options_narrated#db822894	_mpLoad("qwen3-0.6b-q8")	#ERR# Error (R3) : Calling Function without definition: _mpload	1
-neural/engine_options_narrated#54b274c2	len(StzOptionProbabilities("x", [ "a" ])) >= 0	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	1
 neural/engine_qwen3_narrated#6ac710bf	_mpLoad("qwen3-0.6b-q4_k_m")	#ERR# Error (R3) : Calling Function without definition: _mpload	1
 neural/engine_termination_narrated#0623e26c	_mpLoad("smollm2-135m")	#ERR# Error (R3) : Calling Function without definition: _mpload	1
 neural/engine_termination_narrated#a8f6471c	StzLastGenerationStoppedOnRepeat()	0	1
@@ -160,41 +126,15 @@ number/00_number_narrated#e8eafa59	Q(2).Power(10)	"1024"	1024
 number/number_dead_calls_narrated#acc57f64	(new stzNumber(12)).GCD(18)	"6"	6
 number/number_dead_calls_narrated#41a574dc	(new stzNumber(12)).GreatestCommonDividor(18)	"6"	6
 number/number_dead_calls_narrated#272de91f	(new stzNumber(4)).LCM(6)	"12"	12
-number/number_digit_groups_narrated#31af5b62	(new stzNumber(12590)).ApplyFormatXT([ :ThousandsSeparator = "." ])	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:ThousandsSeparator = ".	"+12.590"
-number/number_digit_groups_narrated#6684ac8e	(new stzNumber(1234567)).ApplyFormatXT([ :ThousandsSeparator = "," ])	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:ThousandsSeparator = ",	"+1,234,567"
-number/number_digit_groups_narrated#f0fa98e4	(new stzNumber(1234567890)).ApplyFormatXT([ :ThousandsSeparator = " " ])	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:ThousandsSeparator = " 	"+1 234 567 890"
-number/numeric_no_loss_narrated#ca95f849	(0 + StzEngineNumberPlainShortest(number("1e-20"))) = number("1e-20")	#ERR# Error (E1) : a built-in is spelled `Number`; written `number`	1
-number/numeric_no_loss_narrated#daba92af	(0 + StzEngineNumberPlainShortest(number("1e20"))) = number("1e20")	#ERR# Error (E1) : a built-in is spelled `Number`; written `number`	1
-number/numeric_no_loss_narrated#1f7e09a0	StzFindFirst("e", StzEngineNumberPlainShortest(number("1e20")))	#ERR# Error (E1) : a built-in is spelled `Number`; written `number`	0
-number/numeric_pseudoinverse_narrated#e096ff4e	len((new stzMatrix([ [3], [4], [0] ])).PseudoInverse())	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	1
-number/numeric_pseudoinverse_narrated#df2161f8	len((new stzMatrix([ [3,4,0] ])).PseudoInverse())	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	3
 number/numeric_special_functions_narrated#4ee6033d	StzEngineErf(0)	#ERR# Error (R3) : Calling Function without definition: stzengineerf	0
 number/numeric_special_functions_narrated#86b1c79d	(1 - StzEngineErf(6)) = 0	#ERR# Error (R3) : Calling Function without definition: stzengineerf	1
 number/numeric_special_functions_narrated#0823ef39	StzEngineErfc(6) > 0	#ERR# Error (R3) : Calling Function without definition: stzengineerfc	1
-object/stzObject_defects_narrated#798a6159	classname(Q([ 1 ]).WhichAreBoth())	#ERR# Error (E1) : a built-in is spelled `ClassName`; written `classname`	"stzfalseobject"
 object/stzObject_defects_narrated#7451f02a	Q(8).OfCSB(8, 1)	0	1
 object/stzObject_defects_narrated#86a5c815	Q(8).OfXTCSB(8, "to", 1)	0	1
-object/stzObject_defects_narrated#c6aa8e06	classname(Q(8).OfXTBQ(8))	#ERR# Error (E1) : a built-in is spelled `ClassName`; written `classname`	"stznumber"
-object/stzObject_defects_narrated#5d48c123	classname(Q(8).OfXTBQ(7))	#ERR# Error (E1) : a built-in is spelled `ClassName`; written `classname`	"stzfalseobject"
-object/stzObject_defects_narrated#467619f0	classname(Q(8).OfBQ(8))	#ERR# Error (E1) : a built-in is spelled `ClassName`; written `classname`	"stznumber"
-object/stzObject_defects_narrated#ee27a9a0	classname(Q(8).OfBQ(7))	#ERR# Error (E1) : a built-in is spelled `ClassName`; written `classname`	"stzfalseobject"
-object/stzObject_defects_narrated#97d5108b	Q("B").OccursForTheFirstTimeCS(:In = [ "a", "b" ], :At = 2, 0)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:In = [ "a", "b" ]`	1
-object/stzObject_defects_narrated#4dfb3d1d	Q("B").OccursForTheFirstTimeCS(:In = [ "a", "b" ], :At = 2, 1)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:In = [ "a", "b" ]`	0
+object/stzObject_defects_narrated#c6aa8e06	ClassName(Q(8).OfXTBQ(8))	"stzfalseobject"	"stznumber"
+object/stzObject_defects_narrated#467619f0	ClassName(Q(8).OfBQ(8))	"stzfalseobject"	"stznumber"
 ordinal/00_ordinal_narrated#1fc628a5	Ordinal(1)	"1st"	"1er"
 ordinal/00_ordinal_narrated#27e14db2	Ordinal(2)	"2nd"	"2e"
-reflect/docgen_narrated#762a6d26	_StzDocGenNoun([ char(34) + "numberofbytes" + char(34), "[ p1 ]" ])	#ERR# Error (E1) : a built-in is spelled `Char`; written `char`	"numberofbytes"
-reflect/docgen_narrated#f84752e6	len(_StzDocGenBrief("XB", "_NNLValueIs", [ "pcMethod" ]))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	0
-reflect/docgen_narrated#966b80e0	len(_StzDocGenBrief("Content", "ContentFast", [ ]))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	0
-reflect/docgen_narrated#589d74f0	len(_StzDocNamedParamKeys("IsOnPositionNamedParam"))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	1
-reflect/docgen_narrated#e56b1d1e	len(_StzDocNamedParamKeys("IsOrderByNamedParam"))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	1
-reflect/docgen_narrated#42d8d4fd	len(_StzDocNamedParamKeys("IsColorSetNamedParam"))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	1
-reflect/docgen_narrated#9626f01c	len(_StzDocNamedParamKeys("IsBoxOptionsNamedParam"))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	0
-reflect/docgen_narrated#f8086e09	len(_StzDocNamedParamKeys("IsOneOfTheseNamedParams"))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	0
-reflect/docgen_narrated#938e2582	len(_StzDocNamedParamKeys("IsANamedParam"))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	0
-reflect/docgen_narrated#e294f7fb	len(_StzDocNamedParamKeys("IsEmpty"))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	0
-reflect/docgen_narrated#21a587d4	len(_StzDocParamsOf('def f(pc = "a,b", pn)'))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	2
-reflect/docgen_narrated#befb0bde	len(_StzDocParamsOf("def Width()   return @oStyle.Width()"))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	0
-reflect/docrecord_narrated#3be10f9a	_StzDocBriefForm("Returns " + copy("a very long description ", 8) + ".")	#ERR# Error (E1) : a built-in is spelled `Copy`; written `copy`	0
 reflect/engine_panics_narrated#c9b8ad6d	StzEngineLocaleToUpper("abc")	#ERR# Error (R3) : Calling Function without definition: stzenginelocaletoupper	"ABC"
 reflect/engine_panics_narrated#0583bf9e	StzEngineLocaleToLower("ABC")	#ERR# Error (R3) : Calling Function without definition: stzenginelocaletolower	"abc"
 security/advisory_watch_narrated#88f53e22	StzSecurityLedgerIsOpen()	0	1
@@ -204,14 +144,12 @@ security/engine_door_narrated#2697dc29	StzEngineTestSrvDoorProbe("llama", "gener
 security/engine_door_narrated#a5c4c79d	StzEngineTestSrvDoorMissed()	#ERR# Error (R3) : Calling Function without definition: stzenginetestsrvdoormissed	0
 security/exposure_responder_narrated#94a6a105	StzNumberOfShutDoors()	0	1
 security/exposure_responder_narrated#4343d2a1	len(StzSecurityLedgerQ().OfKind("exposure.reopened"))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	1
-security/exposure_responder_narrated#00cc312c	len(StzListeners())	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	0
 security/exposure_responder_narrated#80bcc13c	len(StzSecurityLedgerQ().OfKind("exposure.closed"))	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	1
 security/model_digest_narrated#f48fbbc9	StzModelLoadStatus()	0	-2
 security/model_digest_narrated#1a8b8e6a	StzModelLoadStatus()	0	-3
 security/model_digest_narrated#886654a6	StzModelLoadStatus()	0	-1
 security/secret_memory_narrated#0cf89790	len(StzSecurityLedgerQ().Refusals()) >= 3	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	1
 security/secret_memory_narrated#99451dc6	StzLastSecretWipe()[:before]	0	64
-security/shape_rules_narrated#aae61f22	len(StzCodeRuleNames()) >= 21	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	1
 security/stale_handle_narrated#1cf171e2	StzEngineCircuitCanPass(null) = 0 or StzEngineCircuitCanPass(null) = 1	#ERR# Error (E1) : `null` is no value of Haro -- the empty text is "", and absence is none; written `null`	1
 security/stale_handle_narrated#826e05b6	StzSecurityLedgerQ().Count()	#ERR# Bad parameter type!	1
 security/text_condition_not_code_narrated#6592052e	@@(StzStringQ("[ 1, 'a', [ 2, 3 ], TRUE ]").ToList())	#ERR# Error (E1) : a keyword in another case is no name -- `true` is a keyword; written `TRUE`	'[ 1, "a", [ 2, 3 ], 1 ]'
@@ -219,34 +157,8 @@ stats/stzCoeffExtractor_defects_narrated#389a1ee3	CurrentRound()	17	4
 stats/stzCoeffExtractor_defects_narrated#73505c4f	CurrentRound()	17	2
 string/10_aligncenter#1bc0c6b1	@@( AlignXT("RING", 15, "~", :Right) )	'"~~~~~RING~~~~~~"'	'"~~~~~~~~~~~RING"'
 string/10_aligncenter#f21b5fe9	@@( AlignXT("RING", 15, "~", :Left) )	'"~~~~~RING~~~~~~"'	'"RING~~~~~~~~~~~"'
-string/112_repeatedntimes#1f408c12	3Copies(:of = "♥")	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:of = "♥"`	"♥♥♥"
-string/113_localescripts#fb3f090c	len( LocaleScripts() )	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	143
-string/113_localescripts#d9f43be0	len( UnicodeScripts() )	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	157
-string/170_containsat#0dd9a144	Q("^^♥^^").ContainsAt("♥", :Position = 3)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:Position = 3`	1
-string/170_containsat#3d026946	Q("^^♥^^").ContainsXT("♥", :AtPosition = 3)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:AtPosition = 3`	1
-string/172_containsbefore#b58da902	Q("^^♥^^").ContainsBefore("♥", :Position = 4)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:Position = 4`	1
-string/172_containsbefore#c29ccc8c	Q("--♥--^^").ContainsBefore("♥", :SubString = "^^")	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:SubString = "^^"`	1
-string/174_containsxt#0899b822	Q("^^♥^^").ContainsXT("^", :BeforePosition = 3)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:BeforePosition = 3`	1
-string/174_containsxt#39f21de4	Q("--♥^^").ContainsXT("^", :AfterPosition = 2)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:AfterPosition = 2`	1
-string/175_containsxt#60a0fe48	Q("^^♥^^").ContainsXT("^", :Before = 3)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:Before = 3`	1
-string/175_containsxt#0cc55410	Q("--♥^^").ContainsXT("^", :After = 2)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:After = 2`	1
-string/176_containsxt#3240629b	Q("^^♥^^").ContainsXT("^", :Before = "♥^")	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:Before = "♥^"`	1
-string/176_containsxt#3dc61715	Q("--♥^^").ContainsXT("^", :After = "-♥")	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:After = "-♥"`	1
-string/178_containsat#42daa90f	Q("♥^^♥^^♥").ContainsXT("♥", :AtPositions = [ 1, 4, 7 ])	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:AtPositions = [ 1, 4, 7	1
-string/258_issue_in_replacing_empty_substrings#264e17be	substr("Ring language", "ing", "uby")	#ERR# Error (E1) : a built-in is spelled `SubStr`; written `substr`	"Ruby language"
-string/259_block_259#040ae842	substr("", 1, 1)	#ERR# Error (E1) : a built-in is spelled `SubStr`; written `substr`	""
-string/259_block_259#2ab02ce3	substr("blablabla", "")	#ERR# Error (E1) : a built-in is spelled `SubStr`; written `substr`	1
-string/437_isletter#4d0b9769	NOT Q("*").IsLetter()	#ERR# Error (E1) : a keyword in another case is no name -- `not` is a keyword; written `NOT`	1
-string/440_splitw#8085109b	@@( Q("RingRingRing").SplitW(:At = '@i % 4 = 0') )	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:At = '@i % 4 = 0'`	'[ "Rin", "Rin", "Rin" ]'
-string/440_splitw#c4bf6322	@@( Q("RingRingRing").SplitW(:After = '@i % 4 = 0') )	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:After = '@i % 4 = 0'`	'[ "Ring", "Ring", "Ring" ]'
-string/442_splitatcharsw#ca1e0628	@@( Q("RingRingRing").SplitW(:AtChars = 'Q(@char).IsUppercase()') )	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:AtChars = 'Q(@char).IsU	'[ "ing", "ing", "ing" ]'
 string/448_pluralofthisstztype#0882a36a	PLuralOfThisStzType("stzChar")	"stzChars"	"stzchars"
 string/490_keepingtime#b0be4be7	KeepingTime()	0	1
-string/521_section#f89d657c	Q("NEXTAV TUNISIA").Section(:From = 1, :To = 6)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:From = 1`	"NEXTAV"
-string/523_section#30b514a2	Q("SOFTANZA").Section(:From = 1, :To = 4)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:From = 1`	"SOFT"
-string/523_section#266c25a7	Q("SOFTANZA").Section(:From = "F", :To = "A")	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:From = "F"`	"FTANZA"
-string/523_section#2741d6eb	Q("SOFTANZA").Section(:NthToLast = 3, :@)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:NthToLast = 3`	"A"
-string/604_ismultipleof#880baa1d	Q("ArabicArabicArabic").IsMultipleOfCS("arabic", :CS = false)	#ERR# Error (E1) : `:key = value` is no pair in a .haro file: write ["key": value] for a map, [:key, value] for a pair, or declare a record for named fields (HARO-SURFACE-01) `:CS = false`	1
 string/633_sortingorder#ee3ab722	Q("AAABCDDEFGILNTVX").SortingOrder()	"ascending"	"Ascending"
 string/633_sortingorder#586bc93b	Q("XVTNLIGFEDDCBAAA").SortingOrder()	"descending"	"Descending"
 string/653_script#1a91c46a	TQ("Σίσυφος").Script()	"greek"	"Greek"
@@ -259,12 +171,10 @@ string/657_todo_logical_error_in_qt#9439a188	Q("ß").CharCase()	"lowercase"	"Low
 string/731_stringcase#c002baf3	StzStringQ("ring").StringCase()	"lowercase"	"Lowercase"
 string/731_stringcase#04f285e0	StzStringQ("RING").StringCase()	"uppercase"	"Uppercase"
 string/731_stringcase#e8ca537e	StzStringQ("RING and python").StringCase()	"hybridcase"	"Hybridcase"
-string/859_numberofchars#762c8679	len("🐨")	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	4
 string/from_ttext_is_this_arabic_word_diacriticized#86d8ee08	StzStringQ("س").Script()	"arabic"	"Arabic"
 system/payments_live_adapter_narrated#b26a1fa0	StzLastPaymentsProblem().Detail()	""	"Plafond de paiement depasse"
 system/payments_live_adapter_narrated#69206800	StzLastPaymentsProblem().Status()	0	404
 system/payments_live_adapter_narrated#e109f86f	StzLastPaymentsProblem().Status()	0	429
-system/payments_secrets_narrated#c7c76d00	len(StzPispiSecretParts())	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	5
 system/pispi_twin_narrated#a60226d4	StzLastPaymentsProblem().Detail()	""	"Impossible d'annuler un paiement deja confirme"
 system/pispi_twin_narrated#d10a8291	StzLastPaymentsProblem().Detail()	""	"Impossible de confirmer un paiement deja annule"
 system/pispi_twin_narrated#479ba102	StzLastPaymentsProblem().Detail()	""	"Le delai de confirmation de 24 heures a ete depasse"
@@ -272,7 +182,6 @@ system/pispi_twin_narrated#3b26d256	StzLastPaymentsProblem().Detail()	""	"Imposs
 system/pispi_twin_narrated#fd5e5403	StzLastPaymentsProblem().Detail()	""	"Delai de retour de fonds depasse"
 system/pispi_twin_narrated#ab4a684f	StzLastPaymentsProblem().Detail()	""	"Transaction non irrevocable"
 system/pispi_twin_narrated#4104092a	StzLastPaymentsProblem().Status()	0	403
-testoor/testoor_clock_narrated#dbe90ae1	len(WeatherPlan())	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	1
+testoor/testoor_clock_narrated#dbe90ae1	Len(WeatherPlan())	0	1
 testoor/testoor_clock_narrated#f4705aae	WeatherDeclared()[1]	#ERR# Error (R2) : Array Access (Index out of range)	"child_killed"
-testoor/testoor_clock_narrated#c9d820b1	len(WeatherPlan())	#ERR# Error (E1) : a built-in is spelled `Len`; written `len`	0
 testoor/testoor_core_narrated#492ea080	left(StzEngineTestoorRunJson('{"run":{},"tours":[]}'), 19)	#ERR# Error (E1) : a built-in is spelled `Left`; written `left`	'{"testoor":"logbook'

@@ -1,7 +1,11 @@
 # THE SOFTANZA CODE BENCHMARK -- the judge.
 #
-#     haro judge.haro <answers file> <label>          (from this folder; STZ_ENGINE_DIR set)
+#     haro judge.haro <answers file> <label> [<answers file> <label> ...]     (from this folder; STZ_ENGINE_DIR set)
 #     haro judge.haro reference                       (scores the reference answers: every task must pass)
+#
+# Run it with HARO_NOCACHE=1, as the builder: a program served from haro.exe's image cache lets Eval accept spellings
+# a fresh compile refuses (2026-11-15), and a verdict must not depend on the cache. Several answer files in one run
+# pay the compile once.
 #
 # The answers file holds one block per task it answers:
 #
@@ -18,92 +22,105 @@
 #               or it calls nothing
 #     none      no answer was given for the task
 #
-# Writes results/<label>.txt: one line a task, then the score by kind and by area. The `value` score is the headline;
+# Writes results/<label>.txt: one line a task, then the score by kind, by area, and over the tasks the file answers. The `value` score is the headline;
 # `flag` tasks (an expected 0, 1, "" or [ ]) are scored apart, since an answer can match them without the work.
 
 load "../../stzBase.ring"
 load "bench_lib.haro"
 
-tFile = ""
-tLabel = ""
+vPairs = []
 nArgs = Len(SysArgv)
 for i = 1 to nArgs
-	if SysArgv[i] = "reference"
-		tLabel = "reference"
-	end
-	if i + 1 <= nArgs and Right(SysArgv[i], 10) = "judge.haro"
-		tFile = SysArgv[i + 1]
-		if i + 2 <= nArgs
-			tLabel = SysArgv[i + 2]
+	if Right(SysArgv[i], 10) = "judge.haro"
+		nAt = i + 1
+		while nAt <= nArgs
+			if SysArgv[nAt] = "reference"
+				vPairs + [ "", "reference" ]
+				nAt++
+			elseif nAt + 1 <= nArgs
+				vPairs + [ SysArgv[nAt], SysArgv[nAt + 1] ]
+				nAt = nAt + 2
+			else
+				nAt++
+			end
 		end
 	end
 end
-if tLabel = ""
-	? "usage: haro judge.haro <answers file> <label>   |   haro judge.haro reference"
+if Len(vPairs) = 0
+	? "usage: haro judge.haro <answers file> <label> [<answers file> <label> ...]   |   haro judge.haro reference"
 	Shutdown(2)
 end
 
 vBench = ReadTsv("bench.tsv")
-vIds = []
-vCode = []
-if tLabel = "reference"
+for f = 1 to Len(vPairs)
+	ScoreFile(vBench, vPairs[f][1], vPairs[f][2])
+end
+
+
+func ScoreFile(vBench, tFile, tLabel)
+	vIds = []
+	vCode = []
+	if tLabel = "reference"
+		for i = 2 to Len(vBench)
+			vIds + vBench[i][1]
+			vCode + vBench[i][9]
+		end
+	else
+		vRead = ReadAnswers(tFile)
+		vIds = vRead[1]
+		vCode = vRead[2]
+	end
+	tOut = "Softanza code benchmark -- " + tLabel + Char(10) + Char(10)
+	vKeys = []
+	vAll = []
+	vPassKeys = []
+	vPass = []
+	nStart = Clock()
 	for i = 2 to Len(vBench)
-		vIds + vBench[i][1]
-		vCode + vBench[i][9]
-	end
-else
-	vRead = ReadAnswers(tFile)
-	vIds = vRead[1]
-	vCode = vRead[2]
-end
-
-tOut = "Softanza code benchmark -- " + tLabel + Char(10) + Char(10)
-vKeys = []
-vAll = []
-vPassKeys = []
-vPass = []
-nStart = Clock()
-for i = 2 to Len(vBench)
-	vT = vBench[i]
-	tAnswer = ""
-	bHas = false
-	for p = 1 to Len(vIds)
-		if vIds[p] = vT[1]
-			tAnswer = vCode[p]
-			bHas = true
+		vT = vBench[i]
+		tAnswer = ""
+		bHas = false
+		for p = 1 to Len(vIds)
+			if vIds[p] = vT[1]
+				tAnswer = vCode[p]
+				bHas = true
+			end
+		end
+		tVerdict = "none"
+		tGot = ""
+		if bHas
+			tVerdict = Judge(tAnswer, vT[8])
+			tGot = $tLastGot
+		end
+		tOut = tOut + Row([ tVerdict, vT[1], vT[2], vT[4], Left(tGot, 80) ])
+		vGroups = [ "all " + vT[4], vT[2] + " " + vT[4] ]
+		if bHas
+			vGroups + ("answered " + vT[4])
+		end
+		for p = 1 to Len(vGroups)
+			Bump(vKeys, vAll, vGroups[p])
+			if tVerdict = "pass"
+				Bump(vPassKeys, vPass, vGroups[p])
+			end
 		end
 	end
-	tVerdict = "none"
-	tGot = ""
-	if bHas
-		tVerdict = Judge(tAnswer, vT[8])
-		tGot = $tLastGot
-	end
-	tOut = tOut + Row([ tVerdict, vT[1], vT[2], vT[4], Left(tGot, 80) ])
-	vGroups = [ "all " + vT[4], vT[2] + " " + vT[4] ]
-	for p = 1 to Len(vGroups)
-		Bump(vKeys, vAll, vGroups[p])
-		if tVerdict = "pass"
-			Bump(vPassKeys, vPass, vGroups[p])
+	nMs = Floor((Clock() - nStart) * 1000 / ClocksPerSecond())
+	tSum = Char(10) + "score                    pass / tasks" + Char(10)
+	for i = 1 to Len(vKeys)
+		nP = 0
+		for p = 1 to Len(vPassKeys)
+			if vPassKeys[p] = vKeys[i]
+				nP = vPass[p]
+			end
 		end
+		tSum = tSum + "  " + Pad(vKeys[i], 22) + String(nP) + " / " + String(vAll[i]) + Char(10)
 	end
+	tSum = tSum + Char(10) + "judged in " + String(nMs) + " ms" + Char(10)
+	? tLabel + ":"
+	? tSum
+	MakeDir("results")
+	Write("results/" + tLabel + ".txt", tOut + tSum)
 end
-nMs = Floor(Float(Clock() - nStart) * 1000.0f / Float(ClocksPerSecond()))
-
-tSum = Char(10) + "score                    pass / tasks" + Char(10)
-for i = 1 to Len(vKeys)
-	nP = 0
-	for p = 1 to Len(vPassKeys)
-		if vPassKeys[p] = vKeys[i]
-			nP = vPass[p]
-		end
-	end
-	tSum = tSum + "  " + Pad(vKeys[i], 22) + String(nP) + " / " + String(vAll[i]) + Char(10)
-end
-tSum = tSum + Char(10) + "judged in " + String(nMs) + " ms" + Char(10)
-? tSum
-MakeDir("results")
-Write("results/" + tLabel + ".txt", tOut + tSum)
 
 
 # the verdict for one answer; the value it printed is left in $tLastGot

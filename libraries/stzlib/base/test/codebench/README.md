@@ -11,6 +11,8 @@ tasks:
 
 - both expressions are evaluated on haro.exe, and a check is kept only when they print the same: every task has a
   reference answer that passes on today's runtime;
+- a check whose expressions raise in the earlier spelling is written to `_port/refs.ring`;
+  `python <haro>/port/haroport.py apply _port --out _ported` ports it, and the next build uses the ported pair;
 - a check whose reference writes the expected value itself, or calls nothing, is dropped;
 - a task gives its scenario, its description, the literal inputs its reference uses, and the value to produce;
 - each task carries its test topic and the site area of that topic, so one run scores every area at once;
@@ -22,12 +24,12 @@ tasks:
 
 From this folder, with `STZ_ENGINE_DIR` set as for any run of the library:
 
-    haro build.haro                          writes bench.tsv, tasks.txt, tasks_value.txt
-    haro judge.haro reference                scores the reference answers: every task passes
-    haro judge.haro <answers file> <label>   scores an answers file, writes results/<label>.txt
+    HARO_NOCACHE=1 haro build.haro           writes bench.tsv, tasks.txt, tasks_value.txt, gold_misses.tsv
+    HARO_NOCACHE=1 haro judge.haro reference                 scores the reference answers: every task passes
+    HARO_NOCACHE=1 haro judge.haro <answers> <label> [...]   scores answer files, writes results/<label>.txt
 
 An answers file holds one block per task: a line `=== <task id>`, then the code. The judge runs every answer in one
-process (about 3 seconds for the 279 tasks, after the library's load) and gives each a verdict: pass, fail, error,
+process (about 3 seconds for the 298 tasks, after the library's compile) and gives each a verdict: pass, fail, error,
 refused or none.
 
 `haro check` names the two `Eval` calls of the judge and the builder (`haro/text-run-as-code`): running an answer's
@@ -35,60 +37,56 @@ text is what a judge does, and the two calls are the only ones.
 
 ## Results
 
-`results/` holds one file per scored run, `answers/` the answers it scored. Built at stzlib b7c8ebd23 from the harvest
-of eb394a58d: 1,156 checks, 879 whose reference passes on haro.exe, 279 tasks kept (160 value, 119 flag).
+`results/` holds one file per scored run, `answers/` the answers it scored. Built from the Atelier harvest of
+eb394a58d: 1,156 checks, 970 whose reference passes on haro.exe (103 of them after `haroport` moved their spelling),
+298 tasks kept (166 value, 132 flag). The reference passes all 298.
 
-Measured 2026-11-15: one agent (Claude Opus 5.5) in four arms. Arms C1 and C2 go through the agent door
-(`libraries/stzlib/door`), with `STZ_DOOR_HOLDOUT` set so that `find` serves no example from a narrated file a task
-comes from.
+**Build and judge with `HARO_NOCACHE=1`.** A program served from haro.exe's image cache lets `Eval` accept spellings
+that a fresh compile refuses (`:key = value`, a built-in in another case), so the same answer could pass from the
+cache and fail fresh. Every score below is from one fresh run of the judge, the strict reading.
 
-| arm | what the agent may use | value tasks passed | errors | cost |
+### One agent, five ways (Claude Opus 5.5, 2026-11-15)
+
+Scored on the 150 value tasks that every arm answered (the arms were run while the task list grew from 160 to 166
+value tasks):
+
+| arm | what the agent may use | passed | errors | cost |
 |---|---|---|---|---|
-| reference | -- | 160 / 160 | 0 | -- |
-| A, cold | the task text only | 108 / 160 | 41 | 135 k tokens, 3 tool calls |
-| B, source | the library's source, not its tests; runs nothing | 148 / 160 | 2 | 164 k tokens, 27 tool calls |
-| C1, door find | AGENTS.md and the door's `find`; runs nothing | 154 / 160 | 3 | 252 k tokens, 41 tool calls (about 95 finds) |
-| C2, door find and run | AGENTS.md, `find` and `run` | 160 / 160 | 0 | 218 k tokens, 48 tool calls (about 55 finds, 175 runs) |
+| cold | the task text only | 102 | 41 | 135 k tokens, 3 tool calls |
+| source | the library's source, not its tests; runs nothing | 140 | 4 | 164 k tokens, 27 tool calls |
+| door v0.1, find | AGENTS.md and `find`; runs nothing | 138 | 8 | 252 k tokens, 41 tool calls |
+| door v0.2, find | AGENTS.md, `find` and `methods`; runs nothing | 136; repeated: 141 | 4; 4 | 213 k, 45 calls; 238 k, 62 calls |
+| door, find and run | AGENTS.md, `find` and `run` | 147 | 3 | 218 k tokens, 48 tool calls |
 
-Arms A and B answered the task list as it stood before the builder unwrapped `@@( )` references: their files cover
-156 of the 160 tasks.
+The arms going through the door (`libraries/stzlib/door`) run with `STZ_DOOR_HOLDOUT` set, so `find` serves no
+example from a narrated file a task comes from. The v0.2 repeat ran on `find`'s fallback examples as well.
 
-- The cold arm's errors are names the library does not have (`stzMoney`, `StzIsUuid`, `ExactAdd`): the agent knows
-  Softanza's shape and guesses its vocabulary. Reading the source removes them (41 errors to 2); the door's `find`
-  removes them with no file read, and scores higher (154 against 148).
-- With `run`, every answer is checked before it is given: 160 of 160. The agent reports four of them as fitted to the
-  expected value rather than calling the library function the task names, which it did not find; a value judge
-  cannot tell those apart, so a C2 score counts answers that print right.
-- C1 cost more than B: `find` returns twelve definitions and six examples a call, and the agent found the examples
-  mostly off the subject. Shorter answers from `find`, and a way to list one class's methods, are the door's next
-  changes; the same four arms then measure them.
-- The flag tasks were answered by the cold arm only: 56 of 119.
-
-**Door v0.2** (`find` answers eight definitions and only the examples that use them; `methods` lists a class's
-methods), arm C1 again: 145 / 160 for 213 k tokens and 45 tool calls (about 105 finds, 15 methods). The tokens fell
-by 16 %. Seven of the nine tasks it lost against v0.1 turn on the exact printed shape of a value (a list or its
-printed text, an aligned text), which v0.1's unrelated examples happened to show; `find` now adds the two best
-examples for the words when no example uses the definitions it shows. One run an arm cannot separate nine tasks from
-the run's own spread: a repeated arm is owed before either version is called the better.
+- **The cold arm guesses Softanza's vocabulary**: its 41 errors are names the library does not have (`stzMoney`,
+  `StzIsUuid`, `ExactAdd`). Reading the source, or asking the door, removes them.
+- **The door's `find` gives what reading the source gives** -- 136 to 141 against 140 -- with no file of the library
+  read: the service an agent working in another project needs. It costs more tokens than reading the source today.
+- **`run` adds the check**: 147 of 150. The agent reports four of its answers as fitted to the expected value rather
+  than calling the function the task names; a value judge counts them.
+- **v0.1 against v0.2**: 138, 136 and 141 are one spread. The two versions are not told apart by these runs.
+- The flag tasks were answered by the cold arm only.
 
 ### Local models, through the same door
 
-`local.haro` runs a model of the engine on every fourth value task (40 tasks), greedy, 120 new tokens at most, in
-three arms: cold, door (the task with what `find` answers for its words), and doorrun (as door, then one repair with
-what the answer printed). Scored by the judge; a pass the model's own count gives to an answer that writes the
-expected value is refused here.
+`local.haro` runs a model of the engine on every fourth value task, greedy, 120 new tokens at most, in three arms:
+cold, door (the task with what `find` answers for its words), and doorrun (as door, then one repair with what the
+answer printed). On the 38 tasks all of them answered:
 
 | model | cold | door | doorrun | seconds a task (door) |
 |---|---|---|---|---|
-| qwen2.5-coder 1.5B instruct, Q8 | 1 / 40 * | 5 / 40 | 4 / 40 * | 12 |
-| Bolt E4B, Q4_K_M | 7 / 40 | 3 / 40 | -- | 28 |
+| qwen2.5-coder 1.5B instruct, Q8 | 1 * | 5 | 4 * | 12 |
+| Bolt E4B, Q4_K_M | 7 | 3 | -- | 28 |
+| *Claude Opus 5.5, for scale* | *25* | *36 (find)* | *37 (find and run)* | |
 
 \* the 1.5B model's cold and doorrun arms ran before the extraction learned to strip inline backticks (and doorrun
 before `find`'s fallback examples); its door row is the re-run with both.
 
-- The same door that takes Claude from 108 to 145-160 of 160 takes the 1.5B coder from 1 to 5 of 40, and Bolt from 7
-  to 3: Bolt follows the door's definitions into names of its own (`MorphologicalAdverb`), the 1.5B model repeats a
-  method name until its tokens run out.
-- One repair from the printed result changed no answer.
-- A local model writes Softanza code only after it has learned the vocabulary: training a small model on the Haro
-  copy of the corpus is the step these numbers call for, and this benchmark is how it will be judged.
+- The door that brings Claude to 36 of these 38 brings the 1.5B coder from 1 to 5 and Bolt from 7 to 3: Bolt follows
+  the door's definitions into names of its own (`MorphologicalAdverb`), the 1.5B model repeats a method name until its
+  tokens run out. One repair from the printed result changed no answer.
+- A local model writes Softanza code once it has learned the vocabulary: training a small model on the Haro copy of
+  the corpus is the step these numbers call for, and this benchmark is how it will be judged.
