@@ -4,7 +4,13 @@
 //!
 //!   testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder]
 //!   testoor walk FOLDER [--suffix S] [--haro PATH] [the same options]
+//!   testoor graph FILE.haro [--haro PATH] [--out FILE.json]     or     testoor graph --lines LINES.txt [--root DIR] [--out FILE.json]
 //!   testoor version
+//!
+//! `graph` writes the graph record of a Haro unit (testoor_harograph.zig): it runs `haro graph FILE` from the file's folder
+//! and reads its lines, or reads lines `haro graph` wrote earlier (`--root` names the folder it ran in, where the unit's files are
+//! read for calls by a name built at run time; without it they are not read, and the record says so). The record goes to `--out` or the standard output, and one
+//! line of figures to the standard error. Exit 0, or 2 when haro.exe cannot be run or the file cannot be read.
 //!
 //! `--timeout` is the tour's deadline, counted from its first output; `--start` is the deadline for that first output,
 //! counted from the tour's start (0, the default of `run`, is the tour's deadline). `walk` defaults to 20 minutes to
@@ -33,6 +39,7 @@ const L = @import("testoor_logbook.zig");
 const V = @import("testoor_verdict.zig");
 const R = @import("testoor_runner.zig");
 const W = @import("testoor_walk.zig");
+const Hg = @import("testoor_harograph.zig");
 
 const version_line = "testoor 3.5 (protocol 2; the Zig core)";
 
@@ -50,7 +57,7 @@ fn say(s: []const u8) void {
 }
 
 fn usage() noreturn {
-    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder]\n       testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder]\n       testoor version\n");
+    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder]\n       testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder]\n       testoor graph FILE.haro [--haro PATH] [--out FILE.json] | --lines LINES.txt [--out FILE.json]\n       testoor version\n");
     std.process.exit(2);
 }
 
@@ -86,6 +93,74 @@ fn refuse(a: std.mem.Allocator, mode: Mode, why: []const u8) noreturn {
     std.process.exit(2);
 }
 
+fn fail(why: []const u8) noreturn {
+    std.fs.File.stderr().writeAll(why) catch {};
+    std.process.exit(2);
+}
+
+/// `testoor graph`: a Haro unit's graph record, from haro.exe or from lines it printed earlier
+fn graph(a: std.mem.Allocator, args: []const []const u8) !void {
+    var haro: []const u8 = std.process.getEnvVarOwned(a, "HARO_EXE") catch "haro";
+    var file: []const u8 = "";
+    var lines_file: []const u8 = "";
+    var root: ?[]const u8 = null;
+    var out: []const u8 = "";
+    var i: usize = 2;
+    while (i < args.len) : (i += 1) {
+        if (eq(args[i], "--haro") and i + 1 < args.len) {
+            haro = args[i + 1];
+            i += 1;
+        } else if (eq(args[i], "--out") and i + 1 < args.len) {
+            out = args[i + 1];
+            i += 1;
+        } else if (eq(args[i], "--lines") and i + 1 < args.len) {
+            lines_file = args[i + 1];
+            i += 1;
+        } else if (eq(args[i], "--root") and i + 1 < args.len) {
+            root = args[i + 1];
+            i += 1;
+        } else if (file.len == 0 and !std.mem.startsWith(u8, args[i], "--")) {
+            file = args[i];
+        } else {
+            usage();
+        }
+    }
+    var text: []const u8 = undefined;
+    if (lines_file.len > 0) {
+        text = std.fs.cwd().readFileAlloc(a, lines_file, 1 << 30) catch |e|
+            fail(try std.fmt.allocPrint(a, "testoor graph: cannot read {s}: {s}" ++ "\n", .{ lines_file, @errorName(e) }));
+    } else {
+        if (file.len == 0) usage();
+        std.fs.cwd().access(file, .{}) catch fail(try std.fmt.allocPrint(a, "testoor graph: no such file: {s}" ++ "\n", .{file}));
+        const argv = [_][]const u8{ haro, "graph", std.fs.path.basename(file) };
+        const r = std.process.Child.run(.{
+            .allocator = a,
+            .argv = &argv,
+            .cwd = std.fs.path.dirname(file) orelse ".",
+            .max_output_bytes = 1 << 30,
+        }) catch |e| fail(try std.fmt.allocPrint(a, "testoor graph: cannot run {s}: {s}" ++ "\n", .{ haro, @errorName(e) }));
+        text = r.stdout;
+        root = std.fs.path.dirname(file) orelse ".";
+        if (std.mem.indexOf(u8, text, "FILE|") == null) {
+            fail(try std.fmt.allocPrint(a, "testoor graph: haro graph printed no unit for {s}" ++ "\n" ++ "{s}", .{ file, r.stderr }));
+        }
+    }
+    const record = try Hg.fromLines(a, text, root);
+    if (out.len > 0) {
+        std.fs.cwd().writeFile(.{ .sub_path = out, .data = record }) catch |e|
+            fail(try std.fmt.allocPrint(a, "testoor graph: cannot write {s}: {s}" ++ "\n", .{ out, @errorName(e) }));
+    } else {
+        say(record);
+    }
+    const doc = try J.parse(a, record);
+    const nn = (doc.get("nodes") orelse unreachable).items().len;
+    const ne = (doc.get("edges") orelse unreachable).items().len;
+    const why = (doc.get("why") orelse unreachable).str_();
+    std.fs.File.stderr().writeAll(try std.fmt.allocPrint(a, "testoor graph: {d} nodes, {d} edges, {s}{s}" ++ "\n", .{
+        nn, ne, if (why.len == 0) "complete" else "not complete: ", why,
+    })) catch {};
+}
+
 pub fn main() !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
@@ -97,6 +172,7 @@ pub fn main() !void {
         say(version_line ++ "\n");
         return;
     }
+    if (args.len >= 3 and eq(args[1], "graph")) return graph(a, args);
     if (args.len < 3 or (!eq(args[1], "run") and !eq(args[1], "walk"))) usage();
     const walking = eq(args[1], "walk");
     var suffix: []const u8 = "_narrated.haro";

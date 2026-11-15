@@ -1,0 +1,21 @@
+FILE|inv.haro
+FUNC|Gross|1
+FUNC|Vat|5
+CLASS|stzA||9
+METHOD|stzA|Run|10
+CLASS|stzB||14
+METHOD|stzB|Run|15
+METHOD|stzB|Twice|18
+FUNC|Use|22
+FUNC|Ev|25
+IMPORT|lib/money.ring
+UNFINISHED|Ev
+CALL|<top>|Gross|static
+CALL|Gross|Vat|static
+CALL|Vat|round2|static
+CALL|Use|Run|dynamic|2
+CALL|stzB.Twice|Run|dynamic|2
+CALL|stzB.Twice|stzB.Run|static
+FILE|.\lib/../lib\money.ring
+FUNC|Round2|3
+graph: 2 file(s), 2 class(es), 3 method(s), 5 function(s); 4 static and 2 dynamic call edge(s); 1 function(s) the compiler could not finish

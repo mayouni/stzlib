@@ -1,0 +1,17 @@
+func Gross(nNet)
+	return nNet + Vat(nNet)
+end
+
+func Vat(nNet)
+	return nNet * 0.2
+end
+
+func Label(tName)
+	return "Label: call " + tName  # call nothing: a string and a comment
+end
+
+func Dispatch(tName, nX)
+	return call tName(nX)
+end
+
+? String(Gross(100))

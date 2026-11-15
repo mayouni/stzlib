@@ -1,0 +1,7 @@
+FILE|inv.haro.txt
+FUNC|Gross|1
+FUNC|Vat|5
+FUNC|Label|9
+FUNC|Dispatch|13
+CALL|<top>|Gross|static
+CALL|Gross|Vat|static

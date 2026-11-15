@@ -315,6 +315,35 @@ whenever the walk measured one; the tour's line names it when it is 10 s or more
 so a slow start reads as slow. Both are absent from a logbook that applied or measured neither, whose bytes are those of
 protocol 2. The Ring runner (`stzTraveller`, retired) keeps one deadline from the start.
 
+### 6.6 A Haro unit's graph: `testoor graph`
+
+    testoor graph FILE.haro [--haro PATH] [--out FILE.json]
+    testoor graph --lines LINES.txt [--root DIR] [--out FILE.json]
+
+writes the graph record (protocol 2 section 2) of the unit `FILE.haro` loads, from what `haro graph FILE.haro` prints
+(`engine/src/testoor_harograph.zig`): the compiler's resolution of the unit, not a text scan of it. The record's `subject` is
+the unit's first file, its `language` is `haro`, and its `fold` is `ascii`, since a unit's `.ring` files fold case.
+
+| haro graph prints | the record holds |
+|---|---|
+| `FUNC|name|line` | a node `name`, kind `function` |
+| `METHOD|class|name|line` | a node `class.name`, kind `method`, named `name` |
+| `CALL|from|to|static` | an edge, kind `call`, each end written in its node's spelling |
+| `CALL|from|name|dynamic|n` | an edge, kind `dispatch`, to **every** method of the unit named `name`: the set of possible callees, exact, so the graph stays complete. A name no method carries leaves the caller **open** |
+| `UNFINISHED|function` | the node is **open**: its calls are missing |
+| a file's own statements (`<top>`) | a node `<top>:FILE`, kind `top`, made when it first calls something |
+
+**A call by a name built at run time** (`call tName()`, `eval(...)`) leaves no line in `haro graph`, so the face reads each file
+of the unit, from the folder haro graph ran in, and the function holding one is **open** ("dispatches by a name built at run
+time"). A string, a comment and a method named `call` are not one. A file it cannot read, or lines given without `--root`,
+leave the record **not complete**, `why` saying so: the record never certifies what was not read.
+
+Measured on a Foundry guard's unit (`af1_pack.haro`, 2026-11-15): `testoor graph` writes it in 50 s, 25.6 MB -- 48,939 nodes
+(11,103 functions, 37,828 methods, 8 files' own statements) and 196,894 edges (66,951 `call`; 8,769 calls dispatched by name over
+2,342 names, which make 129,943 `dispatch`). 358 nodes are open: 12 functions the compiler could not finish, 185 calling a
+method by a name no method of the unit carries, and 161 calling by a name built at run time (`call f()` in
+`StzCallMethodOrFunction`, `call _fWork_()` in `stzWorkerPool.Drain`). So the record is not complete, and says why.
+
 ## 7. Conformance
 
 Written by hand from section 2 before the code, and reproduced by the core on its first run (`zig build test-testoor`).
@@ -339,6 +368,8 @@ Written by hand from section 2 before the code, and reproduced by the core on it
 | `haro/reader/R1_narrated` | the Haro face's reader (6.2): a claim before any scenario opens `(the tour)`; a claim in a comment, a claim built at run time and the bodies of the helpers `Scenario` and `Then` are not recorded, the built claim counted in `asserts`; claims inside the file's own function and inside an `if` are; a single-quoted claim is a literal |
 | `haro/reader/R2_self_describing` | a `.haro` file with no `Scenario(` and no `Then(`: dialect `unknown`, no stop, judged from what it prints |
 | `haro/judge/H3_a_slow_start_is_named` | 6.5: a tour whose first output arrived at 121.39 s: `first_output_ms` written after `wall_ms`, and its line naming the start -- written by hand; the core printed `121.30` where the hand wrote `121.3`, and both now print it as the wall time is printed, `121.39` |
+| `haro/graph/G1_functions_methods_dispatch` | 6.6: functions, methods, a static call written in its node's spelling, two calls dispatched by name each to both methods named `Run`, an unfinished function open, a file's statements as a `top` node, a path's `.` and `..` resolved; read from lines alone, so not complete for that reason too |
+| `haro/graph/G2_a_call_by_a_built_name_opens_its_function` | 6.6: the unit's file read: `call tName(nX)` opens `Dispatch`; the word in a string and a comment does not |
 | `haro/judge/H4_a_picture_report_is_not_a_verdict` | 6.2: a narrated Haro tour whose GIVEN line says a picture DOES NOT MATCH, its two THEN lines PASS: kept -- the picture rule had read the GIVEN line as a diverged claim |
 | `haro/judge/H2_a_repeated_claim_is_a_second_check` | 6.4: an unknown-dialect tour printing `FAIL  x`, then `ok  x`, then another claim: three claims, the tour diverged -- protocol 2's landing read it as kept |
 | `haro/judge/H1_a_report_line_is_not_a_verdict` | a narrated Haro tour whose program prints `  FAIL     :...` before its two `THEN` lines: 2 kept, finished, exit 0 -- under protocol 2's rule the report line was a diverged claim |

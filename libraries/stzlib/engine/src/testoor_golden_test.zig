@@ -21,6 +21,7 @@ const G = @import("testoor_graph.zig");
 const A = @import("testoor_api.zig");
 const Ev = @import("testoor_evidence.zig");
 const Rd = @import("testoor_reader.zig");
+const Hg = @import("testoor_harograph.zig");
 
 const Allocator = std.mem.Allocator;
 
@@ -289,6 +290,25 @@ test "the Haro face judges a narrated tour from its THEN lines only (P3.6)" {
     const dir = try goldenDir(a);
     failures = 0;
     try judgeCases(a, dir, "haro/judge", 4);
+    try std.testing.expectEqual(@as(usize, 0), failures);
+}
+
+test "the Haro face reads haro graph's lines into the graph record (BUSINESS-LEADS-DELIVER-01, A1 (1))" {
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const dir = try goldenDir(a);
+    failures = 0;
+    const cases = try caseNames(a, dir, "haro/graph");
+    try std.testing.expect(cases.len >= 1);
+    for (cases) |case| {
+        const lines = try readAll(a, dir, try std.fs.path.join(a, &.{ "haro/graph", case, "lines.txt" }));
+        // a case with a src folder hands the face the unit's files; one without reads none
+        const src = try std.fs.path.join(a, &.{ dir, "haro/graph", case, "src" });
+        var root: ?[]const u8 = null;
+        if (std.fs.cwd().access(src, .{})) |_| root = src else |_| {}
+        try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/graph", case, "expected.json" }), try Hg.fromLines(a, lines, root));
+    }
     try std.testing.expectEqual(@as(usize, 0), failures);
 }
 
