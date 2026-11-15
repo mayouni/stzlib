@@ -31,6 +31,16 @@ cExe = D3RingExe()
 nJobWatch = $oSpawner.SubmitSpawn([ cExe, "_d3_worker.ring", "" + $nPortWatch ])
 NodeRegister("watcher", "127.0.0.1", $nPortWatch)
 
+# THE FIRST START PAYS THE COMPILE, and it is paid HERE, once, before any
+# window is timed. On haro.exe a changed library invalidates the worker's
+# cached image, and three cold children compiling at once took 26.7 s
+# against a 15 s boot window -- five failures that measured the compiler,
+# not supervision (CLUSTER-D3-HARO-01, 2026-11-15). The watcher compiles the
+# image; every child after it starts warm.
+nWarm0 = StzEngineWatchTimestampMs()
+bWarm = D3AwaitBoot("watcher", 600000)
+? "  [measure] first worker answering (the compile, cold or cached) in " + (StzEngineWatchTimestampMs() - nWarm0) + " ms"
+
 Scenario(":OneForOne -- a killed child restarts; its sibling is untouched")
 	Given("a supervisor with two children, OneForOne, budget 5 per 30 s")
 	oSup = new stzNodeSupervisor()
