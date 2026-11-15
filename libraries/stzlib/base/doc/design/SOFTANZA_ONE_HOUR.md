@@ -211,6 +211,8 @@ seeded fixture feed (a deterministic replay, the way `stzLlmSandbox` seeds answe
 the live internet. The honest limit: OSV covers packages and kernels it knows by name; our own
 Zig is matched by B3, not here.
 
+**The kernel's records, brought (ONEHOUR-B2-FEED, 2026-11-15).** Under Harobanda the inventory names the kernel by the files it compiled, and `harb advisories` answers which kernel records reach a machine from a folder of them -- it does not fetch. `stzKernelRecords` (`base/security/stzKernelRecords.haro`) is the side that does: it watches the kernel numbering authority's own repository and writes its CVE JSON 5 records into that folder, whole, one rename each. Guard `kernel_records_narrated.haro` (50). The first live watch brought 50 records in 24.3 s, and harb answered 6 reach qemu_egress.
+
 ### B3. Shape rules -- the autumn's bugs as code rules [D]
 
 The five shapes of section 2 become rules that run on the estate, not only on the bug that

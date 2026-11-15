@@ -642,6 +642,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "security/stzPiaCheck.haro"           # what a .pia agent file says, judged at load (PIACHECK-01)
     load "security/stzNodeBoundary.haro"       # a node's OS boundary installed and removed (OSBOUNDARY B2)
     load "security/stzFederationAdmission.haro"  # a host admitted for what it runs (RADAR-FEDERATION-ADMIT-01)
+    load "security/stzKernelRecords.haro"      # the kernel's CVE records brought to the folder harb reads (ONEHOUR-B2-FEED)
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge

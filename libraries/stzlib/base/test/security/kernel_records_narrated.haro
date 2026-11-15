@@ -1,0 +1,261 @@
+# THE KERNEL'S RECORDS, BROUGHT TO THE FOLDER HARB READS -- ONEHOUR-B2-FEED, narrated
+#
+# stzKernelRecords (base/security/stzKernelRecords.haro) fetches the CVE JSON 5 records the Linux kernel's own
+# numbering authority publishes (git.kernel.org, security/vulns.git) and writes them into a folder that harobanda's
+# `harb advisories <machine> <folder>` reads as it is. Every URL here is answered by a fixture: no network.
+#
+#   Scene 1  what a text is: a CVE id, a record, and what is refused
+#   Scene 2  a record is written whole, and the folder only ever holds records
+#   Scene 3  the first watch brings every record its commits changed -- published and rejected
+#   Scene 4  a second watch with nothing new brings nothing
+#   Scene 5  a record the host did not answer stays pending, and the next watch brings it
+#   Scene 6  a commit page not read leaves the position where it was
+#   Scene 7  more than the feed's window since the last watch is a GAP, and said
+#   Scene 8  records brought by name: published, else rejected
+#   Scene 9  harb advisories reads the folder as it is
+#
+# The three real records in fixtures/kernel_records/ were taken from git.kernel.org on 2026-11-15 (CVE-2026-98466
+# holds raw multibyte characters, on which the library's JsonToList never returns); the rejected one and
+# the Atom feed and commit pages are written here by hand in the shape cgit serves.
+# RUNS ON haro.exe with the library. Scene 9 runs harobanda's harb.exe when it is built on this machine
+# (D:\GitHub\harobanda\zig-out\bin\harb.exe, or HARB_EXE) and says SKIPPED by name when it is not.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+tBS = Char(92)
+tWork = SysGet("TEMP") + tBS + "stz_krec"
+tDir = tWork + tBS + "records"
+System("if exist " + Q(tWork) + " rmdir /s /q " + Q(tWork))
+System("mkdir " + Q(tWork))
+tB = "https://git.kernel.org/pub/scm/linux/security/vulns.git"
+
+tR1 = Read("fixtures" + tBS + "kernel_records" + tBS + "CVE-2024-26925.json")
+tR2 = Read("fixtures" + tBS + "kernel_records" + tBS + "CVE-2026-100080.json")
+tRej = "{" + Q("dataType") + ":" + Q("CVE_RECORD") + "," + Q("cveMetadata") + ":{" + Q("cveId") + ":" + Q("CVE-2026-99999") + "," +
+       Q("state") + ":" + Q("REJECTED") + "}," + Q("containers") + ":{" + Q("cna") + ":{}}}"
+tOsv = "{" + Q("id") + ":" + Q("OSV-2026-0001") + "," + Q("affected") + ":[]}"
+tPage404 = "<!DOCTYPE html><html><head><title>404 Not Found</title></head><body>Not found</body></html>"
+
+tC1 = Hex40("1")
+tC2 = Hex40("2")
+tC3 = Hex40("3")
+tC4 = Hex40("4")
+tC5 = Hex40("5")
+
+StzCloseSecurityLedger()
+StzOpenSecurityLedger(2000)
+
+Scenario("1. what a text is")
+Then("CVE-2024-26925 is a CVE id", StzIsCveId("CVE-2024-26925"), true)
+Then("a name carrying a path is not", StzIsCveId("CVE-2024-../../x"), false)
+Then("...nor a short number", StzIsCveId("CVE-2024-1"), false)
+Then("the real record is the record asked for", StzKernelRecordProblem("CVE-2024-26925", tR1), "")
+tR4 = Read("fixtures" + Char(92) + "kernel_records" + Char(92) + "CVE-2026-98466.json")
+Then("a record with raw multibyte characters is read too, at once", StzKernelRecordProblem("CVE-2026-98466", tR4), "")
+Then("an error page is refused", Has(StzKernelRecordProblem("CVE-2024-26925", tPage404), "not JSON"), true)
+Then("an OSV entry is refused", Has(StzKernelRecordProblem("OSV-2026-0001", tOsv), "not a CVE id"), true)
+Then("...and under a CVE name, as no CVE record", Has(StzKernelRecordProblem("CVE-2026-0001", tOsv), "no cveMetadata"), true)
+Then("another id's record is refused", Has(StzKernelRecordProblem("CVE-2026-100080", tR1), "not the one asked for"), true)
+
+Scenario("2. a record written whole")
+oFeed = new stzKernelRecords(tDir + tBS)
+Then("the folder is the one given, without its trailing separator", oFeed.Folder(), tDir)
+Then("a record is written", oFeed.WriteRecord("CVE-2024-26925", tR1), 1)
+Then("...and reads back byte for byte", Read(tDir + tBS + "CVE-2024-26925.json") = tR1, true)
+Then("an error page is not written", oFeed.WriteRecord("CVE-2026-100080", tPage404), 0)
+Then("the folder holds only the one record", Listing(tDir), "CVE-2024-26925.json")
+Then("the staging folder is left empty", Listing(tDir + ".staging"), "")
+tR1b = StzReplace(tR1, "release mutex after nft_gc_seq_end from abort path", "release mutex after nft_gc_seq_end from abort path (updated)")
+oFeed.WriteRecord("CVE-2024-26925", tR1b)
+Then("a newer copy replaces the older one whole", Read(tDir + tBS + "CVE-2024-26925.json") = tR1b, true)
+Then("the state is kept beside the folder, not in it", oFeed.StateFile(), tDir + ".state")
+System("del /q " + Q(tDir + tBS + "*.json"))
+
+Scenario("3. the first watch")
+vFix = []
+vFix + [ tB + "/atom/cve", Atom([ tC3, tC2, tC1 ]) ]
+vFix + [ tB + "/commit/?id=" + tC1, Page([ "cve/published/2024/CVE-2024-26925.json", "cve/published/2024/CVE-2024-26925.sha1" ]) ]
+vFix + [ tB + "/commit/?id=" + tC2, Page([ "cve/published/2026/CVE-2026-100080.json", "cve/published/2026/CVE-2026-100080.mbox", "cve/published/2026/CVE-2026-100080.json" ]) ]
+vFix + [ tB + "/commit/?id=" + tC3, Page([ "cve/rejected/2026/CVE-2026-99999.json" ]) ]
+vFix + [ tB + "/plain/cve/published/2024/CVE-2024-26925.json", tR1 ]
+vFix + [ tB + "/plain/cve/published/2026/CVE-2026-100080.json", tR2 ]
+vFix + [ tB + "/plain/cve/rejected/2026/CVE-2026-99999.json", tRej ]
+oFeed.SetFixture(vFix)
+Then("before any watch nothing is seen", oFeed.LastSeen(), "")
+nBefore = Len(StzSecurityLedgerQ().OfKind("advisory.brought"))
+Then("the watch writes three records", oFeed.Watch(), 3)
+Then("...the published and the rejected", Listing(tDir), "CVE-2024-26925.json CVE-2026-100080.json CVE-2026-99999.json")
+Then("...the .sha1 and .mbox beside them are not taken", Has(oFeed.Why(), "3 record path(s)"), true)
+Then("...asking 7 URLs: the feed, three pages, three records", oFeed.Fetches(), 7)
+Then("the position is the newest commit", oFeed.LastSeen(), tC3)
+Then("...with nothing pending", Len(oFeed.Pending()), 0)
+Then("the ledger holds one advisory.brought per record", Len(StzSecurityLedgerQ().OfKind("advisory.brought")) - nBefore, 3)
+vO = StzSecurityLedgerQ().OfOrigin("CVE-2026-99999")
+Then("...with the advisory id as origin, saying rejected", Has("" + Nth(vO, Len(vO))[:reason], "rejected record"), true)
+
+Scenario("4. nothing new")
+Then("a second watch on the same feed writes nothing", oFeed.Watch(), 0)
+Then("...saying 0 new commits", Has(oFeed.Why(), "0 new commit(s)"), true)
+Then("the agent contract: Name_", oFeed.Name_(), "kernel-records")
+Then("...and Cycle is a watch", oFeed.Cycle(), 0)
+
+Scenario("5. a record not reached")
+vFix + [ tB + "/commit/?id=" + tC4, Page([ "cve/published/2026/CVE-2026-100081.json" ]) ]
+vFix + [ tB + "/plain/cve/published/2026/CVE-2026-100081.json", "!503" ]
+vFix[1][2] = Atom([ tC4, tC3, tC2, tC1 ])
+oFeed.SetFixture(vFix)
+Then("a watch whose record answers 503 writes nothing", oFeed.Watch(), 0)
+Then("...the record is pending", Nth(oFeed.Pending(), 1), "published/2026/CVE-2026-100081.json")
+Then("...said with its status", Has(Nth(Nth(oFeed.Refused(), 1), 2), "HTTP 503"), true)
+Then("...and the position moves to the commit whose page was read", oFeed.LastSeen(), tC4)
+tR3 = StzReplace(tR2, "CVE-2026-100080", "CVE-2026-100081")
+vFix[Len(vFix)][2] = tR3
+oFeed.SetFixture(vFix)
+Then("the next watch, with no new commit, brings the pending record", oFeed.Watch(), 1)
+Then("...and nothing is pending any more", Len(oFeed.Pending()), 0)
+
+Scenario("6. a commit page not read")
+vFix + [ tB + "/commit/?id=" + tC5, "!503" ]
+vFix[1][2] = Atom([ tC5, tC4, tC3, tC2, tC1 ])
+oFeed.SetFixture(vFix)
+oFeed.Watch()
+Then("the position stays where it was", oFeed.LastSeen(), tC4)
+Then("...and the watch says why", Has(oFeed.Why(), "the position stays"), true)
+
+Scenario("7. a gap")
+vTen = []
+for i = 1 to 10
+    vTen + Hex40(Char(64 + i))
+end
+vGap = [ [ tB + "/atom/cve", Atom(vTen) ] ]
+for tC in vTen
+    vGap + [ tB + "/commit/?id=" + tC, Page([]) ]
+end
+oFeed.SetFixture(vGap)
+nGaps = Len(StzSecurityLedgerQ().OfOrigin("feed"))
+oFeed.Watch()
+Then("ten commits, none the last seen, is a gap", Has(oFeed.Why(), "A GAP"), true)
+Then("...written to the ledger", Len(StzSecurityLedgerQ().OfOrigin("feed")) - nGaps, 1)
+Then("...and the position moves to the newest", oFeed.LastSeen(), vTen[1])
+
+Scenario("8. records brought by name")
+vFix + [ tB + "/plain/cve/published/2026/CVE-2026-99998.json", "{" + Q("cveMetadata") + ":{" + Q("cveId") + ":" + Q("CVE-2026-99998") + "}}" ]
+oFeed.SetFixture(vFix)
+Then("a published record and a rejected one are brought", oFeed.Bring([ "CVE-2026-99998", "CVE-2026-99999" ]), 2)
+Then("...the rejected one found where it moved", Nth(oFeed.Brought(), 2), "CVE-2026-99999")
+Then("a name that is not a CVE id is refused, nothing fetched", oFeed.Bring([ "..\evil" ]), 0)
+Then("...as not a CVE id", Nth(Nth(oFeed.Refused(), 1), 2), "not a CVE id")
+Then("a record on neither path is refused", oFeed.Bring([ "CVE-2026-55555" ]), 0)
+System("del /q " + Q(tDir + tBS + "CVE-2026-99998.json"))
+
+Scenario("9. harb advisories reads the folder")
+tHarb = SysGet("HARB_EXE")
+if tHarb = ""
+    tHarb = "D:" + tBS + "GitHub" + tBS + "harobanda" + tBS + "zig-out" + tBS + "bin" + tBS + "harb.exe"
+end
+tHarbDir = "D:" + tBS + "GitHub" + tBS + "harobanda"
+if FExists(tHarb)
+    tOut = tWork + tBS + "harb.txt"
+    System("cd /d " + Q(tHarbDir) + " && " + Q(tHarb) + " advisories machines" + tBS + "qemu_egress.machine " + Q(tDir) + " --all > " + Q(tOut) + " 2>&1")
+    tH = Read(tOut)
+    ? tH
+    Then("harb answers one line per record in the folder", Count(tH, "advisory id="), 4)
+    Then("...refusing nothing", Has(tH, "refused"), false)
+    Then("...the rejected record read as rejected", Has(tH, "id=CVE-2026-99999 verdict=rejected"), true)
+    Then("...the nf_tables record judged against the kernel's compiled files", Has(tH, "id=CVE-2024-26925 verdict="), true)
+else
+    ? "  SKIPPED  scene 9: harb.exe is not built at " + tHarb + " (set HARB_EXE) -- 4 assertions not run"
+end
+
+StzCloseSecurityLedger()
+
+? ""
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# a cgit Atom feed naming these commits, newest first
+func Atom(vC)
+    tA = "<?xml version='1.0' encoding='utf-8'?>" + Char(10) + "<feed xmlns='http://www.w3.org/2005/Atom'>" + Char(10) +
+         "<title>security/vulns.git/cve, branch master</title>" + Char(10)
+    for tC in vC
+        tA = tA + "<entry>" + Char(10) + "<title>a fixture commit</title>" + Char(10) + "<id>urn:sha1:" + tC + "</id>" + Char(10) + "</entry>" + Char(10)
+    end
+    return tA + "</feed>" + Char(10)
+end
+
+# a cgit commit page whose diffstat names these paths
+func Page(vP)
+    tP = "<html><body><table summary='diffstat' class='diffstat'>" + Char(10)
+    for tX in vP
+        tP = tP + "<tr><td class='upd'><a href='/pub/scm/linux/security/vulns.git/diff/" + tX + "?id=0'>" + tX + "</a></td></tr>" + Char(10)
+    end
+    return tP + "</table></body></html>" + Char(10)
+end
+
+func Hex40(tD)
+    tH = ""
+    for i = 1 to 40
+        tH = tH + tD
+    end
+    return Lower(tH)
+end
+
+# the names of the files in a folder, sorted, joined by a blank
+func Listing(tFolder)
+    tL = SystemCmd("cmd /c dir /b /on /a-d " + Q(tFolder) + " 2>nul")
+    vN = StzSplit(StzReplace(tL, Char(13), ""), Char(10))
+    tOut = ""
+    for tN in vN
+        tF = Trim(tN)
+        if tF != "" and tF != "File Not Found"
+            if tOut != ""
+                tOut = tOut + " "
+            end
+            tOut = tOut + tF
+        end
+    end
+    return tOut
+end
+
+# the n-th item of a list, or "" when it has none -- a FAIL, never a crash
+func Nth(vL, nI)
+    if not IsList(vL)
+        return ""
+    end
+    if nI < 1 or nI > Len(vL)
+        return ""
+    end
+    return vL[nI]
+end
+
+func Count(tIn, tPart)
+    return Len(StzSplit(tIn, tPart)) - 1
+end
+
+func Q(tS)
+    return Char(34) + tS + Char(34)
+end
+
+func Has(tIn, tPart)
+    return SubStr(tIn, tPart) > 0
+end
+
+func Scenario(tTitle)
+    ? ""
+    ? "SCENARIO: " + tTitle
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end

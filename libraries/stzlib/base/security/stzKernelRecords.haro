@@ -1,0 +1,505 @@
+# THE KERNEL'S OWN RECORDS, BROUGHT TO A FOLDER -- ONEHOUR-B2-FEED (SOFTANZA_ONE_HOUR.md B2, with harobanda's `harb advisories`)
+#
+# The Linux kernel's numbering authority publishes a CVE JSON 5 record for every flaw it fixes, in its own repository
+# (git.kernel.org, security/vulns.git, cve/published/<year>/<id>.json; a withdrawn one moves to cve/rejected/). Each
+# record names the releases the flaw touches and the source files its fix changed (`programFiles`). Harobanda's
+# `harb advisories <machine> <folder>` reads a folder of such records AS IT IS and answers which reach a machine, from
+# the files its kernel compiled. It does not fetch. This class is the side that does: it brings the records into the
+# folder.
+#
+#   oFeed = new stzKernelRecords("D:\feeds\kernel")       # the folder harb reads
+#   oFeed.Watch()                                         # the records the kernel's last commits changed -> how many written
+#   oFeed.Bring([ "CVE-2024-26925" ])                     # named records, fetched and written
+#   ? oFeed.Brought()   ? oFeed.Why()
+#
+# The folder only ever holds records: harb refuses a folder holding anything that is not a .json file, so a record is
+# written into a staging folder BESIDE it (<folder>.staging) and moved in by a rename, which replaces an older copy
+# whole -- harb never reads half a record. What the watch has seen is kept beside it too (<folder>.state). A text that
+# is not the CVE record asked for -- an error page, an OSV entry, another id -- is refused and nothing is written.
+# A record the host did not answer (a timeout, a 503) stays PENDING in the state, and the next watch fetches it first.
+#
+# It reaches the network, so it is a DOOR: the ledger records the fetch as a fact before a byte is read, and each
+# record written as advisory.brought with the advisory id as origin, which is the key the patch ledger chains by. It is
+# periodic, so it is an agent: Name_() and Cycle() make it hostable on any stzAgentHost. A guard never calls the
+# network: SetFixture answers every URL from texts the guard holds.
+#
+# The watch reads the repository's Atom feed for cve/ (its last 10 commits) and each new commit's page for the record
+# paths it changed. More than 10 commits since the last watch is a GAP: the records changed by the commits before the
+# feed's window are not seen, and Why() and the ledger say so -- Bring() takes them by name.
+
+class stzKernelRecords from stzObject
+
+    tDir = ""            # the folder harb reads
+    tStaging = ""        # <folder>.staging: a record is written here, then renamed in
+    tState = ""          # <folder>.state: the last commit the watch has seen
+    tBase = "https://git.kernel.org/pub/scm/linux/security/vulns.git"
+    vFixture = []        # [ url, text ] -- set by a guard; when not empty no URL is fetched
+    vBrought = []        # the ids the last Watch or Bring wrote
+    vRefused = []        # [ id or path, why ] -- what the last Watch or Bring did not write
+    tWhy = ""
+    nLastMs = 0
+    nFetches = 0
+    nLastStatus = 0      # the HTTP status of the last fetch; 0 for a transport failure (a fixture answers 200 or 404)
+    nPaceMs = 250        # the pause before each network fetch
+    bDoorNoted = false
+    bThrottled = false
+
+    # Builds a feed for the folder harb reads, creating it and its staging folder when absent.
+    def init(tFolder)
+        tDir = this._NoTrailingSep("" + tFolder)
+        tStaging = tDir + ".staging"
+        tState = tDir + ".state"
+        this._MakeDir(tDir)
+        this._MakeDir(tStaging)
+    end
+
+    def Folder
+        return tDir
+    end
+
+    def StateFile
+        return tState
+    end
+
+    # Answers every URL from [ url, text ] pairs instead of the network; an unknown URL answers "" (a failed fetch).
+    def SetFixture(vPairs)
+        vFixture = vPairs
+        return this
+    end
+
+    # Reads the kernel's Atom feed and brings every record the commits since the last watch changed, and first the
+    # records an earlier watch could not reach; -> how many written
+    def Watch
+        nT0 = StzEngineWatchTimestampMs()
+        this._StartRun()
+        tAtom = this._Get(tBase + "/atom/cve")
+        vCommits = StzKernelFeedCommits(tAtom)
+        if Len(vCommits) = 0
+            tWhy = "the feed answered no commit (" + this._StatusWord() + "): nothing brought, the state is unchanged"
+            nLastMs = StzEngineWatchTimestampMs() - nT0
+            return 0
+        end
+        tSeen = this.LastSeen()
+        vNew = []
+        bFound = false
+        for tC in vCommits
+            if tC = tSeen
+                bFound = true
+                exit
+            end
+            vNew + tC
+        end
+        bGap = (tSeen != "" and not bFound)
+        # the paths: those still pending from an earlier watch, then those the new commits changed, each once
+        vPaths = this.Pending()
+        bPagesRead = true
+        for tC in vNew
+            tPage = this._Get(tBase + "/commit/?id=" + tC)
+            if tPage = ""
+                bPagesRead = false
+            end
+            for tP in StzKernelFeedPaths(tPage)
+                if not this._In(tP, vPaths)
+                    vPaths + tP
+                end
+            end
+        end
+        vPend = []
+        for tP in vPaths
+            if this._BringPath(tP) = "unreached"
+                vPend + tP
+            end
+        end
+        # the position moves only when every new commit's page was read; a record not reached stays pending
+        tNext = tSeen
+        if bPagesRead
+            tNext = vCommits[1]
+        end
+        tOut = tNext + Char(10)
+        for tP in vPend
+            tOut = tOut + "pending " + tP + Char(10)
+        end
+        Write(tState, tOut)
+        nLastMs = StzEngineWatchTimestampMs() - nT0
+        tWhy = String(Len(vNew)) + " new commit(s), " + String(Len(vPaths)) + " record path(s), " + String(Len(vBrought)) +
+               " written, " + String(Len(vRefused)) + " refused, " + String(Len(vPend)) + " pending"
+        if not bPagesRead
+            tWhy = tWhy + "; a commit page was not read, so the position stays and the next watch reads it again"
+        end
+        if bGap
+            tWhy = tWhy + "; A GAP: " + Left(tSeen, 12) + " is not among the feed's last " + String(Len(vCommits)) +
+                   " commits, so records changed before them were not seen -- bring them by name"
+            StzNoteFactFrom("advisory.brought", "stzKernelRecords", "linux", "gap after " + Left(tSeen, 12) + ": records changed before the feed's window were not seen", "feed")
+        end
+        return Len(vBrought)
+    end
+
+    # Fetches the named records (published, else rejected) and writes each; -> how many written
+    def Bring(vIds)
+        nT0 = StzEngineWatchTimestampMs()
+        this._StartRun()
+        for tId in vIds
+            if not StzIsCveId(tId)
+                vRefused + [ "" + tId, "not a CVE id" ]
+            else
+                tYear = this._YearOf(tId)
+                if this._BringPath("published/" + tYear + "/" + tId + ".json") = "refused"
+                    vRefused = this._Drop(vRefused, tId)
+                    this._BringPath("rejected/" + tYear + "/" + tId + ".json")
+                end
+            end
+        end
+        nLastMs = StzEngineWatchTimestampMs() - nT0
+        tWhy = String(Len(vBrought)) + " written, " + String(Len(vRefused)) + " refused"
+        return Len(vBrought)
+    end
+
+    # Writes one record text into the folder when it is the CVE record of tId; -> 1, or 0 with Why()
+    def WriteRecord(tId, tText)
+        tProblem = StzKernelRecordProblem(tId, tText)
+        if tProblem != ""
+            tWhy = tProblem
+            return 0
+        end
+        Write(tStaging + this._Sep() + tId + ".json", tText)
+        this._MoveStagedIn()
+        tWhy = tId + " written"
+        return 1
+    end
+
+    # The last commit the watch has seen, "" before the first watch.
+    def LastSeen
+        vL = this._StateLines()
+        if Len(vL) = 0
+            return ""
+        end
+        return vL[1]
+    end
+
+    # The record paths a watch could not reach, retried first by the next one.
+    def Pending
+        vOut = []
+        for tL in this._StateLines()
+            if Left(tL, 8) = "pending "
+                vOut + Right(tL, Len(tL) - 8)
+            end
+        end
+        return vOut
+    end
+
+    # the pause before each network fetch, in milliseconds
+    def SetPace(nMs)
+        nPaceMs = nMs
+        return this
+    end
+
+    def Brought
+        return vBrought
+    end
+
+    def Refused
+        return vRefused
+    end
+
+    def Why
+        return tWhy
+    end
+
+    # how long the last Watch or Bring took, in milliseconds, fetches included
+    def LastMs
+        return nLastMs
+    end
+
+    # how many URLs this feed has asked for, fixture or network
+    def Fetches
+        return nFetches
+    end
+
+    # the agent contract: hostable on a stzAgentHost, which calls Cycle on its period
+    def Name_
+        return "kernel-records"
+    end
+
+    def Cycle
+        return this.Watch()
+    end
+
+    # --- internals ---
+
+    # fetches cve/<tPath> and writes it; -> "written", "refused" (the answer is not that record) or "unreached" (the
+    # host did not answer it: a transport failure or a status other than 200 and 404, retried by the next watch)
+    def _BringPath(tPath)
+        tId = StzKernelPathId(tPath)
+        tText = this._Get(tBase + "/plain/cve/" + tPath)
+        if tText = "" and nLastStatus != 404
+            vRefused + [ tId, tId + ": not reached (" + this._StatusWord() + ")" ]
+            return "unreached"
+        end
+        tProblem = StzKernelRecordProblem(tId, tText)
+        if tProblem != ""
+            vRefused + [ tId, tProblem ]
+            return "refused"
+        end
+        Write(tStaging + this._Sep() + tId + ".json", tText)
+        this._MoveStagedIn()
+        vBrought + tId
+        tKind = "published"
+        if Left(tPath, 9) = "rejected/"
+            tKind = "rejected"
+        end
+        StzNoteFactFrom("advisory.brought", "stzKernelRecords", "linux", tKind + " record written to " + tDir, tId)
+        return "written"
+    end
+
+    def _StateLines
+        vOut = []
+        if not FExists(tState)
+            return vOut
+        end
+        for tL in StzSplit(StzReplace(Read(tState), Char(13), ""), Char(10))
+            if Trim(tL) != ""
+                vOut + Trim(tL)
+            end
+        end
+        return vOut
+    end
+
+    def _StartRun
+        vBrought = []
+        vRefused = []
+        bDoorNoted = false
+        bThrottled = false
+    end
+
+    def _StatusWord
+        if nLastStatus = 0
+            return "no answer"
+        end
+        return "HTTP " + String(nLastStatus)
+    end
+
+    # one URL: the fixture when set, else the network. The door is recorded as a fact once per run, before a byte is
+    # read; fetches are paced; a 503 or 429 is retried after 2 s and 5 s, and a host still refusing ends this run's
+    # fetching -- what is left is retried by the next watch. A fixture text "!503" answers that status.
+    def _Get(tUrl)
+        nFetches = nFetches + 1
+        nLastStatus = 0
+        if Len(vFixture) > 0
+            for vP in vFixture
+                if vP[1] = tUrl
+                    if Left(vP[2], 1) = "!"
+                        nLastStatus = Number(Right(vP[2], Len(vP[2]) - 1))
+                        return ""
+                    end
+                    nLastStatus = 200
+                    return vP[2]
+                end
+            end
+            nLastStatus = 404
+            return ""
+        end
+        if bThrottled
+            return ""
+        end
+        if not bDoorNoted
+            StzNoteFactFrom("advisory.brought", "stzKernelRecords", "git.kernel.org", "fetching from " + tBase, "feed")
+            bDoorNoted = true
+        end
+        for nTry = 1 to 3
+            StzEngineTimeSleepMs(nPaceMs)
+            # a GET bounded in time: 10 s to connect, 30 s for the answer
+            tBody = StzEngineHttpRequestWithTimeouts(0, tUrl, "", "", "", 10000, 30000)
+            nLastStatus = StzEngineHttpLastStatus()
+            if nLastStatus = 200
+                return tBody
+            end
+            if nLastStatus != 503 and nLastStatus != 429
+                return ""
+            end
+            if nTry = 1
+                StzEngineTimeSleepMs(2000)
+            elseif nTry = 2
+                StzEngineTimeSleepMs(5000)
+            end
+        end
+        bThrottled = true
+        return ""
+    end
+
+    # every staged record renamed into the folder, replacing an older copy whole
+    def _MoveStagedIn
+        if IsWindows()
+            System("move /y " + this._Q(tStaging + Char(92) + "*.json") + " " + this._Q(tDir) + " >nul")
+        else
+            System("mv -f " + this._Q(tStaging) + "/*.json " + this._Q(tDir) + "/")
+        end
+    end
+
+    def _MakeDir(tPath)
+        if IsWindows()
+            System("if not exist " + this._Q(tPath) + " mkdir " + this._Q(tPath))
+        else
+            System("mkdir -p " + this._Q(tPath))
+        end
+    end
+
+    def _Sep
+        if IsWindows()
+            return Char(92)
+        end
+        return "/"
+    end
+
+    def _NoTrailingSep(tP)
+        while Len(tP) > 1 and (Right(tP, 1) = Char(92) or Right(tP, 1) = "/")
+            tP = Left(tP, Len(tP) - 1)
+        end
+        return tP
+    end
+
+    def _Q(tS)
+        return Char(34) + tS + Char(34)
+    end
+
+    def _YearOf(tId)
+        return StzSplit(tId, "-")[2]
+    end
+
+    def _In(tX, vL)
+        for tY in vL
+            if tY = tX
+                return true
+            end
+        end
+        return false
+    end
+
+    def _Drop(vRows, tId)
+        vOut = []
+        for vR in vRows
+            if vR[1] != tId
+                vOut + vR
+            end
+        end
+        return vOut
+    end
+end
+
+# --- what a text is, said without the network ------------------------------------------------------------------------
+
+# "" when tText is the CVE JSON 5 record of tId; otherwise why it is not
+func StzKernelRecordProblem(tId, tText)
+    if not StzIsCveId(tId)
+        return "'" + tId + "' is not a CVE id"
+    end
+    if tText = ""
+        return tId + ": nothing was answered"
+    end
+    if Left(Trim(tText), 1) != "{"
+        return tId + ": the answer is not JSON (an error page?)"
+    end
+    # the engine's parser (std.json): the library's JsonToList loses its place on a raw multibyte character
+    # an object comes back as its [ key, value ] pairs
+    vL = StzEngineJsonParseToList(tText)
+    if Len(vL) = 0
+        return tId + ": the answer is not JSON"
+    end
+    if not IsList(vL[1])
+        return tId + ": the answer is not a JSON object"
+    end
+    vM = vL["cveMetadata"]
+    if not IsList(vM)
+        return tId + ": not a CVE record (no cveMetadata)"
+    end
+    if "" + vM["cveId"] != tId
+        return tId + ": the record is " + vM["cveId"] + ", not the one asked for"
+    end
+    return ""
+end
+
+# true when tId reads CVE-<4 digits>-<4 or more digits>: the only names written into the folder
+func StzIsCveId(tId)
+    if not IsString(tId)
+        return false
+    end
+    vP = StzSplit(tId, "-")
+    if Len(vP) != 3
+        return false
+    end
+    if vP[1] != "CVE" or Len(vP[2]) != 4 or Len(vP[3]) < 4
+        return false
+    end
+    if not StzAllDigits(vP[2]) or not StzAllDigits(vP[3])
+        return false
+    end
+    return true
+end
+
+func StzAllDigits(tS)
+    nN = Len(tS)
+    for i = 1 to nN
+        nA = Ascii(tS[i])
+        if nA < 48 or nA > 57
+            return false
+        end
+    end
+    return true
+end
+
+# the commits of the repository's Atom feed, newest first (40 hex each)
+func StzKernelFeedCommits(tAtom)
+    vOut = []
+    vS = StzSplit(tAtom, "<id>urn:sha1:")
+    nN = Len(vS)
+    for i = 2 to nN
+        tC = Left(vS[i], 40)
+        if Len(tC) = 40
+            vOut + tC
+        end
+    end
+    return vOut
+end
+
+# the record paths a commit page names, "published/<year>/<id>.json" or "rejected/<year>/<id>.json", each once
+func StzKernelFeedPaths(tPage)
+    vOut = []
+    for tKind in [ "published", "rejected" ]
+        vS = StzSplit(tPage, "cve/" + tKind + "/")
+        nN = Len(vS)
+        for i = 2 to nN
+            tYear = Left(vS[i], 4)
+            vRest = StzSplit(Right(vS[i], Len(vS[i]) - 5), ".json")
+            tId = ""
+            if Len(vRest) > 0 and Len(vS[i]) > 5
+                if StzAllDigits(tYear) and vS[i][5] = "/"
+                    tId = vRest[1]
+                end
+            end
+            if tId != ""
+                if StzIsCveId(tId)
+                    tP = tKind + "/" + tYear + "/" + tId + ".json"
+                    bHave = false
+                    for tX in vOut
+                        if tX = tP
+                            bHave = true
+                        end
+                    end
+                    if not bHave
+                        vOut + tP
+                    end
+                end
+            end
+        end
+    end
+    return vOut
+end
+
+# the id a record path names: published/2024/CVE-2024-26925.json -> CVE-2024-26925
+func StzKernelPathId(tPath)
+    vS = StzSplit(tPath, "/")
+    tF = vS[Len(vS)]
+    if Right(tF, 5) = ".json"
+        tF = Left(tF, Len(tF) - 5)
+    end
+    return tF
+end

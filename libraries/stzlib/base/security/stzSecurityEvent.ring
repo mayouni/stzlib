@@ -110,6 +110,7 @@ func StzSecurityEventKinds()
 		# from that moment to the door shut and to the gate green is read from these, never from memory.
 		# The ORIGIN field of each carries the advisory id, so the five chain by it.
 		[ "advisory.matched",             "warning", "T1190",     "a published advisory names a component and version this process runs (origin: the advisory id)" ],
+		[ "advisory.brought",             "info",    "",          "a CVE record of the kernel's own authority was written into the folder harb advisories reads, or a fetch for it was opened (origin: the advisory id, or feed) -- stzKernelRecords, ONEHOUR-B2-FEED" ],
 		[ "exposure.closed",              "info",    "",          "the door to an exposed component was shut -- a listener refused, a domain unloaded, a socket family denied -- while the patch is built" ],
 		[ "exposure.reopened",            "info",    "",          "a door shut for an advisory was opened again -- after guard.green, or because the advisory did not apply" ],
 		[ "pin.moved",                    "info",    "",          "a pinned version or digest was changed on purpose: a kernel pin, a vendored record, a model record" ],
