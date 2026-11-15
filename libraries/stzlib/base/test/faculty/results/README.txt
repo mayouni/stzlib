@@ -154,3 +154,8 @@ realreq.txt.
     examples; a request is a matter of meaning, which still needs the large model or many more labels.
   - the labels are one reader's (Claude's); the author's corrections in the private sheet replace them, and the SNV
     items (45, under that study's AI charter) wait for the author.
+  - 2026-11-15, a second reading of the labels (the models' answers not consulted) changed 14 of 175: nine copied press,
+    brochure or study texts and a minutes heading became noise, one heading carrying the client's "Yes validated" became
+    a remark, two document corrections stopped counting as requests, and two survey answers became information.
+    REMARK: heads 141 (always "yes" 116), Bolt 95, the gate passes 1. REQUEST (34 of 175): heads 143 (always "no" 141),
+    Bolt 156, the gate 152 passing 93 to Bolt -- 2.37 s an item against 4.41, 46 % saved for 4 items. The split holds.
