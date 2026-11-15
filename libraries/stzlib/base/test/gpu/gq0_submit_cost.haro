@@ -5,7 +5,7 @@
 # closed. The backbone already sends its whole encoder as ONE submit, so a recording could remove only the
 # ENCODING: every weight looked up by name, every uniform written and bind group made, up to that submit.
 # StzEngineNeuralBackbonePhaseMs(n) splits a forward into gather+upload (0), encoding (1), the device's wait (2),
-# the readback (3) and the whole (4). This prints them for MiniLM at four lengths, warm, the least of seven runs.
+# the readback (3) and the whole (4). This prints them for MiniLM at four lengths within the backbone's 256-token limit, warm, the least of seven runs.
 #
 # Then one DECODE step of two small causal models: the time per generated token, and the weights it must read,
 # against this card's measured copy bandwidth (76-79 GB/s, GK3) -- the reading Radar asked for.
@@ -24,7 +24,7 @@ if StzEngineNeuralModelLoad(tModels + "/all-MiniLM-L6-v2.Q8_0.gguf") != 1
 	? "  [SKIP] MiniLM not found in " + tModels
 else
 	? "  tokens | gather+upload | ENCODING | device wait | readback | whole | encoding share | dispatches"
-	vReps = [ 1, 3, 13, 40 ]
+	vReps = [ 1, 3, 13, 20 ]
 	for i = 1 to Len(vReps)
 		tText = ""
 		for j = 1 to vReps[i]

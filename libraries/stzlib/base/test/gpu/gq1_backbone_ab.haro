@@ -3,7 +3,7 @@
 # gq1_merge_qkv.haro showed the merged product alone faster (1.6x at 14 tokens, 1.3x at 38, 1.03x at 482). GK4's
 # rule decides whether a merge stays: the WHOLE forward must be faster beyond the clock's noise, or it is removed.
 # So: MiniLM on the RTX 3050, the two arms (StzEngineNeuralBackboneSetMergeQkv 1 and 0) run alternately, eleven
-# turns each, at four lengths, the least and the median of each. The gather phase is the control -- the merge does
+# turns each, at four lengths within the backbone's 256-token limit, the least and the median of each. The gather phase is the control -- the merge does
 # not touch it, so if it moves the clock moved. And before any clock, the two arms must agree: the embeddings'
 # cosine, and the dispatch count, which is immune to load (62 three ways, 50 one way).
 load "../../stzBase.ring"
@@ -21,7 +21,7 @@ end
 nTurns = 11
 
 ? "-- GQ1: the backbone forward, Q K V merged against split (MiniLM, RTX 3050, haro.exe, alternated, " + String(nTurns) + " turns) --"
-vReps = [ 3, 6, 13, 40 ]
+vReps = [ 3, 6, 13, 20 ]
 for i = 1 to Len(vReps)
 	tText = ""
 	for j = 1 to vReps[i]
@@ -112,7 +112,11 @@ func Median(vX)
 		vC[i] = vC[nAt]
 		vC[nAt] = xT
 	end
-	return vC[(nN + 1) / 2]
+	nMid = 1
+	while nMid * 2 < nN + 1
+		nMid += 1
+	end
+	return vC[nMid]
 end
 
 func Us(nMs)
@@ -120,7 +124,7 @@ func Us(nMs)
 end
 
 func Pct(nPart, nWhole)
-	return String(Floor(nPart * 1000.0f / nWhole) / 10.0f) + "%"
+	return String(Float(Floor(nPart * 1000.0f / nWhole)) / 10.0f) + "%"
 end
 
 func chk(tWhat, bOk)

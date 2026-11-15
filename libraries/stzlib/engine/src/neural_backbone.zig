@@ -910,6 +910,9 @@ fn kernels() bool {
 /// pooled, L2-normalized sentence vector in `out` (n_embd floats).
 /// Returns 1 on success; 0 means "not run" and the caller uses its CPU path.
 pub export fn neural_backbone_forward(ids_ptr: [*c]const i32, n_tok_in: c_int, out: [*c]f32) callconv(.c) c_int {
+    // a refused forward reads as zeros, never as the last forward that ran (GQ0's first table printed a 158-token
+    // forward as a 482-token one: the length was over MAX_SEQ and the phases were the previous call's)
+    g_phase_ms = @splat(0);
     // the device comes up lazily, through the SAME init the per-node router
     // uses (it owns the runtime path) -- never a second device in one DLL
     if (!ngpu.ensureDevicePub()) return 0;
@@ -938,7 +941,6 @@ pub export fn neural_backbone_forward(ids_ptr: [*c]const i32, n_tok_in: c_int, o
     const disp0 = gpu.stz_gpu_counter(gpu.CTR_DISPATCH_COUNT);
     var ph = std.time.Timer.start() catch unreachable;
     const ph_start = ph.read();
-    g_phase_ms = @splat(0);
 
     // ---- CPU-side embedding gather (tiny: n_tok rows), then ONE upload
     const tok_w = tensor(ctx, "token_embd.weight", .{}) orelse return 0;
