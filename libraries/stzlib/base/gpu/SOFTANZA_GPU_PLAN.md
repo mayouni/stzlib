@@ -3807,7 +3807,7 @@ its right answer `01-the-blur.ring` once. Graded in one process, the same
 text was verified every time. Five later ProveItself runs were clean, and
 the failing run's output was not captured. ProveItself runs up to four
 graders side by side on one device, which is the likely cause:
-KP-PROVE-FLAKE, open.
+KP-PROVE-FLAKE, open then; closed 2026-11-15 (see KP-PROVE-FLAKE STATUS).
 
 **What is left of GL0**, in order: integer and vector types (and with
 them, a type a comparison can have, which replaces the shape check with a
@@ -4653,7 +4653,7 @@ The submit counts the scan, compact, sort, segscan and spmv guards assert are un
 the counter after a dispatch has already sent the staged writes.
 With both fixed, all 41 guards pass on haro.exe: the soak 36/36, the puzzle guard 95/95 (999 s), and every other guard at
 its full count. The puzzle guard (kp-05) and the when guard each refused a right answer once in an earlier run and passed
-on the next: that is KP-PROVE-FLAKE, still open, not a defect of this change. The heaviest guards are long on haro.exe:
+on the next: that is KP-PROVE-FLAKE, not a defect of this change (closed 2026-11-15, see KP-PROVE-FLAKE STATUS). The heaviest guards are long on haro.exe:
 spmv 1,094 s, puzzle 999 s, when 796 s, segscan 653 s, sort 609 s, scan 601 s, run one at a time.
 
 **What the witness does not cover.** Windows only (Linux and macOS answer -1 and the checks are skipped by name); one
@@ -4721,6 +4721,49 @@ ms a token, reading its weights at about 27 GB/s; smollm2-135m (138 MB) takes 15
 dominated by work other than reading weights. Arithmetic on measured numbers, not a measurement: a Q8 decode step does
 about 2 operations per byte of weights; at this card's 76 GB/s copy that is about 0.15 TFLOP/s, 1.8% of its 8.36 TFLOP/s
 burst peak, and a floor of about 8.9 ms a token for qwen2.5-coder-0.5b (676 MB at 76 GB/s). Decode on this card is a bandwidth question.
+
+## KP-PROVE-FLAKE STATUS — a right answer refused as "impossible": the submit floor was read too early (2026-11-15)
+
+**The sightings.** Since KP3, a puzzle's ProveItself refused one of its right answers now and then: kp-06 at a gate,
+kp-19, kp-05 in the puzzle guard and kp-13 in the when guard, each passing on the next run, and no failing run's
+output was ever kept. ProveItself grades each right and wrong answer in its own process, four at a time.
+
+**Caught in the act** (`base/test/gpu/kp_prove_stress.haro`, haro.exe, RTX 3050: ten rounds of ProveItself on the
+four exercises that showed it, 40 proofs, 260 graded programs, every check that goes the wrong way printed whole).
+One check went the wrong way, in round 1: kp-19's right answer `01-the-slice-before.ring` printed `impossible`.
+That is the checker's timing verdict -- the candidate's best time beat the least time the device allows -- and not
+a wrong value.
+
+**Why.** For a small kernel the least time is half the submit floor: the shortest dispatch-and-sync round trip the
+device was seen to make. That floor was read once, when the device opened, between bursts of compute; later in the
+process a kernel's own round trip ran almost twice as fast. Measured in one process (`kp_floor_margin.haro`, 200
+checks of kp-19's right answer): the best time came within **1.08x** of the floor -- an ordinary fast round trip away
+from crossing it. The re-measurement before a refusal stands (`confirmBusRefusal`) reads seven more round trips, and
+when those are slow the refusal stands.
+
+**The fix, in the engine** (`gpu_verify.zig`, `LiveSubmit`). Verify and VerifySpec time the tiny submit kernel in
+every timed repetition, beside the candidate, and the floor takes the faster reading: a floor is the fastest the
+device does, and a candidate is now judged against round trips of its own moment. Seven extra round trips a check,
+about a millisecond. The same 200 checks: the worst margin is **2.11x**. The verify guard (39) and the spec
+reference guard (34) still refuse every impossible time they hand the judge.
+
+**And the stress run on the fixed engine:** ten rounds again, the same four exercises, 40 proofs and 260 graded programs in 54 minutes: **0 checks went the wrong way**. The lease guard (22, with scene 1c below) passes; the puzzle guard (95) and the when guard (34) pass on haro.exe with the two guards changed as below (their wall times, 1,523 s and 1,706 s, were taken beside another desk's builds and are not measurements).
+
+**Two more guards against the cause named first.** Four graders sharing one card were the first suspect; since the
+GPU lease (2026-11-14) they no longer share it, they wait. A grader that waited past its limit fell to the
+interpreter, which cannot see a store past the region, and accepted kp-05's missing guard: two of three wrong answers
+refused with another process holding the card. `stzKernelPuzzle._DeviceUp` now waits up to ten lease periods and
+then answers "waiting for the device: process N holds it", never the interpreter's verdict; the lease guard's scene
+1c holds the card and shows it.
+
+**And the gates found what the stress run could not.** The stress tool's own process never opens the device; the
+puzzle and when guards open it for their earlier scenes and still held it when they called ProveItself. Since the
+lease, the graders ProveItself starts cannot take the card from their own parent: with the waiting grader, kp-13's
+three right answers each answered "waiting for the device" (752 s), and the puzzle guard ran past its 40 minutes;
+before it, each grader waited 30 s and graded on the interpreter, quietly. The two guards now close the device
+before proving (the next Grade opens it again). Any caller that holds the device and proves an exercise meets the
+same wait, and the verdict names the holder: routed to the education desk as EDU-PROVE-LEASE-20, since ProveItself
+and its runner are theirs.
 
 ## GQ1 STATUS — one merge kept by the clock: Q, K and V as one product (2026-11-15)
 

@@ -1,0 +1,45 @@
+# kp_floor_margin.haro -- a tool: how close kp-19's right answer sits to the least time the checker allows it.
+#
+# KP-PROVE-FLAKE (2026-11-15). kp-19's right answer is checked N times in one process with the puzzle's own reference,
+# bindings and hidden shape; the report prints the first check and any not verified, then the worst ratio of the
+# candidate's best time to the floor. Before the checker read its submit floor live the worst was 1.08 over 200 checks;
+# after, 2.11.
+#   KP_RUNS     checks (50)
+load "../../stzBase.ring"
+nRuns = Number(SysGet("KP_RUNS"))
+if nRuns = 0
+	nRuns = 50
+end
+oMk = StzKernelMakerQ()
+oMk.TakesVector(:a)
+oMk.TakesScalar(:w)
+oMk.TakesScalar(:d)
+oMk.TakesScalar(:p)
+oMk.ReturnsVector(:c)
+oMk.Width(:w)
+oMk.Depth(:d)
+oMk.ForEachElement('{ @c = when(@slice > 0, @a - @a[@i - p], @a) }')
+oP = StzKernelPuzzleQ("kp-19")
+oRef = StzKernelMakerFromSpec(oP.Reference())
+vB = oP.Bindings()
+vOpt = [ [ "n", oP.Elements() ], [ "band", oP.Band() ] ]
+if oP.HiddenElements() > 0
+	vOpt + [ "hidden", [ [ "n", oP.HiddenElements() ], [ "bindings", oP.HiddenBindings() ] ] ]
+end
+oG = new stzGpu
+nWorst = 1000000.0f
+nBad = 0
+for r = 1 to nRuns
+	vV = oG.VerifySpecWith(oRef, oMk, vB, vOpt)
+	nRatio = vV[:candms] / vV[:minms]
+	if nRatio < nWorst
+		nWorst = nRatio
+	end
+	if r = 1 or vV[:verdict] != "verified"
+		if vV[:verdict] != "verified"
+			nBad += 1
+		end
+		? "run " + String(r) + " " + vV[:verdict] + ": cand " + String(vV[:candms]) + " ms, ref " + String(vV[:cpums]) + ", min " + String(vV[:minms]) + " (compute " + String(vV[:minmscompute]) + "), submit floor " + String(vV[:submitfloorms]) + ", bus " + String(vV[:floorgbs]) + " GB/s, bytes " + String(vV[:bytes]) + ", flops " + String(vV[:flops]) + ", peak " + String(vV[:peakgflops]) + ", cand gpu " + String(vV[:candgpums])
+	end
+end
+? "worst cand / floor " + String(nWorst) + " over " + String(nRuns) + "; not verified " + String(nBad)

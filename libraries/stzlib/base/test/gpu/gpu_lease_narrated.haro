@@ -59,6 +59,14 @@ else
 	StzEngineNeuralModelFree()
 end
 
+? "-- Scene 1c: a puzzle grader that finds the card busy waits, and never grades on the interpreter --"
+# kp-05's missing guard writes past the region: only the device's margin sees it. A grader refused by the lease used
+# to fall to the interpreter and answer "verified" -- a wrong answer accepted (KP-PROVE-FLAKE, 2026-11-15).
+xC = ChildGrade("STZ_GPU_LEASE_WAIT_MS=300")
+chk("the grader got no device while this process holds the card", xC[1] = 0)
+chk("and its verdict on the missing guard says it waited, naming the holder: " + xC[7], StzFindFirst("waiting for the device", xC[7]) > 0)
+chk("it did not answer verified", StzFindFirst("verified", xC[7]) = 0)
+
 ? "-- Scene 2: this process lets go, and the next one takes the lease at once --"
 StzEngineGpuShutdown()
 chk("closing the device dropped the lease", StzEngineGpuLease(3) = 0)
@@ -107,6 +115,23 @@ func Child(tEnv, tExit)
 		tErr = xL[6]
 	end
 	return [ Number(xL[1]), Number(xL[2]), Number(xL[3]), Number(xL[4]), Number(xL[5]), tErr ]
+end
+
+# Child() with the kp-05 grade: [ device, outcome, waited, other, held, last error, verdict ].
+func ChildGrade(tEnv)
+	$nRun += 1
+	tOut = "_lease_out_" + String($nRun) + ".txt"
+	System("set " + tEnv + "&& set STZ_LEASE_GRADE=kp05-noguard&& set STZ_LEASE_OUT=" + tOut + "&& " + Char(34) + ExeFileName() + Char(34) + " gpu_lease_child.haro")
+	if not FExists(tOut)
+		return [ -1, -1, -1, -1, -1, "the second process wrote nothing", "" ]
+	end
+	xL = StzSplit(Read(tOut), Char(10))
+	Remove(tOut)
+	tV = ""
+	if Len(xL) >= 7
+		tV = xL[7]
+	end
+	return [ Number(xL[1]), Number(xL[2]), Number(xL[3]), Number(xL[4]), Number(xL[5]), xL[6], tV ]
 end
 
 func chk(tWhat, bOk)

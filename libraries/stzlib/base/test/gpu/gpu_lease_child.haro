@@ -11,6 +11,16 @@ tR += String(StzEngineGpuLease(1)) + Char(10)
 tR += String(StzEngineGpuLease(2)) + Char(10)
 tR += String(StzEngineGpuLease(3)) + Char(10)
 tR += StzEngineGpuLastError() + Char(10)
+# With STZ_LEASE_GRADE=kp05-noguard it also grades kp-05's missing-guard mistake, the one only a device can see,
+# and writes the verdict as a seventh line.
+if SysGet("STZ_LEASE_GRADE") = "kp05-noguard"
+	oMk = StzKernelMakerQ()
+	oMk.TakesVector(:a)
+	oMk.ReturnsVector(:c)
+	oMk.WithoutGuard()
+	oMk.ForEachElement("{ @c = @a * 2 }")
+	tR += StzKernelPuzzleQ("kp-05").Grade(oMk) + Char(10)
+end
 Write(SysGet("STZ_LEASE_OUT"), tR)
 if SysGet("STZ_LEASE_EXIT") != "abrupt"
 	StzEngineGpuShutdown()
