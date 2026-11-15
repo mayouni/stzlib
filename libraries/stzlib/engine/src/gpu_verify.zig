@@ -214,6 +214,34 @@ fn ensureHook() void {
     hooked = true;
 }
 
+/// KP-PROVE-FLAKE (2026-11-15): the submit floor, read again in the same moments as the time it
+/// judges. The floor measured when the device opens is a round trip read between bursts of compute;
+/// later in the process a kernel's own round trip ran almost twice as fast: kp-19's right answer came
+/// within 8% of half that floor over 200 checks, and once in 40 ProveItself runs went under it and was
+/// refused as "impossible". So every timed repetition also times the tiny kernel, and the floor takes
+/// the faster reading -- a floor is the fastest the device does -- and a candidate is judged against
+/// round trips of its own moment.
+const LiveSubmit = struct {
+    kernel: i64 = 0,
+    buf: i64 = 0,
+    fn open() LiveSubmit {
+        var ls = LiveSubmit{};
+        ls.kernel = gpu.stz_gpu_kernel_compile(SUBMIT_WGSL.ptr, @floatFromInt(SUBMIT_WGSL.len));
+        if (ls.kernel != 0) ls.buf = gpu.stz_gpu_buffer_new(256);
+        return ls;
+    }
+    fn close(ls: LiveSubmit) void {
+        if (ls.buf != 0) _ = gpu.stz_gpu_buffer_free(ls.buf);
+    }
+    fn fold(ls: LiveSubmit) void {
+        if (ls.kernel == 0 or ls.buf == 0) return;
+        const ids = [_]i64{ls.buf};
+        if (minPlainDispatchMs(ls.kernel, &ids, 1, 1)) |ms| {
+            if (ms > 0 and ms < submit_floor_ms) submit_floor_ms = ms;
+        }
+    }
+};
+
 /// warm-min wall ms of `reps` plain dispatches (no params) of `kernel`.
 pub fn minPlainDispatchMs(kernel: i64, ids: []const i64, wx: f64, reps: usize) ?f64 {
     var best: f64 = std.math.inf(f64);
@@ -950,8 +978,11 @@ pub fn stz_gpu_verify(
         return gpu.OK;
     }
 
-    // 3. timing at the visible shape: alternate, warm-min, two clocks if we have them
+    // 3. timing at the visible shape: alternate, warm-min, two clocks if we have them;
+    //    the submit floor read again in the same moments (LiveSubmit)
     const two = ensureTs();
+    const live = LiveSubmit.open();
+    defer live.close();
     var ids_cand: [8]i64 = undefined;
     for (ia, 0..) |id, i| ids_cand[i] = id;
     ids_cand[ia.len - 1] = out_a;
@@ -962,6 +993,7 @@ pub fn stz_gpu_verify(
     var cand_gpu_min: f64 = std.math.inf(f64);
     var r: usize = 0;
     while (r < nreps) : (r += 1) {
+        live.fold();
         var g: f64 = -1;
         const tr = timedDispatch(kref, pa, ia, wx_ref_a, two, &g) orelse return gpu.GPU_ERROR;
         if (tr < ref_min) ref_min = tr;
@@ -974,6 +1006,7 @@ pub fn stz_gpu_verify(
     }
     result[R_REF_MS] = ref_min;
     result[R_CAND_MS] = cand_min;
+    result[R_SUBMIT_FLOOR_MS] = submit_floor_ms;
     result[R_JITTER_MS] = ref_max - ref_min;
     result[R_SPEEDUP] = if (cand_min > 0) ref_min / cand_min else 0;
     const have_gpu = two and ref_gpu_min < std.math.inf(f64) and cand_gpu_min < std.math.inf(f64);
@@ -1213,13 +1246,17 @@ pub fn stz_gpu_verify_spec(
         result[R_FIRST_BAD] = @floatFromInt(sb.cmp.first_bad);
         return gpu.OK;
     }
-    // 3. timing: the candidate alone, warm, two clocks where there are two
+    // 3. timing: the candidate alone, warm, two clocks where there are two; the submit floor read
+    //    again in the same moments (LiveSubmit)
     const two = ensureTs();
+    const live = LiveSubmit.open();
+    defer live.close();
     var cand_min: f64 = std.math.inf(f64);
     var cand_max: f64 = 0;
     var cand_gpu_min: f64 = std.math.inf(f64);
     var r: usize = 0;
     while (r < nreps) : (r += 1) {
+        live.fold();
         var g: f64 = -1;
         const tc = timedDispatch(kcand, pa, ia, wx_a, two, &g) orelse return gpu.GPU_ERROR;
         if (tc < cand_min) cand_min = tc;
@@ -1228,6 +1265,7 @@ pub fn stz_gpu_verify_spec(
     }
     result[R_CAND_MS] = cand_min;
     result[R_JITTER_MS] = cand_max - cand_min;
+    result[R_SUBMIT_FLOOR_MS] = submit_floor_ms;
     result[R_SPEEDUP] = if (cand_min > 0) sa.cpu_ms / cand_min else 0;
     const have_gpu = two and cand_gpu_min < std.math.inf(f64);
     result[R_CLOCKS] = if (have_gpu) 2 else 1;
