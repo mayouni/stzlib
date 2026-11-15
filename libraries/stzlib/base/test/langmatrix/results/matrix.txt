@@ -1,0 +1,12 @@
+cell                      bolt-e4b          granite-4.2-3b    lfm3-1.7b         qwen3-0.6b        
+sentiment french          50/50  981ms      50/50  1783ms     46/50  442ms      49/50  206ms      
+sentiment arabic          50/50  1448ms     50/50  2351ms     44/50  370ms      45/50  198ms      
+sentiment darija-ar       47/50  1313ms     39/50  2348ms     25/50  700ms      40/50  301ms      
+sentiment darija-latin    36/50  1466ms     37/50  1950ms     25/50  593ms      27/50  230ms      
+sentiment hausa           37/50  1300ms     35/50  2192ms     25/50  703ms      25/50  209ms      
+topic hausa               36/49  8574ms     22/49  7978ms     21/49  3707ms     7/49  1303ms      
+language french           10/10  1204ms     10/10  1542ms     10/10  483ms      8/10  428ms       
+language arabic           10/10  1384ms     6/10  1822ms      10/10  360ms      9/10  243ms       
+language darija-ar        0/10  907ms       0/10  2017ms      0/10  493ms       0/10  182ms       
+language darija-latin     6/10  1500ms      0/10  2183ms      0/10  818ms       0/10  259ms       
+language hausa            8/10  1912ms      0/10  2145ms      2/10  1003ms      0/10  219ms       

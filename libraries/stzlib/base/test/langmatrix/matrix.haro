@@ -1,0 +1,404 @@
+# THE LANGUAGE AND CONTEXT MATRIX -- text first.
+#
+#     haro matrix.haro <label> <model file>     one model over every cell; writes results/<label>.txt
+#     haro matrix.haro summary                  the table of every model's results, results/matrix.txt
+#
+# Directive 3 of Softanza's intelligence needs: fluent in the contexts Softanza lives in. The first cells are text in
+# French, Modern Standard Arabic, Tunisian Darija (in Arabic letters and in Latin letters) and Hausa. Three tasks:
+#
+#   sentiment   is the opinion positive or negative -- 50 items a language, 25 of each
+#   topic       the topic of a Hausa news article, among MasakhaNEWS's seven -- 49 items, 7 a topic
+#   language    which language a text is written in -- 10 items a language, Darija expected as "tunisian"
+#
+# Each answer is read from the model's next-token logits over the options (the first token of each option, in small
+# letters and with a capital, the higher of the two): one prefill an item, no generation, no sampling.
+#
+# The items: French and Arabic written for this matrix (items_fr_ar.tsv, beside this file); the others from public
+# test sets, read from STZ_LANG_DIR and never copied into the repository -- AfriSenti (Hausa tweets), MasakhaNEWS
+# (Hausa news), TSAC (Tunisian comments; its lines in Arabic letters), TUNIZI (Tunisian in Latin letters). Items
+# are taken at an even stride through each file, so the sample is the same on every run.
+#
+# Needs STZ_ENGINE_DIR (an engine with stz_neural.dll). A heavy job: one model at a time.
+
+load "../../stzBase.ring"
+
+$tLang = Slashes(SysGet("STZ_LANG_DIR"))
+$vOptSent = [ "positive", "negative" ]
+$vOptTopic = [ "business", "entertainment", "health", "politics", "religion", "sports", "technology" ]
+$vOptLang = [ "french", "arabic", "tunisian", "hausa", "english" ]
+$tSystem = "You read short texts from Tunisia, Niger and France."
+$tLabel = ""
+
+tModel = ""
+bSummary = false
+nArgs = Len(SysArgv)
+for i = 1 to nArgs
+	if Right(SysArgv[i], 11) = "matrix.haro" and i + 1 <= nArgs
+		if SysArgv[i + 1] = "summary"
+			bSummary = true
+		elseif i + 2 <= nArgs
+			$tLabel = SysArgv[i + 1]
+			tModel = SysArgv[i + 2]
+		end
+	end
+end
+if bSummary
+	Summary()
+	Shutdown(0)
+end
+if $tLabel = "" or $tLang = ""
+	? "usage: haro matrix.haro <label> <model file>   |   haro matrix.haro summary      (STZ_LANG_DIR set)"
+	Shutdown(2)
+end
+
+vCells = Cells()
+LoadLib(Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/stz_neural.dll")
+if StzEngineNeuralModelLoad(Slashes(tModel)) = 0
+	? "the model load was refused, status " + String(StzEngineNeuralModelLoadStatus())
+	Shutdown(1)
+end
+StzEngineNeuralGenSetPrefixReuse(1)
+
+tOut = ""
+for c = 1 to Len(vCells)
+	vC = vCells[c]
+	nRight = 0
+	nStart = Clock()
+	for i = 1 to Len(vC[4])
+		tGot = Choose(vC[3], vC[4][i][2], vC[5])
+		if tGot = vC[4][i][1]
+			nRight++
+		end
+	end
+	nMs = Floor(Float((Clock() - nStart) * 1000) / Float(ClocksPerSecond() * Bigger(1, Len(vC[4]))))
+	tOut = tOut + vC[1] + Char(9) + vC[2] + Char(9) + String(nRight) + Char(9) + String(Len(vC[4])) + Char(9) + String(nMs) + Char(10)
+	? Pad(vC[1], 10) + Pad(vC[2], 14) + String(nRight) + " / " + String(Len(vC[4])) + "   " + String(nMs) + " ms an item"
+end
+MakeDir("results")
+Write("results/" + $tLabel + ".txt", tOut)
+
+
+# the cells: [task, language, question, [[expected, text] ...], options]
+func Cells
+	tSent = "Is the opinion in this text positive or negative? Answer with one word: positive or negative."
+	tTopic = "What is the topic of this Hausa news article? Answer with one word: business, entertainment, health, politics, religion, sports or technology."
+	tWhich = "Which language is this text written in? Answer with one word: French, Arabic, Tunisian, Hausa or English."
+	vFr = Authored("fr")
+	vAr = Authored("ar")
+	vDarAr = Tsac()
+	vDarLa = Tunizi()
+	vHau = AfriSenti()
+	vOut = []
+	vOut + [ "sentiment", "french", tSent, vFr, $vOptSent ]
+	vOut + [ "sentiment", "arabic", tSent, vAr, $vOptSent ]
+	vOut + [ "sentiment", "darija-ar", tSent, vDarAr, $vOptSent ]
+	vOut + [ "sentiment", "darija-latin", tSent, vDarLa, $vOptSent ]
+	vOut + [ "sentiment", "hausa", tSent, vHau, $vOptSent ]
+	vOut + [ "topic", "hausa", tTopic, MasakhaNews(), $vOptTopic ]
+	vOut + [ "language", "french", tWhich, Relabel(Stride(vFr, 10), "french"), $vOptLang ]
+	vOut + [ "language", "arabic", tWhich, Relabel(Stride(vAr, 10), "arabic"), $vOptLang ]
+	vOut + [ "language", "darija-ar", tWhich, Relabel(Stride(vDarAr, 10), "tunisian"), $vOptLang ]
+	vOut + [ "language", "darija-latin", tWhich, Relabel(Stride(vDarLa, 10), "tunisian"), $vOptLang ]
+	vOut + [ "language", "hausa", tWhich, Relabel(Stride(vHau, 10), "hausa"), $vOptLang ]
+	return vOut
+end
+
+# the option whose first token the model rates highest after the question and the text
+func Choose(tQuestion, tText, vOpt)
+	StzEngineNeuralPrefillLogits(Prompt($tSystem, tQuestion + Char(10) + Char(10) + "Text: " + Left(tText, 700)))
+	tBest = ""
+	fBest = -1000000.0f
+	for i = 1 to Len(vOpt)
+		tCap = Upper(Left(vOpt[i], 1)) + Right(vOpt[i], Len(vOpt[i]) - 1)
+		fA = StzEngineNeuralLogitAt(FirstId(vOpt[i]))
+		fB = StzEngineNeuralLogitAt(FirstId(tCap))
+		if fB > fA
+			fA = fB
+		end
+		if fA > fBest
+			fBest = fA
+			tBest = vOpt[i]
+		end
+	end
+	return tBest
+end
+
+func FirstId(tWord)
+	StzEngineNeuralGenTokenize("a")
+	nIdA = StzEngineNeuralGenTokenAt(0)
+	StzEngineNeuralGenTokenize("b")
+	nSkip = 0
+	if StzEngineNeuralGenTokenAt(0) = nIdA
+		nSkip = 1
+	end
+	StzEngineNeuralGenTokenize(tWord)
+	return StzEngineNeuralGenTokenAt(nSkip)
+end
+
+# the model's chat template, by its label: bolt, granite, qwen3 (thinking closed), else ChatML
+func Prompt(tSys, tUser)
+	if Left($tLabel, 4) = "bolt"
+		return "<|turn>system" + Char(10) + tSys + "<turn|>" + Char(10) + "<|turn>user" + Char(10) + tUser + "<turn|>" + Char(10) + "<|turn>model" + Char(10)
+	end
+	if Left($tLabel, 7) = "granite"
+		return "<|start_of_role|>system<|end_of_role|>" + tSys + "<|end_of_text|>" + Char(10) + "<|start_of_role|>user<|end_of_role|>" + tUser + "<|end_of_text|>" + Char(10) + "<|start_of_role|>assistant<|end_of_role|>"
+	end
+	tChat = "<|im_start|>system" + Char(10) + tSys + "<|im_end|>" + Char(10) + "<|im_start|>user" + Char(10) + tUser + "<|im_end|>" + Char(10) + "<|im_start|>assistant" + Char(10)
+	if Left($tLabel, 5) = "qwen3"
+		return tChat + "<think>" + Char(10) + Char(10) + "</think>" + Char(10) + Char(10)
+	end
+	return tChat
+end
+
+
+# --- the items ----------------------------------------------------------------------------------------------------
+
+func Authored(tWhich)
+	vOut = []
+	vRows = ReadTsv("items_fr_ar.tsv")
+	for i = 2 to Len(vRows)
+		if vRows[i][1] = tWhich
+			vOut + [ vRows[i][2], vRows[i][3] ]
+		end
+	end
+	return vOut
+end
+
+# AfriSenti Hausa: tweet, label; neutral left out
+func AfriSenti
+	vPos = []
+	vNeg = []
+	vRows = ReadTsv($tLang + "/afrisenti_hau/test.tsv")
+	for i = 2 to Len(vRows)
+		if Len(vRows[i]) < 2
+			loop
+		end
+		if vRows[i][2] = "positive"
+			vPos + [ "positive", vRows[i][1] ]
+		elseif vRows[i][2] = "negative"
+			vNeg + [ "negative", vRows[i][1] ]
+		end
+	end
+	return Both(vPos, vNeg, 25)
+end
+
+# TSAC: test_pos.txt and test_neg.txt, the lines written in Arabic letters
+func Tsac
+	vPos = ArabicLines(Str2List(Read($tLang + "/tsac/test_pos.txt")), "positive")
+	vNeg = ArabicLines(Str2List(Read($tLang + "/tsac/test_neg.txt")), "negative")
+	return Both(vPos, vNeg, 25)
+end
+
+func ArabicLines(vLines, tLabel)
+	vOut = []
+	for i = 1 to Len(vLines)
+		if HasArabic(vLines[i])
+			vOut + [ tLabel, Trim2(vLines[i]) ]
+		end
+	end
+	return vOut
+end
+
+# a letter of the Arabic block, U+0600 to U+06FF, starts with a byte from D8 to DB in UTF-8
+func HasArabic(tLine)
+	nLen = Len(tLine)
+	for i = 1 to nLen
+		nB = Ascii(tLine[i])
+		if nB >= 216 and nB <= 219
+			return true
+		end
+	end
+	return false
+end
+
+# TUNIZI: "1;text" or "-1;text"
+func Tunizi
+	vPos = []
+	vNeg = []
+	vLines = Str2List(Read($tLang + "/tunizi/TUNIZI-Dataset.txt"))
+	for i = 1 to Len(vLines)
+		nAt = SubStr(vLines[i], ";")
+		if nAt = 0
+			loop
+		end
+		tMark = Left(vLines[i], nAt - 1)
+		tText = Trim2(SubStr(vLines[i], nAt + 1, Len(vLines[i]) - nAt))
+		if tMark = "1"
+			vPos + [ "positive", tText ]
+		elseif tMark = "-1"
+			vNeg + [ "negative", tText ]
+		end
+	end
+	return Both(vPos, vNeg, 25)
+end
+
+# MasakhaNEWS Hausa: category, headline, text, url; 7 a category, the headline and the start of the text
+func MasakhaNews
+	vOut = []
+	vRows = ReadTsv($tLang + "/masakhanews_hau/test.tsv")
+	for o = 1 to Len($vOptTopic)
+		vOne = []
+		for i = 2 to Len(vRows)
+			if Len(vRows[i]) >= 3 and vRows[i][1] = $vOptTopic[o]
+				vOne + [ $vOptTopic[o], vRows[i][2] + ". " + Left(vRows[i][3], 400) ]
+			end
+		end
+		vTake = Stride(vOne, 7)
+		for i = 1 to Len(vTake)
+			vOut + vTake[i]
+		end
+	end
+	return vOut
+end
+
+# n of each list at an even stride, interleaved
+func Both(vA, vB, nEach)
+	vSa = Stride(vA, nEach)
+	vSb = Stride(vB, nEach)
+	vOut = []
+	for i = 1 to Bigger(Len(vSa), Len(vSb))
+		if i <= Len(vSa)
+			vOut + vSa[i]
+		end
+		if i <= Len(vSb)
+			vOut + vSb[i]
+		end
+	end
+	return vOut
+end
+
+func Stride(vList, nWant)
+	vOut = []
+	nLen = Len(vList)
+	if nLen <= nWant
+		return vList
+	end
+	for i = 1 to nWant
+		vOut + vList[Floor((i - 1) * nLen / nWant) + 1]
+	end
+	return vOut
+end
+
+func Relabel(vItems, tLabel)
+	vOut = []
+	for i = 1 to Len(vItems)
+		vOut + [ tLabel, vItems[i][2] ]
+	end
+	return vOut
+end
+
+
+# --- the table ----------------------------------------------------------------------------------------------------
+
+func Summary
+	vFiles = Dir("results")
+	vLabels = []
+	vRows = []
+	for i = 1 to Len(vFiles)
+		tName = vFiles[i][1]
+		if vFiles[i][2] = 1 or Right(tName, 4) != ".txt" or tName = "matrix.txt"
+			loop
+		end
+		vLabels + Left(tName, Len(tName) - 4)
+		vRows + ReadTsv("results/" + tName)
+	end
+	if Len(vLabels) = 0
+		? "no results yet"
+		return
+	end
+	tOut = Pad("cell", 26)
+	for m = 1 to Len(vLabels)
+		tOut = tOut + Pad(vLabels[m], 18)
+	end
+	tOut = tOut + Char(10)
+	vFirst = vRows[1]
+	for c = 1 to Len(vFirst)
+		tOut = tOut + Pad(vFirst[c][1] + " " + vFirst[c][2], 26)
+		for m = 1 to Len(vLabels)
+			tCell = "--"
+			for r = 1 to Len(vRows[m])
+				if vRows[m][r][1] = vFirst[c][1] and vRows[m][r][2] = vFirst[c][2]
+					tCell = vRows[m][r][3] + "/" + vRows[m][r][4] + "  " + vRows[m][r][5] + "ms"
+				end
+			end
+			tOut = tOut + Pad(tCell, 18)
+		end
+		tOut = tOut + Char(10)
+	end
+	? tOut
+	Write("results/matrix.txt", tOut)
+end
+
+
+# --- shared -------------------------------------------------------------------------------------------------------
+
+func ReadTsv(tPath)
+	vOut = []
+	vLines = Str2List(Read(tPath))
+	for i = 1 to Len(vLines)
+		tLine = vLines[i]
+		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
+			tLine = Left(tLine, Len(tLine) - 1)
+		end
+		if Len(tLine) > 0
+			vOut + Fields(tLine)
+		end
+	end
+	return vOut
+end
+
+func Fields(tLine)
+	vOut = []
+	tRest = tLine
+	nTab = SubStr(tRest, Char(9))
+	while nTab > 0
+		vOut + Left(tRest, nTab - 1)
+		tRest = SubStr(tRest, nTab + 1, Len(tRest) - nTab)
+		nTab = SubStr(tRest, Char(9))
+	end
+	vOut + tRest
+	return vOut
+end
+
+func Trim2(tT)
+	nA = 1
+	nB = Len(tT)
+	while nA <= nB and (tT[nA] = " " or tT[nA] = Char(9) or tT[nA] = Char(13))
+		nA++
+	end
+	while nB >= nA and (tT[nB] = " " or tT[nB] = Char(9) or tT[nB] = Char(13))
+		nB--
+	end
+	if nB < nA
+		return ""
+	end
+	return SubStr(tT, nA, nB - nA + 1)
+end
+
+func Pad(tText, nWidth)
+	tOut = tText
+	while Len(tOut) < nWidth
+		tOut = tOut + " "
+	end
+	return tOut
+end
+
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for i = 1 to nLen
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end
+
+func Bigger(nA, nB)
+	if nA > nB
+		return nA
+	end
+	return nB
+end

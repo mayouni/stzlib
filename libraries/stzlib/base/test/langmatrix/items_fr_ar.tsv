@@ -1,0 +1,101 @@
+lang	label	text
+fr	positive	Le service était rapide et le personnel très aimable.
+fr	positive	J'adore ce quartier, tout est à deux pas.
+fr	positive	La livraison est arrivée en avance, emballage impeccable.
+fr	positive	Très bonne formation, j'ai appris énormément.
+fr	positive	Le repas était délicieux et copieux, je reviendrai.
+fr	positive	Merci pour votre réactivité, problème réglé en une heure.
+fr	positive	Une application simple et efficace, je la recommande.
+fr	positive	L'hôtel était propre, calme et bien situé.
+fr	positive	Excellent rapport qualité-prix, rien à redire.
+fr	positive	Le médecin a pris le temps de tout m'expliquer.
+fr	positive	Superbe concert, une ambiance incroyable.
+fr	positive	Le nouveau logiciel nous fait gagner un temps précieux.
+fr	positive	Accueil chaleureux à la mairie, démarche faite en dix minutes.
+fr	positive	Mes enfants ont adoré l'atelier de peinture.
+fr	positive	Le colis est arrivé intact et le produit fonctionne parfaitement.
+fr	positive	Une équipe à l'écoute et très professionnelle.
+fr	positive	Le film m'a ému aux larmes, magnifique.
+fr	positive	Les nouveaux horaires du bus sont bien plus pratiques.
+fr	positive	Je suis ravi de mon achat, la batterie tient deux jours.
+fr	positive	Le guide était passionnant, visite inoubliable.
+fr	positive	Paiement en ligne clair et sécurisé, bravo.
+fr	positive	La réunion a été productive, toutes les décisions sont prises.
+fr	positive	Le pain de cette boulangerie est le meilleur de la ville.
+fr	positive	Installation rapide, le technicien était compétent.
+fr	positive	Quelle belle surprise, le jardin a été entièrement rénové.
+fr	negative	Le colis n'est jamais arrivé et personne ne répond.
+fr	negative	Service client injoignable, c'est inadmissible.
+fr	negative	La chambre était sale et bruyante toute la nuit.
+fr	negative	Le produit est tombé en panne au bout d'une semaine.
+fr	negative	Trois heures d'attente pour un simple rendez-vous.
+fr	negative	Les frais cachés sur la facture sont scandaleux.
+fr	negative	L'application plante à chaque mise à jour.
+fr	negative	Le plat était froid et beaucoup trop salé.
+fr	negative	On m'a facturé deux fois le même abonnement.
+fr	negative	Le chantier bloque la rue depuis des mois, c'est insupportable.
+fr	negative	Formation décevante, le formateur lisait ses diapositives.
+fr	negative	Le train a encore été supprimé sans aucune explication.
+fr	negative	Personnel désagréable et peu professionnel.
+fr	negative	Le site refuse mon paiement depuis trois jours.
+fr	negative	La qualité a beaucoup baissé, je ne recommande plus.
+fr	negative	Mon dossier a été perdu pour la deuxième fois.
+fr	negative	Le bruit des voisins rend l'appartement invivable.
+fr	negative	La garantie ne couvre rien, quelle arnaque.
+fr	negative	Le réseau coupe sans arrêt dans tout le village.
+fr	negative	Livraison en retard et article abîmé.
+fr	negative	Le contrat est illisible et les conditions abusives.
+fr	negative	Je regrette cet achat, il ne sert à rien.
+fr	negative	Les toilettes de la gare sont dans un état lamentable.
+fr	negative	Réponse automatique, aucune solution proposée.
+fr	negative	Le spectacle a commencé avec une heure de retard et le son était mauvais.
+ar	positive	كانت الخدمة سريعة والموظفون لطفاء جدا.
+ar	positive	أحببت هذا الكتاب كثيرا وأنصح بقراءته.
+ar	positive	وصل الطلب قبل موعده وكان التغليف ممتازا.
+ar	positive	دورة تدريبية رائعة تعلمت منها الكثير.
+ar	positive	الطعام لذيذ والأسعار معقولة، سأعود مرة أخرى.
+ar	positive	شكرا على سرعة الاستجابة، حُلّت المشكلة في ساعة.
+ar	positive	تطبيق سهل وفعال أنصح به الجميع.
+ar	positive	الفندق نظيف وهادئ وموقعه ممتاز.
+ar	positive	جودة عالية مقابل سعر مناسب، لا شيء يقال.
+ar	positive	أخذ الطبيب وقته في شرح كل شيء بوضوح.
+ar	positive	حفل رائع وأجواء لا تُنسى.
+ar	positive	البرنامج الجديد يوفر علينا وقتا ثمينا.
+ar	positive	استقبال حار في البلدية وأُنجزت المعاملة في دقائق.
+ar	positive	استمتع أطفالي كثيرا بورشة الرسم.
+ar	positive	وصل الجهاز سليما ويعمل بشكل ممتاز.
+ar	positive	فريق متعاون ومحترف للغاية.
+ar	positive	فيلم مؤثر وجميل جدا.
+ar	positive	مواعيد الحافلات الجديدة أكثر ملاءمة بكثير.
+ar	positive	أنا سعيد بهذا الشراء، البطارية تدوم يومين.
+ar	positive	كان المرشد ممتعا والزيارة لا تُنسى.
+ar	positive	الدفع الإلكتروني واضح وآمن، أحسنتم.
+ar	positive	كان الاجتماع مثمرا واتُّخذت كل القرارات.
+ar	positive	خبز هذا المخبز هو الأفضل في المدينة.
+ar	positive	تركيب سريع والفني كان كفؤا.
+ar	positive	يا لها من مفاجأة جميلة، جُدّدت الحديقة بالكامل.
+ar	negative	لم يصل الطرد أبدا ولا أحد يجيب.
+ar	negative	خدمة العملاء لا ترد، هذا أمر غير مقبول.
+ar	negative	كانت الغرفة متسخة وصاخبة طوال الليل.
+ar	negative	تعطل الجهاز بعد أسبوع واحد فقط.
+ar	negative	ثلاث ساعات من الانتظار لموعد بسيط.
+ar	negative	الرسوم المخفية في الفاتورة فضيحة.
+ar	negative	التطبيق يتوقف عن العمل مع كل تحديث.
+ar	negative	كان الطبق باردا ومالحا جدا.
+ar	negative	خُصم مني ثمن الاشتراك نفسه مرتين.
+ar	negative	الأشغال تغلق الشارع منذ أشهر، لا يطاق.
+ar	negative	دورة مخيبة للآمال، كان المدرب يقرأ الشرائح فقط.
+ar	negative	أُلغي القطار مرة أخرى دون أي تفسير.
+ar	negative	موظفون غير مهذبين وغير محترفين.
+ar	negative	الموقع يرفض الدفع منذ ثلاثة أيام.
+ar	negative	انخفضت الجودة كثيرا ولم أعد أنصح به.
+ar	negative	ضاع ملفي للمرة الثانية.
+ar	negative	ضجيج الجيران يجعل الشقة لا تُحتمل.
+ar	negative	الضمان لا يغطي شيئا، يا له من احتيال.
+ar	negative	الشبكة تنقطع باستمرار في القرية كلها.
+ar	negative	تأخر التوصيل ووصلت السلعة تالفة.
+ar	negative	العقد غير مفهوم والشروط مجحفة.
+ar	negative	أندم على هذا الشراء، لا فائدة منه.
+ar	negative	دورات المياه في المحطة في حالة يرثى لها.
+ar	negative	رد آلي ولا حل مقترح.
+ar	negative	بدأ العرض متأخرا ساعة وكان الصوت سيئا.

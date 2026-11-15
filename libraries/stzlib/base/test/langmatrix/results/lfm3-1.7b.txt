@@ -1,0 +1,11 @@
+sentiment	french	46	50	442
+sentiment	arabic	44	50	370
+sentiment	darija-ar	25	50	700
+sentiment	darija-latin	25	50	593
+sentiment	hausa	25	50	703
+topic	hausa	21	49	3707
+language	french	10	10	483
+language	arabic	10	10	360
+language	darija-ar	0	10	493
+language	darija-latin	0	10	818
+language	hausa	2	10	1003
