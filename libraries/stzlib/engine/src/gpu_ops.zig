@@ -615,18 +615,23 @@ pub fn mmSourceW(v: usize, comptime bias: bool, comptime wf16: bool) []const u8 
 /// w = p.has_bias >> 1 (bit 0 still says whether a bias is read). One product of rows x k x 3w replaces three of
 /// rows x k x w -- the backbone's Q, K and V -- and each projection still lands in a buffer of its own, so nothing
 /// that reads them changes. Bindings: a 2, b 3, bias 4, the three outputs 5, 6 and 7.
-pub fn mmSourceTri(v: usize, comptime wf16: bool) []const u8 {
-    return switch (v) {
-        MM_TILE8 => comptime triStore(mmTileSource(8, true, wf16)),
-        MM_REG2 => comptime triStore(mmRegSource(2, true, false, wf16)),
-        MM_REG4 => comptime triStore(mmRegSource(4, true, false, wf16)),
-        MM_BROKEN => comptime triStore(mmRegSource(2, true, true, wf16)),
-        MM_REG4S => comptime triStore(mmStridedSource(4, 4, 16, true, wf16)),
-        MM_REG8 => comptime triStore(mmStridedSource(8, 8, 8, true, wf16)),
-        MM_REG8P => comptime triStore(mmStridedSourceP(8, 8, 8, true, true, wf16)),
-        else => comptime triStore(mmTileSource(16, true, wf16)),
-    };
+pub fn mmSourceTri(v: usize, wf16: bool) []const u8 {
+    // Built at run time, once per variant and weight type, and kept: the same replace done at compile time grew a
+    // string one character at a time over sixteen sources and held 7.5 GB before it was stopped (2026-11-15).
+    const vi = if (v < MM_VARIANTS) v else MM_GENERIC;
+    const idx = vi * 2 + @intFromBool(wf16);
+    if (g_tri_src[idx]) |t| return t;
+    const base = if (wf16) mmSourceW(vi, true, true) else mmSourceW(vi, true, false);
+    const t1 = std.mem.replaceOwned(u8, alloc, base, TRI_ONE_OUT, TRI_THREE_OUT) catch return "";
+    defer alloc.free(t1);
+    const t2 = std.mem.replaceOwned(u8, alloc, t1, TRI_BIAS_ONE, TRI_BIAS_BIT) catch return "";
+    defer alloc.free(t2);
+    const t3 = std.mem.replaceOwned(u8, alloc, t2, TRI_STORE_ONE, TRI_STORE_THREE) catch return "";
+    g_tri_src[idx] = t3;
+    return t3;
 }
+
+var g_tri_src: [MM_VARIANTS * 2]?[]u8 = @splat(null);
 
 const TRI_ONE_OUT = "@group(0) @binding(5) var<storage, read_write> cc : array<f32>;";
 const TRI_THREE_OUT = "@group(0) @binding(5) var<storage, read_write> cc0 : array<f32>;\n" ++
@@ -638,19 +643,15 @@ const TRI_STORE_ONE = "      cc[r * p.n + c] = v;";
 const TRI_STORE_THREE = "      { let stz_w = p.has_bias >> 1u; let stz_o = r * stz_w + (c % stz_w); let stz_blk = c / stz_w; " ++
     "if (stz_blk == 0u) { cc0[stz_o] = v; } else if (stz_blk == 1u) { cc1[stz_o] = v; } else { cc2[stz_o] = v; } }";
 
-fn triStore(comptime src: []const u8) []const u8 {
-    @setEvalBranchQuota(20000000);
-    return comptimeReplace(comptimeReplace(comptimeReplace(src, TRI_ONE_OUT, TRI_THREE_OUT), TRI_BIAS_ONE, TRI_BIAS_BIT), TRI_STORE_ONE, TRI_STORE_THREE);
-}
-
 test "the three-output product: every variant's text has three outputs and no single store left" {
-    inline for (.{ MM_GENERIC, MM_TILE8, MM_REG2, MM_REG4, MM_REG4S, MM_REG8, MM_REG8P }) |v| {
-        inline for (.{ false, true }) |h| {
-            const s = comptime mmSourceTri(v, h);
-            try std.testing.expect(std.mem.indexOf(u8, s, "cc2 : array<f32>") != null);
-            try std.testing.expect(std.mem.indexOf(u8, s, "cc[") == null);
-            try std.testing.expect(std.mem.indexOf(u8, s, "(p.has_bias & 1u) == 1u") != null);
-            try std.testing.expect(std.mem.indexOf(u8, s, "stz_blk") != null);
+    for ([_]usize{ MM_GENERIC, MM_TILE8, MM_REG2, MM_REG4, MM_REG4S, MM_REG8, MM_REG8P }) |v| {
+        for ([_]bool{ false, true }) |h| {
+            const t = mmSourceTri(v, h);
+            try std.testing.expect(std.mem.indexOf(u8, t, "cc2 : array<f32>") != null);
+            try std.testing.expect(std.mem.indexOf(u8, t, "cc[") == null);
+            try std.testing.expect(std.mem.indexOf(u8, t, "(p.has_bias & 1u) == 1u") != null);
+            try std.testing.expect(std.mem.indexOf(u8, t, "stz_blk") != null);
+            try std.testing.expect(mmSourceTri(v, h).ptr == t.ptr); // built once
         }
     }
 }
