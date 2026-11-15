@@ -241,7 +241,7 @@ Since 2026-11-09 no new code is written in the retired language (PRINCIPAL-NORIN
 
 ### 6.1 `testoor walk`
 
-    testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder]
+    testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]
 
 - **The tours** are the files under FOLDER, in any folder below it, whose name ends with `_narrated.haro` (or `--suffix`),
   sorted by path. A file or a folder whose name begins with `_` or `.` is never walked: measurement scripts, planted
@@ -366,6 +366,57 @@ second.
 a reach follows the same edges in the same order as the scan it replaces, and every golden of protocols 2 and 3 is unchanged.
 Before it, a reach over that unit was a scan of every edge per reached node, billions of comparisons.
 
+### 6.8 Which functions a tour reached: `testoor probe`, and the side file
+
+    testoor probe FOLDER [--haro PATH] [--out FILE.json]
+    testoor walk FOLDER ... --graph FILE.json --ladder
+
+The ladder's grade 1, **observed**, needs to know which functions a tour ran (section 2), and haro.exe counts no calls
+(HARO-CALLCOUNT-01). `testoor probe` gives a COPY of a codebase that says so itself (`engine/src/testoor_probe.zig`):
+
+- **A call before the first statement of each body**, on that statement's line: `\tTestoorProbeHit(4) nSec = Floor(nMs / 1000)`,
+  each function and method numbered. haro graph names the definitions and their lines; the probe finds where each signature
+  closes and the first line after it that is not blank or a comment. No line moves, so a claim, an error and a graph name the
+  lines they named. The file gains one last line, `load "<path>/_testoor_probe.haro"`.
+- **`_testoor_probe.haro`**, at the folder's root, holds `TestoorProbeHit`: on the first call of each function in a process, one
+  line `[testoor node ID]` appended to the file the variable `TESTOOR_NODES` names; with no such variable, nothing. It sets
+  itself up on its first call, so a file's own statements may run a function before the load at its end is reached.
+- **Not probed, and named**: a function whose body begins on the line of its signature, one whose signature does not close,
+  one whose body begins where another definition does. On haro.exe of 2026-11-14 a statement after a signature, on its line,
+  made some functions a function of one line and their bodies the file's own statements; so the call never goes there.
+- **The check**: haro graph is run again on each probed file; it must name the same definitions on the same lines, finish
+  what it finished, and read a call to `TestoorProbeHit` in each probed definition. Else probe exits 2 and names the file.
+- **A copy, never a repository**: a folder in a git work tree is refused, and so is one probed already.
+- **The record** (`--out`): the graph record of what was probed, subject the folder, for `--graph`. Its nodes are the files'
+  functions and methods; a file's own statements are no node of it, since the probe does not observe them.
+
+**The side file.** Every walk the core makes names a file of its own to the tour, by `TESTOOR_NODES`, and a child the tour
+starts inherits it. A `[testoor node ID]` line written there is the tour's, as if printed (protocol 2 section 3); nothing else
+in it is read, so no claim reaches the judge that way, and nothing of a probed codebase passes through the output a tour is
+judged by. A walk that writes nothing leaves no file.
+
+**`--graph FILE.json`** on `run` and `walk`: the run is judged against that graph record -- a node line names one of its nodes,
+a node a tour calls by name (the Haro face's names) and never reached is `mentioned`, and the ladder's `owned` is the graph's
+node count, `named` the nodes no tour reached.
+
+**The probe's names are its own.** Its first name was `TestoorNodeHit`, which stzlib defines (its node counter,
+`base/testoor/stzNodes.ring`): a guard loads the library first, haro.exe keeps a name's first definition, and the probed calls
+went to the library's counter -- the Foundry's guards observed nothing in their own process. `TestoorProbeHit` and its
+globals are named nowhere in stzlib; a codebase that defined one would shadow the probe the same way.
+
+**Measured on the Foundry** (2026-11-15, a copy of stzfoundry 2917ebe; haro.exe of 2026-11-14):
+
+- **the probe**: 8 files, 117 functions, every one probed and the check passed, in 57 s (81 s with other desks' builds
+  running): haro graph reads `node.haro`, which loads the library, in 21.6 s and each other module in under 0.3 s, and the
+  check reads them again.
+- **the claims do not move**: the 9 guards walked on the probed copy and on the plain one give the same verdict on every
+  claim, 243 kept and 1 diverged (`af6_page` runs a tool, `.zayn`, these copies lack: the same in both). 433 s probed and
+  445 s plain, every image cold.
+- **the ladder**, `--graph` the probe's record: 117 owned -- **114 exemplified, 2 observed, 1 named**. Each guard reached
+  51 to 103 of them, its child programs included. `PageShort` and `PageBodyList` stand on grade 1, reached only by
+  `af6_page`, which diverged. `FoundryHex2` (`project.haro` line 385) stands on grade 0: it is called only to write a
+  control character other than a tab, a line feed or a carriage return into a JSON text, and no guard writes one.
+
 ## 7. Conformance
 
 Written by hand from section 2 before the code, and reproduced by the core on its first run (`zig build test-testoor`).
@@ -394,6 +445,7 @@ Written by hand from section 2 before the code, and reproduced by the core on it
 | `haro/graph/G2_a_call_by_a_built_name_opens_its_function` | 6.6: the unit's file read: `call tName(nX)` opens `Dispatch`; the word in a string and a comment does not |
 | `haro/impact/I1_names_select_a_tour` | 6.7: a complete graph, a change to `Vat`: the tour calling `Gross` is selected and the one calling `Label` skipped |
 | `haro/impact/I2_an_open_node_selects_every_tour` | 6.7: the same change over G2's graph, `Dispatch` open: the reach widened by it, it caps itself, every tour selected |
+| `haro/probe/P1_a_call_before_each_body` | 6.8: eight functions and methods each given a call before the first statement of its body, with no line moved, the probe file, nothing left unprobed, and the record of what was probed, which holds no node for the file's own statements -- written by hand; the module runs on haro.exe with the same output plain, probed, and probed with a side file, which then holds the eight |
 | `haro/judge/H4_a_picture_report_is_not_a_verdict` | 6.2: a narrated Haro tour whose GIVEN line says a picture DOES NOT MATCH, its two THEN lines PASS: kept -- the picture rule had read the GIVEN line as a diverged claim |
 | `haro/judge/H2_a_repeated_claim_is_a_second_check` | 6.4: an unknown-dialect tour printing `FAIL  x`, then `ok  x`, then another claim: three claims, the tour diverged -- protocol 2's landing read it as kept |
 | `haro/judge/H1_a_report_line_is_not_a_verdict` | a narrated Haro tour whose program prints `  FAIL     :...` before its two `THEN` lines: 2 kept, finished, exit 0 -- under protocol 2's rule the report line was a diverged claim |

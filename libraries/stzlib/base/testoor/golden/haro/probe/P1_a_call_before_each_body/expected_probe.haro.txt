@@ -1,0 +1,29 @@
+# Written by testoor probe (TESTOOR_PROTOCOL_3.md section 6.8): which of this codebase's functions a tour reached.
+# Each probed function calls TestoorProbeHit with its number first. The first call of each, in each process, appends
+# one line `[testoor node ID]` to the file TESTOOR_NODES names; with no such variable nothing is written. Set up on
+# its first call, since a file's own statements may run a function before this file is loaded.
+
+func TestoorProbeHit(nK)
+	if not IsGlobal("$vTestoorProbeSeen")
+		$vTestoorProbeIds = [
+			"Gross",
+			"Vat",
+			"Label",
+			"Today",
+			"Quick",
+			"Invoice.Add",
+			"Invoice.Total",
+			"Invoice.Reset"
+		]
+		$vTestoorProbeSeen = [0, 0, 0, 0, 0, 0, 0, 0]
+		$tTestoorProbeFile = SysGet("TESTOOR_NODES")
+	end
+	if $vTestoorProbeSeen[nK] = 0
+		$vTestoorProbeSeen[nK] = 1
+		if $tTestoorProbeFile != ""
+			hTestoorProbe = FOpen($tTestoorProbeFile, "a")
+			FWrite(hTestoorProbe, "[testoor node " + $vTestoorProbeIds[nK] + "]" + Char(10))
+			FClose(hTestoorProbe)
+		end
+	end
+end

@@ -101,6 +101,8 @@ pub const Meta = struct {
     /// face; without a graph a tour's node lines are listed as reported
     graph: ?G.Graph = null,
     names: []const []const u8 = &.{},
+    /// the walk's side file (testoor_runner.zig, THE SIDE FILE): its node lines are the tour's; nothing else in it is read
+    side: []const u8 = "",
 };
 
 // ── the outputs ──────────────────────────────────────────────
@@ -558,6 +560,13 @@ pub fn verdict(a: Allocator, rec: Record, lines: []const Line, meta: Meta) !Tour
             if (T.parseNumber(T.sub(t, 15, tn - 15))) |n| run.seed = n;
         } else if (T.startsWith(t, "[testoor weather ") and !T.startsWith(t, "[testoor weather fired ")) {
             try weather.append(a, T.sub(t, 18, tn - 18));
+        }
+    }
+    var side = std.mem.splitScalar(u8, meta.side, '\n');
+    while (side.next()) |ln| {
+        const t = T.trimSp(std.mem.trimRight(u8, ln, "\r"));
+        if (T.startsWith(t, "[testoor node ")) {
+            if (G.parseNodeLine(t)) |h| try hits.append(a, h);
         }
     }
     const nodes = try G.nodeEvidence(a, meta.graph, hits.items, meta.names);

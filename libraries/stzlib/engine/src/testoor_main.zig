@@ -6,7 +6,16 @@
 //!   testoor walk FOLDER [--suffix S] [--haro PATH] [the same options]
 //!   testoor graph FILE.haro [--haro PATH] [--out FILE.json]     or     testoor graph --lines LINES.txt [--root DIR] [--out FILE.json]
 //!   testoor impact GRAPH.json --changed ID [--changed ID ...] [--tours FOLDER [--suffix S]] [--protocol 2]
+//!   testoor probe FOLDER [--haro PATH] [--out FILE.json]
 //!   testoor version
+//!
+//! `probe` puts a call in each function and method of the `.haro` files under FOLDER, where they stand, so a walk of the
+//! codebase's tours says which each reached (testoor_probe.zig, TESTOOR_PROTOCOL_3.md 6.8); it refuses a folder in a git
+//! work tree, since it is meant for a copy. It checks its work with haro graph, and writes the graph record of what it
+//! probed to `--out` or the standard output, for `--graph`.
+//!
+//! `--graph GRAPH.json` (run, walk) judges the run against a graph record: a node line names one of its nodes, a node a tour
+//! calls by name and never reached is `named`, and the ladder counts the graph's nodes no tour reached.
 //!
 //! `impact` writes the impact record (TESTOOR_PROTOCOL_3.md 5.1, protocol 3 unless `--protocol 2`) of a change to the
 //! nodes named, over a graph record `graph` wrote: the reach, the open nodes that widen it and the nodes they cap, and
@@ -49,6 +58,8 @@ const W = @import("testoor_walk.zig");
 const Hg = @import("testoor_harograph.zig");
 const A = @import("testoor_api.zig");
 const Rd = @import("testoor_reader.zig");
+const G = @import("testoor_graph.zig");
+const P = @import("testoor_probe.zig");
 
 const version_line = "testoor 3.5 (protocol 2; the Zig core)";
 
@@ -66,7 +77,7 @@ fn say(s: []const u8) void {
 }
 
 fn usage() noreturn {
-    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder]\n       testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder]\n       testoor graph FILE.haro [--haro PATH] [--out FILE.json] | --lines LINES.txt [--out FILE.json]\n       testoor impact GRAPH.json --changed ID [--changed ID ...] [--tours FOLDER [--suffix S]] [--protocol 2]\n       testoor version\n");
+    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor graph FILE.haro [--haro PATH] [--out FILE.json] | --lines LINES.txt [--out FILE.json]\n       testoor impact GRAPH.json --changed ID [--changed ID ...] [--tours FOLDER [--suffix S]] [--protocol 2]\n       testoor probe FOLDER [--haro PATH] [--out FILE.json]\n       testoor version\n");
     std.process.exit(2);
 }
 
@@ -105,6 +116,137 @@ fn refuse(a: std.mem.Allocator, mode: Mode, why: []const u8) noreturn {
 fn fail(why: []const u8) noreturn {
     std.fs.File.stderr().writeAll(why) catch {};
     std.process.exit(2);
+}
+
+/// haro graph's first block for one file, run from the file's folder
+fn graphBlock(a: std.mem.Allocator, haro: []const u8, path: []const u8) !P.Block {
+    const argv = [_][]const u8{ haro, "graph", std.fs.path.basename(path) };
+    const r = std.process.Child.run(.{
+        .allocator = a,
+        .argv = &argv,
+        .cwd = std.fs.path.dirname(path) orelse ".",
+        .max_output_bytes = 1 << 30,
+    }) catch |e| fail(try std.fmt.allocPrint(a, "testoor probe: cannot run {s}: {s}" ++ "\n", .{ haro, @errorName(e) }));
+    if (std.mem.indexOf(u8, r.stdout, "FILE|") == null) {
+        fail(try std.fmt.allocPrint(a, "testoor probe: haro graph printed no unit for {s}" ++ "\n" ++ "{s}", .{ path, r.stderr }));
+    }
+    return P.firstBlock(a, r.stdout);
+}
+
+/// `testoor probe`: a call in each function and method of a COPY of a Haro codebase, so a walk says which a tour reached
+/// (testoor_probe.zig), and the graph record of what it probed, for `run` and `walk` to judge against (`--graph`)
+fn probe(a: std.mem.Allocator, args: []const []const u8) !void {
+    var haro: []const u8 = std.process.getEnvVarOwned(a, "HARO_EXE") catch "haro";
+    var folder: []const u8 = "";
+    var out: []const u8 = "";
+    var i: usize = 2;
+    while (i < args.len) : (i += 1) {
+        if (eq(args[i], "--haro") and i + 1 < args.len) {
+            haro = args[i + 1];
+            i += 1;
+        } else if (eq(args[i], "--out") and i + 1 < args.len) {
+            out = args[i + 1];
+            i += 1;
+        } else if (folder.len == 0 and !std.mem.startsWith(u8, args[i], "--")) {
+            folder = args[i];
+        } else {
+            usage();
+        }
+    }
+    if (folder.len == 0) usage();
+    // a copy, never a repository: the files are rewritten where they stand
+    const real = std.fs.cwd().realpathAlloc(a, folder) catch fail(try std.fmt.allocPrint(a, "testoor probe: no such folder: {s}" ++ "\n", .{folder}));
+    var up: ?[]const u8 = real;
+    while (up) |d| : (up = std.fs.path.dirname(d)) {
+        const g = try std.fs.path.join(a, &.{ d, ".git" });
+        if (std.fs.cwd().access(g, .{})) |_| {
+            fail(try std.fmt.allocPrint(a, "testoor probe: {s} is in a git work tree ({s}); probe a copy -- the files are rewritten where they stand" ++ "\n", .{ folder, d }));
+        } else |_| {}
+    }
+    const pf = try std.fs.path.join(a, &.{ folder, P.probe_file });
+    if (std.fs.cwd().access(pf, .{})) |_| {
+        fail(try std.fmt.allocPrint(a, "testoor probe: {s} is probed already ({s}); probe a fresh copy" ++ "\n", .{ folder, pf }));
+    } else |_| {}
+    const files = R.discover(a, folder, ".haro") catch |e|
+        fail(try std.fmt.allocPrint(a, "testoor probe: cannot read {s}: {s}" ++ "\n", .{ folder, @errorName(e) }));
+    if (files.len == 0) fail(try std.fmt.allocPrint(a, "testoor probe: no .haro file under {s}" ++ "\n", .{folder}));
+
+    var ids: std.ArrayList([]const u8) = .empty;
+    var lines = T.Buf.init(a);
+    var notes = T.Buf.init(a);
+    var n_skipped: usize = 0;
+    var crlf = false;
+    const Done = struct { path: []const u8, rel: []const u8, before: P.Block, ids: []const []const u8 };
+    var done: std.ArrayList(Done) = .empty;
+    for (files) |rel| {
+        const path = try std.fs.path.join(a, &.{ folder, rel });
+        const blk = try graphBlock(a, haro, path);
+        try lines.s("FILE|");
+        try lines.s(rel);
+        try lines.s("\n");
+        for (blk.lines) |l| {
+            try lines.s(l);
+            try lines.s("\n");
+        }
+        if (blk.defs.len == 0) continue;
+        const src = std.fs.cwd().readFileAlloc(a, path, 256 * 1024 * 1024) catch |e|
+            fail(try std.fmt.allocPrint(a, "testoor probe: cannot read {s}: {s}" ++ "\n", .{ path, @errorName(e) }));
+        if (std.mem.indexOf(u8, src, "\r\n") != null) crlf = true;
+        const r = try P.instrument(a, src, blk.defs, blk.starts, ids.items.len + 1, try P.relPath(a, std.fs.path.dirname(rel) orelse "", P.probe_file));
+        for (r.skipped) |s| {
+            if (n_skipped < 5) try notes.s(try std.fmt.allocPrint(a, "; {s} ({s}, line {d}) {s}", .{ s.id, rel, s.line, s.why }));
+            n_skipped += 1;
+        }
+        if (r.ids.len == 0) continue;
+        std.fs.cwd().writeFile(.{ .sub_path = path, .data = r.text }) catch |e|
+            fail(try std.fmt.allocPrint(a, "testoor probe: cannot write {s}: {s}" ++ "\n", .{ path, @errorName(e) }));
+        try ids.appendSlice(a, r.ids);
+        try done.append(a, .{ .path = path, .rel = rel, .before = blk, .ids = r.ids });
+    }
+    std.fs.cwd().writeFile(.{ .sub_path = pf, .data = try P.probeSource(a, ids.items, crlf) }) catch |e|
+        fail(try std.fmt.allocPrint(a, "testoor probe: cannot write {s}: {s}" ++ "\n", .{ pf, @errorName(e) }));
+
+    // the check: haro graph names the same definitions on the same lines in each probed file, finishes what it finished,
+    // and each probed definition calls the probe
+    var wrong = T.Buf.init(a);
+    for (done.items) |d| {
+        const after = try graphBlock(a, haro, d.path);
+        var same = after.defs.len == d.before.defs.len and after.unfinished.len == d.before.unfinished.len;
+        if (same) for (after.defs, d.before.defs) |x, y| {
+            if (!std.ascii.eqlIgnoreCase(x.id, y.id) or x.line != y.line) same = false;
+        };
+        if (!same) {
+            try wrong.s(try std.fmt.allocPrint(a, "  {s}: haro graph reads other definitions, or finishes fewer, once it is probed" ++ "\n", .{d.rel}));
+            continue;
+        }
+        for (d.ids) |id| {
+            var calls = false;
+            for (after.lines) |l| {
+                var it = std.mem.splitScalar(u8, l, '|');
+                const tag = it.next() orelse "";
+                const from = it.next() orelse "";
+                const to = it.next() orelse "";
+                if (eq(tag, "CALL") and std.ascii.eqlIgnoreCase(from, id) and std.ascii.eqlIgnoreCase(to, P.hit_name)) calls = true;
+            }
+            if (!calls) try wrong.s(try std.fmt.allocPrint(a, "  {s}: {s} does not call the probe once it is probed" ++ "\n", .{ d.rel, id }));
+        }
+    }
+    if (wrong.list.items.len > 0) fail(try std.fmt.allocPrint(a, "testoor probe: the check failed, and the copy under {s} is probed as it stands:" ++ "\n" ++ "{s}", .{ folder, wrong.list.items }));
+
+    const record = try Hg.fromLinesWith(a, lines.list.items, folder, .{ .subject = try Hg.normPath(a, folder), .tops = false });
+    if (out.len > 0) {
+        std.fs.cwd().writeFile(.{ .sub_path = out, .data = record }) catch |e|
+            fail(try std.fmt.allocPrint(a, "testoor probe: cannot write {s}: {s}" ++ "\n", .{ out, @errorName(e) }));
+    } else {
+        say(record);
+    }
+    const doc = try J.parse(a, record);
+    const nn = (doc.get("nodes") orelse unreachable).items().len;
+    const why = (doc.get("why") orelse unreachable).str_();
+    var line = try std.fmt.allocPrint(a, "testoor probe: {d} file(s), {d} function(s) and method(s) probed", .{ files.len, ids.items.len });
+    if (n_skipped > 0) line = try std.fmt.allocPrint(a, "{s}, {d} not{s}{s}", .{ line, n_skipped, notes.list.items, if (n_skipped > 5) "; ..." else "" });
+    line = try std.fmt.allocPrint(a, "{s}; the record holds {d} node(s), {s}{s}", .{ line, nn, if (why.len == 0) "complete" else "not complete: ", why });
+    std.fs.File.stderr().writeAll(try std.fmt.allocPrint(a, "{s}" ++ "\n", .{line})) catch {};
 }
 
 /// `testoor graph`: a Haro unit's graph record, from haro.exe or from lines it printed earlier
@@ -269,6 +411,7 @@ pub fn main() !void {
     }
     if (args.len >= 3 and eq(args[1], "graph")) return graph(a, args);
     if (args.len >= 3 and eq(args[1], "impact")) return impact(a, args);
+    if (args.len >= 3 and eq(args[1], "probe")) return probe(a, args);
     if (args.len < 3 or (!eq(args[1], "run") and !eq(args[1], "walk"))) usage();
     const walking = eq(args[1], "walk");
     var suffix: []const u8 = "_narrated.haro";
@@ -280,10 +423,14 @@ pub fn main() !void {
     var timeout: ?f64 = null;
     var start: ?f64 = null;
     var ladder = false;
+    var graph_file: []const u8 = "";
     var i: usize = 3;
     while (i < args.len) : (i += 1) {
         if (eq(args[i], "--ladder")) {
             ladder = true;
+        } else if (eq(args[i], "--graph") and i + 1 < args.len) {
+            graph_file = args[i + 1];
+            i += 1;
         } else if (walking and eq(args[i], "--suffix") and i + 1 < args.len) {
             suffix = args[i + 1];
             i += 1;
@@ -328,6 +475,14 @@ pub fn main() !void {
     if (timeout) |v| m.settings.timeout_ms = v;
     if (start) |v| m.settings.start_ms = v;
     if (ladder) m.settings.ladder = true;
+    if (graph_file.len > 0) {
+        const gt = std.fs.cwd().readFileAlloc(a, graph_file, 1 << 30) catch |e|
+            refuse(a, mode, try std.fmt.allocPrint(a, "cannot read the graph {s}: {s}", .{ graph_file, @errorName(e) }));
+        const gd = J.parse(a, gt) catch refuse(a, mode, "the graph is not a JSON document");
+        const g = G.fromValue(a, gd) catch refuse(a, mode, "the graph is not a graph record");
+        m.graph = g;
+        m.settings.graph = .{ .complete = g.complete, .why = g.why, .owned = @intCast(g.nodes.len) };
+    }
     if (m.settings.by.len == 0 or eq(m.settings.by, "shell")) m.settings.by = "testoor";
 
     const as_json = switch (mode) {

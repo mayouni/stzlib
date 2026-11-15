@@ -1,0 +1,43 @@
+# inv.haro: an invoice module, the probe's golden case (TESTOOR_PROTOCOL_3.md 6.8)
+
+$nRate = 20
+? Gross(100)
+tName = "Today"
+? call tName()
+
+func Gross(nNet)
+	TestoorProbeHit(1) return nNet + Vat(nNet)
+end
+
+func Vat(nNet) # the tax
+	# the rate is a percentage
+
+	TestoorProbeHit(2) return nNet * $nRate / 100
+end
+
+func Label(tName, nNet)
+	# a label for the invoice
+	TestoorProbeHit(3) return tName + ": " + String(Gross(nNet))
+end
+
+func Today
+	TestoorProbeHit(4) return "2026-11-15"
+end
+
+func Quick(nX) # a comment after the signature is no body
+TestoorProbeHit(5) end
+
+class Invoice
+	nTotal = 0
+	def Add(nNet)
+		/* a block comment
+		   over two lines */
+		TestoorProbeHit(6) nTotal = nTotal + Gross(nNet)
+	end
+	def Total
+		TestoorProbeHit(7) return nTotal
+	end
+	def Reset
+	TestoorProbeHit(8) end
+end
+load "_testoor_probe.haro"

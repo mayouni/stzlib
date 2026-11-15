@@ -111,6 +111,7 @@ Zig harness only: there is no generator for them, so a case's `expected.*` is th
 | `haro/judge/<case>/` | one narrated Haro tour judged with the face's `verdicts` rule | the inputs of `protocol2/judge/`, `meta.json` carrying the face | `expected.json`, `expected.txt` |
 | `haro/impact/<case>/` | `testoor impact` over a Haro unit (`TESTOOR_PROTOCOL_3.md` 6.7): the tours' names read by the face | `graph.json`, `changed.txt`, `tours/` (named `.txt`) | `expected.json`: the impact record, protocol 3 |
 | `haro/graph/<case>/` | one unit's `haro graph` lines read into the graph record (`TESTOOR_PROTOCOL_3.md` 6.6) | `lines.txt`, and `src/` with the unit's files when the case reads them (named `.txt`, so no sweep of `.haro` files counts a fixture) | `expected.json` |
+| `haro/probe/<case>/` | `testoor probe` on one file (`TESTOOR_PROTOCOL_3.md` 6.8): a call before the first statement of each body, the probe file, what it did not probe, the record of what it probed | `lines.txt` (what `haro graph` printed for the file), `src/` with the file | `expected.haro.txt`, `expected_probe.haro.txt`, `expected_skipped.txt` (one `id|line|why` a line), `expected_graph.json` |
 
 | case | what it pins down |
 |---|---|
@@ -122,6 +123,7 @@ Zig harness only: there is no generator for them, so a case's `expected.*` is th
 | `impact/I2_an_open_node_selects_every_tour` | an open node widens the reach and caps itself; every tour is selected |
 | `graph/G1_functions_methods_dispatch` | `haro graph`'s lines read into the graph record: dispatch to every method of the name, an unfinished function open |
 | `graph/G2_a_call_by_a_built_name_opens_its_function` | the unit's file read: a `call` by a built name opens its function; one in a string or a comment does not |
+| `probe/P1_a_call_before_each_body` | eight functions and methods each given a call before the first statement of its body -- after a comment and a blank line, after a block comment, before the `end` of an empty body, a function with no parameters -- with no line moved, the load of the probe file on a new last line; the record of what was probed holds no node for the file's own statements, though they call `Gross` and call `Today` by a built name. The module runs on haro.exe with the same output plain, probed, and probed with a side file, which then holds the eight in the order first called |
 | `H4_a_picture_report_is_not_a_verdict` | a GIVEN line saying a picture DOES NOT MATCH, under the Haro face: output, not a verdict; the tour is kept |
 | `H3_a_slow_start_is_named` | first output at 121.39 s: `first_output_ms` in the tour's JSON, and its line says `first output at 121.39 s` |
 

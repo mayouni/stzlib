@@ -131,6 +131,19 @@ fn lineNo(s: []const u8) i64 {
 /// haro graph's lines in, the graph record out (one JSON line, a line feed after it). `root` is the folder haro graph ran in,
 /// where the unit's files are read for calls by a name built at run time; null reads none, and the record says so
 pub fn fromLines(a: Allocator, text: []const u8, root: ?[]const u8) ![]u8 {
+    return fromLinesWith(a, text, root, .{});
+}
+
+/// what a caller may ask of the record beyond what the lines say
+pub const Opts = struct {
+    /// the record's subject, when it is not the first file (testoor probe: the folder probed)
+    subject: ?[]const u8 = null,
+    /// false: a file's own statements are no node -- their calls and their calls by a built name are read past. The probe's
+    /// record holds what the probe observes, and it observes functions and methods (testoor_probe.zig)
+    tops: bool = true,
+};
+
+pub fn fromLinesWith(a: Allocator, text: []const u8, root: ?[]const u8, opts: Opts) ![]u8 {
     var nodes: std.ArrayList(Node) = .empty;
     var index = std.StringHashMap(usize).init(a);
     var by_name = std.StringHashMap(std.ArrayList(usize)).init(a);
@@ -183,6 +196,7 @@ pub fn fromLines(a: Allocator, text: []const u8, root: ?[]const u8) ![]u8 {
         } else if (std.mem.eql(u8, tag, "CALL")) {
             var from = field(fs.items, 1);
             if (std.mem.eql(u8, from, "<top>")) {
+                if (!opts.tops) continue;
                 from = try std.mem.concat(a, u8, &.{ "<top>:", file });
                 try add.node(a, &nodes, &index, .{ .id = from, .name = "<top>", .kind = "top", .file = file, .line = 0 });
             }
@@ -241,6 +255,7 @@ pub fn fromLines(a: Allocator, text: []const u8, root: ?[]const u8) ![]u8 {
                     if (d.line > no) break;
                     owner = d.node;
                 }
+                if (owner == null and !opts.tops) continue;
                 const at = if (owner) |o| o else blk: {
                     const tid = try std.mem.concat(a, u8, &.{ "<top>:", f.norm });
                     try add.node(a, &nodes, &index, .{ .id = tid, .name = "<top>", .kind = "top", .file = f.norm, .line = 0 });
@@ -279,7 +294,7 @@ pub fn fromLines(a: Allocator, text: []const u8, root: ?[]const u8) ![]u8 {
 
     var b = T.Buf.init(a);
     try b.s("{\"testoor\":\"graph\",\"protocol\":2,\"subject\":");
-    try b.js(subject);
+    try b.js(opts.subject orelse subject);
     try b.s(",\"language\":\"haro\",\"fold\":\"ascii\",\"complete\":");
     try b.s(if (why.items.len == 0) "true" else "false");
     try b.s(",\"why\":");

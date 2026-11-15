@@ -22,6 +22,7 @@ const A = @import("testoor_api.zig");
 const Ev = @import("testoor_evidence.zig");
 const Rd = @import("testoor_reader.zig");
 const Hg = @import("testoor_harograph.zig");
+const P = @import("testoor_probe.zig");
 
 const Allocator = std.mem.Allocator;
 
@@ -308,6 +309,40 @@ test "the Haro face reads haro graph's lines into the graph record (BUSINESS-LEA
         var root: ?[]const u8 = null;
         if (std.fs.cwd().access(src, .{})) |_| root = src else |_| {}
         try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/graph", case, "expected.json" }), try Hg.fromLines(a, lines, root));
+    }
+    try std.testing.expectEqual(@as(usize, 0), failures);
+}
+
+test "testoor probe: a call before the first statement of each body, no line moved, and the record of what it probed (6.8)" {
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const dir = try goldenDir(a);
+    failures = 0;
+    const cases = try caseNames(a, dir, "haro/probe");
+    try std.testing.expect(cases.len >= 1);
+    for (cases) |case| {
+        const lines = try readAll(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "lines.txt" }));
+        // the file haro graph was asked about is the first FILE line's, under src/
+        const first = std.mem.sliceTo(lines, '\n');
+        const name = first["FILE|".len..];
+        const src = try readAll(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "src", name }));
+        const blk = try P.firstBlock(a, lines);
+        const r = try P.instrument(a, src, blk.defs, blk.starts, 1, P.probe_file);
+        try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "expected.haro.txt" }), r.text);
+        try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "expected_probe.haro.txt" }), try P.probeSource(a, r.ids, false));
+        var b = T.Buf.init(a);
+        for (r.skipped) |s| {
+            try b.s(s.id);
+            try b.c('|');
+            try b.int(s.line);
+            try b.c('|');
+            try b.s(s.why);
+            try b.c('\n');
+        }
+        try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "expected_skipped.txt" }), try b.done());
+        const root = try std.fs.path.join(a, &.{ dir, "haro/probe", case, "src" });
+        try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "expected_graph.json" }), try Hg.fromLinesWith(a, lines, root, .{ .subject = "src", .tops = false }));
     }
     try std.testing.expectEqual(@as(usize, 0), failures);
 }

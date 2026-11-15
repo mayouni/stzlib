@@ -1,0 +1,14 @@
+FILE|inv.haro.txt
+FUNC|Gross|8
+FUNC|Vat|12
+FUNC|Label|18
+FUNC|Today|23
+FUNC|Quick|27
+CLASS|Invoice||30
+METHOD|Invoice|Add|32
+METHOD|Invoice|Total|37
+METHOD|Invoice|Reset|40
+CALL|<top>|Gross|static
+CALL|Gross|Vat|static
+CALL|Invoice.Add|Gross|static
+CALL|Label|Gross|static

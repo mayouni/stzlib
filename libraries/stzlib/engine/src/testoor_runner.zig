@@ -32,6 +32,7 @@ const W = @import("testoor_walk.zig");
 const K = @import("testoor_clock.zig");
 const Ev = @import("testoor_evidence.zig");
 const Rd = @import("testoor_reader.zig");
+const G = @import("testoor_graph.zig");
 
 pub const TourSpec = struct {
     file: []const u8,
@@ -42,11 +43,16 @@ pub const TourSpec = struct {
     readable: bool = true,
     record: V.Record,
     face: V.Face = .{},
+    /// protocol 2: the names the tour's source calls, read by its face; a node of the run's graph it names and never
+    /// reached is `named` (in a protocol 3 logbook, `mentioned`)
+    names: []const []const u8 = &.{},
 };
 
 pub const Manifest = struct {
     settings: L.Settings = .{},
     tours: []const TourSpec = &.{},
+    /// protocol 2: the program's graph, when the run was asked to walk against one (`--graph`)
+    graph: ?G.Graph = null,
 };
 
 pub const Result = struct {
@@ -82,12 +88,32 @@ pub fn seedArgv(a: Allocator, argv: []const []const u8, seed: f64) ![]const []co
     return out;
 }
 
+/// THE SIDE FILE (TESTOOR_PROTOCOL_3.md 6.8): a file of its own for each walk, named to the tour and every process it
+/// starts by the variable TESTOOR_NODES. A node line written there is the tour's, as if printed: a probed codebase writes
+/// its functions' first calls there (testoor_probe.zig), so none of them passes through the output a tour is judged by,
+/// and a child process a tour started adds its own. A walk that writes nothing leaves no file.
+pub const side_var = "TESTOOR_NODES";
+
+var side_count = std.atomic.Value(u64).init(0);
+
+fn sidePath(a: Allocator) ![]u8 {
+    const dir = std.process.getEnvVarOwned(a, "TEMP") catch std.process.getEnvVarOwned(a, "TMPDIR") catch try a.dupe(u8, "/tmp");
+    const n = side_count.fetchAdd(1, .monotonic);
+    return std.fmt.allocPrint(a, "{s}/testoor-nodes-{x}-{d}.txt", .{ dir, std.crypto.random.int(u64), n });
+}
+
 /// ONE walk of ONE tour, judged: the tour as the logbook writes it
-pub fn walkOnce(a: Allocator, ts: TourSpec, seed: f64, timeout_ms: f64, start_ms: f64) !V.Tour {
+pub fn walkOnce(a: Allocator, ts: TourSpec, seed: f64, timeout_ms: f64, start_ms: f64, graph: ?G.Graph) !V.Tour {
     if (!ts.readable or ts.argv.len == 0) {
-        return V.verdict(a, ts.record, &.{}, .{ .exit = -1, .hung = false, .stderr = "", .wall_ms = 0, .seed = null, .unreadable = true, .face = ts.face });
+        return V.verdict(a, ts.record, &.{}, .{ .exit = -1, .hung = false, .stderr = "", .wall_ms = 0, .seed = null, .unreadable = true, .face = ts.face, .graph = graph, .names = ts.names });
     }
-    const w = try W.walk(a, .{ .argv = try seedArgv(a, ts.argv, seed), .cwd = ts.cwd, .env = ts.env, .timeout_ms = timeout_ms, .start_ms = start_ms });
+    const side = try sidePath(a);
+    var env: std.ArrayList(W.Env) = .empty;
+    try env.appendSlice(a, ts.env);
+    try env.append(a, .{ .key = side_var, .value = side });
+    const w = try W.walk(a, .{ .argv = try seedArgv(a, ts.argv, seed), .cwd = ts.cwd, .env = env.items, .timeout_ms = timeout_ms, .start_ms = start_ms });
+    const side_text = std.fs.cwd().readFileAlloc(a, side, 256 * 1024 * 1024) catch "";
+    std.fs.cwd().deleteFile(side) catch {};
     return V.verdict(a, ts.record, w.lines, .{
         .exit = w.exit,
         .hung = w.hung,
@@ -97,6 +123,9 @@ pub fn walkOnce(a: Allocator, ts: TourSpec, seed: f64, timeout_ms: f64, start_ms
         .unreadable = false,
         .face = ts.face,
         .first_output_ms = w.first_output_ms,
+        .graph = graph,
+        .names = ts.names,
+        .side = side_text,
     });
 }
 
@@ -147,7 +176,7 @@ pub fn haroTour(a: Allocator, root: []const u8, rel: []const u8, program: []cons
     const argv = try a.alloc([]const u8, 2);
     argv[0] = program;
     argv[1] = std.fs.path.basename(path);
-    return .{ .file = path, .cwd = std.fs.path.dirname(path) orelse ".", .argv = argv, .record = rd.record, .face = Rd.face };
+    return .{ .file = path, .cwd = std.fs.path.dirname(path) orelse ".", .argv = argv, .record = rd.record, .face = Rd.face, .names = try Rd.namesOf(a, text) };
 }
 
 /// Walk every tour of the manifest, each once and, when `repeat` asks for more, again with the same
@@ -161,13 +190,13 @@ pub fn run(a: Allocator, m: Manifest, on_tour: ?OnTour) !Result {
     var tours: std.ArrayList(V.Tour) = .empty;
     var wall: f64 = 0;
     for (m.tours) |ts| {
-        var first = try walkOnce(a, ts, st.seed, st.timeout_ms, st.start_ms);
+        var first = try walkOnce(a, ts, st.seed, st.timeout_ms, st.start_ms, m.graph);
         wall += first.run.wall_ms;
         if (ts.readable and ts.argv.len > 0) {
             const sig = try signature(a, first);
             var k: usize = 2;
             while (k <= repeat) : (k += 1) {
-                const again = try walkOnce(a, ts, st.seed, st.timeout_ms, st.start_ms);
+                const again = try walkOnce(a, ts, st.seed, st.timeout_ms, st.start_ms, m.graph);
                 wall += again.run.wall_ms;
                 if (!std.mem.eql(u8, sig, try signature(a, again))) {
                     first.flaky = true;
@@ -355,6 +384,29 @@ test "a self-describing tour is walked and judged end to end, with the exit the 
     const j = try b.done();
     try testing.expect(std.mem.indexOf(u8, j, "\"owned\":2,\"run\":2") != null);
     try testing.expect(std.mem.indexOf(u8, j, "\"seed\":9") != null);
+}
+
+test "THE SIDE FILE: a node line a tour writes there is the tour's, judged against the run's graph, and nothing else of it is read" {
+    if (builtin.os.tag != .windows) return error.SkipZigTest;
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    // the tour writes Gross twice to the side file and prints only its claims; a claim line there is not the tour's. The
+    // child is PowerShell: the side file's path may hold a space, and cmd.exe does not read the escaped quotes a path needs
+    const cmd = "'[testoor stop s]'; '[testoor ok it holds]'; Add-Content -LiteralPath $env:TESTOOR_NODES -Value '[testoor node Gross]'; Add-Content -LiteralPath $env:TESTOOR_NODES -Value '[testoor node gross]'; Add-Content -LiteralPath $env:TESTOOR_NODES -Value '[testoor fail never]'";
+    const argv = [_][]const u8{ "powershell.exe", "-NoProfile", "-NonInteractive", "-Command", cmd };
+    const names = [_][]const u8{"Vat"};
+    const specs = [_]TourSpec{.{ .file = "inv.py", .argv = &argv, .record = selfDescribing("inv.py"), .names = &names }};
+    const gd = try J.parse(a, "{\"testoor\":\"graph\",\"protocol\":2,\"subject\":\"inv\",\"language\":\"haro\",\"fold\":\"ascii\",\"complete\":true,\"why\":\"\",\"nodes\":[{\"id\":\"Gross\",\"name\":\"Gross\",\"kind\":\"function\",\"file\":\"inv.haro\",\"line\":1},{\"id\":\"Vat\",\"name\":\"Vat\",\"kind\":\"function\",\"file\":\"inv.haro\",\"line\":5},{\"id\":\"Label\",\"name\":\"Label\",\"kind\":\"function\",\"file\":\"inv.haro\",\"line\":9}],\"edges\":[]}");
+    const g = try G.fromValue(a, gd);
+    const r = try run(a, .{ .settings = .{ .seed = 1, .timeout_ms = 20000 }, .tours = &specs, .graph = g }, null);
+    try testing.expectEqualStrings("kept", r.tours[0].run.state.name());
+    try testing.expectEqual(@as(usize, 2), r.tours[0].nodes.len);
+    try testing.expectEqualStrings("Gross", r.tours[0].nodes[0].id);
+    try testing.expectEqualStrings("observed", r.tours[0].nodes[0].evidence);
+    try testing.expectEqual(@as(i64, 2), r.tours[0].nodes[0].hits);
+    try testing.expectEqualStrings("Vat", r.tours[0].nodes[1].id);
+    try testing.expectEqualStrings("named", r.tours[0].nodes[1].evidence);
 }
 
 test "a tour whose walks disagree is flaky, and one whose walks agree is not" {
