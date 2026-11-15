@@ -46,7 +46,28 @@ and `run`. Small local models pass 1 to 7 of 38 with or without the door: they h
 - **(iii) a large remote model through the door**, as an optional layer: the benchmark's ceiling and a fallback, never
   a requirement.
 
-## Directive 2 -- capable in every area
+### Training a local model on Softanza -- the plan
+
+**The goal it is judged by:** qwen2.5-coder 1.5B, the local coder with the best score through the door (5 of the 38
+value tasks the local arms share), at least doubles that score on the benchmark's held-out tasks after training.
+Below that, the training stops and the remote layer stays the ceiling.
+
+**The material, all verified by haro.exe before it is used:**
+- the code benchmark's gold -- 970 narrated checks whose two expressions run in Haro -- with every narrated file a
+  benchmark task comes from held out;
+- the door's index -- 45,572 definitions with their signatures and comments -- as the vocabulary;
+- the narrated corpus moved to Haro by `haroport`, once two of its rewrites cover what the narrations need: names at
+  a file's top level take their type letter, and a text joined to a number is converted explicitly (a sample of 19
+  moved files: one runs as its original; the others stop on these two forms first);
+- AGENTS.md's rules.
+
+**The training stack, in two steps:**
+1. Measure first with a LoRA adapter from llama.cpp's fine-tuning tool, built from source, on the GGUF the engine
+   already loads.
+2. If the adapter earns its goal, train inside the engine with the optimizer of the ggml it carries -- the engine is
+   the product -- as a plane of its own.
+
+
 
 "Capable in an area" means two things:
 - **(A) writing that area's code** -- directive 1, scored per area by the benchmark's tags;
@@ -89,6 +110,7 @@ French and Hausa.
 
 1. The code benchmark -- built.
 2. The agent door, measured on the benchmark -- built, v0.2.
-3. The language and context matrix, text first.
+3. The language matrix -- built: French and Arabic are served locally; Tunisian Darija in Latin letters and Hausa are
+   the cells to train for.
 4. The Haro copy of the corpus, then a small local model trained on it, judged by the benchmark.
 5. Ten checkable tasks per area cluster, for directive 2(B).
