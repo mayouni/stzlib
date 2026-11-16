@@ -1,0 +1,241 @@
+# A command line built as TEXT, found before it is committed.
+#
+#   haro built_command.haro <file> ...        the staged files
+#   haro built_command.haro --selftest
+#             then: files read N, lines read N, built command lines N, skipped N
+#
+# WHY THIS EXISTS. Haro v0.75 refuses, in a .haro file, a command line built as
+# text and handed to System or SystemCmd (CHARTER D92, D88 (d)). A refused
+# statement still lets its file load, but CALLING the function that holds it
+# raises -- so a line that compiles today stops a consumer the day the runtime
+# carries the refusal.
+#
+# It exists because of a measurement rather than a worry. stzlib's eleven such
+# lines were counted on 2026-11-14 and converted on 2026-11-16; in those two
+# days the library grew THIRTY-EIGHT more, in thirteen files that did not exist
+# when the count was taken, six of them in shipped library code. Nothing on the
+# installed runtime said the form was going, so every desk kept writing it. A
+# gate is the only thing that stops the growth without an install.
+#
+# WHAT IT IS AND IS NOT. This is a SEARCH, not a parse. The authority is
+# `haro check` on a build that carries the refusal; it reads the grammar and
+# this file reads characters. The day v0.75 is the shared runtime, replace the
+# body of SitesIn with a call to the checker and keep this file's contract.
+# Until then a hit is a CANDIDATE THE AUTHOR READS, exactly as the secret gate
+# treats anything that is not a live-key format.
+#
+# .ring files are counted as skipped, not as passes: the refusal is a .haro rule
+# and a .ring file reads as it always did.
+
+func main
+    if Len(sysargv) >= 3 and sysargv[3] = "--selftest"
+        Shutdown(SelfTest())
+    end
+    vPaths = []
+    nArgs = Len(sysargv)
+    for i = 3 to nArgs
+        vPaths + sysargv[i]
+    end
+    if Len(vPaths) = 0
+        FWrite(stdout, "usage: haro built_command.haro <file> ... | --selftest" + Char(10))
+        Shutdown(2)
+    end
+    # [files read, lines read, built command lines, skipped]
+    vCount = [0, 0, 0, 0]
+    nP = Len(vPaths)
+    for i = 1 to nP
+        vCount = Inspect(vPaths[i], vCount)
+    end
+    FWrite(stdout, "files read " + String(vCount[1]) + ", lines read " + String(vCount[2]) + ", built command lines " + String(vCount[3]) + ", skipped " + String(vCount[4]) + Char(10))
+    nHits = vCount[3]
+    if nHits > 253
+        Shutdown(253)
+    end
+    Shutdown(nHits)
+end
+
+func Inspect(tPath, vCount)
+    if not EndsWith(tPath, ".haro")
+        vCount[4] = vCount[4] + 1
+        return vCount
+    end
+    if not FExists(tPath)
+        vCount[4] = vCount[4] + 1
+        return vCount
+    end
+    vLines = Lines(Read(tPath))
+    vCount[1] = vCount[1] + 1
+    nL = Len(vLines)
+    for i = 1 to nL
+        vCount[2] = vCount[2] + 1
+        tWhy = SiteIn(vLines[i])
+        if tWhy != ""
+            vCount[3] = vCount[3] + 1
+            FWrite(stdout, tPath + ":" + String(i) + "  " + tWhy + Char(10))
+            FWrite(stdout, "    " + Trim(vLines[i]) + Char(10))
+        end
+    end
+    return vCount
+end
+
+# "" when the line is clean, else why it is a candidate.
+func SiteIn(tLine)
+    tT = Trim(tLine)
+    if Len(tT) > 0 and SubStr(tT, 1, 1) = "#"
+        return ""
+    end
+    nAt = CallAt(tLine, "SystemCmd(")
+    if nAt = 0
+        nAt = CallAt(tLine, "System(")
+    end
+    if nAt = 0
+        return ""
+    end
+    tArg = ArgAfter(tLine, nAt)
+    if JoinedOutsideQuotes(tArg)
+        return "a command line BUILT AS TEXT -- Haro v0.75 refuses this when compiling"
+    end
+    if BareName(tArg)
+        return "a bare name given to System -- an invocation is allowed, a text is refused; confirm which this is"
+    end
+    return ""
+end
+
+# the position just after "System(" / "SystemCmd(", 0 when the name is part of a
+# longer one (MySystemCall) or the line only mentions it
+func CallAt(tLine, tWord)
+    nFrom = 1
+    while true
+        nAt = FindFrom(tLine, tWord, nFrom)
+        if nAt = 0
+            return 0
+        end
+        if nAt = 1
+            return nAt + Len(tWord)
+        end
+        tBefore = SubStr(tLine, nAt - 1, 1)
+        if not IsNameChar(tBefore)
+            return nAt + Len(tWord)
+        end
+        nFrom = nAt + 1
+    end
+end
+
+func ArgAfter(tLine, nAt)
+    if nAt > Len(tLine)
+        return ""
+    end
+    return SubStr(tLine, nAt, Len(tLine) - nAt + 1)
+end
+
+# a "+" that is not inside a quoted text, stopping at the call's own close paren
+# when the whole argument is one literal
+func JoinedOutsideQuotes(tArg)
+    bIn = false
+    nLen = Len(tArg)
+    for i = 1 to nLen
+        tC = SubStr(tArg, i, 1)
+        if tC = Char(34)
+            bIn = not bIn
+        end
+        if tC = "+" and not bIn
+            return true
+        end
+    end
+    return false
+end
+
+# the whole argument is one name: System(tCmd). A call, a literal or a list is not.
+func BareName(tArg)
+    nLen = Len(tArg)
+    tSeen = ""
+    for i = 1 to nLen
+        tC = SubStr(tArg, i, 1)
+        if tC = ")"
+            return Len(tSeen) > 0
+        end
+        if not IsNameChar(tC)
+            return false
+        end
+        tSeen = tSeen + tC
+    end
+    return false
+end
+
+func Lines(tData)
+    vOut = []
+    tCur = ""
+    nLen = Len(tData)
+    for i = 1 to nLen
+        tC = SubStr(tData, i, 1)
+        if tC = Char(10)
+            vOut + tCur
+            tCur = ""
+        else
+            if tC != Char(13)
+                tCur = tCur + tC
+            end
+        end
+    end
+    vOut + tCur
+    return vOut
+end
+
+func IsNameChar(tC)
+    return IsAlnum(tC) or tC = "_"
+end
+
+func EndsWith(tText, tTail)
+    if Len(tTail) > Len(tText)
+        return false
+    end
+    return SubStr(tText, Len(tText) - Len(tTail) + 1, Len(tTail)) = tTail
+end
+
+func FindFrom(tText, tWord, nFrom)
+    if nFrom > Len(tText)
+        return 0
+    end
+    if nFrom = 1
+        return SubStr(tText, tWord)
+    end
+    nAt = SubStr(SubStr(tText, nFrom, Len(tText) - nFrom + 1), tWord)
+    if nAt = 0
+        return 0
+    end
+    return nAt + nFrom - 1
+end
+
+# Lines taken from the real corpus: the ones the Haro desk's checker named on
+# stzlib, and the ones it left alone. A gate calibrated on invented examples
+# proves only that it can read invented examples.
+func SelfTest
+    vCases = [
+        [ "System(" + Char(34) + "mkdir " + Char(34) + " + tFolder + " + Char(34) + " >nul 2>nul" + Char(34) + ")", 1 ],
+        [ "    tList = SystemCmd(" + Char(34) + "cmd /c dir /b /on " + Char(34) + " + tBin)", 1 ],
+        [ "nRc = System(" + Char(34) + "node " + Char(34) + " + $tVerifier + " + Char(34) + " check" + Char(34) + ")", 1 ],
+        [ "System(" + Char(34) + "mkdir results 2>nul" + Char(34) + ")", 0 ],
+        [ "System(sDoors.Invocation(" + Char(34) + "require" + Char(34) + ", [" + Char(34) + "a.haro" + Char(34) + "]))", 0 ],
+        [ "print SystemCmd(hCall)", 1 ],
+        [ "System(tCmd)", 1 ],
+        [ "# System(" + Char(34) + "x " + Char(34) + " + y) in a comment", 0 ],
+        [ "gnHasExec = substr(gcSrc, " + Char(34) + "SystemCmd" + Char(34) + ")", 0 ],
+        [ "MySystemCall(" + Char(34) + "a " + Char(34) + " + b)", 0 ]
+    ]
+    nBad = 0
+    nC = Len(vCases)
+    for i = 1 to nC
+        tLine = vCases[i][1]
+        nWant = vCases[i][2]
+        nGot = 0
+        if SiteIn(tLine) != ""
+            nGot = 1
+        end
+        if nGot != nWant
+            nBad = nBad + 1
+            FWrite(stdout, "SELFTEST FAIL  want " + String(nWant) + " got " + String(nGot) + "  " + tLine + Char(10))
+        end
+    end
+    FWrite(stdout, "selftest: " + String(nC - nBad) + " of " + String(nC) + Char(10))
+    return nBad
+end
