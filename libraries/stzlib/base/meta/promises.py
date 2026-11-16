@@ -17,6 +17,18 @@
 
 import io, os, re, subprocess, sys, collections
 
+# 2026-11-14: a full-library sweep lost the DIVERGENCE LIST of two topics to a
+# UnicodeEncodeError. Redirected to a file, Python picks the system codepage
+# (cp1252 here), and this library's test files are full of Arabic, Hebrew, CJK
+# and emoji -- so printing a divergence killed the run AFTER the counts were
+# already out. The counts survived and the detail did not, which is the worst
+# shape of failure: the run looks complete and its findings are gone. The topics
+# most likely to carry non-ASCII are exactly the ones whose promises matter most
+# (char, listofstrings, string, text, locale).
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 # 2026-11-12: this named D:/ring127/bin/ring.exe, and ring.exe CANNOT LOAD THIS
 # LIBRARY any more. base/faculty/stzModelRegistry.ring:286 calls `call` on an
 # indexed expression, which is valid Haro and invalid Ring 1.27, so every test
@@ -26,7 +38,13 @@ import io, os, re, subprocess, sys, collections
 # rpp_init export, so it cannot be used here. Both are read from the environment
 # first, so a desk whose engine sits elsewhere does not edit this file.
 RUNNER = os.environ.get("STZ_RUNNER", "D:/GitHub/haro/vm/zig-out/bin/haro.exe")
-ENGINE_DIR = os.environ.get("STZ_ENGINE_DIR", "D:/GitHub/haro/runtime/engine")
+#
+# 2026-11-14: that default named D:/GitHub/haro/runtime/engine, which is the HARO
+# DESK'S PRIVATE STAGING FOLDER and not an engine any other desk may rely on. I
+# wrote a build of my own into it earlier this session precisely because it is
+# what build_engine.py writes to when given no --dst, and then misread the result
+# as the shared engine having regressed. The shared engine is C:/haro-engine.
+ENGINE_DIR = os.environ.get("STZ_ENGINE_DIR", "C:/haro-engine")
 
 TOPIC = sys.argv[1] if len(sys.argv) > 1 else "char"
 
