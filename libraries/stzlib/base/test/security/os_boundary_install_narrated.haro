@@ -16,6 +16,7 @@
 # length of the run and revokes it. The work folder is %TEMP%\stz_b2, the profile stz.b2.guard.
 
 load "../../stzBase.ring"
+load "../../security/stzNodeBoundary.haro"   # the installing side, loaded by the program that installs
 $nPass = 0
 $nFail = 0
 tBS = Char(92)
@@ -26,9 +27,9 @@ tBin = tWork + tBS + "bin"
 tNode = tWork + tBS + "node"
 tCache = tWork + tBS + "cache"
 tRuns = tWork + tBS + "runs"
-System("if exist " + Q(tWork) + " rmdir /s /q " + Q(tWork))
+StzEngineDirDeleteTree(tWork)
 for tDir in [tBin, tNode, tCache, tRuns]
-    System("mkdir " + Q(tDir))
+    StzMakeDir(tDir)
 end
 
 tHaroSrc = SysGet("HARO_EXE")
@@ -40,7 +41,7 @@ if tHaroSrc = "" or tEngine = ""
     ? "HARO_EXE (or haro.exe on the PATH) and STZ_ENGINE_DIR are needed: nothing can run"
     Shutdown(1)
 end
-System("copy /y " + Q(tHaroSrc) + " " + Q(tBin + tBS + "haro.exe") + " >nul")
+StzEngineFileCopy(tHaroSrc, tBin + tBS + "haro.exe")
 tHaro = tBin + tBS + "haro.exe"
 tBase = Parent(Parent(Trim(SystemCmd("cd"))))
 tStzBase = tBase + tBS + "stzBase.ring"
@@ -70,7 +71,7 @@ Then("the library prefix was compiled outside", vR[:prefixMs] > 0, true)
 Then("the warm start ended with 0", vR[:warmExit], 0)
 Then("...and met no memory ceiling", Has(vR[:warmMessages], "JOB_MEMORY_LIMIT"), false)
 Then("...and said the node is up", Has(ReadOr(tRuns + tBS + "warm.txt"), "node up: 5"), true)
-Then("an image and the prefix are in the cache", Has(SystemCmd("dir /b " + Q(tCache)), ".haroi") and Has(SystemCmd("dir /b " + Q(tCache)), ".harop"), true)
+Then("an image and the prefix are in the cache", Has(Names(tCache), ".haroi") and Has(Names(tCache), ".harop"), true)
 nInstallGrantMs = vR[:grantMs]
 nPrefixMs = vR[:prefixMs]
 nWarmMs = vR[:warmMs]
@@ -92,8 +93,8 @@ nStartPeak = StzEngineBoundaryPeakMb(nG)
 StzEngineBoundaryFree(nG)
 
 Scenario("4. the node cannot rewrite its image")
-tImage = Trim(FirstLine(SystemCmd("dir /b " + Q(tCache + tBS + "*.haroi"))))
-tPrefix = Trim(FirstLine(SystemCmd("dir /b " + Q(tCache + tBS + "*.harop"))))
+tImage = FirstWith(tCache, ".haroi")
+tPrefix = FirstWith(tCache, ".harop")
 Write(tNode + tBS + "tamper.haro", TryWrite("I1", tCache + tBS + tImage) + TryWrite("I2", tCache + tBS + tPrefix) + TryWrite("I3", tCache + tBS + "planted.haroi"))
 nG = NodeGrant("tamper")
 StzEngineBoundaryStart(nG, Q(tHaro) + " " + Q(tNode + tBS + "tamper.haro"))
@@ -118,7 +119,7 @@ Then("all six paths were revoked", vR[:revoked], 6)
 Then("no entry of any tree still names the container", vR[:rulesLeft], 0)
 Then("...over the whole library tree, walked", vR[:walked] > 10000, true)
 Then("the profile is deleted", vR[:profileDeleted], 1)
-Then("...and its folder is gone", Has(SystemCmd("cmd /c if exist " + Q(SysGet("LOCALAPPDATA") + tBS + "Packages" + tBS + tName) + " (echo there) else (echo gone)"), "gone"), true)
+Then("...and its folder is gone", StzEngineDirExists(SysGet("LOCALAPPDATA") + tBS + "Packages" + tBS + tName), 0)
 nRevokeMs = vR[:revokeMs]
 nWalkMs = vR[:walkMs]
 nWalked = vR[:walked]
@@ -211,4 +212,23 @@ func Then(tWhat, xGot, xExpected)
         ? "    expected: " + String(xExpected)
         ? "    got:      " + String(xGot)
     end
+end
+
+# the names of the files in a folder, joined by a blank (the engine lists it; no shell)
+func Names(tFolder)
+    tOut = ""
+    for tN in StzEngineDirListFiles(tFolder)
+        tOut = tOut + tN + " "
+    end
+    return tOut
+end
+
+# the first file in a folder whose name ends with tEnd, "" for none
+func FirstWith(tFolder, tEnd)
+    for tN in StzEngineDirListFiles(tFolder)
+        if Right(tN, Len(tEnd)) = tEnd
+            return tN
+        end
+    end
+    return ""
 end

@@ -642,7 +642,8 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "security/stzExposureResponder.ring"
     load "security/stzCredentialBroker.haro"   # an agent names a credential; the engine attaches it (CREDBROKER-01)
     load "security/stzPiaCheck.haro"           # what a .pia agent file says, judged at load (PIACHECK-01)
-    load "security/stzNodeBoundary.haro"       # a node's OS boundary installed and removed (OSBOUNDARY B2)
+    # security/stzNodeBoundary.haro (a node's OS boundary installed and removed, OSBOUNDARY B2) is NOT loaded here: the
+    # program that installs loads it, and it loads Haro's doors.haro, which a node inside its boundary cannot read
     load "security/stzFederationAdmission.haro"  # a host admitted for what it runs (RADAR-FEDERATION-ADMIT-01)
     load "security/stzKernelRecords.haro"      # the kernel's CVE records brought to the folder harb reads (ONEHOUR-B2-FEED)
 

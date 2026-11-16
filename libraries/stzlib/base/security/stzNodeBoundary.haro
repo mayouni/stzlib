@@ -36,6 +36,10 @@
 # container; haro answers exit code 0 when its compile fails for memory, so the warm start is judged by the job's
 # JOB_MEMORY_LIMIT message as well as the exit code.
 
+
+# LOADED BY THE PROGRAM THAT INSTALLS, never by stzBase: it loads Haro's doors.haro (haro's prefix runs as a declared
+# command, no shell), and a node inside its boundary reads the library tree but not Haro's own folder
+load "doors.haro"
 func StzBoundaryInstall(vPlan)
     tName = StzBoundaryPlanText(vPlan, :name, "")
     tCache = StzBoundaryPlanText(vPlan, :cache, "")
@@ -99,7 +103,7 @@ func StzBoundaryInstall(vPlan)
     SysSet("HARO_CACHE", tCache)
     if tLibrary != ""
         nT = Clock()
-        tSaid = SystemCmd(Char(34) + Char(34) + tHaro + Char(34) + " prefix " + Char(34) + tLibrary + Char(34) + Char(34))
+        tSaid = StzBoundaryPrefix(tHaro, tLibrary)
         vR[:prefixMs] = Clock() - nT
         if SubStr(tSaid, "prefix:") = 0
             SysSet("HARO_CACHE", tOldCache)
@@ -266,4 +270,19 @@ func StzBoundarySlashes(tPath)
         end
     end
     return tOut
+end
+
+# haro's `prefix` of the library, run as a DECLARED command (doors, no shell): haro and the library are known only when
+# the program runs, so the declaration is judged then (doors.Judge). A quote in either path would close its text early
+# and be read as declaration, so it is refused first. -> what haro wrote, its errors after it
+func StzBoundaryPrefix(tHaro, tLibrary)
+    tQ = Char(34)
+    if SubStr(tHaro, tQ) > 0 or SubStr(tLibrary, tQ) > 0
+        return "the path of haro or of the library holds a quote: " + tHaro + " " + tLibrary
+    end
+    sDoors = doors.Judge("DEFINE ROOT library AS (ANYWHERE yes) RATIONALE " + tQ + "the library the prefix is compiled from" + tQ +
+                         " DEFINE COMMAND prefix AS (RUNS " + tQ + tHaro + tQ + ", TAKES [word, place], QUIET yes) RATIONALE " + tQ +
+                         "haro, compiling the trusted library prefix outside the boundary" + tQ)
+    rRun = sDoors.Invocation("prefix", ["prefix", sDoors.Place("library", tLibrary)]).Run()
+    return rRun.tOutput + Char(10) + rRun.tErrors
 end

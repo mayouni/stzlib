@@ -18,6 +18,7 @@
 # when it is not on the PATH. It grants this checkout's library tree to the capability for the run and revokes it.
 
 load "../../stzBase.ring"
+load "../../security/stzNodeBoundary.haro"   # the installing side, loaded by the program that installs
 $nPass = 0
 $nFail = 0
 tBS = Char(92)
@@ -25,11 +26,11 @@ tCap = "stz.b4.guard"
 
 tWork = SysGet("TEMP") + tBS + "stz_b4"
 tBin = tWork + tBS + "bin"
-System("if exist " + Q(tWork) + " rmdir /s /q " + Q(tWork))
-System("mkdir " + Q(tBin))
+StzEngineDirDeleteTree(tWork)
+StzMakeDir(tBin)
 for tN in ["a", "b"]
     for tSub in ["node", "runs", "cache"]
-        System("mkdir " + Q(tWork + tBS + tN + tBS + tSub))
+        StzMakeDir(tWork + tBS + tN + tBS + tSub)
     end
 end
 tHaroSrc = SysGet("HARO_EXE")
@@ -41,7 +42,7 @@ if tHaroSrc = "" or tEngine = ""
     ? "HARO_EXE (or haro.exe on the PATH) and STZ_ENGINE_DIR are needed: nothing can run"
     Shutdown(1)
 end
-System("copy /y " + Q(tHaroSrc) + " " + Q(tBin + tBS + "haro.exe") + " >nul")
+StzEngineFileCopy(tHaroSrc, tBin + tBS + "haro.exe")
 tHaro = tBin + tBS + "haro.exe"
 tBase = Parent(Parent(Trim(SystemCmd("cd"))))
 tStzBase = tBase + tBS + "stzBase.ring"

@@ -18,6 +18,8 @@ comptime {
     @export(&file.stz_dir_create, .{ .name = "stz_dir_create" });
     @export(&file.stz_dir_create_path, .{ .name = "stz_dir_create_path" });
     @export(&file.stz_dir_delete, .{ .name = "stz_dir_delete" });
+    @export(&file.stz_dir_delete_tree, .{ .name = "stz_dir_delete_tree" });
+    @export(&file.stz_file_replace, .{ .name = "stz_file_replace" });
     @export(&file.stz_dir_count_files, .{ .name = "stz_dir_count_files" });
     @export(&file.stz_dir_count_dirs, .{ .name = "stz_dir_count_dirs" });
     @export(&file.stz_path_extension, .{ .name = "stz_path_extension" });

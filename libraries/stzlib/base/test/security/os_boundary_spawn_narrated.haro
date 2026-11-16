@@ -19,6 +19,7 @@
 # HARO_EXE names haro.exe when it is not on the PATH. The work folder is %TEMP%\stz_b1, the profile stz.b1.guard.
 
 load "../../stzBase.ring"
+load "doors.haro"
 $nPass = 0
 $nFail = 0
 $vSkipped = []
@@ -32,9 +33,9 @@ tBin = tWork + tBS + "bin"
 tIn = tWork + tBS + "in"
 tRuns = tWork + tBS + "runs"
 tOutside = tWork + tBS + "outside"
-System("if exist " + Q(tWork) + " rmdir /s /q " + Q(tWork))
+StzEngineDirDeleteTree(tWork)
 for tDir in [tBin, tIn, tRuns, tOutside]
-    System("mkdir " + Q(tDir))
+    StzMakeDir(tDir)
 end
 Write(tIn + tBS + "granted.txt", "granted")
 Write(tOutside + tBS + "key.txt", "stand-in key")
@@ -47,7 +48,7 @@ if tHaro = ""
     ? "HARO_EXE is not set and haro.exe is not on the PATH: nothing can run"
     Shutdown(1)
 end
-System("copy /y " + Q(tHaro) + " " + Q(tBin + tBS + "haro.exe") + " >nul")
+StzEngineFileCopy(tHaro, tBin + tBS + "haro.exe")
 tNode = tBin + tBS + "haro.exe"
 SysSet("HARO_CACHE", tRuns)
 tCurl = SysGet("SystemRoot") + tBS + "System32" + tBS + "curl.exe"
@@ -85,7 +86,7 @@ StzEngineBoundaryWait(nG, 30000)
 Then("without the capability curl cannot connect: exit 7", StzEngineBoundaryExitCode(nG), 7)
 Then("...status 000", Out("net0"), "000")
 StzEngineBoundaryFree(nG)
-tControl = Trim(SystemCmd(Q(tCurl) + " -s -o NUL -w %{http_code} --connect-timeout 5 http://1.1.1.1/"))
+tControl = Trim(CurlStatus(tCurl))
 if tControl = "000" or tControl = ""
     $vSkipped + "scene 2 with the capability: this machine reaches no network outside the boundary either"
 else
@@ -271,4 +272,15 @@ func Then(tWhat, xGot, xExpected)
         ? "    expected: " + String(xExpected)
         ? "    got:      " + String(xGot)
     end
+end
+
+# the control run of curl OUTSIDE the boundary, as a declared command (doors, no shell): curl's path is known when the
+# program runs, so the declaration is judged then, a quote in it refused first
+func CurlStatus(tCurl)
+    tQ = Char(34)
+    if SubStr(tCurl, tQ) > 0
+        return ""
+    end
+    sDoors = doors.Judge("DEFINE COMMAND curl AS (RUNS " + tQ + tCurl + tQ + ", TAKES [option, option, word, option, text, option, word, text], QUIET yes) RATIONALE " + tQ + "curl, asked whether this machine reaches the network at all" + tQ)
+    return sDoors.Invocation("curl", ["-s", "-o", "NUL", "-w", "%{http_code}", "--connect-timeout", "5", "http://1.1.1.1/"]).Run().tOutput
 end

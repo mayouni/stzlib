@@ -28,14 +28,21 @@
 # the digest of an engine build: SHA-256 over the sorted lines "<file>=<sha256>" of every DLL in <dir>\zig-out\bin
 func StzEngineBuildDigest(tEngineDir)
     tBin = tEngineDir + Char(92) + "zig-out" + Char(92) + "bin"
-    tList = SystemCmd("cmd /c dir /b /on " + Char(34) + tBin + Char(92) + "*.dll" + Char(34))
-    vNames = StzSplit(StzReplace(tList, Char(13), ""), Char(10))
-    tLines = ""
-    for tN in vNames
-        tFile = Trim(tN)
-        if tFile != ""
-            tLines = tLines + Lower(tFile) + "=" + StzEngineModelDigest(tBin + Char(92) + tFile) + Char(10)
+    # the engine lists the folder (no shell); the names are sorted in lower case, so the digest is the same on every machine
+    vNames = []
+    for tN in StzEngineDirListFiles(tBin)
+        if Lower(Right(tN, 4)) = ".dll"
+            vNames + tN
         end
+    end
+    vOrder = []
+    for tN in vNames
+        vOrder + [ Lower(tN), tN ]
+    end
+    vOrder = Sort(vOrder, 1)
+    tLines = ""
+    for vN in vOrder
+        tLines = tLines + vN[1] + "=" + StzEngineModelDigest(tBin + Char(92) + vN[2]) + Char(10)
     end
     if tLines = ""
         return ""
