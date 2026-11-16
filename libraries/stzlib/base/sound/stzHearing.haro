@@ -1,0 +1,159 @@
+#--------------------------------------------------------------#
+#      SOFTANZA LIBRARY (V1.2) - STZHEARING                    #
+#--------------------------------------------------------------#
+#                                                              #
+#   Description  : the two hearing faculties, sound -> text.   #
+#                  :transcribe writes the words of a recording;#
+#                  :spoken-language names its language. Both   #
+#                  run Whisper small on the engine's own graph #
+#                  (engine/src/whisper.zig), from              #
+#                  <models>/speech/ggml-small.bin, recorded    #
+#                  with its sha256 in models/MODELS.md.        #
+#                                                              #
+#--------------------------------------------------------------#
+
+# The registry chooses between a floor and a model by the measurements shipped beside this file
+# (base/sound/hearing.zmdl.txt) and the court's evidence (base/sound/hearing.court.txt), written by
+# base/test/clusterbench/measure.haro on its golden sets:
+#
+#   :transcribe        audio -> text    floor "nothing" (no words); judged by heard-groups: every group of
+#                                       expected key words is inside the transcript (groups joined by +,
+#                                       alternatives by |); golden set hearing-v1, the key-word tasks of the
+#                                       hearing and hearing-local clusters (French, English, Arabic, Hausa)
+#   :spoken-language   audio -> label   floor "prior" (the setting's first language, fr); judged by the
+#                                       language code; golden set spoken-language-v1, twenty FLEURS
+#                                       recordings, five each of French, English, Arabic and Hausa
+#
+# A recording is a WAV file, 16 kHz mono, 16-bit PCM or 32-bit float. Call parameters:
+#
+#   :language   a code ("fr", "ar", "ha", ...) or "auto" (the default) for the language the model hears
+#   :words      the words the recording is expected to hold (names, places, terms of the setting), read by
+#               the model before it listens, so a word it hears is spelled as they spell it; "" for none
+#
+#   example    ? StzFacultyQ(:transcribe).Run("recordings/fr01.wav", [])
+#              ? StzFacultyQ(:transcribe).Run("recordings/fr03.wav", [ :words = "Sfax, semoule, Softanza" ])
+#              ? StzFacultyQ("spoken-language").Run("recordings/fr02.wav", [])
+
+$tStzHearingModel = "ggml-small.bin"
+
+# The folder the speech models are read from: <models>/speech.
+func StzHearingModelsDir
+	return StzModelsDir() + "/speech"
+end
+
+# The full path of the speech model.
+func StzHearingModelPath
+	return StzHearingModelsDir() + "/" + $tStzHearingModel
+end
+
+# The measurements shipped with the library, beside this file.
+func StzHearingMeasurementsFile
+	tBase = _StzBaseDir()
+	if tBase = ""
+		return ""
+	end
+	return tBase + "/sound/hearing.zmdl.txt"
+end
+
+func StzHearingCourtFile
+	tBase = _StzBaseDir()
+	if tBase = ""
+		return ""
+	end
+	return tBase + "/sound/hearing.court.txt"
+end
+
+# Declares the two hearing faculties (create-or-open) and loads their shipped measurements.
+func StzHearingDeclare
+	oT = StzFacultyQ("transcribe")
+	oT.SetInputTypeQ("audio").SetOutputTypeQ("text").SetFloorQ("nothing", "_StzHearingNothing").SetGoldenCheckerQ("heard-groups").SetGoldenVersionQ("hearing-v1")
+	if Len(StzFind("whisper-small", oT.ImplementationIds())) = 0
+		oT.AddImplementation([ [:id, "whisper-small"], [:kind, "graph"], [:fn, "_StzHearingWhisper"], [:needle, "speech/" + $tStzHearingModel], [:licence, "mit"], [:memory, 900] ])
+	end
+	oL = StzFacultyQ("spoken-language")
+	oL.SetInputTypeQ("audio").SetOutputTypeQ("label").SetFloorQ("prior", "_StzHearingPrior").SetGoldenCheckerQ("lower").SetGoldenVersionQ("spoken-language-v1")
+	if Len(StzFind("whisper-small", oL.ImplementationIds())) = 0
+		oL.AddImplementation([ [:id, "whisper-small"], [:kind, "graph"], [:fn, "_StzHearingWhisperLanguage"], [:needle, "speech/" + $tStzHearingModel], [:licence, "mit"], [:memory, 900] ])
+	end
+	tM = StzHearingMeasurementsFile()
+	if Len(StzMeasurementOf("transcribe", "nothing", "hearing-v1")) = 0 and tM != "" and FExists(tM)
+		StzLoadMeasurements(tM)
+	end
+	tC = StzHearingCourtFile()
+	if tC != "" and FExists(tC)
+		StzLoadCourt(tC)
+	end
+end
+
+# heard-groups: every group of pxExpected (groups joined by +, alternatives by |) is inside the transcript, in
+# small letters ("15h" holds "15")
+func StzHeardAgree(pxGot, pxExpected)
+	tHeard = StzLower("" + pxGot)
+	vGroups = Split(StzLower("" + pxExpected), "+")
+	nLen = Len(vGroups)
+	for i = 1 to nLen
+		bFound = false
+		vAlt = Split(vGroups[i], "|")
+		nAlt = Len(vAlt)
+		for j = 1 to nAlt
+			if vAlt[j] != "" and Len(StzFind(vAlt[j], tHeard)) > 0
+				bFound = true
+			end
+		end
+		if not bFound
+			return false
+		end
+	end
+	return nLen > 0
+end
+
+# -- the floors ---------------------------------------------------------
+
+# no words: what a program hears without a speech model
+func _StzHearingNothing(pxInput, pxParams)
+	return ""
+end
+
+# the setting's first language, whatever the recording
+func _StzHearingPrior(pxInput, pxParams)
+	return "fr"
+end
+
+# -- Whisper small ------------------------------------------------------
+
+func _StzHearingParam(pxParams, tKey, tDefault)
+	if IsList(pxParams) and HasKey(pxParams, tKey)
+		return "" + pxParams[tKey]
+	end
+	return tDefault
+end
+
+# a missing model or recording is raised (the registry then falls back to the floor and says so); an empty transcript
+# of a recording that is there is an answer
+func _StzHearingCheck(tFaculty, pxInput)
+	if not FExists(StzHearingModelPath())
+		StzRaise(tFaculty + ": the speech model is not installed (" + StzHearingModelPath() + ").")
+	end
+	if not FExists("" + pxInput)
+		StzRaise(tFaculty + ": no recording at " + pxInput + ".")
+	end
+end
+
+func _StzHearingWhisper(pxInput, pxParams)
+	_StzHearingCheck("transcribe", pxInput)
+	tLang = _StzHearingParam(pxParams, "language", "auto")
+	tWords = _StzHearingParam(pxParams, "words", "")
+	tText = ""
+	if tWords = ""
+		tText = StzEngineNeuralWhisperTranscribe(StzHearingModelPath(), "" + pxInput, tLang, 96, 4)
+	else
+		tText = StzEngineNeuralWhisperTranscribePrompted(StzHearingModelPath(), "" + pxInput, tLang, tWords, 96, 4)
+	end
+	return Trim(tText)
+end
+
+func _StzHearingWhisperLanguage(pxInput, pxParams)
+	_StzHearingCheck("spoken-language", pxInput)
+	tText = StzEngineNeuralWhisperTranscribe(StzHearingModelPath(), "" + pxInput, "auto", 1, 4)
+	return StzEngineNeuralWhisperLanguage()
+end

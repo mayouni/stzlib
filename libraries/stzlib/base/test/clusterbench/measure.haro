@@ -1,0 +1,62 @@
+# MEASURES THE HEARING FACULTIES -- WHISPER-CATALOG-01: the registry's evidence for :transcribe and :spoken-language.
+#
+#     HARO_NOCACHE=1 haro measure.haro
+#
+# From this folder, with STZ_ENGINE_DIR (an engine whose stz_neural has the Whisper builtins) and STZ_MODELS_DIR (the
+# folder holding speech/ggml-small.bin) set; the recordings fetched first (`powershell -File _rig/speak.ps1` and
+# `python -I _rig/fleurs_fetch.py`). A heavy job: about twenty Whisper runs a faculty.
+#
+# The golden sets, fixed before this ran:
+#
+#   hearing-v1           :transcribe, the key-word tasks (kind `heard`) of tasks.tsv: eight French and English sentences
+#                        spoken by the Windows voices, two Arabic and two Hausa sentences read by FLEURS' speakers
+#   spoken-language-v1   :spoken-language, spoken_language.tsv: the first five FLEURS test recordings in French,
+#                        English, Arabic and Hausa
+#
+# Runs every implementation on its faculty's golden set (StzRunGoldens: the floor first, then Whisper small), which
+# records the measurements and the court's evidence, then writes them to base/sound/hearing.zmdl.txt and
+# base/sound/hearing.court.txt, and prints the plan the registry now resolves for each faculty.
+
+load "../../stzBase.ring"
+
+tHere = CurrentDir() + "/recordings/"
+
+oT = StzFacultyQ("transcribe")
+vTasks = Split(Read("tasks.tsv"), Char(10))
+nTasks = Len(vTasks)
+for i = 2 to nTasks
+	vF = StzSplit(StzReplace(vTasks[i], Char(13), ""), Char(9))    # StzSplit: a plain Split here also cuts at spaces
+	if Len(vF) >= 6 and vF[3] = "heard"
+		oT.AddGolden(tHere + vF[4], vF[6])
+	end
+end
+
+oL = StzFacultyQ("spoken-language")
+vRows = Split(Read("spoken_language.tsv"), Char(10))
+nRows = Len(vRows)
+for i = 2 to nRows
+	vF = StzSplit(StzReplace(vRows[i], Char(13), ""), Char(9))
+	if Len(vF) >= 2
+		oL.AddGolden(tHere + vF[1], vF[2])
+	end
+end
+
+? "golden items: transcribe " + String(Len(oT.Goldens())) + ", spoken-language " + String(Len(oL.Goldens()))
+
+nStart = Clock()
+vM = StzRunGoldens("transcribe", [])
+? "transcribe measured in " + String(Floor((Clock() - nStart) / ClocksPerSecond())) + " s"
+nStart = Clock()
+vM = StzRunGoldens("spoken-language", [])
+? "spoken-language measured in " + String(Floor((Clock() - nStart) / ClocksPerSecond())) + " s"
+
+StzSaveMeasurementsOf(StzHearingMeasurementsFile(), [ "transcribe", "spoken-language" ])
+StzSaveCourtOf(StzHearingCourtFile(), [ "transcribe", "spoken-language" ])
+? Read(StzHearingMeasurementsFile())
+? Read(StzHearingCourtFile())
+
+vFac = [ "transcribe", "spoken-language" ]
+for i = 1 to 2
+	oP = StzModelRegistryQ().ResolveQ(vFac[i])
+	? vFac[i] + " -> " + oP.Chosen() + " (" + oP.Kind() + ")"
+end

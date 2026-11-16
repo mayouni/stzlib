@@ -121,5 +121,5 @@ the numpy implementation `base/test/clusterbench/_rig/whisper_reference.py`, whi
 |---|---|---|---|---|---|
 | `speech/ggml-small.bin` | speech to text -- OpenAI Whisper small (244M parameters, 99 languages incl. French, Arabic and Hausa; encoder 12 layers, decoder 12 layers, 768 wide), in whisper.cpp's own file: hyperparameters, the 80 mel filters, the vocabulary's bytes, then the tensors (weights f16, biases and positions f32) | 487,601,967 | `1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b` | MIT (`licences/MIT-whisper.txt`, OpenAI's) | `huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin` (2026-11-16; size and sha256 verified against the listing) |
 
-Its `catalog.zcat` row (`file|speech/ggml-small.bin|...|download|...`) and a `requires|transcribe|whisper-small|...` row come with
-the `:transcribe` faculty's registration; until then the model is the benchmark's, and `speech/SHA256SUMS` is written by hand.
+Its `catalog.zcat` rows: `file|speech/ggml-small.bin|...|download|...`, and `requires` rows for the two hearing faculties it
+serves, `:transcribe` and `:spoken-language` (`base/sound/stzHearing.haro`, WHISPER-CATALOG-01); `speech/SHA256SUMS` holds its digest.

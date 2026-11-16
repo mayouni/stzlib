@@ -32,6 +32,7 @@ From this folder, with `STZ_ENGINE_DIR` set as for any run of the library:
     HARO_NOCACHE=1 haro run.haro <label> <ggml-small.bin> setting_words.txt
                                                               the same, Whisper first reading the setting's words
     HARO_NOCACHE=1 haro run.haro score <answers file> <label> scores replies written by any other means
+    HARO_NOCACHE=1 haro measure.haro                          measures the two hearing faculties (STZ_MODELS_DIR set)
 
 A reply is read by its task's kind: `choice`, the first capital A to D standing alone; `number`, the first number;
 `word`, an accepted word among the first eight words, where a reply that offers a choice ("yes or no: no") before
@@ -86,6 +87,14 @@ the questions alone, opening the pictures itself.
   Amharic and Yoruba, and writes what it hears as sound-alike syllables. Told the language (`ha`), it writes
   recognisable Hausa -- "kasa, ruwa, iska" for FLEURS' "ƙasa ruwa iska" (earth, water, air) -- with most other words
   misspelled. Hausa hearing takes a model trained on Hausa speech; that is the next rung of this cluster.
+- **Hearing is two faculties of the library** (`base/sound/stzHearing.haro`): `:transcribe` (audio -> text, call
+  parameters `:language` and `:words`) and `:spoken-language` (audio -> label), declared in every process, Whisper small
+  their implementation beside a floor. `measure.haro` runs both on their golden sets and files the evidence in
+  `base/sound/hearing.zmdl.txt` and `hearing.court.txt`: `:transcribe` on `hearing-v1` (the twelve key-word tasks of the
+  two hearing clusters) 0.58 against 0 for the floor, 7 items gained and none lost; `:spoken-language` on
+  `spoken-language-v1` (the first five FLEURS test recordings in French, English, Arabic and Hausa) 0.75 against 0.25
+  for the floor that always answers French, 10 gained and none lost. The court upholds Whisper small on both, so the
+  registry chooses it; about 9 seconds a recording.
 - **The engine's Whisper agrees with its reference**: on the first recording, the numpy implementation that reads the
   same file (`_rig/whisper_reference.py`) and the engine give the same 15 tokens, and cosine 1.000000 on the log-mel,
   on the encoder's 1,152,000 values (largest difference 0.37 of 32.7: ggml's convolution runs in f16) and on the first

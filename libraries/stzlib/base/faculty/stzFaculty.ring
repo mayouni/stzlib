@@ -357,6 +357,8 @@ func StzGoldenAgrees(pcChecker, pGot, pExpected)
 		return StzCodesAgree(pGot, pExpected)
 	but pcChecker = "find-f1"
 		return StzFindAgree(pGot, pExpected)
+	but pcChecker = "heard-groups"
+		return StzHeardAgree(pGot, pExpected)    # WHISPER-CATALOG-01, sound/stzHearing.haro
 	but pcChecker = "first"
 		# a ranking whose best item is the expected one
 		if NOT isList(pGot) or len(pGot) = 0 return 0 ok
