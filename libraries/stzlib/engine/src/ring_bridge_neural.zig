@@ -1485,7 +1485,19 @@ fn ring_VisionGpuStats(p: *anyopaque) callconv(.c) void {
 // greedy; cLanguage is a code ("fr", "en", "ha", "ar") or "auto" for the one the model hears. "" on failure, the error
 // in StzEngineNeuralOcrGraphError(). The model is whisper.cpp's file, loaded with its recorded sha256 and kept.
 fn ring_WhisperTranscribe(p: *anyopaque) callconv(.c) void {
+    whisperTranscribe(p, false);
+}
+
+// (cModel, cWavFile, cLanguage, cPrompt, nMaxTokens, nThreads) -> as StzEngineNeuralWhisperTranscribe, the decoder reading
+// cPrompt first: the words the recording is expected to hold (names, places, terms), so a word it hears is spelled as
+// the prompt spells it. The language is heard without the prompt.
+fn ring_WhisperTranscribePrompted(p: *anyopaque) callconv(.c) void {
+    whisperTranscribe(p, true);
+}
+
+fn whisperTranscribe(p: *anyopaque, prompted: bool) void {
     const A = std.heap.c_allocator;
+    const k: c_int = if (prompted) 1 else 0; // the prompt shifts the counts one place
     const wav = std.fs.cwd().readFileAlloc(A, ocrArg(p, 2), 64 << 20) catch {
         ocrg.setError("whisper: cannot read the recording {s}", .{ocrArg(p, 2)});
         return R.ring_vm_api_retstring2(p, "", 0);
@@ -1501,10 +1513,11 @@ fn ring_WhisperTranscribe(p: *anyopaque) callconv(.c) void {
         return R.ring_vm_api_retstring2(p, "", 0);
     };
     defer A.free(pcm);
-    const n0: f64 = R.ring_vm_api_getnumber(p, 4);
+    const n0: f64 = R.ring_vm_api_getnumber(p, 4 + k);
     const n_max: usize = if (n0 < 1 or n0 > 440) 96 else @intFromFloat(n0);
-    const th0: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 5));
-    const text = whisper.transcribe(m, pcm, ocrArg(p, 3), n_max, if (th0 < 1) 4 else th0) catch |e| {
+    const th0: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 5 + k));
+    const prompt: []const u8 = if (prompted) ocrArg(p, 4) else "";
+    const text = whisper.transcribePrompted(m, pcm, ocrArg(p, 3), prompt, n_max, if (th0 < 1) 4 else th0) catch |e| {
         if (whisper.lastError().len == 0) ocrg.setError("whisper: {s}", .{@errorName(e)}) else ocrg.setError("{s}", .{whisper.lastError()});
         return R.ring_vm_api_retstring2(p, "", 0);
     };
@@ -1901,6 +1914,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralvlmfeed", .func = &ring_VlmFeed },
     .{ .name = "stzengineneuralvlmdescribe", .func = &ring_VlmDescribe },
     .{ .name = "stzengineneuralwhispertranscribe", .func = &ring_WhisperTranscribe },
+    .{ .name = "stzengineneuralwhispertranscribeprompted", .func = &ring_WhisperTranscribePrompted },
     .{ .name = "stzengineneuralwhisperlanguage", .func = &ring_WhisperLanguage },
     .{ .name = "stzengineneuralwhisperstats", .func = &ring_WhisperStats },
     .{ .name = "stzengineneuralwhisperdump", .func = &ring_WhisperDump },

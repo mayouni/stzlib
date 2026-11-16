@@ -31,6 +31,7 @@ pub const EOT: i32 = 50257;
 pub const SOT: i32 = 50258;
 pub const TRANSCRIBE: i32 = 50359;
 pub const NO_TIMESTAMPS: i32 = 50363;
+pub const SOT_PREV: i32 = 50361; // <|startofprev|>: the text before it is context the model reads, not words it says
 const N_SAMPLES = 480000;
 const N_FFT = 400;
 const HOP = 160;
@@ -608,9 +609,52 @@ fn argmax(v: []const f32) usize {
     return best;
 }
 
+/// A prompt's tokens: at each place, the longest word of the vocabulary's text tokens that starts there (whisper.cpp's
+/// greedy reading), a byte no word starts with skipped. At most `limit` tokens, the LAST ones kept, as Whisper keeps
+/// the end of its previous text.
+pub fn promptTokens(m: *const Model, text: []const u8, limit: usize) ![]i32 {
+    var index = std.StringHashMap(i32).init(gpa);
+    defer index.deinit();
+    var longest: usize = 1;
+    var w: usize = 0;
+    while (w < @as(usize, @intCast(EOT)) and w + 1 < m.starts.len) : (w += 1) {
+        const word = m.words[m.starts[w]..m.starts[w + 1]];
+        if (word.len == 0) continue;
+        const got = try index.getOrPut(word);
+        if (!got.found_existing) got.value_ptr.* = @intCast(w);
+        longest = @max(longest, word.len);
+    }
+    var out: std.ArrayList(i32) = .{};
+    errdefer out.deinit(gpa);
+    var at: usize = 0;
+    while (at < text.len) {
+        var n = @min(longest, text.len - at);
+        while (n > 0) : (n -= 1) {
+            if (index.get(text[at .. at + n])) |id| {
+                try out.append(gpa, id);
+                break;
+            }
+        }
+        at += if (n == 0) 1 else n;
+    }
+    if (out.items.len > limit) {
+        const drop = out.items.len - limit;
+        std.mem.copyForwards(i32, out.items[0..limit], out.items[drop..]);
+        out.shrinkRetainingCapacity(limit);
+    }
+    return out.toOwnedSlice(gpa);
+}
+
 /// The recording's words: `lang` is a language code, or "auto" for the one the model hears; greedy, at most
 /// `max_tokens` tokens. The caller owns the text. language() then gives the language used.
 pub fn transcribe(m: *const Model, pcm: []const f32, lang: []const u8, max_tokens: usize, n_threads: c_int) ![]u8 {
+    return transcribePrompted(m, pcm, lang, "", max_tokens, n_threads);
+}
+
+/// transcribe(), with `prompt` -- words the recording is expected to hold (names, places, terms of the setting) -- read
+/// by the decoder first, behind <|startofprev|>, so a word it hears is spelled as the prompt spells it. The language
+/// is heard with no prompt, so a prompt never changes it. "" is no prompt.
+pub fn transcribePrompted(m: *const Model, pcm: []const f32, lang: []const u8, prompt: []const u8, max_tokens: usize, n_threads: c_int) ![]u8 {
     g_err_len = 0;
     try encode(m, pcm, n_threads);
     const t0 = std.time.nanoTimestamp();
@@ -634,6 +678,13 @@ pub fn transcribe(m: *const Model, pcm: []const f32, lang: []const u8, max_token
 
     var tokens: std.ArrayList(i32) = .{};
     defer tokens.deinit(gpa);
+    if (prompt.len > 0) {
+        // Whisper's own bound: half the text context, less the <|startofprev|> token
+        const pt = try promptTokens(m, prompt, m.hp.n_text_ctx / 2 - 1);
+        defer gpa.free(pt);
+        try tokens.append(gpa, SOT_PREV);
+        try tokens.appendSlice(gpa, pt);
+    }
     try tokens.appendSlice(gpa, &.{ SOT, SOT + 1 + @as(i32, @intCast(li)), TRANSCRIBE, NO_TIMESTAMPS });
     var text: std.ArrayList(u8) = .{};
     errdefer text.deinit(gpa);

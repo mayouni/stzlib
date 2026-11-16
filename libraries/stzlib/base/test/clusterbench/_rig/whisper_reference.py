@@ -1,6 +1,6 @@
 """Whisper, read from whisper.cpp's ggml file and run in numpy -- the reference the engine's speech graph is checked against.
 
-    python -I whisper_reference.py <ggml-small.bin> <recording.wav> [language|auto] [--dump <folder>]
+    python -I whisper_reference.py <ggml-small.bin> <recording.wav> [language|auto] [--dump <folder>] [--prompt <words>]
 
 The recording is 16-bit PCM, mono, 16 kHz. Prints the language the model detects (the language token it ranks first after
 <|startoftranscript|>), then the greedy transcript in the given language (the detected one with `auto`). With --dump, writes
@@ -31,6 +31,7 @@ LANGUAGES = ("en zh de es ru ko fr ja pt tr pl ca nl ar sv it id hi fi vi he uk 
 
 EOT, SOT = 50257, 50258
 TRANSCRIBE, NO_TIMESTAMPS = 50359, 50363
+SOT_PREV = 50361
 
 
 def read_model(path):
@@ -165,8 +166,30 @@ def detect_language(hp, t, enc):
     return LANGUAGES[int(np.argmax(lang))]
 
 
-def transcribe(hp, t, vocab, enc, language, max_tokens=96):
-    tokens = [SOT, SOT + 1 + LANGUAGES.index(language), TRANSCRIBE, NO_TIMESTAMPS]
+def prompt_tokens(vocab, text, limit):
+    index = {}
+    for i, w in enumerate(vocab[:EOT]):
+        if w and w not in index:
+            index[w] = i
+    longest = max(len(w) for w in index)
+    data = text.encode("utf-8")
+    out, at = [], 0
+    while at < len(data):
+        for n in range(min(longest, len(data) - at), 0, -1):
+            if data[at:at + n] in index:
+                out.append(index[data[at:at + n]])
+                at += n
+                break
+        else:
+            at += 1
+    return out[-limit:]
+
+
+def transcribe(hp, t, vocab, enc, language, max_tokens=96, prompt=""):
+    tokens = []
+    if prompt:
+        tokens = [SOT_PREV] + prompt_tokens(vocab, prompt, hp["n_text_ctx"] // 2 - 1)
+    tokens += [SOT, SOT + 1 + LANGUAGES.index(language), TRANSCRIBE, NO_TIMESTAMPS]
     first = None
     out = []
     for _ in range(max_tokens):
@@ -189,12 +212,17 @@ def main():
         i = args.index("--dump")
         dump = args[i + 1]
         del args[i:i + 2]
+    prompt = ""
+    if "--prompt" in args:
+        i = args.index("--prompt")
+        prompt = args[i + 1]
+        del args[i:i + 2]
     hp, filters, vocab, t = read_model(args[0])
     mel = log_mel(read_wav(args[1]), filters)
     enc = encode(hp, t, mel)
     detected = detect_language(hp, t, enc)
     language = args[2] if len(args) > 2 and args[2] != "auto" else detected
-    text, first = transcribe(hp, t, vocab, enc, language)
+    text, first = transcribe(hp, t, vocab, enc, language, prompt=prompt)
     print("language\t" + detected)
     print("text\t" + text)
     if dump:

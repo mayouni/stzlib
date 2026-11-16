@@ -3,6 +3,9 @@
 #     haro run.haro <label> <model file>              a text model answers the tasks that have no picture
 #     haro run.haro <label> smolvlm256|smolvlm500     the house's vision model answers the seeing tasks
 #     haro run.haro <label> <whisper .bin file>       Whisper hears the hearing tasks' recordings
+#     haro run.haro <label> <whisper .bin file> <words file>
+#                                                     the same, the decoder first reading the words file: the
+#                                                     setting's names and terms, one prompt for every recording
 #     haro run.haro score <answers file> <label>      scores an answers file written by any other means
 #
 # From this folder, with STZ_ENGINE_DIR set (an engine with stz_neural.dll) and, for the vision models, STZ_MODELS_DIR
@@ -35,6 +38,7 @@ $tLabel = ""
 
 tFirst = ""
 tSecond = ""
+tWords = ""
 nArgs = Len(SysArgv)
 for i = 1 to nArgs
 	if Right(SysArgv[i], 8) = "run.haro" and i + 2 <= nArgs
@@ -42,6 +46,8 @@ for i = 1 to nArgs
 		tSecond = SysArgv[i + 2]
 		if tFirst = "score" and i + 3 <= nArgs
 			$tLabel = SysArgv[i + 3]
+		elseif i + 3 <= nArgs
+			tWords = Trim2(Read(SysArgv[i + 3]))
 		end
 	end
 end
@@ -96,7 +102,11 @@ else
 		tReply = ""
 		if bHearing
 			# told nothing of the language: the transcript of what it hears, or the language it hears
-			tReply = StzEngineNeuralWhisperTranscribe(Slashes(tSecond), CurrentDir() + "/recordings/" + vT[4], "auto", 96, 4)
+			if tWords = ""
+				tReply = StzEngineNeuralWhisperTranscribe(Slashes(tSecond), CurrentDir() + "/recordings/" + vT[4], "auto", 96, 4)
+			else
+				tReply = StzEngineNeuralWhisperTranscribePrompted(Slashes(tSecond), CurrentDir() + "/recordings/" + vT[4], "auto", tWords, 96, 4)
+			end
 			if tReply = ""
 				tReply = "(error) " + StzEngineNeuralOcrGraphError()
 			elseif vT[3] = "language"
