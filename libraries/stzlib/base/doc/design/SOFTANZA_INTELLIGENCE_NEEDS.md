@@ -96,7 +96,9 @@ cells the smaller models miss together. **The engine hears**: Whisper small runs
 (`engine/src/whisper.zig`), in agreement with a numpy reference reading the same file, and passes 7 of the 10 hearing
 tasks -- both languages named, every number and date heard; the misses are the context's own words (`Sfax`,
 `semoule`, `Softanza`). With the setting's words read first (one glossary for every recording), it passes 9 of 10:
-`Sfax` and `semoule` spelled right, `Softanza` one letter off ("Softansa").
+`Sfax` and `semoule` spelled right, `Softanza` one letter off ("Softansa"). On real speakers (FLEURS, CC BY 4.0) it
+hears Arabic, 5 of 5; Hausa is 0 of 5 (named Swahili, Amharic, Yoruba), so Hausa hearing takes a model trained on
+Hausa speech -- the next rung of the hearing cluster.
 
 The code benchmark covers most areas today. Regex, geo, gui, gpu, sound, performance and governance get their tasks
 written for them, since their narrated checks read files, devices or the clock.
@@ -125,3 +127,12 @@ French and Hausa.
    the cells to train for.
 4. The Haro copy of the corpus, then a small local model trained on it, judged by the benchmark.
 5. Ten checkable tasks per area cluster, for directive 2(B) -- built for the six clusters, hearing on the engine's Whisper.
+6. Hausa hearing: a speech model trained on Hausa, measured on the `hearing-local` cluster against Whisper small's 0 of 5.
+
+## Rulings
+
+- **INTEL-DELEGATE-01, 2026-11-16**, the Principal in chat: "You are authorised to download the necessary staff and
+  take any pending decision on mybehalf and continue". Taken under it the same day: the Arabic and Hausa recordings
+  come from FLEURS' test split (CC BY 4.0), five per language, read as a stream (a few MB of 243 and 602 MB archives);
+  the engine reads 32-bit float WAV; the transcription faculty is registered from a `.haro` file; Hausa hearing is
+  the next rung.

@@ -10,9 +10,20 @@ pass	hear07	sort+descending	Please sort the list in descending order.
 fail	hear08	occurrence|occurrences+softanza	Find every occurrence of the word soft-onsa.
 pass	hear09	fr	fr
 pass	hear10	en	en
+pass	hearl01	عاصفة|عاصفه+الأطلسي|الاطلسي	تشكلت في المحيط الأطلسي اليوم عايش رعاصفة م
+pass	hearl02	ar	ar
+pass	hearl03	ar	ar
+pass	hearl04	النباتات	نصنع بيوتنا وملابسنا من النباتات مرزم الطعا
+pass	hearl05	ar	ar
+fail	hearl06	ha	sw
+fail	hearl07	aristotle|aristotel+ruwa	ʻāris tōtel mČsanim falasafāni ʻiai t'inanji wa qomia ʻakun shi chaku dā
+fail	hearl08	120+george	Sebirin na kwenche meki lo mita da reida ashrum ariva dasasim kasa meishigati yu
+fail	hearl09	ha	am
+fail	hearl10	ha	yo
 
-cluster      pass / tasks
-  hearing     7 / 10
-  all         7 / 10
+cluster         pass / tasks
+  hearing        7 / 10
+  all            12 / 20
+  hearing-local  5 / 10
 
-49 s
+0 s

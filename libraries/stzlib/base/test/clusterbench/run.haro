@@ -124,7 +124,7 @@ else
 		tReply = OneLine(tReply)
 		vIds + vT[2]
 		vReplies + tReply
-		? vT[2] + "  " + Left(tReply, 70)
+		? vT[2] + "  " + Utf8Left(tReply, 70)
 	end
 	tOut = ""
 	for i = 1 to Len(vIds)
@@ -155,7 +155,7 @@ for i = 2 to Len(vTasks)
 	if Agrees(vT[3], vReplies[nAt], vT[6])
 		tVerdict = "pass"
 	end
-	tOut = tOut + Row([ tVerdict, vT[2], vT[6], Left(vReplies[nAt], 80) ])
+	tOut = tOut + Row([ tVerdict, vT[2], vT[6], Utf8Left(vReplies[nAt], 80) ])
 	Bump(vKeys, vAll, vT[1])
 	Bump(vKeys, vAll, "all")
 	if tVerdict = "pass"
@@ -163,7 +163,7 @@ for i = 2 to Len(vTasks)
 		Bump(vPassKeys, vPass, "all")
 	end
 end
-tSum = Char(10) + "cluster      pass / tasks" + Char(10)
+tSum = Char(10) + "cluster         pass / tasks" + Char(10)
 for i = 1 to Len(vKeys)
 	nP = 0
 	for p = 1 to Len(vPassKeys)
@@ -172,7 +172,7 @@ for i = 1 to Len(vKeys)
 		end
 	end
 	tName = vKeys[i]
-	while Len(tName) < 12
+	while Len(tName) < 15
 		tName = tName + " "
 	end
 	tSum = tSum + "  " + tName + String(nP) + " / " + String(vAll[i]) + Char(10)
@@ -183,6 +183,18 @@ tSum = tSum + Char(10) + String(Floor((Clock() - nStart) / ClocksPerSecond())) +
 MakeDir("results")
 Write("results/" + $tLabel + ".txt", tOut + tSum)
 
+
+# at most n bytes of t, never cutting a character: an Arabic reply cut inside a letter is not UTF-8
+func Utf8Left(tText, nMax)
+	if Len(tText) <= nMax
+		return tText
+	end
+	nAt = nMax
+	while nAt > 0 and Ascii(tText[nAt + 1]) >= 128 and Ascii(tText[nAt + 1]) < 192
+		nAt = nAt - 1
+	end
+	return Left(tText, nAt)
+end
 
 func Instruction(tKind)
 	if tKind = "choice"

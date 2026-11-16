@@ -3,7 +3,7 @@
 Softanza's intelligence is capable in each of its areas in two ways (`base/doc/design/SOFTANZA_INTELLIGENCE_NEEDS.md`,
 directive 2): it writes the area's code -- the code benchmark in `../codebench` scores that, area by area -- and it
 brings the area's own faculty. This benchmark scores the faculty: ten checkable tasks for each of the six clusters of
-areas.
+areas, and ten more for hearing in the local languages.
 
 | cluster | areas | the faculty its ten tasks ask for |
 |---|---|---|
@@ -13,8 +13,13 @@ areas.
 | seeing | graphics, diagramming, gui, geo | a colour, a count, a position, a shape, a written number and word, a trend, read from ten pictures stzCanvas draws |
 | systems | system, concurrency, web, security, performance, files, extensibility, gpu | a failing component found in a log, a cause chosen for an error, a bounded fix chosen, a stack trace read |
 | hearing | sound | eight sentences transcribed, five in French and three in English, with their key words (a time, a price, a city, a date, a library term); the language of two recordings named |
+| hearing-local | sound | five recordings in Arabic and five in Hausa, read by native speakers: the language of six named, the key words of four heard |
 
-The recordings are spoken by the Windows voices (`_rig/speak.ps1`, 16 kHz mono), the French ones by the French voice.
+The `hearing` recordings are spoken by the Windows voices (`_rig/speak.ps1`, 16 kHz mono), the French ones by the
+French voice. The `hearing-local` recordings are the first five of the test split of FLEURS (Conneau et al., 2022,
+Google, CC BY 4.0) for Arabic (`ar_eg`, Modern Standard Arabic read in Egypt) and for Hausa (`ha_ng`), with FLEURS' own
+transcriptions as the question column; `python -I _rig/fleurs_fetch.py` fetches them into `recordings/fleurs/`, reading
+a few MB of Google's archives as a stream. Their key words were fixed before any model heard them.
 
 ## Run it
 
@@ -38,17 +43,17 @@ hears, told nothing. `results/<label>.txt` holds each verdict and the score by c
 Run on 2026-11-16, each model once, greedy, on the engine's decoder (CPU). Claude answered as a separate agent, from
 the questions alone, opening the pictures itself.
 
-| model | text | data | agents | systems | the forty | seeing | hearing | seconds for the run |
-|---|---|---|---|---|---|---|---|---|
-| Nemotron 3.5 Bolt E4B, Q4_K_M | 9 | 10 | 10 | 10 | **39** | -- | -- | 133 * |
-| Granite 4.2 3B, Q4_K_M | 7 | 9 | 8 | 9 | **33** | -- | -- | 80 |
-| Qwen3 0.6B, Q8 | 3 | 6 | 5 | 8 | 22 | -- | -- | 21 |
-| LFM3 1.7B, Q8 | 4 | 6 | 5 | 6 | 21 | -- | -- | 52 |
-| SmolVLM 256M | -- | -- | -- | -- | -- | 7 | -- | 10 |
-| SmolVLM 500M | -- | -- | -- | -- | -- | 7 | -- | 14 |
-| Whisper small, f16, on `engine/src/whisper.zig` | -- | -- | -- | -- | -- | -- | **7** | 49, the library's compile included |
-| the same, reading `setting_words.txt` first | -- | -- | -- | -- | -- | -- | **9** | 58, the library's compile included |
-| *Claude Opus 5.5, for scale* | *10* | *10* | *10* | *10* | *40* | *10* | -- | |
+| model | text | data | agents | systems | the forty | seeing | hearing | hearing-local | seconds for the run |
+|---|---|---|---|---|---|---|---|---|---|
+| Nemotron 3.5 Bolt E4B, Q4_K_M | 9 | 10 | 10 | 10 | **39** | -- | -- | -- | 133 * |
+| Granite 4.2 3B, Q4_K_M | 7 | 9 | 8 | 9 | **33** | -- | -- | -- | 80 |
+| Qwen3 0.6B, Q8 | 3 | 6 | 5 | 8 | 22 | -- | -- | -- | 21 |
+| LFM3 1.7B, Q8 | 4 | 6 | 5 | 6 | 21 | -- | -- | -- | 52 |
+| SmolVLM 256M | -- | -- | -- | -- | -- | 7 | -- | -- | 10 |
+| SmolVLM 500M | -- | -- | -- | -- | -- | 7 | -- | -- | 14 |
+| Whisper small, f16, on `engine/src/whisper.zig` | -- | -- | -- | -- | -- | -- | **7** | **5** | 49 for hearing; 263 for both clusters |
+| the same, reading `setting_words.txt` first | -- | -- | -- | -- | -- | -- | **9** | -- | 58, the library's compile included |
+| *Claude Opus 5.5, for scale* | *10* | *10* | *10* | *10* | *40* | *10* | -- | -- | |
 
 \* taken while another desk built its runtime on this machine; the scores do not depend on the clock.
 
@@ -73,6 +78,14 @@ the questions alone, opening the pictures itself.
   seven recordings that passed still pass and both languages are still named: the language is heard before the
   prompt is read, so a glossary never changes it. The numpy reference, given the same words (`--prompt`), spells fr03
   as the engine does.
+- **Arabic is heard: 5 of 5.** Whisper small names the language of the three Arabic recordings and hears the key
+  words of the other two (`عاصفة` and `الأطلسي`, a storm over the Atlantic; `النباتات`, plants), told nothing of the
+  language, on recordings of 8 to 16 seconds read by Egyptian speakers. The engine reads FLEURS' 32-bit float WAV as it
+  is.
+- **Hausa is the hearing cell to train: 0 of 5.** Told nothing, Whisper small names the Hausa recordings Swahili,
+  Amharic and Yoruba, and writes what it hears as sound-alike syllables. Told the language (`ha`), it writes
+  recognisable Hausa -- "kasa, ruwa, iska" for FLEURS' "ƙasa ruwa iska" (earth, water, air) -- with most other words
+  misspelled. Hausa hearing takes a model trained on Hausa speech; that is the next rung of this cluster.
 - **The engine's Whisper agrees with its reference**: on the first recording, the numpy implementation that reads the
   same file (`_rig/whisper_reference.py`) and the engine give the same 15 tokens, and cosine 1.000000 on the log-mel,
   on the encoder's 1,152,000 values (largest difference 0.37 of 32.7: ggml's convolution runs in f16) and on the first
