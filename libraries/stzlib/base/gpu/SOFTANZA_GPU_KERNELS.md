@@ -672,6 +672,7 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 | `gpu_verify_narrated.ring` | the checker, its verdicts and its floors |
 | `kp_prove_stress.haro` | a tool, not a guard: N rounds of ProveItself on kp-05, kp-06, kp-13 and kp-19, every check going the wrong way printed whole (KP_ROUNDS, KP_LOG) |
 | `kp_floor_margin.haro` | a tool: kp-19's right answer checked N times in one process, the worst ratio of its time to the floor it is judged against (KP_RUNS) |
+| `gpu_yield_cost.haro` | a tool: a foreground step beside a background job on one card, alone, never yielding, and in slices of 1, 4 and 16; foreground median, p95 and worst, and the job's wall time (RADAR-GPU-YIELD-01) |
 | `gpu_puzzle_narrated.ring` | the twelve puzzles, both runners, the chapters |
 | `gpu_f16_narrated.ring` | half-precision weights and the forward's dispatch count |
 | `gpu_calibration_shaped_narrated.ring` | routing by shape, interpolation between measured classes |
