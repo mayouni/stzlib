@@ -1,0 +1,606 @@
+=== adverb/00_adverb_narrated#099386a7
+Adverb("quick")
+=== adverb/00_adverb_narrated#d93767f1
+Adverb("happy")
+=== adverb/00_adverb_narrated#d0ae859b
+Adverb("good")
+=== adverb/00_adverb_narrated#ce810ea8
+Adverb("asia")
+=== adverb/00_adverb_narrated#5385be05
+Adverb("africa")
+=== common/hostile_globals_narrated#475eeaf8
+Q("hello").Uppercased()
+=== common/hostile_globals_narrated#3ce1a113
+Q("hello").FindAll("l")
+=== common/hostile_globals_narrated#833b74bc
+Q([ 3, 1, 3 ]).Find(3)
+=== common/hostile_globals_narrated#cd499d0d
+Q([ 3, 1, 2 ]).Sorted()
+=== common/hostile_globals_narrated#f71dc236
+tStr = "item42"
+tNum = Q(tStr).TrailingNumber()
+return @@([ StzReplace(tStr, tNum, ""), tNum ])
+=== common/hostile_globals_narrated#ef504c22
+Q(5).Factorial()
+=== common/hostile_globals_narrated#385a08a6
+Q(10).Fibonacci()
+=== common/slice_primitives_narrated#a3e14428
+StzSubStr("abc", 2, 99)
+=== csv/00_csv_narrated#d9501a93
+DefaultCSVSeparator()
+=== datetime/stzCalendar_defects_narrated#bc32caa8
+(new stzCalendar("2026-12-31")).NextDay()
+=== datetime/stzCalendar_defects_narrated#87953d7a
+(new stzCalendar("2026-01-01")).PreviousDay()
+=== extincode/51_extincode_narrated#47b8c704
+iif(0, "yes", "no")
+=== extincode/51_extincode_narrated#d0991f9e
+iif("1 = 1", "T", "F")
+=== extincode/51_extincode_narrated#8de35606
+Length([ 1, 2, 3 ])
+=== extincode/51_extincode_narrated#6320e9b9
+Length("abc")
+=== extincode/51_extincode_narrated#1d0281a2
+range0(3)
+=== extincode/51_extincode_narrated#48e55f75
+range0([ 1, 4 ])
+=== extincode/51_extincode_narrated#264a7e06
+range1(3)
+=== extincode/51_extincode_narrated#dc8d6937
+range1([ 2, 5 ])
+=== faculty/release_narrated#bdece273
+tSums = Q(StzModelSumsText("ocr")).Trimmed()
+return Len(StzSplit(tSums, Char(10)))
+=== file/stzZipFile_defects_narrated#0719ff0b
+StzPathDirname("a\b\c.zip")
+=== file/stzZipFile_defects_narrated#c7eb50ed
+StzPathDirname("c.zip")
+=== graph/orgrule_narrated#6a0e0b0d
+(new stzGDPRRuleBase()).NumberOfRules()
+=== graph/orgrule_narrated#7751146d
+(new stzHIPAARuleBase()).NumberOfRules()
+=== i18n/00_i18n_narrated#7d807d92
+(new stzLanguage("105")).Name()
+=== json/00_json_narrated#8c1f2407
+ListToJson([ [ "name", "John" ], [ "age", 30 ] ])
+=== list/00_list_narrated#a57e8772
+Q([ 10, 20, 30 ]).FirstItem()
+=== list/00_list_narrated#e52c4a85
+Q([ 10, 20, 30 ]).LastItem()
+=== list/00_list_narrated#41190506
+Q([ 1, 2, 3, 4 ]).Sum()
+=== list/00_list_narrated#bf7d1f2e
+Q([ 10, 20, 30, 40 ]).NthItem(3)
+=== list/00_list_narrated#93829005
+Q([ 3, 1, 2 ]).Max()
+=== list/00_list_narrated#a6f08a7a
+Q([ 1, 2, 3, 4 ]).CountW("@item > 2")
+=== list/00_list_narrated#623235a5
+Q([ 1, 2, 3, 2 ]).FindFirst(2)
+=== list/00_list_narrated#41b6b7eb
+Q([ 1, 2, 3, 4 ]).Reduce()
+=== list/00_list_narrated#acc1ac4c
+Q([ 1, 2, 3, 4 ]).ReduceXT("@accumulator + @item", 0)
+=== list/06_manyremoved#fd445fec
+Q(range1(10)).ManyRemoved([ 3, 7, 9 ])
+=== list/104_atat_display#afc3761e
+@@(Q("🌞🌞").FirstChar())
+=== list/10_replacemanybymany#84e05e47
+SectionToRange(3, 7)
+=== list/10_replacemanybymany#50bb5520
+RangeToSection(3, 5)
+=== list/114_unicode#6d171576
+Q("Hi").Unicodes()
+=== list/117_unicodes#78b54fb8
+Unicodes(range1(3))
+=== list/117_unicodes#c7472956
+Q([ "a", "b", "c" ]).Unicodes()
+=== list/136_sort#90826c5b
+Q([ 4, 3, 5, 2, 1 ]).Sorted()
+=== list/16_association#b17cf117
+@@(Association([ [ "A", "B", "C" ], [ 1, 2, 3 ], [ "a", "b", "c" ] ]))
+=== list/189_find#0e3ff831
+Q([ 1, 2, 3, 4, 5, 3, 7 ]).Find(3)
+=== list/204_association#15dc63e2
+@@(Association([ [ 1, 2, 3 ], [ "One", "Two", "Three" ] ]))
+=== list/21_intersection#18f487d3
+Q(range1(3)).Intersection(range1([ 2, 7 ]))
+=== list/650_operator_q_elevation_narrated#07cededb
+Q("ABC") * 3
+=== list/listoflists_defects_narrated#a21ad723
+(new stzListOfLists([ [ 1, 3, 2 ] ])).SortNthListInDescendingQ(1).Content()
+=== list/listoflists_defects_narrated#a40d5b4d
+@@((new stzListOfLists([ [ "b", "c", "a" ] ])).SortNthListInDescendingQ(1).Content())
+=== list/listoflists_defects_narrated#264f3710
+(new stzListOfLists([ [ 1, 2, 3 ] ])).RemoveManyColqQ([ 3 ]).Content()
+=== list/stzItem_defects_narrated#1810f241
+(new stzItemCS("a", [ "a", "b", "A" ], 0)).LastPosition()
+=== list/stzItem_defects_narrated#5acc292d
+(new stzItem(Lower("AN"), Lower("BANANA"))).Item()
+=== listofnumbers/00_listofnumbers_narrated#ee0c795a
+Divide([ 12, 2, 3 ])
+=== listofnumbers/00_listofnumbers_narrated#9e18fb8c
+Multiply([ 10, 2, 3 ])
+=== locale/01_languagename_narrated#ad6b207a
+(new stzLocale("ar_Arab_EG")).FirstDayOfWeek()
+=== matrex/stzMatrex_defects_narrated#ada5f45e
+(new stzMatrix([ [ 1, 2 ], [ 3, 4 ] ])).Determinant()
+=== meta/coderule_narrated#f25be3c6
+Len(StzCodeRuleNames())
+=== misc/00_misc_narrated#840d5b37
+StzLen("softanza")
+=== misc/00_misc_narrated#d0ebe1f8
+@substr("one five three", "five", "two")
+=== misc/00_misc_narrated#1e29144e
+@substr("one two three", "two", "")
+=== misc/00_misc_narrated#f56d3577
+@Min([ 2, 3 ])
+=== misc/00_misc_narrated#d6b2c106
+@Max([ 2, 3 ])
+=== misc/00_misc_narrated#9d647c69
+CenterText("ab", 6)
+=== misc/00_misc_narrated#d1e663d3
+StzLen(CenterText("café", 8))
+=== natural/evidentiality_narrated#171fd981
+StzEvidentialVerdict(1, 0.95)
+=== natural/evidentiality_narrated#e508f8fc
+StzEvidentialVerdict(1, 0.7)
+=== natural/evidentiality_narrated#bc163120
+StzEvidentialAdverb(1)
+=== number/00_number_narrated#410d359e
+Q(-7).Abs()
+=== number/listofnumbers_defects_narrated#3072ab3a
+(new stzListOfNumbers([ 4, 6 ])).Cumulated()
+=== number/listofnumbers_defects_narrated#84b809e8
+(new stzListOfNumbers([ 9, 7, 5 ])).MinZ()
+=== number/listofnumbers_defects_narrated#787d690b
+(new stzListOfNumbers([ 1, 5, 5, 9 ])).Neighbors(5)
+=== number/money_currency_narrated#44590ef5
+(new stzAmount("12", "EUR")).MinorUnits()
+=== number/money_currency_narrated#ba938b5d
+(new stzAmount("5000", "xof")).Currency()
+=== number/number_dead_calls_narrated#1cdce0cc
+Q(12).GCD(18)
+=== number/number_dead_calls_narrated#d9e60102
+(new stzListOfNumbers([ 4, 6, 8 ])).LCM()
+=== number/number_dead_calls_narrated#6316f5ba
+Q(41).NextNumber()
+=== number/number_dead_calls_narrated#afc0eace
+Q(41).PreviousNumber()
+=== number/number_dead_calls_narrated#5c816d99
+Q(10).ToOctalFormWithoutPrefix()
+=== number/number_dead_calls_narrated#2c9d264e
+Q("10.5").FractionalPartToOctalForm()
+=== number/number_digit_groups_narrated#31af5b62
+Q(12590).Format()
+=== number/number_digit_groups_narrated#6684ac8e
+Q(1234567).FormatXT([ [ "ThousandsSeparator", "," ] ])
+=== number/numeric_calculable_narrated#f408492d
+MaxCalculableInteger()
+=== number/numeric_calculable_narrated#93567bec
+(new stzNumber("0.5")).NumericValue()
+=== number/numeric_complex_narrated#14d1e893
+StzComplexQ(5, 0).Content()
+=== number/numeric_complex_narrated#aef5344f
+StzComplexQ(0, 1).Content()
+=== number/numeric_exactness_narrated#e4b5d8c9
+oNum = new stzNumber("0.1")
+oNum.Add("0.2")
+return oNum.Content()
+=== number/numeric_exactness_narrated#fdbf184d
+oNum = new stzNumber("0.1")
+oNum.MultiplyBy("0.1")
+return oNum.Content()
+=== number/numeric_exactness_narrated#fe0d1e8b
+oNum = new stzNumber("2")
+oNum.Add("2")
+return oNum.Content()
+=== number/numeric_exactness_narrated#bc4cb088
+oNum = new stzNumber("1")
+oNum.DivideBy("8")
+return oNum.Content()
+=== number/numeric_exactness_narrated#dd3da27d
+oNum = new stzNumber("0.1")
+oNum.DivideBy("4")
+return oNum.Content()
+=== number/numeric_exactness_narrated#4d04607a
+(new stzNumber("1.234")).Round()
+=== number/numeric_handle_table_narrated#7e985570
+(new stzNumber("12.375")).NumericValue()
+=== number/numeric_handle_table_narrated#97dd246e
+(new stzNumber("42")).NumericValue()
+=== number/numeric_handle_table_narrated#bbedab8a
+(new stzNumber("12.375")).NumericValue()
+=== number/numeric_no_loss_narrated#201147e3
+(new stzNumber(0.1)).Content()
+=== number/numeric_no_loss_narrated#f3cc2261
+(new stzNumber(2.5)).Content()
+=== number/numeric_no_loss_narrated#e11f1311
+(new stzNumber(1.0f / 3.0f)).Content()
+=== object/stzObject_defects_narrated#798a6159
+Q([ 1 ]).WhichAreBothQ().StzType()
+=== object/stzObject_defects_narrated#9330e734
+Q(7.5).Numberified()
+=== object/stzObject_defects_narrated#daa86d0a
+Q("12").Numberified()
+=== object/stzObject_defects_narrated#177ed0b2
+Q([ "ab", "cd" ]).ALengthN()
+=== object/stzObject_defects_narrated#84690c8b
+Q([ "a", "b", "c", "d" ]).ALengthN()
+=== ocr/ocr_narrated#96e1b19f
+StzOcrLogicalLine("الوثيقة بنص يؤخذ الاختلاف وعند")
+=== ocr/ocr_narrated#70581545
+StzOcrLogicalLine("1234 800 الساخن الخط")
+=== ordinal/00_ordinal_narrated#2cf90c15
+Ordinal(1)
+=== ordinal/00_ordinal_narrated#d016dcd9
+Ordinal(2)
+=== plural/00_plural_narrated#e2019d1b
+(new stzStringText("cat")).Pluralized()
+=== plural/00_plural_narrated#435edade
+(new stzStringText("dog")).Pluralized()
+=== plural/00_plural_narrated#203e8e19
+(new stzStringText("city")).Pluralized()
+=== plural/00_plural_narrated#1bb831a1
+(new stzStringText("baby")).Pluralized()
+=== plural/00_plural_narrated#1262e613
+(new stzStringText("child")).Pluralized()
+=== plural/00_plural_narrated#e9f50823
+(new stzStringText("man")).Pluralized()
+=== reflect/docgen_narrated#108405c9
+StzExecutorFamily("_NNLValueIs")
+=== reflect/docgen_narrated#ab66189d
+StzExecutorFamily("_NNLImmutable")
+=== reflect/docgen_narrated#21a587d4
+Len(StzDefParams('def f(pc = "a,b", pn)'))
+=== security/advisory_watch_narrated#7d7fac2d
+StzAdvisoryTimeToClose("NONE-0000")
+=== singular/00_singular_narrated#3f535e83
+Singular("cities")
+=== singular/00_singular_narrated#6fec8744
+Singular("babies")
+=== singular/00_singular_narrated#582c9d0f
+Singular("men")
+=== stats/plot_engine_parity_narrated#5cc53368
+Q(1000).CompactForm()
+=== string/00_string_narrated#dbbdadf0
+Q("ring").Uppercased()
+=== string/00_string_narrated#fef3827c
+Q("RING").Lowercased()
+=== string/00_string_narrated#68a108ba
+Q("softanza").NumberOfChars()
+=== string/00_string_narrated#8567153f
+Q("héllo").NumberOfChars()
+=== string/00_string_narrated#20d19a85
+Q("abc").Reversed()
+=== string/00_string_narrated#463a9a8f
+Q("aXbXc").Replaced("X", "-")
+=== string/00_string_narrated#87ed4de2
+Q("naïve").Replaced("ï", "i")
+=== string/00_string_narrated#77c15625
+Q("  hi  ").Trimmed()
+=== string/08_write_a#a45c67bf
+@NXT(3, ".", "InAString")
+=== string/105_unicode#08a0a918
+Q("I").Unicode()
+=== string/107_hexprefix#a8cfba19
+HexPrefix()
+=== string/108_script#fbe3e607
+Q("משמש").Script()
+=== string/109_ishexunicode#3f580dd9
+(new stzStringChar("ڢ")).HexUnicode()
+=== string/10_aligncenter#fc491a72
+@@(Q("RING").CenterAligned(15))
+=== string/10_aligncenter#f0a66b4f
+@@(Q("RING").LeftAligned(15))
+=== string/110_unicode#3befb937
+Q("ı").Unicode()
+=== string/110_unicode#73522def
+Q("ȷ").Unicode()
+=== string/112_repeatedntimes#31a2b15b
+Q("♥").RepeatedNTimes(3)
+=== string/112_repeatedntimes#de75ea25
+NCopies(3, "♥")
+=== string/113_localescripts#fb3f090c
+Len(LocaleScripts())
+=== string/113_localescripts#d9f43be0
+Len(UnicodeScripts())
+=== string/116_shortenedn#16a31365
+Q("1234567890987654321").ShortenedN(2)
+=== string/117_shortened#7683b917
+Q("1234567890987654321").Shortened()
+=== string/117_shortened#423c9d20
+Q("1234567890987654321").ShortenedN(5)
+=== string/130_negative_index#4e775743
+oStr = Q("ABCDE")
+return oStr[-2]
+=== string/158_script#afd59518
+Q("鶊").Script()
+=== string/158_script#1e5fb197
+Q("鶊").UnicodeName()
+=== string/243_findlast#7dd7c543
+PerfGain100(12.99, 2.45)
+=== string/243_findlast#785c70a7
+SpeedUp(12.99, 2.45)
+=== string/247_stringcase#1b4bc0c3
+Q("RING").StringCase()
+=== system/payments_live_adapter_narrated#d7d5285e
+StzPispiJson([ [ "transactions", [] ], [ "x", 1 ] ])
+=== system/payments_live_adapter_narrated#367bb69d
+StzPispiJson([ [ "events", [ "A", "B" ] ] ])
+=== system/payments_qr_narrated#315e67cf
+StzLen(StzPispiQrCrc16(NCopies(6, "a")))
+=== system/payments_secrets_narrated#68cfc5c4
+StzPispiSecretName("BIA", "mtls-cert")
+=== system/payments_secrets_narrated#c7c76d00
+Len(StzPispiSecretParts())
+=== system/pispi_twin_narrated#e0af0a64
+StzPaymentsReasonMeaning("DU03")
+=== system/sms_port_narrated#42526ed9
+vSeg = StzSmsSegments("Your code is 4821")
+return vSeg[1][2]
+=== system/sms_port_narrated#ebe7b0e8
+vSeg = StzSmsSegments(StzChar(8364))
+return vSeg[2][2]
+=== system/sms_port_narrated#9dcb99e8
+vSeg = StzSmsSegments(NCopies(100, "{"))
+return vSeg[2][2]
+=== time/00_time_narrated#e8fca91f
+(new stzTime("14:30")).ToString()
+=== authored/regex#1
+(new stzStringReplacer("2026-11-16")).RegexReplaced("(\d+)-(\d+)-(\d+)", "$3/$2/$1")
+=== authored/regex#2
+Q("price: $5.00 (approx)").EscapedForRegex()
+=== authored/regex#3
+Q("the cat sat on the mat with a hat").CountRegex("\b\w+at\b")
+=== authored/regex#4
+(new stzNumbrex("{@Property(Prime)}")).MatchingNumbersBetween(20, 50)
+=== authored/regex#5
+(new stzNumbrex("{@Property(Prime)}")).MatchingNumberAfter(90)
+=== authored/regex#6
+(new stzNumbrex("{@Multiple(4)}")).CountMatchingBetween(1, 100)
+=== authored/regex#7
+(new stzTimex("@Instant")).ParseDurationToMinutes("2h45min")
+=== authored/regex#8
+Q("Contact: ali@mail.tn, sara@web.ne").RegexMatches("[a-z]+@[a-z]+\.[a-z]+")
+=== authored/regex#9
+Q("#ff0000 and #00FF7f but not #12345").RegexMatches("#[0-9a-fA-F]{6}")
+=== authored/geo#1
+StzGeoWGS84().DistanceKm(36.8065, 10.1815, 13.5116, 2.1254)
+=== authored/geo#2
+StzDegToDms(36.8065)
+=== authored/geo#3
+StzDmsToDeg("13 30 41.76 N")
+=== authored/geo#4
+StzGeoNormalizeName("Côte d'Ivoire")
+=== authored/geo#5
+StzGeoWGS84().Azimuth(36.8065, 10.1815, 13.5116, 2.1254)
+=== authored/geo#6
+StzGeoWGS84().RhumbDistanceKm(40.7128, -74.006, 51.5074, -0.1278)
+=== authored/geo#7
+StzGeoWGS84().DegreeOfLongitudeKm(60)
+=== authored/geo#8
+(new stzGeoEllipsoid("Clarke1866")).InverseFlattening()
+=== authored/geo#9
+StzGeoRamp("Blues", 3)
+=== authored/geo#10
+StzGeoWGS84().AreaKm2([ 0, 0, 1, 0, 1, 1, 0, 1 ])
+=== authored/sound#1
+StzNoteToHz("A5")
+=== authored/sound#2
+StzNoteToHz("C4")
+=== authored/sound#3
+StzSoundGmProgram("flute")
+=== authored/sound#4
+StzSoundGmInstrument(107)
+=== authored/sound#5
+(new stzSoundScore("c e g c5")).RangeInCents()
+=== authored/sound#6
+(new stzSoundScore("c e g e c")).Contour()
+=== authored/sound#7
+oScore = new stzSoundScore("c d e f g a")
+oScore.Tempo(90)
+return oScore.Seconds()
+=== authored/sound#8
+(new stzSoundUniverse("maqam")).ModeNames()
+=== authored/sound#9
+oUni = new stzSoundUniverse("western")
+oUni.Mode("major")
+return oUni.CentsOf(5)
+=== authored/sound#10
+StzNoteToHz("D4+50")
+=== authored/gui#1
+StzUiProfileSpelling("direction", "native")
+=== authored/gui#2
+StzUiProfileSpelling("tab-index", "web")
+=== authored/gui#3
+Len(StzUiProfileProperties())
+=== authored/gui#4
+StzUiProfileObservables()
+=== authored/gui#5
+tDoc = 'DEFINE PANEL p ( SIZE [200, 100], CHILDREN [a, b] ) RATIONALE "two boxes"' + Char(10) + 'DEFINE BOX a ( WIDTH 60, HEIGHT 40, SATISFIES [open_it] ) RATIONALE "first"' + Char(10) + 'DEFINE BOX b ( WIDTH 50, HEIGHT 30 ) RATIONALE "second"'
+oPanel = (new stzUiDocument(tDoc)).ToPanel()
+return oPanel.BoxOf("b")
+=== authored/gui#6
+tDoc = 'DEFINE PANEL p ( SIZE [200, 100], CHILDREN [a, b] ) RATIONALE "two boxes"' + Char(10) + 'DEFINE BOX a ( WIDTH 60, HEIGHT 40, SATISFIES [open_it] ) RATIONALE "first"' + Char(10) + 'DEFINE BOX b ( WIDTH 50, HEIGHT 30 ) RATIONALE "second"'
+return (new stzUiDocument(tDoc)).Orphans()
+=== authored/gui#7
+tRml = '<rml><head><style>body { width: 100%; height: 100%; } div { display: block; } #bar { height: 48px; } .b { width: 100px; height: 30px; tab-index: auto; }</style></head><body><div id="bar"/><div id="one" class="b"/><div id="two" class="b"/></body></rml>'
+oPanel = new stzPanel(320, 200)
+oPanel.LoadMarkup(tRml)
+oPanel.Layout()
+return oPanel.BoxOf("two")
+=== authored/gui#8
+StzContrastOf("#000000", "#767676")
+=== authored/gui#9
+StzBestTextOn("#2b6cb0")
+=== authored/gui#10
+StzContrastLc("#000000", "#ffffff")
+=== authored/gpu#1
+oKer = new stzKernelMaker()
+oKer.TakesVector("a")
+oKer.TakesVector("b")
+oKer.TakesScalar("alpha")
+oKer.ReturnsVector("c")
+oKer.ForEachElement("{ @C = alpha * @A + @B }")
+return oKer.EvaluateOn([ [ "a", [ 1, 2, 3 ] ], [ "b", [ 10, 20, 30 ] ], [ "alpha", 2 ] ])
+=== authored/gpu#2
+oKer = new stzKernelMaker()
+oKer.TakesVector("a")
+oKer.TakesVector("b")
+oKer.TakesScalar("alpha")
+oKer.ReturnsVector("c")
+oKer.ForEachElement("{ @C = alpha * @A + @B }")
+return oKer.OperationsPerElement()
+=== authored/gpu#3
+oKer = StzKernelMakerFromSpec("in a" + Char(10) + "out c" + Char(10) + "body { @C = @A * @A }")
+return oKer.EvaluateOn([ [ "a", [ 1, 2, 3, 4 ] ] ])
+=== authored/gpu#4
+oKer = new stzKernelMaker()
+oKer.TakesVector("x")
+oKer.ReturnsVector("y")
+oKer.ForEachElement("{ @Y = clamp(@X, 0, 1) }")
+return oKer.EvaluateOn([ [ "x", [ -2, 0.25, 0.5, 3 ] ] ])
+=== authored/gpu#5
+oKer = new stzKernelMaker()
+oKer.TakesVector("x")
+oKer.ReturnsVector("y")
+oKer.ForEachElement("{ @Y = when(@X > 2, @X, 0) }")
+return oKer.EvaluateOn([ [ "x", [ 1, 2, 3, 4, 5 ] ] ])
+=== authored/gpu#6
+oKer = new stzKernelMaker()
+oKer.TakesVector("x")
+oKer.ReturnsVector("y")
+oKer.ForEachElement("{ @Y = max(@X, 0) }")
+return oKer.EvaluateOn([ [ "x", [ -3, 4, -1, 7 ] ] ])
+=== authored/gpu#7
+oKer = StzKernelMakerFromSpec("in a" + Char(10) + "in b" + Char(10) + "out c" + Char(10) + "body { @C = sqrt(@A * @A + @B * @B) }")
+return oKer.EvaluateOn([ [ "a", [ 3, 5, 8 ] ], [ "b", [ 4, 12, 15 ] ] ])
+=== authored/gpu#8
+oKer = new stzKernelMaker()
+oKer.TakesVector("x")
+oKer.ReturnsVector("y")
+oKer.ForEachElement("{ @Y = floor(@X) + fract(@X) * 10 }")
+return oKer.EvaluateOn([ [ "x", [ 1.5, 2.25 ] ] ])
+=== authored/gpu#9
+oKer = new stzKernelMaker()
+oKer.TakesVector("a")
+oKer.ReturnsVector("b")
+oKer.ForEachElement("{ @B = abs(@A) }")
+return oKer.EvaluateOn([ [ "a", [ -1.5, 2, -3 ] ] ])
+=== authored/gpu#10
+oKer = new stzKernelMaker()
+oKer.TakesVector("a")
+oKer.TakesVector("b")
+oKer.ReturnsVector("c")
+oKer.ForEachElement("{ @C = min(@A, @B) * 2 }")
+return oKer.EvaluateOn([ [ "a", [ 4, 9, 1 ] ], [ "b", [ 6, 2, 5 ] ] ])
+=== authored/performance#1
+oMet = new stzMetric("app.requests", "counter")
+oMet.Increment()
+oMet.IncrementBy(6)
+return oMet.Value()
+=== authored/performance#2
+oSer = new stzPerfSeries(16)
+oSer.RecordAt(0, 10)
+oSer.RecordAt(100, 30)
+oSer.RecordAt(200, 50)
+return oSer.SlopePerMs()
+=== authored/performance#3
+oSer = new stzPerfSeries(4)
+for i = 1 to 5
+    oSer.Record(i)
+end
+return oSer.Values()
+=== authored/performance#4
+StzMetricFamily("http.hits", "counter", [ "route" ]).PromName()
+=== authored/performance#5
+oPlan = new stzPerfPlan("relieve-nlp")
+oPlan.Propose("ScaleUp", "nlp", "load high")
+return StzSplit(oPlan.Explain(), Char(10))[1]
+=== authored/performance#6
+oFam = StzMetricFamily("http.hits", "counter", [ "route", "method" ])
+oChild = oFam.Child([ "/menu", "GET" ])
+oChild.Increment()
+oChild.IncrementBy(4)
+return oChild.Value()
+=== authored/performance#7
+oPlan = new stzPerfPlan("p")
+oPlan.Propose("ScaleDown", "WEB", "drain")
+return oPlan.Actions()
+=== authored/performance#8
+oMet = new stzMetric("mem.mb", "gauge")
+oMet.Set(120)
+oMet.Set(80)
+oMet.Set(150)
+oMet.Set(90)
+return oMet.Mean()
+=== authored/performance#9
+oSer = new stzPerfSeries(3)
+oSer.Record(10)
+oSer.Record(20)
+oSer.Record(35)
+oSer.Record(45)
+return oSer.Mean()
+=== authored/performance#10
+oSer = new stzPerfSeries(16)
+oSer.RecordAt(0, 100)
+oSer.RecordAt(1000, 40)
+return oSer.SlopePerMs()
+=== authored/governance#1
+StzPostureReversibilityRefusal("sandboxed", "compensable")
+=== authored/governance#2
+(new stzFieldTags("clinic")).SafeguardsNeededBy("analytics")
+=== authored/governance#3
+oGov = new stzGovernance("g")
+oGov.DeclareRisk("pay", 1)
+oGov.DeclareRisk("read", 1)
+oGov.DeclareRisk("wire", 4)
+oGov.SetAuthority("bot", "delegated")
+oGov.GrantPermission("bot", "pay")
+oGov.GrantPermission("bot", "read")
+oGov.GrantPermission("bot", "wire")
+return Len(StzPolicyReach(oGov))
+=== authored/governance#4
+oGov = new stzGovernance("g")
+oGov.OpenCommitment("c1")
+return oGov.AdvanceCommitment("c1")
+=== authored/governance#5
+(new stzFieldTags("c")).SafeguardsNeededBy("model")
+=== authored/governance#6
+oGov = new stzGovernance("g")
+oGov.OpenCommitment("Plan-A")
+return oGov.CommitmentStateOf("plan-a")
+=== authored/governance#7
+oBefore = new stzGovernance("a")
+oBefore.DeclareRisk("pay", 3)
+oBefore.SetAuthority("bot", "advisory")
+oBefore.GrantPermission("bot", "pay")
+oAfter = new stzGovernance("b")
+oAfter.DeclareRisk("pay", 3)
+oAfter.DeclareRisk("refund", 1)
+oAfter.SetAuthority("bot", "autonomous")
+oAfter.GrantPermission("bot", "pay")
+oAfter.GrantPermission("bot", "refund")
+vDiff = StzPolicyDiff(oBefore, oAfter)
+return Len(vDiff[1][2])
+=== authored/governance#8
+oGov = new stzGovernance("g")
+oGov.DeclareRisk("pay", 2)
+oGov.SetAuthority("bot", "delegated")
+oGov.GrantPermission("bot", "pay")
+return StzPolicyFactSentence(StzPolicyReach(oGov)[1], 1)
+=== authored/governance#9
+oGov = new stzGovernance("g")
+oGov.RecordDecisionAt("d1", "r", "ann", "deploy", 1000)
+oGov.RecordDecisionAt("d2", "r", "bob", "deploy", 2000)
+oGov.RecordDecisionAt("d3", "r", "ann", "pay", 3000)
+oGov.RecordDecisionAt("d4", "r", "ann", "deploy", 4000)
+return Len(oGov.DecisionsOf("ann"))
+=== authored/governance#10
+oGov = new stzGovernance("g")
+oGov.RecordDecisionAt("d1", "r", "ann", "deploy", 1000)
+oGov.RecordDecisionAt("d2", "r", "bob", "deploy", 2000)
+oGov.RecordDecisionAt("d3", "r", "ann", "pay", 3000)
+oGov.RecordDecisionAt("d4", "r", "cy", "deploy", 4000)
+return Len(oGov.DecisionsBetween(1500, 3500))

@@ -1,0 +1,418 @@
+Softanza code benchmark -- qwen-coder-1.5b-v0.4-door
+
+refused	adverb/00_adverb_narrated#099386a7	nlp	value	
+none	adverb/00_adverb_narrated#d93767f1	nlp	value	
+none	adverb/00_adverb_narrated#d0ae859b	nlp	value	
+none	adverb/00_adverb_narrated#ce810ea8	nlp	value	
+refused	adverb/00_adverb_narrated#5385be05	nlp	value	
+none	capstone/restaurant_capstone_narrated#d7e90fb8	testing	flag	
+none	cluster/mtls_narrated#87613b8a	concurrency	flag	
+none	common/hostile_globals_narrated#475eeaf8	meta	value	
+none	common/hostile_globals_narrated#3ce1a113	meta	value	
+none	common/hostile_globals_narrated#833b74bc	meta	value	
+error	common/hostile_globals_narrated#cd499d0d	meta	value	Bad parameter type!
+none	common/hostile_globals_narrated#52eb6ad6	meta	flag	
+none	common/hostile_globals_narrated#f71dc236	meta	value	
+none	common/hostile_globals_narrated#ef504c22	meta	value	
+none	common/hostile_globals_narrated#385a08a6	meta	value	
+error	common/slice_primitives_narrated#a3e14428	meta	value	Error (E1) : eval: a name the program never mentions `stzMetricP99`
+none	common/slice_primitives_narrated#f6d5563e	meta	flag	
+none	csv/00_csv_narrated#d9501a93	tables	value	
+none	csv/00_csv_narrated#2857ec64	tables	flag	
+none	date/00_date_narrated#c7e784c2	i18n	flag	
+none	datetime/dtfix_date_time_args_narrated#20f24c15	i18n	flag	
+none	datetime/dtfix_date_time_args_narrated#9b5c0790	i18n	flag	
+none	datetime/stzCalendar_defects_narrated#bc32caa8	i18n	value	
+none	datetime/stzCalendar_defects_narrated#87953d7a	i18n	value	
+none	datetime/stzDate_defects_narrated#a132c45e	i18n	flag	
+none	extercode/stzImageToAscii_defects_narrated#932b58d2	extensibility	flag	
+pass	extincode/51_extincode_narrated#47b8c704	extensibility	value	"no"
+none	extincode/51_extincode_narrated#d0991f9e	extensibility	value	
+none	extincode/51_extincode_narrated#8de35606	extensibility	value	
+none	extincode/51_extincode_narrated#6320e9b9	extensibility	value	
+refused	extincode/51_extincode_narrated#1d0281a2	extensibility	value	
+none	extincode/51_extincode_narrated#48e55f75	extensibility	value	
+none	extincode/51_extincode_narrated#264a7e06	extensibility	value	
+none	extincode/51_extincode_narrated#dc8d6937	extensibility	value	
+none	faculty/calibration_narrated#4e23aba2	neural	flag	
+none	faculty/faculty_core_narrated#750a3b0d	neural	flag	
+none	faculty/faculty_core_narrated#5bc6519b	neural	flag	
+none	faculty/faculty_core_narrated#f52b12c3	neural	flag	
+none	faculty/placement_narrated#b5c19574	neural	flag	
+none	faculty/placement_narrated#f877ceb5	neural	flag	
+none	faculty/placement_narrated#334e03ed	neural	flag	
+error	faculty/release_narrated#bdece273	neural	value	Error (R24) : Using uninitialized variable: count
+none	file/stzZipFile_defects_narrated#0719ff0b	files	value	
+none	file/stzZipFile_defects_narrated#c7eb50ed	files	value	
+none	file/xml_narrated#75ed1ded	files	flag	
+none	file/xml_narrated#82f354ad	files	flag	
+none	func/00_func_narrated#8aca9e4c	meta	flag	
+none	func/00_func_narrated#628637bd	meta	flag	
+none	func/00_func_narrated#92642c89	meta	flag	
+none	func/00_func_narrated#91169a21	meta	flag	
+none	func/00_func_narrated#ae4ffa77	meta	flag	
+none	func/00_func_narrated#43a42f92	meta	flag	
+none	func/00_func_narrated#2a750aa7	meta	flag	
+none	func/00_func_narrated#356e455a	meta	flag	
+none	func/00_func_narrated#0ec3751a	meta	flag	
+none	func/00_func_narrated#edeb6abd	meta	flag	
+none	graph/orgrule_narrated#6a0e0b0d	diagramming	value	
+refused	graph/orgrule_narrated#7751146d	diagramming	value	
+none	graph/stzGridNav_defects_narrated#66ffdc35	diagramming	flag	
+none	hexnumbert/00_hexnumber_narrated#73cf931d	numeric	flag	
+none	i18n/00_i18n_narrated#18b33b8d	i18n	flag	
+none	i18n/00_i18n_narrated#7d807d92	i18n	value	
+none	json/00_json_narrated#25f06553	web	flag	
+none	json/00_json_narrated#f304c18a	web	flag	
+none	json/00_json_narrated#8c1f2407	web	value	
+none	list/00_list_narrated#a57e8772	collections	value	
+error	list/00_list_narrated#e52c4a85	collections	value	Error (R24) : Using uninitialized variable: o
+none	list/00_list_narrated#41190506	collections	value	
+none	list/00_list_narrated#27549cfd	collections	flag	
+none	list/00_list_narrated#bf7d1f2e	collections	value	
+none	list/00_list_narrated#e9196570	collections	flag	
+none	list/00_list_narrated#93829005	collections	value	
+none	list/00_list_narrated#95410d72	collections	flag	
+none	list/00_list_narrated#3d881beb	collections	flag	
+error	list/00_list_narrated#a6f08a7a	collections	value	Error (E1) : a built-in is spelled `Len`; written `len`
+none	list/00_list_narrated#623235a5	collections	value	
+none	list/00_list_narrated#bbe833ed	collections	flag	
+none	list/00_list_narrated#c6e71cd3	collections	flag	
+none	list/00_list_narrated#41b6b7eb	collections	value	
+none	list/00_list_narrated#acc1ac4c	collections	value	
+none	list/01_deeplist_narrated#6e3bd090	collections	flag	
+none	list/01_deeplist_narrated#d8a01df2	collections	flag	
+error	list/06_manyremoved#fd445fec	collections	value	Error (R20) : Calling function with extra number of parameters
+none	list/104_atat_display#9b08b4c4	collections	flag	
+none	list/104_atat_display#afc3761e	collections	value	
+none	list/10_replacemanybymany#84e05e47	collections	value	
+none	list/10_replacemanybymany#50bb5520	collections	value	
+none	list/112_containsthese#96fef609	collections	flag	
+error	list/114_unicode#6d171576	collections	value	Error (TYPE_LETTER) : `vtStzClassesXT` is lettered vt, a vector of texts, and it
+none	list/117_unicodes#78b54fb8	collections	value	
+none	list/117_unicodes#c7472956	collections	value	
+none	list/136_sort#90826c5b	collections	value	
+error	list/16_association#b17cf117	collections	value	Error (R42) : Error in eval() function
+none	list/189_find#0e3ff831	collections	value	
+none	list/204_association#15dc63e2	collections	value	
+none	list/21_intersection#18f487d3	collections	value	
+refused	list/650_operator_q_elevation_narrated#07cededb	collections	value	
+none	list/listoflists_defects_narrated#a21ad723	collections	value	
+none	list/listoflists_defects_narrated#a40d5b4d	collections	value	
+none	list/listoflists_defects_narrated#264f3710	collections	value	
+error	list/stzItem_defects_narrated#1810f241	collections	value	Error (R24) : Using uninitialized variable: o
+none	list/stzItem_defects_narrated#5acc292d	collections	value	
+none	listoflists/00_listoflists_narrated#e7b84f80	collections	flag	
+none	listoflists/00_listoflists_narrated#1ffa144f	collections	flag	
+none	listofnumbers/00_listofnumbers_narrated#ee0c795a	numeric	value	
+none	listofnumbers/00_listofnumbers_narrated#9e18fb8c	numeric	value	
+none	locale/01_languagename_narrated#9ae7dfa3	i18n	flag	
+refused	locale/01_languagename_narrated#ad6b207a	i18n	value	
+none	matrex/stzMatrex_defects_narrated#ada5f45e	numeric	value	
+none	meta/coderule_narrated#f25be3c6	meta	value	
+none	meta/coderule_narrated#8a88ecec	meta	flag	
+none	misc/00_misc_narrated#840d5b37	meta	value	
+error	misc/00_misc_narrated#d0ebe1f8	meta	value	Error (R3) : Calling Function without definition: stzstringreplacer
+none	misc/00_misc_narrated#1e29144e	meta	value	
+none	misc/00_misc_narrated#f56d3577	meta	value	
+none	misc/00_misc_narrated#d6b2c106	meta	value	
+pass	misc/00_misc_narrated#9d647c69	meta	value	"  ab  "
+none	misc/00_misc_narrated#d1e663d3	meta	value	
+none	natural/entity_world_narrated#7df7474b	nlp	flag	
+none	natural/entity_world_narrated#e94375cc	nlp	flag	
+none	natural/entity_world_narrated#cc7ae8b0	nlp	flag	
+none	natural/entity_world_narrated#e9f9b623	nlp	flag	
+none	natural/entity_world_narrated#43ddf056	nlp	flag	
+none	natural/evidentiality_narrated#171fd981	nlp	value	
+none	natural/evidentiality_narrated#e508f8fc	nlp	value	
+none	natural/evidentiality_narrated#2b714326	nlp	flag	
+refused	natural/evidentiality_narrated#bc163120	nlp	value	
+none	natural/modality_narrated#f07f60ec	nlp	flag	
+none	natural/modality_narrated#bffed122	nlp	flag	
+none	natural/multilingual_pack_narrated#b351aefa	nlp	flag	
+none	natural/multilingual_pack_narrated#71de5b57	nlp	flag	
+none	network/57_tcp_hardening_narrated#1f7d9810	web	flag	
+none	neural/engine_granite_narrated#ee3798f8	neural	flag	
+none	neural/engine_granite_narrated#563a61d1	neural	flag	
+none	neural/engine_options_narrated#54b274c2	neural	flag	
+none	neural/engine_termination_narrated#d7aace16	neural	flag	
+none	neural/engine_window_narrated#874fa60d	neural	flag	
+none	neural/engine_window_narrated#cf2a1a2e	neural	flag	
+none	neural/generative_narrated#d7e74a11	neural	flag	
+none	number/00_number_narrated#cf94316b	numeric	flag	
+none	number/00_number_narrated#0ecb2a78	numeric	flag	
+none	number/00_number_narrated#410d359e	numeric	value	
+none	number/00_number_narrated#8b9a2afd	numeric	flag	
+none	number/listofnumbers_defects_narrated#3072ab3a	numeric	value	
+none	number/listofnumbers_defects_narrated#84b809e8	numeric	value	
+error	number/listofnumbers_defects_narrated#787d690b	numeric	value	Error (R42) : Error in eval() function
+none	number/money_currency_narrated#44590ef5	numeric	value	
+none	number/money_currency_narrated#ba938b5d	numeric	value	
+none	number/money_currency_narrated#8264c69c	numeric	flag	
+none	number/money_currency_narrated#765df4bc	numeric	flag	
+none	number/money_currency_narrated#36a88333	numeric	flag	
+none	number/money_currency_narrated#e1fcb964	numeric	flag	
+none	number/number_dead_calls_narrated#1cdce0cc	numeric	value	
+error	number/number_dead_calls_narrated#d9e60102	numeric	value	Error (BOOLEAN_EXPECTED) : a condition takes a boolean, and this is an integer -
+none	number/number_dead_calls_narrated#6316f5ba	numeric	value	
+none	number/number_dead_calls_narrated#afc0eace	numeric	value	
+none	number/number_dead_calls_narrated#5c816d99	numeric	value	
+error	number/number_dead_calls_narrated#2c9d264e	numeric	value	Error (R14) : Calling Method without definition: tooctalform
+none	number/number_dead_calls_narrated#250b9f82	numeric	flag	
+none	number/number_digit_groups_narrated#31af5b62	numeric	value	
+none	number/number_digit_groups_narrated#6684ac8e	numeric	value	
+none	number/numeric_calculable_narrated#1f2ac521	numeric	flag	
+none	number/numeric_calculable_narrated#f408492d	numeric	value	
+none	number/numeric_calculable_narrated#b4ca1164	numeric	flag	
+error	number/numeric_calculable_narrated#93567bec	numeric	value	Error (R14) : Calling Method without definition: readerror
+none	number/numeric_complex_narrated#14d1e893	numeric	value	
+none	number/numeric_complex_narrated#aef5344f	numeric	value	
+none	number/numeric_exactness_narrated#e4b5d8c9	numeric	value	
+error	number/numeric_exactness_narrated#fdbf184d	numeric	value	Error (TYPE_LETTER) : `vtStzClassesXT` is lettered vt, a vector of texts, and it
+none	number/numeric_exactness_narrated#fe0d1e8b	numeric	value	
+none	number/numeric_exactness_narrated#bc4cb088	numeric	value	
+none	number/numeric_exactness_narrated#dd3da27d	numeric	value	
+fail	number/numeric_exactness_narrated#4d04607a	numeric	value	[ ]
+none	number/numeric_handle_table_narrated#7e985570	numeric	value	
+none	number/numeric_handle_table_narrated#97dd246e	numeric	value	
+none	number/numeric_handle_table_narrated#bbedab8a	numeric	value	
+error	number/numeric_no_loss_narrated#201147e3	numeric	value	Error (E1) : eval: a name the program never mentions `toFixed`
+none	number/numeric_no_loss_narrated#f3cc2261	numeric	value	
+none	number/numeric_no_loss_narrated#e11f1311	numeric	value	
+none	object/stzObject_defects_narrated#798a6159	meta	value	
+none	object/stzObject_defects_narrated#712de691	meta	flag	
+none	object/stzObject_defects_narrated#0858f48c	meta	flag	
+none	object/stzObject_defects_narrated#97d5108b	meta	flag	
+none	object/stzObject_defects_narrated#4dfb3d1d	meta	flag	
+error	object/stzObject_defects_narrated#9330e734	meta	value	Error (TYPE_LETTER) : `vtStzClassesXT` is lettered vt, a vector of texts, and it
+none	object/stzObject_defects_narrated#daa86d0a	meta	value	
+none	object/stzObject_defects_narrated#cca1563a	meta	flag	
+none	object/stzObject_defects_narrated#809ec39f	meta	flag	
+none	object/stzObject_defects_narrated#177ed0b2	meta	value	
+none	object/stzObject_defects_narrated#84690c8b	meta	value	
+none	ocr/ocr_model_narrated#2d20deee	graphics	flag	
+pass	ocr/ocr_narrated#96e1b19f	graphics	value	"وعند الاختلاف يؤخذ بنص الوثيقة"
+none	ocr/ocr_narrated#70581545	graphics	value	
+none	ordinal/00_ordinal_narrated#2cf90c15	numeric	value	
+none	ordinal/00_ordinal_narrated#d016dcd9	numeric	value	
+error	plural/00_plural_narrated#e2019d1b	nlp	value	Error (R42) : Error in eval() function
+none	plural/00_plural_narrated#435edade	nlp	value	
+none	plural/00_plural_narrated#203e8e19	nlp	value	
+none	plural/00_plural_narrated#1bb831a1	nlp	value	
+refused	plural/00_plural_narrated#1262e613	nlp	value	
+none	plural/00_plural_narrated#e9f50823	nlp	value	
+none	reflect/docgen_narrated#108405c9	meta	value	
+none	reflect/docgen_narrated#ab66189d	meta	value	
+none	reflect/docgen_narrated#f84752e6	meta	flag	
+none	reflect/docgen_narrated#966b80e0	meta	flag	
+none	reflect/docgen_narrated#589d74f0	meta	flag	
+none	reflect/docgen_narrated#e56b1d1e	meta	flag	
+refused	reflect/docgen_narrated#21a587d4	meta	value	
+none	reflect/docgen_narrated#befb0bde	meta	flag	
+none	reflect/docrecord_narrated#b162cac8	meta	flag	
+none	reflect/docrecord_narrated#928e0312	meta	flag	
+none	reflect/docrecord_narrated#5299d63f	meta	flag	
+none	reflect/docrecord_narrated#c979df84	meta	flag	
+none	render/escape_sinks_narrated#c03d5e8d	graphics	flag	
+none	security/advisory_watch_narrated#933a7810	security	flag	
+none	security/advisory_watch_narrated#7d7fac2d	security	value	
+none	security/at_rest_crypto_narrated#5410b4a9	security	flag	
+none	security/engine_door_narrated#b5aa2dbf	security	flag	
+none	security/exposure_responder_narrated#0f7479a2	security	flag	
+none	security/exposure_responder_narrated#00cc312c	security	flag	
+none	security/exposure_responder_narrated#e29ddbdd	security	flag	
+none	security/model_digest_narrated#a652a6f9	security	flag	
+none	security/secret_memory_narrated#5ab417c8	security	flag	
+none	security/secret_memory_narrated#3a1be735	security	flag	
+none	security/secret_memory_narrated#b0a69c70	security	flag	
+none	singular/00_singular_narrated#3f535e83	nlp	value	
+none	singular/00_singular_narrated#6fec8744	nlp	value	
+refused	singular/00_singular_narrated#582c9d0f	nlp	value	
+none	stats/plot_engine_parity_narrated#0ea7eed6	stats	flag	
+none	stats/plot_engine_parity_narrated#5cc53368	stats	value	
+none	stats/stzDataSet_defects_narrated#d8c6f369	stats	flag	
+none	string/00_string_narrated#dbbdadf0	string	value	
+none	string/00_string_narrated#fef3827c	string	value	
+fail	string/00_string_narrated#68a108ba	string	value	1
+none	string/00_string_narrated#8567153f	string	value	
+none	string/00_string_narrated#20d19a85	string	value	
+none	string/00_string_narrated#f5f5ef8f	string	flag	
+none	string/00_string_narrated#463a9a8f	string	value	
+error	string/00_string_narrated#87ed4de2	string	value	Error (R3) : Calling Function without definition: stzstring
+none	string/00_string_narrated#77c15625	string	value	
+none	string/00_string_narrated#f4a7e37d	string	flag	
+none	string/08_write_a#a45c67bf	string	value	
+none	string/08_write_a#ab3bb1b7	string	flag	
+none	string/105_unicode#08a0a918	string	value	
+pass	string/107_hexprefix#a8cfba19	string	value	"0x"
+none	string/107_hexprefix#68950170	string	flag	
+none	string/108_script#fbe3e607	string	value	
+none	string/109_ishexunicode#1bb8de8b	string	flag	
+none	string/109_ishexunicode#3f580dd9	string	value	
+none	string/10_aligncenter#fc491a72	string	value	
+fail	string/10_aligncenter#f0a66b4f	string	value	"     RING      "
+none	string/110_unicode#3befb937	string	value	
+none	string/110_unicode#73522def	string	value	
+none	string/112_repeatedntimes#31a2b15b	string	value	
+pass	string/112_repeatedntimes#de75ea25	string	value	"♥♥♥"
+none	string/113_localescripts#fb3f090c	string	value	
+none	string/113_localescripts#d9f43be0	string	value	
+none	string/116_shortenedn#16a31365	string	value	
+error	string/117_shortened#7683b917	string	value	Error (R3) : Calling Function without definition: stzstring
+none	string/117_shortened#423c9d20	string	value	
+none	string/130_negative_index#4e775743	string	value	
+none	string/134_ispluralofastztype#d5d1eabf	string	flag	
+none	string/14_isreverseof#4b6d1941	string	flag	
+none	string/14_isreverseof#76c7e726	string	flag	
+none	string/158_script#afd59518	string	value	
+error	string/158_script#1e5fb197	string	value	Error (R24) : Using uninitialized variable: o
+none	string/170_containsat#7654c171	string	flag	
+none	string/170_containsat#0dd9a144	string	flag	
+none	string/243_findlast#7dd7c543	string	value	
+none	string/243_findlast#785c70a7	string	value	
+none	string/247_stringcase#1b4bc0c3	string	value	
+none	system/52_uuid_engine_narrated#91b984fd	system	flag	
+none	system/52_uuid_engine_narrated#ebc4bf98	system	flag	
+none	system/auth_saml_narrated#39778c2c	system	flag	
+none	system/payments_governance_narrated#2911f999	system	flag	
+error	system/payments_live_adapter_narrated#d7d5285e	system	value	Error (TYPE_LETTER) : `vtStzClassesXT` is lettered vt, a vector of texts, and it
+none	system/payments_live_adapter_narrated#367bb69d	system	value	
+none	system/payments_qr_narrated#315e67cf	system	value	
+none	system/payments_qr_narrated#843b438c	system	flag	
+none	system/payments_secrets_narrated#68cfc5c4	system	value	
+refused	system/payments_secrets_narrated#c7c76d00	system	value	
+none	system/pispi_twin_narrated#e0af0a64	system	value	
+none	system/pispi_twin_narrated#e504f0c9	system	flag	
+none	system/pispi_twin_narrated#e59b43fc	system	flag	
+none	system/sms_port_narrated#5e6b9082	system	flag	
+none	system/sms_port_narrated#42526ed9	system	value	
+none	system/sms_port_narrated#64b43598	system	flag	
+none	system/sms_port_narrated#ebe7b0e8	system	value	
+error	system/sms_port_narrated#9dcb99e8	system	value	Bad parameter type!
+none	system/sms_port_narrated#e7f13c39	system	flag	
+none	testoor/testoor_clock_narrated#c9d820b1	testing	flag	
+none	testoor/testoor_refine_narrated#6e6afaba	testing	flag	
+none	testoor/testoor_routes_narrated#bf78b333	testing	flag	
+none	time/00_time_narrated#e8fca91f	i18n	value	
+none	time/00_time_narrated#45a20d5a	i18n	flag	
+none	time/00_time_narrated#a2d78e2a	i18n	flag	
+none	uuid/00_uuid_narrated#aba1aeb4	binary	flag	
+none	uuid/00_uuid_narrated#eaa5c7ad	binary	flag	
+none	authored/regex#1	regex	value	
+none	authored/regex#2	regex	value	
+error	authored/regex#3	regex	value	Error (E1) : a built-in is spelled `Len`; written `len`
+none	authored/regex#4	regex	value	
+none	authored/regex#5	regex	value	
+none	authored/regex#6	regex	value	
+error	authored/regex#7	regex	value	Error (R24) : Using uninitialized variable: $obase
+none	authored/regex#8	regex	value	
+none	authored/regex#9	regex	value	
+none	authored/geo#1	geo	value	
+error	authored/geo#2	geo	value	Error (R14) : Calling Method without definition: degreeoflatitudekm
+none	authored/geo#3	geo	value	
+none	authored/geo#4	geo	value	
+none	authored/geo#5	geo	value	
+pass	authored/geo#6	geo	value	5809.80
+none	authored/geo#7	geo	value	
+none	authored/geo#8	geo	value	
+none	authored/geo#9	geo	value	
+error	authored/geo#10	geo	value	Error (R24) : Using uninitialized variable: opat
+none	authored/sound#1	sound	value	
+none	authored/sound#2	sound	value	
+none	authored/sound#3	sound	value	
+error	authored/sound#4	sound	value	Error (TYPE_LETTER) : `vtStzClassesXT` is lettered vt, a vector of texts, and it
+none	authored/sound#5	sound	value	
+none	authored/sound#6	sound	value	
+none	authored/sound#7	sound	value	
+error	authored/sound#8	sound	value	Error (R3) : Calling Function without definition: stzsounduniversesq
+none	authored/sound#9	sound	value	
+none	authored/sound#10	sound	value	
+none	authored/gui#1	gui	value	
+error	authored/gui#2	gui	value	Error (TYPE_LETTER) : `vtStzClassesXT` is lettered vt, a vector of texts, and it
+none	authored/gui#3	gui	value	
+none	authored/gui#4	gui	value	
+none	authored/gui#5	gui	value	
+error	authored/gui#6	gui	value	Error (E1) : eval: a name the program never mentions `stzGraph`
+none	authored/gui#7	gui	value	
+none	authored/gui#8	gui	value	
+none	authored/gui#9	gui	value	
+pass	authored/gui#10	gui	value	106.04
+none	authored/gpu#1	gpu	value	
+none	authored/gpu#2	gpu	value	
+none	authored/gpu#3	gpu	value	
+error	authored/gpu#4	gpu	value	Error (R42) : Error in eval() function
+none	authored/gpu#5	gpu	value	
+none	authored/gpu#6	gpu	value	
+none	authored/gpu#7	gpu	value	
+error	authored/gpu#8	gpu	value	Error (R14) : Calling Method without definition: todecimalform
+none	authored/gpu#9	gpu	value	
+none	authored/gpu#10	gpu	value	
+none	authored/performance#1	performance	value	
+error	authored/performance#2	performance	value	Error (R3) : Calling Function without definition: slopeperms
+none	authored/performance#3	performance	value	
+none	authored/performance#4	performance	value	
+none	authored/performance#5	performance	value	
+error	authored/performance#6	performance	value	Error (R42) : Error in eval() function
+none	authored/performance#7	performance	value	
+none	authored/performance#8	performance	value	
+none	authored/performance#9	performance	value	
+error	authored/performance#10	performance	value	Error (R14) : Calling Method without definition: slopeperms
+none	authored/governance#1	governance	value	
+none	authored/governance#2	governance	value	
+none	authored/governance#3	governance	value	
+error	authored/governance#4	governance	value	Error (R14) : Calling Method without definition: commitmentstateof
+none	authored/governance#5	governance	value	
+none	authored/governance#6	governance	value	
+none	authored/governance#7	governance	value	
+error	authored/governance#8	governance	value	Error (TYPE_LETTER) : `vFact` is lettered v, a vector, and is given a text
+none	authored/governance#9	governance	value	
+none	authored/governance#10	governance	value	
+
+score                    pass / tasks
+  all value             7 / 235
+  nlp value             0 / 17
+  answered value        7 / 59
+  all flag              0 / 132
+  testing flag          0 / 4
+  concurrency flag      0 / 1
+  meta value            1 / 24
+  meta flag             0 / 28
+  tables value          0 / 1
+  tables flag           0 / 1
+  i18n flag             0 / 8
+  i18n value            0 / 5
+  extensibility flag    0 / 1
+  extensibility value   1 / 8
+  neural flag           0 / 14
+  neural value          0 / 1
+  files value           0 / 2
+  files flag            0 / 2
+  diagramming value     0 / 2
+  diagramming flag      0 / 1
+  numeric flag          0 / 11
+  web flag              0 / 3
+  web value             0 / 1
+  collections value     0 / 27
+  collections flag      0 / 12
+  numeric value         0 / 35
+  nlp flag              0 / 10
+  graphics flag         0 / 2
+  graphics value        1 / 2
+  security flag         0 / 10
+  security value        0 / 1
+  stats flag            0 / 2
+  stats value           0 / 1
+  string value          2 / 30
+  string flag           0 / 10
+  system flag           0 / 10
+  system value          0 / 9
+  binary flag           0 / 2
+  regex value           0 / 9
+  geo value             1 / 10
+  sound value           0 / 10
+  gui value             1 / 10
+  gpu value             0 / 10
+  performance value     0 / 10
+  governance value      0 / 10
+
+judged in 11 ms

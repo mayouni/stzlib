@@ -98,6 +98,17 @@ and warning, and how to build the objects it belongs to.
 - These tasks were written by the same family of model that answers them; the door arm, which may not read the
   source, is the measurement they serve.
 
+### The whole benchmark through door v0.4
+
+The same agent, `find` and `methods` only, on all 235 value tasks: **216 pass** (9 fail, 10 errors), for 256 k tokens
+and about 140 lookups -- about 1.1 k tokens a task, against 1.4 k for door v0.2.
+
+- On the 150 shared tasks it scores 139: inside the 136-146 spread of the earlier runs. The door's richer answers do
+  not move the tasks the library's names already settle.
+- On the 69 authored tasks, 63: the separate run's 64, again.
+- By area: string 30/30, collections 27/27, geo, gpu and regex 10/10 or 9/9, numeric 32/35, meta 19/24, governance
+  7/10, files 0/2.
+
 ### Local models, through the same door
 
 `local.haro` runs a model of the engine on every fourth value task, greedy, 120 new tokens at most, in three arms:
@@ -113,6 +124,7 @@ answer printed). On the 38 tasks all of them answered:
 \* the 1.5B model's cold and doorrun arms ran before the extraction learned to strip inline backticks (and doorrun
 before `find`'s fallback examples); its door row is the re-run with both.
 
+- Through door v0.4, on every fourth of the 235 value tasks (59): the 1.5B coder passes 7, Claude 55.
 - The door that brings Claude to 36 of these 38 brings the 1.5B coder from 1 to 5 and Bolt from 7 to 3: Bolt follows
   the door's definitions into names of its own (`MorphologicalAdverb`), the 1.5B model repeats a method name until its
   tokens run out. One repair from the printed result changed no answer.
