@@ -49,6 +49,7 @@ file|ocr/ppocr_rec_arabic.gguf|7937728|c1563b1f5f9f412d927c3a48b1b6c9863ed0176ef
 file|ocr/ppocr_rec_cyrillic.gguf|7988640|02b1adf6774c19e44bb4851d7eebc63bc9eed9cb3d2f14a42babdcf40f176b01|Apache-2.0|convert|https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv5/rec/cyrillic_PP-OCRv5_rec_mobile.onnx||90f761b4bfcce0c8c561c0cb5c887b0971d3ec01c32164bdf7374a35b0982711|python engine/tools/onnx_to_gguf.py cyrillic_PP-OCRv5_rec_mobile.onnx ocr/ppocr_rec_cyrillic.gguf --kind=rec
 file|Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf|6180446208|c8af2b8aea10a690a1d9491db744a9446660173cb38fc489612b556615a69612|OpenMDW-1.1|download|https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Bolt-E4B-4GB/resolve/main/Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf|6180446208|c8af2b8aea10a690a1d9491db744a9446660173cb38fc489612b556615a69612|download, save as Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf
 file|speech/ggml-small.bin|487601967|1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b|MIT|download|https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin|487601967|1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b|download, save as speech/ggml-small.bin
+file|speech/ggml-small-hausa.bin|487601967|72d8bec5841e760c980c24759ad2a8a78e4f7500d11c0edf0fd517be801e98e0|Apache-2.0|convert|https://huggingface.co/Africanvoice/african_voices_hausa_small/resolve/main/model.safetensors|966992208|4d8e05182175817d9133dcfa7c60264232192e84e83109023ea412ea9d3a7d99|python -I base/test/clusterbench/_rig/hf_whisper_to_ggml.py speech/ggml-small.bin model.safetensors speech/ggml-small-hausa.bin
 
 requires|faces|yunet|vision/yunet_2023mar.gguf|
 requires|objects|yolox-nano|vision/yolox_nano.gguf|
@@ -72,6 +73,7 @@ requires|ocr|ppocr|ocr/ppocr_rec_arabic.gguf|lang=ar
 requires|ocr|ppocr|ocr/ppocr_rec_cyrillic.gguf|lang=ru,uk,bg
 requires|transcribe|whisper-small|speech/ggml-small.bin|
 requires|spoken-language|whisper-small|speech/ggml-small.bin|
+requires|transcribe|whisper-small-hausa|speech/ggml-small-hausa.bin|lang=ha
 
 platform|ocr|platform|windows|a Windows OCR language pack for the language read|Settings > Time & language > Language & region > Add a language (with Optical character recognition); or, as administrator: Add-WindowsCapability -Online -Name "Language.OCR~~~<tag>~0.0.1.0" (Get-WindowsCapability -Online -Name "Language.OCR*" lists them)
 platform|faces|platform|windows|Windows.Media.FaceAnalysis, part of Windows 10 and later|nothing to install on Windows; on another system this implementation does not exist
@@ -97,6 +99,7 @@ replayed|vision/owlvit_vision.gguf|2026-11-05|not replayed: several stages, torc
 replayed|vision/owlvit_text.gguf|2026-11-05|not replayed: several stages, torch and transformers needed
 replayed|ocr/ppocr_rec_arabic.gguf|2026-11-05|not replayed: its source is not on the replaying machine
 replayed|ocr/ppocr_rec_cyrillic.gguf|2026-11-05|not replayed: its source is not on the replaying machine
+replayed|speech/ggml-small-hausa.bin|2026-11-16|identical: the conversion run twice on this machine gave the same 487,601,967 bytes
 
 # MP3b: where the converted files are published (org softanza on Hugging Face). Written 2026-11-05; nothing is published until a
 # release row says so

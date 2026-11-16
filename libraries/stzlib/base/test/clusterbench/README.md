@@ -102,6 +102,13 @@ the questions alone, opening the pictures itself.
   `spoken-language-v1` (the first five FLEURS test recordings in French, English, Arabic and Hausa) 0.75 against 0.25
   for the floor that always answers French, 10 gained and none lost. The court upholds Whisper small on both, so the
   registry chooses it; about 9 seconds a recording.
+- **The court has not yet upheld the Hausa model, on the rule fixed before it ran.** `:transcribe`'s golden set
+  `hearing-v2` adds ten fresh Hausa recordings (FLEURS test 6 to 15, `hausa_fresh.tsv`), each judged on the three
+  longest words of its transcription, all three required. The Hausa model passes 2 of the 12 Hausa items, Whisper small
+  none: two items gained is within chance (p 0.25), so the registry keeps Whisper small for every language (7 items
+  gained on the floor over the whole set, none lost). The model is in the catalogue as a converted file (its conversion
+  replayed byte for byte) and stays measured beside Whisper small. Its word error rate says where it stands; the court
+  needs more Hausa items, judged item by item on that rate, to rule on it.
 - **The engine's Whisper agrees with its reference**: on the first recording, the numpy implementation that reads the
   same file (`_rig/whisper_reference.py`) and the engine give the same 15 tokens, and cosine 1.000000 on the log-mel,
   on the encoder's 1,152,000 values (largest difference 0.37 of 32.7: ggml's convolution runs in f16) and on the first
