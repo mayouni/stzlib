@@ -77,18 +77,24 @@ AGENTS.md now says so to every agent.
 
 ### The seven authored areas, through the door
 
-The same agent, `find` and `methods` only, on the 69 authored tasks: 51 pass.
+The same agent, `find` and `methods` only, on the 69 authored tasks:
 
-| regex | geo | gui | gpu | sound | performance | governance |
-|---|---|---|---|---|---|---|
-| 6 / 9 | 9 / 10 | 10 / 10 | 0 / 10 | 10 / 10 | 9 / 10 | 7 / 10 |
+| door | regex | geo | gui | gpu | sound | performance | governance | all | cost |
+|---|---|---|---|---|---|---|---|---|---|
+| v0.3 | 6 / 9 | 9 / 10 | 10 / 10 | 0 / 10 | 10 / 10 | 9 / 10 | 7 / 10 | 51 / 69 | 179 k tokens |
+| v0.4 | 9 / 9 | 10 / 10 | 9 / 10 | 10 / 10 | 10 / 10 | 9 / 10 | 7 / 10 | 64 / 69 | 182 k tokens |
+
+v0.4 is the door after the three fixes below and DOOR-04: `find` shows each definition's parameters, return value
+and warning, and how to build the objects it belongs to.
 
 - **gpu, 0 of 10**: every answer named its kernel maker `oK`, which Haro reads as the keyword `ok`. AGENTS.md now
   says that a name reading as a keyword in any case is refused.
 - **regex, three errors**: `find` served narrated examples calling `Nbx`, a helper one test file defines for itself.
   The index now leaves out every example calling a function its own test file defines (5,081 of 18,569).
-- The agent reports what the door did not show: how to construct `stzGovernance` and `stzFieldTags`, the shape of
-  an argument (`EvaluateOn`'s bindings, a polygon's points), and what a function returns.
+- After v0.3 the agent named what the door did not show: how to construct `stzGovernance` and `stzFieldTags`, the
+  shape of an argument (`EvaluateOn`'s bindings, a polygon's points), and what a function returns. v0.4 shows them
+  where the library's comments give them; where they do not (`EvaluateOn`'s bindings, the shape of a policy diff),
+  the comment is what to complete.
 - These tasks were written by the same family of model that answers them; the door arm, which may not read the
   source, is the measurement they serve.
 
