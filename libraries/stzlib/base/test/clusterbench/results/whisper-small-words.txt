@@ -1,0 +1,18 @@
+Area-cluster benchmark -- whisper-small-words
+
+pass	hear01	15|quinze+mairie	Le rendez-vous est fixé à 15h devant la mairie.
+pass	hear02	semoule+2|deux	Le prix du kilo de semoule est de 2 dinars.
+pass	hear03	facture+sfax+vendredi	Envoyez la facture à l'agence de Sfax avant vendredi.
+pass	hear04	12|douze+novembre+2026	Nous sommes le 12 novembre 2026.
+pass	hear05	voyelles+étoiles|etoiles	Remplace toutes les voyelles par des étoiles.
+pass	hear06	server+restarted	The server restarted at 9.15 this morning.
+pass	hear07	sort+descending	Please sort the list in descending order.
+fail	hear08	occurrence|occurrences+softanza	Find every occurrence of the word Softansa.
+pass	hear09	fr	fr
+pass	hear10	en	en
+
+cluster      pass / tasks
+  hearing     9 / 10
+  all         9 / 10
+
+58 s

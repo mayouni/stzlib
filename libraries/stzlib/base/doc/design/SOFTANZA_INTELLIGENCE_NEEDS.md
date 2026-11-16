@@ -95,7 +95,8 @@ way a line goes left to the library's own data. Hausa named as a language and a 
 cells the smaller models miss together. **The engine hears**: Whisper small runs on the engine's own graph
 (`engine/src/whisper.zig`), in agreement with a numpy reference reading the same file, and passes 7 of the 10 hearing
 tasks -- both languages named, every number and date heard; the misses are the context's own words (`Sfax`,
-`semoule`, `Softanza`), which a prompt of expected words is for.
+`semoule`, `Softanza`). With the setting's words read first (one glossary for every recording), it passes 9 of 10:
+`Sfax` and `semoule` spelled right, `Softanza` one letter off ("Softansa").
 
 The code benchmark covers most areas today. Regex, geo, gui, gpu, sound, performance and governance get their tasks
 written for them, since their narrated checks read files, devices or the clock.

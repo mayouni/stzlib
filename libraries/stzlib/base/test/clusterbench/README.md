@@ -24,6 +24,8 @@ From this folder, with `STZ_ENGINE_DIR` set as for any run of the library:
     HARO_NOCACHE=1 haro run.haro <label> <model file>         a text model answers the forty tasks without a picture
     HARO_NOCACHE=1 haro run.haro <label> smolvlm256           the house's vision model answers the ten with one
     HARO_NOCACHE=1 haro run.haro <label> <ggml-small.bin>     Whisper hears the ten recordings
+    HARO_NOCACHE=1 haro run.haro <label> <ggml-small.bin> setting_words.txt
+                                                              the same, Whisper first reading the setting's words
     HARO_NOCACHE=1 haro run.haro score <answers file> <label> scores replies written by any other means
 
 A reply is read by its task's kind: `choice`, the first capital A to D standing alone; `number`, the first number;
@@ -45,6 +47,7 @@ the questions alone, opening the pictures itself.
 | SmolVLM 256M | -- | -- | -- | -- | -- | 7 | -- | 10 |
 | SmolVLM 500M | -- | -- | -- | -- | -- | 7 | -- | 14 |
 | Whisper small, f16, on `engine/src/whisper.zig` | -- | -- | -- | -- | -- | -- | **7** | 49, the library's compile included |
+| the same, reading `setting_words.txt` first | -- | -- | -- | -- | -- | -- | **9** | 58, the library's compile included |
 | *Claude Opus 5.5, for scale* | *10* | *10* | *10* | *10* | *40* | *10* | -- | |
 
 \* taken while another desk built its runtime on this machine; the scores do not depend on the clock.
@@ -62,8 +65,14 @@ the questions alone, opening the pictures itself.
   the library's own data before a model looks at its picture.
 - **Hearing is 7 of 10 with Whisper small, run by the engine itself**: both languages named, every number, date and
   ordinary word heard. The three misses are the words of Softanza's own contexts: `semoule` heard as "ce moule", `Sfax`
-  as "SFACS", `Softanza` as "soft-onsa". Whisper takes a prompt of expected words before it listens; giving it the
-  context's vocabulary is the engine's next step for hearing.
+  as "SFACS", `Softanza` as "soft-onsa".
+- **With the setting's words read first, hearing is 9 of 10.** `setting_words.txt` is one glossary for every recording
+  -- the library's names, Tunisian cities, the market's goods and its currency, as a deployment carries its own
+  vocabulary -- read by the decoder behind `<|startofprev|>` (`StzEngineNeuralWhisperTranscribePrompted`). `semoule`
+  and `Sfax` are now spelled right; `Softanza` comes out "Softansa", one letter off, as the English voice says it. The
+  seven recordings that passed still pass and both languages are still named: the language is heard before the
+  prompt is read, so a glossary never changes it. The numpy reference, given the same words (`--prompt`), spells fr03
+  as the engine does.
 - **The engine's Whisper agrees with its reference**: on the first recording, the numpy implementation that reads the
   same file (`_rig/whisper_reference.py`) and the engine give the same 15 tokens, and cosine 1.000000 on the log-mel,
   on the encoder's 1,152,000 values (largest difference 0.37 of 32.7: ggml's convolution runs in f16) and on the first
