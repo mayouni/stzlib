@@ -298,11 +298,80 @@ pass	time/00_time_narrated#45a20d5a	i18n	flag	1
 pass	time/00_time_narrated#a2d78e2a	i18n	flag	0
 pass	uuid/00_uuid_narrated#aba1aeb4	binary	flag	1
 pass	uuid/00_uuid_narrated#eaa5c7ad	binary	flag	0
+pass	authored/regex#1	regex	value	"16/11/2026"
+pass	authored/regex#2	regex	value	"price: \$5\.00 \(approx\)"
+pass	authored/regex#3	regex	value	4
+pass	authored/regex#4	regex	value	[ 23, 29, 31, 37, 41, 43, 47 ]
+pass	authored/regex#5	regex	value	97
+pass	authored/regex#6	regex	value	25
+pass	authored/regex#7	regex	value	165
+pass	authored/regex#8	regex	value	[ "ali@mail.tn", "sara@web.ne" ]
+pass	authored/regex#9	regex	value	[ "#ff0000", "#00FF7f" ]
+pass	authored/geo#1	geo	value	2702.67
+pass	authored/geo#2	geo	value	"36 48' 23.40""
+pass	authored/geo#3	geo	value	13.51
+pass	authored/geo#4	geo	value	"cotedivoire"
+pass	authored/geo#5	geo	value	-160.64
+pass	authored/geo#6	geo	value	5809.80
+pass	authored/geo#7	geo	value	55.80
+pass	authored/geo#8	geo	value	294.98
+pass	authored/geo#9	geo	value	[ "#EFF3FF", "#6BAED6", "#08519C" ]
+pass	authored/geo#10	geo	value	12308.78
+pass	authored/sound#1	sound	value	880
+pass	authored/sound#2	sound	value	261.63
+pass	authored/sound#3	sound	value	73
+pass	authored/sound#4	sound	value	"koto"
+pass	authored/sound#5	sound	value	1200
+pass	authored/sound#6	sound	value	"U U D D"
+pass	authored/sound#7	sound	value	4
+pass	authored/sound#8	sound	value	[ "rast", "hijaz" ]
+pass	authored/sound#9	sound	value	700
+pass	authored/sound#10	sound	value	302.27
+pass	authored/gui#1	gui	value	"--rmlui-direction"
+pass	authored/gui#2	gui	value	"tabindex"
+pass	authored/gui#3	gui	value	22
+pass	authored/gui#4	gui	value	[ "box.x", "box.y", "box.width", "box.height" ]
+pass	authored/gui#5	gui	value	[ 0, 40, 50, 30 ]
+pass	authored/gui#6	gui	value	[ "p", "b" ]
+pass	authored/gui#7	gui	value	[ 0, 78, 100, 30 ]
+pass	authored/gui#8	gui	value	4.62
+pass	authored/gui#9	gui	value	"white"
+pass	authored/gui#10	gui	value	106.04
+pass	authored/gpu#1	gpu	value	[ 12, 24, 36 ]
+pass	authored/gpu#2	gpu	value	2
+pass	authored/gpu#3	gpu	value	[ 1, 4, 9, 16 ]
+pass	authored/gpu#4	gpu	value	[ 0, 0.25, 0.50, 1 ]
+pass	authored/gpu#5	gpu	value	[ 0, 0, 3, 4, 5 ]
+pass	authored/gpu#6	gpu	value	[ 0, 4, 0, 7 ]
+pass	authored/gpu#7	gpu	value	[ 5, 13, 17 ]
+pass	authored/gpu#8	gpu	value	[ 6, 4.50 ]
+pass	authored/gpu#9	gpu	value	[ 1.50, 2, 3 ]
+pass	authored/gpu#10	gpu	value	[ 8, 4, 2 ]
+pass	authored/performance#1	performance	value	7
+pass	authored/performance#2	performance	value	0.20
+pass	authored/performance#3	performance	value	[ 2, 3, 4, 5 ]
+pass	authored/performance#4	performance	value	"http_hits"
+pass	authored/performance#5	performance	value	"Perf plan relieve-nlp -- 1 proposed action(s)."
+pass	authored/performance#6	performance	value	5
+pass	authored/performance#7	performance	value	[ [ "scaledown", "web", "drain" ] ]
+pass	authored/performance#8	performance	value	110
+pass	authored/performance#9	performance	value	33.33
+pass	authored/performance#10	performance	value	-0.06
+pass	authored/governance#1	governance	value	"a 'sandboxed' posture does not cover 'compensable' work -- the harder an act is
+pass	authored/governance#2	governance	value	[ "consent", "anonymisation" ]
+pass	authored/governance#3	governance	value	2
+pass	authored/governance#4	governance	value	"provisional"
+pass	authored/governance#5	governance	value	[ "on_premise" ]
+pass	authored/governance#6	governance	value	"exploratory"
+pass	authored/governance#7	governance	value	2
+pass	authored/governance#8	governance	value	"'bot' may now carry out 'pay' -- allowed: permission held AND 'delegated' autho
+pass	authored/governance#9	governance	value	3
+pass	authored/governance#10	governance	value	2
 
 score                    pass / tasks
-  all value             166 / 166
+  all value             235 / 235
   nlp value             17 / 17
-  answered value        166 / 166
+  answered value        235 / 235
   all flag              132 / 132
   testing flag          4 / 4
   answered flag         132 / 132
@@ -339,5 +408,12 @@ score                    pass / tasks
   system flag           10 / 10
   system value          9 / 9
   binary flag           2 / 2
+  regex value           9 / 9
+  geo value             10 / 10
+  sound value           10 / 10
+  gui value             10 / 10
+  gpu value             10 / 10
+  performance value     10 / 10
+  governance value      10 / 10
 
-judged in 4230 ms
+judged in 11325 ms

@@ -24,6 +24,8 @@
 #     proves nothing, and the judge refuses it the same way;
 #   - a reference that calls nothing is dropped, as the judge refuses such an answer;
 #   - an object result is dropped (its printed form carries no content to compare);
+#   - authored.tsv adds tasks written for the areas the narrations cannot reach (a file, a device, the clock); each
+#     is kept only when its reference prints its expected value here, under the same rules as the harvested ones;
 #   - each task has a KIND: `flag` when the expected value is 0, 1, "" or [ ] -- an answer can match it without doing
 #     the work, so a flag task is scored apart -- and `value` otherwise, the headline score;
 #   - at most 2 checks per scenario, and per test topic 30 value tasks and 10 flag tasks, in the harvest's order, so
@@ -162,6 +164,32 @@ for i = 1 to nChecks
 	vRows + [ vChecks[i][:id], AreaOf(tTopic), tTopic, tKind, Flat(vChecks[i][:scenario]), Flat(vChecks[i][:desc]), Inputs(tRef), Esc(tGotExp), tRef ]
 end
 
+# the authored tasks: written for the areas whose narrated checks touch a file, a device or the clock, and held to
+# the same rules -- the reference must print the expected value here, call something, and not write its value
+nAuthored = 0
+nAuthoredOut = 0
+if FExists("authored.tsv")
+	vAuth = ReadTsvLines("authored.tsv")
+	vAreaN = []
+	vAreaKeys = []
+	for i = 2 to Len(vAuth)
+		vA = vAuth[i]
+		if Len(vA) < 5
+			loop
+		end
+		tRefA = Trim2(vA[5])
+		tGotA = Rep(tRefA)
+		if Esc(tGotA) != vA[4] or IndexOf("(", tRefA) = 0 or Leaks(tRefA, tGotA)
+			nAuthoredOut++
+			tMiss = tMiss + Row([ "authored/" + vA[1], Esc(tRefA), Left(Esc(tGotA), 200), vA[4] ])
+			loop
+		end
+		nN = Bump(vAreaKeys, vAreaN, vA[1])
+		vRows + [ "authored/" + vA[1] + "#" + String(nN), vA[1], "authored-" + vA[1], KindOf(tGotA), vA[2], vA[3], Inputs(tRefA), vA[4], tRefA ]
+		nAuthored++
+	end
+end
+
 tBench = Row([ "id", "area", "topic", "kind", "scenario", "description", "inputs", "expected", "reference" ])
 nValue = 0
 for i = 1 to Len(vRows)
@@ -221,6 +249,7 @@ end
 ? "expected inside the ref " + String(nLeak)
 ? "reference calls nothing " + String(nNoCall)
 ? "training pairs (_train) " + String(nTrain) + ", from files no task comes from"
+? "authored tasks kept     " + String(nAuthored) + ", refused " + String(nAuthoredOut)
 ? "kept after the caps     " + String(Len(vRows))
 vCount = []
 vCountN = []
@@ -302,4 +331,20 @@ func IsIn(tItem, vList)
 		end
 	end
 	return false
+end
+
+
+func ReadTsvLines(tPath)
+	vOut = []
+	vLines = Str2List(Read(tPath))
+	for i = 1 to Len(vLines)
+		tLine = vLines[i]
+		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
+			tLine = Left(tLine, Len(tLine) - 1)
+		end
+		if Len(tLine) > 0
+			vOut + Split(tLine, Char(9))
+		end
+	end
+	return vOut
 end

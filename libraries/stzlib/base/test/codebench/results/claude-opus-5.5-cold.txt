@@ -298,9 +298,78 @@ pass	time/00_time_narrated#45a20d5a	i18n	flag	1
 pass	time/00_time_narrated#a2d78e2a	i18n	flag	0
 error	uuid/00_uuid_narrated#aba1aeb4	binary	flag	Error (R3) : Calling Function without definition: stzisuuid
 error	uuid/00_uuid_narrated#eaa5c7ad	binary	flag	Error (R3) : Calling Function without definition: stzisuuid
+none	authored/regex#1	regex	value	
+none	authored/regex#2	regex	value	
+none	authored/regex#3	regex	value	
+none	authored/regex#4	regex	value	
+none	authored/regex#5	regex	value	
+none	authored/regex#6	regex	value	
+none	authored/regex#7	regex	value	
+none	authored/regex#8	regex	value	
+none	authored/regex#9	regex	value	
+none	authored/geo#1	geo	value	
+none	authored/geo#2	geo	value	
+none	authored/geo#3	geo	value	
+none	authored/geo#4	geo	value	
+none	authored/geo#5	geo	value	
+none	authored/geo#6	geo	value	
+none	authored/geo#7	geo	value	
+none	authored/geo#8	geo	value	
+none	authored/geo#9	geo	value	
+none	authored/geo#10	geo	value	
+none	authored/sound#1	sound	value	
+none	authored/sound#2	sound	value	
+none	authored/sound#3	sound	value	
+none	authored/sound#4	sound	value	
+none	authored/sound#5	sound	value	
+none	authored/sound#6	sound	value	
+none	authored/sound#7	sound	value	
+none	authored/sound#8	sound	value	
+none	authored/sound#9	sound	value	
+none	authored/sound#10	sound	value	
+none	authored/gui#1	gui	value	
+none	authored/gui#2	gui	value	
+none	authored/gui#3	gui	value	
+none	authored/gui#4	gui	value	
+none	authored/gui#5	gui	value	
+none	authored/gui#6	gui	value	
+none	authored/gui#7	gui	value	
+none	authored/gui#8	gui	value	
+none	authored/gui#9	gui	value	
+none	authored/gui#10	gui	value	
+none	authored/gpu#1	gpu	value	
+none	authored/gpu#2	gpu	value	
+none	authored/gpu#3	gpu	value	
+none	authored/gpu#4	gpu	value	
+none	authored/gpu#5	gpu	value	
+none	authored/gpu#6	gpu	value	
+none	authored/gpu#7	gpu	value	
+none	authored/gpu#8	gpu	value	
+none	authored/gpu#9	gpu	value	
+none	authored/gpu#10	gpu	value	
+none	authored/performance#1	performance	value	
+none	authored/performance#2	performance	value	
+none	authored/performance#3	performance	value	
+none	authored/performance#4	performance	value	
+none	authored/performance#5	performance	value	
+none	authored/performance#6	performance	value	
+none	authored/performance#7	performance	value	
+none	authored/performance#8	performance	value	
+none	authored/performance#9	performance	value	
+none	authored/performance#10	performance	value	
+none	authored/governance#1	governance	value	
+none	authored/governance#2	governance	value	
+none	authored/governance#3	governance	value	
+none	authored/governance#4	governance	value	
+none	authored/governance#5	governance	value	
+none	authored/governance#6	governance	value	
+none	authored/governance#7	governance	value	
+none	authored/governance#8	governance	value	
+none	authored/governance#9	governance	value	
+none	authored/governance#10	governance	value	
 
 score                    pass / tasks
-  all value             102 / 166
+  all value             102 / 235
   nlp value             14 / 17
   answered value        102 / 150
   all flag              49 / 132
@@ -339,5 +408,12 @@ score                    pass / tasks
   system flag           0 / 10
   system value          1 / 9
   binary flag           0 / 2
+  regex value           0 / 9
+  geo value             0 / 10
+  sound value           0 / 10
+  gui value             0 / 10
+  gpu value             0 / 10
+  performance value     0 / 10
+  governance value      0 / 10
 
-judged in 25 ms
+judged in 125 ms

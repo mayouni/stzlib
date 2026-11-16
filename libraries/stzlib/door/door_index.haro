@@ -8,7 +8,8 @@
 #             its name, its class, its signature, the comment lines written just above it, and its first body line
 #             (an alias shows there what it stands for)
 #   example   every narrated assertion `Then(description, actual, expected)` in base/test: the code that runs, what
-#             it gives, and the scenario it belongs to
+#             it gives, and the scenario it belongs to -- except an assertion calling a function its own test file
+#             defines (a helper of the test, which the library does not have)
 #
 # One row a line: kind, name, class, file, line, head, note, words. `head` is the signature or the example's code;
 # `note` the comment or the expected value; `words` the lowercased text `find` searches, the name's words split at
@@ -21,6 +22,7 @@ $vSkipDirs = [ "test", "archive", "_tmp", "future", "max", "models", "engine", "
 $hOut = FOpen("index.tsv", "wb")
 $nDefs = 0
 $nExamples = 0
+$nOwnSkipped = 0
 $nFiles = 0
 
 nStart = Clock()
@@ -30,7 +32,7 @@ Walk("base/test", true)
 FClose($hOut)
 ? "files read  " + String($nFiles)
 ? "defs        " + String($nDefs)
-? "examples    " + String($nExamples)
+? "examples    " + String($nExamples) + "  (left out: " + String($nOwnSkipped) + " calling a function their test file defines)"
 ? "seconds     " + String(Floor((Clock() - nStart) / ClocksPerSecond()))
 
 
@@ -91,24 +93,22 @@ func Defs(tFile)
 		if tName = "" or Left(tName, 1) = "_"
 			loop
 		end
-		tComment = ""
+		vBlock = []
 		nUp = i - 1
-		nTaken = 0
-		while nUp >= 1 and nTaken < 4 and Left(Trim2(vLines[nUp]), 1) = "#"
-			tComment = Trim2(SubStr(Trim2(vLines[nUp]), 2, Len(Trim2(vLines[nUp])) - 1)) + " " + tComment
+		while nUp >= 1 and nUp > i - 40 and Left(Trim2(vLines[nUp]), 1) = "#"
+			vBlock + Trim2(SubStr(Trim2(vLines[nUp]), 2, Len(Trim2(vLines[nUp])) - 1))
 			nUp--
-			nTaken++
 		end
+		tNote = DocNote(vBlock)
 		tBody = ""
 		if i < nLen
 			tBody = Left(Trim2(vLines[i + 1]), 100)
 		end
-		tNote = Trim2(tComment)
-		if Left(Lower(tBody), 6) = "return"
+		if Left(Lower(tBody), 6) = "return" and SubStr(tNote, "returns:") = 0
 			tNote = Trim2(tNote + "  | " + tBody)
 		end
 		tWords = Lower(SplitCaps(tName) + " " + tName + " " + tOwner + " " + tNote)
-		FWrite($hOut, Row([ "def", tName, tOwner, tFile, String(i), Left(tLine, 160), Left(tNote, 300), Left(tWords, 400) ]))
+		FWrite($hOut, Row([ "def", tName, tOwner, tFile, String(i), Left(tLine, 160), Left(tNote, 600), Left(tWords, 500) ]))
 		$nDefs++
 	end
 end
@@ -118,6 +118,7 @@ func Examples(tFile)
 	vLines = Str2List(Read($tRoot + "/" + tFile))
 	tScenario = ""
 	nLen = Len(vLines)
+	vOwn = OwnFunctions(vLines)
 	for i = 1 to nLen
 		tLine = Trim2(vLines[i])
 		if Left(tLine, 9) = "Scenario("
@@ -134,11 +135,120 @@ func Examples(tFile)
 		if Len(vA) != 3
 			loop
 		end
+		if CallsOwn(vA[2], vOwn)
+			$nOwnSkipped++
+			loop
+		end
 		tDesc = Unquote(vA[1])
 		tWords = Lower(tDesc + " " + tScenario + " " + vA[2])
 		FWrite($hOut, Row([ "example", tDesc, tScenario, tFile, String(i), Left(vA[2], 240), Left(vA[3], 160), Left(tWords, 500) ]))
 		$nExamples++
 	end
+end
+
+# the functions a test file defines for itself, in small letters: an example calling one is not the library's
+func OwnFunctions(vLines)
+	vOut = []
+	nLen = Len(vLines)
+	for i = 1 to nLen
+		tLine = Trim2(vLines[i])
+		if Lower(Left(tLine, 5)) = "func "
+			tName = Lower(FirstWord(SubStr(tLine, 6, Len(tLine) - 5)))
+			if tName != ""
+				vOut + tName
+			end
+		end
+	end
+	return vOut
+end
+
+func CallsOwn(tCode, vOwn)
+	tLow = Lower(tCode)
+	for i = 1 to Len(vOwn)
+		if SubStr(tLow, vOwn[i] + "(") > 0
+			return true
+		end
+	end
+	return false
+end
+
+# a definition's comment block (read bottom-up, as collected) made into one line: the description, then each
+# parameter (a line starting with a p-name), the `returns` line and the `warning` line, each with the lines that
+# continue it; `note`, `see` and `@ aka` lines are left out unless the block has no description
+func DocNote(vUp)
+	vBlock = []
+	for i = Len(vUp) to 1 step -1
+		vBlock + vUp[i]
+	end
+	tDesc = ""
+	tParams = ""
+	tReturns = ""
+	tWarning = ""
+	tAka = ""
+	tPart = "desc"
+	for i = 1 to Len(vBlock)
+		tL = vBlock[i]
+		tLow = Lower(tL)
+		tFirst = FirstWord(tL)
+		if tL = ""
+			if tPart = "desc" and tDesc != ""
+				tPart = "after"
+			end
+			loop
+		end
+		if Left(tLow, 7) = "returns"
+			tPart = "returns"
+			tReturns = Trim2(SubStr(tL, 8, Len(tL) - 7))
+		elseif Left(tLow, 7) = "warning"
+			tPart = "warning"
+			tWarning = Trim2(SubStr(tL, 8, Len(tL) - 7))
+		elseif Left(tLow, 4) = "note" or Left(tLow, 3) = "see" or Left(tLow, 7) = "example"
+			tPart = "skip"
+		elseif Left(tL, 5) = "@ aka"
+			tPart = "skip"
+			if tAka = ""
+				tAka = Trim2(SubStr(tL, 6, Len(tL) - 5))
+			end
+		elseif Len(tFirst) > 1 and Left(tFirst, 1) = "p" and IsUpper(SubStr(tFirst, 2, 1)) or Len(tFirst) > 2 and Left(tFirst, 1) = "p" and IsLower(SubStr(tFirst, 2, 1)) and IsUpper(SubStr(tFirst, 3, 1))
+			tPart = "param"
+			if tParams != ""
+				tParams = tParams + "; "
+			end
+			tParams = tParams + tFirst + ": " + Trim2(SubStr(tL, Len(tFirst) + 1, Len(tL) - Len(tFirst)))
+		elseif tPart = "desc"
+			tDesc = Trim2(tDesc + " " + tL)
+		elseif tPart = "param"
+			tParams = tParams + " " + tL
+		elseif tPart = "returns"
+			tReturns = tReturns + " " + tL
+		elseif tPart = "warning"
+			tWarning = tWarning + " " + tL
+		end
+	end
+	if tDesc = ""
+		tDesc = tAka
+	end
+	vParts = []
+	if tDesc != ""
+		vParts + Left(tDesc, 160)
+	end
+	if tParams != ""
+		vParts + ("params: " + Left(tParams, 180))
+	end
+	if tReturns != ""
+		vParts + ("returns: " + Left(tReturns, 110))
+	end
+	if tWarning != ""
+		vParts + ("warning: " + Left(tWarning, 110))
+	end
+	tOut = ""
+	for i = 1 to Len(vParts)
+		if i > 1
+			tOut = tOut + "  | "
+		end
+		tOut = tOut + vParts[i]
+	end
+	return tOut
 end
 
 # the arguments of a call, from just after its opening bracket: split at the commas outside strings and brackets,

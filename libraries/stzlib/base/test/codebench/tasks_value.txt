@@ -1,4 +1,4 @@
-THE SOFTANZA CODE BENCHMARK -- 166 value tasks.
+THE SOFTANZA CODE BENCHMARK -- 235 value tasks.
 
 For each task, write Haro code that uses Softanza to produce the expected value. The answer is either one
 expression, or several lines of which the last is `return <expression>`. Do not write the expected value
@@ -990,4 +990,416 @@ scenario:  Construction and components
 check:     '14:30' normalises to 14:30:00
 inputs:    "14:30"
 expected:  "14:30:00"
+
+=== authored/regex#1   [regex, value]
+scenario:  Regex replace with capture groups
+check:     rewrite the date 2026-11-16 from year-month-day to day/month/year using a regular expression with three captured groups
+inputs:    "2026-11-16"  "(\d+)-(\d+)-(\d+)"  "$3/$2/$1"
+expected:  "16/11/2026"
+
+=== authored/regex#2   [regex, value]
+scenario:  Escaping regex metacharacters
+check:     escape the text 'price: $5.00 (approx)' so that it can be used as a literal regular-expression pattern
+inputs:    "price: $5.00 (approx)"
+expected:  "price: \$5\.00 \(approx\)"
+
+=== authored/regex#3   [regex, value]
+scenario:  Counting regex matches
+check:     how many words ending in 'at' (as whole words) occur in 'the cat sat on the mat with a hat'
+inputs:    "the cat sat on the mat with a hat"  "\b\w+at\b"
+expected:  4
+
+=== authored/regex#4   [regex, value]
+scenario:  Number patterns: primes in a range
+check:     the prime numbers between 20 and 50, found with a number-structure pattern for primes
+inputs:    "{@Property(Prime)}"  20  50
+expected:  [ 23, 29, 31, 37, 41, 43, 47 ]
+
+=== authored/regex#5   [regex, value]
+scenario:  Number patterns: next match
+check:     the first prime number after 90, found with a number-structure pattern
+inputs:    "{@Property(Prime)}"  90
+expected:  97
+
+=== authored/regex#6   [regex, value]
+scenario:  Number patterns: counting multiples
+check:     how many numbers from 1 to 100 match a number pattern for multiples of 4
+inputs:    "{@Multiple(4)}"  1  100
+expected:  25
+
+=== authored/regex#7   [regex, value]
+scenario:  Time patterns: duration parsing
+check:     the number of minutes in the duration text '2h45min', parsed by the time-pattern matcher
+inputs:    "@Instant"  "2h45min"
+expected:  165
+
+=== authored/regex#8   [regex, value]
+scenario:  Extracting e-mail addresses
+check:     all the e-mail addresses in 'Contact: ali@mail.tn, sara@web.ne', extracted with a regular expression
+inputs:    "Contact: ali@mail.tn, sara@web.ne"  "[a-z]+@[a-z]+\.[a-z]+"
+expected:  [ "ali@mail.tn", "sara@web.ne" ]
+
+=== authored/regex#9   [regex, value]
+scenario:  Extracting hex colour codes
+check:     every six-digit hex colour code (#rrggbb) in '#ff0000 and #00FF7f but not #12345'
+inputs:    "#ff0000 and #00FF7f but not #12345"  "#[0-9a-fA-F]{6}"
+expected:  [ "#ff0000", "#00FF7f" ]
+
+=== authored/geo#1   [geo, value]
+scenario:  Geodesic distance on WGS84
+check:     the geodesic distance in km on the WGS84 ellipsoid from Tunis (36.8065, 10.1815) to Niamey (13.5116, 2.1254)
+inputs:    4  36.8065  10.1815  13.5116  2.1254
+expected:  2702.67
+
+=== authored/geo#2   [geo, value]
+scenario:  Degrees to degrees-minutes-seconds
+check:     the latitude 36.8065 written as degrees, minutes and seconds
+inputs:    36.8065
+expected:  "36 48' 23.40""
+
+=== authored/geo#3   [geo, value]
+scenario:  Degrees-minutes-seconds to degrees
+check:     the decimal degrees of the latitude written '13 30 41.76 N'
+inputs:    "13 30 41.76 N"
+expected:  13.51
+
+=== authored/geo#4   [geo, value]
+scenario:  Normalising a country name
+check:     the matching key of the country name Côte d'Ivoire, with accents, case, spaces and punctuation folded away
+inputs:    "Côte d'Ivoire"
+expected:  "cotedivoire"
+
+=== authored/geo#5   [geo, value]
+scenario:  Initial bearing of a geodesic
+check:     the initial azimuth in degrees on WGS84 when going from Tunis (36.8065, 10.1815) to Niamey (13.5116, 2.1254)
+inputs:    4  36.8065  10.1815  13.5116  2.1254
+expected:  -160.64
+
+=== authored/geo#6   [geo, value]
+scenario:  Rhumb-line distance
+check:     the constant-bearing (rhumb line) distance in km on WGS84 from New York (40.7128, -74.006) to London (51.5074, -0.1278)
+inputs:    4  40.7128  74.006  51.5074  0.1278
+expected:  5809.80
+
+=== authored/geo#7   [geo, value]
+scenario:  Length of a degree of longitude
+check:     the length in km of one degree of longitude at latitude 60 on WGS84
+inputs:    4  60
+expected:  55.80
+
+=== authored/geo#8   [geo, value]
+scenario:  Ellipsoid parameters
+check:     the inverse flattening of the Clarke 1866 ellipsoid
+inputs:    "Clarke1866"
+expected:  294.98
+
+=== authored/geo#9   [geo, value]
+scenario:  Colour ramps for maps
+check:     the Blues colour ramp reduced to 3 classes, as hex colours
+inputs:    "Blues"  3
+expected:  [ "#EFF3FF", "#6BAED6", "#08519C" ]
+
+=== authored/geo#10   [geo, value]
+scenario:  Area of a polygon on the ellipsoid
+check:     the area in km2 on WGS84 of the one-degree square with corners (lon, lat) 0,0 1,0 1,1 0,1
+inputs:    4  0  1
+expected:  12308.78
+
+=== authored/sound#1   [sound, value]
+scenario:  Note name to frequency
+check:     the frequency in Hz of the note A5 in equal temperament with A4 = 440
+inputs:    "A5"
+expected:  880
+
+=== authored/sound#2   [sound, value]
+scenario:  Middle C frequency
+check:     the frequency in Hz of the note C4 in equal temperament
+inputs:    "C4"
+expected:  261.63
+
+=== authored/sound#3   [sound, value]
+scenario:  General MIDI program of an instrument
+check:     the General MIDI program number used for the flute
+inputs:    "flute"
+expected:  73
+
+=== authored/sound#4   [sound, value]
+scenario:  Instrument of a General MIDI program
+check:     the instrument name that General MIDI program 107 maps back to
+inputs:    107
+expected:  "koto"
+
+=== authored/sound#5   [sound, value]
+scenario:  Pitch range of a melody
+check:     the range in cents from the lowest to the highest note of the melody c e g c5
+inputs:    "c e g c5"
+expected:  1200
+
+=== authored/sound#6   [sound, value]
+scenario:  Melodic contour
+check:     the up/down/same contour of the melody c e g e c
+inputs:    "c e g e c"
+expected:  "U U D D"
+
+=== authored/sound#7   [sound, value]
+scenario:  Duration of a score at a tempo
+check:     how many seconds the six quarter notes c d e f g a last at 90 beats per minute
+inputs:    "c d e f g a"  90
+expected:  4
+
+=== authored/sound#8   [sound, value]
+scenario:  Modes of a musical tradition
+check:     the mode names declared by the maqam sound universe
+inputs:    "maqam"
+expected:  [ "rast", "hijaz" ]
+
+=== authored/sound#9   [sound, value]
+scenario:  Interval of a scale degree in cents
+check:     how many cents the 5th degree of the western major mode lies above its tonic
+inputs:    "western"  "major"  "5"
+expected:  700
+
+=== authored/sound#10   [sound, value]
+scenario:  Microtonal note frequency
+check:     the frequency in Hz of the note D4 raised by 50 cents (a quarter tone)
+inputs:    "D4+50"
+expected:  302.27
+
+=== authored/gui#1   [gui, value]
+scenario:  Property spelling per tier
+check:     how the CSS property 'direction' is spelled in the native (RCSS) tier of the UI profile
+inputs:    "direction"
+expected:  "--rmlui-direction"
+
+=== authored/gui#2   [gui, value]
+scenario:  Property spelling on the web tier
+check:     how the property 'tab-index' is spelled in the web tier of the UI profile
+inputs:    "tab-index"
+expected:  "tabindex"
+
+=== authored/gui#3   [gui, value]
+scenario:  Size of the UI property profile
+check:     how many CSS properties the UI profile allows the emitter to use
+expected:  22
+
+=== authored/gui#4   [gui, value]
+scenario:  Layout observables
+check:     the box observables a UI fixture compares between two renderings
+expected:  [ "box.x", "box.y", "box.width", "box.height" ]
+
+=== authored/gui#5   [gui, value]
+scenario:  Laying out a declared panel
+check:     the box [x, y, width, height] of box b after laying out a 200x100 panel holding a 60x40 box a then a 50x30 box b
+inputs:    'DEFINE PANEL p ( SIZE [200, 100], CHILDREN [a, b] ) RATIONALE "two boxes"'  10  'DEFINE BOX a ( WIDTH 60, HEIGHT 40, SATISFIES [open_it] ) RATIONALE "first"'  'DEFINE BOX b ( WIDTH 50, HEIGHT 30 ) RATIONALE "second"'  "b"
+expected:  [ 0, 40, 50, 30 ]
+
+=== authored/gui#6   [gui, value]
+scenario:  Boxes that serve no intent
+check:     the names in a panel document (panel p with boxes a and b, only a satisfying an intent) that trace to no intent
+inputs:    'DEFINE PANEL p ( SIZE [200, 100], CHILDREN [a, b] ) RATIONALE "two boxes"'  10  'DEFINE BOX a ( WIDTH 60, HEIGHT 40, SATISFIES [open_it] ) RATIONALE "first"'  'DEFINE BOX b ( WIDTH 50, HEIGHT 30 ) RATIONALE "second"'
+expected:  [ "p", "b" ]
+
+=== authored/gui#7   [gui, value]
+scenario:  Laying out markup
+check:     the box [x, y, width, height] of the element 'two' after laying out RML markup with a 48px bar and two 100x30 blocks in a 320x200 panel
+inputs:    320  200  '<rml><head><style>body { width: 100%; height: 100%; } div { display: block; } #bar { height: 48px; } .b { width: 100px; height: 30px; tab-index: auto; }</style></head><body><div id="bar"/><div id="one" class="b"/><div id="two" class="b"/></body></rml>'  "two"
+expected:  [ 0, 78, 100, 30 ]
+
+=== authored/gui#8   [gui, value]
+scenario:  WCAG contrast ratio
+check:     the WCAG 2 contrast ratio between black and the grey #767676
+inputs:    "#000000"  "#767676"
+expected:  4.62
+
+=== authored/gui#9   [gui, value]
+scenario:  Readable text colour on a fill
+check:     which of black or white text can be read on the fill colour #2b6cb0
+inputs:    "#2b6cb0"
+expected:  "white"
+
+=== authored/gui#10   [gui, value]
+scenario:  APCA lightness contrast
+check:     the APCA Lc contrast of black text on a white background
+inputs:    "#000000"  "#ffffff"
+expected:  106.04
+
+=== authored/gpu#1   [gpu, value]
+scenario:  Evaluating a kernel on the CPU
+check:     the output of the elementwise kernel C = alpha * A + B evaluated on the CPU for A = [1,2,3], B = [10,20,30], alpha = 2
+inputs:    "{ @C = alpha * @A + @B }"  1  2  3  10  20  30
+expected:  [ 12, 24, 36 ]
+
+=== authored/gpu#2   [gpu, value]
+scenario:  Kernel operation count
+check:     how many operations per element the kernel C = alpha * A + B performs
+inputs:    "{ @C = alpha * @A + @B }"
+expected:  2
+
+=== authored/gpu#3   [gpu, value]
+scenario:  Kernel from a text spec
+check:     the output of the kernel described by the spec 'in a / out c / body { @C = @A * @A }' evaluated on A = [1,2,3,4]
+inputs:    "in a"  10  "out c"  "body { @C = @A * @A }"  1  2  3  4
+expected:  [ 1, 4, 9, 16 ]
+
+=== authored/gpu#4   [gpu, value]
+scenario:  Clamping in a kernel
+check:     the output of a kernel clamping each element of X = [-2, 0.25, 0.5, 3] to the range 0..1
+inputs:    "{ @Y = clamp(@X, 0, 1) }"  2  0.25  0.5  3
+expected:  [ 0, 0.25, 0.50, 1 ]
+
+=== authored/gpu#5   [gpu, value]
+scenario:  Conditional choice in a kernel
+check:     the output of a kernel that keeps each element of X = [1,2,3,4,5] greater than 2 and puts 0 elsewhere
+inputs:    "{ @Y = when(@X > 2, @X, 0) }"  1  2  3  4  5
+expected:  [ 0, 0, 3, 4, 5 ]
+
+=== authored/gpu#6   [gpu, value]
+scenario:  ReLU kernel
+check:     the output of a kernel computing max(X, 0) on X = [-3, 4, -1, 7]
+inputs:    "{ @Y = max(@X, 0) }"  3  4  1  7
+expected:  [ 0, 4, 0, 7 ]
+
+=== authored/gpu#7   [gpu, value]
+scenario:  Two-input kernel from a spec
+check:     the output of a spec kernel computing sqrt(A*A + B*B) for A = [3,5,8] and B = [4,12,15]
+inputs:    "in a"  10  "in b"  "out c"  "body { @C = sqrt(@A * @A + @B * @B) }"  3  5  8  4  12  15
+expected:  [ 5, 13, 17 ]
+
+=== authored/gpu#8   [gpu, value]
+scenario:  Floor and fraction in a kernel
+check:     the output of a kernel computing floor(X) + fract(X) * 10 on X = [1.5, 2.25]
+inputs:    "{ @Y = floor(@X) + fract(@X) * 10 }"  1.5  2.25
+expected:  [ 6, 4.50 ]
+
+=== authored/gpu#9   [gpu, value]
+scenario:  Absolute value kernel
+check:     the output of a kernel computing abs(A) on A = [-1.5, 2, -3]
+inputs:    "{ @B = abs(@A) }"  1.5  2  3
+expected:  [ 1.50, 2, 3 ]
+
+=== authored/gpu#10   [gpu, value]
+scenario:  Elementwise minimum kernel
+check:     the output of a kernel computing min(A, B) * 2 for A = [4,9,1] and B = [6,2,5]
+inputs:    "{ @C = min(@A, @B) * 2 }"  4  9  1  6  2  5
+expected:  [ 8, 4, 2 ]
+
+=== authored/performance#1   [performance, value]
+scenario:  Counter metric
+check:     the value of a counter metric incremented once and then by 6
+inputs:    "app.requests"  6
+expected:  7
+
+=== authored/performance#2   [performance, value]
+scenario:  Trend of a series
+check:     the slope per millisecond of a perf series holding 10 at 0 ms, 30 at 100 ms and 50 at 200 ms
+inputs:    16  0  10  100  30  200  50
+expected:  0.20
+
+=== authored/performance#3   [performance, value]
+scenario:  Bounded series window
+check:     the values kept by a perf series of capacity 4 after recording 1, 2, 3, 4 and 5
+inputs:    4  1  2  3  5
+expected:  [ 2, 3, 4, 5 ]
+
+=== authored/performance#4   [performance, value]
+scenario:  Prometheus metric name
+check:     the Prometheus name of a counter metric family called http.hits
+inputs:    "http.hits"  "route"
+expected:  "http_hits"
+
+=== authored/performance#5   [performance, value]
+scenario:  Explaining a perf plan
+check:     the first line of the explanation of a perf plan named relieve-nlp holding one ScaleUp proposal
+inputs:    "relieve-nlp"  "nlp"  "load high"  1
+expected:  "Perf plan relieve-nlp -- 1 proposed action(s)."
+
+=== authored/performance#6   [performance, value]
+scenario:  Labelled metric family child
+check:     the value of the /menu GET child of a counter family, incremented once and then by 4
+inputs:    "http.hits"  "route"  "method"  "/menu"  "GET"  4
+expected:  5
+
+=== authored/performance#7   [performance, value]
+scenario:  Perf plan actions
+check:     the actions held by a perf plan after proposing a ScaleDown of WEB because of a drain
+inputs:    "p"  "WEB"  "drain"
+expected:  [ [ "scaledown", "web", "drain" ] ]
+
+=== authored/performance#8   [performance, value]
+scenario:  Gauge mean
+check:     the mean of a gauge metric set to 120, 80, 150 and 90
+inputs:    "mem.mb"  120  80  150  90
+expected:  110
+
+=== authored/performance#9   [performance, value]
+scenario:  Mean over a wrapped window
+check:     the mean of a perf series of capacity 3 after recording 10, 20, 35 and 45
+inputs:    3  10  20  35  45
+expected:  33.33
+
+=== authored/performance#10   [performance, value]
+scenario:  Negative trend of a series
+check:     the slope per millisecond of a perf series going from 100 at 0 ms to 40 at 1000 ms
+inputs:    16  0  100  1000  40
+expected:  -0.06
+
+=== authored/governance#1   [governance, value]
+scenario:  Posture versus reversibility refusal
+check:     the refusal sentence when a sandboxed posture is asked to perform compensable work
+inputs:    "sandboxed"  "compensable"
+expected:  "a 'sandboxed' posture does not cover 'compensable' work -- the harder an act is to undo, the more trusted the code performing it must be (reversibility x posture, ruling 3.2)"
+
+=== authored/governance#2   [governance, value]
+scenario:  Safeguards an analytics path needs
+check:     the safeguards that a data path of kind analytics must declare before tagged fields may reach it
+inputs:    "clinic"
+expected:  [ "consent", "anonymisation" ]
+
+=== authored/governance#3   [governance, value]
+scenario:  Reach of a governance regime
+check:     how many actor-action facts a regime allows where bot holds delegated authority and permission for pay (tier 1), read (tier 1) and wire (tier 4)
+inputs:    "g"  "pay"  1  "read"  "wire"  4  "bot"
+expected:  2
+
+=== authored/governance#4   [governance, value]
+scenario:  Commitment advancing forward
+check:     the state a new commitment c1 reaches when advanced once
+inputs:    "g"  "c1"
+expected:  "provisional"
+
+=== authored/governance#5   [governance, value]
+scenario:  Safeguards a model path needs
+check:     the safeguards that a model data path must declare before tagged fields may reach it
+inputs:    "c"
+expected:  [ "on_premise" ]
+
+=== authored/governance#6   [governance, value]
+scenario:  Commitment initial state
+check:     the state of a newly opened commitment named Plan-A
+inputs:    "g"  "Plan-A"  "plan-a"
+expected:  "exploratory"
+
+=== authored/governance#7   [governance, value]
+scenario:  Access added by a policy change
+check:     how many access facts a regime change adds when bot goes from advisory to autonomous authority and gains a refund permission (pay tier 3, refund tier 1)
+inputs:    "a"  "pay"  3  "bot"  "b"  "refund"  1
+expected:  2
+
+=== authored/governance#8   [governance, value]
+scenario:  Policy fact as a sentence
+check:     the sentence for the first fact a regime allows, where bot has delegated authority and permission for pay at tier 2
+inputs:    "g"  "pay"  2  "bot"  1
+expected:  "'bot' may now carry out 'pay' -- allowed: permission held AND 'delegated' authority (level 2) covers risk tier 2"
+
+=== authored/governance#9   [governance, value]
+scenario:  Decisions by an actor
+check:     how many decisions ann made in a lineage of d1 (ann), d2 (bob), d3 (ann), d4 (ann)
+inputs:    "g"  "d1"  "r"  "ann"  "deploy"  1000  "d2"  "bob"  2000  "d3"  "pay"  3000  "d4"  4000
+expected:  3
+
+=== authored/governance#10   [governance, value]
+scenario:  Decisions in a time window
+check:     how many decisions recorded at 1000, 2000, 3000 and 4000 ms fall between 1500 and 3500 ms
+inputs:    "g"  "d1"  "r"  "ann"  "deploy"  1000  "d2"  "bob"  2000  "d3"  "pay"  3000  "d4"  "cy"  4000  1500  3500
+expected:  2
 

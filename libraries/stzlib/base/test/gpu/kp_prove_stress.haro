@@ -1,0 +1,58 @@
+# kp_prove_stress.haro -- a tool, not a guard: ProveItself, N rounds, on the four exercises that once refused a right answer.
+#
+# KP-PROVE-FLAKE (2026-11-15). Each proof grades every right and wrong answer of the exercise in its own process, four at
+# a time, as a gate does; every check that goes the wrong way is printed whole (output, error, the grader's why). Ten
+# rounds caught kp-19's right answer refused as "impossible" once in 40 proofs, before the checker read its submit
+# floor live; on the fixed engine, 0 of 40. About 80 s a proof on the RTX 3050.
+#   KP_ROUNDS   rounds (5)
+#   KP_LOG      a file each line is also written to as it is said, so a run stopped midway keeps what it found
+load "../../stzBase.ring"
+nRounds = Number(SysGet("KP_ROUNDS"))
+if nRounds = 0
+	nRounds = 5
+end
+vIds = [ "kp-05", "kp-06", "kp-13", "kp-19" ]
+nBad = 0
+tLog = SysGet("KP_LOG")
+nAll = 0
+for r = 1 to nRounds
+	for i = 1 to Len(vIds)
+		nT = StzEngineWatchTimestampNs()
+		oE = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/" + vIds[i])
+		xPr = oE.ProveItself()
+		nMs = (StzEngineWatchTimestampNs() - nT - (StzEngineWatchTimestampNs() - nT) % 1000000) / 1000000
+		nAll += 1
+		Say(tLog, "round " + String(r) + " " + vIds[i] + ": wrong refused " + String(xPr[:wrongrefused]) + "/" + String(xPr[:wrong]) + ", right accepted " + String(xPr[:rightaccepted]) + "/" + String(xPr[:right]) + " in " + String(nMs) + " ms")
+		if Len(xPr[:failures]) > 0
+			nBad += 1
+			vC = xPr[:checks]
+			for j = 1 to Len(vC)
+				oChk = vC[j][2]
+				bRight = StzFindFirst("/right/", vC[j][1]) > 0
+				bPassed = oChk.Passed() = 1
+				if bPassed != bRight
+					Say(tLog, "  WRONG WAY: " + vC[j][1] + " exit " + String(oChk.ExitCode()))
+					Say(tLog, "  --- output ---")
+					Say(tLog, oChk.Output())
+					Say(tLog, "  --- error ---")
+					Say(tLog, oChk.Error())
+					Say(tLog, "  --- why ---")
+					Say(tLog, oChk.Why())
+				end
+			end
+		end
+	end
+end
+Say(tLog, "FLAKE " + String(nBad) + " of " + String(nAll) + " proofs went a wrong way")
+
+# Prints the line and rewrites the log with everything said so far, so a run stopped midway keeps what it found.
+func Say(tLog, tLine)
+	? tLine
+	if tLog != ""
+		tSaid = ""
+		if FExists(tLog)
+			tSaid = Read(tLog)
+		end
+		Write(tLog, tSaid + tLine + Char(10))
+	end
+end

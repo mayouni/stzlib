@@ -363,7 +363,10 @@ class stzKernelPuzzle from stzObject
 	#              write-outside at element K, impossible, refused: why, race at line L, or waiting
 	#              for your implementation
 	#   note       with a device, the checker's VerifySpec with the NaN margin; without one, the
-	#              interpreter alone at both shapes, and the verdict says so after the word
+	#              interpreter alone at both shapes, and the verdict says so after the word; when
+	#              another process holds the card, the grader waits for it, and answers "waiting for
+	#              the device" if it never comes -- never the interpreter's verdict, which cannot see
+	#              a store past the region (KP-PROVE-FLAKE, 2026-11-15)
 	def Grade(pLearner)
 		_r_ = This._Prepare(pLearner)
 		if isString(_r_)
@@ -377,7 +380,11 @@ class stzKernelPuzzle from stzObject
 		_oRef_ = StzKernelMakerFromSpec(@cReference)
 		_aB_ = This.Bindings()
 		_nN_ = This.Elements()
-		if StzEngineGpuInit($tStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0
+		_nDev_ = This._DeviceUp()
+		if _nDev_ = 2
+			return "waiting for the device: process " + StzEngineGpuLease(2) + " holds it"
+		ok
+		if _nDev_ = 1
 			_oG_ = new stzGpu
 			_aOpt_ = [ :n = _nN_, :band = This.Band() ]
 			if This.HiddenElements() > 0
@@ -405,6 +412,22 @@ class stzKernelPuzzle from stzObject
 		ok
 		return This._GradeOnCpu(_oRef_, _oK_, _aB_, _nN_)
 
+	# The device, waited for while another process holds it: 1 up, 0 none on this machine, 2 still held by another
+	# process after ten waits (each STZ_GPU_LEASE_WAIT_MS, 30 s by default). Since the GPU lease (2026-11-14), a
+	# second grader no longer shares the card -- sharing it was the likely cause of the right answers refused
+	# once a gate (KP-PROVE-FLAKE) -- it waits; and a grader that gave up waiting must not grade on the
+	# interpreter, which accepted kp-05's missing guard when the card was busy.
+	def _DeviceUp()
+		for _i_ = 1 to 10
+			if StzEngineGpuInit($tStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0
+				return 1
+			ok
+			if StzEngineGpuLease(0) != 3
+				return 0
+			ok
+		next
+		return 2
+
 	# Measures where the learner's kernel stands under this device's two roofs, the copy floor and the compute peak.
 	#
 	#   pLearner   a stzKernelMaker, or the description as text
@@ -425,7 +448,7 @@ class stzKernelPuzzle from stzObject
 			return _r_
 		ok
 		_oK_ = _r_
-		if NOT (StzEngineGpuInit($tStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0)
+		if This._DeviceUp() != 1
 			return "no device"
 		ok
 		_oRef_ = StzKernelMakerFromSpec(@cReference)

@@ -7,9 +7,11 @@ Softanza, and connect the door below: it gives an agent the library's own vocabu
 
 Three tools, one program (`libraries/stzlib/door/door.haro`):
 
-- **find** -- the library's real functions and methods for some words, with their class, signature, comment and
-  file, and the narrated examples that use them, each with the value it gives.
-- **methods** -- the methods one class defines (`stzString`, `stzList`, `stzNumber`...), narrowed by words.
+- **find** -- the library's real functions and methods for some words: each with its class, signature, file,
+  description, parameters, return value and warning, how to build the objects they belong to, and the narrated
+  examples that use them, each with the value it gives.
+- **methods** -- how to build one class's objects (`stzString`, `stzList`, `stzNumber`...), and the methods it
+  defines, narrowed by words.
 - **run** -- runs Haro code with Softanza loaded and answers what it printed, then `=== value` and the value as
   Softanza shows it, or `=== error` and the error.
 
@@ -51,6 +53,10 @@ From a shell, the same tools:
 - `true`, `false` and `null` are written in small letters; built-in functions keep their exact spelling (`Len`,
   `Left`, `Right`, `SubStr`, `Lower`, `Upper`, `String`, `Read`, `Write`).
 - A function with no parameters is defined without brackets: `func Main`.
+- A name that reads as a keyword in any case is refused: `oK` is `ok`, `oR` is `or`. Name an object for what it
+  holds: `oKernel`, `oRule`.
+- Haro refuses the earlier spellings outright: a pair is a list, `[ "key", value ]`, never `:key = value`; a text
+  joins a number through `String(n)`; `TRUE`, `FALSE` and `NULL` are `true`, `false` and `null`.
 - The library's source files keep an earlier spelling (`ok`, `next`, `TRUE`, `cName`, `aList`). Method and function
   names are the same in Haro: write the name as `find` gives it, in Haro's syntax.
 

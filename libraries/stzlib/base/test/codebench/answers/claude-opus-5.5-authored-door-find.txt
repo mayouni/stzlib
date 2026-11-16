@@ -1,0 +1,258 @@
+=== authored/regex#1
+StzRegexReplace("2026-11-16", "(\d+)-(\d+)-(\d+)", "$3/$2/$1")
+=== authored/regex#2
+StzRegexEscape("price: $5.00 (approx)")
+=== authored/regex#3
+Q("the cat sat on the mat with a hat").CountRegex("\b\w+at\b")
+=== authored/regex#4
+Nbx("{@Property(Prime)}").MatchingNumbersBetween(20, 50)
+=== authored/regex#5
+Nbx("{@Property(Prime)}").MatchingNumberAfter(90)
+=== authored/regex#6
+Nbx("{@Multiple(4)}").CountMatchingNumbersBetween(1, 100)
+=== authored/regex#7
+Tmx("@Instant").ParseDurationToMinutes("2h45min")
+=== authored/regex#8
+Q("Contact: ali@mail.tn, sara@web.ne").ExtractPattern("[a-z]+@[a-z]+\.[a-z]+")
+=== authored/regex#9
+Q("#ff0000 and #00FF7f but not #12345").ExtractPattern("#[0-9a-fA-F]{6}")
+=== authored/geo#1
+StzGeoEllipsoid("WGS84").DistanceKm(36.8065, 10.1815, 13.5116, 2.1254)
+=== authored/geo#2
+StzDegToDms(36.8065)
+=== authored/geo#3
+StzDmsToDeg("13 30 41.76 N")
+=== authored/geo#4
+StzGeoNormalizeName("Côte d'Ivoire")
+=== authored/geo#5
+StzGeoEllipsoid("WGS84").Azimuth(36.8065, 10.1815, 13.5116, 2.1254)
+=== authored/geo#6
+StzGeoEllipsoid("WGS84").RhumbDistanceKm(40.7128, -74.006, 51.5074, -0.1278)
+=== authored/geo#7
+StzGeoEllipsoid("WGS84").DegreeOfLongitudeKm(60)
+=== authored/geo#8
+StzGeoEllipsoid("Clarke1866").InverseFlattening()
+=== authored/geo#9
+StzGeoRamp("Blues", 3)
+=== authored/geo#10
+StzGeoEllipsoid("WGS84").AreaKm2([ [0, 0], [1, 0], [1, 1], [0, 1] ])
+=== authored/sound#1
+StzNoteToHz("A5")
+=== authored/sound#2
+StzNoteToHz("C4")
+=== authored/sound#3
+StzSoundGmProgram("flute")
+=== authored/sound#4
+StzSoundGmInstrument(107)
+=== authored/sound#5
+StzSoundScoreOfQ("c e g c5").RangeInCents()
+=== authored/sound#6
+StzSoundScoreOfQ("c e g e c").Contour()
+=== authored/sound#7
+oScore = StzSoundScoreOfQ("c d e f g a")
+oScore.Tempo(90)
+return oScore.Seconds()
+=== authored/sound#8
+StzSoundUniverseQ("maqam").ModeNames()
+=== authored/sound#9
+oUni = StzSoundUniverseQ("western")
+oUni.Mode("major")
+return oUni.CentsOf("5", false)
+=== authored/sound#10
+StzNoteToHz("D4+50")
+=== authored/gui#1
+StzUiProfileSpelling("direction", "native")
+=== authored/gui#2
+StzUiProfileSpelling("tab-index", "web")
+=== authored/gui#3
+Len(StzUiProfileProperties())
+=== authored/gui#4
+StzUiProfileObservables()
+=== authored/gui#5
+tDoc = 'DEFINE PANEL p ( SIZE [200, 100], CHILDREN [a, b] ) RATIONALE "two boxes"' + Char(10) + 'DEFINE BOX a ( WIDTH 60, HEIGHT 40, SATISFIES [open_it] ) RATIONALE "first"' + Char(10) + 'DEFINE BOX b ( WIDTH 50, HEIGHT 30 ) RATIONALE "second"'
+oPanel = StzUiDocumentQ(tDoc).ToPanel()
+oPanel.Layout()
+return oPanel.BoxOf("b")
+=== authored/gui#6
+tDoc = 'DEFINE PANEL p ( SIZE [200, 100], CHILDREN [a, b] ) RATIONALE "two boxes"' + Char(10) + 'DEFINE BOX a ( WIDTH 60, HEIGHT 40, SATISFIES [open_it] ) RATIONALE "first"' + Char(10) + 'DEFINE BOX b ( WIDTH 50, HEIGHT 30 ) RATIONALE "second"'
+return StzUiDocumentQ(tDoc).Orphans()
+=== authored/gui#7
+oPanel = StzPanelQ(320, 200)
+oPanel.LoadMarkup('<rml><head><style>body { width: 100%; height: 100%; } div { display: block; } #bar { height: 48px; } .b { width: 100px; height: 30px; tab-index: auto; }</style></head><body><div id="bar"/><div id="one" class="b"/><div id="two" class="b"/></body></rml>')
+oPanel.Layout()
+return oPanel.BoxOf("two")
+=== authored/gui#8
+StzContrastOf("#000000", "#767676")
+=== authored/gui#9
+StzContrastingText("#2b6cb0")
+=== authored/gui#10
+StzContrastLc("#000000", "#ffffff")
+=== authored/gpu#1
+oK = StzKernelMakerQ()
+oK.TakesVector("a")
+oK.TakesVector("b")
+oK.TakesScalar("alpha")
+oK.ReturnsVector("c")
+oK.ForEachElement("{ @C = alpha * @A + @B }")
+return oK.EvaluateOn([ [ "a", [1, 2, 3] ], [ "b", [10, 20, 30] ], [ "alpha", 2 ] ])
+=== authored/gpu#2
+oK = StzKernelMakerQ()
+oK.TakesVector("a")
+oK.TakesVector("b")
+oK.TakesScalar("alpha")
+oK.ReturnsVector("c")
+oK.ForEachElement("{ @C = alpha * @A + @B }")
+return oK.OperationsPerElement()
+=== authored/gpu#3
+oK = StzKernelMakerFromSpec("in a" + Char(10) + "out c" + Char(10) + "body { @C = @A * @A }")
+return oK.EvaluateOn([ [ "a", [1, 2, 3, 4] ] ])
+=== authored/gpu#4
+oK = StzKernelMakerQ()
+oK.TakesVector("x")
+oK.ReturnsVector("y")
+oK.ForEachElement("{ @Y = clamp(@X, 0, 1) }")
+return oK.EvaluateOn([ [ "x", [-2, 0.25, 0.5, 3] ] ])
+=== authored/gpu#5
+oK = StzKernelMakerQ()
+oK.TakesVector("x")
+oK.ReturnsVector("y")
+oK.ForEachElement("{ @Y = when(@X > 2, @X, 0) }")
+return oK.EvaluateOn([ [ "x", [1, 2, 3, 4, 5] ] ])
+=== authored/gpu#6
+oK = StzKernelMakerQ()
+oK.TakesVector("x")
+oK.ReturnsVector("y")
+oK.ForEachElement("{ @Y = max(@X, 0) }")
+return oK.EvaluateOn([ [ "x", [-3, 4, -1, 7] ] ])
+=== authored/gpu#7
+oK = StzKernelMakerFromSpec("in a" + Char(10) + "in b" + Char(10) + "out c" + Char(10) + "body { @C = sqrt(@A * @A + @B * @B) }")
+return oK.EvaluateOn([ [ "a", [3, 5, 8] ], [ "b", [4, 12, 15] ] ])
+=== authored/gpu#8
+oK = StzKernelMakerQ()
+oK.TakesVector("x")
+oK.ReturnsVector("y")
+oK.ForEachElement("{ @Y = floor(@X) + fract(@X) * 10 }")
+return oK.EvaluateOn([ [ "x", [1.5, 2.25] ] ])
+=== authored/gpu#9
+oK = StzKernelMakerQ()
+oK.TakesVector("a")
+oK.ReturnsVector("b")
+oK.ForEachElement("{ @B = abs(@A) }")
+return oK.EvaluateOn([ [ "a", [-1.5, 2, -3] ] ])
+=== authored/gpu#10
+oK = StzKernelMakerQ()
+oK.TakesVector("a")
+oK.TakesVector("b")
+oK.ReturnsVector("c")
+oK.ForEachElement("{ @C = min(@A, @B) * 2 }")
+return oK.EvaluateOn([ [ "a", [4, 9, 1] ], [ "b", [6, 2, 5] ] ])
+=== authored/performance#1
+oM = StzMetric("app.requests", "counter")
+oM.Increment()
+oM.IncrementBy(6)
+return oM.Value()
+=== authored/performance#2
+oS = StzPerfSeries(16)
+oS.RecordAt(0, 10)
+oS.RecordAt(100, 30)
+oS.RecordAt(200, 50)
+return oS.SlopePerMs()
+=== authored/performance#3
+oS = StzPerfSeries(4)
+for i = 1 to 5
+    oS.Record(i)
+end
+return oS.Values()
+=== authored/performance#4
+StzMetricFamily("http.hits", "counter", [ "route" ]).PromName()
+=== authored/performance#5
+oP = StzPerfPlan("relieve-nlp")
+oP.Propose("ScaleUp", "nlp", "load high")
+return StzSplit(oP.Explain(), Char(10))[1]
+=== authored/performance#6
+oF = StzMetricFamily("http.hits", "counter", [ "route", "method" ])
+oC = oF.Child([ "/menu", "GET" ])
+oC.Increment()
+oC.IncrementBy(4)
+return oC.Value()
+=== authored/performance#7
+oP = StzPerfPlan("p")
+oP.Propose("ScaleDown", "WEB", "drain")
+return oP.Actions()
+=== authored/performance#8
+oM = StzMetric("mem.mb", "gauge")
+oM.Set(120)
+oM.Set(80)
+oM.Set(150)
+oM.Set(90)
+return oM.Mean()
+=== authored/performance#9
+oS = StzPerfSeries(3)
+oS.Record(10)
+oS.Record(20)
+oS.Record(35)
+oS.Record(45)
+return oS.Mean()
+=== authored/performance#10
+oS = StzPerfSeries(16)
+oS.RecordAt(0, 100)
+oS.RecordAt(1000, 40)
+return oS.SlopePerMs()
+=== authored/governance#1
+StzPostureReversibilityRefusal("sandboxed", "compensable")
+=== authored/governance#2
+oT = new stzFieldTags("clinic")
+return oT.SafeguardsNeededBy("analytics")
+=== authored/governance#3
+oG = new stzGovernance("g")
+oG.DeclareRisk("pay", 1)
+oG.DeclareRisk("read", 1)
+oG.DeclareRisk("wire", 4)
+oG.GrantPermission("bot", "pay")
+oG.GrantPermission("bot", "read")
+oG.GrantPermission("bot", "wire")
+oG.SetAuthority("bot", "delegated")
+return Len(StzPolicyReach(oG))
+=== authored/governance#4
+oG = new stzGovernance("g")
+oG.OpenCommitment("c1")
+return oG.AdvanceCommitment("c1")
+=== authored/governance#5
+oT = new stzFieldTags("c")
+return oT.SafeguardsNeededBy("model")
+=== authored/governance#6
+oG = new stzGovernance("g")
+oG.OpenCommitment("Plan-A")
+return oG.CommitmentStateOf("plan-a")
+=== authored/governance#7
+oA = new stzGovernance("a")
+oA.DeclareRisk("pay", 3)
+oA.GrantPermission("bot", "pay")
+oA.SetAuthority("bot", "advisory")
+oB = new stzGovernance("b")
+oB.DeclareRisk("pay", 3)
+oB.DeclareRisk("refund", 1)
+oB.GrantPermission("bot", "pay")
+oB.GrantPermission("bot", "refund")
+oB.SetAuthority("bot", "autonomous")
+return Len(StzPolicyDiff(oA, oB)[1][2])
+=== authored/governance#8
+oG = new stzGovernance("g")
+oG.DeclareRisk("pay", 2)
+oG.GrantPermission("bot", "pay")
+oG.SetAuthority("bot", "delegated")
+return StzPolicyFactSentence(StzPolicyReach(oG)[1], true)
+=== authored/governance#9
+oG = new stzGovernance("g")
+oG.RecordDecisionAt("d1", "r", "ann", "deploy", 1000)
+oG.RecordDecisionAt("d2", "r", "bob", "deploy", 2000)
+oG.RecordDecisionAt("d3", "r", "ann", "pay", 3000)
+oG.RecordDecisionAt("d4", "r", "ann", "pay", 4000)
+return Len(oG.DecisionsOf("ann"))
+=== authored/governance#10
+oG = new stzGovernance("g")
+oG.RecordDecisionAt("d1", "r", "ann", "deploy", 1000)
+oG.RecordDecisionAt("d2", "r", "bob", "deploy", 2000)
+oG.RecordDecisionAt("d3", "r", "ann", "pay", 3000)
+oG.RecordDecisionAt("d4", "r", "cy", "pay", 4000)
+return Len(oG.DecisionsBetween(1500, 3500))

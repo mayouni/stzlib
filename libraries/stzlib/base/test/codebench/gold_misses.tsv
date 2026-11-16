@@ -185,3 +185,4 @@ system/pispi_twin_narrated#4104092a	StzLastPaymentsProblem().Status()	0	403
 testoor/testoor_clock_narrated#dbe90ae1	Len(WeatherPlan())	0	1
 testoor/testoor_clock_narrated#f4705aae	WeatherDeclared()[1]	#ERR# Error (R2) : Array Access (Index out of range)	"child_killed"
 testoor/testoor_core_narrated#492ea080	left(StzEngineTestoorRunJson('{"run":{},"tours":[]}'), 19)	#ERR# Error (E1) : a built-in is spelled `Left`; written `left`	'{"testoor":"logbook'
+authored/regex	StzRegexReplace("too    many   spaces", "\s+", " ")	"too many spaces"	"too many spaces"
