@@ -11,7 +11,10 @@
 //! cache lookup is a text hash (sub-microsecond against a 60 us dispatch
 //! floor), and it makes ops self-healing across device re-init: a Shutdown /
 //! SelectAdapter clears the pipeline cache, and the next op call simply
-//! recompiles. No epoch bookkeeping.
+//! recompiles. No epoch bookkeeping. The matmul family's texts are the
+//! exception to "comptime constant": they are built at run time, once each,
+//! and kept (SUBSTRATE-COMPTIME-01), because generating them at compile time
+//! cost every build one to two minutes.
 //!
 //! Binding contract (the ops family, via stz_gpu_dispatch_params):
 //!   @binding(0) tile uniform (G1-owned; xoff in workgroups along x)
@@ -218,17 +221,57 @@ pub fn mmIsReal(v: usize) bool {
     return v < MM_VARIANTS and v != MM_BROKEN;
 }
 
+// SUBSTRATE-COMPTIME-01: every matmul text is built at RUN TIME, once per (variant, bias, f16), and kept for the
+// process. Built at compile time, the 35 texts cost every build of stz_gpu and stz_neural one to two minutes of
+// comptime evaluation (string concatenation one piece at a time); built here they cost microseconds, once. The texts
+// are byte for byte what the compile-time generators made (checked over all 51 of them when the move was made).
+
+/// A text under construction. An allocation failure is remembered and the build answers "" -- which compiles to no
+/// kernel, the failure every caller already handles.
+const Text = struct {
+    b: std.ArrayList(u8) = .empty,
+    ok: bool = true,
+
+    fn s(t: *Text, x: []const u8) void {
+        if (t.ok) t.b.appendSlice(alloc, x) catch {
+            t.ok = false;
+        };
+    }
+    fn f(t: *Text, comptime fmt: []const u8, args: anytype) void {
+        if (t.ok) t.b.print(alloc, fmt, args) catch {
+            t.ok = false;
+        };
+    }
+    fn add(t: *Text, other: *const Text) void {
+        if (!other.ok) t.ok = false;
+        t.s(other.b.items);
+    }
+    fn free(t: *Text) void {
+        t.b.deinit(alloc);
+    }
+    /// The finished text, owned by the caller's cache; null when an allocation failed.
+    fn done(t: *Text) ?[]u8 {
+        if (!t.ok) {
+            t.b.deinit(alloc);
+            return null;
+        }
+        return t.b.toOwnedSlice(alloc) catch null;
+    }
+};
+
 // GK5: `wf16` stores B -- the weights, in the backbone -- as f16 in VRAM and
 // widens each read to f32; the accumulation stays f32. It needs a device that
 // was granted shader-f16 (`enable f16;` must open the module).
-fn mmHead(comptime bias: bool, comptime wf16: bool) []const u8 {
-    return (if (wf16) "enable f16;\n" else "") ++ PRELUDE ++
+fn mmHead(t: *Text, bias: bool, wf16: bool) void {
+    if (wf16) t.s("enable f16;\n");
+    t.s(PRELUDE ++
         \\struct P { m : u32, k : u32, n : u32, has_bias : u32 }
         \\@group(0) @binding(1) var<uniform> p : P;
         \\@group(0) @binding(2) var<storage, read> a : array<f32>;
         \\
-    ++ (if (wf16) "@group(0) @binding(3) var<storage, read> b : array<f16>;\n" else "@group(0) @binding(3) var<storage, read> b : array<f32>;\n") ++
-    (if (bias)
+    );
+    t.s(if (wf16) "@group(0) @binding(3) var<storage, read> b : array<f16>;\n" else "@group(0) @binding(3) var<storage, read> b : array<f32>;\n");
+    t.s(if (bias)
         \\@group(0) @binding(4) var<storage, read> bias : array<f32>;
         \\@group(0) @binding(5) var<storage, read_write> cc : array<f32>;
         \\
@@ -238,7 +281,7 @@ fn mmHead(comptime bias: bool, comptime wf16: bool) []const u8 {
     );
 }
 
-fn mmStore(comptime bias: bool) []const u8 {
+fn mmStore(bias: bool) []const u8 {
     // the store of one output: (r, c, v) already in scope
     return if (bias)
         \\      if (p.has_bias == 1u) { v = v + bias[c]; }
@@ -251,17 +294,18 @@ fn mmStore(comptime bias: bool) []const u8 {
 }
 
 /// One-output-per-thread tile of edge E (16 = the generic, 8 = TILE8).
-fn mmTileSource(comptime edge: u32, comptime bias: bool, comptime wf16: bool) []const u8 {
-    const es = std.fmt.comptimePrint("{d}", .{edge});
-    const es2 = std.fmt.comptimePrint("{d}", .{edge * edge});
+fn mmTileSource(t: *Text, edge: u32, bias: bool, wf16: bool) void {
     const bread = if (wf16) "f32(b[brow * p.n + col])" else "b[brow * p.n + col]";
-    return mmHead(bias, wf16) ++
-        "var<workgroup> ta : array<f32, " ++ es2 ++ ">;\n" ++
-        "var<workgroup> tb : array<f32, " ++ es2 ++ ">;\n" ++
-        "@compute @workgroup_size(" ++ es ++ ", " ++ es ++ ")\n" ++
+    mmHead(t, bias, wf16);
+    t.f("var<workgroup> ta : array<f32, {d}>;\n", .{edge * edge});
+    t.f("var<workgroup> tb : array<f32, {d}>;\n", .{edge * edge});
+    t.f("@compute @workgroup_size({d}, {d})\n", .{ edge, edge });
+    t.s(
         \\fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_id) lid : vec3<u32>) {
         \\  let E =
-    ++ es ++ "u;\n" ++
+    );
+    t.f("{d}u;\n", .{edge});
+    t.s(
         \\  let id = wid.x + tile.xoff;
         \\  let tiles_x = (p.n + E - 1u) / E;
         \\  let row = (id / tiles_x) * E + lid.y;
@@ -274,7 +318,9 @@ fn mmTileSource(comptime edge: u32, comptime bias: bool, comptime wf16: bool) []
         \\    let brow = k0 + lid.y;
         \\    ta[lid.y * E + lid.x] = select(0.0, a[row * p.k + acol], row < p.m && acol < p.k);
         \\
-    ++ "    tb[lid.y * E + lid.x] = select(0.0, " ++ bread ++ ", brow < p.k && col < p.n);\n" ++
+    );
+    t.f("    tb[lid.y * E + lid.x] = select(0.0, {s}, brow < p.k && col < p.n);\n", .{bread});
+    t.s(
         \\    workgroupBarrier();
         \\    for (var kk = 0u; kk < E; kk = kk + 1u) {
         \\      acc = acc + ta[lid.y * E + kk] * tb[kk * E + lid.x];
@@ -284,87 +330,104 @@ fn mmTileSource(comptime edge: u32, comptime bias: bool, comptime wf16: bool) []
         \\  if (row < p.m && col < p.n) {
         \\    let r = row; let c = col; var v = acc;
         \\
-    ++ mmStore(bias) ++
+    );
+    t.s(mmStore(bias));
+    t.s(
         \\  }
         \\}
-    ;
+    );
 }
 
 /// Register-blocked: 16x16 threads, each an RxR block of outputs (R = 2 or
-/// 4), a (16R)x(16R) tile, 16-wide K steps. FULLY UNROLLED at comptime: a
+/// 4), a (16R)x(16R) tile, 16-wide K steps. FULLY UNROLLED in the text: a
 /// private array indexed by a loop variable lands in local memory, not
 /// registers, and the first draft of this kernel measured 0.1x for exactly
 /// that reason. Every accumulator, staged value and store is a named scalar.
-fn mmRegSource(comptime R: u32, comptime bias: bool, comptime broken: bool, comptime wf16: bool) []const u8 {
+fn mmRegSource(t: *Text, R: u32, bias: bool, broken: bool, wf16: bool) void {
     const bread = if (wf16) "f32(b[br * p.n + bc])" else "b[br * p.n + bc]";
-    const ts = std.fmt.comptimePrint("{d}", .{16 * R});
-    const shs = std.fmt.comptimePrint("{d}", .{16 * R * 16});
-    comptime var decl: []const u8 = "";
-    comptime var stage: []const u8 = "";
-    comptime var loads: []const u8 = "";
-    comptime var fma: []const u8 = "";
-    comptime var store: []const u8 = "";
-    inline for (0..R) |i| {
-        inline for (0..R) |j| {
-            decl = decl ++ std.fmt.comptimePrint("  var acc{d}{d} = 0.0;\n", .{ i, j });
-            fma = fma ++ std.fmt.comptimePrint("      acc{d}{d} = acc{d}{d} + av{d} * bv{d};\n", .{ i, j, i, j, i, j });
-            store = store ++ std.fmt.comptimePrint(
+    var decl: Text = .{};
+    defer decl.free();
+    var stage: Text = .{};
+    defer stage.free();
+    var loads: Text = .{};
+    defer loads.free();
+    var fma: Text = .{};
+    defer fma.free();
+    var store: Text = .{};
+    defer store.free();
+    for (0..R) |i| {
+        for (0..R) |j| {
+            decl.f("  var acc{d}{d} = 0.0;\n", .{ i, j });
+            fma.f("      acc{d}{d} = acc{d}{d} + av{d} * bv{d};\n", .{ i, j, i, j, i, j });
+            store.f(
                 \\  {{
                 \\    let r = row0 + lid.y * {d}u + {d}u;
                 \\    let c = col0 + lid.x * {d}u + {d}u;
                 \\    var v = acc{d}{d};
                 \\
-            , .{ R, i, R, j, i, j }) ++
-                (if (broken and i == 1 and j == 1)
+            , .{ R, i, R, j, i, j });
+            if (broken and i == 1 and j == 1) store.s(
                 \\    if (r == 1u && c == 1u) { v = v + 1.0; }
                 \\
-            else
-                "") ++
-                "    if (r < p.m && c < p.n) {\n" ++ mmStore(bias) ++ "    }\n  }\n";
+            );
+            store.s("    if (r < p.m && c < p.n) {\n");
+            store.s(mmStore(bias));
+            store.s("    }\n  }\n");
         }
-        stage = stage ++ std.fmt.comptimePrint(
+        stage.f(
             \\    {{
             \\      let ar = row0 + lid.y * {d}u + {d}u;
             \\      let ac = k0 + lid.x;
             \\      ta[(lid.y * {d}u + {d}u) * 16u + lid.x] = select(0.0, a[ar * p.k + ac], ar < p.m && ac < p.k);
             \\      let br = k0 + lid.y;
             \\      let bc = col0 + lid.x * {d}u + {d}u;
-            \\      tb[lid.y * {d}u + lid.x * {d}u + {d}u] = select(0.0, BREAD, br < p.k && bc < p.n);
+            \\      tb[lid.y * {d}u + lid.x * {d}u + {d}u] = select(0.0, {s}, br < p.k && bc < p.n);
             \\    }}
             \\
-        , .{ R, i, R, i, R, i, 16 * R, R, i });
-        loads = loads ++ std.fmt.comptimePrint("      let av{d} = ta[(lid.y * {d}u + {d}u) * 16u + kk];\n      let bv{d} = tb[kk * {d}u + lid.x * {d}u + {d}u];\n", .{ i, R, i, i, 16 * R, R, i });
+        , .{ R, i, R, i, R, i, 16 * R, R, i, bread });
+        loads.f("      let av{d} = ta[(lid.y * {d}u + {d}u) * 16u + kk];\n      let bv{d} = tb[kk * {d}u + lid.x * {d}u + {d}u];\n", .{ i, R, i, i, 16 * R, R, i });
     }
-    stage = comptimeReplace(stage, "BREAD", bread);
-    return mmHead(bias, wf16) ++
-        "var<workgroup> ta : array<f32, " ++ shs ++ ">;\n" ++
-        "var<workgroup> tb : array<f32, " ++ shs ++ ">;\n" ++
+    mmHead(t, bias, wf16);
+    t.f("var<workgroup> ta : array<f32, {d}>;\n", .{16 * R * 16});
+    t.f("var<workgroup> tb : array<f32, {d}>;\n", .{16 * R * 16});
+    t.s(
         \\@compute @workgroup_size(16, 16)
         \\fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_id) lid : vec3<u32>) {
         \\  let T =
-    ++ ts ++ "u;\n" ++
+    );
+    t.f("{d}u;\n", .{16 * R});
+    t.s(
         \\  let id = wid.x + tile.xoff;
         \\  let tiles_x = (p.n + T - 1u) / T;
         \\  let row0 = (id / tiles_x) * T;
         \\  let col0 = (id % tiles_x) * T;
         \\
-    ++ decl ++
+    );
+    t.add(&decl);
+    t.s(
         \\  let steps = (p.k + 15u) / 16u;
         \\  for (var t = 0u; t < steps; t = t + 1u) {
         \\    let k0 = t * 16u;
         \\
-    ++ stage ++
+    );
+    t.add(&stage);
+    t.s(
         \\    workgroupBarrier();
         \\    for (var kk = 0u; kk < 16u; kk = kk + 1u) {
         \\
-    ++ loads ++ fma ++
+    );
+    t.add(&loads);
+    t.add(&fma);
+    t.s(
         \\    }
         \\    workgroupBarrier();
         \\  }
         \\
-    ++ store ++
+    );
+    t.add(&store);
+    t.s(
         \\}
-    ;
+    );
 }
 
 /// GK2d: register-blocked with STRIDED ownership. 16x16 threads, each an
@@ -381,123 +444,129 @@ fn mmRegSource(comptime R: u32, comptime bias: bool, comptime broken: bool, comp
 ///     any shape, consecutive threads reading consecutive addresses
 ///   - the K loop body is unrolled with named scalars, as reg4 learned
 /// Workgroup memory: ((TM + 1) + TN) * KS floats -- 8 KB for both forms.
-fn mmStridedSource(comptime RM: u32, comptime RN: u32, comptime KS: u32, comptime bias: bool, comptime wf16: bool) []const u8 {
-    return mmStridedSourceP(RM, RN, KS, false, bias, wf16);
-}
-
+///
 /// `prefetch`: the next K tile is read from global memory into registers
 /// BEFORE the multiply-adds of the current one, and written to the shared
 /// tiles after them -- the loads' latency hides behind the arithmetic.
-fn mmStridedSourceP(comptime RM: u32, comptime RN: u32, comptime KS: u32, comptime prefetch: bool, comptime bias: bool, comptime wf16: bool) []const u8 {
-    return mmStridedSourceX(RM, RN, KS, prefetch, false, bias, wf16);
-}
-
+///
 /// GK2e: `split` makes the kernel the FIRST of split-K's two passes. The
 /// workgroups are p.has_bias (read as S, the split count) times the tiles:
 /// workgroup g takes tile g % tiles and the g / tiles-th slice of k, and
 /// stores its partial product at slice * m * n in the output, which is the
 /// workspace. mmReduceSource sums the S partials in slice order. With
-/// `split` off the text is the GK2d kernel, byte for byte.
-fn mmStridedSourceX(comptime RM: u32, comptime RN: u32, comptime KS: u32, comptime prefetch: bool, comptime split: bool, comptime bias: bool, comptime wf16: bool) []const u8 {
-    if (split and (prefetch or bias)) @compileError("split-K's first pass has no prefetch and no bias (the second pass adds it)");
-    @setEvalBranchQuota(20_000_000);
+/// `split` off the text is the GK2d kernel, byte for byte. Split-K's first
+/// pass has no prefetch and no bias (the second pass adds it).
+fn mmStridedSource(t: *Text, RM: u32, RN: u32, KS: u32, prefetch: bool, split: bool, bias: bool, wf16: bool) void {
+    std.debug.assert(!(split and (prefetch or bias)));
     const TM = 16 * RM;
     const TN = 16 * RN;
     const PADM = TM + 1;
     const a_per = TM * KS / 256;
     const b_per = KS * TN / 256;
     const bread = if (wf16) "f32(b[gk * p.n + gc])" else "b[gk * p.n + gc]";
-    comptime var decl: []const u8 = "";
-    comptime var stage: []const u8 = "";
-    comptime var inner: []const u8 = "";
-    comptime var store: []const u8 = "";
-    inline for (0..RM) |i| {
-        inline for (0..RN) |j| {
-            decl = decl ++ std.fmt.comptimePrint("  var acc{d}_{d} = 0.0;\n", .{ i, j });
-            store = store ++ std.fmt.comptimePrint(
+    // the split pass bounds k by its own slice, and stores each slice's partial apart
+    const kcond = if (split) "gk < klim" else "gk < p.k";
+    const store_one = if (split) "      cc[slice * p.m * p.n + r * p.n + c] = v;\n" else mmStore(bias);
+    var decl: Text = .{};
+    defer decl.free();
+    var stage: Text = .{};
+    defer stage.free();
+    var inner: Text = .{};
+    defer inner.free();
+    var store: Text = .{};
+    defer store.free();
+    var fetch: Text = .{};
+    defer fetch.free();
+    var put: Text = .{};
+    defer put.free();
+    for (0..RM) |i| {
+        for (0..RN) |j| {
+            decl.f("  var acc{d}_{d} = 0.0;\n", .{ i, j });
+            store.f(
                 \\  {{
                 \\    let r = row0 + lid.y + {d}u;
                 \\    let c = col0 + lid.x + {d}u;
                 \\    var v = acc{d}_{d};
                 \\
-            , .{ 16 * i, 16 * j, i, j }) ++
-                "    if (r < p.m && c < p.n) {\n" ++ mmStore(bias) ++ "    }\n  }\n";
+            , .{ 16 * i, 16 * j, i, j });
+            store.s("    if (r < p.m && c < p.n) {\n");
+            store.s(store_one);
+            store.s("    }\n  }\n");
         }
     }
-    inline for (0..a_per) |q| {
-        stage = stage ++ std.fmt.comptimePrint(
+    for (0..a_per) |q| {
+        stage.f(
             \\    {{
             \\      let e = tid + {d}u;
             \\      let r = e / {d}u;
             \\      let kc = e % {d}u;
             \\      let gr = row0 + r;
             \\      let gk = k0 + kc;
-            \\      ta[kc * {d}u + r] = select(0.0, a[gr * p.k + gk], gr < p.m && gk < p.k);
+            \\      ta[kc * {d}u + r] = select(0.0, a[gr * p.k + gk], gr < p.m && {s});
             \\    }}
             \\
-        , .{ 256 * q, KS, KS, PADM });
+        , .{ 256 * q, KS, KS, PADM, kcond });
     }
-    inline for (0..b_per) |q| {
-        stage = stage ++ std.fmt.comptimePrint(
+    for (0..b_per) |q| {
+        stage.f(
             \\    {{
             \\      let e = tid + {d}u;
             \\      let kr = e / {d}u;
             \\      let c = e % {d}u;
             \\      let gk = k0 + kr;
             \\      let gc = col0 + c;
-            \\      tb[kr * {d}u + c] = select(0.0, BREAD, gk < p.k && gc < p.n);
+            \\      tb[kr * {d}u + c] = select(0.0, {s}, {s} && gc < p.n);
             \\    }}
             \\
-        , .{ 256 * q, TN, TN, TN });
+        , .{ 256 * q, TN, TN, TN, bread, kcond });
     }
-    stage = comptimeReplace(stage, "BREAD", bread);
-    if (split) stage = comptimeReplace(stage, "gk < p.k", "gk < klim");
     // prefetch: the same reads at k1 = k0 + KS into registers, then the same stores from them
-    comptime var fetch: []const u8 = "";
-    comptime var put: []const u8 = "";
-    inline for (0..a_per) |q| {
-        fetch = fetch ++ std.fmt.comptimePrint(
-            \\    var pa{d} = 0.0;
-            \\    {{
-            \\      let e = tid + {d}u;
-            \\      let gr = row0 + e / {d}u;
-            \\      let gk = k1 + e % {d}u;
-            \\      pa{d} = select(0.0, a[gr * p.k + gk], gr < p.m && gk < p.k);
-            \\    }}
-            \\
-        , .{ q, 256 * q, KS, KS, q });
-        put = put ++ std.fmt.comptimePrint("    {{ let e = tid + {d}u; ta[(e % {d}u) * {d}u + e / {d}u] = pa{d}; }}\n", .{ 256 * q, KS, PADM, KS, q });
-    }
-    inline for (0..b_per) |q| {
-        fetch = fetch ++ std.fmt.comptimePrint(
-            \\    var pb{d} = 0.0;
-            \\    {{
-            \\      let e = tid + {d}u;
-            \\      let gk = k1 + e / {d}u;
-            \\      let gc = col0 + e % {d}u;
-            \\      pb{d} = select(0.0, BREAD, gk < p.k && gc < p.n);
-            \\    }}
-            \\
-        , .{ q, 256 * q, TN, TN, q });
-        put = put ++ std.fmt.comptimePrint("    {{ let e = tid + {d}u; tb[(e / {d}u) * {d}u + e % {d}u] = pb{d}; }}\n", .{ 256 * q, TN, TN, TN, q });
-    }
-    fetch = comptimeReplace(fetch, "BREAD", bread);
-    inline for (0..KS) |kk| {
-        inner = inner ++ "    {\n";
-        inline for (0..RM) |i| inner = inner ++ std.fmt.comptimePrint("      let a{d} = ta[{d}u + lid.y];\n", .{ i, kk * PADM + 16 * i });
-        inline for (0..RN) |j| inner = inner ++ std.fmt.comptimePrint("      let b{d} = tb[{d}u + lid.x];\n", .{ j, kk * TN + 16 * j });
-        inline for (0..RM) |i| {
-            inline for (0..RN) |j| inner = inner ++ std.fmt.comptimePrint("      acc{d}_{d} = acc{d}_{d} + a{d} * b{d};\n", .{ i, j, i, j, i, j });
+    if (prefetch) {
+        for (0..a_per) |q| {
+            fetch.f(
+                \\    var pa{d} = 0.0;
+                \\    {{
+                \\      let e = tid + {d}u;
+                \\      let gr = row0 + e / {d}u;
+                \\      let gk = k1 + e % {d}u;
+                \\      pa{d} = select(0.0, a[gr * p.k + gk], gr < p.m && gk < p.k);
+                \\    }}
+                \\
+            , .{ q, 256 * q, KS, KS, q });
+            put.f("    {{ let e = tid + {d}u; ta[(e % {d}u) * {d}u + e / {d}u] = pa{d}; }}\n", .{ 256 * q, KS, PADM, KS, q });
         }
-        inner = inner ++ "    }\n";
+        for (0..b_per) |q| {
+            fetch.f(
+                \\    var pb{d} = 0.0;
+                \\    {{
+                \\      let e = tid + {d}u;
+                \\      let gk = k1 + e / {d}u;
+                \\      let gc = col0 + e % {d}u;
+                \\      pb{d} = select(0.0, {s}, gk < p.k && gc < p.n);
+                \\    }}
+                \\
+            , .{ q, 256 * q, TN, TN, q, bread });
+            put.f("    {{ let e = tid + {d}u; tb[(e / {d}u) * {d}u + e % {d}u] = pb{d}; }}\n", .{ 256 * q, TN, TN, TN, q });
+        }
     }
-    return mmHead(bias, wf16) ++
-        std.fmt.comptimePrint("var<workgroup> ta : array<f32, {d}>;\nvar<workgroup> tb : array<f32, {d}>;\n", .{ PADM * KS, KS * TN }) ++
+    for (0..KS) |kk| {
+        inner.s("    {\n");
+        for (0..RM) |i| inner.f("      let a{d} = ta[{d}u + lid.y];\n", .{ i, kk * PADM + 16 * i });
+        for (0..RN) |j| inner.f("      let b{d} = tb[{d}u + lid.x];\n", .{ j, kk * TN + 16 * j });
+        for (0..RM) |i| {
+            for (0..RN) |j| inner.f("      acc{d}_{d} = acc{d}_{d} + a{d} * b{d};\n", .{ i, j, i, j, i, j });
+        }
+        inner.s("    }\n");
+    }
+    mmHead(t, bias, wf16);
+    t.f("var<workgroup> ta : array<f32, {d}>;\nvar<workgroup> tb : array<f32, {d}>;\n", .{ PADM * KS, KS * TN });
+    t.s(
         \\@compute @workgroup_size(16, 16)
         \\fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_id) lid : vec3<u32>, @builtin(local_invocation_index) tid : u32) {
         \\
-    ++ (if (split)
-        std.fmt.comptimePrint(
+    );
+    if (split) {
+        t.f(
             \\  let tiles_x = (p.n + {d}u) / {d}u;
             \\  let tiles = tiles_x * ((p.m + {d}u) / {d}u);
             \\  let idall = wid.x + tile.xoff;
@@ -506,8 +575,9 @@ fn mmStridedSourceX(comptime RM: u32, comptime RN: u32, comptime KS: u32, compti
             \\  let row0 = (id / tiles_x) * {d}u;
             \\  let col0 = (id % tiles_x) * {d}u;
             \\
-        , .{ TN - 1, TN, TM - 1, TM, TM, TN }) ++ decl ++
-            std.fmt.comptimePrint(
+        , .{ TN - 1, TN, TM - 1, TM, TM, TN });
+        t.add(&decl);
+        t.f(
             \\  let nsplit = max(p.has_bias, 1u);
             \\  let kslice = ((p.k + nsplit - 1u) / nsplit + {d}u) / {d}u * {d}u;
             \\  let kb = slice * kslice;
@@ -516,48 +586,63 @@ fn mmStridedSourceX(comptime RM: u32, comptime RN: u32, comptime KS: u32, compti
             \\  for (var t = 0u; t < steps; t = t + 1u) {{
             \\    let k0 = kb + t * {d}u;
             \\
-        , .{ KS - 1, KS, KS, KS - 1, KS, KS }) ++
-            stage ++ "    workgroupBarrier();\n" ++ inner ++ "    workgroupBarrier();\n  }\n" ++
-            comptimeReplace(store, "      cc[r * p.n + c] = v;", "      cc[slice * p.m * p.n + r * p.n + c] = v;") ++
-            "}\n"
-    else
-        "  let id = wid.x + tile.xoff;\n" ++
-        std.fmt.comptimePrint("  let tiles_x = (p.n + {d}u) / {d}u;\n  let row0 = (id / tiles_x) * {d}u;\n  let col0 = (id % tiles_x) * {d}u;\n", .{ TN - 1, TN, TM, TN }) ++
-        decl ++
-        std.fmt.comptimePrint("  let steps = (p.k + {d}u) / {d}u;\n", .{ KS - 1, KS }) ++
-        (if (prefetch)
+        , .{ KS - 1, KS, KS, KS - 1, KS, KS });
+        t.add(&stage);
+        t.s("    workgroupBarrier();\n");
+        t.add(&inner);
+        t.s("    workgroupBarrier();\n  }\n");
+        t.add(&store);
+        t.s("}\n");
+        return;
+    }
+    t.s("  let id = wid.x + tile.xoff;\n");
+    t.f("  let tiles_x = (p.n + {d}u) / {d}u;\n  let row0 = (id / tiles_x) * {d}u;\n  let col0 = (id % tiles_x) * {d}u;\n", .{ TN - 1, TN, TM, TN });
+    t.add(&decl);
+    t.f("  let steps = (p.k + {d}u) / {d}u;\n", .{ KS - 1, KS });
+    if (prefetch) {
         // the first tile staged before the loop; each turn fetches the next
         // into registers, computes the current, then stores what it fetched
-        "  {\n    let k0 = 0u;\n" ++ stage ++ "  }\n  workgroupBarrier();\n" ++
-            "  for (var t = 0u; t < steps; t = t + 1u) {\n" ++
-            std.fmt.comptimePrint("    let k1 = (t + 1u) * {d}u;\n", .{KS}) ++
-            fetch ++ inner ++
-            "    workgroupBarrier();\n" ++ put ++ "    workgroupBarrier();\n  }\n"
-    else
-        "  for (var t = 0u; t < steps; t = t + 1u) {\n" ++
-            std.fmt.comptimePrint("    let k0 = t * {d}u;\n", .{KS}) ++
-            stage ++ "    workgroupBarrier();\n" ++ inner ++ "    workgroupBarrier();\n  }\n") ++
-        store ++
-        "}");
+        t.s("  {\n    let k0 = 0u;\n");
+        t.add(&stage);
+        t.s("  }\n  workgroupBarrier();\n");
+        t.s("  for (var t = 0u; t < steps; t = t + 1u) {\n");
+        t.f("    let k1 = (t + 1u) * {d}u;\n", .{KS});
+        t.add(&fetch);
+        t.add(&inner);
+        t.s("    workgroupBarrier();\n");
+        t.add(&put);
+        t.s("    workgroupBarrier();\n  }\n");
+    } else {
+        t.s("  for (var t = 0u; t < steps; t = t + 1u) {\n");
+        t.f("    let k0 = t * {d}u;\n", .{KS});
+        t.add(&stage);
+        t.s("    workgroupBarrier();\n");
+        t.add(&inner);
+        t.s("    workgroupBarrier();\n  }\n");
+    }
+    t.add(&store);
+    t.s("}");
 }
 
 /// GK2e: split-K's second pass. P is { m, k := S, n, has_bias }; the S
 /// partials of every output are summed IN SLICE ORDER, so the result does not
 /// depend on which workgroup finished first, and the bias is added once.
-fn mmReduceSource(comptime bias: bool) []const u8 {
-    return PRELUDE ++
+fn mmReduceSource(t: *Text, bias: bool) void {
+    t.s(PRELUDE ++
         \\struct P { m : u32, k : u32, n : u32, has_bias : u32 }
         \\@group(0) @binding(1) var<uniform> p : P;
         \\@group(0) @binding(2) var<storage, read> part : array<f32>;
         \\
-    ++ (if (bias)
+    );
+    t.s(if (bias)
         \\@group(0) @binding(3) var<storage, read> bias : array<f32>;
         \\@group(0) @binding(4) var<storage, read_write> cc : array<f32>;
         \\
     else
         \\@group(0) @binding(3) var<storage, read_write> cc : array<f32>;
         \\
-    ) ++
+    );
+    t.s(
         \\@compute @workgroup_size(256)
         \\fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
         \\  let i = gid.x + tile.xoff * 256u;
@@ -566,25 +651,41 @@ fn mmReduceSource(comptime bias: bool) []const u8 {
         \\  var v = 0.0;
         \\  for (var s = 0u; s < p.k; s = s + 1u) { v = v + part[s * total + i]; }
         \\
-    ++ (if (bias) "  if (p.has_bias == 1u) { v = v + bias[i % p.n]; }\n" else "") ++
+    );
+    if (bias) t.s("  if (p.has_bias == 1u) { v = v + bias[i % p.n]; }\n");
+    t.s(
         \\  cc[i] = v;
         \\}
-    ;
+    );
 }
+
+// The kept texts: one slot per (variant, bias, f16), the split pass, and the reduce pass with and without a bias.
+var g_mm_src: [MM_VARIANTS * 4]?[]u8 = @splat(null);
+var g_split_src: ?[]u8 = null;
+var g_reduce_src: [2]?[]u8 = @splat(null);
 
 /// GK2e: the first pass (reg4s's tile, 4 x 4 per thread over 64 x 64, k in
 /// S slices) and the second (the ordered sum), compiled.
 pub fn mmSplitKernel() i64 {
-    return compile(comptime mmStridedSourceX(4, 4, 16, false, true, false, false));
+    return compile(mmSplitSourceText());
 }
-pub fn mmReduceKernel(comptime bias: bool) i64 {
-    return compile(comptime mmReduceSource(bias));
+pub fn mmReduceKernel(bias: bool) i64 {
+    return compile(mmReduceSourceText(bias));
 }
 pub fn mmSplitSourceText() []const u8 {
-    return comptime mmStridedSourceX(4, 4, 16, false, true, false, false);
+    if (g_split_src) |s| return s;
+    var t: Text = .{};
+    mmStridedSource(&t, 4, 4, 16, false, true, false, false);
+    g_split_src = t.done() orelse return "";
+    return g_split_src.?;
 }
-pub fn mmReduceSourceText(comptime bias: bool) []const u8 {
-    return comptime mmReduceSource(bias);
+pub fn mmReduceSourceText(bias: bool) []const u8 {
+    const idx: usize = @intFromBool(bias);
+    if (g_reduce_src[idx]) |s| return s;
+    var t: Text = .{};
+    mmReduceSource(&t, bias);
+    g_reduce_src[idx] = t.done() orelse return "";
+    return g_reduce_src[idx].?;
 }
 /// The first pass's grid: every 64 x 64 tile, S times.
 pub fn mmSplitGeometry(m: usize, n: usize, splits: usize) Geometry {
@@ -593,22 +694,28 @@ pub fn mmSplitGeometry(m: usize, n: usize, splits: usize) Geometry {
 
 /// The kernel text of variant v, with or without a fused bias. Public so the
 /// backbone compiles the table's winner in its own (bias) shape.
-pub fn mmSource(v: usize, comptime bias: bool) []const u8 {
+pub fn mmSource(v: usize, bias: bool) []const u8 {
     return mmSourceW(v, bias, false);
 }
 
 /// GK5: the same variants with the weights (B) stored as f16 when `wf16`.
-pub fn mmSourceW(v: usize, comptime bias: bool, comptime wf16: bool) []const u8 {
-    return switch (v) {
-        MM_TILE8 => comptime mmTileSource(8, bias, wf16),
-        MM_REG2 => comptime mmRegSource(2, bias, false, wf16),
-        MM_REG4 => comptime mmRegSource(4, bias, false, wf16),
-        MM_BROKEN => comptime mmRegSource(2, bias, true, wf16),
-        MM_REG4S => comptime mmStridedSource(4, 4, 16, bias, wf16),
-        MM_REG8 => comptime mmStridedSource(8, 8, 8, bias, wf16),
-        MM_REG8P => comptime mmStridedSourceP(8, 8, 8, true, bias, wf16),
-        else => comptime mmTileSource(16, bias, wf16),
-    };
+pub fn mmSourceW(v: usize, bias: bool, wf16: bool) []const u8 {
+    const vi = if (v < MM_VARIANTS) v else MM_GENERIC;
+    const idx = vi * 4 + @as(usize, @intFromBool(bias)) * 2 + @intFromBool(wf16);
+    if (g_mm_src[idx]) |s| return s;
+    var t: Text = .{};
+    switch (vi) {
+        MM_TILE8 => mmTileSource(&t, 8, bias, wf16),
+        MM_REG2 => mmRegSource(&t, 2, bias, false, wf16),
+        MM_REG4 => mmRegSource(&t, 4, bias, false, wf16),
+        MM_BROKEN => mmRegSource(&t, 2, bias, true, wf16),
+        MM_REG4S => mmStridedSource(&t, 4, 4, 16, false, false, bias, wf16),
+        MM_REG8 => mmStridedSource(&t, 8, 8, 8, false, false, bias, wf16),
+        MM_REG8P => mmStridedSource(&t, 8, 8, 8, true, false, bias, wf16),
+        else => mmTileSource(&t, 16, bias, wf16),
+    }
+    g_mm_src[idx] = t.done() orelse return "";
+    return g_mm_src[idx].?;
 }
 
 /// GQ1: the bias variant v writing THREE outputs. Column c of the product goes to output c / w at (r, c % w), where
@@ -654,22 +761,6 @@ test "the three-output product: every variant's text has three outputs and no si
             try std.testing.expect(mmSourceTri(v, h).ptr == t.ptr); // built once
         }
     }
-}
-
-fn comptimeReplace(comptime s: []const u8, comptime needle: []const u8, comptime with: []const u8) []const u8 {
-    @setEvalBranchQuota(1000000);
-    comptime var out: []const u8 = "";
-    comptime var i: usize = 0;
-    inline while (i < s.len) {
-        if (i + needle.len <= s.len and std.mem.eql(u8, s[i .. i + needle.len], needle)) {
-            out = out ++ with;
-            i += needle.len;
-        } else {
-            out = out ++ s[i .. i + 1];
-            i += 1;
-        }
-    }
-    return out;
 }
 
 pub fn mmVariantEligible(v: usize, m: usize, k: usize, n: usize) bool {
