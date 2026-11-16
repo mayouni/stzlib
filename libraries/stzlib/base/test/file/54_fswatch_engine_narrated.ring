@@ -21,7 +21,9 @@ EndScenario()
 Scenario("Watch a fresh directory and pick up an ADD event")
     Given("a scratch directory")
     cDir = "_fswatch_scratch"
-    if NOT dirExists(cDir) makedir(cDir) ok
+    # StzMakeDir, not Ring's makedir: the folder is made by the engine
+    # (StzEngineDirCreatePath) instead of by a shell command built as text.
+    if NOT dirExists(cDir) StzMakeDir(cDir) ok
     # Clean any stale scratch file from a previous run.
     if fexists(cDir + "/hello.txt") remove(cDir + "/hello.txt") ok
     o = new stzFolderWatcher

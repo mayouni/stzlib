@@ -197,33 +197,35 @@ func TrimRight(tStr)
 	return Left(tStr, nIndex)
 end
 
-# --- Four more, which the library itself never calls but its tests did,
+# --- Two more, which the library itself never calls but its tests did,
 # reaching Ring's stdlib through the library's load (found 2026-11-08 by the
 # haroport gate: stzGraphQuery_defects and 54_fswatch_engine went red).
+#
+# There were FOUR here until 2026-11-15. MakeDir and SystemCmd are gone, and
+# both were removed rather than rewritten:
+#
+#   MakeDir     shelled out -- System("mkdir " + tFolder + " >nul 2>nul") -- and
+#               had exactly ONE caller in the whole repository,
+#               base/test/file/54_fswatch_engine_narrated.ring:24, which now
+#               calls StzMakeDir (base/file/stzFolder.ring), where the folder is
+#               made by the ENGINE through StzEngineDirCreatePath. The library has
+#               had a shell-free folder-maker all along, with 93 call sites; this
+#               was the Ring-stdlib shim standing beside it.
+#   SystemCmd   had NO callers at all. Its two apparent hits were a comment and a
+#               string literal in a test that scans library source for the word.
+#
+# Do not reinstate either as a body that calls a Haro built-in of the same name:
+# a program's own function shadows the built-in INSIDE ITSELF, so `func MakeDir`
+# whose body calls MakeDir recurses (measured: Error (R4) Stack Overflow). The
+# name must differ, which is what StzMakeDir gives.
+#
+# Both bodies built a command line as TEXT and handed it to System, which Haro
+# refuses in a .haro file from v0.75 (D92, D88 (d)).
 
 # Ring's Split(): a space or tab delimiter collapses runs of blanks, the text
 # is trimmed, a line break always splits too. The library calls ring_split.
 func Split(tString, tDelimiter)
 	return ring_split(tString, tDelimiter)
-end
-# Creates the folder cFolder (and its parents off Windows), silently.
-func MakeDir(tFolder)
-	if IsWindows()
-		System("mkdir " + tFolder + " >nul 2>nul")
-	else
-		System("mkdir -p " + tFolder + " >/dev/null 2>&1")
-	end
-end
-# The output of the shell command cCmd, without its last line break.
-func SystemCmd(tCmd)
-	tTmpPath = TempName()
-	System(tCmd + "> " + tTmpPath)
-	tOut = Read(tTmpPath)
-	Remove(tTmpPath)
-	if Right(tOut, 1) = Char(10)
-		tOut = Left(tOut, Len(tOut) - 1)
-	end
-	return tOut
 end
 # Ring's List2Code(): the list as Ring source, one item per line, tab-indented.
 func List2Code(vList)

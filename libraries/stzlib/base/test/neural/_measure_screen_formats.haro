@@ -27,6 +27,7 @@
 # (D:/GitHub/stzzui/tools/zane/cli.js when absent).
 
 load "../../stzBase.ring"
+load "doors.haro"
 
 $tD = "_data/screens/"
 $tVerifier = SysGet("ZANE_VERIFIER")
@@ -183,14 +184,39 @@ end
 
 # ---- Zane: the verifier is the law -------------------------------------------------------------------------------
 func ZaneLaw(tText)
-	tFile = $tTmp + "\stz_screen.zane"
-	tOutFile = $tTmp + "\stz_screen_verdict.txt"
-	Write(tFile, tText)
-	nRc = System("node " + $tVerifier + " check " + tFile + " > " + tOutFile + " 2>&1")
-	if nRc = 0
+	# Neither of this run's two paths is known when the file is written: the
+	# verifier comes from ZANE_VERIFIER and may sit outside this repository, and
+	# the scratch folder is under TEMP. So the declaration is JUDGED at run time
+	# (doors.Judge) rather than written as a doors'...' literal, which can only
+	# carry what the author knew. The verifier's root is ANYWHERE -- a rooted path
+	# on any drive, read only, which is all node needs of it; the folder written
+	# into is a root with AT.
+	#
+	# The declaration is text this function joins, so a quote inside $tTmp would
+	# close the AT text early and the rest would be read as declaration. Windows
+	# allows no quote in a path and the court refuses a declaration it cannot read,
+	# but a folder's name must never get the chance to write one.
+	tQ = Char(34)
+	if SubStr($tTmp, tQ) > 0
+		Raise("Error (ZaneLaw) : the scratch folder's name holds a quote: " + $tTmp)
+	end
+	tDecl = "DEFINE ROOT tmp AS (AT " + tQ + $tTmp + tQ + ", ALLOWS [read, write, remove]) RATIONALE " + tQ + "the folder this scene's files pass through" + tQ
+	tDecl = tDecl + " DEFINE ROOT given AS (ANYWHERE yes) RATIONALE " + tQ + "the verifier the environment names" + tQ
+	tDecl = tDecl + " DEFINE COMMAND verify AS (RUNS " + tQ + "node" + tQ + ", TAKES [place, word, place]) RATIONALE " + tQ + "the zane verifier, run as a child" + tQ
+	sDoors = doors.Judge(tDecl)
+	hFile = sDoors.Place("tmp", "stz_screen.zane")
+	Write(hFile, tText)
+	# Run() answers the whole run at once -- the code AND both streams -- which is
+	# what this function needs and what System alone could not give. The verdict
+	# file is gone with the redirect that wrote it.
+	rRun = sDoors.Invocation("verify", [sDoors.Place("given", $tVerifier), "check", hFile]).Run()
+	if rRun.iCode = 0
 		return 1
 	end
-	tV = Read(tOutFile)
+	# `2>&1` interleaved the two streams as they were written; this is all of the
+	# first, then all of the second. Safe here: the loop below searches each LINE
+	# for "  error  " rather than comparing the whole text in order.
+	tV = rRun.tOutput + rRun.tErrors
 	xL = StzSplit(StzReplace(tV, Char(13), ""), Char(10))
 	nLenL = Len(xL)
 	tCodes = ""

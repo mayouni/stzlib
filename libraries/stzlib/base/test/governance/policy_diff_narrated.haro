@@ -17,6 +17,7 @@
 # RUNS ON haro.exe with the library; STZ_ENGINE_DIR names a built engine. No model, no network.
 
 load "../../stzBase.ring"
+load "doors.haro"
 $nPass = 0
 $nFail = 0
 
@@ -133,12 +134,23 @@ oRep = StzRuleReportQ("policy-review")
 oRep.Ingest(StzPolicyDiffFindings(xD))
 Then("stzRuleReport takes the findings with no adapter: three", oRep.NumberOfFindings(), 3)
 Then("...as warnings, the change waiting for review", Len(oRep.Warnings()), 3)
-tDir = StzReplace(CurrentDir(), "/", Char(92))
-tRun = "cd ..\..\..\tools && " + SysArgv[1] + " policy_diff.haro " + tDir + "\_data\policy\"
-tOut = " > " + SysGet("TEMP") + "\stz_pdiff.txt 2>&1"
-Then("the gate on a change that adds access: exit 1", System(tRun + "before.zgov " + tDir + "\_data\policy\after.zgov" + tOut), 1)
-Then("...on one that only takes away: exit 0", System(tRun + "after.zgov " + tDir + "\_data\policy\before.zgov" + tOut), 0)
-Then("...on a file that is not there: exit 2", System(tRun + "before.zgov " + tDir + "\_data\policy\nowhere.zgov" + tOut), 2)
+# The child is DECLARED. The absolute paths this scenario used to build are gone:
+# a place standing in a root is handed to the child WHOLE, so naming the two
+# folders separately is what keeps them from colliding -- the command runs IN
+# tools while its arguments stand in policy. CurrentDir() and the backslash
+# rewriting go with them.
+#
+# The third case still names a file that is not there, on purpose. A place judges
+# the TEXT against its root -- no step out, no drive, no device name, no wildcard
+# -- and asks nothing of the disk; the disk is asked when a door opens. So
+# nowhere.zgov is a valid place that does not exist, the child is started with it,
+# and the scenario keeps the case it exists to make.
+sDoors = doors'DEFINE ROOT tools AS (AT "../../../tools", ALLOWS [read]) RATIONALE "the library tools this scenario runs"
+               DEFINE ROOT policy AS (AT "_data/policy", ALLOWS [read]) RATIONALE "the policy files this scenario compares"
+               DEFINE COMMAND diff AS (ITSELF yes, TAKES [word, place, place], IN tools, QUIET yes) RATIONALE "policy_diff.haro, run the way a CI gate runs it"'
+Then("the gate on a change that adds access: exit 1", System(sDoors.Invocation("diff", ["policy_diff.haro", sDoors.Place("policy", "before.zgov"), sDoors.Place("policy", "after.zgov")])), 1)
+Then("...on one that only takes away: exit 0", System(sDoors.Invocation("diff", ["policy_diff.haro", sDoors.Place("policy", "after.zgov"), sDoors.Place("policy", "before.zgov")])), 0)
+Then("...on a file that is not there: exit 2", System(sDoors.Invocation("diff", ["policy_diff.haro", sDoors.Place("policy", "before.zgov"), sDoors.Place("policy", "nowhere.zgov")])), 2)
 
 ? ""
 ? "================================================"

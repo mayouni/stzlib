@@ -24,7 +24,11 @@ $nPass = 0
 $nFail = 0
 $vNotRun = []
 LoadLib($tEngine + "/zig-out/bin/stz_neural.dll")
-System("mkdir " + Char(34) + SysGet("TEMP") + "\stz_prefixkv" + Char(34) + " 2>nul")
+# Haro's MakeDir built-in (v0.74), not the library's StzMakeDir: this file loads
+# the engine DLL alone and never loads stzBase, so nothing of the library is in
+# scope here. It makes $tTmp -- the same folder the shell line above it made, and
+# the one every later scene reads the cache from.
+MakeDir($tTmp)
 $tSmol = $tModels + "/smollm2-135m-instruct-q8_0.gguf"
 $tQwen = $tModels + "/qwen2.5-coder-0.5b-instruct-q8_0.gguf"
 $tBolt = $tModels + "/Nemotron-3.5-Bolt-E4B-Q4_K_M.gguf"

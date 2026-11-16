@@ -16,6 +16,7 @@
 
 load "../../stzBase.ring"
 load "_ticket_app.ring"
+load "doors.haro"
 $nPass = 0
 $nFail = 0
 $vNotRun = []
@@ -68,11 +69,19 @@ xC = StzModelsCheck("", [ "kind/xx" ])
 Then("a language the faculty was never measured in fails: unknown is not good", xC[:status], 1)
 
 Scenario("5. the command-line tool, as a CI step runs it")
-tRun = "cd ..\..\..\tools && " + SysArgv[1] + " models_check.haro --require "
-tOut = " > " + SysGet("TEMP") + "\stz_mcheck.txt 2>&1"
-Then("the library's own faculties here: exit 0", System(tRun + "faces,ocr" + tOut), 0)
-Then("an implementation that would not answer: exit 1", System(tRun + "faces=no-such-impl" + tOut), 1)
-Then("an undeclared faculty: exit 2", System(tRun + "no_such_faculty" + tOut), 2)
+# The child is DECLARED, not written as a command line. Three parts of the old
+# line go away rather than move: `cd ..\..\..\tools &&` becomes IN tools, so no
+# shell changes directory; SysArgv[1] becomes ITSELF yes, so the child is this
+# same haro rather than a path this test has to name; and `> %TEMP%\... 2>&1`
+# becomes QUIET yes, so the child's output is not shown instead of being thrown
+# into a file nobody read. Haro refuses a command line built as text in a .haro
+# file from v0.75 (D92, D88 (d)); each argument is judged against its shape, and
+# all three here are words.
+sDoors = doors'DEFINE ROOT tools AS (AT "../../../tools", ALLOWS [read]) RATIONALE "the library tools this scenario runs"
+               DEFINE COMMAND require AS (ITSELF yes, TAKES [word, option, word], IN tools, QUIET yes) RATIONALE "models_check.haro, run the way a CI step runs it"'
+Then("the library's own faculties here: exit 0", System(sDoors.Invocation("require", ["models_check.haro", "--require", "faces,ocr"])), 0)
+Then("an implementation that would not answer: exit 1", System(sDoors.Invocation("require", ["models_check.haro", "--require", "faces=no-such-impl"])), 1)
+Then("an undeclared faculty: exit 2", System(sDoors.Invocation("require", ["models_check.haro", "--require", "no_such_faculty"])), 2)
 
 ? ""
 for t in $vNotRun
