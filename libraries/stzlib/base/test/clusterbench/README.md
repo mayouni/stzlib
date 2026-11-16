@@ -102,7 +102,15 @@ the questions alone, opening the pictures itself.
   `spoken-language-v1` (the first five FLEURS test recordings in French, English, Arabic and Hausa) 0.75 against 0.25
   for the floor that always answers French, 10 gained and none lost. The court upholds Whisper small on both, so the
   registry chooses it; about 9 seconds a recording.
-- **The court has not yet upheld the Hausa model, on the rule fixed before it ran.** `:transcribe`'s golden set
+- **Hausa is heard, and the registry routes it: a Hausa call goes to the model trained on Hausa, every other
+  language to Whisper small.** `:transcribe`'s golden set `hearing-v3` (committed and pushed, ba0839218, before any
+  model heard it) holds the twelve key-word tasks and ten fresh FLEURS recordings in each of French, English, Arabic
+  and Hausa, an item agreeing when its transcript's word error rate is at most 50%; the faculty is measured per
+  language. Whisper small: French 0.87, English 0.92, Arabic 0.83, Hausa 0. The Hausa model: Hausa **0.75** (9 of 12),
+  the others 0 to 0.08. The court, per language: Whisper small upheld for French (13-0), English (11-0) and Arabic
+  (10-0); the Hausa model upheld for Hausa over Whisper small and over the floor (9-0 each). `StzFacultyQ("transcribe")
+  .Run(recording, [ [:language, "ha"] ])` runs the Hausa model; with any other language, or none, Whisper small.
+- **On hearing-v2, the rule before it, the court did not rule on the Hausa model.** `:transcribe`'s golden set
   `hearing-v2` adds ten fresh Hausa recordings (FLEURS test 6 to 15, `hausa_fresh.tsv`), each judged on the three
   longest words of its transcription, all three required. The Hausa model passes 2 of the 12 Hausa items, Whisper small
   none: two items gained is within chance (p 0.25), so the registry keeps Whisper small for every language (7 items

@@ -22,6 +22,9 @@
 #                                       "wer<=50%:<reference>"; golden set hearing-v3, measured PER LANGUAGE:
 #                                       the key-word tasks and ten fresh FLEURS recordings in each of French,
 #                                       English, Arabic and Hausa, judged by word error rate (fleurs_v3.tsv).
+#                                       The court, per language: Whisper small for French (0.87), English
+#                                       (0.92) and Arabic (0.83); the Hausa model for Hausa (0.75, where
+#                                       Whisper small has 0), 9 items gained and none lost.
 #                                       hearing-v2, on record: the key-word tasks of the
 #                                       hearing and hearing-local clusters (French, English, Arabic, Hausa)
 #                                       and ten fresh FLEURS Hausa recordings whose key words a rule fixed

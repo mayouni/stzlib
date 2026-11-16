@@ -97,8 +97,10 @@ cells the smaller models miss together. **The engine hears**: Whisper small runs
 tasks -- both languages named, every number and date heard; the misses are the context's own words (`Sfax`,
 `semoule`, `Softanza`). With the setting's words read first (one glossary for every recording), it passes 9 of 10:
 `Sfax` and `semoule` spelled right, `Softanza` one letter off ("Softansa"). On real speakers (FLEURS, CC BY 4.0) it
-hears Arabic, 5 of 5; Hausa is 0 of 5 (named Swahili, Amharic, Yoruba), so Hausa hearing takes a model trained on
-Hausa speech -- the next rung of the hearing cluster.
+hears Arabic, 5 of 5; Hausa is 0 of 5 (named Swahili, Amharic, Yoruba). **Hausa is now heard**: a Whisper small
+trained on Hausa (EqualyzAI's african_voices_hausa_small, Apache-2.0), converted into the engine's form, passes 9 of 12
+fresh Hausa items judged by word error rate where Whisper small passes none, and the library's `:transcribe` faculty,
+measured per language, routes Hausa to it and French, English and Arabic to Whisper small (hearing-v3).
 
 The code benchmark covers most areas today. Regex, geo, gui, gpu, sound, performance and governance get their tasks
 written for them, since their narrated checks read files, devices or the clock.
@@ -127,7 +129,7 @@ French and Hausa.
    the cells to train for.
 4. The Haro copy of the corpus, then a small local model trained on it, judged by the benchmark.
 5. Ten checkable tasks per area cluster, for directive 2(B) -- built for the six clusters, hearing on the engine's Whisper.
-6. Hausa hearing: a speech model trained on Hausa, measured on the `hearing-local` cluster against Whisper small's 0 of 5.
+6. Hausa hearing -- built: the Hausa model holds `:transcribe` for Hausa (hearing-v3, 9-0 at the court).
 
 ## Rulings
 
