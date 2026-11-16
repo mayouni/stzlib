@@ -4875,7 +4875,7 @@ both trees. The same harness compiled in 127.3 s with the old generators and 12.
 **The build, timed** (haro's `build_engine.py`, `zig build -j2`, stz_gpu only, a model run of another desk on the machine
 for both arms; the rebuilds alternated old, new, old, new):
 
-| | old (44bb15bb2) | new (2e2c6277f) |
+| | old (44bb15bb2) | new (391f2c5a0 on main; built as 2e2c6277f, the same tree before its rebase) |
 |---|---|---|
 | a rebuild after a one-line edit of gpu_foundry.zig | 61.8 s, 54.7 s | 19.9 s, 19.2 s |
 | from an empty folder (old first, so the shared cache favours new) | 121 s | 83 s |
