@@ -12,7 +12,8 @@
 # (the folder holding vision/smolvlm_*.gguf). A model run is a heavy job: one at a time.
 # Run `haro pictures.haro` once before a vision run, and `powershell -File _rig/speak.ps1` once before a hearing run.
 #
-# tasks.tsv holds ten tasks for each of six clusters: text, data, agents, seeing, systems, hearing. A text model answers
+# tasks.tsv holds ten tasks for each of seven clusters: text, data, agents, seeing, systems, hearing, hearing-local
+# (Arabic and Hausa: FLEURS recordings, fetched once by `python -I _rig/fleurs_fetch.py`). A text model answers
 # the first three and systems; a seeing task names its picture, a hearing task its recording (in the fourth column), and
 # a hearing task's question column is what its recording says. A task's kind says how its reply is read:
 #
@@ -95,7 +96,7 @@ else
 	end
 	for i = 2 to Len(vTasks)
 		vT = vTasks[i]
-		if (vT[1] = "seeing") != bVision or (vT[1] = "hearing") != bHearing
+		if (vT[1] = "seeing") != bVision or (Left(vT[1], 7) = "hearing") != bHearing
 			loop
 		end
 		tAsk = Expand(vT[5]) + " " + Instruction(vT[3])

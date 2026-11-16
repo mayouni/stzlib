@@ -344,11 +344,12 @@ fn block(m: *const Model, comptime side: []const u8, L: usize, comptime att: []c
 
 // ---------------------------------------------------------------- the recording
 
-/// 16 kHz mono 16-bit PCM samples of a WAV file's bytes, as floats in [-1, 1); error.UnreadWav for any other form
+/// 16 kHz mono samples of a WAV file's bytes -- 16-bit PCM or 32-bit IEEE float, plain or extensible -- as floats in [-1, 1); error.UnreadWav for any other form
 pub fn wavSamples(bytes: []const u8) ![]f32 {
     if (bytes.len < 12 or !std.mem.eql(u8, bytes[0..4], "RIFF") or !std.mem.eql(u8, bytes[8..12], "WAVE")) return error.UnreadWav;
     var at: usize = 12;
     var fmt_ok = false;
+    var float32 = false; // 16-bit integer PCM, or 32-bit IEEE float (as FLEURS and many recorders write it)
     while (bytes.len - at >= 8) {
         const id = bytes[at .. at + 4];
         const n: usize = std.mem.readInt(u32, bytes[at + 4 ..][0..4], .little);
@@ -357,14 +358,22 @@ pub fn wavSamples(bytes: []const u8) ![]f32 {
         const body = bytes[at .. at + n];
         if (std.mem.eql(u8, id, "fmt ")) {
             if (n < 16) return error.UnreadWav;
-            const format = std.mem.readInt(u16, body[0..2], .little);
+            var format = std.mem.readInt(u16, body[0..2], .little);
+            // WAVE_FORMAT_EXTENSIBLE: the format is the first two bytes of its sub-format's GUID
+            if (format == 0xFFFE and n >= 26) format = std.mem.readInt(u16, body[24..26], .little);
             const channels = std.mem.readInt(u16, body[2..4], .little);
             const rate = std.mem.readInt(u32, body[4..8], .little);
             const bits = std.mem.readInt(u16, body[14..16], .little);
-            fmt_ok = format == 1 and channels == 1 and rate == 16000 and bits == 16;
+            float32 = format == 3 and bits == 32;
+            fmt_ok = channels == 1 and rate == 16000 and ((format == 1 and bits == 16) or float32);
             if (!fmt_ok) return error.NotSixteenKhzMono;
         } else if (std.mem.eql(u8, id, "data")) {
             if (!fmt_ok) return error.UnreadWav;
+            if (float32) {
+                const out = try gpa.alloc(f32, n / 4);
+                for (out, 0..) |*s, i| s.* = @bitCast(std.mem.readInt(u32, body[i * 4 ..][0..4], .little));
+                return out;
+            }
             const out = try gpa.alloc(f32, n / 2);
             for (out, 0..) |*s, i| s.* = @as(f32, @floatFromInt(std.mem.readInt(i16, body[i * 2 ..][0..2], .little))) / 32768.0;
             return out;
@@ -708,13 +717,20 @@ fn msSince(t: i128) f64 {
     return @as(f64, @floatFromInt(std.time.nanoTimestamp() - t)) / 1e6;
 }
 
-test "a WAV that is not 16 kHz mono 16-bit is refused, and one that is reads its samples" {
+test "a WAV that is not 16 kHz mono 16-bit or float is refused, and one that is reads its samples" {
     var good = [_]u8{ 'R', 'I', 'F', 'F', 0, 0, 0, 0, 'W', 'A', 'V', 'E', 'f', 'm', 't', ' ', 16, 0, 0, 0, 1, 0, 1, 0, 0x80, 0x3E, 0, 0, 0, 0x7D, 0, 0, 2, 0, 16, 0, 'd', 'a', 't', 'a', 4, 0, 0, 0, 0, 0x40, 0, 0xC0 };
     const s = try wavSamples(&good);
     defer gpa.free(s);
     try std.testing.expectEqual(@as(usize, 2), s.len);
     try std.testing.expectApproxEqAbs(@as(f32, 0.5), s[0], 1e-6);
     try std.testing.expectApproxEqAbs(@as(f32, -0.5), s[1], 1e-6);
+    // the same samples as 32-bit IEEE float (format 3)
+    var flt = [_]u8{ 'R', 'I', 'F', 'F', 0, 0, 0, 0, 'W', 'A', 'V', 'E', 'f', 'm', 't', ' ', 16, 0, 0, 0, 3, 0, 1, 0, 0x80, 0x3E, 0, 0, 0, 0xFA, 0, 0, 4, 0, 32, 0, 'd', 'a', 't', 'a', 8, 0, 0, 0, 0, 0, 0, 0x3F, 0, 0, 0, 0xBF };
+    const f = try wavSamples(&flt);
+    defer gpa.free(f);
+    try std.testing.expectEqual(@as(usize, 2), f.len);
+    try std.testing.expectEqual(@as(f32, 0.5), f[0]);
+    try std.testing.expectEqual(@as(f32, -0.5), f[1]);
     good[24] = 0x44; // 44100 Hz
     try std.testing.expectError(error.NotSixteenKhzMono, wavSamples(&good));
     try std.testing.expectError(error.UnreadWav, wavSamples("RIFF"));

@@ -1481,7 +1481,7 @@ fn ring_VisionGpuStats(p: *anyopaque) callconv(.c) void {
 
 // ---- CLUSTERBENCH-02: hearing -------------------------------------------------------------------------------
 
-// (cModel, cWavFile, cLanguage, nMaxTokens, nThreads) -> the words of a 16 kHz mono 16-bit recording (its first 30 s),
+// (cModel, cWavFile, cLanguage, nMaxTokens, nThreads) -> the words of a 16 kHz mono recording (16-bit PCM or 32-bit float) (its first 30 s),
 // greedy; cLanguage is a code ("fr", "en", "ha", "ar") or "auto" for the one the model hears. "" on failure, the error
 // in StzEngineNeuralOcrGraphError(). The model is whisper.cpp's file, loaded with its recorded sha256 and kept.
 fn ring_WhisperTranscribe(p: *anyopaque) callconv(.c) void {
@@ -1509,7 +1509,7 @@ fn whisperTranscribe(p: *anyopaque, prompted: bool) void {
         return R.ring_vm_api_retstring2(p, "", 0);
     };
     const pcm = whisper.wavSamples(wav) catch |e| {
-        ocrg.setError("whisper: the recording {s} is not one this reads ({s}: 16 kHz, mono, 16-bit PCM)", .{ ocrArg(p, 2), @errorName(e) });
+        ocrg.setError("whisper: the recording {s} is not one this reads ({s}: 16 kHz, mono, 16-bit PCM or 32-bit float)", .{ ocrArg(p, 2), @errorName(e) });
         return R.ring_vm_api_retstring2(p, "", 0);
     };
     defer A.free(pcm);
