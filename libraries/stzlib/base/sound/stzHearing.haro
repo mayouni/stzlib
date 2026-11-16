@@ -18,7 +18,11 @@
 #
 #   :transcribe        audio -> text    floor "nothing" (no words); judged by heard-groups: every group of
 #                                       expected key words is inside the transcript (groups joined by +,
-#                                       alternatives by |); golden set hearing-v2: the key-word tasks of the
+#                                       alternatives by |), or by word error rate for an expected value written
+#                                       "wer<=50%:<reference>"; golden set hearing-v3, measured PER LANGUAGE:
+#                                       the key-word tasks and ten fresh FLEURS recordings in each of French,
+#                                       English, Arabic and Hausa, judged by word error rate (fleurs_v3.tsv).
+#                                       hearing-v2, on record: the key-word tasks of the
 #                                       hearing and hearing-local clusters (French, English, Arabic, Hausa)
 #                                       and ten fresh FLEURS Hausa recordings whose key words a rule fixed
 #                                       before any model heard them (hausa_fresh.tsv). Implementations:
@@ -33,7 +37,8 @@
 # A recording is a WAV file, 16 kHz mono, 16-bit PCM or 32-bit float: its path, or the record
 # [ [:audio, path], [:language, code] ]. Call parameters:
 #
-#   :language   a code ("fr", "ar", "ha", ...) or "auto" (the default) for the language the model hears
+#   :language   a code ("fr", "ar", "ha", ...) or "auto" (the default) for the language the model hears; a call
+#               that names a language is resolved on that language's measurements
 #   :words      the words the recording is expected to hold (names, places, terms of the setting), read by
 #               the model before it listens, so a word it hears is spelled as they spell it; "" for none
 #
@@ -80,7 +85,7 @@ end
 # Declares the two hearing faculties (create-or-open) and loads their shipped measurements.
 func StzHearingDeclare
 	oT = StzFacultyQ("transcribe")
-	oT.SetInputTypeQ("audio").SetOutputTypeQ("text").SetFloorQ("nothing", "_StzHearingNothing").SetGoldenCheckerQ("heard-groups").SetGoldenVersionQ("hearing-v2")
+	oT.SetInputTypeQ("audio").SetOutputTypeQ("text").SetFloorQ("nothing", "_StzHearingNothing").SetGoldenCheckerQ("heard-groups").SetGoldenVersionQ("hearing-v3").SetGoldenLanguageKeyQ("language")
 	if Len(StzFind("whisper-small", oT.ImplementationIds())) = 0
 		oT.AddImplementation([ [:id, "whisper-small"], [:kind, "graph"], [:fn, "_StzHearingWhisper"], [:needle, "speech/" + $tStzHearingModel], [:licence, "mit"], [:memory, 900] ])
 	end
@@ -103,8 +108,22 @@ func StzHearingDeclare
 end
 
 # heard-groups: every group of pxExpected (groups joined by +, alternatives by |) is inside the transcript, in
-# small letters ("15h" holds "15")
+# small letters ("15h" holds "15"). An expected value written "wer<=50%:<reference>" is judged instead by the word
+# error rate of the transcript against the reference: it agrees at that rate or below (StzHearingWer).
 func StzHeardAgree(pxGot, pxExpected)
+	tExpected = "" + pxExpected
+	if Left(tExpected, 5) = "wer<="
+		nColon = Len(StzFind(":", tExpected))
+		if nColon = 0
+			return false
+		end
+		nAt = StzFind(":", tExpected)[1]
+		nMax = Number(SubStr(tExpected, 6, nAt - 7))    # the whole percent between "wer<=" and "%:"
+		# the prefix is ASCII, so the colon's place counts bytes as well as characters; the bar is applied to the counts
+		# (errors at most bar x reference words), which stays exact where a rate would need a rounded quotient
+		vE = StzHearingWordErrors(Right(tExpected, Len(tExpected) - nAt), "" + pxGot)
+		return vE[2] > 0 and vE[1] * 100 <= nMax * vE[2]
+	end
 	tHeard = StzLower("" + pxGot)
 	vGroups = Split(StzLower("" + pxExpected), "+")
 	nLen = Len(vGroups)
@@ -122,6 +141,70 @@ func StzHeardAgree(pxGot, pxExpected)
 		end
 	end
 	return nLen > 0
+end
+
+# The word error rate of tHyp against tRef, as a float: the fewest words inserted, deleted or replaced to turn one into
+# the other, over the reference's words. Both are put in small letters, punctuation is removed and Hausa's hooked
+# letters read as plain ones (FLEURS writes them in some words and not in others). 1 when the reference has no words.
+func StzHearingWer(tRef, tHyp)
+	vE = StzHearingWordErrors(tRef, tHyp)
+	if vE[2] = 0
+		return Float(1)
+	end
+	return Float(vE[1]) / Float(vE[2])
+end
+
+# [ the word errors of tHyp against tRef, the reference's words ] -- the counts StzHearingWer divides
+func StzHearingWordErrors(tRef, tHyp)
+	vRef = _StzHearingWords(tRef)
+	vHyp = _StzHearingWords(tHyp)
+	nR = Len(vRef)
+	nH = Len(vHyp)
+	if nR = 0
+		return [ nH, 0 ]
+	end
+	vRow = []
+	for j = 0 to nH
+		vRow + j
+	end
+	for i = 1 to nR
+		vNew = [ i ]
+		for j = 1 to nH
+			nCost = 1
+			if vRef[i] = vHyp[j]
+				nCost = 0
+			end
+			nBest = vRow[j + 1] + 1
+			if vNew[j] + 1 < nBest
+				nBest = vNew[j] + 1
+			end
+			if vRow[j] + nCost < nBest
+				nBest = vRow[j] + nCost
+			end
+			vNew + nBest
+		end
+		vRow = vNew
+	end
+	return [ vRow[nH + 1], nR ]
+end
+
+func _StzHearingWords(tText)
+	tT = StzLower("" + tText)
+	vFrom = [ "ɓ", "ɗ", "ƙ", "ƴ", "'", "’", ".", ",", "?", "!", ";", ":", '"', "(", ")", "«", "»", "،", "؟", "؛", Char(9), Char(10), Char(13) ]
+	vTo = [ "b", "d", "k", "y", "", "", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " " ]
+	nF = Len(vFrom)
+	for i = 1 to nF
+		tT = StzReplace(tT, vFrom[i], vTo[i])
+	end
+	vParts = StzSplit(tT, " ")
+	vOut = []
+	nP = Len(vParts)
+	for i = 1 to nP
+		if vParts[i] != ""
+			vOut + vParts[i]
+		end
+	end
+	return vOut
 end
 
 # -- the floors ---------------------------------------------------------

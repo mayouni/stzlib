@@ -9,7 +9,11 @@
 #
 # The golden sets, fixed before this ran:
 #
-#   hearing-v2           :transcribe: the key-word tasks (kind `heard`) of tasks.tsv -- eight
+#   hearing-v3           :transcribe, measured per language: the key-word tasks (kind `heard`) of tasks.tsv, and
+#                        fleurs_v3.tsv, ten fresh FLEURS recordings in each of French, English, Arabic and Hausa,
+#                        each agreeing when its transcript's word error rate is at most 50% -- a rule fixed, with its
+#                        items, before any model heard them. Each item is [ [:audio, path], [:language, code] ].
+#   hearing-v2           (on record) :transcribe: the key-word tasks (kind `heard`) of tasks.tsv -- eight
 #                        French and English sentences spoken by the Windows voices, two Arabic and two Hausa sentences
 #                        read by FLEURS' speakers -- and hausa_fresh.tsv, ten more Hausa recordings whose key words a
 #                        rule fixed before any model heard them. Each item is [ [:audio, path], [:language, code] ]: the
@@ -44,7 +48,7 @@ for i = 2 to nTasks
 		oT.AddGolden([ [:audio, tHere + vF[4]], [:language, LanguageOfRecording(vF[4])] ], vF[6])
 	end
 end
-vFresh = Split(Read("hausa_fresh.tsv"), Char(10))
+vFresh = Split(Read("fleurs_v3.tsv"), Char(10))
 nFresh = Len(vFresh)
 for i = 1 to nFresh
 	vF = StzSplit(StzReplace(vFresh[i], Char(13), ""), Char(9))
