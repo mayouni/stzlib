@@ -1,0 +1,51 @@
+cluster	id	kind	picture	question	expected
+text	text01	word		Give the infinitive of the French verb form 'mangeaient'.	manger
+text	text02	number		How many sentences are in this text? 'Le marché ouvre à 8 h. Il ferme à midi ! Venez-vous demain ?'	3
+text	text03	word		In which language is this sentence written? 'Ina kwana, yaya aiki?'	hausa
+text	text04	word		In which script is the word 'تونس' written?	arabic
+text	text05	choice		Which sentence best summarises this text? 'The cooperative of Zinder bought two new grain mills. Women of the village now grind millet in minutes instead of hours, and sell the extra flour at the market.'\nA) The village built a new market.\nB) New mills save the women time and bring them income.\nC) Millet prices rose in Zinder.\nD) The cooperative closed its mills.	B
+text	text06	choice		Which regular expression matches exactly a Tunisian mobile number: 8 digits, the first one 2, 5 or 9?\nA) ^[259][0-9]{7}$\nB) ^[0-9]{8}$\nC) ^[259][0-9]{8}$\nD) [259]+	A
+text	text07	word		Translate the Arabic word 'مدرسة' into French.	école|ecole
+text	text08	choice		In Tunisian Arabic written in Latin letters, what is '3aslema'?\nA) a greeting\nB) a farewell\nC) a thank-you\nD) an insult	A
+text	text09	number		How many characters (Unicode code points) are in the word 'café' when its 'é' is one precomposed character?	4
+text	text10	word		Translate the Hausa word 'ruwa' into English.	water
+data	data01	word		Which city in this table has the largest population?\ncity,population\nSousse,271000\nSfax,330000\nGabès,152000	sfax
+data	data02	word		Which statistic is less affected by one extreme value: the mean or the median?	median
+data	data03	choice		To find the most frequent value in a list, which statistic do you use?\nA) the mean\nB) the median\nC) the mode\nD) the range	C
+data	data04	number		What is 17 + 25 + 8?	50
+data	data05	number		In this table, what is the price of 'riz', in TND?\nitem,price_tnd\nsemoule,1.9\nriz,3.4\nhuile,5.2	3.4
+data	data06	number		How many grams are 2.5 kilograms?	2500
+data	data07	number		What is the decimal value of the binary number 101101?	45
+data	data08	number		A price goes from 200 to 250. By what percentage did it increase?	25
+data	data09	choice		What is the list [3, 1, 2] after sorting it in descending order?\nA) [1, 2, 3]\nB) [3, 2, 1]\nC) [2, 1, 3]\nD) [3, 1, 2]	B
+data	data10	choice		Which chart shows best how one value changed over twelve months?\nA) a pie chart\nB) a line chart\nC) a scatter plot of two unrelated variables\nD) a map	B
+agents	agents01	word		You have three tools: weather(city), calculator(expression), search_docs(query). A user asks: 'What is 345 times 12?' Which tool do you call?	calculator
+agents	agents02	word		You have three tools: weather(city), calculator(expression), search_docs(query). A user asks: 'How do I read a CSV file with Softanza?' Which tool do you call?	search_docs|search
+agents	agents03	word		Text: 'Amina sold 12 sheep on Monday.' How many goats did Amina sell? If the text does not say, answer UNKNOWN.	unknown
+agents	agents04	number		Which line says that the meeting is cancelled?\n1. The meeting was planned for Tuesday.\n2. The room was booked by Karim.\n3. Because of the strike, the meeting will not take place.\n4. Minutes will be sent by email.	3
+agents	agents05	choice		In which order should these steps run to deploy a fix?\n1) run the tests 2) write the fix 3) release it\nA) 1, 2, 3\nB) 2, 1, 3\nC) 3, 2, 1\nD) 2, 3, 1	B
+agents	agents06	word		A rule says: a payment above 1000 TND needs two approvals. A payment of 1500 TND has one approval. Is it allowed? Answer yes or no.	no
+agents	agents07	word		A test expects the number 3. The function returns the text '3'. With a comparison that also checks the type, does the test pass? Answer yes or no.	no
+agents	agents08	word		What was the closing price of the share XYZ yesterday? You have no tools and no data. If you cannot know, answer UNKNOWN.	unknown
+agents	agents09	choice		Which method name puts the verb first?\nA) FindAll\nB) AllFound\nC) Founds\nD) FindingsAll	A
+agents	agents10	word		Claim: 'The server started at 09:00.' Log line: '2026-11-16 09:14:02 server started'. Does the log support the claim? Answer yes or no.	no
+seeing	see01	word	see01.png	What colour is the circle?	red
+seeing	see02	number	see02.png	How many squares are there?	3
+seeing	see03	word	see03.png	Which bar is the tallest: the left one, the middle one or the right one?	middle|center|centre|second
+seeing	see04	word	see04.png	What shape is shown?	triangle
+seeing	see05	word	see05.png	Is the larger circle on the left or on the right?	left
+seeing	see06	number	see06.png	What number is written?	42
+seeing	see07	word	see07.png	What word is written?	stop
+seeing	see08	word	see08.png	Does the line go up or down from left to right?	up|rises|rising|increases|upward
+seeing	see09	number	see09.png	How many boxes are there?	2
+seeing	see10	number	see10.png	How many dots are there?	5
+systems	sys01	word		Which component failed? Log:\n10:01 INFO db connected\n10:02 INFO cache warmed\n10:03 ERROR mailer: connection refused by smtp.local:25\n10:04 INFO http listening on 8080	mailer
+systems	sys02	choice		A server stops at start with 'EADDRINUSE: address already in use :::8080'. What is the cause?\nA) another process already listens on port 8080\nB) the disk is full\nC) the password is wrong\nD) the network cable is unplugged	A
+systems	sys03	choice		What does the HTTP status 404 mean?\nA) the server crashed\nB) the resource was not found\nC) access is forbidden\nD) the request succeeded	B
+systems	sys04	choice		A Windows program exits with code 0xC0000005. What happened?\nA) it finished normally\nB) an access violation: it read or wrote memory it does not own\nC) the user pressed Ctrl+C\nD) a file was not found	B
+systems	sys05	choice		A service logs 'Permission denied: /var/log/app.log' when it starts. Which is the bounded fix?\nA) give the service's user write access to that log file\nB) run every service as administrator\nC) delete the /var/log folder\nD) turn off logging everywhere	A
+systems	sys06	word		In this stack trace, which function raised the error first?\nError: division by zero\n  at Ratio (stats.haro:41)\n  at Mean (stats.haro:12)\n  at Report (main.haro:7)	ratio
+systems	sys07	choice		Two threads each add 1 to a shared counter 1000 times, with no lock. The final value is 1874, not 2000. Why?\nA) a race condition: some increments overwrote each other\nB) the counter overflowed\nC) one thread never started\nD) the CPU is too slow	A
+systems	sys08	choice		A loop reads a 2 MB string one character at a time with substr(s, i, 1) and takes 18 seconds. Which change makes it fast?\nA) index the character directly with s[i]\nB) add more RAM\nC) run the loop twice\nD) convert the string to upper case first	A
+systems	sys09	choice		Which command line follows the rule that a secret is named, never typed?\nA) curl -H 'Authorization: Bearer $API_TOKEN' https://api.example.org\nB) curl -H 'Authorization: Bearer abc123-not-a-key' https://api.example.org\nC) both\nD) neither	A
+systems	sys10	choice		On Windows, a GPU kernel that runs for more than about 2 seconds makes the device 'lost'. What is the usual cause?\nA) the driver's timeout detection and recovery (TDR) resets the GPU\nB) the GPU ran out of colours\nC) the screen resolution is too high\nD) the kernel was too short	A

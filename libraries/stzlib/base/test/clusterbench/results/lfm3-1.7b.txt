@@ -1,0 +1,51 @@
+Area-cluster benchmark -- lfm3-1.7b
+
+pass	text01	manger	manger
+fail	text02	3	4
+fail	text03	hausa	Swahili
+pass	text04	arabic	Arabic
+pass	text05	B	B
+fail	text06	A	^[259][0-9]{7}$ is not correct because after the first digit (2,5,9
+pass	text07	école|ecole	École
+fail	text08	A	C
+fail	text09	4	The word 'café' consists of the characters: 'c', 'a', 'f', and 'é
+fail	text10	water	river
+pass	data01	sfax	Sfax</think>Sfax
+pass	data02	median	Median
+pass	data03	C	C
+fail	data04	50	17 + 25 = 42, then 42 + 8 = 50.  50  The sum is
+pass	data05	3.4	3.4
+fail	data06	2500	2.5 kilograms = 2.5 × 1000 grams = 2500 grams.  2500
+fail	data07	45	To convert the binary number 101101 to decimal, we calculate the sum of each bit
+fail	data08	25	The price increases from 200 to 250. The increase is 250 - 200 = 50. The percent
+pass	data09	B	B
+pass	data10	B	B
+pass	agents01	calculator	calculator
+pass	agents02	search_docs|search	search_docs
+pass	agents03	unknown	UNKNOWN
+pass	agents04	3	3
+fail	agents05	B	A
+fail	agents06	no	Yes
+fail	agents07	no	Yes
+pass	agents08	unknown	UNKNOWN
+fail	agents09	A	B
+fail	agents10	no	Yes
+pass	sys01	mailer	mailer
+pass	sys02	A	A
+pass	sys03	B	B
+pass	sys04	B	B
+fail	sys05	A	B
+fail	sys06	ratio	Report
+pass	sys07	A	A
+fail	sys08	A	B
+fail	sys09	A	C
+pass	sys10	A	A
+
+cluster      pass / tasks
+  text        4 / 10
+  all         21 / 40
+  data        6 / 10
+  agents      5 / 10
+  systems     6 / 10
+
+52 s

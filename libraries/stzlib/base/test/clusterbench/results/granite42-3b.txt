@@ -1,0 +1,51 @@
+Area-cluster benchmark -- granite42-3b
+
+pass	text01	manger	manger
+fail	text02	3	1
+fail	text03	hausa	Japanese
+fail	text04	arabic	Tunisian
+pass	text05	B	B
+pass	text06	A	A
+pass	text07	école|ecole	école
+pass	text08	A	A
+pass	text09	4	4
+pass	text10	water	water
+pass	data01	sfax	Sfax
+pass	data02	median	Median
+pass	data03	C	C
+pass	data04	50	50
+pass	data05	3.4	3.4
+pass	data06	2500	2500
+pass	data07	45	45
+fail	data08	25	50
+pass	data09	B	B
+pass	data10	B	B
+pass	agents01	calculator	calculator
+pass	agents02	search_docs|search	search_docs
+pass	agents03	unknown	UNKNOWN
+pass	agents04	3	3
+pass	agents05	B	B
+pass	agents06	no	no
+pass	agents07	no	no
+pass	agents08	unknown	UNKNOWN
+fail	agents09	A	B
+fail	agents10	no	yes
+pass	sys01	mailer	mailer
+pass	sys02	A	A
+pass	sys03	B	B
+pass	sys04	B	B
+pass	sys05	A	A
+pass	sys06	ratio	Ratio
+pass	sys07	A	A
+pass	sys08	A	A
+fail	sys09	A	B
+pass	sys10	A	A
+
+cluster      pass / tasks
+  text        7 / 10
+  all         33 / 40
+  data        9 / 10
+  agents      8 / 10
+  systems     9 / 10
+
+80 s

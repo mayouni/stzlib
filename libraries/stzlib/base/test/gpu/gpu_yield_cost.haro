@@ -1,0 +1,171 @@
+# gpu_yield_cost.haro -- RADAR-GPU-YIELD-01 (a): what a foreground step pays beside a background job on one card,
+# and what yielding costs the job.
+#
+# One process, one queue, as the lease leaves it. The foreground step is six products of 38 x 384 x 1152 (a short
+# forward's projections, about 1.5 ms); the background job is 120 products of 482 x 384 x 1152 (about 200 ms). The
+# foreground ARRIVES at 21 moments spread evenly over the job, and its latency is counted from arrival to its result.
+#   alone       the foreground on an idle card
+#   no yield    the whole job submitted at once; the foreground queues behind what is left of it
+#   slices of k the job submitted k products at a time, each slice waited for before the next; a foreground that
+#               arrived during a slice goes next
+# Beside each: the job's own wall time with one foreground step in it, so the price of yielding is read in the same run.
+load "../../stzBase.ring"
+
+if StzEngineGpuInit($tStzGpuRuntime) = 0
+	? "  [SKIP] no device: " + StzEngineGpuLastError()
+	Shutdown(0)
+end
+nE = 384
+nFg = 38
+nBg = 482
+nJob = 120
+nTurns = 21
+
+nA = Buf(nFg * nE, 11)
+nW = Buf(nE * 3 * nE, 12)
+nO = StzEngineGpuBufferNew(nFg * 3 * nE * 4)
+nBa = Buf(nBg * nE, 13)
+nBo = StzEngineGpuBufferNew(nBg * 3 * nE * 4)
+StzEngineGpuSync()
+Fg(nA, nW, nO, nFg, nE)
+Bg(nBa, nW, nBo, nBg, nE, 2)
+StzEngineGpuSync()
+
+? "-- RADAR-GPU-YIELD-01 (a): a foreground step beside a background job (RTX 3050, haro.exe) --"
+vAlone = []
+for r = 1 to nTurns
+	nT0 = Now()
+	Fg(nA, nW, nO, nFg, nE)
+	StzEngineGpuSync()
+	vAlone + (Now() - nT0)
+end
+nT0 = Now()
+Bg(nBa, nW, nBo, nBg, nE, nJob)
+StzEngineGpuSync()
+nJobAlone = Now() - nT0
+? "  the job alone: " + Ms(nJobAlone) + " (" + String(nJob) + " products)"
+? "  case | foreground median | p95 | worst | the job's wall time with the step in it"
+? "  alone | " + Ms(Pct(vAlone, 50)) + " | " + Ms(Pct(vAlone, 95)) + " | " + Ms(Pct(vAlone, 100)) + " | -"
+
+vNo = []
+vNoJob = []
+for r = 1 to nTurns
+	nArr = IntDiv(nJobAlone * (2 * r - 1), 2 * nTurns)
+	nT0 = Now()
+	Bg(nBa, nW, nBo, nBg, nE, nJob)
+	while Now() - nT0 < nArr
+	end
+	nTa = Now()
+	Fg(nA, nW, nO, nFg, nE)
+	StzEngineGpuSync()
+	vNo + (Now() - nTa)
+	vNoJob + (Now() - nT0)
+end
+? "  no yield | " + Ms(Pct(vNo, 50)) + " | " + Ms(Pct(vNo, 95)) + " | " + Ms(Pct(vNo, 100)) + " | " + Ms(Pct(vNoJob, 50))
+
+vK = [ 1, 4, 16 ]
+for i = 1 to Len(vK)
+	nK = vK[i]
+	vLat = []
+	vJob = []
+	for r = 1 to nTurns
+		nArr = IntDiv(nJobAlone * (2 * r - 1), 2 * nTurns)
+		nT0 = Now()
+		nDone = 0
+		bServed = false
+		while nDone < nJob
+			nS = nK
+			if nJob - nDone < nS
+				nS = nJob - nDone
+			end
+			Bg(nBa, nW, nBo, nBg, nE, nS)
+			StzEngineGpuSync()
+			nDone += nS
+			if not bServed and Now() - nT0 >= nArr
+				Fg(nA, nW, nO, nFg, nE)
+				StzEngineGpuSync()
+				vLat + (Now() - nT0 - nArr)
+				bServed = true
+			end
+		end
+		if not bServed
+			nTa = Now()
+			Fg(nA, nW, nO, nFg, nE)
+			StzEngineGpuSync()
+			vLat + (Now() - nTa)
+		end
+		vJob + (Now() - nT0)
+	end
+	? "  slices of " + String(nK) + " | " + Ms(Pct(vLat, 50)) + " | " + Ms(Pct(vLat, 95)) + " | " + Ms(Pct(vLat, 100)) + " | " + Ms(Pct(vJob, 50))
+end
+StzEngineGpuShutdown()
+
+# The foreground step: six products of tokens x 384 x 1152, one batch, one submit, not waited for.
+func Fg(nA, nW, nO, nM, nE)
+	StzEngineGpuBatchBegin()
+	for nL = 1 to 6
+		StzEngineGpuOpMatmul(nA, nW, nO, nM, nE, 3 * nE)
+	end
+	StzEngineGpuBatchEnd()
+end
+
+# nCount background products of tokens x 384 x 1152 in one batch, one submit, not waited for.
+func Bg(nA, nW, nO, nM, nE, nCount)
+	StzEngineGpuBatchBegin()
+	for nL = 1 to nCount
+		StzEngineGpuOpMatmul(nA, nW, nO, nM, nE, 3 * nE)
+	end
+	StzEngineGpuBatchEnd()
+end
+
+func Buf(nCount, nSeed)
+	nB = StzEngineGpuBufferNew(nCount * 4)
+	StzEngineGpuBufferFillLcg(nB, nCount, nSeed)
+	return nB
+end
+
+func Now
+	return StzEngineWatchTimestampNs()
+end
+
+# The nP-th percentile of a list of ns, nearest rank.
+func Pct(vX, nP)
+	vS = Sorted(vX)
+	nR = Floor(IntDiv(nP * Len(vS) + 99, 100))
+	if nR < 1
+		nR = 1
+	end
+	return vS[nR]
+end
+
+# A sorted copy, by insertion: the lists here hold 21 numbers.
+func Sorted(vX)
+	vS = []
+	for i = 1 to Len(vX)
+		vS + vX[i]
+		nJ = Len(vS)
+		while nJ > 1 and vS[nJ - 1] > vS[nJ]
+			nT = vS[nJ]
+			vS[nJ] = vS[nJ - 1]
+			vS[nJ - 1] = nT
+			nJ -= 1
+		end
+	end
+	return vS
+end
+
+func Ms(nNs)
+	nH = IntDiv(nNs, 10000)
+	return String(IntDiv(nH, 100)) + "." + Pad(nH % 100) + " ms"
+end
+
+func Pad(nX)
+	if nX < 10
+		return "0" + String(nX)
+	end
+	return String(nX)
+end
+
+func IntDiv(nA, nB)
+	return (nA - nA % nB) / nB
+end

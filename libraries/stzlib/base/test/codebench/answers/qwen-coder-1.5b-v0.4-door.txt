@@ -1,0 +1,118 @@
+=== adverb/00_adverb_narrated#099386a7
+new stzString("quickly")
+=== adverb/00_adverb_narrated#5385be05
+StzString("africa").LemmatizedWordsInLanguage("english").StzText("african").StzSecurityDrill().FireCredentialStuffing("user1", 1)
+=== common/hostile_globals_narrated#cd499d0d
+SortPaths([3, 1, 2])
+=== common/slice_primitives_narrated#a3e14428
+return StzMetric("abc", "Counter").stzMetricP99()
+=== extincode/51_extincode_narrated#47b8c704
+iif(0, "yes", "no")
+=== extincode/51_extincode_narrated#1d0281a2
+return stzGpu().ScanExclusiveRouted([0, 1, 2])
+=== faculty/release_narrated#bdece273
+StzModelSumsDirs("ocr") | count
+=== graph/orgrule_narrated#7751146d
+4
+=== list/00_list_narrated#e52c4a85
+o. LastItem()
+=== list/00_list_narrated#a6f08a7a
+len(StzConditionalCodeQ("if(@item > 2) then 1 else 0").Transform([1, 2, 3, 4]))
+=== list/06_manyremoved#fd445fec
+new stzList(1, 10, 3, 7, 9)
+=== list/114_unicode#6d171576
+new stzString("Hi")
+=== list/16_association#b17cf117
+`oDs.AddExample("A", 1, "a").AddExample("B", 2, "b").AddExample("C", 3, "c").AddExampleQ("A", 1, "a").AddExampleQ("B", 2, "b").AddExampleQ("C", 3, "c").AddExampleQ("A", 1, "a").AddExampleQ("B", 2, "b").AddExampleQ("C", 3, "c").AddExampleQ("A", 1, "a").
+=== list/650_operator_q_elevation_narrated#07cededb
+"ABC" * 3
+=== list/stzItem_defects_narrated#1810f241
+o.StringCapitalcased("a   b", 0)
+=== locale/01_languagename_narrated#ad6b207a
+Q("saturday").LocaleScriptsXT().LocaleLanguagesXT().LocaleLanguageCodes().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers().LocaleLanguageNumbers
+=== misc/00_misc_narrated#d0ebe1f8
+stzStringReplacer("one five three").ReplaceSubString(4, 5, "two")
+=== misc/00_misc_narrated#9d647c69
+CenterText("ab", 6)
+=== natural/evidentiality_narrated#bc163120
+Q("certainly")
+=== number/listofnumbers_defects_narrated#787d690b
+stzListSorter(15).MaximumFlow("Scenario("their repeats")", cSaved).NumberOfNeighbors()
+=== number/number_dead_calls_narrated#d9e60102
+return LCM(4, 6, 8)
+=== number/number_dead_calls_narrated#2c9d264e
+new stzNumber("10.5").FractionalPartQ().ToOctalForm()
+=== number/numeric_calculable_narrated#93567bec
+Q("0.5").ReadError()
+=== number/numeric_exactness_narrated#fdbf184d
+new stzNumber("0.1")
+=== number/numeric_exactness_narrated#4d04607a
+Q("1.234")[:readable]
+=== number/numeric_no_loss_narrated#201147e3
+Q(0.1).toFixed(2)
+=== object/stzObject_defects_narrated#9330e734
+new stzNumber(7.5)
+=== ocr/ocr_narrated#96e1b19f
+StzOcrLogicalLineXT("الوثيقة بنص يؤخذ الاختلاف وعند", "rtl")
+=== plural/00_plural_narrated#e2019d1b
+Q("cat").Has(:PluralsOfStzTypes())
+=== plural/00_plural_narrated#1262e613
+Q("child").ChildrenQ().Q("children")
+=== reflect/docgen_narrated#21a587d4
+2
+=== singular/00_singular_narrated#582c9d0f
+Q("men").replaceElementByMany(1, "man")
+=== string/00_string_narrated#68a108ba
+Q("softanza").Exactly(8).ALengthNB()
+=== string/00_string_narrated#87ed4de2
+return stzString("naïve").ReplacedWithCS("ï", 1).ReplacedWithCS("i", 1)
+=== string/107_hexprefix#a8cfba19
+HexPrefix()
+=== string/10_aligncenter#f0a66b4f
+StzStringAlignXT("RING", 15, " ", :Left)
+=== string/112_repeatedntimes#de75ea25
+NCopies(3, '♥')
+=== string/117_shortened#7683b917
+stzString("1234567890987654321").ShortenedXT(3, 3, "...")
+=== string/158_script#1e5fb197
+o.UnicodeScriptsXT("鶊")
+=== system/payments_live_adapter_narrated#d7d5285e
+new stzJson("transactions")
+=== system/payments_secrets_narrated#c7c76d00
+5
+=== system/sms_port_narrated#9dcb99e8
+new stzReactiveObject("{}", 900)
+=== authored/regex#3
+len(Q("the cat sat on the mat with a hat").RegexMatches("\b\w+at\b"))
+=== authored/regex#7
+$oBase.ParseDurationToMinutes("2h45min")
+=== authored/geo#2
+Q(36.8065).DegreeOfLatitudeKm().CellSizeDegrees()[0]
+=== authored/geo#6
+stzGeoEllipsoid("WGS84").RhumbDistanceKm(40.7128, 74.006, 51.5074, 0.1278)
+=== authored/geo#10
+oPat. AreaKm2()
+=== authored/sound#4
+Q(StzSoundGmInstrument(107))
+=== authored/sound#8
+StzSoundUniversesQ("maqam").ModeNames()
+=== authored/gui#2
+Q(StzUiProfileSpelling("tab-index", "web"))
+=== authored/gui#6
+Q("p").ToPanel().ToFixture().stzGraph().DirectedNodeDensity100()
+=== authored/gui#10
+StzContrastLc("#000000", "#ffffff")
+=== authored/gpu#4
+{ @Y = clamp(@X, 0, 1) }
+=== authored/gpu#8
+new stzNumber(1.5).FractionalPartQ().ToDecimalForm()
+=== authored/performance#2
+SlopePerMs()
+=== authored/performance#6
+return StzPerfMonitor.NewCounterXT("http.hits", ["route", "method", "path", "status"]).ObserveRoutes(RouteWhenMethod("GET", "route").RouteRequest("GET", "/menu", "text/plain", "menu content")).ObserveRoutes(RouteWhenMethod("GET", "route").RouteRequest("GET", "/menu", "text/plain", "menu content")).ObserveRoutes(RouteWhenMethod("GET", "route").RouteRequest("GET", "/menu", "text/plain", "menu content")).ObserveRoutes(RouteWhenMethod("GET", "route
+=== authored/performance#10
+Q(stzPerfSeries(16)).SlopePerMs()
+=== authored/governance#4
+Q("g").CommitmentStateOf("c1")
+=== authored/governance#8
+StzPolicyFactSentence("g", "pay", 2, "bot", 1)

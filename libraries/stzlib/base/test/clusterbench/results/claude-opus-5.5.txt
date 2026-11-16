@@ -1,0 +1,62 @@
+Area-cluster benchmark -- claude-opus-5.5
+
+pass	text01	manger	manger
+pass	text02	3	3
+pass	text03	hausa	Hausa
+pass	text04	arabic	Arabic
+pass	text05	B	B
+pass	text06	A	A
+pass	text07	école|ecole	école
+pass	text08	A	A
+pass	text09	4	4
+pass	text10	water	water
+pass	data01	sfax	Sfax
+pass	data02	median	median
+pass	data03	C	C
+pass	data04	50	50
+pass	data05	3.4	3.4
+pass	data06	2500	2500
+pass	data07	45	45
+pass	data08	25	25
+pass	data09	B	B
+pass	data10	B	B
+pass	agents01	calculator	calculator
+pass	agents02	search_docs|search	search_docs
+pass	agents03	unknown	UNKNOWN
+pass	agents04	3	3
+pass	agents05	B	B
+pass	agents06	no	no
+pass	agents07	no	no
+pass	agents08	unknown	UNKNOWN
+pass	agents09	A	A
+pass	agents10	no	no
+pass	see01	red	red
+pass	see02	3	3
+pass	see03	middle|center|centre|second	middle
+pass	see04	triangle	triangle
+pass	see05	left	left
+pass	see06	42	42
+pass	see07	stop	STOP
+pass	see08	up|rises|rising|increases|upward	up
+pass	see09	2	2
+pass	see10	5	5
+pass	sys01	mailer	mailer
+pass	sys02	A	A
+pass	sys03	B	B
+pass	sys04	B	B
+pass	sys05	A	A
+pass	sys06	ratio	Ratio
+pass	sys07	A	A
+pass	sys08	A	A
+pass	sys09	A	A
+pass	sys10	A	A
+
+cluster      pass / tasks
+  text        10 / 10
+  all         50 / 50
+  data        10 / 10
+  agents      10 / 10
+  seeing      10 / 10
+  systems     10 / 10
+
+0 s

@@ -415,4 +415,4 @@ score                    pass / tasks
   performance value     9 / 10
   governance value      7 / 10
 
-judged in 54 ms
+judged in 10 ms

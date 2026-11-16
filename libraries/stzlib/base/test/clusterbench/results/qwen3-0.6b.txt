@@ -1,0 +1,51 @@
+Area-cluster benchmark -- qwen3-0.6b
+
+fail	text01	manger	mangeaient
+fail	text02	3	2
+fail	text03	hausa	kina
+fail	text04	arabic	تونس
+pass	text05	B	B
+pass	text06	A	A
+fail	text07	école|ecole	lycée
+pass	text08	A	A
+fail	text09	4	2
+fail	text10	water	ruwa
+pass	data01	sfax	Sfax
+pass	data02	median	median
+pass	data03	C	C
+fail	data04	50	17 + 25 + 8 = 50
+pass	data05	3.4	3.4
+fail	data06	2500	2.5
+fail	data07	45	101101
+fail	data08	25	250 - 200 = 50   50 / 200 = 0.
+pass	data09	B	B) [3, 2, 1]
+pass	data10	B	B
+pass	agents01	calculator	calculator
+pass	agents02	search_docs|search	search_docs
+pass	agents03	unknown	unknown
+pass	agents04	3	3
+fail	agents05	B	A
+fail	agents06	no	yes
+fail	agents07	no	yes
+pass	agents08	unknown	UNKNOWN
+fail	agents09	A	B
+fail	agents10	no	yes
+pass	sys01	mailer	mailer
+pass	sys02	A	A) another process already listens on port 8080
+pass	sys03	B	B
+pass	sys04	B	B
+pass	sys05	A	A
+fail	sys06	ratio	Mean
+pass	sys07	A	A
+pass	sys08	A	A) index the character directly with s[ i ]
+fail	sys09	A	C
+pass	sys10	A	A
+
+cluster      pass / tasks
+  text        3 / 10
+  all         22 / 40
+  data        6 / 10
+  agents      5 / 10
+  systems     8 / 10
+
+21 s

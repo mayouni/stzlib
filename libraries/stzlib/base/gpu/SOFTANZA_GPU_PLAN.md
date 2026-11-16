@@ -4816,6 +4816,76 @@ stz_neural each carry gpu.zig, so the backbone in one process waited 30 s on its
 device (`gpu_f16_narrated` failed on every engine built since 2e4c4c45c). A lock held by this process id is now
 shared at once (`StzEngineGpuLease(0)` = 6); the lease guard's scene 1b holds it. (2) GQ0's 482-token row, above.
 
+## RADAR-GPU-YIELD-01 STATUS — a background job beside a foreground step: the rule is to submit in slices (2026-11-16)
+
+**The question** (stzradar, 2026-11-15, from the GPUOS prototype): inside the one process that holds the card, what
+does a background job cost a foreground step, and what does yielding cost the job? GPUOS, one RTX 5090, its own
+figures: +23.68% at the foreground's p99 when the background never yields, +0.62% when it yields every 4 tiles. Its
+kill line, which this desk took as its own: if never yielding already costs the foreground little here, nothing is built.
+
+**The measurement** (`base/test/gpu/gpu_yield_cost.haro`, RTX 3050, haro.exe, three runs on a quiet machine). The
+foreground step is six products of 38 x 384 x 1152, a short forward's projections. The background job is 120 products
+of 482 x 384 x 1152. The foreground arrives at 21 moments spread over the job and is timed from arrival to its result.
+The job's wall time is read in the same run with one foreground step inside it. Ranges are over the three runs:
+
+| case | foreground median | p95 | worst | job wall time | job rate vs no yield |
+|---|---|---|---|---|---|
+| alone | 1.34–1.69 ms | 1.47–5.31 ms | 1.54–6.09 ms | – | – |
+| no yield (the whole job queued at once) | 91.6–112.8 ms | 196–205 ms | 208–214 ms | 216–222 ms | 100% |
+| slices of 1 product, each waited for | 2.02–2.92 ms | 2.90–3.71 ms | 3.60–5.50 ms | 249–253 ms | about 87% |
+| slices of 4 | 4.48–4.80 ms | 8.27–8.60 ms | 8.45–9.15 ms | 228–230 ms | about 96% |
+| slices of 16 | 13.9–16.1 ms | 26.1–31.1 ms | 26.4–31.2 ms | 223–226 ms | about 98% |
+
+**The kill line is not met.** The card's queue runs in order and nothing preempts it, so a foreground step that arrives
+behind a queued job waits for the rest of that job: half of it on average, about 100 ms against a 1.5 ms step. Yielding
+bounds the wait to one slice. Four products (about 7 ms of work) keep the foreground's p95 under 9 ms and keep about 96%
+of the job's rate. One product brings the foreground to 2-3 ms and costs the job about 13%.
+
+**The rule, from these figures.** A background job in a process that may also serve a foreground submits its work in
+slices of about 5 to 10 ms and waits for each one (`StzEngineGpuBatchBegin` ... `BatchEnd`, then `StzEngineGpuSync`).
+A foreground step runs between slices, and its wait is about one slice. The slice size is set in milliseconds, not in
+operations, because one product here is 1.8 ms and another job's unit is another size. Part (b), the fixed cost of one
+dispatch, is GQ1's figure: about 9 us, 6 us on the CPU and 3 to 4 us on the device. That is not what a slice costs.
+A slice costs the gap between the end of one slice and the start of the next, when the card is idle while the CPU
+learns the slice is done and submits the next one. At one product a slice that gap is about 13% of the job; at four
+products it is a few percent.
+
+**What is built: the rule and its probe, no scheduler.** No process in the estate runs a GPU foreground beside a GPU
+background job today: decode is on the CPU (RADAR-GPU-OWNER-01 (b)) and the embedding backbone is the only GPU user. A
+scheduler with no second job would be GQ1's "planner with one candidate". The first consumer, which is likely the
+fabric embedding a corpus while it answers a query, takes the rule above and the probe as its check: run the probe with
+its own step and job, and choose the slice from the table it prints.
+
+## SUBSTRATE-COMPTIME-01 STATUS — the matmul kernel texts are built at run time, and a rebuild is three times faster (2026-11-16)
+
+**The finding** (the substrate-poc desk, routed by Central 2026-10-30): `gpu_ops.zig` generated its 35 matmul kernel
+texts (every variant, with and without a bias, f32 and f16 weights, the split-K pass and its reduce) by compile-time
+string concatenation. The desk measured 118 s cold and 84 s after a one-line edit of an unrelated file; a Rust twin made
+the same texts in 1.25 ms. GQ1 met the same cost from the other side: one compile-time replace held 7.5 GB.
+
+**What landed.** The generators write into a buffer at run time, the first time a text is asked for, and keep it per
+(variant, bias, f16), as `mmSourceTri` already did. The format strings are the old ones; the only change of shape is
+that a placeholder replaced after the fact (`BREAD`, split-K's `gk < klim` and its store) is now written in place.
+Callers are unchanged: `gpu_foundry.zig`, `neural_backbone.zig` and `neural_vit.zig` compile as they were.
+
+**The texts are the same, byte for byte.** A harness made from the matmul section of the file, once before and once
+after, dumps all 51 texts (the 35, and GQ1's 16 three-output variants): 750,091 bytes, `diff -r` empty, one hash over
+both trees. The same harness compiled in 127.3 s with the old generators and 12.6 s with the new.
+
+**The build, timed** (haro's `build_engine.py`, `zig build -j2`, stz_gpu only, a model run of another desk on the machine
+for both arms; the rebuilds alternated old, new, old, new):
+
+| | old (44bb15bb2) | new (391f2c5a0 on main; built as 2e2c6277f, the same tree before its rebase) |
+|---|---|---|
+| a rebuild after a one-line edit of gpu_foundry.zig | 61.8 s, 54.7 s | 19.9 s, 19.2 s |
+| from an empty folder (old first, so the shared cache favours new) | 121 s | 83 s |
+
+The inner-loop figure is the rebuild: about 38 s saved on every edit of any file stz_gpu compiles. stz_neural, which
+compiles `gpu_ops.zig` too, builds clean from the new commit (51 s from an empty folder).
+
+**Guards on the new engine** (haro.exe, RTX 3050): gpu_ops 37, gpu_foundry_matmul 31 (every variant and split-K),
+gpu_batch 13, gpu_verify 39, gpu_f16 23 with the new stz_neural -- 143 assertions, all pass.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
