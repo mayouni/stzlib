@@ -7,9 +7,11 @@ Softanza, and connect the door below: it gives an agent the library's own vocabu
 
 Three tools, one program (`libraries/stzlib/door/door.haro`):
 
-- **find** -- the library's real functions and methods for some words, with their class, signature, comment and
-  file, and the narrated examples that use them, each with the value it gives.
-- **methods** -- the methods one class defines (`stzString`, `stzList`, `stzNumber`...), narrowed by words.
+- **find** -- the library's real functions and methods for some words: each with its class, signature, file,
+  description, parameters, return value and warning, how to build the objects they belong to, and the narrated
+  examples that use them, each with the value it gives.
+- **methods** -- how to build one class's objects (`stzString`, `stzList`, `stzNumber`...), and the methods it
+  defines, narrowed by words.
 - **run** -- runs Haro code with Softanza loaded and answers what it printed, then `=== value` and the value as
   Softanza shows it, or `=== error` and the error.
 

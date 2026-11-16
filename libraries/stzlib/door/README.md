@@ -7,7 +7,7 @@ connect it over MCP, is in [AGENTS.md](AGENTS.md).
 |---|---|
 | `door.haro` | the door: `find <words>`, `methods <class> [words]`, `run <file of code>`, `serve` (MCP over stdio) |
 | `door_run.haro` | the runner `run` starts as a child process: loads Softanza, runs the code, prints the value |
-| `door_index.haro` | builds `index.tsv` from the library: 45,572 definitions and 18,569 narrated examples, in about two seconds |
+| `door_index.haro` | builds `index.tsv` from the library: 45,572 definitions, each with its description, parameters, return value and warning read from its comment block, and 13,488 narrated examples, in about three seconds |
 
 Build the index once, after a checkout and after the library changes:
 

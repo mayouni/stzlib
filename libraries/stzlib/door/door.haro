@@ -10,8 +10,9 @@
 # counts by its rarity in the index (the log of rows over rows holding it), three times over when it is found in a
 # name (an example's name is its code) rather than only in a comment or a description; a definition of the core
 # classes (string, list, number, common) is preferred among near equals, then the shorter name.
-# It answers the eight best definitions, then up to three narrated examples whose code uses one of them, or, when
-# none does, the two best examples for the words.
+# It answers the six best definitions -- each with its description, parameters, return value and warning, read from
+# its comment block -- how to build the objects of the first three, then up to three narrated examples whose code
+# uses one of them, or, when none does, the two best examples for the words.
 #
 # `run` hands the code to door_run.haro, a child process, so code that prints, raises or crashes cannot touch the
 # door's own stream. The child writes to a file the door reads back: a captured pipe loses UTF-8 on Windows.
@@ -23,6 +24,8 @@
 
 $tHere = ExeDir()
 $vRows = []
+$vInitClass = []
+$vInitRow = []
 $nHeld = 0
 $vStop = [ "the", "a", "an", "of", "to", "in", "is", "and", "it", "with", "for", "by", "on", "as", "that", "its",
 	"this", "be", "are", "from", "or", "at", "into", "how", "do", "i", "what", "which", "get", "give", "gives" ]
@@ -81,6 +84,10 @@ func LoadIndex
 			loop
 		end
 		$vRows + vF
+		if vF[1] = "def" and Lower(vF[2]) = "init" and vF[3] != ""
+			$vInitClass + Lower(vF[3])
+			$vInitRow + Len($vRows)
+		end
 	end
 end
 
@@ -163,10 +170,11 @@ func Find(tQuery)
 			vExamples + [ nScore, i ]
 		end
 	end
-	vDefs = Best(vDefs, 8)
+	vDefs = Best(vDefs, 6)
 	tOut = "definitions" + Char(10)
 	vSeen = []
 	vNames = []
+	vClasses = []
 	for i = 1 to Len(vDefs)
 		vR = $vRows[vDefs[i]]
 		tKey = Lower(vR[3] + "." + vR[2])
@@ -182,9 +190,17 @@ func Find(tQuery)
 			tOwner = vR[3] + "  "
 		end
 		tOut = tOut + "  " + tOwner + vR[6] + "      " + vR[4] + ":" + vR[5] + Char(10)
-		if vR[7] != ""
-			tOut = tOut + "      " + Left(vR[7], 120) + Char(10)
+		tOut = tOut + NoteLines(vR[7], "      ")
+		if vR[3] != "" and i <= 3 and IsIn(Lower(vR[3]), vClasses) = false
+			vClasses + Lower(vR[3])
 		end
+	end
+	tBuild = ""
+	for i = 1 to Len(vClasses)
+		tBuild = tBuild + BuildLine(vClasses[i])
+	end
+	if tBuild != ""
+		tOut = tOut + Char(10) + "how to build their objects" + Char(10) + tBuild
 	end
 	vUsing = []
 	for i = 1 to Len(vExamples)
@@ -258,7 +274,7 @@ func Methods(tArg)
 	if Len(vOut) > nMax
 		tOut = tOut + ", the first " + String(nMax) + " shown; add words to narrow"
 	end
-	tOut = tOut + Char(10)
+	tOut = tOut + Char(10) + BuildLine(tClass)
 	tLine = " "
 	for i = 1 to Min(Len(vOut), nMax)
 		if Len(tLine) + Len(vOut[i]) > 110
@@ -268,6 +284,40 @@ func Methods(tArg)
 		tLine = tLine + " " + vOut[i]
 	end
 	return tOut + tLine + Char(10)
+end
+
+# a class's constructor, as a line: new <class>(<params>), what each parameter is, and its warning; "" when the
+# index holds no init for the class
+func BuildLine(tClassLow)
+	for i = 1 to Len($vInitClass)
+		if $vInitClass[i] = tClassLow
+			vR = $vRows[$vInitRow[i]]
+			tSig = vR[6]
+			nOpen = SubStr(tSig, "(")
+			tParams = "()"
+			if nOpen > 0
+				tParams = SubStr(tSig, nOpen, Len(tSig) - nOpen + 1)
+			end
+			return "  new " + vR[3] + tParams + "      " + vR[4] + ":" + vR[5] + Char(10) + NoteLines(vR[7], "      ")
+		end
+	end
+	return ""
+end
+
+# a definition's note, one part a line: its description, then params, returns and warning
+func NoteLines(tNote, tIndent)
+	if tNote = ""
+		return ""
+	end
+	tOut = ""
+	tRest = tNote
+	nAt = SubStr(tRest, "  | ")
+	while nAt > 0
+		tOut = tOut + tIndent + Left(Left(tRest, nAt - 1), 220) + Char(10)
+		tRest = SubStr(tRest, nAt + 4, Len(tRest) - nAt - 3)
+		nAt = SubStr(tRest, "  | ")
+	end
+	return tOut + tIndent + Left(tRest, 220) + Char(10)
 end
 
 func Split1(tText)
