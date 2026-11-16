@@ -87,6 +87,13 @@ the questions alone, opening the pictures itself.
   Amharic and Yoruba, and writes what it hears as sound-alike syllables. Told the language (`ha`), it writes
   recognisable Hausa -- "kasa, ruwa, iska" for FLEURS' "ƙasa ruwa iska" (earth, water, air) -- with most other words
   misspelled. Hausa hearing takes a model trained on Hausa speech; that is the next rung of this cluster.
+- **A Whisper trained on Hausa hears Hausa: 37.8% of words wrong where Whisper small, told the language, gets 85.6%**
+  (on the five FLEURS Hausa recordings, 111 words; 42.3% and 86.5% counting Hausa's hooked letters as FLEURS writes
+  them). The model is EqualyzAI's `african_voices_hausa_small` (Apache-2.0, Whisper small fine-tuned on the African
+  Voices Hausa recordings), converted into the engine's own Whisper form by `_rig/hf_whisper_to_ggml.py` -- the base's
+  filters and vocabulary kept, its 479 tensors replaced, each within cosine 0.995 of its base -- and run by the same
+  `whisper.zig`. It writes "sun kasance ƙasa ruwa iska da wuta" where FLEURS' reader says "sun kasance ƙasa ruwa iska
+  da wuta". `_rig/hear_list.haro` transcribes, `_rig/wer.py` scores; transcripts in `results/hausa/`.
 - **Hearing is two faculties of the library** (`base/sound/stzHearing.haro`): `:transcribe` (audio -> text, call
   parameters `:language` and `:words`) and `:spoken-language` (audio -> label), declared in every process, Whisper small
   their implementation beside a floor. `measure.haro` runs both on their golden sets and files the evidence in

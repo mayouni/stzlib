@@ -1,0 +1,41 @@
+# Transcribes recordings with a Whisper ggml file on the engine, one line each: the recording, a tab, the words.
+#
+#     haro _rig/hear_list.haro <model .bin> <language|auto> <out .tsv> <recording> ...
+#
+# From the clusterbench folder, with STZ_ENGINE_DIR set (an engine whose stz_neural has the Whisper builtins).
+
+LoadLib(Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/stz_neural.dll")
+vArgs = []
+nArgs = Len(SysArgv)
+bAfter = false
+for i = 1 to nArgs
+	if bAfter
+		vArgs + SysArgv[i]
+	elseif Right(SysArgv[i], 14) = "hear_list.haro"
+		bAfter = true
+	end
+end
+tModel = Slashes(vArgs[1])
+tLang = vArgs[2]
+tOut = ""
+nAll = Len(vArgs)
+for i = 4 to nAll
+	nT = Clock()
+	tText = StzEngineNeuralWhisperTranscribe(tModel, Slashes(vArgs[i]), tLang, 160, 4)
+	tOut = tOut + vArgs[i] + Char(9) + Trim(tText) + Char(10)
+	? vArgs[i] + "  " + String(Floor((Clock() - nT) / ClocksPerSecond())) + " s"
+end
+Write(vArgs[3], tOut)
+
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for i = 1 to nLen
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end
