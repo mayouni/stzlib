@@ -375,7 +375,7 @@ for fn in files:
                 matched += 1
                 continue
             missing += 1
-            misses.append((fn, lineno, raw))
+            misses.append((fn, lineno, raw, nout[pos:pos + 3]))
             continue
 
         # `#--> ''` is how these files write "prints nothing". An empty line
@@ -391,7 +391,7 @@ for fn in files:
                 pos = hit + 1
             else:
                 missing += 1
-                misses.append((fn, lineno, raw))
+                misses.append((fn, lineno, raw, nout[pos:pos + 3]))
             continue
 
         found = -1
@@ -459,7 +459,7 @@ for fn in files:
                 raisedfiles[fn] = (lineno, raised.group(0).strip())
         else:
             missing += 1
-            misses.append((fn, lineno, raw))
+            misses.append((fn, lineno, raw, nout[pos:pos + 3]))
             # ONE DIVERGENCE MUST NOT SWALLOW THE NEXT PROMISE'S LINE.
             #
             # Without this the walk stays put, so the FOLLOWING promise can
@@ -504,6 +504,24 @@ for fn, n in by.most_common():
     print("   %-52s %d" % (safe(fn), n))
 print()
 print("-- every divergence, in full --")
-for fn, lineno, raw in misses:
+# 2026-11-16: this printed the PROMISE and nothing else, so a full sweep said
+# WHICH promises broke and never HOW. Across 158 topics it produced 1,047
+# divergence records, every one of them a `promised:` line with no counterpart
+# -- and a divergence whose actual output nobody recorded cannot be classified
+# into a defect, a formatting drift or a stale expectation without running the
+# file again. The whole sweep is ~20 hours; re-running it to learn what it
+# already had in hand is the expensive kind of mistake.
+#
+# `nout[pos:pos+3]` is the normalised output AT THE POINT THE WALK STOOD when
+# the promise was not found. It is labelled that way rather than "got" on
+# purpose: the search is an ordered subsequence, so these lines are what stood
+# where the promise was expected, not a line-for-line counterpart. That is
+# exactly the diagnostic a reader needs and it is not a verdict.
+for fn, lineno, raw, atpos in misses:
     print("   %s:%d" % (safe(fn), lineno))
     print("      promised: %s" % safe(raw)[:150])
+    if atpos:
+        for _l in atpos:
+            print("      output there: %s" % safe(_l)[:150])
+    else:
+        print("      output there: <nothing left -- the output ended before this promise>")
