@@ -87,6 +87,13 @@ The faculties group the areas into six clusters:
 The deterministic core of each area stays the answer; the model explains, chooses and drafts. Each cluster's (B)
 benchmark is therefore small: ten checkable tasks a cluster to start.
 
+**Built: the area-cluster benchmark** (`base/test/clusterbench`), ten tasks for each of text, data, agents, seeing
+and systems, the seeing tasks on ten pictures stzCanvas draws. On the machine itself, Nemotron Bolt E4B answers 39 of
+the 40 text, data, agents and systems tasks, about 3 seconds a task; Granite 4.2 3B answers 33; SmolVLM reads 7 of
+the 10 pictures at both its sizes, colours, shapes and written words among them, with which bar is tallest and which
+way a line goes left to the library's own data. Hausa named as a language and a claim checked against a log are the
+cells the smaller models miss together. Hearing takes its ten tasks from recordings, with a speech model on disk.
+
 The code benchmark covers most areas today. Regex, geo, gui, gpu, sound, performance and governance get their tasks
 written for them, since their narrated checks read files, devices or the clock.
 
@@ -113,4 +120,4 @@ French and Hausa.
 3. The language matrix -- built: French and Arabic are served locally; Tunisian Darija in Latin letters and Hausa are
    the cells to train for.
 4. The Haro copy of the corpus, then a small local model trained on it, judged by the benchmark.
-5. Ten checkable tasks per area cluster, for directive 2(B).
+5. Ten checkable tasks per area cluster, for directive 2(B) -- built for five clusters; hearing follows a speech model.

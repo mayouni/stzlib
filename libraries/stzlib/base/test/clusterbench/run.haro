@@ -1,0 +1,367 @@
+# THE AREA-CLUSTER BENCHMARK -- directive 2(B): the faculty each cluster of areas asks of a model.
+#
+#     haro run.haro <label> <model file>              a text model answers the tasks that have no picture
+#     haro run.haro <label> smolvlm256|smolvlm500     the house's vision model answers the tasks that have one
+#     haro run.haro score <answers file> <label>      scores an answers file written by any other means
+#
+# From this folder, with STZ_ENGINE_DIR set (an engine with stz_neural.dll) and, for the vision models, STZ_MODELS_DIR
+# (the folder holding vision/smolvlm_*.gguf). A model run is a heavy job: one at a time.
+# Run `haro pictures.haro` once before a vision run.
+#
+# tasks.tsv holds ten tasks for each of five clusters: text, data, agents, seeing, systems. A task's kind says how its
+# reply is read:
+#
+#     choice   the first capital A, B, C or D standing alone in the reply
+#     word     an accepted word (the expected column, alternatives joined by |) among the reply's first eight words,
+#              in small letters; a reply that offers a choice ("yes or no: ...") before such a word fails
+#     number   the first number in the reply, a comma read as a point and trailing zeros after it dropped
+#
+# An answers file (for `score`) holds one line a task: the task id, a tab, the reply on one line.
+#
+# Writes answers/<label>.tsv (the replies) and results/<label>.txt (one line a task, then the score by cluster).
+# Greedy decoding, 24 new tokens at most a reply.
+
+load "../../stzBase.ring"
+load "../codebench/bench_lib.haro"
+
+$nMaxNew = 24
+$tSystem = "Answer the question. Give only the answer, with no explanation."
+$tLabel = ""
+
+tFirst = ""
+tSecond = ""
+nArgs = Len(SysArgv)
+for i = 1 to nArgs
+	if Right(SysArgv[i], 8) = "run.haro" and i + 2 <= nArgs
+		tFirst = SysArgv[i + 1]
+		tSecond = SysArgv[i + 2]
+		if tFirst = "score" and i + 3 <= nArgs
+			$tLabel = SysArgv[i + 3]
+		end
+	end
+end
+if tFirst = "" or (tFirst = "score" and $tLabel = "")
+	? "usage: haro run.haro <label> <model file|smolvlm256|smolvlm500>   |   haro run.haro score <answers file> <label>"
+	Shutdown(2)
+end
+
+vTasks = ReadTsv("tasks.tsv")
+vIds = []
+vReplies = []
+nStart = Clock()
+
+if tFirst = "score"
+	vLines = Split(Read(tSecond), Char(10))
+	for i = 1 to Len(vLines)
+		tLine = Trim2(vLines[i])
+		nTab = IndexOf(Char(9), tLine)
+		if nTab > 0
+			vIds + Left(tLine, nTab - 1)
+			vReplies + OneLine(SubStr(tLine, nTab + 1, Len(tLine) - nTab))
+		end
+	end
+else
+	$tLabel = tFirst
+	bVision = (tSecond = "smolvlm256" or tSecond = "smolvlm500")
+	LoadLib(Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/stz_neural.dll")
+	tProjector = ""
+	if bVision
+		tSize = "256m"
+		if tSecond = "smolvlm500"
+			tSize = "500m"
+		end
+		tProjector = StzVisionModelPath("smolvlm_" + tSize + "_mmproj.gguf")
+		if StzEngineNeuralModelLoad(StzVisionModelPath("smolvlm_" + tSize + ".gguf")) = 0
+			? "the vision decoder was refused, status " + String(StzEngineNeuralModelLoadStatus())
+			Shutdown(1)
+		end
+	else
+		if StzEngineNeuralModelLoad(Slashes(tSecond)) = 0
+			? "the model load was refused, status " + String(StzEngineNeuralModelLoadStatus())
+			Shutdown(1)
+		end
+	end
+	for i = 2 to Len(vTasks)
+		vT = vTasks[i]
+		bPicture = (vT[4] != "")
+		if bPicture != bVision
+			loop
+		end
+		tAsk = Expand(vT[5]) + " " + Instruction(vT[3])
+		tReply = ""
+		if bVision
+			# the prompt SmolVLM was trained on, as stzImage's own picture-in-words faculty writes it
+			oImg = StzImageQ(CurrentDir() + "/pictures/" + vT[4])
+			tReply = StzEngineNeuralVlmDescribe(tProjector, oImg.Pixels(), oImg.Width(), oImg.Height(), oImg.Channels(), "<|im_start|>User:<fake_token_around_image><global-img>", "<fake_token_around_image>" + tAsk + "<end_of_utterance>" + Char(10) + "Assistant:", $nMaxNew, 4)
+			oImg.Release()
+		else
+			tReply = StzEngineNeuralGenerate(Prompt($tSystem, tAsk), $nMaxNew)
+		end
+		tReply = OneLine(tReply)
+		vIds + vT[2]
+		vReplies + tReply
+		? vT[2] + "  " + Left(tReply, 70)
+	end
+	tOut = ""
+	for i = 1 to Len(vIds)
+		tOut = tOut + vIds[i] + Char(9) + vReplies[i] + Char(10)
+	end
+	MakeDir("answers")
+	Write("answers/" + $tLabel + ".tsv", tOut)
+end
+
+# the verdicts
+tOut = "Area-cluster benchmark -- " + $tLabel + Char(10) + Char(10)
+vKeys = []
+vAll = []
+vPassKeys = []
+vPass = []
+for i = 2 to Len(vTasks)
+	vT = vTasks[i]
+	nAt = 0
+	for p = 1 to Len(vIds)
+		if vIds[p] = vT[2]
+			nAt = p
+		end
+	end
+	if nAt = 0
+		loop
+	end
+	tVerdict = "fail"
+	if Agrees(vT[3], vReplies[nAt], vT[6])
+		tVerdict = "pass"
+	end
+	tOut = tOut + Row([ tVerdict, vT[2], vT[6], Left(vReplies[nAt], 80) ])
+	Bump(vKeys, vAll, vT[1])
+	Bump(vKeys, vAll, "all")
+	if tVerdict = "pass"
+		Bump(vPassKeys, vPass, vT[1])
+		Bump(vPassKeys, vPass, "all")
+	end
+end
+tSum = Char(10) + "cluster      pass / tasks" + Char(10)
+for i = 1 to Len(vKeys)
+	nP = 0
+	for p = 1 to Len(vPassKeys)
+		if vPassKeys[p] = vKeys[i]
+			nP = vPass[p]
+		end
+	end
+	tName = vKeys[i]
+	while Len(tName) < 12
+		tName = tName + " "
+	end
+	tSum = tSum + "  " + tName + String(nP) + " / " + String(vAll[i]) + Char(10)
+end
+tSum = tSum + Char(10) + String(Floor((Clock() - nStart) / ClocksPerSecond())) + " s" + Char(10)
+? $tLabel + ":"
+? tSum
+MakeDir("results")
+Write("results/" + $tLabel + ".txt", tOut + tSum)
+
+
+func Instruction(tKind)
+	if tKind = "choice"
+		return "Answer with the letter only."
+	end
+	if tKind = "number"
+		return "Answer with the number only."
+	end
+	return "Answer with one word only."
+end
+
+# a task's question, its \n written as new lines
+func Expand(tQ)
+	vParts = Split(tQ, Char(92) + "n")
+	tOut = ""
+	for i = 1 to Len(vParts)
+		if i > 1
+			tOut = tOut + Char(10)
+		end
+		tOut = tOut + vParts[i]
+	end
+	return tOut
+end
+
+# a reply on one line, cut at its first template token: a model that writes past its end of turn goes on into the
+# template's own tokens (<|end_of_role|>, <|start_of_role|>), and what follows them is not its answer
+func OneLine(tReply)
+	vEnds = [ "<|", "<turn|>", "<end_of_utterance>" ]
+	for p = 1 to Len(vEnds)
+		nEnd = SubStr(tReply, vEnds[p])
+		if nEnd > 0
+			tReply = Left(tReply, nEnd - 1)
+		end
+	end
+	tOut = ""
+	nLen = Len(tReply)
+	for i = 1 to nLen
+		tC = tReply[i]
+		if tC = Char(10) or tC = Char(13) or tC = Char(9)
+			tOut = tOut + " "
+		else
+			tOut = tOut + tC
+		end
+	end
+	return Trim2(tOut)
+end
+
+func Agrees(tKind, tReply, tExpected)
+	if tKind = "choice"
+		return ChoiceOf(tReply) = tExpected
+	end
+	if tKind = "number"
+		return NumberText(FirstNumber(tReply)) = NumberText(tExpected)
+	end
+	vWords = WordsOf(StzLower(tReply))
+	vOk = Split(StzLower(tExpected), "|")
+	nTop = Len(vWords)
+	if nTop > 8
+		nTop = 8
+	end
+	for i = 1 to nTop
+		for p = 1 to Len(vOk)
+			if vWords[i] = vOk[p]
+				return true
+			end
+		end
+		if vWords[i] = "or"
+			return false
+		end
+	end
+	return false
+end
+
+# the first capital A to D with no letter or digit on either side
+func ChoiceOf(tReply)
+	nLen = Len(tReply)
+	for i = 1 to nLen
+		tC = tReply[i]
+		if tC = "A" or tC = "B" or tC = "C" or tC = "D"
+			bBefore = (i = 1)
+			if i > 1
+				bBefore = not IsWordByte(tReply[i - 1])
+			end
+			bAfter = (i = nLen)
+			if i < nLen
+				bAfter = not IsWordByte(tReply[i + 1])
+			end
+			if bBefore and bAfter
+				return tC
+			end
+		end
+	end
+	return ""
+end
+
+# letters, digits, the underscore and every byte of a multibyte character belong to a word
+func IsWordByte(tC)
+	if IsAlnum(tC) or tC = "_"
+		return true
+	end
+	return Ascii(tC) >= 128
+end
+
+func WordsOf(tText)
+	vOut = []
+	tCur = ""
+	nLen = Len(tText)
+	for i = 1 to nLen
+		tC = tText[i]
+		if IsWordByte(tC)
+			tCur = tCur + tC
+		else
+			if tCur != ""
+				vOut + tCur
+			end
+			tCur = ""
+		end
+	end
+	if tCur != ""
+		vOut + tCur
+	end
+	return vOut
+end
+
+func FirstNumber(tReply)
+	tOut = ""
+	nLen = Len(tReply)
+	for i = 1 to nLen
+		tC = tReply[i]
+		if IsDigit(tC)
+			tOut = tOut + tC
+		elseif (tC = "." or tC = ",") and tOut != "" and i < nLen and IsDigit(tReply[i + 1])
+			tOut = tOut + "."
+		elseif tOut != ""
+			return tOut
+		end
+	end
+	return tOut
+end
+
+# a number's text with trailing zeros after its point dropped
+func NumberText(tN)
+	tN = StzReplace(tN, ",", ".")
+	if IndexOf(".", tN) = 0
+		return tN
+	end
+	while Right(tN, 1) = "0"
+		tN = Left(tN, Len(tN) - 1)
+	end
+	if Right(tN, 1) = "."
+		tN = Left(tN, Len(tN) - 1)
+	end
+	return tN
+end
+
+# the model's chat template, chosen by the label: bolt; granite (4.0's role markers); else ChatML, with the thinking
+# left empty for qwen3, lfm3 and granite42 (4.2), as each one's own tests write it -- a thinking model spends its 24
+# tokens before it answers
+func Prompt(tSys, tUser)
+	if Left($tLabel, 4) = "bolt"
+		return "<|turn>system" + Char(10) + tSys + "<turn|>" + Char(10) + "<|turn>user" + Char(10) + tUser + "<turn|>" + Char(10) + "<|turn>model" + Char(10)
+	end
+	if Left($tLabel, 7) = "granite" and Left($tLabel, 9) != "granite42"
+		return "<|start_of_role|>system<|end_of_role|>" + tSys + "<|end_of_text|>" + Char(10) + "<|start_of_role|>user<|end_of_role|>" + tUser + "<|end_of_text|>" + Char(10) + "<|start_of_role|>assistant<|end_of_role|>"
+	end
+	tChat = "<|im_start|>system" + Char(10) + tSys + "<|im_end|>" + Char(10) + "<|im_start|>user" + Char(10) + tUser + "<|im_end|>" + Char(10) + "<|im_start|>assistant" + Char(10)
+	if Left($tLabel, 5) = "qwen3"
+		return tChat + "<think>" + Char(10) + Char(10) + "</think>" + Char(10) + Char(10)
+	end
+	if Left($tLabel, 4) = "lfm3"
+		return "<|startoftext|>" + tChat + "<think></think>"
+	end
+	if Left($tLabel, 9) = "granite42"
+		return tChat + "<think></think>"
+	end
+	return tChat
+end
+
+func ReadTsv(tPath)
+	vOut = []
+	vLines = Split(Read(tPath), Char(10))
+	for i = 1 to Len(vLines)
+		tLine = vLines[i]
+		if Len(tLine) > 0 and Right(tLine, 1) = Char(13)
+			tLine = Left(tLine, Len(tLine) - 1)
+		end
+		if Len(tLine) > 0
+			vOut + Split(tLine, Char(9))
+		end
+	end
+	return vOut
+end
+
+# a path with its backslashes written as slashes
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for i = 1 to nLen
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end

@@ -1,0 +1,91 @@
+# THE AREA-CLUSTER BENCHMARK -- the ten pictures of the seeing cluster, drawn by stzCanvas.
+#
+#     haro pictures.haro            (from this folder; STZ_ENGINE_DIR set; draws on the GPU: one such process at a time)
+#
+# Writes pictures/see01.png .. see10.png. Each picture answers one question of tasks.tsv, and the drawing below is
+# its ground truth: a colour, a count, a position, a word. A polygon and a polyline take a flat list of coordinates:
+# a list of pairs draws nothing (the warning on stzCanvas.AddPolygon).
+
+load "../../stzBase.ring"
+
+tFont = "C:/Windows/Fonts/segoeui.ttf"
+oFont = new stzFont(tFont)
+MakeDir("pictures")
+
+# 1 one red circle
+oC = new stzCanvas(384, 384)
+oC.SetBackground("#ffffff")
+oC.AddCircleQ(192, 192, 110).Fill("#d62020")
+oC.ToPNG("pictures/see01.png")
+
+# 2 three blue squares in a row
+oC = new stzCanvas(384, 384)
+oC.SetBackground("#ffffff")
+for i = 1 to 3
+	oC.AddRectQ(30 + (i - 1) * 120, 140, 90, 90).Fill("#1f4fd0")
+end
+oC.ToPNG("pictures/see02.png")
+
+# 3 a bar chart of three bars, the middle one tallest
+oC = new stzCanvas(384, 384)
+oC.SetBackground("#ffffff")
+oC.AddRectQ(50, 220, 80, 130).Fill("#2a9d4a")
+oC.AddRectQ(152, 60, 80, 290).Fill("#2a9d4a")
+oC.AddRectQ(254, 170, 80, 180).Fill("#2a9d4a")
+oC.AddLineQ(30, 350, 354, 350).Stroke("#000000", 3)
+oC.ToPNG("pictures/see03.png")
+
+# 4 a yellow triangle
+oC = new stzCanvas(384, 384)
+oC.SetBackground("#ffffff")
+oC.AddPolygonQ([ 192, 50, 340, 320, 44, 320 ]).Fill("#f0c000")
+oC.ToPNG("pictures/see04.png")
+
+# 5 a large circle on the left, a small one on the right
+oC = new stzCanvas(384, 384)
+oC.SetBackground("#ffffff")
+oC.AddCircleQ(120, 192, 95).Fill("#202020")
+oC.AddCircleQ(300, 192, 35).Fill("#202020")
+oC.ToPNG("pictures/see05.png")
+
+# 6 the number 42
+oC = new stzCanvas(384, 384)
+oC.SetBackground("#ffffff")
+oC.SetFontQ(oFont, 160).AddTextQ("42", (384 - oFont.WidthOf("42", 160)) / 2, 250).Fill("#000000")
+oC.ToPNG("pictures/see06.png")
+
+# 7 the word STOP, white on a red octagon-like square
+oC = new stzCanvas(384, 384)
+oC.SetBackground("#ffffff")
+oC.AddRoundRectQ(42, 92, 300, 200, 30).Fill("#cc1010")
+oC.SetFontQ(oFont, 96).AddTextQ("STOP", (384 - oFont.WidthOf("STOP", 96)) / 2, 225).Fill("#ffffff")
+oC.ToPNG("pictures/see07.png")
+
+# 8 a line chart that rises from left to right
+oC = new stzCanvas(384, 384)
+oC.SetBackground("#ffffff")
+oC.AddLineQ(30, 350, 354, 350).Stroke("#000000", 2)
+oC.AddLineQ(30, 30, 30, 350).Stroke("#000000", 2)
+oC.AddPolylineQ([ 40, 330, 110, 290, 180, 240, 250, 150, 340, 50 ]).Stroke("#1f4fd0", 6)
+oC.ToPNG("pictures/see08.png")
+
+# 9 a diagram: two boxes joined by a line
+oC = new stzCanvas(384, 384)
+oC.SetBackground("#ffffff")
+oC.AddRectQ(30, 150, 110, 80).Fill("#e8eef8")
+oC.AddRectQ(30, 150, 110, 80).Stroke("#1f2f50", 3)
+oC.AddRectQ(244, 150, 110, 80).Fill("#e8eef8")
+oC.AddRectQ(244, 150, 110, 80).Stroke("#1f2f50", 3)
+oC.AddLineQ(140, 190, 244, 190).Stroke("#1f2f50", 3)
+oC.ToPNG("pictures/see09.png")
+
+# 10 five black dots
+oC = new stzCanvas(384, 384)
+oC.SetBackground("#ffffff")
+vDots = [ [ 80, 90 ], [ 290, 80 ], [ 190, 190 ], [ 90, 300 ], [ 300, 290 ] ]
+for i = 1 to Len(vDots)
+	oC.AddCircleQ(vDots[i][1], vDots[i][2], 28).Fill("#000000")
+end
+oC.ToPNG("pictures/see10.png")
+
+? "10 pictures in pictures/"

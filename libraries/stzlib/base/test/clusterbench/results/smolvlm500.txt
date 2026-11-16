@@ -1,0 +1,18 @@
+Area-cluster benchmark -- smolvlm500
+
+pass	see01	red	Red.
+pass	see02	3	3
+fail	see03	middle|center|centre|second	The right one.
+pass	see04	triangle	Triangle.
+pass	see05	left	Left.
+pass	see06	42	42.
+pass	see07	stop	STOP.
+fail	see08	up|rises|rising|increases|upward	Down.
+fail	see09	2	3
+pass	see10	5	5
+
+cluster      pass / tasks
+  seeing      7 / 10
+  all         7 / 10
+
+14 s
