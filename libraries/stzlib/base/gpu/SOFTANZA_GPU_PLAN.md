@@ -4856,6 +4856,36 @@ scheduler with no second job would be GQ1's "planner with one candidate". The fi
 fabric embedding a corpus while it answers a query, takes the rule above and the probe as its check: run the probe with
 its own step and job, and choose the slice from the table it prints.
 
+## SUBSTRATE-COMPTIME-01 STATUS — the matmul kernel texts are built at run time, and a rebuild is three times faster (2026-11-16)
+
+**The finding** (the substrate-poc desk, routed by Central 2026-10-30): `gpu_ops.zig` generated its 35 matmul kernel
+texts (every variant, with and without a bias, f32 and f16 weights, the split-K pass and its reduce) by compile-time
+string concatenation. The desk measured 118 s cold and 84 s after a one-line edit of an unrelated file; a Rust twin made
+the same texts in 1.25 ms. GQ1 met the same cost from the other side: one compile-time replace held 7.5 GB.
+
+**What landed.** The generators write into a buffer at run time, the first time a text is asked for, and keep it per
+(variant, bias, f16), as `mmSourceTri` already did. The format strings are the old ones; the only change of shape is
+that a placeholder replaced after the fact (`BREAD`, split-K's `gk < klim` and its store) is now written in place.
+Callers are unchanged: `gpu_foundry.zig`, `neural_backbone.zig` and `neural_vit.zig` compile as they were.
+
+**The texts are the same, byte for byte.** A harness made from the matmul section of the file, once before and once
+after, dumps all 51 texts (the 35, and GQ1's 16 three-output variants): 750,091 bytes, `diff -r` empty, one hash over
+both trees. The same harness compiled in 127.3 s with the old generators and 12.6 s with the new.
+
+**The build, timed** (haro's `build_engine.py`, `zig build -j2`, stz_gpu only, a model run of another desk on the machine
+for both arms; the rebuilds alternated old, new, old, new):
+
+| | old (44bb15bb2) | new (2e2c6277f) |
+|---|---|---|
+| a rebuild after a one-line edit of gpu_foundry.zig | 61.8 s, 54.7 s | 19.9 s, 19.2 s |
+| from an empty folder (old first, so the shared cache favours new) | 121 s | 83 s |
+
+The inner-loop figure is the rebuild: about 38 s saved on every edit of any file stz_gpu compiles. stz_neural, which
+compiles `gpu_ops.zig` too, builds clean from the new commit (51 s from an empty folder).
+
+**Guards on the new engine** (haro.exe, RTX 3050): gpu_ops 37, gpu_foundry_matmul 31 (every variant and split-K),
+gpu_batch 13, gpu_verify 39, gpu_f16 23 with the new stz_neural -- 143 assertions, all pass.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
