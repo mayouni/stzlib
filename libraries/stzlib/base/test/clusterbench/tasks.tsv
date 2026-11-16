@@ -49,3 +49,13 @@ systems	sys07	choice		Two threads each add 1 to a shared counter 1000 times, wit
 systems	sys08	choice		A loop reads a 2 MB string one character at a time with substr(s, i, 1) and takes 18 seconds. Which change makes it fast?\nA) index the character directly with s[i]\nB) add more RAM\nC) run the loop twice\nD) convert the string to upper case first	A
 systems	sys09	choice		Which command line follows the rule that a secret is named, never typed?\nA) curl -H 'Authorization: Bearer $API_TOKEN' https://api.example.org\nB) curl -H 'Authorization: Bearer abc123-not-a-key' https://api.example.org\nC) both\nD) neither	A
 systems	sys10	choice		On Windows, a GPU kernel that runs for more than about 2 seconds makes the device 'lost'. What is the usual cause?\nA) the driver's timeout detection and recovery (TDR) resets the GPU\nB) the GPU ran out of colours\nC) the screen resolution is too high\nD) the kernel was too short	A
+hearing	hear01	heard	fr01.wav	Le rendez-vous est fixé à quinze heures, devant la mairie.	15|quinze+mairie
+hearing	hear02	heard	fr02.wav	Le prix du kilo de semoule est de deux dinars.	semoule+2|deux
+hearing	hear03	heard	fr03.wav	Envoyez la facture à l'agence de Sfax avant vendredi.	facture+sfax+vendredi
+hearing	hear04	heard	fr04.wav	Nous sommes le douze novembre deux mille vingt-six.	12|douze+novembre+2026
+hearing	hear05	heard	fr05.wav	Remplace toutes les voyelles par des étoiles.	voyelles+étoiles|etoiles
+hearing	hear06	heard	en01.wav	The server restarted at nine fifteen this morning.	server+restarted
+hearing	hear07	heard	en02.wav	Please sort the list in descending order.	sort+descending
+hearing	hear08	heard	en03.wav	Find every occurrence of the word Softanza.	occurrence|occurrences+softanza
+hearing	hear09	language	fr02.wav	Le prix du kilo de semoule est de deux dinars.	fr
+hearing	hear10	language	en02.wav	Please sort the list in descending order.	en

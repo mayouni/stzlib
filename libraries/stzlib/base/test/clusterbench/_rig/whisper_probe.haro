@@ -1,0 +1,40 @@
+# Whisper through the engine, on one recording: its transcript, the language heard, the time of each stage, and (with a
+# folder) the log-mel, the encoder's rows and the first step's logits as raw float32, for whisper_reference.py's parity check.
+#
+#     haro _rig/whisper_probe.haro <ggml-small.bin> <recording.wav> [<folder>]      (STZ_ENGINE_DIR set)
+
+load "../../stzBase.ring"
+
+tModel = ""
+tWav = ""
+tOut = ""
+nArgs = Len(SysArgv)
+for i = 1 to nArgs
+	if Right(SysArgv[i], 18) = "whisper_probe.haro" and i + 2 <= nArgs
+		tModel = SysArgv[i + 1]
+		tWav = SysArgv[i + 2]
+		if i + 3 <= nArgs
+			tOut = SysArgv[i + 3]
+		end
+	end
+end
+if tWav = ""
+	? "usage: haro _rig/whisper_probe.haro <ggml-small.bin> <recording.wav> [<folder>]"
+	Shutdown(2)
+end
+LoadLib(SysGet("STZ_ENGINE_DIR") + "/zig-out/bin/stz_neural.dll")
+tText = StzEngineNeuralWhisperTranscribe(tModel, tWav, "auto", 96, 4)
+if tText = ""
+	? "error: " + StzEngineNeuralOcrGraphError()
+	Shutdown(1)
+end
+vS = StzEngineNeuralWhisperStats()
+? "language" + Char(9) + StzEngineNeuralWhisperLanguage()
+? "text" + Char(9) + tText
+? "ms" + Char(9) + "mel " + String(Floor(vS[1])) + ", encoder " + String(Floor(vS[2])) + ", decoding " + String(Floor(vS[3])) + ", tokens " + String(vS[4])
+if tOut != ""
+	vWhich = [ "mel", "encoder", "logits" ]
+	for i = 1 to 3
+		Write(tOut + "/" + vWhich[i] + ".f32", StzEngineNeuralWhisperDump(vWhich[i]))
+	end
+end

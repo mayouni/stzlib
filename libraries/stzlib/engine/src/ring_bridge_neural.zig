@@ -13,6 +13,7 @@ const R = @import("ring_api.zig");
 const ocrg = @import("ocr_graph.zig"); // O3: PP-OCR graphs on ggml
 const ocrp = @import("ocr_pipeline.zig"); // O3b: an image file in, its text lines out
 const vlm = @import("vlm.zig"); // IM7: the vision half of a vision-language model
+const whisper = @import("whisper.zig"); // CLUSTERBENCH-02: hearing -- Whisper's speech recognition
 const nvit = @import("neural_vit.zig"); // IM8a: that tower, resident on the GPU
 const wts = @import("weights.zig"); // WSP: tensors read, digested, patched by name
 const owl = @import("owl.zig"); // IM9f: find what words name in a picture
@@ -1478,6 +1479,58 @@ fn ring_VisionGpuStats(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ---- CLUSTERBENCH-02: hearing -------------------------------------------------------------------------------
+
+// (cModel, cWavFile, cLanguage, nMaxTokens, nThreads) -> the words of a 16 kHz mono 16-bit recording (its first 30 s),
+// greedy; cLanguage is a code ("fr", "en", "ha", "ar") or "auto" for the one the model hears. "" on failure, the error
+// in StzEngineNeuralOcrGraphError(). The model is whisper.cpp's file, loaded with its recorded sha256 and kept.
+fn ring_WhisperTranscribe(p: *anyopaque) callconv(.c) void {
+    const A = std.heap.c_allocator;
+    const wav = std.fs.cwd().readFileAlloc(A, ocrArg(p, 2), 64 << 20) catch {
+        ocrg.setError("whisper: cannot read the recording {s}", .{ocrArg(p, 2)});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    };
+    defer A.free(wav);
+    if (!ran("hear", ocrArg(p, 1), wav.len)) return R.ring_vm_api_retstring2(p, "", 0);
+    const m = whisper.load(ocrArg(p, 1)) orelse {
+        ocrg.setError("{s}", .{whisper.lastError()});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    };
+    const pcm = whisper.wavSamples(wav) catch |e| {
+        ocrg.setError("whisper: the recording {s} is not one this reads ({s}: 16 kHz, mono, 16-bit PCM)", .{ ocrArg(p, 2), @errorName(e) });
+        return R.ring_vm_api_retstring2(p, "", 0);
+    };
+    defer A.free(pcm);
+    const n0: f64 = R.ring_vm_api_getnumber(p, 4);
+    const n_max: usize = if (n0 < 1 or n0 > 440) 96 else @intFromFloat(n0);
+    const th0: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 5));
+    const text = whisper.transcribe(m, pcm, ocrArg(p, 3), n_max, if (th0 < 1) 4 else th0) catch |e| {
+        if (whisper.lastError().len == 0) ocrg.setError("whisper: {s}", .{@errorName(e)}) else ocrg.setError("{s}", .{whisper.lastError()});
+        return R.ring_vm_api_retstring2(p, "", 0);
+    };
+    defer A.free(text);
+    R.ring_vm_api_retstring2(p, text.ptr, @intCast(text.len));
+}
+
+// () -> the language code the last StzEngineNeuralWhisperTranscribe used (the one heard, with "auto")
+fn ring_WhisperLanguage(p: *anyopaque) callconv(.c) void {
+    const l = whisper.language();
+    R.ring_vm_api_retstring2(p, l.ptr, @intCast(l.len));
+}
+
+// () -> [ the log-mel's ms, the encoder's ms, the decoding's ms, tokens made ] of the last transcription
+fn ring_WhisperStats(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (whisper.stats()) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
+// (cWhich) -> the last recording's "mel", "encoder" or "logits" (its first step) as float32 bytes, for a parity check
+fn ring_WhisperDump(p: *anyopaque) callconv(.c) void {
+    const v = whisper.dump(ocrArg(p, 1));
+    R.ring_vm_api_retstring2(p, @ptrCast(v.ptr), @intCast(v.len * 4));
+}
+
 // () -> [ the picture's ms, the words' ms, tokens made ] of the last StzEngineNeuralVlmDescribe
 fn ring_VlmStats(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
@@ -1847,6 +1900,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralvlmlastms", .func = &ring_VlmLastMs },
     .{ .name = "stzengineneuralvlmfeed", .func = &ring_VlmFeed },
     .{ .name = "stzengineneuralvlmdescribe", .func = &ring_VlmDescribe },
+    .{ .name = "stzengineneuralwhispertranscribe", .func = &ring_WhisperTranscribe },
+    .{ .name = "stzengineneuralwhisperlanguage", .func = &ring_WhisperLanguage },
+    .{ .name = "stzengineneuralwhisperstats", .func = &ring_WhisperStats },
+    .{ .name = "stzengineneuralwhisperdump", .func = &ring_WhisperDump },
     .{ .name = "stzengineneuralvisiongpu", .func = &ring_VisionGpu },
     .{ .name = "stzengineneuralvisiongpustats", .func = &ring_VisionGpuStats },
     .{ .name = "stzengineneuralvisiongpumessage", .func = &ring_VisionGpuMessage },
