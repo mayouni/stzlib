@@ -1,0 +1,1 @@
+{"testoor":"logbook","kind":"impact","protocol":3,"subject":"inv","changed":["Vat"],"method":"Vat","complete":true,"why":"","names":["vat","gross","label","add"],"selected":["t_gross.haro","t_label.haro"],"skipped":[],"reach":["Vat","Gross","Label","Invoice.Add"],"widened":[],"capped":[]}

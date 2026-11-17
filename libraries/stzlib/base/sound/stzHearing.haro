@@ -1,0 +1,292 @@
+#--------------------------------------------------------------#
+#      SOFTANZA LIBRARY (V1.2) - STZHEARING                    #
+#--------------------------------------------------------------#
+#                                                              #
+#   Description  : the two hearing faculties, sound -> text.   #
+#                  :transcribe writes the words of a recording;#
+#                  :spoken-language names its language. Both   #
+#                  run Whisper small on the engine's own graph #
+#                  (engine/src/whisper.zig), from              #
+#                  <models>/speech/ggml-small.bin, recorded    #
+#                  with its sha256 in models/MODELS.md.        #
+#                                                              #
+#--------------------------------------------------------------#
+
+# The registry chooses between a floor and a model by the measurements shipped beside this file
+# (base/sound/hearing.zmdl.txt) and the court's evidence (base/sound/hearing.court.txt), written by
+# base/test/clusterbench/measure.haro on its golden sets:
+#
+#   :transcribe        audio -> text    floor "nothing" (no words); judged by heard-groups: every group of
+#                                       expected key words is inside the transcript (groups joined by +,
+#                                       alternatives by |), or by word error rate for an expected value written
+#                                       "wer<=50%:<reference>"; golden set hearing-v3, measured PER LANGUAGE:
+#                                       the key-word tasks and ten fresh FLEURS recordings in each of French,
+#                                       English, Arabic and Hausa, judged by word error rate (fleurs_v3.tsv).
+#                                       The court, per language: Whisper small for French (0.87), English
+#                                       (0.92) and Arabic (0.83); the Hausa model for Hausa (0.75, where
+#                                       Whisper small has 0), 9 items gained and none lost.
+#                                       hearing-v2, on record: the key-word tasks of the
+#                                       hearing and hearing-local clusters (French, English, Arabic, Hausa)
+#                                       and ten fresh FLEURS Hausa recordings whose key words a rule fixed
+#                                       before any model heard them (hausa_fresh.tsv). Implementations:
+#                                       Whisper small, chosen (7 items gained on the floor, none lost), and
+#                                       Whisper small trained on Hausa (EqualyzAI's african_voices_hausa_small,
+#                                       Apache-2.0, converted into the engine's form), measured and not chosen:
+#                                       2 of the 12 Hausa items against 0, too few for the court
+#   :spoken-language   audio -> label   floor "prior" (the setting's first language, fr); judged by the
+#                                       language code; golden set spoken-language-v1, twenty FLEURS
+#                                       recordings, five each of French, English, Arabic and Hausa
+#
+# A recording is a WAV file, 16 kHz mono, 16-bit PCM or 32-bit float: its path, or the record
+# [ [:audio, path], [:language, code] ]. Call parameters:
+#
+#   :language   a code ("fr", "ar", "ha", ...) or "auto" (the default) for the language the model hears; a call
+#               that names a language is resolved on that language's measurements
+#   :words      the words the recording is expected to hold (names, places, terms of the setting), read by
+#               the model before it listens, so a word it hears is spelled as they spell it; "" for none
+#
+#   example    ? StzFacultyQ("transcribe").Run("recordings/fr01.wav", [])
+#              ? StzFacultyQ("transcribe").Run("recordings/fr03.wav", [ [:words, "Sfax, semoule, Softanza"] ])
+#              ? StzFacultyQ("transcribe").Run("recordings/ha01.wav", [ [:language, "ha"] ])
+#              ? StzFacultyQ("spoken-language").Run("recordings/fr02.wav", [])
+
+$tStzHearingModel = "ggml-small.bin"
+$tStzHearingHausaModel = "ggml-small-hausa.bin"
+
+# The folder the speech models are read from: <models>/speech.
+func StzHearingModelsDir
+	return StzModelsDir() + "/speech"
+end
+
+# The full path of the speech model.
+func StzHearingModelPath
+	return StzHearingModelsDir() + "/" + $tStzHearingModel
+end
+
+# The full path of the speech model trained on Hausa.
+func StzHearingHausaModelPath
+	return StzHearingModelsDir() + "/" + $tStzHearingHausaModel
+end
+
+# The measurements shipped with the library, beside this file.
+func StzHearingMeasurementsFile
+	tBase = _StzBaseDir()
+	if tBase = ""
+		return ""
+	end
+	return tBase + "/sound/hearing.zmdl.txt"
+end
+
+func StzHearingCourtFile
+	tBase = _StzBaseDir()
+	if tBase = ""
+		return ""
+	end
+	return tBase + "/sound/hearing.court.txt"
+end
+
+# Declares the two hearing faculties (create-or-open) and loads their shipped measurements.
+func StzHearingDeclare
+	oT = StzFacultyQ("transcribe")
+	oT.SetInputTypeQ("audio").SetOutputTypeQ("text").SetFloorQ("nothing", "_StzHearingNothing").SetGoldenCheckerQ("heard-groups").SetGoldenVersionQ("hearing-v3").SetGoldenLanguageKeyQ("language")
+	if Len(StzFind("whisper-small", oT.ImplementationIds())) = 0
+		oT.AddImplementation([ [:id, "whisper-small"], [:kind, "graph"], [:fn, "_StzHearingWhisper"], [:needle, "speech/" + $tStzHearingModel], [:licence, "mit"], [:memory, 900] ])
+	end
+	if Len(StzFind("whisper-small-hausa", oT.ImplementationIds())) = 0
+		oT.AddImplementation([ [:id, "whisper-small-hausa"], [:kind, "graph"], [:fn, "_StzHearingWhisperHausa"], [:needle, "speech/" + $tStzHearingHausaModel], [:licence, "apache-2.0"], [:memory, 900], [:languages, [ "ha" ]] ])
+	end
+	oL = StzFacultyQ("spoken-language")
+	oL.SetInputTypeQ("audio").SetOutputTypeQ("label").SetFloorQ("prior", "_StzHearingPrior").SetGoldenCheckerQ("lower").SetGoldenVersionQ("spoken-language-v1")
+	if Len(StzFind("whisper-small", oL.ImplementationIds())) = 0
+		oL.AddImplementation([ [:id, "whisper-small"], [:kind, "graph"], [:fn, "_StzHearingWhisperLanguage"], [:needle, "speech/" + $tStzHearingModel], [:licence, "mit"], [:memory, 900] ])
+	end
+	tM = StzHearingMeasurementsFile()
+	if Len(StzMeasurementOf("spoken-language", "prior", "spoken-language-v1")) = 0 and tM != "" and FExists(tM)
+		StzLoadMeasurements(tM)
+	end
+	tC = StzHearingCourtFile()
+	if tC != "" and FExists(tC)
+		StzLoadCourt(tC)
+	end
+end
+
+# heard-groups: every group of pxExpected (groups joined by +, alternatives by |) is inside the transcript, in
+# small letters ("15h" holds "15"). An expected value written "wer<=50%:<reference>" is judged instead by the word
+# error rate of the transcript against the reference: it agrees at that rate or below (StzHearingWer).
+func StzHeardAgree(pxGot, pxExpected)
+	tExpected = "" + pxExpected
+	if Left(tExpected, 5) = "wer<="
+		nColon = Len(StzFind(":", tExpected))
+		if nColon = 0
+			return false
+		end
+		nAt = StzFind(":", tExpected)[1]
+		nMax = Number(SubStr(tExpected, 6, nAt - 7))    # the whole percent between "wer<=" and "%:"
+		# the prefix is ASCII, so the colon's place counts bytes as well as characters; the bar is applied to the counts
+		# (errors at most bar x reference words), which stays exact where a rate would need a rounded quotient
+		vE = StzHearingWordErrors(Right(tExpected, Len(tExpected) - nAt), "" + pxGot)
+		return vE[2] > 0 and vE[1] * 100 <= nMax * vE[2]
+	end
+	tHeard = StzLower("" + pxGot)
+	vGroups = Split(StzLower("" + pxExpected), "+")
+	nLen = Len(vGroups)
+	for i = 1 to nLen
+		bFound = false
+		vAlt = Split(vGroups[i], "|")
+		nAlt = Len(vAlt)
+		for j = 1 to nAlt
+			if vAlt[j] != "" and Len(StzFind(vAlt[j], tHeard)) > 0
+				bFound = true
+			end
+		end
+		if not bFound
+			return false
+		end
+	end
+	return nLen > 0
+end
+
+# The word error rate of tHyp against tRef, as a float: the fewest words inserted, deleted or replaced to turn one into
+# the other, over the reference's words. Both are put in small letters, punctuation is removed and Hausa's hooked
+# letters read as plain ones (FLEURS writes them in some words and not in others). 1 when the reference has no words.
+func StzHearingWer(tRef, tHyp)
+	vE = StzHearingWordErrors(tRef, tHyp)
+	if vE[2] = 0
+		return Float(1)
+	end
+	return Float(vE[1]) / Float(vE[2])
+end
+
+# [ the word errors of tHyp against tRef, the reference's words ] -- the counts StzHearingWer divides
+func StzHearingWordErrors(tRef, tHyp)
+	vRef = _StzHearingWords(tRef)
+	vHyp = _StzHearingWords(tHyp)
+	nR = Len(vRef)
+	nH = Len(vHyp)
+	if nR = 0
+		return [ nH, 0 ]
+	end
+	vRow = []
+	for j = 0 to nH
+		vRow + j
+	end
+	for i = 1 to nR
+		vNew = [ i ]
+		for j = 1 to nH
+			nCost = 1
+			if vRef[i] = vHyp[j]
+				nCost = 0
+			end
+			nBest = vRow[j + 1] + 1
+			if vNew[j] + 1 < nBest
+				nBest = vNew[j] + 1
+			end
+			if vRow[j] + nCost < nBest
+				nBest = vRow[j] + nCost
+			end
+			vNew + nBest
+		end
+		vRow = vNew
+	end
+	return [ vRow[nH + 1], nR ]
+end
+
+func _StzHearingWords(tText)
+	tT = StzLower("" + tText)
+	vFrom = [ "ɓ", "ɗ", "ƙ", "ƴ", "'", "’", ".", ",", "?", "!", ";", ":", '"', "(", ")", "«", "»", "،", "؟", "؛", Char(9), Char(10), Char(13) ]
+	vTo = [ "b", "d", "k", "y", "", "", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " " ]
+	nF = Len(vFrom)
+	for i = 1 to nF
+		tT = StzReplace(tT, vFrom[i], vTo[i])
+	end
+	vParts = StzSplit(tT, " ")
+	vOut = []
+	nP = Len(vParts)
+	for i = 1 to nP
+		if vParts[i] != ""
+			vOut + vParts[i]
+		end
+	end
+	return vOut
+end
+
+# -- the floors ---------------------------------------------------------
+
+# no words: what a program hears without a speech model
+func _StzHearingNothing(pxInput, pxParams)
+	return ""
+end
+
+# the setting's first language, whatever the recording
+func _StzHearingPrior(pxInput, pxParams)
+	return "fr"
+end
+
+# -- Whisper small ------------------------------------------------------
+
+func _StzHearingParam(pxParams, tKey, tDefault)
+	if IsList(pxParams) and HasKey(pxParams, tKey)
+		return "" + pxParams[tKey]
+	end
+	return tDefault
+end
+
+# the recording's path: the input itself, or its :audio field
+func _StzHearingRecording(pxInput)
+	if IsList(pxInput) and HasKey(pxInput, "audio")
+		return "" + pxInput["audio"]
+	end
+	return "" + pxInput
+end
+
+# the language a call names: its :language parameter, else the input's :language field, else "auto"
+func _StzHearingLanguageOf(pxInput, pxParams)
+	tLang = _StzHearingParam(pxParams, "language", "")
+	if tLang = "" and IsList(pxInput) and HasKey(pxInput, "language")
+		tLang = "" + pxInput["language"]
+	end
+	if tLang = ""
+		tLang = "auto"
+	end
+	return tLang
+end
+
+# a missing model or recording is raised (the registry then falls back to the floor and says so); an empty transcript
+# of a recording that is there is an answer
+func _StzHearingCheck(tFaculty, tModel, tRecording)
+	if not FExists(tModel)
+		StzRaise(tFaculty + ": the speech model is not installed (" + tModel + ").")
+	end
+	if not FExists(tRecording)
+		StzRaise(tFaculty + ": no recording at " + tRecording + ".")
+	end
+end
+
+func _StzHearingTranscribe(tModel, pxInput, tLang, pxParams)
+	tRecording = _StzHearingRecording(pxInput)
+	_StzHearingCheck("transcribe", tModel, tRecording)
+	tWords = _StzHearingParam(pxParams, "words", "")
+	tText = ""
+	if tWords = ""
+		tText = StzEngineNeuralWhisperTranscribe(tModel, tRecording, tLang, 160, 4)
+	else
+		tText = StzEngineNeuralWhisperTranscribePrompted(tModel, tRecording, tLang, tWords, 160, 4)
+	end
+	return Trim(tText)
+end
+
+func _StzHearingWhisper(pxInput, pxParams)
+	return _StzHearingTranscribe(StzHearingModelPath(), pxInput, _StzHearingLanguageOf(pxInput, pxParams), pxParams)
+end
+
+# the model trained on Hausa hears Hausa, whatever the call names
+func _StzHearingWhisperHausa(pxInput, pxParams)
+	return _StzHearingTranscribe(StzHearingHausaModelPath(), pxInput, "ha", pxParams)
+end
+
+func _StzHearingWhisperLanguage(pxInput, pxParams)
+	tRecording = _StzHearingRecording(pxInput)
+	_StzHearingCheck("spoken-language", StzHearingModelPath(), tRecording)
+	tText = StzEngineNeuralWhisperTranscribe(StzHearingModelPath(), tRecording, "auto", 1, 4)
+	return StzEngineNeuralWhisperLanguage()
+end

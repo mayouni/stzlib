@@ -109,3 +109,18 @@ PP-OCR, Apache-2.0, converted by `engine/tools/onnx_to_gguf.py` from RapidOCR 3.
 **Each of `vision/` and `ocr/` carries a `SHA256SUMS`, GENERATED from the catalogue** (`StzModelSumsWrite()`; a guard checks they agree, and `sha256sum --strict -c SHA256SUMS` passes on all 26 lines). Since 2026-11-05 the engine parses a graph model or a vision-language projector only once its sha256 is the one recorded there -- a file with no line, or another digest, is refused before the GGUF parser reads a byte, as the decoders already were.
 
 **Publishing (MP3b, 2026-11-05).** The 17 files Softanza converted are prepared for Hugging Face, organisation `softanza`, nine repositories (the `repo` rows of `catalog.zcat`): `StzModelReleaseStage(version, folder, [])` writes each repository's folder -- the catalogued bytes, a model card, the licence text (`licences/`), a notice, `SHA256SUMS`, a manifest -- and `upload.ps1`, which the author runs with their own account. The 8 downloaded files are never republished: their upstream URL is their source. Nothing is published until a `release` row says so; then `StzModelFetchFile(path)` fetches a file from the release's hub revision, streamed to disk, and keeps it only with the sha256 written HERE.
+
+## The speech model (CLUSTERBENCH-02, 2026-11-16) -- `speech/`
+
+Downloaded with the author's yes ("Yes download Whisper", 2026-11-16) for the hearing cluster of the area-cluster benchmark
+(`base/test/clusterbench`). The engine runs it with `engine/src/whisper.zig` (the log-mel, the encoder, the decoder with
+cross-attention, on the vendored ggml) and loads it only with this digest, from a `SHA256SUMS` beside it; its parity is with
+the numpy implementation `base/test/clusterbench/_rig/whisper_reference.py`, which reads the same file.
+
+| file | what | size (bytes) | sha256 | licence | source |
+|---|---|---|---|---|---|
+| `speech/ggml-small.bin` | speech to text -- OpenAI Whisper small (244M parameters, 99 languages incl. French, Arabic and Hausa; encoder 12 layers, decoder 12 layers, 768 wide), in whisper.cpp's own file: hyperparameters, the 80 mel filters, the vocabulary's bytes, then the tensors (weights f16, biases and positions f32) | 487,601,967 | `1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b` | MIT (`licences/MIT-whisper.txt`, OpenAI's) | `huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin` (2026-11-16; size and sha256 verified against the listing) |
+| `speech/ggml-small-hausa.bin` | speech to text in Hausa -- Whisper small fine-tuned on the African Voices Hausa recordings by EqualyzAI (`african_voices_hausa_small`), CONVERTED here into the same whisper.cpp form: `ggml-small.bin`'s filters and vocabulary kept, its 479 tensors replaced by the fine-tune's (each within cosine 0.995 of its base) by `base/test/clusterbench/_rig/hf_whisper_to_ggml.py` | 487,601,967 | `72d8bec5841e760c980c24759ad2a8a78e4f7500d11c0edf0fd517be801e98e0` | Apache-2.0 (`licences/Apache-2.0.txt`) | `huggingface.co/Africanvoice/african_voices_hausa_small` `model.safetensors`, 966,992,208 bytes, sha256 `4d8e05182175817d9133dcfa7c60264232192e84e83109023ea412ea9d3a7d99` (2026-11-16, verified against the listing) |
+
+Its `catalog.zcat` rows: `file|speech/ggml-small.bin|...|download|...`, and `requires` rows for the two hearing faculties it
+serves, `:transcribe` and `:spoken-language` (`base/sound/stzHearing.haro`, WHISPER-CATALOG-01); `speech/SHA256SUMS` holds its digest.

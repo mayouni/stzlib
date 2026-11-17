@@ -28,6 +28,7 @@ fn ringlib_init(pState: ?*anyopaque) callconv(.c) void {
 test {
     _ = neural;
     _ = neural_embed;
+    _ = @import("whisper.zig");
     _ = model_digest;
     _ = schema_gbnf;
     _ = gbnf_machine;

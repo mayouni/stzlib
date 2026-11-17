@@ -21,13 +21,14 @@
 # (D:\GitHub\harobanda\zig-out\bin\harb.exe, or HARB_EXE) and says SKIPPED by name when it is not.
 
 load "../../stzBase.ring"
+load "doors.haro"
 $nPass = 0
 $nFail = 0
 tBS = Char(92)
 tWork = SysGet("TEMP") + tBS + "stz_krec"
 tDir = tWork + tBS + "records"
-System("if exist " + Q(tWork) + " rmdir /s /q " + Q(tWork))
-System("mkdir " + Q(tWork))
+StzEngineDirDeleteTree(tWork)
+StzMakeDir(tWork)
 tB = "https://git.kernel.org/pub/scm/linux/security/vulns.git"
 
 tR1 = Read("fixtures" + tBS + "kernel_records" + tBS + "CVE-2024-26925.json")
@@ -70,7 +71,7 @@ tR1b = StzReplace(tR1, "release mutex after nft_gc_seq_end from abort path", "re
 oFeed.WriteRecord("CVE-2024-26925", tR1b)
 Then("a newer copy replaces the older one whole", Read(tDir + tBS + "CVE-2024-26925.json") = tR1b, true)
 Then("the state is kept beside the folder, not in it", oFeed.StateFile(), tDir + ".state")
-System("del /q " + Q(tDir + tBS + "*.json"))
+DeleteAll(tDir, ".json")
 
 Scenario("3. the first watch")
 vFix = []
@@ -147,7 +148,7 @@ Then("...the rejected one found where it moved", Nth(oFeed.Brought(), 2), "CVE-2
 Then("a name that is not a CVE id is refused, nothing fetched", oFeed.Bring([ "..\evil" ]), 0)
 Then("...as not a CVE id", Nth(Nth(oFeed.Refused(), 1), 2), "not a CVE id")
 Then("a record on neither path is refused", oFeed.Bring([ "CVE-2026-55555" ]), 0)
-System("del /q " + Q(tDir + tBS + "CVE-2026-99998.json"))
+StzEngineFileDelete(tDir + tBS + "CVE-2026-99998.json")
 
 Scenario("9. harb advisories reads the folder")
 tHarb = SysGet("HARB_EXE")
@@ -156,9 +157,7 @@ if tHarb = ""
 end
 tHarbDir = "D:" + tBS + "GitHub" + tBS + "harobanda"
 if FExists(tHarb)
-    tOut = tWork + tBS + "harb.txt"
-    System("cd /d " + Q(tHarbDir) + " && " + Q(tHarb) + " advisories machines" + tBS + "qemu_egress.machine " + Q(tDir) + " --all > " + Q(tOut) + " 2>&1")
-    tH = Read(tOut)
+    tH = Harb(tHarb, tHarbDir, tDir)
     ? tH
     Then("harb answers one line per record in the folder", Count(tH, "advisory id="), 4)
     Then("...refusing nothing", Has(tH, "refused"), false)
@@ -205,8 +204,7 @@ end
 
 # the names of the files in a folder, sorted, joined by a blank
 func Listing(tFolder)
-    tL = SystemCmd("cmd /c dir /b /on /a-d " + Q(tFolder) + " 2>nul")
-    vN = StzSplit(StzReplace(tL, Char(13), ""), Char(10))
+    vN = Sort(StzEngineDirListFiles(tFolder))
     tOut = ""
     for tN in vN
         tF = Trim(tN)
@@ -258,4 +256,27 @@ func Then(tWhat, xGot, xExpected)
         ? "    expected: " + String(xExpected)
         ? "    got:      " + String(xGot)
     end
+end
+
+# every file of a folder whose name ends with tEnd, deleted by the engine (no shell)
+func DeleteAll(tFolder, tEnd)
+    for tN in StzEngineDirListFiles(tFolder)
+        if Right(tN, Len(tEnd)) = tEnd
+            StzEngineFileDelete(tFolder + Char(92) + tN)
+        end
+    end
+end
+
+# harb advisories over the folder, as a DECLARED command (doors, no shell): it stands in harobanda's folder, which holds
+# the machine and the kernel lists; the paths are known when the program runs, so the declaration is judged then
+func Harb(tHarb, tHarbDir, tRecords)
+    tQ = Char(34)
+    if SubStr(tHarb + tHarbDir + tRecords, tQ) > 0
+        return "a path holds a quote"
+    end
+    sDoors = doors.Judge("DEFINE ROOT harobanda AS (AT " + tQ + tHarbDir + tQ + ", ALLOWS [read]) RATIONALE " + tQ + "harobanda, where harb finds its machines and kernel lists" + tQ +
+                         " DEFINE ROOT records AS (ANYWHERE yes) RATIONALE " + tQ + "the folder this guard filled" + tQ +
+                         " DEFINE COMMAND harb AS (RUNS " + tQ + tHarb + tQ + ", TAKES [word, place, place, option], IN harobanda, QUIET yes) RATIONALE " + tQ + "harb advisories, reading the folder as it is" + tQ)
+    rRun = sDoors.Invocation("harb", ["advisories", sDoors.Place("harobanda", "machines/qemu_egress.machine"), sDoors.Place("records", tRecords), "--all"]).Run()
+    return rRun.tOutput + Char(10) + rRun.tErrors
 end

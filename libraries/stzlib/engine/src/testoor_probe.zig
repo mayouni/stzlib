@@ -36,12 +36,14 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 const T = @import("testoor_text.zig");
+const J = @import("testoor_json.zig");
+const G = @import("testoor_graph.zig");
 
 pub const hit_name = "TestoorProbeHit";
 pub const probe_file = "_testoor_probe.haro";
 
 /// a definition of the file haro graph was asked about: its node id and the line its signature begins on
-pub const Def = struct { id: []const u8, name: []const u8, line: i64 };
+pub const Def = struct { id: []const u8, name: []const u8, line: i64, kind: []const u8 = "function" };
 
 /// the first block of haro graph's lines -- the file asked about, before the files it loads -- with every line a
 /// definition or a class begins on
@@ -87,7 +89,7 @@ pub fn firstBlock(a: Allocator, text: []const u8) !Block {
             try starts.append(a, lineNo(field(fs.items, 2)));
         } else if (std.mem.eql(u8, tag, "METHOD")) {
             const name = field(fs.items, 2);
-            try defs.append(a, .{ .id = try std.mem.concat(a, u8, &.{ field(fs.items, 1), ".", name }), .name = name, .line = lineNo(field(fs.items, 3)) });
+            try defs.append(a, .{ .id = try std.mem.concat(a, u8, &.{ field(fs.items, 1), ".", name }), .name = name, .line = lineNo(field(fs.items, 3)), .kind = "method" });
             try starts.append(a, lineNo(field(fs.items, 3)));
         } else if (std.mem.eql(u8, tag, "CLASS")) {
             try starts.append(a, lineNo(field(fs.items, 3)));
@@ -332,6 +334,70 @@ pub fn probeSource(a: Allocator, ids: []const []const u8, crlf: bool) ![]u8 {
         try b.s(t);
         try b.s(nl);
     }
+    return b.done();
+}
+
+/// a definition of the codebase, with the file it is in, relative to the folder probed
+pub const Own = struct { def: Def, file: []const u8 };
+
+/// THE PROBE'S RECORD: the graph record of the codebase's own functions and methods, cut from the record of a unit that
+/// loads every file of the folder. A file read alone by haro graph names no call into another file -- `FoundryField(...)`
+/// in project.haro left no line, measured 2026-11-15 -- so the edges come from the unit, where every call is resolved; the
+/// nodes are the codebase's own, each with the file and line its own file gave, and an edge is kept when both of its ends
+/// are. `complete` and `why` are the unit's: a call the unit could not resolve, in the library or not, leaves the codebase's
+/// reach unknown too, and the record says so.
+pub fn ownRecord(a: Allocator, unit_record: []const u8, own: []const Own, subject: []const u8) ![]u8 {
+    const g = try G.fromValue(a, try J.parse(a, unit_record));
+    var keep = std.StringHashMap(void).init(a);
+    for (own) |o| try keep.put(try T.lowerAscii(a, o.def.id), {});
+    var b = T.Buf.init(a);
+    try b.s("{\"testoor\":\"graph\",\"protocol\":2,\"subject\":");
+    try b.js(subject);
+    try b.s(",\"language\":\"haro\",\"fold\":\"ascii\",\"complete\":");
+    try b.s(if (g.complete) "true" else "false");
+    try b.s(",\"why\":");
+    try b.js(g.why);
+    try b.s(",\"nodes\":[");
+    var first = true;
+    var written = std.StringHashMap(void).init(a);
+    for (own) |o| {
+        const k = try T.lowerAscii(a, o.def.id);
+        // a name defined in two files is one node, as haro.exe keeps the first definition
+        if (written.contains(k)) continue;
+        try written.put(k, {});
+        const at = g.indexOf(o.def.id);
+        if (!first) try b.c(',');
+        first = false;
+        try b.s("{\"id\":");
+        try b.js(if (at) |i| g.nodes[i].id else o.def.id);
+        try b.s(",\"name\":");
+        try b.js(o.def.name);
+        try b.s(",\"kind\":");
+        try b.js(o.def.kind);
+        try b.s(",\"file\":");
+        try b.js(o.file);
+        try b.s(",\"line\":");
+        try b.int(o.def.line);
+        if (at) |i| {
+            if (g.nodes[i].open) try b.s(",\"open\":true");
+        }
+        try b.c('}');
+    }
+    try b.s("],\"edges\":[");
+    first = true;
+    for (g.edges) |e| {
+        if (!keep.contains(try T.lowerAscii(a, e.from)) or !keep.contains(try T.lowerAscii(a, e.to))) continue;
+        if (!first) try b.c(',');
+        first = false;
+        try b.s("{\"from\":");
+        try b.js(e.from);
+        try b.s(",\"to\":");
+        try b.js(e.to);
+        try b.s(",\"kind\":");
+        try b.js(e.kind);
+        try b.s(",\"line\":0}");
+    }
+    try b.s("]}\n");
     return b.done();
 }
 

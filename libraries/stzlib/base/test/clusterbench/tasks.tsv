@@ -49,3 +49,23 @@ systems	sys07	choice		Two threads each add 1 to a shared counter 1000 times, wit
 systems	sys08	choice		A loop reads a 2 MB string one character at a time with substr(s, i, 1) and takes 18 seconds. Which change makes it fast?\nA) index the character directly with s[i]\nB) add more RAM\nC) run the loop twice\nD) convert the string to upper case first	A
 systems	sys09	choice		Which command line follows the rule that a secret is named, never typed?\nA) curl -H 'Authorization: Bearer $API_TOKEN' https://api.example.org\nB) curl -H 'Authorization: Bearer abc123-not-a-key' https://api.example.org\nC) both\nD) neither	A
 systems	sys10	choice		On Windows, a GPU kernel that runs for more than about 2 seconds makes the device 'lost'. What is the usual cause?\nA) the driver's timeout detection and recovery (TDR) resets the GPU\nB) the GPU ran out of colours\nC) the screen resolution is too high\nD) the kernel was too short	A
+hearing	hear01	heard	fr01.wav	Le rendez-vous est fixé à quinze heures, devant la mairie.	15|quinze+mairie
+hearing	hear02	heard	fr02.wav	Le prix du kilo de semoule est de deux dinars.	semoule+2|deux
+hearing	hear03	heard	fr03.wav	Envoyez la facture à l'agence de Sfax avant vendredi.	facture+sfax+vendredi
+hearing	hear04	heard	fr04.wav	Nous sommes le douze novembre deux mille vingt-six.	12|douze+novembre+2026
+hearing	hear05	heard	fr05.wav	Remplace toutes les voyelles par des étoiles.	voyelles+étoiles|etoiles
+hearing	hear06	heard	en01.wav	The server restarted at nine fifteen this morning.	server+restarted
+hearing	hear07	heard	en02.wav	Please sort the list in descending order.	sort+descending
+hearing	hear08	heard	en03.wav	Find every occurrence of the word Softanza.	occurrence|occurrences+softanza
+hearing	hear09	language	fr02.wav	Le prix du kilo de semoule est de deux dinars.	fr
+hearing	hear10	language	en02.wav	Please sort the list in descending order.	en
+hearing-local	hearl01	heard	fleurs/ar_eg/10019390257075855641.wav	تشكلت في المحيط الأطلسي اليوم عاشر عاصفة مُسماة لموسم الأعاصير الأطلسية العاصفة شبه الاستوائية جيري	عاصفة|عاصفه+الأطلسي|الاطلسي
+hearing-local	hearl02	language	fleurs/ar_eg/10035416633083120372.wav	تغادر الحافلات المحطة الداخلية بين المناطق عبر النهر في خلال اليوم على الرغم من أن معظمها وخاصة المتجهة منها إلى الشرق وجاكار/بومثانج تغادر بين 06:30 و 07:30	ar
+hearing-local	hearl03	language	fleurs/ar_eg/10080665469720750912.wav	يتمُّ دعم التعلُّم التفاعليّ في البرنامج داخليًا ويهدف إلى طرح الأسئلة والتحفيز وشرح الإجراءاتِ التي قد يكون من الصعب على الطالب التعامل معها بمفرده	ar
+hearing-local	hearl04	heard	fleurs/ar_eg/1021284281927612037.wav	نصنع بيوتنا وملابسنا من النباتات . معظم الطعام الذي نتناوله من النباتات كذلك. بدون النباتات، لا يمكن للحيوانات البقاء	النباتات
+hearing-local	hearl05	language	fleurs/ar_eg/10219273669592698682.wav	إن عرض الصوت والضوء الهرمي واحد من أمتع الأشياء الموجودة بالمنطقة للأطفال	ar
+hearing-local	hearl06	language	fleurs/ha_ng/10063376879559181525.wav	an kwatanta faretin gine-ginen da ke yin sararin samaniyar hong kong da ginshiƙi mai walƙiya wanda aka bayyana ta gaban ruwan victoria harbor	ha
+hearing-local	hearl07	heard	fleurs/ha_ng/1011451118830394019.wav	aristotle masanin falsafa ne yayi tunanin cewa komai ya kunshi cakuda daya ko fiye daga abubuwa hudu sun kasance ƙasa ruwa iska da wuta	aristotle|aristotel+ruwa
+hearing-local	hearl08	heard	fleurs/ha_ng/10130278018512375037.wav	tsibirin na kwanciye 120 km arewa da sashin kasa mai shiga teku mafi girma shine king george island mai dauke da mazauna na villa estrellas	120+george
+hearing-local	hearl09	language	fleurs/ha_ng/10203648568113620209.wav	a hakika akwai matukar wahalar gano wajen ko ma ka idan ka san ya kasance kana shiga cikin kogon zaka ji kadaita ta kama ka	ha
+hearing-local	hearl10	language	fleurs/ha_ng/10262687583681135357.wav	kwatancin 802.11n na aiki duk akan mita 2.4ghz da 5.0ghz	ha

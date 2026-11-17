@@ -161,8 +161,10 @@ class stzKernelRecords from stzObject
             tWhy = tProblem
             return 0
         end
-        Write(tStaging + this._Sep() + tId + ".json", tText)
-        this._MoveStagedIn()
+        if not this._Place(tId, tText)
+            tWhy = tId + ": the record could not be moved into " + tDir
+            return 0
+        end
         tWhy = tId + " written"
         return 1
     end
@@ -240,8 +242,10 @@ class stzKernelRecords from stzObject
             vRefused + [ tId, tProblem ]
             return "refused"
         end
-        Write(tStaging + this._Sep() + tId + ".json", tText)
-        this._MoveStagedIn()
+        if not this._Place(tId, tText)
+            vRefused + [ tId, tId + ": the record could not be moved into " + tDir ]
+            return "unreached"
+        end
         vBrought + tId
         tKind = "published"
         if Left(tPath, 9) = "rejected/"
@@ -326,21 +330,16 @@ class stzKernelRecords from stzObject
         return ""
     end
 
-    # every staged record renamed into the folder, replacing an older copy whole
-    def _MoveStagedIn
-        if IsWindows()
-            System("move /y " + this._Q(tStaging + Char(92) + "*.json") + " " + this._Q(tDir) + " >nul")
-        else
-            System("mv -f " + this._Q(tStaging) + "/*.json " + this._Q(tDir) + "/")
-        end
+    # the record written into the staging folder, then moved over the folder's copy in ONE step (the engine's
+    # replace, a rename on one volume): a reader of the folder meets the old record or the new one, never part of one
+    def _Place(tId, tText)
+        tStaged = tStaging + this._Sep() + tId + ".json"
+        Write(tStaged, tText)
+        return StzEngineFileReplace(tStaged, tDir + this._Sep() + tId + ".json") = 1
     end
 
     def _MakeDir(tPath)
-        if IsWindows()
-            System("if not exist " + this._Q(tPath) + " mkdir " + this._Q(tPath))
-        else
-            System("mkdir -p " + this._Q(tPath))
-        end
+        return StzMakeDir(tPath)
     end
 
     def _Sep
@@ -355,10 +354,6 @@ class stzKernelRecords from stzObject
             tP = Left(tP, Len(tP) - 1)
         end
         return tP
-    end
-
-    def _Q(tS)
-        return Char(34) + tS + Char(34)
     end
 
     def _YearOf(tId)

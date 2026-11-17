@@ -95,12 +95,12 @@ pub fn buildIndex(a: Allocator, g: Graph) !*Index {
 }
 
 /// the graph's index: the one it was read with, else one built now
-fn ixOf(a: Allocator, g: Graph) !*const Index {
+pub fn ixOf(a: Allocator, g: Graph) !*const Index {
     if (g.ix) |ix| return ix;
     return buildIndex(a, g);
 }
 
-fn edgesInto(ix: *const Index, g: Graph, id: []const u8) []const usize {
+pub fn edgesInto(ix: *const Index, g: Graph, id: []const u8) []const usize {
     return if (ix.into.getContext(id, .{ .fold = g.fold })) |l| l.items else &.{};
 }
 

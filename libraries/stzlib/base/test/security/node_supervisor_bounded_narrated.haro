@@ -28,9 +28,9 @@ tBin = tWork + tBS + "bin"
 tNode = tWork + tBS + "node"
 tRuns = tWork + tBS + "runs"
 tOutside = tWork + tBS + "outside"
-System("if exist " + Q(tWork) + " rmdir /s /q " + Q(tWork))
+StzEngineDirDeleteTree(tWork)
 for tDir in [tBin, tNode, tRuns, tOutside]
-    System("mkdir " + Q(tDir))
+    StzMakeDir(tDir)
 end
 tHaroSrc = SysGet("HARO_EXE")
 if tHaroSrc = ""
@@ -40,7 +40,7 @@ if tHaroSrc = ""
     ? "HARO_EXE is not set and haro.exe is not on the PATH: nothing can run"
     Shutdown(1)
 end
-System("copy /y " + Q(tHaroSrc) + " " + Q(tBin + tBS + "haro.exe") + " >nul")
+StzEngineFileCopy(tHaroSrc, tBin + tBS + "haro.exe")
 Write(tOutside + tBS + "key.txt", "stand-in key")
 StzEngineBoundaryDeleteProfile(tName)
 

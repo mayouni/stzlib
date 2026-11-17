@@ -87,12 +87,20 @@ The faculties group the areas into six clusters:
 The deterministic core of each area stays the answer; the model explains, chooses and drafts. Each cluster's (B)
 benchmark is therefore small: ten checkable tasks a cluster to start.
 
-**Built: the area-cluster benchmark** (`base/test/clusterbench`), ten tasks for each of text, data, agents, seeing
-and systems, the seeing tasks on ten pictures stzCanvas draws. On the machine itself, Nemotron Bolt E4B answers 39 of
+**Built: the area-cluster benchmark** (`base/test/clusterbench`), ten tasks for each of text, data, agents, seeing,
+systems and hearing, the seeing tasks on ten pictures stzCanvas draws, the hearing tasks on ten recordings. On the machine itself, Nemotron Bolt E4B answers 39 of
 the 40 text, data, agents and systems tasks, about 3 seconds a task; Granite 4.2 3B answers 33; SmolVLM reads 7 of
 the 10 pictures at both its sizes, colours, shapes and written words among them, with which bar is tallest and which
 way a line goes left to the library's own data. Hausa named as a language and a claim checked against a log are the
-cells the smaller models miss together. Hearing takes its ten tasks from recordings, with a speech model on disk.
+cells the smaller models miss together. **The engine hears**: Whisper small runs on the engine's own graph
+(`engine/src/whisper.zig`), in agreement with a numpy reference reading the same file, and passes 7 of the 10 hearing
+tasks -- both languages named, every number and date heard; the misses are the context's own words (`Sfax`,
+`semoule`, `Softanza`). With the setting's words read first (one glossary for every recording), it passes 9 of 10:
+`Sfax` and `semoule` spelled right, `Softanza` one letter off ("Softansa"). On real speakers (FLEURS, CC BY 4.0) it
+hears Arabic, 5 of 5; Hausa is 0 of 5 (named Swahili, Amharic, Yoruba). **Hausa is now heard**: a Whisper small
+trained on Hausa (EqualyzAI's african_voices_hausa_small, Apache-2.0), converted into the engine's form, passes 9 of 12
+fresh Hausa items judged by word error rate where Whisper small passes none, and the library's `:transcribe` faculty,
+measured per language, routes Hausa to it and French, English and Arabic to Whisper small (hearing-v3).
 
 The code benchmark covers most areas today. Regex, geo, gui, gpu, sound, performance and governance get their tasks
 written for them, since their narrated checks read files, devices or the clock.
@@ -120,4 +128,13 @@ French and Hausa.
 3. The language matrix -- built: French and Arabic are served locally; Tunisian Darija in Latin letters and Hausa are
    the cells to train for.
 4. The Haro copy of the corpus, then a small local model trained on it, judged by the benchmark.
-5. Ten checkable tasks per area cluster, for directive 2(B) -- built for five clusters; hearing follows a speech model.
+5. Ten checkable tasks per area cluster, for directive 2(B) -- built for the six clusters, hearing on the engine's Whisper.
+6. Hausa hearing -- built: the Hausa model holds `:transcribe` for Hausa (hearing-v3, 9-0 at the court).
+
+## Rulings
+
+- **INTEL-DELEGATE-01, 2026-11-16**, the Principal in chat: "You are authorised to download the necessary staff and
+  take any pending decision on mybehalf and continue". Taken under it the same day: the Arabic and Hausa recordings
+  come from FLEURS' test split (CC BY 4.0), five per language, read as a stream (a few MB of 243 and 602 MB archives);
+  the engine reads 32-bit float WAV; the transcription faculty is registered from a `.haro` file; Hausa hearing is
+  the next rung.

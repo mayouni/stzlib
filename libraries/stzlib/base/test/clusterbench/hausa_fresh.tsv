@@ -1,0 +1,15 @@
+# hearing-v2's fresh Hausa items: FLEURS ha_ng test recordings 6 to 15, heard by no model before this file was written.
+# expected = the three longest words of FLEURS' normalised transcription (words split at blanks and at a slash; no word
+# with a digit; ties in order), each
+# group also accepting its spelling with Hausa's hooked letters plain -- a rule fixed before any run.
+recording	language	expected
+fleurs/ha_ng/10270881705223021661.wav	ha	ƙarfafawa|karfafawa+canzawa+kwayar
+fleurs/ha_ng/10274607477242713999.wav	ha	tarayyan+katolika+fuskanci
+fleurs/ha_ng/10275407413289163724.wav	ha	cututtukan+kwakwalwa+tallafawa
+fleurs/ha_ng/10291405143076270704.wav	ha	tarayyan+katolika+fuskanci
+fleurs/ha_ng/10340343059762214769.wav	ha	mahimmanci+rikodin+bincike
+fleurs/ha_ng/10435630491638189387.wav	ha	maganganu+musamman+ikirarin
+fleurs/ha_ng/10460143409645722218.wav	ha	demokradiyya+tsammanin+bataliyar
+fleurs/ha_ng/10511075547046752697.wav	ha	kiristanci+kasancewa+koyarwar
+fleurs/ha_ng/10529716865753778831.wav	ha	birtaniya+tsibirin+kodayake
+fleurs/ha_ng/10600401760102194440.wav	ha	karfinsa+kururuwa+mintuna

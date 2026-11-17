@@ -88,6 +88,14 @@ fn ring_DirCreate(p: *anyopaque) callconv(.c) void {
 fn ring_DirCreatePath(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(f.stz_dir_create_path(gs(p, 1), @intCast(gss(p, 1)))));
 }
+fn ring_DirDeleteTree(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(f.stz_dir_delete_tree(gs(p, 1), @intCast(gss(p, 1)))));
+}
+
+fn ring_FileReplace(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(f.stz_file_replace(gs(p, 1), @intCast(gss(p, 1)), gs(p, 2), @intCast(gss(p, 2)))));
+}
+
 fn ring_DirDelete(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(f.stz_dir_delete(gs(p, 1), @intCast(gss(p, 1)))));
 }
@@ -419,6 +427,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginedircreate", .func = &ring_DirCreate },
     .{ .name = "stzenginedircreatepath", .func = &ring_DirCreatePath },
     .{ .name = "stzenginedirdelete", .func = &ring_DirDelete },
+    .{ .name = "stzenginedirdeletetree", .func = &ring_DirDeleteTree },
+    .{ .name = "stzenginefilereplace", .func = &ring_FileReplace },
     .{ .name = "stzenginedircountfiles", .func = &ring_DirCountFiles },
     .{ .name = "stzenginedircountdirs", .func = &ring_DirCountDirs },
     .{ .name = "stzenginedirlistfiles", .func = &ring_DirListFiles },

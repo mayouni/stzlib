@@ -22,8 +22,8 @@ $nPass = 0
 $nFail = 0
 tBS = Char(92)
 tWork = SysGet("TEMP") + tBS + "stz_fed"
-System("if exist " + Q(tWork) + " rmdir /s /q " + Q(tWork))
-System("mkdir " + Q(tWork))
+StzEngineDirDeleteTree(tWork)
+StzMakeDir(tWork)
 tEngine = SysGet("STZ_ENGINE_DIR")
 
 # two "models" and a copy of the first with one byte changed

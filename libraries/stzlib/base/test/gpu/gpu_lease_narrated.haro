@@ -11,6 +11,7 @@
 # The child that would open a SECOND device on the same card -- the lease switched off while this process holds
 # it -- is never started: that is the crash itself. On a machine with no device, every scene skips by name.
 load "../../stzBase.ring"
+load "doors.haro"
 
 $nPass = 0
 $nFail = 0
@@ -98,18 +99,10 @@ Shutdown($nFail)
 # Runs gpu_lease_child.haro in a second process with tEnv set, and reads back what its lease said:
 # [ device 1/0, outcome, ms waited, other holder's process id, held 1/0, last error ].
 func Child(tEnv, tExit)
-	$nRun += 1
-	tOut = "_lease_out_" + String($nRun) + ".txt"
-	tCmd = "set " + tEnv + "&& set STZ_LEASE_OUT=" + tOut
-	if tExit != ""
-		tCmd += "&& set STZ_LEASE_EXIT=" + tExit
-	end
-	System(tCmd + "&& " + Char(34) + ExeFileName() + Char(34) + " gpu_lease_child.haro")
-	if not FExists(tOut)
+	xL = RunChild(tEnv, tExit, "")
+	if Len(xL) = 0
 		return [ -1, -1, -1, -1, -1, "the second process wrote nothing" ]
 	end
-	xL = StzSplit(Read(tOut), Char(10))
-	Remove(tOut)
 	tErr = ""
 	if Len(xL) >= 6
 		tErr = xL[6]
@@ -119,19 +112,40 @@ end
 
 # Child() with the kp-05 grade: [ device, outcome, waited, other, held, last error, verdict ].
 func ChildGrade(tEnv)
-	$nRun += 1
-	tOut = "_lease_out_" + String($nRun) + ".txt"
-	System("set " + tEnv + "&& set STZ_LEASE_GRADE=kp05-noguard&& set STZ_LEASE_OUT=" + tOut + "&& " + Char(34) + ExeFileName() + Char(34) + " gpu_lease_child.haro")
-	if not FExists(tOut)
+	xL = RunChild(tEnv, "", "kp05-noguard")
+	if Len(xL) = 0
 		return [ -1, -1, -1, -1, -1, "the second process wrote nothing", "" ]
 	end
-	xL = StzSplit(Read(tOut), Char(10))
-	Remove(tOut)
 	tV = ""
 	if Len(xL) >= 7
 		tV = xL[7]
 	end
 	return [ Number(xL[1]), Number(xL[2]), Number(xL[3]), Number(xL[4]), Number(xL[5]), xL[6], tV ]
+end
+
+# The second process: this same haro, run as a DECLARED command (doors, no shell) on gpu_lease_child.haro. What it is
+# told goes in this process's variables, which it inherits; each is set before the run and emptied after, so no
+# scene leaks into the next one or into this process. tEnv is one NAME=VALUE. Answers the lines it wrote, or [].
+func RunChild(tEnv, tExit, tGrade)
+	$nRun += 1
+	tOut = "_lease_out_" + String($nRun) + ".txt"
+	vSet = StzSplit(tEnv, "=")
+	vVars = [ [vSet[1], vSet[2]], ["STZ_LEASE_OUT", tOut], ["STZ_LEASE_EXIT", tExit], ["STZ_LEASE_GRADE", tGrade] ]
+	for vV in vVars
+		SysSet(vV[1], vV[2])
+	end
+	tQ = Char(34)
+	sDoors = doors.Judge("DEFINE COMMAND child AS (ITSELF yes, TAKES [word], QUIET yes) RATIONALE " + tQ + "this haro, the guard's second process" + tQ)
+	sDoors.Invocation("child", ["gpu_lease_child.haro"]).Run()
+	for vV in vVars
+		SysSet(vV[1], "")
+	end
+	if not FExists(tOut)
+		return []
+	end
+	xL = StzSplit(Read(tOut), Char(10))
+	Remove(tOut)
+	return xL
 end
 
 func chk(tWhat, bOk)

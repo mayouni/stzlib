@@ -1,20 +1,29 @@
 # THE AREA-CLUSTER BENCHMARK -- directive 2(B): the faculty each cluster of areas asks of a model.
 #
 #     haro run.haro <label> <model file>              a text model answers the tasks that have no picture
-#     haro run.haro <label> smolvlm256|smolvlm500     the house's vision model answers the tasks that have one
+#     haro run.haro <label> smolvlm256|smolvlm500     the house's vision model answers the seeing tasks
+#     haro run.haro <label> <whisper .bin file>       Whisper hears the hearing tasks' recordings
+#     haro run.haro <label> <whisper .bin file> <words file>
+#                                                     the same, the decoder first reading the words file: the
+#                                                     setting's names and terms, one prompt for every recording
 #     haro run.haro score <answers file> <label>      scores an answers file written by any other means
 #
 # From this folder, with STZ_ENGINE_DIR set (an engine with stz_neural.dll) and, for the vision models, STZ_MODELS_DIR
 # (the folder holding vision/smolvlm_*.gguf). A model run is a heavy job: one at a time.
-# Run `haro pictures.haro` once before a vision run.
+# Run `haro pictures.haro` once before a vision run, and `powershell -File _rig/speak.ps1` once before a hearing run.
 #
-# tasks.tsv holds ten tasks for each of five clusters: text, data, agents, seeing, systems. A task's kind says how its
-# reply is read:
+# tasks.tsv holds ten tasks for each of seven clusters: text, data, agents, seeing, systems, hearing, hearing-local
+# (Arabic and Hausa: FLEURS recordings, fetched once by `python -I _rig/fleurs_fetch.py`). A text model answers
+# the first three and systems; a seeing task names its picture, a hearing task its recording (in the fourth column), and
+# a hearing task's question column is what its recording says. A task's kind says how its reply is read:
 #
 #     choice   the first capital A, B, C or D standing alone in the reply
 #     word     an accepted word (the expected column, alternatives joined by |) among the reply's first eight words,
 #              in small letters; a reply that offers a choice ("yes or no: ...") before such a word fails
 #     number   the first number in the reply, a comma read as a point and trailing zeros after it dropped
+#     heard    the transcript, in small letters, holds every group of the expected column (groups joined by +, the
+#              alternatives of a group by |), each found inside the words ("15h" holds "15")
+#     language the language Whisper hears in the recording, told nothing, as its code
 #
 # An answers file (for `score`) holds one line a task: the task id, a tab, the reply on one line.
 #
@@ -30,6 +39,7 @@ $tLabel = ""
 
 tFirst = ""
 tSecond = ""
+tWords = ""
 nArgs = Len(SysArgv)
 for i = 1 to nArgs
 	if Right(SysArgv[i], 8) = "run.haro" and i + 2 <= nArgs
@@ -37,6 +47,8 @@ for i = 1 to nArgs
 		tSecond = SysArgv[i + 2]
 		if tFirst = "score" and i + 3 <= nArgs
 			$tLabel = SysArgv[i + 3]
+		elseif i + 3 <= nArgs
+			tWords = Trim2(Read(SysArgv[i + 3]))
 		end
 	end
 end
@@ -63,6 +75,7 @@ if tFirst = "score"
 else
 	$tLabel = tFirst
 	bVision = (tSecond = "smolvlm256" or tSecond = "smolvlm500")
+	bHearing = (Right(tSecond, 4) = ".bin")
 	LoadLib(Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/stz_neural.dll")
 	tProjector = ""
 	if bVision
@@ -75,7 +88,7 @@ else
 			? "the vision decoder was refused, status " + String(StzEngineNeuralModelLoadStatus())
 			Shutdown(1)
 		end
-	else
+	elseif not bHearing
 		if StzEngineNeuralModelLoad(Slashes(tSecond)) = 0
 			? "the model load was refused, status " + String(StzEngineNeuralModelLoadStatus())
 			Shutdown(1)
@@ -83,13 +96,24 @@ else
 	end
 	for i = 2 to Len(vTasks)
 		vT = vTasks[i]
-		bPicture = (vT[4] != "")
-		if bPicture != bVision
+		if (vT[1] = "seeing") != bVision or (Left(vT[1], 7) = "hearing") != bHearing
 			loop
 		end
 		tAsk = Expand(vT[5]) + " " + Instruction(vT[3])
 		tReply = ""
-		if bVision
+		if bHearing
+			# told nothing of the language: the transcript of what it hears, or the language it hears
+			if tWords = ""
+				tReply = StzEngineNeuralWhisperTranscribe(Slashes(tSecond), CurrentDir() + "/recordings/" + vT[4], "auto", 96, 4)
+			else
+				tReply = StzEngineNeuralWhisperTranscribePrompted(Slashes(tSecond), CurrentDir() + "/recordings/" + vT[4], "auto", tWords, 96, 4)
+			end
+			if tReply = ""
+				tReply = "(error) " + StzEngineNeuralOcrGraphError()
+			elseif vT[3] = "language"
+				tReply = StzEngineNeuralWhisperLanguage()
+			end
+		elseif bVision
 			# the prompt SmolVLM was trained on, as stzImage's own picture-in-words faculty writes it
 			oImg = StzImageQ(CurrentDir() + "/pictures/" + vT[4])
 			tReply = StzEngineNeuralVlmDescribe(tProjector, oImg.Pixels(), oImg.Width(), oImg.Height(), oImg.Channels(), "<|im_start|>User:<fake_token_around_image><global-img>", "<fake_token_around_image>" + tAsk + "<end_of_utterance>" + Char(10) + "Assistant:", $nMaxNew, 4)
@@ -100,7 +124,7 @@ else
 		tReply = OneLine(tReply)
 		vIds + vT[2]
 		vReplies + tReply
-		? vT[2] + "  " + Left(tReply, 70)
+		? vT[2] + "  " + Utf8Left(tReply, 70)
 	end
 	tOut = ""
 	for i = 1 to Len(vIds)
@@ -131,7 +155,7 @@ for i = 2 to Len(vTasks)
 	if Agrees(vT[3], vReplies[nAt], vT[6])
 		tVerdict = "pass"
 	end
-	tOut = tOut + Row([ tVerdict, vT[2], vT[6], Left(vReplies[nAt], 80) ])
+	tOut = tOut + Row([ tVerdict, vT[2], vT[6], Utf8Left(vReplies[nAt], 80) ])
 	Bump(vKeys, vAll, vT[1])
 	Bump(vKeys, vAll, "all")
 	if tVerdict = "pass"
@@ -139,7 +163,7 @@ for i = 2 to Len(vTasks)
 		Bump(vPassKeys, vPass, "all")
 	end
 end
-tSum = Char(10) + "cluster      pass / tasks" + Char(10)
+tSum = Char(10) + "cluster         pass / tasks" + Char(10)
 for i = 1 to Len(vKeys)
 	nP = 0
 	for p = 1 to Len(vPassKeys)
@@ -148,7 +172,7 @@ for i = 1 to Len(vKeys)
 		end
 	end
 	tName = vKeys[i]
-	while Len(tName) < 12
+	while Len(tName) < 15
 		tName = tName + " "
 	end
 	tSum = tSum + "  " + tName + String(nP) + " / " + String(vAll[i]) + Char(10)
@@ -159,6 +183,18 @@ tSum = tSum + Char(10) + String(Floor((Clock() - nStart) / ClocksPerSecond())) +
 MakeDir("results")
 Write("results/" + $tLabel + ".txt", tOut + tSum)
 
+
+# at most n bytes of t, never cutting a character: an Arabic reply cut inside a letter is not UTF-8
+func Utf8Left(tText, nMax)
+	if Len(tText) <= nMax
+		return tText
+	end
+	nAt = nMax
+	while nAt > 0 and Ascii(tText[nAt + 1]) >= 128 and Ascii(tText[nAt + 1]) < 192
+		nAt = nAt - 1
+	end
+	return Left(tText, nAt)
+end
 
 func Instruction(tKind)
 	if tKind = "choice"
@@ -207,6 +243,26 @@ func OneLine(tReply)
 end
 
 func Agrees(tKind, tReply, tExpected)
+	if tKind = "language"
+		return Trim2(tReply) = tExpected
+	end
+	if tKind = "heard"
+		tHeard = StzLower(tReply)
+		vGroups = Split(StzLower(tExpected), "+")
+		for i = 1 to Len(vGroups)
+			bFound = false
+			vAlt = Split(vGroups[i], "|")
+			for p = 1 to Len(vAlt)
+				if IndexOf(vAlt[p], tHeard) > 0
+					bFound = true
+				end
+			end
+			if not bFound
+				return false
+			end
+		end
+		return true
+	end
 	if tKind = "choice"
 		return ChoiceOf(tReply) = tExpected
 	end

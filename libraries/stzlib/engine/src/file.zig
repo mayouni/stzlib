@@ -315,6 +315,28 @@ pub fn stz_dir_delete(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
     return 1;
 }
 
+/// A folder and everything beneath it; a folder that is not there is 1 (nothing left to take away).
+/// Replaces the shell's `rmdir /s /q "<name>"` and `rm -rf "<name>"`, which handed the name to a shell.
+/// 1 = gone, 0 = failed.
+pub fn stz_dir_delete_tree(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
+    if (path == null or path_len == 0) return 0;
+    if (!pathIsUsable(path[0..path_len])) return 0;
+    const p = path[0..path_len];
+    fs.cwd().deleteTree(p) catch return 0;
+    return 1;
+}
+
+/// Moves a file to a new name in ONE step, replacing a file already there: a reader of the target sees the
+/// old file or the new one, never neither and never part of one. Both names on one volume (a rename, never a
+/// copy). Replaces the shell's `move /y` and `mv -f`; Ring's and Haro's Rename refuse an existing target.
+/// 1 = moved, 0 = failed (the source is left where it was).
+pub fn stz_file_replace(src: [*c]const u8, src_len: usize, dst: [*c]const u8, dst_len: usize) callconv(.c) c_int {
+    if (src == null or src_len == 0 or dst == null or dst_len == 0) return 0;
+    if (!pathIsUsable(src[0..src_len]) or !pathIsUsable(dst[0..dst_len])) return 0;
+    fs.cwd().rename(src[0..src_len], dst[0..dst_len]) catch return 0;
+    return 1;
+}
+
 // ─── Directory Counting ───
 
 pub fn stz_dir_count_files(path: [*c]const u8, path_len: usize) callconv(.c) i32 {
@@ -500,6 +522,23 @@ test "dir operations" {
 
     _ = stz_file_delete(inner_path, inner_path.len);
     try std.testing.expectEqual(@as(c_int, 1), stz_dir_delete(test_dir, test_dir.len));
+
+    // a tree goes whole; a file is replaced in one step
+    const tree = "_stz_test_tree";
+    const leaf = "_stz_test_tree/a/b";
+    try std.testing.expectEqual(@as(c_int, 1), stz_dir_create_path(leaf, leaf.len));
+    const f1 = "_stz_test_tree/a/one.txt";
+    const f2 = "_stz_test_tree/a/two.txt";
+    _ = stz_file_write(f1, f1.len, "new", 3);
+    _ = stz_file_write(f2, f2.len, "old", 3);
+    try std.testing.expectEqual(@as(c_int, 1), stz_file_replace(f1, f1.len, f2, f2.len));
+    try std.testing.expectEqual(@as(c_int, 0), stz_file_exists(f1, f1.len));
+    try std.testing.expectEqual(@as(i64, 3), stz_file_size(f2, f2.len));
+    try std.testing.expectEqual(@as(c_int, 0), stz_file_replace(f1, f1.len, f2, f2.len));
+    try std.testing.expectEqual(@as(c_int, 0), stz_dir_delete(tree, tree.len));
+    try std.testing.expectEqual(@as(c_int, 1), stz_dir_delete_tree(tree, tree.len));
+    try std.testing.expectEqual(@as(c_int, 0), stz_dir_exists(tree, tree.len));
+    try std.testing.expectEqual(@as(c_int, 1), stz_dir_delete_tree(tree, tree.len));
     try std.testing.expectEqual(@as(c_int, 0), stz_dir_exists(test_dir, test_dir.len));
 }
 

@@ -128,6 +128,8 @@ ok
     load "sound/stzVoice.ring"
     # the other door: sound -> text. Closed grammar only -- VC3 measured why.
     load "sound/stzListener.ring"
+    # :transcribe and :spoken-language -- Whisper small on the engine (WHISPER-CATALOG-01)
+    load "sound/stzHearing.haro"
     load "sound/stzEarcons.ring"
     # MU1: one note of any of twenty instruments, as a stzSound
     load "sound/stzSoundInstrument.ring"
@@ -640,9 +642,11 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "security/stzExposureResponder.ring"
     load "security/stzCredentialBroker.haro"   # an agent names a credential; the engine attaches it (CREDBROKER-01)
     load "security/stzPiaCheck.haro"           # what a .pia agent file says, judged at load (PIACHECK-01)
-    load "security/stzNodeBoundary.haro"       # a node's OS boundary installed and removed (OSBOUNDARY B2)
+    # security/stzNodeBoundary.haro (a node's OS boundary installed and removed, OSBOUNDARY B2) is NOT loaded here: the
+    # program that installs loads it, and it loads Haro's doors.haro, which a node inside its boundary cannot read
     load "security/stzFederationAdmission.haro"  # a host admitted for what it runs (RADAR-FEDERATION-ADMIT-01)
     load "security/stzKernelRecords.haro"      # the kernel's CVE records brought to the folder harb reads (ONEHOUR-B2-FEED)
+    load "security/stzSignature.haro"          # a text signed with a named key, verified with the public key alone (FOUNDRY-SIGN-01)
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
@@ -773,6 +777,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "image/stzVision.ring"     # IM3: classify, faces, objects -- one governed door, every call in the ledger
     load "image/stzDocTags.ring"    # IM7: Granite-Docling's DocTags read into blocks, and blocks judged against a golden document
     load "image/stzImageSearch.ring"  # IM5: SigLIP2 -- pictures and words in one space: ClassifyAs, Search
+    StzHearingDeclare()    # WHISPER-CATALOG-01: :transcribe and :spoken-language, like the image faculties, exist in every process
     StzVisionDeclare("")   # IM9a: the image faculties exist in every process, so an agent or the registry can reach them (before this only a guard declared them)
     load "ocr/stzOcr.ring"             # OCR as a faculty: the platform floor, a model only when measured better
     load "ocr/stzOcrInspect.ring"      # see what OCR read and where: the image and its reading, linked both ways

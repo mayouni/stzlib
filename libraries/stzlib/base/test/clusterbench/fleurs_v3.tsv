@@ -1,0 +1,46 @@
+# hearing-v3's FLEURS items: per language, the next ten recordings of FLEURS' test archive after those already
+# used (French, English and Arabic 6 to 15, Hausa 16 to 25), heard by no model before this file was written.
+# expected = wer<=50%: then FLEURS' normalised transcription -- the item agrees when the transcript's word error rate
+# against it is at most 50%, both sides in small letters, punctuation removed, Hausa's hooked letters plain.
+# The rule was fixed before any model heard these recordings (2026-11-16).
+recording	language	expected
+fleurs/fr_fr/10174413140250646001.wav	fr	wer<=50%:giancarlo fisichella a perdu le contrôle de sa voiture et a terminé la course peu après le démarrage
+fleurs/fr_fr/10221277978969763776.wav	fr	wer<=50%:malgré le net avantage de del potro pendant le deuxième set il a fallu passer par un tie-break une fois que le score a atteint 6-6
+fleurs/fr_fr/10334413597118469552.wav	fr	wer<=50%:malheureusement il est difficile d'étudier le flux de circulation car le comportement des conducteurs ne peut être prédit avec cent pour cent de certitude
+fleurs/fr_fr/10385751433252343757.wav	fr	wer<=50%:les deux composés réagissent l'un avec l'autre pour former des cristaux qui peuvent bloquer la fonction rénale ont déclaré des chercheurs de l'université
+fleurs/fr_fr/10399459061919571703.wav	fr	wer<=50%:par exemple des étudiants de l'école bennet en caroline du nord conçoivent chaque année un site web consacré à leur visite de la capitale de l'état chaque année le site est remis à jour mais les anciennes versions sont conservées en ligne pour servir d'album
+fleurs/fr_fr/10451502537136425109.wav	fr	wer<=50%:par exemple le format de photographie le plus courant au monde est le 35 mm c'était le format de pellicule le plus répandu à la fin de l'ère des films analogiques
+fleurs/fr_fr/10473501692975174389.wav	fr	wer<=50%:tout bien considéré nous ne devrions pas être surpris si nos propres ancêtres ont résolu leur « problème de protéines » un peu de la même manière que les chimpanzés de la savane le font aujourd'hui
+fleurs/fr_fr/10481242713503018126.wav	fr	wer<=50%:le bus 403 de scotturb se rend régulièrement à sintra avec un arrêt à cabo da roca
+fleurs/fr_fr/10496509281839367149.wav	fr	wer<=50%:les troupes de lions agissent comme des meutes de loups ou de chiens des animaux étonnamment semblables aux lions mais pas aux autres grands félins dans leur comportement et aussi très mortels pour leurs proies
+fleurs/fr_fr/10550408276028637262.wav	fr	wer<=50%:sa réputation en tant qu'épicentre du luxe a débuté aux environs de l'an 400 et duré jusqu'à 1100 environ
+fleurs/en_us/10235738076911595987.wav	en	wer<=50%:the hospital has followed protocol for infection control including separating the patient from others to prevent possible infection of others
+fleurs/en_us/10323357556845456822.wav	en	wer<=50%:the northern marianas emergency management office said that there were no damages reported in the nation
+fleurs/en_us/10335587906469246566.wav	en	wer<=50%:twentieth century research has shown that there are two pools of genetic variation hidden and expressed
+fleurs/en_us/10344335557154974057.wav	en	wer<=50%:the aspect ratio of this format dividing by twelve to obtain the simplest whole-number ratio is therefore said to be 3:2
+fleurs/en_us/1036771894648013441.wav	en	wer<=50%:as light pollution in their heyday was not the kind of problem it is today they are usually located in cities or at campuses easier to reach than those built in modern times
+fleurs/en_us/1038214857203833067.wav	en	wer<=50%:through the night between 150 and 200 copies were made now known as dunlap broadsides
+fleurs/en_us/10383288285905292158.wav	en	wer<=50%:for example each year students from bennet school in north carolina design a website about their trip to the state capital each year the website gets remodeled but old versions are kept online to serve as a scrapbook
+fleurs/en_us/10405958125670257178.wav	en	wer<=50%:lion prides act much like packs of wolves or dogs animals surprisingly similar to lions but not other big cats in behavior and also very deadly to their prey
+fleurs/en_us/10411016628242228511.wav	en	wer<=50%:the city is also the base to climb the nyiragongo volcano along with some of the cheapest mountain gorilla tracking in africa
+fleurs/en_us/1042003289011443756.wav	en	wer<=50%:the internet combines elements of both mass and interpersonal communication
+fleurs/ar_eg/10223562251993082117.wav	ar	wer<=50%:تذكر أنه على الرغم من أن الموسيقى في المنصات الرئيسية قد تكون انتهت إلا أن هناك أقسام من المهرجان قد تستمر في تشغيل الموسيقى حتى وقت متأخر من الليل
+fleurs/ar_eg/10340788584398631536.wav	ar	wer<=50%:أدى ضاربا الكرة المتمركزين في الوسط ساشين تيندولكار وراهول درافيد جيدًا وأقاما شراكة أكسبت للفريق مائة نقطة
+fleurs/ar_eg/1035166469684084794.wav	ar	wer<=50%:ومنذ عام 1988 توجّب أن تكون صناديق الاقتراع شفافة بحيث يمكن للناخبين والمراقبين أن يتأكدوا من عدم وجود مغلفات في بداية التصويت وأنه لا يتم إضافة مغلفات إلا مغلفات الناخبين المسجلين والمصرّح لهم حسب الأصول والمفوضين
+fleurs/ar_eg/10361044285640817256.wav	ar	wer<=50%:قبل وصول القوات لم تواجه هايتي مشاكل متعلقة بالمرض منذ القرن التاسع عشر
+fleurs/ar_eg/10366294495925707527.wav	ar	wer<=50%:بصفته رياضيّاً شاملاً، يمكن للنّمر التّسلق وإن لم يكن ذلك بشكلٍ جيد والسّباحة والقفز لمسافاتٍ طويلةٍ والسّحب بقوّة خمسة أضعاف قوّة الإنسان
+fleurs/ar_eg/10372562911047932559.wav	ar	wer<=50%:في حال كنت تعبر منطقة بحر البلطيق الشمالية في الشتاء فيجب أن تفحص موقع الكابينة إذ أن المرور عبر الجليد يسبب ضوضاء صاخبة للغاية للأشخاص الأكثر تضرراً
+fleurs/ar_eg/10394942145902478734.wav	ar	wer<=50%:أُرسل القمر الصناعي إلى الفضاء بواسطة صاروخ يستخدم العلماء التلسكوبات في الفضاء لأن الغلاف الجوي لكوكب الأرض يشوه بعض الضوء والرؤية
+fleurs/ar_eg/10427622000895658817.wav	ar	wer<=50%:بصفة عامة، يمكن أن يظهر سلوكان عندما يبدأ المديرون في قيادة أقرانهم السابقين أحدهما هو محاولة البقاء مثل الآخرين أو الأخريات
+fleurs/ar_eg/10459237854135592487.wav	ar	wer<=50%:يتصاعد من المصنع دخاناً أبيض وهذا ما أظهرته تقارير تلفزيونية
+fleurs/ar_eg/10482686991657251883.wav	ar	wer<=50%:يمكنك أن تسمع صوت السيّاح والبائعين هنا دائماً عادةً فقصة الصوت والضوء تشبه قصة كتابٍ
+fleurs/ha_ng/10623312076286681949.wav	ha	wer<=50%:motar giancarlo fisichella ta kwace masa inda hakan ya jawo fitarsa daga tseren jim kaɗan bayan farawa
+fleurs/ha_ng/10638829075402093921.wav	ha	wer<=50%:sinadiran hydrogen sune proton wadanda suka cire wa electrons tunda sunadaran hydrogen sun kunshi proton daya da electron daya
+fleurs/ha_ng/10642781891041506444.wav	ha	wer<=50%:bayan hadarin ya faru an dauki gibson zuwa asibiti amma ya mutu jim kadan bayan haka
+fleurs/ha_ng/10657622312586281522.wav	ha	wer<=50%:wannan ba zai zama ban kwana ba ne wannan shine rufewar babin sura da bude wani sabo
+fleurs/ha_ng/10682387719049649408.wav	ha	wer<=50%:tsirrai sun fi kyau idan suna muhallinsu na halitta saboda haka guji zumuɗin tsige ko da samfur daya ne kawai
+fleurs/ha_ng/10689944351391995888.wav	ha	wer<=50%:perry ya fadi cewa zai dawo texas domin tantance sakamakon caucus na daren nan in tantance ko akwai ko akwai alaman ci gaba man a wannan tsere amma daga baya ya ce zai ci gaba da tseren sannan ya yi gasan fid da gwani ran 21 ga janairu a south carolina
+fleurs/ha_ng/10768008037567316007.wav	ha	wer<=50%:cikin wadanda aka amince da su akwai ra’ayin/fahimtar aristotle kan dukkan batutuwan kimiyya ciki har da ilimin halayyar dan adam
+fleurs/ha_ng/1077849305568046366.wav	ha	wer<=50%:magungunan biyu suna aiki tare da juna don samar da lu'ulu'u wanda zai iya toshe aikin koda masu bincike a jami'ar sun ce
+fleurs/ha_ng/10849188633248803659.wav	ha	wer<=50%:yayin da yake wannan yawanci ra’ayi ne wanda ba daidai ba hanya mafi kyau don yin sabo a cikin paris har yanzu shine kasancewa kan halayyarka mafi kyau yin aiki kamar wanda yake  bien élevé” wanda ya sami tarbiyya mai kyau. zai sanya yin sabo ya kasance mai sauki
+fleurs/ha_ng/10916169113204290877.wav	ha	wer<=50%:rage tashin hankali haka kuma yawan fata na gari da karfin rayuwa zai gabatar ko wani mutum na da damar samun kwanciyar hankali da gamsuwa

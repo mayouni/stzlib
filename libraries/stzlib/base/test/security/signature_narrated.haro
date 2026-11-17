@@ -1,0 +1,130 @@
+# A TEXT SIGNED WITH A KEY THAT IS NAMED, VERIFIED WITH THE PUBLIC KEY ALONE -- FOUNDRY-SIGN-01, narrated
+#
+# stzSignature (base/security/stzSignature.haro): StzSignNewKey writes a key's private half for its owner alone and
+# answers the public half; StzSign takes the private key by REFERENCE (env:NAME or file:PATH) and refuses a value;
+# StzVerify needs the public key and nothing else; StzKeyId names a public key.
+#
+#   Scene 1  a new key: the private half written privately, the public half beside it
+#   Scene 2  signed by a file reference, verified with the public key alone
+#   Scene 3  a changed text, a changed signature, another key: each fails
+#   Scene 4  signed by an environment reference: the same verdict
+#   Scene 5  a key given as a value is refused, and no refusal carries a key
+#   Scene 6  the key id: from the public key alone, stable, distinct
+#   Scene 7  the cost
+#
+# RUNS ON haro.exe with the library. No network.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+tBS = Char(92)
+tWork = SysGet("TEMP") + tBS + "stz_sign"
+StzEngineDirDeleteTree(tWork)
+StzMakeDir(tWork)
+tKey = tWork + tBS + "packs.key"
+tKey2 = tWork + tBS + "other.key"
+tDigest = StzEngineCryptoSha256("a pack's bytes")
+
+Scenario("1. a new key")
+tPublic = StzSignNewKey(tKey)
+tD = Trim(Read(tKey))
+Then("the public key reads es256:<x>.<y>", Left(tPublic, 6) = "es256:" and Len(StzSignPublicParts(tPublic)) = 2, true)
+Then("the private half is in its file", Len(tD) > 20, true)
+Then("...and is not in the public key", Has(tPublic, tD), false)
+Then("the public half is written beside it", StzSignPublicOfFile(tKey), tPublic)
+Then("...and holds no private half", Has(Read(tKey + ".pub"), tD), false)
+tPublic2 = StzSignNewKey(tKey2)
+Then("a second key is another key", tPublic2 != tPublic, true)
+
+Scenario("2. signed by a file reference")
+tSig = StzSign(tDigest, "file:" + tKey)
+Then("a signature comes back", Len(tSig) > 40, true)
+Then("...and does not hold the private key", Has(tSig, tD), false)
+Then("it verifies with the public key alone", StzVerify(tDigest, tSig, tPublic), 1)
+
+Scenario("3. what fails")
+Then("a changed text fails", StzVerify(tDigest + "0", tSig, tPublic), 0)
+tBad = Left(tSig, Len(tSig) - 2) + "AA"
+if tBad = tSig
+    tBad = Left(tSig, Len(tSig) - 2) + "BB"
+end
+Then("a changed signature fails", StzVerify(tDigest, tBad, tPublic), 0)
+Then("another key's public half fails", StzVerify(tDigest, tSig, tPublic2), 0)
+Then("a public key that is not one fails", StzVerify(tDigest, tSig, "rsa:abc"), 0)
+
+Scenario("4. signed by an environment reference")
+SysSet("STZ_SIGN_GUARD_KEY", tD)
+tSigE = StzSign(tDigest, "env:STZ_SIGN_GUARD_KEY")
+Then("it verifies with the same public key", StzVerify(tDigest, tSigE, tPublic), 1)
+SysSet("STZ_SIGN_GUARD_KEY", "")
+
+Scenario("5. a key is named, never typed")
+tErr = Refusal(tDigest, tD)
+Then("the private key given as a value is refused", Has(tErr, "named, never typed"), true)
+Then("...and the refusal does not carry it", Has(tErr, tD), false)
+Then("an empty environment variable is refused", Has(Refusal(tDigest, "env:STZ_SIGN_GUARD_KEY"), "holds no key"), true)
+Then("a missing key file is refused", Has(Refusal(tDigest, "file:" + tWork + tBS + "nowhere.key"), "no key file"), true)
+Write(tWork + tBS + "notakey.key", "not a key")
+tErr = Refusal(tDigest, "file:" + tWork + tBS + "notakey.key")
+Then("a file that holds no key does not sign", Has(tErr, "did not sign"), true)
+Then("...and its refusal names the reference, not the content", Has(tErr, "not a key" + Char(10)) or Has(tErr, ": not a key"), false)
+
+Scenario("6. the key id")
+tId = StzKeyId(tPublic)
+Then("it reads es256: and 16 hex", Left(tId, 6) = "es256:" and Len(tId) = 22, true)
+Then("it is the same from the same public key", StzKeyId(StzSignPublicOfFile(tKey)), tId)
+Then("another key has another id", StzKeyId(tPublic2) != tId, true)
+Then("no key, no id", StzKeyId("nothing"), "")
+
+Scenario("7. the cost")
+nN = 50
+nT = Clock()
+for i = 1 to nN
+    tS = StzSign(tDigest, "file:" + tKey)
+end
+nSignMs = (Clock() - nT) / nN
+nT = Clock()
+for i = 1 to nN
+    nOk = StzVerify(tDigest, tS, tPublic)
+end
+nVerifyMs = (Clock() - nT) / nN
+Then("every signature of the run verifies", nOk, 1)
+? "  a signature: " + String(nSignMs) + " ms (the key file read each time); a verification: " + String(nVerifyMs) + " ms"
+
+StzEngineDirDeleteTree(tWork)
+? ""
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# the refusal StzSign raises for a reference, "" when it signs
+func Refusal(tText, tRef)
+    try
+        StzSign(tText, tRef)
+    catch
+        return cCatchError
+    end
+    return ""
+end
+
+func Has(tIn, tPart)
+    return SubStr(tIn, tPart) > 0
+end
+
+func Scenario(tTitle)
+    ? ""
+    ? "SCENARIO: " + tTitle
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end
