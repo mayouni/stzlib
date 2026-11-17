@@ -1,0 +1,125 @@
+# SIGNING A TEXT, AND VERIFYING IT WITH THE PUBLIC KEY ALONE -- FOUNDRY-SIGN-01 (stzfoundry, 2026-11-12)
+#
+# A pack carries a signature over its digest, a run record one over its body; whoever receives them checks both with
+# a PUBLIC key and nothing else. The ledger's seal is an HMAC, where whoever can verify can also forge: this is the
+# other kind, ES256 (ECDSA on P-256 with SHA-256), from the engine's crypto module.
+#
+#   tPublic = StzSignNewKey("D:\keys\packs.key")       # the private half written for its owner alone; the public
+#                                                      # half beside it, packs.key.pub, and answered
+#   tSig    = StzSign(tDigest, "file:D:\keys\packs.key")      # or "env:PACK_SIGNING_KEY"
+#   ? StzVerify(tDigest, tSig, tPublic)                #--> 1
+#   ? StzKeyId(tPublic)                                #--> es256:3f9a0c...  (16 hex), the name a record carries
+#
+# THE PRIVATE KEY IS NAMED, NEVER TYPED (PRINCIPAL-SECRETNAME-01): StzSign takes a REFERENCE -- "env:NAME", an
+# environment variable, or "file:PATH", a file -- and reads the key when it signs. Anything else is refused before
+# anything is read, and no refusal ever carries a key's value. The public key travels in the clear, written
+# es256:<x>.<y> -- the two coordinates as the engine writes them.
+#
+# What a valid signature proves: the holder of that private key signed exactly this text. It says nothing of whether
+# the text is right, and a key that leaks signs for whoever holds it -- rotation and revocation are the owner's.
+
+# Makes a new key: the private half written to tFile for its owner alone, the public half to tFile + ".pub".
+# -> the public key, "es256:<x>.<y>"
+func StzSignNewKey(tFile)
+    vK = StzSplit(StzEngineCryptoEs256KeyPair(""), "|")
+    if Len(vK) != 3
+        StzRaise("StzSignNewKey: the engine made no key pair.")
+    end
+    if StzEngineFileWritePrivate(tFile, vK[1]) != 1
+        StzRaise("StzSignNewKey: the private key could not be written to " + tFile + ".")
+    end
+    tPublic = "es256:" + vK[2] + "." + vK[3]
+    Write(tFile + ".pub", tPublic + Char(10))
+    return tPublic
+end
+
+# Signs a text with the private key a reference names ("env:NAME" or "file:PATH"). -> the signature
+func StzSign(tText, tKeyRef)
+    tD = StzSignKeyOf(tKeyRef)
+    tSig = StzEngineCryptoSignEs256(tText, tD)
+    tD = ""
+    if tSig = ""
+        StzRaise("StzSign: the key " + StzSignRefName(tKeyRef) + " did not sign (not an ES256 private key?).")
+    end
+    return tSig
+end
+
+# 1 when tSig is the signature of tText by the private half of tPublic ("es256:<x>.<y>"), else 0
+func StzVerify(tText, tSig, tPublic)
+    vXY = StzSignPublicParts(tPublic)
+    if Len(vXY) != 2
+        return 0
+    end
+    if StzEngineCryptoVerifyEs256(tText, tSig, vXY[1], vXY[2]) = 1
+        return 1
+    end
+    return 0
+end
+
+# The name of a public key: "es256:" and the first 16 hex of the SHA-256 of its two coordinates. -> "" for no key
+func StzKeyId(tPublic)
+    vXY = StzSignPublicParts(tPublic)
+    if Len(vXY) != 2
+        return ""
+    end
+    return "es256:" + Left(Lower(StzEngineCryptoSha256(vXY[1] + "." + vXY[2])), 16)
+end
+
+# The public key written beside a private key file by StzSignNewKey.
+func StzSignPublicOfFile(tFile)
+    if not FExists(tFile + ".pub")
+        return ""
+    end
+    return Trim(StzReplace(StzReplace(Read(tFile + ".pub"), Char(13), ""), Char(10), ""))
+end
+
+# --- internals -------------------------------------------------------------------------------------------------------
+
+# the private key a reference names, read now; a reference of another form is refused before anything is read
+func StzSignKeyOf(tKeyRef)
+    if not IsString(tKeyRef)
+        StzRaise("StzSign: a key is named by a reference, env:NAME or file:PATH.")
+    end
+    if Left(tKeyRef, 4) = "env:"
+        tName = Right(tKeyRef, Len(tKeyRef) - 4)
+        tD = Trim(SysGet(tName))
+        if tName = "" or tD = ""
+            StzRaise("StzSign: the environment variable " + tName + " holds no key.")
+        end
+        return tD
+    end
+    if Left(tKeyRef, 5) = "file:"
+        tPath = Right(tKeyRef, Len(tKeyRef) - 5)
+        if tPath = "" or not FExists(tPath)
+            StzRaise("StzSign: no key file at " + tPath + ".")
+        end
+        return Trim(StzReplace(StzReplace(Read(tPath), Char(13), ""), Char(10), ""))
+    end
+    StzRaise("StzSign: a key is named, never typed -- give env:NAME or file:PATH (PRINCIPAL-SECRETNAME-01).")
+end
+
+# what a refusal may say of a reference: its form and name, never a value
+func StzSignRefName(tKeyRef)
+    if Left(tKeyRef, 4) = "env:" or Left(tKeyRef, 5) = "file:"
+        return tKeyRef
+    end
+    return "(not a reference)"
+end
+
+# [ x, y ] of "es256:<x>.<y>", [] for anything else
+func StzSignPublicParts(tPublic)
+    if not IsString(tPublic)
+        return []
+    end
+    if Left(tPublic, 6) != "es256:"
+        return []
+    end
+    vP = StzSplit(Right(tPublic, Len(tPublic) - 6), ".")
+    if Len(vP) != 2
+        return []
+    end
+    if vP[1] = "" or vP[2] = ""
+        return []
+    end
+    return vP
+end

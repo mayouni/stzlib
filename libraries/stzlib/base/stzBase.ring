@@ -646,6 +646,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     # program that installs loads it, and it loads Haro's doors.haro, which a node inside its boundary cannot read
     load "security/stzFederationAdmission.haro"  # a host admitted for what it runs (RADAR-FEDERATION-ADMIT-01)
     load "security/stzKernelRecords.haro"      # the kernel's CVE records brought to the folder harb reads (ONEHOUR-B2-FEED)
+    load "security/stzSignature.haro"          # a text signed with a named key, verified with the public key alone (FOUNDRY-SIGN-01)
 
     # Virtual System twin (Phase 2): rehearse file operations in an in-memory
     # tree, generate a narrated UpdatePlan, and commit through the ONE bridge
