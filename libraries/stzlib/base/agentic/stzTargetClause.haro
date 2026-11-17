@@ -1,0 +1,120 @@
+# THE TARGET, NAMED BEFORE THE GATE -- LOOKOUT-W45-SPILLWAY-01 part B (pia 3), ruled yes by the Principal 2026-11-17
+#
+# Part C admits an effect's target at the sinks it reaches. Part B moves the same question to the gate every agent
+# already passes: a governed skill SAYS where its effect goes, and stzPIAgent.Cycle resolves that target from memory
+# BEFORE governance answers, so a refused target is a refused decision -- named in the trace and the ledger -- and the
+# function never runs.
+#
+#     skills:
+#       - name: notify
+#         when: fact order status shipped
+#         does: ring:SendShippingMail
+#         effect: send-mail
+#         target: recall customer email as recipient
+#
+# The clause is `recall <subject> <predicate> as <kind>`, the kind one of part C's (host, recipient, path, payee,
+# phone, channel). At the gate the memory must hold EXACTLY ONE such value, and part C's rule must admit it: code
+# allowed it, or its fact's source is declared:<file> or read:<reader>:<identity kind>, and no text a model proposed
+# carries it. The ring: function then receives the target as its second argument and acts on it alone -- which is a
+# claim the function's author makes, so code says it once:
+#
+#     StzAllowAgentFunctionTargeted("SendShippingMail", "trusted")      # allowed, and it honours its target
+#
+# At load, a target on a skill whose ring: function was not allowed as targeted is refused, and so is a targeted
+# function named by a skill with no target. A target on a skill with no effect is refused: a target names where a
+# GOVERNED effect goes. The decision record carries the target.
+
+$vStzAgentFnTargeted = []
+$tStzTargetGateWhy = ""
+$tStzTargetGateValue = ""
+
+# Code allows a function agent files may name, at most at a posture, and says it acts only on the target it is handed.
+func StzAllowAgentFunctionTargeted(tName, tPosture)
+    StzAllowAgentFunction(tName, tPosture)
+    tN = Lower(Trim("" + tName))
+    if not StzAgentFunctionIsTargeted(tN)
+        $vStzAgentFnTargeted + tN
+    end
+    return true
+end
+
+func StzAgentFunctionIsTargeted(tName)
+    tN = Lower(Trim("" + tName))
+    for tF in $vStzAgentFnTargeted
+        if tF = tN
+            return true
+        end
+    end
+    return false
+end
+
+# [ kind, subject, predicate ] of "recall <s> <p> as <kind>", [] when the text is not one
+func StzPiaTargetClause(tText)
+    vW = []
+    for tW in StzSplit(Trim("" + tText), " ")
+        if Trim(tW) != ""
+            vW + Lower(Trim(tW))
+        end
+    end
+    if Len(vW) != 5
+        return []
+    end
+    if vW[1] != "recall" or vW[4] != "as"
+        return []
+    end
+    for tK in StzTargetKinds()
+        if tK = vW[5]
+            return [ vW[5], vW[2], vW[3] ]
+        end
+    end
+    return []
+end
+
+# "" when the clause reads, else why not
+func StzPiaTargetProblem(tText)
+    if Len(StzPiaTargetClause(tText)) = 3
+        return ""
+    end
+    return "a target reads 'recall <subject> <predicate> as <kind>', the kind one of " + StzJoinWith(StzTargetKinds(), ", ") +
+           " -- and the file says '" + Trim("" + tText) + "'."
+end
+
+# The gate with the target: governance first, then exactly one value in memory, then part C's rule on it.
+# -> 1 with $tStzTargetGateValue the target, or 0 with $tStzTargetGateWhy (a target refusal begins "target-admission:")
+func StzMayProceedTo(oGov, tActor, tAction, vSpec, oMemory)
+    $tStzTargetGateValue = ""
+    if oGov.MayProceed(tActor, tAction) = 0
+        $tStzTargetGateWhy = oGov.Why()
+        return 0
+    end
+    tKind = vSpec[1]
+    tWhere = "(" + vSpec[2] + " " + vSpec[3] + ")"
+    vV = oMemory.Recall(vSpec[2], vSpec[3])
+    if Len(vV) = 0
+        $tStzTargetGateWhy = "target-admission: no " + tKind + " in memory " + tWhere + ": the effect has nowhere declared to go"
+        StzNoteRefusal("target.refused", tActor, tKind + ":", $tStzTargetGateWhy)
+        return 0
+    end
+    if Len(vV) > 1
+        $tStzTargetGateWhy = "target-admission: " + String(Len(vV)) + " values for " + tKind + " " + tWhere + ": one target, or the effect does not run"
+        StzNoteRefusal("target.refused", tActor, tKind + ":", $tStzTargetGateWhy)
+        return 0
+    end
+    tV = "" + vV[1]
+    if StzAdmitTargetIn(oMemory, tKind, tV) = 0
+        $tStzTargetGateWhy = "target-admission: " + StzTargetAdmissionWhy()
+        StzNoteRefusal("target.refused", tActor, tKind + ":" + tV, $tStzTargetGateWhy)
+        return 0
+    end
+    $tStzTargetGateValue = tV
+    $tStzTargetGateWhy = oGov.Why() + "; " + StzTargetAdmissionWhy()
+    return 1
+end
+
+func StzTargetGateWhy
+    return $tStzTargetGateWhy
+end
+
+func StzTargetGateValue
+    return $tStzTargetGateValue
+end

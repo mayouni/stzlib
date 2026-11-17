@@ -1003,6 +1003,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "agentic/stzAgentDeclaration.ring"
     load "agentic/stzFactSource.haro"           # where an agent's fact came from (SPILLWAY part A)
     load "security/stzTargetAdmission.haro"     # may an acting agent's effect go to this target (SPILLWAY part C)
+    load "agentic/stzTargetClause.haro"         # the target named before the gate, pia 3 (SPILLWAY part B)
     load "agentic/stzAgentFolder.ring"
     # the roster: the estate's own PowerShell mechanisms as ring:
     # functions behind softanza/roster/*.pia (prompt 46). A front-end

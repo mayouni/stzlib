@@ -90,6 +90,8 @@ changes no verdict -- it makes Part B possible.
 
 ### Part B -- name the target before the gate (the format grows: `pia: 3`)
 
+*Delivered 2026-11-17, ruled yes by the Principal the same day (SPILLWAY-PIA3-01), as `base/agentic/stzTargetClause.haro` with hooks in `stzAgentDeclaration` and `stzPIAgent.Cycle`. The clause is written `target: recall <subject> <predicate> as <kind>` (the kind is part C's); the gate needs exactly one value; `StzAllowAgentFunctionTargeted(name, posture)` is the flag (Ring cannot add a third argument to `StzAllowAgentFunction`); the gate is the function `StzMayProceedTo`, beside stzGovernance. Guard: `base/test/security/target_clause_narrated.haro`.*
+
 The paper's per-setting list of target argument names becomes a declared clause. A governed skill says where its
 target is:
 
