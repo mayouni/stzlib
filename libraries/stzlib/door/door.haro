@@ -22,6 +22,8 @@
 #
 # The door loads no library and no engine itself: it starts at once, and only `run` pays for Softanza's load.
 
+load "doors.haro"    # Haro's own module: the runner's child is declared, never a command line
+
 $tHere = ExeDir()
 $vRows = []
 $vInitClass = []
@@ -417,16 +419,25 @@ end
 
 # --- run ----------------------------------------------------------------------------------------------------------
 
+# The child is DECLARED, not written as a command line (Haro refuses one built as text from v0.75, D92;
+# HARO-CMDLINE-SURFACE-01): ITSELF yes is this same haro, its two arguments are places in the door's folder, and Run()
+# answers the child's output and errors, which the old line sent through `> _door_answer.txt 2>&1`. The two streams
+# are joined output first, then errors: the caller reads the whole answer, not the order of its lines.
 func Run(tCode)
 	tFile = $tHere + "_door_code.txt"
 	Write(tFile, tCode)
-	tAnswer = $tHere + "_door_answer.txt"
-	tCmd = Quoted(ExeFileName()) + " " + Quoted($tHere + "door_run.haro") + " " + Quoted(tFile) + " > " + Quoted(tAnswer) + " 2>&1"
-	if IsWindows()
-		tCmd = Quoted(tCmd)
+	tQ = Char(34)
+	tDir = $tHere
+	if tDir = ""    # ExeDir() is empty when the door is run by a relative name: the door is the current folder
+		tDir = CurrentDir() + "/"
 	end
-	System(tCmd)
-	return Read(tAnswer)
+	if SubStr(tDir, tQ) > 0
+		Raise("Error (door) : the door's folder name holds a quote: " + tDir)
+	end
+	sDoors = doors.Judge("DEFINE ROOT door AS (AT " + tQ + tDir + tQ + ", ALLOWS [read]) RATIONALE " + tQ + "the door's folder: its runner and the code it is given" + tQ +
+		" DEFINE COMMAND run AS (ITSELF yes, TAKES [place, place], QUIET yes) RATIONALE " + tQ + "door_run.haro, run on the code as a child" + tQ)
+	rRun = sDoors.Invocation("run", [sDoors.Place("door", "door_run.haro"), sDoors.Place("door", "_door_code.txt")]).Run()
+	return rRun.tOutput + rRun.tErrors
 end
 
 func Quoted(tT)

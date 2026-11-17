@@ -218,6 +218,29 @@ extern "kernel32" fn CreateFileW(
 extern "kernel32" fn WriteFile(h: ?*anyopaque, buf: [*]const u8, n: u32, written: *u32, ov: ?*anyopaque) callconv(.winapi) i32;
 extern "kernel32" fn CloseHandle(h: ?*anyopaque) callconv(.winapi) i32;
 
+// -- A file out of the system's file cache, so the next read comes from the disk (HARO-CMDLINE-SURFACE-01) --
+//
+// A measurement of a cold start (a model file loaded as after a restart) needs the file's pages gone from the cache.
+// Windows drops them when the file is opened unbuffered (FILE_FLAG_NO_BUFFERING) and closed; nothing is read or
+// written. This replaces a PowerShell line built as text, which Haro refuses from v0.75 (a shell is no command).
+// 1 = done, 0 = not done (no such file, or a system where this is not done: the cache is then left as it is).
+pub fn stz_file_drop_cache(path: [*c]const u8, path_len: usize) callconv(.c) c_int {
+    if (path == null or path_len == 0) return 0;
+    const p = path[0..path_len];
+    if (!pathIsUsable(p)) return 0;
+    if (builtin.os.tag != .windows) return 0;
+    const w = std.unicode.utf8ToUtf16LeAllocZ(gpa, p) catch return 0;
+    defer gpa.free(w);
+    const GENERIC_READ: u32 = 0x80000000;
+    const SHARE_ALL: u32 = 0x1 | 0x2 | 0x4; // read, write, delete: another process holding the file is not disturbed
+    const OPEN_EXISTING: u32 = 3;
+    const FILE_FLAG_NO_BUFFERING: u32 = 0x20000000;
+    const h = CreateFileW(w.ptr, GENERIC_READ, SHARE_ALL, null, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, null);
+    if (h == null or @intFromPtr(h) == std.math.maxInt(usize)) return 0;
+    _ = CloseHandle(h);
+    return 1;
+}
+
 pub fn stz_file_write_private(path: [*c]const u8, path_len: usize, data: [*c]const u8, data_len: usize) callconv(.c) c_int {
     if (path == null or path_len == 0) return 0;
     const p = path[0..path_len];

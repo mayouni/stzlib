@@ -32,6 +32,7 @@
 # Run from base/test/faculty on haro.exe with STZ_ENGINE_DIR (an engine with stz_neural, stz_perf). A file is read only
 # if its folder's SHA256SUMS records its digest. One model per process, one process at a time.
 
+$bFileLib = false
 $tTsv = "results/ready.tsv"
 $tReport = "results/ready.txt"
 $tSlots = "results/slots.tsv"
@@ -65,10 +66,22 @@ end
 
 # ---- put one file out of the system's file cache: open it unbuffered (FILE_FLAG_NO_BUFFERING), close it ----
 
+# the engine does it, with no shell (HARO-CMDLINE-SURFACE-01: PowerShell was a command line built as text, and a shell
+# is no command Haro runs): StzEngineFileDropCache opens the file unbuffered and closes it, as the PowerShell line did
 func Purge(tFile)
-	tWin = Backslashes(tFile)
-	tCmd = "$f = New-Object IO.FileStream('" + tWin + "', [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::ReadWrite, 4096, [IO.FileOptions]0x20000000); $f.Close()"
-	System("powershell -NoProfile -Command " + Char(34) + tCmd + Char(34))
+	FileLib()
+	if StzEngineFileDropCache(Slashes(tFile)) != 1
+		? "purge: the file was not dropped from the cache: " + tFile
+	end
+end
+
+# stz_file.dll, loaded once: the file's size and its cache, from the engine
+func FileLib
+	if $bFileLib
+		return
+	end
+	LoadLib(Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/stz_file.dll")
+	$bFileLib = true
 end
 
 # ---- RADAR-TPUSYNC-BUDGET-01 (b): the set held in slots under one budget, then served ----
@@ -342,17 +355,12 @@ end
 
 # the file's size in bytes, from the system (a model file is too large to read for its length)
 func FileBytes(tPath)
-	tOut = SystemCmd("powershell -NoProfile -Command " + Char(34) + "(Get-Item '" + Backslashes(tPath) + "').Length" + Char(34))
-	tNum = ""
-	for i = 1 to Len(tOut)
-		if tOut[i] >= "0" and tOut[i] <= "9"
-			tNum = tNum + tOut[i]
-		end
-	end
-	if tNum = ""
+	FileLib()
+	nSize = StzEngineFileSize(Slashes(tPath))    # the engine's stat: the file is not read; -1 when it is missing
+	if nSize < 0
 		return 0
 	end
-	return Number(tNum)
+	return nSize
 end
 
 # ---- the analysis: no model needed ----

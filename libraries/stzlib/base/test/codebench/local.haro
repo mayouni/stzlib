@@ -15,6 +15,7 @@
 
 load "../../stzBase.ring"
 load "bench_lib.haro"
+load "doors.haro"
 
 $nMaxNew = 120
 $tSystem = "You write Haro code that uses the Softanza library. Answer with one Haro expression, or a few lines of which the last is `return <expression>`, that produces the expected value. Write only the code: no explanation, no code fences. Rules: use the Softanza functions given to you; true, false and null in small letters; Q(value) gives the value's Softanza object, whose methods chain; never write the expected value itself."
@@ -178,14 +179,16 @@ func DoorFind(tWords)
 		end
 	end
 	tDoor = CurrentDir() + "/../../../door/"
-	tFile = tDoor + "_local_find.txt"
 	SysSet("STZ_DOOR_HOLDOUT", CurrentDir() + "/bench.tsv")
-	tCmd = Char(34) + ExeFileName() + Char(34) + " " + Char(34) + tDoor + "door.haro" + Char(34) + " find " + tClean + " > " + Char(34) + tFile + Char(34)
-	if IsWindows()
-		tCmd = Char(34) + tCmd + Char(34)
+	# a declared child, not a command line built as text (HARO-CMDLINE-SURFACE-01): this same haro on door.haro, the
+	# verb and the cleaned words as two arguments (the door joins its arguments with spaces, as the shell's split did)
+	tQ = Char(34)
+	if SubStr(tDoor, tQ) > 0
+		Raise("Error (local) : the door's folder name holds a quote: " + tDoor)
 	end
-	System(tCmd)
-	return Read(tFile)
+	sDoors = doors.Judge("DEFINE ROOT door AS (AT " + tQ + tDoor + tQ + ", ALLOWS [read]) RATIONALE " + tQ + "the agent door the local model asks" + tQ +
+		" DEFINE COMMAND find AS (ITSELF yes, TAKES [place, word, text], QUIET yes) RATIONALE " + tQ + "door.haro find, run as a child" + tQ)
+	return sDoors.Invocation("find", [sDoors.Place("door", "door.haro"), "find", Trim(tClean)]).Run().tOutput
 end
 
 func ReadTsv(tPath)
