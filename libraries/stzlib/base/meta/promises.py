@@ -338,8 +338,26 @@ for fn in files:
     # constructor has refused since it was tightened to demand a non-empty
     # pattern. Nothing in either file ran, and their promises were being counted
     # as broken rather than unreached.
+    # ...AND HARO'S OWN ERROR CODES ARE NOT RING'S, which this missed until
+    # 2026-11-17. The pattern was `Error \(R[0-9]+\)` -- Ring's R14, R3, R41 --
+    # and Haro raises under NAMED codes: TYPE_LETTER, TYPE_MISMATCH,
+    # BOOLEAN_EXPECTED, NO_COERCION, NUMBER_MIX. None of them matched, so a file
+    # that CRASHED had every promise under the crash counted as a divergence.
+    #
+    # Measured over the 158-topic sweep of 2026-11-17: 71 TYPE_LETTER, 12
+    # TYPE_MISMATCH, 6 BOOLEAN_EXPECTED, 5 NO_COERCION, 4 NUMBER_MIX -- and 170
+    # of the 925 records classified as "a different value" were a crash and its
+    # stack trace, across 73 files. hashlist/11_findlists.ring alone reported 18
+    # divergences that were one raise at line 5589 (`vtStzClassesXT` is lettered
+    # wrongly, inside stzClasses()) plus seventeen lines of its own backtrace.
+    #
+    # This is the third time this exact confusion has been found in this file,
+    # after Ring's codes and after StzRaise's codeless trace. The lesson is not
+    # "add another pattern": it is that A RAISE IS WHATEVER THE RUNTIME CALLS A
+    # RAISE, and the runtime changed under a harness that had Ring's spelling
+    # written into it. The class is now any `Error (<CODE>)`, not an enumeration.
     _joined_out = chr(10).join(out)
-    raised = re.search(r'Error \(R[0-9]+\)[^\n]*', _joined_out)
+    raised = re.search(r'Error \([A-Za-z_][A-Za-z_0-9]*\)[^\n]*', _joined_out)
     if not raised and re.search(r'in function stzraise\(\)', _joined_out, re.I):
         # The trace proves the raise; the "Line NNNN <message>" line above it is
         # what a reader needs, so prefer it and fall back to the trace itself.
