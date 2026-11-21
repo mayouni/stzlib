@@ -199,9 +199,9 @@ chk("a v1 file with a bare ring: clause is STILL admitted -- the stated " +
 oD7 = StzAgentDeclarationQ(StzReplace(cV2Good, "pia: 2", "pia: 1"))
 chk("but v1's vocabulary did not grow: posture in a v1 file is an unknown key",
 	oD7.IsValid() = 0 and len(StzFind("pia-unknown-key", oD7.CiteFindings())) > 0)
-oD8 = StzAgentDeclarationQ(StzReplace(cV2Good, "pia: 2", "pia: 3"))
+oD8 = StzAgentDeclarationQ(StzReplace(cV2Good, "pia: 2", "pia: 4"))
 chk("a version this build does not know is refused, naming what it does know",
-	oD8.IsValid() = 0 and len(StzFind("1 and 2", oD8.CiteFindings())) > 0)
+	oD8.IsValid() = 0 and len(StzFind("1 and 2 and 3", oD8.CiteFindings())) > 0)
 
 ? ""
 #=====================================================================#

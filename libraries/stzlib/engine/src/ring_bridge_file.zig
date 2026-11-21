@@ -56,6 +56,10 @@ fn ring_FileExists(p: *anyopaque) callconv(.c) void {
 fn ring_FileSize(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(f.stz_file_size(gs(p, 1), @intCast(gss(p, 1)))));
 }
+// (cPath) -> 1 when the file's pages were dropped from the system's file cache (Windows), 0 otherwise
+fn ring_FileDropCache(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(f.stz_file_drop_cache(gs(p, 1), @intCast(gss(p, 1)))));
+}
 fn ring_FileMTime(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(f.stz_file_mtime(gs(p, 1), @intCast(gss(p, 1)))));
 }
@@ -417,6 +421,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginefileisreadonly", .func = &ring_FileIsReadOnly },
     .{ .name = "stzenginefileexists", .func = &ring_FileExists },
     .{ .name = "stzenginefilesize", .func = &ring_FileSize },
+    .{ .name = "stzenginefiledropcache", .func = &ring_FileDropCache },
     .{ .name = "stzenginefilemtime", .func = &ring_FileMTime },
     .{ .name = "stzenginefileread", .func = &ring_FileRead },
     .{ .name = "stzenginefilewrite", .func = &ring_FileWrite },

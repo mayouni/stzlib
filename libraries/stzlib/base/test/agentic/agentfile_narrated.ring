@@ -502,8 +502,8 @@ chk("...and the freezer is still warm. STRUCTURE IS NOT CORRECTNESS.",
 # state stzAgentDeclaration's header records -- so every declaration in
 # this suite loads unchanged, and safeworld_narrated.ring is where the
 # v2 vocabulary earns its own scenes.
-chk("the version is a gate: the build writes v2 and still reads v1",
-	StzPiaVersion() = 2 and ring_find(StzPiaKnownVersions(), "1") > 0)
+chk("the version is a gate: the build writes v3 (pia 3, the target) and still reads v1",
+	StzPiaVersion() = 3 and ring_find(StzPiaKnownVersions(), "1") > 0)
 
 ? ""
 ? "=========================================="

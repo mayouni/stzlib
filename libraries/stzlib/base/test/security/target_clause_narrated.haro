@@ -1,0 +1,218 @@
+# THE TARGET, NAMED BEFORE THE GATE -- LOOKOUT-W45-SPILLWAY-01 part B (pia 3), narrated
+#
+# A governed skill of a pia 3 file says where its effect goes (`target: recall <s> <p> as <kind>`); stzPIAgent.Cycle
+# resolves it from memory BEFORE the governance gate and admits it by its fact's source (agentic/stzTargetClause.haro,
+# over part C's rule). A refused target is a refused decision, and the function never runs.
+#
+#   Scene 1  the court at load: what a target clause must be, and what it may be given to
+#   Scene 2  a declared target: the gate admits it, the function receives it, the decision names it
+#   Scene 3  a target a model proposed: refused at the gate, nothing sent, the ledger says so
+#   Scene 4  two values, or none: the effect does not run
+#   Scene 5  code allowing the value admits it
+#   Scene 6  governance answers first: no grant, refused as before
+#   Scene 7  a pia 2 file is read as it always was
+#
+# RUNS ON haro.exe with the library. No network, no model.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+$vSent = []
+
+StzAllowAgentFunctionTargeted("TcNotify", "trusted")
+StzAllowAgentFunction("TcNotifyAnyone", "trusted")
+StzAllowPiaEndpoint("example.org")
+
+StzCloseSecurityLedger()
+StzOpenSecurityLedger(500)
+
+Scenario("1. the court at load")
+Then("a pia 3 file with a target loads", Findings(Pia("3", Notify("recall customer email as recipient"), Declared())), "")
+Then("the same skill in a pia 2 file: target is not a pia 2 word", Has(Findings(Pia("2", Notify("recall customer email as recipient"), Declared())), "'target' is not a skill key"), true)
+Then("a kind outside part C's list is refused", Has(Findings(Pia("3", Notify("recall customer email as subject"), Declared())), "pia-target"), true)
+Then("a clause that is not recall ... as ... is refused", Has(Findings(Pia("3", Notify("customer email"), Declared())), "recall <subject> <predicate> as <kind>"), true)
+Then("a target on a skill with no effect is refused", Has(Findings(Pia("3", NoEffect(), Declared())), "declares no effect"), true)
+Then("a target handed to a function code never said honours it is refused", Has(Findings(Pia("3", Skill("TcNotifyAnyone", "recall customer email as recipient"), Declared())), "never said that function acts on the target"), true)
+Then("a targeted function named by a skill with no target is refused", Has(Findings(Pia("3", Skill("TcNotify", ""), Declared())), "names none"), true)
+
+Scenario("2. a declared target")
+$vSent = []
+oA = StzAgentDeclarationQ(Pia("3", Notify("recall customer email as recipient"), Declared())).ToAgent()
+oA.Cycle()
+Then("the skill ran", DecisionOf(oA, "notify"), "ran")
+Then("the function received the declared target", Last($vSent), "ada@example.org")
+Then("the decision record names the target", Has(Rationales(oA), "target recipient 'ada@example.org'"), true)
+
+Scenario("3. a target a model proposed")
+$vSent = []
+nRefusedBefore = Len(StzSecurityLedgerQ().OfKind("target.refused"))
+oB = StzAgentDeclarationQ(Pia("3", Notify("recall customer email as recipient"), "")).ToAgent()
+oB.MemoryQ().LearnXT("customer", "email", "mallory@evil.example", [[:source, StzFactSourceModel("summarizer")]])
+oB.Cycle()
+Then("the skill was refused", DecisionOf(oB, "notify"), "refused")
+Then("...at the gate, by the target rule", Left(WhyOf(oB, "notify"), 17), "target-admission:")
+Then("...naming the model's text", Has(WhyOf(oB, "notify"), "a model proposed"), true)
+Then("nothing was sent", Len($vSent), 0)
+Then("the ledger holds the refusal", Len(StzSecurityLedgerQ().OfKind("target.refused")) - nRefusedBefore, 1)
+Then("no decision was recorded for it", Has(Rationales(oB), "target"), false)
+
+Scenario("4. two values, or none")
+$vSent = []
+oC = StzAgentDeclarationQ(Pia("3", Notify("recall customer email as recipient"), Declared())).ToAgent()
+oC.MemoryQ().LearnXT("customer", "email", "bob@example.org", [[:source, StzFactSourceDeclared("other.pia")]])
+oC.Cycle()
+Then("two values for one target: refused", Has(WhyOf(oC, "notify"), "2 values for recipient"), true)
+oD = StzAgentDeclarationQ(Pia("3", Notify("recall customer email as recipient"), "")).ToAgent()
+oD.Cycle()
+Then("no value: refused", Has(WhyOf(oD, "notify"), "no recipient in memory"), true)
+Then("nothing was sent", Len($vSent), 0)
+
+Scenario("5. code allowing the value")
+$vSent = []
+oE = StzAgentDeclarationQ(Pia("3", Notify("recall customer email as recipient"), "")).ToAgent()
+oE.MemoryQ().Learn("customer", "email", "ops@shop.example")
+oE.Cycle()
+Then("a value only the agent wrote is refused", DecisionOf(oE, "notify"), "refused")
+StzAllowTarget("recipient", "ops@shop.example")
+oE.Cycle()
+Then("...and admitted once code allows it", DecisionOf(oE, "notify"), "ran")
+Then("...sent to it", Last($vSent), "ops@shop.example")
+StzDisallowTarget("recipient", "ops@shop.example")
+
+Scenario("6. governance answers first")
+$vSent = []
+oF = StzAgentDeclarationQ(StzReplace(Pia("3", Notify("recall customer email as recipient"), Declared()), "  grants:" + Char(10) + "    - send-mail" + Char(10), "")).ToAgent()
+oF.Cycle()
+Then("no grant: refused by governance", Has(WhyOf(oF, "notify"), "lacks PERMISSION"), true)
+Then("...before any target was read", Left(WhyOf(oF, "notify"), 17) != "target-admission:", true)
+
+Scenario("7. a pia 2 file")
+oG = StzAgentDeclarationQ(Pia("2", Skill("TcNotifyAnyone", ""), Declared())).ToAgent()
+oG.Cycle()
+Then("its governed skill, with no target, runs as before", DecisionOf(oG, "notify"), "ran")
+Then("...and so does its learn skill", DecisionOf(oG, "note"), "ran")
+Then("this build writes pia 3", StzPiaVersion(), 3)
+
+StzCloseSecurityLedger()
+? ""
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# --- the functions the files name --------------------------------------------------------------------------------
+
+func TcNotify(oMem, tTo)
+    $vSent + tTo
+    oMem.Learn("customer", "was", "notified")
+    return true
+end
+
+func TcNotifyAnyone(oMem)
+    return true
+end
+
+# --- the files --------------------------------------------------------------------------------------------------
+
+func Declared
+    return "  - customer email ada@example.org" + Char(10)
+end
+
+# a skill block: ring:<fn> with an optional target
+func Skill(tFn, tTarget)
+    tS = "  - name: notify" + Char(10) + "    when: always" + Char(10) + "    does: ring:" + tFn + Char(10) +
+         "    posture: trusted" + Char(10) + "    effect: send-mail" + Char(10)
+    if tTarget != ""
+        tS = tS + "    target: " + tTarget + Char(10)
+    end
+    return tS
+end
+
+func Notify(tTarget)
+    return Skill("TcNotify", tTarget)
+end
+
+func NoEffect
+    return "  - name: notify" + Char(10) + "    when: always" + Char(10) + "    does: learn note was made" + Char(10) +
+           "    target: recall customer email as recipient" + Char(10)
+end
+
+func Pia(tVersion, tSkills, tMemory)
+    tP = "pia: " + tVersion + Char(10) + "name: notifier" + Char(10) + "kind: pi" + Char(10) +
+         "coverage: tells a customer their order shipped" + Char(10) + "reversibility: compensable" + Char(10) +
+         "schedule:" + Char(10) + "  timer: 50" + Char(10)
+    if tMemory != ""
+        tP = tP + "memory:" + Char(10) + tMemory
+    end
+    tP = tP + "governance:" + Char(10) + "  authority: delegated" + Char(10) + "  risks:" + Char(10) +
+         "    send-mail: 2" + Char(10) + "  grants:" + Char(10) + "    - send-mail" + Char(10) + "skills:" + Char(10) + tSkills +
+         "  - name: note" + Char(10) + "    when: always" + Char(10) + "    does: learn note was made" + Char(10)
+    return tP
+end
+
+# every finding the court gives a text, joined; "" for none
+func Findings(tPia)
+    oD = StzAgentDeclarationQ(tPia)
+    tOut = ""
+    for vF in oD.Findings()
+        tOut = tOut + vF[:rule] + ": " + vF[:message] + " | "
+    end
+    return tOut
+end
+
+# --- reading the trace and the lineage ----------------------------------------------------------------------------
+
+func TraceRow(oAgent, tSkill)
+    vT = oAgent.Trace()
+    nN = Len(vT)
+    for i = nN to 1 step -1
+        if vT[i][:skill] = tSkill
+            return vT[i]
+        end
+    end
+    return [[:decision, "(none)"], [:why, "(none)"]]
+end
+
+func DecisionOf(oAgent, tSkill)
+    return TraceRow(oAgent, tSkill)[:decision]
+end
+
+func WhyOf(oAgent, tSkill)
+    return "" + TraceRow(oAgent, tSkill)[:why]
+end
+
+func Rationales(oAgent)
+    tOut = ""
+    for vR in oAgent.GovernanceQ().DecisionsOf("notifier")
+        tOut = tOut + vR[:rationale] + " | "
+    end
+    return tOut
+end
+
+func Last(vL)
+    if Len(vL) = 0
+        return ""
+    end
+    return vL[Len(vL)]
+end
+
+func Has(tIn, tPart)
+    return SubStr(tIn, tPart) > 0
+end
+
+func Scenario(tTitle)
+    ? ""
+    ? "SCENARIO: " + tTitle
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end

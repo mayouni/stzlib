@@ -94,6 +94,15 @@
 	the code performing it must be. A posture on a skill with no ring:
 	clause is refused too: the declared verbs carry their own terms.
 
+	NEW IN v3 -- THE TARGET (SPILLWAY part B, ruled 2026-11-17). A
+	governed skill may say where its effect goes:
+	    target: recall <subject> <predicate> as <kind>
+	and the agent's cycle resolves it from memory BEFORE the governance
+	gate, admitting it by its fact's source (agentic/stzTargetClause.haro).
+	A target needs an effect; a ring: function handed one must have been
+	allowed as targeted (StzAllowAgentFunctionTargeted), and a targeted
+	function is never named by a skill with no target.
+
 	v1 REMAINS ADMITTED, AND THAT IS A STATED MIGRATION STATE, not a
 	loophole -- the same shape as the registration gate's opt-in (ruling
 	3.2a): the live estate's declarations are v1 and are not this
@@ -194,12 +203,12 @@ func StzAgentPostureRank(pcPosture)
 # The format version this build WRITES -- the current vocabulary. The
 # number moves when the vocabulary does (v2: the execution posture).
 func StzPiaVersion()
-	return 2
+	return 3
 
 # ...and every version it still READS. v1 is the migration state the
 # header comment records; a version outside this list is refused.
 func StzPiaKnownVersions()
-	return [ "1", "2" ]
+	return [ "1", "2", "3" ]
 
 func StzPiaTopKeys()
 	return [ "pia", "name", "kind", "coverage", "reversibility",
@@ -779,6 +788,9 @@ class stzAgentDeclaration from stzObject
 		if @nVer >= 2
 			_acOK_ + "posture"
 		ok
+		if @nVer >= 3
+			_acOK_ + "target"
+		ok
 		_n_ = len(paSk)
 		for _i_ = 1 to _n_
 			_k_ = StzLower(ring_trim("" + paSk[_i_][1]))
@@ -915,9 +927,36 @@ class stzAgentDeclaration from stzObject
 			ok
 		ok
 
+		# THE TARGET (v3, SPILLWAY part B): judged by stzTargetClause.haro
+		_aTarget_ = []
+		if @nVer >= 3 and HasKey(paSk, "target")
+			_cTP_ = StzPiaTargetProblem("" + paSk[:target])
+			if _cTP_ != ""
+				@aFindings + _StzPiaFinding("pia-target", _cWhere_ + ".target", _cTP_)
+			else
+				_aTarget_ = StzPiaTargetClause("" + paSk[:target])
+				if _cEffect_ = ""
+					@aFindings + _StzPiaFinding("pia-target", _cWhere_ + ".target",
+						"a target names where a GOVERNED effect goes, and this skill declares no effect.")
+				ok
+				if _bDoesRing_ = 1 and NOT StzAgentFunctionIsTargeted(_aDoes_[:args][1])
+					@aFindings + _StzPiaFinding("pia-target-function", _cWhere_ + ".target",
+						"the skill hands a target to '" + _aDoes_[:args][1] + "', and code never said that " +
+						"function acts on the target it is given (StzAllowAgentFunctionTargeted).")
+				ok
+			ok
+		ok
+		if _bDoesRing_ = 1 and len(_aTarget_) = 0 and NOT HasKey(paSk, "target")
+			if StzAgentFunctionIsTargeted(_aDoes_[:args][1])
+				@aFindings + _StzPiaFinding("pia-target-function", _cWhere_,
+					"'" + _aDoes_[:args][1] + "' acts on a target it is handed, and this skill names none " +
+					"(pia 3: target: recall <subject> <predicate> as <kind>).")
+			ok
+		ok
+
 		@aSkills + [ :name = _cName_, :when = _aWhen_, :does = _aDoes_,
 			     :verify = _aVerify_, :effect = _cEffect_,
-			     :posture = _cPosture_, :ringfns = _acRingFns_ ]
+			     :posture = _cPosture_, :ringfns = _acRingFns_, :target = _aTarget_ ]
 
 	# Does this skill's raw text put a `ring:` clause in this slot? Read
 	# from the FILE rather than from the parse, so an unresolvable
@@ -1319,6 +1358,9 @@ class stzAgentDeclaration from stzObject
 			_oSk_ = new stzDeclaredSkill(@aSkills[_i_][:name])
 			_oSk_.SetClauses(@aSkills[_i_][:when], @aSkills[_i_][:does],
 				@aSkills[_i_][:verify])
+			if len(@aSkills[_i_][:target]) > 0
+				_oSk_.SetTarget(@aSkills[_i_][:target])
+			ok
 			if @aSkills[_i_][:effect] != ""
 				_oAg_.AddGovernedSkill(_oSk_, @aSkills[_i_][:effect])
 			else
@@ -1403,6 +1445,20 @@ class stzDeclaredSkill from stzAgentSkill
 	@aWhen = []
 	@aDoes = []
 	@aVerify = []
+	@aTarget = []		# [ kind, subject, predicate ] (pia 3), [ ] for none
+	@cTargetValue = ""	# the target the gate admitted for this firing
+
+	# the target clause (pia 3), resolved at the gate by stzPIAgent.Cycle
+	def SetTarget(paTarget)
+		@aTarget = paTarget
+		return This
+
+	def TargetSpec()
+		return @aTarget
+
+	def SetTargetValue(pcValue)
+		@cTargetValue = "" + pcValue
+		return This
 
 	# Gives the skill its three clauses as data: when it may run, what it does and how it is verified.
 	#
@@ -1519,7 +1575,11 @@ class stzDeclaredSkill from stzAgentSkill
 			poMemory.Forget(_a_[1], _a_[2], _a_[3])
 		but _v_ = "ring"
 			_cF_ = _a_[1]
-			call _cF_(poMemory)
+			if len(@aTarget) > 0
+				call _cF_(poMemory, @cTargetValue)	# the target the gate admitted (pia 3)
+			else
+				call _cF_(poMemory)
+			ok
 		ok
 		return This
 

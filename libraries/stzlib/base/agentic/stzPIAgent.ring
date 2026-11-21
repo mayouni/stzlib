@@ -219,15 +219,33 @@ class stzPIAgent from stzObject
 						:verified = 0, :why = "precondition not met" ]
 					loop
 				ok
-				# GOVERNANCE GATE: a governed skill needs MayProceed
+				# GOVERNANCE GATE: a governed skill needs MayProceed -- and, when it
+				# names a target (pia 3, SPILLWAY part B), StzMayProceedTo, which
+				# resolves the target from memory and admits it BEFORE the act
 				if _cAction_ != ""
-					if @oGov.MayProceed(@tName, _cAction_) = 0
-						@aTrace + [ :skill = _oSk_.Name_(), :decision = "refused",
-							:verified = 0, :why = @oGov.Why() ]
-						loop
+					_aTs_ = []
+					if isMethod(_oSk_, "targetspec")
+						_aTs_ = _oSk_.TargetSpec()
 					ok
-					@oGov.RecordDecision(@tName + "-" + _oSk_.Name_(),
-						"skill fired on met precondition", @tName, _cAction_)
+					if len(_aTs_) > 0
+						if StzMayProceedTo(@oGov, @tName, _cAction_, _aTs_, @oMem) = 0
+							@aTrace + [ :skill = _oSk_.Name_(), :decision = "refused",
+								:verified = 0, :why = StzTargetGateWhy() ]
+							loop
+						ok
+						_oSk_.SetTargetValue(StzTargetGateValue())
+						@oGov.RecordDecision(@tName + "-" + _oSk_.Name_(),
+							"skill fired on met precondition; target " + _aTs_[1] + " '" +
+							StzTargetGateValue() + "'", @tName, _cAction_)
+					else
+						if @oGov.MayProceed(@tName, _cAction_) = 0
+							@aTrace + [ :skill = _oSk_.Name_(), :decision = "refused",
+								:verified = 0, :why = @oGov.Why() ]
+							loop
+						ok
+						@oGov.RecordDecision(@tName + "-" + _oSk_.Name_(),
+							"skill fired on met precondition", @tName, _cAction_)
+					ok
 				ok
 				# TARGET ADMISSION (SPILLWAY part C): a sink asks StzAdmitTarget against this
 				# memory as it stands now; a sink's refusal is this skill's, traced, not the cycle's
