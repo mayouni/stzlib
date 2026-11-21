@@ -356,8 +356,33 @@ for fn in files:
     # "add another pattern": it is that A RAISE IS WHATEVER THE RUNTIME CALLS A
     # RAISE, and the runtime changed under a harness that had Ring's spelling
     # written into it. The class is now any `Error (<CODE>)`, not an enumeration.
+    # ...AND THE FOURTH FORM HAS NO CODE AT ALL, found 2026-11-21. Three
+    # detectors were written here against three spellings of an error -- Ring's
+    # `Error (R14)`, StzRaise's codeless trace, Haro's `Error (TYPE_LETTER)` --
+    # and calendar/27_year-month_string_init.ring dies like this:
+    #
+    #     Line 202 Bad parameter type!
+    #     In method _initializemonth() in file .../stzCalendar.ring
+    #     Called from line 156 In method _initializefromstring() ...
+    #
+    # No code, no stzraise(), and the file does not catch (grep: 0) -- the trace
+    # IS the end of its output. 51 divergence records carried a trace like this
+    # and were counted as wrong answers.
+    #
+    # SO STOP MATCHING THE MESSAGE AND MATCH THE UNWIND. Every raise, whatever
+    # its spelling, prints a stack trace: `In method f() in file ...` or
+    # `Called from line N In ...`. That is the runtime saying it abandoned the
+    # program, and it is the one signal common to all four forms. The codes stay
+    # as the preferred FINDING TEXT, because a reader wants the message; the
+    # trace is what decides whether a raise happened at all.
     _joined_out = chr(10).join(out)
+    _TRACE = re.compile(r'^(?:Called from line \d+ )?In (?:method|function) \S+\(\) in file',
+                        re.M | re.I)
     raised = re.search(r'Error \([A-Za-z_][A-Za-z_0-9]*\)[^\n]*', _joined_out)
+    if not raised and _TRACE.search(_joined_out):
+        # Prefer the "Line NNN <message>" line a reader needs over the trace.
+        raised = (re.search(r'^Line \d+ (?!Error)\S.*$', _joined_out, re.M)
+                  or _TRACE.search(_joined_out))
     if not raised and re.search(r'in function stzraise\(\)', _joined_out, re.I):
         # The trace proves the raise; the "Line NNNN <message>" line above it is
         # what a reader needs, so prefer it and fall back to the trace itself.
