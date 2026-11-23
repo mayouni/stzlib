@@ -27,6 +27,11 @@ nTcStart = Clock()
 tTcHere = CurrentDir()
 tTcPlant = tTcHere + "/_planted_clock"
 _TcPlantAll(tTcPlant)
+# THE CHILDREN'S DEADLINE (TESTOOR-CLOCK-COLD-01). Three planted tours and the supervised worker load the library, and after
+# a library change each compiles its image of it before its first line: 28 s each alone, past this guard's former 60 s (and
+# the worker's 40 s) under load, measured 2026-11-16 -- and a deadline that ends the compile leaves the image unwritten, so
+# every later run is cold too. Five minutes covers the compile; a warm child is done in about a second.
+$nTcDeadlineMs = 300000
 
 #============================================================================
 Scenario("The stepped clock moves only when the tour moves it, and replays identically")
@@ -130,8 +135,8 @@ EndScenario()
 Scenario("A tour seeded to fail at 42 fails identically twice, and passes at 43")
 	nTcSec = Clock()
 	Given("a planted tour that fails exactly when its draw equals seed 42's draw")
-	oA = TravellerQ().Silent().Timeout(60000).Seed(42).Walk(tTcPlant + "/seeded_fail.ring")
-	oB = TravellerQ().Silent().Timeout(60000).Seed(42).Walk(tTcPlant + "/seeded_fail.ring")
+	oA = TravellerQ().Silent().Timeout($nTcDeadlineMs).Seed(42).Walk(tTcPlant + "/seeded_fail.ring")
+	oB = TravellerQ().Silent().Timeout($nTcDeadlineMs).Seed(42).Walk(tTcPlant + "/seeded_fail.ring")
 	xA = oA.Records()[1]
 	xB = oB.Records()[1]
 	Then("the first walk fails", xA[:run][:state], "diverged")
@@ -145,7 +150,7 @@ Scenario("A tour seeded to fail at 42 fails identically twice, and passes at 43"
 	Then("the tour itself printed the seed it adopted", _TcHasLine(xA, "[testoor seed 42]"), true)
 	Then("the runner exits 1", oA.ExitCode(), 1)
 	Given("the same tour walked with seed 43")
-	oC = TravellerQ().Silent().Timeout(60000).Seed(43).Walk(tTcPlant + "/seeded_fail.ring")
+	oC = TravellerQ().Silent().Timeout($nTcDeadlineMs).Seed(43).Walk(tTcPlant + "/seeded_fail.ring")
 	xC = oC.Records()[1]
 	Then("its one printed claim is kept", xC[:run][:kept], 1)
 	Then("nothing diverged: the claim in the branch not taken is unjudged, not a failure", NarText(xC[:run][:diverged]) + "/" + NarText(xC[:run][:unjudged]), "0/1")
@@ -153,10 +158,10 @@ Scenario("A tour seeded to fail at 42 fails identically twice, and passes at 43"
 	Then("the runner exits 0", oC.ExitCode(), 0)
 	Then("a kept tour does not shout its seed", StzFindFirst("seed 43", _TravRunProse(xC)), 0)
 	Given("a tour that names its own seed under a runner that offers another")
-	oD = TravellerQ().Silent().Timeout(60000).Seed(42).Walk(tTcPlant + "/own_seed.ring")
+	oD = TravellerQ().Silent().Timeout($nTcDeadlineMs).Seed(42).Walk(tTcPlant + "/own_seed.ring")
 	Then("the seed the tour named is the one recorded", oD.Records()[1][:run][:seed], 7)
 	Given("a runner that was given no seed")
-	oE = TravellerQ().Silent().Timeout(60000).Walk(tTcPlant + "/stable.ring")
+	oE = TravellerQ().Silent().Timeout($nTcDeadlineMs).Walk(tTcPlant + "/stable.ring")
 	Then("chose one and REPORTED it, so the run can be walked again", oE.SeedUsed() >= 1, true)
 	Then("in the JSON", StzFindFirst('"seed":' + NarText(oE.SeedUsed()), oE.Json()) > 0, true)
 EndScenario()
@@ -167,7 +172,7 @@ Scenario("Undeclared weather is reported flaky; a stable tour is not; declared w
 	nTcSec = Clock()
 	_TcClearMarkers(tTcPlant)
 	Given("a tour whose verdict depends on a file it leaves behind, walked twice with one seed")
-	oF = TravellerQ().Silent().Timeout(60000).Seed(5).Repeat(2).Walk(tTcPlant + "/flaky_undeclared.ring")
+	oF = TravellerQ().Silent().Timeout($nTcDeadlineMs).Seed(5).Repeat(2).Walk(tTcPlant + "/flaky_undeclared.ring")
 	xF = oF.Records()[1]
 	Then("it is FLAKY", xF[:flaky], 1)
 	Then("the court says so, as an error", Len(oF.Findings()), 1)
@@ -179,16 +184,16 @@ Scenario("Undeclared weather is reported flaky; a stable tour is not; declared w
 	Then("the prose says FLAKY and the seed", StzFindFirst("FLAKY", _TravRunProse(xF)) > 0 and StzFindFirst("seed 5", _TravRunProse(xF)) > 0, true)
 	_TcClearMarkers(tTcPlant)
 	Given("the same tour walked ONCE")
-	oG = TravellerQ().Silent().Timeout(60000).Seed(5).Walk(tTcPlant + "/flaky_undeclared.ring")
+	oG = TravellerQ().Silent().Timeout($nTcDeadlineMs).Seed(5).Walk(tTcPlant + "/flaky_undeclared.ring")
 	Then("one walk cannot see flakiness: it is merely diverged", oG.Records()[1][:flaky] = 0 and oG.Records()[1][:run][:state] = "diverged", true)
 	_TcClearMarkers(tTcPlant)
 	Given("a stable tour walked twice")
-	oH = TravellerQ().Silent().Timeout(60000).Seed(5).Repeat(2).Walk(tTcPlant + "/stable.ring")
+	oH = TravellerQ().Silent().Timeout($nTcDeadlineMs).Seed(5).Repeat(2).Walk(tTcPlant + "/stable.ring")
 	Then("it is not flaky", oH.Records()[1][:flaky], 0)
 	Then("and the court is silent", Len(oH.Findings()), 0)
 	Then("and the runner exits 0", oH.ExitCode(), 0)
 	Given("a tour that DECLARED its weather and is still flaky")
-	oJ = TravellerQ().Silent().Timeout(60000).Seed(5).Repeat(2).Walk(tTcPlant + "/flaky_declared.ring")
+	oJ = TravellerQ().Silent().Timeout($nTcDeadlineMs).Seed(5).Repeat(2).Walk(tTcPlant + "/flaky_declared.ring")
 	xJ = oJ.Records()[1]
 	Then("it is flaky", xJ[:flaky], 1)
 	Then("the weather it declared is in the logbook", Len(xJ[:weather]) >= 1, true)
@@ -215,7 +220,7 @@ Scenario("The weather on the distribution plane: a supervised child dies at the 
 	oSup.Strategy(:OneForOne)
 	oSup.RestartBudget(5, 30000)
 	oSup.StartAll()
-	Then("the worker answers after boot", _TcAwaitPong("w1", 40000), true)
+	Then("the worker answers after boot", _TcAwaitPong("w1", $nTcDeadlineMs), true)
 	TestoorReset()
 	ClockTo(:stepped, [ 0, 100 ])
 	Seed(42)
@@ -235,7 +240,7 @@ Scenario("The weather on the distribution plane: a supervised child dies at the 
 	bRestarted = _TcDriveUntil(oSup, "w1", 1, 30000)
 	Then("the restart happened", bRestarted, true)
 	Then("and was COUNTED, exactly once", oSup.RestartsOf("w1"), 1)
-	Then("the restarted worker answers again", _TcAwaitPong("w1", 40000), true)
+	Then("the restarted worker answers again", _TcAwaitPong("w1", $nTcDeadlineMs), true)
 	oSup.StopAll()
 	TestoorReset()
 EndScenario()
