@@ -1,0 +1,91 @@
+# THE DLM'S LAWS, APPLIED -- ZINDARA-PROTEGE-01, the DLM side
+#
+# A protege is a DLM a learner fills. Its recorded laws now decide answers: a symmetric relation answers from the
+# reverse fact, a transitive one along a chain, and a unique one with two objects is a contradiction the protege
+# refuses to answer from. A planted misconception -- a wrong fact or a wrong law -- is found through Why and removed,
+# and the answers change. Forging a DLM from the knowledge graph the learner fills is stable: the same graph, the
+# same answers, every time it is forged.
+#
+#     haro dlm_laws_narrated.haro       (from this folder, STZ_ENGINE_DIR set)
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+func chk(tWhat, bOk)
+	if bOk
+		$nPass += 1
+		? "  [OK] " + tWhat
+	else
+		$nFail += 1
+		? "  [FAIL] " + tWhat
+	end
+end
+
+func Has(tText, tPart)
+	return Len(StzFind(tPart, tText)) > 0
+end
+
+? "SCENARIO 1: a unique relation -- the planted price, a contradiction, the correction"
+oD = StzDlmQ("village")
+oD.LearnEntity("millet", "grain")
+oD.LearnFact("millet", "price", "500")
+oD.LearnLaw("price", "unique")
+chk("the planted price is answered as taught", oD.Ask("millet price?") = "Millet price 500.")
+chk("Why shows the fact it came from", Has(oD.Why(), "recorded fact: 'millet' price 500"))
+oD.LearnFact("millet", "price", "300")
+chk("two prices for a unique relation: the protege refuses", Has(oD.Ask("millet price?"), "contradicts itself"))
+chk("...and Why names the law and both objects", Has(oD.Why(), "'price' is unique") and Has(oD.Why(), "500 and 300"))
+chk("Contradictions names one", Len(oD.Contradictions()) = 1)
+oD.ForgetFact("millet", "price", "500")
+chk("the misconception forgotten: the right price", oD.Ask("millet price?") = "Millet price 300.")
+chk("...and no contradiction remains", Len(oD.Contradictions()) = 0)
+
+? "SCENARIO 2: a symmetric relation answers from the reverse fact"
+oD.LearnFact("well", "near", "school")
+oD.LearnLaw("near", "symmetric")
+chk("asked about the object, the protege answers the subject", oD.Ask("school near?") = "School near well.")
+chk("...by the law symmetric", Has(oD.Why(), "by the law symmetric of 'near'"))
+chk("the subject still answers its recorded fact", oD.Ask("well near?") = "Well near school.")
+
+? "SCENARIO 3: a transitive relation answers along a chain"
+oD.LearnFact("stream", "flows-into", "river")
+oD.LearnFact("river", "flows-into", "lake")
+oD.LearnLaw("flows-into", "transitive")
+chk("the chain is followed", oD.Ask("stream flows-into?") = "Stream flows-into river and lake.")
+chk("...and Why gives the chain", Has(oD.Why(), "stream flows-into river flows-into lake"))
+
+? "SCENARIO 4: a wrong LAW planted, found through Why, forgotten"
+oD.LearnLaw("near", "transitive")
+oD.LearnFact("school", "near", "market")
+chk("the wrong law answers wrongly: well near market", Has(oD.Ask("well near?"), "market"))
+chk("...and Why names the law that did it", Has(oD.Why(), "by the law transitive of 'near'"))
+oD.ForgetLaw("near", "transitive")
+chk("the law forgotten: the market is no longer near the well", not Has(oD.Ask("well near?"), "market"))
+
+? "SCENARIO 5: forged from the knowledge graph a learner fills -- stable, and corrected by re-forging"
+oKB = new stzKnowledgeGraph("village")
+oKB.Know("millet", "grain")
+oKB.KnowRelation("millet", "price", "500")
+oKB.ConstrainRelation("price", "unique")
+oKB.KnowRelation("stream", "flows-into", "river")
+oKB.KnowRelation("river", "flows-into", "lake")
+oKB.ConstrainRelation("flows-into", "transitive")
+oA = StzDlmQ(oKB)
+oB = StzDlmQ(oKB)
+chk("forged twice from one graph: the same answer", oA.Ask("stream flows-into?") = oB.Ask("stream flows-into?"))
+chk("the graph's transitive law is applied after forging", oA.Ask("stream flows-into?") = "Stream flows-into river and lake.")
+chk("the graph's planted price is answered", oA.Ask("millet price?") = "Millet price 500.")
+oKB.RemoveFact("millet", "price", "500")
+oKB.KnowRelation("millet", "price", "300")
+oC = StzDlmQ(oKB)
+chk("re-forged after the learner's correction: the right price", oC.Ask("millet price?") = "Millet price 300.")
+chk("...and nothing contradicts", Len(oC.Contradictions()) = 0)
+
+? "SCENARIO 6: outside the domain is still refused"
+chk("an unknown question is refused, not guessed", Has(oD.Ask("what is the weather"), "outside the 'village' domain"))
+
+? ""
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+Shutdown($nFail)

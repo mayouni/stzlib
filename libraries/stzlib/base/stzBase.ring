@@ -962,6 +962,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "learning/stzNeuralNetwork.ring"
     load "learning/stzTrainer.ring"
     load "learning/stzDLM.ring"
+    load "learning/stzDLMLaws.haro"    # ZINDARA-PROTEGE-01: the DLM's laws applied by Ask
 
     # governance/ -- PROGRAMMATIC GOVERNANCE as declarable contracts
     # (R4b): risk tiers, permission-vs-authority, commitment states,

@@ -1,0 +1,183 @@
+#--------------------------------------------------------------#
+#      SOFTANZA LIBRARY (V1.2) - STZDLMLAWS                    #
+#--------------------------------------------------------------#
+#                                                              #
+#   Description  : the laws of a DLM's relations, APPLIED:    #
+#                  what Ask answers by a law, and the facts   #
+#                  that contradict one (ZINDARA-PROTEGE-01,   #
+#                  the DLM side). stzDLM keeps its facts and  #
+#                  laws; these functions read them.           #
+#                                                              #
+#--------------------------------------------------------------#
+
+# The three laws a relation may carry, as stzKnowledgeGraph declares them (ConstrainRelation) and a DLM records them
+# (LearnLaw, forged from the graph's ontology):
+#
+#   symmetric    a r b holds b r a: Ask about b answers a
+#   transitive   a r b and b r c hold a r c: Ask about a answers c, its chain given as the reason
+#   unique       a subject has one object at most: two different recorded objects are a CONTRADICTION, which Ask
+#                refuses to answer from and Contradictions names -- the protege does not pick one
+#
+# Every answer by a law says which law and which facts gave it, so Why shows a learner the rule a wrong answer came
+# from: a planted misconception is found there, and replaced.
+
+# The laws recorded for one relation (vLaws holds [ relation, law ] pairs).
+func StzDlmLawsOf(vLaws, tRel)
+	vOut = []
+	nLen = Len(vLaws)
+	for i = 1 to nLen
+		if vLaws[i][1] = tRel
+			vOut + vLaws[i][2]
+		end
+	end
+	return vOut
+end
+
+func StzDlmHasLaw(vLaws, tRel, tLaw)
+	vL = StzDlmLawsOf(vLaws, tRel)
+	nLen = Len(vL)
+	for i = 1 to nLen
+		if vL[i] = tLaw
+			return true
+		end
+	end
+	return false
+end
+
+# What the facts and laws answer to "tE tR ?": [ the objects, the reason ]. The recorded facts first, in their order;
+# then, for a symmetric relation, the subjects that hold tE as their object; then, for a transitive one, every entity
+# a chain of such facts reaches, nearest first. Each object once; tE itself is never its own answer.
+func StzDlmLawfulObjects(vFacts, vLaws, tE, tR)
+	bSym = StzDlmHasLaw(vLaws, tR, "symmetric")
+	bTrans = StzDlmHasLaw(vLaws, tR, "transitive")
+	vOut = []
+	vVia = []    # for each object, the entity it was reached from ("" for a recorded fact about tE)
+	vHow = []    # for each object: "fact", "symmetric" or "transitive"
+	vQueue = [ tE ]
+	nAt = 1
+	while nAt <= Len(vQueue)
+		tFrom = vQueue[nAt]
+		vNext = _StzDlmNeighbours(vFacts, tFrom, tR, bSym)
+		nLen = Len(vNext)
+		for i = 1 to nLen
+			tTo = vNext[i][1]
+			if tTo != tE and _StzDlmIndexOf(vOut, tTo) = 0
+				vOut + tTo
+				if tFrom = tE
+					vVia + ""
+					vHow + vNext[i][2]
+				else
+					vVia + tFrom
+					vHow + "transitive"
+				end
+				if bTrans
+					vQueue + tTo
+				end
+			end
+		end
+		nAt = nAt + 1
+	end
+	return [ vOut, _StzDlmWhy(tE, tR, vOut, vVia, vHow) ]
+end
+
+# the entities one step away: [ entity, "fact" | "symmetric" ], recorded facts first
+func _StzDlmNeighbours(vFacts, tFrom, tR, bSym)
+	vOut = []
+	nLen = Len(vFacts)
+	for i = 1 to nLen
+		if vFacts[i][1] = tFrom and vFacts[i][2] = tR
+			vOut + [ vFacts[i][3], "fact" ]
+		end
+	end
+	if bSym
+		for i = 1 to nLen
+			if vFacts[i][3] = tFrom and vFacts[i][2] = tR
+				vOut + [ vFacts[i][1], "symmetric" ]
+			end
+		end
+	end
+	return vOut
+end
+
+func _StzDlmWhy(tE, tR, vOut, vVia, vHow)
+	tWhy = ""
+	nLen = Len(vOut)
+	for i = 1 to nLen
+		if tWhy != ""
+			tWhy = tWhy + "; "
+		end
+		if vHow[i] = "fact"
+			tWhy = tWhy + "recorded fact: '" + tE + "' " + tR + " " + vOut[i]
+		elseif vHow[i] = "symmetric"
+			tWhy = tWhy + "by the law symmetric of '" + tR + "': '" + vOut[i] + "' " + tR + " " + tE
+		else
+			tWhy = tWhy + "by the law transitive of '" + tR + "': " + _StzDlmChain(tE, vOut, vVia, i, tR)
+		end
+	end
+	return tWhy
+end
+
+# the chain from tE to the i-th object, as "e r b r c"
+func _StzDlmChain(tE, vOut, vVia, nI, tR)
+	vPath = [ vOut[nI] ]
+	tAt = vVia[nI]
+	nGuard = 0
+	while tAt != "" and nGuard < Len(vOut)
+		vPath + tAt
+		nK = _StzDlmIndexOf(vOut, tAt)
+		if nK = 0
+			tAt = ""
+		else
+			tAt = vVia[nK]
+		end
+		nGuard = nGuard + 1
+	end
+	tOut = tE
+	for i = Len(vPath) to 1 step -1
+		tOut = tOut + " " + tR + " " + vPath[i]
+	end
+	return tOut
+end
+
+# The facts that break a law: a subject with two or more different objects for a unique relation. Each:
+# [ [:rule, "relation_unique"], [:subject, s], [:relation, r], [:objects, [ ... ]] ].
+func StzDlmContradictions(vFacts, vLaws)
+	vOut = []
+	vSeen = []
+	nLen = Len(vFacts)
+	for i = 1 to nLen
+		tS = vFacts[i][1]
+		tR = vFacts[i][2]
+		tKey = tS + Char(9) + tR
+		if StzDlmHasLaw(vLaws, tR, "unique") and _StzDlmIndexOf(vSeen, tKey) = 0
+			vSeen + tKey
+			vObj = StzDlmRecordedObjects(vFacts, tS, tR)
+			if Len(vObj) > 1
+				vOut + [ [:rule, "relation_unique"], [:subject, tS], [:relation, tR], [:objects, vObj] ]
+			end
+		end
+	end
+	return vOut
+end
+
+# the different objects recorded for "tS tR", in their order
+func StzDlmRecordedObjects(vFacts, tS, tR)
+	vOut = []
+	nLen = Len(vFacts)
+	for i = 1 to nLen
+		if vFacts[i][1] = tS and vFacts[i][2] = tR and _StzDlmIndexOf(vOut, vFacts[i][3]) = 0
+			vOut + vFacts[i][3]
+		end
+	end
+	return vOut
+end
+
+func _StzDlmIndexOf(vList, tItem)
+	nLen = Len(vList)
+	for i = 1 to nLen
+		if vList[i] = tItem
+			return i
+		end
+	end
+	return 0
+end

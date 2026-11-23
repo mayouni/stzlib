@@ -51,8 +51,10 @@ func StzDlmQ(pDomainOrKB)
 # saved to a self-contained .zdlm file that another model reads back with LoadFrom. The second rung
 # is a bigram network trained only on the sentences GenerateCorpus renders from the facts, with no
 # remote teacher; it predicts and generates words but does not own the truth, which stays with Ask.
-# Known limits today: names learned by hand are matched in lower case only, and the recorded laws
-# are saved but not applied by Ask.
+# The recorded laws are applied by Ask (learning/stzDLMLaws.haro): a symmetric relation answers from
+# the reverse fact, a transitive one along a chain of facts, and a unique one with two recorded objects
+# is a contradiction, refused and named by Contradictions. Names learned by hand are matched in lower
+# case only.
 #
 #   receiver   o1 = new stzDLM("restaurant")
 #   example    o1.LearnEntity("margherita", "dish")
@@ -199,8 +201,8 @@ class stzDLM from stzObject
 	#   pcLaw      the law's name
 	#   returns    the model itself, so calls chain
 	#   note       the same pair twice is kept once
-	#   warning    no method of the model reads the laws today: Ask answers from the recorded facts
-	#              only, so a transitive law adds no chained answer
+	#   note       Ask applies it: symmetric answers from the reverse fact, transitive along a chain,
+	#              unique refuses a subject with two objects (Contradictions names them)
 	#   see        ForgeFrom, Save
 	def LearnLaw(pcRel, pcLaw)
 		_n_ = len(@aLaws)
@@ -269,6 +271,14 @@ class stzDLM from stzObject
 				ok
 			ok
 		next
+		# and objects: a symmetric law answers about them (ZINDARA-PROTEGE-01)
+		for _i_ = 1 to _nF_
+			if len(StzFind(" " + @aFacts[_i_][3] + " ", _cQ_)) > 0
+				if StzLen(@aFacts[_i_][3]) > StzLen(_cE_)
+					_cE_ = @aFacts[_i_][3]
+				ok
+			ok
+		next
 
 		# the mentioned relation
 		_cR_ = ""
@@ -306,17 +316,19 @@ class stzDLM from stzObject
 			ok
 		ok
 
-		# "E <relation> ?" -> the objects (direct, then lawful chain)
+		# "E <relation> ?" -> the objects (direct, then lawful chain) -- ZINDARA-PROTEGE-01: the laws applied
 		if _cR_ != ""
-			_acO_ = []
-			for _i_ = 1 to _nF_
-				if @aFacts[_i_][1] = _cE_ and @aFacts[_i_][2] = _cR_
-					_acO_ + @aFacts[_i_][3]
-				ok
-			next
+			_acDirect_ = StzDlmRecordedObjects(@aFacts, _cE_, _cR_)
+			if len(_acDirect_) > 1 and StzDlmHasLaw(@aLaws, _cR_, "unique")
+				@cWhy = "contradiction: '" + _cR_ + "' is unique, and '" + _cE_ + "' has " + JoinXT(_acDirect_, " and ")
+				return [ :answer = "What I was taught contradicts itself: '" + _cE_ + "' " + _cR_ + " " +
+					JoinXT(_acDirect_, " and ") + ", and '" + _cR_ + "' has one answer only.",
+					:certainty = 1, :why = @cWhy, :refused = 1 ]
+			ok
+			_aLawful_ = StzDlmLawfulObjects(@aFacts, @aLaws, _cE_, _cR_)
+			_acO_ = _aLawful_[1]
 			if len(_acO_) > 0
-				@cWhy = "recorded fact(s): '" + _cE_ + "' " + _cR_ + " " +
-					JoinXT(_acO_, ", ")
+				@cWhy = _aLawful_[2]
 				return [ :answer = StzUpper(StzLeft(_cE_, 1)) +
 					StzRight(_cE_, StzLen(_cE_) - 1) + " " + _cR_ + " " +
 					JoinXT(_acO_, " and ") + ".",
@@ -460,6 +472,42 @@ class stzDLM from stzObject
 			ok
 		next
 		return _aOut_
+
+	# Returns the facts that break a law: each subject with two or more objects for a unique relation.
+	#
+	#   returns    a list of [ :rule, :subject, :relation, :objects ]; empty when nothing contradicts
+	#   see        Ask, ForgetFact, StzDlmContradictions
+	def Contradictions()
+		return StzDlmContradictions(@aFacts, @aLaws)
+
+	# Forgets one recorded fact (a misconception replaced): the same subject, relation and object, lower-cased.
+	#
+	#   returns    the model itself, so calls chain
+	#   see        LearnFact, ForgetLaw
+	def ForgetFact(pcS, pcP, pcO)
+		_cS_ = StzLower("" + pcS)
+		_cP_ = StzLower("" + pcP)
+		_cO_ = StzLower("" + pcO)
+		for _i_ = len(@aFacts) to 1 step -1
+			if @aFacts[_i_][1] = _cS_ and @aFacts[_i_][2] = _cP_ and @aFacts[_i_][3] = _cO_
+				del(@aFacts, _i_)
+			ok
+		next
+		return This
+
+	# Forgets one recorded law of a relation (a wrong rule replaced).
+	#
+	#   returns    the model itself, so calls chain
+	#   see        LearnLaw, ForgetFact
+	def ForgetLaw(pcRel, pcLaw)
+		_cR_ = StzLower("" + pcRel)
+		_cL_ = StzLower("" + pcLaw)
+		for _i_ = len(@aLaws) to 1 step -1
+			if @aLaws[_i_][1] = _cR_ and @aLaws[_i_][2] = _cL_
+				del(@aLaws, _i_)
+			ok
+		next
+		return This
 
 	# Returns the reason behind the last Ask.
 	#
