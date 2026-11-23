@@ -4948,6 +4948,54 @@ a tree whose `base`, `core` and `engine` sit side by side.
 by its MEAN row length, which describes none of its rows. A balanced form, the segmented scan over the products,
 is the candidate; a foundry variant, kept only if the clock agrees.
 
+## GPU-ROUTE-CONTROL-01 STATUS — the route ladder measured a sleeping card; it wakes it before every device block now (2026-11-23)
+
+**What was seen.** The route scenes of the GB0 guards (scan, compaction, sort, segmented reduction, sparse product)
+end SKIPPED whenever the ladder's control rung (its first rung, measured again at the end) moves by more than 2x. On
+2026-11-23 the sparse product's did so in three runs of four, on the shared engine without the day's lanes kernel too:
+the face at 100 rows read 0.15 ms and then 1.9 ms.
+
+**What it was, measured in one process.** Not a leak and not a version: live buffers 0, evictions 0, the kernel cache
+hitting, and the step a LEVEL change (100-row products at 160-300 us before a calibration, 1,600-1,800 us after it,
+and staying there), where a leak gives a slope. Split by part, the whole step was the readback: downloading 100
+numbers went from 98 to 1,530 us, an upload from 8 to 46 us, a buffer's creation not at all. And it was the card:
+
+| moment | download of 100 numbers |
+|---|---|
+| a fresh process | 206 us |
+| after a route calibration | 1,346 us |
+| right after `StzEngineGpuWake(400)` | 86 us, and 85 us for 200 more |
+| after 3 s with no GPU work | 2,237 us |
+| after a second wake | 100 us |
+
+The RTX 3050 drops, after a short idle (a quarter second is enough), into the state GK1 measured in 2026-09: every
+submit pays a fixed 1.3 to 2.2 ms, and thousands of tiny calls do not lift it, while a burst of heavy copies does.
+The ladder woke the card ONCE a rung and then alternated a block of the loop (the card idle for up to a quarter
+second) with a block of thousands of tiny device calls. Whenever the card fell asleep during a loop block, every
+later device block of that rung was measured asleep: the control rung's two readings could be one awake and one
+asleep.
+
+**The fix.** `_RouteRung` in `stzGpu.ring` wakes the card before EVERY device block, which is what the single wake
+already meant. Measured in one process, four spmv calibrations and two scan calibrations, the old ladder against the
+new on the same build:
+
+| | control ratios (0.5-2 allowed) | confounded | one spmv calibration |
+|---|---|---|---|
+| woken once a rung | 0.97-2.24 | 1 of 6 | 49.5 to 90.3 s, growing |
+| woken before each device block | 0.81-1.20 | 0 of 6 | 27.9 to 30.9 s |
+
+Faster, not slower: a wake of an awake card is a few milliseconds, and a device block measured asleep paid ~1.8 ms on
+each of its thousands of calls. The four guards with a route scene, on haro.exe v0.78: every control rung held and
+every line was stored (spmv 53/53 with 0 skipped).
+
+**What the route still does not say.** The ladder measures an AWAKE card, as it always meant to. A caller that calls a
+routed op once now and then meets the card asleep and pays the 1.3-2.2 ms the ladder no longer sees; a route for
+sporadic calls would be a second ladder, measured asleep. Named, not built (GPU-ROUTE-SPORADIC-01).
+
+**And one older defect, three more times.** The scan, compaction and sort guards had the defect the spmv guard had
+this morning: they kept the GPU while their exercise proved itself, so since the lease (2026-11-14) each grader waited
+30 s and was refused (709 s a guard). Each lets go of the card first now, as `gpu_puzzle_narrated.ring` does.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
