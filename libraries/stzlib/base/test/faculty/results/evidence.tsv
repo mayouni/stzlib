@@ -1,0 +1,5 @@
+qwen3-0.6b	items 36	right 27	pass-and-wrong 4 (other-sentence 4, several 0)	part 2	not-verbatim 3	ms 31692
+granite-1b	items 36	right 29	pass-and-wrong 3 (other-sentence 2, several 1)	part 3	not-verbatim 1	ms 69392
+lfm3-1.7b	items 36	right 17	pass-and-wrong 16 (other-sentence 1, several 15)	part 0	not-verbatim 3	ms 78207
+granite42-3b	items 36	right 15	pass-and-wrong 8 (other-sentence 3, several 5)	part 0	not-verbatim 13	ms 134002
+bolt-e4b	items 36	right 33	pass-and-wrong 3 (other-sentence 3, several 0)	part 0	not-verbatim 0	ms 167505

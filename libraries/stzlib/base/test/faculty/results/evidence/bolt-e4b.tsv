@@ -1,0 +1,37 @@
+item	kind	place	answer
+1	right	1	Since the update I cannot get into the iPhone app at all, the login just spins forever and I have a client demo tomorrow morning.
+2	right	1	No crash, just really slow when scrolling the history list on my old Pixel.
+3	right	1	Would be lovely to have a dark mode in the Android app, my eyes hurt at night.
+4	right	1	Tapped subscribe inside the app and got charged twice for premium, my card is now maxed out.
+5	right	1	The app crashes every time I open the camera scanner, so I cannot check in deliveries.
+6	right	1	Is there any way to export my notes from the mobile app to PDF?
+7	right	63	instead the notification badge shows 3 when I have zero unread.
+8	right	1	push notifs stopped arriving on my android since friday
+9	right	1	Hi, how do I change the card used for my subscription on the iPad app?
+10	right	1	Typo on the onboarding screen, it says Welcom instead of Welcome.
+11	right	9	my phone was stolen and the app has our payroll data, how do I recover my account and lock it remotely?
+12	right	1	Your store listing says $4.99 but the in-app price shows 5.49 for me.
+13	right	1	The invoice page shows an amount ten times my plan price and auto-payment runs tomorrow.
+14	right	1	The invoice PDF download button is dead and our accountant needs the file for the audit closing today.
+15	right	1	Dashboard charts load a bit sluggish in Firefox, though nothing is broken.
+16	right	1	Could someone resend my receipt from last March?
+17	right	1	Password reset link says expired instantly, every single time.
+18	other-sentence	52	Right now I scroll through 80 names.
+19	right	1	I want to downgrade from Business to Starter at renewal, where in settings do I do that?
+20	right	1	Still no refund after three weeks of emails.
+21	right	1	Billing page header overlaps the logo on a narrow laptop window, purely cosmetic.
+22	right	1	Loving the new analytics tab!
+23	right	1	Our whole team gets a 502 Bad Gateway on the dashboard since 9am, nobody can see orders.
+24	right	1	dashbord exports CSV with semicolons instead of commas
+25	right	1	POST /v2/orders returns 500 for any payload since the deploy, production checkout is down for our shop.
+26	right	1	Webhook retries arrive out of order sometimes.
+27	right	1	We got an overage charge of 2k for API calls our logs say never happened.
+28	right	1	Does the Python SDK support async natively or should we wrap it with threads?
+29	right	1	Docs promise 100 req/min but I get a 429 at roughly 50 in the test environment.
+30	right	1	Token refresh endpoint rejects valid refresh tokens, so all mobile clients of ours are logged out in a loop.
+31	right	1	What is the price for the enterprise rate limit tier?
+32	other-sentence	62	Offset gets painful with 2M rows.
+33	other-sentence	60	We have not migrated and the docs email was vague.
+34	right	1	We run a small agency and would like to discuss a reseller partnership.
+35	right	52	Just wanted to say thank you!
+36	right	1	Do you offer a student or nonprofit discount?

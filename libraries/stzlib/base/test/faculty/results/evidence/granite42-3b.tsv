@@ -1,0 +1,37 @@
+item	kind	place	answer
+1	right	1	Since the update I cannot get into the iPhone app at all, the login just spins forever and I have a client demo tomorrow morning.
+2	right	1	No crash, just really slow when scrolling the history list on my old Pixel.
+3	right	1	Would be lovely to have a dark mode in the Android app, my eyes hurt at night.
+4	several	1	Tapped subscribe inside the app and got charged twice for premium, my card is now maxed out. Please refund one today.
+5	right	1	The app crashes every time I open the camera scanner, so I cannot check in deliveries.
+6	right	1	Is there any way to export my notes from the mobile app to PDF?
+7	not-verbatim	0	The notification badge shows 3 when I have zero unread.
+8	right	1	push notifs stopped arriving on my android since friday, we rely on them for on-call alerts and missed two incidents
+9	several	1	Hi, how do I change the card used for my subscription on the iPad app? Nothing is wrong, just got a new card.
+10	not-verbatim	0	The onboarding screen says "Welcom" instead of "Welcome."
+11	not-verbatim	0	The phone was stolen and the app has our payroll data, how do I recover my account and lock it remotely?
+12	several	1	Your store listing says $4.99 but the in-app price shows 5.49 for me. Which is right? Not a big deal.
+13	right	1	The invoice page shows an amount ten times my plan price and auto-payment runs tomorrow.
+14	not-verbatim	0	The invoice PDF download button is dead.
+15	right	1	Dashboard charts load a bit sluggish in Firefox, though nothing is broken.
+16	right	1	Could someone resend my receipt from last March?
+17	right	1	Password reset link says expired instantly, every single time.
+18	other-sentence	52	Right now I scroll through 80 names.
+19	right	1	I want to downgrade from Business to Starter at renewal, where in settings do I do that?
+20	other-sentence	46	This is my rent money and I need it back immediately.
+21	not-verbatim	0	The billing page header overlaps the logo on a narrow laptop window, purely cosmetic.
+22	not-verbatim	0	The problem is that the new analytics tab is not functioning as expected.
+23	right	1	Our whole team gets a 502 Bad Gateway on the dashboard since 9am, nobody can see orders.
+24	not-verbatim	0	The dashboard exports CSV with semicolons instead of commas.
+25	not-verbatim	0	The problem is that POST /v2/orders returns 500 for any payload since the deploy, production checkout is down for our shop.
+26	right	1	Webhook retries arrive out of order sometimes.
+27	right	1	We got an overage charge of 2k for API calls our logs say never happened.
+28	right	1	Does the Python SDK support async natively or should we wrap it with threads?
+29	not-verbatim	0	I get a 429 error at roughly 50 requests per minute in the test environment, but the documentation promises 100 req/min.
+30	not-verbatim	0	The token refresh endpoint rejects valid refresh tokens, so all mobile clients are logged out in a loop.
+31	several	1	What is the price for the enterprise rate limit tier? Our usage will triple in spring. Just budgeting.
+32	not-verbatim	0	Please add cursor pagination to the /users listing. Offset gets painful with 2M rows.
+33	not-verbatim	0	The v1 API will be switched off tomorrow.
+34	several	1	We run a small agency and would like to discuss a reseller partnership. Who is the right contact?
+35	not-verbatim	0	The problem is that your support replies are always friendly and fast.
+36	other-sentence	47	Our club has no budget but would love to use the tools.
