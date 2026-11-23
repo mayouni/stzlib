@@ -99,9 +99,64 @@ func Word(tW)
 	return tW
 end
 
+# HARO-TEXTRUN-BENCH-01: the screen every text passes before this benchmark runs it. The benchmark exists to run code
+# a model wrote, in its own process; the screen refuses the calls that reach outside the computation -- a program, a
+# library, a file written or removed, more text run as code, a door declared, the process ended -- as a GLOBAL call
+# (a name not after a dot, followed by an opening parenthesis), and a `doors` declaration. A Softanza method of the
+# same name (Q(x).Remove(...)) is a method, not that call, and passes; so does any name inside a quoted text.
+# Named to the checker: haro check --validators=ScreenCode. Raises, so the caller's catch reports the refusal.
+func ScreenCode(tCode)
+	vRefused = [ "system", "systemcmd", "systemrun", "loadlib", "write", "remove", "eval", "shutdown", "makedir" ]
+	tLow = Lower(tCode)
+	nLen = Len(tLow)
+	tQuote = ""
+	tPrev = ""
+	nAt = 1
+	while nAt <= nLen
+		tC = tLow[nAt]
+		if tQuote != ""
+			if tC = tQuote
+				tQuote = ""
+			end
+			nAt = nAt + 1
+		elseif tC = Char(34) or tC = "'" or tC = "`"
+			tQuote = tC
+			nAt = nAt + 1
+		elseif IsAlpha(tC) or tC = "_"
+			nStart = nAt
+			while nAt <= nLen and (IsAlnum(tLow[nAt]) or tLow[nAt] = "_")
+				nAt = nAt + 1
+			end
+			tWord = SubStr(tLow, nStart, nAt - nStart)
+			nNext = nAt
+			while nNext <= nLen and (tLow[nNext] = " " or tLow[nNext] = Char(9))
+				nNext = nNext + 1
+			end
+			tAfter = ""
+			if nNext <= nLen
+				tAfter = tLow[nNext]
+			end
+			if tWord = "doors" and (tAfter = "." or tAfter = "'")
+				Raise("screen: the code declares doors")
+			end
+			if tPrev != "." and tAfter = "(" and Find(vRefused, tWord) > 0
+				Raise("screen: the code calls " + tWord + "()")
+			end
+			tPrev = ""
+		else
+			if tC != " " and tC != Char(9)
+				tPrev = tC
+			end
+			nAt = nAt + 1
+		end
+	end
+	return true
+end
+
 # what an expression prints as, or #ERR# and the error; #OBJ# for an object
 func Rep(tExpr)
 	try
+		ScreenCode(tExpr)
 		if IsObject(Eval("return " + tExpr))
 			return "#OBJ#"
 		end

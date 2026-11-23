@@ -161,6 +161,7 @@ func Printed(tCode)
 		tBody = "return " + tBody
 	end
 	try
+		ScreenCode(tBody)    # HARO-TEXTRUN-BENCH-01: model-written code is screened before it runs (bench_lib.haro)
 		return Esc(@@(Eval(tBody)))
 	catch
 		return "error: " + cCatchError
