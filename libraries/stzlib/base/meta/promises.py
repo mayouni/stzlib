@@ -376,7 +376,26 @@ for fn in files:
     # as the preferred FINDING TEXT, because a reader wants the message; the
     # trace is what decides whether a raise happened at all.
     _joined_out = chr(10).join(out)
-    _TRACE = re.compile(r'^(?:Called from line \d+ )?In (?:method|function) \S+\(\) in file',
+    # ...AND `pf()` IS HOW A TEST ENDS WELL, which this read as a crash on its
+    # first run, 2026-11-21. Matching the unwind was right; matching EVERY unwind
+    # was not. `pf()` -- the profiler's finish, which nearly every file in this
+    # corpus calls on its last line -- terminates by raising, so it prints a
+    # trace on a PASS. CLAUDE.md says so in as many words: "Tests ending with
+    # pf() print STOPPED! on a successful pass -- that banner is the success
+    # marker, not a failure."
+    #
+    # Measured over the 158-topic sweep that first used the trace rule: of 829
+    # files reported as raising, **517 (62%) were `Called from line 18 In
+    # function pf()`** -- files that had finished and passed. Their promises were
+    # then discarded as never reached, `checked` fell by 919 and `diverged`
+    # collapsed from 969 to 37. A detector that counts success as failure is
+    # worse than one that misses a crash: it manufactures a clean result.
+    #
+    # So the frames of normal termination are excluded by name. A file that dies
+    # fatally AND calls pf() still matches, because the fatal frame is a separate
+    # line and the search is multiline.
+    _TRACE = re.compile(r'^(?:Called from line \d+ )?In (?:method|function) '
+                        r'(?!pf\(\)|pr\(\)|stop\(\))\S+\(\) in file',
                         re.M | re.I)
     raised = re.search(r'Error \([A-Za-z_][A-Za-z_0-9]*\)[^\n]*', _joined_out)
     if not raised and _TRACE.search(_joined_out):
