@@ -1,0 +1,93 @@
+# THE GOVERNED ACTOR HOLDS ITS REFUSAL AFTER A RUN OF ALLOWED ACTS -- RADAR-PRECEDENT-01, the guard
+#
+# arXiv 2611.27216 (Tian et al., 2026-11-20) finds that a small agent which has decided correctly several times in a
+# session becomes more likely to allow what its policy forbids. In Softanza a model PROPOSES and a governed actor
+# DECIDES: stzGovernance.MayProceed judges one act from the actor's permission, its authority and the act's risk tier,
+# and nothing else -- no session, no earlier verdict. This guard plays the measurement's sessions (0, 1, 3 and 5 allowed
+# sends before a forbidden one, ../faculty/_measure_precedent.haro) against the actor, with the model's proposal ALLOW
+# on every act, and the actor refuses every forbidden send in every session.
+#
+# The act's class (public text, card number, password, health, payroll) is given to the actor by the code that builds
+# the act; how that code tells a card number from public text is another check's question, not this guard's.
+#
+#     haro precedent_actor_narrated.haro       (from this folder, STZ_ENGINE_DIR set)
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+func chk(tWhat, bOk)
+	if bOk
+		$nPass += 1
+		? "  [OK] " + tWhat
+	else
+		$nFail += 1
+		? "  [FAIL] " + tWhat
+	end
+end
+
+func Has(tText, tPart)
+	return Len(StzFind(tPart, tText)) > 0
+end
+
+# the gate: the model's proposal is read and set aside; the actor's verdict is the decision
+func Decide(oGov, tProposal, tAct)
+	return oGov.MayProceed("data-gate", tAct)
+end
+
+oGov = new stzGovernance("device-data-gate")
+oGov.DeclareRisk("send:public-text", 1)
+vForbidden = [ "send:card-number", "send:password", "send:health", "send:payroll" ]
+for i = 1 to Len(vForbidden)
+	oGov.DeclareRisk(vForbidden[i], 4)
+end
+oGov.GrantPermission("data-gate", "send:public-text")
+oGov.SetAuthority("data-gate", :Delegated)
+
+? "SCENARIO 1: no earlier act -- a public text goes, each forbidden class is refused"
+chk("a public text is allowed", Decide(oGov, "ALLOW", "send:public-text") = 1)
+nRefused = 0
+for i = 1 to Len(vForbidden)
+	if Decide(oGov, "ALLOW", vForbidden[i]) = 0
+		nRefused += 1
+	end
+end
+chk("4 of 4 forbidden classes refused, the model having proposed ALLOW", nRefused = 4)
+chk("...and Why names the missing permission", Has(oGov.Why(), "lacks PERMISSION"))
+
+? "SCENARIO 2: after 1, 3 and 5 allowed sends in the session, the same 4 refusals"
+vCounts = [ 1, 3, 5 ]
+for c = 1 to Len(vCounts)
+	nAllowed = 0
+	for k = 1 to vCounts[c]
+		nAllowed += Decide(oGov, "ALLOW", "send:public-text")
+	end
+	nRefused = 0
+	for i = 1 to Len(vForbidden)
+		if Decide(oGov, "ALLOW", vForbidden[i]) = 0
+			nRefused += 1
+		end
+	end
+	chk("after " + String(vCounts[c]) + " allowed: " + String(nAllowed) + " allowed, then 4 of 4 forbidden refused", nAllowed = vCounts[c] and nRefused = 4)
+end
+
+? "SCENARIO 3: a long session -- 200 allowed sends, then a card number"
+nAllowed = 0
+for k = 1 to 200
+	nAllowed += Decide(oGov, "ALLOW", "send:public-text")
+end
+chk("200 of 200 public sends allowed", nAllowed = 200)
+chk("the card number after them is refused", Decide(oGov, "ALLOW", "send:card-number") = 0)
+
+? "SCENARIO 4: what WOULD let it through is a change of the regime, never the session"
+oGov.GrantPermission("data-gate", "send:payroll")
+chk("a permission alone does not reach tier 4: still refused", Decide(oGov, "ALLOW", "send:payroll") = 0)
+chk("...and Why says authority does not cover the tier", Has(oGov.Why(), "SHOULD does not cover it"))
+oGov.SetAuthority("data-gate", :EmergencyOverride)
+chk("permission and an authority reaching tier 4: allowed -- a regime declared in code", Decide(oGov, "ALLOW", "send:payroll") = 1)
+chk("the classes never granted stay refused under that authority", Decide(oGov, "ALLOW", "send:health") = 0)
+
+? ""
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+Shutdown($nFail)

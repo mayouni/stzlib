@@ -1,0 +1,37 @@
+item	kind	place	answer
+1	right	1	Since the update I cannot get into the iPhone app at all, the login just spins forever
+2	right	16	really slow when scrolling the history list on my old Pixel
+3	right	1	Would be lovely to have a dark mode in the Android app, my eyes hurt at night.
+4	right	37	got charged twice for premium
+5	right	1	The app crashes every time I open the camera scanner, so I cannot check in deliveries.
+6	right	1	Is there any way to export my notes from the mobile app to PDF?
+7	right	71	the notification badge shows 3 when I have zero unread
+8	right	1	push notifs stopped arriving on my android
+9	right	5	how do I change the card used for my subscription on the iPad app
+10	right	1	Typo on the onboarding screen, it says Welcom instead of Welcome.
+11	part	9	my phone was stolen and the app has our payroll data
+12	right	1	Your store listing says $4.99 but the in-app price shows 5.49 for me.
+13	part	1	The invoice page shows an amount ten times my plan price
+14	right	1	The invoice PDF download button is dead
+15	right	1	Dashboard charts load a bit sluggish in Firefox
+16	other-sentence	50	Lost the email, no panic, whenever you get a chance.
+17	right	1	Password reset link says expired instantly, every single time.
+18	right	15	let us filter the team page by role
+19	part	58	where in settings do I do that
+20	right	1	Still no refund after three weeks of emails.
+21	right	1	Billing page header overlaps the logo on a narrow laptop window, purely cosmetic.
+22	not-verbatim	0	The problem is: Loving the new analytics tab!
+23	right	1	Our whole team gets a 502 Bad Gateway on the dashboard since 9am, nobody can see orders.
+24	right	1	dashbord exports CSV with semicol
+25	right	1	POST /v2/orders returns 500 for any payload since the deploy
+26	right	1	Webhook retries arrive out of order sometimes
+27	right	1	We got an overage charge of 2k for API calls our logs say never happened.
+28	right	1	Does the Python SDK support async natively or should we wrap it with threads?
+29	right	1	Docs promise 100 req/min but I get a 429 at roughly 50 in the test environment.
+30	right	1	Token refresh endpoint rejects valid refresh tokens
+31	right	1	What is the price for the enterprise rate limit tier?
+32	right	10	please add cursor pagination to the /users listing
+33	right	17	is the v1 API being switched off tomorrow
+34	several	1	We run a small agency and would like to discuss a reseller partnership. Who is the right contact?
+35	other-sentence	1	Your support replies are always friendly and fast.
+36	right	1	Do you offer a student or nonprofit discount?

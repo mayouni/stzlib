@@ -33,8 +33,9 @@
 # supervisor's: hand a node absolute paths.
 #
 # Measured 2026-11-14 (SOFTANZA_OS_BOUNDARY_STUDY.md, rung B2): an image is kept per cache folder and root file, not per
-# container; haro answers exit code 0 when its compile fails for memory, so the warm start is judged by the job's
-# JOB_MEMORY_LIMIT message as well as the exit code.
+# container. Until Haro v0.78 haro answered exit code 0 when its compile failed for memory; since v0.78
+# (HARO-COMPILE-EXIT-01, 2026-11-23) a failed compile ends with 1. The warm start is judged by the exit code and,
+# as a second sign, by the job's JOB_MEMORY_LIMIT message.
 
 
 # LOADED BY THE PROGRAM THAT INSTALLS, never by stzBase: it loads Haro's doors.haro (haro's prefix runs as a declared
