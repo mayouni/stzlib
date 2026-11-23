@@ -2179,6 +2179,158 @@ pub export fn neural_generate_spec(text: [*c]const u8, len: usize, max_new: c_in
     return @intCast(g_gen_text.items.len - 1);
 }
 
+// ---- drafting from the text itself (RADAR-BATCHDECODE-01 (b), 2026-11-23) -----------------------------------------
+//
+// Prompt lookup: no drafter model. The last `ngram` tokens of the text so far (prompt, then what was produced) are
+// looked for earlier in that same text, the latest occurrence first, from `ngram` tokens down to 1; the tokens that
+// followed it there are the drafts, up to k. The target then reads x0 and the drafts in ONE pass, exactly as in
+// neural_generate_spec, and keeps the drafts while they equal its own choice -- so the text is still the target's own
+// greedy text. It pays when the answer copies from the prompt (an extraction: a name, a number, a sentence quoted),
+// where one pass may confirm several tokens; with no match the round is a plain one-token step. The counts go to
+// neural_gen_spec_stat as for spec (drafter passes and drafter ms stay 0: there is no drafter).
+
+fn lookupDrafts(hist: []const i32, ngram_max: usize, k: usize, drafts: *std.ArrayList(i32)) void {
+    drafts.clearRetainingCapacity();
+    if (k == 0 or hist.len < 2) return;
+    var g: usize = @min(ngram_max, hist.len - 1);
+    while (g >= 1) : (g -= 1) {
+        const tail = hist[hist.len - g ..];
+        // the latest earlier occurrence whose following tokens exist: its end is before the tail's own start
+        var j: usize = hist.len - g;
+        while (j > 0) {
+            j -= 1;
+            if (j + g > hist.len - 1) continue;
+            if (std.mem.eql(i32, hist[j .. j + g], tail)) {
+                const from = j + g;
+                const upto = @min(from + k, hist.len);
+                if (from < upto) {
+                    drafts.appendSlice(gpa, hist[from..upto]) catch return;
+                    return;
+                }
+            }
+        }
+        if (g == 1) break;
+    }
+}
+
+/// Greedy generation drafting from the text itself (prompt lookup): up to `k` drafts a pass, matched on up to `ngram`
+/// tokens. Same text as neural_generate with temperature 0; its length, or -1 (see neural_gen_spec_status).
+pub export fn neural_generate_lookup(text: [*c]const u8, len: usize, max_new: c_int, k_in: c_int, ngram_in: c_int) callconv(.c) c_int {
+    const t0 = std.time.nanoTimestamp();
+    g_spec_status = SPEC_OK;
+    g_spec_stats = .{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    g_gen_text.clearRetainingCapacity();
+    if (g_gram_on or g_rep_penalty > 1.0 or g_stop_repeat > 0) {
+        g_spec_status = SPEC_NOT_GREEDY;
+        return -1;
+    }
+    const k: usize = @intCast(std.math.clamp(k_in, 1, 16));
+    const ngram: usize = @intCast(std.math.clamp(ngram_in, 1, 8));
+    const max: usize = if (max_new > 0) @intCast(max_new) else 64;
+    if (neural_gen_start(text, len, max_new, 0, 1.0, 0, 0) == 0) {
+        g_spec_status = SPEC_TARGET_FAILED;
+        return -1;
+    }
+    g_stream_active = false; // this function drives the decoder, not neural_gen_next
+
+    var hist: std.ArrayList(i32) = .{};
+    defer hist.clearAndFree(gpa);
+    encode(text[0..len], &hist);
+    var out: std.ArrayList(i32) = .{};
+    defer out.clearAndFree(gpa);
+    var drafts: std.ArrayList(i32) = .{};
+    defer drafts.clearAndFree(gpa);
+    var batch: std.ArrayList(i32) = .{};
+    defer batch.clearAndFree(gpa);
+
+    var x0 = argmaxLogits();
+    while (true) {
+        if (x0 < 0 or isEog(x0)) break;
+        if (g_n_past >= contextWindow()) {
+            g_truncated = true;
+            break;
+        }
+        if (!specCommit(x0, &out)) break;
+        hist.append(gpa, x0) catch break;
+        if (out.items.len >= max) break;
+
+        const room = contextWindow() - g_n_past;
+        const kk = @min(k, room - 1, max - out.items.len);
+        lookupDrafts(hist.items, ngram, kk, &drafts);
+
+        batch.clearRetainingCapacity();
+        batch.append(gpa, x0) catch break;
+        batch.appendSlice(gpa, drafts.items) catch break;
+        const base = g_n_past;
+        g_rows_out = batch.items.len;
+        const tv = std.time.nanoTimestamp();
+        const tok = forwardDecode(batch.items);
+        g_spec_stats[7] += @as(f64, @floatFromInt(std.time.nanoTimestamp() - tv)) / 1.0e6;
+        g_rows_out = 1;
+        if (!tok) {
+            g_spec_status = SPEC_FORWARD_FAILED;
+            g_last_error = GEN_FORWARD_FAILED;
+            break;
+        }
+        g_spec_stats[0] += 1;
+        g_spec_stats[1] += @floatFromInt(drafts.items.len);
+        g_spec_stats[3] += 1;
+        var lone = [1]i32{0};
+        const best: []const i32 = if (batch.items.len > 1) g_row_best.items else blk: {
+            lone[0] = argmaxLogits();
+            break :blk lone[0..];
+        };
+        var a: usize = 0;
+        var stop = false;
+        while (a < drafts.items.len and drafts.items[a] == best[a]) {
+            const d = drafts.items[a];
+            if (isEog(d)) {
+                stop = true;
+                break;
+            }
+            a += 1;
+            if (!specCommit(d, &out)) {
+                stop = true;
+                break;
+            }
+            hist.append(gpa, d) catch {
+                stop = true;
+                break;
+            };
+            if (out.items.len >= max) {
+                stop = true;
+                break;
+            }
+        }
+        g_spec_stats[2] += @floatFromInt(a);
+        g_n_past = base + 1 + a;
+        if (stop) break;
+        x0 = best[a];
+    }
+    g_spec_stats[6] = @floatFromInt(out.items.len);
+    g_spec_stats[5] = @as(f64, @floatFromInt(std.time.nanoTimestamp() - t0)) / 1.0e6;
+    g_gen_text.append(gpa, 0) catch return -1;
+    if (g_spec_status != SPEC_OK) return -1;
+    return @intCast(g_gen_text.items.len - 1);
+}
+
+test "prompt lookup drafts what followed the latest earlier occurrence of the text's last tokens" {
+    var d: std.ArrayList(i32) = .{};
+    defer d.deinit(gpa);
+    // ... 5 6 7 8 9 ... 5 6 -> the tail [5, 6] was followed by 7 8 9
+    const h = [_]i32{ 1, 5, 6, 7, 8, 9, 2, 5, 6 };
+    lookupDrafts(&h, 3, 3, &d);
+    try std.testing.expectEqualSlices(i32, &.{ 7, 8, 9 }, d.items);
+    // no earlier occurrence of any tail: no drafts
+    const n = [_]i32{ 1, 2, 3, 4 };
+    lookupDrafts(&n, 3, 3, &d);
+    try std.testing.expectEqual(@as(usize, 0), d.items.len);
+    // the drafts stop at the end of the text
+    const e = [_]i32{ 4, 9, 4 };
+    lookupDrafts(&e, 2, 5, &d);
+    try std.testing.expectEqualSlices(i32, &.{ 9, 4 }, d.items);
+}
+
 // ---- the read prompt kept (RADAR-SNAPSHOT-PREFIXKV-01, 2026-11-11) ----------------------------------------------------
 //
 // NVIDIA's Snapshot restores a warmed GPU process instead of starting it cold; Radar's lesson for Softanza: the warm

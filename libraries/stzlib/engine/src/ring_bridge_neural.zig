@@ -2030,6 +2030,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuraldraftload", .func = &ring_NeuralDraftLoad },
     .{ .name = "stzengineneuraldraftfree", .func = &ring_NeuralDraftFree },
     .{ .name = "stzengineneuralgeneratespec", .func = &ring_NeuralGenerateSpec },
+    .{ .name = "stzengineneuralgeneratelookup", .func = &ring_NeuralGenerateLookup },
     .{ .name = "stzengineneuralspecstatus", .func = &ring_NeuralSpecStatus },
     .{ .name = "stzengineneuralgensetprefixreuse", .func = &ring_NeuralGenSetPrefixReuse },
     .{ .name = "stzengineneuralgenreusedtokens", .func = &ring_NeuralGenReusedTokens },
@@ -2173,6 +2174,25 @@ fn ring_NeuralSpecStatus(p: *anyopaque) callconv(.c) void {
 
 /// StzEngineNeuralSpecStats() -> [ rounds, tokens drafted, drafts taken, target passes, drafter passes, ms, tokens produced,
 /// ms in the target's verification passes, ms in the drafter ]
+// StzEngineNeuralGenerateLookup(cPrompt, nMaxNew, nK, nNgram) -> the greedy text, drafting up to nK tokens a pass from
+// the text itself (prompt lookup, matched on up to nNgram tokens); its counts in StzEngineNeuralSpecStats(). "" on
+// failure (StzEngineNeuralSpecStatus says why).
+fn ring_NeuralGenerateLookup(p: *anyopaque) callconv(.c) void {
+    const plen: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    if (!allowed(slot_file[0..slot_len])) return R.ring_vm_api_retstring(p, "");
+    _ = ranSlot("generate-lookup", plen);
+    const maxn: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 2));
+    const k: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 3));
+    const ng: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 4));
+    const n = gen.neural_generate_lookup(gs(p, 1), plen, maxn, k, ng);
+    if (n < 0) {
+        R.ring_vm_api_retstring(p, "");
+        return;
+    }
+    const t: [*:0]const u8 = @ptrCast(gen.neural_gen_text());
+    R.ring_vm_api_retstring(p, t);
+}
+
 fn ring_NeuralSpecStats(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
     var i: c_int = 0;
