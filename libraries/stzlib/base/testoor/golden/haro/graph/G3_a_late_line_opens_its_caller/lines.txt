@@ -1,0 +1,7 @@
+FILE|inv.haro
+FUNC|Gross|1
+FUNC|Go|5
+FUNC|Vat|9
+CALL|Gross|Vat|static
+CALL|Go|*|late|2
+CALL|Go|Gross|static

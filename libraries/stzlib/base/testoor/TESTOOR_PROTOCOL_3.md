@@ -331,6 +331,7 @@ the unit's first file, its `language` is `haro`, and its `fold` is `ascii`, sinc
 | `CALL|from|to|static` | an edge, kind `call`, each end written in its node's spelling |
 | `CALL|from|name|dynamic|n` | an edge, kind `dispatch`, to **every** method of the unit named `name`: the set of possible callees, exact, so the graph stays complete. A name no method carries leaves the caller **open** |
 | `UNFINISHED|function` | the node is **open**: its calls are missing |
+| `CALL|caller|*|late|n` | haro v0.77 on (HARO-GRAPH-LATECALL-01): the caller holds n calls by a name built at run time -- the node is **open**, and no edge is drawn |
 | a file's own statements (`<top>`) | a node `<top>:FILE`, kind `top`, made when it first calls something |
 
 **A call by a name built at run time** (`call tName()`, `eval(...)`) leaves no line in `haro graph`, so the face reads each file
@@ -478,6 +479,7 @@ Written by hand from section 2 before the code, and reproduced by the core on it
 | `haro/reader/R2_self_describing` | a `.haro` file with no `Scenario(` and no `Then(`: dialect `unknown`, no stop, judged from what it prints |
 | `haro/judge/H3_a_slow_start_is_named` | 6.5: a tour whose first output arrived at 121.39 s: `first_output_ms` written after `wall_ms`, and its line naming the start -- written by hand; the core printed `121.30` where the hand wrote `121.3`, and both now print it as the wall time is printed, `121.39` |
 | `haro/graph/G1_functions_methods_dispatch` | 6.6: functions, methods, a static call written in its node's spelling, two calls dispatched by name each to both methods named `Run`, an unfinished function open, a file's statements as a `top` node, a path's `.` and `..` resolved; read from lines alone, so not complete for that reason too |
+| `haro/graph/G3_a_late_line_opens_its_caller` | 6.6: haro v0.77's `CALL|Go|*|late|2` opens `Go`, counted once, with no edge to `*`; its bound call to `Gross` stays an edge -- written by hand from the format in haro's spike/v77/GRAMMAR.md, before haro.exe prints it here |
 | `haro/graph/G2_a_call_by_a_built_name_opens_its_function` | 6.6: the unit's file read: `call tName(nX)` opens `Dispatch`; the word in a string and a comment does not |
 | `haro/impact/I1_names_select_a_tour` | 6.7: a complete graph, a change to `Vat`: the tour calling `Gross` is selected and the one calling `Label` skipped |
 | `haro/impact/I2_an_open_node_selects_every_tour` | 6.7: the same change over G2's graph, `Dispatch` open: the reach widened by it, it caps itself, every tour selected |

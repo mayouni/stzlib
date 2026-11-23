@@ -18,7 +18,9 @@
 //!   UNFINISHED|function            the compiler could not finish it, so its calls are MISSING: the node is OPEN
 //!   CLASS, IMPORT, the summary     not nodes; read past
 //!
-//! A CALL BY A NAME BUILT AT RUN TIME -- `call tName()`, `eval(...)` -- leaves no line in haro graph, and a graph that missed one
+//! A CALL BY A NAME BUILT AT RUN TIME -- `call tName()`, `eval(...)` -- left no line in haro graph until v0.77, which prints
+//! `CALL|caller|*|late|n` for `call` (HARO-GRAPH-LATECALL-01): the face reads that line as the caller open, with no edge, and
+//! still reads the files, since `eval` has no such line. Before v0.77 a call by a name built at run time left no line, and a graph that missed one
 //! would say complete with a hole in it. So the face reads each file of the unit (given its folder), and a function whose code
 //! holds one is OPEN, as protocol 2 section 2 says: "dispatches by a name built at run time". A file it cannot read, or a run
 //! that gives it no folder, leaves the graph not complete, saying why: it never certifies what it did not read. Strings and
@@ -148,6 +150,8 @@ pub fn fromLinesWith(a: Allocator, text: []const u8, root: ?[]const u8, opts: Op
     var index = std.StringHashMap(usize).init(a);
     var by_name = std.StringHashMap(std.ArrayList(usize)).init(a);
     var calls: std.ArrayList(Call) = .empty;
+    // `CALL|caller|*|late|n` (haro v0.77, HARO-GRAPH-LATECALL-01): the caller holds n calls by a name built at run time
+    var late_callers: std.ArrayList([]const u8) = .empty;
     var unfinished: std.ArrayList([]const u8) = .empty;
     var subject: []const u8 = "";
     var file: []const u8 = "";
@@ -200,6 +204,11 @@ pub fn fromLinesWith(a: Allocator, text: []const u8, root: ?[]const u8, opts: Op
                 from = try std.mem.concat(a, u8, &.{ "<top>:", file });
                 try add.node(a, &nodes, &index, .{ .id = from, .name = "<top>", .kind = "top", .file = file, .line = 0 });
             }
+            // a call by a name built at run time names no callee: no edge, the caller open
+            if (std.mem.eql(u8, field(fs.items, 3), "late")) {
+                try late_callers.append(a, from);
+                continue;
+            }
             try calls.append(a, .{ .from = from, .to = field(fs.items, 2), .dynamic = std.mem.eql(u8, field(fs.items, 3), "dynamic") });
         }
     }
@@ -235,6 +244,15 @@ pub fn fromLinesWith(a: Allocator, text: []const u8, root: ?[]const u8, opts: Op
     var n_late: usize = 0;
     var first_late: []const u8 = "";
     var unread: usize = 0;
+    // the ones haro graph names (v0.77 on): each caller open, counted once with what the files' reading below finds
+    for (late_callers.items) |c| {
+        const i = index.get(try fold(a, c)) orelse continue;
+        if (!nodes.items[i].open) {
+            if (n_late == 0) first_late = try std.fmt.allocPrint(a, "{s} ({s})", .{ nodes.items[i].id, nodes.items[i].file });
+            n_late += 1;
+        }
+        nodes.items[i].open = true;
+    }
     if (root) |r| {
         for (files.items) |f| {
             const path = try std.fs.path.join(a, &.{ r, f.raw });
