@@ -1,0 +1,150 @@
+# RADAR-BATCHDECODE-01 (b): drafting from the prompt's own text (prompt lookup), measured on an extraction task.
+#
+#     haro _measure_lookup.haro <model .gguf> <bolt|qwen3> <k> [label]
+#
+# The support desk's 36 held-out tickets (_data/tickets_heldout.tsv), each asked to quote, word for word, the sentence
+# of the ticket that states the problem -- an answer that copies from the prompt, where a pass of the model may confirm
+# several drafted tokens at once. Each ticket is generated twice, greedy, at most 64 new tokens: plainly
+# (StzEngineNeuralGenerate) and with prompt lookup (StzEngineNeuralGenerateLookup, up to k drafts a pass, matched on up
+# to 3 tokens), the order alternating ticket by ticket so the machine's drift falls on both arms; the prefix cache off.
+# Kept: whether the two texts are IDENTICAL (they must be: lookup only decides how many tokens one pass confirms), the
+# milliseconds of each, and the lookup's passes, drafts and drafts taken.
+#
+# From this folder, with STZ_ENGINE_DIR set (an engine with StzEngineNeuralGenerateLookup). A heavy job: one at a time.
+# Appends one line a model to results/lookup.tsv.
+
+LoadLib(Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/stz_neural.dll")
+
+tModel = ""
+tFamily = ""
+nK = 4
+tLabel = ""
+nArgs = Len(SysArgv)
+for i = 1 to nArgs
+	if Right(SysArgv[i], 20) = "_measure_lookup.haro" and i + 3 <= nArgs
+		tModel = SysArgv[i + 1]
+		tFamily = SysArgv[i + 2]
+		nK = Number(SysArgv[i + 3])
+		tLabel = tFamily + "-k" + SysArgv[i + 3]
+		if i + 4 <= nArgs
+			tLabel = SysArgv[i + 4]
+		end
+	end
+end
+if tModel = ""
+	? "usage: haro _measure_lookup.haro <model .gguf> <bolt|qwen3> <k> [label]"
+	Shutdown(2)
+end
+if StzEngineNeuralModelLoad(Slashes(tModel)) = 0
+	? "the model was refused, status " + String(StzEngineNeuralModelLoadStatus())
+	Shutdown(1)
+end
+StzEngineNeuralGenSetPrefixReuse(0)
+
+$tAsk = "Quote, word for word, the one sentence of this support ticket that states the problem. Write only that sentence."
+vRows = Lines(Read("_data/tickets_heldout.tsv"))
+nSame = 0
+nTickets = 0
+nPlainMs = 0
+nLookMs = 0
+nPasses = 0
+nDrafted = 0
+nTaken = 0
+nTokens = 0
+for i = 1 to Len(vRows)
+	tRow = vRows[i]
+	nTab = IndexOf(Char(9), tRow)
+	if nTab = 0
+		loop
+	end
+	tTicket = Left(tRow, nTab - 1)
+	tPrompt = Prompt(tFamily, $tAsk + Char(10) + Char(10) + "Ticket: " + tTicket)
+	tPlain = ""
+	tLook = ""
+	vS = []
+	if i % 2 = 1
+		nT = Clock()
+		tPlain = StzEngineNeuralGenerate(tPrompt, 64)
+		nPlainMs = nPlainMs + (Clock() - nT)
+		nT = Clock()
+		tLook = StzEngineNeuralGenerateLookup(tPrompt, 64, nK, 3)
+		nLookMs = nLookMs + (Clock() - nT)
+		vS = StzEngineNeuralSpecStats()
+	else
+		nT = Clock()
+		tLook = StzEngineNeuralGenerateLookup(tPrompt, 64, nK, 3)
+		nLookMs = nLookMs + (Clock() - nT)
+		vS = StzEngineNeuralSpecStats()
+		nT = Clock()
+		tPlain = StzEngineNeuralGenerate(tPrompt, 64)
+		nPlainMs = nPlainMs + (Clock() - nT)
+	end
+	nTickets = nTickets + 1
+	if tPlain = tLook
+		nSame = nSame + 1
+	else
+		? "DIFFERS on ticket " + String(nTickets)
+		? "  plain:  " + tPlain
+		? "  lookup: " + tLook
+	end
+	nPasses = nPasses + vS[4]
+	nDrafted = nDrafted + vS[2]
+	nTaken = nTaken + vS[3]
+	nTokens = nTokens + vS[7]
+end
+tLine = tLabel + Char(9) + "tickets " + String(nTickets) + Char(9) + "identical " + String(nSame) + Char(9) + "plain ms " + String(nPlainMs) + Char(9) + "lookup ms " + String(nLookMs) + Char(9) + "tokens " + String(nTokens) + Char(9) + "passes " + String(nPasses) + Char(9) + "drafted " + String(nDrafted) + Char(9) + "taken " + String(nTaken)
+? tLine
+tOld = ""
+if FExists("results/lookup.tsv")
+	tOld = Read("results/lookup.tsv")
+end
+Write("results/lookup.tsv", tOld + tLine + Char(10))
+
+func Prompt(tFam, tUser)
+	if tFam = "bolt"
+		return "<|turn>user" + Char(10) + tUser + "<turn|>" + Char(10) + "<|turn>model" + Char(10)
+	end
+	return "<|im_start|>user" + Char(10) + tUser + "<|im_end|>" + Char(10) + "<|im_start|>assistant" + Char(10) + "<think>" + Char(10) + Char(10) + "</think>" + Char(10) + Char(10)
+end
+
+# the lines of a text (no library is loaded here)
+func Lines(tText)
+	vOut = []
+	tCur = ""
+	nLen = Len(tText)
+	for j = 1 to nLen
+		if tText[j] = Char(10)
+			vOut + tCur
+			tCur = ""
+		elseif tText[j] != Char(13)
+			tCur = tCur + tText[j]
+		end
+	end
+	if tCur != ""
+		vOut + tCur
+	end
+	return vOut
+end
+
+func IndexOf(tNeedle, tHay)
+	nLen = Len(tHay)
+	for j = 1 to nLen
+		if tHay[j] = tNeedle
+			return j
+		end
+	end
+	return 0
+end
+
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for j = 1 to nLen
+		if tPath[j] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[j]
+		end
+	end
+	return tOut
+end
