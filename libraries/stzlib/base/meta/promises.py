@@ -92,8 +92,29 @@ PROSE = re.compile('(but should|should be|should return|see why|currently|'
 # UnicodeEncodeError, AFTER the work was done. Escape on the way out: the
 # report stays ASCII (which is the house rule for console output anyway) and
 # the codepoint is still readable.
+#
+# AND A NUL BYTE IS ASCII, which is why that was not enough. `backslashreplace`
+# only escapes what will not ENCODE, so chr(0) survived the round trip intact and
+# went straight into the report. One NUL anywhere in a file makes grep call the
+# whole file binary and answer "Binary file ... matches" instead of printing the
+# matching line -- so a reader of this report gets no line at all, including the
+# count lines near the top, which are pure ASCII.
+#
+# Measured: base/test/char's report holds 314 NUL bytes, because those tests print
+# raw codepoints. Four consecutive sweeps extracted `RAISED part-way` from these
+# reports with grep and recorded 0 files / 0 expectations for the char topic while
+# the report itself said 30 files and 91 expectations. The counts that were read
+# with sed came through correctly; only the grep-read field was lost.
+#
+# The report is a TEXT file that people and scripts read with text tools, so it
+# owes them text. Tab and newline are left alone because the report's own layout
+# uses them; every other C0 control, and DEL, becomes visible instead of silent.
+_CTRL = {c: '\\x%02x' % c for c in range(0x20) if c not in (0x09, 0x0a)}
+_CTRL[0x7f] = '\\x7f'
+
+
 def safe(s):
-    return s.encode('ascii', 'backslashreplace').decode('ascii')
+    return s.encode('ascii', 'backslashreplace').decode('ascii').translate(_CTRL)
 
 
 def norm(s):
