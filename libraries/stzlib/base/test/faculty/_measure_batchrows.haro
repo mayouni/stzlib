@@ -1,0 +1,91 @@
+# RADAR-BATCHDECODE-01 (a), the first measurement: what one forward pass of n rows costs on this CPU, against one row.
+#
+#     haro _measure_batchrows.haro <model .gguf> [label]
+#
+# Several sequences decoded in one step share ONE read of the model's weights: that is the whole gain the proposal
+# (Tur) measured on a GPU. Whether it exists here is one number per n: the time of a forward over n tokens against the
+# time over 1. A prefill of n tokens at the start of a context IS such a forward -- n rows through every weight, the
+# attention over at most n keys, cheap at this size -- so it is timed directly, the prefix cache off so every pass reads
+# all its tokens from position 0. If n rows cost about n steps, batched decoding buys nothing here and nothing is built.
+#
+# Each n: 3 passes to warm, then 15 timed; the median is kept. The prompt is a word repeated, so the model's own
+# tokenizer says how many rows a pass has (it is printed, not assumed). Threads: 4 for one row and for many, the
+# engine's defaults (a step is bound by memory at 4).
+#
+# From this folder, with STZ_ENGINE_DIR set. A heavy job: one at a time on this machine. Writes results/batchrows.tsv
+# (appended: label, n tokens, median ms, ms a row, cost against one row).
+
+LoadLib(Slashes(SysGet("STZ_ENGINE_DIR")) + "/zig-out/bin/stz_neural.dll")
+
+tModel = ""
+tLabel = ""
+nArgs = Len(SysArgv)
+for i = 1 to nArgs
+	if Right(SysArgv[i], 23) = "_measure_batchrows.haro" and i + 1 <= nArgs
+		tModel = SysArgv[i + 1]
+		tLabel = tModel
+		if i + 2 <= nArgs
+			tLabel = SysArgv[i + 2]
+		end
+	end
+end
+if tModel = ""
+	? "usage: haro _measure_batchrows.haro <model .gguf> [label]"
+	Shutdown(2)
+end
+if StzEngineNeuralModelLoad(Slashes(tModel)) = 0
+	? "the model was refused, status " + String(StzEngineNeuralModelLoadStatus())
+	Shutdown(1)
+end
+StzEngineNeuralGenSetPrefixReuse(0)
+StzEngineNeuralGenSetThreads(4, 4)
+
+vN = [ 1, 2, 4, 8, 16, 32 ]
+nOne = 0
+tOut = ""
+for k = 1 to Len(vN)
+	tPrompt = ""
+	for j = 1 to vN[k]
+		tPrompt = tPrompt + " cat"
+	end
+	nRows = StzEngineNeuralGenTokenize(tPrompt)    # the generator's own tokenizer: the rows this pass reads
+	for j = 1 to 3
+		StzEngineNeuralPrefillLogits(tPrompt)
+	end
+	vMs = []
+	for j = 1 to 15
+		nT = Clock()
+		StzEngineNeuralPrefillLogits(tPrompt)
+		vMs + Divide((Clock() - nT) * 1000, ClocksPerSecond(), 1)
+	end
+	nMed = Median(vMs)
+	if k = 1
+		nOne = nMed
+	end
+	tLine = tLabel + Char(9) + String(nRows) + Char(9) + String(nMed) + Char(9) + String(Divide(nMed, nRows, 2)) + Char(9) + String(Divide(nMed, nOne, 2))
+	? tLine
+	tOut = tOut + tLine + Char(10)
+end
+tOld = ""
+if FExists("results/batchrows.tsv")
+	tOld = Read("results/batchrows.tsv")
+end
+Write("results/batchrows.tsv", tOld + tOut)
+
+func Median(vV)
+	vS = Sort(vV)
+	return vS[Floor((Len(vS) + 1) / 2)]
+end
+
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for i = 1 to nLen
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end
