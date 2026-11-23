@@ -92,7 +92,7 @@ nHc = Up(vCo)
 nHv = Up(vVa)
 nHx = Up(vXb)
 ? "  L | scalar | vector | T=2 | T=4 | T=8 | T=16 | T=32 | variant 3 (T) | best"
-vLs = [ 2, 4, 8, 16, 32, 64, 128, 256 ]
+vLs = [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 ]
 for i = 1 to Len(vLs)
 	nL = vLs[i]
 	nR = IntDiv(nZ, nL)

@@ -20,8 +20,8 @@
 //!            row, and a tree of log2 T steps adds their partials (GB0-SPMV-V2). For the middle rows,
 //!            8 to 64 entries, where the scalar thread's reads are a row apart and the vector
 //!            workgroup is mostly idle.
-//! The variant is chosen by the mean row length (nnz / nrows) against a threshold the guard measured
-//! on this machine, or by the caller (1 scalar, 2 vector). A sum adds in a fixed order per variant:
+//! The variant is chosen by the mean row length (nnz / nrows) against two thresholds the guards measured
+//! on this machine, or by the caller (1 scalar, 2 vector, 3 lanes). A sum adds in a fixed order per variant:
 //! the scalar one left to right along the row, the vector one in a tree, so on whole numbers below
 //! 2^24 both equal the loop's sum to the bit and on other data they differ in the last bits.
 //!
@@ -40,11 +40,14 @@ pub const MAX_NNZ: usize = 1 << 24;
 pub const SCALAR: u32 = 1;
 pub const VECTOR: u32 = 2;
 pub const LANES: u32 = 3;
-/// The mean row length from which one workgroup per row beats one thread per row, measured on the
-/// RTX 3050 (1,000,000 entries, 2026-11-05): the scalar kernel wins at 2 to 16 entries a row, the two
-/// tie or trade places at 32 (0.75 against 0.74 ms in one run, 1.3 against 2.5 in a loaded one), and the
-/// vector kernel wins by about 2x from 64. 48 sits between the last tie and the first clear win.
-pub const AUTO_VECTOR_MIN: usize = 48;
+/// Where auto moves from one kernel to the next, by the mean row length, measured on the RTX 3050
+/// (1,000,000 entries, gpu_spmv_lanes.haro, two runs 2026-11-23): one thread a row wins or ties below 4
+/// entries (0.18-0.22 ms at 1 and 2); the lanes kernel wins from 4 to 512 (0.12-0.17 ms, against the
+/// scalar kernel's 0.68-0.82 ms at 8 to 64 and the vector one's 0.37 at 64); from 1,024 the vector
+/// kernel and 32 lanes tie within 0.02 ms, and a whole workgroup a row is the form for the longest.
+/// Until 2026-11-23 auto knew only scalar and vector, and moved between them at 48.
+pub const AUTO_LANES_MIN: usize = 4;
+pub const AUTO_VECTOR_MIN: usize = 1024;
 
 const PRELUDE =
     \\struct StzTile { xoff : u32, p0 : u32, p1 : u32, p2 : u32 }
@@ -171,12 +174,15 @@ fn dispatchP(kernel: i64, params: anytype, bufs: []const i64, wx: usize) i32 {
     return gpu.stz_gpu_dispatch_params(kernel, bytes.ptr, @floatFromInt(bytes.len), bufs.ptr, @intCast(bufs.len), @floatFromInt(wx), 1);
 }
 
-/// The variant `auto` picks for a matrix of nrows rows and nnz entries: 1 scalar, 2 vector.
+/// The variant `auto` picks for a matrix of nrows rows and nnz entries: 1 scalar, 2 vector, 3 lanes.
 pub fn stz_gpu_spmv_variant_for(nrowsf: f64, nnzf: f64) callconv(.c) f64 {
     const nrows: usize = @intFromFloat(nrowsf);
     const nnz: usize = @intFromFloat(nnzf);
     if (nrows == 0) return SCALAR;
-    return if (nnz / nrows >= AUTO_VECTOR_MIN) VECTOR else SCALAR;
+    const mean = nnz / nrows;
+    if (mean >= AUTO_VECTOR_MIN) return VECTOR;
+    if (mean >= AUTO_LANES_MIN) return LANES;
+    return SCALAR;
 }
 
 fn checkBuf(id: i64, nbytes: usize) i32 {
@@ -255,10 +261,11 @@ pub fn stz_gpu_op_spmm(rp: i64, cols: i64, vals: i64, x: i64, y: i64, nrowsf: f6
 }
 
 test "the variant follows the mean row length" {
-    try std.testing.expectEqual(@as(f64, 1), stz_gpu_spmv_variant_for(1000, 5000));
-    try std.testing.expectEqual(@as(f64, 1), stz_gpu_spmv_variant_for(1000, 47000));
-    try std.testing.expectEqual(@as(f64, 2), stz_gpu_spmv_variant_for(1000, 48000));
-    try std.testing.expectEqual(@as(f64, 2), stz_gpu_spmv_variant_for(10, 10000));
+    try std.testing.expectEqual(@as(f64, 1), stz_gpu_spmv_variant_for(1000, 3000));
+    try std.testing.expectEqual(@as(f64, 3), stz_gpu_spmv_variant_for(1000, 4000));
+    try std.testing.expectEqual(@as(f64, 3), stz_gpu_spmv_variant_for(1000, 1023000));
+    try std.testing.expectEqual(@as(f64, 2), stz_gpu_spmv_variant_for(1000, 1024000));
+    try std.testing.expectEqual(@as(f64, 2), stz_gpu_spmv_variant_for(10, 20000));
     try std.testing.expectEqual(@as(f64, 1), stz_gpu_spmv_variant_for(0, 0));
 }
 

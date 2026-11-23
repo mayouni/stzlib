@@ -1641,7 +1641,7 @@ class stzGpu from stzObject
 	#   paCols     the column of every stored entry
 	#   paVals     the value of every stored entry
 	#   paX        the dense vector
-	#   nVariant   0 to let the mean row length choose, 1 for one thread per row, 2 for one workgroup per row
+	#   nVariant   0 to let the mean row length choose, 1 for one thread per row, 2 for one workgroup per row, 3 for several neighbouring threads per row
 	#   returns    a list of nrows numbers
 	#   see        Spmv
 	def SpmvWith(paRowPtr, paCols, paVals, paX, nVariant)
