@@ -15,6 +15,11 @@
 //!   vector   one workgroup per row (k = 1): its 256 threads stride the row's entries and a tree adds
 //!            their partials in workgroup memory. Wasted on a row of five, the right one for a row of
 //!            hundreds.
+//!   lanes    T neighbouring threads per row (k = 1; T a power of two from 2 to 32), 256 / T rows a
+//!            workgroup: the T lanes stride the row by T, so one step of theirs reads one run of the
+//!            row, and a tree of log2 T steps adds their partials (GB0-SPMV-V2). For the middle rows,
+//!            8 to 64 entries, where the scalar thread's reads are a row apart and the vector
+//!            workgroup is mostly idle.
 //! The variant is chosen by the mean row length (nnz / nrows) against a threshold the guard measured
 //! on this machine, or by the caller (1 scalar, 2 vector). A sum adds in a fixed order per variant:
 //! the scalar one left to right along the row, the vector one in a tree, so on whole numbers below
@@ -34,6 +39,7 @@ const WG: usize = 256;
 pub const MAX_NNZ: usize = 1 << 24;
 pub const SCALAR: u32 = 1;
 pub const VECTOR: u32 = 2;
+pub const LANES: u32 = 3;
 /// The mean row length from which one workgroup per row beats one thread per row, measured on the
 /// RTX 3050 (1,000,000 entries, 2026-11-05): the scalar kernel wins at 2 to 16 entries a row, the two
 /// tie or trade places at 32 (0.75 against 0.74 ms in one run, 1.3 against 2.5 in a loaded one), and the
@@ -107,6 +113,51 @@ const WGSL_VECTOR = PRELUDE ++
     \\}
 ;
 
+const WGSL_LANES = PRELUDE ++
+    \\struct P { nrows : u32, k : u32, t : u32, p2 : u32 }
+    \\@group(0) @binding(1) var<uniform> p : P;
+    \\@group(0) @binding(2) var<storage, read> rp : array<f32>;
+    \\@group(0) @binding(3) var<storage, read> cols : array<f32>;
+    \\@group(0) @binding(4) var<storage, read> vals : array<f32>;
+    \\@group(0) @binding(5) var<storage, read> x : array<f32>;
+    \\@group(0) @binding(6) var<storage, read_write> y : array<f32>;
+    \\var<workgroup> sh : array<f32, 256>;
+    \\@compute @workgroup_size(256)
+    \\fn main(@builtin(local_invocation_id) lid : vec3<u32>,
+    \\        @builtin(workgroup_id) wid : vec3<u32>) {
+    \\  let l = lid.x;
+    \\  let t = p.t;
+    \\  let lane = l & (t - 1u);
+    \\  let r = (wid.x + tile.xoff) * (256u / t) + l / t;
+    \\  let valid = r < p.nrows;
+    \\  var a = 0u;
+    \\  var b = 0u;
+    \\  if (valid) {
+    \\    a = u32(rp[r]);
+    \\    b = u32(rp[r + 1u]);
+    \\  }
+    \\  var acc = 0.0;
+    \\  for (var e = a + lane; e < b; e = e + t) {
+    \\    acc = acc + vals[e] * x[u32(cols[e])];
+    \\  }
+    \\  sh[l] = acc;
+    \\  workgroupBarrier();
+    \\  for (var s = t >> 1u; s > 0u; s = s >> 1u) {
+    \\    if (lane < s) { sh[l] = sh[l] + sh[l + s]; }
+    \\    workgroupBarrier();
+    \\  }
+    \\  if (lane == 0u && valid) { y[r] = sh[l]; }
+    \\}
+;
+
+/// The lanes a row the lanes kernel takes for a mean row length: the power of two at or below it,
+/// from 2 to 32.
+pub fn lanesFor(mean: usize) u32 {
+    var t: u32 = 2;
+    while (t < 32 and @as(usize, t) * 2 <= mean) t *= 2;
+    return t;
+}
+
 fn ceilDiv(a: usize, b: usize) usize {
     return (a + b - 1) / b;
 }
@@ -135,7 +186,7 @@ fn checkBuf(id: i64, nbytes: usize) i32 {
     return gpu.OK;
 }
 
-fn drive(rp: i64, cols: i64, vals: i64, x: i64, y: i64, nrows: usize, nnz: usize, k: usize, variant: u32) i32 {
+fn drive(rp: i64, cols: i64, vals: i64, x: i64, y: i64, nrows: usize, nnz: usize, k: usize, variant: u32, lanes: u32) i32 {
     if (gpu.stz_gpu_is_available() == 0) {
         gpu.countFallback();
         return gpu.FALLBACK;
@@ -161,6 +212,13 @@ fn drive(rp: i64, cols: i64, vals: i64, x: i64, y: i64, nrows: usize, nnz: usize
     st = checkBuf(y, nrows * k * 4);
     if (st != gpu.OK) return st;
 
+    if (variant == LANES) {
+        const t: u32 = if (lanes != 0) lanes else lanesFor(nnz / nrows);
+        const pl = SpParams{ .nrows = @intCast(nrows), .k = 1, .p1 = t, .p2 = 0 };
+        const kern = compile(WGSL_LANES);
+        if (kern == 0) return gpu.GPU_ERROR;
+        return dispatchP(kern, &pl, &.{ rp, cols, vals, x, y }, ceilDiv(nrows, WG / t));
+    }
     const p = SpParams{ .nrows = @intCast(nrows), .k = @intCast(k), .p1 = 0, .p2 = 0 };
     if (variant == VECTOR) {
         const kern = compile(WGSL_VECTOR);
@@ -173,19 +231,27 @@ fn drive(rp: i64, cols: i64, vals: i64, x: i64, y: i64, nrows: usize, nnz: usize
 }
 
 /// y = A x for a CSR matrix, x a dense vector. variant 0 picks by the mean row length, 1 is the
-/// scalar kernel, 2 the workgroup-per-row one. rowptr has nrows + 1 entries; cols and vals nnz.
+/// scalar kernel, 2 the workgroup-per-row one, 3 the lanes one with T from the mean row length.
+/// rowptr has nrows + 1 entries; cols and vals nnz.
 pub fn stz_gpu_op_spmv(rp: i64, cols: i64, vals: i64, x: i64, y: i64, nrowsf: f64, nnzf: f64, variantf: f64) callconv(.c) i32 {
-    if (variantf != 0 and variantf != 1 and variantf != 2) return gpu.BAD_ARG;
+    if (variantf != 0 and variantf != 1 and variantf != 2 and variantf != 3) return gpu.BAD_ARG;
     const nrows: usize = @intFromFloat(nrowsf);
     const nnz: usize = @intFromFloat(nnzf);
     const v: u32 = if (variantf == 0) @intFromFloat(stz_gpu_spmv_variant_for(nrowsf, nnzf)) else @intFromFloat(variantf);
-    return drive(rp, cols, vals, x, y, nrows, nnz, 1, v);
+    return drive(rp, cols, vals, x, y, nrows, nnz, 1, v, 0);
+}
+
+/// y = A x by the lanes kernel with T lanes a row, T one of 2, 4, 8, 16, 32: the form the guard
+/// measures each T with (GB0-SPMV-V2).
+pub fn stz_gpu_op_spmv_lanes(rp: i64, cols: i64, vals: i64, x: i64, y: i64, nrowsf: f64, nnzf: f64, tf: f64) callconv(.c) i32 {
+    if (tf != 2 and tf != 4 and tf != 8 and tf != 16 and tf != 32) return gpu.BAD_ARG;
+    return drive(rp, cols, vals, x, y, @intFromFloat(nrowsf), @intFromFloat(nnzf), 1, LANES, @intFromFloat(tf));
 }
 
 /// Y = A X for a CSR matrix and a dense matrix of k columns (row-major, ncols rows): y is nrows x k.
 pub fn stz_gpu_op_spmm(rp: i64, cols: i64, vals: i64, x: i64, y: i64, nrowsf: f64, nnzf: f64, kf: f64) callconv(.c) i32 {
     if (kf < 1 or kf != @floor(kf)) return gpu.BAD_ARG;
-    return drive(rp, cols, vals, x, y, @intFromFloat(nrowsf), @intFromFloat(nnzf), @intFromFloat(kf), SCALAR);
+    return drive(rp, cols, vals, x, y, @intFromFloat(nrowsf), @intFromFloat(nnzf), @intFromFloat(kf), SCALAR, 0);
 }
 
 test "the variant follows the mean row length" {
@@ -194,4 +260,14 @@ test "the variant follows the mean row length" {
     try std.testing.expectEqual(@as(f64, 2), stz_gpu_spmv_variant_for(1000, 48000));
     try std.testing.expectEqual(@as(f64, 2), stz_gpu_spmv_variant_for(10, 10000));
     try std.testing.expectEqual(@as(f64, 1), stz_gpu_spmv_variant_for(0, 0));
+}
+
+test "the lanes follow the mean row length, 2 to 32" {
+    try std.testing.expectEqual(@as(u32, 2), lanesFor(0));
+    try std.testing.expectEqual(@as(u32, 2), lanesFor(3));
+    try std.testing.expectEqual(@as(u32, 4), lanesFor(4));
+    try std.testing.expectEqual(@as(u32, 8), lanesFor(15));
+    try std.testing.expectEqual(@as(u32, 16), lanesFor(16));
+    try std.testing.expectEqual(@as(u32, 32), lanesFor(64));
+    try std.testing.expectEqual(@as(u32, 32), lanesFor(5000));
 }

@@ -200,7 +200,7 @@ else
 	? "-- Scene 5: what it refuses --"
 	chk("zero rows is BAD_ARG", StzEngineGpuOpSpmv(hR, hC, hV, hX, hY, 0, nZ, 0) = S_BADARG)
 	chk("zero entries is BAD_ARG", StzEngineGpuOpSpmv(hR, hC, hV, hX, hY, nR, 0, 0) = S_BADARG)
-	chk("an unknown variant is BAD_ARG", StzEngineGpuOpSpmv(hR, hC, hV, hX, hY, nR, nZ, 3) = S_BADARG)
+	chk("an unknown variant is BAD_ARG", StzEngineGpuOpSpmv(hR, hC, hV, hX, hY, nR, nZ, 4) = S_BADARG)
 	chk("k = 0 or a fractional k is BAD_ARG", StzEngineGpuOpSpmm(hR, hC, hV, hX, hY, nR, nZ, 0) = S_BADARG and StzEngineGpuOpSpmm(hR, hC, hV, hX, hY, nR, nZ, 1.5) = S_BADARG)
 	chk("one buffer in two roles is BAD_ARG (WebGPU aliasing validation)", StzEngineGpuOpSpmv(hR, hC, hV, hX, hX, nR, nZ, 0) = S_BADARG and StzEngineGpuOpSpmv(hC, hC, hV, hX, hY, nR, nZ, 0) = S_BADARG)
 	chk("an output too small, offsets too short or values too few are BAD_ARG", StzEngineGpuOpSpmv(hR, hC, hV, hX, hY, nR + 1, nZ, 0) = S_BADARG and StzEngineGpuOpSpmv(hR, hC, hV, hX, hY, nR, nZ + 1, 0) = S_BADARG)
