@@ -380,6 +380,9 @@ next
 chk("GradeOnCpu says the same words for all " + len(aCases) + " cases", nAgree = len(aCases))
 if bDevice
 	oE = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/kp-24")
+	# the parent lets go of the card first: since the GPU lease (2026-11-14) the graders ProveItself starts
+	# cannot take it from their own parent, and would wait and answer "waiting for the device" (KP-PROVE-FLAKE)
+	StzEngineGpuShutdown()
 	aPr = oE.ProveItself()
 	chk("the exercise proves itself through the System's checker: wrong refused " + aPr[:wrong] + ", right accepted " + aPr[:right] + ", failures " + @@(aPr[:failures]),
 		aPr[:wrong] = 5 and aPr[:right] = 2 and len(aPr[:failures]) = 0)

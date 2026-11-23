@@ -4554,8 +4554,8 @@ real. A third trap came from the knowledge graph (one edge per node pair: two
 inputs on the same recipe is two edges to one node). Desktop and the Intel iGPU in
 the browser agree on all six. **No person has worked it.**
 
-**Open, named and not built (GB0-SPMV-V2).** Rows of 8 to 64 entries are the
-worst zone for both kernels. A variant with several threads per row (2, 4, 8, 16
+**Open, named and BUILT 2026-11-23 (GB0-SPMV-V2, the first half; see its status
+section below).** Rows of 8 to 64 entries are the worst zone for both kernels. A variant with several threads per row (2, 4, 8, 16
 neighbours sharing a row, their partials added by a short tree) would make the
 reads of a row one run; and a power-law matrix (a few huge rows among many tiny
 ones) wants a balanced form, the segmented scan of the previous op over the
@@ -4885,6 +4885,68 @@ compiles `gpu_ops.zig` too, builds clean from the new commit (51 s from an empty
 
 **Guards on the new engine** (haro.exe, RTX 3050): gpu_ops 37, gpu_foundry_matmul 31 (every variant and split-K),
 gpu_batch 13, gpu_verify 39, gpu_f16 23 with the new stz_neural -- 143 assertions, all pass.
+
+## GB0-SPMV-V2 STATUS — the lanes kernel: several threads a row, and auto routes rows of 4 to 1,023 entries to it (2026-11-23)
+
+**What was asked.** Rows of 8 to 64 entries were the worst zone of both sparse-product kernels: the scalar thread's
+neighbour starts a whole row away, so each of its reads is a cache line to itself, and the vector workgroup of 256
+is mostly idle on a row of 16. The open item named two forms: several threads a row, and a balanced form for a
+power-law matrix. **The first is built and routed; the second stays open as GB0-SPMV-V2b.**
+
+**What was built.** A third kernel in `engine/src/gpu_spmv.zig`, `lanes`: T neighbouring threads a row (T = 2, 4,
+8, 16 or 32), 256 / T rows a workgroup. The lanes stride the row by T, so one step of theirs reads one run of the
+row, and a tree of log2 T steps in workgroup memory adds their partials; the sum order is fixed for a given T.
+`StzEngineGpuOpSpmv(..., 3)` is the lanes kernel with T taken from the mean row length (the power of two at or
+below it, 2 to 32); `StzEngineGpuOpSpmvLanes(..., nLanes)` takes T itself, which is how the probe measures each.
+
+**The answer.** `base/test/gpu/gpu_spmv_lanes.haro`, on whole numbers, against the plain loop to the bit: every T
+and variant 3 on 15 shapes (rows of 1 to 300 entries, every fifth row empty, a few huge rows among tiny ones, one
+row of 5,000, one entry, 257 rows of 1). 19 of 19, on haro.exe v0.77.
+
+**The clock.** 1,000,000 entries in rows of L on the RTX 3050, ms per product, best of 5, three products to a sync;
+two runs (07:32 and 07:38), the second on a quiet machine, agreeing to a few hundredths:
+
+| L | scalar | vector | best lanes (T) | old auto | new auto |
+|---|---|---|---|---|---|
+| 1 | 0.22 | 20.7 | 0.24 (2) | scalar | scalar |
+| 2 | 0.18 | 10.4 | 0.18 (2) | scalar | scalar |
+| 4 | 0.19 | 5.4 | 0.16 (2-4) | scalar | lanes |
+| 8 | 0.68 | 2.8 | 0.14 (8) | scalar | lanes, **4.9x** |
+| 16 | 0.73 | 1.4 | 0.14 (4-16) | scalar | lanes, **5.2x** |
+| 32 | 0.76 | 0.70 | 0.13 (8-16) | scalar | lanes, **5.8x** |
+| 64 | 0.82 | 0.37 | 0.12 (16-32) | vector | lanes, **3.1x** |
+| 128 | 0.42 | 0.23 | 0.13 (16-32) | vector | lanes, 1.8x |
+| 256 | 0.24 | 0.15 | 0.12 (32) | vector | lanes |
+| 512 | 0.33 | 0.13 | 0.13 (32) | vector | lanes (a tie) |
+| 1024 | 0.65 | 0.12 | 0.14 (32) | vector | vector |
+| 2048 | 1.23 | 0.13 | 0.13 (32) | vector | vector |
+
+So auto (`stz_gpu_spmv_variant_for`) is now: scalar below a mean of 4 (`AUTO_LANES_MIN`), lanes from 4, vector from
+1,024 (`AUTO_VECTOR_MIN`, which was 48). At 512 to 2,048 the vector kernel and 32 lanes tie within 0.02 ms; the
+vector kernel keeps the longest rows because a whole workgroup is the form a single long row needs. The middle
+zone the item named, 8 to 64 entries, went from 0.37-0.76 ms to 0.12-0.14 ms (auto's old choice against the new): the whole million-entry product now
+costs less there than the scalar kernel paid at its best, rows of 2.
+
+**The guard.** `gpu_spmv_narrated.ring` now asserts the new route (scene 1) and times the three kernels (scene 7),
+holding auto within 1.5x of the fastest away from the two crossovers (rows of 2 and 4, rows of 512): 49 of 49 on
+haro.exe v0.77 with the new engine. Scene 8 (the route through the face, measured and stored) ended SKIPPED in
+three runs of four, and the shared engine without this change does the same: the face at 100 rows, the control
+rung, moved from 0.15 ms to 1.9 ms between its two readings on both engines. That is the skip convention working;
+it is an instability of the tiny rung, not of the kernels, and it is written here for whoever next touches the
+route ladder. When the control held, the line was stored at 500 rows (it was 2,000 before; it has always moved
+between 500 and 2,000).
+
+**And one older defect, found by the same run.** Scene 9 (kp-24 proves itself) refused both right answers. Two
+causes, both older than this work: the exercise runner finds `stzBase.ring` beside the engine folder, so an engine
+outside a stzlib tree (C:/haro-engine, or a build folder) makes every child fail to load it; and this guard kept
+the GPU while its graders ran, which since the lease (2026-11-14) makes each grader wait and answer "waiting for
+the device". The second is fixed here, as `gpu_puzzle_narrated.ring` already did it: the guard lets go of the card
+before ProveItself. The first is the way the runner is built; the guard runs green with the engine reached through
+a tree whose `base`, `core` and `engine` sit side by side.
+
+**Open, named and not built (GB0-SPMV-V2b).** A power-law matrix (a few huge rows among many tiny ones) is routed
+by its MEAN row length, which describes none of its rows. A balanced form, the segmented scan over the products,
+is the candidate; a foundry variant, kept only if the clock agrees.
 
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
