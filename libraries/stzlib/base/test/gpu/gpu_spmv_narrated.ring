@@ -106,7 +106,7 @@ else
 		StzEngineGpuBufferFree(hY)
 	next
 	chk("the happy path counted zero fallbacks", StzEngineGpuCounter(3) = 0)
-	chk("auto picks the scalar kernel below a mean row length of " + 48 + " and the vector one from there", StzEngineGpuSpmvVariantFor(1000, 5000) = 1 and StzEngineGpuSpmvVariantFor(1000, 47000) = 1 and StzEngineGpuSpmvVariantFor(1000, 48000) = 2 and StzEngineGpuSpmvVariantFor(10, 10000) = 2)
+	chk("auto picks the scalar kernel below a mean row length of 4, the lanes one from 4 and the vector one from 1,024", StzEngineGpuSpmvVariantFor(1000, 3000) = 1 and StzEngineGpuSpmvVariantFor(1000, 4000) = 3 and StzEngineGpuSpmvVariantFor(1000, 1023000) = 3 and StzEngineGpuSpmvVariantFor(1000, 1024000) = 2 and StzEngineGpuSpmvVariantFor(10, 20000) = 2)
 	? "  (scene 1: " + ((clock() - $t0) / clockspersecond()) + " s)"
 
 	? ""
@@ -200,7 +200,7 @@ else
 	? "-- Scene 5: what it refuses --"
 	chk("zero rows is BAD_ARG", StzEngineGpuOpSpmv(hR, hC, hV, hX, hY, 0, nZ, 0) = S_BADARG)
 	chk("zero entries is BAD_ARG", StzEngineGpuOpSpmv(hR, hC, hV, hX, hY, nR, 0, 0) = S_BADARG)
-	chk("an unknown variant is BAD_ARG", StzEngineGpuOpSpmv(hR, hC, hV, hX, hY, nR, nZ, 3) = S_BADARG)
+	chk("an unknown variant is BAD_ARG", StzEngineGpuOpSpmv(hR, hC, hV, hX, hY, nR, nZ, 4) = S_BADARG)
 	chk("k = 0 or a fractional k is BAD_ARG", StzEngineGpuOpSpmm(hR, hC, hV, hX, hY, nR, nZ, 0) = S_BADARG and StzEngineGpuOpSpmm(hR, hC, hV, hX, hY, nR, nZ, 1.5) = S_BADARG)
 	chk("one buffer in two roles is BAD_ARG (WebGPU aliasing validation)", StzEngineGpuOpSpmv(hR, hC, hV, hX, hX, nR, nZ, 0) = S_BADARG and StzEngineGpuOpSpmv(hC, hC, hV, hX, hY, nR, nZ, 0) = S_BADARG)
 	chk("an output too small, offsets too short or values too few are BAD_ARG", StzEngineGpuOpSpmv(hR, hC, hV, hX, hY, nR + 1, nZ, 0) = S_BADARG and StzEngineGpuOpSpmv(hR, hC, hV, hX, hY, nR, nZ + 1, 0) = S_BADARG)
@@ -266,8 +266,8 @@ else
 		hR = StzEngineGpuBufferNew((nR + 1) * 4)
 		hY = StzEngineGpuBufferNew(nR * 4)
 		StzEngineGpuBufferUploadList(hR, aRp)
-		aBest = [ 0, 1000000, 1000000 ]
-		for nVar = 1 to 2
+		aBest = [ 0, 1000000, 1000000, 1000000 ]
+		for nVar = 1 to 3
 			StzEngineGpuOpSpmv(hR, hC, hV, hX, hY, nR, nR * nL, nVar)
 			for nRep = 1 to 5
 				StzEngineGpuSync()
@@ -284,26 +284,26 @@ else
 		next
 		nAuto = StzEngineGpuSpmvVariantFor(nR, nR * nL)
 		nWin = 1
-		if aBest[3] < aBest[2]
-			nWin = 2
-		ok
 		nMin = aBest[2]
-		if aBest[3] < nMin
-			nMin = aBest[3]
-		ok
+		for nV = 2 to 3
+			if aBest[nV + 1] < nMin
+				nMin = aBest[nV + 1]
+				nWin = nV
+			ok
+		next
 		nChosen = aBest[nAuto + 1]
 		cZone = ""
-		if nL >= 16 and nL <= 32
-			cZone = "  [the crossover zone: the two trade places from run to run, not asserted]"
+		if nL = 2 or nL = 4 or nL = 512
+			cZone = "  [a crossover zone: two kernels trade places from run to run, not asserted]"
 		ok
-		? "  L = " + nL + " (" + nR + " rows): scalar " + aBest[2] + " ms, vector " + aBest[3] + " ms; faster: " + nWin + ", auto picks " + nAuto + " (" + (nChosen / nMin) + " of the best)" + cZone
-		if (nL <= 8 or nL >= 64) and nChosen > 1.5 * nMin
+		? "  L = " + nL + " (" + nR + " rows): scalar " + aBest[2] + " ms, vector " + aBest[3] + " ms, lanes " + aBest[4] + " ms; faster: " + nWin + ", auto picks " + nAuto + " (" + (nChosen / nMin) + " of the best)" + cZone
+		if cZone = "" and nChosen > 1.5 * nMin
 			bAutoOk = 0
 		ok
 		StzEngineGpuBufferFree(hR)
 		StzEngineGpuBufferFree(hY)
 	next
-	chk("away from the crossover (rows of 8 or fewer, rows of 64 or more) auto's choice is within 1.5x of the faster kernel; at 16 to 32 the two trade places from run to run, which is why the threshold, 48, is a measurement printed above and not a line either side can fail", bAutoOk)
+	chk("away from the crossovers (rows of 2 and 4, rows of 512) auto's choice is within 1.5x of the fastest of the three kernels; at the crossovers two kernels trade places from run to run, which is why the thresholds, 4 and 1,024, are measurements printed above and not lines either side can fail", bAutoOk)
 	StzEngineGpuBufferFree(hC)
 	StzEngineGpuBufferFree(hV)
 	StzEngineGpuBufferFree(hX)
@@ -380,6 +380,9 @@ next
 chk("GradeOnCpu says the same words for all " + len(aCases) + " cases", nAgree = len(aCases))
 if bDevice
 	oE = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/kp-24")
+	# the parent lets go of the card first: since the GPU lease (2026-11-14) the graders ProveItself starts
+	# cannot take it from their own parent, and would wait and answer "waiting for the device" (KP-PROVE-FLAKE)
+	StzEngineGpuShutdown()
 	aPr = oE.ProveItself()
 	chk("the exercise proves itself through the System's checker: wrong refused " + aPr[:wrong] + ", right accepted " + aPr[:right] + ", failures " + @@(aPr[:failures]),
 		aPr[:wrong] = 5 and aPr[:right] = 2 and len(aPr[:failures]) = 0)

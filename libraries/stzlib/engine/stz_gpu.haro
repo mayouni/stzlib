@@ -39,7 +39,8 @@
 #   StzEngineGpuOpArgSort(hKeys, hOutIdx, n, nDesc)  out[k] = the 0-based place of the k-th key
 #   StzEngineGpuOpSegScan(hIn, hFlags, hOut, n, nOp)  running total (nOp 0 sum 1 max 2 min) that starts over at every nonzero flag (GB0)
 #   StzEngineGpuOpSegReduce(hIn, hFlags, hOut, n, nOp) -> [status, segments]   one number per segment, packed; hOut holds n
-#   StzEngineGpuOpSpmv(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nVariant)   y = A x, A in CSR (offsets and columns as f32 whole numbers); variant 0 auto 1 scalar 2 vector (GB0)
+#   StzEngineGpuOpSpmv(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nVariant)   y = A x, A in CSR (offsets and columns as f32 whole numbers); variant 0 auto 1 scalar 2 vector 3 lanes (GB0)
+#   StzEngineGpuOpSpmvLanes(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nLanes)   the lanes kernel: nLanes (2, 4, 8, 16, 32) neighbouring threads a row (GB0-SPMV-V2)
 #   StzEngineGpuOpSpmm(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nK)         Y = A X, X ncols x nK row-major
 #   StzEngineGpuSimulateDeviceLoss() -> 1 when a device destroyed under the engine was noticed: a test of the recovery path, not for production (GT3)
 #   StzEngineGpuCloseHooks(0) -> device-close hooks registered; (1) -> registrations dropped because the registry was full (must be 0) (GT3)

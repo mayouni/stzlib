@@ -1096,9 +1096,14 @@ fn ring_OpCompactWhere(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
-// GB0 (sparse-dense): OpSpmv(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nVariant) -> status; nVariant 0 auto, 1 scalar, 2 vector
+// GB0 (sparse-dense): OpSpmv(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nVariant) -> status; nVariant 0 auto, 1 scalar, 2 vector, 3 lanes
 fn ring_OpSpmv(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gspmv.stz_gpu_op_spmv(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)), @intFromFloat(gn(p, 4)), @intFromFloat(gn(p, 5)), gn(p, 6), gn(p, 7), gn(p, 8))));
+}
+
+// OpSpmvLanes(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nLanes) -> status; the lanes kernel, nLanes 2..32 threads a row (GB0-SPMV-V2)
+fn ring_OpSpmvLanes(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gspmv.stz_gpu_op_spmv_lanes(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)), @intFromFloat(gn(p, 4)), @intFromFloat(gn(p, 5)), gn(p, 6), gn(p, 7), gn(p, 8))));
 }
 
 // OpSpmm(hRowPtr, hCols, hVals, hX, hY, nRows, nNnz, nK) -> status; X is ncols x nK row-major, Y nRows x nK
@@ -2673,6 +2678,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpusegscandispatches", .func = &ring_SegScanDispatches },
     .{ .name = "stzenginegpusegscanrelease", .func = &ring_SegScanRelease },
     .{ .name = "stzenginegpuopspmv", .func = &ring_OpSpmv },
+    .{ .name = "stzenginegpuopspmvlanes", .func = &ring_OpSpmvLanes },
     .{ .name = "stzenginegpuopspmm", .func = &ring_OpSpmm },
     .{ .name = "stzenginegpuspmvvariantfor", .func = &ring_SpmvVariantFor },
     .{ .name = "stzenginegpubufferfilllcg", .func = &ring_BufferFillLcg },

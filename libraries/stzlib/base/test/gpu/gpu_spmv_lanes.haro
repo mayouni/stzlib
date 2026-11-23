@@ -1,0 +1,252 @@
+# gpu_spmv_lanes.haro -- GB0-SPMV-V2: several threads a row for the sparse product's middle rows.
+#
+# The CSR product had two kernels: one thread a row (scalar) and one workgroup of 256 a row (vector). Rows of 8 to 64
+# entries were the worst zone for both: the scalar thread's neighbour starts a whole row away, so each of its reads is
+# a cache line to itself, and the vector workgroup is mostly idle. The lanes kernel gives a row T neighbouring threads
+# (T = 2, 4, 8, 16, 32): one step of theirs reads one run of the row, and a tree of log2 T steps adds their partials.
+#
+# Part 1, the answer: whole numbers, the plain loop's sum, to the bit, for every T and for variant 3 (T from the mean
+#   row length), on rows of 1 to 300 entries, empty rows, huge rows among tiny ones, one row, one entry, 257 rows.
+# Part 2, the clock: 1,000,000 entries in rows of L, scalar, vector and each T, best of 5, three products to a sync.
+#   It prints the table; it asserts only that it ran, since what it decides (the routing) is read from the table.
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+if StzEngineGpuInit($tStzGpuRuntime) = 0
+	? "  [SKIP] every scene: no device (" + StzEngineGpuLastError() + ")"
+	Shutdown(0)
+end
+vLanes = [ 2, 4, 8, 16, 32 ]
+
+? "-- Part 1: the lanes kernel equals the loop, to the bit --"
+nCols = 997
+vX = []
+for j = 0 to nCols - 1
+	vX + ((j * 37) % 13 - 6)
+end
+vShapes = []
+vEach = [ 1, 2, 5, 8, 16, 31, 32, 64, 100, 300 ]
+for i = 1 to Len(vEach)
+	vShapes + [ "500 rows of " + String(vEach[i]), Fill(500, vEach[i]) ]
+end
+vMixed = []
+for i = 1 to 600
+	if i % 5 = 0
+		vMixed + 0
+	else
+		vMixed + (i % 11)
+	end
+end
+vShapes + [ "600 rows, every fifth empty", vMixed ]
+vShapes + [ "a few huge rows among tiny ones", [ 0, 1, 3000, 0, 5, 2, 1500, 1, 0, 0, 700, 3, 0 ] ]
+vShapes + [ "a single row of 5,000", [ 5000 ] ]
+vShapes + [ "a single entry", [ 1 ] ]
+vShapes + [ "257 rows of 1", Fill(257, 1) ]
+for i = 1 to Len(vShapes)
+	vS = vShapes[i]
+	vCsr = Csr(vS[2], nCols)
+	nR = Len(vS[2])
+	nZ = Len(vCsr[2])
+	vRef = RefSpmv(vCsr[1], vCsr[2], vCsr[3], vX)
+	nHr = Up(vCsr[1])
+	nHc = Up(vCsr[2])
+	nHv = Up(vCsr[3])
+	nHx = Up(vX)
+	nHy = StzEngineGpuBufferNew(nR * 4)
+	tBad = ""
+	for k = 1 to Len(vLanes)
+		nSt = StzEngineGpuOpSpmvLanes(nHr, nHc, nHv, nHx, nHy, nR, nZ, vLanes[k])
+		if nSt != 0 or @@(StzEngineGpuBufferDownloadList(nHy, nR)) != @@(vRef)
+			tBad += " [T " + String(vLanes[k]) + " differs, status " + String(nSt) + "]"
+		end
+	end
+	nSt = StzEngineGpuOpSpmv(nHr, nHc, nHv, nHx, nHy, nR, nZ, 3)
+	if nSt != 0 or @@(StzEngineGpuBufferDownloadList(nHy, nR)) != @@(vRef)
+		tBad += " [variant 3 differs, status " + String(nSt) + "]"
+	end
+	Chk(vS[1] + " (" + String(nZ) + " entries): T = 2, 4, 8, 16, 32 and variant 3 equal the loop" + tBad, tBad = "")
+	for nB in [ nHr, nHc, nHv, nHx, nHy ]
+		StzEngineGpuBufferFree(nB)
+	end
+end
+Chk("a lane count that is not 2, 4, 8, 16 or 32 is BAD_ARG", StzEngineGpuOpSpmvLanes(1, 2, 3, 4, 5, 10, 10, 3) = 3 and StzEngineGpuOpSpmvLanes(1, 2, 3, 4, 5, 10, 10, 64) = 3)
+Chk("variant 4 is BAD_ARG", StzEngineGpuOpSpmv(1, 2, 3, 4, 5, 10, 10, 4) = 3)
+Chk("the happy path counted zero fallbacks", StzEngineGpuCounter(3) = 0)
+
+? ""
+? "-- Part 2: 1,000,000 entries in rows of L; ms per product, best of 5 (three products to a sync) --"
+nZ = 1000000
+nColsBig = 100000
+vCo = []
+vVa = []
+for i = 0 to nZ - 1
+	vCo + ((i * 7919) % nColsBig)
+	vVa + (i % 9 - 4)
+end
+vXb = []
+for j = 0 to nColsBig - 1
+	vXb + ((j * 37) % 13 - 6)
+end
+nHc = Up(vCo)
+nHv = Up(vVa)
+nHx = Up(vXb)
+? "  L | scalar | vector | T=2 | T=4 | T=8 | T=16 | T=32 | variant 3 (T) | best"
+vLs = [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 ]
+for i = 1 to Len(vLs)
+	nL = vLs[i]
+	nR = IntDiv(nZ, nL)
+	vRp = []
+	for r = 0 to nR
+		vRp + (r * nL)
+	end
+	nHr = Up(vRp)
+	nHy = StzEngineGpuBufferNew(nR * 4)
+	tRow = "  " + String(nL)
+	vAll = []
+	nBest = 0
+	tBest = ""
+	for c = 1 to 8
+		nV = 1
+		nT = 0
+		tName = "scalar"
+		if c = 2
+			nV = 2
+			tName = "vector"
+		end
+		if c >= 3 and c <= 7
+			nT = vLanes[c - 2]
+			tName = "T=" + String(nT)
+		end
+		if c = 8
+			nV = 3
+			tName = "variant 3"
+		end
+		nNs = Best(nHr, nHc, nHv, nHx, nHy, nR, nR * nL, nV, nT)
+		vAll + nNs
+		tCell = Ms(nNs)
+		if c = 8
+			tCell += " (T " + String(LanesFor(nL)) + ")"
+		end
+		tRow += " | " + tCell
+		if c < 8 and (nBest = 0 or nNs < nBest)
+			nBest = nNs
+			tBest = tName
+		end
+	end
+	? tRow + " | " + tBest
+	StzEngineGpuBufferFree(nHr)
+	StzEngineGpuBufferFree(nHy)
+end
+Chk("the clock table ran to its end", true)
+
+? ""
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+Shutdown($nFail)
+
+# The best of 5 of three products to a sync, in ns per product: nV 1 scalar, 2 vector, 3 lanes by the mean (nT 0),
+# or the lanes kernel with nT lanes.
+func Best(nHr, nHc, nHv, nHx, nHy, nR, nZ, nV, nT)
+	Run(nHr, nHc, nHv, nHx, nHy, nR, nZ, nV, nT)
+	StzEngineGpuSync()
+	nBest = 0
+	for nRep = 1 to 5
+		StzEngineGpuSync()
+		nT0 = StzEngineWatchTimestampNs()
+		for q = 1 to 3
+			Run(nHr, nHc, nHv, nHx, nHy, nR, nZ, nV, nT)
+		end
+		StzEngineGpuSync()
+		nNs = IntDiv(StzEngineWatchTimestampNs() - nT0, 3)
+		if nBest = 0 or nNs < nBest
+			nBest = nNs
+		end
+	end
+	return nBest
+end
+
+func Run(nHr, nHc, nHv, nHx, nHy, nR, nZ, nV, nT)
+	if nT > 0
+		StzEngineGpuOpSpmvLanes(nHr, nHc, nHv, nHx, nHy, nR, nZ, nT)
+	else
+		StzEngineGpuOpSpmv(nHr, nHc, nHv, nHx, nHy, nR, nZ, nV)
+	end
+end
+
+# What the engine's lanesFor answers: the power of two at or below the mean, 2 to 32.
+func LanesFor(nMean)
+	nT = 2
+	while nT < 32 and nT * 2 <= nMean
+		nT *= 2
+	end
+	return nT
+end
+
+# A CSR of whole numbers from a list of row lengths: [ offsets, columns, values ].
+func Csr(vLens, nCols)
+	vRp = [ 0 ]
+	vCo = []
+	vVa = []
+	nE = 0
+	for r = 1 to Len(vLens)
+		for q = 1 to vLens[r]
+			vCo + ((nE * 7919 + r * 31) % nCols)
+			vVa + (nE % 9 - 4)
+			nE += 1
+		end
+		vRp + nE
+	end
+	return [ vRp, vCo, vVa ]
+end
+
+func RefSpmv(vRp, vCo, vVa, vX)
+	vY = []
+	for r = 1 to Len(vRp) - 1
+		nAcc = 0
+		for e = vRp[r] + 1 to vRp[r + 1]
+			nAcc += vVa[e] * vX[vCo[e] + 1]
+		end
+		vY + nAcc
+	end
+	return vY
+end
+
+func Fill(nCount, nV)
+	vOut = []
+	for i = 1 to nCount
+		vOut + nV
+	end
+	return vOut
+end
+
+func Up(vList)
+	nB = StzEngineGpuBufferNew(Len(vList) * 4)
+	StzEngineGpuBufferUploadList(nB, vList)
+	return nB
+end
+
+func Chk(tWhat, bOk)
+	if bOk
+		$nPass += 1
+		? "  [OK] " + tWhat
+	else
+		$nFail += 1
+		? "  [FAIL] " + tWhat
+	end
+end
+
+func Ms(nNs)
+	nH = IntDiv(nNs, 10000)
+	return String(IntDiv(nH, 100)) + "." + Pad(nH % 100)
+end
+
+func Pad(nX)
+	if nX < 10
+		return "0" + String(nX)
+	end
+	return String(nX)
+end
+
+func IntDiv(nA, nB)
+	return (nA - nA % nB) / nB
+end
