@@ -1,3 +1,4 @@
 qwen3-k4	tickets 36	identical 36	plain ms 32673	lookup ms 24907	tokens 566	passes 163	drafted 484	taken 403
 qwen3-k8	tickets 36	identical 36	plain ms 33481	lookup ms 24376	tokens 566	passes 118	drafted 608	taken 448
 bolt-k4	tickets 36	identical 36	plain ms 169768	lookup ms 150725	tokens 568	passes 160	drafted 480	taken 408
+bolt-k4-v077	tickets 36	identical 36	plain ms 172242	lookup ms 148983	tokens 568	passes 160	drafted 480	taken 408
