@@ -395,6 +395,11 @@ pub fn judgeOnly(a: Allocator, rec: Record, lines: []const Line, end: []const u8
         }
         if (n_o >= 0 and n_cl >= n_o) st.wall_ms = @floor((n_cl - n_o) * 1000.0);
     }
+    // A TOUR WITH NO CLAIM JUDGED NOTHING: unjudged, as a stop with no claim is, whatever its ending (the ending says
+    // why). It read kept, so a tour that broke or could not be read before its first claim was listed as kept
+    var n_claims: usize = 0;
+    for (stops.items) |st| n_claims += st.claims.items.len;
+    if (n_claims == 0) tour_state = .unjudged;
 
     // A RAISE THAT WAS PROMISED IS NOT A BREAK
     var c_end = end;

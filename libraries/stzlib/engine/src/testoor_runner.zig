@@ -298,6 +298,20 @@ test "a signature is the state and the ending, then three letters of each claim"
     const t = try V.verdict(a, selfDescribing("t.py"), &lines, .{ .exit = 0, .hung = false, .stderr = "", .wall_ms = 1000, .seed = 5, .unreadable = false, .face = .{} });
     try testing.expectEqualStrings("diverged/finished,kep,div", try signature(a, t));
 }
+test "A TOUR WITH NO CLAIM JUDGED NOTHING: it is unjudged whether it broke or finished, and a break still fails the run" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const err = [_]V.Line{.{ .text = "Error (E9) : Can't open file nothere.haro", .at = 0.1 }};
+    const broke = try V.verdict(a, selfDescribing("b.haro"), &err, .{ .exit = 1, .hung = false, .stderr = "", .wall_ms = 200, .seed = 5, .unreadable = false, .face = .{} });
+    try testing.expectEqualStrings("broke", broke.run.end);
+    try testing.expectEqual(V.State.unjudged, broke.run.state);
+    try testing.expectEqual(@as(i64, 1), L.exitCode(.{}, &.{broke}));
+    const quiet = try V.verdict(a, selfDescribing("q.haro"), &.{}, .{ .exit = 0, .hung = false, .stderr = "", .wall_ms = 200, .seed = 5, .unreadable = false, .face = .{} });
+    try testing.expectEqualStrings("finished", quiet.run.end);
+    try testing.expectEqual(V.State.unjudged, quiet.run.state);
+    try testing.expectEqual(@as(i64, 0), L.exitCode(.{}, &.{quiet}));
+}
 
 test "{seed} in an argv element is replaced by the seed, as Ring prints it" {
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
