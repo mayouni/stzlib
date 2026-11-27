@@ -5133,6 +5133,47 @@ The same count on every guard. The old file's four failures are timings on batte
 on the second. The three probes with no total (`backbone_spine_spike`, `g6_census_bench`, `gk1_shape_probe`) end at
 the same line on both arms.
 
+**Step 4, done: `stzGpu` is `.haro` (2026-11-27), and `base/gpu` holds no file in the older syntax.**
+`base/gpu/stzGpu.haro` replaces the older file, which is deleted. By hand after the tool's 2,873 rewrites: the 82
+names `haro check` refused (the `a` lists lettered `v`, `pCand` as `pxCand`), `nL` renamed, 26 error messages joining
+a number through `String()`, six comments that named the older language reworded, and the twelve buffer ids the tool
+lettered `h` lettered `n` (`nHA`, `nHO`, ...): the engine gives a buffer id as an integer, and a name lettered `h` refuses
+it.
+
+**What the gate found that reading did not, in three runs of the new arm:**
+
+1. **a fraction from older code crosses into a `.haro` parameter as an exact decimal, and that decimal's conversion to a
+   float misses by one unit in the last place** -- 166 of 2,000 measured values, where reading the decimal's own text
+   gives the caller's float every time. `gpu_verify` compares a pinned peak exactly and failed; `PinPeakGFlops` hands
+   the engine its value through its text. Routed to the Haro desk;
+2. **inside the library, `Divide(a, b, places)` is stzListOfNumbers' `Divide(list)`, and `Floor(a / b)` refuses a
+   division of names with no exact decimal** (a probe with constants folded it and passed). Counts take whole-number
+   division, `(n - n % w) / w`;
+3. **a timing and a ratio are stored and written to the calibration file**, so they stay exact decimals: a timing is
+   whole nanoseconds over a million, and `_StzGpuRatio` takes a ratio of two to six places in integers. A float there
+   was refused by the store's own comparisons, and its text keeps two places.
+
+The CPU paths (scan, segmented reduction, the sparse product, compaction) add, multiply and compare through
+`_StzGpuSum`, `_StzGpuProduct` and `_StzGpuOrder`: exact when both numbers are exact, as floats when either is one, since
+a caller's list keeps a fraction as a float and a float mixes with no other number. The route ladder's segment flags are
+the numbers 1 and 0 again, as the engine and the CPU path read them.
+
+**The gate: all 43 guards and probes of `base/test/gpu`** on haro.exe v0.78 (its stamp the same at start and end),
+engine at stzlib `734ca49a3` sources, after `haro prefix` on both library paths. The old arm is step 3's new arm: the same
+haro.exe, the same engine, and exactly the files on main before this step. Guards owned 43, run 43 on the final file.
+
+| | guards with a total | assertions | pass | fail |
+|---|---|---|---|---|
+| old (`stzGpu.ring`, step 3's new arm) | 40 | 1,582 | 1,582 | 0 |
+| new (`stzGpu.haro`, final file) | 40 | 1,582 | 1,582 | 0 |
+
+The same count on every guard. The three probes with no total end at the same line on both arms. On the first run,
+`gpu_calibration_shaped` re-measured its control cell 2.44x slower and refused the grid as confounded, which is its
+design: 34 assertions on that branch, 40 on the final run, where the control held.
+
+**Step 5 remains: the 43 guards themselves**, each converted guard reporting the same assertion count as the file it
+replaces.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can

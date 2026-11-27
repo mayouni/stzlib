@@ -53,7 +53,7 @@ including the one in a browser.
 | `engine/src/stz_wasm_entry.zig` | the same grammar compiled for the browser |
 | `base/gpu/stzKernelMaker.haro` | the library's face over the grammar |
 | `base/gpu/stzKernelPuzzle.haro` | a puzzle: its facts, its data, its grading |
-| `base/gpu/stzGpu.ring` | the device face, with `VerifySpec` and `VerifySpecWith` |
+| `base/gpu/stzGpu.haro` | the device face, with `VerifySpec` and `VerifySpecWith` |
 | `base/education/program/courses/kernel-puzzles/` | the course, twelve exercises, the browser runner |
 | `base/test/gpu/` | the guards |
 
