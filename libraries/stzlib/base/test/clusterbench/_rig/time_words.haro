@@ -1,0 +1,31 @@
+# Whisper small's time on the bench's own hearing recordings, heard PLAIN, with the SETTING's short word list
+# (setting_words.txt, 82 bytes, WHISPER-02 of 2026-11-16) and with the DOMAIN's long one (domain_words_sales.txt, 515
+# bytes). The order of the three turns with each recording, so the machine's drift is spread over all three arms. No
+# library is loaded: the engine's neural module is called directly.
+#
+#     haro _rig/time_words.haro       (from the clusterbench folder, STZ_ENGINE_DIR and STZ_MODELS_DIR set)
+
+LoadLib(SysGet("STZ_ENGINE_DIR") + "/zig-out/bin/stz_neural.dll")
+tModel = SysGet("STZ_MODELS_DIR") + "/speech/ggml-small.bin"
+vLists = [ "", Read("setting_words.txt"), Read("domain_words_sales.txt") ]
+vNames = [ "plain", "setting list", "domain list" ]
+vRec = [ [ "fr01", "fr" ], [ "fr02", "fr" ], [ "fr03", "fr" ], [ "fr04", "fr" ], [ "fr05", "fr" ], [ "en01", "en" ], [ "en02", "en" ], [ "en03", "en" ] ]
+vSum = [ 0, 0, 0 ]
+? "recording" + Char(9) + "plain s" + Char(9) + "setting list s" + Char(9) + "domain list s"
+for r = 1 to Len(vRec)
+	tWav = "recordings/" + vRec[r][1] + ".wav"
+	vMs = [ 0, 0, 0 ]
+	for k = 0 to 2
+		nArm = (r + k) % 3 + 1
+		nT0 = Clock()
+		if nArm = 1
+			tText = StzEngineNeuralWhisperTranscribe(tModel, tWav, vRec[r][2], 160, 4)
+		else
+			tText = StzEngineNeuralWhisperTranscribePrompted(tModel, tWav, vRec[r][2], vLists[nArm], 160, 4)
+		end
+		vMs[nArm] = Floor((Clock() - nT0) * 1000 / ClocksPerSecond())
+		vSum[nArm] = vSum[nArm] + vMs[nArm]
+	end
+	? vRec[r][1] + Char(9) + String(vMs[1] / 1000) + Char(9) + String(vMs[2] / 1000) + Char(9) + String(vMs[3] / 1000)
+end
+? "total s: plain " + String(vSum[1] / 1000) + ", setting list " + String(vSum[2] / 1000) + ", domain list " + String(vSum[3] / 1000)

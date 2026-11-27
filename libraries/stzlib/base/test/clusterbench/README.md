@@ -193,5 +193,11 @@ the transcripts it saved (`results/terms/`), so a change of scoring never runs t
   ten recordings with the list in 58 s on an engine built from 1212cb88c; `whisper.zig`'s compute did not change
   between the two. The machine reported itself on battery at 04:04. The absolute seconds are tonight's machine; the
   ratio is the measurement.
+- **The list's cost grows with its length.** `_rig/time_words.haro` heard the bench's eight hearing recordings plain,
+  with the setting's list of 82 bytes and with the domain's of 515 bytes, the order turning with each recording:
+  381 s, 538 s and 1,117 s, the short list 1.41 times plain and the long one 2.93 times (`results/words_timing.txt`).
+  Plain hearing took 48 s a recording on that run too, the machine on battery (Windows: AC line offline, 06:48), so
+  the slowdown against 2026-11-16 holds with either list and without one; the seconds on mains power are this plane's
+  next measurement.
 - Numbers spoken as words ("douze") are written as digits ("12") in both modes; the term groups accept either, the
   word error rate counts them, equally in both modes.
