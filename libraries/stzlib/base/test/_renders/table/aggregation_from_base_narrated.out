@@ -1,0 +1,38 @@
+-- Scene 1: calculated columns from a bare stzTable --
+  [OK] AddCalculatedCol is reachable and correct
+  [OK] the calc col is tracked (position 4)
+  [OK] CalculatedColNames reads our own state
+  [OK] CalculatedCols returns the column content
+  PERCAPITA -> [ 100, 320, 42.25 ]
+
+-- Scene 2: a second calc col -- state PERSISTS across calls --
+  [OK] InsertCalculatedCol at position 2
+  [OK] ... values correct
+  [OK] both calc cols now tracked
+
+-- Scene 3: a calc col the engine cannot compute is a FUNCTION of the row --
+  [OK] a calc col given as a function of the row computes
+  [OK] NEGATIVE: the same formula as text is refused, not run
+  SHOUT -> [ "TUNISIA", "JAPAN", "BRAZIL" ]
+
+-- Scene 4: column aggregates from a bare stzTable --
+  [OK] SumCol
+  [OK] AvgCol
+  [OK] MeanCol
+  [OK] MinCol
+  [OK] MaxCol
+  [OK] ProductCol
+  SumCol(:PRICE)=11  ProductCol(:QTY)=240000
+
+-- Scene 5: calculated ROWS from a bare stzTable --
+  [OK] AddCalculatedRow appends a summary row
+  [OK] ... with the aggregated values
+  [OK] ... and the row is tracked
+  summary row -> [ 6, 60 ]
+
+-- Scene 6: InsertRow itself is now reachable on the base --
+  [OK] InsertRow inserts at the right position
+
+==========================================
+TOTAL: 19 assertions, 19 pass, 0 fail
+==========================================

@@ -1,0 +1,87 @@
+SCENARIO: Replacing the cells that equal a value
+  GIVEN the spellings whose parameter was not the one the body used
+  THEN  ReplaceOccurrencesOfCellByValue on the square table  [PASS]
+  THEN  on the 4 x 2 table, both x are replaced  [PASS]
+  THEN  ReplaceByValueOccurrencesOfCellBy  [PASS]
+  THEN  the CS form without case  [PASS]
+  THEN  the CS form with case leaves other cases alone  [PASS]
+  THEN  ReplaceByValueOccurrencesOfCellByCS  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Several values by one value, and several by several
+  GIVEN the methods that raised Function not yet implemented
+  THEN  ReplaceManyCellsByValue on the 4 x 2 table  [PASS]
+  THEN  on the square table, with numbers  [PASS]
+  THEN  the CS form without case  [PASS]
+  THEN  the three other spellings do the same  [PASS]
+  THEN  ReplaceManyCellsByValueByMany pairs the values  [PASS]
+  THEN  a swap does not cascade: the new z is not replaced again  [PASS]
+  THEN  on the square table  [PASS]
+  THEN  the three other spellings do the same  [PASS]
+  THEN  the XT form uses the new values again from the first  [PASS]
+  THEN  ReplaceCellsByValueByManyXT  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Replacing by positions, one value each
+  GIVEN the spellings that gave every cell the whole list
+  THEN  ReplaceEachCellOfTheseByPositionsByMany  [PASS]
+  THEN  ReplaceByPositionsEachCellOfTheseByMany  [PASS]
+  THEN  the XT spelling, with as many values as cells  [PASS]
+  THEN  the other XT spelling  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A text inside cells
+  GIVEN the people table, whose names are Andy Ali Alia
+  THEN  ReplaceInCell changes the text inside one cell  [PASS]
+  THEN  the CS form without case  [PASS]
+  THEN  with case, a text of another case is not found  [PASS]
+  THEN  a cell that is a number is left as it is  [PASS]
+  THEN  ReplaceInCells works on the cells it is given  [PASS]
+  THEN  ReplaceInCellsByMany applies each text in turn  [PASS]
+  THEN  ReplaceInSection works on the block between two corners  [PASS]
+  THEN  and leaves the other column alone  [PASS]
+  THEN  ReplaceInSectionByMany  [PASS]
+  THEN  ReplaceInSections works on several sections  [PASS]
+  THEN  ReplaceInSectionsCS, a section being a pair of corners  [PASS]
+  THEN  ReplaceInSections, without the case flag  [PASS]
+  THEN  ReplaceInSectionsByMany  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: Several columns replaced by several lists
+  GIVEN the six spellings that raised Unsupported feature in this release
+  THEN  ReplaceTheseColsByMany on the square table  [PASS]
+  THEN  by position on the 4 x 2 table  [PASS]
+  THEN  the five other spellings do the same  [PASS]
+  THEN  an unknown column raises  [PASS]
+  THEN  the new name is given by :With  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Cells of rows, ReplaceAll's spellings, the nth, first and last
+  GIVEN the methods that called ReplaceCell with two arguments
+  THEN  ReplaceCellsInTheseRows on the square table  [PASS]
+  THEN  on 4 x 2  [PASS]
+  THEN  the value can be given with :With  [PASS]
+  THEN  the six spellings of ReplaceAll replace every occurrence  [PASS]
+  THEN  and their CS forms too  [PASS]
+  THEN  ReplaceAll with a number on the square table  [PASS]
+  THEN  ReplaceNth replaces the second x  [PASS]
+  THEN  ReplaceFirst  [PASS]
+  THEN  ReplaceLast  [PASS]
+  THEN  an occurrence that does not exist replaces nothing  [PASS]
+  THEN  ReplaceFirstCS without case  [PASS]
+  THEN  ReplaceNth on the square table, with numbers  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: A range of the table
+  GIVEN SectionToRange and Range, which always raised
+  THEN  SectionToRange gives the start and the count  [PASS]
+  THEN  Range reads a block from a corner and a size (4 x 2)  [PASS]
+  THEN  on the square table  [PASS]
+  THEN  a size of 0 columns gives [ ]  [PASS]
+  THEN  a size that is not a pair raises  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 55 assertions, 55 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,24 @@
+=== Engine Delegation: TrimItem ===
+  TrimItem(''): [ "hello", "world" ]
+
+=== Engine Delegation: TrimItemFromLeft ===
+  TrimItemFromLeft('x'): [ "a", "b", "x" ]
+
+=== Engine Delegation: TrimItemFromRight ===
+  TrimItemFromRight('x'): [ "a", "b" ]
+
+=== Engine Delegation: Section ===
+  Section(2,4): [ "b", "c", "d" ]
+
+=== Edge: Section single element ===
+  Section(3,3): [ "c" ]
+
+=== Edge: TrimItem no match ===
+  TrimItem('x') on [a,b,c]: [ "a", "b", "c" ]
+
+=== Mixed types: Section with numbers ===
+  Section(1,3) on numbers: [ 10, 20, 30 ]
+
+=================================
+  PASSED: 7  FAILED: 0
+=================================

@@ -1,0 +1,27 @@
+=== Engine string-direct fast path ===
+
+--- stzListReplacer engine fast path ---
+  PASS: ReplaceAllOccurrencesCS via engine string-direct
+  PASS: CI replace via engine
+  PASS: ReplaceAt(2,'X') via engine SetString
+  PASS: AllOccurrencesReplacedCS via engine
+  PASS: Passive form doesnt mutate self
+
+--- stzListRemover engine fast path ---
+  PASS: RemoveAllCS via engine string-direct
+  PASS: CI remove via engine
+  PASS: AllOccurrencesRemoved via engine
+  PASS: Removed form doesnt mutate self
+
+--- Non-string fallback path ---
+  PASS: RemoveAll(integer) via Ring fallback
+
+==========================
+Total: 10
+Passed: 10
+Failed: 0
+ALL TESTS PASSED!
+
+
+----------------
+----------------

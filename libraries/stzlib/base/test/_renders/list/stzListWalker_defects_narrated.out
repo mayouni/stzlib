@@ -1,0 +1,168 @@
+SCENARIO: AddWalker, Walkers and Walker work on a list of numbers and on a list of texts
+  THEN  the registry of a fresh number walker is empty  [PASS]
+  THEN  the registry of a fresh text walker is empty  [PASS]
+  THEN  the number walker holds one  [PASS]
+  THEN  the text walker holds one  [PASS]
+  THEN  Walker answers the walker: 1 to 10 by 3 visits 1, 4, 7, 10  [PASS]
+  THEN  the same on the text walker  [PASS]
+  THEN  adding to one registry did not touch the other  [PASS]
+  THEN  a registry that is not empty still refuses an unknown name  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: The shape: [ name, object ] pairs, in the order of registration
+  THEN  three pairs  [PASS]
+  THEN  each is a pair  [PASS]
+  THEN  the first name is the first added  [PASS]
+  THEN  the second is the second added, not sorted  [PASS]
+  THEN  the Hebrew name is stored as it was written  [PASS]
+  THEN  the second item of a pair is a stzWalker object  [PASS]
+  THEN  and it keeps its steps  [PASS]
+  THEN  a name is never a number  [PASS]
+  THEN  Walker finds the Hebrew name  [PASS]
+  THEN  WalkerQ is the same call  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Names fold to lowercase, with the engine, accents included
+  THEN  the stored name is lowercase  [PASS]
+  THEN  it is found in lowercase  [PASS]
+  THEN  it is found in uppercase  [PASS]
+  THEN  it is found as it was written  [PASS]
+  THEN  an accented capital name is stored with its small letters  [PASS]
+  THEN  it is found by the small-letter spelling  [PASS]
+  THEN  it is found by the capital spelling  [PASS]
+  THEN  'ete' without accents is another name  [PASS]
+  THEN  and walks its own range  [PASS]
+  THEN  while the accented one kept its own  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: A name already registered raises, in any case, and keeps the first walker
+  THEN  the same name raises  [PASS]
+  THEN  the message says the name already exists  [PASS]
+  THEN  the same name in uppercase raises as well  [PASS]
+  THEN  still one walker  [PASS]
+  THEN  and it is the first one  [PASS]
+  THEN  an accented name in the other case raises  [PASS]
+  THEN  two walkers  [PASS]
+  THEN  a different name is accepted: three walkers  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: The name may be written as a pair, and must be a string
+  THEN  a [ :Named, name ] pair registers under the name  [PASS]
+  THEN  with a list of steps taken in turn: 2, 3, 6, 7  [PASS]
+  THEN  Walker accepts the pair too  [PASS]
+  THEN  a number as a name raises  [PASS]
+  THEN  the message names the type  [PASS]
+  THEN  a list that is not a name pair raises  [PASS]
+  THEN  Walker with a number raises  [PASS]
+  THEN  nothing was added by the refused calls  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: An unknown name raises in Walker, a known one does not
+  THEN  on an empty registry an unknown name raises  [PASS]
+  THEN  the message says no such walker is registered  [PASS]
+  THEN  once registered the name raises nothing  [PASS]
+  THEN  a near name still raises  [PASS]
+  THEN  so does WalkerQ  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The steps: a number or a list, and a refused walker leaves the registry as it was
+  THEN  a number is one step, repeated: 1, 5, 9  [PASS]
+  THEN  a list of one step is the same walk  [PASS]
+  THEN  a negative step walks backward: 10, 7, 4, 1  [PASS]
+  THEN  three walkers so far  [PASS]
+  THEN  a text as the step raises  [PASS]
+  THEN  a text as the start raises  [PASS]
+  THEN  an empty list of steps raises  [PASS]
+  THEN  the registry still holds three  [PASS]
+  THEN  and the refused name is still free  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Walker and Walkers answer COPIES: changing the answer never changes the registry
+  THEN  the fetched copy was changed: two numbers  [PASS]
+  THEN  a second fetch is unchanged: four numbers  [PASS]
+  THEN  the copy of the list of pairs holds the new name  [PASS]
+  THEN  the registry keeps its own  [PASS]
+  THEN  removing from the copy empties the copy  [PASS]
+  THEN  and not the registry  [PASS]
+  THEN  a call chained on an object reached through Walkers() does not reach the registry either  [PASS]
+  THEN  nor does a call chained on Walker  [PASS]
+  THEN  nor one chained on WalkerQ  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Two registries on two lists share nothing, and a copy of an object carries its own
+  THEN  the registry of the first holds it  [PASS]
+  THEN  the registry of the second does not  [PASS]
+  THEN  and cannot fetch it  [PASS]
+  THEN  the same name is free on the second list  [PASS]
+  THEN  with its own walk on the first  [PASS]
+  THEN  a copy starts with the registry of the original  [PASS]
+  THEN  what the original adds afterwards is not in the copy  [PASS]
+  THEN  what the copy adds is not in the original  [PASS]
+  THEN  the copy holds two  [PASS]
+  THEN  the original cannot fetch what the copy added  [PASS]
+  THEN  an object built without parentheses has an empty registry  [PASS]
+  THEN  and registers a walker  [PASS]
+  THEN  while the next one built the same way does not see it  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: Every public method of the class, once, on numbers and on texts
+  THEN  Content gives the list  [PASS]
+  THEN  List is the same  [PASS]
+  THEN  NumberOfItems  [PASS]
+  THEN  IsEmpty is false  [PASS]
+  THEN  IsEmpty is true on an empty list  [PASS]
+  THEN  WalkNForward  [PASS]
+  THEN  WalkForwardNSteps  [PASS]
+  THEN  WalkNBackward  [PASS]
+  THEN  WalkBackwardNSteps  [PASS]
+  THEN  WalkBetween forward  [PASS]
+  THEN  WalkBetween backward  [PASS]
+  THEN  WalkForthAndBack  [PASS]
+  THEN  WalkW  [PASS]
+  THEN  WalkWhere  [PASS]
+  THEN  PositionsWhere  [PASS]
+  THEN  PositionsW  [PASS]
+  THEN  WalkUntil includes the first match  [PASS]
+  THEN  WalkUntil with :Before stops before it  [PASS]
+  THEN  WalkWhen starts at the first match  [PASS]
+  THEN  WalkWhile stops before the first failure  [PASS]
+  THEN  WalkWhenXT backward as items  [PASS]
+  THEN  WalkUntilXT backward as items  [PASS]
+  THEN  WalkUntilXT forward as positions  [PASS]
+  THEN  WalkWhileXT forward as positions  [PASS]
+  THEN  WalkWhileXT backward as items  [PASS]
+  THEN  WalkZigZag  [PASS]
+  THEN  WalkEveryNth  [PASS]
+  THEN  WalkEach  [PASS]
+  THEN  WalkFromTo forward  [PASS]
+  THEN  WalkFromTo backward  [PASS]
+  THEN  WalkSkipping  [PASS]
+  THEN  WalkSkip  [PASS]
+  THEN  WalkAccumulating is a plain map  [PASS]
+  THEN  WalkAccumulate is the same call  [PASS]
+  THEN  texts: Content  [PASS]
+  THEN  texts: NumberOfItems counts items, not bytes  [PASS]
+  THEN  texts: WalkNForward  [PASS]
+  THEN  texts: WalkNBackward  [PASS]
+  THEN  texts: WalkBetween  [PASS]
+  THEN  texts: WalkForthAndBack  [PASS]
+  THEN  texts: WalkW finds the text  [PASS]
+  THEN  texts: WalkUntil  [PASS]
+  THEN  texts: WalkUntil :Before  [PASS]
+  THEN  texts: WalkWhen  [PASS]
+  THEN  texts: WalkWhile the item is not the text  [PASS]
+  THEN  texts: WalkWhenXT backward returns the items, Hebrew and accents intact  [PASS]
+  THEN  texts: WalkZigZag  [PASS]
+  THEN  texts: WalkEveryNth  [PASS]
+  THEN  texts: WalkSkipping  [PASS]
+  THEN  texts: WalkFromTo  [PASS]
+  THEN  texts: WalkAccumulating keeps the items  [PASS]
+  THEN  a stzList object is accepted in place of a list  [PASS]
+  THEN  anything else raises  [PASS]
+  THEN  the walks never changed the list  [PASS]
+  -> 54 pass, 0 fail
+
+================================================
+TOTAL: 134 assertions, 134 pass, 0 fail
+================================================
+STATUS: OK

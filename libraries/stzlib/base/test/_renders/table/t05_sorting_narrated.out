@@ -1,0 +1,56 @@
+SCENARIO: Sorting the rows down on a column
+  GIVEN SortInDescendingOn, which reordered the columns
+  THEN  the rows of the square table come out in descending order of column b  [PASS]
+  THEN  the columns stay where they were  [PASS]
+  THEN  a column given by position  [PASS]
+  THEN  on 4 x 2, column a is in descending order  [PASS]
+  THEN  the rows travel whole: the first row is z w  [PASS]
+  THEN  the last row is r y  [PASS]
+  THEN  SortDownOn is the same operation  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The sorted copy, down
+  GIVEN SortedDownOn and its five spellings
+  THEN  SortedDownOn gives the content with column a in descending order (square)  [PASS]
+  THEN  on 4 x 2  [PASS]
+  THEN  the table itself is untouched  [PASS]
+  THEN  the five spellings give the same answer  [PASS]
+  THEN  SortedOn, the ascending twin, still works  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Sorting by an expression
+  GIVEN the expression @item % 4, whose order on column b (2 5 8 gives 2 1 0) is the reverse of the order of b
+  THEN  SortDownOnBy puts the largest key first, which keeps the order  [PASS]
+  THEN  SortOnBy puts the smallest key first, which reverses it  [PASS]
+  THEN  SortInDescendingOnBy is SortDownOnBy  [PASS]
+  THEN  SortDownOnColBy takes the column  [PASS]
+  THEN  SortDownOnColBy on the 4 x 2 table, by position  [PASS]
+  THEN  SortedDownOnBy returns the content  [PASS]
+  THEN  SortedDownOnColBy is the same  [PASS]
+  THEN  and leaves the table as it was  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Is the table sorted by an expression
+  GIVEN the square table, whose first column 1 4 7 rises
+  THEN  IsSortedBy on the first column  [PASS]
+  THEN  IsSortedUpBy  [PASS]
+  THEN  IsSortedInAscendingBy  [PASS]
+  THEN  IsSortedBy is FALSE when the expression reverses the order  [PASS]
+  THEN  IsSortedUpOnBy on a column  [PASS]
+  THEN  is FALSE when the key falls (2 1 0)  [PASS]
+  THEN  IsSortedOnBy agrees  [PASS]
+  THEN  the spelling with the expression first  [PASS]
+  THEN  IsSortedUpByOnCol  [PASS]
+  THEN  IsSortedUpByOnColumn  [PASS]
+  THEN  IsSortedInAscendingByOnCol  [PASS]
+  THEN  IsSortedInAscendingByOnColumn  [PASS]
+  THEN  IsSorteInAscendingByOn  [PASS]
+  THEN  IsSortedInAscendingOnColBy  [PASS]
+  THEN  on the 4 x 2 table, a text column that is not in order  [PASS]
+  THEN  IsSortedUpBy on the 4 x 2 table  [PASS]
+  -> 16 pass, 0 fail
+
+================================================
+TOTAL: 36 assertions, 36 pass, 0 fail
+================================================
+STATUS: OK

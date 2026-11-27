@@ -1,0 +1,170 @@
+SCENARIO: A list of values: numbers, quoted texts, nested lists
+  THEN  the text is well formed  [PASS]
+  THEN  it has five items (the commas inside the nested lists do not cut)  [PASS]
+  THEN  the fourth item is the nested list as written  [PASS]
+  THEN  the fifth keeps its inner spaces and commas  [PASS]
+  THEN  the quoted item keeps its quotes  [PASS]
+  THEN  all five are values  [PASS]
+  THEN  IsListOfValues answers 1 (it raised R12)  [PASS]
+  THEN  ContainsOnlyValues answers 1 (it raised R12)  [PASS]
+  THEN  IsListOfVariables answers 0, not an empty text  [PASS]
+  THEN  ContainsOnlyVariables answers 0, not an empty text  [PASS]
+  THEN  IsListOfValuesAndVariables answers 0, not an empty text  [PASS]
+  THEN  ContainsValuesAndVariables answers 0, not an empty text  [PASS]
+  THEN  the six answers are all numbers  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: A list of variable names
+  THEN  four items  [PASS]
+  THEN  the items are the names  [PASS]
+  THEN  all four are variables  [PASS]
+  THEN  IsListOfVariables answers 1 (it answered an empty text)  [PASS]
+  THEN  ContainsOnlyVariables answers 1 (it answered an empty text)  [PASS]
+  THEN  IsListOfValues answers 0 (it raised R12)  [PASS]
+  THEN  ContainsOnlyValues answers 0 (it raised R12)  [PASS]
+  THEN  IsListOfValuesAndVariables answers 0  [PASS]
+  THEN  ContainsValuesAndVariables answers 0  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: A mixed list holds both
+  THEN  kinds  [PASS]
+  THEN  IsListOfValuesAndVariables answers 1 (it answered an empty text)  [PASS]
+  THEN  ContainsValuesAndVariables answers 1 (it answered an empty text)  [PASS]
+  THEN  it is not a list of values  [PASS]
+  THEN  it is not a list of variables  [PASS]
+  THEN  ContainsOnlyValues answers 0  [PASS]
+  THEN  ContainsOnlyVariables answers 0  [PASS]
+  THEN  one value and one name is enough  [PASS]
+  THEN  a quoted name is a value, not a name  [PASS]
+  THEN  two values and no name is not a mix  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: A nested list is one value, and its inside is not examined
+  THEN  a list of lists of names is a list of values  [PASS]
+  THEN  a name next to a nested list is a mix  [PASS]
+  THEN  a nested list of values and a name is a mix  [PASS]
+  THEN  a nested list with a name inside does not make the outer a mix  [PASS]
+  THEN  a deep nesting is still one item  [PASS]
+  THEN  a single deep item is kept as written  [PASS]
+  THEN  a list followed by something is not a list item  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The empty list: no value, no name, so all three tests answer 0
+  THEN  the compact empty list is well formed  [PASS]
+  THEN  it has no items  [PASS]
+  THEN  and no kinds  [PASS]
+  THEN  no test answers 1 for [] (a list of values needs a value)  [PASS]
+  THEN  nor for [ ] with spaces  [PASS]
+  THEN  nor for brackets around spaces, tabs and new lines  [PASS]
+  THEN  a one-item list is not empty  [PASS]
+  THEN  a one-name list is not empty  [PASS]
+  THEN  an empty list is well formed, unlike an empty text  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: A text that is not a list: not well formed, no items, every test 0
+  THEN  none of the 20 malformed texts is well formed  [PASS]
+  THEN  none has an item  [PASS]
+  THEN  all of them answer 0 on all six tests (failing: )  [PASS]
+  THEN  a number is not a list text  [PASS]
+  THEN  a list is not a list text  [PASS]
+  THEN  a well formed sibling answers 1  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Quotes, brackets and commas inside quoted texts do not cut
+  THEN  four items  [PASS]
+  THEN  first, comma kept  [PASS]
+  THEN  second, closing bracket kept  [PASS]
+  THEN  third, backquote text with an opening bracket  [PASS]
+  THEN  fourth, an apostrophe inside double quotes  [PASS]
+  THEN  all four are values  [PASS]
+  THEN  so it is a list of values  [PASS]
+  THEN  the inside of an item keeps its spaces; the ends are trimmed  [PASS]
+  THEN  a quoted item with outer spaces inside the quotes keeps them  [PASS]
+  THEN  a quoted bracket does not close the list: a stray one after it does  [PASS]
+  THEN  but the same bracket unquoted closes it early  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Ring has no string escapes: a backslash is an ordinary character
+  THEN  a text ending in a backslash is one whole text  [PASS]
+  THEN  its item is kept as written  [PASS]
+  THEN  both are values  [PASS]
+  THEN  a quote after a backslash closes the text, so the rest is unbalanced  [PASS]
+  THEN  a different quote inside is fine  [PASS]
+  THEN  two quoted texts side by side are one item of kind other, not a value  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Accented and Hebrew items
+  THEN  three items  [PASS]
+  THEN  the accented text is intact, bytes and all  [PASS]
+  THEN  the Hebrew text is intact  [PASS]
+  THEN  the nested list holding Hebrew is intact  [PASS]
+  THEN  all values  [PASS]
+  THEN  and not variables  [PASS]
+  THEN  bare accented and Hebrew names are variables, as Ring reads them  [PASS]
+  THEN  so it is a list of variables  [PASS]
+  THEN  and the bare accented name is kept whole  [PASS]
+  THEN  a Hebrew name next to a number mixes  [PASS]
+  THEN  a Hebrew letter in a text with a comma does not cut  [PASS]
+  THEN  a multibyte letter after the closing bracket is not a list  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: What is a number
+  THEN  every written number is a value (not: )  [PASS]
+  THEN  none of the look-alikes is a value (wrongly: )  [PASS]
+  THEN  5abc is not a number and not a name either: other  [PASS]
+  THEN  1+2 is an expression: other  [PASS]
+  THEN  1,5 is two items  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: What is a variable name
+  THEN  every bare name is a variable (not: )  [PASS]
+  THEN  none of the look-alikes is a variable (wrongly: )  [PASS]
+  THEN  TRUE, FALSE and NULL are names here: the text is not evaluated  [PASS]
+  THEN  a number next to TRUE is a mix  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A :name is a Ring text, so a value
+  THEN  :name is a value  [PASS]
+  THEN  a list of :names is a list of values  [PASS]
+  THEN  : alone is not a value  [PASS]
+  THEN  :1 is not a value  [PASS]
+  THEN  :a.b is not a value  [PASS]
+  THEN  a bare name is not a :name  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Items of kind other: neither value nor variable
+  THEN  an expression is other  [PASS]
+  THEN  a comma inside parentheses does not cut  [PASS]
+  THEN  a comma inside braces does not cut  [PASS]
+  THEN  a pair written directly in the list is other  [PASS]
+  THEN  an other item keeps a list from being only values  [PASS]
+  THEN  an other item keeps a list from being only names  [PASS]
+  THEN  an other item does not prevent a mix  [PASS]
+  THEN  an other item alone is no mix  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Whitespace, trailing comma, and independence of objects
+  THEN  spaces, tabs and new lines around items and the list are free  [PASS]
+  THEN  and the list is a mix  [PASS]
+  THEN  a single trailing comma is accepted, as Ring does  [PASS]
+  THEN  two trailing commas are not  [PASS]
+  THEN  a leading comma is not  [PASS]
+  THEN  two objects do not share state: first  [PASS]
+  THEN  two objects do not share state: second  [PASS]
+  THEN  asking twice gives the same answer  [PASS]
+  THEN  asking in another order too  [PASS]
+  THEN  the text is kept as given  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: A longer list is read in one pass
+  THEN  300 items  [PASS]
+  THEN  the last one is 300  [PASS]
+  THEN  all values  [PASS]
+  THEN  300 names make a list of variables  [PASS]
+  THEN  and not a list of values  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 121 assertions, 121 pass, 0 fail
+================================================
+STATUS: OK

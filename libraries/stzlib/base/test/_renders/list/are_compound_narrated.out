@@ -1,0 +1,43 @@
+-- Scene 1: the scalar form still answers --
+  [OK] a list of numbers
+  [OK] a list of strings
+  [OK] ...and a mixed list is NOT
+  [OK] an empty list is nothing collectively
+
+-- Scene 2: a LIST of descriptors reads conjunctively --
+  [OK] even AND positive AND numbers
+  [OK] even AND negative AND numbers
+  [OK] uppercase AND latin AND strings
+  [OK] lowercase AND strings
+  the last descriptor names the type, the earlier ones are traits --
+  but nothing depends on that: it is a plain AND.
+
+-- Scene 3: a one-element list IS the scalar --
+  [OK] Are([ :Strings ]) = Are(:Strings)
+
+-- Scene 4: ONE false trait fails the whole conjunction --
+  [OK] not all even
+  [OK] not all positive
+  [OK] not all uppercase
+  [OK] right traits, wrong type
+
+-- Scene 5: script and direction traits, over real text --
+  [OK] arabic AND strings
+  [OK] arabic-script AND right-to-left AND texts
+  [OK] han-script AND texts
+  [OK] ...and latin text is NOT han
+
+-- Scene 6: a trait only a CHAR can answer --
+  [OK] punctuation AND chars
+  [OK] ...letters are not punctuation
+
+-- Scene 7: :Texts is a TYPE trait, not stzObject.IsText() --
+  [OK] plain strings ARE texts collectively
+  [OK] ...though no plain string IS an stzText
+
+-- Scene 8: an unanswerable descriptor RAISES, it does not say no --
+  [OK] no predicate can judge it, so it refuses to answer
+
+==========================================
+TOTAL: 22 assertions, 22 pass, 0 fail
+==========================================

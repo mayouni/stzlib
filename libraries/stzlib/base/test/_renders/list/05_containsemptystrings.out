@@ -1,0 +1,12 @@
+SCENARIO: The empty-string toolkit: detect, count, locate, replace, and remove the  holes in a list.
+  THEN  containsemptystrings example 1  [PASS]
+  THEN  containsemptystrings example 2  [PASS]
+  THEN  containsemptystrings example 3  [PASS]
+  THEN  containsemptystrings example 4  [PASS]
+  THEN  containsemptystrings example 5  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

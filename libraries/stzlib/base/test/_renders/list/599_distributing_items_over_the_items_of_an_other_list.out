@@ -1,0 +1,54 @@
+[
+	[
+		"arem",
+		[ "water", "coca", "milk" ]
+	],
+	[
+		"mohsen",
+		[ "spice", "cofee" ]
+	],
+	[
+		"hamma",
+		[ "tea", "honey" ]
+	]
+]
+
+
+[
+	[
+		"arem",
+		[ "water", "coca", "milk" ]
+	],
+	[
+		"mohsen",
+		[ "spice", "cofee" ]
+	],
+	[
+		"hamma",
+		[ "tea", "honey" ]
+	]
+]
+
+
+[
+	[
+		"arem",
+		[ "water" ]
+	],
+	[
+		"mohsen",
+		[ "coca", "milk" ]
+	],
+	[
+		"hamma",
+		[
+			"spice",
+			"cofee",
+			"tea",
+			"honey"
+		]
+	]
+]
+
+
+Line 2995 Can't distribute the items of the main list over the items of the provided list!

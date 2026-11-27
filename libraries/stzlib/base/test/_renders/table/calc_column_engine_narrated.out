@@ -1,0 +1,35 @@
+-- Scene 1: engine arithmetic over several columns --
+  [OK] A + B computed per row
+  [OK] A * B - 1 computed per row
+  [OK] mixing a column with a literal
+  SUM    -> [ 3, 7, 30, 105 ]
+  EXPR   -> [ 1, 11, 199, 499 ]
+  SCALED -> [ 1002, 3004, 10020, 100005 ]
+
+-- Scene 2: a chained calc col sees the one added before it --
+  [OK] a calc col referencing an earlier calc col
+  DOUBLESUM -> [ 6, 14, 60, 210 ]
+
+-- Scene 3: insert position is honoured --
+  [OK] calc col inserted at position 2
+  [OK] ... with the right values
+  [OK] ... and the original columns shifted
+
+-- Scene 4: FALLBACK keeps non-arithmetic semantics --
+  [OK] a string-concat formula, as a function of the row, concatenates
+  TAG -> [ "al-x", "be-x", "ce-x" ]
+  [OK] NEGATIVE: the text formula the engine cannot compute is refused, not run
+  [OK] a Ring-only function, given as a function of the row, computes
+  UP  -> [ "AL", "BE", "CE" ]
+  [OK] a numeric formula beside string ones still uses the engine
+
+-- Scene 5: it scales -- 50k rows compute in a blink --
+  50000 rows, calculated column built in 0.11 s
+  [OK] every one of 50k rows was computed
+  [OK] the 50k-row column totals correctly
+  [OK] first and last rows are right
+  [OK] 50k rows compiled ONCE, not 50k times (fast)
+
+==========================================
+TOTAL: 15 assertions, 15 pass, 0 fail
+==========================================

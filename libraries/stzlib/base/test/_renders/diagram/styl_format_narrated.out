@@ -1,0 +1,31 @@
+-- Scene 1: a styled diagram writes itself down --
+  [OK] the export produces a file
+  [OK] ... naming every section it will need to read back
+  [OK] the file is really on disk
+
+-- Scene 2: a FRESH diagram reads it back --
+  [OK] a fresh diagram starts on the default theme
+  [OK] LoadStyle survives at all -- it used to die on R2
+  [OK] the theme came back
+  [OK] the layout came back
+
+-- Scene 3: the sections the flat-run fault destroyed --
+  [OK] edges: the colour survived
+  [OK] focus: the colour survived -- the section whose setter did not exist
+  [OK] ... and it is the resolved value, not the name
+
+-- Scene 4: reading a style twice is harmless --
+  [OK] loading the same style again does not raise
+  [OK] ... and changes nothing
+  [OK] a style file that isn't there REFUSES
+  [OK] an edge pen style reaches the DOT
+  [OK] ...and displaces the default
+  [OK] a semantic style still resolves
+  [OK] the semantic style wins over the pen
+  [OK] ...and the pen style gives way
+  [OK] an untouched edge is solid
+  [OK] ...and carries no pen style of its own
+
+==========================================
+TOTAL: 20 assertions, 20 pass, 0 fail
+==========================================

@@ -1,0 +1,33 @@
+=== Testing Engine Delegation Batch 2 ===
+
+--- IsListOfNumbers ---
+IsListOfNumbers([1,2,3,4.5]) = 1
+IsListOfNumbers([1,'hello',3]) = 0
+IsListOfNumbers([]) = 1
+
+--- IsListOfStrings ---
+IsListOfStrings(['a','b','c']) = 1
+IsListOfStrings(['a',42,'c']) = 0
+
+--- Min/Max ---
+Min([5,3,8,1,9,2]) = 1
+Max([5,3,8,1,9,2]) = 9
+
+--- RemoveDuplicates ---
+RemoveDuplicates(['a','b','c','a','b','d']): 4 items
+  a
+  b
+  c
+  d
+
+--- WithoutDuplication ---
+WithoutDuplication([1,2,3,2,4,3,5]): 5 items
+
+--- stzSet operations ---
+Set from [1,2,3,2,1]: 3 elements
+
+=== All batch 2 delegation tests passed! ===
+
+
+----------------
+----------------

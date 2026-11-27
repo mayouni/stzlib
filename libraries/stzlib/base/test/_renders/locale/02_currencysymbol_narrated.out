@@ -1,0 +1,31 @@
+SCENARIO: The symbol and the code are different answers
+  GIVEN a rial locale
+  THEN  the ISO code is the ISO code  [PASS]
+  THEN  ...and the symbol is a symbol  [PASS]
+  GIVEN a euro locale
+  THEN  the ISO code is the ISO code  [PASS]
+  THEN  ...and the symbol is the euro sign  [PASS]
+  THEN  the two accessors disagree, as they should  [PASS]
+  THEN  ...and CurrencyAbbreviation is still the code  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: No row in the table answers its own ISO code
+  GIVEN the whole currency table
+  THEN  every row carries a real symbol  [PASS]
+  THEN  ...and none of them is blank  [PASS]
+  THEN  a currency written in letters is fine  [PASS]
+  THEN  ...as long as it is not the code  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: No symbol is double-encoded
+  GIVEN the currency symbols
+  THEN  the Bulgarian lev reads as two letters  [PASS]
+  THEN  ...and it is the lev  [PASS]
+  THEN  no symbol carries the mojibake signature  [PASS]
+  THEN  the yen is untouched  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 14 assertions, 14 pass, 0 fail
+================================================
+STATUS: OK

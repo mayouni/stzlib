@@ -1,0 +1,17 @@
+SCENARIO: FindCellCS with case ignored
+  THEN  ΑΘΉΝΑ finds the cell Αθήνα  [PASS]
+  THEN  but not when case counts  [PASS]
+  THEN  STRASSE finds the cell straße: ß folds to ss  [PASS]
+  THEN  ASCII as before: TUNIS finds Tunis  [PASS]
+  THEN  and a text that is in no cell finds nothing  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Column names in another case, found in Ring
+  THEN  ΠΌΛΗ finds the column πόλη  [PASS]
+  THEN  CITY finds the column city  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

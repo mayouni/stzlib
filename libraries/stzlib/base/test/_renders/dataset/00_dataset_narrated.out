@@ -1,0 +1,54 @@
+SCENARIO: Core descriptive statistics
+  GIVEN the dataset [10,15,20,25,30,35,40]
+  THEN  Mean is 25  [PASS]
+  THEN  Median is 25  [PASS]
+  THEN  Range is 30 (max-min)  [PASS]
+  THEN  Sum is 175  [PASS]
+  THEN  Min is 10  [PASS]
+  THEN  Max is 40  [PASS]
+  THEN  Count is 7  [PASS]
+  THEN  StandardDeviation ~ 10.80  [PASS]
+  THEN  Variance ~ 116.67  [PASS]
+  THEN  CoVar ~ 43.20  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Alternative means
+  GIVEN the dataset [2,8,32]
+  THEN  GeometricMean is 8 (cube root of 512)  [PASS]
+  THEN  HarmonicMean ~ 4.57  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Data-type detection
+  GIVEN a numeric and a categorical dataset
+  THEN  all-numbers -> numeric  [PASS]
+  THEN  all-strings -> categorical  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Missing-value detection is list-safe (R21 guard)
+  GIVEN a dataset
+  THEN  an empty string is missing  [PASS]
+  THEN  a number is not missing  [PASS]
+  THEN  a nested list is NOT a missing marker  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Construction tolerates nested-list items (R21 guard)
+  GIVEN data containing a sublist: [1,[2,3],4]
+  THEN  it constructs without crashing (count 3)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: TrendAnalysis returns a list of segments (formatter R21 guard)
+  GIVEN a numeric sample
+  THEN  the result is a list  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Single-dataset plans skip pairwise steps gracefully (R19 guard)
+  GIVEN a dataset with no paired second dataset
+  THEN  CorrelationWith needs a paired dataset  [PASS]
+  THEN  RankCorrelationWith needs a paired dataset  [PASS]
+  THEN  Mean does NOT need a paired dataset  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 22 assertions, 22 pass, 0 fail
+================================================
+STATUS: OK

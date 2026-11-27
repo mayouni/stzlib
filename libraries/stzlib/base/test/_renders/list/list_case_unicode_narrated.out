@@ -1,0 +1,35 @@
+SCENARIO: Equality with case ignored
+  THEN  [α,β] equals [Β,Α] ignoring case  [PASS]
+  THEN  but not when case counts  [PASS]
+  THEN  [straße] is strictly equal to [STRASSE] ignoring case: ß folds to ss  [PASS]
+  THEN  [Σοφία, é] is strictly equal to [ΣΟΦΊΑ, É] ignoring case  [PASS]
+  THEN  final sigma and capital sigma are one letter ignoring case  [PASS]
+  THEN  repeats still count: [α,α] is not [Α,β]  [PASS]
+  THEN  ASCII as before: [a,B] equals [b,A]  [PASS]
+  THEN  Hebrew and emoji have no case and compare as they are  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Nested lists, with case ignored inside them too
+  THEN  [[A,β]] equals [[a,Β]] ignoring case  [PASS]
+  THEN  but not when case counts  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Finding and counting with case ignored
+  THEN  ContainsCS(Α) ignoring case  [PASS]
+  THEN  ContainsCS(Α) with case  [PASS]
+  THEN  ContainsCS(É) finds é  [PASS]
+  THEN  NumberOfOccurrencesCS(α) is 3  [PASS]
+  THEN  FindCS(Α) is [1, 2, 4]  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Removing duplicates and sorting with case ignored
+  THEN  [α,Α,β,ß,SS] without duplicates is [α,β,ß]  [PASS]
+  THEN  [Β,α] sorted ignoring case is [α,Β]: alpha before beta  [PASS]
+  THEN  and with case, by codepoint, capital Beta (U+0392) comes first  [PASS]
+  -> 3 pass, 0 fail
+        [guard took 0.00s]
+
+================================================
+TOTAL: 18 assertions, 18 pass, 0 fail
+================================================
+STATUS: OK

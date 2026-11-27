@@ -1,0 +1,18 @@
+Tunisian dinar
+tunisian dinar
+Millime
+[
+	[ "name", "Tunisian dinar" ],
+	[ "nativename", "tunisian dinar" ],
+	[ "abbreviation", "TND" ],
+	[ "symbol", "DT" ],
+	[ "nativesymbol", "DT" ],
+	[ "isosymbol", "TND" ],
+	[ "fractionalunit", "Millime" ],
+	[ "fraction", "Millime" ],
+	[ "base", 1000 ]
+]
+
+
+----------------
+----------------

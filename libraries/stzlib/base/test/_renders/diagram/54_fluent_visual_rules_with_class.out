@@ -1,0 +1,16 @@
+[
+	[
+		[ "name", "LOW_PRIORITY" ],
+		[ "conditiontype", "property_range" ],
+		[ "effectscount", 1 ]
+	],
+	[
+		[ "name", "CRITICAL_PRIORITY" ],
+		[ "conditiontype", "property_range" ],
+		[ "effectscount", 2 ]
+	]
+]
+
+
+----------------
+----------------

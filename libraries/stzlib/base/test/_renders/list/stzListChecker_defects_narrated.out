@@ -1,0 +1,154 @@
+SCENARIO: Numbers: integers, decimals, negatives, zero
+  THEN  2 is found in 1 2 3  [PASS]
+  THEN  9 is not found in 1 2 3  [PASS]
+  THEN  a decimal is found  [PASS]
+  THEN  a close decimal is not found  [PASS]
+  THEN  a negative integer is found in a list that also holds decimals  [PASS]
+  THEN  its opposite is not found  [PASS]
+  THEN  zero is found in a list that also holds decimals  [PASS]
+  THEN  a negative decimal is found  [PASS]
+  THEN  its opposite is not found  [PASS]
+  THEN  1.0 is the number 1  [PASS]
+  THEN  2.0 is not in the list, though 2.5 is  [PASS]
+  THEN  a number beyond the 64-bit range is not found, and does not abort  [PASS]
+  THEN  the same number is found when the list holds it  [PASS]
+  THEN  and 5 next to it is found  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: A number is not its text, a text is not its number
+  THEN  the text 2 is not found among numbers  [PASS]
+  THEN  the number 2 is not found among texts  [PASS]
+  THEN  the text 2 is found among texts  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Texts: ASCII, with and without the case flag
+  THEN  a is found  [PASS]
+  THEN  z is not found  [PASS]
+  THEN  A is not found, the flag defaults to case-sensitive  [PASS]
+  THEN  A is found when the case is ignored  [PASS]
+  THEN  A is not found when the case counts  [PASS]
+  THEN  Z is not found when the case is ignored  [PASS]
+  THEN  the pair [ :CaseSensitive, 0 ] ignores the case  [PASS]
+  THEN  the pair [ :CaseSensitive, 1 ] keeps it  [PASS]
+  THEN  the empty text is found when the list holds it  [PASS]
+  THEN  the empty text is not found when it does not  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Texts beyond ASCII: accented, Hebrew, emoji, sigma
+  THEN  e acute is found  [PASS]
+  THEN  a capital E acute is not found while the case counts  [PASS]
+  THEN  a capital E acute is found when the case is ignored  [PASS]
+  THEN  a plain e is not e acute, with either flag  [PASS]
+  THEN  the Hebrew text is found  [PASS]
+  THEN  the Hebrew text with a letter more is not found  [PASS]
+  THEN  the Hebrew text is found with the flag at 0  [PASS]
+  THEN  the emoji is found  [PASS]
+  THEN  the first three bytes of the emoji are not found  [PASS]
+  THEN  the emoji is found with the flag at 0  [PASS]
+  THEN  a capital sigma is not found while the case counts  [PASS]
+  THEN  a capital sigma is found when the case is ignored  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: Lists as items: matched whole, item by item
+  THEN  [3] is found  [PASS]
+  THEN  [1, 2] is found  [PASS]
+  THEN  [2] is not found, a part is not the item  [PASS]
+  THEN  [3, 4] is not found  [PASS]
+  THEN  [2, 1] is not found, the order counts  [PASS]
+  THEN  the number 3 is not the list [3]  [PASS]
+  THEN  the empty list is found when the list holds one  [PASS]
+  THEN  the empty list is not found when it does not  [PASS]
+  THEN  a list, a text and a number can sit together: the list  [PASS]
+  THEN  the text B is not b  [PASS]
+  THEN  a text inside a list follows the flag: x is not X  [PASS]
+  THEN  x is X when the case is ignored  [PASS]
+  THEN  X is found as it is  [PASS]
+  THEN  a capital E acute inside a list is found as it is  [PASS]
+  THEN  a small e acute inside a list is not found  [PASS]
+  THEN  a small e acute inside a list is found when the case is ignored  [PASS]
+  THEN  a list inside a list inside a list is compared too  [PASS]
+  THEN  and a difference deep down is seen  [PASS]
+  THEN  the case flag reaches down there as well  [PASS]
+  THEN  a list of numbers holding a decimal is found  [PASS]
+  THEN  the whole number 3 is found beside a decimal  [PASS]
+  -> 21 pass, 0 fail
+
+SCENARIO: The empty list holds nothing
+  THEN  no number  [PASS]
+  THEN  no text  [PASS]
+  THEN  no empty text  [PASS]
+  THEN  no empty list  [PASS]
+  THEN  nothing with the flag at 0 either  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: ContainsAllOfThese: every item must be there
+  THEN  [1, 2] are all there  [PASS]
+  THEN  [1, 9] are not all there  [PASS]
+  THEN  [9, 1] are not all there, whichever comes first  [PASS]
+  THEN  the empty list of items is all there, nothing is missing  [PASS]
+  THEN  something that is not a list answers 0  [PASS]
+  THEN  texts, with the Hebrew one: all there  [PASS]
+  THEN  texts: one missing  [PASS]
+  THEN  A is not there while the case counts  [PASS]
+  THEN  A and B are there when the case is ignored  [PASS]
+  THEN  A and Z are not, even when the case is ignored  [PASS]
+  THEN  lists and a number: all there  [PASS]
+  THEN  lists and a number: [2] is not an item  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: ContainsOneOfThese: one is enough
+  THEN  [9, 2] holds one that is there  [PASS]
+  THEN  [9, 8] holds none  [PASS]
+  THEN  the empty list of items finds nothing  [PASS]
+  THEN  something that is not a list answers 0  [PASS]
+  THEN  texts: z, b has one  [PASS]
+  THEN  texts: z, y has none  [PASS]
+  THEN  B is not there while the case counts  [PASS]
+  THEN  B is there when the case is ignored  [PASS]
+  THEN  Z and Y are not, with the case ignored  [PASS]
+  THEN  lists: [9] then [3] has one  [PASS]
+  THEN  lists: [9] then [2] has none  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: ContainsW: some item meets the condition
+  THEN  an item above 2 exists  [PASS]
+  THEN  an item above 5 does not exist  [PASS]
+  THEN  an item equal to 2 exists  [PASS]
+  THEN  ContainsWhere is the same question  [PASS]
+  THEN  ContainsItemW is the same question  [PASS]
+  THEN  a text equal to zz exists  [PASS]
+  THEN  a text equal to q does not exist  [PASS]
+  THEN  a negative item exists  [PASS]
+  THEN  no negative item here  [PASS]
+  THEN  the empty list meets nothing  [PASS]
+  THEN  the answer is a number, 1 or 0, usable in a test  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: The list is left as it was, and a checker over a stzList object works too
+  THEN  the five questions answer 1 each  [PASS]
+  THEN  the content is untouched  [PASS]
+  THEN  over a stzList: x is found  [PASS]
+  THEN  over a stzList: X is not found  [PASS]
+  THEN  over a stzList: X is found when the case is ignored  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The ContainsOnly family beside them, on the same data
+  THEN  numbers only: yes for numbers  [FAIL]
+    expected: 1
+    got:      0
+  THEN  numbers only: no for texts  [PASS]
+  THEN  numbers only: no for a mix  [PASS]
+  THEN  texts only: yes for texts  [PASS]
+  THEN  texts only: no for numbers  [PASS]
+  THEN  lists only: yes for lists  [PASS]
+  THEN  lists only: no for numbers  [PASS]
+  THEN  a pair of numbers: yes  [PASS]
+  THEN  a pair of numbers: no for three  [PASS]
+  THEN  the :Where form of the condition is accepted  [PASS]
+  THEN  and a failing one answers 0  [PASS]
+  -> 10 pass, 1 fail
+
+================================================
+TOTAL: 115 assertions, 114 pass, 1 fail
+================================================
+STATUS: FAILED

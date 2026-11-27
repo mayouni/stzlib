@@ -1,0 +1,35 @@
+=== Sort: Ascending ===
+  Sorted [3,1,4,1,5,9,2]: [ 1, 1, 2, 3, 4, 5, 9 ]
+
+=== Sort: Descending ===
+  SortedDown [3,1,4,1,5]: [ 5, 4, 3, 1, 1 ]
+
+=== Sort: Strings ===
+  Sorted strings: [ "apple", "banana", "cherry" ]
+
+=== Sort: Mixed types ===
+  Sorted mixed: [ 1, 3, "abc", "hello" ]
+
+=== Sort: SortedInDescending ===
+  SortedInDescending: [ 30, 20, 10 ]
+
+=== IsSorted: Ascending ===
+  IsSortedInAscending [1,2,3,4]: 1
+  IsSortedInAscending [4,2,3,1]: 0
+
+=== IsSorted: Descending ===
+  IsSortedInDescending [5,4,3,2,1]: 1
+  IsSortedInDescending [1,2,3]: 0
+
+=== Reverse ===
+  Reversed [1,2,3,4,5]: [ 5, 4, 3, 2, 1 ]
+  After Reverse(): [ 5, 4, 3, 2, 1 ]
+
+=== SortOn column ===
+  SortListsOn col 1: [ [ 1, "a" ], [ 2, "b" ], [ 3, "c" ] ]
+
+All sort/reverse tests completed.
+
+
+----------------
+----------------

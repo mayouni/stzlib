@@ -1,0 +1,25 @@
+🗀 _t29 (🎯2 matches for '*.png')
+├─ 🗋 test.txt
+├─🗀 docs
+├─📂 images (2)
+│ ├─ 🗋👉 image1.png
+│ ├─ 🗋👉 image2.png
+│ ├─🗀 more
+│ ╰─🖿 notes
+├─🗀 music
+├─🖿 tempo
+╰─🗀 videos
+
+
+📁 _t29 (🎯 3 folder matches for '*i*')
+├─ 🗋 test.txt
+├─🗀 docs
+├─🖿👉 images
+├─🗀👉 music
+├─🖿 tempo
+╰─🗀👉 videos
+
+
+
+----------------
+----------------

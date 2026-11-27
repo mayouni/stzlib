@@ -1,0 +1,40 @@
+SCENARIO: stzList (*): repeat -- raw stays raw, Q() elevates
+  GIVEN the list [1, 2, 3]
+  THEN  * 4 returns a RAW list  [PASS]
+  THEN  * 4 content is the flat 4x repeat  [PASS]
+  THEN  * Q(4) returns an stz OBJECT  [PASS]
+  THEN  ( * Q(4) ).Content() equals * 4  [PASS]
+  THEN  the elevated result chains  [PASS]
+  THEN  a numeric stz-object (TRUEObject ~> 1) also elevates  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: stzList (/): divide into N parts -- raw stays raw, Q() elevates
+  GIVEN the list [1, 2, 3, 4, 5, 6]
+  THEN  / 3 returns a RAW list  [PASS]
+  THEN  / 3 divides into 3 equal parts  [PASS]
+  THEN  uneven divides with a front-loaded remainder  [PASS]
+  THEN  / Q(3) returns an stz OBJECT  [PASS]
+  THEN  ( / Q(3) ).Content() equals / 3  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: stzList (-): remove -- raw stays raw, Q() elevates
+  GIVEN the range 1..5
+  THEN  - 3 returns a RAW list  [PASS]
+  THEN  - Q(3) returns an stz OBJECT  [PASS]
+  THEN  ( - Q(3) ).Content() equals - 3  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: stzString (*) and (/): same rule
+  GIVEN the strings "ABC" and "ABCDEF"
+  THEN  "ABC" * 3 is the raw string ABCABCABC  [PASS]
+  THEN  * Q(3) returns an stz OBJECT  [PASS]
+  THEN  ( * Q(3) ).Content() equals * 3  [PASS]
+  THEN  / 3 returns a RAW list  [PASS]
+  THEN  / n divides into n equal parts (same as lists)  [PASS]
+  THEN  / Q(3) returns an stz OBJECT  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 20 assertions, 20 pass, 0 fail
+================================================
+STATUS: OK

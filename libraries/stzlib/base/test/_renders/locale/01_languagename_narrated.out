@@ -1,0 +1,47 @@
+SCENARIO: The language comes from the language, not from the country
+  GIVEN English as spoken in Palau
+  THEN  the country is still Palau  [PASS]
+  THEN  ...but the language is English  [PASS]
+  GIVEN a locale whose language code is in no table
+  THEN  the country answers for it  [PASS]
+  GIVEN a locale with neither a known language nor a country
+  THEN  an unresolvable code gives nothing  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A locale chosen by SCRIPT still knows its language
+  GIVEN the Arabic script, with no country named
+  THEN  it resolves its language  [PASS]
+  GIVEN the same locale reached the way a caller writes it
+  THEN  the native day name is NATIVE  [PASS]
+  THEN  ...and so is the abbreviation  [PASS]
+  THEN  the English name is untouched  [PASS]
+  THEN  Monday is still in the week, three days along  [PASS]
+  THEN  ...and its native name agrees  [PASS]
+  THEN  English and native abbreviations agree on the day  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The week starts where the locale says, and rotates from there
+  GIVEN locales that start their week on different days
+  THEN  the United States starts on Sunday  [PASS]
+  THEN  Iran starts on Saturday  [PASS]
+  THEN  France starts on Monday  [PASS]
+  THEN  a US week is seven real days  [PASS]
+  THEN  ...an Iranian week too  [PASS]
+  THEN  ...and an Egyptian one  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: What the native names still cannot do
+  GIVEN Persian, which the table now carries
+  THEN  the language itself resolves  [PASS]
+  THEN  ...and its first day is Saturday, as Iran counts it  [PASS]
+  THEN  ...named in Persian, not English  [PASS]
+  GIVEN Swahili, which the table does not carry
+  THEN  the language itself resolves  [PASS]
+  THEN  ...but the native day name falls back to English (documented gap)  [PASS]
+  THEN  Arabic, which it carries, is native  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 23 assertions, 23 pass, 0 fail
+================================================
+STATUS: OK

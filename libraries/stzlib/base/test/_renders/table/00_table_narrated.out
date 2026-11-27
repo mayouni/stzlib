@@ -1,0 +1,38 @@
+SCENARIO: Shape and headers
+  GIVEN a 3-row country/income/population table
+  THEN  NumberOfRows is 3  [PASS]
+  THEN  NumberOfCols is 3  [PASS]
+  THEN  ColNames lists the headers  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Column, row and cell access
+  GIVEN the same table
+  THEN  Col('INCOME') returns the column  [PASS]
+  THEN  Cell('INCOME',2) is China's income  [PASS]
+  THEN  Row(1) is the USA row  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Column presence (case-insensitive)
+  GIVEN the same table
+  THEN  HasCol('INCOME') is TRUE  [PASS]
+  THEN  HasCol('income') is TRUE (case-insensitive)  [PASS]
+  THEN  HasCol('ZZZ') is FALSE  [PASS]
+  THEN  HasColNames([INCOME,COUNTRY]) is TRUE  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Copy is independent
+  GIVEN a copy with column 1 removed
+  THEN  the copy drops COUNTRY  [PASS]
+  THEN  the original still has 3 columns  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Case-insensitive cell find is codepoint-correct (multibyte)
+  GIVEN a column with accented cells
+  THEN  FindInColCS folds case across multibyte (cafe-acute)  [PASS]
+  THEN  FindInColCS matches an accented value case-insensitively  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 14 assertions, 14 pass, 0 fail
+================================================
+STATUS: OK

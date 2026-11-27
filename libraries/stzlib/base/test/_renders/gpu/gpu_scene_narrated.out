@@ -1,0 +1,92 @@
+-- Scene 1: the SVG tier is the floor -- no device, exact numbers --
+  [OK] no device is present
+  [OK] scene created (id > 0)
+  [OK] rect accepted
+  [OK] circle accepted
+  [OK] line accepted
+  [OK] command count is 3 (clear is not a command)
+  [OK] SVG came back
+  [OK] SVG header carries the scene size
+  [OK] the rect's EXACT coordinates are in the SVG
+  [OK] the circle's EXACT geometry is in the SVG
+  [OK] colors round-trip as rgb()
+  [OK] stroke carries round joins AND caps (matching the tessellator)
+  [OK] document is closed
+
+-- Scene 2: the tessellation is real, and its curve bound is COMPUTED --
+  [OK] stats answer [cmds, shapeV, textV, segs, builds, uploads, textDropped, glyphsDropped, shapeRefused, textRefused]
+  [OK] a healthy scene dropped and refused nothing (the four DN3b slots are 0)
+  [OK] 3 commands
+  [OK] circle at r=25 tessellates to a computed segment count
+  [OK] its chord sagitta is under the 0.15 px bound (0.15)
+  [OK] a bigger radius needs MORE segments (the bound scales)
+  [OK] shape vertices were produced
+  [OK] no text vertices in a text-free scene
+  [OK] one draw segment (all shapes, one kind)
+
+-- Scene 3: retained buffers -- an unchanged scene does NOT rebuild --
+  [OK] second read did not rebuild (the §3b door, witnessed)
+  [OK] adding a command DOES rebuild
+  [OK] and the vertex count grew by one quad
+
+-- Scene 4: refusals answer by name --
+  [OK] zero-size scene refuses
+  [OK] rect with zero width refuses BAD_ARG
+  [OK] circle with zero radius refuses BAD_ARG
+  [OK] polygon with 2 points refuses BAD_ARG
+  [OK] freed scene answers STALE
+  [OK] drawing into a freed scene answers STALE
+  [OK] ToSvg on a freed scene answers ''
+  [OK] ToPng with NO device answers ''
+  [OK] and the refusal was COUNTED
+
+-- Scene 5: concave polygons fill (ear clipping, not a fan) --
+  [OK] 6-gon tessellates to exactly (n-2) triangles = 12 verts
+  [OK] SVG carries the polygon with its exact points
+
+-- Scene 6: text rides the GR2a pipeline on BOTH tiers --
+  [OK] fixture font loaded
+  [OK] text accepted
+  [OK] SVG emits glyph OUTLINES (a path, not a <text> the viewer must shape)
+  [OK] SVG needs no font installed to render right
+  [OK] text vertices exist (6 per inked glyph)
+  [OK] and they are a whole number of quads
+  [OK] glyph count and quad count agree
+
+-- Scene 7: the atlas caches -- the same word rasters ONCE --
+  [OK] atlas has entries after layout
+  [OK] the same glyphs at the same size add NO new entries
+  [OK] a DIFFERENT size does add entries (size is part of the key)
+  [OK] the atlas is a texture surface, not a glyph list
+
+-- Scene 8: Arabic goes through the SAME pipeline on the SVG tier --
+  [OK] Arabic emits outlines too
+  [OK] 8 shaped glyphs -> 8 quads (joined forms, not codepoints)
+  [OK] the scene's text is as wide as the pipeline says
+
+-- Scene 9: with a device, the GPU tier draws the SAME model --
+  device: NVIDIA GeForce RTX 3050 6GB Laptop GPU
+  [OK] GPU tier returned w*h*4 bytes
+  [OK] opaque rects are BYTE-IDENTICAL to the Ring reference (0 of 2400 wrong)
+  [OK] painter order held: the blue rect covers the red one
+  [OK] a whole scene costs ONE render submit
+  [OK] circle centre is filled
+  [OK] a pixel just INSIDE the rim is filled (sagitta < 1px)
+  [OK] a pixel just OUTSIDE the rim is background
+  [OK] the corner (far outside) is background
+  [OK] gradient starts dark (6)
+  [OK] gradient ends bright (253)
+  [OK] and the middle sits between them (129)
+  [OK] a 50% white over black lands mid-grey (128)
+  [OK] text put real ink on the target (261 px)
+  [OK] the leftmost ink starts at the layout's pen (x=20, got 22)
+  [OK] nothing inked left of the pen
+  [OK] the atlas uploaded to the device
+  [OK] an unchanged atlas does NOT re-upload
+  [OK] the GPU-rendered scene still emits its SVG twin
+  [OK] ToPng refuses once the device is gone
+  [OK] but ToSvg still answers -- the floor never depended on a device
+
+==========================================
+TOTAL: 70 assertions, 70 pass, 0 fail
+==========================================

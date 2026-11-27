@@ -1,0 +1,107 @@
+SCENARIO: CreateFolders creates several sub-folders at once
+  GIVEN a fresh sandbox folder
+  WHEN  CreateFolders([Alpha, Beta, Gamma]) is called
+  THEN  it returns 3 folder handles  [PASS]
+  THEN  Alpha exists on disk  [PASS]
+  THEN  Gamma exists on disk  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: VizSearchFiles lists files matching a pattern
+  GIVEN a .dll file inside a sub-folder
+  THEN  the visual search output mentions the .dll match  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: DeepRemoveAll removes the folder and its whole subtree
+  GIVEN the populated sandbox
+  THEN  removal reports success  [PASS]
+  THEN  the folder no longer exists  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Surface vs deep counts
+  GIVEN the documented testarea fixture
+  THEN  CountFiles is 1 (root)  [PASS]
+  THEN  CountFolders is 5 (root)  [PASS]
+  THEN  DeepCountFiles is 7  [PASS]
+  THEN  DeepCountFolders is 7  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Show renders the tree (ToString returns it; Show prints it)
+  GIVEN the fixture
+  THEN  the root folder name appears  [PASS]
+  THEN  the docs sub-folder appears  [PASS]
+  THEN  the images sub-folder appears  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Custom deep statistics (guards the StzLower 64-byte fix)
+  GIVEN a 74-char deep-count display pattern
+  THEN  the root deep stat reads 1:7 files, 5:7 folders (not truncated)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: A display pattern is recognised by the keyword INSIDE it
+  GIVEN a fresh folder view
+  THEN  a keyword on its own is a stat pattern  [PASS]
+  THEN  a keyword embedded in prose is too  [PASS]
+  THEN  ...and case does not matter  [PASS]
+  THEN  prose with NO keyword is refused  [PASS]
+  THEN  an @-token that is not a keyword is refused  [PASS]
+  THEN  ...but a keyword with a suffix still matches  [PASS]
+  THEN  the empty pattern is refused  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Several searches gathered into one answer, without duplicates
+  GIVEN the folder holding this suite
+  THEN  there are .ring files to find  [PASS]
+  WHEN  FindTheseFiles is asked for that same pattern
+  THEN  it returns them all  [PASS]
+  WHEN  the SAME pattern is asked for twice
+  THEN  the answer is not doubled  [PASS]
+  GIVEN the parent directory, which holds many topic folders
+  THEN  FindTheseFolders finds some  [PASS]
+  THEN  ...and does not double them either  [PASS]
+  THEN  a pattern matching nothing is empty  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: VizDeepSearch marks every match
+  GIVEN the fixture searched for *.txt
+  THEN  the root shows the target marker + total 5  [PASS]
+  THEN  howto.txt is found deep in images/notes  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Finders match by name list, surface glob, and deep recursion
+  GIVEN the fixture
+  THEN  FindFiles([test.txt]) matches the root file  [PASS]
+  THEN  surface FindFiles(*.txt) finds only the root file  [PASS]
+  THEN  DeepFindFiles(*.txt) finds all 5 deep  [PASS]
+  THEN  DeepFindFiles(howto.txt) finds the nested file  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: DeepFindFolders matches folders anywhere in the subtree
+  GIVEN the fixture with a deeper src/views folder
+  THEN  DeepFindFolders(*view*) finds the nested views folder  [PASS]
+  THEN  DeepFindFolders(notes) finds the nested notes folder  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: File ops: create, size, copy, delete, exists
+  GIVEN a fresh file sandbox
+  WHEN  a file is created
+  THEN  the created file exists  [PASS]
+  THEN  FileSize reports the byte length  [PASS]
+  WHEN  the seed file is copied
+  THEN  the copy exists  [PASS]
+  WHEN  the created file is deleted
+  THEN  the deleted file is gone  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Folder file-op intents follow the Q convention (object forms)
+  GIVEN a fresh file sandbox
+  THEN  FileReadQ returns a reader object  [PASS]
+  WHEN  FileAppend (object-only) appends to a new log
+  THEN  the appended entry is present  [PASS]
+  WHEN  FileUpdate (object) edits a file
+  THEN  the edit took effect  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 42 assertions, 42 pass, 0 fail
+================================================
+STATUS: OK

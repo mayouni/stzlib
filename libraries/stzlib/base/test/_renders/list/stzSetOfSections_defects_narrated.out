@@ -1,0 +1,204 @@
+SCENARIO: a set of sections is built from the valid shapes and keeps the order given
+  WHEN  a set is built from each valid shape
+  THEN  the empty set  [PASS]
+  THEN  one pair  [PASS]
+  THEN  two pairs  [PASS]
+  THEN  overlapping but distinct pairs  [PASS]
+  THEN  a reversed pair is a section, as in stzSection  [PASS]
+  THEN  a pair and its reverse are two pairs  [PASS]
+  THEN  floats are numbers, kept as given  [PASS]
+  THEN  the order given is kept, not sorted  [PASS]
+  THEN  zero and negative numbers are numbers  [PASS]
+  THEN  StzSetOfSectionsQ builds the same  [PASS]
+  THEN  the object is a stzSetOfSections  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: every invalid shape is refused with the constructor's message
+  THEN  a pair given twice  [PASS]
+  THEN  a pair given twice, not next to itself  [PASS]
+  THEN  a pair equal to another by value, 1.0 and 3.0  [PASS]
+  THEN  a pair of three numbers  [PASS]
+  THEN  a pair of one number  [PASS]
+  THEN  an empty pair  [PASS]
+  THEN  a pair holding a text  [PASS]
+  THEN  a pair holding a number as text  [PASS]
+  THEN  a list of numbers  [PASS]
+  THEN  a pair nested one level too deep  [PASS]
+  THEN  a text  [PASS]
+  THEN  a number  [PASS]
+  THEN  a named-parameter list, which only Update takes  [PASS]
+  THEN  NEGATIVE: a valid set is not refused  [PASS]
+  THEN  NEGATIVE: the empty set is not refused  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: a refused creation leaves a usable empty set behind, and the class keeps working
+  THEN  the refused creation raised  [PASS]
+  THEN  the variable holds an empty set, not a broken object  [PASS]
+  THEN  that object is a stzSetOfSections  [PASS]
+  THEN  and it takes an Update  [PASS]
+  THEN  NEGATIVE: it holds no leftover of the refused list  [PASS]
+  THEN  the next valid creation works  [PASS]
+  THEN  and so does Update on it  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: IsSetOfSections answers 1 or 0 for twenty-two inputs and raises for none
+  THEN  01 empty list  [PASS]
+  THEN  02 one pair  [PASS]
+  THEN  03 two pairs  [PASS]
+  THEN  04 same start, other end  [PASS]
+  THEN  05 a pair and its reverse  [PASS]
+  THEN  06 a reversed pair  [PASS]
+  THEN  07 floats  [PASS]
+  THEN  08 a repeated pair  [PASS]
+  THEN  09 a repeated pair by value  [PASS]
+  THEN  10 a pair of three  [PASS]
+  THEN  11 a pair of one  [PASS]
+  THEN  12 a pair of texts  [PASS]
+  THEN  13 a number as text  [PASS]
+  THEN  14 a list of numbers  [PASS]
+  THEN  15 a text  [PASS]
+  THEN  16 a number  [PASS]
+  THEN  17 a repeated pair far apart  [PASS]
+  THEN  18 a named-parameter list  [PASS]
+  THEN  19 a pair too deep  [PASS]
+  THEN  20 an empty pair  [PASS]
+  THEN  21 a text that looks like a list, never evaluated  [PASS]
+  THEN  22 an object  [PASS]
+  THEN  a text that is code is not run  [PASS]
+  THEN  and the variable it names is untouched  [PASS]
+  THEN  the alias answers a number, 1 for a set  [PASS]
+  THEN  the alias answers a number, 0 for a repeated pair  [PASS]
+  THEN  NEGATIVE: the alias no longer answers an empty text  [PASS]
+  -> 27 pass, 0 fail
+
+SCENARIO: Content returns the sections and the caller cannot corrupt the set through the list
+  THEN  the list changed  [PASS]
+  THEN  the set did not  [PASS]
+  THEN  NEGATIVE: the list the set was built from does not reach into it  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Update replaces the sections, validated exactly like the constructor
+  WHEN  Update takes a valid list
+  THEN  it ran  [PASS]
+  THEN  the sections are replaced  [PASS]
+  THEN  the named form ran  [PASS]
+  THEN  the named form [ :With, list ] is read  [PASS]
+  THEN  the lower-case name ran  [PASS]
+  THEN  and its name is not case-sensitive  [PASS]
+  THEN  the empty update ran  [PASS]
+  THEN  the empty set is a valid update  [PASS]
+  THEN  UpdateWith does the same  [PASS]
+  THEN  and takes the named form  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: an invalid Update raises and leaves the set as it was
+  THEN  a repeated pair raises  [PASS]
+  THEN  and the set is unchanged  [PASS]
+  THEN  a text raises  [PASS]
+  THEN  a number raises  [PASS]
+  THEN  a pair of three raises  [PASS]
+  THEN  a pair of texts raises  [PASS]
+  THEN  a named form holding a repeated pair raises  [PASS]
+  THEN  a named form holding a text raises  [PASS]
+  THEN  and after all of them the set is unchanged  [PASS]
+  THEN  UpdateWith refuses a repeated pair too  [PASS]
+  THEN  and leaves the set unchanged  [PASS]
+  THEN  NEGATIVE: a valid update is not refused  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: Copy gives an independent set with the same sections
+  THEN  the copy holds the same sections  [PASS]
+  THEN  it is a stzSetOfSections  [PASS]
+  THEN  updating the copy changes the copy  [PASS]
+  THEN  NEGATIVE: and not the original  [PASS]
+  THEN  updating the original changes the original  [PASS]
+  THEN  NEGATIVE: and not the copy  [PASS]
+  THEN  a copy of the empty set is independent too  [PASS]
+  THEN  a copy of a copy of a copy leaves its source alone  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: IntersectionWith keeps the pairs both sets hold, in the order of this set
+  THEN  a disjoint set shares nothing  [PASS]
+  THEN  an identical set shares everything, in order  [PASS]
+  THEN  a partial overlap, in the order of this set and not of the other  [PASS]
+  THEN  the other set reversed gives this order, not the reverse  [PASS]
+  THEN  NEGATIVE: a pair and its reverse are not shared  [PASS]
+  THEN  NEGATIVE: ranges that overlap share nothing, it is not a range intersection  [PASS]
+  THEN  a pair equal by value is shared, 7.0 for 7  [PASS]
+  THEN  a single shared pair  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: IntersectionWith with an empty set, whatever the other holds
+  THEN  this set with the empty list  [PASS]
+  THEN  the empty set with a set  [PASS]
+  THEN  the empty set with a plain list  [PASS]
+  THEN  the empty set with the empty set  [PASS]
+  THEN  the answer is still a set  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: IntersectionWith takes a set object or a plain list, and refuses the rest
+  THEN  a stzSetOfSections argument  [PASS]
+  THEN  the answer is a new stzSetOfSections  [PASS]
+  THEN  a plain list argument gives the same  [PASS]
+  THEN  a plain list with a repeated pair raises  [PASS]
+  THEN  a list of texts raises  [PASS]
+  THEN  a text raises  [PASS]
+  THEN  a number raises  [PASS]
+  THEN  a pair of three raises  [PASS]
+  THEN  an object of another class raises  [PASS]
+  THEN  NEGATIVE: a valid plain list does not raise  [PASS]
+  THEN  the intersection raised before changing anything  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: IntersectionWith leaves both operands untouched and hands back a set of its own
+  THEN  this set is as it was  [PASS]
+  THEN  the other set is as it was  [PASS]
+  THEN  the answer  [PASS]
+  THEN  updating the answer does not reach this set  [PASS]
+  THEN  nor the other set  [PASS]
+  THEN  a set with itself is a set of its own  [PASS]
+  THEN  Intersection is the same call  [PASS]
+  THEN  and takes a plain list  [PASS]
+  THEN  and refuses what IntersectionWith refuses  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: the history hook raises nothing, with history on or off
+  THEN  history off: nothing is kept  [PASS]
+  THEN  history on: the last update was refused and nothing else raised first  [PASS]
+  THEN  the history holds the build, the update, the copy and the answer, and not the refused update  [PASS]
+  THEN  the first value is the set as built  [PASS]
+  THEN  the second is the set after the update  [PASS]
+  THEN  history is off again  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: the inherited readers answer on a set and the inherited verbs keep it a set
+  THEN  NumberOfItems  [PASS]
+  THEN  Item(2)  [PASS]
+  THEN  FirstItem  [PASS]
+  THEN  LastItem  [PASS]
+  THEN  Find of a pair  [PASS]
+  THEN  Sorted leaves the set in its order  [PASS]
+  THEN  Merged joins the overlapping sections and leaves the set  [PASS]
+  THEN  IsSet  [PASS]
+  THEN  AddItem of a new pair goes through  [PASS]
+  THEN  NEGATIVE: AddItem of a pair already held raises  [PASS]
+  THEN  and the set is unchanged  [PASS]
+  THEN  Reverse changes the set and it stays a set  [PASS]
+  THEN  Merge changes the set and it stays a set  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: two sets of 2,000 pairs are checked and intersected without a quadratic scan
+  THEN  2,000 pairs are built under 300 ms  [PASS]
+  THEN  2,000 pairs are intersected under 300 ms  [PASS]
+  THEN  the build of 8,000 takes less than ten times the build of 2,000  [PASS]
+  THEN  the intersection of 8,000 takes less than ten times that of 2,000  [PASS]
+  THEN  the 2,000-pair intersection holds 1,000 pairs  [PASS]
+  THEN  the first of them is the pair 1001  [PASS]
+  THEN  the last is the pair 2000  [PASS]
+  THEN  NEGATIVE: a repeated pair hidden in 2,000 is found  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 153 assertions, 153 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,14 @@
+[ "/test.txt" ]
+[ "/test.txt" ]
+[ "/images/", "/music/", "/tempo/" ]
+[
+	"/test.txt",
+	"/tempo/temp1.txt",
+	"/tempo/temp2.txt",
+	"/images/notes/howto.txt",
+	"/images/notes/sources.txt"
+]
+
+
+----------------
+----------------

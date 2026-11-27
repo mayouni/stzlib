@@ -1,0 +1,32 @@
+[
+	[ "start", "2024-01-01 00:00:00" ],
+	[ "end", "2024-12-31 23:59:59" ],
+	[ "totalduration", "1 year" ],
+	[ "countpoints", 2 ],
+	[ "countspans", 1 ],
+	[
+		"points",
+		[
+			[ "name", "KICKOFF" ],
+			[ "datetime", "2024-02-01 10:00:00" ],
+			[ "name", "REVIEW" ],
+			[ "datetime", "2024-06-15 14:00:00" ]
+		]
+	],
+	[
+		"spans",
+		[
+			[ "name", "DEVELOPMENT" ],
+			[ "start", "2024-03-01 00:00:00" ],
+			[ "end", "2024-05-31 23:59:59" ],
+			[
+				"duration",
+				"91 days, 23 hours, 59 minutes, and 59 seconds"
+			]
+		]
+	]
+]
+
+
+----------------
+----------------

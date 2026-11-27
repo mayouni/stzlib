@@ -1,0 +1,119 @@
+-- Scene 0: the course and the puzzle, as the Learning System reads them --
+  [OK] the program declares the course kernel-puzzles
+  [OK] ...and the course has thirteen chapters (KP2's four, KP3's group memory and roofline, GL0's branch, whole numbers, vector, counter, loop and volume, GB0's scan)
+  [OK] ...and the course opens through the program
+  [OK] kp-01 is an exercise the System reads: its promise is the one word 'verified'
+  [OK] ...with two right answers and three wrong ones shipped
+  [OK] ...and a task in the four languages (fr, ar, ha marked as provisional translations)
+  reference: in a / out c / body { @c = @a * 2 } /    n = 4000
+  [OK] the puzzle opens with n from its facts
+  [OK] ...its reference is the task's description
+  [OK] ...its starter has no body (red until the learner writes one)
+  [OK] ...and its data is built from its facts: one input a, a ramp of 4000
+  [OK] the task reads in English and in French
+  [OK] a description text round-trips through FromSpec
+
+-- Scene 1: the verdicts no device is needed for --
+  [OK] the starter grades 'waiting for your implementation'
+  [OK] ...and so does a maker with no body
+  refused: unknown name 'foo' (not a declared scalar, not a whitelisted function)
+
+  [OK] a refused description grades 'refused: ...' naming the offender
+  [OK] on the CPU alone, the right answer grades 'verified'
+  [OK] ...and so does the other right answer
+  mismatch at element 2
+  [OK] ...the wrong operator is a mismatch at element 2 (the first is 0 either way)
+  mismatch-hidden at element 1
+  [OK] ...the cheat (twice the INDEX, right where a[i] = i) is caught at the hidden shape, element 1
+  [OK] ...an input not the task's is refused, naming yours and the task's
+
+-- Scene 2: the same text on the device, the same words --
+  [OK] the right answer grades 'verified' on the device
+  [OK] ...the other right answer too
+  [OK] ...the wrong operator: the SAME words as the CPU path
+  [OK] ...the cheat: the SAME words as the CPU path
+  guard none at n = 4000: write-outside at element 4001
+  [OK] the dropped guard is write-outside at element 4001 -- the mistake only a device shows
+  [OK] ...which the CPU path cannot see (it answers verified, values only)
+
+-- Scene 3: the exercise proves itself through the System's own checker, by running --
+  wrong refused 3   right accepted 2   failures [ "refused a right answer: 01-times-two.ring", "refused a right answer: 02-a-plus-a.ring" ]
+  [FAIL] every wrong answer is refused and every right answer accepted (3 and 2)
+
+-- Scene 5 (KP2): puzzles 2 to 8 -- each right answer verified, each wrong answer named, each exercise proving itself --
+  [OK] kp-02: the starter grades 'waiting for your implementation'
+  [OK] kp-02: the reference grades itself verified on the CPU
+  [OK] kp-02: the task reads in four languages
+  [OK] kp-02: the task ends with what the GPU did differently from a loop
+  [OK] kp-03: the starter grades 'waiting for your implementation'
+  [OK] kp-03: the reference grades itself verified on the CPU
+  [OK] kp-03: the task reads in four languages
+  [OK] kp-03: the task ends with what the GPU did differently from a loop
+  [OK] kp-04: the starter grades 'waiting for your implementation'
+  [OK] kp-04: the reference grades itself verified on the CPU
+  [OK] kp-04: the task reads in four languages
+  [OK] kp-04: the task ends with what the GPU did differently from a loop
+  [OK] kp-05: the starter grades 'waiting for your implementation'
+  [OK] kp-05: the reference grades itself verified on the CPU
+  [OK] kp-05: the task reads in four languages
+  [OK] kp-05: the task ends with what the GPU did differently from a loop
+  [OK] kp-06: the starter grades 'waiting for your implementation'
+  [OK] kp-06: the reference grades itself verified on the CPU
+  [OK] kp-06: the task reads in four languages
+  [OK] kp-06: the task ends with what the GPU did differently from a loop
+  [OK] kp-07: the starter grades 'waiting for your implementation'
+  [OK] kp-07: the reference grades itself verified on the CPU
+  [OK] kp-07: the task reads in four languages
+  [OK] kp-07: the task ends with what the GPU did differently from a loop
+  [OK] kp-08: the starter grades 'waiting for your implementation'
+  [OK] kp-08: the reference grades itself verified on the CPU
+  [OK] kp-08: the task reads in four languages
+  [OK] kp-08: the task ends with what the GPU did differently from a loop
+  [OK] kp-02 body { @c = @a + @b } -> verified
+  [OK] kp-02 body { @c = @b + @a } -> verified
+  [OK] kp-02 body { @c = @a - @b } -> mismatch at element 2
+  [OK] kp-02 body { @c = @a + @a } -> mismatch at element 2
+  [OK] kp-03 body { @c = alpha * @a } -> verified
+  [OK] kp-03 body { @c = @a * alpha } -> verified
+  [OK] kp-03 body { @c = @a * 2 } -> mismatch at element 2
+  [OK] kp-03 body { @c = alpha + @a } -> mismatch at element 1
+  [OK] kp-04 body { @c = @a + @i } -> verified
+  [OK] kp-04 body { @c = @i + @a } -> verified
+  [OK] kp-04 body { @c = @a + @i + 1 } -> mismatch at element 1
+  [OK] kp-04 body { @c = @i } -> mismatch at element 2
+  [OK] kp-05 body { @c = @a * 2 } -> verified
+  [OK] kp-05 body { @c = @a * 2 } -> verified
+  [OK] kp-05 body { @c = @a * 2 } -> write-outside at element 4001
+  [OK] kp-05 body { @c = @a * 2 } -> mismatch at element 4000
+  [OK] kp-06 body { @c = (@a[@i - 1] + @a + @a[@i + 1]) / 3 } -> verified
+  [OK] kp-06 body { @c = (@a[@i + 1] + @a + @a[@i - 1]) / 3 } -> verified
+  [OK] kp-06 body { @c = (@a[@i - 1] + @a + @a[@i + 1]) / 3 } -> mismatch at element 1
+  [OK] kp-06 body { @c = (@a[@i - 1] + @a[@i + 1]) / 2 } -> mismatch at element 2
+  [OK] kp-07 body { @c = sum(k, 0, 16, @a[@i * 16 + k]) } -> verified
+  [OK] kp-07 body { @c = sum(k, 0, 16, @a[k + @i * 16]) } -> verified
+  [OK] kp-07 body { @c = sum(k, 0, 15, @a[@i * 16 + k]) } -> mismatch at element 1
+  [OK] kp-07 body { @c = sum(k, 0, 16, @a[@i + k]) } -> mismatch at element 2
+  [OK] kp-08 body { @d = sum(k, 0, m, @c[k]) } -> verified
+  [OK] kp-08 body { @d = sum(k, 0, 1024, @c[k]) } -> verified
+  [OK] kp-08 body { @d = sum(k, 0, m - 1, @c[k]) } -> mismatch at element 1
+  [OK] kp-08 body { @d = @c } -> mismatch at element 1
+  the two paths agree on every VALUE verdict (the margin is the device's alone):
+  [OK] ...GradeOnCpu says the same words as Grade for all 27 value cases
+  each exercise proves itself through the System's checker, by running its programs:
+  [FAIL] kp-02: wrong refused 3, right accepted 2, failures [ "refused a right answer: 01-a-plus-b.ring", "refused a right answer: 02-b-plus-a.ring" ]
+  [FAIL] kp-03: wrong refused 3, right accepted 2, failures [ "refused a right answer: 01-alpha-times-a.ring", "refused a right answer: 02-a-times-alpha.ring" ]
+  [FAIL] kp-04: wrong refused 3, right accepted 2, failures [ "refused a right answer: 01-a-plus-index.ring", "refused a right answer: 02-index-plus-a.ring" ]
+  [FAIL] kp-05: wrong refused 3, right accepted 2, failures [ "refused a right answer: 01-the-guard-written.ring", "refused a right answer: 02-the-engine-s-guard.ring" ]
+  [FAIL] kp-06: wrong refused 3, right accepted 2, failures [ "refused a right answer: 01-the-blur.ring", "refused a right answer: 02-the-blur-reordered.ring" ]
+  [FAIL] kp-07: wrong refused 3, right accepted 2, failures [ "refused a right answer: 01-partials-of-16.ring", "refused a right answer: 02-the-window-reordered.ring" ]
+  [FAIL] kp-08: wrong refused 3, right accepted 2, failures [ "refused a right answer: 01-the-fold.ring", "refused a right answer: 02-the-count-written-out.ring" ]
+
+-- Scene 4: the browser runner exists beside the course --
+  [OK] the page is there
+  [OK] ...it fetches the puzzle's reference, starter and facts (one source for both runners)
+  [OK] ...it grades with the wasm interpreter and a NaN margin, in the face's words
+  [OK] ...and its data recipes are the face's five
+
+==========================================
+TOTAL: 95 assertions, 87 pass, 8 fail
+==========================================

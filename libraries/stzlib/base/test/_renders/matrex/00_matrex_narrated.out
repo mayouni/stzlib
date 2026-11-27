@@ -1,0 +1,23 @@
+SCENARIO: Exact size
+  GIVEN a 3x3 and a 2x3 matrix
+  THEN  {Size(3x3)} matches the 3x3  [PASS]
+  THEN  {Size(3x3)} rejects the 2x3  [PASS]
+  THEN  {Size(2x2)} rejects the 3x3  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Any size (mxn)
+  THEN  {size(mxn)} matches a 3x3  [PASS]
+  THEN  {size(mxn)} matches a 2x3  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Shape constraints
+  GIVEN a square and a rectangular matrix
+  THEN  {shape(square)} matches the 2x2 square  [PASS]
+  THEN  {shape(square)} matches a 3x3 square  [PASS]
+  THEN  {shape(square)} rejects the rectangle  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

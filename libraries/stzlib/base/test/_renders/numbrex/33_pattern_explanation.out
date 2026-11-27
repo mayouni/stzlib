@@ -1,0 +1,21 @@
+[
+	[ "Pattern", "{@Property(Prime)}" ],
+	[ "TokenCount", 1 ],
+	[
+		"Tokens",
+		[
+			[
+				[ "type", "property" ],
+				[ "value", "prime" ],
+				[ "constraints", [  ] ],
+				[ "min", 1 ],
+				[ "max", 1 ],
+				[ "negated", 0 ]
+			]
+		]
+	]
+]
+
+
+----------------
+----------------

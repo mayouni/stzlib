@@ -1,0 +1,25 @@
+=== Init (hashlist) ===
+  NumberOfColumns: 3
+
+=== Init (row-style) ===
+  NumberOfColumns: 3
+
+=== ClassName ===
+  ClassName: stztable
+
+=== Content ===
+  Content length: 3
+
+=== Column Names ===
+  HasColName(:name): 1
+  HasColName(:xyz): 0
+  IsColNumber(2): 1
+  IsColNumber(5): 0
+
+=== IsEmpty ===
+  Empty table IsEmpty: 1
+  Non-empty table IsEmpty: 0
+
+=================================
+  PASSED: 10  FAILED: 0
+=================================

@@ -1,0 +1,33 @@
+=== stzList Split Tests (Engine-Backed) ===
+
+--- SplitBeforePosition ---
+  PASS: SplitBeforePosition(3) = [[1,2],[3,4,5]]
+
+--- SplitAfterPosition ---
+  PASS: SplitAfterPosition(3) = [[1,2,3],[4,5]]
+
+--- SplitToPartsOfNItems ---
+  PASS: SplitToPartsOf(2) = 3 groups
+  PASS: SplitToPartsOf(2) on 5 items = 3 groups (last has 1)
+
+--- SplitToNParts ---
+  PASS: SplitToNParts(3) on 6 items = 3 groups
+  PASS: SplitToNParts(2) on 5 items = 2 groups
+
+--- SplitAtPosition ---
+  PASS: SplitAtPosition(3) = [[a,b],[c,d,e]]
+
+--- stzList Delegations ---
+  PASS: stzList.SplittedBeforePosition(3) = 2 groups
+  PASS: stzList.SplittedAfterPosition(2) = [[1,2],[3,4,5]]
+  PASS: stzList.SplittedToPartsOf(2) = 3 groups
+
+==========================
+Total: 10
+Passed: 10
+Failed: 0
+ALL TESTS PASSED!
+
+
+----------------
+----------------

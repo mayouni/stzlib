@@ -1,0 +1,50 @@
+-- Scene 1: Graphviz DOT --
+  [OK] it writes something
+  [OK] a real digraph, named
+  [OK] every node is declared
+  [OK] the edge carries its label
+  [OK] ... and the plain edge has none
+  [OK] it closes its brace
+
+-- Scene 2: Mermaid --
+  [OK] it declares a graph + direction
+  [OK] the start node takes the stadium shape
+  [OK] a plain node is a box
+  [OK] the labelled edge uses the pipe form
+  [OK] the plain edge is a bare arrow
+
+-- Scene 3: JSON -- judged by the engine, not by itself --
+  [OK] the ENGINE's JSON parser accepts it
+  [OK] ... and reads the id back out of it
+  [OK] it carries nodes and edges
+
+-- Scene 4: .stzdiag -- the one that must come BACK --
+  [OK] it writes its sections
+  [OK] ... including the edge label the reader used to drop
+  [OK] every node came back
+  [OK] every edge came back
+  [OK] a node's label came back
+  [OK] a node's property came back
+  [OK] the theme came back
+  [OK] THE EDGE LABEL came back
+  [OK] ... and an unlabelled edge stays unlabelled
+
+-- Scene 5: importing into a diagram that already has nodes --
+  [OK] an import that anchors nowhere REFUSES (never a silent merge)
+
+-- STYLING SETTERS: does each one reach an output, and does it leave the others alone?
+  [OK] a spline it knows is taken
+  [OK] ...and one it does not is refused, not obeyed
+  [OK] a line style now sets the pen style
+  [OK] ...and lands in the DOT
+  [OK] ...while a spline name still sets the spline
+  [OK] ...and does NOT touch the pen style
+  [OK] a subtitle alone reaches the DOT
+  [OK] ...and the .stzdiag
+  [OK] ...and a diagram with neither carries no label
+  [OK] the styl edges block carries a penstyle
+  [OK] ...and it is the one that was set
+
+==========================================
+TOTAL: 35 assertions, 35 pass, 0 fail
+==========================================

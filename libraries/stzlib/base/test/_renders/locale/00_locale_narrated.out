@@ -1,0 +1,25 @@
+SCENARIO: Case mapping under the C locale
+  GIVEN the C locale
+  THEN  Lowercase('RING') is 'ring'  [PASS]
+  THEN  Uppercase('ring') is 'RING'  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Identity of en_US
+  GIVEN the en_US locale
+  THEN  Abbreviation is en_US  [PASS]
+  THEN  CountryName is united_states  [PASS]
+  THEN  LanguageName is english  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Identity of fr_FR
+  GIVEN the fr_FR locale
+  THEN  Abbreviation is fr_FR  [PASS]
+  THEN  CountryName is france  [PASS]
+  THEN  LanguageName is french  [PASS]
+  THEN  CountryNumber is 74  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 9 assertions, 9 pass, 0 fail
+================================================
+STATUS: OK

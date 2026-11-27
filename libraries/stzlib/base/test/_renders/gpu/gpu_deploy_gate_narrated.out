@@ -1,0 +1,29 @@
+-- Scene 1: the resource spec speaks gpu, both roles --
+  [OK] a gpu-less capacity does NOT meet a gpu-required ask
+  [OK] a gpu-bearing capacity DOES
+  [OK] optional need does not block a gpu-less capacity
+  [OK] merging needs keeps the STRONGEST (optional + required = required)
+  [OK] a gpu-only requirement is not 'empty'
+  [OK] the footprint text says it: 0MB / 0 vCPU / 0GB / gpu required
+
+-- Scene 2: REQUIRED + a gpu-less site: the deploy REFUSES --
+  [OK] the deploy did NOT commit
+  [OK] the part's FIRST step failed at the admission gate
+  [OK] every later step was skipped -- nothing shipped to a site that can't run it
+  [OK] the refusal is IN THE LOG, by name
+  [OK] and it was THE GATE, not a coincidental step failure
+
+-- Scene 3: OPTIONAL + the same gpu-less site: deploy proceeds, DEGRADED --
+  [OK] the gate ADMITTED the optional part (no gate refusal in the log)
+  [OK] and the degrade is in the log, by name
+
+-- Scene 4: a LOCAL site answers for itself -- the live probe --
+  [OK] this machine HAS a gpu: the probe admits the required part
+  [OK] no gate refusal
+
+-- Scene 5: a DECLARED gpu on a remote satisfies required (no probe possible) --
+  [OK] declared capacity carries the gate (admitted, 'gpu present' logged)
+
+==========================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+==========================================

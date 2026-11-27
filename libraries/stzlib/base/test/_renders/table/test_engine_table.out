@@ -1,0 +1,41 @@
+=== Engine Table: Create and populate ===
+  Created table handle: OK
+  Columns added: name=0 age=1 city=2
+
+=== Engine Table: Cell access ===
+  Cell(0,0) name: Ali
+  Cell(1,2) age: 42
+
+=== Engine Table: Find column ===
+  FindCol('age'): 1
+  FindCol('xyz'): -1
+
+=== Engine Table: Column name ===
+  ColName(0): name
+
+=== Engine Table: Sort ===
+  After sort on name asc, first: Ali
+  Last: Han
+
+=== Engine Table: Aggregation ===
+  SumCol(age): 105
+  AvgCol(age): 35
+  MinCol(age): 28
+  MaxCol(age): 42
+
+=== Engine Table: Swap and Reverse ===
+  After swap(0,2), row 0 name: Han
+  After reverse, row 0 name: Ali
+
+=== Engine Table: Clone ===
+  Clone cols=3 rows=3
+
+=== Engine Table: Remove row ===
+  After remove row 1: 2 rows
+
+=== Engine Table: Rename column ===
+  After rename col 0: fullname
+
+=================================
+  PASSED: 18  FAILED: 0
+=================================

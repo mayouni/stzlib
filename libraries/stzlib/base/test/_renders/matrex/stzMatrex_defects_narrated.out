@@ -1,0 +1,190 @@
+SCENARIO: Size: a number, or m and n for any count
+  THEN  3xn needs 3 rows: a 3x3 passes  [PASS]
+  THEN  3xn: a 3x2 passes  [PASS]
+  THEN  3xn: a 2x3 does not  [PASS]
+  THEN  3xn: a 2x4 does not  [PASS]
+  THEN  mx3 needs 3 columns: a 2x3 passes  [PASS]
+  THEN  mx3: a 3x3 passes  [PASS]
+  THEN  mx3: a 3x2 does not  [PASS]
+  THEN  2xm needs 2 rows: a 2x4 passes  [PASS]
+  THEN  2xm: a 3x3 does not  [PASS]
+  THEN  nx2 needs 2 columns: a 3x2 passes  [PASS]
+  THEN  nx2: a 2x4 does not  [PASS]
+  THEN  mxn still accepts every size  [PASS]
+  THEN  3x3 stays exact: the 3x3  [PASS]
+  THEN  3x3 stays exact: the 3x2 is rejected  [PASS]
+  THEN  capitals are read like lowercase: 3XN  [PASS]
+  THEN  a size of no known form is not satisfied: size(abc)  [PASS]
+  THEN  a lone number is not a size: size(3)  [PASS]
+  THEN  three sides is not a size: size(3x3x3)  [PASS]
+  THEN  a number with no side is not a size: size(3x)  [PASS]
+  THEN  an empty size() states nothing, so it holds  [PASS]
+  -> 20 pass, 0 fail
+
+SCENARIO: Size: > and < apply to both dimensions, strictly
+  THEN  >2 holds for a 3x3  [PASS]
+  THEN  >2 holds for a 3x4  [PASS]
+  THEN  >2 does not hold for a 2x2  [PASS]
+  THEN  >2 does not hold for a 3x2: one dimension is not above 2  [PASS]
+  THEN  >3 is strict: the 3x3 is rejected  [PASS]
+  THEN  >0 holds for a 1x1  [PASS]
+  THEN  <3 holds for a 2x2  [PASS]
+  THEN  <3 is strict: the 3x3 is rejected  [PASS]
+  THEN  <3 does not hold for a 2x3: one dimension is not below 3  [PASS]
+  THEN  <2 does not hold for a 2x2  [PASS]
+  THEN  <2 holds for a 1x1  [PASS]
+  THEN  a number after the sign is required: size(>)  [PASS]
+  THEN  a comparison joins other terms: >2 and symmetric  [PASS]
+  THEN  ... and the same pattern rejects a non symmetric 3x3  [PASS]
+  THEN  a negated comparison is the opposite: @!size(>2) on a 2x2  [PASS]
+  THEN  ... and on a 3x3  [PASS]
+  THEN  CheckSize reads the token directly: true  [PASS]
+  THEN  CheckSize reads the token directly: false  [PASS]
+  -> 18 pass, 0 fail
+
+SCENARIO: Stubs kept: a term with no stated meaning tests nothing
+  GIVEN the cells of 1..9 add up to 45 and [[1,2],[3,4]] has determinant 1*4-2*3 = -2
+  THEN  the sum of 1..9 is 45 (hand check)  [PASS]
+  THEN  the determinant of [[1,2],[3,4]] is -2 (hand check)  [PASS]
+  THEN  row(3) accepts the 3x3  [PASS]
+  THEN  row(3) also accepts the 2x4: it tests nothing  [PASS]
+  THEN  col(2) accepts the 3x3: it tests nothing  [PASS]
+  THEN  pattern(checkerboard) accepts the 2x2: it tests nothing  [PASS]
+  THEN  sum(45) accepts the 1..9 matrix  [PASS]
+  THEN  sum(1) accepts it too: the sum is computed and ignored  [PASS]
+  THEN  determinant(-2) accepts [[1,2],[3,4]]  [PASS]
+  THEN  determinant(5) accepts it too: only squareness is tested  [PASS]
+  THEN  determinant(5) rejects a matrix that is not square  [PASS]
+  THEN  diagonal(1) accepts a square matrix whatever its diagonal  [PASS]
+  THEN  diagonal(1) rejects a matrix that is not square  [PASS]
+  THEN  a stub still obeys @!: @!row(3) rejects every matrix  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: MatchesNone: kept as it answers, pinned until the author decides
+  THEN  no matrix of [2x2, 2x2] is symmetric: FALSE, as test 27 expects  [PASS]
+  THEN  one symmetric matrix in the list: TRUE  [PASS]
+  THEN  the none-matches question is CountMatchingMatrices = 0: it holds when nothing matches  [PASS]
+  THEN  ... and fails when one matches  [PASS]
+  THEN  the in-form is read the same: MatchesNone(:In = list)  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: RemoveConstraint: the pattern text and the tokens go together
+  THEN  three terms to start with  [PASS]
+  THEN  [[1,2],[3,4]] is not symmetric, so the pattern rejects it  [PASS]
+  THEN  the pattern text drops the term  [PASS]
+  THEN  two tokens remain  [PASS]
+  THEN  Explain counts the same two tokens  [PASS]
+  THEN  the matrix is accepted now: the symmetric term is gone  [PASS]
+  THEN  ... and the size term still rejects a 3x3  [PASS]
+  THEN  a position above the last changes nothing  [PASS]
+  THEN  position 0 changes nothing  [PASS]
+  THEN  removing the first term leaves the second  [PASS]
+  THEN  removing the last term leaves an empty pattern  [PASS]
+  THEN  an empty pattern accepts every matrix  [PASS]
+  THEN  a term that holds & goes whole  [PASS]
+  THEN  AddConstraint rejects the non symmetric 3x3  [PASS]
+  THEN  RemoveConstraint takes it back: the pattern is the first one again  [PASS]
+  THEN  ... and the 3x3 matches again  [PASS]
+  THEN  a position that is not a number raises  [PASS]
+  THEN  a number does not raise  [PASS]
+  -> 18 pass, 0 fail
+
+SCENARIO: SimilarityScore: plain and wrapped forms
+  THEN  identical matrices score 1  [PASS]
+  THEN  one cell of four differs: 0.75  [PASS]
+  THEN  two cells of four equal: 0.5  [PASS]
+  THEN  no cell equal: 0  [PASS]
+  THEN  matrices of other sizes score 0  [PASS]
+  THEN  the wrapped form [between, m] and [and, m] gives the plain answer  [PASS]
+  THEN  the wrapped identical pair scores 1  [PASS]
+  THEN  only the first wrapped is read too  [PASS]
+  THEN  only the second wrapped is read too  [PASS]
+  THEN  SimilarityScoreBetween agrees  [PASS]
+  THEN  an unknown wrapper is still refused  [PASS]
+  THEN  a plain pair does not raise  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: CommonProperties: square is reported, and nothing matching means nothing common
+  THEN  an identity: everything an identity has but zero  [PASS]
+  THEN  identity and zero share what both have, square included  [PASS]
+  THEN  a symmetric matrix that is not diagonal  [PASS]
+  THEN  a matrix that is neither: only square  [PASS]
+  THEN  a matrix that does not match the pattern is left out  [PASS]
+  THEN  when no matrix matches there is nothing in common  [PASS]
+  THEN  a zero 2x3 is zero and nothing else here  [PASS]
+  THEN  property(square) is a property now: the 2x2 has it  [PASS]
+  THEN  property(square): the 2x3 has not  [PASS]
+  THEN  property(square) agrees with shape(square) on a 3x3  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Andd: the same answer as And_
+  THEN  Andd joins the two patterns with &  [PASS]
+  THEN  And_ gives the same pattern  [PASS]
+  THEN  a symmetric 3x3 matches  [PASS]
+  THEN  a non symmetric 3x3 does not  [PASS]
+  THEN  a symmetric 2x2 does not: the size term holds the line  [PASS]
+  THEN  the first original is unchanged  [PASS]
+  THEN  the second original is unchanged  [PASS]
+  THEN  a value that is not a stzMatrex raises  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Not_: the opposite of the whole pattern, not of its first term
+  THEN  a single term: the diagonal matrix is rejected  [PASS]
+  THEN  a single term: the non diagonal matrix is accepted  [PASS]
+  THEN  the negated pattern is written around one group  [PASS]
+  THEN  the negated pattern is one conjunction holding one condition  [PASS]
+  THEN  that condition is a group token, marked negated  [PASS]
+  THEN  & : a 2x2 symmetric matrix is the one thing rejected  [PASS]
+  THEN  & : a 2x2 that is not symmetric is accepted (first term holds, second fails)  [PASS]
+  THEN  & : a symmetric 3x3 is accepted (second term holds, first fails)  [PASS]
+  THEN  & : a 2x3 that is not symmetric is accepted (both terms fail)  [PASS]
+  THEN  & : on twelve matrices the pattern and its negation always disagree  [PASS]
+  THEN  | : a row vector is rejected  [PASS]
+  THEN  | : a column vector is rejected  [PASS]
+  THEN  | : a 2x2 is accepted  [PASS]
+  THEN  | : on twelve matrices the two always disagree  [PASS]
+  THEN  -> : the 2x2 symmetric matrix is rejected  [PASS]
+  THEN  -> : the 2x2 non symmetric matrix is accepted  [PASS]
+  THEN  -> : the symmetric 3x3 is accepted  [PASS]
+  THEN  -> : on twelve matrices the two always disagree  [PASS]
+  THEN  negating twice gives the original answers  [PASS]
+  THEN  the original object is unchanged  [PASS]
+  THEN  an empty pattern accepts every matrix  [PASS]
+  THEN  its negation accepts none  [PASS]
+  THEN  a parenthesised group is a term: symmetric 2x2 holds  [PASS]
+  THEN  ... and the group still tests: a non symmetric 2x2 fails  [PASS]
+  THEN  the one-term form @!term is unchanged: a symmetric matrix is rejected  [PASS]
+  THEN  ... and the other accepted  [PASS]
+  -> 26 pass, 0 fail
+
+SCENARIO: Match: a known gap, pinned so that fixing it updates the doc
+  THEN  a group of alternatives followed by & drops the second term: a non diagonal 2x2 passes  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: JSON: tokens as objects, text escaped by the library writer
+  THEN  an empty pattern  [PASS]
+  THEN  no tokens: an empty array  [PASS]
+  THEN  one size token as an object, an empty list as []  [PASS]
+  THEN  the tokens as an array  [PASS]
+  THEN  the whole pattern  [PASS]
+  THEN  a range constraint is an object, numbers stay numbers  [PASS]
+  THEN  a set constraint holds an array of its values  [PASS]
+  THEN  a negated token says negated 1  [PASS]
+  THEN  a conjunction is valid JSON  [PASS]
+  THEN  ... and carries its two conditions as an array  [PASS]
+  THEN  reading it back gives the pattern text  [PASS]
+  THEN  an alternation is valid JSON  [PASS]
+  THEN  ... and carries its alternatives as an array  [PASS]
+  THEN  a negated group is valid JSON  [PASS]
+  THEN  ... and carries its inner tokens as an array  [PASS]
+  THEN  a quote and a backslash in the pattern are escaped: still valid JSON  [PASS]
+  THEN  ... the quote is written with a backslash before it  [PASS]
+  THEN  ... and reading it back gives the same pattern text  [PASS]
+  THEN  three parts, three objects in the array: the last one is the element  [PASS]
+  THEN  the array is valid JSON  [PASS]
+  -> 20 pass, 0 fail
+
+================================================
+TOTAL: 152 assertions, 152 pass, 0 fail
+================================================
+STATUS: OK

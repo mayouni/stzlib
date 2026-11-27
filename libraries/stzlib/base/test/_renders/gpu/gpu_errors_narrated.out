@@ -1,0 +1,30 @@
+-- Scene 1: a reserved word refuses the kernel, and the FIRST slot names it --
+  compile answered 0
+  first: Validation Error |  | Caused by: |   In wgpuDeviceCreateShaderModule, label = 'stz_kernel' |      | Shader 'stz_kernel' parsing error: name `target` is a reserved keyword |   ┌─ wgsl:2:23 |   │ | 2 │         struct P { n : u32, target : f32 } |   │                             ^^^^^^ definition of `target` |  |  |
+  last:  Validation Error |  | Caused by: |   In wgpuDeviceCreateComputePipeline, label = 'stz_kernel' |     ShaderModule with 'stz_kernel' label is invalid |
+  [OK] the kernel is refused (handle 0)
+  [OK] FirstError names the reserved word
+  [OK] ...and the line it stands on (wgsl:2)
+  [OK] LastError is the pipeline's symptom ('is invalid'), not the cause
+  [OK] the two slots differ (one slot could not hold both)
+
+-- Scene 2: the same kernel with the word renamed compiles, and both slots are empty after --
+  [OK] the renamed kernel compiles (a handle)
+  [OK] a good compile leaves BOTH slots empty (the stale cause did not survive)
+
+-- Scene 3: a refusal after a good compile fills the slots again; ClearErrors empties them --
+  [OK] the cause is back in the first slot
+  [OK] ClearErrors() empties both
+
+-- Scene 4: the face reads the same slots --
+  [OK] stzGpu.FirstError() is the cause
+  [OK] stzGpu.LastError() is the symptom
+  [OK] stzGpu.ClearErrors() empties both, and chains
+
+-- Scene 5: the stats DLL's device has its own slots --
+  [OK] a k-means run on the stats device leaves ITS slots empty
+  [OK] ...while stz_gpu.dll's first slot still holds its own cause (two devices, two memories)
+
+==========================================
+TOTAL: 14 assertions, 14 pass, 0 fail
+==========================================

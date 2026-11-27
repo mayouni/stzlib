@@ -1,0 +1,190 @@
+SCENARIO: A text inside a cell: the needle goes first
+  GIVEN the people table, whose names and jobs share the text Ali
+  THEN  FindInCol with :SubValue finds the cells that contain the text  [PASS]
+  THEN  in the other column  [PASS]
+  THEN  the default is case-sensitive  [PASS]
+  THEN  FindInColCS with the flag off ignores case  [PASS]
+  THEN  the whole-value form still means equality  [PASS]
+  THEN  NumberOfOccurrenceInCol counts cells that contain the text  [PASS]
+  THEN  not the cells equal to it  [PASS]
+  THEN  NumberOfOccurrenceInRow counts across the row  [PASS]
+  THEN  a row with one cell that contains it  [PASS]
+  THEN  NumberOfOccurrenceInCell answers 1 for a cell that contains the text  [PASS]
+  THEN  and 0 for a cell that does not  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Cells that are numbers
+  GIVEN the 3 x 3 table, where FindCell raised for a number
+  THEN  FindCell finds a number  [PASS]
+  THEN  FindAll too  [PASS]
+  THEN  FindCells finds several, column by column  [PASS]
+  THEN  FindNthCell  [PASS]
+  THEN  an occurrence that does not exist gives [ ]  [PASS]
+  THEN  FindFirst  [PASS]
+  THEN  FindFirstCell  [PASS]
+  THEN  FindLast  [PASS]
+  THEN  FindLastCell  [PASS]
+  THEN  NumberOfOccurrence  [PASS]
+  THEN  NumberOfOccurrenceOfCell  [PASS]
+  THEN  Contains  [PASS]
+  THEN  a number that is not there  [PASS]
+  THEN  text cells keep working on the 4 x 2 table  [PASS]
+  THEN  and the second occurrence  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: Several texts, and the occurrence of a text
+  GIVEN the people table
+  THEN  FindSubValues finds the cells that contain any of the texts  [PASS]
+  THEN  a cell that holds two of the texts is listed once, with all the places  [PASS]
+  THEN  FindNth takes [ :SubValue, text ]  [PASS]
+  THEN  and [ :Cell, value ]  [PASS]
+  THEN  FindNthOccurrenceOfSubValue  [PASS]
+  THEN  FindFirstOccurrenceOfSubValue  [PASS]
+  THEN  FindLastOccurrenceOfSubValue  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: A list of cells
+  GIVEN the cells [ 1, 2 ], [ 2, 3 ] and [ 1, 3 ] of the people table
+  THEN  OccurrencesInCells takes the cells  [FAIL]
+    expected: "[ [ [ 1, 2 ], [ 1 ] ], [ [ 2, 3 ], [ 1 ] ] ]"
+    got:      "RAISES"
+  THEN  FindValueInCells takes the cells and the value  [PASS]
+  THEN  PositionsOfValueInCells  [PASS]
+  THEN  FindNthOccurrenceOfValueInCells  [PASS]
+  THEN  FindNthValueInCells looks only in the given cells  [PASS]
+  THEN  FindFirstValueInCells  [PASS]
+  THEN  FindFirstOccurrenceOfValueInCells  [PASS]
+  THEN  FindLastValueInCells  [PASS]
+  THEN  FindLastOccurrenceOfValueInCells  [PASS]
+  THEN  NumberOfOccurrencesOfSubValueInCells counts the places of the text  [PASS]
+  THEN  not the cells equal to it  [PASS]
+  THEN  NumberOfOccurrencesInCells  [PASS]
+  THEN  FindFirstOccurrenceOfSubValueInCells  [PASS]
+  THEN  FindLasttOccurrenceOfSubValueInCells (the older spelling)  [PASS]
+  THEN  FindNthOccurrenceOfSubValueInCells  [PASS]
+  THEN  FindFirstInCells with a value  [PASS]
+  THEN  FindLastInCells with a value  [PASS]
+  THEN  the spelling FindFirstOccurrenceInCells  [PASS]
+  THEN  and FindLastOccurrenceInCells  [PASS]
+  -> 18 pass, 1 fail
+
+SCENARIO: One cell
+  GIVEN the cell [ 1, 3 ] of the people table holds Alia
+  THEN  FindLastInCell takes :Last inside  [FAIL]
+    expected: "4"
+    got:      "RAISES"
+  THEN  FindFirstInCell  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  FindNthInCell  [FAIL]
+    expected: "6"
+    got:      "RAISES"
+  THEN  FindLastInCell on a cell with two of them  [FAIL]
+    expected: "6"
+    got:      "RAISES"
+  THEN  FindFirstInCell on the same cell  [FAIL]
+    expected: "4"
+    got:      "RAISES"
+  THEN  an occurrence that is not there is 0, not an error  [FAIL]
+    expected: "0"
+    got:      "RAISES"
+  THEN  FindFirstInCell for a text that is absent  [FAIL]
+    expected: "0"
+    got:      "RAISES"
+  THEN  NumberOfOccurrencesInCell with a text  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  NumberOfOccurrencesInCell with the whole value  [PASS]
+  THEN  a value that is not the cell counts 0  [PASS]
+  THEN  NumberOfOccurrencesOfValueInCell for the right value  [PASS]
+  THEN  NumberOfOccurrencesOfSubValueInCell counts the places  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  a text in a cell, counted  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  CellContains with a value answers  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  CellContains with a text answers  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  CellContains answers 0 when the text is absent, not an error  [FAIL]
+    expected: "0"
+    got:      "RAISES"
+  THEN  CellContainsValueCS without case  [PASS]
+  THEN  and with case  [PASS]
+  THEN  CellContainValue  [PASS]
+  THEN  CellContainsSubValue answers 0 when absent  [FAIL]
+    expected: "0"
+    got:      "RAISES"
+  THEN  ContainsSubValueInCell  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  -> 6 pass, 15 fail
+
+SCENARIO: One row and a list of rows
+  GIVEN the people table, whose row 3 is Alia and Ali
+  THEN  FindValueInRow  [PASS]
+  THEN  FindSubValueInRow looks inside the cells  [PASS]
+  THEN  FindNthValueInRow reads the row it is given  [PASS]
+  THEN  FindNthSubValueInRow  [PASS]
+  THEN  FindFirstValueInRow  [PASS]
+  THEN  FindFirstSubValueInRow  [PASS]
+  THEN  FindLastValueInRow  [PASS]
+  THEN  FindLastSubValueInRow  [PASS]
+  THEN  NumberOfOccurrenceOfCellInRow  [PASS]
+  THEN  NumberOfOccurrenceOfValueInRow  [PASS]
+  THEN  CountOfValueInRowInRow  [PASS]
+  THEN  FindValueInRows  [PASS]
+  THEN  FindNthInRows  [PASS]
+  THEN  FindNthInRows with a text  [PASS]
+  THEN  FindFirstInRows  [PASS]
+  THEN  FindFirstValueInRows  [PASS]
+  THEN  FindFirstSubValueInRows  [PASS]
+  THEN  FindLastInRows  [PASS]
+  THEN  FindLastValueInRows  [PASS]
+  THEN  FindLastSubValueInRows  [PASS]
+  THEN  NumberOfOccurrenceOfCellInRows  [PASS]
+  -> 21 pass, 0 fail
+
+SCENARIO: One column and a list of columns
+  GIVEN the people table
+  THEN  FindValueInCol  [PASS]
+  THEN  FindSubValueInCol looks inside the cells  [PASS]
+  THEN  FindFirstValueInCol  [PASS]
+  THEN  FindFirstSubValueInCol  [PASS]
+  THEN  FindLastValueInCol  [PASS]
+  THEN  FindLastSubValueInCol  [PASS]
+  THEN  NumberOfOccurrenceOfCellInCol  [PASS]
+  THEN  FindValueInCols  [PASS]
+  THEN  FindNthInCols takes names and positions alike  [PASS]
+  THEN  FindFirstInCols  [PASS]
+  THEN  FindFirstValueInCols  [PASS]
+  THEN  FindFirstSubValueInCols  [PASS]
+  THEN  FindLastInCols  [PASS]
+  THEN  FindLastValueInCols  [PASS]
+  THEN  FindLastSubValueInCols  [PASS]
+  THEN  NumberOfOccurrenceOfCellInCols  [PASS]
+  -> 16 pass, 0 fail
+
+SCENARIO: A section
+  GIVEN the section from [ 1, 1 ] to [ 2, 3 ], which is the whole people table
+  THEN  FindValueInSection  [PASS]
+  THEN  FindNthValueInSection reads the corners it is given  [PASS]
+  THEN  FindNthSubValueInSection  [PASS]
+  THEN  a smaller section leaves cells out  [PASS]
+  THEN  FindFirstValueInSection  [PASS]
+  THEN  FindFirstSubValueInSection  [PASS]
+  THEN  FindLastValueInSection  [PASS]
+  THEN  FindLastSubValueInSection  [PASS]
+  THEN  NumberOfOccurrenceOfCellInSection  [PASS]
+  THEN  NumberOfOccurrenceOfValueInSection  [PASS]
+  THEN  CountOfValueInSectionInSection  [PASS]
+  THEN  on the 3 x 3 table, a block of numbers  [PASS]
+  -> 12 pass, 0 fail
+
+================================================
+TOTAL: 122 assertions, 106 pass, 16 fail
+================================================
+STATUS: FAILED

@@ -1,0 +1,50 @@
+               PREP===PREP==PREP
+|────────●───────●────────────●───────────●──────○─►
+         1       2            3           4
+
+╭────┬─────────────────────┬─────────┬────────────────╮
+│ No │      Timepoint      │  Label  │  Description   │
+├────┼─────────────────────┼─────────┼────────────────┤
+│    │ 2024-01-01 00:00:00 │         │ Timeline start │
+│  1 │ 2024-03-01 00:00:00 │ KICKOFF │ KICKOFF event  │
+│  2 │ 2024-05-01 00:00:00 │ PREP    │ Start of PREP  │
+│  3 │ 2024-08-01 00:00:00 │ PREP    │ End of PREP    │
+│  4 │ 2024-11-01 00:00:00 │ CLOSING │ CLOSING event  │
+│    │ 2024-12-31 23:59:59 │         │ Timeline end   │
+╰────┴─────────────────────┴─────────┴────────────────╯
+
+
+               PREP===PREP==PREP
+|────────●───────●────────────●───────────●──────○─►
+         1       2            3           4
+
+
+               PREP===PREP==PREP
+|────────●───────●────────────●───────────●──────○─►
+         1       2            3           4
+
+╭────────────────────┬────────────────╮
+│       Metric       │     Value      │
+├────────────────────┼────────────────┤
+│ Total Points       │              2 │
+│ Total Spans        │              1 │
+│ Timeline Duration  │ 1 year         │
+│ Coverage           │ 25%            │
+│ Longest Span       │ PREP (92 days) │
+│ Gaps Between Spans │              0 │
+│ Overlapping Spans  │              0 │
+╰────────────────────┴────────────────╯
+[
+	[ "metric", "value" ],
+	[ "Total Points", 2 ],
+	[ "Total Spans", 1 ],
+	[ "Timeline Duration", "1 year" ],
+	[ "Coverage", "25%" ],
+	[ "Longest Span", "PREP (92 days)" ],
+	[ "Gaps Between Spans", 0 ],
+	[ "Overlapping Spans", 0 ]
+]
+
+
+----------------
+----------------

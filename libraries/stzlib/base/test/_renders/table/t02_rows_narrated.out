@@ -1,0 +1,83 @@
+SCENARIO: Finding a row by its content
+  GIVEN a 4 x 2 table, a square table and a table with a repeated row
+  THEN  FindRow gives the position of a row  [PASS]
+  THEN  on the square table too  [PASS]
+  THEN  a row that is not there gives [ ]  [PASS]
+  THEN  a row of the wrong length gives [ ]  [PASS]
+  THEN  the default is case-sensitive  [PASS]
+  THEN  FindRowCS with the flag off ignores case  [PASS]
+  THEN  FindRows gives the positions of several rows  [PASS]
+  THEN  FindTheseRows is the same question  [PASS]
+  THEN  FindNthRow takes the occurrence first  [PASS]
+  THEN  the first occurrence  [PASS]
+  THEN  an occurrence that does not exist gives 0  [PASS]
+  THEN  TheseRowsToRowsNumbers looks rows up, 0 for a row that is not there  [PASS]
+  THEN  RowsToRowNumbers is the same  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: Containing a row: the length test is the number of columns
+  GIVEN tables whose number of rows differs from their number of columns
+  THEN  a 4 x 2 table contains its second row  [PASS]
+  THEN  a 4 x 2 table does not contain a row of three cells  [PASS]
+  THEN  nor a row of one cell  [PASS]
+  THEN  nor a row with another content  [PASS]
+  THEN  the square table still contains its row  [PASS]
+  THEN  the case flag is honoured  [PASS]
+  THEN  and by default case counts  [PASS]
+  THEN  ContainsRows needs every row  [PASS]
+  THEN  one missing row makes it FALSE  [PASS]
+  THEN  ContainsTheseRows on the square table  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Removing rows by position
+  GIVEN RemoveNthRows and the names that forward to it
+  THEN  RemoveNthRows on the square table  [PASS]
+  THEN  RemoveNthRows on 4 x 2  [PASS]
+  THEN  the order and duplicates of the positions do not matter  [PASS]
+  THEN  a position outside the table is ignored  [PASS]
+  THEN  every column loses the same rows  [PASS]
+  THEN  RemoveRows with positions  [PASS]
+  THEN  RemoveRows with the rows themselves  [PASS]
+  THEN  RemoveRows with rows on the square table  [PASS]
+  THEN  RemoveRow with the cells of a row  [PASS]
+  THEN  RemoveRow with a row that is not there raises  [PASS]
+  THEN  RemoveRow with a position still works  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Keeping only some rows
+  GIVEN RemoveAllRowsExceptAt, RemoveAllRowsExcept and their spellings
+  THEN  by position on the square table  [PASS]
+  THEN  by position on 4 x 2  [PASS]
+  THEN  RemoveRowsExceptAt  [PASS]
+  THEN  RemoveAllRowsOtherThanPositions  [PASS]
+  THEN  RemoveRowsOtherThanPositions  [PASS]
+  THEN  RemoveAllRowsExcept with positions keeps those rows  [PASS]
+  THEN  RemoveAllRowsExcept with rows keeps those rows  [PASS]
+  THEN  RemoveRowsExcept  [PASS]
+  THEN  RemoveAllRowsOtherThan  [PASS]
+  THEN  RemoveRowsOtherThan  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Inserting a row at several positions
+  GIVEN InsertRowAtPositions and its two spellings
+  THEN  one row at each position of a 4 x 2 table  [PASS]
+  THEN  InsertRows on the square table  [PASS]
+  THEN  InsertRowsAt with the positions out of order  [PASS]
+  THEN  the new rows are rows 1 and 4 of the result, as the positions were given  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Sections: the block between two corners
+  GIVEN SectionAsPositions, which read another block than Section
+  THEN  on 4 x 2, rows 2 to 4 of both columns, row by row  [PASS]
+  THEN  on the square table, the lower right block  [PASS]
+  THEN  one column  [PASS]
+  THEN  SectionZ pairs each position with the cell Section gives  [PASS]
+  THEN  the positions match the cells of Section, one for one  [PASS]
+  THEN  EraseSection empties the block (square table)  [PASS]
+  THEN  EraseSection on 4 x 2  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 55 assertions, 55 pass, 0 fail
+================================================
+STATUS: OK

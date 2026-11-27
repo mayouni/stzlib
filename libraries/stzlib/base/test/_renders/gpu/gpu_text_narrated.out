@@ -1,0 +1,113 @@
+-- Scene 1: the committed fixture loads (no device, no download) --
+  [OK] fixture bytes on disk
+  [OK] no device is present or needed
+  [OK] font loads from memory (id > 0)
+  [OK] subset carries its glyph repertoire
+  [OK] garbage bytes refuse (id 0)
+
+-- Scene 2: Latin -- one glyph per char, x strictly advancing --
+  [OK] layout answers width, runs, glyphs, metrics, the chain, the flow and the fit
+  [OK] the ink band lies inside the em box: inkTop <= ascender, inkBottom <= descender
+  [OK] 8 chars -> 8 glyphs
+  [OK] one visual run
+  [OK] total width is positive
+  [OK] x strictly advances across the line
+  [OK] every glyph id is real (no .notdef)
+  [OK] clusters ascend with x (LTR)
+
+-- Scene 3: Arabic joining -- context CHANGES the glyph id --
+  [OK] isolated beh shapes to one glyph
+  [OK] beh+beh+beh shapes to three glyphs
+  [OK] medial form id DIFFERS from isolated form id (joining happened)
+  [OK] word width < 3x isolated width (joined forms are narrower)
+
+-- Scene 4: lam-alef -- the MANDATORY ligature fires --
+  [OK] the pair fuses below 2 separate letters' glyph count OR substitutes special forms
+  [OK] every output glyph differs from isolated AND generic joined forms (the lam-alef-SPECIFIC substitution fired)
+  [OK] the pair is one cluster-connected unit, narrower than lam + alef apart
+
+-- Scene 5: the full Arabic word shapes joined --
+  [OK] 8 codepoints -> 8 glyphs (no lam-alef pair in this word)
+  [OK] one visual run (pure RTL)
+  [OK] clusters strictly descend across x (RTL visual order)
+  [OK] word-initial seen id != isolated seen id
+
+-- Scene 6: mixed direction -- 3 visual runs, orders opposed --
+  [OK] three visual runs
+  [OK] all glyphs present (4 + 8 + 4)
+  [OK] first visual glyph is 'a' (cluster 0)
+  [OK] last visual glyph is 'z' (byte cluster 23)
+  [OK] the Arabic segment's clusters DESCEND (RTL inside LTR)
+
+-- Scene 7: raster BY GLYPH ID -- ink where there should be ink --
+  [OK] lam-alef bitmap has area
+  [OK] bytes match w*h
+  [OK] real coverage (some pixels above half-ink)
+  [OK] bitmap top sits above the baseline (yoff < 0)
+  [OK] space glyph answers ink-free [0x0]
+
+-- Scene 8: refusals answer by name; churn is exact --
+  [OK] second font loads (id differs)
+  [OK] free answers OK
+  [OK] double free answers STALE (2)
+  [OK] layout on freed font answers []
+  [OK] glyph count on freed font answers -1
+  [OK] zero size refuses ([])
+  [OK] empty text refuses ([])
+
+-- Scene 9: determinism -- same input, same ids, same positions --
+  [OK] layout is deterministic (ids and positions)
+
+-- Scene 10: the FALLBACK CHAIN -- one font rarely covers all scripts --
+  [OK] the fixture has no Hangul: two codepoints, two .notdef
+  [OK] ...and it DOES carry Arabic and Latin, so the gap is the script and not the font
+  [OK] a font begins with no chain
+  [OK] NEGATIVE: a font cannot fall back to ITSELF -- that would make coverage a loop
+  [OK] NEGATIVE: nor to a font that was never loaded
+  [OK] ...and neither refusal grew the chain
+  [OK] the second font loads
+  [OK] naming it is accepted
+  [OK] ...and the chain says so
+  [OK] naming it TWICE changes nothing -- the chain is a set, not a list of repeats
+  [OK] the same two codepoints now draw: no .notdef, and both came from the FALLBACK
+  [OK] each glyph says which font drew it, and it is not the one that was asked
+  [OK] the width is a real width now, not two boxes wide
+  [OK] a mixed string splits by coverage: the Latin stays with the font that was asked
+  [OK] NEGATIVE: with the chain cleared, the same string is two boxes again
+  [OK] with a chain in place, the Arabic word shapes exactly as it did without one
+
+-- Scene 11: the flow can be a COLUMN -- vertical writing (GR2d) --
+  [OK] both answer 16 items now: the flow's own extent, which axis it is, and the fit
+  [OK] a horizontal layout fills the WIDTH and says it is not vertical
+  [OK] a vertical layout fills the HEIGHT instead, and says which it is
+  [OK] the same text, the same glyph count -- a column is a flow, not a filter
+  [OK] every glyph sits below the one before it -- the pen walks DOWN the column
+  [OK] ...and each advance is a positive DISTANCE, not the shaper's own negative
+  [OK] the column's height is exactly where the pen arrived: the last pen plus its advance
+  [OK] NEGATIVE: horizontally the same text walks RIGHT and stays on one baseline
+  [OK] the CJK font loads
+  [OK] the same characters, the same count, both ways
+   glyphs the vertical forms replaced : 2 of 4
+  [OK] THE VERTICAL FORMS FIRE: the bracket and the comma are different GLYPHS down a column -- this is typography, not a rotation
+  [OK] ...and the letter between them is the SAME glyph, so the substitution is chosen per character and not applied to everything
+
+-- Scene 12: a line that FILLS a width -- kashida justification (GR2e) --
+   natural 204px -> justified 264px, 9 kashidas and 1.14px on each space
+  [OK] the layout answers 16 items now: the three that say what justification did
+  [OK] A JUSTIFIED LINE LANDS ON ITS TARGET, not near it -- the kashidas take it most of the way and the spaces close the rest
+  [OK] IT IS KASHIDA AND NOT WIDER SPACES: tatweels were inserted, so the line grew GLYPHS the natural line does not have
+  [OK] a word takes its elongation at the join before its LAST letter
+  [OK] NEGATIVE: a word whose last two letters do not join takes NO kashida, even though an earlier join in the same word would have taken one
+   the name of God reaches 35.12px above the baseline, and after justification 35.12px
+  [OK] NEGATIVE: the word whose mark an elongation would destroy REFUSES to be elongated, and keeps every bit of its ink
+  [OK] ...and the whole justified line loses no ink either, above the baseline or below
+  [OK] every cluster still indexes the CALLER'S string, not the elongated one the engine shaped -- reversibility survives justification
+  [OK] the advances still sum to the width and the pen still runs left to right, so the widened spaces carried their neighbours with them
+  [OK] NEGATIVE: Latin is justified on its SPACES ALONE -- no kashida, because the face joins nothing there
+  [OK] ...and the space stretch is the deficit shared out, not a guess
+  [OK] NEGATIVE: a target NARROWER than the text returns the text -- this stretches and never compresses, and it says justified=0
+  [OK] NEGATIVE: one Latin word has no join and no space, so nothing is stretched and the layout says so rather than inventing room
+
+==========================================
+TOTAL: 83 assertions, 83 pass, 0 fail
+==========================================

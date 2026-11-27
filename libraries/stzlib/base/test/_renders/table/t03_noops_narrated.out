@@ -1,0 +1,55 @@
+SCENARIO: Inserting a column
+  GIVEN InsertCol, which became column n of nothing
+  THEN  a column inserted at 2 becomes column 2  [PASS]
+  THEN  with its cells  [PASS]
+  THEN  the other columns keep their cells  [PASS]
+  THEN  a short column is padded with empty text (4 x 2)  [PASS]
+  THEN  and goes first  [PASS]
+  THEN  a long column is cut to the number of rows  [PASS]
+  THEN  one past the last column appends  [PASS]
+  THEN  the rows stay as long as the table is wide  [PASS]
+  THEN  a position past the end plus one raises  [PASS]
+  THEN  a name already in the table raises  [PASS]
+  THEN  the engine copy follows the insertion  [PASS]
+  THEN  the nine spellings that insert before or at a position all insert at it  [PASS]
+  THEN  the four spellings that insert after a position put the column behind it  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: Renaming a column with ReplaceColName
+  GIVEN the three spellings and the combined name-and-data forms
+  THEN  ReplaceColName by name  [PASS]
+  THEN  the cells go with the new name  [PASS]
+  THEN  ReplaceNthColName by position  [PASS]
+  THEN  ReplaceColumnName  [PASS]
+  THEN  the new name can come as [ :With, name ]  [PASS]
+  THEN  a name another column already has raises  [PASS]
+  THEN  an unknown column raises  [PASS]
+  THEN  ReplaceColNameAndData changes the name (square)  [PASS]
+  THEN  and the cells  [PASS]
+  THEN  on 4 x 2  [PASS]
+  THEN  the older spelling ReplaceColumnNamedAndData  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Growing the table with Extend and ExtendTo
+  GIVEN a 4 x 2 table
+  THEN  Extend adds columns named col3.. and keeps the content  [PASS]
+  THEN  the cells that were there stay  [PASS]
+  THEN  the new rows are made of empty text  [PASS]
+  THEN  and so are the new columns  [PASS]
+  THEN  the table has the size asked  [PASS]
+  THEN  a smaller size changes nothing  [PASS]
+  THEN  ExtendTo on the square table  [PASS]
+  THEN  a new column name never collides with an existing one  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Updated returns an updated copy
+  GIVEN a 3 x 3 table
+  THEN  the copy has the new content  [PASS]
+  THEN  the original is untouched  [PASS]
+  THEN  UpdatedWith is the same  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 35 assertions, 35 pass, 0 fail
+================================================
+STATUS: OK

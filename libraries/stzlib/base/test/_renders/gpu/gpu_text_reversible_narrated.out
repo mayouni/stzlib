@@ -1,0 +1,63 @@
+  [OK] fixture font loads (no device needed)
+
+-- Scene 1: the layout now CARRIES what a caret needs --
+  [OK] layout answers 16 items (glyphs, metrics, the chain, the flow, and the fit)
+  [OK] every glyph carries 9 numbers -- the ninth is the font that drew it
+  [OK] ascender is a positive distance
+  [OK] descender is a positive distance
+  [OK] line height exceeds the em at 32px
+  [OK] a Latin paragraph is not RTL
+
+-- Scene 2: pen and advance are NOT the draw x (the classic bug) --
+  [OK] the first glyph's pen is the origin
+  [OK] pen[i+1] = pen[i] + adv[i], exactly
+  [OK] the advances sum to the reported width
+
+-- Scene 3: cluster ENDS make the byte range knowable --
+  [OK] 8 ASCII chars: cluster i-1 ends at i
+  [OK] the last cluster ends at the text length
+  [OK] Latin glyphs carry an even bidi level
+
+-- Scene 4: RTL -- clusters DESCEND as x advances, ends still lead --
+  [OK] a pure-Arabic paragraph IS RTL
+  [OK] Arabic glyphs carry an ODD bidi level
+  [OK] clusters descend as x advances (RTL made visual)
+  [OK] every cluster end is past its start
+  [OK] the VISUALLY FIRST Arabic glyph ends at the text end
+
+-- Scene 5: THE ROUND TRIP -- click a glyph, land on that glyph --
+  [OK] the mixed string breaks into 3 visual runs
+  [OK] every glyph was probed on both halves
+  [OK] EVERY probe round-trips onto its own glyph's edge
+  [OK] the two halves of a glyph disagree on affinity
+  [OK] ...and so resolve to different caret bytes
+
+-- Scene 6: affinity is REQUIRED, not decoration --
+  [OK] one byte offset, two screen positions
+  [OK] both carets are zero-width
+  [OK] a caret is a full line tall
+  [OK] the caret top is above the baseline
+  [OK] in an RTL run the LEADING edge is the right one
+
+-- Scene 7: a range becomes rects -- one, or several across a seam --
+  [OK] a within-run range gives exactly one rect
+  [OK] ...whose width is those glyphs' advances
+  [OK] a range crossing the bidi seam gives SEVERAL rects
+  [OK] selecting everything covers the whole advance
+
+-- Scene 8: refusals and edges answer by name --
+  [OK] an empty range selects nothing
+  [OK] a reversed range selects nothing
+  [OK] past the end of an LTR line the caret is at the width
+  [OK] past the end of an RTL line the caret is at x=0
+  [OK] a click far left clamps to the first glyph
+  [OK] a click far right clamps to the last, trailing
+  [OK] queries on a stale font answer []
+
+-- Scene 9: the queries are deterministic --
+  [OK] the same point answers the same hit
+  [OK] the same caret answers the same rect
+
+==========================================
+TOTAL: 41 assertions, 41 pass, 0 fail
+==========================================

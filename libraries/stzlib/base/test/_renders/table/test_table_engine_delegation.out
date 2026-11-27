@@ -1,0 +1,20 @@
+=== Engine Delegation: Sort ===
+  After SortOn(:NAME), first: Ali
+  Last: Han
+  Ali's age: 35
+  After SortDownOn(:SALARY), top earner: Ali
+
+=== Engine Delegation: Aggregation ===
+  SumCol(:PRICE): 11
+  AvgCol(:PRICE): 2.75
+  MinCol(:PRICE): 1
+  MaxCol(:PRICE): 5
+  ProductCol(:QTY): 24000
+
+=== Engine Delegation: Aggregate after mutation ===
+  SumCol(:QTY) before mutation: 25
+  SumCol(:QTY) after mutation: 33
+
+=================================
+  PASSED: 11  FAILED: 0
+=================================

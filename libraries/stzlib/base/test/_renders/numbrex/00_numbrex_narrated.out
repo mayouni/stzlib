@@ -1,0 +1,34 @@
+SCENARIO: Prime
+  THEN  17 is prime  [PASS]
+  THEN  18 is not prime  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Perfect
+  THEN  6 is perfect  [PASS]
+  THEN  28 is perfect  [PASS]
+  THEN  12 is not perfect  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Fibonacci
+  THEN  13 is fibonacci  [PASS]
+  THEN  22 is not fibonacci  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Even / Odd
+  THEN  4 is even  [PASS]
+  THEN  5 is not even  [PASS]
+  THEN  7 is odd  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Square / Composite / Positive
+  THEN  16 is a square  [PASS]
+  THEN  15 is not a square  [PASS]
+  THEN  9 is composite  [PASS]
+  THEN  5 is positive  [PASS]
+  THEN  -5 is not positive  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 15 assertions, 15 pass, 0 fail
+================================================
+STATUS: OK
