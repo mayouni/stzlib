@@ -92,6 +92,7 @@ class stzNodeSupervisor from stzObject
 	@aChildBounds = []     # the boundary id of a bounded child's current run (0 = none)
 	@aChildRuns = []       # the run records of a bounded child, newest last
 	@nLastHbMs = 0
+	@oDoorGov = ""        # the governance that judges a bounded child's door calls (stzBrokerDoor); "" refuses them all
 
 	# Creates a supervisor of node processes, one-for-one, with 3 restarts per 10 seconds and no heartbeat; starts nothing.
 	#
@@ -151,6 +152,9 @@ class stzNodeSupervisor from stzObject
 	#              :env (a list of variable names: when given, the node's environment is SystemRoot,
 	#              TEMP, TMP, LOCALAPPDATA, STZ_ENGINE_DIR, HARO_CACHE and these, and nothing else -- threat model R20; without it
 	#              the node inherits the supervisor's whole environment)
+	#              :broker (a list of credential-broker grant names) and :brokerFolder (a folder among its
+	#              :writes): the node asks for a call there and the supervisor's broker makes it, the value
+	#              attached outside the node; every call is judged by BrokerGovernance (stzBrokerDoor.haro)
 	#   returns    the supervisor itself, so calls chain
 	#   warning    the grant must name the interpreter's folder and the script's folder among its reads;
 	#              a bounded child is never sent a heartbeat (loopback is closed to a container)
@@ -228,6 +232,12 @@ class stzNodeSupervisor from stzObject
 	#   returns     the supervisor itself, so calls chain
 	#   warning     under :AllForOne one death counts as one restart per child
 	#   see         Escalated, Strategy
+	# Sets the governance that judges every call a bounded child asks through its door (:broker in its
+	# grant): the actor is the child's name, the act "broker:<grant>". Without one the door refuses every call.
+	def BrokerGovernance(oGov)
+		@oDoorGov = oGov
+		return This
+
 	def RestartBudget(nMax, nWindowMs)
 		@nBudgetMax = 0 + nMax
 		@nBudgetWindowMs = 0 + nWindowMs
@@ -333,6 +343,7 @@ class stzNodeSupervisor from stzObject
 		if @bEscalated
 			return This
 		ok
+		This._ServeDoors()
 		aDead = []
 		nLen = ring_len(@aChildNames)
 		for i = 1 to nLen
@@ -557,6 +568,20 @@ class stzNodeSupervisor from stzObject
 			ok
 		next
 		return pnDefault
+
+	# Answers each bounded child's door, if its grant has one (stzBrokerDoor.haro).
+	def _ServeDoors()
+		_n_ = len(@aChildNames)
+		for _i_ = 1 to _n_
+			if isString(@aChildGrants[_i_])
+				loop
+			ok
+			if This._GrantHas(@aChildGrants[_i_], :brokerFolder) = 0
+				loop
+			ok
+			StzBrokerDoorServe(This._GrantText(@aChildGrants[_i_], :brokerFolder, ""), @aChildNames[_i_],
+				This._GrantList(@aChildGrants[_i_], :broker), @oDoorGov)
+		next
 
 	def _GrantHas(paGrant, pcKey)
 		_n_ = len(paGrant)

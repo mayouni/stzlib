@@ -1,0 +1,171 @@
+# A BOUNDED NODE ASKS; ITS SUPERVISOR'S BROKER CALLS -- threat model R20 second half, RADAR-AGENTBOUND-01 (a), narrated
+#
+# A node inside an OS boundary, given an :env list, holds no credential and cannot reach the loopback. It writes a
+# request file into a folder its grant lets it write; the supervisor judges it and makes the call through the
+# credential broker (G54) in its own process, so the value is attached outside the node and masked out of the answer.
+#
+#   Scene 1  the format: a request and an answer survive the round trip, a body with empty lines intact
+#   Scene 2  the door in one process: a call made and masked, and every refusal decided before anything is sent
+#   Scene 3  the node: a bounded child with no credential in its environment gets the masked answer to its call
+#
+# RUNS ON haro.exe, on Windows. STZ_ENGINE_DIR names an engine whose stz_process carries StzEngineBoundaryEnvKeep;
+# HARO_EXE names the haro.exe the node runs on. Loopback only. The "credential" is a random text made at run time.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+tBS = Char(92)
+tNL = Char(10)
+
+StzCloseSecurityLedger()
+StzOpenSecurityLedger(500)
+nPort = StzEngineTestServerStart(0)
+tBase = "http://127.0.0.1:" + String(nPort)
+tFixture = "fx-" + StzEngineCryptoRandomHex(12)
+SysSet("STZ_DOOR_CRED", tFixture)
+StzBrokerGrant("echo", "env:STZ_DOOR_CRED", "127.0.0.1", "X-Key", "")
+
+tW = SysGet("TEMP") + tBS + "stz_door"
+tBin = tW + tBS + "bin"
+tRuns = tW + tBS + "runs"
+tDoor = tRuns + tBS + "door"
+StzEngineDirDeleteTree(tW)
+StzMakeDir(tBin)
+StzMakeDir(tDoor)
+
+Scenario("1. the format")
+tBody = "line one" + tNL + tNL + "line three" + tNL
+vQ = StzBrokerDoorParseRequest(StzBrokerDoorRequestText("echo", "POST", tBase + "/x", "Accept: a" + Char(13) + tNL + "X-B: b", tBody))
+Then("a request parses", vQ[:ok], 1)
+Then("...its grant, method and url", vQ[:grant] + " " + vQ[:method] + " " + vQ[:url], "echo POST " + tBase + "/x")
+Then("...its two headers", vQ[:headers], "Accept: a" + Char(13) + tNL + "X-B: b")
+Then("...its body, empty line and last LF kept", vQ[:body], tBody)
+xA = StzBrokerDoorParseResponse(StzBrokerDoorResponseText(-3, "why" + tNL + "split", "", ""))
+Then("an answer parses, status -3", xA[:status], -3)
+Then("...a refusal's line breaks flattened", xA[:refusal], "why split")
+Then("a text without the version line is no request", StzBrokerDoorParseRequest("echo" + tNL + "GET" + tNL)[:ok], 0)
+Then("headers shorter than their length are no request", StzBrokerDoorParseRequest("STZDOOR 1" + tNL + "g" + tNL + "GET" + tNL + "u" + tNL + "50" + tNL + "short" + tNL)[:ok], 0)
+
+Scenario("2. the door in one process")
+oGov = new stzGovernance("door-court")
+oGov.DeclareRisk("broker:echo", 1)
+oGov.GrantPermission("fetcher", "broker:echo")
+oGov.SetAuthority("fetcher", :Delegated)
+Write(tDoor + tBS + "a1.req", StzBrokerDoorRequestText("echo", "GET", tBase + "/reqheaders", "Accept: text/plain", ""))
+Then("one request answered", StzBrokerDoorServe(tDoor, "fetcher", ["echo"], oGov), 1)
+xR = StzBrokerDoorParseResponse(Read(tDoor + tBS + "a1.resp"))
+Then("status 200", xR[:status], 200)
+if xR[:status] != 200
+    ? "    refusal: " + xR[:refusal]
+end
+Then("the server read the header, value masked", Has(xR[:body], "X-Key: " + Copy("*", Len(tFixture))), true)
+Then("the answer does not hold the value", Has(Read(tDoor + tBS + "a1.resp"), tFixture), false)
+Then("the request is gone", FExists(tDoor + tBS + "a1.req"), false)
+vCases = [
+    ["a grant the node is not given", "a2", StzBrokerDoorRequestText("echo", "GET", tBase + "/reqheaders", "", ""), ["other"], oGov, "is not given to node"],
+    ["a door with no governance", "a3", StzBrokerDoorRequestText("echo", "GET", tBase + "/reqheaders", "", ""), ["echo"], "", "no governance"],
+    ["an act the governance refuses", "a4", StzBrokerDoorRequestText("echo", "GET", tBase + "/reqheaders", "", ""), ["echo"], new stzGovernance("door-empty"), "governance:"],
+    ["a text that is no request", "a5", "GET " + tBase + "/reqheaders", ["echo"], oGov, "not a door request"],
+    ["a request over 1 MB", "a6", StzBrokerDoorRequestText("echo", "POST", tBase + "/reqheaders", "", Copy("x", 1048577)), ["echo"], oGov, "over the door's"]
+]
+nC = Len(vCases)
+for i = 1 to nC
+    Write(tDoor + tBS + vCases[i][2] + ".req", vCases[i][3])
+    StzBrokerDoorServe(tDoor, "fetcher", vCases[i][4], vCases[i][5])
+    xR = StzBrokerDoorParseResponse(Read(tDoor + tBS + vCases[i][2] + ".resp"))
+    Then(vCases[i][1] + ": refused, status -3", xR[:status], -3)
+    Then("...saying why", Has(xR[:refusal], vCases[i][6]), true)
+end
+Write(tDoor + tBS + "a b.req", StzBrokerDoorRequestText("echo", "GET", tBase + "/reqheaders", "", ""))
+StzBrokerDoorServe(tDoor, "fetcher", ["echo"], oGov)
+Then("a request file with a bad name is withdrawn", FExists(tDoor + tBS + "a b.req"), false)
+Then("...and gets no answer", FExists(tDoor + tBS + "a b.resp"), false)
+Then("the ledger holds one broker.door.call", Len(StzSecurityLedgerQ().OfKind("broker.door.call")), 1)
+Then("...and six broker.door.refused", Len(StzSecurityLedgerQ().OfKind("broker.door.refused")), 6)
+StzEngineDirDeleteTree(tDoor)
+StzMakeDir(tDoor)
+
+Scenario("3. the node")
+tName = "stz.door.guard"
+StzEngineBoundaryDeleteProfile(tName)
+tHaroSrc = SysGet("HARO_EXE")
+if tHaroSrc = ""
+    ? "HARO_EXE is not set: the node cannot run"
+    Shutdown(1)
+end
+StzEngineFileCopy(tHaroSrc, tBin + tBS + "haro.exe")
+SysSet("HARO_CACHE", tRuns)
+# the node loads no library: it speaks the door's format with haro's own builtins
+tD = StzReplace(tDoor, tBS, "/")
+tQ = Char(34)
+tNode = "? " + tQ + "cred[" + tQ + " + SysGet(" + tQ + "STZ_DOOR_CRED" + tQ + ") + " + tQ + "]" + tQ + tNL +
+    "tReq = " + tQ + "STZDOOR 1" + tQ + " + Char(10) + " + tQ + "echo" + tQ + " + Char(10) + " + tQ + "GET" + tQ + " + Char(10) + " + tQ + tBase + "/reqheaders" + tQ + " + Char(10) + " + tQ + "0" + tQ + " + Char(10) + Char(10)" + tNL +
+    "Write(" + tQ + tD + "/n1.part" + tQ + ", tReq)" + tNL +
+    "Rename(" + tQ + tD + "/n1.part" + tQ + ", " + tQ + tD + "/n1.req" + tQ + ")" + tNL +
+    "nT0 = Clock()" + tNL +
+    "while not FExists(" + tQ + tD + "/n1.resp" + tQ + ") and Clock() - nT0 < 60000" + tNL +
+    "    SysSleep(20)" + tNL +
+    "end" + tNL +
+    "? " + tQ + "answer[" + tQ + " + Read(" + tQ + tD + "/n1.resp" + tQ + ") + " + tQ + "]" + tQ + tNL
+Write(tBin + tBS + "door.haro", tNode)
+oS = new stzNodeSupervisor()
+oS.BrokerGovernance(oGov)
+oS.Child("fetcher", tBin + tBS + "door.haro", 45962)
+oS.ChildGrant("fetcher", [[:profile, tName], [:reads, [tBin]], [:writes, [tRuns]], [:memoryMB, 512],
+    [:output, tRuns + tBS + "node.txt"], [:cache, tRuns], [:interpreter, tBin + tBS + "haro.exe"],
+    [:env, []], [:broker, ["echo"]], [:brokerFolder, tDoor]])
+oS.RestartBudget(0, 60000)
+oS.StartAll()
+nT0 = Clock()
+while Clock() - nT0 < 120000 and oS.Escalated() = 0
+    oS.Cycle()
+    SysSleep(20)
+end
+tOut = ReadOr(tRuns + tBS + "node.txt")
+Then("the node ran", Has(tOut, "answer["), true)
+Then("...with no credential in its environment", Has(tOut, "cred[]"), true)
+Then("...and got status 200 through the door", Has(tOut, "STZDOOR 1" + tNL + "200" + tNL), true)
+Then("...with the value masked", Has(tOut, "X-Key: " + Copy("*", Len(tFixture))), true)
+Then("...and never the value", Has(tOut, tFixture), false)
+Then("the ledger holds a second broker.door.call, by the node", Len(StzSecurityLedgerQ().OfKind("broker.door.call")), 2)
+oS.Destroy()
+
+StzEngineBoundaryDeleteProfile(tName)
+StzEngineDirDeleteTree(tW)
+StzBrokerRevoke("echo")
+StzCloseSecurityLedger()
+? ""
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# --- helpers -----------------------------------------------------------------------------------------------------------
+
+func ReadOr(tPath)
+    if not FExists(tPath)
+        return ""
+    end
+    return Read(tPath)
+end
+
+func Has(tIn, tPart)
+    return SubStr("" + tIn, tPart) > 0
+end
+
+func Scenario(tTitle)
+    ? ""
+    ? "SCENARIO: " + tTitle
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end

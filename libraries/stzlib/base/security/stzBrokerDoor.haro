@@ -1,0 +1,302 @@
+# stzBrokerDoor -- a bounded node asks for a call; its supervisor's broker makes it
+# (threat model R20 second half, RADAR-AGENTBOUND-01 (a); the broker is G54).
+#
+# A node inside an OS boundary has no network to the loopback and, with an :env
+# list, no credential in its environment. When it needs a call that carries a
+# credential, it writes a REQUEST FILE into a folder its grant lets it write.
+# The supervisor reads it, judges it, and makes the call through the credential
+# broker in its own process: the engine attaches the value outside the node and
+# masks it out of the answer, which goes back as a RESPONSE FILE. The node names
+# the credential's grant and never holds its value.
+#
+# The supervisor refuses, before anything is sent:
+#   - a request that is not one (first line "STZDOOR 1", the fields below)
+#   - a request over 1 MB, or one whose file name is not <id>.req (id: 1 to 64 of A-Z a-z 0-9 _ -)
+#   - a grant the node's own grant does not list
+#   - every call when the door has no governance (it fails closed)
+#   - a call the governance refuses: the act it judges is "broker:<grant>", the actor the node
+# A refusal answers status -3 with the reason and is written to the ledger as broker.door.refused;
+# a call made is written as broker.door.call.
+#
+# The files, every line ending in one LF byte (Char(10)):
+#   <id>.req     STZDOOR 1 / grant / method / url / <byte length of the headers> / headers / LF / body to the end
+#   <id>.resp    STZDOOR 1 / status / refusal / <byte length of the headers> / headers / LF / body to the end
+# A node writes <id>.part and renames it to <id>.req, so the supervisor never reads half a request;
+# the supervisor does the same for the answer. The format needs nothing but haro's own builtins, so
+# a node that does not load the library can speak it.
+#
+#   supervisor   oS.BrokerGovernance(oGov)
+#                oS.ChildGrant("fetcher", [ ..., [:writes, [tDoor]], [:env, []],
+#                                          [:broker, ["github"]], [:brokerFolder, tDoor] ])
+#                oS.Cycle() serves the door of every bounded child that has one
+#   node         xR = StzBrokerDoorAsk(tDoor, "github", "GET", "https://api.github.com/user", "", "", 30000)
+
+$tStzDoorLastWhy = ""
+
+func StzBrokerDoorVersionLine
+    return "STZDOOR 1"
+end
+
+# The most requests one Serve answers, so a node cannot hold its supervisor's cycle.
+func StzBrokerDoorPerCycle
+    return 16
+end
+
+func StzBrokerDoorMaxBytes
+    return 1048576
+end
+
+# Why the last request served was refused, or "".
+func StzBrokerDoorLastWhy
+    return $tStzDoorLastWhy
+end
+
+# --- the format ---------------------------------------------------------------------------------------------------------
+
+func StzBrokerDoorRequestText(tGrant, tMethod, tUrl, tHeaders, tBody)
+    tNL = Char(10)
+    tH = "" + tHeaders
+    return StzBrokerDoorVersionLine() + tNL + _StzDoorOneLine(tGrant) + tNL + _StzDoorOneLine(tMethod) + tNL + _StzDoorOneLine(tUrl) + tNL + String(Len(tH)) + tNL + tH + tNL + tBody
+end
+
+func StzBrokerDoorResponseText(nStatus, tRefusal, tHeaders, tBody)
+    tNL = Char(10)
+    tH = "" + tHeaders
+    return StzBrokerDoorVersionLine() + tNL + String(nStatus) + tNL + _StzDoorOneLine(tRefusal) + tNL + String(Len(tH)) + tNL + tH + tNL + tBody
+end
+
+# A request's fields: [[:ok, 1/0], [:grant, t], [:method, t], [:url, t], [:headers, t], [:body, t]].
+func StzBrokerDoorParseRequest(tText)
+    vP = _StzDoorParse(tText, 3)
+    if vP[1] = 0
+        return [[:ok, 0], [:grant, ""], [:method, ""], [:url, ""], [:headers, ""], [:body, ""]]
+    end
+    return [[:ok, 1], [:grant, vP[2][1]], [:method, vP[2][2]], [:url, vP[2][3]], [:headers, vP[3]], [:body, vP[4]]]
+end
+
+# An answer, in the broker's own shape: [[:status, n], [:body, t], [:headers, t], [:refusal, t]];
+# an answer that is not one reads as status -4.
+func StzBrokerDoorParseResponse(tText)
+    vP = _StzDoorParse(tText, 2)
+    if vP[1] = 0
+        return [[:status, -4], [:body, ""], [:headers, ""], [:refusal, "door: the answer is not a door response"]]
+    end
+    if _StzDoorIsInteger(vP[2][1]) = 0
+        return [[:status, -4], [:body, ""], [:headers, ""], [:refusal, "door: the answer's status is not a number"]]
+    end
+    return [[:status, Number(vP[2][1])], [:body, vP[4]], [:headers, vP[3]], [:refusal, vP[2][2]]]
+end
+
+# --- the node's side ----------------------------------------------------------------------------------------------------
+
+# Writes a request into the door and waits up to nWaitMs for the answer. Answers the broker's shape;
+# status -4 when no answer came (the request is withdrawn then).
+func StzBrokerDoorAsk(tFolder, tGrant, tMethod, tUrl, tHeaders, tBody, nWaitMs)
+    tD = "" + tFolder
+    tId = "q" + StzEngineCryptoRandomHex(8)
+    tReq = tD + "/" + tId + ".req"
+    tResp = tD + "/" + tId + ".resp"
+    Write(tD + "/" + tId + ".part", StzBrokerDoorRequestText(tGrant, tMethod, tUrl, tHeaders, tBody))
+    Rename(tD + "/" + tId + ".part", tReq)
+    nT0 = Clock()
+    while not FExists(tResp) and Clock() - nT0 < nWaitMs
+        SysSleep(20)
+    end
+    if not FExists(tResp)
+        if FExists(tReq)
+            Remove(tReq)
+        end
+        return [[:status, -4], [:body, ""], [:headers, ""], [:refusal, "door: no answer within " + String(nWaitMs) + " ms"]]
+    end
+    tText = Read(tResp)
+    Remove(tResp)
+    return StzBrokerDoorParseResponse(tText)
+end
+
+# --- the supervisor's side ----------------------------------------------------------------------------------------------
+
+# Answers every waiting request in tFolder, at most StzBrokerDoorPerCycle(), for the node tNode whose
+# grant lists vGrants, judged by oGov (an stzGovernance; anything else refuses every call).
+# Returns how many requests were answered.
+func StzBrokerDoorServe(tFolder, tNode, vGrants, oGov)
+    vNames = StzEngineDirListFiles("" + tFolder)
+    nServed = 0
+    nN = Len(vNames)
+    for i = 1 to nN
+        tName = _StzDoorBaseName("" + vNames[i])
+        if nServed < StzBrokerDoorPerCycle() and _StzDoorEndsWith(tName, ".req") = 1
+            _StzDoorServeOne("" + tFolder, tName, "" + tNode, vGrants, oGov)
+            nServed = nServed + 1
+        end
+    end
+    return nServed
+end
+
+func _StzDoorServeOne(tFolder, tName, tNode, vGrants, oGov)
+    $tStzDoorLastWhy = ""
+    tReq = tFolder + "/" + tName
+    tId = Left(tName, Len(tName) - 4)
+    if _StzDoorIsId(tId) = 0
+        # no answer can be named for it: withdrawn, and recorded
+        Remove(tReq)
+        $tStzDoorLastWhy = "the request's file name is not <id>.req"
+        StzNoteRefusal("broker.door.refused", tNode, "door:" + tFolder, $tStzDoorLastWhy)
+        return 0
+    end
+    tWhy = ""
+    tGrant = ""
+    nSize = StzEngineFileSize(tReq)
+    if nSize > StzBrokerDoorMaxBytes()
+        tWhy = "the request is " + String(nSize) + " bytes, over the door's " + String(StzBrokerDoorMaxBytes())
+    else
+        vQ = StzBrokerDoorParseRequest(Read(tReq))
+        tGrant = vQ[:grant]
+        if vQ[:ok] = 0
+            tWhy = "not a door request: the first line must be " + StzBrokerDoorVersionLine() + " and the headers' length must match"
+        elseif _StzDoorListed(vGrants, tGrant) = 0
+            tWhy = "the grant '" + tGrant + "' is not given to node '" + tNode + "'"
+        elseif not IsObject(oGov)
+            tWhy = "the door has no governance, so it refuses every call"
+        elseif oGov.MayProceed(tNode, "broker:" + tGrant) = 0
+            tWhy = "governance: " + oGov.Why()
+        end
+    end
+    if tWhy = ""
+        xR = StzBrokerRequest(tGrant, vQ[:method], vQ[:url], vQ[:headers], vQ[:body])
+        tText = StzBrokerDoorResponseText(xR[:status], xR[:refusal], xR[:headers], xR[:body])
+        StzNoteFact("broker.door.call", tNode, "grant:" + tGrant, "status " + String(xR[:status]))
+    else
+        $tStzDoorLastWhy = tWhy
+        tText = StzBrokerDoorResponseText(-3, "door: " + tWhy, "", "")
+        StzNoteRefusal("broker.door.refused", tNode, "grant:" + tGrant, tWhy)
+    end
+    tResp = tFolder + "/" + tId + ".resp"
+    tPart = tFolder + "/" + tId + ".resp.part"
+    if FExists(tResp)
+        Remove(tResp)
+    end
+    Write(tPart, tText)
+    Rename(tPart, tResp)
+    Remove(tReq)
+    return 1
+end
+
+# --- helpers ------------------------------------------------------------------------------------------------------------
+
+# [ok, [the single lines after the version line], the length-counted block, the rest]
+func _StzDoorParse(tText, nLines)
+    tT = "" + tText
+    vLines = []
+    nNeed = nLines + 2
+    for i = 1 to nNeed
+        nAt = SubStr(tT, Char(10))
+        if nAt = 0
+            return [0, [], "", ""]
+        end
+        vLines + Left(tT, nAt - 1)
+        tT = _StzDoorAfter(tT, nAt)
+    end
+    if vLines[1] != StzBrokerDoorVersionLine()
+        return [0, [], "", ""]
+    end
+    tLen = vLines[nNeed]
+    if _StzDoorIsInteger(tLen) = 0 or Left(tLen, 1) = "-"
+        return [0, [], "", ""]
+    end
+    nB = Number(tLen)
+    if nB + 1 > Len(tT)
+        return [0, [], "", ""]
+    end
+    if SubStr(tT, nB + 1, 1) != Char(10)
+        return [0, [], "", ""]
+    end
+    vOut = []
+    for i = 2 to nLines + 1
+        vOut + vLines[i]
+    end
+    return [1, vOut, Left(tT, nB), _StzDoorAfter(tT, nB + 1)]
+end
+
+# the text after its first n bytes
+func _StzDoorAfter(tT, nAt)
+    if nAt >= Len(tT)
+        return ""
+    end
+    return Right(tT, Len(tT) - nAt)
+end
+
+func _StzDoorOneLine(tText)
+    tT = "" + tText
+    tT = StzReplace(tT, Char(13), " ")
+    return StzReplace(tT, Char(10), " ")
+end
+
+func _StzDoorIsInteger(tText)
+    tT = "" + tText
+    nN = Len(tT)
+    if nN = 0 or nN > 9
+        return 0
+    end
+    nFrom = 1
+    if Left(tT, 1) = "-"
+        if nN = 1
+            return 0
+        end
+        nFrom = 2
+    end
+    for i = nFrom to nN
+        if SubStr("0123456789", tT[i]) = 0
+            return 0
+        end
+    end
+    return 1
+end
+
+func _StzDoorIsId(tId)
+    nN = Len(tId)
+    if nN = 0 or nN > 64
+        return 0
+    end
+    tOk = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"
+    for i = 1 to nN
+        if SubStr(tOk, tId[i]) = 0
+            return 0
+        end
+    end
+    return 1
+end
+
+func _StzDoorEndsWith(tText, tEnd)
+    if Len(tText) <= Len(tEnd)
+        return 0
+    end
+    if Right(tText, Len(tEnd)) = tEnd
+        return 1
+    end
+    return 0
+end
+
+# the name after the last / or \ (the engine may list names or paths)
+func _StzDoorBaseName(tPath)
+    nN = Len(tPath)
+    for i = nN to 1 step -1
+        if tPath[i] = "/" or tPath[i] = Char(92)
+            return _StzDoorAfter(tPath, i)
+        end
+    end
+    return tPath
+end
+
+func _StzDoorListed(vGrants, tGrant)
+    if tGrant = ""
+        return 0
+    end
+    tG = StzLower(tGrant)
+    nN = Len(vGrants)
+    for i = 1 to nN
+        if StzLower("" + vGrants[i]) = tG
+            return 1
+        end
+    end
+    return 0
+end

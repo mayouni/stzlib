@@ -641,6 +641,7 @@ load "service/stzPispiQr.ring"    # the twin of the hub served over HTTP, with O
     load "security/stzAdvisoryFeed.ring"
     load "security/stzExposureResponder.ring"
     load "security/stzCredentialBroker.haro"   # an agent names a credential; the engine attaches it (CREDBROKER-01)
+    load "security/stzBrokerDoor.haro"         # a bounded node asks; its supervisor's broker calls (R20, AGENTBOUND-01 a)
     load "security/stzPiaCheck.haro"           # what a .pia agent file says, judged at load (PIACHECK-01)
     # security/stzNodeBoundary.haro (a node's OS boundary installed and removed, OSBOUNDARY B2) is NOT loaded here: the
     # program that installs loads it, and it loads Haro's doors.haro, which a node inside its boundary cannot read
