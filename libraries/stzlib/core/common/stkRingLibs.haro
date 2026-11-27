@@ -160,9 +160,19 @@ func _stzDiscoverEngineDir
 	# STZ_ENGINE_DIR names the engine folder outright: the Ring++ copy of the
 	# engine (bench/engine_copy.py builds it beside the official one) is the only
 	# build rnxc loads, and it lives outside this tree -- RING-RETIRED-01, 2026-11-05.
+	# A variable that is SET but names no engine stops the load: falling back to
+	# the tree's own engine ran a different build than the one asked for, with no
+	# word (found 2026-11-27: STZ_ENGINE_DIR given zig-out/bin instead of the root).
 	tEnv = SysGet("STZ_ENGINE_DIR")
-	if tEnv != "" and (FExists(tEnv + "/zig-out/bin/stz_string.dll") or FExists(tEnv + "/zig-out/lib/libstz_string.so"))
-		return tEnv
+	if tEnv != ""
+		if FExists(tEnv + "/zig-out/bin/stz_string.dll") or FExists(tEnv + "/zig-out/lib/libstz_string.so")
+			return tEnv
+		end
+		tHint = ""
+		if FExists(tEnv + "/stz_string.dll") or FExists(tEnv + "/libstz_string.so")
+			tHint = " -- this looks like the engine's zig-out/bin folder; name the engine's root folder, the one holding zig-out"
+		end
+		Raise("STZ_ENGINE_DIR is set to '" + tEnv + "' but holds no engine (no zig-out/bin/stz_string.dll and no zig-out/lib/libstz_string.so)" + tHint + Char(10))
 	end
 	# Strategy: search upward from currentdir() for engine/zig-out/bin/
 	# This works regardless of where Ring is installed.
