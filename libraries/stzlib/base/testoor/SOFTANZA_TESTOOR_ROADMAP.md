@@ -114,6 +114,9 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
   of 47,070 functions no tour ran 24,814 are owed and 22,256 capped; two open methods of `stkPointer` cap 14,399.
 - *Exit:* recall stays 100 percent on the real library or the graph is declared incomplete for the cases
   where it is not.
+  **MET 2026-11-28, P4 CLOSED**: `impact` selected every tour the three mutants moved, 38 of 38, because the library's
+  graph declares itself not complete, and the record names why (12 functions the compiler could not finish, 185 calling
+  a method by a name no method carries, 159 dispatching by a name built at run time).
 
 ### P5 -- Excursions, mutation, perception, inherited tours (the old TR5 to TR8, on the graph).
 - **TR5 excursions.** The graph finds the `Verb`/`Verbed`/`VerbQ` triples; each gives a metamorphic relation.
