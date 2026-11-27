@@ -1,0 +1,24 @@
+diff --git a/inv.haro b/inv.haro
+index 1111111..2222222 100644
+--- a/inv.haro
++++ b/inv.haro
+@@ -6 +6 @@ func Vat(n)
+-	return n * 0.2
++	return n * 0.19
+@@ -8,2 +7,0 @@ func Vat(n)
+-func Old()
+-	return 0
+diff --git a/tours/t_label.txt b/tours/t_label.txt
+index 3333333..4444444 100644
+--- a/tours/t_label.txt
++++ b/tours/t_label.txt
+@@ -3 +3 @@ Scenario("label")
+-Then("label", Label("w"), "Label: w")
++Then("label", Label("x"), "Label: x")
+diff --git a/README.md b/README.md
+index 5555555..6666666 100644
+--- a/README.md
++++ b/README.md
+@@ -1 +1 @@
+-# inv
++# inv, the invoice unit

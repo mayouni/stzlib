@@ -148,6 +148,9 @@ class stzNodeSupervisor from stzObject
 	#              :processorSeconds, :output (its stdout and stderr file), :cache (its HARO_CACHE),
 	#              :interpreter (the haro.exe it runs on; the supervisor's own by default)
 	#              :capabilities (a list of capability names its token carries: the shared trees, rung B4)
+	#              :env (a list of variable names: when given, the node's environment is SystemRoot,
+	#              TEMP, TMP, LOCALAPPDATA, STZ_ENGINE_DIR, HARO_CACHE and these, and nothing else -- threat model R20; without it
+	#              the node inherits the supervisor's whole environment)
 	#   returns    the supervisor itself, so calls chain
 	#   warning    the grant must name the interpreter's folder and the script's folder among its reads;
 	#              a bounded child is never sent a heartbeat (loopback is closed to a container)
@@ -450,6 +453,15 @@ class stzNodeSupervisor from stzObject
 		for _c_ = 1 to _nC_
 			StzEngineBoundaryCapability(_nB_, _aC_[_c_])
 		next
+		if This._GrantHas(_g_, :env)
+			StzEngineBoundaryEnvKeep(_nB_, "STZ_ENGINE_DIR")
+			StzEngineBoundaryEnvKeep(_nB_, "HARO_CACHE")
+			_aE_ = This._GrantList(_g_, :env)
+			_nE_ = len(_aE_)
+			for _e_ = 1 to _nE_
+				StzEngineBoundaryEnvKeep(_nB_, "" + _aE_[_e_])
+			next
+		ok
 		StzEngineBoundaryNetwork(_nB_, This._GrantNumber(_g_, :network, 0))
 		StzEngineBoundaryChildren(_nB_, This._GrantNumber(_g_, :children, 0))
 		StzEngineBoundaryMemory(_nB_, This._GrantNumber(_g_, :memoryMB, 256))
@@ -545,6 +557,15 @@ class stzNodeSupervisor from stzObject
 			ok
 		next
 		return pnDefault
+
+	def _GrantHas(paGrant, pcKey)
+		_n_ = len(paGrant)
+		for _k_ = 1 to _n_
+			if StzLower("" + paGrant[_k_][1]) = StzLower("" + pcKey)
+				return 1
+			ok
+		next
+		return 0
 
 	def _GrantList(paGrant, pcKey)
 		_n_ = len(paGrant)

@@ -242,6 +242,9 @@ if bDevice
 	? "  each exercise proves itself through the System's checker, by running its programs:"
 	for cId in acPuzzles
 		oE = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/" + cId)
+		# the parent lets go of the card first: since the GPU lease (2026-11-14) the graders ProveItself starts
+		# cannot take it from their own parent, and would wait and answer "waiting for the device" (KP-PROVE-FLAKE)
+		StzEngineGpuShutdown()
 		aPr = oE.ProveItself()
 		nWrong = 3
 		if cId = "kp-09"

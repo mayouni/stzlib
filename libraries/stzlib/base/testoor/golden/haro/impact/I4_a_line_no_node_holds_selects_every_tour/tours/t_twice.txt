@@ -1,0 +1,4 @@
+load "inv.haro"
+Scenario("twice")
+o = new stzB
+Then("twice", o.Twice(), 10)

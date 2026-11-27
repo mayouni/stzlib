@@ -345,6 +345,9 @@ cV = oQ.Grade("in a" + NLc + "out c" + NLc + "shared t 256" + NLc + "stage { @t[
 chk("a stage that reads the array it writes is refused by name (" + left(cV, 60) + ")", StzFindFirst("refused", cV) = 1 and StzFindFirst("cannot read the array it writes", cV) > 0)
 if bDevice
 	oE = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/kp-21")
+	# the parent lets go of the card first: since the GPU lease (2026-11-14) the graders ProveItself starts
+	# cannot take it from their own parent, and would wait and answer "waiting for the device" (KP-PROVE-FLAKE)
+	StzEngineGpuShutdown()
 	aPr = oE.ProveItself()
 	chk("the exercise proves itself through the System's checker: wrong refused " + aPr[:wrong] + ", right accepted " + aPr[:right] + ", failures " + @@(aPr[:failures]),
 		aPr[:wrong] = 5 and aPr[:right] = 2 and len(aPr[:failures]) = 0)

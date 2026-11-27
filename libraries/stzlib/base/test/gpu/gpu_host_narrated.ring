@@ -85,7 +85,7 @@ chk("...and for plain numbers", _Same(_StzKernelHiddenTail(aNum, 10, 7), StzEngi
 ? ""
 ? "-- Scene 2: no host spells a contract number any more --"
 $t0 = clock()
-acFiles = [ "../../gpu/stzGpu.ring", "../../gpu/stzGpuBuffer.ring", "../../gpu/stzKernelPuzzle.ring",
+acFiles = [ "../../gpu/stzGpu.ring", "../../gpu/stzGpuBuffer.haro", "../../gpu/stzKernelPuzzle.ring",
 	"../../gpu/puzzle_runner/puzzle.html" ]
 acBanned = [ "/ 256.0)", "* 5 / 7", "n * 5 / 7", "Math.ceil(n / 256)", "const MARGIN = 256", "_nMargin_ = 256", "return 0.000001", "_nBand_ = 0.000001", "_nReps_ = 7", ": 1e-6" ]
 for cF in acFiles

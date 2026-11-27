@@ -1,0 +1,12 @@
+diff --git a/inv.haro b/inv.haro
+index 1111111..2222222 100644
+--- a/inv.haro
++++ b/inv.haro
+@@ -4 +4 @@ func Gross(n)
+-# the rate
++# the rate of the day
+@@ -8 +7,0 @@ func Vat(n)
+-# an old note
+@@ -12 +11 @@ func Label(s)
+-# a heading
++# not a comment: the text of the string

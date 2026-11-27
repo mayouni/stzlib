@@ -126,3 +126,78 @@ the questions alone, opening the pictures itself.
   the first number is read, as for every model.
 - These tasks were written by the same family of model that answers the Claude arm; for that arm they measure the
   ceiling, and for the local models what each one brings.
+
+## The court as a router (RADAR-ROUTERFIGURES-01, 2026-11-27)
+
+`haro _measure_router.haro` replays the verdicts above; no model runs. Each cluster's ten tasks are split by parity:
+the court decides on one half with the registry's own rule (rank by score on the golden half, then by size; keep the
+first model upheld against the floor by the exact sign test at 0.05), the model it chooses answers the other half,
+and the halves change places. Written to `results/router.txt`.
+
+**Cost basis: CPU seconds on this machine**, each model's run wall time over its forty tasks (2026-11-16). No price
+enters: these models run on the device. Bolt's run overlapped another desk's build.
+
+| policy | right | wrong | refused | seconds | seconds per right answer | model calls per decision |
+|---|---|---|---|---|---|---|
+| always Qwen3 0.6B | 22 | 18 | 0 | 21 | 0.9 | 0 |
+| always LFM3 1.7B | 21 | 19 | 0 | 52 | 2.4 | 0 |
+| always Granite 4.2 3B | 33 | 7 | 0 | 80 | 2.4 | 0 |
+| always Bolt E4B | 39 | 1 | 0 | 133 | 3.4 | 0 |
+| the court, per cluster (golden 5) | 32 | 3 | 5 | 103 | 3.2 | 0, a lookup |
+| the court, pooled (golden 20) | 39 | 1 | 0 | 133 | 3.4 | 0, a lookup |
+| the oracle, which knows each answer | 40 | 0 | 0 | 53 | 1.3 | -- |
+
+- **Pooled, the court is Bolt**: it chooses Bolt E4B on both halves, and Bolt is the best model on both served halves.
+- **Per cluster, five golden items are the court's floor**: a model is upheld only at 5 of 5 (P = 1/32); at 4 of 5
+  (P = 1/16) it is refused, so one served half had no model and was refused rather than answered. Where Granite
+  4.2 and Bolt both scored 5 of 5 the court took the smaller, Granite, and twice it then missed one served task.
+  Per right answer that is 3.2 s against Bolt's 3.4 s, for 7 fewer right answers (5 refused, 2 more wrong). It chose a model holding the served
+  half's best score in 5 of 8 decisions.
+- **The gap is per request**: the oracle answers all forty in 53 s, Qwen3 0.6B where it is right and a larger model
+  where it is not. The court routes by faculty and has no reading of which request a small model gets right, so it
+  cannot take that gap. A router that does reads every request: Microsoft's Decision 1.1 runs on Gemma 4 26B A4B, about
+  4B parameters active a call, the size of the Bolt E4B answering here, so on this machine its decision would cost
+  about what Bolt costs to answer.
+- **The court's decision costs no model call at serve time**: it is a line of the court's file, paid for once by
+  running every candidate on the golden set.
+
+## A domain's terms, heard plain and with its word list (RADAR-DOMAINHEARING-01, 2026-11-27)
+
+`_measure_terms.haro` hears two sets with Whisper small on the engine, the language named, PLAIN and PROMPTED with
+the domain's word list read first (`domain_words_sales.txt`, behind `<|startofprev|>`). `_score_terms.haro` scores
+the transcripts it saved (`results/terms/`), so a change of scoring never runs the model again.
+
+- **DOMAIN** (`domain_sales.tsv`): twenty sentences of a sales representative's day in Tunisia -- towns, trade words,
+  products, 83 term groups -- spoken by the Windows French voice (`_rig/speak_domain.ps1`, 16 kHz mono).
+- **GUARD**: FLEURS' own speakers, the first 10 French and 5 English test recordings, scored against FLEURS'
+  transcription: what a domain's list costs speech that is not the domain's. A product that reads the list reads it
+  for every recording, so the guard is heard with the list too.
+
+| mode | term groups missed | domain words wrong | FLEURS fr words wrong | FLEURS en words wrong |
+|---|---|---|---|---|
+| plain | 32 of 83 (38.6%) | 64 of 229 (27.9%) | 48 of 272 (17.6%) | 7 of 107 (6.5%) |
+| prompted | 12 of 83 (14.5%) | 32 of 229 (14.0%) | 50 of 272 (18.4%) | 7 of 107 (6.5%) |
+
+- **The word list takes term errors from 38.6% to 14.5%** and halves the domain's word error rate. Sousse, Msaken,
+  Kalâa Kebira, Djerba Houmt Souk, Enfidha, Teboulba, Kairouan, harissa and levure go from misheard to right. The
+  twelve still missed are names a letter or two off (Ksaar Hellal, Souss, Jemma l', Zarzi, Médiuni, Lanta), trade words heard as their
+  sound (borderau, colisige, réistourne, échui) and two homophones the list cannot decide (thon / ton, pâtes / pattes).
+- **The guard moves by two words of 272 in French and none in English.** One French recording takes a word from the
+  list: "Caroline du Nord" is heard "Kalâa Hellal de Nord".
+- **The list costs 3.1 times the hearing time.** `_rig/time_prompt.haro` heard four recordings plain, prompted,
+  plain, prompted, so the machine's drift falls on both arms: 391 s plain against 1,210 s prompted in all, every
+  recording 2.7 to 3.7 times (`results/terms_timing.txt`). The measurement run's own seconds (1,634 and 5,819 for 35
+  recordings) were taken one mode after the other.
+- **Cost basis: wall seconds on this machine**, Whisper small on the CPU, four threads, the engine built ReleaseSafe
+  from stzlib c2b930b71. Tonight plain hearing took 43 to 61 s a recording, where the WHISPER-02 run of 2026-11-16 heard
+  ten recordings with the list in 58 s on an engine built from 1212cb88c; `whisper.zig`'s compute did not change
+  between the two. The machine reported itself on battery at 04:04. The absolute seconds are tonight's machine; the
+  ratio is the measurement.
+- **The list's cost grows with its length.** `_rig/time_words.haro` heard the bench's eight hearing recordings plain,
+  with the setting's list of 82 bytes and with the domain's of 515 bytes, the order turning with each recording:
+  381 s, 538 s and 1,117 s, the short list 1.41 times plain and the long one 2.93 times (`results/words_timing.txt`).
+  Plain hearing took 48 s a recording on that run too, the machine on battery (Windows: AC line offline, 06:48), so
+  the slowdown against 2026-11-16 holds with either list and without one; the seconds on mains power are this plane's
+  next measurement.
+- Numbers spoken as words ("douze") are written as digits ("12") in both modes; the term groups accept either, the
+  word error rate counts them, equally in both modes.

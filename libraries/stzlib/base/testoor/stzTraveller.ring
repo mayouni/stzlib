@@ -306,11 +306,12 @@ func _TravJudge(paRec, paLines, pcEnd, pnExit, pnWall)
 	_cSilent_ = "unjudged"
 	if pcEnd = "broke" or pcEnd = "hung" or pcEnd = "not-started"  _cSilent_ = "unreached"  ok
 	_cTour_ = "kept"
-	_nKept_ = 0  _nDiv_ = 0  _nUnr_ = 0  _nUnj_ = 0
+	_nKept_ = 0  _nDiv_ = 0  _nUnr_ = 0  _nUnj_ = 0  _nAllC_ = 0
 	for _s_ = 1 to _nS_
 		_cSt_ = "kept"
 		_nC_ = len(_aStops_[_s_][:claims])
 		if _nC_ = 0  _cSt_ = "unjudged"  ok
+		_nAllC_ += _nC_
 		for _c_ = 1 to _nC_
 			if _aStops_[_s_][:claims][_c_][:state] = ""
 				_aStops_[_s_][:claims][_c_][:state] = _cSilent_
@@ -338,6 +339,8 @@ func _TravJudge(paRec, paLines, pcEnd, pnExit, pnWall)
 		ok
 		if _nO_ >= 0 and _nCl_ >= _nO_  _aStops_[_s_][:wall_ms] = floor((_nCl_ - _nO_) * 1000)  ok
 	next
+	# a tour with no claim judged nothing: unjudged, whatever its ending
+	if _nAllC_ = 0  _cTour_ = "unjudged"  ok
 
 	# A RAISE THAT WAS PROMISED IS NOT A BREAK: a tour whose last promise is
 	# "#--> ERROR: ..." and was kept, with nothing diverged or unreached

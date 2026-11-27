@@ -1,0 +1,138 @@
+# REVERSIBILITY IS JUDGED AT THE COMMIT -- IRIS-NEED-STZLIB-01 (e), narrated
+#
+# stzGovernance.MayExecuteFor sets an executor's trust posture against how undoable the work is (reversible,
+# compensable, irreversible). It was called when an agent was declared and registered; stzUpdatePlan.Execute, "the
+# one place reality changes", did not call it. Now Execute asks it for EACH operation: the class declared for the
+# operation's type, else the class declared for the executor. Neither declared, the gate does not apply.
+#
+#   Scene 1  an external executor: the reversible create commits, the irreversible delete is refused, reality keeps
+#            the file, and the ledger holds reversibility.refused
+#   Scene 2  a trusted executor: the same plan commits whole
+#   Scene 3  the executor's own class applies to an operation whose type has none
+#   Scene 4  a sandboxed executor and compensable work: refused
+#   Scene 5  nothing declared: the plan commits as it always did
+#
+# RUNS ON haro.exe with the library. No network, no model. The work folder is %TEMP%\stz_rev.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+
+tW = StzReplace(SysGet("TEMP"), Char(92), "/") + "/stz_rev"
+StzEngineDirDeleteTree(tW)
+StzMakeDir(tW)
+
+StzCloseSecurityLedger()
+StzOpenSecurityLedger(500)
+
+Scenario("1. an external executor and an irreversible delete")
+oGov = new stzGovernance("rev-ops")
+oGov.DeclarePosture("ext-1", "external")
+oGov.DeclareReversibility("delete_file", "irreversible")
+oExt = SystemActor("ext-1", ["effectful", "compute", "sensing"])
+tA = tW + "/a.txt"
+vRes = Commit(oGov, oExt, tA, true)
+Then("the create commits", vRes[1][2], 1)
+Then("the delete is skipped", vRes[2][2], 1)
+Then("...logged REFUSED-BY-REVERSIBILITY", LogRow(vRes, 2)[2], "REFUSED-BY-REVERSIBILITY")
+Then("...in the posture's own words", Has(LogRow(vRes, 2)[3], "irreversible"), true)
+Then("reality keeps the file", StzEngineFileExists(tA), 1)
+vLed = StzSecurityLedgerQ().OfKind("reversibility.refused")
+Then("the ledger holds one reversibility.refused", Len(vLed), 1)
+Then("...about the operation", "" + vLed[1][:subject], "op:delete_file")
+Then("...by the executor", "" + vLed[1][:actor], "ext-1")
+
+Scenario("2. a trusted executor")
+oGov.DeclarePosture("ops-1", "trusted")
+oOps = SystemActor("ops-1", ["effectful", "compute", "sensing"])
+tB = tW + "/b.txt"
+vRes = Commit(oGov, oOps, tB, true)
+Then("both operations commit", vRes[1][2], 2)
+Then("...nothing skipped", vRes[2][2], 0)
+Then("...and the file is gone again", StzEngineFileExists(tB), 0)
+
+Scenario("3. the executor's own class")
+oGov2 = new stzGovernance("rev-ops-2")
+oGov2.DeclarePosture("ext-2", "external")
+oGov2.DeclareReversibility("ext-2", "irreversible")
+oExt2 = SystemActor("ext-2", ["effectful", "compute", "sensing"])
+tC = tW + "/c.txt"
+vRes = Commit(oGov2, oExt2, tC, false)
+Then("a create whose type has no class is judged by the executor's: refused", vRes[1][2], 0)
+Then("...logged REFUSED-BY-REVERSIBILITY", LogRow(vRes, 1)[2], "REFUSED-BY-REVERSIBILITY")
+Then("...and reality is untouched", StzEngineFileExists(tC), 0)
+
+Scenario("4. a sandboxed executor and compensable work")
+oGov3 = new stzGovernance("rev-ops-3")
+oGov3.DeclarePosture("box-1", "sandboxed")
+oGov3.DeclareReversibility("create_file", "compensable")
+oBox = SystemActor("box-1", ["effectful", "compute", "sensing"])
+tD = tW + "/d.txt"
+vRes = Commit(oGov3, oBox, tD, false)
+Then("sandboxed covers reversible only: refused", vRes[1][2], 0)
+Then("...and reality is untouched", StzEngineFileExists(tD), 0)
+
+Scenario("5. nothing declared")
+oGov4 = new stzGovernance("rev-ops-4")
+oGov4.DeclarePosture("ext-4", "external")
+oExt4 = SystemActor("ext-4", ["effectful", "compute", "sensing"])
+tE = tW + "/e.txt"
+vRes = Commit(oGov4, oExt4, tE, true)
+Then("with no class declared the plan commits as before", vRes[1][2], 2)
+Then("the ledger still holds the one refusal of scene 1, and scenes 3 and 4's", Len(StzSecurityLedgerQ().OfKind("reversibility.refused")), 3)
+
+StzEngineDirDeleteTree(tW)
+StzCloseSecurityLedger()
+? ""
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# --- helpers -----------------------------------------------------------------------------------------------------------
+
+# a plan that creates tPath and, when bDelete, deletes it again; executed by oActor under oGov
+func Commit(oG, oActor, tPath, bDelete)
+    oV = new stzVirtualFileSystem()
+    oV.CreateFile(tPath, "x")
+    if bDelete
+        oV.DeleteFile(tPath)
+    end
+    oPlan = oV.GenerateUpdatePlan()
+    oPlan.SetExecutor(oActor)
+    oPlan.SetGovernance(oG)
+    return oPlan.Execute()
+end
+
+# the log row of operation n
+func LogRow(vRes, nOp)
+    vLog = vRes[3][2]
+    nL = Len(vLog)
+    for i = 1 to nL
+        if vLog[i][1] = nOp
+            return vLog[i]
+        end
+    end
+    return [0, "", ""]
+end
+
+func Has(tIn, tPart)
+    return SubStr("" + tIn, tPart) > 0
+end
+
+func Scenario(tTitle)
+    ? ""
+    ? "SCENARIO: " + tTitle
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end

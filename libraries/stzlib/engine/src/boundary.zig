@@ -14,7 +14,10 @@
 //   out / err   files the node's standard output and error go to (NUL when empty); stdin is NUL
 //
 // The child inherits ONLY its three standard handles (PROC_THREAD_ATTRIBUTE_HANDLE_LIST), never another inheritable
-// handle the supervisor holds. Its environment is the supervisor's. A grant is applied once per path: a folder whose
+// handle the supervisor holds. Its environment is the supervisor's whole environment, UNLESS the grant keeps a list
+// (keepEnv, threat model R20): then the node gets SystemRoot, TEMP, TMP and LOCALAPPDATA (the last three rewritten by
+// Windows to the container's own folder) and the kept names the supervisor holds, and nothing else,
+// so a credential held in the supervisor's environment stays out of the node. A grant is applied once per path: a folder whose
 // access list already names the container with the access asked is left alone, so the 2.5 to 4 s a library tree
 // costs is paid at the first start and not on each one.
 //
@@ -35,6 +38,7 @@ pub const MAX_SLOTS = 16;
 pub const MAX_PATHS = 32;
 pub const MAX_MSGS = 32;
 pub const MAX_CAPS = 4;
+pub const MAX_KEEPS = 32;
 
 const Slot = struct {
     used: bool = false,
@@ -48,6 +52,9 @@ const Slot = struct {
     caps: [MAX_CAPS][64]u8 = undefined,
     cap_lens: [MAX_CAPS]usize = undefined,
     ncaps: usize = 0,
+    env_on: bool = false,
+    keeps: [MAX_KEEPS][]u8 = undefined,
+    nkeeps: usize = 0,
     children: u32 = 0,
     memory_mb: usize = 256,
     processor_s: f64 = 0,
@@ -188,6 +195,35 @@ pub fn setNetwork(id: i64, on: bool) bool {
     return true;
 }
 
+// R20: the node's environment becomes SystemRoot, TEMP, TMP, LOCALAPPDATA and the names kept. The first call switches the filter on; a name ""
+// switches it on and keeps nothing more. A name is 1 to 128 of letters, digits, '_', '.', '-', '(' and ')'.
+pub fn keepEnv(id: i64, name: []const u8) bool {
+    const s = slotOf(id) orelse return false;
+    if (s.started) {
+        setError(s, "the grant is fixed once its run has started", .{});
+        return false;
+    }
+    s.env_on = true;
+    if (name.len == 0) return true;
+    if (name.len > 128) {
+        setError(s, "a variable's name is 1 to 128 bytes", .{});
+        return false;
+    }
+    for (name) |c| {
+        if (!(std.ascii.isAlphanumeric(c) or c == '_' or c == '.' or c == '-' or c == '(' or c == ')')) {
+            setError(s, "a variable's name is letters, digits, '_', '.', '-', '(' or ')'", .{});
+            return false;
+        }
+    }
+    if (s.nkeeps >= MAX_KEEPS) {
+        setError(s, "a grant keeps at most {d} variables", .{MAX_KEEPS});
+        return false;
+    }
+    s.keeps[s.nkeeps] = alloc.dupe(u8, name) catch return false;
+    s.nkeeps += 1;
+    return true;
+}
+
 pub fn setChildren(id: i64, n: i64) bool {
     const s = slotOf(id) orelse return false;
     if (s.started or n < 0 or n > 64) return false;
@@ -222,6 +258,7 @@ pub fn free(id: i64) bool {
     if (is_windows) win.release(s);
     for (s.reads[0..s.nreads]) |p| alloc.free(p);
     for (s.writes[0..s.nwrites]) |p| alloc.free(p);
+    for (s.keeps[0..s.nkeeps]) |k| alloc.free(k);
     if (s.out) |o| alloc.free(o);
     if (s.err) |e| alloc.free(e);
     s.* = .{};
@@ -474,6 +511,7 @@ const win = if (is_windows) struct {
     extern "kernel32" fn CloseHandle(h: HANDLE) callconv(.winapi) i32;
     extern "kernel32" fn GetLastError() callconv(.winapi) u32;
     extern "kernel32" fn GetFileAttributesW(n: [*:0]const u16) callconv(.winapi) u32;
+    extern "kernel32" fn GetEnvironmentVariableW(n: [*:0]const u16, buf: ?[*]u16, size: u32) callconv(.winapi) u32;
     extern "kernel32" fn CreateProcessW(app: ?[*:0]const u16, cmd: [*:0]u16, pa: PVOID, ta: PVOID, inh: i32, flags: u32, env: PVOID, dir: ?[*:0]const u16, si: *anyopaque, pi: *PROCESS_INFORMATION) callconv(.winapi) i32;
     extern "kernel32" fn InitializeProcThreadAttributeList(l: PVOID, n: u32, f: u32, size: *usize) callconv(.winapi) i32;
     extern "kernel32" fn UpdateProcThreadAttribute(l: PVOID, f: u32, attr: usize, v: *anyopaque, size: usize, prev: PVOID, ret: PVOID) callconv(.winapi) i32;
@@ -585,6 +623,48 @@ const win = if (is_windows) struct {
 
     fn w(s: []const u8) ?[:0]u16 {
         return std.unicode.utf8ToUtf16LeAllocZ(alloc, s) catch null;
+    }
+
+    const ENV_CAP: usize = 32768;
+
+    // Always in a kept block: SystemRoot, and the three Windows itself rewrites to the container's own folder when it
+    // starts an AppContainer process -- without them CreateProcessW fails with 203 (measured 2026-11-27), and their
+    // supervisor values never reach the node.
+    const ENV_ALWAYS = [_][]const u8{ "SystemRoot", "TEMP", "TMP", "LOCALAPPDATA" };
+
+    fn isAlways(name: []const u8) bool {
+        for (ENV_ALWAYS) |a| if (std.ascii.eqlIgnoreCase(name, a)) return true;
+        return false;
+    }
+
+    // R20: the node's environment block when the grant keeps a list -- ENV_ALWAYS, then each kept name the supervisor
+    // holds, as NAME=VALUE, each ended by 0 and the block by one more 0. A name the supervisor does not hold is left
+    // out. The buffer is ENV_CAP units; the caller frees it.
+    fn envBlock(s: *Slot) ?[]u16 {
+        const buf = alloc.alloc(u16, ENV_CAP) catch return null;
+        var n: usize = 0;
+        var i: usize = 0;
+        const na = ENV_ALWAYS.len;
+        while (i < na + s.nkeeps) : (i += 1) {
+            const name: []const u8 = if (i < na) ENV_ALWAYS[i] else s.keeps[i - na];
+            if (i >= na and isAlways(name)) continue;
+            const wn = w(name) orelse continue;
+            defer alloc.free(wn);
+            const need = GetEnvironmentVariableW(wn.ptr, null, 0);
+            if (need <= 1) continue;
+            if (n + wn.len + 1 + need + 2 >= ENV_CAP) break;
+            @memcpy(buf[n .. n + wn.len], wn);
+            buf[n + wn.len] = '=';
+            const at = n + wn.len + 1;
+            const got = GetEnvironmentVariableW(wn.ptr, buf[at..].ptr, need);
+            if (got == 0 or got >= need) continue;
+            n = at + got;
+            buf[n] = 0;
+            n += 1;
+        }
+        buf[n] = 0;
+        if (n == 0) buf[1] = 0;
+        return buf;
     }
 
     fn containerSid(name: []const u8, create: bool) ?PVOID {
@@ -785,11 +865,22 @@ const win = if (is_windows) struct {
             return 0;
         }
 
+        // R20: a grant that keeps a list gets its own environment block (CREATE_UNICODE_ENVIRONMENT)
+        const env_buf: ?[]u16 = if (s.env_on) (envBlock(s) orelse {
+            setError(s, "the node's environment could not be built", .{});
+            _ = CloseHandle(job);
+            _ = CloseHandle(port);
+            return 0;
+        }) else null;
+        defer if (env_buf) |b| alloc.free(b);
+        const env_ptr: PVOID = if (env_buf) |b| @ptrCast(b.ptr) else null;
+        const env_flag: u32 = if (env_buf != null) 0x400 else 0;
+
         var si = STARTUPINFOEXW{ .si = .{ .cb = @sizeOf(STARTUPINFOEXW), .flags = 0x100, .stdin = inherit[0], .stdout = inherit[1], .stderr = if (same) inherit[1] else inherit[2] }, .attrs = list.ptr };
         var pi: PROCESS_INFORMATION = undefined;
         s.t0 = std.time.Instant.now() catch null;
         // extended startup info, suspended until it is in the job, no console window
-        if (CreateProcessW(null, cmd.ptr, null, null, 1, 0x00080000 | 0x4 | 0x08000000, null, null, &si, &pi) == 0) {
+        if (CreateProcessW(null, cmd.ptr, null, null, 1, 0x00080000 | 0x4 | 0x08000000 | env_flag, env_ptr, null, &si, &pi) == 0) {
             setError(s, "the process could not be started inside the boundary: Windows error {d}", .{GetLastError()});
             _ = CloseHandle(job);
             _ = CloseHandle(port);

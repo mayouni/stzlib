@@ -1,0 +1,103 @@
+# A STOP IS ALWAYS ADMITTED, AND A FACT'S AGE IS READ AT THE GATE -- IRIS-NEED-STZLIB-01 (c) and (d), narrated
+#
+# (d) stzGovernance.MayProceed judges a stop first, for any actor, before any table: no tier, grant, authority or
+#     later edit of the regime refuses it. The stop words are fixed in code (StzStopActions).
+# (c) StzMayProceedOnFacts reads each fact's :learnedat: a fact absent, older than its limit, stamped later than
+#     now, or with no declared limit is a refusal; one refusal forbids the act and every reason is given.
+#
+#   Scene 1  a stop by an actor nobody declared, under an empty regime
+#   Scene 2  a regime that tries to remove the stop: tier 4, no grant, advisory authority
+#   Scene 3  the control: an act that is not a stop is still judged by the tables
+#   Scene 4  the age rule at its edges, on a fixed clock
+#   Scene 5  the gate over a memory: fresh admitted, stale refused, two reasons, absent, a stop with stale facts
+#
+# RUNS ON haro.exe with the library. No network, no model, no file written.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+
+StzCloseSecurityLedger()
+StzOpenSecurityLedger(500)
+
+Scenario("1. a stop by an actor nobody declared")
+oGov = new stzGovernance("iris-empty")
+Then("'stop' is admitted", oGov.MayProceed("stranger", "stop"), 1)
+Then("...and Why says a stop is always admitted", Has(oGov.Why(), "always admitted"), true)
+Then("'HALT' is admitted, case ignored", oGov.MayProceed("stranger", "HALT"), 1)
+Then("'emergency-stop' is admitted", oGov.MayProceed("stranger", "emergency-stop"), 1)
+
+Scenario("2. a regime that tries to remove the stop")
+oGov2 = new stzGovernance("iris-hostile")
+oGov2.DeclareRisk("stop", 4)
+oGov2.SetAuthority("model", :Advisory)
+Then("tier 4, no grant, advisory authority: the stop is still admitted", oGov2.MayProceed("model", "stop"), 1)
+
+Scenario("3. the control: an act that is not a stop")
+Then("'launch' under the empty regime is refused", oGov.MayProceed("stranger", "launch"), 0)
+Then("...as undeclared", Has(oGov.Why(), "NO declared risk tier"), true)
+Then("'stop-motor' is not a stop word: refused", oGov.MayProceed("stranger", "stop-motor"), 0)
+
+Scenario("4. the age rule at its edges")
+Then("a fact exactly at its limit passes", StzFactAgeRefusal("f", 1000, 500, 1500), "")
+Then("one millisecond past refuses", Has(StzFactAgeRefusal("f", 1000, 500, 1501), "older than its limit"), true)
+Then("a fact stamped later than now refuses", Has(StzFactAgeRefusal("f", 2000, 500, 1500), "later than now"), true)
+Then("a fact with no time refuses", Has(StzFactAgeRefusal("f", "", 500, 1500), "no time"), true)
+Then("a fact with no declared limit refuses", Has(StzFactAgeRefusal("f", 1000, -1, 1500), "no declared age limit"), true)
+
+Scenario("5. the gate over a memory")
+oCourt = new stzGovernance("iris-court")
+oCourt.DeclareRisk("launch", 4)
+oCourt.GrantPermission("operator", "launch")
+oCourt.SetAuthority("operator", :EmergencyOverride)
+StzDeclareFactMaxAge("tilt", 500)
+StzDeclareFactMaxAge("thrust", 1000)
+oMem = new stzAgentMemory("supervisor")
+oMem.LearnXT("vehicle", "tilt", "12", [["learnedat", 9900]])
+oMem.LearnXT("vehicle", "thrust", "18", [["learnedat", 8000]])
+vTilt = [["vehicle", "tilt", "12"]]
+Then("a fresh fact and a permitted operator: admitted", StzMayProceedOnFactsAt(oCourt, "operator", "launch", oMem, vTilt, 10000), 1)
+vBoth = [["vehicle", "tilt", "12"], ["vehicle", "thrust", "18"]]
+Then("thrust 2000 ms old against 1000: refused", StzMayProceedOnFactsAt(oCourt, "operator", "launch", oMem, vBoth, 10000), 0)
+Then("...one reason", Len(StzFactGateWhy()), 1)
+Then("...naming its age", Has(StzFactGateWhy()[1], "2000 ms old"), true)
+Then("both stale and a model asking: refused", StzMayProceedOnFactsAt(oCourt, "model", "launch", oMem, vBoth, 20000), 0)
+Then("...three reasons: two facts and the governance", Len(StzFactGateWhy()), 3)
+Then("a fact the memory does not hold: refused", StzMayProceedOnFactsAt(oCourt, "operator", "launch", oMem, [["vehicle", "pin", "out"]], 10000), 0)
+Then("...as absent", Has(StzFactGateWhy()[1], "absent"), true)
+Then("a row's own limit overrides the declared one", StzMayProceedOnFactsAt(oCourt, "operator", "launch", oMem, [["vehicle", "thrust", "18", 3000]], 10000), 1)
+Then("a stop while every fact is stale: admitted", StzMayProceedOnFactsAt(oCourt, "model", "stop", oMem, vBoth, 99999), 1)
+vLed = StzSecurityLedgerQ().OfKind("fact.stale")
+Then("the ledger holds one fact.stale per stale fact judged (1 + 2 + 1)", Len(vLed), 4)
+Then("...about the act", "" + vLed[1][:subject], "act:launch")
+
+StzForgetFactMaxAges()
+StzCloseSecurityLedger()
+? ""
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# --- helpers -----------------------------------------------------------------------------------------------------------
+
+func Has(tIn, tPart)
+    return SubStr("" + tIn, tPart) > 0
+end
+
+func Scenario(tTitle)
+    ? ""
+    ? "SCENARIO: " + tTitle
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end

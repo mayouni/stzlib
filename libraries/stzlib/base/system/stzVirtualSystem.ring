@@ -692,6 +692,27 @@ class stzUpdatePlan from stzObject
 					loop
 				ok
 			ok
+			# REVERSIBILITY gate (IRIS-NEED-STZLIB-01 (e)): the executor's posture
+			# must cover how undoable THIS operation is, at the commit and not only
+			# at registration. The class is the one declared for the operation's
+			# type, else the one declared for the executor; neither declared, the
+			# gate does not apply and the operation goes on as before.
+			if @oGov != "" and @oExecutor != ""
+				_cRev_ = @oGov.ReversibilityOf(_oOp_.Type())
+				if _cRev_ = ""
+					_cRev_ = @oGov.ReversibilityOf(@oExecutor.Name())
+				ok
+				if _cRev_ != ""
+					if @oGov.MayExecuteFor(@oExecutor.Name(), _cRev_) = 0
+						_nSkipped_++
+						_aLog_ + [ _i_, "REFUSED-BY-REVERSIBILITY", @oGov.Why() ]
+						This._Audit(_i_, "refused", _oOp_)
+						StzNoteRefusal("reversibility.refused", @oExecutor.Name(),
+							"op:" + _oOp_.Type(), @oGov.Why())
+						loop
+					ok
+				ok
+			ok
 			if @oBridge.ExecuteOperation(_oOp_)
 				_nDone_++
 				_aLog_ + [ _i_, "COMMITTED", _oOp_.Describe() ]

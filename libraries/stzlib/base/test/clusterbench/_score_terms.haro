@@ -1,0 +1,145 @@
+# RADAR-DOMAINHEARING-01 (a), the scoring: the transcripts _measure_terms.haro wrote to results/terms/ are scored
+# again, with no speech model run.
+#
+#     haro _score_terms.haro       (from this folder, STZ_ENGINE_DIR set)
+#
+# The scoring is _measure_terms.haro's own: TERM GROUPS MISSED (small letters; any alternative of a group counts) and
+# WORD ERRORS against the sentence (StzHearingWordErrors), on the domain's twenty sentences; word errors against FLEURS'
+# transcription on the guard's fifteen recordings. Every file is cut at its tabs with StzSplit -- a plain Split also cuts
+# at spaces, which cut the first scoring of 2026-11-27 at each sentence's first word. The seconds are the hearing run's
+# own, read from results/terms_run.log's first table and carried over.
+
+load "../../stzBase.ring"
+
+vDomain = []
+vRows = TextLines(Read("domain_sales.tsv"))
+for r = 1 to Len(vRows)
+	if Left(vRows[r], 1) = "#" or Left(vRows[r], 3) = "id" + Char(9)
+		loop
+	end
+	vC = StzSplit(vRows[r], Char(9))
+	if Len(vC) >= 4
+		vDomain + [ vC[1], vC[3], vC[4] ]
+	end
+end
+
+vGuard = []
+vF = TextLines(Read("fleurs_v3.tsv"))
+nFr = 0
+nEn = 0
+for r = 1 to Len(vF)
+	if Left(vF[r], 1) = "#"
+		loop
+	end
+	vC = StzSplit(vF[r], Char(9))
+	if Len(vC) < 3
+		loop
+	end
+	if Left(vC[3], 5) != "wer<="
+		loop
+	end
+	tRef = vC[3]
+	nAt = StzFind(":", tRef)[1]
+	tRef = Right(tRef, Len(tRef) - nAt)
+	if vC[2] = "fr" and nFr < 10
+		vGuard + [ vC[1], "fr", tRef ]
+		nFr = nFr + 1
+	elseif vC[2] = "en" and nEn < 5
+		vGuard + [ vC[1], "en", tRef ]
+		nEn = nEn + 1
+	end
+end
+? "domain " + String(Len(vDomain)) + " sentences, guard " + String(Len(vGuard)) + " recordings"
+
+vModes = [ "plain", "prompted" ]
+vSeconds = [ "1634", "5819" ]
+tOut = "RADAR-DOMAINHEARING-01 (a): Whisper small on a sales representative's terms, scored " + Date() + " " + Time() + Char(10)
+tOut = tOut + "domain: 20 sentences, 83 term groups (Windows French voice); guard: FLEURS fr 10 + en 5 (FLEURS' speakers)" + Char(10) + Char(10)
+tOut = tOut + "mode" + Char(9) + "term groups missed" + Char(9) + "domain words wrong" + Char(9) + "guard fr words wrong" + Char(9) + "guard en words wrong" + Char(9) + "hearing seconds (35 recordings)" + Char(10)
+tMisses = ""
+for m = 1 to 2
+	vHeard = TextLines(Read("results/terms/" + vModes[m] + ".tsv"))
+	vIds = []
+	vTexts = []
+	for r = 2 to Len(vHeard)
+		vC = StzSplit(vHeard[r], Char(9))
+		tText = ""
+		if Len(vC) >= 3
+			tText = vC[3]
+		end
+		vIds + vC[1]
+		vTexts + tText
+	end
+	nTerms = 0
+	nMissed = 0
+	nDomErr = 0
+	nDomWords = 0
+	tMisses = tMisses + vModes[m] + ":"
+	for d = 1 to Len(vDomain)
+		tHeard = TextOf(vIds, vTexts, vDomain[d][1])
+		tLow = StzLower(tHeard)
+		vG = StzSplit(StzLower(vDomain[d][3]), "+")
+		for g = 1 to Len(vG)
+			nTerms = nTerms + 1
+			bFound = false
+			vAlt = StzSplit(vG[g], "|")
+			for a = 1 to Len(vAlt)
+				if vAlt[a] != "" and Len(StzFind(vAlt[a], tLow)) > 0
+					bFound = true
+				end
+			end
+			if not bFound
+				nMissed = nMissed + 1
+				tMisses = tMisses + " " + vDomain[d][1] + "=" + vAlt[1]
+			end
+		end
+		vE = StzHearingWordErrors(vDomain[d][2], tHeard)
+		nDomErr = nDomErr + vE[1]
+		nDomWords = nDomWords + vE[2]
+	end
+	tMisses = tMisses + Char(10)
+	vGErr = [ 0, 0 ]
+	vGWords = [ 0, 0 ]
+	for k = 1 to Len(vGuard)
+		vE = StzHearingWordErrors(vGuard[k][3], TextOf(vIds, vTexts, vGuard[k][1]))
+		nI = 2
+		if vGuard[k][2] = "fr"
+			nI = 1
+		end
+		vGErr[nI] = vGErr[nI] + vE[1]
+		vGWords[nI] = vGWords[nI] + vE[2]
+	end
+	tOut = tOut + vModes[m] + Char(9) + String(nMissed) + "/" + String(nTerms) + Char(9) + String(nDomErr) + "/" + String(nDomWords) + Char(9) + String(vGErr[1]) + "/" + String(vGWords[1]) + Char(9) + String(vGErr[2]) + "/" + String(vGWords[2]) + Char(9) + vSeconds[m] + Char(10)
+end
+tOut = tOut + Char(10) + "the term groups missed (sentence=first spelling of the group):" + Char(10) + tMisses
+? tOut
+Write("results/terms.txt", tOut)
+
+# the transcript saved for an id, "" when none was
+func TextOf(vIds, vTexts, tId)
+	for i = 1 to Len(vIds)
+		if vIds[i] = tId
+			return vTexts[i]
+		end
+	end
+	return ""
+end
+
+# the lines of a text, its carriage returns taken off
+func TextLines(tText)
+	vOut = []
+	tCur = ""
+	nLen = Len(tText)
+	for i = 1 to nLen
+		if tText[i] = Char(10)
+			vOut + tCur
+			tCur = ""
+		elseif tText[i] != Char(13)
+			tCur = tCur + tText[i]
+		end
+	end
+	if tCur != ""
+		vOut + tCur
+	end
+	return vOut
+end

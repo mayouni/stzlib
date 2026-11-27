@@ -73,6 +73,9 @@ def check(text, cond):  (ok if cond else fail)(text)
 A **stop** has five states and no sixth: `kept`, `diverged`, `unreached`, `unjudged`,
 `unperceived`. The last two are neither a pass nor a failure. A stop is as bad as its worst
 claim: diverged, then unreached, then unjudged, then kept; a stop with no claim is unjudged.
+A **tour** is as bad as its worst stop, and a tour with no claim at all is unjudged, whatever its
+ending: a tour that broke, or could not be read, before its first claim judged nothing, and its
+ending says why (until 2026-11-27 such a tour read `kept`).
 
 A **tour** ends one of six ways: `finished`, `finished-timed`, `not-started` (nothing ran: a
 compile error, a missing file), `broke` (it ran and a runtime error ended it), `hung` (killed

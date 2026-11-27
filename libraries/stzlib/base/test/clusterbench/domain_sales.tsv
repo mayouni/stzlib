@@ -1,0 +1,25 @@
+# DOMAINHEARING-01's term-dense set: twenty sentences of a sales representative's day in the Sahel and the south of
+# Tunisia, written for this measurement before any model heard them (2026-11-27). Each holds three to five of the
+# domain's terms -- towns, trade words, products -- with the groups to hear (groups joined by +, alternatives by |, in
+# small letters, found inside the transcript in small letters). Spoken by the Windows French voice (_rig/speak_domain.ps1).
+id	recording	sentence	terms
+d01	domain/d01.wav	Livraison de douze cartons de harissa à la supérette de Msaken demain matin.	douze|12+cartons+harissa+supérette|superette+msaken
+d02	domain/d02.wav	Le grossiste de Ksar Hellal demande une ristourne de cinq pour cent.	grossiste+ksar hellal+ristourne+cinq|5
+d03	domain/d03.wav	Prévoir un présentoir en tête de gondole chez le dépositaire de Moknine.	présentoir|presentoir+tête de gondole|tete de gondole+dépositaire|depositaire+moknine
+d04	domain/d04.wav	La traite de Jemmal arrive à échéance le quinze décembre.	traite+jemmal+échéance|echeance+quinze|15+décembre|decembre
+d05	domain/d05.wav	Rupture de stock sur la semoule fine à Kairouan, il faut un réassort.	rupture+semoule+kairouan+réassort|reassort
+d06	domain/d06.wav	Établir un avoir de trois cent quarante dinars pour le client de Mahdia.	avoir+340|trois cent quarante|trois cents quarante+dinars+mahdia
+d07	domain/d07.wav	Le bordereau de livraison de Monastir n'est pas signé.	bordereau+monastir+signé|signe
+d08	domain/d08.wav	Passer chez l'épicerie d'Enfidha pour le bon de commande du concentré de tomate.	épicerie|epicerie+enfidha+bon de commande+concentré|concentre
+d09	domain/d09.wav	Tournée du jeudi : Sousse, Msaken, puis Kalâa Kebira.	sousse+msaken+kebira
+d10	domain/d10.wav	Le chèque du dépositaire de Médenine est revenu impayé.	chèque|cheque+dépositaire|depositaire+médenine|medenine+impayé|impaye
+d11	domain/d11.wav	Commande de huit palettes d'huile d'olive pour le grossiste de Zarzis.	huit|8+palettes+huile+zarzis
+d12	domain/d12.wav	Le relevé de compte de la supérette de Kasserine montre un retard de paiement.	relevé|releve+supérette|superette+kasserine+retard
+d13	domain/d13.wav	Mettre en avant le couscous moyen et la harissa en promotion à Sfax.	couscous+harissa+promotion+sfax
+d14	domain/d14.wav	Le colisage passe de six à douze unités par carton.	colisage+six|6+douze|12+carton
+d15	domain/d15.wav	Relancer le client de Gabès sur la facture échue de novembre.	relancer+gabès|gabes+facture+échue|echue+novembre
+d16	domain/d16.wav	Visite du dépôt de Djerba Houmt Souk mardi à neuf heures.	djerba+houmt souk+mardi+neuf|9
+d17	domain/d17.wav	La remise de fin d'année est de deux pour cent sur le thon.	remise+deux|2+pour cent|%+thon
+d18	domain/d18.wav	Le gérant de la supérette de Teboulba veut une tête de gondole pour les pâtes.	gérant|gerant+supérette|superette+teboulba+tête de gondole|tete de gondole+pâtes|pates
+d19	domain/d19.wav	Encaisser la traite de Ksibet el Médiouni avant vendredi.	encaisser+traite+ksibet+médiouni|mediouni+vendredi
+d20	domain/d20.wav	Le réassort de levure pour Sayada et Lamta part demain.	réassort|reassort+levure+sayada+lamta

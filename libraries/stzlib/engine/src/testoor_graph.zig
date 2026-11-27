@@ -120,6 +120,9 @@ pub const Node = struct {
 
 pub const Edge = struct { from: []const u8, to: []const u8, kind: []const u8 = "", line: i64 = 0 };
 
+/// a class of the unit, the class it derives from ("" for none) and the line it begins on
+pub const Class = struct { name: []const u8, parent: []const u8 = "", file: []const u8 = "", line: i64 = 0 };
+
 pub const Graph = struct {
     subject: []const u8 = "",
     language: []const u8 = "",
@@ -128,6 +131,10 @@ pub const Graph = struct {
     why: []const u8 = "",
     nodes: []const Node = &.{},
     edges: []const Edge = &.{},
+    /// the unit's files and classes, when the record carries them (the Haro face's does): where a change to a file's
+    /// lines lands (testoor_diff.zig). A record without them maps no diff, and says so
+    files: []const []const u8 = &.{},
+    classes: []const Class = &.{},
     /// built when the record is read (fromValue); a graph made another way is indexed when a walk needs it
     ix: ?*const Index = null,
 
@@ -185,6 +192,21 @@ pub fn fromValue(a: Allocator, v: J.Value) !Graph {
             });
         }
     }
+    var files: std.ArrayList([]const u8) = .empty;
+    if (v.get("files")) |fv| for (fv.items()) |f| try files.append(a, f.str_());
+    var classes: std.ArrayList(Class) = .empty;
+    if (v.get("classes")) |cv| {
+        for (cv.items()) |c| {
+            try classes.append(a, .{
+                .name = (c.get("name") orelse continue).str_(),
+                .parent = if (c.get("parent")) |x| x.str_() else "",
+                .file = if (c.get("file")) |x| x.str_() else "",
+                .line = if (c.get("line")) |x| x.int_() else 0,
+            });
+        }
+    }
+    g.files = files.items;
+    g.classes = classes.items;
     g.complete = complete;
     if (!complete and g.why.len == 0) {
         if (first_open) |n| {
@@ -260,6 +282,21 @@ pub const Impact = struct {
     skipped: []const []const u8,
     /// written only when the request asked for protocol 3
     v3: ?Widened = null,
+    /// written only when the change was read from a diff (testoor_diff.zig)
+    diff: ?DiffSummary = null,
+};
+
+/// what a diff held, beside the ids it named in `changed`: tours selected because their own file changed, files that are
+/// neither the unit's nor a tour, and the definitions it removed, by name
+pub const DiffSummary = struct {
+    files: usize,
+    hunks: usize,
+    lines: usize,
+    /// changed lines that hold no code (a comment, a blank): placed nowhere
+    quiet: usize = 0,
+    touched: []const []const u8,
+    outside: []const []const u8,
+    removed: []const []const u8,
 };
 
 /// the graph's own spelling of an id, or the id when the graph does not hold it
@@ -397,6 +434,23 @@ pub fn impactJson(b: *T.Buf, im: Impact) !void {
             try b.c('}');
         }
         try b.c(']');
+    }
+    if (im.diff) |d| {
+        try b.s(",\"diff\":{\"files\":");
+        try b.int(@intCast(d.files));
+        try b.s(",\"hunks\":");
+        try b.int(@intCast(d.hunks));
+        try b.s(",\"lines\":");
+        try b.int(@intCast(d.lines));
+        try b.s(",\"quiet\":");
+        try b.int(@intCast(d.quiet));
+        try b.s(",\"touched\":");
+        try strArr(b, d.touched);
+        try b.s(",\"outside\":");
+        try strArr(b, d.outside);
+        try b.s(",\"removed\":");
+        try strArr(b, d.removed);
+        try b.c('}');
     }
     try b.c('}');
 }

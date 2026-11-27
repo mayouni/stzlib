@@ -4948,6 +4948,163 @@ a tree whose `base`, `core` and `engine` sit side by side.
 by its MEAN row length, which describes none of its rows. A balanced form, the segmented scan over the products,
 is the candidate; a foundry variant, kept only if the clock agrees.
 
+## GPU-ROUTE-CONTROL-01 STATUS — the route ladder measured a sleeping card; it wakes it before every device block now (2026-11-23)
+
+**What was seen.** The route scenes of the GB0 guards (scan, compaction, sort, segmented reduction, sparse product)
+end SKIPPED whenever the ladder's control rung (its first rung, measured again at the end) moves by more than 2x. On
+2026-11-23 the sparse product's did so in three runs of four, on the shared engine without the day's lanes kernel too:
+the face at 100 rows read 0.15 ms and then 1.9 ms.
+
+**What it was, measured in one process.** Not a leak and not a version: live buffers 0, evictions 0, the kernel cache
+hitting, and the step a LEVEL change (100-row products at 160-300 us before a calibration, 1,600-1,800 us after it,
+and staying there), where a leak gives a slope. Split by part, the whole step was the readback: downloading 100
+numbers went from 98 to 1,530 us, an upload from 8 to 46 us, a buffer's creation not at all. And it was the card:
+
+| moment | download of 100 numbers |
+|---|---|
+| a fresh process | 206 us |
+| after a route calibration | 1,346 us |
+| right after `StzEngineGpuWake(400)` | 86 us, and 85 us for 200 more |
+| after 3 s with no GPU work | 2,237 us |
+| after a second wake | 100 us |
+
+The RTX 3050 drops, after a short idle (a quarter second is enough), into the state GK1 measured in 2026-09: every
+submit pays a fixed 1.3 to 2.2 ms, and thousands of tiny calls do not lift it, while a burst of heavy copies does.
+The ladder woke the card ONCE a rung and then alternated a block of the loop (the card idle for up to a quarter
+second) with a block of thousands of tiny device calls. Whenever the card fell asleep during a loop block, every
+later device block of that rung was measured asleep: the control rung's two readings could be one awake and one
+asleep.
+
+**The fix.** `_RouteRung` in `stzGpu.ring` wakes the card before EVERY device block, which is what the single wake
+already meant. Measured in one process, four spmv calibrations and two scan calibrations, the old ladder against the
+new on the same build:
+
+| | control ratios (0.5-2 allowed) | confounded | one spmv calibration |
+|---|---|---|---|
+| woken once a rung | 0.97-2.24 | 1 of 6 | 49.5 to 90.3 s, growing |
+| woken before each device block | 0.81-1.20 | 0 of 6 | 27.9 to 30.9 s |
+
+Faster, not slower: a wake of an awake card is a few milliseconds, and a device block measured asleep paid ~1.8 ms on
+each of its thousands of calls. The four guards with a route scene, on haro.exe v0.78: every control rung held and
+every line was stored (spmv 53/53 with 0 skipped).
+
+**What the route still does not say.** The ladder measures an AWAKE card, as it always meant to. A caller that calls a
+routed op once now and then meets the card asleep and pays the 1.3-2.2 ms the ladder no longer sees; a route for
+sporadic calls would be a second ladder, measured asleep. Named, not built (GPU-ROUTE-SPORADIC-01).
+
+**And one older defect, three more times.** The scan, compaction and sort guards had the defect the spmv guard had
+this morning: they kept the GPU while their exercise proved itself, so since the lease (2026-11-14) each grader waited
+30 s and was refused (709 s a guard). Each lets go of the card first now, as `gpu_puzzle_narrated.ring` does.
+
+## NORING-GPU-01 — the GPU module moves to .haro: the plan, measured, and its first file moved (2026-11-27)
+
+**What is asked.** The Principal's ruling of 2026-11-09 (`PRINCIPAL-NORING-01`, `CENTRAL-NORING-SCOPE-01` part
+(2)): code still in the older syntax moves to `.haro` desk by desk, each desk proposing its plan, and no file is
+deleted before haro.exe runs what replaces it. This is the GPU desk's plan for its own folder. The library-wide
+move (`base/doc/design/HAROPORT_PLAN.md`) goes bottom up in stzBase's load order and has landed `core/`,
+`base/common` and `base/data`; `base/gpu` sits far above them and depends only on modules that load before it, so
+this desk moves it itself, with that plan's recipe, and the Haroport desk's order is not changed.
+
+**What there is.** Read at stzlib `249ebaa43`.
+
+| | files | lines |
+|---|---|---|
+| the module (`base/gpu/*.ring`) | 4 | 4,000 (stzGpu 2,497, stzKernelPuzzle 683, stzKernelMaker 622, stzGpuBuffer 198) |
+| its guards and probes in the older syntax (`base/test/gpu/*.ring`) | 43 | |
+| already `.haro` (`base/test/gpu/*.haro`) | 11 | |
+
+Outside the folder, five files call it: `graphics/stzMaterialMaker`, `neural/stzNeuralModel`,
+`neural/stzSemanticIndex`, `number/stzEmbedding` and `number/stzVectorIndex`. They call global functions
+(`StzGpuLoadCalibrationDefault`, `StzGpuVariants`, `StzGpuLoadCalibrationForAdapter`) and read
+`$tStzGpuRuntime`; the move renames none of these, and no class outside the folder inherits from one inside it
+(`stzMaterialMaker` is its own class, from `stzObject`). **The move is contained in the folder.**
+
+**What the tool does, measured.** Haro's `port/haroport.py` on a copy of the four files:
+
+| file | rewrites | refused by the tool | `haro check` refusals after it | attributes renamed |
+|---|---|---|---|---|
+| stzGpuBuffer | 118 | 0 | 3 | none |
+| stzKernelMaker | 503 | 0 | 8 | 13 (`@cWgsl` -> `@tWgsl`, `@aIns` -> `@vIns`, ...), read only inside the class |
+| stzKernelPuzzle | 790 | 4 (`_oK_` -> `oK`: `ok` is a keyword) | 24 | 4 |
+| stzGpu | 2,873 | 0 | 82 | 2 |
+| **all** | **4,284** | **4** | **117** | |
+
+Of the 117, 99 are the retired `a` letter (`aOut`, `aIds`, ...), lettered `v` or `x` by what the name holds, and
+18 are names with no type letter (`pLearner` 5, `pCand` 4, the tool's refused `_oK_` 3, and `pW`, `pD`, `di`,
+`acW`, `acLines`, `acL`). Beside them, `stzKernelPuzzle` reads `cCatchError` in four handlers: a note today, where
+`.haro` binds the error instead (`catch e`), and taken in the same step.
+
+**What `haro check` cannot see, found by reading the first file.** Four kinds, each a refusal at RUN time:
+
+1. **a text joined with a number** (`"... takes " + Len(x) + " vectors"`): `.haro` joins texts only -> `String()`;
+2. **a quotient with no exact decimal** (`Floor(nCount / nWidth)` with a width of 3): -> whole-number division,
+   `(n - n % w) / w`;
+3. **a 1 or 0 from a caller still in the older syntax, stored in a `b` name or used as a condition** -- measured
+   by probe: `TYPE_LETTER`, `BOOLEAN_EXPECTED`, and `1 = true` is `TYPE_MISMATCH`. A `.haro` method that receives a
+   flag from an older caller reads both forms (`if IsNumber(x) b = (x != 0) else b = x end`);
+4. **the local `nL`**, which in the older syntax overwrote the newline constant: renamed `nLen`.
+
+**The order, one file a commit, each gated before its older file is deleted.**
+
+| step | file | gate on haro.exe | why this order |
+|---|---|---|---|
+| 1 | stzGpuBuffer | the 5 guards that build buffers (atomic, buffers, declarative, host, int) | the smallest, no attribute renamed: the pilot |
+| 2 | stzKernelMaker | the 20 guards that describe kernels or grade puzzles (a puzzle builds a maker) | 13 attributes, all inside the class |
+| 3 | stzKernelPuzzle | the 16 guards that prove puzzles (each runs graders in child processes) | the error handlers change form |
+| 4 | stzGpu | all 43 | the largest; every other file and every guard reaches it |
+| 5 | the guards | each converted guard must report the same assertion count as the file it replaces | after the module, so each guard tests the moved code |
+
+**The rules for each step.** A `.haro` file's comments no longer name the older language. Each step is measured
+on old and new alternately, guard by guard, and reports guards OWNED and RUN as two figures. A guard that needs the
+graders runs with an engine whose folder sits beside the library tree (`EDU-RUNNER-ENGINE-PATH-01`).
+
+**Step 1, done: `stzGpuBuffer` is `.haro` (2026-11-27).** `base/gpu/stzGpuBuffer.haro` replaces the older file,
+which is deleted; stzBase loads the new one. The tool's 118 rewrites, then by hand: the four `a` names lettered
+`v`, `nL` renamed `nLen`, two error messages joined with `String()`, the element count by whole-number division,
+and the integer flag read in both forms. `haro check`: 0 refusals. Gated on haro.exe v0.78, engine at stzlib
+`734ca49a3` sources, old file and new alternately, guard by guard:
+
+| guard | old | new |
+|---|---|---|
+| gpu_buffers | 33 of 33, 833 s | 33 of 33, 845 s |
+| gpu_atomic | 36 of 36, 853 s | 36 of 36, 779 s |
+| gpu_int | 37 of 37, 748 s | 37 of 37, 736 s |
+| gpu_declarative | 20 of 20, 253 s | 20 of 20, 225 s |
+| gpu_host | 33 of 33, 229 s | 33 of 33, 225 s |
+
+Guards owned for this step 5, run 5, each on both arms; 159 assertions an arm, 0 failures on either. Three of the
+five (buffers, atomic, int) kept the card while their self-proof's graders ran, so the graders waited on the
+lease and the guards ran past a 600 s limit on BOTH arms; each now lets go of the card first, as the scan,
+compact, sort and sparse-product guards already did. Most of each of those three guards' time is the self-proof.
+
+**Step 2, done: `stzKernelMaker` is `.haro` (2026-11-27).** `base/gpu/stzKernelMaker.haro` replaces the older file,
+which is deleted. By hand after the tool: six `a` names lettered `v`; `pW` and `pD` became `xW` and `xD`, a name
+or a number; four texts joined with numbers (the shared line, the atomic size, an error message, a width or depth
+given as a number) through `String()`; one whole-number division; the sanitize flag a boolean, read in both forms;
+seven `nL` renamed. The 13 attributes renamed by the tool are read nowhere outside the class.
+
+**What the gate found that reading did not.** `Shared(name, size)` lettered its size `n`, and the puzzle reader in
+the older syntax passes the size as the text it read: `TYPE_LETTER` at the first guard that grades a puzzle with
+shared memory. `Shared` now takes `xSize`, a number or a text. A parameter lettered `n` or `t` is a contract with
+every caller still in the older syntax, and only a run checks it; every other call into the maker was read
+against its parameter's letter.
+
+**The gate: the 20 guards that describe kernels or grade puzzles**, on haro.exe v0.78 (its stamp the same at start
+and end), engine at stzlib `734ca49a3` sources. Guards owned 20, run 20 on each arm. Old file: 901 assertions,
+900 pass, 1 fail -- `gpu_shared`'s roofline ratio (a right answer that rereads memory must be over 1.3x slower than
+SAXPY), a timing on battery power. New file: 901 assertions, 901 pass. The same count on every guard.
+
+Two things made the gate shorter and are kept for steps 3 and 4:
+
+- **each arm is one block, after `haro prefix` on both paths the library loads from** (the guard's own, and the
+  grader's, through the engine's tree): a grader child then starts in seconds instead of compiling the library.
+  A guard with a self-proof went from 630-850 s to 54-205 s. A prefix is dropped when any library file changes, so
+  the arms are blocks, not alternated -- right for a gate that compares counts, and seconds from it are not
+  compared;
+- **every guard with a self-proof lets go of the card first.** Five more were found holding it (grid3, loop,
+  segscan, shared, vec): each failed its self-proof, or ran past 1,800 s, on the OLD file; each passes now.
+
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can

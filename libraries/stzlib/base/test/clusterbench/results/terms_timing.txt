@@ -1,0 +1,6 @@
+recording	plain s	prompted s	plain s	prompted s
+recordings/domain/d01.wav	60.879	140.679	47.529	145.457
+recordings/domain/d09.wav	43.931	140.327	44.472	139.286
+recordings/domain/d16.wav	42.829	128.82	42.941	128.271
+recordings/fleurs/fr_fr/10174413140250646001.wav	53.074	195.439	54.922	191.606
+total ms: plain 390577, prompted 1209885

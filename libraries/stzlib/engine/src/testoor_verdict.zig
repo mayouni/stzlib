@@ -219,7 +219,7 @@ const Where = struct { s: usize, c: usize };
 /// The claim a verdict line lands on: the first one of that text not judged yet, else the longest one its text begins
 /// with, not judged yet. A claim already judged is never judged again: a second verdict of the same text is a SECOND
 /// check and joins the stop as its own (2026-11-14). Landing it on the first let a FAIL followed by an ok of the same
-/// text read as kept -- found on the Foundry's af2 guard, whose "it signs and installs" is checked twice
+/// text read as kept -- found on a Foundry guard, whose "it signs and installs" is checked twice
 fn claimNamed(text: []const u8, stops: []const Stop) ?Where {
     var best: ?Where = null;
     var n_best: usize = 0;
@@ -395,6 +395,11 @@ pub fn judgeOnly(a: Allocator, rec: Record, lines: []const Line, end: []const u8
         }
         if (n_o >= 0 and n_cl >= n_o) st.wall_ms = @floor((n_cl - n_o) * 1000.0);
     }
+    // A TOUR WITH NO CLAIM JUDGED NOTHING: unjudged, as a stop with no claim is, whatever its ending (the ending says
+    // why). It read kept, so a tour that broke or could not be read before its first claim was listed as kept
+    var n_claims: usize = 0;
+    for (stops.items) |st| n_claims += st.claims.items.len;
+    if (n_claims == 0) tour_state = .unjudged;
 
     // A RAISE THAT WAS PROMISED IS NOT A BREAK
     var c_end = end;

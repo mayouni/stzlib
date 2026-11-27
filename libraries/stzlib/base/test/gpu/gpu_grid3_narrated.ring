@@ -205,6 +205,9 @@ if bDevice
 	chk("n / d, the quotient given as a division: the interpreter verifies it, and the device either agrees or the checker names the element where the division was not exact (" + cV + ")",
 		cC = "verified" and (cV = "verified" or cV = "mismatch-hidden at element 514"))
 	oE = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/kp-19")
+	# the parent lets go of the card first: since the GPU lease (2026-11-14) the graders ProveItself starts
+	# cannot take it from their own parent, and would wait and answer "waiting for the device" (KP-PROVE-FLAKE)
+	StzEngineGpuShutdown()
 	aPr = oE.ProveItself()
 	chk("the exercise proves itself through the System's checker: wrong refused " + aPr[:wrong] + ", right accepted " + aPr[:right] + ", failures " + @@(aPr[:failures]),
 		aPr[:wrong] = 5 and aPr[:right] = 3 and len(aPr[:failures]) = 0)

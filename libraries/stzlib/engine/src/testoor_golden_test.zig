@@ -390,7 +390,9 @@ test "testoor impact over a Haro unit: the face's names select the tours (BUSINE
     try std.testing.expect(cases.len >= 2);
     for (cases) |case| {
         const graph = try readAll(a, dir, try std.fs.path.join(a, &.{ "haro/impact", case, "graph.json" }));
-        const changed = try readAll(a, dir, try std.fs.path.join(a, &.{ "haro/impact", case, "changed.txt" }));
+        // the change: ids named, a diff (diff.patch, its paths and the graph's from the case's own folder), or both
+        const changed = (try readOpt(a, dir, try std.fs.path.join(a, &.{ "haro/impact", case, "changed.txt" }))) orelse "";
+        const diff = try readOpt(a, dir, try std.fs.path.join(a, &.{ "haro/impact", case, "diff.patch" }));
         // the tours, by name: what `testoor impact --tours` hands the core
         var names: std.ArrayList([]const u8) = .empty;
         const tdir = try std.fs.path.join(a, &.{ dir, "haro/impact", case, "tours" });
@@ -416,12 +418,46 @@ test "testoor impact over a Haro unit: the face's names select the tours (BUSINE
             first = false;
             try b.js(id);
         }
-        try b.s("],\"tours\":[");
+        try b.c(']');
+        if (diff) |patch| {
+            try b.s(",\"diff\":");
+            try b.js(patch);
+            try b.s(",\"root\":\"\",\"repo\":\"\",\"texts\":[");
+            // src/: each file's text after the change, named with `.txt` after its path
+            const sdir = try std.fs.path.join(a, &.{ dir, "haro/impact", case, "src" });
+            if (std.fs.cwd().openDir(sdir, .{ .iterate = true })) |opened| {
+                var sd = opened;
+                defer sd.close();
+                var w = try sd.walk(a);
+                defer w.deinit();
+                var n_src: usize = 0;
+                while (try w.next()) |e| {
+                    if (e.kind != .file or !std.mem.endsWith(u8, e.path, ".txt")) continue;
+                    const rel = try a.dupe(u8, e.path[0 .. e.path.len - 4]);
+                    for (rel) |*ch| {
+                        if (ch.* == '\\') ch.* = '/';
+                    }
+                    if (n_src > 0) try b.c(',');
+                    n_src += 1;
+                    try b.s("{\"path\":");
+                    try b.js(rel);
+                    try b.s(",\"text\":");
+                    try b.js(try readAll(a, sdir, e.path));
+                    try b.c('}');
+                }
+            } else |_| {}
+            try b.c(']');
+        }
+        try b.s(",\"tours\":[");
         for (names.items, 0..) |nm, k| {
             if (k > 0) try b.c(',');
             const src = try readAll(a, dir, try std.fs.path.join(a, &.{ "haro/impact", case, "tours", nm }));
             try b.s("{\"file\":");
             try b.js(nm);
+            if (diff != null) {
+                try b.s(",\"at\":");
+                try b.js(try std.mem.concat(a, u8, &.{ "tours/", nm }));
+            }
             try b.s(",\"names\":[");
             for (try Rd.namesOf(a, src), 0..) |n, j| {
                 if (j > 0) try b.c(',');

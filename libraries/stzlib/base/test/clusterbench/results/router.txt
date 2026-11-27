@@ -1,0 +1,25 @@
+RADAR-ROUTERFIGURES-01 (a): the court as a router on the forty text tasks
+cost basis: CPU seconds on this machine (run wall time / 40 tasks, 2026-11-16); no price, the models run on the device
+
+policy	right	wrong	refused	seconds	seconds per right answer	model calls per decision
+always qwen3-0.6b	22	18	0	21.0	0.9	0
+always lfm3-1.7b	21	19	0	52.0	2.4	0
+always granite42-3b	33	7	0	80.0	2.4	0
+always bolt-e4b	39	1	0	133.0	3.4	0
+oracle (knows the answer)	40	0	0	53.4	1.3	--
+court, per cluster (golden 5)	32	3	5	103.1	3.2	0 (a lookup)
+  chose a model with the served half's best score (ties count) in 5 of 8 decisions
+court, pooled (golden 20)	39	1	0	133.0	3.4	0 (a lookup)
+  chose a model with the served half's best score (ties count) in 2 of 2 decisions
+
+the decisions:
+per cluster	fold 0	text	golden 5	chose none	served half's best bolt-e4b 5/5, chosen --
+per cluster	fold 0	data	golden 5	chose bolt-e4b	served half's best granite42-3b 5/5, chosen 5/5
+per cluster	fold 0	agents	golden 5	chose bolt-e4b	served half's best bolt-e4b 5/5, chosen 5/5
+per cluster	fold 0	sys	golden 5	chose granite42-3b	served half's best bolt-e4b 5/5, chosen 4/5
+per cluster	fold 1	text	golden 5	chose bolt-e4b	served half's best bolt-e4b 4/5, chosen 4/5
+per cluster	fold 1	data	golden 5	chose granite42-3b	served half's best bolt-e4b 5/5, chosen 4/5
+per cluster	fold 1	agents	golden 5	chose bolt-e4b	served half's best bolt-e4b 5/5, chosen 5/5
+per cluster	fold 1	sys	golden 5	chose bolt-e4b	served half's best granite42-3b 5/5, chosen 5/5
+pooled	fold 0	all	golden 20	chose bolt-e4b	served half's best bolt-e4b 20/20, chosen 20/20
+pooled	fold 1	all	golden 20	chose bolt-e4b	served half's best bolt-e4b 19/20, chosen 19/20

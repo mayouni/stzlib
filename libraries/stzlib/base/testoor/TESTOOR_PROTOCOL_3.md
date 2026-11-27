@@ -290,7 +290,7 @@ Otherwise a non-zero exit is `broke`, a zero exit `finished`, and a tour past it
 A verdict line lands on the first claim of its text that is **not judged yet**. When every claim of that text is already
 judged, the line is a **second check** and joins the stop in progress as its own claim, as a verdict the reader had no
 claim for always did. Until 2026-11-14 it landed on the first claim again and replaced its state, so a tour printing
-`FAIL  x` and then `ok  x` read as kept: a failure the logbook did not show. Found on the Foundry's `af2_rehearse.haro`,
+`FAIL  x` and then `ok  x` read as kept: a failure the logbook did not show. Found on a Foundry guard,
 which checks "it signs and installs" twice; the walk counted 19 claims where the guard counted 20. No golden of protocols
 1 to 3 changed. The Ring reference (`TESTOOR_CORE=ring`) keeps the old landing: it is the retired language's, and the
 core is the judge.
@@ -315,6 +315,15 @@ whenever the walk measured one; the tour's line names it when it is 10 s or more
 so a slow start reads as slow. Both are absent from a logbook that applied or measured neither, whose bytes are those of
 protocol 2. The Ring runner (`stzTraveller`, retired) keeps one deadline from the start.
 
+**Testoor's own guards walk their children with that runner**, so its one deadline still meets the compile there. Haro
+v0.78 (2026-11-23) made every kept image again, and on 2026-11-27 a child's whole compile of the library measured 259 s,
+against 60 s deadlines in the promises, property and runner guards and five minutes in the clock guard's: four guards
+read diverged or unreached on two walks, the children as cold on the second as on the first, their images never written. The cure
+is one step before the walk: **keep the library**, `haro prefix stzBase.ring` in `base/`, once per change of the library
+(237 to 259 s). A child whose first statement loads it then compiles on top of it, 3.5 s for the plot tour that took
+259 s alone (`HARO_PATH=1` prints `path: kept library`). Measured on the gate, every image cold after a library change:
+14 guards, 736 claims kept of 736, 303 s of walk after the library was kept -- 762 s on 2026-11-23 without it.
+
 ### 6.6 A Haro unit's graph: `testoor graph`
 
     testoor graph FILE.haro [--haro PATH] [--out FILE.json]
@@ -333,13 +342,20 @@ the unit's first file, its `language` is `haro`, and its `fold` is `ascii`, sinc
 | `UNFINISHED|function` | the node is **open**: its calls are missing |
 | `CALL|caller|*|late|n` | haro v0.77 on (HARO-GRAPH-LATECALL-01): the caller holds n calls by a name built at run time -- the node is **open**, and no edge is drawn |
 | a file's own statements (`<top>`) | a node `<top>:FILE`, kind `top`, made when it first calls something |
+| `FILE|path` and `CLASS|name|parent|line`, kept | the record's `files` (the unit's files, as its nodes spell them) and `classes` (`name`, `parent`, `file`, `line`): where a change to a file's lines lands (6.7). Since 2026-11-27 |
 
-**A call by a name built at run time** (`call tName()`, `eval(...)`) leaves no line in `haro graph`, so the face reads each file
-of the unit, from the folder haro graph ran in, and the function holding one is **open** ("dispatches by a name built at run
-time"). A string, a comment and a method named `call` are not one. A file it cannot read, or lines given without `--root`,
-leave the record **not complete**, `why` saying so: the record never certifies what was not read.
+**A call by a name built at run time** (`call tName()`, `eval(...)`): a `call` prints its late line (haro v0.77 on) and an
+`eval` prints none, so the face also reads each file of the unit, from the folder haro graph ran in, and the function holding
+one is **open** ("dispatches by a name built at run time"). A string, read over as many lines as it runs, a comment, a
+method named `call` and a definition's own name (`def Eval(pnX)`) are not one. A file it cannot read, a file whose reading
+ends inside a string, or lines given without `--root`, leave the record **not complete**, `why` saying so: the record never
+certifies what was not read.
 
-Measured on a Foundry guard's unit (`af1_pack.haro`, 2026-11-15): `testoor graph` writes it in 50 s, 25.6 MB -- 48,939 nodes
+Measured on the same unit (2026-11-27, stzlib 249ebaa43, haro.exe v0.78): the late lines open 117 functions and the files
+159. The 117 are among the 159, and each of the other 42 calls `eval`, so for `call` the two readings agree exactly. Until
+that day the files opened 161: a Python program held in a string of a .ring file, and a method declared `Eval`, read as calls.
+
+Measured on a Foundry guard's unit (2026-11-15): `testoor graph` writes it in 50 s, 25.6 MB -- 48,939 nodes
 (11,103 functions, 37,828 methods, 8 files' own statements) and 196,894 edges (66,951 `call`; 8,769 calls dispatched by name over
 2,342 names, which make 129,943 `dispatch`). 358 nodes are open: 12 functions the compiler could not finish, 185 calling a
 method by a name no method of the unit carries, and 161 calling by a name built at run time (`call f()` in
@@ -347,7 +363,7 @@ method by a name no method of the unit carries, and 161 calling by a name built 
 
 ### 6.7 The impact of a change over a Haro unit: `testoor impact`
 
-    testoor impact GRAPH.json --changed ID [--changed ID ...] [--tours FOLDER [--suffix S]] [--protocol 2]
+    testoor impact GRAPH.json (--changed ID ... | --diff FILE [--root DIR] [--repo DIR]) [--tours FOLDER [--suffix S]] [--protocol 2]
 
 writes the impact record (section 5.1) of a change to the nodes named, over a graph record `testoor graph` wrote. A tour
 under FOLDER is selected when its source CALLS a name of the reach: the Haro face reads each tour's names
@@ -356,12 +372,44 @@ string or a comment. A graph that is not complete still selects every tour (prot
 standard error, and it keeps two figures apart: **the reach the compiler bound**, and the reach once the open nodes and their
 callers widen it.
 
-**Measured on a Foundry guard's unit** (2026-11-15, `af1_pack.haro`'s graph): a change to `FoundryField` reaches 22 nodes by
-calls the compiler bound -- `FoundryPackBuild`, `FoundryPackInstall`, ... `<top>:af1_pack.haro` -- and 23,244 of 48,939 once
+**Measured on a Foundry guard's unit** (2026-11-15, the guard's graph): a change to one of the Foundry's own functions reaches 22 nodes by
+calls the compiler bound -- the Foundry functions calling it and the guard's own statements -- and 23,244 of 48,939 once
 222 open nodes of the library and their callers widen it; all 23,244 are capped; the graph is not complete, so the 9 guards are
 selected. About 30 s a change, most of it reading the 25.6 MB record. The open nodes are the library's: the reach a codebase's
 own change has by its own calls is the first figure, and fewer calls by a name built at run time in stzlib is what narrows the
 second.
+
+**A change read from a diff** (`--diff FILE`, or `-` for the standard input; `engine/src/testoor_diff.zig`, roadmap P4,
+2026-11-27). An agent hands Testoor its patch as `git diff` prints it and asks what the patch reached, with no id to name. The
+graph is the code AFTER the change, the code the tours will run, so the diff is read on its new side, hunk by hunk by its
+counts (a removed line that reads `--- x` is a line, not a header):
+
+| a changed line | names |
+|---|---|
+| a line that holds no code: a comment, a blank, a line inside a `/*` comment | nothing; it is counted `quiet`. Read from the file's text after the change, which the runner takes from the diff's tree, with the face's rule for strings and comments: a `#` line inside a string is the string's text, so it is code. A removed line is quiet when its own text reads as a comment and the place it left is in no string, or when that place is inside a `/*` comment. A file the runner cannot read has every changed line taken as code |
+| an added line in a function or a method | that node: a definition runs from its own line to the next definition of its file, the rule the face reads the files by |
+| a removed line | the node the line before it stands in |
+| a line of a class's own body (its attributes) | every method of the class and of the classes derived from it, as far as `parent` goes |
+| a line before any definition | the file's own statements, `<top>:FILE`, when the graph holds that node |
+| a line no node holds | nothing, and the record is **not complete**: `why` names the file and the line, so every tour is selected |
+| a removed `def`, `func` or `class` line, the name not defined again in the file | every node of that name: a caller that called it by name now reaches what else answers it, and a caller left with nothing to call is one the compiler could not finish, open already (`Gone(2)` and `This.Missing()` each leave their function unfinished, haro.exe v0.78) |
+| a tour's own file | the tour, selected for itself |
+| a file that is neither the unit's nor a tour | nothing; it is listed |
+
+The diff names a file from the top of its repository and the graph from the folder haro graph ran in, and the two need not be
+one tree: a Foundry guard's unit loads the library from `../.stzlib`, whose own diff names `libraries/...`. So `--root` names the
+graph's folder (default: the current folder) and `--repo` the diff's (default: the nearest folder at or above the root holding
+`.git`); each path is joined to its folder and the two compared, `.` and `..` taken back, without regard to ASCII case. The record
+gains `diff`: `files`, `hunks`, `lines`, `quiet`, `touched` (the tours selected for their own change), `outside` and `removed`;
+the line of figures gains the same counts. Goldens `haro/impact/I3`, `I4`, `I5`.
+
+**Measured on a Foundry guard's unit** (2026-11-27, a copy whose library is stzlib 249ebaa43, haro.exe v0.78): the diff of
+249ebaa43 alone -- 5 files, 63 lines, 8 of them holding no code -- names 1 node, which reaches 8 by calls the compiler bound, and
+4 of its files are outside the unit. The diff of the 82 commits before it -- 272 files, 31,969 lines, 769 holding no code --
+names 80 nodes and 4 removed definitions, 257 files outside the unit; 3 files change their own statements, global values and
+`load` lines, which no node holds, so the record is not complete and says which. The mapping costs nothing the clock shows:
+one id named with `--changed` took 157 s over the same graph and the two diffs 179 s and 149 s, the time being the record's
+25 MB and its widened reach, with another desk's four haro.exe running.
 
 **The core's walks are indexed** (`testoor_graph.zig`, `Index`, 2026-11-15): each id's edges in and out, in the edges' order, so
 a reach follows the same edges in the same order as the scan it replaces, and every golden of protocols 2 and 3 is unchanged.
@@ -391,8 +439,8 @@ The ladder's grade 1, **observed**, needs to know which functions a tour ran (se
 - **The record** (`--out`): the graph record of what was probed, subject the folder, for `--graph`. Its nodes are the files'
   functions and methods, each with the file and line its own file gave; a file's own statements are no node of it, since
   the probe does not observe them. Its EDGES come from one reading of a unit that loads every file of the folder, made before
-  any file changes: haro graph on one file alone prints no line for a call into another file (`FoundryField(...)` in
-  `project.haro`, measured 2026-11-15), so a record of files read one by one missed every call between them, and read 19
+  any file changes: haro graph on one file alone prints no line for a call into another file (a call of one module's
+  function in another, measured 2026-11-15), so a record of files read one by one missed every call between them, and read 19
   Foundry functions as open. An edge is kept when both its ends are the codebase's; `complete` and `why` are the unit's.
 
 **The side file.** Every walk the core makes names a file of its own to the tour, by `TESTOOR_NODES`, and a child the tour
@@ -409,17 +457,17 @@ node count, `named` the nodes no tour reached.
 went to the library's counter -- the Foundry's guards observed nothing in their own process. `TestoorProbeHit` and its
 globals are named nowhere in stzlib; a codebase that defined one would shadow the probe the same way.
 
-**Measured on the Foundry** (2026-11-15, a copy of stzfoundry 2917ebe; haro.exe of 2026-11-14):
+**Measured on the Foundry** (2026-11-15, a copy of the Foundry; haro.exe of 2026-11-14):
 
 - **the probe**: 8 files, 117 functions, every one probed and the check passed, in 57 s (81 s with other desks' builds
-  running): haro graph reads `node.haro`, which loads the library, in 21.6 s and each other module in under 0.3 s, and the
+  running): haro graph reads the module that loads the library in 21.6 s and each other module in under 0.3 s, and the
   check reads them again.
 - **the claims do not move**: the 9 guards walked on the probed copy and on the plain one give the same verdict on every
-  claim, 243 kept and 1 diverged (`af6_page` runs a tool, `.zayn`, these copies lack: the same in both). 433 s probed and
+  claim, 243 kept and 1 diverged (one guard runs a tool these copies lack: the same in both). 433 s probed and
   445 s plain, every image cold.
 - **the ladder**, `--graph` the probe's record: 117 owned -- **114 exemplified, 2 observed, 1 named**. Each guard reached
-  51 to 103 of them, its child programs included. `PageShort` and `PageBodyList` stand on grade 1, reached only by
-  `af6_page`, which diverged. `FoundryHex2` (`project.haro` line 385) stands on grade 0: it is called only to write a
+  51 to 103 of them, its child programs included. Two functions stand on grade 1, reached only by
+  the guard that diverged. One stands on grade 0: it is called only to write a
   control character other than a tab, a line feed or a carriage return into a JSON text, and no guard writes one.
 
 ### 6.9 The evidence report: `testoor report`
@@ -448,7 +496,7 @@ proven and what is not -- is the business desk's to shape (offer section 8); sec
 
 **Measured on the Foundry** (2026-11-15, the same copy and runtime as 6.8): probe 101 s, the walk 351 s, two impact
 records, and the report in 62 to 71 ms -- 79 lines. Its figures: 117 functions, 114 exemplified, 2 observed, 1
-named; `FoundryHex2` the one no tour ran, called by `FoundryJson`; a change to `FoundryField` reaches 39 functions by calls
+named, the one no tour ran called only by the JSON writer; a change to one Foundry function reaches 39 functions by calls
 the compiler bound, and every guard is walked again because the unit's graph is not complete, which the report says with
 its reason (the library's: 12 functions haro.exe could not finish, 185 functions calling a method by a name no method carries, 160
 dispatching by a name built at run time). The same change read from one guard's unit reached 22, and from the files read one by one, 4:

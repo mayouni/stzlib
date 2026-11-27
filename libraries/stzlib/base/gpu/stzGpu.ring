@@ -1320,7 +1320,6 @@ class stzGpu from stzObject
 			_nReps_ = 3
 		ok
 		This._RouteSide(pcKey, _aIn_, 1)
-		StzEngineGpuWake(400)
 		_nCpu_ = 999999999
 		_nGpu_ = 999999999
 		for _r_ = 1 to 7
@@ -1332,6 +1331,11 @@ class stzGpu from stzObject
 			if _nMs_ < _nCpu_
 				_nCpu_ = _nMs_
 			ok
+			# the card is woken before EVERY device block, not once a rung (GPU-ROUTE-CONTROL-01, 2026-11-23): the
+			# loop's block leaves it idle for up to a quarter second, the RTX 3050 then drops to a state where every
+			# submit pays 1.3 to 2.2 ms, and thousands of tiny calls do not lift it -- so a rung woken once measured
+			# its later device blocks asleep, and the control rung read 0.15 ms and then 1.9 ms
+			StzEngineGpuWake(400)
 			_nT0_ = StzEngineWatchTimestampNs()
 			for _k_ = 1 to _nReps_
 				This._RouteSide(pcKey, _aIn_, 1)

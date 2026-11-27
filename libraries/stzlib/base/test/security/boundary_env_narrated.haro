@@ -1,0 +1,163 @@
+# A BOUNDED NODE GETS ONLY THE ENVIRONMENT ITS GRANT NAMES -- threat model R20, RADAR-AGENTBOUND-01 (a), narrated
+#
+# Without a list a node inherits its supervisor's whole environment, so a credential held there in a variable reached
+# every node (measured 2026-11-27). StzEngineBoundaryEnvKeep(nG, name) switches a grant to a list: the node gets
+# SystemRoot, TEMP, TMP and LOCALAPPDATA (the last three rewritten by Windows to the container's own folder; without
+# them the start fails with 203) and the names kept, and nothing else. stzNodeSupervisor's grant takes the list as :env.
+#
+#   Scene 1  no list: the node reads the supervisor's credential (the witness of R20, kept so a regression shows)
+#   Scene 2  an empty list: neither the credential nor a plain variable reaches the node; SystemRoot does
+#   Scene 3  a list naming the plain variable: it arrives, the credential does not
+#   Scene 4  TEMP in the node is the container's folder, not the supervisor's
+#   Scene 5  a bad name, and a list changed after the start, are refused
+#   Scene 6  the supervisor's :env: the child gets the named variable and not the credential
+#
+# RUNS ON haro.exe, on Windows. STZ_ENGINE_DIR names an engine whose stz_process carries StzEngineBoundaryEnvKeep.
+# The work folder is %TEMP%\stz_env, the profile stz.env.guard. The "credential" is a stand-in text.
+
+load "../../stzBase.ring"
+$nPass = 0
+$nFail = 0
+tBS = Char(92)
+tQ = Char(34)
+tName = "stz.env.guard"
+tW = SysGet("TEMP") + tBS + "stz_env"
+tBin = tW + tBS + "bin"
+tRuns = tW + tBS + "runs"
+StzEngineDirDeleteTree(tW)
+StzMakeDir(tBin)
+StzMakeDir(tRuns)
+StzEngineBoundaryDeleteProfile(tName)
+tHaroSrc = SysGet("HARO_EXE")
+if tHaroSrc = ""
+    ? "HARO_EXE is not set: nothing can run"
+    Shutdown(1)
+end
+StzEngineFileCopy(tHaroSrc, tBin + tBS + "haro.exe")
+SysSet("HARO_CACHE", tRuns)
+SysSet("STZ_ENV_CRED", "stand-in-credential")
+SysSet("STZ_ENV_PLAIN", "plain-value")
+Write(tBin + tBS + "env.haro", "? " + Show("cred", "STZ_ENV_CRED") + " + " + Show("plain", "STZ_ENV_PLAIN") + " + " + Show("root", "SystemRoot") + " + " + Show("temp", "TEMP") + Char(10))
+
+Scenario("1. no list")
+tOut = RunNode(0, [])
+Then("the node reads the supervisor's credential", Has(tOut, "cred[stand-in-credential]"), true)
+
+Scenario("2. an empty list")
+tOut = RunNode(1, [])
+Then("the node started", Has(tOut, "root["), true)
+Then("the credential does not reach it", Has(tOut, "cred[]"), true)
+Then("...nor a plain variable", Has(tOut, "plain[]"), true)
+Then("SystemRoot does", Has(tOut, "root[]"), false)
+
+Scenario("3. a list naming the plain variable")
+tOut = RunNode(1, ["STZ_ENV_PLAIN"])
+Then("the plain variable arrives", Has(tOut, "plain[plain-value]"), true)
+Then("the credential does not", Has(tOut, "cred[]"), true)
+
+Scenario("4. TEMP in the node")
+Then("is not the supervisor's", Has(tOut, "temp[" + SysGet("TEMP") + "]"), false)
+Then("...and is set", Has(tOut, "temp[]"), false)
+
+Scenario("5. what the list refuses")
+nG = StzEngineBoundaryNew(tName)
+Then("a name holding '=' is refused", StzEngineBoundaryEnvKeep(nG, "A=B"), 0)
+StzEngineBoundaryFree(nG)
+nG = StzEngineBoundaryNew(tName)
+StzEngineBoundaryOutput(nG, tRuns + tBS + "late.txt", tRuns + tBS + "late.txt")
+StzEngineBoundaryRead(nG, tBin)
+StzEngineBoundaryWrite(nG, tRuns)
+StzEngineBoundaryEnvKeep(nG, "")
+StzEngineBoundaryStart(nG, tQ + tBin + tBS + "haro.exe" + tQ + " " + tQ + tBin + tBS + "env.haro" + tQ)
+Then("a name kept after the start is refused", StzEngineBoundaryEnvKeep(nG, "STZ_ENV_CRED"), 0)
+StzEngineBoundaryWait(nG, 120000)
+StzEngineBoundaryFree(nG)
+
+Scenario("6. the supervisor's :env")
+oS = new stzNodeSupervisor()
+oS.Child("env", tBin + tBS + "env.haro", 45961)
+oS.ChildGrant("env", [[:profile, tName], [:reads, [tBin]], [:writes, [tRuns]], [:memoryMB, 512],
+    [:output, tRuns + tBS + "sup.txt"], [:cache, tRuns], [:interpreter, tBin + tBS + "haro.exe"],
+    [:env, ["STZ_ENV_PLAIN"]]])
+oS.RestartBudget(0, 60000)
+oS.StartAll()
+nT0 = Clock()
+while Clock() - nT0 < 120000 and oS.Escalated() = 0
+    oS.Cycle()
+    SysSleep(50)
+end
+tSup = ReadOr(tRuns + tBS + "sup.txt")
+Then("the child ran", Has(tSup, "root["), true)
+Then("...with the named variable", Has(tSup, "plain[plain-value]"), true)
+Then("...and without the credential", Has(tSup, "cred[]"), true)
+oS.Destroy()
+
+StzEngineBoundaryDeleteProfile(tName)
+StzEngineDirDeleteTree(tW)
+? ""
+? "================================================"
+? "TOTAL: " + String($nPass + $nFail) + " assertions, " + String($nPass) + " pass, " + String($nFail) + " fail"
+? "================================================"
+Shutdown($nFail)
+
+# --- helpers -----------------------------------------------------------------------------------------------------------
+
+# the text of a line the node prints: tag[value of the variable]
+func Show(tTag, tVar)
+    return Char(34) + tTag + "[" + Char(34) + " + SysGet(" + Char(34) + tVar + Char(34) + ") + " + Char(34) + "] " + Char(34)
+end
+
+# runs env.haro in a fresh grant; nKeep 1 switches the list on and keeps vNames; answers what the node printed
+func RunNode(nKeep, vNames)
+    tBS = Char(92)
+    tQ = Char(34)
+    tW = SysGet("TEMP") + tBS + "stz_env"
+    tOut = tW + tBS + "runs" + tBS + "env.txt"
+    StzEngineFileDelete(tOut)
+    nG = StzEngineBoundaryNew("stz.env.guard")
+    StzEngineBoundaryOutput(nG, tOut, tOut)
+    StzEngineBoundaryRead(nG, tW + tBS + "bin")
+    StzEngineBoundaryWrite(nG, tW + tBS + "runs")
+    StzEngineBoundaryMemory(nG, 512)
+    if nKeep = 1
+        StzEngineBoundaryEnvKeep(nG, "")
+        nN = Len(vNames)
+        for i = 1 to nN
+            StzEngineBoundaryEnvKeep(nG, vNames[i])
+        end
+    end
+    if StzEngineBoundaryStart(nG, tQ + tW + tBS + "bin" + tBS + "haro.exe" + tQ + " " + tQ + tW + tBS + "bin" + tBS + "env.haro" + tQ) = 0
+        ? "  (start failed: " + StzEngineBoundaryError(nG) + ")"
+    end
+    StzEngineBoundaryWait(nG, 120000)
+    StzEngineBoundaryFree(nG)
+    return ReadOr(tOut)
+end
+
+func ReadOr(tPath)
+    if not FExists(tPath)
+        return ""
+    end
+    return Trim(Read(tPath))
+end
+
+func Has(tIn, tPart)
+    return SubStr("" + tIn, tPart) > 0
+end
+
+func Scenario(tTitle)
+    ? ""
+    ? "SCENARIO: " + tTitle
+end
+
+func Then(tWhat, xGot, xExpected)
+    if xGot = xExpected
+        $nPass = $nPass + 1
+        ? "  THEN  " + tWhat + "  [PASS]"
+    else
+        $nFail = $nFail + 1
+        ? "  THEN  " + tWhat + "  [FAIL]"
+        ? "    expected: " + String(xExpected)
+        ? "    got:      " + String(xGot)
+    end
+end

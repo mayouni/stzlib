@@ -90,6 +90,10 @@ fn ring_BoundaryProcessor(p: *anyopaque) callconv(.c) void {
 fn ring_BoundaryOutput(p: *anyopaque) callconv(.c) void {
     retBool(p, boundary.setOutput(id(p), str(p, 2), str(p, 3)));
 }
+// StzEngineBoundaryEnvKeep(nId, cName) -> TRUE; the node's environment becomes SystemRoot plus the names kept (R20)
+fn ring_BoundaryEnvKeep(p: *anyopaque) callconv(.c) void {
+    retBool(p, boundary.keepEnv(id(p), str(p, 2)));
+}
 // StzEngineBoundaryStart(nId, cCommandLine) -> the process id, 0 when it did not start
 fn ring_BoundaryStart(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(boundary.start(id(p), str(p, 2))));
@@ -173,6 +177,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineboundarymemory", .func = &ring_BoundaryMemory },
     .{ .name = "stzengineboundaryprocessor", .func = &ring_BoundaryProcessor },
     .{ .name = "stzengineboundaryoutput", .func = &ring_BoundaryOutput },
+    .{ .name = "stzengineboundaryenvkeep", .func = &ring_BoundaryEnvKeep },
     .{ .name = "stzengineboundarystart", .func = &ring_BoundaryStart },
     .{ .name = "stzengineboundarywait", .func = &ring_BoundaryWait },
     .{ .name = "stzengineboundaryend", .func = &ring_BoundaryEnd },

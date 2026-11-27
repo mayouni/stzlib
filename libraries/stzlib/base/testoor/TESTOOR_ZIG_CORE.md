@@ -477,7 +477,7 @@ Ring program wrote.
 ### A claim is judged once, 2026-11-14 -- DONE
 
 Found while measuring the Testoor evidence report on a codebase that is not the library (BUSINESS-LEADS-DELIVER-01): the
-Foundry's nine guards, walked on a copy, agreed with their own totals on eight; `af2_rehearse.haro` counted 20 checks and
+Foundry's nine guards, walked on a copy, agreed with their own totals on eight; one guard counted 20 checks and
 the walk 19, because it checks "it signs and installs" twice. `claimNamed` landed a verdict on the first claim of its text
 even when that claim was judged, so a FAIL followed by an ok of the same text read as KEPT -- planted, it did. A claim
 already judged is now never judged again; the second verdict is a claim of its own (`TESTOOR_PROTOCOL_3.md` 6.4).

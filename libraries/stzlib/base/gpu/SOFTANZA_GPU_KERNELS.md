@@ -51,7 +51,7 @@ including the one in a browser.
 | `engine/src/gpu_segscan.zig` | GB0's segmented scan and segmented reduction: the scan over (flag, value) pairs, then the compaction of each segment's last element |
 | `engine/src/neural_backbone.zig` | the resident MiniLM forward on the GPU, with f32 or f16 weights |
 | `engine/src/stz_wasm_entry.zig` | the same grammar compiled for the browser |
-| `base/gpu/stzKernelMaker.ring` | the Ring face over the grammar |
+| `base/gpu/stzKernelMaker.haro` | the library's face over the grammar |
 | `base/gpu/stzKernelPuzzle.ring` | a puzzle: its facts, its data, its grading |
 | `base/gpu/stzGpu.ring` | the device face, with `VerifySpec` and `VerifySpecWith` |
 | `base/education/program/courses/kernel-puzzles/` | the course, twelve exercises, the browser runner |

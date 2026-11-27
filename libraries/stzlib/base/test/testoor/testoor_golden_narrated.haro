@@ -37,7 +37,7 @@ vGdIntent = [
 	[ "10_multiline_block",      "diverged",  "finished",       2, 1, 0, 0 ],
 	[ "11_picture",              "diverged",  "finished",       0, 1, 0, 2 ],
 	[ "12_protocol_python",      "diverged",  "finished-timed", 2, 1, 0, 2 ],
-	[ "13_unreadable",           "kept",      "unreadable",     0, 0, 0, 0 ],
+	[ "13_unreadable",           "unjudged",  "unreadable",     0, 0, 0, 0 ],
 	[ "14_exact_case",           "diverged",  "finished",       2, 1, 0, 0 ]
 ]
 
