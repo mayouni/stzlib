@@ -315,6 +315,15 @@ whenever the walk measured one; the tour's line names it when it is 10 s or more
 so a slow start reads as slow. Both are absent from a logbook that applied or measured neither, whose bytes are those of
 protocol 2. The Ring runner (`stzTraveller`, retired) keeps one deadline from the start.
 
+**Testoor's own guards walk their children with that runner**, so its one deadline still meets the compile there. Haro
+v0.78 (2026-11-23) made every kept image again, and on 2026-11-27 a child's whole compile of the library measured 259 s,
+against 60 s deadlines in the promises, property and runner guards and five minutes in the clock guard's: four guards
+read diverged or unreached on two walks, the children as cold on the second as on the first, their images never written. The cure
+is one step before the walk: **keep the library**, `haro prefix stzBase.ring` in `base/`, once per change of the library
+(237 to 259 s). A child whose first statement loads it then compiles on top of it, 3.5 s for the plot tour that took
+259 s alone (`HARO_PATH=1` prints `path: kept library`). Measured on the gate, every image cold after a library change:
+14 guards, 736 claims kept of 736, 303 s of walk after the library was kept -- 762 s on 2026-11-23 without it.
+
 ### 6.6 A Haro unit's graph: `testoor graph`
 
     testoor graph FILE.haro [--haro PATH] [--out FILE.json]
