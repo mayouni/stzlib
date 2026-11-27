@@ -5049,7 +5049,7 @@ Of the 117, 99 are the retired `a` letter (`aOut`, `aIds`, ...), lettered `v` or
 | step | file | gate on haro.exe | why this order |
 |---|---|---|---|
 | 1 | stzGpuBuffer | the 5 guards that build buffers (atomic, buffers, declarative, host, int) | the smallest, no attribute renamed: the pilot |
-| 2 | stzKernelMaker | the 16 guards that describe kernels | 13 attributes, all inside the class |
+| 2 | stzKernelMaker | the 20 guards that describe kernels or grade puzzles (a puzzle builds a maker) | 13 attributes, all inside the class |
 | 3 | stzKernelPuzzle | the 16 guards that prove puzzles (each runs graders in child processes) | the error handlers change form |
 | 4 | stzGpu | all 43 | the largest; every other file and every guard reaches it |
 | 5 | the guards | each converted guard must report the same assertion count as the file it replaces | after the module, so each guard tests the moved code |
@@ -5076,6 +5076,34 @@ Guards owned for this step 5, run 5, each on both arms; 159 assertions an arm, 0
 five (buffers, atomic, int) kept the card while their self-proof's graders ran, so the graders waited on the
 lease and the guards ran past a 600 s limit on BOTH arms; each now lets go of the card first, as the scan,
 compact, sort and sparse-product guards already did. Most of each of those three guards' time is the self-proof.
+
+**Step 2, done: `stzKernelMaker` is `.haro` (2026-11-27).** `base/gpu/stzKernelMaker.haro` replaces the older file,
+which is deleted. By hand after the tool: six `a` names lettered `v`; `pW` and `pD` became `xW` and `xD`, a name
+or a number; four texts joined with numbers (the shared line, the atomic size, an error message, a width or depth
+given as a number) through `String()`; one whole-number division; the sanitize flag a boolean, read in both forms;
+seven `nL` renamed. The 13 attributes renamed by the tool are read nowhere outside the class.
+
+**What the gate found that reading did not.** `Shared(name, size)` lettered its size `n`, and the puzzle reader in
+the older syntax passes the size as the text it read: `TYPE_LETTER` at the first guard that grades a puzzle with
+shared memory. `Shared` now takes `xSize`, a number or a text. A parameter lettered `n` or `t` is a contract with
+every caller still in the older syntax, and only a run checks it; every other call into the maker was read
+against its parameter's letter.
+
+**The gate: the 20 guards that describe kernels or grade puzzles**, on haro.exe v0.78 (its stamp the same at start
+and end), engine at stzlib `734ca49a3` sources. Guards owned 20, run 20 on each arm. Old file: 901 assertions,
+900 pass, 1 fail -- `gpu_shared`'s roofline ratio (a right answer that rereads memory must be over 1.3x slower than
+SAXPY), a timing on battery power. New file: 901 assertions, 901 pass. The same count on every guard.
+
+Two things made the gate shorter and are kept for steps 3 and 4:
+
+- **each arm is one block, after `haro prefix` on both paths the library loads from** (the guard's own, and the
+  grader's, through the engine's tree): a grader child then starts in seconds instead of compiling the library.
+  A guard with a self-proof went from 630-850 s to 54-205 s. A prefix is dropped when any library file changes, so
+  the arms are blocks, not alternated -- right for a gate that compares counts, and seconds from it are not
+  compared;
+- **every guard with a self-proof lets go of the card first.** Five more were found holding it (grid3, loop,
+  segscan, shared, vec): each failed its self-proof, or ran past 1,800 s, on the OLD file; each passes now.
+
 
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
