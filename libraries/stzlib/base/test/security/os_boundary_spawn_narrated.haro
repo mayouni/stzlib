@@ -13,7 +13,11 @@
 #   Scene 6  the supervisor ends a run itself
 #   Scene 7  a grant is written once: the next start finds the rules and writes none
 #   Scene 8  the grant's own refusals: a bad name, a missing path, a second start
-#   Scene 9  revoke leaves no rule behind, and the profile is deleted
+#   Scene 9  a file made AFTER the rules were written: outside the grant it is refused, inside a granted folder it is
+#            read -- the container is denied by default, not by a list of names fixed at launch (RADAR-AGENTBOUND-01 (b))
+#   Scene 10 a child the node starts (a tool server, a shell) carries the node's bounds: refused outside, reads inside
+#            (RADAR-AGENTBOUND-01 (c))
+#   Scene 11 revoke leaves no rule behind, and the profile is deleted
 #
 # RUNS ON haro.exe, on Windows, as a standard user. STZ_ENGINE_DIR names an engine whose stz_process carries B1;
 # HARO_EXE names haro.exe when it is not on the PATH. The work folder is %TEMP%\stz_b1, the profile stz.b1.guard.
@@ -58,6 +62,8 @@ StzEngineBoundaryDeleteProfile(tName)
 Write(tBin + tBS + "rw.haro", ReachProgram())
 Write(tBin + tBS + "child.haro", "? " + Char(34) + "C1 [" + Char(34) + " + Trim(SystemCmd(" + Char(34) + "echo hi" + Char(34) + ")) + " + Char(34) + "]" + Char(34) + Char(10))
 Write(tBin + tBS + "mem.haro", "tS = " + Char(34) + "x" + Char(34) + Char(10) + "for i = 1 to 29" + Char(10) + "    tS = tS + tS" + Char(10) + "end" + Char(10) + "? Len(tS)" + Char(10))
+Write(tBin + tBS + "late.haro", LateProgram())
+Write(tBin + tBS + "tool.haro", ToolProgram())
 Write(tBin + tBS + "spin.haro", "nN = 0" + Char(10) + "while true" + Char(10) + "    nN = nN + 1" + Char(10) + "end" + Char(10))
 
 Scenario("1. a haro node reads and writes what is granted")
@@ -166,7 +172,33 @@ StzEngineBoundaryWait(nG, 30000)
 Then("a grant runs once: a second start is refused", StzEngineBoundaryStart(nG, Q(tCurl) + " --version"), 0)
 Then("a freed grant is gone", StzEngineBoundaryFree(nG) and not StzEngineBoundaryFree(nG), true)
 
-Scenario("9. revoke and delete")
+Scenario("9. a file made after the rules")
+StzEngineFileDelete(tRuns + tBS + "ready.txt")
+nG = NodeGrant("late")
+StzEngineBoundaryStart(nG, Node("late.haro"))
+nT0 = Clock()
+while not FExists(tRuns + tBS + "ready.txt") and Clock() - nT0 < 120000
+    StzEngineBoundaryWait(nG, 100)
+end
+Then("the node is running, its rules written, before the files exist", FExists(tRuns + tBS + "ready.txt"), true)
+Write(tOutside + tBS + "late.txt", "late outside")
+Write(tIn + tBS + "late_in.txt", "late inside")
+Write(tIn + tBS + "go.txt", "go")
+StzEngineBoundaryWait(nG, 120000)
+Then("a file made outside the grant after the start is refused", Has(Out("late"), "L1 refused"), true)
+Then("...a file made inside a granted folder after the start is read", Has(Out("late"), "L2 reached late inside"), true)
+StzEngineBoundaryFree(nG)
+
+Scenario("10. a child of the node")
+nG = NodeGrant("tool")
+StzEngineBoundaryChildren(nG, 2)
+StzEngineBoundaryStart(nG, Node("tool.haro"))
+StzEngineBoundaryWait(nG, 120000)
+Then("the child reads the granted file", Has(Out("tool"), "T2 [granted]"), true)
+Then("...and is refused the stand-in key outside the grant", Has(Out("tool"), "T1 []"), true)
+StzEngineBoundaryFree(nG)
+
+Scenario("11. revoke and delete")
 for tPath in [tBin, tIn, tRuns]
     Then("revoking " + tPath + " answers 0", StzEngineBoundaryRevoke(tName, tPath), 0)
 end
@@ -227,6 +259,24 @@ func ReachProgram
            TryLine("R3", "Read(" + Lit(CurrentFile()) + ")" + Char(10) + "? " + Char(34) + "R3 reached" + Char(34)) +
            TryLine("W1", "Write(" + Lit(tW + Char(92) + "runs" + Char(92) + "w1.txt") + ", " + Char(34) + "w1" + Char(34) + ")" + Char(10) + "? " + Char(34) + "W1 reached" + Char(34)) +
            TryLine("W2", "Write(" + Lit(tW + Char(92) + "outside" + Char(92) + "planted.txt") + ", " + Char(34) + "x" + Char(34) + ")" + Char(10) + "? " + Char(34) + "W2 reached" + Char(34))
+end
+
+# waits for go.txt (written by the supervisor after the files below exist), then reads them
+func LateProgram
+    tW = SysGet("TEMP") + Char(92) + "stz_b1"
+    return "Write(" + Lit(tW + Char(92) + "runs" + Char(92) + "ready.txt") + ", " + Char(34) + "r" + Char(34) + ")" + Char(10) +
+           "nT0 = Clock()" + Char(10) +
+           "while not FExists(" + Lit(tW + Char(92) + "in" + Char(92) + "go.txt") + ") and Clock() - nT0 < 60000" + Char(10) + "end" + Char(10) +
+           TryLine("L1", "Read(" + Lit(tW + Char(92) + "outside" + Char(92) + "late.txt") + ")" + Char(10) + "? " + Char(34) + "L1 reached" + Char(34)) +
+           TryLine("L2", "? " + Char(34) + "L2 reached " + Char(34) + " + Read(" + Lit(tW + Char(92) + "in" + Char(92) + "late_in.txt") + ")")
+end
+
+# a child of the node reads one file outside and one inside the grant; its standard output is what it read
+# (TEMP is a short path with no space, so the command needs no quotes inside the literal)
+func ToolProgram
+    tW = SysGet("TEMP") + Char(92) + "stz_b1"
+    return "? " + Char(34) + "T1 [" + Char(34) + " + Trim(SystemCmd(" + Lit("type " + tW + Char(92) + "outside" + Char(92) + "key.txt 2>nul") + ")) + " + Char(34) + "]" + Char(34) + Char(10) +
+           "? " + Char(34) + "T2 [" + Char(34) + " + Trim(SystemCmd(" + Lit("type " + tW + Char(92) + "in" + Char(92) + "granted.txt") + ")) + " + Char(34) + "]" + Char(34) + Char(10)
 end
 
 func TryLine(tTag, tBody)
