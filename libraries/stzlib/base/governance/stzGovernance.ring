@@ -94,6 +94,22 @@ func StzPostureReversibilityRefusal(pcPosture, pcRevClass)
 		"the harder an act is to undo, the more trusted the code performing " +
 		"it must be (reversibility x posture, ruling 3.2)"
 
+# The stop words MayProceed admits before any table (IRIS-NEED-STZLIB-01 (d)). Fixed in code on
+# purpose: a list a declaration could edit is a rule a declaration could remove.
+func StzStopActions()
+	return [ "stop", "halt", "abort", "emergency-stop", "emergency_stop", "estop", "e-stop" ]
+
+func StzIsStopAction(pcAction)
+	_cA_ = StzLower(ring_trim("" + pcAction))
+	_aS_ = StzStopActions()
+	_n_ = len(_aS_)
+	for _i_ = 1 to _n_
+		if _aS_[_i_] = _cA_
+			return 1
+		ok
+	next
+	return 0
+
 # Holds governance as declared contracts: risk tiers, permissions, authority levels, commitments, decommissioning, postures and reversibility, with a decision lineage.
 #
 # Permission (what an actor can do) is kept apart from authority (what it should do alone).
@@ -325,6 +341,12 @@ class stzGovernance from stzObject
 	#   see        Why, DeclareRisk, GrantPermission, SetAuthority
 	#@ aka  THE COMPOSITION: CAN + SHOULD + RISK, decided BEFORE the act. An actor proceeds only when it HAS the permission AND its authority level covers the action's risk tier. Every verdict narrates (LAW 3); an undeclared action is REFUSED, not assumed.
 	def MayProceed(pcActor, pcAction)
+		# A STOP IS ALWAYS ADMITTED (IRIS-NEED-STZLIB-01 (d)): judged first, by any actor, with no
+		# table read -- so no tier, grant, authority or later edit of a .zgov can refuse it.
+		if StzIsStopAction(pcAction)
+			@cWhy = "allowed: '" + pcAction + "' is a stop, and a stop is always admitted (no declaration removes it)"
+			return 1
+		ok
 		_nTier_ = This.RiskOf(pcAction)
 		if _nTier_ = 0
 			@cWhy = "refused: '" + pcAction + "' has NO declared risk tier (undeclared actions never proceed)"

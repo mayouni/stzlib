@@ -84,3 +84,144 @@ func StzAgentLearnRead(oMemory, tS, tP, tO, tReader, tKind)
     oMemory.LearnXT(tS, tP, tO, [[:source, StzFactSourceRead(tReader, tKind)]])
     return oMemory
 end
+
+# --- A FACT'S AGE, READ AT THE GATE (IRIS-NEED-STZLIB-01 (c)) ---------------------------------------
+#
+# Every fact a memory learns carries :learnedat, epoch milliseconds (stzAgentMemory.LearnXT). Until
+# this part no gate read it, so a verdict could rest on a tilt measured an hour ago. The gate below
+# composes three rules that come before any declared rule, in this order, and no declaration can
+# remove them:
+#
+#   1. a stop is admitted -- judged first, with no fact read (stzGovernance.MayProceed)
+#   2. a fact that is absent, older than its age limit, or stamped later than now is a refusal;
+#      a fact named at the gate with no age limit is refused too, as an undeclared action is
+#   3. one refusal forbids the act, and every reason is given (StzFactGateWhy)
+#
+# A limit is declared per predicate (StzDeclareFactMaxAge) or given on the fact row itself. One clock:
+# every age is taken on this computer's epoch clock, the clock :learnedat was read from.
+#
+#   StzDeclareFactMaxAge("tilt", 500)
+#   ? StzMayProceedOnFacts(oGov, "on-board", "launch", oMem, [ ["vehicle", "tilt", "12"] ])
+#   ? StzFactGateWhy()
+
+$vStzFactMaxAge = []
+$vStzFactWhy = []
+
+# Declares how old, in milliseconds, a fact with this predicate may be when a gate reads it.
+func StzDeclareFactMaxAge(tPredicate, nMs)
+    if not IsNumber(nMs)
+        StzRaise("stzFactSource: an age limit is a number of milliseconds.")
+    end
+    if nMs < 0
+        StzRaise("stzFactSource: an age limit is not negative.")
+    end
+    tP = StzLower(Trim("" + tPredicate))
+    nN = Len($vStzFactMaxAge)
+    for i = 1 to nN
+        if $vStzFactMaxAge[i][1] = tP
+            $vStzFactMaxAge[i][2] = nMs
+            return true
+        end
+    end
+    $vStzFactMaxAge + [tP, nMs]
+    return true
+end
+
+# The declared age limit of a predicate, in milliseconds; -1 when none is declared.
+func StzFactMaxAgeOf(tPredicate)
+    tP = StzLower(Trim("" + tPredicate))
+    nN = Len($vStzFactMaxAge)
+    for i = 1 to nN
+        if $vStzFactMaxAge[i][1] = tP
+            return $vStzFactMaxAge[i][2]
+        end
+    end
+    return -1
+end
+
+func StzForgetFactMaxAges
+    $vStzFactMaxAge = []
+    return true
+end
+
+# "" when a fact learned at nLearnedAt may be read at nNow under a limit of nMaxMs, else the reason.
+# Pure: the clock is a parameter, so a guard can judge the edges exactly. At the limit passes.
+func StzFactAgeRefusal(tFact, nLearnedAt, nMaxMs, nNow)
+    if not IsNumber(nLearnedAt)
+        return "the fact " + tFact + " carries no time it was learned"
+    end
+    if nMaxMs < 0
+        return "the fact " + tFact + " has no declared age limit"
+    end
+    if nLearnedAt > nNow
+        return "the fact " + tFact + " is stamped " + String(nLearnedAt - nNow) + " ms later than now"
+    end
+    nAge = nNow - nLearnedAt
+    if nAge > nMaxMs
+        return "the fact " + tFact + " is " + String(nAge) + " ms old, older than its limit of " + String(nMaxMs) + " ms"
+    end
+    return ""
+end
+
+# The age rule over one fact row of a memory -- [s, p, o] reads the predicate's declared limit,
+# [s, p, o, nMs] carries its own -- at nNow. "" when the fact may be read, else the reason.
+func StzFactRowRefusal(oMemory, vRow, nNow)
+    tS = "" + vRow[1]
+    tP = "" + vRow[2]
+    tO = "" + vRow[3]
+    tFact = "(" + tS + ", " + tP + ", " + tO + ")"
+    nMax = StzFactMaxAgeOf(tP)
+    if Len(vRow) >= 4
+        nMax = vRow[4]
+    end
+    if not IsObject(oMemory)
+        return "the fact " + tFact + " is absent: no memory was given"
+    end
+    if oMemory.Fact(tS, tP, tO) = 0
+        return "the fact " + tFact + " is absent from the memory"
+    end
+    vM = oMemory.ProvenanceOf(tS, tP, tO)
+    xAt = ""
+    if Len(vM) > 0
+        xAt = vM[:learnedat]
+    end
+    return StzFactAgeRefusal(tFact, xAt, nMax, nNow)
+end
+
+# The gate: may tActor perform tAction under oGov, resting on the facts vFacts of oMemory, now?
+# Answers 1 or 0; StzFactGateWhy gives every reason. A stop is admitted before any fact is read;
+# then every fact is judged (all reasons gathered), then the governance's own MayProceed.
+# Each stale fact is written to the security ledger as fact.stale.
+func StzMayProceedOnFacts(oGov, tActor, tAction, oMemory, vFacts)
+    return StzMayProceedOnFactsAt(oGov, tActor, tAction, oMemory, vFacts, StzEngineTimeNowMs())
+end
+
+func StzMayProceedOnFactsAt(oGov, tActor, tAction, oMemory, vFacts, nNow)
+    $vStzFactWhy = []
+    if StzIsStopAction(tAction)
+        oGov.MayProceed(tActor, tAction)
+        $vStzFactWhy + oGov.Why()
+        return 1
+    end
+    nN = Len(vFacts)
+    for i = 1 to nN
+        tWhy = StzFactRowRefusal(oMemory, vFacts[i], nNow)
+        if tWhy != ""
+            $vStzFactWhy + ("refused: " + tWhy)
+            StzNoteRefusal("fact.stale", "" + tActor, "act:" + tAction, tWhy)
+        end
+    end
+    if oGov.MayProceed(tActor, tAction) = 0
+        $vStzFactWhy + oGov.Why()
+    end
+    if Len($vStzFactWhy) > 0
+        return 0
+    end
+    $vStzFactWhy + oGov.Why()
+    return 1
+end
+
+# Every reason the last StzMayProceedOnFacts gave, in the order judged.
+func StzFactGateWhy
+    return $vStzFactWhy
+end

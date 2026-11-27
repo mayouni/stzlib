@@ -132,6 +132,7 @@ func StzSecurityEventKinds()
 		[ "scope.refused",                "warning", "T1068",     "an operation fell outside the commit scope" ],
 		[ "posture.refused",              "error",   "T1068",     "the executing posture was not admitted" ],
 		[ "reversibility.refused",        "error",   "T1068",     "an operation was refused at the commit: the executor's posture does not cover how undoable it is (stzUpdatePlan.Execute; IRIS-NEED-STZLIB-01 (e))" ],
+		[ "fact.stale",                   "warning", "",          "an act was refused because a fact it rests on was absent, older than its declared age, or stamped later than now (StzMayProceedOnFacts; IRIS-NEED-STZLIB-01 (c))" ],
 		[ "data.path.refused",            "error",   "",          "a tagged field was refused an analytics, log or model path -- the weaves W3 and W4 (stzFieldTags; haro D35)" ],
 		[ "target.refused",               "warning", "",          "an acting agent's effect named a target no code, declaration or typed read vouches for (stzTargetAdmission; SPILLWAY part C)" ],
 		[ "agent.act",                    "info",    "",          "a governed agent act: info when granted; a refused act is recorded AsWarning with the gate's words as its reason (stzfoundry runs; FOUNDRY-LEDGER-01)" ],
