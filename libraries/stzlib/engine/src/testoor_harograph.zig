@@ -57,6 +57,8 @@ const Def = struct { line: i64, node: ?usize };
 
 const File = struct { raw: []const u8, norm: []const u8, defs: std.ArrayList(Def) = .empty };
 
+const Class = struct { name: []const u8, parent: []const u8, file: []const u8, line: i64 };
+
 fn isWord(ch: u8) bool {
     return std.ascii.isAlphanumeric(ch) or ch == '_';
 }
@@ -66,6 +68,46 @@ fn isWord(ch: u8) bool {
 /// the compiler reads it: a program held in a string -- a Python one is, in a .ring file of the library -- is text, not
 /// code. Until 2026-11-27 a string ended with its line, and that program's `eval(obj)` opened the file's statements
 pub const Scan = struct { block: bool = false, q: u8 = 0 };
+
+/// does this line hold code -- anything outside a comment, a string's text included? `st` carries as for lateCall. A line
+/// inside a string is code (it is the string's text); one inside a /* comment, a blank line and a comment line are not.
+/// testoor_diff.zig asks it of a changed line: a change to a line that holds no code changes nothing
+pub fn holdsCode(line: []const u8, st: *Scan) bool {
+    var code = st.q != 0;
+    var i: usize = 0;
+    while (i < line.len) : (i += 1) {
+        const ch = line[i];
+        if (st.block) {
+            if (ch == '*' and i + 1 < line.len and line[i + 1] == '/') {
+                st.block = false;
+                i += 1;
+            }
+            continue;
+        }
+        if (st.q != 0) {
+            code = true;
+            if (ch == st.q) st.q = 0;
+            continue;
+        }
+        switch (ch) {
+            '"', '\'', '`' => {
+                st.q = ch;
+                code = true;
+            },
+            '#' => return code,
+            '/' => {
+                if (i + 1 < line.len and line[i + 1] == '/') return code;
+                if (i + 1 < line.len and line[i + 1] == '*') {
+                    st.block = true;
+                    i += 1;
+                } else code = true;
+            },
+            ' ', '\t', '\r' => {},
+            else => code = true,
+        }
+    }
+    return code;
+}
 
 /// does this line of code call by a name built at run time? `st` carries a /* comment and an open string across lines,
 /// and the whole line is read after a hit, so what it opens is carried. A definition's own name is not a call:
@@ -171,6 +213,9 @@ pub fn fromLinesWith(a: Allocator, text: []const u8, root: ?[]const u8, opts: Op
     var subject: []const u8 = "";
     var file: []const u8 = "";
     var files: std.ArrayList(File) = .empty;
+    // each class, with the class it derives from and where it begins: the record carries them so a change to a class's own
+    // body (its attributes) can name the methods it reaches, its subclasses' included (testoor_diff.zig)
+    var classes: std.ArrayList(Class) = .empty;
 
     const add = struct {
         fn node(al: Allocator, ns: *std.ArrayList(Node), ix: *std.StringHashMap(usize), n: Node) !void {
@@ -194,6 +239,7 @@ pub fn fromLinesWith(a: Allocator, text: []const u8, root: ?[]const u8, opts: Op
             try files.append(a, .{ .raw = field(fs.items, 1), .norm = file });
         } else if (std.mem.eql(u8, tag, "CLASS")) {
             if (files.items.len > 0) try files.items[files.items.len - 1].defs.append(a, .{ .line = lineNo(field(fs.items, 3)), .node = null });
+            try classes.append(a, .{ .name = field(fs.items, 1), .parent = field(fs.items, 2), .file = file, .line = lineNo(field(fs.items, 3)) });
         } else if (std.mem.eql(u8, tag, "FUNC")) {
             const name = field(fs.items, 1);
             try add.node(a, &nodes, &index, .{ .id = name, .name = name, .kind = "function", .file = file, .line = lineNo(field(fs.items, 2)) });
@@ -370,6 +416,25 @@ pub fn fromLinesWith(a: Allocator, text: []const u8, root: ?[]const u8, opts: Op
         try b.s(",\"kind\":");
         try b.js(e.kind);
         try b.s(",\"line\":0}");
+    }
+    // the unit's files and its classes: where a change to a file's lines lands (testoor_diff.zig)
+    try b.s("],\"files\":[");
+    for (files.items, 0..) |f, k| {
+        if (k > 0) try b.c(',');
+        try b.js(f.norm);
+    }
+    try b.s("],\"classes\":[");
+    for (classes.items, 0..) |c, k| {
+        if (k > 0) try b.c(',');
+        try b.s("{\"name\":");
+        try b.js(c.name);
+        try b.s(",\"parent\":");
+        try b.js(c.parent);
+        try b.s(",\"file\":");
+        try b.js(c.file);
+        try b.s(",\"line\":");
+        try b.int(c.line);
+        try b.c('}');
     }
     try b.s("]}\n");
     return b.done();

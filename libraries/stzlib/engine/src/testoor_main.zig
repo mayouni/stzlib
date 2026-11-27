@@ -5,7 +5,7 @@
 //!   testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder]
 //!   testoor walk FOLDER [--suffix S] [--haro PATH] [the same options]
 //!   testoor graph FILE.haro [--haro PATH] [--out FILE.json]     or     testoor graph --lines LINES.txt [--root DIR] [--out FILE.json]
-//!   testoor impact GRAPH.json --changed ID [--changed ID ...] [--tours FOLDER [--suffix S]] [--protocol 2]
+//!   testoor impact GRAPH.json (--changed ID ... | --diff FILE [--root DIR] [--repo DIR]) [--tours FOLDER [--suffix S]] [--protocol 2]
 //!   testoor probe FOLDER [--haro PATH] [--out FILE.json]
 //!   testoor report LOGBOOK.json --graph GRAPH.json [--impact IMPACT.json ...] [--title T] [--stamp LINE ...] [--out FILE.md]
 //!   testoor version
@@ -28,6 +28,13 @@
 //! which tours under FOLDER a change obliges you to walk again -- a tour is selected when its source calls a name of the
 //! reach (the Haro face's names, testoor_reader.zig), and every tour is when the graph is not complete. One line of
 //! figures goes to the standard error, the reach the compiler bound apart from the reach the open nodes widen.
+//!
+//! `--diff FILE` (or `-`, the standard input) reads the change from a unified diff instead, `git diff` as it prints one
+//! (testoor_diff.zig): each changed line names the node it stands in, a tour whose own file changed is selected, and a line
+//! no node holds leaves the record not complete. Each changed file is read from the diff's tree, so a changed line that
+//! holds no code (a comment, a blank) changes nothing. The graph is the code after the change. `--root` is the folder haro graph
+//! ran in, where the graph's paths start (default: the current folder); `--repo` the folder the diff's paths start from
+//! (default: the nearest folder at or above the root that holds `.git`, else the root).
 //!
 //! `graph` writes the graph record of a Haro unit (testoor_harograph.zig): it runs `haro graph FILE` from the file's folder
 //! and reads its lines, or reads lines `haro graph` wrote earlier (`--root` names the folder it ran in, where the unit's files are
@@ -67,6 +74,7 @@ const Rd = @import("testoor_reader.zig");
 const G = @import("testoor_graph.zig");
 const P = @import("testoor_probe.zig");
 const Rp = @import("testoor_report.zig");
+const D = @import("testoor_diff.zig");
 
 const version_line = "testoor 3.5 (protocol 2; the Zig core)";
 
@@ -84,7 +92,7 @@ fn say(s: []const u8) void {
 }
 
 fn usage() noreturn {
-    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor graph FILE.haro [--haro PATH] [--out FILE.json] | --lines LINES.txt [--out FILE.json]\n       testoor impact GRAPH.json --changed ID [--changed ID ...] [--tours FOLDER [--suffix S]] [--protocol 2]\n       testoor probe FOLDER [--haro PATH] [--out FILE.json]\n       testoor report LOGBOOK.json --graph GRAPH.json [--impact IMPACT.json ...] [--title T] [--stamp LINE ...] [--out FILE.md]\n       testoor version\n");
+    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor graph FILE.haro [--haro PATH] [--out FILE.json] | --lines LINES.txt [--out FILE.json]\n       testoor impact GRAPH.json (--changed ID ... | --diff FILE [--root DIR] [--repo DIR]) [--tours FOLDER [--suffix S]] [--protocol 2]\n       testoor probe FOLDER [--haro PATH] [--out FILE.json]\n       testoor report LOGBOOK.json --graph GRAPH.json [--impact IMPACT.json ...] [--title T] [--stamp LINE ...] [--out FILE.md]\n       testoor version\n");
     std.process.exit(2);
 }
 
@@ -386,6 +394,28 @@ fn graph(a: std.mem.Allocator, args: []const []const u8) !void {
     })) catch {};
 }
 
+/// a path with forward slashes, as the core compares paths
+fn slashes(a: std.mem.Allocator, p: []const u8) ![]const u8 {
+    const out = try a.dupe(u8, p);
+    for (out) |*ch| {
+        if (ch.* == '\\') ch.* = '/';
+    }
+    return out;
+}
+
+/// the nearest folder at or above `start` that holds `.git` (a folder, or a file in a linked work tree); else `start`
+fn gitTop(a: std.mem.Allocator, start: []const u8) ![]const u8 {
+    var dir: []const u8 = start;
+    while (true) {
+        const dot_git = try std.fs.path.join(a, &.{ dir, ".git" });
+        if (std.fs.cwd().access(dot_git, .{})) {
+            return dir;
+        } else |_| {
+            dir = std.fs.path.dirname(dir) orelse return start;
+        }
+    }
+}
+
 /// `testoor impact`: the impact record of a change, over a Haro unit's graph record, with the tours it selects
 fn impact(a: std.mem.Allocator, args: []const []const u8) !void {
     const graph_file = args[2];
@@ -393,10 +423,22 @@ fn impact(a: std.mem.Allocator, args: []const []const u8) !void {
     var tours_dir: []const u8 = "";
     var suffix: []const u8 = "_narrated.haro";
     var protocol: []const u8 = "3";
+    var diff_file: ?[]const u8 = null;
+    var root_dir: []const u8 = ".";
+    var repo_dir: ?[]const u8 = null;
     var i: usize = 3;
     while (i < args.len) : (i += 1) {
         if (eq(args[i], "--changed") and i + 1 < args.len) {
             try changed.append(a, args[i + 1]);
+            i += 1;
+        } else if (eq(args[i], "--diff") and i + 1 < args.len) {
+            diff_file = args[i + 1];
+            i += 1;
+        } else if (eq(args[i], "--root") and i + 1 < args.len) {
+            root_dir = args[i + 1];
+            i += 1;
+        } else if (eq(args[i], "--repo") and i + 1 < args.len) {
+            repo_dir = args[i + 1];
             i += 1;
         } else if (eq(args[i], "--tours") and i + 1 < args.len) {
             tours_dir = args[i + 1];
@@ -409,7 +451,7 @@ fn impact(a: std.mem.Allocator, args: []const []const u8) !void {
             i += 1;
         } else usage();
     }
-    if (changed.items.len == 0) usage();
+    if (changed.items.len == 0 and diff_file == null) usage();
     const graph_text = std.fs.cwd().readFileAlloc(a, graph_file, 1 << 30) catch |e|
         fail(try std.fmt.allocPrint(a, "testoor impact: cannot read {s}: {s}" ++ "\n", .{ graph_file, @errorName(e) }));
     var b = T.Buf.init(a);
@@ -422,7 +464,40 @@ fn impact(a: std.mem.Allocator, args: []const []const u8) !void {
         if (k > 0) try b.c(',');
         try b.js(c);
     }
-    try b.s("],\"tours\":[");
+    try b.c(']');
+    // the change read from a diff: its text, and the two folders its paths and the graph's start from, absolute
+    if (diff_file) |df| {
+        const text = (if (eq(df, "-"))
+            std.fs.File.stdin().readToEndAlloc(a, 1 << 30)
+        else
+            std.fs.cwd().readFileAlloc(a, df, 1 << 30)) catch |e|
+            fail(try std.fmt.allocPrint(a, "testoor impact: cannot read the diff {s}: {s}" ++ "\n", .{ df, @errorName(e) }));
+        const root_abs = try slashes(a, try std.fs.path.resolve(a, &.{root_dir}));
+        const repo_abs = if (repo_dir) |r| try slashes(a, try std.fs.path.resolve(a, &.{r})) else try gitTop(a, root_abs);
+        try b.s(",\"diff\":");
+        try b.js(text);
+        try b.s(",\"root\":");
+        try b.js(root_abs);
+        try b.s(",\"repo\":");
+        try b.js(repo_abs);
+        // each changed file's text after the change, read from the diff's tree: which of its changed lines hold code. A file
+        // that cannot be read is left out, and its lines are all taken as code
+        try b.s(",\"texts\":[");
+        var n_texts: usize = 0;
+        for (try D.parse(a, text)) |fc| {
+            if (fc.new.len == 0) continue;
+            const src = std.fs.cwd().readFileAlloc(a, try std.fs.path.join(a, &.{ repo_abs, fc.new }), 64 * 1024 * 1024) catch continue;
+            if (n_texts > 0) try b.c(',');
+            n_texts += 1;
+            try b.s("{\"path\":");
+            try b.js(fc.new);
+            try b.s(",\"text\":");
+            try b.js(src);
+            try b.c('}');
+        }
+        try b.c(']');
+    }
+    try b.s(",\"tours\":[");
     var n_tours: usize = 0;
     if (tours_dir.len > 0) {
         const found = R.discover(a, tours_dir, suffix) catch |e|
@@ -434,6 +509,10 @@ fn impact(a: std.mem.Allocator, args: []const []const u8) !void {
             n_tours += 1;
             try b.s("{\"file\":");
             try b.js(rel);
+            if (diff_file != null) {
+                try b.s(",\"at\":");
+                try b.js(try slashes(a, try std.fs.path.resolve(a, &.{path})));
+            }
             try b.s(",\"names\":[");
             for (try Rd.namesOf(a, src), 0..) |nm, k| {
                 if (k > 0) try b.c(',');
@@ -467,8 +546,21 @@ fn impact(a: std.mem.Allocator, args: []const []const u8) !void {
             line, bound, reach.len, widened.len, (doc.get("capped") orelse unreachable).items().len,
         });
     }
+    if (doc.get("diff")) |dv| {
+        line = try std.fmt.allocPrint(a, "{s}; the diff: {d} file(s), {d} hunk(s), {d} line(s) of which {d} hold no code, {d} node(s) changed, {d} tour(s) changed, {d} file(s) outside the unit, {d} definition(s) removed", .{
+            line,
+            (dv.get("files") orelse unreachable).int_(),
+            (dv.get("hunks") orelse unreachable).int_(),
+            (dv.get("lines") orelse unreachable).int_(),
+            (dv.get("quiet") orelse unreachable).int_(),
+            (doc.get("changed") orelse unreachable).items().len,
+            (dv.get("touched") orelse unreachable).items().len,
+            (dv.get("outside") orelse unreachable).items().len,
+            (dv.get("removed") orelse unreachable).items().len,
+        });
+    }
     const why = (doc.get("why") orelse unreachable).str_();
-    if (why.len > 0) line = try std.fmt.allocPrint(a, "{s}; the graph is not complete, so every tour is selected: {s}", .{ line, why });
+    if (why.len > 0) line = try std.fmt.allocPrint(a, "{s}; the record is not complete, so every tour is selected: {s}", .{ line, why });
     std.fs.File.stderr().writeAll(try std.fmt.allocPrint(a, "{s}" ++ "\n", .{line})) catch {};
 }
 

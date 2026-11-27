@@ -97,7 +97,10 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
 - **Impact recall on real classes**, with real mutants and the tree-sitter call graph, because P1a measured a
   planted subject and not the library with its dynamic dispatch, inheritance and Q-chains.
 - **Selection from a change**: `--impacted-by` fed from `git diff`, method by method, so an agent asks
-  "what did my patch reach".
+  "what did my patch reach". **DONE 2026-11-27** as `testoor impact GRAPH.json --diff FILE` (`TESTOOR_PROTOCOL_3.md` 6.7,
+  `testoor_diff.zig`, goldens `haro/impact/I3` to `I5`): each changed line names the node it stands in, a line holding no
+  code changes nothing, a line no node holds leaves the record not complete. Measured on 82 commits of stzlib over a
+  Foundry guard's unit: 80 nodes and 4 removed definitions named, 3 files left unplaced, each a change of its own statements.
 - **Node-level route coverage**, reported as two counts, with the unwalked closed routes owed by their owners.
 - *Exit:* recall stays 100 percent on the real library or the graph is declared incomplete for the cases
   where it is not.

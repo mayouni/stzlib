@@ -109,7 +109,7 @@ Zig harness only: there is no generator for them, so a case's `expected.*` is th
 |---|---|---|---|
 | `haro/reader/<case>/` | one `.haro` source read by the face | `tour.haro` | `expected.json`: the record, on one line |
 | `haro/judge/<case>/` | one narrated Haro tour judged with the face's `verdicts` rule | the inputs of `protocol2/judge/`, `meta.json` carrying the face | `expected.json`, `expected.txt` |
-| `haro/impact/<case>/` | `testoor impact` over a Haro unit (`TESTOOR_PROTOCOL_3.md` 6.7): the tours' names read by the face | `graph.json`, `changed.txt`, `tours/` (named `.txt`) | `expected.json`: the impact record, protocol 3 |
+| `haro/impact/<case>/` | `testoor impact` over a Haro unit (`TESTOOR_PROTOCOL_3.md` 6.7): the tours' names read by the face | `graph.json`, `changed.txt` or `diff.patch` (a unified diff, its paths and the graph's from the case's folder), `src/` with the changed files' texts after the change (each named `.txt` after its path), `tours/` (named `.txt`) | `expected.json`: the impact record, protocol 3 |
 | `haro/graph/<case>/` | one unit's `haro graph` lines read into the graph record (`TESTOOR_PROTOCOL_3.md` 6.6) | `lines.txt`, and `src/` with the unit's files when the case reads them (named `.txt`, so no sweep of `.haro` files counts a fixture) | `expected.json` |
 | `haro/report/<case>/` | `testoor report` (`TESTOOR_PROTOCOL_3.md` 6.9): the evidence report a person reads, from a walk's logbook, its graph and impact records | `logbook.json`, `graph.json`, `impact.json` (then `impact2.json` ...), `meta.json` (`title`, `stamp`) | `expected.md` |
 | `haro/probe/<case>/` | `testoor probe` on one file (`TESTOOR_PROTOCOL_3.md` 6.8): a call before the first statement of each body, the probe file, what it did not probe, the record of what it probed | `lines.txt` (what `haro graph` printed for the file), `src/` with the file | `expected.haro.txt`, `expected_probe.haro.txt`, `expected_skipped.txt` (one `id|line|why` a line), `expected_graph.json` |
@@ -122,6 +122,9 @@ Zig harness only: there is no generator for them, so a case's `expected.*` is th
 | `H2_a_repeated_claim_is_a_second_check` | `FAIL  x` then `ok  x`: two claims, one diverged; a claim already judged is never judged again |
 | `impact/I1_names_select_a_tour` | a complete graph: the tour calling a name of the reach is selected, the other skipped |
 | `impact/I2_an_open_node_selects_every_tour` | an open node widens the reach and caps itself; every tour is selected |
+| `impact/I3_a_diff_selects_by_the_lines_it_changed` | a diff: a changed line names its function, a removal the line before it, a removed definition is listed, a tour whose own file changed is selected, a file outside the unit obliges nothing |
+| `impact/I4_a_line_no_node_holds_selects_every_tour` | a change to a class's own body names its methods and its subclass's; a line no node holds leaves the record not complete, so every tour is selected |
+| `impact/I5_a_line_that_holds_no_code_changes_nothing` | the files' texts after the change (`src/`): a changed comment and a removed one are quiet; a `#` line inside a string is code and names its function |
 | `graph/G1_functions_methods_dispatch` | `haro graph`'s lines read into the graph record: dispatch to every method of the name, an unfinished function open |
 | `graph/G3_a_late_line_opens_its_caller` | haro v0.77's line for a call by a built name: the caller open, no edge to `*` |
 | `graph/G2_a_call_by_a_built_name_opens_its_function` | the unit's file read: a `call` by a built name opens its function; one in a string or a comment does not |

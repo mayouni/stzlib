@@ -1,0 +1,1 @@
+{"testoor":"logbook","kind":"impact","protocol":3,"subject":"inv.haro","changed":["Label"],"method":"Label","complete":true,"why":"","names":["label"],"selected":["t_label.txt"],"skipped":["t_gross.txt","t_twice.txt"],"reach":["Label"],"widened":[],"capped":[],"diff":{"files":1,"hunks":3,"lines":5,"quiet":3,"touched":[],"outside":[],"removed":[]}}

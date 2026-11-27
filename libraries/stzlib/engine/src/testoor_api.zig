@@ -22,6 +22,7 @@ const G = @import("testoor_graph.zig");
 const R = @import("testoor_routes.zig");
 const Ev = @import("testoor_evidence.zig");
 const Pr = @import("testoor_property.zig");
+const D = @import("testoor_diff.zig");
 
 pub const Error = error{ BadRequest, OutOfMemory, BadOutputLine, BadJson, BadDomain };
 
@@ -182,19 +183,65 @@ pub fn propertyJson(a: Allocator, request: []const u8) Error![]u8 {
 pub fn impactJson(a: Allocator, request: []const u8) Error![]u8 {
     const req = try J.parse(a, request);
     const g = try G.fromValue(a, try field(req, "graph"));
-    const changed = try strings(a, req.get("changed"));
+    var changed: std.ArrayList([]const u8) = .empty;
+    try changed.appendSlice(a, try strings(a, req.get("changed")));
     var tours: std.ArrayList(G.TourNames) = .empty;
+    var tours_at: std.ArrayList(D.Tour) = .empty;
     if (req.get("tours")) |tv| {
-        for (tv.items()) |t| try tours.append(a, .{
-            .file = if (t.get("file")) |x| x.str_() else "",
-            .names = try strings(a, t.get("names")),
-        });
+        for (tv.items()) |t| {
+            const file = if (t.get("file")) |x| x.str_() else "";
+            try tours.append(a, .{ .file = file, .names = try strings(a, t.get("names")) });
+            if (t.get("at")) |x| try tours_at.append(a, .{ .file = file, .at = x.str_() });
+        }
     }
-    var im = try G.impact(a, g, changed, tours.items);
+    // a change read from a diff (testoor_diff.zig): the ids its lines fall in join those named
+    var mapping: ?D.Mapping = null;
+    if (req.get("diff")) |dv| {
+        const root = if (req.get("root")) |x| x.str_() else "";
+        const repo = if (req.get("repo")) |x| x.str_() else "";
+        // the files' texts after the change, where the caller gave them: which changed lines hold code
+        var texts: std.ArrayList(D.Text) = .empty;
+        if (req.get("texts")) |xv| for (xv.items()) |x| {
+            try texts.append(a, .{ .path = if (x.get("path")) |y| y.str_() else "", .text = if (x.get("text")) |y| y.str_() else "" });
+        };
+        const m = try D.map(a, g, try D.parse(a, dv.str_()), root, repo, tours_at.items, texts.items);
+        for (m.changed) |c| {
+            var have = false;
+            for (changed.items) |x| if (G.sameId(g.fold, x, c)) {
+                have = true;
+            };
+            if (!have) try changed.append(a, c);
+        }
+        mapping = m;
+    }
+    var im = try G.impact(a, g, changed.items, tours.items);
     // protocol 3 (V4): the reach as ids, widened by the open nodes, and the nodes they cap
     if (req.get("protocol")) |pv| if (pv.int_() >= 3) {
-        im.v3 = try G.widenedReach(a, g, changed);
+        im.v3 = try G.widenedReach(a, g, changed.items);
     };
+    if (mapping) |m| {
+        if (m.why.len > 0) {
+            im.complete = false;
+            im.why = if (im.why.len > 0) try std.mem.concat(a, u8, &.{ m.why, "; ", im.why }) else m.why;
+        }
+        // in the tours' order: a tour is selected when the reach's names select it, when its own file changed, or when the
+        // record is not complete
+        var sel: std.ArrayList([]const u8) = .empty;
+        var skip: std.ArrayList([]const u8) = .empty;
+        for (tours.items) |t| {
+            var hit = !im.complete;
+            for (im.selected) |x| if (std.mem.eql(u8, x, t.file)) {
+                hit = true;
+            };
+            for (m.summary.touched) |x| if (std.mem.eql(u8, x, t.file)) {
+                hit = true;
+            };
+            if (hit) try sel.append(a, t.file) else try skip.append(a, t.file);
+        }
+        im.selected = sel.items;
+        im.skipped = skip.items;
+        im.diff = m.summary;
+    }
     var b = T.Buf.init(a);
     try G.impactJson(&b, im);
     return b.done();

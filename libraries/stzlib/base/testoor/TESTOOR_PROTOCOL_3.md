@@ -342,6 +342,7 @@ the unit's first file, its `language` is `haro`, and its `fold` is `ascii`, sinc
 | `UNFINISHED|function` | the node is **open**: its calls are missing |
 | `CALL|caller|*|late|n` | haro v0.77 on (HARO-GRAPH-LATECALL-01): the caller holds n calls by a name built at run time -- the node is **open**, and no edge is drawn |
 | a file's own statements (`<top>`) | a node `<top>:FILE`, kind `top`, made when it first calls something |
+| `FILE|path` and `CLASS|name|parent|line`, kept | the record's `files` (the unit's files, as its nodes spell them) and `classes` (`name`, `parent`, `file`, `line`): where a change to a file's lines lands (6.7). Since 2026-11-27 |
 
 **A call by a name built at run time** (`call tName()`, `eval(...)`): a `call` prints its late line (haro v0.77 on) and an
 `eval` prints none, so the face also reads each file of the unit, from the folder haro graph ran in, and the function holding
@@ -362,7 +363,7 @@ method by a name no method of the unit carries, and 161 calling by a name built 
 
 ### 6.7 The impact of a change over a Haro unit: `testoor impact`
 
-    testoor impact GRAPH.json --changed ID [--changed ID ...] [--tours FOLDER [--suffix S]] [--protocol 2]
+    testoor impact GRAPH.json (--changed ID ... | --diff FILE [--root DIR] [--repo DIR]) [--tours FOLDER [--suffix S]] [--protocol 2]
 
 writes the impact record (section 5.1) of a change to the nodes named, over a graph record `testoor graph` wrote. A tour
 under FOLDER is selected when its source CALLS a name of the reach: the Haro face reads each tour's names
@@ -377,6 +378,38 @@ calls the compiler bound -- the Foundry functions calling it and the guard's own
 selected. About 30 s a change, most of it reading the 25.6 MB record. The open nodes are the library's: the reach a codebase's
 own change has by its own calls is the first figure, and fewer calls by a name built at run time in stzlib is what narrows the
 second.
+
+**A change read from a diff** (`--diff FILE`, or `-` for the standard input; `engine/src/testoor_diff.zig`, roadmap P4,
+2026-11-27). An agent hands Testoor its patch as `git diff` prints it and asks what the patch reached, with no id to name. The
+graph is the code AFTER the change, the code the tours will run, so the diff is read on its new side, hunk by hunk by its
+counts (a removed line that reads `--- x` is a line, not a header):
+
+| a changed line | names |
+|---|---|
+| a line that holds no code: a comment, a blank, a line inside a `/*` comment | nothing; it is counted `quiet`. Read from the file's text after the change, which the runner takes from the diff's tree, with the face's rule for strings and comments: a `#` line inside a string is the string's text, so it is code. A removed line is quiet when its own text reads as a comment and the place it left is in no string, or when that place is inside a `/*` comment. A file the runner cannot read has every changed line taken as code |
+| an added line in a function or a method | that node: a definition runs from its own line to the next definition of its file, the rule the face reads the files by |
+| a removed line | the node the line before it stands in |
+| a line of a class's own body (its attributes) | every method of the class and of the classes derived from it, as far as `parent` goes |
+| a line before any definition | the file's own statements, `<top>:FILE`, when the graph holds that node |
+| a line no node holds | nothing, and the record is **not complete**: `why` names the file and the line, so every tour is selected |
+| a removed `def`, `func` or `class` line, the name not defined again in the file | every node of that name: a caller that called it by name now reaches what else answers it, and a caller left with nothing to call is one the compiler could not finish, open already (`Gone(2)` and `This.Missing()` each leave their function unfinished, haro.exe v0.78) |
+| a tour's own file | the tour, selected for itself |
+| a file that is neither the unit's nor a tour | nothing; it is listed |
+
+The diff names a file from the top of its repository and the graph from the folder haro graph ran in, and the two need not be
+one tree: a Foundry guard's unit loads the library from `../.stzlib`, whose own diff names `libraries/...`. So `--root` names the
+graph's folder (default: the current folder) and `--repo` the diff's (default: the nearest folder at or above the root holding
+`.git`); each path is joined to its folder and the two compared, `.` and `..` taken back, without regard to ASCII case. The record
+gains `diff`: `files`, `hunks`, `lines`, `quiet`, `touched` (the tours selected for their own change), `outside` and `removed`;
+the line of figures gains the same counts. Goldens `haro/impact/I3`, `I4`, `I5`.
+
+**Measured on a Foundry guard's unit** (2026-11-27, a copy whose library is stzlib 249ebaa43, haro.exe v0.78): the diff of
+249ebaa43 alone -- 5 files, 63 lines, 8 of them holding no code -- names 1 node, which reaches 8 by calls the compiler bound, and
+4 of its files are outside the unit. The diff of the 82 commits before it -- 272 files, 31,969 lines, 769 holding no code --
+names 80 nodes and 4 removed definitions, 257 files outside the unit; 3 files change their own statements, global values and
+`load` lines, which no node holds, so the record is not complete and says which. The mapping costs nothing the clock shows:
+one id named with `--changed` took 157 s over the same graph and the two diffs 179 s and 149 s, the time being the record's
+25 MB and its widened reach, with another desk's four haro.exe running.
 
 **The core's walks are indexed** (`testoor_graph.zig`, `Index`, 2026-11-15): each id's edges in and out, in the edges' order, so
 a reach follows the same edges in the same order as the scan it replaces, and every golden of protocols 2 and 3 is unchanged.

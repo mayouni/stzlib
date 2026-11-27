@@ -1,0 +1,14 @@
+diff --git a/inv.haro b/inv.haro
+index 1111111..2222222 100644
+--- a/inv.haro
++++ b/inv.haro
+@@ -14 +14 @@ class stzA
+-	nX = 5
++	nX = 6
+diff --git a/lib/consts.ring b/lib/consts.ring
+index 7777777..8888888 100644
+--- a/lib/consts.ring
++++ b/lib/consts.ring
+@@ -2 +2 @@
+-RATE = 0.2
++RATE = 0.19

@@ -1,0 +1,20 @@
+func Gross(n)
+	return n + Vat(n)
+
+# the rate of the day
+func Vat(n)
+	return n * 0.2
+
+
+func Label(s)
+	cT = "Label:
+# not a comment: the text of the string
+"
+class stzA
+	nX = 5
+	def Run()
+		return This.nX
+
+class stzB from stzA
+	def Twice()
+		return This.Run() * 2
