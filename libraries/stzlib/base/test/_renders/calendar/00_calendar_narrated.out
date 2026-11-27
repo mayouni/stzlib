@@ -1,0 +1,40 @@
+SCENARIO: Month identity for October 2024
+  GIVEN the calendar for 2024-10
+  THEN  Year is 2024  [PASS]
+  THEN  MonthName is October  [PASS]
+  THEN  TotalDays is 31  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Working days (Mon-Fri)
+  GIVEN a Mon-Fri working week in October 2024
+  THEN  Thu 2024-10-03 is a working day  [PASS]
+  THEN  Sat 2024-10-05 is not a working day  [PASS]
+  THEN  October 2024 has 23 working days  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Holiday management
+  GIVEN a National Day holiday on 2024-10-15
+  THEN  2024-10-15 is a holiday  [PASS]
+  THEN  2024-10-16 is not a holiday  [PASS]
+  THEN  the holiday's name is read back  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: A viz dimension can be turned down as well as up
+  GIVEN a calendar at its default viz size
+  THEN  the height starts at 10  [PASS]
+  WHEN  the height is raised and then LOWERED
+  THEN  raising works, as it always did  [PASS]
+  THEN  ...and lowering works too  [PASS]
+  THEN  a height under the minimum is floored at 3  [PASS]
+  THEN  the width takes a larger value  [PASS]
+  THEN  ...and floors at 40, not at 3  [PASS]
+  GIVEN a timeline, whose width really is used to draw
+  THEN  its height lowers as well  [PASS]
+  THEN  ...and floors the same way  [PASS]
+  THEN  ...while its width still takes what it is given  [PASS]
+  -> 9 pass, 0 fail
+
+================================================
+TOTAL: 18 assertions, 18 pass, 0 fail
+================================================
+STATUS: OK

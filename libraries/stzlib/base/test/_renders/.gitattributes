@@ -1,0 +1,12 @@
+# These artefacts are COMPARED BYTE FOR BYTE by base/meta/renders.py, so git may
+# not rewrite their line endings on checkout. Without this, `git add` warns "LF
+# will be replaced by CRLF", a Windows desk and a Linux desk check out different
+# bytes for the same baseline, and the gate's verdict depends on which machine
+# ran it rather than on the library.
+#
+# renders.py also normalises CRLF to LF when it READS an artefact, so the gate
+# survives a checkout that ignored this file. Both halves are deliberate: the
+# attribute keeps the stored bytes stable, and the normalisation keeps the gate
+# honest if they are not.
+*.out text eol=lf
+MANIFEST.tsv text eol=lf

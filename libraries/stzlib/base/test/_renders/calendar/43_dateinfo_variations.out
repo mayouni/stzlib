@@ -1,0 +1,27 @@
+Working Day Info:
+[
+	[ "date", "2024-10-03" ],
+	[ "isworkingday", 1 ],
+	[ "isholiday", 0 ],
+	[ "availablehours", 7 ]
+]
+
+Holiday Info:
+[
+	[ "date", "2024-10-05" ],
+	[ "isworkingday", 0 ],
+	[ "isholiday", 1 ],
+	[ "availablehours", 0 ]
+]
+
+Weekend Info:
+[
+	[ "date", "2024-10-06" ],
+	[ "isworkingday", 0 ],
+	[ "isholiday", 0 ],
+	[ "availablehours", 0 ]
+]
+
+
+----------------
+----------------

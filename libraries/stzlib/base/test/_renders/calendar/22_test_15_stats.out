@@ -1,0 +1,15 @@
+[
+	[ "metric", "value" ],
+	[ "Total Days", 31 ],
+	[ "Working Days", 23 ],
+	[ "Weekend Days", 7 ],
+	[ "Holidays", 1 ],
+	[ "Total Available Hours", 161 ],
+	[ "Average Hours Per Day", 7 ],
+	[ "First Working Day", "2024-10-01" ],
+	[ "Last Working Day", "2024-10-31" ]
+]
+
+
+----------------
+----------------

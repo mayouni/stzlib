@@ -1,0 +1,30 @@
+╭───────────────────────────────╮
+│ JSON Export (first 100 chars) │
+╰───────────────────────────────╯
+{
+"startdate": "2024-10-01",
+"enddate": "2024-10-31",
+"year": 2024,
+"month": 10,
+"quarter": "",
+"tot
+
+╭──────────────────────────────╮
+│ CSV Export (first 200 chars) │
+╰──────────────────────────────╯
+Metric,Value
+Start Date;2024-10-01
+End Date;2024-10-31
+Year;2024
+Month;10
+Quarter;
+Total Days;31
+Working Days;23
+Available Hours;184
+Business Start;09:00:00
+Business End;17:00:00
+Holiday;2024-10-05;Ho
+
+
+----------------
+----------------

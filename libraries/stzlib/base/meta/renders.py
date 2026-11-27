@@ -304,11 +304,19 @@ def runtime_id():
 
 
 def engine_id():
+    # REF.txt's first line reads "stzlib c2b930b71 = c2b930b71", so the FIRST
+    # whitespace token is the word "stzlib" and carries no information at all.
+    # The first seeded manifest recorded exactly that, which is a provenance
+    # field that lies: the whole reason to record the engine is to pin WHICH
+    # engine produced the baseline. Keep the first line whole instead, with
+    # internal whitespace collapsed -- robust to the format changing, and a
+    # tab-separated manifest does not mind the spaces.
     ref = os.path.join(ENGINE_DIR, 'REF.txt')
     try:
         with io.open(ref, encoding='utf-8', errors='replace') as fh:
-            return fh.read().strip().split()[0][:16]
-    except (OSError, IndexError):
+            first = fh.read().strip().split(NL)[0]
+        return ' '.join(first.split())[:48] or 'unknown'
+    except OSError:
         return 'unknown'
 
 

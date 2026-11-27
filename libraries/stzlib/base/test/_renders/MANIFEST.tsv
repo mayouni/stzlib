@@ -1,0 +1,23 @@
+key	lines	digest	judged	runtime	engine	captured
+calendar/00_calendar_narrated.ring	40	6d542ecda7f0610b	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:38:50
+calendar/01_pr.ring	31	3d0b3d6e6d5376ad	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:38:53
+calendar/08_test_7_date_information.ring	20	99e9125535f3d67a	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:39:08
+calendar/09_test_8_display_options.ring	34	26c56ed765da84d7	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:39:13
+calendar/10_test_9_heat_map_visualization.ring	16	606616ca2a894364	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:39:19
+calendar/12_pr.ring	47	6e65302ced4a0cb2	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:39:28
+calendar/19_test_12_copy_and_comparison.ring	44	81f8dc3e327d0602	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:39:45
+calendar/20_test_13_data_export.ring	33	43c775db4426570e	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:39:48
+calendar/21_test_14_custom_constraints.ring	18	1b44de7b36ffa140	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:39:52
+calendar/22_test_15_stats.ring	15	d85e257f4c467914	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:39:57
+calendar/23_multi-calendar_comparsion.ring	14	44949351df50e240	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:40:00
+calendar/24_timeline_integration.ring	53	b8bb80814e11821b	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:40:04
+calendar/26_quarter_initialization.ring	21	07e54ffff09df749	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:40:09
+calendar/31_content_method.ring	32	4bd60ddb92a129e2	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:40:20
+calendar/35_available_days_list.ring	32	1401ba7cd60184ca	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:40:27
+calendar/41_tojson_and_tocsv_export.ring	30	92a837d231d22b23	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:40:37
+calendar/42_display_variants.ring	54	f49bb6025e21236e	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:40:40
+calendar/43_dateinfo_variations.ring	27	ceeda9ea244f8bac	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:40:42
+calendar/46_alias_methods_verification.ring	21	1dd1ca5b4a7d6eb6	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:40:47
+calendar/47_legend_method.ring	11	22448732e9e51124	1	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:58:58
+calendar/49_stats_method.ring	18	87601edb2e260640	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:40:54
+calendar/50_detailedtable_methods.ring	44	7b19b4429fcc210b	0	21317660327e7241	stzlib c2b930b71 = c2b930b71	2026-11-27T09:40:56

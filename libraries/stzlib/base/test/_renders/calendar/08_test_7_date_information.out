@@ -1,0 +1,20 @@
+[
+	[ "date", "2024-10-03" ],
+	[ "isworkingday", 1 ],
+	[ "isholiday", 0 ],
+	[ "availablehours", 7 ]
+]
+[
+	[ "startdate", "2024-10-01" ],
+	[ "enddate", "2024-10-15" ],
+	[ "totaldays", 15 ],
+	[ "workingdays", 11 ],
+	[ "weekenddays", 3 ],
+	[ "holidays", 1 ],
+	[ "availablehours", 77 ],
+	[ "overlappingevents", [  ] ]
+]
+
+
+----------------
+----------------
