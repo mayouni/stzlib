@@ -219,7 +219,7 @@ const Where = struct { s: usize, c: usize };
 /// The claim a verdict line lands on: the first one of that text not judged yet, else the longest one its text begins
 /// with, not judged yet. A claim already judged is never judged again: a second verdict of the same text is a SECOND
 /// check and joins the stop as its own (2026-11-14). Landing it on the first let a FAIL followed by an ok of the same
-/// text read as kept -- found on the Foundry's af2 guard, whose "it signs and installs" is checked twice
+/// text read as kept -- found on a Foundry guard, whose "it signs and installs" is checked twice
 fn claimNamed(text: []const u8, stops: []const Stop) ?Where {
     var best: ?Where = null;
     var n_best: usize = 0;

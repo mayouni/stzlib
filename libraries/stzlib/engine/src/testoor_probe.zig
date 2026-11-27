@@ -12,9 +12,9 @@
 //!                                 next, and an `end` that closes an empty body
 //!   the file's last line          `load "<path>/_testoor_probe.haro"`, added on a line of its own
 //!
-//! NOT after the signature, on its line: `func PageUtc(nMs) TestoorProbeHit(50)` ran on haro.exe for some functions and,
+//! NOT after the signature, on its line: `func F(nMs) TestoorProbeHit(50)` ran on haro.exe for some functions and,
 //! for others, made the signature a function of one line and the body the file's own statements -- the parameter then
-//! read as unset (PageUtc, measured on the Foundry, 2026-11-15; the probe's own check caught five such). Neither does
+//! read as unset (measured on the Foundry, 2026-11-15; the probe's own check caught five such). Neither does
 //! haro.exe read a call after a bare name: what follows it is its parameters. So a function whose body begins on the
 //! line of its signature is not probed, and is named. No line of a file moves: a claim, an error and a graph name the
 //! lines they named. `_testoor_probe.haro`, written at
@@ -341,8 +341,8 @@ pub fn probeSource(a: Allocator, ids: []const []const u8, crlf: bool) ![]u8 {
 pub const Own = struct { def: Def, file: []const u8 };
 
 /// THE PROBE'S RECORD: the graph record of the codebase's own functions and methods, cut from the record of a unit that
-/// loads every file of the folder. A file read alone by haro graph names no call into another file -- `FoundryField(...)`
-/// in project.haro left no line, measured 2026-11-15 -- so the edges come from the unit, where every call is resolved; the
+/// loads every file of the folder. A file read alone by haro graph names no call into another file -- a call of one module's
+/// function in another left no line, measured 2026-11-15 -- so the edges come from the unit, where every call is resolved; the
 /// nodes are the codebase's own, each with the file and line its own file gave, and an edge is kept when both of its ends
 /// are. `complete` and `why` are the unit's: a call the unit could not resolve, in the library or not, leaves the codebase's
 /// reach unknown too, and the record says so.

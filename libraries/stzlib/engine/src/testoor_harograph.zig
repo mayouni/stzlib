@@ -24,7 +24,10 @@
 //! would say complete with a hole in it. So the face reads each file of the unit (given its folder), and a function whose code
 //! holds one is OPEN, as protocol 2 section 2 says: "dispatches by a name built at run time". A file it cannot read, or a run
 //! that gives it no folder, leaves the graph not complete, saying why: it never certifies what it did not read. Strings and
-//! comments are skipped; a `.call` is a method's name, not the keyword. Asked of haro.exe too (HARO-GRAPH-LATECALL-01).
+//! comments are skipped, a string over as many lines as it runs; a `.call` is a method's name, not the keyword, and
+//! `def Eval(` is a definition, not a call. Asked of haro.exe too (HARO-GRAPH-LATECALL-01). Measured on a Foundry guard's
+//! unit (2026-11-27): the late lines open 117 functions, every one of them among the files' reading, and the files open 42
+//! more, each one an `eval` caller -- so the files are read for as long as `eval` has no line of its own.
 //!
 //! `<top>`, a file's own statements, is a node `<top>:FILE` of kind top, made when it first calls something. Ids are compared
 //! folded to ASCII lower case (`fold: ascii`), since the unit's .ring files fold case; an edge is written in its node's
@@ -58,30 +61,39 @@ fn isWord(ch: u8) bool {
     return std.ascii.isAlphanumeric(ch) or ch == '_';
 }
 
-/// does this line of code call by a name built at run time? `in_block` carries a /* comment across lines
-pub fn lateCall(line: []const u8, in_block: *bool) bool {
-    var q: u8 = 0;
+/// what the reading of a file carries from one line to the next: a /* comment, or a string not yet closed. A literal of
+/// any of the three forms runs over lines to its own delimiter, with no escape (a `\` is a character like any other), as
+/// the compiler reads it: a program held in a string -- a Python one is, in a .ring file of the library -- is text, not
+/// code. Until 2026-11-27 a string ended with its line, and that program's `eval(obj)` opened the file's statements
+pub const Scan = struct { block: bool = false, q: u8 = 0 };
+
+/// does this line of code call by a name built at run time? `st` carries a /* comment and an open string across lines,
+/// and the whole line is read after a hit, so what it opens is carried. A definition's own name is not a call:
+/// `def Eval(pnX)` declares a method named Eval (until 2026-11-27 it opened that method)
+pub fn lateCall(line: []const u8, st: *Scan) bool {
+    var hit = false;
+    var decl = false;
     var i: usize = 0;
     while (i < line.len) : (i += 1) {
         const ch = line[i];
-        if (in_block.*) {
+        if (st.block) {
             if (ch == '*' and i + 1 < line.len and line[i + 1] == '/') {
-                in_block.* = false;
+                st.block = false;
                 i += 1;
             }
             continue;
         }
-        if (q != 0) {
-            if (ch == q) q = 0;
+        if (st.q != 0) {
+            if (ch == st.q) st.q = 0;
             continue;
         }
         switch (ch) {
-            '"', '\'', '`' => q = ch,
-            '#' => return false,
+            '"', '\'', '`' => st.q = ch,
+            '#' => return hit,
             '/' => {
-                if (i + 1 < line.len and line[i + 1] == '/') return false;
+                if (i + 1 < line.len and line[i + 1] == '/') return hit;
                 if (i + 1 < line.len and line[i + 1] == '*') {
-                    in_block.* = true;
+                    st.block = true;
                     i += 1;
                 }
             },
@@ -90,17 +102,20 @@ pub fn lateCall(line: []const u8, in_block: *bool) bool {
                 var j = i;
                 while (j < line.len and isWord(line[j])) j += 1;
                 const w = line[i..j];
-                if (std.ascii.eqlIgnoreCase(w, "call") and j < line.len and (line[j] == ' ' or line[j] == '\t')) return true;
-                if (std.ascii.eqlIgnoreCase(w, "eval")) {
-                    var k = j;
-                    while (k < line.len and (line[k] == ' ' or line[k] == '\t')) k += 1;
-                    if (k < line.len and line[k] == '(') return true;
+                if (!decl) {
+                    if (std.ascii.eqlIgnoreCase(w, "call") and j < line.len and (line[j] == ' ' or line[j] == '\t')) hit = true;
+                    if (std.ascii.eqlIgnoreCase(w, "eval")) {
+                        var k = j;
+                        while (k < line.len and (line[k] == ' ' or line[k] == '\t')) k += 1;
+                        if (k < line.len and line[k] == '(') hit = true;
+                    }
                 }
+                decl = std.ascii.eqlIgnoreCase(w, "def") or std.ascii.eqlIgnoreCase(w, "func");
                 i = j - 1;
             },
         }
     }
-    return false;
+    return hit;
 }
 
 /// a path with forward slashes, `.` dropped and `..` taken back where it can be
@@ -244,6 +259,8 @@ pub fn fromLinesWith(a: Allocator, text: []const u8, root: ?[]const u8, opts: Op
     var n_late: usize = 0;
     var first_late: []const u8 = "";
     var unread: usize = 0;
+    var unclosed: usize = 0;
+    var first_unclosed: []const u8 = "";
     // the ones haro graph names (v0.77 on): each caller open, counted once with what the files' reading below finds
     for (late_callers.items) |c| {
         const i = index.get(try fold(a, c)) orelse continue;
@@ -260,12 +277,12 @@ pub fn fromLinesWith(a: Allocator, text: []const u8, root: ?[]const u8, opts: Op
                 unread += 1;
                 continue;
             };
-            var in_block = false;
+            var st: Scan = .{};
             var no: i64 = 0;
             var it = std.mem.splitScalar(u8, src, '\n');
             while (it.next()) |raw| {
                 no += 1;
-                if (!lateCall(raw, &in_block)) continue;
+                if (!lateCall(raw, &st)) continue;
                 // the definition the line is in: the last one beginning at or before it. Before any, or in a class's own
                 // body, the line is the file's own statements
                 var owner: ?usize = null;
@@ -284,6 +301,12 @@ pub fn fromLinesWith(a: Allocator, text: []const u8, root: ?[]const u8, opts: Op
                     n_late += 1;
                 }
                 nodes.items[at].open = true;
+            }
+            // the compiler refuses a string that never closes, so a reading that ends inside one read the file otherwise
+            // than the compiler did, and what followed the quote it took for an opening went unread
+            if (st.q != 0) {
+                if (unclosed == 0) first_unclosed = f.norm;
+                unclosed += 1;
             }
         }
     }
@@ -308,6 +331,10 @@ pub fn fromLinesWith(a: Allocator, text: []const u8, root: ?[]const u8, opts: Op
     } else if (unread > 0) {
         if (why.items.len > 0) try why.appendSlice(a, "; ");
         try why.appendSlice(a, try std.fmt.allocPrint(a, "{d} file(s) of the unit could not be read for calls by a name built at run time", .{unread}));
+    }
+    if (unclosed > 0) {
+        if (why.items.len > 0) try why.appendSlice(a, "; ");
+        try why.appendSlice(a, try std.fmt.allocPrint(a, "{d} file(s) whose reading ended inside a string, so what follows the quote that opened it was not read as code; the first: {s}", .{ unclosed, first_unclosed }));
     }
 
     var b = T.Buf.init(a);
@@ -383,7 +410,7 @@ test "a unit read from its lines alone is not complete, and a name defined twice
 }
 
 test "a call by a name built at run time is found in code, and never in a string, a comment or a method's name" {
-    var b = false;
+    var b: Scan = .{};
     try testing.expect(lateCall("\treturn call tName(nX)", &b));
     try testing.expect(lateCall("eval(tCode)", &b));
     try testing.expect(lateCall("  x = Eval (t)", &b));
@@ -392,7 +419,46 @@ test "a call by a name built at run time is found in code, and never in a string
     try testing.expect(!lateCall("oX.call(y)", &b));
     try testing.expect(!lateCall("nRecall = 2", &b));
     try testing.expect(!lateCall("/* call x", &b));
-    try testing.expect(b);
+    try testing.expect(b.block);
     try testing.expect(!lateCall("still call inside */ y = 1", &b));
-    try testing.expect(!b);
+    try testing.expect(!b.block);
+}
+
+test "A STRING RUNS OVER LINES TO ITS OWN QUOTE, AND A DEFINITION'S NAME IS NO CALL: a program held in a string is text" {
+    var b: Scan = .{};
+    // a Python program held in a Ring string: its eval is text until the string's own quote closes it
+    try testing.expect(!lateCall("$cPy = '", &b));
+    try testing.expectEqual(@as(u8, '\''), b.q);
+    try testing.expect(!lateCall("        x = eval(obj)", &b));
+    try testing.expect(!lateCall("    return \"[\" + x + \"]\"", &b));
+    try testing.expect(!lateCall("'", &b));
+    try testing.expectEqual(@as(u8, 0), b.q);
+    // the line is read to its end after a hit, so a string it opens is carried to the next line
+    try testing.expect(lateCall("eval(tCode)  cNext = \"", &b));
+    try testing.expectEqual(@as(u8, '"'), b.q);
+    try testing.expect(!lateCall("call me, says the text", &b));
+    try testing.expect(lateCall("\"  call tName()", &b));
+    // a method named Eval, declared, is no call; called, it is still the method, after a dot
+    b = .{};
+    try testing.expect(!lateCall("\t\tdef Eval(pnX)", &b));
+    try testing.expect(!lateCall("func eval (x)", &b));
+    try testing.expect(!lateCall("\treturn oPoly.Eval(3)", &b));
+    try testing.expect(lateCall("def F(x) eval(x)", &b));
+}
+
+test "a file whose reading ends inside a string leaves the graph not complete, naming the file" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    var tmp = testing.tmpDir(.{});
+    defer tmp.cleanup();
+    try tmp.dir.writeFile(.{ .sub_path = "good.ring", .data = "func G()\n\tcPy = '\n\tx = eval(obj)\n'\n\treturn 1\n\nfunc H(t)\n\teval(t)\n" });
+    try tmp.dir.writeFile(.{ .sub_path = "open.ring", .data = "func K()\n\t? \"never closed\n" });
+    const root = try tmp.dir.realpathAlloc(a, ".");
+    const r = try fromLines(a, "FILE|good.ring\nFUNC|G|1\nFUNC|H|7\nFILE|open.ring\nFUNC|K|1\n", root);
+    // G holds its eval in a string: not open; H calls eval: open
+    try testing.expect(std.mem.indexOf(u8, r, "{\"id\":\"G\",\"name\":\"G\",\"kind\":\"function\",\"file\":\"good.ring\",\"line\":1}") != null);
+    try testing.expect(std.mem.indexOf(u8, r, "{\"id\":\"H\",\"name\":\"H\",\"kind\":\"function\",\"file\":\"good.ring\",\"line\":7,\"open\":true}") != null);
+    try testing.expect(std.mem.indexOf(u8, r, "\"complete\":false") != null);
+    try testing.expect(std.mem.indexOf(u8, r, "1 file(s) whose reading ended inside a string, so what follows the quote that opened it was not read as code; the first: open.ring") != null);
 }
