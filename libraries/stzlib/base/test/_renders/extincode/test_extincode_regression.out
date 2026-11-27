@@ -1,0 +1,19 @@
+=== stzExtinCode integration regression ===
+
+--- iif numeric ---
+
+--- iif string ---
+
+--- iif aliases ---
+
+--- Length ---
+
+--- console ---
+(console.log smoke)
+(console.WriteLine smoke)
+
+==========================
+Total:  13
+Passed: 13
+Failed: 0
+ALL stzExtinCode CHECKS PASSED!

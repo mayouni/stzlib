@@ -1,0 +1,65 @@
+SCENARIO: the counts themselves: codepoints, not bytes
+  THEN  StzLen counts codepoints for latin  [PASS]
+  THEN  ...and len() still counts BYTES (both are wanted, by intent)  [PASS]
+  THEN  StzLen counts codepoints for arabic  [PASS]
+  THEN  ...emoji count as one codepoint each  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: StzLeft takes N CHARACTERS from the left
+  THEN  ascii is unchanged (bytes == codepoints here)  [PASS]
+  THEN  accented latin  [PASS]
+  THEN  arabic  [PASS]
+  THEN  CJK  [PASS]
+  THEN  emoji  [PASS]
+  THEN  REGRESSION: the byte slice used to return empty here  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: StzRight takes N CHARACTERS from the right
+  THEN  ascii  [PASS]
+  THEN  accented latin  [PASS]
+  THEN  arabic  [PASS]
+  THEN  emoji  [PASS]
+  THEN  REGRESSION: the byte slice used to return half of this  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: StzMid takes a 1-based START and a CHARACTER count
+  THEN  ascii  [PASS]
+  THEN  accented latin  [PASS]
+  THEN  arabic  [PASS]
+  THEN  emoji spanning both sides  [PASS]
+  THEN  CJK  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: StzMidToEnd takes everything from a 1-based START
+  THEN  ascii  [PASS]
+  THEN  accented latin  [PASS]
+  THEN  REGRESSION: arabic used to come back empty  [PASS]
+  THEN  REGRESSION: mixed used to come back half-length  [PASS]
+  THEN  emoji  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: round trips: left + right, and mid over the whole string
+  THEN  left(2)+midToEnd(3) reassembles arabic  [PASS]
+  THEN  ...and mixed  [PASS]
+  THEN  mid over the full span is identity  [PASS]
+  THEN  left(all) is identity  [PASS]
+  THEN  right(all) is identity  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: degenerate input is lenient, never a panic
+  THEN  a NEGATIVE count returns empty instead of killing the process  [PASS]
+  THEN  ...on StzRight too  [PASS]
+  THEN  ...and StzMid  [PASS]
+  THEN  a zero count is empty  [PASS]
+  THEN  an over-long count clamps to the end  [PASS]
+  THEN  ...on multibyte too  [PASS]
+  THEN  a start past the end is empty  [PASS]
+  THEN  ...for MidToEnd as well  [PASS]
+  THEN  a start below 1 is clamped to 1  [PASS]
+  THEN  the empty string survives every call  [PASS]
+  -> 10 pass, 0 fail
+
+================================================
+TOTAL: 40 assertions, 40 pass, 0 fail
+================================================
+STATUS: OK

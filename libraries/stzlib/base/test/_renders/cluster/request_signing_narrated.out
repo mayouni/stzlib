@@ -1,0 +1,77 @@
+SCENARIO: a genuine request verifies
+  GIVEN a signer holding web's shared key
+  THEN  the signature is a 64-hex HMAC  [PASS]
+  THEN  it verifies within the freshness window  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: tampering with the path or body breaks the signature (integrity)
+  GIVEN a signed request
+  THEN  a tampered PATH is rejected  [PASS]
+  THEN  a tampered BODY is rejected  [PASS]
+  THEN  a tampered METHOD is rejected  [PASS]
+  THEN  the why names a signature mismatch  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a wrong or unknown key cannot forge (authenticity)
+  GIVEN two callers with different secrets
+  THEN  verifying web's signature under gpu's key fails  [PASS]
+  THEN  a caller with NO registered key is rejected  [PASS]
+  THEN  the why names the unknown key  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: stale or future-dated requests fail the freshness window
+  GIVEN a request signed at t=1000, a 30s window
+  THEN  verified far in the future (now=99999) is rejected as stale  [PASS]
+  THEN  a future-dated timestamp (clock skew ahead) is also rejected  [PASS]
+  THEN  the why names the freshness window  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a captured signature cannot be replayed (nonce)
+  GIVEN a genuine request verified once
+  THEN  the first use verifies  [PASS]
+  THEN  an identical replay (same nonce) is rejected  [PASS]
+  THEN  the why names a replay  [PASS]
+  THEN  a DIFFERENT nonce for the same request verifies (fresh request)  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: SignNow / VerifyEnvelope round-trip on the real clock
+  GIVEN a signer and a fresh envelope
+  THEN  the envelope carries the four fields  [PASS]
+  THEN  it verifies immediately  [PASS]
+  THEN  a tampered envelope target is rejected  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a federated call is SIGNED when the caller shares a key
+  GIVEN a governed federation where 'web' shares a key
+  WHEN  web makes a federated call (transport fails -- no live host, that's fine)
+  THEN  the outbound request was signed (an envelope is recorded)  [PASS]
+  THEN  the envelope names web as the signer  [PASS]
+  THEN  the signature is a 64-hex HMAC  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: an unsigned caller (no key) transports without a signature
+  GIVEN the same federation, but caller 'anon' has no key
+  WHEN  anon makes a federated call
+  THEN  no signature envelope is produced (opt-in signing)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: the RECEIVER verifies a signed call and rejects tampering
+  GIVEN node A signs; node B shares the same key
+  WHEN  A issues a signed federated call
+  THEN  B accepts the genuine request against its original target  [PASS]
+  THEN  B rejects the same signature on a TAMPERED path  [PASS]
+  THEN  B rejects a REPLAY of the (now-consumed) genuine request  [PASS]
+  THEN  node C, without the shared key, cannot verify it at all  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: signing is a SEPARATE gate from governance (defense in depth)
+  GIVEN a federation where a caller is signed but governance would still gate
+  WHEN  web (validly signable) calls a critically-governed facet
+  THEN  governance still refuses (signing does not bypass authorization)  [PASS]
+  THEN  and because it never reached transport, nothing was signed  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 29 assertions, 29 pass, 0 fail
+================================================
+STATUS: OK

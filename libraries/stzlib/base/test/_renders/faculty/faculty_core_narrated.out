@@ -1,0 +1,90 @@
+SCENARIO: A faculty is judged at declaration
+  THEN  a fresh faculty is not complete  [PASS]
+  THEN  it names what is missing: no types, no floor, no golden set  [PASS]
+  THEN  an unknown payload type is refused at declaration  [PASS]
+  THEN  a faculty with types, a floor and a golden set is complete  [PASS]
+  THEN  its floor is declared  [PASS]
+  THEN  an implementation id is unique within its faculty  [PASS]
+  THEN  a floor cannot be added as an ordinary implementation  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The court judges every output, and a record is judged by C9 unchanged
+  THEN  a label is trimmed and case-folded to the declared one  [PASS]
+  THEN  a label outside the closed enumeration is refused  [PASS]
+  THEN  a vector of the wrong dimension is refused (vectors of different dimensions never compare)  [PASS]
+  THEN  a ranking must be ordered best first  [PASS]
+  THEN  a record inside its band passes the C9 court  [PASS]
+  THEN  a record outside its band is refused by C9 (a schema-valid lie would still pass)  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Unmeasured is unknown, never good -- so with no measurement the floor answers
+  THEN  the registry chose the floor  [PASS]
+  THEN  ...because the floor itself is unmeasured: there is no bar to beat  [PASS]
+  THEN  ...and the better model was not taken on trust  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: RunGoldens measures every installed implementation, the floor first
+  THEN  the floor, better, worse, equal, wild and viral were measured (ghost is not installed, remote is a service)  [PASS]
+  THEN  the floor scores 0.5  [PASS]
+  THEN  better scores 1  [PASS]
+  THEN  worse scores 0.25  [PASS]
+  THEN  equal scores exactly the floor  [PASS]
+  THEN  wild fails conformance: its court refused it  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Resolution picks the model that STRICTLY beats the measured floor, and says why
+  THEN  the better model is chosen  [PASS]
+  THEN  its kind is model  [PASS]
+  THEN  Why() states the measured score and the bar it beat  [PASS]
+  THEN  worse is rejected: it does not beat the floor  [PASS]
+  THEN  equal is rejected too: a tie is not a win  [PASS]
+  THEN  wild is rejected: it fails conformance  [PASS]
+  THEN  ghost is rejected: not installed  [PASS]
+  THEN  viral is rejected: its licence is not permissive  [PASS]
+  THEN  remote is rejected: a service is never selected implicitly  [PASS]
+  THEN  the floor is kept as the fallback  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: A requirement filters; the inverse (pinning) is always possible
+  THEN  a memory budget of 100 MB leaves no eligible model: the floor answers  [PASS]
+  THEN  better covers every language ('*'), so a language requirement keeps it  [PASS]
+  THEN  quality :best (0.9) is met by better (1.0)  [PASS]
+  THEN  pinning the floor overrides the registry  [PASS]
+  THEN  pinning 'worse' is obeyed although the registry would never choose it  [PASS]
+  THEN  ...and the plan says it is pinned and what the measurement was  [PASS]
+  THEN  pinning an implementation that is not installed is a REFUSAL, not a silent substitute  [PASS]
+  THEN  a service CAN be reached -- by pinning it by name  [PASS]
+  THEN  a pinned SET lets the registry choose inside it, still by measurement  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: One switch turns every model off
+  THEN  under the deterministic policy the registry chooses the floor  [PASS]
+  THEN  ...and says why  [PASS]
+  THEN  restoring the policy restores the choice  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Running a faculty yields a parcel with its provenance; a failing model falls back to the floor
+  THEN  the answer is a parcel, not a bare value  [PASS]
+  THEN  the better model answered correctly (12345 is odd)  [PASS]
+  THEN  its provenance names the faculty and the implementation  [PASS]
+  THEN  it carries a content key  [PASS]
+  THEN  every resolution was recorded in the trace  [PASS]
+  THEN  the trace says which implementation was chosen  [PASS]
+  THEN  the same input gives the same key (memoised, deterministic)  [PASS]
+  THEN  the fragile model beats the floor on the goldens, so it is chosen  [PASS]
+  THEN  a model that fails and was not pinned does not break the flow: the floor answers (it says no for anything but x)  [PASS]
+  THEN  ...and the provenance says it fell back and why  [PASS]
+  THEN  a PINNED model that fails is a refusal -- never a silent substitute  [PASS]
+  THEN  ...and the refusal names the rule  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: Measurements persist as plain text and come back
+  THEN  after clearing, nothing is measured  [PASS]
+  THEN  loading restores every row  [PASS]
+  THEN  ...the score survived  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 59 assertions, 59 pass, 0 fail
+================================================
+STATUS: OK

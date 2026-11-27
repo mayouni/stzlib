@@ -1,0 +1,17 @@
+SCENARIO: The path guard itself: it refuses everything outside the fixture
+  THEN  a relative path is refused  [PASS]
+  THEN  a path with two dots is refused  [PASS]
+  THEN  a drive root is refused  [PASS]
+  THEN  the folder that holds the fixture is refused  [PASS]
+  THEN  a sibling that only shares the prefix is refused  [PASS]
+  THEN  a number is refused  [PASS]
+  THEN  the fixture folder itself is accepted  [PASS]
+  THEN  a file inside the fixture is accepted  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Building a cache with parentheses: the folder and the file appear, nothing is activated
+  GIVEN no cache folder in the fixture
+  THEN  there is no cache folder yet  [PASS]
+  WHEN  new stzCache('sums', :InFile) is built
+
+Line 2995 stzCacheStorage: unsupported storage type 'infile'.

@@ -1,0 +1,46 @@
+SCENARIO: a workflow is a DECLARED chain of facet stages
+  THEN  it has four stages  [PASS]
+  THEN  the facet sequence is the routing contract  [PASS]
+  THEN  it narrates the pipeline  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Run threads an input through every stage in order
+  GIVEN a scanned document
+  THEN  vision stripped the scan prefix, then each stage appended  [PASS]
+  THEN  the trace records every stage  [PASS]
+  THEN  the first trace stage is the vision OCR  [PASS]
+  THEN  the last stage output IS the final output  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: each stage is admitted into ITS facet's budget (load isolation)
+  GIVEN a worker pool covering the pipeline's facets
+  WHEN  two documents run through the pipeline
+  THEN  each facet was admitted once per run (read via the pipeline's pool)  [PASS]
+  THEN  vision too  [PASS]
+  THEN  and every slot was released (no leak)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: RunBatch fans many inputs through the whole pipeline
+  THEN  three results come back  [PASS]
+  THEN  each went through the full chain  [PASS]
+  THEN  and the third too  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a pipeline is VALIDATED against a deployment's catalog
+  GIVEN a catalog that does NOT offer the knowledge facet
+  THEN  validation flags the missing facet  [PASS]
+  THEN  naming it  [PASS]
+  GIVEN the full catalog
+  THEN  the pipeline validates clean (all facets offered)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a pipeline can specialize along NON-doc facets (breadth)
+  GIVEN a data-science pipeline: table -> learning -> search
+  THEN  its facets are table/learning/search (not the doc's four)  [PASS]
+  THEN  it runs end to end  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 18 assertions, 18 pass, 0 fail
+================================================
+STATUS: OK

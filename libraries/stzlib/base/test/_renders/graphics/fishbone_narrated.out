@@ -1,0 +1,29 @@
+-- Scene 1: why the coffee is bitter -- six categories, nine causes --
+   the effect 'Bitter coffee' at the head, 6 bones, 9 causes
+  [OK] six categories and nine causes, one effect
+   the spine runs at y = 161.90 into the head at y = 161.90
+  [OK] the spine meets the head on its centre line
+  [OK] the spine ends where the head begins
+
+-- Scene 2: three rules about an analysis, and a sound one passes them --
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 0
+   every_bone_carries_a_cause, a_cause_is_named_once, the_effect_is_not_its_own_cause
+  [OK] the analysis has nothing wrong with it
+
+-- Scene 3: the same analysis with three mistakes --
+   a category with nothing under it; 'Stale beans' listed under two
+   categories; the effect written among its own causes.
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 4
+     every_bone_carries_a_cause -- no category is left without a cause under it -- 'Measurement' carries no cause -- the analysis stopped at the bone
+     a_cause_is_named_once -- no cause is listed under two categories -- 'Stale beans' is listed under 'Method' and again under 'Material' -- one cause, named twice
+     a_cause_is_named_once -- no cause is listed under two categories -- 'Stale beans' is listed under 'Material' and again under 'Method' -- one cause, named twice
+     the_effect_is_not_its_own_cause -- the effect is not written among its causes -- 'Bitter coffee' under 'People' is the effect itself -- it explains nothing
+  [OK] the empty bone is caught, by its category
+  [OK] a cause named twice is reported on both listings
+  [OK] the effect among its own causes is caught
+  [OK] and those four are everything the rules find
+
+-- Scene 4: the pictures --
+   wrote guide_fishbone.png and guide_fishbone_witness.png
+
+== 8 passed, 0 failed ==

@@ -1,0 +1,23 @@
+device : NVIDIA GeForce RTX 3050 6GB Laptop GPU
+
+-- pass 1: draw INTO A RENDER TARGET -------------------------
+   target A drawn: red field, blue-ish left half
+
+-- pass 2: SAMPLE TARGET A, with no CPU round trip -----------
+   pass 2 sampled TARGET A : status 0
+   bytes across the bus between the passes : 0   (0 = no round trip)
+
+   sampled 400 pixels:  inverted 400   unchanged 0   neither 0
+   PASS 2 READ TARGET A ON THE DEVICE : 1
+
+-- and the hazard is still refused ---------------------------
+   sampling the LIVE target : status 3   (3 = BAD_ARG, refused)
+   the hazard check survived the fix : 1
+
+   wrote gg4_source.png and gg4_postprocess.png
+
+==============================================================
+ GAP 2 CLOSED : YES
+ a pass can read an earlier pass's output, and cannot read
+ the one it is writing
+==============================================================

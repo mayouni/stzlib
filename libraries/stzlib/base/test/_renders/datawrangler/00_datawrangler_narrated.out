@@ -1,0 +1,35 @@
+SCENARIO: Trim whitespace
+  GIVEN values with surrounding spaces
+  THEN  whitespace is stripped  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Remove duplicates
+  GIVEN values with repeats
+  THEN  only first occurrences remain  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Normalize case
+  GIVEN mixed-case values
+  THEN  lower-casing  [PASS]
+  THEN  upper-casing  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Handle missing values
+  GIVEN values with '' and 'NULL' placeholders
+  THEN  missing entries are dropped  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: A full cleaning pipeline
+  GIVEN messy data: spaces, dupes, mixed case
+  THEN  the chained transforms yield clean, unique, lowercase data  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Plan execution dispatches every step without arity errors
+  GIVEN a table wrangler running the 'clean' plan
+  THEN  no step fails with an arity error  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

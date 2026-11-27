@@ -1,0 +1,98 @@
+SCENARIO: ValueOf and PlaceOf answer for 1 and the last position, and say nothing for the rest
+  THEN  there are three measurements  [PASS]
+  THEN  position 1 reads 100  [PASS]
+  THEN  the last position, 3, reads 300  [PASS]
+  THEN  position 1 was made at [ 1.5, 2.5 ], longitude first  [PASS]
+  THEN  the last position was made at [ 4.5, 9 ]  [PASS]
+  THEN  the middle one reads 200 and sits at [ 3, 4 ]  [PASS]
+  THEN  NEGATIVE: position 0 has no value (no error, an empty answer)  [PASS]
+  THEN  NEGATIVE: position 0 is not a number, so a caller can test it  [PASS]
+  THEN  NEGATIVE: and no place  [PASS]
+  THEN  NEGATIVE: past the last (4) has no value  [PASS]
+  THEN  NEGATIVE: past the last (4) has no place  [PASS]
+  THEN  NEGATIVE: a far position (1000) has neither  [PASS]
+  THEN  NEGATIVE: a negative position has neither  [PASS]
+  THEN  NEGATIVE: a position between two (1.5) is not rounded to a neighbour  [PASS]
+  THEN  NEGATIVE: a text is not a position  [PASS]
+  THEN  the whole range 1..Count answers, every position  [PASS]
+  THEN  NEGATIVE: a set grown to 60 gauges still refuses 61  [PASS]
+  THEN  and answers 60  [PASS]
+  -> 18 pass, 0 fail
+
+SCENARIO: A set without a trend stays sound, and its numbers are those main produced
+  THEN  sixty gauges  [PASS]
+  THEN  the best fit is the Gaussian one, as on main  [PASS]
+  THEN  its sill is the one main fitted, 59.61077300006081  [PASS]
+  THEN  its range is the one main fitted, 351.3733854206128 km  [PASS]
+  THEN  kriging at (2.4, 4.1) estimates what main did, 72.99917169882292  [PASS]
+  THEN  and its variance is what main computed, 0.0038984344082564  [PASS]
+  THEN  the leave-one-out bias is main's, 0.04772841149954748  [PASS]
+  THEN  the leave-one-out rmse is main's, 0.24443242419580941  [PASS]
+  THEN  the estimate stays within the measured range, give or take a tenth of its spread  [PASS]
+  THEN  it has no finding at all  [PASS]
+  THEN  and it is sound  [PASS]
+  THEN  NEGATIVE: asked BEFORE any KrigeFields run, the probe agrees: sound  [PASS]
+  THEN  NEGATIVE: the probe finds nothing for the set either  [PASS]
+  THEN  NEGATIVE: the new rule is not a general complaint -- the spherical fit of the same set is sound too  [PASS]
+  THEN  NEGATIVE: and so is the exponential one, apart from its warning about the range  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: Gauges with a trend: the Gaussian estimate leaves the data, and now it is an error
+  THEN  fifty gauges read from about 190 to 786  [PASS]
+  THEN  the fit is the Gaussian one  [PASS]
+  THEN  its range is INSIDE the window's half diagonal (about 600 km), which is why the old range rule said nothing  [PASS]
+  THEN  BEFORE any kriging a probe already finds it: one finding  [PASS]
+  THEN  it is the estimate rule  [PASS]
+  THEN  it is an ERROR, not a warning  [PASS]
+  THEN  and the set is NOT sound  [PASS]
+  THEN  the message names the cure: a bounded model  [PASS]
+  THEN  the message names the other cure: take the trend out  [PASS]
+  THEN  the message states the two ranges it compares (the gauges' and the estimate's)  [PASS]
+  THEN  THE FAILURE IS REAL: the estimate runs below -10000  [PASS]
+  THEN  THE FAILURE IS REAL: and above 10000  [PASS]
+  THEN  it is returned as computed, never clamped: below the lowest gauge by far  [PASS]
+  THEN  AFTER the run, the finding reads the kriged field: still one finding  [PASS]
+  THEN  it says where it read the numbers  [PASS]
+  THEN  it reports the field's own lowest value  [PASS]
+  THEN  and the set is still NOT sound  [PASS]
+  THEN  NEGATIVE: IDW on the same gauges cannot leave their range, and says so  [PASS]
+  THEN  NEGATIVE: fewer than two findings -- the range, nugget and count rules did not all fire  [PASS]
+  -> 19 pass, 0 fail
+
+SCENARIO: The same trend set with a bounded model stays inside the data and is sound
+  THEN  the spherical fit is spherical  [PASS]
+  THEN  its estimate stays within the data, give or take a tenth of the spread  [PASS]
+  THEN  and there is no estimate finding  [PASS]
+  THEN  the set is sound (its range is only a warning)  [PASS]
+  THEN  the exponential fit on the same gauges is sound too  [PASS]
+  THEN  and has no estimate finding  [PASS]
+  THEN  NEGATIVE: :Best picks the Gaussian one on this set (lowest residual) -- the trap is the default  [PASS]
+  THEN  NEGATIVE: and so :Best is flagged  [PASS]
+  THEN  NEGATIVE: with no model adopted there is no estimate to judge, and no finding of that rule  [PASS]
+  THEN  NEGATIVE: and a set with no model is not unsound for it  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: The check reads the last KrigeFields run, and a new model forgets it
+  THEN  after a Gaussian run it is flagged  [PASS]
+  THEN  a new model is adopted: the old run is forgotten, the probe reads the new model: sound  [PASS]
+  THEN  NEGATIVE: and the estimate rule is silent  [PASS]
+  THEN  adopting the Gaussian one again is flagged again, without a new KrigeFields run  [PASS]
+  THEN  NEGATIVE: an Exponential model adopted after the run is not judged by the Gaussian run  [PASS]
+  THEN  NEGATIVE: three equal gauges cannot make an estimate outside them: no estimate finding  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Beyond 200 gauges the probe is not run; a KrigeFields run is still read
+  THEN  201 gauges  [PASS]
+  THEN  with a Gaussian model adopted but NO run, nothing is probed: the estimate rule is silent (the stated limit)  [PASS]
+  THEN  a run of KrigeFields on the same 201 gauges leaves the data  [PASS]
+  THEN  and from then on Findings reads it: flagged  [PASS]
+  THEN  and the set is not sound  [PASS]
+  THEN  the source no longer carries a 'Defect:' line  [PASS]
+  THEN  NEGATIVE: it carries the honest limit: the estimate is not held to the measured range  [PASS]
+  THEN  NEGATIVE: and the one for FitAndUse: the fit is not bounded  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 76 assertions, 76 pass, 0 fail
+================================================
+STATUS: OK

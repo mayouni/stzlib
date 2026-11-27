@@ -1,0 +1,94 @@
+-- Scene 1: reversibility is the SIXTH declarable contract --
+  [OK] an undeclared subject has no class -- absence is answerable
+  [OK] a declared class reads back
+  [OK] re-declaring UPDATES rather than duplicates
+  [OK] a word outside the three-class vocabulary RAISES -- the .pia words are the contract's whole vocabulary
+  [OK] a .zgov round trip carries the sixth contract
+  [OK] ...beside the posture it composes with
+
+-- Scene 2: the registration gate, in the engine's own words --
+  [OK] no coverage statement -> refused
+  [OK] ...as AGENTLOOP-R4
+  [OK] ...in the engine's sentence
+  [OK] no reversibility class -> refused
+  [OK] ...as AGENTLOOP-R5
+  [OK] ...in the engine's sentence
+  [OK] a class outside the vocabulary is the ABSENCE of a class, refused the same way
+  [OK] coverage stated and reversal declared -> registration is free
+
+-- Scene 3: posture x reversibility -- the whole table --
+  [OK] trusted covers reversible
+  [OK] trusted covers compensable
+  [OK] trusted covers irreversible
+  [OK] external covers reversible
+  [OK] external covers compensable
+  [OK] external does NOT cover irreversible
+  [OK] sandboxed covers reversible
+  [OK] sandboxed does NOT cover compensable
+  [OK] sandboxed does NOT cover irreversible
+  [OK] ...and a refusal says WHY in the one ruled sentence
+  [OK] MayExecuteFor composes the declared posture with the class
+  [OK] ...quoting the same sentence
+  [OK] ...and allows what the posture covers
+  [OK] an executor with NO declared posture never executes at all
+
+-- Scene 4: the .pia v2 court -- a ring: clause carries a posture --
+  [OK] a v2 skill with ring: AND posture is admitted
+  [OK] ...and the build reports the version it read
+  [OK] the same file WITHOUT the posture is refused
+  [OK] ...naming the rule
+  [OK] ...and saying what the posture adds over the name check
+  [OK] a posture word the vocabulary does not know is refused
+  [OK] a posture on a skill with NO ring: clause governs nothing -- refused
+  [OK] sandboxed code acting for an irreversible agent is refused AT LOAD
+  [OK] ...in the composition rule's own sentence
+  [OK] a v1 file with a bare ring: clause is STILL admitted -- the stated migration state
+  [OK] but v1's vocabulary did not grow: posture in a v1 file is an unknown key
+  [OK] a version this build does not know is refused, naming what it does know
+
+-- Scene 5: what the file declares lands in the agent's governance --
+  [OK] the agent's own governance holds the sixth contract
+  [OK] ...and the ring function's posture
+  [OK] ...so MayExecuteFor answers for the code the file named
+  [OK] a v1 agent's ring function has NO declared posture -- MayExecute refuses
+  [OK] ...but its reversibility class still lands -- contract 6 does not depend on the version bump
+
+-- Scene 6: the workbench -- rehearse, export a plan, and only a --
+             committing actor changes reality --
+  [OK] outside a tick there is no ambient workbench
+  [OK] one cycle fires the skill and verifies it
+  [OK] ...the ambient was restored on the way out
+  [OK] ...the memory fact is written -- expression was free
+  [OK] ...and THE DISK DID NOT MOVE -- the write landed in the twin
+  [OK] ...where it is readable
+  [OK] the tick's only export is a PLAN, carrying the rehearsed operation
+  [OK] ...that narrates itself, naming the file
+  [OK] an LLM executor cannot commit -- MayCommit says no before any attempt
+  [OK] ...naming the missing capability
+  [OK] a scope that does not cover the path commits NOTHING
+  [OK] ...and the disk still did not move
+  [OK] the committing actor commits it
+  [OK] ...NOW the file is real
+  [OK] ...with the rehearsed content
+  [OK] ...and the plan's audit trail names actor and outcome
+
+-- Scene 7: the roster, rehearsing the relocation it used to do --
+  [OK] the v2 ledger-roll declaration is admitted
+  [OK] one cycle relocates AND writes the pointer IN THE TWIN -- both verified
+  [OK] the real journal file DID NOT MOVE
+  [OK] ...and no real archive appeared
+  [OK] ...the real SESSION-LOG is untouched
+  [OK] the rehearsal exported a plan with the whole relocation in it
+  [OK] ...whose risk ranking flags the source delete
+  [OK] the committing actor commits every operation
+  [OK] NOW the old journal file is gone from the live folder
+  [OK] ...and whole in the archive -- relocation, not retention
+  [OK] ...this month's journal file was left alone
+  [OK] ...the old SESSION-LOG line is in its month's archive
+  [OK] ...and gone from the live file
+  [OK] ...which kept this month's line
+  [OK] ...and carries the pointer where the next reader will see it
+
+==========================================
+TOTAL: 76 assertions, 76 pass, 0 fail
+==========================================

@@ -1,0 +1,47 @@
+-- Scene 1: silence-board -- a heartbeat sampled, a corpse named --
+  [OK] the live declaration is accepted -- every ring: clause it names now exists
+  [OK] one cycle samples AND judges -- sample then corpses, both verified
+  [OK] ...the sampler's own heartbeat is a fact
+  [OK] ...the 10-minute refresh row was sensed
+  [OK] ...the repo that finished cleanly is NOT named a corpse
+  [OK] ...the repo whose newest run has no finished footer IS
+  [OK] ...a repo with no .central/runs/ at all gets no verdict either way
+  [OK] ...and the judge marks the ruling done
+  [OK] ...ANNOUNCE did not fire -- the board is not dead this cycle
+
+-- Scene 2: silence-board -- no evidence surface, so it says so --
+[silence-board] FAIL-LOUD: no heartbeat this cycle -- announcing STALE rather than publishing yesterday's green.
+  [OK] a cycle over an unreachable estate does not fake a heartbeat
+  [OK] ...SAMPLE left the heartbeat fact unwritten
+  [OK] ...CORPSES never ran -- its precondition is the heartbeat that is missing
+  [OK] ...and ANNOUNCE fired instead, verified
+  [OK] ...the tick itself reports VERIFIED, because announcing is the correct outcome
+
+-- Scene 3: ledger-roll -- a month before this one moves, and the --
+             pointer is written where the next reader will see it --
+  [OK] the live ledger-roll declaration is accepted
+  [OK] one cycle relocates AND writes the pointer, both verified
+  [OK] ...the old journal file is gone from the live folder
+  [OK] ...and it exists, whole, in the archive -- relocation, not retention
+  [OK] ...this month's journal file was left alone
+  [OK] ...the old SESSION-LOG line moved to its month's archive file
+  [OK] ...and is gone from the live file
+  [OK] ...this month's line stayed in the live file
+  [OK] ...the pointer line is in the live file, naming the archive path
+  [OK] ...and both memory facts the file declares are held
+  [OK] ...SAYZERO did not fire -- something moved this cycle
+
+-- Scene 4: ledger-roll -- nothing to move, and the zero is a fact --
+  [OK] a second cycle, with only this month's files left, still verifies
+  [OK] ...RELOCATE found nothing before the current month
+  [OK] ...POINTER never ran -- its precondition did not hold
+  [OK] ...SAYZERO fired and recorded the zero as a fact
+
+-- Scene 5: ledger-roll -- a move it cannot verify is abandoned, --
+             the source left exactly where it was --
+  [OK] a destination the write cannot occupy leaves the source FILE untouched
+  [OK] ...its content is exactly what it was
+
+==========================================
+TOTAL: 31 assertions, 31 pass, 0 fail
+==========================================

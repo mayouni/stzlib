@@ -1,0 +1,135 @@
+SCENARIO: Values without classes: a refusal that says what to do, not an index error
+  THEN  ClassOf raises when values are set and classes are not  [PASS]
+  THEN  ClassOf does not leak the index error R2  [PASS]
+  THEN  ClassOf names the cure, SetClasses  [PASS]
+  THEN  ColourOf raises when values are set and classes are not  [PASS]
+  THEN  ColourOf does not leak the index error R2  [PASS]
+  THEN  ColourOf names the cure, SetClasses  [PASS]
+  THEN  DrawOn raises when values are set and classes are not  [PASS]
+  THEN  DrawOn does not leak the index error R2  [PASS]
+  THEN  DrawOn names the cure, SetClasses  [PASS]
+  THEN  DrawRegionsOn raises when values are set and classes are not  [PASS]
+  THEN  DrawRegionsOn does not leak the index error R2  [PASS]
+  THEN  DrawRegionsOn names the cure, SetClasses  [PASS]
+  THEN  DrawSheetOn raises when values are set and classes are not  [PASS]
+  THEN  DrawSheetOn does not leak the index error R2  [PASS]
+  THEN  DrawSheetOn names the cure, SetClasses  [PASS]
+  THEN  DrawLegendOn raises when values are set and classes are not  [PASS]
+  THEN  DrawLegendOn does not leak the index error R2  [PASS]
+  THEN  DrawLegendOn names the cure, SetClasses  [PASS]
+  THEN  SetPalette before the classes names the cure  [PASS]
+  THEN  SetPalette before the classes no longer says -1 classes  [PASS]
+  THEN  SetRamp before the classes still names the cure (the unchanged sibling)  [PASS]
+  -> 21 pass, 0 fail
+
+SCENARIO: The same map once its classes are set answers and draws
+  THEN  ClassOf no longer raises  [PASS]
+  THEN  ColourOf no longer raises  [PASS]
+  THEN  DrawRegionsOn no longer raises  [PASS]
+  THEN  DrawSheetOn no longer raises  [PASS]
+  THEN  DrawOn no longer raises  [PASS]
+  THEN  DrawLegendOn no longer raises  [PASS]
+  THEN  Agadez, 0.78 per km2, is in class 1  [PASS]
+  THEN  Maradi, 86.5 per km2, is in class 4  [PASS]
+  THEN  SetPalette with the wrong number of colours is still refused (3 classes needed: 4 here)  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: A map with nothing to colour is not an error: no values, no classes
+  THEN  ClassOf is 0 for a map with no values  [PASS]
+  THEN  ColourOf is the no-data colour  [PASS]
+  THEN  the base map draws  [PASS]
+  THEN  and a legend with no classes draws  [PASS]
+  THEN  values that are all no-data need no classes either  [PASS]
+  THEN  on the fixture countries values without classes are refused too  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: The open top: the value above the last edge belongs to the top class
+  THEN  Niamey is 1847 people per km2, far above the scale's 100  [PASS]
+  THEN  with a closed top it is class 0, no data  [PASS]
+  THEN  ...and drawn in the no-data colour  [PASS]
+  THEN  with an open top it is the top class, 4  [PASS]
+  THEN  ...and drawn in the top colour of the ramp  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The inset draws a region as its parent does, open top included
+  THEN  the parent paints Niamey in the top colour of YlOrRd  [PASS]
+  THEN  the inset holds Niamey, and only Niamey  [PASS]
+  THEN  the inset draws Niamey in the parent's colour  [PASS]
+  THEN  ...and not in the no-data grey  [PASS]
+  THEN  with a closed top the parent has Niamey as no data  [PASS]
+  THEN  ...and so does the inset: the two agree  [PASS]
+  THEN  ...and the top colour is not in the inset  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The scale without SetPaper is measured over the real extent of the features
+  THEN  the sheet is the box Niger was fitted to, less the pad: top edge 80  [PASS]
+  THEN  ...bottom edge 570  [PASS]
+  THEN  ...centred on the box, at x = 360  [PASS]
+  THEN  ...and inside the fitted box horizontally (30 to 690)  [PASS]
+  THEN  ...and nowhere near the whole-sphere guess, 14000 pixels wide  [PASS]
+  THEN  the variation of Niger's own extent is near 1, not 57.85  [PASS]
+  THEN  ...and the bar is therefore not refused  [PASS]
+  THEN  a bar of 200 km  [PASS]
+  THEN  ...is 74.26 pixels wide, as the hand computation says (to 0.5 per cent)  [PASS]
+  THEN  DrawScaleBarOn draws the bar and answers the y it ended at  [PASS]
+  THEN  with the shipped sheet set by hand the variation is 1.009  [PASS]
+  THEN  a set sheet is used, not the features' extent  [PASS]
+  THEN  a world Mercator sheet, poles and all, varies far past the 1.25 a bar tolerates  [PASS]
+  THEN  ...and DrawScaleBarOn still refuses it (answers 0)  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: The stream-density raster covers the features, not a box thousands of pixels wide
+  THEN  the streamlines are drawn without SetPaper  [PASS]
+  THEN  ...in a time a 660 pixel sheet earns, not a 10000 pixel one (under 20 s)  [PASS]
+  THEN  a field of too few values draws nothing (the unchanged sibling)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: A position outside the features gets an answer, not an index error
+  THEN  LabelPointOf(0) answers an empty list  [PASS]
+  THEN  LabelPointOf past the last answers an empty list  [PASS]
+  THEN  LabelPointOf of a negative position answers an empty list  [PASS]
+  THEN  LabelPointOf(8), Niamey, still answers a place  [PASS]
+  THEN  ...and the place is inside Niamey  [PASS]
+  THEN  IsOnPaper(0) is false  [PASS]
+  THEN  IsOnPaper past the last is false  [PASS]
+  THEN  IsOnPaper(1) is true on a conic of Niger  [PASS]
+  THEN  a feature on the far side of a globe is not on the paper either (a real false)  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: DensityPointsIn is places per 10000 km2, and says so
+  THEN  one place in Niamey (556.87 km2) is 17.96 per 10000 km2  [PASS]
+  THEN  by hand: 1 / area * 10000  [PASS]
+  THEN  per square kilometre it would be 0.0018: the code is not that  [PASS]
+  THEN  a region with no place has density 0, not no data  [PASS]
+  THEN  density times area over 10000 gives the count back  [PASS]
+  THEN  three places in Arda and one outside every region: 3 / area * 10000 for Arda  [PASS]
+  THEN  ...and the one outside counts nowhere: Berea is 0  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The unknown-ramp error lists every ramp there is
+  THEN  there are thirteen ramps  [PASS]
+  THEN  the message names blues  [PASS]
+  THEN  the message names ylorrd  [PASS]
+  THEN  the message names ylgnbu  [PASS]
+  THEN  the message names greens  [PASS]
+  THEN  the message names oranges  [PASS]
+  THEN  the message names purples  [PASS]
+  THEN  the message names reds  [PASS]
+  THEN  the message names bupu  [PASS]
+  THEN  the message names earth  [PASS]
+  THEN  the message names viridis  [PASS]
+  THEN  the message names magma  [PASS]
+  THEN  the message names cividis  [PASS]
+  THEN  the message names flow  [PASS]
+  THEN  the message names the ramp that was asked for  [PASS]
+  THEN  SetRamp with an unknown name raises  [PASS]
+  THEN  ...and the message there lists Viridis, which it did not  [PASS]
+  THEN  SetRamp(:Viridis) gives class 1 the first stop  [PASS]
+  THEN  ...and the top class the last stop  [PASS]
+  THEN  the first of the older nine still works: Blues, class 1  [PASS]
+  -> 20 pass, 0 fail
+
+================================================
+TOTAL: 101 assertions, 101 pass, 0 fail
+================================================
+STATUS: OK

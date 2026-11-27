@@ -1,0 +1,77 @@
+SCENARIO: the host binds a real HTTP listener on the reactor
+  GIVEN a fresh stzAppServer and an ephemeral port request
+  WHEN  Start(0) runs
+  THEN  the server reports running  [PASS]
+  THEN  a real bound port is known  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a WEB route serves a request end-to-end
+  GIVEN a GET /greet route answering in plain text
+  WHEN  a client sends GET /greet?name=softanza
+  WHEN  the host serves one event
+  THEN  one request was handled  [PASS]
+  THEN  the client got a 200  [PASS]
+  THEN  with the query-driven body  [PASS]
+  THEN  and a Content-Length header  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a POST route sees the framed body
+  GIVEN a POST /echo route that returns the body it received
+  THEN  the body made the round trip  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: the built-in /health probe answers without any user route
+  THEN  health reports 200  [PASS]
+  THEN  as json with a status field  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: an unknown route is an honest 404
+  THEN  the client got a 404  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: MBaaS floor: an exposed table serves REST over sqlite
+  GIVEN an in-memory stzDatabase with a sensor table, exposed
+  WHEN  a device POSTs a form-encoded reading to /api/sensor
+  THEN  the insert is confirmed with 201  [PASS]
+  THEN  the row is really in sqlite  [PASS]
+  WHEN  a client GETs /api/sensor
+  THEN  the rows come back as json  [PASS]
+  WHEN  a client GETs /api/sensor/count
+  THEN  the count is numeric json  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: MBaaS full CRUD: read / update / delete ONE row by id
+  GIVEN an id-keyed 'item' table exposed for full REST
+  WHEN  a client POSTs a new item
+  THEN  it is created (201) and sqlite auto-assigned id=1  [PASS]
+  WHEN  a client GETs /api/item/1 (read ONE by id)
+  THEN  the single row comes back keyed as {row}  [PASS]
+  WHEN  a client PUTs an update to /api/item/1
+  THEN  one row was updated  [PASS]
+  THEN  the change is really in sqlite  [PASS]
+  WHEN  a client GETs a NON-existent id
+  THEN  an honest 404 for a missing row  [PASS]
+  WHEN  a client DELETEs /api/item/1
+  THEN  one row was deleted  [PASS]
+  THEN  the row is gone from sqlite  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: IoT floor: a raw listener feeds the same database
+  GIVEN a raw (non-HTTP) listener whose handler persists telemetry
+  THEN  the raw listener bound its own port  [PASS]
+  WHEN  a device streams a raw reading (no HTTP anywhere)
+  THEN  the device got the ack  [PASS]
+  THEN  the telemetry row landed in sqlite  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: lifecycle: the host stops cleanly
+  GIVEN the running server with two listeners
+  WHEN  Stop() runs
+  THEN  the server reports stopped  [PASS]
+  THEN  teardown completes without crash  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 26 assertions, 26 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,104 @@
+SCENARIO: R1 KNOWS: facts, a transitive law, and derivation with no code
+  GIVEN restaurant knowledge: dishes belong to categories, transitively
+  THEN  the dish reaches its category  [PASS]
+  THEN  and transitively the parent category  [PASS]
+  THEN  but not something unrelated yet  [PASS]
+  WHEN  the OWNER adds ONE fact (food kind-of italian)
+  THEN  every query above upgrades -- no code, no retrain  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: R4 FORGES: from its own knowledge, the restaurant forges + trains a DLM
+  GIVEN the menu knowledge in the restaurant's OWN scoped graph
+  WHEN  the Foundry forges a Domain Language Model from that brain
+  THEN  rung 1 answers deterministically  [PASS]
+  THEN  outside its domain it REFUSES (LAW 3)  [PASS]
+  WHEN  the neural rung 2 trains teacher-free on the DLM's own corpus
+  THEN  it learned the corpus grammar (is -> a, near-certain)  [PASS]
+  THEN  greedy generation stays in-domain ('tiramisu is a ...')  [PASS]
+  WHEN  the restaurant ships its model as a real .gguf artifact (FREE)
+  THEN  the artifact is a real gguf ggml reads back  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: R4 DECIDES: tonight's menu, optimized straight from the knowledgebase
+  GIVEN the owner states the menu's economics as FACTS in the same brain
+  WHEN  ONE declaration allocates the kitchen's time (stzAllocation -> stzOptimModel)
+  THEN  the menu is allocated  [PASS]
+  THEN  39 margherita, 7 lasagna, 30 tiramisu  [PASS]
+  THEN  margin 417 -- above the greedy plan's 414  [PASS]
+  THEN  and it says which engine decided  [PASS]
+  WHEN  the decision is written back
+  THEN  tonight's plan is now knowledge in the same brain  [PASS]
+  THEN  30 tiramisu portions sit beside its demand of 30  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: THE WORLD: things, a reaction that proposes, a wanted state
+  GIVEN two tables in the world, neither served
+  WHEN  the world comes alive
+[bella-cucina] is live -- 2 thing(s), 0 flow(s), 1 reaction(s), 1 goal(s); 2 proposal(s)
+  THEN  the reaction proposed service for each table  [PASS]
+  THEN  the goal is not yet satisfied  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: R5 ACTS: a governed agent ALLOCATES the tables on the reactor loop
+  GIVEN a maitre-d whose seat skill OPTIMIZES (stzAllocation -> stzOptimModel)
+  WHEN  the host runs the perceive-act loop on the reactor
+  THEN  the agent allocated by optimization: 10 covers, both tables  [PASS]
+  THEN  and the party that fits nowhere is told to wait, not squeezed in  [PASS]
+  THEN  its decisions left a governed lineage  [PASS]
+  THEN  and the lineage names the engine that decided  [PASS]
+  THEN  the world's goal is now satisfied  [PASS]
+  THEN  and its service proposals cleared  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: R6 GOVERNS: a menu knob is refined through the gate, reversibly
+  GIVEN a refinable menu config with a VAT knob, governed
+  WHEN  the owner raises VAT within policy
+  THEN  it is admitted through all four stages  [PASS]
+  THEN  the value changed  [PASS]
+  WHEN  a change over the policy cap is attempted
+  THEN  the derivation stage rejects it  [PASS]
+  THEN  and the value rolled back  [PASS]
+  WHEN  the owner reverts the admitted change
+  THEN  one call restores the prior value  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: R7 SHIPS: web + MBaaS + IoT on ONE reactor host
+  GIVEN an app server exposing the restaurant, backed by engine sqlite
+  WHEN  a WEB client GETs the menu
+  THEN  the web portal answers  [PASS]
+  WHEN  a MOBILE backend POSTs a reservation (MBaaS over sqlite)
+  THEN  the reservation is created (201)  [PASS]
+  THEN  and really persisted in the engine db  [PASS]
+  WHEN  a KITCHEN SENSOR streams telemetry (IoT, raw, same loop)
+  THEN  the sensor got an ack  [PASS]
+  THEN  the telemetry landed in the same db  [PASS]
+  THEN  one host served three topologies over one engine  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: R7 ENVELOPE: KDF Commons identity + generated shells
+  GIVEN the restaurant enveloped by a platform
+  WHEN  the owner registers an identity (secret hashed, not stored)
+  THEN  registration succeeds  [PASS]
+  THEN  the plaintext secret is NOT in the store  [PASS]
+  THEN  a session opens with the right secret  [PASS]
+  WHEN  Generate(:all) ships the declared reach
+  THEN  the web shell was written  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: R7 CONSTELLATION: restaurant + supplier, norm-gated
+  GIVEN a constellation binding the restaurant to its supplier
+  WHEN  the restaurant orders produce across the bond
+  THEN  the governed cross-world call proceeds  [PASS]
+  WHEN  it attempts an ungoverned action
+  THEN  it is refused  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: THE PROOF: one world, one envelope, one host, one engine
+  THEN  the same knowledge that KNOWS also SHIPPED -- zero app code  [PASS]
+  THEN  and the model FORGED from that knowledge still speaks the domain  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 42 assertions, 42 pass, 0 fail
+================================================
+STATUS: OK

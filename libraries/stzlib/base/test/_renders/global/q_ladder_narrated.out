@@ -1,0 +1,35 @@
+SCENARIO: Q -> basic object
+  THEN  a list wraps to the basic stzList  [PASS]
+  THEN  a number wraps to stzNumber  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: QQ -> first logical secondary type
+  THEN  a list of numbers -> stzListOfNumbers  [PASS]
+  THEN  a list of strings -> stzListOfStrings  [PASS]
+  THEN  a list of pairs -> stzListOfPairs  [PASS]
+  THEN  a list of chars -> stzListOfStrings (NOT stzListOfChars)  [PASS]
+  THEN  QQ still computes: a numbers list sums  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: QQQ -> the most specific type the content maps to
+  THEN  a list of chars -> stzListOfChars (most specific)  [PASS]
+  THEN  a list of multi-char strings stays stzListOfStrings  [PASS]
+  THEN  a list of numbers stays stzListOfNumbers  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: QQ on a string -> most-specific STRING-family type (no coercion)
+  THEN  Q of a string is the basic stzString  [PASS]
+  THEN  QQ of a single char '3' is stzChar, NOT stzNumber (that would be coercion)  [PASS]
+  THEN  QQ of a single letter is stzChar too  [PASS]
+  THEN  QQ of a multi-char number string still coerces to stzNumber (for now)  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: QRT -> explicit type (the solid-code choice when ambiguous)
+  THEN  QRT builds the exact requested type  [PASS]
+  THEN  and its ops are available  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+================================================
+STATUS: OK

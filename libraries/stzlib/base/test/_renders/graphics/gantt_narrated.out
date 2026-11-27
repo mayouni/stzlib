@@ -1,0 +1,34 @@
+-- Scene 1: a schedule is a list of tasks, and the chart is arithmetic --
+   the project: 8 rows, 6 dependencies
+   drawn as 8 bars, 2 of them milestones
+  [OK] eight rows, two of them milestones -- a task with no duration is a diamond, and still a task
+   'Build' starts on day 20, finishes on day 30, and sits on lane 5
+  [OK] a bar's days are the schedule's days -- the position IS the datum
+   one day is 20.38 px on Build's bar and 20.38 px on Design's
+  [OK] every bar is drawn on ONE day scale
+   'Test' (days 30-36) and 'Docs' (days 26-38) overlap in time, so the builder put them on lanes 6 and 7
+  [OK] two tasks that overlap in time are never given one lane
+
+-- Scene 2: three rules about time, and a sound schedule passes all three --
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 0
+   dependency_forward_in_time, task_ends_after_it_starts, lane_not_double_booked
+  [OK] the project has nothing wrong with it
+
+-- Scene 3: the same project typed wrong, and every mistake named --
+   Test made to depend on Docs, which ends after Test starts; Docs put on Build's
+   lane; and a task that finishes before it starts.
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 5
+     dependency_forward_in_time -- a successor does not start before its predecessor ends -- 'Prototype' starts on day 8, 4 days before 'Design' ends on day 12 -- the arrow runs backwards in time
+     dependency_forward_in_time -- a successor does not start before its predecessor ends -- 'Test' starts on day 26, 12 days before 'Docs' ends on day 38 -- the arrow runs backwards in time
+     task_ends_after_it_starts -- no task finishes before it starts -- 'Backwards' finishes on day 20, 2 days before it starts on day 22
+     lane_not_double_booked -- two tasks on one lane do not overlap in time -- 'Build' and 'Docs' share lane 5 and overlap by 2 days, from day 28 to day 30
+     lane_not_double_booked -- two tasks on one lane do not overlap in time -- 'Docs' and 'Build' share lane 5 and overlap by 2 days, from day 28 to day 30
+  [OK] a dependency running backwards is caught on both its tasks, with the days
+  [OK] a task that finishes before it starts is caught, by name and by how much
+  [OK] a double-booked lane is reported on both tasks, with the overlap in days
+  [OK] and those five are everything the rules find
+
+-- Scene 4: the pictures --
+   wrote guide_gantt.png and guide_gantt_witness.png
+
+== 9 passed, 0 failed ==

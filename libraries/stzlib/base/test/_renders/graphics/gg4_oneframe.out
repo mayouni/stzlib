@@ -1,0 +1,25 @@
+device : NVIDIA GeForce RTX 3050 6GB Laptop GPU
+
+-- the OLD way: dispatch submits, then the pass submits ------
+   submits for compute + render : 2
+
+-- the NEW way: one frame, one submit ------------------------
+   frame active : 1
+   submits BEFORE FrameEnd : 0   (nothing has gone yet)
+   submits for the SAME work : 1
+
+-- and the picture must be IDENTICAL -------------------------
+   sampled 641 bytes, differing : 0
+   same picture, fewer submits : 1
+   and the target is not empty : 1   (1204 lit samples)
+   wrote gg4_oneframe.png
+
+-- a frame with MANY passes still costs one submit -----------
+   6 compute passes + 6 render passes : 1 submit(s)
+   (the old way would have cost 12)
+
+==============================================================
+ GAP 3 CLOSED : YES
+ compute + render : 2 submits -> 1
+ twelve passes    : 1 submit
+==============================================================

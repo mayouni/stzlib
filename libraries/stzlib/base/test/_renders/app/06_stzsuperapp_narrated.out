@@ -1,0 +1,56 @@
+SCENARIO: worlds are registered as nodes of the constellation
+  WHEN  both worlds join the constellation
+  THEN  it holds two worlds  [PASS]
+  THEN  resto is a live world object  [PASS]
+  THEN  and it is the real resto (its dish survived)  [PASS]
+  THEN  both are active  [PASS]
+  THEN  the constellation graph has both nodes  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the shared Commons is world zero
+  GIVEN an in-memory database backing the Commons
+  WHEN  an identity registers and stores a shared preference
+  THEN  registration succeeds  [PASS]
+  THEN  a session opens for the right secret  [PASS]
+  THEN  the shared store round-trips  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: cross-world calls are norm-gated
+  GIVEN a bond + governance for resto ordering from supplier
+  WHEN  the action lacks governance declarations
+  THEN  the call is refused (undeclared risk never proceeds)  [PASS]
+  WHEN  the constellation governs the action (through its own gov)
+  THEN  the bonded, governed call proceeds  [PASS]
+  WHEN  an unbonded action is attempted
+  THEN  it is refused  [PASS]
+  THEN  the bond is named as the reason  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a retired world breaks its bonds
+  GIVEN the previously-allowed order path
+  WHEN  the supplier world is retired
+  THEN  the call is now refused  [PASS]
+  THEN  because the target is inactive  [PASS]
+  WHEN  the supplier is revived
+  THEN  the call proceeds again  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a world is hot-swapped, keeping its node and bonds
+  GIVEN a new supplier implementation
+  WHEN  the live supplier is swapped
+  THEN  still one supplier node (count unchanged)  [PASS]
+  THEN  the node now serves the new world  [PASS]
+  THEN  the bond survived the swap: the order still clears  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: constellations nest recursively (graph-of-graphs)
+  GIVEN a parent constellation holding acme-group as a node
+  THEN  the parent holds one world  [PASS]
+  THEN  its kind is a nested constellation  [PASS]
+  THEN  and it IS the acme constellation (two worlds inside)  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 21 assertions, 21 pass, 0 fail
+================================================
+STATUS: OK

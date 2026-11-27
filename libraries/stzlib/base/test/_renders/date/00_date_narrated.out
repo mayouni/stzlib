@@ -1,0 +1,34 @@
+SCENARIO: Components of 15/03/2024
+  GIVEN the date 15/03/2024 (a Friday)
+  THEN  Date() round-trips the string  [PASS]
+  THEN  Day() is the weekday name Friday  [PASS]
+  THEN  DayNumber() is 15  [PASS]
+  THEN  Month() is March  [PASS]
+  THEN  MonthNumber() is 3  [PASS]
+  THEN  Year() is 2024  [PASS]
+  THEN  DayOfYear() is 75 (leap-year Jan31+Feb29+15)  [PASS]
+  THEN  2024 IsLeapYear  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Non-leap year
+  THEN  2023 is not a leap year  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Date arithmetic
+  GIVEN 15/03/2024 as the base
+  THEN  +20 days crosses into April -> 04/04/2024  [PASS]
+  THEN  +2 months -> 15/05/2024  [PASS]
+  THEN  +1 year -> 15/03/2025  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Span and comparison
+  GIVEN January 1st and 31st 2024
+  THEN  DaysTo is 30  [PASS]
+  THEN  Jan 1 IsBefore Jan 31  [PASS]
+  THEN  Jan 1 IsAfter Jan 31 is FALSE  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 15 assertions, 15 pass, 0 fail
+================================================
+STATUS: OK

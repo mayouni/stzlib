@@ -1,0 +1,27 @@
+SCENARIO: Read an entity's name, type and properties
+  GIVEN a person entity john
+  THEN  Name() is john  [PASS]
+  THEN  Type() is person  [PASS]
+  THEN  Property(:name) is john  [PASS]
+  THEN  Property(:age) is 30  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Modify and add properties
+  GIVEN a car entity toyota
+  THEN  Property(:model) is camry  [PASS]
+  WHEN  the model is changed
+  THEN  Property(:model) is now corolla  [PASS]
+  WHEN  a brand-new property is set
+  THEN  Property(:color) is red  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Name matching
+  GIVEN the toyota entity
+  THEN  HasName('toyota') is TRUE  [PASS]
+  THEN  HasName('ford') is FALSE  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 9 assertions, 9 pass, 0 fail
+================================================
+STATUS: OK

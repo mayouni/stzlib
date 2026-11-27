@@ -1,0 +1,76 @@
+SCENARIO: A constant field reads as exactly its node value, at every place
+  THEN  the value 0.1000 reads back exactly at all 6561 lattice places  [PASS]
+  THEN  the value 0.3000 reads back exactly at all 6561 lattice places  [PASS]
+  THEN  the value 2.7000 reads back exactly at all 6561 lattice places  [PASS]
+  THEN  the value 0.0010 reads back exactly at all 6561 lattice places  [PASS]
+  THEN  the value 123.4560 reads back exactly at all 6561 lattice places  [PASS]
+  THEN  the value 0.3333 reads back exactly at all 6561 lattice places  [PASS]
+  THEN  the value 7.7700 reads back exactly at all 6561 lattice places  [PASS]
+  THEN  the value 1000000.1000 reads back exactly at all 6561 lattice places  [PASS]
+  THEN  NEGATIVE: the lattice is not just the nodes -- most of its places lie between them  [PASS]
+  THEN  NEGATIVE: a place off the grid is still no answer at all, not the node value  [PASS]
+  THEN  NEGATIVE: and so is a place just past the last node  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: A field that climbs is still interpolated, not flattened by the clamp
+  THEN  the documented example: (1.5, 10.5) reads 4.5  [PASS]
+  THEN  a quarter point of the first cell, (0.25, 10.25), reads 1 + 0.25 + 1 = 2.25  [PASS]
+  THEN  a quarter point of the last cell, (2.75, 11.75), reads 1 + 2.75 + 7 = 10.75  [PASS]
+  THEN  a node reads as itself: (3, 12) is 12  [PASS]
+  THEN  NEGATIVE: between the nodes the reads are strictly inside the range, not pinned to its ends  [PASS]
+  THEN  a twisted cell reads 1 at its centre  [PASS]
+  THEN  a twisted cell reads 0.25 at its quarter point (0.25, 0.25)  [PASS]
+  THEN  a twisted cell reads 4 * 0.75 * 0.5 = 1.5 at (0.75, 0.5) -- the clamp does not touch an inner value  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: With unknown nodes the read is over the known ones and stays inside their range
+  THEN  one corner unknown: the centre is the mean of the other three, (1 + 2 + 3) / 3 = 2  [PASS]
+  THEN  one corner unknown over a constant 0.3: every read of the cell is exactly 0.3  [PASS]
+  THEN  none of the four known: the surrounding block answers, exactly 0.7 when it is all 0.7  [PASS]
+  THEN  NEGATIVE: a field with nothing known at all answers no value  [PASS]
+  THEN  NEGATIVE: and an unknown node does not read as zero -- the other three decide  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: SetClassesEvery: the first edge is the lowest value and the last is the highest, to the last bit
+  THEN  all 64 edge lists start at the minimum and end at the maximum exactly  [PASS]
+  THEN  NEGATIVE: and every one of them still rises, with n + 1 edges  [PASS]
+  THEN  an inner edge is still the even step: 1, 2, 3, 4, 5  [PASS]
+  THEN  NEGATIVE: a field with nothing known still refuses  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: SetClassesEvery on a constant field says why it cannot, and names SetClasses
+  THEN  it raises  [PASS]
+  THEN  it says every value is the same, not that edges must rise  [PASS]
+  THEN  it names the cure, SetClasses  [PASS]
+  THEN  NEGATIVE: a field with a range does not raise  [PASS]
+  THEN  NEGATIVE: and SetClasses with edges round the value still works  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: A flat floor and a flat ceiling are painted: no no-data pixel inside the field
+  THEN  lo 0.3000, hi 2.7000, 4 classes: no pixel of the field is left as no data  [PASS]
+  THEN  lo 0.1000, hi 0.9000, 4 classes: no pixel of the field is left as no data  [PASS]
+  THEN  lo 0.3000, hi 2.7000, 3 classes: no pixel of the field is left as no data  [PASS]
+  THEN  lo 123.4560, hi 129.4560, 6 classes: no pixel of the field is left as no data  [PASS]
+  THEN  lo 0.0010, hi 0.0171, 7 classes: no pixel of the field is left as no data  [PASS]
+  THEN  lo 0.7000, hi 3.3000, 5 classes: no pixel of the field is left as no data  [PASS]
+  THEN  NEGATIVE: the picture is not blank -- the classes all show (4 classes, 4 colours)  [PASS]
+  THEN  NEGATIVE: a value above the last edge is STILL left unpainted (the tolerance is not a licence)  [PASS]
+  THEN  NEGATIVE: and so is a value below the first edge  [PASS]
+  THEN  the tolerance moves the first edge down and the others up, by far less than a class  [PASS]
+  THEN  NEGATIVE: edges as close as the tolerance still rise after it, and stay as many  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: SetRamp with a name that is not a ramp lists every ramp there is
+  THEN  it raises  [PASS]
+  THEN  the table holds 13 ramps and the message names 13  [PASS]
+  THEN  the table has grown past nine: thirteen ramps  [PASS]
+  THEN  viridis, magma, cividis and flow -- the four after the nine -- are all in the message  [PASS]
+  THEN  NEGATIVE: a ramp that exists does not raise  [PASS]
+  THEN  NEGATIVE: and a ramp name in another case does not raise either  [PASS]
+  THEN  NEGATIVE: before the classes are set the other refusal stands  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 51 assertions, 51 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,27 @@
+-- Scene 1: a skill = precondition + plan + verification --
+  [OK] precondition gates the skill
+  [OK] the skill ran AND verified
+  [OK] re-applying is a no-op (precondition no longer holds)
+
+-- Scene 2: memory IS a knowledge graph (LAW 5) --
+  [OK] Learn/Fact round-trip
+  [OK] Recall returns the objects
+
+-- Scene 3: the governed cycle -- gate BEFORE act --
+  [OK] the authorized agent acts and verifies
+  [OK] ...changing its world
+  [OK] Pursue narrates the rounds
+  [OK] the governed act left an audit witness
+
+-- Scene 4: governance REFUSES at the gate (no permission) --
+  [OK] the ungoverned-for-this agent NEVER acts
+  [OK] ...its world is unchanged
+  [OK] ...and the refusal is logged with a reason
+
+-- Scene 5: the cascade to fixpoint (Softanzuter at agent level) --
+  [OK] all three skills fire in the cascade
+  [OK] the order reaches its final state
+
+==========================================
+TOTAL: 14 assertions, 14 pass, 0 fail
+==========================================

@@ -1,0 +1,53 @@
+-- Scene 1: the tags are closed, and so are the paths --
+  [OK] a field tagged personal says so
+  [OK] a field tagged confidential says so
+  [OK] an untagged field has no tag
+  [OK] a tag outside personal and confidential raises
+  [OK] a path outside analytics, log and model raises
+  [OK] the three paths are the closed set
+
+-- Scene 2: a personal field reaching an ungoverned model path is refused, the article named --
+  [OK] an untagged field reaches the model
+  [OK] ...and Why() says nothing was tagged
+  [OK] the personal field does not
+  [OK] ...the refusal names the field and the path
+  [OK] ...the weave's rule, in its words
+  [OK] ...the article it serves
+  [OK] ...and the declared regime's own article
+  [OK] a confidential field is held the same way
+
+-- Scene 3: the same path, governed, admits the field --
+  [OK] on premise, the personal field reaches the model
+  [OK] ...and Why() says which safeguard governs it
+  [OK] the path's safeguards are readable
+  [OK] a safeguard that is not the path's raises
+
+-- Scene 4: a log governed in part refuses, naming what is missing (W4.4) --
+  [OK] retention alone does not govern a log
+  [OK] ...the refusal names the missing safeguard
+  [OK] ...the weave's rule
+  [OK] ...and gdpr's storage limitation
+  [OK] retention and redaction govern it
+
+-- Scene 5: analytics needs consent and anonymisation (W4.2) --
+  [OK] ungoverned analytics is refused
+  [OK] ...with W4.2 and Article 7
+  [OK] consent and anonymisation govern it
+
+-- Scene 6: the regime is the declared one, never a default --
+  [OK] under no regime the refusal says so
+  [OK] the regional regime is named by its law
+  [OK] a regime the library has no table for is named as declared
+  [OK] the regime is readable
+
+-- Scene 7: a refusal is an event, not a silent failure --
+  [OK] the refusal built a security event
+  [OK] ...of the kind data.path.refused
+  [OK] ...carrying the field's descriptor, never a value
+  [OK] after an allowed reach there is no event
+  [OK] the event enters a ledger
+  [OK] ...as a refusal
+
+==========================================
+TOTAL: 36 assertions, 36 pass, 0 fail
+==========================================

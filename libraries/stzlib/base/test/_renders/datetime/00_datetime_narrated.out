@@ -1,0 +1,33 @@
+SCENARIO: Construct and format
+  GIVEN the timestamp 2024-03-15 10:30:00
+  THEN  Content round-trips  [PASS]
+  THEN  ToEuropean is dd/mm/yyyy 12h AM/PM  [PASS]
+  THEN  ToEuropeanWithoutAmPm is 24h  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Components
+  GIVEN the timestamp 2024-03-15 10:30:45
+  THEN  Year is 2024  [PASS]
+  THEN  Month is 3  [PASS]
+  THEN  Day is 15  [PASS]
+  THEN  Hours is 10  [PASS]
+  THEN  Minutes is 30  [PASS]
+  THEN  Seconds is 45  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Arithmetic
+  GIVEN 2024-03-15 10:30:45
+  THEN  +2 hours -> 12:30:45  [PASS]
+  THEN  +1 day -> next day same time  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Comparison
+  GIVEN 10:00 and 12:00 on the same day
+  THEN  10:00 IsBefore 12:00  [PASS]
+  THEN  10:00 IsAfter 12:00 is FALSE  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 13 assertions, 13 pass, 0 fail
+================================================
+STATUS: OK

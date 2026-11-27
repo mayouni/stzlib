@@ -1,0 +1,16 @@
+WORLD SonibankVisits   lives in: memory (not persisted)
+  BEING
+    account (number, chapter, balance)
+        true when balance @ >= 0
+    client (code, name, city)
+    visit (agent, date, subject)
+  RELATIONS
+    client owns account
+    visit of client
+    account belongsto client
+nodes: 3
+[SonibankVisits] is live -- 3 thing(s), 0 flow(s), 0 reaction(s), 0 goal(s); 0 proposal(s)
+
+
+----------------
+----------------

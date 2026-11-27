@@ -1,0 +1,37 @@
+WORLD SonibankVisits   lives in: graphdb + files
+  BEING
+    client (code, name, city)
+    visit (agent, date, subject)
+  RELATIONS
+    visit of client
+  BECOMING
+    whenever client unseen 90 days -> propose visit
+graphdb + files
+WORLD Scratch   lives in: memory (not persisted)
+  BEING
+    note (text)
+
+SCENARIO: Everything the body's brace collects comes back out of it
+  GIVEN a world whose body declares all three
+  WHEN  the body is read back as data
+  THEN  the graph path is there  [PASS]
+  THEN  ...the files path is there  [PASS]
+  THEN  ...and so is what it keeps  [PASS]
+  WHEN  ...and as the value object
+  THEN  the object carries the graph  [PASS]
+  THEN  ...the files  [PASS]
+  THEN  ...and the keep policy  [PASS]
+  THEN  ...and still labels its kinds  [PASS]
+  GIVEN a second world that declares only where its graph lives
+  THEN  its graph is its own  [PASS]
+  THEN  ...its files are empty, not the other world's  [PASS]
+  THEN  ...and so is its keep  [PASS]
+  GIVEN a world with no body
+  THEN  its body is empty  [PASS]
+  THEN  ...and its body object is NULL  [PASS]
+  -> 12 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

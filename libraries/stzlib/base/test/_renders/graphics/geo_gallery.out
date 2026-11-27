@@ -1,0 +1,19 @@
+-- the gallery, by what it costs --
+  the five that bend angles LEAST:
+    Mercator (conformal): bend 0.00 deg, area mean x4.40, worst x131.65
+    Stereographic (conformal): bend 0.00 deg, area mean x2.09, worst x15.07
+    ConicConformal (conformal): bend 0.00 deg, area mean x36.68, worst x3916.85
+    TransverseMercator (conformal): bend 0.00 deg, area mean x3.54, worst x66.07
+    Miller (compromise): bend 7.74 deg, area mean x2.29, worst x30.63
+  the five that bend them MOST:
+    Bottomley (equal-area): bend 45.73 deg, area mean x1.00, worst x1.00
+    Werner (equal-area): bend 45.73 deg, area mean x1.00, worst x1.00
+    Orthographic (compromise): bend 48.75 deg, area mean x0.50, worst x0.99
+    AzimuthalEqualArea (equal-area): bend 49.17 deg, area mean x1.00, worst x1.00
+    Collignon (equal-area): bend 64.28 deg, area mean x1.00, worst x1.00
+
+  every conformal projection bends exactly 0 degrees, everywhere, and
+  pays for it in area; every equal-area one holds area exactly and pays
+  in bent angles. There is no row with small numbers in both columns,
+  and there cannot be: that is Gauss's theorem, not a gap in the list.
+-> geo_gallery.png

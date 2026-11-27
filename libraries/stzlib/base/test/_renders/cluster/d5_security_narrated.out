@@ -1,0 +1,61 @@
+SCENARIO: a signed Ask is authenticated and served
+  GIVEN a worker requiring signed messages, and a plane signing as 'web'
+  THEN  the worker boots  [PASS]
+  THEN  the admitted, signed, capable ask is SERVED  [PASS]
+  THEN  plain signed traffic flows too  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: an UNSIGNED message is refused, counted, and observable
+  GIVEN a second plane with NO signer
+  WHEN  it asks the same worker
+  THEN  the verdict is :Denied -- observable, not a silent timeout  [PASS]
+  THEN  the rejection was COUNTED on the node (exactly 1)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a TAMPERED message fails the MAC
+  GIVEN a genuine envelope signed over one message, delivered with another
+  WHEN  the tampered wire form is asked through the unsigned plane
+  THEN  the verdict is :Denied  [PASS]
+  THEN  the tamper was COUNTED (rejections now 2)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a REPLAYED envelope is refused the second time
+  GIVEN one correctly signed message, captured verbatim
+  WHEN  it is delivered twice
+  THEN  the FIRST delivery is served  [PASS]
+  THEN  the SECOND is refused (nonce replay)  [PASS]
+  THEN  and counted (rejections now 3)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the capability lattice gates admission: an LLM cannot do WORK
+  GIVEN a plane signing as 'bot' -- a verified identity that is an LLM actor
+  WHEN  the bot asks for the :effectful-admitted 'work' tag
+  THEN  authenticated but NOT authorized: :Denied  [PASS]
+  THEN  the capability denial was counted (exactly 1)  [PASS]
+  WHEN  the same bot asks an UNADMITTED tag (ping)
+  THEN  expression is free where no capability is demanded  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the STZM plane rides MUTUAL TLS on the existing channel
+  GIVEN an STZM listener terminating TLS with the house test certs
+  THEN  the TLS listener is up  [PASS]
+  WHEN  a channel dials it presenting the node cert, verifying the CA
+  THEN  link-up means the HANDSHAKE completed  [PASS]
+  THEN  the frame crossed the encrypted link intact  [PASS]
+  THEN  and echoed back byte-identical over TLS  [PASS]
+  WHEN  a PLAINTEXT channel dials the TLS port and speaks STZM
+  THEN  it is EJECTED at the handshake -- plaintext cannot join a TLS plane  [PASS]
+  WHEN  a channel verifies the peer against the WRONG trust anchor
+  THEN  the handshake aborts -- no link  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: teardown
+  GIVEN a SIGNED stz.stop (an unsigned one would be refused)
+  THEN  the worker stopped cleanly  [PASS]
+  THEN  teardown completes without crash  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 21 assertions, 21 pass, 0 fail
+================================================
+STATUS: OK

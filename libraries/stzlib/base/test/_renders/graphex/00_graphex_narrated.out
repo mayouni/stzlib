@@ -1,0 +1,87 @@
+SCENARIO: A pattern compiles to a pattern graph
+  GIVEN the single-node pattern {@Node(a)} over a 1-node graph
+  THEN  the pattern graph has 1 node  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: A sequence pattern compiles to N nodes
+  GIVEN {@Node(a) -> @Edge(x) -> @Node(b)} over a->b
+  THEN  the pattern graph has 3 nodes  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: A present node label matches
+  GIVEN a graph with a node labelled 'Start'
+  THEN  {@Node(Start)} matches  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: An absent node label does not match
+  GIVEN the same graph
+  THEN  {@Node(zzz)} does not match  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: A sequence matches when present as a subsequence
+  GIVEN Start -Flows-> PROCESS -COMPLETES-> end
+  THEN  {@Node(start) -> @Edge(flows) -> @Node(process)} matches  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Matching is case-insensitive by default
+  GIVEN a graph with mixed-case labels Start / PROCESS
+  THEN  lower-case pattern still matches  [PASS]
+  THEN  upper-case pattern still matches  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: @cs: forces case-sensitive matching
+  GIVEN a graph with both 'Start' and 'start' nodes
+  THEN  @cs: exact 'Start' matches  [PASS]
+  THEN  @cs: exact 'start' matches  [PASS]
+  THEN  @cs: 'START' does not match (no such case)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Case sensitivity is per-token
+  GIVEN User -Promotes-> ADMIN
+  THEN  cs 'User' + ci 'admin' matches  [PASS]
+  THEN  cs 'user' (wrong case) fails  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Negation forbids a label on the matched branch
+  GIVEN start -> middle -> done
+  THEN  'start then NOT middle' fails (middle is present)  [PASS]
+  THEN  'start then NOT ghost' matches (ghost absent)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Alternation matches when any branch is present
+  GIVEN a -> b -> c
+  THEN  (b|x) in the middle matches  [PASS]
+  THEN  (y|x) in the middle fails (neither present)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Numeric property comparisons
+  GIVEN Alice age 30, Bob age 20, Charlie age 35
+  THEN  {age:>:25} matches (Alice/Charlie)  [PASS]
+  THEN  {age:>:40} fails (nobody)  [PASS]
+  THEN  {age:<:25} matches (Bob)  [PASS]
+  THEN  {age:=:30} matches (Alice)  [PASS]
+  THEN  {age:=:99} fails  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Multiple property constraints (AND)
+  GIVEN Alice age 30 score 85, Bob age 25 score 90
+  THEN  {age:>:26;score:>:80} matches (Alice)  [PASS]
+  THEN  {age:>:26;score:>:95} fails (Alice fails score)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Results are cached by target-graph signature
+  GIVEN a pattern matched against two different graphs
+  THEN  two distinct signatures are cached  [PASS]
+  THEN  the repeat lookup counted as a hit  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: SetCacheSize bounds the cache (FIFO eviction)
+  GIVEN a fresh cache capped at size 1
+  THEN  only the most recent entry remains  [PASS]
+  THEN  CacheInfo reports the cap  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 27 assertions, 27 pass, 0 fail
+================================================
+STATUS: OK

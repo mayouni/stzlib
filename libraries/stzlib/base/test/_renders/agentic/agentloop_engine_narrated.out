@@ -1,0 +1,77 @@
+-- Scene 1: the loop states its own coverage, at RUN TIME --
+  [OK] the loop answers with a coverage statement
+  [OK] ...it says what it SCHEDULES
+  [OK] ...and, which matters more, what it CANNOT SEE
+  [OK] ...naming the clock it does not read
+  [OK] ...and the event bus it cannot look at, because that bus is in ANOTHER DLL
+  [OK] ...and it does not pretend to judge whether a coverage statement is TRUE
+
+-- Scene 2: registration is a GATE, not a formality --
+  [OK] an agent with NO coverage statement is refused
+  [OK] ...with a NAMED code, the way a Ring C-error is named
+  [OK] ...naming the agent it is about
+  [OK] ...and citing the law rather than just complaining
+  [OK] ...and nothing was registered
+  [OK] an agent with NO reversibility class is refused too
+  [OK] ...and the refusal says which words are acceptable
+  [OK] an agent that declares BOTH registers
+  [OK] ...and the loop hands its coverage statement back
+  [OK] ...and its reversibility class
+  [OK] the same slot cannot register twice
+
+-- Scene 3: ONE RULE, TWO LAYERS, SAME WORDS --
+  [OK] an llm actor holding 'effectful' is REFUSED at registration
+  [OK] ...in the graph rule's own sentence
+  [OK] an llm actor WITHOUT it is a slot like any other
+  [OK] the Ring layer still carries the same rule, by that name
+  [OK] ...and the engine quotes ITS violation message, not a rewrite of it
+
+-- Scene 4: priority orders the pass; registration breaks the tie --
+  [OK] one pass makes all four due
+  [OK] the highest priority runs first
+  [OK] equal priorities run in REGISTRATION order
+  [OK] and the lowest runs last
+
+-- Scene 5: the same sequence gives the same order, twice --
+  [OK] the script really did visit things
+  [OK] both runs visited the same NUMBER of times
+  [OK] ...and in the same ORDER, agent for agent
+
+-- Scene 6: mailboxes are DRAINED, and they are a real queue --
+  [OK] an empty inbox schedules nothing
+  [OK] three sends leave THREE messages, not one
+  [OK] a non-empty inbox schedules the agent
+  [OK] ...and the reason given is 'mailbox', not 'timer'
+  [OK] the queue is FIFO
+  [OK] ...still FIFO
+
+-- Scene 7: a remade channel does not make an agent go DEAF --
+  [OK] a new generation resyncs the baseline instead of ignoring the events
+  [OK] ...so the three fresh events are three visits
+
+-- Scene 8: stzAgentHost adopts the loop, API unchanged --
+  [OK] a fresh host runs the RING pump, exactly as it always did
+  [OK] adopting the loop with UNDECLARED agents is REFUSED
+  [OK] ...and the host carries the ENGINE's diagnostic, not its own paraphrase
+  [OK] declared agents are adopted
+  [OK] ...each landing in an engine slot
+  [OK] the SAME RunFor() call now pumps from Zig
+  [OK] ...and both agents ran
+  [OK] the trace records the loop's REASON for each visit
+  [OK] ...and alpha, the higher priority, was visited first in the pass
+
+-- Scene 9: cancel, resume and retire reach INTO the loop --
+  [OK] a cancelled agent stops being SCHEDULED, not merely skipped
+  [OK] ...while the other agent keeps running
+  [OK] resume puts it back in the schedule
+  [OK] retirement without governance is granted
+  [OK] ...and the engine slot is released
+
+-- Scene 10: an over-full queue DROPS, and SAYS SO --
+  [OK] the loop decided on all 300 visits
+  [OK] ...but the queue holds its bound
+  [OK] ...and the 44 it could not hold are COUNTED, never silently lost
+
+==========================================
+TOTAL: 54 assertions, 54 pass, 0 fail
+==========================================

@@ -1,0 +1,22 @@
+SCENARIO: The guard is silent on a calibrated ledger and fails on an inverted one
+  THEN  a calibrated ledger raises no finding  [PASS]
+  THEN  certain answers were right 90 percent of the time  [PASS]
+  THEN  probable 70 percent  [PASS]
+  THEN  apparent 30 percent  [PASS]
+  THEN  an inverted ledger is a FINDING  [PASS]
+  THEN  ...named calibration-inverted  [PASS]
+  THEN  ...in the house shape, an error, subject model-flow  [PASS]
+  THEN  ...saying which bands disagree  [PASS]
+  THEN  a band with fewer answers than the minimum is a WARNING, not a verdict  [PASS]
+  THEN  the guard never fails on noise  [PASS]
+  THEN  a band is derived from a probability the same way everywhere  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: A real model's calibration -- SKIPPED (no Qwen2.5-Coder-0.5B GGUF)
+  GIVEN drop the file in to measure a real ledger; see models/MODELS.md
+  -> 0 pass, 0 fail
+
+================================================
+TOTAL: 11 assertions, 11 pass, 0 fail
+================================================
+STATUS: OK

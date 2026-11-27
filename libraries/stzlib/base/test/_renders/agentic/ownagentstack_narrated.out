@@ -1,0 +1,19 @@
+-- Scene 1: the curated roster is honest (wired vs reserved) --
+  [OK] the roster exists
+  [OK] wise-coder is wired
+  [OK] the planner is reserved (not wired)
+  [OK] a reserved agent REFUSES rather than returning a stub (LAW 3)
+
+-- Scene 2: the wise-coder drives R3b elicitation as an agent --
+  [OK] the goal is filled
+  [OK] one question per gap
+  [OK] the answers were ADMITTED into the caller's OWN space (governed)
+  [OK] Why reports governed admission
+
+-- Scene 3: the agent refuses to INVENT (leaves the gap) --
+  [OK] an unanswerable gap stops the agent (never invents facts)
+  [OK] ...leaving the gap explicitly for a human
+
+==========================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+==========================================

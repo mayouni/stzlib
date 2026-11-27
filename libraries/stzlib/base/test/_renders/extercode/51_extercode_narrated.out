@@ -1,0 +1,29 @@
+SCENARIO: stzExterCode supports the canonical language registry
+  GIVEN a fresh stzExterCode handle in python mode
+  THEN  python is recognized  [PASS]
+  THEN  the lookup is case-insensitive  [PASS]
+  THEN  an unknown language is rejected  [PASS]
+  THEN  R is registered  [PASS]
+  THEN  julia is registered  [PASS]
+  THEN  prolog is registered  [PASS]
+  THEN  c is registered  [PASS]
+  THEN  nodejs is registered  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: SetCode + Code is an in-memory roundtrip
+  GIVEN an stzExterCode with no source yet
+  WHEN  the caller sets a code body
+  THEN  Code() returns the just-set source  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Thin language wrappers construct and roundtrip
+  GIVEN a stzPythonCode obtained via the py() factory
+  THEN  the wrapper is a real object  [PASS]
+  WHEN  the caller sets a python expression
+  THEN  Code() forwards through to the in-memory source  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 11 assertions, 11 pass, 0 fail
+================================================
+STATUS: OK

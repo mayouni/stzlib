@@ -1,0 +1,13 @@
+-- the seven, in one window of 12308.78 km2 --
+  Poisson: 254 points -- no interaction; the COUNT is random
+  Binomial: 246 points -- the same, count fixed -- no spread at all
+  Inhomogeneous: 240 points -- follows a surface rising to the east
+  MaternCluster: 224 points -- children uniform in a disc round a parent
+  Thomas: 273 points -- children gaussian: a scale, but no edge
+  MaternII: 239 points -- inhibition by DELETION -- it has a ceiling
+  SSI: 260 points -- inhibition by REFUSAL -- it packs
+
+-- one pattern of 546 points, judged twice --
+  against CSR:                  more clustered than Poisson at 1, 2, 4, 8, 16 and 32 km
+  against a Matern cluster null: consistent with MaternCluster at every scale tested
+-> geo_processes.png

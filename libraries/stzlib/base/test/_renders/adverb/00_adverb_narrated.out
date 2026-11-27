@@ -1,0 +1,29 @@
+SCENARIO: Morphological adverbs (the previously-broken path)
+  GIVEN adjectives
+  THEN  quick -> quickly  [PASS]
+  THEN  happy -> happily (y -> ily)  [PASS]
+  THEN  easy -> easily  [PASS]
+  THEN  basic -> basically (ic -> ically, no longer 'asian')  [PASS]
+  THEN  gentle -> gently (le -> ly)  [PASS]
+  THEN  careful -> carefully (ful -> fully)  [PASS]
+  THEN  final -> finally (al -> ally)  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Irregular adverbs
+  GIVEN special adjectives
+  THEN  good -> well  [PASS]
+  THEN  fast -> fast (unchanged)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Whole-word geographic/language forms still fire
+  GIVEN exact place/language names
+  THEN  asia -> asian  [PASS]
+  THEN  africa -> african  [PASS]
+  THEN  north -> northern  [PASS]
+  THEN  france -> french  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 13 assertions, 13 pass, 0 fail
+================================================
+STATUS: OK

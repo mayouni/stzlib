@@ -1,0 +1,77 @@
+SCENARIO: A negative count of seconds, minutes, hours, days or weeks is a date before 1970
+  THEN  minus one day of seconds is 1969-12-31  [PASS]
+  THEN  minus one second is the last second of 1969  [PASS]
+  THEN  minus one millisecond keeps its milliseconds  [PASS]
+  THEN  minus 90 minutes  [PASS]
+  THEN  minus 25 hours  [PASS]
+  THEN  minus 365 days is 1 January 1969  [PASS]
+  THEN  minus one week  [PASS]
+  THEN  minus 719162 days is 1 January of year 1 (padded to four digits)  [PASS]
+  THEN  a leap day before 1970 is found (1900 is no leap year, 1896 is)  [PASS]
+  THEN  so the day before 1900-03-01 is 28 February  [PASS]
+  THEN  1600, a leap year, has a 29 February  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: The components agree with the stzDate arithmetic, which was already right before 1970
+  THEN  the day count back to 1970 lands on the same date  [PASS]
+  THEN  the seconds since the epoch of a 1955 date are negative  [PASS]
+  THEN  and reading them back gives the date and time again  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: An origin earlier than 1970 is a date, not 0-00-00
+  THEN  YearOne is 1 January of year 1  [PASS]
+  THEN  FrenchRevolution plus ten seconds  [PASS]
+  THEN  USIndependence plus five seconds  [PASS]
+  THEN  a duration in words from YearOne  [PASS]
+  THEN  an origin written as mixed-case text is the same origin  [PASS]
+  THEN  GetOriginBase finds the mixed-case text  [PASS]
+  THEN  and an unknown name still answers 0  [PASS]
+  THEN  modern computing maps to ModernComputing and not to the Unix epoch  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Months, years and decades counted from an origin before 1970
+  THEN  months since the 1945 atomic origin are about 80 years of months  [PASS]
+  THEN  years since AtomicAge are 80, not 2026  [PASS]
+  THEN  decades since AtomicAge are 8  [PASS]
+  THEN  years since YearOne are 2025  [PASS]
+  THEN  the mixed-case origin gives the same years  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: A negative month count is a month of the year before 1970, and never ends the process
+  THEN  minus one month is December 1969  [PASS]
+  THEN  minus three months (this stopped the Ring process before) is October 1969  [PASS]
+  THEN  minus twelve months is January 1969  [PASS]
+  THEN  minus thirteen months is December 1968  [PASS]
+  THEN  SetFromEpochMonths(-2) is November 1969  [PASS]
+  THEN  a stored month below 1 is formatted without reaching the engine  [PASS]
+  THEN  and the instant of an invalid month does not stop the process  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The parameter-name typos that raised R24 now answer
+  THEN  DurationInDecadesTo reads its own parameter  [PASS]
+  THEN  DecadesTo agrees with it  [PASS]
+  THEN  MillisecondsFrom answers the milliseconds from the origin  [PASS]
+  THEN  MillisecondsSince answers the same  [PASS]
+  THEN  DurationInMillisecondsSince answers the same  [PASS]
+  THEN  and the value is the 2026-03-05 14:30 instant  [PASS]
+  THEN  from YearOne it is larger by the origin distance  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The constructor takes a negative number of seconds, and 0 is the epoch, not the clock
+  THEN  a negative number is the day before 1970  [PASS]
+  THEN  the number 0 is 1970-01-01 (0 equals an empty text in Ring)  [PASS]
+  THEN  a counting-from text with a pre-1970 origin reads as a date  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: A duration in words from epoch counts each unit once
+  THEN  2 days is the 3rd of January, not 4 days  [PASS]
+  THEN  5 minutes is 5, not 15  [PASS]
+  THEN  90 seconds is 90, not 270  [PASS]
+  THEN  mixed units add up once each  [PASS]
+  THEN  an abbreviation counts once  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 49 assertions, 49 pass, 0 fail
+================================================
+STATUS: OK

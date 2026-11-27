@@ -1,0 +1,16 @@
+-- eight flows --
+  Two gyres, as ARROWS: what is happening HERE -- length and colour both carry speed
+  Saddle: u = x, v = -y: flow in on one axis, out on the other
+  Source and sink: a dipole -- everything leaves one and arrives at the other
+  Vortex pair: two opposite rotations; the pair drifts as one
+  Shear jet: u = sech-squared(y): fast in the middle, still at the edges
+  Past a cylinder: uniform flow with a circle in it -- potential flow
+  Spiral: a source and a vortex at once
+  Four cells: a doubly periodic field, which closes on itself everywhere
+
+-- the density study, on the vortex pair --
+  separation 3.20 degrees
+  separation 2 degrees
+  separation 1.30 degrees
+  separation 0.85 degrees
+-> geo_flow_gallery.png

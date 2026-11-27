@@ -1,0 +1,37 @@
+-- Scene 1: a log is a stream of LEVELED entries; writes chain --
+  [OK] three entries recorded
+  [OK] ...the category is the log's name
+  [OK] ...each entry is timestamped (epoch ms)
+
+-- Scene 2: a LEVEL THRESHOLD drops anything below it (default info) --
+  [OK] debug is dropped at the default 'info' threshold
+  [OK] ...lowering the threshold to trace records it
+  [OK] an unknown level is refused
+
+-- Scene 3: STRUCTURED entries -- fields, queried by key/value --
+  [OK] Where(field, value) returns the structured matches
+  [OK] ...only the ones with that value
+  [OK] the entry keeps its fields
+
+-- Scene 4: the log is QUERYABLE data --
+  [OK] entries can be counted by level
+  [OK] EntriesOfLevel returns just that level
+  [OK] Since(0) returns all; Since(a far-future ms) returns none
+
+-- Scene 5: render as TEXT (humans) or JSON (pipelines) --
+  [OK] AsText carries the level, category, message
+  [OK] ...and the structured fields
+  [OK] AsJson is a structured array -- fields inlined as top-level keys
+  [OK] ...ready to ship (the part field is a JSON key)
+
+-- Scene 6: retention CAP -- oldest entries evicted (FIFO) --
+  [OK] a cap of 2 keeps only the last 2
+  [OK] ...evicting the oldest -- 'a' is gone, 'c' is newest
+
+-- Scene 7: output -- render the whole log to a file (text or JSON) --
+  [OK] WriteToFile persists the rendered text log
+  [OK] ...WriteJsonToFile persists the structured JSON (fields as keys)
+
+==========================================
+TOTAL: 20 assertions, 20 pass, 0 fail
+==========================================

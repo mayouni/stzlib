@@ -1,0 +1,23 @@
+-- Scene 1: small buffers answer as before --
+  [OK] Hello in base64 is SGVsbG8=
+  [OK] ...in hex 48656c6c6f
+  [OK] Mid(2, 3) is ell, Left(2) He, Right(2) lo
+  [OK] an empty buffer gives an empty base64
+
+-- Scene 2: large buffers --
+  [OK] 30,000 bytes give 40,000 base64 characters (the cap was 8,192)
+  [OK] ...and they decode back to the same 30,000 bytes
+  [OK] the library's stzBytes (stzListOfBytes) gives the same base64
+  [OK] 60,000 hex characters, the first ones 000102
+  [OK] percent-encoding grows past 8 KB too (74552 characters)
+  [OK] ...and decodes back
+  [OK] Left(10000), Right(10000) and Mid(5001, 10000) are 10,000 bytes each (the cap was 4,096)
+  [OK] ToUpper on 18,000 bytes
+  [OK] ToLower on 18,000 bytes
+
+-- Scene 3: negative counts --
+  [OK] Left(-1), Right(-1) and Mid(2, -1) give an empty text, and the process goes on
+
+==========================================
+TOTAL: 14 assertions, 14 pass, 0 fail
+==========================================

@@ -1,0 +1,136 @@
+SCENARIO: A window around Africa takes Africa, and Fiji, Russia and Antarctica are left alone
+  THEN  eleven features  [PASS]
+  THEN  Fiji is feature 1  [PASS]
+  THEN  Fiji's box is 360 degrees wide, -180 to 180: the trap is real  [PASS]
+  THEN  the Africa window (-20, -36, 52, 38) takes exactly features 2 and 9  [PASS]
+  THEN  it takes Africa  [PASS]
+  THEN  NEGATIVE: not Fiji  [PASS]
+  THEN  NEGATIVE: not Wide181, whose box is 181 wide and whose old middle was 0.5  [PASS]
+  THEN  NEGATIVE: Russia is out of the window by latitude AND by longitude: take the latitude away and it is still out  [PASS]
+  THEN  NEGATIVE: and so is Antarctica, with every latitude allowed  [PASS]
+  THEN  with every latitude allowed the window takes Africa, Europe and Wide180 and nothing across the line  [PASS]
+  THEN  Wide180 stays: a box exactly 180 wide keeps its plain middle, 0, as before  [PASS]
+  THEN  NEGATIVE: the OnTheLine feature (middle 180) is not in an Africa window  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: A window from 170 east to -170 runs across the antimeridian
+  THEN  the Pacific window takes Fiji, Touch180, Antarctica, Wide181 and OnTheLine  [PASS]
+  THEN  NEGATIVE: not Africa  [PASS]
+  THEN  NEGATIVE: not Europe, not Asia, not the Americas (middle -100)  [PASS]
+  THEN  NEGATIVE: not Russia, whose middle is 109.5 -- it is placed by where most of it is  [PASS]
+  THEN  NEGATIVE: not Wide180 (middle 0)  [PASS]
+  THEN  with latitude -30..0 the Pacific window takes only Fiji  [PASS]
+  THEN  with latitude 40..80 it takes only Touch180 (Russia is placed at 109.5)  [PASS]
+  THEN  a window from 100 across to -170, latitude 40..80, takes Touch180, Russia and Asia  [PASS]
+  THEN  the plain window 100..180 takes the same three: nothing sits between -180 and -170 at those latitudes  [PASS]
+  THEN  NEGATIVE: and -180..-170 takes none of those three (Russia is not at -170)  [PASS]
+  THEN  a middle exactly on the western edge is inside: Touch180 (175) with edge 175  [PASS]
+  THEN  a middle exactly on the eastern edge is inside: Wide181 (-179.5) with edge -179.5  [PASS]
+  THEN  NEGATIVE: half a degree short on the east, Wide181 is out  [PASS]
+  THEN  NEGATIVE: and half a degree short on the west, Touch180 (175) is out  [PASS]
+  THEN  a window from 180 to -180 takes only a middle exactly on the line: OnTheLine  [PASS]
+  THEN  NEGATIVE: 180 to -180 does not take Fiji (179.5)  [PASS]
+  -> 16 pass, 0 fail
+
+SCENARIO: A middle is one longitude: Fiji is at +179.5 and never at -179.5
+  THEN  160..180 takes Fiji (179.5), Touch180, Antarctica and OnTheLine, the middles in it  [PASS]
+  THEN  NEGATIVE: 160..180 does not take Wide181, whose middle is -179.5  [PASS]
+  THEN  -180..-160 takes only Wide181: DECIDED, a middle at -179.5 is there and Fiji's is not  [PASS]
+  THEN  NEGATIVE: -180..-160 does not take Fiji  [PASS]
+  THEN  NEGATIVE: nor the Americas (-100)  [PASS]
+  THEN  to take both sides, ask across the line: 160 to -160  [PASS]
+  THEN  a middle at +180 is never at -180: OnTheLine is in 179..180  [PASS]
+  THEN  NEGATIVE: OnTheLine is not in -180..-179  [PASS]
+  THEN  Antarctica's middle is 175 (vertices every 10 degrees, shifted 0..350): a point window finds it  [PASS]
+  THEN  Touch180 touches the line and keeps its plain middle, 175: a window 174..176 takes it  [PASS]
+  THEN  NEGATIVE: Touch180 is not at -175  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: A window of no width takes the features whose middle is exactly that place
+  THEN  lon 17, lat 1.5 is Africa's middle: it is taken  [PASS]
+  THEN  NEGATIVE: lon 17, lat 0 is not: nothing  [PASS]
+  THEN  NEGATIVE: lon 17.0001 is not  [PASS]
+  THEN  lon 179.5, every latitude: exactly Fiji  [PASS]
+  THEN  lon 10.5, lat 48 is Europe's middle, and the edges are inside  [PASS]
+  THEN  the whole world, -180..180 and -90..90, takes all eleven  [PASS]
+  THEN  NEGATIVE: the latitude is unchanged by the fix -- a reversed latitude (38 to -36) takes nothing  [PASS]
+  THEN  the latitude edge is inside too: Africa at lat 1.5 is in 1.5..1.5, lon -20..52  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: The six features that do not cross answer as before, on 200 windows; all eleven match the oracle on 200 more
+  THEN  200 windows with lon0 <= lon1: the six non-crossing features differ from the old formula in 0 windows  [PASS]
+    [grid1 non-empty: 91]
+  THEN  NEGATIVE: the grid is not vacuous -- at least 40 of the 200 windows take one of the six  [PASS]
+  THEN  200 mixed windows (some across the line): all eleven features match the oracle in 0 windows  [PASS]
+  THEN  NEGATIVE: the grid is not vacuous -- at least 40 windows run across the line  [PASS]
+    [across: 101, taken: 432]
+  THEN  NEGATIVE: and the oracle takes 150 or more features in all  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The boxes are untouched: BoundsOf still says 360 degrees for Fiji and Bounds the whole set
+  THEN  Fiji's box is [ -180, -19, 180, -16 ] as it always was  [PASS]
+  THEN  Russia's box is [ -180, 50, 180, 75 ]  [PASS]
+  THEN  Africa's box is its own, [ -17, -34, 51, 37 ]  [PASS]
+  THEN  after a windowed question the boxes are the same: Fiji  [PASS]
+  THEN  and the set's own box is [ -180, -90, 180, 75 ]  [PASS]
+  THEN  NEGATIVE: the count did not change  [PASS]
+  THEN  a subset made by Within keeps the wide box of its Fiji: still 360  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Within is Subset of IndicesWithin: a stzGeoFeatures whose Count is the number of indices
+  THEN  for six windows the Count of Within equals the number of indices  [PASS]
+  THEN  and its features are those indices, in order, by name  [PASS]
+  THEN  the Africa window's set holds two features  [PASS]
+  THEN  they are Africa and Wide180  [PASS]
+  THEN  NEGATIVE: Fiji is not among them  [PASS]
+  THEN  the Pacific window, latitude -30..0, holds Fiji alone  [PASS]
+  THEN  it is Fiji, whole: both parts kept  [PASS]
+  THEN  NEGATIVE: a window that takes nothing makes a set of no features  [PASS]
+  THEN  NEGATIVE: and the original set is untouched  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: An empty set answers [ ], and a set of one feature answers for that one
+  THEN  no features  [PASS]
+  THEN  IndicesWithin answers an empty list  [PASS]
+  THEN  and so does a window across the line  [PASS]
+  THEN  Within answers a set of no features  [PASS]
+  THEN  one feature, Fiji  [PASS]
+  THEN  an Africa window does not take it  [PASS]
+  THEN  NEGATIVE: the Pacific window does  [PASS]
+  THEN  NEGATIVE: and so does 160..180  [PASS]
+  THEN  Within of the Pacific window holds one feature  [PASS]
+  THEN  a single point at -179.9 keeps its own longitude as its middle: -180..-179 takes it  [PASS]
+  THEN  NEGATIVE: 179..180 does not  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: A window is four numbers: text, a list or NaN raise a clear error, and nothing is evaluated
+  THEN  a text western edge raises  [PASS]
+  THEN  the error says what a window is  [PASS]
+  THEN  a number written as text raises too  [PASS]
+  THEN  an empty text raises  [PASS]
+  THEN  a list raises  [PASS]
+  THEN  a NaN edge raises  [PASS]
+  THEN  a NaN northern edge raises  [PASS]
+  THEN  Within raises the same way  [PASS]
+  THEN  text that would run code is only refused, never run: the error names the window  [PASS]
+  THEN  NEGATIVE: ordinary numbers do not raise  [PASS]
+  THEN  NEGATIVE: zero is a number  [PASS]
+  THEN  NEGATIVE: infinity is a number: -inf..inf takes the whole set  [PASS]
+  THEN  NEGATIVE: longitudes past 180 are compared as given, not wrapped: 170..190 takes the middles from 170 up, 179.5, 175, 175 and 180  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: The source states the rule and no longer calls the trap open
+  THEN  no 'Defect:' line is left in the class  [PASS]
+  THEN  no 'warning' line for the antimeridian is left  [PASS]
+  THEN  the class paragraph says the trap is handled  [PASS]
+  THEN  it says the picture was drawn with the old behaviour  [PASS]
+  THEN  and that it has not been redrawn since  [PASS]
+  THEN  the block gives the across-the-line rule  [PASS]
+  THEN  the block gives the edge rule  [PASS]
+  THEN  NEGATIVE: the class text no longer says the windows take Fiji for an Africa window as a standing fact  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 100 assertions, 100 pass, 0 fail
+================================================
+STATUS: OK
