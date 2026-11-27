@@ -35,7 +35,7 @@ including the one in a browser.
       |
       +-- gpu_verify.zig: the checker (visible shape, hidden shape, NaN margin, floors, roofs)
       |
-      +-- stzKernelPuzzle.ring and courses/kernel-puzzles: twelve puzzles, two runners
+      +-- stzKernelPuzzle.haro and courses/kernel-puzzles: twelve puzzles, two runners
 ```
 
 | file | holds |
@@ -52,7 +52,7 @@ including the one in a browser.
 | `engine/src/neural_backbone.zig` | the resident MiniLM forward on the GPU, with f32 or f16 weights |
 | `engine/src/stz_wasm_entry.zig` | the same grammar compiled for the browser |
 | `base/gpu/stzKernelMaker.haro` | the library's face over the grammar |
-| `base/gpu/stzKernelPuzzle.ring` | a puzzle: its facts, its data, its grading |
+| `base/gpu/stzKernelPuzzle.haro` | a puzzle: its facts, its data, its grading |
 | `base/gpu/stzGpu.ring` | the device face, with `VerifySpec` and `VerifySpecWith` |
 | `base/education/program/courses/kernel-puzzles/` | the course, twelve exercises, the browser runner |
 | `base/test/gpu/` | the guards |
