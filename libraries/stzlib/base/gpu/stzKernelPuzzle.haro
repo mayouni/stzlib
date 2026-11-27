@@ -1,0 +1,700 @@
+#---------------------------------------------------------------------------#
+#  STZKERNELPUZZLE -- a kernel puzzle of the Learning System, graded by     #
+#  the checker: the learner's description against the puzzle's reference,  #
+#  interpreted on the CPU, at a visible shape and a hidden one, with the    #
+#  NaN margin that names a store past the region (KP1 of the GPU plan).    #
+#---------------------------------------------------------------------------#
+#
+# A puzzle is an exercise folder under
+#   base/education/program/courses/kernel-puzzles/exercises/<id>/
+# in the Learning System's own shape (exercise.zknw, task.<lang>.md,
+# the promise, right/, wrong/) plus two texts the grammar reads:
+#   reference.txt   the description the learner's kernel must match
+#   starter.txt     where the learner starts; it FAILS "waiting for your
+#                   implementation" until a body is written
+# and facts in exercise.zknw that build the data:
+#   kp-01 | elements | 4000          the output count n
+#   kp-01 | input-a  | ramp          an input vector and its recipe
+#   kp-01 | scalar-alpha | 2.5       a scalar and its value
+#   kp-01 | input-length-a | 16000   an input longer than n (a stencil, a sum)
+# Recipes: ramp (0, 1, 2, ...), half (0, 0.5, 1, ...), mod13 ((i * 7) % 13),
+# ones, tenths ((i % 10) / 10). The browser runner builds the same data from
+# the same facts, so the two runners grade one spec to one verdict.
+#
+# The verdict is ONE WORD or a short phrase the promise can match:
+#   verified · mismatch at element K · mismatch-hidden at element K ·
+#   write-outside at element K · impossible · refused: <why> ·
+#   race at line L · waiting for your implementation
+# A race is named before anything runs: two threads of one stage writing one
+# slot leave the device free to keep either write, so no comparison of values
+# can stand for it (GZ0). Sanitize() gives the sentence behind it, and the
+# quieter defects the device runs without a word.
+# On a machine without a device the grading is the interpreter's alone, at
+# both shapes, in the same words; a store past the region cannot be seen
+# there (the margin needs a device). GradeOnCpu is that path, callable.
+
+func StzKernelPuzzleQ(ptId)
+	return new stzKernelPuzzle(ptId)
+end
+# The folder the puzzles live in, under the library's own base folder. Found apart from the
+# engine, so an engine built outside the tree (STZ_ENGINE_DIR) still finds the course.
+func StzKernelPuzzlesFolder
+	return _StzBaseDir() + "/education/program/courses/kernel-puzzles/exercises"
+end
+# Builds a stzKernelMaker from a description text, so a description read from a file or typed in a page becomes a maker.
+#
+# The text holds the lines a maker's Spec() writes: in, scalar, out, guard, body and the group lines.
+#
+#   pcSpec     the description, one directive per line
+#   returns    a stzKernelMaker
+#   note       KP1 (2026-10-24): the bridge between the two runners; Spec() of the result is the
+#              text again, line for line
+#   see        stzKernelMaker.Spec
+# GL0: a declaration's name and its type word, from 'a', 'a int', 'a float' or
+# 'a vec3'; another word is kept on the name, for the engine to refuse.
+func _StzKernelDecl(ptRest)
+	xC = ring_trim(ptRest)
+	vW = StzSplit(xC, " ")
+	if Len(vW) = 2
+		tT = Lower(vW[2])
+		if tT = "int" or tT = "float" or tT = "vec2" or tT = "vec3" or tT = "vec4"
+			return [ vW[1], tT ]
+		end
+	end
+	return [ xC, "float" ]
+end
+# GL0 (host contract): the hidden shape's input -- the tail of the visible one,
+# reversed, one ELEMENT at a time (a row of a vecN input stays whole). How many
+# elements it keeps is the ENGINE's number (StzEngineGpuHostHiddenLen); the loop
+# is the library's, over lists of numbers. The host guard ties it to the
+# engine's own StzEngineGpuHostHiddenInput.
+func _StzKernelHiddenTail(pxV, nN, nB)
+	nLen = Len(pxV)
+	nKeep = StzEngineGpuHostHiddenLen(nLen, nN, nB)
+	vA = []
+	for j = nLen to (nLen - nKeep + 1) step -1
+		vA + pxV[j]
+	end
+	return vA
+end
+# A value the engine gave back is NaN: told by its text, since = on floats is refused.
+func _StzKernelIsNaN(xV)
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+# GL0 (typed buffers): rows of an input of vectors, flat -- a flat list is kept.
+func _StzKernelFlat(pxV)
+	if Len(pxV) = 0 or not IsList(pxV[1])
+		return pxV
+	end
+	vA = []
+	nCount = Len(pxV)
+	for i = 1 to nCount
+		nC = Len(pxV[i])
+		for j = 1 to nC
+			vA + pxV[i][j]
+		end
+	end
+	return vA
+end
+# GL0 (typed buffers): a flat list of numbers as rows of nW, one per element.
+func _StzKernelRows(pxV, nW)
+	if nW <= 1 or Len(pxV) = 0 or IsList(pxV[1])
+		return pxV
+	end
+	vA = []
+	nE = (Len(pxV) - Len(pxV) % nW) / nW
+	for i = 0 to nE - 1
+		vR = []
+		for j = 1 to nW
+			vR + pxV[i * nW + j]
+		end
+		vA + vR # a list appended to a list is one element: the row
+	end
+	return vA
+end
+func StzKernelMakerFromSpec(ptSpec)
+	oKer = new stzKernelMaker
+	vLines = StzSplit(StzReplace(ptSpec, Char(13), ""), Char(10))
+	nCount = Len(vLines)
+	for i = 1 to nCount
+		tLine = ring_trim(vLines[i])
+		if tLine = ""
+			loop
+		end
+		if StzLeft(tLine, 3) = "in "
+			vD = _StzKernelDecl(StzRight(tLine, Len(tLine) - 3))
+			oKer.TakesVectorOf(vD[1], vD[2])
+		elseif StzLeft(tLine, 7) = "scalar "
+			vD = _StzKernelDecl(StzRight(tLine, Len(tLine) - 7))
+			if vD[2] = "int"
+				oKer.TakesIntScalar(vD[1])
+			elseif vD[2] = "float"
+				oKer.TakesScalar(vD[1])
+			else
+				oKer.TakesScalar(vD[1] + " " + vD[2])
+			end
+		elseif StzLeft(tLine, 4) = "out "
+			vO = StzSplit(ring_trim(StzRight(tLine, Len(tLine) - 4)), " ")
+			if Len(vO) = 3 and Lower(vO[2]) = "atomic"
+				# GL0 (atomics): out NAME atomic SIZE
+				oKer.ReturnsAtomic(vO[1], Number(vO[3]))
+			else
+				vD = _StzKernelDecl(StzRight(tLine, Len(tLine) - 4))
+				oKer.ReturnsVectorOf(vD[1], vD[2])
+			end
+		elseif StzLeft(tLine, 6) = "guard "
+			oKer.Guard(ring_trim(StzRight(tLine, Len(tLine) - 6)))
+		elseif StzLeft(tLine, 5) = "body "
+			oKer.ForEachElement(ring_trim(StzRight(tLine, Len(tLine) - 5)))
+		elseif StzLeft(tLine, 7) = "shared "
+			# the engine checks the size; the face keeps the text as written
+			vW = StzSplit(ring_trim(StzRight(tLine, Len(tLine) - 7)), " ")
+			if Len(vW) != 2
+				StzRaise("StzKernelMakerFromSpec: a shared line is 'shared NAME SIZE', not '" + tLine + "'.")
+			end
+			oKer.Shared(vW[1], vW[2])
+		elseif StzLeft(tLine, 6) = "stage "
+			oKer.Stage(ring_trim(StzRight(tLine, Len(tLine) - 6)))
+		elseif StzLeft(tLine, 7) = "reduce "
+			vW = StzSplit(ring_trim(StzRight(tLine, Len(tLine) - 7)), " ")
+			if Len(vW) != 2
+				StzRaise("StzKernelMakerFromSpec: a reduce line is 'reduce NAME sum|max|min', not '" + tLine + "'.")
+			end
+			oKer.Reduce(vW[1], vW[2])
+		elseif StzLeft(tLine, 6) = "tiles "
+			tR = ring_trim(StzRight(tLine, Len(tLine) - 6))
+			vW = StzSplit(tR, " ")
+			if Len(vW) < 2
+				StzRaise("StzKernelMakerFromSpec: a tiles line is 'tiles VAR { count }', not '" + tLine + "'.")
+			end
+			oKer.Tiles(vW[1], ring_trim(StzRight(tR, Len(tR) - Len(vW[1]))))
+		elseif StzLeft(tLine, 11) = "accumulate "
+			oKer.Accumulate(ring_trim(StzRight(tLine, Len(tLine) - 11)))
+		elseif StzLeft(tLine, 6) = "width "
+			oKer.Width(ring_trim(StzRight(tLine, Len(tLine) - 6)))
+		elseif StzLeft(tLine, 6) = "depth "
+			oKer.Depth(ring_trim(StzRight(tLine, Len(tLine) - 6)))
+		else
+			StzRaise("StzKernelMakerFromSpec: unknown line '" + tLine + "' (in, scalar, out, width, depth, shared, stage, reduce, tiles, accumulate, guard, body).")
+		end
+	end
+	return oKer
+end
+# Grades a learner's kernel description against a puzzle of the kernel-puzzles course, by running it: the checker compares it with the puzzle's reference interpreted on the CPU, at the visible shape and a hidden one, with a NaN margin after the output.
+#
+# A puzzle is a folder in the Learning System's exercise shape with two texts more, reference.txt
+# and starter.txt, and data facts in its exercise.zknw. Grade takes a maker or a description text
+# and answers one word or a short phrase: verified, mismatch at element K, mismatch-hidden at
+# element K, write-outside at element K, impossible, refused: why, or waiting for your
+# implementation. Starter, Reference and Task give the learner what the page gives. The browser
+# runner of the course grades the same text from the same facts to the same words.
+#
+#   receiver   o1 = StzKernelPuzzleQ("kp-01")
+#   example    ? o1.Elements()
+#              ? o1.Grade(StzKernelMakerFromSpec(o1.Reference()))
+#   output     4000
+#              verified
+#
+class stzKernelPuzzle from stzObject
+	@tId = ""
+	@tFolder = ""
+	@xFacts = []
+	@tReference = ""
+	@tStarter = ""
+
+	# Opens a puzzle by its exercise id and reads its facts, reference and starter.
+	#
+	#   pcId       the exercise folder's name, such as kp-01
+	#   warning    raises an error naming the puzzle when the folder, exercise.zknw or
+	#              reference.txt is missing
+	#   see        Grade
+	def init(ptId)
+		@tId = Lower("" + ptId)
+		@tFolder = StzKernelPuzzlesFolder() + "/" + @tId
+		if not FExists(@tFolder + "/exercise.zknw")
+			StzRaise("stzKernelPuzzle: no puzzle '" + @tId + "' (no exercise.zknw at " + @tFolder + ").")
+		end
+		if not FExists(@tFolder + "/reference.txt")
+			StzRaise("stzKernelPuzzle '" + @tId + "': reference.txt is missing; nothing could grade it.")
+		end
+		@xFacts = this._FactsOf(Read(@tFolder + "/exercise.zknw"))
+		@tReference = StzReplace(Read(@tFolder + "/reference.txt"), Char(13), "")
+		if FExists(@tFolder + "/starter.txt")
+			@tStarter = StzReplace(Read(@tFolder + "/starter.txt"), Char(13), "")
+		end
+	end
+	# Returns the exercise id, lower-cased, as the puzzle was opened.
+	#
+	#   returns    a text
+	#   see        Folder
+	def Id
+		return @tId
+	end
+	# Returns the folder the puzzle was read from.
+	#
+	#   returns    a text
+	#   see        Id
+	def Folder
+		return @tFolder
+	end
+	# Returns the reference description, the text the learner's kernel must match in every element.
+	def Reference
+		return @tReference
+	end
+	# Returns the description the learner starts from.
+	def Starter
+		return @tStarter
+	end
+	# Returns the task text in a language (en, fr, ar, ha), or an empty text when the puzzle has none in it.
+	#
+	#   pcLang     the language code: en, fr, ar or ha
+	#   returns    a text, the task in markdown
+	def Task(ptLang)
+		tF = @tFolder + "/task." + Lower("" + ptLang) + ".md"
+		if FExists(tF)
+			return Read(tF)
+		end
+		return ""
+	end
+	# Returns the output count n the puzzle grades over.
+	def Elements
+		xC = this._Fact("elements")
+		if xC = ""
+			return 4096
+		end
+		return Number(xC)
+	end
+	# Returns the input vectors and the scalars the puzzle binds, built from its facts, as the bindings a maker takes.
+	#
+	#   returns    a list of [ name, value ] pairs
+	#   note       the browser runner builds the same data from the same facts
+	def Bindings
+		vB = []
+		nN = this.Elements()
+		nCount = Len(@xFacts)
+		for i = 1 to nCount
+			tRel = Lower(@xFacts[i][2])
+			if StzLeft(tRel, 6) = "input-" and StzLeft(tRel, 13) != "input-length-"
+				tName = StzRight(tRel, Len(tRel) - 6)
+				nLen = nN
+				tLen = this._Fact("input-length-" + tName)
+				if tLen != ""
+					# a length may NAME a scalar ("the input is as long as m says"): the
+					# knowledge graph keeps one edge per node pair, so two facts of one
+					# puzzle cannot both point at the node 1024
+					if not (tLen[1] >= "0" and tLen[1] <= "9")
+						tLen = this._Fact("scalar-" + Lower(tLen))
+					end
+					nLen = Number(tLen)
+				end
+				# GL0 (typed buffers): an input of vecNs takes N numbers of its recipe per element
+				nW = StzKernelMakerFromSpec(@tReference).InputWidth(tName)
+				vB + [ tName, _StzKernelRows(this._Recipe(@xFacts[i][3], nLen * nW), nW) ]
+			elseif StzLeft(tRel, 7) = "scalar-"
+				vB + [ StzRight(tRel, Len(tRel) - 7), Number(@xFacts[i][3]) ]
+			end
+		end
+		return vB
+	end
+	# Returns the hidden shape's element count when the puzzle declares one, or 0 when the checker derives it.
+	#
+	#   returns    a number
+	#   note       KP3 (2026-10-27): a matrix's hidden shape is another matrix, with its own width and
+	#              depth; the facts hidden-elements, hidden-scalar-NAME and hidden-input-length-NAME
+	#              give it, and the hidden inputs are the same recipes at those lengths, reversed
+	#   see        HiddenBindings
+	def HiddenElements
+		xC = this._Fact("hidden-elements")
+		if xC = ""
+			return 0
+		end
+		return Number(xC)
+	end
+	# Returns the hidden shape's inputs and scalars when the puzzle declares one, as the bindings a maker takes.
+	#
+	#   returns    a list of [ name, value ] pairs; empty when the puzzle declares no hidden shape
+	#   see        HiddenElements, Bindings
+	def HiddenBindings
+		nN = this.HiddenElements()
+		if nN = 0
+			return []
+		end
+		vB = []
+		nCount = Len(@xFacts)
+		for i = 1 to nCount
+			tRel = Lower(@xFacts[i][2])
+			if StzLeft(tRel, 6) = "input-" and StzLeft(tRel, 13) != "input-length-"
+				tName = StzRight(tRel, Len(tRel) - 6)
+				nLen = nN
+				tLen = this._Fact("hidden-input-length-" + tName)
+				if tLen != ""
+					nLen = Number(tLen)
+				end
+				vV = this._Recipe(@xFacts[i][3], nLen)
+				vR = []
+				for j = nLen to 1 step -1
+					vR + vV[j]
+				end
+				vB + [ tName, vR ]
+			elseif StzLeft(tRel, 7) = "scalar-"
+				tName = StzRight(tRel, Len(tRel) - 7)
+				tH = this._Fact("hidden-scalar-" + tName)
+				if tH = ""
+					vB + [ tName, Number(@xFacts[i][3]) ]
+				else
+					vB + [ tName, Number(tH) ]
+				end
+			end
+		end
+		return vB
+	end
+	# Returns the allowed difference per element, from the band fact, or 0.000001.
+	#
+	#   returns    a number
+	#   note       an exp or a long sum on the device rounds differently from the CPU; the band is
+	#              set from a measurement and written in the puzzle's facts
+	def Band
+		xC = this._Fact("band")
+		if xC = ""
+			return StzEngineGpuHostDefaultBand()
+		end
+		return Number(xC)
+	end
+	# Grades a learner's kernel against the reference and answers the verdict in words the promise can match.
+	#
+	#   xLearner   a stzKernelMaker, or the description as text
+	#   returns    a text: verified, mismatch at element K, mismatch-hidden at element K,
+	#              write-outside at element K, impossible, refused: why, race at line L, or waiting
+	#              for your implementation
+	#   note       with a device, the checker's VerifySpec with the NaN margin; without one, the
+	#              interpreter alone at both shapes, and the verdict says so after the word; when
+	#              another process holds the card, the grader waits for it, and answers "waiting for
+	#              the device" if it never comes -- never the interpreter's verdict, which cannot see
+	#              a store past the region (KP-PROVE-FLAKE, 2026-11-15)
+	def Grade(xLearner)
+		xR = this._Prepare(xLearner)
+		if IsString(xR)
+			return xR
+		end
+		oKer = xR
+		tRace = this._RaceVerdict(oKer)
+		if tRace != ""
+			return tRace
+		end
+		oRef = StzKernelMakerFromSpec(@tReference)
+		vB = this.Bindings()
+		nN = this.Elements()
+		nDev = this._DeviceUp()
+		if nDev = 2
+			return "waiting for the device: process " + String(StzEngineGpuLease(2)) + " holds it"
+		end
+		if nDev = 1
+			oG = new stzGpu
+			vOpt = [ [:n, nN], [:band, this.Band()] ]
+			if this.HiddenElements() > 0
+				vOpt + [ "hidden", [ [ "n", this.HiddenElements() ], [ "bindings", this.HiddenBindings() ] ] ]
+			end
+			try
+				vV = oG.VerifySpecWith(oRef, oKer, vB, vOpt)
+			catch e
+				return "refused: " + e
+			end
+			switch vV[:verdict]
+			case "verified"
+				return "verified"
+			case "mismatch"
+				return "mismatch at element " + String(vV[:firstbad])
+			case "mismatch-hidden"
+				return "mismatch-hidden at element " + String(vV[:firstbad])
+			case "write-outside"
+				return "write-outside at element " + String(vV[:outsideat])
+			case "impossible"
+				return "impossible"
+			else
+				return "error"
+			end
+		end
+		return this._GradeOnCpu(oRef, oKer, vB, nN)
+	end
+	# The device, waited for while another process holds it: 1 up, 0 none on this machine, 2 still held by another
+	# process after ten waits (each STZ_GPU_LEASE_WAIT_MS, 30 s by default). Since the GPU lease (2026-11-14), a
+	# second grader no longer shares the card -- sharing it was the likely cause of the right answers refused
+	# once a gate (KP-PROVE-FLAKE) -- it waits; and a grader that gave up waiting must not grade on the
+	# interpreter, which accepted kp-05's missing guard when the card was busy.
+	def _DeviceUp
+		for i = 1 to 10
+			if StzEngineGpuInit($tStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0
+				return 1
+			end
+			if StzEngineGpuLease(0) != 3
+				return 0
+			end
+		end
+		return 2
+	end
+	# Measures where the learner's kernel stands under this device's two roofs, the copy floor and the compute peak.
+	#
+	#   xLearner   a stzKernelMaker, or the description as text
+	#   returns    a hashlist with :elements, :bytes, :flops, :ms (the best dispatch and sync, on the
+	#              wall clock the copy floor is measured with), :gpums (-1 without timestamps), :gbs,
+	#              :floorgbs, :bandwidthfraction, :gflops, :peakgflops, :peakfraction and :bound
+	#              (memory or compute); or a text when the kernel cannot run (the verdict words of
+	#              Grade, or "no device")
+	#   note       KP3 (2026-10-27): the size is the puzzle's roofline-elements fact (4,194,304 when
+	#              absent); the inputs are filled on the device, so no list crosses; bytes and
+	#              operations are the ESSENTIAL ones -- each input read once, the output written once,
+	#              the reference's operations per element -- the roofline's convention, so a kernel
+	#              that does more than it must shows a smaller fraction
+	#   see        Grade
+	def Roofline(xLearner)
+		xR = this._Prepare(xLearner)
+		if IsString(xR)
+			return xR
+		end
+		oKer = xR
+		if this._DeviceUp() != 1
+			return "no device"
+		end
+		oRef = StzKernelMakerFromSpec(@tReference)
+		nN = 4194304
+		xC = this._Fact("roofline-elements")
+		if xC != ""
+			nN = Number(xC)
+		end
+		nKer = StzEngineGpuKernelCompile(oKer.ToWGSL())
+		if nKer = 0
+			return "refused: " + StzEngineGpuLastError()
+		end
+		vIds = []
+		nIn = Len(oRef.InputNames())
+		for i = 1 to nIn + 1
+			nId = StzEngineGpuBufferNew(nN * 4)
+			if nId = 0
+				_FreeIds(vIds)
+				return "refused: no device buffer of " + String(nN * 4) + " bytes"
+			end
+			if i <= nIn
+				StzEngineGpuBufferFillLcg(nId, nN, 7 + i)
+			end
+			vIds + nId
+		end
+		vScal = _OrderedScalars(oRef, this.Bindings())
+		nBytes = (nIn + 1) * nN * 4
+		nFlops = oRef.OperationsPerElement() * nN
+		nSt = StzEngineGpuVerifyRoofline(nKer, nN, vScal, vIds, StzEngineGpuHostGroups(nN), nBytes, nFlops, 7)
+		_FreeIds(vIds)
+		if nSt != 0
+			return "refused: the roofline could not run (" + StzEngineGpuLastError() + ")"
+		end
+		tBound = "memory"
+		if StzEngineGpuVerifyResult(30) = 2
+			tBound = "compute"
+		end
+		return [
+			[:elements, nN],
+			[:bytes, nBytes],
+			[:flops, nFlops],
+			[:ms, StzEngineGpuVerifyResult(24)],
+			[:gpums, StzEngineGpuVerifyResult(25)],
+			[:gbs, StzEngineGpuVerifyResult(26)],
+			[:floorgbs, StzEngineGpuVerifyResult(10)],
+			[:bandwidthfraction, StzEngineGpuVerifyResult(27)],
+			[:gflops, StzEngineGpuVerifyResult(28)],
+			[:peakgflops, StzEngineGpuVerifyResult(17)],
+			[:peakfraction, StzEngineGpuVerifyResult(29)],
+			[:bound, tBound]
+		]
+	end
+	# Grades on the CPU alone, by the interpreter at both shapes, whatever device the machine has.
+	#
+	#   xLearner   a stzKernelMaker, or the description as text
+	#   note       the browser's path when WebGPU is missing, and the guard's way to show the two paths agree
+	#   returns    the verdict words as Grade gives them; a store past the region cannot be seen
+	#              here (the margin needs a device)
+	#   see        Grade
+	def GradeOnCpu(xLearner)
+		xR = this._Prepare(xLearner)
+		if IsString(xR)
+			return xR
+		end
+		tRace = this._RaceVerdict(xR)
+		if tRace != ""
+			return tRace
+		end
+		return this._GradeOnCpu(StzKernelMakerFromSpec(@tReference), xR, this.Bindings(), this.Elements())
+	end
+	# Runs the learner's kernel on the CPU with a checker watching, at the puzzle's visible shape, and returns what it found.
+	#
+	#   xLearner   a stzKernelMaker, or the description as text
+	#   returns    a list of texts, one per defect kind, each naming the line, the threads and the slot;
+	#              empty when the kernel is clean, or when it cannot be evaluated (Grade says why)
+	#   note       GZ0 (2026-10-28): a race is also Grade's verdict; a write or a read past an array,
+	#              and a read of a slot nobody wrote, run on the device without a word and are said here
+	#   see        Grade
+	def Sanitize(xLearner)
+		xR = this._Prepare(xLearner)
+		if IsString(xR)
+			return []
+		end
+		try
+			return xR.SanitizeOnWith(this.Bindings(), [ [:n, this.Elements()] ])
+		catch
+			return []
+		end
+	end
+	def _RaceVerdict(poK)
+		try
+			poK.SanitizeOnWith(this.Bindings(), [ [:n, this.Elements()] ])
+		catch
+			return ""
+		end
+		if StzEngineGpuSanitizeCount(0) > 0
+			return "race at line " + String(StzEngineGpuSanitizeLine(0))
+		end
+		return ""
+	end
+	# A maker ready to grade, or the verdict that ends the grading before any run
+	def _Prepare(xLearner)
+		if IsString(xLearner)
+			tText = StzReplace(xLearner, Char(13), "")
+			if ring_trim(tText) = "" or ring_trim(tText) = ring_trim(@tStarter)
+				return "waiting for your implementation"
+			end
+			try
+				oKer = StzKernelMakerFromSpec(tText)
+			catch e
+				return "refused: " + e
+			end
+		else
+			oKer = xLearner
+		end
+		if oKer.Body() = ""
+			return "waiting for your implementation"
+		end
+		# the task's inputs and scalars, in the task's order: one params block serves the
+		# learner's kernel and the reference's interpreter alike
+		oRef = StzKernelMakerFromSpec(@tReference)
+		if @@(oKer.InputNames()) != @@(oRef.InputNames()) or @@(oKer.ScalarNames()) != @@(oRef.ScalarNames())
+			return "refused: your inputs " + @@(oKer.InputNames()) + " and scalars " + @@(oKer.ScalarNames()) +
+				" are not the task's " + @@(oRef.InputNames()) + " and " + @@(oRef.ScalarNames()) + " in the task's order"
+		end
+		try
+			oKer.ToWGSL()
+		catch e
+			return "refused: " + StzReplace(e, "stzKernelMaker: ", "")
+		end
+		return oKer
+	end
+	# The interpreter alone: both descriptions at the visible shape and the hidden one; an
+	# element the reference leaves unwritten must be unwritten in the learner's too
+	def _GradeOnCpu(poRef, poK, pxB, nN)
+		tV = this._CompareOnCpu(poRef, poK, pxB, nN, "")
+		if tV != "verified"
+			return tV
+		end
+		if this.HiddenElements() > 0
+			return this._CompareOnCpu(poRef, poK, this.HiddenBindings(), this.HiddenElements(), "-hidden")
+		end
+		# the hidden shape: odd, tile-uneven, the reversed tail of each input
+		nB = StzEngineGpuHostHiddenCount(nN)
+		vHid = []
+		nCount = Len(pxB)
+		for i = 1 to nCount
+			if IsList(pxB[i][2])
+				vHid + [ pxB[i][1], _StzKernelHiddenTail(pxB[i][2], nN, nB) ]
+			else
+				vHid + pxB[i]
+			end
+		end
+		return this._CompareOnCpu(poRef, poK, vHid, nB, "-hidden")
+	end
+	def _CompareOnCpu(poRef, poK, pxB, nN, tSuffix)
+		vR = poRef.EvaluateOnWith(pxB, [ [:n, nN] ])
+		try
+			vC = poK.EvaluateOnWith(pxB, [ [:n, nN] ])
+		catch e
+			return "refused: " + StzReplace(e, "stzKernelMaker: ", "")
+		end
+		fBand = Float(this.Band())
+		# GL0 (typed buffers): W numbers per element of the output, a mismatch named by element
+		nW = poRef.OutputWidth()
+		if poRef.OutputIsAtomic() = 1
+			nW = 1 # GL0 (atomics): the counters, each its own element
+		end
+		for i = 1 to poRef.OutputLength(nN)
+			xR = vR[i]
+			xC = vC[i]
+			# the engine gives a whole value as an integer and any other as a float: a NaN is told
+			# by its text (= on floats is refused), and the two are compared as floats
+			bRNan = _StzKernelIsNaN(xR)
+			bCNan = _StzKernelIsNaN(xC)
+			if bRNan and bCNan
+				loop
+			end
+			if bRNan or bCNan
+				return "mismatch" + tSuffix + " at element " + String(((i - 1) - (i - 1) % nW) / nW + 1)
+			end
+			# the library's Abs() compares with an integer 0, which a float refuses: the distance is taken here
+			fD = Float(xR) - Float(xC)
+			if fD < Float(0)
+				fD = Float(0) - fD
+			end
+			if fD > fBand
+				return "mismatch" + tSuffix + " at element " + String(((i - 1) - (i - 1) % nW) / nW + 1)
+			end
+		end
+		return "verified"
+	end
+	def _Fact(ptRelation)
+		tR = Lower(ptRelation)
+		nCount = Len(@xFacts)
+		for i = 1 to nCount
+			if Lower(@xFacts[i][2]) = tR
+				return @xFacts[i][3]
+			end
+		end
+		return ""
+	end
+	# The data recipes, the same five the browser runner knows
+	def _Recipe(ptRecipe, nLen)
+		vA = []
+		tC = Lower(ring_trim(ptRecipe))
+		for i = 0 to nLen - 1
+			switch tC
+			case "ramp"
+				vA + i
+			case "half"
+				vA + (i * 0.5)
+			case "mod13"
+				vA + ((i * 7) % 13)
+			case "ones"
+				vA + 1
+			case "tenths"
+				vA + ((i % 10) / 10.0)
+			case "mod7"
+				vA + ((i * 3) % 7)
+			else
+				StzRaise("stzKernelPuzzle '" + @tId + "': unknown data recipe '" + ptRecipe + "' (ramp, half, mod13, mod7, ones, tenths).")
+			end
+		end
+		return vA
+	end
+	# subject | relation | object lines, the manifest's own shape, read without the graph
+	def _FactsOf(ptText)
+		vF = []
+		vL = StzSplit(StzReplace(ptText, Char(13), ""), Char(10))
+		nCount = Len(vL)
+		for i = 1 to nCount
+			tLine = ring_trim(vL[i])
+			if tLine = "" or StzLeft(tLine, 1) = "#" or StzLeft(tLine, 9) = "knowledge" or tLine = "facts"
+				loop
+			end
+			vP = StzSplit(tLine, "|")
+			if Len(vP) = 3
+				vF + [ ring_trim(vP[1]), ring_trim(vP[2]), ring_trim(vP[3]) ]
+			end
+		end
+		return vF
+	end
+end

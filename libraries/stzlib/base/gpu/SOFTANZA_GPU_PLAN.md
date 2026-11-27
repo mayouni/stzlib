@@ -5039,9 +5039,10 @@ Of the 117, 99 are the retired `a` letter (`aOut`, `aIds`, ...), lettered `v` or
 1. **a text joined with a number** (`"... takes " + Len(x) + " vectors"`): `.haro` joins texts only -> `String()`;
 2. **a quotient with no exact decimal** (`Floor(nCount / nWidth)` with a width of 3): -> whole-number division,
    `(n - n % w) / w`;
-3. **a 1 or 0 from a caller still in the older syntax, stored in a `b` name or used as a condition** -- measured
-   by probe: `TYPE_LETTER`, `BOOLEAN_EXPECTED`, and `1 = true` is `TYPE_MISMATCH`. A `.haro` method that receives a
-   flag from an older caller reads both forms (`if IsNumber(x) b = (x != 0) else b = x end`);
+3. **an integer 1 or 0 stored in a `b` name or used as a condition** -- measured on an integer held in a `.haro`
+   list element: `TYPE_LETTER`, `BOOLEAN_EXPECTED`, and `1 = true` is `TYPE_MISMATCH`. A flag that arrives inside a
+   list, or from the engine, is read in both forms (`if IsNumber(x) b = (x != 0) else b = x end`). A flag passed as
+   a parameter from older code arrives as true or false (the Haro desk, v0.78), so a parameter needs no guard;
 4. **the local `nL`**, which in the older syntax overwrote the newline constant: renamed `nLen`.
 
 **The order, one file a commit, each gated before its older file is deleted.**
@@ -5104,6 +5105,33 @@ Two things made the gate shorter and are kept for steps 3 and 4:
 - **every guard with a self-proof lets go of the card first.** Five more were found holding it (grid3, loop,
   segscan, shared, vec): each failed its self-proof, or ran past 1,800 s, on the OLD file; each passes now.
 
+
+**Step 3, done: `stzKernelPuzzle` is `.haro` (2026-11-27).** `base/gpu/stzKernelPuzzle.haro` replaces the older
+file, which is deleted. By hand after the tool: the refused `_oK_` named `oKer`, `pLearner` lettered `xLearner`, the
+`a` and `ac` names lettered `v`; the four error handlers bind the error (`catch e`); ten facts read as text and added
+to 0 now read through `Number()`; the lease, first-bad-element, write-outside and sanitize messages joined through
+`String()`; the element number and the element count by whole-number division; `nL` renamed `nCount`.
+
+**What the gate found that reading did not: the comparison of the reference with the learner's output.** The engine
+gives a whole value as an integer and any other as a float, and `.haro` refuses `=` on floats (`FLOAT_EQUALITY`) and
+an integer beside a float (`NUMBER_MIX`). So a NaN is told by its text (`nan` or `-nan`), both outputs are compared
+as floats against the band read as a float, and the distance is taken in the file: the library's `Abs()`
+(`core/common/stkNumberCommons.haro`) compares its argument with an integer 0, which a float refuses. The first run of
+the new arm stopped at that `Abs()` in 15 guards; the second ran them clean.
+
+**The gate: all 43 guards and probes of `base/test/gpu`**, on haro.exe v0.78 (its stamp the same at start and end),
+engine at stzlib `734ca49a3` sources, each arm one block after `haro prefix` on both library paths. Guards owned 43,
+run 43 on each arm; the 15 that stopped at `Abs()`, and `gpu_convolve`, ran again on the corrected file.
+
+| | guards with a total | assertions | pass | fail |
+|---|---|---|---|---|
+| old file | 40 | 1,582 | 1,578 | 4 |
+| new file | 40 | 1,582 | 1,582 | 0 |
+
+The same count on every guard. The old file's four failures are timings on battery power (`gpu_calibration_shaped`
+2, `gpu_foundry_matmul` 1, `gpu_shared` 1), as was one of `gpu_convolve`'s on the new file's first run, which passed
+on the second. The three probes with no total (`backbone_spine_spike`, `g6_census_bench`, `gk1_shape_probe`) end at
+the same line on both arms.
 
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
