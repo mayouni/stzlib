@@ -1,0 +1,300 @@
+# RADAR-ROUTERFIGURES-01 (a): the court as a router, on the forty text tasks of this bench.
+#
+#     haro _measure_router.haro
+#
+# No model runs: the verdicts every model already earned (results/<label>.txt) are replayed. Each cluster's ten tasks are
+# split by parity into two halves; the court decides on one half (the golden set) and the model it chooses answers the other
+# half (the served set), then the halves change places, so every task is served once and never by a choice made on itself.
+#
+# The court's rule is the registry's (base/faculty/stzModelRegistry.ring, steps 5 and 5b): rank the candidates by their score
+# on the golden set, then by size; keep the first one the court upholds against the floor -- the exact one-sided sign test on
+# the discordant items, P(X >= gains) <= 0.05, gains strictly above losses. The floor answers nothing right; no incumbent is
+# declared. When the court upholds none, the served half is refused: no model answers it (counted apart, cost 0).
+#
+# Two scopes of decision:
+#   per cluster   the court decides once per cluster on its five golden tasks (the faculty is the cluster)
+#   pooled        the court decides once on the twenty golden tasks of all four clusters (one faculty for the bench)
+#
+# Against:  each model always;  the oracle (for each task, the cheapest model that answers it right; an upper bound no
+# router reaches without the answer).
+#
+# COST BASIS: seconds of this machine's CPU, the run's wall time over its forty tasks (results/<label>.txt, run once
+# 2026-11-16, greedy, on the engine's decoder). No price: these models run on the device. Bolt's run overlapped another
+# desk's build, so its seconds are high by an unmeasured share. The court's decision at serve time is a lookup in the
+# court's file: no model call. Its cost is paid once, by running every candidate on the golden set.
+
+$vLabels = [ "qwen3-0.6b", "lfm3-1.7b", "granite42-3b", "bolt-e4b" ]
+$vSizes = [ 600, 1700, 3000, 4000 ]
+$vClusters = [ "text", "data", "agents", "sys" ]   # the prefixes of the task ids
+
+# $vOk[m][t]: 1 when model m answered task t right; tasks in the order of $vIds
+$vIds = []
+$vOk = []
+$vSec = []
+for m = 1 to Len($vLabels)
+	vRows = Lines(Read("results/" + $vLabels[m] + ".txt"))
+	vOne = []
+	nSec = 0
+	for r = 1 to Len(vRows)
+		vC = Cols(vRows[r])
+		if Len(vC) >= 2 and (vC[1] = "pass" or vC[1] = "fail")
+			vOne + IifN(vC[1] = "pass", 1, 0)
+			if m = 1
+				$vIds + vC[2]
+			end
+		end
+		if Len(vRows[r]) > 2 and Right(vRows[r], 2) = " s"
+			nSec = Number(Left(vRows[r], Len(vRows[r]) - 2))
+		end
+	end
+	$vOk + vOne
+	$vSec + nSec
+end
+nT = Len($vIds)
+? "tasks " + String(nT) + ", models " + String(Len($vLabels))
+
+tOut = "RADAR-ROUTERFIGURES-01 (a): the court as a router on the forty text tasks" + Char(10)
+tOut = tOut + "cost basis: CPU seconds on this machine (run wall time / 40 tasks, 2026-11-16); no price, the models run on the device" + Char(10) + Char(10)
+tOut = tOut + "policy" + Char(9) + "right" + Char(9) + "wrong" + Char(9) + "refused" + Char(9) + "seconds" + Char(9) + "seconds per right answer" + Char(9) + "model calls per decision" + Char(10)
+
+# each model always
+for m = 1 to Len($vLabels)
+	nR = 0
+	for t = 1 to nT
+		nR = nR + $vOk[m][t]
+	end
+	tOut = tOut + Row("always " + $vLabels[m], nR, nT - nR, 0, $vSec[m] * nT, nT, "0")
+end
+
+# the oracle: the cheapest model right on the task, or the cheapest model when none is
+nR = 0
+nCost = 0
+for t = 1 to nT
+	nPick = 0
+	for m = 1 to Len($vLabels)
+		if nPick = 0 and $vOk[m][t] = 1
+			nPick = m
+		end
+	end
+	if nPick = 0
+		nPick = 1
+	else
+		nR = nR + 1
+	end
+	nCost = nCost + $vSec[nPick]
+end
+tOut = tOut + Row("oracle (knows the answer)", nR, nT - nR, 0, nCost, nT, "--")
+
+tPicks = ""
+for nScope = 1 to 2
+	nR = 0
+	nW = 0
+	nRef = 0
+	nCost = 0
+	nBest = 0
+	nCells = 0
+	for nFold = 0 to 1
+		vGroups = []
+		if nScope = 1
+			for c = 1 to Len($vClusters)
+				vGroups + $vClusters[c]
+			end
+		else
+			vGroups + ""
+		end
+		for g = 1 to Len(vGroups)
+			vGold = []
+			vServe = []
+			for t = 1 to nT
+				if vGroups[g] = "" or Left($vIds[t], Len(vGroups[g])) = vGroups[g]
+					nNum = Number(Right($vIds[t], 2))
+					if nNum % 2 = nFold
+						vGold + t
+					else
+						vServe + t
+					end
+				end
+			end
+			nPick = Court(vGold)
+			nCells = nCells + 1
+			if nPick > 0 and Score(nPick, vServe) = Score(BestOn(vServe), vServe)
+				nBest = nBest + 1
+			end
+			tName = "none"
+			tGot = "--"
+			if nPick > 0
+				tName = $vLabels[nPick]
+				tGot = String(Score(nPick, vServe)) + "/" + String(Len(vServe))
+			end
+			tScopeName = IifT(nScope = 1, "per cluster", "pooled")
+			tGroupName = IifT(vGroups[g] = "", "all", vGroups[g])
+			tPicks = tPicks + tScopeName + Char(9) + "fold " + String(nFold) + Char(9) + tGroupName + Char(9) + "golden " + String(Len(vGold)) + Char(9) + "chose " + tName + Char(9) + "served half's best " + $vLabels[BestOn(vServe)] + " " + String(Score(BestOn(vServe), vServe)) + "/" + String(Len(vServe)) + ", chosen " + tGot + Char(10)
+			for s = 1 to Len(vServe)
+				if nPick = 0
+					nRef = nRef + 1
+				else
+					nCost = nCost + $vSec[nPick]
+					if $vOk[nPick][vServe[s]] = 1
+						nR = nR + 1
+					else
+						nW = nW + 1
+					end
+				end
+			end
+		end
+	end
+	tP = IifT(nScope = 1, "court, per cluster (golden 5)", "court, pooled (golden 20)")
+	tOut = tOut + Row(tP, nR, nW, nRef, nCost, nT, "0 (a lookup)")
+	tOut = tOut + "  chose a model with the served half's best score (ties count) in " + String(nBest) + " of " + String(nCells) + " decisions" + Char(10)
+end
+tOut = tOut + Char(10) + "the decisions:" + Char(10) + tPicks
+? tOut
+Write("results/router.txt", tOut)
+
+# the registry's rule: rank by golden score then size, keep the first upheld against the floor (0 on every item); 0 when none
+func Court(vGold)
+	vOrder = []
+	for m = 1 to Len($vLabels)
+		vOrder + m
+	end
+	for a = 1 to Len(vOrder) - 1
+		for b = a + 1 to Len(vOrder)
+			nA = Score(vOrder[a], vGold)
+			nB = Score(vOrder[b], vGold)
+			if nB > nA or (nB = nA and $vSizes[vOrder[b]] < $vSizes[vOrder[a]])
+				nX = vOrder[a]
+				vOrder[a] = vOrder[b]
+				vOrder[b] = nX
+			end
+		end
+	end
+	for a = 1 to Len(vOrder)
+		nG = Score(vOrder[a], vGold)
+		if nG > 0 and Upheld(nG, 0)
+			return vOrder[a]
+		end
+	end
+	return 0
+end
+
+# the best-scoring model on a set of tasks, the smaller on a tie
+func BestOn(vSet)
+	nPick = 1
+	for m = 2 to Len($vLabels)
+		if Score(m, vSet) > Score(nPick, vSet)
+			nPick = m
+		end
+	end
+	return nPick
+end
+
+func Score(nM, vSet)
+	nS = 0
+	for k = 1 to Len(vSet)
+		nS = nS + $vOk[nM][vSet[k]]
+	end
+	return nS
+end
+
+# the exact one-sided sign test, in integers: sum over k >= nG of C(n, k) <= 0.05 * 2^n, n = nG + nL
+func Upheld(nG, nL)
+	if nG <= nL
+		return 0
+	end
+	nN = nG + nL
+	nTail = 0
+	for k = nG to nN
+		nTail = nTail + Choose(nN, k)
+	end
+	return nTail * 100 <= 5 * Power2(nN)
+end
+
+func Choose(nN, nK)
+	nV = 1
+	for k = 1 to nK
+		nV = nV * (nN - k + 1)
+		nV = Quot(nV, k)
+	end
+	return nV
+end
+
+# integer quotient of two integers whose division is exact
+func Quot(nA, nB)
+	nQ = 0
+	while nA >= nB
+		nA = nA - nB
+		nQ = nQ + 1
+	end
+	return nQ
+end
+
+func Power2(nN)
+	nV = 1
+	for k = 1 to nN
+		nV = nV * 2
+	end
+	return nV
+end
+
+func Row(tName, nR, nW, nRef, nCost, nT, tCalls)
+	tPer = "--"
+	if nR > 0
+		tPer = Tenths(nCost * 10, nT * nR)
+	end
+	return tName + Char(9) + String(nR) + Char(9) + String(nW) + Char(9) + String(nRef) + Char(9) + Tenths(nCost * 10, nT) + Char(9) + tPer + Char(9) + tCalls + Char(10)
+end
+
+# a cost is counted in fortieths of a second (a task costs its model's run seconds, the run having forty tasks), so
+# seconds = cost / 40; Tenths(cost * 10, 40 * d) is cost / 40 / d written with one decimal, truncated
+func Tenths(nNum, nDen)
+	nQ = Quot(nNum, nDen)
+	return String(Quot(nQ, 10)) + "." + String(nQ - Quot(nQ, 10) * 10)
+end
+
+func IifN(bC, nA, nB)
+	if bC
+		return nA
+	end
+	return nB
+end
+
+func IifT(bC, tA, tB)
+	if bC
+		return tA
+	end
+	return tB
+end
+
+func Cols(tRow)
+	vOut = []
+	tCur = ""
+	nLen = Len(tRow)
+	for j = 1 to nLen
+		if tRow[j] = Char(9)
+			vOut + tCur
+			tCur = ""
+		else
+			tCur = tCur + tRow[j]
+		end
+	end
+	vOut + tCur
+	return vOut
+end
+
+func Lines(tText)
+	vOut = []
+	tCur = ""
+	nLen = Len(tText)
+	for j = 1 to nLen
+		if tText[j] = Char(10)
+			vOut + tCur
+			tCur = ""
+		elseif tText[j] != Char(13)
+			tCur = tCur + tText[j]
+		end
+	end
+	if tCur != ""
+		vOut + tCur
+	end
+	return vOut
+end

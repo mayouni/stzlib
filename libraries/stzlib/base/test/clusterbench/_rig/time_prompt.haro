@@ -1,0 +1,27 @@
+# What the domain's word list costs Whisper small in time: each recording heard PLAIN, PROMPTED, PLAIN, PROMPTED, so
+# the machine's drift falls on both arms. No library is loaded: the engine's neural module is called directly.
+#
+#     haro _rig/time_prompt.haro       (from the clusterbench folder, STZ_ENGINE_DIR and STZ_MODELS_DIR set)
+
+LoadLib(SysGet("STZ_ENGINE_DIR") + "/zig-out/bin/stz_neural.dll")
+tModel = SysGet("STZ_MODELS_DIR") + "/speech/ggml-small.bin"
+tWords = Read("domain_words_sales.txt")
+vRec = [ [ "recordings/domain/d01.wav", "fr" ], [ "recordings/domain/d09.wav", "fr" ], [ "recordings/domain/d16.wav", "fr" ], [ "recordings/fleurs/fr_fr/10174413140250646001.wav", "fr" ] ]
+vSum = [ 0, 0 ]
+? "recording" + Char(9) + "plain s" + Char(9) + "prompted s" + Char(9) + "plain s" + Char(9) + "prompted s"
+for r = 1 to Len(vRec)
+	tLine = vRec[r][1]
+	for k = 1 to 4
+		nT0 = Clock()
+		if k % 2 = 1
+			tText = StzEngineNeuralWhisperTranscribe(tModel, vRec[r][1], vRec[r][2], 160, 4)
+		else
+			tText = StzEngineNeuralWhisperTranscribePrompted(tModel, vRec[r][1], vRec[r][2], tWords, 160, 4)
+		end
+		nMs = Floor((Clock() - nT0) * 1000 / ClocksPerSecond())
+		vSum[2 - k % 2] = vSum[2 - k % 2] + nMs
+		tLine = tLine + Char(9) + String(nMs / 1000)
+	end
+	? tLine
+end
+? "total ms: plain " + String(vSum[1]) + ", prompted " + String(vSum[2])

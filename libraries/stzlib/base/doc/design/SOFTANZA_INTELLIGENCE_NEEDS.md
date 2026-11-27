@@ -138,3 +138,19 @@ French and Hausa.
   come from FLEURS' test split (CC BY 4.0), five per language, read as a stream (a few MB of 243 and 602 MB archives);
   the engine reads 32-bit float WAV; the transcription faculty is registered from a `.haro` file; Hausa hearing is
   the next rung.
+- **Taken 2026-11-27 under INTEL-DELEGATE-01**, on three proposals of the Radar desk:
+  - RADAR-ROUTERFIGURES-01: (a) the court is measured as a router on the area-cluster bench
+    (`base/test/clusterbench/README.md`, "The court as a router"). (b) **Every cost ratio this plane publishes states
+    its price basis beside it**: CPU seconds on this machine for a local model; for a priced model, list or
+    promotional price and the date it was read.
+  - RADAR-MEMORYMODEL-01: (a) a memory model (Quek et al., "MeMo", arXiv 2605.15156: a model trained on a corpus's
+    question-answer pairs and questioned in place of retrieval) is on record as the candidate for a FIXED corpus whose
+    questions cross documents; its build is 240 to 420 H200 GPU-hours a corpus in the paper. (b) It is measured, a
+    small memory model against retrieval with the same main model (accuracy, hours to build, hours to absorb a changed
+    document), on the event of a client corpus of that kind arriving; this plane's owner checks for that event at every
+    survey of the needs.
+  - RADAR-DOMAINHEARING-01: (a) the transcriber is scored on a domain's terms apart from its word error rate, with a
+    general set as the guard (`base/test/clusterbench/_measure_terms.haro`). Measured the same day on a sales representative's twenty sentences: the word list read first takes term errors from 38.6% to 14.5% and moves FLEURS French by two words of 272, for 3.1 times the hearing time (`base/test/clusterbench/README.md`, "A domain's terms"). (b) A small adapter trained on a domain's
+    terms is compared with the glossary prompt on the event of human dictations of that domain arriving, about twenty
+    a domain; the court routes the domain to the adapter only where it measures it better. (c) A voice or a speech set
+    downloaded for it follows the download bands.

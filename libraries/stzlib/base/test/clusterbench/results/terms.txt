@@ -1,0 +1,10 @@
+RADAR-DOMAINHEARING-01 (a): Whisper small on a sales representative's terms, scored 27/11/2026 03:34:34
+domain: 20 sentences, 83 term groups (Windows French voice); guard: FLEURS fr 10 + en 5 (FLEURS' speakers)
+
+mode	term groups missed	domain words wrong	guard fr words wrong	guard en words wrong	hearing seconds (35 recordings)
+plain	32/83	64/229	48/272	7/107	1634
+prompted	12/83	32/229	50/272	7/107	5819
+
+the term groups missed (sentence=first spelling of the group):
+plain: d01=harissa d01=msaken d02=ksar hellal d02=ristourne d03=tête de gondole d03=moknine d04=jemmal d05=kairouan d06=mahdia d07=bordereau d08=enfidha d09=sousse d09=msaken d09=kebira d10=médenine d10=impayé d11=zarzis d12=supérette d14=colisage d15=gabès d15=échue d16=djerba d16=houmt souk d17=thon d18=supérette d18=teboulba d18=pâtes d19=ksibet d19=médiouni d20=réassort d20=levure d20=lamta
+prompted: d02=ksar hellal d02=ristourne d04=jemmal d07=bordereau d09=sousse d11=zarzis d14=colisage d15=échue d17=thon d18=pâtes d19=médiouni d20=lamta

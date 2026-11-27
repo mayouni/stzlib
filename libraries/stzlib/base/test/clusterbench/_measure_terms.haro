@@ -1,0 +1,165 @@
+# RADAR-DOMAINHEARING-01 (a): the transcriber scored on a domain's own terms, apart from its word error rate, with a
+# general set kept beside it as the guard.
+#
+#     HARO_NOCACHE=1 haro _measure_terms.haro
+#
+# From this folder, with STZ_ENGINE_DIR (an engine whose stz_neural has the Whisper builtins) and STZ_MODELS_DIR (the
+# folder holding speech/ggml-small.bin) set; the recordings made first (`powershell -File _rig/speak_domain.ps1`, and
+# `python -I _rig/fleurs_fetch.py` for FLEURS). A heavy job: seventy Whisper runs, one at a time.
+#
+# Two sets, fixed before this ran:
+#
+#   DOMAIN   domain_sales.tsv: twenty sentences of a sales representative's day, 83 term groups (towns, trade words,
+#            products), spoken by the Windows French voice. Scored two ways: TERM ERRORS, the share of term groups not
+#            found in the transcript (small letters; any alternative of a group counts), and the word error rate
+#            against the sentence (StzHearingWordErrors: small letters, punctuation removed).
+#   GUARD    FLEURS' own speakers, French 10 and English 5 (fleurs_v3.tsv's first items of each), scored by word error
+#            rate against FLEURS' transcription: what a domain's word list costs speech that is not the domain's.
+#
+# Each set is heard twice by Whisper small (the language named): PLAIN, and PROMPTED with the domain's word list
+# (domain_words_sales.txt, StzEngineNeuralWhisperTranscribePrompted) -- the guard too, since a product that reads the
+# list first reads it for every recording. Writes results/terms.txt and every transcript to results/terms/.
+
+load "../../stzBase.ring"
+
+tModels = Slashes(SysGet("STZ_MODELS_DIR"))
+$tModelPath = tModels + "/speech/ggml-small.bin"
+tHere = CurrentDir() + "/recordings/"
+$tWordList = Trim(Read("domain_words_sales.txt"))
+
+vDomain = []
+vRows = TextLines(Read("domain_sales.tsv"))
+for r = 1 to Len(vRows)
+	if Left(vRows[r], 1) = "#" or Left(vRows[r], 3) = "id" + Char(9)
+		loop
+	end
+	vC = StzSplit(vRows[r], Char(9))    # StzSplit: a plain Split also cuts at spaces
+	if Len(vC) >= 4
+		vDomain + [ vC[1], vC[2], vC[3], vC[4] ]
+	end
+end
+
+vGuard = []
+vF = TextLines(Read("fleurs_v3.tsv"))
+nFr = 0
+nEn = 0
+for r = 1 to Len(vF)
+	if Left(vF[r], 1) = "#"
+		loop
+	end
+	vC = StzSplit(vF[r], Char(9))
+	if Len(vC) < 3
+		loop
+	end
+	if Left(vC[3], 5) != "wer<="
+		loop
+	end
+	tRef = vC[3]
+	nAt = StzFind(":", tRef)[1]
+	tRef = Right(tRef, Len(tRef) - nAt)
+	if vC[2] = "fr" and nFr < 10
+		vGuard + [ vC[1], "fr", tRef ]
+		nFr = nFr + 1
+	elseif vC[2] = "en" and nEn < 5
+		vGuard + [ vC[1], "en", tRef ]
+		nEn = nEn + 1
+	end
+end
+? "domain " + String(Len(vDomain)) + " sentences, guard " + String(Len(vGuard)) + " recordings"
+
+tOut = "RADAR-DOMAINHEARING-01 (a): Whisper small on a domain's terms -- " + Date() + " " + Time() + Char(10) + Char(10)
+tOut = tOut + "mode" + Char(9) + "term groups missed" + Char(9) + "domain words wrong" + Char(9) + "guard fr words wrong" + Char(9) + "guard en words wrong" + Char(9) + "seconds" + Char(10)
+vModes = [ "plain", "prompted" ]
+for m = 1 to 2
+	nT0 = Clock()
+	nTerms = 0
+	nMissed = 0
+	nDomErr = 0
+	nDomWords = 0
+	tDetail = "id" + Char(9) + "missed" + Char(9) + "transcript" + Char(10)
+	for d = 1 to Len(vDomain)
+		tHeard = Hear(tHere + vDomain[d][2], "fr", m)
+		tLow = StzLower(tHeard)
+		vG = StzSplit(StzLower(vDomain[d][4]), "+")
+		tMiss = ""
+		for g = 1 to Len(vG)
+			nTerms = nTerms + 1
+			bFound = false
+			vAlt = StzSplit(vG[g], "|")
+			for a = 1 to Len(vAlt)
+				if vAlt[a] != "" and Len(StzFind(vAlt[a], tLow)) > 0
+					bFound = true
+				end
+			end
+			if not bFound
+				nMissed = nMissed + 1
+				if tMiss != ""
+					tMiss = tMiss + ", "
+				end
+				tMiss = tMiss + vAlt[1]
+			end
+		end
+		vE = StzHearingWordErrors(vDomain[d][3], tHeard)
+		nDomErr = nDomErr + vE[1]
+		nDomWords = nDomWords + vE[2]
+		tDetail = tDetail + vDomain[d][1] + Char(9) + tMiss + Char(9) + tHeard + Char(10)
+		? vModes[m] + " " + vDomain[d][1] + "  missed: " + tMiss
+	end
+	vGErr = [ 0, 0 ]
+	vGWords = [ 0, 0 ]
+	for k = 1 to Len(vGuard)
+		tHeard = Hear(tHere + vGuard[k][1], vGuard[k][2], m)
+		vE = StzHearingWordErrors(vGuard[k][3], tHeard)
+		nI = 2
+		if vGuard[k][2] = "fr"
+			nI = 1
+		end
+		vGErr[nI] = vGErr[nI] + vE[1]
+		vGWords[nI] = vGWords[nI] + vE[2]
+		tDetail = tDetail + vGuard[k][1] + Char(9) + String(vE[1]) + "/" + String(vE[2]) + Char(9) + tHeard + Char(10)
+	end
+	nSec = Floor((Clock() - nT0) / ClocksPerSecond())
+	tOut = tOut + vModes[m] + Char(9) + String(nMissed) + "/" + String(nTerms) + Char(9) + String(nDomErr) + "/" + String(nDomWords) + Char(9) + String(vGErr[1]) + "/" + String(vGWords[1]) + Char(9) + String(vGErr[2]) + "/" + String(vGWords[2]) + Char(9) + String(nSec) + Char(10)
+	Write("results/terms/" + vModes[m] + ".tsv", tDetail)
+	? tOut
+end
+Write("results/terms.txt", tOut)
+
+func Hear(tPath, tLang, nMode)
+	if nMode = 1
+		return Trim(StzEngineNeuralWhisperTranscribe($tModelPath, tPath, tLang, 160, 4))
+	end
+	return Trim(StzEngineNeuralWhisperTranscribePrompted($tModelPath, tPath, tLang, $tWordList, 160, 4))
+end
+
+# the lines of a text, its carriage returns taken off
+func TextLines(tText)
+	vOut = []
+	tCur = ""
+	nLen = Len(tText)
+	for i = 1 to nLen
+		if tText[i] = Char(10)
+			vOut + tCur
+			tCur = ""
+		elseif tText[i] != Char(13)
+			tCur = tCur + tText[i]
+		end
+	end
+	if tCur != ""
+		vOut + tCur
+	end
+	return vOut
+end
+
+func Slashes(tPath)
+	tOut = ""
+	nLen = Len(tPath)
+	for i = 1 to nLen
+		if tPath[i] = Char(92)
+			tOut = tOut + "/"
+		else
+			tOut = tOut + tPath[i]
+		end
+	end
+	return tOut
+end
