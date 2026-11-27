@@ -74,7 +74,7 @@
 #     python renders.py <topic> --accept <file>  bless one changed render
 #     python renders.py <topic> --judged <file>  mark one entry as looked at
 
-import io, os, re, subprocess, sys, time, hashlib, collections
+import io, os, re, subprocess, sys, tempfile, time, hashlib, collections
 
 # Same reason as promises.py:28 -- redirected to a file, Python picks the system
 # codepage (cp1252 here) and these outputs are full of box-drawing, Arabic, CJK
@@ -185,15 +185,75 @@ BOXDRAW = re.compile('[' + ''.join(chr(c) for c in (0x2500, 0x2502, 0x250c, 0x25
                                                     0x255d, 0x2588, 0x2591)) + ']')
 
 
-def run(path):
+def kill_tree(pid):
+    """Kill a process AND everything it spawned.
+
+    p.kill() kills only the direct child. A test file that shelled out to
+    graphviz and to the system viewer leaves both of those running, holding
+    handles and -- see run() below -- holding a pipe open.
+    """
+    if os.name == 'nt':
+        subprocess.call(['taskkill', '/T', '/F', '/PID', str(pid)],
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    else:
+        subprocess.call(['pkill', '-9', '-P', str(pid)],
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def run(path, timeout=180):
+    """Run one test file; return its output lines, or None if it did not terminate.
+
+    THE OUTPUT GOES TO A FILE, NEVER TO A PIPE, AND THAT IS THE WHOLE POINT OF
+    THIS FUNCTION'S SHAPE. It used to say capture_output=True with this same
+    180-second timeout, and on 2026-11-27 that cost TWO HOURS on one file and
+    produced nothing: the timeout fired exactly as written and bought nothing at
+    all. `subprocess.run` handles a timeout by killing the direct child and then
+    draining the pipes -- and diagram/41_import_as_subdiagram.ring calls
+    oDiag.View(), which shells out to graphviz and then to the system viewer,
+    both of which INHERIT THE WRITE END of the captured pipe. A pipe a surviving
+    grandchild still holds never reaches EOF, so the drain blocks for ever. A
+    180-second rail became an unbounded wait, and the only reason it ended was
+    the DRIVER's own two-hour topic timeout one level up.
+
+    A file has no EOF to wait for, so the timeout below is now a real bound.
+    Three rails, because any one of them alone has a hole:
+      - output to a temporary FILE: a surviving grandchild cannot block the read;
+      - stdin from DEVNULL: a file that reads input would otherwise wait for a
+        keystroke that never comes, which is the same hang wearing another coat;
+      - kill_tree on timeout: so the viewer and graphviz die with the test, and a
+        sweep of 5,416 files does not leave 5,416 windows behind.
+    """
     env = dict(os.environ)
-    env["STZ_ENGINE_DIR"] = ENGINE_DIR
+    env['STZ_ENGINE_DIR'] = ENGINE_DIR
+    # stzlib 5e7aabfb9 added this for exactly the viewer case. It is honoured in
+    # ONE helper so far (stzImageToAscii.ring:413), so treat it as a courtesy
+    # that saves a window, never as the rail -- the rails are the three above.
+    env['STZ_NO_VIEW'] = '1'
+
+    fd, tmp = tempfile.mkstemp(prefix='render-', suffix='.txt')
+    os.close(fd)
     try:
-        p = subprocess.run([RUNNER, os.path.basename(path)], cwd=os.path.dirname(path),
-                           capture_output=True, timeout=180, env=env)
-    except subprocess.TimeoutExpired:
-        return None
-    raw = (p.stdout + p.stderr).decode('utf-8', 'replace')
+        with io.open(tmp, 'wb') as sink:
+            p = subprocess.Popen([RUNNER, os.path.basename(path)],
+                                 cwd=os.path.dirname(path), env=env,
+                                 stdin=subprocess.DEVNULL,
+                                 stdout=sink, stderr=subprocess.STDOUT)
+            try:
+                p.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                kill_tree(p.pid)
+                try:
+                    p.wait(timeout=30)
+                except subprocess.TimeoutExpired:
+                    pass
+                return None
+        with io.open(tmp, 'rb') as fh:
+            raw = fh.read().decode('utf-8', 'replace')
+    finally:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
     return raw.replace(CR + NL, NL).split(NL)
 
 
@@ -360,6 +420,16 @@ def main():
         if out is None:
             if known:
                 finding('render-gone', fn, 'error', 'the file now times out (180 s)')
+            else:
+                # NAME IT. This branch used to fall straight into `skipped`, so a
+                # file that never terminates was indistinguishable from a file
+                # that simply prints two lines -- and the one file in the corpus
+                # that hangs is precisely the one worth knowing about. It is INFO
+                # and not an error because a non-terminating file is a fact about
+                # the test, not a regression in the library.
+                finding('render-hangs', fn, 'info',
+                        'does not terminate in %d s, so no baseline can be taken '
+                        '(a test that opens a viewer is the usual cause)' % 180)
             skipped += 1
             continue
 
