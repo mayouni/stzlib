@@ -1,0 +1,133 @@
+SCENARIO: The variations really are what the header says
+  THEN  the base has no cycle  [PASS]
+  THEN  cyc has a cycle  [PASS]
+  THEN  cyc2 has a cycle  [PASS]
+  THEN  acy has no cycle  [PASS]
+  THEN  rem has no cycle  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Content answers what Data answers
+  THEN  Content is a list, not the empty text  [PASS]
+  THEN  Content holds the three keys  [PASS]
+  THEN  Content counts the four variations  [PASS]
+  THEN  Content names the baseline  [PASS]
+  THEN  Content holds the four rows  [PASS]
+  THEN  Content and Data print the same  [PASS]
+  THEN  Content is NOT the empty text  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The rows keep the cycle field as text (nothing else changed)
+  THEN  cyc holds the text TRUE  [PASS]
+  THEN  acy holds the text FALSE  [PASS]
+  THEN  the field is a string, not a number  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: WithCycles names the variations whose graph has a cycle
+  THEN  two variations hold a cycle  [PASS]
+  THEN  cyc is named  [PASS]
+  THEN  cyc2 is named  [PASS]
+  THEN  acy is NOT named  [PASS]
+  THEN  rem is NOT named  [PASS]
+  THEN  the order of the comparison is kept  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: WithoutCycles names the variations that stay acyclic
+  THEN  two variations stay acyclic  [PASS]
+  THEN  acy is named  [PASS]
+  THEN  rem is named  [PASS]
+  THEN  cyc is NOT named  [PASS]
+  THEN  cyc2 is NOT named  [PASS]
+  THEN  the order of the comparison is kept  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: The two lists partition the variation names
+  THEN  together they hold every variation  [PASS]
+  THEN  no name is in both  [PASS]
+  THEN  every row name is in the union  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: All acyclic: no variation has a cycle
+  THEN  WithCycles is empty  [PASS]
+  THEN  WithoutCycles holds both  [PASS]
+  THEN  WithCycles is still a list  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: All cyclic: no variation is acyclic
+  THEN  WithoutCycles is empty  [PASS]
+  THEN  WithCycles holds both  [PASS]
+  THEN  WithoutCycles is still a list  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: A cyclic baseline: the flag is the state of the variation, not a change
+  THEN  the variation that breaks the cycle is acyclic  [PASS]
+  THEN  the variation that keeps it is cyclic  [PASS]
+  THEN  each list holds one name  [PASS]
+  THEN  break is NOT in WithCycles  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Variations given as a plain list are named V1, V2
+  THEN  V1 is the cyclic one  [PASS]
+  THEN  V2 is the acyclic one  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The flag test accepts what a row may hold
+  THEN  the text TRUE  [PASS]
+  THEN  the text true  [PASS]
+  THEN  the number 1  [PASS]
+  THEN  the text 1  [PASS]
+  THEN  the text FALSE is not a cycle  [PASS]
+  THEN  the text false is not a cycle  [PASS]
+  THEN  the number 0 is not a cycle  [PASS]
+  THEN  the empty text is not a cycle  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Recommend gives the acyclic bonus (a cyclic variation can no longer win)
+  THEN  the acyclic variation wins  [PASS]
+  THEN  the cyclic variation does NOT win  [PASS]
+  THEN  the answer carries a reason  [PASS]
+  THEN  the order of the variations does not matter  [PASS]
+  THEN  with four variations the winner is acyclic  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: ByMetric sorts numbers by value, highest first
+  THEN  nodes added  [PASS]
+  THEN  nodes removed  [PASS]
+  THEN  edges added puts the one with no edge added last  [PASS]
+  THEN  an unknown metric is refused  [PASS]
+  THEN  a known metric is not refused  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: ByMetric on a text column no longer raises (it sorted nothing before)
+  THEN  the four names come back  [PASS]
+  THEN  the cyclic variations come first (TRUE sorts above FALSE)  [PASS]
+  THEN  the second cyclic one is next  [PASS]
+  THEN  an acyclic one is last  [PASS]
+  THEN  the density column answers four names too  [PASS]
+  THEN  the bottleneck column answers four names too  [PASS]
+  THEN  increased sorts below reduced in the byte order  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The other methods of the class answer on the same comparison
+  THEN  Comparisons holds the four rows  [PASS]
+  THEN  the first row is cyc  [PASS]
+  THEN  Summary starts with the baseline  [PASS]
+  THEN  Summary names every variation  [PASS]
+  THEN  Summary counts the variations  [PASS]
+  THEN  Summary does not name a variation that is not there  [PASS]
+  THEN  MostImpactful is the first of the two-change variations  [PASS]
+  THEN  LeastImpactful is the first of the one-change variations  [PASS]
+  THEN  ToStzTable answers a table  [PASS]
+  THEN  the table has one row per metric  [PASS]
+  THEN  the table has the metric column and one per variation  [PASS]
+  THEN  AsTable is the same table  [PASS]
+  THEN  AsStzTable is the same table  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: Building with no variation is refused
+  THEN  an empty list of variations raises  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 81 assertions, 81 pass, 0 fail
+================================================
+STATUS: OK

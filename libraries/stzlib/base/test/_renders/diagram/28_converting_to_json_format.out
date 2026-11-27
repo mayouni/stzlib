@@ -1,0 +1,50 @@
+{
+	"id": "jsontest",
+	"nodes": [
+		{
+			"id": "a",
+			"label": "NodeA",
+			"properties": {
+				"type": "process",
+				"color": "primary"
+			}
+		},
+		{
+			"id": "b",
+			"label": "NodeB",
+			"properties": {
+				"type": "process",
+				"color": "primary"
+			}
+		}
+	],
+	"edges": [
+		{
+			"from": "a",
+			"to": "b",
+			"label": "",
+			"properties": {
+
+			}
+		}
+	],
+	"properties": [
+		"type",
+		"color"
+	],
+	"theme": "pro",
+	"layout": "topdown",
+	"clusters": {
+
+	},
+	"annotations": {
+
+	},
+	"templates": {
+
+	}
+}
+
+
+----------------
+----------------

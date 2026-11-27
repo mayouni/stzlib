@@ -1,0 +1,176 @@
+[
+	[
+		"summary",
+		[
+			[ "nodesadded", 1 ],
+			[ "nodesremoved", 0 ],
+			[ "edgesadded", 2 ],
+			[ "edgesremoved", 1 ],
+			[ "propertieschanged", 0 ]
+		]
+	],
+	[
+		"nodes",
+		[
+			[
+				"added",
+				[ "cache" ]
+			],
+			[ "removed", [  ] ],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"edges",
+		[
+			[
+				"added",
+				[
+					[
+						[ "from", "api" ],
+						[ "to", "cache" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "cache" ],
+						[ "to", "db" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[
+				"removed",
+				[
+					[
+						[ "from", "api" ],
+						[ "to", "db" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"metrics",
+		[
+			[
+				"nodecount",
+				[
+					[ "from", 4 ],
+					[ "to", 5 ],
+					[ "change", "+25%" ],
+					[ "delta", 1 ]
+				]
+			],
+			[
+				"edgecount",
+				[
+					[ "from", 4 ],
+					[ "to", 5 ],
+					[ "change", "+25%" ],
+					[ "delta", 1 ]
+				]
+			],
+			[
+				"density",
+				[
+					[ "from", 0.33 ],
+					[ "to", 0.25 ],
+					[ "change", "-25.00%" ],
+					[ "delta", -0.08 ]
+				]
+			],
+			[
+				"longestpath",
+				[
+					[ "from", 3 ],
+					[ "to", 4 ],
+					[ "change", "+33.33%" ],
+					[ "delta", 1 ]
+				]
+			],
+			[
+				"hascycles",
+				[
+					[ "from", "FALSE" ],
+					[ "to", "FALSE" ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"avgdegree",
+				[
+					[ "from", 2 ],
+					[ "to", 2 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			]
+		]
+	],
+	[
+		"topology",
+		[
+			[
+				"bottlenecks",
+				[
+					[
+						"from",
+						[ "api" ]
+					],
+					[
+						"to",
+						[ "api" ]
+					],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"connectedcomponents",
+				[
+					[ "from", 1 ],
+					[ "to", 1 ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"isolatednodes",
+				[
+					[ "from", [  ] ],
+					[ "to", [  ] ],
+					[ "change", "unchanged" ]
+				]
+			]
+		]
+	],
+	[
+		"impact",
+		[
+			[
+				"reachabilitychanges",
+				[
+					[ "client", "Can now reach 1 more node(s)" ],
+					[ "api", "Can now reach 1 more node(s)" ]
+				]
+			],
+			[ "criticalitychanges", [  ] ]
+		]
+	],
+	[
+		"explanation",
+		[
+			"Added 1 node(s) and 2 edge(s)",
+			"Removed 1 edge(s)",
+			"Density -25.00%"
+		]
+	]
+]
+
+
+----------------
+----------------

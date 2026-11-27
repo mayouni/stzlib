@@ -1,0 +1,27 @@
+╭──────────────────┬───────────────┬────────────────┬────────────╮
+│      Metric      │ Add_COO_Layer │ Flat_Structure │ Matrix_Org │
+├──────────────────┼───────────────┼────────────────┼────────────┤
+│ NodesAdded       │             1 │              2 │          1 │
+│ NodesRemoved     │             0 │              0 │          0 │
+│ EdgesAdded       │             3 │              2 │          3 │
+│ EdgesRemoved     │             2 │              0 │          0 │
+│ DensityChange    │ -20.00%       │ -33.33%        │ +20.00%    │
+│ HasCycles        │ FALSE         │ FALSE          │ FALSE      │
+│ BottleneckChange │ increased     │ unchanged      │ increased  │
+╰──────────────────┴───────────────┴────────────────┴────────────╯
+
+Add_COO_Layer
+
+Flat_Structure
+
+[
+	[ "recommended", "Matrix_Org" ],
+	[
+		"reason",
+		"Best balance of structure, connectivity, and acyclicity"
+	]
+]
+
+
+----------------
+----------------

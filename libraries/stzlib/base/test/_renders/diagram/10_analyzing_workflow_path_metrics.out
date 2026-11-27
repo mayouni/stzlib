@@ -1,0 +1,17 @@
+[
+	[ "avgpathlength", 1.50 ],
+	[ "maxpathlength", 2 ],
+	[
+		"bottlenecks",
+		[ "p1", "p2" ]
+	],
+	[ "density", 0.25 ],
+	[ "nodecount", 4 ],
+	[ "edgecount", 3 ]
+]
+4
+2
+
+
+----------------
+----------------

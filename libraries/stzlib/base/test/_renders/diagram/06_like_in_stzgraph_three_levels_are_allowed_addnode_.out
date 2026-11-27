@@ -1,0 +1,26 @@
+digraph "" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=curved, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
+    labelloc="t";
+    label="
+HELLO TITLE
+Curved Splines
+
+
+";
+    fontsize=16;
+
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    a [label="a", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", penwidth=1, fontcolor="black", tooltip=" "]
+    b [label="pass", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", penwidth=1, fontcolor="black", tooltip=" "]
+    c [label="end", shape=doublecircle, style="solid,filled", fillcolor="#008000", penwidth=1, fontcolor="white", tooltip=" "]
+
+    a -> b
+    a -> c [label=" focus"]
+
+}
+
+
+----------------
+----------------

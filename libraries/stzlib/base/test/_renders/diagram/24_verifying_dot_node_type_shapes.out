@@ -1,0 +1,19 @@
+digraph "dotshapestest" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    s [label="Node S", shape=ellipse, style="solid,filled", fillcolor="#008000", penwidth=1, fontcolor="white", tooltip=" "]
+    d [label="Node D", shape=diamond, style="solid,filled", fillcolor="#FFA500", penwidth=1, fontcolor="black", tooltip=" "]
+    p [label="Node P", shape=box, style="rounded,solid,filled", fillcolor="#0000FF", penwidth=1, fontcolor="white", tooltip=" "]
+    e [label="Node E", shape=doublecircle, style="solid,filled", fillcolor="#008000", penwidth=1, fontcolor="white", tooltip=" "]
+
+    s -> d [style=invis]
+    d -> p [style=invis]
+    p -> e [style=invis]
+
+}
+
+
+----------------
+----------------

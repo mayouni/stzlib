@@ -1,0 +1,62 @@
+-- Scene 1: a graph, written down and read back --
+  [OK] the file is really on disk
+  [OK] every node came back
+  [OK] every edge came back
+  [OK] the graph knows its own name again
+  [OK] a node's LABEL survives
+  [OK] ... and a node with no label of its own still answers with its id
+  [OK] an edge's label survives
+  [OK] a node's PROPERTY survives
+  [OK] ... as the TYPE it was, not as text
+  [OK] ... decimals included
+  [OK] ... and a string stays a string
+
+-- Scene 2: the DIFF says only what changed --
+  [OK] the node that appeared is reported once
+  [OK] no node is claimed removed
+  [OK] the edge that appeared is reported
+  [OK] the edge that went is reported
+  [OK] an edge that never moved is in NEITHER list
+
+-- Scene 3: the changes, written down and replayed --
+  [OK] the simulation names the node to add
+  [OK] ... the edge to remove
+  [OK] ... and never mentions the edge that stayed
+  [OK] replaying it reaches the same node count
+  [OK] ... and the same edge count
+  [OK] the treasury really moved under the CFO
+  [OK] ... and left the CEO
+  [OK] an added node carries the LABEL the simulation gave it
+  [OK] replaying it AGAIN is harmless, not a raise
+  [OK] ... and changes nothing the second time
+
+-- Scene 4: a label can be SAID after the fact --
+  [OK] a bare node answers with its id
+  [OK] SetNodeLabel says it afterwards
+  [OK] ... and keeps its spaces, being display text
+  [OK] ... while a NEWLINE is normalised away
+  [OK] labelling a node that isn't there REFUSES
+  [OK] loading a file that isn't there refuses too
+
+-- Scene 6: a copy is its own graph, index and all --
+  [OK] the original knows its own node
+  [OK] the clone sees what it added
+  [OK] ... and counts it
+  [OK] the ORIGINAL does not see the clone's node
+  [OK] ... and its count is untouched
+  [OK] ... nor does it see the clone's edge
+  [OK] ... and its edge count is untouched
+  [OK] the clone still carries the original's nodes
+  [OK] ... and the original's edge
+  [OK] a node added to the original stays out of the clone
+
+-- Scene 7: one label rule, whichever spelling you call --
+  [OK] a label given at birth keeps its spaces
+  [OK] ... and so does one said afterwards
+  [OK] a label with nothing to normalise is untouched
+  [OK] a newline is normalised at birth
+  [OK] ... and both doors give the same answer
+
+==========================================
+TOTAL: 47 assertions, 47 pass, 0 fail
+==========================================

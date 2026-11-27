@@ -1,0 +1,55 @@
+SCENARIO: Then() turns a rule into an implication with a comparison
+  GIVEN a graph with critical nodes, one with an SLA and one without
+  THEN  the rule knows it is an implication  [PASS]
+  THEN  ...with one requirement  [PASS]
+  THEN  only the critical node LACKING an sla is flagged  [PASS]
+  THEN  ...it is 'bad' (not 'ok', not the non-critical 'nc')  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a rule set runs every rule and aggregates findings
+  GIVEN a set with two rules
+  THEN  the set holds both rules  [PASS]
+  THEN  ...listable by name  [PASS]
+  THEN  ...a rule is reachable by name  [PASS]
+  WHEN  a rule with no domain is added, it inherits the set's
+  THEN  the added rule took the set's domain  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: REPAIRED: stzBPMRuleBase constructs and finds real problems
+  GIVEN the BPM rule base (which raised R11, then R14, and never ran)
+  THEN  it constructs as a rule set  [PASS]
+  THEN  ...in the bpm domain  [PASS]
+  WHEN  it checks the workflow graph
+  THEN  it finds the four distinct problems  [PASS]
+  THEN  ...the orphan step  [PASS]
+  THEN  ...the unassigned step s2  [PASS]
+  THEN  ...the thin decision d1  [PASS]
+  THEN  ...and that there is more than one start (orphan has no incoming either)  [PASS]
+  THEN  the workflow is NOT sound (errors present)  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: REPAIRED: stzSLARuleBase constructs and enforces SLAs
+  GIVEN a graph with SLA data
+  THEN  it constructs with two rules  [PASS]
+  THEN  it flags the critical step with no SLA  [PASS]
+  THEN  ...and the step whose duration exceeds its SLA  [PASS]
+  THEN  ...but not the compliant one  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the rule sets compile down into the shared registry
+  GIVEN the BPM base registered wholesale
+  THEN  each rule is now in the registry under its domain  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: stzOrgChart compliance bases are real rule sets now, not stubs
+  GIVEN the SOX compliance base (a documented stub before phase 2)
+  THEN  it still constructs and keeps its name  [PASS]
+  THEN  ...it is now a rule set carrying real rules  [PASS]
+  THEN  ...that can run over a graph  [PASS]
+  THEN  the GDPR base too  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 25 assertions, 25 pass, 0 fail
+================================================
+STATUS: OK

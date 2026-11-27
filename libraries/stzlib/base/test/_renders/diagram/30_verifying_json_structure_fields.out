@@ -1,0 +1,35 @@
+{
+	"id": "jsonstructuretest",
+	"nodes": [
+		{
+			"id": "n",
+			"label": "Node",
+			"properties": {
+				"type": "process",
+				"color": "primary"
+			}
+		}
+	],
+	"edges": {
+
+	},
+	"properties": [
+		"type",
+		"color"
+	],
+	"theme": "neutral",
+	"layout": "topdown",
+	"clusters": {
+
+	},
+	"annotations": {
+
+	},
+	"templates": {
+
+	}
+}
+
+
+----------------
+----------------

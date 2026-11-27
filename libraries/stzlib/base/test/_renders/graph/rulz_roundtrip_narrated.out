@@ -1,0 +1,30 @@
+-- Scene 1: a graph carries rules of every type --
+  [OK] all three rules are held
+  [OK] ... each filed under its own type
+  [OK] Rules() READS the typed stores -- it is not a fourth store
+
+-- Scene 2: written down, and read back into a FRESH graph --
+  [OK] the file is really on disk
+  [OK] a fresh graph starts with no rules
+  [OK] every rule came back
+  [OK] ... still filed under the right type
+
+-- Scene 3: field by field, the rule is the SAME rule --
+  [OK] name, type, severity and message all survive
+  [OK] the FUNCTION survives as a callable, not a name
+  [OK] ... for each type in turn
+  [OK] the resolved function IS the original object
+  [OK] params survive too
+
+-- Scene 4: what the format REFUSES --
+  [OK] an unknown rule type REFUSES loudly (never a silent drop)
+  [OK] a missing file refuses too
+
+-- Scene 5: a name is unique WITHIN its type --
+  [OK] the same name twice in one type is refused
+  [OK] ... and the FIRST one stands
+  [OK] but the same name under ANOTHER type is a different rule
+
+==========================================
+TOTAL: 17 assertions, 17 pass, 0 fail
+==========================================

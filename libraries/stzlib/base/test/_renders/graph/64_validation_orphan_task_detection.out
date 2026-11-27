@@ -1,0 +1,17 @@
+[
+	[ "status", "fail" ],
+	[ "rulegroup", "project_rules_group" ],
+	[ "domain", "project_rules_group" ],
+	[ "issuecount", 1 ],
+	[
+		"issues",
+		[ "Task 'task1' has no owner" ]
+	],
+	[ "affectednodes", [  ] ]
+]
+
+pass
+
+
+----------------
+----------------

@@ -1,0 +1,178 @@
+SCENARIO: Insert a chain of nodes behind an existing node (InsertNodesAfter)
+  GIVEN a -> b -> c, and the chain n1, n2 inserted after a
+  THEN  the graph has five nodes now  [PASS]
+  THEN  a points to n1  [PASS]
+  THEN  n1 points to n2  [PASS]
+  THEN  n2 points to b  [PASS]
+  THEN  b still points to c  [PASS]
+  THEN  the old edge a -> b is gone  [PASS]
+  THEN  the chain is not reversed: n2 does not point to n1  [PASS]
+  THEN  the path from a to c runs through the whole chain  [PASS]
+  THEN  the label of a new node is the one given  [PASS]
+  THEN  four edges before the insert became four edges after (one replaced by three, minus two)  [PASS]
+  GIVEN the same graph, the target given in capitals and the new nodes as plain ids
+  THEN  a capital target still finds the node  [PASS]
+  THEN  a plain id is its own label  [PASS]
+  GIVEN an empty list of nodes
+  THEN  nothing changes: two nodes  [PASS]
+  THEN  nothing changes: a -> b is kept  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: Insert a chain of nodes in front of an existing node (InsertNodesBefore)
+  GIVEN a -> b -> c, and the chain n1, n2 inserted before b
+  THEN  a points to n1  [PASS]
+  THEN  n1 points to n2  [PASS]
+  THEN  n2 points to b: the list is in path order  [PASS]
+  THEN  b still points to c  [PASS]
+  THEN  the old edge a -> b is gone  [PASS]
+  THEN  the chain is not reversed: n2 does not point to n1  [PASS]
+  THEN  the path from a to c runs through the whole chain  [PASS]
+  THEN  the label of a new node is the one given  [PASS]
+  GIVEN the same graph, the target given in capitals
+  THEN  a capital target still finds the node  [PASS]
+  GIVEN an empty list of nodes
+  THEN  nothing changes: two nodes  [PASS]
+  THEN  nothing changes: a -> b is kept  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Add edges to several nodes, each with its own label and properties (ConnectEdgesXTT)
+  GIVEN four nodes and three edges out of a, with a label and a property on the first
+  THEN  three edges were added  [PASS]
+  THEN  a -> b exists  [PASS]
+  THEN  a -> b carries its own label  [PASS]
+  THEN  a -> b carries its own property  [PASS]
+  THEN  a -> c carries its own label  [PASS]
+  THEN  a -> c has no property  [PASS]
+  THEN  a plain id gives an unlabelled edge  [PASS]
+  THEN  the edges run one way: b -> a does not exist  [PASS]
+  THEN  the spelling AddEdgesXTT does the same  [PASS]
+  GIVEN an empty list
+  THEN  no edge is added  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: The longest path counts hops, not reachable nodes (LongestPath)
+  GIVEN the chain a -> b -> c -> d
+  THEN  it has four nodes  [PASS]
+  THEN  the longest path has three hops  [PASS]
+  THEN  and not four, the number of nodes  [PASS]
+  THEN  nor three by coincidence of reach: a reaches three other nodes  [PASS]
+  GIVEN the diamond a -> b, a -> c, b -> d, c -> d
+  THEN  three nodes are reachable from a  [PASS]
+  THEN  yet the longest path has two hops  [PASS]
+  GIVEN two arms a -> b -> c and a -> d -> e
+  THEN  four nodes are reachable from a  [PASS]
+  THEN  yet the longest path has two hops, which the old count answered as four  [PASS]
+  GIVEN a disconnected graph: a -> b and c -> d -> e
+  THEN  the longest path is looked for in every part: two hops  [PASS]
+  GIVEN a single node, no edge
+  THEN  no hop at all  [PASS]
+  GIVEN a graph with no node
+  THEN  no hop either  [PASS]
+  GIVEN the cycle a -> b -> c -> a
+  THEN  the longest path that visits no node twice has two hops  [PASS]
+  GIVEN the cycle with a node d leading into it, d -> a
+  THEN  d, a, b, c is a path of three hops  [PASS]
+  GIVEN a node with an edge to itself
+  THEN  the loop adds no hop  [PASS]
+  GIVEN a chain of 400 nodes, to see that the walk is not recursive
+  THEN  it has 399 hops  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: The nodes that lie on a cycle (CyclicNodes)
+  GIVEN a -> b -> c -> a with d hanging off c
+  THEN  a, b and c are on the cycle, in node order  [PASS]
+  THEN  d is not: it can be left but never returned to  [PASS]
+  THEN  and the graph agrees that it has a cycle  [PASS]
+  GIVEN a node d that leads INTO the cycle, d -> a
+  THEN  d is not on the cycle either  [PASS]
+  GIVEN the diamond, which has no cycle
+  THEN  no node is on a cycle  [PASS]
+  THEN  and the graph agrees  [PASS]
+  GIVEN a self-loop on x, and an edge x -> y
+  THEN  x is on a cycle of its own, y is not  [PASS]
+  THEN  and the graph agrees  [PASS]
+  GIVEN two cycles in two parts of the graph, a <-> b and c -> d -> e -> c, plus an isolated f
+  THEN  five nodes are on a cycle and the isolated one is not  [PASS]
+  GIVEN the explanation of the cycle a -> b -> c -> a with d hanging off c
+  THEN  it names the nodes on the cycle  [PASS]
+  THEN  it does not name the node that only hangs off it  [PASS]
+  GIVEN the chain a -> b -> c -> d and a graph with no node
+  THEN  the chain has none  [PASS]
+  THEN  the empty graph has none  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: A GraphML file written by the graph is read back to the same graph
+  GIVEN a graph with labels and properties on nodes and edges, text that needs escaping, and a self-loop
+  THEN  the file was written  [PASS]
+  THEN  it is GraphML  [PASS]
+  THEN  the node ids are the same, in order  [PASS]
+  THEN  the edge count is the same  [PASS]
+  THEN  a -> b is there  [PASS]
+  THEN  the self-loop is there  [PASS]
+  THEN  b -> a was not invented  [PASS]
+  THEN  a node label with an ampersand is read back  [PASS]
+  THEN  a node label with angle brackets is read back  [PASS]
+  THEN  a node label with quotes is read back  [PASS]
+  THEN  a node property keeps its text  [PASS]
+  THEN  a node property keeps its number  [PASS]
+  THEN  an edge label is read back  [PASS]
+  THEN  an edge property is read back  [PASS]
+  THEN  an edge with no label stays unlabelled  [PASS]
+  THEN  the graph written again is the same text: nothing was lost or garbled  [PASS]
+  GIVEN the three other spellings of the load, each on a fresh graph
+  THEN  LoadGraphML reads the same graph  [PASS]
+  THEN  ImportFromGraphML reads the same graph  [PASS]
+  THEN  ImportGraphML reads the same graph  [PASS]
+  GIVEN a graph that already holds nodes of its own when it loads
+  THEN  what it held before is replaced, not mixed in  [PASS]
+  THEN  and it holds the file's four nodes  [PASS]
+  GIVEN a GraphML file in the plain dialect of other tools: empty node and edge tags, no label
+  THEN  both nodes are read  [PASS]
+  THEN  a node with no label is labelled by its id  [PASS]
+  THEN  a node with a label keeps it  [PASS]
+  THEN  the edge is read  [PASS]
+  THEN  the graph id is the file's  [PASS]
+  -> 26 pass, 0 fail
+
+SCENARIO: A rule is found by its name whatever the case (HasRule)
+  GIVEN a graph that loaded the dag rule group
+  THEN  the group put at least one rule in  [PASS]
+  THEN  it is found under the exact name  [PASS]
+  THEN  it is found under the name in capitals  [PASS]
+  THEN  it is found under the name in small letters  [PASS]
+  THEN  a name that no rule has is not found  [PASS]
+  THEN  the other spelling agrees  [PASS]
+  GIVEN every rule the graph holds
+  THEN  each one is found by its lowercase name, whichever store holds it  [PASS]
+  GIVEN a graph that has not loaded any group
+  THEN  nothing is found  [PASS]
+  GIVEN the rule removed by its name in the other case
+  THEN  it is no longer found  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: The last validation is remembered whether it passed or failed (ValidationSummary, Anomalies)
+  GIVEN a graph that has not been validated
+  THEN  the summary says no validation has run  [PASS]
+  THEN  there is no anomaly  [PASS]
+  GIVEN the cycle a -> b -> c -> a, validated as a DAG
+  THEN  the validation itself failed  [PASS]
+  THEN  the summary records the failure  [PASS]
+  THEN  passed is false  [PASS]
+  THEN  the summary counts the violations  [PASS]
+  THEN  it lists the rules that were checked  [PASS]
+  THEN  the anomalies list the violations  [PASS]
+  THEN  an anomaly names the rule that was broken  [PASS]
+  THEN  an anomaly says what is wrong  [PASS]
+  THEN  the other spelling of the anomalies agrees  [PASS]
+  GIVEN the cycle broken, validated again
+  THEN  the validation passed  [PASS]
+  THEN  the summary now records the pass, not the older failure  [PASS]
+  THEN  passed is true  [PASS]
+  THEN  no anomaly is left  [PASS]
+  -> 15 pass, 0 fail
+  THEN  the fixture folder is gone  [PASS]
+
+================================================
+TOTAL: 114 assertions, 114 pass, 0 fail
+================================================
+STATUS: OK

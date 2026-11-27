@@ -1,0 +1,202 @@
+[
+	[
+		"summary",
+		[
+			[ "nodesadded", 2 ],
+			[ "nodesremoved", 0 ],
+			[ "edgesadded", 4 ],
+			[ "edgesremoved", 2 ],
+			[ "propertieschanged", 0 ]
+		]
+	],
+	[
+		"nodes",
+		[
+			[
+				"added",
+				[ "coo", "vp_product" ]
+			],
+			[ "removed", [  ] ],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"edges",
+		[
+			[
+				"added",
+				[
+					[
+						[ "from", "ceo" ],
+						[ "to", "coo" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "coo" ],
+						[ "to", "vp_eng" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "coo" ],
+						[ "to", "vp_sales" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "coo" ],
+						[ "to", "vp_product" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[
+				"removed",
+				[
+					[
+						[ "from", "ceo" ],
+						[ "to", "vp_eng" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "ceo" ],
+						[ "to", "vp_sales" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"metrics",
+		[
+			[
+				"nodecount",
+				[
+					[ "from", 6 ],
+					[ "to", 8 ],
+					[ "change", "+33.33%" ],
+					[ "delta", 2 ]
+				]
+			],
+			[
+				"edgecount",
+				[
+					[ "from", 5 ],
+					[ "to", 7 ],
+					[ "change", "+40%" ],
+					[ "delta", 2 ]
+				]
+			],
+			[
+				"density",
+				[
+					[ "from", 0.17 ],
+					[ "to", 0.12 ],
+					[ "change", "-25.00%" ],
+					[ "delta", -0.04 ]
+				]
+			],
+			[
+				"longestpath",
+				[
+					[ "from", 2 ],
+					[ "to", 3 ],
+					[ "change", "+50%" ],
+					[ "delta", 1 ]
+				]
+			],
+			[
+				"hascycles",
+				[
+					[ "from", "FALSE" ],
+					[ "to", "FALSE" ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"avgdegree",
+				[
+					[ "from", 1.67 ],
+					[ "to", 1.75 ],
+					[ "change", "+5.00%" ],
+					[ "delta", 0.08 ]
+				]
+			]
+		]
+	],
+	[
+		"topology",
+		[
+			[
+				"bottlenecks",
+				[
+					[
+						"from",
+						[ "ceo", "vp_eng", "vp_sales" ]
+					],
+					[
+						"to",
+						[ "vp_eng", "vp_sales", "coo" ]
+					],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"connectedcomponents",
+				[
+					[ "from", 1 ],
+					[ "to", 1 ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"isolatednodes",
+				[
+					[ "from", [  ] ],
+					[ "to", [  ] ],
+					[ "change", "unchanged" ]
+				]
+			]
+		]
+	],
+	[
+		"impact",
+		[
+			[
+				"reachabilitychanges",
+				[
+					[ "ceo", "Can now reach 2 more node(s)" ]
+				]
+			],
+			[
+				"criticalitychanges",
+				[
+					[
+						"ceo",
+						"Criticality decreased (degree 2 → 1)"
+					],
+					[ "coo", "New critical node (degree 4)" ]
+				]
+			]
+		]
+	],
+	[
+		"explanation",
+		[
+			"Added 2 node(s) and 4 edge(s)",
+			"Removed 2 edge(s)",
+			"Density -25.00%"
+		]
+	]
+]
+
+
+----------------
+----------------

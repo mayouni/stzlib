@@ -1,0 +1,25 @@
+╭────────────╮
+│ DOT FORMAT │
+╰────────────╯
+digraph exporttest {
+  rankdir=TD;
+  node [shape=box];
+
+  a [label="A"];
+  b [label="B"];
+
+  a -> b;
+}
+
+          ╭───╮
+          │ A │
+          ╰───╯
+            |
+            v
+          ╭───╮
+          │ B │
+          ╰───╯
+
+
+----------------
+----------------

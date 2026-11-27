@@ -1,0 +1,17 @@
+digraph "layouttest" {
+    graph [rankdir=LR, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    n1 [label="Node 1", shape=ellipse, style="solid,filled", fillcolor="#7F7F7F", penwidth=1, fontcolor="white", tooltip=" "]
+    n2 [label="Node 2", shape=box, style="rounded,solid,filled", fillcolor="#646464", penwidth=1, fontcolor="white", tooltip=" "]
+    n3 [label="Node 3", shape=doublecircle, style="solid,filled", fillcolor="#D0D0D0", penwidth=1, fontcolor="black", tooltip=" "]
+
+    n1 -> n2
+    n2 -> n3
+
+}
+
+
+----------------
+----------------

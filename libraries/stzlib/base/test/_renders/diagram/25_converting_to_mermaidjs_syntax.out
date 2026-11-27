@@ -1,0 +1,34 @@
+graph TD
+    node_start(["Start"])
+    decision{{"Check"}}
+    process["Process"]
+    node_end(["End"])
+
+    node_start --> decision
+    decision -->|Yes| process
+    process --> node_end
+
+        ╭───────╮
+        │ Start │
+        ╰───────╯
+            |
+            v
+       ╭─────────╮
+       │ !Check! │
+       ╰─────────╯
+            |
+           Yes
+            |
+            v
+      ╭───────────╮
+      │ !Process! │
+      ╰───────────╯
+            |
+            v
+         ╭─────╮
+         │ End │
+         ╰─────╯
+
+
+----------------
+----------------

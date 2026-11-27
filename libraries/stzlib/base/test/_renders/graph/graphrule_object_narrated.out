@@ -1,0 +1,83 @@
+SCENARIO: a rule is a first-class object -- the class stzWorkflow already assumed
+  GIVEN a fluently-declared graph rule
+  THEN  it carries its identity  [PASS]
+  THEN  ...its domain (registry group)  [PASS]
+  THEN  ...its type defaults to validation  [PASS]
+  THEN  ...and its two clauses  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: attach the rule to the graph, then ask the GRAPH (the idiomatic path)
+  GIVEN a fluently-declared rule
+  WHEN  it is attached to the graph and the GRAPH is checked
+  THEN  only the llm_actor WITH effectful is flagged  [PASS]
+  THEN  ...it is the writer (not planner, not the pi gate)  [PASS]
+  THEN  the finding carries the rule name  [PASS]
+  THEN  ...the severity  [PASS]
+  THEN  ...and the violation message  [PASS]
+  THEN  the graph is not sound while a finding stands  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: THE PROOF: the object reproduces the hand-written invariant exactly
+  GIVEN the object rule and stzGovernanceChecks' StzCheckNoLLMEffectful
+  THEN  both find exactly one violation  [PASS]
+  THEN  ...on the very same node  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: the registered function and the object cannot diverge
+  GIVEN a rule registered into the shared $aGraphRules registry
+  THEN  the registry now knows it  [PASS]
+  WHEN  the registered function is run directly
+  THEN  its ok-flag is FALSE (violations present)  [PASS]
+  THEN  ...which is exactly what the object's Holds() says  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: plain form does the act; Q form chains
+  GIVEN a rule configured through the PLAIN mutators
+  THEN  the plain SetDomain took effect  [PASS]
+  THEN  ...and plain SetSeverity too  [PASS]
+  WHEN  the Q form is chained off the StzGraphRuleQ() constructor
+  THEN  the one-line chain built the whole rule  [PASS]
+  THEN  ...with the domain set along the way  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the stzWorkflow brace-block style is supported (phase-2 compatibility)
+  GIVEN a rule declared in the exact shape stzWorkflow's BPM rule base uses
+  THEN  the brace block configured the type  [PASS]
+  THEN  ...the domain  [PASS]
+  THEN  ...and the clause  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the operator set covers what the code/agent phases need
+  GIVEN a graph with a mix of node shapes
+  WHEN  not-equals selects the complement
+  THEN  only the decision node matches  [PASS]
+  WHEN  missing flags nodes lacking a property
+  THEN  the two nodes with no assignee are flagged  [PASS]
+  WHEN  exists flags nodes that have it
+  THEN  only the assigned node matches  [PASS]
+  WHEN  equals is case-insensitive (matching the governance idiom)
+  THEN  STEP matches step  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: an explicit checker is the escape hatch for richer rules
+  GIVEN a whole-graph checker (the shape phase 4/5 reachability rules use)
+  THEN  the checker produced a graph-wide finding  [PASS]
+  THEN  ...with an empty node locus (whole-graph)  [PASS]
+  THEN  ...carrying the checker's message  [PASS]
+  THEN  HasChecker reports it  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a rule with no clauses holds vacuously; bad inputs are refused early
+  THEN  no clauses => no findings  [PASS]
+  WHEN  an unknown operator is declared
+  THEN  the typo is caught at declaration, not silently never-matching  [PASS]
+  WHEN  an unknown rule type is set
+  THEN  it is refused  [PASS]
+  WHEN  a nameless rule is constructed
+  THEN  a rule must have a name  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 34 assertions, 34 pass, 0 fail
+================================================
+STATUS: OK

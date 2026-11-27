@@ -1,0 +1,19 @@
+2
+4
+[
+	[
+		"@login",
+		"@login_test",
+		"requires",
+		[  ]
+	],
+	[
+		"@profile",
+		"@profile_test",
+		"requires",
+		[  ]
+	]
+]
+pass
+
+Line 2995 Cannot add edge: one or both nodes do not exist!

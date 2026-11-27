@@ -1,0 +1,56 @@
+neutral
+[
+	[ "id", "dottest" ],
+	[
+		"nodes",
+		[
+			[
+				[ "id", "start" ],
+				[ "label", "Start" ],
+				[
+					"properties",
+					[
+						[ "type", "start" ],
+						[ "color", "success" ]
+					]
+				]
+			],
+			[
+				[ "id", "end" ],
+				[ "label", "End" ],
+				[
+					"properties",
+					[
+						[ "type", "endpoint" ],
+						[ "color", "success" ]
+					]
+				]
+			]
+		]
+	],
+	[
+		"edges",
+		[
+			[
+				[ "from", "start" ],
+				[ "to", "end" ],
+				[ "label", "" ],
+				[ "properties", [  ] ]
+			]
+		]
+	],
+	[
+		"properties",
+		[ "type", "color" ]
+	],
+	[ "theme", "neutral" ],
+	[ "layout", "topdown" ],
+	[ "clusters", [  ] ],
+	[ "annotations", [  ] ],
+	[ "templates", [  ] ]
+]
+
+
+
+----------------
+----------------

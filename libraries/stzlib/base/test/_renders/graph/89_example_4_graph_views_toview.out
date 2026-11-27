@@ -1,0 +1,20 @@
+Original budgets:
+  Engineering: $500000
+  Sales: $300000
+
+View has 2 departments
+Modified nodes in view: 2
+Original graph: Engineering still $500000
+
+After commit:
+  Engineering: $550000
+  Sales: $330000
+[
+	[ "nodesmodified", [  ] ],
+	[ "nodesadded", [  ] ]
+]
+3
+
+
+----------------
+----------------

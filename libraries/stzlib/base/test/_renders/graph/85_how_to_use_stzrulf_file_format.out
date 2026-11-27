@@ -1,0 +1,31 @@
+Declared in the .stzrulz file: 3
+After pulling in the custom groups: 6
+[ "no_self_loop", "NO_BACKDATING" ]
+[ "reporting_is_transitive", "MANAGER_APPROVAL_RIGHTS" ]
+[ "chart_is_acyclic", "BALANCED_TEAMS" ]
+Still: 6
+Loading the same .stzrulf twice is safe: 6
+Before: 8 nodes, 7 edges
+Treasury reports to the CEO: 1
+  Nodes: 10
+  Edges: 9
+Treasury now reports to the CFO: 1
+... and no longer to the CEO: 1
+The new officer is labelled: Risk Officer
+Saved: 1
+  Derived edges: 2
+  ceo -> eng1 (transitivity) : 1
+  cto -> eng1_approval (custom rule) : 1
+  Saved to _add_coo.stzsim
+  add node coo declared: 1
+  remove edge ceo -> cto declared: 1
+  Replayed == variation: 1
+Validating structure...
+  Valid: fail
+  Validators run: 4
+  Issues: 1
+  Failed group: bottleneck
+
+
+----------------
+----------------

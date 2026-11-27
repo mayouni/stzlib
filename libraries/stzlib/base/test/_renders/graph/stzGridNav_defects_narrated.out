@@ -1,0 +1,220 @@
+SCENARIO: Build a named grid (init)
+  GIVEN new stzGridNav(g, 3, 4) and new stzGridNav(g5, 5, 5)
+  THEN  the 3 by 4 grid starts on row 0, column 0  [PASS]
+  THEN  the 5 by 5 grid starts on row 0, column 0  [PASS]
+  THEN  the 3 by 4 grid keeps its name  [PASS]
+  THEN  the 5 by 5 grid keeps its own name  [PASS]
+  THEN  the name of one grid is not the name of the other  [PASS]
+  THEN  the last cell of the 3 by 4 grid exists  [PASS]
+  THEN  one past it does not  [PASS]
+  THEN  the Q function builds the same grid  [PASS]
+  THEN  IsStzGridNav tells the object  [PASS]
+  THEN  IsStzGridNav refuses a number  [PASS]
+  GIVEN sizes and names the class must refuse
+  THEN  0 rows raises and names nRows  [PASS]
+  THEN  0 columns raises and names nCols  [PASS]
+  THEN  a negative number of rows raises  [PASS]
+  THEN  a half row raises  [PASS]
+  THEN  a text for the rows raises  [PASS]
+  THEN  a list for the columns raises  [PASS]
+  THEN  one more row than the engine can read raises, and the process lives  [PASS]
+  THEN  an enormous column count raises, and the process lives  [PASS]
+  THEN  an empty name raises  [PASS]
+  THEN  a number as the name raises  [PASS]
+  THEN  a list as the name raises  [PASS]
+  GIVEN the largest grid the engine can read
+  THEN  its last cell is the corner: 2 neighbours  [PASS]
+  THEN  one past its last row is no cell  [PASS]
+  THEN  a move down from its last row raises  [PASS]
+  -> 24 pass, 0 fail
+
+SCENARIO: Neighbour counts (NeighborCount)
+  GIVEN the 3 by 4 grid, at its four corners
+  THEN  the start (0,0) is a corner: 2  [PASS]
+  THEN  (0,3) is a corner: 2  [PASS]
+  THEN  (2,0) is a corner: 2  [PASS]
+  THEN  (2,3) is a corner: 2  [PASS]
+  GIVEN the 3 by 4 grid, on its edges
+  THEN  (0,1) is on the top edge: 3  [PASS]
+  THEN  (1,0) is on the left edge: 3  [PASS]
+  THEN  (1,3) is on the right edge: 3  [PASS]
+  THEN  (2,2) is on the bottom edge: 3  [PASS]
+  GIVEN the 3 by 4 grid, inside
+  THEN  (1,1) is inside: 4  [PASS]
+  THEN  (1,2) is inside: 4  [PASS]
+  THEN  an inside cell has more neighbours than a corner  [PASS]
+  THEN  NumberOfNeighbors is the same call  [PASS]
+  GIVEN the 5 by 5 grid, one cell of each kind
+  THEN  (0,0) corner: 2  [PASS]
+  THEN  (4,4) corner: 2  [PASS]
+  THEN  (0,2) edge: 3  [PASS]
+  THEN  (2,2) centre: 4  [PASS]
+  GIVEN every cell of both grids against a count worked out in Ring
+  THEN  the 3 by 4 grid: no cell disagrees  [PASS]
+  THEN  the 5 by 5 grid: no cell disagrees  [PASS]
+  THEN  a 2 by 7 grid: no cell disagrees  [PASS]
+  GIVEN grids with no room
+  THEN  a 1 by 1 grid has no neighbour  [PASS]
+  THEN  a single row: the first cell has 1  [PASS]
+  THEN  a single row: a middle cell has 2  [PASS]
+  THEN  a single row: the last cell has 1  [PASS]
+  THEN  a single column: a middle cell has 2  [PASS]
+  THEN  a single column: the last cell has 1  [PASS]
+  THEN  a single row never gives 3 or 4  [PASS]
+  -> 26 pass, 0 fail
+
+SCENARIO: Where the current cell is (CurrentRow, CurrentCol)
+  GIVEN the 3 by 4 grid after SetPosition(2, 3)
+  THEN  the row is 2  [PASS]
+  THEN  the column is 3  [PASS]
+  THEN  Row is the same call  [PASS]
+  THEN  Col is the same call  [PASS]
+  THEN  the row is not the column  [PASS]
+  GIVEN a second position
+  THEN  the chained SetPositionQ left the last position  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Moves (MoveUp, MoveDown, MoveLeft, MoveRight, MoveDirection)
+  GIVEN the 3 by 4 grid, starting on (0,0)
+  THEN  down adds a row  [PASS]
+  THEN  right adds a column  [PASS]
+  THEN  right again  [PASS]
+  THEN  up takes a row away  [PASS]
+  THEN  left takes a column away  [PASS]
+  THEN  down is not right: the column did not change in a down move  [PASS]
+  THEN  right is not down: the row did not change in a right move  [PASS]
+  GIVEN MoveDirection with the class codes, from (1,2)
+  THEN  0 is up  [PASS]
+  THEN  1 is down  [PASS]
+  THEN  2 is left  [PASS]
+  THEN  3 is right  [PASS]
+  THEN  the class constant for down moves down  [PASS]
+  THEN  the class constant for left moves left  [PASS]
+  THEN  the class constant for up moves up  [PASS]
+  THEN  the class constant for right moves right  [PASS]
+  GIVEN a direction that is none of the four
+  THEN  4 raises  [PASS]
+  THEN  and the position stays  [PASS]
+  THEN  -1 raises  [PASS]
+  THEN  1.5 raises  [PASS]
+  THEN  a text raises  [PASS]
+  THEN  an enormous number raises, and the process lives  [PASS]
+  GIVEN the Q forms
+  THEN  a chain of moves lands on (1,1)  [PASS]
+  -> 22 pass, 0 fail
+
+SCENARIO: A move off the grid is refused and leaves the cell where it was
+  GIVEN the 3 by 4 grid on (0,0)
+  THEN  up from row 0 raises  [PASS]
+  THEN  the cell is still (0,0)  [PASS]
+  THEN  left from column 0 raises  [PASS]
+  THEN  the cell is still (0,0)  [PASS]
+  GIVEN the far corner (2,3)
+  THEN  down from the last row raises  [PASS]
+  THEN  right from the last column raises  [PASS]
+  THEN  the cell is still (2,3)  [PASS]
+  THEN  up from there is fine  [PASS]
+  THEN  so is left  [PASS]
+  GIVEN a walk of 11 steps over the whole 3 by 4 grid, then one more
+  THEN  5 steps reached the far corner  [PASS]
+  THEN  three more steps right all raised  [PASS]
+  THEN  and the cell never moved  [PASS]
+  GIVEN a 1 by 1 grid
+  THEN  all four directions raise  [PASS]
+  THEN  the cell is still (0,0)  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: Validity and SetPosition (IsValidPosition, SetPosition)
+  GIVEN the 3 by 4 grid
+  THEN  (0,0) is a cell  [PASS]
+  THEN  (2,3) is a cell  [PASS]
+  THEN  (1,2) is a cell  [PASS]
+  THEN  row 3 is not  [PASS]
+  THEN  column 4 is not  [PASS]
+  THEN  row -1 is not  [PASS]
+  THEN  column -1 is not  [PASS]
+  THEN  (1.5, 1) is not a cell  [PASS]
+  THEN  an enormous row is not a cell, and the process lives  [PASS]
+  THEN  the 3 by 4 grid does not have the cell (3,4) that a 5 by 5 grid has  [PASS]
+  THEN  a text for the row raises  [PASS]
+  GIVEN SetPosition to a cell in the grid and to cells outside it
+  THEN  (2,1) is taken  [PASS]
+  THEN  row 3 raises Out of bounds  [PASS]
+  THEN  the cell stayed on (2,1)  [PASS]
+  THEN  column 4 raises Out of bounds  [PASS]
+  THEN  row -1 raises Out of bounds  [PASS]
+  THEN  a half row raises its own error  [PASS]
+  THEN  a text raises  [PASS]
+  THEN  an enormous column raises Out of bounds, and the process lives  [PASS]
+  THEN  after all of them the cell is still (2,1)  [PASS]
+  -> 20 pass, 0 fail
+
+SCENARIO: Manhattan distance from the current cell (DistanceTo)
+  GIVEN the 3 by 4 grid on (0,0)
+  THEN  to (2,3) it is 5  [PASS]
+  THEN  to (0,0), itself, it is 0  [PASS]
+  THEN  to (0,3) it is 3  [PASS]
+  THEN  to (2,0) it is 2  [PASS]
+  GIVEN the same grid on (1,2): the distance is from the current cell, not from (0,0)
+  THEN  to (0,0) it is 3  [PASS]
+  THEN  to (1,2), itself, it is 0  [PASS]
+  THEN  to (2,3) it is 2  [PASS]
+  THEN  to (1,0) it is 2: a row apart of 0 and 2 columns  [PASS]
+  THEN  the distance to (2,3) differs from the one to (0,0)  [PASS]
+  GIVEN the distance is symmetric
+  THEN  (2,3) to (0,0) and (0,0) to (2,3) agree  [PASS]
+  THEN  both are 5  [PASS]
+  GIVEN the 5 by 5 grid
+  THEN  from (0,0) to (4,4) it is 8  [PASS]
+  THEN  from (2,2) to (4,4) it is 4  [PASS]
+  THEN  from (2,2) to (0,4) it is 4  [PASS]
+  GIVEN a target outside the grid
+  THEN  row 3 of the 3 by 4 grid raises  [PASS]
+  THEN  column 4 raises  [PASS]
+  THEN  row -1 raises  [PASS]
+  THEN  a text raises its own error  [PASS]
+  THEN  an enormous target raises, and the process lives  [PASS]
+  THEN  the cell did not move while measuring  [PASS]
+  THEN  a cell of the same grid is still measured after the errors  [PASS]
+  -> 21 pass, 0 fail
+
+SCENARIO: Putting the cell back (ResetPosition)
+  GIVEN the 3 by 4 grid after a walk
+  THEN  the cell is on (0,0)  [PASS]
+  THEN  the grid kept its size: (2,3) is still a cell  [PASS]
+  THEN  the corner count is back to 2  [PASS]
+  THEN  a move down works  [PASS]
+  THEN  the distance still works: (1,0) to (2,3) is 4  [PASS]
+  THEN  ResetPositionQ returns the object, on (0,0)  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Several grids side by side: the engine holds one, the objects hold their own
+  GIVEN a 3 by 4 grid and a 5 by 5 grid, driven in turn
+  THEN  a kept its cell after b was built and moved  [PASS]
+  THEN  b kept its own  [PASS]
+  THEN  a still has 3 rows: row 3 is no cell of a  [PASS]
+  THEN  b still has 5 rows: row 4 is a cell of b  [PASS]
+  THEN  a moved  [PASS]
+  THEN  b did not  [PASS]
+  THEN  a corner count of b, after a was used: 2  [PASS]
+  THEN  an edge count of a, after b was used: 3  [PASS]
+  THEN  a distance of a, after b was used  [PASS]
+  THEN  a distance of b, after a was used  [PASS]
+  GIVEN a copy of a grid
+  THEN  the copy moved  [PASS]
+  THEN  the original did not  [PASS]
+  THEN  the copy keeps the name  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: The examples of the class block
+  GIVEN o1 = new stzGridNav(g, 3, 4)
+  THEN  CurrentRow is 0  [PASS]
+  THEN  after a move down and a move right: [ 1, 1 ]  [PASS]
+  THEN  NeighborCount is 4  [PASS]
+  THEN  DistanceTo(2, 3) is 3  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 156 assertions, 156 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,21 @@
+[
+	0,
+	[
+		[
+			[ "rule", "NO_CYCLES" ],
+			[ "message", "Would create a cycle" ],
+			[ "severity", "error" ],
+			[
+				"params",
+				[
+					[ "from", "c" ],
+					[ "to", "a" ]
+				]
+			]
+		]
+	]
+]
+
+
+----------------
+----------------

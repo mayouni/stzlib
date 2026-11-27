@@ -1,0 +1,49 @@
+SCENARIO: the unified finding shape carries :subject
+  GIVEN a code rule set run over a code graph
+  THEN  a finding carries all five unified keys  [PASS]
+  THEN  ...with :subject = the rule's domain  [PASS]
+  GIVEN the frozen StzCheckCode adapter
+  THEN  it keeps :line (not :where)  [PASS]
+  THEN  ...and does NOT leak :subject -- its shape is frozen  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: THE ONE GATE: code + agents + security in a single pass
+  GIVEN a project with a violation in each of three domains
+  THEN  all three subjects are present  [PASS]
+  THEN  ...code has a finding  [PASS]
+  THEN  ...agentic has findings  [PASS]
+  THEN  ...security has a finding  [PASS]
+  THEN  ONE verdict spans all three  [PASS]
+  THEN  ...every finding is error-severity here  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: the gate renders one report grouped by subject
+  THEN  the report names the project and the verdict  [PASS]
+  THEN  ...groups findings under their subject  [PASS]
+  THEN  ...and names the rule  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a clean project is sound across all domains
+  THEN  no findings  [PASS]
+  THEN  ...the gate is sound  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: IngestLegacy: the hand-written checkers join the one gate
+  GIVEN legacy findings from StzCheckAgentGraph and StzCheckCode
+  THEN  legacy findings are normalized into the unified shape  [PASS]
+  THEN  ...the invariant name became :rule  [PASS]
+  THEN  ...tagged with the given subject  [PASS]
+  THEN  ...and the code line landed in :where  [PASS]
+  THEN  the one gate spans legacy sources too  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: severity filters + warnings advise, errors gate
+  THEN  there is a warning  [PASS]
+  THEN  ...no error  [PASS]
+  THEN  ...so the gate is SOUND (warnings advise)  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 23 assertions, 23 pass, 0 fail
+================================================
+STATUS: OK

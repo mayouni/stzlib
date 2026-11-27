@@ -1,0 +1,30 @@
+-- Scene 1: the file becomes a workflow --
+  [OK] the parser can be BUILT at all
+  [OK] ... and it hands back a workflow
+  [OK] the workflow knows its name
+
+-- Scene 2: everything the file declares arrives --
+  [OK] every step arrived (6)
+  [OK] every actor arrived (3)
+  [OK] every flow edge arrived (5)
+  [OK] the FIRST step is there
+  [OK] ... and so is the LAST one -- the step a section-end used to drop
+
+-- Scene 3: each step keeps what was said about it --
+  [OK] a step keeps its label
+  [OK] ... and its duration
+  [OK] a step keeps its SLA too
+  [OK] ... alongside its own duration
+  [OK] a DECIMAL duration survives
+
+-- Scene 4: the flow really connects the steps --
+  [OK] receive -> verify
+  [OK] verify -> credit_check
+  [OK] the decision branches to BOTH outcomes
+
+-- Scene 5: the actors, and what they are --
+  [OK] an actor is named, not just listed
+
+==========================================
+TOTAL: 17 assertions, 17 pass, 0 fail
+==========================================

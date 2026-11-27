@@ -1,0 +1,67 @@
+[ "a", "b", "c" ]
+[
+	[
+		[ "from", "a" ],
+		[ "to", "b" ],
+		[ "label", "" ],
+		[ "properties", [  ] ]
+	],
+	[
+		[ "from", "b" ],
+		[ "to", "a" ],
+		[ "label", "" ],
+		[ "properties", [  ] ]
+	],
+	[
+		[ "from", "b" ],
+		[ "to", "c" ],
+		[ "label", "" ],
+		[ "properties", [  ] ]
+	],
+	[
+		[ "from", "c" ],
+		[ "to", "b" ],
+		[ "label", "" ],
+		[ "properties", [  ] ]
+	]
+]
+
+[ "b" ]
+[ "b" ]
+[ "a", "c" ]
+[ "a", "c" ]
+[ "b" ]
+[ "b" ]
+
+1
+1
+1
+1
+
+[ "b", "c" ]
+
+1
+
+Starting from: a
+Initial queue: [ "a" ]
+Processing: a
+  Neighbors: [ "b" ]
+  Incoming: [ "b" ]
+  Adding neighbor: b
+  Visited so far: [ "a", "b" ]
+Processing: b
+  Neighbors: [ "a", "c" ]
+  Incoming: [ "a", "c" ]
+  Adding neighbor: c
+  Visited so far: [ "a", "b", "c" ]
+Processing: c
+  Neighbors: [ "b" ]
+  Incoming: [ "b" ]
+  Visited so far: [ "a", "b", "c" ]
+Final visited: [ "a", "b", "c" ]
+Total nodes: 3
+Should be connected: 1
+
+
+----------------
+----------------

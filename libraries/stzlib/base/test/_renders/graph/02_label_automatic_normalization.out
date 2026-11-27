@@ -1,0 +1,18 @@
+[
+	[
+		[ "id", "@name" ],
+		[ "label", "name of person" ],
+		[ "properties", [  ] ]
+	],
+	[
+		[ "id", "@age" ],
+		[ "label", "age of person" ],
+		[ "properties", [  ] ]
+	]
+]
+"two_lines"
+an id with a space is still refused
+
+
+----------------
+----------------

@@ -1,0 +1,21 @@
+diagram "annotationtest"
+
+properties
+    theme: neutral
+    layout: topdown
+
+nodes
+    process
+        label: "MyProcess"
+        type: process
+        color: primary
+
+annotations
+    performance
+        process: null
+
+
+
+
+----------------
+----------------

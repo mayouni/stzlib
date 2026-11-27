@@ -1,0 +1,50 @@
+╭────────────────────────────────────────╮
+│ SCENARIO: ORGANIZATIONAL RESTRUCTURING │
+╰────────────────────────────────────────╯
+
+Current structure:
+  Nodes: 5
+  Edges: 4
+  Density: 0.20
+
+4 scenarios have been added! Let's compare them...
+╭──────────────────┬───────────┬─────────────┬───────────┬──────────────────╮
+│      Metric      │  Add_COO  │ Add_Product │  Flatten  │ Cross_Functional │
+├──────────────────┼───────────┼─────────────┼───────────┼──────────────────┤
+│ NodesAdded       │         1 │           2 │         0 │                0 │
+│ NodesRemoved     │         0 │           0 │         0 │                0 │
+│ EdgesAdded       │         3 │           2 │         2 │                2 │
+│ EdgesRemoved     │         2 │           0 │         2 │                0 │
+│ DensityChange    │ -16.67%   │ -28.57%     │ unchanged │ +50.00%          │
+│ HasCycles        │ FALSE     │ FALSE       │ FALSE     │ FALSE            │
+│ BottleneckChange │ unchanged │ increased   │ reduced   │ unchanged        │
+╰──────────────────┴───────────┴─────────────┴───────────┴──────────────────╯
+Most impactful: Add_COO
+Least impactful: Cross_Functional
+
+╭────────────────╮
+│ RECOMMENDATION │
+╰────────────────╯
+[
+	[ "recommended", "Flatten" ],
+	[
+		"reason",
+		"Best balance of structure, connectivity, and acyclicity"
+	]
+]
+
+╭──────────────────╮
+│ DETAILED SUMMARY │
+╰──────────────────╯
+"Baseline: q4_2024
+Variations compared: 4
+
+• Add_COO: Added 1 node(s) and 3 edge(s)
+• Add_Product: Added 2 node(s) and 2 edge(s)
+• Flatten: Added 2 edge(s)
+• Cross_Functional: Added 2 edge(s)
+"
+
+
+----------------
+----------------

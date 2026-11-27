@@ -1,0 +1,45 @@
+diagram "formattest"
+
+properties
+    theme: pro
+    layout: topdown
+
+nodes
+    start
+        label: "Begin"
+        type: start
+        color: success-
+
+    process
+        label: "Work"
+        type: process
+        color: primary+
+
+    end
+        label: "Finish"
+        type: endpoint
+        color: success
+
+edges
+    start -> process
+
+    process -> end
+
+
+        ╭───────╮
+        │ Begin │
+        ╰───────╯
+            |
+            v
+       ╭────────╮
+       │ !Work! │
+       ╰────────╯
+            |
+            v
+       ╭────────╮
+       │ Finish │
+       ╰────────╯
+
+
+----------------
+----------------

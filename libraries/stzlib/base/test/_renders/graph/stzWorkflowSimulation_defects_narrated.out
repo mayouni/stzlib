@@ -1,0 +1,318 @@
+SCENARIO: The fixtures really are what the header says
+  THEN  W has five steps  [PASS]
+  THEN  W sums to 15 hours  [PASS]
+  THEN  W's critical path is a c d e  [PASS]
+  THEN  W's critical path takes 12 hours  [PASS]
+  THEN  ana carries 6 hours in W  [PASS]
+  THEN  bob carries 9 hours in W  [PASS]
+  THEN  L sums to 12 hours  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The reproduction: an object built over a workflow records a change, where it used to raise R24
+  THEN  a new simulation has recorded nothing  [PASS]
+  THEN  OptimizeStep no longer raises  [PASS]
+  THEN  it recorded one change  [PASS]
+  THEN  ReassignStep no longer raises  [PASS]
+  THEN  ParallelizeSteps no longer raises  [PASS]
+  THEN  three changes are recorded  [PASS]
+  THEN  no message mentions the old uninitialized variable  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: init: what it accepts and what it refuses
+  THEN  a text is refused  [PASS]
+  THEN  a number is refused  [PASS]
+  THEN  a list is refused  [PASS]
+  THEN  another kind of object is refused  [PASS]
+  THEN  a stzWorkflow is accepted  [PASS]
+  THEN  empty parentheses still raise R19, the inherited init takes one parameter  [PASS]
+  THEN  without parentheses the object is built, with nothing recorded  [PASS]
+  THEN  OptimizeStep on it says there is no workflow  [PASS]
+  THEN  ReassignStep on it says so  [PASS]
+  THEN  ParallelizeSteps on it says so  [PASS]
+  THEN  Apply on it says so  [PASS]
+  THEN  and none of them recorded anything  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: OptimizeStep: the record has the shape the consumer reads
+  THEN  the record has three keys  [PASS]
+  THEN  its type is optimize_step  [PASS]
+  THEN  its step is c  [PASS]
+  THEN  its newDuration is 1  [PASS]
+  THEN  a zero duration is accepted, a step can be made free  [PASS]
+  THEN  a decimal duration is accepted  [PASS]
+  THEN  three records now  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: OptimizeStep: the effect, worked out by hand
+  THEN  c from 4 to 1 hour: the sum falls by 3, 15 to 12  [PASS]
+  THEN  the critical path moves to a b d e  [PASS]
+  THEN  and takes 2+3+5+1 = 11  [PASS]
+  THEN  the workflow it was built from still sums to 15  [PASS]
+  THEN  and still has its critical path a c d e  [PASS]
+  THEN  d from 5 to 2: the sum is 15 - 3 = 12  [PASS]
+  THEN  the critical path stays a c d e  [PASS]
+  THEN  and takes 2+4+2+1 = 9  [PASS]
+  THEN  a step can also be made slower: b to 10 gives 22  [PASS]
+  THEN  and takes 2+10+5+1 = 18 over a b d e  [PASS]
+  THEN  two changes to one step: the last wins, c at 6 gives 2+3+6+5+1 = 17  [PASS]
+  THEN  with nothing recorded the copy sums to 15 like the original  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: OptimizeStep: what it refuses, and a refusal records nothing
+  THEN  an unknown step is refused by name  [PASS]
+  THEN  an id in another case is unknown, as the workflow compares ids  [PASS]
+  THEN  an empty id is refused  [PASS]
+  THEN  a blank id is refused  [PASS]
+  THEN  an id that is a number is refused  [PASS]
+  THEN  an id that is a list is refused  [PASS]
+  THEN  a negative duration is refused  [PASS]
+  THEN  a duration given as text is refused  [PASS]
+  THEN  a duration given as a list is refused  [PASS]
+  THEN  seven failed calls left the list as it was  [PASS]
+  THEN  and still one record  [PASS]
+  THEN  the next good call is recorded after it  [PASS]
+  THEN  two records  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: ReassignStep: the record has the shape the consumer reads
+  THEN  the record has four keys  [PASS]
+  THEN  its type is reassign_step  [PASS]
+  THEN  its step is b  [PASS]
+  THEN  it keeps the actor it leaves  [PASS]
+  THEN  and the actor it goes to  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: ReassignStep: the effect on the load of the actors, worked out by hand
+  THEN  b now belongs to bob in the copy  [PASS]
+  THEN  ana falls from 6 to 6-3 = 3 hours  [PASS]
+  THEN  bob rises from 9 to 9+3 = 12 hours  [PASS]
+  THEN  moving a step changes no duration, the sum stays 15  [PASS]
+  THEN  in the original b still belongs to ana  [PASS]
+  THEN  ana still carries 6 in the original  [PASS]
+  THEN  bob still carries 9 in the original  [PASS]
+  THEN  the node property of the copy follows  [PASS]
+  THEN  the node property of the original does not  [PASS]
+  THEN  two moves of one step: the last one wins  [PASS]
+  THEN  bob is back to 9  [PASS]
+  THEN  and cleo carries 3  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: ReassignStep: what it refuses, and a refusal records nothing
+  THEN  an unknown step is refused  [PASS]
+  THEN  an empty step id is refused  [PASS]
+  THEN  an empty actor it leaves is refused  [PASS]
+  THEN  an empty actor it goes to is refused  [PASS]
+  THEN  a blank actor is refused  [PASS]
+  THEN  an actor that is a number is refused  [PASS]
+  THEN  an actor that is a list is refused  [PASS]
+  THEN  six failed calls recorded nothing  [PASS]
+  THEN  the actor it leaves is recorded as given, even when it is not the step's actor  [PASS]
+  THEN  an actor the workflow does not know is accepted, as AssignStepTo accepts it  [PASS]
+  THEN  two records  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: ParallelizeSteps: the record has the shape the consumer reads
+  THEN  the record has two keys  [PASS]
+  THEN  its type is parallelize  [PASS]
+  THEN  its steps are the two ids, in order  [PASS]
+  THEN  three steps are accepted  [PASS]
+  THEN  two records  [PASS]
+  THEN  the second keeps its three ids  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: ParallelizeSteps: the chain x y z with y and z side by side (it used to change nothing; the expected result changed on purpose)
+  THEN  one record on the chain  [PASS]
+  THEN  the sum stays 12, only the shape of the flow moves  [PASS]
+  THEN  the critical path is x z, y is beside z and no longer before it  [PASS]
+  THEN  and takes 3 + max(4,5) = 8 hours, the figure the old guard said it could not give  [PASS]
+  THEN  the arrow y to z is gone  [PASS]
+  THEN  z now waits for x, what came before y  [PASS]
+  THEN  x to y is kept  [PASS]
+  THEN  one arrow removed and one added: 2 arrows before, 2 after  [PASS]
+  THEN  the workflow it was built from still has its critical path x y z  [PASS]
+  THEN  and still has the arrow y to z  [PASS]
+  THEN  applying does not raise  [PASS]
+  THEN  the order of the ids in the list does not matter: the same path  [PASS]
+  THEN  and the same 8 hours  [PASS]
+  THEN  and the same arrows, 2 of them  [PASS]
+  THEN  the other changes around it are applied in order: 3+2+1 = 6  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: ParallelizeSteps: the diamond, a group that already runs side by side changes nothing
+  THEN  b and c are two branches of a: the five arrows stay five  [PASS]
+  THEN  a to b is kept  [PASS]
+  THEN  a to c is kept  [PASS]
+  THEN  b to d is kept  [PASS]
+  THEN  c to d is kept  [PASS]
+  THEN  d to e is kept  [PASS]
+  THEN  no arrow between b and c was invented, either way  [PASS]
+  THEN  the sum stays 15  [PASS]
+  THEN  the critical path is still a c d e  [PASS]
+  THEN  with 12 hours  [PASS]
+  THEN  recorded twice, it is still five arrows and no doubled one  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: ParallelizeSteps: the diamond with a and b side by side, worked out by hand
+  THEN  five arrows, one removed, two added: six  [PASS]
+  THEN  a to b is removed  [PASS]
+  THEN  a to c is kept  [PASS]
+  THEN  b to d is kept  [PASS]
+  THEN  c to d is kept  [PASS]
+  THEN  d to e is kept  [PASS]
+  THEN  b to c is added, c waits for b too  [PASS]
+  THEN  a to d is added, d waits for a too  [PASS]
+  THEN  the sum stays 15  [PASS]
+  THEN  the critical path is b c d e  [PASS]
+  THEN  it takes max(2,3) + 4 + 5 + 1 = 13 hours  [PASS]
+  THEN  there are four paths from the two starts to e  [PASS]
+  THEN  the original is untouched: five arrows  [PASS]
+  THEN  the original still has a to b  [PASS]
+  THEN  and its critical path a c d e of 12 hours  [PASS]
+  THEN  the list in the other order: six arrows  [PASS]
+  THEN  the same critical path  [PASS]
+  THEN  the same removed arrow  [PASS]
+  THEN  the same added arrows  [PASS]
+  THEN  applying again gives six arrows again, nothing is doubled  [PASS]
+  -> 20 pass, 0 fail
+
+SCENARIO: ParallelizeSteps: a group with nothing between its steps, and a group recorded after another
+  THEN  two chains, q and s unconnected: 2 arrows become 4  [PASS]
+  THEN  r to q is added  [PASS]
+  THEN  p to s is added  [PASS]
+  THEN  p to q is kept  [PASS]
+  THEN  r to s is kept  [PASS]
+  THEN  the sum stays 14  [PASS]
+  THEN  the critical path is r s, 4+5 = 9 hours  [PASS]
+  THEN  two steps with no arrow at all: applying does not raise  [PASS]
+  THEN  there is nothing to remove or to add: no arrow  [PASS]
+  THEN  and the sum is 5  [PASS]
+  THEN  a second group sees the arrows the first left: 2 arrows  [PASS]
+  THEN  x to y is gone  [PASS]
+  THEN  x to z is kept  [PASS]
+  THEN  y to z is back, y now waits for nothing and z for both  [PASS]
+  THEN  the critical path is y z, 4+5 = 9 hours  [PASS]
+  THEN  the sum is still 12  [PASS]
+  THEN  the same group recorded twice is not doubled: 2 arrows  [PASS]
+  -> 17 pass, 0 fail
+
+SCENARIO: Apply refuses steps linked through other steps, and the simulation stays usable
+  THEN  recording the group does not raise, the check is Apply's  [PASS]
+  THEN  x y m z with y and z: Apply says so  [PASS]
+  THEN  and names the two steps  [PASS]
+  THEN  and the step between them  [PASS]
+  THEN  the message carries the class and method  [PASS]
+  THEN  the recorded changes are kept  [PASS]
+  THEN  the workflow it was built from is as it was: 3 arrows  [PASS]
+  THEN  and its durations: 1+2+3+4 = 10  [PASS]
+  THEN  Apply refuses again the same way, it is not a one-off  [PASS]
+  THEN  the simulation still records: an unknown step is still refused by name  [PASS]
+  THEN  a good step is still recorded  [PASS]
+  THEN  three changes now  [PASS]
+  THEN  the working state was rolled back: the optimize before the refusal did not stay (x is 1, not 10)  [PASS]
+  THEN  and the working state has its 3 arrows  [PASS]
+  THEN  another simulation over the same workflow works: y and m are linked directly, which is allowed  [PASS]
+  THEN  y m side by side on x y m z: x>y x>m y>z m>z, 4 arrows  [PASS]
+  THEN  its critical path is x m z, 1+3+4 = 8 hours  [PASS]
+  THEN  the chain x y z with x and z: y is between them, refused  [PASS]
+  THEN  the diamond with a and d: b and c are between them, refused  [PASS]
+  THEN  a and e: refused too, the way is longer  [PASS]
+  THEN  b c d: d is after b and c, directly, so it is allowed  [PASS]
+  THEN  and gives b c d side by side, a before all, e after all: a>b a>c a>d b>e c>e d>e  [PASS]
+  -> 22 pass, 0 fail
+
+SCENARIO: The Q forms: they record what the plain forms record and return the simulation
+  THEN  three Q calls record the same three changes as three plain calls  [PASS]
+  THEN  and Apply gives the same sum  [PASS]
+  THEN  and the same critical path  [PASS]
+  THEN  a Q form gives back a simulation  [PASS]
+  THEN  a plain form gives back nothing: no object to call on  [PASS]
+  THEN  a Q call that fails raises as the plain call does, here for an unknown step in the middle of a chain  [PASS]
+  THEN  the call before it was recorded, the failing one was not  [PASS]
+  THEN  the second Q form refuses an empty actor  [PASS]
+  THEN  the third Q form refuses one step  [PASS]
+  THEN  the first Q form refuses a negative duration  [PASS]
+  THEN  and none of the refused calls recorded anything  [PASS]
+  THEN  a simulation with no workflow refuses a Q call too  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: Chains: a chain in one expression sees every change, and a result kept in a variable is a copy
+  THEN  a chain of three Q calls ending with Changes sees the three changes  [PASS]
+  THEN  and the variable the chain started from holds them too  [PASS]
+  THEN  a chain ending with Apply gives the effect of both: 15 - 2 + 1 = 14  [PASS]
+  THEN  and a to b is gone in what it gives  [PASS]
+  THEN  the starting variable holds both changes  [PASS]
+  THEN  a result kept in a variable holds the change made so far  [PASS]
+  THEN  and so does the variable it came from  [PASS]
+  THEN  a later call on the copy is seen by the copy  [PASS]
+  THEN  and not by the variable it came from, which holds only its own calls  [PASS]
+  THEN  a later call on the variable is seen by the variable  [PASS]
+  THEN  and not by the copy  [PASS]
+  THEN  the two now differ: the copy has the reassign, the variable the optimize of e  [PASS]
+  THEN  a chain started from the copy sees the copy's changes and its own: 3  [PASS]
+  THEN  the variable the copy came from is not touched by it  [PASS]
+  THEN  the workflow all of them were built from is untouched: 15 and five arrows  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: All three kinds of change in one simulation, worked out by hand
+  THEN  the sum is 2+6+4+5+1 = 18  [PASS]
+  THEN  the critical path is b c d e  [PASS]
+  THEN  and takes 6+4+5+1 = 16 hours  [PASS]
+  THEN  ana carries 2+6 = 8  [PASS]
+  THEN  bob carries 4+5+1 = 10  [PASS]
+  THEN  six arrows  [PASS]
+  THEN  a to b is gone  [PASS]
+  THEN  the original is untouched: 15 hours, 5 arrows, ana 6 and bob 9  [PASS]
+  THEN  recorded in another order, the same result: 18, b c d e, 16  [PASS]
+  THEN  and the same loads, 8 and 10  [PASS]
+  THEN  the same three changes as one chain: 18, b c d e, 16  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: ParallelizeSteps: what it refuses, and a refusal records nothing
+  THEN  one step is refused  [PASS]
+  THEN  an empty list is refused  [PASS]
+  THEN  a text instead of a list is refused  [PASS]
+  THEN  a number instead of a list is refused  [PASS]
+  THEN  an unknown step among good ones is refused  [PASS]
+  THEN  the unknown step in first place is refused  [PASS]
+  THEN  a step listed twice is refused  [PASS]
+  THEN  a member that is a number is refused  [PASS]
+  THEN  an empty member is refused  [PASS]
+  THEN  eight failed calls left the list as it was  [PASS]
+  THEN  and still one record  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Changes and Apply: copies, order, and no hidden state
+  THEN  the changes come back in the order they were recorded  [PASS]
+  THEN  changing the returned list does not reach the simulation  [PASS]
+  THEN  applying twice gives the same sum, a: 15 - 2 + 1 = 14  [PASS]
+  THEN  Apply did not consume the changes  [PASS]
+  THEN  and the original is untouched, still 15  [PASS]
+  THEN  e is bob's in the copy: ana 1+3 = 4  [PASS]
+  THEN  a is 1 hour in the copy and 2 in the original  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The simulation works on a copy of the workflow it was built from
+  THEN  the caller changes the workflow after building the simulation  [PASS]
+  THEN  the simulation does not see it, the copy still sums to 15  [PASS]
+  THEN  its changes apply to its own copy: 15 - 1 + 3 = 17  [PASS]
+  THEN  the caller's workflow is not changed by Apply, e is still 1 hour  [PASS]
+  THEN  a step that exists only in the caller's later workflow is unknown to the simulation  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Chaining: the three methods return nothing, so a chain stops after the first call
+  THEN  the second call of a chain has no object to run on  [PASS]
+  THEN  the first call was recorded before that  [PASS]
+  THEN  separate statements on the variable accumulate  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: A simulation over a different workflow: nothing leaks between objects
+  THEN  B has recorded nothing  [PASS]
+  THEN  B does not know A's steps  [PASS]
+  THEN  A does not know B's steps  [PASS]
+  THEN  B sums to 12 and A to 14  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 245 assertions, 245 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,21 @@
+╭─────────────╮
+│ YAML FORMAT │
+╰─────────────╯
+graph: yamltest
+nodes:
+  - id: srv1
+    label: Server1
+    properties:
+      - port
+  - id: srv2
+    label: Server2
+
+edges:
+  - from: srv1
+    to: srv2
+    label: connects
+
+
+
+----------------
+----------------

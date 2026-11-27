@@ -1,0 +1,19 @@
+digraph "" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    node1 [label="Circle", shape=circle, style="solid,filled", fillcolor="#FFFFFF", penwidth=1, fontcolor="black", tooltip=" "]
+    node2 [label="Double Circle", shape=doublecircle, style="solid,filled", fillcolor="#FFFFFF", penwidth=1, fontcolor="black", tooltip=" "]
+    node3 [label="Ellipse", shape=ellipse, style="solid,filled", fillcolor="#FFFFFF", penwidth=1, fontcolor="black", tooltip=" "]
+    node4 [label="Egg", shape=egg, style="solid,filled", fillcolor="#FFFFFF", penwidth=1, fontcolor="black", tooltip=" "]
+
+    node1 -> node2 [style=invis]
+    node2 -> node3 [style=invis]
+    node3 -> node4 [style=invis]
+
+}
+
+
+----------------
+----------------

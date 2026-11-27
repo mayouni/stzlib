@@ -1,0 +1,51 @@
+-- Scene 1: a chain draws a box per node --
+  [OK] the art comes back as data at all
+  [OK] every node is boxed
+  [OK] ... each box closed at the bottom
+  [OK] the boxes have real sides
+  [OK] ... and real tops
+  [OK] each node's id is in its box
+  [OK] flow goes DOWN between them
+
+-- Scene 2: the glyphs are the RIGHT characters --
+  [OK] the corner is U+256D, not a mangled run
+  [OK] no stray a-circumflex anywhere in the art
+
+-- Scene 3: the picture follows the GRAPH --
+  [OK] the bottleneck is marked
+  [OK] ... and a non-bottleneck is not
+  [OK] a branch draws BOTH children
+  [OK] ... separated as distinct branches
+  [OK] ... and the shared parent carries the up-marker
+
+-- Scene 4: a cycle TERMINATES --
+  [OK] the drawing finishes at all (no infinite walk)
+  [OK] the cycle is NAMED rather than redrawn
+  [OK] ... and it names the edge that closes it
+  [OK] the node is referenced, not boxed again
+
+-- Scene 5: horizontal is a different picture of the same graph --
+  [OK] it draws too
+  [OK] boxes sit side by side, joined by connectors
+  [OK] ... with the same three nodes
+  [OK] and it is NOT the vertical picture
+
+-- Scene 6: Show() still prints, unchanged --
+
+          ╭───╮
+          │ a │
+          ╰───╯
+            |
+            v
+         ╭─────╮
+         │ !b! │
+         ╰─────╯
+            |
+            v
+          ╭───╮
+          │ c │
+          ╰───╯
+
+==========================================
+TOTAL: 22 assertions, 22 pass, 0 fail
+==========================================

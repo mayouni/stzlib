@@ -1,0 +1,21 @@
+10
+alice
+[ "priority", "status", "owner" ]
+[
+	[
+		"priority",
+		[ 10 ]
+	],
+	[
+		"status",
+		[ "active" ]
+	],
+	[
+		"owner",
+		[ "alice" ]
+	]
+]
+
+
+----------------
+----------------

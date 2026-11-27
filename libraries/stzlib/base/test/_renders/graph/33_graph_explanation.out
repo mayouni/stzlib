@@ -1,0 +1,35 @@
+[
+	[
+		"general",
+		[ "Graph: explaintest", "Nodes: 3 | Edges: 3" ]
+	],
+	[
+		"bottlenecks",
+		[ "No bottlenecks (average degree = 2)" ]
+	],
+	[
+		"cycles",
+		[
+			"Cyclic nodes: a, b, c",
+			"  a can reach itself",
+			"  b can reach itself",
+			"  c can reach itself",
+			"WARNING: Circular dependencies detected"
+		]
+	],
+	[
+		"metrics",
+		[
+			"Density: 0.50% (sparse)",
+			"Longest path: 2 hops"
+		]
+	],
+	[
+		"rules",
+		[ "No rules applied" ]
+	]
+]
+
+
+----------------
+----------------

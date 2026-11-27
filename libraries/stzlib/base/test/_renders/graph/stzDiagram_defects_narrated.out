@@ -1,0 +1,115 @@
+SCENARIO: The general pen width (PenWidth)
+  GIVEN a fresh diagram
+  THEN  the pen width is 1 until set  [PASS]
+  WHEN  SetPenWidth(4) is called
+  THEN  PenWidth answers 4  [PASS]
+  THEN  the edge width did not move (the setter writes the node width only)  [PASS]
+  WHEN  SetNodePenWidth(2) is called, which sets both widths
+  THEN  PenWidth answers 2  [PASS]
+  THEN  the edge width followed  [PASS]
+  THEN  PenWidth is a plain number  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Nodes whose property satisfies a comparison (NodesWith)
+  GIVEN a (weight 5, kind Core), b (weight 2, kind edge), c (weight 9)
+  THEN  weight > 4 gives a and c  [PASS]
+  THEN  weight = 2 gives b  [PASS]
+  THEN  weight != 5 gives b and c  [PASS]
+  THEN  weight <= 5 gives a and b  [PASS]
+  THEN  weight >= 9 gives c  [PASS]
+  THEN  weight < 2 gives nothing  [PASS]
+  THEN  kind = Core gives a  [PASS]
+  THEN  kind = core (other case) gives nothing: equality is exact  [PASS]
+  THEN  kind contains OR gives a (case ignored)  [PASS]
+  THEN  kind startswith ED gives b  [PASS]
+  THEN  kind endswith GE gives b  [PASS]
+  THEN  kind endswith ED gives nothing  [PASS]
+  THEN  weight in [2, 9] gives b and c  [PASS]
+  THEN  weight not_in [2, 9] gives a  [PASS]
+  WHEN  the property does not exist on any node
+  THEN  the answer is empty  [PASS]
+  THEN  kind != x skips node c, which has no kind  [PASS]
+  WHEN  the value has the wrong type
+  THEN  weight > text gives nothing  [PASS]
+  THEN  weight = text gives nothing  [PASS]
+  THEN  kind contains a number gives nothing  [PASS]
+  WHEN  the comparison is unknown
+  THEN  an error names the comparison  [PASS]
+  THEN  the siblings still answer: NodesWithProperty  [PASS]
+  THEN  the siblings still answer: NodesWithTag  [PASS]
+  -> 22 pass, 0 fail
+
+SCENARIO: No visual rule: the legend and the explanation say so
+  GIVEN a diagram with no rule
+  THEN  the legend is the heading and a blank line  [PASS]
+  THEN  Explain says no rule is defined  [PASS]
+  THEN  Explain says what the diagram holds  [PASS]
+  THEN  Explain says nothing was matched  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A registered visual rule (propertiesLegend, Explain)
+  GIVEN the rule heavy registered, and not yet applied
+  THEN  Explain lists the rule by its name  [PASS]
+  THEN  nothing is affected before ApplyVisualRules  [PASS]
+  THEN  the legend has the heading, a blank line, and 5 lines for the rule  [PASS]
+  THEN  the heading  [PASS]
+  THEN  the condition line  [PASS]
+  THEN  the parameters line  [PASS]
+  THEN  a text effect  [PASS]
+  THEN  a numeric effect  [PASS]
+  THEN  the rule ends on a blank line  [PASS]
+  WHEN  ApplyVisualRules runs
+  THEN  Explain counts the two nodes a and c  [PASS]
+  THEN  the affected nodes are a and c  [PASS]
+  WHEN  a second rule is registered that matches nothing (weight equal to 77)
+  THEN  Explain lists both names  [PASS]
+  THEN  the effects did not change: the ghost rule affects nothing  [PASS]
+  THEN  the legend grew by 4 lines  [PASS]
+  THEN  the second condition line  [PASS]
+  THEN  the second effect  [PASS]
+  THEN  the summary agrees on 2 rules  [PASS]
+  -> 17 pass, 0 fail
+
+SCENARIO: A rule that matches nothing at all
+  GIVEN only the ghost rule
+  THEN  Explain still lists the rule  [PASS]
+  THEN  and reports that it affected nothing  [PASS]
+  THEN  no node is affected  [PASS]
+  WHEN  a rule with no effects and no parameters is registered
+  THEN  the legend shows its condition only (heading, blank, 4 lines for ghost, 2 for bare)  [PASS]
+  THEN  the bare rule's condition  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Saving the diagram into a folder (SaveToStzDiagInFolder)
+  GIVEN a missing nested folder inside the fixture
+  THEN  the folder does not exist yet  [PASS]
+  WHEN  the diagram is saved there
+  THEN  the answer is the path of the file  [PASS]
+  THEN  the folder was created  [PASS]
+  THEN  the file exists  [PASS]
+  THEN  the file holds the diagram text (the console's line ends aside)  [PASS]
+  WHEN  the file is read back into an empty diagram
+  THEN  the name is restored  [PASS]
+  THEN  the three nodes are back  [PASS]
+  THEN  the three edges are back  [PASS]
+  THEN  an edge is back  [PASS]
+  WHEN  the same folder is used again (it exists now)
+  THEN  the same path comes back  [PASS]
+  THEN  the folder is reused and the file is still there  [PASS]
+  WHEN  a second diagram named Other is saved in the same folder
+  THEN  its file name is the folded name  [PASS]
+  THEN  the first file is untouched  [PASS]
+  WHEN  the folder is given with a trailing slash, and with backslashes
+  THEN  a trailing slash gives the same path  [PASS]
+  THEN  backslashes give the same path  [PASS]
+  WHEN  the diagram changes and is saved again
+  THEN  the file is replaced  [PASS]
+  WHEN  the folder argument is empty or not a text
+  THEN  an empty folder name raises  [PASS]
+  THEN  a number raises  [PASS]
+  -> 18 pass, 0 fail
+
+================================================
+TOTAL: 72 assertions, 72 pass, 0 fail
+================================================
+STATUS: OK

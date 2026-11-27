@@ -1,0 +1,178 @@
+[
+	[
+		"summary",
+		[
+			[ "nodesadded", 3 ],
+			[ "nodesremoved", 0 ],
+			[ "edgesadded", 3 ],
+			[ "edgesremoved", 0 ],
+			[ "propertieschanged", 0 ]
+		]
+	],
+	[
+		"nodes",
+		[
+			[
+				"added",
+				[ "marketing", "hr", "finance" ]
+			],
+			[ "removed", [  ] ],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"edges",
+		[
+			[
+				"added",
+				[
+					[
+						[ "from", "ceo" ],
+						[ "to", "marketing" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "ceo" ],
+						[ "to", "hr" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "ceo" ],
+						[ "to", "finance" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[ "removed", [  ] ],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"metrics",
+		[
+			[
+				"nodecount",
+				[
+					[ "from", 3 ],
+					[ "to", 6 ],
+					[ "change", "+100%" ],
+					[ "delta", 3 ]
+				]
+			],
+			[
+				"edgecount",
+				[
+					[ "from", 2 ],
+					[ "to", 5 ],
+					[ "change", "+150%" ],
+					[ "delta", 3 ]
+				]
+			],
+			[
+				"density",
+				[
+					[ "from", 0.33 ],
+					[ "to", 0.17 ],
+					[ "change", "-50%" ],
+					[ "delta", -0.17 ]
+				]
+			],
+			[
+				"longestpath",
+				[
+					[ "from", 1 ],
+					[ "to", 1 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"hascycles",
+				[
+					[ "from", "FALSE" ],
+					[ "to", "FALSE" ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"avgdegree",
+				[
+					[ "from", 1.33 ],
+					[ "to", 1.67 ],
+					[ "change", "+25.00%" ],
+					[ "delta", 0.33 ]
+				]
+			]
+		]
+	],
+	[
+		"topology",
+		[
+			[
+				"bottlenecks",
+				[
+					[
+						"from",
+						[ "ceo" ]
+					],
+					[
+						"to",
+						[ "ceo" ]
+					],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"connectedcomponents",
+				[
+					[ "from", 1 ],
+					[ "to", 1 ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"isolatednodes",
+				[
+					[ "from", [  ] ],
+					[ "to", [  ] ],
+					[ "change", "unchanged" ]
+				]
+			]
+		]
+	],
+	[
+		"impact",
+		[
+			[
+				"reachabilitychanges",
+				[
+					[ "ceo", "Can now reach 3 more node(s)" ]
+				]
+			],
+			[
+				"criticalitychanges",
+				[
+					[
+						"ceo",
+						"Criticality increased (degree 2 → 5)"
+					]
+				]
+			]
+		]
+	],
+	[
+		"explanation",
+		[
+			"Added 3 node(s) and 3 edge(s)",
+			"Density -50%"
+		]
+	]
+]
+
+
+----------------
+----------------

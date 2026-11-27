@@ -1,0 +1,28 @@
+diagram "clustertest"
+
+properties
+    theme: neutral
+    layout: topdown
+
+nodes
+    api
+        label: "API"
+        type: process
+        color: success
+
+    db
+        label: "DB"
+        type: storage
+        color: success
+
+clusters
+    domain
+        label: "Service Domain"
+        nodes: [api, db]
+        color: #4D4DC9
+
+
+
+
+----------------
+----------------

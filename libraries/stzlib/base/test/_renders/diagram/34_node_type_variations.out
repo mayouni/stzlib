@@ -1,0 +1,27 @@
+digraph "shapetest" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    start [label="Start", shape=ellipse, style="solid,filled", fillcolor="#A3D1A3", penwidth=1, fontcolor="black", tooltip=" "]
+    validate [label="Validate", shape=box, style="rounded,solid,filled", fillcolor="#4D4DC9", penwidth=1, fontcolor="white", tooltip=" "]
+    check [label="Valid?", shape=diamond, style="solid,filled", fillcolor="#FFDEA3", penwidth=1, fontcolor="black", tooltip=" "]
+    done [label="Done", shape=doublecircle, style="solid,filled", fillcolor="#A3D1A3", penwidth=1, fontcolor="black", tooltip=" "]
+    db [label="Database", shape=cylinder, style="solid,filled", fillcolor="#656565", penwidth=1, fontcolor="white", tooltip=" "]
+    alert [label="Alert", shape=hexagon, style="solid,filled", fillcolor="#FFA3A3", penwidth=1, fontcolor="black", tooltip=" "]
+    backup [label="Backup", shape=parallelogram, style="solid,filled", fillcolor="#0000FF", penwidth=1, fontcolor="white", tooltip=" "]
+    end [label="End", shape=octagon, style="solid,filled", fillcolor="#A3D1A3", penwidth=1, fontcolor="black", tooltip=" "]
+
+    start -> validate
+    validate -> check
+    check -> db [label=" Yes"]
+    check -> alert [label=" No"]
+    db -> backup
+    backup -> done
+    alert -> end
+
+}
+
+
+----------------
+----------------
