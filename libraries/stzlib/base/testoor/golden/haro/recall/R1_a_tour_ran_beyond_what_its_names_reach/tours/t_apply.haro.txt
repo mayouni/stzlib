@@ -1,0 +1,7 @@
+load "../stzTax.haro"
+
+o = new stzTax(10)
+if o.Apply("vat") > 100
+    ? o.Rate()  # never reached: the vat of 10 is 2
+end
+? "[testoor claim the vat is applied]"

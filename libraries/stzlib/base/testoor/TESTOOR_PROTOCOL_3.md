@@ -417,7 +417,7 @@ Before it, a reach over that unit was a scan of every edge per reached node, bil
 
 ### 6.8 Which functions a tour reached: `testoor probe`, and the side file
 
-    testoor probe FOLDER [--haro PATH] [--out FILE.json]
+    testoor probe FOLDER [--suffix S ...] [--haro PATH] [--out FILE.json]
     testoor walk FOLDER ... --graph FILE.json --ladder
 
 The ladder's grade 1, **observed**, needs to know which functions a tour ran (section 2), and haro.exe counts no calls
@@ -426,16 +426,22 @@ The ladder's grade 1, **observed**, needs to know which functions a tour ran (se
 - **A call before the first statement of each body**, on that statement's line: `\tTestoorProbeHit(4) nSec = Floor(nMs / 1000)`,
   each function and method numbered. haro graph names the definitions and their lines; the probe finds where each signature
   closes and the first line after it that is not blank or a comment. No line moves, so a claim, an error and a graph name the
-  lines they named. The file gains one last line, `load "<path>/_testoor_probe.haro"`.
+  lines they named. The file gains the load of the probe file, `load "<path>/_testoor_probe.haro"`: a `.haro` file on a new
+  last line, since every `.haro` block closes with `end`; a file of any other extension at the start of its first line,
+  before what that line holds (after a byte-order mark). In the older syntax haro.exe still reads, a region runs on to the
+  next definition, and haro.exe read a load on the last line in 392 of stzlib's 557 such files and not in 165 (2026-11-27):
+  read alone, those called no probe. At the start of line 1 it was read before every form a first line holds.
 - **`_testoor_probe.haro`**, at the folder's root, holds `TestoorProbeHit`: on the first call of each function in a process, one
   line `[testoor node ID]` appended to the file the variable `TESTOOR_NODES` names; with no such variable, nothing. It sets
-  itself up on its first call, so a file's own statements may run a function before the load at its end is reached.
+  itself up on its first call, so a file's own statements may run a function before a load of it is reached.
 - **Not probed, and named**: a function whose body begins on the line of its signature, one whose signature does not close,
   one whose body begins where another definition does. On haro.exe of 2026-11-14 a statement after a signature, on its line,
   made some functions a function of one line and their bodies the file's own statements; so the call never goes there.
 - **The check**: haro graph is run again on each probed file; it must name the same definitions on the same lines, finish
   what it finished, and read a call to `TestoorProbeHit` in each probed definition. Else probe exits 2 and names the file.
 - **A copy, never a repository**: a folder in a git work tree is refused, and so is one probed already.
+- **Which files**: the `.haro` files under FOLDER, or those ending in each `--suffix` given (`--suffix .haro --suffix .X`
+  for a library whose files are not all `.haro` yet). A path with a part that begins with `_` or `.` is not probed, as a walk does not walk it.
 - **The record** (`--out`): the graph record of what was probed, subject the folder, for `--graph`. Its nodes are the files'
   functions and methods, each with the file and line its own file gave; a file's own statements are no node of it, since
   the probe does not observe them. Its EDGES come from one reading of a unit that loads every file of the folder, made before
@@ -502,6 +508,65 @@ its reason (the library's: 12 functions haro.exe could not finish, 185 functions
 dispatching by a name built at run time). The same change read from one guard's unit reached 22, and from the files read one by one, 4:
 the record's edges come from the whole folder's unit for that reason (6.8).
 
+### 6.10 The graph's recall, measured by a walk: `testoor recall`
+
+    testoor recall LOGBOOK.json --graph GRAPH.json [--out FILE.json]
+
+`impact` (6.7) selects the tours a change obliges you to walk again from the graph alone. The **bound selection** is the tours
+a name of which names a node the change reaches through its callers; a graph that is not complete selects every tour on top
+of it. Whether the bound selection alone would be safe is a question about the graph's edges, and one walk of a probed copy
+(6.8) answers it for every function at once: a tour that RAN a function is a tour a change to that function can affect, so a
+change to it must select the tour. `testoor recall` reads the logbook of that walk (`walk --graph`, its tours' `observed`
+nodes) and the graph it was judged against, reads each tour's names from its file where the logbook names it (from the
+current folder), and writes the recall record (`engine/src/testoor_recall.zig`):
+
+| key | holds |
+|---|---|
+| `complete`, `why` | the graph's own: when it is not complete, `impact` selects every tour whatever this record says |
+| `pairs` | `ran`: (tour, function) pairs the walk ran, over functions the graph owns; `bound`: those whose function the tour's names reach; `missed`: the rest |
+| `functions` | `owned`: the graph's nodes; `ran`: functions some tour ran; `missed`: functions some tour ran beyond its names' reach |
+| `unowned` | ids the logbook names that the graph does not hold: left out of every count |
+| `entries` | every **entry** -- a missed function none of whose callers in the graph the tour ran, so the run went into it by a call the graph does not hold -- with `callers` (how many functions the graph says call it: 0 is a constructor, an operator, a name built at run time) and `tours` (of how many tours it is an entry), the most shared first |
+| `tours` | each tour: `file`, `ran`, `bound`, `open_ran` (the open functions it ran: each calls by a name the graph cannot see, so may have made the call), `entries` and `missed` (ids, in the logbook's order) |
+
+**Reach, function by function.** A tour's names reach every node one of its names names (a node's `name`; an id an edge
+names and no node holds, by itself), then every node those call, and so on. A change to a node selects the tour exactly when
+the node is among them, since `impact` closes a change over its callers and selects a tour one of whose names names one of
+them: the module's test checks the two agree, node by node, over a graph with a cycle, a name two classes share, an edge to
+an id that is no node and a fold.
+
+A missed function that is no entry has a missed caller the tour ran, so a change to it is missed through the entry above it.
+The record does not say which call reached an entry: the probe writes each function's first hit in a process, not its caller.
+
+**Measured on stzlib's library, 2026-11-27** (main 2de2bf0e4; the 733 files `stzBase.ring` loads, probed as one copy:
+48,927 functions and methods, 72 named and not probed; 47 narrated tours of the string, list and table topics; haro v0.78).
+The probe changed no result: the probed and the unprobed walks agree tour by tour, 2,872 claims kept, 38 diverged and 307
+unreached on both. The tours ran 1,928 functions in 9,664 (tour, function) pairs; their names reach 6,170 of the pairs and
+3,494 lie beyond them, entered at 380 functions. Of those 3,494:
+
+| beyond the names because | pairs |
+|---|---|
+| the function is below the library's own statements, which every tour runs by loading the library; the probe's record holds no node for a file's own statements (6.8) | 2,120 |
+| it is a constructor or an operator: haro graph prints no call for `new Box(3)` or `oBox + 2` | 325 |
+| it is below a constructor or an operator the tour ran | 214 |
+| it runs through a call the graph does not hold (a name built at run time, a call by a method name no edge carries) | 835 |
+
+Three mutants, each walked over a fresh copy of the library and set beside the unprobed walk: every tour whose result moved
+had run the mutated function, 38 of 38, and `impact`, whose graph declares itself not complete, selects all of them. The
+names alone select 7 of the 38:
+
+| mutant | tours that ran it | tours whose result moved | of them, within their names' reach |
+|---|---|---|---|
+| `stzString.init` stores its content with a `~` added | 23 | 20 | 0 |
+| `stzString.NumberOfChars` answers one more | 11 | 7 | 7 |
+| `FormatString`, which a shown list's strings go through, adds a `!` | 18 | 11 | 0 |
+
+So on this library the graph's own statement is the one that holds: it is not complete, and a change selects every tour.
+The record names what the bound selection lacks, edge by edge: a node for each file's own statements, reached by every tour
+that loads the file, binds 61 percent of the pairs beyond the names; a call for each `new` and each operator binds 15
+percent more. The probe took 137 minutes on this machine (haro graph reads each file before and after it is probed), the
+walk 10, the recall 23 seconds.
+
 ## 7. Conformance
 
 Written by hand from section 2 before the code, and reproduced by the core on its first run (`zig build test-testoor`).
@@ -527,6 +592,7 @@ Written by hand from section 2 before the code, and reproduced by the core on it
 | `haro/reader/R2_self_describing` | a `.haro` file with no `Scenario(` and no `Then(`: dialect `unknown`, no stop, judged from what it prints |
 | `haro/judge/H3_a_slow_start_is_named` | 6.5: a tour whose first output arrived at 121.39 s: `first_output_ms` written after `wall_ms`, and its line naming the start -- written by hand; the core printed `121.30` where the hand wrote `121.3`, and both now print it as the wall time is printed, `121.39` |
 | `haro/graph/G1_functions_methods_dispatch` | 6.6: functions, methods, a static call written in its node's spelling, two calls dispatched by name each to both methods named `Run`, an unfinished function open, a file's statements as a `top` node, a path's `.` and `..` resolved; read from lines alone, so not complete for that reason too |
+| `haro/recall/R1_a_tour_ran_beyond_what_its_names_reach` | 6.10: two tours over eight methods -- what the names reach and what they call is bound; a constructor no caller holds and a method reached by a built name are the entries, and the method a ran entry calls is missed but no entry; a name the source mentions and the tour never ran counts for the reach only; the open method the second tour ran is counted. Written by hand before the module ran |
 | `haro/graph/G3_a_late_line_opens_its_caller` | 6.6: haro v0.77's `CALL|Go|*|late|2` opens `Go`, counted once, with no edge to `*`; its bound call to `Gross` stays an edge -- written by hand from the format in haro's spike/v77/GRAMMAR.md, before haro.exe prints it here |
 | `haro/graph/G2_a_call_by_a_built_name_opens_its_function` | 6.6: the unit's file read: `call tName(nX)` opens `Dispatch`; the word in a string and a comment does not |
 | `haro/impact/I1_names_select_a_tour` | 6.7: a complete graph, a change to `Vat`: the tour calling `Gross` is selected and the one calling `Label` skipped |

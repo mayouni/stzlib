@@ -10,7 +10,15 @@
 //!                                 `\tTestoorProbeHit(4) nSec = Floor(nMs / 1000)` -- measured before an `if`, a `for`, a
 //!                                 `while`, a `try`, a print, a list written over two lines, a `return` continued on the
 //!                                 next, and an `end` that closes an empty body
-//!   the file's last line          `load "<path>/_testoor_probe.haro"`, added on a line of its own
+//!   a .haro file's last line      `load "<path>/_testoor_probe.haro"`, added on a line of its own: every block of a
+//!                                 .haro file closes with `end`, so its last line is the file's own
+//!   any other file's first line   the same load, at the start of the line, before what it holds (after a byte-order
+//!                                 mark). In the older syntax haro.exe still reads, a region runs on to the next
+//!                                 definition, and a load on the last line was not read in 165 of the 557 such files
+//!                                 of stzlib's library (2026-11-27): those files, read alone, called no probe. Before a
+//!                                 comment, a block comment, a blank, a `load`, a `func`, a `class` or a statement,
+//!                                 the load at the start of line 1 was read; a .haro line holds one statement, so
+//!                                 a .haro file keeps the last line
 //!
 //! NOT after the signature, on its line: `func F(nMs) TestoorProbeHit(50)` ran on haro.exe for some functions and,
 //! for others, made the signature a function of one line and the body the file's own statements -- the parameter then
@@ -21,7 +29,7 @@
 //! the folder's root, holds TestoorProbeHit: on the first call of each function in a process, one line `[testoor node ID]`
 //! appended to the file the variable TESTOOR_NODES names -- the walk names one for each tour, and reads it as the tour's own
 //! node lines (testoor_runner.zig). With no such variable it writes nothing, so a probed copy runs as the codebase does. It
-//! sets itself up on its first call (a file's own statements may call a function before the load at its end is reached),
+//! sets itself up on its first call (a file's own statements may call a function before a load of it is reached),
 //! and a child process writes to the same file, so a function a tour ran through a program it started counts too.
 //!
 //! THE PROBE'S NAMES ARE ITS OWN. Its first name was TestoorNodeHit, and stzlib defines TestoorNodeHit (its node counter,
@@ -151,14 +159,22 @@ pub const Probed = struct {
     skipped: []const Skip,
 };
 
+/// Where a file takes the load of the probe file
+pub const Place = enum { last_line, first_line };
+
+/// A .haro file takes it on a new last line; a file of any other extension at the start of its first line
+pub fn placeFor(path: []const u8) Place {
+    return if (std.ascii.endsWithIgnoreCase(path, ".haro")) .last_line else .first_line;
+}
+
 fn isBlank(line: []const u8) bool {
     return std.mem.trim(u8, line, " \t\r").len == 0;
 }
 
-/// The source with a call in each definition, and the load of the probe file on a new last line. `first` is the number the
+/// The source with a call in each definition, and the load of the probe file where `place` says. `first` is the number the
 /// first call takes; the calls are numbered in the order of `defs`. `starts` are the lines a definition or a class begins
 /// on: a body found to begin on one has no line of its own to take the call. No line moves.
-pub fn instrument(a: Allocator, source: []const u8, defs: []const Def, starts: []const i64, first: usize, probe_path: []const u8) !Probed {
+pub fn instrument(a: Allocator, source: []const u8, defs: []const Def, starts: []const i64, first: usize, probe_path: []const u8, place: Place) !Probed {
     const crlf = std.mem.indexOf(u8, source, "\r\n") != null;
     var lines: std.ArrayList([]const u8) = .empty;
     var it = std.mem.splitScalar(u8, source, '\n');
@@ -264,6 +280,19 @@ pub fn instrument(a: Allocator, source: []const u8, defs: []const Def, starts: [
         try ids.append(a, d.id);
     }
 
+    // the older syntax: the load at the start of the first line, after a byte-order mark; no line moves
+    if (place == .first_line and lines.items.len > 0) {
+        const l0 = lines.items[0];
+        const bom: usize = if (std.mem.startsWith(u8, l0, "\xEF\xBB\xBF")) 3 else 0;
+        var ld = T.Buf.init(a);
+        try ld.s(l0[0..bom]);
+        try ld.s("load ");
+        try ld.js(probe_path);
+        try ld.c(' ');
+        try ld.s(l0[bom..]);
+        lines.items[0] = try ld.done();
+    }
+
     const eol: []const u8 = if (crlf) "\r\n" else "\n";
     var b = T.Buf.init(a);
     for (lines.items, 0..) |l, i| {
@@ -275,9 +304,11 @@ pub fn instrument(a: Allocator, source: []const u8, defs: []const Def, starts: [
             try b.s(eol);
         }
     }
-    try b.s("load ");
-    try b.js(probe_path);
-    try b.s(eol);
+    if (place == .last_line) {
+        try b.s("load ");
+        try b.js(probe_path);
+        try b.s(eol);
+    }
     return .{ .text = try b.done(), .ids = ids.items, .skipped = skipped.items };
 }
 
@@ -448,7 +479,7 @@ test "a call in each definition, and no line moves" {
         .{ .id = "Box.Area", .name = "Area", .line = 11 },
         .{ .id = "Box.Empty", .name = "Empty", .line = 16 },
     };
-    const r = try instrument(a, src, &defs, &.{ 2, 6, 10, 11, 16 }, 5, "../_testoor_probe.haro");
+    const r = try instrument(a, src, &defs, &.{ 2, 6, 10, 11, 16 }, 5, "../_testoor_probe.haro", .last_line);
     try testing.expectEqual(@as(usize, 4), r.ids.len);
     try testing.expectEqual(@as(usize, 0), r.skipped.len);
     try testing.expectEqualStrings("# inv\nfunc Gross(nX) # the gross\n\tTestoorProbeHit(5) return nX * 1.2\nend\n\nfunc Rate(nA,\n\tnB)\n\tTestoorProbeHit(6) return nA\nend\nclass Box\n\tdef Area\n\t\t# the area\n\n\t\tTestoorProbeHit(7) return 4\n\tend\n\tdef Empty\n\tTestoorProbeHit(8) end\nend\nload \"../_testoor_probe.haro\"\n", r.text);
@@ -465,7 +496,7 @@ test "a definition the probe cannot place a call in is named, never guessed" {
         .{ .id = "Q", .name = "Q", .line = 6 },
         .{ .id = "Z", .name = "Z", .line = 40 },
     };
-    const r = try instrument(a, src, &defs, &.{ 1, 2, 3 }, 1, "_testoor_probe.haro");
+    const r = try instrument(a, src, &defs, &.{ 1, 2, 3 }, 1, "_testoor_probe.haro", .last_line);
     try testing.expectEqual(@as(usize, 0), r.ids.len);
     try testing.expectEqual(@as(usize, 4), r.skipped.len);
     try testing.expectEqualStrings("its signature does not close", r.skipped[0].why);
@@ -479,7 +510,7 @@ test "a file's line ends are kept, and one without a last line end gets one befo
     defer arena.deinit();
     const a = arena.allocator();
     const defs = [_]Def{.{ .id = "F", .name = "F", .line = 1 }};
-    const r = try instrument(a, "func F(nX)\r\n\treturn nX\r\nend", &defs, &.{1}, 1, "_testoor_probe.haro");
+    const r = try instrument(a, "func F(nX)\r\n\treturn nX\r\nend", &defs, &.{1}, 1, "_testoor_probe.haro", .last_line);
     try testing.expectEqualStrings("func F(nX)\r\n\tTestoorProbeHit(1) return nX\r\nend\r\nload \"_testoor_probe.haro\"\r\n", r.text);
 }
 
@@ -488,7 +519,7 @@ test "a parenthesis in a string or a comment of the signature is not the one tha
     defer arena.deinit();
     const a = arena.allocator();
     const defs = [_]Def{.{ .id = "F", .name = "F", .line = 1 }};
-    const r = try instrument(a, "func F(tA = \")\") # (\n\treturn tA\nend\n", &defs, &.{1}, 1, "p.haro");
+    const r = try instrument(a, "func F(tA = \")\") # (\n\treturn tA\nend\n", &defs, &.{1}, 1, "p.haro", .last_line);
     try testing.expectEqualStrings("func F(tA = \")\") # (\n\tTestoorProbeHit(1) return tA\nend\nload \"p.haro\"\n", r.text);
 }
 
@@ -497,12 +528,30 @@ test "a body that begins on the line of its signature is not probed, and is name
     defer arena.deinit();
     const a = arena.allocator();
     const defs = [_]Def{ .{ .id = "One", .name = "One", .line = 1 }, .{ .id = "Two", .name = "Two", .line = 3 } };
-    const r = try instrument(a, "func One(nX) return nX\nend\nfunc Two(nX) # a comment is no body\n\treturn nX\nend\n", &defs, &.{ 1, 3 }, 1, "p.haro");
+    const r = try instrument(a, "func One(nX) return nX\nend\nfunc Two(nX) # a comment is no body\n\treturn nX\nend\n", &defs, &.{ 1, 3 }, 1, "p.haro", .last_line);
     try testing.expectEqual(@as(usize, 1), r.ids.len);
     try testing.expectEqualStrings("Two", r.ids[0]);
     try testing.expectEqual(@as(usize, 1), r.skipped.len);
     try testing.expectEqualStrings("its body begins on the line of its signature", r.skipped[0].why);
     try testing.expectEqualStrings("func One(nX) return nX\nend\nfunc Two(nX) # a comment is no body\n\tTestoorProbeHit(1) return nX\nend\nload \"p.haro\"\n", r.text);
+}
+
+test "a file of the older syntax takes the load at the start of its first line, after a byte-order mark, and no line moves" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const defs = [_]Def{ .{ .id = "F", .name = "F", .line = 2 }, .{ .id = "A.g", .name = "g", .line = 6 } };
+    const src = "\xEF\xBB\xBF# c\r\nfunc F(nX)\r\n\treturn nX\r\n\r\nclass A\r\n\tdef g\r\n\t\treturn 2\r\n";
+    const r = try instrument(a, src, &defs, &.{ 2, 5, 6 }, 1, "../p.haro", .first_line);
+    try testing.expectEqual(@as(usize, 2), r.ids.len);
+    try testing.expectEqualStrings("\xEF\xBB\xBFload \"../p.haro\" # c\r\nfunc F(nX)\r\n\tTestoorProbeHit(1) return nX\r\n\r\nclass A\r\n\tdef g\r\n\t\tTestoorProbeHit(2) return 2\r\n", r.text);
+    // a definition on line 1: the load goes before it, and the call still finds its body
+    const d1 = [_]Def{.{ .id = "E", .name = "E", .line = 1 }};
+    const r1 = try instrument(a, "func E(pcError)\n\treturn pcError\n", &d1, &.{1}, 7, "p.haro", .first_line);
+    try testing.expectEqualStrings("load \"p.haro\" func E(pcError)\n\tTestoorProbeHit(7) return pcError\n", r1.text);
+    try testing.expectEqual(Place.last_line, placeFor("a/b.haro"));
+    try testing.expectEqual(Place.last_line, placeFor("B.HARO"));
+    try testing.expectEqual(Place.first_line, placeFor("m.old"));
 }
 
 test "the path to the probe file, from a file's folder" {

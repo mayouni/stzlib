@@ -329,7 +329,9 @@ test "testoor probe: a call before the first statement of each body, no line mov
         const name = first["FILE|".len..];
         const src = try readAll(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "src", name }));
         const blk = try P.firstBlock(a, lines);
-        const r = try P.instrument(a, src, blk.defs, blk.starts, 1, P.probe_file);
+        // a golden source is named <file>.txt, so no sweep of .haro files reads it; the placement is the file's
+        const real = if (std.mem.endsWith(u8, name, ".txt")) name[0 .. name.len - 4] else name;
+        const r = try P.instrument(a, src, blk.defs, blk.starts, 1, P.probe_file, P.placeFor(real));
         try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "expected.haro.txt" }), r.text);
         try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "expected_probe.haro.txt" }), try P.probeSource(a, r.ids, false));
         var b = T.Buf.init(a);
@@ -470,6 +472,54 @@ test "testoor impact over a Haro unit: the face's names select the tours (BUSINE
         try got.appendSlice(a, try A.impactJson(a, try b.done()));
         try got.append(a, '\n');
         try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/impact", case, "expected.json" }), got.items);
+    }
+    try std.testing.expectEqual(@as(usize, 0), failures);
+}
+
+test "the recall record: what each tour of a probed walk ran beyond what its names reach in the graph (P4)" {
+    var arena = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const dir = try goldenDir(a);
+    failures = 0;
+    const cases = try caseNames(a, dir, "haro/recall");
+    try std.testing.expect(cases.len >= 1);
+    for (cases) |case| {
+        const case_dir = try std.fs.path.join(a, &.{ dir, "haro/recall", case });
+        const graph = try readAll(a, case_dir, "graph.json");
+        const log = try J.parse(a, try readAll(a, case_dir, "logbook.json"));
+        // what `testoor recall` hands the core: each tour's names, read from its file where the logbook names it, and the
+        // ids it ran, its observed nodes
+        var b = T.Buf.init(a);
+        try b.s("{\"graph\":");
+        try b.s(graph);
+        try b.s(",\"tours\":[");
+        for ((log.get("tours") orelse return error.NoTours).items(), 0..) |t, k| {
+            if (k > 0) try b.c(',');
+            const file = (t.get("file") orelse return error.NoFile).str_();
+            try b.s("{\"file\":");
+            try b.js(file);
+            try b.s(",\"names\":[");
+            // a tour is kept as `<file>.txt`, so no sweep of `.haro` files counts a fixture
+            for (try Rd.namesOf(a, try readAll(a, case_dir, try std.mem.concat(a, u8, &.{ file, ".txt" }))), 0..) |n, j| {
+                if (j > 0) try b.c(',');
+                try b.js(n);
+            }
+            try b.s("],\"ran\":[");
+            var n_ran: usize = 0;
+            for ((t.get("nodes") orelse return error.NoNodes).items()) |n| {
+                if (!std.mem.eql(u8, (n.get("evidence") orelse continue).str_(), "observed")) continue;
+                if (n_ran > 0) try b.c(',');
+                n_ran += 1;
+                try b.js((n.get("id") orelse continue).str_());
+            }
+            try b.s("]}");
+        }
+        try b.s("]}");
+        var got: std.ArrayList(u8) = .empty;
+        try got.appendSlice(a, try A.recallJson(a, try b.done()));
+        try got.append(a, '\n');
+        try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/recall", case, "expected.json" }), got.items);
     }
     try std.testing.expectEqual(@as(usize, 0), failures);
 }

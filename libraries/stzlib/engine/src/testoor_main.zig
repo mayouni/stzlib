@@ -6,7 +6,8 @@
 //!   testoor walk FOLDER [--suffix S] [--haro PATH] [the same options]
 //!   testoor graph FILE.haro [--haro PATH] [--out FILE.json]     or     testoor graph --lines LINES.txt [--root DIR] [--out FILE.json]
 //!   testoor impact GRAPH.json (--changed ID ... | --diff FILE [--root DIR] [--repo DIR]) [--tours FOLDER [--suffix S]] [--protocol 2]
-//!   testoor probe FOLDER [--haro PATH] [--out FILE.json]
+//!   testoor probe FOLDER [--suffix S ...] [--haro PATH] [--out FILE.json]
+//!   testoor recall LOGBOOK.json --graph GRAPH.json [--out FILE.json]
 //!   testoor report LOGBOOK.json --graph GRAPH.json [--impact IMPACT.json ...] [--title T] [--stamp LINE ...] [--out FILE.md]
 //!   testoor version
 //!
@@ -18,7 +19,13 @@
 //! `probe` puts a call in each function and method of the `.haro` files under FOLDER, where they stand, so a walk of the
 //! codebase's tours says which each reached (testoor_probe.zig, TESTOOR_PROTOCOL_3.md 6.8); it refuses a folder in a git
 //! work tree, since it is meant for a copy. It checks its work with haro graph, and writes the graph record of what it
-//! probed to `--out` or the standard output, for `--graph`.
+//! probed to `--out` or the standard output, for `--graph`. `--suffix S`, given once or more, names the files it probes
+//! instead (`--suffix .haro --suffix .X`: a library whose files are not all `.haro` yet).
+//!
+//! `recall` reads a logbook that `walk --graph` wrote over a probed codebase, and the graph record it was judged against, and
+//! writes the recall record (testoor_recall.zig, TESTOOR_PROTOCOL_3.md 6.10): each tour's functions that ran, how many of them
+//! its names reach in the graph -- a change to one of those selects the tour -- and the ones beyond, with the functions the
+//! run entered them by. Each tour's file is read where the logbook names it, from the current folder.
 //!
 //! `--graph GRAPH.json` (run, walk) judges the run against a graph record: a node line names one of its nodes, a node a tour
 //! calls by name and never reached is `named`, and the ladder counts the graph's nodes no tour reached.
@@ -92,7 +99,7 @@ fn say(s: []const u8) void {
 }
 
 fn usage() noreturn {
-    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor graph FILE.haro [--haro PATH] [--out FILE.json] | --lines LINES.txt [--out FILE.json]\n       testoor impact GRAPH.json (--changed ID ... | --diff FILE [--root DIR] [--repo DIR]) [--tours FOLDER [--suffix S]] [--protocol 2]\n       testoor probe FOLDER [--haro PATH] [--out FILE.json]\n       testoor report LOGBOOK.json --graph GRAPH.json [--impact IMPACT.json ...] [--title T] [--stamp LINE ...] [--out FILE.md]\n       testoor version\n");
+    say("usage: testoor run MANIFEST.json [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor walk FOLDER [--suffix S] [--haro PATH] [--json | --prose] [--seed N] [--repeat N] [--timeout MS] [--start MS] [--ladder] [--graph GRAPH.json]\n       testoor graph FILE.haro [--haro PATH] [--out FILE.json] | --lines LINES.txt [--out FILE.json]\n       testoor impact GRAPH.json (--changed ID ... | --diff FILE [--root DIR] [--repo DIR]) [--tours FOLDER [--suffix S]] [--protocol 2]\n       testoor probe FOLDER [--suffix S ...] [--haro PATH] [--out FILE.json]\n       testoor recall LOGBOOK.json --graph GRAPH.json [--out FILE.json]\n       testoor report LOGBOOK.json --graph GRAPH.json [--impact IMPACT.json ...] [--title T] [--stamp LINE ...] [--out FILE.md]\n       testoor version\n");
     std.process.exit(2);
 }
 
@@ -199,6 +206,7 @@ fn probe(a: std.mem.Allocator, args: []const []const u8) !void {
     var haro: []const u8 = std.process.getEnvVarOwned(a, "HARO_EXE") catch "haro";
     var folder: []const u8 = "";
     var out: []const u8 = "";
+    var suffixes: std.ArrayList([]const u8) = .empty;
     var i: usize = 2;
     while (i < args.len) : (i += 1) {
         if (eq(args[i], "--haro") and i + 1 < args.len) {
@@ -206,6 +214,9 @@ fn probe(a: std.mem.Allocator, args: []const []const u8) !void {
             i += 1;
         } else if (eq(args[i], "--out") and i + 1 < args.len) {
             out = args[i + 1];
+            i += 1;
+        } else if (eq(args[i], "--suffix") and i + 1 < args.len) {
+            try suffixes.append(a, args[i + 1]);
             i += 1;
         } else if (folder.len == 0 and !std.mem.startsWith(u8, args[i], "--")) {
             folder = args[i];
@@ -227,9 +238,27 @@ fn probe(a: std.mem.Allocator, args: []const []const u8) !void {
     if (std.fs.cwd().access(pf, .{})) |_| {
         fail(try std.fmt.allocPrint(a, "testoor probe: {s} is probed already ({s}); probe a fresh copy" ++ "\n", .{ folder, pf }));
     } else |_| {}
-    const files = R.discover(a, folder, ".haro") catch |e|
-        fail(try std.fmt.allocPrint(a, "testoor probe: cannot read {s}: {s}" ++ "\n", .{ folder, @errorName(e) }));
-    if (files.len == 0) fail(try std.fmt.allocPrint(a, "testoor probe: no .haro file under {s}" ++ "\n", .{folder}));
+    // the files it probes: those ending in a suffix given, `.haro` when none is, each once, in one sorted order
+    if (suffixes.items.len == 0) try suffixes.append(a, ".haro");
+    var found: std.ArrayList([]const u8) = .empty;
+    for (suffixes.items) |sfx| {
+        const part = R.discover(a, folder, sfx) catch |e|
+            fail(try std.fmt.allocPrint(a, "testoor probe: cannot read {s}: {s}" ++ "\n", .{ folder, @errorName(e) }));
+        for (part) |rel| {
+            var have = false;
+            for (found.items) |x| {
+                if (eq(x, rel)) have = true;
+            }
+            if (!have) try found.append(a, rel);
+        }
+    }
+    std.mem.sort([]const u8, found.items, {}, struct {
+        fn lt(_: void, x: []const u8, y: []const u8) bool {
+            return std.mem.lessThan(u8, x, y);
+        }
+    }.lt);
+    const files = found.items;
+    if (files.len == 0) fail(try std.fmt.allocPrint(a, "testoor probe: no file ending in {s} under {s}" ++ "\n", .{ try std.mem.join(a, " or ", suffixes.items), folder }));
 
     // the unit: every file of the folder loaded by one, read by haro graph once before any file changes, so a call from one
     // file into another is an edge of the record (testoor_probe.zig, ownRecord)
@@ -274,7 +303,7 @@ fn probe(a: std.mem.Allocator, args: []const []const u8) !void {
         const src = std.fs.cwd().readFileAlloc(a, path, 256 * 1024 * 1024) catch |e|
             fail(try std.fmt.allocPrint(a, "testoor probe: cannot read {s}: {s}" ++ "\n", .{ path, @errorName(e) }));
         if (std.mem.indexOf(u8, src, "\r\n") != null) crlf = true;
-        const r = try P.instrument(a, src, blk.defs, blk.starts, ids.items.len + 1, try P.relPath(a, std.fs.path.dirname(rel) orelse "", P.probe_file));
+        const r = try P.instrument(a, src, blk.defs, blk.starts, ids.items.len + 1, try P.relPath(a, std.fs.path.dirname(rel) orelse "", P.probe_file), P.placeFor(rel));
         for (r.skipped) |s| {
             if (n_skipped < 5) try notes.s(try std.fmt.allocPrint(a, "; {s} ({s}, line {d}) {s}", .{ s.id, rel, s.line, s.why }));
             n_skipped += 1;
@@ -564,6 +593,97 @@ fn impact(a: std.mem.Allocator, args: []const []const u8) !void {
     std.fs.File.stderr().writeAll(try std.fmt.allocPrint(a, "{s}" ++ "\n", .{line})) catch {};
 }
 
+/// `testoor recall`: what each tour of a walk ran beyond what its names reach in the graph it was judged against
+/// (TESTOOR_PROTOCOL_3.md 6.10). The ids a tour ran are its `observed` nodes; its names are read from its file, where the
+/// logbook names it, from the current folder. A file that cannot be read gives the tour no names, and the line says so.
+fn recallCmd(a: std.mem.Allocator, args: []const []const u8) !void {
+    const log_file = args[2];
+    var graph_file: []const u8 = "";
+    var out: []const u8 = "";
+    var i: usize = 3;
+    while (i < args.len) : (i += 1) {
+        if (eq(args[i], "--graph") and i + 1 < args.len) {
+            graph_file = args[i + 1];
+            i += 1;
+        } else if (eq(args[i], "--out") and i + 1 < args.len) {
+            out = args[i + 1];
+            i += 1;
+        } else usage();
+    }
+    if (graph_file.len == 0) usage();
+    const log_text = std.fs.cwd().readFileAlloc(a, log_file, 1 << 30) catch |e|
+        fail(try std.fmt.allocPrint(a, "testoor recall: cannot read {s}: {s}" ++ "\n", .{ log_file, @errorName(e) }));
+    const graph_text = std.fs.cwd().readFileAlloc(a, graph_file, 1 << 30) catch |e|
+        fail(try std.fmt.allocPrint(a, "testoor recall: cannot read {s}: {s}" ++ "\n", .{ graph_file, @errorName(e) }));
+    const log = J.parse(a, log_text) catch fail(try std.fmt.allocPrint(a, "testoor recall: {s} is not JSON" ++ "\n", .{log_file}));
+    var b = T.Buf.init(a);
+    try b.s("{\"graph\":");
+    try b.s(graph_text);
+    try b.s(",\"tours\":[");
+    var unread: usize = 0;
+    var first_unread: []const u8 = "";
+    const no_tours: []const J.Value = &.{};
+    const tours = if (log.get("tours")) |tv| tv.items() else no_tours;
+    for (tours, 0..) |t, k| {
+        const file = if (t.get("file")) |x| x.str_() else "";
+        if (k > 0) try b.c(',');
+        try b.s("{\"file\":");
+        try b.js(file);
+        try b.s(",\"names\":[");
+        if (std.fs.cwd().readFileAlloc(a, file, 64 * 1024 * 1024)) |src| {
+            for (try Rd.namesOf(a, src), 0..) |nm, j| {
+                if (j > 0) try b.c(',');
+                try b.js(nm);
+            }
+        } else |_| {
+            if (unread == 0) first_unread = file;
+            unread += 1;
+        }
+        try b.s("],\"ran\":[");
+        var n_ran: usize = 0;
+        if (t.get("nodes")) |nv| for (nv.items()) |n| {
+            const ev = if (n.get("evidence")) |x| x.str_() else "";
+            if (!eq(ev, "observed")) continue;
+            if (n_ran > 0) try b.c(',');
+            n_ran += 1;
+            try b.js(if (n.get("id")) |x| x.str_() else "");
+        };
+        try b.s("]}");
+    }
+    try b.s("]}");
+    const record = A.recallJson(a, try b.done()) catch |e|
+        fail(try std.fmt.allocPrint(a, "testoor recall: {s} is not a graph record ({s})" ++ "\n", .{ graph_file, @errorName(e) }));
+    if (out.len > 0) {
+        std.fs.cwd().writeFile(.{ .sub_path = out, .data = record }) catch |e|
+            fail(try std.fmt.allocPrint(a, "testoor recall: cannot write {s}: {s}" ++ "\n", .{ out, @errorName(e) }));
+    } else {
+        say(record);
+        say("\n");
+    }
+    const doc = try J.parse(a, record);
+    const pairs = doc.get("pairs") orelse unreachable;
+    const fns = doc.get("functions") orelse unreachable;
+    var line = try std.fmt.allocPrint(a, "testoor recall: {d} tour(s) ran {d} function(s) of the graph's {d}, {d} (tour, function) pair(s); the tours' names reach {d} of the pairs and {d} lie beyond them, over {d} function(s) the run entered at {d}", .{
+        tours.len,
+        (fns.get("ran") orelse unreachable).int_(),
+        (fns.get("owned") orelse unreachable).int_(),
+        (pairs.get("ran") orelse unreachable).int_(),
+        (pairs.get("bound") orelse unreachable).int_(),
+        (pairs.get("missed") orelse unreachable).int_(),
+        (fns.get("missed") orelse unreachable).int_(),
+        (doc.get("entries") orelse unreachable).items().len,
+    });
+    const unowned = (doc.get("unowned") orelse unreachable).int_();
+    if (unowned > 0) line = try std.fmt.allocPrint(a, "{s}; {d} id(s) the logbook names are not the graph's, and are left out", .{ line, unowned });
+    if (unread > 0) line = try std.fmt.allocPrint(a, "{s}; {d} tour file(s) could not be read, so those tours name nothing (the first: {s})", .{ line, unread, first_unread });
+    const why = (doc.get("why") orelse unreachable).str_();
+    line = if (why.len > 0)
+        try std.fmt.allocPrint(a, "{s}; the graph is not complete, so impact selects every tour whatever these say: {s}", .{ line, why })
+    else
+        try std.fmt.allocPrint(a, "{s}; the graph is complete", .{line});
+    std.fs.File.stderr().writeAll(try std.fmt.allocPrint(a, "{s}" ++ "\n", .{line})) catch {};
+}
+
 pub fn main() !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
@@ -578,6 +698,7 @@ pub fn main() !void {
     if (args.len >= 3 and eq(args[1], "graph")) return graph(a, args);
     if (args.len >= 3 and eq(args[1], "impact")) return impact(a, args);
     if (args.len >= 3 and eq(args[1], "probe")) return probe(a, args);
+    if (args.len >= 3 and eq(args[1], "recall")) return recallCmd(a, args);
     if (args.len >= 3 and eq(args[1], "report")) return report(a, args);
     if (args.len < 3 or (!eq(args[1], "run") and !eq(args[1], "walk"))) usage();
     const walking = eq(args[1], "walk");

@@ -23,6 +23,7 @@ const R = @import("testoor_routes.zig");
 const Ev = @import("testoor_evidence.zig");
 const Pr = @import("testoor_property.zig");
 const D = @import("testoor_diff.zig");
+const Rc = @import("testoor_recall.zig");
 
 pub const Error = error{ BadRequest, OutOfMemory, BadOutputLine, BadJson, BadDomain };
 
@@ -244,6 +245,24 @@ pub fn impactJson(a: Allocator, request: []const u8) Error![]u8 {
     }
     var b = T.Buf.init(a);
     try G.impactJson(&b, im);
+    return b.done();
+}
+
+/// the recall record (TESTOOR_PROTOCOL_3.md 6.10): {"graph":<record>,"tours":[{"file","names":[...],"ran":[ids]}]} -> what
+/// each tour ran beyond the ids its names reach
+pub fn recallJson(a: Allocator, request: []const u8) Error![]u8 {
+    const req = try J.parse(a, request);
+    const g = try G.fromValue(a, try field(req, "graph"));
+    var runs: std.ArrayList(Rc.TourRun) = .empty;
+    if (req.get("tours")) |tv| for (tv.items()) |t| {
+        try runs.append(a, .{
+            .file = if (t.get("file")) |x| x.str_() else "",
+            .names = try strings(a, t.get("names")),
+            .ran = try strings(a, t.get("ran")),
+        });
+    };
+    var b = T.Buf.init(a);
+    try Rc.recallJson(&b, try Rc.recall(a, g, runs.items));
     return b.done();
 }
 

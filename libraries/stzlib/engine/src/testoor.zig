@@ -23,6 +23,7 @@ pub const harograph = @import("testoor_harograph.zig");
 pub const probe = @import("testoor_probe.zig");
 pub const report = @import("testoor_report.zig");
 pub const diff = @import("testoor_diff.zig");
+pub const recall = @import("testoor_recall.zig");
 
 test {
     _ = ladder;
@@ -33,6 +34,7 @@ test {
     _ = probe;
     _ = report;
     _ = diff;
+    _ = recall;
     _ = clock;
     _ = graph;
     _ = routes;

@@ -104,7 +104,7 @@ pub fn edgesInto(ix: *const Index, g: Graph, id: []const u8) []const usize {
     return if (ix.into.getContext(id, .{ .fold = g.fold })) |l| l.items else &.{};
 }
 
-fn edgesOutOf(ix: *const Index, g: Graph, id: []const u8) []const usize {
+pub fn edgesOutOf(ix: *const Index, g: Graph, id: []const u8) []const usize {
     return if (ix.out_of.getContext(id, .{ .fold = g.fold })) |l| l.items else &.{};
 }
 

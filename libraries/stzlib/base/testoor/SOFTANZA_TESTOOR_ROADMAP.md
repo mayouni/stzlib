@@ -95,7 +95,12 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
 
 ### P4 -- Graph-first coverage on the real library.
 - **Impact recall on real classes**, with real mutants and the tree-sitter call graph, because P1a measured a
-  planted subject and not the library with its dynamic dispatch, inheritance and Q-chains.
+  planted subject and not the library with its dynamic dispatch, inheritance and Q-chains. **MEASURED 2026-11-27** as
+  `testoor recall LOGBOOK.json --graph GRAPH.json` (`TESTOOR_PROTOCOL_3.md` 6.10, `testoor_recall.zig`, golden
+  `haro/recall/R1`) over one probed walk of 47 tours on the 733 files of the library: every tour three mutants moved had run
+  the mutated function, 38 of 38, and `impact` selected all of them, its graph declaring itself not complete. The tours'
+  names alone reach 6,170 of the 9,664 (tour, function) pairs the tours ran, and select 7 of the 38. What they lack: a node
+  for each file's own statements (61 percent of the pairs beyond the names) and a call for each `new` and operator (15).
 - **Selection from a change**: `--impacted-by` fed from `git diff`, method by method, so an agent asks
   "what did my patch reach". **DONE 2026-11-27** as `testoor impact GRAPH.json --diff FILE` (`TESTOOR_PROTOCOL_3.md` 6.7,
   `testoor_diff.zig`, goldens `haro/impact/I3` to `I5`): each changed line names the node it stands in, a line holding no

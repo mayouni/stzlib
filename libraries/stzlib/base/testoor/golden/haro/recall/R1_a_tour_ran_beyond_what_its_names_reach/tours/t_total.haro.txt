@@ -1,0 +1,4 @@
+load "../stzTax.haro"
+
+o = new stzTax(10)
+? o.Total()

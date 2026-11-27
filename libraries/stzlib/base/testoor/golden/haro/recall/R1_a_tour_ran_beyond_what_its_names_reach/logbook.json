@@ -1,0 +1,14 @@
+{"testoor":"logbook","kind":"run","protocol":3,"by":"golden","root":"tours","subject":"tax","graph":{"complete":false,"owned":8,"mentioned":1,"observed":8},"tours":[
+{"file":"tours/t_apply.haro","state":"kept","nodes":[
+{"id":"stzTax.init","evidence":"observed","hits":1},
+{"id":"stzTax.Check","evidence":"observed","hits":1},
+{"id":"stzTax.Rate","evidence":"mentioned","hits":0},
+{"id":"stzTax.Apply","evidence":"observed","hits":1},
+{"id":"stzTax.Vat","evidence":"observed","hits":1}]},
+{"file":"tours/t_total.haro","state":"kept","nodes":[
+{"id":"stzTax.init","evidence":"observed","hits":1},
+{"id":"stzTax.Check","evidence":"observed","hits":1},
+{"id":"stzTax.Total","evidence":"observed","hits":1},
+{"id":"stzTax.Rate","evidence":"observed","hits":1},
+{"id":"stzTax.Lookup","evidence":"observed","hits":1},
+{"id":"stzTax.Round","evidence":"observed","hits":1}]}]}

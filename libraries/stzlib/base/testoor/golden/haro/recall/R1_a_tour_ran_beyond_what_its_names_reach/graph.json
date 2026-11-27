@@ -1,0 +1,14 @@
+{"testoor":"graph","protocol":2,"subject":"tax","language":"haro","fold":"ascii","complete":false,"why":"","nodes":[
+{"id":"stzTax.init","name":"init","kind":"method","file":"stzTax.haro","line":3},
+{"id":"stzTax.Check","name":"Check","kind":"method","file":"stzTax.haro","line":8},
+{"id":"stzTax.Total","name":"Total","kind":"method","file":"stzTax.haro","line":13},
+{"id":"stzTax.Rate","name":"Rate","kind":"method","file":"stzTax.haro","line":17},
+{"id":"stzTax.Lookup","name":"Lookup","kind":"method","file":"stzTax.haro","line":21},
+{"id":"stzTax.Round","name":"Round","kind":"method","file":"stzTax.haro","line":25},
+{"id":"stzTax.Apply","name":"Apply","kind":"method","file":"stzTax.haro","line":30,"open":true},
+{"id":"stzTax.Vat","name":"Vat","kind":"method","file":"stzTax.haro","line":35}],
+"edges":[
+{"from":"stzTax.init","to":"stzTax.Check","kind":"call","line":0},
+{"from":"stzTax.Total","to":"stzTax.Rate","kind":"call","line":0},
+{"from":"stzTax.Total","to":"stzTax.Round","kind":"call","line":0},
+{"from":"stzTax.Rate","to":"stzTax.Lookup","kind":"call","line":0}]}
