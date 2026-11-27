@@ -13,6 +13,12 @@
 //! does not hold. Every other missed function has a missed caller the tour ran, so it is reached from an entry. An entry the
 //! graph gives no caller at all is called by nothing the graph holds (a constructor, an operator, a name built at run time).
 //!
+//! A FILE'S OWN STATEMENTS are reached by every tour: a tour of the unit loads the unit, and loading a file runs its own
+//! statements, so `impact` selects every tour for a change they reach (testoor_graph.zig), and here every node of kind
+//! `top` is a seed of every tour. The probe observes no such node -- it holds no function -- so it is never among a tour's
+//! ran; what it calls is bound for every tour. Measured on the library (2026-11-27), they were 61 percent of the pairs
+//! beyond the names while the graph held no node for them.
+//!
 //! The record does not say which call reached an entry: a probe writes each function's first hit, not its caller. It says
 //! how many open functions the tour ran (`open_ran`), since an open function calls by a name the graph cannot see, and so
 //! may have made the call.
@@ -79,6 +85,12 @@ pub fn reachedBy(a: Allocator, g: G.Graph, names: []const []const u8) !IdSet {
             if ((try seen.getOrPutContext(a, id, ctx)).found_existing) continue;
             try queue.append(a, id);
         }
+    }
+    // every file's own statements: a tour loads the unit, whatever it names
+    for (g.nodes) |n| {
+        if (!G.isTop(n)) continue;
+        if ((try seen.getOrPutContext(a, n.id, ctx)).found_existing) continue;
+        try queue.append(a, n.id);
     }
     var at: usize = 0;
     while (at < queue.items.len) : (at += 1) {
@@ -287,13 +299,16 @@ test "the ids a tour's names reach are the ids whose change selects the tour, id
     var arena = std.heap.ArenaAllocator.init(testing.allocator);
     defer arena.deinit();
     const a = arena.allocator();
-    // a cycle, a method name two classes share (two dispatch edges), an edge to an id that is no node, a fold
+    // a cycle, a method name two classes share (two dispatch edges), an edge to an id that is no node, a fold, and a
+    // file's own statements calling a function that calls another
     const g = try graphOf(a,
         \\{"fold":"ascii","nodes":[{"id":"A.Run","name":"Run"},{"id":"B.Step","name":"Step"},{"id":"C.Step","name":"Step"},
-        \\{"id":"D.Loop","name":"Loop"},{"id":"E.Back","name":"Back"},{"id":"F.Alone","name":"Alone"},{"id":"Helper","name":"Helper"}],
+        \\{"id":"D.Loop","name":"Loop"},{"id":"E.Back","name":"Back"},{"id":"F.Alone","name":"Alone"},{"id":"Helper","name":"Helper"},
+        \\{"id":"<top>:m.haro","name":"<top>","kind":"top"},{"id":"Setup","name":"Setup"},{"id":"Deep","name":"Deep"}],
         \\"edges":[{"from":"A.Run","to":"B.Step","kind":"dispatch"},{"from":"A.Run","to":"C.Step","kind":"dispatch"},
         \\{"from":"C.Step","to":"D.Loop"},{"from":"D.Loop","to":"E.Back"},{"from":"E.Back","to":"D.Loop"},
-        \\{"from":"Helper","to":"external"},{"from":"external","to":"F.Alone"}]}
+        \\{"from":"Helper","to":"external"},{"from":"external","to":"F.Alone"},
+        \\{"from":"<top>:m.haro","to":"Setup"},{"from":"Setup","to":"Deep"}]}
     );
     const tours = [_]G.TourNames{
         .{ .file = "t1", .names = &.{"run"} },
@@ -303,7 +318,7 @@ test "the ids a tour's names reach are the ids whose change selects the tour, id
         .{ .file = "t5", .names = &.{ "Step", "Alone" } },
         .{ .file = "t6", .names = &.{} },
     };
-    const ids = [_][]const u8{ "A.Run", "B.Step", "C.Step", "D.Loop", "E.Back", "F.Alone", "Helper", "external" };
+    const ids = [_][]const u8{ "A.Run", "B.Step", "C.Step", "D.Loop", "E.Back", "F.Alone", "Helper", "external", "<top>:m.haro", "Setup", "Deep" };
     for (tours) |t| {
         const reached = try reachedBy(a, g, t.names);
         for (ids) |id| {

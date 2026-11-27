@@ -368,15 +368,30 @@ pub fn widenedReach(a: Allocator, g: Graph, changed: []const []const u8) !Widene
     return .{ .reach = out.items, .widened = widened.items, .capped = capped.items };
 }
 
+/// a file's own statements: they run when the file is loaded, whoever loads it
+pub fn isTop(n: Node) bool {
+    return std.mem.eql(u8, n.kind, "top");
+}
+
 /// Which tours a change obliges you to walk again. A graph that is not complete selects EVERY
-/// tour and skips none: a selection is only as small as the graph is complete.
+/// tour and skips none: a selection is only as small as the graph is complete. A reach that holds a
+/// file's own statements (a node of kind `top`) selects every tour too: a tour of the unit loads the
+/// unit, and loading a file runs its own statements, whatever names the tour mentions.
 pub fn impact(a: Allocator, g: Graph, changed: []const []const u8, tours: []const TourNames) !Impact {
     const ids = try reach(a, g, changed);
     const names = try reachNames(a, g, ids);
+    var loads = false;
+    for (ids) |id| {
+        const i = g.indexOf(id) orelse continue;
+        if (isTop(g.nodes[i])) {
+            loads = true;
+            break;
+        }
+    }
     var sel: std.ArrayList([]const u8) = .empty;
     var skip: std.ArrayList([]const u8) = .empty;
     for (tours) |t| {
-        var hit = !g.complete;
+        var hit = !g.complete or loads;
         if (!hit) {
             outer: for (t.names) |tn| {
                 for (names) |rn| {
@@ -617,6 +632,30 @@ test "a complete graph selects by name; an incomplete one selects every tour" {
     const all = try impact(a, g, &.{"Callee"}, &tours);
     try testing.expectEqual(@as(usize, 4), all.selected.len);
     try testing.expectEqual(@as(usize, 0), all.skipped.len);
+}
+
+test "a change that reaches a file's own statements selects every tour, since a tour loads the unit" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    const g = Graph{
+        .fold = .ascii,
+        .nodes = &.{
+            .{ .id = "<top>:m.haro", .name = "<top>", .kind = "top", .file = "m.haro" },
+            .{ .id = "Setup", .name = "Setup", .kind = "function" },
+            .{ .id = "Rate", .name = "Rate", .kind = "function" },
+            .{ .id = "Alone", .name = "Alone", .kind = "function" },
+        },
+        .edges = &.{ .{ .from = "<top>:m.haro", .to = "Setup" }, .{ .from = "Setup", .to = "Rate" } },
+    };
+    const tours = [_]TourNames{ .{ .file = "t1", .names = &.{"alone"} }, .{ .file = "t2", .names = &.{} } };
+    // Rate runs when m.haro is loaded: both tours load it
+    const im = try impact(a, g, &.{"Rate"}, &tours);
+    try testing.expectEqual(@as(usize, 2), im.selected.len);
+    // Alone runs only when named
+    const one = try impact(a, g, &.{"Alone"}, &tours);
+    try testing.expectEqual(@as(usize, 1), one.selected.len);
+    try testing.expectEqualStrings("t1", one.selected[0]);
 }
 
 test "evidence: observed beats named, order follows the graph, an unknown id is dropped" {

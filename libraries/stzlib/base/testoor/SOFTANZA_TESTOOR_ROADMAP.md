@@ -101,6 +101,8 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
   the mutated function, 38 of 38, and `impact` selected all of them, its graph declaring itself not complete. The tours'
   names alone reach 6,170 of the 9,664 (tour, function) pairs the tours ran, and select 7 of the 38. What they lack: a node
   for each file's own statements (61 percent of the pairs beyond the names) and a call for each `new` and operator (15).
+  The first is in the record since the same day: a change that reaches a file's own statements selects every tour, since a
+  tour loads the unit, and the names with the files' own statements reach 8,285 of the pairs and select 18 of the 38.
 - **Selection from a change**: `--impacted-by` fed from `git diff`, method by method, so an agent asks
   "what did my patch reach". **DONE 2026-11-27** as `testoor impact GRAPH.json --diff FILE` (`TESTOOR_PROTOCOL_3.md` 6.7,
   `testoor_diff.zig`, goldens `haro/impact/I3` to `I5`): each changed line names the node it stands in, a line holding no

@@ -368,7 +368,12 @@ method by a name no method of the unit carries, and 161 calling by a name built 
 writes the impact record (section 5.1) of a change to the nodes named, over a graph record `testoor graph` wrote. A tour
 under FOLDER is selected when its source CALLS a name of the reach: the Haro face reads each tour's names
 (`testoor_reader.zig`, `namesOf`) -- every identifier followed by `(` in code, a function or a method after a dot, never in a
-string or a comment. A graph that is not complete still selects every tour (protocol 2's rule). One line of figures goes to the
+string or a comment. A graph that is not complete still selects every tour (protocol 2's rule). **A file's own statements**
+run when the file is loaded, so a reach that holds one (`<top>:FILE`, kind `top`) selects every tour too: a tour of the unit
+loads the unit, whatever it names. In golden `haro/impact/I1` a change to `Vat` reaches `Gross`, which `inv.haro`'s own
+statements call, so `t_label`, which names neither, is selected; until 2026-11-27 it was skipped, though loading the file ran
+`Vat` in it. A tour that loads part of a unit only is selected as well: a selection by the files each tour loads needs the
+record to carry the unit's loads. One line of figures goes to the
 standard error, and it keeps two figures apart: **the reach the compiler bound**, and the reach once the open nodes and their
 callers widen it.
 
@@ -443,8 +448,10 @@ The ladder's grade 1, **observed**, needs to know which functions a tour ran (se
 - **Which files**: the `.haro` files under FOLDER, or those ending in each `--suffix` given (`--suffix .haro --suffix .X`
   for a library whose files are not all `.haro` yet). A path with a part that begins with `_` or `.` is not probed, as a walk does not walk it.
 - **The record** (`--out`): the graph record of what was probed, subject the folder, for `--graph`. Its nodes are the files'
-  functions and methods, each with the file and line its own file gave; a file's own statements are no node of it, since
-  the probe does not observe them. Its EDGES come from one reading of a unit that loads every file of the folder, made before
+  functions and methods, each with the file and line its own file gave, and each file's own statements that call something,
+  `<top>:FILE` of kind `top`: the probe observes no such node, since it holds no function, and every tour that loads the
+  file runs it (6.7). Until 2026-11-27 the record held none, so a call by a built name in a file's own statements left it
+  complete (golden `haro/probe/P1`, `? call tName()`, now open). Its EDGES come from one reading of a unit that loads every file of the folder, made before
   any file changes: haro graph on one file alone prints no line for a call into another file (a call of one module's
   function in another, measured 2026-11-15), so a record of files read one by one missed every call between them, and read 19
   Foundry functions as open. An edge is kept when both its ends are the codebase's; `complete` and `why` are the unit's.
@@ -530,10 +537,11 @@ current folder), and writes the recall record (`engine/src/testoor_recall.zig`):
 | `tours` | each tour: `file`, `ran`, `bound`, `open_ran` (the open functions it ran: each calls by a name the graph cannot see, so may have made the call), `entries` and `missed` (ids, in the logbook's order) |
 
 **Reach, function by function.** A tour's names reach every node one of its names names (a node's `name`; an id an edge
-names and no node holds, by itself), then every node those call, and so on. A change to a node selects the tour exactly when
-the node is among them, since `impact` closes a change over its callers and selects a tour one of whose names names one of
-them: the module's test checks the two agree, node by node, over a graph with a cycle, a name two classes share, an edge to
-an id that is no node and a fold.
+names and no node holds, by itself), and every file's own statements, which a tour runs by loading the unit (6.7); then
+every node those call, and so on. A change to a node selects the tour exactly when the node is among them, since `impact`
+closes a change over its callers and selects a tour one of whose names names one of them, or every tour when one of them is
+a file's own statements: the module's test checks the two agree, node by node, over a graph with a cycle, a name two
+classes share, an edge to an id that is no node, a fold, and a file's own statements calling a function that calls another.
 
 A missed function that is no entry has a missed caller the tour ran, so a change to it is missed through the entry above it.
 The record does not say which call reached an entry: the probe writes each function's first hit in a process, not its caller.
@@ -566,6 +574,15 @@ The record names what the bound selection lacks, edge by edge: a node for each f
 that loads the file, binds 61 percent of the pairs beyond the names; a call for each `new` and each operator binds 15
 percent more. The probe took 137 minutes on this machine (haro graph reads each file before and after it is probed), the
 walk 10, the recall 23 seconds.
+
+**With each file's own statements in the record** (6.7, 6.8, the same day), the same walk was judged again against the
+record of a unit loading the same 733 files (`testoor graph`, 415 seconds): its 48,998 functions and methods are the
+probe's record's, none differing in file, line or openness, and it holds 6 files' own statements besides, with 46 calls.
+The names and the files' own statements reach 8,285 of the 9,664 pairs; of the 1,379 beyond, 325 are a constructor or an
+operator, 215 are below one, and 839 run through a call the graph does not hold. The third mutant's 11 tours are within the
+reach now, so the bound selection holds 18 of the 38 tours the mutants moved; the first mutant's 20 wait on a call for each
+`new`. The price is the reach of a file's own statements: 6,292 of the 49,005 functions are below one, and a change to any
+of them selects every tour.
 
 ## 7. Conformance
 

@@ -371,16 +371,27 @@ pub fn probeSource(a: Allocator, ids: []const []const u8, crlf: bool) ![]u8 {
 /// a definition of the codebase, with the file it is in, relative to the folder probed
 pub const Own = struct { def: Def, file: []const u8 };
 
-/// THE PROBE'S RECORD: the graph record of the codebase's own functions and methods, cut from the record of a unit that
+/// THE PROBE'S RECORD: the graph record of the codebase's own functions and methods, and of each of its files' own
+/// statements that call something (`<top>:FILE`, never observed, run by every tour that loads the file), cut from the record of a unit that
 /// loads every file of the folder. A file read alone by haro graph names no call into another file -- a call of one module's
 /// function in another left no line, measured 2026-11-15 -- so the edges come from the unit, where every call is resolved; the
 /// nodes are the codebase's own, each with the file and line its own file gave, and an edge is kept when both of its ends
 /// are. `complete` and `why` are the unit's: a call the unit could not resolve, in the library or not, leaves the codebase's
 /// reach unknown too, and the record says so.
-pub fn ownRecord(a: Allocator, unit_record: []const u8, own: []const Own, subject: []const u8) ![]u8 {
+pub fn ownRecord(a: Allocator, unit_record: []const u8, own: []const Own, files: []const []const u8, subject: []const u8) ![]u8 {
     const g = try G.fromValue(a, try J.parse(a, unit_record));
     var keep = std.StringHashMap(void).init(a);
     for (own) |o| try keep.put(try T.lowerAscii(a, o.def.id), {});
+    // a file's own statements, `<top>:FILE`, for each file of the folder: the probe observes them not, and every tour
+    // that loads the file runs them, so what they call is bound for every tour (testoor_recall.zig)
+    var folder_files = std.StringHashMap(void).init(a);
+    for (files) |f| try folder_files.put(try T.lowerAscii(a, try slashes(a, f)), {});
+    var tops: std.ArrayList(usize) = .empty;
+    for (g.nodes, 0..) |n, i| {
+        if (!G.isTop(n) or !folder_files.contains(try T.lowerAscii(a, n.file))) continue;
+        try tops.append(a, i);
+        try keep.put(try T.lowerAscii(a, n.id), {});
+    }
     var b = T.Buf.init(a);
     try b.s("{\"testoor\":\"graph\",\"protocol\":2,\"subject\":");
     try b.js(subject);
@@ -414,6 +425,18 @@ pub fn ownRecord(a: Allocator, unit_record: []const u8, own: []const Own, subjec
         }
         try b.c('}');
     }
+    for (tops.items) |i| {
+        const n = g.nodes[i];
+        if (!first) try b.c(',');
+        first = false;
+        try b.s("{\"id\":");
+        try b.js(n.id);
+        try b.s(",\"name\":\"<top>\",\"kind\":\"top\",\"file\":");
+        try b.js(n.file);
+        try b.s(",\"line\":0");
+        if (n.open) try b.s(",\"open\":true");
+        try b.c('}');
+    }
     try b.s("],\"edges\":[");
     first = true;
     for (g.edges) |e| {
@@ -430,6 +453,14 @@ pub fn ownRecord(a: Allocator, unit_record: []const u8, own: []const Own, subjec
     }
     try b.s("]}\n");
     return b.done();
+}
+
+fn slashes(a: Allocator, p: []const u8) ![]u8 {
+    const out = try a.dupe(u8, p);
+    for (out) |*c| if (c.* == '\\') {
+        c.* = '/';
+    };
+    return out;
 }
 
 /// the relative path from folder `from` to the file `to`, both relative to one place and written with forward slashes

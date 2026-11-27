@@ -348,8 +348,8 @@ test "testoor probe: a call before the first statement of each body, no line mov
         // the record: cut from the unit's record -- one file that loads none is its own unit -- to the file's definitions
         var own: std.ArrayList(P.Own) = .empty;
         for (blk.defs) |d| try own.append(a, .{ .def = d, .file = name });
-        const unit = try Hg.fromLinesWith(a, lines, root, .{ .subject = "src", .tops = false });
-        try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "expected_graph.json" }), try P.ownRecord(a, unit, own.items, "src"));
+        const unit = try Hg.fromLinesWith(a, lines, root, .{ .subject = "src" });
+        try expectFile(a, dir, try std.fs.path.join(a, &.{ "haro/probe", case, "expected_graph.json" }), try P.ownRecord(a, unit, own.items, &.{name}, "src"));
     }
     try std.testing.expectEqual(@as(usize, 0), failures);
 }

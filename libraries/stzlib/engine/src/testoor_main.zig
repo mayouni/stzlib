@@ -285,7 +285,7 @@ fn probe(a: std.mem.Allocator, args: []const []const u8) !void {
     }
     // read now, while the files are as the codebase has them: the face reads them for calls by a name built at run time
     const subject = try Hg.normPath(a, folder);
-    const unit_record = try Hg.fromLinesWith(a, unit_run.stdout, folder, .{ .subject = subject, .tops = false });
+    const unit_record = try Hg.fromLinesWith(a, unit_run.stdout, folder, .{ .subject = subject });
     std.fs.cwd().deleteFile(unit_path) catch {};
 
     var ids: std.ArrayList([]const u8) = .empty;
@@ -344,7 +344,7 @@ fn probe(a: std.mem.Allocator, args: []const []const u8) !void {
     }
     if (wrong.list.items.len > 0) fail(try std.fmt.allocPrint(a, "testoor probe: the check failed, and the copy under {s} is probed as it stands:" ++ "\n" ++ "{s}", .{ folder, wrong.list.items }));
 
-    const record = try P.ownRecord(a, unit_record, own.items, subject);
+    const record = try P.ownRecord(a, unit_record, own.items, files, subject);
     if (out.len > 0) {
         std.fs.cwd().writeFile(.{ .sub_path = out, .data = record }) catch |e|
             fail(try std.fmt.allocPrint(a, "testoor probe: cannot write {s}: {s}" ++ "\n", .{ out, @errorName(e) }));
