@@ -99,6 +99,54 @@ check('16 hex chars', len(R.digest(['a'])), 16)
 check('a trailing blank changes it (so padding drift is caught)',
       R.digest(['a']) == R.digest(['a', '']), False)
 
+print('=== calls_declared: the library own not-run-here marker ===')
+import tempfile
+fd, probe = tempfile.mkstemp(suffix='.ring')
+os.close(fd)
+DECLARED = {'view': 'graph/stzDiagram.ring:17988',
+            'executeandview': 'extercode/stzDotCode.ring:298'}
+
+
+def write_probe(text):
+    with io.open(probe, 'w', encoding='utf-8') as fh:
+        fh.write(text)
+    return probe
+
+
+check('a file calling View() is caught',
+      R.calls_declared(write_probe('oDiag = new stzDiagram()' + NL + 'oDiag.View()'),
+                       DECLARED) is not None, True)
+check('the reason names the method and where it is declared',
+      R.calls_declared(write_probe('oDiag.View()'), DECLARED),
+      ('View', 'graph/stzDiagram.ring:17988'))
+check('case does not matter, since Ring is case-insensitive',
+      R.calls_declared(write_probe('oDiag.view()'), DECLARED) is not None, True)
+# THE FAILING DIRECTION, and the one that matters most: a console print must NOT
+# be refused. `.Show()` on a table prints the render this gate exists to store,
+# and a first guess at method names matched it in 239 files.
+check('a file calling Show() is NOT refused',
+      R.calls_declared(write_probe('oTable.Show()'), DECLARED), None)
+check('a plain print is NOT refused',
+      R.calls_declared(write_probe('? "hello"'), DECLARED), None)
+check('an empty declared set refuses nothing',
+      R.calls_declared(write_probe('oDiag.View()'), {}), None)
+try:
+    os.unlink(probe)
+except OSError:
+    pass
+
+print('=== not_run_here: read from the library, never a list in this file ===')
+DECL = R.not_run_here()
+check('the walk finds at least ten declared methods', len(DECL) >= 10, True)
+check('View is among them', 'view' in DECL, True)
+check('Display is among them', 'display' in DECL, True)
+check('ExecuteAndView is among them', 'executeandview' in DECL, True)
+# Show must NOT be declared: if it ever is, the gate would refuse the corpus and
+# this case is the alarm rather than a silent collapse of coverage.
+check('Show is NOT declared not-run-here', 'show' in DECL, False)
+check('each entry says where it was declared',
+      all(':' in v for v in DECL.values()), True)
+
 print('=== store paths stay inside the tree ===')
 p = R.store_path('09_test_8_display_options.ring')
 check('a .ring becomes a .out', p.endswith('09_test_8_display_options.out'), True)
