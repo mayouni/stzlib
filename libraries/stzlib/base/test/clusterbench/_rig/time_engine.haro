@@ -1,0 +1,20 @@
+# One recording, heard PLAIN and with the setting's short word list (setting_words.txt), timed on the engine STZ_ENGINE_DIR
+# names. A driver runs it once per engine and recording, turning the engines' order with each recording, so the machine's
+# drift falls on both engines: it separates what the engine costs from what the machine costs. No library is loaded.
+#
+#     RIG_REC=fr01 RIG_LANG=fr haro _rig/time_engine.haro     (from the clusterbench folder, STZ_MODELS_DIR set)
+#
+# It prints one line: recording, engine folder, plain ms, setting list ms, and the two transcripts' first words.
+
+LoadLib(SysGet("STZ_ENGINE_DIR") + "/zig-out/bin/stz_neural.dll")
+tModel = SysGet("STZ_MODELS_DIR") + "/speech/ggml-small.bin"
+tRec = SysGet("RIG_REC")
+tLang = SysGet("RIG_LANG")
+tWav = "recordings/" + tRec + ".wav"
+nT0 = Clock()
+tPlain = StzEngineNeuralWhisperTranscribe(tModel, tWav, tLang, 160, 4)
+nPlain = Floor((Clock() - nT0) * 1000 / ClocksPerSecond())
+nT0 = Clock()
+tListed = StzEngineNeuralWhisperTranscribePrompted(tModel, tWav, tLang, Read("setting_words.txt"), 160, 4)
+nListed = Floor((Clock() - nT0) * 1000 / ClocksPerSecond())
+? tRec + Char(9) + SysGet("STZ_ENGINE_DIR") + Char(9) + String(nPlain) + Char(9) + String(nListed) + Char(9) + Left(tPlain, 40) + Char(9) + Left(tListed, 40)

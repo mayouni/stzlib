@@ -1,0 +1,9 @@
+﻿recording	engine	plain ms	setting list ms	plain heard	listed heard	wall s
+fr01	D:/GitHub/_wti_whisper_1212	123987	176024	 Le rendez-vous est fixé à 15h devant 	 Le rendez-vous est fixé à 15h devant 	301.1
+fr01	C:/haro-engine	189315	103414	 Le rendez-vous est fixé à 15h devant 	 Le rendez-vous est fixé à 15h devant 	293.9
+fr02	C:/haro-engine	253766	192569	 Le prix du kilo de ce moule est de 2 di	 Le prix du kilo de semoule est de 2 din	446.9
+fr02	D:/GitHub/_wti_whisper_1212	78283	245575	 Le prix du kilo de ce moule est de 2 di	 Le prix du kilo de semoule est de 2 din	324.9
+fr03	D:/GitHub/_wti_whisper_1212	134232	168257	 Envoyez la facture à l'agence de SFACS	 Envoyez la facture à l'agence de Sfax 	303.4
+fr03	C:/haro-engine	68862	76670	 Envoyez la facture à l'agence de SFACS	 Envoyez la facture à l'agence de Sfax 	145.9
+en01	C:/haro-engine	50710	55889	 The server restarted at 9.15 this morni	 The server restarted at 9.15 this morni	106.9
+en01	D:/GitHub/_wti_whisper_1212	52007	55788	 The server restarted at 9.15 this morni	 The server restarted at 9.15 this morni	108.1

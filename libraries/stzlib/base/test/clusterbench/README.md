@@ -201,3 +201,24 @@ the transcripts it saved (`results/terms/`), so a change of scoring never runs t
   next measurement.
 - Numbers spoken as words ("douze") are written as digits ("12") in both modes; the term groups accept either, the
   word error rate counts them, equally in both modes.
+
+### The slowdown is the machine's, not the engine's (2026-11-27, afternoon)
+
+`_rig/time_engines.ps1` built nothing and changed nothing: it heard four of the bench's recordings (fr01, fr02, fr03,
+en01) on two engines, each recording once per engine in its own process, plain and then with the setting's list, the
+engines' order turning with each recording. One engine was built from stzlib 1212cb88c, the commit of the WHISPER-02
+run of 2026-11-16 (`haro engine/build_engine.py --ref=1212cb88c --build stz_neural`, 1,174 s at -j2); the other is the
+shared engine, built from c2b930b71 (`results/engines_timing.txt`).
+
+| engine | plain s | setting list s | both s |
+|---|---|---|---|
+| 1212cb88c (2026-11-16) | 388.5 | 645.6 | 1,034.2 |
+| c2b930b71 (shared) | 562.7 | 428.5 | 991.2 |
+
+- **The two engines take the same time and hear the same words.** The 2026-11-16 engine is 4% slower in all, inside
+  the run's own spread: one recording took 50 s to 254 s plain depending on when it ran, and the only pair heard while
+  the machine was quiet (en01, 15:05) agrees to a second. Every transcript is the same on both engines.
+- **So the eight- to elevenfold slowdown against 2026-11-16 is the machine's.** The engine that heard ten recordings
+  with the list in 58 s that day takes 52 s for one plain recording today. The machine reported itself on battery all
+  day (Windows: AC line offline, 98%, 15:09), and a Haro build at -j1 and a Foundry probe ran beside part of this run.
+  Hearing seconds from this machine are comparable only within one alternated run until a run on mains power is taken.
