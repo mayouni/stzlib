@@ -180,7 +180,7 @@ pub fn recall(a: Allocator, g: G.Graph, runs: []const TourRun) !Recall {
         .unowned = unowned,
         .pairs_ran = pairs_ran,
         .pairs_bound = pairs_bound,
-        .functions_owned = g.nodes.len,
+        .functions_owned = G.functionCount(g),
         .functions_ran = ran_any.count(),
         .functions_missed = missed_any.count(),
         .entries = entries.items,

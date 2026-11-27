@@ -495,12 +495,29 @@ are the parts of business lead offer 1 that are data (stz-business, `board/offer
 |---|---|
 | the stamp | the `--stamp` lines: the commit, the runtime, the judge -- the caller states them, the report holds for them |
 | 1. the ladder | every function's grade, counted in all and file by file; a grade the ladder does not carry is not shown, `named` always |
-| 2. what no tour ran | the functions at grade 0, each with the functions that call it |
+| 2. what no tour ran | the functions at grade 0: how many are **owed** a tour and how many are **capped**, in all and file by file, then each with the functions that call it and which it is |
 | 3. run only by a tour that did not keep its claims | the functions at grade 1, each with the tours that ran it and their state |
 | 4. the tours | each tour's state, its claims by state, and how many functions it ran |
 | 5. what a change reaches | each impact record: the reach the compiler bound, the reach the open functions widen, the tours to walk again, and why every tour is walked again when the graph is not complete |
 | 6. where the evidence is thinnest | the functions below exemplified, the most called first, five of them: where a check buys most |
 | 7. what the report does not claim | seven lines, the same in every report |
+
+**Owed or capped** (roadmap P4, node-level route coverage, 2026-11-28). A function no tour ran is OWED a tour when the
+graph holds every call it makes, as far as they go: a tour can prove it as high as the ladder reaches. It is CAPPED when
+it is open, or calls an open function at some depth -- one that dispatches by a name built at run time, or that the
+compiler could not finish -- and its row names the open function that caps it: a tour can run it, and no floor above
+exemplified holds through it (section 3). One walk finds them all, back from the open functions along the edges into them
+(`G.cappedBy`); a test checks it names a function capped exactly when `openCause` does, function by function. The owner of
+each is its file, so the counts are given file by file. A file's own statements are no function here, nor in the
+ladder's `owned` nor in the recall's: every tour that loads the file runs them, and no probe observes them. Goldens
+`haro/report/E1` (two owed) and `E2` (one owed, four capped by one open function, a file's own statements left out).
+
+**Measured on stzlib's library** (2026-11-28: the walk of 6.10 again, with `--ladder`, against the unit's record; the
+report in 6 seconds, 48,715 lines): no tour ran 47,070 of the 48,998 functions and methods, the 47 tours walking three
+topics; 24,814 are owed a tour and 22,256 capped -- 342 open, 21,914 calling one of 185 open functions at some depth. Two
+open methods cap 14,399 of them, `stkPointer.ValidatePointer` 9,535 and `stkPointer.Write` 4,864: each calls a method of
+`stkMemory` that no file of the library defines (`GetBufferInfo`, `GetBufferById`). A call by a method name reaches every
+method of that name, which is how one open method caps so many.
 
 The report adds no figure the logbook, the graph and the impact records do not hold, except counts of what they list.
 Callers are DIRECT callers: a count of every function that depends on one at any depth is a walk of the graph per function,
@@ -581,7 +598,7 @@ probe's record's, none differing in file, line or openness, and it holds 6 files
 The names and the files' own statements reach 8,285 of the 9,664 pairs; of the 1,379 beyond, 325 are a constructor or an
 operator, 215 are below one, and 839 run through a call the graph does not hold. The third mutant's 11 tours are within the
 reach now, so the bound selection holds 18 of the 38 tours the mutants moved; the first mutant's 20 wait on a call for each
-`new`. The price is the reach of a file's own statements: 6,292 of the 49,005 functions are below one, and a change to any
+`new`. The price is the reach of a file's own statements: 6,292 of the 48,998 functions are below one, and a change to any
 of them selects every tour.
 
 ## 7. Conformance

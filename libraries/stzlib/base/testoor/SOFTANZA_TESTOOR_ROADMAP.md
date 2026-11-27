@@ -109,6 +109,9 @@ CONCLUSIONS line. A rung does not open until the one it depends on has recorded 
   code changes nothing, a line no node holds leaves the record not complete. Measured on 82 commits of stzlib over a
   Foundry guard's unit: 80 nodes and 4 removed definitions named, 3 files left unplaced, each a change of its own statements.
 - **Node-level route coverage**, reported as two counts, with the unwalked closed routes owed by their owners.
+  **DONE 2026-11-28** in the evidence report's section 2 (`TESTOOR_PROTOCOL_3.md` 6.9, goldens `haro/report/E1`, `E2`):
+  each function no tour ran is owed a tour, or capped by the open function it calls, counted by its file. On the library,
+  of 47,070 functions no tour ran 24,814 are owed and 22,256 capped; two open methods of `stkPointer` cap 14,399.
 - *Exit:* recall stays 100 percent on the real library or the graph is declared incomplete for the cases
   where it is not.
 

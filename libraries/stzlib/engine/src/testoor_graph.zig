@@ -373,6 +373,62 @@ pub fn isTop(n: Node) bool {
     return std.mem.eql(u8, n.kind, "top");
 }
 
+/// the graph's functions and methods: every node but a file's own statements, which every tour that loads the file
+/// runs and no tour is owed
+pub fn functionCount(g: Graph) usize {
+    var n: usize = 0;
+    for (g.nodes) |x| {
+        if (!isTop(x)) n += 1;
+    }
+    return n;
+}
+
+/// The graph as its functions and methods: the same edges, without the nodes of a file's own statements. Indexed
+/// again, since the nodes' numbers move.
+pub fn functionsOnly(a: Allocator, g: Graph) !Graph {
+    var nodes: std.ArrayList(Node) = .empty;
+    for (g.nodes) |n| {
+        if (!isTop(n)) try nodes.append(a, n);
+    }
+    if (nodes.items.len == g.nodes.len) return g;
+    var out = g;
+    out.nodes = nodes.items;
+    out.ix = null;
+    out.ix = try buildIndex(a, out);
+    return out;
+}
+
+/// The nodes no tour can prove through, for the whole graph in one walk: every open node, and every node that calls one
+/// at any depth -- the callers' closure of the open nodes, followed breadth first from them in the graph's order. Each
+/// capped node is given the open node that reached it first, an open node itself; the others are null. A node is capped
+/// exactly when `openCause` names an open node for it, which walks its callees one node at a time.
+pub fn cappedBy(a: Allocator, g: Graph) ![]?[]const u8 {
+    const ix = try ixOf(a, g);
+    const ctx = IdCtx{ .fold = g.fold };
+    const by = try a.alloc(?[]const u8, g.nodes.len);
+    @memset(by, null);
+    var seen: IdSet = .{};
+    const Step = struct { id: []const u8, origin: []const u8 };
+    var queue: std.ArrayList(Step) = .empty;
+    for (g.nodes, 0..) |n, i| {
+        if (!n.open) continue;
+        by[i] = n.id;
+        try seen.putContext(a, n.id, {}, ctx);
+        try queue.append(a, .{ .id = n.id, .origin = n.id });
+    }
+    var at: usize = 0;
+    while (at < queue.items.len) : (at += 1) {
+        const cur = queue.items[at];
+        for (edgesInto(ix, g, cur.id)) |k| {
+            const from = g.edges[k].from;
+            if ((try seen.getOrPutContext(a, from, ctx)).found_existing) continue;
+            if (g.indexOf(from)) |i| by[i] = cur.origin;
+            try queue.append(a, .{ .id = canon(g, from), .origin = cur.origin });
+        }
+    }
+    return by;
+}
+
 /// Which tours a change obliges you to walk again. A graph that is not complete selects EVERY
 /// tour and skips none: a selection is only as small as the graph is complete. A reach that holds a
 /// file's own statements (a node of kind `top`) selects every tour too: a tour of the unit loads the
@@ -632,6 +688,41 @@ test "a complete graph selects by name; an incomplete one selects every tour" {
     const all = try impact(a, g, &.{"Callee"}, &tours);
     try testing.expectEqual(@as(usize, 4), all.selected.len);
     try testing.expectEqual(@as(usize, 0), all.skipped.len);
+}
+
+test "the capped nodes in one walk are the nodes openCause finds capped one by one; a file's own statements are no function" {
+    var arena = std.heap.ArenaAllocator.init(testing.allocator);
+    defer arena.deinit();
+    const a = arena.allocator();
+    // two open nodes; a chain to the first, a cycle to the second, a caller through an id that is no node, two closed
+    const g = Graph{
+        .fold = .ascii,
+        .nodes = &.{
+            .{ .id = "A", .name = "A" },  .{ .id = "B", .name = "B" },   .{ .id = "X", .name = "X", .open = true },
+            .{ .id = "C", .name = "C" },  .{ .id = "D", .name = "D" },   .{ .id = "L1", .name = "L1" },
+            .{ .id = "L2", .name = "L2" }, .{ .id = "Z", .name = "Z", .open = true }, .{ .id = "Q", .name = "Q" },
+            .{ .id = "<top>:m.haro", .name = "<top>", .kind = "top" },
+        },
+        .edges = &.{
+            .{ .from = "A", .to = "B" },   .{ .from = "b", .to = "X" },  .{ .from = "C", .to = "D" },
+            .{ .from = "L1", .to = "L2" }, .{ .from = "L2", .to = "L1" }, .{ .from = "L2", .to = "Z" },
+            .{ .from = "Q", .to = "ext" }, .{ .from = "ext", .to = "X" }, .{ .from = "<top>:m.haro", .to = "C" },
+        },
+    };
+    const by = try cappedBy(a, g);
+    for (g.nodes, 0..) |n, i| {
+        const one = try openCause(a, g, n.id);
+        try testing.expectEqual(one != null, by[i] != null);
+    }
+    try testing.expectEqualStrings("X", by[0].?); // A, through B
+    try testing.expectEqualStrings("X", by[8].?); // Q, through an id that is no node
+    try testing.expectEqualStrings("Z", by[5].?); // L1, round the cycle
+    try testing.expect(by[3] == null and by[4] == null and by[9] == null);
+    try testing.expectEqual(@as(usize, 9), functionCount(g));
+    const f = try functionsOnly(a, g);
+    try testing.expectEqual(@as(usize, 9), f.nodes.len);
+    try testing.expectEqual(@as(usize, 9), f.edges.len);
+    try testing.expectEqual(@as(?usize, 8), f.indexOf("q"));
 }
 
 test "a change that reaches a file's own statements selects every tour, since a tour loads the unit" {

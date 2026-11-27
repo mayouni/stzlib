@@ -4,7 +4,8 @@
 //! are written here, in that order:
 //!
 //!   1. the ladder               every function with its grade, counted in all and file by file
-//!   2. what no tour ran          the functions at grade 0, each with the functions that call it
+//!   2. what no tour ran          the functions at grade 0: owed a tour, or capped by an open function, file by file,
+//!                                then each with the functions that call it
 //!   3. run only by a failing tour   the functions at grade 1, each with the tours that ran it and their state
 //!   4. the tours                 each tour's state, its claims, and how many functions it ran
 //!   5. what a change reaches     each impact record: the reach the compiler bound, the reach widened, the tours to walk again
@@ -81,7 +82,9 @@ fn callers(a: Allocator, g: G.Graph, ix: *const G.Index, id: []const u8) ![]cons
     return out.items;
 }
 
-pub fn markdown(a: Allocator, logbook: J.Value, g: G.Graph, impacts: []const J.Value, meta: Meta) ![]u8 {
+pub fn markdown(a: Allocator, logbook: J.Value, unit: G.Graph, impacts: []const J.Value, meta: Meta) ![]u8 {
+    // a file's own statements are no function: every tour that loads the file runs them, and no probe observes them
+    const g = try G.functionsOnly(a, unit);
     const ix = try G.ixOf(a, g);
     const lad = logbook.get("ladder") orelse return error.NoLadder;
 
@@ -167,19 +170,44 @@ pub fn markdown(a: Allocator, logbook: J.Value, g: G.Graph, impacts: []const J.V
         try b.s(" |\n");
     }
 
-    // 2. what no tour ran
+    // 2. what no tour ran: OWED a tour when nothing caps it, CAPPED when it is open or calls an open function at some
+    // depth (roadmap P4, node-level route coverage); the owner of each is its file
     try b.s("\n## 2. What no tour ran\n\n");
-    var any = false;
-    for (g.nodes, 0..) |n, i| {
+    const cap = try G.cappedBy(a, g);
+    var n_owed: usize = 0;
+    var n_capped: usize = 0;
+    for (g.nodes, 0..) |_, i| {
         if (!std.mem.eql(u8, node_grade[i].grade, "named")) continue;
-        if (!any) try b.s("| function | file | line | called by |\n|---|---|---:|---|\n");
-        any = true;
-        try b.s(try std.fmt.allocPrint(a, "| {s} | {s} | {d} | ", .{ n.id, n.file, n.line }));
-        const cs = try callers(a, g, ix, n.id);
-        if (cs.len == 0) try b.s("no function of the graph") else try listOf(&b, cs, 3);
-        try b.s(" |\n");
+        if (cap[i] == null) n_owed += 1 else n_capped += 1;
     }
-    if (!any) try b.s("Every function of the graph was run by a tour.\n");
+    if (n_owed + n_capped == 0) {
+        try b.s("Every function of the graph was run by a tour.\n");
+    } else {
+        try b.s(try std.fmt.allocPrint(a, "No tour ran {d} of the {d} {s}: **{d} owed a tour** -- the graph holds every call each " ++
+            "makes, so a tour can prove it -- and **{d} capped**: open, or calling an open function at some depth -- one that " ++
+            "dispatches by a name built at run time, or that the compiler could not finish -- so no floor above exemplified " ++
+            "holds through it.\n\n| file | owed | capped |\n|---|---:|---:|\n", .{ n_owed + n_capped, g.nodes.len, noun, n_owed, n_capped }));
+        for (files.items) |f| {
+            var o: usize = 0;
+            var c: usize = 0;
+            for (g.nodes, 0..) |n, i| {
+                if (!std.mem.eql(u8, n.file, f) or !std.mem.eql(u8, node_grade[i].grade, "named")) continue;
+                if (cap[i] == null) o += 1 else c += 1;
+            }
+            if (o + c > 0) try b.s(try std.fmt.allocPrint(a, "| {s} | {d} | {d} |\n", .{ f, o, c }));
+        }
+        try b.s("\n| function | file | line | called by | owed or capped |\n|---|---|---:|---|---|\n");
+        for (g.nodes, 0..) |n, i| {
+            if (!std.mem.eql(u8, node_grade[i].grade, "named")) continue;
+            try b.s(try std.fmt.allocPrint(a, "| {s} | {s} | {d} | ", .{ n.id, n.file, n.line }));
+            const cs = try callers(a, g, ix, n.id);
+            if (cs.len == 0) try b.s("no function of the graph") else try listOf(&b, cs, 3);
+            if (cap[i]) |by| {
+                if (n.open) try b.s(" | open |\n") else try b.s(try std.fmt.allocPrint(a, " | capped by {s} |\n", .{by}));
+            } else try b.s(" | owed |\n");
+        }
+    }
+    var any = false;
 
     // 3. run only by a tour that did not keep its claims
     try b.s("\n## 3. Run only by a tour that did not keep its claims\n\n");

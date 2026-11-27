@@ -769,7 +769,7 @@ pub fn main() !void {
         const gd = J.parse(a, gt) catch refuse(a, mode, "the graph is not a JSON document");
         const g = G.fromValue(a, gd) catch refuse(a, mode, "the graph is not a graph record");
         m.graph = g;
-        m.settings.graph = .{ .complete = g.complete, .why = g.why, .owned = @intCast(g.nodes.len) };
+        m.settings.graph = .{ .complete = g.complete, .why = g.why, .owned = @intCast(G.functionCount(g)) };
     }
     if (m.settings.by.len == 0 or eq(m.settings.by, "shell")) m.settings.by = "testoor";
 

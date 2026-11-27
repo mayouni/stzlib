@@ -21,10 +21,17 @@
 
 ## 2. What no tour ran
 
-| function | file | line | called by |
-|---|---|---:|---|
-| Today | inv.haro | 13 | Label |
-| Invoice.Add | invoice.haro | 4 | no function of the graph |
+No tour ran 2 of the 5 functions and methods: **2 owed a tour** -- the graph holds every call each makes, so a tour can prove it -- and **0 capped**: open, or calling an open function at some depth -- one that dispatches by a name built at run time, or that the compiler could not finish -- so no floor above exemplified holds through it.
+
+| file | owed | capped |
+|---|---:|---:|
+| inv.haro | 1 | 0 |
+| invoice.haro | 1 | 0 |
+
+| function | file | line | called by | owed or capped |
+|---|---|---:|---|---|
+| Today | inv.haro | 13 | Label | owed |
+| Invoice.Add | invoice.haro | 4 | no function of the graph | owed |
 
 ## 3. Run only by a tour that did not keep its claims
 
