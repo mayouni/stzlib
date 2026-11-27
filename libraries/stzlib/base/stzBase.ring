@@ -80,7 +80,7 @@ ok
 
     # gpu/ -- the declarative GPU surface (G4, SOFTANZA_GPU_PLAN.md)
     load "gpu/stzKernelMaker.ring"
-    load "gpu/stzGpuBuffer.ring"
+    load "gpu/stzGpuBuffer.haro"
     load "gpu/stzGpu.ring"
     load "gpu/stzKernelPuzzle.ring"
 

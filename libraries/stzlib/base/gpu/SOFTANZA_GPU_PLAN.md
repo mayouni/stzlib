@@ -4996,6 +4996,87 @@ sporadic calls would be a second ladder, measured asleep. Named, not built (GPU-
 this morning: they kept the GPU while their exercise proved itself, so since the lease (2026-11-14) each grader waited
 30 s and was refused (709 s a guard). Each lets go of the card first now, as `gpu_puzzle_narrated.ring` does.
 
+## NORING-GPU-01 — the GPU module moves to .haro: the plan, measured, and its first file moved (2026-11-27)
+
+**What is asked.** The Principal's ruling of 2026-11-09 (`PRINCIPAL-NORING-01`, `CENTRAL-NORING-SCOPE-01` part
+(2)): code still in the older syntax moves to `.haro` desk by desk, each desk proposing its plan, and no file is
+deleted before haro.exe runs what replaces it. This is the GPU desk's plan for its own folder. The library-wide
+move (`base/doc/design/HAROPORT_PLAN.md`) goes bottom up in stzBase's load order and has landed `core/`,
+`base/common` and `base/data`; `base/gpu` sits far above them and depends only on modules that load before it, so
+this desk moves it itself, with that plan's recipe, and the Haroport desk's order is not changed.
+
+**What there is.** Read at stzlib `249ebaa43`.
+
+| | files | lines |
+|---|---|---|
+| the module (`base/gpu/*.ring`) | 4 | 4,000 (stzGpu 2,497, stzKernelPuzzle 683, stzKernelMaker 622, stzGpuBuffer 198) |
+| its guards and probes in the older syntax (`base/test/gpu/*.ring`) | 43 | |
+| already `.haro` (`base/test/gpu/*.haro`) | 11 | |
+
+Outside the folder, five files call it: `graphics/stzMaterialMaker`, `neural/stzNeuralModel`,
+`neural/stzSemanticIndex`, `number/stzEmbedding` and `number/stzVectorIndex`. They call global functions
+(`StzGpuLoadCalibrationDefault`, `StzGpuVariants`, `StzGpuLoadCalibrationForAdapter`) and read
+`$tStzGpuRuntime`; the move renames none of these, and no class outside the folder inherits from one inside it
+(`stzMaterialMaker` is its own class, from `stzObject`). **The move is contained in the folder.**
+
+**What the tool does, measured.** Haro's `port/haroport.py` on a copy of the four files:
+
+| file | rewrites | refused by the tool | `haro check` refusals after it | attributes renamed |
+|---|---|---|---|---|
+| stzGpuBuffer | 118 | 0 | 3 | none |
+| stzKernelMaker | 503 | 0 | 8 | 13 (`@cWgsl` -> `@tWgsl`, `@aIns` -> `@vIns`, ...), read only inside the class |
+| stzKernelPuzzle | 790 | 4 (`_oK_` -> `oK`: `ok` is a keyword) | 24 | 4 |
+| stzGpu | 2,873 | 0 | 82 | 2 |
+| **all** | **4,284** | **4** | **117** | |
+
+Of the 117, 99 are the retired `a` letter (`aOut`, `aIds`, ...), lettered `v` or `x` by what the name holds, and
+18 are names with no type letter (`pLearner` 5, `pCand` 4, the tool's refused `_oK_` 3, and `pW`, `pD`, `di`,
+`acW`, `acLines`, `acL`). Beside them, `stzKernelPuzzle` reads `cCatchError` in four handlers: a note today, where
+`.haro` binds the error instead (`catch e`), and taken in the same step.
+
+**What `haro check` cannot see, found by reading the first file.** Four kinds, each a refusal at RUN time:
+
+1. **a text joined with a number** (`"... takes " + Len(x) + " vectors"`): `.haro` joins texts only -> `String()`;
+2. **a quotient with no exact decimal** (`Floor(nCount / nWidth)` with a width of 3): -> whole-number division,
+   `(n - n % w) / w`;
+3. **a 1 or 0 from a caller still in the older syntax, stored in a `b` name or used as a condition** -- measured
+   by probe: `TYPE_LETTER`, `BOOLEAN_EXPECTED`, and `1 = true` is `TYPE_MISMATCH`. A `.haro` method that receives a
+   flag from an older caller reads both forms (`if IsNumber(x) b = (x != 0) else b = x end`);
+4. **the local `nL`**, which in the older syntax overwrote the newline constant: renamed `nLen`.
+
+**The order, one file a commit, each gated before its older file is deleted.**
+
+| step | file | gate on haro.exe | why this order |
+|---|---|---|---|
+| 1 | stzGpuBuffer | the 5 guards that build buffers (atomic, buffers, declarative, host, int) | the smallest, no attribute renamed: the pilot |
+| 2 | stzKernelMaker | the 16 guards that describe kernels | 13 attributes, all inside the class |
+| 3 | stzKernelPuzzle | the 16 guards that prove puzzles (each runs graders in child processes) | the error handlers change form |
+| 4 | stzGpu | all 43 | the largest; every other file and every guard reaches it |
+| 5 | the guards | each converted guard must report the same assertion count as the file it replaces | after the module, so each guard tests the moved code |
+
+**The rules for each step.** A `.haro` file's comments no longer name the older language. Each step is measured
+on old and new alternately, guard by guard, and reports guards OWNED and RUN as two figures. A guard that needs the
+graders runs with an engine whose folder sits beside the library tree (`EDU-RUNNER-ENGINE-PATH-01`).
+
+**Step 1, done: `stzGpuBuffer` is `.haro` (2026-11-27).** `base/gpu/stzGpuBuffer.haro` replaces the older file,
+which is deleted; stzBase loads the new one. The tool's 118 rewrites, then by hand: the four `a` names lettered
+`v`, `nL` renamed `nLen`, two error messages joined with `String()`, the element count by whole-number division,
+and the integer flag read in both forms. `haro check`: 0 refusals. Gated on haro.exe v0.78, engine at stzlib
+`734ca49a3` sources, old file and new alternately, guard by guard:
+
+| guard | old | new |
+|---|---|---|
+| gpu_buffers | 33 of 33, 833 s | 33 of 33, 845 s |
+| gpu_atomic | 36 of 36, 853 s | 36 of 36, 779 s |
+| gpu_int | 37 of 37, 748 s | 37 of 37, 736 s |
+| gpu_declarative | 20 of 20, 253 s | 20 of 20, 225 s |
+| gpu_host | 33 of 33, 229 s | 33 of 33, 225 s |
+
+Guards owned for this step 5, run 5, each on both arms; 159 assertions an arm, 0 failures on either. Three of the
+five (buffers, atomic, int) kept the card while their self-proof's graders ran, so the graders waited on the
+lease and the guards ran past a 600 s limit on BOTH arms; each now lets go of the card first, as the scan,
+compact, sort and sparse-product guards already did. Most of each of those three guards' time is the self-proof.
+
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 
 **Where the plane stands.** The charge GK3 to KP3 is through. A kernel can
