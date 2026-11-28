@@ -495,7 +495,7 @@ end
 	func @ReplaceCS(tStr, tSubStr, tNewSubStr, bCaseSensitive)
 		return StzReplaceCS(tStr, tSubStr, tNewSubStr, bCaseSensitive)
 	end
-	func ReplaceCS(xStr, tSubStr, tNewSubStr, bCaseSensitive)
+	func ReplaceCS(tStr, tSubStr, tNewSubStr, bCaseSensitive)
 		return StzReplaceCS(tStr, tSubStr, tNewSubStr, bCaseSensitive)
 	end
 	#>

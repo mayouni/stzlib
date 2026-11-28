@@ -20,13 +20,13 @@ class stkNumber
 
 	def init(pxNumber)
 		if not (IsNumber(pxNumber) or IsString(pxNumber))
-			Raise("ERR-" + StkErrror(:IncorrectParamType) + Char(10) )
+			Raise("ERR-" + StkError(:IncorrectParamType) + Char(10) )
 		end
 
 		if IsNumber(pxNumber)
 
 			@xContent = pxNumber
-			@nRound = @Round(""= @xContent)
+			@nRound = @Round(@xContent)
 
 		else # the number is provided in a string
 			if StkFindFirst("_", pxNumber) > 0
@@ -87,9 +87,10 @@ class stkNumber
 
 		@nRound = @Round(pxNumber)
 
-		if KeepingHisto() = 1
-			this.AddHistoricValue(this.Content())  # From the parent stzObject
-		end
+		# No history here: stkNumber has no parent class, so it has no AddHistoricValue, and
+		# KeepingHisto() lives in base (base/object/stzObjectHistory.ring), which the core
+		# loads without. The block that stood here compared KeepingHisto()'s boolean with 1
+		# and raised TYPE_MISMATCH on every Update, before it could reach either.
 	end
 	#-------------------------------------------------------#
 	#  GETTING THE INTEGER PART IN NUMBER AND STRING FORMS  #
@@ -450,7 +451,7 @@ class stkNumber
 					nRound = nRound2
 				end
 				
-				tResult = NStringify(nValue, @bSpacify, tSpaceChar, nRound)
+				tResult = NStringify(nValue, tSpaceChar, @nSpaceStep, nRound)
 
 				# Returning the result
 
@@ -464,7 +465,7 @@ class stkNumber
 		elseif xOp = "-"
 
 			if IsNumber(xValue)
-				return @xContent + xValue
+				return @xContent - xValue
 
 			elseif IsString(xValue)
 
@@ -496,7 +497,7 @@ class stkNumber
 					nRound = nRound2
 				end
 
-				tResult = NStringify(nValue, @bSpacify, tSpaceChar, nRound)
+				tResult = NStringify(nValue, tSpaceChar, @nSpaceStep, nRound)
 
 				# Returning the result
 
@@ -510,7 +511,7 @@ class stkNumber
 		elseif xOp = "*"
 
 			if IsNumber(xValue)
-				return @xContent + xValue
+				return @xContent * xValue
 
 			elseif IsString(xValue)
 
@@ -542,7 +543,7 @@ class stkNumber
 					nRound = nRound2
 				end
 
-				tResult = NStringify(nValue, @bSpacify, tSpaceChar, nRound)
+				tResult = NStringify(nValue, tSpaceChar, @nSpaceStep, nRound)
 
 				# Returning the result
 
@@ -555,7 +556,7 @@ class stkNumber
 		elseif xOp = "/"
 
 			if IsNumber(xValue)
-				return @xContent + xValue
+				return @xContent / xValue
 
 			elseif IsString(xValue)
 
@@ -565,7 +566,7 @@ class stkNumber
 
 				# Getting the numeric value
 
-				nValue = @xContent + (Decimal(tTempStr))
+				nValue = @xContent / (Decimal(tTempStr))
 
 				if not IsNumber(nValue)
 					Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
@@ -578,7 +579,7 @@ class stkNumber
 					tSpaceChar = ""
 				end
 
-				nRound1 = nValue
+				nRound1 = @Round(nValue)
 				nRound2 = this.Round()
 
 				if nRound1 < nRound2
@@ -587,7 +588,7 @@ class stkNumber
 					nRound = nRound2
 				end
 
-				tResult = NStringify(nValue, @bSpacify, tSpaceChar, nRound)
+				tResult = NStringify(nValue, tSpaceChar, @nSpaceStep, nRound)
 
 				# Returning the result
 

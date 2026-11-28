@@ -198,13 +198,13 @@ func Val(tNumberInStr)
 	end
 
 	if StkFindFirst("_", tNumberInStr) > 0
-		tNumberInStr = @trim( StkReplace(tNumberInStr, "_", "") )
+		tNumberInStr = Trim( StkReplace(tNumberInStr, "_", "") )   # Trim, the built-in: @trim is base's, and the core loads alone
 	end
 
 	nResult = Decimal(tNumberInStr)
 
 	if not IsNumber(nResult)
-		Raise("ERR-" + StkErrror(:IncorrectParamType) + Char(10) )
+		Raise("ERR-" + StkError(:IncorrectParamType) + Char(10) )
 	end
 
 	return nResult

@@ -11,22 +11,21 @@ func IsSciForm(tNumber)
 
 	tBase = ""
 	for i = 1 to nPos-1
-		tBase += tNumberInStr[i]
+		tBase += tNumber[i]
 	end
 
 	tExp = ""
-	nLen = Len(tNumberInStr)
+	nLen = Len(tNumber)
 	for i = nPos+1 to nLen
-		tExp += tNumberInStr[i]
+		tExp += tNumber[i]
 	end
 
-	nBase = Decimal(tBase)
-	if not IsNumber(nBase)
-		return false
-	end
-
-	nExp = Decimal(tExp)
-	if not IsNumber(nExp)
+	# Haro's Decimal RAISES on a text that is no number (R41, "1.5e" leaves an empty exponent),
+	# where Ring's answered a value IsNumber could refuse. A predicate answers false instead
+	try
+		nBase = Decimal(tBase)
+		nExp = Decimal(tExp)
+	catch
 		return false
 	end
 
@@ -59,13 +58,13 @@ class stkSciNumber
 	
 		tBase = ""
 		for i = 1 to nPos-1
-			tBase += tNumberInStr[i]
+			tBase += tNumberInSciForm[i]
 		end
 	
 		tExp = ""
 		nLen = Len(tNumberInSciForm)
 		for i = nPos+1 to nLen
-			tExp += tNumberInStr[i]
+			tExp += tNumberInSciForm[i]
 		end
 	
 		nBase = Decimal(tBase)
