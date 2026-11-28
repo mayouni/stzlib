@@ -89,8 +89,15 @@ class stkPointer
     def Read1(nOffset, nLength)
         return this.Read(nOffset-1, nLength)
     end
+    # What the view holds: its bytes up to the end of the data written, which
+    # may stop short of the view's length (a view spans capacity, not size)
     def ReadAll
-        return this.Read(0, @nLength)
+        this.ValidatePointer()
+        nHeld = @oMemory.BufferInfo(@tBufferId)[:size] - @nOffset
+        if nHeld <= 0
+            return ""
+        end
+        return this.Read(0, Min([nHeld, @nLength]))
     end
     def ReadByte(nOffset)
         this.ValidatePointer()
@@ -176,9 +183,8 @@ class stkPointer
         # Calculate absolute buffer position
         nAbsoluteOffset = @nOffset + nOffset
         
-		# Write directly to the container's buffer, by one chained call. A local
-		# (oBuffer = ...) would hold a COPY of the buffer, and the write would land
-		# in the copy and nowhere else. GetBuffer raises on an id it does not hold.
+		# Write directly to the buffer the container holds: GetBuffer answers that
+		# buffer itself, shared by reference, and raises on an id it does not hold
 		@oMemory.GetBuffer(@tBufferId).Write(nAbsoluteOffset, tData)
     end
     def Write0(nOffset, pxData)
@@ -277,9 +283,13 @@ class stkPointer
             return nStartPos
         end
         
-        # Read view data and search within it
-        tViewData = this.Read(nStartPos, @nLength - nStartPos)
-        nPos = SubStr(tViewData, tPattern)
+        # Search what the view holds, from nStartPos
+        tViewData = this.ReadAll()
+        nLenView = Len(tViewData)
+        if nStartPos >= nLenView
+            return -1
+        end
+        nPos = SubStr(Right(tViewData, nLenView - nStartPos), tPattern)
         
         if nPos > 0
             return nStartPos + nPos - 1
@@ -299,7 +309,7 @@ class stkPointer
         end
     end
     def Contains(pxPattern)
-        return this.IndexOf(pxPattern) != -1
+        return this.IndexOf(pxPattern, 0) != -1
     end
     #-----------------------#
     #  VIEW MANIPULATION    #
@@ -387,7 +397,7 @@ class stkPointer
         end
         
         if IsEmpty(nLength)
-            nLength = Min(oSourcePointer.Length() - nSourceOffset, @nLength - nDestOffset)
+            nLength = Min([oSourcePointer.Length() - nSourceOffset, @nLength - nDestOffset])
         end
         
         if nSourceOffset < 0 or nDestOffset < 0 or nLength < 0
@@ -699,8 +709,8 @@ class stkPointer
         ? "  Access Mode: " + @tAccessMode
         ? "  Offset: " + String(@nOffset)
         ? "  Length: " + String(@nLength)
-        ? "  Valid: " + this.IsValid()
-        ? "  Has Low-Level Ptr: " + (@hLowLevelPtr != "")
+        ? "  Valid: " + String(this.IsValid())
+        ? "  Has Low-Level Ptr: " + String(@hLowLevelPtr != "")
         ? "  Memory Address: " + Upper(Hex(this.GetMemoryAddress()))
         ? "  View Address: " + Upper(Hex(this.GetViewAddress()))
         ? "  Content: '" + this.Content() + "'"
@@ -730,8 +740,10 @@ class stkPointer
     end
 	def ValidatePointer
 
+	    # init raises rather than leave a pointer half made, so an invalid
+	    # pointer is one its container destroyed, or whose buffer it destroyed
 	    if not @bIsValid
-	        Raise("ERROR: Invalid pointer - pointer was not properly initialized")
+	        Raise("ERROR: Invalid pointer - it was destroyed, or its buffer was")
 	    end
 
 	    if not IsObject(@oMemory) or not @oMemory.IsValid()

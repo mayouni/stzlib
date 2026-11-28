@@ -1,29 +1,49 @@
 load "../../stzBase.ring"
 load "../testoor/_narrate.haro"
 
-# A POINTER WRITES, READS BACK AND VALIDATES -- core/system's stkMemory, stkBuffer and stkPointer, narrated
+# BUFFERS AND POINTERS WRITE, READ BACK AND VALIDATE -- core/system's stkMemory, stkBuffer and stkPointer, narrated
 #
 # Found by Testoor's evidence report (`testoor report`, protocol 3 section 6.9): haro graph read stkPointer.Write and
 # stkPointer.ValidatePointer as OPEN, because each called a method no class of the library defines --
 # GetBufferById and GetBufferInfo. Through dispatch by method name they capped 9,535 and 4,864 of the library's
-# functions. ValidatePointer runs first in nearly every pointer method, so no pointer could read, write or be
-# validated at all. Each call is now a method stkMemory defines: GetBufferById was GetBuffer, and GetBufferInfo was
-# BufferInfo, which already answered the buffer's :capacity.
+# functions. Each call is now a method stkMemory defines: GetBufferById was GetBuffer, and GetBufferInfo was
+# BufferInfo, which already answered the buffer's :capacity (stzlib 6c66ecb1c).
 #
-# The fix had to go further than the names, because Haro copies an object when it is assigned or stored, as Ring
-# did. A pointer kept a COPY of its container, taken before the pointer was registered in it, and wrote through a
-# local copy of the buffer: a write landed in a copy and nowhere else. So the pointer holds a reference to its
-# container now, and writes by one chained call on the stored buffer. Scene 2 reads the write back through three
-# readers so that a write kept in a copy cannot pass: the pointer that wrote, the container, and a read pointer made
-# BEFORE the write. A test that read back only through the writing pointer would pass on a copy too.
+# The names were the smallest part. Haro copies an object when it is assigned or stored, as Ring did, and the three
+# classes were written as if it did not: a pointer held a copy of its container taken before it was registered, the
+# container stored copies of its buffers and pointers, and a buffer held a copy of its container. A write landed in
+# a copy and nowhere else. The container now stores Ref() of each object and returns Ref() of the same one, so the
+# caller's buffer, the caller's pointer and the container's are one object; a buffer and a pointer hold Ref() of
+# their container. Measured first, on haro.exe: Ref() of an object held in a local is shared by every assignment of
+# it, and Ref() of a list's element is not.
+#
+# Scene 2 reads each write back through several readers so that a write kept in a copy cannot pass: the pointer that
+# wrote, the container, the buffer the caller holds, and a read pointer made BEFORE the write. A test that read back
+# only through the writing pointer passes on a copy too (measured: without Ref() that pointer still reads its own
+# copy back while the container finds the buffer empty).
+#
+# The scenes after it are the sections of core/test/stkMemoryBufferPointerTest.haro, which states what the container
+# design was meant to do and which never parsed on Haro, made into claims; and the methods that raised on Haro for
+# one reason each: the library's own Max and Min take ONE list (core/number/stkListOfNumbers.haro) and shadow the
+# built-ins, so Max(a, b) raised R20 after Prepend, Insert, Remove and UpdateRange had already changed the data.
 #
 #   Scene 1  a buffer and a write pointer, made by the container
-#   Scene 2  a write read back through the pointer, the container, and a pointer made earlier
-#   Scene 3  validation passes on a live pointer and refuses one whose buffer is gone
+#   Scene 2  a write read back through the pointer, the container, the buffer held and a pointer made earlier
+#   Scene 3  the buffer the caller holds is the container's buffer
+#   Scene 4  a buffer has one write pointer at most, and destroying it releases the lock
+#   Scene 5  validation passes in bounds and refuses out of bounds and after the buffer is gone
+#   Scene 6  the container as a whole: its counts, its cleanup, its destruction
+#   Scene 7  the edits that raised after changing the data, and reads of a buffer not yet full
+#
+# Not claimed: stkMemory.Show and stkPointer.Show print, and a guard that printed them would print into its own
+# narration; both were run once on haro.exe when this was written. The low-level pointer methods (GetRawPointer,
+# CreatePointerReference, FromPointerReference) have no low-level pointer to work on: InitializeLowLevelAccess never
+# takes one (2026-11-08), so they answer their "none" values and only that is claimed.
 #
 # RUNS ON haro.exe. STZ_ENGINE_DIR names an engine built for Haro. No file, no network, no child process.
 
-# What a call raised, or the value it answered when it raised nothing
+# What a call raised, or what it answered when it raised nothing
+
 func ReadOrRefusal(oP, nOffset, nLength)
 	try
 		return oP.Read(nOffset, nLength)
@@ -41,12 +61,70 @@ func WriteOrRefusal(oP, nOffset, tData)
 	return "written"
 end
 
+func ContainerReadOrRefusal(oMem, xBufferId, nOffset, nLength)
+	try
+		return oMem.ReadFromBuffer(xBufferId, nOffset, nLength)
+	catch
+		return cCatchError
+	end
+end
+
+func PointerOrRefusal(oMem, tBufferId, tMode)
+	try
+		return ClassName(oMem.CreatePointer(tBufferId, tMode))
+	catch
+		return cCatchError
+	end
+end
+
+func SubViewOrRefusal(oP, nOffset, nLength)
+	try
+		return oP.CreateSubView(nOffset, nLength).ReadAll()
+	catch
+		return cCatchError
+	end
+end
+
+func WritePointerOrRefusal(oBuf)
+	try
+		return ClassName(oBuf.GetWritePointer())
+	catch
+		return cCatchError
+	end
+end
+
+# A buffer edit, then the buffer's data -- or what the edit raised
+func EditOrRefusal(oBuf, tVerb, xA, xB, xC)
+	try
+		if tVerb = "prepend"
+			oBuf.Prepend(xA)
+		elseif tVerb = "insert"
+			oBuf.Insert(xA, xB)
+		elseif tVerb = "remove"
+			oBuf.Remove(xA, xB)
+		elseif tVerb = "update"
+			oBuf.UpdateRange(xA, xB, xC)
+		elseif tVerb = "section"
+			oBuf.UpdateSection(xA, xB, xC)
+		elseif tVerb = "removesection"
+			oBuf.RemoveSection(xA, xB)
+		elseif tVerb = "append"
+			oBuf.Append(xA)
+		end
+	catch
+		return cCatchError
+	end
+	return oBuf.RawData()
+end
+
 Scenario("1. A buffer and a write pointer, made by the container")
 
 	oMem = new stkMemory()
-	tBuf = oMem.CreateBuffer(16)
+	oBuf = oMem.CreateBuffer(16)
+	tBuf = oBuf.Id()
 
-	Then("the container names the buffer", tBuf, "buf1")
+	Then("CreateBuffer answers the buffer", ClassName(oBuf), "stkbuffer")
+	Then("the container names it", tBuf, "buf1")
 	Then("it holds one buffer", oMem.NumberOfBuffers(), 1)
 	Then("the buffer's capacity is the size asked for", oMem.BufferInfo(tBuf)[:capacity], 16)
 	Then("the buffer starts empty", oMem.BufferInfo(tBuf)[:size], 0)
@@ -59,14 +137,16 @@ Scenario("1. A buffer and a write pointer, made by the container")
 	Then("it names the buffer it points into", oPtr.BufferId(), tBuf)
 	Then("its view spans the buffer's capacity", oPtr.Length(), 16)
 	Then("the container knows it as valid", oPtr.IsValid(), true)
+	Then("it holds two pointers", oMem.NumberOfPointers(), 2)
 
 EndScenario()
 
-Scenario("2. A write read back through the pointer, the container, and a pointer made earlier")
+Scenario("2. A write read back through the pointer, the container, the buffer held and a pointer made earlier")
 
 	Then("the write is accepted", WriteOrRefusal(oPtr, 0, "Hello"), "written")
 	Then("the pointer that wrote reads it back", oPtr.Read(0, 5), "Hello")
 	Then("the container reads it from the buffer it holds", oMem.ReadFromBuffer(tBuf, 0, 5), "Hello")
+	Then("the buffer the caller holds has it", oBuf.RawData(), "Hello")
 	Then("a read pointer made before the write reads it", oRead.Read(0, 5), "Hello")
 
 	WriteOrRefusal(oPtr, 5, ", Softanza")
@@ -74,6 +154,7 @@ Scenario("2. A write read back through the pointer, the container, and a pointer
 	Then("a write at an offset extends the text", oPtr.Read(0, 15), "Hello, Softanza")
 	Then("the earlier pointer reads the extension", oRead.Read(7, 8), "Softanza")
 	Then("the container counts the bytes written", oMem.BufferInfo(tBuf)[:size], 15)
+	Then("so does the buffer held", oBuf.Size(), 15)
 	Then("the capacity is unchanged", oMem.BufferInfo(tBuf)[:capacity], 16)
 	Then("a write past the pointer's view is refused",
 		WriteOrRefusal(oPtr, 10, "1234567"), "ERROR: Write would exceed pointer view bounds")
@@ -82,17 +163,203 @@ Scenario("2. A write read back through the pointer, the container, and a pointer
 
 EndScenario()
 
-Scenario("3. Validation passes on a live pointer and refuses one whose buffer is gone")
+Scenario("3. The buffer the caller holds is the container's buffer")
+
+	oMem3 = new stkMemory()
+	oConfig = oMem3.CreateBuffer(256)
+	oData = oMem3.CreateBuffer(1024)
+	oLog = oMem3.CreateBuffer(512)
+
+	Then("three buffers, three ids", oConfig.Id() + " " + oData.Id() + " " + oLog.Id(), "buf1 buf2 buf3")
+	Then("the container holds three", oMem3.NumberOfBuffers(), 3)
+
+	oConfig.Write(0, "app_version=1.0;debug=true")
+	oMem3.WriteToBuffer(oData.Id(), 0, "user_data={name:'John',age:30}")
+
+	Then("a write through the buffer held reaches the container",
+		oMem3.ReadFromBuffer(oConfig.Id(), 0, oConfig.Size()), "app_version=1.0;debug=true")
+	Then("a write through the container reaches the buffer held", oData.RawData(), "user_data={name:'John',age:30}")
+	Then("an untouched buffer stays empty", oLog.Size(), 0)
+
+	oFetched = oMem3.GetBuffer(oLog.Id())
+	oFetched.Write(0, "[INFO] System initialized")
+
+	Then("GetBuffer answers that same buffer, not a copy of it", oLog.RawData(), "[INFO] System initialized")
+
+	oCopy = oConfig.Copy()
+
+	Then("Copy makes a buffer of the container", oCopy.Id(), "buf4")
+	Then("with the same data", oCopy.RawData(), oConfig.RawData())
+	Then("and the same capacity", oCopy.Capacity(), 256)
+	Then("the two are equal", oConfig.Equals(oCopy), true)
+
+	oCopy.Write(0, "APP")
+
+	Then("a write to the copy leaves the original", oConfig.Read(0, 3), "app")
+	Then("and the container sees the copy's write", oMem3.ReadFromBuffer("buf4", 0, 3), "APP")
+
+	oCopy.Free()
+
+	Then("Free removes the buffer from its container", oMem3.NumberOfBuffers(), 3)
+	Then("and the freed buffer says so", oCopy.IsValid(), false)
+	Then("an unknown id is refused by name", ContainerReadOrRefusal(oMem3, "buf9", 0, 1), "Invalid buffer ID: buf9")
+
+EndScenario()
+
+Scenario("4. A buffer has one write pointer at most, and destroying it releases the lock")
+
+	oMem4 = new stkMemory()
+	oDoc = oMem4.CreateBuffer(500)
+	oMem4.WriteToBuffer(oDoc.Id(), 0, "Original document content")
+
+	Then("the buffer starts with no write pointer", oDoc.HasWritePointer(), false)
+
+	oWriter = oMem4.CreatePointer(oDoc.Id(), "write")
+
+	Then("a write pointer takes the lock", oDoc.HasWritePointer(), true)
+	Then("the container's info says so", oMem4.BufferInfo(oDoc.Id())[:hasWritePointer], true)
+	Then("a second write pointer is refused",
+		PointerOrRefusal(oMem4, oDoc.Id(), "write"), "Buffer already has a write pointer")
+	Then("so is one asked of the buffer", WritePointerOrRefusal(oDoc), "Buffer already has a write pointer")
+	Then("a read pointer is still allowed", PointerOrRefusal(oMem4, oDoc.Id(), "read"), "stkpointer")
+	Then("a write sub-view is a second writer, refused",
+		SubViewOrRefusal(oWriter, 0, 8), "Buffer already has a write pointer")
+
+	oWriter.Write(0, "Modified document content")
+	oReader = oMem4.CreatePointer(oDoc.Id(), "read")
+
+	Then("the writer's change is read by a reader", oReader.Read(0, 25), "Modified document content")
+	Then("a read sub-view reads its slice", SubViewOrRefusal(oReader, 9, 8), "document")
+	Then("the container destroys the writer", oMem4.DestroyPointer(oWriter.PointerId()), true)
+	Then("which releases the lock", oDoc.HasWritePointer(), false)
+	Then("and invalidates the writer the caller holds", oWriter.IsValid(), false)
+	Then("a new write pointer is allowed", WritePointerOrRefusal(oDoc), "stkpointer")
+	Then("and holds the lock again", oDoc.HasWritePointer(), true)
+
+	oSecond = oMem4.CreateBuffer(10)
+
+	Then("a lock belongs to one buffer", PointerOrRefusal(oMem4, oSecond.Id(), "write"), "stkpointer")
+
+EndScenario()
+
+Scenario("5. Validation passes in bounds and refuses out of bounds and after the buffer is gone")
+
+	oMem5 = new stkMemory()
+	oDigits = oMem5.CreateBuffer(10)
+	oMem5.WriteToBuffer(oDigits.Id(), 0, "1234567890")
+	oP1 = oMem5.CreatePointer(oDigits.Id(), "read")
+	oP2 = oMem5.CreatePointer(oDigits.Id(), "read")
+
+	Then("a normal read", ReadOrRefusal(oP1, 0, 5), "12345")
+	Then("a read to the last byte", ReadOrRefusal(oP1, 5, 5), "67890")
+	Then("a read past the view is refused", ReadOrRefusal(oP1, 8, 5), "ERROR: Read beyond pointer view bounds")
+	Then("a negative offset is refused", ReadOrRefusal(oP1, -1, 5), "ERROR: Negative offset or length not allowed")
+	Then("a buffer named by a number is refused by Haro at the parameter",
+		ContainerReadOrRefusal(oMem5, 999, 0, 10),
+		"Error (TYPE_LETTER) : `tBufferId` is lettered t, a text, and is given an integer")
+	Then("both pointers are valid", NarText(oP1.IsValid()) + NarText(oP2.IsValid()), "11")
 
 	Then("a live pointer validates, and its read answers", ReadOrRefusal(oPtr, 0, 5), "Hello")
 	Then("the container destroys the buffer", oMem.DestroyBuffer(tBuf), true)
 	Then("the container holds no buffer", oMem.NumberOfBuffers(), 0)
+	Then("the buffer the caller holds is invalid", oBuf.IsValid(), false)
 	Then("the container no longer knows the pointer as valid", oPtr.IsValid(), false)
 	Then("nor the read pointer", oRead.IsValid(), false)
 	Then("a read is refused by validation",
-		ReadOrRefusal(oPtr, 0, 5), "ERROR: Referenced buffer no longer exists")
+		ReadOrRefusal(oPtr, 0, 5), "ERROR: Invalid pointer - it was destroyed, or its buffer was")
+	Then("and so is a read of the buffer held",
+		ReadOrRefusal(oBuf, 0, 5), "ERROR: Invalid buffer - it was freed or destroyed")
 	Then("a write is refused: the container holds no such buffer",
 		WriteOrRefusal(oPtr, 0, "Hi"), "Invalid buffer ID: buf1")
+	Then("a destroyed id is not destroyed twice", oMem.DestroyBuffer(tBuf), false)
+
+	oMem5.DestroyBuffer(oDigits.Id())
+
+	Then("every pointer into a destroyed buffer is invalid",
+		NarText(oP1.IsValid()) + NarText(oP2.IsValid()), "00")
+
+EndScenario()
+
+Scenario("6. The container as a whole: its counts, its cleanup, its destruction")
+
+	oMem6 = new stkMemory()
+	oA = oMem6.CreateBuffer(8)
+	oB = oMem6.CreateBuffer(8)
+	oC = oMem6.CreateBuffer(8)
+	oA.Write(0, "aaaa")
+	oB.Write(0, "bb")
+	oMem6.CreatePointer(oA.Id(), "read")
+	oMem6.CreatePointer(oA.Id(), "write")
+	oMem6.CreatePointer(oB.Id(), "read")
+
+	Then("Stats counts the buffers", oMem6.Stats()[:totalBuffers], 3)
+	Then("and the pointers", oMem6.Stats()[:totalPointers], 3)
+	Then("the read pointers", oMem6.Stats()[:readPointers], 2)
+	Then("the write pointers", oMem6.Stats()[:writePointers], 1)
+	Then("and the bytes held", oMem6.Stats()[:totalMemory], 6)
+	Then("PointerInfo describes a pointer it holds", oMem6.PointerInfo("ptr2")[:accessMode], "write")
+	Then("and answers [] for one it does not", Len(oMem6.PointerInfo("ptr9")), 0)
+	Then("BufferInfo answers [] for an unknown buffer", Len(oMem6.BufferInfo("buf9")), 0)
+
+	oMem6.DestroyBuffer(oB.Id())
+
+	Then("Stats counts a pointer into a destroyed buffer as invalid", oMem6.Stats()[:validPointers], 2)
+	Then("cleanup destroys the invalid pointers and counts them", oMem6.CleanupInvalidPointers(), 1)
+	Then("leaving the valid ones", oMem6.NumberOfPointers(), 2)
+
+	oMem6.DestroyAllPointers()
+
+	Then("DestroyAllPointers leaves none", oMem6.NumberOfPointers(), 0)
+	Then("and releases every write lock", oA.HasWritePointer(), false)
+
+	oMem6.DestroyAllBuffers()
+
+	Then("DestroyAllBuffers destroys every buffer, not every other one", oMem6.NumberOfBuffers(), 0)
+	Then("each one invalid", NarText(oA.IsValid()) + NarText(oC.IsValid()), "00")
+
+	oMem6.Free()
+
+	Then("a freed container is invalid", oMem6.IsValid(), false)
+
+EndScenario()
+
+Scenario("7. The edits that raised after changing the data, and reads of a buffer not yet full")
+
+	oMem7 = new stkMemory()
+	oT = oMem7.CreateBuffer(12)
+	oT.Write(0, "world")
+
+	Then("Prepend", EditOrRefusal(oT, "prepend", "hello ", 0, 0), "hello world")
+	Then("Insert", EditOrRefusal(oT, "insert", 5, ",", 0), "hello, world")
+	Then("Remove", EditOrRefusal(oT, "remove", 5, 1, 0), "hello world")
+	Then("UpdateRange", EditOrRefusal(oT, "update", 0, 5, "HELLO"), "HELLO world")
+	Then("UpdateSection", EditOrRefusal(oT, "section", 6, 10, "WORLD"), "HELLO WORLD")
+	Then("RemoveSection", EditOrRefusal(oT, "removesection", 5, 5, 0), "HELLOWORLD")
+	Then("an edit past capacity grows the capacity", EditOrRefusal(oT, "append", "!!!!!", 0, 0), "HELLOWORLD!!!!!")
+	Then("to the bytes held", oT.Capacity(), 15)
+
+	oMem7b = new stkMemory()
+	oHalf = oMem7b.CreateBuffer(20)
+	oHalf.Write(0, "half full")
+	oView = oMem7b.CreatePointer(oHalf.Id(), "read")
+
+	Then("ReadAll reads what the view holds, short of its length", oView.ReadAll(), "half full")
+	Then("Content too", oView.Content(), "half full")
+	Then("IndexOf finds within what is held", oView.IndexOf("full", 0), 5)
+	Then("Contains", oView.Contains("full"), true)
+	Then("and not what is absent", oView.Contains("empty"), false)
+	Then("ReadByte reads one byte as its code", oView.ReadByte(0), 104)
+
+	oEmpty = oMem7b.CreateBuffer(4)
+
+	Then("ReadAll of an empty buffer is empty", oMem7b.CreatePointer(oEmpty.Id(), "read").ReadAll(), "")
+
+	oDest = oMem7b.CreateBuffer(8)
+	oDestPtr = oMem7b.CreatePointer(oDest.Id(), "write")
+	oDestPtr.CopyFrom(oView, 5, 0, 4)
+
+	Then("CopyFrom copies between buffers", oDest.RawData(), "full")
+	Then("the low-level pointer is none", oView.IsNullPointer(), true)
 
 EndScenario()
 

@@ -33,7 +33,10 @@ class stkBuffer
 	        Raise("ERROR: Buffer size must be positive")
 	    end
 	    
-	    @oMemory = oMemory
+	    # A REFERENCE to the container, never a copy: a copy taken here is the
+	    # container as it was before this buffer joined it, and Free would
+	    # destroy the buffer in that copy and leave the real one standing
+	    @oMemory = Ref(oMemory)
 	    @tId = tId
 	    @nSize = 0
 	    @nCapacity = nSize
@@ -61,7 +64,7 @@ class stkBuffer
         
         @xBuffer = tData
         @nSize = Len(tData)
-        @nCapacity = Max(@nCapacity, @nSize)
+        @nCapacity = Max([@nCapacity, @nSize])
     end
     #------------------------#
     #  WRITING AND UPDATING  #
@@ -152,7 +155,7 @@ class stkBuffer
         tNewBuffer = Left(@xBuffer, nStart) + tData + Right(@xBuffer, @nSize - (nStart + nLength))
         @xBuffer = tNewBuffer
         @nSize = Len(@xBuffer)
-        @nCapacity = Max(@nCapacity, @nSize)
+        @nCapacity = Max([@nCapacity, @nSize])
     end
     def UpdateRange0(nStart, nLength, pxData)
         this.UpdateRange(nStart, nLength, pxData)
@@ -298,7 +301,7 @@ class stkBuffer
         
         @xBuffer = tData + @xBuffer
         @nSize += Len(tData)
-        @nCapacity = Max(@nCapacity, @nSize)
+        @nCapacity = Max([@nCapacity, @nSize])
     end
     def Insert(nOffset, pxData)
         if nOffset < 0 or nOffset > @nSize
@@ -319,7 +322,7 @@ class stkBuffer
         tNewBuffer = Left(@xBuffer, nOffset) + tData + Right(@xBuffer, Len(@xBuffer) - nOffset)
         @xBuffer = tNewBuffer
         @nSize += Len(tData)
-        @nCapacity = Max(@nCapacity, @nSize)
+        @nCapacity = Max([@nCapacity, @nSize])
     end
     def Insert0(nOffset, pxData)
         this.Insert(nOffset, pxData)
@@ -342,7 +345,7 @@ class stkBuffer
         
         @xBuffer = Left(@xBuffer, nOffset) + Right(@xBuffer, Len(@xBuffer) - (nOffset + nLength))
         @nSize -= nLength
-        @nCapacity = Max(@nCapacity, @nSize)
+        @nCapacity = Max([@nCapacity, @nSize])
     end
     def Remove0(nOffset, nLength)
         this.Remove(nOffset, nLength)
@@ -497,9 +500,10 @@ class stkBuffer
         end
     end
     def Copy
-	    # Create new buffer through our memory container
-	    oNewBuffer = @oMemory.CreateBuffer(@nSize)
-	    
+	    # Create new buffer through our memory container, with the same capacity
+	    # (a size of 0 is refused by CreateBuffer, and an empty buffer is copied too)
+	    oNewBuffer = @oMemory.CreateBuffer(@nCapacity)
+
 	    if @nSize > 0
 	        oNewBuffer.Write(0, this.Read(0, @nSize))
 	    end
@@ -543,13 +547,13 @@ class stkBuffer
         return @oMemory.CreatePointer(@tId, "read")
     end
     def GetWritePointer
-        # Only if no write pointer exists
-        if @bHasWritePointer = true
-            Raise("ERROR: Buffer already has a write pointer")
-        end
-        
-        @bHasWritePointer = true
+        # Only if no write pointer exists: the container checks and takes the
+        # lock. Taking it here first made the container refuse every write pointer
         return @oMemory.CreatePointer(@tId, "write")
+    end
+    def AcquireWritePointer
+        # Called by the container when it makes a write pointer
+        @bHasWritePointer = true
     end
     def ReleaseWritePointer
         # Called when write pointer is destroyed
@@ -743,8 +747,10 @@ class stkBuffer
     private
 
     def ValidateBuffer
+        # init raises rather than leave a buffer half made, so an invalid buffer
+        # is one that was freed, or that its container destroyed
         if not @bIsValid
-            Raise("ERROR: Invalid buffer - buffer was not properly initialized")
+            Raise("ERROR: Invalid buffer - it was freed or destroyed")
         end
         
         if not IsObject(@oMemory) or not @oMemory.IsValid()
