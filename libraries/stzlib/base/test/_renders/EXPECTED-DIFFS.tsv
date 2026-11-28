@@ -1,0 +1,18 @@
+# Keys somebody has already told us will differ, with the row that holds each one.
+#
+# THIS FILE SUPPRESSES NOTHING. An entry adds a sentence to the drift finding
+# naming the row; it does not lower the severity, does not leave the drift
+# count, and does not keep a run green. Its whole purpose is that a known
+# difference should not read as a surprise to the next reader.
+#
+# The digest column is the digest the difference is expected to HAVE. A drift
+# matching it is the one being held; a drift that does not match is a second,
+# unrelated change, and renders.py says so loudly instead of letting one
+# expectation cover everything that later happens to the same file.
+#
+# An entry whose key stops differing is reported as stale on the next run, so
+# an expectation cannot outlive its cause. Drop the row when that happens.
+#
+# Columns are tab-separated: key, row, digest, who, date, note.
+key	row	digest	who	date	note
+render/agents_door_narrated.ring	AGENTDOOR-HAROSHAPE-01	530c63bf982c54ac	the GPU desk, relayed by stzlib	2026-11-28	AGENTS.md's GPU paragraph was rewritten to name the .haro files and run them with haro, replacing names that no longer exist. The guard has no haro FILE command shape, so it fails on more commands than before and must NOT be accepted until its owner adds that shape. Measured here against origin/main's AGENTS.md: 128 lines either way, baseline 416405c47019b89f, expected 530c63bf982c54ac.

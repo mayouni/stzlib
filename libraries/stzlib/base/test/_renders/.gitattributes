@@ -10,3 +10,4 @@
 # honest if they are not.
 *.out text eol=lf
 MANIFEST.tsv text eol=lf
+EXPECTED-DIFFS.tsv text eol=lf
