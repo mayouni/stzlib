@@ -1,0 +1,480 @@
+# GK6 -- THE USER KERNEL'S OWN REFERENCE (SOFTANZA_GPU_PLAN.md, GK6).
+#
+# GK0 compares a candidate with a REFERENCE KERNEL on the device. A kernel a
+# user writes through stzKernelMaker had no reference of its own, so the
+# checker could not check it without a Zig twin. GK6 gives it one: the
+# engine INTERPRETS the same description the transpiler turns into WGSL --
+# one grammar, one whitelist, two readers held to agree -- and evaluates it
+# on the CPU as the reference, element by element, in f32 with WGSL's
+# meanings. The candidate's output buffer carries a NaN MARGIN after its
+# region; a store past the region lands there and is named by index. A
+# declared shape that disagrees with its buffers is refused before dispatch.
+#
+# What this suite asserts, negative siblings beside each:
+#   - the interpreter answers on the CPU with no device: values, WGSL's
+#     round-to-even and truncated %, a refusal naming the offender
+#   - the CONTROL: a description against its own transpiled kernel verifies,
+#     exactly, at both shapes; the description's operation count is the
+#     FLOPs the compute ceiling reads
+#   - an equivalent kernel verifies; a WRONG OPERATOR is refused with the
+#     first bad element named; the CHEAT is caught on the hidden shape
+#   - a description whose function returns NaN is refused (NaN agrees with
+#     nothing, the band's rule)
+#   - a kernel WITHOUT ITS BOUNDS GUARD writes past the region: the margin
+#     names the first index; the guarded sibling passes (the fixture that
+#     had nothing to catch it before GK6)
+#   - a shape that disagrees with its buffers is refused BEFORE dispatch,
+#     with both numbers
+#   - without a device, VerifySpec refuses by name
+#
+# Run with haro: haro gpu_spec_reference_narrated.haro
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+pr()
+
+$nStzPlaces = 6
+
+? "-- Scene 0: the interpreter, no device needed --"
+oKer = StzKernelMakerQ()
+oKer.TakesVector(:a)
+oKer.TakesScalar(:s)
+oKer.ReturnsVector(:c)
+oKer.ForEachElement('{ @c = @a * 2 + s }')
+xOut = oKer.EvaluateOn([ [:a, [1, 2, 3]], [:s, 1] ])
+? "  @c = @a * 2 + s over [1,2,3], s = 1 -> " + _T(@@(xOut))
+chk("the interpreter evaluates the description element by element", _C(Len(xOut), "=", 3) and _C(xOut[1], "=", 3) and _C(xOut[2], "=", 5) and _C(xOut[3], "=", 7))
+chk("...and counts its operations per element (2: * and +)", _C(oKer.OperationsPerElement(), "=", 2))
+kR = StzKernelMakerQ()
+kR.TakesVector(:x)
+kR.ReturnsVector(:y)
+kR.ForEachElement('{ @y = round(@x) + (@x % 3) }')
+xR = kR.EvaluateOn([ [:x, [2.5, 3.5, -7]] ])
+? "  round(@x) + (@x % 3) over [2.5, 3.5, -7] -> " + _T(@@(xR))
+chk("round goes to EVEN as in WGSL (2.5 -> 2, 3.5 -> 4) and % truncates (-7 % 3 = -1)",
+	_C(xR[1], "=", 4.5) and _C(xR[2], "=", 4.5) and _C(xR[3], "=", -8))
+bRaised = false
+tMsg = ""
+try
+	kBad = StzKernelMakerQ()
+	kBad.TakesVector(:a)
+	kBad.ReturnsVector(:c)
+	kBad.ForEachElement('{ @c = foo(@a) }')
+	kBad.EvaluateOn([ [:a, [1]] ])
+catch
+	bRaised = true
+	tMsg = cCatchError
+end
+chk("an unknown function is refused, naming it", bRaised and _C(StzFindFirst("foo", tMsg), ">", 0))
+bRaised = false
+try
+	kVec = StzKernelMakerQ()
+	kVec.TakesVector(:a)
+	kVec.TakesVector(:b)
+	kVec.ReturnsVector(:c)
+	kVec.ForEachElement('{ @c = dot(@a, @b) }')
+	kVec.EvaluateOn([ [:a, [1]], [:b, [2]] ])
+catch
+	bRaised = true
+	tMsg = cCatchError
+end
+chk("a vector-only name is refused as not elementwise (the transpiler would let WGSL fail later)",
+	bRaised and _C(StzFindFirst("vectors", tMsg), ">", 0))
+
+nN = 4096
+vData = []
+for i = 0 to nN - 1
+	vData + i
+end
+
+kDouble = StzKernelMakerQ()
+kDouble.TakesVector(:a)
+kDouble.ReturnsVector(:c)
+kDouble.ForEachElement('{ @c = @a * 2 }')
+
+oG = new stzGpu
+if not oG.IsAvailable()
+	? "  NO GPU ON THIS MACHINE -- the device scenes need one; Scene 0 and the refusal are the coverage"
+else
+	? "  device: " + _T(oG.DeviceName())
+	? ""
+	? "-- Scene 1: the CONTROL -- a description against its own kernel --"
+	xV = oG.VerifySpec(kDouble, kDouble, [ [:a, vData] ])
+	? "  verdict " + _T(xV[:verdict]) + "   cand " + _T(xV[:candms]) + " ms   cpu " + _T(xV[:cpums]) + " ms   cpu/gpu " + _T(xV[:speedup]) +
+		"   flops " + _T(xV[:flops]) + "   margin " + _T(xV[:margin]) + "   clocks " + _T(xV[:clocks])
+	chk("the description verifies its own transpiled kernel", xV[:verdict] = "verified")
+	chk("...exactly, at the visible shape", _C(xV[:maxdiff], "=", 0))
+	chk("...and at the hidden one (" + _T(xV[:hiddensize]) + ")", _C(xV[:maxdiffhidden], "=", 0) and _C(xV[:hiddensize], "<", nN))
+	chk("the FLOPs the ceiling reads are the description's: 1 operation x n", _C(xV[:flops], "=", nN))
+	chk("the interpreter's own time is reported, and is positive", _C(xV[:cpums], ">", 0))
+	chk("the margin is 256 floats", _C(xV[:margin], "=", 256))
+	chk("nothing was written past the region", _C(xV[:outsideat], "=", 0))
+
+	? ""
+	? "-- Scene 2: an equivalent kernel is NOT refused --"
+	kPlus = StzKernelMakerQ()
+	kPlus.TakesVector(:a)
+	kPlus.ReturnsVector(:c)
+	kPlus.ForEachElement('{ @c = @a + @a }')
+	xV = oG.VerifySpec(kDouble, kPlus, [ [:a, vData] ])
+	chk("@a + @a verifies against the description @a * 2", xV[:verdict] = "verified")
+
+	? ""
+	? "-- Scene 3: a WRONG OPERATOR is refused, the first bad element NAMED --"
+	kWrong = StzKernelMakerQ()
+	kWrong.TakesVector(:a)
+	kWrong.ReturnsVector(:c)
+	kWrong.ForEachElement('{ @c = @a * 3 }')
+	xV = oG.VerifySpec(kDouble, kWrong, [ [:a, vData] ])
+	? "  verdict " + _T(xV[:verdict]) + "   max |diff| " + _T(xV[:maxdiff]) + "   first bad " + _T(xV[:firstbad])
+	chk("@a * 3 against @a * 2 is a MISMATCH", xV[:verdict] = "mismatch")
+	chk("...from the second element (the first is 0 either way)", _C(xV[:firstbad], "=", 2))
+	chk("...by at most 4095 (the last element: 3 x 4095 - 2 x 4095)", _C(xV[:maxdiff], "=", 4095))
+	chk("...and a mismatch is not timed", _C(xV[:candms], "=", 0))
+
+	? ""
+	? "-- Scene 4: THE CHEAT -- right on everything it was shown, and caught --"
+	tCheat = "struct StzTile { xoff: u32, p0: u32, p1: u32, p2: u32 };" + Char(10) +
+		"struct P { n: u32, pad: u32 };" + Char(10) +
+		"@group(0) @binding(0) var<uniform> tile : StzTile;" + Char(10) +
+		"@group(0) @binding(1) var<uniform> p : P;" + Char(10) +
+		"@group(0) @binding(2) var<storage, read> a : array<f32>;" + Char(10) +
+		"@group(0) @binding(3) var<storage, read_write> c : array<f32>;" + Char(10) +
+		"@compute @workgroup_size(256)" + Char(10) +
+		"fn main(@builtin(global_invocation_id) gid : vec3<u32>) {" + Char(10) +
+		"  let i = gid.x + tile.xoff * 256u;" + Char(10) +
+		"  if (i < p.n) { c[i] = f32(i) * 2.0 + 0.0 * a[i]; }" + Char(10) +
+		"}" + Char(10)
+	xV = oG.VerifySpec(kDouble, tCheat, [ [:a, vData] ])
+	? "  verdict " + _T(xV[:verdict]) + "   visible max |diff| " + _T(xV[:maxdiff]) + "   hidden max |diff| " + _T(xV[:maxdiffhidden])
+	chk("the cheat is EXACT at the visible shape", _C(xV[:maxdiff], "=", 0))
+	chk("...and CAUGHT at the hidden one", xV[:verdict] = "mismatch-hidden")
+
+	? ""
+	? "-- Scene 5: a description that returns NaN is refused -- NaN agrees with nothing --"
+	vNeg = []
+	for i = 0 to nN - 1
+		vNeg + (i - 1)
+	end
+	kSqrt = StzKernelMakerQ()
+	kSqrt.TakesVector(:a)
+	kSqrt.ReturnsVector(:c)
+	kSqrt.ForEachElement('{ @c = sqrt(@a) }')
+	xV = oG.VerifySpec(kSqrt, kSqrt, [ [:a, vNeg] ])
+	? "  sqrt(@a) with a[1] = -1: verdict " + _T(xV[:verdict]) + "   first bad " + _T(xV[:firstbad])
+	chk("sqrt of a negative is NaN on both sides and still a MISMATCH (the band's NaN rule)", xV[:verdict] = "mismatch")
+	chk("...at the first element, the only negative one", _C(xV[:firstbad], "=", 1))
+
+	? ""
+	? "-- Scene 6: THE MARGIN -- a kernel without its bounds guard writes past the region --"
+	# n = 4000 is not a multiple of 256: the last workgroup's tail (96 threads) has
+	# nothing to write and, unguarded, writes indices 4000..4095 into the margin
+	nM = 4000
+	xM = []
+	for i = 0 to nM - 1
+		xM + (_A(i, "*", 0.5))
+	end
+	tHead = "struct StzTile { xoff: u32, p0: u32, p1: u32, p2: u32 };" + Char(10) +
+		"struct P { n: u32, pad: u32 };" + Char(10) +
+		"@group(0) @binding(0) var<uniform> tile : StzTile;" + Char(10) +
+		"@group(0) @binding(1) var<uniform> p : P;" + Char(10) +
+		"@group(0) @binding(2) var<storage, read> v_a : array<f32>;" + Char(10) +
+		"@group(0) @binding(3) var<storage, read_write> v_c : array<f32>;" + Char(10) +
+		"@compute @workgroup_size(256)" + Char(10) +
+		"fn main(@builtin(global_invocation_id) gid : vec3<u32>) {" + Char(10) +
+		"  let i = gid.x + tile.xoff * 256u;" + Char(10)
+	# the unguarded kernel still READS p (the term is zero): a kernel that never
+	# touches p gets a layout without binding 1 and is refused outright -- Scene 6b
+	tUnguarded = tHead + "  v_c[i] = v_a[i] * 2.0 + 0.0 * f32(p.n);" + Char(10) + "}" + Char(10)
+	tGuarded = tHead + "  if (i < p.n) { v_c[i] = v_a[i] * 2.0; }" + Char(10) + "}" + Char(10)
+	xV = oG.VerifySpec(kDouble, tUnguarded, [ [:a, xM] ])
+	? "  unguarded: verdict " + _T(xV[:verdict]) + "   first store outside the region at " + _T(xV[:outsideat])
+	chk("the unguarded kernel is refused as WRITE-OUTSIDE", xV[:verdict] = "write-outside")
+	chk("...and the first index past the region is named (4001, 1-based: element n)", _C(xV[:outsideat], "=", _A(nM, "+", 1)))
+	chk("...with no value verdict claimed", _C(xV[:firstbad], "=", 0))
+	xV = oG.VerifySpec(kDouble, tGuarded, [ [:a, xM] ])
+	chk("the GUARDED sibling at the same n verifies (the negative sibling)", xV[:verdict] = "verified")
+	chk("...and wrote nothing past the region", _C(xV[:outsideat], "=", 0))
+
+	? ""
+	? "-- Scene 6b: a kernel that never reads the params uniform is REFUSED by name, not a crash --"
+	# the auto layout drops binding 1 when nothing reads p; the layer's bind group then
+	# carries an entry the layout lacks. Before GK6 this PANICKED the process at submit.
+	tNoParams = tHead + "  v_c[i] = v_a[i] * 2.0;" + Char(10) + "}" + Char(10)
+	bRaised = false
+	tMsg = ""
+	try
+		oG.VerifySpec(kDouble, tNoParams, [ [:a, xM] ])
+	catch
+		bRaised = true
+		tMsg = cCatchError
+	end
+	? "  " + tMsg
+	chk("a kernel ignoring the params binding is refused (status 5), the process lives", bRaised and _C(StzFindFirst("status 5", tMsg), ">", 0))
+	chk("...and the refusal names the binding", _C(StzFindFirst("ind", tMsg), ">", 0))
+
+	? ""
+	? "-- Scene 7: THE SHAPE ASSERT -- a declared shape that disagrees with its buffers is refused before dispatch --"
+	nK = StzEngineGpuKernelCompile(kDouble.ToWGSL())
+	nSmall = StzEngineGpuBufferNew(100 * 4)
+	nOut = StzEngineGpuBufferNew(_A((_A(nN, "+", 256)), "*", 4))
+	nSt = StzEngineGpuVerifySpec(kDouble.Spec(), nK, nN, [], [ nSmall, nOut ], 16, 7, [ nSmall, nOut ], 1, 7, 0.000001)
+	tWhy = StzEngineGpuVerifyError()
+	? "  status " + _T(nSt) + ": " + tWhy
+	chk("an input of 100 floats under a declared n of 4096 is refused (bad argument)", _C(nSt, "=", 3))
+	chk("...naming both numbers", _C(StzFindFirst("4096", tWhy), ">", 0) and _C(StzFindFirst("100", tWhy), ">", 0))
+	nNoMargin = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	nIn = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	nSt = StzEngineGpuVerifySpec(kDouble.Spec(), nK, nN, [], [ nIn, nNoMargin ], 16, 7, [ nIn, nNoMargin ], 1, 7, 0.000001)
+	tWhy = StzEngineGpuVerifyError()
+	chk("an output without room for the margin is refused too, saying so", _C(nSt, "=", 3) and _C(StzFindFirst("margin", tWhy), ">", 0))
+	StzEngineGpuBufferFree(nSmall)
+	StzEngineGpuBufferFree(nOut)
+	StzEngineGpuBufferFree(nNoMargin)
+	StzEngineGpuBufferFree(nIn)
+	nSt = StzEngineGpuVerifySpec("in a" + Char(10) + "out c" + Char(10) + "body { @c = nope(@a) }", nK, nN, [], [ 1, 2 ], 16, 7, [ 1, 2 ], 1, 7, 0.000001)
+	tWhy = StzEngineGpuVerifyError()
+	chk("a refused description refuses the check, with the transpiler's own message", _C(nSt, "=", 3) and _C(StzFindFirst("nope", tWhy), ">", 0))
+
+	? ""
+	? "-- Scene 8: the device goes away; VerifySpec refuses by name --"
+	StzEngineGpuShutdown()
+	bRaised = false
+	try
+		oG.VerifySpec(kDouble, kDouble, [ [:a, vData] ])
+	catch
+		bRaised = _C(StzFindFirst("no GPU device", cCatchError), ">", 0)
+	end
+	chk("VerifySpec without a device raises, naming the device", bRaised)
+end
+
+if not oG.IsAvailable()
+	bRaised = false
+	try
+		oG.VerifySpec(kDouble, kDouble, [ [:a, vData] ])
+	catch
+		bRaised = _C(StzFindFirst("device", Lower(cCatchError)), ">", 0)
+	end
+	chk("without a device, VerifySpec refuses by name (CI coverage)", bRaised)
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

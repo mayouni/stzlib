@@ -2386,7 +2386,7 @@ field gets appended to one and forgotten in the other. That is the same
 class this desk found twice in the diagram domains the same week: *a thing
 written in two places is invisible until one of them moves.*
 
-*Guard:* `gpu_text_narrated.ring` scene 12, thirteen assertions — the
+*Guard:* `gpu_text_narrated.haro` scene 12, thirteen assertions — the
 exact landing on the target, that it is kashida and not merely wider
 spaces (the line grew GLYPHS), **that برد and رب take nothing while بحر
 and الحمد take an elongation**, **that the name of God refuses to be
@@ -2437,7 +2437,7 @@ cannot express today. Mixed right-to-left inside a column is likewise
 unanswered: a column is walked in logical order and the bidi reordering
 that governs a horizontal line is not applied to it.
 
-*Guard:* `gpu_text_narrated.ring` scene 11, 13 assertions. The flow half
+*Guard:* `gpu_text_narrated.haro` scene 11, 13 assertions. The flow half
 runs anywhere with no device on the committed fixture — the two axes, the
 descending pen, the positive advances, the column height being exactly
 where the pen arrived, and the negative sibling that the same text
@@ -2503,7 +2503,7 @@ coverage a loop), to a font that was never loaded or has been freed, and a
 chain past its eighth link. Naming the same font twice is accepted and
 changes nothing -- the chain is a set, not a list of repeats.
 
-*Guard:* `gpu_text_narrated.ring` scene 10, 18 assertions. The half that
+*Guard:* `gpu_text_narrated.haro` scene 10, 18 assertions. The half that
 needs only the committed fixture -- the gap itself, the chain's verbs, both
 refusals, and that neither refusal grew the chain -- runs anywhere with no
 device. The coverage switch needs a second font carrying what the first
@@ -2717,7 +2717,7 @@ new mechanism.
 
 ## GR1 STATUS — shipped 2026-08-08: the render lifecycle in stz_gpu.dll
 
-Delivered (guard: `base/test/gpu/gpu_render_lifecycle_narrated.ring`,
+Delivered (guard: `base/test/gpu/gpu_render_lifecycle_narrated.haro`,
 **74 asserts green** on this machine, fallback + codec scenes pass with
 no device = the CI coverage; the six pre-existing GPU guards and the
 neural backbone guard stay green — 175 asserts swept, all suites the
@@ -2788,7 +2788,7 @@ witness becomes the guard corpus).
 GR2 split at its natural seam: the TEXT PIPELINE first (the phase's
 named acceptance test, its vendors pre-proven in GR0), the display
 list + SVG/GPU twin renderers next. Guard:
-`base/test/gpu/gpu_text_narrated.ring` — **41 asserts green**, and the
+`base/test/gpu/gpu_text_narrated.haro` — **41 asserts green**, and the
 whole suite runs with NO device, no download, no system font: this
 suite IS its own CI coverage. DLL-load-sensitive guards re-swept green
 (render lifecycle 74, lifecycle 62, ops 37) — the harfbuzz
@@ -2865,7 +2865,7 @@ rasterizer.
 
 ## GR2b STATUS — shipped 2026-08-09: one display list, two renderers
 
-GR2 is complete. Guard: `base/test/gpu/gpu_scene_narrated.ring` —
+GR2 is complete. Guard: `base/test/gpu/gpu_scene_narrated.haro` —
 **69 asserts green**, of which everything up to the GPU scene runs with
 NO device (the SVG tier IS the CI coverage, as the plan promised).
 Reachable suites re-swept: text 41, render lifecycle 74, lifecycle 62,
@@ -2950,7 +2950,7 @@ render state.
 
 ## GR3 STATUS — shipped 2026-08-09: the 3D layer
 
-Guard: `base/test/gpu/gpu_scene3d_narrated.ring` — **46 asserts green**
+Guard: `base/test/gpu/gpu_scene3d_narrated.haro` — **46 asserts green**
 (mesh building, OBJ parsing and every refusal run with NO device; only
 the rendering scenes gate on a GPU). Plus **16 Zig unit tests** where
 exactness is available: `gpu_math.zig` (9) and `gpu_mesh.zig` (7). Every
@@ -3779,7 +3779,7 @@ adding a phase**, not after.
 **Filed by**: the GUI plane, as the §0 gate of `base/gui/SOFTANZA_GUI_PLAN.md`.
 **Landed here**, because the layout lives here and the retrofit cost is
 paid here. **Status: SHIPPED** — guard
-`base/test/gpu/gpu_text_reversible_narrated.ring`, **41 asserts green**,
+`base/test/gpu/gpu_text_reversible_narrated.haro`, **41 asserts green**,
 no device, no download, no system font.
 
 ## The finding
@@ -3891,7 +3891,7 @@ here, before anything depends on the other answer.
 
 ## One guard changed, and the change is the point
 
-`gpu_text_narrated.ring` asserted `len(aLat) = 3` on the layout's shape
+`gpu_text_narrated.haro` asserted `len(aLat) = 3` on the layout's shape
 and correctly failed when the list grew to 7. It was a shape pin doing its
 job. Updated with the reason written beside it.
 

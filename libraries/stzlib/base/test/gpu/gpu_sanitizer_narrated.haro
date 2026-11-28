@@ -1,0 +1,386 @@
+# GZ0 -- THE INTERPRETER AS A SANITIZER (SOFTANZA_GPU_PLAN.md, NEXT; the
+# reader's account is base/gpu/SOFTANZA_GPU_KERNELS.md).
+#
+# The checker compares VALUES: the device's against the interpreter's. Some
+# defects of a kernel leave the values alone, or change them only sometimes,
+# and the device runs them without a word. The interpreter runs a group a
+# stage at a time, so it can watch what the device cannot report.
+#
+# What the grammar already makes unwritable, held here by its refusals: a
+# barrier some threads skip (every barrier stands outside any branch, and a
+# tiles count is the same for every thread), and a stage reading the array it
+# writes. What remains, and what the sanitizer names with the description's
+# line, the threads and the slot:
+#   race       two threads of one stage write one slot; the device keeps any
+#              one of the writes
+#   dropped    a stage writes past its array; the kernel drops the write
+#   past       a read past a shared array; it reads 0
+#   unwritten  a read of a slot no stage wrote; it reads the zero the kernel
+#              filled -- a max or min reduce counts that zero, a sum does not
+#
+# Measured 2026-10-28 on the RTX 3050 under rnxc, the reason this is a rung:
+# 900 generated kernels with a race injected in their first stage; the
+# sanitizer named all 900, and comparing the device's values with the
+# interpreter's showed only 383 of them -- 517 races came back VERIFIED,
+# because the device happened to keep the write the interpreter keeps. The
+# quieter three come back verified every time. And 900 kernels the generator
+# writes without a race: the sanitizer named none (no false race).
+#
+# A race is now a VERDICT of a puzzle, before anything runs, in both runners:
+# "race at line L". The rest is said under the verdict.
+#
+# Run with haro: haro gpu_sanitizer_narrated.haro
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+pr()
+
+$nStzPlaces = 3
+tNL = Char(10)
+tHead = "in a" + tNL + "out c" + tNL
+
+? "-- Scene 1: the four defects, named on the CPU, each with its line --"
+$nT0 = Clock()
+xA = []
+for i = 1 to 1024
+	xA + (i - 1)
+end
+vDefects = [
+	[ "race", "shared t 256" + tNL + "stage { @t[@l % 4] = @a }" + tNL + "body { @c = @t[@l % 4] }",
+	  "race: line 4, a stage: threads 0 and 4 of group 0 both write slot 0 of @t" ],
+	[ "dropped", "shared t 128" + tNL + "stage { @t[@l] = @a }" + tNL + "body { @c = @t[@l % 128] }",
+	  "dropped: line 4, a stage: thread 128 of group 0 writes slot 128 of @t, which holds 128" ],
+	[ "past", "shared t 256" + tNL + "stage { @t[@l] = @a }" + tNL + "body { @c = @t[@l + 1] }",
+	  "past: line 5, the body: thread 255 of group 0 reads slot 256 of @t, which holds 256; it reads 0" ],
+	[ "unwritten", "shared t 256" + tNL + "body { @c = @t[255 - @l] }",
+	  "unwritten: line 4, the body: thread 0 of group 0 reads slot 255 of @t, which no stage wrote" ],
+	[ "unwritten under a max", "shared t 256" + tNL + "stage { @t[@l * 2] = 0 - 1 - @a }" + tNL + "reduce t max" + tNL + "body { @c = @t[0] }",
+	  "unwritten: line 5, a reduce: thread 1 of group 0 reads slot 1 of @t, which no stage wrote" ]
+]
+nD = Len(vDefects)
+for q = 1 to nD
+	xR = StzKernelMakerFromSpec(tHead + vDefects[q][2]).SanitizeOn([ [:a, xA] ])
+	tJoined = ""
+	nR = Len(xR)
+	for r = 1 to nR
+		tJoined += _T(xR[r] + tNL)
+	end
+	chk(_T(vDefects[q][1]) + ": " + _T(vDefects[q][3]), _C(StzFindFirst(vDefects[q][3], tJoined), ">", 0))
+end
+xSum = StzKernelMakerFromSpec(tHead + "shared t 256" + tNL + "stage { @t[@l * 2] = 0 - 1 - @a }" + tNL + "reduce t sum" + tNL + "body { @c = @t[0] }").SanitizeOn([ [:a, xA] ])
+chk("...and the same reduce as a SUM is not told off for the unwritten slots (a zero adds nothing), only for the dropped writes",
+	Len(xSum) = 1 and _C(StzFindFirst("dropped:", xSum[1]), "=", 1))
+xSame = StzKernelMakerFromSpec(tHead + "shared t 256" + tNL + "stage { @t[@l % 4] = 1 }" + tNL + "body { @c = @t[0] }").SanitizeOn([ [:a, xA] ])
+chk("a race in which every thread writes one value is named, and said not to change the answer",
+	Len(xSame) = 1 and _C(StzFindFirst("the same value, so the answer does not depend on it", xSame[1]), ">", 0))
+
+tMm = "in a" + tNL + "in b" + tNL + "scalar k" + tNL + "scalar w" + tNL + "out c" + tNL + "width w" + tNL + "shared ta 256" + tNL + "shared tb 256" + tNL +
+	"tiles t { k / 16 }" + tNL + "stage { @ta[@ly * 16 + @lx] = @a[@row * k + t * 16 + @lx] }" + tNL + "stage { @tb[@ly * 16 + @lx] = @b[(t * 16 + @ly) * w + @col] }" + tNL +
+	"accumulate { @acc = @acc + sum(j, 0, 16, @ta[@ly * 16 + j] * @tb[j * 16 + @lx]) }" + tNL + "body { @c = @acc }"
+vMa = []
+for i = 1 to 3072
+	vMa + ((i % 13) - 6)
+end
+chk("the references are clean: puzzle 9's reversal, puzzle 10's tiled product, a group sum",
+	Len(StzKernelMakerFromSpec(tHead + "shared t 256" + tNL + "stage { @t[@l] = @a }" + tNL + "body { @c = @t[255 - @l] }").SanitizeOn([ [:a, xA] ])) = 0 and
+	Len(StzKernelMakerFromSpec(tMm).SanitizeOnWith([ [:a, vMa], [:b, vMa], [:k, 64], [:w, 48] ], [ [:n, 1536] ])) = 0 and
+	Len(StzKernelMakerFromSpec(tHead + "shared t 256" + tNL + "stage { @t[@l] = @a }" + tNL + "reduce t sum" + tNL + "body { @c = @t[0] }").SanitizeOn([ [:a, xA] ])) = 0)
+chk("a description with no shared memory is clean by construction", _C(Len(StzKernelMakerFromSpec(tHead + "body { @c = @a * 2 }").SanitizeOn([ [:a, xA] ])), "=", 0))
+oK1 = StzKernelMakerFromSpec(tHead + "shared t 256" + tNL + "stage { @t[@l] = @a }" + tNL + "body { @c = @t[255 - @l] }")
+vA1 = oK1.EvaluateOn([ [:a, xA] ])
+oK1.SanitizeOn([ [:a, xA] ])
+chk("...and watching changes no value: the evaluation after a sanitized run is the same", _C(@@(oK1.EvaluateOn([ [:a, xA] ])), "=", @@(vA1)))
+? "  (scene 1: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+
+? ""
+? "-- Scene 2: what the grammar makes unwritable, held by its refusals --"
+$nT0 = Clock()
+bC = false
+try
+	StzKernelMakerFromSpec(tHead + "shared t 256" + tNL + "tiles u { @i }" + tNL + "stage { @t[@l] = @a }" + tNL + "accumulate { @acc = @acc + @t[@l] }" + tNL + "body { @c = @acc }").ToWGSL()
+catch
+	bC = (_C(StzFindFirst("the same for every thread", cCatchError), ">", 0))
+end
+chk("a tiles count that could differ between threads is refused: every thread reaches every barrier", bC)
+bR = false
+try
+	StzKernelMakerFromSpec(tHead + "shared t 256" + tNL + "stage { @t[@l] = @t[@l + 1] }" + tNL + "body { @c = @t[0] }").ToWGSL()
+catch
+	bR = (_C(StzFindFirst("would race", cCatchError), ">", 0))
+end
+chk("a stage reading the array it writes is refused: the threads would race", bR)
+tW = StzKernelMakerFromSpec(tMm).ToWGSL()
+xParts = StzSplit(tW, "if (i < p.n)")
+chk("in the tiled product's kernel every barrier comes before the guard's branch, none inside it",
+	Len(xParts) = 2 and _C(StzFindFirst("workgroupBarrier", xParts[1]), ">", 0) and _C(StzFindFirst("workgroupBarrier", xParts[2]), "=", 0))
+? "  (scene 2: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+
+oG = new stzGpu
+bDevice = oG.IsAvailable()
+if bDevice
+	? ""
+	? "-- Scene 3: on the device -- the checker's verdict beside the sanitizer's --"
+	$nT0 = Clock()
+	for q = 2 to 5
+		oKer = StzKernelMakerFromSpec(tHead + vDefects[q][2])
+		xV = oG.VerifySpecWith(oKer, oKer, [ [:a, xA] ], [ [:n, 1024] ])
+		chk(_T(vDefects[q][1]) + ": the device agrees with the interpreter -- the checker says " + _T(xV[:verdict]) + " -- and only the sanitizer names it",
+			xV[:verdict] = "verified" and _C(Len(oKer.SanitizeOn([ [:a, xA] ])), ">", 0))
+	end
+	? "  (scene 3: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+end
+
+? ""
+? "-- Scene 4: a race is a verdict of the puzzles, in both runners --"
+$nT0 = Clock()
+oQ = StzKernelPuzzleQ("kp-09")
+tRace = "in a" + tNL + "out c" + tNL + "shared t 256" + tNL + "stage { @t[@l % 128] = @a }" + tNL + "body { @c = @t[255 - @l] }"
+tShort = "in a" + tNL + "out c" + tNL + "shared t 128" + tNL + "stage { @t[@l] = @a }" + tNL + "body { @c = @t[255 - @l] }"
+chk("puzzle 9, two threads per slot: 'race at line 4' (" + _T(oQ.Grade(tRace)) + ")", oQ.Grade(tRace) = "race at line 4")
+chk("...the same words without a device", oQ.GradeOnCpu(tRace) = "race at line 4")
+xS = oQ.Sanitize(tShort)
+chk("puzzle 9, an array too short: the verdict stays the values' own, and Sanitize names the dropped writes and the reads past",
+	oQ.GradeOnCpu(tShort) = "mismatch at element 1" and _C(Len(xS), "=", 2) and _C(StzFindFirst("dropped:", xS[1]), "=", 1) and _C(StzFindFirst("past:", xS[2]), "=", 1))
+chk("...and the right answer is clean", _C(Len(oQ.Sanitize(oQ.Reference())), "=", 0) and oQ.GradeOnCpu(oQ.Reference()) = "verified")
+tPage = Read("../../gpu/puzzle_runner/puzzle.html")
+chk("the browser runner sanitizes the learner's kernel and gives the same race verdict",
+	_C(StzFindFirst("stz_gpu_spec_sanitize", tPage), ">", 0) and _C(StzFindFirst("race at line ${san.raceLine}", tPage), ">", 0))
+? "  (scene 4: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+
+if bDevice
+	? ""
+	? "-- Scene 5: the control -- a race injected in every shared-memory kernel --"
+	$nT0 = Clock()
+	StzEngineGpuFuzzRun(20261028, 300, 63, 0.00001)
+	chk("300 generated kernels, none with a race: the sanitizer names none (" + _T(StzEngineGpuFuzzResult(37)) + "), and the device agrees on all",
+		StzEngineGpuFuzzResult(37) = 0 and _C(StzEngineGpuFuzzResult(5), "=", 300))
+	? "  quieter defects named in " + _T(StzEngineGpuFuzzResult(38)) + " of them, every one VERIFIED by the checker"
+	StzEngineGpuFuzzRun(20261028, 300, 16 + 128, 0.00001)
+	nRaces = StzEngineGpuFuzzResult(37)
+	nShown = StzEngineGpuFuzzResult(6)
+	? "  300 shared-memory kernels with a race: the sanitizer named " + _T(nRaces) + "; comparing values showed " + _T(nShown)
+	chk("every injected race is named (the kill line: a missed race is the sanitizer's defect)", _C(StzEngineGpuFuzzResult(24), "=", 300) and _C(nRaces, "=", 300))
+	chk("...and comparing values alone misses many of them (measured 130 shown of 300 on this seed)", _C(nShown, ">", 0) and _C(nShown, "<", 300))
+	? "  (scene 5: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T(($nPass + $nFail)) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

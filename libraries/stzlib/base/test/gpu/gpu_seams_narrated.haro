@@ -1,0 +1,404 @@
+# The first silent seam -- G3 of the GPU plane (SOFTANZA_GPU_PLAN.md).
+#
+# stzVectorIndex.SearchExact() now runs its full scan on the GPU when the
+# corpus earned residency: uploaded once at build time, each query moves d
+# floats in and k pairs out -- the compute-dense shape G0 approved. The
+# user calls the SAME method and notices nothing but speed.
+#
+# What this guard asserts -- BOTH SIDES OF THE THRESHOLD, mechanism first:
+#   - below the calibrated line: NO dispatch happens (the counter is the
+#     witness), no corpus goes resident, the answer is the CPU's
+#   - above the line: the corpus IS resident (live-buffer counter),
+#     SearchExact MOVES the dispatch counter, and the answer matches the
+#     forced-CPU answer -- indices EXACTLY (integer grid; both sides break
+#     ties on the lower index), distances exactly on integers and within
+#     the measured band on fractions
+#   - :Cosine stays CPU even above the line (the CPU index normalizes
+#     internally; raw rows on the GPU would compute WRONG distances)
+#   - the approximate path never touches the GPU, resident or not
+#   - a shutdown mid-life falls back to CPU with the SAME contract
+#
+# Loads the full stzBase: the seam lives in a library face, so this guard
+# deliberately runs the real face, not the engine bridge.
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+xC_DISP = 0
+iC_LIVE = 8
+
+pr()
+
+$nStzPlaces = 12
+
+? "-- Scene 0: a device, and a clean slate --"
+nInit = StzEngineGpuInit($tStzGpuRuntime)
+if _C(StzEngineGpuIsAvailable(), "=", 0)
+    ? "  NO GPU ON THIS MACHINE -- the seam can never engage; asserting the CPU contract only"
+else
+    ? "  device: " + _T(StzEngineGpuAdapterName(StzEngineGpuSelectedAdapter()))
+end
+
+? ""
+? "-- Scene 1: BELOW the line, the CPU keeps the work (the negative side) --"
+StzEngineGpuCalibSet("pairdist", 4000000)
+StzEngineGpuCountersReset()
+nLive0 = StzEngineGpuCounter(iC_LIVE)
+xSmall = BuildCorpus(100, 8)         # 800 << 4,000,000
+oIdxS = new stzVectorIndex(xSmall)
+xResS = oIdxS.SearchExact(BuildQuery(8, 3), 5)
+chk("small-corpus SearchExact answers (5 hits)", _C(Len(xResS), "=", 5))
+chk("NO dispatch happened below the line", _C(StzEngineGpuCounter(xC_DISP), "=", 0))
+chk("NO corpus went resident", _C(StzEngineGpuCounter(iC_LIVE), "=", nLive0))
+
+if _C(StzEngineGpuIsAvailable(), "=", 1)
+
+    ? ""
+    ? "-- Scene 2: ABOVE the line, the GPU takes the scan (the positive side) --"
+    StzEngineGpuCalibSet("pairdist", 1000)
+    StzEngineGpuCountersReset()
+    nLive0 = StzEngineGpuCounter(iC_LIVE)
+    xBig = BuildCorpus(300, 64)      # 19200 > 1000
+    oIdxG = new stzVectorIndex(xBig)
+    xQ1 = BuildQuery(64, 3)
+    xResG = oIdxG.SearchExact(xQ1, 7)
+    chk("resident corpus: 3 device buffers live (corpus+query+dist)",
+        _C(StzEngineGpuCounter(iC_LIVE), "=", _A(nLive0, "+", 3)))
+    nDisp1 = StzEngineGpuCounter(xC_DISP)
+    chk("SearchExact MOVED the dispatch counter (the mechanism, not the vibe)", _C(nDisp1, ">", 0))
+    chk("7 hits", _C(Len(xResG), "=", 7))
+
+    # the forced-CPU twin: same data, threshold pushed out of reach BEFORE build
+    StzEngineGpuCalibSet("pairdist", 999999999)
+    oIdxC = new stzVectorIndex(xBig)
+    xResC = oIdxC.SearchExact(xQ1, 7)
+    bSameIdx = true
+    bSameDist = true
+    for i = 1 to 7
+        if _C(xResG[i][1], "!=", xResC[i][1])
+            bSameIdx = false
+        end
+        if _C(xResG[i][2], "!=", xResC[i][2])
+            bSameDist = false
+        end
+    end
+    chk("GPU and CPU name the SAME neighbours, same order", bSameIdx)
+    chk("and the SAME integer distances, exactly", bSameDist)
+
+    # more queries through the resident index: each moves the counter
+    nDispB = StzEngineGpuCounter(xC_DISP)
+    for q = 1 to 5
+        oIdxG.SearchExact(BuildQuery(64, _A(q, "+", 10)), 3)
+    end
+    chk("5 more exact queries = 5 more dispatches",
+        _C(StzEngineGpuCounter(xC_DISP), "=", _A(nDispB, "+", 5)))
+
+    ? ""
+    ? "-- Scene 3: the approximate path never touches the GPU --"
+    nDispB = StzEngineGpuCounter(xC_DISP)
+    oIdxG.Search(xQ1, 5)
+    oIdxG.SearchWithBudget(xQ1, 5, 100)
+    chk("Search()/SearchWithBudget() moved NOTHING (tree walk stays CPU)",
+        _C(StzEngineGpuCounter(xC_DISP), "=", nDispB))
+
+    ? ""
+    ? "-- Scene 4: fractional parity -- indices exact, distances banded --"
+    StzEngineGpuCalibSet("pairdist", 1000)
+    vFrac = []
+    for i = 0 to 199
+        vRow = []
+        for j = 0 to 63
+            vRow + (_Q(((_A(i * 31, "+", j * 17)) % 251), 251.0))
+        end
+        vFrac + vRow
+    end
+    oIdxF = new stzVectorIndex(vFrac)
+    vQF = []
+    for j = 0 to 63
+        vQF + (_Q(((j * 7) % 251), 251.0))
+    end
+    xResGF = oIdxF.SearchExact(vQF, 5)
+    StzEngineGpuCalibSet("pairdist", 999999999)
+    oIdxFC = new stzVectorIndex(vFrac)
+    xResCF = oIdxFC.SearchExact(vQF, 5)
+    bSameIdx = true
+    nMaxRel = 0
+    for i = 1 to 5
+        if _C(xResGF[i][1], "!=", xResCF[i][1])
+            bSameIdx = false
+        end
+        nRel = _Q(_StzAbs(_A(xResGF[i][2], "-", xResCF[i][2])), xResCF[i][2])
+        if _C(nRel, ">", nMaxRel) nMaxRel = nRel end
+    end
+    ? "  measured distance rel error (f32 corpus vs f64 scan): " + _T(nMaxRel)
+    chk("same neighbours on fractional data", bSameIdx)
+    chk("distance band: rel error < 1e-5 (f32 quantization; measured ~1e-7)",
+        _C(nMaxRel, "<", 0.00001))
+
+    ? ""
+    ? "-- Scene 5: :cosine keeps the CPU, even above the line --"
+    StzEngineGpuCalibSet("pairdist", 1000)
+    StzEngineGpuCountersReset()
+    nLive0 = StzEngineGpuCounter(iC_LIVE)
+    oIdxCos = new stzVectorIndex(xBig)
+    oIdxCos.SetMetric(:cosine)
+    xResCos = oIdxCos.SearchExact(xQ1, 5)
+    chk(":cosine SearchExact answers (5 hits)", _C(Len(xResCos), "=", 5))
+    chk("no dispatch: the normalized index is the CPU's",
+        _C(StzEngineGpuCounter(xC_DISP), "=", 0))
+    chk("no residency either", _C(StzEngineGpuCounter(iC_LIVE), "=", nLive0))
+
+    ? ""
+    ? "-- Scene 6: shutdown mid-life -- the face falls back, the answer stands --"
+    xRef = oIdxG.SearchExact(xQ1, 7)     # GPU answer while alive
+    StzEngineGpuShutdown()
+    xAfter = oIdxG.SearchExact(xQ1, 7)   # buffers dead -> silent CPU path
+    bSame = true
+    for i = 1 to 7
+        if _C(xAfter[i][1], "!=", xRef[i][1]) or _C(xAfter[i][2], "!=", xRef[i][2])
+            bSame = false
+        end
+    end
+    chk("post-shutdown SearchExact answers IDENTICALLY through the CPU", bSame)
+    chk("and the device really is gone", _C(StzEngineGpuIsAvailable(), "=", 0))
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+# a deterministic integer-grid corpus: distances come out integer-valued in
+# f32 and f64 alike, so index parity is exact, not probabilistic
+func BuildCorpus(nCount, nDim)
+	vV = []
+	for i = 0 to nCount-1
+		vRow = []
+		for j = 0 to nDim-1
+			vRow + ((_A(_A(i * 7, "+", j * 13), "+", (i * j) % 5)) % 32)
+		end
+		vV + vRow
+	end
+	return vV
+end
+func BuildQuery(nDim, nSeed)
+	vQ = []
+	for j = 0 to nDim-1
+		vQ + ((_A(_A(nSeed, "*", 11), "+", j * 3)) % 32)
+	end
+	return vQ
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

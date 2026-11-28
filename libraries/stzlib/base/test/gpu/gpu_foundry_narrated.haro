@@ -1,0 +1,409 @@
+# GK2 -- THE FOUNDRY: op variants by enumeration, under GK0's checker
+# (SOFTANZA_GPU_PLAN.md, GK2).
+#
+# The op library carries VARIANTS of pairdist beside its generic 16x16 tile:
+# a straight row kernel, a vec4 one, one with the query staged in workgroup
+# memory. The foundry enumerates them: each verified against the generic on
+# the same device buffers at the visible shape AND a hidden one (different
+# size, different data), timed on the GPU clock with the device awake; the
+# winner -- if it beats the generic by 1.3x -- is recorded for the SHAPE
+# CLASS in the variant table the op consults at dispatch. Proteus's loop
+# with a for-loop as the proposer.
+#
+# What this guard asserts, mechanism first, negative siblings beside:
+#   - the variant TABLE classes shapes (powers of two), degrades to an
+#     eligible variant when the actual shape does not fit the class's pick,
+#     refuses the test-only variant, and clears -- device-free
+#   - the foundry runs: every real variant VERIFIED (the checker passed each
+#     on both shapes), timed on two clocks, a winner named or the generic kept
+#   - THE CHECKER GATES THE TABLE: a deliberately wrong variant, reachable
+#     only through the foundry's mask, is REFUSED and cannot win
+#   - the table CHANGES THE DISPATCH: with a class pointing at a variant, the
+#     op's variant counter moves and the distances equal the generic's within
+#     the band; cleared, the counter stays still
+#   - persistence round-trips a variant row; the machine's files are kept
+#   - the KILL LINE on a small grid is reported, not assumed
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+iC_VAR = 14
+
+pr()
+
+$nStzPlaces = 4
+
+? "-- Scene 1: the variant table, device-free --"
+StzEngineGpuVariantClear()
+chk("an empty table answers the generic (0)", _C(StzEngineGpuVariantGet("pairdist", 1, 4096, 384), "=", 0))
+chk("names: 0 is tile16, 1 row, 2 row4, 3 row4s",
+	StzEngineGpuVariantName(0) = "tile16" and StzEngineGpuVariantName(1) = "row" and
+	StzEngineGpuVariantName(2) = "row4" and StzEngineGpuVariantName(3) = "row4s")
+chk("a class takes a variant", _C(StzEngineGpuVariantSet("pairdist", 1, 4096, 384, 3), "=", 0) and _C(StzEngineGpuVariantGet("pairdist", 1, 4096, 384), "=", 3))
+chk("...and the same CLASS answers it for another shape (3000 x 300 shares the classes)", _C(StzEngineGpuVariantGet("pairdist", 1, 3000, 300), "=", 3))
+chk("...while a different class keeps the generic", _C(StzEngineGpuVariantGet("pairdist", 1, 64, 384), "=", 0))
+chk("the test-only variant is REFUSED by the table", _C(StzEngineGpuVariantSet("pairdist", 1, 4096, 384, 4), "!=", 0))
+StzEngineGpuVariantClear()
+chk("cleared: the generic again", _C(StzEngineGpuVariantGet("pairdist", 1, 4096, 384), "=", 0))
+
+oG = new stzGpu
+if not oG.IsAvailable()
+	? ""
+	? "  NO GPU ON THIS MACHINE -- the foundry needs a device; scene 1 is the CI coverage"
+	chk("the foundry refuses without a device (fallback, counted)", _C(StzEngineGpuFoundryPairdist(1, 4096, 384, 3, 0), "!=", 0))
+else
+	? ""
+	? "  device: " + _T(oG.DeviceName())
+	? ""
+	? "-- Scene 2: the foundry runs at the single-query shape 1 x 4096 x 384 --"
+	StzEngineGpuVariantClear()
+	xR = oG.FoundryPairdistWith(1, 4096, 384, 5)
+	? "  generic: " + _T(xR[:refgpums]) + " ms GPU clock, " + _T(xR[:refwallms]) + " ms wall   clocks " + _T(xR[:clocks]) + "   hidden n " + _T(xR[:hiddenn])
+	# GK3: the same cells as fractions of what the device CAN do (peak, copy bandwidth)
+	tFr = "  of peak " + _T(xR[:peakgflops]) + " GFLOP/s:"
+	for f in xR[:fractions]
+		tFr += " " + _T(f[1]) + " " + _T((Floor(_A(f[3], "*", 1000)) / 10)) + "% / " + _T((Floor(_A(f[4], "*", 1000)) / 10)) + "% bw"
+	end
+	? tFr
+	nV = Len(xR[:variants])
+	bAllVerified = true
+	for i = 1 to nV
+		xVariant = xR[:variants][i]
+		? "  " + _T(xVariant[1]) + ": verified " + _T(xVariant[2]) + "   " + _T(xVariant[3]) + " ms GPU, " + _T(xVariant[4]) + " ms wall   ratio (GPU clock) " + _T(xVariant[5]) + "   (wall " + _T(xVariant[6]) + ")"
+		if _C(xVariant[2], "!=", 1) bAllVerified = false end
+	end
+	? "  winner: " + _T(xR[:winner]) + " at " + _T(xR[:ratio]) + "x   stored " + _T(xR[:stored])
+	chk("three real variants enumerated", _C(nV, "=", 3))
+	chk("EVERY real variant was VERIFIED by the checker (right on the visible AND the hidden shape)", bAllVerified)
+	chk("the hidden size is odd, tile-uneven and smaller", _C(xR[:hiddenn] % 2, "=", 1) and _C(xR[:hiddenn], "<", 4096))
+	chk("the generic was timed (> 0 on the wall)", _C(xR[:refwallms], ">", 0))
+	if _C(xR[:ratio], ">=", 1.3)
+		chk("a winner above the margin was STORED for the class", xR[:stored] and _C(StzEngineGpuVariantGet("pairdist", 1, 4096, 384), ">", 0))
+		chk("...and it is a real variant (never the test one)", _C(StzEngineGpuVariantGet("pairdist", 1, 4096, 384), "<", 4))
+	else
+		chk("no variant reached the margin: the table keeps the generic", not xR[:stored] and _C(StzEngineGpuVariantGet("pairdist", 1, 4096, 384), "=", 0))
+		chk("(the same verdict, said twice: the winner name is the generic)", xR[:winner] = "tile16")
+	end
+
+	? ""
+	? "-- Scene 3: THE CHECKER GATES THE TABLE -- a wrong variant cannot win --"
+	# mask 16 = the test-only broken kernel alone (right shape, wrong answer)
+	nSt = StzEngineGpuFoundryPairdist(1, 4096, 384, 3, 16)
+	chk("the foundry ran the broken variant", _C(nSt, "=", 0))
+	chk("...and the checker REFUSED it (verified = 0)", _C(StzEngineGpuFoundryResult(_A(8, "+", 4 * 5)), "=", 0))
+	chk("...so there is no winner", _C(StzEngineGpuFoundryResult(3), "=", 0))
+
+	? ""
+	? "-- Scene 4: the table changes the DISPATCH, and only the dispatch --"
+	nN = 2048  nD = 128
+	xA = []
+	for k = 1 to nD
+		xA + _A((k % 7), "*", 0.5)
+	end
+	xB = []
+	for j = 1 to nN
+		for k = 1 to nD
+			xB + _A(((_A(j * 3, "+", k)) % 11), "*", 0.25)
+		end
+	end
+	nHA = StzEngineGpuBufferNew(_A(nD, "*", 4))
+	nHB = StzEngineGpuBufferNew(_A(_A(nN, "*", nD), "*", 4))
+	nHD1 = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	nHD2 = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	StzEngineGpuBufferUploadList(nHA, xA)
+	StzEngineGpuBufferUploadList(nHB, xB)
+	StzEngineGpuVariantClear()
+	StzEngineGpuCountersReset()
+	chk("generic dispatch answers", _C(StzEngineGpuOpPairDist(nHA, nHB, nHD1, 1, nN, nD), "=", 0))
+	chk("...and the variant counter did NOT move (the negative sibling)", _C(StzEngineGpuCounter(iC_VAR), "=", 0))
+	StzEngineGpuVariantSet("pairdist", 1, nN, nD, 2)     # row4 for this class
+	chk("with the class pointing at row4, the dispatch answers", _C(StzEngineGpuOpPairDist(nHA, nHB, nHD2, 1, nN, nD), "=", 0))
+	chk("...and the variant counter MOVED by one (the mechanism)", _C(StzEngineGpuCounter(iC_VAR), "=", 1))
+	xD1 = StzEngineGpuBufferDownloadList(nHD1, nN)
+	xD2 = StzEngineGpuBufferDownloadList(nHD2, nN)
+	nMax = 0
+	for j = 1 to nN
+		xDiff = _StzAbs(_A(xD1[j], "-", xD2[j]))
+		if _C(xDiff, ">", nMax) nMax = xDiff end
+	end
+	? "  max |generic - row4| over " + _T(nN) + " distances: " + _T(nMax)
+	chk("the variant's distances equal the generic's (quarter-grid data: exactly)", _C(nMax, "=", 0))
+	StzEngineGpuVariantSet("pairdist", 1, nN, nD, 1)     # row: same answer, counter moves again
+	StzEngineGpuOpPairDist(nHA, nHB, nHD2, 1, nN, nD)
+	chk("row too: the counter moved again", _C(StzEngineGpuCounter(iC_VAR), "=", 2))
+	StzEngineGpuVariantSet("pairdist", 1, nN, 127, 2)    # a class where d % 4 != 0: row4 must DEGRADE to row
+	nHB2 = StzEngineGpuBufferNew(_A(_A(nN, "*", 127), "*", 4))
+	nHD3 = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	chk("a row4 pick at d = 127 still answers (degraded to row, not refused)", _C(StzEngineGpuOpPairDist(nHA, nHB2, nHD3, 1, nN, 127), "=", 0))
+	StzEngineGpuVariantClear()
+	StzEngineGpuBufferFree(nHA)  StzEngineGpuBufferFree(nHB)  StzEngineGpuBufferFree(nHB2)
+	StzEngineGpuBufferFree(nHD1)  StzEngineGpuBufferFree(nHD2)  StzEngineGpuBufferFree(nHD3)
+
+	? ""
+	? "-- Scene 5: persistence round-trips a variant row (files kept and restored) --"
+	tBakA = ""
+	tBakD = ""
+	if FExists(StzGpuCalibFileForAdapter())
+		tBakA = Read(StzGpuCalibFileForAdapter())
+	end
+	if FExists(StzGpuCalibFileDefault())
+		tBakD = Read(StzGpuCalibFileDefault())
+	end
+	StzEngineGpuCalibSet("pairdist", 256000)
+	StzGpuVariantSet("pairdist", 1, 4096, 384, 3)
+	StzGpuSaveCalibration(["pairdist"])
+	tF = Read(StzGpuCalibFileForAdapter())
+	chk("the file carries the variant row", _C(StzFindFirst("variant" + Char(9) + "pairdist" + Char(9) + "1" + Char(9) + "4096" + Char(9) + "384" + Char(9) + "3", tF), ">", 0))
+	StzEngineGpuVariantClear()
+	_StzGpuCalibLoadFile(StzGpuCalibFileForAdapter())
+	chk("...and it is restored from disk", _C(StzEngineGpuVariantGet("pairdist", 1, 4096, 384), "=", 3))
+	if tBakA != ""
+		Write(StzGpuCalibFileForAdapter(), tBakA)
+	else
+		Remove(StzGpuCalibFileForAdapter())
+	end
+	if tBakD != ""
+		Write(StzGpuCalibFileDefault(), tBakD)
+	end
+	StzEngineGpuVariantClear()
+
+	? ""
+	? "-- Scene 6: the kill line on a small grid (reported, not assumed) --"
+	xK = oG.FoundryPairdistGrid([1024, 4096], [128, 384])
+	nCells = Len(xK[:cells])
+	for i = 1 to nCells
+		xCell = xK[:cells][i]
+		? "  1 x " + _T(xCell[:n]) + " x " + _T(xCell[:d]) + ": winner " + _T(xCell[:winner]) + " at " + _T(xCell[:ratio]) + "x (GPU clock)"
+	end
+	? "  any class with a variant above the margin on " + _T(xK[:adapter]) + ": " + _T(xK[:anywin])
+	chk("four cells reported", _C(nCells, "=", 4))
+	chk("the verdict is a boolean the plan can quote", xK[:anywin] = true or xK[:anywin] = false)
+	StzEngineGpuVariantClear()
+	# the grid persisted its winners into the calibration files: put them back
+	if tBakA != ""
+		Write(StzGpuCalibFileForAdapter(), tBakA)
+	end
+	if tBakD != ""
+		Write(StzGpuCalibFileDefault(), tBakD)
+	end
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

@@ -353,7 +353,7 @@ resident-chain criterion passed on both adapters.
 
 ## G1 STATUS — shipped 2026-08-07: stz_gpu.dll, the lifecycle layer
 
-Delivered (guard: `base/test/gpu/gpu_lifecycle_narrated.ring`, 62 asserts
+Delivered (guard: `base/test/gpu/gpu_lifecycle_narrated.haro`, 62 asserts
 green on this machine + a 9-assert no-GPU probe of the same surface):
 
 - **`stz_gpu.dll`** (engine domain `stz_gpu`; `src/gpu.zig` +
@@ -419,7 +419,7 @@ Mechanics worth recording:
   FALLBACK (counted at the refusing layer), not STALE-because-ids-died.
 - OUT must be distinct from inputs (WebGPU usage-scope validation).
 
-Parity guard (`base/test/gpu/gpu_ops_narrated.ring`, 37 asserts green):
+Parity guard (`base/test/gpu/gpu_ops_narrated.haro`, 37 asserts green):
 - **Exact witnesses per op**: integer / dyadic data where every f32
   intermediate is exactly representable ⇒ bit-equality against Ring
   references, including RAGGED shapes (20×48×36 matmul, d=10 pairdist)
@@ -484,7 +484,7 @@ The seam's discipline (in `stzVectorIndex._EnsureGpu/_QueryGpu`):
   indices agree exactly on separated data (both sides tie-break on the
   lower index), distance band measured at 1.47e-7 → asserted < 1e-5.
 
-Guard: `base/test/gpu/gpu_seams_narrated.ring` (17 asserts, green; loads
+Guard: `base/test/gpu/gpu_seams_narrated.haro` (17 asserts, green; loads
 the FULL stzBase because the seam lives in a library face). Both sides
 of the threshold asserted by MECHANISM: below the line zero dispatches
 and zero residency; above it 3 live buffers, the dispatch counter moves
@@ -502,7 +502,7 @@ umap/tsne neighbour phases) ride on calibration work in G5.
 ## G4 STATUS — shipped 2026-08-07: the declarative surface
 
 The level-1 vision from §0, working as sketched (suite:
-`base/test/gpu/gpu_declarative_narrated.ring`, 20 asserts green; all four
+`base/test/gpu/gpu_declarative_narrated.haro`, 20 asserts green; all four
 GPU guards green together — 136 asserts):
 
     k = StzKernelMakerQ()
@@ -591,8 +591,8 @@ degrade LOGGED (runtime falls back and counts, G1's law); a LOCAL site
 answers by probing the real device; a remote site's GPU is its declared
 capacity, absent otherwise.
 
-Guards: `gpu_calibration_narrated.ring` (10) +
-`gpu_deploy_gate_narrated.ring` (16); the six GPU guards together =
+Guards: `gpu_calibration_narrated.haro` (10) +
+`gpu_deploy_gate_narrated.haro` (16); the six GPU guards together =
 **162 asserts green**; the pre-existing deployment suite stays green.
 
 Remaining: **G6** — the separate ggml-Vulkan go/no-go for the neural
@@ -627,7 +627,7 @@ embeddings, the generative decoder) runs its ggml graphs on the GPU.
 - **K4 — CI.** CPU must remain the load-time default with the backend
   behind runtime opt-in; a backend that cannot be isolated: NO-GO.
 
-### The measurement (2026-08-07, `base/test/gpu/g6_census_bench.ring`)
+### The measurement (2026-08-07, `base/test/gpu/g6_census_bench.haro`)
 
 The tier's shipped ggml route (`StzEngineMatrixMulGgml`, bridge overhead
 included — that IS today's per-call price) against the shipped wgpu op on
@@ -758,7 +758,7 @@ kernels, plus a chain executor. So the gate is decided first, by spike:
 ### R1 SPIKE RESULT (2026-08-07) — FAILED, then PASSED once the real
 ### prerequisite was built. GREEN LIGHT, with the design settled.
 
-`base/test/gpu/backbone_spine_spike.ring` times MiniLM's 6-layer matmul
+`base/test/gpu/backbone_spine_spike.haro` times MiniLM's 6-layer matmul
 spine resident, one sync — the backbone's FLOOR (its other kernels can
 only add).
 
@@ -778,7 +778,7 @@ re-measured at 17.2 ms — attention's share collapsing 11.3 → 4.7 ms.
 Ceiling if attention were free: 2.9x.
 
 **BUILT NOW — batched passes in the lifecycle layer** (`stz_gpu_batch_begin`
-/ `_end` / `_active`; guard `gpu_batch_narrated.ring`, 13 asserts). One
+/ `_end` / `_active`; guard `gpu_batch_narrated.haro`, 13 asserts). One
 pass, one submit, bind groups held until it lands. The correctness catch
 that shaped it: tile/params uniforms are written with queue.writeBuffer,
 which orders against SUBMITS, not against dispatches inside a pass — a
@@ -1078,7 +1078,7 @@ product — and this plane had already built them, one dimension short.*
 
 ## GK0 STATUS — shipped 2026-09-09: the checker as an engine primitive
 
-Guard: `base/test/gpu/gpu_verify_narrated.ring` — **26 asserts green,
+Guard: `base/test/gpu/gpu_verify_narrated.haro` — **26 asserts green,
 2.6 s**, first run. Gate on the guards the change reaches (device
 creation and the immediate dispatch path): lifecycle 62, ops 37,
 declarative 20, batch 13, calibration 10, seams 17, render lifecycle
@@ -1150,7 +1150,7 @@ its first design input.
 
 ## GK1 STATUS — shipped 2026-09-09: the shape-keyed store, and what measuring it found
 
-Guard: `base/test/gpu/gpu_calibration_shaped_narrated.ring` — **39
+Guard: `base/test/gpu/gpu_calibration_shaped_narrated.haro` — **39
 asserts green**. Gate on the guards the change reaches: calibration 10,
 seams 17, verify 26, lifecycle 62, ops 37, declarative 20, batch 13,
 deploy gate 16, render lifecycle 74, neural backbone 10 — **285 green**.
@@ -1438,7 +1438,7 @@ Next: **GK2**, beginning with the m = 1 pairdist variant.
 
 ## GK2 STATUS — shipped 2026-09-09: op variants by enumeration, and the kill line did not fire
 
-Guard: `base/test/gpu/gpu_foundry_narrated.ring` — **27 asserts green**.
+Guard: `base/test/gpu/gpu_foundry_narrated.haro` — **27 asserts green**.
 Gate on the eleven guards the change reaches (every pairdist dispatcher
 and the calibration/verify family): **286 green**. Zig unit tests on the
 variant table's classing and degradation, and on the foundry's margin.
@@ -1511,7 +1511,7 @@ workload asks; **GK3** stays a door.
 
 ## GS1 STATUS — engine half shipped 2026-09-09: FFT convolution is an op of the GPU plane; the sound desk owes one route
 
-Guard: `base/test/gpu/gpu_convolve_narrated.ring` — **19 asserts green**,
+Guard: `base/test/gpu/gpu_convolve_narrated.haro` — **19 asserts green**,
 on BOTH adapters. Gate on the guards that share the dispatch path
 (batch, lifecycle, ops, verify, foundry, seams): **182 green**. Zig unit
 test on the transform sizes.
@@ -1980,7 +1980,7 @@ plus a look at what reads the flat copy afterwards.
 
 ## THE FIRST-ERROR SLOT — shipped 2026-09-10: a refused kernel names its cause, not its symptom
 
-Guard: `base/test/gpu/gpu_errors_narrated.ring` — **14 asserts green**.
+Guard: `base/test/gpu/gpu_errors_narrated.haro` — **14 asserts green**.
 Gates: `gpu_verify_narrated` 26, `gpu_lifecycle_narrated` 62,
 `learning_kmeans_gpu_narrated` 22, `mlfloor_narrated` 36; Zig `gpu.zig` 3.
 
@@ -2078,7 +2078,7 @@ trustworthiness as the guard's witness, computed with that kernel.
 
 ## GS6e STATUS — shipped 2026-09-10: the UMAP k-NN kernel through the foundry, under the checker
 
-Guard: `base/test/gpu/gpu_umap_knn_foundry_narrated.ring` — **21 asserts
+Guard: `base/test/gpu/gpu_umap_knn_foundry_narrated.haro` — **21 asserts
 green**. Gates: `numeric_umap_gpu_narrated` 23, `numeric_umap_resident`
 18, `numeric_embedding` 240, `gpu_foundry_narrated` 27; Zig
 `umap_gpu.zig` 8.
@@ -2159,7 +2159,7 @@ tiles), GK3.
 
 ## GK2b STATUS — matmul leg shipped 2026-09-10: the backbone's spine at 3x, by a variant the checker chose
 
-Guard: `base/test/gpu/gpu_foundry_matmul_narrated.ring` — **21 asserts
+Guard: `base/test/gpu/gpu_foundry_matmul_narrated.haro` — **21 asserts
 green**. Gates: `gpu_ops_narrated` 37, `gpu_foundry_narrated` 27,
 `neural_backbone_narrated` 14, `neural_gpu_routing_narrated` 17,
 `numeric_umap_resident` 18, `numeric_umap_gpu` 23; Zig `gpu_ops.zig` 6.
@@ -2362,7 +2362,7 @@ functions at the end of a script.
 
 ## GK2c STATUS — shipped 2026-09-10: the backbone's attention through the foundry; the kernel 1.5x, the forward 7%
 
-Guard: `base/test/gpu/gpu_foundry_attention_narrated.ring` — **12 asserts
+Guard: `base/test/gpu/gpu_foundry_attention_narrated.haro` — **12 asserts
 green**. Gates: `neural_backbone` 14, `neural_gpu_routing` 17,
 `neural_semantic_gpu_seam` 33, `semantic_search` 14,
 `gpu_foundry_matmul` 21.
@@ -2584,7 +2584,7 @@ Gates, all green: `gpu_lifecycle` 62, `gpu_ops` 37, `gpu_verify` 26,
 
 ## GK3 STATUS — shipped 2026-10-24: the peak in the roofline, measured, and what measuring it found
 
-Guard: `base/test/gpu/gpu_verify_narrated.ring` — **36 asserts green**
+Guard: `base/test/gpu/gpu_verify_narrated.haro` — **36 asserts green**
 (26 before), run on Ring 1.27, interim. Zig: `gpu_verify.zig` 4 tests
 (2 new: the pure compute judge; the peak kernel's text and FLOP count).
 Gates run on the device the same afternoon, every one green:
@@ -2781,7 +2781,7 @@ findings came with the second runtime, none of them about Ring++:
 
 ## GK6 STATUS — shipped 2026-10-24: the user kernel's own reference
 
-Guard: `base/test/gpu/gpu_spec_reference_narrated.ring` — **34 asserts
+Guard: `base/test/gpu/gpu_spec_reference_narrated.haro` — **34 asserts
 green under Ring++ (`rnxc`)**, from the verification vehicle described in
 GK3's addendum; Scene 0 and the refusal need no device. Zig:
 `gpu_wgsl.zig` 4 of 5 (the three GK6 tests pass; the fragment-stage test
@@ -2864,7 +2864,7 @@ interpreter here is the reference every admission is checked against.
 
 ## KP0 STATUS — shipped 2026-10-24: the grammar grows, one admission at a time
 
-Guard: `base/test/gpu/gpu_grammar_narrated.ring` — **43 asserts green
+Guard: `base/test/gpu/gpu_grammar_narrated.haro` — **43 asserts green
 under Ring++ (`rnxc`)**; Scene 0 (the four admissions on the CPU and the
 seven refusals) needs no device. Zig: `gpu_wgsl.zig` 6 of 7 (two KP0
 tests added; the fragment-stage failure is GR4b's, recorded at GK6),
@@ -2940,7 +2940,7 @@ this proof's shape with the interpreter's verdict as the grader.
 
 ## KP1 STATUS — shipped 2026-10-24: the puzzle form, and two runners from one description
 
-Guard: `base/test/gpu/gpu_puzzle_narrated.ring` — **30 asserts green under
+Guard: `base/test/gpu/gpu_puzzle_narrated.haro` — **30 asserts green under
 Ring++ (`rnxc`)**, from the vehicle with main's Learning System laid over
 the lineage (its eleven files carry no Rule A site of their own). Scenes 0
 and 1 need no device. Gates re-run under `rnxc`: `gpu_grammar` 43,
@@ -3024,7 +3024,7 @@ works two of them in the browser, one failing first.
 
 ## KP2 STATUS — DONE 2026-10-27: the eight puzzles, from the map to the reduction; perceived by the author, twice
 
-Guard: `base/test/gpu/gpu_puzzle_narrated.ring` — **95 asserts green under
+Guard: `base/test/gpu/gpu_puzzle_narrated.haro` — **95 asserts green under
 Ring++ (`rnxc`)**, nine minutes on battery (most of it the checker spawning 35 learner programs): for every puzzle the starter waits, the
 reference verifies itself on the CPU, the task reads in four languages and
 ends with what the GPU did differently from a loop; every right and wrong
@@ -3233,7 +3233,7 @@ the copy floor is itself a best-of on the same wall clock.
 eight cases, three new (`shared-reverse`, `reduce`, `tiled-matmul`): the wasm
 emits byte-identical WGSL and the browser's results equal the 3050's exactly.
 
-**Guard:** `base/test/gpu/gpu_shared_narrated.ring`, 58 assertions, run
+**Guard:** `base/test/gpu/gpu_shared_narrated.haro`, 58 assertions, run
 under `rnxc` from the vehicle, two minutes, most of it the System's checker
 proving four exercises by running 20 programs. The power source read AC
 (Windows battery status 2) at 23:41.
@@ -3328,7 +3328,7 @@ The vehicle had no model: the MiniLM file was copied in and its digest,
 recorded by another desk in `_wti_pub`'s `SHA256SUMS`, was checked against
 the copy (`sha256sum -c`: OK) before being written beside it.
 
-**Guard:** `base/test/gpu/gpu_f16_narrated.ring`, **22/22 under `rnxc`**,
+**Guard:** `base/test/gpu/gpu_f16_narrated.haro`, **22/22 under `rnxc`**,
 1.5 s, bands about ten times the measured differences. **Not run:**
 `base/test/neural/neural_backbone_narrated.ring` reads `nPass` bare in its
 `chk()`, which Rule A refuses; its migration is the neural desk's. The f16
@@ -3423,7 +3423,7 @@ longer inputs; a bounded sum; shared arrays with stages and reductions; the
 tiles loop, 2-D and 1-D), runs each through BOTH readers' admission, on the
 device, and through the interpreter, and counts. Case `index` of run `seed`
 is the same description on every machine (`StzEngineGpuFuzzCase`), so a
-defect is reproduced from two numbers. Guard: `gpu_fuzz_narrated.ring`, 23
+defect is reproduced from two numbers. Guard: `gpu_fuzz_narrated.haro`, 23
 assertions.
 
 **The exactness discipline**, which is what makes a disagreement mean a
@@ -3572,7 +3572,7 @@ and every chunk wrote its timestamps into the same two slots, so the GPU
 clock read the LAST chunk alone. tile8 at 4096^3 (eight chunks) read 75 ms
 where the wall clock said 600, and won the foundry's race at that shape.
 The first chunk now writes the start and the last the end. Held by a scene
-of `gpu_verify_narrated.ring` (39): the 1024^3 tile16 product forced into
+of `gpu_verify_narrated.haro` (39): the 1024^3 tile16 product forced into
 eight chunks reads 7.5 ms against 6.4 ms in one submit, where the old
 clock would have read about 0.8.
 
@@ -3633,7 +3633,7 @@ each rounds the same. 1 - cos to the CPU forward stayed 1.73e-4 (f32) and
 130 x 384 x 384 and 130 x 384 x 1536, and reg4 for 130 x 1536 x 384,
 where the two are within 3%.
 
-**A dead assertion found and fixed**: `gpu_foundry_matmul_narrated.ring`
+**A dead assertion found and fixed**: `gpu_foundry_matmul_narrated.haro`
 read the broken variant's verdict at slot 28 since GK3 moved `F_BASE` to
 10. Slot 28 belongs to a masked variant and was always 0, so "the checker
 REFUSED it" held whatever the checker said. It reads slot 30 now, which
@@ -4083,7 +4083,7 @@ four, and the reversed-tail loop in three. The face and grader now ask the
 engine for every number and keep one list helper for the tail; the page asks
 the wasm for all of it. A source scan in the guard fails if one comes back.
 
-**Proved, not asserted.** `gpu_host_narrated.ring` holds a reference host of
+**Proved, not asserted.** `gpu_host_narrated.haro` holds a reference host of
 about a hundred and fifty lines, written from the document and calling only
 the engine's entry points, none of `stzGpu`, `stzKernelMaker` or
 `stzKernelPuzzle`. It reaches **the same verdict word as the face on all 17
@@ -4927,7 +4927,7 @@ vector kernel keeps the longest rows because a whole workgroup is the form a sin
 zone the item named, 8 to 64 entries, went from 0.37-0.76 ms to 0.12-0.14 ms (auto's old choice against the new): the whole million-entry product now
 costs less there than the scalar kernel paid at its best, rows of 2.
 
-**The guard.** `gpu_spmv_narrated.ring` now asserts the new route (scene 1) and times the three kernels (scene 7),
+**The guard.** `gpu_spmv_narrated.haro` now asserts the new route (scene 1) and times the three kernels (scene 7),
 holding auto within 1.5x of the fastest away from the two crossovers (rows of 2 and 4, rows of 512): 49 of 49 on
 haro.exe v0.77 with the new engine. Scene 8 (the route through the face, measured and stored) ended SKIPPED in
 three runs of four, and the shared engine without this change does the same: the face at 100 rows, the control
@@ -4940,7 +4940,7 @@ between 500 and 2,000).
 causes, both older than this work: the exercise runner finds `stzBase.ring` beside the engine folder, so an engine
 outside a stzlib tree (C:/haro-engine, or a build folder) makes every child fail to load it; and this guard kept
 the GPU while its graders ran, which since the lease (2026-11-14) makes each grader wait and answer "waiting for
-the device". The second is fixed here, as `gpu_puzzle_narrated.ring` already did it: the guard lets go of the card
+the device". The second is fixed here, as `gpu_puzzle_narrated.haro` already did it: the guard lets go of the card
 before ProveItself. The first is the way the runner is built; the guard runs green with the engine reached through
 a tree whose `base`, `core` and `engine` sit side by side.
 
@@ -4994,7 +4994,7 @@ sporadic calls would be a second ladder, measured asleep. Named, not built (GPU-
 
 **And one older defect, three more times.** The scan, compaction and sort guards had the defect the spmv guard had
 this morning: they kept the GPU while their exercise proved itself, so since the lease (2026-11-14) each grader waited
-30 s and was refused (709 s a guard). Each lets go of the card first now, as `gpu_puzzle_narrated.ring` does.
+30 s and was refused (709 s a guard). Each lets go of the card first now, as `gpu_puzzle_narrated.haro` does.
 
 ## NORING-GPU-01 — the GPU module moves to .haro: the plan, measured, and its first file moved (2026-11-27)
 
@@ -5173,6 +5173,61 @@ design: 34 assertions on that branch, 40 on the final run, where the control hel
 
 **Step 5 remains: the 43 guards themselves**, each converted guard reporting the same assertion count as the file it
 replaces.
+
+**Step 5, done: the 43 guards of `base/test/gpu` are `.haro` (2026-11-28), and `base/test/gpu` holds no guard in the
+older syntax.** Each `.haro` guard replaces the file of the same name, which is deleted. Haro's own tool converted them;
+a second pass did what the tool cannot know, mechanically and then by hand where a run refused:
+
+- **numbers in narration**: the library's one-argument `Text()` and `Round()` take the built-ins' names, and a `.haro`
+  file has no global places setting. Each guard formats through its own `_T()`: a whole number plainly, any other to the
+  places the guard set before (`$nStzPlaces`), rounded half away from zero, in integers for a decimal and through the
+  float for a float, with fewer places when the scaled number would pass 64 bits;
+- **arithmetic and comparison as the older code did them**: there every number was one kind, here an engine value is an
+  integer when whole and a float otherwise, and a float mixes with nothing. `_C(a, "op", b)` and `_A(a, "op", b)` do the
+  operation itself when both sides are of one kind and through floats otherwise (equal when neither is below the other,
+  a NaN equal to nothing); `_Q(a, b)` is the exact quotient when one exists and a float otherwise. A rewriter put them
+  where the operands are not text, not a list being appended to, not an index and not integers only, with precedence
+  kept;
+- **names the tool lettered by a value it could not see**: buffer ids lettered `h` (119, to `nH`), status constants the
+  older source gave 0 or 1 lettered as booleans (`S_OK = 0` had become `bS_OK = false`, compared with the engine's
+  integer), a loop over `[1, 2, 3]` lettered as text, the `vec3` hits lettered as numbers;
+- **two defects of my own converter**, each found by a run: a rename of `k` also renamed the symbol `:k` (two guards),
+  and two statements on one line, or a continuation after `n++`, read as a comparison (five lines and one).
+
+**What the runs found that reading did not:**
+
+1. **a symbol keeps its case in a `.haro` file and loses it in the older syntax**: `:Cosine` is "Cosine" in the guard
+   and "cosine" in `stzVectorIndex.ring`, which refused it (`gpu_seams`). The guard passes `:cosine`; routed to the Haro
+   desk;
+2. **`Floor()` of a decimal answers a float**, and `Floor()` of a float past 2^53 is not exact: `_T()` rounds a decimal
+   by its remainder instead;
+3. **a `.haro` comparison is a boolean, where the older code kept 1 or 0**: a list of flags built from comparisons is
+   refused by `_SegReduceCpu`'s `!= 0`. `gpu_segscan` builds its flags as 1 and 0, as before;
+4. **`Exp(0)` answers the integer 1**, which a name lettered `f` refuses.
+
+**The gate**: all 43 on haro.exe v0.78 (its stamp the same at the start and end of every run), engine at stzlib
+`734ca49a3` sources, after one `haro prefix` of the worktree library. Guards owned 43, run 43 on the final files.
+
+| | guards with a total | assertions | pass | fail |
+|---|---|---|---|---|
+| old (the `.ring` guards, step 4's new arm) | 40 | 1,582 | 1,582 | 0 |
+| new (the `.haro` guards, final files) | 40 | 1,582 | 1,581 | 1 |
+
+The same count on every guard. The one failure is `gpu_shared`'s timing check (a SAXPY rerun must be 1.3x faster than
+a rereading kernel), and the older guard fails it too in the same hour: run alternately, old, new, old, new, each gave
+59 of 60, the first SAXPY at 1.66 to 1.85 ms against 1.24 ms on the day of step 4. It is a measurement of the device
+on battery, which the conversion does not touch. The three probes with no total match line for line (`g6`, `gk1`, whose
+columns differ only by timing width), and `backbone_spine_spike` now runs to its end, where the older file stopped at a
+Rule A refusal.
+
+**A correction to step 4**: its third finding says a float's text keeps two places. That came from a probe evaluated
+outside the `.haro` rules; in a `.haro` file `String()` of a float writes it in full. The finding's decision stands for
+its other reason, measured: the calibration store's own comparisons refused a float.
+
+**Step 6 remains, two tools that are not guards**: `base/test/gpu/edge_proof/gen_fixture.ring` (176 lines, writes the
+browser proof's `fixture.js`) and `base/test/gpu/gc0/gc0_ours.ring` (66 lines, the foundry's matrix product timed on
+`gc0_cublas.py`'s shapes). Each moves when haro.exe runs its replacement: the fixture byte-identical, the benchmark's
+table of variants the same.
 
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 

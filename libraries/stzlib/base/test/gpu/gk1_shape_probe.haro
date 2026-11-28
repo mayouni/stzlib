@@ -1,0 +1,330 @@
+# GK1 SHAPE PROBE -- measurement BEFORE the shape-keyed store is built
+# (SOFTANZA_GPU_PLAN.md, GK1). The kill line, written there first: if the
+# shaped verdicts disagree with the FLAT threshold by < 20% on every class
+# on both adapters, the shape dimension is not worth its complexity here.
+#
+# The flat store says: pairdist goes to the GPU from n*d >= T (T is the
+# persisted calibration, one number). This probe walks a grid of
+# (dimension d) x (corpus n) through the REAL seam, both routes forced,
+# warm-min of 3 queries -- the same method as stzGpu.Calibrate() -- on
+# every adapter, and prints per cell: cpu ms, gpu ms, the ratio, what the
+# flat rule DECIDES, and what the measurement SAYS. Disagreements are the
+# finding. The wall clock is the right clock here: routing pays the submit.
+
+load "../../stzBase.ring"
+
+pr()
+
+$nStzPlaces = 3
+
+# the flat rule as the seam sees it today
+StzGpuLoadCalibrationDefault()
+nFlat = StzEngineGpuCalibGet("pairdist")
+if _C(nFlat, "=", 0)
+	nFlat = 4000000
+end
+? "flat threshold on disk: dispatch pairdist from n*d >= " + _T(nFlat)
+
+vDims = [16, 64, 256, 1024]
+vCounts = [1000, 4000, 16000]
+nBudget = 4200000     # max n*d per cell -- the corpus is built as nested lists
+
+oG = new stzGpu
+nAd = 0
+if not oG.IsAvailable()
+	? "NO GPU -- nothing to probe"
+else
+	nAd = StzEngineGpuAdapterCount()
+end
+vSeen = []
+for a = 0 to nAd - 1
+	tName = StzEngineGpuAdapterName(a)
+	if _C(Find(vSeen, tName), ">", 0)
+		loop     # the same card enumerated under a second backend
+	end
+	vSeen + tName
+	if _C(StzEngineGpuSelectAdapter(a), "=", 0)
+		? "  adapter " + _T(a) + " (" + tName + "): could not open -- skipped"
+		loop
+	end
+	? ""
+	? "== ADAPTER " + _T(a) + ": " + tName + " =="
+	? "     d      n       n*d     cpu ms     gpu ms    cpu/gpu   flat says   measured   agree"
+	nDisagree = 0
+	nCells = 0
+	vCross = []
+	nDims = Len(vDims)
+	nCounts = Len(vCounts)
+	for nDi = 1 to nDims
+		xDim = vDims[nDi]
+		nCrossD = 0
+		for nNi = 1 to nCounts
+			nCnt = vCounts[nNi]
+			if _C(nCnt * xDim, ">", nBudget)
+				loop
+			end
+			xR = oG._CalibRung(nCnt, xDim)
+			nCpu = xR[1]
+			nGpu = xR[2]
+			nRatio = 0
+			if _C(nGpu, ">", 0)
+				nRatio = _Q(nCpu, nGpu)
+			end
+			bFlat = (_C(nCnt * xDim, ">=", nFlat))
+			bMeas = (_C(nGpu * 1.3, "<=", nCpu))
+			bAgree = (bFlat = bMeas)
+			nCells++
+			if not bAgree
+				nDisagree++
+			end
+			if bMeas and _C(nCrossD, "=", 0)
+				nCrossD = nCnt * xDim
+			end
+			? "  " + _T(pad(xDim, 4)) + "  " + _T(pad(nCnt, 5)) + "  " + _T(pad(nCnt * xDim, 8)) + "  " +
+				_T(pad(nCpu, 9)) + "  " + _T(pad(nGpu, 9)) + "  " + _T(pad(nRatio, 8)) + "   " +
+				_T(pad(yn(bFlat), 9)) + "   " + _T(pad(yn(bMeas), 8)) + "   " + _T(yn(bAgree))
+		end
+		vCross + [ xDim, nCrossD ]
+	end
+	? ""
+	? "  cells " + _T(nCells) + ", flat rule WRONG on " + _T(nDisagree)
+	? "  first n*d where the GPU wins (>= 1.3x), per dimension:"
+	nMin = 0
+	nMax = 0
+	nCross = Len(vCross)
+	for nCi = 1 to nCross
+		tW = "never on this ladder"
+		if _C(vCross[nCi][2], ">", 0)
+			tW = "" + _T(vCross[nCi][2])
+			if _C(nMin, "=", 0) or _C(vCross[nCi][2], "<", nMin)
+				nMin = vCross[nCi][2]
+			end
+			if _C(vCross[nCi][2], ">", nMax)
+				nMax = vCross[nCi][2]
+			end
+		end
+		? "     d = " + _T(pad(vCross[nCi][1], 4)) + "  ->  " + tW
+	end
+	if _C(nMin, ">", 0) and _C(nMax, ">", 0)
+		? "  crossover spread across dimensions: " + _T((_Q(nMax, nMin))) + "x  (kill line: < 1.2x on every adapter = flat store stays)"
+	end
+end
+
+# restore the on-disk truth in this process (the rungs forced the knob)
+StzEngineGpuCalibSet("pairdist", nFlat)
+
+pf()
+
+func pad(xV, xW)
+	tPc = "" + _T(xV)
+	while _C(Len(tPc), "<", xW)
+		tPc = " " + tPc
+	end
+	return tPc
+end
+func yn(xB)
+	if xB
+		return "GPU"
+	end
+	return "cpu"
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

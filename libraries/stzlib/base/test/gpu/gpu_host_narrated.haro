@@ -1,0 +1,545 @@
+# GL0 -- THE HOST CONTRACT (SOFTANZA_GPU_HOST_CONTRACT.md).
+#
+# A kernel in the spec language is run by a HOST: this engine's checker, the
+# library face, the browser page, and any host a language written later will
+# have -- Haro's, which now lives in its own repository and cannot lean on the
+# library face. The engine compiles and transpiles; the host owns buffers and
+# dispatch, which are the platform's. Between them lay a handful of NUMBERS
+# every host derived for itself, four times over (the face twice, the puzzle
+# grader, the page): the NaN margin, the workgroup count, the hidden shape's
+# size and data, the default band. A copy that drifts is a verdict that
+# differs between hosts. They are the engine's now (gpu_host.zig) and every
+# host asks.
+#
+# This guard holds the contract three ways:
+#   1. the numbers, pinned, and the old rules replayed to show nothing moved;
+#   2. a source scan: no host file spells a contract number again;
+#   3. THE PROOF: a host written from the document alone -- it parses the
+#      declaration lines itself, asks the engine for every number, and calls
+#      only the engine's own entry points, never stzGpu, stzKernelMaker or
+#      stzKernelPuzzle -- reaches the SAME verdict words as the face, on
+#      puzzles from every admission, including the margin, a declared hidden
+#      shape, vector buffers and atomic counters.
+#
+# One approximation, named: this host reads the interpreter's list, where the
+# checker also keeps a mask; so an element the BODY computed as NaN is not
+# told from one a guard left unwritten. No puzzle computes a NaN.
+#
+# Run with haro: haro gpu_host_narrated.haro
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+pr()
+
+$nStzPlaces = 4
+tNL = Char(10)
+
+? "-- Scene 1: the numbers, from the engine --"
+$nT0 = Clock()
+chk("the contract is version " + _T(StzEngineGpuHostVersion()), _C(StzEngineGpuHostVersion(), "=", 1))
+chk("a group is 256 threads, the margin 256 floats of NaN, the band 0.000001, 7 timed repetitions",
+	_C(StzEngineGpuHostGroup(), "=", 256) and _C(StzEngineGpuHostMargin(), "=", 256) and _C(StzEngineGpuHostDefaultBand(), "=", 0.000001) and _C(StzEngineGpuHostDefaultReps(), "=", 7))
+chk("workgroups: 1 element 1, 256 elements 1, 257 elements 2, 4000 elements 16",
+	_C(StzEngineGpuHostGroups(1), "=", 1) and _C(StzEngineGpuHostGroups(256), "=", 1) and _C(StzEngineGpuHostGroups(257), "=", 2) and _C(StzEngineGpuHostGroups(4000), "=", 16))
+chk("the hidden shape: 7 gives 5, 256 gives 181 (182 is even, one less), 4000 gives 2857, 1 and 2 give 1",
+	_C(StzEngineGpuHostHiddenCount(7), "=", 5) and _C(StzEngineGpuHostHiddenCount(256), "=", 181) and _C(StzEngineGpuHostHiddenCount(4000), "=", 2857) and _C(StzEngineGpuHostHiddenCount(1), "=", 1) and _C(StzEngineGpuHostHiddenCount(2), "=", 1))
+nDiff = 0
+for n = 1 to 6000
+	nOld = Floor(_Q(_A(n, "*", 5), 7))
+	if _C(nOld, "<", 1)
+		nOld = 1
+	end
+	if _C(nOld, ">", 1) and _C(nOld % 2, "=", 0)
+		nOld--
+	end
+	if _C(nOld, "!=", StzEngineGpuHostHiddenCount(n))
+		nDiff++
+	end
+end
+chk("the engine's hidden count equals the rule every host used to carry, for every n from 1 to 6000 (" + _T(nDiff) + " differ)", _C(nDiff, "=", 0))
+chk("the params uniform: no scalar 8 bytes, 3 scalars 20, 14 scalars 64, and never over 64",
+	_C(StzEngineGpuHostParamsBytes(0), "=", 8) and _C(StzEngineGpuHostParamsBytes(3), "=", 20) and _C(StzEngineGpuHostParamsBytes(14), "=", 64) and _C(StzEngineGpuHostParamsBytes(40), "=", 64))
+tV3 = "in p vec3" + tNL + "in k int" + tNL + "out q vec2" + tNL + "body { @q = vec2(@p.x, @p.y) * float(@k) }"
+tAt = "in a" + tNL + "out h atomic 13" + tNL + "body { @h[@a] += 1 }"
+chk("what a description makes of the shape: a vec3 input holds 3 floats per element, a vec2 output 2",
+	_C(StzEngineGpuSpecInLen(tV3, 1, 10), "=", 30) and _C(StzEngineGpuSpecInLen(tV3, 2, 10), "=", 10) and _C(StzEngineGpuSpecOutLen(tV3, 10), "=", 20))
+chk("...and an atomic output is its 13 counters, whatever n is", _C(StzEngineGpuSpecOutLen(tAt, 10), "=", 13) and _C(StzEngineGpuSpecOutLen(tAt, 100000), "=", 13))
+chk("the reversed tail, element by element: [1..6] as vec2s kept 2 of 3 is (5,6) then (3,4)",
+	_Same(StzEngineGpuHostHiddenInput([ 1, 2, 3, 4, 5, 6 ], 2, 3, 2), [ 5, 6, 3, 4 ]))
+vVis = [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ], [ 9, 10 ] ]
+xTail = _StzKernelHiddenTail(vVis, 5, 3)
+vFlatTail = []
+for q = 1 to Len(xTail)
+	vFlatTail + xTail[q][1]
+	vFlatTail + xTail[q][2]
+end
+chk("the face's own tail helper keeps the engine's elements, in the engine's order, for rows",
+	_Same(vFlatTail, StzEngineGpuHostHiddenInput([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ], 2, 5, 3)))
+vNum = [ 5, 1, 4, 1, 5, 9, 2, 6, 5, 3 ]
+chk("...and for plain numbers", _Same(_StzKernelHiddenTail(vNum, 10, 7), StzEngineGpuHostHiddenInput(vNum, 1, 10, 7)))
+? "  (scene 1: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+? ""
+? "-- Scene 2: no host spells a contract number any more --"
+$nT0 = Clock()
+vtFiles = [ "../../gpu/stzGpu.haro", "../../gpu/stzGpuBuffer.haro", "../../gpu/stzKernelPuzzle.haro",
+	"../../gpu/puzzle_runner/puzzle.html" ]
+vtBanned = [ "/ 256.0)", "* 5 / 7", "n * 5 / 7", "Math.ceil(n / 256)", "const MARGIN = 256", "_nMargin_ = 256", "return 0.000001", "_nBand_ = 0.000001", "_nReps_ = 7", ": 1e-6" ]
+for tF in vtFiles
+	tT = Read(tF)
+	vtHit = []
+	for tB in vtBanned
+		if _C(StzFindFirst(tB, tT), ">", 0)
+			vtHit + tB
+		end
+	end
+	tWhich = ""
+	if _C(Len(vtHit), ">", 0)
+		tWhich = ": " + _T(vtHit[1])
+	end
+	chk(tF + " carries none of the numbers (" + _T(Len(vtHit)) + " found" + tWhich + ")", _C(Len(vtHit), "=", 0))
+end
+? "  (scene 2: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+oG = new stzGpu
+bDevice = oG.IsAvailable()
+if bDevice
+	? ""
+	? "-- Scene 3: a host written from the document, against the face --"
+	$nT0 = Clock()
+	vCases = [
+		[ "kp-05", "in a" + tNL + "out c" + tNL + "guard none" + tNL + "body { @c = @a * 2 }" ],
+		[ "kp-05", "in a" + tNL + "out c" + tNL + "guard { @i < n }" + tNL + "body { @c = @a * 2 }" ],
+		[ "kp-06", "REF" ],
+		[ "kp-06", "in a" + tNL + "out c" + tNL + "body { @c = (@a[@i - 1] + @a + @a[@i + 1]) / 3 }" ],
+		[ "kp-10", "REF" ],
+		[ "kp-10", "REPLACE tiles t { k / 16 } => tiles t { 1 }" ],
+		[ "kp-13", "REF" ],
+		[ "kp-13", "REPLACE when(@a <= t, @a, t + 2 * (@a - t)) => when(@a <= t, t + 2 * (@a - t), @a)" ],
+		[ "kp-14", "REF" ],
+		[ "kp-14", "in a" + tNL + "out c" + tNL + "body { @c = (@a * 1664525 + 1013904223) % 1000 }" ],
+		[ "kp-15", "REF" ],
+		[ "kp-15", "REPLACE normalize(vec3(@nx, @ny, @nz)) => vec3(@nx, @ny, @nz)" ],
+		[ "kp-16", "REF" ],
+		[ "kp-16", "REPLACE vec2(c * @p.x - s * @p.y, s * @p.x + c * @p.y) => vec2(c * @p.x, s * @p.x)" ],
+		[ "kp-17", "REF" ],
+		[ "kp-17", "REPLACE @h[@a] += 1 => @h[@a - 1] += 1" ],
+		[ "kp-17", "REPLACE @h[@a] += 1 => @h[@a] max= 1" ]
+	]
+	nAgree = 0
+	nAll = Len(vCases)
+	for xC in vCases
+		oQ = StzKernelPuzzleQ(xC[1])
+		tRef = oQ.Reference()
+		tL = xC[2]
+		if tL = "REF"
+			tL = tRef
+		elseif StzLeft(tL, 8) = "REPLACE "
+			vtP = StzSplit(StzRight(tL, Len(tL) - 8), " => ")
+			tL = StzReplace(tRef, vtP[1], vtP[2])
+		end
+		tFace = oQ.Grade(tL)
+		if _C(oQ.HiddenElements(), ">", 0)
+			tMini = _MiniVerdict(tRef, tL, oQ.Bindings(), oQ.Elements(), oQ.HiddenBindings(), oQ.HiddenElements(), oQ.Band())
+		else
+			tMini = _MiniVerdict(tRef, tL, oQ.Bindings(), oQ.Elements(), [], 0, oQ.Band())
+		end
+		if tFace = tMini
+			nAgree++
+		end
+		chk(_T(xC[1]) + ": the face says '" + tFace + "', the host from the document says '" + tMini + "'", tFace = tMini)
+	end
+	chk("the two agree on all " + _T(nAll) + " cases: margin, declared and derived hidden shapes, ints, vector buffers, atomic counters", _C(nAgree, "=", nAll))
+	? "  (scene 3: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+# ======================================================================
+# THE HOST, written from SOFTANZA_GPU_HOST_CONTRACT.md. It calls only the
+# engine's entry points (StzEngineGpu*): no stzGpu, no stzKernelMaker, no
+# stzKernelPuzzle. Every number it uses is the engine's.
+# ======================================================================
+
+# the names a description declares with a line starting 'in' or 'scalar', in order
+func _MiniNames(tSpec, tHead)
+	vtN = []
+	vtLines = StzSplit(StzReplace(tSpec, Char(13), ""), Char(10))
+	nLn = Len(vtLines)
+	for q = 1 to nLn
+		vtW = StzSplit(Trim(vtLines[q]), " ")
+		if _C(Len(vtW), ">=", 2) and vtW[1] = tHead
+			_A(vtN, "+", vtW[2])
+		end
+	end
+	return vtN
+end
+# rows of a vecN input travel flat
+func _MiniFlat(vVal)
+	if _C(Len(vVal), "=", 0)
+		return vVal
+	end
+	if not IsList(vVal[1])
+		return vVal
+	end
+	xF = []
+	nR = Len(vVal)
+	for q = 1 to nR
+		nC = Len(vVal[q])
+		for r = 1 to nC
+			xF + vVal[q][r]
+		end
+	end
+	return xF
+end
+func _MiniBind(xB, tName)
+	nL = Len(xB)
+	for q = 1 to nL
+		if xB[q][1] = tName
+			return xB[q][2]
+		end
+	end
+	return 0
+end
+# the hidden shape: the engine's count and the engine's reversed tail, per input
+func _MiniHiddenBind(tRef, xBind, nA, nB)
+	vtIn = _MiniNames(tRef, "in")
+	xH = xBind
+	nI = Len(vtIn)
+	for q = 1 to nI
+		nW = StzEngineGpuSpecInWidth(tRef, q)
+		xHid = StzEngineGpuHostHiddenInput(_MiniFlat(_MiniBind(xBind, vtIn[q])), nW, nA, nB)
+		nL = Len(xH)
+		for r = 1 to nL
+			if _C(xH[r][1], "=", vtIn[q])
+				xH[r] = [ vtIn[q], xHid ]
+			end
+		end
+	end
+	return xH
+end
+# one shape: size, fill, dispatch, read, scan the margin, compare. "" when it holds.
+func _MiniRunShape(tRef, nK, xBind, nN, nBand, tSuffix)
+	vtIn = _MiniNames(tRef, "in")
+	vtSc = _MiniNames(tRef, "scalar")
+	xFlat = []
+	xLens = []
+	vIds = []
+	nI = Len(vtIn)
+	for q = 1 to nI
+		xV = _MiniFlat(_MiniBind(xBind, vtIn[q]))
+		nV = Len(xV)
+		for r = 1 to nV
+			xFlat + xV[r]
+		end
+		xLens + nV
+		nId = StzEngineGpuBufferNew(_A(nV, "*", 4))
+		StzEngineGpuBufferUploadList(nId, xV)
+		vIds + nId
+	end
+	vScal = []
+	nS = Len(vtSc)
+	for q = 1 to nS
+		vScal + _MiniBind(xBind, vtSc[q])
+	end
+	nOutLen = StzEngineGpuSpecOutLen(tRef, nN)
+	nTotal = _A(nOutLen, "+", StzEngineGpuHostMargin())
+	nOut = StzEngineGpuBufferNew(_A(nTotal, "*", 4))
+	StzEngineGpuBufferFillI32(nOut, 2143289344, nTotal) # NaN: the f32 bits 0x7FC00000, everywhere
+	bAtom = _C(StzEngineGpuSpecOutAtomic(tRef), "=", 1)
+	if bAtom
+		StzEngineGpuBufferFillI32(nOut, StzEngineGpuSpecOutIdentity(tRef), nOutLen) # the counters, at their identity
+	end
+	vIds + nOut
+	StzEngineGpuDispatchParams(nK, nN, vScal, vIds, StzEngineGpuHostGroups(nN))
+	xGot = StzEngineGpuBufferDownloadList(nOut, nTotal)
+	xCnt = []
+	if bAtom
+		xCnt = StzEngineGpuBufferDownloadI32List(nOut, nOutLen) # the counters are i32s
+	end
+	xRef = StzEngineGpuSpecEval(tRef, xFlat, xLens, nN, vScal)
+	nIds = Len(vIds)
+	for q = 1 to nIds
+		StzEngineGpuBufferFree(vIds[q])
+	end
+	nW = StzEngineGpuSpecOutWidth(tRef)
+	nEl = nN
+	if bAtom
+		nW = 1
+		nEl = nOutLen
+	end
+	for k = nOutLen + 1 to nTotal
+		if _C(xGot[k], "=", xGot[k]) # a number where NaN was left: written past the region
+			return "write-outside at element " + _T((_A(_A(nEl, "+", Floor(_Q((_A(k - 1, "-", nOutLen)), nW))), "+", 1)))
+		end
+	end
+	for k = 1 to nOutLen
+		nG = xGot[k]
+		if bAtom
+			nG = xCnt[k]
+		end
+		nR = xRef[k]
+		bRN = not (_C(nR, "=", nR))
+		bGN = not (_C(nG, "=", nG))
+		if bRN and bGN
+			loop
+		end
+		if bRN or bGN or _C(_StzAbs(_A(nR, "-", nG)), ">", nBand)
+			return "mismatch" + tSuffix + " at element " + _T(Ceil(_Q(k, nW)))
+		end
+	end
+	return ""
+end
+func _MiniVerdict(tRef, tLearner, vVis, nA, xHid, nB, nBand)
+	tW = StzEngineGpuWgslElementwise(tLearner)
+	if tW = ""
+		return "refused: " + _T(StzEngineGpuWgslError())
+	end
+	nK = StzEngineGpuKernelCompile(tW)
+	if _C(nK, "=", 0)
+		return "refused: " + StzEngineGpuLastError()
+	end
+	tV = _MiniRunShape(tRef, nK, vVis, nA, nBand, "")
+	if tV != ""
+		return tV
+	end
+	if _C(nB, "=", 0)
+		nB = StzEngineGpuHostHiddenCount(nA)
+		xHid = _MiniHiddenBind(tRef, vVis, nA, nB)
+	end
+	tV = _MiniRunShape(tRef, nK, xHid, nB, nBand, "-hidden")
+	if tV != ""
+		return tV
+	end
+	return "verified"
+end
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+func _Same(pxA, pxB)
+	if _C(Len(pxA), "!=", Len(pxB))
+		return 0
+	end
+	nQ = Len(pxA)
+	for q = 1 to nQ
+		if _C(pxA[q], "!=", pxB[q])
+			return 0
+		end
+	end
+	return 1
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

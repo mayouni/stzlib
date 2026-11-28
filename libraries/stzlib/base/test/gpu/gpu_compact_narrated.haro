@@ -1,0 +1,564 @@
+# GB0 -- STREAM COMPACTION, the library layer's second op (SOFTANZA_GPU_PLAN.md, GB0;
+# built on the scan of gpu_scan_narrated.haro).
+#
+# Keep some of n f32s and pack them, IN ORDER, at the front of an output buffer; say
+# how many were kept. Two ways to say which: a MASK buffer (keep where it is not 0) or
+# a comparison with a threshold (gt ge lt le eq ne). Three steps in ONE submit: the
+# flags, an exclusive scan of the flags (each kept element's scan value is its place),
+# and a scatter that also writes the count; the count comes back through a 4-byte read.
+#
+# Parity discipline, as the scan's guard states it:
+#   - EXACT WITNESSES: elements that are whole numbers, kept and packed -- the device
+#     must equal the plain loop's list element for element, in order, at sizes that
+#     cross every scan level (1, 255, 256, 257, 65,537, 1,000,003), and at both
+#     extremes (everything kept, nothing kept);
+#   - the output is written ONLY up to the count: a sentinel past it must survive;
+#   - NEGATIVE SIBLINGS: wrong sizes, aliased buffers, a freed buffer, an unknown
+#     comparison, more elements than the counts can hold exactly (2^24), no device --
+#     and the happy path counts ZERO fallbacks.
+#
+# Run with haro: haro gpu_compact_narrated.haro
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+$nSkip = 0
+
+pr()
+
+$nStzPlaces = 10
+
+nS_OK = 0
+nS_FALLBACK = 1
+iS_STALE = 2
+iS_BADARG = 3
+iS_TOOLARGE = 4
+
+vOps = [ ">", ">=", "<", "<=", "=", "!=" ]
+
+? "-- Scene 0: the op refuses the fallback way before there is a device --"
+xF = StzEngineGpuOpCompact(1, 2, 3, 100)
+chk("a compaction before Init answers FALLBACK", _C(xF[1], "=", nS_FALLBACK))
+xF = StzEngineGpuOpCompactWhere(1, 2, 100, 0, 0)
+chk("...and so does the comparison form", _C(xF[1], "=", nS_FALLBACK))
+
+oG = new stzGpu
+bDevice = oG.IsAvailable()
+if not bDevice
+	? "  NO GPU ON THIS MACHINE -- the scenes below need a device; the fallback scene above is the CI coverage"
+else
+	? "  device: [" + _T(StzEngineGpuSelectedAdapter()) + "] " + _T(StzEngineGpuAdapterName(StzEngineGpuSelectedAdapter()))
+
+	? ""
+	? "-- Scene 1: exact witnesses, whole numbers, across every level --"
+	$nT0 = Clock()
+	StzEngineGpuCountersReset()
+	for nN in [ 1, 255, 256, 257, 65537, 1000003 ]
+		vIn = []
+		for i = 1 to nN
+			vIn + ((i * 5) % 11)
+		end
+		xRef = []
+		for i = 1 to nN
+			if _C(vIn[i], ">", 4)
+				xRef + vIn[i]
+			end
+		end
+		nHI = StzEngineGpuBufferNew(_A(nN, "*", 4))
+		nHO = StzEngineGpuBufferNew(_A(nN, "*", 4))
+		vSent = []
+		for i = 1 to nN
+			vSent + (0 - 1)
+		end
+		StzEngineGpuBufferUploadList(nHI, vIn)
+		StzEngineGpuBufferUploadList(nHO, vSent)
+		xRes = StzEngineGpuOpCompactWhere(nHI, nHO, nN, 0, 4)
+		nKept = Floor(xRes[2])
+		xOut = StzEngineGpuBufferDownloadList(nHO, nN)
+		bSame = (xRes[1] = nS_OK and _C(nKept, "=", Len(xRef)))
+		for i = 1 to Len(xRef)
+			if _C(xOut[i], "!=", xRef[i])
+				bSame = false
+				? "  first difference at " + _T(i) + ": " + _T(xOut[i]) + " against " + _T(xRef[i])
+				exit
+			end
+		end
+		bSent = true
+		for i = nKept + 1 to nN
+			if _C(xOut[i], "!=", -1)
+				bSent = false
+				exit
+			end
+		end
+		chk("n = " + _T(nN) + " (" + _T(StzEngineGpuCompactDispatches(nN)) + " dispatches): " + _T(nKept) + " kept above 4, every one the loop's, in order", bSame)
+		chk("n = " + _T(nN) + ": nothing past the count was written (the sentinel survived)", bSent)
+		StzEngineGpuBufferFree(nHI)
+		StzEngineGpuBufferFree(nHO)
+	end
+	nN = 10000
+	vIn = []
+	for i = 1 to nN
+		vIn + i
+	end
+	nHI = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	nHO = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	StzEngineGpuBufferUploadList(nHI, vIn)
+	xRes = StzEngineGpuOpCompactWhere(nHI, nHO, nN, 0, 0)
+	xOut = StzEngineGpuBufferDownloadList(nHO, nN)
+	chk("everything kept: the count is " + _T(xRes[2]) + " and the output is the input", xRes[1] = nS_OK and _C(xRes[2], "=", nN) and _C(xOut[1], "=", 1) and _C(xOut[nN], "=", nN) and _C(xOut[5000], "=", 5000))
+	xRes = StzEngineGpuOpCompactWhere(nHI, nHO, nN, 0, 1000000)
+	chk("nothing kept: the count is 0", xRes[1] = nS_OK and _C(xRes[2], "=", 0))
+	StzEngineGpuBufferFree(nHI)
+	StzEngineGpuBufferFree(nHO)
+	chk("the happy path counted zero fallbacks", _C(StzEngineGpuCounter(3), "=", 0))
+	? "  (scene 1: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+	? ""
+	? "-- Scene 2: the six comparisons, ties included --"
+	$nT0 = Clock()
+	nN = 100000
+	vIn = []
+	for i = 1 to nN
+		vIn + ((i * 5) % 7)
+	end
+	nHI = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	nHO = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	StzEngineGpuBufferUploadList(nHI, vIn)
+	for nC = 0 to 5
+		xRef = oG._CompactWhereCpu(vIn, vOps[nC + 1], 3)
+		xRes = StzEngineGpuOpCompactWhere(nHI, nHO, nN, nC, 3)
+		nKept = Floor(xRes[2])
+		xOut = []
+		if _C(nKept, ">", 0)
+			xOut = StzEngineGpuBufferDownloadList(nHO, nKept)
+		end
+		chk("x " + _T(vOps[nC + 1]) + " 3 over 100,000 whole numbers 0..6: " + _T(nKept) + " kept, the loop's list to the bit", xRes[1] = nS_OK and _C(nKept, "=", Len(xRef)) and _C(@@(xOut), "=", @@(xRef)))
+	end
+	StzEngineGpuBufferFree(nHI)
+	StzEngineGpuBufferFree(nHO)
+	? "  (scene 2: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+	? ""
+	? "-- Scene 3: the mask form, a mask made apart from the values --"
+	nN = 100000
+	vIn = []
+	vMask = []
+	for i = 1 to nN
+		vIn + i
+		vMask + (_C((i * 7) % 5, "<", 2))
+	end
+	xRef = []
+	for i = 1 to nN
+		if vMask[i]
+			xRef + vIn[i]
+		end
+	end
+	nHI = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	nHM = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	nHO = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	StzEngineGpuBufferUploadList(nHI, vIn)
+	StzEngineGpuBufferUploadList(nHM, vMask)
+	xRes = StzEngineGpuOpCompact(nHI, nHM, nHO, nN)
+	nKept = Floor(xRes[2])
+	xOut = StzEngineGpuBufferDownloadList(nHO, nKept)
+	chk("a mask keeping 2 of every 5: " + _T(nKept) + " kept, the loop's list to the bit, in order", xRes[1] = nS_OK and _C(nKept, "=", Len(xRef)) and _C(@@(xOut), "=", @@(xRef)))
+	vMask = []
+	for i = 1 to nN
+		vMask + (_A(0, "-", _A(0.5, "*", (i % 2))))
+	end
+	StzEngineGpuBufferUploadList(nHM, vMask)
+	xRes = StzEngineGpuOpCompact(nHI, nHM, nHO, nN)
+	chk("a mask of -0.5 and 0 keeps the -0.5 positions: any entry that is not 0 keeps its element (" + _T(xRes[2]) + " kept)", xRes[1] = nS_OK and _C(xRes[2], "=", _Q(nN, 2)))
+	StzEngineGpuBufferFree(nHM)
+
+	? ""
+	? "-- Scene 4: 2 + scan dispatches in one batch, the scratch kept between calls and given back --"
+	nN = 100000
+	nHI = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	StzEngineGpuBufferUploadList(nHI, vIn)
+	StzEngineGpuOpCompactWhere(nHI, nHO, nN, 0, 50000)
+	StzEngineGpuSync()
+	nD0 = StzEngineGpuCounter(0)
+	nS0 = StzEngineGpuCounter(6)
+	nL0 = StzEngineGpuCounter(8)
+	nF0 = StzEngineGpuCounter(3)
+	xRes = StzEngineGpuOpCompactWhere(nHI, nHO, nN, 0, 50000)
+	StzEngineGpuSync()
+	chk("a compaction of 100,000 is " + _T(StzEngineGpuCompactDispatches(nN)) + " dispatches (the counter says " + _T((_A(StzEngineGpuCounter(0), "-", nD0))) + ")", _C(_A(StzEngineGpuCounter(0), "-", nD0), "=", StzEngineGpuCompactDispatches(nN)) and _C(StzEngineGpuCompactDispatches(nN), "=", 7))
+	chk("...in ONE batch plus the count's read: two queue submits (the counter says " + _T((_A(StzEngineGpuCounter(6), "-", nS0))) + ")", _C(_A(StzEngineGpuCounter(6), "-", nS0), "=", 2))
+	chk("...the scratch (the flags, the places, the count) is kept, not made again: live buffers " + _T(nL0) + " before the call and " + _T(StzEngineGpuCounter(8)) + " after", _C(StzEngineGpuCounter(8), "=", nL0))
+	nLive = StzEngineGpuCounter(8)
+	StzEngineGpuCompactRelease()
+	chk("CompactRelease gives the three back (live buffers " + _T(nLive) + " then " + _T(StzEngineGpuCounter(8)) + ")", _C(StzEngineGpuCounter(8), "=", _A(nLive, "-", 3)))
+	xRes = StzEngineGpuOpCompactWhere(nHI, nHO, nN, 0, 50000)
+	chk("...and nothing fell back, and the count is right (" + _T(xRes[2]) + ")", _C(StzEngineGpuCounter(3), "=", nF0) and _C(xRes[2], "=", 50000))
+
+	? ""
+	? "-- Scene 5: what it refuses --"
+	chk("n = 0 is BAD_ARG", _C(StzEngineGpuOpCompactWhere(nHI, nHO, 0, 0, 0)[1], "=", iS_BADARG))
+	chk("an unknown comparison code is BAD_ARG", _C(StzEngineGpuOpCompactWhere(nHI, nHO, nN, 6, 0)[1], "=", iS_BADARG) and _C(StzEngineGpuOpCompactWhere(nHI, nHO, nN, 0 - 1, 0)[1], "=", iS_BADARG))
+	chk("the same buffer in and out is BAD_ARG (WebGPU aliasing validation)", _C(StzEngineGpuOpCompactWhere(nHI, nHI, nN, 0, 0)[1], "=", iS_BADARG))
+	chk("the mask as the input, or as the output, is BAD_ARG", _C(StzEngineGpuOpCompact(nHI, nHI, nHO, nN)[1], "=", iS_BADARG) and _C(StzEngineGpuOpCompact(nHI, nHO, nHO, nN)[1], "=", iS_BADARG))
+	chk("an output too small is BAD_ARG", _C(StzEngineGpuOpCompactWhere(nHI, nHO, _A(nN, "+", 1), 0, 0)[1], "=", iS_BADARG))
+	chk("more than 16,777,216 elements are refused by name before any buffer is looked at (TOO_LARGE): the counts are f32", _C(StzEngineGpuOpCompactWhere(nHI, nHO, 16777217, 0, 0)[1], "=", iS_TOOLARGE))
+	StzEngineGpuBufferFree(nHO)
+	chk("a freed output answers STALE", _C(StzEngineGpuOpCompactWhere(nHI, nHO, nN, 0, 0)[1], "=", iS_STALE))
+	StzEngineGpuBufferFree(nHI)
+
+	? ""
+	? "-- Scene 6: the face, lists in and a list out --"
+	xA = oG.CompactWhere([ 3, 1, 4, 1, 5, 9, 2, 6 ], ">", 3)
+	xB = oG.Compact([ 3, 1, 4, 1, 5, 9, 2, 6 ], [ 1, 0, 1, 0, 1, 0, 0, 1 ])
+	xC = oG.CompactWhere([ 3, 1, 4 ], ">", 100)
+	chk("CompactWhere([3 1 4 1 5 9 2 6], '>', 3) = [4 5 9 6]", @@(xA) = "[ 4, 5, 9, 6 ]")
+	chk("Compact with a mask = [3 4 5 6]", @@(xB) = "[ 3, 4, 5, 6 ]")
+	chk("nothing kept is an empty list", _C(Len(xC), "=", 0))
+	tErr = ""
+	try
+		oG.CompactWhere([ 1, 2 ], "~", 1)
+	catch
+		tErr = cCatchError
+	end
+	chk("an unknown comparison is refused by name (" + Left(tErr, 60) + ")", _C(StzFindFirst("the comparison is one of", tErr), ">", 0))
+	tErr = ""
+	try
+		oG.Compact([ 1, 2, 3 ], [ 1, 0 ])
+	catch
+		tErr = cCatchError
+	end
+	chk("a mask of another length is refused by name (" + Left(tErr, 60) + ")", _C(StzFindFirst("a mask of the same length", tErr), ">", 0))
+
+	? ""
+	? "-- Scene 7: how fast, resident, against a scale pass --"
+	$nT0 = Clock()
+	nN = 16000000
+	nHI = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	nHO = StzEngineGpuBufferNew(_A(nN, "*", 4))
+	if _C(nHI, "=", 0) or _C(nHO, "=", 0)
+		? "  (no room for two 64 MB buffers: scene skipped)"
+	else
+		oG.Wake(400)
+		StzEngineGpuSync()
+		nBestC = 1000000
+		nBestS = 1000000
+		for nRep = 1 to 5
+			StzEngineGpuSync()
+			nT = StzEngineWatchTimestampNs()
+			for q = 1 to 5
+				StzEngineGpuOpCompactWhere(nHI, nHO, nN, 0, 0 - 1)
+			end
+			nMs = _Q(_Q((_A(StzEngineWatchTimestampNs(), "-", nT)), 1000000), 5)
+			if _C(nMs, "<", nBestC)
+				nBestC = nMs
+			end
+			StzEngineGpuSync()
+			nT = StzEngineWatchTimestampNs()
+			for q = 1 to 5
+				StzEngineGpuOpScaleInPlace(nHI, 1.0, nN)
+			end
+			StzEngineGpuSync()
+			nMs = _Q(_Q((_A(StzEngineWatchTimestampNs(), "-", nT)), 1000000), 5)
+			if _C(nMs, "<", nBestS)
+				nBestS = nMs
+			end
+		end
+		? "  16,000,000 floats, " + _T(StzEngineGpuCompactDispatches(nN)) + " dispatches (the count read included): compaction " + _T(nBestC) + " ms, a scale pass over the same vector " + _T(nBestS) + " ms"
+		? "  the compaction costs " + _T((_Q(nBestC, nBestS))) + " scale passes: the flags, the scan (which moves its vector twice over), the scatter, and the count's read"
+		chk("a compaction costs under 8 scale passes (a sanity line from the measurement above, 5.2 on the 3050 once the scratch is kept; 17 when it was made on every call)", _C(_Q(nBestC, nBestS), "<", 8))
+	end
+	StzEngineGpuBufferFree(nHI)
+	StzEngineGpuBufferFree(nHO)
+	? "  (scene 7: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+	? ""
+	? "-- Scene 8: the route -- the loop against the device through the face, measured, stored, followed --"
+	$nT0 = Clock()
+	xCal = oG.CalibrateCompact()
+	? "  adapter " + _T(xCal[:adapter]) + ", flat line at " + _T(xCal[:flat]) + " (" + _T(xCal[:flatwhy]) + ")"
+	for xCell in xCal[:cells]
+		? "  n = " + _T(xCell[2]) + ": loop " + _T(xCell[3]) + " ms, face " + _T(xCell[4]) + " ms, ratio " + _T(xCell[5])
+	end
+	if xCal[:confounded]
+		# the control rung moved by more than 2x: another process held the machine, the store refused the line,
+		# and a route that was never stored cannot be followed. A gate that could not run says so; it is not a pass
+		$nSkip++
+		? "  [SKIPPED] the route checks: the machine was too loaded for a stable measurement (the control rung moved more than 2x), so nothing was stored; run this guard again on a quiet machine"
+	else
+		chk("the control rung (the first, measured again at the end) stayed within 2x, so the line is stored", not xCal[:confounded])
+		bFollow = true
+		for xCell in xCal[:cells]
+			bWin = (_C(xCell[5], ">=", 1.3))
+			if (_C(StzEngineGpuCalibRouteShaped("compact", xCell[2], 1), "=", 1)) != bWin
+				bFollow = false
+			end
+		end
+		chk("the route sends a size to the device exactly where its measured ratio reached 1.3, at every rung", bFollow)
+		vNum = []
+		for i = 1 to 200000
+			vNum + ((i * 5) % 7)
+		end
+		xR = oG.CompactWhereRouted(vNum, ">", 2.5)
+		xG = oG.CompactWhere(vNum, ">", 2.5)
+		chk("CompactWhereRouted gives the same list whichever side it ran on (200,000 whole numbers, to the bit)", _C(@@(xR), "=", @@(xG)))
+		chk("a short list stays on the loop and CompactWhereRouted answers [4 5 9]", @@(oG.CompactWhereRouted([ 3, 1, 4, 5, 9 ], ">", 3.5)) = "[ 4, 5, 9 ]" and _C(StzEngineGpuCalibRouteShaped("compact", 5, 1), "=", 0))
+	end
+	? "  (scene 8: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+end
+
+? ""
+? "-- Scene 9: puzzle 21, pack the large ones --"
+$nT0 = Clock()
+tNL = Char(10)
+oQ = StzKernelPuzzleQ("kp-21")
+chk("the starter grades 'waiting for your implementation'", oQ.Grade(oQ.Starter()) = "waiting for your implementation")
+chk("the task reads in four languages, says stream compaction and ends with what the GPU did differently from a loop",
+	oQ.Task("en") != "" and oQ.Task("fr") != "" and oQ.Task("ar") != "" and oQ.Task("ha") != "" and _C(StzFindFirst("stream compaction", oQ.Task("en")), ">", 0) and _C(StzFindFirst("differently from a loop", oQ.Task("en")), ">", 0))
+tHead = "in a" + tNL + "out c" + tNL + "shared t 256" + tNL + "shared r 256" + tNL + "stage { @t[@l] = @a }" + tNL
+tIncl = "stage { @r[@l] = sum(j, 0, 256, when(j <= @l, when(@t[j] > 5, 1, 0), 0)) }" + tNL
+# the verdicts were worked out from the data (a is (i * 7) % 13: 0 7 1 8 2 9 3 10 4 11 5 12 6 ..., so the
+# kept values, above 5, run 7 8 9 10 11 12 6 ...) before the first run:
+#   masks only:      slot 0 owes 7 and gets a[0] = 0: element 1
+#   rank one high:   slot 0 looks for rank 0, which nothing has: 0 for 7, element 1
+#   at least 5:      the 5 joins the kept values after 7 8 9 10 11, and 12 is owed there: element 6
+vCases = [
+	[ _T(tHead + tIncl) + "body { @c = sum(j, 0, 256, when(@t[j] > 5 and @r[j] == @l + 1, @t[j], 0)) }", "verified" ],
+	[ tHead + "stage { @r[@l] = sum(j, 0, 256, when(j < @l, when(@t[j] > 5, 1, 0), 0)) }" + tNL + "body { @c = sum(j, 0, 256, when(@t[j] > 5 and @r[j] == @l, @t[j], 0)) }", "verified" ],
+	[ "in a" + tNL + "out c" + tNL + "body { @c = when(@a > 5, @a, 0) }", "mismatch at element 1" ],
+	[ _T(tHead + tIncl) + "body { @c = sum(j, 0, 256, when(@t[j] > 5 and @r[j] == @l, @t[j], 0)) }", "mismatch at element 1" ],
+	[ tHead + "stage { @r[@l] = sum(j, 0, 256, when(j <= @l, when(@t[j] >= 5, 1, 0), 0)) }" + tNL + "body { @c = sum(j, 0, 256, when(@t[j] >= 5 and @r[j] == @l + 1, @t[j], 0)) }", "mismatch at element 6" ]
+]
+nAgree = 0
+for vQ in vCases
+	if bDevice
+		tV = oQ.Grade(vQ[1])
+	else
+		tV = oQ.GradeOnCpu(vQ[1])
+	end
+	chk(_T(Replace(Replace(Replace(vQ[1], tNL, " / "), "in a / out c / ", ""), "shared t 256 / shared r 256 / stage { @t[@l] = @a } / ", "")) + " -> " + _T(vQ[2]) + " (" + tV + ")", tV = vQ[2])
+	if _C(oQ.GradeOnCpu(vQ[1]), "=", vQ[2])
+		nAgree++
+	end
+end
+chk("GradeOnCpu says the same words for all " + _T(Len(vCases)) + " cases", _C(nAgree, "=", Len(vCases)))
+tV = oQ.Grade("in a" + tNL + "out c" + tNL + "shared t 256" + tNL + "stage { @t[@l] = @t[@l] + 1 }" + tNL + "body { @c = @t[@l] }")
+chk("a stage that reads the array it writes is refused by name (" + Left(tV, 60) + ")", _C(StzFindFirst("refused", tV), "=", 1) and _C(StzFindFirst("cannot read the array it writes", tV), ">", 0))
+if bDevice
+	oE = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/kp-21")
+	# the parent lets go of the card first: since the GPU lease (2026-11-14) the graders ProveItself starts
+	# cannot take it from their own parent, and would wait and answer "waiting for the device" (KP-PROVE-FLAKE)
+	StzEngineGpuShutdown()
+	xPr = oE.ProveItself()
+	chk("the exercise proves itself through the System's checker: wrong refused " + _T(xPr[:wrong]) + ", right accepted " + _T(xPr[:right]) + ", failures " + _T(@@(xPr[:failures])),
+		_C(xPr[:wrong], "=", 5) and _C(xPr[:right], "=", 2) and _C(Len(xPr[:failures]), "=", 0))
+end
+? "  (scene 9: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail" + ", " + _T($nSkip) + " skipped"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	return _StzF(xA) / _StzF(xB)
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

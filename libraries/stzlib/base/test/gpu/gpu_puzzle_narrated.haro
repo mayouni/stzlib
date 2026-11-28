@@ -1,0 +1,298 @@
+# KP1 -- THE PUZZLE FORM AND ITS RUNNERS (SOFTANZA_GPU_PLAN.md, KP1).
+#
+# A kernel puzzle is an exercise of the Learning System in the System's own
+# shape -- exercise.zknw, task.<lang>.md, promise.ring, right/, wrong/ --
+# plus two texts the grammar reads, reference.txt and starter.txt, and data
+# facts the two runners build the same vectors from. The promise is ONE
+# WORD, the checker's verdict; the learner's program builds a description
+# and prints what the grader says of it. The desktop runner is
+# stzKernelPuzzle over the face; the browser runner is a page over stz.wasm
+# and WebGPU, in the edge proof's shape; the same text gets the same words.
+#
+# What this suite asserts, negative siblings beside each:
+#   - the course is declared and opens through the program; the puzzle
+#     folder is an exercise the System reads (its promise, its right/ and
+#     wrong/ counts, its task in four languages)
+#   - the puzzle opens: its facts give n and the data, its reference and its
+#     starter read; a description text round-trips through FromSpec
+#   - the starter grades "waiting for your implementation" (a puzzle starts
+#     red); a refused description grades "refused: ..." naming the offender;
+#     the task's inputs must be declared in the task's order
+#   - on the CPU alone, with no device: the right answers grade verified,
+#     the wrong operator is named at its element, the cheat at the hidden shape
+#   - on the device: the same four verdicts, word for word -- the two paths
+#     agree -- and the dropped guard is write-outside at n + 1 (the mistake
+#     only a device shows)
+#   - the exercise PROVES ITSELF through the System's own checker: every
+#     wrong answer refused, every right answer accepted, by running them
+#
+# Run with haro: haro gpu_puzzle_narrated.haro
+
+load "../../stzBase.ring"
+$nStzPlaces = 2
+
+$nPass = 0
+$nFail = 0
+
+pr()
+
+? "-- Scene 0: the course and the puzzle, as the Learning System reads them --"
+oP = StzProgramQ("../../education/program")
+chk("the program declares the course kernel-puzzles", StzFindFirst("kernel-puzzles", oP.Courses()) > 0)
+oCk = oP.CourseQ("kernel-puzzles")
+chk("...and the course has thirteen chapters (KP2's four, KP3's group memory and roofline, GL0's branch, whole numbers, vector, counter, loop and volume, GB0's scan)", Len(oCk.ChapterIds()) = 13)
+bOpens = true
+try
+	oC = oP.CourseQ("kernel-puzzles")
+catch
+	bOpens = false
+end
+chk("...and the course opens through the program", bOpens)
+oEx = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/kp-01")
+chk("kp-01 is an exercise the System reads: its promise is the one word 'verified'", Len(oEx.Promises()) = 1 and ring_trim(oEx.Promises()[1]) = "verified")
+chk("...with two right answers and three wrong ones shipped", Len(oEx.RightAnswers()) = 2 and Len(oEx.WrongAnswers()) = 3)
+chk("...and a task in the four languages (fr, ar, ha marked as provisional translations)",
+	oEx.HasTaskIn("en") and oEx.HasTaskIn("fr") and oEx.HasTaskIn("ar") and oEx.HasTaskIn("ha"))
+
+oPz = StzKernelPuzzleQ("kp-01")
+? "  reference: " + StzReplace(oPz.Reference(), Char(10), " / ") + "   n = " + _T(oPz.Elements())
+chk("the puzzle opens with n from its facts", oPz.Elements() = 4000)
+chk("...its reference is the task's description", StzFindFirst("@c = @a * 2", oPz.Reference()) > 0)
+chk("...its starter has no body (red until the learner writes one)", StzFindFirst("body", oPz.Starter()) = 0)
+xB = oPz.Bindings()
+chk("...and its data is built from its facts: one input a, a ramp of 4000", Len(xB) = 1 and xB[1][1] = "a" and Len(xB[1][2]) = 4000 and xB[1][2][1] = 0 and xB[1][2][4000] = 3999)
+chk("the task reads in English and in French", StzFindFirst("Puzzle 1", oPz.Task("en")) > 0 and StzFindFirst("1", oPz.Task("fr")) > 0)
+oRef = StzKernelMakerFromSpec(oPz.Reference())
+chk("a description text round-trips through FromSpec", ring_trim(oRef.Spec()) = ring_trim(oPz.Reference()))
+
+? ""
+? "-- Scene 1: the verdicts no device is needed for --"
+chk("the starter grades 'waiting for your implementation'", oPz.Grade(oPz.Starter()) = "waiting for your implementation")
+kEmpty = StzKernelMakerQ()
+kEmpty.TakesVector(:a)
+kEmpty.ReturnsVector(:c)
+chk("...and so does a maker with no body", oPz.Grade(kEmpty) = "waiting for your implementation")
+tV = oPz.Grade("in a" + Char(10) + "out c" + Char(10) + "body { @c = foo(@a) }")
+? "  " + tV
+chk("a refused description grades 'refused: ...' naming the offender", StzLeft(tV, 8) = "refused:" and StzFindFirst("foo", tV) > 0)
+tV = oPz.GradeOnCpu("in a" + Char(10) + "out c" + Char(10) + "body { @c = @a * 2 }")
+chk("on the CPU alone, the right answer grades 'verified'", tV = "verified")
+chk("...and so does the other right answer", oPz.GradeOnCpu("in a" + Char(10) + "out c" + Char(10) + "body { @c = @a + @a }") = "verified")
+tV = oPz.GradeOnCpu("in a" + Char(10) + "out c" + Char(10) + "body { @c = @a * 3 }")
+? "  " + tV
+chk("...the wrong operator is a mismatch at element 2 (the first is 0 either way)", tV = "mismatch at element 2")
+tV = oPz.GradeOnCpu("in a" + Char(10) + "out c" + Char(10) + "body { @c = @i * 2 }")
+? "  " + tV
+chk("...the cheat (twice the INDEX, right where a[i] = i) is caught at the hidden shape, element 1", tV = "mismatch-hidden at element 1")
+tV = oPz.GradeOnCpu("in b" + Char(10) + "out c" + Char(10) + "body { @c = @b * 2 }")
+chk("...an input not the task's is refused, naming yours and the task's", StzLeft(tV, 8) = "refused:" and StzFindFirst('"b"', tV) > 0 and StzFindFirst('"a"', tV) > 0)
+
+if StzEngineGpuInit($tStzGpuRuntime) = 0 or StzEngineGpuIsAvailable() = 0
+	? "  NO GPU ON THIS MACHINE -- the device scenes need one; Scenes 0 and 1 are the coverage"
+else
+	? ""
+	? "-- Scene 2: the same text on the device, the same words --"
+	chk("the right answer grades 'verified' on the device", oPz.Grade("in a" + Char(10) + "out c" + Char(10) + "body { @c = @a * 2 }") = "verified")
+	chk("...the other right answer too", oPz.Grade("in a" + Char(10) + "out c" + Char(10) + "body { @c = @a + @a }") = "verified")
+	chk("...the wrong operator: the SAME words as the CPU path", oPz.Grade("in a" + Char(10) + "out c" + Char(10) + "body { @c = @a * 3 }") = "mismatch at element 2")
+	chk("...the cheat: the SAME words as the CPU path", oPz.Grade("in a" + Char(10) + "out c" + Char(10) + "body { @c = @i * 2 }") = "mismatch-hidden at element 1")
+	tV = oPz.Grade("in a" + Char(10) + "out c" + Char(10) + "guard none" + Char(10) + "body { @c = @a * 2 }")
+	? "  guard none at n = 4000: " + tV
+	chk("the dropped guard is write-outside at element 4001 -- the mistake only a device shows", tV = "write-outside at element 4001")
+	chk("...which the CPU path cannot see (it answers verified, values only)", oPz.GradeOnCpu("in a" + Char(10) + "out c" + Char(10) + "guard none" + Char(10) + "body { @c = @a * 2 }") = "verified")
+
+	? ""
+	? "-- Scene 3: the exercise proves itself through the System's own checker, by running --"
+	# the parent lets go of the card first: since the GPU lease (2026-11-14) the graders ProveItself starts
+	# cannot take it from their own parent, and would wait and answer "waiting for the device" (KP-PROVE-FLAKE)
+	StzEngineGpuShutdown()
+	xPr = oEx.ProveItself()
+	? "  wrong refused " + _T(xPr[:wrong]) + "   right accepted " + _T(xPr[:right]) + "   failures " + _T(@@(xPr[:failures]))
+	chk("every wrong answer is refused and every right answer accepted (3 and 2)", xPr[:wrong] = 3 and xPr[:right] = 2 and Len(xPr[:failures]) = 0)
+end
+
+? ""
+? "-- Scene 5 (KP2): puzzles 2 to 8 -- each right answer verified, each wrong answer named, each exercise proving itself --"
+# [ puzzle, description, the words the grader must say ]; a description is written out
+# because the words are the thing under test, not the sibling file that prints them
+vCases = [
+	[ "kp-02", "in a" + Char(10) + "in b" + Char(10) + "out c" + Char(10) + "body { @c = @a + @b }", "verified" ],
+	[ "kp-02", "in a" + Char(10) + "in b" + Char(10) + "out c" + Char(10) + "body { @c = @b + @a }", "verified" ],
+	[ "kp-02", "in a" + Char(10) + "in b" + Char(10) + "out c" + Char(10) + "body { @c = @a - @b }", "mismatch at element 2" ],
+	[ "kp-02", "in a" + Char(10) + "in b" + Char(10) + "out c" + Char(10) + "body { @c = @a + @a }", "mismatch at element 2" ],
+	[ "kp-03", "in a" + Char(10) + "scalar alpha" + Char(10) + "out c" + Char(10) + "body { @c = alpha * @a }", "verified" ],
+	[ "kp-03", "in a" + Char(10) + "scalar alpha" + Char(10) + "out c" + Char(10) + "body { @c = @a * alpha }", "verified" ],
+	[ "kp-03", "in a" + Char(10) + "scalar alpha" + Char(10) + "out c" + Char(10) + "body { @c = @a * 2 }", "mismatch at element 2" ],
+	[ "kp-03", "in a" + Char(10) + "scalar alpha" + Char(10) + "out c" + Char(10) + "body { @c = alpha + @a }", "mismatch at element 1" ],
+	[ "kp-04", "in a" + Char(10) + "out c" + Char(10) + "body { @c = @a + @i }", "verified" ],
+	[ "kp-04", "in a" + Char(10) + "out c" + Char(10) + "body { @c = @i + @a }", "verified" ],
+	[ "kp-04", "in a" + Char(10) + "out c" + Char(10) + "body { @c = @a + @i + 1 }", "mismatch at element 1" ],
+	[ "kp-04", "in a" + Char(10) + "out c" + Char(10) + "body { @c = @i }", "mismatch at element 2" ],
+	[ "kp-05", "in a" + Char(10) + "out c" + Char(10) + "guard { @i < n }" + Char(10) + "body { @c = @a * 2 }", "verified" ],
+	[ "kp-05", "in a" + Char(10) + "out c" + Char(10) + "body { @c = @a * 2 }", "verified" ],
+	[ "kp-05", "in a" + Char(10) + "out c" + Char(10) + "guard none" + Char(10) + "body { @c = @a * 2 }", "write-outside at element 4001" ],
+	[ "kp-05", "in a" + Char(10) + "out c" + Char(10) + "guard { @i < n - 1 }" + Char(10) + "body { @c = @a * 2 }", "mismatch at element 4000" ],
+	[ "kp-06", "in a" + Char(10) + "out c" + Char(10) + "guard { @i > 0 and @i < n - 1 }" + Char(10) + "body { @c = (@a[@i - 1] + @a + @a[@i + 1]) / 3 }", "verified" ],
+	[ "kp-06", "in a" + Char(10) + "out c" + Char(10) + "guard { @i > 0 and @i < n - 1 }" + Char(10) + "body { @c = (@a[@i + 1] + @a + @a[@i - 1]) / 3 }", "verified" ],
+	[ "kp-06", "in a" + Char(10) + "out c" + Char(10) + "body { @c = (@a[@i - 1] + @a + @a[@i + 1]) / 3 }", "mismatch at element 1" ],
+	[ "kp-06", "in a" + Char(10) + "out c" + Char(10) + "guard { @i > 0 and @i < n - 1 }" + Char(10) + "body { @c = (@a[@i - 1] + @a[@i + 1]) / 2 }", "mismatch at element 2" ],
+	[ "kp-07", "in a" + Char(10) + "out c" + Char(10) + "body { @c = sum(k, 0, 16, @a[@i * 16 + k]) }", "verified" ],
+	[ "kp-07", "in a" + Char(10) + "out c" + Char(10) + "body { @c = sum(k, 0, 16, @a[k + @i * 16]) }", "verified" ],
+	[ "kp-07", "in a" + Char(10) + "out c" + Char(10) + "body { @c = sum(k, 0, 15, @a[@i * 16 + k]) }", "mismatch at element 1" ],
+	[ "kp-07", "in a" + Char(10) + "out c" + Char(10) + "body { @c = sum(k, 0, 16, @a[@i + k]) }", "mismatch at element 2" ],
+	[ "kp-08", "in c" + Char(10) + "scalar m" + Char(10) + "out d" + Char(10) + "body { @d = sum(k, 0, m, @c[k]) }", "verified" ],
+	[ "kp-08", "in c" + Char(10) + "scalar m" + Char(10) + "out d" + Char(10) + "body { @d = sum(k, 0, 1024, @c[k]) }", "verified" ],
+	[ "kp-08", "in c" + Char(10) + "scalar m" + Char(10) + "out d" + Char(10) + "body { @d = sum(k, 0, m - 1, @c[k]) }", "mismatch at element 1" ],
+	[ "kp-08", "in c" + Char(10) + "scalar m" + Char(10) + "out d" + Char(10) + "body { @d = @c }", "mismatch at element 1" ]
+]
+vtPuzzles = [ "kp-02", "kp-03", "kp-04", "kp-05", "kp-06", "kp-07", "kp-08" ]
+for tId in vtPuzzles
+	oQ = StzKernelPuzzleQ(tId)
+	chk(tId + ": the starter grades 'waiting for your implementation'", oQ.Grade(oQ.Starter()) = "waiting for your implementation")
+	chk(tId + ": the reference grades itself verified on the CPU", oQ.GradeOnCpu(oQ.Reference()) = "verified")
+	chk(tId + ": the task reads in four languages", oQ.Task("en") != "" and oQ.Task("fr") != "" and oQ.Task("ar") != "" and oQ.Task("ha") != "")
+	chk(tId + ": the task ends with what the GPU did differently from a loop", StzFindFirst("differently from a loop", oQ.Task("en")) > 0)
+end
+bDevice = (StzEngineGpuInit($tStzGpuRuntime) != 0 and StzEngineGpuIsAvailable() != 0)
+for xCase in vCases
+	oQ = StzKernelPuzzleQ(xCase[1])
+	if bDevice
+		tV = oQ.Grade(xCase[2])
+	else
+		tV = oQ.GradeOnCpu(xCase[2])
+	end
+	tBody = StzSplit(xCase[2], Char(10))[Len(StzSplit(xCase[2], Char(10)))]
+	if not bDevice and xCase[3] = "write-outside at element 4001"
+		chk(_T(xCase[1]) + " " + tBody + " -> (no device: the margin cannot be seen) " + tV, tV = "verified")
+	else
+		chk(_T(xCase[1]) + " " + tBody + " -> " + _T(xCase[3]), tV = xCase[3])
+	end
+end
+if bDevice
+	? "  the two paths agree on every VALUE verdict (the margin is the device's alone):"
+	nAgree = 0
+	nValue = 0
+	for xCase in vCases
+		if xCase[3] != "write-outside at element 4001"
+			nValue++
+			if StzKernelPuzzleQ(xCase[1]).GradeOnCpu(xCase[2]) = xCase[3]
+				nAgree++
+			end
+		end
+	end
+	chk("...GradeOnCpu says the same words as Grade for all " + _T(nValue) + " value cases", nAgree = nValue)
+	? "  each exercise proves itself through the System's checker, by running its programs:"
+	for tId in vtPuzzles
+		oE = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/" + tId)
+		# the parent lets go of the card first: since the GPU lease (2026-11-14) the graders ProveItself starts
+		# cannot take it from their own parent, and would wait and answer "waiting for the device" (KP-PROVE-FLAKE)
+		StzEngineGpuShutdown()
+		xPr = oE.ProveItself()
+		chk(tId + ": wrong refused " + _T(xPr[:wrong]) + ", right accepted " + _T(xPr[:right]) + ", failures " + _T(@@(xPr[:failures])),
+			xPr[:wrong] = 3 and xPr[:right] = 2 and Len(xPr[:failures]) = 0)
+	end
+end
+
+? ""
+? "-- Scene 4: the browser runner exists beside the course --"
+tRunner = "../../gpu/puzzle_runner/puzzle.html"
+chk("the page is there", FExists(tRunner))
+tPage = Read(tRunner)
+chk("...it fetches the puzzle's reference, starter and facts (one source for both runners)",
+	StzFindFirst("reference.txt", tPage) > 0 and StzFindFirst("starter.txt", tPage) > 0 and StzFindFirst("exercise.zknw", tPage) > 0)
+chk("...it grades with the wasm interpreter and a NaN margin, in the face's words",
+	StzFindFirst("stz_gpu_spec_eval_masked", tPage) > 0 and StzFindFirst("write-outside at element", tPage) > 0 and StzFindFirst("mismatch${suffix} at element", tPage) > 0)
+chk("...and its data recipes are the face's five", StzFindFirst("mod13", tPage) > 0 and StzFindFirst("tenths", tPage) > 0)
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T(($nPass + $nFail)) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = (nI - nI % nScale) / nScale
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end

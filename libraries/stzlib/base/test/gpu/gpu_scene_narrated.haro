@@ -1,0 +1,520 @@
+# The 2D DISPLAY LIST and its TWO renderers -- GR2b of the graphics plane
+# (SOFTANZA_GRAPHICS_PLAN.md).
+#
+# One model, two backends. A scene is a painter-ordered list of shapes and
+# text in pixel space; ToSvg emits vector text with NO device (the tier
+# ladder's CI-safe floor), ToPng tessellates and draws through the GR1
+# surface. Neither backend owns the geometry -- the display list does --
+# so they cannot disagree about WHERE anything sits.
+#
+# This guard asserts the MECHANISMS, each with its negative sibling:
+#   - the SVG tier works deviceless, and carries the EXACT numbers asked
+#     for (a coordinate typo cannot hide behind "it looks right")
+#   - opaque axis-aligned rects render BYTE-IDENTICAL to a CPU-computed
+#     reference -- alpha blending arrived in GR2b and did NOT cost the
+#     GR0/GR1 exactness witness (src-over at a=1 is plain overwrite)
+#   - painter order holds ACROSS kinds (a later shape covers an earlier
+#     one; text does not silently float above shapes)
+#   - the circle's parity band is COMPUTED, not hoped for: the segment
+#     count comes from a sagitta bound, and the rendered pixels honour it
+#     (filled inside r-1, clear outside r+1)
+#   - the gradient interpolates (ends exact, midpoint between them)
+#   - text lands on BOTH tiers from the SAME layout: the SVG's glyph path
+#     and the GPU's ink both start where text_layout said
+#   - the atlas CACHES glyphs (a repeated word rasters once) and it is a
+#     TEXTURE atlas, not a font atlas
+#   - retained buffers: redrawing an unchanged scene does NOT rebuild
+#     (the build counter is the witness, not a comment)
+#   - refusals answer by name; a device-less ToPng is COUNTED
+#
+# CI note: every scene except the explicitly-GPU ones runs without a
+# device. The SVG tier IS the CI coverage, exactly as the plan says.
+#
+# STANDALONE like the other gpu guards: loads only the engine bridge.
+
+$tEngineDir = "../../../engine"
+# the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
+load "../../../core/common/stkRingLibs.haro"
+load "../../../engine/stz_gpu.haro"
+$nStzPlaces = 2
+
+$nPass = 0
+$nFail = 0
+
+iC_FALL = 3
+xC_SUB  = 6
+
+# packed 0xRRGGBBAA colors, built arithmetically (no hex-literal reliance)
+xRED    = rgba(220,  60,  60, 255)
+xGREEN  = rgba( 60, 180,  90, 255)
+xBLUE   = rgba( 70, 110, 230, 255)
+xGOLD   = rgba(240, 200,  40, 255)
+xWHITE  = rgba(255, 255, 255, 255)
+xBG     = rgba( 16,  20,  24, 255)
+
+? "-- Scene 1: the SVG tier is the floor -- no device, exact numbers --"
+chk("no device is present", _C(StzEngineGpuIsAvailable(), "=", 0))
+nHS = StzEngineGpuSceneNew(200, 150)
+chk("scene created (id > 0)", _C(nHS, ">", 0))
+StzEngineGpuSceneClear(nHS, xBG)
+chk("rect accepted", _C(StzEngineGpuSceneRect(nHS, 20, 30, 60, 40, xRED), "=", 0))
+chk("circle accepted", _C(StzEngineGpuSceneCircle(nHS, 120, 75, 25, xBLUE), "=", 0))
+chk("line accepted", _C(StzEngineGpuSceneLine(nHS, 10, 140, 190, 140, 4, xGREEN), "=", 0))
+chk("command count is 3 (clear is not a command)", _C(StzEngineGpuSceneCommandCount(nHS), "=", 3))
+tSvg = StzEngineGpuSceneToSvg(nHS)
+chk("SVG came back", _C(Len(tSvg), ">", 100))
+chk("SVG header carries the scene size",
+    _C(SubStr(tSvg, 'width="200" height="150"'), ">", 0) and _C(SubStr(tSvg, 'viewBox="0 0 200 150"'), ">", 0))
+chk("the rect's EXACT coordinates are in the SVG",
+    _C(SubStr(tSvg, 'x="20" y="30" width="60" height="40"'), ">", 0))
+chk("the circle's EXACT geometry is in the SVG",
+    _C(SubStr(tSvg, 'cx="120" cy="75" r="25"'), ">", 0))
+chk("colors round-trip as rgb()", _C(SubStr(tSvg, 'rgb(220,60,60)'), ">", 0))
+chk("stroke carries round joins AND caps (matching the tessellator)",
+    _C(SubStr(tSvg, 'stroke-linejoin="round"'), ">", 0) and _C(SubStr(tSvg, 'stroke-linecap="round"'), ">", 0))
+chk("document is closed", _C(SubStr(tSvg, "</svg>"), ">", 0))
+
+? ""
+? "-- Scene 2: the tessellation is real, and its curve bound is COMPUTED --"
+xSt = StzEngineGpuSceneStats(nHS)
+# GR5 widened this to 6: `builds` counts TESSELLATIONS, and a frame loop
+# needed to know about UPLOADS as well -- a still scene that re-tessellates
+# once can still re-upload its whole vertex set 60 times a second, which is
+# exactly what the window found it doing. DN3b widened it to 10: what a build
+# COULD NOT DRAW -- text dropped, glyphs dropped, shape and text draws refused
+# -- so an invisible failure is a number a guard can fail on. This guard read
+# six for a month after that and was red (found 2026-09-11 auditing the plane).
+chk("stats answer [cmds, shapeV, textV, segs, builds, uploads, textDropped, glyphsDropped, shapeRefused, textRefused]", _C(Len(xSt), "=", 10))
+chk("a healthy scene dropped and refused nothing (the four DN3b slots are 0)", _C(xSt[7], "=", 0) and _C(xSt[8], "=", 0) and _C(xSt[9], "=", 0) and _C(xSt[10], "=", 0))
+chk("3 commands", _C(xSt[1], "=", 3))
+# rect 6 verts + circle 3*N + line (quad 6 + 2 discs of 3*M)
+nSegC = StzEngineGpuCircleSegments(25)
+chk("circle at r=25 tessellates to a computed segment count", _C(nSegC, ">=", 12))
+nSag = _A(25, "*", (_A(1, "-", Cos(_Q(3.14159265358979, nSegC)))))
+chk("its chord sagitta is under the 0.15 px bound (" + _T(nSag) + ")", _C(nSag, "<=", 0.15))
+chk("a bigger radius needs MORE segments (the bound scales)",
+    _C(StzEngineGpuCircleSegments(400), ">", nSegC))
+chk("shape vertices were produced", _C(xSt[2], ">", 6))
+chk("no text vertices in a text-free scene", _C(xSt[3], "=", 0))
+chk("one draw segment (all shapes, one kind)", _C(xSt[4], "=", 1))
+
+? ""
+? "-- Scene 3: retained buffers -- an unchanged scene does NOT rebuild --"
+nBuilds = xSt[5]
+xSt2 = StzEngineGpuSceneStats(nHS)
+chk("second read did not rebuild (the §3b door, witnessed)", _C(xSt2[5], "=", nBuilds))
+StzEngineGpuSceneRect(nHS, 5, 5, 10, 10, xWHITE)
+xSt3 = StzEngineGpuSceneStats(nHS)
+chk("adding a command DOES rebuild", _C(xSt3[5], "=", _A(nBuilds, "+", 1)))
+chk("and the vertex count grew by one quad", _C(xSt3[2], "=", _A(xSt2[2], "+", 6)))
+
+? ""
+? "-- Scene 4: refusals answer by name --"
+chk("zero-size scene refuses", _C(StzEngineGpuSceneNew(0, 100), "=", 0))
+chk("rect with zero width refuses BAD_ARG", _C(StzEngineGpuSceneRect(nHS, 0, 0, 0, 10, xRED), "=", 3))
+chk("circle with zero radius refuses BAD_ARG", _C(StzEngineGpuSceneCircle(nHS, 0, 0, 0, xRED), "=", 3))
+chk("polygon with 2 points refuses BAD_ARG", _C(StzEngineGpuScenePolygon(nHS, [0,0, 1,1], xRED), "=", 3))
+nHDead = StzEngineGpuSceneNew(10, 10)
+StzEngineGpuSceneFree(nHDead)
+chk("freed scene answers STALE", _C(StzEngineGpuSceneFree(nHDead), "=", 2))
+chk("drawing into a freed scene answers STALE", _C(StzEngineGpuSceneRect(nHDead, 0,0,1,1, xRED), "=", 2))
+chk("ToSvg on a freed scene answers ''", StzEngineGpuSceneToSvg(nHDead) = "")
+nF0 = StzEngineGpuCounter(iC_FALL)
+chk("ToPng with NO device answers ''", StzEngineGpuSceneToPng(nHS, 1) = "")
+chk("and the refusal was COUNTED", _C(StzEngineGpuCounter(iC_FALL), ">", nF0))
+
+? ""
+? "-- Scene 5: concave polygons fill (ear clipping, not a fan) --"
+nHP = StzEngineGpuSceneNew(100, 100)
+# an L: 6 vertices, one reflex corner -- a triangle fan would spill outside
+StzEngineGpuScenePolygon(nHP, [10,10, 90,10, 90,40, 40,40, 40,90, 10,90], xGOLD)
+xPs = StzEngineGpuSceneStats(nHP)
+chk("6-gon tessellates to exactly (n-2) triangles = 12 verts", _C(xPs[2], "=", 12))
+tPsvg = StzEngineGpuSceneToSvg(nHP)
+chk("SVG carries the polygon with its exact points",
+    _C(SubStr(tPsvg, '<polygon points="10,10 90,10 90,40 40,40 40,90 10,90"'), ">", 0))
+
+? ""
+? "-- Scene 6: text rides the GR2a pipeline on BOTH tiers --"
+tFontBytes = Read("fixtures/amiri_arabic_subset.ttf")
+nHFont = StzEngineGpuFontLoad(tFontBytes)
+chk("fixture font loaded", _C(nHFont, ">", 0))
+StzEngineGpuAtlasReset()
+nHT = StzEngineGpuSceneNew(300, 100)
+StzEngineGpuSceneClear(nHT, xBG)
+chk("text accepted", _C(StzEngineGpuSceneText(nHT, nHFont, "Softanza", 20, 60, 28, xWHITE), "=", 0))
+xLay = StzEngineGpuTextLayout(nHFont, "Softanza", 28)
+tTsvg = StzEngineGpuSceneToSvg(nHT)
+chk("SVG emits glyph OUTLINES (a path, not a <text> the viewer must shape)",
+    _C(SubStr(tTsvg, '<path d="M'), ">", 0))
+chk("SVG needs no font installed to render right", _C(SubStr(tTsvg, "font-family"), "=", 0))
+xTs = StzEngineGpuSceneStats(nHT)
+chk("text vertices exist (6 per inked glyph)", _C(xTs[3], ">", 0))
+chk("and they are a whole number of quads", _C(xTs[3] % 6, "=", 0))
+chk("glyph count and quad count agree", _C(_Q(xTs[3], 6), "<=", Len(xLay[3])))
+
+? ""
+? "-- Scene 7: the atlas caches -- the same word rasters ONCE --"
+xA1 = StzEngineGpuAtlasStats()
+chk("atlas has entries after layout", _C(xA1[3], ">", 0))
+nHT2 = StzEngineGpuSceneNew(300, 100)
+StzEngineGpuSceneText(nHT2, nHFont, "Softanza", 20, 60, 28, xGOLD)
+StzEngineGpuSceneStats(nHT2)
+xA2 = StzEngineGpuAtlasStats()
+chk("the same glyphs at the same size add NO new entries", _C(xA2[3], "=", xA1[3]))
+StzEngineGpuSceneText(nHT2, nHFont, "Softanza", 20, 90, 41, xGOLD)
+StzEngineGpuSceneStats(nHT2)
+xA3 = StzEngineGpuAtlasStats()
+chk("a DIFFERENT size does add entries (size is part of the key)", _C(xA3[3], ">", xA2[3]))
+chk("the atlas is a texture surface, not a glyph list", _C(xA1[1], "=", 1024) and _C(xA1[2], "=", 1024))
+
+? ""
+? "-- Scene 8: Arabic goes through the SAME pipeline on the SVG tier --"
+tAr = Char(0xD8)+Char(0xB3) + Char(0xD9)+Char(0x88) + Char(0xD9)+Char(0x81) +
+      Char(0xD8)+Char(0xAA) + Char(0xD8)+Char(0xA7) + Char(0xD9)+Char(0x86) +
+      Char(0xD8)+Char(0xB2) + Char(0xD8)+Char(0xA7)
+nHAr = StzEngineGpuSceneNew(300, 100)
+StzEngineGpuSceneText(nHAr, nHFont, tAr, 20, 60, 28, xWHITE)
+tArSvg = StzEngineGpuSceneToSvg(nHAr)
+chk("Arabic emits outlines too", _C(SubStr(tArSvg, '<path d="M'), ">", 0))
+xArS = StzEngineGpuSceneStats(nHAr)
+xArLay = StzEngineGpuTextLayout(nHFont, tAr, 28)
+chk("8 shaped glyphs -> 8 quads (joined forms, not codepoints)",
+    _C(xArS[3], "=", Len(xArLay[3]) * 6))
+chk("the scene's text is as wide as the pipeline says", _C(xArLay[1], ">", 0))
+
+? ""
+? "-- Scene 9: with a device, the GPU tier draws the SAME model --"
+nInit = StzEngineGpuInit($tStzGpuRuntime)
+if _C(StzEngineGpuIsAvailable(), "=", 0)
+    ? "  NO GPU ON THIS MACHINE -- GPU tier skipped; scenes 1-8 ARE the coverage"
+else
+    ? "  device: " + _T(StzEngineGpuAdapterName(StzEngineGpuSelectedAdapter()))
+
+    # -- opaque rects: byte-identical to a CPU-computed reference
+    nW = 60  nH = 40
+    nHG = StzEngineGpuSceneNew(nW, nH)
+    StzEngineGpuSceneClear(nHG, xBG)
+    StzEngineGpuSceneRect(nHG, 5, 5, 20, 10, xRED)
+    StzEngineGpuSceneRect(nHG, 30, 20, 25, 15, xGREEN)
+    StzEngineGpuSceneRect(nHG, 10, 12, 12, 12, xBLUE)   # overlaps the first
+    tPix = StzEngineGpuSceneToPixels(nHG)
+    chk("GPU tier returned w*h*4 bytes", _C(Len(tPix), "=", _A(_A(nW, "*", nH), "*", 4)))
+    vRefRects = [ [5,5,20,10, 220,60,60], [30,20,25,15, 60,180,90], [10,12,12,12, 70,110,230] ]
+    nBad = 0
+    for y = 0 to nH - 1
+        for x = 0 to nW - 1
+            vC = [16, 20, 24]
+            vR11 = vRefRects       # painter order: later wins
+            nR11 = Len(vR11)
+            for iR11 = 1 to nR11
+            	vRect = vR11[iR11]
+                if _C(x, ">=", vRect[1]) and _C(x, "<", _A(vRect[1], "+", vRect[3])) and
+                   _C(y, ">=", vRect[2]) and _C(y, "<", _A(vRect[2], "+", vRect[4]))
+                    vC = [vRect[5], vRect[6], vRect[7]]
+                end
+            end
+            nO = _A((_A(_A(y, "*", nW), "+", x)), "*", 4)
+            if _C(Ascii(SubStr(tPix, _A(nO, "+", 1), 1)), "!=", vC[1]) or
+               _C(Ascii(SubStr(tPix, _A(nO, "+", 2), 1)), "!=", vC[2]) or
+               _C(Ascii(SubStr(tPix, _A(nO, "+", 3), 1)), "!=", vC[3])
+                nBad++
+            end
+        end
+    end
+    chk("opaque rects are BYTE-IDENTICAL to the CPU reference (" + _T(nBad) + " of " +
+        _T((_A(nW, "*", nH))) + " wrong)", _C(nBad, "=", 0))
+    chk("painter order held: the blue rect covers the red one",
+        pxeq(tPix, nW, 15, 15, 70, 110, 230))
+
+    # -- one pass per render, however many shapes
+    StzEngineGpuCountersReset()
+    StzEngineGpuSceneToPixels(nHG)
+    chk("a whole scene costs ONE render submit", _C(StzEngineGpuCounter(xC_SUB), "=", 2))  # pass + readback
+
+    # -- the circle's computed parity band, checked on real pixels
+    nHC = StzEngineGpuSceneNew(80, 80)
+    StzEngineGpuSceneClear(nHC, xBG)
+    StzEngineGpuSceneCircle(nHC, 40, 40, 30, xGOLD)
+    tCpix = StzEngineGpuSceneToPixels(nHC)
+    chk("circle centre is filled", pxeq(tCpix, 80, 40, 40, 240, 200, 40))
+    chk("a pixel just INSIDE the rim is filled (sagitta < 1px)",
+        pxeq(tCpix, 80, 40, 12, 240, 200, 40))
+    chk("a pixel just OUTSIDE the rim is background",
+        pxeq(tCpix, 80, 40, 8, 16, 20, 24))
+    chk("the corner (far outside) is background", pxeq(tCpix, 80, 2, 2, 16, 20, 24))
+
+    # -- gradient: ends exact, middle between them
+    nHGr = StzEngineGpuSceneNew(64, 20)
+    StzEngineGpuSceneRectGradient(nHGr, 0, 0, 64, 20, rgba(0,0,0,255), rgba(255,255,255,255), 0)
+    tGpix = StzEngineGpuSceneToPixels(nHGr)
+    nL = Ascii(SubStr(tGpix, _A(_A((_A(10 * 64, "+", 1)), "*", 4), "+", 1), 1))
+    nM = Ascii(SubStr(tGpix, _A(_A((_A(10 * 64, "+", 32)), "*", 4), "+", 1), 1))
+    nR = Ascii(SubStr(tGpix, _A(_A((_A(10 * 64, "+", 63)), "*", 4), "+", 1), 1))
+    chk("gradient starts dark (" + _T(nL) + ")", _C(nL, "<", 12))
+    chk("gradient ends bright (" + _T(nR) + ")", _C(nR, ">", 243))
+    chk("and the middle sits between them (" + _T(nM) + ")", _C(nM, ">", 100) and _C(nM, "<", 155))
+
+    # -- alpha actually blends (the negative sibling of the exactness claim)
+    nHAl = StzEngineGpuSceneNew(20, 20)
+    StzEngineGpuSceneClear(nHAl, rgba(0, 0, 0, 255))
+    StzEngineGpuSceneRect(nHAl, 0, 0, 20, 20, rgba(255, 255, 255, 128))
+    tApix = StzEngineGpuSceneToPixels(nHAl)
+    nHalf = Ascii(SubStr(tApix, _A(_A((_A(10 * 20, "+", 10)), "*", 4), "+", 1), 1))
+    chk("a 50% white over black lands mid-grey (" + _T(nHalf) + ")", _C(nHalf, ">", 118) and _C(nHalf, "<", 138))
+
+    # -- text: ink lands where the layout said, on the GPU tier
+    nHTG = StzEngineGpuSceneNew(200, 60)
+    StzEngineGpuSceneClear(nHTG, xBG)
+    StzEngineGpuSceneText(nHTG, nHFont, "Soft", 20, 42, 32, xWHITE)
+    tTpix = StzEngineGpuSceneToPixels(nHTG)
+    nInk = 0
+    nInkLeft = 999
+    for x = 0 to 199
+        for y = 0 to 59
+            nO = _A((_A(_A(y, "*", 200), "+", x)), "*", 4)
+            if _C(Ascii(SubStr(tTpix, _A(nO, "+", 1), 1)), ">", 140)
+                nInk++
+                if _C(x, "<", nInkLeft) nInkLeft = x end
+            end
+        end
+    end
+    chk("text put real ink on the target (" + _T(nInk) + " px)", _C(nInk, ">", 100))
+    xTL = StzEngineGpuTextLayout(nHFont, "Soft", 32)
+    chk("the leftmost ink starts at the layout's pen (x=20, got " + _T(nInkLeft) + ")",
+        _C(nInkLeft, ">=", 18) and _C(nInkLeft, "<=", 26))
+    chk("nothing inked left of the pen", _C(nInkLeft, ">=", 18))
+
+    # -- the atlas texture is a GPU resident, and survives a redraw
+    xAG = StzEngineGpuAtlasStats()
+    chk("the atlas uploaded to the device", _C(xAG[4], ">=", 1))
+    StzEngineGpuSceneToPixels(nHTG)
+    xAG2 = StzEngineGpuAtlasStats()
+    chk("an unchanged atlas does NOT re-upload", _C(xAG2[4], "=", xAG[4]))
+
+    # -- both tiers, same model: the SVG of the SAME scene still holds
+    tTsvg2 = StzEngineGpuSceneToSvg(nHTG)
+    chk("the GPU-rendered scene still emits its SVG twin", _C(SubStr(tTsvg2, '<path d="M'), ">", 0))
+
+    # -- device loss: the scene survives, the SVG tier keeps working
+    StzEngineGpuShutdown()
+    chk("ToPng refuses once the device is gone", StzEngineGpuSceneToPng(nHG, 1) = "")
+    chk("but ToSvg still answers -- the floor never depended on a device",
+        _C(Len(StzEngineGpuSceneToSvg(nHG)), ">", 50))
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+func rgba(nR, nG, nB, nA)
+	return _A(_A(_A(_A(nR, "*", 16777216), "+", _A(nG, "*", 65536)), "+", _A(nB, "*", 256)), "+", nA)
+end
+func pxeq(tBytes, nRowW, nX, nY, nR, nG, nB)
+	nOff = _A((_A(_A(Floor(nY), "*", nRowW), "+", Floor(nX))), "*", 4)
+	return _C(Ascii(SubStr(tBytes, _A(nOff, "+", 1), 1)), "=", nR) and
+	       _C(Ascii(SubStr(tBytes, _A(nOff, "+", 2), 1)), "=", nG) and
+	       _C(Ascii(SubStr(tBytes, _A(nOff, "+", 3), 1)), "=", nB)
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	return _StzF(xA) / _StzF(xB)
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

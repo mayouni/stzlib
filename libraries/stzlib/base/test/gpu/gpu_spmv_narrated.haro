@@ -1,0 +1,657 @@
+# GB0 -- THE CSR SPARSE-DENSE PRODUCT, the library layer's last op (SOFTANZA_GPU_PLAN.md,
+# GB0; what the graph and neural desks asked for).
+#
+# y = A x with A a sparse matrix in CSR form (row offsets, columns, values; offsets and
+# columns travel as f32 whole numbers, exact below 2^24), x a dense vector -- or, with k
+# columns, a dense matrix. Two kernels because the shape decides: one thread per output
+# element walking its row (no waste on a short row), and one workgroup of 256 threads per row
+# whose partials a tree adds (right for a long row). The variant is chosen by the mean row
+# length against a threshold this guard measures, or by the caller.
+#
+# Parity discipline, as the scan's guard states it:
+#   - EXACT WITNESSES: whole numbers (negatives included), the plain loop's answer, to the
+#     bit, for BOTH kernels and for auto, on matrices of every shape that matters: rows of
+#     1 to 300 entries, empty rows, a few huge rows among tiny ones, a single row, a single entry;
+#   - the dense-matrix product against the loop at k = 1, 2, 3, 8;
+#   - a TOLERANCE BAND where the sums round, set from measurement;
+#   - NEGATIVE SIBLINGS: wrong sizes, aliased buffers, a freed buffer, an unknown variant, an
+#     oversized matrix, no device -- and the happy path counts ZERO fallbacks.
+# The CSR is deliberately NOT validated by the op (reading the offsets back would cost more
+# than the product): the face checks the one thing it can see cheaply, that the offsets start at
+# 0 and end at the number of entries.
+#
+# Run with haro: haro gpu_spmv_narrated.haro
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+$nSkip = 0
+
+pr()
+
+$nStzPlaces = 10
+
+nS_OK = 0
+nS_FALLBACK = 1
+iS_STALE = 2
+iS_BADARG = 3
+iS_TOOLARGE = 4
+
+? "-- Scene 0: the ops refuse the fallback way before there is a device --"
+chk("a sparse product before Init answers FALLBACK", _C(StzEngineGpuOpSpmv(1, 2, 3, 4, 5, 10, 10, 0), "=", nS_FALLBACK))
+chk("...and so does the dense-matrix form", _C(StzEngineGpuOpSpmm(1, 2, 3, 4, 5, 10, 10, 2), "=", nS_FALLBACK))
+
+oG = new stzGpu
+bDevice = oG.IsAvailable()
+if not bDevice
+	? "  NO GPU ON THIS MACHINE -- the scenes below need a device; the fallback scene above is the CI coverage"
+else
+	? "  device: [" + _T(StzEngineGpuSelectedAdapter()) + "] " + _T(StzEngineGpuAdapterName(StzEngineGpuSelectedAdapter()))
+
+	? ""
+	? "-- Scene 1: exact, both kernels and auto, matrices of every shape --"
+	$nT0 = Clock()
+	StzEngineGpuCountersReset()
+	nCols = 777
+	xX = _Xvec(nCols, 1)
+	vShapes = []
+	for nL in [ 1, 2, 5, 16, 31, 32, 100, 300 ]
+		xLens = []
+		for i = 1 to 500
+			xLens + nL
+		end
+		vShapes + [ "500 rows of " + _T(nL), xLens ]
+	end
+	vMixed = []
+	for i = 1 to 600
+		if _C(i % 5, "=", 0)
+			vMixed + 0
+		else
+			vMixed + (i % 11)
+		end
+	end
+	vShapes + [ "600 rows, every fifth empty, the rest 1 to 10", vMixed ]
+	vShapes + [ "a few huge rows among tiny ones", [ 0, 1, 3000, 0, 5, 2, 1500, 1, 0, 0, 700, 3, 0 ] ]
+	vShapes + [ "a single row of 5,000", [ 5000 ] ]
+	vShapes + [ "a single entry", [ 1 ] ]
+	vShapes + [ "257 rows of 1 (crosses a workgroup)", _Fill(257, 1) ]
+	for xS in vShapes
+		xCsr = _Csr(xS[2], nCols)
+		nR = Len(xS[2])
+		nZ = Len(xCsr[2])
+		xRef = _RefSpmv(xCsr[1], xCsr[2], xCsr[3], xX)
+		nHR = StzEngineGpuBufferNew(_A((_A(nR, "+", 1)), "*", 4))
+		nHC = StzEngineGpuBufferNew(_A(nZ, "*", 4))
+		nHV = StzEngineGpuBufferNew(_A(nZ, "*", 4))
+		nHX = StzEngineGpuBufferNew(_A(nCols, "*", 4))
+		nHY = StzEngineGpuBufferNew(_A(nR, "*", 4))
+		StzEngineGpuBufferUploadList(nHR, xCsr[1])
+		StzEngineGpuBufferUploadList(nHC, xCsr[2])
+		StzEngineGpuBufferUploadList(nHV, xCsr[3])
+		StzEngineGpuBufferUploadList(nHX, xX)
+		tOk = ""
+		for nVar = 0 to 2
+			nSt = StzEngineGpuOpSpmv(nHR, nHC, nHV, nHX, nHY, nR, nZ, nVar)
+			xOut = StzEngineGpuBufferDownloadList(nHY, nR)
+			if nSt != nS_OK or _C(@@(xOut), "!=", @@(xRef))
+				tOk += " [variant " + _T(nVar) + " differs]"
+			end
+		end
+		chk(_T(xS[1]) + " (" + _T(nZ) + " entries): variants auto, scalar and vector all equal the loop, to the bit" + tOk, tOk = "")
+		StzEngineGpuBufferFree(nHR)
+		StzEngineGpuBufferFree(nHC)
+		StzEngineGpuBufferFree(nHV)
+		StzEngineGpuBufferFree(nHX)
+		StzEngineGpuBufferFree(nHY)
+	end
+	chk("the happy path counted zero fallbacks", _C(StzEngineGpuCounter(3), "=", 0))
+	chk("auto picks the scalar kernel below a mean row length of 4, the lanes one from 4 and the vector one from 1,024", _C(StzEngineGpuSpmvVariantFor(1000, 3000), "=", 1) and _C(StzEngineGpuSpmvVariantFor(1000, 4000), "=", 3) and _C(StzEngineGpuSpmvVariantFor(1000, 1023000), "=", 3) and _C(StzEngineGpuSpmvVariantFor(1000, 1024000), "=", 2) and _C(StzEngineGpuSpmvVariantFor(10, 20000), "=", 2))
+	? "  (scene 1: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+	? ""
+	? "-- Scene 2: the dense-matrix product, k columns --"
+	$nT0 = Clock()
+	xLens = []
+	for i = 1 to 400
+		if _C(i % 7, "=", 0)
+			xLens + 0
+		else
+			xLens + (i % 13)
+		end
+	end
+	xCsr = _Csr(xLens, nCols)
+	nR = 400
+	nZ = Len(xCsr[2])
+	nHR = StzEngineGpuBufferNew(_A((_A(nR, "+", 1)), "*", 4))
+	nHC = StzEngineGpuBufferNew(_A(nZ, "*", 4))
+	nHV = StzEngineGpuBufferNew(_A(nZ, "*", 4))
+	StzEngineGpuBufferUploadList(nHR, xCsr[1])
+	StzEngineGpuBufferUploadList(nHC, xCsr[2])
+	StzEngineGpuBufferUploadList(nHV, xCsr[3])
+	for nK in [ 1, 2, 3, 8 ]
+		xXk = _Xvec(_A(nCols, "*", nK), 1)
+		nHX = StzEngineGpuBufferNew(_A(_A(nCols, "*", nK), "*", 4))
+		nHY = StzEngineGpuBufferNew(_A(_A(nR, "*", nK), "*", 4))
+		StzEngineGpuBufferUploadList(nHX, xXk)
+		nSt = StzEngineGpuOpSpmm(nHR, nHC, nHV, nHX, nHY, nR, nZ, nK)
+		xOut = StzEngineGpuBufferDownloadList(nHY, _A(nR, "*", nK))
+		xRef = _RefSpmm(xCsr[1], xCsr[2], xCsr[3], xXk, nK)
+		chk("k = " + _T(nK) + ": " + _T(nR) + " x " + _T(nK) + " answers, every one the loop's, to the bit", nSt = nS_OK and _C(@@(xOut), "=", @@(xRef)))
+		StzEngineGpuBufferFree(nHX)
+		StzEngineGpuBufferFree(nHY)
+	end
+	StzEngineGpuBufferFree(nHR)
+	StzEngineGpuBufferFree(nHC)
+	StzEngineGpuBufferFree(nHV)
+	? "  (scene 2: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+	? ""
+	? "-- Scene 3: fractions, against the loop in f64 --"
+	nR = 2000
+	xLens = _Fill(nR, 20)
+	xCsr = _Csr(xLens, nCols)
+	nZ = Len(xCsr[2])
+	vVf = []
+	for i = 1 to nZ
+		vVf + (_A(_Q(((i * 37) % 1000), 1000.0), "+", 0.001))
+	end
+	vXf = []
+	for i = 1 to nCols
+		vXf + (_A(_Q(((i * 91) % 997), 997.0), "+", 0.001))
+	end
+	nHR = StzEngineGpuBufferNew(_A((_A(nR, "+", 1)), "*", 4))
+	nHC = StzEngineGpuBufferNew(_A(nZ, "*", 4))
+	nHV = StzEngineGpuBufferNew(_A(nZ, "*", 4))
+	nHX = StzEngineGpuBufferNew(_A(nCols, "*", 4))
+	nHY = StzEngineGpuBufferNew(_A(nR, "*", 4))
+	StzEngineGpuBufferUploadList(nHR, xCsr[1])
+	StzEngineGpuBufferUploadList(nHC, xCsr[2])
+	StzEngineGpuBufferUploadList(nHV, vVf)
+	StzEngineGpuBufferUploadList(nHX, vXf)
+	xRef = _RefSpmv(xCsr[1], xCsr[2], StzEngineGpuBufferDownloadList(nHV, nZ), StzEngineGpuBufferDownloadList(nHX, nCols))
+	for nVar = 1 to 2
+		StzEngineGpuOpSpmv(nHR, nHC, nHV, nHX, nHY, nR, nZ, nVar)
+		xOut = StzEngineGpuBufferDownloadList(nHY, nR)
+		nMaxRel = 0
+		for i = 1 to nR
+			xRel = _Q(_StzAbs(_A(xOut[i], "-", xRef[i])), xRef[i])
+			if _C(xRel, ">", nMaxRel)
+				nMaxRel = xRel
+			end
+		end
+		? "  variant " + _T(nVar) + ": measured max relative error against the f64 product of the uploaded values, 2,000 rows of 20: " + _T(nMaxRel)
+		chk("band: variant " + _T(nVar) + " relative error < 1e-5 (the band is set from the measurement printed above)", _C(nMaxRel, "<", 0.00001))
+	end
+
+	? ""
+	? "-- Scene 4: one dispatch, one submit, no buffer made --"
+	StzEngineGpuSync()
+	nD0 = StzEngineGpuCounter(0)
+	nS0 = StzEngineGpuCounter(6)
+	nL0 = StzEngineGpuCounter(8)
+	nF0 = StzEngineGpuCounter(3)
+	StzEngineGpuOpSpmv(nHR, nHC, nHV, nHX, nHY, nR, nZ, 1)
+	StzEngineGpuSync()
+	chk("a sparse product is ONE dispatch (the counter says " + _T((_A(StzEngineGpuCounter(0), "-", nD0))) + ") in ONE queue submit (" + _T((_A(StzEngineGpuCounter(6), "-", nS0))) + ")", _C(_A(StzEngineGpuCounter(0), "-", nD0), "=", 1) and _C(_A(StzEngineGpuCounter(6), "-", nS0), "=", 1))
+	chk("...no scratch: live buffers " + _T(nL0) + " before and " + _T(StzEngineGpuCounter(8)) + " after, and nothing fell back", _C(StzEngineGpuCounter(8), "=", nL0) and _C(StzEngineGpuCounter(3), "=", nF0))
+
+	? ""
+	? "-- Scene 5: what it refuses --"
+	chk("zero rows is BAD_ARG", _C(StzEngineGpuOpSpmv(nHR, nHC, nHV, nHX, nHY, 0, nZ, 0), "=", iS_BADARG))
+	chk("zero entries is BAD_ARG", _C(StzEngineGpuOpSpmv(nHR, nHC, nHV, nHX, nHY, nR, 0, 0), "=", iS_BADARG))
+	chk("an unknown variant is BAD_ARG", _C(StzEngineGpuOpSpmv(nHR, nHC, nHV, nHX, nHY, nR, nZ, 4), "=", iS_BADARG))
+	chk("k = 0 or a fractional k is BAD_ARG", _C(StzEngineGpuOpSpmm(nHR, nHC, nHV, nHX, nHY, nR, nZ, 0), "=", iS_BADARG) and _C(StzEngineGpuOpSpmm(nHR, nHC, nHV, nHX, nHY, nR, nZ, 1.5), "=", iS_BADARG))
+	chk("one buffer in two roles is BAD_ARG (WebGPU aliasing validation)", _C(StzEngineGpuOpSpmv(nHR, nHC, nHV, nHX, nHX, nR, nZ, 0), "=", iS_BADARG) and _C(StzEngineGpuOpSpmv(nHC, nHC, nHV, nHX, nHY, nR, nZ, 0), "=", iS_BADARG))
+	chk("an output too small, offsets too short or values too few are BAD_ARG", _C(StzEngineGpuOpSpmv(nHR, nHC, nHV, nHX, nHY, _A(nR, "+", 1), nZ, 0), "=", iS_BADARG) and _C(StzEngineGpuOpSpmv(nHR, nHC, nHV, nHX, nHY, nR, _A(nZ, "+", 1), 0), "=", iS_BADARG))
+	chk("more than 16,777,216 entries are refused by name (TOO_LARGE): the offsets and columns are f32", _C(StzEngineGpuOpSpmv(nHR, nHC, nHV, nHX, nHY, nR, 16777217, 0), "=", iS_TOOLARGE))
+	StzEngineGpuBufferFree(nHY)
+	chk("a freed output answers STALE", _C(StzEngineGpuOpSpmv(nHR, nHC, nHV, nHX, nHY, nR, nZ, 0), "=", iS_STALE))
+	StzEngineGpuBufferFree(nHR)
+	StzEngineGpuBufferFree(nHC)
+	StzEngineGpuBufferFree(nHV)
+	StzEngineGpuBufferFree(nHX)
+
+	? ""
+	? "-- Scene 6: the face, lists in and a list out --"
+	vRp = [ 0, 2, 3, 6 ]
+	vCo = [ 0, 2, 1, 0, 1, 2 ]
+	vVa = [ 1, 2, 3, 4, 5, 6 ]
+	chk("[[1 0 2] [0 3 0] [4 5 6]] times [1 2 3] = [7 6 32]", @@(oG.Spmv(vRp, vCo, vVa, [ 1, 2, 3 ])) = "[ 7, 6, 32 ]")
+	chk("...with each kernel forced: [7 6 32] again", @@(oG.SpmvWith(vRp, vCo, vVa, [ 1, 2, 3 ], 1)) = "[ 7, 6, 32 ]" and @@(oG.SpmvWith(vRp, vCo, vVa, [ 1, 2, 3 ], 2)) = "[ 7, 6, 32 ]")
+	chk("...times the matrix [[1 10] [2 20] [3 30]] = [[7 70] [6 60] [32 320]], flat", @@(oG.Spmm(vRp, vCo, vVa, [ 1, 10, 2, 20, 3, 30 ], 2)) = "[ 7, 70, 6, 60, 32, 320 ]")
+	tErr = ""
+	try
+		oG.Spmv([ 1, 2, 3, 6 ], vCo, vVa, [ 1, 2, 3 ])
+	catch
+		tErr = cCatchError
+	end
+	chk("offsets that do not start at 0 are refused by name (" + Left(tErr, 60) + ")", _C(StzFindFirst("start at 0 and end at the number of entries", tErr), ">", 0))
+	tErr = ""
+	try
+		oG.Spmv(vRp, vCo, [ 1, 2 ], [ 1, 2, 3 ])
+	catch
+		tErr = cCatchError
+	end
+	chk("columns and values of different lengths are refused by name (" + Left(tErr, 60) + ")", _C(StzFindFirst("give me a CSR matrix", tErr), ">", 0))
+
+	? ""
+	? "-- Scene 7: how fast, and where the two kernels cross --"
+	$nT0 = Clock()
+	nZ = 1000000
+	nColsBig = 100000
+	vCo = []
+	vVa = []
+	for i = 0 to nZ - 1
+		vCo + ((i * 7919) % nColsBig)
+		vVa + (_A((i % 9), "-", 4))
+	end
+	xXb = _Xvec(nColsBig, 1)
+	nHC = StzEngineGpuBufferNew(_A(nZ, "*", 4))
+	nHV = StzEngineGpuBufferNew(_A(nZ, "*", 4))
+	nHX = StzEngineGpuBufferNew(_A(nColsBig, "*", 4))
+	StzEngineGpuBufferUploadList(nHC, vCo)
+	StzEngineGpuBufferUploadList(nHV, vVa)
+	StzEngineGpuBufferUploadList(nHX, xXb)
+	oG.Wake(400)
+	StzEngineGpuSync()
+	? "  1,000,000 entries, rows of L entries (best of 5, three products to a sync):"
+	bAutoOk = true
+	for nL in [ 2, 4, 8, 16, 32, 64, 128, 256, 512 ]
+		nR = Floor(_Q(nZ, nL))
+		vRp = []
+		for i = 0 to nR
+			vRp + (_A(i, "*", nL))
+		end
+		nHR = StzEngineGpuBufferNew(_A((_A(nR, "+", 1)), "*", 4))
+		nHY = StzEngineGpuBufferNew(_A(nR, "*", 4))
+		StzEngineGpuBufferUploadList(nHR, vRp)
+		vBest = [ 0, 1000000, 1000000, 1000000 ]
+		for nVar = 1 to 3
+			StzEngineGpuOpSpmv(nHR, nHC, nHV, nHX, nHY, nR, _A(nR, "*", nL), nVar)
+			for nRep = 1 to 5
+				StzEngineGpuSync()
+				nT = StzEngineWatchTimestampNs()
+				for q = 1 to 3
+					StzEngineGpuOpSpmv(nHR, nHC, nHV, nHX, nHY, nR, _A(nR, "*", nL), nVar)
+				end
+				StzEngineGpuSync()
+				nMs = _Q(_Q((_A(StzEngineWatchTimestampNs(), "-", nT)), 1000000), 3)
+				if _C(nMs, "<", vBest[nVar + 1])
+					vBest[nVar + 1] = nMs
+				end
+			end
+		end
+		nAuto = StzEngineGpuSpmvVariantFor(nR, _A(nR, "*", nL))
+		nWin = 1
+		nMin = vBest[2]
+		for nV = 2 to 3
+			if _C(vBest[nV + 1], "<", nMin)
+				nMin = vBest[nV + 1]
+				nWin = nV
+			end
+		end
+		nChosen = vBest[nAuto + 1]
+		tZone = ""
+		if _C(nL, "=", 2) or _C(nL, "=", 4) or _C(nL, "=", 512)
+			tZone = "  [a crossover zone: two kernels trade places from run to run, not asserted]"
+		end
+		? "  L = " + _T(nL) + " (" + _T(nR) + " rows): scalar " + _T(vBest[2]) + " ms, vector " + _T(vBest[3]) + " ms, lanes " + _T(vBest[4]) + " ms; faster: " + _T(nWin) + ", auto picks " + _T(nAuto) + " (" + _T((_Q(nChosen, nMin))) + " of the best)" + tZone
+		if tZone = "" and _C(nChosen, ">", _A(1.5, "*", nMin))
+			bAutoOk = false
+		end
+		StzEngineGpuBufferFree(nHR)
+		StzEngineGpuBufferFree(nHY)
+	end
+	chk("away from the crossovers (rows of 2 and 4, rows of 512) auto's choice is within 1.5x of the fastest of the three kernels; at the crossovers two kernels trade places from run to run, which is why the thresholds, 4 and 1,024, are measurements printed above and not lines either side can fail", bAutoOk)
+	StzEngineGpuBufferFree(nHC)
+	StzEngineGpuBufferFree(nHV)
+	StzEngineGpuBufferFree(nHX)
+	? "  (scene 7: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+	? ""
+	? "-- Scene 8: the route -- the loop against the device through the face, measured, stored, followed --"
+	$nT0 = Clock()
+	xCal = oG.CalibrateSpmv()
+	? "  adapter " + _T(xCal[:adapter]) + ", flat line at " + _T(xCal[:flat]) + " rows (" + _T(xCal[:flatwhy]) + ")"
+	for xCell in xCal[:cells]
+		? "  n = " + _T(xCell[2]) + " rows of 16: loop " + _T(xCell[3]) + " ms, face " + _T(xCell[4]) + " ms, ratio " + _T(xCell[5])
+	end
+	if xCal[:confounded]
+		# the control rung moved by more than 2x: another process held the machine, the store refused the line,
+		# and a route that was never stored cannot be followed. A gate that could not run says so; it is not a pass
+		$nSkip++
+		? "  [SKIPPED] the route checks: the machine was too loaded for a stable measurement (the control rung moved more than 2x), so nothing was stored; run this guard again on a quiet machine"
+	else
+		chk("the control rung (the first, measured again at the end) stayed within 2x, so the line is stored", 1)
+		bFollow = true
+		for xCell in xCal[:cells]
+			bWin = (_C(xCell[5], ">=", 1.3))
+			if (_C(StzEngineGpuCalibRouteShaped("spmv", xCell[2], 1), "=", 1)) != bWin
+				bFollow = false
+			end
+		end
+		chk("the route sends a size to the device exactly where its measured ratio reached 1.3, at every rung", bFollow)
+		xCsr = _Csr(_Fill(20000, 16), 20000)
+		xXr = _Xvec(20000, 1)
+		chk("SpmvRouted gives the same product whichever side it ran on (20,000 rows of 16, to the bit)", _C(@@(oG.SpmvRouted(xCsr[1], xCsr[2], xCsr[3], xXr)), "=", @@(oG._SpmvCpu(xCsr[1], xCsr[2], xCsr[3], xXr))))
+		chk("a tiny matrix stays on the loop and SpmvRouted answers [7 6 32]", @@(oG.SpmvRouted([ 0, 2, 3, 6 ], [ 0, 2, 1, 0, 1, 2 ], [ 1, 2, 3, 4, 5, 6 ], [ 1, 2, 3 ])) = "[ 7, 6, 32 ]" and _C(StzEngineGpuCalibRouteShaped("spmv", 3, 1), "=", 0))
+	end
+	? "  (scene 8: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+end
+
+? ""
+? "-- Scene 9: puzzle 24, a sparse matrix times a vector --"
+$nT0 = Clock()
+tNL = Char(10)
+oQ = StzKernelPuzzleQ("kp-24")
+chk("the starter grades 'waiting for your implementation'", oQ.Grade(oQ.Starter()) = "waiting for your implementation")
+chk("the task reads in four languages, names Spmv and ends with what the GPU did differently from a loop",
+	oQ.Task("en") != "" and oQ.Task("fr") != "" and oQ.Task("ar") != "" and oQ.Task("ha") != "" and _C(StzFindFirst("Spmv", oQ.Task("en")), ">", 0) and _C(StzFindFirst("differently from a loop", oQ.Task("en")), ">", 0))
+tHead = "in a" + tNL + "in b" + tNL + "in x" + tNL + "out y" + tNL
+# the verdicts were worked out from the data before the first run. a is the ramp (k), b is (k * 3) % 7 (columns
+# 0 3 6 2 5 1 4 0 ... in row 0) and x is (c * 7) % 13, so x of those columns is 0 8 3 1 9 7 2 0 and row 0 is
+# 0*0 + 1*8 + 2*3 + 3*1 + 4*9 + 5*7 + 6*2 + 7*0 = 100:
+#   swapped:       b * x[a] makes row 0 = 74 (3 * 7 + 6 * 1 + 2 * 8 + 5 * 2 + 1 * 9 + 4 * 3): element 1
+#   stride of 7:   row 0 starts at 0 either way, so it is right; row 1 starts one entry early: element 2
+#   nine entries:  row 0 takes a ninth, k = 8 (8 * x[3] = 64 more): element 1
+#   no gather:     x[j] for the column: row 0 = 174 (1*7 + 2*1 + 3*8 + 4*2 + 5*9 + 6*3 + 7*10) where 100 is owed: element 1
+vCases = [
+	[ "body { @y = sum(j, 0, 8, @a[@i * 8 + j] * @x[@b[@i * 8 + j]]) }", "verified" ],
+	[ "body { @y = sum(k, @i * 8, @i * 8 + 8, @a[k] * @x[@b[k]]) }", "verified" ],
+	[ "body { @y = sum(j, 0, 8, @b[@i * 8 + j] * @x[@a[@i * 8 + j]]) }", "mismatch at element 1" ],
+	[ "body { @y = sum(j, 0, 8, @a[@i * 7 + j] * @x[@b[@i * 7 + j]]) }", "mismatch at element 2" ],
+	[ "body { @y = sum(j, 0, 9, @a[@i * 8 + j] * @x[@b[@i * 8 + j]]) }", "mismatch at element 1" ],
+	[ "body { @y = sum(j, 0, 8, @a[@i * 8 + j] * @x[j]) }", "mismatch at element 1" ]
+]
+nAgree = 0
+for vQ in vCases
+	tSpec = tHead + vQ[1]
+	if bDevice
+		tV = oQ.Grade(tSpec)
+	else
+		tV = oQ.GradeOnCpu(tSpec)
+	end
+	chk(_T(vQ[1]) + " -> " + _T(vQ[2]) + " (" + tV + ")", tV = vQ[2])
+	if _C(oQ.GradeOnCpu(tSpec), "=", vQ[2])
+		nAgree++
+	end
+end
+chk("GradeOnCpu says the same words for all " + _T(Len(vCases)) + " cases", _C(nAgree, "=", Len(vCases)))
+if bDevice
+	oE = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/kp-24")
+	# the parent lets go of the card first: since the GPU lease (2026-11-14) the graders ProveItself starts
+	# cannot take it from their own parent, and would wait and answer "waiting for the device" (KP-PROVE-FLAKE)
+	StzEngineGpuShutdown()
+	xPr = oE.ProveItself()
+	chk("the exercise proves itself through the System's checker: wrong refused " + _T(xPr[:wrong]) + ", right accepted " + _T(xPr[:right]) + ", failures " + _T(@@(xPr[:failures])),
+		_C(xPr[:wrong], "=", 5) and _C(xPr[:right], "=", 2) and _C(Len(xPr[:failures]), "=", 0))
+end
+? "  (scene 9: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail" + ", " + _T($nSkip) + " skipped"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+func _Fill(nN, nV)
+	xR = []
+	for q = 1 to nN
+		xR + nV
+	end
+	return xR
+end
+# the dense vector (or flat matrix): whole numbers, negatives included
+func _Xvec(nN, nDummy)
+	xR = []
+	for c = 0 to nN - 1
+		xR + (_A(((_A(c, "*", 5)) % 11), "-", 5))
+	end
+	return xR
+end
+# a CSR matrix with the row lengths given: [ rowptr, cols, vals ], offsets 0-based
+func _Csr(xLens, nCols)
+	vRp = [ 0 ]
+	vCo = []
+	vVa = []
+	nAt = 0
+	nR = Len(xLens)
+	for r = 0 to nR - 1
+		for e = 0 to xLens[r + 1] - 1
+			vCo + ((_A(r * 7919, "+", _A(e, "*", 131))) % nCols)
+			vVa + (_A(((_A(r, "+", _A(e, "*", 3))) % 9), "-", 4))
+		end
+		nAt = _A(nAt, "+", xLens[r + 1])
+		vRp + nAt
+	end
+	return [ vRp, vCo, vVa ]
+end
+func _RefSpmv(vRp, vCo, vVa, xX)
+	xOut = []
+	nR = Len(vRp) - 1
+	for r = 1 to nR
+		nAcc = 0
+		for e = vRp[r] + 1 to vRp[r + 1]
+			nAcc = _A(nAcc, "+", _A(vVa[e], "*", xX[vCo[e] + 1]))
+		end
+		xOut + nAcc
+	end
+	return xOut
+end
+func _RefSpmm(vRp, vCo, vVa, xX, nK)
+	xOut = []
+	nR = Len(vRp) - 1
+	for r = 1 to nR
+		for j = 0 to nK - 1
+			nAcc = 0
+			for e = vRp[r] + 1 to vRp[r + 1]
+				nAcc = _A(nAcc, "+", _A(vVa[e], "*", xX[vCo[e] * nK + j + 1]))
+			end
+			xOut + nAcc
+		end
+	end
+	return xOut
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	return _StzF(xA) / _StzF(xB)
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

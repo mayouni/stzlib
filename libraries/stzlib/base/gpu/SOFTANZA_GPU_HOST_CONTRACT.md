@@ -19,7 +19,7 @@ Before this contract the numbers existed four times (the Ring face twice,
 the puzzle grader, the browser page), and a copy that drifts is a verdict
 that differs between hosts. They are defined once, in `gpu_host.zig`, and a
 host that spells one of them itself is wrong by definition. The guard
-`base/test/gpu/gpu_host_narrated.ring` scans the host files for them.
+`base/test/gpu/gpu_host_narrated.haro` scans the host files for them.
 
 ## 2. The numbers
 
@@ -125,7 +125,7 @@ host writes bits it does not compute.
 ## 7. Conformance
 
 A host conforms when it reaches the same verdict words as the face. The
-guard `base/test/gpu/gpu_host_narrated.ring` holds a *reference host*: about
+guard `base/test/gpu/gpu_host_narrated.haro` holds a *reference host*: about
 a hundred and fifty lines of Ring, written from this document and calling only the
 engine's entry points (no `stzGpu`, no `stzKernelMaker`, no
 `stzKernelPuzzle`), which it compares with the face on 17 cases from puzzles

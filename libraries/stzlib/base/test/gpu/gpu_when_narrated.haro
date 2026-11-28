@@ -1,0 +1,406 @@
+# GL0 -- THE CONDITIONAL VALUE (SOFTANZA_GPU_PLAN.md, GL0; the reader's
+# account of the language is base/gpu/SOFTANZA_GPU_KERNELS.md, 3.1).
+#
+# The kernel language grows one admission at a time, each with a puzzle, a
+# refusal list and both readers agreeing. The first is a choice between two
+# values:
+#
+#     when(condition, value if true, value if false)
+#
+# The transpiler writes it as WGSL's select, whose FALSE value comes first:
+# select(f, t, c). The order is written once, in the rewriter, and the
+# random-kernel fuzz's SWAP control proves that a swapped pair would be
+# caught: it exchanges the two values in each generated kernel's WGSL and
+# counts the kernels the run then judges defective. The interpreter jumps
+# over the value it does not choose; neither value has a side effect, so the
+# result is the device's.
+#
+# A condition's SHAPE is read from its source once, by both readers, before
+# either compiles it: comparisons between values, joined by and / or, grouped
+# by parentheses. That closed four holes the guard line had since KP0 -- a
+# bare value as a guard, a comparison used as a number -- which reached the
+# device and failed there in naga's words. They are refused here in the
+# learner's.
+#
+# Run with haro: haro gpu_when_narrated.haro
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+pr()
+
+$nStzPlaces = 6
+tNL = Char(10)
+
+? "-- Scene 1: one value in both readers --"
+$nT0 = Clock()
+kRelu = StzKernelMakerFromSpec("in a" + tNL + "out c" + tNL + "body { @c = when(@a > 0, @a, 0) }")
+tW = kRelu.ToWGSL()
+chk("the transpiler writes when as select, the value if FALSE first: select((0f), (v_a[i]), (v_a[i] > 0f))",
+	_C(StzFindFirst("select((0f), (v_a[i]), (v_a[i] > 0f))", tW), ">", 0))
+xR = kRelu.EvaluateOn([ [:a, [ -2, -0.5, 0, 0.5, 3 ]] ])
+chk("the interpreter: -2 -0.5 0 0.5 3 give 0 0 0 0.5 3", _C(xR[1], "=", 0) and _C(xR[2], "=", 0) and _C(xR[3], "=", 0) and _C(xR[4], "=", 0.5) and _C(xR[5], "=", 3))
+kDeep = StzKernelMakerFromSpec("in a" + tNL + "scalar s" + tNL + "out c" + tNL +
+	"body { @c = when(@a < s or (@i > 2 and @a > 2), when(@a < -1, -1, @a[@i + 1]), sum(k, 0, 3, @a[k])) }")
+xD = kDeep.EvaluateOn([ [:a, [ -2, -0.5, 0, 0.5, 3 ]], [:s, 0] ])
+chk("nested, joined by or and and, a neighbour and a sum among its values: -1 0 -2.5 -2.5 0",
+	xD[1] = -1 and _C(xD[2], "=", 0) and _C(xD[3], "=", -2.5) and _C(xD[4], "=", -2.5) and _C(xD[5], "=", 0))
+kG = StzKernelMakerFromSpec("in a" + tNL + "out c" + tNL + "guard { @i < n and when(@a > 0, @a, -@a) > 1 }" + tNL + "body { @c = 1 }")
+xG = kG.EvaluateOnWith([ [:a, [ -2, -0.5, 0, 0.5, 3 ]] ], [ [:n, 5] ])
+chk("inside a guard's comparison: |a| > 1 writes elements 1 and 5 and leaves the others unwritten",
+	xG[1] = 1 and _C(xG[5], "=", 1) and _StzNaN(xG[2]) and _StzNaN(xG[3]) and _StzNaN(xG[4]))
+? "  (scene 1: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+
+? ""
+? "-- Scene 2: what is refused, in the same words by both readers --"
+$nT0 = Clock()
+xRef = [
+	[ "a number where the condition goes", "body { @c = when(@a, 1, 0) }", "a bare value is not a condition" ],
+	[ "two arguments", "body { @c = when(@a > 0, 1) }", "when takes 3 arguments" ],
+	[ "a comparison as a value", "body { @c = when(@a > 0, @a > 1, 0) }", "is a comparison" ],
+	[ "a comparison used as a number", "body { @c = @a + (@a > 0) * 2 }", "is a comparison" ],
+	[ "a chain of comparisons", "body { @c = when(0 < @a < 2, 1, 0) }", "a condition compares values" ],
+	[ "and beside or", "body { @c = when(@a > 0 and @a < 1 or @a > 5, 1, 0) }", "need parentheses" ],
+	[ "a when as a condition", "body { @c = when(when(@a > 0, 1, 0), 1, 0) }", "a bare value is not a condition" ],
+	[ "a guard that is a value (KP0's hole)", "guard { @a }" + tNL + "body { @c = 1 }", "a bare value is not a condition" ],
+	[ "a guard joined to a value (KP0's hole)", "guard { @i < n and @a }" + tNL + "body { @c = 1 }", "a bare value is not a condition" ],
+	[ "a comparison inside a guard's function (KP0's hole)", "guard { max(@a < 0, 1) > 0 }" + tNL + "body { @c = 1 }", "a comparison is not a value" ],
+	[ "a guard multiplying a comparison (KP0's hole)", "guard { (@i < n) * 2 > 0 }" + tNL + "body { @c = 1 }", "a comparison is not a value" ]
+]
+nRef = Len(xRef)
+for q = 1 to nRef
+	tSpec = "in a" + tNL + "out c" + tNL + _T(xRef[q][2])
+	tT = ""
+	try
+		StzKernelMakerFromSpec(tSpec).ToWGSL()
+	catch
+		tT = cCatchError
+	end
+	tI = ""
+	try
+		StzKernelMakerFromSpec(tSpec).EvaluateOn([ [:a, [ 1, 2 ]] ])
+	catch
+		tI = cCatchError
+	end
+	chk(_T(xRef[q][1]) + ": both readers refuse it with '" + _T(xRef[q][3]) + "'",
+		_C(StzFindFirst(xRef[q][3], tT), ">", 0) and _C(StzFindFirst(xRef[q][3], tI), ">", 0))
+end
+vOk = [
+	"guard { (@i < n) }" + tNL + "body { @c = 1 }",
+	"guard { (@a + 1) * 2 > 0 and @i < n }" + tNL + "body { @c = 1 }",
+	"body { @c = when((@a > 0), 1, 0) + when(@a <= 0, 2, 3) }"
+]
+nOk = 0
+for tBody in vOk
+	tSpec = "in a" + tNL + "out c" + tNL + tBody
+	try
+		StzKernelMakerFromSpec(tSpec).ToWGSL()
+		StzKernelMakerFromSpec(tSpec).EvaluateOnWith([ [:a, [ 1, 2 ]] ], [ [:n, 2] ])
+		nOk++
+	catch
+		? "  refused: " + tBody + " -- " + _T(cCatchError)
+	end
+end
+chk("the shapes a condition may take are admitted by both: a parenthesised guard, arithmetic in a comparison, two whens added", _C(nOk, "=", 3))
+? "  (scene 2: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+
+oG = new stzGpu
+bDevice = oG.IsAvailable()
+if bDevice
+	? ""
+	? "-- Scene 3: on the device --"
+	$nT0 = Clock()
+	xA = []
+	for i = 1 to 3000
+		xA + ((((i * 7) % 33) - 16) / 8)
+	end
+	vKs = [ [ "the ReLU", kRelu ], [ "the nested when", kDeep ], [ "a when inside a guard", kG ] ]
+	nKs = Len(vKs)
+	for q = 1 to nKs
+		xV = oG.VerifySpecWith(vKs[q][2], vKs[q][2], [ [:a, xA], [:s, 0.5] ], [ [:n, 2000] ])
+		chk(_T(vKs[q][1]) + ": the kernel compiles and agrees with the interpreter (" + _T(xV[:verdict]) + ", maxdiff " + _T(xV[:maxdiff]) + ")",
+			xV[:verdict] = "verified")
+	end
+	? "  (scene 3: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+
+	? ""
+	? "-- Scene 4: the fuzz writes when, and the SWAP control --"
+	$nT0 = Clock()
+	nSeed = 20261028
+	StzEngineGpuFuzzRun(nSeed, 300, 63, 0.00001)
+	? "  generated " + _T(StzEngineGpuFuzzResult(0)) + ", " + _T(StzEngineGpuFuzzResult(26)) + " holding a when; agreed " + _T(StzEngineGpuFuzzResult(5)) + " (exact " + _T(StzEngineGpuFuzzResult(9)) + ")"
+	chk("over thirty of 300 generated kernels hold a when", _C(StzEngineGpuFuzzResult(26), ">", 30))
+	chk("no admission split, no compile failure, and all 300 agree", _C(StzEngineGpuFuzzResult(2), "=", 0) and _C(StzEngineGpuFuzzResult(3), "=", 0) and _C(StzEngineGpuFuzzResult(5), "=", 300) and _C(StzEngineGpuFuzzResult(17), "=", 0))
+	StzEngineGpuFuzzRun(nSeed, 300, 63 + 256, 0.00001)
+	nMut = StzEngineGpuFuzzResult(18)
+	nCaught = StzEngineGpuFuzzResult(19)
+	? "  swapped " + _T(nMut) + ", caught " + _T(nCaught)
+	chk("SWAP: over twenty kernels had a select in their store to swap", _C(nMut, ">", 20))
+	chk("...and at least 85% were caught (measured 28 of 32 on 2026-10-28; the four escapes were read: a guard that writes nothing, a when times tanh(0), and two whose values are one text)",
+		_C(nCaught, ">=", 0.85 * nMut))
+	? "  (scene 4: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+end
+
+? ""
+? "-- Scene 5: puzzle 13, two prices --"
+$nT0 = Clock()
+oQ = StzKernelPuzzleQ("kp-13")
+chk("the starter grades 'waiting for your implementation'", oQ.Grade(oQ.Starter()) = "waiting for your implementation")
+chk("the task reads in four languages and ends with what the GPU did differently from a loop",
+	oQ.Task("en") != "" and oQ.Task("fr") != "" and oQ.Task("ar") != "" and oQ.Task("ha") != "" and _C(StzFindFirst("differently from a loop", oQ.Task("en")), ">", 0))
+tHead = "in a" + tNL + "scalar t" + tNL + "out c" + tNL
+vCases = [
+	[ "when(@a <= t, @a, t + 2 * (@a - t))", "verified" ],
+	[ "@a + max(@a - t, 0)", "verified" ],
+	[ "when(@a < t, @a, t + 2 * (@a - t))", "verified" ],
+	[ "when(@a <= t, t + 2 * (@a - t), @a)", "mismatch at element 1" ],
+	[ "when(@a <= t, @a, 2 * (@a - t))", "mismatch at element 2" ]
+]
+nAgree = 0
+for xCase in vCases
+	tSpec = tHead + "body { @c = " + _T(xCase[1]) + " }"
+	if bDevice
+		tV = oQ.Grade(tSpec)
+	else
+		tV = oQ.GradeOnCpu(tSpec)
+	end
+	chk(_T(xCase[1]) + " -> " + _T(xCase[2]) + " (" + tV + ")", tV = xCase[2])
+	if _C(oQ.GradeOnCpu(tSpec), "=", xCase[2])
+		nAgree++
+	end
+end
+chk("GradeOnCpu says the same words for all " + _T(Len(vCases)) + " cases", _C(nAgree, "=", Len(vCases)))
+tV = oQ.Grade(tHead + "body { @c = when(@a - t, @a, t + 2 * (@a - t)) }")
+chk("a number where the condition goes is refused by name (" + tV + ")", _C(StzFindFirst("refused", tV), "=", 1) and _C(StzFindFirst("not a condition", tV), ">", 0))
+tV = oQ.Grade(tHead + "body { @c = @a + (@a > t) * (@a - t) }")
+chk("a comparison used as 0 or 1 is refused by name (" + tV + ")", _C(StzFindFirst("refused", tV), "=", 1) and _C(StzFindFirst("is a comparison", tV), ">", 0))
+if bDevice
+	oE = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/kp-13")
+	# the parent lets go of the card first: since the GPU lease (2026-11-14) the graders ProveItself starts
+	# cannot take it from their own parent, and would wait and answer "waiting for the device" (KP-PROVE-FLAKE)
+	StzEngineGpuShutdown()
+	xPr = oE.ProveItself()
+	chk("the exercise proves itself through the System's checker: wrong refused " + _T(xPr[:wrong]) + ", right accepted " + _T(xPr[:right]) + ", failures " + _T(@@(xPr[:failures])),
+		xPr[:wrong] = 5 and _C(xPr[:right], "=", 3) and _C(Len(xPr[:failures]), "=", 0))
+end
+? "  (scene 5: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T(($nPass + $nFail)) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

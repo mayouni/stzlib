@@ -1,0 +1,178 @@
+# Calibration -- the G5 half that makes thresholds MEASURED, not seeded
+# (SOFTANZA_GPU_PLAN.md: "the threshold is MEASURED... nobody guesses
+# where the GPU starts winning").
+#
+# stzGpu.Calibrate() walks a ladder of corpus sizes through the REAL G3
+# seam, both routes (forced-CPU, forced-GPU), warm-min per rung (G0's
+# clock inversion: sustained numbers flatter the GPU), stores the first
+# rung the GPU wins with a 30% margin, and PERSISTS it -- the faces
+# auto-load the file in later sessions, so the seed constant is only
+# ever a first-run fallback.
+#
+# Scenes: a missing file loads to nothing (no crash, no phantom value);
+# a measured pass produces a report + a stored threshold + both files;
+# ShouldDispatch flips ACROSS the stored line (mechanism); a scrambled
+# store is restored from disk (the round-trip is real).
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+pr()
+
+$nStzPlaces = 3
+
+? "-- Scene 0: a clean slate (calibration files deleted) --"
+if FExists(StzGpuCalibFileDefault())
+    Remove(StzGpuCalibFileDefault())
+end
+StzGpuLoadCalibrationDefault()
+chk("loading a MISSING default file stores nothing", StzEngineGpuCalibGet("pairdist") = 0)
+
+oG = new stzGpu
+if not oG.IsAvailable()
+    ? "  NO GPU ON THIS MACHINE -- calibration needs a device; the missing-file scene is the CI coverage"
+else
+    ? "  device: " + _T(oG.DeviceName())
+    if FExists(StzGpuCalibFileForAdapter())
+        Remove(StzGpuCalibFileForAdapter())
+    end
+
+    ? ""
+    ? "-- Scene 1: a measured pass on a reduced ladder --"
+    xRes = oG.CalibrateWith([1000, 2000, 4000])
+    nThresh = xRes[1]
+    xReport = xRes[2]
+    chk("three rungs measured", Len(xReport) = 3)
+    ? "  problem-size    cpu ms      gpu ms"
+    for i = 1 to Len(xReport)
+        ? "  " + _T(xReport[i][1]) + "    " + _T(xReport[i][2]) + "    " + _T(xReport[i][3])
+    end
+    ? "  stored crossover: " + _T(nThresh)
+    bLadder = false
+    for i = 1 to Len(xReport)
+        if nThresh = xReport[i][1]
+            bLadder = true
+        end
+    end
+    chk("the threshold is a LADDER value (or the CPU-only sentinel)",
+        bLadder or nThresh = 999999999999)
+    chk("the store carries it", StzEngineGpuCalibGet("pairdist") = nThresh)
+    chk("the default file was written", FExists(StzGpuCalibFileDefault()))
+    chk("the per-adapter file was written", FExists(StzGpuCalibFileForAdapter()))
+
+    ? ""
+    ? "-- Scene 2: ShouldDispatch flips ACROSS the measured line --"
+    if nThresh < 999999999999
+        chk("below the line: CPU", StzEngineGpuShouldDispatch("pairdist", nThresh - 1) = 0)
+        chk("at the line: GPU", StzEngineGpuShouldDispatch("pairdist", nThresh) = 1)
+    else
+        chk("the GPU never won this ladder; everything routes CPU",
+            StzEngineGpuShouldDispatch("pairdist", 100000000) = 0)
+        chk("(sentinel keeps even huge problems on CPU)",
+            StzEngineGpuShouldDispatch("pairdist", 999999999998) = 0)
+    end
+
+    ? ""
+    ? "-- Scene 3: the round-trip is real --"
+    StzEngineGpuCalibSet("pairdist", 777)
+    chk("store scrambled", StzEngineGpuCalibGet("pairdist") = 777)
+    _StzGpuCalibLoadFile(StzGpuCalibFileDefault())
+    chk("the persisted measurement restored the store",
+        StzEngineGpuCalibGet("pairdist") = nThresh)
+    StzEngineGpuShutdown()
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T(($nPass + $nFail)) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = (nI - nI % nScale) / nScale
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end

@@ -1,0 +1,407 @@
+# GL0 -- TYPED BUFFERS (SOFTANZA_GPU_PLAN.md, GL0; the reader's account of
+# the language is base/gpu/SOFTANZA_GPU_KERNELS.md, 3.1d).
+#
+# The fourth admission: an input or the output may hold vectors. 'in p vec2'
+# is a buffer of two floats per element, side by side -- element i is floats
+# 2i and 2i + 1 -- and 'out q vec3' writes three per element. @p is the
+# element's vector and @p[k] another element's, a zero vector outside. The
+# value of a vecN output's body must be a vecN.
+#
+# The width rides on the declaration, and the engine reads it, once: every
+# host (the checker, the fuzz, the library face, the browser runner) sizes its
+# buffers from stz_gpu_spec_in_width / stz_gpu_spec_out_width, never from a
+# parse of its own. Each sizes the output n * W floats with the NaN margin
+# after it, keeps one mask byte per element, and names a mismatch by element.
+#
+# Ints stay as they were: an int buffer still crosses as f32, exact to
+# 16,777,216, because the values reach the engine from a list as numbers. A
+# real i32 buffer is the atomics rung's, where atomic<i32> needs one.
+#
+# Run with haro: haro gpu_buffers_narrated.haro
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+pr()
+
+$nStzPlaces = 4
+tNL = Char(10)
+
+? "-- Scene 1: a buffer of vectors in, a buffer of vectors out, in both readers --"
+$nT0 = Clock()
+oKer = new stzKernelMaker
+oKer.TakesVectorOf(:p, :vec2)
+oKer.TakesScalar(:c)
+oKer.TakesScalar(:s)
+oKer.ReturnsVectorOf(:q, :vec2)
+oKer.ForEachElement('{ @q = vec2(c * @p.x - s * @p.y, s * @p.x + c * @p.y) }')
+chk("the declarations read back as written: 'in p vec2', 'out q vec2'",
+	_C(StzFindFirst("in p vec2", oKer.Spec()), "=", 1) and _C(StzFindFirst("out q vec2", oKer.Spec()), ">", 0))
+chk("...and the engine reads two floats per element in and out", _C(oKer.InputWidth(:p), "=", 2) and _C(oKer.OutputWidth(), "=", 2))
+chk("Spec() survives StzKernelMakerFromSpec unchanged", _C(StzKernelMakerFromSpec(oKer.Spec()).Spec(), "=", oKer.Spec()))
+tW = oKer.ToWGSL()
+chk("the WGSL reads element i at floats 2i and 2i + 1: vec2<f32>(v_p[2u * i], v_p[2u * i + 1u])",
+	_C(StzFindFirst("vec2<f32>(v_p[2u * i], v_p[2u * i + 1u])", tW), ">", 0))
+chk("...and stores the two components there: v_q[2u * i] = o_.x; v_q[2u * i + 1u] = o_.y;",
+	_C(StzFindFirst("v_q[2u * i] = o_.x; v_q[2u * i + 1u] = o_.y;", tW), ">", 0))
+xR = oKer.EvaluateOn([ [:p, [ [ 1, 0 ], [ 0, 1 ], [ 2, 3 ] ]], [:c, 0], [:s, 1] ])
+chk("the interpreter turns (1, 0), (0, 1), (2, 3) a quarter: two numbers per element, flat: 0 1 -1 0 -3 2",
+	_Same(xR, [ 0, 1, -1, 0, -3, 2 ]))
+kL = StzKernelMakerFromSpec("in p vec3" + tNL + "out d" + tNL + "body { @d = length(@p) + @p[@i + 1].x }")
+xL = kL.EvaluateOn([ [:p, [ [ 3, 4, 0 ], [ 0, 0, 0 ], [ 1, 2, 2 ] ]] ])
+chk("a vec3 input reduced to a number, and its neighbour, a zero vector past the end: 5 1 3", _Same(xL, [ 5, 1, 3 ]))
+kG = StzKernelMakerFromSpec("in p vec2" + tNL + "out q vec2" + tNL + "guard { @i < n and @p.x > 2 }" + tNL + "body { @q = @p * 2 }")
+xG = kG.EvaluateOn([ [:p, [ [ 1, 2 ], [ 3, 4 ] ]] ])
+chk("a guard over a vector output leaves both numbers of a refused element unwritten", _StzNaN(xG[1]) and _StzNaN(xG[2]) and _C(xG[3], "=", 6) and _C(xG[4], "=", 8))
+? "  (scene 1: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+? ""
+? "-- Scene 2: what is refused, in the same words by both readers --"
+$nT0 = Clock()
+xRef = [
+	[ "a number into a vector output", "in p vec2" + tNL + "out q vec2" + tNL + "body { @q = 1 }", "the output '@q' holds vec2s: its value must be a vec2" ],
+	[ "a vector of another width", "in p vec2" + tNL + "out q vec3" + tNL + "body { @q = @p }", "the output '@q' holds vec3s: its value must be a vec3" ],
+	[ "a vector into a number output", "in p vec2" + tNL + "out c" + tNL + "body { @c = @p }", "a vector stands where a number is needed" ],
+	[ "a scalar declared a vector", "in p vec2" + tNL + "scalar s vec2" + tNL + "out c" + tNL + "body { @c = 1 }", "a scalar is one number" ],
+	[ "a width that is not one", "in p vec5" + tNL + "out c" + tNL + "body { @c = 1 }", "'vec5' is not a type" ]
+]
+for vQ in xRef
+	tT = ""
+	try
+		StzKernelMakerFromSpec(vQ[2]).ToWGSL()
+	catch
+		tT = cCatchError
+	end
+	tI = ""
+	try
+		StzKernelMakerFromSpec(vQ[2]).EvaluateOn([ [:p, [ [ 1, 2 ] ]] ])
+	catch
+		tI = cCatchError
+	end
+	chk(_T(vQ[1]) + ": both readers refuse it with '" + _T(vQ[3]) + "'", _C(StzFindFirst(vQ[3], tT), ">", 0) and tT = tI)
+end
+? "  (scene 2: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+oG = new stzGpu
+bDevice = oG.IsAvailable()
+if bDevice
+	? ""
+	? "-- Scene 3: on the device, every path that makes a buffer --"
+	$nT0 = Clock()
+	xP = [] xN = []
+	for i = 1 to 3000
+		xP + [ (((i * 7) % 33) - 16) / 8, (((i * 5) % 29) - 14) / 4 ]
+		xN + [ (((i * 3) % 17) - 8) / 2, 1, (i % 5) / 4 ]
+	end
+	xV = oG.VerifySpecWith(oKer, oKer, [ [:p, xP], [:c, 0.6], [:s, 0.8] ], [ [:n, 3000], [:band, 0.00001] ])
+	chk("the checker verifies the rotation, vec2 in and out, at both shapes (" + _T(xV[:verdict]) + ", maxdiff " + _T(xV[:maxdiff]) + ")", xV[:verdict] = "verified")
+	kN = StzKernelMakerFromSpec("in p vec2" + tNL + "in nrm vec3" + tNL + "out c vec4" + tNL + "guard { @i < n and @p.x > -1 }" + tNL +
+		"body { @c = vec4(normalize(@nrm), dot(@p, @p[@i + 1])) }")
+	xV = oG.VerifySpecWith(kN, kN, [ [:p, xP], [:nrm, xN] ], [ [:n, 3000], [:band, 0.00001] ])
+	chk("two vector inputs of two widths, a neighbour, a guard and a vec4 output (" + _T(xV[:verdict]) + ", maxdiff " + _T(xV[:maxdiff]) + ")", xV[:verdict] = "verified")
+	kS = StzKernelMakerFromSpec("in p vec2" + tNL + "out c" + tNL + "shared t 256" + tNL + "stage { @t[@l] = @p.x + @p.y }" + tNL + "body { @c = @t[255 - @l] }")
+	xV = oG.VerifySpecWith(kS, kS, [ [:p, xP] ], [ [:n, 3000] ])
+	chk("a stage reads a vector input through the group's bounded read (" + _T(xV[:verdict]) + ")", xV[:verdict] = "verified")
+	xRun = oG.RunQWith(oKer, [ [:p, [ [ 1, 0 ], [ 0, 1 ], [ 2, 3 ] ]], [:c, 0], [:s, 1] ], []).Download()
+	chk("RunQWith sizes its output by the width: " + _T(@@(xRun)), _Same(xRun, [ 0, 1, -1, 0, -3, 2 ]))
+	kLen = StzKernelMakerFromSpec("in p vec2" + tNL + "out d" + tNL + "body { @d = length(@p) }")
+	kDbl = StzKernelMakerFromSpec("in p vec2" + tNL + "out d vec2" + tNL + "body { @d = @p * 2 }")
+	xCh = oG.UploadQ([ [ 3, 4 ], [ 6, 8 ] ]).ApplyQ(kDbl).ApplyQ(kLen).Download()
+	chk("a chain of buffers: rows uploaded flat, vec2 -> vec2 -> number: " + _T(@@(xCh)), _Same(xCh, [ 10, 20 ]))
+	? "  (scene 3: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+	? ""
+	? "-- Scene 4: the fuzz's typed-buffer kind, and its control --"
+	$nT0 = Clock()
+	nSeed = 20261028
+	StzEngineGpuFuzzRun(nSeed, 300, 2048, 0.00001)
+	? "  generated " + _T(StzEngineGpuFuzzResult(44)) + " kernels with vector buffers; ran " + _T(StzEngineGpuFuzzResult(4)) + ", agreed " + _T(StzEngineGpuFuzzResult(5)) +
+		" (exact " + _T(StzEngineGpuFuzzResult(9)) + "); " + _T(StzEngineGpuFuzzResult(36)) + " elements left unwritten by a guard, checked so"
+	chk("300 kernels: none refused by both readers, no split, no compile failure",
+		_C(StzEngineGpuFuzzResult(44), "=", 300) and _C(StzEngineGpuFuzzResult(1), "=", 0) and _C(StzEngineGpuFuzzResult(2), "=", 0) and _C(StzEngineGpuFuzzResult(3), "=", 0))
+	chk("...all 300 agree with the interpreter, nothing stored past the region or where a guard said not to",
+		_C(StzEngineGpuFuzzResult(5), "=", 300) and _C(StzEngineGpuFuzzResult(17), "=", 0) and _C(StzEngineGpuFuzzResult(7), "=", 0))
+	StzEngineGpuFuzzRun(nSeed, 300, 2048 + 64, 0.00001)
+	nMut = StzEngineGpuFuzzResult(18)
+	nCaught = StzEngineGpuFuzzResult(19)
+	? "  mutated " + _T(nMut) + ", caught " + _T(nCaught)
+	chk("the control: over a hundred kernels had a '+' to break", _C(nMut, ">", 100))
+	chk("...and at least 75% were caught (measured 170 of 211 on 2026-10-28; eight escapes read, seven cannot change an answer)", _C(nCaught, ">=", _A(0.75, "*", nMut)))
+	StzEngineGpuFuzzRun(nSeed, 300, 63, 0.00001)
+	chk("the six float kinds still agree as before (300, 219 exactly)", _C(StzEngineGpuFuzzResult(5), "=", 300) and _C(StzEngineGpuFuzzResult(9), "=", 219))
+	? "  (scene 4: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+end
+
+? ""
+? "-- Scene 5: puzzle 16, turn the points --"
+$nT0 = Clock()
+oQ = StzKernelPuzzleQ("kp-16")
+chk("the starter grades 'waiting for your implementation'", oQ.Grade(oQ.Starter()) = "waiting for your implementation")
+chk("the task reads in four languages and ends with what the GPU did differently from a loop",
+	oQ.Task("en") != "" and oQ.Task("fr") != "" and oQ.Task("ar") != "" and oQ.Task("ha") != "" and _C(StzFindFirst("differently from a loop", oQ.Task("en")), ">", 0))
+tHead = "in p vec2" + tNL + "scalar c" + tNL + "scalar s" + tNL + "out q vec2" + tNL
+vCases = [
+	[ "vec2(c * @p.x - s * @p.y, s * @p.x + c * @p.y)", "verified" ],
+	[ "vec2(dot(@p, vec2(c, -s)), dot(@p, vec2(s, c)))", "verified" ],
+	[ "c * @p + s * vec2(-@p.y, @p.x)", "verified" ],
+	[ "vec2(c * @p.x + s * @p.y, -s * @p.x + c * @p.y)", "mismatch at element 1" ],
+	[ "vec2(c * @p.x, s * @p.x)", "mismatch at element 1" ]
+]
+nAgree = 0
+for vQ in vCases
+	tSpec = tHead + "body { @q = " + _T(vQ[1]) + " }"
+	if bDevice
+		tV = oQ.Grade(tSpec)
+	else
+		tV = oQ.GradeOnCpu(tSpec)
+	end
+	chk(_T(vQ[1]) + " -> " + _T(vQ[2]) + " (" + tV + ")", tV = vQ[2])
+	if _C(oQ.GradeOnCpu(tSpec), "=", vQ[2])
+		nAgree++
+	end
+end
+chk("GradeOnCpu says the same words for all " + _T(Len(vCases)) + " cases", _C(nAgree, "=", Len(vCases)))
+tV = oQ.Grade(tHead + "body { @q = length(@p) }")
+chk("a number for a point is refused by name (" + tV + ")", _C(StzFindFirst("refused", tV), "=", 1) and _C(StzFindFirst("holds vec2s", tV), ">", 0))
+if bDevice
+	oE = StzExerciseQ("../../education/program/courses/kernel-puzzles/exercises/kp-16")
+	# the parent lets go of the card first: since the GPU lease (2026-11-14) the graders ProveItself starts
+	# cannot take it from their own parent, and would wait and answer "waiting for the device" (KP-PROVE-FLAKE)
+	StzEngineGpuShutdown()
+	xPr = oE.ProveItself()
+	chk("the exercise proves itself through the System's checker: wrong refused " + _T(xPr[:wrong]) + ", right accepted " + _T(xPr[:right]) + ", failures " + _T(@@(xPr[:failures])),
+		_C(xPr[:wrong], "=", 5) and _C(xPr[:right], "=", 3) and _C(Len(xPr[:failures]), "=", 0))
+end
+? "  (scene 5: " + _T((_Q((_A(Clock(), "-", $nT0)), ClocksPerSecond()))) + " s)"
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+func _Same(pxA, pxB)
+	if _C(Len(pxA), "!=", Len(pxB))
+		return 0
+	end
+	nQ = Len(pxA)
+	for q = 1 to nQ
+		if _C(pxA[q], "!=", pxB[q])
+			return 0
+		end
+	end
+	return 1
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

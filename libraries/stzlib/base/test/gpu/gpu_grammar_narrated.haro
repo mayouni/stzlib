@@ -1,0 +1,451 @@
+# KP0 -- THE GRAMMAR GROWS, ONE ADMISSION AT A TIME (SOFTANZA_GPU_PLAN.md, KP0).
+#
+# The elementwise grammar covered map, zip and a scalar. The kernel puzzles
+# need, in order: an element index readable in the body; a bounds guard the
+# learner writes -- or omits, and sees the checker's margin catch; a stencil
+# over neighbours; a two-pass reduction. Each is admitted in the transpiler
+# AND in the interpreter from one parser, with a refusal message for the
+# forms not admitted, and the emitted kernel always references the params
+# uniform (a kernel that does not gets a layout without binding 1 -- GK6).
+#
+# What this suite asserts, negative siblings beside each:
+#   - the interpreter answers each admission with no device: the index, the
+#     guard's refused elements, the stencil's zero outside the input, the
+#     partial sums and the fold; the operations executed count the loop
+#   - the refusals name the offender: a reserved name declared, a comparison
+#     in a body, a sum inside a sum, a sum with three arguments, '=' in a guard
+#   - on the device: each admission's description verifies its own kernel
+#     at the visible and the hidden shape, and a wrong sibling is refused
+#     with the first bad element named -- an edge the task leaves unwritten
+#     and the learner writes, a guard the learner drops at a size that is not
+#     a multiple of 256 (write-outside at n + 1), a partial sum one short
+#   - the generated WGSL carries `_ = p.n;` whenever the learner owns the guard
+#
+# Run with haro: haro gpu_grammar_narrated.haro
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+pr()
+
+$nStzPlaces = 4
+
+? "-- Scene 0: the four admissions on the CPU, no device --"
+kIdx = StzKernelMakerQ()
+kIdx.TakesVector(:a)
+kIdx.ReturnsVector(:c)
+kIdx.ForEachElement('{ @c = @a + @i }')
+xR = kIdx.EvaluateOn([ [:a, [1, 2, 3]] ])
+? "  @a + @i over [1,2,3] -> " + _T(@@(xR))
+chk("the INDEX: @i is the element number, from 0", _C(Len(xR), "=", 3) and _C(xR[1], "=", 1) and _C(xR[2], "=", 3) and _C(xR[3], "=", 5))
+chk("...and the WGSL says f32(i)", _C(StzFindFirst("v_a[i] + f32(i)", kIdx.ToWGSL()), ">", 0))
+
+kG = StzKernelMakerQ()
+kG.TakesVector(:a)
+kG.ReturnsVector(:c)
+kG.Guard('{ @i < n - 1 }')
+kG.ForEachElement('{ @c = @a * 2 }')
+xR = kG.EvaluateOn([ [:a, [1, 2, 3]] ])
+? "  guard @i < n - 1, @a * 2 over [1,2,3] -> " + _T(@@(xR))
+chk("the GUARD: the first two elements are written", _C(xR[1], "=", 2) and _C(xR[2], "=", 4))
+chk("...and the one the guard refuses is left unwritten (not a number)", not (_C(xR[3], "=", xR[3])))
+tW = kG.ToWGSL()
+chk("...the kernel keeps the params uniform bound (`_ = p.n;`) now that the learner owns the guard", _C(StzFindFirst("_ = p.n;", tW), ">", 0))
+chk("...and the guard is the learner's words, in f32, its literals typed (GT0: an untyped one is integer arithmetic)", _C(StzFindFirst("if (f32(i) < f32(p.n) - 1f) {", tW), ">", 0))
+kN = StzKernelMakerQ()
+kN.TakesVector(:a)
+kN.ReturnsVector(:c)
+kN.WithoutGuard()
+kN.ForEachElement('{ @c = @a }')
+tW = kN.ToWGSL()
+chk("guard none: no if at all, and p still bound", _C(StzFindFirst("if (", tW), "=", 0) and _C(StzFindFirst("_ = p.n;", tW), ">", 0))
+
+kSt = StzKernelMakerQ()
+kSt.TakesVector(:a)
+kSt.ReturnsVector(:c)
+kSt.ForEachElement('{ @c = @a[@i - 1] + @a + @a[@i + 1] }')
+xR = kSt.EvaluateOn([ [:a, [1, 2, 3, 4]] ])
+? "  @a[@i-1] + @a + @a[@i+1] over [1,2,3,4] -> " + _T(@@(xR))
+chk("the STENCIL: a neighbour read, zero outside the input on both edges", _C(xR[1], "=", 3) and _C(xR[2], "=", 6) and _C(xR[3], "=", 9) and _C(xR[4], "=", 7))
+chk("...the WGSL has a reader per input with the same rule", _C(StzFindFirst("fn rd_a(k : i32) -> f32 {", kSt.ToWGSL()), ">", 0))
+
+kP = StzKernelMakerQ()
+kP.TakesVector(:a)
+kP.ReturnsVector(:c)
+kP.ForEachElement('{ @c = sum(k, 0, 4, @a[@i * 4 + k]) }')
+xR = kP.EvaluateOnWith([ [:a, [1, 2, 3, 4, 5, 6, 7, 8]] ], [ [:n, 2] ])
+? "  sum(k, 0, 4, @a[@i*4 + k]) over 8 inputs, n = 2 -> " + _T(@@(xR)) + "   operations " + _T(kP.OperationsExecuted())
+chk("the SUM, first pass: two partials over an input longer than n", _C(Len(xR), "=", 2) and _C(xR[1], "=", 10) and _C(xR[2], "=", 26))
+chk("...and the work counted is the loop's, not one operation per element", _C(kP.OperationsExecuted(), ">", 8))
+kF = StzKernelMakerQ()
+kF.TakesVector(:c)
+kF.TakesScalar(:m)
+kF.ReturnsVector(:d)
+kF.ForEachElement('{ @d = sum(k, 0, m, @c[k]) }')
+xR = kF.EvaluateOnWith([ [:c, [10, 26]], [:m, 2] ], [ [:n, 1] ])
+chk("the SUM, second pass: the fold of the partials into one element", _C(Len(xR), "=", 1) and _C(xR[1], "=", 36))
+chk("...the WGSL carries the loop as a prelude and the body reads the accumulator",
+	_C(StzFindFirst("var acc0 : f32 = 0.0;", kF.ToWGSL()), ">", 0) and _C(StzFindFirst("v_d[i] = acc0;", kF.ToWGSL()), ">", 0))
+
+? ""
+? "-- Scene 0b: the refusals name the offender --"
+vBad = [
+	[ "a vector named i", "in i" + Char(10) + "out c" + Char(10) + "body { @c = @i }", "element index" ],
+	[ "a scalar named n", "in a" + Char(10) + "scalar n" + Char(10) + "out c" + Char(10) + "body { @c = @a }", "element count" ],
+	[ "a comparison in a body", "in a" + Char(10) + "out c" + Char(10) + "body { @c = @a < 2 }", "guard" ],
+	[ "a sum inside a sum", "in a" + Char(10) + "out c" + Char(10) + "body { @c = sum(k, 0, 4, sum(j, 0, 2, @a[k + j])) }", "sum inside a sum" ],
+	[ "a sum with three arguments", "in a" + Char(10) + "out c" + Char(10) + "body { @c = sum(k, 0, @a[k]) }", "4 arguments" ],
+	[ "a single = in a guard", "in a" + Char(10) + "out c" + Char(10) + "guard { @i = 2 }" + Char(10) + "body { @c = @a }", "==" ],
+	[ "and in a body", "in a" + Char(10) + "out c" + Char(10) + "body { @c = @a and 1 }", "guard" ]
+]
+for xCase in vBad
+	tW = StzEngineGpuWgslElementwise(xCase[2])
+	tWhy = StzEngineGpuWgslError()
+	chk(_T(xCase[1]) + " is refused by the transpiler, naming it: " + tWhy, tW = "" and _C(StzFindFirst(xCase[3], tWhy), ">", 0))
+	xOut = StzEngineGpuSpecEval(xCase[2], [1], [1], 1, [])
+	chk("...and by the interpreter (the two readers agree)", _C(Len(xOut), "=", 0))
+end
+
+nN = 4096
+vData = []
+for i = 0 to nN - 1
+	vData + i
+end
+
+oG = new stzGpu
+if not oG.IsAvailable()
+	? "  NO GPU ON THIS MACHINE -- the device scenes need one; Scene 0 is the coverage"
+else
+	? ""
+	? "  device: " + _T(oG.DeviceName())
+	? "-- Scene 1: the INDEX on the device --"
+	xV = oG.VerifySpec(kIdx, kIdx, [ [:a, vData] ])
+	chk("@a + @i verifies its own kernel at both shapes", xV[:verdict] = "verified" and _C(xV[:maxdiff], "=", 0) and _C(xV[:maxdiffhidden], "=", 0))
+	kIdxWrong = StzKernelMakerQ()
+	kIdxWrong.TakesVector(:a)
+	kIdxWrong.ReturnsVector(:c)
+	kIdxWrong.ForEachElement('{ @c = @a + @i + 1 }')
+	xV = oG.VerifySpec(kIdx, kIdxWrong, [ [:a, vData] ])
+	chk("an index off by one is a MISMATCH from the first element", xV[:verdict] = "mismatch" and _C(xV[:firstbad], "=", 1))
+
+	? ""
+	? "-- Scene 2: the learner's GUARD on the device --"
+	kG4 = StzKernelMakerQ()
+	kG4.TakesVector(:a)
+	kG4.ReturnsVector(:c)
+	kG4.Guard('{ @i < n - 2 }')
+	kG4.ForEachElement('{ @c = @a * 2 }')
+	xV = oG.VerifySpec(kG4, kG4, [ [:a, vData] ])
+	? "  guard @i < n - 2: verdict " + _T(xV[:verdict])
+	chk("a description with its own guard verifies itself: the two refused elements are unwritten on both sides", xV[:verdict] = "verified")
+	kAll = StzKernelMakerQ()
+	kAll.TakesVector(:a)
+	kAll.ReturnsVector(:c)
+	kAll.ForEachElement('{ @c = @a * 2 }')
+	xV = oG.VerifySpec(kG4, kAll, [ [:a, vData] ])
+	? "  the same body without the task's guard: verdict " + _T(xV[:verdict]) + "   first bad " + _T(xV[:firstbad])
+	chk("a kernel that writes an element the task's guard leaves is a MISMATCH there", xV[:verdict] = "mismatch")
+	chk("...named: the first element the task refuses (n - 1, 1-based n - 1)", _C(xV[:firstbad], "=", _A(nN, "-", 1)))
+	# the puzzle-5 story: the learner drops the guard at a size that is not a multiple of 256
+	nM = 4000
+	xM = []
+	for i = 0 to nM - 1
+		xM + (_A(i, "*", 0.5))
+	end
+	kDrop = StzKernelMakerQ()
+	kDrop.TakesVector(:a)
+	kDrop.ReturnsVector(:c)
+	kDrop.WithoutGuard()
+	kDrop.ForEachElement('{ @c = @a * 2 }')
+	kTask = StzKernelMakerQ()
+	kTask.TakesVector(:a)
+	kTask.ReturnsVector(:c)
+	kTask.ForEachElement('{ @c = @a * 2 }')
+	xV = oG.VerifySpec(kTask, kDrop, [ [:a, xM] ])
+	? "  guard none at n = 4000: verdict " + _T(xV[:verdict]) + "   outside at " + _T(xV[:outsideat])
+	chk("the dropped guard is WRITE-OUTSIDE, caught by the margin", xV[:verdict] = "write-outside")
+	chk("...at element n + 1: the last workgroup's first thread past the region", _C(xV[:outsideat], "=", _A(nM, "+", 1)))
+	xV = oG.VerifySpec(kTask, kG4, [ [:a, xM] ])
+	chk("...while a guard that is merely too TIGHT is a mismatch, not a write-outside (the two mistakes are told apart)", xV[:verdict] = "mismatch")
+
+	? ""
+	? "-- Scene 3: the STENCIL on the device --"
+	xS = []
+	for i = 0 to nN - 1
+		xS + ((i * 7) % 13)
+	end
+	kBlur = StzKernelMakerQ()
+	kBlur.TakesVector(:a)
+	kBlur.ReturnsVector(:c)
+	kBlur.Guard('{ @i > 0 and @i < n - 1 }')
+	kBlur.ForEachElement('{ @c = (@a[@i - 1] + @a + @a[@i + 1]) / 3 }')
+	xV = oG.VerifySpec(kBlur, kBlur, [ [:a, xS] ])
+	? "  the 3-point blur with its edge guard: verdict " + _T(xV[:verdict]) + "   cand " + _T(xV[:candms]) + " ms   cpu " + _T(xV[:cpums]) + " ms   flops " + _T(xV[:flops])
+	chk("the blur with the edge guard verifies itself at both shapes", xV[:verdict] = "verified")
+	chk("...and declares its work: 4 operations and 2 reads per written element", _C(xV[:flops], ">", _A(4, "*", (_A(nN, "-", 2)))))
+	kEdge = StzKernelMakerQ()
+	kEdge.TakesVector(:a)
+	kEdge.ReturnsVector(:c)
+	kEdge.ForEachElement('{ @c = (@a[@i - 1] + @a + @a[@i + 1]) / 3 }')
+	xV = oG.VerifySpec(kBlur, kEdge, [ [:a, xS] ])
+	? "  the blur without the edge guard: verdict " + _T(xV[:verdict]) + "   first bad " + _T(xV[:firstbad])
+	chk("the blur WITHOUT the edge guard writes the edge the task leaves: a MISMATCH at element 1", xV[:verdict] = "mismatch" and _C(xV[:firstbad], "=", 1))
+
+	? ""
+	? "-- Scene 4: the REDUCTION on the device, two passes --"
+	nBig = 16384
+	xBig = []
+	for i = 0 to nBig - 1
+		xBig + (_Q((i % 10), 10.0))
+	end
+	nParts = nBig / 16
+	kPass1 = StzKernelMakerQ()
+	kPass1.TakesVector(:a)
+	kPass1.ReturnsVector(:c)
+	kPass1.ForEachElement('{ @c = sum(k, 0, 16, @a[@i * 16 + k]) }')
+	xV = oG.VerifySpecWith(kPass1, kPass1, [ [:a, xBig] ], [ [:n, nParts] ])
+	? "  pass 1, " + _T(nParts) + " partials of 16 over " + _T(nBig) + ": verdict " + _T(xV[:verdict]) + "   cand " + _T(xV[:candms]) + " ms   cpu " + _T(xV[:cpums]) + " ms   flops " + _T(xV[:flops])
+	chk("the first pass verifies itself at n = " + _T(nParts) + " over a longer input, visible and hidden", xV[:verdict] = "verified")
+	chk("...and the work counted is the loop's (at least 16 reads and 16 adds per partial)", _C(xV[:flops], ">=", _A(nParts, "*", 32)))
+	kShort = StzKernelMakerQ()
+	kShort.TakesVector(:a)
+	kShort.ReturnsVector(:c)
+	kShort.ForEachElement('{ @c = sum(k, 0, 15, @a[@i * 16 + k]) }')
+	xV = oG.VerifySpecWith(kPass1, kShort, [ [:a, xBig] ], [ [:n, nParts] ])
+	chk("a partial one term short is a MISMATCH", xV[:verdict] = "mismatch")
+	xParts = oG.RunWith(kPass1, [ [:a, xBig] ], [ [:n, nParts] ])
+	kPass2 = StzKernelMakerQ()
+	kPass2.TakesVector(:c)
+	kPass2.TakesScalar(:m)
+	kPass2.ReturnsVector(:d)
+	kPass2.ForEachElement('{ @d = sum(k, 0, m, @c[k]) }')
+	xTotal = oG.RunWith(kPass2, [ [:c, xParts], [:m, nParts] ], [ [:n, 1] ])
+	nCpu = 0
+	for x in xBig
+		nCpu += x
+	end
+	? "  pass 2: the fold of " + _T(nParts) + " partials -> " + _T(xTotal[1]) + "   (the CPU's sum " + _T(nCpu) + ")"
+	chk("the second pass folds the partials into the total, within f32 of the CPU's sum", _C(_StzAbs(_A(xTotal[1], "-", nCpu)), "<", 0.5))
+	xV = oG.VerifySpecWith(kPass2, kPass2, [ [:c, xParts], [:m, nParts] ], [ [:n, 1] ])
+	chk("...and the fold verifies itself (one element, the hidden shape one element too)", xV[:verdict] = "verified")
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

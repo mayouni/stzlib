@@ -1,0 +1,440 @@
+# GK0 -- THE CHECKER as an engine primitive (SOFTANZA_GPU_PLAN.md, GK).
+#
+# Proteus's lesson: generation is the cheap step; the checker is the
+# product, and a number that beats the bus is a measurement defect. So
+# stzGpu.Verify() hands a REFERENCE and a CANDIDATE kernel to the engine,
+# which compares them at the visible shape AND at a hidden one (different
+# size, DIFFERENT data -- the checker's, never the caller's), times both
+# the same way (warm on both sides, alternating, warm-min, two clocks
+# where the adapter has them), and refuses by name any time faster than
+# the floors it MEASURED on this device.
+#
+# What this suite asserts, negative siblings first:
+#   - the CONTROL: a kernel verified against itself is equal, and its
+#     "speedup" sits inside the measured jitter -- the arm that must not move
+#   - an equivalent formulation verifies (no false refusal)
+#   - a WRONG candidate is refused, with the first bad element NAMED
+#   - THE CHEAT: a candidate that answers the visible fixture without
+#     reading its input (out[i] = 2i, when a[i] = i) passes the visible
+#     shape and is CAUGHT on the hidden one -- the mechanism Proteus built
+#     its checker around, and the one this plane did not have
+#   - the ROOFLINE: the judge refuses a physically impossible time and
+#     accepts a plausible one, over floors it measured (>0)
+#   - the COMPUTE CEILING (GK3): the peak was MEASURED; reg4's work claimed
+#     in a time implying twice the peak is refused by compute, the same work
+#     at its real speed passes, and an undeclared kernel is judged by the bus
+#     alone; a peak PINNED low refuses what the measured one accepted (the
+#     fixture that FAILED before GK3: no ceiling existed to refuse it)
+#   - the second clock, when present, reads GPU time INSIDE the wall time;
+#     absent, ONE clock is recorded, never a failure
+#   - without a device, Verify refuses by name
+#   - a dispatch the engine SPLITS (over its TDR limit of workgroups per
+#     submit) is timed whole on the GPU clock: forced into eight chunks, the
+#     1024^3 tile16 product reads what it reads in one (GC0, 2026-10-28: the
+#     clock read the last chunk alone, 1/8 of tile8 at 4096^3)
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+pr()
+
+$nStzPlaces = 6
+
+nN = 4096
+vData = []
+for i = 0 to nN - 1
+	vData + i
+end
+
+kDouble = StzKernelMakerQ()
+kDouble.TakesVector(:a)
+kDouble.ReturnsVector(:c)
+kDouble.ForEachElement('{ @c = @a * 2 }')
+
+oG = new stzGpu
+if oG.IsAvailable()
+	? ""
+	? "-- GC0: a split dispatch is timed whole on the GPU clock --"
+	nLimit = StzEngineGpuTileLimit()
+	StzEngineGpuFoundryMatmul(1024, 1024, 1024, 5, 2)
+	nWhole = StzEngineGpuFoundryResult(1)
+	StzEngineGpuSetTileLimit(512)
+	StzEngineGpuFoundryMatmul(1024, 1024, 1024, 5, 2)
+	nSplit = StzEngineGpuFoundryResult(1)
+	nSplitWall = StzEngineGpuFoundryResult(2)
+	StzEngineGpuSetTileLimit(nLimit)
+	? "  tile16 at 1024^3: one submit " + _T(nWhole) + " ms, eight submits " + _T(nSplit) + " ms on the GPU clock (wall " + _T(nSplitWall) + " ms)"
+	chk("eight chunks read the whole dispatch, not the last chunk (within 0.8x to 2x of one submit)",
+		_C(nWhole, ">", 0) and _C(nSplit, ">", _A(0.8, "*", nWhole)) and _C(nSplit, "<", _A(2, "*", nWhole)))
+	chk("...and the GPU clock stays inside the wall clock", _C(nSplit, "<=", nSplitWall))
+	chk("...and the limit is restored (" + _T(StzEngineGpuTileLimit()) + ")", _C(StzEngineGpuTileLimit(), "=", nLimit))
+end
+
+
+if not oG.IsAvailable()
+	? "  NO GPU ON THIS MACHINE -- the checker needs a device; the refusal scene is the CI coverage"
+else
+	? "  device: " + _T(oG.DeviceName())
+	? ""
+	? "-- Scene 1: the CONTROL -- a kernel against itself --"
+	xR = oG.Verify(kDouble, kDouble, [ [:a, vData] ])
+	? "  verdict " + _T(xR[:verdict]) + "   ref " + _T(xR[:refms]) + " ms   cand " + _T(xR[:candms]) +
+		" ms   speedup " + _T(xR[:speedup]) + "   jitter " + _T(xR[:jitterms]) + " ms   clocks " + _T(xR[:clocks])
+	? "  floors: " + _T(xR[:floorgbs]) + " GB/s copy, " + _T(xR[:submitfloorms]) + " ms smallest dispatch" +
+		"   min possible for this candidate " + _T(xR[:minms]) + " ms"
+	chk("a kernel verifies against itself", xR[:verdict] = "verified")
+	chk("...with ZERO difference at the visible shape", _C(xR[:maxdiff], "=", 0))
+	chk("...and ZERO at the hidden one", _C(xR[:maxdiffhidden], "=", 0))
+	chk("the hidden shape is a different, ODD size (" + _T(xR[:hiddensize]) + ")",
+		_C(xR[:hiddensize], "<", nN) and _C(xR[:hiddensize] % 2, "=", 1))
+	chk("the floors were MEASURED, not quoted (both > 0)",
+		_C(xR[:floorgbs], ">", 0) and _C(xR[:submitfloorms], ">", 0))
+	chk("the reference itself clears the floor (the measurement is sane)",
+		_C(xR[:refms], ">=", xR[:minms]))
+	chk("same kernel, same cost: the speedup is inside [0.5, 2] -- the arm that must not move",
+		_C(xR[:speedup], ">=", 0.5) and _C(xR[:speedup], "<=", 2))
+	chk("reps as asked (7 by default)", _C(xR[:reps], "=", 7))
+	if _C(xR[:clocks], "=", 2)
+		? "  second clock: ref " + _T(xR[:refgpums]) + " ms GPU vs " + _T(xR[:refms]) + " ms wall"
+		chk("TWO clocks: GPU time is positive", _C(xR[:refgpums], ">", 0))
+		chk("...and sits INSIDE the wall time (a dispatch cannot run longer than its submit+sync)",
+			_C(xR[:refgpums], "<=", xR[:refms]))
+	else
+		? "  ONE clock on this adapter (no timestamp queries) -- a recorded limit, not a failure"
+		chk("one clock is reported as one", _C(xR[:clocks], "=", 1))
+		chk("...and the GPU-side readings say so (-1)", _C(xR[:refgpums], "=", -1))
+	end
+
+	? ""
+	? "-- Scene 2: an equivalent formulation is NOT refused --"
+	kPlus = StzKernelMakerQ()
+	kPlus.TakesVector(:a)
+	kPlus.ReturnsVector(:c)
+	kPlus.ForEachElement('{ @c = @a + @a }')
+	xR = oG.Verify(kDouble, kPlus, [ [:a, vData] ])
+	chk("a + a verifies against a * 2", xR[:verdict] = "verified")
+	chk("...exactly, on both shapes", _C(xR[:maxdiff], "=", 0) and _C(xR[:maxdiffhidden], "=", 0))
+
+	? ""
+	? "-- Scene 3: a WRONG candidate is refused, and the first bad element is NAMED --"
+	kOff = StzKernelMakerQ()
+	kOff.TakesVector(:a)
+	kOff.ReturnsVector(:c)
+	kOff.ForEachElement('{ @c = @a * 2 + 0.5 }')
+	xR = oG.Verify(kDouble, kOff, [ [:a, vData] ])
+	? "  verdict " + _T(xR[:verdict]) + "   max |diff| " + _T(xR[:maxdiff]) + "   first bad element " + _T(xR[:firstbad])
+	chk("the constant offset is a MISMATCH", xR[:verdict] = "mismatch")
+	chk("...by exactly 0.5", _C(xR[:maxdiff], "=", 0.5))
+	chk("...from the FIRST element (1-based at the face)", _C(xR[:firstbad], "=", 1))
+	chk("...and a mismatch is not timed (no speedup claimed for a wrong answer)", _C(xR[:speedup], "=", 0))
+
+	? ""
+	? "-- Scene 4: THE CHEAT -- right on everything it was shown, and caught --"
+	# A hand-written kernel on the house binding contract that never uses
+	# its input: out[i] = 2i. On the visible fixture a[i] = i, so it is
+	# EXACTLY right. The hidden set holds different data at the same
+	# indices, and there it is wrong -- which is the whole point of a
+	# hidden set the proposer cannot see.
+	tCheat = "struct StzTile { xoff: u32, p0: u32, p1: u32, p2: u32 };" + Char(10) +
+		"struct P { n: u32, pad: u32 };" + Char(10) +
+		"@group(0) @binding(0) var<uniform> tile : StzTile;" + Char(10) +
+		"@group(0) @binding(1) var<uniform> p : P;" + Char(10) +
+		"@group(0) @binding(2) var<storage, read> a : array<f32>;" + Char(10) +
+		"@group(0) @binding(3) var<storage, read_write> c : array<f32>;" + Char(10) +
+		"@compute @workgroup_size(256)" + Char(10) +
+		"fn main(@builtin(global_invocation_id) gid : vec3<u32>) {" + Char(10) +
+		"  let i = gid.x + tile.xoff * 256u;" + Char(10) +
+		"  if (i < p.n) { c[i] = f32(i) * 2.0 + 0.0 * a[i]; }" + Char(10) +
+		"}" + Char(10)
+	xR = oG.Verify(kDouble, tCheat, [ [:a, vData] ])
+	? "  verdict " + _T(xR[:verdict]) + "   visible max |diff| " + _T(xR[:maxdiff]) +
+		"   hidden max |diff| " + _T(xR[:maxdiffhidden]) + "   first bad " + _T(xR[:firstbad])
+	chk("the cheat is EXACT on the visible shape (it would have passed a one-shape check)",
+		_C(xR[:maxdiff], "=", 0))
+	chk("...and is CAUGHT on the hidden one", xR[:verdict] = "mismatch-hidden")
+	chk("...wrong from its first element there", _C(xR[:firstbad], "=", 1))
+	chk("...by a difference that names the trick (2i vs 2a[i], reversed tail)", _C(xR[:maxdiffhidden], ">", 0))
+
+	? ""
+	? "-- Scene 5: the ROOFLINE -- the judge refuses what the bus cannot have done --"
+	xF = oG.VerifyFloors()
+	? "  measured: " + _T(xF[:floorgbs]) + " GB/s, " + _T(xF[:submitfloorms]) + " ms per smallest dispatch"
+	chk("1 GB in 0.01 ms (100 TB/s) is IMPOSSIBLE", oG.VerifyJudge(1000000000, 0.01) = "impossible")
+	chk("a time below half the smallest dispatch is IMPOSSIBLE whatever the bytes",
+		oG.VerifyJudge(16, _Q(xF[:submitfloorms], 4)) = "impossible")
+	chk("32 KB in 5 ms is possible", oG.VerifyJudge(32768, 5) = "verified")
+	chk("the reference's own measured time is possible (the negative sibling of the refusal)",
+		oG.VerifyJudge(_A(_A(nN, "*", 4), "*", 2), _A(xR[:refms], "+", 1)) = "verified")
+
+	? ""
+	? "-- Scene 5b: the COMPUTE CEILING (GK3) -- the judge refuses what the ALU cannot have done --"
+	nPeak = xF[:peakgflops]
+	? "  measured compute peak: " + _T(nPeak) + " GFLOP/s (burst, dense fma kernel; " + _T(xF[:peakwarm]) + " dispatches of compute warm-up, then warm-min of 5)"
+	chk("the compute peak was MEASURED, not quoted (> 0)", _C(nPeak, ">", 0))
+	chk("...and is the same number PeakGFlops() answers", _C(oG.PeakGFlops(), "=", nPeak))
+	# a HUNDRED of reg4's dispatches at the backbone's widest shape, 512 x 384 x 1536:
+	# 60.4 GFLOP, ~8 ms at the peak. One dispatch's 604 MFLOP would take 0.08 ms,
+	# which is under this device's submit floor -- the bus would refuse it first and
+	# the compute ceiling would never be the one speaking; a hundred puts the
+	# compute floor alone in play (the bytes stay one dispatch's)
+	nFlops = _A(_A(_A(2 * 512, "*", 384), "*", 1536), "*", 100)
+	nBytes = _A((_A(_A(512 * 384, "+", 384 * 1536), "+", 512 * 1536)), "*", 4)
+	nMsAtPeak = _A(_Q(nFlops, (_A(nPeak, "*", 1000000000))), "*", 1000)
+	? "  60.4 GFLOP at the peak would take " + _T(nMsAtPeak) + " ms (bus floors: " + _T(xF[:submitfloorms]) + " ms submit)"
+	# (the refusal is confirmed against a peak re-measured in the same second, so a
+	#  2x claim stays impossible unless the device doubles its speed meanwhile)
+	# a QUARTER, not a half: the confirmation re-measures the peak, and the
+	# card's clock can swing 1.76x (990 to 1740 MHz) between two readings
+	chk("reg4's work claimed in a QUARTER of the time the peak allows is IMPOSSIBLE by compute",
+		oG.VerifyJudgeFlops(nBytes, nFlops, _Q(nMsAtPeak, 4)) = "impossible")
+	chk("the same work at a quarter of the peak (its real speed) is possible",
+		oG.VerifyJudgeFlops(nBytes, nFlops, _A(nMsAtPeak, "*", 4)) = "verified")
+	chk("the same TIME with no FLOPs declared is judged by the bus alone and passes (the judge of before GK3)",
+		oG.VerifyJudge(nBytes, _Q(nMsAtPeak, 2)) = "verified")
+	# the authority order: a peak PINNED in this process outranks the measurement
+	oG.PinPeakGFlops(_Q(nPeak, 8))
+	xF2 = oG.VerifyFloors()
+	? "  peak pinned to " + _T((_Q(nPeak, 8))) + ": the judge now reads " + _T(xF2[:peakgflops]) + ", the measurement still " + _T(xF2[:peakmeasuredgflops])
+	chk("an EXPLICIT pin outranks the measured peak at the judge", _C(xF2[:peakgflops], "=", _Q(nPeak, 8)))
+	# the refusal above re-measured the peak in the same second, and a re-measurement
+	# can only RAISE it (a warmer clock), never lower it
+	chk("...while the measurement itself is untouched by the pin (it can only have risen)", _C(xF2[:peakmeasuredgflops], ">=", nPeak))
+	chk("...and the real quarter-of-peak time is now refused by it (the fixture that could not fail before GK3)",
+		oG.VerifyJudgeFlops(nBytes, nFlops, _A(nMsAtPeak, "*", 4)) = "impossible")
+	oG.PinPeakGFlops(0)
+	chk("...unpinned, it passes again", oG.VerifyJudgeFlops(nBytes, nFlops, _A(nMsAtPeak, "*", 4)) = "verified")
+	chk("the record holds the measured peak under peak_gflops (the latest, highest reading)",
+		_C(StzEngineGpuCalibGet("peak_gflops"), "=", xF2[:peakmeasuredgflops]) and _C(xF2[:peakmeasuredgflops], ">=", nPeak))
+
+	? ""
+	? "-- Scene 6: the device goes away; the checker refuses by name --"
+	StzEngineGpuShutdown()
+	bRaised = false
+	try
+		oG.Verify(kDouble, kPlus, [ [:a, vData] ])
+	catch
+		bRaised = _C(StzFindFirst("no GPU device", cCatchError), ">", 0)
+	end
+	chk("Verify without a device raises, naming the device", bRaised)
+end
+
+if not oG.IsAvailable()
+	bRaised = false
+	try
+		oG.Verify(kDouble, kDouble, [ [:a, vData] ])
+	catch
+		bRaised = _C(StzFindFirst("device", Lower(cCatchError)), ">", 0)
+	end
+	chk("without a device, Verify refuses by name (CI coverage)", bRaised)
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	return _StzF(xA) / _StzF(xB)
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

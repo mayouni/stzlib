@@ -1,0 +1,382 @@
+# GT0 -- THE RANDOM-KERNEL FUZZ (SOFTANZA_GPU_PLAN.md, NEXT; the reader's
+# account of the language is base/gpu/SOFTANZA_GPU_KERNELS.md).
+#
+# One description has two readers that share a parser and nothing else: the
+# rewriter that writes WGSL and the compiler that builds the interpreter's
+# program are separate code. Every other guard checks them on kernels a
+# person wrote. This one has the engine GENERATE kernels from the grammar --
+# six kinds, from a plain map to the tiled product -- run each on the device
+# and through the interpreter, and count. An exact description (inputs,
+# scalars and literals in eighths, operations that round nowhere) must agree
+# bit for bit; an inexact one within 1e-5 of the value.
+#
+# Its first run, 2026-10-28, found four defects in a grammar every other
+# guard passed, and they are held here by name:
+#   - inverseSqrt: names are folded to lower case and the whitelist holds
+#     WGSL's camel case, so the transpiler refused every inversesqrt the
+#     interpreter admitted (a match would also have emitted a name WGSL lacks)
+#   - a guard's parenthesis: '@i < n and (A or B)' reached WGSL, and the
+#     interpreter refused it ("missing ')'") -- it read only arithmetic there
+#   - untyped literals: a call made only of literals, ceil(0.5), is abstract
+#     outside a constant expression and the device refused the kernel; and
+#     '3 / 4' was INTEGER division on the device, 0 where the grammar means
+#     0.75 -- a silent wrong answer, -0.475 where the interpreter said -0.042
+#   - 'and' beside 'or' without parentheses: naga accepts it, Chrome refuses
+#     it ("mixing '&&' and '||' requires parenthesis"), so one guard ran on
+#     the desktop and failed in a browser; both readers now refuse it
+#
+# The control: the same run with one wrong operator put in each kernel's WGSL
+# (its first ' + ' in the store made ' - '). Measured 2026-10-28 on the RTX
+# 3050: 144 of 158 caught, and each of the 14 that escaped was read and
+# cannot change an answer (a guard that writes nothing; a term that is zero
+# everywhere, as the fractional part of an integer). The band is 1e-5; the
+# worst inexact difference measured is 0.07 of it.
+#
+# Time, measured 2026-10-28 on the RTX 3050 on mains power: 3.2 s for the
+# whole guard when the driver has seen these kernels, 57 s the FIRST time --
+# 300 kernels the driver compiles once and then keeps in its shader cache.
+# The seed is fixed so the cost is paid once per machine, not once per run.
+#
+# Run with haro: haro gpu_fuzz_narrated.haro
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+pr()
+
+$nStzPlaces = 6
+tNL = Char(10)
+nSeed = 20261028
+nAll = 63
+nMutate = 64
+
+? "-- Scene 1: the four defects the first run found, held on the device --"
+$nT0 = Clock()
+oG = new stzGpu
+bDevice = oG.IsAvailable()
+xA = []
+for i = 1 to 3000
+	xA + ((((i * 7) % 33) - 16) / 8)
+end
+
+kInv = StzKernelMakerFromSpec("in a" + tNL + "out c" + tNL + "body { @c = inversesqrt(abs(@a) + 0.5) + InverseSqrt(2) }")
+tW = kInv.ToWGSL()
+chk("inversesqrt, in any case, is admitted by the transpiler and written in WGSL's spelling",
+	_C(StzFindFirst("inverseSqrt(abs(v_a[i]) + 0.5f) + inverseSqrt(2f)", tW), ">", 0) and _C(StzFindFirst("inversesqrt", tW), "=", 0))
+kPar = StzKernelMakerFromSpec("in a" + tNL + "out c" + tNL + "guard { @i < n and (@a > 1 or @i < 2) }" + tNL + "body { @c = @a * 2 }")
+xP = kPar.EvaluateOnWith([ [:a, [ 0, 0, 0, 3, 0.5 ]] ], [ [:n, 5] ])
+chk("a guard's parenthesis holds a condition in the interpreter: 0 and 1 by the index, 3 by the value, 2 and 4 unwritten",
+	xP[1] = 0 and _C(xP[2], "=", 0) and _C(xP[4], "=", 6) and _StzNaN(xP[3]) and _StzNaN(xP[5]))
+kDiv = StzKernelMakerFromSpec("in a" + tNL + "out c" + tNL + "body { @c = @a * 0 + 3 / 4 + ceil(0.5) }")
+chk("every literal is an f32 in the WGSL: '3f / 4f', 'ceil(0.5f)'",
+	_C(StzFindFirst("3f / 4f", kDiv.ToWGSL()), ">", 0) and _C(StzFindFirst("ceil(0.5f)", kDiv.ToWGSL()), ">", 0))
+chk("...and the interpreter means 3 / 4 as 0.75", _C(kDiv.EvaluateOn([ [:a, [ 1, 2 ]] ])[1], "=", 1.75))
+tMix = "in a" + tNL + "out c" + tNL + "guard { @i < n and @a > 0 or @a < -1 }" + tNL + "body { @c = @a }"
+bRefT = false
+try
+	StzKernelMakerFromSpec(tMix).ToWGSL()
+catch
+	bRefT = (_C(StzFindFirst("need parentheses", cCatchError), ">", 0))
+end
+chk("'and' beside 'or' without parentheses: the transpiler refuses it, naming the parentheses", bRefT)
+bRefI = false
+try
+	StzKernelMakerFromSpec(tMix).EvaluateOn([ [:a, [ 1, 2 ]] ])
+catch
+	bRefI = (_C(StzFindFirst("need parentheses", cCatchError), ">", 0))
+end
+chk("...and the interpreter refuses it in the same words", bRefI)
+
+if bDevice
+	vKs = [ [ "inversesqrt", kInv ], [ "the parenthesised guard", kPar ], [ "3 / 4 and ceil(0.5)", kDiv ] ]
+	nKs = Len(vKs)
+	for q = 1 to nKs
+		xV = oG.VerifySpecWith(vKs[q][2], vKs[q][2], [ [:a, xA] ], [ [:n, 2000] ])
+		chk("on the device, " + _T(vKs[q][1]) + ": the kernel compiles and agrees with the interpreter (" + _T(xV[:verdict]) + ", maxdiff " + _T(xV[:maxdiff]) + ")",
+			xV[:verdict] = "verified")
+	end
+	kParen = StzKernelMakerFromSpec("in a" + tNL + "out c" + tNL + "guard { (@i < n and @a > 0) or (@i < n and @a < -1) }" + tNL + "body { @c = @a }")
+	xV = oG.VerifySpecWith(kParen, kParen, [ [:a, xA] ], [ [:n, 2000] ])
+	chk("...and 'and' beside 'or' written with parentheses runs and agrees (" + _T(xV[:verdict]) + ")", xV[:verdict] = "verified")
+end
+? "  (scene 1: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+
+? ""
+? "-- Scene 2: three hundred generated kernels, six kinds, both readers --"
+$nT0 = Clock()
+nSt = StzEngineGpuFuzzRun(nSeed, 300, nAll, 0.00001)
+? "  generated " + _T(StzEngineGpuFuzzResult(0)) + "; ran " + _T(StzEngineGpuFuzzResult(4)) + " (exact " + _T(StzEngineGpuFuzzResult(9)) + ", inexact " + _T(StzEngineGpuFuzzResult(10)) +
+	"); agreed " + _T(StzEngineGpuFuzzResult(5)) + "; elements compared " + _T(StzEngineGpuFuzzResult(16)) + ", left unwritten by a guard " + _T(StzEngineGpuFuzzResult(36)) +
+	"; worst inexact difference " + _T(StzEngineGpuFuzzResult(11)) + " of the band; " + _T(StzEngineGpuFuzzResult(14)) + " ms"
+tLog = StzEngineGpuFuzzLog()
+if tLog != ""
+	? tLog
+	? StzEngineGpuFuzzFirst()
+end
+for k = 0 to 5
+	? "  kind " + _T(k) + ": generated " + _T(StzEngineGpuFuzzResult(20 + k)) + ", defective " + _T(StzEngineGpuFuzzResult(30 + k))
+end
+chk("300 descriptions generated, 50 of each of the six kinds",
+	StzEngineGpuFuzzResult(0) = 300 and _C(StzEngineGpuFuzzResult(20), "=", 50) and _C(StzEngineGpuFuzzResult(25), "=", 50))
+chk("no description refused by both readers (the generator writes the grammar)", _C(StzEngineGpuFuzzResult(1), "=", 0))
+chk("no description admitted by one reader and refused by the other", _C(StzEngineGpuFuzzResult(2), "=", 0))
+if bDevice
+	chk("the device compiled every kernel the transpiler wrote", _C(StzEngineGpuFuzzResult(3), "=", 0) and _C(StzEngineGpuFuzzResult(15), "=", 0))
+	chk("all 300 ran, and agreed with the interpreter", _C(StzEngineGpuFuzzResult(4), "=", 300) and _C(StzEngineGpuFuzzResult(5), "=", 300))
+	chk("...the exact ones bit for bit, and they are more than half (" + _T(StzEngineGpuFuzzResult(9)) + ")",
+		StzEngineGpuFuzzResult(17) = 0 and _C(StzEngineGpuFuzzResult(9), ">", 150))
+	chk("no kernel stored past its region or where its guard said not to", _C(StzEngineGpuFuzzResult(7), "=", 0))
+	chk("the guards were exercised: over a thousand elements left unwritten and checked so", _C(StzEngineGpuFuzzResult(36), ">", 1000))
+else
+	? "  (no device: the admission checks ran; the device's comparisons were NOT run)"
+end
+? "  (scene 2: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+
+if bDevice
+	? ""
+	? "-- Scene 3: the control -- one wrong operator in each kernel must be caught --"
+	$nT0 = Clock()
+	StzEngineGpuFuzzRun(nSeed, 300, nAll + nMutate, 0.00001)
+	nMut = StzEngineGpuFuzzResult(18)
+	nCaught = StzEngineGpuFuzzResult(19)
+	? "  mutated " + _T(nMut) + ", caught " + _T(nCaught)
+	chk("over a hundred kernels had an operator to break", _C(nMut, ">", 100))
+	chk("...and at least 85% of them were caught (measured 91% on seed 11; every escape read was unable to change an answer)",
+		_C(nCaught, ">=", 0.85 * nMut))
+	? "  (scene 3: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+end
+
+? ""
+? "-- Scene 4: a case is two numbers -- the run is deterministic --"
+$nT0 = Clock()
+xC1 = StzEngineGpuFuzzCase(nSeed, 41, nAll)
+xC2 = StzEngineGpuFuzzCase(nSeed, 41, nAll)
+chk("case 41 of the seed is one description, every time it is asked for", _C(xC1, "=", xC2) and xC1 != "")
+chk("...and another seed gives another one", _C(StzEngineGpuFuzzCase(nSeed + 1, 41, nAll), "!=", xC1))
+if bDevice
+	StzEngineGpuFuzzRun(nSeed, 60, nAll, 0.00001)
+	nR1 = StzEngineGpuFuzzResult(16)
+	StzEngineGpuFuzzRun(nSeed, 60, nAll, 0.00001)
+	chk("two runs of one seed compare the same number of elements (" + _T(nR1) + ")", _C(StzEngineGpuFuzzResult(16), "=", nR1) and _C(nR1, ">", 0))
+end
+? "  (scene 4: " + _T((_Q((Clock() - $nT0), ClocksPerSecond()))) + " s)"
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T(($nPass + $nFail)) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

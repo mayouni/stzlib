@@ -1,0 +1,393 @@
+# GK2c -- the backbone's fused attention through the foundry, under GK0's
+# checker, on the neural DLL's device (SOFTANZA_GPU_PLAN.md, section GK).
+#
+# One workgroup per (head, query row): scores, softmax, context. The generic
+# had every thread scan max and sum over the tokens serially and used head_dim
+# threads of 64 for the context; the RED variants reduce through workgroup
+# memory and split the context's token range across the idle threads, at
+# widths 64, 128 and 256. A broken sibling (one output nudged) exists for the
+# checker to refuse. The winner per (tokens, width, head_dim) class lands in
+# the variant table under "attention", is persisted beside the matmul rows,
+# and the next forward dispatches it.
+#
+# What this guard asserts, mechanism first, negative sibling beside each:
+#   - at the backbone's shapes (64 / 130 / 256 tokens, 384 wide, 12 heads)
+#     every eligible variant is VERIFIED at the visible and hidden token counts
+#   - the broken sibling is REFUSED through the mask; the table rejects it
+#   - the backbone reports WHICH variant its last forward dispatched: the
+#     generic with the table cleared, the winner with it set, and the
+#     embedding is unchanged within f32
+#   - the forward is faster with the winner (MiniLM, 130 tokens)
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+pr()
+
+$nStzPlaces = 4
+
+if _C(StzEngineGpuInit($tStzGpuRuntime), "=", 0) or _C(StzEngineGpuIsAvailable(), "=", 0)
+	? "  NO GPU ON THIS MACHINE -- the foundry cannot run; the table's refusal is the coverage"
+	chk("the neural table refuses the broken attention variant without a device", _C(StzEngineNeuralVariantSet("attention", 130, 384, 32, 4), "!=", 0))
+else
+	oG = new stzGpu
+	oG.Wake(400)
+	xSaved = StzGpuVariants()
+	vCalFiles = [ StzGpuCalibFileDefault(), StzGpuCalibFileForAdapter() ]
+	vCalBackup = []
+	for tF in vCalFiles
+		if tF != "" and FExists(tF)
+			vCalBackup + [ tF, Read(tF) ]
+		else
+			vCalBackup + [ tF, "" ]
+		end
+	end
+	tModel = "../../../models/all-MiniLM-L6-v2.Q8_0.gguf"
+	bModel = FExists(tModel)
+	if bModel
+		StzEngineNeuralModelLoad(tModel)
+	end
+
+	? "-- Scene 1: the backbone's shapes, every variant under the checker --"
+	nCells = 0
+	nAllOk = 0
+	for xCell in [ [64, 384, 12], [130, 384, 12], [256, 384, 12] ]
+		xR = oG.FoundryAttentionWith(xCell[1], xCell[2], xCell[3], 7)
+		tRow = "  " + _T(xCell[1]) + " tokens x " + _T(xCell[2]) + " / " + _T(xCell[3]) + " heads: generic " + _T(xR[:refgpums]) + " ms |"
+		bAll = true
+		for v in xR[:variants]
+			if _C(v[2], "=", 1)
+				tRow += " " + _T(v[1]) + " " + _T(v[5]) + "x"
+			elseif _C(v[2], "=", 0)
+				tRow += " " + _T(v[1]) + " REFUSED"
+				bAll = false
+			end
+		end
+		tRow += " | winner " + _T(xR[:winner]) + " " + _T(xR[:ratio]) + "x"
+		? tRow
+		nCells++
+		if bAll nAllOk++ end
+	end
+	chk("three real variants were proposed", _C(Len(xR[:variants]), "=", 3))
+	chk("every variant is VERIFIED in every cell (right at every token count it was shown and hidden)", _C(nAllOk, "=", nCells))
+	chk("the hidden token count is another, odd one", _C(xR[:hiddenn], "!=", 256) and _C((xR[:hiddenn] % 2), "=", 1))
+
+	? ""
+	? "-- Scene 2: the broken sibling is refused, and the table will not take it --"
+	nSt = StzEngineNeuralAttentionFoundry(130, 384, 12, 3, 16)
+	nBroken = StzEngineNeuralAttentionFoundryResult(8 + 4 * 5)
+	? "  broken (mask bit 4): verified flag " + _T(nBroken) + "   winner " + _T(StzEngineNeuralAttentionFoundryResult(3))
+	chk("the foundry ran the broken variant when asked", _C(nSt, "=", 0) and _C(nBroken, "!=", -2))
+	chk("...and the checker REFUSED it (one output nudged is not the same attention)", _C(nBroken, "=", 0))
+	chk("...so it cannot be the winner", _C(StzEngineNeuralAttentionFoundryResult(3), "=", 0))
+	chk("...and the table refuses it outright", _C(StzEngineNeuralVariantSet("attention", 130, 384, 32, 4), "!=", 0))
+
+	? ""
+	? "-- Scene 3: the backbone dispatches the table's variant, and says which --"
+	if not bModel
+		? "  no local MiniLM -- the backbone scenes need models/; the op-level scenes above are the coverage"
+	else
+		tText = ""
+		for i = 1 to 12
+			tText += "the quick brown fox jumps over the lazy dog and runs away "
+		end
+		StzEngineNeuralGpuSetThreshold(1000000)
+		# three forwards: everything generic; the matmul winners (GK2b, from
+		# the persisted rows) with the generic attention; then both winners
+		StzEngineNeuralVariantClear()
+		StzEngineNeuralEmbed(tText)
+		nAllGen = 1000000000
+		for r = 1 to 7
+			nT0 = StzEngineWatchTimestampNs()
+			StzEngineNeuralEmbed(tText)
+			nMs = (StzEngineWatchTimestampNs() - nT0) / 1000000
+			if _C(nMs, "<", nAllGen) nAllGen = nMs end
+		end
+		$bStzNeuralVariantsSynced_ = false
+		StzNeuralVariantsSync()
+		StzEngineNeuralVariantSet("attention", 130, 384, 32, 0)
+		StzEngineNeuralEmbed(tText)
+		nUsed0 = StzEngineNeuralAttentionVariantUsed()
+		nBefore = 1000000000
+		for r = 1 to 7
+			nT0 = StzEngineWatchTimestampNs()
+			StzEngineNeuralEmbed(tText)
+			nMs = (StzEngineWatchTimestampNs() - nT0) / 1000000
+			if _C(nMs, "<", nBefore) nBefore = nMs end
+		end
+		vVecB = []
+		nDimB = StzEngineNeuralEmbed(tText)
+		for i = 1 to nDimB
+			vVecB + StzEngineNeuralEmbedAt(i - 1)
+		end
+		chk("with the attention row at the generic, the forward reports the generic (scan64)", _C(nUsed0, "=", 0))
+		# now the winner the foundry found for 130 tokens (Scene 1 stored it)
+		xR130 = oG.FoundryAttentionWith(130, 384, 12, 5)
+		nW = StzEngineNeuralVariantGet("attention", 130, 384, 32)
+		? "  the table's row for 130 x 384 / 32: " + _T(nW) + " (" + _T(StzEngineNeuralAttentionVariantName(nW)) + ")"
+		StzEngineNeuralEmbed(tText)
+		nUsed1 = StzEngineNeuralAttentionVariantUsed()
+		nAfter = 1000000000
+		for r = 1 to 7
+			nT0 = StzEngineWatchTimestampNs()
+			StzEngineNeuralEmbed(tText)
+			nMs = (StzEngineWatchTimestampNs() - nT0) / 1000000
+			if _C(nMs, "<", nAfter) nAfter = nMs end
+		end
+		vVecA = []
+		nDimA = StzEngineNeuralEmbed(tText)
+		for i = 1 to nDimA
+			vVecA + StzEngineNeuralEmbedAt(i - 1)
+		end
+		nMaxD = 0
+		for i = 1 to nDimA
+			xDiff = _StzAbs(vVecA[i] - vVecB[i])
+			if _C(xDiff, ">", nMaxD) nMaxD = xDiff end
+		end
+		? "  forward at 130 tokens, warm-min of 7: all generic " + _T(nAllGen) + " ms   matmul winners " + _T(nBefore) + " ms   matmul + attention winners " + _T(nAfter) + " ms   (attention alone " + _T((_Q(nBefore, nAfter))) + "x, all winners " + _T((_Q(nAllGen, nAfter))) + "x)   max |embedding difference| " + _T(nMaxD) + "   variant used: " + _T(StzEngineNeuralAttentionVariantName(nUsed1))
+		chk("the foundry found a winner for the backbone's own shape", _C(nW, ">", 0))
+		chk("...and the forward reports dispatching THAT variant", _C(nUsed1, "=", nW))
+		chk("...with the same embedding within f32 (max difference < 1e-4 on unit vectors)", _C(nDimA, "=", nDimB) and _C(nMaxD, "<", 0.0001))
+		chk("...and the forward is not slower (the attention is 40% of it; the win is bounded by that share)", _C(nAfter, "<=", nBefore * 1.02))
+		StzEngineNeuralModelFree()
+	end
+
+	# the files and the tables as they were
+	nB = Len(vCalBackup)
+	for i = 1 to nB
+		if vCalBackup[i][1] != ""
+			if vCalBackup[i][2] != ""
+				Write(vCalBackup[i][1], vCalBackup[i][2])
+			elseif FExists(vCalBackup[i][1])
+				Remove(vCalBackup[i][1])
+			end
+		end
+	end
+	StzEngineGpuVariantClear()
+	StzEngineNeuralVariantClear()
+	$bStzNeuralVariantsSynced_ = false
+	nS = Len(xSaved)
+	for i = 1 to nS
+		StzGpuVariantSet(xSaved[i][1], xSaved[i][2], xSaved[i][3], xSaved[i][4], xSaved[i][5])
+	end
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T(($nPass + $nFail)) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

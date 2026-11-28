@@ -1,0 +1,472 @@
+# The GPU lifecycle layer -- G1 of the GPU plane (SOFTANZA_GPU_PLAN.md).
+#
+# G0 measured where the GPU pays (resident-chain compute-dense ops) and
+# where it never will (standalone elementwise, anything under the dispatch
+# floor). G1 is the machinery those numbers demand: stz_gpu.dll with
+# generation-keyed buffer handles, a WGSL compile-cache, a BOUNDED VRAM
+# cache with FIFO eviction, TDR-safe tiling, a calibration store, and
+# fallback that is COUNTED, never silent.
+#
+# This guard asserts the MECHANISMS, each with its negative sibling:
+#   - fallback counts before Init, and does NOT count after (both sides)
+#   - the compile-cache compiles once and hits thereafter (1 compile + hits,
+#     not "it returned an id twice")
+#   - tiling splits into EXACTLY ceil(wx/limit) submits AND the tile-offset
+#     arithmetic still lands every element (result stays exact)
+#   - eviction fires under a small budget (victim goes STALE, accounting
+#     shrinks) and does NOT fire under a large one
+#   - create/free churn returns the live count and VRAM accounting to
+#     baseline (a list or an object has no destructor; the explicit path must be exact)
+#   - calibration answers BOTH sides of the threshold, and answers CPU
+#     whenever the device is gone
+#
+# CI note: this guard is written to pass WITHOUT a GPU -- every device
+# scene gates on IsAvailable(); the fallback scenes ARE the CI coverage.
+#
+# Deliberately STANDALONE (loads the engine bridge directly, not
+# stzBase.ring): the lifecycle layer has no dependency on the library
+# faces, so its guard shouldn't inherit their load-time failures -- a
+# broken unrelated face must not mask a GPU regression, and CI can run
+# this on a machine with nothing but haro and the engine DLLs.
+#
+# Traps avoided: main code before the first func; helper temps
+# underscored; no keyword-bearing names.
+
+$tEngineDir = "../../../engine"
+# the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
+load "../../../core/common/stkRingLibs.haro"
+load "../../../engine/stz_gpu.haro"
+$nStzPlaces = 2
+
+$nPass = 0
+$nFail = 0
+
+# counter indices (documented in engine/stz_gpu.haro)
+xC_DISP  = 0
+bC_DMS   = true
+iC_BYTES = 2
+iC_FALL  = 3
+iC_COMP  = 4
+iC_HITS  = 5
+xC_SUB   = 6
+iC_EVICT = 7
+iC_LIVE  = 8
+iC_ERR   = 9
+
+# status codes
+nS_OK = 0
+nS_FALLBACK = 1
+iS_STALE = 2
+iS_BADARG = 3
+
+
+
+? "-- Scene 1: before Init, the layer answers the fallback way, and COUNTS it --"
+StzEngineGpuCountersReset()
+chk("not available before Init", _C(StzEngineGpuIsAvailable(), "=", 0))
+nB = StzEngineGpuBufferNew(1024)
+chk("buffer creation refuses (id 0)", _C(nB, "=", 0))
+chk("dispatch refuses with FALLBACK", _C(StzEngineGpuDispatch(1, [1], 1, 1), "=", nS_FALLBACK))
+nFallsBefore = StzEngineGpuCounter(iC_FALL)
+chk("every refusal was counted (>= 2)", _C(nFallsBefore, ">=", 2))
+StzEngineGpuCalibSet("saxpy", 100)
+chk("ShouldDispatch answers CPU while the device is absent, even calibrated",
+    _C(StzEngineGpuShouldDispatch("saxpy", 1000000), "=", 0))
+
+? ""
+? "-- Scene 2: Init against the vendored runtime --"
+nInit = StzEngineGpuInit($tStzGpuRuntime)
+? "  Init(" + $tStzGpuRuntime + ") = " + _T(nInit)
+if _C(StzEngineGpuIsAvailable(), "=", 0)
+    ? "  NO GPU ON THIS MACHINE -- device scenes skipped, fallback scenes above ARE the coverage"
+else
+    ? "  adapters visible: " + _T(StzEngineGpuAdapterCount())
+    ? "  selected: [" + _T(StzEngineGpuSelectedAdapter()) + "] " +
+        StzEngineGpuAdapterName(StzEngineGpuSelectedAdapter())
+    chk("at least one adapter enumerated", _C(StzEngineGpuAdapterCount(), ">=", 1))
+    chk("a device was selected", _C(StzEngineGpuSelectedAdapter(), ">=", 0))
+
+    StzEngineGpuCountersReset()
+
+    ? ""
+    ? "-- Scene 3: the compile-cache compiles ONCE per kernel text --"
+    tSaxpy = "struct StzTile { xoff : u32, p0 : u32, p1 : u32, p2 : u32 }" + Char(10) +
+        "@group(0) @binding(0) var<uniform> tile : StzTile;" + Char(10) +
+        "@group(0) @binding(1) var<storage, read> x : array<f32>;" + Char(10) +
+        "@group(0) @binding(2) var<storage, read_write> y : array<f32>;" + Char(10) +
+        "@compute @workgroup_size(64)" + Char(10) +
+        "fn main(@builtin(global_invocation_id) gid : vec3<u32>) {" + Char(10) +
+        "  let i = gid.x + tile.xoff * 64u;" + Char(10) +
+        "  if (i < arrayLength(&y)) { y[i] = 2.5 * x[i] + y[i]; }" + Char(10) +
+        "}"
+    nK1 = StzEngineGpuKernelCompile(tSaxpy)
+    chk("kernel compiles (id > 0)", _C(nK1, ">", 0))
+    chk("one real compile", _C(StzEngineGpuCounter(iC_COMP), "=", 1))
+    chk("no cache hit yet", _C(StzEngineGpuCounter(iC_HITS), "=", 0))
+    nK2 = StzEngineGpuKernelCompile(tSaxpy)
+    chk("identical text returns the SAME kernel id", _C(nK2, "=", nK1))
+    chk("still one real compile", _C(StzEngineGpuCounter(iC_COMP), "=", 1))
+    chk("the second ask was a cache HIT", _C(StzEngineGpuCounter(iC_HITS), "=", 1))
+    # different TEXT, same semantics: a trailing comment changes the cache
+    # key -- the cache is keyed by text, and this asserts exactly that
+    tDouble = _T(tSaxpy + Char(10)) + "// variant"
+    nK3 = StzEngineGpuKernelCompile(tDouble)
+    chk("different text is a NEW kernel (negative sibling)", _C(nK3, ">", 0) and _C(nK3, "!=", nK1))
+    chk("and a second real compile", _C(StzEngineGpuCounter(iC_COMP), "=", 2))
+
+    nErrsBefore = StzEngineGpuCounter(iC_ERR)
+    nBadK = StzEngineGpuKernelCompile("this is not wgsl at all")
+    chk("malformed WGSL refuses (id 0)", _C(nBadK, "=", 0))
+    chk("and the device error was captured + counted", _C(StzEngineGpuCounter(iC_ERR), ">", nErrsBefore))
+
+    ? ""
+    ? "-- Scene 4: end-to-end saxpy through the lifecycle (exact values) --"
+    nN = 1024
+    xX = []
+    vY = []
+    for i = 1 to nN
+        xX + (_A((i - 1), "*", 0.5))
+        vY + (_A((i - 1), "*", 0.25))
+    end
+    nBufX = StzEngineGpuBufferNew(_A(nN, "*", 4))
+    nBufY = StzEngineGpuBufferNew(_A(nN, "*", 4))
+    chk("two device buffers created", _C(nBufX, ">", 0) and _C(nBufY, ">", 0))
+    chk("upload x is OK", StzEngineGpuBufferUploadList(nBufX, xX) = nS_OK)
+    chk("upload y is OK", StzEngineGpuBufferUploadList(nBufY, vY) = nS_OK)
+    chk("dispatch is OK (16 workgroups of 64)", StzEngineGpuDispatch(nK1, [nBufX, nBufY], 16, 1) = nS_OK)
+    chk("sync is OK", StzEngineGpuSync() = nS_OK)
+    xOut = StzEngineGpuBufferDownloadList(nBufY, nN)
+    chk("downloaded the full vector", _C(Len(xOut), "=", nN))
+    # y = 2.5*(0.5k) + 0.25k = 1.5k -- every term exact in f32, so EQUALITY
+    bExact = true
+    for i = 1 to nN
+        if _C(xOut[i], "!=", _A(1.5, "*", (i - 1)))
+            bExact = false
+            exit
+        end
+    end
+    chk("every element exact: y[k] = 1.5k (f32-exact by construction)", bExact)
+    chk("transfer bytes counted the two uploads + one download",
+        _C(StzEngineGpuCounter(iC_BYTES), "=", _A(_A(3, "*", nN), "*", 4)))
+    chk("dispatch count is 1", _C(StzEngineGpuCounter(xC_DISP), "=", 1))
+    chk("dispatch wall time advanced", _C(StzEngineGpuCounter(bC_DMS), ">", 0))
+    chk("NO fallback was counted on the happy path (negative sibling)",
+        _C(StzEngineGpuCounter(iC_FALL), "=", 0))
+
+    ? ""
+    ? "-- Scene 5: TDR tiling splits submits, and the offset math stays exact --"
+    # refresh y, then dispatch the same 16 workgroups with tile limit 4:
+    # EXACTLY ceil(16/4) = 4 submits, and the result must still be exact,
+    # which proves each tile saw its own xoff (the mechanism, not the vibe).
+    chk("re-upload y", StzEngineGpuBufferUploadList(nBufY, vY) = nS_OK)
+    StzEngineGpuSetTileLimit(4)
+    nSubsBefore = StzEngineGpuCounter(xC_SUB)
+    chk("tiled dispatch is OK", StzEngineGpuDispatch(nK1, [nBufX, nBufY], 16, 1) = nS_OK)
+    chk("sync after tiles", StzEngineGpuSync() = nS_OK)
+    nTileSubs = _A(StzEngineGpuCounter(xC_SUB), "-", nSubsBefore)
+    ? "  submits for wx=16 at tile limit 4: " + _T(nTileSubs)
+    chk("EXACTLY 4 submits (16 workgroups / 4 per tile)", _C(nTileSubs, "=", 4))
+    xOut2 = StzEngineGpuBufferDownloadList(nBufY, nN)
+    bExact2 = true
+    for i = 1 to nN
+        if _C(xOut2[i], "!=", _A(1.5, "*", (i - 1)))
+            bExact2 = false
+            exit
+        end
+    end
+    chk("tiled result identical -- every tile landed at its offset", bExact2)
+    StzEngineGpuSetTileLimit(32768)
+    nSubsBefore = StzEngineGpuCounter(xC_SUB)
+    chk("re-upload y again", StzEngineGpuBufferUploadList(nBufY, vY) = nS_OK)
+    chk("untiled dispatch OK", StzEngineGpuDispatch(nK1, [nBufX, nBufY], 16, 1) = nS_OK)
+    chk("sync", StzEngineGpuSync() = nS_OK)
+    chk("ONE submit under the big limit (negative sibling)",
+        _C(_A(StzEngineGpuCounter(xC_SUB), "-", nSubsBefore), "=", 1))
+
+    ? ""
+    ? "-- Scene 6: the VRAM bound evicts FIFO, and eviction is visible --"
+    # scene 4's buffers are freed FIRST: they are the oldest live entries,
+    # and FIFO would (correctly) evict THEM before A -- the scene needs a
+    # clean cache to name its victim.
+    StzEngineGpuBufferFree(nBufX)
+    StzEngineGpuBufferFree(nBufY)
+    chk("cache empty before the pressure scene", _C(StzEngineGpuVramInUse(), "=", 0))
+    StzEngineGpuSetVramBudget(1000000)
+    nBufA = StzEngineGpuBufferNew(400000)
+    nBufB = StzEngineGpuBufferNew(400000)
+    chk("A and B fit the budget", _C(nBufA, ">", 0) and _C(nBufB, ">", 0))
+    chk("no eviction yet", _C(StzEngineGpuCounter(iC_EVICT), "=", 0))
+    nBufC = StzEngineGpuBufferNew(400000)
+    chk("C was created", _C(nBufC, ">", 0))
+    chk("ONE eviction paid for it", _C(StzEngineGpuCounter(iC_EVICT), "=", 1))
+    chk("the OLDEST (A) is the victim -- its id is now STALE",
+        _C(StzEngineGpuBufferUploadList(nBufA, [1, 2, 3]), "=", iS_STALE))
+    chk("B survived (FIFO, not random)", _C(StzEngineGpuBufferSize(nBufB), "=", 400000))
+    chk("C is live", _C(StzEngineGpuBufferSize(nBufC), "=", 400000))
+    chk("accounting shows exactly B + C", _C(StzEngineGpuVramInUse(), "=", 800000))
+    StzEngineGpuSetVramBudget(1000000000)
+    nEvBefore = StzEngineGpuCounter(iC_EVICT)
+    nBufD = StzEngineGpuBufferNew(400000)
+    chk("under a big budget the same ask evicts NOTHING (negative sibling)",
+        _C(nBufD, ">", 0) and _C(StzEngineGpuCounter(iC_EVICT), "=", nEvBefore))
+    StzEngineGpuBufferFree(nBufB)
+    StzEngineGpuBufferFree(nBufC)
+    StzEngineGpuBufferFree(nBufD)
+
+    ? ""
+    ? "-- Scene 7: create/free churn balances to zero --"
+    nLive0 = StzEngineGpuCounter(iC_LIVE)
+    nUse0 = StzEngineGpuVramInUse()
+    nStale = 0
+    for i = 1 to 200
+        nId = StzEngineGpuBufferNew(4096)
+        StzEngineGpuBufferFree(nId)
+        if _C(StzEngineGpuBufferUploadList(nId, [1]), "=", iS_STALE)
+            nStale++
+        end
+    end
+    chk("200 create/free cycles leave live count unmoved", _C(StzEngineGpuCounter(iC_LIVE), "=", nLive0))
+    chk("and VRAM accounting unmoved", _C(StzEngineGpuVramInUse(), "=", nUse0))
+    chk("every freed id went STALE -- generations, not luck (200/200)", _C(nStale, "=", 200))
+    chk("still no fallback counted (negative sibling)", _C(StzEngineGpuCounter(iC_FALL), "=", 0))
+
+    ? ""
+    ? "-- Scene 8: calibration gates BOTH sides of the crossover --"
+    StzEngineGpuCalibSet("matmul", 128)
+    chk("stored threshold reads back", _C(StzEngineGpuCalibGet("matmul"), "=", 128))
+    chk("below the line: CPU", _C(StzEngineGpuShouldDispatch("matmul", 64), "=", 0))
+    chk("AT the line: GPU", _C(StzEngineGpuShouldDispatch("matmul", 128), "=", 1))
+    chk("above the line: GPU", _C(StzEngineGpuShouldDispatch("matmul", 4096), "=", 1))
+    chk("an op with NO calibration answers CPU", _C(StzEngineGpuShouldDispatch("mystery", 4096), "=", 0))
+
+    ? ""
+    ? "-- Scene 9: shutdown is honest, and Init comes back --"
+    StzEngineGpuShutdown()
+    chk("not available after shutdown", _C(StzEngineGpuIsAvailable(), "=", 0))
+    chk("calibrated op routes CPU once the device is gone",
+        _C(StzEngineGpuShouldDispatch("matmul", 4096), "=", 0))
+    nFall0 = StzEngineGpuCounter(iC_FALL)
+    chk("post-shutdown buffer ask refuses", _C(StzEngineGpuBufferNew(1024), "=", 0))
+    chk("and was counted", _C(StzEngineGpuCounter(iC_FALL), "=", _A(nFall0, "+", 1)))
+    chk("re-Init restores the device", _C(StzEngineGpuInit($tStzGpuRuntime), "=", 1))
+    chk("available again", _C(StzEngineGpuIsAvailable(), "=", 1))
+    StzEngineGpuShutdown()
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+Shutdown($nFail)
+
+
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

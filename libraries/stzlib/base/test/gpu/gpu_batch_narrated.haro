@@ -1,0 +1,405 @@
+# Batched passes -- the lifecycle layer's amortization of submission cost,
+# and the prerequisite the resident-backbone spike proved necessary
+# (SOFTANZA_GPU_PLAN.md, "THE RESIDENT BACKBONE").
+#
+# G0 measured ~60 us per submit+wait against ~9 us for a dispatch INSIDE a
+# pass. A chain of many small ops therefore pays more in SUBMISSION than in
+# work: the backbone spike's 144 tiny attention dispatches cost 11.3 ms
+# unbatched and 4.7 ms batched.
+#
+# THE SUBTLE CORRECTNESS PROBLEM this guard exists for: the tile and params
+# uniforms are written with queue.writeBuffer, which is ordered against
+# SUBMITS -- not against dispatches inside one pass. A batch that shared one
+# params buffer would give EVERY dispatch the LAST value written, silently.
+# So each batched dispatch takes its own uniform slot from a pool. The
+# assertion that proves it: a batch of ops with DIFFERENT parameters must
+# produce exactly what the same ops produce unbatched.
+
+load "../../stzBase.ring"
+
+$nPass = 0
+$nFail = 0
+
+xC_SUB = 6      # queue submits
+xC_DISP = 0     # dispatches
+
+pr()
+
+$nStzPlaces = 12
+
+oG = new stzGpu
+if not oG.IsAvailable()
+    ? "  NO GPU ON THIS MACHINE -- batching needs the device"
+else
+    ? "  device: " + _T(oG.DeviceName())
+
+    ? ""
+    ? "-- Scene 1: a batch is one submit, not N --"
+    nN = 4096
+    xA = []
+    for i = 1 to nN
+        xA + (i % 17)
+    end
+    nHA = StzEngineGpuBufferNew(nN * 4)
+    nHB = StzEngineGpuBufferNew(nN * 4)
+    vOuts = []
+    for i = 1 to 8
+        vOuts + StzEngineGpuBufferNew(nN * 4)
+    end
+    StzEngineGpuBufferUploadList(nHA, xA)
+    StzEngineGpuBufferUploadList(nHB, xA)
+
+    # warm the pipeline outside the counted window
+    StzEngineGpuOpAxpby(1, nHA, 1, nHB, vOuts[1], nN)
+    StzEngineGpuSync()
+
+    StzEngineGpuCountersReset()
+    for i = 1 to 8
+        StzEngineGpuOpAxpby(i, nHA, 1, nHB, vOuts[i], nN)
+    end
+    StzEngineGpuSync()
+    nSubsUnbatched = StzEngineGpuCounter(xC_SUB)
+    ? "  8 ops unbatched: " + _T(nSubsUnbatched) + " submits"
+    chk("unbatched: one submit per op (8)", _C(nSubsUnbatched, "=", 8))
+
+    vUnbatched = []
+    for i = 1 to 8
+        vUnbatched + StzEngineGpuBufferDownloadList(vOuts[i], nN)
+    end
+
+    StzEngineGpuCountersReset()
+    chk("batch opens", _C(StzEngineGpuBatchBegin(), "=", 0))
+    chk("and reports itself active", _C(StzEngineGpuBatchActive(), "=", 1))
+    for i = 1 to 8
+        StzEngineGpuOpAxpby(i, nHA, 1, nHB, vOuts[i], nN)
+    end
+    chk("batch closes", _C(StzEngineGpuBatchEnd(), "=", 0))
+    chk("no longer active", _C(StzEngineGpuBatchActive(), "=", 0))
+    StzEngineGpuSync()
+    nSubsBatched = StzEngineGpuCounter(xC_SUB)
+    ? "  the same 8 ops batched: " + _T(nSubsBatched) + " submit"
+    chk("batched: EXACTLY ONE submit for all 8 ops", _C(nSubsBatched, "=", 1))
+    chk("all 8 dispatches still happened (the work was not dropped)",
+        StzEngineGpuCounter(xC_DISP) = 8)
+
+    ? ""
+    ? "-- Scene 2: THE UNIFORM-SLOT PROOF -- each op kept its OWN alpha --"
+    # every op used a DIFFERENT alpha (i = 1..8). If the batch shared one
+    # params buffer, every result would carry the LAST alpha (8) instead.
+    bIdentical = true
+    bWouldHaveCollapsed = false
+    for i = 1 to 8
+        xGot = StzEngineGpuBufferDownloadList(vOuts[i], nN)
+        for j = 1 to nN
+            if _C(xGot[j], "!=", vUnbatched[i][j])
+                bIdentical = false
+            end
+        end
+        # the "all got the last alpha" failure mode, named explicitly
+        if _C(i, "<", 8) and _C(xGot[2], "=", (8 * xA[2] + xA[2]))
+            bWouldHaveCollapsed = true
+        end
+    end
+    chk("batched results are IDENTICAL to unbatched, op by op, element by element",
+        bIdentical)
+    chk("...and NOT collapsed onto the last op's parameter (the negative sibling)",
+        not bWouldHaveCollapsed)
+
+    ? ""
+    ? "-- Scene 3: the amortization is real, and it is the backbone's key --"
+    nBig = 64
+    nHM1 = StzEngineGpuBufferNew(nBig * nBig * 4)
+    nHM2 = StzEngineGpuBufferNew(nBig * nBig * 4)
+    nHM3 = StzEngineGpuBufferNew(nBig * nBig * 4)
+    xM = []
+    for i = 1 to nBig * nBig
+        xM + 0.5
+    end
+    StzEngineGpuBufferUploadList(nHM1, xM)
+    StzEngineGpuBufferUploadList(nHM2, xM)
+    StzEngineGpuOpMatmul(nHM1, nHM2, nHM3, nBig, nBig, nBig)
+    StzEngineGpuSync()
+
+    nUn = 999999
+    for r = 1 to 3
+        nT0 = StzEngineWatchTimestampNs()
+        for i = 1 to 60
+            StzEngineGpuOpMatmul(nHM1, nHM2, nHM3, nBig, nBig, nBig)
+        end
+        StzEngineGpuSync()
+        nMs = (StzEngineWatchTimestampNs() - nT0) / 1000000
+        if _C(nMs, "<", nUn) nUn = nMs end
+    end
+    nBa = 999999
+    for r = 1 to 3
+        nT0 = StzEngineWatchTimestampNs()
+        StzEngineGpuBatchBegin()
+        for i = 1 to 60
+            StzEngineGpuOpMatmul(nHM1, nHM2, nHM3, nBig, nBig, nBig)
+        end
+        StzEngineGpuBatchEnd()
+        StzEngineGpuSync()
+        nMs = (StzEngineWatchTimestampNs() - nT0) / 1000000
+        if _C(nMs, "<", nBa) nBa = nMs end
+    end
+    ? "  60 small matmuls: unbatched " + _T(nUn) + " ms, batched " + _T(nBa) + " ms  (" +
+        _T((_Q(nUn, nBa))) + "x)"
+    chk("batching a chain of small ops is FASTER (the submission floor is real)",
+        _C(nBa, "<", nUn))
+
+    ? ""
+    ? "-- Scene 4: the negatives --"
+    chk("closing a batch that was never opened refuses", _C(StzEngineGpuBatchEnd(), "=", 3))
+    chk("opening twice is idempotent, not an error",
+        StzEngineGpuBatchBegin() = 0 and _C(StzEngineGpuBatchBegin(), "=", 0))
+    StzEngineGpuBatchEnd()
+    chk("a shutdown mid-batch does not strand the layer",
+        _SurvivesShutdownMidBatch())
+
+    StzEngineGpuShutdown()
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T(($nPass + $nFail)) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+# open a batch, pull the device out from under it, and confirm the layer is
+# still usable afterwards (re-init, dispatch, correct answer)
+func _SurvivesShutdownMidBatch
+	StzEngineGpuBatchBegin()
+	StzEngineGpuShutdown()
+	if _C(StzEngineGpuBatchActive(), "!=", 0)
+		return false
+	end
+	StzEngineGpuInit($tStzGpuRuntime)
+	if _C(StzEngineGpuIsAvailable(), "=", 0)
+		return false
+	end
+	xH1 = StzEngineGpuBufferNew(256 * 4)
+	xH2 = StzEngineGpuBufferNew(256 * 4)
+	vA = []
+	for i = 1 to 256
+		vA + 2
+	end
+	StzEngineGpuBufferUploadList(xH1, vA)
+	if _C(StzEngineGpuOpScaleInPlace(xH1, 3, 256), "!=", 0)
+		return false
+	end
+	xOut = StzEngineGpuBufferDownloadList(xH1, 256)
+	StzEngineGpuBufferFree(xH1)
+	StzEngineGpuBufferFree(xH2)
+	return _C(Len(xOut), "=", 256) and _C(xOut[1], "=", 6)
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

@@ -666,32 +666,32 @@ Run with Ring++ from `base/test/gpu/`: `rnxc <guard>.ring`.
 
 | guard | covers |
 |---|---|
-| `gpu_grammar_narrated.ring` | the elementwise grammar, its refusals, transpiler and interpreter agreeing |
-| `gpu_shared_narrated.ring` | the group lines: shared, stage, reduce, tiles, accumulate, width |
-| `gpu_spec_reference_narrated.ring` | the interpreter as the reference |
-| `gpu_verify_narrated.ring` | the checker, its verdicts and its floors |
+| `gpu_grammar_narrated.haro` | the elementwise grammar, its refusals, transpiler and interpreter agreeing |
+| `gpu_shared_narrated.haro` | the group lines: shared, stage, reduce, tiles, accumulate, width |
+| `gpu_spec_reference_narrated.haro` | the interpreter as the reference |
+| `gpu_verify_narrated.haro` | the checker, its verdicts and its floors |
 | `kp_prove_stress.haro` | a tool, not a guard: N rounds of ProveItself on kp-05, kp-06, kp-13 and kp-19, every check going the wrong way printed whole (KP_ROUNDS, KP_LOG) |
 | `kp_floor_margin.haro` | a tool: kp-19's right answer checked N times in one process, the worst ratio of its time to the floor it is judged against (KP_RUNS) |
 | `gpu_spmv_lanes.haro` | the lanes kernel of the CSR product: every T (2 to 32) and variant 3 against the loop to the bit on 15 shapes, then the clock table of scalar, vector and each T at 1,000,000 entries, rows of 1 to 2,048 (GB0-SPMV-V2) |
 | `gpu_yield_cost.haro` | a tool: a foreground step beside a background job on one card, alone, never yielding, and in slices of 1, 4 and 16; foreground median, p95 and worst, and the job's wall time (RADAR-GPU-YIELD-01) |
-| `gpu_puzzle_narrated.ring` | the twelve puzzles, both runners, the chapters |
-| `gpu_f16_narrated.ring` | half-precision weights and the forward's dispatch count |
-| `gpu_calibration_shaped_narrated.ring` | routing by shape, interpolation between measured classes |
-| `gpu_sanitizer_narrated.ring` | the four defects named, the unwritable ones refused, races as puzzle verdicts, 300 injected races all named |
-| `gpu_fuzz_narrated.ring` | generated kernels of six kinds through both readers and the device; the control that each wrong operator is caught |
-| `gpu_when_narrated.ring` | GL0's `when`: both readers, the condition's shape and its refusals, the device, the fuzz's SWAP control, puzzle 13 |
-| `gpu_int_narrated.ring` | GL0's ints: declarations, typing, refusals in both readers' words, the device at every edge, the fuzz's int kind, puzzle 14 |
-| `gpu_vec_narrated.ring` | GL0's vectors: construction, swizzles, spreading, the vector functions, refusals, the device, the fuzz's vector kind, puzzle 15 |
-| `gpu_buffers_narrated.ring` | GL0's buffers of vectors: declarations, both readers, every host path that makes a buffer, the fuzz's typed-buffer kind, puzzle 16 |
-| `gpu_spmv_narrated.ring` | GB0's sparse-dense product: both kernels and auto exact against the loop on every shape of matrix, the dense-matrix form, the band where sums round, one dispatch, what it refuses (the CSR itself is not validated), the face, the crossover of the two kernels measured, the route, puzzle 24 |
+| `gpu_puzzle_narrated.haro` | the twelve puzzles, both runners, the chapters |
+| `gpu_f16_narrated.haro` | half-precision weights and the forward's dispatch count |
+| `gpu_calibration_shaped_narrated.haro` | routing by shape, interpolation between measured classes |
+| `gpu_sanitizer_narrated.haro` | the four defects named, the unwritable ones refused, races as puzzle verdicts, 300 injected races all named |
+| `gpu_fuzz_narrated.haro` | generated kernels of six kinds through both readers and the device; the control that each wrong operator is caught |
+| `gpu_when_narrated.haro` | GL0's `when`: both readers, the condition's shape and its refusals, the device, the fuzz's SWAP control, puzzle 13 |
+| `gpu_int_narrated.haro` | GL0's ints: declarations, typing, refusals in both readers' words, the device at every edge, the fuzz's int kind, puzzle 14 |
+| `gpu_vec_narrated.haro` | GL0's vectors: construction, swizzles, spreading, the vector functions, refusals, the device, the fuzz's vector kind, puzzle 15 |
+| `gpu_buffers_narrated.haro` | GL0's buffers of vectors: declarations, both readers, every host path that makes a buffer, the fuzz's typed-buffer kind, puzzle 16 |
+| `gpu_spmv_narrated.haro` | GB0's sparse-dense product: both kernels and auto exact against the loop on every shape of matrix, the dense-matrix form, the band where sums round, one dispatch, what it refuses (the CSR itself is not validated), the face, the crossover of the two kernels measured, the route, puzzle 24 |
 | `gpu_soak_narrated.haro` | GT3, the long run at minutes scale, on haro.exe: six compute modules and the checker looped while the device is closed and reopened every tenth round (answers identical, live buffers and compile count flat, a fallback while down, no dropped close hooks), an engine-alone phase for memory, three devices destroyed under the engine and recovered. GT3b: every flat check asserted again by the OUTSIDE WITNESS, the GPU memory Windows counts for this process (`StzEngineGpuProcessMemory`), with its negative sibling (four 64 MB buffers must show) and the regression check for uploads freed before any submit. `SOAK_SECONDS` sets the length (default 60) |
 | `gpu_lease_narrated.haro` | RADAR-GPU-OWNER-01 (a), on haro.exe: one process at a time owns an adapter. The guard holds the device and starts a second process against it, which waits the second it was given, gets no device and names the holder; the next process takes the lease at once after a closing, and after a process that ended without closing its device; `STZ_GPU_LEASE=off` opens with none; a second engine library of the same process shares the lease at once; a puzzle grader that finds the card busy waits and never grades on the interpreter (22) |
-| `gpu_segscan_narrated.ring` | GB0's segmented scan and reduction: exact against the loop for sum, max and min at every level, no flag and a flag everywhere, the implicit start at element 0, the band where partials round, one submit, what it refuses, the face, the speed against the plain scan, the route, puzzle 23 |
-| `gpu_sort_narrated.ring` | GB0's radix sort: a sort proved by what a sort is (ordered, a permutation, each value beside its key, stable) at every level and both directions, fractions against Ring's sort, the argsort, one submit, the scratch kept and given back, what it refuses, the face, the speed, the route, puzzle 22 |
-| `gpu_compact_narrated.ring` | GB0's stream compaction: exact witnesses across every level, both extremes, the six comparisons, the mask form, a sentinel that must survive, what it refuses (2^24 included), the scratch kept and given back, the face, the speed, the route, puzzle 21 |
-| `gpu_scan_narrated.ring` | GB0's scan: exact witnesses across every level, the shift, the measured band, one submit, what it refuses, the face, the speed against a scale pass, the route, puzzle 20 |
-| `gpu_grid3_narrated.ring` | GL0's 3-D grid: depth and @slice in both readers, its refusals in their shared words, volumes on the device, the fuzz's grid kind and its stride control, puzzle 19 |
-| `gpu_loop_narrated.ring` | GL0's loop: a state, a stop, sum as a special case, the cap, refusals in both readers' words, the device (including a stage before a barrier), the fuzz's loop kind and its step-flip control, puzzle 18 |
-| `gpu_host_narrated.ring` | the host contract: the engine's numbers pinned, no host file spells one, and a host written from the document alone reaches the face's verdicts on 17 puzzle cases |
-| `gpu_atomic_narrated.ring` | GL0's atomics: add, max, min, identities, dropped indices, the device on every path, the fuzz's atomic kind and its rotated-operation control, puzzle 17 |
+| `gpu_segscan_narrated.haro` | GB0's segmented scan and reduction: exact against the loop for sum, max and min at every level, no flag and a flag everywhere, the implicit start at element 0, the band where partials round, one submit, what it refuses, the face, the speed against the plain scan, the route, puzzle 23 |
+| `gpu_sort_narrated.haro` | GB0's radix sort: a sort proved by what a sort is (ordered, a permutation, each value beside its key, stable) at every level and both directions, fractions against Ring's sort, the argsort, one submit, the scratch kept and given back, what it refuses, the face, the speed, the route, puzzle 22 |
+| `gpu_compact_narrated.haro` | GB0's stream compaction: exact witnesses across every level, both extremes, the six comparisons, the mask form, a sentinel that must survive, what it refuses (2^24 included), the scratch kept and given back, the face, the speed, the route, puzzle 21 |
+| `gpu_scan_narrated.haro` | GB0's scan: exact witnesses across every level, the shift, the measured band, one submit, what it refuses, the face, the speed against a scale pass, the route, puzzle 20 |
+| `gpu_grid3_narrated.haro` | GL0's 3-D grid: depth and @slice in both readers, its refusals in their shared words, volumes on the device, the fuzz's grid kind and its stride control, puzzle 19 |
+| `gpu_loop_narrated.haro` | GL0's loop: a state, a stop, sum as a special case, the cap, refusals in both readers' words, the device (including a stage before a barrier), the fuzz's loop kind and its step-flip control, puzzle 18 |
+| `gpu_host_narrated.haro` | the host contract: the engine's numbers pinned, no host file spells one, and a host written from the document alone reaches the face's verdicts on 17 puzzle cases |
+| `gpu_atomic_narrated.haro` | GL0's atomics: add, max, min, identities, dropped indices, the device on every path, the fuzz's atomic kind and its rotated-operation control, puzzle 17 |
 | `edge_proof/edge_proof.html` | the browser and the desktop agree, case by case |

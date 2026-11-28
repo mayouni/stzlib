@@ -1,0 +1,424 @@
+# The declarative surface -- G4 of the GPU plane (SOFTANZA_GPU_PLAN.md).
+#
+# stzKernelMaker describes an elementwise computation; the ENGINE
+# transpiles it to WGSL (gpu_wgsl.zig -- the capability lives below the
+# faces, any binding gets it); stzGpu runs it; stzGpuBuffer keeps results
+# resident so chains pay one upload and one download, total.
+#
+# What this suite asserts:
+#   - kernel AUTHORING needs no device: ToWGSL() transpiles and shows the
+#     generated kernel before any GPU init (and on GPU-less machines)
+#   - the transpiler REFUSES by name: undeclared vectors, unknown
+#     identifiers, reading the output, uncalled functions, foreign
+#     characters -- each raises with the offender in the message
+#   - a one-shot Run() computes exact values (f32-exact data)
+#   - the RESIDENT form is real, asserted by the TRANSFER COUNTER: a
+#     3-link chain moves exactly one upload + one download of bytes,
+#     nothing between the links -- the mechanism of residency, not a vibe
+#   - binding mistakes raise by name (missing vector, missing scalar,
+#     unequal lengths); a missing scalar must NOT silently bind 0
+#   - after Shutdown(), data paths raise clearly; authoring still works
+#
+# Runs the REAL classes over the real engine (narration style: every
+# block runs).
+
+load "../../stzBase.ring"
+$nStzPlaces = 2
+
+$nPass = 0
+$nFail = 0
+
+xC_DISP = 0
+iC_BYTES = 2
+
+pr()
+
+? "-- Scene 1: authoring needs no device --"
+oK1 = StzKernelMakerQ()
+oK1.TakesVector(:A)
+oK1.TakesVector(:B)
+oK1.TakesScalar(:alpha)
+oK1.ReturnsVector(:C)
+oK1.ForEachElement('{ @C = alpha * @A + @B }')
+tW = oK1.ToWGSL()
+? "  generated kernel (excerpt): v_c[i] = ..."
+chk("the spec collapses declarations in order",
+    _C(StzFindFirst("in a", oK1.Spec()), ">", 0) and _C(StzFindFirst("scalar alpha", oK1.Spec()), ">", 0))
+chk("the transpile is TRANSPARENT: @C = alpha*@A+@B became WGSL verbatim",
+    _C(StzFindFirst("v_c[i] = p.s_alpha * v_a[i] + v_b[i];", tW), ">", 0))
+chk("the kernel binds the house contract (tile at 0, params at 1)",
+    _C(StzFindFirst("@binding(0) var<uniform> tile", tW), ">", 0) and
+    _C(StzFindFirst("@binding(1) var<uniform> p", tW), ">", 0))
+
+? ""
+? "-- Scene 2: the transpiler refuses by NAME --"
+chk("an undeclared vector is refused", _Refuses("a", "c", "@c = @zz + 1", "undeclared"))
+chk("an unknown identifier is refused", _Refuses("a", "c", "@c = @a * mystery", "unknown name"))
+chk("reading the output is refused", _Refuses("a", "c", "@c = @c + @a", "cannot be read"))
+chk("a function without '(' is refused", _Refuses("a", "c", "@c = sqrt", "needs '('"))
+chk("a foreign character is refused", _Refuses("a", "c", "@c = @a * 2 ; 1", "not part"))
+chk("a body assigning the wrong name is refused", _Refuses("a", "c", "@a = @a", "assigns"))
+
+? ""
+? "-- Scene 3: one-shot Run, exact values --"
+oG = new stzGpu
+if not oG.IsAvailable()
+    ? "  NO GPU ON THIS MACHINE -- authoring scenes above are the CI coverage"
+else
+    ? "  device: " + _T(oG.DeviceName())
+    nN = 1000
+    xA = []
+    xB = []
+    for i = 1 to nN
+        xA + (_Q((i - 1), 2.0))
+        xB + (_Q((i - 1), 4.0))
+    end
+    # c = 2.5*(k/2) + k/4 = 1.5k -- every term f32-exact
+    xC = oG.Run(oK1, [ [:A, xA], [:B, xB], [:alpha, 2.5] ])
+    chk("Run returns the full vector", _C(Len(xC), "=", nN))
+    bOk = true
+    for i = 1 to nN
+        if _C(xC[i], "!=", _A(1.5, "*", (i - 1)))
+            bOk = false
+            exit
+        end
+    end
+    chk("one-shot Run EXACT: c[k] = 1.5k", bOk)
+
+    ? ""
+    ? "-- Scene 4: the resident chain moves bytes exactly TWICE --"
+    kDouble = StzKernelMakerQ()
+    kDouble.TakesVector(:A)
+    kDouble.ReturnsVector(:C)
+    kDouble.ForEachElement('{ @C = @A * 2.0 }')
+    kShift = StzKernelMakerQ()
+    kShift.TakesVector(:A)
+    kShift.TakesScalar(:d)
+    kShift.ReturnsVector(:C)
+    kShift.ForEachElement('{ @C = @A + d }')
+    # warm the pipelines OUTSIDE the counted window (first compile is real work)
+    oWarm = oG.UploadQ([1, 2, 3])
+    oWarm.ApplyQ(kDouble).Free()
+    oWarm.ApplyWithQ(kShift, [ [:d, 0] ]).Free()
+    oWarm.Free()
+
+    StzEngineGpuCountersReset()
+    nB0 = StzEngineGpuCounter(iC_BYTES)
+    oB1 = oG.UploadQ(xA)                              # transfer 1: up
+    oB2 = oB1.ApplyQ(kDouble)                          # resident
+    oB3 = oB2.ApplyWithQ(kShift, [ [:d, 100] ])         # resident
+    xOut = oB3.Download()                             # transfer 2: down
+    chk("chain answers exactly: (k/2)*2 + 100", _ChainExact(xOut, nN))
+    chk("THE RESIDENCY MECHANISM: exactly up + down crossed the bus (" +
+        _T((_A(_A(2, "*", nN), "*", 4))) + " bytes)", _C(_A(StzEngineGpuCounter(iC_BYTES), "-", nB0), "=", _A(_A(2, "*", nN), "*", 4)))
+    chk("two chain links = exactly two dispatches",
+        _C(StzEngineGpuCounter(xC_DISP), "=", 2))
+    oB1.Free()
+    oB2.Free()
+    oB3.Free()
+
+    ? ""
+    ? "-- Scene 5: multi-input over resident buffers --"
+    kSum2 = StzKernelMakerQ()
+    kSum2.TakesVector(:A)
+    kSum2.TakesVector(:B)
+    kSum2.ReturnsVector(:C)
+    kSum2.ForEachElement('{ @C = @A + @B }')
+    oBufA = oG.UploadQ(xA)
+    oBufB = oG.UploadQ(xB)
+    oBufC = oG.ApplyOnQ(kSum2, [ [:A, oBufA], [:B, oBufB] ])
+    xSum = oBufC.Download()
+    bOk = true
+    for i = 1 to nN
+        if _C(xSum[i], "!=", _A(0.75, "*", (i - 1)))
+            bOk = false
+            exit
+        end
+    end
+    chk("ApplyOnQ combines two residents exactly: k/2 + k/4 = 0.75k", bOk)
+    oBufA.Free()
+    oBufB.Free()
+    oBufC.Free()
+
+    ? ""
+    ? "-- Scene 6: binding mistakes raise by name --"
+    bRaised = false
+    try
+        oG.Run(oK1, [ [:A, xA], [:alpha, 2.5] ])
+    catch
+        bRaised = _C(StzFindFirst("'b'", cCatchError), ">", 0)
+    end
+    chk("a missing vector names itself", bRaised)
+    bRaised = false
+    try
+        oG.Run(oK1, [ [:A, xA], [:B, xB] ])
+    catch
+        bRaised = _C(StzFindFirst("alpha", cCatchError), ">", 0)
+    end
+    chk("a missing scalar names itself (never a silent 0.0)", bRaised)
+    bRaised = false
+    try
+        oG.Run(oK1, [ [:A, xA], [:B, [1, 2, 3]], [:alpha, 1] ])
+    catch
+        bRaised = true
+    end
+    chk("unequal vector lengths refuse", bRaised)
+
+    ? ""
+    ? "-- Scene 7: the device goes away; authoring stays --"
+    StzEngineGpuShutdown()
+    bRaised = false
+    try
+        oG.UploadQ([1, 2, 3])
+    catch
+        bRaised = _C(StzFindFirst("no GPU device", cCatchError), ">", 0)
+    end
+    chk("data paths raise clearly without a device", bRaised)
+    kAfter = StzKernelMakerQ()
+    kAfter.TakesVector(:X)
+    kAfter.ReturnsVector(:Y)
+    kAfter.ForEachElement('{ @Y = sqrt(@X) }')
+    chk("authoring still transpiles without a device",
+        _C(StzFindFirst("sqrt(v_x[i])", kAfter.ToWGSL()), ">", 0))
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+
+pfq()
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+# does a kernel with one input, one output and this body refuse with
+# pcFragment in the engine's message?
+func _Refuses(ptInName, ptOutName, ptBody, ptFragment)
+	xK = StzKernelMakerQ()
+	xK.TakesVector(ptInName)
+	xK.ReturnsVector(ptOutName)
+	xK.ForEachElement("{ " + _T(ptBody) + " }")
+	bR = false
+	try
+		xK.ToWGSL()
+	catch
+		bR = _C(StzFindFirst(ptFragment, cCatchError), ">", 0)
+	end
+	return bR
+end
+func _ChainExact(pxOut, pnN)
+	for i = 1 to pnN
+		if _C(pxOut[i], "!=", _A((i - 1), "+", 100))
+			return false
+		end
+	end
+	return true
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a decimal to
+# nine places, or a float when either side is a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	fQ = Float(String(xA)) / Float(String(xB))
+	if _StzIsFloat(xA) or _StzIsFloat(xB)
+		return fQ
+	end
+	try
+		return Decimal(fQ, 9)
+	catch e
+		return fQ
+	end
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

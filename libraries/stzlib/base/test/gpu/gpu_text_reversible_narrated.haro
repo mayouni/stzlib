@@ -1,0 +1,432 @@
+# THE TEXT LAYOUT IS REVERSIBLE -- §0 of base/gui/SOFTANZA_GUI_PLAN.md,
+# filed against the graphics plane because that is where it lives.
+#
+# Drawing text is half a text pipeline. The other half is answering
+# questions ABOUT what was drawn, and every platform IME on earth asks
+# the same two -- Windows TSF (GetTextExt, GetACPFromPoint), macOS
+# (firstRectForCharacterRange:, characterIndexForPoint:), Android, the
+# Web's EditContext:
+#
+#   1. the screen rect of a character range
+#   2. the character index at a point, with a leading/trailing affinity
+#
+# A layout that cannot answer them shapes Arabic beautifully and never
+# accepts one character of Chinese -- and that is discovered late.
+# Firefox's TSF work had to invent "query content events" so the widget
+# layer could interrogate layout, and that was most of eight years.
+#
+# WHAT IS ASSERTED, and it is a MECHANISM, not a number: the ROUND TRIP
+# closes. IndexAtPoint(x) answers (index, trailing); feeding that pair
+# back to CaretRectAt lands on an edge of the very glyph box that
+# contains x -- in LTR runs, in RTL runs, and across the seam between
+# them, where "one byte offset" has TWO legitimate screen positions and
+# only the affinity bit chooses between them.
+#
+# Runs on the COMMITTED fixture with no device, no download, no system
+# font: this suite IS its own CI coverage, like its GR2a sibling.
+
+$tEngineDir = "../../../engine"
+# the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
+load "../../../core/common/stkRingLibs.haro"
+load "../../../engine/stz_gpu.haro"
+$nStzPlaces = 2
+
+$nPass = 0
+$nFail = 0
+
+# Arabic codepoints as explicit UTF-8 bytes (no source-encoding
+# dependence), the same alphabet gpu_text_narrated.haro uses.
+tSeen = Char(0xD8) + Char(0xB3)
+tWaw  = Char(0xD9) + Char(0x88)
+tFa   = Char(0xD9) + Char(0x81)
+tTa   = Char(0xD8) + Char(0xAA)
+tAlef = Char(0xD8) + Char(0xA7)
+tNoon = Char(0xD9) + Char(0x86)
+tZay  = Char(0xD8) + Char(0xB2)
+tSoftanza = tSeen + tWaw + tFa + tTa + tAlef + tNoon + tZay + tAlef
+
+tMixed = "abc " + tSoftanza + " xyz"   # 24 bytes: Arabic occupies [4, 20)
+
+nHF = StzEngineGpuFontLoad(Read("fixtures/amiri_arabic_subset.ttf"))
+chk("fixture font loads (no device needed)", _C(nHF, ">", 0))
+
+? ""
+? "-- Scene 1: the layout now CARRIES what a caret needs --"
+xL = StzEngineGpuTextLayout(nHF, "Softanza", 32)
+# TWO PINS ON A DOORWAY THAT GREW, and they are not the same defect.
+#
+# The FIRST was already red before the fallback chain was written: the
+# layout gained ink_top and ink_bottom with DN12 and this line went on
+# demanding seven, so it reported a regression in code that had got
+# better. Its sibling in gpu_text_narrated was repaired on 2026-09-11
+# and this copy was missed -- which is what a drifted pin does, it hides
+# in the file nobody re-read.
+#
+# The SECOND is honest and is updated here, in the commit that caused it:
+# a glyph now carries a NINTH number, the font that drew it, because a
+# gid means nothing without the face it came from.
+chk("layout answers 16 items (glyphs, metrics, the chain, the flow, and the fit)", _C(Len(xL), "=", 16))
+chk("every glyph carries 9 numbers -- the ninth is the font that drew it", _C(Len(xL[3][1]), "=", 9))
+chk("ascender is a positive distance", _C(xL[4], ">", 0))
+chk("descender is a positive distance", _C(xL[5], ">", 0))
+chk("line height exceeds the em at 32px", _C(_A(_A(xL[4], "+", xL[5]), "+", xL[6]), ">", 32))
+chk("a Latin paragraph is not RTL", _C(xL[7], "=", 0))
+
+? ""
+? "-- Scene 2: pen and advance are NOT the draw x (the classic bug) --"
+# x is where the glyph is PAINTED and carries the mark offset; the box a
+# click is tested against is [pen, pen+adv). Confusing them is the
+# textbook caret defect, so the two are separate fields, and the pen
+# chain is exact: it reconstructs the total advance to the bit.
+xG = xL[3]
+nSum = 0
+bChain = true
+for i = 1 to Len(xG)
+	if _C(xG[i][5], "!=", nSum)
+		bChain = false
+	end
+	nSum = _A(nSum, "+", xG[i][6])
+end
+chk("the first glyph's pen is the origin", _C(xG[1][5], "=", 0))
+chk("pen[i+1] = pen[i] + adv[i], exactly", bChain)
+chk("the advances sum to the reported width", _C(nSum, "=", xL[1]))
+
+? ""
+? "-- Scene 3: cluster ENDS make the byte range knowable --"
+# The cluster field always gave a START byte. Without the END, 'is byte
+# B inside this cluster' is unanswerable, and every consumer guesses.
+bAscii = true
+for i = 1 to Len(xG)
+	if _C(xG[i][4], "!=", i - 1) or _C(xG[i][7], "!=", i)
+		bAscii = false
+	end
+end
+chk("8 ASCII chars: cluster i-1 ends at i", bAscii)
+chk("the last cluster ends at the text length", _C(xG[Len(xG)][7], "=", 8))
+chk("Latin glyphs carry an even bidi level", _C(xG[1][8] % 2, "=", 0))
+
+? ""
+? "-- Scene 4: RTL -- clusters DESCEND as x advances, ends still lead --"
+xR = StzEngineGpuTextLayout(nHF, tSoftanza, 32)
+xRG = xR[3]
+bDesc = true
+bEnds = true
+for i = 1 to Len(xRG)
+	if _C(xRG[i][7], "<=", xRG[i][4])     # end is always PAST the start
+		bEnds = false
+	end
+	if _C(i, ">", 1) and _C(xRG[i][4], ">=", xRG[i-1][4])
+		bDesc = false
+	end
+end
+chk("a pure-Arabic paragraph IS RTL", _C(xR[7], "=", 1))
+chk("Arabic glyphs carry an ODD bidi level", _C(xRG[1][8] % 2, "=", 1))
+chk("clusters descend as x advances (RTL made visual)", bDesc)
+chk("every cluster end is past its start", bEnds)
+chk("the VISUALLY FIRST Arabic glyph ends at the text end", _C(xRG[1][7], "=", 16))
+
+? ""
+? "-- Scene 5: THE ROUND TRIP -- click a glyph, land on that glyph --"
+# The property, stated once: for any point x, the caret rect built from
+# what IndexAtPoint answered there is an EDGE of the glyph box that
+# contains x. If this holds through an RTL run and across a bidi seam,
+# the layout is reversible. If it holds only for Latin, it is not.
+xM = StzEngineGpuTextLayout(nHF, tMixed, 32)
+xMG = xM[3]
+chk("the mixed string breaks into 3 visual runs", _C(xM[2], "=", 3))
+
+nMiss = 0
+nProbes = 0
+for i = 1 to Len(xMG)
+	# probe both halves of every glyph box: the half decides the affinity
+	vProbe = [ _A(xMG[i][5], "+", _A(xMG[i][6], "*", 0.25)), _A(xMG[i][5], "+", _A(xMG[i][6], "*", 0.75)) ]
+	for k = 1 to 2
+		nX = vProbe[k]
+		xHit = StzEngineGpuTextIndexAt(nHF, tMixed, 32, nX)
+		xRect = StzEngineGpuTextCaretRect(nHF, tMixed, 32, xHit[1], xHit[2])
+		nProbes++
+		# the caret must sit on one of the probed box's two edges
+		nL = xMG[i][5]
+		nR = _A(xMG[i][5], "+", xMG[i][6])
+		if _C(_StzAbs(_A(xRect[1], "-", nL)), ">", 0.001) and _C(_StzAbs(_A(xRect[1], "-", nR)), ">", 0.001)
+			nMiss++
+		end
+	end
+end
+chk("every glyph was probed on both halves", _C(nProbes, "=", 2 * Len(xMG)))
+chk("EVERY probe round-trips onto its own glyph's edge", _C(nMiss, "=", 0))
+
+# ...and the negative sibling: the two halves of one glyph must NOT
+# answer the same caret, or 'affinity' would be a field nobody reads.
+xHitL = StzEngineGpuTextIndexAt(nHF, tMixed, 32, _A(xMG[1][5], "+", _A(xMG[1][6], "*", 0.25)))
+xHitR = StzEngineGpuTextIndexAt(nHF, tMixed, 32, _A(xMG[1][5], "+", _A(xMG[1][6], "*", 0.75)))
+chk("the two halves of a glyph disagree on affinity", _C(xHitL[2], "!=", xHitR[2]))
+chk("...and so resolve to different caret bytes", _C(xHitL[3], "!=", xHitR[3]))
+
+? ""
+? "-- Scene 6: affinity is REQUIRED, not decoration --"
+# In an LTR run the visually-left half is the LEADING half. In an RTL
+# run it is the TRAILING one. That asymmetry IS the affinity bit, and it
+# is the reason one number cannot answer 'where is byte 4 on screen'.
+nArabStart = 4
+xCaretLead  = StzEngineGpuTextCaretRect(nHF, tMixed, 32, nArabStart, 0)
+xCaretTrail = StzEngineGpuTextCaretRect(nHF, tMixed, 32, nArabStart, 1)
+chk("one byte offset, two screen positions", _C(xCaretLead[1], "!=", xCaretTrail[1]))
+chk("both carets are zero-width", _C(xCaretLead[3], "=", 0) and _C(xCaretTrail[3], "=", 0))
+chk("a caret is a full line tall", _C(xCaretLead[4], ">", 32))
+chk("the caret top is above the baseline", _C(xCaretLead[2], "<", 0))
+
+# the RTL rule, asserted directly: leading is to the RIGHT of trailing
+chk("in an RTL run the LEADING edge is the right one", _C(xCaretLead[1], ">", xCaretTrail[1]))
+
+? ""
+? "-- Scene 7: a range becomes rects -- one, or several across a seam --"
+xPure = StzEngineGpuTextRects(nHF, tMixed, 32, 0, 3)       # "abc", one run
+chk("a within-run range gives exactly one rect", _C(Len(xPure), "=", 1))
+nAbcW = _A(_A(xMG[1][6], "+", xMG[2][6]), "+", xMG[3][6])
+chk("...whose width is those glyphs' advances", _C(_StzAbs(_A(xPure[1][3], "-", nAbcW)), "<", 0.001))
+
+xSeam = StzEngineGpuTextRects(nHF, tMixed, 32, 2, 8)       # "c " + 2 Arabic
+chk("a range crossing the bidi seam gives SEVERAL rects", _C(Len(xSeam), ">", 1))
+
+xAll = StzEngineGpuTextRects(nHF, tMixed, 32, 0, 24)
+nCover = 0
+for i = 1 to Len(xAll)
+	nCover = _A(nCover, "+", xAll[i][3])
+end
+chk("selecting everything covers the whole advance", _C(_StzAbs(_A(nCover, "-", xM[1])), "<", 0.001))
+
+? ""
+? "-- Scene 8: refusals and edges answer by name --"
+chk("an empty range selects nothing", _C(Len(StzEngineGpuTextRects(nHF, tMixed, 32, 5, 5)), "=", 0))
+chk("a reversed range selects nothing", _C(Len(StzEngineGpuTextRects(nHF, tMixed, 32, 9, 4)), "=", 0))
+
+xEndL = StzEngineGpuTextCaretRect(nHF, "Softanza", 32, 8, 0)
+chk("past the end of an LTR line the caret is at the width", _C(_StzAbs(_A(xEndL[1], "-", xL[1])), "<", 0.001))
+xEndR = StzEngineGpuTextCaretRect(nHF, tSoftanza, 32, 16, 0)
+chk("past the end of an RTL line the caret is at x=0", _C(xEndR[1], "=", 0))
+
+xFarL = StzEngineGpuTextIndexAt(nHF, "Softanza", 32, -500)
+chk("a click far left clamps to the first glyph", _C(xFarL[1], "=", 0))
+xFarR = StzEngineGpuTextIndexAt(nHF, "Softanza", 32, 5000)
+chk("a click far right clamps to the last, trailing", _C(xFarR[2], "=", 1) and _C(xFarR[3], "=", 8))
+
+chk("queries on a stale font answer []", _C(Len(StzEngineGpuTextIndexAt(0, "x", 32, 1)), "=", 0))
+
+? ""
+? "-- Scene 9: the queries are deterministic --"
+vA1 = StzEngineGpuTextIndexAt(nHF, tMixed, 32, 60)
+vA2 = StzEngineGpuTextIndexAt(nHF, tMixed, 32, 60)
+chk("the same point answers the same hit", _C(vA1[1], "=", vA2[1]) and _C(vA1[2], "=", vA2[2]) and _C(vA1[3], "=", vA2[3]))
+vR1 = StzEngineGpuTextCaretRect(nHF, tMixed, 32, 4, 1)
+vR2 = StzEngineGpuTextCaretRect(nHF, tMixed, 32, 4, 1)
+chk("the same caret answers the same rect", _C(vR1[1], "=", vR2[1]) and _C(vR1[4], "=", vR2[4]))
+
+StzEngineGpuFontFree(nHF)
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	fV = Float(xV)
+	bNeg = fV < Float(0)
+	if bNeg
+		fV = Float(0) - fV
+	end
+	nI = Floor(fV * Float(nScale) + 0.5f)
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	return _StzF(xA) / _StzF(xB)
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end

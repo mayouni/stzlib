@@ -1,0 +1,689 @@
+# The GPU op library -- G2 of the GPU plane (SOFTANZA_GPU_PLAN.md).
+#
+# Seven ops on the G1 lifecycle layer: matmulF32, pairwise squared-L2
+# distance (the embedding kernel), axpby / hadamard / scale (the chain
+# links G0 admitted ONLY inside resident chains), softmax, and the
+# sum / dot reductions.
+#
+# Parity discipline, per the plan:
+#   - EXACT WITNESSES first: integer-valued (or f32-exact fractional)
+#     inputs where every intermediate is exactly representable in f32,
+#     so GPU and CPU must agree to the BIT -- across drivers. A later
+#     change that breaks an exact witness changed the math, full stop.
+#   - TOLERANCE BANDS second, on f32-exact fractional data where only
+#     accumulation ORDER differs: the band is SET FROM MEASUREMENT
+#     (observed error printed by this guard, band = ~50x observed to
+#     absorb driver variation, still orders of magnitude below any
+#     wrong-math failure).
+#   - NEGATIVE SIBLINGS: wrong-size buffers answer BAD_ARG, freed
+#     buffers answer STALE, a shut-down device answers FALLBACK -- and
+#     the happy path counts ZERO fallbacks.
+#
+# Standalone like the G1 guard (loads only the engine bridge): a broken
+# face elsewhere in the library must not mask an op regression.
+
+$tEngineDir = "../../../engine"
+# the domain door (W7b) asks StzDomainWanted, which lives in stkRingLibs
+load "../../../core/common/stkRingLibs.haro"
+load "../../../engine/stz_gpu.haro"
+
+$nStzPlaces = 12  # the measured-error printouts are the point; 2 decimals hides them
+
+$nPass = 0
+$nFail = 0
+
+nS_OK = 0
+nS_FALLBACK = 1
+iS_STALE = 2
+iS_BADARG = 3
+
+iC_FALL = 3
+
+? "-- Scene 0: ops refuse the fallback way before Init --"
+xRes = StzEngineGpuOpSum(1, 100)
+chk("sum before Init answers [FALLBACK, 0]", _C(xRes[1], "=", nS_FALLBACK) and _C(xRes[2], "=", 0))
+
+nInit = StzEngineGpuInit($tStzGpuRuntime)
+if _C(StzEngineGpuIsAvailable(), "=", 0)
+    ? "  NO GPU ON THIS MACHINE -- parity scenes need a device; fallback scene above is the CI coverage"
+else
+    ? "  device: [" + _T(StzEngineGpuSelectedAdapter()) + "] " +
+        StzEngineGpuAdapterName(StzEngineGpuSelectedAdapter())
+    StzEngineGpuCountersReset()
+
+    ? ""
+    ? "-- Scene 1: elementwise, exact by construction --"
+    nN = 1000
+    xA = []
+    xB = []
+    for i = 1 to nN
+        xA + (_Q((i - 1), 2.0))
+        xB + (_Q((i - 1), 4.0))
+    end
+    nHA = StzEngineGpuBufferNew(_A(nN, "*", 4))
+    nHB = StzEngineGpuBufferNew(_A(nN, "*", 4))
+    nHOut = StzEngineGpuBufferNew(_A(nN, "*", 4))
+    chk("buffers up", _C(nHA, ">", 0) and _C(nHB, ">", 0) and _C(nHOut, ">", 0))
+    chk("upload a", StzEngineGpuBufferUploadList(nHA, xA) = nS_OK)
+    chk("upload b", StzEngineGpuBufferUploadList(nHB, xB) = nS_OK)
+
+    # axpby: 1.5*(k/2) - 0.25*(k/4) = 0.6875k -- 11/16, exact in f32
+    chk("axpby dispatches", StzEngineGpuOpAxpby(1.5, nHA, -0.25, nHB, nHOut, nN) = nS_OK)
+    xOut = StzEngineGpuBufferDownloadList(nHOut, nN)
+    bOk = true
+    for i = 1 to nN
+        if _C(xOut[i], "!=", _A(0.6875, "*", (i - 1)))
+            bOk = false
+            exit
+        end
+    end
+    chk("axpby EXACT: out[k] = 0.6875k, all " + _T(nN) + " elements", bOk)
+
+    # hadamard: (k/2)*(k/4) = k^2/8 -- k^2 < 2^24, exact
+    chk("mul dispatches", StzEngineGpuOpMul(nHA, nHB, nHOut, nN) = nS_OK)
+    xOut = StzEngineGpuBufferDownloadList(nHOut, nN)
+    bOk = true
+    for i = 1 to nN
+        if _C(xOut[i], "!=", _Q((_A((i - 1), "*", (i - 1))), 8.0))
+            bOk = false
+            exit
+        end
+    end
+    chk("mul EXACT: out[k] = k^2/8", bOk)
+
+    # scale in place: doubling is exact
+    chk("scale dispatches", StzEngineGpuOpScaleInPlace(nHOut, 2.0, nN) = nS_OK)
+    xOut = StzEngineGpuBufferDownloadList(nHOut, nN)
+    bOk = true
+    for i = 1 to nN
+        if _C(xOut[i], "!=", _Q((_A((i - 1), "*", (i - 1))), 4.0))
+            bOk = false
+            exit
+        end
+    end
+    chk("scale EXACT: doubled in place", bOk)
+    StzEngineGpuBufferFree(nHA)
+    StzEngineGpuBufferFree(nHB)
+    StzEngineGpuBufferFree(nHOut)
+
+    ? ""
+    ? "-- Scene 2: matmul, exact integer witnesses (square AND ragged) --"
+    # 32x32, entries 0..7: every product <= 49, every sum <= 1568 -- integers,
+    # exact in f32, so equality is the assertion.
+    nM = 32
+    vMa = []
+    vMb = []
+    for r = 0 to nM-1
+        for nCc = 0 to nM-1
+            vMa + ((_A(r * 7, "+", nCc)) % 8)
+            vMb + ((_A(r * 3, "+", nCc)) % 8)
+        end
+    end
+    nHMa = StzEngineGpuBufferNew(_A(_A(nM, "*", nM), "*", 4))
+    nHMb = StzEngineGpuBufferNew(_A(_A(nM, "*", nM), "*", 4))
+    nHMc = StzEngineGpuBufferNew(_A(_A(nM, "*", nM), "*", 4))
+    StzEngineGpuBufferUploadList(nHMa, vMa)
+    StzEngineGpuBufferUploadList(nHMb, vMb)
+    chk("matmul 32x32 dispatches", StzEngineGpuOpMatmul(nHMa, nHMb, nHMc, nM, nM, nM) = nS_OK)
+    xMc = StzEngineGpuBufferDownloadList(nHMc, _A(nM, "*", nM))
+    bOk = true
+    for r = 0 to nM-1
+        for nCc = 0 to nM-1
+            nRef = 0
+            for nKk = 0 to nM-1
+                nRef = _A(nRef, "+", _A(vMa[r*nM + nKk + 1], "*", vMb[nKk*nM + nCc + 1]))
+            end
+            if _C(xMc[r*nM + nCc + 1], "!=", nRef)
+                bOk = false
+                exit 2
+            end
+        end
+    end
+    chk("matmul 32x32 EXACT against the CPU triple loop (1024 entries)", bOk)
+    StzEngineGpuBufferFree(nHMa)
+    StzEngineGpuBufferFree(nHMb)
+    StzEngineGpuBufferFree(nHMc)
+
+    # ragged 20x48x36: exercises the tile TAILS (none of m,k,n is a
+    # multiple of 16) -- the select() guards, not just the happy tiles
+    nMm = 20
+    nMk = 48
+    nMn = 36
+    vMa = []
+    vMb = []
+    for r = 0 to nMm-1
+        for nCc = 0 to nMk-1
+            vMa + ((_A(r * 5, "+", _A(nCc, "*", 3))) % 8)
+        end
+    end
+    for r = 0 to nMk-1
+        for nCc = 0 to nMn-1
+            vMb + ((_A(r * 2, "+", _A(nCc, "*", 7))) % 8)
+        end
+    end
+    nHMa = StzEngineGpuBufferNew(_A(_A(nMm, "*", nMk), "*", 4))
+    nHMb = StzEngineGpuBufferNew(_A(_A(nMk, "*", nMn), "*", 4))
+    nHMc = StzEngineGpuBufferNew(_A(_A(nMm, "*", nMn), "*", 4))
+    StzEngineGpuBufferUploadList(nHMa, vMa)
+    StzEngineGpuBufferUploadList(nHMb, vMb)
+    chk("ragged matmul 20x48x36 dispatches", StzEngineGpuOpMatmul(nHMa, nHMb, nHMc, nMm, nMk, nMn) = nS_OK)
+    xMc = StzEngineGpuBufferDownloadList(nHMc, _A(nMm, "*", nMn))
+    bOk = true
+    for r = 0 to nMm-1
+        for nCc = 0 to nMn-1
+            nRef = 0
+            for nKk = 0 to nMk-1
+                nRef = _A(nRef, "+", _A(vMa[r*nMk + nKk + 1], "*", vMb[nKk*nMn + nCc + 1]))
+            end
+            if _C(xMc[r*nMn + nCc + 1], "!=", nRef)
+                bOk = false
+                exit 2
+            end
+        end
+    end
+    chk("ragged matmul EXACT -- the tile tails are guarded", bOk)
+    StzEngineGpuBufferFree(nHMa)
+    StzEngineGpuBufferFree(nHMb)
+    StzEngineGpuBufferFree(nHMc)
+
+    ? ""
+    ? "-- Scene 3: matmul tolerance band on NON-DYADIC data --"
+    # /251 values are NOT exactly representable in f32, so this measures the
+    # real parity situation a silent seam faces: f64 data from a list quantized to
+    # f32 on upload, then accumulated in f32 -- against the f64 reference.
+    # (First draft used /256 dyadics and measured a literal ZERO: every
+    # intermediate was exact and the "tolerance" scene tested nothing.)
+    nT = 64
+    vMa = []
+    vMb = []
+    for r = 0 to nT-1
+        for nCc = 0 to nT-1
+            vMa + (_Q(((_A(r * 31, "+", _A(nCc, "*", 17))) % 251), 251.0))
+            vMb + (_Q(((_A(r * 13, "+", _A(nCc, "*", 41))) % 251), 251.0))
+        end
+    end
+    nHMa = StzEngineGpuBufferNew(_A(_A(nT, "*", nT), "*", 4))
+    nHMb = StzEngineGpuBufferNew(_A(_A(nT, "*", nT), "*", 4))
+    nHMc = StzEngineGpuBufferNew(_A(_A(nT, "*", nT), "*", 4))
+    StzEngineGpuBufferUploadList(nHMa, vMa)
+    StzEngineGpuBufferUploadList(nHMb, vMb)
+    chk("matmul 64x64 fractional dispatches", StzEngineGpuOpMatmul(nHMa, nHMb, nHMc, nT, nT, nT) = nS_OK)
+    xMc = StzEngineGpuBufferDownloadList(nHMc, _A(nT, "*", nT))
+    nMaxRel = 0
+    for r = 0 to nT-1
+        for nCc = 0 to nT-1
+            nRef = 0
+            for nKk = 0 to nT-1
+                nRef = _A(nRef, "+", _A(vMa[r*nT + nKk + 1], "*", vMb[nKk*nT + nCc + 1]))
+            end
+            if _C(nRef, "!=", 0)
+                xRelErr = _Q(_StzAbs(_A(xMc[r*nT + nCc + 1], "-", nRef)), nRef)
+                if _C(xRelErr, ">", nMaxRel) nMaxRel = xRelErr end
+            end
+        end
+    end
+    ? "  measured max rel error (k=64, f32 accumulation vs f64): " + _T(nMaxRel)
+    chk("matmul band: rel error < 1e-5 (measured 4.05e-7 on the 3050, band = 25x)", _C(nMaxRel, "<", 0.00001))
+    StzEngineGpuBufferFree(nHMa)
+    StzEngineGpuBufferFree(nHMb)
+    StzEngineGpuBufferFree(nHMc)
+
+    ? ""
+    ? "-- Scene 4: pairwise distance, exact integer witnesses --"
+    # the embedding kernel: D[i][j] = sum_k (A[i][k]-B[j][k])^2. Integer
+    # coords 0..9 over d=16 -> distances <= 16*81 = 1296, integers, exact.
+    nPm = 8
+    nPn = 12
+    nPd = 16
+    vPa = []
+    vPb = []
+    for r = 0 to nPm-1
+        for nCc = 0 to nPd-1
+            vPa + ((_A(r * 3, "+", _A(nCc, "*", 5))) % 10)
+        end
+    end
+    for r = 0 to nPn-1
+        for nCc = 0 to nPd-1
+            vPb + ((_A(r * 7, "+", _A(nCc, "*", 2))) % 10)
+        end
+    end
+    nHPa = StzEngineGpuBufferNew(_A(_A(nPm, "*", nPd), "*", 4))
+    nHPb = StzEngineGpuBufferNew(_A(_A(nPn, "*", nPd), "*", 4))
+    nHPd = StzEngineGpuBufferNew(_A(_A(nPm, "*", nPn), "*", 4))
+    StzEngineGpuBufferUploadList(nHPa, vPa)
+    StzEngineGpuBufferUploadList(nHPb, vPb)
+    chk("pairdist 8x12 d=16 dispatches", StzEngineGpuOpPairDist(nHPa, nHPb, nHPd, nPm, nPn, nPd) = nS_OK)
+    xPo = StzEngineGpuBufferDownloadList(nHPd, _A(nPm, "*", nPn))
+    bOk = true
+    for r = 0 to nPm-1
+        for nCc = 0 to nPn-1
+            nRef = 0
+            for nKk = 0 to nPd-1
+                nD = _A(vPa[r*nPd + nKk + 1], "-", vPb[nCc*nPd + nKk + 1])
+                nRef = _A(nRef, "+", _A(nD, "*", nD))
+            end
+            if _C(xPo[r*nPn + nCc + 1], "!=", nRef)
+                bOk = false
+                exit 2
+            end
+        end
+    end
+    chk("pairdist EXACT (96 pairs)", bOk)
+    StzEngineGpuBufferFree(nHPa)
+    StzEngineGpuBufferFree(nHPb)
+    StzEngineGpuBufferFree(nHPd)
+
+    # ragged d=10, m=5, n=7 -- dimension tail inside one tile
+    nPm = 5
+    nPn = 7
+    nPd = 10
+    vPa = []
+    vPb = []
+    for r = 0 to nPm-1
+        for nCc = 0 to nPd-1
+            vPa + ((_A(r * 4, "+", _A(nCc, "*", 3))) % 9)
+        end
+    end
+    for r = 0 to nPn-1
+        for nCc = 0 to nPd-1
+            vPb + ((_A(r * 5, "+", _A(nCc, "*", 6))) % 9)
+        end
+    end
+    nHPa = StzEngineGpuBufferNew(_A(_A(nPm, "*", nPd), "*", 4))
+    nHPb = StzEngineGpuBufferNew(_A(_A(nPn, "*", nPd), "*", 4))
+    nHPd = StzEngineGpuBufferNew(_A(_A(nPm, "*", nPn), "*", 4))
+    StzEngineGpuBufferUploadList(nHPa, vPa)
+    StzEngineGpuBufferUploadList(nHPb, vPb)
+    chk("ragged pairdist 5x7 d=10 dispatches", StzEngineGpuOpPairDist(nHPa, nHPb, nHPd, nPm, nPn, nPd) = nS_OK)
+    xPo = StzEngineGpuBufferDownloadList(nHPd, _A(nPm, "*", nPn))
+    bOk = true
+    for r = 0 to nPm-1
+        for nCc = 0 to nPn-1
+            nRef = 0
+            for nKk = 0 to nPd-1
+                nD = _A(vPa[r*nPd + nKk + 1], "-", vPb[nCc*nPd + nKk + 1])
+                nRef = _A(nRef, "+", _A(nD, "*", nD))
+            end
+            if _C(xPo[r*nPn + nCc + 1], "!=", nRef)
+                bOk = false
+                exit 2
+            end
+        end
+    end
+    chk("ragged pairdist EXACT -- the d-tail is guarded", bOk)
+    StzEngineGpuBufferFree(nHPa)
+    StzEngineGpuBufferFree(nHPb)
+    StzEngineGpuBufferFree(nHPd)
+
+    ? ""
+    ? "-- Scene 5: reductions -- exact on integers, banded on fractions --"
+    nN = 100000
+    xV = []
+    nRefSum = 0
+    for i = 1 to nN
+        nLane = (i - 1) % 16
+        xV + nLane
+        nRefSum = _A(nRefSum, "+", nLane)
+    end
+    nHV = StzEngineGpuBufferNew(_A(nN, "*", 4))
+    StzEngineGpuBufferUploadList(nHV, xV)
+    xRes = StzEngineGpuOpSum(nHV, nN)
+    chk("sum status OK", xRes[1] = nS_OK)
+    chk("sum of 100000 integers EXACT: " + _T(nRefSum), _C(xRes[2], "=", nRefSum))
+
+    # dot, exact ints
+    nN2 = 4096
+    xD1 = []
+    xD2 = []
+    nRefDot = 0
+    for i = 1 to nN2
+        nA8 = (i - 1) % 8
+        nB8 = (i + 2) % 8
+        xD1 + nA8
+        xD2 + nB8
+        nRefDot = _A(nRefDot, "+", _A(nA8, "*", nB8))
+    end
+    nHD1 = StzEngineGpuBufferNew(_A(nN2, "*", 4))
+    nHD2 = StzEngineGpuBufferNew(_A(nN2, "*", 4))
+    StzEngineGpuBufferUploadList(nHD1, xD1)
+    StzEngineGpuBufferUploadList(nHD2, xD2)
+    xRes = StzEngineGpuOpDot(nHD1, nHD2, nN2)
+    chk("dot status OK", xRes[1] = nS_OK)
+    chk("dot of 4096 integer pairs EXACT: " + _T(nRefDot), _C(xRes[2], "=", nRefDot))
+    StzEngineGpuBufferFree(nHD1)
+    StzEngineGpuBufferFree(nHD2)
+
+    # non-dyadic fractional sum: f32 quantization + accumulation order
+    xV = []
+    nRefSum = 0
+    for i = 1 to nN
+        nLane = _Q(((i * 37) % 251), 251.0)
+        xV + nLane
+        nRefSum = _A(nRefSum, "+", nLane)
+    end
+    StzEngineGpuBufferUploadList(nHV, xV)
+    xRes = StzEngineGpuOpSum(nHV, nN)
+    nRel = _Q(_StzAbs(_A(xRes[2], "-", nRefSum)), nRefSum)
+    ? "  measured sum rel error (100k fractional): " + _T(nRel)
+    chk("sum band: rel error < 5e-7 (measured 1.28e-8 on the 3050, band = 39x)", xRes[1] = nS_OK and _C(nRel, "<", 0.0000005))
+    StzEngineGpuBufferFree(nHV)
+
+    ? ""
+    ? "-- Scene 6: softmax -- the probability properties + a measured band --"
+    nS = 300
+    xS = []
+    for i = 1 to nS
+        xS + (_Q(((i * 37) % 100), 10.0))
+    end
+    nHIn = StzEngineGpuBufferNew(_A(nS, "*", 4))
+    nHOut = StzEngineGpuBufferNew(_A(nS, "*", 4))
+    StzEngineGpuBufferUploadList(nHIn, xS)
+    chk("softmax dispatches", StzEngineGpuOpSoftmax(nHIn, nHOut, nS) = nS_OK)
+    xSo = StzEngineGpuBufferDownloadList(nHOut, nS)
+    # reference in f64
+    nMax = xS[1]
+    for i = 2 to nS
+        if _C(xS[i], ">", nMax) nMax = xS[i] end
+    end
+    xRef = []
+    nTot = Float(0)
+    for i = 1 to nS
+        xE = Exp(_A(xS[i], "-", nMax))
+        xRef + xE
+        nTot = _A(nTot, "+", xE)
+    end
+    nSumOut = 0
+    nMaxRel = 0
+    for i = 1 to nS
+        fR = _Q(xRef[i], nTot)
+        nSumOut = _A(nSumOut, "+", xSo[i])
+        if _C(fR, ">", 0)
+            xRelErr = _Q(_StzAbs(_A(xSo[i], "-", fR)), fR)
+            if _C(xRelErr, ">", nMaxRel) nMaxRel = xRelErr end
+        end
+    end
+    ? "  measured softmax max rel error: " + _T(nMaxRel)
+    chk("softmax band: per-element rel error < 2e-5 (measured 8.06e-7 on the 3050, band = 25x)", _C(nMaxRel, "<", 0.00002))
+    chk("probabilities sum to 1 within 1e-5", _C(_StzAbs(_A(nSumOut, "-", 1)), "<", 0.00001))
+    StzEngineGpuBufferFree(nHIn)
+    StzEngineGpuBufferFree(nHOut)
+
+    ? ""
+    ? "-- Scene 7: a resident chain through the ops -- no syncs between links --"
+    # upload once -> axpby -> mul -> scale -> sum -> one readback inside sum.
+    # Every link is submit-only; correctness of the final scalar proves the
+    # queue ordering carried the chain. (G0's whole case for the GPU.)
+    nN = 2048
+    xA = []
+    xB = []
+    for i = 1 to nN
+        xA + ((i - 1) % 32)
+        xB + ((i - 1) % 16)
+    end
+    nHA = StzEngineGpuBufferNew(_A(nN, "*", 4))
+    nHB = StzEngineGpuBufferNew(_A(nN, "*", 4))
+    nHT1 = StzEngineGpuBufferNew(_A(nN, "*", 4))
+    nHT2 = StzEngineGpuBufferNew(_A(nN, "*", 4))
+    StzEngineGpuBufferUploadList(nHA, xA)
+    StzEngineGpuBufferUploadList(nHB, xB)
+    chk("link 1: t1 = 2a + b", StzEngineGpuOpAxpby(2.0, nHA, 1.0, nHB, nHT1, nN) = nS_OK)
+    chk("link 2: t2 = t1 .* b", StzEngineGpuOpMul(nHT1, nHB, nHT2, nN) = nS_OK)
+    chk("link 3: t2 *= 0.5", StzEngineGpuOpScaleInPlace(nHT2, 0.5, nN) = nS_OK)
+    xRes = StzEngineGpuOpSum(nHT2, nN)
+    nRefChain = 0
+    for i = 1 to nN
+        nRefChain = _A(nRefChain, "+", _A(_A((_A(_A(2, "*", ((i - 1) % 32)), "+", ((i - 1) % 16))), "*", ((i - 1) % 16)), "*", 0.5))
+    end
+    chk("chain result EXACT: " + _T(nRefChain), xRes[1] = nS_OK and _C(xRes[2], "=", nRefChain))
+    chk("ZERO fallbacks through every scene so far (negative sibling)",
+        _C(StzEngineGpuCounter(iC_FALL), "=", 0))
+    StzEngineGpuBufferFree(nHA)
+    StzEngineGpuBufferFree(nHB)
+    StzEngineGpuBufferFree(nHT1)
+    StzEngineGpuBufferFree(nHT2)
+
+    ? ""
+    ? "-- Scene 8: the negatives answer by NAME --"
+    nHSmall = StzEngineGpuBufferNew(16 * 4)
+    nHGone = StzEngineGpuBufferNew(64 * 4)
+    StzEngineGpuBufferFree(nHGone)
+    chk("matmul into a too-small C answers BAD_ARG",
+        _C(StzEngineGpuOpMatmul(nHSmall, nHSmall, nHSmall, 16, 16, 16), "=", iS_BADARG))
+    chk("op on a freed buffer answers STALE",
+        _C(StzEngineGpuOpScaleInPlace(nHGone, 2.0, 64), "=", iS_STALE))
+    xRes = StzEngineGpuOpSum(nHSmall, 0)
+    chk("zero-length op answers BAD_ARG", _C(xRes[1], "=", iS_BADARG))
+    StzEngineGpuBufferFree(nHSmall)
+
+    StzEngineGpuShutdown()
+    xRes = StzEngineGpuOpDot(1, 2, 100)
+    chk("after shutdown, dot answers [FALLBACK, 0]", _C(xRes[1], "=", nS_FALLBACK) and _C(xRes[2], "=", 0))
+end
+
+? ""
+? "=========================================="
+? "TOTAL: " + _T((_A($nPass, "+", $nFail))) + " assertions, " + _T($nPass) + " pass, " + _T($nFail) + " fail"
+? "=========================================="
+Shutdown($nFail)
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "  [OK] " + tLabel
+	else
+		$nFail++
+		? "  [FAIL] " + tLabel
+	end
+end
+
+# A value as text, as the guard's narration writes it: a text as it is, a whole number plainly, any other number
+# to $nStzPlaces places, rounded half away from zero. (The library's one-argument Text and Round shadow the built-ins.)
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for k = 1 to nLen
+		tC = tS[k]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for k = 1 to nP
+		nScale = nScale * 10
+	end
+	if _StzIsFloat(xV)
+		fV = xV
+		bNeg = fV < Float(0)
+		if bNeg
+			fV = Float(0) - fV
+		end
+		# fewer places for a float too large to scale into a whole number
+		while nP > 0 and fV * Float(nScale) >= 9000000000000000.0f
+			nP = nP - 1
+			nScale = (nScale - nScale % 10) / 10
+		end
+		nI = Floor(fV * Float(nScale) + 0.5f)
+	else
+		xA = xV
+		bNeg = xA < 0
+		if bNeg
+			xA = 0 - xA
+		end
+		# fewer places for a decimal whose digits would pass 64 bits
+		xW = xA - xA % 1
+		while nP > 0 and Len(String(Integer(xW))) + nP > 18
+			nP = nP - 1
+			nScale = (nScale - nScale % 10) / 10
+		end
+		xT = xA * nScale + 0.5
+		nI = Integer(xT - xT % 1)
+	end
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+# A condition as true or false: a 1 or 0 from older code, or a boolean.
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# The absolute value of any number: exact for an integer or a decimal, a float for a float.
+func _StzAbs(xV)
+	try
+		if xV < 0
+			return 0 - xV
+		end
+		return xV
+	catch e
+		fV = Float(xV)
+		if fV < Float(0)
+			return Float(0) - fV
+		end
+		return fV
+	end
+end
+
+# A quotient as the older code took it: exact when one exists; otherwise, taken through floats, a float.
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	return _StzF(xA) / _StzF(xB)
+end
+
+# A comparison as the older code made it, where every number was of one kind: the comparison itself when both
+# sides are of one kind; otherwise both sides as floats, equal when neither is below the other, and a NaN equal
+# to nothing.
+func _C(xA, tOp, xB)
+	try
+		if tOp = "="
+			return xA = xB
+		end
+		if tOp = "!="
+			return xA != xB
+		end
+		if tOp = "<"
+			return xA < xB
+		end
+		if tOp = ">"
+			return xA > xB
+		end
+		if tOp = "<="
+			return xA <= xB
+		end
+		return xA >= xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	bNaN = _StzNaN(fA) or _StzNaN(fB)
+	if tOp = "="
+		return not bNaN and not (fA < fB) and not (fA > fB)
+	end
+	if tOp = "!="
+		return bNaN or fA < fB or fA > fB
+	end
+	if bNaN
+		return false
+	end
+	if tOp = "<"
+		return fA < fB
+	end
+	if tOp = ">"
+		return fA > fB
+	end
+	if tOp = "<="
+		return not (fA > fB)
+	end
+	return not (fA < fB)
+end
+
+# A number, or a true or false, as a float (the older code read a true as 1).
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+# True for a NaN, read from its text.
+func _StzNaN(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	tS = String(xV)
+	return tS = "nan" or tS = "-nan"
+end
+
+# True for a float: an integer or a decimal takes a zero added, a float refuses it.
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
+
+# Arithmetic as the older code did it, where every number was of one kind: the operation itself when both sides
+# are of one kind; otherwise both sides as floats.
+func _A(xA, tOp, xB)
+	try
+		if tOp = "+"
+			return xA + xB
+		end
+		if tOp = "-"
+			return xA - xB
+		end
+		return xA * xB
+	catch e
+	end
+	fA = _StzF(xA)
+	fB = _StzF(xB)
+	if tOp = "+"
+		return fA + fB
+	end
+	if tOp = "-"
+		return fA - fB
+	end
+	return fA * fB
+end
