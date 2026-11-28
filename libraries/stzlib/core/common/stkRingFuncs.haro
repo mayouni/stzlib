@@ -228,19 +228,15 @@ end
 	func ring_remove(pxList, xN) # An alternative I added to the Ring semantics
 		return ring_del(pxList, xN)
 	end
-func ring_substr1(xStr, xSubstr) # Finds substr in str
+# Finds substr in str, counting BYTES. No .haro file calls it since 2026-11-28; ten .ring modules
+# that base/stzBase.ring loads still do. New code calls StkFindFirst (core) or StzFindFirst (base),
+# which count codepoints. ring_substr2, its replace twin, is gone: use StkReplace or StzReplace.
+func ring_substr1(xStr, xSubstr)
 	if xStr = "" or xSubstr = ''
 		return 0
 	end
 
 	return SubStr(xStr, xSubstr)
-end
-func ring_substr2(xStr, xSubstr1, xSubstr2) # Replaces substr1 by substr2 in str
-	if xStr = "" or xSubstr1 = ''
-		return ""
-	end
-
-	return SubStr(xStr, xSubstr1, xSubstr2)
 end
 func ring_copy(xP1, xP2)
 	return Copy(xP1, xP2)
