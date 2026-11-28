@@ -73,7 +73,7 @@ oG.MultiplyByMatrixXT([ [7, 8], [9, 10], [11, 12] ])
 chk("the ggml tier computes the textbook product",
 	oG.Content()[1][1] = 58 and oG.Content()[2][2] = 154)
 chk("Why names the tier that ran",
-	len(StzFind("tier", $cStzLastWhyB)) > 0)
+	len(StzFind("tier", $tStzLastWhyB)) > 0)
 oN2 = new stzMatrix([ [1, 2, 3], [4, 5, 6] ])
 oN2.MultiplyByMatrix([ [7, 8], [9, 10], [11, 12] ])
 chk("both tiers agree exactly",

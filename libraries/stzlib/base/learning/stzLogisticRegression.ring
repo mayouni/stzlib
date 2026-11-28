@@ -212,7 +212,7 @@ class stzLogisticRegression from stzObject
 		ok
 		@cWhy = "P('" + @acLabels[2] + "') = " + _nP_ + " after " + @nEpochs +
 			" epoch(s) -> '" + _cOut_ + "' (weights " + @@(@aW) + ", bias " + @nB + ")"
-		$cStzLastWhyB = @cWhy
+		$tStzLastWhyB = @cWhy
 		$nStzLastCertainty = 1
 		return _cOut_
 

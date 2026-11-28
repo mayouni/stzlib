@@ -312,7 +312,7 @@ class stzString from stzObject
 			ok
 
 			if isList(pcStr) and IsPairOfStrings(pcStr)
-				@cVarName = pcStr[1]
+				@tVarName = pcStr[1]
 				@pEngine = StzEngineString(pcStr[2])
 				return
 			ok

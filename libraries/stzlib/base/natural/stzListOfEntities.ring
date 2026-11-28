@@ -215,7 +215,7 @@ func StzKnowRelation(pcFrom, pcRel, pcTo)
 		for _i_ = 1 to _n_
 			if $aStzRelations[_i_][1] = _cF_ and $aStzRelations[_i_][2] = _cR_ and
 			   $aStzRelations[_i_][3] != _cT_
-				$cStzLastWhyB = "no: '" + _cF_ + "' already bears '" + _cR_ +
+				$tStzLastWhyB = "no: '" + _cF_ + "' already bears '" + _cR_ +
 					"' (to '" + $aStzRelations[_i_][3] + "'; the relation is :Unique)"
 				return 0
 			ok
@@ -225,7 +225,7 @@ func StzKnowRelation(pcFrom, pcRel, pcTo)
 	if _StzRelationHasRule(_cR_, :Symmetric)
 		_StzAddRelationTriple(_cT_, _cR_, _cF_)
 	ok
-	$cStzLastWhyB = "yes: '" + _cF_ + "' " + _cR_ + " '" + _cT_ + "'"
+	$tStzLastWhyB = "yes: '" + _cF_ + "' " + _cR_ + " '" + _cT_ + "'"
 	return 1
 
 	func @StzKnowRelation(pcFrom, pcRel, pcTo)
@@ -308,7 +308,7 @@ func AreRelated(pcA, pcB)
 	# direct edge first
 	for _i_ = 1 to _n_
 		if $aStzRelations[_i_][1] = _cA_ and $aStzRelations[_i_][3] = _cB_
-			$cStzLastWhyB = "yes: '" + _cA_ + "' " + $aStzRelations[_i_][2] +
+			$tStzLastWhyB = "yes: '" + _cA_ + "' " + $aStzRelations[_i_][2] +
 				" '" + _cB_ + "'"
 			return $aStzRelations[_i_][2]
 		ok
@@ -319,12 +319,12 @@ func AreRelated(pcA, pcB)
 		if $aStzRelationRules[_i_][2] = "transitive"
 			_cPath_ = _StzRelationChain($aStzRelationRules[_i_][1], _cA_, _cB_)
 			if _cPath_ != ""
-				$cStzLastWhyB = "yes: " + _cPath_
+				$tStzLastWhyB = "yes: " + _cPath_
 				return $aStzRelationRules[_i_][1]
 			ok
 		ok
 	next
-	$cStzLastWhyB = "no: nothing relates '" + _cA_ + "' to '" + _cB_ + "'"
+	$tStzLastWhyB = "no: nothing relates '" + _cA_ + "' to '" + _cB_ + "'"
 	return ""
 
 	func @AreRelated(pcA, pcB)

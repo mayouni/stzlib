@@ -388,7 +388,7 @@ class stzLLMFunction from stzObject
 		if HasKey(@aCache, _cKey_)
 			@cWhy = "memoized (content hash " + StzLeft(_cKey_, 12) +
 				"...) -- deterministic, zero cost"
-			$cStzLastWhyB = @cWhy
+			$tStzLastWhyB = @cWhy
 			$nStzLastCertainty = 1
 			return @aCache[_cKey_]
 		ok
@@ -421,7 +421,7 @@ class stzLLMFunction from stzObject
 					@cWhy = "FAKE responder (attempt " + _nTry_ + "), VALIDATED as " +
 						This._TypeSaid() + ", memoized -- NOT a live model"
 				ok
-				$cStzLastWhyB = @cWhy
+				$tStzLastWhyB = @cWhy
 				return _aVal_[2]
 			ok
 		end

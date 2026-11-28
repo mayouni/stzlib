@@ -1,0 +1,236 @@
+# Global flag to prevent recursive history tracking
+#_bInHistoryUpdate = 0
+
+
+func StzKeepingHistory
+	return $bKeepHisto
+end
+	func KeepingHistory
+		return StzKeepingHistory()
+	end
+	func KeepingHisto
+		return StzKeepingHistory()
+	end
+	func KeepingObjectHistory
+		return StzKeepingHistory()
+	end
+	func KeepingObjectHisto
+		return StzKeepingHistory()
+	end
+	func KeepingObjHist
+		return StzKeepingHistory()
+	end
+
+func StzKeepingHistoryXT
+	return $vKeepHistoXT[1]
+end
+	func KeepingHistoryXT
+		return StzKeepingHistoryXT()
+	end
+	func KeepingHistoXT
+		return StzKeepingHistoryXT()
+	end
+	func KeepingObjectHistoryXT
+		return StzKeepingHistoryXT()
+	end
+	func KeepingObjectHistoXT
+		return StzKeepingHistoryXT()
+	end
+	func KeepingObjHistXT
+		return StzKeepingHistoryXT()
+	end
+#-- Enhanced History Control Functions
+
+func StzKeepHistoryON
+	$bKeepHisto = true
+end
+	func KeepHistoryON
+		StzKeepHistoryON()
+	end
+	func KeepHistory
+		StzKeepHistoryON()
+	end
+	func KeepHistoON
+		StzKeepHistoryON()
+	end
+	func KeepHisto
+		StzKeepHistoryON()
+	end
+func StzKeepHistoryOFF
+	$bKeepHisto = false
+end
+	func KeepHistoryOFF
+		StzKeepHistoryOFF()
+	end
+	func DontKeepHistory
+		StzKeepHistoryOFF()
+	end
+	func KeepHistoOFF
+		StzKeepHistoryOFF()
+	end
+	func DontKeepHisto
+		StzKeepHistoryOFF()
+	end
+#-- Enhanced TraceObjectHistory with Recursion Prevention
+
+func StzTraceObjectHistory(pxStzObj)
+	# CRITICAL: Prevent recursive calls
+	if $bInHistoryUpdate = true
+		return
+	end
+
+	# Check if history tracking is enabled
+	if not StzKeepingHistory() and StzKeepingHistoryXT() = 0
+		return
+	end
+
+	xObj = pxStzObj
+
+	# Set flag to prevent recursion
+	$bInHistoryUpdate = true
+
+	try
+		# Basic history tracking happens at the PUBLIC fluent-op
+		# boundary (_StzHistoOpen / _StzHistoAdd in the op methods),
+		# NOT per internal Update -- a per-Update trace floods the
+		# stream with intermediate steps. (The old call here raised
+		# method-missing inside try, which corrupts the calling
+		# method's This -- the Ring VM trap.)
+
+		# Extended history tracking
+		if StzKeepingHistoryXT() = 1
+			tDisp = $vKeepHistoXT[2]
+			vHistoryData = []
+
+			switch tDisp
+			case "vtms"
+				vHistoryData = [
+					xObj.Content(),
+					xObj.StzType(),
+					xObj.ExecTime(),
+					xObj.SizeInBytes()
+				]
+
+			case "vtm"
+				vHistoryData = [
+					xObj.Content(),
+					xObj.StzType(),
+					xObj.ExecTime()
+				]
+
+			case "vts"
+				vHistoryData = [
+					xObj.Content(),
+					xObj.StzType(),
+					xObj.SizeInBytes()
+				]
+
+			case "tms"
+				vHistoryData = [
+					xObj.StzType(),
+					xObj.ExecTime(),
+					xObj.SizeInBytes()
+				]
+
+			case "vt"
+				vHistoryData = [
+					xObj.Content(),
+					xObj.StzType()
+				]
+
+			case "vm"
+				vHistoryData = [
+					xObj.Content(),
+					xObj.ExecTime()
+				]
+
+			case "vs"
+				vHistoryData = [
+					xObj.Content(),
+					xObj.SizeInBytes()
+				]
+
+			case "tm"
+				vHistoryData = [
+					xObj.StzType(),
+					xObj.ExecTime()
+				]
+
+			case "ts"
+				vHistoryData = [
+					xObj.StzType(),
+					xObj.SizeInBytes()
+				]
+
+			case "ms"
+				vHistoryData = [
+					xObj.ExecTime(),
+					xObj.SizeInBytes()
+				]
+
+			else
+				StzRaise("Unsupported history mode: " + tDisp)
+			end
+
+			xObj.AddHistoricValueXTInternal(vHistoryData)
+		end
+
+	catch
+	end
+
+	# Always reset the flag
+	$bInHistoryUpdate = false
+end
+	func TraceObjectHistory(pxStzObj)
+		StzTraceObjectHistory(pxStzObj)
+	end
+	func @TraceObjectHistory(pxStzObj)
+		StzTraceObjectHistory(pxStzObj)
+	end
+	func TraceStzObjectHistory(pxStzObj)
+		StzTraceObjectHistory(pxStzObj)
+	end
+	func @TraceStzObjectHistory(pxStzObj)
+		StzTraceObjectHistory(pxStzObj)
+	end
+
+#-- Utility Functions for Debugging
+
+func StzIsInHistoryUpdate
+	return $bInHistoryUpdate
+end
+	func IsInHistoryUpdate
+		return StzIsInHistoryUpdate()
+	end
+func StzGetHistoryUpdateState
+	return $bInHistoryUpdate
+end
+	func GetHistoryUpdateState
+		return StzGetHistoryUpdateState()
+	end
+func StzResetHistoryUpdateState
+	$bInHistoryUpdate = false
+end
+	func ResetHistoryUpdateState
+		StzResetHistoryUpdateState()
+	end
+#-- Enhanced Error Handling
+
+func StzSafeTraceObjectHistory(pxStzObj)
+	if pxStzObj = ""
+		return
+	end
+
+	if $bInHistoryUpdate = true
+		return
+	end
+
+	try
+		StzTraceObjectHistory(pxStzObj)
+	catch
+		$bInHistoryUpdate = false
+	end
+end
+	func SafeTraceObjectHistory(pxStzObj)
+		StzSafeTraceObjectHistory(pxStzObj)
+	end

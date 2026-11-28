@@ -294,7 +294,7 @@ class stzQuestion
 		if @cComparator = ""
 			# a WH-question: the answer IS the missing constituent
 			@cWhy = "answered: " + @@(_vLeft_)
-			$cStzLastWhyB = @cWhy
+			$tStzLastWhyB = @cWhy
 			$aStzAskAnswers + _vLeft_
 			return _vLeft_
 		ok
@@ -327,7 +327,7 @@ class stzQuestion
 		else
 			@cWhy = "no: " + @@(_vLeft_) + " is not " + _cRel_ + " " + @@(_vRight_)
 		ok
-		$cStzLastWhyB = @cWhy
+		$tStzLastWhyB = @cWhy
 		if _bYes_
 			$aStzAskAnswers + 1
 			return 1

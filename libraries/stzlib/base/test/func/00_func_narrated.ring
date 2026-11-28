@@ -64,8 +64,8 @@ Scenario("Extended truthiness recognises the sentinel objects")
 EndScenario()
 
 # Regression: the three lists that configure extended truthiness --
-# $acSubStringsMakingAStringFalse, $aItemsMakingAListFalse and
-# $aInnerItemsMakingAListFalse -- all default to [], and the
+# $vtSubStringsMakingAStringFalse, $xItemsMakingAListFalse and
+# $xInnerItemsMakingAListFalse -- all default to [], and the
 # ContainsOneOfTheseCS they are handed to validates with IsListOfStrings,
 # which deliberately REFUSES an empty list. So the library's own defaults
 # failed its own validator and IsTrueXT RAISED for every non-empty string

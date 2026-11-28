@@ -1,50 +1,51 @@
 
 
 
-func StzFalseObjectQ()
+func StzFalseObjectQ
 	return new stzFalseObject
-
-	func 0Object()
+end
+	func 0Object
 		return new stzFalseObject
-
-	func AFalseObject()
+	end
+	func AFalseObject
 		return new stzFalseObject
-
+	end
 	# NNL 2.0: a false premise CARRIES the object it judged, so the
 	# conditional mood can recover it -- .Otherwise(:Trim) runs on the
 	# origin and hands the live chain back.
-	func AFalseObjectXT(poOrigin)
-		_oFo_ = new stzFalseObject
-		_oFo_.SetOrigin(poOrigin)
+	func AFalseObjectXT(pxOrigin)
+		oFo = new stzFalseObject
+		oFo.SetOrigin(pxOrigin)
 		# P2: the chain-local main travels through the false branch too
-		if isObject(poOrigin) and
-		   StzFindFirst("nnlmainraw", ring_methods(poOrigin)) > 0 and
-		   isObject(poOrigin.NNLMainRaw())
-			_oFo_.SetNNLMain(poOrigin.NNLMainRaw())
-		ok
-		return _oFo_
-
-	func FalseObject()
+		if IsObject(pxOrigin) and
+		   StzFindFirst("nnlmainraw", ring_methods(pxOrigin)) > 0 and
+		   IsObject(pxOrigin.NNLMainRaw())
+			oFo.SetNNLMain(pxOrigin.NNLMainRaw())
+		end
+		return oFo
+	end
+	func FalseObject
 		return new stzFalseObject
-
-	func FALSE()
+	end
+	func false
 		return new stzFalseObject
-
-	func FALSEQ()
+	end
+	func FALSEQ
 		return new stzFalseObject
-
-	func StzFalseQ()
+	end
+	func StzFalseQ
 		return new stzFalseObject
-
+	end
 #< @ClassMisspelledForms
 
 class stzFalsObject from stzFalseObject
+end
 class stzFlaseObject from stzFalseObject
-
+end
 #>
 
 class stzFalse from stzFalseObject
-
+end
 # Stands for a premise that did not hold: the object a failed natural chain returns, which keeps the chain going without turning true.
 #
 # A check written as a chain, such as Q("AnnIE").AtMost(2).VowelNBQ(), answers a stzFalseObject when
@@ -68,9 +69,9 @@ class stzFalse from stzFalseObject
 #              #--> annie
 #   see        stzObject, stzObjectGuard, stzString
 class stzFalseObject from stzObject
-	@cVarName = :@falseobject
-	@oNNLOrigin = 0
-	@cNNLWhyStopped = "a premise in the chain did not hold"
+	@tVarName = :@falseobject
+	@xNNLOrigin = 0
+	@tNNLWhyStopped = "a premise in the chain did not hold"
 
 	# Returns 0, the value of a failed premise, whatever the chain asked before.
 	#
@@ -78,25 +79,25 @@ class stzFalseObject from stzObject
 	#   note       Value is the same call; the object itself is truthy as an object, so test Content
 	#              or StzType, not the object
 	#   see        Value, StzType
-	def Content()
-		return 0
-
+	def Content
+		return false
+	end
 		# Returns 0, the value of a failed premise.
 		#
 		#   returns    the number 0
 		#   see        Content
-		def Value()
+		def Value
 			return Content()
-
+		end
 	# Returns the name that tells a false object from the live object a passing chain hands on.
 	#
 	#   returns    the text stzFalseObject
 	#   note       compare with :stzFalseObject; a passing chain answers the type of the object it
 	#              judged
 	#   see        Content, WhyStopped
-	def StzType()
+	def StzType
 		return :stzFalseObject
-
+	end
 	# Stores the object whose check failed, so that Otherwise and OrQ can hand it back.
 	#
 	#   poObj      the object that was judged and failed the premise
@@ -105,18 +106,18 @@ class stzFalseObject from stzObject
 	#              hand
 	#   see        Origin, Otherwise, OrQ
 	#@ aka  -- NNL 2.0 (see doc/design/NNL_REVIEW.md) ----------------------------- The false premise as a DISCOURSE object: it remembers what it judged (origin), it absorbs every counting/comparison device with an honest explanation, and it powers the CONDITIONAL MOOD.
-	def SetOrigin(poObj)
-		@oNNLOrigin = poObj
-
+	def SetOrigin(pxObj)
+		@xNNLOrigin = pxObj
+	end
 	# Returns the object that failed the premise, or 0 for a false object built bare.
 	#
 	#   returns    the judged object, or the number 0
 	#   note       it is the live object itself, not a copy: changing it changes what Otherwise
 	#              returns
 	#   see        SetOrigin, Otherwise
-	def Origin()
-		return @oNNLOrigin
-
+	def Origin
+		return @xNNLOrigin
+	end
 	# Records the sentence that tells why the chain stopped.
 	#
 	#   pcWhy      the reason, as one sentence
@@ -124,26 +125,26 @@ class stzFalseObject from stzObject
 	#   note       the failing check writes it, for example no: expected atmost 2, found 3
 	#   see        WhyStopped, SetOrigin
 	#@ aka  the CHAIN-STOPPED explanation (the user-facing debug surface, per the WhyChainStopped precedent): recorded at the failing check
-	def SetWhyStopped(pcWhy)
-		@cNNLWhyStopped = pcWhy
-
+	def SetWhyStopped(pxWhy)
+		@tNNLWhyStopped = pxWhy
+	end
 	# Returns the sentence that tells why the chain stopped.
 	#
 	#   returns    a text
 	#   note       when the failing check gave no reason it reads a premise in the chain did not
 	#              hold, as after IsAQ(:Number) on a text
 	#   see        SetWhyStopped, WhyCheckFailed, Origin
-	def WhyStopped()
-		return @cNNLWhyStopped
-
+	def WhyStopped
+		return @tNNLWhyStopped
+	end
 		# Returns the sentence that tells which check failed and what it found.
 		#
 		#   returns    a text
 		#   note       it is the same call as WhyStopped
 		#   see        WhyStopped
-		def WhyCheckFailed()
-			return @cNNLWhyStopped
-
+		def WhyCheckFailed
+			return @tNNLWhyStopped
+		end
 	# Skips the action, because the premise before it was false, and returns the false object.
 	#
 	#   pAction    the action that would run on the object if the premise held, and it is not run
@@ -152,12 +153,12 @@ class stzFalseObject from stzObject
 	#   note       on a live object the pair works the other way round
 	#   see        Otherwise, OrQ
 	#@ aka  conditional mood on the FALSE branch: IfSo skips, Otherwise recovers
-	def IfSo(pAction)
-		return This
-
-		def IfSoQ(pAction)
-			return This
-
+	def IfSo(pxAction)
+		return this
+	end
+		def IfSoQ(pxAction)
+			return this
+		end
 	# Runs the action on the object that failed the premise and returns that object, so the chain goes on live.
 	#
 	#   pAction    the action to run on the failed object, for example :Lowercase
@@ -165,40 +166,40 @@ class stzFalseObject from stzObject
 	#   note       the origin is changed in place:
 	#              Q("AnnIE").AtMost(2).VowelNBQ().Otherwise(:Lowercase) leaves annie behind
 	#   see        IfSo, Origin, OrQ
-	def Otherwise(pAction)
-		if isObject(@oNNLOrigin)
-			@oNNLOrigin._NNLDo(pAction)
-			return @oNNLOrigin
-		ok
-		return This
-
-		def OtherwiseQ(pAction)
-			return This.Otherwise(pAction)
-
+	def Otherwise(pxAction)
+		if IsObject(@xNNLOrigin)
+			@xNNLOrigin._NNLDo(pxAction)
+			return @xNNLOrigin
+		end
+		return this
+	end
+		def OtherwiseQ(pxAction)
+			return this.Otherwise(pxAction)
+		end
 	# every NNL counting/comparison device answers 0 through here, and
 	# says why -- the monad absorbs the SURFACE without hiding the truth
-	def _NNLNounCount(pcMethod)
-		$cStzLastWhyB = "no: the premise before was already false"
-		return 0
-
-	def _NNLCountIs(pcMethod)
-		$cStzLastWhyB = "no: the premise before was already false"
-		return 0
-
-	def _NNLValueIs(pcMethod)
-		$cStzLastWhyB = "no: the premise before was already false"
-		return 0
-
+	def _NNLNounCount(pxMethod)
+		$tStzLastWhyB = "no: the premise before was already false"
+		return false
+	end
+	def _NNLCountIs(pxMethod)
+		$tStzLastWhyB = "no: the premise before was already false"
+		return false
+	end
+	def _NNLValueIs(pxMethod)
+		$tStzLastWhyB = "no: the premise before was already false"
+		return false
+	end
 	# Answers 0 and notes that the premise before was already false.
 	#
 	#   pcDesc     the past state asked about, as text (not read)
 	#   returns    the number 0
 	#   note       it also sets the global explanation to no: the premise before was already false
 	#   see        WasNever, UsedToBe, IsStill
-	def WasEver(pcDesc)
-		$cStzLastWhyB = "no: the premise before was already false"
-		return 0
-
+	def WasEver(pxDesc)
+		$tStzLastWhyB = "no: the premise before was already false"
+		return false
+	end
 	# Answers 0 and notes that the premise before was already false.
 	#
 	#   pcDesc     the past state asked about, as text (not read)
@@ -206,68 +207,68 @@ class stzFalseObject from stzObject
 	#   note       the answer is 0 on a false object even though never is vacuously true, because
 	#              the whole chain is already false
 	#   see        WasEver, UsedToBe
-	def WasNever(pcDesc)
-		$cStzLastWhyB = "no: the premise before was already false"
-		return 0
-
+	def WasNever(pxDesc)
+		$tStzLastWhyB = "no: the premise before was already false"
+		return false
+	end
 	# Answers 0 and notes that the premise before was already false.
 	#
 	#   pcDesc     the past state asked about, as text (not read)
 	#   returns    the number 0
 	#   see        WasEver, IsStill
-	def UsedToBe(pcDesc)
-		$cStzLastWhyB = "no: the premise before was already false"
-		return 0
-
+	def UsedToBe(pxDesc)
+		$tStzLastWhyB = "no: the premise before was already false"
+		return false
+	end
 	# Answers 0 and notes that the premise before was already false.
 	#
 	#   pcDesc     the state asked about, as text (not read)
 	#   returns    the number 0
 	#   see        WasEver, UsedToBe
-	def IsStill(pcDesc)
-		$cStzLastWhyB = "no: the premise before was already false"
-		return 0
-
+	def IsStill(pxDesc)
+		$tStzLastWhyB = "no: the premise before was already false"
+		return false
+	end
 	# Answers 0 and notes that the premise before was already false; the constraint is not looked up.
 	#
 	#   pcName     the name of the constraint to check (not read)
 	#   returns    the number 0
 	#   see        VerifyConstraints, QualifiesAs
-	def VerifyConstraint(pcName)
-		$cStzLastWhyB = "no: the premise before was already false"
-		return 0
-
+	def VerifyConstraint(pxName)
+		$tStzLastWhyB = "no: the premise before was already false"
+		return false
+	end
 	# Answers 0 and notes that the premise before was already false; no constraint is checked.
 	#
 	#   returns    the number 0
 	#   see        VerifyConstraint
-	def VerifyConstraints()
-		$cStzLastWhyB = "no: the premise before was already false"
-		return 0
-
+	def VerifyConstraints
+		$tStzLastWhyB = "no: the premise before was already false"
+		return false
+	end
 	# Does nothing and returns the false object, so the chain goes on.
 	#
 	#   returns    the false object itself
 	#   see        EnforceConstraints, RelaxConstraints
-	def ApplyConstraints()
-		return This
-
+	def ApplyConstraints
+		return this
+	end
 	# Does nothing and returns the false object; the constraint is not enforced.
 	#
 	#   pcName     the name of the constraint (not read)
 	#   pRule      the rule of the constraint (not read)
 	#   returns    the false object itself
 	#   see        EnforceConstraints, VerifyConstraint
-	def EnforceConstraint(pcName, pRule)
-		return This
-
+	def EnforceConstraint(pxName, pxRule)
+		return this
+	end
 	# Does nothing and returns the false object; no constraint is enforced.
 	#
 	#   returns    the false object itself
 	#   see        EnforceConstraint, ApplyConstraints
-	def EnforceConstraints()
-		return This
-
+	def EnforceConstraints
+		return this
+	end
 	# Does nothing and returns the false object; the constraint is not enforced.
 	#
 	#   pcName     the name of the constraint (not read)
@@ -275,9 +276,9 @@ class stzFalseObject from stzObject
 	#   pCond      the condition that would keep it enforced (not read)
 	#   returns    the false object itself
 	#   see        EnforceConstraintUntil, EnforceConstraint
-	def EnforceConstraintWhile(pcName, pRule, pCond)
-		return This
-
+	def EnforceConstraintWhile(pxName, pxRule, pxCond)
+		return this
+	end
 	# Does nothing and returns the false object; the constraint is not enforced.
 	#
 	#   pcName     the name of the constraint (not read)
@@ -285,44 +286,45 @@ class stzFalseObject from stzObject
 	#   pCond      the condition that would end it (not read)
 	#   returns    the false object itself
 	#   see        EnforceConstraintWhile, EnforceConstraint
-	def EnforceConstraintUntil(pcName, pRule, pCond)
-		return This
-
+	def EnforceConstraintUntil(pxName, pxRule, pxCond)
+		return this
+	end
 	# Does nothing and returns the false object; no constraint is relaxed.
 	#
 	#   returns    the false object itself
 	#   see        EnforceConstraints, ApplyConstraints
-	def RelaxConstraints()
-		return This
-
+	def RelaxConstraints
+		return this
+	end
 	# Answers 0 and notes that the premise before was already false.
 	#
 	#   pcKind     the kind asked about, as text (not read)
 	#   returns    the number 0
 	#   see        VerifyConstraint, WasEver
-	def QualifiesAs(pcKind)
-		$cStzLastWhyB = "no: the premise before was already false"
-		return 0
-
-	def QualifiesAsQ(pcKind)
-		return This
-
-	def _NNLImmutable(pcMethod, paParams)
-		$cStzLastWhyB = "no: the premise before was already false"
-		return This
-
+	def QualifiesAs(pxKind)
+		$tStzLastWhyB = "no: the premise before was already false"
+		return false
+	end
+	def QualifiesAsQ(pxKind)
+		return this
+	end
+	def _NNLImmutable(pxMethod, pxParams)
+		$tStzLastWhyB = "no: the premise before was already false"
+		return this
+	end
 	def _NNLExpectCompare(nActual)
-		$cStzLastWhyB = "no: the premise before was already false"
-		return 0
+		$tStzLastWhyB = "no: the premise before was already false"
+		return false
+	end
 	# Returns the false object itself, so a chain written with and stays false.
 	#
 	#   returns    the false object itself
 	#   see        OrQ, NorQ
 	#-----------------------------------------------------------------------
 	#@ aka  -- Fluent boolean short-circuit: every check stays FALSE; AndQ/OrQ keep the -- chain going (so StartsWithXTQ(a).AndQ().EndsWithXT(b) is FALSE when a fails).
-	def AndQ()
-		return This
-
+	def AndQ
+		return this
+	end
 	# Returns the object that failed, alive again, so the second alternative gets its chance; the false object itself when it has no origin.
 	#
 	#   returns    the origin object, or the false object
@@ -330,165 +332,165 @@ class stzFalseObject from stzObject
 	#              Q-form here that turns the chain live
 	#   see        AndQ, Otherwise, Origin
 	#@ aka  Q3: on a FALSE premise, OR gives the SECOND disjunct its chance -- the carried origin comes back to life ("is a number OR a string")
-	def OrQ()
-		if isObject(@oNNLOrigin)
-			return @oNNLOrigin
-		ok
-		return This
-
+	def OrQ
+		if IsObject(@xNNLOrigin)
+			return @xNNLOrigin
+		end
+		return this
+	end
 	# Returns the false object itself, so a chain written with nor stays false.
 	#
 	#   returns    the false object itself
 	#   see        NeitherQ, OrQ
 	#@ aka  under neither...nor a failing predicate is what KEEPS the chain alive -- but once false for another reason, false absorbs
-	def NorQ()
-		return This
-
+	def NorQ
+		return this
+	end
 	# Returns the false object itself, so a chain written with both stays false.
 	#
 	#   returns    the false object itself
 	#   see        AndQ
-	def BothQ()
-		return This
-
-	def IsEitherQ()
-		return This
-
+	def BothQ
+		return this
+	end
+	def IsEitherQ
+		return this
+	end
 	# Returns the false object itself, so a chain written with neither stays false.
 	#
 	#   returns    the false object itself
 	#   see        NeitherQ, NorQ
-	def IsNeitherQ()
-		return This
-
+	def IsNeitherQ
+		return this
+	end
 	# Returns the false object itself, so a chain written with neither stays false.
 	#
 	#   returns    the false object itself
 	#   see        IsNeitherQ, NorQ
-	def NeitherQ()
-		return This
-
+	def NeitherQ
+		return this
+	end
 	# Returns the false object itself; a quantifier on a failed chain opens no figure.
 	#
 	#   returns    the false object itself
 	#   see        AnyQ, NoneQ, EachItemQ
-	def EachQ()
-		return This
-
+	def EachQ
+		return this
+	end
 	# Returns the false object itself; a quantifier on a failed chain opens no figure.
 	#
 	#   returns    the false object itself
 	#   see        EachQ, NoneQ
-	def AnyQ()
-		return This
-
+	def AnyQ
+		return this
+	end
 	# Returns the false object itself; a quantifier on a failed chain opens no figure.
 	#
 	#   returns    the false object itself
 	#   see        EachQ, AnyQ
-	def NoneQ()
-		return This
-
+	def NoneQ
+		return this
+	end
 	# Returns the false object itself; a quantifier on a failed chain opens no figure.
 	#
 	#   returns    the false object itself
 	#   see        EachQ, AnyItemQ
-	def EachItemQ()
-		return This
-
+	def EachItemQ
+		return this
+	end
 	# Returns the false object itself; a quantifier on a failed chain opens no figure.
 	#
 	#   returns    the false object itself
 	#   see        AnyQ, EachItemQ
-	def AnyItemQ()
-		return This
-
+	def AnyItemQ
+		return this
+	end
 	# Returns the false object itself; a quantifier on a failed chain opens no figure.
 	#
 	#   returns    the false object itself
 	#   see        NoneQ, EachItemQ
-	def NoItemQ()
-		return This
-
+	def NoItemQ
+		return this
+	end
 	# Returns the false object itself, so a type phrase on a failed chain stays false.
 	#
 	#   returns    the false object itself
 	#   see        AStringQ, AListQ
-	def ANumberQ()
-		return This
-
+	def ANumberQ
+		return this
+	end
 	# Returns the false object itself, so a type phrase on a failed chain stays false.
 	#
 	#   returns    the false object itself
 	#   see        ANumberQ, AListQ
-	def AStringQ()
-		return This
-
+	def AStringQ
+		return this
+	end
 	# Returns the false object itself, so a type phrase on a failed chain stays false.
 	#
 	#   returns    the false object itself
 	#   see        ANumberQ, AStringQ
-	def AListQ()
-		return This
-
+	def AListQ
+		return this
+	end
 	# Returns the false object itself, so a type phrase on a failed chain stays false.
 	#
 	#   returns    the false object itself
 	#   see        ANumberQ, AStringQ
-	def AnObjectQ()
-		return This
-
+	def AnObjectQ
+		return this
+	end
 	# Returns the false object itself, so a type phrase on a failed chain stays false.
 	#
 	#   returns    the false object itself
 	#   see        AStringQ, ANumberQ
-	def ACharQ()
-		return This
-
+	def ACharQ
+		return this
+	end
 	# Answers 0 for any prefix, because the chain before it already failed.
 	#
 	#   p          the prefix asked about (not read)
 	#   returns    the number 0
 	#   see        StartsWithAny, EndsWith
-	def StartsWith(p)
-		return 0
-
-	def StartsWithXT(p)
-		return 0
-
+	def StartsWith(xP)
+		return false
+	end
+	def StartsWithXT(xP)
+		return false
+	end
 	# Answers 0 for any list of prefixes, because the chain before it already failed.
 	#
 	#   p          the prefixes asked about (not read)
 	#   returns    the number 0
 	#   see        StartsWith, EndsWithAny
-	def StartsWithAny(p)
-		return 0
-
-	def StartsWithXTQ(p)
-		return This
-
+	def StartsWithAny(xP)
+		return false
+	end
+	def StartsWithXTQ(xP)
+		return this
+	end
 	# Answers 0 for any suffix, because the chain before it already failed.
 	#
 	#   p          the suffix asked about (not read)
 	#   returns    the number 0
 	#   see        EndsWithAny, StartsWith
-	def EndsWith(p)
-		return 0
-
-	def EndsWithXT(p)
-		return 0
-
+	def EndsWith(xP)
+		return false
+	end
+	def EndsWithXT(xP)
+		return false
+	end
 	# Answers 0 for any list of suffixes, because the chain before it already failed.
 	#
 	#   p          the suffixes asked about (not read)
 	#   returns    the number 0
 	#   see        EndsWith, StartsWithAny
-	def EndsWithAny(p)
-		return 0
-
-	def EndsWithXTQ(p)
-		return This
-
+	def EndsWithAny(xP)
+		return false
+	end
+	def EndsWithXTQ(xP)
+		return this
+	end
 	# Answers 0 for any condition, because the chain before it already failed; the condition is not evaluated.
 	#
 	#   pcCondition   the condition text (not evaluated)
@@ -497,48 +499,48 @@ class stzFalseObject from stzObject
 	#                 condition
 	#   see           W
 	#@ aka  --
-	def Where(pcCondition)
-		return 0
-
+	def Where(pxCondition)
+		return false
+	end
 		# Answers 0 for any condition, because the chain before it already failed; the condition is not evaluated.
 		#
 		#   pcCondition   the condition text (not evaluated)
 		#   returns       the number 0
 		#   see           Where
-		def W(pcCondition)
-			return 0
-
+		def W(pxCondition)
+			return false
+		end
 	#--
 
-	def IsEqualToCS(p, pCaseSensitive)
-		return 0
-
+	def IsEqualToCS(xP, pxCaseSensitive)
+		return false
+	end
 		#< @FunctionFluentForm
 
-		def IsEqualToCSQ(p, pCaseSensitie)
-			return This
-
+		def IsEqualToCSQ(xP, pxCaseSensitie)
+			return this
+		end
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def EqualToCS(p, pCaseSensitive)
-			return 0
-
-			def EqualToCSQ(p, pCaseSensitive)
-				return This
-
-		def EqualsCS(p, pCaseSensitive)
-			return 0
-
+		def EqualToCS(xP, pxCaseSensitive)
+			return false
+		end
+			def EqualToCSQ(xP, pxCaseSensitive)
+				return this
+			end
+		def EqualsCS(xP, pxCaseSensitive)
+			return false
+		end
 			# Returns the false object itself; no comparison is made, with or without case.
 			#
 			#   p          the value it would be compared with (not read)
 			#   returns    the false object itself
 			#   see        IsEqualTo, EqualQ
-			def EqualCSQ(p, pCaseSensitive)
-				return This
-
+			def EqualCSQ(xP, pxCaseSensitive)
+				return this
+			end
 	# Answers 0 for any value, because the chain before it already failed.
 	#
 	#   p          the value it would be compared with (not read)
@@ -546,14 +548,14 @@ class stzFalseObject from stzObject
 	#   see        EqualTo, Equals, EqualCSQ
 		#>
 	#@ aka  -- WITHOUT CASESENSITIVITY
-	def IsEqualTo(p)
-		return 0
-
+	def IsEqualTo(xP)
+		return false
+	end
 		#< @FunctionFluentForm
 
-		def IsEqualToQ(p)
-			return This
-
+		def IsEqualToQ(xP)
+			return this
+		end
 		# Answers 0 for any value, because the chain before it already failed.
 		#
 		#   p          the value it would be compared with (not read)
@@ -561,73 +563,74 @@ class stzFalseObject from stzObject
 		#   see        IsEqualTo, Equals
 		#>
 		#< @FunctionAlternativeForms
-		def EqualTo(p)
-			return 0
-
-			def EqualToQ(p)
-				return This
-
+		def EqualTo(xP)
+			return false
+		end
+			def EqualToQ(xP)
+				return this
+			end
 		# Answers 0 for any value, because the chain before it already failed.
 		#
 		#   p          the value it would be compared with (not read)
 		#   returns    the number 0
 		#   see        IsEqualTo, EqualTo
-		def Equals(p)
-			return 0
-
+		def Equals(xP)
+			return false
+		end
 			# Returns the false object itself; no comparison is made.
 			#
 			#   p          the value it would be compared with (not read)
 			#   returns    the false object itself
 			#   see        EqualCSQ, IsEqualTo
-			def EqualQ(p)
-				return This
-
+			def EqualQ(xP)
+				return this
+			end
 	# Answers 0 for any divisor, because the chain before it already failed.
 	#
 	#   n          the divisor (not read)
 	#   returns    the number 0
 	#   see        DividableBy, IsDivisibleBy
 		#>
-	def IsDividableBy(n)
-		return 0
-
-		def IsDividableByQ(n)
-			return This
-
+	def IsDividableBy(xN)
+		return false
+	end
+		def IsDividableByQ(xN)
+			return this
+		end
 		# Answers 0 for any divisor, because the chain before it already failed.
 		#
 		#   n          the divisor (not read)
 		#   returns    the number 0
 		#   see        IsDividableBy, DivisibleBy
-		def DividableBy(n)
-			return 0
-
-			def DividableByQ(n)
-				return This
-
+		def DividableBy(xN)
+			return false
+		end
+			def DividableByQ(xN)
+				return this
+			end
 		# Answers 0 for any divisor, because the chain before it already failed.
 		#
 		#   n          the divisor (not read)
 		#   returns    the number 0
 		#   see        IsDividableBy, DivisibleBy
-		def IsDivisibleBy(n)
-			return 0
-
-			def IsDivisibleByQ()
-				return This
-
+		def IsDivisibleBy(xN)
+			return false
+		end
+			def IsDivisibleByQ
+				return this
+			end
 		# Answers 0 for any divisor, because the chain before it already failed.
 		#
 		#   n          the divisor (not read)
 		#   returns    the number 0
 		#   see        IsDivisibleBy, DividableBy
-		def DivisibleBy(n)
-			return 0
-
-			def DivisibleByQ(n)
-				return This
-
+		def DivisibleBy(xN)
+			return false
+		end
+			def DivisibleByQ(xN)
+				return this
+end
+			end
 #-----------------------------------------------------------------#
 #  WHOLE-OBJECT CONDITION GUARD                                    #
 #-----------------------------------------------------------------#
@@ -656,7 +659,7 @@ class stzFalseObject from stzObject
 #   see        stzFalseObject, stzTrueObject, stzList
 class stzObjectGuard from stzObject
 	@oObj
-	@cKeyword
+	@tKeyword
 
 	# Wraps an object and the name of the whole-object keyword its condition may use.
 	#
@@ -664,34 +667,34 @@ class stzObjectGuard from stzObject
 	#   pcKeyword   the keyword name, such as @pair, kept for Keyword
 	#   returns     nothing; the object is built
 	#   see         Where, Object
-	def init(poObj, pcKeyword)
-		@oObj = poObj
-		@cKeyword = pcKeyword
-
+	def init(pxObj, pxKeyword)
+		@oObj = pxObj
+		@tKeyword = pxKeyword
+	end
 	# Returns the content of the guarded object.
 	#
 	#   returns    whatever the guarded object's Content returns
 	#   see        Object, Value
-	def Content()
+	def Content
 		return @oObj.Content()
-
-		def Value()
-			return This.Content()
-
+	end
+		def Value
+			return this.Content()
+		end
 	# Returns the guarded object itself, not its content.
 	#
 	#   returns    the guarded object
 	#   see        Content, Keyword
-	def Object()
+	def Object
 		return @oObj
-
+	end
 	# Returns the keyword the guard was built with, as the type guard wrote it.
 	#
 	#   returns    a text such as pair
 	#   see        Where
-	def Keyword()
-		return @cKeyword
-
+	def Keyword
+		return @tKeyword
+	end
 	# Evaluates a condition once against the whole guarded object, with @pair, @list, @string, @number and @object each standing for that object.
 	#
 	#   pcCondition   a condition text written with a whole-object keyword, such as @pair[1] = "x"
@@ -702,17 +705,19 @@ class stzObjectGuard from stzObject
 	#                 condition sees the object, so use an element access, @list[1], and not
 	#                 len(@list)
 	#   see           W, Object
-	def Where(pcCondition)
+	def Where(pxCondition)
 		#-- Bind every whole-object keyword to the whole receiver, so
 		#-- @pair[1] -> This[1]. The condition is then item-invariant; a
 		#-- single engine-backed CheckW over the object answers TRUE/FALSE.
-		_cWogCond_ = pcCondition
-		_aWogKw_ = [ "@pair", "@list", "@string", "@number", "@object" ]
-		_nWogKw_ = len(_aWogKw_)
-		for _iWog_ = 1 to _nWogKw_
-			_cWogCond_ = StzReplace(_cWogCond_, _aWogKw_[_iWog_], "This")
-		next
-		return @oObj.CheckW(_cWogCond_)
-
-		def W(pcCondition)
-			return This.Where(pcCondition)
+		tWogCond = pxCondition
+		vWogKw = [ "@pair", "@list", "@string", "@number", "@object" ]
+		nWogKw = Len(vWogKw)
+		for iWog = 1 to nWogKw
+			tWogCond = StzReplace(tWogCond, vWogKw[iWog], "This")
+		end
+		return @oObj.CheckW(tWogCond)
+	end
+		def W(pxCondition)
+			return this.Where(pxCondition)
+		end
+end

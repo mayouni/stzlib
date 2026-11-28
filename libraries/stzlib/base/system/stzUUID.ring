@@ -55,7 +55,7 @@ func StzUUIDQ()
 class stzUUID from stzObject
 
 	# Private attributes
-	@cUuid = ""
+	@tUuid = ""
 	@nVersion = 4
 
 	# Generates a new random version-4 UUID, held in upper case with hyphens, such as 3F2504E0-4F89-41D3-9A0C-0305E82C3301.
@@ -63,7 +63,7 @@ class stzUUID from stzObject
 	#   returns    nothing; the object is built
 	#   see        Content, IsValid
 	def init()
-		@cUuid = StzUpper(StzEngineUUIDV4())
+		@tUuid = StzUpper(StzEngineUUIDV4())
 		@nVersion = This.Version()
 
 	# Returns the UUID as 36 upper-case characters with hyphens.
@@ -72,7 +72,7 @@ class stzUUID from stzObject
 	#   see        WithHyphens, WithoutHyphens
 	#@ aka  Public methods
 	def Content()
-		return @cUuid
+		return @tUuid
 
 	# Returns a new stzUUID that holds the same value, so the two are independent objects with one identity.
 	#
@@ -81,7 +81,7 @@ class stzUUID from stzObject
 	#   see        Content
 	def Copy()
 		_oC_ = new stzUUID()
-		_oC_.@cUuid = @cUuid
+		_oC_.@tUuid = @tUuid
 		_oC_.@nVersion = @nVersion
 		return _oC_
 
@@ -90,7 +90,7 @@ class stzUUID from stzObject
 	#   returns    a text
 	#   see        WithHyphens, Content
 	def WithoutHyphens()
-		return StzReplace(@cUuid, "-", "")
+		return StzReplace(@tUuid, "-", "")
 
 	# Returns the UUID in the 8-4-4-4-12 form.
 	#
@@ -98,16 +98,16 @@ class stzUUID from stzObject
 	#   warning    it returns the same text as Content for a UUID built by this class
 	#   see        WithoutHyphens, Content
 	def WithHyphens()
-		if StzFindFirst("-", @cUuid) = 0
+		if StzFindFirst("-", @tUuid) = 0
 			# Standard 8-4-4-4-12 hyphenation.
-			_cResult_ = StzMid(@cUuid, 1, 8)  + "-" +
-			          StzMid(@cUuid, 9, 4)  + "-" +
-			          StzMid(@cUuid, 13, 4) + "-" +
-			          StzMid(@cUuid, 17, 4) + "-" +
-			          StzMid(@cUuid, 21, 12)
+			_cResult_ = StzMid(@tUuid, 1, 8)  + "-" +
+			          StzMid(@tUuid, 9, 4)  + "-" +
+			          StzMid(@tUuid, 13, 4) + "-" +
+			          StzMid(@tUuid, 17, 4) + "-" +
+			          StzMid(@tUuid, 21, 12)
 			return _cResult_
 		ok
-		return @cUuid
+		return @tUuid
 
 	# TRUE if the UUID is the nil UUID, all zeros.
 	#
@@ -115,21 +115,21 @@ class stzUUID from stzObject
 	#   warning    a generated UUID is never nil
 	#   see        IsValid
 	def IsNull()
-		return StzEngineUUIDCompare(@cUuid, StzEngineUUIDNil()) = 0
+		return StzEngineUUIDCompare(@tUuid, StzEngineUUIDNil()) = 0
 
 	# TRUE if the engine reads the value as a well-formed UUID.
 	#
 	#   returns    TRUE or FALSE
 	#   see        IsNull, Version
 	def IsValid()
-		return StzEngineUUIDIsValid(@cUuid) = 1
+		return StzEngineUUIDIsValid(@tUuid) = 1
 
 	# Returns the UUID version number, 4 for a generated one; 0 when the engine cannot read it.
 	#
 	#   returns    a number
 	#   see        Variant, IsValid
 	def Version()
-		_n_ = StzEngineUUIDVersion(@cUuid)
+		_n_ = StzEngineUUIDVersion(@tUuid)
 		if _n_ < 0 return 0 ok
 		return _n_
 
@@ -138,8 +138,8 @@ class stzUUID from stzObject
 	#   returns    a text
 	#   see        Version
 	def Variant()
-		if StzLen(@cUuid) >= 19
-			_nVariantBits_ = number("0x" + @cUuid[20])
+		if StzLen(@tUuid) >= 19
+			_nVariantBits_ = number("0x" + @tUuid[20])
 			if (_nVariantBits_ & 8) = 0
 				return "Reserved (NCS)"
 			but (_nVariantBits_ & 12) = 8

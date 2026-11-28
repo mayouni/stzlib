@@ -13,7 +13,7 @@ pr()
 # You can also say: ? StzNumberClass()
 
 ? @@(Stz(:Number, :Attributes))
-#--> [ "@oobject", "@cVarName", "@cnumber" ]
+#--> [ "@oobject", "@tVarName", "@cnumber" ]
 # You can also say: ? StzNumberAttributes()
 
 ? Stz(:Number, :Methods)

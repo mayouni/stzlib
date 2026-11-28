@@ -204,7 +204,7 @@ func StzProve(paTriple)
 	_StzDKGEnsure()
 	_aProof_ = $oStzDefaultKG.Prove(paTriple)
 	$nStzLastCertainty = 1
-	$cStzLastWhyB = _aProof_[:narration]
+	$tStzLastWhyB = _aProof_[:narration]
 	return _aProof_
 
 # Rebuild the default KG from the world when relations are forgotten

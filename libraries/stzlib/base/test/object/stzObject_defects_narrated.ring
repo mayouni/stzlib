@@ -379,4 +379,4 @@ func oN2x()
 	return new stzNumber(2)
 
 func CleanTimeValues()
-	$aStzObjectTimeValues = []
+	$vStzObjectTimeValues = []

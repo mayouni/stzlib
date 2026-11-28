@@ -473,7 +473,7 @@ class stzConversation from stzObject
 			_aAd_ = poSpace.Admit(_cSubj_, _cRel_, _acVals_[_i_],
 				[ :source = "conversation:" + @cTopic, :confidence = 1 ])
 			@cWhy = _aAd_[:why]
-			$cStzLastWhyB = @cWhy       # the house 'last why' convention
+			$tStzLastWhyB = @cWhy       # the house 'last why' convention
 			$nStzLastCertainty = 1
 			@oTranscript.Verdict(@cWhy, 1)
 			if _aAd_[:admitted] = 1

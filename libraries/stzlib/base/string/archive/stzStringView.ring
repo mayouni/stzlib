@@ -14,7 +14,7 @@ class stzStringView from stzObject
 			ok
 
 			if isList(pcStr) and Q(pcStr).IsPairOfStrings() # Named string
-				@cVarName = pcStr[1] # Inherited from stzObject
+				@tVarName = pcStr[1] # Inherited from stzObject
 				@tContent = pcStr[2]
 				return
 			ok
