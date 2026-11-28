@@ -220,3 +220,22 @@ shared engine, built from c2b930b71 (`results/engines_timing.txt`).
   with the list in 58 s that day takes 52 s for one plain recording today. A Haro build at -j1 and a Foundry probe
   ran beside part of this run; this machine's Windows power reading is not a measurement, and names no cause. Hearing seconds from this machine compare within one alternated run; the
   machine's share of the slowdown is this plane's next measurement.
+
+### The same timing on a quieter machine (2026-11-28, 20:53)
+
+`_rig/time_words.haro`, unchanged, on the shared engine, the machine on AC (its author's word) with one other desk's
+test series beside it (CPU load 19% at the start, 5% at the end; `results/words_timing_2026-11-28.txt`):
+
+| arm | 2026-11-27 06:49 | 2026-11-28 20:53 | times faster |
+|---|---|---|---|
+| plain | 381.2 s | 92.9 s | 4.1 |
+| setting list (82 bytes) | 537.8 s | 130.8 s | 4.1 |
+| domain list (515 bytes) | 1,116.6 s | 271.6 s | 4.1 |
+
+- **The ratios are the same on both nights**: the short list costs 1.41 times plain and the long one 2.92 times
+  (2.93 on 11-27). Every ratio this plane measured inside one alternated run stands.
+- **The absolute seconds of 2026-11-27 were the load beside them**, the same factor on all three arms: plain hearing
+  is 10 to 13 s a recording here, against 41 to 63 s that night.
+- The WHISPER-02 run of 2026-11-16 heard the same eight recordings (hear01 to hear08) and two language checks in 58 s
+  through the bench, against 130.8 s here for the eight with the same list. The bench and this rig call the engine
+  differently, so that figure is compared through the bench itself.

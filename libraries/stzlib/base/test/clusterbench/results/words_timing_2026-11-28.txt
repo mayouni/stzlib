@@ -1,0 +1,14 @@
+start 20:52:53, AC per the author 2026-11-28 20:45; beside: one narrated test series (timeout 1800 haro *_defects_narrated.ring), load 19%
+recording	plain s	setting list s	domain list s
+fr01	12.751	24.679	56.535
+fr02	12.027	14.865	32.194
+fr03	12.474	18.868	40.674
+fr04	11.549	15.191	24.958
+fr05	11.48	14.362	38.771
+en01	11.161	14.009	28.51
+en02	10.238	13.244	21.869
+en03	11.25	15.588	28.095
+total s: plain 92.93, setting list 130.806, domain list 271.606
+end 21:01:10, load 5%
+
+
