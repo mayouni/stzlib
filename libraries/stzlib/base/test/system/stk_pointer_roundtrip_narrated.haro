@@ -22,8 +22,11 @@ load "../testoor/_narrate.haro"
 # only through the writing pointer passes on a copy too (measured: without Ref() that pointer still reads its own
 # copy back while the container finds the buffer empty).
 #
-# The scenes after it are the sections of core/test/stkMemoryBufferPointerTest.haro, which states what the container
-# design was meant to do and which never parsed on Haro, made into claims; and the methods that raised on Haro for
+# The scenes after it are the sections of core/test/stkMemoryBufferPointerTest.haro made into claims: that file stated
+# what the container design was meant to do, never parsed on Haro, and was removed once this guard held every one of
+# its sections (its last version is in stzlib 9ae81a619). One section is claimed the other way round: it expected a
+# write past the capacity to be refused, and the buffer grows instead, as it does in five places. The scenes also
+# claim the methods that raised on Haro for
 # one reason each: the library's own Max and Min take ONE list (core/number/stkListOfNumbers.haro) and shadow the
 # built-ins, so Max(a, b) raised R20 after Prepend, Insert, Remove and UpdateRange had already changed the data.
 #
