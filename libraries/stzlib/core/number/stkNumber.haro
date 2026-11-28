@@ -29,7 +29,7 @@ class stkNumber
 			@nRound = @Round(""= @xContent)
 
 		else # the number is provided in a string
-			if ring_substr1(pxNumber, '_') > 0
+			if StkFindFirst("_", pxNumber) > 0
 
 				@bSpacify = true
 			else
@@ -78,7 +78,7 @@ class stkNumber
 
 			@xContent = @Val(pxNumber)
 
-			if ring_substr1(pxNumber, '_') > 0
+			if StkFindFirst("_", pxNumber) > 0
 				@bSpacify = true
 			else
 				@bSpacify = false
@@ -146,7 +146,7 @@ class stkNumber
 		tTempStr = String(@xContent)
 		nLen = Len(tTempStr)
 
-		nPos = ring_substr1(tTempStr, ".")
+		nPos = StkFindFirst(".", tTempStr)
 
 		if nPos = 0
 			return ""
@@ -185,7 +185,7 @@ class stkNumber
 		#>
 
 	def HasFractPart
-		if ring_substr1( this.SValue(), "." ) > 0
+		if StkFindFirst(".", this.SValue()) > 0
 			return true
 		else
 			return false
@@ -213,9 +213,9 @@ class stkNumber
 	def SFractPartWithoutZeroDot
 
 		tResult = this.SFractPart()
-		tResult = ring_substr2(tResult, "0.", "")
-		tResult = ring_substr2(tResult, "+", "")
-		tResult = ring_substr2(tResult, "-", "")
+		tResult = StkReplace(tResult, "0.", "")
+		tResult = StkReplace(tResult, "+", "")
+		tResult = StkReplace(tResult, "-", "")
 
 		return tResult
 	end
@@ -424,7 +424,7 @@ class stkNumber
 
 				# Removing potential "_"
 
-				tTempStr = Trim( ring_substr2(xValue, "_", "") )
+				tTempStr = Trim( StkReplace(xValue, "_", "") )
 
 				# Getting the numeric value
 
@@ -470,7 +470,7 @@ class stkNumber
 
 				# Removing potential "_"
 
-				tTempStr = Trim( ring_substr2(xValue, "_", "") )
+				tTempStr = Trim( StkReplace(xValue, "_", "") )
 
 				# Getting the numeric value
 
@@ -516,7 +516,7 @@ class stkNumber
 
 				# Removing potential "_"
 
-				tTempStr = Trim( ring_substr2(xValue, "_", "") )
+				tTempStr = Trim( StkReplace(xValue, "_", "") )
 
 				# Getting the numeric value
 
@@ -561,7 +561,7 @@ class stkNumber
 
 				# Removing potential "_"
 
-				tTempStr = Trim( ring_substr2(xValue, "_", "") )
+				tTempStr = Trim( StkReplace(xValue, "_", "") )
 
 				# Getting the numeric value
 

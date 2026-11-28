@@ -4,7 +4,7 @@ func IsSciForm(tNumber)
 		return false
 	end
 
-	nPos = ring_substr1(tNumber, "e")
+	nPos = StkFindFirst("e", tNumber)
 	if nPos = 0
 		return false
 	end
@@ -36,7 +36,7 @@ func Number2Sci(xN)
 	return StzEngineNumberToScientific(Decimal(xN))
 end
 func Sci2Number(tNumberInStr)
-	tClean = Trim( ring_substr2(tNumberInStr, "_", "") )
+	tClean = Trim( StkReplace(tNumberInStr, "_", "") )
 	return StzEngineNumberFromScientific(tClean)
 end
 class stzCoreSciNumber from stkSciNumber
@@ -52,7 +52,7 @@ class stkSciNumber
 			return Raise("ERR-" + StkError(:IncorrectParamType))
 		end
 	
-		nPos = ring_substr1(tNumberInSciForm, "e")
+		nPos = StkFindFirst("e", tNumberInSciForm)
 		if nPos = 0
 			return 0
 		end

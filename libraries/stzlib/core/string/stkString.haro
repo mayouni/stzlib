@@ -3,21 +3,9 @@
 #  STK CORE STRING  #
 #~~~~~~~~~~~~~~~~~~~#
 
-func StkReplaceCS(tStr, tSubStr, tNewSubStr, bCase)
+# StkReplaceCS and StkReplace are in common/stkStringCommons.haro, beside StkFindFirstCS: the
+# number module uses them too, and reaches them through common/ as it reaches stkNumberCommons
 
-	if bCase
-		return ring_substr2(tStr, tSubStr, tNewSubStr)
-	end
-
-	tStrLow = Lower(tStr)
-	tSubStrLow = Lower(tSubStr)
-	tNewSubStrLow = Lower(tNewSubStr)
-
-	return ring_substr2(tStrLow, tSubStrLow, tNewSubStrLow)
-end
-func StkReplace(tStr, tSubStr, tNewSubStr)
-	return StkReplaceCS(tStr, tSubStr, tNewSubStr, true)
-end
 # Split function
 
 func StkSplitCS(tStr, tSubStr, bCase)
@@ -330,7 +318,7 @@ class stzCoreString from stzCoreObject
 		if this.Content() != ""
 			tContent = this.Content()
 			while SubStr(tContent, "  ") > 0
-				tContent = ring_substr2(tContent, "  ", " ")
+				tContent = StkReplace(tContent, "  ", " ")
 			end
 			this.Update(StkTrim(tContent))
 		end

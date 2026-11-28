@@ -35,7 +35,7 @@ end
 #-- Number type
 
 func IsInt(xN)
-	if ring_substr1( String(xN), '.') = 0
+	if StkFindFirst(".", String(xN)) = 0
 		return true
 	else
 		return false
@@ -73,7 +73,7 @@ end
 func CurrentRound # Current round in Ring actuated by decimals() function
 
 	tStringified = String(0.1234567890123456789f)
-	nPos = ring_substr1(tStringified, ".")
+	nPos = StkFindFirst(".", tStringified)
 	nLen = Len(tStringified)
 
 	nResult = nLen - nPos
@@ -97,7 +97,7 @@ func Round(pxNumber) # Effective Round of a number (independently form current r
 		# No places setting is read or changed.
 
 		tTempStr = String(pxNumber)
-		nDotPos = ring_substr1(tTempStr, ".")
+		nDotPos = StkFindFirst(".", tTempStr)
 		if nDotPos = 0
 			return 0
 		end
@@ -111,7 +111,7 @@ func Round(pxNumber) # Effective Round of a number (independently form current r
 
 	elseif IsString(pxNumber)
 
-		tTempStr = Trim( ring_substr2(pxNumber, "_", "") )
+		tTempStr = Trim( StkReplace(pxNumber, "_", "") )
 		nValue = Decimal(tTempStr)
 
 		if not IsNumber(nValue)
@@ -119,7 +119,7 @@ func Round(pxNumber) # Effective Round of a number (independently form current r
 		end
 
 		nRound = 0
-		nDotPos = ring_substr1(tTempStr, ".")
+		nDotPos = StkFindFirst(".", tTempStr)
 
 		nRoundMax = $xMAX_NUMBER_SIZE - (nDotPos - 1)
 
@@ -197,8 +197,8 @@ func Val(tNumberInStr)
 		Raise("ERR-" + StkError(:IncorrectParamType))
 	end
 
-	if ring_substr1(tNumberInStr, "_") > 0
-		tNumberInStr = @trim( ring_substr2(tNumberInStr, "_", "") )
+	if StkFindFirst("_", tNumberInStr) > 0
+		tNumberInStr = @trim( StkReplace(tNumberInStr, "_", "") )
 	end
 
 	nResult = Decimal(tNumberInStr)
@@ -224,7 +224,7 @@ func NStringify(nNumber, tSpaceChar, nSpaceStep, nRound)
 
 	# Spacifying the integer part
 
-	nDotPos = ring_substr1(tStringified, ".")
+	nDotPos = StkFindFirst(".", tStringified)
 
 	tIntPart = ""
 
@@ -238,7 +238,7 @@ func NStringify(nNumber, tSpaceChar, nSpaceStep, nRound)
 	end
 
 	if nNumber < 0
-		tIntPart = ring_substr2(tIntPart, "-", "")
+		tIntPart = StkReplace(tIntPart, "-", "")
 	end
 
 	nLen = Len(tIntPart)

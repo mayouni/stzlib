@@ -7,6 +7,7 @@
 	load "../common/stkringfuncs.haro"
 	load "../common/stkprofiler.haro"
 
+	load "../common/stkstringcommons.haro"   # StkFindFirst and StkReplace, which the number files call
 	load "../common/stknumbercommons.haro"
 	load "../number/stknumber.haro"
 	load "../number/stkscinumber.haro"

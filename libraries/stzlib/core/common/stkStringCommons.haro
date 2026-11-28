@@ -80,3 +80,57 @@ end
 	func @StringReverse(xStr)
 		return StringReverse(xStr)
 	end
+#-- Finding and replacing, on the engine
+
+# The core's find and replace. Haro's SubStr counts BYTES, as Ring's did: an e-acute is two, and a
+# find after one answers a position one too far. These ask the engine, which counts CODEPOINTS and
+# matches whole characters. stk_string, the one engine library the core loads (stkRingLibs.haro),
+# registers the StzEngineString functions, so these answer with no base layer loaded; base's
+# StzFindFirst and StzReplace do not exist when the core is loaded alone (core/test does that).
+#
+# They replace ring_substr1 and ring_substr2 (retired 2026-11-28), and differ from them on purpose:
+#   - the position is in codepoints, where ring_substr1 answered bytes (the same on ASCII text);
+#   - an EMPTY NEEDLE is found nowhere (0) and replaces nothing (the text comes back whole), as
+#     base's StzFindFirstCS and StzReplaceCS answer. ring_substr2 answered "", which threw the
+#     whole text away, and Haro's own SubStr raises "Bad parameter value!" on it;
+#   - not found is 0. The engine answers -1, and that number never leaves these functions.
+
+# The first position of tSubStr in tStr, in codepoints, or 0 when it is not there
+func StkFindFirstCS(tSubStr, tStr, bCase)
+	if tSubStr = "" or tStr = ""
+		return 0
+	end
+	nCase = 0
+	if bCase
+		nCase = 1
+	end
+	xH = StzEngineString(tStr)
+	nPos = StzEngineStringFindFirstFromCS(xH, tSubStr, 1, nCase)
+	StzEngineStringFree(xH)
+	if nPos > 0
+		return nPos
+	end
+	return 0
+end
+func StkFindFirst(tSubStr, tStr)
+	return StkFindFirstCS(tSubStr, tStr, true)
+end
+# tStr with every tSubStr in it replaced by tNewSubStr. Case-insensitive matching keeps the text's
+# own case outside the matches (the core's replace used to lowercase the whole text first)
+func StkReplaceCS(tStr, tSubStr, tNewSubStr, bCase)
+	if tSubStr = "" or tStr = ""
+		return tStr
+	end
+	nCase = 0
+	if bCase
+		nCase = 1
+	end
+	xH = StzEngineString(tStr)
+	StzEngineStringReplaceCS(xH, tSubStr, tNewSubStr, nCase)
+	tResult = StzEngineStringData(xH)
+	StzEngineStringFree(xH)
+	return tResult
+end
+func StkReplace(tStr, tSubStr, tNewSubStr)
+	return StkReplaceCS(tStr, tSubStr, tNewSubStr, true)
+end

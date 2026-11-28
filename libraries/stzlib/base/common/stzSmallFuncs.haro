@@ -859,7 +859,7 @@ func _IsNumericToken(xC)
 	return bDigitSeen
 end
 func _DecimalsOf(xC)
-	nDot = ring_substr1(xC, ".")
+	nDot = StzFindFirst(".", xC)
 	if nDot = 0
 		return 0
 	end
