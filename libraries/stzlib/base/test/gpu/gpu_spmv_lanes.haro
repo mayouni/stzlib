@@ -94,15 +94,15 @@ nHx = Up(vXb)
 ? "  L | scalar | vector | T=2 | T=4 | T=8 | T=16 | T=32 | variant 3 (T) | best"
 vLs = [ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 ]
 for i = 1 to Len(vLs)
-	nL = vLs[i]
-	nR = IntDiv(nZ, nL)
+	nLanes = vLs[i]
+	nR = IntDiv(nZ, nLanes)
 	vRp = []
 	for r = 0 to nR
-		vRp + (r * nL)
+		vRp + (r * nLanes)
 	end
 	nHr = Up(vRp)
 	nHy = StzEngineGpuBufferNew(nR * 4)
-	tRow = "  " + String(nL)
+	tRow = "  " + String(nLanes)
 	vAll = []
 	nBest = 0
 	tBest = ""
@@ -122,11 +122,11 @@ for i = 1 to Len(vLs)
 			nV = 3
 			tName = "variant 3"
 		end
-		nNs = Best(nHr, nHc, nHv, nHx, nHy, nR, nR * nL, nV, nT)
+		nNs = Best(nHr, nHc, nHv, nHx, nHy, nR, nR * nLanes, nV, nT)
 		vAll + nNs
 		tCell = Ms(nNs)
 		if c = 8
-			tCell += " (T " + String(LanesFor(nL)) + ")"
+			tCell += " (T " + String(LanesFor(nLanes)) + ")"
 		end
 		tRow += " | " + tCell
 		if c < 8 and (nBest = 0 or nNs < nBest)

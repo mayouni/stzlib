@@ -248,10 +248,10 @@ else
     nHGr = StzEngineGpuSceneNew(64, 20)
     StzEngineGpuSceneRectGradient(nHGr, 0, 0, 64, 20, rgba(0,0,0,255), rgba(255,255,255,255), 0)
     tGpix = StzEngineGpuSceneToPixels(nHGr)
-    nL = Ascii(SubStr(tGpix, _A(_A((_A(10 * 64, "+", 1)), "*", 4), "+", 1), 1))
+    nLum = Ascii(SubStr(tGpix, _A(_A((_A(10 * 64, "+", 1)), "*", 4), "+", 1), 1))
     nM = Ascii(SubStr(tGpix, _A(_A((_A(10 * 64, "+", 32)), "*", 4), "+", 1), 1))
     nR = Ascii(SubStr(tGpix, _A(_A((_A(10 * 64, "+", 63)), "*", 4), "+", 1), 1))
-    chk("gradient starts dark (" + _T(nL) + ")", _C(nL, "<", 12))
+    chk("gradient starts dark (" + _T(nLum) + ")", _C(nLum, "<", 12))
     chk("gradient ends bright (" + _T(nR) + ")", _C(nR, ">", 243))
     chk("and the middle sits between them (" + _T(nM) + ")", _C(nM, ">", 100) and _C(nM, "<", 155))
 

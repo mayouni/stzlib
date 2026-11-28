@@ -146,9 +146,9 @@ for i = 1 to Len(xMG)
 		xRect = StzEngineGpuTextCaretRect(nHF, tMixed, 32, xHit[1], xHit[2])
 		nProbes++
 		# the caret must sit on one of the probed box's two edges
-		nL = xMG[i][5]
+		nLeft = xMG[i][5]
 		nR = _A(xMG[i][5], "+", xMG[i][6])
-		if _C(_StzAbs(_A(xRect[1], "-", nL)), ">", 0.001) and _C(_StzAbs(_A(xRect[1], "-", nR)), ">", 0.001)
+		if _C(_StzAbs(_A(xRect[1], "-", nLeft)), ">", 0.001) and _C(_StzAbs(_A(xRect[1], "-", nR)), ">", 0.001)
 			nMiss++
 		end
 	end
