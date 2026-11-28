@@ -154,3 +154,21 @@ French and Hausa.
     terms is compared with the glossary prompt on the event of human dictations of that domain arriving, about twenty
     a domain; the court routes the domain to the adapter only where it measures it better. (c) A voice or a speech set
     downloaded for it follows the download bands.
+- **Taken 2026-11-28 under INTEL-DELEGATE-01**, on four proposals of the Radar desk:
+  - RADAR-DISTILLLANG-01: ADAPTED. (b) is the language matrix's method from now on: a change to a language's model is
+    measured on held-out sentences for the target language, for a guard language before and after, and for what the
+    teacher cost. (a), distilling a large model's translations of public sentences into the local model where it trails
+    (Hausa and Arabizi, 37 of 50 in the matrix), is tied to the event of the Principal resuming the small-model fabric
+    line; a paid teacher and the account it needs are the Principal's.
+  - RADAR-FIRSTWORD-01: ADOPTED (a): every local answer path reports the time to its first word beside the time to the
+    whole answer, on the client's machine; the engine's streaming generation gives the first word. (b), a micro model of
+    4 to 8 words opening ahead of the court's chosen model, is measured on the event of (a) showing that model's first
+    word later than one second on a client's machine, with the repair rate counted.
+  - RADAR-TABMODEL-01: ADOPTED (b): every quantization this plane offers is published with the share of first choices
+    that match the full-precision model, beside its task scores. (a), a browser tier through a Zig engine built for
+    wasm32, is measured on the event of a client's answer path having to run in a browser or on a phone; a client's field-sales app on
+    phones is that event's first candidate, and the engine's wasm32 build is the engine's own work.
+  - RADAR-OCRREFERENCE-01: ADAPTED. OCRia-1 is on record as an evaluation reference only: nothing Softanza ships calls
+    it, its licence bars a competing parser, and the licence files themselves are read before any run. Its q8_0 weights
+    are 5.8 GB, over 500 MB, and its runner is an install: both are the download bands' third band, so the run on the OCR
+    faculty's golden pages is the Principal's to allow.
