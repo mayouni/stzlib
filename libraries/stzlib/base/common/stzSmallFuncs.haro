@@ -747,7 +747,7 @@ func StzParseRange(pxStr)
 			xResult = []
 			nN = Len(viNums)
 			for i = 1 to nN
-				xResult + ( xA[1] + viNums[i] )
+				xResult + ( xA[1] + String(viNums[i]) )   # Haro adds text to text only
 			end
 			return xResult
 		end
@@ -805,7 +805,9 @@ end
 func _Unquote(xC)
 	xN = ring_len(xC)
 	if xN >= 2 and xC[1] = '"' and xC[xN] = '"'
-		return ring_substr2(xC, 2, xN - 2)   # inner bytes between the ASCII quotes; multibyte kept intact
+		# the inner text between the ASCII quotes, multibyte kept intact. Not ring_substr2(xC, 2, xN - 2): that
+		# is the REPLACE form, and on Haro it raised TYPE_MISMATCH comparing the number 2 with ''
+		return ring_right( ring_left(xC, xN - 1), xN - 2 )
 	end
 	return xC
 end
@@ -831,14 +833,15 @@ func _SplitTrailingDigits(xC)
 	tDigits = ring_right(xC, xN - nCut)
 	return [ tPrefix, tDigits ]
 end
+# Answers a boolean on every path: Haro takes a boolean as a condition and refuses the number 0
 func _IsNumericToken(xC)
 	xN = ring_len(xC)
-	if xN = 0 return 0 end
+	if xN = 0 return false end
 	nI = 1
 	if xC[1] = "-" or xC[1] = "+"
 		nI = 2
 	end
-	if nI > xN return 0 end
+	if nI > xN return false end
 	bDigitSeen = false
 	bDotSeen = false
 	while nI <= xN
@@ -846,10 +849,10 @@ func _IsNumericToken(xC)
 		if nK >= 48 and nK <= 57   # ASCII '0'..'9'
 			bDigitSeen = true
 		elseif nK = 46               # ASCII '.'
-			if bDotSeen return 0 end
+			if bDotSeen return false end
 			bDotSeen = true
 		else
-			return 0
+			return false
 		end
 		nI++
 	end

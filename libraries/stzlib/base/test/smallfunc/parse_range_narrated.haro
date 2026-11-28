@@ -1,0 +1,146 @@
+load "../../stzBase.ring"
+load "../testoor/_narrate.haro"
+
+# A RANGE WRITTEN AS TEXT READS AS THE LIST IT NAMES -- base/common's StzParseRange, and L() that calls it, narrated
+#
+# StzParseRange("lhs : rhs") answers the list a range denotes, and "" when the text is not a range, so that L() can
+# try its other readings. Its contract, from its own header: "A" : "E" is a range of characters, "v1" : "v3" a range
+# of numbered tokens with any prefix, 1 : 5 a range of integers, and 1.02 : 1.05 a range of decimals counted at the
+# endpoints' finest step.
+#
+# No guard reached it until this one, and on haro.exe every kind of range raised before it answered:
+#
+#   - a numeric range raised R20 at Max(a, b): the library's Max takes ONE list (core/number/stkListOfNumbers.haro)
+#     and shadows the built-in (stzlib 8e9aa2f40);
+#   - a quoted range raised TYPE_MISMATCH in _Unquote, which cut the text between the quotes with ring_substr2, the
+#     REPLACE form, and so compared the number 2 with '';
+#   - a numbered token raised NO_COERCION building "v" + 1: Haro adds text to text only;
+#   - an unquoted word, which must answer "", raised BOOLEAN_EXPECTED: _IsNumericToken answered the number 0 when it
+#     refused and a boolean when it accepted, and Haro takes only a boolean as a condition.
+#
+# Scene 5's second claim is the one that tells Max from Min: 1.1 : 1.13 counts in hundredths, four items. Counted in
+# tenths it would be one item.
+#
+# Haro's = on two lists answers false even when they hold the same items, and a computed 1.10 equals the literal 1.1
+# while it prints as 1.10. So a list is compared item by item, each item as _narrate.haro compares two values.
+#
+#   Scene 1  what is not a range answers no list
+#   Scene 2  two quoted characters: every character between them, either way, multibyte too
+#   Scene 3  two numbered tokens: the prefix kept, every number between them
+#   Scene 4  two integers: every integer between them, either way, signed
+#   Scene 5  two decimals: counted at the endpoints' finest step
+#   Scene 6  L() reads a range, and reads other text another way
+#
+# RUNS ON haro.exe. STZ_ENGINE_DIR names an engine built for Haro. No file, no network, no child process.
+
+# What StzParseRange answered, or what it raised
+func ParseOrRefusal(tRange)
+	try
+		return StzParseRange(tRange)
+	catch
+		return "raised: " + cCatchError
+	end
+end
+
+# What L() answered, or what it raised
+func ListOrRefusal(tText)
+	try
+		return L(tText)
+	catch
+		return "raised: " + cCatchError
+	end
+end
+
+# "none" when the answer is the "" that says "not a range"; otherwise the answer, so a failure shows it
+func NoRange(xAnswer)
+	if IsString(xAnswer)
+		if xAnswer = ""
+			return "none"
+		end
+		return xAnswer
+	end
+	return @@(xAnswer)
+end
+
+# "same" when the answer is a list holding the expected items in order; otherwise the answer, so a failure shows it
+func Items(xAnswer, vExpected)
+	if not IsList(xAnswer)
+		return "not a list: " + @@(xAnswer)
+	end
+	nCount = Len(xAnswer)
+	if nCount != Len(vExpected)
+		return @@(xAnswer)
+	end
+	for i = 1 to nCount
+		if not NarSame(xAnswer[i], vExpected[i])
+			return @@(xAnswer)
+		end
+	end
+	return "same"
+end
+
+Scenario("1. What is not a range answers no list")
+
+	Then("an empty text", NoRange(ParseOrRefusal("")), "none")
+	Then("a text of blanks", NoRange(ParseOrRefusal("   ")), "none")
+	Then("a text with no colon", NoRange(ParseOrRefusal("1 5")), "none")
+	Then("a colon with nothing on its left", NoRange(ParseOrRefusal(" : 5")), "none")
+	Then("a colon with nothing on its right", NoRange(ParseOrRefusal("1 : ")), "none")
+	Then("two unquoted words", NoRange(ParseOrRefusal("a : e")), "none")
+	Then("a number with two dots", NoRange(ParseOrRefusal("1.2.3 : 4")), "none")
+	Then("one side quoted and the other not", NoRange(ParseOrRefusal('"1" : 3')), "none")
+	Then("two quoted words with no number", NoRange(ParseOrRefusal('"ab" : "cd"')), "none")
+	Then("two numbered tokens with different prefixes", NoRange(ParseOrRefusal('"a1" : "b3"')), "none")
+
+EndScenario()
+
+Scenario("2. Two quoted characters: every character between them, either way, multibyte too")
+
+	Then("A to E", Items(ParseOrRefusal('"A" : "E"'), [ "A", "B", "C", "D", "E" ]), "same")
+	Then("E to A counts down", Items(ParseOrRefusal('"E" : "A"'), [ "E", "D", "C", "B", "A" ]), "same")
+	Then("a colon inside quotes is a character, not the separator", Items(ParseOrRefusal('":" : ";"'), [ ":", ";" ]), "same")
+	Then("alpha to gamma, two bytes each", Items(ParseOrRefusal('"α" : "γ"'), [ "α", "β", "γ" ]), "same")
+
+EndScenario()
+
+Scenario("3. Two numbered tokens: the prefix kept, every number between them")
+
+	Then("v1 to v3", Items(ParseOrRefusal('"v1" : "v3"'), [ "v1", "v2", "v3" ]), "same")
+	Then("v3 to v1 counts down", Items(ParseOrRefusal('"v3" : "v1"'), [ "v3", "v2", "v1" ]), "same")
+	Then("v9 to v11 crosses into two digits", Items(ParseOrRefusal('"v9" : "v11"'), [ "v9", "v10", "v11" ]), "same")
+	Then("a multibyte prefix is kept whole", Items(ParseOrRefusal('"é1" : "é3"'), [ "é1", "é2", "é3" ]), "same")
+
+EndScenario()
+
+Scenario("4. Two integers: every integer between them, either way, signed")
+
+	Then("1 to 5", Items(ParseOrRefusal("1 : 5"), [ 1, 2, 3, 4, 5 ]), "same")
+	Then("5 to 1 counts down", Items(ParseOrRefusal("5 : 1"), [ 5, 4, 3, 2, 1 ]), "same")
+	Then("no blanks around the colon", Items(ParseOrRefusal("1:3"), [ 1, 2, 3 ]), "same")
+	Then("a minus sign", Items(ParseOrRefusal("-2 : 1"), [ -2, -1, 0, 1 ]), "same")
+	Then("a plus sign", Items(ParseOrRefusal("+1 : 3"), [ 1, 2, 3 ]), "same")
+
+EndScenario()
+
+Scenario("5. Two decimals: counted at the endpoints' finest step")
+
+	Then("1.02 to 1.05 in hundredths", Items(ParseOrRefusal("1.02 : 1.05"), [ 1.02, 1.03, 1.04, 1.05 ]), "same")
+	Then("1.1 to 1.13 takes the finer step of the two, hundredths", Items(ParseOrRefusal("1.1 : 1.13"), [ 1.1, 1.11, 1.12, 1.13 ]), "same")
+	Then("1.13 to 1.1 counts down", Items(ParseOrRefusal("1.13 : 1.1"), [ 1.13, 1.12, 1.11, 1.1 ]), "same")
+	Then("an integer to a decimal, in tenths", Items(ParseOrRefusal("1 : 1.5"), [ 1, 1.1, 1.2, 1.3, 1.4, 1.5 ]), "same")
+	Then("across zero", Items(ParseOrRefusal("-0.2 : 0.1"), [ -0.2, -0.1, 0, 0.1 ]), "same")
+
+EndScenario()
+
+Scenario("6. L() reads a range, and reads other text another way")
+
+	Then("an integer range", Items(ListOrRefusal("1 : 3"), [ 1, 2, 3 ]), "same")
+	Then("a decimal range", Items(ListOrRefusal("1.1 : 1.13"), [ 1.1, 1.11, 1.12, 1.13 ]), "same")
+	Then("a character range", Items(ListOrRefusal('"a" : "c"'), [ "a", "b", "c" ]), "same")
+	Then("a list written as text is that list", Items(ListOrRefusal("[ 1, 2 ]"), [ 1, 2 ]), "same")
+	Then("a text that is no range is its characters", Items(ListOrRefusal("abc"), [ "a", "b", "c" ]), "same")
+
+EndScenario()
+
+Summary()
+Shutdown($nNarFail)
