@@ -29,8 +29,9 @@ class stkMemory
 	    
 	    @vBuffers + [tBufferId, oBuffer]
 #	    ? "DEBUG CreateBuffer: Buffer stored in hashlist with size " + @aBuffers[cBufferId].Size()
-	    
-	    return true
+
+	    # The id, which is how CreatePointer, GetBuffer and BufferInfo name it
+	    return tBufferId
 	end
 
 	def NumberOfBuffers
@@ -58,7 +59,10 @@ class stkMemory
 	    oPointer = new stkPointer(this, tBufferId, tAccessMode, 0, oBuffer.Capacity(), tPointerId)
 	    @xPointers + [ tPointerId, oPointer]
 
-	    return true
+	    # The pointer itself. The caller's copy and the stored one share this
+	    # container (the pointer holds a reference to it), so either reads and
+	    # writes the same buffer
+	    return oPointer
 	end
 
     def CreatePointerView(tBufferId, tAccessMode, nOffset, nLength)
@@ -111,13 +115,14 @@ class stkMemory
 	    return oBuffer.Read(nOffset, nLength)
 	end
 
+    # The STORED buffer, so that a chained call (GetBuffer(id).Write(...)) changes
+    # the buffer this container holds. Returning a local would hand out a copy
     def GetBuffer(tBufferId)
-        oBuffer = @xBufferId[tBufferId]
-		if IsEmpty(oBuffer)
+		if this.FindBuffer(tBufferId) = 0
 			Raise("Invalid buffer ID: " + tBufferId)
 		end
 
-		return oBuffer
+		return @vBuffers[tBufferId]
     end
 
 	def DestroyBuffer(tBufferId)
@@ -129,9 +134,10 @@ class stkMemory
 	    # Invalidate all pointers to this buffer
 		nLenPtr = Len(@xPointers)
 
+	    # @xPointers holds [id, pointer] pairs: the pointer is the pair's second item
 	    for i = 1 to nLenPtr
-	        if @xPointers[i].BufferId() = tBufferId
-	            @xPointers[i].@bIsValid = false  # Direct access to invalidate
+	        if @xPointers[i][2].BufferId() = tBufferId
+	            @xPointers[i][2].@bIsValid = false  # Direct access to invalidate
 	        end
 	    end
 	    

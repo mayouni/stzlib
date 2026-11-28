@@ -190,14 +190,14 @@ class stkBuffer
 
     def Read(nOffset, nLength)
         this.ValidateBuffer()
- ? "DEBUG Read: @nSize = " + String(@nSize) + ", nOffset = " + String(nOffset) + ", nLength = " + String(nLength)
+# ? "DEBUG Read: @nSize = " + String(@nSize) + ", nOffset = " + String(nOffset) + ", nLength = " + String(nLength)
 
         if nOffset < 0 or nLength < 0
             Raise("ERROR: Negative offset (" + String(nOffset) + ") or length (" + String(nLength) + ") not allowed")
         end
         
         if @nSize = 0
-       ? "DEBUG: Buffer is empty, @xBuffer = '" + @xBuffer + "'"
+#       ? "DEBUG: Buffer is empty, @xBuffer = '" + @xBuffer + "'"
             Raise("ERROR: Cannot read from empty buffer (size=0)")
         end
         
@@ -591,7 +591,7 @@ class stkBuffer
         ]
     end
     def IsValid
-        return @bIsValid and @oMemory != ""
+        return @bIsValid and IsObject(@oMemory)
     end
 
     #--------------------------------------------------------#
@@ -747,7 +747,7 @@ class stkBuffer
             Raise("ERROR: Invalid buffer - buffer was not properly initialized")
         end
         
-        if @oMemory = "" or not @oMemory.IsValid()
+        if not IsObject(@oMemory) or not @oMemory.IsValid()
             Raise("ERROR: Buffer has invalid memory container reference")
         end
         

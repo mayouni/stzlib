@@ -1,0 +1,100 @@
+load "../../stzBase.ring"
+load "../testoor/_narrate.haro"
+
+# A POINTER WRITES, READS BACK AND VALIDATES -- core/system's stkMemory, stkBuffer and stkPointer, narrated
+#
+# Found by Testoor's evidence report (`testoor report`, protocol 3 section 6.9): haro graph read stkPointer.Write and
+# stkPointer.ValidatePointer as OPEN, because each called a method no class of the library defines --
+# GetBufferById and GetBufferInfo. Through dispatch by method name they capped 9,535 and 4,864 of the library's
+# functions. ValidatePointer runs first in nearly every pointer method, so no pointer could read, write or be
+# validated at all. Each call is now a method stkMemory defines: GetBufferById was GetBuffer, and GetBufferInfo was
+# BufferInfo, which already answered the buffer's :capacity.
+#
+# The fix had to go further than the names, because Haro copies an object when it is assigned or stored, as Ring
+# did. A pointer kept a COPY of its container, taken before the pointer was registered in it, and wrote through a
+# local copy of the buffer: a write landed in a copy and nowhere else. So the pointer holds a reference to its
+# container now, and writes by one chained call on the stored buffer. Scene 2 reads the write back through three
+# readers so that a write kept in a copy cannot pass: the pointer that wrote, the container, and a read pointer made
+# BEFORE the write. A test that read back only through the writing pointer would pass on a copy too.
+#
+#   Scene 1  a buffer and a write pointer, made by the container
+#   Scene 2  a write read back through the pointer, the container, and a pointer made earlier
+#   Scene 3  validation passes on a live pointer and refuses one whose buffer is gone
+#
+# RUNS ON haro.exe. STZ_ENGINE_DIR names an engine built for Haro. No file, no network, no child process.
+
+# What a call raised, or the value it answered when it raised nothing
+func ReadOrRefusal(oP, nOffset, nLength)
+	try
+		return oP.Read(nOffset, nLength)
+	catch
+		return cCatchError
+	end
+end
+
+func WriteOrRefusal(oP, nOffset, tData)
+	try
+		oP.Write(nOffset, tData)
+	catch
+		return cCatchError
+	end
+	return "written"
+end
+
+Scenario("1. A buffer and a write pointer, made by the container")
+
+	oMem = new stkMemory()
+	tBuf = oMem.CreateBuffer(16)
+
+	Then("the container names the buffer", tBuf, "buf1")
+	Then("it holds one buffer", oMem.NumberOfBuffers(), 1)
+	Then("the buffer's capacity is the size asked for", oMem.BufferInfo(tBuf)[:capacity], 16)
+	Then("the buffer starts empty", oMem.BufferInfo(tBuf)[:size], 0)
+
+	oRead = oMem.CreatePointer(tBuf, "read")
+	oPtr = oMem.CreatePointer(tBuf, "write")
+
+	Then("CreatePointer answers a pointer", ClassName(oPtr), "stkpointer")
+	Then("the pointer is a write pointer", oPtr.AccessMode(), "write")
+	Then("it names the buffer it points into", oPtr.BufferId(), tBuf)
+	Then("its view spans the buffer's capacity", oPtr.Length(), 16)
+	Then("the container knows it as valid", oPtr.IsValid(), true)
+
+EndScenario()
+
+Scenario("2. A write read back through the pointer, the container, and a pointer made earlier")
+
+	Then("the write is accepted", WriteOrRefusal(oPtr, 0, "Hello"), "written")
+	Then("the pointer that wrote reads it back", oPtr.Read(0, 5), "Hello")
+	Then("the container reads it from the buffer it holds", oMem.ReadFromBuffer(tBuf, 0, 5), "Hello")
+	Then("a read pointer made before the write reads it", oRead.Read(0, 5), "Hello")
+
+	WriteOrRefusal(oPtr, 5, ", Softanza")
+
+	Then("a write at an offset extends the text", oPtr.Read(0, 15), "Hello, Softanza")
+	Then("the earlier pointer reads the extension", oRead.Read(7, 8), "Softanza")
+	Then("the container counts the bytes written", oMem.BufferInfo(tBuf)[:size], 15)
+	Then("the capacity is unchanged", oMem.BufferInfo(tBuf)[:capacity], 16)
+	Then("a write past the pointer's view is refused",
+		WriteOrRefusal(oPtr, 10, "1234567"), "ERROR: Write would exceed pointer view bounds")
+	Then("a read pointer cannot write",
+		WriteOrRefusal(oRead, 0, "X"), "ERROR: Write operation not allowed - pointer is read-only")
+
+EndScenario()
+
+Scenario("3. Validation passes on a live pointer and refuses one whose buffer is gone")
+
+	Then("a live pointer validates, and its read answers", ReadOrRefusal(oPtr, 0, 5), "Hello")
+	Then("the container destroys the buffer", oMem.DestroyBuffer(tBuf), true)
+	Then("the container holds no buffer", oMem.NumberOfBuffers(), 0)
+	Then("the container no longer knows the pointer as valid", oPtr.IsValid(), false)
+	Then("nor the read pointer", oRead.IsValid(), false)
+	Then("a read is refused by validation",
+		ReadOrRefusal(oPtr, 0, 5), "ERROR: Referenced buffer no longer exists")
+	Then("a write is refused: the container holds no such buffer",
+		WriteOrRefusal(oPtr, 0, "Hi"), "Invalid buffer ID: buf1")
+
+EndScenario()
+
+Summary()
+Shutdown($nNarFail)

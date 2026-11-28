@@ -5,7 +5,7 @@ class stkPointer
     @bIsValid = false        # Validity flag
     @nOffset = 0             # Offset into buffer
     @nLength = 0             # Length of view
-    @nPointerId = 0          # Unique pointer ID for tracking
+    @tPointerId = ""         # Unique pointer ID ("ptr1"), given by stkMemory
     @hLowLevelPtr = ""     # Low-level C pointer for direct access
     @nBaseAddress = 0        # Base memory address for calculations
 
@@ -13,7 +13,7 @@ class stkPointer
     #  INITIALIZATION AND CREATION  #
     #-------------------------------#
 
-    def init(oMemory, tBufferId, tAccessMode, nOffset, nLength, nPointerId)
+    def init(oMemory, tBufferId, tAccessMode, nOffset, nLength, tPointerId)
         # Can only be created by stkMemory - no standalone creation
         if IsEmpty(oMemory) or not IsObject(oMemory)
             Raise("ERROR: stkPointer must be created by stkMemory container")
@@ -35,16 +35,20 @@ class stkPointer
             Raise("ERROR: Offset and length must be non-negative")
         end
         
-        if nPointerId <= 0
-            Raise("ERROR: Pointer ID must be positive")
+        # The container names its pointers "ptr1", "ptr2"... and finds them by that text
+        if not IsString(tPointerId) or Len(tPointerId) = 0
+            Raise("ERROR: Pointer ID must be a non-empty text")
         end
-        
-        @oMemory = oMemory
+
+        # A REFERENCE to the container, never a copy. A copy is taken before this
+        # pointer is registered in it and never sees a later write, so a pointer
+        # would read its own stale copy and the container would refuse to know it
+        @oMemory = Ref(oMemory)
         @tBufferId = tBufferId
         @tAccessMode = tAccessMode
         @nOffset = nOffset
         @nLength = nLength
-        @nPointerId = nPointerId
+        @tPointerId = tPointerId
         @bIsValid = true
         
         # Initialize low-level pointer operations
@@ -172,12 +176,10 @@ class stkPointer
         # Calculate absolute buffer position
         nAbsoluteOffset = @nOffset + nOffset
         
-		# Write directly to buffer to avoid circular call
-		oBuffer = @oMemory.GetBufferById(@tBufferId)
-		if IsEmpty(oBuffer)
-		    Raise("ERROR: Buffer not found")
-		end
-		oBuffer.Write(nAbsoluteOffset, tData)
+		# Write directly to the container's buffer, by one chained call. A local
+		# (oBuffer = ...) would hold a COPY of the buffer, and the write would land
+		# in the copy and nowhere else. GetBuffer raises on an id it does not hold.
+		@oMemory.GetBuffer(@tBufferId).Write(nAbsoluteOffset, tData)
     end
     def Write0(nOffset, pxData)
         this.Write(nOffset, pxData)
@@ -571,7 +573,7 @@ class stkPointer
         return @tBufferId
     end
     def PointerId
-        return @nPointerId
+        return @tPointerId
     end
     def AccessMode
         return @tAccessMode
@@ -593,14 +595,14 @@ class stkPointer
     end
     def IsValid
         if not @bIsValid
-            return 0
+            return false
         end
-        
-        if @oMemory = "" or not @oMemory.IsValid()
-            return 0
+
+        if not IsObject(@oMemory) or not @oMemory.IsValid()
+            return false
         end
-        
-        return @oMemory.ValidatePointer(@nPointerId)
+
+        return @oMemory.ValidatePointer(@tPointerId)
     end
     def Memory
         return @oMemory
@@ -612,7 +614,7 @@ class stkPointer
     def Info
         this.ValidatePointer()
         return [
-            [:pointerId, @nPointerId],
+            [:pointerId, @tPointerId],
             [:bufferId, @tBufferId],
             [:accessMode, @tAccessMode],
             [:offset, @nOffset],
@@ -676,14 +678,14 @@ class stkPointer
         return @tBufferId = oOther.BufferId()
     end
     def Free
-        if @bIsValid and @oMemory != ""
+        if @bIsValid and IsObject(@oMemory)
             # Clean up low-level pointer if it exists
             if @hLowLevelPtr != ""
                 @hLowLevelPtr = ""
             end
             
             # Notify memory container to remove this pointer
-            @oMemory.DestroyPointer(@nPointerId)
+            @oMemory.DestroyPointer(@tPointerId)
             @bIsValid = false
         end
     end
@@ -692,7 +694,7 @@ class stkPointer
     end
     def Show
         ? "stkPointer Info:"
-        ? "  Pointer ID: " + String(@nPointerId)
+        ? "  Pointer ID: " + @tPointerId
         ? "  Buffer ID: " + @tBufferId
         ? "  Access Mode: " + @tAccessMode
         ? "  Offset: " + String(@nOffset)
@@ -732,13 +734,15 @@ class stkPointer
 	        Raise("ERROR: Invalid pointer - pointer was not properly initialized")
 	    end
 
-	    if @oMemory = "" or not @oMemory.IsValid()
+	    if not IsObject(@oMemory) or not @oMemory.IsValid()
 	        Raise("ERROR: Pointer has invalid memory container reference")
 	    end
 
-	    oBufferInfo = @oMemory.GetBufferInfo(@tBufferId)
+	    # BufferInfo answers [] for an id the container no longer holds. IsEmpty is
+	    # true for the empty text only, so the length is asked
+	    vBufferInfo = @oMemory.BufferInfo(@tBufferId)
 
-	    if IsEmpty(oBufferInfo)
+	    if Len(vBufferInfo) = 0
 	        Raise("ERROR: Referenced buffer no longer exists")
 	    end
 
@@ -746,7 +750,7 @@ class stkPointer
 	        Raise("ERROR: Invalid offset or length")
 	    end
 
-	    if @nOffset + @nLength > oBufferInfo[:capacity]
+	    if @nOffset + @nLength > vBufferInfo[:capacity]
 	        Raise("ERROR: Pointer view exceeds buffer bounds")
 	    end
 	end
