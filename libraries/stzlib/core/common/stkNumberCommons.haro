@@ -115,7 +115,7 @@ func Round(pxNumber) # Effective Round of a number (independently form current r
 		nValue = Decimal(tTempStr)
 
 		if not IsNumber(nValue)
-			Raise("ERR-" + StkError(:IncorrectParamValue) + Char(10))
+			Raise("ERR-" + String(StkError(:IncorrectParamValue)) + Char(10))
 		end
 
 		nRound = 0
@@ -134,7 +134,7 @@ func Round(pxNumber) # Effective Round of a number (independently form current r
 		end
 
 	else
-		Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+		Raise("ERR-" + String(StkError(:IncorrectParamType)) + Char(10))
 	end
 end
 	func @Round(pxNumber)
@@ -194,7 +194,7 @@ end
 
 func Val(tNumberInStr)
 	if not IsString(tNumberInStr)
-		Raise("ERR-" + StkError(:IncorrectParamType))
+		Raise("ERR-" + String(StkError(:IncorrectParamType)))
 	end
 
 	if StkFindFirst("_", tNumberInStr) > 0
@@ -204,7 +204,7 @@ func Val(tNumberInStr)
 	nResult = Decimal(tNumberInStr)
 
 	if not IsNumber(nResult)
-		Raise("ERR-" + StkError(:IncorrectParamType) + Char(10) )
+		Raise("ERR-" + String(StkError(:IncorrectParamType)) + Char(10) )
 	end
 
 	return nResult
@@ -217,7 +217,7 @@ end
 func NStringify(nNumber, tSpaceChar, nSpaceStep, nRound)
 
 	if not ( IsNumber(nNumber) and IsString(tSpaceChar) and IsNumber(nRound) )
-		Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+		Raise("ERR-" + String(StkError(:IncorrectParamType)) + Char(10))
 	end
 
 	tStringified = String(nNumber)

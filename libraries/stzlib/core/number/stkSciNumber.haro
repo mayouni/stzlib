@@ -48,7 +48,7 @@ class stkSciNumber
 
 	def init(tNumberInSciForm)
 		if not IsString(tNumberInSciForm)
-			return Raise("ERR-" + StkError(:IncorrectParamType))
+			return Raise("ERR-" + String(StkError(:IncorrectParamType)))
 		end
 	
 		nPos = StkFindFirst("e", tNumberInSciForm)
@@ -69,12 +69,12 @@ class stkSciNumber
 	
 		nBase = Decimal(tBase)
 		if not IsNumber(nBase)
-			return Raise("ERR-" + StkError(:IncorrectParamType))
+			return Raise("ERR-" + String(StkError(:IncorrectParamType)))
 		end
 	
 		nExp = Decimal(tExp)
 		if not IsNumber(nExp)
-			return Raise("ERR-" + StkError(:IncorrectParamType))
+			return Raise("ERR-" + String(StkError(:IncorrectParamType)))
 		end
 	
 		@nBase = nBase

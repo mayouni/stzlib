@@ -11,7 +11,7 @@ class stkList from stkObject
 
 	def init(pxList)
 		if not IsList(pxList)
-			return Raise( "ERR-"+ StkError(:IncorrectParamType) )
+			return Raise( "ERR-" + String(StkError(:IncorrectParamType)) )
 		end
 
 		@xContent = pxList
@@ -116,7 +116,7 @@ class stkList from stkObject
 	end
 	def ReplaceSection(xN1, xN2, xItem)
 		if not (IsNumber(xN1) and IsNumber(xN2))
-			Raise( "ERR-" + StkError(:IncorrectParamType) )
+			Raise( "ERR-" + String(StkError(:IncorrectParamType)) )
 		end
 
 		if xN1 > xN2
@@ -160,7 +160,7 @@ class stkList from stkObject
 		end
 	def RemoveSection(xN1, xN2)
 		if not (IsNumber(xN1) and IsNumber(xN2))
-			Raise( "ERR-" + StkError(:IncorrectParamType) )
+			Raise( "ERR-" + String(StkError(:IncorrectParamType)) )
 		end
 
 		if xN1 > xN2
@@ -179,7 +179,7 @@ class stkList from stkObject
 
 	def Section(xN1, xN2)
 		if not (IsNumber(xN1) and IsNumber(xN2))
-			Raise( "ERR-" + StkError(:IncorrectParamType) )
+			Raise( "ERR-" + String(StkError(:IncorrectParamType)) )
 		end
 
 		if xN1 > xN2
@@ -234,7 +234,7 @@ class stkList from stkObject
 			return @xContent[xValue]
 
 		else
-			Raise( 'ERR-' + StkError(:UnsupportedOperator) )
+			Raise( "ERR-" + String(StkError(:UnsupportedOperator)) )
 		end
 	end
 end

@@ -104,11 +104,11 @@ func ring_insert(pxList, xN, xItem)
 	# it actually means in Ring insertAfter() and not insert()
 
 	if not ( IsList(pxList)  or IsNumber(xN) )
-		Raise( "ERR-" + StkError(:IncorrectParamType) )
+		Raise( "ERR-" + String(StkError(:IncorrectParamType)) )
 	end
 
 	if not xN > 0
-		Raise( "ERR-" + StkError(:IncorrectParamValye) )
+		Raise( "ERR-" + String(StkError(:IncorrectParamValue)) )
 	end
 
 	Insert(pxList, xN-1, xItem)

@@ -51,7 +51,7 @@ class stzCoreString from stzCoreObject
 
 	def init(xStr)
 		if not IsString(xStr)
-			return StkError(:IncorrectPramType)
+			return Raise("ERR-" + String(StkError(:IncorrectParamType)))
 		end
 		@hEngine = StkEngineStringFrom(xStr)
 	end
@@ -258,7 +258,7 @@ class stzCoreString from stzCoreObject
 			tContent = this.Content()
 			return SubStr(tContent, xN1, xN2 - xN1 + 1)
 		else
-			Raise( 'ERR-' + StkError(:IncorrectParamType) )
+			Raise( "ERR-" + String(StkError(:IncorrectParamType)) )
 		end
 	end
 	#--
@@ -331,7 +331,7 @@ class stzCoreString from stzCoreObject
 			Raise( "Can't proceed! Because the string is empty." )
 		end
 		if xN <= 0
-			Raise( 'ERR-' + StkError(:IncorrectParamType) )
+			Raise( "ERR-" + String(StkError(:IncorrectParamType)) )
 		end
 		tChar = this.CharAt(xN)
 		return StkEngineCharUnicode(tChar)
@@ -384,7 +384,7 @@ class stzCoreString from stzCoreObject
 			return this.At(xValue)
 
 		else
-			Raise( 'ERR-' + StkError(:UnsupportedOperator) )
+			Raise( "ERR-" + String(StkError(:UnsupportedOperator)) )
 		end
 	end
 end

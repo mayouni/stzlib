@@ -20,7 +20,7 @@ class stkNumber
 
 	def init(pxNumber)
 		if not (IsNumber(pxNumber) or IsString(pxNumber))
-			Raise("ERR-" + StkError(:IncorrectParamType) + Char(10) )
+			Raise("ERR-" + String(StkError(:IncorrectParamType)) + Char(10) )
 		end
 
 		if IsNumber(pxNumber)
@@ -58,10 +58,19 @@ class stkNumber
 		def Value
 			return @xContent
 		end
+	# The number's text: its integer part, then a dot and its fraction only when it has one.
+	# An integer has no dot ("7", where this wrote "7.", so HasFractPart answered true for 7),
+	# and a negative number whose integer part is 0 keeps its sign ("-0.5", where this wrote "0.5")
 	def SValue
-		
-		tResult = this.SIntPart() + "." + SFractPartWithoutZeroDot()
-		return tResult
+		tInt = this.SIntPart()
+		if @xContent < 0 and Left(tInt, 1) != "-"
+			tInt = "-" + tInt
+		end
+		tFract = this.SFractPartWithoutZeroDot()
+		if tFract = ""
+			return tInt
+		end
+		return tInt + "." + tFract
 	end
 	#-----------------------------------------------------#
 	#  UPDATING THE NUMBER WITH A NUMBER OR STRING FORM   #
@@ -245,14 +254,14 @@ class stkNumber
 	end
 	def SetRound(xN)
 		if not IsNumber(xN)
-			Raise("ERR-" + StkError(:IncorrectParamType))
+			Raise("ERR-" + String(StkError(:IncorrectParamType)))
 		end
 
 		@nRound = xN
 	end
 	def RoundedTo(xN)
 		if not IsNumber(xN)
-			Raise(StkError(:IncorrectParamType))
+			Raise("ERR-" + String(StkError(:IncorrectParamType)))
 		end
 
 		# Rounded per value, to xN places (no places setting is changed)
@@ -264,7 +273,7 @@ class stkNumber
 
 	def SRoundedTo(xN)
 		if not IsNumber(xN)
-			Raise(StkError(:IncorrectParamType))
+			Raise("ERR-" + String(StkError(:IncorrectParamType)))
 		end
 
 		# The text of the number written with exactly xN places
@@ -330,7 +339,7 @@ class stkNumber
 			@xContent += @Val(pxNumber)
 
 		else
-			Raise(StkError(:IncorrectParamType))
+			Raise("ERR-" + String(StkError(:IncorrectParamType)))
 		end
 	end
 	def Substruct(pxNumber)
@@ -341,7 +350,7 @@ class stkNumber
 			@xContent -= @Val(pxNumber)
 
 		else
-			Raise(StkError(:IncorrectParamType))
+			Raise("ERR-" + String(StkError(:IncorrectParamType)))
 		end
 	end
 		def Substract(pxNumber)
@@ -355,7 +364,7 @@ class stkNumber
 			@xContent *= @Val(pxNumber)
 
 		else
-			Raise(StkError(:IncorrectParamType))
+			Raise("ERR-" + String(StkError(:IncorrectParamType)))
 		end
 	end
 		def Multiply(pxNumber)
@@ -369,7 +378,7 @@ class stkNumber
 			@xContent /= @Val(pxNumber)
 
 		else
-			Raise(StkError(:IncorrectParamType))
+			Raise("ERR-" + String(StkError(:IncorrectParamType)))
 		end
 	end
 		def Divide(pxNumber)
@@ -382,12 +391,14 @@ class stkNumber
 			return -@xContent
 		end
 	end
+	# The text of the absolute value: SValue without its sign (this added a SECOND minus to a
+	# negative number, "--3.5")
 	def SAbs
-		if @xContent > 0
-			return this.SValue()
-		else
-			return "-" + SValue()
-		end	
+		tResult = this.SValue()
+		if Left(tResult, 1) = "-"
+			tResult = Right(tResult, Len(tResult) - 1)
+		end
+		return tResult
 	end
 	#------------------------------------------#
 	#  CHECKING EQUALITY WITH AN OTHER NUMBER  #
@@ -432,7 +443,7 @@ class stkNumber
 				nValue = @xContent + (Decimal(tTempStr))
 
 				if not IsNumber(nValue)
-					Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+					Raise("ERR-" + String(StkError(:IncorrectParamType)) + Char(10))
 				end
 
 				# Using NStringify to get the string value of the number
@@ -458,7 +469,7 @@ class stkNumber
 				return tResult
 
 			else
-				Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+				Raise("ERR-" + String(StkError(:IncorrectParamType)) + Char(10))
 			end
 
 
@@ -478,7 +489,7 @@ class stkNumber
 				nValue = @xContent - (Decimal(tTempStr))
 
 				if not IsNumber(nValue)
-					Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+					Raise("ERR-" + String(StkError(:IncorrectParamType)) + Char(10))
 				end
 
 				# Using NStringify to get the string value of the number
@@ -504,7 +515,7 @@ class stkNumber
 				return tResult
 
 			else
-				Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+				Raise("ERR-" + String(StkError(:IncorrectParamType)) + Char(10))
 			end
 
 
@@ -524,7 +535,7 @@ class stkNumber
 				nValue = @xContent * (Decimal(tTempStr))
 
 				if not IsNumber(nValue)
-					Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+					Raise("ERR-" + String(StkError(:IncorrectParamType)) + Char(10))
 				end
 
 				# Using NStringify to get the string value of the number
@@ -550,7 +561,7 @@ class stkNumber
 				return tResult
 
 			else
-				Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+				Raise("ERR-" + String(StkError(:IncorrectParamType)) + Char(10))
 			end
 
 		elseif xOp = "/"
@@ -569,7 +580,7 @@ class stkNumber
 				nValue = @xContent / (Decimal(tTempStr))
 
 				if not IsNumber(nValue)
-					Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+					Raise("ERR-" + String(StkError(:IncorrectParamType)) + Char(10))
 				end
 
 				# Using NStringify to get the string value of the number
@@ -595,11 +606,11 @@ class stkNumber
 				return tResult
 
 			else
-				Raise("ERR-" + StkError(:IncorrectParamType) + Char(10))
+				Raise("ERR-" + String(StkError(:IncorrectParamType)) + Char(10))
 			end
 
 		else
-			Raise("ERR-" + StkError(:UnsupportedOperator) + Char(10))
+			Raise("ERR-" + String(StkError(:UnsupportedOperator)) + Char(10))
 		end
 	end
 end
