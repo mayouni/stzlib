@@ -3159,6 +3159,18 @@ def CompareWith(_oOtherCal_)
 	def ToStringShort()
 		return This._drawMonthGrid()
 
+	# Returns the month grid, with the calendar table under it unless it is asked for
+	# without one.
+	#
+	#   returns    a text
+	#   note       pass [[:ShowTable, 0]] to leave the table out; any other option
+	#              is ignored, and so is a parameter that is not a list
+	#   warning    the table's "Weekend Days" row carries the same defect as the
+	#              row in Stats(), described there: a holiday falling on a weekend
+	#              day is subtracted twice. Both rows are built from one expression
+	#              written out twice, in _buildCalendarTable and in
+	#              _buildStatisticalTable, so a fix owes both sites.
+	#   see        ToString, ToStringShort, Stats
 	def ToStringXT(paParams)
 		_bShowTable_ = 1
 		
@@ -3607,6 +3619,27 @@ def CompareWith(_oOtherCal_)
 		return _cResult_
 	
 	
+	# Returns the calendar's figures as a two-column table of metric and value.
+	#
+	#   returns    a list of rows, the first being the header [METRIC, VALUE]
+	#   warning    the "Weekend Days" row answers wrongly whenever a holiday falls
+	#              on a weekend day. The row is not counted, it is derived as
+	#              TotalDays minus AvailableDaysN minus the number of holidays,
+	#              and AvailableDaysN already leaves out every weekend day, so a
+	#              holiday on a weekend is subtracted twice. October 2024 with
+	#              AddHoliday("2024-10-05") -- a Saturday -- reports 7 weekend
+	#              days where the month has 8: Saturdays 5, 12, 19 and 26, and
+	#              Sundays 6, 13, 20 and 27. The row also goes NEGATIVE, because
+	#              AddHoliday accepts a date outside the calendar and accepts the
+	#              same date twice, and either raises the subtracted count while
+	#              leaving AvailableDaysN alone. The month's other rows are right:
+	#              Working Days is 23 because the one holiday falls on a day that
+	#              was never available, so no working day was lost to it.
+	#   note       the count the row means is the days whose weekday is not a
+	#              working day, which is TotalDays minus the days IsWorkingDay
+	#              answers TRUE for. IsWorkingDay reads the weekday alone and
+	#              ignores holidays, so it is the predicate this row wants.
+	#   see        DetailedTable, AvailableDaysN, IsWorkingDay, AddHoliday
 	def Stats()
 		return This._buildStatisticalTable()
 
