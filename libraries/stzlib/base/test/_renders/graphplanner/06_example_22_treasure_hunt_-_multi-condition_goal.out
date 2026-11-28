@@ -1,0 +1,23 @@
+28
+[ "start", "shop", "vault", "treasury" ]
+[
+	[
+		[ "from", "start" ],
+		[ "to", "shop" ],
+		[ "cost", 5 ]
+	],
+	[
+		[ "from", "shop" ],
+		[ "to", "vault" ],
+		[ "cost", 8 ]
+	],
+	[
+		[ "from", "vault" ],
+		[ "to", "treasury" ],
+		[ "cost", 15 ]
+	]
+]
+
+
+----------------
+----------------

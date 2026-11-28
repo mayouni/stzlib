@@ -1,0 +1,29 @@
+[
+	[
+		[ "step", "match" ],
+		[
+			"description",
+			[
+				"Scan all nodes, bind to variable 'node' with label 'Person' where node.age > 25"
+			]
+		]
+	],
+	[
+		[ "step", "orderby" ],
+		[
+			"description",
+			[ "Sort by: age ASC" ]
+		]
+	],
+	[
+		[ "step", "limit" ],
+		[
+			"description",
+			[ "Return maximum 10 results" ]
+		]
+	]
+]
+
+
+----------------
+----------------

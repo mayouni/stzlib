@@ -1,0 +1,34 @@
+==================================================================
+ MU2 -- a score is data; every note on its frame; live
+==================================================================
+
+1. The one line:  StzMusicQ().Play("c e g c5")
+   (played live; the WAV is written below)
+
+Writing each piece, then playing it live through the scheduler:
+
+  mu2_01_one_line.wav   2.400 s, peak 0.465
+     the first line of music -- C E G C on the piano
+     live: 4 notes placed, 0 late, 0 frames of underrun
+  mu2_02_groove_straight.wav   4.800 s, peak 0.336
+     kick, hat, snare in straight eighths, 100 BPM
+     live: 16 notes placed, 0 late, 0 frames of underrun
+  mu2_03_groove_swung.wav   4.900 s, peak 0.336
+     the SAME score, swung 2/3 -- does it swing, or only limp?
+     live: 16 notes placed, 0 late, 0 frames of underrun
+  mu2_04_two_parts.wav   7.618 s, peak 0.625
+     a harp tune TOGETHER with a guitar bass -- one score, two instruments
+     live: 21 notes placed, 0 late, 0 frames of underrun
+  mu2_05_kora_90.wav   11.267 s, peak 0.422
+     a kora figure at 90 BPM
+     live: 16 notes placed, 0 late, 0 frames of underrun
+  mu2_06_kora_160.wav   6.600 s, peak 0.506
+     the same notes at 160 BPM -- only the tempo moved
+     live: 16 notes placed, 0 late, 0 frames of underrun
+  mu2_07_mezwed_darbouka_bendir.wav   8.721 s, peak 0.857
+     a mezwed line with a quarter-flat E, over darbouka and bendir -- NOT yet a tab'
+     live: 45 notes placed, 0 late, 0 frames of underrun
+
+Tell me, for 03: does it swing, or only limp? And is 2/3 the right
+default swing, or something straighter (0.6)? That verdict goes into the
+MU2 STATUS by name; until then it reads UNPERCEIVED.

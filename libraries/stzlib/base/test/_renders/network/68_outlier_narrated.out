@@ -1,0 +1,24 @@
+SCENARIO: Ten consecutive failures eject a host
+  GIVEN a clean host with the default threshold of 10
+  WHEN  recording 10 failures in a row
+  THEN  the host is now ejected  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: A success resets the failure count
+  GIVEN a host with 9 failures (one below threshold 10)
+  THEN  not yet ejected  [PASS]
+  WHEN  a success is recorded, then 9 more failures
+  THEN  still not ejected -- the success reset the run  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: A host is readmitted after the cooldown
+  GIVEN a low threshold (3) and a short cooldown (200ms)
+  THEN  the host is ejected  [PASS]
+  WHEN  we wait past the cooldown (300ms)
+  THEN  the host is readmitted  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,27 @@
+23
+[ "start", "mid2", "end" ]
+30
+[ "start", "mid1", "end" ]
+22
+[ "start", "mid1", "end" ]
+3
+25
+attempt3
+[
+	[ "current_plan", "attempt3" ],
+	[ "cost", 22 ],
+	[ "steps", 3 ],
+	[ "historical_average_cost", 25 ],
+	[ "historical_average_steps", 3 ],
+	[
+		"observation",
+		"✓ Current plan is 12% better than average"
+	],
+	[ "best_historical_plan", "attempt3" ]
+]
+1
+12
+
+
+----------------
+----------------

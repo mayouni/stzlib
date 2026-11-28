@@ -1,0 +1,98 @@
+== stz_sound: the portable sample tier ==
+
+  stz_sound.dll loaded; IsAvailable = 1  (always 1 -- it needs no hardware)
+
+-- Scene 1: buffer ids are GENERATION-KEYED, so a freed id is detected --
+   A recycled slot must not answer to the dead id. The counter is the
+   witness: sound.stale.hits moves on the dead read and NOT on the live one.
+  [ok]   a new buffer has a non-zero id
+  [ok]   frames reads back
+  [ok]   channels reads back
+  [ok]   rate reads back
+  [ok]   a LIVE read does not count as stale
+  [ok]   free succeeds once
+  [ok]   freeing twice returns STALE, not OK
+  [ok]   a stale read returns -1, not 0
+  [ok]   sound.stale.hits MOVED
+  [ok]   the new buffer got a different id
+  [ok]   the new buffer reads its own length
+  [ok]   the OLD id still reads -1 after the slot was recycled
+
+-- Scene 2: silence is silent, set/get is exact, out of range is COUNTED --
+  [ok]   a silent buffer peaks at exactly 0
+  [ok]   and its rms is exactly 0
+  [ok]   a written sample reads back exactly
+  [ok]   the OTHER channel of that frame is untouched
+  [ok]   peak now sees it
+  [ok]   writing past the end returns BAD_ARG
+  [ok]   sound.refusals MOVED
+  [ok]   and the buffer was NOT changed by the refused write
+
+-- Scene 3: a WAV round-trip returns the SAMPLES, not something like them --
+   f32 must be bit-exact. s16 must NOT be -- and asserting that is what
+   proves the comparison would notice a real corruption.
+  [ok]   saving 32-bit WAV succeeds
+  [ok]   saving 16-bit WAV succeeds
+  [ok]   the 32-bit file decodes
+  [ok]   frames survive
+  [ok]   rate survives
+  [ok]   channels survive
+  [ok]   f32 round-trip is BIT-EXACT
+  [ok]   the 16-bit file decodes
+   worst s16 round-trip deviation: 0.000041782856   (one quantum is 0.000030517578)
+  [ok]   s16 round-trip is CLOSE (within a quantum)
+  [ok]   s16 round-trip is NOT exact -- the comparison has teeth
+
+-- Scene 4: an ARABIC filename survives encode AND decode --
+   miniaudio's narrow path reaches fopen, which on Windows reads bytes in
+   the ANSI codepage: a UTF-8 Arabic name fails to open a file that plainly
+   exists. The engine converts to UTF-16 and uses the _w variants. The
+   filename is not printed -- Windows consoles garble it -- but it is used.
+  [ok]   saving to an Arabic-named path succeeds
+  [ok]   and the file really exists on disk under that name
+  [ok]   the Arabic-named file decodes
+  [ok]   its samples are bit-exact
+  [ok]   a genuinely missing file returns 0
+  [ok]   and LastError says something
+
+-- Scene 5: resampling keeps duration and DC gain, and sinc beats linear --
+   Both resamplers are OURS, in Zig (plan sec.1). The assertion is against
+   an ANALYTIC reference sine, not against the other resampler, so 'better'
+   means closer to the truth rather than merely different.
+  [ok]   the sinc resample produced a buffer
+  [ok]   the linear resample produced a buffer
+  [ok]   the new rate is 44100
+  [ok]   duration is preserved within one frame
+  [ok]   the source buffer was NOT mutated
+   max error vs the analytic 1 kHz sine:  sinc 0.000021909055   linear 0.002133933107
+  [ok]   sinc tracks the true sine closely
+  [ok]   linear is measurably worse -- the metric discriminates
+   worst DC deviation across ALL 1000 upsampled frames: 0
+  [ok]   DC gain is unity everywhere, edges included
+
+-- Scene 6: channel conversion averages down, replicates up, mutates nothing --
+  [ok]   stereo -> mono gives 1 channel
+  [ok]   and it is the AVERAGE, not the first channel
+  [ok]   mono -> stereo gives 2 channels
+  [ok]   left carries the mono signal
+  [ok]   right carries the same signal
+  [ok]   the ORIGINAL stereo buffer is untouched
+  [ok]   frames are preserved by conversion
+
+-- Scene 7: FLAC encode REFUSES rather than writing a mislabelled WAV --
+   miniaudio decodes flac but encodes only WAV. A silent substitution is
+   the kind of thing found years later in someone's archive.
+  [ok]   SaveFlac returns UNSUPPORTED (6)
+  [ok]   sound.refusals MOVED
+  [ok]   and NO file was written under that name
+  [ok]   LastError explains why
+
+-- Scene 8: live is a GAUGE, tallies are TALLIES --
+   Resetting the counters must not claim that live buffers stopped existing.
+  [ok]   live count rose by 2
+  [ok]   the gauge agrees with the table
+  [ok]   created is a tally and counted 2
+  [ok]   after reset the TALLY is zero
+  [ok]   after reset the GAUGE still tells the truth
+
+60 passed, 0 failed

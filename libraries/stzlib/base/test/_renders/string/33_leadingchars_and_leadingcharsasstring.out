@@ -1,0 +1,14 @@
+SCENARIO: The leading / trailing run as a string (alias forms)
+  GIVEN "---Ring"
+  THEN  LeadingCharsAsString() is the run as a string  [PASS]
+  THEN  LeadingCharsXT() is the same  [PASS]
+  THEN  LeadingChars() is the run as a LIST  [PASS]
+  GIVEN "Ring---"
+  THEN  TrailingCharsXT() is the trailing run as a string  [PASS]
+  THEN  TrailingChars() is the run as a LIST  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

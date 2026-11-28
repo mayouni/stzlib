@@ -1,0 +1,35 @@
+-- Scene 1: a sentence parses to a NESTED tree (not flat chunks) --
+  [OK] the root is a sentence node
+  [OK] the tree is genuinely nested (depth 5, not chunk-flat depth 3)
+  [OK] its leaves reconstruct the sentence in order
+
+-- Scene 2: the Penn bracket notation (ParseTree() = data) --
+  (S (NP The/DT quick/JJ brown/NN fox/NN) (VP jumps/VBZ (PP over/IN (NP the/DT lazy/JJ dog/NN))))
+  [OK] ParseTree() returns the bracketed string (data, not an object)
+  [OK] the subject NP is bracketed with its leaves tagged
+
+-- Scene 3: real depth -- a PP nested inside the VP, an NP inside the PP --
+  [OK] there is one verb phrase
+  [OK] the VP CONTAINS a prepositional phrase (nesting, not a flat list)
+  [OK] the PP in turn contains the object noun phrase
+
+-- Scene 4: phrase queries over the tree (the chunker-style sugar) --
+  [OK] NounPhrases reads every NP in the tree
+  [OK] VerbPhrases reads the predicate
+  [OK] PrepositionalPhrases reads the PP
+
+-- Scene 5: a pronoun subject is its own NP (a second NP rule fires) --
+  [OK] the pronoun 'She' is lifted to an NP
+  [OK] the object 'a book' is an NP too
+
+-- Scene 6: the grammar is OPEN -- a custom cascade parses too --
+  [OK] a custom cascade yields its own tree shape
+  [OK] with no VP/PP rules, there is no verb phrase in this tree
+
+-- Scene 7: the tree is a first-class object (Show / Bracket) --
+  [OK] Bracket() is an alias of ToBracket()
+  [OK] an indented rendering is available
+
+==========================================
+TOTAL: 17 assertions, 17 pass, 0 fail
+==========================================

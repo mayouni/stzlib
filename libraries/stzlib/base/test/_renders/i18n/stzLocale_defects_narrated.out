@@ -1,0 +1,68 @@
+SCENARIO: The script comes from the language when the code names none
+  THEN  fr-FR has script number 7  [PASS]
+  THEN  fr-FR has script name latin  [PASS]
+  THEN  fr-FR has script code Latn  [PASS]
+  THEN  en-US has script number 7  [PASS]
+  THEN  en-US has script name latin  [PASS]
+  THEN  en-US has script code Latn  [PASS]
+  THEN  ar-EG has script number 1  [PASS]
+  THEN  ar-EG has script name arabic  [PASS]
+  THEN  ar-EG has script code Arab  [PASS]
+  THEN  ru-RU has script number 2  [PASS]
+  THEN  ru-RU has script name cyrillic  [PASS]
+  THEN  ru-RU has script code Cyrl  [PASS]
+  THEN  ar_Arab_TN has script number 1  [PASS]
+  THEN  ar_Arab_TN has script name arabic  [PASS]
+  THEN  ar_Arab_TN has script code Arab  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: The ToTimeAs methods write the time
+  THEN  the short format  [PASS]
+  THEN  the narrow format  [PASS]
+  THEN  the long format, without a zone letter  [PASS]
+  THEN  a format given as text  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: The case conversions reach every script
+  THEN  E acute and Cyrillic lowercase  [PASS]
+  THEN  e acute uppercases and sharp s gives SS  [PASS]
+  THEN  CharLowercased turns E acute  [PASS]
+  THEN  StringIsLowercased notices an accented capital  [PASS]
+  THEN  StringIsUppercased notices an accented small letter  [PASS]
+  THEN  Turkish I lowercases to the dotless i  [PASS]
+  THEN  Turkish dotted I lowercases to i  [PASS]
+  THEN  Turkish i uppercases to the dotted I  [PASS]
+  THEN  English I lowercases to i  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Title case and capital case
+  THEN  English capitalises every word  [PASS]
+  THEN  ToTitleCase answers the same  [PASS]
+  THEN  StringIsTitlecased is TRUE for a title  [PASS]
+  THEN  and FALSE for a sentence  [PASS]
+  THEN  double spaces are kept  [PASS]
+  THEN  French capitalises the first letter only  [PASS]
+  THEN  StringCapitalcased capitalises every word, accents too  [PASS]
+  THEN  StringIsCapitalised  [PASS]
+  THEN  Turkish capital case uses the dotted I  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Case folding answers
+  THEN  Straße folds to strasse  [PASS]
+  THEN  ToFoldcase answers the same  [PASS]
+  THEN  CharFoldcased  [PASS]
+  THEN  StringIsfoldcased is TRUE for folded text  [PASS]
+  THEN  and FALSE otherwise  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: A number given to the case methods raises; the process lives on
+  THEN  StringLowercased(5) raises a clear error  [PASS]
+  THEN  StringUppercased(5) raises a clear error  [PASS]
+  THEN  a list raises too, instead of answering empty text  [PASS]
+  THEN  the object still works afterwards  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 46 assertions, 46 pass, 0 fail
+================================================
+STATUS: OK

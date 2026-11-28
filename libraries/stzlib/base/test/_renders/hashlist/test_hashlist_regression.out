@@ -1,0 +1,27 @@
+=== stzHashList regression tests (8-bug pin) ===
+
+--- UpdateAllPairsWith persists -----
+  PASS: pair persisted after UpdateAllPairsWith
+
+--- ReverseKeysAndValues actually swaps keys/values -----
+  PASS: first pair swapped
+  PASS: second pair swapped
+
+--- ValuesAndKeys returns valid pairs -----
+  PASS: ValuesAndKeys returns 2 pairs
+  PASS: first pair = [1, 'one']
+
+--- FindNthKeyByValue takes n + pValue -----
+  PASS: 1st occurrence of 'common' at pos 1
+  PASS: 2nd occurrence of 'common' at pos 3
+
+--- Engine NumberOfPairs / typed value getters -----
+  PASS: engine NumberOfPairs = 3
+  PASS: engine ValueIntByKey(:a) = 42
+  PASS: engine ValueStringByKey(:b) = 'hello'
+
+==========================
+Total: 10
+Passed: 10
+Failed: 0
+ALL TESTS PASSED!

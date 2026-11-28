@@ -1,0 +1,48 @@
+SCENARIO: a model whose digest is recorded loads (positive sibling)
+  WHEN  tiny_bert.gguf is loaded -- SHA256SUMS beside it lists its digest
+  THEN  it loads  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: an ALTERED model is refused
+  GIVEN a copy with one byte changed, and a SHA256SUMS naming the original digest
+  WHEN  it is loaded
+  THEN  it is refused  [PASS]
+  THEN  inspection is refused too (the header parser is the same attack surface)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a model with NO recorded digest is refused
+  GIVEN a byte-identical copy in a folder with no SHA256SUMS
+  WHEN  it is loaded
+  THEN  it is refused  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: the refusal says why
+  THEN  an altered file: digest mismatch (-2)  [PASS]
+  THEN  an unrecorded file: no digest recorded (-3)  [PASS]
+  THEN  a missing file: unreadable (-1)  [PASS]
+  THEN  a good file: 0  [PASS]
+  THEN  StzModelDigest reads the recorded one back  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: StzTrustModel records the digest, and then the model loads
+  WHEN  the unrecorded copy is trusted
+  THEN  the digest returned is the file's  [PASS]
+  THEN  a SHA256SUMS now stands beside it  [PASS]
+  THEN  it now loads  [PASS]
+  WHEN  it is trusted a second time
+  THEN  the manifest still holds ONE line for it  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a digest pinned in the process overrides the file beside it
+  WHEN  a WRONG digest is pinned for the good model
+  THEN  the good model is refused as altered  [PASS]
+  THEN  with status -2  [PASS]
+  WHEN  the right digest is pinned
+  THEN  it loads again  [PASS]
+  THEN  a pin that is not 64 hex characters is refused  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 17 assertions, 17 pass, 0 fail
+================================================
+STATUS: OK

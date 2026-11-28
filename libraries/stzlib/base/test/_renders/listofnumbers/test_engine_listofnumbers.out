@@ -1,0 +1,28 @@
+=== Engine Delegation: stzListOfNumbers.Sum ===
+  Sum([10,20,30,40]) = 100
+
+=== Engine Delegation: stzListOfNumbers.Min ===
+  Min([10,20,30,40]) = 10
+
+=== Engine Delegation: stzListOfNumbers.Max ===
+  Max([10,20,30,40]) = 40
+
+=== Engine Delegation: stzListOfNumbers.Mean ===
+  Mean([10,20,30,40]) = 25
+
+=== Engine Delegation: stzListOfNumbers.Product ===
+  Product([2,3,5]) = 30
+
+=== Engine: Floats ===
+  Sum([1.5,2.5,3.0]) = 7
+  Min([1.5,2.5,3.0]) = 1.50
+  Max([1.5,2.5,3.0]) = 3
+
+=== Engine: Single element ===
+  Single element [42]: all aggregates = 42
+
+=================================
+  PASSED: 9  FAILED: 0
+=================================
+
+Executed in almost 0 second(s)

@@ -1,0 +1,43 @@
+SCENARIO: a plain argument list reaches the program intact
+  WHEN  a program is called with two ordinary arguments
+  THEN  each argument arrived as itself  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: an argument holding a quote and & cannot start a second command
+  WHEN  the argument is: a" & echo pwned> _tmp_spawn/INJECTED.txt & "b
+  THEN  no injected command ran (no marker file)  [PASS]
+  THEN  the program received the argument byte for byte  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: an argument holding %VAR% is not expanded
+  WHEN  the argument is %USERNAME%
+  THEN  the program received the literal text  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: a program that IS a shell keeps shell semantics
+  WHEN  cmd.exe /c is given 'echo one & echo two' as a list
+  THEN  both commands ran -- shell syntax on purpose, for a shell  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: MakeReadOnly works on a name a shell would rewrite
+  GIVEN a writable file named: _tmp_spawn/perm %USERNAME% $(whoami) & x.txt
+  THEN  it starts writable  [PASS]
+  WHEN  MakeReadOnly() is called
+  THEN  THAT file is now read-only  [PASS]
+  WHEN  MakeWritable() is called
+  THEN  it is writable again  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: MakeReadOnly still works on an ordinary name
+  THEN  read-only after MakeReadOnly()  [PASS]
+  THEN  writable after MakeWritable()  [PASS]
+  -> 2 pass, 0 fail
+
+SKIPPED (POSIX only): a filename holding a double quote -- Windows
+  forbids the character in a name, so the chmod quote-breakout case
+  cannot be staged here. It runs on Linux and macOS.
+
+================================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+================================================
+STATUS: OK

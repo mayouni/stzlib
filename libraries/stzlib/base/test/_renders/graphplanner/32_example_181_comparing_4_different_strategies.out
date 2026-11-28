@@ -1,0 +1,76 @@
+[
+	[ "total_plans", 4 ],
+	[
+		"plans",
+		[
+			[
+				[ "plan", "ultra_fast" ],
+				[ "cost", 15.30 ],
+				[ "steps", 3 ],
+				[
+					"route",
+					[ "warehouse", "route_express", "destination" ]
+				]
+			],
+			[
+				[ "plan", "budget" ],
+				[ "cost", 31 ],
+				[ "steps", 3 ],
+				[
+					"route",
+					[ "warehouse", "route_backroad", "destination" ]
+				]
+			],
+			[
+				[ "plan", "short_distance" ],
+				[ "cost", 30 ],
+				[ "steps", 3 ],
+				[
+					"route",
+					[ "warehouse", "route_express", "destination" ]
+				]
+			],
+			[
+				[ "plan", "balanced" ],
+				[ "cost", 42 ],
+				[ "steps", 3 ],
+				[
+					"route",
+					[ "warehouse", "route_backroad", "destination" ]
+				]
+			]
+		]
+	],
+	[ "best_by_cost", "ultra_fast" ],
+	[ "best_by_steps", "ultra_fast" ]
+]
+
+[
+	[ "ultra_fast", 15.30 ],
+	[ "short_distance", 30 ],
+	[ "budget", 31 ],
+	[ "balanced", 42 ]
+]
+
+[
+	[ "ultra_fast", 3 ],
+	[ "budget", 3 ],
+	[ "short_distance", 3 ],
+	[ "balanced", 3 ]
+]
+
+╭──────┬────────────────┬───────┬───────╮
+│ Rank │      Plan      │ Cost  │ Steps │
+├──────┼────────────────┼───────┼───────┤
+│    1 │ ultra_fast     │ 15.30 │     3 │
+│    2 │ short_distance │    30 │     3 │
+│    3 │ budget         │    31 │     3 │
+│    4 │ balanced       │    42 │     3 │
+╰──────┴────────────────┴───────┴───────╯
+
+ultra_fast
+balanced
+
+
+----------------
+----------------

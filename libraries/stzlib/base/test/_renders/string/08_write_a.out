@@ -1,0 +1,17 @@
+SCENARIO: Writing N copies and matching prefixes/suffixes
+  THEN  @N(3,'.') is a list of three dots  [PASS]
+  THEN  @NXT(3,'.',:InAList) is the same list  [PASS]
+  THEN  @NXT(3,'.',:InAString) joins them  [PASS]
+  THEN  Three('.') is a list of three dots  [PASS]
+  THEN  @3('.') is a list of three dots  [PASS]
+  THEN  a list starting with three dots  [PASS]
+  THEN  '...Tunis' starts with '...'  [PASS]
+  THEN  '...Tunis' starts with @3('.')  [PASS]
+  THEN  '..Tunis..' ends with @2('.')  [PASS]
+  THEN  '...Tunis..' starts with @3('.') AND ends with @2('.')  [PASS]
+  -> 10 pass, 0 fail
+
+================================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+================================================
+STATUS: OK

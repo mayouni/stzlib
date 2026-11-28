@@ -1,0 +1,21 @@
+SCENARIO: Create timelines with explicit start/end
+  GIVEN a 2-lane timeline spanning all of 2024
+  THEN  GlobalStart is the window start  [PASS]
+  THEN  GlobalEnd is the window end  [PASS]
+  THEN  Duration is the span in seconds  [PASS]
+  THEN  DurationQ().ToHuman() reads '1 year'  [PASS]
+  THEN  NumberOfLanes is 2  [PASS]
+  THEN  Lanes are stored uppercased  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Create timelines with a date-only boundary
+  GIVEN From a bare date, To a full timestamp
+  THEN  the bare 'From' date gains a 00:00:00 time  [PASS]
+  THEN  the 'To' timestamp is kept verbatim  [PASS]
+  THEN  lanes are uppercased here too  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 9 assertions, 9 pass, 0 fail
+================================================
+STATUS: OK

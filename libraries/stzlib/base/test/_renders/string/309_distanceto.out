@@ -1,0 +1,18 @@
+SCENARIO: Directional distances in a bracketed bullet string
+  GIVEN "[••[•[••]•[•]]••[••]]"
+  THEN  plain forward distance  [PASS]
+  THEN  :Next spelling  [PASS]
+  THEN  :NextNth = [2, char]  [PASS]
+  THEN  STXT counts the bounds  [PASS]
+  THEN  STXT :Next  [PASS]
+  THEN  STXT :NextNth  [PASS]
+  THEN  STXT :Previous  [PASS]
+  THEN  STXT :PreviousNth  [PASS]
+  THEN  plain :Previous  [PASS]
+  THEN  plain :PreviousNth  [PASS]
+  -> 10 pass, 0 fail
+
+================================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,23 @@
+SCENARIO: Build a reporting hierarchy
+  GIVEN a CEO, a VP and two devs reporting upward
+  THEN  NodeCount is 4  [PASS]
+  THEN  EdgeCount is 3  [PASS]
+  THEN  the VP has 2 direct reports  [PASS]
+  THEN  they are dev1 and dev2  [PASS]
+  THEN  the CEO has 1 direct report  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Vacancy tracking and assignment
+  GIVEN 3 positions, all initially vacant
+  THEN  all 3 positions are vacant  [PASS]
+  THEN  VacancyRate is 100  [PASS]
+  WHEN  Alice is assigned to the CEO position
+  THEN  only vp1 and dev1 remain vacant  [PASS]
+  THEN  VacancyRate drops to ~66.67  [PASS]
+  THEN  Alice's position is @ceo  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+================================================
+STATUS: OK

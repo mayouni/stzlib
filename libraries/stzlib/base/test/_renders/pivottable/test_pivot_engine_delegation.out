@@ -1,0 +1,21 @@
+=== Engine Pivot: CrossTab SUM ===
+  Generated successfully
+  Value(North, Widget): 150
+  Value(South, Gadget): 300
+  Value(South, Widget): 225
+
+=== Engine Pivot: CrossTab COUNT ===
+  Generated successfully (COUNT)
+  Value(IT, Active): 2
+  Value(HR, Left): 1
+
+=== Engine Pivot: CrossTab with Totals ===
+  Generated with totals
+  RowTotal(North): 300
+  GrandTotal: 750
+
+=================================
+  PASSED: 10  FAILED: 0
+=================================
+
+Executed in almost 0 second(s)

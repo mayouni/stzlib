@@ -1,0 +1,118 @@
+SCENARIO: the provider publishes what a relying party needs to find it
+  THEN  discovery is valid JSON  [PASS]
+  THEN  ...naming the issuer  [PASS]
+  THEN  ...the token endpoint  [PASS]
+  THEN  ...and that it signs with ES256  [PASS]
+  THEN  the JWKS is valid JSON  [PASS]
+  THEN  ...publishing exactly one signing key  [PASS]
+  THEN  ...as a public EC key (never the private half)  [PASS]
+  THEN  ...and the private key is nowhere in it  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: the happy path: authorize, exchange, and OUR OWN client verifies the token
+  THEN  the client is registered  [PASS]
+  WHEN  an app sends a signed-in user to authorize, with PKCE
+  THEN  a code is issued  [PASS]
+  THEN  ...on the REGISTERED redirect  [PASS]
+  THEN  ...carrying the state back (CSRF binding)  [PASS]
+  WHEN  the app's server exchanges the code
+  THEN  tokens are returned  [PASS]
+  THEN  ...for the right subject  [PASS]
+  THEN  ...as a Bearer token  [PASS]
+  WHEN  the app verifies the id-token the way any relying party would
+  THEN  it VERIFIES against the published JWKS  [PASS]
+  THEN  ...naming the user  [PASS]
+  THEN  the access token is a verifiable JWT too  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: the redirect_uri must match EXACTLY -- the most abused hole in OAuth
+  WHEN  an attacker asks for the code to be delivered to their own site
+  THEN  it is refused  [PASS]
+  THEN  ...and NO code was minted  [PASS]
+  THEN  ...naming the reason  [PASS]
+  WHEN  the redirect merely LOOKS similar (a suffix)
+  THEN  it is still refused -- matching is exact, never a prefix  [PASS]
+  WHEN  an unknown client asks
+  THEN  it is refused  [PASS]
+  THEN  ...as an unauthorized client  [PASS]
+  WHEN  nobody is signed in
+  THEN  it asks for a login instead of issuing anything  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: a code is single-use, short-lived, and bound to its client and redirect
+  WHEN  a code is redeemed twice (the classic stolen-code replay)
+  THEN  the first exchange succeeds  [PASS]
+  THEN  the second is refused  [PASS]
+  THEN  ...as an invalid grant  [PASS]
+  WHEN  a code is presented by a DIFFERENT client that knows its own secret
+  THEN  it is refused -- the code is bound to the client it was issued to  [PASS]
+  WHEN  the redirect_uri at the token endpoint does not match the one used to get the code
+  THEN  it is refused  [PASS]
+  WHEN  a code is left too long
+  THEN  it expires (5 minutes)  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: the back channel authenticates the CLIENT, and PKCE protects the public ones
+  WHEN  the token endpoint is called with a WRONG client secret
+  THEN  it is refused  [PASS]
+  THEN  ...as an invalid client  [PASS]
+  GIVEN an authorization that carried a PKCE challenge
+  WHEN  the WRONG verifier is presented
+  THEN  it is refused  [PASS]
+  THEN  ...naming PKCE  [PASS]
+  WHEN  NO verifier is presented for a code that required one
+  THEN  it is refused  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: keys rotate WITHOUT invalidating tokens already in flight
+  WHEN  the provider rotates its signing key
+  THEN  a new key signs from now on  [PASS]
+  THEN  ...and BOTH keys are published  [PASS]
+  THEN  a token signed by the OLD key still verifies (no outage)  [PASS]
+  THEN  ...and one from the NEW key verifies too  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: mounted on the app server, it is a real IdP other apps can reach
+  THEN  the provider is mounted  [PASS]
+  THEN  discovery answers at the STANDARD well-known path  [PASS]
+  THEN  the JWKS is served  [PASS]
+  WHEN  a user reaches /authorize with NO session
+  THEN  it asks them to sign in first  [PASS]
+  THEN  ...with the standard error  [PASS]
+  WHEN  they sign in to THIS provider and come back
+  THEN  they are redirected to the app  [PASS]
+  THEN  ...with a code and the state  [PASS]
+  WHEN  an unregistered redirect is requested over HTTP
+  THEN  it answers 400 and does NOT redirect (no code leaks)  [PASS]
+  WHEN  the app's server exchanges the code at /token
+  THEN  tokens come back  [PASS]
+  THEN  ...including an id_token  [PASS]
+  THEN  ...marked never to be cached  [PASS]
+  THEN  a wrong client secret is refused over HTTP too  [PASS]
+  THEN  the auth router is untouched  [PASS]
+  THEN  ...and so is /health  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: signing RS256, for the clients that accept nothing else
+  THEN  a key is generated with its public parts  [PASS]
+  THEN  ...as a PEM  [PASS]
+  THEN  the public parts can be recovered from the PEM alone  [PASS]
+  THEN  the provider signs RS256  [PASS]
+  THEN  ...discovery advertises it  [PASS]
+  THEN  ...the JWKS publishes an RSA key  [PASS]
+  THEN  ...and never the private half  [PASS]
+  WHEN  a client completes the flow
+  THEN  our own relying party verifies the RS256 token  [PASS]
+  THEN  ...for the right subject  [PASS]
+  WHEN  the issuer later rotates to an ES256 key
+  THEN  the used RSA key stays published alongside it  [PASS]
+  THEN  the OLD RS256 token still verifies (no outage across algorithms)  [PASS]
+  THEN  ...and a new ES256 token verifies too  [PASS]
+  WHEN  an unreadable private key is offered
+  THEN  it refuses rather than signing with nothing  [PASS]
+  -> 13 pass, 0 fail
+
+================================================
+TOTAL: 67 assertions, 67 pass, 0 fail
+================================================
+STATUS: OK

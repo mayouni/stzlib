@@ -1,0 +1,23 @@
+SCENARIO: Sections by numbers and symbols
+  THEN  positional  [PASS]
+  THEN  named  [PASS]
+  THEN  auto-ordered  [PASS]
+  THEN  whole string via symbols  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Sections by substring anchors
+  THEN  from F to the last A  [PASS]
+  THEN  from A to the end  [PASS]
+  THEN  from By to the end of its line  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: The mirror symbol and NthToLast
+  THEN  4 mirrored is a single char  [PASS]
+  THEN  the 3rd-to-last mirrored  [PASS]
+  THEN  both mirrored is everything  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+================================================
+STATUS: OK

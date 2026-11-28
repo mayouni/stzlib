@@ -1,0 +1,12 @@
+SCENARIO: Section raises out-of-range; SectionXT is lenient
+  GIVEN "SOFTANZA"
+  THEN  Section(-99, 99) raises  [PASS]
+  THEN  SectionXT(-99, 99) clamps to the whole string  [PASS]
+  THEN  Slice is the strict alias of Section  [PASS]
+  THEN  SliceXT is the lenient alias of SectionXT  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

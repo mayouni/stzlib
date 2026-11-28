@@ -1,0 +1,12 @@
+SCENARIO: Conditionally peeling each end
+  GIVEN "---Ring---"
+  THEN  '*' at the start (no match) is a no-op  [PASS]
+  THEN  '-' at the start peels the leading run  [PASS]
+  THEN  '*' at the end (no match) is a no-op  [PASS]
+  THEN  '-' at the end peels the trailing run  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

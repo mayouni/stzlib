@@ -1,0 +1,12 @@
+Optimal shipping plan:
+─ W1→S1: 300 units
+─ W1→S2: 0 units
+─ W1→S3: 200 units
+─ W2→S1: 0 units
+─ W2→S2: 400 units
+─ W2→S3: 150 units
+─ Total shipping cost: $5650
+
+
+----------------
+----------------

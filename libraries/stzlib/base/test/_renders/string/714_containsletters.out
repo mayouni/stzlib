@@ -1,0 +1,13 @@
+SCENARIO: Letters in a decorated string
+  THEN  contains letters  [PASS]
+  THEN  contains the letter A  [PASS]
+  THEN  ... asked in lowercase too  [PASS]
+  THEN  but no M  [PASS]
+  THEN  H is a letter of HUSSEIN  [PASS]
+  THEN  ... and so is h  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

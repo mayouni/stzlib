@@ -1,0 +1,81 @@
+-- Scene 1: process introspection reads the engine --
+  [OK] pid is a positive integer
+  [OK] pid is stable across reads
+  [OK] uptime is real seconds, not the epoch (< 3600)
+  [OK] pointer size is 4 or 8 bytes
+  [OK] bit size is pointer size * 8
+  [OK] endianness is little or big
+
+-- Scene 2: the arch VOCABULARY is reconciled at one seam --
+  engine says [x86_64], Softanza says [x64]
+  [OK] the raw engine tag is exposed unchanged
+  [OK] x86_64 reconciles to the canonical x64
+  [OK] the canonical name is one of the known set
+
+-- Scene 3: NO DOUBLE SOURCE -- OS class agrees with process --
+  [OK] OS.Architecture() = process.Architecture()
+  [OK] OS.BitSize() = process.BitSize()
+  [OK] OS.Is64Bit() = process.Is64Bit()
+  [OK] OS.Endianness() = process.Endianness()
+  [OK] OS.PointerSize() = process.PointerSize()
+  [OK] OS name concurs with the engine OS tag
+
+-- Scene 4: environment -- the new SENSING surface --
+  [OK] there are environment variables
+  [OK] Variables() and NumberOfVariables() agree
+  [OK] each variable is a [name, value] pair
+  [OK] the host name is non-empty
+  [OK] the user name is non-empty
+  [OK] the cpu count is positive
+  [OK] the working directory is an absolute-looking path
+
+-- Scene 5: environment -- the new EFFECTFUL surface, round-trips --
+  [OK] a variable is absent before it is set
+  [OK] ...present after SetVar
+  [OK] ...with the exact value we set
+  [OK] ...overwritable
+  [OK] ...and gone after UnsetVar
+  [OK] a multibyte value round-trips through the environment
+  [OK] a set variable appears in the full Variables() listing
+
+-- Scene 6: working directory is REAL, and restores --
+  [OK] class cwd equals the engine cwd
+  [OK] changing to the parent directory succeeds
+  [OK] ...and the cwd actually changed
+  [OK] ...restoring the original cwd succeeds
+  [OK] ...and we are back where we started
+  [OK] changing to a nonexistent directory fails cleanly (no crash)
+  [OK] ...and the cwd is unchanged after the failed cd
+
+-- Scene 7: sugar globals ride the same engine --
+  [OK] ProcessId() equals the class pid
+  [OK] HostName() equals the class host
+  [OK] WorkingDirectory() equals the class cwd
+
+-- Scene 8: rapid reads are cheap --
+  3000 process reads in 0.00 s
+  [OK] 3000 introspection reads stay fast (< 5s)
+  [OK] ...and every read agreed
+
+-- Scene 9: the OS class's DERIVED predicates survive the refactor --
+  [OK] exactly ONE of IsX64 / IsX86 / IsARM is true
+  [OK] Is64Bit and Is32Bit are opposite
+  [OK] IsIntel = IsX86 or IsX64
+  [OK] NameAndArchitecture is [name, arch]
+  [OK] ...its arch part equals Architecture()
+  [OK] FullName folds name and bit-size
+  [OK] global StzArch() = the class Architecture()
+  [OK] global StzIs64Bit() = the class Is64Bit()
+
+-- Scene 10: environment EDGE cases --
+  [OK] a value with '=' round-trips intact
+  [OK] ...and Variables() splits it on the first '=' only
+  [OK] a multibyte variable NAME sets and reads back
+  [OK] the variable count rises by one on set
+  [OK] ...and falls back on unset
+  [OK] ValueOf is an alias of Var
+  [OK] Cwd is an alias of WorkingDirectory
+
+==========================================
+TOTAL: 56 assertions, 56 pass, 0 fail
+==========================================

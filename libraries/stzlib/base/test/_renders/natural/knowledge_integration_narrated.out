@@ -1,0 +1,40 @@
+-- Scene 1: authoring the restaurant's knowledge --
+  [OK] the world answers WhatIs
+  [OK] the KG grew alongside (dual-write)
+  [OK] the law lives in the KG ontology
+
+-- Scene 2: Prove() -- the structured derivation trace --
+  goal:      margherita contains tomato ?
+  verdict:   1
+  narration: proved: margherita contains tomato-sauce contains tomato
+  step 1:    law: 'contains' is :Transitive
+  step 2:    recorded fact: 'margherita' contains 'tomato-sauce'
+  step 3:    recorded fact: 'tomato-sauce' contains 'tomato'
+  [OK] the transitive goal is PROVED
+  [OK] the proof narrates the law first
+  [OK] the proof chains the recorded facts
+  [OK] a certain verdict (deterministic)
+  [OK] an unprovable goal REFUSES with reasons
+
+-- Scene 3: one file IS the brain (.zknw round-trip) --
+  [OK] after forgetting, the relation is gone
+  facts absorbed from the file: 9
+  [OK] the file re-hydrated the facts
+  [OK] AreRelated answers again (direct)
+  [OK] AreRelated walks the lawful chain again
+  [OK] the LAWS travelled inside the file
+
+-- Scene 4: derivation -- knowledge added by any door grows the brain --
+  derived edges after the agent's fact: 1
+  [OK] the symmetric law DERIVED the reverse edge
+  [OK] the derived fact is visible to the natural surface
+
+-- Scene 5: strict mode (G8 seed) --
+  [OK] a provenanced fact is admitted
+  [OK] a naked fact is refused in strict mode
+  [OK] a :Unique contradiction is refused...
+  [OK] ...and RECORDED, never silently resolved
+
+==========================================
+TOTAL: 19 assertions, 19 pass, 0 fail
+==========================================

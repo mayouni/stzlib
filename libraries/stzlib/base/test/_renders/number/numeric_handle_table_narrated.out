@@ -1,0 +1,38 @@
+SCENARIO: the exact loop that used to die at 1366
+  THEN  25000 calls, no failure  [PASS]
+  THEN  ...and the answer is still right  [PASS]
+  THEN  ...for a decimal too  [PASS]
+  THEN  ...and a negative  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and the arithmetic path built on it
+  THEN  25000 sigmoids, no failure  [PASS]
+  THEN  ...and sigmoid(0) is still a half  [PASS]
+  THEN  ...still saturating at the top  [PASS]
+  THEN  ...and at the bottom  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the two constructors that measured the leak
+  THEN  25000 stzChars, where 4097 used to be the wall  [PASS]
+  THEN  25000 stzNumbers from strings, where 1639 was the wall  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: the constructor still reads every form it used to
+  THEN  a plain integer  [PASS]
+  THEN  a decimal  [PASS]
+  THEN  ...and its round is the decimal count  [PASS]
+  THEN  an underscore separator actually RAISES -- the stripping code is dead  [PASS]
+  THEN  a trailing dot gains a zero  [PASS]
+  THEN  an empty string is zero  [PASS]
+  THEN  a rational is reduced  [PASS]
+  THEN  a number argument still works  [PASS]
+  THEN  a circled numeral answers its VALUE  [PASS]
+  THEN  ...and the ten of them read 0 through 9  [PASS]
+  THEN  a non-numeral char is still refused  [PASS]
+  THEN  a bare leading dot is still refused  [PASS]
+  -> 12 pass, 0 fail
+
+================================================
+TOTAL: 22 assertions, 22 pass, 0 fail
+================================================
+STATUS: OK

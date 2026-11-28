@@ -1,0 +1,12 @@
+SCENARIO: First position, section, and complement of a substring
+  GIVEN "...ring..."
+  THEN  FindFirst('ring') is 4  [PASS]
+  THEN  FindAsSection('ring') is [4,7]  [PASS]
+  THEN  AntiFind('ring') is the complement positions  [PASS]
+  THEN  AntiFindAsSections('ring') gives the complement spans  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

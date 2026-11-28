@@ -1,0 +1,60 @@
+[
+	[
+		[ "step", 1 ],
+		[ "from", "origin" ],
+		[ "to", "waypoint" ],
+		[
+			"criteria",
+			[
+				[
+					[ "property", "time" ],
+					[ "value", 20 ],
+					[ "weight", 0.70 ],
+					[ "direction", "minimize" ],
+					[ "contribution", 14 ]
+				],
+				[
+					[ "property", "distance" ],
+					[ "value", 10 ],
+					[ "weight", 0.30 ],
+					[ "direction", "minimize" ],
+					[ "contribution", 3 ]
+				]
+			]
+		],
+		[
+			[ "total", 17 ]
+		]
+	],
+	[
+		[ "step", 2 ],
+		[ "from", "waypoint" ],
+		[ "to", "goal" ],
+		[
+			"criteria",
+			[
+				[
+					[ "property", "time" ],
+					[ "value", 15 ],
+					[ "weight", 0.70 ],
+					[ "direction", "minimize" ],
+					[ "contribution", 10.50 ]
+				],
+				[
+					[ "property", "distance" ],
+					[ "value", 25 ],
+					[ "weight", 0.30 ],
+					[ "direction", "minimize" ],
+					[ "contribution", 7.50 ]
+				]
+			]
+		],
+		[
+			[ "total", 18 ]
+		]
+	]
+]
+
+
+----------------
+----------------

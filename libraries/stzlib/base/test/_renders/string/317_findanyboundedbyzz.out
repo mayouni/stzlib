@@ -1,0 +1,16 @@
+SCENARIO: Shallow any-bounded-by
+  GIVEN "---[ [===]---[=] ]--[=]--"
+  THEN  the 3 shallow spans  [PASS]
+  THEN  each substring pairs with its span  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Deep :BoundedBy spelling
+  GIVEN the same string
+  THEN  the nested spans, leaves first  [PASS]
+  THEN  each deep substring pairs with its span  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

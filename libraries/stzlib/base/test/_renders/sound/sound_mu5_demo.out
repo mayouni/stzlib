@@ -1,0 +1,21 @@
+==================================================================
+ MU5 -- can it sing?
+==================================================================
+
+-- mu5_01_sapi_speaks_but_cannot_hold_a_note: SAPI asked for -6, -2, +2, +6 semitones
+   listen for: a voice close to human (the author's word) -- whose pitch FALLS
+   inside each syllable and barely follows the notes asked: speech, not song
+
+-- mu5_02_vowels_low: a e i o u at D3 (147 Hz), the tenor table
+-- mu5_03_vowels_high: a e i o u at A4 (440 Hz), the soprano table
+-- mu5_04_vocalise_rast: 'a' on maqam Rast, 1 2 3 4 5 4 3 2 1 -- the half-flat third
+-- mu5_05_line_and_glide: a e i o u up C D E F G, then 'a' sliding G4 down to C4
+
+-- mu5_06_retuned_scale: SAPI's voice on 'la', C4 up to G4 and back, HELD on each note
+-- mu5_07_retuned_rast: the same voice on maqam Rast -- the half-flat third, held
+-- mu5_08_retuned_range: 'laa' at G3, C4, G4, C5, G5 -- how far before it sounds processed?
+   SAPI speaks near 187 Hz; each step is a bigger shift away from its own voice
+
+Tell me, for EACH voice: the formant voice (02-05) and SAPI retuned
+(06-08) -- is it SINGING? And in 08, where does it stop sounding human?
+Each word opens or closes that voice's Sing(), with your name.

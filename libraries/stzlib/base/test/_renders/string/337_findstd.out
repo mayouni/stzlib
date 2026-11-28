@@ -1,0 +1,12 @@
+SCENARIO: Directional starting-at list finders
+  GIVEN "12♥♥♥67♥♥♥12♥♥♥" (occurrences at 3, 8, 13)
+  THEN  backward from 6 only the first occurrence fits  [PASS]
+  THEN  FindSTDZ groups the sub with those positions  [PASS]
+  THEN  backward from 12, the sections nearest first  [PASS]
+  THEN  FindSTDZZ is the same span list  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

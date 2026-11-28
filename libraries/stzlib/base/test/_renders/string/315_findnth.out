@@ -1,0 +1,13 @@
+SCENARIO: Nth-occurrence finders and groupings
+  GIVEN "bla {♥♥♥} blaba bla {♥♥♥} blabla"
+  THEN  FindNth(2) gives the position  [PASS]
+  THEN  FindNthAsSection gives the span  [PASS]
+  THEN  NthZ groups [sub, position]  [PASS]
+  THEN  FindNthZZ groups [sub, span]  [PASS]
+  THEN  FindNthZ / NthZZ aliases agree  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

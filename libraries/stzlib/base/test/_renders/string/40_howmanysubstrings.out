@@ -1,0 +1,20 @@
+SCENARIO: Counting substrings by occurrence
+  GIVEN "ALLAH"
+  THEN  HowManySubStrings is 15  [PASS]
+  THEN  the substrings occurring only once  [PASS]
+  THEN  the substrings occurring twice are A and L  [PASS]
+  THEN  none occur 7 times (HwoMany misspelled alias)  [PASS]
+  THEN  13 substrings occur fewer than 3 times  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Active (mutating) vs passive (non-mutating) function forms
+  GIVEN "<<Go!>>"
+  THEN  RemoveBounds() mutates -> 'Go!'  [PASS]
+  THEN  BoundsRemoved() returns the result without mutating  [PASS]
+  THEN  ...and the object is unchanged  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

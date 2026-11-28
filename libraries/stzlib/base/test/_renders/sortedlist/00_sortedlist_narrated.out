@@ -1,0 +1,31 @@
+SCENARIO: Construction sorts the items
+  GIVEN an unsorted list
+  THEN  Content is ascending  [PASS]
+  THEN  NumberOfItems is 4  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Add keeps the list sorted (was a silent no-op)
+  GIVEN a sorted list [1,2,4,6]
+  THEN  Add(5) inserts in order -> [1,2,4,5,6]  [PASS]
+  THEN  further adds stay sorted  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Mixed int/float ordering
+  GIVEN ints with a float inserted
+  THEN  the float lands in numeric order  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Strings sort lexicographically
+  GIVEN words
+  THEN  Content is alphabetical  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Append and the + operator are sorted inserts too
+  THEN  Append inserts in order  [PASS]
+  THEN  the + operator inserts in order  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,19 @@
+== stz_tcp: a server must be able to READ, not only write ==
+
+  [ok]   the server is listening
+  [ok]   a client connects
+  [ok]   the server accepts it
+
+-- the assertion the whole suite was missing --
+   server received 39 bytes
+  [ok]   the server READ something at all
+  [ok]   and it is exactly what the client sent
+  [ok]   no error was recorded on the read
+
+-- the negative sibling: writing was NEVER broken, so prove it separately --
+   If this guard only checked that the server works, a future regression
+   that broke WRITING would still look like the same failure.
+  [ok]   the client reads the server's reply
+  [ok]   and the reply arrived intact
+
+8 passed, 0 failed

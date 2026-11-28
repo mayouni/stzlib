@@ -1,0 +1,54 @@
+╭────────────────────────────╮
+│ Linear Programming Problem │
+╰────────────────────────────╯
+Variables:
+╭─────────╮
+│ Problem │
+╰─────────╯
+• Variables:
+  pizza ∈ [0, 200] (continuous)
+ ─ pizza ∈ [0, 200] (continuous)
+  pasta ∈ [0, 150] (continuous)
+ ─ pasta ∈ [0, 150] (continuous)
+  salad ∈ [0, 100] (continuous)
+ ─ salad ∈ [0, 100] (continuous)
+
+Constraints:
+• Constraints:
+  15*pizza + 10*pasta + 5*salad
+ ─ 15*pizza + 10*pasta + 5*salad <= 2000
+  3*pizza + 2*pasta + 1*salad
+ ─ 3*pizza + 2*pasta + 1*salad <= 400
+  pizza + pasta
+ ─ pizza + pasta <= 250
+
+Objective:
+• Objective:
+  MAXIMIZE 12*pizza + 8*pasta + 6*salad
+
+========== Solution ==========
+Status: optimal
+Solved in 0.00 seconds
+Iterations: 3
+╭──────────╮
+│ Solution │
+╰──────────╯
+• Status: optimal
+• Solved in 0.00 second(s)
+• Iterations: 3
+
+Variable Values:
+• Variable Values:
+  pizza = 100
+ ─ pizza = 100
+  pasta = 0
+ ─ pasta = 0
+  salad = 100
+ ─ salad = 100
+
+Objective Value: 1800
+• Objective Value: 1800
+
+
+----------------
+----------------

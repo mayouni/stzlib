@@ -1,0 +1,27 @@
+-- Scene 1: every bar Chart constructs and renders --
+  [OK] stzBarChart builds
+  [OK] ... and renders real box-drawing art
+  [OK] ... reporting its own class, not the parent's
+  [OK] stzVBarChart builds and renders
+  [OK] ... with its own class name
+  [OK] stzHBarChart builds and renders
+  [OK] stzMBarChart renders multi-series data
+  [OK] stzMultiBarChart (its alias) renders too
+
+-- Scene 2: a Chart IS its Plot -- byte for byte --
+  [OK] stzBarChart renders identically to stzBarPlot (it is an alias)
+  [OK] ... even in the one config the Chart branch was written for
+  [OK] ... same count of vertical bars (the branch strips none observable)
+
+-- Scene 3: the render is CORRECT, not merely non-empty --
+  [OK] the art carries the block glyph
+  [OK] each label appears under its bar
+
+-- Scene 4: the surface/square Charts are aliases too --
+  [OK] stzSurfaceChart builds and renders
+  [OK] stzSquareChart (same parent) renders
+  [OK] ... and both are the same picture (both are stzSurfacePlot)
+
+==========================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+==========================================

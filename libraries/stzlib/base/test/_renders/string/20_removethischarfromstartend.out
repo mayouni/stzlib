@@ -1,0 +1,12 @@
+SCENARIO: Stripping leading and trailing runs of a char
+  GIVEN "---ring---"
+  THEN  '*' from start (absent) is a no-op  [PASS]
+  THEN  '-' from start strips the leading dashes  [PASS]
+  THEN  '*' from end (absent) is a no-op  [PASS]
+  THEN  '-' from end strips the trailing dashes  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

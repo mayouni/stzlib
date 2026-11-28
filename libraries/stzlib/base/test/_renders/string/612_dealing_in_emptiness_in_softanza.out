@@ -1,0 +1,28 @@
+SCENARIO: Emptiness is uncountable and unfindable
+  THEN  counting it in empty  [PASS]
+  THEN  counting it in text  [PASS]
+  THEN  finding it in empty  [PASS]
+  THEN  finding it in text  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Emptiness is uncontainable
+  THEN  empty contains nothing  [PASS]
+  THEN  ... not even text  [PASS]
+  THEN  text does not contain it  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Emptiness is irreplaceable and irremovable
+  THEN  replace on empty  [PASS]
+  THEN  replace any on empty  [PASS]
+  THEN  replace it by any on empty  [PASS]
+  THEN  replace it in text  [PASS]
+  THEN  ... by X  [PASS]
+  THEN  remove it from empty  [PASS]
+  THEN  remove text from empty  [PASS]
+  THEN  remove it from text  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 15 assertions, 15 pass, 0 fail
+================================================
+STATUS: OK

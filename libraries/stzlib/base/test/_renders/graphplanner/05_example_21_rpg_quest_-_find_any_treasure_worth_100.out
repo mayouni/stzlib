@@ -1,0 +1,18 @@
+9
+[ "village", "forest", "dungeon" ]
+[
+	[
+		[ "from", "village" ],
+		[ "to", "forest" ],
+		[ "cost", 2 ]
+	],
+	[
+		[ "from", "forest" ],
+		[ "to", "dungeon" ],
+		[ "cost", 7 ]
+	]
+]
+
+
+----------------
+----------------

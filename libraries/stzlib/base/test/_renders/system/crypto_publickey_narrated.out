@@ -1,0 +1,39 @@
+SCENARIO: ES256: a genuine OpenSSL signature verifies under its public key
+  THEN  the signature is valid  [PASS]
+  WHEN  the PAYLOAD is tampered with (dana -> evil), keeping the signature
+  THEN  verification FAILS -- the forgery is caught  [PASS]
+  WHEN  the signature itself is altered (first bytes flipped)
+  THEN  verification fails  [PASS]
+  WHEN  a DIFFERENT public key is used
+  THEN  verification fails (or the point is rejected)  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: RS256: a genuine 2048-bit OpenSSL signature verifies under its JWKS key
+  THEN  the signature is valid  [PASS]
+  WHEN  the payload is tampered with
+  THEN  verification FAILS  [PASS]
+  WHEN  the same message is checked against the ES256 signature
+  THEN  it fails -- a signature is bound to its algorithm and key  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: malformed input is REPORTED (-1), never mistaken for a valid signature
+  THEN  a non-base64url signature is malformed  [PASS]
+  THEN  a wrongly-sized coordinate is malformed  [PASS]
+  THEN  an empty signature is never valid  [PASS]
+  THEN  an empty RSA modulus is never valid  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the JWT shape works end to end: verify, then read the claims
+  WHEN  the token is split into its three parts
+  THEN  there are three  [PASS]
+  THEN  the signing input verifies against the key  [PASS]
+  WHEN  and only then are the claims decoded
+  THEN  the header names the algorithm  [PASS]
+  THEN  the payload carries the subject  [PASS]
+  THEN  ...and the issuer  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+================================================
+STATUS: OK

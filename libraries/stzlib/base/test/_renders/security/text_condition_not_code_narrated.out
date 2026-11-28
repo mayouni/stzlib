@@ -1,0 +1,46 @@
+SCENARIO: stzList.StringsW and ItemsWhere
+  THEN  StringsW did not run the injected call  [PASS]
+  THEN  ItemsWhere did not run it  [PASS]
+  THEN  StringsW still filters (negative sibling)  [PASS]
+  THEN  ...skipping non-strings  [PASS]
+  THEN  ItemsWhere still filters  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: stzString.Check
+  THEN  Check did not run it  [PASS]
+  THEN  Check still answers TRUE when the condition holds everywhere  [PASS]
+  THEN  ...and FALSE when it does not  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: stzStringList.StringsW, Yield and SortBy
+  THEN  StringsW and Yield did not run it  [PASS]
+  THEN  SortBy refuses a key it cannot compute -- it does not run it  [PASS]
+  THEN  ...and nothing ran  [PASS]
+  THEN  StringsW still filters  [PASS]
+  THEN  Yield still answers per string  [PASS]
+  THEN  SortBy still sorts by a computed key  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: a list in a string is read as data
+  THEN  ToList refuses a literal that names a function  [PASS]
+  THEN  ...and nothing ran  [PASS]
+  THEN  a plain literal still converts  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a query method with arguments still works -- and cannot carry a call
+  THEN  Q(@string).IsEqualToCS(..., :CS = FALSE) is judged per string  [PASS]
+  THEN  the same shape with a call after it does not run  [PASS]
+  THEN  ...nor a call inside its arguments  [PASS]
+  THEN  a method that does not ASK is not admitted  [PASS]
+  THEN  ...nor a method of the list itself  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: a name pasted into a method call must be an identifier
+  THEN  a plain name passes  [PASS]
+  THEN  a smuggling one does not  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 24 assertions, 24 pass, 0 fail
+================================================
+STATUS: OK

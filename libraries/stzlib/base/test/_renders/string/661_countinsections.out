@@ -1,0 +1,14 @@
+SCENARIO: Counting N inside sections of a string
+  THEN  four N's in the three words  [PASS]
+  THEN  ... at these positions  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The same on the char list
+  THEN  same count  [PASS]
+  THEN  same positions  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

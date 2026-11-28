@@ -1,0 +1,14 @@
+SCENARIO: Six ways to box RING
+  THEN  the content  [PASS]
+  THEN  Boxed  [PASS]
+  THEN  BoxedRounded  [PASS]
+  THEN  BoxedRoundedDashed  [PASS]
+  THEN  EachCharBoxed  [PASS]
+  THEN  EachCharBoxedRounded  [PASS]
+  THEN  VizFindBoxedRounded marks the I below  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

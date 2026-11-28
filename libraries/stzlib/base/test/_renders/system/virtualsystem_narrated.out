@@ -1,0 +1,34 @@
+SCENARIO: A rehearsal records what was done, by whom, and why
+  GIVEN a virtual environment rehearsing for ali
+  WHEN  an operation is given an intent before it is executed
+  WHEN  a second operation is recorded with no intent at all
+  THEN  both operations are in the record  [PASS]
+  THEN  the first says what it did  [PASS]
+  THEN  ...who did it  [PASS]
+  THEN  ...and WHY  [PASS]
+  THEN  the second line carries no reason  [PASS]
+  THEN  ...and no stray marker either  [PASS]
+  THEN  the record is text a caller can hold  [PASS]
+  THEN  ...naming both variables  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: The actor is stamped on every operation, not just the first
+  GIVEN an environment whose actor is set once
+  THEN  the actor is reported  [PASS]
+  THEN  ...and stamped on both lines  [PASS]
+  THEN  a default environment stamps its own default  [PASS]
+  THEN  ...and not the other one's actor  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A commit scope refuses more than it was told to allow
+  GIVEN a scope capped at two operations
+  THEN  the cap is reported back  [PASS]
+  THEN  an unset scope reports no cap  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 14 assertions, 14 pass, 0 fail
+================================================
+STATUS: OK
+
+Executed in almost 0 second(s)

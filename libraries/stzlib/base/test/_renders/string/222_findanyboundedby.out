@@ -1,0 +1,14 @@
+SCENARIO: Finding content bounded by << >>
+  GIVEN "...<<ring>>...<<softanza>>..."
+  THEN  FindAnyBoundedByAsSections gives the content spans  [PASS]
+  THEN  AnyBoundedBy gives the enclosed substrings  [PASS]
+  THEN  FindAnyBoundedByAsSectionsIB gives the bound-inclusive spans  [PASS]
+  THEN  AnyBoundedByIB gives the bound-inclusive substrings  [PASS]
+  THEN  FindAnyBoundedBy gives the content start positions  [PASS]
+  THEN  FindAnyBoundedByIB gives the bound-inclusive start positions  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

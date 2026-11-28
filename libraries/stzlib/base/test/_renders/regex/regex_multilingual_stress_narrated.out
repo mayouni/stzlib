@@ -1,0 +1,80 @@
+-- Scene 1: Match ANCHORS, MatchFirst SEARCHES --
+  [OK] Match is FALSE on 'abc123' -- that string is not a run of digits
+  [OK] ...and TRUE when the whole string IS digits
+  [OK] MatchFirst finds the digits inside 'abc123'
+  [OK] ...and reports none when there are none
+  [OK] HasMatch agrees with the match that just ran
+  [OK] an explicitly anchored pattern rejects a partial match
+  [OK] ...and accepts a whole one
+
+-- Scene 2: the four match types each do something different --
+  entire(abc123)=0 first(abc123)=1 returnfalse(123)=0
+  [OK] :MatchEntireContent says NO -- 'abc123' is not entirely digits
+  [OK] :MatchFirstOccurrence says YES -- there is a run in there
+  [OK] the two types DISAGREE on the same input, as they should
+  [OK] :ReturnFalseForAnyMatch returns false on a subject that matches entirely
+  [OK] ...and the same subject DOES match entirely when asked properly
+  ssn: partial(123-45)=2 complete(123-45-6789)=1 hopeless(abc)=0
+  [OK] a prefix of an SSN reports PARTIAL (2)
+  [OK] a whole SSN reports COMPLETE (1)
+  [OK] something that can never become one reports NOTHING (0)
+  [OK] MatchAsYouType accepts '123'
+  [OK] MatchAsYouType accepts '123-'
+  [OK] MatchAsYouType accepts '123-45'
+  [OK] MatchAsYouType accepts the finished '123-45-6789'
+  [OK] MatchAsYouType rejects 'abc'
+  [OK] an unknown match type is still REJECTED
+
+-- Scene 3: multibyte subjects and patterns --
+  [OK] digits are found between Arabic runs
+  [OK] ...and not found when there are none
+  [OK] an Arabic literal pattern finds itself
+  [OK] a CJK literal pattern finds itself
+  [OK] a Hebrew literal pattern finds itself
+  [OK] a multibyte pattern is not found when absent
+
+-- Scene 4: UTF mode -- does '.' count codepoints or bytes? --
+  [OK] '.' counts CODEPOINTS: /^..$/ matches two Arabic letters
+  [OK] ...and does NOT count bytes: /^....$/ does not
+
+-- Scene 5: Unicode property classes --
+  [OK] \p{Arabic} matches Arabic
+  [OK] \p{Greek} matches Greek
+  [OK] \p{L} matches CJK letters
+  [OK] \p{Arabic} does NOT match Greek
+
+-- Scene 6: matching at scale --
+  400 matches over a 10535-byte subject in 0.01 s
+  [OK] matching at scale stays fast (< 5s)
+  [OK] the match still succeeds
+  [OK] multibyte matching at scale is fast too (< 5s)
+  [OK] ...and still correct
+
+-- Scene 7: options are checked, and bad ones refused --
+  [OK] case-insensitive option is honoured
+  [OK] ...and without it the match fails
+  [OK] an unknown option is refused
+  [OK] an EMPTY option list is accepted
+
+-- Scene 8: literal text becomes a pattern that matches itself --
+  [OK] a plus sign is escaped
+  [OK] a dot is escaped
+  [OK] several metacharacters at once
+  [OK] text with no metacharacters is returned untouched
+  [OK] the empty string escapes to the empty string
+  [OK] Arabic round-trips unchanged
+  [OK] CJK round-trips unchanged
+  [OK] Hebrew round-trips unchanged
+  [OK] Arabic followed by a dot escapes only the dot
+  [OK] the escaped pattern matches its own literal text
+  [OK] ...and NOT what the unescaped metacharacters would have matched
+  [OK] a multibyte literal matches itself after escaping
+  [OK] IfStartsWith('+') now COMPILES
+  [OK] ...and matches the international format
+  [OK] ...and the local one
+  [OK] ...and rejects a short one
+  [OK] IfEndsWith('.edu') escapes the dot
+
+==========================================
+TOTAL: 58 assertions, 58 pass, 0 fail
+==========================================

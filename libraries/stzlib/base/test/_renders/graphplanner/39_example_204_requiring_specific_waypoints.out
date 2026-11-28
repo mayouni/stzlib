@@ -1,0 +1,30 @@
+1
+[ "via_dc" ]
+
+[
+	[
+		"constrains_applied",
+		[
+			[ "requires", "distribution_center" ]
+		]
+	],
+	[ "plans_matching_count", 1 ],
+	[
+		"plans_matching_details",
+		[
+			[
+				[ "plan", "via_dc" ],
+				[ "cost", 25 ],
+				[ "steps", 2 ],
+				[
+					"route",
+					[ "warehouse", "distribution_center" ]
+				]
+			]
+		]
+	]
+]
+
+
+----------------
+----------------

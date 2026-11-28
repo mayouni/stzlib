@@ -1,0 +1,13 @@
+SCENARIO: Symbolic section positions
+  GIVEN "12345"
+  THEN  a plain section  [PASS]
+  THEN  negatives belong to the XT form  [PASS]
+  THEN  :First to :Last spans it all  [PASS]
+  THEN  :@ mirrors the left param  [PASS]
+  THEN  :@ mirrors the right param  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

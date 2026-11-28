@@ -1,0 +1,28 @@
+SCENARIO: Regular plurals
+  GIVEN simple nouns
+  THEN  cat -> cats  [PASS]
+  THEN  dog -> dogs  [PASS]
+  THEN  day -> days (vowel + y keeps y)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Morphological stem rewrites (the previously-broken path)
+  GIVEN nouns whose stem changes
+  THEN  city -> cities (y -> ies)  [PASS]
+  THEN  baby -> babies  [PASS]
+  THEN  box -> boxes (x -> xes)  [PASS]
+  THEN  church -> churches (ch -> ches)  [PASS]
+  THEN  leaf -> leaves (f -> ves)  [PASS]
+  THEN  knife -> knives (fe -> ves)  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Irregular and unchanged plurals
+  GIVEN special nouns
+  THEN  child -> children  [PASS]
+  THEN  man -> men  [PASS]
+  THEN  sheep -> sheep (unchanged)  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

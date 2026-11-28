@@ -1,0 +1,72 @@
+SCENARIO: 1. An honest document, judged on its own three projections
+  GIVEN the three-box panel, clean
+  THEN  the panel is clean  [PASS]
+  WHEN  the rule produces the projections itself and judges them, excepting the labelled box with a reason
+  THEN  no error  [PASS]
+  THEN  brand and note are carried by every twin (no finding about them)  [PASS]
+  THEN  the labelled box is noted as excepted, at info, on the accessibility twin  [PASS]
+  THEN  ...with its reason in the message  [PASS]
+  THEN  the limits are printed, as an info finding on the document  [PASS]
+  THEN  ...and they say what is not certified  [PASS]
+  THEN  the exceptions list was not written to by the court  [PASS]
+  GIVEN the same, through the one report
+  THEN  the report is sound  [PASS]
+  THEN  its name is the rule's  [PASS]
+  THEN  and its explanation carries the limits  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: 2. The same document WITHOUT the exception: the labelled box is an error, with the twin named
+  GIVEN the three-box panel and no exception
+  THEN  exactly one error  [PASS]
+  THEN  on the labelled box, on the accessibility twin  [PASS]
+  THEN  the message asks for a repair or a reasoned exception  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: 3. A twin that drops a box is an error, twin by twin
+  GIVEN the honest projections of the panel
+  THEN  they pass as they are  [PASS]
+  WHEN  the HTML twin loses the note's element
+  THEN  the doctoring took (the page changed)  [PASS]
+  THEN  one error, on note, on the html twin  [PASS]
+  THEN  and no other error  [PASS]
+  WHEN  the HTML twin keeps the words but in another element (the oracle reads the element, not the page)
+  THEN  note is dropped by the html twin  [PASS]
+  THEN  and brand too, since its text is no longer its content  [PASS]
+  WHEN  the text twin loses the note's declaration
+  THEN  one error, on note, on the text twin  [PASS]
+  WHEN  the accessibility twin renames the note's node
+  THEN  one error, on note, on the accessibility twin  [PASS]
+  WHEN  the accessibility twin is not even JSON
+  THEN  every box is dropped by that twin: two errors and the excepted one at info  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: 4. Exceptions: a bare one is refused, a stale one is reported, and the court writes none
+  GIVEN the panel and a bare exception
+  THEN  the bare exception is an error, under exceptions  [PASS]
+  THEN  ...saying it needs a written reason  [PASS]
+  THEN  and the box it failed to except is still an error on its twin  [PASS]
+  GIVEN an exception whose reason is blank
+  THEN  it is refused the same way  [PASS]
+  GIVEN a stale exception on a box every twin carries, and one on a box that does not exist
+  THEN  no error  [PASS]
+  THEN  brand's exception is a warning: every twin carries it  [PASS]
+  THEN  ...and the message says so  [PASS]
+  THEN  ghost's exception is a warning: no such box  [PASS]
+  THEN  ...and the message says so  [PASS]
+  THEN  the used exception is not warned about  [PASS]
+  THEN  the court wrote no exception: the list is as given  [PASS]
+  THEN  and the document is as given  [PASS]
+  GIVEN the report of a document with a stale exception
+  THEN  it is sound (a warning is not an error) and has the two warnings  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: 5. A document with no text box at all
+  GIVEN a panel holding one empty container
+  THEN  it is clean  [PASS]
+  THEN  the only finding is the limits line, which counts zero boxes  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 38 assertions, 38 pass, 0 fail
+================================================
+STATUS: OK

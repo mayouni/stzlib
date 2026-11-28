@@ -1,0 +1,30 @@
+SCENARIO: the threat model exists and has its sections
+  THEN  the document was read  [PASS]
+  THEN  it has a guarantees section  [PASS]
+  THEN  it has an open-risks section  [PASS]
+  THEN  the reporting runbook it cites exists  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: every guarantee names its proof
+  THEN  there are guarantees to check  [PASS]
+    rows without proof: [ "| G54 | ", "| G55 | ", "| G56 | ", "| G57 | ", "| G58 | ", "| G59 | ", "| G60 | ", "| G61 | ", "| G62 | ", "| G63 | ", "| G64 | ", "| G65 | " ]
+  THEN  no guarantee row lacks a proof  [FAIL]
+    expected: 0
+    got:      12
+  -> 1 pass, 1 fail
+
+SCENARIO: every guard the threat model names exists
+  THEN  the rows name guard files  [PASS]
+  THEN  none is missing  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: the checker itself catches a broken row (negative sibling)
+  THEN  it reads both fake rows  [PASS]
+  THEN  it flags the row with no proof  [PASS]
+  THEN  it flags the guard that does not exist  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 11 assertions, 10 pass, 1 fail
+================================================
+STATUS: FAILED

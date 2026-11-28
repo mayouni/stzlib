@@ -1,0 +1,16 @@
+==============================================================
+ THE SCALE WALL -- measured, not predicted
+==============================================================
+
+-- 1. A star: one hub, N spokes. The hub reaches ALL of them -
+     N     expected   ReachableFrom   ImpactOf   verdict
+   -----   --------   -------------   --------   -------
+     100        100             100        100   ok
+    1000       1000            1000       1000   ok
+    2000       2000            2000       2000   ok
+    2500       2500            2500       2500   ok
+    3000       3000            3000       3000   ok
+    5000       5000            5000       5000   ok
+
+
+Line 208 Haro refused this statement (bare name is not a local (Rule A) `nOk`, line 208 of gg_scalewall.ring) and did not compile it -- running past it would give a wrong answer

@@ -1,0 +1,38 @@
+== SS1: can four meanings be told apart, and by WHAT? ==
+
+-- Scene 1: the shipped motifs, through two speakers --
+   The four sounding values of Rule 118, as stzEarcons renders them.
+
+   smallest distance BETWEEN two meanings : 4.47
+   largest distance WITHIN one meaning    : 0.69  (same motif, other speaker)
+   separability                           : 6.44
+  [ok]   the four meanings are further apart than any is from itself
+  [ok]   and with margin, not by a hair
+
+   four copies of ONE motif: separability 0
+  [ok]   four copies of one sound are NOT separable
+
+-- Scene 2: TIMBRE alone, or CONTOUR alone -- which survives a speaker? --
+   Two sets of four. One holds pitch fixed and varies only the waveform;
+   the other holds the waveform fixed and varies only the melodic shape.
+   Whichever set stays separable through a small speaker is the carrier.
+
+   TIMBRE only  (one pitch, four waveforms) : separability 0.80
+   CONTOUR only (one waveform, four shapes) : separability 1.55
+
+  [ok]   contour alone carries identity through a small speaker
+   FINDING: timbre alone does NOT survive at the margin contour does.
+   Section 6.1's 'timbre = identity' is REFUSED as the primary carrier:
+   contour is, and timbre reinforces it. Recorded in the plan's S.2.
+  [ok]   contour is the STRONGER carrier of the two
+
+-- Scene 3: the vocabulary is still the law's, and :Muted is still silent --
+  [ok]   five values, no more
+  [ok]   muted renders to nothing
+  [ok]   and the other four render
+  [ok]   the Danger motif is under 300 ms
+  [ok]   the Warning motif is under 300 ms
+  [ok]   the Info motif is under 300 ms
+  [ok]   the Success motif is under 300 ms
+
+12 passed, 0 failed

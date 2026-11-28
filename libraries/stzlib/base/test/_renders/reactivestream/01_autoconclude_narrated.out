@@ -1,0 +1,47 @@
+SCENARIO: Auto-conclude concludes
+  GIVEN a stream set to conclude itself once the data stops
+  THEN  a conclusion is scheduled  [PASS]
+  WHEN  the delay passes and the loop ticks
+  THEN  the conclude handler runs  [PASS]
+  THEN  the caller's own concluded flag does NOT update (copy, documented)  [PASS]
+  THEN  ...nor does its timer id clear  [PASS]
+  GIVEN a stream left on its own
+  THEN  nothing concludes it  [PASS]
+  THEN  ...and nothing was scheduled  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Turning it off is what used to break
+  GIVEN a stream with a conclusion already scheduled
+  THEN  it is scheduled  [PASS]
+  WHEN  auto-conclude is switched off
+  THEN  the setter does not raise  [PASS]
+  THEN  ...and the pending timer is let go  [PASS]
+  WHEN  the delay passes anyway
+  THEN  the cancelled conclusion does not happen  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A delay the timer cannot use is refused, and the good one survives
+  GIVEN a stream given a workable delay
+  THEN  it takes it  [PASS]
+  WHEN  it is handed a negative delay
+  THEN  the refusal keeps the old value  [PASS]
+  WHEN  it is handed something that is not a number at all
+  THEN  the refusal keeps the old value  [PASS]
+  WHEN  it is handed zero
+  THEN  zero is accepted  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: The XT form sets both halves, and the alias is the same setter
+  GIVEN a stream configured in one call
+  THEN  the switch is on  [PASS]
+  THEN  ...and the delay came with it  [PASS]
+  WHEN  the XT form is given a delay that cannot work
+  THEN  the refusal reaches through the XT form  [PASS]
+  GIVEN the same thing spelled SetAutoComplete
+  THEN  the alias drives the same attribute  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 18 assertions, 18 pass, 0 fail
+================================================
+STATUS: OK

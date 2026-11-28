@@ -1,0 +1,13 @@
+SCENARIO: Negative-form conditions on a char list
+  THEN  it is not a string  [PASS]
+  THEN  it is not in lowercase  [PASS]
+  THEN  it does not contain a heart  [PASS]
+  THEN  it has fewer than 5 chars  [PASS]
+  THEN  that count is not odd  [PASS]
+  THEN  so the compound condition holds  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

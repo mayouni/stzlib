@@ -1,0 +1,12 @@
+SCENARIO: Extracting substrings bounded by << >>
+  GIVEN "<<♥♥♥>>--<<stars>>--<<♥♥♥>>"
+  THEN  BoundedBy gives the three enclosed substrings  [PASS]
+  THEN  BoundedByU keeps only the unique ones  [PASS]
+  THEN  BoundedByIB includes the bounds  [PASS]
+  THEN  BoundedByIBU is unique AND includes the bounds  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

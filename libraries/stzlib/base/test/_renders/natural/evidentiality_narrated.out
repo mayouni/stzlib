@@ -1,0 +1,38 @@
+SCENARIO: The evidential bands verbalize a verdict
+  THEN  strong evidence  [PASS]
+  THEN  good evidence  [PASS]
+  THEN  weak evidence  [PASS]
+  THEN  strong evidence AGAINST  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Deterministic verdicts are CERTAIN
+  THEN  a computed frame answer  [PASS]
+  THEN  ...  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Semantic similarity carries graded evidence
+  THEN  a close paraphrase is PROBABLY similar  [PASS]
+  THEN  ...  [PASS]
+  THEN  ...  [PASS]
+  THEN  an unrelated text is CERTAINLY not  [PASS]
+  THEN  ...  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Zero-shot labels carry their confidence -- honestly
+  THEN  lexically there is NO evidence for any label, and the register says so  [PASS]
+  GIVEN with a neural model loaded, the same call grades up to probably/certainly by MEANING
+  -> 1 pass, 0 fail
+
+SCENARIO: Sentiment verdicts carry the strength of the tone
+  THEN  an emphatic praise is CERTAINLY positive  [PASS]
+  THEN  ...  [PASS]
+  THEN  ...  [PASS]
+  THEN  a neutral statement is only APPARENTLY not positive  [PASS]
+  THEN  ...  [PASS]
+  THEN  ...  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 18 assertions, 18 pass, 0 fail
+================================================
+STATUS: OK

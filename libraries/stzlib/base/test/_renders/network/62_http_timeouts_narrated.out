@@ -1,0 +1,23 @@
+SCENARIO: Deadline-aware poll returns -4 when no result arrives in time
+  GIVEN a small pool with one slow-but-not-immediate bogus URL
+  THEN  submission id > 0  [PASS]
+  WHEN  polling with deadline = 0 ms (no waiting)
+  THEN  status is -1 (running) or >=0 (already finished)  [PASS]
+  WHEN  polling with deadline = 1 ms (likely too short)
+  THEN  status is -4 (deadline) or job finished (-1, -2, or >=0)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Generous deadline lets a fast-fail job finish
+  GIVEN a pool and a bogus URL
+  WHEN  polling with deadline = 5000 ms
+  THEN  LastStatus is -1 (transport error)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Unknown id returns -2 even with a deadline
+  THEN  LastStatus = -2 (not found)  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

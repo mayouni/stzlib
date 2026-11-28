@@ -1,0 +1,87 @@
+SCENARIO: segmentation decides the bill, and it is not the character count
+  THEN  a short ASCII message is one segment  [PASS]
+  THEN  ...in the 7-bit alphabet  [PASS]
+  THEN  exactly 160 ASCII characters still fit one segment  [PASS]
+  THEN  161 becomes TWO  [PASS]
+  THEN  ...and 306 (2 x 153) is still two, because a split message carries a header  [PASS]
+  THEN  ...while 307 is three  [PASS]
+  THEN  an empty text costs nothing  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: THE CLIFF: one character outside the alphabet re-encodes everything
+  THEN  100 ASCII characters are one segment  [PASS]
+  WHEN  a single emoji is added to that same message
+  THEN  the encoding changes for the WHOLE message  [PASS]
+  THEN  ...so 70 is now the limit and it costs TWO segments  [PASS]
+  THEN  ...and the emoji itself counts as 2 units, being outside the BMP  [PASS]
+  GIVEN a message in Arabic
+  THEN  nine characters is one segment  [PASS]
+  THEN  ...but in UCS-2, so the ceiling is 70 not 160  [PASS]
+  THEN  which means 71 Arabic characters already cost two  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: the GSM extension table: nine characters that cost double
+  THEN  a lone euro sign stays in the 7-bit alphabet  [PASS]
+  THEN  ...but bills as 2 units, not 1  [PASS]
+  THEN  100 curly braces bill as 200 septets  [PASS]
+  THEN  ...which is TWO segments, from 100 characters  [PASS]
+  THEN  while 100 plain letters are one  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: a number is validated, because the real gateway would
+  THEN  an E.164 number passes  [PASS]
+  THEN  a missing + fails  [PASS]
+  THEN  too short fails  [PASS]
+  THEN  a letter fails  [PASS]
+  THEN  spaces and dashes fail -- normalise before sending  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the sink: assert on what WOULD have been sent
+  THEN  it declares itself a double  [PASS]
+  THEN  the outbox starts empty  [PASS]
+  THEN  the send succeeds  [PASS]
+  THEN  ...with a deterministic id (no randomness in a sandbox)  [PASS]
+  THEN  ...reporting the segments it would be billed as  [PASS]
+  THEN  ...and the encoding  [PASS]
+  THEN  the message is in the outbox  [PASS]
+  THEN  ...addressed correctly  [PASS]
+  THEN  ...with its text  [PASS]
+  THEN  ...and its cost  [PASS]
+  THEN  a recipient's messages are findable  [PASS]
+  THEN  ...and someone never texted says so  [PASS]
+  WHEN  a long message is sent as well
+  THEN  THE BILL is assertable  [PASS]
+  THEN  ...across both messages  [PASS]
+  THEN  ...and that recipient's inbox holds both  [PASS]
+  THEN  the outbox clears between phases of a test  [PASS]
+  -> 16 pass, 0 fail
+
+SCENARIO: an OUTAGE is not a REJECTION, and the difference matters
+  WHEN  the number is malformed
+  THEN  it is REJECTED  [PASS]
+  THEN  ...saying why  [PASS]
+  WHEN  a number is nominated unreachable
+  THEN  that number is refused  [PASS]
+  THEN  ...while others still work  [PASS]
+  WHEN  the gateway is unreachable
+  THEN  the call fails as :refused, NOT :rejected  [PASS]
+  THEN  ...because the gateway was unreachable  [PASS]
+  THEN  nothing was recorded for it  [PASS]
+  THEN  ...and it is one-shot, so the next send works  [PASS]
+  WHEN  the text is empty
+  THEN  it is refused  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: through the registry, and refused in production
+  THEN  the registry recognises the sink  [PASS]
+  WHEN  the application texts through the service the registry hands back
+  THEN  the ORIGINAL sink recorded it -- state survived Ring's copy  [PASS]
+  WHEN  the phase becomes production with the sink still bound
+  THEN  it is refused  [PASS]
+  THEN  ...naming the sms service  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 53 assertions, 53 pass, 0 fail
+================================================
+STATUS: OK

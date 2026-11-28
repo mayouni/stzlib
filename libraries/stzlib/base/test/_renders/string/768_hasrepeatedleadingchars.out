@@ -1,0 +1,15 @@
+SCENARIO: Runs at both ends of TUNISIA
+  THEN  leading run exists  [PASS]
+  THEN  of four chars  [PASS]
+  THEN  the chars  [PASS]
+  THEN  as a string  [PASS]
+  THEN  trailing run exists  [PASS]
+  THEN  of five chars  [PASS]
+  THEN  the chars  [PASS]
+  THEN  as a string  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

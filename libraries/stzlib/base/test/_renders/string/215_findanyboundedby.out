@@ -1,0 +1,12 @@
+SCENARIO: Finding all regions bounded by a single & marker
+  GIVEN "...&^^^&...&vvv&...&..."
+  THEN  FindAnyBoundedBy gives the content starts  [PASS]
+  THEN  FindAnyBoundedByIB gives the bound-inclusive starts  [PASS]
+  THEN  FindAnyBoundedByZZ gives the content spans  [PASS]
+  THEN  BoundedBy gives the substrings, gaps kept  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

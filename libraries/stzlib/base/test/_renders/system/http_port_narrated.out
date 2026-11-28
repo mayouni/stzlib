@@ -1,0 +1,68 @@
+SCENARIO: scripted: rules you write, first match winning
+  THEN  two rules are held  [PASS]
+  THEN  the exact rule answers  [PASS]
+  THEN  ...with its body  [PASS]
+  THEN  ...marked as scripted  [PASS]
+  THEN  a later PREFIX rule catches everything else  [PASS]
+  WHEN  a contains-pattern is used (stars at both ends)
+  THEN  it matches mid-URL  [PASS]
+  THEN  ...and this is a failure NO real vendor will produce on request  [PASS]
+  THEN  the method is part of the match  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: STRICT by default -- a miss must not look like an answer
+  THEN  it is strict out of the box  [PASS]
+  THEN  an unscripted request RAISES  [PASS]
+  WHEN  strictness is turned off deliberately
+  THEN  a miss is reported as a miss  [PASS]
+  THEN  ...with a status that cannot be mistaken for success  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: replay: call the real thing once, keep what it said
+  THEN  nothing is recorded yet  [PASS]
+  WHEN  one real call is recorded
+  THEN  the live answer came back  [PASS]
+  THEN  ...and is now held  [PASS]
+  THEN  ...findable  [PASS]
+  WHEN  the same request is made again, offline
+  THEN  it replays  [PASS]
+  THEN  ...identically  [PASS]
+  THEN  a recording is keyed by method+url+BODY, so a different body is a different recording  [PASS]
+  THEN  the key is a stable hash  [PASS]
+  WHEN  a script is added for a URL that is already recorded
+  THEN  the RECORDING still wins  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: the journal: assert on what the code TRIED to do
+  THEN  every request is journalled  [PASS]
+  THEN  the last one is inspectable  [PASS]
+  THEN  ...with its method  [PASS]
+  THEN  counting per URL catches a retry storm or an N+1  [PASS]
+  THEN  ...and the one-off is still one  [PASS]
+  THEN  a URL never touched says so  [PASS]
+  WHEN  the journal is cleared between phases of a test
+  THEN  it is empty  [PASS]
+  THEN  ...but the scripts remain  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: through the registry -- including the Ring copy trap
+  THEN  the registry detects the double from the object  [PASS]
+  WHEN  the application uses the service the registry hands back
+  THEN  the ORIGINAL sandbox saw the call  [PASS]
+  WHEN  the real client is bound alongside it
+  THEN  the reactor client is treated as LIVE, having no opinion  [PASS]
+  WHEN  the phase becomes production with the fake still bound
+  THEN  it is refused  [PASS]
+  THEN  ...naming the fake, not the real client  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the live adapter exists, and is honest about what it cannot do
+  THEN  it has a timeout  [PASS]
+  THEN  ...which is settable  [PASS]
+  THEN  it satisfies the same port shape as the sandbox  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 37 assertions, 37 pass, 0 fail
+================================================
+STATUS: OK

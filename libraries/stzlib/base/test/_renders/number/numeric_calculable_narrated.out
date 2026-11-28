@@ -1,0 +1,79 @@
+SCENARIO: the premise: Ring's double really does stop being exact at 2^53
+  THEN  2^53 and 2^53+1 are the SAME value to Ring  [PASS]
+  THEN  ...while 2^53-1 is still distinct  [PASS]
+  THEN  ...so 2^53 is exactly where it breaks  [PASS]
+  THEN  ...and the minimum is its negation  [PASS]
+  THEN  every 15-digit integer clears it  [PASS]
+  THEN  ...but 16 digits is not guaranteed  [PASS]
+  THEN  ...which is what MaxNumberOfDigitsInUnsignedInteger still reports  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: the name now tells the truth
+  THEN  MaxCalculableNumber is Ring's actual exact limit  [PASS]
+  THEN  ...and it is NOT the old fifteen-nines bound  [PASS]
+  THEN  ...nine times larger, in fact  [PASS]
+  THEN  RingMaxNumber, the alias that always implied this, agrees  [PASS]
+  THEN  ...as do the other seven aliases  [PASS]
+  THEN  the minimum is the negation  [PASS]
+  THEN  ...and RingMinNumber agrees  [PASS]
+  THEN  the XT form is the same number, separated  [PASS]
+  THEN  ...and the XT minimum tracks it rather than an old constant  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: the premise is FALSE for Softanza: twenty digits, held exactly
+  THEN  ...and it is well past the limit  [PASS]
+  THEN  the string survives intact  [PASS]
+  THEN  IsExact says so  [PASS]
+  THEN  ...because it is a big integer, not a double  [PASS]
+  THEN  and it CALCULATES exactly -- a double would answer 1e20  [PASS]
+  THEN  ...whereas Ring's own arithmetic loses the tail  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: so 'calculable' is exactly 'well-formed', and nothing more
+  THEN  calculable = number, for '42'  [PASS]
+  THEN  calculable-integer = integer, for '42'  [PASS]
+  THEN  calculable-real = real, for '42'  [PASS]
+  THEN  calculable = number, for '-42'  [PASS]
+  THEN  calculable-integer = integer, for '-42'  [PASS]
+  THEN  calculable-real = real, for '-42'  [PASS]
+  THEN  calculable = number, for '4.2'  [PASS]
+  THEN  calculable-integer = integer, for '4.2'  [PASS]
+  THEN  calculable-real = real, for '4.2'  [PASS]
+  THEN  calculable = number, for '0.1'  [PASS]
+  THEN  calculable-integer = integer, for '0.1'  [PASS]
+  THEN  calculable-real = real, for '0.1'  [PASS]
+  THEN  calculable = number, for '99999999999999999999'  [PASS]
+  THEN  calculable-integer = integer, for '99999999999999999999'  [PASS]
+  THEN  calculable-real = real, for '99999999999999999999'  [PASS]
+  THEN  calculable = number, for '.5'  [PASS]
+  THEN  calculable-integer = integer, for '.5'  [PASS]
+  THEN  calculable-real = real, for '.5'  [PASS]
+  THEN  calculable = number, for '12.'  [PASS]
+  THEN  calculable-integer = integer, for '12.'  [PASS]
+  THEN  calculable-real = real, for '12.'  [PASS]
+  THEN  calculable = number, for 'abc'  [PASS]
+  THEN  calculable-integer = integer, for 'abc'  [PASS]
+  THEN  calculable-real = real, for 'abc'  [PASS]
+  THEN  calculable = number, for ''  [PASS]
+  THEN  calculable-integer = integer, for ''  [PASS]
+  THEN  calculable-real = real, for ''  [PASS]
+  THEN  calculable = number, for '1_000'  [PASS]
+  THEN  calculable-integer = integer, for '1_000'  [PASS]
+  THEN  calculable-real = real, for '1_000'  [PASS]
+  THEN  a twenty-digit integer is 'calculable'  [PASS]
+  THEN  ...while '.5' is not  [PASS]
+  THEN  ...which is a WELL-FORMEDNESS verdict, not a size one  [PASS]
+  -> 33 pass, 0 fail
+
+SCENARIO: the error message that gave a wrong diagnosis
+  THEN  '.5' is still refused  [PASS]
+  THEN  ...and '0.5' is not  [PASS]
+  THEN  ...and reads back correctly  [PASS]
+  THEN  a 40-digit integer is accepted  [PASS]
+  THEN  ...and kept whole  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 60 assertions, 60 pass, 0 fail
+================================================
+STATUS: OK

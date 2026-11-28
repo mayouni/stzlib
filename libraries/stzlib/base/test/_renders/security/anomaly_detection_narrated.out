@@ -1,0 +1,46 @@
+SCENARIO: password spraying: invisible per account, loud against history
+  THEN  the per-account burst sees nothing  [PASS]
+  THEN  the unusual rate fires once  [PASS]
+  THEN  ...in the unified rule shape  [PASS]
+  THEN  ...naming the count and the baseline  [PASS]
+  THEN  ...and the evidence is the window, not the history  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: sigma decides, not the floor (the boundary, both sides)
+  THEN  3 in the window is ordinary variation  [PASS]
+  THEN  4 in the window is unusual  [PASS]
+  THEN  ...and the message gives the sigma  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: leave-one-out: a jump off a flat baseline fires
+  THEN  6 against a steady 2 fires  [PASS]
+  THEN  ...said as a flat baseline  [PASS]
+  THEN  2 against a steady 2 does not (negative sibling)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: cold start is not an anomaly
+  THEN  two windows of history: nothing is claimed  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: a flood that evicted its own baseline is reported, not silenced
+  THEN  the ledger evicted the history  [PASS]
+  THEN  the detection still speaks  [PASS]
+  THEN  ...as a warning  [PASS]
+  THEN  ...saying why it cannot compare  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: per actor: one account far above its own history
+  THEN  one finding  [PASS]
+  THEN  ...about dana, not carol  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: the house set carries it, and says what it is
+  THEN  password-spraying ships by default  [PASS]
+  THEN  ...and fires on a spray  [PASS]
+  THEN  its explanation names the shape  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 21 assertions, 21 pass, 0 fail
+================================================
+STATUS: OK

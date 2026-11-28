@@ -1,0 +1,63 @@
+== stzListener: sound in, text out ==
+
+  [ok]   the face constructs even with no recognizer
+   usable on this machine: 1
+
+-- Scene 1: capability is per language AND PER DIRECTION --
+   The two answers differ on this machine, and that asymmetry is the shape
+   of the problem rather than a quirk of one laptop.
+   SPEAKS: fr-FR, en-US
+   HEARS : fr-FR
+  [ok]   it can hear at least one language
+     Microsoft Speech Recognizer 8.0 for Windows (French - France)  ->  fr-FR
+  [ok]   each recognizer reports a language tag
+   languages it can SPEAK but not HEAR: 1
+  [ok]   capability differs by direction, or the two lists happen to match
+
+-- Scene 2: the grammar is DECLARED, and nothing else is heard --
+  [ok]   a grammar is accepted
+  [ok]   and the engine agrees how many phrases it holds
+  [ok]   the face remembers them
+  [ok]   an empty grammar is refused
+  [ok]   and counted
+   reason: Accept: no usable phrases were given
+
+-- Scene 3: THE ROUND TRIP -- this library speaks, and hears itself --
+   Only possible because both directions are here. No microphone, no file,
+   no hand-recorded fixture; the sound is a stzSound passed between faces.
+   0.924  'ouvrir le fichier' -> 'ouvrir le fichier'
+   0.929  'enregistrer' -> 'enregistrer'
+   0.939  'annuler' -> 'annuler'
+   0.921  'fermer la fenetre' -> 'fermer la fenetre'
+   0.924  'augmenter le volume' -> 'augmenter le volume'
+   0.747  'arreter' -> 'arreter'
+
+   6/6 exact = 100%, mean confidence 0.897
+  [ok]   a closed grammar clears the plan's 90% bar
+  [ok]   and its confidence is far above dictation's 0.600
+
+-- Scene 4: a phrase OUTSIDE the grammar is a no-match, not a wrong answer --
+   'Somebody said something that is not a command' is information a control
+   surface needs. The dangerous alternative is a confident wrong command.
+   said 'je voudrais un cafe au lait' -> heard ''
+  [ok]   nothing outside the grammar was returned as a command
+  [ok]   and a no-match was NOT counted as a refusal
+
+-- Scene 5: confidence travels WITH the text, always --
+  [ok]   a recognised phrase has text
+  [ok]   and a confidence
+  [ok]   which is a real number in range, not a flag
+   'ouvrir le fichier' at 0.924
+
+   NOTE: one of the six commands scores about 0.75 even from clean
+   synthetic audio. Even a closed grammar is not certain, which is why
+   Confidence() is a separate call rather than something to forget.
+
+-- Scene 6: refusals, and a released listener --
+  [ok]   hearing something that is not a sound is refused
+  [ok]   and counted
+  [ok]   after release it is not usable
+  [ok]   and listening refuses rather than crashing
+  [ok]   its text is empty
+
+21 passed, 0 failed

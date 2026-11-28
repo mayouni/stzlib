@@ -1,0 +1,36 @@
+==================================================================
+ MU3 -- live loops: redefine while it plays, land on the bar
+==================================================================
+
+-- mu3_01_live_set.wav : darbouka, bendir and a mezwed -- NOT yet a tab' (universes are MU4)
+     >> typed at 0: iqa -> lands on cycle 0
+     >> typed at 0: frame -> lands on cycle 0
+     >> typed at 2: reed -> lands on cycle 3
+     >> typed at 4: reed, new phrase -> lands on cycle 5
+     >> typed at 6: iqa, Every(2, :Rev) -> lands on cycle 7
+     >> typed at 8: reed, silence -> lands on cycle 9
+   written: 24 s, late 0, mid-cycle 0
+   now LIVE on the card -- each line printed as that cycle is heard:
+     >> typed at 0: iqa -> lands on cycle 0
+     >> typed at 0: frame -> lands on cycle 0
+     cycle 0 | iqa v1 | frame v1
+     cycle 1 | iqa v1 | frame v1
+     cycle 2 | iqa v1 | frame v1
+     >> typed at 2.04: reed -> lands on cycle 3
+     cycle 3 | iqa v1 | frame v1 | reed v1
+     cycle 4 | iqa v1 | frame v1 | reed v1
+     >> typed at 4.04: reed, new phrase -> lands on cycle 5
+     cycle 5 | iqa v1 | frame v1 | reed v2
+     cycle 6 | iqa v1 | frame v1 | reed v2
+     >> typed at 6.05: iqa, Every(2, :Rev) -> lands on cycle 7
+     cycle 7 | iqa v2 | frame v1 | reed v2
+     cycle 8 | iqa v2 | frame v1 | reed v2
+     >> typed at 8.05: reed, silence -> lands on cycle 9
+     cycle 9 | iqa v2 | frame v1 | reed v3
+     cycle 10 | iqa v2 | frame v1 | reed v3
+   live: late 0, underruns 0, mid-cycle 0
+
+-- mu3_02_groove.wav : a Tidal-style groove: bd*2, a chance hat, a bass that alternates, an Off harp
+     >> typed at 0: drums -> lands on cycle 0
+
+Line 294 Bad parameter type!

@@ -1,0 +1,24 @@
+[
+	[ "plan", "decision_route" ],
+	[ "total_cost", 13 ],
+	[ "nodes_explored", 4 ],
+	[
+		"optimized_for",
+		[
+			[
+				[ "direction", "minimize" ],
+				[ "property", "cost" ]
+			]
+		]
+	],
+	[
+		"route",
+		[ "base", "option_a", "target" ]
+	]
+]
+
+[ "base", "option_a", "target" ]
+
+
+----------------
+----------------

@@ -1,0 +1,49 @@
+SCENARIO: the determinant, at sizes that were previously impossible
+  THEN  2x2, where cofactor expansion was already fine  [PASS]
+  THEN  3x3, the largest size any existing test used  [PASS]
+  THEN  8x8 -- 40320 recursive allocations the old way  [PASS]
+  THEN  12x12 -- 479 million  [PASS]
+  THEN  20x20 -- not a finite computation  [PASS]
+  THEN  40x40 -- and this is 2^40, instantly  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: pivoting is a correctness requirement, not a refinement
+  THEN  a zero pivot is swapped away, not divided by  [PASS]
+  THEN  ...and in 3x3  [PASS]
+  THEN  an odd number of swaps flips the sign  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a singular matrix answers zero rather than a small lie
+  THEN  a duplicated row  [PASS]
+  THEN  a zero column  [PASS]
+  THEN  all zeros  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: solving a system, which now goes through the engine
+  THEN  2x+y-z=8, -3x-y+2z=-11, -2x+y+2z=-3 gives x=2  [PASS]
+  THEN  ...y=3  [PASS]
+  THEN  ...z=-1  [PASS]
+  THEN  and the matrix itself is untouched  [PASS]
+  THEN  the Solve alias is the same method, not a twin  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the contract the Ring version had is the contract the engine keeps
+  THEN  a singular system raises  [PASS]
+  THEN  a non-square system raises  [PASS]
+  THEN  a b of the wrong length raises  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the answers are checked by residual, not by eye
+  THEN  across 3x3, 5x5, 9x9 and 15x15, max |A*x - b| is negligible  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: what the engine bought, measured
+  THEN  ten 60x60 solves come in well under the Ring loop's 0.21s  [PASS]
+  THEN  ...and every unknown is 1, as constructed  [PASS]
+  THEN  ...including the last  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 24 assertions, 24 pass, 0 fail
+================================================
+STATUS: OK

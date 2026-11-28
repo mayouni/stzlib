@@ -1,0 +1,48 @@
+SCENARIO: A+ generalises the ordinary inverse
+  THEN  for an invertible matrix it IS the inverse  [PASS]
+  THEN  the alias is the same method  [PASS]
+  THEN  the pseudo-inverse agrees with what Invert() left behind  [PASS]
+  THEN  ...and A+ of the inverse is the original matrix again  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A A+ A = A -- the first Penrose condition, checked in Ring
+  THEN  the matrix really is singular  [PASS]
+  THEN  A A+ A reproduces A, for a SINGULAR matrix  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: where LeastSquaresFor refuses, A+b answers -- and answers well
+  THEN  the design is rank deficient  [PASS]
+  THEN  LeastSquaresFor refuses it  [PASS]
+  THEN  ...but the minimum-norm solution exists  [PASS]
+  THEN  the residual is orthogonal to every column  [PASS]
+  THEN  shifting along the null space keeps the same residual  [PASS]
+  THEN  ...but makes the vector LONGER  [PASS]
+  THEN  ...in either direction  [PASS]
+  THEN  ...and for a small step too  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: where the design IS full rank, both routes agree
+  THEN  the intercepts match  [PASS]
+  THEN  ...and the slopes  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a WIDE system: more unknowns than equations
+  THEN  it solves the first equation exactly  [PASS]
+  THEN  ...and the second  [PASS]
+  THEN  a shifted solution is still exact  [PASS]
+  THEN  ...but longer than the one A+ chose  [PASS]
+  THEN  LeastSquaresFor still raises on this shape, which is correct  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: shapes and edges
+  THEN  a single column works  [PASS]
+  THEN  ...and a single row  [PASS]
+  THEN  the zero matrix pseudo-inverts to zeros  [PASS]
+  THEN  a 4x3 pseudo-inverts to a 3x4: three rows  [PASS]
+  THEN  ...of four columns each  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 26 assertions, 26 pass, 0 fail
+================================================
+STATUS: OK

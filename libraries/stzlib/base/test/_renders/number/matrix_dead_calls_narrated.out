@@ -1,0 +1,47 @@
+SCENARIO: asking the wrong class: the named-param vocabulary lives on one class
+  THEN  ReplaceElementsAt, single value  [PASS]
+  THEN  ...and by many  [PASS]
+  THEN  ReplaceSection  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a function that never existed, reached through eval()
+  THEN  columns 1 and 3 doubled, column 2 untouched  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: `func` where `def` was meant, which is not a method at all
+  THEN  FindCol  [PASS]
+  THEN  ...and FindCols, which could not work without it  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: arity: arguments dropped, and arguments in the wrong order
+  THEN  each occurrence of 1 takes the next replacement  [PASS]
+  THEN  ...and the XT form CYCLES the replacements  [PASS]
+  THEN  FindInSection with one element  [PASS]
+  THEN  ...and with several  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: AddXT, which was broken in four independent ways at once
+  THEN  :InCol reaches column 2 -- not column 10, as the swapped order did  [PASS]
+  THEN  :InRow  [PASS]
+  THEN  :InCols  [PASS]
+  THEN  :InRows  [PASS]
+  THEN  :InDiagonal hits (1,1) (2,2) (3,3)  [PASS]
+  THEN  :InDiagonal2 hits (1,3) (2,2) (3,1)  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: a method whose body named three variables it did not have
+  THEN  rows 1 and 3  [PASS]
+  THEN  ...and the From..To form  [PASS]
+  THEN  the template it was copied from, still correct  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: two aliases the tests documented and nothing defined
+  THEN  AddToCol  [PASS]
+  THEN  ...is exactly AddInCol  [PASS]
+  THEN  AddToRow is exactly AddInRow  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 22 assertions, 22 pass, 0 fail
+================================================
+STATUS: OK

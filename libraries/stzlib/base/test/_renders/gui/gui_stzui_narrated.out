@@ -1,0 +1,80 @@
+-- Scene 1: a clean document parses, and the court agrees --
+  [OK] the document is clean
+  [OK] four declarations came through
+  [OK] a declaration is findable by name
+  [OK] ...and a missing one answers empty
+
+-- Scene 2: the court's refusals, each by name --
+  [OK] a foreign verb is refused
+  [OK] a foreign kind is refused
+  [OK] `define` in lowercase does NOT parse (strcmp, not =)
+  [OK] an unknown field is an error, not a shrug
+  [OK] a child declared nowhere is DANGLING
+  [OK] a STYLE reference to a non-style is DANGLING
+  [OK] declaring one name twice is refused
+  [OK] a box under two parents is refused
+  [OK] a box no parent places is an ORPHAN
+  [OK] a file with no PANEL is refused
+  [OK] two PANELs are refused
+  [OK] a declaration without RATIONALE is refused
+
+-- Scene 3: the round trip closes (birth-check 4) --
+  [OK] the reprint of a reparse is byte-identical
+  [OK] ...and the reparse is still clean
+  [OK] ...with the same declarations
+
+-- Scene 4: the emitter absorbs what G1 paid to find --
+  [OK] every element carries an explicit display
+  [OK] the root is sized to the panel
+  [OK] a font-family is always declared
+  [OK] no tag is left unclosed
+  [OK] WIDTH 100 rides with flex-shrink: 0
+  [OK] TEXT_DIRECTION rtl becomes --rmlui-direction
+  [OK] ...and never the CSS spelling RCSS rejects
+  [OK] WRAP yes brings align-content: flex-start
+
+-- Scene 5: an unclean document REFUSES to project --
+  [OK] the court found the dangling child
+  [OK] ToRml raises rather than projecting a broken contract
+
+-- Scene 6: the declared sizes ARE the laid-out sizes --
+  [OK] the panel took the declared SIZE
+  [OK] WIDTH 100 laid out as exactly 100
+  [OK] HEIGHT 40 laid out as exactly 40
+  [OK] HEIGHT fill takes exactly the leftover
+  [OK] WIDTH 100 with PADDING 10 occupies 100, not 120 (border-box)
+
+-- Scene 7: the showcase file, from disk to geometry --
+  [OK] showcase.panel is clean
+  [OK] ...and carries 26 declarations
+  [OK] the bar spans the screen at its declared 52 (padding inside)
+  [OK] the sidebar occupies its declared 210, with the padding inside it
+  [OK] the footer was NOT squeezed (30 total, padding inside)
+  [OK] six cards laid out
+  [OK] every TEXT declaration became a draw command
+  [OK] ...and none of them was lost on the way
+  [OK] the showcase round-trips to a fixpoint
+
+-- Scene 12: the court's first WARNING, not an error --
+  the showcase raises 15 literal-colour warnings
+  [OK] the showcase raises them
+  [OK] ...and the document is STILL CLEAN
+  [OK] ...because a warning is not an error
+  [OK] ...and it still projects
+  [OK] a document naming no colour raises no warning
+
+-- Scene 13: the intent slot, parsed and NOT resolved --
+  [OK] a document declaring intents is clean
+  [OK] a list of intents is read
+  [OK] ...and a BARE name is read as a list of one
+  [OK] every intent named anywhere is collected
+  [OK] an element claiming none is an ORPHAN
+  [OK] ...and one that claims some is not
+  [OK] a STYLE is not counted as an orphan
+  [OK] ...and cannot declare the field at all
+  [OK] the slot survives the round-trip fixpoint
+  [OK] an intent nobody has defined is NOT an error
+
+==============================================================
+ 58 ok, 0 failed
+==============================================================

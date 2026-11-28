@@ -1,0 +1,12 @@
+SCENARIO: Case sensitivity in substring enumeration
+  GIVEN "BEbe"
+  THEN  case-sensitive gives 10 substrings  [PASS]
+  THEN  case-insensitive collapses to 7  [PASS]
+  THEN  the case-sensitive list is all 10  [PASS]
+  THEN  the case-insensitive list keeps source case  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

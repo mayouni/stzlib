@@ -1,0 +1,31 @@
+SCENARIO: A fresh trace context is valid and sampled
+  GIVEN a new trace context
+  THEN  the header is valid  [PASS]
+  THEN  it is sampled by default  [PASS]
+  THEN  the trace-id is 32 hex chars  [PASS]
+  THEN  the span-id is 16 hex chars  [PASS]
+  THEN  the traceparent is 55 chars  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: A child header keeps the trace-id but gets a new span-id
+  GIVEN a parent context and its child header
+  THEN  the child header is valid  [PASS]
+  THEN  the child shares the parent trace-id  [PASS]
+  THEN  the child has a different span-id  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: A malformed header is rejected
+  GIVEN a garbage traceparent
+  THEN  IsValid is FALSE  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: The HTTP client can start a trace
+  GIVEN an HTTP client
+  WHEN  starting a trace
+  THEN  a valid traceparent was generated + attached  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+================================================
+STATUS: OK

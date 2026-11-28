@@ -1,0 +1,17 @@
+SCENARIO: A pool reports its loop count
+  GIVEN a pool of 3 loops
+  THEN  Count() is 3  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: A batch of async requests runs across the loops
+  GIVEN a pool of 2 loops and 4 requests
+  WHEN  fetching them all in parallel
+  THEN  we got 4 responses back  [PASS]
+  THEN  the first response is an HTTP reply  [PASS]
+  THEN  the last response is an HTTP reply  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

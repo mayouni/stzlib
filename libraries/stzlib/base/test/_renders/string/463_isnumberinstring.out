@@ -1,0 +1,12 @@
+SCENARIO: Probing a condition string for its binding var
+  THEN  it contains @char  [PASS]
+  THEN  ... but not @substring  [PASS]
+  THEN  @CHAR matches case-insensitively  [PASS]
+  THEN  @substring stays absent, case-sensitively  [PASS]
+  THEN  ... and case-insensitively  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

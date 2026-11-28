@@ -1,0 +1,41 @@
+==================================================================
+ SS3 -- ducking: quieter, not gone, and never with a click
+==================================================================
+
+Building a steady bed and the four cues.
+   bed: 4 s at 330 Hz, peak 0.30
+   danger cue: 0.18 s, peak 0.27
+
+-- 1 -- the bed alone, so you know what unducked sounds like --
+
+-- 2 -- a DANGER over it, ducked -12 dB on a 10 ms ramp --
+   The cue is not louder. The bed got out of the way, which is the whole
+   difference between an alert that cuts through and one that shouts.
+
+-- 3 -- THE SAME MOMENT WITH NO RAMP. This is the click. --
+   The guard measures it at 0.3744 against the tone's own 0.0288 slope --
+   thirteen times the signal's steepest step. Here is what that is.
+   (deliberately unpleasant: it is the sound the criterion prevents)
+
+-- 4 -- ducked to SILENCE, which is why -12 dB is the default --
+   A duck this deep is indistinguishable from the bed being DROPPED, and
+   the plane already has dropping. -12 dB leaves it audibly present, so a
+   listener can tell 'quieter' from 'gone' -- which is information.
+
+-- 5 -- the policy, live: quieter in meaning gets out of the way --
+   Now through stzEarcons itself, with its real buses. Four cues fire in
+   turn. Watch the gains: a DANGER ducks everything below it, a SUCCESS
+   ducks nothing, because priority is one-way.
+
+   fired Success:  danger=1  warning=1  info=1  success=1
+   fired Info:  danger=1  warning=1  info=1  success=0.25
+   fired Warning:  danger=1  warning=1  info=0.25  success=0.25
+   fired Danger:  danger=1  warning=0.25  info=0.25  success=0.25
+
+   ducks applied: 3 (counted, like every other
+   thing this plane does behind a listener's back)
+
+==================================================================
+ If scene 2 sounded like the bed making room and scene 3 sounded like
+ a fault, the ramp is doing its job and the criterion was worth having.
+==================================================================

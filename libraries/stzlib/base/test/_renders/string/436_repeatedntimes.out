@@ -1,0 +1,16 @@
+SCENARIO: Repeating by type
+  THEN  a string repeats into a string  [PASS]
+  THEN  a number repeats into a list  [PASS]
+  THEN  a list repeats into a list of lists  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Naming the output format with XT
+  THEN  explicitly in a string  [PASS]
+  THEN  explicitly in a list  [PASS]
+  THEN  zero repetitions give an empty list  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

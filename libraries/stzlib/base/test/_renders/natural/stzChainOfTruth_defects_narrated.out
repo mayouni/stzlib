@@ -1,0 +1,257 @@
+SCENARIO: The register rows: Containing, ContainingNo and Nth no longer raise
+  GIVEN a text chain, a list chain and a chain holding 7
+  THEN  Containing on a text does not raise  [PASS]
+  THEN  and tags the chain true when the text holds the part  [PASS]
+  THEN  Containing on a list does not raise  [PASS]
+  THEN  and tags the chain true when the list holds the item  [PASS]
+  THEN  ContainingNo on a text does not raise  [PASS]
+  THEN  and tags the chain false when the text holds the part  [PASS]
+  THEN  ContainingNo on a list does not raise  [PASS]
+  THEN  and tags the chain true when the list lacks the item  [PASS]
+  THEN  Nth on the number 7 does not raise (it used to answer an empty text, then R13 on first use)  [PASS]
+  THEN  and the answer is the 7th letter of HUSSEIN  [PASS]
+  THEN  the same answer as the call on its own  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Containing and ContainingNo on a table of pairs: each is right, and they are exact complements
+  GIVEN 22 pairs of a value and a part, with the answer written by hand
+  THEN  the table has at least 20 pairs  [PASS]
+  THEN  Containing is right on every pair  [PASS]
+  THEN  ContainingNo is right on every pair  [PASS]
+  THEN  the two are exact complements on every pair  [PASS]
+  THEN  the tag of Containing reads back through ShouldReturnTRUE / ShouldReturnFALSE on every pair  [PASS]
+  THEN  the tag of ContainingNo reads back the same way on every pair  [PASS]
+  THEN  no pair failed (names of the failing ones, if any)  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The tag: what the chain says after each step, and how it is read
+  GIVEN a text chain
+  THEN  before any step the chain has no verdict and a close reads the value  [PASS]
+  THEN  a step returns the chain itself, so the sentence goes on  [PASS]
+  THEN  a true step stops the chain from continuing (a verdict was reached)  [PASS]
+  THEN  a true step is read by the closing underscore  [PASS]
+  THEN  ... by ShouldReturnTRUE  [PASS]
+  THEN  ... and ShouldReturnFALSE says no  [PASS]
+  THEN  a false step is read as 0  [PASS]
+  THEN  ... by ShouldReturnFALSE  [PASS]
+  THEN  ... and ShouldReturnTRUE says no  [PASS]
+  THEN  a type question then a containment question: both hold  [PASS]
+  THEN  the type question fails, so the containment is not even asked  [PASS]
+  THEN  a chain tagged false stays false, whatever the next step would say  [PASS]
+  THEN  two true steps in a row give true  [PASS]
+  THEN  a true step then a false one gives false  [PASS]
+  THEN  Containing then ContainingNo, both true  [PASS]
+  THEN  Containing then ContainingNo that fails  [PASS]
+  THEN  a containment step then a Where step  [PASS]
+  THEN  ... and the Where step can fail it  [PASS]
+  THEN  ContainingNo is the function Nor will call: it records its name  [PASS]
+  THEN  ... which was empty before  [PASS]
+  THEN  Containing records nothing for Nor  [PASS]
+  THEN  Nor after ContainingNo asks ContainingNo again: absent part, true  [PASS]
+  THEN  ... present part, false  [PASS]
+  -> 23 pass, 0 fail
+
+SCENARIO: The other spellings are the same calls (aliases), each on a case that holds and one that does not
+  GIVEN the text Ring and the list [ 1, 2 ]
+  THEN  Contains, part present  [PASS]
+  THEN  Contains, part absent  [PASS]
+  THEN  IsContaining, part present  [PASS]
+  THEN  IsContaining, part absent  [PASS]
+  THEN  ContainsNo, part absent  [PASS]
+  THEN  ContainsNo, part present  [PASS]
+  THEN  ContainsNeighther, part absent  [PASS]
+  THEN  ContainsNeighther, part present  [PASS]
+  THEN  IsContainingNo, part absent  [PASS]
+  THEN  IsContainingNo, part present  [PASS]
+  THEN  DoesNotContain, part absent  [PASS]
+  THEN  DoesNotContain, part present  [PASS]
+  THEN  ContainingNeighther, part absent  [PASS]
+  THEN  ContainingNeighther, part present  [PASS]
+  THEN  Contains on a list, item present  [PASS]
+  THEN  Contains on a list, item absent  [PASS]
+  THEN  DoesNotContain on a list, item absent  [PASS]
+  THEN  DoesNotContain on a list, item present  [PASS]
+  -> 18 pass, 0 fail
+
+SCENARIO: A value that holds nothing: a number or an object answers false to both questions
+  GIVEN a number chain and an object chain
+  THEN  a number does not contain  [PASS]
+  THEN  ... and does not lack either (it holds nothing, the chain is tagged false)  [PASS]
+  THEN  an object does not contain  [PASS]
+  THEN  ... and does not lack either  [PASS]
+  THEN  a text still answers, so the false above is about the value, not the method  [PASS]
+  THEN  an object part is never held by a list  [PASS]
+  THEN  ... so the list lacks it  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: A value with code in it is data: nothing is run, nothing breaks out
+  GIVEN parts and values that look like code or carry quotes and braces
+  THEN  no part, however quoted, raises  [PASS]
+  THEN  a text that lacks the code-looking part is false  [PASS]
+  THEN  a text that holds the code-looking part is true  [PASS]
+  THEN  ... and the code-looking part is lacked by the plain text  [PASS]
+  THEN  a list holding the code-looking text holds it  [PASS]
+  THEN  and none of it ran  [PASS]
+  THEN  a text holding braces and quotes is asked as plain data  [PASS]
+  THEN  ... and a part with a closing brace alone is found  [PASS]
+  THEN  ... and one that is absent is not  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Nth with a held number and a call: the 7th letter of HUSSEIN, and the rank limits
+  GIVEN chains holding a number, and a call written as text
+  THEN  the answer is a new chain  [PASS]
+  THEN  holding the 7th letter  [PASS]
+  THEN  which the closing underscore reads (no verdict was given, so it reads the value)  [PASS]
+  THEN  and which is wrapped as a string object  [PASS]
+  THEN  the rank 7 is not the 8th letter  [PASS]
+  THEN  the rank 1 gives H  [PASS]
+  THEN  the rank 2 gives U  [PASS]
+  THEN  a rank past the end gives no item: the chain itself, tagged false  [PASS]
+  THEN  ... and it is the same chain, still holding 8  [PASS]
+  THEN  ... tagged by the false reader  [PASS]
+  THEN  rank 0 gives no item (the call on its own answers H for 0)  [PASS]
+  THEN  a negative rank gives no item and does not reach the engine, where it would panic  [PASS]
+  THEN  a rank with a fraction gives no item  [PASS]
+  THEN  a rank beyond a 32 bit count gives no item  [PASS]
+  THEN  the 2nd letter of an accented text is the plain letter after it  [PASS]
+  THEN  the 1st letter is the whole accented letter, 2 bytes  [PASS]
+  THEN  ... which is 2 bytes long, not cut  [PASS]
+  THEN  a text that is not a call raises a message that says what Nth expects  [PASS]
+  THEN  a call that cannot run raises a message that names it  [PASS]
+  -> 19 pass, 0 fail
+
+SCENARIO: Nth with a held text or list: the nth letter or item
+  GIVEN chains holding a text, a list, a number and an object
+  THEN  the 7th letter of the text  [PASS]
+  THEN  read by the closing underscore too  [PASS]
+  THEN  the 1st letter  [PASS]
+  THEN  ... is not the 2nd  [PASS]
+  THEN  past the end gives no item  [PASS]
+  THEN  rank 0 gives no item  [PASS]
+  THEN  a negative rank gives no item  [PASS]
+  THEN  a rank with a fraction gives no item  [PASS]
+  THEN  a text asked with a text gives no item (it is not a rank)  [PASS]
+  THEN  the empty text has no 1st letter  [PASS]
+  THEN  the 1st letter of an accented text is the whole accented letter  [PASS]
+  THEN  the 2nd is the plain letter  [PASS]
+  THEN  ... as StzMid says  [PASS]
+  THEN  ... and for the 1st too  [PASS]
+  THEN  an accented text of 3 letters has no 4th  [PASS]
+  THEN  Hebrew: the 1st letter  [PASS]
+  THEN  emoji: the 3rd is the whole 4 byte character  [PASS]
+  THEN  ... and the letter after it is intact  [PASS]
+  THEN  ... and there is no 5th  [PASS]
+  THEN  a list gives its nth item (a number)  [PASS]
+  THEN  a list gives its nth item (read by the underscore)  [PASS]
+  THEN  a list gives its nth item (a text)  [PASS]
+  THEN  a list gives its nth item (a list)  [PASS]
+  THEN  ... whole  [PASS]
+  THEN  past the end of a list gives no item  [PASS]
+  THEN  rank 0 on a list gives no item  [PASS]
+  THEN  a negative rank on a list gives no item  [PASS]
+  THEN  the empty list has no 1st item  [PASS]
+  THEN  an object has no nth item  [PASS]
+  THEN  a number asked with a number has no nth item (it needs a call)  [PASS]
+  -> 30 pass, 0 fail
+
+SCENARIO: The ordinal forms st, nd, rd, th go through Nth
+  GIVEN the alphabet and numbers ending in 1, 2, 3 and 4 to 9
+  THEN  21 st gives the 21st letter  [PASS]
+  THEN  22 nd gives the 22nd  [PASS]
+  THEN  23 rd gives the 23rd  [PASS]
+  THEN  24 th gives the 24th  [PASS]
+  THEN  7 th gives the 7th letter of HUSSEIN  [PASS]
+  THEN  21 st on HUSSEIN has no item: the chain, tagged false  [PASS]
+  THEN  a number that does not end in 1 gives an empty text from st  [PASS]
+  THEN  ... and from nd  [PASS]
+  THEN  ... and from rd  [PASS]
+  THEN  a text value gives an empty text from st  [PASS]
+  THEN  a number ending in 1 gives an empty text from th  [PASS]
+  THEN  10 th gives the 10th letter (it gave an empty text before, a known limit that is lifted)  [PASS]
+  THEN  ... and 10 gives an empty text from st, nd and rd  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: The ordinal forms follow the English rule: 11, 12 and 13 take th, and so do 111, 112 and 113
+  GIVEN the alphabet, and the teens, which the last digit alone used to get wrong
+  THEN  11 th gives the 11th letter (11st before)  [PASS]
+  THEN  12 th gives the 12th letter (12nd before)  [PASS]
+  THEN  13 th gives the 13th letter (13rd before)  [PASS]
+  THEN  11 gives an empty text from st  [PASS]
+  THEN  12 gives an empty text from nd  [PASS]
+  THEN  13 gives an empty text from rd  [PASS]
+  GIVEN the numbers just beside the teens, which keep their own word
+  THEN  1 st gives the 1st letter  [PASS]
+  THEN  2 nd gives the 2nd letter  [PASS]
+  THEN  3 rd gives the 3rd letter  [PASS]
+  THEN  14 th gives the 14th letter  [PASS]
+  THEN  20 th gives the 20th letter (an empty text before)  [PASS]
+  THEN  21 st still gives the 21st letter  [PASS]
+  THEN  2 gives an empty text from th (it gave the 2nd letter before)  [PASS]
+  THEN  3 gives an empty text from th (it gave the 3rd letter before)  [PASS]
+  THEN  1 gives an empty text from th  [PASS]
+  THEN  0 gives an empty text from st  [PASS]
+  THEN  0 takes th, and the nth-item step finds no 0th item: the chain, tagged false  [PASS]
+  THEN  a number takes th, so 0 gives not an empty text from th  [PASS]
+  GIVEN a fraction and a negative number, which have no ordinal
+  THEN  2.5 gives an empty text from nd  [PASS]
+  THEN  2.5 takes th, and finds no item: the chain, tagged false  [PASS]
+  THEN  -1 gives an empty text from st  [PASS]
+  THEN  -1 takes th, and finds no item: the chain, tagged false  [PASS]
+  THEN  a text gives an empty text from th  [PASS]
+  THEN  a list gives an empty text from rd  [PASS]
+  -> 24 pass, 0 fail
+
+SCENARIO: The ordinal table: for 31 numbers exactly one of st, nd, rd and th answers, and it is the English one
+  GIVEN a table of numbers, each with the word written by hand
+  THEN  the table holds 31 numbers  [PASS]
+  THEN  the number 0 answers to th and to nothing else  [PASS]
+  THEN  the number 1 answers to st and to nothing else  [PASS]
+  THEN  the number 2 answers to nd and to nothing else  [PASS]
+  THEN  the number 3 answers to rd and to nothing else  [PASS]
+  THEN  the number 4 answers to th and to nothing else  [PASS]
+  THEN  the number 9 answers to th and to nothing else  [PASS]
+  THEN  the number 10 answers to th and to nothing else  [PASS]
+  THEN  the number 11 answers to th and to nothing else  [PASS]
+  THEN  the number 12 answers to th and to nothing else  [PASS]
+  THEN  the number 13 answers to th and to nothing else  [PASS]
+  THEN  the number 14 answers to th and to nothing else  [PASS]
+  THEN  the number 20 answers to th and to nothing else  [PASS]
+  THEN  the number 21 answers to st and to nothing else  [PASS]
+  THEN  the number 22 answers to nd and to nothing else  [PASS]
+  THEN  the number 23 answers to rd and to nothing else  [PASS]
+  THEN  the number 24 answers to th and to nothing else  [PASS]
+  THEN  the number 100 answers to th and to nothing else  [PASS]
+  THEN  the number 101 answers to st and to nothing else  [PASS]
+  THEN  the number 102 answers to nd and to nothing else  [PASS]
+  THEN  the number 103 answers to rd and to nothing else  [PASS]
+  THEN  the number 104 answers to th and to nothing else  [PASS]
+  THEN  the number 111 answers to th and to nothing else  [PASS]
+  THEN  the number 112 answers to th and to nothing else  [PASS]
+  THEN  the number 113 answers to th and to nothing else  [PASS]
+  THEN  the number 121 answers to st and to nothing else  [PASS]
+  THEN  the number 122 answers to nd and to nothing else  [PASS]
+  THEN  the number 123 answers to rd and to nothing else  [PASS]
+  THEN  the number 1000 answers to th and to nothing else  [PASS]
+  THEN  the number 1011 answers to th and to nothing else  [PASS]
+  THEN  the number 1012 answers to th and to nothing else  [PASS]
+  THEN  the number 1013 answers to th and to nothing else  [PASS]
+  GIVEN the same numbers, each asked for the three words it does not take
+  THEN  no number answers to a second word, or to none  [PASS]
+  THEN  the English rule on a bigger number: 1000001 takes st  [PASS]
+  THEN  ... 1000011 takes th  [PASS]
+  THEN  ... 3000000012 takes th  [PASS]
+  THEN  ... 3000000022 takes nd  [PASS]
+  -> 37 pass, 0 fail
+
+SCENARIO: The function-call form of Is no longer dies on the name _ (R13)
+  GIVEN the call 'LetterOf(...)' asked of a one letter text
+  THEN  it raises, but no longer R13 Object is required  [PASS]
+  THEN  ... it reaches the string object and stops there: stzString has no IsLetterOf (not this class's to add)  [PASS]
+  THEN  the word form is untouched and still true  [PASS]
+  THEN  ... and false when it should be  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 202 assertions, 202 pass, 0 fail
+================================================
+STATUS: OK

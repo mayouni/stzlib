@@ -1,0 +1,27 @@
+=== stzYielder Tests ===
+Map(:Abs) = [1, 2, 3, 4, 5]
+Map(:Negate) = [-1, 2, -3, 4, -5]
+Map(:Double) = [2, -4, 6, -8, 10]
+Map(:Square) = [1, 4, 9, 16, 25]
+Filter(:IsPositive) = [1, 3, 5]
+Filter(:IsNegative) = [-2, -4]
+Filter(:IsEven) = [-2, -4]
+Filter(:IsOdd) = [1, 3, 5]
+Reduce(:Sum) = 3
+Reduce(:Product) = 120
+Reduce(:Min) = -4
+Reduce(:Max) = 5
+Reduce(:Count) = 5
+MapFiltered(:IsPositive, :Square) = [1, 9, 25]
+CountWhere(:IsPositive) = 3
+CountWhere(:IsNegative) = 2
+Sum() = 3
+Product() = 120
+MinValue() = -4
+MaxValue() = 5
+Map(:StrUpper) = ["HELLO", "WORLD", "  MIXED  "]
+Map(:StrLower) = ["hello", "world", "  mixed  "]
+Map(:StrTrim) = ["hello", "WORLD", "mixed"]
+ReduceConcat('-') = a-b-c
+
+=== All stzYielder tests completed ===

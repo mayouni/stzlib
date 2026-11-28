@@ -1,0 +1,44 @@
+SCENARIO: the reactive system reports its reactor backing
+  GIVEN a fresh reactive system with stz_reactor.dll present
+  THEN  ReactorQ() exposes the backing reactor  [PASS]
+  THEN  LibuvLoop() is a real loop handle again  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: RunAfter fires once, on time, on the reactor runtime
+  GIVEN a 60ms one-shot timer
+  WHEN  the loop runs to completion
+  THEN  the callback fired exactly once  [PASS]
+  THEN  and not before its delay  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: RunEvery repeats and can be stopped from its own callback
+  GIVEN a 25ms repeating timer that stops itself after 3 ticks
+  WHEN  the loop runs
+  THEN  the timer ticked exactly 3 times  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: reactive HTTP is genuinely non-blocking and served locally
+  GIVEN an R7 app server on an ephemeral port with a /ping route
+  GIVEN a reactive system whose pump timer serves the app server
+  WHEN  HttpGet submits (no callback may run before the loop)
+  THEN  the submit returned WITHOUT dispatching  [PASS]
+  WHEN  a Reaxis timer pumps the server while the loop drains http
+  THEN  the async response arrived through the callback  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a reactive object composes the engine (F3 untangle) and debounces
+  GIVEN a reactive object with a 50ms settle watcher on :query
+  WHEN  the attribute changes three times in quick succession
+  WHEN  the loop runs the settle window out
+  THEN  the settle callback fired exactly once  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: teardown: stopping a system releases its reactor loop
+  GIVEN the first system of this suite
+  THEN  teardown completes without crash  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 9 assertions, 9 pass, 0 fail
+================================================
+STATUS: OK

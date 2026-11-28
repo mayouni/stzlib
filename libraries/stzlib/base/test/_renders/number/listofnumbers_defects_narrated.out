@@ -1,0 +1,198 @@
+SCENARIO: Absolute and Negate edit the list; Absoluted and Negated return a copy
+  THEN  Absoluted answers every number made positive  [PASS]
+  THEN  Absoluted leaves the list alone  [PASS]
+  THEN  Negated answers every positive number made negative  [PASS]
+  THEN  Negated leaves the list alone  [PASS]
+  THEN  Absolute changes the list itself  [PASS]
+  THEN  Negate changes the list itself  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Cumulate starts at the second number
+  THEN  Cumulated answers the running sums  [PASS]
+  THEN  Cumulated leaves the list alone  [PASS]
+  THEN  Cumulate changes the list itself  [PASS]
+  THEN  two numbers add up  [PASS]
+  THEN  one number stays  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: MeanByCoefficient is the weighted mean
+  THEN  coefficients 4 2 2 1 give 157 / 9 = 17.4444  [PASS]
+  THEN  equal coefficients give the plain mean  [PASS]
+  THEN  one coefficient per number is required  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: OnlyUnicodes keeps the numbers that are code points
+  THEN  whole numbers 0 to 1114111 only  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: The smallest and largest numbers, with positions, name the number's OWN position
+  THEN  Bottom3AndTheirPositions pairs each number with where it sits (repeats give a pair each)  [PASS]
+  THEN  Top3AndTheirPositions pairs each number with where it sits  [PASS]
+  THEN  the Numbers spelling is the same  [PASS]
+  THEN  Bottom3NumbersAndTheirPositions too  [PASS]
+  THEN  on an ascending list without repeats it was always right, and still is  [PASS]
+  THEN  a descending list is no longer paired by index  [PASS]
+  THEN  MinZ names the smallest number and its position  [PASS]
+  THEN  MaxZ names the largest number and its position  [PASS]
+  THEN  MinZ of a descending list is its LAST number  [PASS]
+  THEN  all the other widths are the same shape (5, 7, 10)  [PASS]
+  THEN  Top5NumbersAndTheirPositions ends at the maximum with its position  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Bottom10 and its family answer fewer numbers instead of raising
+  THEN  Bottom10 of three distinct values answers those three  [PASS]
+  THEN  Bottom5Numbers too  [PASS]
+  THEN  FindBottom10 answers every position of those values  [PASS]
+  THEN  Bottom3 still answers three  [PASS]
+  THEN  Bottom2 answers two  [PASS]
+  THEN  Top10 already did the same  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Neighbors compares n with the MAXIMUM, not with the count
+  THEN  8 lies between 7 and 9  [PASS]
+  THEN  5 lies between 4 and 6  [PASS]
+  THEN  a number of the list has the numbers either side of it  [PASS]
+  THEN  below the smallest only the smallest  [PASS]
+  THEN  above the largest only the largest  [PASS]
+  THEN  the smallest has one neighbour  [PASS]
+  THEN  the largest has one neighbour  [PASS]
+  THEN  an n above the count but inside the range (the old failure) gets a pair  [PASS]
+  THEN  repeats count once  [PASS]
+  THEN  a misspelt alias is the same  [PASS]
+  THEN  NearestNighborsTo too  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Closest passes n to Nearest
+  THEN  Closest(22) is 20  [PASS]
+  THEN  Closest agrees with ClosestTo  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: ContainsADividableNumberBy and DividableNumbersBy test each number against n
+  THEN  the numbers 3 divides  [PASS]
+  THEN  the numbers 4 divides  [PASS]
+  THEN  not just the even numbers  [PASS]
+  THEN  ContainsADividableNumberBy(7) is TRUE: 7 itself  [PASS]
+  THEN  ContainsADividableNumberBy(11) is FALSE although the product could be a multiple of anything  [PASS]
+  THEN  a negative number is tested as it is, and does not raise  [PASS]
+  THEN  zero divides nothing  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: AreGreaterThen and AreSmallerThen are strict
+  THEN  every number is above 4  [PASS]
+  THEN  5 is not above 5  [PASS]
+  THEN  every number is below 8  [PASS]
+  THEN  7 is not below 7  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: SortByInDescending sorts by an expression, largest first
+  THEN  SortedByInDescending on the absolute value  [PASS]
+  THEN  SortedByDown is the same  [PASS]
+  THEN  the list is left alone by the passive form  [PASS]
+  THEN  the active form changes the list  [PASS]
+  THEN  SortByDown too  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: MultiplyEachWithW and DivideEachWithW keep the numbers that fail the condition
+  THEN  EachMultipliedWithW multiplies from position 2 and keeps the first number  [PASS]
+  THEN  the list is left alone  [PASS]
+  THEN  EachDividedWithW divides from position 3 and keeps the others  [PASS]
+  THEN  MultiplyEachWithW changes the list and keeps all four numbers  [PASS]
+  THEN  DivideEachWithW undoes it  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: NumbersGreaterThan no longer needs n to be in the list
+  THEN  above 4 although 4 is absent  [PASS]
+  THEN  with positions  [PASS]
+  THEN  below 6 with positions  [PASS]
+  THEN  the aliases point at the same method  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: The random picks draw from the list, not from the numbers that happen to fit a position
+  THEN  ARandomNumber always answers a number of the list  [PASS]
+  THEN  and over 200 draws every number of the list showed up  [PASS]
+  THEN  ANumber, AnyRandomNumber and AnyNumber are the same pick  [PASS]
+  THEN  the Z form names the number and its position  [PASS]
+  THEN  a list of one number answers it  [PASS]
+  THEN  an empty list raises  [PASS]
+  THEN  NRandomNumbers(4) answers four numbers of the list  [PASS]
+  THEN  NRandomNumbersZ(3) answers three [ number, position ] pairs that agree  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: The random picks by comparison answer only numbers on the right side
+  THEN  ANumberLessThan(30) is always below 30  [PASS]
+  THEN  and both 10 and 20 appear  [PASS]
+  THEN  ANumberGreaterThan(30) is always above 30 (was R14)  [PASS]
+  THEN  and both 40 and 50 appear  [PASS]
+  THEN  the Z form carries the position IN THE LIST  [PASS]
+  THEN  and so does ANumberLessThanZ  [PASS]
+  THEN  with no number below 5 it raises, rather than answer a wrong one  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: NNumbers* answer n numbers of the right side (repeats allowed)
+  THEN  NNumbersLessThan(6, 30): six numbers, all below 30 (was R14)  [PASS]
+  THEN  NNumbersGreaterThan(5, 30): five numbers, all above 30 (was R14)  [PASS]
+  THEN  NNumbersOtherThan(8, 30): eight numbers, none is 30 (was R19)  [PASS]
+  THEN  the alias NRandomNumbersGreaterThan is the greater-than one, not the less-than one  [PASS]
+  THEN  NNumbersGreaterThanZ names positions in the list  [PASS]
+  THEN  NNumbersLessThanZ names positions in the list  [PASS]
+  THEN  NNumbersOtherThanMany leaves out several  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: AnyNumberAfter and AnyNumberAfterPosition come AFTER, and reach every number after
+  THEN  AnyNumberAfter(200) is always above 200 in position  [PASS]
+  THEN  and all of 300, 400 and 500 show up (it answered 500 only)  [PASS]
+  THEN  AnyNumberAfterPosition(2) is never at or before position 2 (it could answer the 1st)  [PASS]
+  THEN  and reaches positions 3, 4 and 5  [PASS]
+  THEN  AnyNumberAfterPosition(4) is the 5th  [PASS]
+  THEN  AnyNumberAfterZ names the position  [PASS]
+  THEN  and it is after the 2nd  [PASS]
+  THEN  AnyNumberAfterPositionZ(3) is the 4th or the 5th  [PASS]
+  THEN  AnyNumberBeforePosition(3) reaches the 1st and the 2nd  [PASS]
+  THEN  AnyNumberBeforePositionZ(2) is a pair  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: AnyNumberBeforeOrAfter answers a NUMBER of the other side
+  THEN  around 300 it reaches 100 200 400 and 500, never 300  [PASS]
+  THEN  300 is never answered  [PASS]
+  THEN  at the first number it can only go after  [PASS]
+  THEN  at the last number it can only go before  [PASS]
+  THEN  the Z form names the position  [PASS]
+  THEN  an absent n raises  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Numbers from outside a position or a section
+  THEN  AnyNumberOutsidePosition(3) reaches the four other numbers  [PASS]
+  THEN  and never the 3rd  [PASS]
+  THEN  AnyNumberNotBetweenPositions(2, 4) reaches the 1st and the 5th only  [PASS]
+  THEN  100 and 500  [PASS]
+  THEN  the Z form is a pair outside position 1  [PASS]
+  THEN  NotBetweenPositionsZ(2, 5) is the first number  [PASS]
+  THEN  NItemsOutsidePositionZ answers the pairs outside a position  [PASS]
+  THEN  or outside several  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: SomeNumbers* call the right constructor and answer numbers of the right side
+  THEN  SomeNumbersLessThan/GreaterThan/Between/NotBetween/OtherThan never answer a number of the wrong side (were R3)  [PASS]
+  THEN  SomeNumbersLessThan answers at least one when some are below  [PASS]
+  THEN  and an empty list when none is  [PASS]
+  THEN  SomeNumbersOtherThan reads BOTH numbers: leaving out all but 30 gives only 30  [PASS]
+  THEN  and 30 is the only number it can answer  [PASS]
+  THEN  the Z form names positions in the list  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Walker reverse-engineers the list into a stzWalker that reproduces it
+  THEN  a constant step gives the list back  [PASS]
+  THEN  its step is 1  [PASS]
+  THEN  it starts at the first number and ends at the last  [PASS]
+  THEN  a repeating pattern of steps reproduces the list  [PASS]
+  THEN  a pattern with a negative step reproduces the list too  [PASS]
+  THEN  a walker with no fixed count stops on the end  [PASS]
+  THEN  or goes no further than the end  [PASS]
+  THEN  a walker without steps is refused  [PASS]
+  THEN  one number has no steps to walk  [PASS]
+  -> 9 pass, 0 fail
+
+================================================
+TOTAL: 131 assertions, 131 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,16 @@
+SCENARIO: Signed decimals in a sentence
+  GIVEN "-132114.45 euros and 246 cents"
+  THEN  the number starts  [PASS]
+  THEN  their sections  [PASS]
+  THEN  the number strings  [PASS]
+  THEN  each grouped with its sections  [PASS]
+  THEN  it starts with a number  [PASS]
+  THEN  ... with -132  [PASS]
+  THEN  ... and with the whole of it  [PASS]
+  THEN  the leading number  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

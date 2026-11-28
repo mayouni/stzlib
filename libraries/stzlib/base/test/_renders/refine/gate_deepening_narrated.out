@@ -1,0 +1,44 @@
+SCENARIO: STAGE 3: a cross-point derivation rule rejects and rolls back
+  GIVEN a refinable config where vat must stay >= floor
+  THEN  the rule is registered  [PASS]
+  WHEN  a proposal keeps vat >= floor
+  THEN  it is admitted  [PASS]
+  THEN  the value changed  [PASS]
+  WHEN  a proposal would push vat BELOW floor
+  THEN  it is REJECTED at the derivation stage  [PASS]
+  THEN  the why names the derivation stage  [PASS]
+  THEN  and the source ROLLED BACK to the last good value  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: STAGE 4: governance gates the refinement before any mutation
+  GIVEN a governed config: refining 'sort' is a risk-3 action
+  WHEN  a delegated actor tries a risk-3 refinement
+  THEN  it is REFUSED (authority 2 < risk 3)  [PASS]
+  THEN  the why names governance  [PASS]
+  THEN  the source is unchanged  [PASS]
+  WHEN  the actor is escalated to autonomous authority (through the code)
+  THEN  the refinement is now admitted  [PASS]
+  THEN  the value changed  [PASS]
+  THEN  the decision left governed lineage  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: an undeclared-risk point cannot be refined under governance
+  GIVEN a governed config where 'vat' has NO declared risk tier
+  WHEN  a refinement of the undeclared point is attempted
+  THEN  it is refused (undeclared risk never proceeds)  [PASS]
+  THEN  the source is unchanged  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: all four stages compose: structural, constraint, derivation, governance
+  GIVEN a fully-gated config
+  THEN  structural failure: unknown point  [PASS]
+  THEN  constraint failure: above max  [PASS]
+  THEN  derivation failure: over policy cap  [PASS]
+  THEN  all four pass: a clean refinement  [PASS]
+  THEN  the admitted value stuck  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 19 assertions, 19 pass, 0 fail
+================================================
+STATUS: OK

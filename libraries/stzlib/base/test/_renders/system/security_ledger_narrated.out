@@ -1,0 +1,66 @@
+-- Scene 1: events go in; the ledger counts and keeps --
+  [OK] three events recorded
+  [OK] three retained (capacity 64)
+  [OK] the record round-trips its kind
+  [OK] ...its actor and posture
+  [OK] ...its reason, the gate's own words
+  [OK] ...and its wall clock
+
+-- Scene 2: every entry carries a digest that includes the last --
+  [OK] digests are sha256 hex (64 chars)
+  [OK] consecutive digests differ
+  [OK] the head digest is the newest entry's
+  [OK] a freshly built chain verifies intact
+
+-- Scene 3: the chain commits to HISTORY, not just to entries --
+  [OK] same last event, different history -> different head digest
+
+-- Scene 4: the analyst's pivots --
+  [OK] OfActor finds the sandboxed actor's refusal
+  [OK] OfSubject gathers everything about one secret
+  [OK] OfKind selects by catalog kind
+  [OK] OfOutcome separates grants from refusals
+  [OK] Refusals() is the signal to watch
+  [OK] OfSeverity picks the errors, and a grant is not one
+  [OK] Since() takes a time window
+
+-- Scene 5: correlation -- the trace id ties events to logs --
+  [OK] the event carried the scope's trace id into the ledger
+  [OK] ...the same id the log line carries (one story, two stores)
+
+-- Scene 6: bounded means forgetting, and it says so --
+  [OK] Count() remembers all five
+  [OK] Size() retains only three
+  [OK] the survivors are the newest
+  [OK] the evicted window still verifies (a window property)
+  [OK] ...and the head digest still commits to ALL five
+
+-- Scene 7: a Ring COPY records into the SAME evidence --
+  [OK] the original face sees the copy's event (engine truth)
+  [OK] ...and the chain is still intact across faces
+
+-- Scene 8: SEALED EXPORT -- and what happens when someone edits it --
+  [OK] the sealed file exists
+  chain intact over 5 entries
+  [OK] a fresh export verifies
+  [OK] a wrong key is caught by the seal
+  the chain breaks at entry 5 -- that record (or one before it) was edited
+  [OK] the edit is DETECTED
+  [OK] ...and the broken link is named
+
+-- Scene 9: a pipe in a reason cannot shift the fields --
+  [OK] the reason survived (pipes folded, fields intact)
+  [OK] ...and the wall clock is still a number, not a fragment
+
+-- Scene 10: it explains itself --
+Security ledger -- 5 event(s) recorded, 5 retained of 64, chain intact.
+  REFUSED secret.reveal.refused by advisor on secret:stripe-live -- actor is not effectful
+  REFUSED sig.nonce.replayed by peer-3 on key:billing -- nonce already used
+  GRANTED secret.reveal.granted by mansour on secret:stripe-live
+  REFUSED http.request.unauthorized by peer-3 on route:/pay -- signature envelope missing
+  REFUSED capability.refused by advisor on op:write -- actor is not effectful
+  [OK] the header states count, retention and chain state
+
+==========================================
+TOTAL: 35 assertions, 35 pass, 0 fail
+==========================================

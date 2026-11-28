@@ -1,0 +1,43 @@
+SCENARIO: The analytic transforms come out exactly right
+  THEN  the DFT of a delta is flat at 1  [PASS]
+  THEN  a constant puts all its energy in bin 0  [PASS]
+  THEN  ...and nothing anywhere else  [PASS]
+  THEN  a sinusoid lands in exactly two bins, each carrying n/2  [PASS]
+  THEN  ...and the dominant bin names its frequency  [PASS]
+  THEN  ...as 3/16 of the sample rate  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: The spectrum agrees with numpy.fft, at every length
+  THEN  an 8-point spectrum matches numpy  [PASS]
+  THEN  a 7-point spectrum matches numpy -- a PRIME length  [PASS]
+  THEN  a 12-point spectrum matches numpy  [PASS]
+  THEN  ...and a 13-point one, prime again  [PASS]
+  THEN  the magnitudes match numpy's abs(fft(x))  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: ...and NOTHING IS PADDED BEHIND THE CALLER'S BACK
+  THEN  a 7-sample signal is not a radix-2 length  [PASS]
+  THEN  ...and it still returns SEVEN bins, not eight  [PASS]
+  THEN  the padded signal's spectrum genuinely differs  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: The identities every transform must satisfy
+  THEN  inverse(forward(x)) is x, at a power of two  [PASS]
+  THEN  ...and at a PRIME length too  [PASS]
+  THEN  Parseval holds: energy is conserved (n=20, Bluestein)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ...and the convolution theorem gives polynomials a faster product
+  THEN  FFT convolution matches numpy.convolve  [PASS]
+  THEN  the direct product is exact  [PASS]
+  THEN  ...and the transform route agrees with it  [PASS]
+  THEN  the direct route lands on exact integers  [PASS]
+  THEN  ...while the transform route is merely very close  [PASS]
+  THEN  a 70x70 product returns the right length  [PASS]
+  THEN  ...and agrees with the transform route explicitly  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 24 assertions, 24 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,26 @@
+=== Engine Delegation: stzMatrix.Sum ===
+  Sum([[1,2,3],[4,5,6]]) = 21
+
+=== Engine Delegation: stzMatrix.Min ===
+  Min = 1
+
+=== Engine Delegation: stzMatrix.Max ===
+  Max = 6
+
+=== Engine Delegation: stzMatrix.Mean ===
+  Mean = 3.50
+
+=== Engine Delegation: stzMatrix.Determinant ===
+  Det([[1,2],[3,4]]) = -2
+
+=== Engine Delegation: stzMatrix.MultiplyByMatrix ===
+  [1,2;3,4] * [5,6;7,8] = [19,22;43,50]
+
+=== Engine Delegation: stzMatrix.Power ===
+  Power(2) of [[2,3],[4,5]] = [4,9;16,25]
+
+=================================
+  PASSED: 7  FAILED: 0
+=================================
+
+Executed in almost 0 second(s)

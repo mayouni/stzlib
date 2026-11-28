@@ -1,0 +1,26 @@
+SCENARIO: JSON predicates
+  THEN  a flat keyed list is a JSON list  [PASS]
+  THEN  a list with an unkeyed nested element is not  [PASS]
+  THEN  a well-formed JSON string is recognised  [PASS]
+  THEN  malformed text is rejected  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: List to JSON string
+  THEN  ListToJson emits compact JSON  [PASS]
+  THEN  nested keyed lists become nested objects  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: JSON string to list
+  THEN  JsonToList parses to key/value pairs  [PASS]
+  THEN  nested objects parse to nested pairs  [PASS]
+  THEN  arrays parse to plain lists  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Round-trips
+  THEN  list -> JSON -> list is identity  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,109 @@
+SCENARIO: The register's examples: aab, xxyy, abb and aabaa all answered 0
+  THEN  aab starts with a repeated character  [PASS]
+  THEN  aab does not end with one  [PASS]
+  THEN  aab is therefore not both  [PASS]
+  THEN  abb does not start with a repeated character  [PASS]
+  THEN  abb ends with one  [PASS]
+  THEN  abb is therefore not both  [PASS]
+  THEN  xxyy starts with a repeated character (xx)  [PASS]
+  THEN  xxyy ends with one (yy)  [PASS]
+  THEN  xxyy is both  [PASS]
+  THEN  aabaa starts with a repeated character  [PASS]
+  THEN  aabaa ends with one  [PASS]
+  THEN  aabaa is both (it answered 0 because it was the AND of two zeros)  [PASS]
+  THEN  abab, which repeats no character at either end, starts with none  [PASS]
+  THEN  abab ends with none  [PASS]
+  THEN  abab is not both  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: The root cause: the engine call returns a handle, and two handles are never equal
+  THEN  the two characters of aa come back as numbers (handles), not as text  [PASS]
+  THEN  the two handles differ although both characters are a  [PASS]
+  THEN  the two characters taken as text are equal  [PASS]
+  THEN  and differ for ab (a negative sibling: the text comparison is not always true)  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: The table of texts: the three predicates against the literal expected answers
+  THEN  the table holds at least 40 texts  [PASS]
+  THEN  HasLeadingChars is right on every text  [PASS]
+  THEN  HasTrailingChars is right on every text  [PASS]
+  THEN  HasLeadingAndTrailingChars is right on every text  [PASS]
+  THEN  the table expects both answers for each predicate, so a constant answer cannot pass  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The edges of the length: 0, 1 and 2 characters
+  THEN  an empty text repeats nothing  [PASS]
+  THEN  one character is not a repeat  [PASS]
+  THEN  one accented character, two bytes long, is not a repeat either  [PASS]
+  THEN  two equal characters are a repeat at both ends: all three answer 1  [PASS]
+  THEN  two different characters are not  [PASS]
+  THEN  an accented character followed by b is not a repeat (3 bytes, 2 characters)  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Letter case counts: Aa and aA are not repeats, AA and aa are
+  THEN  Aa does not start with a repeat  [PASS]
+  THEN  Aa does not end with one  [PASS]
+  THEN  AA starts with a repeat  [PASS]
+  THEN  AA ends with one  [PASS]
+  THEN  aAa repeats nothing at either end, whatever a case-blind reading says  [PASS]
+  THEN  a Cyrillic capital and its small form differ  [PASS]
+  THEN  the small form twice repeats  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Non-ASCII text: a character is a code point, never a byte
+  THEN  e-acute twice starts a text  [PASS]
+  THEN  aleph and bet share their first byte and are not a repeat  [PASS]
+  THEN  a Hebrew letter twice is a repeat  [PASS]
+  THEN  two different emoji share their first three bytes and are not a repeat (start)  [PASS]
+  THEN  two different emoji are not a repeat (end)  [PASS]
+  THEN  an emoji twice is a repeat (start)  [PASS]
+  THEN  an emoji twice is a repeat (end)  [PASS]
+  THEN  euro and kip signs share their first two bytes and are not a repeat  [PASS]
+  THEN  arabic alef and ba share their first byte and are not a repeat  [PASS]
+  THEN  a Hebrew aabaa pattern is both leading and trailing  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Combining sequences: the letter and its accent are two characters
+  THEN  e with a separate accent, twice, is four characters  [PASS]
+  THEN  it does not start with a repeat (e then the accent)  [PASS]
+  THEN  it does not end with one (the last two are e and the accent)  [PASS]
+  THEN  two e then an accent starts with a repeat  [PASS]
+  THEN  two e then an accent does not end with one  [PASS]
+  THEN  the bare accent twice is a repeat of code points at both ends  [PASS]
+  THEN  the precomposed e-acute twice is a repeat at both ends  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The mirror relation: a text ends with a repeat exactly when its reverse starts with one
+  THEN  the relation holds on every text of the table  [PASS]
+  THEN  it is never broken  [PASS]
+  THEN  aab starts with a repeat and baa, its reverse, ends with one  [PASS]
+  THEN  and neither answers the other end  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: HasLeadingAndTrailingChars is both questions put to the same text
+  THEN  it equals leading AND trailing on every text  [PASS]
+  THEN  it never differs  [PASS]
+  THEN  a text made of one character repeated is both (aaaa)  [PASS]
+  THEN  and so is its shortest form (aa)  [PASS]
+  THEN  a repeat at each end with other things between: both  [PASS]
+  THEN  a repeat at one end only is not both  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Agreement with stzString's methods of the same names, over the whole table
+  THEN  the checker and stzString agree on every text  [PASS]
+  THEN  they never disagree  [PASS]
+  THEN  a checker built over a stzString object answers 1 for aabaa  [PASS]
+  THEN  and 0 for aab  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: The questions leave the text alone and give the same answer when asked twice
+  THEN  the text is unchanged after the questions  [PASS]
+  THEN  the leading question gives the same answer twice (1)  [PASS]
+  THEN  the trailing question gives the same answer twice (1)  [PASS]
+  THEN  the text is still five characters long  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 72 assertions, 72 pass, 0 fail
+================================================
+STATUS: OK

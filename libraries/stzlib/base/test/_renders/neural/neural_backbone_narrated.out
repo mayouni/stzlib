@@ -1,0 +1,24 @@
+-- Scene 1: the tiny model, checked against numpy ground truth --
+  [OK] tiny_bert loads
+  [OK] the backbone recognizes the shape (learned positions, plain FFN)
+  [OK] the numpy reference fixture is present
+  sentences run through the GPU backbone: 5
+  worst cosine vs numpy: 0.999999985923
+  worst |diff| vs numpy: 0.000083029245
+  [OK] every sentence matched the INDEPENDENT reference (cos >= 0.9999)
+  [OK] ...and elementwise within 2e-3 (f32 tanh-GELU vs the f16 table)
+
+-- Scene 2: it is a RESIDENT chain -- the transfer counter says so --
+  bytes across the bus: 1280   (upload 1152 + readback 128 = 1280)
+  [OK] EXACTLY one upload + one pooled readback crossed the bus
+  queue submits for the whole encoder: 2
+  [OK] the encoder is ONE batched submit (+1 for the readback copy)
+
+-- Scene 3: determinism, and the refusals --
+  [OK] the same text gives an identical vector
+  [OK] with no model loaded, the backbone reports unsupported
+  [OK] ...and refuses by returning nothing (the caller keeps its CPU path)
+
+==========================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+==========================================

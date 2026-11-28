@@ -1,0 +1,48 @@
+-- Scene 1: a material is TEXT, and needs no GPU to write --
+  [OK] the declarations are readable back
+  [OK] the spec collapses to engine lines
+  [OK] a shader came back
+  [OK] the transpile is documented BY ITS OUTPUT -- the body is visible
+  [OK] builtins became real fragment values
+  [OK] it is a COMPLETE shader, not a loose fragment
+  [OK] and it binds the render layer's 3D contract
+  [OK] ToWGSL is cached -- the same text twice
+
+-- Scene 2: the fragment builtins are the point --
+  [OK] @normal is a builtin the material can read
+  [OK] @position is a builtin the material can read
+  [OK] @uv is a builtin the material can read
+  [OK] @lambert is a builtin the material can read
+  [OK] @color is a builtin the material can read
+
+-- Scene 3: every refusal names its offender --
+  [OK] an unknown @builtin refuses
+  [OK] an undeclared name refuses
+  [OK] assigning something other than @out refuses
+  [OK] reading @out refuses
+  [OK] a foreign character refuses
+  [OK] a bad swizzle refuses
+  [OK] an uncalled function refuses
+  [OK] no body at all refuses
+  [OK] a whitelisted function that IS called is fine
+
+-- Scene 4: declared values reach the shader's struct --
+  [OK] a colour flattens to FOUR numbers, then the scalar
+  [OK] and they are the colour, normalised
+  [OK] the scalar rides last
+  [OK] a MISSING colour raises by name, never shades black
+  [OK] a missing scalar raises by name too
+
+-- Scene 5: with a device, a material changes the picture --
+  [OK] a fresh scene has no material
+  [OK] it renders with the built-in shading
+  [OK] the scene now carries a material
+  [OK] and the picture CHANGED
+  [OK] the material's own colour is what shows (gold, not the instance's blue)
+  [OK] clearing it restores the built-in shading
+  [OK] and the picture comes back
+  [OK] SetMaterial with a non-material RAISES
+
+==========================================
+TOTAL: 35 assertions, 35 pass, 0 fail
+==========================================

@@ -1,0 +1,16 @@
+SCENARIO: Directional list finders
+  GIVEN "12♥♥♥67♥♥♥12♥♥♥67" (hearts at 3, 8, 13)
+  THEN  forward positions  [PASS]
+  THEN  forward sections  [PASS]
+  THEN  backward positions  [PASS]
+  THEN  backward sections  [PASS]
+  THEN  forward from 6  [PASS]
+  THEN  ... and its sections  [PASS]
+  THEN  backward from 14  [PASS]
+  THEN  ... and its sections  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

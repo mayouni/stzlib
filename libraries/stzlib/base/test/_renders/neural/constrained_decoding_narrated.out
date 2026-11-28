@@ -1,0 +1,54 @@
+-- Scene 1: the build says which rung you got, and what it covers --
+  [OK] this build enforces a grammar at the sampler
+  [OK] ...and says a violating token is UNEMITTABLE, not caught afterwards
+  [OK] ...names the prefix case a stack machine has to get right
+  [OK] ...and states the coverage in the same breath as the claim
+
+-- Scene 2: the machine walks a grammar one byte at a time --
+  [OK] a complete sentence of the grammar is accepted
+  [OK] ...and so is the other branch
+  [OK] a word outside the closed set is refused
+  [OK] a legal prefix could still continue
+  [OK] ...but it is NOT accepted as a whole answer
+
+-- Scene 3: the case a byte-at-a-time check gets wrong --
+  [OK] the prefix 'yes' is legal so far
+  [OK] the prefix 'ye' is legal so far
+  [OK] 'yesterday' is REFUSED -- valid as a prefix, invalid as a completion
+  [OK] 'yes!' is refused for the same reason
+  [OK] and the first byte alone would have said yes to both
+
+-- Scene 4: the exact failure the measurement found --
+  [OK] a well-formed memo satisfies the compiled grammar
+  [OK] the placeholder the model actually wrote cannot be reached
+  [OK] ...nor a word where a number belongs
+  [OK] ...while a negative number is fine
+  [OK] prose after a complete structure has nowhere to go
+
+-- Scene 5: what the machine REFUSES to enforce, by name --
+  [OK] left recursion is refused, not hung on
+  [OK] a rule referenced and never defined is refused
+  [OK] a grammar with no 'root' is refused -- a machine needs a start
+  [OK] a rule defined twice is refused rather than guessed at
+  [OK] a character above ASCII inside a class is refused (matching is by BYTE)
+  [OK] ...while the SAME character in a quoted literal is fine, as its bytes
+  [OK] ...and a grammar it can enforce reports no refusal at all
+  [OK] a nested structure cannot be constrained...
+  [OK] ...and the function says why rather than reporting success
+  [OK] ...while the COURT still validates it, which is the point
+
+-- Scene 6: STRUCTURE KILLS MALFORMEDNESS, NOT FALSEHOOD --
+  [OK] an age far outside the declared band SATISFIES the grammar
+  [OK] ...and the Ring court refuses it, which the grammar could not
+  [OK] ...and the schema lists that constraint as UNENFORCED by the grammar
+  [OK] a false age of the right shape passes BOTH -- structure is not truth
+
+-- Scene 7: a live model, unconstrained vs constrained --
+  (no generative GGUF loaded -- scenes 7 and 8 cannot be taken)
+
+-- Scene 9: the seam that is refused rather than ignored --
+  [OK] a grammar on a STREAMING session is refused, not quietly dropped
+
+==========================================
+TOTAL: 34 assertions, 34 pass, 0 fail
+==========================================

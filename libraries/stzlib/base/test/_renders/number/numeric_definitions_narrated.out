@@ -1,0 +1,67 @@
+SCENARIO: ONE definition of variance, and the convention is in the NAME
+  THEN  a list and a dataset now AGREE  [PASS]
+  THEN  ...on the sample variance, which is the library default  [PASS]
+  WHEN  you would rather not rely on knowing the default
+  THEN  the sample convention can be asked for by name  [PASS]
+  THEN  ...and so can the population one  [PASS]
+  THEN  the dataset answers the same two questions  [PASS]
+  THEN  ...identically  [PASS]
+  THEN  standard deviation follows its variance  [PASS]
+  THEN  ...sample, by name  [PASS]
+  THEN  ...population, by name  [PASS]
+  THEN  and the dataset agrees there too  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: the divisor is decided in ONE place, so the paths cannot drift apart
+  THEN  the engine's stats module offers both, named  [PASS]
+  THEN  ...and the population one  [PASS]
+  THEN  its default is the sample variance  [PASS]
+  THEN  the LIST module now answers the same way  [PASS]
+  THEN  ...because it asks stats.zig for the divisor rather than choosing one  [PASS]
+  GIVEN a single observation, where the two conventions diverge sharply
+  THEN  a population variance is 0 -- the one value IS the population  [PASS]
+  THEN  a sample variance is undefined, reported as 0 rather than a division by zero  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: a confidence interval that is finally the one it claimed to be
+  THEN  the 95% interval now uses t, so it is WIDER than the old z one  [PASS]
+  THEN  ...upper bound too  [PASS]
+  THEN  the old z interval was [16.14, 43.86] -- narrower by 41%  [PASS]
+  WHEN  a level no table ever held is asked for
+  THEN  97% simply works now  [PASS]
+  THEN  ...as does 42%  [PASS]
+  THEN  ...and 99.99%  [PASS]
+  THEN  a higher level is a wider interval, monotonically  [PASS]
+  THEN  ...and a lower one narrower  [PASS]
+  THEN  the common levels are still published, as a starting point not a limit  [PASS]
+  THEN  ...and 95 is among them  [PASS]
+  WHEN  a level outside 0..100 is asked for, which is not a level at all
+  THEN  that still raises  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: ...and it says which distribution it used
+  THEN  the method is t, not normal  [PASS]
+  THEN  ...with the t critical value for 4 degrees of freedom  [PASS]
+  THEN  ...the degrees of freedom are reported  [PASS]
+  THEN  ...and the sample size  [PASS]
+  THEN  there is no warning left to give, because nothing is approximated  [PASS]
+  THEN  t is 41% wider than z here, exactly as the old warning said  [PASS]
+  WHEN  the sample is large, where t and z agree
+  THEN  the critical value has converged on z to two decimals  [PASS]
+  THEN  ...and it is STILL reported as t, since that is what it is  [PASS]
+  GIVEN fewer than two observations, where no interval exists
+  THEN  the method says none  [PASS]
+  THEN  ...and explains rather than returning a bare [0,0]  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: two aliases that called methods which never existed
+  THEN  ConfInt() works  [PASS]
+  THEN  ...and agrees with the 95% default  [PASS]
+  THEN  BoxPlotData() works  [PASS]
+  THEN  ...and agrees with the method it aliases  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 42 assertions, 42 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,23 @@
+SCENARIO: Bounded pool refuses submissions past max_queue
+  GIVEN a pool with 2 workers and a 4-slot queue
+  THEN  some submissions were denied (backpressure)  [PASS]
+  THEN  LastError mentions backpressure  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Pool inflight + pending counters reflect activity
+  GIVEN a pool with 4 workers and an unbounded queue
+  THEN  pending + inflight + done = 12 (or fewer pending if all started)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Pool drains 1000 jobs through 8 workers within bounded time
+  GIVEN a pool of 8 workers and 1000 bogus HTTP GETs
+  THEN  1000 ids issued  [PASS]
+  WHEN  polling until all are drained
+  THEN  all 1000 jobs drained  [PASS]
+  THEN  wall-clock < 30s  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

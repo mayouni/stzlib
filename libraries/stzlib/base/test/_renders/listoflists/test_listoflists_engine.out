@@ -1,0 +1,17 @@
+=== stzListOfLists Engine Delegation ===
+
+--- CommonItems ---
+CommonItems of 3 lists: 2 items
+  c
+  d
+
+CommonItems with no overlap: 0 items
+
+CommonItems with single list: 3 items
+
+=== All stzListOfLists tests passed! ===
+
+Executed in almost 0 second(s)
+
+----------------
+----------------

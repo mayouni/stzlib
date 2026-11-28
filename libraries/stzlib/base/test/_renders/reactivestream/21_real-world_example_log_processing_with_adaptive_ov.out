@@ -1,0 +1,13 @@
+Adaptive Log Processing Demo...
+🔄 Log processing overflow: 5/5
+⚡ Switching to BUFFER_REJECT_NEWEST strategy due to extreme load
+Processing remaining buffer...
+📋 ERROR [DB] Connection timeout
+Final processing stats:
+  • Strategy: drop
+  • Items dropped: 1
+  • Buffer utilization: 6/10
+
+
+----------------
+----------------

@@ -1,0 +1,12 @@
+SCENARIO: Bounds of a single occurrence, capped
+  GIVEN "<<<word>>>"
+  THEN  the full bound runs, flat  [PASS]
+  THEN  capped at 2 a side  [PASS]
+  THEN  capped per side  [PASS]
+  THEN  the UpToNChars spelling  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

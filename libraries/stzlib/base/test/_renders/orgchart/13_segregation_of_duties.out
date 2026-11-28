@@ -1,0 +1,13 @@
+[
+	[ "status", "fail" ],
+	[ "domain", "segregation_of_duties" ],
+	[ "issuecount", 1 ],
+	[
+		"issues",
+		[ "SOD-001: Operations reports through Treasury" ]
+	]
+]
+
+
+----------------
+----------------

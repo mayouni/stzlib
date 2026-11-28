@@ -1,0 +1,32 @@
+SCENARIO: a destroyed ledger's copy raises instead of reading freed memory
+  THEN  before: both faces read the same ledger  [PASS]
+  THEN  the copy raises  [PASS]
+  THEN  ...saying the object was destroyed  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a stale copy cannot free the object that now owns the slot
+  THEN  the new ledger is untouched  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: an ordinary object is unaffected (negative sibling)
+  THEN  a copy of a LIVE ledger reads it  [PASS]
+  THEN  a fresh ledger works after a destroy  [PASS]
+  THEN  strings, which share the table, still work  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the same holds for the other engine objects moved onto the table
+  THEN  a circuit breaker answers while it lives  [PASS]
+  THEN  its copy raises after the destroy  [PASS]
+  THEN  a NULL handle is still just NULL, not an error  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the process ledger keeps one id
+  THEN  two faces of the process ledger see the same entries  [PASS]
+  THEN  ...and a refusal reaches it  [PASS]
+  THEN  closing it closes it  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 13 assertions, 13 pass, 0 fail
+================================================
+STATUS: OK

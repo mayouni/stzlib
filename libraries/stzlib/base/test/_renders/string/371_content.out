@@ -1,0 +1,12 @@
+SCENARIO: Peeling chars off a string, conditionally
+  GIVEN "_ABC_DE_"
+  THEN  the leading underscore goes  [PASS]
+  THEN  the case-insensitive A goes too  [PASS]
+  THEN  the last char goes  [PASS]
+  THEN  position 3 goes because it IS an underscore  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

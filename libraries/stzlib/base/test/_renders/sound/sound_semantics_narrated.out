@@ -1,0 +1,119 @@
+== sound semantics: the meaning layer ==
+
+-- Scene 1: the vocabulary is the LAW's, not this plane's --
+   Rule 118 legislates exactly five semantic values. A sixth invented here
+   would be a constitutional amendment wearing a library's clothes.
+   the five: danger, warning, info, success, muted
+  [ok]   there are exactly five
+  [ok]   the law's 'danger' is one of them
+  [ok]   the law's 'warning' is one of them
+  [ok]   the law's 'info' is one of them
+  [ok]   the law's 'success' is one of them
+  [ok]   the law's 'muted' is one of them
+  [ok]   an invented value is refused
+   reason: no semantic value named 'Catastrophe'
+  [ok]   and a real one is not
+
+-- Scene 2: :Muted renders as SILENCE, and that is a rendering --
+   'muted' means waiting or inactive. A sound announcing inactivity is a
+   contradiction, and silence already carries it exactly. Four of the five
+   sound -- which is also why there is no pressure for a sixth.
+  [ok]   muted is the silent value
+  [ok]   and it has no sound to render
+  [ok]   firing it is refused, with silence as the reason
+   reason: muted renders as silence
+   4 of the five render to a sound
+  [ok]   exactly four of the five sound
+
+-- Scene 3: the role step is spelled the way COLOUR spells it --
+   :Danger.Alert reads like :Danger.Surface on purpose. An author should
+   not have to learn two spellings for one idea.
+  [ok]   a bare name defaults to the cue step
+  [ok]   the dot spelling is understood
+  [ok]   and it does not change the value
+  [ok]   ambient is a legal step
+  [ok]   but Fire never produces it
+   reason: ambient is opt-in and never fired
+
+-- Scene 4: THE INSTRUMENT CANNOT SEE AN EARCON --
+   The audibility floor should bind to Loudness(), the way contrast binds
+   to 4.5:1. BS.1770-4 integrates over 400 ms blocks behind a -70 LUFS
+   gate, and an earcon is shorter than one block. This is the measurement
+   that sent the floor to a substitute metric and SS2 to the plan.
+   40 ms at peak 0.50 -> -1000 LUFS
+  [ok]   a 40 ms earcon reads as SILENCE (-1000)
+   60 ms at peak 0.50 -> -1000 LUFS
+  [ok]   a 60 ms earcon reads as SILENCE (-1000)
+   100 ms at peak 0.50 -> -1000 LUFS
+  [ok]   a 100 ms earcon reads as SILENCE (-1000)
+   200 ms at peak 0.50 -> -1000 LUFS
+  [ok]   a 200 ms earcon reads as SILENCE (-1000)
+   400 ms -- one whole block -- reads -9.38 LUFS
+  [ok]   at one full block the very same tone measures
+  [ok]   and it is a plausible level for peak 0.5
+   the metric in use: K-weighted level over the sound's support (BS.1770 weighting, NOT integrated LUFS)
+  [ok]   the metric names itself as not standard LUFS
+   a 60 ms tone: integrated -1000, support -10.06
+  [ok]   the support measure SEES what integrated LUFS calls silence
+   a 400 ms tone: integrated -9.38, support -9.38
+  [ok]   and it agrees with the standard where the standard answers
+  [ok]   the same tone measures the same at 60 ms and 400 ms
+
+-- Scene 5: the floor is DECLARED, and it can FAIL --
+   A sound system that cannot fail an audibility check does not have one.
+   The floor is declared rather than measured: measuring a room needs a
+   microphone, a consent, and an input this machine may not have.
+   declared floor: -40 dB
+     Danger: level -13.13 dB, margin 26.87 dB (needs 10)
+     Warning: level -13.34 dB, margin 26.66 dB (needs 10)
+     Info: level -13.67 dB, margin 26.33 dB (needs 10)
+     Success: level -14.31 dB, margin 25.69 dB (needs 10)
+  [ok]   every sounding value clears the gate in a quiet room
+  [ok]   and an alert is held to a HIGHER bar than a cue
+   the same motifs in a -10 dB room: margin -3.13 dB
+  [ok]   in a loud room the shipped motifs are REFUSED as inaudible
+  [ok]   silence stays lawful in any room
+
+-- Scene 6: PRIORITY -- and why :OverDanger is refused --
+   Colour asks what can be READ ON a fill, because text and fill are
+   co-present and spatial. Two sounds in one instant do not layer, they
+   MASK -- and masking is frequency-selective and asymmetric, so there is
+   no fixed answer to what can be heard over danger. The answer is nothing:
+   you drop, or you duck.
+  [ok]   danger outranks warning
+  [ok]   warning outranks info
+  [ok]   info outranks success
+  [ok]   and muted never contends
+  [ok]   a cue under a sounding alert is DROPPED
+   reason: pre-empted by a louder meaning still sounding
+  [ok]   and so is a warning -- rank, not recency
+  [ok]   once the alert is over, a cue passes again
+  [ok]   a warning alert does NOT pre-empt danger
+
+-- Scene 7: the same state twice in a tenth of a second is ONE state --
+  [ok]   the first report passes
+  [ok]   the same value 50 ms later is refused
+   reason: refractory: the same value inside 150 ms is one event
+  [ok]   a DIFFERENT value is not refractory
+  [ok]   and after the window the same value passes
+   info drops counted: 2
+  [ok]   drops are counted, so 'why did that sound vanish' has an answer
+  [ok]   and a value nothing happened to counts zero
+
+-- Scene 8: Rule 18, and the honest answer --
+   'Actions must acknowledge the user within 100 ms.' Measured on this
+   pipeline: 329 ms of ring plus ~90 ms of device and OS. The compute is
+   not the problem -- the burst spends 14-32 us of a 10 ms wake-up. All of
+   the budget is QUEUEING.
+   trigger to ear: 419 ms
+  [ok]   a sound cannot acknowledge inside Rule 18's 100 ms
+  [ok]   and the face SAYS so rather than letting a caller assume
+  [ok]   it is inside half a second, so this is a budget and not a break
+
+   THE CONSEQUENCE, recorded in plan S.5: on a surface with a screen this
+   is not a problem, because the sound was never the acknowledgement --
+   the visual state change is, and the sound corroborates. On an eyes-free
+   surface Rule 18 is unsatisfiable here, and that is a constitutional
+   finding rather than a defect this plane can fix.
+
+48 passed, 0 failed

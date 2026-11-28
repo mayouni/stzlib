@@ -1,0 +1,17 @@
+[
+	[ "status", "fail" ],
+	[ "domain", "succession" ],
+	[ "issuecount", 1 ],
+	[
+		"issues",
+		[ "No successor: ceo" ]
+	],
+	[
+		"affectednodes",
+		[ "ceo" ]
+	]
+]
+
+
+----------------
+----------------

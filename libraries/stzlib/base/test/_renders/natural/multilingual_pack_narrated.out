@@ -1,0 +1,99 @@
+SCENARIO: Language packs register as pure data
+  THEN  the French pack is registered  [PASS]
+  THEN  the Arabic pack is registered  [PASS]
+  THEN  an unregistered language reports FALSE  [PASS]
+  THEN  the language roster covers en/ha/fr/ar/tr  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: French natural programs execute -- including grown operations
+  THEN  French phrase -> METHOD_REMOVEDUPLICATES (a GROWN verb)  [PASS]
+  THEN  full language name works, dictionary word resolves  [PASS]
+  THEN  two-param replace in French  [PASS]
+  THEN  the contraction l'envers survives quote pairing AND resolves  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Arabic natural programs execute -- same semantic IDs, RTL script
+  THEN  Arabic phrase -> METHOD_REMOVEDUPLICATES (same grown verb)  [PASS]
+  THEN  Arabic dictionary verb reverses the list  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Arabic is LINGUISTICALLY CORRECT, not transliterated English
+  GIVEN attached bi- preposition, pronoun suffixes -ha/-hu, verb variants
+  THEN  bi- preposition + azil takraratu-ha (suffixed noun)  [PASS]
+  THEN  tahtawi 3ala (containing) + the ihdhif verb variant  [PASS]
+  THEN  i3kis-ha: suffixed dictionary verb resolves via canonicalization  [PASS]
+  THEN  hadhf al-mukarrarat (verb variant + article form)  [PASS]
+  THEN  iqlib-ha: the reversal verb alternative, feminine suffix  [PASS]
+  THEN  iqlib-hu: same verb, masculine suffix on the text object  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Vocalized, real-world Arabic writing is accepted
+  GIVEN tashkeel/tatweel stripped as marks, wa-/fa- stripped as attached conjunctions
+  THEN  fully vocalized sentence: dedup THEN wa-reverse  [PASS]
+  THEN  tanween on the object noun  [PASS]
+  THEN  bi- stretched with many tatweels  [PASS]
+  THEN  shadda on thumma + wa-attached dictionary verb  [PASS]
+  THEN  three chained inflected verbs: dedup, wa-sort, wa-reverse  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Verified affix chains: risky strips allowed when the base is known
+  GIVEN construct-and-verify stripping over conjunction/preposition/article/suffix
+  THEN  the fused wa+bi+al+word canonicalizes to its base  [PASS]
+  THEN  fa- attached to the verb executes (fa-ihdhif = so-remove)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: One ranker for all languages: unlisted words carried by rare ones
+  THEN  'vire' was never listed -- the rare 'doublons' decides via IDF  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: The system says what it did NOT understand, in any language
+  THEN  French lint flags the typo  [PASS]
+  THEN  ...and suggests the nearest known word  [PASS]
+  THEN  a fully understood program reports UnderstoodAll  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Arabic-Indic numerals and the Arabic comma normalize in values
+  THEN  a value list written entirely in Arabic numerals evaluates  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: French elision generalizes through the same canonicalizer
+  THEN  l'envers (elided article, apostrophe intact)  [PASS]
+  THEN  bare envers matches the same canonical form  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The language-aware resolver answers directly
+  THEN  fr 'doublons' alone resolves via pack-bag membership  [PASS]
+  THEN  fr 'capitales' resolves  [PASS]
+  THEN  fr gibberish resolves to nothing  [PASS]
+  THEN  en delegation intact: 'capitals'  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A language can be added at RUNTIME as a data block
+  THEN  the runtime pack registers  [PASS]
+  THEN  ...and its phrases execute grown operations immediately  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Role-based grammar: Turkish SOV executes (the word-order unlock)
+  GIVEN :object_before_create + :params_before_verb declared as pack grammar
+  THEN  verb-final creation + case-suffixed dedup phrase  [PASS]
+  THEN  backward parameter extraction keeps textual order  [PASS]
+  THEN  SOV phrase reversal  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Understood() paraphrases back in the program's OWN language
+  GIVEN StzLinearizeId: pack word -> phrase variant -> English fallback
+  THEN  French paraphrase composed from the pack's own words  [PASS]
+  THEN  Arabic paraphrase in Arabic words  [PASS]
+  THEN  Turkish paraphrase keeps the SOV creation order  [PASS]
+  THEN  English keeps its polished template  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Existing languages unaffected (regression)
+  THEN  English  [PASS]
+  THEN  Hausa  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 45 assertions, 45 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,352 @@
+SCENARIO: A v = lambda v -- the property that defines the answer
+  THEN  a diagonal matrix  [PASS]
+  THEN  an upper-triangular matrix  [PASS]
+  THEN  a rotation, whose vectors are complex  [PASS]
+  THEN  a general non-symmetric matrix  [PASS]
+  THEN  a symmetric matrix  [PASS]
+  THEN  a companion matrix  [PASS]
+  THEN  badly scaled entries  [PASS]
+  THEN  even a defective matrix, for the vector it has  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: the rotation, checked by hand
+  THEN  the first eigenvalue is i or -i  [PASS]
+  THEN  ...and it is purely imaginary  [PASS]
+  THEN  the first component is 1/sqrt(2)  [PASS]
+  THEN  ...and real, as normalisation promises  [PASS]
+  THEN  the second component is purely imaginary  [PASS]
+  THEN  ...with magnitude 1/sqrt(2)  [PASS]
+  THEN  the vector has unit length  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: DEFECTIVE matrices are reported, not papered over
+  THEN  two eigenvalues  [PASS]
+  THEN  ...but only one independent eigenvector  [PASS]
+  THEN  it says it is defective  [PASS]
+  THEN  ...and therefore not diagonalizable  [PASS]
+  THEN  EigenVectors refuses rather than returning a duplicate  [PASS]
+  THEN  ...saying how many there actually are  [PASS]
+  THEN  a repeated eigenvalue alone does not make a matrix defective  [PASS]
+  THEN  ...it has a full set  [PASS]
+  THEN  ...and is diagonalizable  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: what EigenVectors returns, and what it still refuses
+  THEN  three columns of three  [PASS]
+  THEN  ...of the right width  [PASS]
+  THEN  the first eigenvector is e1  [PASS]
+  THEN  ...with the rest zero  [PASS]
+  THEN  a rotation is refused  [PASS]
+  THEN  ...pointing at the complex form  [PASS]
+  THEN  a non-square matrix is refused  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: the symmetric path is untouched
+  THEN  a symmetric matrix still answers  [PASS]
+  THEN  ...with orthonormal columns  [PASS]
+  THEN  ...of unit length  [PASS]
+  THEN  EigenValues is unchanged too  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: it is reproducible, which for an iterative method is not automatic
+  THEN  two runs agree to the last bit  [PASS]
+  THEN  ...and every eigenvector has unit length  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: stzComplex follows the name-form laws too
+  THEN  Conjugated() returns a [re, im] pair  [PASS]
+  THEN  ...with the imaginary part negated  [PASS]
+  THEN  ...and the original is UNCHANGED  [PASS]
+  THEN  ConjugatedQ() returns something chainable  [PASS]
+  THEN  ...and STILL did not change the original  [PASS]
+  THEN  Conjugate() returns nothing  [PASS]
+  THEN  ...and it DID change the original  [PASS]
+  THEN  Plus() returns data  [PASS]
+  THEN  ...the right data  [PASS]
+  THEN  PlusQ() returns a chainable object  [PASS]
+  THEN  TimesQ() chains as well  [PASS]
+  THEN  DividedBy() returns data too  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: INVERTING AN EIGENDECOMPOSITION IS ONE POWER AMONG SEVERAL
+  THEN  p = 1 rebuilds the matrix  [PASS]
+  THEN  p = -1 is the inverse  [PASS]
+  THEN  p = 0.5 squares back to the matrix  [PASS]
+  THEN  ...and unlike Cholesky's factor it is symmetric  [PASS]
+  THEN  p = -0.5 whitens: W A W is the identity  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: ...and Power() next door means something else entirely
+  THEN  the elementwise power takes the root of each entry  [PASS]
+  THEN  ...and the matrix power does not  [PASS]
+  THEN  a non-symmetric matrix has no such decomposition  [PASS]
+  THEN  ...and a fractional power of an indefinite one has no real answer  [PASS]
+  THEN  ...though an integer power of the very same matrix is fine  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: THE SCHUR DECOMPOSITION -- and the one already here was not orthogonal
+  THEN  Q is orthogonal  [PASS]
+  THEN  ...and Q T Q' rebuilds the matrix  [PASS]
+  THEN  ...with T quasi-upper-triangular  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ...and its inverse is correct, and the wrong route to use
+  THEN  it is the inverse  [PASS]
+  THEN  ...a SIXTH route to the same matrix  [PASS]
+  THEN  MatrixPower still refuses the very matrix Schur handles  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ...and the 2x2 blocks are real, not a formality
+  THEN  T carries a genuine 2x2 block  [PASS]
+  THEN  ...and the inverse is right anyway  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: MATRIX FUNCTIONS OF A NON-SYMMETRIC MATRIX: f(A) = Q f(T) Q'
+  THEN  the symmetric route refuses this matrix  [PASS]
+  THEN  ...and the general one squares back to it  [PASS]
+  THEN  on symmetric input the two routes agree  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ...and a DEFECTIVE matrix has no eigendecomposition and a fine square root
+  THEN  the square root is exactly [[1,0.5],[0,1]]  [PASS]
+  THEN  ...and it squares back  [PASS]
+  THEN  a complex eigenvalue pair is no obstacle  [PASS]
+  THEN  but a negative real eigenvalue is refused, not returned as NaN  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and the exponential does NOT want a Schur decomposition
+  THEN  exp of a nilpotent matrix is an exact polynomial  [PASS]
+  THEN  exp(A) exp(-A) is the identity  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: THE MATRIX LOGARITHM: inverse scaling and squaring
+  THEN  exp(log(A)) is A  [PASS]
+  THEN  log of the identity is zero  [PASS]
+  THEN  ...and log of a diagonal is entrywise  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ...and the defective matrix has an EXACT logarithm
+  THEN  log([[1,1],[0,1]]) is exactly [[0,1],[0,0]]  [PASS]
+  THEN  a singular matrix has no logarithm at all  [PASS]
+  THEN  ...and the message says why  [PASS]
+  THEN  a negative real eigenvalue has only a complex one  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and then ANY real power follows, which MatrixPower could not give
+  THEN  the symmetric route still refuses this matrix  [PASS]
+  THEN  ...and A^0.5 squares back to A  [PASS]
+  THEN  ...and matches the Schur square root  [PASS]
+  THEN  ...and (A^0.25)^2 is A^0.5  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: THE MATRIX SINE AND COSINE -- and these need nothing beneath them
+  THEN  sin(A)^2 + cos(A)^2 is the identity  [PASS]
+  THEN  cos(0) is the identity  [PASS]
+  THEN  ...and sin(0) is zero  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ...with exact answers on a nilpotent matrix, and the right parity
+  THEN  sin of a nilpotent matrix is the matrix itself  [PASS]
+  THEN  ...and its cosine is I - N^2/2 exactly  [PASS]
+  THEN  cosine is even  [PASS]
+  THEN  ...and sine is odd  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and on a SYMMETRIC matrix they agree with the eigendecomposition
+  THEN  the cosine matches Q cos(L) Q'  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: THE HYPERBOLIC PAIR -- the same routine with one sign changed
+  THEN  cosh(A)^2 - sinh(A)^2 is the identity  [PASS]
+  THEN  cosh(0) is the identity  [PASS]
+  THEN  ...and sinh(0) is zero  [PASS]
+  THEN  cosh is even and sinh is odd  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and cosh + sinh = exp, across two unrelated algorithms
+  THEN  cosh(A) + sinh(A) is exp(A)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: ...and a nilpotent matrix separates the families by exactly that sign
+  THEN  cos of a nilpotent matrix is I - N^2/2  [PASS]
+  THEN  ...and cosh of it is I + N^2/2  [PASS]
+  THEN  ...while both sines are the matrix itself  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: THE MATRIX TANGENT, and the side does not matter
+  THEN  tan(A) cos(A) is sin(A)  [PASS]
+  THEN  ...and the other order gives the same matrix  [PASS]
+  THEN  (I + tan^2) cos^2 is the identity  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ...and UNLIKE the sine and cosine, the tangent can fail to exist
+  THEN  an eigenvalue at pi/2 is refused  [PASS]
+  THEN  ...and the message says why  [PASS]
+  THEN  a diagonal goes entrywise  [PASS]
+  THEN  and a nilpotent matrix is its own tangent, exactly  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and the hyperbolic tangent fails in a place a real spectrum cannot reach
+  THEN  tanh(A) cosh(A) is sinh(A)  [PASS]
+  THEN  (I - tanh^2) cosh^2 is the identity  [PASS]
+  THEN  a large real spectrum is no obstacle at all  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: THE MATRIX ARCTANGENT -- the first inverse, and it needed a different idea
+  THEN  tan(atan(A)) is A  [PASS]
+  THEN  ...and a nilpotent matrix gives back itself, exactly  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: ...and what it refuses is the BRANCH POINT, not a limitation
+  THEN  an eigenvalue past i has no principal arctangent  [PASS]
+  THEN  ...while one inside is answered  [PASS]
+  THEN  ...and the message names the branch points  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ...and the hyperbolic twin needed no new idea, which is the asymmetry
+  THEN  tanh(atanh(A)) is A  [PASS]
+  THEN  an eigenvalue of 1 is refused  [PASS]
+  THEN  ...and so is -1  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: THE MATRIX ARCSINE AND ARCCOSINE
+  THEN  sin(asin(A)) is A  [PASS]
+  THEN  cos(acos(A)) is A  [PASS]
+  THEN  ...and asin + acos is exactly (pi/2) I  [PASS]
+  THEN  a nilpotent matrix gives back itself, exactly  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and the branch point is the OTHER one this time
+  THEN  an eigenvalue at 2 has no real arcsine  [PASS]
+  THEN  ...nor a real arccosine  [PASS]
+  THEN  ...while one inside is answered  [PASS]
+  THEN  acosh refuses an eigenvalue INSIDE the unit interval  [PASS]
+  THEN  ...and answers a POSITIVE one outside it  [PASS]
+  THEN  ...but REFUSES the negative ray, though |L| >= 1 on it  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: ...and every hyperbolic inverse is a closed form in the logarithm
+  THEN  sinh(asinh(A)) is A  [PASS]
+  THEN  ...on a matrix the arcsine refuses outright  [PASS]
+  THEN  a complex pair can put even asinh out of reach  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: THE MATRIX SECANT AND COSECANT -- where the content is the refusal
+  THEN  cos(A) * sec(A) is I  [PASS]
+  THEN  sin(A) * csc(A) is I  [PASS]
+  THEN  ...and sec(A)^2 - tan(A)^2 is I  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ...and THE SAME MATRIX HAS A SECANT AND NO COSECANT
+  THEN  sec(N) is exactly I + N^2/2  [PASS]
+  THEN  ...and csc(N) does not exist at all  [PASS]
+  THEN  csc refuses every singular matrix  [PASS]
+  THEN  ...and csch refuses it too  [PASS]
+  THEN  ...while sec takes it without complaint  [PASS]
+  THEN  sec(0) is I  [PASS]
+  THEN  ...and csc(0) is out of reach  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: ...and the four domains are not alike
+  THEN  sec of a diagonal is 1/cos, entry by entry  [PASS]
+  THEN  ...and csc is 1/sin  [PASS]
+  THEN  sec refuses an eigenvalue at pi/2  [PASS]
+  THEN  ...where the cosecant is perfectly happy  [PASS]
+  THEN  sech is answered on a wide real spectrum  [PASS]
+  THEN  ...and it is 1/cosh entrywise on the diagonal  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: THE MATRIX COTANGENT -- and why it is NOT MatrixTan() inverted
+  THEN  cot(A) * tan(A) is I  [PASS]
+  THEN  coth(A) * tanh(A) is I  [PASS]
+  THEN  ...and csc(A)^2 - cot(A)^2 is I  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ...because THE TANGENT ROUTE THROWS AWAY PART OF THE DOMAIN
+  THEN  at pi/2 the tangent does not exist  [PASS]
+  THEN  ...and the cotangent is answered anyway  [PASS]
+  THEN  ...its value there being exactly zero  [PASS]
+  THEN  ...while the other entry is the ordinary cos/sin  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and the four domains pair off BY DENOMINATOR, not by family
+  THEN  a singular matrix has no cotangent  [PASS]
+  THEN  ...nor a cosecant  [PASS]
+  THEN  ...but it does have a tangent  [PASS]
+  THEN  ...and a secant  [PASS]
+  THEN  at pi/2 the tangent is out  [PASS]
+  THEN  ...and the secant with it  [PASS]
+  THEN  ...while the cotangent is in  [PASS]
+  THEN  ...and the cosecant with it  [PASS]
+  THEN  tan of a nilpotent is itself, exactly  [PASS]
+  THEN  ...and it has no cotangent at all  [PASS]
+  THEN  ...nor a hyperbolic one  [PASS]
+  THEN  coth is answered on a wide real spectrum  [PASS]
+  THEN  ...and is cosh/sinh entrywise on the diagonal  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: THE MATRIX ARCCOTANGENT -- where the two routes DISAGREE
+  THEN  the two routes agree on the POSITIVE eigenvalue  [PASS]
+  THEN  ...and are exactly pi apart on the NEGATIVE one  [PASS]
+  THEN  the round trip passes for the subtraction  [PASS]
+  THEN  ...AND for the other branch, just as exactly  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and the branch taken here is the one defined at zero
+  THEN  acot of the zero matrix is (pi/2) I  [PASS]
+  THEN  a singular matrix has an arccotangent  [PASS]
+  THEN  cot(acot(A)) is A  [PASS]
+  THEN  ...and a diagonal is pi/2 - atan entrywise  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and for ONCE the circular side is the wider one
+  THEN  coth(acoth(A)) is A  [PASS]
+  THEN  ...and it is atanh(1/x) entrywise  [PASS]
+  THEN  a singular matrix has NO hyperbolic arccotangent  [PASS]
+  THEN  ...while its circular arccotangent is perfectly ordinary  [PASS]
+  THEN  an eigenvalue at 1 refuses it too  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: THE MATRIX ARCSECANT AND ARCCOSECANT
+  THEN  sec(asec(A)) is A  [PASS]
+  THEN  csc(acsc(A)) is A  [PASS]
+  THEN  ...and asec + acsc is exactly (pi/2) I, as asin + acos was  [PASS]
+  THEN  ...and a diagonal is acos(1/x) entrywise  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...which INVERTS the domain of the arcsine and arccosine
+  THEN  outside the unit interval the arcsecant is at home  [PASS]
+  THEN  ...and the arcsine is not  [PASS]
+  THEN  inside it, the arcsine is at home  [PASS]
+  THEN  ...and the arcsecant is not  [PASS]
+  THEN  at |L| = 1 the arcsine is refused  [PASS]
+  THEN  ...and so is the arcsecant  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: ...and all four go through the inverse, so all four refuse a singular matrix
+  THEN  a singular matrix has no arcsecant  [PASS]
+  THEN  ...nor an arccosecant  [PASS]
+  THEN  ...nor a hyperbolic arcsecant  [PASS]
+  THEN  ...nor a hyperbolic arccosecant  [PASS]
+  THEN  asech is answered inside the unit interval  [PASS]
+  THEN  ...and refused outside it  [PASS]
+  THEN  ...and refused for a NEGATIVE eigenvalue inside it  [PASS]
+  THEN  acsch takes the small matrix  [PASS]
+  THEN  ...and the large one too  [PASS]
+  THEN  the cheap route is wrong at -2  [PASS]
+  THEN  ...wrong by a DIFFERENT amount at -3  [PASS]
+  THEN  ...and it is a reflection: asec(-x) = pi - atan(sqrt(x^2-1))  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: THE HYPERBOLIC ARC ROUND TRIPS -- one lives on a ray, the other on the whole line
+  THEN  sech(asech(A)) is A, on a positive spectrum  [PASS]
+  THEN  csch(acsch(A)) is A, on a spectrum straddling zero  [PASS]
+  THEN  ...but asech cannot take that negative eigenvalue at all  [PASS]
+  THEN  asech takes an eigenvalue at exactly 1  [PASS]
+  THEN  ...where the circular arcsecant refused it  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 210 assertions, 210 pass, 0 fail
+================================================
+STATUS: OK

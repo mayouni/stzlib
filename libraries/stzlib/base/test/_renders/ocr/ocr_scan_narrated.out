@@ -1,0 +1,107 @@
+SCENARIO: A born-digital PDF keeps its text layer: ReadOcr reads no page through OCR
+  THEN  no page was read through OCR  [PASS]
+  THEN  its blocks are the reader's own  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: A French scan reads as a document: headings, two tables, a list, the page furniture
+  THEN  the scan has no text layer  [PASS]
+   pages read: [ [ 1, "platform", 78, 0, 0, 0 ] ]   marks found: [ [ 1, 24 ] ]
+  THEN  its page was read through OCR  [PASS]
+  THEN  by the floor: French is the floor's (a tie is not strictly better)  [PASS]
+  THEN  the title is a heading  [PASS]
+  THEN  the line's name is a heading  [PASS]
+  THEN  a section title is a heading  [PASS]
+  THEN  a bold sub-title is a heading (its strokes are wider)  [PASS]
+  THEN  and the other one (strokes measured to a fraction of a pixel)  [PASS]
+  THEN  the two timetables are two tables (the scan's ruled lines keep them apart)  [PASS]
+  THEN  each opens on its header row, white on a dark band (the band is the ladder's first row)  [PASS]
+  THEN  no header cell is left outside its table  [PASS]
+  THEN  and the last row, under the thicker bottom rule, is in its table  [PASS]
+  THEN  the three notes are list items (their bullets are dots in the pixels)  [PASS]
+  THEN  a list item reads whole  [PASS]
+  THEN  the address under the page is its footer  [PASS]
+  THEN  the year in the top band is its header  [PASS]
+  -> 16 pass, 0 fail
+
+SCENARIO: A scan read through OCR writes an inspection page: the image and its reading, every block placed
+  THEN  the page is written  [PASS]
+  THEN  the image the OCR read is beside it  [PASS]
+  THEN  every block is placed: as many boxes as blocks and OCR lines, and one note without a box  [PASS]
+  THEN  a block's text is on it  [PASS]
+  THEN  and the notes  [PASS]
+  THEN  a document no page of which was read through OCR is refused, saying why  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: A coloured stamp and a logo are drawn, not written: kept out of the text, coloured words kept in it
+  THEN  the stamp is one figure, its two lines together  [PASS]
+  THEN  the stamp's text is what of it reads as words  [PASS]
+  THEN  the stamp's title is a block, its nonsense in none  [PASS]
+  THEN  the coloured words are text: the blue title, the title in two colours, the blue heading, the chart's labels  [PASS]
+  THEN  shaped like a logo: the logo's line (an emblem tight against letters) and the title in two colours; the stamp's lines are the stamp's  [PASS]
+  THEN  the logo's emblem is where it is drawn, left of its letters  [PASS]
+  THEN  a reading made of words stays text, one that is not is the logo's  [PASS]
+  THEN  the signatory's line, touched by the signature's stroke, is read again without it and reads as printed  [PASS]
+  THEN  and its block carries the second reading  [PASS]
+  THEN  a drawn stroke touches the signatory's line and no other  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: An Arabic scan reads as a document, in logical order
+  THEN  by the floor: Arabic is the floor's  [PASS]
+  THEN  the title is a heading  [PASS]
+  THEN  a bold section title is a heading, not a caption of the table under it (Arabic bold: strokes to a fraction of a pixel)  [PASS]
+  THEN  the coverage table is a table  [PASS]
+  THEN  the policy details are a table too (its borders are rules in the pixels)  [PASS]
+  THEN  the footer's policy number reads as printed  [PASS]
+  THEN  the small hotline beside the large title is read on its own: two numbers in the paragraph's order  [PASS]
+  THEN  the numbered exclusions are list items  [PASS]
+  THEN  a long Arabic line reads near its 11.5 points  [PASS]
+  THEN  a one-word bold heading with no tail is a heading  [PASS]
+  THEN  the 12.5-pt note title stands apart from the 11.5-pt paragraph under it  [PASS]
+  THEN  an alef with madda reads as printed (the word list knows the word by it)  [PASS]
+  THEN  the company's name in the top band is the page header  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: A scan app's page: small text is read enlarged, and reads as printed
+  THEN  a 9-pt time in a timetable reads whole  [PASS]
+  THEN  a bullet the enlarged read takes for a letter is no block: the dot in the pixels is the marker  [PASS]
+  THEN  an amount reads whole  [PASS]
+  THEN  the footer's policy number reads as printed, its 0 and 1 not O and l  [PASS]
+  THEN  the hotline beside the title reads  [PASS]
+  THEN  a 1 alone is not an l  [PASS]
+  -> 6 pass, 0 fail
+SKIP: Light text on a dark band -- the fr-FR pack and the PP-OCR graphs are both needed
+SKIP: A Russian scan reads as a document -- the Cyrillic recogniser is not installed
+
+SCENARIO: A French phone scan is turned level and still reads as a document
+  THEN  its page is sized in pixels (a scan app's), and the printed scale comes from the paper: A4 at 1241 px is 2.08 px a point  [PASS]
+   turned level by -0.52 degrees; marks [ [ 1, 55 ] ]
+  THEN  the half-degree turn is measured  [PASS]
+  THEN  the title is a heading  [PASS]
+  THEN  the two timetables are still two tables  [PASS]
+  THEN  each still opens on its header row: the photographed band bleeds past the rules, by a fifth of its height at most  [PASS]
+  THEN  the page is read in PRINTED points: the 20-pt title is not 41 units of a pixel-sized page  [PASS]
+  THEN  a bold sub-heading of the body's size is a heading  [PASS]
+  THEN  and the other one  [PASS]
+  THEN  the three notes are still list items  [PASS]
+  THEN  the footer is still the footer  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: A blurred French scan is sharpened before the platform reads it, and reads as the sharp one
+   [ [ 1, "platform", 77, 0, 1, 0 ] ]
+  THEN  the page was soft and read from a sharpened copy  [PASS]
+  THEN  the title is a heading  [PASS]
+  THEN  the line's name is a heading again (blurred, unsharpened, it read as a list item)  [PASS]
+  THEN  the two timetables are two tables  [PASS]
+  THEN  the three notes are list items  [PASS]
+  THEN  the footer is the footer  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: A sharp scan is not sharpened
+  THEN  read as it is  [PASS]
+  -> 1 pass, 0 fail
+SKIP: A Russian phone scan is turned level -- the Cyrillic recogniser is not installed
+
+================================================
+TOTAL: 70 assertions, 70 pass, 0 fail
+================================================
+STATUS: OK

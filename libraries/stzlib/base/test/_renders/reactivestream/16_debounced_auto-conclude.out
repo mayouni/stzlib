@@ -1,0 +1,14 @@
+📡 Receiving temperature readings...
+   (200ms gap - still waiting...)
+   (600ms gap - will auto-conclude after 500ms...)
+🌡️  Final Average Temperature: 23.25°C
+✅ Sensor reading session completed (after 500ms delay)
+   (System kept alive for auto-conclude)
+
+💡 Key Difference:
+   • Immediate: Perfect for complete datasets (sales batches)
+   • Debounced: Handles streaming data with natural gaps (sensors, APIs)
+
+
+----------------
+----------------

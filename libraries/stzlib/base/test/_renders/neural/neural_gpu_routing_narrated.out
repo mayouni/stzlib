@@ -1,0 +1,15 @@
+-- Scene 0: the knobs are live, the device untried --
+  [OK] threshold reads back (the MEASURED default: ~1.5 GFLOP break-even)
+  [OK] state = untried before any eligible matmul
+
+-- Scene 1: the tiny parity fixture never wakes the device --
+  [OK] tiny_bert loads
+  [OK] it embeds
+  [OK] NO node was claimed (32-dim shapes are far below the line)
+  [OK] the device was never even initialized (state still untried)
+
+  no local MiniLM -- the real-model scenes need models/; scene 1 is the CI coverage
+
+==========================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+==========================================

@@ -1,0 +1,29 @@
+SCENARIO: A closed-form oracle: the tridiagonal Laplacian
+  THEN  the eigenvalues match the closed form  [PASS]
+  THEN  ...and the determinant is their product, 5  [PASS]
+  THEN  ...and the condition number is lmax/lmin ~ 9.472  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: The Hilbert matrix is ill-conditioned, and the library says so
+  THEN  Hilbert-4 is already badly conditioned (> 1e3)  [PASS]
+  THEN  ...and conditioning worsens strictly with size  [PASS]
+  THEN  ...its determinant is tiny but still positive  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Independent methods agree on the same truth
+  THEN  determinant equals the product of the eigenvalues  [PASS]
+  THEN  ...and equals the product of the singular values  [PASS]
+  THEN  the LU inverse and the SVD pseudo-inverse coincide  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Ill-conditioning is flagged, and singularity is not swallowed
+  THEN  a near-singular matrix reports a huge condition number  [PASS]
+  THEN  a singular matrix has determinant zero  [PASS]
+  THEN  ...and is correctly rank-deficient (2, not 3)  [PASS]
+  THEN  a well-conditioned solve has a negligible residual  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 13 assertions, 13 pass, 0 fail
+================================================
+STATUS: OK

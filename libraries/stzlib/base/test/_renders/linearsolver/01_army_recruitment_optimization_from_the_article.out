@@ -1,0 +1,54 @@
+╭────────────────────────────╮
+│ Linear Programming Problem │
+╰────────────────────────────╯
+Variables:
+╭─────────╮
+│ Problem │
+╰─────────╯
+• Variables:
+  swordsmen ∈ [0, 1000] (integer)
+ ─ swordsmen ∈ [0, 1000] (integer)
+  bowmen ∈ [0, 1000] (integer)
+ ─ bowmen ∈ [0, 1000] (integer)
+  horsemen ∈ [0, 1000] (integer)
+ ─ horsemen ∈ [0, 1000] (integer)
+
+Constraints:
+• Constraints:
+  60*swordsmen + 80*bowmen + 140*horsemen
+ ─ 60*swordsmen + 80*bowmen + 140*horsemen <= 1200
+  20*swordsmen + 10*bowmen
+ ─ 20*swordsmen + 10*bowmen <= 800
+  40*bowmen + 100*horsemen
+ ─ 40*bowmen + 100*horsemen <= 600
+
+Objective:
+• Objective:
+  MAXIMIZE 70*swordsmen + 95*bowmen + 230*horsemen
+
+========== Solution ==========
+Status: optimal
+Solved in 0.00 seconds
+Iterations: 3
+╭──────────╮
+│ Solution │
+╰──────────╯
+• Status: optimal
+• Solved in 0.00 second(s)
+• Iterations: 3
+
+Variable Values:
+• Variable Values:
+  swordsmen = 6
+ ─ swordsmen = 6
+  bowmen = 0
+ ─ bowmen = 0
+  horsemen = 6
+ ─ horsemen = 6
+
+Objective Value: 1800
+• Objective Value: 1800
+
+
+----------------
+----------------

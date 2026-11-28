@@ -1,0 +1,41 @@
+SCENARIO: a KV v2 secret is read through the Vault HTTP API
+  THEN  the stand-in vault is up  [PASS]
+  THEN  RevealVia returns the field's value  [PASS]
+  THEN  another field of the same secret  [PASS]
+  THEN  the vault answered 200  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a KV v1 secret is read too
+  THEN  its field comes back  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: what the vault refuses is RAISED, never returned as empty
+  THEN  a wrong token raises  [PASS]
+  THEN  ...and the status was 403  [PASS]
+  THEN  a missing secret raises  [PASS]
+  THEN  a missing FIELD raises  [PASS]
+  THEN  Has() says no for a missing secret  [PASS]
+  THEN  Has() says yes for a present field  [PASS]
+  THEN  the refusal never quotes the token  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: a token never crosses the network in clear
+  THEN  plain http to a remote host is refused at construction  [PASS]
+  THEN  https is accepted  [PASS]
+  THEN  plain http to loopback is accepted (a local agent)  [PASS]
+  THEN  the resolver does not hold the token as a value  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the actor gates still hold
+  THEN  an LLM asking for the secret is refused before the vault is called  [PASS]
+  THEN  a resolver acting AS an LLM cannot even read its token  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a sealed secret store takes its key from the vault
+  THEN  the store opens with the vault's key  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 19 assertions, 19 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,242 @@
+SCENARIO: Values and AttributesAndValues read the object's attributes
+  GIVEN a stzString, a stzList, a stzNumber and a bare stzObject
+  THEN  Values on a stzString has one value per attribute  [PASS]
+  THEN  Values on a stzList has one value per attribute  [PASS]
+  THEN  Values on a stzNumber has one value per attribute  [PASS]
+  THEN  Values on a bare stzObject has one value per attribute  [PASS]
+  THEN  a stzString's values hold its variable name  [PASS]
+  THEN  and not a name it does not have  [PASS]
+  THEN  a stzNumber's values hold its digits as text  [PASS]
+  THEN  and not other digits  [PASS]
+  THEN  the stzList's items are among its values  [PASS]
+  THEN  other items are not  [PASS]
+  THEN  the bare stzObject holds the wrapped object as its first value  [PASS]
+  THEN  AttributesAndValues has one pair per attribute  [PASS]
+  THEN  a pair is [ name, value ]  [PASS]
+  THEN  the first pair carries the first attribute name  [PASS]
+  THEN  and its value  [PASS]
+  THEN  the stzList's pairs count its attributes too  [PASS]
+  THEN  so do the stzNumber's  [PASS]
+  THEN  so do the bare stzObject's  [PASS]
+  THEN  the other spellings answer the same  [PASS]
+  -> 19 pass, 0 fail
+
+SCENARIO: IsStringOrList, IsListOrString: the content is a text or a list
+  THEN  a stzString holds a text  [PASS]
+  THEN  a stzString holds a text (the other order)  [PASS]
+  THEN  a stzList holds a list  [PASS]
+  THEN  a stzNumber holds neither  [PASS]
+  THEN  a stzNumber holds neither (the first spelling)  [PASS]
+  THEN  a bare stzObject holds an object, neither  [PASS]
+  THEN  a bare stzObject holds an object, neither (the first spelling)  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: IsFalseObject, IsTrueObject tell the two library objects apart
+  THEN  the false object is a false object  [PASS]
+  THEN  the true object is not  [PASS]
+  THEN  the true object is a true object  [PASS]
+  THEN  the false object is not  [PASS]
+  THEN  a stzString is neither (false)  [PASS]
+  THEN  a stzString is neither (true)  [PASS]
+  THEN  a stzList is neither (false)  [PASS]
+  THEN  a stzNumber is neither (true)  [PASS]
+  THEN  a bare stzObject is neither (false)  [PASS]
+  THEN  a bare stzObject is neither (true)  [PASS]
+  THEN  the misspelt alias answers like IsFalseObject  [PASS]
+  THEN  the misspelt alias refuses a stzString  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: HasSameStzTypeAs compares the two objects' library classes
+  THEN  two stzString are of the same type  [PASS]
+  THEN  two stzList are of the same type  [PASS]
+  THEN  two stzNumber are of the same type  [PASS]
+  THEN  two bare stzObject are of the same type  [PASS]
+  THEN  a stzString and a stzList are not  [PASS]
+  THEN  a stzList and a stzNumber are not  [PASS]
+  THEN  a stzNumber and a stzString are not  [PASS]
+  THEN  a bare stzObject and a stzString are not  [PASS]
+  THEN  a text is not an object at all  [PASS]
+  THEN  a number is not an object at all  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: IsText asks whether the object IS a stzText, the library's text class
+  THEN  a stzText is a stzText  [PASS]
+  THEN  a stzString is not (it is the plain text class)  [PASS]
+  THEN  a stzList is not  [PASS]
+  THEN  a stzNumber is not  [PASS]
+  THEN  a bare stzObject is not  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: WhichAreBoth keeps a pair and refuses anything else
+  THEN  a list of two items is kept  [PASS]
+  THEN  a list of three is a false object  [PASS]
+  THEN  a list of one is a false object  [PASS]
+  THEN  a stzString is a false object  [PASS]
+  THEN  a stzNumber is a false object  [PASS]
+  THEN  a bare stzObject is a false object  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: AreBothA and AreTwo test each of the two items, not the pair as a whole
+  THEN  two texts are both strings  [PASS]
+  THEN  two texts are not both lists (the pair itself is a list)  [PASS]
+  THEN  two numbers are both numbers  [PASS]
+  THEN  two numbers are not both strings  [PASS]
+  THEN  a number and a text are not both numbers  [PASS]
+  THEN  a number and a text are not both strings  [PASS]
+  THEN  AreTwo is the same question: yes  [PASS]
+  THEN  AreTwo is the same question: no  [PASS]
+  THEN  a list of three is a false object  [PASS]
+  THEN  a stzString is a false object  [PASS]
+  THEN  the pair is left as it was  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: The Of family compares with the last value remembered
+  THEN  OfCSB: the number is the last value  [PASS]
+  THEN  OfCSB: another number is not  [PASS]
+  THEN  OfXTCSB ignores the filler word and compares: yes  [PASS]
+  THEN  OfXTCSB ignores the filler word and compares: no  [PASS]
+  THEN  OfXTBQ keeps the object when equal  [PASS]
+  THEN  OfXTBQ answers a false object when not  [PASS]
+  THEN  OfBQ agrees with OfXTBQ: equal  [PASS]
+  THEN  OfBQ agrees with OfXTBQ: not equal  [PASS]
+  THEN  on a text: equal  [PASS]
+  THEN  on a text: not equal  [PASS]
+  THEN  on a text: case-sensitive refusal  [PASS]
+  THEN  on a text: case-insensitive agreement  [PASS]
+  THEN  on a list receiver: equal  [PASS]
+  THEN  on a bare stzObject: equal  [PASS]
+  THEN  on a bare stzObject: not equal  [PASS]
+  THEN  OfXTBQ on a text: equal  [PASS]
+  THEN  OfXTBQ on a text: not equal  [PASS]
+  -> 17 pass, 0 fail
+
+SCENARIO: OccursForTheNthTime, First, Last: the content is the nth occurrence at a position
+  THEN  the 1st star of a*b*c*d is at 2  [PASS]
+  THEN  the 2nd star is at 4, not at 2  [PASS]
+  THEN  the 3rd star is at 6  [PASS]
+  THEN  there is no 4th star  [PASS]
+  THEN  the first star: at 2  [PASS]
+  THEN  the first star: not at 4  [PASS]
+  THEN  the last star: at 6  [PASS]
+  THEN  the last star: not at 2  [PASS]
+  THEN  the last star: not at 4  [PASS]
+  THEN  the aliases agree  [PASS]
+  THEN  case-sensitive: AN is not in banana  [PASS]
+  THEN  case-insensitive: AN first occurs at 2 in banana  [PASS]
+  THEN  in a list of texts: 2nd b is at 4  [PASS]
+  THEN  in a list of texts: 2nd b is not at 2  [PASS]
+  THEN  in a list of texts: the last b is at 4  [PASS]
+  THEN  in a list of texts: the last b is not at 2  [PASS]
+  THEN  in a list of texts: case-insensitive  [PASS]
+  THEN  in a list of texts: case-sensitive refuses  [PASS]
+  THEN  a stzNumber in a mixed list: 2nd 2 is at 4  [PASS]
+  THEN  a stzNumber in a mixed list: 2nd 2 is not at 2  [PASS]
+  -> 20 pass, 0 fail
+
+SCENARIO: SizeInBytesXT32 and SizeInBytesXT64 give the size breakdown of each build
+  THEN  32-bit: a list of [ label, bytes ] pairs  [PASS]
+  THEN  64-bit: a list of [ label, bytes ] pairs  [PASS]
+  THEN  32-bit labels are the 32-bit ones  [PASS]
+  THEN  32-bit labels are not the 64-bit ones  [PASS]
+  THEN  64-bit labels are the 64-bit ones  [PASS]
+  THEN  64-bit labels are not the 32-bit ones  [PASS]
+  THEN  a pair carries a number of bytes  [PASS]
+  THEN  a stzList answers too (32)  [PASS]
+  THEN  a stzList answers too (64)  [PASS]
+  THEN  a stzNumber answers too (32)  [PASS]
+  THEN  a stzNumber answers too (64)  [PASS]
+  THEN  a bare stzObject answers too (32)  [PASS]
+  THEN  a bare stzObject answers too (64)  [PASS]
+  THEN  the 64-bit total exceeds the 32-bit total  [PASS]
+  THEN  the alias answers the same  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: AddTimeValue, AddExecutionTimeValue, AddExecutionTime keep the elapsed time
+  THEN  four calls on four receivers keep four values  [PASS]
+  THEN  each value is a number of seconds  [PASS]
+  THEN  and none is negative  [PASS]
+  THEN  the values do not decrease  [PASS]
+  THEN  cleaning empties the list  [PASS]
+  THEN  with time keeping off it refuses, as ExecutionTime does  [PASS]
+  THEN  and keeps nothing  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: ToPointer answers a pointer to the object itself
+  THEN  a stzString answers a pointer  [PASS]
+  THEN  a stzList answers a pointer  [PASS]
+  THEN  a stzNumber answers a pointer  [PASS]
+  THEN  a bare stzObject answers a pointer  [PASS]
+  THEN  it is the pointer Ring's own object2pointer gives  [PASS]
+  THEN  two objects have two pointers  [PASS]
+  THEN  a stzNumber is not a stzString  [PASS]
+  THEN  the bare stzObject is not the object it wraps  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Numberified turns the content into a number
+  THEN  a stzNumber 42 is 42  [PASS]
+  THEN  a stzNumber 7.5 is 7.5  [PASS]
+  THEN  and it is a number, not a text  [PASS]
+  THEN  a text of digits is a number  [PASS]
+  THEN  a list of numbers and numeric texts is a list of numbers  [PASS]
+  THEN  a text that is not a number is refused  [PASS]
+  THEN  a bare stzObject is refused  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: IfQ keeps the object when the condition holds, answers a false object otherwise
+  THEN  a stzString and a true condition  [PASS]
+  THEN  a stzString and a false condition  [PASS]
+  THEN  a stzList and a true condition  [PASS]
+  THEN  a stzList and a false condition  [PASS]
+  THEN  a stzNumber and a true condition  [PASS]
+  THEN  a stzNumber and a false condition  [PASS]
+  THEN  a bare stzObject and a true condition  [PASS]
+  THEN  a bare stzObject and a false condition  [PASS]
+  THEN  a condition that is not a text is still refused  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: SwapWith exchanges the content of two objects
+  THEN  stzString: the first holds the second's text  [PASS]
+  THEN  stzString: the second holds the first's  [PASS]
+  THEN  stzList: the first holds the second's items  [PASS]
+  THEN  stzList: the second holds the first's  [PASS]
+  THEN  stzNumber: the first holds 2  [PASS]
+  THEN  stzNumber: the second holds 1  [PASS]
+  THEN  bare: the first wraps the second's object  [PASS]
+  THEN  bare: the second wraps the first's object  [PASS]
+  THEN  a value that is not a stzObject is refused  [PASS]
+  THEN  and the content is untouched  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: IsA and AnObjectQ on a bare stzObject, and on the others
+  THEN  a bare stzObject is an object  [PASS]
+  THEN  a bare stzObject is not a string  [PASS]
+  THEN  a bare stzObject is not a list  [PASS]
+  THEN  a bare stzObject is not a number  [PASS]
+  THEN  AnObjectQ keeps a bare stzObject  [PASS]
+  THEN  AnObjectQ refuses a stzString  [PASS]
+  THEN  AnObjectQ refuses a stzList  [PASS]
+  THEN  AnObjectQ refuses a stzNumber  [PASS]
+  THEN  IsA(:String) still says yes to a stzString  [PASS]
+  THEN  IsA(:String) still says no to a stzList  [PASS]
+  THEN  IsA(:List) still says yes to a stzList  [PASS]
+  THEN  IsA(:Number) says yes to a stzNumber  [PASS]
+  THEN  IsA(:Number) says no to a stzString  [PASS]
+  THEN  a list of kinds must all hold: yes  [PASS]
+  THEN  a list of kinds must all hold: no  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: ALengthN counts what the object holds
+  THEN  a stzString counts characters  [PASS]
+  THEN  a stzList counts items  [PASS]
+  THEN  a stzList of two texts has 2, not 0 characters  [PASS]
+  THEN  a stzList of four letters has 4  [PASS]
+  THEN  a list of one text has 1 item, not 5 characters  [PASS]
+  THEN  a stzNumber counts digits  [PASS]
+  THEN  an empty list has none  [PASS]
+  THEN  a bare stzObject has no length to speak of  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 186 assertions, 186 pass, 0 fail
+================================================
+STATUS: OK

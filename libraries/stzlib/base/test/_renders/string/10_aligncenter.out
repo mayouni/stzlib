@@ -1,0 +1,16 @@
+SCENARIO: Aligning RING within width 15
+  GIVEN the word "RING" and width 15
+  THEN  AlignCenter  [PASS]
+  THEN  AlignLeft  [PASS]
+  THEN  AlignRight  [PASS]
+  THEN  AlignCenterXT with '.'  [PASS]
+  THEN  AlignRightXT with '.'  [PASS]
+  THEN  AlignXT :Center  [PASS]
+  THEN  AlignXT :Right (right-aligned, not centered)  [PASS]
+  THEN  AlignXT :Left  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

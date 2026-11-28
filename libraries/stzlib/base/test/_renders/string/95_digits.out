@@ -1,0 +1,13 @@
+SCENARIO: The digit list and the digit predicates
+  THEN  Digits() is 0..9  [PASS]
+  THEN  Q(5).IsADigit (number) is TRUE  [PASS]
+  THEN  Q('3').IsADigitInString is TRUE  [PASS]
+  THEN  an empty string is not a digit  [PASS]
+  THEN  '125' is not a single digit  [PASS]
+  THEN  QQ('3').IsADigit (stzChar) is TRUE  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

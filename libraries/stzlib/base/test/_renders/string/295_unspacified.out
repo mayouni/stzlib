@@ -1,0 +1,21 @@
+SCENARIO: Unspacified on all-space strings
+  THEN  " " trims away  [PASS]
+  THEN  "  " trims away  [PASS]
+  THEN  "   " trims away  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Unspacified trims edges around content
+  THEN  " ♥" -> "♥"  [PASS]
+  THEN  "♥ " -> "♥"  [PASS]
+  THEN  " ♥ " -> "♥"  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Unspacified collapses inner runs to one space
+  THEN  "r  in  g " -> "r in g"  [PASS]
+  THEN  "    r  in  g " -> "r in g"  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

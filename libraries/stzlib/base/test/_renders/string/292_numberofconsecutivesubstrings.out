@@ -1,0 +1,29 @@
+SCENARIO: Counting and listing all consecutive substrings
+  GIVEN "phpringringringpythonrubyruby" (29 chars)
+  THEN  their total number is Sum(29-i+1, i=1..14)  [PASS]
+  THEN  the list carries all 315 windows  [PASS]
+  THEN  it starts with the single chars  [PASS]
+  THEN  the length-2 windows follow, phase-major  [PASS]
+  THEN  it ends with the last length-14 window  [PASS]
+  THEN  the Find form reduces to 1..29  [PASS]
+  THEN  ... starting at 1  [PASS]
+  THEN  ... ending at 29  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: The Z / ZZ groupings stay coherent with the windows
+  GIVEN the same string
+  THEN  the FindZZ spans cover all 315 windows  [PASS]
+  THEN  ... first span  [PASS]
+  THEN  ... first length-2 span  [PASS]
+  THEN  ... last span  [PASS]
+  THEN  the Z grouping pairs window and start  [PASS]
+  THEN  ... last entry  [PASS]
+  THEN  the ZZ grouping pairs window and span  [PASS]
+  THEN  ... last entry  [PASS]
+  THEN  every ZZ substring equals the section at its span  [PASS]
+  -> 9 pass, 0 fail
+
+================================================
+TOTAL: 17 assertions, 17 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,24 @@
+-- the ABC, as written by hand:
+X:1
+T:A Rast phrase, written in ABC for this demo
+M:4/4
+L:1/8
+Q:1/4=96
+K:C
+V:1 name="oud"
+|: C2 D2 _/E2 F2 | G4 F2 _/E2 | D2 _/E2 F2 G2 |1 A2 G2 F2 _/E2 :|2 D2 C2 C4 |]
+
+read: 'A Rast phrase, written in ABC for this demo', 29 notes (the repeat played out), 96 BPM, on the oud; losses: 0
+   -> mu8_01_rast_from_abc.wav
+   -> mu8_02_rast.mid, 1123 bytes (the half-flat E a pitch bend)
+read back from MIDI: 29 notes, 96 BPM; losses: 0
+   -> mu8_03_rast_from_midi.wav
+   -> mu8_03_rast_from_midi.abc:
+X:1
+T:A Rast phrase, back from MIDI
+M:4/4
+L:1/16
+Q:1/4=96
+K:C
+V:1 name="oud"
+[V:1] C4 D4 _/E4 F4 | G8 F4 _/E4 | D4 _/E4 F4 G4 | A4 G4 F4 _/E4 | C4 D4 _/E4 F4 | G8 F4 _/E4 | D4 _/E4 F4 G4 | D4 C4 C8 |]

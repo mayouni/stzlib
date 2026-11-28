@@ -1,0 +1,23 @@
+SCENARIO: The reactor reports its libuv backend version
+  GIVEN a reactor
+  THEN  Version() looks like a 1.x libuv  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: A timer submitted through the class fires
+  GIVEN a 40ms timer
+  THEN  a job id was returned  [PASS]
+  THEN  awaiting it returns 0 (fired)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: An async TCP request returns the HTTP response
+  GIVEN a raw HTTP/1.0 request to example.com:80
+  WHEN  submitting it on the reactor and awaiting the body
+  THEN  the request succeeded (status 0)  [PASS]
+  THEN  a non-empty body came back  [PASS]
+  THEN  the body starts with an HTTP status line  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

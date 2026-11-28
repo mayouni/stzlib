@@ -1,0 +1,62 @@
+SCENARIO: money: the arithmetic a shop needs
+  THEN  0.1 + 0.2 is 0.3  [PASS]
+  THEN  0.1 * 0.1 is 0.01, not 0.0  [PASS]
+  THEN  0.5 * 0.5 is 0.25, not 0.3  [PASS]
+  THEN  a price times a rate keeps its cents  [PASS]
+  THEN  ...and times a whole number  [PASS]
+  THEN  0.25 * 0.25 is 0.0625  [PASS]
+  THEN  0.01 * 0.01 is 0.0001  [PASS]
+  WHEN  the operand carries more places than the receiver
+  THEN  1 + 0.001 is 1.001, not 1.00  [PASS]
+  THEN  0.5 + 0.125 is 0.625, not 0.6  [PASS]
+  THEN  10 - 0.001 is 9.999, not 10.00  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: integers past 2^53, which is where Ring's own numbers stop
+  THEN  2^53 + 1 is 9007199254740993  [PASS]
+  THEN  a 32-digit integer gains one correctly  [PASS]
+  THEN  999999999 squared is exact  [PASS]
+  THEN  a 20-digit product keeps all 40 digits  [PASS]
+  THEN  small integer arithmetic is untouched  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: division is exact when it terminates, and says so when it does not
+  THEN  1 / 8 is 0.125  [PASS]
+  THEN  0.1 / 4 is 0.025  [PASS]
+  THEN  10 / 4 is 2.5  [PASS]
+  THEN  22 / 5 is 4.4  [PASS]
+  THEN  1 / 3 does NOT claim to be exact  [PASS]
+  THEN  ...and says why  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: the exactness register: the number carries the fact
+  THEN  an exact product knows it  [PASS]
+  THEN  ...with nothing to explain  [PASS]
+  THEN  a big-integer sum knows it  [PASS]
+  THEN  a square root does not pretend  [PASS]
+  THEN  ...and names the reason  [PASS]
+  THEN  IsApproximate is its mirror  [PASS]
+  THEN  Exactness() reports the register  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Same(): equality as NUMBERS, not as rendered text
+  THEN  1.50 and 1.5 are the same number  [PASS]
+  THEN  ...whether the other side is a string or a number  [PASS]
+  THEN  ...and 1.6 is not  [PASS]
+  THEN  0 and -0 are the same number  [PASS]
+  THEN  ...and so is 0.000  [PASS]
+  THEN  IsSameAs reads the same  [PASS]
+  THEN  it compares against another stzNumber too  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: what did NOT change, which is most of it
+  THEN  a sine keeps the places the caller asked for  [PASS]
+  THEN  the round is still readable  [PASS]
+  THEN  integers report no decimals  [PASS]
+  THEN  ...and decimals report theirs  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 39 assertions, 39 pass, 0 fail
+================================================
+STATUS: OK

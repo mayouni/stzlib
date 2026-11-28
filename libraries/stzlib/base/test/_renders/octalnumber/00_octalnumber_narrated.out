@@ -1,0 +1,21 @@
+SCENARIO: Convert an octal number to other bases
+  GIVEN the octal number 0o2007
+  THEN  OctalNumber() is 0o2007  [PASS]
+  THEN  ToDecimal is 1031  [PASS]
+  THEN  ToBinary is 0b10000000111  [PASS]
+  THEN  ToHex is 0x407  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Build an octal number from other bases
+  GIVEN an octal number rebuilt from decimal 1031
+  THEN  FromDecimal(1031) -> 0o2007  [PASS]
+  WHEN  rebuilt from hex 0x407
+  THEN  FromHex(0x407) -> 0o2007  [PASS]
+  WHEN  rebuilt from binary 0b10000000111
+  THEN  FromBinary(...) -> 0o2007  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

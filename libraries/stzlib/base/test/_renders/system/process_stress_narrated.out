@@ -1,0 +1,39 @@
+-- Scene 1: uptime is PROCESS uptime, not the Unix epoch --
+  UptimeS() = 0.02 s
+  [OK] uptime is a small, sane number of seconds (< 3600)
+  [OK] uptime is NOT epoch wall-clock (~1.7e9 = 56 years)
+
+-- Scene 2: uptime is MONOTONIC and advances --
+  [OK] a later read is not smaller than an earlier one
+  [OK] ...and a busy stretch registers elapsed time
+  [OK] 50 successive reads never decrease
+
+-- Scene 3: ns / ms / s are the same clock in different units --
+  [OK] ns / 1e6 is about ms (within 50 ms)
+  [OK] ms / 1000 is about s (within 0.05 s)
+
+-- Scene 4: pid is a real, stable process id --
+  [OK] pid is positive
+  [OK] pid is stable within one process
+  [OK] ...stable again on a third read
+
+-- Scene 5: architecture / os / endian / pointer size --
+  arch=[x86_64] os=[windows] endian=0 ptr=8 bytes
+  [OK] arch is a non-empty string
+  [OK] os is a non-empty string
+  [OK] endian is 0 (little) or 1 (big)
+  [OK] pointer size is 4 or 8 bytes
+
+-- Scene 6: pointer size AGREES with the OS layer's bit size --
+  engine ptr 8 bytes -> 64 bits ; OS layer BitSize = 64
+  [OK] engine pointer size * 8 equals the OS layer's bit size
+  [OK] ...and both say 64-bit on this build
+
+-- Scene 7: many rapid reads stay fast and consistent --
+  5000 pid reads in 0 s
+  [OK] 5000 introspection calls are fast (< 5s)
+  [OK] ...and every pid read matched
+
+==========================================
+TOTAL: 18 assertions, 18 pass, 0 fail
+==========================================

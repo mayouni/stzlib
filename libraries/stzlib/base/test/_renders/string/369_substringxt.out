@@ -1,0 +1,12 @@
+SCENARIO: Bound predicates
+  THEN  hearts bound ring on both sides  [PASS]
+  THEN  << is the first bound  [PASS]
+  THEN  >> is the last bound  [PASS]
+  THEN  ... left spelling  [PASS]
+  THEN  ... right spelling  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

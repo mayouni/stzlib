@@ -1,0 +1,13 @@
+SCENARIO: The bounds around a section, plain and located
+  GIVEN "what a <<nice>>> day!" (nice at 10..13)
+  THEN  SectionBounds(10,13,2,3) is the surrounding bounds  [PASS]
+  THEN  SectionBoundsZ adds each bound's start position  [PASS]
+  THEN  SectionBoundsZZ adds each bound's [from,to] span  [PASS]
+  THEN  SectionBoundsIB(9,14,2,3) matches the plain form (inclusive bounds)  [PASS]
+  THEN  SectionBoundsIBZZ(9,14,2,3) gives the bound spans  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

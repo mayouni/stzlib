@@ -1,0 +1,51 @@
+SCENARIO: Construction + setters yield a usable client
+  GIVEN a fresh stzHttpClient
+  THEN  HasError starts FALSE  [PASS]
+  THEN  ResponseCode starts 0  [PASS]
+  THEN  ResponseBody starts empty  [PASS]
+  WHEN  user agent and headers are set
+  THEN  user_agent persists  [PASS]
+  THEN  headers_list has one entry  [PASS]
+  WHEN  a cookie is added
+  THEN  cookies_list has one entry  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Header blob composer formats RFC-style lines
+  GIVEN a client with custom UA, cookie, and header
+  THEN  header blob carries every expected line  [PASS]
+  THEN  cookie line concatenates with semicolons  [PASS]
+  THEN  custom header preserved  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Transport-level error path surfaces gracefully
+  GIVEN a request to a malformed URL
+  THEN  HasError flips to TRUE  [PASS]
+  THEN  ResponseCode is -1  [PASS]
+  THEN  LastError mentions GET failure  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: UrlEncode (from stzNetworkUtils) encodes reserved chars
+  THEN  space becomes +  [PASS]
+  THEN  ampersand encoded  [PASS]
+  THEN  alphanumerics kept  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: PostForm builds an x-www-form-urlencoded body
+  GIVEN a fresh client and form data
+  THEN  transport error captured  [PASS]
+  THEN  status code is -1  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: SetTimeout satisfies both readers, not just the engine
+  GIVEN a client with a non-default timeout
+  THEN  the default is 30s  [PASS]
+  THEN  the inherited accessor reports the new value  [PASS]
+  THEN  ...and HasError is untouched by a setter  [PASS]
+  WHEN  it is changed again
+  THEN  it tracks, rather than sticking at the first value  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 21 assertions, 21 pass, 0 fail
+================================================
+STATUS: OK

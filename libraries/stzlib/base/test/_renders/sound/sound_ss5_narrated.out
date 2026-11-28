@@ -1,0 +1,57 @@
+== the earcon vocabulary, and there is now only one of it ==
+
+-- Scene 1: the motifs come from the ENGINE, not from Ring --
+   The Ring face used to build these itself, with its own oscillator and
+   its own envelope. Now it asks. Nothing about the SOUND changed -- the
+   semantics and SS1 guards were run before and after, and both still pass,
+   which is what makes this a move rather than a redesign.
+  [ok]   the face still constructs
+  [ok]   Rule 118's five are still five
+   danger: 8640 frames at 48000 Hz
+   warning: 8640 frames at 48000 Hz
+   info: 4800 frames at 48000 Hz
+   success: 7680 frames at 48000 Hz
+   muted: 0 frames at 48000 Hz
+  [ok]   danger and warning occupy the SAME 0.18 s
+  [ok]   danger is the densest -- three notes in that window rather than two
+  [ok]   and no cue outstays 0.2 s -- a cue that needs attention to finish is a message, not a cue
+  [ok]   muted renders NOTHING, and that is its rendering
+  [ok]   the other four all sound
+  [ok]   a sixth index renders nothing
+
+-- Scene 2: the face's sound IS the engine's sound --
+   If _BuildMotifs had kept a private copy, this would still pass every
+   other assertion in this plane while quietly being a second vocabulary.
+  [ok]   danger: the face and the engine agree sample for sample
+  [ok]   warning: the face and the engine agree sample for sample
+  [ok]   info: the face and the engine agree sample for sample
+  [ok]   success: the face and the engine agree sample for sample
+
+-- Scene 3: a motif is SHAPED at both ends --
+   A step into or out of a note is a click: broadband, and worse than the
+   cue it was meant to be. This is the same property SS3 measured for a
+   gain ramp, asserted here on the vocabulary itself.
+   danger: 8640 frames, peak 0.266974
+  [ok]   it starts at silence
+  [ok]   it ends near silence
+  [ok]   and it is LOUD in between -- otherwise 'quiet at both ends' would pass for a buffer of zeros
+
+-- Scene 4: write what the browser must match --
+   The cross-tier comparison cannot be two people agreeing on a number in
+   two files. This one is GENERATED from the engine every run, and the
+   browser guard fetches it. Editing either side into agreement is not
+   possible, because nothing here is typed by hand.
+   danger  frames=8640  sum=0.026690  peak=0.266974
+   warning  frames=8640  sum=-0.081114  peak=0.296147
+   info  frames=4800  sum=0.000000  peak=0.320000
+   success  frames=7680  sum=-0.042120  peak=0.266533
+   muted  frames=0  sum=0  peak=0
+  [ok]   the expectation file was written
+   -> webaudio/earcon_expect.json
+
+   Run webaudio/earcon_guard.html against it. A checksum is used rather
+   than a peak alone because a peak survives a wrong ENVELOPE, a wrong
+   note order, and a sign flip -- three ways two tiers could differ while
+   agreeing on how loud they are.
+
+16 passed, 0 failed

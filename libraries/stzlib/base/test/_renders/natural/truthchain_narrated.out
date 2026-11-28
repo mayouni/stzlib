@@ -1,0 +1,31 @@
+SCENARIO: A truth narrative folds descriptor atoms to one verdict
+  THEN  all-true AND chain holds  [PASS]
+  THEN  ...and Why narrates it  [PASS]
+  THEN  a failing atom breaks the AND  [PASS]
+  THEN  ...  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Numbers narrate too
+  THEN  positive AND even  [PASS]
+  THEN  positive AND odd fails  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: OR and NOT compose (left-to-right reading)
+  THEN  uppercase word satisfies the OR  [PASS]
+  THEN  mixed case satisfies NEITHER side  [PASS]
+  THEN  AND-NOT negates the next atom  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Lists narrate by type + membership
+  THEN  a list of numbers containing 2  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Verdicts are CERTAIN in the evidential register
+  THEN  a deterministic narrative answers certainly  [PASS]
+  THEN  ...  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

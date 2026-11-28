@@ -1,0 +1,60 @@
+SCENARIO: the arithmetic a complex number owes
+  THEN  the real part  [PASS]
+  THEN  the imaginary part  [PASS]
+  THEN  it reads back  [PASS]
+  THEN  the modulus is the 3-4-5 triangle  [PASS]
+  THEN  it is not real  [PASS]
+  THEN  a negative imaginary part prints with a minus  [PASS]
+  THEN  ...and adds  [PASS]
+  THEN  ...and subtracts  [PASS]
+  THEN  ...and multiplies, minding that i^2 is -1  [PASS]
+  THEN  the plain form returns data  [PASS]
+  THEN  division undoes multiplication  [PASS]
+  THEN  ...in both parts  [PASS]
+  THEN  the conjugate flips the sign  [PASS]
+  THEN  ...and the passive form gives the pair  [PASS]
+  THEN  ...leaving the original alone  [PASS]
+  THEN  a real number prints without an i  [PASS]
+  THEN  ...and i itself prints as i  [PASS]
+  THEN  dividing by zero is refused  [PASS]
+  -> 18 pass, 0 fail
+
+SCENARIO: THE REFUSAL IS LIFTED -- a non-symmetric matrix with a real spectrum
+  THEN  an upper-triangular matrix is answered now  [PASS]
+  THEN  three roots came back  [PASS]
+  THEN  ...and they are 1, 2, 3 for x^3-6x^2+11x-6  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ...and it still refuses what it should
+  THEN  a rotation is refused by the real-valued method  [PASS]
+  THEN  ...naming an offending eigenvalue  [PASS]
+  THEN  ...and pointing at ComplexEigenValues  [PASS]
+  THEN  which answers +i and -i  [PASS]
+  THEN  both have modulus 1 -- a rotation does not stretch  [PASS]
+  THEN  ...both of them  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: conjugate pairs, because the matrix is real
+  THEN  three eigenvalues  [PASS]
+  THEN  an even number of them are complex  [PASS]
+  THEN  ...and the imaginary parts cancel  [PASS]
+  THEN  they sum to the trace  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the symmetric path is untouched
+  THEN  a symmetric 2x2 is unchanged  [PASS]
+  THEN  a symmetric 3x3 gives three real values  [PASS]
+  THEN  ...summing to the trace  [PASS]
+  THEN  the general routine agrees on symmetric input  [PASS]
+  THEN  ...with no imaginary parts  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: what is deliberately NOT here
+  THEN  EigenVectors on a non-symmetric matrix still refuses  [PASS]
+  THEN  a non-square matrix is refused  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 38 assertions, 38 pass, 0 fail
+================================================
+STATUS: OK

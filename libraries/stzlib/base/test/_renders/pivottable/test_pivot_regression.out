@@ -1,0 +1,17 @@
+=== stzPivotTable integration regression ===
+
+--- SUM pivot: Sales by Region (rows) x Product (cols) ---
+
+--- COUNT pivot ---
+
+--- AVG pivot ---
+
+--- MAX / MIN pivots ---
+
+--- Missing cells ---
+
+==========================
+Total:  22
+Passed: 22
+Failed: 0
+ALL stzPivotTable CHECKS PASSED!

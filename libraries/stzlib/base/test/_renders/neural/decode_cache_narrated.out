@@ -1,0 +1,23 @@
+SCENARIO: The greedy text is the text the decoder wrote before the cache changed
+  SKIPPED: no generative model in ../../../models/
+  -> 0 pass, 0 fail
+
+SCENARIO: A step no longer carries the context
+  SKIPPED: no generative model in models/
+  -> 0 pass, 0 fail
+
+SCENARIO: The cache is reusable
+  -> 0 pass, 0 fail
+SKIPPED BY NAME, not run: 7
+  - smollm2-135m-instruct-q8_0.gguf (not in models/)
+  - qwen2.5-coder-0.5b-instruct-q8_0.gguf (not in models/)
+  - Qwen3-0.6B-Q8_0.gguf (not in models/)
+  - granite-4.0-350m-Q8_0.gguf (not in models/)
+  - scene 1 (no generative model)
+  - scene 2 (no generative model)
+  - scene 3 (no generative model)
+
+================================================
+TOTAL: 0 assertions, 0 pass, 0 fail
+================================================
+STATUS: OK

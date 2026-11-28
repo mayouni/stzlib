@@ -1,0 +1,12 @@
+SCENARIO: Arabic three times
+  THEN  a multiple  [PASS]
+  THEN  exactly 3 times  [PASS]
+  THEN  not 5 times  [PASS]
+  THEN  case-sensitively, no  [PASS]
+  THEN  case aside, yes  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

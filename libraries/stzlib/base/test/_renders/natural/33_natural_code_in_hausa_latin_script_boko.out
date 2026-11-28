@@ -1,0 +1,21 @@
+╭───────────────────────╮
+│ H E L L O   N I G E R │
+╰───────────────────────╯
+╭───────────────────────╮
+│ H E L L O   N I G E R │
+╰───────────────────────╯
+oStr = StzStringQ("hello niger")
+oStr.Spacify()
+oStr.Uppercase()
+oStr.BoxXT([:Rounded = 1])
+? oStr.Content()
+oStr = StzStringQ("hello niger")
+oStr.Spacify()
+oStr.Uppercase()
+oStr.BoxXT([:Rounded = 1])
+? oStr.Content()
+@result = oStr.Content()
+
+
+----------------
+----------------

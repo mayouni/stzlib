@@ -1,0 +1,56 @@
+SCENARIO: The register's examples: Perform and PerformOn changed nothing, Content showed nothing
+  THEN  Perform of upper(@char) on abc gives ABC  [PASS]
+  THEN  and no longer abc (case counted: strcmp, not =)  [PASS]
+  THEN  PerformOn of [1] with upper(@char) on abc gives Abc  [PASS]
+  THEN  only the first letter changed, not all three  [PASS]
+  THEN  two PerformOn in a row add up: AbC  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Content shows the CURRENT text, never a copy kept from the start
+  THEN  before anything is done Content is the text given  [PASS]
+  THEN  after Perform it is the rewritten text  [PASS]
+  THEN  after PerformOn on top of that it is the newest text  [PASS]
+  THEN  NumberOfChars follows the rewritten text (6)  [PASS]
+  THEN  and IsEmpty answers about it: not empty  [PASS]
+  THEN  a Perform that removes every character leaves an empty Content  [PASS]
+  THEN  IsEmpty is then true  [PASS]
+  THEN  and NumberOfChars is 0  [PASS]
+  THEN  another performer on the same text is not touched  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: A stzString given to the constructor is never changed by Perform
+  THEN  the performer holds the rewritten text ABBC  [PASS]
+  THEN  the stzString object still holds abc  [PASS]
+  THEN  and not the rewritten text  [PASS]
+  THEN  it is still usable afterwards (3 characters)  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Perform against Yield: the text is the joining of the list Yield gives, over a table
+  THEN  the table holds at least 25 pairs  [PASS]
+  THEN  Perform equals the literal expected text on every pair  [PASS]
+  THEN  Perform equals the joined Yield on every pair  [PASS]
+  THEN  the number of consistent pairs is the number of pairs  [PASS]
+  THEN  the table has pairs that rewrite the text and pairs the evaluator rejects, so a constant cannot pass  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: PerformOn against YieldOn: the table of positions, edges included
+  THEN  the table holds at least 25 rows  [PASS]
+  THEN  PerformOn equals the literal expected text on every row  [PASS]
+  THEN  PerformOn equals the rebuild from Yield and YieldOn on every row  [PASS]
+  THEN  the number of consistent rows is the number of rows  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: PerformOn leaves the other characters alone and agrees with YieldOn on which positions count
+  THEN  YieldOn gives a result for the two entries that are the position 2 and skips the rest  [PASS]
+  THEN  PerformOn changes exactly the character at 2  [PASS]
+  THEN  and not the whole text (a negative sibling to the whole-text Perform)  [PASS]
+  THEN  one result per character keeps the length at 5  [PASS]
+  THEN  YieldOn with a number instead of a list raises  [PASS]
+  THEN  PerformOn with a number instead of a list raises too  [PASS]
+  THEN  while a list does not raise  [PASS]
+  THEN  the refused call changed nothing and the next one worked: ABcde  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: The W forms: they raised R14 for want of a FindCharsW; now the condition picks the characters
+
+Line 249 Bad parameter type!

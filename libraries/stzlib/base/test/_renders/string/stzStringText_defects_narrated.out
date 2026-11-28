@@ -1,0 +1,116 @@
+SCENARIO: The register's examples: a mixed text, one script at a time (they raised R24 / R14)
+  THEN  OnlyScript(latin) of abc + shalom + blank + salam + 123 is abc  [PASS]
+  THEN  OnlyScript(hebrew) is the four Hebrew letters  [PASS]
+  THEN  OnlyScript(arabic) is the four Arabic letters  [PASS]
+  THEN  negative: the Latin part is not the Hebrew one  [PASS]
+  THEN  negative: the Hebrew part is not the Arabic one  [PASS]
+  THEN  negative: the Latin part is not the whole text  [PASS]
+  THEN  OnlyLatin keeps the common characters: abc then a blank then 123  [PASS]
+  THEN  OnlyArabic is the Arabic letters then 123 (the leading blank is trimmed)  [PASS]
+  THEN  negative: OnlyLatin is NOT the same as OnlyScript(latin): it keeps the blank and the digits  [PASS]
+  THEN  negative: OnlyArabic holds no Hebrew letter  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: The name of the script is case-folded; an unknown or wrong name is told apart
+  THEN  Latin gives abc  [PASS]
+  THEN  LATIN gives abc  [PASS]
+  THEN  latin gives abc  [PASS]
+  THEN  :Latin gives abc  [PASS]
+  THEN  :LATIN gives abc  [PASS]
+  THEN  an unknown script name gives an empty text, no error  [PASS]
+  THEN  an empty script name gives an empty text  [PASS]
+  THEN  a real script that the text does not use gives an empty text  [PASS]
+  THEN  a number as the script name raises  [PASS]
+  THEN  with a message that says what is wrong  [PASS]
+  THEN  negative: a valid name does not raise  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: The common characters: OnlyScript drops them, OnlyLatin and OnlyArabic keep them
+  THEN  OnlyScript(latin) of hello world, 42! drops blank, comma, digits, bang  [PASS]
+  THEN  OnlyLatin keeps the same text whole  [PASS]
+  THEN  OnlyScript(common) is exactly the blank, comma, digits and bang  [PASS]
+  THEN  an emoji is common: OnlyScript(latin) of a, grin, b is ab  [PASS]
+  THEN  and OnlyLatin keeps it  [PASS]
+  THEN  OnlyScript(common) of it is the emoji alone  [PASS]
+  THEN  OnlyLatin: the blanks left around a removed Hebrew word collapse into one  [PASS]
+  THEN  negative: OnlyScript(latin) does not keep any blank  [PASS]
+  THEN  OnlyLatin: line breaks collapse to a blank too  [PASS]
+  THEN  a text of common characters only has no Latin: empty  [PASS]
+  THEN  OnlyLatin of it is empty too, not the digits  [PASS]
+  THEN  OnlyArabic of it is empty too  [PASS]
+  THEN  while OnlyScript(common) is the text whole  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: Accents: an accented letter is Latin, a combining accent follows the letter before it
+  THEN  e-acute (one code point) is Latin and stays  [PASS]
+  THEN  e then a combining accent stays together (the accent is inherited, it follows its letter)  [PASS]
+  THEN  OnlyScript(inherited) of it is the accent alone  [PASS]
+  THEN  negative: the accent is not lost, the result is not the bare e  [PASS]
+  THEN  an accent with nothing before it is dropped: accent then e gives e  [PASS]
+  THEN  an accent after a Hebrew word goes with it (its letter is not kept): a  [PASS]
+  THEN  and stays with the Hebrew part  [PASS]
+  THEN  an accent after a letter after a dropped blank: the accent stays with b  [PASS]
+  THEN  an accent after a dropped blank goes with the blank: ab  [PASS]
+  THEN  while OnlyLatin keeps the blank, so the accent stays with it  [PASS]
+  THEN  an Arabic text with a diacritic (fatha) keeps its diacritic under OnlyScript(arabic)  [PASS]
+  THEN  and under OnlyArabic  [PASS]
+  THEN  OnlyScript(inherited) of it is the fatha alone  [PASS]
+  THEN  a Hebrew point (nikud) is Hebrew in the table and stays: aleph, point, bet  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: One script only, none of the script, empty, and the other scripts
+  THEN  a Latin-only text returns itself  [PASS]
+  THEN  a Hebrew-only text returns itself  [PASS]
+  THEN  OnlyArabic of an Arabic-only text is itself  [PASS]
+  THEN  negative: a Latin text has no Hebrew: empty  [PASS]
+  THEN  negative: OnlyArabic of a Latin text is empty  [PASS]
+  THEN  negative: OnlyLatin of an Arabic text is empty  [PASS]
+  THEN  an empty text gives an empty text (OnlyScript)  [PASS]
+  THEN  an empty text gives an empty text (OnlyLatin)  [PASS]
+  THEN  an empty text gives an empty text (OnlyArabic)  [PASS]
+  THEN  greek picks the alpha  [PASS]
+  THEN  cyrillic picks the de  [PASS]
+  THEN  han picks the ideograph  [PASS]
+  THEN  taitham (the engine's name for Tai Tham) picks that letter  [PASS]
+  THEN  hebrew still picks the four Hebrew letters  [PASS]
+  THEN  negative: arabic finds nothing in it  [PASS]
+  THEN  OnlyLatin of it is a  [PASS]
+  -> 16 pass, 0 fail
+
+SCENARIO: The partition: 30 random mixes of scripts, each part checked against a declared oracle
+  THEN  30 texts, every script's strict part equals the declared oracle (300 comparisons)  [PASS]
+  THEN  OnlyScript(inherited) is exactly the marks of each text  [PASS]
+  THEN  OnlyLatin and OnlyArabic equal the oracle (common kept, blanks collapsed, empty without the script)  [PASS]
+  THEN  the lengths of all strict parts but inherited, plus the orphan marks, add up to the whole text  [PASS]
+  THEN  latin + hebrew + arabic + all the rest add up to the whole text  [PASS]
+  THEN  nothing raised  [PASS]
+  THEN  the oracle really ran (more than 200 comparisons)  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The oracle can fail: a deliberately wrong expectation is caught (control)
+  THEN  abc with a trailing blank differs from the Latin part  [PASS]
+  THEN  a differing letter case is told apart by strcmp  [PASS]
+  THEN  the oracle's own blank collapser gives a b  [PASS]
+  THEN  and not two blanks  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A hundred thousand characters: exact result, a few seconds at most
+  THEN  the text has 100,005 characters  [PASS]
+  THEN  OnlyScript(hebrew) keeps 4 x 6667 characters  [PASS]
+  THEN  and they are the Hebrew letters in order  [PASS]
+  THEN  in under 6 seconds (measured 0.06 s)  [PASS]
+  THEN  OnlyLatin keeps abc, a blank and 123 per repetition, 7 x 6667 characters  [PASS]
+  THEN  in under 6 seconds (measured 0.06 s)  [PASS]
+  THEN  negative: the lookups are not the 15-minute kind  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: A call of 100 public methods on a small mixed text raises nothing (the sweep that found the three)
+  THEN  no call of the 100 raised (first one that did: '')  [PASS]
+  THEN  control: a method the class does not have is reported as raised  [PASS]
+  THEN  OnlyHebrew is not a method of the class (OnlyScript with hebrew is the way)  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 85 assertions, 85 pass, 0 fail
+================================================
+STATUS: OK

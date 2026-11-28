@@ -1,0 +1,12 @@
+SCENARIO: Last-occurrence finders and groupings
+  GIVEN "bla {♥♥♥} blaba bla {♥♥♥} blabla"
+  THEN  FindLast gives the position  [PASS]
+  THEN  the misspelled FindLasteAsSection still answers  [PASS]
+  THEN  FindLastZ groups [sub, position]  [PASS]
+  THEN  FindLastZZ groups [sub, span]  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,46 @@
+-- Scene 1: the terminal picture is untouched --
+  [OK] the codepoint canvas is still produced
+  [OK] it still draws bars
+  [OK] it still carries the labels
+  [OK] and the axis glyphs
+
+-- Scene 2: the SAME model answers in vector, with no device --
+  [OK] an SVG came back
+  [OK] it is a well-formed document
+  [OK] the default canvas is 900x500
+  [OK] the title reached it as glyph outlines
+  [OK] one gradient bar per value (7)
+
+-- Scene 3: the model's MEANING travels, not just its numbers --
+  [OK] the plot object's ShowAverage reached the pixel renderer
+  [OK] and a plot that did NOT ask for it has no average line
+  [OK] an explicit option still overrides the model
+
+-- Scene 4: HBar differs from VBar by ORIENTATION alone --
+  [OK] the vertical plot says :VBar
+  [OK] the horizontal one says :HBar
+  [OK] both render through the same inherited backend
+  [OK] and they are not the same picture
+
+-- Scene 5: axis ticks land on numbers a reader can read --
+  [OK] 88 over 5 ticks tops out at 100, not 88
+  [OK] 47 tops out at 50
+  [OK] 0.42 tops out at 0.5
+  [OK] 12400 tops out at 12500 -- ticks 0/2500/5000/7500/10000/12500
+  [OK] an exact multiple is left alone
+  [OK] and the SVG shows the round top, not the raw maximum
+
+-- Scene 6: the direct surface, and its refusals --
+  [OK] a line plot draws from bare data
+  [OK] it is an stzCanvas, so everything a canvas does applies
+  [OK] scatter takes [x,y] pairs
+  [OK] no values RAISES
+  [OK] an unknown kind RAISES
+
+-- Scene 7: without a font, the chart still draws --
+  [OK] bars and axes are there
+  [OK] and no text was attempted
+
+==========================================
+TOTAL: 29 assertions, 29 pass, 0 fail
+==========================================

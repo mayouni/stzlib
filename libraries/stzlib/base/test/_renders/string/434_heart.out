@@ -1,0 +1,13 @@
+SCENARIO: Repeating hearts and stars
+  THEN  a heart  [PASS]
+  THEN  three hearts as a string  [PASS]
+  THEN  GoGoGo  [PASS]
+  THEN  a repeated list  [PASS]
+  THEN  Five(Star()) is a list of five stars  [PASS]
+  THEN  Three(Heart()) is a list of three hearts  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

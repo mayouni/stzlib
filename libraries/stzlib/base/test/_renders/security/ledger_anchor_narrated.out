@@ -1,0 +1,28 @@
+SCENARIO: an anchor taken now holds now, and after the log grows
+  THEN  the anchor counts the entries  [PASS]
+  THEN  ...and has a one-line form to send away  [PASS]
+  THEN  it holds  [PASS]
+  THEN  it still holds after 5 more entries (negative sibling)  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a cut tail: the chain alone says intact, the anchor says truncated
+  THEN  the cut file is ACCEPTED as a history -- this is R5  [PASS]
+  THEN  ...and verifies from genesis  [PASS]
+  THEN  the anchor sees it  [PASS]
+  THEN  ...and says so  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a rebuilt history: a whole new chain, just as long
+  THEN  the new chain verifies on its own  [PASS]
+  THEN  the anchor says diverged  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: what an anchor cannot check is said, not guessed
+  THEN  a ledger with no file  [PASS]
+  THEN  a line that is not an anchor  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

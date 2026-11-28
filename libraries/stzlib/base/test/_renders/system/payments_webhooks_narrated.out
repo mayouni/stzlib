@@ -1,0 +1,69 @@
+SCENARIO: the body-only form: the MAC of the raw body under the key's secret
+  THEN  it is HMAC-SHA256 in hex, matching the published vector  [PASS]
+  THEN  a body verifies against its own signature  [PASS]
+  THEN  a body changed by one character does not  [PASS]
+  THEN  ...and says why  [PASS]
+  THEN  a signature of the right length and the wrong value does not  [PASS]
+  THEN  an empty signature is UNSIGNED  [PASS]
+  THEN  ...and says so  [PASS]
+  THEN  a key the signer does not hold verifies nothing  [PASS]
+  THEN  and nobody can sign as a key it holds no secret for  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: which of several secrets signed it -- and ONE ledger line when none did
+  THEN  an event signed with the OLD secret is believed and names it  [PASS]
+  THEN  one signed with the NEW secret is believed too  [PASS]
+  THEN  nothing was written to the ledger for the honest ones  [PASS]
+  THEN  a forged signature is refused  [PASS]
+  THEN  ...with ONE ledger line, not one per key it was tried against  [PASS]
+  THEN  ...naming the signer that refused it  [PASS]
+  THEN  an unsigned event is refused  [PASS]
+  THEN  ...and noted as unsigned  [PASS]
+  THEN  the same body presented again inside the window is a replay  [PASS]
+  THEN  ...says so  [PASS]
+  THEN  ...and noted as replayed  [PASS]
+  THEN  outside the window it is a fresh delivery again  [PASS]
+  THEN  the detections raise the three signals  [PASS]
+  THEN  ...forged is one  [PASS]
+  THEN  ...replayed another  [PASS]
+  THEN  ...unsigned the third  [PASS]
+  THEN  a forged webhook is an ERROR  [PASS]
+  THEN  a replayed one is an ERROR  [PASS]
+  THEN  an unsigned one is a WARNING: a probe, not yet a break-in  [PASS]
+  -> 19 pass, 0 fail
+
+SCENARIO: the port verifies through the signer, and the hub's secret never leaves the port
+  THEN  the hub's own delivery is accepted  [PASS]
+  THEN  ...answering the 204 the hub expects  [PASS]
+  THEN  ...and the ledger heard nothing, there was nothing to report  [PASS]
+  THEN  the same delivery again is refused as a replay  [PASS]
+  THEN  ...and the ledger heard it  [PASS]
+  THEN  a tampered body is refused as a bad signature  [PASS]
+  THEN  an unsigned event is refused  [PASS]
+  THEN  a signature under a guessed secret is refused  [PASS]
+  THEN  the ledger heard the forgeries: two  [PASS]
+  THEN  ...and the unsigned one  [PASS]
+  WHEN  the hub re-signs the SAME event in a different envelope (a retry that reformats)
+  THEN  the signature is valid, and the EVENT is still seen once only  [PASS]
+  THEN  ...and the platform's handler believed one event in all  [PASS]
+  WHEN  a body that is signed correctly but is not an event envelope arrives
+  THEN  it is refused as malformed  [PASS]
+  THEN  ...and noted  [PASS]
+  THEN  an envelope with no event is malformed too  [PASS]
+  THEN  the port kept every refusal, in order  [PASS]
+  -> 16 pass, 0 fail
+
+SCENARIO: the secret comes from the store, through the governed door
+  THEN  a port that was never given the secret believes nothing  [PASS]
+  THEN  an LLM actor cannot load it  [PASS]
+  THEN  ...and the store logged the refusal  [PASS]
+  THEN  an effectful actor can  [PASS]
+  THEN  ...and that reveal is on the store's access log too  [PASS]
+  THEN  now the hub's delivery is believed  [PASS]
+  THEN  naming a secret the store does not hold raises  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 51 assertions, 51 pass, 0 fail
+================================================
+STATUS: OK

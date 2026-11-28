@@ -1,0 +1,74 @@
+A
+1
+B
+2
+C
+3
+
+@content: NULL
+@cnnlwhy:
+@cnnlexpectmode:
+@pnnlexpect: 0
+@nnnlexpecttol: 0
+@onnlmain: 0
+@bnnlskip: 0
+@bnnlneither: 0
+@bnnleither: 0
+@bnnlsat: 0
+@cnnlquant:
+@annlconstraints: [This Attribute Contains A List]
+@bnnlenforce: 0
+@cvarname: @noname
+@cuuid:
+@chasheduuid:
+_these_: NULL
+_those_: Object...
+@noname:
+@isstzobject:
+@i:
+@islistofstrings:
+@isringtypeinplural:
+@isstztypeinplural:
+@@:
+@botharestrings:
+@memorysizeinbytes:
+@memorysizeinbytes32:
+@memorysizeinbytes64:
+@sizeinbytesxt:
+@sizeinbytes32xt:
+@sizeinbytes64xt:
+@contentsizeinbytes:
+@isnamedobject:
+@acontent: [This Attribute Contains A List]
+@penginegen: 0
+@awalkers: [This Attribute Contains A List]
+these: Object...
+@traceobjecthistory:
+@@s:
+@islistofchars:
+@casesensitive:
+@ishashlist:
+@botharenumbers:
+@findallcs_nbrorstr:
+@additem:
+@isringorstztype:
+@isringtypeplural:
+@isstztypeplural:
+@isstznumber:
+@isstzlist:
+@objectvarname:
+@isstzstring:
+@uniquecs:
+@objectify:
+
+A
+1
+B
+2
+C
+3
+
+
+
+----------------
+----------------

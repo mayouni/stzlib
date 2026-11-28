@@ -1,0 +1,79 @@
+SCENARIO: the canonical name was misspelled; its aliases were right all along
+  THEN  the correctly-spelled name now exists  [PASS]
+  THEN  ...and answers correctly the other way  [PASS]
+  THEN  all six of its alternative forms work  [PASS]
+  THEN  ...including this one  [PASS]
+  THEN  ...and this one  [PASS]
+  THEN  ...and the deliberately misspelled one  [PASS]
+  THEN  the historical misspelling still works, so old callers are safe  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: IntegerPart's fluent form: two typos in three lines
+  THEN  the integer part reads  [PASS]
+  THEN  the correctly-named fluent form now exists  [PASS]
+  THEN  ...and the historical misspelling still works  [PASS]
+  THEN  the sibling forms that called it work too  [PASS]
+  THEN  ...including the misspelled family  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: round comparison: called Is-Round..., defined Round-Is...
+  THEN  it returns a verdict instead of raising  [PASS]
+  THEN  ...for the reversed pair too  [PASS]
+  THEN  ...and a third pair  [PASS]
+  THEN  the three round predicates it calls are reachable  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: gcd and lcm: a short name that had become a SECOND implementation
+  THEN  gcd works  [PASS]
+  THEN  ...and its full name agrees  [PASS]
+  THEN  the Q form works, which it never could  [PASS]
+  THEN  lcm of two numbers works  [PASS]
+  THEN  lcm of a LIST works  [PASS]
+  THEN  ...and of numbers written as strings  [PASS]
+  THEN  ...which is what stzListOfNumbers depends on  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: the operator hook: >=, <=, ++ and -- all pointed at nothing
+  THEN  next number  [PASS]
+  THEN  previous number  [PASS]
+  THEN  ...and they do not mutate the number  [PASS]
+  THEN  ...proven  [PASS]
+  THEN  IncrementQ chains, which it did not before  [PASS]
+  THEN  ...and DecrementQ  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: octal: the fractional half of the conversion did not exist
+  THEN  an integer converts  [PASS]
+  THEN  a REAL number converts, which raised before  [PASS]
+  THEN  the fractional part alone  [PASS]
+  THEN  an integer has no fractional octal part  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the billions family: seven aliases, all missing a leading C
+  THEN  the canonical predicate works  [PASS]
+  THEN  ...and the aliases that called ontainsSeveralBillions()  [PASS]
+  THEN  ...this one too  [PASS]
+  THEN  a small number says no  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: removing zeros: dead calls AND wrong logic
+  THEN  leading zeros go  [PASS]
+  THEN  trailing zeros of a REAL number go  [PASS]
+  THEN  ...but an INTEGER keeps its zeros  [PASS]
+  THEN  both ends together  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the two tests that could not run before
+  THEN  a number divides  [PASS]
+  THEN  ...a number in a string too  [PASS]
+  THEN  ...and one written with decimals  [PASS]
+  THEN  ...while a non-divisor says no  [PASS]
+  THEN  a POSITIVE number gets no stray closing parenthesis  [PASS]
+  THEN  ...while a negative one is bracketed on both sides  [PASS]
+  THEN  the thousands separator now groups in threes  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 48 assertions, 48 pass, 0 fail
+================================================
+STATUS: OK

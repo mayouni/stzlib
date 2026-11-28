@@ -1,0 +1,13 @@
+SCENARIO: Directional occurrence selectors
+  GIVEN "12♥♥♥67♥♥♥12♥♥♥67" (hearts at 3, 8, 13)
+  THEN  all backward positions  [PASS]
+  THEN  the 1st and 2nd backward  [PASS]
+  THEN  ... as sections  [PASS]
+  THEN  backward from 12 (misspelled :Bakcward accepted)  [PASS]
+  THEN  ... as sections  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

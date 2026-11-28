@@ -1,0 +1,18 @@
+SCENARIO: Calculating on the numbers in a string
+  THEN  both doubled  [PASS]
+  THEN  both halved back  [PASS]
+  THEN  both plus eight  [PASS]
+  THEN  both minus twelve  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A different sum for each number
+  THEN  42 by 2, 13 by 3  [PASS]
+  THEN  divided back  [PASS]
+  THEN  42 plus 8, 13 plus 7  [PASS]
+  THEN  50 minus 40, 20 minus 10  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

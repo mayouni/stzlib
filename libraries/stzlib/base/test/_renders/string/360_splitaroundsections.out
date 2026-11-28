@@ -1,0 +1,16 @@
+SCENARIO: Splitting a range around sections
+  GIVEN a stzSplitter(10) and sections [4,5] + [8,8]
+  THEN  the complement spans  [PASS]
+  THEN  the IB spans include the section bounds  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Splitting a string around sections
+  GIVEN "...♥♥..♥.."
+  THEN  the complement pieces  [PASS]
+  THEN  the IB pieces share the boundary hearts  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

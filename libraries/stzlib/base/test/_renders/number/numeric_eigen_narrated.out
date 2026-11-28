@@ -1,0 +1,77 @@
+SCENARIO: eigenvalues, checked against their own definition
+  THEN  [[2,1],[1,2]] has eigenvalues 3 and 1  [PASS]
+  THEN  ...sorted descending, as PCA expects  [PASS]
+  THEN  A*v = lambda*v holds for all nine components  [PASS]
+  THEN  ...and the eigenvectors are orthonormal  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: two invariants that tie eigenvalues to code that computed them differently
+  THEN  the trace equals the sum of the eigenvalues  [PASS]
+  THEN  ...and the LU determinant equals their product  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a spectrum known by inspection, and a repeated eigenvalue
+  THEN  a diagonal matrix's eigenvalues ARE its diagonal, sorted  [PASS]
+  THEN  2*I has eigenvalue 2 twice  [PASS]
+  THEN  ...and its eigenvectors are still orthogonal  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the condition number, which says how many digits a solve can lose
+  THEN  the identity is perfectly conditioned  [PASS]
+  THEN  a diagonal matrix's is largest over smallest  [PASS]
+  GIVEN a singular matrix, where no solve is possible at all
+  THEN  the condition number is INFINITE, not a large finite number  [PASS]
+  THEN  ...its rank is 1, not 2  [PASS]
+  THEN  ...and it reports itself singular  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: rank, counted RELATIVE to the largest eigenvalue
+  THEN  the identity has full rank  [PASS]
+  THEN  the zero matrix has rank 0  [PASS]
+  THEN  a matrix of tiny entries is still full rank  [PASS]
+  THEN  ...and still perfectly conditioned  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a non-symmetric matrix is never silently symmetrised
+  THEN  it is detected as non-symmetric  [PASS]
+  THEN  its real spectrum is answered now  [PASS]
+  THEN  ...summing to ITS trace, 5  [PASS]
+  THEN  ...and multiplying to ITS determinant, -2  [PASS]
+  THEN  NOT the symmetrised matrix's eigenvalues  [PASS]
+  THEN  a rotation is still refused  [PASS]
+  THEN  symmetric to rounding still counts as symmetric  [PASS]
+  THEN  ...but a real asymmetry does not  [PASS]
+  THEN  a non-square matrix is not symmetric either  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: POSITIVE DEFINITENESS, answered twice by unrelated algorithms
+  THEN  all six cases agree, including the semi-definite boundary  [PASS]
+  THEN  a known positive-definite matrix IS positive definite  [PASS]
+  THEN  ...and a known indefinite one is NOT  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: THREE DECOMPOSITIONS, ONE INVERSE -- and one of them is 19x cheaper
+  THEN  it is the inverse  [PASS]
+  THEN  ...the same one the eigendecomposition gives  [PASS]
+  THEN  ...and the same one the SVD gives  [PASS]
+  THEN  and all three are square, of the right size  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and WHITENING IS NOT UNIQUE
+  THEN  the triangular one whitens  [PASS]
+  THEN  ...the symmetric one whitens  [PASS]
+  THEN  ...and they are NOT the same matrix  [PASS]
+  THEN  one is triangular  [PASS]
+  THEN  ...and the other is symmetric  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: what a Cholesky inverse refuses, and why that is not a limitation
+  THEN  an indefinite matrix has no triangular factor  [PASS]
+  THEN  ...and the message names the routes that do not need one  [PASS]
+  THEN  the matrix is invertible all the same, by another route  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 42 assertions, 42 pass, 0 fail
+================================================
+STATUS: OK

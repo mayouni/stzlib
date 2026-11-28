@@ -1,0 +1,13 @@
+panel laid out: 512x320
+mounted as a 3-unit quad
+  gui_scene_1_facing.png -- straight down at it
+  gui_scene_2_oblique.png -- the ordinary in-world view
+  gui_scene_3_graze.png -- a hard graze -- readable, just smaller
+
+fire's centre is at screen pixel 298, 235
+the ray landed on panel pixel 120, 215
+which is element: fire_text
+fire's events: 1   abort's events: 0
+  gui_scene_4_clicked.png -- the app answered, and the quad carries the answer
+
+Wrote gui_scene_1_facing.png, _2_oblique.png, _3_graze.png, _4_clicked.png

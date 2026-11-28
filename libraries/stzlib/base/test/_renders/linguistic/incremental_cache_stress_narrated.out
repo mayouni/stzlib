@@ -1,0 +1,46 @@
+-- Scene 1: a small corpus with answers we can count by hand --
+  [OK] three documents
+  [OK] 'the' occurs four times
+  [OK] an absent term scores zero
+  [OK] 'sat' appears in two documents
+  [OK] vocabulary and Vocabulary() agree
+  [OK] the most frequent term is 'the'
+
+-- Scene 2: THE interleaved pattern -- add a document, ask a question --
+  400 add+query steps in 0.00 s
+  [OK] every document landed
+  [OK] interleaving stays linear (< 5s)
+  [OK] a query during the build saw the document just added
+
+-- Scene 3: incremental must equal a full retrain --
+  [OK] same document count
+  [OK] same vocabulary size
+  [OK] same token count
+  [OK] same term frequency
+  [OK] same answer for an ABSENT term
+  [OK] same document frequency
+  [OK] same idf
+  [OK] same tf
+  [OK] same tf-idf
+  [OK] same ranking
+
+-- Scene 4: multilingual terms are counted, not mangled --
+  Arabic-tagged documents built: 100
+  [OK] the Arabic term is present at all
+  [OK] the CJK term is present
+  [OK] the accented Latin term is present
+  [OK] document frequency for the Arabic term matches the build
+  [OK] ...and for the CJK term
+  [OK] a multilingual term absent from the corpus scores zero
+  [OK] the Greek UPPERCASE term is counted
+  [OK] ...and matches its folded spelling
+
+-- Scene 5: stzMatrix -- an invalidating cache that is NOT a defect --
+  [OK] the matrix has the expected shape
+  50 mutate+query steps on 60x60 in 0.01 s
+  [OK] mutating and querying stays fast (< 5s)
+  [OK] the trace grew exactly as the additions demand
+
+==========================================
+TOTAL: 30 assertions, 30 pass, 0 fail
+==========================================

@@ -1,0 +1,17 @@
+Receiving item 1
+Receiving item 2
+Receiving item 3
+Receiving item 4
+🚦 Overflow activated: 3/3 buffer full
+Receiving item 5
+🚦 Overflow activated: 3/3 buffer full
+Receiving item 6
+🚦 Overflow activated: 3/3 buffer full
+Receiving item 7
+🚦 Overflow activated: 3/3 buffer full
+Processing buffer...
+ 📊 Processing: Data-1 (slow processing)
+
+
+----------------
+----------------

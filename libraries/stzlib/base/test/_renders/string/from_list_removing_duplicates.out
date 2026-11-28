@@ -1,0 +1,14 @@
+SCENARIO: Removing duplicate lines of a song
+  THEN  nineteen lines in, fifteen out  [PASS]
+  THEN  the first line survives  [PASS]
+  THEN  duplicates were dropped  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ... and the survivors are genuinely distinct
+  THEN  five in, three out  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

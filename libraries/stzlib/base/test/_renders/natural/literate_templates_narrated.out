@@ -1,0 +1,26 @@
+SCENARIO: A document's natural blocks execute -- prose stays prose
+  THEN  both fenced blocks are found, prose is ignored  [PASS]
+  THEN  each block runs as its own program  [PASS]
+  THEN  an interrogative block records its answers  [PASS]
+  THEN  and each block can paraphrase itself back  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A document with no fences is just prose
+  THEN  no blocks, no programs  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Natural templates: one narration, many instantiations
+  THEN  a list value fills the hole  [PASS]
+  THEN  the SAME template re-instantiates  [PASS]
+  THEN  strings render double-quoted, so apostrophes survive  [PASS]
+  THEN  a template's named object reaches the world too  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: An unfilled hole refuses loudly
+  THEN  a template is a contract, not a suggestion  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+================================================
+STATUS: OK

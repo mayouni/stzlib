@@ -1,0 +1,47 @@
+SCENARIO: WH-questions: the answer is the missing constituent
+  GIVEN two grammatical orderings, two closers -- Of(...) and Is()
+  THEN  'What is the first char of Ring' (closes at Of)  [PASS]
+  THEN  'What the first char of Ring is' (closes at Is)  [PASS]
+  THEN  a WH-answer can be a LIST (data, per the Q-convention)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: HowMany: counting questions prefer the NumberOf twin
+  THEN  'How many vowels of Ring'  [PASS]
+  THEN  'How many words of hello brave world'  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The nominal count and the locative preposition (author's addition)
+  GIVEN 'the number of letters IN ring' -- In/InQ beside Of/OfQ, NumberOfQ as opener AND as constituent word
+  THEN  NumberOfQ().LettersQ().In('ring')  [PASS]
+  THEN  TheNumberOfQ variant reads with its article  [PASS]
+  THEN  In() closes any frame, like Of()  [PASS]
+  THEN  'the number of letters' as a COMPARISON constituent  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Polar comparison: two computed constituents, one verdict
+  GIVEN the author's canonical question, decomposed per the one-word-one-method law
+  THEN  'Is the length of Ring the same as the length of Ruby?'  [PASS]
+  THEN  ...and the answer explains itself  [PASS]
+  THEN  'Is the length of softanza more than the length of Ring?'  [PASS]
+  THEN  '...less than...' answers no honestly  [PASS]
+  THEN  ...with the reason  [PASS]
+  THEN  'Is the vowel count of Ring different from the word count of hi there?'  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Q3 corrected: the tag question and the antonym (author's ruling)
+  GIVEN English does not say 'is X is not the same as Y' -- negation lives in ANTONYM comparators (DifferentFromQ), negative FORMS, and the TAG '..., or not?' (OrNot, plain because it answers)
+  THEN  'Is the length of Ring the same as the length of Ruby, or not?'  [PASS]
+  THEN  ...the tag does not negate; the answer explains  [PASS]
+  THEN  the tag answers no when lengths differ  [PASS]
+  THEN  negation-proper IS the antonym: 'different from'  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: The frame is accountable like everything else
+  THEN  a question without an aspect refuses  [PASS]
+  THEN  an aspect the host cannot answer refuses (dispatcher)  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 21 assertions, 21 pass, 0 fail
+================================================
+STATUS: OK

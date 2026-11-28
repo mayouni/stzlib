@@ -1,0 +1,27 @@
+SCENARIO: A chain of truth as questions -- all yes
+  THEN  every question records its answer, in order  [PASS]
+  THEN  AllYes folds the chain like the legacy ._ closer  [PASS]
+  THEN  the paraphrase shows BOTH questions as asks  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Mixed answers distinguish All from Any
+  THEN  answers record the truth of each question  [PASS]
+  THEN  AllYes refuses on one no  [PASS]
+  THEN  AnyYes accepts on one yes  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: The predicate-verb family answers instead of no-oping
+  THEN  a NO is a recorded answer, not a silence  [PASS]
+  THEN  bare 'contains' asks too  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Result() keeps its contract; no questions means no answers
+  THEN  Result() is still the last thing produced  [PASS]
+  THEN  a narration with no questions has no answers  [PASS]
+  THEN  and AllYes on no answers is FALSE, honestly  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 11 assertions, 11 pass, 0 fail
+================================================
+STATUS: OK

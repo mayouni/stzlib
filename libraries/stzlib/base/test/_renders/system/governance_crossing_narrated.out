@@ -1,0 +1,54 @@
+-- Scene 1: an actor's authority is a set of capability KINDS --
+  [OK] a human can effect reality
+  [OK] a PI actor can too
+  [OK] an LLM actor CANNOT -- its effect set is empty
+  [OK] ...it can only infer
+  [OK] a guardian can sense and compute but not effect
+  [OK] the LLM's posture is sandboxed, the human's trusted
+  [OK] an unknown capability kind is refused (closed lattice)
+
+-- Scene 2: expression is FREE, admission is GOVERNED (an LLM's plan) --
+  [OK] the LLM freely REHEARSED the change (the twin holds it)
+  [OK] ...but MayCommit() says it cannot cross
+  [OK] ...Execute commits NOTHING
+  [OK] ...refused by governance, not by scope
+  [OK] ...and reality is untouched
+
+-- Scene 3: a human commits the very same plan --
+  [OK] the human MAY commit
+  [OK] ...and reality now holds the file
+
+-- Scene 4: a guardian may sense/compute but still cannot commit --
+  [OK] the guardian commits nothing effectful
+  [OK] ...reality untouched
+
+-- Scene 5: the gate holds across DOMAINS -- the env twin too --
+  [OK] an LLM cannot set a real env var either
+  [OK] ...but a human can
+
+-- Scene 6: stzGovernance adds the trust-posture requirement --
+  [OK] an effectful actor with NO declared posture is refused wholesale
+  [OK] ...and reality is untouched
+  [OK] ...once a posture is declared, it may commit
+
+-- Scene 7: every governed commit is recorded in the plan's audit trail --
+  [OK] the plan recorded an audit trail
+  [OK] ...naming the actor and the outcome
+  [OK] ...and the wired governance's lineage carries it (via the plan)
+
+-- Scene 8: ONE lattice -- the same kinds gate Phase 1b's system caps --
+  [OK] the LLM may exercise NO system capability either (empty effect set)
+  [OK] ...the human may exercise the effectful/sensing/compute ones
+
+-- Scene 9: no executor = unguarded (a human at the keyboard) --
+  [OK] with no executor, MayCommit is true
+  [OK] ...and the commit proceeds
+
+-- Scene 10: the gates COMPOSE -- an LLM is refused even in scope --
+  [OK] in-scope but the LLM still cannot cross
+  [OK] ...the refusal names governance, not scope
+  [OK] ...reality untouched
+
+==========================================
+TOTAL: 31 assertions, 31 pass, 0 fail
+==========================================

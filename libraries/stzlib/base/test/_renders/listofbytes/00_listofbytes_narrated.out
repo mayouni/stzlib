@@ -1,0 +1,57 @@
+SCENARIO: Byte counts on ASCII vs multibyte
+  GIVEN the ASCII string 'RING' (4 single-byte chars)
+  THEN  NumberOfBytes is 4  [PASS]
+  THEN  Bytecodes are the ASCII codes  [PASS]
+  GIVEN a 3-char string spanning 1+2+3 bytes
+  THEN  NumberOfBytes counts all 6 bytes (not 3 chars)  [PASS]
+  THEN  Bytecodes lists all 6 byte values  [PASS]
+  THEN  Bytes() yields one entry per byte (6)  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Bytes-per-char breakdown
+  GIVEN the same 1+2+3 byte string
+  THEN  NumberOfBytesPerChar maps each char to its byte width  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Hex rendering of the byte buffer
+  GIVEN a two-byte ASCII string 'de'
+  THEN  ToHex prefixes with 0x and renders both bytes  [PASS]
+  GIVEN a single 3-byte CJK char
+  THEN  ToHex renders all three bytes  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Byte-accurate slicing
+  GIVEN the 1+2+3 byte string (6 bytes total)
+  THEN  NLeftBytes(3) takes 'm' + the 2-byte char  [PASS]
+  THEN  NRightBytes(3) takes the 3-byte char  [PASS]
+  THEN  Range(1,1) is the first byte's char  [PASS]
+  THEN  Range(2,2) is the 2-byte char, taken as bytes  [PASS]
+  THEN  Section(1,3) spans three BYTES, not three chars  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Positional methods measure BYTES, not codepoints
+  GIVEN the 1+2+3 byte string (3 chars, 6 bytes)
+  THEN  UnicodeOfNthByte(1) is the ASCII 'm'  [PASS]
+  THEN  UnicodeOfNthByte(4) reaches into the 3-byte char  [PASS]
+  THEN  UnicodeOfNthByte(6) is the LAST byte  [PASS]
+  THEN  UnicodeOfNthByte(7) is out of range  [PASS]
+  THEN  UnicodeOfNthByte(0) is out of range  [PASS]
+  GIVEN TruncatedAt(3) on the same string
+  THEN  it keeps 3 BYTES  [PASS]
+  THEN  ...and leaves the original untouched  [PASS]
+  GIVEN Resize(4) shrinking the buffer
+  THEN  the buffer is 4 bytes  [PASS]
+  GIVEN Resize(8) growing an ASCII buffer
+  THEN  it pads to 8 bytes  [PASS]
+  GIVEN RemoveNBytesFromEnd(3) dropping the CJK char
+  THEN  3 bytes remain  [PASS]
+  THEN  ...and they are 'm' + the 2-byte char  [PASS]
+  GIVEN RemoveNBytesStartingAt(2, 2) excising the middle char
+  THEN  4 bytes remain  [PASS]
+  THEN  ...and they are 'm' + the 3-byte char  [PASS]
+  -> 13 pass, 0 fail
+
+================================================
+TOTAL: 26 assertions, 26 pass, 0 fail
+================================================
+STATUS: OK

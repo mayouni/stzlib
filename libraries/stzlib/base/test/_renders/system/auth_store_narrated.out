@@ -1,0 +1,68 @@
+SCENARIO: backward-compat: the default in-memory store behaves as before
+  THEN  two users registered  [PASS]
+  THEN  the correct password authenticates  [PASS]
+  THEN  ...a wrong password is rejected  [PASS]
+  THEN  ...an unknown user is rejected  [PASS]
+  THEN  Login opens a 64-char opaque session  [PASS]
+  THEN  ...mapping back to its user  [PASS]
+  THEN  ...the session is still a stzToken  [PASS]
+  THEN  Logout ends it  [PASS]
+  THEN  ChangePassword needs the current one  [PASS]
+  THEN  ...and succeeds when presented  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: L3: unknown-user rejection is timing-equalized (behaviour side)
+  GIVEN a store with one real user
+  THEN  a wrong password for a REAL user is rejected  [PASS]
+  THEN  ...an UNKNOWN user is rejected the same way  [PASS]
+  THEN  ...the right password still passes  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: L3: brute-force lockout
+  GIVEN an auth with a 3-attempt limit and a 900s lockout
+  WHEN  three wrong logins arrive at t=1000
+  THEN  the failures are counted  [PASS]
+  THEN  ...the account is locked  [PASS]
+  THEN  ...even the CORRECT password is refused while locked  [PASS]
+  WHEN  the lockout window passes (t=1000+900)
+  THEN  the correct password works again  [PASS]
+  GIVEN a second account with a SIXTY second lockout
+  WHEN  two wrong logins arrive at t=1000
+  THEN  the account is locked  [PASS]
+  THEN  ...still locked at the last second of the window  [PASS]
+  THEN  ...free at the first second past it  [PASS]
+  THEN  ...and the correct password is taken again  [PASS]
+  GIVEN a third account left on the default window
+  THEN  it is STILL locked where the 60s account was free  [PASS]
+  THEN  ...and only frees at its own, longer window  [PASS]
+  THEN  ...and success cleared the failure counter  [PASS]
+  GIVEN a fresh victim
+  WHEN  two fails then a success (below the limit)
+  THEN  a correct login succeeds and is never locked  [PASS]
+  THEN  ...counter reset  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: revoke every session for a user without deleting the account
+  THEN  two live sessions  [PASS]
+  THEN  both are gone  [PASS]
+  THEN  ...but the account remains  [PASS]
+  THEN  ...and she can log in again  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: L1: a DB-backed store makes users and sessions DURABLE
+  GIVEN an stzAuth pointed at a fresh sqlite file
+  THEN  the login is valid  [PASS]
+  WHEN  a SEPARATE stzAuth opens the SAME database file
+  THEN  it sees the persisted user  [PASS]
+  THEN  ...and the persisted session (durable across instances)  [PASS]
+  THEN  ...authentication works against the stored hash  [PASS]
+  WHEN  expiry is exercised over the DB store
+  THEN  valid before expiry  [PASS]
+  THEN  ...invalid after (dies on the clock, from sqlite)  [PASS]
+  THEN  ...PurgeExpiredAt prunes it from the database  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 37 assertions, 37 pass, 0 fail
+================================================
+STATUS: OK

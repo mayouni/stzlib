@@ -1,0 +1,15 @@
+SCENARIO: Two lookalike circumflexed e's
+  THEN  Ring sees them different  [PASS]
+  THEN  Softanza too  [PASS]
+  THEN  the composed one is one char  [PASS]
+  THEN  ... with codepoint 234  [PASS]
+  THEN  the decomposed one is two chars  [PASS]
+  THEN  ... with two codepoints  [PASS]
+  THEN  the composed char's name  [PASS]
+  THEN  the decomposed pair's names  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

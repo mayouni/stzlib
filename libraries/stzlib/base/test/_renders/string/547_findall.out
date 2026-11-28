@@ -1,0 +1,14 @@
+SCENARIO: abc three times
+  THEN  all occurrences  [PASS]
+  THEN  the first two  [PASS]
+  THEN  ... from position 1  [PASS]
+  THEN  the last two  [PASS]
+  THEN  ... from position 1  [PASS]
+  THEN  the first two from 5  [PASS]
+  THEN  the last two from 3  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

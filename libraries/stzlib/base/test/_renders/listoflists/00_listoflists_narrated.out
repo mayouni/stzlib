@@ -1,0 +1,26 @@
+SCENARIO: Size and missing-cell analysis of a jagged list
+  GIVEN 3 rows of length 4, 3 and 2
+  THEN  NumberOfLists is 3  [PASS]
+  THEN  Sizes are [4,3,2]  [PASS]
+  THEN  MinSize is 2  [PASS]
+  THEN  MaxSize is 4  [PASS]
+  THEN  HowManyMissing is 3 (cells short of rectangular)  [PASS]
+  THEN  FindMissing pinpoints the empty cells  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Row and column access
+  GIVEN a 3-row jagged list
+  THEN  NthList(3) returns the third row  [PASS]
+  THEN  NthCol(3) gathers column 3 where present  [PASS]
+  THEN  NthCol(4) returns the lone column-4 value  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: The @IsListOfLists predicate
+  THEN  a list of lists is recognised  [PASS]
+  THEN  a flat list is not a list of lists  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 11 assertions, 11 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,63 @@
+SCENARIO: The XT alias schedules something
+  GIVEN a reactive system
+  THEN  it starts with no timers  [PASS]
+  WHEN  a timeout is set through the XT alias
+  THEN  it answers a timer id  [PASS]
+  THEN  ...and a timer is actually registered  [PASS]
+  THEN  the id it answered can stop it  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A unit the clock cannot read is refused, not silently the smallest one
+  GIVEN a reactive system asked to wait five hours
+  THEN  five hours is five hours  [PASS]
+  GIVEN the units that were already understood
+  THEN  seconds scale up  [PASS]
+  THEN  minutes too  [PASS]
+  THEN  milliseconds pass through  [PASS]
+  THEN  ...and so does a missing unit  [PASS]
+  GIVEN a unit nobody can convert
+  THEN  it is refused  [PASS]
+  THEN  ...and nothing was scheduled  [PASS]
+  THEN  ...and the repeating form refuses the same way  [PASS]
+  THEN  a non-numeric delay is refused  [PASS]
+  THEN  a negative delay is refused  [PASS]
+  THEN  and still nothing was scheduled  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: A repeating timer can be stopped
+  GIVEN a repeating timer
+  THEN  it is registered  [PASS]
+  WHEN  it is stopped
+  THEN  the manager no longer holds it  [PASS]
+  WHEN  the loop is given a chance to fire it
+  THEN  it never fired  [PASS]
+  GIVEN a repeating timer, stopped by handing StopTimer the object
+  THEN  it is registered  [PASS]
+  THEN  passing the object removes it too  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Both timer setters answer the same kind of thing
+  GIVEN one of each
+  THEN  RunAfter answers a string id  [PASS]
+  THEN  ...and RunEvery does too  [PASS]
+  THEN  the two ids differ  [PASS]
+  THEN  ...and both timers are registered  [PASS]
+  WHEN  both are stopped by the ids they gave
+  THEN  both are gone  [PASS]
+  GIVEN two timers again, with only one stopped
+  THEN  the other one survives  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: A callback can stop timers while the loop is running them
+  GIVEN two repeating timers and a one-shot that cancels everything
+  THEN  all three are registered  [PASS]
+  WHEN  the loop runs them
+  THEN  the loop does not raise  [PASS]
+  THEN  ...the cancelling callback did run  [PASS]
+  THEN  ...and no timer is left behind  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 30 assertions, 30 pass, 0 fail
+================================================
+STATUS: OK

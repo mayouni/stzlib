@@ -1,0 +1,52 @@
+-- Scene 1: the app MODEL holds the solution's real data + per-part roles --
+  [OK] the phone part's role is 'menu'
+  [OK] ...the admin part's role is 'dashboard'
+  [OK] the menu the phone shows is the real dataset (5 dishes)
+  [OK] ...a part with no role declared has none
+
+-- Scene 2: the dashboard is COMPUTED by the engine, not hardcoded --
+  [OK] revenue is computed per dish (5 rows)
+  [OK] total revenue = the engine's SumCol (288+152+120+90+50 = 700)
+  [OK] ...the top seller is Royal couscous (12 x 24 = 288)
+  [OK] ...each figure is real: Brik = 20 x 6 = 120
+
+-- Scene 3: the emulator renders each part FROM the model --
+  [OK] the delivery now carries an app model
+  [OK] the emulator built the bundle
+  [OK] ...it emitted a per-part app for the phone AND the admin
+
+-- Scene 4: the WAITER app shows the real menu; the ADMIN a computed dashboard --
+  [OK] the waiter app lists a real menu dish (Royal couscous)
+  [OK] ...with the menu markup (orderable dishes)
+  [OK] ...and its price from the data (24 DT)
+  [OK] the admin app is a dashboard -- 'Revenue by dish'
+  [OK] ...showing the engine-computed total (700 DT)
+  [OK] ...naming the top seller (Royal couscous)
+  [OK] ...and it credits the on-device engine
+
+-- Scene 5: the two parts are DIFFERENT apps (not one placeholder) --
+  [OK] the admin app is NOT the waiter menu (no orderable dishes)
+  [OK] ...the waiter app is NOT the dashboard (no revenue view)
+
+-- Scene 6: the BACKEND console serves real endpoints (engine-computed /stats) --
+  [OK] the app data ships as a JS asset (window.STZ_APPDATA)
+  [OK] ...the api part exposes GET /menu + GET /orders from the data
+  [OK] ...and a GET /stats whose total is engine-computed (700 DT)
+  [OK] ...naming the top seller in the stats (Royal couscous)
+
+-- Scene 7: the DEVICE console follows a real pin model + automation rule --
+  [OK] the node part ships its pins (moisture sensor + pump actuator)
+  [OK] ...the sensor carries a real reading (28), not a random number
+  [OK] ...and the firmware rule: pump when moisture < 30
+
+-- Scene 8: the consoles READ the injected data (wired, not faked) --
+  [OK] emulator.js answers endpoints from the model (apiRespond over STZ_APPDATA)
+  [OK] ...and drives the pins from the model's rule, not Math.random
+  [OK] index.html loads the app data (stz_appdata.js) for the consoles
+
+-- Scene 9: back-compat -- a solution with NO app model still renders --
+  [OK] no app model -> the demo menu still generates (fallback intact)
+
+==========================================
+TOTAL: 31 assertions, 31 pass, 0 fail
+==========================================

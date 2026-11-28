@@ -1,0 +1,49 @@
+SCENARIO: a price stays a price
+  THEN  it knows what it is  [PASS]
+  THEN  ...and IsMoney says so  [PASS]
+  THEN  ...with two places  [PASS]
+  THEN  a rate applied to it lands on money, not 2.9985  [PASS]
+  THEN  ...and it is STILL money afterwards  [PASS]
+  WHEN  a tie appears, as it does constantly in money
+  THEN  it rounds by banker's, not away from zero  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: an exact quantity refuses to become approximate
+  THEN  it knows what it is  [PASS]
+  THEN  ...and holds the fraction  [PASS]
+  THEN  exact arithmetic proceeds normally  [PASS]
+  WHEN  an operation cannot be exact
+  THEN  it RAISES rather than quietly handing back 0.333333  [PASS]
+  THEN  ...saying the regime is why  [PASS]
+  THEN  ...and what to use instead  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: a measurement carries its precision
+  THEN  it pads to the places it claims  [PASS]
+  THEN  ...and knows how many  [PASS]
+  THEN  ...and what it is  [PASS]
+  THEN  arithmetic keeps the precision  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the plain number is exactly what it was
+  THEN  its regime is machine  [PASS]
+  THEN  ...so it keeps every place the exact arithmetic produced  [PASS]
+  THEN  ...and is not money  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: infinities and NaN are refused, not carried
+  THEN  an infinity is refused  [PASS]
+  THEN  ...and named for what it is  [PASS]
+  THEN  ...pointing at where the fault actually is  [PASS]
+  THEN  a NaN is refused too  [PASS]
+  GIVEN ordinary values, which must be untouched by all this
+  THEN  zero still builds  [PASS]
+  THEN  ...and a negative  [PASS]
+  THEN  ...and a decimal  [PASS]
+  THEN  ...and a large integer  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 27 assertions, 27 pass, 0 fail
+================================================
+STATUS: OK

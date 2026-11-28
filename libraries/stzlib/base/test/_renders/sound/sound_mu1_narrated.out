@@ -1,0 +1,135 @@
+== MU1: twenty instruments, in tune, distinct, and honest about their names ==
+
+-- Scene 1: the instruments exist, in the plan's order --
+   20: piano, guitar, harp, bell, epiano, brass, flute, oud, koto, kora, metallophone, drumkit, mezwed, zokra, darbouka, bendir, kakaki, sarewa, imzad, kalangu
+  [ok]   there are twenty
+  [ok]   in the plan's order: general, then Tunisia, then Niger
+
+-- Scene 2: the pitch instruments, checked before anything is measured with them --
+   MU0 owed a finer instrument: an integer-lag autocorrelation at 218 frames
+   is 7.9 cents wide. This one refines the peak to a fraction of a sample, is
+   octave-guarded, and has a spectral sibling for sounds that are not harmonic.
+   a pure 293.6648 Hz sine reads 293.665 (harmonic) and 293.665 (spectral)
+  [ok]   the harmonic instrument reads a sine to a hundredth of a cent
+  [ok]   the spectral instrument to a tenth
+  [ok]   asked about the octave BELOW a note, it REFUSES rather than answer
+
+-- Scene 3: the fractional delay, against MU0's integer line --
+   The same A4, plucked by MU0's thirty-line spike and by MU1's guitar, read
+   by the same fine instrument.
+   MU0 integer line: 9.404 cents     MU1 guitar: -0.022 cents
+  [ok]   MU0's integer line was out by more than the 2-cent bar -- the reason for MU1
+  [ok]   MU1's allpass puts A4 inside it
+
+-- Scene 4: every instrument renders, and every pitched one is in tune --
+   Low, middle and high of each instrument's range. Harmonic instruments by
+   the harmonic instrument, averaged over sixteen readings when the pitch
+   wanders (vibrato, or breath); bars, bells and drums by the spectral one,
+   on their lowest mode.
+
+   instrument     engine    raw c   tuned c  |  cents: low     mid     high
+   piano         pluck       0.004        0  |   -0.010   0.004  -0.094
+   guitar        pluck      -0.010        0  |   -0.019  -0.010  -0.029
+   harp          pluck       0.025        0  |   -0.005   0.025  -0.073
+   bell          fm              0        0  |    0.001   0.000   0.000
+   epiano        fm              0        0  |   -0.417   0.008  -0.014
+   brass         fm              0        0  |   -0.000  -0.002  -0.012
+   flute         wind       32.889  -32.775  |    0.041  -0.034   0.054
+   oud           pluck      -0.007        0  |   -0.002  -0.007   0.015
+   koto          pluck      -0.000        0  |   -0.020  -0.000  -0.019
+   kora          pluck      -0.009        0  |   -0.018  -0.009  -0.072
+   metallophone  fm              0        0  |   -0.000  -0.000   0.000
+   drumkit       membrane        0        0  |   (unpitched: renders, peak checked)
+   mezwed        wind        6.144   -6.794  |    0.029   0.009   0.004
+   zokra         wind      -17.623   17.495  |   -0.030   0.014   0.042
+   darbouka      membrane        0        0  |   -0.001   0.000   0.000
+   bendir        membrane        0        0  |   (unpitched: renders, peak checked)
+   kakaki        wind     -248.673  376.656  |    0.001  -0.010   0.011
+   sarewa        wind       32.467  -32.302  |    0.048   0.175   0.168
+   imzad         bow         3.233   -3.233  |   -0.004  -0.003   0.020
+   kalangu       membrane        0        0  |   -0.002   0.000   0.000
+
+  [ok]   all twenty render, every note peaks between 0.3 and 1.0
+  [ok]   every pitched instrument is within 2 cents at low, middle and high
+   raw c is the UNTUNED model's error. The kakaki's lip model starts about
+   2.5 semitones flat and the jet about a third of a semitone sharp: that is
+   what the self-tuning is for, and why the waveguides report it.
+
+-- Scene 5: the tuner is not its own witness --
+   Three notes, one per engine family, re-measured with an instrument that
+   shares no code with the engine: an eight-pole lowpass, then the time
+   between the first and last rising zero crossing across 0.7 s, each
+   crossing located between samples. The zokra, not the mezwed: the mezwed's
+   two chanters BEAT, and a beat null flips the phase and adds a crossing.
+   guitar   asked 303.600 Hz, independently measured 303.600 Hz = -0.000 cents
+  [ok]   guitar is in tune by an instrument that shares no code with the tuner
+   zokra    asked 480 Hz, independently measured 479.937 Hz = -0.228 cents
+  [ok]   zokra is in tune by an instrument that shares no code with the tuner
+   imzad    asked 379.500 Hz, independently measured 379.516 Hz = 0.073 cents
+  [ok]   imzad is in tune by an instrument that shares no code with the tuner
+
+-- Scene 6: the engines are DISTINCT, by their physics --
+   Twenty names on one sound would pass every scene above. These cannot.
+   2nd / 3rd harmonic: mezwed (single reed, cylinder) 0.015   zokra (double reed, cone) 0.178
+  [ok]   the cylinder suppresses its even harmonics -- H2 below half of H3
+   the cone's even content is 11.782 times the cylinder's
+  [ok]   the cone does not suppress them -- five times the cylinder's even content
+   loudness at 0.9 s over 0.3 s: imzad (bowed) 1.030   guitar (plucked) 0.427
+  [ok]   the bow SUSTAINS the note
+  [ok]   the pluck DECAYS it
+   fundamental / mode (2,1): dum (centre) 17.534   tak (rim) 0.739
+  [ok]   DUM, struck at the centre, is led by the fundamental
+  [ok]   TAK, struck at the rim, is led by the upper mode
+   2.5 kHz over fundamental: bendir 0.039   darbouka 0.000
+  [ok]   the bendir BUZZES where the darbouka does not -- five times the high band
+
+-- Scene 7: a pitch that moves -- the kalangu, and the bow --
+   The talking drum is squeezed from 150 to 220 Hz over 0.8 s. Its pitch is
+   read early and late, each against where the glide should be at the
+   middle of that window -- a glide is not a note, and the tolerance is 30
+   cents, stated here before it was measured.
+   early window: expected 162.770, read 161.763   late: expected 202.740, read 201.323
+  [ok]   the early window is where the glide should be
+  [ok]   and so is the late one
+   the glide should rise 380.148 cents between the window centres; it rose 378.758
+  [ok]   and the pitch ROSE by the glide's own amount between them, to 30 cents
+  [ok]   a plucked string REFUSES to glide -- it holds one pitch
+   this instrument cannot glide: a pluck and an FM voice hold one pitch
+
+-- Scene 8: a sample played at another pitch -- how a recording becomes an instrument --
+  [ok]   the rate is accepted
+   a 220 Hz note played at 2^(7/12) reads 329.614 Hz, -0.069 cents from the fifth above
+  [ok]   the sample sounds a fifth higher, to 2 cents
+  [ok]   a rate of 0 is REFUSED
+  [ok]   rate 1 is bit-identical to a rate never set -- 0 samples differ
+
+-- Scene 9: note names, and the refusals --
+  [ok]   A4 is 440
+  [ok]   C4 is 261.626
+  [ok]   D4+50 is a quarter tone above D4
+  [ok]   Bb3 and A#3 are the same pitch
+  [ok]   'H4', 'A' and 'A4+x' are refused, not guessed
+  [ok]   an unknown instrument is refused
+   no instrument named 'theremin' -- this engine has: piano, guitar, harp, bell, epiano, brass, flute, oud, koto, kora, metallophone, drumkit, mezwed, zokra, darbouka, bendir, kakaki, sarewa, imzad, kalangu
+  [ok]   a pitch outside the oud's range is refused
+  [ok]   a stroke on a plucked string is refused
+  [ok]   a stroke the drum does not have is refused
+  [ok]   a velocity above 1 is refused, and counted
+
+-- Scene 10: the listener's line --
+   Every name above is PROVISIONAL. MU1's kill criterion: an instrument that
+   does not sound like its name to the author ships under a name that does
+   not lie -- and the fallback was written into the engine BEFORE anyone
+   listened:
+
+   piano -> hammeredstring,  guitar -> pluckedstring,  harp -> ringingstring,  bell -> fmbell,
+   epiano -> fmkeys,  brass -> fmbrass,  flute -> jetpipe,  oud -> darkpluck,
+   koto -> brightpluck,  kora -> gourdpluck,  metallophone -> fmbar,  drumkit -> synthkit,
+   mezwed -> twinreedpipe,  zokra -> shawm,  darbouka -> gobletdrum,  bendir -> snaredframe,
+   kakaki -> liptrumpet,  sarewa -> breathyflute,  imzad -> bowedstring,  kalangu -> talkingdrum
+
+   UNPERCEIVED, all twenty, as of this writing. sound_mu1_demo.ring plays
+   each; the STATUS records the author's verdict by name, instrument by
+   instrument, or keeps this word.
+
+37 passed, 0 failed

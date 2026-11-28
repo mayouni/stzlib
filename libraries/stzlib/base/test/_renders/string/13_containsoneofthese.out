@@ -1,0 +1,12 @@
+SCENARIO: Inclusive vs exclusive containment
+  GIVEN "me you all the others" (both) and "me and all the others" (only me)
+  THEN  both present -> ContainsOneOfThese TRUE  [PASS]
+  THEN  both present -> ContainsOnlyOneOfThese FALSE  [PASS]
+  THEN  only one present -> ContainsOnlyOneOfThese TRUE  [PASS]
+  THEN  only one present -> ContainsOneOfThese TRUE  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

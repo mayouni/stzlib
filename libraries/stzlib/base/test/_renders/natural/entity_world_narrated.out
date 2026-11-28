@@ -1,0 +1,76 @@
+SCENARIO: An empty world answers honestly
+  THEN  an unknown name yields the empty list  [PASS]
+  GIVEN the world lives in stzListOfEntities, shared by all surfaces
+  THEN  the world object is reachable  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Teaching facts: StzKnow is idempotent and case-blind
+  THEN  teaching a NEW fact returns 1  [PASS]
+  THEN  a second meaning of the same name is a new fact  [PASS]
+  THEN  re-teaching a known fact returns 0 (silent, never raises)  [PASS]
+  THEN  WhatIs gathers ALL the meanings, lowered  [PASS]
+  THEN  exactly two entities were added  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Naturally() names feed the world automatically
+  THEN  'called basket' -> the world knows basket is a list  [PASS]
+  THEN  'call it label' works too (call = NAME_INDICATOR)  [PASS]
+  THEN  code regeneration adds NO duplicate entities  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: stzText NER feeds the world EXPLICITLY
+  THEN  rule NER sees person / organization / location  [PASS]
+  THEN  registering returns how many were NEW  [PASS]
+  THEN  the world now knows who John Smith is  [PASS]
+  THEN  and what Microsoft is  [PASS]
+  THEN  re-registering the same text adds nothing  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: One world, many feeders -- the convergence itself
+  THEN  NER's location and the taught city coexist on one name  [PASS]
+  THEN  the world lists its person entities by type  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The hypothetical frontier: suppose -> ask -> commit or forget
+  GIVEN an assumption is an OVERLAY on the world, never a commitment -- the agent reasons 'as if', then concludes or discards; the world stays clean throughout
+  THEN  an unsupposed name is unknown  [PASS]
+  THEN  'Suppose tomato is a fruit and is a vegetable' -- visible while supposed  [PASS]
+  THEN  the suppositions are inspectable  [PASS]
+  THEN  FORGET discards -- the world was never touched  [PASS]
+  THEN  COMMIT concludes: the supposition becomes knowledge  [PASS]
+  THEN  ...now the world knows it  [PASS]
+  THEN  ...and the overlay is empty  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: WhatIs through Ask -- one interrogative family, ONE door
+  GIVEN the two knowledge sources now meet: Ask() consults the ENTITY WORLD on a 'what is X / who is X' question (a '(world)' entry, kind-consistent with recipes), and WhatIs() falls back to the LIBRARY through the same retrieval pipeline when the world is silent
+  THEN  the world answers FIRST through Ask  [PASS]
+  THEN  ...as a plain sentence  [PASS]
+  THEN  the same door opens from any OBJECT's Ask  [PASS]
+  THEN  a non-world question stays pure method retrieval  [PASS]
+  THEN  WhatIs, silent in the world, answers from the LIBRARY -- EVERY defining class named, grouped per voice-sibling form  [PASS]
+  THEN  ...  [PASS]
+  THEN  ...and a widely-implemented method reports ALL its owners  [PASS]
+  THEN  a supposition answers through the door, while it stands  [PASS]
+  THEN  ...and is honestly gone once forgotten  [PASS]
+  THEN  unknown everywhere stays honestly empty  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Graph-governed relations -- the world grows edges under LAW
+  GIVEN StzKnowRelation adds triples; StzConstrainRelation declares graph laws: :Unique (one edge per FROM), :Symmetric (auto-reverse), :Transitive (AreRelated walks the chain, Why narrates the path)
+  THEN  the edge is known  [PASS]
+  THEN  AreRelated answers the relation  [PASS]
+  THEN  WhatIs surfaces the edge with the types  [PASS]
+  THEN  a second capital is REFUSED by the :Unique law  [PASS]
+  THEN  ...  [PASS]
+  THEN  the :Symmetric law knows the reverse  [PASS]
+  THEN  the :Transitive law walks the chain  [PASS]
+  THEN  ...and narrates the path  [PASS]
+  THEN  unrelated stays honestly unrelated  [PASS]
+  THEN  forgotten edges are gone  [PASS]
+  -> 10 pass, 0 fail
+
+================================================
+TOTAL: 44 assertions, 44 pass, 0 fail
+================================================
+STATUS: OK

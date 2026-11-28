@@ -1,0 +1,21 @@
+[
+	[ "plan1", "speed_focused" ],
+	[ "plan2", "cost_focused" ],
+	[ "same_path", 1 ],
+	[
+		"route1",
+		[ "warehouse", "suburb_b", "customer" ]
+	],
+	[
+		"route2",
+		[ "warehouse", "suburb_b", "customer" ]
+	],
+	[ "diverge_at_step", 0 ],
+	[ "cost1", 35 ],
+	[ "cost2", 23 ],
+	[ "cheaper", "cost_focused" ]
+]
+
+
+----------------
+----------------

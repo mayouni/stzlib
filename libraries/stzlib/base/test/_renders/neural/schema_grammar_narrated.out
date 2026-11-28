@@ -1,0 +1,43 @@
+-- Scene 1: a declaration becomes a grammar --
+  [OK] the root sequences one rule per field
+  [OK] a string field takes free text up to the newline
+  [OK] a number field takes the number terminal
+  [OK] the terminals are defined, not assumed
+
+-- Scene 2: a CLOSED enumeration becomes a closed alternation --
+  [OK] the choices become an alternation, and only those choices
+
+-- Scene 3: optional fields and lists keep their arity --
+  [OK] an optional field is optional in the root
+  [OK] an optional list may be empty (zero or more)
+  [OK] a REQUIRED list must hold at least one element (one or more)
+  [OK] every emitted line is a whole rule -- no terminal carries a raw newline
+
+-- Scene 4: what the grammar CANNOT carry, said out loud --
+  [OK] the dropped constraints are reported
+  [OK] ...by field
+  [OK] ...and by operator
+  [OK] ...saying WHY a grammar cannot carry them
+  [OK] ...and that the court still does
+  [OK] a schema with no :must constraints reports NOTHING unenforced
+  [OK] the COURT still refuses what the grammar could not express
+
+-- Scene 5: what cannot be expressed is REFUSED, never flattened --
+  [OK] a nested structure is not expressible as a flat grammar
+  [OK] ...so ToGBNF() refuses rather than emitting something else
+  [OK] ...with a NAMED code
+  [OK] ...naming the field
+  [OK] ...and saying what the refusal protects
+  [OK] the same schema is still perfectly valid for the COURT, which is the point
+
+-- Scene 6: the compiled grammar now HAS a sampler that enforces it --
+  [OK] decoding IS constrained in this build
+  [OK] ...and the status says so in its first word
+  [OK] ...says a violating token is UNEMITTABLE, not caught afterwards
+  [OK] ...names the prefix case a stack machine has to get right
+  [OK] ...and states the coverage in the same breath as the claim
+  [OK] ...pointing at the court that still checks what a grammar cannot
+
+==========================================
+TOTAL: 28 assertions, 28 pass, 0 fail
+==========================================

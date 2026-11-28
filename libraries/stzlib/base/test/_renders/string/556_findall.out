@@ -1,0 +1,12 @@
+SCENARIO: Four stars
+  THEN  all  [PASS]
+  THEN  the 3rd  [PASS]
+  THEN  the first  [PASS]
+  THEN  the last  [PASS]
+  THEN  as sections  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

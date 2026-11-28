@@ -1,0 +1,56 @@
+SCENARIO: the rectangular rank nothing else could answer
+  THEN  the rank is 2, not 3  [PASS]
+  THEN  ...so it is rank deficient  [PASS]
+  THEN  ...and not full rank  [PASS]
+  THEN  LeastSquaresFor refuses the same matrix  [PASS]
+  THEN  an independent 5x3 has full rank  [PASS]
+  THEN  ...and IS full rank  [PASS]
+  THEN  ...so the fit succeeds  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: RANK AND THE CONDITION NUMBER CANNOT DISAGREE -- the defect this slice fixed
+  THEN  rank deficient means an infinite condition number  [PASS]
+  THEN  ...where it used to answer a finite 8.97e16  [PASS]
+  THEN  a singular SYMMETRIC matrix has rank 2  [PASS]
+  THEN  ...and now an infinite condition number too  [PASS]
+  THEN  a full-rank matrix has a finite condition number  [PASS]
+  THEN  ...and full rank  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: singular values, and what they are
+  THEN  the -7 becomes 7, sorted first  [PASS]
+  THEN  ...and the condition number is 7 over 1  [PASS]
+  THEN  the identity's singular values are all 1  [PASS]
+  THEN  ...and it is perfectly conditioned  [PASS]
+  THEN  a tiny-scaled matrix keeps its rank  [PASS]
+  THEN  ...and its condition number  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: the square symmetric case still goes through the eigenvalues
+  THEN  rank via eigen  [PASS]
+  THEN  condition via eigen  [PASS]
+  THEN  for a symmetric matrix, singular values are |eigenvalues|  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a wide matrix is ANSWERED now -- phase 7 lifted this
+  THEN  Rank is answered  [PASS]
+  THEN  ...and equals the transpose's  [PASS]
+  THEN  SingularValues is answered  [PASS]
+  THEN  ...and matches the transpose's, which is what made the old advice work  [PASS]
+  THEN  the transpose is of course still answerable  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: a real design matrix: 200 observations, 4 predictors
+  THEN  the design is full rank  [PASS]
+  THEN  ...so the fit is unique  [PASS]
+  THEN  ...and the condition number says how trustworthy it is  [PASS]
+  GIVEN the same design with a redundant predictor bolted on
+  THEN  the rank drops below the column count  [PASS]
+  THEN  ...the condition number goes infinite  [PASS]
+  THEN  ...and the fit is refused rather than arbitrary  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 33 assertions, 33 pass, 0 fail
+================================================
+STATUS: OK

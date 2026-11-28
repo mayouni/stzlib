@@ -1,0 +1,53 @@
+SCENARIO: What it returns is exact, even though WHICH it returns is approximate
+  THEN  the corpus is indexed  [PASS]
+  THEN  ...at the right width  [PASS]
+  THEN  a stored vector finds itself first  [PASS]
+  THEN  ...at distance zero  [PASS]
+  THEN  every distance returned is the true distance  [PASS]
+  THEN  ...and they come back nearest-first  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: RECALL IS MEASURED, and it rises with the budget
+  THEN  a small budget already finds a third of the neighbours  [PASS]
+  THEN  ...a bigger one finds more  [PASS]
+  THEN  ...and more still  [PASS]
+  THEN  a budget covering the corpus misses nothing at all  [PASS]
+  THEN  ...while a small budget genuinely does miss some  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: ...and more trees beat fewer, at the same budget
+  THEN  sixteen trees recall more than one  [PASS]
+  THEN  ...and one tree is still better than nothing  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: ...and the same seed gives the same forest
+  THEN  two indexes with one seed answer identically  [PASS]
+  THEN  ...and a different seed is still internally exact  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Cosine compares DIRECTION, Euclidean compares POSITION
+  THEN  Euclidean picks the physically closest point  [PASS]
+  THEN  ...and passes over the long one in the same direction  [PASS]
+  THEN  cosine treats the long vector as a perfect match  [PASS]
+  THEN  ...reading back a similarity of exactly 1  [PASS]
+  THEN  ...while an orthogonal query finds the orthogonal vector  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The awkward corpora do not break it
+  THEN  k larger than the corpus returns the whole corpus  [PASS]
+  THEN  a one-vector index answers with that vector  [PASS]
+  THEN  200 identical vectors still build and search  [PASS]
+  THEN  ...all at distance zero  [PASS]
+  THEN  vectors of different widths are refused  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: ...and end to end: this is what semantic search looks like
+  THEN  a query on topic A retrieves both topic-A documents  [PASS]
+  THEN  ...and both are highly similar  [PASS]
+  THEN  a query on topic C retrieves topic C  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 28 assertions, 28 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,29 @@
+-- Scene 1: the entry object answers from its new home --
+  [OK] stzText lives (linguistic/)
+  [OK] POS tagging on board
+
+-- Scene 2: patterns over tags (the chunker) --
+  NounPhrases: [ "The quick brown fox", "the lazy dog" ]
+  [OK] the classic NP grammar finds both phrases
+  [OK] any tag grammar works (VBZ IN)
+  [OK] quantifiers behave (JJ+ NN+ needs at least one adjective)
+  [OK] an empty grammar refuses quietly
+
+-- Scene 3: prefix tag semantics --
+  tagged: [ [ "Dogs", "NNS" ], [ "eat", "VBP" ], [ "bones", "NNS" ] ]
+  [OK] NN covers NNS (plural nouns match by prefix)
+
+-- Scene 4: the corpus (your texts ARE the corpus, no downloads) --
+  [OK] documents counted
+  [OK] tokens + vocabulary counted
+  [OK] frequencies answer
+  [OK] MostFrequent ranks
+
+-- Scene 5: the n-gram language model (nltk.lm counterpart, floor) --
+  [OK] seen bigram outweighs unseen (Laplace)
+  perplexity in-domain 9.80 vs out-domain 14.00
+  [OK] perplexity prefers in-domain text
+
+==========================================
+TOTAL: 13 assertions, 13 pass, 0 fail
+==========================================

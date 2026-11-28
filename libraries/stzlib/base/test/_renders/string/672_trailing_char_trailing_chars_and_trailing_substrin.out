@@ -1,0 +1,14 @@
+SCENARIO: Working the trailing part of 12.4560000
+  THEN  it has a trailing part  [PASS]
+  THEN  (same as HasTrailingChars)  [PASS]
+  THEN  four chars long  [PASS]
+  THEN  as a string  [PASS]
+  THEN  (same as TrailingCharsXT)  [PASS]
+  THEN  as a list of chars  [PASS]
+  THEN  and removed  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

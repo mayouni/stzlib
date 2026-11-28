@@ -1,0 +1,97 @@
+SCENARIO: the external surface, rehearsed before anything is built
+  THEN  the delivery knows its external surface  [PASS]
+  THEN  each dependency names its posture  [PASS]
+  THEN  ...and which parts depend on it  [PASS]
+  THEN  a service two parts do not share is attributed to one  [PASS]
+  THEN  ...the right one  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the PRE-FLIGHT: ask the production question without declaring production
+  THEN  the phase is still development  [PASS]
+  THEN  ...so the registry itself reports nothing  [PASS]
+  THEN  but the delivery can still ask what shipping WOULD say  [PASS]
+  THEN  ...naming the reason  [PASS]
+  THEN  and the phase was RESTORED afterwards -- asking is not declaring  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: THE GATE: a production deploy refuses a surface that is still a fake
+  WHEN  a FULLY ENTITLED actor asks to deploy to production
+  THEN  the deployment did not RUN AT ALL  [PASS]
+  THEN  ...so nothing was committed  [PASS]
+  THEN  the refusal is logged  [PASS]
+  THEN  ...as a refusal  [PASS]
+  THEN  ...and every reason is named, not just the first  [PASS]
+  THEN  including the fake gateway  [PASS]
+  THEN  ...and the store that empties on restart  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: ...and it opens once the surface is real
+  THEN  the pre-flight now passes  [PASS]
+  THEN  ...with nothing to explain  [PASS]
+  WHEN  an actor that may NOT commit asks to deploy
+  THEN  the SERVICE gate passed this time -- no error was logged  [PASS]
+  THEN  ...yet nothing was committed  [PASS]
+  THEN  ...and the reason given is the ACTOR, not the services  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the registry is ONE registry, however many copies Ring makes
+  THEN  the attached surface is sound  [PASS]
+  WHEN  a FAKE is bound afterwards, on the caller's own handle
+  THEN  the delivery SEES it  [PASS]
+  THEN  ...through its own accessor too  [PASS]
+  WHEN  the change is made through the delivery instead
+  THEN  the caller's own handle sees THAT  [PASS]
+  THEN  ...and the gate opens again  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the plan reads the outside world alongside the capabilities
+  THEN  the plan carries the surface  [PASS]
+  THEN  it lists what is still a fake  [PASS]
+  THEN  ...and the credentials production will require, BY NAME  [PASS]
+  THEN  Explain() shows the dependency section  [PASS]
+  THEN  ...and says plainly what will happen at the door  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the GRAPH question: which PART of my solution depends on a fake?
+  THEN  parts and services live in ONE graph  [PASS]
+  THEN  a part bound to a site is marked for production  [PASS]
+  THEN  ...and one that is not, is not  [PASS]
+  THEN  the phase is STILL development  [PASS]
+  THEN  ...so the registry reports nothing at all  [PASS]
+  THEN  but the rules answer anyway  [PASS]
+  THEN  naming the PART, not the service  [PASS]
+  THEN  ...for depending on a double  [PASS]
+  THEN  ...and for depending on an ephemeral store  [PASS]
+  THEN  a WARNING covers a need the registry never heard of  [PASS]
+  THEN  ...on the part that declared it  [PASS]
+  THEN  ...and it is advisory, not blocking  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: ONE CI gate: the outside world joins the other domains
+  THEN  the registry's findings need no adapter at all  [PASS]
+  THEN  ...normalised to the report's vocabulary  [PASS]
+  THEN  ...under their own subject  [PASS]
+  THEN  and the gate closes  [PASS]
+  WHEN  the security posture is asked about the same project
+  THEN  it surfaces the service findings too  [PASS]
+  THEN  ...including the headline invariant  [PASS]
+  THEN  ...so the security verdict is UNSOUND  [PASS]
+  THEN  and the invariant is a documented one  [PASS]
+  WHEN  a posture with no service surface is asked
+  THEN  it simply has nothing to say about services  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: a part destined for production must not depend on a CONFORMANCE service either
+  THEN  the phase is still development, so the registry says nothing  [PASS]
+  THEN  but the part bound for a real site is named  [PASS]
+  THEN  ...for depending on virtual money  [PASS]
+  THEN  ...on the PART, not the service  [PASS]
+  THEN  ...as an error  [PASS]
+  THEN  ...saying the money behind it is virtual  [PASS]
+  THEN  bound to a live adapter, the same part is clean  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 60 assertions, 60 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,18 @@
+SCENARIO: A deck of names and glyphs
+  THEN  thirteen cards  [PASS]
+  THEN  ace first  [FAIL]
+    expected: 1
+    got:      0
+  THEN  king last  [FAIL]
+    expected: 1
+    got:      0
+  THEN  the glyphs alone  [PASS]
+  THEN  one by name  [PASS]
+  THEN  a chosen few  [PASS]
+  THEN  ... with their names  [PASS]
+  -> 5 pass, 2 fail
+
+================================================
+TOTAL: 7 assertions, 5 pass, 2 fail
+================================================
+STATUS: FAILED

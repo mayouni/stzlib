@@ -1,0 +1,88 @@
+-- Scene 1: DevelopmentSystem() is the live dev machine --
+  [OK] its role is 'development'
+  [OK] it is a LIVE scope, not declared
+  [OK] the os name is real (non-empty)
+  [OK] the bit size is 32 or 64
+  [OK] the cpu count is positive
+  [OK] the language version is Ring's
+  [OK] a dev box has effectful capabilities
+  [OK] ...it can touch the filesystem
+  [OK] ...and it LACKS gpio (it is not a microcontroller)
+
+-- Scene 2: CurrentSystem() agrees with the dev machine DURING development --
+  [OK] its role is 'runtime'
+  [OK] its os equals the dev os (same live machine)
+  [OK] its arch equals the dev arch
+  [OK] its bit size equals the dev bit size
+  [OK] its capability count equals the dev count
+
+-- Scene 3: the three scopes are DISTINCT and unconfusable --
+  [OK] development is only development
+  [OK] runtime is only runtime
+
+-- Scene 4: a declared ESP32 target -- NO live leak --
+  [OK] the target says 'rtos', NOT the live 'windows'
+  [OK] it is an embedded system class
+  [OK] it is a deployment / declared scope
+  [OK] it CAN drive gpio (the dev box cannot)
+  [OK] it LACKS process spawn (an MCU has no processes)
+  [OK] it is 32-bit as declared
+
+-- Scene 5: the TWO WORLDS -- down-constrain and up-enable (section 2.4) --
+  [OK] DOWN-CONSTRAIN: process is something the dev box can do but the target forbids
+  [OK] ...filesystem too
+  [OK] UP-ENABLE: gpio is required by the target but the dev box lacks it
+  [OK] ...and gpio is the ONLY thing the dev box lacks here
+  [OK] CompareTo() returns both worlds in one call
+
+-- Scene 6: the system <-> agent bridge (one lattice) --
+  [OK] an LLM actor may exercise NO ESP32 capability -- the empty effect set
+  [OK] a PI actor may exercise ALL of them (gpio/network/clock/threads)
+  [OK] a guardian may exercise clock+threads (sensing+compute) but NOT gpio (effectful)
+
+-- Scene 7: the capability envelope is a CLOSED named set (M2) --
+  [OK] Can() reports a granted capability
+  [OK] Lacks() reports an absent one
+  [OK] filesystem is classified effectful
+  [OK] clock is classified sensing
+  [OK] threads is classified compute
+  [OK] granting an UNKNOWN capability is refused (closed set)
+  [OK] granting a known capability grows the set
+  [OK] revoke removes it
+
+-- Scene 8: the .stzsystem format round-trips (string) --
+  [OK] the serialized text names the target
+  [OK] os survives the round trip
+  [OK] arch survives
+  [OK] bit size survives (parsed as a number)
+  [OK] name survives
+  [OK] role survives as deployment
+  [OK] capabilities survive -- gpio present, process absent
+  [OK] the capability count matches the original
+  [OK] the format writes the total memory
+  [OK] ...and the free snapshot
+  [OK] ...saying which of the two is a snapshot
+  [OK] total memory survives the round trip
+  [OK] ...and so does the free snapshot
+  [OK] ...alongside the cpu count that always did
+  [OK] a profile with no memory lines reports none
+  [OK] the snapshot note does not parse as data
+
+-- Scene 9: a declared profile with NO capabilities line defaults by class --
+  [OK] an android profile is the mobile class
+  [OK] ...and gets sensible mobile default capabilities (network, no gpio)
+  [OK] ...and it still says android, not windows
+
+-- Scene 10: Save() to a .stzsystem file and LoadFrom() back --
+  [OK] the file round-trips the os
+  [OK] ...and the gpio capability
+  [OK] ...and the arch
+
+-- Scene 11: rapid live reads stay cheap and stable --
+  2000 DevelopmentSystem() reads in 0.10 s
+  [OK] 2000 live scope reads stay fast (< 5s)
+  [OK] ...and every read agreed with the first
+
+==========================================
+TOTAL: 62 assertions, 62 pass, 0 fail
+==========================================

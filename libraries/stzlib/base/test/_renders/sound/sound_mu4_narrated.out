@@ -1,0 +1,94 @@
+== MU4: eight universes, declared, and the same phrase in each ==
+
+-- Scene 1: eight declarations, and they are DATA --
+   8: western, maqam, tunisian, niger, raga, gamelan, westafrican, flamenco
+  [ok]   the plan's eight universes are declared
+  [ok]   each loads and names its sources; seven read UNPERCEIVED, and Tunisia records who heard it
+   tunisian: HEARD 2026-09-26 by the Principal (Mansour Ayouni), through five ORIGINAL examples written in this universe (not committed): 'far from being qualified'. Which part fails -- the tuning, the phrasing, the rhythms or the synthetic timbre -- is not yet said
+  [ok]   and not one line of logic lives in a universe file: 0 if/for/while/switch/else
+
+-- Scene 2: the tunings, MEASURED on the instrument that plays them --
+   MU1 proved the instruments in tune to 0.417 cents. So the number that
+   can go wrong here is the universe's: degree -> cents -> Hz. Each interval
+   below is read off two rendered notes by the fine pitch instrument, and
+   held against the declaration.
+   Rast's half-flat third                               declared  350   measured 350.046
+   Hijaz's augmented second                             declared  300   measured 300.027
+   Tunisian Sika's three-quarter step                   declared  150   measured 149.947
+   the 'Tunisian hijaz' five-quarter step               declared  250   measured 249.986
+   Rasd al-Dhil's e-half-flat to f-half-sharp (Snoussi) declared  200   measured 199.946
+   Yaman's tivra Ma (45/32)                             declared  590   measured 591.407
+   the Phrygian half step                               declared  100   measured 100.009
+   the placeholder pentatonic's minor third             declared  300   measured 300.700
+  [ok]   every interval measured within 2 cents of its declaration (worst 1.407)
+   slendro's octave, averaged over 30 gamelans: declared 1208, measured 1208.000
+  [ok]   slendro's octave is STRETCHED -- 1208, not 1200 -- within 2 cents
+
+-- Scene 3: one phrase, eight universes --
+   the phrase: "1 2 3 4 5 4 3 2" -- degrees, so it means something in each
+   western/major         0 200 400 500 700 500 400 200
+   maqam/rast            0 200 350 500 700 500 350 200
+   tunisian/dhil         0 200 350 500 700 500 350 200
+   niger/zarma           0 300 500 700 1000 700 500 300
+   raga/yaman            0 204 386 590 702 590 386 204
+   gamelan/slendro       0 231 474 717 955 717 474 231
+   westafrican/          (refused: West African 12/8 timeline declares no scale -- it is a RHYTHM (standard); a phrase needs a mode that has degrees)
+   flamenco/phrygian     0 100 400 500 700 500 300 100
+  [ok]   the West African timeline REFUSES a phrase: it declares a rhythm, not a scale
+  [ok]   the West differs from Rast on the third: 400 against 350
+  [ok]   Dhil's declared skeleton EQUALS Rast's -- said, not hidden; its moving third is declared as a variant
+  [ok]   seven distinct renderings of one phrase, plus the one refusal (Dhil = Rast on paper)
+
+-- Scene 4: movement, not only pitch --
+   Rast, 5 6 7 8 7 6 5: the seventh up 1050, down 1000
+  [ok]   Rast ascends through the half-flat seventh (1050) and descends through the flat (1000)
+  [ok]   the flamenco third is raised going up (400) and natural coming down (300)
+   Yaman, 1 2 3 4 5: degree 5 is avoided going UP in yaman -- Sa and Pa are often skipped or kept weak going up (Wikipedia, after Bor's Raga Guide); ragakosh gives .N R G M P M D N S'
+  [ok]   Yaman's rule catches Pa taken going up, and passes the same notes going down
+  [ok]   Rasd al-Dhil's declared habit catches the fourth taken going down (Ghanim, 1932)
+
+-- Scene 5: the cycles, as their sources give them --
+  [ok]   the 12/8 bell strikes pulses 1 3 5 6 8 10 12 -- no more, no fewer
+  [ok]   solea: twelve beats, accents on 3 6 8 10 12
+  [ok]   teental: sixteen, khali's dha on 9, and the bass absent on 10-13 (tin tin ta ta)
+  [ok]   lancaran: gong on 16, kenong 4 8 12 16, kempul 6 10 14, ketuk on the odd beats
+  [ok]   tende n-emnas: strokes on eighths 1 4 5 7 8, claps on 3 and 7 (Schmidt 2018)
+   the nuba's five, in order: btayhi 8, barwal 2, draj 6, khafif 6, khatm 3 (beats)
+  [ok]   the five iqa'at are declared in the nuba's order with the CNRS meters
+  [ok]   and the three whose strokes no source gave play NONE -- silent, not invented
+
+-- Scene 6: ornaments that are heard, not only written --
+  [ok]   Yaman's meend: the step up into Re is written as a slide
+   the meend on the flute: 295.819 Hz near its start, 322.791 Hz near its end (Sa 293.665, Re 330.390)
+  [ok]   and it is a GLIDE: it starts near Sa and ends near Re
+   slendro_paired: two metallophones 6 Hz apart, their sum's envelope beats at 6 Hz
+  [ok]   the paired detuning is HEARD as beating at 6 Hz (within 0.5)
+
+-- Scene 7: a sentence of a tonal language, drummed --
+   sannu da zuwa ('welcome'): L H L H L  -- Newman's tones, low-high-low-high-low
+  [ok]   the declared contour is L H L H L
+   measured on the kalangu: 'nu' 220.001 Hz, 'da' 165.002 Hz -- a fourth, the declared choice
+  [ok]   the drum speaks the contour: 'nu' high, 'da' low, each within 1% of its declared pitch
+  [ok]   and the long vowel of 'waa' lasts twice as long as the others
+
+-- Scene 8: every gamelan is tuned differently, on purpose --
+   degree 6 (nem) above 1: the average of 30 gamelans 955.000, Kyai Kanyut Mesem 937.000
+  [ok]   two real gamelans, the same phrase, two answers 18 cents apart on nem (955 vs 937)
+
+-- Scene 9: refusals --
+  [ok]   an unknown universe is refused, naming the eight
+  [ok]   an undeclared mode is refused, naming the declared ones -- Bayati is not declared
+  [ok]   a word that is not a degree is refused
+
+-- Scene 10: THE PHASE GATE, and section 4 in the universe's words --
+  [ok]   StzMusicQ().In(:Maqam, :Hijaz, :D) plays a phrase, with no refusal
+  [ok]   and the first line still makes C E G C within 2 cents (worst 0.151)
+
+-- The listener's line --
+   Every universe above reads UNPERCEIVED. The kill criterion is a person
+   from each tradition saying it is wrong -- or right -- by name. Where the
+   sources were thin (Tunisian strokes, the Zarma scale, takamba), the
+   declaration says so, and that person is not a check on it: they are the
+   only source it has.
+
+32 passed, 0 failed

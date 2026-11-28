@@ -1,0 +1,32 @@
+-- Scene 1: the declared change surface --
+  [OK] both refinement points parse
+  [OK] a PARAM point carries its value
+  [OK] an ALGO point carries its value
+
+-- Scene 2: cascade -- the pre-commit review artifact --
+  [OK] cascade locates the point's line
+  [OK] an unknown point cascades to nothing
+
+-- Scene 3: a typed proposal through the gate --
+  [OK] a valid PARAM value is admitted
+  [OK] ...and takes effect
+
+-- Scene 4: the gate REFUSES; the source is untouched --
+  [OK] out-of-bounds is refused
+  [OK] ...with a constraint reason
+  [OK] ...and the source is UNCHANGED (LAW 3)
+  [OK] an out-of-options value is refused
+
+-- Scene 5: reversibility is a data-model primitive --
+  [OK] a valid option is admitted
+  [OK] history records the admitted change
+  [OK] Revert undoes the last change (typed inverse)
+  [OK] Revert unwinds to the original
+  [OK] nothing left to revert
+
+-- Scene 6: the bundle persists (*.zrfn) --
+  [OK] a .zrfn file is written
+
+==========================================
+TOTAL: 17 assertions, 17 pass, 0 fail
+==========================================

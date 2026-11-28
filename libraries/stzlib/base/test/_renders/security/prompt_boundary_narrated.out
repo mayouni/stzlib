@@ -1,0 +1,48 @@
+SCENARIO: a user cannot close their turn and open a system turn
+  WHEN  the user text carries <|im_end|> and <|im_start|>system
+  THEN  the prompt holds exactly 3 turn openers (system, user, assistant)  [PASS]
+  THEN  and exactly 2 turn closers  [PASS]
+  THEN  exactly one system turn  [PASS]
+  THEN  the words themselves are still there, readable  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: other families' control tokens are broken the same way
+  THEN  no <|endoftext|> survives  [PASS]
+  THEN  no <|eot_id|> survives  [PASS]
+  THEN  no <|start_header_id|> survives  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ordinary text passes through unchanged (negative sibling)
+  THEN  the user text is inside the prompt byte for byte  [PASS]
+  THEN  the developer's system text is placed as given  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: external data wired straight to an effect is flagged
+  GIVEN an input feeding an effect that is guarded and traced by other edges
+  THEN  external-data-contained fires on the input  [PASS]
+  THEN  the graph is no longer called sound  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: external data that passes a guardian is contained (positive sibling)
+  THEN  no finding  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: the rule reads the TAINT, not the kind
+  GIVEN a tool declared external_data, wired to an effect
+  THEN  it is flagged although it is not an input  [PASS]
+  THEN  and the declared rule set agrees  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a validated checkpoint on the path contains it too
+  THEN  external-data-contained does not fire  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: StzChatSafeText is the named boundary
+  THEN  it breaks the opener  [PASS]
+  THEN  it leaves plain text alone  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 17 assertions, 17 pass, 0 fail
+================================================
+STATUS: OK

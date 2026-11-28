@@ -1,0 +1,45 @@
+== MU12: key changes, and the two-voice kit ==
+
+-- Scene 1: a key change asked for, at a barline --
+   C for four bars, D for four, C for two -- on one long system:
+     bar 5: D major (2 sharps)
+     bar 9: C major (no sharps or flats)
+  [ok]   the key changes at bar 5 to D major, and at bar 9 back to C
+  [ok]   each change is drawn where it happens, inside the system
+  [ok]   a DOUBLE barline closes the bar before each change
+  [ok]   going back to C, naturals cancel the F sharp and the C sharp, in the order they stood
+  [ok]   and the new key is drawn after them: F# and C# at bar 5
+  [ok]   each bar spells in, and remembers, the key in force there: not one accidental in ten bars
+  [ok]   so the note between F and G is F sharp in the D bars and F natural in the C ones
+  [ok]   after a change to F, the note between A and B is spelled in F: B flat, not the A sharp C would write
+  [ok]   a change asked for inside a bar is written at the next barline, and counted: a key change at beat 18 falls inside bar 5; it is written at the next barline
+  [ok]   a change to a key that is no key is refused
+  [ok]   a change into a declared MODE takes its signature: Hijaz's B flat, E flat, F sharp at bar 5
+   Rast, then Hijaz from bar 5: C major (no sharps or flats), with B half-flat, E half-flat in the key (as Arabic notation writes it)
+  [ok]   the opening key is read from the bars BEFORE the change: Rast's C with B and E half-flat, not a key bent by Hijaz's F sharps
+
+-- Scene 2: at the head of a system, and the courtesy key before it --
+   a narrow page: 10 systems; bar 5 begins system 5
+  [ok]   when a change begins a system, the system's head carries the new key
+  [ok]   and the system before it ends with a COURTESY key, after its last barline
+
+-- Scene 3: key changes found in the music --
+   four bars of C, four of E: C major (no sharps or flats) -> bar 5: E major (4 sharps)
+  [ok]   a passage in C then one in E is read as C major, CHANGING to E major at the bar E begins
+  [ok]   ONE F sharp in eight bars of C changes nothing: a change must save more than it costs
+  [ok]   and SetKeyChanges(FALSE) keeps one key for the whole piece
+
+-- Scene 4: the drum kit in two voices --
+   1 staff; hands in the upper voice: 20 strokes; feet in the lower: 5
+  [ok]   the kit is ONE staff, with the hands -- hihat and snare -- in the upper voice and the kick in the lower
+  [ok]   the hands' stems go UP and the feet's go DOWN, whatever the heads' height
+  [ok]   each voice keeps its own rhythm: the feet rest on beats 2 and 4 -- four quarter rests, all in the lower voice
+  [ok]   the hands' eighths are beamed above; the two kicks in beat 7 are beamed BELOW
+  [ok]   a kit played by the hands alone stays one voice
+  [ok]   the page is well-formed SVG (93 elements)
+
+-- The listener's line --
+   Whether a drummer reads the kit as written, and a modulation as an
+   engraver would mark it, is not a number: UNPERCEIVED.
+
+23 passed, 0 failed

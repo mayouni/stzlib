@@ -1,0 +1,120 @@
+╭────────────────────╮
+│ Filter: cost <= 50 │
+╰────────────────────╯
+2
+[ "plan_cheap", "plan_via_medium" ]
+
+[
+	[
+		"constrains_applied",
+		[
+			[ "maxcost", 50 ]
+		]
+	],
+	[ "plans_matching_count", 2 ],
+	[
+		"plans_matching_details",
+		[
+			[
+				[ "plan", "plan_cheap" ],
+				[ "cost", 15 ],
+				[ "steps", 3 ],
+				[
+					"route",
+					[ "origin", "cheap_route", "destination" ]
+				]
+			],
+			[
+				[ "plan", "plan_via_medium" ],
+				[ "cost", 20 ],
+				[ "steps", 2 ],
+				[
+					"route",
+					[ "origin", "medium_route" ]
+				]
+			]
+		]
+	]
+]
+
+╭────────────────────╮
+│ Filter: avoid node │
+╰────────────────────╯
+2
+[ "plan_cheap", "plan_via_medium" ]
+
+[
+	[
+		"constrains_applied",
+		[
+			[ "avoid", "avoid_me" ]
+		]
+	],
+	[ "plans_matching_count", 2 ],
+	[
+		"plans_matching_details",
+		[
+			[
+				[ "plan", "plan_cheap" ],
+				[ "cost", 15 ],
+				[ "steps", 3 ],
+				[
+					"route",
+					[ "origin", "cheap_route", "destination" ]
+				]
+			],
+			[
+				[ "plan", "plan_via_medium" ],
+				[ "cost", 20 ],
+				[ "steps", 2 ],
+				[
+					"route",
+					[ "origin", "medium_route" ]
+				]
+			]
+		]
+	]
+]
+
+╭────────────────────╮
+│ Filter: cost >= 20 │
+╰────────────────────╯
+2
+[ "plan_via_avoid", "plan_via_medium" ]
+
+[
+	[
+		"constrains_applied",
+		[
+			[ "mincost", 20 ]
+		]
+	],
+	[ "plans_matching_count", 2 ],
+	[
+		"plans_matching_details",
+		[
+			[
+				[ "plan", "plan_via_avoid" ],
+				[ "cost", 70 ],
+				[ "steps", 3 ],
+				[
+					"route",
+					[ "origin", "expensive_route", "avoid_me" ]
+				]
+			],
+			[
+				[ "plan", "plan_via_medium" ],
+				[ "cost", 20 ],
+				[ "steps", 2 ],
+				[
+					"route",
+					[ "origin", "medium_route" ]
+				]
+			]
+		]
+	]
+]
+
+
+----------------
+----------------

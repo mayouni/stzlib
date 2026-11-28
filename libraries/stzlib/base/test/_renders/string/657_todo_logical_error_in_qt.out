@@ -1,0 +1,12 @@
+SCENARIO: Eszett up and down
+  THEN  it is lowercase  [PASS]
+  THEN  it uppercases to SS  [PASS]
+  THEN  a whole river, Softanza-cased  [PASS]
+  THEN  SS lowercases to ss (no locale round-trip)  [PASS]
+  THEN  ... also under the german locale  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

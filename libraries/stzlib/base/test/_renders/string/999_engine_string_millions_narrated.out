@@ -1,0 +1,64 @@
+SCENARIO: Multi-million-char string: length, membership, boundaries
+  THEN  NumberOfChars is 2,000,000  [PASS]
+  THEN  Contains 'ab' is TRUE  [PASS]
+  THEN  FindFirst 'ab' is 1  [PASS]
+  THEN  FindLast 'ab' is 1,999,999  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Occurrence count & find-all beyond the 65536 buffer
+  THEN  NumberOfOccurrences('a') is 1,000,000 (> 65536)  [PASS]
+  THEN  FindAll('a') returns all 1,000,000 positions  [PASS]
+  THEN  NumberOfOccurrences('ab') is 1,000,000  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Case transform does NOT truncate long strings (64-byte regression)
+  THEN  Uppercased keeps full 2,000,000 length  [PASS]
+  THEN  Uppercased head is 'ABAB'  [PASS]
+  THEN  Uppercased has 1,000,000 'A'  [PASS]
+  THEN  Uppercased has zero 'a'  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Reverse at scale (codepoint-correct)
+  THEN  Reversed keeps full length  [PASS]
+  THEN  Reversed head is 'ba'  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Replace at scale (a -> X over a million occurrences)
+  THEN  after Replace, 'a' is gone  [PASS]
+  THEN  after Replace, 'X' is 500,000  [PASS]
+  THEN  'b' is untouched at 500,000  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Split is one-pass linear (was O(n^2))
+  THEN  Split(',') yields 200,000 parts  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Chars() at scale
+  THEN  Chars() returns 200,000 single chars  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Single-pass dup-consecutive scanners at scale (with CS)
+  THEN  FindDupSecutiveCharsCS(1) is 0 (a <> A)  [PASS]
+  THEN  FindDupSecutiveCharsCS(0) is 999,999 (a == A folded)  [PASS]
+  THEN  FindDupSecutiveSubString('ab') is 99,999  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Unicode at scale -- Arabic (codepoint, not byte)
+  GIVEN the 4-codepoint word 'سلام' repeated 100,000 times (400,000 cp)
+  THEN  NumberOfChars is 400,000 codepoints  [PASS]
+  THEN  NumberOfOccurrences('سلام') is 100,000  [PASS]
+  THEN  Contains inner 'لا' is TRUE  [PASS]
+  THEN  Reversed keeps 400,000 codepoints  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Unicode at scale -- emoji (surrogate-safe codepoints)
+  GIVEN '😀🎉' repeated 50,000 times (100,000 cp / 400,000 bytes)
+  THEN  NumberOfChars is 100,000 codepoints  [PASS]
+  THEN  NumberOfOccurrences('😀') is 50,000  [PASS]
+  THEN  Reversed keeps 100,000 codepoints  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 28 assertions, 28 pass, 0 fail
+================================================
+STATUS: OK

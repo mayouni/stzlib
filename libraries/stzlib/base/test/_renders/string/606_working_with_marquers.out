@@ -1,0 +1,12 @@
+SCENARIO: Detecting marquers
+  THEN  a lone # is not one  [PASS]
+  THEN  #0 is  [PASS]
+  THEN  #1 is  [PASS]
+  THEN  #01 is  [PASS]
+  THEN  all three, in order  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

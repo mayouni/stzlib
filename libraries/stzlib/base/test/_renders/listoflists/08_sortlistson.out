@@ -1,0 +1,31 @@
+[
+	[ "salem", 18 ],
+	[ "mourad", 18 ],
+	[ "abir" ],
+	[ "amer", 20, "" ],
+	[
+		"mazen",
+		300,
+		"X",
+		1
+	],
+	[
+		"amer",
+		300,
+		"a",
+		1
+	],
+	[ "karim", 20, "hi" ],
+	[
+		"mohannad",
+		100,
+		"him",
+		"ring"
+	],
+	[ "amer", 34, [  ] ]
+]
+
+Executed in almost 0 second(s)
+
+----------------
+----------------

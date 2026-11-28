@@ -1,0 +1,26 @@
+SCENARIO: Count elements by tag
+  GIVEN a small document with one h1 and one p
+  THEN  CountByTag('h1') is 1  [PASS]
+  THEN  CountByTag('p') is 1  [PASS]
+  THEN  CountByTag('div') is 0  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Find elements and read their text
+  GIVEN the same document
+  THEN  Find('h1') returns 1 element  [PASS]
+  THEN  the h1 text is 'Hello World'  [PASS]
+  THEN  FindFirst('title') text is 'Test'  [PASS]
+  THEN  FindFirst('p') text is 'para text'  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Element class queries
+  GIVEN a paragraph with class 'intro'
+  THEN  Klass() is 'intro'  [PASS]
+  THEN  HasClass('intro') is TRUE  [PASS]
+  THEN  HasClass('outro') is FALSE  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+================================================
+STATUS: OK

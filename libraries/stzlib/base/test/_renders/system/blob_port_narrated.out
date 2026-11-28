@@ -1,0 +1,91 @@
+SCENARIO: the port is four verbs, and a directory already speaks them
+  THEN  a new store is empty  [PASS]
+  THEN  it is LOCAL-REAL, not a fake  [PASS]
+  THEN  ...and a directory survives a restart  [PASS]
+  THEN  what went in comes out  [PASS]
+  THEN  it is there  [PASS]
+  THEN  ...with a size  [PASS]
+  THEN  and removing it works  [PASS]
+  THEN  ...leaving nothing  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: A KEY IS NOT A PATH (1): two distinct keys must not become one file
+  THEN  both objects exist  [PASS]
+  THEN  the first still holds its own bytes  [PASS]
+  THEN  ...and the second holds its own  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: A KEY IS NOT A PATH (2): a traversal key must not escape the store
+  THEN  it is stored as an ORDINARY object  [PASS]
+  THEN  ...and reads back correctly  [PASS]
+  THEN  NOTHING appeared outside the store  [PASS]
+  GIVEN the other filesystem-hostile keys, which are all just keys to S3
+  THEN  a SLASHED key works -- the commonest S3 shape there is  [PASS]
+  THEN  a Windows reserved device name is just a key  [PASS]
+  THEN  ...so are trailing dots and spaces  [PASS]
+  THEN  ...and they are all DISTINCT objects  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: bytes are bytes -- an image or a zip, not just text
+  THEN  all 256 byte values round-trip identically  [PASS]
+  THEN  ...with the length intact  [PASS]
+  WHEN  a file on disk is stored and fetched back to disk
+  THEN  the fetch-to-file succeeds  [PASS]
+  THEN  ...byte-identical  [PASS]
+  THEN  fetching a missing key to a file reports FALSE rather than writing junk  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: listing, the S3 idiom -- and the semantics a test must not contradict
+  THEN  everything is listed  [PASS]
+  THEN  a PREFIX narrows it, which is how S3 fakes folders  [PASS]
+  THEN  ...and a prefix matching nothing gives nothing  [PASS]
+  THEN  total bytes are countable  [PASS]
+  GIVEN the semantics of the real service, kept rather than improved on
+  THEN  Save overwrites SILENTLY, as S3 does  [PASS]
+  THEN  ...without adding an object  [PASS]
+  THEN  removing a key that never existed SUCCEEDS -- S3's DELETE is idempotent  [PASS]
+  WHEN  a ZERO-BYTE object is stored -- a legitimate thing to do
+  THEN  it exists  [PASS]
+  THEN  ...though its bytes are empty  [PASS]
+  THEN  while a MISSING key is also empty -- so ask Exists, never Fetch  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: the local store refuses what the LIVE one would refuse
+  THEN  an empty key is refused  [PASS]
+  THEN  a key over S3's 1024-byte limit is refused  [PASS]
+  THEN  ...while 1024 exactly is accepted  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: durability: this is real storage, not a test fixture
+  WHEN  a COMPLETELY NEW store object is opened on the same directory
+  THEN  it sees the object  [PASS]
+  THEN  ...and its bytes  [PASS]
+  THEN  ...and can list it  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the memory store: equally real, and gone at the next restart
+  THEN  it speaks the same four verbs  [PASS]
+  THEN  ...including prefix listing  [PASS]
+  THEN  ...and carries binary  [PASS]
+  THEN  it is LOCAL-REAL like the file store  [PASS]
+  THEN  but EPHEMERAL, which the file store is not  [PASS]
+  THEN  removal works  [PASS]
+  THEN  ...leaving the rest  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: through the registry -- and an invariant that generalised for free
+  THEN  the file store is detected as local  [PASS]
+  THEN  ...and so is the memory store  [PASS]
+  WHEN  the application stores through the service the registry hands back
+  THEN  the ORIGINAL store has it  [PASS]
+  THEN  ...and so does the memory store, via its handle table  [PASS]
+  WHEN  the phase becomes production
+  THEN  exactly ONE thing is refused  [PASS]
+  THEN  ...the EPHEMERAL store, not the durable one  [PASS]
+  THEN  ...by the rule sqlite's ':memory:' earned in phase 2  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 53 assertions, 53 pass, 0 fail
+================================================
+STATUS: OK

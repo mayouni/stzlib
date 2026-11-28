@@ -1,0 +1,42 @@
+=== stzListOfLists regression tests (33-bug pin) ===
+
+--- AddMany ---
+  PASS: AddMany appended both sublists
+  PASS: third list = [5,6]
+
+--- NthList :Last keyword ---
+  PASS: NthList(:Last) returns [4,5,6]
+
+--- SizeOfEach@Is ---
+  PASS: all lists size 2 -> true
+  PASS: mixed sizes -> false (was always true)
+
+--- Pairified (uses PairifyQ chain) ---
+  PASS: Pairified returns a list
+
+--- SwapCols ---
+  PASS: row 1 cols swapped 1<->3
+  PASS: row 2 cols swapped 1<->3
+
+--- ColsSwapped returns content ---
+  PASS: ColsSwapped returns 2-list result
+
+--- DuplicatesInListsRemoved does not mutate self ---
+  PASS: original unchanged (no self-mutation)
+
+--- NumberOfMissingItems ---
+  PASS: 3 missing items vs largest
+
+--- Cols ---
+  PASS: 3 columns
+  PASS: first col = [1,4,7]
+
+--- ReversedLists / ItemsInListsReversed ---
+  PASS: ReversedLists swaps order
+  PASS: ItemsInListsReversed reverses inner
+
+==========================
+Total: 15
+Passed: 15
+Failed: 0
+ALL TESTS PASSED!

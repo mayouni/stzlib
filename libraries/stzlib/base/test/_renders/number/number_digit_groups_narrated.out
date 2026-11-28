@@ -1,0 +1,50 @@
+SCENARIO: groups of three, counted from the RIGHT
+  THEN  the thousands group  [PASS]
+  THEN  ...and the last group  [PASS]
+  THEN  millions  [PASS]
+  THEN  thousands  [PASS]
+  THEN  the last group  [PASS]
+  THEN  trillions  [PASS]
+  THEN  billions  [PASS]
+  THEN  millions  [PASS]
+  THEN  thousands  [PASS]
+  THEN  the last group  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: a group that is not there is EMPTY, not zero
+  THEN  the last group holds the number  [PASS]
+  THEN  there are no thousands  [PASS]
+  THEN  ...nor millions  [PASS]
+  THEN  1000 has a thousands group  [PASS]
+  THEN  ...and a last group of zeros, which is NOT empty  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the sign is not part of the analysis
+  THEN  a negative number groups its digits the same way  [PASS]
+  THEN  ...with no sign leaking into a group  [PASS]
+  THEN  the sign is available separately  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the three digits INSIDE a group
+  THEN  the thousands group is 234  [PASS]
+  THEN  ...its hundreds digit  [PASS]
+  THEN  ...its dozens digit  [PASS]
+  THEN  ...its units digit  [PASS]
+  THEN  and for the last group, 567  [PASS]
+  THEN  ...hundreds digit  [PASS]
+  THEN  ...dozens digit  [PASS]
+  THEN  ...units digit  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: what the grouping is FOR: a thousands separator
+  THEN  five digits  [PASS]
+  THEN  seven digits  [PASS]
+  THEN  ten digits  [PASS]
+  THEN  a number below a thousand needs no separator  [PASS]
+  THEN  asking for width 15 does not pad (yet)  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 31 assertions, 31 pass, 0 fail
+================================================
+STATUS: OK

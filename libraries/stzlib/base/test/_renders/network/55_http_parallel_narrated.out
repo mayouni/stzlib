@@ -1,0 +1,39 @@
+SCENARIO: StzEngineHttpParallelGet exists and is callable
+  THEN  StzEngineHttpParallelGet is defined  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Parallel GET against all-bogus URLs returns one record per URL
+  GIVEN three bogus URLs joined by newline
+  THEN  output is non-empty  [PASS]
+  THEN  three records produced  [PASS]
+  THEN  each record begins with '-1:' (transport error)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: stzHttpClient.GetMany wraps the engine call
+  GIVEN a client and a list of bogus URLs
+  THEN  three responses returned  [PASS]
+  THEN  each response is a list  [PASS]
+  THEN  status code = -1 (transport)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: A batched GET is still the SAME client
+  GIVEN a client configured the way a caller would configure it
+  THEN  its header blob carries the agent  [PASS]
+  THEN  ...and the custom header  [PASS]
+  THEN  ...and its options blob carries the token  [PASS]
+  WHEN  that client runs a batch
+  THEN  it still gets one record per URL  [PASS]
+  GIVEN a listener standing in for a proxy
+  THEN  the batch connects to the proxy it was given  [PASS]
+  THEN  ...and does not go near it when no proxy is set  [PASS]
+  GIVEN the engine entry called the old way, with one argument
+  THEN  two records still come back  [PASS]
+  THEN  ...each a transport error  [PASS]
+  GIVEN and called with an explicitly empty configuration
+  THEN  the answer is the same  [PASS]
+  -> 9 pass, 0 fail
+
+================================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+================================================
+STATUS: OK

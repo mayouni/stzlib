@@ -1,0 +1,92 @@
+==================================================================
+ VC4 -- the semantic bridge, out loud
+==================================================================
+
+voice: en-US
+
+Synthesising 6 announcements before opening the device.
+Nothing is spoken while you wait, and nothing is synthesised while you
+listen -- which is what keeps the pauses between announcements even.
+
+   1/6  danger  5.00 s
+   2/6  success  2.38 s
+   3/6  info  2.62 s
+   4/6  warning  3.43 s
+   5/6  danger  2.00 s
+   6/6  warning  3.43 s
+
+   one buffer: 29.27 s, peak 0.69
+   [ok] nothing clipped when they were laid together
+   written to say_bridge_part_one.wav -- play it in any player if the live
+   version disagrees with it
+
+=== PART ONE ===
+
+   One device, one buffer. Each line is printed when the CLOCK reaches
+   the sound it describes, so the console cannot run ahead.
+
+   [ 0s]  danger  -- the shape of an announcement: cue, gap, words
+            "Disk nearly full. Sixty two gigabytes remain."
+
+     ^ cue, a 120 ms gap, then the words. The cue says a bad
+       thing happened; the sentence says WHICH. The cue is fast
+       and was already made, the sentence is slow -- inverting
+       them would spend the only fast channel on a slow message.
+
+   [ 7s]  success -- rising, and it stays low
+            "Backup complete."
+   [11s]  info    -- level, and quieter still
+            "Indexing continues."
+   [15s]  warning -- falling, and it leans on you
+            "Certificate expires in three days."
+   [20s]  danger  -- three notes, the brightest timbre
+            "Disk full."
+   [23s]  warning -- again, for the comparison below
+            "Certificate expires in three days."
+
+   underruns across the whole of Part One: 0
+
+-- :Muted says nothing, and that is its rendering --
+
+   Say(:Muted, ...) queued 0 things
+   reason: muted renders as silence, in every channel
+   Muted renders as silence in EVERY channel -- no colour, no cue, no
+   phrase. It is correct rather than missing.
+
+=== PART TWO -- the live queue ===
+
+   These two cannot be pre-recorded. Cancellation and queueing are things
+   that happen WHILE speaking, so this part synthesises as it goes and
+   opens a device per phrase. Expect a pause before each one; that is the
+   device opening and SAPI working, and it is the price of the scene
+   being real rather than staged.
+
+-- 5 -- a danger CUTS a sentence off, mid-word --
+
+   Two half-sentences are worse than one sentence and a counted drop, and
+   a listener cannot un-hear the first half. So the quieter one STOPS.
+
+   [a long success sentence is running]
+   [danger arrives -- listen for the cut]
+
+   spoken: 2   cancelled: 1
+   The cancellation is COUNTED. A program that cuts people off silently
+   cannot be told from one that never spoke.
+
+-- 6 -- but the queue is NOT emptied --
+
+   This is the one place speech parts company with earcons. A displaced
+   CUE is dropped: a cue after its event lies about when it happened.
+   A displaced PHRASE is queued, because dropping it loses the only
+   statement of what occurred, while delaying it merely makes it late.
+
+   three arrive at once, danger LAST -- queued 3, dropped 0
+   [danger is heard first; the other two follow, in priority order]
+
+   spoken: 3   dropped: 0
+   Nothing was lost. That is the contract, and you just heard it hold.
+
+==================================================================
+ If the cue arrived first every time, the danger cut in, and nothing
+ you were owed went unsaid -- the bridge behaves as declared.
+==================================================================

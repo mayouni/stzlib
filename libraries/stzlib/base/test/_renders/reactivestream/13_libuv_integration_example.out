@@ -1,0 +1,21 @@
+🔥 SYSTEM EVENT DETECTED:
+• Type: process_crash
+• Process ID: 5678
+• Resource Impact: 85%
+
+🔥 SYSTEM EVENT DETECTED:
+• Type: memory_leak
+• Process ID: 3456
+• Resource Impact: 95%
+
+🔥 SYSTEM EVENT DETECTED:
+• Type: high_cpu
+• Process ID: 7890
+• Resource Impact: 90%
+
+🛡️ LibUV monitoring stopped - resources cleaned up
+🛡️ LibUV monitoring stopped - resources cleaned up
+
+
+----------------
+----------------

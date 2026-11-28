@@ -1,0 +1,62 @@
+SCENARIO: Match ANCHORS, MatchFirst SEARCHES
+  THEN  \\d+ does NOT match a string that merely contains digits  [PASS]
+  THEN  ...but MatchFirst finds it  [PASS]
+  THEN  \\d+ matches a string that is entirely digits  [PASS]
+  THEN  \\d+ does not match a digitless string  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: All matches in a string
+  GIVEN the pattern \\d+ run over 'a1b22c333'
+  THEN  AllMatches collects each run of digits  [PASS]
+  THEN  NumberOfMatches is 3  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Character classes
+  GIVEN the pattern [a-z]+ over 'the quick fox'
+  THEN  it extracts the words  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Anchors and exact quantifiers
+  THEN  ^\\d{3}$ matches exactly 3 digits  [PASS]
+  THEN  ^\\d{3}$ rejects 4 digits  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Capture group extraction
+  GIVEN the captured number pattern (\\d+)
+  THEN  AllMatches returns the captured numbers  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: The four match types now differ
+  GIVEN the pattern [0-9]+ against 'abc123'
+  THEN  entire content: no, 'abc123' is not a run of digits  [PASS]
+  THEN  first occurrence: yes, one is in there  [PASS]
+  THEN  return-false-for-any-match: the engine is off  [PASS]
+  THEN  ...even though the same subject matches entirely  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Partial matching -- as you type
+  GIVEN the SSN pattern ^\\d{3}-\\d{2}-\\d{4}$
+  THEN  '123' is on the way  [PASS]
+  THEN  '123-45' is on the way  [PASS]
+  THEN  '123-45-6789' has arrived  [PASS]
+  THEN  'abc' cannot get there from here  [PASS]
+  THEN  a partial is NOT a complete match  [PASS]
+  THEN  ...and a complete one is not partial  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Z hands back positions; it does not print them
+  GIVEN three runs of digits in a string
+  THEN  Matches gives the values  [PASS]
+  THEN  MatchesZ gives value and position  [PASS]
+  THEN  ...as DATA, not as console output  [PASS]
+  THEN  ...one entry per match  [PASS]
+  THEN  ZZ gives the position as a SECTION instead  [PASS]
+  THEN  ValuesAndTheirPositions agrees  [PASS]
+  THEN  ...and so does MatchesAndTheirPositions  [PASS]
+  THEN  ...and it is not empty  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 28 assertions, 28 pass, 0 fail
+================================================
+STATUS: OK

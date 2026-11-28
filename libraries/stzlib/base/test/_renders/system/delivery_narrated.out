@@ -1,0 +1,55 @@
+-- Scene 1: the DIFFERENTIAL test -- the edge uses the target where it is strong --
+  [OK] Unicode on the phone -> target-native (JS is industrial-strength)
+  [OK] ...DateTime too -> target-native
+
+-- Scene 2: Softanza-differential compute -> the on-device engine (stz.wasm) --
+  [OK] PivotTable -> engine (JS weak, Softanza excels)
+  [OK] ConstraintSolver -> engine (Softanza-unique, JS absent)
+
+-- Scene 3: ergonomics -> a target-language construct; the heavy -> the backend --
+  [OK] Collection -> construct (best in the target language: stz.js)
+  [OK] Regex -> construct, NOT wasm (JS RegExp is strong; ship Softanza's regex API as stz.js over it, never PCRE2 to the browser)
+  [OK] ...so Regex is NOT in the on-device engine subset (the target does the matching)
+  [OK] BigNumber -> native, NOT wasm (JS BigInt is a strong native bignum; Softanza's engine StzBigInt is ALSO arbitrary-precision but INTEGER-only, so it MATCHES BigInt rather than exceeding it -- not differential, so like Regex it defers. The differential number types JS lacks -- big-decimal, rational -- are the ones that would ship; see SOFTANZA_NUMBER_ENGINE_PLAN.md)
+  [OK] ...so BigNumber is NOT in the on-device engine subset either
+  [OK] Neural -> server (too heavy for the edge)
+
+-- Scene 4: the SCOPE -- the on-device engine carries ONLY the differential subset --
+  [OK] the engine subset is scoped (far fewer than the 9 needs)
+  [OK] ...it carries the differential compute
+  [OK] ...it does NOT carry unicode (the target does that)
+  [OK] ...its footprint is small (KB, not the whole engine)
+
+-- Scene 5: a SERVER part hosts the full native engine -- no edge scoping --
+  [OK] on the server, PivotTable runs in the native engine
+  [OK] ...even Neural runs server-side natively (not offloaded further)
+  [OK] ...Unicode on the server also uses the engine (Softanza runs natively there)
+
+-- Scene 6: one offline mobile app is a WHOLE solution (the small end) --
+  [OK] a single offline app is a valid solution
+  [OK] ...Unicode still native, Pattern still on-device engine
+
+-- Scene 7: the FIRMWARE case -- the design is inclusive, not web-tied --
+  [OK] GPIO on the MCU -> engine (lowered into firmware)
+  [OK] ...Pattern too -> engine (firmware; MCU has no such native support)
+  [OK] ...Neural -> server (too heavy even for an MCU)
+  [OK] ...Json FOLDS into firmware on the MCU (no JS construct layer; native JSON weak)
+  [OK] ...whereas the same Json on a browser -> target (inclusive: same cap, different target)
+  [OK] the plan names the on-device artifact FIRMWARE for the MCU (not stz.wasm)
+  [OK] ...and does NOT call it stz.wasm on the MCU
+
+-- Scene 8: infer a part's needs from its source (the lexical starting point) --
+  [OK] inference picked PivotTable from .Pivot
+  [OK] ...ConstraintSolver from .Solve
+  [OK] ...GPIO from .ReadPin
+
+-- Scene 9: the plan is a legible rehearsal, not a black box --
+  [OK] the plan explains itself
+  [OK] ...it is honest that nothing is built yet
+  [OK] ...it frames Build()/Deploy() as the commit
+  [OK] ...every capability shows a reason (WHY it landed there)
+  [OK] ...and it says 'target', never the confusing 'platform'
+
+==========================================
+TOTAL: 34 assertions, 34 pass, 0 fail
+==========================================

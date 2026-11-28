@@ -1,0 +1,14 @@
+SCENARIO: Two ats in a constraint string
+  THEN  two of them  [PASS]
+  THEN  at 9 and 12  [PASS]
+  THEN  next from 5  [PASS]
+  THEN  2nd next from 5  [PASS]
+  THEN  previous from 10  [PASS]
+  THEN  only one @ sits strictly before 12  [PASS]
+  THEN  ... the 1st previous is it  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

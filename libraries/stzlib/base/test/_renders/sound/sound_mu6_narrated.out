@@ -1,0 +1,26 @@
+== MU6: the browser's answers, written by the native engine ==
+
+-- Scene 1: twenty notes, native, sample by sample --
+   20 instruments -> webaudio/mu6_notes_expect.json
+  [ok]   all twenty instruments rendered natively and written for the browser to match
+
+-- Scene 1b: the kit's nine strokes, native, for the rebuilt stz.wasm to match --
+   9 strokes added to webaudio/mu6_notes_expect.json
+  [ok]   all nine of the kit's strokes rendered natively -- the cymbals, the toms, the open hi-hat -- for wasm to match
+
+-- Scene 2: the pattern language's answers --
+   13 patterns x 4 cycles -> webaudio/mu6_patterns_expect.json
+  [ok]   thirteen patterns written with their events and each note's frequency -- the kit's new words among them
+  [ok]   including the notation's whole set: ~ [ ] , < > * / ? ! @ and the octave carry
+
+-- Scene 3: the universes, for the keyboard --
+   7 universes with scales -> webaudio/mu6_universes.json (the rhythm-only one has none to play)
+  [ok]   seven universes with scales, each with its listener line, for the keyboard
+
+-- The browser half --
+   Serve webaudio/ and open mu6_guard.html: it renders the twenty notes
+   through wasm, parses the thirteen patterns in JavaScript, schedules a loop
+   offline, and reads the browser's own latency. Then music.html is the
+   instrument -- and the kill criterion is the author playing it.
+
+5 passed, 0 failed

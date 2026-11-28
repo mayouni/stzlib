@@ -1,0 +1,56 @@
+SCENARIO: an HTTP listener binds and reports its port
+  GIVEN a reactor with a loop running on its own thread
+  WHEN  we listen in http mode on 127.0.0.1 with port 0 (ephemeral)
+  THEN  a server id is returned  [PASS]
+  THEN  the actual bound port is known  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a full HTTP request/response round-trip on the loopback
+  GIVEN the listener above, and the reactor's async tcp client as peer
+  WHEN  the client submits a request (non-blocking)
+  THEN  a client job id is returned  [PASS]
+  WHEN  Ring drains server events until the framed request arrives
+  THEN  an accept event was seen first  [PASS]
+  THEN  one COMPLETE framed request arrived  [PASS]
+  THEN  framing kept the terminating blank line  [PASS]
+  WHEN  the server writes a response with close-after
+  THEN  the write is queued  [PASS]
+  WHEN  the client awaits its response body
+  THEN  the client received the status line  [PASS]
+  THEN  and the body  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: keep-alive framing: two pipelined requests become two events
+  GIVEN the same http listener
+  WHEN  a client sends BOTH requests in one packet
+  THEN  exactly two framed requests were emitted  [PASS]
+  THEN  the first is /a  [PASS]
+  THEN  the second is /b  [PASS]
+  THEN  the client saw both responses on one connection  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a POST body is framed by Content-Length
+  GIVEN the same http listener
+  THEN  the event contains the FULL body  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: raw stream mode delivers bytes as they arrive (IoT floor)
+  GIVEN a second listener in RAW mode (no http framing)
+  THEN  it binds  [PASS]
+  WHEN  a device-style client writes a raw line
+  THEN  the raw bytes arrive unframed  [PASS]
+  WHEN  the server acks and closes
+  THEN  the device got the ack  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: lifecycle: stop tears the server down cleanly
+  GIVEN the http listener from the start of the suite
+  THEN  stop is accepted  [PASS]
+  WHEN  the reactor itself is destroyed with everything settled
+  THEN  teardown completes without crash  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 19 assertions, 19 pass, 0 fail
+================================================
+STATUS: OK

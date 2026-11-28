@@ -1,0 +1,22 @@
+SCENARIO: Bounded finds anchored at the substring
+  GIVEN "12♥♥♥67♥♥♥12♥♥♥67" (hearts at 3, 8, 13)
+  THEN  any substring bounded by 67..12  [PASS]
+  THEN  the hearts bounded by 67..12  [PASS]
+  THEN  the FindXT spelling  [PASS]
+  THEN  its section  [PASS]
+  THEN  the IB section spans bounds too  [PASS]
+  THEN  the reversed bounds find both hearts  [PASS]
+  THEN  ... and their IB spans  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Positions of the IB forms
+  GIVEN the same string
+  THEN  content positions  [PASS]
+  THEN  IB positions anchor at the openers  [PASS]
+  THEN  IB sections  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+================================================
+STATUS: OK

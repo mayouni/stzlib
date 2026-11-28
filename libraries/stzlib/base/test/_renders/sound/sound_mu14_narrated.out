@@ -1,0 +1,33 @@
+== MU14: toms, the open hi-hat, and the browser's kit rebuilt ==
+
+-- Scene 1: drawn where drum parts put them --
+   hihat openhat snare hightom hightom midtom floortom kick crash kick
+  [ok]   the score takes the toms and the open hi-hat: no refusal
+  [ok]   the high tom in the fourth space, the mid tom on the fourth line, the floor tom in the second space
+  [ok]   the open hi-hat is an x where the closed one is -- above the staff -- with its small circle over it
+  [ok]   toms and hi-hats are the hands' -- the upper voice -- and the kick stays the feet's
+
+-- Scene 2: sounded --
+   high tom 225 Hz, mid tom 165 Hz, floor tom 110 Hz
+  [ok]   three toms, each a pitch: high over mid over floor
+   energy 0.2 to 0.4 s against the first 0.05 s: open 0.869, closed 0
+  [ok]   the open hi-hat washes for at least six tenths of a second, whatever its written length
+  [ok]   and is still sounding where the closed hi-hat is gone
+  [ok]   a darbouka has no toms, and says so
+
+-- Scene 3: carried --
+  [ok]   MIDI writes them by General MIDI's keys and reads them back: high tom, mid tom, floor tom, open hi-hat
+  [ok]   a file using GM's other tom keys (48 hi-mid, 45 low, 41 low floor) reads them as the same three toms
+  [ok]   the pattern language spells them ht mt ft oh
+
+-- Scene 4: the browser's engine, rebuilt --
+  [ok]   the native renders the browser must match carry all nine of the kit's strokes
+  [ok]   stz.wasm is rebuilt with every engine group -- its exports kept, not cut to sound alone
+  [ok]   and the browser's kit knows the same nine strokes, and rings cymbals and the open hi-hat as long as Ring does
+   the browser half: serve webaudio/ and open mu6_guard.html -- section 1b renders all nine
+   strokes through this stz.wasm against the native renders: 9 of 9, sample for sample
+
+-- The listener's line --
+   Whether the toms and the open hi-hat SOUND like a kit's, is not a number: UNPERCEIVED.
+
+14 passed, 0 failed

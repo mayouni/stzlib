@@ -1,0 +1,52 @@
+SCENARIO: XOR -- and it is bit-identical
+  THEN  00 -> 0  [PASS]
+  THEN  01 -> 1  [PASS]
+  THEN  10 -> 1  [PASS]
+  THEN  11 -> 0  [PASS]
+  THEN  the loss went down  [PASS]
+  THEN  ...essentially to zero  [PASS]
+  THEN  one loss per epoch was recorded  [PASS]
+  THEN  Why() still narrates  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: the multi-layer backward pass, checked one step at a time
+  THEN  layer 1, first weight  [PASS]
+  THEN  layer 1, a bias  [PASS]
+  THEN  layer 2, a middle weight  [PASS]
+  THEN  layer 3, the output weight  [PASS]
+  THEN  layer 3, the output bias  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the other activations, and the pairings they belong to
+  THEN  a relu/linear net trains  [PASS]
+  THEN  ...and predicts two outputs  [PASS]
+  THEN  a softmax layer sums to one  [PASS]
+  THEN  ...and learned the first class  [PASS]
+  THEN  the cross-entropy loss fell  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: a real problem, where bit-equality is NOT preserved and accuracy is
+  THEN  it trains in under 3s -- it was 11.14  [PASS]
+  THEN  the loss came down a long way  [PASS]
+  THEN  ...and the model is the same QUALITY: 93% on its training set  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: it is reproducible, which is the property that had to survive
+  THEN  the same final loss  [PASS]
+  THEN  ...and the same first-epoch loss  [PASS]
+  THEN  the same prediction  [PASS]
+  THEN  ...and the same weight  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ragged data is a diagnosis, not an index error
+  THEN  a short input row is refused  [PASS]
+  THEN  ...naming the sample  [PASS]
+  THEN  a wrong-width target is refused  [PASS]
+  THEN  mismatched counts are refused  [PASS]
+  THEN  zero epochs is refused  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 30 assertions, 30 pass, 0 fail
+================================================
+STATUS: OK

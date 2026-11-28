@@ -1,0 +1,37 @@
+SCENARIO: SubStrings enumeration at L=1000 (500,500 substrings, engine)
+  THEN  NumberOfSubStrings is 500,500 (L(L+1)/2)  [PASS]
+  THEN  SubStrings() enumerates all 500,500  [PASS]
+  THEN  SubStringsU() distinct is 1,000 (a^1..a^1000)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Duplicates & occurrence filters at L=1000 (engine)
+  THEN  DuplicatesCS(1) is 500 (a^k, k<=500)  [PASS]
+  THEN  SubStringsOccuringNTimes(2) is 500 (count >= 2)  [PASS]
+  THEN  SubStringsOccurringOnlyNTimes(1) is 500 (count == 1)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Consecutive substrings & dup-consecutive chars at L=1000 (engine)
+  THEN  ConsecutiveSubStrings count is 375,250  [PASS]
+  THEN  FindDupSecutiveChars is 999 (positions 2..1000)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Case-sensitivity dial holds at scale -- 'aA' repeated 50 (100 chars)
+  THEN  SubStringsCS(1) exact-distinct is 199  [PASS]
+  THEN  SubStringsU() folds all case -> 100 (like a^100)  [PASS]
+  THEN  DuplicatesCS(1) exact is 99  [PASS]
+  THEN  DuplicatesCS(0) case-insensitive dedup is 50  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Broad family sanity at L=100 (uniform 'a')
+  THEN  NumberOfSubStrings is 5,050  [PASS]
+  THEN  SubStrings() enumerates 5,050  [PASS]
+  THEN  SubStringsU() is 100  [PASS]
+  THEN  DuplicatesCS(1) is 50  [PASS]
+  THEN  ConsecutiveSubStrings is 3,775  [PASS]
+  THEN  FindDupSecutiveChars is 99  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 18 assertions, 18 pass, 0 fail
+================================================
+STATUS: OK

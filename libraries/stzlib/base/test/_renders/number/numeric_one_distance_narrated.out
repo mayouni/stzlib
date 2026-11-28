@@ -1,0 +1,29 @@
+SCENARIO: the three definitions agree, and now there is only one
+  THEN  a 3-4-5 triangle, through kmeans  [PASS]
+  THEN  ...and through knn  [PASS]
+  THEN  ...and through the engine directly  [PASS]
+  THEN  an awkward pair agrees between kmeans and knn  [PASS]
+  THEN  ...and with the engine  [PASS]
+  THEN  a point is at zero distance from itself  [PASS]
+  THEN  distance is symmetric  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: the RAGGED case, where the engine alone would have said 'identical'
+  THEN  the engine ALONE answers 0 for a length mismatch -- 'identical'  [PASS]
+  THEN  ...but the method still compares the common prefix, as it always did  [PASS]
+  THEN  ...whichever side is longer  [PASS]
+  THEN  knn does the same  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: and the algorithms above it still behave
+  THEN  two clusters come back  [PASS]
+  THEN  ...and the far point lands with the far group  [PASS]
+  THEN  ...while the near point does not  [PASS]
+  THEN  a query near the origin is classified 'near'  [PASS]
+  THEN  ...and one out at nine is 'far'  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+================================================
+STATUS: OK

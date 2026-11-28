@@ -1,0 +1,18 @@
+SCENARIO: Left and right on LTR text
+  THEN  the lead is gone  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Right means start on RTL text
+  THEN  the right 4 chars open the text  [PASS]
+  THEN  removing from the right trims the start  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Start and end are direction-neutral
+  THEN  LTR  [PASS]
+  THEN  RTL, same code  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

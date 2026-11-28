@@ -1,0 +1,13 @@
+SCENARIO: Removing one end char vs the whole run
+  GIVEN "---Ring"
+  THEN  RemoveLeadingChar() peels one leading char  [PASS]
+  GIVEN "Ring---"
+  THEN  RemoveTrailingChar() peels one trailing char  [PASS]
+  GIVEN a fresh "---Ring"
+  THEN  RemoveLeadingChars() (plural) peels the whole run  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 3 assertions, 3 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,14 @@
+SCENARIO: Unique marquers and lookups
+  THEN  unique with all positions  [PASS]
+  THEN  finding #1  [PASS]
+  THEN  finding a missing one  [PASS]
+  THEN  by position 66  [PASS]
+  THEN  by position 44  [PASS]
+  THEN  by both its positions  [PASS]
+  THEN  two by their positions  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

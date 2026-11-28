@@ -1,0 +1,140 @@
+SCENARIO: declaring the dependency surface, before anything is bound
+  THEN  the surface is enumerable  [PASS]
+  THEN  nothing is bound yet  [PASS]
+  THEN  ...so both are reported unbound  [PASS]
+  THEN  a declared-but-unbound service is an ERROR finding  [PASS]
+  THEN  ...named  [PASS]
+  THEN  ...and blocking  [PASS]
+  THEN  so the registry is NOT sound  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: an unbound service RAISES -- it must never silently no-op
+  THEN  asking for it raises  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: the app asks by NAME, and never learns which implementation it got
+  THEN  binding implies the declaration  [PASS]
+  THEN  ...so nothing is outstanding  [PASS]
+  WHEN  a double is bound, the registry asks the OBJECT what it is
+  THEN  it is recognised as a sandbox  [PASS]
+  WHEN  the application uses the service
+  THEN  the work happened  [PASS]
+  THEN  the ORIGINAL sees the work done through the copy  [PASS]
+  THEN  a service name is one spelling, symbol or string  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: a sandbox in production is a VIOLATION -- the plane's whole point
+  THEN  the default phase is development  [PASS]
+  THEN  in emulation, sandboxes are expected and it is sound  [PASS]
+  WHEN  the phase becomes production with fakes still bound
+  THEN  it is NOT sound  [PASS]
+  THEN  ...with one finding per fake  [PASS]
+  THEN  ...named for what is wrong  [PASS]
+  THEN  ...pointing at the service  [PASS]
+  THEN  the 'what is not real yet' list is available directly  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: going live: the credential must be IN THE STORE, not inline
+  WHEN  the sandbox is replaced by a real adapter, naming its store secret
+  THEN  the posture flips  [PASS]
+  THEN  ...the registry holds only the NAME, never the key  [PASS]
+  THEN  ...no fakes remain  [PASS]
+  THEN  ...and checked against the store, it is sound  [PASS]
+  WHEN  a live adapter names a secret the store does not have
+  THEN  that is an ERROR  [PASS]
+  THEN  ...named  [PASS]
+  THEN  ...though it passes when no store is offered to check against  [PASS]
+  WHEN  a live adapter names NO secret at all
+  THEN  it is a WARNING, not a blocker  [PASS]
+  THEN  ...named  [PASS]
+  THEN  ...so the registry stays sound  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: going live is a GOVERNED crossing, like every other commit in the library
+  THEN  the surface itself is sound  [PASS]
+  THEN  an effectful, trusted actor may commit it  [PASS]
+  THEN  an LLM actor may NOT  [PASS]
+  THEN  ...and it says why  [PASS]
+  THEN  a non-effectful guardian may not either  [PASS]
+  THEN  no actor at all may not  [PASS]
+  WHEN  the surface is UNSOUND, even the right actor is refused
+  THEN  it refuses  [PASS]
+  THEN  ...naming the reason rather than the actor  [PASS]
+  GIVEN the same surface while the phase is still DEVELOPMENT
+  THEN  the registry reports nothing yet, correctly  [PASS]
+  THEN  but MayGoLive still refuses  [PASS]
+  THEN  ...for the same reason  [PASS]
+  THEN  and asking did not change the phase  [PASS]
+  THEN  FindingsForProduction is the same question, asked directly  [PASS]
+  THEN  ...and it also leaves the phase alone  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: the CI globals, in the shape the other gates already use
+  THEN  StzServicesAreSound reports the unbound dependency  [PASS]
+  THEN  StzCheckServices returns the findings  [PASS]
+  THEN  ...and both agree once it is bound  [PASS]
+  THEN  a finding carries the four fields the other gates use  [PASS]
+  WHEN  the real doubles already in the library are bound
+  THEN  all three declare themselves sandboxes  [PASS]
+  THEN  ...so a production phase refuses all three  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: a FOURTH posture: the genuine hub protocol over virtual money (conformance)
+  THEN  the posture is its own word  [PASS]
+  THEN  ...it is not a sandbox  [PASS]
+  THEN  ...and it is listed apart  [PASS]
+  THEN  ...a conformance binding says whose credential it uses  [PASS]
+  THEN  in development it is expected: the surface is sound  [PASS]
+  THEN  ...with nothing to report  [PASS]
+  THEN  in production it is an ERROR  [PASS]
+  THEN  ...named conformance-in-production  [PASS]
+  THEN  ...an error, like sandbox-in-production  [PASS]
+  THEN  ...pointing at the service  [PASS]
+  THEN  ...and saying why virtual money must not ship  [PASS]
+  THEN  so no actor may take it live  [PASS]
+  THEN  ...and it says why  [PASS]
+  THEN  asked from development, going live is already refused  [PASS]
+  THEN  ...and the phase is left alone  [PASS]
+  THEN  FindingsForProduction names it without changing the phase  [PASS]
+  WHEN  an object declares itself a conformance adapter, no word from the caller
+  THEN  the registry reads the posture off the object  [PASS]
+  WHEN  the Softanza twin is bound
+  THEN  a port over the twin is a SANDBOX  [PASS]
+  THEN  ...and production refuses it  [PASS]
+  -> 19 pass, 0 fail
+
+SCENARIO: a conformance adapter needs its credential too, and a descriptor with no value is not one
+  THEN  a credential the store does not hold is an ERROR even for conformance  [PASS]
+  THEN  ...the same invariant as a live adapter  [PASS]
+  THEN  a descriptor registered but never given a value does not count  [PASS]
+  THEN  ...and the message says it has no value  [PASS]
+  THEN  with a value it is sound  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: live-without-certificate: a live payment without its mTLS identity is refused BEFORE the first call
+  THEN  a live adapter that declares it needs a certificate, and the store has none: ERROR  [PASS]
+  THEN  ...named live-without-certificate  [PASS]
+  THEN  ...an error  [PASS]
+  THEN  ...naming the certificate it looked for  [PASS]
+  THEN  ...in a DEVELOPMENT phase too: the phase is not what decides  [PASS]
+  THEN  ...though no store offered means nothing to check against  [PASS]
+  THEN  a certificate descriptor with no value is not a certificate  [PASS]
+  THEN  ...and says so  [PASS]
+  THEN  a certificate past its date is an ERROR  [PASS]
+  THEN  ...and says expired  [PASS]
+  THEN  a valid certificate makes it sound  [PASS]
+  THEN  ...with nothing left to report  [PASS]
+  THEN  a certificate that carries no expiry is accepted: the store cannot say it lapsed  [PASS]
+  WHEN  the adapter cannot declare it, the binding can
+  THEN  the binding remembers the certificate's name  [PASS]
+  THEN  ...and refuses it absent  [PASS]
+  THEN  ...naming that certificate  [PASS]
+  WHEN  a live adapter needs no certificate
+  THEN  nothing about certificates is asked of it  [PASS]
+  THEN  both new invariants are documented ones  [PASS]
+  -> 18 pass, 0 fail
+
+================================================
+TOTAL: 93 assertions, 93 pass, 0 fail
+================================================
+STATUS: OK

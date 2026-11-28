@@ -1,0 +1,65 @@
+-- Scene 1: an attack, then a reach for a secret --
+  the sentinel fired 2 time(s)
+  [OK] both stories fired (the burst and the sequence)
+
+-- Scene 2: a case becomes a case FILE --
+  [OK] the incident carries its id and rule
+  [OK] ...the actor the story is about
+  [OK] ...and its severity
+  [OK] it correlated the actor's whole story, not just the trigger
+  [OK] the timeline is wall-ordered
+  [OK] ...and starts at the first failure
+  [OK] ...and ends at the secret reach
+  [OK] the subjects name what was touched
+  [OK] the implicated secret is identified by DESCRIPTOR
+  [OK] it kept the chain head from the moment of firing
+
+-- Scene 3: correlation follows the TRACE, not just the actor --
+  [OK] a DIFFERENT actor's event joined the story via the shared trace
+  [OK] ...and the trace id is reported for the log query
+
+-- Scene 4: the graph answers HOW FAR the actor could reach --
+  [OK] the actor DOES reach an effectful capability
+  path: billing-agent -> deploy-tool -> effectful
+  [OK] the PATH itself is reported, not just a yes
+  [OK] ...starting at the actor and ending at the capability
+  [OK] the implicated secret's blast radius is computed
+  blast radius of stripe-live: 1 node(s)
+  [OK] ...and it names the site that references the secret
+  [OK] an actor with no route reports NO path (not a false alarm)
+
+-- Scene 5: status moves forward, and only forward --
+  [OK] a fresh incident is open
+  [OK] containment is recorded
+  [OK] ...and cannot be repeated (forward-only)
+  [OK] closing lands
+  [OK] a closed incident refuses to reopen (that is a NEW incident)
+  [OK] both notes were kept
+
+-- Scene 6: the file a person reads --
+Incident INC-1 (error, closed) -- guess-then-reach involving 'billing-agent'
+  auth.login.failed then secret.reveal.refused within 26000ms by 'billing-agent' -- a failed sign-in followed by a reach for a secret -- the classic shape of a stolen-credential attempt
+  6 correlated event(s):
+    1785700004000  auth.login.failed by billing-agent on user:admin
+    1785700008000  auth.login.failed by billing-agent on user:admin
+    1785700012000  auth.login.failed by billing-agent on user:admin
+    1785700016000  auth.login.failed by billing-agent on user:admin
+    1785700020000  auth.login.failed by billing-agent on user:admin
+    1785700030000  secret.reveal.refused by billing-agent on secret:stripe-live
+  Attack path: billing-agent -> deploy-tool -> effectful  (2 hop(s))
+  Blast radius of 'stripe-live': 1 node(s) -- checkout-site
+  [contained] revoked the agent's session and rotated the key
+  [closed] credentials rotated; the reach was refused, nothing left the process
+  [OK] the header states id, severity, status and actor
+  [OK] the account includes the attack path
+  [OK] ...the blast radius
+  [OK] ...and the response notes
+  [OK] no secret VALUE anywhere in the account
+
+-- Scene 7: the incident detects a rewritten history --
+  [OK] the ledger moved on, so its head differs from the incident's
+  [OK] ...but the incident still holds the head it fired on
+
+==========================================
+TOTAL: 32 assertions, 32 pass, 0 fail
+==========================================

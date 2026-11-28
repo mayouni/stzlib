@@ -1,0 +1,86 @@
+SCENARIO: Sentiment intents (mood/tone/emotion -- name is 'Sentiment')
+  THEN  'what is the mood of this'  [PASS]
+  THEN  'the emotion expressed here'  [PASS]
+  THEN  'how positive or negative is the tone'  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Entity intents (who/where -- name is 'NamedEntities'/'PersonNames')
+  THEN  'who is mentioned in this'  [PASS]
+  THEN  'find people and places'  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Word-normalization intents (base/root form)
+  THEN  'reduce words to base form'  [PASS]
+  THEN  'root form of each word'  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Topic + keyword + summary intents
+  THEN  'what are the main topics'  [PASS]
+  THEN  'summarize briefly'  [PASS]
+  THEN  'words with similar meaning'  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Part-of-speech + readability + language intents
+  THEN  'nouns and verbs in the text'  [PASS]
+  THEN  'how hard is this to read'  [PASS]
+  THEN  'which language is this written in'  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: stzString flagship intents resolve to the canonical method
+  THEN  'convert to capitals' -> Uppercased  [PASS]
+  THEN  'make it lower case' -> active Lowercase (imperative)  [PASS]
+  THEN  'reverse the characters' -> active Reverse (imperative)  [PASS]
+  THEN  'split on a delimiter' -> Split  [PASS]
+  THEN  'remove surrounding spaces' -> active Trim (imperative; aka via sibling)  [PASS]
+  THEN  'does it contain a word' -> Contains  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Function-form awareness routes intent to the right form
+  THEN  'reverse the string' -> active Reverse (imperative default)  [PASS]
+  THEN  'return a reversed copy of the string' -> passive Reversed (asked for)  [PASS]
+  THEN  'an uppercase copy of the text' -> passive Uppercased  [PASS]
+  THEN  Explain teaches the passive form  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Generative: intent resolves to a grounded method (compose-then-retrieve)
+  THEN  'reverse the string' composes to active Reverse  [PASS]
+  THEN  'a reversed copy of it' composes to passive Reversed  [PASS]
+  THEN  'make it uppercase' composes to Uppercase  [PASS]
+  THEN  HowTo returns a runnable Q-chainable call template  [PASS]
+  THEN  args synthesized from the signature: Replace -> two string args  [PASS]
+  THEN  args synthesized: Section -> two number args  [PASS]
+  THEN  named-param synthesis: Insert -> :BeforePosition = <n> (from doc + CheckParam)  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Conversational intents surface a runnable recipe
+  THEN  recipes are loaded into the union index  [PASS]
+  THEN  class count excludes recipes (stays at owners)  [PASS]
+  THEN  'how do I detect the mood of a paragraph' -> recipe  [PASS]
+  THEN  'get the people and places from text' -> recipe  [PASS]
+  THEN  'shorten a long text' -> recipe  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Cross-domain recipes (string / list / number) are retrievable
+  THEN  'make text uppercase' -> recipe  [PASS]
+  THEN  'remove duplicate items from a list' -> recipe  [PASS]
+  THEN  'sort these numbers' -> recipe  [PASS]
+  THEN  'check if a number is prime' -> recipe  [PASS]
+  THEN  'split a string on commas' -> recipe  [PASS]
+  THEN  'find all divisors of a number' -> recipe  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: L3: the narrated suites are retrieval fuel (test-sample harvest)
+  THEN  the natural topic yields a corpus  [PASS]
+  THEN  a phrasing from a suite finds its example  [PASS]
+  THEN  ...  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Tier-1 aka widening: user words find core methods (lexical floor)
+  THEN  'arrange the list items'  [PASS]
+  THEN  'positive value without the sign'  [PASS]
+  THEN  'sum of the digits'  [PASS]
+  THEN  'unnest the sublists to a single level'  [PASS]
+  THEN  'glue the items together into one string'  [PASS]
+  THEN  'checksum fingerprint of the text'  [PASS]
+  THEN  'raised to the power of'  [PASS]
+  -> 7 pass, 0 fail

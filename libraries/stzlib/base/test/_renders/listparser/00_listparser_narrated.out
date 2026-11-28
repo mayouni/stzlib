@@ -1,0 +1,45 @@
+SCENARIO: Default parser state over A..L
+  GIVEN a parser over the 12-item list A..L
+  THEN  List has 12 items  [PASS]
+  THEN  StartPosition is 1  [PASS]
+  THEN  EndPosition is 12  [PASS]
+  THEN  NumberOfSteps is 1  [PASS]
+  THEN  CurrentPosition starts at 1  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Parse a strided range
+  GIVEN Parse(From=3, To=9, Step=3)
+  THEN  ParsedPositions are [3,6,9]  [PASS]
+  THEN  ParsedItems are [C,F,I]  [PASS]
+  THEN  CurrentItem is C (first parsed)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Step the cursor forward
+  GIVEN a parsed strided range starting at C
+  THEN  NextItem advances to F  [PASS]
+  THEN  CurrentPosition is now 6  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Resetting the cursor lands where the parse actually is
+  GIVEN a parser over eight items with a declared default of 5
+  THEN  the cursor moved where it was told  [PASS]
+  WHEN  the cursor is reset
+  THEN  it goes to the DECLARED default, not to 1  [PASS]
+  THEN  ...which is what :Default has always meant  [PASS]
+  GIVEN a second parser with the default untouched
+  THEN  it resets to its own default of 1  [PASS]
+  GIVEN a parse that does not contain position 1
+  THEN  the parsed positions start at 3  [PASS]
+  WHEN  that cursor is reset
+  THEN  it lands INSIDE the parse  [PASS]
+  THEN  ...on a position the parser would accept  [PASS]
+  THEN  ...and the item read is the one at that position  [PASS]
+  GIVEN a parser stepping by three
+  THEN  the step is reported back  [PASS]
+  THEN  ...and the positions honour it  [PASS]
+  -> 10 pass, 0 fail
+
+================================================
+TOTAL: 20 assertions, 20 pass, 0 fail
+================================================
+STATUS: OK

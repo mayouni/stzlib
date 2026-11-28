@@ -1,0 +1,18 @@
+SCENARIO: A cold resolve increments the resolve counter
+  GIVEN a cleared DNS cache
+  WHEN  resolving a host for the first time
+  THEN  an address string came back (non-empty)  [PASS]
+  THEN  resolves incremented by 1  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: A warm resolve is a cache hit, not a re-resolve
+  GIVEN the host just resolved (now cached)
+  WHEN  resolving the same host again
+  THEN  resolves did NOT increase (served from cache)  [PASS]
+  THEN  hits incremented by 1  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

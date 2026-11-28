@@ -1,0 +1,149 @@
+SCENARIO: The oracle sees what a raw concatenation lets through
+  GIVEN a text with a script element, written into a p without escaping
+  THEN  an undeclared element is counted  [PASS]
+  GIVEN a text closing the p and opening an img with an onerror handler
+  THEN  the handler is counted  [PASS]
+  THEN  and the element too  [PASS]
+  GIVEN a benign text
+  THEN  nothing is counted  [PASS]
+  GIVEN an entity in the markup
+  (the engine parser does not decode entities in TextOfTag; the oracle adapts)
+  THEN  the decoded text of the element is the character  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The engine's own encoders pass the oracle over the whole corpus
+  GIVEN every corpus entry through StzEngineHtmlEncode inside a p
+  THEN  no entry fails  [PASS]
+  GIVEN every corpus entry through StzEngineHtmlEncodeAttribute in a title
+  THEN  no entry fails  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Sink 1: stzHtmlBuildNode.SetText writes the text as given
+  GIVEN every corpus entry through SetText on a p node
+  THEN  no entry fails (red on RX0, green since RX1: the node escapes nothing)  [PASS]
+  GIVEN the same three entries through stzHtmlBuilder.Build, the same writer
+  THEN  no entry fails (red on RX0, green since RX1)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Sink 1b: stzHtmlBuildNode.SetAttr writes the value between quotes as given
+  GIVEN every corpus entry as the title attribute of a p
+  THEN  no entry fails (red on RX0, green since RX1)  [PASS]
+  GIVEN the three URL values as the href of an a node -- a policy, recorded not asserted
+  state  href 'jsurl' -> read back 'javascript:alert(1)', handlers 0, undeclared 0
+  state  href 'dataurl' -> read back 'data:text/html,<script>alert(1)</script>', handlers 0, undeclared 0
+  state  href 'break' -> read back 'x" onerror="alert(1)', handlers 0, undeclared 0
+  THEN  the oracle ran over the URL cases  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Sink 2: stzUiDocument projects a TEXT box to HTML, text and accessibility JSON
+  GIVEN a clean two-declaration panel with a plain content
+  THEN  the probe panel is clean  [PASS]
+  THEN  the box's div is found by its text  [PASS]
+  GIVEN every corpus entry the .panel syntax can carry, as the CONTENT
+  (13 of 16 entries run; the quote cases cannot be written in a .panel string)
+  THEN  no entry fails the HTML oracle  [PASS]
+  THEN  every entry is carried by the text twin  [PASS]
+  THEN  every entry gives valid accessibility JSON  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Sink 3: stzAppResponse.ObjectToJson quotes a text without escaping it
+  GIVEN every corpus entry as the value of key k
+  THEN  no entry fails (red on RX0, green since RX1: a quote inside gives invalid JSON)  [PASS]
+  GIVEN the key side too: a key holding a quote
+  THEN  the JSON is valid  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Sink 3b: stzAppServer._RowsJson escapes only the double quote of a cell
+  GIVEN every corpus entry as the one cell of one row
+  THEN  no entry fails (red on RX0, green since RX1)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Sink 4: stzPlatform._WebShell concatenates the world's name into the title, the h1 and the li
+  GIVEN a baseline shell for a plain world name, to learn the declared elements
+  THEN  the shell has a title, an h1 and an li  [PASS]
+  GIVEN every corpus entry as the world's name
+  THEN  no entry fails (red on RX0, green since RX1)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: SVG: the canvas carries a label as glyph outlines and refuses a bad identifier
+  GIVEN a canvas with a system font and the script entry as its label
+  THEN  the plain SVG has elements  [PASS]
+  THEN  and no text element: glyphs are outlines  [PASS]
+  GIVEN every corpus entry as the label
+  THEN  no entry adds an element or a handler  [PASS]
+  GIVEN an identifier holding a quote, through the declared door
+  THEN  the door refuses it rather than escaping it  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: RX1: the raw door writes as given, and the court counts every use of it
+  GIVEN a node given markup through SetMarkup, the one declared door
+  THEN  the markup is written as given: the oracle sees the b element  [PASS]
+  THEN  and the node says so  [PASS]
+  GIVEN the same node through the builder, which copies nodes as it adds them
+  THEN  the copy kept the door open  [PASS]
+  GIVEN a source that calls the door twice, through the code rules
+  THEN  the court counts the two uses  [PASS]
+  THEN  at severity info, never a ban  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: RX1: a pre-escaped text is escaped again, because text means text
+  GIVEN the five characters of &amp; given as text
+  THEN  the markup holds &amp;amp;  [PASS]
+  THEN  and a reader sees the five characters, not an ampersand  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: RX1: a URL attribute refuses a script scheme, and an attribute name is validated
+  GIVEN the three URL cases and two hidden spellings, through SetUrlAttr
+  THEN  all five are refused  [PASS]
+  GIVEN an https URL and a relative path
+  THEN  both pass  [PASS]
+  GIVEN an attribute name holding a quote
+  THEN  it is refused: there is no raw door for a name  [PASS]
+  GIVEN the usual names
+  THEN  all five pass  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: RX1: the engine's JSON string writer, the one every writer concatenates
+  GIVEN a text with a quote, a backslash, a newline, a NUL and Arabic
+  THEN  it starts and ends with a quote  [PASS]
+  THEN  the NUL is a \u0000 escape  [PASS]
+  THEN  the Arabic passes through as it is  [PASS]
+  THEN  and the document round-trips  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Bidi: the five overrides become visible markers in HTML and escapes in JSON, and nothing else moves
+  GIVEN a text holding all five of U+202A..U+202E around some letters
+  THEN  the neutralizer face writes the five markers  [PASS]
+  THEN  the HTML text face does  [PASS]
+  THEN  the HTML attribute face does  [PASS]
+  THEN  the JSON string face writes the five as escapes, not markers  [PASS]
+  THEN  ...and a parser reads back the EXACT text: the JSON face is lossless  [PASS]
+  THEN  none of the five raw controls is left in any of the three  [PASS]
+  GIVEN the same text through a builder node, read back by the oracle
+  THEN  the page carries the markers as text and no element  [PASS]
+  GIVEN a control beside Arabic and an ampersand
+  THEN  the marker and the escape both apply, and the Arabic is intact  [PASS]
+  GIVEN the NEGATIVE SIBLINGS: the isolates, the marks, a truncated sequence, plain text
+  THEN  the isolates U+2066..2069 and the marks U+200E, U+200F pass through unchanged  [PASS]
+  THEN  a truncated sequence is not mistaken for a control  [PASS]
+  THEN  a neighbouring code point U+202F is not a control  [PASS]
+  THEN  plain text is the same text  [PASS]
+  THEN  the empty text is the empty text  [PASS]
+  GIVEN a long text of controls, past the size where a fixed buffer would cut
+  THEN  every one is a marker (24000 bytes, nothing cut)  [PASS]
+  THEN  and in JSON every one is a six-byte escape (18002 bytes with the quotes)  [PASS]
+  GIVEN the NEGATIVE SIBLINGS for the JSON face: the isolates and the marks
+  THEN  the JSON face leaves them as they are, inside the quotes  [PASS]
+  THEN  and a truncated sequence is not mistaken for a control  [PASS]
+  -> 17 pass, 0 fail
+
+RED LIST -- corpus entries each sink failed on (8 of 25 on RX0; empty since RX1; a bidi entry is judged against its marked text)
+  (empty)
+LIMITS: JSON and HTML-attribute read-back through a 4096-byte bridge buffer; .panel strings cannot carry a quote; SVG judged by the tag parser, not an XML validator; callers are counted in the census, not here.
+
+PAGE: escape_sinks_rendered.html written beside this guard (perceived 2026-10-22, see escape_sinks_perceived.md)
+
+================================================
+TOTAL: 57 assertions, 57 pass, 0 fail
+================================================
+STATUS: OK

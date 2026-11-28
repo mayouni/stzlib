@@ -1,0 +1,32 @@
+-- Scene 1: the case that was broken --
+  [OK] XorEncrypt then XorDecrypt returns the original
+  [OK] the cipher is text-safe (base64), so NULs cannot truncate it
+  [OK] ...and it is not just the plaintext back
+  [OK] a WRONG key does not decrypt
+
+-- Scene 2: multibyte -- the half that used to vanish --
+  [OK] every multibyte text round-trips byte-exact (6/6)
+  [OK] a MULTIBYTE key works
+
+-- Scene 3: key and text of awkward relative sizes --
+  [OK] key far longer than the text
+  [OK] single-byte key over a 4392-byte text
+  [OK] empty text is handled
+
+-- Scene 4: Obfuscate has an inverse now --
+  [OK] Obfuscated() changes the text
+  [OK] Deobfuscated() undoes it
+  [OK] ...on multibyte too
+  [OK] the MUTATING pair agrees with the copy pair
+
+-- Scene 5: the other ciphers still round-trip --
+  [OK] ROT13 is its own inverse
+  [OK] Caesar +5 then -5
+  [OK] Base64 round-trips multibyte
+  [OK] Atbash is its own inverse
+
+==========================================
+TOTAL: 17 assertions, 17 pass, 0 fail
+==========================================
+
+Executed in almost 0 second(s)

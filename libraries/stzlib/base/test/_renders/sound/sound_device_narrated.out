@@ -1,0 +1,50 @@
+== stz_audiodev: the per-OS device tier ==
+
+-- Scene 1: a missing DLL is a SUPPORTED state, not a broken install --
+   stz_audiodev is the half that cannot be built for every OS from one box
+   (macOS needs Apple's CoreAudio headers). Asking before calling is the
+   contract; a bare call into an absent DLL is a Ring error, not a FALSE.
+  [ok]   the loader reports the DLL present
+
+-- Scene 2: availability is a yes/no, and 'no' still answers every call --
+  [ok]   IsAvailable answers 0 or 1, never junk
+   backend: WASAPI
+  [ok]   a live backend has a name
+  [ok]   and it is not the 'none' sentinel
+
+-- Scene 3: enumeration is explicit and COUNTED, because devices move --
+   A USB interface arrives, a headset leaves. A list cached forever would
+   be quietly wrong, so refreshing is a call the caller makes.
+  [ok]   Refresh succeeds
+  [ok]   sound.device.enumerations counted exactly one
+  [ok]   a second refresh counts a second time
+   playback devices: 1   capture devices: 1
+  [ok]   playback count is a real count
+  [ok]   capture count is a real count
+
+-- Scene 4: every device has a name, and names are UTF-8, not ASCII --
+   SN0's machine reported 'Haut-parleurs (Realtek(R) Audio)'. miniaudio
+   pads the field to a fixed width; the engine trims at the NUL. Names are
+   NOT printed here -- Windows consoles garble non-ASCII -- but their
+   LENGTH and their trimming are asserted.
+  [ok]   every playback device has a non-empty name
+  [ok]   names are trimmed, not raw padded fields
+   default playback index (1-based): 1
+  [ok]   the default index is -1 or a valid 1-based index
+
+-- Scene 5: the NEGATIVE siblings -- bad input refuses and is COUNTED --
+   Without these, every assertion above could be passing on a stub.
+  [ok]   an out-of-range device index returns an empty name
+  [ok]   sound.device.refusals MOVED for the bad index
+  [ok]   an unknown device KIND returns -1
+  [ok]   sound.device.refusals MOVED for the bad kind
+  [ok]   index 0 is out of range on a 1-based surface
+  [ok]   index 1 names the FIRST device (1-based, not 0-based)
+
+-- Scene 6: the two DLLs are INDEPENDENT, which is the whole of FACT 3 --
+   The sample tier must not need the device tier for anything. If this ever
+   fails, the split has leaked and a headless box has lost the offline path.
+  [ok]   the portable half is available regardless
+  [ok]   and it can still make a buffer with the device tier in any state
+
+20 passed, 0 failed, 0 skipped

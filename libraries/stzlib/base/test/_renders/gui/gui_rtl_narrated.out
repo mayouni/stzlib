@@ -1,0 +1,59 @@
+-- Scene 1: direction INHERITS, and answers before anything renders --
+  [OK] the document is clean
+  [OK] the panel is rtl
+  [OK] ...and so is a box that never declared it
+  [OK] ...and a text three levels down
+  [OK] nothing was emitted to learn that
+  [OK] the same document without the declaration is ltr
+  [OK] ...and an explicit ltr is ltr too
+
+-- Scene 2: a subtree may override, and the override inherits --
+  [OK] the outer box inherited rtl
+  [OK] the island overrode it
+  [OK] ...and its child inherited the OVERRIDE, not the panel
+
+-- Scene 3: what the emitter produces --
+  [OK] rtl emits the shaper's hint
+  [OK] ...and never the CSS spelling RCSS rejects
+  [OK] rtl right-aligns by default
+  [OK] ltr left-aligns by default
+  [OK] TEXT_ALIGN end became LEFT under rtl
+  [OK] ...and RIGHT under ltr
+  [OK] center is center in both
+  [OK] a row REVERSES under rtl
+  [OK] ...and does not under ltr
+
+-- Scene 4: and it is true of the LAID-OUT boxes, not just the CSS --
+   rtl: first-declared at x=563, third at x=468
+   ltr: first-declared at x=0, third at x=77
+  [OK] under rtl the FIRST-declared child sits rightmost
+  [OK] under ltr it sits leftmost
+  [OK] ...so the one declaration reversed the row
+
+-- Scene 5: the text lands on the right edge --
+   rtl drew 6 commands, ltr drew 6
+  [OK] both panels drew every one of their six strings
+  [OK] every generated string became geometry, in both
+   default-aligned line: rtl x=458   ltr x=0
+  [OK] both default-aligned lines are present
+  [OK] an rtl line starts away from the left edge
+  [OK] ...while the ltr one starts at it
+  [OK] the trailing-edge line is PRESENT under rtl
+  [OK] ...and TEXT_ALIGN end put it at the LEFT
+
+-- Scene 5b: alignment set on a CONTAINER reaches its text --
+  [OK] all three words were drawn
+   x: default 0, centred 284, trailing 567
+  [OK] the default one sits at the leading edge
+  [OK] the card's TEXT_ALIGN center reached its text
+  [OK] ...and TEXT_ALIGN end pushed it further still
+
+-- Scene 6: bidi INSIDE a line still works --
+  [OK] the mixed line is ONE text command
+  [OK] ...carrying both scripts
+  [OK] the shaper sees three visual runs in it
+  [OK] ...and the Arabic joined (narrower than its letters apart)
+
+==============================================================
+ 37 ok, 0 failed
+==============================================================

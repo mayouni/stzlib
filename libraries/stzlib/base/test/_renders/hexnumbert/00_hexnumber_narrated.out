@@ -1,0 +1,28 @@
+SCENARIO: Hex helpers
+  THEN  HexPrefixes lists the accepted prefixes  [PASS]
+  THEN  RepresentsNumberInHexForm('0x167A') is TRUE  [PASS]
+  THEN  HexToDecimal('0x167A') is 5754  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Convert a hex number to other bases
+  GIVEN the hex number 0x167A
+  THEN  Content() is the digits without prefix  [PASS]
+  THEN  WithPrefix() is 0x167A  [PASS]
+  THEN  ToDecimal() is 5754  [PASS]
+  THEN  ToBinary() is 0b1011001111010  [PASS]
+  THEN  ToOctal() is 0o13172  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Build a hex number from a decimal
+  GIVEN a hex number rebuilt from decimal 5754
+  THEN  Content() is 167A (no doubled prefix)  [PASS]
+  THEN  WithPrefix() is 0x167A  [PASS]
+  WHEN  rebuilt from decimal 255
+  THEN  Content() is FF  [PASS]
+  THEN  WithPrefix() is 0xFF  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,36 @@
+SCENARIO: StzUUID produces engine-backed v4 strings
+  GIVEN the global StzUUID() helper
+  THEN  it is 36 characters  [PASS]
+  THEN  position 9 is a hyphen  [PASS]
+  THEN  position 14 is a hyphen  [PASS]
+  THEN  the version digit is 4  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Null UUID round-trips through engine
+  THEN  NullUUID has the canonical nil shape  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Validation accepts uppercase + rejects garbage
+  THEN  a fresh UUID validates  [PASS]
+  THEN  a random string fails  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Two UUIDs are distinct (engine PRNG works)
+  GIVEN two consecutive UUIDs
+  THEN  they differ  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: stzUUID class wraps engine UUIDs
+  GIVEN a fresh stzUUID instance
+  THEN  Content() is 36 chars  [PASS]
+  THEN  Version() returns 4  [PASS]
+  THEN  IsValid() is TRUE  [PASS]
+  THEN  IsNull() is FALSE  [PASS]
+  THEN  WithoutHyphens() is 32 chars  [PASS]
+  THEN  ToBytes() returns 16 bytes  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 14 assertions, 14 pass, 0 fail
+================================================
+STATUS: OK

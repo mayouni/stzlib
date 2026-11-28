@@ -1,0 +1,12 @@
+SCENARIO: Five names backwards
+  THEN  LIFE  [PASS]
+  THEN  GAYA  [PASS]
+  THEN  TIBA  [PASS]
+  THEN  HANEEN  [PASS]
+  THEN  even with digits and symbols  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,45 @@
+=== THE SOFTANZA SOUND SHOWCASE ===
+    19 examples. Each says what to listen FOR.
+
+  01. naive-saw           GRITTY. Harmonics folding back as tones nobody played.
+           (the bug plate 1 found)
+  02. band-limited-saw    The SAME sweep, clean. This is the PolyBLEP fix.
+           (post-SN6)
+  03. four-timbres        One pitch, four waveforms: sine, triangle, square, saw.
+           (SN2 oscillators)
+  04. beats               440 and 443 Hz. Three pulses a second -- the difference.
+           (gallery plate 4)
+  05. click-vs-fade       Cut dead at 1 s, faded at 2.5 s. Only one clicks.
+           (SN3's ramp, gallery plate 2)
+  06. filter-sweep        A saw through a lowpass opening up. Q is high, so it whistles.
+           (SN2 filters)
+  07. resonance           The same note at Q 0.7 then Q 8. Listen for the hump.
+           (gallery plate 5)
+  08. envelope-shapes     Pluck, pad, stab -- one oscillator, three envelopes.
+           (SN2 ADSR)
+  09. echo                A blip, then the same blip down a corridor.
+           (SN2 delay)
+  10. stereo-pan          A tone walking from left to right. Use headphones.
+           (SN2 pan)
+  11. chord-and-arpeggio  A major chord, then its notes one at a time.
+           (SN2 mix)
+  12. bell                A struck bell: fast attack, long decay, a little room.
+           (SN2 composition)
+  13. earcons-five        The semantic values: danger, warning, info, success -- and muted, which is SILENT.
+           (SS1, Rule 118)
+  14. earcon-priority     Eight rapid repeats heard twice, then a danger alert that silences four successes.
+           (SS's priority contract)
+  15. voice-plain         A spoken sentence, straight from the platform.
+           (VC1/VC2)
+  16. voice-prosody       The same words at normal speed, then 40% slower, via SSML.
+           (VC1 prosody)
+  17. voice-as-sound      A voice through a telephone, then down a corridor. THE point: a voice is a sound.
+           (VC1 architecture)
+  18. voice-and-earcon    An alert, then the phrase that says WHICH -- the semantic bridge, previewed.
+           (VC4 preview)
+  19. the-piece           A short composition using most of the above at once.
+           (everything)
+
+Rendering every example to temp/showcase/ ...
+
+Line 547 Haro refused this statement (bare name is not a local (Rule A) `cOut`, line 547 of sound_showcase.ring) and did not compile it -- running past it would give a wrong answer

@@ -1,0 +1,63 @@
+-- Scene 1: build for the HOST, and run the result --
+  [OK] the host build succeeded
+  [OK] ...exit code 0
+  [OK] ...the binary exists
+  [OK] ...and running it prints what the C printed
+
+-- Scene 2: the build command is legible and rehearsable --
+  [OK] it is a zig cc invocation
+  [OK] ...naming the source and the -o output
+  [OK] ...with no -target for a host build
+  [OK] ToCommand() shows the whole line
+
+-- Scene 3: a target triple is derived from ANY target form --
+  [OK] a raw triple passes through
+  [OK] a friendly name (:LinuxServer) -> a linux triple
+  [OK] ...:Windows -> a windows triple
+  [OK] ...:ESP32 -> a riscv MCU triple
+  [OK] a stzSystemProfile -> its triple (aarch64-macos)
+  [OK] ForHost() clears the triple (native)
+
+-- Scene 4: CROSS-compile for Linux, from Windows -- a REAL ELF --
+  [OK] the cross build succeeded
+  [OK] ...the command carries -target x86_64-linux-gnu
+  [OK] ...and the output is a genuine ELF binary (magic 7F 'ELF')
+
+-- Scene 5: CROSS-compile for the web -- a REAL wasm module --
+  [OK] the wasm build succeeded
+  [OK] ...and the output is a genuine wasm module (magic 00 'asm')
+
+-- Scene 6: a broken source fails cleanly, with the compiler's words --
+  [OK] a bad build reports failure
+  [OK] ...with a non-zero exit
+  [OK] ...and the compiler diagnostics are captured
+
+-- Scene 7: build a PART for exactly the system it deploys to --
+  [OK] the builder took the part's deployment system as its target
+  [OK] ...and built the backend for Linux
+  [OK] ...a real ELF, from this Windows box
+
+-- Scene 8: build a RING part -- most Softanza code -- to a native binary --
+  [OK] the Ring host build succeeded
+  [OK] ...its args carry the generated C plus the Ring VM sources
+  [OK] ...and the standalone binary runs the Ring program
+
+-- Scene 9: cross-compile that RING part for Linux, from Windows --
+  [OK] the Ring cross build succeeded
+  [OK] ...and produced a genuine Linux ELF -- from a Windows box
+
+-- Scene 10: build a part for the WEB -- freestanding wasm, bridge ABI --
+  [OK] ForWeb targets freestanding wasm
+  [OK] ...the command imports memory and exports the named fns
+  [OK] the web wasm build succeeded
+  [OK] ...and the output is a genuine wasm module
+
+-- Scene 11: assemble the web COMPOSITE -- wasm + stz.js + shell + manifest --
+  [OK] the bundle assembled all four files
+  [OK] ...stz.js carries the real bridge (stz_log + WebAssembly)
+  [OK] ...the shell loads stz.js and the wasm
+  [OK] ...the manifest declares a web-bundle
+
+==========================================
+TOTAL: 38 assertions, 38 pass, 0 fail
+==========================================

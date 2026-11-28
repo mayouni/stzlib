@@ -1,0 +1,65 @@
+SCENARIO: a fraction arrives in lowest terms
+  THEN  a third is itself  [PASS]
+  THEN  two quarters reduce  [PASS]
+  THEN  six thirds reduce past being a fraction at all  [PASS]
+  THEN  ...and report themselves as an integer  [PASS]
+  THEN  a zero numerator is just zero  [PASS]
+  THEN  the sign lives on the numerator  [PASS]
+  THEN  ...even when it was written on the denominator  [PASS]
+  THEN  a fraction knows what it is  [PASS]
+  THEN  ...and answers the predicate  [PASS]
+  THEN  while a decimal does not  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: exact arithmetic, including the sum decimals cannot do
+  THEN  a third plus two thirds is ONE  [PASS]
+  THEN  ...exactly  [PASS]
+  THEN  ...and equals the number 1  [PASS]
+  THEN  a third plus a sixth  [PASS]
+  THEN  a half less a third  [PASS]
+  THEN  two thirds of three quarters  [PASS]
+  THEN  a half divided by a quarter is two  [PASS]
+  THEN  every one of those is exact  [PASS]
+  WHEN  a fraction meets a whole number
+  THEN  a third times three is one  [PASS]
+  THEN  ...and adding zero changes nothing  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: promotion is UPWARD: a fraction meeting a decimal stays a fraction
+  THEN  a quarter plus 0.25 is a half  [PASS]
+  THEN  ...as a fraction, not 0.5  [PASS]
+  THEN  ...and exactly  [PASS]
+  THEN  ...which is what lets a third survive meeting a decimal  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the contrast that justifies the rung
+  THEN  a third as a FRACTION is exact  [PASS]
+  THEN  ...and keeps its digits  [PASS]
+  THEN  a third by DIVISION is not exact  [PASS]
+  THEN  ...and says why  [PASS]
+  THEN  a fraction still gives a float when one is needed  [PASS]
+  THEN  ...the nearest one  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Same() compares NUMBERS across every representation
+  THEN  a half is 0.5  [PASS]
+  THEN  ...whether written as a string or a number  [PASS]
+  THEN  ...and equals another spelling of itself  [PASS]
+  THEN  ...and is not 0.6  [PASS]
+  THEN  a third is NOT 0.333  [PASS]
+  THEN  ...nor 0.3333333333  [PASS]
+  THEN  a whole number reached through fractions compares equal  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: big fractions, because the parts are big integers
+  THEN  a 32-digit denominator survives construction  [PASS]
+  THEN  ...and reports as a fraction  [PASS]
+  THEN  adding it to itself doubles the numerator  [PASS]
+  THEN  ...exactly  [PASS]
+  THEN  a fraction that reduces from big parts still lands on the small answer  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 42 assertions, 42 pass, 0 fail
+================================================
+STATUS: OK

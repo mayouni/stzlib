@@ -1,0 +1,18 @@
+Starting pipeline for: photo1.jpg
+  ✓ Loaded: photo1.jpg
+  ✓ Resized: photo1.jpg
+  ✓ Filtered: photo1.jpg
+  ✓ SAVED: output_photo1.jpg (57 bytes)
+Pipeline complete for: photo1.jpg
+Starting pipeline for: photo2.png
+  ✓ Loaded: photo2.png
+  ✓ Resized: photo2.png
+  ✓ Filtered: photo2.png
+  ✓ SAVED: output_photo2.png (57 bytes)
+Pipeline complete for: photo2.png
+Starting pipeline for: document.pdf
+  ✗ Load failed for document.pdf: Invalid image format
+
+
+----------------
+----------------

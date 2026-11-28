@@ -1,0 +1,66 @@
+== MU9: MusicXML read back into one stzSoundScore ==
+
+-- Scene 1: the writer's own MusicXML comes back --
+   Rast: worst onset 0 beats, worst pitch 0.000 cents, title 'Rast'
+  [ok]   every note, every length, the tempo, and the title
+  [ok]   every pitch EXACT: <alter>-0.5</alter> is a quarter tone again, and the part name the oud
+  [ok]   two parts; a chord written with <chord/>; a ten-beat note written as tied pieces across two barlines comes back ONE note
+  [ok]   and MusicXML -> score -> MusicXML is the same text, character for character
+
+-- Scene 2: a score written BY HAND from the MusicXML rules --
+   6513 characters: a DOCTYPE, a comment, three parts, five measures each
+   title: 'Guard score & its repeats'
+     flute  beat 0, 1 beats, midi 73, velocity 0.709
+     flute  beat 1, 1 beats, midi 74, velocity 0.800
+     flute  beat 1, 1 beats, midi 78, velocity 0.800
+     flute  beat 2, 0.333 beats, midi 76, velocity 0.800
+     flute  beat 2.333, 0.333 beats, midi 78, velocity 0.800
+     flute  beat 2.667, 0.333 beats, midi 79, velocity 0.800
+     flute  beat 3, 1.500 beats, midi 81, velocity 0.800
+     flute  beat 3, 3 beats, midi 62, velocity 0.800
+     flute  beat 5, 1 beats, midi 83, velocity 0.800
+     flute  beat 6, 3 beats, midi 79, velocity 0.354
+     flute  beat 9, 1.500 beats, midi 81, velocity 0.800
+     flute  beat 9, 3 beats, midi 62, velocity 0.800
+     flute  beat 11, 1 beats, midi 83, velocity 0.800
+     flute  beat 13, 3 beats, midi 78, velocity 0.354
+     flute  beat 16, 2 beats, midi 76, velocity 0.354
+  [ok]   the title's &amp; is an ampersand again: Guard score & its repeats
+  [ok]   'Traverso' names no instrument here, and its <midi-program>74</midi-program> (MusicXML counts from 1) is the flute
+  [ok]   the repeat PLAYED -- measures 1 2 3 2 4 5: ending 1 on the first pass, ending 2 on the second, and each note where the rules put it
+  [ok]   <chord/> starts with the note before it; 8 of 24 divisions is a triplet's third of a beat
+  [ok]   <backup> puts voice 2's D4 under voice 1, at the measure's start, on both passes
+  [ok]   a <tie> across the barline from ending 2 into measure 5 is ONE note: F#5, three beats from 13
+  [ok]   dynamics='100' is forte, MIDI 90; <sound dynamics='50'/> holds from measure 3 on
+  [ok]   the clarinet in Bb SOUNDS a tone below what it reads: written D5, E5 are C5 at 0 and D5 at 6
+  [ok]   an unpitched note on <midi-unpitched>39</midi-unpitched> (GM key 38) is a snare on the kit
+  [ok]   <sound tempo='84'/> is the tempo
+   losses:
+     - MusicXML: a part named 'Clarinet in Bb' names no instrument here; it is read on the piano
+     - MusicXML: grace notes are not read
+     - MusicXML: lyrics are not read
+     - MusicXML: chord symbols (<harmony>) are not read
+     - MusicXML: the tempo changes during the score; a score has one tempo, and keeps the first (84 BPM)
+     - MusicXML: ornaments, articulations and fermatas are not read
+     - MusicXML: an unpitched note with no MIDI key a stroke answers to is dropped
+  [ok]   and everything a score cannot hold is COUNTED: the grace note, the lyric, the chord symbol, the trill, the tempo change, the triangle, and a 'Clarinet in Bb' that names no instrument here
+
+-- Scene 3: every format the library writes, it now reads -- in any order --
+  [ok]   MusicXML -> score -> MIDI -> score -> MusicXML: the same text
+  [ok]   ABC -> score -> MusicXML -> score -> ABC: the same text
+  [ok]   and the hand-written MusicXML becomes ABC, the repeat played out, and its C#5 written ^c
+
+-- Scene 4: what is REFUSED, and why --
+  [ok]   text that is no XML: refused -- MusicXML: not well-formed XML -- there is no element at all
+  [ok]   XML that is not well-formed: refused -- MusicXML: not well-formed XML -- </score-partwise> closes <part>
+  [ok]   score-timewise: refused -- MusicXML: score-timewise is not read; only score-partwise, the form nearly every program writes
+  [ok]   a compressed .mxl: refused -- MusicXML: this is a compressed .mxl (a zip); unzip it and read the .musicxml inside
+  [ok]   an XML that is not a score: refused -- MusicXML: the root is <html>, not <score-partwise>; this is not a MusicXML score
+  [ok]   a duration before any divisions: refused -- MusicXML: a note has a duration before any <divisions> says what a quarter note is
+
+-- What MU9 does NOT do --
+   score-timewise and compressed .mxl are refused. Jumps (D.C., D.S., coda) are not
+   followed; glissandos are read as their first pitch; one tempo per score. The key
+   signature is not needed: MusicXML writes every alteration on its note.
+
+24 passed, 0 failed

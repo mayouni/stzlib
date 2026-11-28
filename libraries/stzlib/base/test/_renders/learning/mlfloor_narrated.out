@@ -1,0 +1,65 @@
+-- Scene 1: kNN -- learning without training --
+  [OK] the training set holds its examples
+  [OK] a small flower classifies setosa
+  [OK] a big flower classifies versicolor
+  why: the 3 nearest examples were: #6 'versicolor' (d=0.14), #4 'versicolor' (d=0.20), #5 'versicolor' (d=0.40) -- majority: 'versicolor' (3/3)
+  [OK] Why names the neighbours and the vote
+  [OK] the split is deterministic head/tail
+
+-- Scene 2: naive Bayes -- the text learner --
+  [OK] positive text classifies positive
+  [OK] negative text classifies negative
+  [OK] the verdict shows its log-scores
+
+-- Scene 3: TF-IDF -- distinctiveness, not just frequency --
+  [OK] a ubiquitous word earns less idf than a rare one
+  [OK] tf counts per document
+  [OK] the distinctive term surfaces in the top terms
+
+-- Scene 4: the decision tree -- a model you can READ (and query) --
+  [OK] the tree classifies
+  why: humidity='high' -> outlook='sunny' -> 'no'
+  [OK] Why narrates the decision PATH
+  [OK] an unseen value falls to the majority default
+  [OK] the learned model IS a stzGraph (foundations compose)
+
+-- Scene 5: apriori -- rules that read as knowledge --
+  [OK] frequent itemsets counted
+  [OK] confident rules emerge as IF-THEN
+  [OK] each rule carries support AND confidence
+
+-- Scene 6: k-means -- unsupervised, deterministic, accountable --
+  [OK] two blobs separate cleanly
+  [OK] a new point joins its blob
+  [OK] Why reports iterations and inertia
+
+-- Scene 7: logistic regression -- the first gradient-trained model --
+  [OK] the boundary is learned (both sides)
+  [OK] mid-boundary probability hovers near 0.5
+  [OK] Why shows probability, weights and bias
+
+-- Scene 8: evaluation -- scored, confusion NAMED --
+  [OK] accuracy computes
+  [OK] the confusion matrix names each truth->prediction
+
+-- Scene 9: the network you declare like a sentence (LAW 4) --
+  [OK] the sentence declares the topology
+  trained 3000 epoch(s), lr 0.50: loss 0.40 -> 0.00
+  [OK] XOR is LEARNED (the classic non-linear proof)
+  [OK] the loss history descends and is reported
+  [OK] training is REPRODUCIBLE (same seed, same weights, LAW 3)
+
+-- Scene 9b: SOFTMAX + categorical cross-entropy (multi-class) --
+  [OK] softmax outputs a probability distribution (sums to 1)
+  trained 3000 epoch(s), lr 0.30: loss 1.19 -> 0.00
+  [OK] cross-entropy loss descends toward zero
+  [OK] every point is classified into its right class (argmax)
+
+-- Scene 10: GGUF EXPORT -- Softanza writes the format it reads --
+  [OK] the trained net exports to a real .gguf
+  [OK] ggml itself reads the file back (4 tensors: 2 layers x W+b)
+  [OK] the architecture travels in the metadata
+
+==========================================
+TOTAL: 36 assertions, 36 pass, 0 fail
+==========================================

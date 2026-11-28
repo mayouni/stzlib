@@ -1,0 +1,26 @@
+SCENARIO: the bytes arrive exactly, and an existing file is replaced
+  THEN  the content reads back byte for byte  [PASS]
+  THEN  a second write REPLACES, it does not append  [PASS]
+  THEN  an empty write leaves an empty file  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: on Windows, only the owner can read it -- the real access list
+  THEN  the ordinary file's list was read (has entries)  [PASS]
+  THEN  the private file's list was read (has an entry)  [PASS]
+  THEN  an ordinary file inherits Users and Administrators (this is the problem)  [PASS]
+  THEN  the private file names no group of users  [PASS]
+  THEN  ...nor Administrators  [PASS]
+  THEN  ...nor System  [PASS]
+  THEN  it names exactly one access entry  [PASS]
+  THEN  the owner can still read it (negative sibling)  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: a path the caller must give, and a path that cannot be written, are refused
+  THEN  an empty path raises  [PASS]
+  THEN  a missing folder raises  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 13 assertions, 13 pass, 0 fail
+================================================
+STATUS: OK

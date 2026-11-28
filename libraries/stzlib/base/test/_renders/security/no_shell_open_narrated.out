@@ -1,0 +1,20 @@
+SCENARIO: the old shape runs whatever a path smuggles in
+  THEN  the shell ran the injected command  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: StzMakeDir takes the same string as a name, not as code
+  THEN  nothing was run  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: StzOpenInDefaultApp launches nothing for a path that is not there
+  THEN  the smuggling string is refused  [PASS]
+  THEN  ...and nothing was run  [PASS]
+  THEN  a missing file is refused  [PASS]
+  THEN  an empty path is refused  [PASS]
+  THEN  the engine itself refuses an empty path  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

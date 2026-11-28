@@ -1,0 +1,49 @@
+SCENARIO: the cap is gone, and it was a silent zero rather than an error
+  THEN  dim 384: cosine with itself is 1  [PASS]
+  THEN  dim 384: distance from itself is 0  [PASS]
+  THEN  dim 768: cosine with itself is 1  [PASS]
+  THEN  dim 768: distance from itself is 0  [PASS]
+  THEN  dim 1024: cosine with itself is 1  [PASS]
+  THEN  dim 1024: distance from itself is 0  [PASS]
+  THEN  dim 1536: cosine with itself is 1  [PASS]
+  THEN  dim 1536: distance from itself is 0  [PASS]
+  THEN  dim 4096: cosine with itself is 1  [PASS]
+  THEN  dim 4096: distance from itself is 0  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: ...and the list surface accepts a real embedding at all
+  THEN  a 300-dimension cosine comes back in range  [PASS]
+  THEN  the three-argument forms are untouched, since they are published  [PASS]
+  THEN  ...and the class's own  [PASS]
+  GIVEN vectors of different dimension, where the question is meaningless
+  THEN  it raises rather than comparing what it can  [PASS]
+  THEN  ...and an empty vector raises too  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the metrics themselves, against arithmetic anyone can check
+  THEN  dot of [1,2,3] and [4,5,6] is 4+10+18  [PASS]
+  THEN  euclidean from the origin to (3,4) is 5  [PASS]
+  THEN  manhattan of [1,2,3] to [4,6,3] is 3+4+0  [PASS]
+  THEN  the magnitude of [3,4] is 5  [PASS]
+  THEN  ...and normalising it gives the unit vector  [PASS]
+  THEN  a zero vector has no direction, so it is returned unchanged  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: the identities a similarity measure has to satisfy
+  THEN  cosine is symmetric  [PASS]
+  THEN  a vector against its own negation is exactly -1  [PASS]
+  THEN  scaling by 100 leaves the cosine untouched  [PASS]
+  THEN  ...but the euclidean distance grows  [PASS]
+  THEN  manhattan is never less than euclidean  [PASS]
+  THEN  for unit vectors, dot == cosine  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: vectorised, and the gain is bigger here than anywhere else in phase 4
+  THEN  2000 cosines over 768 dimensions stay under a second  [PASS]
+  THEN  ...and the answer is in range  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 29 assertions, 29 pass, 0 fail
+================================================
+STATUS: OK

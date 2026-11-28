@@ -1,0 +1,33 @@
+SCENARIO: one definition, so agreement is not a coincidence
+  THEN  population, from a list  [PASS]
+  THEN  ...from a resident buffer  [PASS]
+  THEN  ...from a dataset  [PASS]
+  THEN  sample, from a list  [PASS]
+  THEN  ...from a resident buffer  [PASS]
+  THEN  ...from a dataset  [PASS]
+  THEN  and the unnamed default is still sample, as since phase 0  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: the pivot table, which had quietly become a fourth authority
+  THEN  the pivot agrees with every other door, by construction now  [PASS]
+  THEN  ...and its standard deviation is the root of that  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: dense storage no longer gets boxed just to be measured
+  THEN  ten variances over a million integers stay under a tenth of a second  [PASS]
+  THEN  ...and the value is right, not merely fast  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: integer storage and float storage share the one implementation
+  THEN  an int list and the same numbers as floats agree exactly  [PASS]
+  THEN  ...and on the sample convention too  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a large offset does not swamp a small spread
+  THEN  offsetting every value by 1e9 leaves the variance unchanged  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 14 assertions, 14 pass, 0 fail
+================================================
+STATUS: OK

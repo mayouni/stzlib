@@ -1,0 +1,66 @@
+SCENARIO: a login yields the ACTOR the governance model reasons about
+  THEN  four roles ship by default  [PASS]
+  THEN  the session resolves to an actor  [PASS]
+  THEN  ...named for the user  [PASS]
+  THEN  ...holding admin's capability kinds  [PASS]
+  THEN  ...at a trusted posture  [PASS]
+  THEN  SessionCan answers capability questions on the live session  [PASS]
+  THEN  SessionIsEffectful is true for an admin  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: capabilities are the UNION of a user's roles; posture the most restrictive
+  THEN  the actor holds BOTH roles' kinds  [PASS]
+  THEN  ...and only those  [PASS]
+  THEN  ...at the most restrictive posture among the roles  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the load-bearing invariant: an assistant session is authenticated yet EFFECT-LESS
+  THEN  the assistant is genuinely authenticated  [PASS]
+  THEN  ...it holds inference  [PASS]
+  THEN  ...yet it CANNOT cause effects (empty effect set)  [PASS]
+  GIVEN a user with NO roles
+  THEN  it is authenticated but permitted nothing (least privilege)  [PASS]
+  THEN  ...and sandboxed by default  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: an invalid session yields no actor
+  THEN  ActorOf is NULL for a bogus token  [PASS]
+  THEN  ...SessionCan is false  [PASS]
+  THEN  ...SessionPerson is empty  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the SAME identity flows into the governance engine
+  GIVEN a governance model that permits dana to delete accounts
+  THEN  SessionPerson is the governance actor name  [PASS]
+  THEN  a live session + a governed permission proceeds  [PASS]
+  THEN  ...an ungoverned action is refused  [PASS]
+  THEN  ...and an invalid session NEVER proceeds, whatever governance says  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the authenticated user IS the org-chart person (separation-of-duties reasons about them)
+  GIVEN an org chart
+  WHEN  the AUTHENTICATED identity is placed into the chart
+  THEN  the org-chart person is the same string as the session's identity  [PASS]
+  THEN  ...occupying the position  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: roles are durable, and revoking one re-shapes the actor
+  WHEN  a separate stzAuth reads the same database
+  THEN  the grant persisted -- the actor is effectful  [PASS]
+  WHEN  the admin role is revoked
+  THEN  the SAME session is no longer effectful (authz is live)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: custom roles, and unregister clears grants
+  THEN  the custom role is defined  [PASS]
+  THEN  its actor carries the defined kinds  [PASS]
+  THEN  ...at the defined posture  [PASS]
+  THEN  ...and is not effectful  [PASS]
+  WHEN  the account is removed
+  THEN  its role grants are gone  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 31 assertions, 31 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,32 @@
+-- Scene 1: the history of computing, nine events and four eras --
+   9 events on the axis, 4 eras beneath it
+  [OK] nine events and four eras
+   ENIAC is placed at 1945, the iPhone at 2007
+  [OK] an event's year is the datum the picture is drawn from
+   a year is 13.83 px between Turing and the iPhone, 13.83 px between Turing and ARPANET
+  [OK] the axis is ONE scale -- a year is the same width everywhere on it
+   the axis carries 2 name levels and 1 era bands
+  [OK] names that would collide are lifted to their own level, so the axis has more than one
+
+-- Scene 2: three rules about time, and a sound history passes them --
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 0
+   era_ends_after_it_starts, band_not_double_booked, event_within_its_era
+  [OK] the history has nothing wrong with it
+
+-- Scene 3: the same history typed wrong --
+   an era that ends before it starts; two eras on one band overlapping by a
+   year; ENIAC placed in the transistors' era, ten years before it begins.
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 4
+     era_ends_after_it_starts -- no era ends before it starts -- 'Backwards' ends at 1980, 10 before it starts at 1990
+     band_not_double_booked -- two eras on one band do not overlap in time -- 'Mainframes' and 'Minicomputers' share band 2 and overlap by 1, from 1961 to 1962
+     band_not_double_booked -- two eras on one band do not overlap in time -- 'Minicomputers' and 'Mainframes' share band 2 and overlap by 1, from 1961 to 1962
+     event_within_its_era -- an event placed in an era is dated inside it -- 'ENIAC' is dated 1945, 10 before 'Transistors' begins at 1955
+  [OK] the backwards era is caught, by name
+  [OK] a double-booked band is reported on both its eras
+  [OK] an event outside its era is caught with the years
+  [OK] and those four are everything the rules find
+
+-- Scene 4: the pictures --
+   wrote guide_timeline.png and guide_timeline_witness.png
+
+== 9 passed, 0 failed ==

@@ -1,0 +1,91 @@
+SCENARIO: classes, methods, functions and imports are parsed
+  THEN  five classes found  [PASS]
+  THEN  Animal is present  [PASS]
+  THEN  the module-level function is separate from methods  [PASS]
+  THEN  both imports captured (os + collections)  [PASS]
+  THEN  an async def is still a method  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: single inheritance forms a chain
+  THEN  Dog inherits Animal  [PASS]
+  THEN  the chain is length 3  [PASS]
+  THEN  it starts at Puppy  [PASS]
+  THEN  through Dog  [PASS]
+  THEN  up to Animal  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: multiple inheritance is captured as several bases
+  THEN  Service has two bases  [PASS]
+  THEN  first base is Dog  [PASS]
+  THEN  second base is Mixin  [PASS]
+  THEN  Service is a subclass of Mixin too  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: OwnersOf finds every definer of a method
+  THEN  Animal and Dog both define speak  [PASS]
+  THEN  Animal owns it  [PASS]
+  THEN  Dog overrides it  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ImpactOf: who feels a change to speak()
+  THEN  owners are Animal + Dog  [PASS]
+  THEN  Puppy inherits it  [PASS]
+  THEN  Service inherits it  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Cascade: the blast radius of touching Animal
+  THEN  Animal has descendants  [PASS]
+  THEN  Dog is a descendant  [PASS]
+  THEN  Puppy is a (transitive) descendant  [PASS]
+  THEN  Service is a descendant  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: call-edge queries are refused, not faked (LAW 3)
+  THEN  DeadCode raises without body parsing  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Stats summarizes the declaration graph
+  THEN  classes counted  [PASS]
+  THEN  functions counted  [PASS]
+  THEN  inherits edges present  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: AST backend: it sees defs the indentation scan cannot
+  THEN  the decorated @staticmethod is a method of Worker  [PASS]
+  THEN  the def inside 'if True:' is ALSO captured  [PASS]
+  THEN  the @property method is captured too  [PASS]
+  THEN  a DOTTED import is recorded  [PASS]
+  THEN  inheritance still resolves  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: AST backend: CALL edges are REAL now (not refused)
+  THEN  call edges were extracted  [PASS]
+  THEN  who calls helper() is known  [PASS]
+  THEN  what run() calls is known  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: AST backend: DeadCode + CyclicCalls now ANSWER (LAW 3 upheld)
+  THEN  the uncalled function is flagged dead  [PASS]
+  THEN  a called function is NOT dead  [PASS]
+  THEN  self-recursion is a call cycle  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: tree-sitter: a REAL parse in the engine, no Python runtime
+  THEN  the decorated @staticmethod is a method of Worker  [PASS]
+  THEN  the def inside 'if True:' is captured too  [PASS]
+  THEN  the @property method is captured  [PASS]
+  THEN  a DOTTED import is recorded  [PASS]
+  THEN  inheritance resolves  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: tree-sitter: CALL edges + DeadCode + CyclicCalls, runtime-free
+  THEN  call edges were extracted in-engine  [PASS]
+  THEN  who calls helper() is known  [PASS]
+  THEN  the uncalled function is flagged dead  [PASS]
+  THEN  self-recursion is a call cycle  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 48 assertions, 48 pass, 0 fail
+================================================
+STATUS: OK

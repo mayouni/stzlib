@@ -1,0 +1,22 @@
+1
+1
+{"name":"John","age":30}
+
+{
+	"name": "John",
+	"age": 30
+}
+
+{
+	"name": "John",
+	"age": 30,
+	"hobbies": [
+		"sport",
+		"cinema"
+	]
+}
+
+Executed in almost 0 second(s)
+
+----------------
+----------------

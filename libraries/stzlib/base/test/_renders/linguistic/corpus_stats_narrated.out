@@ -1,0 +1,40 @@
+-- Scene 1: token & vocabulary counts --
+  [OK] 18 tokens (three six-word documents)
+  [OK] 10 distinct words
+  [OK] the vocabulary lists exactly those 10
+  [OK] ... and it really contains the words
+
+-- Scene 2: frequency --
+  [OK] 'the' occurs 4 times
+  [OK] 'cat' occurs twice
+  [OK] a word not in the corpus has frequency 0
+  [OK] frequency is case-insensitive (engine lowercases)
+  [OK] MostFrequent returns the requested number of pairs
+  [OK] the most frequent word is 'the' with count 4
+  [OK] ... and the list is sorted descending
+  [OK] asking for more than the vocabulary caps at the vocabulary
+
+-- Scene 3: TF-IDF --
+  [OK] TF('the', doc1) = 2
+  [OK] TF of a word absent from a document is 0
+  [OK] TF of an out-of-range document is 0
+  [OK] df('the') = 2 (docs 1 and 2)
+  [OK] df('cat') = 2 (docs 1 and 3)
+  [OK] df('mat') = 1 (doc 1 only)
+  [OK] IdfOf('mat') = log(4/2)+1 (rarer -> higher)
+  [OK] IdfOf('cat') = log(4/3)+1
+  [OK] a rarer term has a HIGHER idf than a common one
+  [OK] TfIdf('the', doc1) = TF * IDF
+  [OK] TopTermsOf returns [word, tfidf] pairs, sorted descending
+  [OK] 'the' is doc 1's top term (tf 2, and not the commonest across docs)
+
+-- Scene 4: the corpus can grow, and the model rebuilds --
+  [OK] adding a document with new words grows the vocabulary
+  [OK] ... and the new word is counted
+  [OK] ... and the old counts still hold
+
+==========================================
+TOTAL: 27 assertions, 27 pass, 0 fail
+==========================================
+
+Executed in almost 0 second(s)

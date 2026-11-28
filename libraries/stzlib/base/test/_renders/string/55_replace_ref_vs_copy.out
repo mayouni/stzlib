@@ -1,0 +1,15 @@
+SCENARIO: Replacing in place
+  GIVEN "R I N G"
+  THEN  Replace() mutates the object  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Replacing on a copy
+  GIVEN "R I N G"
+  THEN  Copy().ReplaceQ() returns the changed copy  [PASS]
+  THEN  the original is unchanged  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 3 assertions, 3 pass, 0 fail
+================================================
+STATUS: OK

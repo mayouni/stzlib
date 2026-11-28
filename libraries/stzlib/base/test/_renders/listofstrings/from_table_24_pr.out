@@ -1,0 +1,13 @@
+╭───┬───────────┬──────────────────╮
+│ M │ Function  │      Object      │
+├───┼───────────┼──────────────────┤
+│   │ Q         │ stzList          │
+│   │ AreBothQ  │ stzListOfStrings │
+│ • │ HavingQ   │ stzListOfStrings │
+│   │ AllTheirQ │ stzListOfStrings │
+╰───┴───────────┴──────────────────╯
+
+Executed in almost 0 second(s)
+
+----------------
+----------------

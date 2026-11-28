@@ -1,0 +1,63 @@
+== the plot face: an analysis grid, drawn ==
+
+-- Scene 1: a spectrum becomes a POLYLINE, and a FLAT point list is why --
+   48250 bytes of SVG
+  [ok]   the plate drew something
+  [ok]   and it is SVG
+   series 1 drew 1 line(s), series 2 drew 1
+  [ok]   the loud series drew a line in its own colour
+  [ok]   and so did the quiet one
+   the first line has 442 points
+  [ok]   a line, not a stub -- hundreds of points across the axis
+
+-- Scene 2: ONE reference for every series --
+   A quiet series must LOOK quiet. Normalising each curve to its own peak
+   puts them both at the top and draws the opposite of the truth.
+   the two peaks are 13.0085 dB apart in the data
+  [ok]   the loud one really is louder in the data
+   highest ink: loud at y=74, quiet at y=103.6300
+  [ok]   the quiet series is drawn LOWER on the plate
+   which reads as 13.0083 dB on the axis (data says 13.0085)
+  [ok]   the drawn gap IS the measured gap
+
+-- Scene 3: the note WRAPS instead of running off the edge --
+   196 characters became 2 lines
+  [ok]   a long note becomes more than one line
+   the widest line is 106 characters
+  [ok]   and no line is wider than the plate
+  [ok]   the words all survived the wrapping
+  [ok]   a short note stays one line
+   the same note on a 1400 px plate: 1 line(s)
+  [ok]   a wider plate needs fewer lines
+
+-- Scene 4: the title is bigger than its subtitle, and SetFont is why --
+   stzCanvas's SetFont behaves exactly like Fill: with a shape PENDING it
+   restyles that shape; with none pending it sets the canvas default. So
+   a run of labels that styles BEFORE adding is off by one -- every call
+   resizes the label before it, and the plate's title came out smaller
+   than its own subtitle.
+
+   ONE TEXT RUN IS ONE PATH in the output, so a label's height is the
+   vertical span of its path -- which is the thing that was wrong.
+   'Hxy' added then styled at 28 px is 26.2000 px tall; at 11 px, 10.2900
+  [ok]   asking for a bigger font gets a bigger glyph
+   on an empty canvas the wrong order still gives 26.2000 px
+  [ok]   which is why the bug survived a casual look
+   but in a RUN, asking for 28 then 11 draws 10.2900 px then 26.2000
+  [ok]   the first label does NOT get the size it asked for
+  [ok]   and the second wears the first one's size
+   on a real plate: the title's H is 11.9000 px, the subtitle's 8.4000
+  [ok]   so the plate adds first and styles second
+
+-- Scene 5: the dynamic range decides how much of the floor gets ink --
+   -70 dB draws 1063 cells, -30 dB draws 589
+  [ok]   a tighter range draws strictly fewer cells
+  [ok]   but it does not draw NOTHING -- the signal survives
+  [ok]   a range of 0 is ignored, and the default still draws
+
+-- Scene 6: a marker outside the axis is not drawn off the plate --
+   markers before: 0, after one out of range: 0
+  [ok]   a marker outside the range draws nothing at all
+  [ok]   and one inside it does draw
+
+23 passed, 0 failed

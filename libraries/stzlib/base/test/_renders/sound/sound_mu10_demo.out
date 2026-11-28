@@ -1,0 +1,26 @@
+mu10_01_rast_phrase.html: 8112 characters
+mu10_02_sonified_series.html: 4011 characters
+mu10_03_ladder_dhil.html: 14241 characters
+mu10_04_ladder_sika_hijaz.html: 12014 characters
+mu10_05_ladder_rast.html: 12494 characters
+mu10_06_ladder_slendro.html: 9237 characters
+
+sika_hijaz (tunisian) -- tonic E4-50, 320.24 Hz
+ deg  name                cents        Hz    step
+   8  e-half-flat (octave)   1200    640.49
+                                              150  (3/4 tone)
+   7  d                    1050    587.33
+                                              200  (1 tone)
+   6  c                     850    523.25
+                                              100  (1/2 tone)
+   5  b                     750    493.88
+                                              250  (1 1/4 tone)
+   4  a-half-flat           500    427.47
+                                              150  (3/4 tone)
+   3  g                     350    392.00
+                                              200  (1 tone)
+   2  f                     150    349.23
+                                              150  (3/4 tone)
+   1  e-half-flat             0    320.24
+ jins sika (trichord): 0 to 350 cents
+ jins Tunisian hijaz (3/4 + 5/4 + 2/4): 350 to 850 cents

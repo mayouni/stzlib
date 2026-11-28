@@ -1,0 +1,30 @@
+SCENARIO: stzReactiveTimer is polling-driven on Start (no libuv)
+  GIVEN a fresh one-shot timer
+  WHEN  Start is called
+  THEN  isActive starts FALSE  [PASS]
+  THEN  startTime is 0 before Start  [PASS]
+  THEN  isActive becomes TRUE  [PASS]
+  THEN  startTime is set  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: CheckAndTick on an inactive timer is a no-op
+  GIVEN a fresh timer that has never been Start'd
+  THEN  CheckAndTick returns false  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Stop deactivates a running timer
+  GIVEN an active timer
+  WHEN  Stop is called
+  THEN  isActive becomes FALSE  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: isOneTime parameter is honoured (regression test)
+  GIVEN a one-shot and a repeating timer
+  THEN  one-shot timer has isOneTime TRUE  [PASS]
+  THEN  repeating timer has isOneTime FALSE  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

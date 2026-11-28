@@ -1,0 +1,22 @@
+SCENARIO: Finding the consecutive duplicates of a given substring
+  GIVEN "phpringringringpythonrubyruby" (ring at 4, 8, 12)
+  THEN  the dup-consecutive positions of 'ring'  [PASS]
+  THEN  the ZZ form returns their sections  [PASS]
+  THEN  the Z grouping pairs the substring with the positions  [PASS]
+  THEN  the ZZ grouping pairs it with the sections  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Finding ALL consecutive-duplicated substrings
+  GIVEN "phpringringringpythonrubyruby"
+  THEN  the duplicated substrings  [PASS]
+  THEN  their duplicate positions  [PASS]
+  THEN  their duplicate sections  [PASS]
+  THEN  the Z grouping  [PASS]
+  THEN  the ZZ grouping  [PASS]
+  THEN  removing them (overlapping sections merged) leaves  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+================================================
+STATUS: OK

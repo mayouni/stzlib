@@ -1,0 +1,18 @@
+=== SN5 ANALYSIS, HEARD AND SEEN ===
+
+1. A sweep from 200 Hz to 4 kHz. Listen to it climb...
+   ...and here is what it looked like:
+   278 windows, peak went from 257.81 Hz to 3914.06 Hz
+   drawn through stzCanvas -> temp/demo_sweep.png and .svg (a diagonal)
+
+2. A click track. Count along -- is it 120 BPM?
+   the analysis heard 5 onsets and calls it 119.68 BPM
+
+3. The same tone twice -- the second is twice the amplitude.
+   Your ears should hear it as clearly louder, not twice as loud.
+   quieter...
+   louder...
+   measured: -20.17 LUFS and -14.15 LUFS
+   difference: 6.02 LU  (doubling amplitude is +6.02)
+
+done.

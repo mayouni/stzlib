@@ -1,0 +1,33 @@
+SCENARIO: a flood of forged webhooks no longer evicts other evidence
+  THEN  the earlier refusal is still in the window  [PASS]
+  THEN  the chain is intact  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: nothing is lost silently: a marker, a count and a summary
+  THEN  64 forged refusals are written one by one  [PASS]
+  THEN  the ledger marks that the budget was reached  [PASS]
+  THEN  the rest are counted  [PASS]
+  THEN  a flush writes the count into the chain  [PASS]
+  THEN  ...and the chain is still intact  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the window rolls and recording resumes
+  THEN  the budget reads back  [PASS]
+  THEN  the next window's first refusal closes the last one with its count  [PASS]
+  THEN  ...and is itself written  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: detection still sees an attack that spends the budget
+  THEN  credential stuffing still fires  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: grants are never budgeted; a zero budget writes everything (negative siblings)
+  THEN  200 grants, 200 lines  [PASS]
+  THEN  budget off: 100 forged, 100 lines  [PASS]
+  THEN  ...and nothing counted  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 14 assertions, 14 pass, 0 fail
+================================================
+STATUS: OK

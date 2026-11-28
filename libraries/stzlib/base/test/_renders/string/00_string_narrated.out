@@ -1,0 +1,54 @@
+SCENARIO: Case mapping
+  THEN  Uppercased('ring') is RING  [PASS]
+  THEN  Lowercased('RING') is ring  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Length is codepoint-correct
+  THEN  NumberOfChars('softanza') is 8  [PASS]
+  THEN  NumberOfChars('héllo') is 5 (not byte count)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Reverse and search
+  THEN  Reversed('abc') is cba  [PASS]
+  THEN  Contains('tan') in 'softanza'  [PASS]
+  THEN  Contains('xyz') is FALSE  [PASS]
+  THEN  FindFirst('a') is position 5  [PASS]
+  THEN  FindNext('a',5) finds the next 'a' at 8  [PASS]
+  THEN  FindNext('abc',2) on 'abcabc' is 4 (was broken)  [PASS]
+  THEN  StartsWithAny is case-insensitive over multibyte  [PASS]
+  THEN  EndsWithAny matches a multibyte suffix (was broken even CS)  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Replace and split
+  THEN  Replaced swaps all occurrences  [PASS]
+  THEN  Chars() keeps a trailing multibyte char (was dropped)  [PASS]
+  THEN  Chars()[4] is the accented codepoint 233  [PASS]
+  THEN  Replaced is codepoint-correct on multibyte input  [PASS]
+  THEN  Replaced rewrites a multibyte target char  [PASS]
+  THEN  Split on ',' yields the parts  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Trim, equality and slicing
+  THEN  Trimmed strips surrounding spaces  [PASS]
+  THEN  IsEqualTo matches identical strings  [PASS]
+  THEN  FirstNChars(3) of 'softanza' is 'sof'  [PASS]
+  THEN  LastNChars(3) of 'softanza' is 'nza'  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Section ops are codepoint-correct (multibyte)
+  GIVEN strings with accented characters
+  THEN  UppercaseSubString uppercases the accented section -> CAFE-acute x  [PASS]
+  THEN  ReplaceInSection rewrites within a codepoint range  [PASS]
+  THEN  ReplaceInSection still correct on ASCII  [PASS]
+  THEN  UppercaseSubString(ASCII) uppercases every occurrence  [PASS]
+  THEN  UppercaseSubString(multibyte) uppercases the accent too  [PASS]
+  THEN  RemoveThisTrailingChar removes a multibyte trailing char  [PASS]
+  THEN  RemoveThisLeadingChar removes repeated multibyte leading chars  [PASS]
+  THEN  Boxify bar width counts codepoints, not bytes  [PASS]
+  THEN  BoundsOfXT caps the prefix/suffix by codepoints (per occurrence)  [PASS]
+  -> 9 pass, 0 fail
+
+================================================
+TOTAL: 31 assertions, 31 pass, 0 fail
+================================================
+STATUS: OK

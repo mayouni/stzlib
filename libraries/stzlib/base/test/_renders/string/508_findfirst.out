@@ -1,0 +1,13 @@
+SCENARIO: Single-position finds
+  THEN  the first underscore  [PASS]
+  THEN  a missing star from 4  [PASS]
+  THEN  the underscore from 3  [PASS]
+  THEN  the last underscore  [PASS]
+  THEN  no last star  [PASS]
+  THEN  the 2nd underscore  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

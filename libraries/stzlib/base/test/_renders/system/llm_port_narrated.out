@@ -1,0 +1,69 @@
+SCENARIO: replay: the same prompt always gets the same answer
+  THEN  it answers  [PASS]
+  THEN  ...exactly what was seeded  [PASS]
+  THEN  ...marked as a replay  [PASS]
+  THEN  the answer is findable  [PASS]
+  THEN  ...and keyed by a stable hash of the prompt  [PASS]
+  THEN  an unseeded prompt is not claimed  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: scripted: one rule for a FAMILY of prompts
+  THEN  a matching prompt is answered  [PASS]
+  THEN  ...marked as scripted  [PASS]
+  THEN  matching is case-insensitive  [PASS]
+  WHEN  a prompt is BOTH seeded and covered by a rule
+  THEN  the SEEDED answer wins  [PASS]
+  THEN  ...with its text  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: strict by default, with a fallback for shape-only tests
+  THEN  it is strict out of the box  [PASS]
+  THEN  an unprepared prompt RAISES  [PASS]
+  WHEN  a catch-all is set, for pipelines where only the SHAPE matters
+  THEN  it answers  [PASS]
+  THEN  ...marked as a fallback, so the test knows it is not real  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: record once from a real model, replay forever
+  THEN  nothing is seeded yet  [PASS]
+  THEN  the live answer came back  [PASS]
+  THEN  ...and is now held  [PASS]
+  THEN  it replays offline, identically  [PASS]
+  THEN  ...from the recording  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: COST is the fee-free promise, made measurable
+  THEN  calls are counted  [PASS]
+  THEN  ...and approximate tokens with them  [PASS]
+  THEN  what the pipeline SENT is inspectable  [PASS]
+  THEN  ...which is where prompt-assembly bugs actually live  [PASS]
+  THEN  the last prompt is available  [PASS]
+  WHEN  the counters are cleared between phases of a test
+  THEN  cost resets  [PASS]
+  THEN  ...but the prepared answers remain  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: stzDLM promoted behind the port -- local-real, and it REASONS
+  THEN  it is LOCAL-REAL, not a fake  [PASS]
+  THEN  it answers from the facts it was given  [PASS]
+  THEN  ...marked as coming from the DLM  [PASS]
+  WHEN  asked something outside its domain
+  THEN  it says so rather than INVENTING  [PASS]
+  GIVEN no DLM at all
+  THEN  it refuses to be built  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: through the registry: the fake is refused in production, the DLM is not
+  THEN  the sandbox is detected as a fake  [PASS]
+  THEN  the DLM source is detected as local  [PASS]
+  WHEN  the application asks through the service the registry hands back
+  THEN  the ORIGINAL sandbox counted the cost -- state survived Ring's copy  [PASS]
+  WHEN  the phase becomes production
+  THEN  exactly ONE thing is refused  [PASS]
+  THEN  ...the fake  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 37 assertions, 37 pass, 0 fail
+================================================
+STATUS: OK

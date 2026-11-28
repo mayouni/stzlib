@@ -1,0 +1,103 @@
+SCENARIO: the standard reference, which is worth having exactly once
+  THEN  the mean of feature 1  [PASS]
+  THEN  ...and of feature 2  [PASS]
+  THEN  the first component  [PASS]
+  THEN  ...its second entry  [PASS]
+  THEN  the first explained variance  [PASS]
+  THEN  ...and the second  [PASS]
+  THEN  the first component carries 96% of the variance  [PASS]
+  THEN  ...so one component suffices for 95%  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: the identities, which need no reference
+  THEN  the explained variances sum to the total  [PASS]
+  THEN  ...so the ratios sum to 1  [PASS]
+  THEN  the variance of score column 1 is explained variance 1  [PASS]
+  THEN  ...and of column 2  [PASS]
+  THEN  ...and of column 3  [PASS]
+  THEN  score column 1 is centered  [PASS]
+  THEN  ...column 2  [PASS]
+  THEN  ...column 3  [PASS]
+  THEN  the components are ordered by variance  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: CENTERING is what makes it variance rather than distance from zero
+  THEN  the first component has opposite signs -- the real structure  [PASS]
+  THEN  ...and it explains everything, because the data is one-dimensional  [PASS]
+  THEN  the mean was found and removed  [PASS]
+  THEN  the scores are centered, not offset by the distance to the origin  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: STANDARDISING changes which component comes first
+  THEN  covariance PCA follows the big feature almost entirely  [PASS]
+  THEN  ...and calls it essentially all the variance  [PASS]
+  THEN  correlation PCA lets both features count  [PASS]
+  THEN  ...so the first component explains less  [PASS]
+  THEN  it reports which analysis it did  [PASS]
+  THEN  ...and says so in words  [PASS]
+  THEN  ...while the other says covariance  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: perfectly correlated features collapse onto one component
+  THEN  the first component explains everything  [PASS]
+  THEN  ...and the second nothing  [PASS]
+  THEN  one component is enough for 99%  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: projecting data the fit has not seen
+  THEN  the training data projects back to its own scores  [PASS]
+  THEN  ...every row  [PASS]
+  THEN  a new point gets coordinates  [PASS]
+  THEN  ...near the middle, since it is near the mean  [PASS]
+  THEN  a row of the wrong width is refused  [PASS]
+  THEN  ...naming the width it wanted  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: the variance convention comes from the library's one authority
+  THEN  sample over population is exactly n/(n-1)  [PASS]
+  THEN  ...and the proportions are unchanged  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: THE NAME FORMS, which in Softanza carry the semantics
+  THEN  Standardize() returns nothing  [PASS]
+  THEN  ...and it CHANGED the analysis  [PASS]
+  THEN  Center() returns nothing  [PASS]
+  THEN  ...and it changed it the other way  [PASS]
+  THEN  Centered() returns data, not an object  [PASS]
+  THEN  ...of the same shape as the input  [PASS]
+  THEN  ...actually centered  [PASS]
+  THEN  ...and the analysis is UNCHANGED by asking  [PASS]
+  THEN  Standardized() also returns data  [PASS]
+  THEN  ...scaled to unit variance  [PASS]
+  THEN  ...and STILL did not change the analysis  [PASS]
+  THEN  the Q forms chain  [PASS]
+  THEN  ...and did the thing  [PASS]
+  THEN  UseSampleVariance() returns nothing  [PASS]
+  THEN  ...and it took effect  [PASS]
+  THEN  ...as does its opposite  [PASS]
+  THEN  Fit() returns nothing  [PASS]
+  THEN  ...but it fitted  [PASS]
+  -> 18 pass, 0 fail
+
+SCENARIO: what it refuses, and why
+  THEN  Fit refuses before you have chosen  [PASS]
+  THEN  ...explaining that there is no safe default  [PASS]
+  THEN  the results refuse before Fit  [PASS]
+  THEN  one sample has no spread to decompose  [PASS]
+  THEN  ragged samples are refused  [PASS]
+  THEN  an empty list is refused  [PASS]
+  THEN  a fraction outside 0..1 is refused  [PASS]
+  THEN  ...and a sensible one is not  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: THE INVERSE IS THE TRANSPOSE, and its error is the discarded variance
+  THEN  a full reconstruction returns the data itself  [PASS]
+  THEN  dropping to 1 component costs exactly the variance it discarded  [PASS]
+  THEN  ...and dropping to 2 does the same  [PASS]
+  THEN  more components than were kept is refused  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 69 assertions, 69 pass, 0 fail
+================================================
+STATUS: OK

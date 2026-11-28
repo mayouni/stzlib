@@ -1,0 +1,88 @@
+SCENARIO: a password login over HTTP returns a hardened session cookie
+  THEN  the router is mounted at /auth  [PASS]
+  WHEN  credentials are POSTed (form-encoded, %40 for @)
+  THEN  it answers 200  [PASS]
+  THEN  ...naming the user (percent-decoding worked)  [PASS]
+  THEN  ...setting a 256-bit session cookie  [PASS]
+  THEN  ...HttpOnly, so script cannot read it  [PASS]
+  THEN  ...SameSite=Strict, so a cross-site form cannot ride it  [PASS]
+  THEN  ...plus a READABLE csrf cookie (script must echo it)  [PASS]
+  WHEN  the password is wrong
+  THEN  it answers 401  [PASS]
+  THEN  ...and sets no session cookie  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: GET /auth/session is the AUTHZ surface (phase 5 over HTTP)
+  THEN  it answers 200  [PASS]
+  THEN  ...naming the user  [PASS]
+  THEN  ...reporting the actor's capabilities  [PASS]
+  THEN  ...its posture  [PASS]
+  THEN  ...and its roles  [PASS]
+  THEN  without a cookie it is 401  [PASS]
+  THEN  with a bogus cookie it is 401  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: logout is CSRF-protected, because a cookie is AMBIENT authority
+  WHEN  a cross-site POST rides the cookie WITHOUT the csrf header
+  THEN  it is refused with 403  [PASS]
+  THEN  ...and the session is still alive  [PASS]
+  WHEN  the real page echoes the csrf token it read
+  THEN  logout succeeds  [PASS]
+  THEN  ...and the session is dead  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: two-factor is enforced at the HTTP door
+  GIVEN a 2FA user configured BEFORE the mount
+  WHEN  the password alone is POSTed
+  THEN  it is refused with 401  [PASS]
+  THEN  ...telling an honest client WHICH door it needs  [PASS]
+  THEN  ...and no session cookie is set  [PASS]
+  WHEN  the authenticator code is supplied
+  THEN  a session opens  [PASS]
+  THEN  ...with a real cookie  [PASS]
+  THEN  a WRONG code is refused  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: passwordless works over HTTP, and stays enumeration-safe there too
+  WHEN  a magic link is requested over HTTP
+  THEN  it answers 202  [PASS]
+  THEN  ...and the sandbox captured the mail  [PASS]
+  WHEN  the emailed link is followed
+  THEN  a session opens  [PASS]
+  THEN  ...with a real cookie  [PASS]
+  WHEN  a link is requested for an UNKNOWN email
+  THEN  the HTTP answer is identical  [PASS]
+  THEN  ...but nothing was sent (no enumeration over HTTP either)  [PASS]
+  WHEN  an email OTP is requested and entered
+  THEN  a session opens  [PASS]
+  THEN  ...and a wrong code does not  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: mounting does not disturb the rest of the server
+  THEN  an ordinary route still answers  [PASS]
+  THEN  /health still answers  [PASS]
+  THEN  an unknown path under the prefix is a 404  [PASS]
+  THEN  a GET on a POST-only endpoint is a 404  [PASS]
+  GIVEN a server with NOTHING mounted
+  THEN  the auth paths are simply not there  [PASS]
+  THEN  ...and it reports so  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: a DB-backed auth gives the server and the caller ONE shared view
+  WHEN  a user is registered AFTER the mount
+  THEN  the server sees them and signs them in  [PASS]
+  WHEN  the caller inspects the session HTTP just created
+  THEN  it is live on the caller's own object too  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: the same route really answers over a socket
+  THEN  the listener bound a port  [PASS]
+  WHEN  a real HTTP client POSTs credentials to the bound port
+  THEN  the wire response reports success  [PASS]
+  THEN  ...for the right user  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 45 assertions, 45 pass, 0 fail
+================================================
+STATUS: OK

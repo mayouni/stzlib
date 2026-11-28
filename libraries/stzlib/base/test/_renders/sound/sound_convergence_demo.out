@@ -1,0 +1,52 @@
+==================================================================
+ VC6 -- the loop: spoken, heard, meant, rendered
+==================================================================
+
+speaks : fr-FR, en-US
+hears  : fr-FR
+both   : fr-FR   <- the loop runs in this one
+
+the grammar and the meanings, declared together:
+   disque plein  ->  danger
+   le certificat expire  ->  warning
+   indexation en cours  ->  info
+   sauvegarde terminee  ->  success
+
+running the loop (no sound yet -- this is the recognition half):
+
+   said 'disque plein'
+     heard 'disque plein' at 0.58 confidence
+     meaning: danger   colour: #ff0000
+   said 'le certificat expire'
+     heard 'le certificat expire' at 0.93 confidence
+     meaning: warning   colour: #ffa500
+   said 'indexation en cours'
+     heard 'indexation en cours' at 0.92 confidence
+     meaning: info   colour: #0000ff
+   said 'sauvegarde terminee'
+     heard 'sauvegarde terminee' at 0.92 confidence
+     meaning: success   colour: #008000
+
+   said 'je voudrais un cafe au lait'  (deliberately outside the grammar)
+     heard ''   meaning: ''
+     Empty is a RESULT, not a failure: somebody said something that is
+     not a command. The dangerous alternative is a confident wrong one.
+
+=== NOW LISTEN ===
+
+   Each meaning that came back out of the recognizer, rendered as a cue
+   and the sentence that says which. One buffer, 20.05 s,
+   peak 0.76, also written to convergence_loop.wav.
+
+   [danger]  Le disque est plein.
+   [warning]  Le certificat expire dans trois jours.
+   [info]  L'indexation continue.
+   [success]  La sauvegarde est terminee.
+
+   underruns: 0
+
+==================================================================
+ Every one of those started as a phrase this library SPOKE, was heard
+ back by this library, became a meaning, and came out again as a cue,
+ a colour and a sentence. Nothing outside these four faces was in it.
+==================================================================

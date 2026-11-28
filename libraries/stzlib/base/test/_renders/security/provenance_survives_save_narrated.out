@@ -1,0 +1,49 @@
+SCENARIO: a fact's source and confidence survive a save
+  THEN  the fact came back  [PASS]
+  THEN  its provenance came back with it  [PASS]
+  THEN  the source is the one recorded  [PASS]
+  THEN  the confidence is a NUMBER, 0.9  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a STRICT graph can load its own export
+  THEN  the import does not raise  [PASS]
+  THEN  the fact is there  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a refused contradiction is remembered across a save
+  THEN  the second fact was refused and recorded  [PASS]
+  THEN  the contradiction came back  [PASS]
+  THEN  with who attempted what  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a | and a line break inside a value are data, not separators
+  THEN  the object with a | came back whole  [PASS]
+  THEN  the source with | and a newline came back byte for byte  [PASS]
+  THEN  the escaping round-trips a backslash too  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a strict graph REFUSES unproven facts on merge, and says which
+  THEN  nothing unproven was admitted  [PASS]
+  THEN  the refusal is reported, not silent  [PASS]
+  THEN  and it says why  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: an old file with no provenance still loads (negative sibling)
+  THEN  the fact loads into a non-strict graph  [PASS]
+  THEN  and the report counts it  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: an agent's memory records who learned a fact, and when
+  THEN  the source is the agent  [PASS]
+  THEN  the time is recorded  [PASS]
+  THEN  a caller's own source is kept  [PASS]
+  WHEN  the memory is saved and restored into a new agent
+  THEN  the facts came back  [PASS]
+  THEN  and still say who learned them  [PASS]
+  THEN  and how sure the slip was  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 23 assertions, 23 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,16 @@
+SCENARIO: libuv is linked and reports its version
+  GIVEN the stz_reactor engine module is loaded
+  THEN  a non-empty version string is returned  [PASS]
+  THEN  it looks like a 1.x libuv version  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: the libuv event loop actually runs
+  GIVEN a self-test that arms a one-shot timer on a real loop
+  WHEN  the loop is run to completion
+  THEN  exactly one timer callback fired (loop ran)  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 3 assertions, 3 pass, 0 fail
+================================================
+STATUS: OK

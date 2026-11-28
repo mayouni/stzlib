@@ -1,0 +1,76 @@
+SCENARIO: Declaring a kind: 'Constrain score to be a number, positive, even'
+  THEN  the constraints are inspectable  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: CAN -- possibility against the constraints
+  THEN  'Can 42 be a score?'  [PASS]
+  THEN  'Can -4 be a score?' -- the failing constraint is NAMED  [PASS]
+  THEN  ...  [PASS]
+  THEN  'Can 7 be a score?'  [PASS]
+  THEN  ...  [PASS]
+  THEN  'Can x be a score?' -- wrong type refused first  [PASS]
+  THEN  an UNKNOWN kind never silently allows  [PASS]
+  THEN  ...  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: MUST -- necessity is entailment from the declarations
+  THEN  'Must a score be a number?'  [PASS]
+  THEN  'Must a score be uppercase?' -- honestly no  [PASS]
+  THEN  ...  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: The chain gate: 'the value QUALIFIES AS a score'
+  THEN  a qualifying value stays live and chainable  [PASS]
+  THEN  a failing one is a false premise that knows why  [PASS]
+  THEN  ...and absorbs what follows  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Modal verdicts join the session ask-record
+  THEN  two yes verdicts on record  [PASS]
+  THEN  the gate holds  [PASS]
+  THEN  one no breaks it  [PASS]
+  THEN  dropped constraints leave the kind unknown again  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Per-object constraints -- the archived design, generalized (author's ask)
+  GIVEN the archive's stzString machinery (AddConstraint / VerifyConstraint(s) / the structured cancel) now lives on stzObject, so ANY Softanza object can be constrained; rules are descriptor symbols or the archived placeholder conditions
+  THEN  the constraints are inspectable, named  [PASS]
+  THEN  a clean object verifies them all  [PASS]
+  THEN  a violation is caught and NAMED  [PASS]
+  THEN  ...  [PASS]
+  THEN  ApplyConstraints CANCELS execution on violation (the archived semantics)  [PASS]
+  THEN  ...and chains when the object is clean again  [PASS]
+  THEN  numbers constrain too -- ANY object (typed values)  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Enforcement-on-update -- the constrained object protects itself
+  GIVEN EnforceConstraint() arms a guard at the SINGLE UPDATE POINT (stzString/stzNumber Update(), stzList _SetContent() -- the very site the author's archived TODO in stzNumber.Update reserved); a violating update is refused BEFORE it lands
+  THEN  the violating update is REFUSED  [PASS]
+  THEN  ...and the object stands untouched  [PASS]
+  THEN  a lawful update passes  [PASS]
+  THEN  even a MUTATING METHOD is stopped -- it routes through Update  [PASS]
+  THEN  RelaxConstraints() disarms; the method passes again  [PASS]
+  THEN  ...while on-demand verification stays available  [PASS]
+  THEN  lists refuse too (guarded at _SetContent, THEIR single point)  [PASS]
+  THEN  ...  [PASS]
+  THEN  numbers refuse too -- at the author's own TODO site  [PASS]
+  THEN  ...  [PASS]
+  THEN  plain AddConstraint stays PASSIVE (declaring is not enforcing)  [PASS]
+  THEN  ...  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: Temporal guards -- obligation has SCOPE IN TIME
+  GIVEN EnforceConstraintWhile: in force only while the condition holds; EnforceConstraintUntil: in force until the condition is met, then the constraint RETIRES itself
+  THEN  while SHORT, lowercase is refused  [PASS]
+  THEN  once LONG, the while-condition releases the guard  [PASS]
+  THEN  ...and verification explains the dormancy  [PASS]
+  THEN  ...  [PASS]
+  THEN  until the target, negative is refused  [PASS]
+  THEN  after the until-condition was met, the guard is gone  [PASS]
+  THEN  ...the constraint RETIRED itself  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 45 assertions, 45 pass, 0 fail
+================================================
+STATUS: OK

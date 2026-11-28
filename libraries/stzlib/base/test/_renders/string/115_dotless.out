@@ -1,0 +1,13 @@
+SCENARIO: Six phrases in their dotless skeleton
+  THEN  falastin al-abiyya  [PASS]
+  THEN  aashat al-muqawama  [PASS]
+  THEN  tunis maak ya ghazza  [PASS]
+  THEN  jamiyat al-khayrat  [PASS]
+  THEN  afdik bi-ruhi ya quds  [PASS]
+  THEN  mishmish wa-khukh wa-zaytun  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

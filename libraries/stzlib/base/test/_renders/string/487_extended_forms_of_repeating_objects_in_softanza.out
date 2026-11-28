@@ -1,0 +1,20 @@
+SCENARIO: Repeating into containers
+  THEN  a string keeps its type in a list  [PASS]
+  THEN  RepeatedInAPair pairs it  [PASS]
+  THEN  a string coerces in a list of numbers  [PASS]
+  THEN  a number concatenates in a string  [PASS]
+  THEN  a number stringifies in a list of strings  [PASS]
+  THEN  pairs  [PASS]
+  THEN  lists  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Nesting and 2D shapes
+  THEN  a repeated list repeats again  [PASS]
+  THEN  a 3x3 grid  [PASS]
+  THEN  a 3x3 table  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+================================================
+STATUS: OK

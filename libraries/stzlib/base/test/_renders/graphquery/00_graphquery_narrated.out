@@ -1,0 +1,22 @@
+SCENARIO: Match all nodes
+  GIVEN a social graph with 3 people and 1 company
+  THEN  all 4 nodes are returned  [PASS]
+  THEN  the first node's id is alice  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Match nodes by label
+  GIVEN the same graph
+  THEN  3 nodes are labeled Person  [PASS]
+  THEN  1 node is labeled Company  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Match nodes by property
+  GIVEN the same graph
+  THEN  2 people are age 30  [PASS]
+  THEN  1 person is age 25  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

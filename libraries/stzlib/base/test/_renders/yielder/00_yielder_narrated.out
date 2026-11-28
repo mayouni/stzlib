@@ -1,0 +1,24 @@
+SCENARIO: Map applies a named transform to every item
+  GIVEN a yielder over [1,-2,3,-4,5]
+  THEN  Map(:Abs) takes absolute values  [PASS]
+  THEN  Map(:Negate) flips signs  [PASS]
+  THEN  Map(:Double) doubles  [PASS]
+  THEN  Map(:Square) squares  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Filter keeps items matching a named predicate
+  GIVEN the same yielder
+  THEN  Filter(:IsPositive) keeps positives  [PASS]
+  THEN  Filter(:IsNegative) keeps negatives  [PASS]
+  THEN  Filter(:IsEven) keeps evens  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Reduce folds the items
+  GIVEN a yielder over [1,2,3,4,5]
+  THEN  Reduce(:Sum) totals 15  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

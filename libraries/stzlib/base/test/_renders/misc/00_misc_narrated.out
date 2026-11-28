@@ -1,0 +1,35 @@
+SCENARIO: Lowercase string primitives
+  THEN  stzlen('softanza') is 8  [PASS]
+  THEN  stzleft('softanza',4) is 'soft'  [PASS]
+  THEN  stzright('softanza',4) is 'anza'  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ring_del removes and returns the list
+  GIVEN [one, two, x, three]
+  THEN  ring_del(_,3) returns the trimmed list  [PASS]
+  THEN  and the source list is modified in place  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The @substr swiss-army helper
+  THEN  3-arg form replaces  [PASS]
+  THEN  empty-new form finds the position  [PASS]
+  THEN  numeric form slices [5..7]  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: @Min and @Max
+  THEN  @Min([2,3]) is 2  [PASS]
+  THEN  @Max([2,3]) is 3  [PASS]
+  THEN  @Min([5,2,8,1]) is 1  [PASS]
+  THEN  @Max([5,2,8,1]) is 8  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: CenterText pads by visible columns (codepoint-correct)
+  THEN  'ab' centered in 6 cols  [PASS]
+  THEN  an accented word centers to its codepoint width (8)  [PASS]
+  THEN  truncation does not split a multibyte char  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 15 assertions, 15 pass, 0 fail
+================================================
+STATUS: OK

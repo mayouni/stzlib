@@ -1,0 +1,33 @@
+SCENARIO: the case that separates a compensated sum from a naive one
+  THEN  a thousand ones were added to ten quadrillion  [PASS]
+  THEN  ...and the total keeps every one of them  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: ...and every door gives the same answer, which is the actual repair
+  THEN  stzListOfNumbers  [PASS]
+  THEN  stzDataSet  [PASS]
+  THEN  stzNumBuffer  [PASS]
+  THEN  list and dataset agree  [PASS]
+  THEN  dataset and buffer agree  [PASS]
+  WHEN  the mean is asked, since it is a sum divided by a count
+  THEN  list and dataset agree  [PASS]
+  THEN  dataset and buffer agree  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: compensation changes nothing for ordinary data, and that is the point
+  THEN  a small sum is exactly what it always was  [PASS]
+  THEN  ...and the mean  [PASS]
+  THEN  ...and the derived statistics are untouched  [PASS]
+  THEN  even where binary floats are already lossy, nothing new is introduced  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the whole-number cases the engine keeps as integers
+  THEN  integers  [PASS]
+  THEN  floats  [PASS]
+  THEN  mixed  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+================================================
+STATUS: OK

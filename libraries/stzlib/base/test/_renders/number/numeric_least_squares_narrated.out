@@ -1,0 +1,92 @@
+SCENARIO: least squares on a consistent system finds the exact answer
+  THEN  the intercept is 1  [PASS]
+  THEN  the slope is 2  [PASS]
+  THEN  the aliases are the same method, not twins  [PASS]
+  THEN  ...both of them  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: MULTIPLE regression, which the library could not express at all
+  THEN  the constant term is recovered  [PASS]
+  THEN  ...the first coefficient  [PASS]
+  THEN  ...and the second, including its sign  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: an INEXACT fit is checked against the DEFINITION of least squares
+  THEN  the residual is orthogonal to both columns  [PASS]
+  THEN  nudging the intercept up makes it worse  [PASS]
+  THEN  ...down as well  [PASS]
+  THEN  ...and the slope either way  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: QR and LU must agree, and they share no code
+  THEN  the four unknowns match to eight decimals  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: what it refuses, and why refusing is right
+  THEN  a rank-deficient system answers [] rather than picking one  [PASS]
+  THEN  an underdetermined system raises  [PASS]
+  THEN  a b of the wrong length raises  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Cholesky, and positive-definiteness as a cheap by-product
+  THEN  the factor is lower triangular with the right diagonal  [PASS]
+  THEN  ...and it says the matrix is positive definite  [PASS]
+  THEN  L*L' gives back the 4  [PASS]
+  THEN  ...the 2  [PASS]
+  THEN  ...and the 3  [PASS]
+  GIVEN a symmetric matrix that is NOT positive definite
+  THEN  it is reported, not approximated  [PASS]
+  THEN  ...and no factor is offered  [PASS]
+  GIVEN the identity, which is the easiest positive-definite matrix there is
+  THEN  it factors to itself  [PASS]
+  THEN  ...and is positive definite  [PASS]
+  GIVEN a negative diagonal, which cannot be a covariance of anything
+  THEN  refused  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: a fit at a size worth having, and the matrix is left alone
+  THEN  a 200x4 fit is well under a second  [PASS]
+  THEN  the constant is recovered from 200 exact observations  [PASS]
+  THEN  ...and every coefficient  [PASS]
+  THEN  ...including the fractional one  [PASS]
+  THEN  ...and the last  [PASS]
+  THEN  the design matrix itself is unchanged  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: THE QR INVERSE FILLS THE GAP THE FAST ROUTES LEAVE
+  THEN  Cholesky declines a non-symmetric matrix  [PASS]
+  THEN  ...and so does the eigendecomposition  [PASS]
+  THEN  QR does not care about symmetry  [PASS]
+  THEN  ...and reaches the same inverse the SVD does  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and for a TALL matrix the same formula is the pseudo-inverse
+  THEN  the tall QR inverse is the pseudo-inverse  [PASS]
+  THEN  a rank-deficient matrix is refused  [PASS]
+  THEN  ...with a message naming the route that answers  [PASS]
+  THEN  ...and that route does answer  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A DEFECT FOUND BY ASKING A ROUTE TO DECLINE
+  THEN  a non-symmetric matrix has no Cholesky factor, and is told so  [PASS]
+  THEN  a genuinely SPD matrix still factors  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: THE LU INVERSE COMPLETES THE SET, and five routes agree
+  THEN  LU inverts a general square matrix  [PASS]
+  THEN  ...agreeing with QR  [PASS]
+  THEN  ...and with the SVD  [PASS]
+  THEN  a tall matrix is refused by LU and answered by QR  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and a SECOND exact-zero defect, found the same way as the first
+  THEN  a numerically singular matrix is refused  [PASS]
+  THEN  ...with a message naming what to use instead  [PASS]
+  THEN  ...and that route answers, with the minimum-norm operator  [PASS]
+  THEN  a well-conditioned matrix still inverts  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 49 assertions, 49 pass, 0 fail
+================================================
+STATUS: OK

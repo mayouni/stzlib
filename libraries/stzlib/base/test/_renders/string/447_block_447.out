@@ -1,0 +1,12 @@
+SCENARIO: Dividing a string five ways
+  THEN  into 3 equal parts  [PASS]
+  THEN  by a separator char  [PASS]
+  THEN  at the chars satisfying a condition  [PASS]
+  THEN  equally among three stakeholders  [PASS]
+  THEN  in named portions of given sizes  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

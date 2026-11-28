@@ -1,0 +1,75 @@
+[ "a", "c", "d" ]
+
+[
+	[ "plan", "learning_astar" ],
+	[ "total_cost", 5 ],
+	[ "nodes_explored", 4 ],
+	[
+		"optimized_for",
+		[
+			[
+				[ "direction", "minimize" ],
+				[ "property", "cost" ]
+			]
+		]
+	],
+	[
+		"route",
+		[ "a", "c", "d" ]
+	]
+]
+
+[
+	[ "plan", "learning_astar" ],
+	[ "nodes_explored", 4 ],
+	[ "path_length", 3 ],
+	[ "ratio", 1.33 ],
+	[ "assessment", "very efficient" ]
+]
+
+[
+	[
+		[ "step", 1 ],
+		[ "from", "a" ],
+		[ "to", "c" ],
+		[
+			"criteria",
+			[
+				[
+					[ "property", "cost" ],
+					[ "value", 4 ],
+					[ "weight", 1 ],
+					[ "direction", "minimize" ],
+					[ "contribution", 4 ]
+				]
+			]
+		],
+		[
+			[ "total", 4 ]
+		]
+	],
+	[
+		[ "step", 2 ],
+		[ "from", "c" ],
+		[ "to", "d" ],
+		[
+			"criteria",
+			[
+				[
+					[ "property", "cost" ],
+					[ "value", 1 ],
+					[ "weight", 1 ],
+					[ "direction", "minimize" ],
+					[ "contribution", 1 ]
+				]
+			]
+		],
+		[
+			[ "total", 1 ]
+		]
+	]
+]
+
+
+----------------
+----------------

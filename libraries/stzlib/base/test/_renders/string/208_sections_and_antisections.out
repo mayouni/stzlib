@@ -1,0 +1,12 @@
+SCENARIO: Sections and anti-sections with uniform gaps
+  GIVEN "...456...012..."
+  THEN  Sections gives the picked spans  [PASS]
+  THEN  AntiSections gives the three gaps  [PASS]
+  THEN  FindAsSections locates the substrings  [PASS]
+  THEN  AntiFindAsSections gives the complement spans  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

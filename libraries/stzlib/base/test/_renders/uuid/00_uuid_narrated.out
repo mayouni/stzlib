@@ -1,0 +1,37 @@
+SCENARIO: A generated UUID has the v4 format and metadata
+  GIVEN a fresh stzUUID
+  THEN  it is 36 chars (8-4-4-4-12 + hyphens)  [PASS]
+  THEN  it is hyphenated  [PASS]
+  THEN  the version nibble (pos 15) is '4'  [PASS]
+  THEN  Version() is 4  [PASS]
+  THEN  Variant() is RFC 4122  [PASS]
+  THEN  it is not the nil UUID  [PASS]
+  THEN  it validates  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: WithoutHyphens drops the dashes
+  GIVEN a fresh stzUUID
+  THEN  the bare form is 32 chars  [PASS]
+  THEN  the bare form has no hyphens  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The nil UUID and validity checks
+  GIVEN the nil UUID
+  THEN  nil is all-zero canonical form  [PASS]
+  THEN  a real UUID string validates  [PASS]
+  THEN  plain text does not validate  [PASS]
+  THEN  a malformed string does not validate  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: UUIDs are unique and well-formed across many generations
+  GIVEN 500 freshly generated UUIDs
+  THEN  no two collided (all 500 unique)  [PASS]
+  THEN  all were 36 chars  [PASS]
+  THEN  all were version 4  [PASS]
+  THEN  all validated  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 17 assertions, 17 pass, 0 fail
+================================================
+STATUS: OK

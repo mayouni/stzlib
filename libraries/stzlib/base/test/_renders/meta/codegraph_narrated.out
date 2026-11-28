@@ -1,0 +1,56 @@
+-- Scene 1: the graph/ module, read as structure --
+  classes: 76  methods: 2740  inherits-edges: 72  call-edges: 3691
+  [OK] the scanner finds a real population
+  [OK] methods are attributed to their classes
+  [OK] stzKnowledgeGraph descends from stzGraph
+  [OK] ancestry walks to the shared root
+  [OK] ownership is structural, not prose
+
+-- Scene 2: impact + cascade (the review artifacts) --
+  ImpactOf(AddFact): owners [ "stzKnowledgeGraph" ] / inherited by [ "stzKnowGraph" ]
+  [OK] impact names the owners
+  Cascade(stzGraph): 487 methods, blast radius 11 ([ "stzDiagram", "stzGraphView", "stzKnowledgeGraph", "stzErDiagram", "stzFamilyTree", "stzFaultTree", "stzNetworkDiagram", "stzOrgChart", "stzPetriNet", "stzWorkflow", "stzKnowGraph" ])
+  [OK] cascade computes the blast radius BEFORE any change
+
+-- Scene 2b: the CALL graph (who calls whom) --
+  [OK] call edges were extracted from method bodies
+  CallersOf(AddFact): [ [ [ "class", "stzKnowledgeGraph" ], [ "method", "AddFactQ" ] ], [ [ "class", "stzKnowledgeGraph" ], [ "method", "AddTriple" ] ], [ [ "class", "stzKnowledgeGraph" ], [ "method", "Know" ] ], [ [ "class", "stzKnowledgeGraph" ], [ "method", "KnowRelation" ] ], [ [ "class", "stzKnowledgeGraph" ], [ "method", "DefineClass" ] ], [ [ "class", "stzKnowledgeGraph" ], [ "method", "_MergeKnowledgeBase" ] ], [ [ "class", "stzKnowParser" ], [ "method", "Parse" ] ] ]
+  [OK] CallersOf finds the real callers of a method
+  [OK] callers are STRUCTURED (class + method)
+  DeadCode (private helpers referenced by nothing): 19
+  [OK] DeadCode() now ANSWERS (call edges landed -- no longer refuses)
+  [OK] dead-code findings are structured (class/method/file/line)
+  [OK] DeadCode is scoped to PRIVATE helpers (name starts '_')
+  CyclicCalls (intra-class mutual recursion): 7
+  [OK] CyclicCalls() now ANSWERS
+  [OK] each cycle is a 2-method pair in one class
+
+-- Scene 3: house rules an agent can RUN (LAW 6) --
+  planted-bad findings:
+    no-len-method @line 2 [error]
+    q-returns-object @line 4 [error]
+    no-aggressive-verbs @line 6 [warning]
+  [OK] no-len-method fires
+  [OK] q-returns-object fires (Q must chain)
+  [OK] no-aggressive-verbs fires
+  [OK] the dirty source is refused
+  [OK] clean source passes
+  [OK] findings are STRUCTURED (rule/line/severity/message)
+
+-- Scene 4: the G2 seed -- graph predicates an agent RUNS --
+  violations on the ungoverned graph: 4
+  [OK] all four invariants fire on the bad graph
+  [OK] governed composition is SOUND (proposes -> gate -> effect -> trace)
+
+-- Scene 5: G10 -- declared, diffable, SEALED predicate sets --
+  [OK] the loaded set verifies its seal
+  [OK] the set enforces ONLY its own rules
+  [OK] a tampered set BREAKS its seal
+
+-- Scene 6: meta/ owns the self-doc (promoted from reflect/) --
+  [OK] Ask answers after the promotion
+  [OK] and the answers are STRUCTURED records (the machine door reads them)
+
+==========================================
+TOTAL: 28 assertions, 28 pass, 0 fail
+==========================================

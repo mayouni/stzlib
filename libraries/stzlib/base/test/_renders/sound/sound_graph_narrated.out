@@ -1,0 +1,80 @@
+== the sound graph, rendered offline ==
+
+-- Scene 1: an oscillator produces EXACT numbers, not approximately music --
+   A sine at exactly rate/4 must land on 0, 1, 0, -1 and repeat. Anything
+   else means the phase accumulator drifts, and drift is inaudible until
+   the day two voices are supposed to cancel and do not.
+  [ok]   a graph is created
+  [ok]   an oscillator node is added (1-based, so >= 1)
+  [ok]   the node count is 1
+  [ok]   setting the output succeeds
+  [ok]   it is not prepared yet
+  [ok]   prepare succeeds
+  [ok]   and now it is prepared
+  [ok]   the render produced a buffer
+  [ok]   with the frames asked for
+  [ok]   every one of the 8 samples is exactly 0, 1, 0, -1, ...
+
+-- Scene 2: RENDER ALLOCATES NOTHING -- the contract SN3 depends on --
+   Built with a filter, a delay and an envelope, so the nodes that hold
+   state are all represented. 200 blocks must not allocate one byte.
+  [ok]   filter node added
+  [ok]   delay node added
+  [ok]   envelope node added
+  [ok]   prepare succeeds on the full chain
+   allocations before: 12   after 200 blocks: 12
+  [ok]   200 render blocks allocated EXACTLY nothing
+  [ok]   but PREPARE does allocate -- the counter is live, not stuck
+
+-- Scene 3: THE SINK IS A PARAMETER, NOT A FORK --
+   The same prepared graph rendered to a buffer and to a WAV must give the
+   SAME samples. If these ever diverge, an export stops matching playback.
+  [ok]   the buffer sink rendered
+  [ok]   the file sink rendered
+  [ok]   and the file exists
+  [ok]   the rendered file decodes
+   worst difference between the two sinks: 0
+  [ok]   buffer and file are BIT-IDENTICAL
+
+-- Scene 4: a mix SUMS, and a cycle cannot be expressed --
+  [ok]   mixing in the first source
+  [ok]   mixing in the second
+  [ok]   feeding the mix into an EARLIER node is refused (no cycles)
+  [ok]   sound.graph.refusals MOVED
+  [ok]   the mix is exactly the sum of its inputs
+
+-- Scene 5: a lowpass kills a high tone AND passes a low one --
+   Both halves are asserted. Without the second, 'it went quiet' would
+   prove only that the filter silences everything.
+   12 kHz through a 200 Hz lowpass: peak 0.000171337480
+   50 Hz  through the same filter:  peak 0.998034000397
+  [ok]   the high tone is crushed
+  [ok]   the low tone passes essentially untouched
+
+-- Scene 6: the BLOCK SIZE is not audible --
+   SN3's device picks the block size, not us. If node state were reset or
+   dropped at a block boundary, the same graph would render differently at
+   different block sizes -- and it would be inaudible until it was not.
+   worst difference between block 32 and block 500: 0
+  [ok]   block size 32 and 500 give the same samples
+
+-- Scene 7: rewind repeats a render EXACTLY, without reallocating --
+  [ok]   rewind succeeds
+  [ok]   rewind itself allocated nothing
+  [ok]   both renders are identical, sample for sample, on both channels
+
+-- Scene 8: the two-phase contract refuses to be broken either way --
+  [ok]   rendering before prepare returns NOT_PREPARED (7)
+  [ok]   preparing an empty graph returns BAD_ARG (3)
+  [ok]   preparing with no output set returns BAD_ARG (3)
+  [ok]   now prepare succeeds
+  [ok]   adding a node AFTER prepare is refused (returns 0)
+  [ok]   preparing twice returns ALREADY_PREPARED (8)
+
+-- Scene 9: a freed graph is STALE, and the stale hit is COUNTED --
+  [ok]   freeing once succeeds
+  [ok]   freeing twice returns STALE (2)
+  [ok]   a stale node count reads -1, not 0
+  [ok]   sound.graph.stale.hits MOVED
+
+42 passed, 0 failed

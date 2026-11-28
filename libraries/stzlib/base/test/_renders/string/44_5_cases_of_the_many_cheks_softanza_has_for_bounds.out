@@ -1,0 +1,13 @@
+SCENARIO: The many ways to check bounds
+  THEN  '_world_' is bounded by '_'  [PASS]
+  THEN  '/world\' is bounded by ['/','\']  [PASS]
+  THEN  'world' is bounded by '_' inside '_world_'  [PASS]
+  THEN  'world' is bounded by ['/','\'] inside '/world\'  [PASS]
+  THEN  '_' is a bound of 'world' inside the sentence  [PASS]
+  THEN  ['/','\'] are bounds of 'world' inside the sentence  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

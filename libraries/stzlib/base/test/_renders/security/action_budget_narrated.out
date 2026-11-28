@@ -1,0 +1,33 @@
+SCENARIO: a runaway on the timer is quarantined at its budget
+  THEN  the runaway is quarantined  [PASS]
+  THEN  ...after exactly one act over its budget  [PASS]
+  THEN  the reason says how far over it went  [PASS]
+  THEN  the neighbour, with no budget, keeps running  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: an agent within its budget is never stopped (negative sibling)
+  THEN  not quarantined  [PASS]
+  THEN  its acts are counted  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a released agent starts a fresh window
+  THEN  quarantined  [PASS]
+  THEN  released  [PASS]
+  THEN  with a fresh count  [PASS]
+  THEN  its next acts do not re-trip it at once  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the engine loop accounts too
+  THEN  the engine-scheduled runaway is quarantined  [PASS]
+  THEN  ...at the same point  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: an event-driven runaway stops in the middle of a burst
+  THEN  quarantined during the catch-up  [PASS]
+  THEN  ...after 6 of the 20 events, not all 20  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 14 assertions, 14 pass, 0 fail
+================================================
+STATUS: OK

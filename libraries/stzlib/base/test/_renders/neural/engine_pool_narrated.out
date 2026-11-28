@@ -1,0 +1,16 @@
+SCENARIO: SmolLM2-135M -- SKIPPED (no such GGUF in libraries/stzlib/models/)
+  GIVEN drop the file in to run its real path; see models/MODELS.md
+  -> 0 pass, 0 fail
+
+SCENARIO: Qwen2.5-Coder-0.5B -- SKIPPED (no such GGUF in libraries/stzlib/models/)
+  GIVEN drop the file in to run its real path; see models/MODELS.md
+  -> 0 pass, 0 fail
+
+SCENARIO: Qwen2.5-Coder-1.5B -- SKIPPED (no such GGUF in libraries/stzlib/models/)
+  GIVEN drop the file in to run its real path; see models/MODELS.md
+  -> 0 pass, 0 fail
+
+================================================
+TOTAL: 0 assertions, 0 pass, 0 fail
+================================================
+STATUS: OK

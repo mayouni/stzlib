@@ -1,0 +1,13 @@
+SCENARIO: Sections and anti-sections of a string
+  GIVEN "^^^456---012..."
+  THEN  Sections gives the picked spans  [PASS]
+  THEN  AntiSections gives the gaps  [PASS]
+  THEN  FindAsSections locates the substrings  [PASS]
+  THEN  AntiFindAsSections gives the complement spans  [PASS]
+  THEN  AntiSectionsZ pairs each gap with its start  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

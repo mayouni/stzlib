@@ -1,0 +1,14 @@
+SCENARIO: All chars are of a kind
+  THEN  chars  [PASS]
+  THEN  strings  [PASS]
+  THEN  numbers  [PASS]
+  THEN  punctuations  [PASS]
+  THEN  arabic  [PASS]
+  THEN  right-to-left  [PASS]
+  THEN  invertible  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

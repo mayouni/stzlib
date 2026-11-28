@@ -1,0 +1,152 @@
+SCENARIO: The descriptor dispatch answers truthfully again
+  GIVEN @isLowercase was a char-only predicate: any WORD answered 0, poisoning every :Lowercase chain
+  THEN  'ring' IS lowercase  [PASS]
+  THEN  'RING' is not  [PASS]
+  THEN  the article's opening example finally answers as printed  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: The flagship sentence runs
+  GIVEN 'The word ring is a lowercase Latin word with a length of 4 letters and only 1 vowel'
+  THEN  definite reference, articles, ellipsis, agreement -- one chain, TRUE  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: The regenerated noun surface (from the semantic lexicon)
+  GIVEN 41 countable nouns x N/NQ/NB/NBQ (+B/BQ) devices, generated not hand-typed
+  THEN  a string counts its words  [PASS]
+  THEN  a list counts its items  [PASS]
+  THEN  ellipsis: '...and only 3 items'  [PASS]
+  THEN  value agreement: the vowels ARE the remembered ones  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Comparative determiners -- degree words for the expectation (NEW)
+  THEN  'at least 2 vowels'  [PASS]
+  THEN  'at most 2 vowels' refuses on 3  [PASS]
+  THEN  ...and explains itself  [PASS]
+  THEN  each chain keeps ITS OWN reason  [PASS]
+  THEN  even after another chain checked  [PASS]
+  THEN  a fresh object answers honestly  [PASS]
+  THEN  a PASSED check is not explained (the archive never did)  [PASS]
+  THEN  a LIVE object is polite about WhyStopped (the archive's way)  [PASS]
+  THEN  a FALSE premise records why the chain stopped  [PASS]
+  THEN  'more than 2 words'  [PASS]
+  THEN  'about 10 items' tolerates 9 (vagueness, +/-10%)  [PASS]
+  THEN  'between 2 and 4 words'  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: Conditional mood -- the chain branches on its own truth (NEW)
+  THEN  a TRUE premise runs IfSo (uppercase), skips Otherwise (reverse)  [PASS]
+  THEN  a FALSE premise carries its origin...  [PASS]
+  THEN  ...skips IfSo (reverse), and Otherwise (uppercase) runs on it  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Ordinal reference -- 'the second word' (NEW, stzOrdinal wired)
+  THEN  the 2nd word  [PASS]
+  THEN  the first vowel  [PASS]
+  THEN  the last vowel  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Accountability replaced silent typo tolerance
+  GIVEN the archive handled typos by hand-written @Misspelled aliases that absorbed anything
+  THEN  a number cannot count vowels -- REFUSED, not absorbed  [PASS]
+  THEN  an unknown stem refuses with a did-you-mean  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The grammaticality doctrine -- the chain IS the sentence
+  GIVEN a relative pronoun needs a VERB: which HAS a length -- a chain that runs but does not parse as English is a bug in NNL terms; and reference is MARKERLESS: the subject is the topic, comebacks resolve by selectional attachment, pronouns (ItQ/ItsQ/TheirQ) serve true ambiguity
+  THEN  TheWordQ (no M) ... WhichQ().HasQ().ALengthQ().Of(4)  [PASS]
+  THEN  IsAQ(:Word) continues on the typed object  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: P2: the context lives ON the chain -- agent safety
+  GIVEN determiners set the expectation on the object they return; devices that build new objects carry it; *QM recalls read the chain-local main first
+  THEN  the FIRST discourse still holds ITS subject  [PASS]
+  THEN  the second holds its own  [PASS]
+  THEN  '...and only 1 vowel' attaches to RING  [PASS]
+  THEN  '...and only 3 vowels' attaches to SOFTANZA  [PASS]
+  THEN  the explicit pronoun recalls the subject too  [PASS]
+  THEN  the first chain keeps ITS atmost-2  [PASS]
+  THEN  ...for its own reason  [PASS]
+  THEN  the second keeps ITS atleast-5 (2 words -> no)  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Q3: truth-functional coordination -- the author's formulations
+  GIVEN 'It is either a number or a string' -- the fused copula IsEitherQ coordinates TYPE NOUNS (ANumberQ/AStringQ...); the first disjunct may fail without falsifying; a satisfied disjunction skips the rest. No NotQ anywhere: negation lives in negative forms, antonyms, and the OrNot tag
+  THEN  'Ring is either a number or a string' -- second disjunct decides  [PASS]
+  THEN  '123 is either a string or a list' -- both fail, false  [PASS]
+  THEN  first disjunct holds: the rest is SKIPPED, the number untouched  [PASS]
+  THEN  'Ring is neither a number nor a list'  [PASS]
+  THEN  the author's variant: '...nor is IT a list' (pronoun carries the figure)  [PASS]
+  THEN  neither fails when one predicate holds  [PASS]
+  THEN  a number is NOT a string (descriptors test the TYPED value)  [PASS]
+  THEN  and IS a number  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Q3b: distributive quantifiers -- each / any / none
+  GIVEN the quantifier opens a figure; the NEXT predicate distributes over the items and the fold explains itself per item; singular agreement by design (each IS, none IS) -- the collective plural lives in AreQ
+  THEN  'each is a number'  [PASS]
+  THEN  ...and the failing ITEM is named  [PASS]
+  THEN  'any of them is a number'  [PASS]
+  THEN  'none is a number'  [PASS]
+  THEN  ...and a holding item breaks none  [PASS]
+  THEN  'each has at least 2 vowels' (the ellipsis device distributes)  [PASS]
+  THEN  ...failure names the item AND the expectation  [PASS]
+  THEN  ...  [PASS]
+  THEN  'any has at least 3 vowels'  [PASS]
+  THEN  a string is a plural of its chars: 'each is a vowel'  [PASS]
+  THEN  'In [1, x, 3], each item is a number' -- refused at item 2  [PASS]
+  THEN  'In [1, 2, 3], all items are numbers' -- the TYPED answer  [PASS]
+  THEN  ...and the mixed list is refused (the Are stub answered TRUE
+		for ANY non-empty list; repaired)  [PASS]
+  THEN  'no item is a number'  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: The aliasing doctrine and QC() -- chain on a clone
+  GIVEN never alias stz objects with = (copies share the engine handle); QC completes the Q/QC/QH trio: chain on a clone, the original untouched
+  THEN  QC(obj) chains on a CLONE  [PASS]
+  THEN  ...and the original is untouched  [PASS]
+  THEN  QC(list) protects the caller's list  [PASS]
+  THEN  ...which still holds its duplicates  [PASS]
+  THEN  mutate THEN interrupt: attachment sees the LIVE subject  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Q2: the widened generated surface -- B-forms, QC-forms, pack stems
+  GIVEN 2512 generated devices: value-agreement B/BQ over every arity-0 query, immutable QC over every arity-0/1 action (incl. the hand-authored seeds), and the dispatcher speaks the pack languages
+  THEN  'the first char is the remembered one'  [PASS]
+  THEN  ...disagreement explains itself  [PASS]
+  THEN  ...  [PASS]
+  THEN  UppercaseQC acts on a CLONE  [PASS]
+  THEN  ...the original untouched  [PASS]
+  THEN  arity-1 immutable: RemoveQC  [PASS]
+  THEN  ...original still intact  [PASS]
+  THEN  a false premise absorbs the whole QC family (one override)  [PASS]
+  THEN  the dispatcher speaks FRENCH: IfSo('majuscule')  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Q4: discourse tense -- the chain remembers its past
+  GIVEN open with QH() and the tense devices answer about TIME; the stream is peeked (History() consumes) and OWNED (another chain's leftovers never leak)
+  THEN  'was it ever uppercase?'  [PASS]
+  THEN  ...naming the state  [PASS]
+  THEN  'it used to be lowercase' (past yes, now no)  [PASS]
+  THEN  'it is still uppercase' (past yes, now yes)  [PASS]
+  THEN  'it was never a number' (the negative form)  [PASS]
+  THEN  no QH, no past -- honestly  [PASS]
+  THEN  ...  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Q4: the session ask-record -- question frames fold like a narration
+  THEN  two yes answers on record  [PASS]
+  THEN  the gate holds  [PASS]
+  THEN  one no breaks AllYes  [PASS]
+  THEN  AnyYes survives  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: The monad keeps its discourse role
+  GIVEN a false premise absorbs what follows and stays explainable
+  THEN  counting through a false premise answers 0  [PASS]
+  THEN  and says why  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 87 assertions, 87 pass, 0 fail
+================================================
+STATUS: OK

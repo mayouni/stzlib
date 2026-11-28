@@ -1,0 +1,27 @@
+-- Scene 1: elementwise algebra --
+  [OK] SubtractMatrix
+  [OK] Hadamard (elementwise multiply)
+  [OK] elementwise divide
+  [OK] division by zero refuses
+
+-- Scene 2: trace, norm --
+  [OK] Trace sums the diagonal
+  [OK] Frobenius norm (3,4) = 5
+
+-- Scene 3: Solve(Ax=b) -- exact, or an honest refusal --
+  [OK] 2x+y=5, x+3y=10 -> x=1, y=3
+  [OK] a singular system REFUSES (no least-squares guessing)
+
+-- Scene 4: the distributions (weight-init seeds) --
+  [OK] uniform stays in its range
+  [OK] Box-Muller normal centers on its mean
+
+-- Scene 5: THE GGML BRIDGE (R4 step 2) -- one matmul, two tiers --
+  [OK] the ggml tier computes the textbook product
+  [OK] Why names the tier that ran
+  [OK] both tiers agree exactly
+  [OK] 60x60 products agree cell-for-cell (spot: [30][30], [60][1])
+
+==========================================
+TOTAL: 14 assertions, 14 pass, 0 fail
+==========================================

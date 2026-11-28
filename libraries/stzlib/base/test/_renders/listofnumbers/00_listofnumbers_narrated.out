@@ -1,0 +1,74 @@
+SCENARIO: Construction, type, and basic statistics
+  GIVEN a list of 1..5
+  THEN  StzType is stzlistofnumbers  [PASS]
+  THEN  Min is 1  [PASS]
+  THEN  Max is 5  [PASS]
+  THEN  Sum is 15  [PASS]
+  THEN  Average is 3  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Smallest and largest N numbers
+  GIVEN an unsorted list 2,7,3,10,5,4,9,1,6,8
+  THEN  NSmallestNumbers(3) = [1,2,3]  [PASS]
+  THEN  NLargestNumbers(3) = [8,9,10]  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Threshold filters
+  GIVEN a list of 1..5
+  THEN  NumbersGreaterThan(3) = [4,5]  [PASS]
+  THEN  NumbersLessThan(3) = [1,2]  [PASS]
+  THEN  NumbersOtherThan(3) = [1,2,4,5]  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Consecutive differences
+  GIVEN the list 8,12,14,18,20,24
+  THEN  Diffs() = [4,2,4,2,4]  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Distinct step sizes
+  GIVEN the list 1,2,5,6,9,10
+  THEN  Steps() = [1,3]  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Nearest value lookups
+  GIVEN the list 2,7,18,18,10,12,25,4
+  THEN  Nearest(88) = 25  [PASS]
+  THEN  NearestTo(10) = 12  [PASS]
+  THEN  Nearest(:To=12) = 10  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Left/right neighbors
+  GIVEN the list 2,7,18,18,10,25,4
+  THEN  Neighbors(10) = [7,18]  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Sign-mix detection
+  GIVEN an all-positive list
+  THEN  no sign mix  [PASS]
+  WHEN  a list mixes signs
+  THEN  sign mix detected  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Global reduction helpers
+  GIVEN plain Ring number lists
+  THEN  Divide([12,2,3]) = 2  [PASS]
+  THEN  Multiply([10,2,3]) = 60  [PASS]
+  THEN  Sum([10,2,4]) = 16  [PASS]
+  THEN  @Min([2,4]) = 2  [PASS]
+  THEN  @Max([2,4]) = 4  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Random draws hold their invariants over many runs
+  GIVEN 50 draws of NRandomNumbers(3) from 1..10
+  THEN  every draw had length 3  [PASS]
+  THEN  every value stayed within 1..10  [PASS]
+  THEN  more than one distinct value appeared (RNG not stuck)  [PASS]
+  GIVEN 50 draws of NRandomNumbersIn(3, 1:10)
+  THEN  NRandomNumbersIn lengths all 3  [PASS]
+  THEN  NRandomNumbersIn values all in 1..10  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 28 assertions, 28 pass, 0 fail
+================================================
+STATUS: OK

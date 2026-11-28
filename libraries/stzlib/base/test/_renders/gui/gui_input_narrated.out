@@ -1,0 +1,62 @@
+  [OK] the form document is clean
+-- Scene 1: the tab ring is exactly what was declared FOCUSABLE --
+   ring: [ "row_one", "row_two", "confirm", "cancel" ]
+  [OK] four stops, one per FOCUSABLE box
+  [OK] ...in document order
+  [OK] the title is not a tab stop
+  [OK] nor is the actions row that merely CONTAINS the buttons
+  [OK] nor a label inside a field
+
+-- Scene 2: RULE 80 -- every action is reachable by keyboard alone --
+  [OK] the act is reachable
+  [OK] ...and so is the way back, which the rule also requires
+
+-- Scene 3: focus moves, and REFUSES honestly at the end --
+  [OK] nothing is focused to begin with
+  [OK] Tab lands on the first stop
+  [OK] ...and again on the second
+  [OK] Shift+Tab goes back
+  [OK] focus can be set by name
+  [OK] Tab from the last stop wraps to the first
+  [OK] ...to the FIRST stop, not somewhere arbitrary
+  [OK] focusing an element that does not exist is refused
+
+-- Scene 4: directional moves, for an arrow key or a stick --
+  [OK] left from the right-hand button reaches the left-hand one
+  [OK] ...and right comes back
+  [OK] left again from the leftmost refuses
+
+-- Scene 5: a pointer event is ROUTED, and it bubbles --
+  [OK] the point hits the innermost element under it
+   7 events from one click
+  [OK] the click produced events
+  [OK] a click arrived
+  [OK] ...preceded by a press and a release
+  [OK] ...targeted at the innermost element, not the panel
+  [OK] the enter chain names the ancestors too
+
+-- Scene 6: the INPUT SOURCE is on the event, and it differs --
+  [OK] a pointer event says pointer
+  [OK] a key event was recorded
+  [OK] ...and it says KEYBOARD, not pointer
+  [OK] the two sources are genuinely different values
+
+-- Scene 7: the queue is BOUNDED and says what it dropped --
+  [OK] clearing empties it
+  [OK] ...and resets the drop count
+   after 1600 undrained clicks: 4096 queued, 704 dropped
+  [OK] the queue stopped at its ceiling
+  [OK] ...and the overflow was counted, not silently discarded
+
+-- Scene 8: the conversions, named at the boundary --
+  [OK] the centre of a texture is the centre of the panel
+  [OK] v=1 is the TOP of the panel, not the bottom
+  [OK] ...and v=0 is the bottom
+
+-- Scene 9: an in-scene click, through the mapping --
+  [OK] the uv maps back onto the button
+  [OK] ...and a click there reaches it
+
+==============================================================
+ 38 ok, 0 failed
+==============================================================

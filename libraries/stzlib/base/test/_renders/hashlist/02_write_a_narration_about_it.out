@@ -1,0 +1,26 @@
+[
+	[ "name", "john" ],
+	[ "type", "person" ]
+]
+[
+	[ "name", "john" ],
+	[ "type", "person" ],
+	[ "age", 35 ]
+]
+35
+[
+	[ "name", "john" ],
+	[ "type", "person" ],
+	[ "age", 25 ]
+]
+[
+	[ "name", "john" ],
+	[ "type", "person" ],
+	[ "age", 25 ],
+	[ "job", "prgrammer" ]
+]
+
+Executed in almost 0 second(s)
+
+----------------
+----------------

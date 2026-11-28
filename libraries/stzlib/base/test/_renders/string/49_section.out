@@ -1,0 +1,12 @@
+SCENARIO: Bounding a section by computed positions and delimiters
+  GIVEN "Ring Programming Language"
+  THEN  Section(6, FindNth(3,'g')) reaches the 3rd 'g'  [PASS]
+  THEN  Section(:From='L', :To='e') spans the delimiters  [PASS]
+  THEN  Range(6, 11) is a Section alias  [PASS]
+  THEN  SectionXT(6, :UpToNChars=11) takes 11 chars from pos 6  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,23 @@
+SCENARIO: An octal real, sixteen questions
+  THEN  a number  [PASS]
+  THEN  not signed  [PASS]
+  THEN  so unsigned  [PASS]
+  THEN  calculable  [PASS]
+  THEN  not an integer (it has a dot)  [PASS]
+  THEN  nor a signed one  [PASS]
+  THEN  nor an unsigned one  [PASS]
+  THEN  nor calculable-as-integer  [PASS]
+  THEN  a real number  [PASS]
+  THEN  not a signed real  [PASS]
+  THEN  an unsigned real  [PASS]
+  THEN  a calculable real  [PASS]
+  THEN  not decimal-form  [PASS]
+  THEN  not binary-form  [PASS]
+  THEN  not hex-form  [PASS]
+  THEN  octal-form  [PASS]
+  -> 16 pass, 0 fail
+
+================================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+================================================
+STATUS: OK

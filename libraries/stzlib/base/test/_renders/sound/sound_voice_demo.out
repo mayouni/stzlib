@@ -1,0 +1,37 @@
+=== A VOICE, AND THEN A SOUND ===
+
+1. It speaks.
+
+2. In every language this machine HAS -- and it refuses the rest.
+   fr-FR: Microsoft Hortense Desktop - French
+   en-US: Microsoft Zira Desktop - English (United States)
+   ja-JP: no voice speaks 'ja-JP' -- this machine has: fr-FR, en-US
+
+3. Prosody, through SSML -- and the engine checks the markup, because
+   the platform silently discards it when it is wrong.
+
+4. AND NOW THE POINT. A voice is a stzSound, so the plane's own verbs
+   apply to it -- none of which know anything about speech.
+   as recorded : 3.87 s, peak 0.60
+   loudness    : -21.24  (SS2's instrument)
+   onsets      : 21 syllable-scale events
+
+   the same sentence through a telephone (low-pass at 1.8 kHz):
+   and down a corridor (an echo):
+   drawn       : temp/voice_demo.png
+
+5. And it plays WITHOUT blocking, through SN6's transport.
+   ... still running, position 0.06 s
+   ... still running, position 0.56 s
+   ... still running, position 1.06 s
+   ... still running, position 1.56 s
+   ... still running, position 2.05 s
+   ... still running, position 2.57 s
+   ... still running, position 3.07 s
+   ... still running, position 3.58 s
+
+=== THE NUMBER TO REMEMBER ===
+   synthesising a short phrase costs a few milliseconds; the plane's
+   native output latency is ~419 ms. Speech is not late because it is
+   computed -- the audio path is long. The screen acknowledges; the
+   earcon corroborates; the phrase explains. See plan section S.5.

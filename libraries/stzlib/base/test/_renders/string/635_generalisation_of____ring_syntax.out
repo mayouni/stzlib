@@ -1,0 +1,13 @@
+SCENARIO: Ranges, Ring and Softanza
+  THEN  Ring's forward range  [PASS]
+  THEN  ... and backward  [PASS]
+  THEN  UpTo mirrors it  [PASS]
+  THEN  DownTo too  [PASS]
+  THEN  and it speaks Arabic  [PASS]
+  THEN  ... in both directions  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

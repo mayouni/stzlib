@@ -1,0 +1,20 @@
+==============================================================
+ C2 -- role steps
+==============================================================
+
+-- 1. The four steps, per role ------------------------------
+   role       surface   border    solid     text      on
+   --------   -------   -------   -------   -------   -----
+   primary   #E6EFFF   #9DBDFF   #447CFF   #002BD0   #000000
+   success   #CBFFC6   #7AD873   #359F31   #005F00   #000000
+   warning   #FFEBD4   #FDAA30   #B87600   #6C4300   #000000
+   danger    #FFE9E5   #FFA192   #FB0000   #950000   #000000
+   info      #E6EFFF   #9DBDFF   #447CFF   #002BD0   #000000
+
+-- 2. THE KILL CRITERION: told apart in the PICTURE ---------
+   closest pair of rendered steps : 102 (sum |rgb|)
+   the closest was danger solid/text
+
+   A pair under ~30 would be two names for one colour.
+
+Line 283 Haro refused this statement (bare name is not a local (Rule A) `nOk`, line 283 of gg_color_c2.ring) and did not compile it -- running past it would give a wrong answer

@@ -1,0 +1,56 @@
+SCENARIO: the engine KDF matches the standard PBKDF2 test vector
+  GIVEN PBKDF2-HMAC-SHA256('password','salt',1,32)
+  THEN  it matches the RFC-style vector  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: hashing is salted, deterministic per-salt, and password-sensitive
+  GIVEN a hashed secret
+  THEN  it carries a salt and a hash (salt:hash)  [PASS]
+  THEN  the right secret verifies  [PASS]
+  THEN  a wrong secret does not  [PASS]
+  GIVEN a second hash of the SAME secret
+  THEN  the two stored values differ (random salt)  [PASS]
+  THEN  yet both verify the same secret  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: random tokens are unique
+  THEN  a 16-byte token is 32 hex chars  [PASS]
+  THEN  two tokens differ  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: the Commons stores NO plaintext secret
+  GIVEN a platform Commons on in-memory sqlite (low rounds for speed)
+  WHEN  an identity registers with a secret
+  THEN  registration succeeds  [PASS]
+  WHEN  we read the raw stored row
+  THEN  the plaintext secret is NOT present  [PASS]
+  THEN  what is stored is a salt:hash  [PASS]
+  WHEN  the correct secret opens a session
+  THEN  a token is issued  [PASS]
+  THEN  it resolves to the identity  [PASS]
+  WHEN  a wrong secret is tried
+  THEN  no session is opened  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Raising the KDF cost does not lock anybody out
+  GIVEN an identity registered at 20000 rounds
+  THEN  registration succeeds  [PASS]
+  THEN  ...and the secret opens a session  [PASS]
+  THEN  the stored record begins with the rounds it was made at  [PASS]
+  THEN  ...and still holds no plaintext  [PASS]
+  WHEN  the platform raises its cost to 30000
+  THEN  the identity still logs in  [PASS]
+  THEN  ...but a wrong secret is still refused  [PASS]
+  WHEN  a NEW identity registers at the raised cost
+  THEN  its record carries the new cost  [PASS]
+  THEN  ...and it logs in beside the old one  [PASS]
+  THEN  ...while the first still does too  [PASS]
+  GIVEN a legacy two-part record, as the old code wrote them
+  THEN  it still opens a session  [PASS]
+  THEN  ...and still refuses a wrong secret  [PASS]
+  -> 11 pass, 0 fail
+
+================================================
+TOTAL: 25 assertions, 25 pass, 0 fail
+================================================
+STATUS: OK

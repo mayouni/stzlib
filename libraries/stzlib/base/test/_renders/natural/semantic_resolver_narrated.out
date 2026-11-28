@@ -1,0 +1,161 @@
+SCENARIO: The unified lexicon resolves paraphrases to canonical semantic IDs
+  GIVEN the merged lexicon (dictionary seed + _ActionsXT forms + #@ aka tags)
+  THEN  'caps' (an Uppercase aka word) -> METHOD_UPPERCASE  [PASS]
+  THEN  'capitals' -> METHOD_UPPERCASE  [PASS]
+  THEN  'mirrored' (a Reversed aka word) -> METHOD_REVERSE  [PASS]
+  THEN  'frame' (dictionary synonym, also merged) -> METHOD_BOX  [PASS]
+  THEN  gibberish 'zzqx' resolves to nothing  [PASS]
+  THEN  too-short 'up' resolves to nothing  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Naturally() executes paraphrases absent from its dictionary
+  WHEN  natural code uses 'Capitals' -- not a dictionary word
+  THEN  the generated Ring code calls Uppercase()  [PASS]
+  THEN  ...and executing it yields SOFTANZA  [PASS]
+  WHEN  natural code uses 'Mirrored' -- recovered from Reverse aka tags
+  THEN  the string is reversed to gnir  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Quoted values are never hijacked (provenance guard)
+  GIVEN a VALUE spelled exactly like a resolvable action word
+  THEN  'capitals' stays the literal content  [PASS]
+  THEN  quoted param 'this' survives although this is an ignored word  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: $aSemanticOperations grows from the reflect harvest
+  GIVEN active-form verbs of stzString/stzList/stzNumber, arity <= 2, construct-and-verified
+  THEN  the operation table grew far beyond the ~17 hand-authored entries  [PASS]
+  THEN  grown verb 'flatten' resolves by exact method name  [PASS]
+  THEN  grown verb 'removeduplicates' resolves  [PASS]
+  THEN  ...while paraphrase quality SURVIVES the grown lexicon: 'capitals'  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Grown verbs execute through Naturally() on all three classes
+  THEN  stzList: RemoveDuplicates (grown, 0-param)  [PASS]
+  THEN  stzString: UppercaseSubString (grown, 1-param)  [PASS]
+  THEN  stzNumber: Add (grown, 1-param)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Truly natural phrasing via multi-word phrase resolution
+  GIVEN longest exact method-name joins over content words, fillers skipped
+  THEN  'Remove its duplicates' -> RemoveDuplicates()  [PASS]
+  THEN  'Uppercase the substring' outmatches plain Uppercase (longest wins)  [PASS]
+  THEN  'Add 3 to it' reads naturally  [PASS]
+  THEN  a contraction apostrophe never breaks quote pairing  [PASS]
+  THEN  third-person verbs + singular noun read naturally  [PASS]
+  THEN  and the paraphrase stays canonical  [PASS]
+  THEN  -es de-inflection: 'uppercases' -> Uppercase()  [PASS]
+  THEN  type words are number-tolerant OUTSIDE the sentence grammar  [PASS]
+  THEN  'holding' + 'drop its duplicates' read naturally  [PASS]
+  THEN  and the paraphrase names the canonical operation  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Query forms: passives and predicates RETURN a value
+  GIVEN the function-forms grammar mapped to kinds: active=action, passive/predicate=query
+  THEN  'Is it empty ?' answers the question instead of mutating  [PASS]
+  THEN  'it Reversed' yields the reversed COPY as the result  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Growth safety: wrong-class verbs and missing params degrade to no-ops
+  THEN  a stzList-only verb on a string is skipped, never an R14  [PASS]
+  THEN  a param-hungry verb without its argument emits nothing  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Understandability: unknown words are reported with suggestions
+  THEN  the typo degrades permissively (no crash, no wrong action)  [PASS]
+  THEN  ...and Unresolved() names it, with the nearest known word  [PASS]
+  THEN  lint flags a not-understood narration without running it  [PASS]
+  THEN  ...listing every unknown word with its suggestion  [PASS]
+  THEN  a fully understood program reports UnderstoodAll  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Form slots: one verb's whole linguistic family, queryable
+  THEN  the family has at least active + passive + fluent + predicate forms  [PASS]
+  THEN  the active form is slotted  [PASS]
+  THEN  the passive form is slotted  [PASS]
+  THEN  the predicate form is slotted  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Intents become executable natural plans
+  THEN  the plan opens with the Create line over the live content  [PASS]
+  THEN  ...and executing the intent chains both steps  [PASS]
+  THEN  list intents work, including grown verbs  [PASS]
+  THEN  number intents work  [PASS]
+  THEN  a not-understood intent raises WITH a suggestion (plans are strict)  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Form-slotted aka: predicate words ask, imperative words act
+  GIVEN aka folded into each record's OWN form slot; ties broken by the imperative default
+  THEN  'shouting' (predicate-specific aka) -> the QUERY op  [PASS]
+  THEN  'capitals' (voice-neutral, shared) -> the ACTION op wins the tie  [PASS]
+  THEN  'Is it shouting ?' ANSWERS on uppercase content  [PASS]
+  THEN  ...and on lowercase content  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Multiple live objects: name them, switch between them
+  THEN  two objects coexist; 'Use first' switches back before acting  [PASS]
+  THEN  ...and 'Use second' addresses the other one  [PASS]
+  THEN  mixed types by name, grown verbs included  [PASS]
+  THEN  a dictionary word used as a NAME stays a name (guards)  [PASS]
+  THEN  Arabic naming works (registry keeps the script; the var is generated)  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Variable binding: keep a value, recall it where values go
+  GIVEN KEEP_INDICATOR binds the current result; bound names recall as variables
+  THEN  a kept CONTENT recalls as a method parameter  [PASS]
+  THEN  ...the generated code passes the VARIABLE, not a string  [PASS]
+  THEN  a kept QUERY result recalls as a creation value  [PASS]
+  THEN  a QUOTED name is data, never a reference (provenance guard)  [PASS]
+  THEN  object names and value names coexist  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Semantic probing: getters answer instead of silently no-oping
+  GIVEN growth probes 0-arity noun-headed actives on a live sample: no mutation + a returned value = query
+  THEN  NumberOfChars ANSWERS as a query  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Strict mode and operation allow-lists (the agent posture)
+  THEN  strict mode raises on any not-understood word, with suggestions  [PASS]
+  THEN  an allow-listed operation runs  [PASS]
+  THEN  ...and everything off the list is grammatically impossible  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Understood(): the engine paraphrases its interpretation back
+  THEN  the canonical reading is echoed in plain words  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Runtime teaching: new words join the live lexicon
+  THEN  the meaning resolves through the existing machinery  [PASS]
+  THEN  ...and the taught word executes immediately  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Predictive suggestions: the engine says what can come NEXT
+  GIVEN the same token-state machine that executes, run as a guide
+  THEN  an empty narration starts with a creation verb  [PASS]
+  THEN  after 'Create a' come the object types  [PASS]
+  THEN  after the object comes the value indicator + value shapes  [PASS]
+  THEN  after a value come the dictionary action verbs  [PASS]
+  THEN  a mid-word prefix completes over the GROWN vocabulary  [PASS]
+  THEN  ...and a two-word phrase prefix completes across words  [PASS]
+  THEN  after 'Use' come the objects NAMED in this narration  [PASS]
+  THEN  packs suggest in their own language  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Pack template exporter: a translator fills a data file
+  THEN  the template is a registration call with every reference slot  [PASS]
+  THEN  ...with the English reference beside each slot  [PASS]
+  THEN  the RAW template already evals and registers (round-trip)  [PASS]
+  THEN  the coverage report counts against the reference id set  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Classic dictionary behavior unchanged (regression)
+  THEN  plain dictionary verb still works  [PASS]
+  THEN  two-param Replace still works  [PASS]
+  THEN  multilingual path (full language name) works  [PASS]
+  THEN  multilingual path (language code) works  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 83 assertions, 83 pass, 0 fail
+================================================
+STATUS: OK

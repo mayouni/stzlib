@@ -1,0 +1,64 @@
+SCENARIO: A polynomial knows its shape before anything else
+  THEN  it reads back as written  [PASS]
+  THEN  its degree is 3  [PASS]
+  THEN  it is monic  [PASS]
+  THEN  p(2) is zero, since 2 is a root  [PASS]
+  THEN  p(0) is the constant term  [PASS]
+  THEN  its derivative is 3x^2 - 12x + 11  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: The roots come from the companion matrix's eigenvalues
+  THEN  the companion matrix is 3x3  [PASS]
+  THEN  ...its top row is the negated tail  [PASS]
+  THEN  ...and it carries a sub-diagonal of ones  [PASS]
+  THEN  the real roots are 1, 2 and 3  [PASS]
+  THEN  ...all three of them are real  [PASS]
+  THEN  ...so nothing is complex here  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Complex roots are returned as complex, not silently dropped
+  THEN  x^2+1 has no real root  [PASS]
+  THEN  ...but it does have complex ones  [PASS]
+  THEN  ...two of them, per the degree  [PASS]
+  THEN  ...they are +i and -i  [PASS]
+  THEN  ...with zero real part  [PASS]
+  THEN  a degree-5 polynomial returns five roots  [PASS]
+  THEN  ...of which three are real  [PASS]
+  THEN  ...and its real roots are 1, -2 and 4  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: A non-monic polynomial is scaled, and leading zeros are not degree
+  THEN  it is not monic  [PASS]
+  THEN  ...its monic form is x^2 - 3x + 2  [PASS]
+  THEN  ...and the roots are still 1 and 2  [PASS]
+  THEN  leading zeros are not part of the degree  [PASS]
+  THEN  ...it reads as x - 3  [PASS]
+  THEN  ...with the single root 3  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: A MULTIPLE root is ill-conditioned, and that is the problem's fault
+  THEN  a triple root yields three roots at a loose tolerance  [PASS]
+  THEN  ...all of them clustered at 2  [PASS]
+  THEN  ...yet not one of them is exactly 2  [PASS]
+  THEN  ...while distinct roots come back essentially exact  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Polynomial arithmetic, and the roots of a product
+  THEN  (x+2) + (x-3) is 2x - 1  [PASS]
+  THEN  (x+2) - (x-3) is 5  [PASS]
+  THEN  (x+2)(x-3) is x^2 - x - 6  [PASS]
+  THEN  ...and the product's roots are -2 and 3  [PASS]
+  THEN  the Q form trims the leading zero  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The roots of unity, a closed-form oracle
+  THEN  x^4-1 has four roots  [PASS]
+  THEN  ...exactly two of them real  [PASS]
+  THEN  ...being -1 and 1  [PASS]
+  THEN  ...and it does have complex roots too  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 39 assertions, 39 pass, 0 fail
+================================================
+STATUS: OK

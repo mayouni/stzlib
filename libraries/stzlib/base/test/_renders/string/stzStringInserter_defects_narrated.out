@@ -1,0 +1,225 @@
+SCENARIO: 1. the examples of the doc blocks
+  GIVEN an inserter over banana
+  THEN  after 1, 3, 5 with - : b-an-an-a  [PASS]
+  THEN  before 1, 3, 5 with - : -ba-na-na  [PASS]
+  THEN  abc after 2: ab-c  [PASS]
+  THEN  abc before 2: a-bc  [PASS]
+  THEN  NEGATIVE: the answer is not the text unchanged  [PASS]
+  THEN  NEGATIVE: after and before differ on the same positions  [PASS]
+  THEN  the verbs raise nothing on a valid list  [PASS]
+  THEN  ...nor the Before verb  [PASS]
+  THEN  ...nor a single position  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: 2. positions refer to the original text, and the order of the list does not matter
+  GIVEN banana and the same positions in every order
+  THEN  [1,3,5] and [5,3,1] give one text  [PASS]
+  THEN  ...and [3,1,5]  [PASS]
+  THEN  ...and [3,5,1]  [PASS]
+  THEN  ...and [1,5,3]  [PASS]
+  THEN  ...and [5,1,3]  [PASS]
+  THEN  the same for before  [PASS]
+  WHEN  a fragment is longer than one character, which would shift later positions if they were read after the cut
+  THEN  abc after [1,2] with --: a--b--c  [PASS]
+  THEN  banana after [2,4] with XYZ: baXYZnaXYZna  [PASS]
+  THEN  banana before [2,4] with XYZ: bXYZanXYZana  [PASS]
+  THEN  the numbers are sorted as numbers, not as texts: 10 and 9 and 2 in a 15 letter text  [PASS]
+  THEN  ...and 100 is out of range, skipped  [PASS]
+  THEN  NEGATIVE: a text sort would have put 9 after 10: it is not what is answered  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: 3. the valid range: after is 0 to the length, before is 1 to the length plus one
+  GIVEN banana, six characters
+  THEN  after [0] puts the fragment at the very start: -banana  [PASS]
+  THEN  after [6] puts it at the very end: banana-  [PASS]
+  THEN  after [0,6]: -banana-  [PASS]
+  THEN  after [7] is past the end: nothing changes  [PASS]
+  THEN  after [-1] is before the start: nothing changes  [PASS]
+  THEN  after [-1,2] skips the -1 and applies the 2: ba-nana  [PASS]
+  THEN  after [1,100] skips the 100: b-anana  [PASS]
+  THEN  after [0,1,2,3,4,5,6] between every character and around: -b-a-n-a-n-a-  [PASS]
+  THEN  before [1] puts the fragment at the very start: -banana  [PASS]
+  THEN  before [7] puts it at the very end: banana-  [PASS]
+  THEN  before [1,7]: -banana-  [PASS]
+  THEN  before [8] is past the end plus one: nothing changes  [PASS]
+  THEN  before [0] is before the start: nothing changes  [PASS]
+  THEN  before [-3] too  [PASS]
+  THEN  before [0,2] skips the 0 and applies the 2: b-anana  [PASS]
+  THEN  before [1,100] skips the 100: -banana  [PASS]
+  THEN  before [1..7]: -b-a-n-a-n-a-  [PASS]
+  THEN  only out of range positions: the text is returned whole  [PASS]
+  THEN  ...for before too  [PASS]
+  WHEN  every p from -2 to 10 is tried alone on abc
+  THEN  after p and before p+1 are the same cut for the thirteen values  [PASS]
+  THEN  NEGATIVE: of the five positions 0 to 4 after, exactly four change the text (4 is past the end)  [PASS]
+  -> 21 pass, 0 fail
+
+SCENARIO: 4. a position listed twice inserts once
+  GIVEN banana with repeated positions
+  THEN  after [3,3]: ban-ana, one dash  [PASS]
+  THEN  after [3,3,3]: ban-ana  [PASS]
+  THEN  before [3,3]: ba-nana  [PASS]
+  THEN  after [2,4,2,4,2]: ba-na-na  [PASS]
+  THEN  after [0,0]: -banana  [PASS]
+  THEN  after [6,6]: banana-  [PASS]
+  THEN  a position twice and out of range twice: skipped twice, nothing inserted  [PASS]
+  THEN  a list with and without duplicates answers one text  [PASS]
+  THEN  ...for before too  [PASS]
+  THEN  NEGATIVE: two dashes at one place is never the answer  [PASS]
+  THEN  3 and 3.0 are one position  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: 5. fragments: empty, longer, in another script
+  GIVEN abc and fragments of every kind
+  THEN  an empty fragment changes nothing: abc  [PASS]
+  THEN  ...for before  [PASS]
+  THEN  a fragment of three characters: a<<>>b<<>>c  [PASS]
+  THEN  a fragment that is a space: a b c  [PASS]
+  THEN  a fragment that holds a digit: a1b1c  [PASS]
+  THEN  a Hebrew fragment in an ASCII text: aשלוםb  [PASS]
+  THEN  an emoji fragment: a😀b😀c  [PASS]
+  THEN  an accented fragment: aéb  [PASS]
+  THEN  a fragment equal to the text: abcabc  [PASS]
+  THEN  the case of a fragment is kept: aXb  [PASS]
+  THEN  NEGATIVE: ...and not folded to lower case  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: 6. positions count characters, not bytes: Hebrew, Arabic, emoji, a combining mark
+  GIVEN Hebrew, nine characters (a space among them) and seventeen bytes
+  THEN  the text has nine characters  [PASS]
+  THEN  ...and seventeen bytes  [PASS]
+  THEN  after [1,4,9]: ש!לום! עולם!  [PASS]
+  THEN  before [1,4,6]: !שלו!ם !עולם  [PASS]
+  THEN  after [0,4]: -שלום- עולם  [PASS]
+  THEN  after [5], behind the space: שלום -עולם  [PASS]
+  THEN  before [10] is the end: שלום עולם-  [PASS]
+  THEN  before [11] is past the end: nothing changes  [PASS]
+  THEN  after [10] is past the end: nothing changes  [PASS]
+  THEN  the answer has twelve characters and twenty bytes: no letter was cut in two  [PASS]
+  THEN  NEGATIVE: the text a BYTE count would give (positions 9, 4, 1 read as bytes) is not what is answered  [PASS]
+  GIVEN Arabic, four letters
+  THEN  after every position: ش|ك|ر|ا|  [PASS]
+  THEN  before every position and the end: |ش|ك|ر|ا|  [PASS]
+  THEN  after [2]: شك|را  [PASS]
+  GIVEN a text with two emoji, five characters
+  THEN  the text has five characters  [PASS]
+  THEN  after every position: a-😀-b-😀-c-  [PASS]
+  THEN  before [2,4]: a-😀b-😀c  [PASS]
+  THEN  after [2]: a😀-b😀c  [PASS]
+  THEN  a position past the five characters is skipped though the bytes go to eleven: after [9]  [PASS]
+  GIVEN a letter and a combining accent, then x: three code points
+  THEN  the text has three characters  [PASS]
+  THEN  after [1] separates the letter from its mark, as a code point count says  [PASS]
+  THEN  after [2] goes behind the mark  [PASS]
+  THEN  after [3] is the end  [PASS]
+  GIVEN a text of two-byte letters
+  THEN  héllo after [2]: hé-llo  [PASS]
+  THEN  héllo before [2]: h-éllo  [PASS]
+  THEN  héllo after [1,2,3,4,5]: h-é-l-l-o-  [PASS]
+  -> 26 pass, 0 fail
+
+SCENARIO: 7. the empty list, the empty text, a one character text
+  GIVEN the empty list of positions
+  THEN  it raises nothing  [PASS]
+  THEN  ...nor for before  [PASS]
+  THEN  the text is unchanged: abc  [PASS]
+  THEN  ...for before  [PASS]
+  THEN  the empty list on the empty text: the empty text  [PASS]
+  GIVEN the empty text
+  THEN  after [0] gives the fragment alone: -  [PASS]
+  THEN  after [1] is past the end: the empty text  [PASS]
+  THEN  before [1] gives the fragment alone: -  [PASS]
+  THEN  before [0] is out of range: the empty text  [PASS]
+  THEN  before [1,1] gives one fragment: -  [PASS]
+  GIVEN a one character text
+  THEN  after [0,1]: -a-  [PASS]
+  THEN  before [1,2]: -a-  [PASS]
+  THEN  after [1]: a-  [PASS]
+  THEN  before [1]: -a  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: 8. what is refused, and that the text is left as it was
+  GIVEN an inserter over banana and bad arguments in turn
+  THEN  a fraction raises  [PASS]
+  THEN  ...and the text is whole, no tail lost  [PASS]
+  THEN  a number written as a text raises  [PASS]
+  THEN  a text raises  [PASS]
+  THEN  a list inside the list raises  [PASS]
+  THEN  an empty list inside the list raises  [PASS]
+  THEN  one bad item among good ones raises  [PASS]
+  THEN  ...and nothing was inserted before the bad item was met  [PASS]
+  THEN  a fraction late in the list raises too  [PASS]
+  THEN  ...and nothing was inserted  [PASS]
+  THEN  a number that is not a list raises  [PASS]
+  THEN  a text that is not a list raises  [PASS]
+  THEN  a fragment that is a number raises  [PASS]
+  THEN  a fragment that is a list raises  [PASS]
+  THEN  ...and the text is whole  [PASS]
+  THEN  the same for before: a fraction  [PASS]
+  THEN  ...before: a text  [PASS]
+  THEN  ...before: not a list  [PASS]
+  THEN  ...before: a number as fragment  [PASS]
+  THEN  ...and the text is whole  [PASS]
+  THEN  NEGATIVE: a valid list is not refused  [PASS]
+  THEN  NEGATIVE: negative whole numbers are valid, only skipped  [PASS]
+  THEN  NEGATIVE: a very large whole number is valid, only skipped  [PASS]
+  -> 23 pass, 0 fail
+
+SCENARIO: 9. the Q forms chain, the list passed in is left alone
+  GIVEN an inserter over abcd
+  THEN  InsertAfterManyPositionsQ answers the inserter  [PASS]
+  THEN  ...which holds the new text: a-bcd  [PASS]
+  THEN  two Q calls chained, the second reads the text the first left: a-b+cd  [PASS]
+  THEN  the other order: +a-bcd  [PASS]
+  THEN  InsertBeforeManyPositionsQ answers the inserter  [PASS]
+  WHEN  the list of positions is a variable, unsorted and with a duplicate
+  THEN  the text is b-an-an-a  [PASS]
+  THEN  the list is as it was: [5,1,3,3]  [PASS]
+  THEN  it is still as it was after the second verb  [PASS]
+  THEN  a second verb reads its positions in the text as the first left it: +b-+an+-an-a  [PASS]
+  THEN  NEGATIVE: ...so the answer is not the first one  [PASS]
+  WHEN  a second inserter over the same text is built
+  THEN  it does not see the first one  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: 10. a second author: the answer built slot by slot, over many lists
+  GIVEN a 40 character text and sixty lists of positions made by a small generator
+  THEN  sixty lists after: the library and the oracle agree  [PASS]
+  THEN  sixty lists before: the library and the oracle agree  [PASS]
+  WHEN  the positions are every number from -3 to 45
+  THEN  after all of them: the oracle and the library agree  [PASS]
+  THEN  before all of them: the oracle and the library agree  [PASS]
+  THEN  the text is 40 characters plus 41 fragments of 2: 122  [PASS]
+  WHEN  two hundred positions on a two hundred character text
+  THEN  the answer has 400 characters  [PASS]
+  THEN  and is what the oracle builds  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: 11. nothing else moved: the single-position and fragment verbs, and the readers
+  GIVEN an inserter over banana
+  THEN  InsertAfter(3): ban-ana  [PASS]
+  THEN  InsertBefore(4): ban-ana  [PASS]
+  THEN  InsertAfter(0): -banana  [PASS]
+  THEN  InsertAfter(7), past the end: nothing changes  [PASS]
+  THEN  InsertBefore(0): nothing changes  [PASS]
+  THEN  InsertAfterSubString(an, -): ban-an-a  [PASS]
+  THEN  InsertBeforeSubString(an, _): b_an_ana  [PASS]
+  THEN  InsertAfterFirst(an, -): ban-ana  [PASS]
+  THEN  InsertBeforeLast(an, -): ban-ana  [PASS]
+  THEN  InsertedAfterFirst answers the text and leaves the inserter alone  [PASS]
+  THEN  InsertedAfterFirst on emoji: a😀-b  [PASS]
+  THEN  ...and the inserter is as it was: a😀b  [PASS]
+  THEN  the class example, Hebrew InsertBefore(6): שלום !עולם  [PASS]
+  THEN  NumberOfChars counts characters: 10  [PASS]
+  THEN  IsEmpty is false  [PASS]
+  THEN  IsEmpty is true over the empty text  [PASS]
+  THEN  NumberOfChars of the empty text is 0  [PASS]
+  THEN  an inserter over a number is refused  [PASS]
+  THEN  stzString.InsertAfterPosition, which builds an inserter over itself: ban-ana  [PASS]
+  THEN  stzString.InsertAfterSubString: ban-an-a  [PASS]
+  -> 20 pass, 0 fail
+
+================================================
+TOTAL: 165 assertions, 165 pass, 0 fail
+================================================
+STATUS: OK

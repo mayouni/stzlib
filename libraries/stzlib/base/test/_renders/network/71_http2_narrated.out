@@ -1,0 +1,27 @@
+SCENARIO: The engine reports a libcurl + nghttp2 backend
+  GIVEN the HTTP engine version string
+  THEN  it is libcurl  [PASS]
+  THEN  HTTP/2 (nghttp2) is built in  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: An https request to an h2 host negotiates HTTP/2
+  GIVEN an HTTP client and an h2-capable host
+  WHEN  GET-ing https://nghttp2.org/
+  THEN  the request succeeded (200)  [FAIL]
+    expected: 200
+    got:      -1
+  THEN  the negotiated version is HTTP/2  [FAIL]
+    expected: 2
+    got:      0
+  -> 0 pass, 2 fail
+
+SCENARIO: A second h2 host also negotiates HTTP/2
+  GIVEN an HTTP client and Cloudflare (h2)
+  THEN  the request succeeded (200)  [PASS]
+  THEN  the negotiated version is HTTP/2  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 4 pass, 2 fail
+================================================
+STATUS: FAILED

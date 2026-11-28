@@ -1,0 +1,26 @@
+SCENARIO: Hold a 2D list verbatim
+  GIVEN a 2-row, 3-col list
+  THEN  Content() returns it unchanged  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Transpose rows and columns
+  GIVEN the same 2x3 list
+  THEN  Transposed() yields a 3x2 list  [PASS]
+  THEN  Transposed() leaves the source intact  [PASS]
+  WHEN  TransposeQ() mutates in place
+  THEN  Content() is now the transposed form  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Transposition is an involution
+  GIVEN an arbitrary 3x2 list
+  THEN  transposing twice returns the original  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: The global Transpose() helper
+  THEN  Transpose() matches the object form  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

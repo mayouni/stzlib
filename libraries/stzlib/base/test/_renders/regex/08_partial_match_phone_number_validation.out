@@ -1,0 +1,22 @@
+[
+	[ "matchtype", "partial" ],
+	[ "matched", "123" ],
+	[
+		"section",
+		[ 1, 3 ]
+	]
+]
+
+[
+	[ "matchtype", "partial" ],
+	[ "matched", "123-456" ],
+	[
+		"section",
+		[ 1, 7 ]
+	]
+]
+
+Executed in almost 0 second(s)
+
+----------------
+----------------

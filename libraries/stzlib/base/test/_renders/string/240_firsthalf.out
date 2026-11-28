@@ -1,0 +1,14 @@
+SCENARIO: Halving an odd-length string
+  GIVEN "123456789"
+  THEN  FirstHalf rounds down  [PASS]
+  THEN  SecondHalf is the rest  [PASS]
+  THEN  Halves returns both  [PASS]
+  THEN  FirstHalfXT rounds up  [PASS]
+  THEN  SecondHalfXT is the rest  [PASS]
+  THEN  HalvesXT returns both  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

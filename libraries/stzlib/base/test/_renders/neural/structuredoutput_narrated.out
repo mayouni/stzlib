@@ -1,0 +1,99 @@
+-- Scene 1: the declaration is judged when it is DECLARED --
+  [OK] an unknown TYPE raises at declaration time
+  [OK] a typo'd KEY raises -- ':requird' cannot silently leave a field required
+  [OK] a :oneof with no :choices raises (an empty enumeration is unsatisfiable)
+  [OK] a :list that does not say :of what raises
+  [OK] the same field declared twice raises (Ring folds keys -- they are ONE field)
+  [OK] an unknown :must OPERATOR raises -- the graph-rule vocabulary is reused, so is its refusal
+  [OK] an operator that cannot apply to the type raises ('>=' on a string)
+  [OK] 'exists' in :must raises -- that is what :required already says
+  [OK] a sound declaration compiles, and knows its own shape
+  [OK] ...names its required fields
+  [OK] ...and the compact form declares the same thing
+
+-- Scene 2: two shapes are read, and nothing else is guessed at --
+  [OK] JSON inside a fence inside prose is read
+  [OK] the yaml-like MEMO shape is read too
+  [OK] ...with its list intact
+  [OK] prose that is not a structure is REFUSED, not scavenged
+  [OK] ...and the refusal names the rule 'parse'
+
+-- Scene 3: what comes back is the DECLARED shape --
+  [OK] a representable scalar is COERCED: the string '36' arrives as the number 36
+  [OK] ...and it really is a number, not a string that adds
+  [OK] a closed enumeration folds case
+  [OK] fields come back in DECLARED order, not the order the model wrote them
+  [OK] a field nobody declared does NOT refuse the answer by default
+  [OK] ...but it is reported
+  [OK] ...as a WARNING, not an error
+  [OK] ...and it is dropped from the whole
+  [OK] RefuseUnknownFields() closes the language: the same extra field now refuses
+
+-- Scene 4: partial credit is forbidden --
+  [OK] one missing required field refuses the whole answer
+  [OK] ...naming the rule
+  [OK] ...and the field
+  [OK] nothing partial escapes as a value
+  [OK] a required field PRESENT BUT EMPTY is missing -- the model did not answer it
+  [OK] a type mismatch refuses
+  [OK] ...naming the rule 'type'
+  [OK] a CLOSED enumeration is closed -- 'meh' is not near enough
+  [OK] ...naming the rule 'oneof'
+  [OK] a :must band refuses what falls outside it
+  [OK] ...naming the OPERATOR as the rule
+  [OK] ...and citing it in words a reader can act on
+
+-- Scene 5: nesting -- structures inside structures, lists of them --
+  [OK] a nested structure validates
+  [OK] ...and reads back
+  [OK] a list OF structures validates element by element
+  [OK] ...each element coerced
+  [OK] a field missing DEEP inside refuses the whole
+  [OK] ...and the path says where: 'author.name'
+  [OK] a comparison on a LIST speaks about its element count
+  [OK] ...and says so in the message
+  [OK] a defective element is located by index: 'steps[2].at'
+
+-- Scene 6: the verdict joins the house CI gate --
+  [OK] a finding carries :rule
+  [OK] ...:subject
+  [OK] ...:where
+  [OK] ...:severity
+  [OK] ...:message
+  [OK] stzRuleReport ingests it without an adapter
+  [OK] ...and the gate reads UNSOUND
+
+-- Scene 7: retry inside the SAME budget, then refusal --
+  [OK] the prompt CARRIES the shape -- the model is asked, not hoped at
+  [OK] two malformed answers are retried and the third validates
+  [OK] ...and the retries were paid for out of Budget(n)
+  [OK] ...the value is the declared whole
+  [OK] ...and Why() says a FAKE answered, so nothing reads as live
+  [OK] a model that never complies REFUSES on exhaustion (LAW 3)
+  [OK] ...and the refusal cites the field that failed
+  [OK] ...and names the rule
+  [OK] ...and the findings are readable afterwards, in the unified shape
+  [OK] Budget(n) still bounds the retries -- it is not a suggestion
+  [OK] ...and the refusal says the budget was what stopped it
+  [OK] ...having spent exactly the budget, no more
+
+-- Scene 8: a seed is judged like a generated answer --
+  [OK] a valid seed answers, memoized and free
+  [OK] an INVALID seed is refused at the door, not stored
+  [OK] a seed given as RAW TEXT is parsed and validated like any answer
+
+-- Scene 9: goldens hold structures --
+  [OK] a structured golden PASSES when it agrees
+  [OK] ...and fails when it does not
+  [OK] ...naming the FIELD that moved, not just the record
+
+-- Scene 10: STRUCTURE KILLS MALFORMEDNESS, NOT FALSEHOOD --
+  [OK] a schema-valid LIE validates -- Ada Lovelace was not nine
+  [OK] ...and the court has no complaint to make about it
+  (so what is promised is INTEGRITY -- the shape asked for, whole, or
+   nothing. Truth needs reversibility, audit and judgement, none of
+   which live in a validator.)
+
+==========================================
+TOTAL: 73 assertions, 73 pass, 0 fail
+==========================================
