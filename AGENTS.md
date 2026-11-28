@@ -115,23 +115,23 @@ The GPU plane, twenty-one guards in one folder, each needing a device: the spars
 3 s warm, about a minute the first time a machine compiles its kernels), the checker with its compute
 ceiling and a split dispatch timed whole (GK3, GC0; 39), the user kernel's own reference (GK6, 34), f16 weights (GK5, 23), the grammar's admissions (KP0, 43),
 the group's memory and puzzles 9-12 (KP3, 58) and the kernel puzzles (KP1-KP2, 95: the course `libraries/stzlib/base/education/program/courses/kernel-puzzles`,
-graded by `libraries/stzlib/base/gpu/stzKernelPuzzle.ring` on the desktop and by
+graded by `libraries/stzlib/base/gpu/stzKernelPuzzle.haro` on the desktop and by
 `libraries/stzlib/base/gpu/puzzle_runner/puzzle.html` in a browser
 with WebGPU, `libraries/stzlib/base` served over http). The standalone probe `libraries/stzlib/engine/src/gpu_peak_probe.zig`
 prints every adapter's peak with its spread (build it with `zig build-exe`, run it with
 `libraries/stzlib/engine/vendor/wgpu/lib/wgpu_native.dll` as its one argument), and the edge proof
 `libraries/stzlib/base/test/gpu/edge_proof/edge_proof.html` runs eight kernels in a browser
-byte-identical to the native engine (fixture from `libraries/stzlib/base/test/gpu/edge_proof/gen_fixture.ring`).
-Run the guards with Ring++'s `rnxc`, not `ring`. The kernel language, the checker and the puzzles are
+byte-identical to the native engine (fixture from `libraries/stzlib/base/test/gpu/edge_proof/gen_fixture.haro`).
+Run the guards with `haro`. The kernel language, the checker and the puzzles are
 described for a reader in `libraries/stzlib/base/gpu/SOFTANZA_GPU_KERNELS.md`; the next rungs are the
 section NEXT of `libraries/stzlib/base/gpu/SOFTANZA_GPU_PLAN.md`:
 
 ```bash
-cd libraries/stzlib/base/test/gpu && rnxc gpu_verify_narrated.ring && rnxc gpu_spec_reference_narrated.ring && rnxc gpu_f16_narrated.ring
+cd libraries/stzlib/base/test/gpu && haro gpu_verify_narrated.haro && haro gpu_spec_reference_narrated.haro && haro gpu_f16_narrated.haro
 ```
 
 ```bash
-cd libraries/stzlib/base/test/gpu && rnxc gpu_grammar_narrated.ring && rnxc gpu_shared_narrated.ring && rnxc gpu_puzzle_narrated.ring && rnxc gpu_fuzz_narrated.ring && rnxc gpu_sanitizer_narrated.ring && rnxc gpu_when_narrated.ring && rnxc gpu_int_narrated.ring && rnxc gpu_vec_narrated.ring && rnxc gpu_buffers_narrated.ring && rnxc gpu_atomic_narrated.ring && rnxc gpu_host_narrated.ring && rnxc gpu_loop_narrated.ring && rnxc gpu_grid3_narrated.ring && rnxc gpu_scan_narrated.ring && rnxc gpu_compact_narrated.ring && rnxc gpu_sort_narrated.ring && rnxc gpu_segscan_narrated.ring && rnxc gpu_spmv_narrated.ring && haro gpu_soak_narrated.haro && haro gpu_lease_narrated.haro
+cd libraries/stzlib/base/test/gpu && haro gpu_grammar_narrated.haro && haro gpu_shared_narrated.haro && haro gpu_puzzle_narrated.haro && haro gpu_fuzz_narrated.haro && haro gpu_sanitizer_narrated.haro && haro gpu_when_narrated.haro && haro gpu_int_narrated.haro && haro gpu_vec_narrated.haro && haro gpu_buffers_narrated.haro && haro gpu_atomic_narrated.haro && haro gpu_host_narrated.haro && haro gpu_loop_narrated.haro && haro gpu_grid3_narrated.haro && haro gpu_scan_narrated.haro && haro gpu_compact_narrated.haro && haro gpu_sort_narrated.haro && haro gpu_segscan_narrated.haro && haro gpu_spmv_narrated.haro && haro gpu_soak_narrated.haro && haro gpu_lease_narrated.haro
 ```
 
 The standalone probe beside it prints every adapter's peak with its spread, A B A B against

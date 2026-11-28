@@ -2926,7 +2926,7 @@ the interpreter, which is the first lesson of all.
 **Edge proof, run 2026-10-24 in the desktop app's browser pane** on the
 Intel iGPU (the native half on the RTX 3050 under `rnxc`): axpby,
 index, guard, stencil, partials — each byte-identical WGSL and exactly
-equal results (17 checks). `gen_fixture.ring` emits the five cases
+equal results (17 checks). `gen_fixture.haro` emits the five cases
 (inputs of their own lengths, the ordered scalars, n, the native
 results); `edge_proof.html` loops over them; an element both sides leave
 unwritten reads 0 on both (WebGPU zero-fills a new buffer). `stz.wasm`
@@ -3526,7 +3526,7 @@ every product are checked against an f64 sum. It runs from a separate venv
 (`D:\GitHub\_bench_cublas`, the author's ruling of 2026-10-28: a benchmark
 tool, never a dependency; `nvidia-cublas-cu12` 12.6.4.1 and
 `nvidia-cuda-runtime-cu12` 12.6.77, 435 MB). Our side is
-`gc0/gc0_ours.ring` under `rnxc`: the foundry runs tile16, tile8, reg2 and
+`gc0/gc0_ours.haro` (under `rnxc` at the time): the foundry runs tile16, tile8, reg2 and
 reg4 under the checker, on the GPU clock, best of 7.
 
 **Measured on the RTX 3050 Laptop GPU, driver 561.00, mains power,
@@ -5224,10 +5224,23 @@ Rule A refusal.
 outside the `.haro` rules; in a `.haro` file `String()` of a float writes it in full. The finding's decision stands for
 its other reason, measured: the calibration store's own comparisons refused a float.
 
-**Step 6 remains, two tools that are not guards**: `base/test/gpu/edge_proof/gen_fixture.ring` (176 lines, writes the
-browser proof's `fixture.js`) and `base/test/gpu/gc0/gc0_ours.ring` (66 lines, the foundry's matrix product timed on
-`gc0_cublas.py`'s shapes). Each moves when haro.exe runs its replacement: the fixture byte-identical, the benchmark's
-table of variants the same.
+**Step 6, done: the two tools beside the guards are `.haro` (2026-11-28).** `edge_proof/gen_fixture.haro` writes the
+browser proof's `fixture.js` and `gc0/gc0_ours.haro` times the foundry's matrix product on `gc0_cublas.py`'s shapes. Each
+was converted with Haro's `haroport.py apply`, then fixed where a run refused it, against a reference taken the same
+hour by running the older file on the same haro.exe (v0.78, stamp unchanged), engine and library prefix:
+
+- **the fixture is byte-identical**: 31,514 bytes, the same as the file of 2026-10-28, apart from its first line, which
+  now names `gen_fixture.haro`. Its numbers are written as before, a whole value bare and any other to two places
+  (`0.50`, `127.50`), through the file's own `_JsNum()`; its symbols are written lower case (`:a`, `:c`, `:k`), because
+  the older syntax folded them and the fixture records them folded; and its console report matches line for line;
+- **the benchmark's table is the same table**: eight shapes, all seven variants measured on every shape, none refused,
+  each of its 120 figures to four places. Run old, new, old, new, both arms named the same best variant on all eight
+  shapes in the second pair; in the first, the new arm gave 1024 cubed to `reg8` over `reg8p`, 1.1433 against
+  1.1492 ms, a near tie the second pair gave to `reg8p` on both arms.
+
+What a run found that `haro check` did not: a one-letter name with no type letter (`k`, `c`, `m`, `n`) and text joined to
+an integer without `String()` are refused when the file runs, not when it is checked. With step 6 no file in
+`base/test/gpu` is in the older syntax.
 
 ## NEXT — after the charge (written 2026-10-28): from a checked teaching tool to a production GPU layer
 

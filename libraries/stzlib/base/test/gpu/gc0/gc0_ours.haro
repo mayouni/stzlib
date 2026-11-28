@@ -1,0 +1,170 @@
+# GC0 -- the foundry's matrix product on the same shapes gc0_cublas.py times.
+#
+# For each shape the foundry runs every real variant (tile16, tile8, reg2,
+# reg4, and GK2d's reg4s and reg8) under the checker -- a visible and a hidden shape against the generic
+# kernel, warm, best of the repetitions, on the GPU clock where the adapter
+# has timestamps -- and prints each variant's time and GFLOP/s, and the best.
+# A variant the checker refuses prints as refused and never counts.
+#
+# Run with Haro, from this folder: haro gc0_ours.haro
+# Optional: an output file for the table, as the first line of gc0_ours.out.txt.
+
+load "../../../stzBase.ring"
+
+$nStzPlaces = 4  # the table's figures, to four places as before
+vShapes = [ [ 130, 384, 384 ], [ 130, 384, 1536 ], [ 130, 1536, 384 ],
+	[ 256, 256, 256 ], [ 512, 512, 512 ], [ 1024, 1024, 1024 ], [ 2048, 2048, 2048 ], [ 4096, 4096, 4096 ] ]
+vNames = [ "tile16", "tile8", "reg2", "reg4", "broken", "reg4s", "reg8", "reg8p" ]
+oG = new stzGpu
+if not oG.IsAvailable()
+	? "no device"
+	Shutdown(1)
+end
+? "adapter: " + oG.DeviceName()
+tOut = ""
+nS = Len(vShapes)
+for q = 1 to nS
+	nM = vShapes[q][1]
+	nK = vShapes[q][2]
+	nN = vShapes[q][3]
+	nSt = StzEngineGpuFoundryMatmul(nM, nK, nN, 7, 0)
+	if nSt != 0
+		? String(nM) + " x " + String(nK) + " x " + String(nN) + ": the foundry refused to run (" + String(nSt) + ")"
+		loop
+	end
+	nFlops = 2 * nM * nK * nN
+	nClocks = StzEngineGpuFoundryResult(5)
+	fBest = _StzF(StzEngineGpuFoundryResult(1))
+	tBest = "tile16"
+	tLine = String(nM) + " x " + String(nK) + " x " + String(nN) + "  clocks " + String(nClocks) + "  tile16 " + _T(StzEngineGpuFoundryResult(1)) + " ms"
+	for v = 1 to 7
+		if v = 4
+			loop # the checker's negative sibling, never a candidate
+		end
+		nBase = 10 + v * 5
+		nV = StzEngineGpuFoundryResult(nBase)
+		if nV = 1
+			fMs = _StzF(StzEngineGpuFoundryResult(nBase + 1))
+			if nClocks < 2
+				fMs = _StzF(StzEngineGpuFoundryResult(nBase + 2))
+			end
+			tLine += "  " + vNames[v + 1] + " " + _T(fMs) + " ms (wall " + _T(StzEngineGpuFoundryResult(nBase + 2)) + ")"
+			if fMs > 0.0f and fMs < fBest
+				fBest = fMs
+				tBest = vNames[v + 1]
+			end
+		elseif nV = 0
+			tLine += "  " + vNames[v + 1] + " refused"
+		else
+			tLine += "  " + vNames[v + 1] + " not eligible"
+		end
+	end
+	tLine += "  || best " + tBest + " " + _T(fBest) + " ms, " + _T(Float(nFlops) / fBest / 1000000.0f) + " GFLOP/s"
+	? tLine
+	tOut += String(nM) + " " + String(nK) + " " + String(nN) + " " + tBest + " " + _T(fBest) + Char(10)
+end
+Write("gc0_ours.out.txt", tOut)
+
+# A value as text, as the table wrote it before: to $nStzPlaces places, rounded half away from zero.
+func _T(xV)
+	if IsString(xV)
+		return xV
+	end
+	if not IsNumber(xV)
+		return String(xV)
+	end
+	tS = String(xV)
+	nLen = Len(tS)
+	bPlain = true
+	for nK = 1 to nLen
+		tC = tS[nK]
+		if tC = "n" or tC = "i"
+			return tS
+		end
+		if tC = "." or tC = "e" or tC = "E"
+			bPlain = false
+		end
+	end
+	if bPlain
+		return tS
+	end
+	nP = $nStzPlaces
+	nScale = 1
+	for nK = 1 to nP
+		nScale = nScale * 10
+	end
+	if _StzIsFloat(xV)
+		fV = xV
+		bNeg = fV < Float(0)
+		if bNeg
+			fV = Float(0) - fV
+		end
+		# fewer places for a float too large to scale into a whole number
+		while nP > 0 and fV * Float(nScale) >= 9000000000000000.0f
+			nP = nP - 1
+			nScale = (nScale - nScale % 10) / 10
+		end
+		nI = Floor(fV * Float(nScale) + 0.5f)
+	else
+		xA = xV
+		bNeg = xA < 0
+		if bNeg
+			xA = 0 - xA
+		end
+		# fewer places for a decimal whose digits would pass 64 bits
+		xW = xA - xA % 1
+		while nP > 0 and Len(String(Integer(xW))) + nP > 18
+			nP = nP - 1
+			nScale = (nScale - nScale % 10) / 10
+		end
+		xT = xA * nScale + 0.5
+		nI = Integer(xT - xT % 1)
+	end
+	if nP = 0
+		tR = String(nI)
+	else
+		nW = _Q((nI - nI % nScale), nScale)
+		tF = String(nI % nScale)
+		while Len(tF) < nP
+			tF = "0" + tF
+		end
+		tR = String(nW) + "." + tF
+	end
+	if bNeg and nI != 0
+		tR = "-" + tR
+	end
+	return tR
+end
+
+func _Q(xA, xB)
+	try
+		return xA / xB
+	catch e
+	end
+	return _StzF(xA) / _StzF(xB)
+end
+
+func _StzF(xV)
+	if IsNumber(xV)
+		if _StzIsFloat(xV)
+			return xV
+		end
+		return Float(String(xV))
+	end
+	if xV
+		return 1.0f
+	end
+	return 0.0f
+end
+
+func _StzIsFloat(xV)
+	if not IsNumber(xV)
+		return false
+	end
+	try
+		xT = xV + 0
+		return false
+	catch e
+		return true
+	end
+end
