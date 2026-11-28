@@ -9,9 +9,6 @@ load "../../stzBase.ring"
 
 pr()
 
-? ring_version()
-#--> "1.27"
-
 ? StzVersion()
 #--> "0.9"
 

@@ -14,9 +14,9 @@ pr()
 cTA = CurrentDir() + "/_t23"
 BuildTestArea(cTA)
 
-# Ring's dir() returns entries in their on-disk case
+# The built-in dir() returns entries in their on-disk case
 
-? @@NL( ring_dir(cTA) )
+? @@NL( Dir(cTA) )
 #--> entries with their real case, e.g. [ "Docs", 1 ], [ "Images", 1 ],
 #    [ "test.txt", 0 ], [ "Videos", 1 ], ...
 

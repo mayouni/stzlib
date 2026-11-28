@@ -389,9 +389,6 @@ func StzSysTime()
 func StzAddDays(_cDate_, n)
 	return addDays(_cDate_, n)
 
-	func ring_addDays(_cDate_, n)
-		return StzAddDays(_cDate_, n)
-
 func StzDateQ(pDate)
     return new stzDate(pDate)
 
