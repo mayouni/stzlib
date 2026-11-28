@@ -760,7 +760,7 @@ func StzParseRange(pxStr)
 	if (not bLhsQuoted) and (not bRhsQuoted) and
 	   _IsNumericToken(tLhs) and _IsNumericToken(tRhs)
 
-		nDec = Max(_DecimalsOf(tLhs), _DecimalsOf(tRhs))
+		nDec = Max([ _DecimalsOf(tLhs), _DecimalsOf(tRhs) ])
 
 		if nDec = 0
 			return NumbersBetween(Decimal(tLhs), Decimal(tRhs))
