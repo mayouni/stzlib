@@ -147,6 +147,29 @@ check('Show is NOT declared not-run-here', 'show' in DECL, False)
 check('each entry says where it was declared',
       all(':' in v for v in DECL.values()), True)
 
+print('=== expected_diffs: an annotation, never an allow-list ===')
+EXP = R.expected_diffs()
+check('the held key is read from the file',
+      'render/agents_door_narrated.ring' in EXP, True)
+check('its row id came through',
+      EXP.get('render/agents_door_narrated.ring', {}).get('row'),
+      'AGENTDOOR-HAROSHAPE-01')
+check('its expected digest came through',
+      EXP.get('render/agents_door_narrated.ring', {}).get('digest'),
+      '530c63bf982c54ac')
+check('every entry carries all six fields',
+      all(set(v) == set(['row', 'digest', 'who', 'date', 'note'])
+          for v in EXP.values()), True)
+# THE FAILING DIRECTIONS. An expectation file is one editing slip away from
+# becoming an allow-list that covers the corpus, so each of these is the alarm.
+check('the header line is not read as a key', 'key' in EXP, False)
+check('a comment line is not read as a key',
+      any(k.startswith('#') for k in EXP), False)
+check('a key nobody holds is absent',
+      'calendar/22_test_15_stats.ring' in EXP, False)
+check('it holds ONE key, so a slip that matched everything would fail here',
+      len(EXP), 1)
+
 print('=== store paths stay inside the tree ===')
 p = R.store_path('09_test_8_display_options.ring')
 check('a .ring becomes a .out', p.endswith('09_test_8_display_options.out'), True)

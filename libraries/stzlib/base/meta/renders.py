@@ -120,6 +120,57 @@ else:
 STORE = os.path.join(BASE_DIR, 'test', '_renders')
 TOPIC_STORE = os.path.join(STORE, TOPIC)
 MANIFEST = os.path.join(STORE, 'MANIFEST.tsv')
+EXPECTED_FILE = os.path.join(STORE, 'EXPECTED-DIFFS.tsv')
+
+
+# ------------------------------------------------------------ expected diffs
+#
+# A key here is one somebody has ALREADY told us will differ, with the row id
+# of whoever is holding it. It exists so a known difference does not read as a
+# surprise to the next reader -- the GPU desk asked for exactly that, 2026-11-28,
+# for a guard whose AGENTS.md paragraph changed under it.
+#
+# IT SUPPRESSES NOTHING, and the design is the point. An entry does not lower a
+# severity, does not leave the drift count, and does not keep a run green. It
+# adds a sentence naming the row. The temptation is to make it an allow-list,
+# and an allow-list is how a gate stops seeing: "coverage dropped silently is a
+# green nobody earned" (PX.md), and this file's own volatility notes exist
+# because a gate that cries every morning gets ignored -- so does a gate that
+# has been taught to stop crying.
+#
+# Two further properties, each one a defect somebody has already paid for:
+#
+#   - an entry carries the DIGEST the difference is expected to have. A drift
+#     matching it is the held one; a drift NOT matching it is a second,
+#     unrelated change, and the message says so loudly rather than letting the
+#     first expectation cover everything that happens to the same file after.
+#   - an entry whose key no longer differs is reported as STALE. A deferral
+#     whose event has passed reads on a board exactly like a deferral with no
+#     end (SECURITY-SIGNING-01), and an expectation outliving its cause is that
+#     same shape: it would sit here for ever, explaining a difference that is
+#     not there any more.
+#
+# Columns: key, row, digest, who, date, note. A line starting with # is a
+# comment and a blank line is ignored.
+def expected_diffs():
+    found = {}
+    if not os.path.isfile(EXPECTED_FILE):
+        return found
+    with io.open(EXPECTED_FILE, encoding='utf-8') as fh:
+        for raw in fh:
+            line = raw.rstrip(NL).rstrip(CR)
+            if not line.strip() or line.lstrip().startswith('#'):
+                continue
+            parts = line.split(TAB)
+            if len(parts) < 6 or parts[0] == 'key':
+                continue
+            found[parts[0]] = {'row': parts[1], 'digest': parts[2],
+                               'who': parts[3], 'date': parts[4],
+                               'note': parts[5]}
+    return found
+
+
+EXPECTED = expected_diffs()
 
 
 # ---------------------------------------------------------------- volatility
@@ -581,6 +632,17 @@ def main():
             continue
         if cur == stored:
             unchanged += 1
+            # An expectation that outlived its cause. See expected_diffs().
+            if key in EXPECTED:
+                e = EXPECTED[key]
+                finding('render-expectation-stale', fn, 'warning',
+                        'EXPECTED-DIFFS.tsv still holds this key for %s, recorded '
+                        '%s, and the render does not differ IN THIS CHECKOUT. Three '
+                        'readings and only two mean drop the row: the cause was '
+                        'settled, or the baseline was accepted -- or this checkout '
+                        'simply predates the change that causes the difference, '
+                        'which is not staleness at all. Check which before acting.'
+                        % (e['row'], e['date']))
             if str(manifest[key].get('judged', '0')) != '1':
                 finding('render-unjudged', fn, 'warning',
                         'nobody has ever looked at this render: it records what the '
@@ -590,9 +652,25 @@ def main():
         drifted += 1
         a, b = len(stored), len(cur)
         first = next((i for i in range(min(a, b)) if stored[i] != cur[i]), min(a, b))
-        finding('render-drift', fn, 'error',
-                'the render changed: %d lines -> %d, first difference at line %d '
-                '(--accept to bless it, after looking)' % (a, b, first + 1))
+        msg = ('the render changed: %d lines -> %d, first difference at line %d '
+               '(--accept to bless it, after looking)' % (a, b, first + 1))
+        # An EXPECTED divergence is ANNOTATED and never suppressed: the severity
+        # stays error, the count stays in `drifted`, and the row id is added so
+        # the reader knows who is already holding it. See expected_diffs().
+        exp = EXPECTED.get(key)
+        if exp:
+            if exp['digest'] == digest(cur):
+                msg += ('. EXPECTED: %s, recorded %s by %s -- %s. The severity is '
+                        'unchanged on purpose: the gate still refuses, because an '
+                        'expectation is a note about who is holding a difference '
+                        'and never a reason to stop seeing it.'
+                        % (exp['row'], exp['date'], exp['who'], exp['note']))
+            else:
+                msg += ('. %s expected this key to differ with digest %s, and it '
+                        'differs with %s instead, so THIS IS A SECOND CHANGE and '
+                        'not the one being held. Read it before anything else.'
+                        % (exp['row'], exp['digest'], digest(cur)))
+        finding('render-drift', fn, 'error', msg)
 
     # Baseline entries whose file is gone from the topic entirely.
     for key in sorted(manifest):
