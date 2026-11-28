@@ -1,0 +1,16 @@
+[
+	[ "status", "fail" ],
+	[ "domain", "BCEAO_governance" ],
+	[ "issuecount", 2 ],
+	[
+		"issues",
+		[
+			"BCEAO-001: No Board of Directors found",
+			"BCEAO-003: No dedicated Risk Management function"
+		]
+	]
+]
+
+
+----------------
+----------------

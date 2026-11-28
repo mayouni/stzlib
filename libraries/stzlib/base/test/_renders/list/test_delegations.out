@@ -1,0 +1,16 @@
+=== Replace & Contains Delegation Test ===
+  PASS: Replace all
+  PASS: ReplaceFirst
+  PASS: ReplaceLast
+  PASS: ReplaceManyByMany
+  PASS: ContainsOneOfThese true
+  PASS: ContainsOneOfThese false
+  PASS: ContainsEither
+  PASS: ContainsAllOfThese true
+  PASS: ContainsAllOfThese false
+
+==========================
+Total: 9
+Passed: 9
+Failed: 0
+ALL TESTS PASSED!

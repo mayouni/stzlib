@@ -1,0 +1,99 @@
+SCENARIO: stzDate: a text, a list or a hash is accepted wherever another date is taken
+  THEN  MonthsTo takes a text  [PASS]
+  THEN  YearsTo takes a text  [PASS]
+  THEN  IsSameMonth takes a text  [PASS]
+  THEN  IsSameMonth refuses another month  [PASS]
+  THEN  IsSameYear takes a text  [PASS]
+  THEN  IsSameWeek takes a text  [PASS]
+  THEN  IsBetween takes two texts  [PASS]
+  THEN  IsBetween takes [ :And, text ] for the end  [PASS]
+  THEN  IsBetween excludes a bound  [PASS]
+  THEN  MonthsTo takes a list [ y, m, d ]  [PASS]
+  THEN  YearsTo takes a list  [PASS]
+  THEN  IsSameYear takes a list  [PASS]
+  THEN  YearsTo takes a hash  [PASS]
+  THEN  MonthsTo takes a hash  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: stzDate: a list or hash variable passed in is not replaced in the caller
+  THEN  the list is still a list  [PASS]
+  THEN  of three numbers  [PASS]
+  THEN  ending with the day  [PASS]
+  THEN  the hash is still a hash  [PASS]
+  THEN  with its year  [PASS]
+  THEN  the [ :And, x ] list survives IsBetween  [PASS]
+  THEN  with its date  [PASS]
+  THEN  DaysTo answers the right distance for the list  [PASS]
+  THEN  DaysTo(5) raises  [PASS]
+  THEN  MonthsTo(5) raises the same message  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: stzDate: PreviousWeekday steps over the weekend from a Sunday too
+  THEN  a Monday gives the Friday  [PASS]
+  THEN  a Sunday gives the Friday, not the Saturday  [PASS]
+  THEN  another Sunday  [PASS]
+  THEN  a Saturday gives the day before  [PASS]
+  THEN  a Wednesday gives the Tuesday  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: stzTime: StzIsTime accepts two-digit parts, so the operators accept a time text
+  THEN  23:00  [PASS]
+  THEN  23:00:15  [PASS]
+  THEN  14:30:15.250  [PASS]
+  THEN  9:05  [PASS]
+  THEN  24:00 is out of range  [PASS]
+  THEN  12:60 is out of range  [PASS]
+  THEN  1a:00 holds a letter  [PASS]
+  THEN  an empty part is refused  [PASS]
+  THEN  time minus a time text is the seconds from the text to the time  [PASS]
+  THEN  < with a time text  [PASS]
+  THEN  > with a time text  [PASS]
+  THEN  = with a time text  [PASS]
+  THEN  <= with a time text  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: stzTime: MSecsTo reads a time text, and IsBetween leaves its list alone
+  THEN  MSecsTo a text with milliseconds  [PASS]
+  THEN  MSecsTo another text answers another number  [PASS]
+  THEN  MSecsTo a time object  [PASS]
+  THEN  IsBetween takes [ :And, text ]  [PASS]
+  THEN  and the list is still the list  [PASS]
+  THEN  new stzTime(0) is midnight, not the clock  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: stzTime: the 12-hour forms convert the hour
+  THEN  To12Hour  [PASS]
+  THEN  ToSimple  [PASS]
+  THEN  ToStringXT with h:mm AP  [PASS]
+  THEN  ToStringXT with hh:mm AP pads the 12-hour hour  [PASS]
+  THEN  ToStringXT :AmPm  [PASS]
+  THEN  a 24-hour format keeps the 24-hour hour  [PASS]
+  THEN  hh without AP is still the 24-hour hour  [PASS]
+  THEN  00:05 is 12:05 AM, not 0:05 AM  [PASS]
+  THEN  ToSimple at 00:05  [PASS]
+  THEN  noon is 12 PM  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: stzTime: ToHuman says the next hour on its own clock at the quarter-to
+  THEN  11:45  [PASS]
+  THEN  12:45  [PASS]
+  THEN  23:45  [PASS]
+  THEN  00:45  [PASS]
+  THEN  14:45 (always right)  [PASS]
+  THEN  a half past is unchanged  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: stzTime: ToRelative reads a past time as past and a future time as future
+  THEN  the past hour reads 1 hour ago when the day does not wrap  [PASS]
+  THEN  the future reads in N hours when the day does not wrap  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: stzDate: ToHuman writes the future in lowercase like the past
+  THEN  three days ahead  [PASS]
+  THEN  three days back  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 68 assertions, 68 pass, 0 fail
+================================================
+STATUS: OK

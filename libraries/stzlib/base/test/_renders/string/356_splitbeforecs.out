@@ -1,0 +1,24 @@
+SCENARIO: Splitting before substrings
+  GIVEN "__a__A__"
+  THEN  case-insensitive SplitBeforeCS  [PASS]
+  THEN  the SplitCS(:Before) spelling  [PASS]
+  THEN  a list of substrings  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Splitting before positions and sections
+  GIVEN "...♥...♥..."
+  THEN  :BeforePosition  [PASS]
+  THEN  :BeforePositions  [PASS]
+  THEN  :BeforeSection splits before its start  [PASS]
+  THEN  :BeforeSections  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Splitting before by condition
+  THEN  the char W form  [PASS]
+  THEN  the substring W form  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 9 assertions, 9 pass, 0 fail
+================================================
+STATUS: OK

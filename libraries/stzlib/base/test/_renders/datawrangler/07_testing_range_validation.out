@@ -1,0 +1,10 @@
+╭──────────────────╮
+│ RANGE VALIDATION │
+╰──────────────────╯
+Range violations found: 2
+  • Row 7, Age: -5 outside range [18, 65]
+  • Row 7, Salary: 999999 outside range [30000, 200000]
+
+
+----------------
+----------------

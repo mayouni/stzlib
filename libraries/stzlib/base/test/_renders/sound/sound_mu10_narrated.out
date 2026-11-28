@@ -1,0 +1,81 @@
+== MU10: the staff, and the maqam ladder ==
+
+-- Scene 1: where a note sits is its pitch --
+   C4 E4 F5 A5 on the treble staff: steps -2 0 8 10 (0 is the bottom line, 8 the top)
+  [ok]   C4 sits on the first ledger line below the treble staff, E4 on its bottom line, F5 on its top line, A5 on the first ledger above
+  [ok]   and exactly two ledger lines are drawn: one under C4, one over A5
+  [ok]   stems go UP below the middle line and DOWN above it
+  [ok]   a low voice gets the BASS clef, where G2 is the bottom line, A3 the top, and middle C the first ledger above
+
+-- Scene 2: the length is the shape --
+   beams: 2 (2 3 notes; levels 1 2 )
+  [ok]   two eighths on a beat are BEAMED; two sixteenths and an eighth on the next beat take a second beam
+  [ok]   an eighth alone on its beat takes a FLAG instead
+  [ok]   a dotted quarter is drawn with its dot
+   C5 for six beats from beat 4: 3 heads, 1 tie(s)
+  [ok]   a note that crosses a barline is written as two notes TIED: a whole note into a half
+  [ok]   a half note begun on the fourth beat is a quarter in its bar, tied to a quarter in the next
+   rests: 4 16 (sixteenths)
+  [ok]   every gap is a rest, and an empty bar is ONE whole rest
+
+-- Scene 3: accidentals hold to the barline; the quarter tones are written --
+   C#5 C#5 C5 E-half-flat | C5 E-half-flat: accidentals shown 1 0 -0.500 -0.500
+  [ok]   the sharp is written once, the natural cancels it, and the next bar needs none: # - n
+  [ok]   the half-flat is written in BOTH bars -- the barline forgets it
+  [ok]   and is drawn as Arabic notation draws it: a flat with a stroke through it
+
+-- Scene 4: chords, voices and pages --
+  [ok]   a second inside a chord sets its two heads either side of the stem
+   96 beats: 24 bars in 6 systems
+  [ok]   a long melody breaks into systems, and every bar is drawn once
+  [ok]   and every system but the last is justified to the same right edge
+  [ok]   two instruments are two staves, each with its own clef
+
+-- Scene 5: the metre --
+  [ok]   in 6/8 six eighths are beamed in TWO threes -- by the dotted quarter, not the quarter
+  [ok]   and a metre that is not one is refused
+
+-- Scene 6: what the staff cannot show is COUNTED --
+  [ok]   drum strokes are drawn on a percussion staff of their own, and nothing is lost
+  [ok]   slendro, which no staff can write, is drawn at the nearest quarter tone and counted
+  [ok]   the page is well-formed SVG (52 elements), with a treble clef in it
+
+-- Scene 7: the maqam LADDER -- a rung per degree, spaced by cents --
+dhil (tunisian) -- tonic C4, 261.63 Hz
+ deg  name                cents        Hz    step
+   8  c (octave)           1200    523.25
+                                              150  (3/4 tone)
+   7  b-half-flat          1050    479.82
+                                              150  (3/4 tone)
+   6  a                     900    440.00
+                                              200  (1 tone)
+   5  g                     700    392.00
+                                              200  (1 tone)
+   4  f                     500    349.23
+                                              150  (3/4 tone)
+   3  e-half-flat           350    320.24
+                                              150  (3/4 tone)
+   2  d                     200    293.66
+                                              200  (1 tone)
+   1  c                       0    261.63
+ jins rast (below the tonic, on G): -500 to 0 cents
+ jins rast: 0 to 500 cents
+
+  [ok]   Dhil's rungs are its declared degrees, the octave included: 0 200 350 500 700 900 1050 1200
+  [ok]   and its steps are the tone, the three-quarter tones and the tone again, adding to the octave
+  [ok]   the half-flat third is 350 cents: half way between a minor third (300) and a major one (400)
+  [ok]   each step is named in tones where it is one: 150 is a three-quarter tone
+  [ok]   the jins below the tonic spans -500 to 0 cents (rast on G), the one above 0 to 500
+  [ok]   the sources' variants of the third (300, 400) are drawn as their own dotted rungs
+  [ok]   a jins counted from its own degree lands there: Sika's rast on its third spans 350 to 850
+  [ok]   Rast's seventh is 1050 going up and 1000 coming down: the descending form is its own rung
+  [ok]   slendro's octave is 1208 cents, as measured -- not forced to 1200 -- and its 231-cent step has no tone name
+  [ok]   the ladder keeps the tonic the universe was given: Rast on D starts at 293.66 Hz
+   a rhythm universe: a ladder needs a mode with degrees: westafrican / '' declares none
+  [ok]   a universe with no scale has no ladder, and says so
+
+-- The listener's line --
+   Whether these pages READ as sheet music to a musician, and as a ladder to
+   one who learnt maqam from one, is not a number: UNPERCEIVED.
+
+33 passed, 0 failed

@@ -1,0 +1,10 @@
+╭───────────────────╮
+│ OUTLIER DETECTION │
+╰───────────────────╯
+Outliers detected: 2
+  • Row 4, Quantity: 9999 (Z-score: 2.27)
+  • Row 4, Price: 500 (Z-score: 2.26)
+
+
+----------------
+----------------

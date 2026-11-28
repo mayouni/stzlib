@@ -1,0 +1,28 @@
+SCENARIO: the Ring side and the engine side can no longer disagree
+  THEN  the determinant is right to begin with  [PASS]
+  THEN  the content shows the change  [PASS]
+  THEN  and the ENGINE agrees: 99*4 - 2*3  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ...for every writer, not just the one that was noticed
+  THEN  ReplaceRow  [PASS]
+  THEN  ReplaceCol  [PASS]
+  THEN  ReplaceElementAt  [PASS]
+  THEN  ReplaceElement  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the engine result still flows back to the Ring side
+  THEN  a transpose lands in the content  [PASS]
+  THEN  multiplying by the identity is a no-op, both sides  [PASS]
+  THEN  ...and the determinant follows  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: what correctness by construction costs here: almost nothing
+  THEN  twenty rebuild-and-transpose passes stay well under a second  [PASS]
+  THEN  ...and the matrix is intact afterwards  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,13 @@
+[
+	[ 1110246, "555123" ],
+	[ '"JOHN DOE"', '"john doe"' ],
+	[ '"QUICK RESPONSE"', '"quick response"' ],
+	[
+		"CONTACT: john@example.com",
+		"john@example.com"
+	]
+]
+
+
+----------------
+----------------

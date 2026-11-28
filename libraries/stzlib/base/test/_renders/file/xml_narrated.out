@@ -1,0 +1,86 @@
+SCENARIO: reading a document without holding an object (the stzJsonFuncs shape)
+  THEN  it is valid  [PASS]
+  THEN  the root is named  [PASS]
+  THEN  a walked path reads text  [PASS]
+  THEN  an INDEXED step picks a sibling  [PASS]
+  THEN  // finds an element anywhere  [PASS]
+  THEN  attributes read  [PASS]
+  THEN  ...including on the root  [PASS]
+  THEN  the namespace is available when it matters  [PASS]
+  THEN  siblings count  [PASS]
+  THEN  ...and so does //   [PASS]
+  THEN  child names come back as a list  [PASS]
+  THEN  a number reads as a number  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: a missing path is REPORTED, never guessed
+  THEN  a path that does not exist yields nothing  [PASS]
+  THEN  ...and does not pretend to exist  [PASS]
+  THEN  ...nor to have a count  [PASS]
+  THEN  an absent attribute yields nothing  [PASS]
+  THEN  a malformed document is invalid  [PASS]
+  THEN  junk is invalid  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: XXE is closed BY CONSTRUCTION -- the same refusal the signature path makes
+  THEN  a DOCTYPE is refused  [PASS]
+  THEN  ...so is a bare ENTITY declaration  [PASS]
+  THEN  an ordinary document is unaffected  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the document object, and nodes that are just paths
+  THEN  it knows its root  [PASS]
+  THEN  it counts  [PASS]
+  THEN  it reads a path  [PASS]
+  THEN  it reads a number  [PASS]
+  THEN  repeated leaves collect  [PASS]
+  WHEN  a node is taken
+  THEN  it exists  [PASS]
+  THEN  ...knows its name  [PASS]
+  THEN  ...its attribute  [PASS]
+  THEN  ...and reads RELATIVE to itself  [PASS]
+  WHEN  every matching node is taken
+  THEN  there are two  [PASS]
+  THEN  ...the first is Dune  [PASS]
+  THEN  ...the second Ubik  [PASS]
+  THEN  a node can hand back its document  [PASS]
+  THEN  a node that is not there says so  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: building a document escapes every value
+  THEN  the ampersand was escaped  [PASS]
+  THEN  ...and the angle brackets  [PASS]
+  THEN  ...so the structure is intact  [PASS]
+  WHEN  the built document is read back
+  THEN  the value round-trips DECODED, not as markup  [PASS]
+  THEN  ...the attribute survives  [PASS]
+  THEN  ...and the root attribute  [PASS]
+  WHEN  an element is left open
+  THEN  it says so rather than emitting broken XML  [PASS]
+  THEN  ...and refuses to hand it over  [PASS]
+  WHEN  Close is called with nothing open
+  THEN  it refuses  [PASS]
+  GIVEN a root name that is empty
+  THEN  it refuses to build a nameless document  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: pretty printing, for reading
+  THEN  the tree is indented  [PASS]
+  THEN  ...nested deeper still  [PASS]
+  THEN  and it is still a valid document  [PASS]
+  THEN  ...that reads the same  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the parser really is the one the signature code uses
+  THEN  stzXml parses it  [PASS]
+  THEN  ...names its root  [PASS]
+  THEN  ...reads its issuer  [PASS]
+  THEN  ...its subject  [PASS]
+  THEN  ...and its SAML namespace  [PASS]
+  THEN  ...while seeing the signature as ordinary elements  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 55 assertions, 55 pass, 0 fail
+================================================
+STATUS: OK

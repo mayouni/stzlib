@@ -1,0 +1,23 @@
+╭─────────┬──────────┬─────────┬───────────╮
+│ Nation  │ Language │ Capital │ Continent │
+├─────────┼──────────┼─────────┼───────────┤
+│ Tunisia │ ___      │ Tunis   │ ___       │
+│ France  │ ___      │ Paris   │ ___       │
+│ Egypt   │ ___      │ Cairo   │ ___       │
+│ Belgium │ French   │ Brussel │ Europe    │
+│ Yemen   │ Arabic   │ Sanaa   │ Asia      │
+╰─────────┴──────────┴─────────┴───────────╯
+
+╭─────────┬──────────┬─────────┬───────────╮
+│ Nation  │ Language │ Capital │ Continent │
+├─────────┼──────────┼─────────┼───────────┤
+│ Tunisia │ ___      │ Tunis   │ ___       │
+│ France  │ ~~~      │ Paris   │ ~~~       │
+│ Egypt   │ ___      │ Cairo   │ ___       │
+│ Belgium │ ~~~      │ Brussel │ ~~~       │
+│ Yemen   │ ___      │ Sanaa   │ ___       │
+╰─────────┴──────────┴─────────┴───────────╯
+
+
+----------------
+----------------

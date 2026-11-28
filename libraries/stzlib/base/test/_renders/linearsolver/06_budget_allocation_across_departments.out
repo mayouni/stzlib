@@ -1,0 +1,58 @@
+╭────────────────────────────╮
+│ Linear Programming Problem │
+╰────────────────────────────╯
+Variables:
+╭─────────╮
+│ Problem │
+╰─────────╯
+• Variables:
+  marketing ∈ [50000, 200000] (continuous)
+ ─ marketing ∈ [50000, 200000] (continuous)
+  rd ∈ [100000, 300000] (continuous)
+ ─ rd ∈ [100000, 300000] (continuous)
+  operations ∈ [80000, 250000] (continuous)
+ ─ operations ∈ [80000, 250000] (continuous)
+  hr ∈ [30000, 100000] (continuous)
+ ─ hr ∈ [30000, 100000] (continuous)
+
+Constraints:
+• Constraints:
+  marketing + rd + operations + hr
+ ─ marketing + rd + operations + hr = 500000
+  rd
+ ─ rd >= 150000
+  marketing + operations
+ ─ marketing + operations >= 200000
+
+Objective:
+• Objective:
+  MAXIMIZE 0.6*marketing + 0.8*rd + 0.5*operations + 0.3*hr
+
+========== Solution ==========
+Status: optimal
+Solved in 0.00 seconds
+Iterations: 4
+╭──────────╮
+│ Solution │
+╰──────────╯
+• Status: optimal
+• Solved in 0.00 second(s)
+• Iterations: 4
+
+Variable Values:
+• Variable Values:
+  marketing = 120000
+ ─ marketing = 120000
+  rd = 270000
+ ─ rd = 270000
+  operations = 80000
+ ─ operations = 80000
+  hr = 30000
+ ─ hr = 30000
+
+Objective Value: 337000
+• Objective Value: 337000
+
+
+----------------
+----------------

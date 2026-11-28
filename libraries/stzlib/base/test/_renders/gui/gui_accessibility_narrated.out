@@ -1,0 +1,64 @@
+  [OK] the form document is clean
+-- Scene 1: a tree exists, and it covers the screen --
+   12 nodes
+  [OK] every declaration became a node
+  [OK] the root is the panel
+  [OK] ...and it is a window
+  [OK] a leaf deep in the tree is there too
+  [OK] something never declared is not
+
+-- Scene 2: THE LAW -- a focusable thing must be announceable --
+   focusable: [ "row_one", "row_two", "confirm", "cancel" ]
+  [OK] the form has focusable nodes at all
+  [OK] EVERY focusable node has a name
+  [OK] EVERY focusable node has a role better than 'group'
+  [OK] ...and an unnamed focusable IS caught
+
+-- Scene 3: the reading order and the KEYBOARD order agree --
+   tree says: [ "row_one", "row_two", "confirm", "cancel" ]
+   ring says: [ "confirm", "cancel", "row_one", "row_two" ]
+  [OK] the same number of stops
+  [OK] ...and the same ones
+
+-- Scene 4: RATIONALE became the description, for free --
+   confirm: The act.
+  [OK] the act carries its reason
+  [OK] ...and so does the way back
+  [OK] EVERY node has a description, because every declaration must
+
+-- Scene 5: name-from-content is gated by ROLE, as ARIA gates it --
+  [OK] a button takes its name from its label
+  [OK] the window does NOT take the whole screen as its name
+  [OK] ...nor does a plain grouping row
+  [OK] a textbox takes its LABEL
+
+-- Scene 6: bounds come from the REAL layout --
+   confirm bounds: [ 18, 170.80, 241.04, 44 ]
+  [OK] a node's bounds are the laid-out box
+  [OK] the root's bounds are the whole panel
+  [OK] with no panel, bounds are UNKNOWN rather than zero
+  [OK] ...and the JSON says null, not [0,0,0,0]
+
+-- Scene 7: focus is reported, and it is the panel's real focus --
+  [OK] the focused node is marked
+  [OK] ...and its neighbour is not
+  [OK] moving focus moves the mark
+  [OK] ...and clears the old one
+
+-- Scene 8: the tree is DATA -- Rule 104's requirement --
+  [OK] it serialises
+  [OK] ...with every node
+  [OK] ...carrying its role
+  [OK] ...its name
+  [OK] ...and what can be DONE with it
+  [OK] a node nobody can act on says so
+  [OK] a description with punctuation survives the quoting
+
+-- Scene 9: there is NO FLAG to turn it off --
+  [OK] a tree can be built with no panel, no font and no device
+  [OK] ...and it describes the same screen
+  [OK] an unclean document is refused, not described
+
+==============================================================
+ 37 ok, 0 failed
+==============================================================

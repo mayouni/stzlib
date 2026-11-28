@@ -1,0 +1,16 @@
+SCENARIO: Shallow bounded-by pairs each open with the next close
+  GIVEN "---[ [===]---[=] ]--[=]--"
+  THEN  the 3 shallow regions  [PASS]
+  THEN  their substrings  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Deep bounded-by matches the nesting
+  GIVEN the same string
+  THEN  leaves first, then the outer span  [PASS]
+  THEN  their substrings  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

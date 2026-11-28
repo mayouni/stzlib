@@ -1,0 +1,59 @@
+SCENARIO: RoundUp and RoundDown go to the whole number above and below
+  THEN  RoundUp goes up (it used to take the floor, then raise R24)  [PASS]
+  THEN  RoundDown goes down  [PASS]
+  THEN  RoundUp of a negative goes toward zero  [PASS]
+  THEN  RoundDown of a negative goes away from zero  [PASS]
+  THEN  a whole number stays  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The tangent family answers
+  THEN  ArcTangent of 1 is pi/4  [PASS]
+  THEN  ArcTangent2 takes the x side as its argument  [PASS]
+  THEN  ArcTangent2 of y = 1 and x = -1 is 3pi/4  [PASS]
+  THEN  HyperbolicTangent of 1  [PASS]
+  THEN  and of 0 is 0  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Derivative gives the exact slope of a function of x at the number
+  THEN  x^2 at 3  [PASS]
+  THEN  x^3 at 3  [PASS]
+  THEN  a polynomial  [PASS]
+  THEN  cos(0.5) comes back with the number's two decimals  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: IsQuietEqualTo compares within the quiet ratio
+  THEN  equal to itself  [PASS]
+  THEN  equal to the same number written as text  [PASS]
+  THEN  not equal to a distant one  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Incremented and Decremented answer the number plus and minus 1
+  THEN  Incremented  [PASS]
+  THEN  Decremented  [PASS]
+  THEN  the number itself is unchanged  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Stringify answers the number as text
+  THEN  Stringify  [PASS]
+  THEN  DeepStringifiy is the same answer  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The space and zero removers do not raise
+  THEN  a number holds no spaces, so nothing leads: unchanged  [PASS]
+  THEN  and nothing trails: unchanged  [PASS]
+  THEN  LeadingSpacesRemoved answers the written number  [PASS]
+  THEN  TrailingSpacesRemoved answers the written number  [PASS]
+  THEN  ZerosRemoved drops the zeros at both ends  [PASS]
+  THEN  and leaves the number as written  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: isWeiferich and ToBytes answer
+  THEN  1093 is a Wieferich prime  [PASS]
+  THEN  7 is not  [PASS]
+  THEN  ToBytes is the 8 bytes of a double  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 31 assertions, 31 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,277 @@
+SCENARIO: 1. the examples of the doc blocks
+  GIVEN an empty holder, and a holder of one named string
+  THEN  a holder built without parentheses holds nothing: 0  [PASS]
+  THEN  NamedObject(OFIRST) finds oFirst in another case: ab  [PASS]
+  THEN  NamedObject(1) finds it by position: ab  [PASS]
+  THEN  Copy holds one object: 1  [PASS]
+  THEN  the alias class holds one: 1  [PASS]
+  THEN  NEGATIVE: the lookup by another name does not answer  [PASS]
+  THEN  the class raises nothing for a valid list  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: 2. init: a list of named objects of three classes is accepted (the register R14 row)
+  GIVEN a named string, a named number and a named list
+  THEN  the list is built, no error is raised  [PASS]
+  THEN  the holder is a stzlistofnamedobjects  [PASS]
+  THEN  the holder has the three objects  [PASS]
+  THEN  the first keeps its class stzstring  [PASS]
+  THEN  the second keeps its class stznumber  [PASS]
+  THEN  the third keeps its class stzlist  [PASS]
+  THEN  the first keeps its text  [PASS]
+  THEN  the first keeps its name, in its case: oHello  [PASS]
+  THEN  the second keeps its name: oFive  [PASS]
+  THEN  the third keeps its two items  [PASS]
+  THEN  a list of one is accepted  [PASS]
+  THEN  a list of two is accepted  [PASS]
+  THEN  every item of the answer is a named object  [PASS]
+  THEN  a holder of a stzString and a stzString, two names  [PASS]
+  THEN  NEGATIVE: the holder is not the empty one  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: 3. init: the empty list is a list of no object and is accepted
+  GIVEN the empty list
+  THEN  it is accepted  [PASS]
+  THEN  the holder is empty  [PASS]
+  THEN  and its content is a list  [PASS]
+  THEN  IsEmpty says so  [PASS]
+  THEN  NumberOfItems says 0  [PASS]
+  THEN  it copies  [PASS]
+  THEN  NEGATIVE: NamedObject(1) finds nothing in it  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: 4. init: one item that is not a named object refuses the whole list
+  GIVEN a named string, and one wrong item in turn
+  THEN  an object with no name is not named: @noname  [PASS]
+  THEN  a list of it alone is refused  [PASS]
+  THEN  a named one and an unnamed one are refused  [PASS]
+  THEN  the unnamed one first is refused too  [PASS]
+  THEN  an object of a class of your own, with a Name method, is refused  [PASS]
+  THEN  ...among named ones  [PASS]
+  THEN  a number among named objects is refused  [PASS]
+  THEN  a text among them is refused  [PASS]
+  THEN  a nested list among them is refused  [PASS]
+  THEN  an empty list among them is refused  [PASS]
+  THEN  the wrong item first is refused  [PASS]
+  THEN  a pair of a name and an object is refused (the object must carry the name)  [PASS]
+  THEN  a list of numbers is refused  [PASS]
+  THEN  a list of texts is refused  [PASS]
+  THEN  a list holding only an empty list is refused  [PASS]
+  THEN  a number, not a list, is refused  [PASS]
+  THEN  a text, not a list, is refused  [PASS]
+  THEN  a single named object, not a list, is refused  [PASS]
+  WHEN  an object is named
+  THEN  before, it is refused  [PASS]
+  THEN  named, it is accepted  [PASS]
+  THEN  NEGATIVE: the error is not the R14 of the old check  [PASS]
+  THEN  NEGATIVE: the unnamed object was not turned away by the distinct-names rule  [PASS]
+  -> 22 pass, 0 fail
+
+SCENARIO: 5. init: the names must be distinct (the case of the letters is tried in the last scenario)
+  GIVEN objects whose names collide in turn
+  THEN  two objects named alike are refused  [PASS]
+  THEN  a duplicate among three is refused, at the end  [PASS]
+  THEN  ...in the middle  [PASS]
+  THEN  the same object twice is refused  [PASS]
+  THEN  two classes with one name are refused  [PASS]
+  THEN  NEGATIVE: names that differ by a letter are fine: oDup1 and oDup2  [PASS]
+  THEN  NEGATIVE: a name that holds another as its start is fine: o and oo  [PASS]
+  THEN  NEGATIVE: a name and the same with a space after are fine: oX and oX-space  [PASS]
+  THEN  NEGATIVE: a Greek capital and a Latin letter differ: sigma and s  [PASS]
+  THEN  NEGATIVE: the duplicate message is not the type message  [PASS]
+  THEN  the caller's objects are not renamed by the refusal  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: 6. init: the holder keeps its own copy of what the caller gave
+  GIVEN a caller list of two named strings, held
+  WHEN  the caller renames his first object and appends a third
+  THEN  the caller own object did change: oChanged  [PASS]
+  THEN  the caller own list did grow  [PASS]
+  THEN  the holder still has the old name: oFirst  [PASS]
+  THEN  the holder still has two objects  [PASS]
+  THEN  the holder still finds oFirst  [PASS]
+  THEN  NEGATIVE: the holder does not find the caller's new name  [PASS]
+  THEN  NEGATIVE: the holder does not find the object appended later  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: 7. Content and Value: the list of objects, empty for a holder built without parentheses
+  GIVEN a holder of three objects
+  THEN  the answer is a list  [PASS]
+  THEN  and not a text  [PASS]
+  THEN  with the three objects in order  [PASS]
+  THEN  Value is the same list: three objects  [PASS]
+  THEN  ...and in the same order: the second is oN  [PASS]
+  THEN  inherited NumberOfItems counts three  [PASS]
+  THEN  inherited IsEmpty is false  [PASS]
+  GIVEN a holder built without parentheses
+  THEN  its content is a list  [PASS]
+  THEN  ...and not the text NULL  [PASS]
+  THEN  ...an empty one  [PASS]
+  THEN  Value too  [PASS]
+  THEN  NumberOfItems says 0, not the 4 of the text NULL  [PASS]
+  THEN  IsEmpty says so  [PASS]
+  THEN  it is a stzlistofnamedobjects  [PASS]
+  THEN  the alias without parentheses is empty too  [PASS]
+  WHEN  a list taken into a variable is changed
+  THEN  the taken object did change: oVariable  [PASS]
+  THEN  the holder still has oS first  [PASS]
+  THEN  ...and three objects  [PASS]
+  -> 18 pass, 0 fail
+
+SCENARIO: 8. NamedObject by name: found in any case, copies, unknown names raise
+  GIVEN a holder of a string, a number and a list, named oAlpha, oBeta and Gamma
+  THEN  oAlpha, as written, answers the string  [PASS]
+  THEN  ...in lower case  [PASS]
+  THEN  ...in upper case  [PASS]
+  THEN  ...in mixed case  [PASS]
+  THEN  oBeta answers the number: 42  [PASS]
+  THEN  ...its class is stznumber  [PASS]
+  THEN  Gamma answers the list: three items  [PASS]
+  THEN  ...its class is stzlist  [PASS]
+  THEN  ...the answer keeps the name in its own case: Gamma  [PASS]
+  THEN  an unknown name raises  [PASS]
+  THEN  a name that starts like a held one raises: oAlph  [PASS]
+  THEN  ...and one that ends later: oAlphaX  [PASS]
+  THEN  the empty name raises  [PASS]
+  THEN  a name with a space raises  [PASS]
+  THEN  a number written as a text raises  [PASS]
+  THEN  a name registered elsewhere but not in this holder raises: oFive, a global name of scenario 2  [PASS]
+  THEN  the empty holder raises for any name  [PASS]
+  THEN  the holder built without parentheses raises too  [PASS]
+  THEN  NEGATIVE: the right name raises nothing  [PASS]
+  WHEN  the answer is renamed in a variable
+  THEN  the taken object did change: oRenamed  [PASS]
+  THEN  the holder still finds oAlpha  [PASS]
+  THEN  NEGATIVE: the holder does not find oRenamed  [PASS]
+  -> 22 pass, 0 fail
+
+SCENARIO: 9. NamedObject by position, and the arguments it refuses
+  GIVEN the same holder of three
+  THEN  1 answers oAlpha  [PASS]
+  THEN  2 answers oBeta  [PASS]
+  THEN  3 answers Gamma  [PASS]
+  THEN  2 is the number 42  [PASS]
+  THEN  2.0 is the position 2  [PASS]
+  THEN  0 raises  [PASS]
+  THEN  4, past the last, raises  [PASS]
+  THEN  -1 raises  [PASS]
+  THEN  1.5 raises, though a Ring index would read it as 1  [PASS]
+  THEN  100 raises  [PASS]
+  THEN  a list raises the type message  [PASS]
+  THEN  the empty list raises the type message  [PASS]
+  THEN  an object raises the type message  [PASS]
+  THEN  NEGATIVE: the old R24 on the variable n is gone  [PASS]
+  THEN  NEGATIVE: position 3 is not position 2  [PASS]
+  THEN  by name and by position agree for the three  [PASS]
+  -> 16 pass, 0 fail
+
+SCENARIO: 10. Copy: an independent holder (the register raise row)
+  GIVEN a holder of a string, a number and a list
+  THEN  Copy raises nothing  [PASS]
+  THEN  the copy is a stzlistofnamedobjects  [PASS]
+  THEN  it has the three objects  [PASS]
+  THEN  with their classes and names  [PASS]
+  THEN  a lookup by name works on the copy  [PASS]
+  THEN  NamedObject(2) works on the copy: 7  [PASS]
+  WHEN  a call is chained on a fresh copy, with no variable to hold it
+  THEN  the original is still three  [PASS]
+  THEN  the original object is still named oS  [PASS]
+  THEN  NEGATIVE: the original does not know oViaChain  [PASS]
+  WHEN  the copy gets another object
+  THEN  the copy grew to four  [PASS]
+  THEN  the original is still three  [PASS]
+  THEN  the copy finds oLate  [PASS]
+  THEN  NEGATIVE: the original does not  [PASS]
+  WHEN  an object of the copy is renamed with the chained form
+  THEN  the copy finds oCopied  [PASS]
+  THEN  the original still finds oS  [PASS]
+  THEN  NEGATIVE: the original does not know oCopied  [PASS]
+  WHEN  the original is renamed with the chained form
+  THEN  the original finds oOrig  [PASS]
+  THEN  the copy still has oL  [PASS]
+  THEN  NEGATIVE: the copy does not know oOrig  [PASS]
+  WHEN  a copy is made of a copy
+  THEN  it has the same three objects  [PASS]
+  THEN  and their names: the third is oOrig  [PASS]
+  -> 21 pass, 0 fail
+
+SCENARIO: 11. Copy: the empty holder, the holder built without parentheses, the alias class
+  THEN  the empty holder copies without error  [PASS]
+  THEN  and the copy is empty  [PASS]
+  THEN  a holder built without parentheses copies too  [PASS]
+  THEN  and its copy is empty  [PASS]
+  THEN  and its copy is a stzlistofnamedobjects  [PASS]
+  THEN  the alias class builds from a list  [PASS]
+  THEN  and holds its two objects  [PASS]
+  THEN  its Copy is a stzlistofnamedobjects  [PASS]
+  THEN  ...of two objects  [PASS]
+  THEN  the alias finds by name: cd  [PASS]
+  THEN  the alias refuses a list with a number  [PASS]
+  THEN  ...and two names alike  [PASS]
+  THEN  the alias accepts the empty list  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: 12. what is not checked: objects added with the inherited methods
+  GIVEN a holder of one object
+  WHEN  an unnamed object is added with AddItem
+  THEN  AddItem takes it: two objects  [PASS]
+  THEN  NumberOfItems counts two  [PASS]
+  THEN  the lookup by name of the first still works  [PASS]
+  THEN  the lookup by position 2 answers the added object  [PASS]
+  THEN  Copy raises, since the content stopped being a list of named objects  [PASS]
+  WHEN  a second object of an already used name is added (the case of the letters is tried in the last scenario)
+  THEN  AddItem takes it: two objects  [PASS]
+  THEN  the lookup answers the first one added  [PASS]
+  THEN  position 2 answers the second  [PASS]
+  THEN  Copy raises, since the names are no longer distinct  [PASS]
+  WHEN  a named object is added to a valid holder
+  THEN  two objects  [PASS]
+  THEN  Copy works  [PASS]
+  THEN  and finds the added one: cd  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: 13. the global functions: StzIsListOfNamedObjects is untouched, StzListOfNamedObject builds the holder
+  GIVEN a named string, an unnamed one, a number
+  THEN  a list of named objects: 1  [PASS]
+  THEN  the alternative form IsListOfNamedObjects: 1  [PASS]
+  THEN  @IsListOfNamedObjects: 1  [PASS]
+  THEN  IsAListOfNamedObjects: 1  [PASS]
+  THEN  the empty list: 1  [PASS]
+  THEN  a named and an unnamed: 0  [PASS]
+  THEN  a number among them: 0  [PASS]
+  THEN  a nested list: 0  [PASS]
+  THEN  two names alike are still a list of named objects here (distinctness is the holder's rule): 1  [PASS]
+  THEN  a non-list raises  [PASS]
+  THEN  StzListOfNamedObject answers a holder  [PASS]
+  THEN  ...of two objects  [PASS]
+  THEN  ...which finds by name: cd  [PASS]
+  THEN  StzListOfNamedObject refuses a list with an unnamed object  [PASS]
+  THEN  ...and the empty list builds an empty holder  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: 14. names that differ only by case count as one name
+  GIVEN a third object, then two named oCaseA and OCASEA
+  THEN  the pair is refused  [PASS]
+  THEN  ...in the other order  [PASS]
+  THEN  ...with a third object before  [PASS]
+  THEN  ...in the middle  [PASS]
+  THEN  ...at the end  [PASS]
+  THEN  the alias class refuses it too  [PASS]
+  THEN  StzListOfNamedObject refuses it too  [PASS]
+  THEN  NEGATIVE: either object alone is accepted  [PASS]
+  THEN  NEGATIVE: with the third object, one of the pair is accepted  [PASS]
+  THEN  the caller's objects keep their names: oCaseA  [PASS]
+  THEN  ...and OCASEA  [PASS]
+  WHEN  the second of the pair is added afterwards with AddItem
+  THEN  AddItem takes it: two objects  [PASS]
+  THEN  the lookup in lower case answers the first added  [PASS]
+  THEN  the lookup by position 2 answers the second  [PASS]
+  THEN  Copy raises, since the names are no longer distinct  [PASS]
+  WHEN  the case of an accented letter differs: Eab and eab
+  THEN  the pair is refused: the case is Unicode case  [PASS]
+  THEN  NEGATIVE: one of the accented pair and an unrelated name are two names  [PASS]
+  -> 17 pass, 0 fail
+
+================================================
+TOTAL: 203 assertions, 203 pass, 0 fail
+================================================
+STATUS: OK

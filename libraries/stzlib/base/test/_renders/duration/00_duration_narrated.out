@@ -1,0 +1,58 @@
+SCENARIO: Create a duration from seconds
+  THEN  3665s -> 1:01:05  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Retrieve duration components
+  GIVEN the duration '2 days 5 hours 30 minutes 45 seconds'
+  THEN  Days() is 2  [PASS]
+  THEN  Hours() is 5  [PASS]
+  THEN  Minutes() is 30  [PASS]
+  THEN  Seconds() is 45  [PASS]
+  THEN  TotalHours() is 53  [PASS]
+  THEN  TotalMinutes() is 3210  [PASS]
+  THEN  TotalSeconds() is 192645  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Arithmetic on durations
+  GIVEN a one-hour base duration
+  THEN  1 hour + 1800 seconds -> 1 hour and 30 minutes  [PASS]
+  THEN  1 hour + '45 minutes' -> 1 hour and 45 minutes  [PASS]
+  THEN  3 hours - '1 hour 15 minutes' -> 1 hour and 45 minutes  [PASS]
+  THEN  '45 minutes' * 3 -> 2 hours and 15 minutes  [PASS]
+  THEN  '2 hours' / 4 -> 30 minutes  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Compare durations
+  GIVEN 1 hour vs 90 minutes
+  THEN  1 hour < 90 minutes  [PASS]
+  THEN  1 hour = '1 hour'  [PASS]
+  THEN  90 minutes > 3600 seconds  [PASS]
+  THEN  IsLessThan  [PASS]
+  THEN  IsGreaterThan('1 hour')  [PASS]
+  THEN  IsEqualTo(3600)  [PASS]
+  THEN  75 minutes IsBetween 1 and 2 hours  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Format a duration
+  GIVEN the duration '3 hours 25 minutes 42 seconds'
+  THEN  ToString -> 3:25:42  [PASS]
+  THEN  ToStringXT HH:mm:ss -> 03:25:42  [PASS]
+  THEN  ToHuman -> 3 hours, 25 minutes, and 42 seconds  [PASS]
+  THEN  ToCompact -> 3h 25m 42s  [PASS]
+  THEN  ToSimple -> 3:25:42  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Mutate a duration in place
+  GIVEN a one-hour duration
+  WHEN  30 minutes are added
+  THEN  ToHuman -> 1 hour and 30 minutes  [PASS]
+  WHEN  2 hours are added
+  THEN  ToHuman -> 3 hours and 30 minutes  [PASS]
+  WHEN  30 minutes are subtracted
+  THEN  ToHuman -> 3 hours  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 28 assertions, 28 pass, 0 fail
+================================================
+STATUS: OK

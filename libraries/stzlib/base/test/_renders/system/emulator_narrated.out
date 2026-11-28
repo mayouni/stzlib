@@ -1,0 +1,60 @@
+-- Scene 1: Deploy(:Emulated) generates the mission-control bundle --
+  [OK] the programming-phase emulator builds a bundle
+  [OK] ...it emits index.html + manifest.json
+
+-- Scene 2: the MAP renders every part of the solution --
+  [OK] the phone part is on the map
+  [OK] ...the backend (api) part too
+  [OK] ...the browser (admin) part
+  [OK] ...and the firmware (node) part
+  [OK] parts are tiered by role (Frontends / Backends / Edge devices)
+  [OK] ...the grid can be filtered by role
+
+-- Scene 3: each part shows the brain's PLACEMENT, per capability --
+  [OK] the phone's differential compute is labeled [stz.wasm]
+  [OK] ...Unicode defers to the target [target]
+  [OK] ...Collection is a [stz.js] construct
+  [OK] ...Neural is offloaded [server]
+  [OK] ...the MCU's caps lower to [firmware]
+  [OK] the rendered label matches the plan (PivotTable on the phone)
+
+-- Scene 4: the FIDELITY contract is on screen -- calm, honest colour --
+  [OK] healthy/faithful parts read 'faithful'
+  [OK] ...the MCU flags what is only approximated
+  [OK] ...and names it (pump timing / sensor noise)
+
+-- Scene 5: the standard master-detail surface, calm and legible --
+  [OK] the parts GRID is the master list (left)
+  [OK] ...the selected part's auxiliary detail sits beside it (right)
+  [OK] the deploy action is a bar at the TOP
+  [OK] a per-part 'Runs here' placement view
+  [OK] one clear next action, gated on health
+  [OK] ...marked as a critical/irreversible action
+
+-- Scene 5b: each part opens a maximized device window, device + console --
+  [OK] the window is maximized to the browser
+  [OK] ...with the device on the left
+  [OK] ...browser parts get a desktop frame, not a phone
+  [OK] ...and a live log + query console on the right
+
+-- Scene 6: the manifest declares the emulator bundle --
+  [OK] the manifest is a web emulator listing its parts
+
+-- Scene 7: the bundle is a clean web app -- CSS / JS are separate assets --
+  [OK] index.html LINKS a stylesheet, not an inline <style> blob
+  [OK] ...and an external script, not an inline <script> blob
+  [OK] emulator.css ships as its own file
+  [OK] emulator.js ships as its own file
+  [OK] ...the CSS holds the real layout (gridcol + deploybar)
+  [OK] ...the JS holds the window routing (openPop + Escape close)
+
+-- Scene 8: each part carries ONLY its own engine subset (the plan drives it) --
+  [OK] stz.js (the wasm bridge) ships in the bundle
+  [OK] ...index.html loads the plan map + bridge (stz_parts.js, stz.js)
+  [OK] ...the plan map names each part's OWN subset (stz_phone.wasm)
+  [OK] ...the phone's subset = solver + aggregation (its pivot+solve caps, NOT numtheory)
+  [OK] ...emulator.js loads each part's own subset + gates verbs by it
+
+==========================================
+TOTAL: 39 assertions, 39 pass, 0 fail
+==========================================

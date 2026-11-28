@@ -1,0 +1,210 @@
+SCENARIO: The case flag given to init is now read by the plain methods
+  THEN  flag 1: Positions compares with case  [PASS]
+  THEN  flag 0: Positions ignores case  [PASS]
+  THEN  flag 0: NumberOfOccurrence counts three  [PASS]
+  THEN  flag 1: NumberOfOccurrence counts two  [PASS]
+  THEN  flag 0: LastPosition of a is the capital A closing a list  [PASS]
+  THEN  flag 1: the same list ends its a at 1  [PASS]
+  THEN  flag 0: NthPosition(2) reaches the capital A  [PASS]
+  THEN  flag 1: NthPosition(2) skips it  [PASS]
+  THEN  the named flag :CaseSensitive of TheItemInQ means with case  [PASS]
+  THEN  the explicit CS form still overrides the stored flag  [PASS]
+  THEN  and the other way  [PASS]
+  THEN  the stored flag is still readable  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: OccurrencesXT answers one position per requested occurrence
+  THEN  occurrences 1 and 2 are at 1 and 5  [PASS]
+  THEN  the order requested is kept  [PASS]
+  THEN  one occurrence gives one position  [PASS]
+  THEN  an occurrence that does not exist is left out, not answered as 0  [PASS]
+  THEN  with case ignored the third occurrence exists  [PASS]
+  THEN  a list that is not made of numbers is refused  [PASS]
+  THEN  the list is unchanged  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Sections: the positions of the item as runs of consecutive positions
+  THEN  a run of three and a lone one  [PASS]
+  THEN  PositionsAsSections is the same call  [PASS]
+  THEN  Positions, for contrast, lists every one  [PASS]
+  THEN  two runs: a lone one and a pair  [PASS]
+  THEN  with case ignored the capital splits nothing: three lone ones  [PASS]
+  THEN  with case kept the capital is not the item  [PASS]
+  THEN  an absent item has no section  [PASS]
+  THEN  a number item  [PASS]
+  THEN  the list is unchanged  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: IsBoundedBy and IsBetween
+  THEN  bounded by the pair right around the first occurrence  [PASS]
+  THEN  bounded by the pair right around the second occurrence  [PASS]
+  THEN  a pair that never surrounds it  [PASS]
+  THEN  the pair in the wrong order  [PASS]
+  THEN  between: the opener before and the closer after, right next to it  [PASS]
+  THEN  between does not need them to touch: < ... a ... y  [PASS]
+  THEN  whereas bounded does  [PASS]
+  THEN  between: the closer must come after  [PASS]
+  THEN  between: a bound that is not in the list  [PASS]
+  THEN  an item at the start has no left neighbour  [PASS]
+  THEN  an item at the start is not between anything before it  [PASS]
+  THEN  an item at the end has no right neighbour  [PASS]
+  THEN  case ignored (flag 0): A counts as a  [PASS]
+  THEN  case ignored, explicit CS form  [PASS]
+  THEN  case kept: A is not a  [PASS]
+  THEN  between with case ignored, explicit CS form  [PASS]
+  THEN  between with case kept  [PASS]
+  THEN  numbers: bounded by 4 and 6  [PASS]
+  THEN  numbers: not by 4 and 7  [PASS]
+  THEN  bounds that are not a pair are refused  [PASS]
+  THEN  the list is unchanged  [PASS]
+  -> 21 pass, 0 fail
+
+SCENARIO: BoundedBy: the list with the bounds put around each occurrence
+  THEN  brackets around both b  [PASS]
+  THEN  the list is unchanged  [PASS]
+  THEN  the object still answers the same positions  [PASS]
+  THEN  an item at the start  [PASS]
+  THEN  an item at the end  [PASS]
+  THEN  an absent item leaves a copy of the list  [PASS]
+  THEN  with case ignored  [PASS]
+  THEN  with case kept the capital is left alone  [PASS]
+  THEN  bounds that are not a pair are refused  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: ReplacedWith and Removed return a copy and leave the list alone
+  THEN  ReplacedWith replaces the occurrences with case  [PASS]
+  THEN  Replaced is the same call  [PASS]
+  THEN  ReplacedBy is the same call  [PASS]
+  THEN  with case ignored the capital goes too  [PASS]
+  THEN  ReplacedCS is the same call as ReplacedWithCS  [PASS]
+  THEN  Removed drops the occurrences with case  [PASS]
+  THEN  with case ignored the capital goes too  [PASS]
+  THEN  the object's list is unchanged  [PASS]
+  THEN  the caller's list is unchanged  [PASS]
+  THEN  the item is unchanged  [PASS]
+  THEN  the object still counts two  [PASS]
+  THEN  an absent item: ReplacedWith is a copy of the list  [PASS]
+  THEN  an absent item: Removed is a copy of the list  [PASS]
+  THEN  numbers: replaced by 9  [PASS]
+  THEN  numbers: removed  [PASS]
+  THEN  numbers: the text '2' is not the number 2  [PASS]
+  THEN  a list item: removed  [PASS]
+  THEN  a list item: replaced  [PASS]
+  THEN  Hebrew, Arabic and emoji: removed  [PASS]
+  THEN  an emoji item replaced  [PASS]
+  -> 20 pass, 0 fail
+
+SCENARIO: Uppercased and Lowercased put the item in the other case, inside the list
+  THEN  Uppercased: only the exact occurrences  [PASS]
+  THEN  UppercasedCS(0): every case of it  [PASS]
+  THEN  Lowercased: only the exact occurrences  [PASS]
+  THEN  LowercasedCS(0): every case of it  [PASS]
+  THEN  the list is unchanged  [PASS]
+  THEN  the caller's list is unchanged  [PASS]
+  THEN  Greek: omega becomes capital omega, alpha is left  [PASS]
+  THEN  Hebrew has no case: the list is a copy  [PASS]
+  THEN  a number has no case: the list is a copy, the text beside it is left alone  [PASS]
+  THEN  an absent item: a copy  [PASS]
+  THEN  the whole list is NOT upper-cased, only the item  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: InsertedBefore and InsertedAfter put a new item around each occurrence
+  THEN  InsertedBefore: before each a  [PASS]
+  THEN  InsertedAfter: after each a  [PASS]
+  THEN  InsertedBAt is the same call as InsertedBefore  [PASS]
+  THEN  InsertedBeforeItem is the same  [PASS]
+  THEN  InsertedAfterItem is the same  [PASS]
+  THEN  the object's list is unchanged  [PASS]
+  THEN  the caller's list is unchanged  [PASS]
+  THEN  an item at the end: inserted after it, at the very end  [PASS]
+  THEN  an item at the end: inserted before it  [PASS]
+  THEN  an item at the start: inserted before it, at the very start  [PASS]
+  THEN  an absent item: a copy of the list  [PASS]
+  THEN  the correctly spelled InsertedBeforeCS, case ignored  [PASS]
+  THEN  the correctly spelled InsertedBeforeCS, case kept  [PASS]
+  THEN  the correctly spelled InsertedAfterCS, case ignored  [PASS]
+  THEN  the correctly spelled InsertedAfterCS, case kept  [PASS]
+  THEN  the old misspelling InstertedBeforeCS still works  [PASS]
+  THEN  the old misspelling InstertedAfterCS still works  [PASS]
+  THEN  InsertedAtCS is the same call as InsertedBeforeCS  [PASS]
+  THEN  the flag 0 given to init reaches InsertedBefore  [PASS]
+  THEN  the flag 1 given to init reaches InsertedBefore  [PASS]
+  THEN  numbers: before  [PASS]
+  THEN  numbers: after  [PASS]
+  THEN  a list inserted as one item  [PASS]
+  THEN  the new item may equal the followed item  [PASS]
+  -> 24 pass, 0 fail
+
+SCENARIO: InsertedBeforeItems and InsertedAfterItems put several items in order
+  THEN  before each a, in the order given  [PASS]
+  THEN  after each a, in the order given  [PASS]
+  THEN  InsertedBeforeManyItems is the same call  [PASS]
+  THEN  InsertedAfterManyItems is the same call  [PASS]
+  THEN  one item in a list is the same as the single-item form  [PASS]
+  THEN  one item in a list is the same as the single-item form, after  [PASS]
+  THEN  an empty list inserts nothing  [PASS]
+  THEN  the new items may include the followed item  [PASS]
+  THEN  case ignored  [PASS]
+  THEN  case kept  [PASS]
+  THEN  InsertedAfterItemsCS, case ignored  [PASS]
+  THEN  InsertedBeforeItemCS, case ignored  [PASS]
+  THEN  InsertedAfterItemCS, case ignored  [PASS]
+  THEN  the list is unchanged  [PASS]
+  THEN  the caller's list is unchanged  [PASS]
+  THEN  a text where a list of items is expected is refused  [PASS]
+  -> 16 pass, 0 fail
+
+SCENARIO: InsertedBeforePosition(s) and InsertedAfterPosition(s) put the followed item at positions
+  THEN  before position 3  [PASS]
+  THEN  before position 1  [PASS]
+  THEN  after position 1  [PASS]
+  THEN  after position 3, the last: appended  [PASS]
+  THEN  InsertedAtPosition is the same call as InsertedBeforePosition  [PASS]
+  THEN  position 0 changes nothing  [PASS]
+  THEN  a position far beyond the list changes nothing  [PASS]
+  THEN  after a position far beyond the list changes nothing  [PASS]
+  THEN  the position just past the end is appended to by the Before form  [PASS]
+  THEN  the position just past the end is not a position for the After form  [PASS]
+  THEN  two past the end no longer kills the process (stzList raises R14 there)  [PASS]
+  THEN  a text where a position is expected changes nothing  [PASS]
+  THEN  before positions 1 and 3  [PASS]
+  THEN  after positions 1 and 3, the last one included  [PASS]
+  THEN  the order the positions are given in does not matter  [PASS]
+  THEN  InsertedAtPositions is the same call  [PASS]
+  THEN  InsertedBeforeManyPositions is the same call  [PASS]
+  THEN  InsertedAfterManyPositions is the same call  [PASS]
+  THEN  an empty list of positions changes nothing  [PASS]
+  THEN  the After form really inserts AFTER (it used to be the Before form)  [PASS]
+  THEN  the Before form at the same position differs  [PASS]
+  THEN  the object's list is unchanged  [PASS]
+  THEN  the caller's list is unchanged  [PASS]
+  THEN  a number item  [PASS]
+  -> 24 pass, 0 fail
+
+SCENARIO: InsertedBeforeW and InsertedAfterW put the followed item around the items that meet a condition
+  THEN  before each a  [PASS]
+  THEN  after each a (it used to insert BEFORE)  [PASS]
+  THEN  InsertedAtW is the same call as InsertedBeforeW  [PASS]
+  THEN  a condition nothing meets changes nothing  [PASS]
+  THEN  the list is unchanged  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Passive forms never touch the object (a sweep over every *ed form)
+  THEN  after twelve passive calls the list is as given  [PASS]
+  THEN  the item is as given  [PASS]
+  THEN  the flag is as given  [PASS]
+  THEN  the object still finds its positions  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Known limits that stay documented rather than fixed
+  THEN  ItemQ still raises: it builds the class stzSItem, which does not exist  [PASS]
+  THEN  and says which class is missing  [PASS]
+  THEN  a stzItem (an item in a TEXT) still cannot answer a list method  [PASS]
+  THEN  it says the list must be a list  [PASS]
+  THEN  but its accessors work  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 167 assertions, 167 pass, 0 fail
+================================================
+STATUS: OK

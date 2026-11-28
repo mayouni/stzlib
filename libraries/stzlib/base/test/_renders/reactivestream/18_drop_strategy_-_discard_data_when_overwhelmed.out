@@ -1,0 +1,19 @@
+Simulating high-frequency sensor readings...
+Reading: 23.50
+Reading: 23.70
+Reading: 24.10
+🚨 Sensor overloaded, discarding readings
+Reading: 24.30
+🚨 Sensor overloaded, discarding readings
+Reading: 24.50
+🚨 Sensor overloaded, discarding readings
+Reading: 24.80
+🚨 Sensor overloaded, discarding readings
+Reading: 25
+🚨 Sensor overloaded, discarding readings
+
+Final stats - Dropped: 5 readings
+
+
+----------------
+----------------

@@ -1,0 +1,51 @@
+SCENARIO: a small ring keeps a durable history of everything
+  THEN  the ledger becomes durable  [PASS]
+  THEN  a new file starts empty  [PASS]
+  THEN  the ring still holds only its window (4)  [PASS]
+  THEN  Count() says 10 were recorded  [PASS]
+  THEN  the WHOLE stored chain verifies from genesis  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: a restarted process resumes the same chain
+  THEN  the stored history is accepted  [PASS]
+  THEN  all 10 entries were verified on the way in  [PASS]
+  THEN  the count carries over  [PASS]
+  THEN  the head digest is the one the old process ended on  [PASS]
+  THEN  recording continues the chain (11)  [PASS]
+  THEN  and the stored chain is still intact  [PASS]
+  THEN  a durable ledger refuses Reset()  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: the store is insert-only
+  THEN  an UPDATE is refused  [PASS]
+  THEN  a DELETE is refused  [PASS]
+  THEN  all 11 rows are still there  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: an EDITED row is caught on load, and the history refused
+  GIVEN an attacker who owns the file: drops the trigger, rewrites row 3
+  THEN  the history is refused  [PASS]
+  THEN  the break is named at entry 3  [PASS]
+  THEN  nothing was attached  [PASS]
+  THEN  and the ledger holds none of the forged history  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a DELETED row is caught too -- a gap is a break
+  THEN  the history is refused  [PASS]
+  THEN  the gap is named at entry 2  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a ledger that already recorded cannot be made durable
+  THEN  refused: two histories would be spliced  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: the PROCESS ledger can be durable, so the seams' refusals persist
+  THEN  the process ledger is open and durable  [PASS]
+  THEN  a seam's append reached it  [PASS]
+  THEN  and the disk  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 25 assertions, 25 pass, 0 fail
+================================================
+STATUS: OK

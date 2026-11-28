@@ -1,0 +1,39 @@
+-- Scene 1: authoring needs no device --
+  generated kernel (excerpt): v_c[i] = ...
+  [OK] the spec collapses declarations in order
+  [OK] the transpile is TRANSPARENT: @C = alpha*@A+@B became WGSL verbatim
+  [OK] the kernel binds the house contract (tile at 0, params at 1)
+
+-- Scene 2: the transpiler refuses by NAME --
+  [OK] an undeclared vector is refused
+  [OK] an unknown identifier is refused
+  [OK] reading the output is refused
+  [OK] a function without '(' is refused
+  [OK] a foreign character is refused
+  [OK] a body assigning the wrong name is refused
+
+-- Scene 3: one-shot Run, exact values --
+  device: NVIDIA GeForce RTX 3050 6GB Laptop GPU
+  [OK] Run returns the full vector
+  [OK] one-shot Run EXACT: c[k] = 1.5k
+
+-- Scene 4: the resident chain moves bytes exactly TWICE --
+  [OK] chain answers exactly: (k/2)*2 + 100
+  [OK] THE RESIDENCY MECHANISM: exactly up + down crossed the bus (8000 bytes)
+  [OK] two chain links = exactly two dispatches
+
+-- Scene 5: multi-input over resident buffers --
+  [OK] ApplyOnQ combines two residents exactly: k/2 + k/4 = 0.75k
+
+-- Scene 6: binding mistakes raise by name --
+  [OK] a missing vector names itself
+  [OK] a missing scalar names itself (never a silent 0.0)
+  [OK] unequal vector lengths refuse
+
+-- Scene 7: the device goes away; authoring stays --
+  [OK] data paths raise clearly without a device
+  [OK] authoring still transpiles without a device
+
+==========================================
+TOTAL: 20 assertions, 20 pass, 0 fail
+==========================================

@@ -1,0 +1,35 @@
+-- Scene 1: forge from a SCOPED domain brain (no globals) --
+  [OK] the lexicon is forged from the graph
+
+-- Scene 2: the domain SPEAKS, deterministically --
+  [OK] types answer
+  [OK] relations answer
+  [OK] every answer carries its Why
+
+-- Scene 3: outside the domain = HONEST REFUSAL (LAW 3) --
+  [OK] out-of-domain refuses, naming the domain's extent
+
+-- Scene 4: constrained continuation (the grammar spirit) --
+  [OK] an entity completes with ITS relations
+  [OK] a fragment completes with domain entities
+
+-- Scene 5: the rung-2 seed -- facts AS a corpus --
+  [OK] the corpus renders every fact as a sentence (teacher-free)
+
+-- Scene 6: the bundle is SELF-CONTAINED (*.stzdlm) --
+  [OK] the reloaded DLM answers WITHOUT the original graph
+  [OK] its goldens travel and pass
+
+-- Scene 7: the domain tokenizer (the neural rung's vocabulary) --
+  [OK] the closed domain earns a closed vocabulary (id 1 = <unk>)
+  [OK] known words map to ids; the unknown maps to <unk>
+
+-- Scene 8: RUNG 2 -- the NEURAL bigram LM, trained teacher-free --
+  [OK] the neural rung trains on the DLM's own corpus (no teacher)
+  [OK] it LEARNED the deterministic bigram is->a at near-1 confidence
+  [OK] greedy generation yields domain-valid grammar ('X is a ...')
+  [OK] the trained rung exports as a real .gguf ggml reads back
+
+==========================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+==========================================

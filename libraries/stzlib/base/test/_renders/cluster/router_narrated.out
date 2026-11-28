@@ -1,0 +1,65 @@
+SCENARIO: TIER 1 rules: explicit routes win, cheaply
+  GIVEN path + content-type rules
+  THEN  a known path routes deterministically  [PASS]
+  THEN  a content-type rule wins even over a lexical body hit  [PASS]
+  THEN  the search path routes to search  [PASS]
+  THEN  Why() explains the rule  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: TIER 1: a path rule matches by PREFIX, not by equality
+  GIVEN the rules declared above
+  THEN  a longer path under the rule still routes  [PASS]
+  THEN  ...and says it was a RULE, not a lexical guess  [PASS]
+  THEN  a path OUTSIDE the rule does not borrow it  [PASS]
+  THEN  the other prefix rule fires on its own subtree too  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: TIER 1: a content type keeps its rule when it carries parameters
+  GIVEN the application/pdf rule
+  THEN  a real header with a charset still routes  [PASS]
+  THEN  ...by RULE, so the lexical body hit never got a vote  [PASS]
+  THEN  an unrelated content type does NOT match the rule  [PASS]
+  THEN  ...that one was the LEXICAL tier, honestly labelled  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: TIER 2 lexical: route by the facet's OWN capability vocabulary
+  GIVEN no matching rule -> capability-lexical scoring
+  THEN  shortest-path talk is graph work  [PASS]
+  THEN  sentiment talk is nlp work  [PASS]
+  THEN  optimization/risk talk is math work  [PASS]
+  THEN  embedding/similarity talk is search work  [PASS]
+  THEN  scan/ocr talk is vision work (the polyglot facet)  [PASS]
+  THEN  prove/derive talk is knowledge work  [PASS]
+  THEN  Why() explains the lexical hit  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: the classifier ABSTAINS honestly when it cannot decide
+  THEN  gibberish routes nowhere  [PASS]
+  THEN  Why() says undecidable/no-hit  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: it only routes to facets THIS deployment's catalog knows
+  GIVEN a router bound to a catalog WITHOUT the vision facet
+  THEN  scan/ocr no longer routes to vision (facet not offered here)  [PASS]
+  GIVEN a router with a CUSTOM facet + keyword
+  THEN  a custom keyword routes to the custom facet  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: TIER 3 model seam: used only when tiers 1+2 abstain
+  GIVEN a classifier with a stub model that always says 'neural'
+  THEN  gibberish (lexically undecidable) falls through to the model  [PASS]
+  THEN  but a clear lexical hit is decided WITHOUT the model  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: cluster integration: classify then route (R8.2 -> R8.3 seam)
+  GIVEN a cluster declaring graph + nlp facets
+  THEN  the cluster classifier is bound to its own catalog  [PASS]
+  THEN  a graph request classifies to the graph facet  [PASS]
+  THEN  routing an undecidable request declines cleanly  [PASS]
+  THEN  with a negative status  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 29 assertions, 29 pass, 0 fail
+================================================
+STATUS: OK

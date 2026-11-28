@@ -1,0 +1,59 @@
+SCENARIO: a genuine mutual-TLS request is served over the encrypted channel
+  GIVEN a live worker that terminates TLS and requires a client cert
+  WHEN  the client presents its cert and validates the server against the CA
+  THEN  the transport succeeded  [FAIL]
+    expected: 0
+    got:      -1
+  THEN  the protected endpoint was served over mTLS  [FAIL]
+    expected: 1
+    got:      0
+  -> 0 pass, 2 fail
+
+SCENARIO: a client WITHOUT a cert is refused by the server (mutual enforced)
+  GIVEN the same mutual-TLS worker
+  WHEN  the client offers NO certificate
+  THEN  the protected endpoint is NOT served (empty response)  [PASS]
+  THEN  nothing leaked (no ok:mtls)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a client that does not TRUST the server aborts the handshake
+  GIVEN the same worker, but the client verifies against the WRONG CA
+  WHEN  the client tries to validate the server's cert against an unrelated CA
+  THEN  the handshake is aborted  [FAIL]
+    expected: -2
+    got:      -1
+  THEN  nothing was served  [PASS]
+  -> 1 pass, 1 fail
+
+SCENARIO: a governed federated call is transported over mutual TLS
+  GIVEN a federation whose member is the live mTLS worker
+  THEN  the federation reports it runs over mTLS  [PASS]
+  WHEN  web makes a governed, signed federated call over the mTLS channel
+  THEN  the worker served it (HTTP 200 over mTLS)  [FAIL]
+    expected: 200
+    got:      -1
+  THEN  the response body came back through the secure channel  [FAIL]
+    expected: 1
+    got:      0
+  THEN  the call was ALSO signed (the full stack)  [PASS]
+  THEN  the Why records the mTLS transport  [PASS]
+  -> 3 pass, 2 fail
+
+SCENARIO: governance still gates an mTLS federation (transport != authorization)
+  GIVEN an mTLS federation where the caller lacks authority
+  WHEN  web calls a critically-governed facet over mTLS
+  THEN  governance refuses BEFORE transport (mTLS does not bypass it)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: TLS setup + connect failures are clean, not crashes
+  GIVEN a fresh reactor
+  THEN  listening TLS with a missing cert file fails with a negative code  [PASS]
+  WHEN  a TLS client connects to a dead port
+  THEN  it reports a connect failure  [PASS]
+  THEN  with an empty body  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 15 assertions, 10 pass, 5 fail
+================================================
+STATUS: FAILED

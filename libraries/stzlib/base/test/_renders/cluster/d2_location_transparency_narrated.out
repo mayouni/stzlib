@@ -1,0 +1,51 @@
+SCENARIO: the SAME caller body runs against local and remote -- identically
+  GIVEN one test body, parameterized ONLY by the address string
+  WHEN  it runs against the local child ('worker')
+  THEN  the local run completed its whole conversation  [PASS]
+  WHEN  it runs against the remote-simulated child ('far@127.0.0.1')
+  THEN  the remote run completed its whole conversation  [PASS]
+  THEN  the two runs produced IDENTICAL results  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Ask's timeout is mandatory -- infinite waits do not exist
+  GIVEN a live node and a non-positive timeout
+  THEN  the ask is refused outright  [PASS]
+  THEN  nothing was returned  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a timed-out Ask leaves no residue: the late reply is discarded
+  GIVEN a handler that takes ~800 ms and an Ask that waits only 200
+  THEN  the ask timed out  [PASS]
+  WHEN  the very next Ask runs on the same link
+  THEN  it gets ITS OWN reply, not the stale slow one  [PASS]
+  THEN  and the plane reports :Ok again  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: unreachable and unregistered are distinct, observable verdicts
+  GIVEN a name registered where nothing listens
+  THEN  the verdict is :Down  [PASS]
+  GIVEN a name never registered at all
+  THEN  the verdict is :Unknown  [PASS]
+  GIVEN a send to the same unknown name
+  THEN  the send reports failure, not silence  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a peer that dies mid-conversation becomes :Down, then recovers as :Down too
+  GIVEN a doomed node that answers normally first
+  THEN  it answered while alive  [PASS]
+  WHEN  its raising handler kills it and the guard asks again
+  THEN  the death is a plain :Down or :Timeout verdict, never a hang  [PASS]
+  WHEN  the guard asks once more (re-dial against a dead port)
+  THEN  still :Down -- unreachable and dead are the same observable  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: teardown: both workers stop cleanly through the SAME surface
+  GIVEN stz.stop sent by NAME, local and remote alike
+  THEN  both exited with the clean marker  [PASS]
+  THEN  teardown completes without crash  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+================================================
+STATUS: OK

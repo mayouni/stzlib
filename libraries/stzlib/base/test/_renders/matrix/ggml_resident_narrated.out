@@ -1,0 +1,33 @@
+-- Scene 1: the first multiply converts, the second reuses --
+  [OK] first multiply succeeds
+  [OK] ...as 2 misses, 0 hits (both operands converted)
+  [OK] second multiply succeeds
+  [OK] ...as 2 HITS (nothing reconverted)
+  [OK] the hit path answers BYTE-IDENTICALLY to the miss path
+
+-- Scene 2: mutation invalidates -- the answer moves WITH the data --
+  [OK] the Set dropped B's resident tensor (invalidation counted)
+  [OK] multiply after mutation succeeds
+  [OK] B re-missed, A still hit (3 hits, 3 misses total)
+  [OK] and the answer reflects the mutation exactly (14)
+
+-- Scene 3: a result can feed the next multiply --
+  [OK] chained multiply (result as input) succeeds
+  [OK] chained answer matches the f64 reference dot
+
+-- Scene 4: the cache is BOUNDED, and counts what it drops --
+  [OK] pair 1 answers correctly under churn
+  [OK] pair 2 answers correctly under churn
+  [OK] pair 3 answers correctly under churn
+  [OK] pair 4 answers correctly under churn
+  [OK] pair 5 answers correctly under churn
+  [OK] pair 6 answers correctly under churn
+  after 6 distinct pairs (12 operand tensors, 8 slots): evictions = 8
+  [OK] 12 operands through 8 slots EVICTED (bounded, counted)
+
+-- Scene 5: Free drops resident entries --
+  [OK] freeing a cached operand dropped its tensor (invalidation counted)
+
+==========================================
+TOTAL: 19 assertions, 19 pass, 0 fail
+==========================================

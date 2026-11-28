@@ -1,0 +1,145 @@
+SCENARIO: Count, membership and find
+  GIVEN the list [3,1,2,1]
+  THEN  NumberOfItems is 4  [PASS]
+  THEN  Contains(2) is TRUE  [PASS]
+  THEN  Contains(9) is FALSE  [PASS]
+  THEN  Find(2) -> [3]  [PASS]
+  THEN  Find(1) -> [2,4]  [PASS]
+  THEN  NumberOfOccurrences(1) is 2  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Reverse, sort, dedup
+  THEN  Reversed([1,2,3]) is [3,2,1]  [PASS]
+  THEN  Sorted([3,1,2]) is [1,2,3]  [PASS]
+  THEN  RemoveDuplicates keeps first occurrences  [PASS]
+  THEN  FindDuplicates returns 2nd+ occurrence positions  [PASS]
+  THEN  FindDuplicates is correct on nested-list items (engine-backed)  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Add and slice
+  THEN  AddQ(3) appends  [PASS]
+  THEN  FirstItem is 10  [PASS]
+  THEN  LastItem is 30  [PASS]
+  THEN  Section(2,4) is [2,3,4]  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Reducers and emptiness
+  THEN  Sum([1,2,3,4]) is 10  [PASS]
+  THEN  IsEmpty([]) is TRUE  [PASS]
+  THEN  IsEmpty([1]) is FALSE  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Indexing and slicing
+  THEN  NthItem(3) of [10,20,30,40] is 30  [PASS]
+  THEN  FirstNItems(2) of [1..5] is [1,2]  [PASS]
+  THEN  LastNItems(2) of [1..5] is [4,5]  [PASS]
+  THEN  Flattened([[1,2],[3,[4,5]]]) is [1,2,3,4,5]  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Numeric aggregates
+  THEN  Min([3,1,2]) is 1  [PASS]
+  THEN  Max([3,1,2]) is 3  [PASS]
+  THEN  Product([1,2,3,4]) is 24  [PASS]
+  THEN  Average([2,4,6]) is 4  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Set operations
+  THEN  UnionWith([1,2,3],[3,4,5]) is [1,2,3,4,5]  [PASS]
+  THEN  DifferenceWith([1,2,3,4],[2,4]) is [1,3]  [PASS]
+  THEN  IntersectWith([1,2,3],[2,3,4]) is [2,3]  [PASS]
+  THEN  ContainsAll([1,2,3],[1,3]) is TRUE  [PASS]
+  THEN  ContainsMany([1,2,3],[1,9]) is FALSE (9 absent)  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Sorting descending
+  THEN  SortedInDescending([1,3,2]) is [3,2,1]  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Mutators modify in place
+  GIVEN a list to mutate
+  THEN  RemoveAt(2) -> [a,c]  [PASS]
+  THEN  InsertBefore(2,X) -> [a,X,b,c]  [PASS]
+  THEN  ReplaceAtQ(2,9) on [1,2,3] -> [1,9,3]  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Transform and conditional find
+  THEN  Map('2*@item') on [1,2,3] -> [2,4,6]  [PASS]
+  THEN  Filter('@item > 2') on [1..4] -> [3,4]  [PASS]
+  THEN  CountW('@item > 2') on [1..4] is 2  [PASS]
+  THEN  FindFirst(2) in [1,2,3,2] is 2  [PASS]
+  THEN  FindLast(2) in [1,2,3,2] is 4  [PASS]
+  THEN  IsEqualTo([1,2],[1,2]) is TRUE  [PASS]
+  THEN  IsEqualTo([1,2],[1,3]) is FALSE  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Partition, group and chunk (guards the PartitionW missing-helper fix)
+  THEN  GroupBy('@item % 2') on [1..5] groups by parity  [PASS]
+  THEN  PartitionW('@item > 2') on [1..4] -> [[3,4],[1,2]]  [PASS]
+  THEN  Chunks(2) on [1..5] -> [[1,2],[3,4],[5]]  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Splitting (guards the SplitAt engine-arg + SplitToPartsOf mutator fixes)
+  THEN  SplitAt(3) on [1..5] -> [[1,2],[3,4,5]]  [PASS]
+  THEN  SplittedToPartsOf(2) on [1..5] -> [[1,2],[3,4],[5]]  [PASS]
+  GIVEN a list mutated in place by SplitToPartsOf
+  THEN  SplitToPartsOf(2) mutates -> [[1,2],[3,4],[5]]  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Structure ops: rotate, swap, take, remove-first
+  THEN  RotatedLeft(1) [1,2,3,4] -> [2,3,4,1]  [PASS]
+  THEN  RotatedRight(1) [1,2,3,4] -> [4,1,2,3]  [PASS]
+  THEN  TakeLast(2) [1..5] -> [4,5]  [PASS]
+  GIVEN lists mutated in place
+  THEN  Swap(1,4) [1,2,3,4] -> [4,2,3,1]  [PASS]
+  THEN  RemoveFirstItem [1,2,3] -> [2,3]  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Type checks and item equality
+  THEN  IsListOfNumbers([1,2,3]) is TRUE  [PASS]
+  THEN  IsListOfStrings([a,b]) is TRUE  [PASS]
+  THEN  AllItemsAreEqual([5,5,5]) is TRUE  [PASS]
+  THEN  AllItemsAreEqual([5,6]) is FALSE  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Zip, interleave and pairs
+  THEN  ZippedWith([1,2,3],[a,b,c]) -> [[1,a],[2,b],[3,c]]  [PASS]
+  THEN  InterleavedWith([1,2,3],[a,b,c]) -> [1,a,2,b,3,c]  [PASS]
+  THEN  Pairify([1,2,3,4]) -> [[1,2],[2,3],[3,4]] (sliding pairs)  [PASS]
+  THEN  Pairs([1,[a,b],3,[c,d]]) -> [[a,b],[c,d]] (items that are pairs)  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Reduce / accumulate (guards the cross-DLL reduce-value fix)
+  THEN  Reduce() of [1,2,3,4] is 10 (numeric sum)  [PASS]
+  THEN  ReduceXT('@accumulator + @item', 0) on [1..4] is 10  [PASS]
+  THEN  ReduceXT with init 100 is 110  [PASS]
+  THEN  ReduceNoInit('@accumulator * @item') on [1..4] is 24  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Append, pop and prepend-with
+  GIVEN a list grown then popped
+  THEN  Append(4) -> [1,2,3,4]  [PASS]
+  THEN  Pop returns the last item (3)  [PASS]
+  THEN  Pop leaves [1,2]  [PASS]
+  THEN  PrependedWith([3,4],[1,2]) -> [1,2,3,4]  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Probabilistic quantifiers
+  GIVEN the deterministic quantifiers
+  THEN  All([A,B,C]) returns all  [PASS]
+  THEN  No([A,B,C]) returns []  [PASS]
+  THEN  AllOf is an alias of All  [PASS]
+  THEN  NoOneOf is an alias of No  [PASS]
+  GIVEN a 10-item list and the proportional quantifiers (counts are stable; selection is random)
+  THEN  Few -> 2 items  [PASS]
+  THEN  Some -> 3 items  [PASS]
+  THEN  Half -> 5 items  [PASS]
+  THEN  Most -> 9 items  [PASS]
+  THEN  Few < Some < Most (the continuum holds)  [PASS]
+  WHEN  Some(aTen) is sampled
+  THEN  every sampled item belongs to the source  [PASS]
+  -> 10 pass, 0 fail
+
+================================================
+TOTAL: 79 assertions, 79 pass, 0 fail
+================================================
+STATUS: OK

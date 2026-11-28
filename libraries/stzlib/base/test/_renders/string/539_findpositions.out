@@ -1,0 +1,15 @@
+SCENARIO: Finding many everywhere
+  THEN  the positions  [PASS]
+  THEN  the sections  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Bounded words three ways
+  THEN  the bounded substrings  [PASS]
+  THEN  their content starts  [PASS]
+  THEN  their content sections  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

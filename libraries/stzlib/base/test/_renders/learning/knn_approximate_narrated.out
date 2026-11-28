@@ -1,0 +1,43 @@
+SCENARIO: The default is exact, and turning approximation on is a decision
+  THEN  a fresh classifier searches exactly  [PASS]
+  THEN  ...over the whole training set  [PASS]
+  THEN  exact: a low-cluster query classifies low  [PASS]
+  THEN  exact: a high-cluster query classifies high  [PASS]
+  THEN  approximation is on once asked for  [PASS]
+  THEN  ...with the tuned tree count  [PASS]
+  THEN  ...and the engine choosing the budget from k  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Approximate search reaches the same verdicts
+  THEN  approximate: a low-cluster query still classifies low  [PASS]
+  THEN  approximate: a high-cluster query still classifies high  [PASS]
+  THEN  label agreement with exact search, over 40 queries  [PASS]
+  THEN  ...and measuring it leaves the mode as it found it  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ...and the two paths hand back the same SHAPE, not merely the same label
+  THEN  Why() names five examples either way  [PASS]
+  THEN  ...and quotes a plausible TRUE distance, not a squared one  [PASS]
+  THEN  ...and both paths agree on the nearest example for this query  [PASS]
+  THEN  the vote overrules the nearest neighbour here  [PASS]
+  THEN  ...the nearest neighbour is the OTHER label  [PASS]
+  THEN  ...and Why() names the verdict, not that neighbour  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Toggling and retuning invalidate cleanly
+  THEN  exact first  [PASS]
+  THEN  ...then approximate, on a rebuilt index  [PASS]
+  THEN  ...retuning the trees rebuilds and still answers  [PASS]
+  THEN  ...at the new tree count  [PASS]
+  THEN  ...and setting a budget explicitly still answers  [PASS]
+  THEN  ...at the new budget  [PASS]
+  THEN  ...and going back to exact works too  [PASS]
+  THEN  adding an example is noticed under approximation too  [PASS]
+  THEN  zero trees is refused  [PASS]
+  THEN  ...and a negative budget too  [PASS]
+  -> 10 pass, 0 fail
+
+================================================
+TOTAL: 27 assertions, 27 pass, 0 fail
+================================================
+STATUS: OK

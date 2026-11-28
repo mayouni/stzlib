@@ -1,0 +1,71 @@
+-- Scene 1: a 2000-node multilingual network --
+  nodes in 0.01 s, edges in 0.03 s
+  [OK] every node landed
+  [OK] every edge landed
+  [OK] node ids are genuinely multibyte
+  [OK] adding edges is linear, not quadratic (< 5s for 1996)
+
+-- Scene 2: membership, which every add depends on --
+  2000 node lookups in 0.01 s
+  [OK] every node resolves
+  [OK] an absent node does not
+  [OK] node lookup is not a scan (< 3s for 2000)
+  [OK] every probed edge is found
+  [OK] an absent edge is not found
+  [OK] edge lookup is not a scan (< 3s for 800)
+
+-- Scene 3: THE interleaved pattern -- add, ask, add, ask --
+  799 add+query steps in 0.02 s
+  [OK] interleaving stays linear (< 10s)
+  [OK] the interleaved graph is complete
+  [OK] a query during the build saw the edge just added
+
+-- Scene 4: incremental updates must equal a full rebuild --
+  [OK] same node count
+  [OK] same edge count
+  [OK] same BFS order
+  [OK] same DFS order
+  [OK] same connected components
+  [OK] same shortest path
+  [OK] same neighbours on every sampled node
+
+-- Scene 5: traversal over a known structure --
+  BFS reached 500 nodes in 0.01 s
+  [OK] BFS covers exactly its own chain
+  [OK] BFS starts where it was told
+  [OK] BFS does not leak into another component
+  [OK] DFS covers exactly its own chain
+
+-- Scene 6: shortest paths of a length we can compute --
+  head-to-tail path has 500 nodes, in 0 s
+  [OK] the path spans the whole chain
+  [OK] it starts at the head
+  [OK] it ends at the tail
+  [OK] path finding is fast (< 3s)
+  [OK] there is no path between components
+
+-- Scene 7: components, counted independently --
+  4 components in 0.01 s
+  [OK] one component per chain
+  [OK] the components account for every node
+  [OK] each component is a whole chain
+
+-- Scene 8: multilingual ids survive the case folding --
+  [OK] a Greek-UPPERCASE id is found by its original spelling
+  [OK] ...and so is the folded spelling
+  [OK] an Arabic id resolves
+  [OK] a CJK id resolves
+  [OK] an emoji id resolves
+  [OK] edges between multilingual ids resolve
+  [OK] neighbours of a Greek-id node come back
+  [OK] ...and the neighbour is intact multibyte text
+
+-- Scene 9: a practical question -- how deep is the network? --
+  from one entry point, 500 nodes are reachable
+  [OK] reachability matches the chain length
+  [OK] the network still holds every node
+  [OK] ...and every edge
+
+==========================================
+TOTAL: 43 assertions, 43 pass, 0 fail
+==========================================

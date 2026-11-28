@@ -1,0 +1,29 @@
+SCENARIO: the incident proposes revoking the capability, from the graph's own answer
+  THEN  billing-agent reaches effectful before  [PASS]
+  THEN  the plan proposes :RevokeCapability  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: committed, it cuts every path -- and only that actor's
+  THEN  lock, session revocation and capability revocation were committed  [PASS]
+  THEN  billing-agent no longer reaches effectful  [PASS]
+  THEN  no path is left  [PASS]
+  THEN  BOTH of its paths were cut (the tool and the delegation)  [PASS]
+  THEN  release-bot, using the same tool, keeps it  [PASS]
+  THEN  ops-bot keeps its own capability  [PASS]
+  THEN  billing-agent keeps what it did not misuse (sensing)  [PASS]
+  THEN  the LIVE billing-agent is no longer effectful  [PASS]
+  THEN  so it can no longer commit a plan  [PASS]
+  THEN  the live release-bot is untouched  [PASS]
+  THEN  and the account is locked too  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: an LLM can propose the revocation and cannot commit it
+  THEN  nothing committed  [PASS]
+  THEN  the path is intact  [PASS]
+  THEN  the live actor is intact  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+================================================
+STATUS: OK

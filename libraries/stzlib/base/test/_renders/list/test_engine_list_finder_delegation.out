@@ -1,0 +1,30 @@
+=== Engine Delegation: FindAll string items ===
+  FindAll('banana'): [ 2, 4, 6 ]
+  FindAll('mango'): [ ]
+  FindAll('apple'): [ 1 ]
+
+=== Engine Delegation: Case-insensitive string find ===
+  FindAllCS('hello', CS=1): [ 3, 5 ]
+  FindAllCS('hello', CS=0): [ 1, 2, 3, 5 ]
+
+=== Engine Delegation: FindFirst/FindLast ===
+  FindFirst('y'): 2
+  FindLast('y'): 4
+
+=== Engine Delegation: Contains ===
+  Contains('zig'): 1
+  Contains('rust'): 0
+
+=== Engine Delegation: NumberOfOccurrence ===
+  NumberOfOccurrence('a'): 3
+
+=== Engine Delegation: FindMany ===
+  FindMany(['red','blue']): [ 1, 3, 4 ]
+
+=== Engine Delegation: Mixed list (number fallback) ===
+  FindAll(3) in mixed list: [ 3 ]
+  FindAll('two') in mixed list: [ 2, 4 ]
+
+=================================
+  PASSED: 13  FAILED: 0
+=================================

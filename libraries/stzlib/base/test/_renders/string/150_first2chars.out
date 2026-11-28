@@ -1,0 +1,13 @@
+SCENARIO: First / last / next chars as strings
+  GIVEN "abCDE"
+  THEN  First2CharsAsString() is 'ab'  [PASS]
+  THEN  Last3CharsAsString() is 'CDE'  [PASS]
+  THEN  First2Chars() is a LIST  [PASS]
+  THEN  Last3Chars() is a LIST  [PASS]
+  THEN  Next3CharsAsString(:StartingAt=2) is the run after pos 2  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

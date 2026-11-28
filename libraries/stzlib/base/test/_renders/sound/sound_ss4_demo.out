@@ -1,0 +1,38 @@
+==================================================================
+ SS4 -- one :Danger, two channels
+==================================================================
+
+Nothing below says a meaning twice. Each line hands ONE STRING to two
+faces that share no code.
+
+   :danger   ->  colour #ff0000   priority 4   0.180 s of sound
+   :warning  ->  colour #ffa500   priority 3   0.180 s of sound
+   :info     ->  colour #0000ff   priority 2   0.100 s of sound
+   :success  ->  colour #008000   priority 1   0.160 s of sound
+
+-- :Muted, the fifth, renders as ABSENCE in both --
+
+   :muted    ->  colour #ababab
+               sound  silence (IsSilentValue: 1)
+   [two seconds of it]
+
+   That is one meaning rendering consistently, not two channels failing
+   to agree. Waiting is not an event.
+
+-- and the two faces REFUSE each other's steps identically --
+
+   Both spell a step value.step, but the steps belong to the medium:
+     colour: surface, border, text, solid
+     sound : cue, alert, ambient
+
+   danger.solid     colour: #fb0000     sound: REFUSED
+   danger.alert     colour: REFUSED     sound: alert
+
+   Before SS4 the sound face took 'danger.surface' and quietly made it a
+   cue -- so a mistyped ALERT lost its pre-emption and said nothing.
+   Now:
+     'danger' is a semantic value but 'alrt' is not one of this channel's steps (cue, alert, ambient) -- colour's steps are its own, and neither channel borrows the other's
+
+==================================================================
+ Four values, one word each, two channels. Nothing was declared twice.
+==================================================================

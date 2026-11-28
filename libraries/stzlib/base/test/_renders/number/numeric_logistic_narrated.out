@@ -1,0 +1,60 @@
+SCENARIO: the fit is the same fit -- and the residue is measured, not assumed
+  THEN  1 epoch: agrees to 1e-15  [PASS]
+  THEN  ...and on rnxc it is exactly zero -- both loops call the same exp now  [PASS]
+  THEN  10 epochs: still under 1e-14  [PASS]
+  THEN  100 epochs: under 1e-13  [PASS]
+  THEN  500 epochs: still under 1e-13 -- the growth is slow  [PASS]
+  THEN  ...and both loops classify identically at 500 epochs  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: and it still learns what it used to
+  THEN  the weight has the sign the data implies  [PASS]
+  THEN  low input -> low class  [PASS]
+  THEN  high input -> high class  [PASS]
+  THEN  ...and the boundary sits between them  [PASS]
+  THEN  it fits its own training data  [PASS]
+  THEN  Why() still narrates  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: an untrained model still refuses, and zero epochs is still uninformed
+  THEN  Probability before Train raises  [PASS]
+  THEN  Train(0) leaves the first weight at zero  [PASS]
+  THEN  ...and the second  [PASS]
+  THEN  ...and the bias  [PASS]
+  THEN  ...so every probability is a half  [PASS]
+  THEN  ...whatever you ask it  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: two silent failures are now diagnoses -- this is the point of the slice
+  THEN  a wider row is refused, not truncated  [PASS]
+  THEN  ...and a narrower one too  [PASS]
+  THEN  ...naming which example is wrong  [PASS]
+  THEN  ...and how wide the set is  [PASS]
+  THEN  too few features is refused  [PASS]
+  THEN  ...and too many  [PASS]
+  THEN  ...and none at all  [PASS]
+  THEN  ...saying what the model was fitted on  [PASS]
+  THEN  ...and what it got instead  [PASS]
+  THEN  the right arity of course still works  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: one definition of the score -- Probability agrees with the fit
+  THEN  bulk and single agree exactly, row 1  [PASS]
+  THEN  ...row 2  [PASS]
+  THEN  ...row 3  [PASS]
+  THEN  every value is in [0,1]  [PASS]
+  THEN  a ragged bulk row is refused too  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the divergence this class documents is REAL, and still surfaced
+  THEN  unscaled features diverge -- weights in the thousands  [PASS]
+  THEN  ...and the model scores at chance on data it has SEEN  [PASS]
+  THEN  the same data scaled converges  [PASS]
+  THEN  ...and gets it right  [PASS]
+  THEN  ...which is what makes the failure visible rather than silent  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 38 assertions, 38 pass, 0 fail
+================================================
+STATUS: OK

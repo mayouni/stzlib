@@ -1,0 +1,34 @@
+SCENARIO: An array writes back to text
+  THEN  an array of numbers and text  [PASS]
+  THEN  an array of objects keeps each object  [PASS]
+  THEN  an array of arrays  [PASS]
+  THEN  a Ring list of items is an array too  [PASS]
+  THEN  the indented form has one item per line  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Copy, Show and Print run on an array
+  THEN  the copy writes the same text  [PASS]
+  THEN  the copy is an array  [PASS]
+  THEN  clearing the copy leaves the original alone  [PASS]
+[
+	1,
+	2,
+	"x"
+]
+  THEN  Show raises nothing  [PASS]
+[1,2,"x"]
+  THEN  Print raises nothing  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Objects still write as before, and an empty one writes as {}
+  THEN  an object holding an array  [PASS]
+  THEN  an empty object  [PASS]
+  THEN  its indented form  [PASS]
+  THEN  an empty array  [PASS]
+  THEN  a cleared object  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 15 assertions, 15 pass, 0 fail
+================================================
+STATUS: OK

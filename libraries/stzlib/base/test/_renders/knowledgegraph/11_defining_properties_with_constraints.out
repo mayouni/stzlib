@@ -1,0 +1,28 @@
+[
+	[
+		[ "property", "age" ],
+		[
+			"constraints",
+			[
+				[ "type", "number" ],
+				[ "min", 0 ],
+				[ "max", 150 ]
+			]
+		]
+	],
+	[
+		[ "property", "name" ],
+		[
+			"constraints",
+			[
+				[ "type", "string" ],
+				[ "required", 1 ]
+			]
+		]
+	]
+]
+
+Executed in almost 0 second(s)
+
+----------------
+----------------

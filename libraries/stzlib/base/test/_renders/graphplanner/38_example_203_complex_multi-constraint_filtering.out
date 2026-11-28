@@ -1,0 +1,44 @@
+2
+
+[ "through_suburbs", "through_industrial" ]
+
+[
+	[
+		"constrains_applied",
+		[
+			[ "maxcost", 50 ],
+			[ "avoid", "downtown" ],
+			[ "maxsteps", 4 ]
+		]
+	],
+	[ "plans_matching_count", 2 ],
+	[
+		"plans_matching_details",
+		[
+			[
+				[ "plan", "through_suburbs" ],
+				[ "cost", 25 ],
+				[ "steps", 2 ],
+				[
+					"route",
+					[ "start", "suburbs" ]
+				]
+			],
+			[
+				[ "plan", "through_industrial" ],
+				[ "cost", 30 ],
+				[ "steps", 2 ],
+				[
+					"route",
+					[ "start", "industrial" ]
+				]
+			]
+		]
+	]
+]
+
+through_suburbs
+
+
+----------------
+----------------

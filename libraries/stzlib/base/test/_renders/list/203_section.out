@@ -1,0 +1,14 @@
+SCENARIO: Slicing a list four ways: Section / SectionXT / Range / RangeXT.
+  THEN  section example 1  [PASS]
+  THEN  section example 2  [PASS]
+  THEN  section example 3  [PASS]
+  THEN  section example 4  [PASS]
+  THEN  section example 5  [PASS]
+  THEN  section example 6  [PASS]
+  THEN  section example 7  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

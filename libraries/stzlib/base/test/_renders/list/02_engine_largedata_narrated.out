@@ -1,0 +1,45 @@
+SCENARIO: Build and basic stats at scale
+  GIVEN the list 1..50000
+  THEN  NumberOfItems is 50000  [PASS]
+  THEN  FirstItem is 1  [PASS]
+  THEN  LastItem is 50000  [PASS]
+  THEN  Sum is N*(N+1)/2  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Find and membership at scale
+  THEN  Find(49999) -> [49999]  [PASS]
+  THEN  Contains(50000) is TRUE  [PASS]
+  THEN  Contains(0) is FALSE  [PASS]
+  THEN  NumberOfOccurrences(1) is 1  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Sort and reverse at scale
+  GIVEN the descending list 50000..1
+  THEN  Sorted first item is 1  [PASS]
+  THEN  Sorted last item is 50000  [PASS]
+  THEN  Reversed first item is 50000  [PASS]
+  THEN  Reversed last item is 1  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Deduplicate at scale
+  GIVEN a 50000-item list of all 7s
+  THEN  the built list has 50000 items  [PASS]
+  THEN  RemoveDuplicates collapses it to [7]  [PASS]
+  THEN  a 50000-item all-unique list dedups to 50000  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Conditional count at scale (engine W)
+  THEN  CountW(@item > 49990) is 10  [PASS]
+  THEN  CountW(@item <= 100) is 100  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Set operations at scale
+  GIVEN A = 1..30000 and B = 20001..50000
+  THEN  UnionWith(A,B) has 50000 items  [PASS]
+  THEN  IntersectionWith(A,B) has 10000 items  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 19 assertions, 19 pass, 0 fail
+================================================
+STATUS: OK

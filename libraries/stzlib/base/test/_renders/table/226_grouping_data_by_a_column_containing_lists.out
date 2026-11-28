@@ -1,0 +1,25 @@
+╭────────┬─────┬────────────────────────────────╮
+│  Name  │ Age │            Hobbies             │
+├────────┼─────┼────────────────────────────────┤
+│ Hela   │  24 │ [ "Sport", "Music" ]           │
+│ John   │  32 │ [ "Games", "Travel", "Sport" ] │
+│ Ali    │  22 │ [ "Painting", "Dansing" ]      │
+│ Foued  │  43 │ [ "Music", "Travel" ]          │
+╰────────┴─────┴────────────────────────────────╯
+╭──────────┬────────┬─────╮
+│ Hobbies  │  Name  │ Age │
+├──────────┼────────┼─────┤
+│ Sport    │ Hela   │  24 │
+│ Sport    │ John   │  32 │
+│ Music    │ Hela   │  24 │
+│ Music    │ Foued  │  43 │
+│ Games    │ John   │  32 │
+│ Travel   │ John   │  32 │
+│ Travel   │ Foued  │  43 │
+│ Painting │ Ali    │  22 │
+│ Dansing  │ Ali    │  22 │
+╰──────────┴────────┴─────╯
+
+
+----------------
+----------------

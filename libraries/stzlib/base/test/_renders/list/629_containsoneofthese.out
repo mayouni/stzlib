@@ -1,0 +1,23 @@
+[ "red", "blue" ]
+[ "green", "yellow", "gray" ]
+
+[
+	[
+		"added",
+		[ "yellow", "gray" ]
+	],
+	[
+		"removed",
+		[ "green" ]
+	],
+	[
+		"modified",
+		[
+			[ "blue", "bluezzz" ]
+		]
+	]
+]
+
+
+----------------
+----------------

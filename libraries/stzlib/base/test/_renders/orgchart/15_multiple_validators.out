@@ -1,0 +1,37 @@
+[
+	[ "status", "fail" ],
+	[ "validatorsrun", 2 ],
+	[ "validatorsfailed", 1 ],
+	[ "totalissues", 2 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "pass" ],
+				[ "domain", "span_of_control" ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "vacancy" ],
+				[ "issuecount", 2 ],
+				[
+					"issues",
+					[ "Vacant positions: 2" ]
+				],
+				[
+					"affectednodes",
+					[ "ceo", "vp1" ]
+				]
+			]
+		]
+	],
+	[
+		"affectednodes",
+		[ "ceo", "vp1" ]
+	]
+]
+
+
+----------------
+----------------

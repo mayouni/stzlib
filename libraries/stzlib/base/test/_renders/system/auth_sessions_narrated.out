@@ -1,0 +1,52 @@
+SCENARIO: a session carries device metadata, and a user can list their devices
+  THEN  both devices are listed  [PASS]
+  THEN  ...each carrying its ip  [PASS]
+  THEN  ...and its user-agent  [PASS]
+  THEN  SessionInfo returns one session's descriptor  [PASS]
+  THEN  ...with a created stamp  [PASS]
+  THEN  a plain Login still opens a session  [PASS]
+  THEN  ...listed with empty metadata  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: revoke ONE device vs revoke ALL
+  WHEN  one device is revoked
+  THEN  only that session ends  [PASS]
+  THEN  ...the others stay live  [PASS]
+  THEN  ...the device list drops to two  [PASS]
+  WHEN  all sessions are revoked
+  THEN  none remain  [PASS]
+  THEN  ...but the account survives  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: session ROTATION on privilege change (fixation defense)
+  GIVEN a logged-in session (say, before a 2FA step)
+  WHEN  the session is rotated (privilege elevated)
+  THEN  the OLD token is void (cannot be replayed)  [PASS]
+  THEN  ...a NEW token is live  [PASS]
+  THEN  ...it is a fresh token  [PASS]
+  THEN  ...for the same user  [PASS]
+  THEN  ...carrying the same device metadata  [PASS]
+  WHEN  rotating an unknown token
+  THEN  it yields no session  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: idle timeout -- a session dies from inactivity (opt-in), and slides on use
+  GIVEN an auth with NO absolute expiry but a 100s idle timeout
+  THEN  valid at t=1099 (99s idle) and it touches last-seen  [PASS]
+  THEN  ...still valid at 1198 (99s from the 1099 touch -- the window slid)  [PASS]
+  THEN  ...INVALID at 1198+101 (idle past the last touch)  [PASS]
+  THEN  ...PurgeExpiredAt reaps the idle-dead session  [PASS]
+  GIVEN idle timeout OFF (the default)
+  THEN  a session never idles out when the timeout is 0  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: metadata survives in the DB store (durable device list)
+  WHEN  a separate stzAuth reads the same database
+  THEN  the device is listed with its persisted ip  [PASS]
+  THEN  ...and user-agent  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 25 assertions, 25 pass, 0 fail
+================================================
+STATUS: OK

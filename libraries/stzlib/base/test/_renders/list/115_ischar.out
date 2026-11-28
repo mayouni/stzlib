@@ -1,0 +1,15 @@
+SCENARIO: IsChar() answers whether a value qualifies as a single character.
+  THEN  ischar example 1  [PASS]
+  THEN  ischar example 2  [PASS]
+  THEN  ischar example 3  [PASS]
+  THEN  ischar example 4  [PASS]
+  THEN  ischar example 5  [PASS]
+  THEN  ischar example 6  [PASS]
+  THEN  ischar example 7  [PASS]
+  THEN  ischar example 8  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

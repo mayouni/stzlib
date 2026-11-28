@@ -1,0 +1,13 @@
+SCENARIO: Finding ABC bounded by | markers
+  GIVEN "---|ABC|---|ABC|---"
+  THEN  FindBetweenAsSections('ABC','|','|') gives both spans  [PASS]
+  THEN  FindXT(..., :BoundedBy='|') gives the start positions  [PASS]
+  THEN  FindAsSectionsXT(..., :BoundedBy='|') gives both spans  [PASS]
+  THEN  FindXT(..., :Between=['|','|']) gives the start positions  [PASS]
+  THEN  FindAsSectionsXT(..., :Between=['|','|']) gives both spans  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

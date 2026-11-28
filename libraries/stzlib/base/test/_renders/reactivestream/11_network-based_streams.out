@@ -1,0 +1,19 @@
+🟡 CLIENT ERROR
+• Endpoint: /api/orders
+• Status: 404
+• Response Time: 89ms
+
+🔴 SERVER ERROR
+• Endpoint: /api/products
+• Status: 500
+• Response Time: 3500ms
+
+🐌 SLOW RESPONSE
+• Endpoint: /api/payments
+• Status: 200
+• Response Time: 2500ms
+
+
+
+----------------
+----------------

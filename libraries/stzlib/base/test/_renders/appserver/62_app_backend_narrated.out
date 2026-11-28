@@ -1,0 +1,66 @@
+SCENARIO: the backend goes live: the model's datasets become real shared state
+  GIVEN a topology whose datasets are static in-memory lists
+  WHEN  Start(0) materialises them and binds an ephemeral port
+  THEN  the backend reports live  [PASS]
+  THEN  a real port is bound  [PASS]
+  THEN  the seeded order is really in the live state  [PASS]
+  THEN  ...and the menu came across too  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: THE PROOF: an order created on the phone is seen by the admin
+  GIVEN the admin's dashboard before anything is ordered
+  THEN  the total is the one seeded Tajine (15)  [PASS]
+  THEN  ...and Tajine is the top dish  [PASS]
+  WHEN  the PHONE part creates an order -- a real HTTP POST to the backend
+  THEN  the backend accepted it (201 Created)  [PASS]
+  WHEN  the ADMIN part reads -- a separate real HTTP GET
+  THEN  the admin SEES the phone's order  [PASS]
+  THEN  the engine-computed total CHANGED: 15 + 12x2 = 39  [PASS]
+  THEN  ...and the top dish flipped to Couscous (24 > 15)  [PASS]
+  THEN  ...computed over 2 live rows, not the frozen model  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: the state left the model: the topology is untouched
+  GIVEN the live backend now holds two orders
+  THEN  the MODEL still holds only the one it was declared with  [PASS]
+  THEN  ...so the parts are sharing LIVE state, not re-reading the model  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a cross-part write is a governed crossing, like every other effect
+  GIVEN an LLM actor bound as the acting actor
+  THEN  the backend is governed  [PASS]
+  WHEN  the LLM READS the whole solution (sensing is free)
+  THEN  it sees every order  [PASS]
+  WHEN  the LLM tries to WRITE (an effect it does not hold)
+  THEN  the crossing is REFUSED  [PASS]
+  THEN  ...nothing was written  [PASS]
+  THEN  ...and the refusal is audited, not silent  [PASS]
+  WHEN  an effectful human actor acts instead
+  THEN  the same write is admitted  [PASS]
+  THEN  ...and the state grew  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: every crossing is on the record
+  GIVEN the traffic log the backend kept throughout
+  THEN  it recorded crossings from both parts  [PASS]
+  THEN  ...the phone's are attributed to the phone  [PASS]
+  THEN  ...and the admin's to the admin  [PASS]
+  THEN  Explain() names the backend and its port  [PASS]
+  THEN  ...and says it is governed  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: a non-ASCII dish name survives the whole live path
+  GIVEN Softanza is unicode-first, so an Arabic dish is an ordinary value
+  WHEN  the phone orders a dish written in Arabic
+  THEN  it round-trips HTTP -> sqlite -> json -> the admin intact  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: teardown releases the host, the client and the database
+  THEN  the backend reports stopped  [PASS]
+  THEN  teardown completes without crash  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 28 assertions, 28 pass, 0 fail
+================================================
+STATUS: OK

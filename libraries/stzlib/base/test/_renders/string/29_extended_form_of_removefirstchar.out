@@ -1,0 +1,14 @@
+SCENARIO: Peeling leading chars one-by-one, then all at once
+  GIVEN "-------Ring" (7 leading dashes)
+  THEN  one peeled -> 6 dashes  [PASS]
+  THEN  two peeled -> 5 dashes  [PASS]
+  THEN  three peeled -> 4 dashes  [PASS]
+  THEN  the XT form peels the rest in one shot  [PASS]
+  GIVEN a fresh "-------Ring"
+  THEN  RemoveLeadingChars() does it directly  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

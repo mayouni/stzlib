@@ -1,0 +1,28 @@
+=== Validated Configuration ===
+
+Section result 1:
+[
+	"info",
+	60,
+	[ "VALID_LOGGING_CONFIG" ]
+]
+
+Section result 2:
+[
+	"info",
+	[ 30 ],
+	[ "VALID_LOGGING_CONFIG" ]
+]
+
+Section result 3:
+[
+	"info",
+	60,
+	[ "VALID_LOGGING_CONFIG" ]
+]
+
+=== Validation Summary ===
+
+
+----------------
+----------------

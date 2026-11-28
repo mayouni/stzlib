@@ -1,0 +1,36 @@
+SCENARIO: A country with a unique currency (Russia)
+  GIVEN new stzCurrency(:Russia)
+  THEN  Currency() is the full name russian_ruble (not 'r')  [PASS]
+  THEN  Name() mirrors Currency()  [PASS]
+  THEN  Abbreviation() is the ISO code RUB  [PASS]
+  THEN  Country() is russia  [PASS]
+  THEN  FractionalUnit() is Kopek  [PASS]
+  THEN  Base() is 100  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: The United States
+  GIVEN new stzCurrency(:united_states)
+  THEN  Currency() is united_states_dollar  [PASS]
+  THEN  Abbreviation() is USD  [PASS]
+  THEN  Country() is united_states  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Shared currency stays country-exact (France vs Germany, both euro)
+  GIVEN two euro countries
+  THEN  France Currency() is euro  [PASS]
+  THEN  France Abbreviation() is EUR (no longer R2)  [PASS]
+  THEN  France Country() is france (not another euro country)  [PASS]
+  THEN  Germany Country() is germany (distinct from France)  [PASS]
+  THEN  Germany Abbreviation() is EUR too  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Japan
+  GIVEN new stzCurrency(:Japan)
+  THEN  Currency() is japanese_yen  [PASS]
+  THEN  Abbreviation() is JPY  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+================================================
+STATUS: OK

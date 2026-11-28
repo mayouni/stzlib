@@ -1,0 +1,28 @@
+SCENARIO: Construction and components
+  GIVEN the time 14:30:45
+  THEN  Content round-trips  [PASS]
+  THEN  Hours is 14  [PASS]
+  THEN  Minutes is 30  [PASS]
+  THEN  Seconds is 45  [PASS]
+  THEN  '14:30' normalises to 14:30:00  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Arithmetic
+  GIVEN 14:30:45 as the base
+  THEN  +2 hours -> 16:30:45  [PASS]
+  THEN  +45 minutes rolls into the next hour -> 17:15:45  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Comparison and parts of day
+  GIVEN 09:00 vs 17:30
+  THEN  09:00 IsBefore 17:30  [PASS]
+  THEN  09:00 IsAfter 17:30 is FALSE  [PASS]
+  THEN  14:30 is afternoon  [PASS]
+  THEN  09:00 is not afternoon  [PASS]
+  THEN  14:30 is 2 on a 12-hour clock  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

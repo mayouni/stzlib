@@ -1,0 +1,24 @@
+-- Scene 1: an ungoverned composition is REFUSED --
+  [OK] llm-straight-to-effect is NOT sound
+  [OK] multiple invariants fire
+  [OK] Explain names the refusal
+
+-- Scene 2: the governed shape passes every gate --
+  [OK] proposes -> gate -> effect -> trace is SOUND
+  [OK] Explain confirms governance
+
+-- Scene 3: the capability rule is structural --
+  [OK] an llm actor's capabilities EXCLUDE effectful
+  [OK] ...and its output is tainted open_llm_text
+
+-- Scene 4: an effect with a guardian but NO trace still fails --
+  [OK] the missing audit witness is caught
+
+-- Scene 5: stzLLMAgent proposes, NEVER commits --
+  [OK] it produces a candidate (a proposal)
+  [OK] it can NEVER hold the effectful capability
+  [OK] its kind is llm_actor
+
+==========================================
+TOTAL: 11 assertions, 11 pass, 0 fail
+==========================================

@@ -1,0 +1,25 @@
+[ [ 2, 2 ], [ 3, 2 ], [ 2, 3 ], [ 3, 3 ] ]
+
+[ "Hatem", 46, "Karim", 48 ]
+
+[
+	[
+		[ 2, 2 ],
+		"Hatem"
+	],
+	[
+		[ 3, 2 ],
+		46
+	],
+	[
+		[ 2, 3 ],
+		"Karim"
+	],
+	[
+		[ 3, 3 ],
+		48
+	]
+]
+
+
+Line 2995 Incorrect params! n1 and n2 must be numbers.

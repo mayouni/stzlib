@@ -1,0 +1,56 @@
+SCENARIO: a client given the right CA completes the handshake
+  GIVEN an HTTPS listener presenting a leaf signed by the test CA
+  THEN  the listener is up  [PASS]
+  WHEN  the client verifies against that CA
+  THEN  the handshake completed (status 0)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a client with NO CA verifies against the system roots, and refuses a stranger
+  GIVEN the same listener, whose CA no operating system trusts
+  WHEN  the client asks to verify but names no CA file
+  THEN  the handshake is refused against the system roots (status -2)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: a client that passes FALSE is refused, not quietly unverified
+  GIVEN the same listener, and a CA file that does NOT sign its leaf
+  WHEN  the client passes bVerify = FALSE
+  THEN  the request is refused before any connection (status -18)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: the wrong CA with verification ON aborts the handshake
+  WHEN  the client verifies against a CA that did not sign the leaf
+  THEN  the handshake is refused (status -2)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: the insecure mode exists, but only under its own name
+  WHEN  the client names :InsecureNoVerify and gives no CA
+  THEN  the handshake completes, because the caller chose it by name  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: a channel given the right CA comes up
+  GIVEN an STZM listener terminating TLS with the test leaf
+  THEN  the listener is up  [PASS]
+  WHEN  a channel dials it verifying against the test CA
+  THEN  the channel links up (handshake completed)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a channel with NO CA refuses a stranger
+  WHEN  a channel asks to verify but names no CA file
+  THEN  the dial itself was accepted (system roots loaded)  [PASS]
+  THEN  the channel never links up  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a channel that passes FALSE is refused at setup
+  WHEN  a channel passes bVerify = FALSE with a CA that does not sign the leaf
+  THEN  the dial is refused with -18, no channel is created  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: a channel in the named insecure mode comes up
+  WHEN  a channel names :InsecureNoVerify and gives no CA
+  THEN  the channel links up, because the caller chose it by name  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

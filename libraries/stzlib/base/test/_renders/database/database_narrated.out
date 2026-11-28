@@ -1,0 +1,21 @@
+-- Scene 1: open + DDL/DML --
+  [OK] an in-memory database opens
+  [OK] insert reports rows changed
+
+-- Scene 2: query rows --
+  [OK] rows come back structured
+  [OK] a scalar Value reads
+  [OK] an empty result is []
+
+-- Scene 3: update + honest error --
+  [OK] update reports its row count
+  [OK] ...and takes effect
+  [OK] malformed SQL RAISES with the engine's reason
+  [OK] close releases the handle
+
+-- Scene 4: a FILE database persists across handles --
+  [OK] data survives close + reopen (the persistence floor)
+
+==========================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+==========================================

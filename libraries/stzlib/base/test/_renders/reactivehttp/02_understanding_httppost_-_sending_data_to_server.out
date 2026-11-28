@@ -1,0 +1,17 @@
+Sending HTTP POST request with data...
+
+Data being sent: {
+    "title": "My New Post",
+    "body": "This is the content of my post",
+    "userId": 1
+}
+
+✔ POST SUCCESS! Server response:
+Created resource: {
+  "{\n    \"title\": \"My New Post\",\n    \"body\": \"This is the content of my post\", \n    \"userId\": 1\n}": "",
+  "id": 101
+}
+
+
+----------------
+----------------

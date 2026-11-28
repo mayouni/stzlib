@@ -1,0 +1,31 @@
+SCENARIO: a file naming a loaded but unallowed function is refused at load
+  THEN  the declaration is refused  [PASS]
+  THEN  ...naming the rule  [PASS]
+  THEN  ...and the one line that would allow it  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a function code allowed loads, within its allowance
+  THEN  allowed at 'external', a file saying 'external' loads  [PASS]
+  THEN  ...and so does one asking for LESS trust ('sandboxed')  [PASS]
+  THEN  a file claiming MORE trust ('trusted') is refused  [PASS]
+  THEN  ...as exceeding the allowance  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: an allowance can be withdrawn
+  THEN  withdrawn, the same file is refused again  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: a function that does not exist is still refused as before (negative sibling)
+  THEN  refused  [PASS]
+  THEN  ...for not existing  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: the library's own roster functions are allowed by the library
+  THEN  RollWritePointer needs no application allowance  [PASS]
+  THEN  an allowance must name a real posture  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

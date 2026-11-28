@@ -1,0 +1,14 @@
+=== stzList Core Engine Delegation ===
+IsListOfNumbers: 0
+IsListOfStrings: 0
+Min: 5
+Max: 30
+IsListOfStrings: 1
+Min of empty: 0
+Max of empty: 0
+
+=== Core engine delegation OK ===
+
+
+----------------
+----------------

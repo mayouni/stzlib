@@ -1,0 +1,15 @@
+SCENARIO: Sections of a comeback
+  THEN  crowd renamed  [PASS]
+  THEN  3 to 7  [PASS]
+  THEN  7 to 3, normalized  [PASS]
+  THEN  3 to the end of its word  [PASS]
+  THEN  12 to the end of its word (bang included)  [PASS]
+  THEN  9 to the end of the sentence  [PASS]
+  THEN  first char to end of string  [PASS]
+  THEN  and a whole new country  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,99 @@
+SCENARIO: a one-sample t test, checked against arithmetic anyone can redo
+  THEN  the test names itself  [PASS]
+  THEN  it ran  [PASS]
+  THEN  the statistic  [PASS]
+  THEN  ...on 7 degrees of freedom  [PASS]
+  THEN  the p-value  [PASS]
+  THEN  ...and the effect size, which a p-value alone would not tell you  [PASS]
+  THEN  not significant at 0.05  [PASS]
+  THEN  testing against its own mean gives t = 0  [PASS]
+  THEN  ...and p = 1  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: the paired test IS the one-sample test on the differences
+  THEN  the statistics are identical  [PASS]
+  THEN  ...and the p-values  [PASS]
+  THEN  the differences are 5,7,10,8,5,10,5 giving t = 8.3333333  [PASS]
+  THEN  ...which is highly significant  [PASS]
+  GIVEN mismatched lengths, where pairing is meaningless
+  THEN  it raises, and points at the independent-samples test instead  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: WELCH is the default two-sample test, and that is a decision
+  THEN  the default is named as Welch  [PASS]
+  THEN  the statistic  [PASS]
+  THEN  ...on FRACTIONAL degrees of freedom, which is Welch's signature  [PASS]
+  THEN  Student's df is a whole number by contrast  [PASS]
+  THEN  equal sizes give the two tests the SAME statistic  [PASS]
+  THEN  ...so their p-values are very close here  [PASS]
+  THEN  Student fixes df at n1+n2-2 = 15  [PASS]
+  THEN  ...while Welch shrinks toward the smaller, less informative sample  [PASS]
+  THEN  ...and is therefore SLOWER to call it significant  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: THE MEASUREMENT THAT JUSTIFIES REPORTING AN EFFECT SIZE
+  THEN  Cohen's d at n=10  [PASS]
+  THEN  ...at n=1000  [PASS]
+  THEN  ...and at n=10000, unchanged  [PASS]
+  THEN  p at n=10 is nowhere near significant  [PASS]
+  THEN  ...at n=1000 it crosses the usual threshold  [PASS]
+  THEN  ...and at n=10000 it is overwhelming  [PASS]
+  THEN  yet the effect is below even 'small' throughout  [PASS]
+  THEN  so 'significant' at n=10000 means a difference that does not matter  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: chi-square, for counts rather than measurements
+  THEN  the statistic is 1  [PASS]
+  THEN  ...on 5 degrees of freedom  [PASS]
+  THEN  the p-value is large: this die looks fair  [PASS]
+  THEN  ...so not significant  [PASS]
+  THEN  the total count is reported  [PASS]
+  THEN  a perfect fit gives statistic 0  [PASS]
+  THEN  ...and p = 1  [PASS]
+  THEN  the independence statistic  [PASS]
+  THEN  ...on 1 degree of freedom  [PASS]
+  THEN  ...p just under 0.05  [PASS]
+  THEN  Cramer's V, which does NOT grow with the sample size  [PASS]
+  THEN  perfectly independent counts give 0  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: ANOVA, and the identity that ties it to the t test
+  THEN  F equals t squared  [PASS]
+  THEN  ...and the p-values agree  [PASS]
+  THEN  three groups give F = 13.7142857  [PASS]
+  THEN  ...on 2 degrees of freedom  [PASS]
+  THEN  ...and it is significant  [PASS]
+  THEN  eta-squared is the fraction of variation the grouping explains  [PASS]
+  THEN  ...so it lies between 0 and 1  [PASS]
+  THEN  identical groups give F = 0  [PASS]
+  THEN  ...and p = 1  [PASS]
+  THEN  one group is refused -- there is nothing to compare it to  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: is a correlation real, or could it be chance?
+  THEN  r itself is the effect size, already scale-free  [PASS]
+  THEN  the t statistic  [PASS]
+  THEN  ...on n-2 degrees of freedom  [PASS]
+  THEN  ...and it is significant  [PASS]
+  THEN  an unrelated pair gives a small r  [PASS]
+  THEN  ...and a large p  [PASS]
+  THEN  ...so: not significant  [PASS]
+  THEN  the conclusion refuses to claim the null is TRUE  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: what cannot be tested says so, instead of returning zeros
+  THEN  no variation in the data: the test did NOT run  [PASS]
+  THEN  ...and the p-value is 1, not 0  [PASS]
+  THEN  ...and it is not called significant  [PASS]
+  THEN  ...and it says why  [PASS]
+  THEN  a single observation cannot be tested either  [PASS]
+  GIVEN inputs that do not line up
+  THEN  a correlation on different lengths raises  [PASS]
+  THEN  ...and so does a mismatched goodness-of-fit  [PASS]
+  THEN  a non-numeric item is caught before the engine sees it  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 69 assertions, 69 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,12 @@
+SCENARIO: Positions -> replace -> sections -> remove
+  GIVEN "1♥♥456♥♥901♥♥4"
+  THEN  Find('♥') gives the heart positions  [PASS]
+  THEN  each heart becomes a star  [PASS]
+  THEN  the star runs are found as sections  [PASS]
+  THEN  removing those sections leaves the digits  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

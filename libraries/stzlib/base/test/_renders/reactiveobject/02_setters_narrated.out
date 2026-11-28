@@ -1,0 +1,55 @@
+SCENARIO: SetAsync sets
+  GIVEN a reactive object holding a known value
+  THEN  it starts where we put it  [PASS]
+  WHEN  the value is set through SetAsync
+  THEN  the attribute actually changed  [PASS]
+  THEN  ...the success handler was called with the value  [PASS]
+  THEN  ...and the task says it completed  [PASS]
+  THEN  ...carrying the same value  [PASS]
+  THEN  ...with nothing recorded against the object  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Every setter answers the object, so a configuration can be a chain
+  GIVEN a reactive object
+  THEN  Watch answers the object  [PASS]
+  THEN  Computed does too  [PASS]
+  THEN  ...and SetAttribute  [PASS]
+  THEN  ...and BindTo  [PASS]
+  WHEN  they are strung together
+  THEN  the chain reached the end  [PASS]
+  THEN  ...and the watcher registered mid-chain fired  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: A configuration that cannot work is refused where it was made
+  GIVEN a reactive object given a watcher that is not a function
+  THEN  it is refused at registration  [PASS]
+  THEN  ...named for the call that was wrong, not the later change  [PASS]
+  THEN  ...saying what was expected  [PASS]
+  WHEN  the attribute it would have watched changes
+  THEN  nothing further is recorded  [PASS]
+  GIVEN dependencies that are not a list
+  THEN  that is refused too  [PASS]
+  THEN  ...saying a list was expected  [PASS]
+  WHEN  some other attribute changes afterwards
+  THEN  the later, unrelated set does not raise  [PASS]
+  THEN  ...and it worked  [PASS]
+  GIVEN a computer that is not a function
+  THEN  that is refused  [PASS]
+  GIVEN a bind target that is not an object at all
+  THEN  it is refused rather than raised  [PASS]
+  THEN  ...saying what a target has to be  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: The valid forms are not refused
+  GIVEN a reactive object configured correctly in every way
+  WHEN  an attribute changes
+  THEN  nothing was refused  [PASS]
+  THEN  ...the watcher fired  [PASS]
+  THEN  ...and the computed attribute recomputed  [PASS]
+  THEN  a named function is accepted  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 27 assertions, 27 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,36 @@
+SCENARIO: a rogue agent is quarantined by a governed plan, and stops running
+  THEN  both agents run before  [PASS]
+  THEN  the action was committed  [PASS]
+  THEN  the agent is quarantined  [PASS]
+  THEN  the reason is kept  [PASS]
+  THEN  the quarantined agent does not run  [PASS]
+  THEN  the other agent keeps running  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: a quarantine holds until an effectful actor releases it
+  THEN  Resume() refuses while quarantined  [PASS]
+  THEN  an LLM cannot release it  [PASS]
+  THEN  ...so it is still quarantined  [PASS]
+  THEN  a human releases it  [PASS]
+  THEN  and it runs again (negative sibling)  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: an LLM can propose a quarantine and cannot commit it
+  THEN  nothing committed  [PASS]
+  THEN  the agent is not quarantined  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: THE CATALOGUE WHOLE: one plan, six verbs, five real responders
+  THEN  all six actions were committed  [PASS]
+  THEN  :LockAccount -- the account is locked  [PASS]
+  THEN  :RevokeSession -- the old token is dead  [PASS]
+  THEN  :RotateSecret -- the secret has a new value  [PASS]
+  THEN  :RevokeCapability -- no path to effectful, and the live actor lost it  [PASS]
+  THEN  :ShedSource -- the address is refused  [PASS]
+  THEN  :QuarantinePart -- the agent is quarantined  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 20 assertions, 20 pass, 0 fail
+================================================
+STATUS: OK

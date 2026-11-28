@@ -1,0 +1,65 @@
+-- Scene 1: rehearsing env changes touches NOTHING real (P1) --
+  [OK] the twin holds the rehearsed var
+  [OK] ...marked born-in-the-twin
+  [OK] two operations recorded
+  [OK] the REAL environment does not have it
+
+-- Scene 2: MirrorReality reads the live environment in --
+  [OK] the twin mirrored many real vars
+  [OK] ...including PATH
+  [OK] ...marked mirrored, not virtual
+  [OK] the twin knows the real working directory
+
+-- Scene 3: rehearse a change ON TOP of the mirror (still nothing real) --
+  [OK] the twin shows the new var
+  [OK] ...but the real environment still does not
+
+-- Scene 4: commit sets the real environment variable --
+  [OK] before commit, the real var is absent
+  [OK] after commit, the real var is set
+  [OK] ...and unset cleans it back up
+
+-- Scene 5: a queued spawn does NOT run until commit (P1) --
+  [OK] the spawn is queued in the twin
+  [OK] ...and nothing ran -- the marker is absent
+  [OK] after commit, the command ran -- the marker exists
+
+-- Scene 6: a commit SCOPE refuses out-of-bounds env/process ops --
+  [OK] only the in-scope var committed
+  [OK] ...the other two were refused
+  [OK] the in-scope var is really set
+  [OK] the out-of-scope var never touched the environment
+  [OK] the refused spawn never ran
+
+-- Scene 7: the plan narrates and flags process/env risks --
+  [OK] the narration mentions setting a var
+  [OK] ...and spawning
+  [OK] the unset and the spawn are both flagged as risks
+
+-- Scene 8: a reviewer can reject an operation before commit --
+  [OK] the accepted var committed
+  [OK] the rejected var did NOT
+
+-- Scene 9: undo and snapshot rewind the twin (nothing real) --
+  [OK] three operations rehearsed
+  [OK] undo dropped the last op
+  [OK] rollback returned to the snapshot
+  [OK] ...and the real environment saw none of it
+
+-- Scene 10: commit a working-directory change, then restore --
+  [OK] before commit, the real cwd is unchanged
+  [OK] after commit, the real cwd moved into the scratch dir
+  [OK] ...and we can restore the original cwd
+
+-- Scene 11: 'this will spawn 3 children' -- queued, then all commit --
+  [OK] three spawns queued
+  [OK] ...none has run yet
+  [OK] all three committed
+  [OK] ...and all three children ran
+
+-- Scene 12: the operation records WHO proposed it (P5) --
+  [OK] the operation carries its actor
+
+==========================================
+TOTAL: 38 assertions, 38 pass, 0 fail
+==========================================

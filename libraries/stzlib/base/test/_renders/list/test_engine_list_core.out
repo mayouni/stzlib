@@ -1,0 +1,31 @@
+=== Core: Init and Content ===
+  Content: [ 1, 2, 3 ]
+  NumberOfItems: 3
+
+=== Core: Engine marshaling round-trip ===
+  Round-trip [10, hello, 3.14, world]: [ 10, "hello", 3.14, "world" ]
+
+=== Core: Nested list marshaling ===
+  Round-trip nested: [ 1, [ 2, 3 ], [ 4, [ 5, 6 ] ] ]
+
+=== Core: Empty list ===
+  Empty content: [ ]
+  NumberOfItems: 0
+
+=== @SortList global function ===
+  @SortList([5,3,1,4,2]): [ 1, 2, 3, 4, 5 ]
+
+=== @SortList: strings ===
+  @SortList(['c','a','b']): [ "a", "b", "c" ]
+
+=== SortListsOn global function ===
+  SortListsOn col 2: [ [ "apple", 1 ], [ "cherry", 2 ], [ "banana", 3 ] ]
+
+=== SortListsOn: reversed params ===
+  SortListsOn(1, data): [ [ 1, "a" ], [ 2, "b" ], [ 3, "c" ] ]
+
+All core/marshaling tests completed.
+
+
+----------------
+----------------

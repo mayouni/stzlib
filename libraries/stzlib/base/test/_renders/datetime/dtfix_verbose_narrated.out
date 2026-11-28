@@ -1,0 +1,34 @@
+SCENARIO: The day number is printed, on a one-digit day and on a two-digit day
+  THEN  ToVerbose  [PASS]
+  THEN  ToVerbose12h  [PASS]
+  THEN  ToVerboseAP  [PASS]
+  THEN  ToVerboseAmPm  [PASS]
+  THEN  ToVerboseWithAP  [PASS]
+  THEN  ToVerboseWithAmPm  [PASS]
+  THEN  ToVerbose24h  [PASS]
+  THEN  ToVerboseWithoutAP  [PASS]
+  THEN  ToVerboseWithoutAmPm  [PASS]
+  THEN  ToLong24h  [PASS]
+  THEN  ToLongDate  [PASS]
+  THEN  ToTextDate  [PASS]
+  THEN  ToLong, which always worked, prints the same day  [PASS]
+  THEN  a two-digit day is printed whole  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: Names that contain the letter d are not corrupted by the day number
+  THEN  Wednesday in December  [PASS]
+  THEN  Wednesday the 2nd keeps its two d letters apart  [PASS]
+  THEN  the padded dd token still pads  [PASS]
+  THEN  dddd and ddd still give the day names  [PASS]
+  THEN  a d inside a word of the format is left as text  [PASS]
+  THEN  a lone d between spaces is the day without padding  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: The year is padded to four digits
+  THEN  year 1 prints as 0001  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 21 assertions, 21 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,87 @@
+== MU0: four measurements, taken before anything is built on them ==
+
+-- Spike 1: a frequency ramp does not click --
+   The instrument is NOT SS3's. A gain step is an amplitude discontinuity
+   and the first difference sees it. A frequency change with continuous
+   PHASE has no amplitude step at all -- the first difference sees nothing
+   whether the change is ramped or not -- so the instrument here is the
+   SECOND difference, which sees a kink in the slope. A control for the
+   control proves that first: the same change with NO ramp must read as a
+   kink, or the instrument is blind and every number after it is decoration.
+   the 880 Hz tone's own largest second difference: 0.0066
+   no change at all  : worst kink 0.0017   <- the instrument's own noise
+  [ok]   the instrument is quiet on an unchanged tone
+   jump, no ramp     : worst kink 0.0290
+  [ok]   an UNRAMPED frequency change is a kink the instrument sees -- the control works
+   10 ms ramp        : worst kink 0.0066
+   the jump is 4.3728x the ramped kink
+  [ok]   a 10 ms ramp does NOT kink beyond the tone's own curvature
+  [ok]   and it is dramatically smaller than the jump
+   85 ms into a 200 ms ramp the oscillator reads 627.7333 Hz
+  [ok]   it has LEFT 440
+  [ok]   and has not yet REACHED 880
+   and afterwards: 880 Hz
+  [ok]   then it ARRIVES exactly
+  [ok]   a frequency above Nyquist is REFUSED
+  [ok]   and so is setting it on a node that is not an oscillator
+
+   VERDICT on spike 1: the ramp is click-free at 10 ms. Portamento and
+   vibrato are IN, and with them the imzad, the goge and the kalangu.
+
+-- Spike 2: a trigger lands at the next block start -- how late, exactly --
+   Twenty notes at 120 BPM, each fired the way the plane fires everything:
+   a request that the render honours at the START of its next block. The
+   ideal onset is on the beat; the measured onset is whatever block edge
+   came next. SN5's onset detector hops by 512 frames -- its resolution IS
+   the error being measured -- so the instrument here reads the first frame
+   above threshold after silence, which is exact to the sample.
+   notes fired 20, onsets found 20
+  [ok]   every note produced exactly one onset
+   late by: mean 4.8125 ms, worst 9.4792 ms   (one block is 10.6667 ms)
+  [ok]   no onset is EARLY -- a request is never honoured before it is made
+  [ok]   the worst lateness is within one block
+  [ok]   and it is real, not zero -- the grid IS quantised
+   written mu0_grid_quantised.wav -- the demo plays it beside a sample-exact
+   version, and whether 9.4792 ms reads as swing is the author's call
+
+-- Spike 3: a thirty-line pluck --
+   The number this file can take is the pitch; the verdict it cannot take
+   is whether it sounds like a string. That is the demo's, and the author's.
+  [ok]   the seam rendered a pluck
+   1.5000 s, peak 0.9992
+  [ok]   it is 1.5 s long
+   first 100 ms peak 0.9992, last 100 ms peak 0.0700
+  [ok]   it starts loud
+  [ok]   and DECAYS, as a string does
+   autocorrelation period 217 frames = 221.1982 Hz, 9.4030 cents from A3
+  [ok]   the pluck is within 10 cents of the pitch asked for (integer period)
+   (THE INSTRUMENT'S OWN RESOLUTION, stated: an integer autocorrelation lag
+    at ~218 frames is 7.9 cents wide, so this reading is known to +/-8 cents
+    -- the same size as the integer-period error it was meant to measure. A
+    first cut of this line printed a +1.4-cent PREDICTION beside a +9.4-cent
+    MEASUREMENT; the prediction is gone. MU1 owes both a fractional delay for
+    the line and a finer pitch instrument to prove it, because the plan's
+    bar is 2 cents and nothing in this spike can see 2 cents on a pluck.)
+  [ok]   a pitch too low for the line is REFUSED
+   written mu0_pluck.wav
+
+-- Spike 4: a quarter tone is fifty cents --
+   D4 and D4 plus one step of 24-TET, rendered by the same oscillator the
+   plane uses for everything. The FFT is the coarse cross-check and its
+   resolution is REPORTED: 48000/8192 = 5.86 Hz per bin, which at 293 Hz is
+   34 cents -- an instrument that cannot answer a 2-cent question. The fine
+   instrument is the period over the whole buffer, read off zero crossings
+   of a pure sine, where one sample in 96000 is 0.02 cents.
+   asked for: 293.6648 Hz and 302.2698 Hz
+   measured : 293.6638 Hz (-0.0057 cents off) and 302.2683 Hz (-0.0088 cents off)
+   the step between them: 49.9969 cents
+  [ok]   D4 is within 2 cents of D4
+  [ok]   the quarter tone is within 2 cents of its target
+  [ok]   and the step between them is 50 +/- 2 cents
+   the FFT says 292.9688 Hz for D4 -- -4.1081 cents off, inside its own 34-cent bin
+  [ok]   the coarse instrument agrees to within its own resolution
+   a semitone, same instrument: 100.0155 cents
+  [ok]   a semitone reads as 100, so the 50 above was measured and not assumed
+   written mu0_quartertone.wav
+
+24 passed, 0 failed

@@ -1,0 +1,64 @@
+SCENARIO: The executor says the family, the name says the words
+  THEN  _NNLValueIs is the value family  [PASS]
+  THEN  _NNLImmutable is the chainable-copy family  [PASS]
+  THEN  _NNLNounCount is the count family  [PASS]
+  THEN  _NNLCountIs is the count-agreement family  [PASS]
+  THEN  _Noun is the question-noun family  [PASS]
+  THEN  any other forward is no family  [PASS]
+  THEN  the suffix of the family is dropped from the words  [PASS]
+  THEN  the B of a value test is dropped  [PASS]
+  THEN  a name that does not end in the suffix keeps all its words  [PASS]
+  THEN  the noun is the first string literal  [PASS]
+  THEN  an argument that is not a literal gives no noun  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Each family writes a brief that passes the gate's form and restating checks
+  THEN  a value test is TRUE if ...  [PASS]
+  THEN  and returns TRUE or FALSE  [PASS]
+  THEN  and passes checks 1 and 2  [PASS]
+  THEN  a chainable action says it leaves the original alone  [PASS]
+  THEN  and passes checks 1 and 2  [PASS]
+  THEN  a count names the method it forwards to  [PASS]
+  THEN  and returns a number  [PASS]
+  THEN  and passes checks 1 and 2  [PASS]
+  THEN  a count agreement is TRUE if ...  [PASS]
+  THEN  and passes checks 1 and 2  [PASS]
+  THEN  a question noun sets it on the current side  [PASS]
+  THEN  and passes checks 1 and 2  [PASS]
+  THEN  a long name never pushes the brief past 140 characters  [PASS]
+  THEN  a forward whose noun is not a literal gets no derived brief  [PASS]
+  THEN  a method that forwards elsewhere gets none  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: Is...NamedParam: the keyword is the name, an Or makes two
+  THEN  a plain keyword  [PASS]
+  THEN  one keyword only  [PASS]
+  THEN  Or between capitals splits into two  [PASS]
+  THEN  the first is Of  [PASS]
+  THEN  the second is In  [PASS]
+  THEN  an Or inside a word does not split (Order, Color)  [PASS]
+  THEN  a lower-case or inside a word does not split  [PASS]
+  THEN  the Options predicates are left to a hand-written block  [PASS]
+  THEN  OneOf... is left to a hand-written block  [PASS]
+  THEN  a lone A is no keyword  [PASS]
+  THEN  a name that is not a named-param predicate gives none  [PASS]
+  THEN  the brief says what the list must look like  [PASS]
+  THEN  and passes checks 1 and 2  [PASS]
+  THEN  a very long name falls back to a shorter brief within 140 characters  [PASS]
+  THEN  and that one passes too  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: The parameter reader: a default value is not part of the name, and a one-line body is not a parameter
+  THEN  three parameters  [PASS]
+  THEN  the first is named without its default  [PASS]
+  THEN  a comma inside brackets stays in the default  [PASS]
+  THEN  the last is named too  [PASS]
+  THEN  a quoted comma stays in the default  [PASS]
+  THEN  a one-line method does not take its body for a parameter  [PASS]
+  THEN  a plain list is unchanged  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 48 assertions, 48 pass, 0 fail
+================================================
+STATUS: OK

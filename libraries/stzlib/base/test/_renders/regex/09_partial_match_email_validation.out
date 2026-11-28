@@ -1,0 +1,22 @@
+[
+	[ "matchtype", "partial" ],
+	[ "matched", "user" ],
+	[
+		"section",
+		[ 1, 4 ]
+	]
+]
+
+[
+	[ "matchtype", "partial" ],
+	[ "matched", "user@example" ],
+	[
+		"section",
+		[ 1, 12 ]
+	]
+]
+
+Executed in almost 0 second(s)
+
+----------------
+----------------

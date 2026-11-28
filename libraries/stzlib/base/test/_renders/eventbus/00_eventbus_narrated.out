@@ -1,0 +1,71 @@
+SCENARIO: The bus does what its surface says
+  GIVEN a clean bus
+  THEN  nothing is declared  [PASS]
+  THEN  ...and an undeclared channel is not there  [PASS]
+  WHEN  a channel is declared
+  THEN  it exists  [PASS]
+  THEN  ...and is counted  [PASS]
+  THEN  declaring is chainable  [PASS]
+  THEN  ...and idempotent  [PASS]
+  WHEN  someone subscribes and an event is emitted
+  THEN  a subscriber id comes back  [PASS]
+  THEN  ...and is counted  [PASS]
+  THEN  the emit reports who it reached  [PASS]
+  THEN  ...the channel counts it  [PASS]
+  THEN  ...and remembers the payload  [PASS]
+  WHEN  the subscriber leaves
+  THEN  the count drops  [PASS]
+  THEN  ...and an emit now reaches nobody  [PASS]
+  THEN  ...though the channel still counts it  [PASS]
+  THEN  unsubscribing a stranger is refused  [PASS]
+  THEN  emitting to an empty name is refused  [PASS]
+  THEN  ...and no channel was made for it  [PASS]
+  WHEN  the channel is destroyed
+  THEN  it is gone  [PASS]
+  THEN  ...and uncounted  [PASS]
+  -> 19 pass, 0 fail
+
+SCENARIO: Channels are separate, and the bus is one bus for the whole process
+  GIVEN two channels on one handle
+  THEN  emitting declares the channel, as documented  [PASS]
+  THEN  each keeps its own payload  [PASS]
+  THEN  ...separately  [PASS]
+  THEN  ...and its own count  [PASS]
+  GIVEN a SECOND handle on the same process bus
+  THEN  it sees the same channels  [PASS]
+  THEN  ...and the same last event  [PASS]
+  WHEN  the second handle emits
+  THEN  the first handle sees it  [PASS]
+  THEN  ...and the count is shared  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: A generation says WHICH channel, not just whether one exists
+  GIVEN a fresh channel
+  THEN  it has a generation  [PASS]
+  THEN  asking again gives the same one  [PASS]
+  THEN  emitting does not change it  [PASS]
+  WHEN  the channel is destroyed and remade under the same name
+  THEN  the name is back  [PASS]
+  THEN  ...its count restarted  [PASS]
+  THEN  ...but it is a DIFFERENT channel  [PASS]
+  WHEN  everything is cleared and the name is used again
+  THEN  the generation moved on again  [PASS]
+  THEN  ...and never went backwards  [PASS]
+  THEN  an unknown channel has none  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: An event-supervised agent does not go deaf when its channel is remade
+  GIVEN an agent supervised on a channel, fed two events
+  THEN  it ticked once per event  [PASS]
+  WHEN  the channel is cleared and three more events arrive
+  THEN  every event still reaches the agent  [PASS]
+  GIVEN an agent that starts watching a channel with a past
+  THEN  the past is not replayed  [PASS]
+  WHEN  something new happens
+  THEN  ...only that is delivered  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 40 assertions, 40 pass, 0 fail
+================================================
+STATUS: OK

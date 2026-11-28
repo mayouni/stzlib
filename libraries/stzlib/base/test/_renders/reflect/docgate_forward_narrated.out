@@ -1,0 +1,28 @@
+SCENARIO: A new dead forward fails the gate, a listed one is debt
+  THEN  a listed dead forward is let through  [PASS]
+  THEN  a new dead forward is an ERROR  [PASS]
+  THEN  an internal shown as public is a warning  [PASS]
+  THEN  a typo-shaped word is a warning  [PASS]
+  THEN  a listed name that forwards well now is reported stale  [PASS]
+  THEN  nothing else is reported  [PASS]
+  THEN  with no baseline every dead forward is an error  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The forward baseline shrinks and never grows
+  THEN  with no baseline the first write seeds every dead forward, lowercase  [PASS]
+  THEN  read back sorted  [PASS]
+  THEN  a name fixed since is dropped  [PASS]
+  THEN  a name that went dead since is NOT added  [PASS]
+  THEN  what stays is b  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The findings file is a pure function of the findings
+  THEN  it reports how many it wrote  [PASS]
+  THEN  rows are sorted by rule, dead forward first  [PASS]
+  THEN  a double quote in a message is escaped  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 15 assertions, 15 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,19 @@
+SCENARIO: the engine is compiled with optimisation on
+  THEN  twenty sums over 2M resident doubles come in under a tenth of a second  [PASS]
+  THEN  ...and the answer is still right  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: ...and the safety checks that came with Debug are still there
+  THEN  an index past the end is refused, not read  [PASS]
+  THEN  ...and index zero too, since this API is 1-based  [PASS]
+  THEN  the buffer is unharmed  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the vendored C that the new mode broke, and now does not
+  THEN  a parse that used to abort the process now answers  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

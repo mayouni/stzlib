@@ -1,0 +1,17 @@
+SCENARIO: Directional search from a position
+  GIVEN "•••••••••" (nine bullets)
+  THEN  FindNext('') is 0  [PASS]
+  THEN  FindNext('x') (absent) is 0  [PASS]
+  THEN  FindNext('•', from 5) is 6  [PASS]
+  THEN  FindNthNext(6, '•', from 3) is 9  [PASS]
+  THEN  FindNthNext(5, '•', from 1) is 6  [PASS]
+  THEN  FindPrevious('•', from 5) is 4  [PASS]
+  THEN  FindPrevious('•', from 2) is 1  [PASS]
+  THEN  FindNthPrevious(8, '•', from 9) is 1  [PASS]
+  THEN  FindNthPrevious(3, '•', from 4) is 1  [PASS]
+  -> 9 pass, 0 fail
+
+================================================
+TOTAL: 9 assertions, 9 pass, 0 fail
+================================================
+STATUS: OK

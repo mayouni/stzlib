@@ -1,0 +1,55 @@
+SCENARIO: the decision tree builds the same tree
+  THEN  outlook wins the root split  [PASS]
+  THEN  overcast is decided without looking further  [PASS]
+  THEN  sunny + high is a no  [PASS]
+  THEN  rain + normal + strong is a no  [PASS]
+  THEN  ...and Why() still narrates the path it took  [PASS]
+  THEN  an unseen value falls to the majority default  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: ...and it still folds case, which is why the fold existed
+  THEN  an upper-case query finds the lower-case branch  [PASS]
+  THEN  ...and the reverse  [PASS]
+  THEN  ...and a mixed one  [PASS]
+  THEN  the root has one branch per FOLDED value  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ragged training data is a diagnosis, not an index error
+  THEN  a narrower row is refused  [PASS]
+  THEN  a wider row is refused too  [PASS]
+  THEN  ...naming the example  [PASS]
+  THEN  an empty set still refuses  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: naive Bayes classifies exactly as it did
+  THEN  labels come back in first-seen order, as keys() gave them  [PASS]
+  THEN  ...both of them  [PASS]
+  THEN  a positive-looking text  [PASS]
+  THEN  a negative-looking one  [PASS]
+  THEN  case does not matter to it  [PASS]
+  THEN  ...and it explains itself  [PASS]
+  THEN  an untrained one refuses  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: apriori mines exactly the same rules
+  THEN  seven itemsets clear a support of 2  [PASS]
+  THEN  bread appears four times  [PASS]
+  THEN  bread+milk three times  [PASS]
+  THEN  the one triple twice  [PASS]
+  THEN  ...and insertion order is preserved -- bread is still first  [PASS]
+  THEN  nine rules survive a confidence of 0.6  [PASS]
+  THEN  milk -> bread has confidence 3/4  [PASS]
+  THEN  a stricter threshold cuts the 0.667 rules  [PASS]
+  THEN  ...and 0.9 leaves none  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: the idiom is gone from the hot paths, and the cost with it
+  THEN  200 baskets mine in under 2s -- it was 16.1  [PASS]
+  THEN  100 documents train in under 3s -- it was 12.5  [PASS]
+  THEN  a 4000 x 8 tree builds in under 3s -- it was 1.43 and is now 0.31  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 33 assertions, 33 pass, 0 fail
+================================================
+STATUS: OK

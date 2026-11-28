@@ -1,0 +1,53 @@
+SCENARIO: The swallow was hiding a live bug in the class it belonged to
+  GIVEN a computed attribute with a watcher on it
+  WHEN  the dependency changes, forcing a SECOND computation
+  THEN  the computed value is right  [PASS]
+  THEN  ...the watcher on it actually fires  [PASS]
+  THEN  ...and the plain field is current, not frozen at the first compute  [PASS]
+  THEN  and nothing was caught along the way  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A caught error is recorded, named, and reachable
+  GIVEN a watcher that raises
+  WHEN  the attribute it watches changes
+  THEN  the failure is recorded  [PASS]
+  THEN  ...naming WHICH watcher  [PASS]
+  THEN  ...with Ring's real reason  [PASS]
+  THEN  the attribute still took the value  [PASS]
+  THEN  a registered handler was called once  [PASS]
+  THEN  ...and told where  [PASS]
+  THEN  ...and why  [PASS]
+  GIVEN a watcher that does not raise
+  THEN  nothing is recorded  [PASS]
+  THEN  ...and there is no last error to read  [PASS]
+  THEN  ...nor a place it came from  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: A batch that fails half-way says so -- and keeps what it did
+  GIVEN an object holding a known value
+  WHEN  a batch changes it and then raises
+  THEN  the failure is recorded  [PASS]
+  THEN  ...with the real reason  [PASS]
+  THEN  the change made before the raise is kept (batch is NOT atomic)  [PASS]
+  THEN  ...while the one after it never ran  [PASS]
+  GIVEN a batch that completes
+  THEN  its changes are applied  [PASS]
+  THEN  ...all of them  [PASS]
+  THEN  ...and nothing is recorded  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The record is bounded, and says how much it dropped
+  GIVEN a watcher that raises, driven past the cap of 50
+  THEN  the kept record stops at the cap  [PASS]
+  THEN  ...but the count is the TRUE total  [PASS]
+  THEN  ...and it says how many it let go  [PASS]
+  THEN  the first one kept is the first that happened  [PASS]
+  WHEN  the record is cleared
+  THEN  everything resets, the counter included  [PASS]
+  THEN  ...and the dropped tally with it  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 27 assertions, 27 pass, 0 fail
+================================================
+STATUS: OK

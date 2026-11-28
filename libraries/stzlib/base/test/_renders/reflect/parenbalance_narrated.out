@@ -1,0 +1,21 @@
+-- Scene 1: balanced lines: 0, as they always did --
+  [OK] a complete call balances
+  [OK] nesting balances
+  [OK] no parens at all balances
+
+-- Scene 2: the cases that separate a balancer from a stub --
+  [OK] one unclosed paren is +1
+  [OK] two unclosed parens are +2
+  [OK] a surplus closer is -1
+  [OK] two surplus closers are -2
+  [OK] it counts, it does not merely detect
+
+-- Scene 3: and the multi-line sample is no longer dropped --
+  [OK] all THREE samples are harvested, not two
+  [OK] ...and the multi-line one is reassembled correctly
+  [OK] the multi-line sample is present at all
+  [OK] the single-line ones are untouched
+
+==========================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+==========================================

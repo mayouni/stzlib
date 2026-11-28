@@ -1,0 +1,166 @@
+SCENARIO: HasName: the stored name Ana is found, in any case, and only whole
+  GIVEN an entity named Ana of type Person with an age
+  THEN  the name typed as stored matches  [PASS]
+  THEN  the name in small letters matches  [PASS]
+  THEN  the name in capitals matches  [PASS]
+  THEN  a different name does not match  [PASS]
+  THEN  a prefix of the stored name does not match  [PASS]
+  THEN  a name that extends the stored one does not match  [PASS]
+  THEN  the empty name does not match a stored name  [PASS]
+  THEN  a number answers 0  [PASS]
+  THEN  a list answers 0  [PASS]
+  THEN  the answer is a plain number  [PASS]
+  THEN  the name is still stored as given  [PASS]
+  THEN  and not lower-cased  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: HasName: the lower-case entity, the renamed one, the empty name
+  GIVEN an entity stored in small letters, as the older tests build it
+  THEN  small letters match small letters  [PASS]
+  THEN  capitals match small letters  [PASS]
+  THEN  a different name does not match  [PASS]
+  GIVEN the same entity renamed to Bob
+  THEN  the new name matches in small letters  [PASS]
+  THEN  the old name does not match any more  [PASS]
+  GIVEN an entity whose stored name is the empty text
+  THEN  the empty name matches the empty stored name  [PASS]
+  THEN  a letter does not match the empty stored name  [PASS]
+  GIVEN an entity given no name
+  THEN  the default name matches  [PASS]
+  THEN  the default name without its at sign does not  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: HasName: accented and Hebrew names fold in the engine, not by bytes
+  GIVEN an entity named Zo plus E acute in capital
+  THEN  the same capital matches  [PASS]
+  THEN  the small accented form matches the capital  [PASS]
+  THEN  ASCII capitals around the accent match  [PASS]
+  THEN  the unaccented letter does not match  [PASS]
+  THEN  a prefix does not match  [PASS]
+  GIVEN an entity named with two Hebrew letters
+  THEN  the same letters match  [PASS]
+  THEN  the letters in the other order do not  [PASS]
+  THEN  a prefix of the Hebrew name does not  [PASS]
+  THEN  an extension of the Hebrew name does not  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: IsOfType: the stored type Person is found, in any case, and only whole
+  GIVEN an entity named Ana of type Person
+  THEN  the type typed as stored matches  [PASS]
+  THEN  the type in small letters matches  [PASS]
+  THEN  the type in capitals matches  [PASS]
+  THEN  a different type does not match  [PASS]
+  THEN  a prefix of the stored type does not match  [PASS]
+  THEN  a type that extends the stored one does not match  [PASS]
+  THEN  the empty type does not match a stored type  [PASS]
+  THEN  a number answers 0  [PASS]
+  THEN  a list answers 0  [PASS]
+  THEN  the type is still stored as given  [PASS]
+  GIVEN an entity of type Organisation, after SetType
+  THEN  the organisation matches in small letters  [PASS]
+  THEN  the organisation is not a person  [PASS]
+  THEN  the new type matches  [PASS]
+  THEN  the old type does not match any more  [PASS]
+  GIVEN an entity given no type
+  THEN  the default type matches  [PASS]
+  THEN  a part of the default type does not  [PASS]
+  -> 16 pass, 0 fail
+
+SCENARIO: IsOfType: accented and Hebrew types
+  GIVEN a type of Pers plus E acute in capital
+  THEN  the small accented form matches  [PASS]
+  THEN  the unaccented prefix does not  [PASS]
+  THEN  the unaccented letter does not  [PASS]
+  GIVEN a type of two Hebrew letters
+  THEN  the same letters match  [PASS]
+  THEN  the other order does not  [PASS]
+  THEN  a Latin type does not  [PASS]
+  THEN  a prefix does not  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: IsEmpty: only the name, the type and the creation stamp do not count
+  GIVEN an entity built with a name and a type only
+  THEN  it is empty  [PASS]
+  THEN  it holds the three bookkeeping properties  [PASS]
+  GIVEN an entity built with an age
+  THEN  it is not empty  [PASS]
+  GIVEN an entity given its own created stamp
+  THEN  it is empty, the stamp being bookkeeping  [PASS]
+  GIVEN an entity given neither name nor type but a property
+  THEN  the entity with a property of its own is not empty  [PASS]
+  GIVEN an entity with a property that holds the empty text
+  THEN  a property holding nothing is still a property  [PASS]
+  THEN  the answer is a plain number  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: IsEmpty: a property set later makes the entity not empty, and removed makes it empty
+  GIVEN an empty entity
+  THEN  it is empty first  [PASS]
+  THEN  with an email set it is not empty  [PASS]
+  THEN  and its size is 4  [PASS]
+  THEN  with the email removed it is empty again  [PASS]
+  THEN  and its size is 3 again  [PASS]
+  THEN  a capital-letter property name counts  [PASS]
+  THEN  and is removed in any case  [PASS]
+  THEN  two properties set through the aliases: not empty  [PASS]
+  THEN  one of two removed: still not empty  [PASS]
+  THEN  both removed: empty  [PASS]
+  THEN  a pair set through the one door: not empty  [PASS]
+  THEN  a list of pairs set through the one door: not empty  [PASS]
+  GIVEN the copy of an empty entity and the copy of one with a property
+  THEN  the copy of an empty entity is empty  [PASS]
+  THEN  the copy of a non-empty entity is not empty  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: Every public method, once, on a person, an organisation, an accented and a Hebrew entity
+  GIVEN the methods of the class, each called on a fresh entity
+  THEN  on ana: none of the 59 calls raises  [PASS]
+  THEN  on org: none of the 59 calls raises  [PASS]
+  THEN  on acc: none of the 59 calls raises  [PASS]
+  THEN  on heb: none of the 59 calls raises  [PASS]
+  THEN  the sweep covered more than fifty calls  [PASS]
+  GIVEN the calls that must raise, as the blocks say
+  THEN  on ana: all 7 bad calls raise  [PASS]
+  THEN  on org: all 7 bad calls raise  [PASS]
+  THEN  on acc: all 7 bad calls raise  [PASS]
+  THEN  on heb: all 7 bad calls raise  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: The sibling predicates agree with the two that were repaired
+  GIVEN an entity built with capital-letter keys
+  THEN  the name key in capitals still gives the name  [PASS]
+  THEN  the type key in capitals still gives the type  [PASS]
+  THEN  ContainsProperty ignores the case of the property  [PASS]
+  THEN  and a different property is absent  [PASS]
+  THEN  the entity with an Age is not empty  [PASS]
+  THEN  the entity with only capital-letter bookkeeping keys is empty  [PASS]
+  THEN  ContainsValue keeps the exact case, as its block says  [PASS]
+  THEN  and finds the exact one  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: ContainsPropertyOrValue: a non-text argument skips the property test and falls through to the value test
+  GIVEN an entity named Ana with an age of 30, and one named Acme with no age
+  THEN  the number 30, present as a value, is found and nothing raises  [PASS]
+  THEN  the number 30, absent from the other entity, answers 0  [PASS]
+  THEN  another number, absent, answers 0  [PASS]
+  THEN  a list that is no value answers 0 and does not raise  [PASS]
+  THEN  the call raises nothing  [PASS]
+  THEN  the first alias raises nothing either  [PASS]
+  THEN  and the alias answers like the method  [PASS]
+  THEN  the other alias answers 0 where the value is absent  [PASS]
+  GIVEN a text argument, which behaves as before
+  THEN  a text that is a property name is found  [PASS]
+  THEN  a property name in capitals is found, the case being ignored  [PASS]
+  THEN  a text that is a value is found  [PASS]
+  THEN  the type, which is a value, is found  [PASS]
+  THEN  a text that is neither a property nor a value answers 0  [PASS]
+  THEN  a value in another case is not found, the value test keeping the case  [PASS]
+  THEN  a property name the other entity lacks answers 0  [PASS]
+  THEN  a value of the other entity is found there  [PASS]
+  THEN  and absent from the first  [PASS]
+  -> 17 pass, 0 fail
+
+================================================
+TOTAL: 108 assertions, 108 pass, 0 fail
+================================================
+STATUS: OK

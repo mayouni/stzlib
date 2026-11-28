@@ -1,0 +1,22 @@
+SCENARIO: Language lookup by code
+  THEN  '105' is recognised as a language number  [PASS]
+  THEN  language 105 is sindhi  [PASS]
+  THEN  its default country is pakistan  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Country by name
+  GIVEN France
+  THEN  Name() is france  [PASS]
+  THEN  Abbreviation() is FR  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Country by abbreviation
+  GIVEN the US abbreviation
+  THEN  Name() resolves to united_states  [PASS]
+  THEN  Abbreviation() is US  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

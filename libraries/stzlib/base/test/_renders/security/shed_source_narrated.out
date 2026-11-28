@@ -1,0 +1,32 @@
+SCENARIO: a flooding source is shed by a governed plan
+  THEN  an unconfigured source is unlimited before  [PASS]
+  THEN  the action was committed  [PASS]
+  THEN  the source is blocked  [PASS]
+  THEN  its requests are refused  [PASS]
+  THEN  ...every time  [PASS]
+  THEN  the refusals are counted  [PASS]
+  THEN  the block says why  [PASS]
+  THEN  another source is unaffected  [PASS]
+  THEN  released, the source is admitted again (negative sibling)  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: a block applies over a configured limit too
+  THEN  the key has tokens  [PASS]
+  THEN  blocked, it is refused although tokens remain  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a timed block lifts by itself
+  THEN  blocked now  [PASS]
+  THEN  admitted once the block has run out  [PASS]
+  THEN  and no longer listed  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: an LLM can propose shedding and cannot commit it
+  THEN  nothing committed  [PASS]
+  THEN  the source is not blocked  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+================================================
+STATUS: OK

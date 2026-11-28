@@ -1,0 +1,62 @@
+SCENARIO: A flow is faculties wired as a graph, and it is checked BEFORE it runs
+  THEN  the flow has three stages  [PASS]
+  THEN  it composes an stzGraph (LAW 5)  [PASS]
+  THEN  the order is the data flow's  [PASS]
+  THEN  a sound flow has no finding that is an error  [PASS]
+  THEN  an unknown faculty cannot be added  [PASS]
+  THEN  a duplicate stage id cannot be added  [PASS]
+  THEN  wiring text into a label-taking faculty is a finding BEFORE anything runs  [PASS]
+  THEN  ...it says which edge  [PASS]
+  THEN  ...in the house finding shape, subject model-flow  [PASS]
+  THEN  ...and a flow with an error finding is not sound  [PASS]
+  THEN  running it is REFUSED, with those findings  [PASS]
+  THEN  a cycle is a finding: a data flow is acyclic  [PASS]
+  THEN  a faculty without a golden set is a WARNING (its floor may still run)  [PASS]
+  THEN  ...so the flow is still sound and runs  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: ResolvePlan says what each stage WOULD use and why -- and runs nothing
+  THEN  three stages are planned  [PASS]
+  THEN  tidy goes to the model that beat its floor  [PASS]
+  THEN  sort goes to the model that beat its floor  [PASS]
+  THEN  loud has only a floor  [PASS]
+  THEN  the footprint is the LARGEST resident model, since the engine has one slot  [PASS]
+  THEN  Why() is one sentence per stage  [PASS]
+  THEN  planning invoked no implementation: nothing was memoised  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Run yields a parcel whose provenance is the whole chain
+  THEN  the flow ended in a text parcel  [PASS]
+  THEN  'now then' has 2 words, so the model calls it short and the last stage shouts SHORT  [PASS]
+  THEN  the chain names every stage's faculty and implementation  [PASS]
+  THEN  Run (no Q) returns just the value  [PASS]
+  THEN  each stage's own parcel is kept  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The SAME flow runs on a model, on another, or on its floors -- the substitution contract
+  THEN  on models: three words -> long  [PASS]
+  THEN  on floors: the same flow, the same output TYPE  [PASS]
+  THEN  on floors the chain is all floors  [PASS]
+  THEN  the floor chain is reproducible: same key  [PASS]
+  THEN  pinning ONE stage to its floor changes only that stage  [PASS]
+  THEN  pinning it back to the model  [PASS]
+  THEN  the process-wide switch puts every stage on its floor  [PASS]
+  THEN  ...and restoring it restores the choice  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: A refusal stops the branch and the flow returns it -- never a half-built value
+  THEN  the flow returns a refusal  [PASS]
+  THEN  the finding names the stage that refused  [PASS]
+  THEN  the stage before it did run: its parcel is kept  [PASS]
+  THEN  the stage after it did NOT run  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Explain() says what the flow is, for a person or an agent
+  THEN  it lists the stages with their types  [PASS]
+  THEN  ...and the edges  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 40 assertions, 40 pass, 0 fail
+================================================
+STATUS: OK

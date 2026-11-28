@@ -1,0 +1,142 @@
+SCENARIO: 1. SortBy: numeric keys, @string and @item alike
+  GIVEN seven fruit
+  THEN  by len(@string): fig first, then the four-letter words in their order  [PASS]
+  THEN  by len(@item): the same  [PASS]
+  THEN  by -len(@string): longest first, ties in their order  [PASS]
+  THEN  by arithmetic on the key  [PASS]
+  THEN  braces around the key are dropped  [PASS]
+  THEN  by @i: the order does not change  [PASS]
+  THEN  by @position: the order does not change  [PASS]
+  THEN  by a verdict, 1 for the words that start with a: the others keep their order, apple goes last  [PASS]
+  THEN  NEGATIVE: the result is not the strings' own ascending order  [PASS]
+  THEN  a numeric key sorts by value: 1, 9, 10, 100  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: 2. SortBy: text keys, by code point, case-sensitive
+  GIVEN the same fruit, with a capital in Banana
+  THEN  by @string: the capital first  [PASS]
+  THEN  by @item: the same  [PASS]
+  THEN  by upper(@string): the capital no longer decides  [PASS]
+  THEN  by lower(@item): the same  [PASS]
+  THEN  NEGATIVE: not a case-folded order  [PASS]
+  THEN  capitals and lowercase together: A B a b  [PASS]
+  THEN  a text key sorts as text: 1, 10, 100, 9  [PASS]
+  THEN  a prefix comes before the longer text  [PASS]
+  THEN  NEGATIVE: not the order the strings came in  [PASS]
+  THEN  equal text keys keep the strings' order: by the first letter  [PASS]
+  THEN  ...and the sibling, on the keys' reverse: the same strings by their last letter, ties in order  [PASS]
+  THEN  Hebrew, Arabic, accents by code point (UTF-8 bytes in order)  [PASS]
+  THEN  a character count through the object: a, éé, three emoji, שלום, مرحبا  [PASS]
+  THEN  len() counts bytes: the three emoji (12 bytes) go after مرحبا (10)  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: 3. SortBy is stable and agrees with a sort written apart from the library
+  GIVEN 300 strings whose lengths and first letters repeat
+  THEN  by length: the same 300 strings come back  [PASS]
+  THEN  by length: the order is the stable order, written here by a nested loop  [PASS]
+  THEN  by the first two letters: the stable order, written here by a nested loop  [PASS]
+  THEN  NEGATIVE: the by-length order is not the by-prefix order  [PASS]
+  GIVEN all keys equal
+  THEN  the strings do not move  [PASS]
+  THEN  ...for a text key too  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: 4. SortBy refuses by name what it cannot sort, and leaves the list as it was
+  GIVEN keys that are a number for one string and a text for another
+  THEN  a mixed key raises  [PASS]
+  THEN  ...by the name SortBy  [PASS]
+  THEN  ...saying numbers and texts  [PASS]
+  THEN  NEGATIVE: it is not R41  [PASS]
+  THEN  NEGATIVE: it is not R24  [PASS]
+  THEN  the list is as it was  [PASS]
+  GIVEN a key that is a list
+  THEN  it raises by the name SortBy  [PASS]
+  THEN  the list is as it was  [PASS]
+  GIVEN a text key holding the control character 1, which the sort uses to tell a key from its position
+  THEN  it raises by the name SortBy  [PASS]
+  THEN  the list is as it was  [PASS]
+  GIVEN expressions the W engine cannot judge
+  THEN  a function of the caller's is refused, as it was  [PASS]
+  THEN  an empty expression is refused, as it was  [PASS]
+  THEN  a blank expression is refused, as it was  [PASS]
+  THEN  an expression that is not a text is refused by name  [PASS]
+  THEN  ...naming the parameter  [PASS]
+  THEN  NEGATIVE: not R21 or R41  [PASS]
+  THEN  the list is as it was after every refusal  [PASS]
+  GIVEN code smuggled into the key
+  THEN  a second statement is refused, not run  [PASS]
+  THEN  ...and it did not run  [PASS]
+  -> 19 pass, 0 fail
+
+SCENARIO: 5. SortBy: sizes, the chained form, the sibling class
+  GIVEN an empty list and a list of one
+  THEN  an empty list stays empty  [PASS]
+  THEN  a list of one stays  [PASS]
+  THEN  a list of two is sorted  [PASS]
+  THEN  ...and left alone when sorted  [PASS]
+  GIVEN the chained form
+  THEN  SortByQ gives the same object back, sorted: fig first  [PASS]
+  THEN  ...sorted  [PASS]
+  GIVEN the other name of the class
+  THEN  a stzListOfStrings sorts alike  [PASS]
+  GIVEN 5000 strings, keys all different
+  THEN  they come back sorted by text: the first  [PASS]
+  THEN  ...and the whole list is the order of Ring's own sort of the strings  [PASS]
+      (5000 strings by a text key: 11 clock ticks)
+  -> 9 pass, 0 fail
+
+SCENARIO: 6. Matches answers a verdict
+  GIVEN strings and patterns
+  THEN  a. matches ab and ac as wholes  [PASS]
+  THEN  a does not match them as wholes  [PASS]
+  THEN  one failing string makes it FALSE  [PASS]
+  THEN  an empty list is TRUE  [PASS]
+  THEN  an empty list is TRUE for any pattern  [PASS]
+  THEN  the case counts: AB is not a.  [PASS]
+  THEN  a pattern with a class: [a-z]+ holds for lowercase only  [PASS]
+  THEN  ...and not when a capital is in  [PASS]
+  THEN  Hebrew and Arabic letters match \p{L}+  [PASS]
+  THEN  digits: \d+ on 12 and 345  [PASS]
+  THEN  ...and not on 12 and a5  [PASS]
+  THEN  an accent: é+ on éé and é  [PASS]
+  THEN  the whole string must match, not a part: ^a is not ab  [PASS]
+  THEN  the empty string matches .*  [PASS]
+  THEN  a pattern that is no valid expression matches nothing  [PASS]
+  THEN  the answer is a number, 1 or 0, never a list  [PASS]
+  THEN  NEGATIVE: not the strings that match  [PASS]
+  THEN  an empty pattern raises by name  [PASS]
+  THEN  a pattern that is not a text raises by name  [PASS]
+  THEN  NEGATIVE: an empty list does not build the pattern, so an empty pattern on it is TRUE  [PASS]
+  -> 20 pass, 0 fail
+
+SCENARIO: 7. StringsMatching answers the strings
+  GIVEN strings and patterns
+  THEN  a. keeps ab and ac, in order  [PASS]
+  THEN  nothing matching answers an empty list  [PASS]
+  THEN  an empty list answers an empty list  [PASS]
+  THEN  the whole string must match  [PASS]
+  THEN  the case counts: AB is out, aB is in  [PASS]
+  THEN  Hebrew letters match \p{L}+ and a digit string does not  [PASS]
+  THEN  the duplicates stay  [PASS]
+  THEN  the list itself is not changed  [PASS]
+  THEN  Matches is TRUE exactly when every string is kept  [PASS]
+  THEN  ...and FALSE when one is left out  [PASS]
+  THEN  a pattern that is no valid expression keeps nothing  [PASS]
+  THEN  an empty pattern raises by name  [PASS]
+  THEN  a pattern that is not a text raises by name  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: 8. the neighbours did not move
+  GIVEN the conditions of StringsW and Yield
+  THEN  StringsW by @string  [PASS]
+  THEN  StringsW by @item  [PASS]
+  THEN  Yield lines up with the list  [PASS]
+  THEN  a condition that cannot be judged is false, not an error  [PASS]
+  THEN  the list is as it was  [PASS]
+  THEN  SortInAscending still orders by code point  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 97 assertions, 97 pass, 0 fail
+================================================
+STATUS: OK

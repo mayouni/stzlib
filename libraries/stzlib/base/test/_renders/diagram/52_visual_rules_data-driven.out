@@ -1,0 +1,38 @@
+[
+	[
+		[ "name", "CHEAP_GREEN" ],
+		[ "conditiontype", "property_range" ],
+		[ "effectscount", 2 ]
+	],
+	[
+		[ "name", "MID_BLUE" ],
+		[ "conditiontype", "property_range" ],
+		[ "effectscount", 2 ]
+	],
+	[
+		[ "name", "EXPENSIVE_GOLD" ],
+		[ "conditiontype", "property_range" ],
+		[ "effectscount", 2 ]
+	]
+]
+
+[ "@free", "@basic", "@pro", "@entreprise" ]
+digraph "pricingtiers" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    free [label="Free Tier", shape=box, style="rounded,solid,filled", fillcolor="#A3D1A3", penwidth=1, fontcolor="black", tooltip=" "]
+    basic [label="Basic Tier", shape=box, style="rounded,solid,filled", fillcolor="#A3D1A3", penwidth=1, fontcolor="black", tooltip=" "]
+    pro [label="Pro Tier", shape=box, style="rounded,solid,filled", fillcolor="#4D4DC9", penwidth=1, fontcolor="white", tooltip=" "]
+    entreprise [label="Enterprise Tier", shape=box, style="rounded,solid,filled", fillcolor="#FFD700", penwidth=3, fontcolor="black", tooltip=" "]
+
+    free -> basic
+    basic -> pro
+    pro -> entreprise
+
+}
+
+
+----------------
+----------------

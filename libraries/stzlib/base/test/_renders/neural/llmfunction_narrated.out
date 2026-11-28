@@ -1,0 +1,22 @@
+-- Scene 1: the contract -- budget, types, refusal --
+  [OK] Budget(n) is MANDATORY before any call (G9)
+
+-- Scene 2: determinism by memoization --
+  [OK] a seeded/memoized call answers typed
+  [OK] ...for FREE (zero calls spent)
+  [OK] ...and says so
+
+-- Scene 3: no model + no memo = HONEST REFUSAL --
+  [OK] refuses rather than guessing (LAW 3)
+
+-- Scene 4: golden sets (regression pinning) --
+  [OK] goldens run and report structured
+
+-- Scene 5: typed outputs are VALUES, not strings --
+  [OK] a Number-typed answer computes
+
+==========================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+==========================================
+
+Executed in almost 0 second(s)

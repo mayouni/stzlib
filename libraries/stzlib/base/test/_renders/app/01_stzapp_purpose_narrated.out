@@ -1,0 +1,16 @@
+WORLD SonibankVisits   lives in: memory (not persisted)
+  BEING
+    client (code, name, city)
+    visit (agent, date, subject)
+  RELATIONS
+    visit of client
+  BECOMING
+    when agent records visit require subject then keep visit
+    whenever client unseen 90 days -> propose visit
+    wants everyclientseenthisquarter within thisquarter -> reached by planning
+every :Client Has(:visit) Since(:quarterStart)
+pursuing everyclientseenthisquarter via planning -- 0 proposal(s)
+
+
+----------------
+----------------

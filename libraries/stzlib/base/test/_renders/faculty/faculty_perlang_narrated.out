@@ -1,0 +1,38 @@
+SCENARIO: A faculty is declared as measured per language
+  THEN  the language key is recorded  [PASS]
+  THEN  a golden's language is the two-letter code of its :lang  [PASS]
+  THEN  the call's parameters name it first  [PASS]
+  THEN  a faculty with no key has no golden language  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: RunGoldens files the whole-set measurement and one per language
+  THEN  the rows returned are the whole-set ones, one per implementation  [PASS]
+  THEN  on the whole set the floor scores 7 of 12  [PASS]
+  THEN  and so does the model  [PASS]
+  THEN  per language, the floor: English 1, French 0, German 1  [PASS]
+  THEN  the model: English 1, French 1, German 0  [PASS]
+  THEN  each language row counts its own items  [PASS]
+  THEN  a language measured is filed under <version>/<lang>  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The registry chooses per language, and says on what it judged
+  THEN  French goes to the model: it beats the floor on the French items  [PASS]
+  THEN  and the plan says it judged on them  [PASS]
+  THEN  German stays with the floor  [PASS]
+  THEN  English stays with the floor: a tie is not strictly better  [PASS]
+  THEN  with no language, the whole set decides: a tie, so the floor  [PASS]
+  THEN  a language with no items is judged on the whole set  [PASS]
+  THEN  and the plan says so  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: A call takes its language from its input, and the chosen implementation answers it
+  THEN  a French input is answered by the model  [PASS]
+  THEN  a German input by the floor  [PASS]
+  THEN  the parameters' language wins over the input's: French named, the model answers  [PASS]
+  THEN  every resolution is in the trace  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 22 assertions, 22 pass, 0 fail
+================================================
+STATUS: OK

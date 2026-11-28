@@ -1,0 +1,37 @@
+SCENARIO: The options blob reflects the client settings
+  GIVEN a client configured with auth, proxy, mTLS, verify-off
+  THEN  it carries the credentials  [PASS]
+  THEN  it carries the auth type  [PASS]
+  THEN  it carries the proxy  [PASS]
+  THEN  it carries the client cert  [PASS]
+  THEN  it disables verification  [PASS]
+  THEN  it disables redirects  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: A bearer-token client emits a bearer option
+  GIVEN a client with a bearer token
+  THEN  the blob carries the bearer token  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Response headers are captured
+  GIVEN a GET to example.com
+  THEN  the request succeeded (200)  [PASS]
+  THEN  response headers are non-empty  [PASS]
+  THEN  they include a Content-Type header  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Basic auth succeeds with correct credentials
+  GIVEN postman-echo basic-auth endpoint (user postman / password)
+  THEN  authenticated request returns 200  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: gzip responses are transparently decompressed (vendored zlib)
+  GIVEN a client that accepts gzip
+  THEN  the request succeeded (200)  [PASS]
+  THEN  the body was decompressed to readable JSON  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 13 assertions, 13 pass, 0 fail
+================================================
+STATUS: OK

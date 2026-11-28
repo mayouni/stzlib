@@ -1,0 +1,52 @@
+SCENARIO: an agent rule IS a graph rule; the set carries the guardrails
+  THEN  stzAgentRule constructs  [PASS]
+  THEN  ...in the agentic domain  [PASS]
+  THEN  the set carries the 4 guardrails + the dominator rule + external-data-contained  [PASS]
+  THEN  ...effects-dominated is among them  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the rule set reproduces StzCheckAgentGraph exactly
+  GIVEN the ungoverned bad graph (llm proposes straight to an effect)
+  THEN  both find the same three invariants firing  [PASS]
+  THEN  ...effects-guarded is in both  [PASS]
+  THEN  ...open-text-contained is in both  [PASS]
+  THEN  ...on the SAME nodes (send / writer / send)  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: THE UPGRADE: no-llm-effectful is refused at CONSTRUCTION, not just audited
+  GIVEN an llm actor and an effect
+  WHEN  granting 'effectful' to the llm actor is attempted
+  THEN  MayGrant reports it is not allowed  [PASS]
+  THEN  ...the grant is REFUSED (gate, not audit)  [PASS]
+  THEN  ...and the llm never gained the capability  [PASS]
+  WHEN  a benign capability is granted to the llm
+  THEN  it is applied  [PASS]
+  WHEN  'effectful' is granted to a PI actor (not an llm)
+  THEN  MayGrant allows it  [PASS]
+  THEN  ...it is applied -- only the LLM is refused  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: the audit backstop: a RAW-injected effectful llm is still caught
+  GIVEN an llm whose capabilities are set raw, bypassing the gate
+  THEN  the graph's guardrails flag it twice  [PASS]
+  THEN  ...as no-llm-effectful on writer  [PASS]
+  THEN  ...and as tampering, set around the gate  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: THE STRENGTHENING: effects-dominated catches a bypass the direct form misses
+  GIVEN an effect with a guardian edge, BUT also a direct input->effect bypass
+  THEN  the direct-guard form PASSES (a guardian edge into send exists)  [PASS]
+  THEN  but the DOMINATOR form catches the bypass  [PASS]
+  WHEN  the bypass is removed (input -> gate -> send)
+  THEN  effects-dominated is clean  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a fully governed composition is sound by the rule set
+  THEN  the rule set finds no violation  [PASS]
+  THEN  ...matching the classic audit verdict  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 22 assertions, 22 pass, 0 fail
+================================================
+STATUS: OK

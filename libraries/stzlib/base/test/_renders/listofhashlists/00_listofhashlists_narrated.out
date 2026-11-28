@@ -1,0 +1,28 @@
+SCENARIO: Construct and inspect a list of records
+  GIVEN 3 name/age records
+  THEN  NumberOfItems is 3  [PASS]
+  THEN  IsEmpty is FALSE  [PASS]
+  THEN  Content has 3 records  [PASS]
+  THEN  ListOfHashLists alias also has 3  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Convert records to stzHashList objects
+  GIVEN the same 3 records
+  THEN  it yields 3 objects  [PASS]
+  THEN  each is a stzhashlist  [PASS]
+  THEN  record 1 has the 'name' key  [PASS]
+  THEN  record 2 name is Dania  [PASS]
+  THEN  record 3 age is 42  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Empty list edge case
+  GIVEN an empty list of hashlists
+  THEN  IsEmpty is TRUE  [PASS]
+  THEN  NumberOfItems is 0  [PASS]
+  THEN  Content is empty  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,26 @@
+=== Engine Delegation: CountCS string items ===
+  CountCS('banana', CS=1): 3
+  CountCS('mango', CS=1): 0
+
+=== Engine Delegation: CountCS case-insensitive ===
+  CountCS('hello', CS=1): 2
+  CountCS('hello', CS=0): 4
+
+=== Engine Delegation: Count (alias) ===
+  Count('banana'): 3
+
+=== Engine Delegation: Count numbers (fallback) ===
+  Count(1) in number list: 4
+
+=== Engine Delegation: ContainsCS ===
+  ContainsCS('zig', CS=1): 1
+  ContainsCS('ZIG', CS=1): 0
+  ContainsCS('ZIG', CS=0): 1
+
+=== Engine Delegation: CountStrings / CountNumbers ===
+  CountStrings(): 2
+  CountNumbers(): 3
+
+=================================
+  PASSED: 11  FAILED: 0
+=================================

@@ -1,0 +1,107 @@
+-- Scene 1: a pi agent, declared and judged --
+  [OK] the declaration is accepted
+  [OK] ...with nothing to cite
+  [OK] ...and it knows its own name
+  [OK] ...its kind
+  [OK] ...what it covers
+  [OK] ...how reversible it is
+  [OK] ...and when it ticks
+  [OK] a clause is read as a verb and its arguments
+  [OK] ...and the governed action is the skill's declared effect
+
+-- Scene 2: the declaration becomes an agent that runs --
+  [OK] the seeded fact is in the agent's memory
+  [OK] the declared risk tier reached governance
+  [OK] ...and the permission with it
+  [OK] ...so the governed action MAY proceed
+  [OK] one cycle fires the skill and VERIFIES it
+  [OK] ...and the world changed the way the file said it would
+  [OK] the agent carries its coverage statement
+  [OK] ...and its reversibility class
+  [OK] a precondition that does not hold fires nothing
+  [OK] ...and leaves the world alone
+
+-- Scene 3: one refusal per gate, every one of them AT LOAD --
+  [OK] no version header
+  [OK] a version this build does not know
+  [OK] a key the format does not know
+  [OK] no coverage statement -- law 18, refused here rather than at the tick
+  [OK] a reversibility class that is not one
+  [OK] no schedule -- an agent in a folder must say when it runs
+  [OK] a verb outside the vocabulary
+  [OK] a verb standing in the wrong slot -- an action where a test belongs
+  [OK] a clause with the wrong number of words
+  [OK] a verify clause naming a Ring function that does not exist
+  [OK] ...while the SAME clause naming a function that DOES exist is accepted
+  [OK] a risk tier outside 1..4
+  [OK] a pi agent with no skills has nothing to do
+  [OK] an llm agent holding an EFFECT is refused
+  [OK] ...by the graph's own rule name
+  [OK] ...in the graph's own words, quoted rather than paraphrased
+  [OK] an llm agent whose skill WRITES the world is refused too
+  [OK] an llm agent with no declared structure is refused
+  [OK] a structure the schema court itself refuses is refused HERE, at load
+  [OK] 'proposes' on a PI agent is refused -- a pi agent acts
+  [OK] ...and the accepted declaration carries no findings at all
+  [OK] a refusal is ingested by stzRuleReport with no adapter
+  [OK] a refused declaration will not build an agent at all
+
+-- Scene 4: the folder is the deployment --
+  [OK] the folder admitted the valid files
+  [OK] ...both notations came through the same door
+  [OK] ...the Ring agent kept the schedule it declared for itself
+  [OK] the one bad file was refused
+  [OK] ...and the refusal names the file it came from
+  [OK] ...and the rule that produced it
+  [OK] ...while the agents that were fine are loaded
+  [OK] ...and the refused one is NOT
+
+-- Scene 5: dropped in a folder, and running in the loop --
+  [OK] the host mounted what the folder admitted
+  [OK] ...and supervises them by name
+  [OK] the host carries the folder's refusals
+  [OK] ...printable, from the host itself
+  [OK] the declared agent really ticked on the host's loop
+  [OK] ...and so did the Ring-defined one
+  [OK] ...through the ordinary Cycle(), with the declared effect applied
+  [OK] nothing on disk changed while it ran
+  [OK] the folder's agents are accepted by the engine loop
+  [OK] ...and Zig schedules them on the schedule the files declared
+
+-- Scene 6: a file appears, a file changes, a file vanishes --
+  [OK] nothing has moved yet
+  [OK] a new file is noticed
+  [OK] ...and reported as ADDED
+  [OK] ...and the host now supervises it
+  [OK] ...alongside the ones it already had
+  [OK] ...and it really ticks
+  [OK] a changed file is reported as CHANGED
+  [OK] ...and the agent already running is not silently replaced
+  [OK] a deleted file is reported as REMOVED
+  [OK] ...and its agent was CANCELLED
+  [OK] ...but not retired -- retirement is earned
+  [OK] ...so it ticks no more
+  [OK] the fixture folder is as it was found
+
+-- Scene 7: a proposer, and what it may NOT do --
+  [OK] the proposer declaration is accepted
+  [OK] it is an llm actor to the graph's vocabulary
+  [OK] ...whose effectful capability is EMPTY, by construction
+  [OK] one tick makes a proposal
+  [OK] ...and says what it did
+  [OK] ...landing the declared fields in memory, under the declared subject
+  [OK] a proposal outside the declared enumeration is refused at the door
+  [OK] ...so nothing of it reached memory
+  [OK] a tick with no input proposes nothing
+  [OK] ...and says so rather than passing for quiet
+
+-- Scene 8: what a declaration CANNOT do --
+  [OK] a skill whose action changes NOTHING passes every gate
+  [OK] ...runs
+  [OK] ...verifies
+  [OK] ...and the freezer is still warm. STRUCTURE IS NOT CORRECTNESS.
+  [OK] the version is a gate: the build writes v3 (pia 3, the target) and still reads v1
+
+==========================================
+TOTAL: 88 assertions, 88 pass, 0 fail
+==========================================

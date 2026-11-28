@@ -1,0 +1,28 @@
+SCENARIO: The CSV separator setting
+  THEN  the default separator is ';'  [PASS]
+  WHEN  set to ','
+  THEN  ',' sticks  [PASS]
+  WHEN  set back to ';'
+  THEN  ';' sticks  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Recognise CSV text
+  GIVEN comma-separated input and the ',' separator
+  THEN  well-formed CSV is recognised  [PASS]
+  THEN  a plain sentence is not CSV  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Parse CSV to a column-major list
+  GIVEN comma-separated input
+  THEN  CSVToList groups values under each header  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Emit CSV from a column-major list
+  GIVEN a 2-column sample and the ',' separator
+  THEN  ListToCSV emits header + rows  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

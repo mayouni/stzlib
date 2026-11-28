@@ -1,0 +1,29 @@
+SCENARIO: Build a char list from codepoints
+  GIVEN the Greek letters alpha/beta/gamma as [945,946,947]
+  THEN  NumberOfChars is 3  [PASS]
+  THEN  Unicodes round-trips the codepoints  [PASS]
+  THEN  Unicodes(Content()) re-derives them  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Build a char list from a char range
+  GIVEN the range 'A':'E'
+  THEN  NumberOfChars is 5  [PASS]
+  THEN  Unicodes are [65..69]  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Count unique characters
+  GIVEN a list with duplicates [A,A,B,C,C,C]
+  THEN  NumberOfChars counts every char (6)  [PASS]
+  THEN  NumberOfUniqueChars counts distinct (3)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Case mapping is codepoint-correct (multibyte)
+  GIVEN the chars [a, e-acute, b]
+  THEN  Uppercase maps the accented char too  [PASS]
+  THEN  Lowercase maps the accented char too  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 9 assertions, 9 pass, 0 fail
+================================================
+STATUS: OK

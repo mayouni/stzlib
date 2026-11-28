@@ -1,0 +1,19 @@
+[ 1, 2, 3, 1, 2, 3, 1, 2, 3 ]
+[ [ 1, 2, 3 ], [ 1, 2, 3 ], [ 1, 2, 3 ] ]
+
+file1.ring
+file2.ring
+file3.ring
+
+FILE1.RING
+FILE2.RING
+FILE3.RING
+
+file1.RING
+file2.RING
+file3.RING
+
+
+
+----------------
+----------------

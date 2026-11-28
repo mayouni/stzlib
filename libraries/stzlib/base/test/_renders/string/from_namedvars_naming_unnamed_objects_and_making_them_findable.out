@@ -1,0 +1,16 @@
+SCENARIO: Naming objects and making them findable
+  THEN  born nameless  [PASS]
+  THEN  named afterward  [PASS]
+  THEN  named at birth  [PASS]
+  THEN  the object positions  [PASS]
+  THEN  grouped by name  [PASS]
+  THEN  find one by name  [PASS]
+  THEN  find the other  [PASS]
+  THEN  the named ones  [PASS]
+  THEN  the unnamed ones  [PASS]
+  -> 9 pass, 0 fail
+
+================================================
+TOTAL: 9 assertions, 9 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,48 @@
+2
+[ "optimal", "near_optimal" ]
+
+[
+	[
+		"constrains_applied",
+		[
+			[ "maxcost", 46 ]
+		]
+	],
+	[ "plans_matching_count", 2 ],
+	[
+		"plans_matching_details",
+		[
+			[
+				[ "plan", "optimal" ],
+				[ "cost", 40 ],
+				[ "steps", 2 ],
+				[
+					"route",
+					[ "base", "option_a" ]
+				]
+			],
+			[
+				[ "plan", "near_optimal" ],
+				[ "cost", 45 ],
+				[ "steps", 2 ],
+				[
+					"route",
+					[ "base", "option_b" ]
+				]
+			]
+		]
+	]
+]
+
+optimal
+
+╭──────┬──────────────┬──────┬───────╮
+│ Rank │     Plan     │ Cost │ Steps │
+├──────┼──────────────┼──────┼───────┤
+│    1 │ optimal      │   40 │     2 │
+│    2 │ near_optimal │   45 │     2 │
+╰──────┴──────────────┴──────┴───────╯
+
+
+----------------
+----------------

@@ -1,0 +1,14 @@
+SCENARIO: First-occurrence Z and ZZ groupings
+  GIVEN "bla {♥♥♥} blaba bla {♥♥♥} blabla"
+  THEN  FindFirst gives the position  [PASS]
+  THEN  FindFirstAsSection gives the span  [PASS]
+  THEN  FirstZ groups [sub, position]  [PASS]
+  THEN  FirstZZ groups [sub, span]  [PASS]
+  THEN  FindFirstZ is the same as FirstZ  [PASS]
+  THEN  FindFirstZZ is the same as FirstZZ  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

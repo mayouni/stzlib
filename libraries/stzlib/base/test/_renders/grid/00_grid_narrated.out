@@ -1,0 +1,74 @@
+SCENARIO: Grid dimensions
+  GIVEN a 5x5 grid
+  THEN  NumberOfRows is 5  [PASS]
+  THEN  NumberOfColumns is 5  [PASS]
+  THEN  NumberOfCells is 25  [PASS]
+  THEN  the cursor starts at [1,1]  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Relative movement
+  GIVEN a fresh 5x5 grid
+  THEN  two downs reach [1,3]  [PASS]
+  THEN  three rights reach [4,3]  [PASS]
+  THEN  one up reaches [4,2]  [PASS]
+  THEN  one left reaches [3,2]  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Movement clamps at the edges
+  GIVEN a 3x3 grid
+  THEN  up/left at the top-left corner stay at [1,1]  [PASS]
+  THEN  over-moving clamps at the bottom-right [3,3]  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Absolute movement
+  GIVEN a 5x5 grid
+  THEN  MoveToCell(3,4) jumps to [3,4] (regression: was a no-op)  [PASS]
+  THEN  MoveToLastNode reaches [5,5]  [PASS]
+  THEN  MoveToFirstNode returns to [1,1]  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Every mark the grid draws with can be chosen
+  GIVEN a grid with an obstacle, a path and a current node
+  THEN  the obstacle mark is drawn  [PASS]
+  THEN  ...and is not there by default  [PASS]
+  THEN  the path mark is drawn  [PASS]
+  THEN  the current mark is drawn  [PASS]
+  THEN  the empty mark is drawn  [PASS]
+  GIVEN a grid asked to show what is next to the current node
+  THEN  the neighbour mark answers its reader  [PASS]
+    1 2 3 4 5
+  ╭─────v─────╮
+1 │ . * * * . │
+2 > . * x * . │
+3 │ . * * * . │
+4 │ . . . . . │
+  ╰───────────╯
+
+  THEN  ...and it is drawn with  [PASS]
+    1 2 3 4 5
+  ╭─────v─────╮
+1 │ . N N N . │
+2 > . N x N . │
+3 │ . N N N . │
+4 │ . . . . . │
+  ╰───────────╯
+
+    1 2 3 4 5
+  ╭─────v─────╮
+1 │ . * * * . │
+2 > . * x * . │
+3 │ . * * * . │
+4 │ . . . . . │
+  ╰───────────╯
+
+  THEN  ...while the default is not  [PASS]
+  THEN  a non-character is refused  [PASS]
+  GIVEN the cell alias nobody could spell
+  THEN  the spelled-out name works  [PASS]
+  THEN  ...and so does the old one  [PASS]
+  -> 11 pass, 0 fail
+
+================================================
+TOTAL: 24 assertions, 24 pass, 0 fail
+================================================
+STATUS: OK

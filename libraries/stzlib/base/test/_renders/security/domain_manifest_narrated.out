@@ -1,0 +1,49 @@
+SCENARIO: 1. no manifest: every domain loads, as before W7b
+  THEN  the child loads as many domains as this process  [PASS]
+  THEN  ...and skips none  [PASS]
+  NUMBER domains loaded with no manifest: 89
+  -> 2 pass, 0 fail
+
+SCENARIO: 2. a manifest of two: the floor and the two, nothing else
+  THEN  NUMBER -- six floor domains, the core's stk_string, and the two named  [PASS]
+  THEN  crypto is loaded  [PASS]
+  THEN  hashmap is loaded: the floor, which the library's own load needs  [PASS]
+  THEN  http is not  [PASS]
+  THEN  the named domain works  [PASS]
+  THEN  a call into a domain left out raises at its line, naming the function  [PASS]
+  NUMBER domains NOT loaded under the manifest: 80 of 89
+  -> 6 pass, 0 fail
+
+SCENARIO: 3. the same through the environment, and the floor alone
+  THEN  STZ_DOMAINS=none loads the floor (six, and the core's stk_string) and nothing more  [PASS]
+  THEN  ...crypto not among them  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: 4. the deny list beats the manifest, and the refusal reaches the ledger
+  THEN  a denied domain is not loaded with no manifest  [PASS]
+  THEN  ...and is counted as refused, not skipped  [PASS]
+  THEN  opening a ledger writes exposure.closed under the advisory  [PASS]
+  THEN  a manifest that asks for it is refused all the same  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: 5. the responder writes the deny; this process keeps the library, the next one does not
+  THEN  the deny line is in this guard's file  [PASS]
+  THEN  this process records the deny as revoked  [PASS]
+  THEN  ...and claims no door shut: the library is still loaded here  [PASS]
+  THEN  ...which stzExposure confirms  [PASS]
+  THEN  the next process refuses url at load  [PASS]
+  THEN  ...and writes exposure.closed  [PASS]
+  THEN  ReopenDomains removes the advisory's line  [PASS]
+  THEN  ...records it  [PASS]
+  THEN  ...and the process after loads url again  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: 6. the library folder is found apart from the engine (stzlib-docs' finding)
+  THEN  _StzBaseDir names a folder holding stzBase.ring  [PASS]
+  THEN  ...even when the engine is outside the tree  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 25 assertions, 25 pass, 0 fail
+================================================
+STATUS: OK

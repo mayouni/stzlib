@@ -1,0 +1,61 @@
+SCENARIO: A = U S V' -- the property that defines the decomposition
+  THEN  a tall matrix  [PASS]
+  THEN  a WIDE matrix -- refused before phase 7  [PASS]
+  THEN  a square symmetric one  [PASS]
+  THEN  a square non-symmetric one  [PASS]
+  THEN  a rank-deficient one -- row 2 is twice row 1  [PASS]
+  THEN  a single row  [PASS]
+  THEN  a single column  [PASS]
+  THEN  badly scaled entries  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: the factors are orthonormal, which is what makes them a BASIS
+  THEN  U has orthonormal columns  [PASS]
+  THEN  V has orthonormal columns  [PASS]
+  THEN  U is rows x k  [PASS]
+  THEN  V is cols x k  [PASS]
+  THEN  ...and both are still orthonormal  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the singular values themselves
+  THEN  min(rows, cols) of them  [PASS]
+  THEN  none is negative  [PASS]
+  THEN  ...and they descend  [PASS]
+  THEN  the largest over the smallest IS the condition number  [PASS]
+  THEN  a rank-1 matrix has rank 1  [PASS]
+  THEN  ...and its second singular value is negligible  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: a matrix and its transpose: same values, SWAPPED factors
+  THEN  the singular values are identical  [PASS]
+  THEN  ...both of them  [PASS]
+  THEN  U of A matches V of A' (up to a per-column sign)  [PASS]
+  THEN  ...and V of A matches U of A'  [PASS]
+  THEN  each reconstructs its own matrix  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: wide matrices are answered everywhere, not just in SVD()
+  THEN  a wide matrix has a rank  [PASS]
+  THEN  ...the same as its transpose's  [PASS]
+  THEN  a wide matrix has a condition number  [PASS]
+  THEN  ...and singular values  [PASS]
+  THEN  a wide rank-deficient matrix is seen as such  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: what it still refuses
+  THEN  a matrix with no entries  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: INVERTING AN SVD MEANS TWO DIFFERENT THINGS
+  THEN  keeping every direction returns the matrix itself  [PASS]
+  THEN  k=1 costs exactly the squares it discarded  [PASS]
+  THEN  ...and so does k=2  [PASS]
+  THEN  ...and k=3  [PASS]
+  THEN  a rank below 1 is refused  [PASS]
+  THEN  ...and the Q form hands back a matrix to keep working with  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 36 assertions, 36 pass, 0 fail
+================================================
+STATUS: OK

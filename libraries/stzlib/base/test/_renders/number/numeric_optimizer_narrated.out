@@ -1,0 +1,65 @@
+SCENARIO: a bowl, which should take almost no work at all
+  THEN  it lands on the minimum  [PASS]
+  THEN  ...in both coordinates  [PASS]
+  THEN  the value there is zero  [PASS]
+  THEN  it says it converged  [PASS]
+  THEN  ...and it took one iteration  [PASS]
+  THEN  the reason is in words  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Rosenbrock, which a weak line search cannot solve
+  THEN  it finds the valley floor at x=1  [PASS]
+  THEN  ...and y=1  [PASS]
+  THEN  the value is essentially zero  [PASS]
+  THEN  ...in well under a hundred iterations  [PASS]
+  THEN  the cost is reported honestly  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: ill conditioning, which is what quasi-Newton is FOR
+  THEN  it reaches the bottom  [PASS]
+  THEN  ...in a handful of iterations, not thousands  [PASS]
+  THEN  x went to zero  [PASS]
+  THEN  ...and so did y  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: starting at the answer is recognised, not stepped away from
+  THEN  no iterations were needed  [PASS]
+  THEN  the point did not move  [PASS]
+  THEN  ...at all  [PASS]
+  THEN  and it still says converged  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: it is deterministic, which for an optimiser is not a given
+  THEN  the same point  [PASS]
+  THEN  ...to the last bit  [PASS]
+  THEN  the same iteration count  [PASS]
+  THEN  the same evaluation count  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: maximising, without making you negate the expression yourself
+  THEN  the maximiser is x = 3  [PASS]
+  THEN  the value is +7, not -7  [PASS]
+  THEN  x = 2  [PASS]
+  THEN  y = -1  [PASS]
+  THEN  ...and the peak is 10  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the objective and its gradient are the SAME function it minimises
+  THEN  evaluating at the answer reproduces the reported value  [PASS]
+  THEN  ...and the gradient there is flat  [PASS]
+  THEN  ...in both directions  [PASS]
+  THEN  the expression is still readable back  [PASS]
+  THEN  ...and the variables  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: what it refuses
+  THEN  a starting point of the wrong size  [PASS]
+  THEN  ...saying how many were wanted  [PASS]
+  THEN  a bad expression never becomes an objective  [PASS]
+  THEN  an unbounded function does NOT report convergence  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 37 assertions, 37 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,31 @@
+[ "type", "color", "priority" ]
+
+[ [ "type", "process" ], [ "color", "blue" ], [ "priority", "high" ] ]
+
+[ "type", "color", "priority", "unit" ]
+
+[
+	[
+		"type",
+		[ "process", "decision" ]
+	],
+	[
+		"color",
+		[ "blue", "green" ]
+	],
+	[
+		"priority",
+		[ "high" ]
+	],
+	[
+		"unit",
+		[ "sales" ]
+	]
+]
+
+0
+0
+
+
+----------------
+----------------

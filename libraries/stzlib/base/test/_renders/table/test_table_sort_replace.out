@@ -1,0 +1,20 @@
+=== Sort ===
+  After SortOn(:name): [ "Alice", "Bob", "Charlie" ]
+  Scores after sort: [ 92, 78, 85 ]
+
+=== SortDown ===
+  After SortDownOn(:score): [ 92, 85, 78 ]
+
+=== ReplaceCell ===
+  After ReplaceCell(:name, 2, Sara): Sara
+
+=== ReplaceRow ===
+  After ReplaceRow(3): name = Lina
+  After ReplaceRow(3): age = 30
+
+=== ReplaceCol ===
+  After ReplaceCol(:y): [ 10, 20, 30 ]
+
+=================================
+  PASSED: 7  FAILED: 0
+=================================

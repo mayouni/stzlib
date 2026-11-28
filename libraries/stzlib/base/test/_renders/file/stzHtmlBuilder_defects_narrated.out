@@ -1,0 +1,175 @@
+SCENARIO: The three listed defects, each with its negative sibling
+  THEN  AppendToCurrent: the node appears in Build  [PASS]
+  THEN  a second, different node appears after the first  [PASS]
+  THEN  a node never appended does not appear  [PASS]
+  THEN  Root shows both children  [PASS]
+  THEN  Root shows the first one by tag  [PASS]
+  THEN  Root shows the second one by tag  [PASS]
+  THEN  after SetCurrent(Root()) the next node still lands in the document  [PASS]
+  THEN  NodeCount counts three nodes, the root not counted  [PASS]
+  THEN  BuildToFile: the file is not empty  [PASS]
+  THEN  BuildToFile: the file holds the document  [PASS]
+  THEN  the file is gone after remove  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Chaining: a chain of calls works on one document; a variable assigned from a call is a copy
+  THEN  a chain of two appends and a Build holds both  [PASS]
+  THEN  the variable holds both too (the chain did not work on a copy)  [PASS]
+  THEN  the Q form chains as well  [PASS]
+  THEN  a node never put in does not appear  [PASS]
+  THEN  a variable given the result of a call holds the document as it stands (Ring copies on assignment)  [PASS]
+  THEN  but it is a copy: what is added to it does not reach the original  [PASS]
+  THEN  the copy took it  [PASS]
+  THEN  another builder is not touched by the first  [PASS]
+  THEN  and the first is not touched by it  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Nesting: append, go inside, append a child, come back out
+  THEN  the paragraph is inside the div  [PASS]
+  THEN  the position is back at the root  [PASS]
+  THEN  a node added after coming out lands beside the div  [PASS]
+  THEN  and not inside it  [PASS]
+  THEN  the paragraph sits one level down  [PASS]
+  THEN  a path takes the next node into the div  [PASS]
+  THEN  the current path is the one that was set  [PASS]
+  THEN  the last child of the div is the em  [PASS]
+  THEN  two steps up are the root  [PASS]
+  THEN  a step above the root stays at the root and raises nothing  [PASS]
+  THEN  GoToRoot comes back from anywhere  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: SetCurrent with a node: found by what it contains, the last added first
+  THEN  a node already in the document becomes current, at its place  [PASS]
+  THEN  the other one as well  [PASS]
+  THEN  Root() makes the root current  [PASS]
+  THEN  the list node found by its contents, children included  [PASS]
+  THEN  the empty list node, which was appended before it had children, is not in the document  [PASS]
+  THEN  of two equal nodes the one added last wins  [PASS]
+  THEN  a node that is not in the document raises an error  [PASS]
+  THEN  and the position did not move  [PASS]
+  THEN  a node that differs by an attribute only is not the one in the document  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: A node that already has children, the same node twice, and a deep spot after other appends
+  THEN  the tree arrives whole, with its children and grandchildren  [PASS]
+  THEN  the reference itself is what a person would write  [PASS]
+  THEN  four nodes in all  [PASS]
+  THEN  the same node twice gives two copies  [PASS]
+  THEN  eight nodes now  [PASS]
+  THEN  a node added deep in the tree goes to the first table only  [PASS]
+  THEN  and one deep in the second table goes there only  [PASS]
+  THEN  the first table has no b  [PASS]
+  THEN  changing the original after the append is not seen in the document  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Build equals the node classes' own serialisation, with no escaping of its own
+  THEN  the text and the attributes are written as the node writes them  [PASS]
+  THEN  the text is escaped: a < reads as &lt;  [PASS]
+  THEN  the quote of the attribute is escaped too  [PASS]
+  THEN  an attribute set twice is written twice, as the node does  [PASS]
+  THEN  the node class and the builder agree on Root  [PASS]
+  THEN  ToHtml on the builder is Build  [PASS]
+  THEN  a made-up difference is detected by Same  [PASS]
+  THEN  a case difference is detected by Same  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Unicode text: accented and Hebrew, built from char codes, never printed
+  THEN  Build writes the texts intact  [PASS]
+  THEN  byte length is the sum of the bytes  [PASS]
+  THEN  an altered letter is detected  [PASS]
+  THEN  the file holds the same number of bytes  [PASS]
+  THEN  the file holds the same bytes  [PASS]
+  THEN  no byte order mark in front  [PASS]
+  THEN  the first byte is the open angle bracket  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The file is exactly the text Build returns: line breaks, a long text, an existing file replaced
+  THEN  same length, line breaks included  [PASS]
+  THEN  same bytes  [PASS]
+  THEN  the line feed is still one byte  [PASS]
+  THEN  the carriage return and line feed are still two  [PASS]
+  THEN  the file does not hold a doubled carriage return  [PASS]
+  THEN  an existing file is replaced, not appended to  [PASS]
+  THEN  BuildToFile returns the builder, still chainable  [PASS]
+  THEN  an empty path raises an error  [PASS]
+  THEN  a number as the path raises an error  [PASS]
+  THEN  a path that cannot be written raises an error  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: An empty document
+  THEN  Build of nothing is the empty text  [PASS]
+  THEN  and not another text  [PASS]
+  THEN  no node  [PASS]
+  THEN  the position is the root  [PASS]
+  THEN  Root has no child  [PASS]
+  THEN  Current has no child  [PASS]
+  THEN  BuildToFile writes an empty file  [PASS]
+  THEN  whose size is zero  [PASS]
+  THEN  going to the last child of an empty root raises an error  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: A wide document (500 children) and a deep one (100 levels), and how long they take
+  THEN  500 appends: 500 nodes  [PASS]
+  THEN  the text is the 500 items in order  [PASS]
+  THEN  the first and the last item are there  [PASS]
+  THEN  501 is not  [PASS]
+  THEN  500 appends take under 5 seconds  [PASS]
+  THEN  Build of 500 takes under 5 seconds  [PASS]
+  THEN  100 levels deep: the nesting is exact  [PASS]
+  THEN  the position is 100 steps down  [PASS]
+  THEN  all of them are first children  [PASS]
+  THEN  100 nested appends take under 5 seconds  [PASS]
+  THEN  back at the root in one call  [PASS]
+  THEN  a node arriving with 100 levels inside is copied whole  [PASS]
+  THEN  100 nodes, the root not counted  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: Copies of the builder are independent documents; snapshots do not write back
+  THEN  a copy has the document of the original at the time of the copy  [PASS]
+  THEN  it took the new node  [PASS]
+  THEN  the original did not (Ring copied the object on assignment)  [PASS]
+  THEN  a snapshot from Root() written to does not reach the builder  [PASS]
+  THEN  nor one from Current()  [PASS]
+  THEN  Node is CreateNode  [PASS]
+  THEN  a created node has no content  [PASS]
+  THEN  SetCurrentQ chains  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Bad parameters raise an error and change nothing
+  THEN  a number is not a node  [PASS]
+  THEN  a text is not a node  [PASS]
+  THEN  a list is not a node  [PASS]
+  THEN  another object is not a node  [PASS]
+  THEN  the document is unchanged  [PASS]
+  THEN  a path past the last child raises an error  [PASS]
+  THEN  a path step of zero raises an error  [PASS]
+  THEN  a fractional step raises an error  [PASS]
+  THEN  a text step raises an error  [PASS]
+  THEN  a number raises an error  [PASS]
+  THEN  the position is still the root  [PASS]
+  THEN  a valid path raises nothing  [PASS]
+  THEN  and moves  [PASS]
+  THEN  the leaf has no child to go to  [PASS]
+  THEN  the position stays  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: The node class, as a builder user touches it
+  THEN  Tag  [PASS]
+  THEN  an empty node is an empty element  [PASS]
+  THEN  Attrs of a node with none is the empty list  [PASS]
+  THEN  SetText returns the node, which is chainable  [PASS]
+  THEN  Text  [PASS]
+  THEN  SetTextQ and SetAttr chain  [PASS]
+  THEN  Attrs lists the pairs in order  [PASS]
+  THEN  Attrs is a copy: a change to it does not reach the node  [PASS]
+  THEN  AppendChild and Append add children in order  [PASS]
+  THEN  Children counts them  [PASS]
+  THEN  ChildrenHtml is the children only  [PASS]
+  THEN  a child changed after it was appended is not changed in the node (a copy)  [PASS]
+  THEN  a tag-less container writes only its children  [PASS]
+  -> 13 pass, 0 fail
+
+================================================
+TOTAL: 132 assertions, 132 pass, 0 fail
+================================================
+STATUS: OK

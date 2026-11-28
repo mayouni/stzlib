@@ -1,0 +1,29 @@
+SCENARIO: JS declarations parse: classes, methods, funcs, ES imports
+  THEN  three classes are found  [PASS]
+  THEN  a class method is captured  [PASS]
+  THEN  a top-level function is captured  [PASS]
+  THEN  an arrow-function const is a function too  [PASS]
+  THEN  an ES import records the module (quotes stripped)  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: JS inheritance: the extends chain resolves
+  THEN  Sub -> Worker -> Base up the chain  [PASS]
+  THEN  OwnersOf finds the defining class  [PASS]
+  THEN  Sub is a descendant of Base  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: JS call edges + DeadCode + CyclicCalls (no Node runtime)
+  THEN  call edges were extracted in-engine  [PASS]
+  THEN  who calls helper() is known  [PASS]
+  THEN  the uncalled arrow function is flagged dead  [PASS]
+  THEN  self-recursion is a call cycle  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the substrate holds: one query surface, two languages
+  THEN  stzJsCodeGraph reuses the inherited Cascade query  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 13 assertions, 13 pass, 0 fail
+================================================
+STATUS: OK

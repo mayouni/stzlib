@@ -1,0 +1,12 @@
+SCENARIO: Three kids through the marquer pipeline
+  THEN  the sections  [PASS]
+  THEN  filled in order  [PASS]
+  THEN  marked back  [PASS]
+  THEN  sorted descending  [PASS]
+  THEN  refilled in the new order  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

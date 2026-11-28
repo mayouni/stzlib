@@ -1,0 +1,31 @@
+-- Scene 1: the probabilities are RIGHT (hand-checked Laplace) --
+  [OK] the vocabulary is the 10 distinct words
+  [OK] the corpus has 18 tokens (3 docs x 6 words)
+  [OK] P(cat|the) = (1+1)/(4+10) = 2/14
+  [OK] an UNSEEN bigram falls back to (0+1)/(uni+V) = 1/14
+  [OK] a seen bigram outranks an unseen one from the same word
+  [OK] a pair of unknown words -> (0+1)/(0+V) = 1/10
+
+-- Scene 2: case does not matter -- the engine lowercases (Unicode) --
+  [OK] upper-case query words match the lowercased counts
+  [OK] mixed case too
+
+-- Scene 3: LogProbability and Perplexity --
+  [OK] LogProbability of a single bigram is its log
+  [OK] a query shorter than two words has log-prob 0
+  [OK] in-domain perplexity is lower than out-of-domain
+  [OK] both perplexities are positive
+
+-- Scene 4: a bigram never spans a document boundary --
+  [OK] a within-document bigram outranks a cross-document one
+  [OK] the cross-document pair really is unseen (count 0 -> Laplace floor)
+
+-- Scene 5: the engine is a HARD dependency, reached only through it --
+  [OK] the model is an engine handle, not a Ring object
+  [OK] the model is trained once and reused
+
+==========================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+==========================================
+
+Executed in almost 0 second(s)

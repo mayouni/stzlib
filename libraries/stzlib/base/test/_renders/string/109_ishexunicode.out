@@ -1,0 +1,12 @@
+SCENARIO: Hex-unicode recognition and codepoint -> hex
+  THEN  'U+0649' is a hex-unicode literal  [PASS]
+  THEN  a stzChar's HexUnicode is 'U+06A2'  [PASS]
+  THEN  UnicodeToHexUnicode(1698) is 'U+06A2'  [PASS]
+  THEN  HexUnicodeToUnicode('U+06A2') reverses to 1698  [PASS]
+  THEN  the round trip QQ('U+0649') is the right char  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

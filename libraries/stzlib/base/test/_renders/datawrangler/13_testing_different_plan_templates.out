@@ -1,0 +1,45 @@
+╭─────────────────────────╮
+│ TESTING VALIDATION PLAN │
+╰─────────────────────────╯
+ðŸ”§ Executing Plan: Data Quality Validation
+ðŸ“ Validate data types, formats, and constraints
+⏱️  Estimated time: 2.01 seconds
+
+▶️  Check data type consistency...
+   ❌ Error: Bad parameter type!
+▶️  Check numeric ranges...
+   ✅ Validated ranges - 0 violations found
+▶️  Validate text formats...
+   ✅ Format validation completed
+▶️  Identify potential outliers...
+   ✅ Detected 0 potential outliers
+
+ðŸŽ‰ Plan execution completed in 1 seconds
+ðŸ“Š 3 successful, 1 errors
+
+╭───────────────────────────────────╮
+│ TESTING ANALYSIS PREPARATION PLAN │
+╰───────────────────────────────────╯
+
+╭─────────────────────────────────╮
+│ TESTING EXPORT PREPARATION PLAN │
+╰─────────────────────────────────╯
+ðŸ”§ Executing Plan: Prepare for Export
+ðŸ“ Format data for external systems
+⏱️  Estimated time: 2.01 seconds
+
+▶️  Clean column names...
+   ❌ Error: Bad parameter type!
+▶️  Replace with export-friendly values...
+   ✅ Processed 4 missing values
+▶️  Standardize date formats...
+   ❌ Error: Bad parameter type!
+▶️  Final validation check...
+   ❌ Error: Bad parameter type!
+
+ðŸŽ‰ Plan execution completed in 7 seconds
+ðŸ“Š 1 successful, 3 errors
+
+
+----------------
+----------------

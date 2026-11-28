@@ -1,0 +1,49 @@
+SCENARIO: a very small number survives being constructed
+  THEN  the digits are kept  [PASS]
+  THEN  ...so the value is still positive  [PASS]
+  THEN  ...and scaling it back recovers 1  [PASS]
+  WHEN  arithmetic is done on it
+  THEN  it is exact, because the content is a plain decimal the exact path can use  [PASS]
+  THEN  ...and says so  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: ...and NOTHING else changed, which is the point
+  THEN  a tenth still renders as it did  [PASS]
+  THEN  ...and two and a half  [PASS]
+  THEN  ...and a quarter  [PASS]
+  THEN  an integer is untouched  [PASS]
+  THEN  ...and a longer one  [PASS]
+  THEN  a string input is taken verbatim, as always  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: the shortest PLAIN decimal, from the engine
+  THEN  a tenth needs one place  [PASS]
+  THEN  a quarter needs two  [PASS]
+  THEN  a third needs sixteen  [PASS]
+  THEN  a whole number needs none  [PASS]
+  THEN  every result round-trips  [PASS]
+  THEN  ...including the very small  [PASS]
+  THEN  ...and the very large  [PASS]
+  THEN  it is PLAIN, never scientific -- no exponent anywhere  [PASS]
+  THEN  ...for large values either  [PASS]
+  THEN  a large value spells its digits out  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: the representation ladder, observable rather than folklore
+  THEN  a small whole number  [PASS]
+  THEN  ...negative too  [PASS]
+  THEN  a whole number past what an f64 holds exactly  [PASS]
+  THEN  ...and far past it  [PASS]
+  THEN  a value with a fractional part  [PASS]
+  THEN  the predicates read the same  [PASS]
+  THEN  ...and say no when they should  [PASS]
+  THEN  ...for decimals  [PASS]
+  WHEN  an operation carries a number past the f64-exact range
+  THEN  it is still exact  [PASS]
+  THEN  ...and reports the bigger rung  [PASS]
+  -> 10 pass, 0 fail
+
+================================================
+TOTAL: 31 assertions, 31 pass, 0 fail
+================================================
+STATUS: OK

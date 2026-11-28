@@ -1,0 +1,32 @@
+-- Scene 1: a histogram's bars touch, because its bins do --
+  [OK] the terminal picture still works
+  [OK] the SVG tier answered
+  [OK] it drew one bar per non-empty bin
+  [OK] adjacent bars are FLUSH, not spaced (max gap <= 2px)
+
+-- Scene 2: scatter draws the model's own points --
+  [OK] the terminal picture still works
+  [OK] one mark per point (7)
+  [OK] the H values came from the model
+
+-- Scene 3: multi-series bars, with the legend they need --
+  [OK] the terminal picture still works
+  [OK] 12 bars and 3 legend swatches were drawn
+  [OK] the three series are drawn in DIFFERENT colours
+  [OK] the tallest bar is Sales/Q4, the largest value
+
+-- Scene 4: a treemap's AREAS are its values --
+  [OK] the terminal picture still works
+  [OK] one rectangle per part (5)
+  [OK] area shares match the values within 3 points (45 25 15 10 5 vs 45 25 15 10 5)
+  [OK] the biggest part really is the biggest rectangle
+
+-- Scene 5: the new kinds refuse what they cannot draw --
+  [OK] an unknown kind still RAISES, and names the ones that work
+  [OK] a treemap of zeros RAISES rather than dividing by nothing
+  [OK] a histogram with no bins RAISES
+  [OK] a multi-series whose series carry NO values refuses, not crashes
+
+==========================================
+TOTAL: 19 assertions, 19 pass, 0 fail
+==========================================

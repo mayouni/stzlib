@@ -1,0 +1,118 @@
+SCENARIO: BytesOfThisChar answers what BytesOfChar answers
+  THEN  the bytes of b in abc  [PASS]
+  THEN  BytesOfChar gives the same  [PASS]
+  THEN  a character absent from the content has no bytes  [PASS]
+  THEN  the answer is a list, not an empty text  [PASS]
+  THEN  the absent answer is a list too (it was an empty text for every character)  [PASS]
+  THEN  e acute is two bytes  [PASS]
+  THEN  and BytesOfChar agrees  [PASS]
+  THEN  a plain letter beside it is one byte  [PASS]
+  THEN  a Hebrew letter is two bytes  [PASS]
+  THEN  an emoji is four bytes  [PASS]
+  THEN  the emoji is not found in a list of only ASCII  [PASS]
+  THEN  e acute is not found in the Hebrew text  [PASS]
+  THEN  an empty list holds no character  [PASS]
+  THEN  the content is untouched  [PASS]
+  THEN  a text of two characters is refused  [PASS]
+  THEN  a number is refused  [PASS]
+  THEN  an empty text is refused  [PASS]
+  THEN  a good character is not refused  [PASS]
+  -> 18 pass, 0 fail
+
+SCENARIO: FillWithAsciiCharUpToNChars repeats an ASCII character
+  THEN  abc filled with x up to 2 chars (it raised R21)  [PASS]
+  THEN  two bytes  [PASS]
+  THEN  abcd filled with y up to 3 chars  [PASS]
+  THEN  three bytes  [PASS]
+  THEN  growing past the old size works too  [PASS]
+  THEN  a bigger content is replaced, not extended  [PASS]
+  THEN  the sibling counting bytes gives the same for ASCII  [PASS]
+  THEN  the digit 0 is a character like another  [PASS]
+  THEN  a space is a character like another  [PASS]
+  THEN  zero chars empties the content  [PASS]
+  THEN  a negative count empties the content  [PASS]
+  THEN  an empty list can be filled  [PASS]
+  THEN  multibyte content is replaced by 4 one-byte chars  [PASS]
+  THEN  so its size in bytes is 4, not the old 9  [PASS]
+  THEN  and every char takes one byte  [PASS]
+  THEN  e acute is not an ASCII character  [PASS]
+  THEN  and the content stays abc  [PASS]
+  THEN  an emoji is not an ASCII character  [PASS]
+  THEN  two characters are refused  [PASS]
+  THEN  an empty text is refused  [PASS]
+  THEN  a count that is not a number is refused  [PASS]
+  THEN  the content is still abc after every refusal  [PASS]
+  THEN  a good call is not refused  [PASS]
+  THEN  and it filled  [PASS]
+  -> 24 pass, 0 fail
+
+SCENARIO: FillWithAsciiChar refuses a non-ASCII character with a message
+  THEN  an ASCII character fills the same size  [PASS]
+  THEN  the message of the refusal is not blank (it was a heading with no reason)  [PASS]
+  THEN  it says the character is not ASCII  [PASS]
+  THEN  the content is kept  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ToUTF8 answers the bytes as the UTF-8 text they spell
+  THEN  ASCII text (it raised R14)  [PASS]
+  THEN  e acute stays whole  [PASS]
+  THEN  a word with e acute  [PASS]
+  THEN  Hebrew stays whole  [PASS]
+  THEN  an emoji stays four bytes  [PASS]
+  THEN  an empty list answers an empty text  [PASS]
+  THEN  the answer is a text  [PASS]
+  THEN  it is the same as ToString  [PASS]
+  THEN  its size in bytes is the size of the list  [PASS]
+  THEN  its size is 7 here: 1 + 2 + 4  [PASS]
+  THEN  it is not the hexadecimal form  [PASS]
+  THEN  the object is not changed  [PASS]
+  THEN  the same through the stzBytes name  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: Bits and ToStzListOfBits are placeholders until a list of bits class exists
+  THEN  Bits does not raise and answers an empty text  [PASS]
+  THEN  ToStzListOfBits does not raise and answers an empty text  [PASS]
+  THEN  the content is untouched by either  [PASS]
+  THEN  the byte values are still there for the bits to be made from  [PASS]
+  THEN  no list of bits class is defined in the library  [PASS]
+  THEN  the byte class is defined  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Stripped answers what Trimmed answers
+  THEN  the spaces at both ends of  ab c  go (it answered an empty text)  [PASS]
+  THEN  Trimmed agrees  [PASS]
+  THEN  a trailing space of x goes  [PASS]
+  THEN  a leading space goes  [PASS]
+  THEN  spaces inside stay  [PASS]
+  THEN  nothing to strip is nothing changed  [PASS]
+  THEN  only spaces leaves an empty text  [PASS]
+  THEN  an empty list answers an empty text  [PASS]
+  THEN  Trimmed on only spaces is empty too  [PASS]
+  THEN  Trimmed on an empty list is empty  [PASS]
+  THEN  a tab and a line feed are white space  [PASS]
+  THEN  a carriage return is white space  [PASS]
+  THEN  a form feed is white space  [PASS]
+  THEN  the byte 0 is not white space  [PASS]
+  THEN  e acute between spaces is kept whole  [PASS]
+  THEN  Hebrew between spaces is kept whole  [PASS]
+  THEN  an emoji between spaces is kept whole  [PASS]
+  THEN  a no-break space at both ends is white space  [PASS]
+  THEN  a letter that is not white space is not stripped  [PASS]
+  THEN  every case above agrees with Trimmed  [PASS]
+  THEN  Stripped leaves the object as it is  [PASS]
+  THEN  Strip changes the object  [PASS]
+  THEN  the same through the stzBytes name  [PASS]
+  -> 23 pass, 0 fail
+
+SCENARIO: The neighbours the six rows rely on did not move
+  THEN  NumberOfBytes counts bytes  [PASS]
+  THEN  NumberOfBytesPerChar pairs each char with its byte count  [PASS]
+  THEN  BytesOfCharNumber is still byte-level  [PASS]
+  THEN  ToHexUTF8 is still the escaped hexadecimal  [PASS]
+  THEN  Trimmed still answers the same for a plain word  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 93 assertions, 93 pass, 0 fail
+================================================
+STATUS: OK

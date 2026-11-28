@@ -1,0 +1,32 @@
+SCENARIO: iif handles boolean and string-expression inputs
+  GIVEN a true numeric condition
+  THEN  the TRUE branch returns  [PASS]
+  GIVEN a false numeric condition
+  THEN  the FALSE branch returns  [PASS]
+  GIVEN a string equality expression that holds
+  THEN  eval branch returns TRUE arm  [PASS]
+  GIVEN a string inequality expression
+  THEN  eval branch returns FALSE arm  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Length() forwarder delegates to Ring len()
+  THEN  list length  [PASS]
+  THEN  string byte length  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: range0 follows Python end-exclusive semantics
+  THEN  range0(3) = [0..2]  [PASS]
+  THEN  range0([1, 4]) = [1..3]  [PASS]
+  THEN  range0([1, 6, 2]) steps by 2  [PASS]
+  THEN  range0([5, 1, -1]) walks backward  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: range1 is 1-based and end-inclusive
+  THEN  range1(3) = [1..3]  [PASS]
+  THEN  range1([2, 5]) = [2..5]  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,39 @@
+SCENARIO: Engine parser counts paragraphs in well-formed HTML
+  GIVEN a small document with two p elements
+  THEN  the parse handle is non-zero  [PASS]
+  THEN  element count is 4 (html + body + 2 p)  [PASS]
+  THEN  two p elements found  [PASS]
+  THEN  one body found  [PASS]
+  THEN  case-insensitive lookup  [PASS]
+  THEN  unknown tag returns 0  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Engine parser extracts inner text per occurrence
+  GIVEN two p elements with distinct text
+  THEN  first p text  [PASS]
+  THEN  second p text  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Engine parser reads attributes per occurrence
+  GIVEN two anchors with different href
+  THEN  first href  [PASS]
+  THEN  second href  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Engine all-text strips tags + skips script bodies
+  GIVEN a document containing visible text and a script
+  THEN  only visible text remains  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Self-closing and void tags do not break the index
+  GIVEN a document with a self-closing br and a void img
+  THEN  two p elements still counted  [PASS]
+  THEN  br counted  [PASS]
+  THEN  img counted  [PASS]
+  THEN  img src attribute  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 15 assertions, 15 pass, 0 fail
+================================================
+STATUS: OK

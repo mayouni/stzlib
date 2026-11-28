@@ -1,0 +1,15 @@
+SCENARIO: Negative form
+  THEN  * is not a letter, computationally  [PASS]
+  THEN  ... and linguistically  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Active vs passive removal
+  THEN  the active form mutates  [PASS]
+  THEN  the passive form returns a copy  [PASS]
+  THEN  ... leaving the original as is  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

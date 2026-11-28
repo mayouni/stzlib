@@ -1,0 +1,26 @@
+==================================================================
+ MU7 -- data becomes music, music becomes data
+==================================================================
+
+the series: 12 15 14 19 17 23 21 26 18 13 16 22 25 20 14 12
+
+-- mu7_01_series_in_rast: Arabic maqam / rast over maqsum -- degrees 1 3 2 6 5 9 7 11 5 2 4 8 10 7 2 1
+
+-- mu7_02_series_in_the_west: Western tonal / major over four -- degrees 1 4 3 8 6 11 9 14 7 2 5 10 13 8 3 1
+
+-- mu7_03_series_in_slendro: Javanese gamelan -- slendro / slendro over lancaran -- degrees 1 3 2 6 4 8 7 10 5 2 4 7 9 6 2 1
+
+-- mu7_04_heard_back: the Rast melody (no drums) transcribed from its SOUND, and played again
+   16 notes heard back; best-fitting modes:
+     maqam/rast, 0.4 cents off on average
+     tunisian/dhil, 3.4 cents off on average
+     western/minor, 6.4 cents off on average
+
+-- the notation of what was heard back: mu7_05.abc, mu7_05.musicxml, mu7_05.mid
+   (open the MusicXML in MuseScore: the half-flat notes carry alter -0.5)
+
+-- mu7_06_kalangu_sannu_da_zuwa: 'sànnu dà zuwàa' (welcome), L H L H L
+   SayOnDrum, the plan's verb: SayOnDrum is not available: plan MU7: text -> drum is SPEECH only if a Hausa speaker hears the sentence back from the drum; until one has, SayOnDrum refuses and DrumTonesQ -- the contour, honestly named -- is what is offered (verdict: UNPERCEIVED)
+
+Tell me: is the series MUSIC in Rast (01), or a meter in costume? And if
+you know a Hausa speaker: does 06 say 'sannu da zuwa' to them?

@@ -1,0 +1,40 @@
+-- Scene 1: it trains at scale --
+  24000 documents, 104000 tokens, trained in 0.04 s
+  [OK] every token was counted (K x 13)
+  [OK] the vocabulary is the 8 distinct words
+  [OK] training a 100k-token corpus is fast (< 5s)
+
+-- Scene 2: ARABIC survives byte-for-byte (caseless, multibyte) --
+  [OK] kitab is 8 bytes (4 Arabic letters x 2)
+  [OK] kitab round-trips into the vocabulary byte-identical
+  [OK] kitab was counted exactly (2 templates x K)
+  [OK] madrasa (5 Arabic letters) counted exactly (1 template x K)
+  [OK] an Arabic word not in the corpus has frequency 0
+
+-- Scene 3: case FOLDS for cased scripts, across alphabets --
+  [OK] Greek upper and lower fold to the same count
+  [OK] ... which is 2 templates x K
+  [OK] the vocabulary stores the LOWER form
+  [OK] ... and NOT the upper form
+  [OK] Cyrillic folds the same way
+  [OK] ... to 2 templates x K
+  [OK] a Latin accented word (cafe with e-acute) counts
+  [OK] a 3-byte CJK word counts
+  [OK] a 4-byte emoji counts as one token
+
+-- Scene 4: bigrams and TF-IDF work on multibyte tokens --
+  [OK] a within-document Arabic bigram outranks an unseen one
+  [OK] a rarer token has higher idf than a common one
+  [OK] document frequency counts multibyte tokens
+  [OK] TopTermsOf returns pairs on a multilingual document
+  [OK] ... each a real word from the document
+
+-- Scene 5: a pathological long multibyte token does not corrupt --
+  [OK] the long token is 800 bytes
+  [OK] ... counted (not dropped)
+  [OK] ... and round-trips byte-identical (no truncation)
+  [OK] ... the normal token beside it is unaffected
+
+==========================================
+TOTAL: 26 assertions, 26 pass, 0 fail
+==========================================

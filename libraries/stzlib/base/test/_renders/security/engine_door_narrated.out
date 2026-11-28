@@ -1,0 +1,31 @@
+SCENARIO: 1. a call from another DLL writes its record, and opens the ledger to do it
+  THEN  no ledger is open  [PASS]
+  THEN  the probe reports its record written  [PASS]
+  THEN  the ENGINE opened the process ledger  [PASS]
+  THEN  ...and Ring reads it like any other: one record  [PASS]
+  THEN  kind model.call  [PASS]
+  THEN  severity info, outcome observed -- the shape StzNoteFact writes  [PASS]
+  THEN  the subject and what ran  [PASS]
+  THEN  a wall time from the engine clock  [PASS]
+  THEN  the seclog side counted it  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: 2. one record per call, and no switch turns it off
+  THEN  NUMBER -- 50 calls, records written  [PASS]
+  THEN  NUMBER -- calls whose record could not be written  [PASS]
+  THEN  after StzCloseSecurityLedger, the next call reopens it  [PASS]
+  THEN  after the engine slot is cleared, the same  [PASS]
+  NUMBER engine door: 50 of 50 calls recorded, 0 missed
+  -> 4 pass, 0 fail
+
+SCENARIO: 3. engine and Ring records share one chain
+  THEN  three records, in call order  [PASS]
+  THEN  the chain verifies across both writers  [PASS]
+  THEN  a bar inside a field is folded, so the line splits back into 12 fields  [PASS]
+  THEN  a ledger the engine opened closes like any other  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 17 assertions, 17 pass, 0 fail
+================================================
+STATUS: OK

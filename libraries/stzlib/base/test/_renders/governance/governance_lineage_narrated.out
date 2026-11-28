@@ -1,0 +1,65 @@
+-- Scene 1: a decision now says WHEN --
+  [OK] the rationale survives
+  [OK] ...with the authority AT THE TIME
+  [OK] ...the risk at the time
+  [OK] ...and now the moment it was taken
+  [OK] the ACTION is kept beside its tier
+
+-- Scene 2: the questions an investigation actually opens with --
+  [OK] what did this actor decide?
+  [OK] who decided anything about this action?
+  [OK] ...and the other action is not swept in
+  [OK] what was decided after this moment?
+  [OK] ...and inside this window?
+  3 decisions, reachable five ways
+
+-- Scene 3: a re-decision supersedes, without erasing --
+  [OK] the LATEST answer wins
+  [OK] ...and the earlier one is still reachable
+  [OK] the history is in the order it happened
+
+-- Scene 4: bounded, and honest about it --
+  [OK] the lineage is complete so far
+  [OK] ...and says nothing was dropped
+  [OK] lowering the bound drops the OLDEST
+  [OK] ...counts them
+  [OK] ...and no longer claims to be complete
+  [OK] the survivors are the most recent
+  2 decision(s) dropped by a capacity of 2
+
+-- Scene 5: every COPY is the lineage --
+  [OK] a decision taken through the COPY is visible to the original
+  [OK] ...and reads identically from either face
+  [OK] ...and the traffic flows both ways
+  [OK] the capacity is shared too, not re-defaulted per face
+  [OK] ...so a bound set on one face binds the other
+  two faces, one record
+
+-- Scene 6: the REGIME is shared too, so the workaround retires --
+  [OK] a regime declared on one face judges on the other
+  [OK] ...and a posture declared on the other is seen by the first
+  [OK] a commitment advanced through the copy advances for both
+  [OK] an obligation fulfilled through the copy earns retirement for both
+  assign-then-mutate now reaches the object that judges
+
+-- Scene 7: what deliberately did NOT move --
+  [OK] Why() is the answer to the question THIS face asked
+
+-- Scene 8: the section Save() used to throw away --
+  [OK] the regime still judges after the round trip
+  [OK] ...and the lineage came with it
+  [OK] the moment survived the file
+  [OK] the action survived
+  [OK] a rationale containing the field separator is INTACT
+  raised the tier after the audit | see ticket 4471
+
+-- Scene 9: the file records what WAS true, not what is --
+  [OK] the regime changed
+  [OK] ...and the decision still reports the tier it was taken under
+
+-- Scene 10: an unknown section skips its own rows --
+  [OK] a section this build does not know is stepped over
+
+==========================================
+TOTAL: 37 assertions, 37 pass, 0 fail
+==========================================

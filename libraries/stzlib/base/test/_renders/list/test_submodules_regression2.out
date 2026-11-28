@@ -1,0 +1,55 @@
+=== List submodule regression tests (batch 2) ===
+
+--- stzListSorter ---
+  PASS: SortedInAscending
+  PASS: SortedInDescending
+  PASS: Min = 1
+  PASS: Max = 9
+  PASS: Median = 4 (avg of 3 and 5)
+  PASS: Reversed
+  PASS: IsSortedInAscending = 1 on sorted list
+  PASS: IsSortedInDescending = 1 on reverse sorted
+  PASS: NthSmallest(2) = 10
+  PASS: NthLargest(2) = 20
+
+--- stzListGetter ---
+  PASS: FirstItem = 10
+  PASS: LastItem = 50
+  PASS: NFirstItems(3) = [10,20,30]
+  PASS: NLastItems(2) = [40,50]
+  PASS: Section(2,4) = [20,30,40]
+  PASS: ItemsAtPositions([1,3,5]) = [10,30,50]
+  PASS: EveryNthItem(2) = [20,40]
+  PASS: OnlyNumbers = [1,2,3]
+  PASS: OnlyStrings
+  PASS: Pairs from [1..5] gives 4 pairs
+  PASS: Triplets from [1..5] gives 3 triplets
+  PASS: SlidingWindow(3) on 4 items = 2 windows
+
+--- stzListBounder ---
+  PASS: Middle drops first and last
+  PASS: IsWithinBounds(4) = 1
+  PASS: IsWithinBounds(99) = 0
+  PASS: Bounds = [1, 7]
+  PASS: ClampedTo(3,17) clamps endpoints
+  PASS: Range(2,3) = [2,3,4]
+
+--- stzListRandom ---
+  PASS: RandomPosition returns 1-5
+  PASS: NRandomPositions(3) returns 3 positions
+  PASS: all positions within 1..5
+  PASS: RandomItem returns a list item
+  PASS: NRandomItems(3) returns 3 items
+  PASS: Randomized returns 5 items
+  PASS: Randomized does not mutate self
+  PASS: RandomPositionExcept(2) avoids pos 2
+
+==========================
+Total: 36
+Passed: 36
+Failed: 0
+ALL TESTS PASSED!
+
+
+----------------
+----------------

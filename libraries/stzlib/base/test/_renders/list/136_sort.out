@@ -1,0 +1,12 @@
+SCENARIO: Contrasts in-place sorting against copy-returning sorting across the Ring and Softanza idi
+  THEN  sort example 1  [PASS]
+  THEN  sort example 2  [PASS]
+  THEN  sort example 3  [PASS]
+  THEN  sort example 4  [PASS]
+  THEN  sort example 5  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

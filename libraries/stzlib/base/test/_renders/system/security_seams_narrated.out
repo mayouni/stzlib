@@ -1,0 +1,57 @@
+-- Scene 1: with no ledger open, nothing changes --
+  [OK] no ledger is open by default
+  [OK] the accessor says so honestly
+  [OK] a refusal still refuses (and still explains)
+  [OK] ...and nothing was recorded, because nobody is listening
+
+-- Scene 2: open the ledger; the signer's four signals land --
+  [OK] the process ledger is open
+  [OK] the honest request passed, its replay did not
+  [OK] unknown key noted
+  [OK] stale timestamp noted
+  [OK] FORGED SIGNATURE noted
+  [OK] REPLAYED NONCE noted
+  [OK] ...the event names the key it was signed for
+  [OK] ...and carries the gate's own words
+
+-- Scene 3: passkey assertion refusals are noted --
+  [OK] the assertion was refused, and the refusal was noted
+  [OK] ...with the gate's reason
+  [OK] ...and the relying party as the actor
+
+-- Scene 4: the secret store's governed door, both ways --
+  [OK] the sandboxed actor was refused (unchanged behaviour)
+  [OK] the GRANT reached the ledger
+  [OK] the REFUSAL reached the ledger
+  [OK] ...naming the actor
+  [OK] ...and its posture, from the actor itself
+  [OK] THE REDACTION LAW HOLDS ACROSS THE WHOLE LEDGER
+
+-- Scene 5: auth failures become countable history --
+  three bad attempts -> 3 event(s)
+  [OK] each failure is its own timestamped event
+  [OK] ...naming the user
+  [OK] the in-memory counter still works too
+  [OK] a success clears the COUNTER (as before)
+  [OK] ...but the ledger still remembers the three failures
+
+-- Scene 6: the two gaps that were never audited at all --
+  [OK] nothing crossed into reality
+  [OK] the out-of-scope operation was noted (was: no audit at all)
+  [OK] ...with the scope's own reason
+  [OK] the undeclared posture was noted (was: no audit at all)
+  [OK] ...and that plan touched nothing either
+
+-- Scene 7: one ledger, one chain, one story --
+  the ledger now holds 12 event(s) from six classes
+  [OK] events accumulated from every wired seam
+  [OK] the chain over all of them is intact
+  [OK] refusals dominate, as they should
+  distinct kinds seen: 10
+  [OK] at least eight distinct kinds fired
+  [OK] closing releases the process ledger
+  [OK] ...and the seams go quiet again, harmlessly
+
+==========================================
+TOTAL: 37 assertions, 37 pass, 0 fail
+==========================================

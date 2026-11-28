@@ -1,0 +1,41 @@
+1700
+[
+	[ "plan", "supply_chain_plan" ],
+	[
+		"actions",
+		[
+			[
+				[ "from", "supplier" ],
+				[ "to", "factory" ],
+				[ "cost", 1000 ]
+			],
+			[
+				[ "from", "factory" ],
+				[ "to", "warehouse" ],
+				[ "cost", 500 ]
+			],
+			[
+				[ "from", "warehouse" ],
+				[ "to", "retail" ],
+				[ "cost", 200 ]
+			]
+		]
+	],
+	[ "total_cost", 1700 ],
+	[
+		"route",
+		[
+			"supplier",
+			"factory",
+			"warehouse",
+			"retail"
+		]
+	],
+	[ "steps", 3 ]
+]
+
+[ "supplier", "factory", "warehouse", "retail" ]
+
+
+----------------
+----------------

@@ -1,0 +1,58 @@
+SCENARIO: the four ties everyone uses to check a rounding mode
+  THEN  half-up sends 0.5 to 1  [PASS]
+  THEN  ...1.5 to 2  [PASS]
+  THEN  ...2.5 to 3  [PASS]
+  THEN  ...and 3.5 to 4  [PASS]
+  THEN  half-even sends 0.5 to 0  [PASS]
+  THEN  ...1.5 to 2  [PASS]
+  THEN  ...2.5 to 2, not 3  [PASS]
+  THEN  ...and 3.5 to 4  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: only a TIE is decided by the mode; everything else is just rounding
+  THEN  0.4 goes down under either  [PASS]
+  THEN  ...and half-up agrees  [PASS]
+  THEN  0.6 goes up under either  [PASS]
+  THEN  ...and half-up agrees  [PASS]
+  GIVEN a tail that only LOOKS like a tie
+  THEN  0.51 is more than half, so it rises even under half-even  [PASS]
+  THEN  0.4999 is less than half, so it falls even under half-up  [PASS]
+  THEN  0.500 IS a tie -- trailing zeros do not change that  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: money, where the difference is the point
+  THEN  1.005 to two places is 1.01 commercially  [PASS]
+  THEN  ...and 1.00 by banker's  [PASS]
+  THEN  0.125 is 0.13 or 0.12  [PASS]
+  THEN  ...depending on the rule you named  [PASS]
+  THEN  2.345 splits the same way  [PASS]
+  THEN  ...but 0.135 does not, because 3 is odd  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: the carry, which is where digit-rounding usually breaks
+  THEN  9.99 to one place carries into the units  [PASS]
+  THEN  9.999 to none carries twice  [PASS]
+  THEN  99.95 carries through both  [PASS]
+  THEN  19.995 reaches twenty  [PASS]
+  GIVEN asking for more places than the value has
+  THEN  it pads rather than inventing  [PASS]
+  THEN  ...and an integer gains a fraction  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: negatives round by magnitude, and never to minus zero
+  THEN  -1.5 goes away from zero under half-up  [PASS]
+  THEN  ...and to the even digit under half-even  [PASS]
+  THEN  -0.5 rounds to plain 0, not -0  [PASS]
+  THEN  ...and so does -0.4  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the historical verb is untouched
+  THEN  RoundedTo still rounds half-up  [PASS]
+  THEN  ...and still tidies trailing zeros  [PASS]
+  THEN  ...and still gets 100.4 right  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 34 assertions, 34 pass, 0 fail
+================================================
+STATUS: OK

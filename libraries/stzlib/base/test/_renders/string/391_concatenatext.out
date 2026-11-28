@@ -1,0 +1,12 @@
+SCENARIO: Concatenation spellings
+  GIVEN [ "Ring", "Python", "PHP", "JS" ]
+  THEN  XT with a positional separator  [PASS]
+  THEN  XT with :Using  [PASS]
+  THEN  bare concatenation glues  [PASS]
+  THEN  the Using spelling  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

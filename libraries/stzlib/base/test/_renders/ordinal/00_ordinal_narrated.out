@@ -1,0 +1,24 @@
+SCENARIO: English ordinals
+  GIVEN English ordinal language
+  THEN  1 -> 1st  [PASS]
+  THEN  2 -> 2nd  [PASS]
+  THEN  3 -> 3rd  [PASS]
+  THEN  4 -> 4th  [PASS]
+  THEN  11 -> 11th (teens are th)  [PASS]
+  THEN  12 -> 12th  [PASS]
+  THEN  13 -> 13th  [PASS]
+  THEN  21 -> 21st  [PASS]
+  THEN  22 -> 22nd  [PASS]
+  THEN  23 -> 23rd  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: French ordinals
+  GIVEN French ordinal language
+  THEN  1 -> 1er  [PASS]
+  THEN  2 -> 2e  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

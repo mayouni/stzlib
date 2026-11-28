@@ -1,0 +1,87 @@
+-- 1. THE TABLE: an ellipsoid is a CLAIM about the shape of the Earth --
+   15 reference ellipsoids: WGS84, GRS80, WGS72, GRS67, Airy1830, AiryModified, Bessel1841, Clarke1866, Clarke1880, International1924, Krassovsky1940, Everest1830, AustralianNational, SouthAmerican1969, Sphere
+  ok   THE LIBRARY CARRIES THE REFERENCE ELLIPSOIDS BY NAME, not one hard number, because a coordinate without a datum is not a position -- the same latitude on Airy 1830 and on WGS84 is a few hundred metres apart in Britain, which is why a walker's map and a phone disagree
+   WGS84  a = 6378137 m   1/f = 298.257224
+  ok   WGS84 IS DEFINED BY TWO NUMBERS -- a = 6378137 m exactly and 1/f = 298.257223563 -- and this library holds those two and DERIVES the rest, so no two quantities in it can disagree about one ellipsoid
+  ok   ...so the polar radius is not a third number to keep in step: b = a(1-f) = 6356752.314 m, which is what a standards document says
+  ok   NEGATIVE: a name nothing in the table answers to is REFUSED and not quietly WGS84 -- a caller who asked for Bessel and silently got WGS84 would be hundreds of metres wrong across a country and never told
+  ok   ...and Bessel 1841 really is a different ellipsoid: its equator is 740 m smaller than WGS84's, which is the gap that moves a coordinate
+  ok   A SPHERE IS A ROW IN THE SAME TABLE -- the one this plane measured on until GE8 -- so the old answer stays reachable and the gap stays measurable instead of becoming folklore
+
+-- 2. PUBLISHED CONSTANTS: numbers a reader can check in a minute --
+   quarter meridian 10001.965729 km
+  ok   THE POLE IS 10001.966 km FROM THE EQUATOR along the meridian. The metre was defined in 1793 as a ten-millionth of exactly this, so the figure says how far out that first survey was: 1966 metres over a length nobody had walked
+  ok   THE SURFACE OF WGS84 IS 510,065,621.7 km2, from the closed form for an oblate spheroid -- and it is computed here, not tabulated, because the area routine uses it to recognise a polygon that swallowed a pole
+  ok   THE AUTHALIC RADIUS IS 6371.007 km -- the sphere with the SAME SURFACE. It is not the 6371.0088 km sphere this plane used, which is the equal-VOLUME one, and the two being so close is exactly why nobody notices which is in use
+
+-- 3. CLOSED FORMS: what must hold on this surface, whatever computes it --
+   a quarter of the equator: 10018754.171395 m;  a*pi/2 = 10018754.171395
+  ok   A QUARTER OF THE EQUATOR IS a TIMES pi/2, to the millimetre. This is not a tolerance -- the equator is a geodesic and its length is the equatorial radius times the angle, so any error in the machinery shows here first
+  ok   ...and you leave due east on it, which is the other half of the same statement
+  ok   THE MERIDIAN MEASURED AS A GEODESIC AND MEASURED AS AN ARC ARE THE SAME NUMBER, to the micrometre -- they had better be, because they are one integral asked twice, and a gap would mean a second copy of the formula had grown somewhere
+  ok   POLE TO POLE IS TWICE THE QUARTER, which is the same statement run through the over-the-pole branch instead of the ordinary one
+   a degree of latitude: 110.574304 km at the equator, 111.693865 km at the pole
+  ok   A DEGREE OF LATITUDE IS 110.574 km AT THE EQUATOR AND 111.694 km AT THE POLE -- a whole kilometre longer. The ground is flatter there, so the same tilt of the vertical walks further over it, and a sphere cannot say this at all: on a sphere both are 111.19 km
+  ok   ...while a degree of LONGITUDE shrinks from 111.320 km to 0.973 km over the same journey, which is why latitude and longitude are not a vector space and cannot be subtracted
+
+-- 4. THE GEODESIC: shortest paths, and how far the sphere was out --
+   JFK to LHR: 5554.908791 km on WGS84, 5540.011318 km on the sphere
+   leaving on 51.381648 deg, arriving on 107.982829 deg
+  ok   NEW YORK TO LONDON IS 5554.909 km ON WGS84, against 5540.019 km on the sphere -- FIFTEEN KILOMETRES, on a flight anybody can look up. That gap is the whole of GE8
+  ok   YOU LEAVE ON 51.4 DEGREES AND ARRIVE ON 108.0 -- fifty-six degrees of turn, which is why a great-circle course has to be re-steered the whole way and why the route looks bent on a Mercator chart
+   JFK to LHR: 5554.908791 km, direct lands 0 m away
+   Sydney to London: 16989.295771 km, direct lands 0 m away
+   nearly antipodal on the equator: 19936.288579 km, direct lands 0 m away
+   nearly antipodal, off the equator: 19989.833797 km, direct lands 0.000000 m away
+   as antipodal as it gets: 20003.931459 km, direct lands 0.000000 m away
+   a centimetre: 0.000014 km, direct lands 0.000000 m away
+   over the pole: 20003.931459 km, direct lands 0.000000 m away
+  ok   GOING BACK OUT THE WAY THE INVERSE SAID LANDS ON THE POINT -- worst miss over seven cases is under a MICROMETRE, and four of the seven are the near-antipodal geometry where Vincenty's method, the usual alternative, does not converge at all
+   the two halves are 2777454.395274 m and 2777454.395274 m
+  ok   A MIDPOINT IS THE SAME DISTANCE FROM BOTH ENDS, which no part of the code was told to arrange
+
+-- 5. THE RHUMB LINE: the path you can actually steer --
+   JFK to LHR by rhumb: 5774.189823 km on a constant 77.968414 deg
+  ok   THE RHUMB LINE IS LONGER THAN THE GEODESIC -- 5774.190 km against 5554.909, so 219 km is what a great-circle course saves. Before satellite navigation you steered the rhumb because you CAN: one compass bearing, held all the way
+  ok   ...and its bearing does not change, which is the entire definition. The geodesic's did, by fifty-six degrees
+  ok   A RHUMB SAILED IS A RHUMB ARRIVED: going 5774.190 km on 77.968 degrees lands on Heathrow to seven decimal places
+  ok   DUE EAST ALONG A PARALLEL IS THE PARALLEL'S OWN LENGTH -- the case where the meridian arc is zero and the usual formula would divide by zero, so it is answered by the parallel instead
+
+-- 6. THE FRAMES: because latitude and longitude are ANGLES --
+   Paris in ECEF: 4200937.804351, 172560.721433, 4780107.699250
+  ok   ECEF PUTS A PLACE IN ONE CARTESIAN FRAME, metres on all three axes -- and the round trip returns the latitude to a nanodegree and the height to a micrometre, which is what lets a displacement be a SUBTRACTION instead of a spherical trigonometry problem
+  ok   A POINT ON THE EQUATOR AT THE PRIME MERIDIAN IS (a, 0, 0), which is the definition of the frame and therefore the one value it cannot get wrong without getting everything wrong
+  ok   ...and the north pole is (0, 0, b), the POLAR radius -- the place where a frame built on a sphere would be 21 km out
+   1 km north-east of Paris in ENU: e=733.681550 n=1112.136220 u=99.860826
+  ok   ENU IS THE FRAME A PERSON LIVES IN -- east, north and up in metres about a chosen origin, which is what a radar bearing, a survey offset or a drone's position already is
+  ok   ...and the trip back out lands where it started, which is how such a thing gets onto a globe
+  ok   UP IS NOT 100 METRES BUT 99.861 -- the ground curves away over that kilometre, so a point at the same height a kilometre off is slightly BELOW the local horizontal. That 14 cm is the flat-earth error a surveyor corrects for, and it is here rather than assumed away
+
+-- 7. THE AREA: a region whose edges are geodesics --
+   a 40-degree lune: 56673957.969343 km2;  surface x 40/360 = 56673957.969343
+  ok   A LUNE BETWEEN TWO MERIDIANS IS ITS SHARE OF THE WHOLE SURFACE, to fourteen digits. Symmetry fixes this one whatever the meridian's shape, so the agreement is the area routine's and not the expectation's
+   octant: 63758233.704757 km2;  Girard R2 x excess = 63758232.996461
+  ok   ON A SPHERE A TRIANGLE'S AREA IS ITS SPHERICAL EXCESS TIMES R SQUARED -- and the excess here is built from three azimuths the inverse problem answered, which the area routine has never seen. They agree to eight digits
+   a cap below 80S: 3908524.277626 km2;  the zone formula says 3908572.761837
+  ok   A RING THAT WINDS ROUND A POLE IS THE CAP AND NOT THE REST OF THE WORLD. A boundary integral measures the area between the path and the equator, and for a path that goes right round -- Antarctica's coast, in every world file there is -- that is the whole southern hemisphere minus the cap. Before this was handled Antarctica measured 242,965,092 km2 for a continent of 12,236,255
+   the same cap at 60 sides: 3901594.492624 km2, 0.177299 per cent under the 720-sided one
+  ok   ...and the same ring at 60 sides comes out 0.18 per cent SMALLER, which is not an error but the geodesics cutting inside the parallel they replace -- a polygon is its edges and its edges are straight lines on this surface
+  ok   A ONE-DEGREE SQUARE AT THE EQUATOR IS 12,308.8 km2, which is its own two sides multiplied -- 111.320 by 110.574 -- because at the equator the ground is nearly flat and the answer must nearly be the schoolbook one
+  ok   NEGATIVE: and the WINDING does not change it. An area is not signed, and a caller should not have to know which way a file wound its rings
+
+-- 8. DEGREES, MINUTES AND SECONDS: how a coordinate is written by hand --
+   33 52' 7.68" S  151 12' 33.48" E
+  ok   A COORDINATE WRITTEN BY HAND IS DEGREES, MINUTES AND SECONDS, and a library that only takes a decimal cannot read a chart, a deed or half the place-name databases in the world
+  ok   ...and a southern latitude takes the letter rather than the minus sign, which is what a chart does
+  ok   THE PARSER TAKES THE NUMBERS AND THE SIGN AND IGNORES THE PUNCTUATION, because there has never been an agreed punctuation for this -- the degree mark appears as a ring, an o, a d, a colon or nothing at all depending on the keyboard
+  ok   A TRAILING s IS SECONDS AND NOT SOUTH. 48d51m23.76s is a NORTHERN latitude written with unit letters, and a parser that took its last letter for a hemisphere answered -48.8566 -- a hundred degrees out, from a string nothing about which looked wrong. They are told apart by what comes before: a unit follows its number, a hemisphere follows a space or a quote mark
+  ok   ...and W or S means negative, however it is written
+  ok   ROUNDING THE SECONDS CARRIES. 1.9999999 degrees to three places is 2 degrees 0 minutes, and never 1 degree 59 minutes 60.000 seconds, which is not a minute anybody reads
+  ok   A COORDINATE SURVIVES THE ROUND TRIP through the way it is written down, which is the only property that matters for a format
+
+-- 9. THE WORLD, MEASURED AGAIN --
+   SKIPPED, by name: atlas/countries-110m.json is not present.
+
+==========================================================
+ 42 ok, 0 failed
+==========================================================

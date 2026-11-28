@@ -1,0 +1,23 @@
+SCENARIO: Splitting after substrings
+  GIVEN "__a__A__"
+  THEN  case-insensitive SplitAfterCS  [PASS]
+  THEN  the SplitCS(:After) spelling  [PASS]
+  THEN  a list of substrings  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Splitting after positions and sections
+  THEN  :AfterPosition  [PASS]
+  THEN  :AfterPositions  [PASS]
+  THEN  :AfterSection splits after its end  [PASS]
+  THEN  :AfterSections  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Splitting after by condition
+  THEN  the before-char W form for contrast  [PASS]
+  THEN  the after-substring W form  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 9 assertions, 9 pass, 0 fail
+================================================
+STATUS: OK

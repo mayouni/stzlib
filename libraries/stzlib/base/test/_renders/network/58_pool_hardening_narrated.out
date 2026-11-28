@@ -1,0 +1,27 @@
+SCENARIO: Pool create + destroy with default size
+  GIVEN a pool with 4 workers
+  THEN  LastError empty after create  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Submit unique ids monotonically
+  THEN  id1 > 0  [PASS]
+  THEN  id2 > id1  [PASS]
+  THEN  id3 > id2  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Poll an unknown id returns -2
+  THEN  Status = -2 (not found)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Workload of 50 bogus jobs completes under bounded wall time
+  GIVEN a pool of 4 workers and 50 submitted bogus HTTP GETs
+  THEN  50 ids issued  [PASS]
+  WHEN  polling until all 50 are drained
+  THEN  all 50 jobs drained  [PASS]
+  THEN  wall-clock < 10s  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

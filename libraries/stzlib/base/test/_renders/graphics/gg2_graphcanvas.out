@@ -1,0 +1,37 @@
+graph : 12 nodes, 14 edges
+
+-- the metric the picture is MADE OF --------------------------
+   mine     impact 11
+   smelt    impact 10
+   chip     impact 6
+   board    impact 5
+   sensor   impact 4
+   cell     impact 6
+   pack     impact 5
+   motor    impact 4
+   ecu      impact 3
+   line1    impact 1
+   line2    impact 1
+   car      impact 0
+
+   mine reaches everything downstream : 11  (11 = every other node)
+   car reaches nothing                : 0
+   ecu is upstream of 3               : 3
+   the metric matches the spike       : 1
+
+-- the picture, from the same object --------------------------
+   gg2_supply_risk.png : 17719 bytes
+   SVG tier answers too : 30155 chars, no device needed
+   gg2_supply_force.png written (same graph, :Force layout)
+
+-- the binding is REAL, not decorative ------------------------
+   mine impact with the cell branch : 11
+   ...and with it CUT               : 8
+   the picture follows the graph    : 1
+
+-- deterministic, like everything under it --------------------
+   same positions on a second build : 1
+
+==============================================================
+ KILL CRITERION -- the face expresses the spike's picture : PASS
+==============================================================

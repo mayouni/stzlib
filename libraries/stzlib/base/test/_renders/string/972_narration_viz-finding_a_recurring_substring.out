@@ -1,0 +1,14 @@
+SCENARIO: Viz-finding a recurring substring
+  THEN  three positions  [PASS]
+  THEN  carets  [PASS]
+  THEN  numbered  [PASS]
+  THEN  as sections  [PASS]
+  THEN  sectioned rail  [PASS]
+  THEN  sectioned + numbered  [PASS]
+  THEN  the boxed ensemble  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

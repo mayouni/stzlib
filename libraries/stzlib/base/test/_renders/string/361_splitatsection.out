@@ -1,0 +1,14 @@
+SCENARIO: Splitting a 1..10 range at one section
+  GIVEN a stzSplitter(10)
+  THEN  interior section  [PASS]
+  THEN  ... IB keeps the boundary positions  [PASS]
+  THEN  section starting at 1  [PASS]
+  THEN  ... IB  [PASS]
+  THEN  section ending at 10  [PASS]
+  THEN  ... IB  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

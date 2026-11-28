@@ -1,0 +1,13 @@
+SCENARIO: repeatedxt
+  THEN  repeatedxt example 1  [PASS]
+  THEN  repeatedxt example 2  [PASS]
+  THEN  repeatedxt example 3  [PASS]
+  THEN  repeatedxt example 4  [PASS]
+  THEN  repeatedxt example 5  [PASS]
+  THEN  repeatedxt example 6  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

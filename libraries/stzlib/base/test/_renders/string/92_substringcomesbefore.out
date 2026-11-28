@@ -1,0 +1,16 @@
+SCENARIO: Relative position of a substring (positional forms)
+  GIVEN "123♥♥678**123♥♥678" (first ♥♥ at 4, ** at 9)
+  THEN  ♥♥ comes before position 6  [PASS]
+  THEN  ♥♥ comes before the substring **  [PASS]
+  THEN  ♥♥ comes after position 3  [PASS]
+  THEN  ** comes after the substring ♥♥  [PASS]
+  THEN  ♥♥ comes between positions 3 and 6  [PASS]
+  THEN  ...ComesBefore(:Position = 6)  [PASS]
+  THEN  ...ComesBefore(:SubString = '**')  [PASS]
+  THEN  fluent ...ComesBeforeSubString('**')  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

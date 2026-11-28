@@ -1,0 +1,45 @@
+SCENARIO: Status code is sane for malformed URL
+  GIVEN a malformed URL
+  THEN  body is empty  [PASS]
+  THEN  status is -1 (transport)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Empty URL is rejected cleanly
+  GIVEN an empty URL
+  THEN  body is empty  [PASS]
+  THEN  status is -1  [PASS]
+  THEN  LastError mentions empty  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Header injection via CRLF in custom header is sanitised by std.http
+  GIVEN a generic request with a header that contains a CRLF
+  THEN  status is non-positive (transport reject)  [PASS]
+  THEN  body is empty  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Massive URL is rejected at the parse stage
+  GIVEN a 1KB-long URL with no scheme
+  THEN  status is -1 (parse rejection)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Repeated identical errors leave LastError stable
+  GIVEN two failing GETs in sequence
+  THEN  error messages match  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Concurrent parallel-GET batch handles bogus URLs uniformly
+  GIVEN five bogus URLs joined by newline
+  THEN  all five records reported transport error  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Parallel GET wall-clock is bounded for N bogus URLs
+  GIVEN ten malformed URLs, no host (engine cap is 32)
+  WHEN  the parallel call runs
+  THEN  ten records came back  [PASS]
+  THEN  wall-clock < 2000ms (parallel, fast-fail)  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

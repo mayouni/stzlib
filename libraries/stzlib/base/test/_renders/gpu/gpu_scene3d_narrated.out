@@ -1,0 +1,74 @@
+-- Scene 1: meshes exist and describe themselves (no device needed) --
+  [OK] no device needed to build geometry
+  [OK] cube built
+  [OK] 24 vertices, not 8 -- faces keep their own normals
+  [OK] 36 indices (12 triangles)
+  [OK] 3 attributes, stride 8 floats
+  [OK] its vertex format is DERIVED, not hardcoded
+  [OK] sphere built with the ring/segment grid
+  [OK] sphere index count is 2 triangles per cell
+  [OK] plane is one quad
+
+-- Scene 2: OBJ parses, dedupes and triangulates --
+  [OK] OBJ loaded
+  [OK] 4 unique (v,vt,vn) triples
+  [OK] the quad face fanned into 2 triangles
+  [OK] garbage OBJ refuses (id 0)
+
+-- Scene 3: the vertex format is EXTENSIBLE (the §3b door) --
+  [OK] a 4-attribute mesh builds
+  [OK] its format string grew with it
+  [OK] stride is 12 floats
+  [OK] an out-of-range index refuses instead of crashing later
+
+-- Scene 4: refusals answer by name --
+  [OK] mesh free answers OK
+  [OK] double free answers STALE
+  [OK] stats on a freed mesh answer []
+  [OK] a zero-size scene refuses
+  [OK] scene created
+  [OK] a camera with far <= near refuses
+  [OK] adding a freed mesh refuses (index 0)
+  [OK] a freed scene answers STALE
+
+-- Scene 5: with a device, the 3D layer draws --
+  device: NVIDIA GeForce RTX 3050 6GB Laptop GPU
+
+-- Scene 6: DEPTH decides, not submission order --
+  [OK] rendered
+  [OK] the NEARER cube owns the centre pixel though it was added FIRST
+  [OK] reversing the submission order changes NOTHING -- so order is not what decided it
+
+-- Scene 7: instancing -- many objects, ONE draw call --
+  [OK] 5 instances
+  [OK] ONE mesh resident
+  [OK] and ONE draw call for all five
+  [OK] 7 instances across 2 meshes
+  [OK] 2 draw calls -- one per MESH, not one per object
+
+-- Scene 8: the §3b door -- transforms move without touching geometry --
+  [OK] geometry was NOT re-uploaded when a transform changed
+  [OK] transform state WAS re-uploaded (cheap, by design)
+  [OK] and the picture actually changed
+  [OK] the instance buffer is REUSED across frames, never recreated
+  [OK] but growing PAST it does recreate the buffer -- so the check above is reading a real id, not a constant
+
+-- Scene 9: lighting is SHADING, and the black light proves it --
+  [OK] the cube has ink
+  [OK] its faces differ in brightness -- a top face lit, a side face not (10..255)
+  [OK] with a BLACK light every visible face collapses to one ambient value (40..40)
+  [OK] and that value is the ambient we asked for
+  [OK] ambient-only is darker than lit
+
+-- Scene 10: an OBJ mesh and a 4-attribute mesh both reach pixels --
+  [OK] the OBJ quad put ink on the target
+  [OK] the 4-attribute mesh rendered through the SAME contract
+  [OK] its per-vertex colours vary across the triangle (the extra attribute reached the shader)
+
+-- Scene 11: device loss is honest --
+  [OK] rendering refuses once the device is gone
+  [OK] but the scene and its meshes still describe themselves
+
+==========================================
+TOTAL: 48 assertions, 48 pass, 0 fail
+==========================================

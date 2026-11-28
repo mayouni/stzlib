@@ -1,0 +1,12 @@
+SCENARIO: An Arabic word in 30 columns
+  THEN  nine codepoints  [PASS]
+  THEN  left = word + 21 dots  [PASS]
+  THEN  right = 21 dots + word  [PASS]
+  THEN  center = 10 + word + 11  [PASS]
+  THEN  justified spans the full width  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

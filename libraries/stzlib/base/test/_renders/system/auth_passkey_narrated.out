@@ -1,0 +1,65 @@
+SCENARIO: enrolling a device: the relying party stores a public key, never a secret
+  WHEN  the app issues a challenge and the authenticator answers it
+  THEN  the challenge is unguessable (256-bit)  [PASS]
+  THEN  the device returned an attestation object  [PASS]
+  THEN  the credential is accepted  [PASS]
+  THEN  ...and enrolled for that user  [PASS]
+  THEN  ...keyed by the id the authenticator chose  [PASS]
+  THEN  ...storing an EC public key  [PASS]
+  THEN  ...and the user now has a passkey  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: logging in: a signature over a fresh challenge
+  WHEN  the user signs a login challenge with their device
+  THEN  a session opens  [PASS]
+  THEN  ...for the right user  [PASS]
+  WHEN  a second, later login is made
+  THEN  it also succeeds (the counter advanced)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the origin check is what makes a passkey UNPHISHABLE
+  WHEN  a look-alike site (evi1-example.com) gets the user to sign
+  THEN  the login is REFUSED  [PASS]
+  THEN  ...on the origin, not the signature (which was perfectly valid)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: replay and cloning are refused
+  WHEN  a captured assertion is presented against a DIFFERENT challenge
+  THEN  it is refused  [PASS]
+  THEN  ...as a challenge mismatch  [PASS]
+  WHEN  a CLONED authenticator presents a counter that does not advance
+  THEN  the login is refused  [PASS]
+  THEN  ...naming the clone signal  [PASS]
+  WHEN  an unknown credential id is presented
+  THEN  it is refused  [PASS]
+  THEN  ...as unknown  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: a credential belongs to ONE device, and a user may hold several
+  GIVEN dana enrolls a laptop and a phone
+  THEN  both devices are enrolled  [PASS]
+  THEN  ...with different credential ids  [PASS]
+  WHEN  either device signs in
+  THEN  it works  [PASS]
+  WHEN  the laptop is lost and un-enrolled
+  THEN  only the phone remains  [PASS]
+  THEN  ...and the account is untouched  [PASS]
+  THEN  ...the phone still signs in  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: a passkey login is a full citizen, and credentials are durable
+  WHEN  a SEPARATE stzAuth opens the same database
+  THEN  the credential persisted  [PASS]
+  THEN  ...and it signs in there  [PASS]
+  THEN  ...yielding the governance ACTOR its role grants  [PASS]
+  THEN  ...with no password anywhere in the account  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a passkey cannot be used before the relying party is declared
+  THEN  it refuses to operate without an rp id and origin  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 29 assertions, 29 pass, 0 fail
+================================================
+STATUS: OK

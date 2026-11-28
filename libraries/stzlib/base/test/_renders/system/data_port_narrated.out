@@ -1,0 +1,75 @@
+SCENARIO: the port is three methods, and sqlite already speaks them
+  THEN  Rows returns rows  [PASS]
+  THEN  Value returns one value  [PASS]
+  THEN  the table is there  [PASS]
+  THEN  ...and enumerable  [PASS]
+  THEN  ...and countable  [PASS]
+  THEN  a table that does not exist counts zero rather than raising  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: local-real is NOT a fake -- and that distinction is load-bearing
+  THEN  it declares itself local-real  [PASS]
+  THEN  ...and file-backed, so it survives a restart  [PASS]
+  GIVEN an in-memory source
+  THEN  it is a GENUINE database -- the table really exists  [PASS]
+  THEN  ...that really stores things  [PASS]
+  THEN  ...but it vanishes on restart, and says so  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the registry learned a THIRD posture from this exemplar
+  THEN  the database is local  [PASS]
+  THEN  the mail double is a sandbox  [PASS]
+  THEN  ...and the posture is auto-detected from the OBJECT  [PASS]
+  THEN  each list is available  [PASS]
+  THEN  ...separately  [PASS]
+  WHEN  the application uses the service
+  THEN  it queries through the port, never naming an implementation  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: in production a FAKE blocks, but a local-real source may ship
+  THEN  it is not sound  [PASS]
+  THEN  ...and the ONLY complaint is the fake  [PASS]
+  THEN  ...named  [PASS]
+  THEN  ...pointing at mail, NOT at the database  [PASS]
+  WHEN  the dependency on mail is retired entirely
+  THEN  a self-hosted sqlite in production is perfectly sound  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Unbind and Undeclare mean different things
+  THEN  bound and sound  [PASS]
+  WHEN  the implementation is removed
+  THEN  the DEPENDENCY remains, so it is now an error  [PASS]
+  THEN  ...named  [PASS]
+  WHEN  the dependency itself is retired
+  THEN  nothing is outstanding  [PASS]
+  THEN  ...and it is no longer declared  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: an EPHEMERAL database in production is the one real trap
+  THEN  in development it is fine -- this is what tests want  [PASS]
+  WHEN  the phase becomes production
+  THEN  it is NOT sound  [PASS]
+  THEN  ...named for what is wrong  [PASS]
+  THEN  ...and explained  [PASS]
+  THEN  a FILE-backed source in the same phase is sound  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: swapping to a hosted adapter changes no application code
+  THEN  the ephemeral local source is refused  [PASS]
+  WHEN  a hosted client is bound instead, naming its credential in the store
+  THEN  the posture is live  [PASS]
+  THEN  ...the registry holds the secret NAME, never the key  [PASS]
+  THEN  ...and the ephemeral finding is gone  [PASS]
+  WHEN  checked against a store that lacks that credential
+  THEN  it is refused  [PASS]
+  THEN  ...for the right reason  [PASS]
+  WHEN  the credential is registered
+  THEN  the surface is sound  [PASS]
+  THEN  ...and an effectful actor may take it live  [PASS]
+  THEN  ...while an LLM actor may not  [PASS]
+  -> 9 pass, 0 fail
+
+================================================
+TOTAL: 41 assertions, 41 pass, 0 fail
+================================================
+STATUS: OK

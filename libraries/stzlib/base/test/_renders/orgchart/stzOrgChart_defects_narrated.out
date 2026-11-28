@@ -1,0 +1,181 @@
+SCENARIO: Row 1 and 2 -- the succession check sees a successor set on the node
+  THEN  every filled position is at risk before any successor  [PASS]
+  THEN  a vacant position is never at risk  [PASS]
+  THEN  a second vacant position is not at risk either  [PASS]
+  THEN  the check fails  [PASS]
+  THEN  one issue per filled position without a successor  [PASS]
+  THEN  the issue names the position  [PASS]
+  THEN  the affected nodes are those positions  [PASS]
+  THEN  the domain is succession  [PASS]
+  THEN  a successor set with SetNodeProperty is seen  [PASS]
+  THEN  the position with a successor is no longer at risk  [PASS]
+  THEN  the position without one still is  [PASS]
+  THEN  the check still fails for the other one  [PASS]
+  THEN  with one issue  [PASS]
+  THEN  naming ceo  [PASS]
+  THEN  and one affected node  [PASS]
+  THEN  when both have a successor nobody is at risk  [PASS]
+  THEN  the check passes  [PASS]
+  THEN  with no issue  [PASS]
+  THEN  and no affected node  [PASS]
+  -> 19 pass, 0 fail
+
+SCENARIO: Row 1 and 2 -- the succession report follows the same successors
+  THEN  both filled positions are listed before any successor  [PASS]
+  THEN  with the incumbent's name  [PASS]
+  THEN  and a high risk level  [PASS]
+  THEN  a position with a successor leaves the report  [PASS]
+  THEN  the one left is ceo  [PASS]
+  THEN  and the reporter says the same through GenerateReport  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Row 1 and 2 -- what is NOT a successor
+  THEN  an empty successor does not count  [PASS]
+  THEN  a successor on a vacant position changes nothing for the filled ones  [PASS]
+  THEN  another property is not a successor  [PASS]
+  THEN  a blank successor does not count  [PASS]
+  THEN  a list of successors counts  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Row 1 and 2 -- a successor given when the position is added
+  THEN  the record key successor counts  [PASS]
+  THEN  and the check names the other one  [PASS]
+  THEN  a chart with no filled position has no risk  [PASS]
+  THEN  and passes the succession check  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Row 3 -- the vacancy report gives the real level of each vacant position
+  THEN  two positions are vacant  [PASS]
+  THEN  the rate is a half  [PASS]
+  THEN  one detail per vacant position  [PASS]
+  THEN  the first is vp2  [PASS]
+  THEN  a management position reports the level management  [PASS]
+  THEN  the second is s1  [PASS]
+  THEN  a staff position reports the level staff  [PASS]
+  THEN  the title is read  [PASS]
+  THEN  the department is read  [PASS]
+  THEN  four positions are vacant now  [PASS]
+  THEN  an executive position reports the level executive  [PASS]
+  THEN  a position added with no level reports staff  [PASS]
+  THEN  (known) a chart with no position raises error R1, since the rate divides by zero  [PASS]
+  THEN  the alias VacancyReport gives the same details  [PASS]
+  THEN  the report built by GenerateReport carries them too  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: Row 4 -- ResetAllNodeColors restores the level colours
+  THEN  the executive colour in the table is gold  [PASS]
+  THEN  the management colour in the table is blue+  [PASS]
+  THEN  the staff colour in the table is green-  [PASS]
+  THEN  a filled executive position is gold after being assigned  [PASS]
+  THEN  a filled management position is blue+  [PASS]
+  THEN  a vacant management position is white  [PASS]
+  THEN  a vacant staff position is white  [PASS]
+  THEN  a staff position is green- once filled  [PASS]
+  THEN  the focus colours what was asked  [PASS]
+  THEN  including a vacant position  [PASS]
+  THEN  the others are back to their level colour  [PASS]
+  THEN  a filled staff position is back to green-  [PASS]
+  THEN  after the reset the focused management position is blue+  [PASS]
+  THEN  the executive is gold  [PASS]
+  THEN  the staff position is green-  [PASS]
+  THEN  the vacant position is white again, not the focus colour  [PASS]
+  THEN  a filled position with no level stays white  [PASS]
+  THEN  a department colour is painted over the level colour  [PASS]
+  THEN  and the reset overwrites it  [PASS]
+  THEN  no node is left in the focus colour  [PASS]
+  -> 20 pass, 0 fail
+
+SCENARIO: Row 5 -- ViewNonCompliant validates by the norm and highlights the positions its issues name
+  THEN  it no longer raises  [PASS]
+  THEN  the chart is displayed once  [PASS]
+  THEN  the filled positions without a successor are highlighted  [PASS]
+  THEN  a position with a successor would not be  [PASS]
+  THEN  no node was added  [PASS]
+  THEN  with one successor set only the other one is highlighted  [PASS]
+  THEN  when the norm passes nothing is highlighted  [PASS]
+  THEN  the XT spelling displays too  [PASS]
+  THEN  a norm whose issues name no position highlights none  [PASS]
+  THEN  (vacancy counts the vacant positions in its issue)  [PASS]
+  THEN  and still displays  [PASS]
+  THEN  with a title it does not raise  [PASS]
+  THEN  the subtitle names the view  [PASS]
+  THEN  and the highlight is the same  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: Row 5 -- ViewCompliant is the mirror it was written against
+  THEN  ViewCompliant does not raise  [PASS]
+  THEN  it highlights the positions the issues do not name  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Row 6 -- ViewNotAtRisk highlights every node that is not at risk
+  THEN  it no longer raises  [PASS]
+  THEN  the chart is displayed once  [PASS]
+  THEN  the nodes not at risk are highlighted, the vacant ones included  [PASS]
+  THEN  the at-risk ones are not  [PASS]
+  THEN  a position that gets a successor joins the highlight  [PASS]
+  THEN  the view is the complement of ViewAtRisk  [PASS]
+  THEN  the at-risk view highlights the rest  [PASS]
+  THEN  no node was added  [PASS]
+  THEN  with a title it does not raise  [PASS]
+  THEN  the subtitle names the view  [PASS]
+  THEN  and the highlight is the same  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Row 7 -- ViewDepartment with a title
+  THEN  without a title it works  [PASS]
+  THEN  the positions of the department are highlighted  [PASS]
+  THEN  another department's position is not  [PASS]
+  THEN  the chart is displayed  [PASS]
+  THEN  with a title it no longer raises  [PASS]
+  THEN  the subtitle names the department  [PASS]
+  THEN  the same positions are highlighted  [PASS]
+  THEN  no node was added  [PASS]
+  THEN  another department highlights its own positions  [PASS]
+  THEN  and renames the subtitle  [PASS]
+  THEN  a department nobody belongs to highlights nothing  [PASS]
+  THEN  a position with no department is not given a department key by being read  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: Row 8 -- ViewPath with a title leaves the chart as it was
+  THEN  without a title it works  [PASS]
+  THEN  the positions on the path are highlighted  [PASS]
+  THEN  a position off the path is not  [PASS]
+  THEN  no node was added  [PASS]
+  THEN  with a title it works  [PASS]
+  THEN  no stray node was added  [PASS]
+  THEN  no node has an empty id  [PASS]
+  THEN  the subtitle names both ends  [PASS]
+  THEN  the same positions are highlighted  [PASS]
+  THEN  ViewReportingPath is the same view  [PASS]
+  THEN  HilightPath too  [PASS]
+  THEN  FocusOnPath too  [PASS]
+  THEN  the subtitle follows the ends  [PASS]
+  THEN  the chart still has its nodes  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: Row 9 and 10 -- the two placeholders are harmless, their siblings work
+  THEN  ViewNodeWithProperties does not raise  [PASS]
+  THEN  it displays nothing  [PASS]
+  THEN  it colours nothing  [PASS]
+  THEN  ViewNodesWithTags does not raise  [PASS]
+  THEN  it displays nothing  [PASS]
+  THEN  it colours nothing  [PASS]
+  THEN  neither adds a node  [PASS]
+  THEN  ViewNodesWithTag highlights the nodes holding the tag  [PASS]
+  THEN  every node holding it  [PASS]
+  THEN  a tag nobody holds highlights nothing  [PASS]
+  THEN  ViewNodesWithProperty highlights by a property value  [PASS]
+  THEN  so the displayed views are the counted ones  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: The edges of the family -- positions with no record, and the chart is not altered by reading
+  THEN  the position records are unchanged by the checks  [PASS]
+  THEN  the validation still has its five default norms  [PASS]
+  THEN  the whole Validate runs with succession in it  [PASS]
+  THEN  and the succession verdict is the one SuccessionRisk gives  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 138 assertions, 138 pass, 0 fail
+================================================
+STATUS: OK

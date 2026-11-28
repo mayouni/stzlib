@@ -1,0 +1,26 @@
+SCENARIO: Splitting around a substring
+  GIVEN "...♥^♥.|.♥^♥..."
+  THEN  around the substring  [PASS]
+  THEN  ... IB shares the boundary hearts  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Splitting around positions and sections
+  THEN  around one position  [PASS]
+  THEN  around many positions  [PASS]
+  THEN  around a section  [PASS]
+  THEN  ... IB keeps the section edges  [PASS]
+  THEN  around found sections  [PASS]
+  THEN  ... IB  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Splitting around one or many substrings
+  THEN  the SubString spelling  [PASS]
+  THEN  ... IB  [PASS]
+  THEN  many substrings merge their overlapping occurrences  [PASS]
+  THEN  ... IB  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

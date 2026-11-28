@@ -1,0 +1,46 @@
+-- Scene 1: a hierarchy becomes a picture, with no device --
+  [OK] a canvas came back
+  [OK] the SVG tier answered
+  [OK] one box per node (7)
+  [OK] 6 connectors + 7 box outlines = 13 polylines
+  [OK] labels became glyph outlines
+
+-- Scene 2: the LAYOUT is right, asserted as geometry --
+  [OK] 7 boxes were emitted
+  [OK] the root sits on the top row
+  [OK] depth grows downward: 3 distinct rows
+  [OK] a parent is CENTRED over its children (415 vs 415)
+  [OK] siblings do not overlap
+
+-- Scene 3: a wider subtree pushes its neighbours aside --
+  [OK] four leaves under A make a wider canvas than two
+  [OK] B was pushed clear of A's four children
+
+-- Scene 4: forests, single nodes, and cycles answer honestly --
+  [OK] a single node draws
+  [OK] two roots stand side by side (a forest)
+  [OK] an empty hierarchy RAISES
+  [OK] a cycle RAISES rather than looping forever
+  [OK] a node naming an unknown parent becomes a ROOT
+  [OK] and its own child still hangs beneath it
+
+-- Scene 5: a long label is TRUNCATED, never spilled --
+  [OK] it still draws one box
+  [OK] and the label was shortened to fit the box
+
+-- Scene 6: the org chart reads its OWN model --
+  [OK] every position became a node
+  [OK] ids and TITLES both travelled
+  [OK] the root reports to nobody
+  [OK] reportsTo became the parent link
+  [OK] the chart draws itself without dot.exe
+  [OK] it is a chain, so 4 distinct rows
+
+-- Scene 7: the DOT path is untouched --
+  [OK] ToDot still produces DOT text
+  [OK] and it still names the positions
+  [OK] the two outputs are different things, by design
+
+==========================================
+TOTAL: 29 assertions, 29 pass, 0 fail
+==========================================

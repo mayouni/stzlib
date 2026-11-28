@@ -1,0 +1,16 @@
+SCENARIO: Detecting and removing DupSecutive items -- duplicate values that sit in consecutive (adja
+  THEN  containsdupsecutiveitems example 1  [PASS]
+  THEN  containsdupsecutiveitems example 2  [PASS]
+  THEN  containsdupsecutiveitems example 3  [PASS]
+  THEN  containsdupsecutiveitems example 4  [PASS]
+  THEN  containsdupsecutiveitems example 5  [PASS]
+  THEN  containsdupsecutiveitems example 6  [PASS]
+  THEN  containsdupsecutiveitems example 7  [PASS]
+  THEN  containsdupsecutiveitems example 8  [PASS]
+[ "A", "B", "C" ]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

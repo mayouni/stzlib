@@ -1,0 +1,13 @@
+SCENARIO: Containment edges
+  THEN  a string contains itself  [PASS]
+  THEN  but empty does not contain empty  [PASS]
+  THEN  a list is not INCLUDED in an equal list  [PASS]
+  THEN  its ITEMS are though  [PASS]
+  THEN  empty list does not contain empty list  [PASS]
+  THEN  but a list can hold one  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

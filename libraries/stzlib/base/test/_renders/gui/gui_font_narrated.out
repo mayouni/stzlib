@@ -1,0 +1,56 @@
+-- Scene 1: a font is registered, and it is REAL --
+  [OK] UseFont answers an stzFont to paint with
+  [OK] the engine holds one family
+  [OK] ...and it is the fixture, by its glyph count
+  [OK] registering nothing is refused
+
+-- Scene 2: THE SEAM AGREES -- layout width == shaper width --
+   layout 164  shaper 163.59  delta 0.40
+   layout 19  shaper 18.94  delta 0.06
+   layout 63  shaper 63.23  delta 0.23
+   layout 59  shaper 58.59  delta 0.40
+  [OK] every case agrees within the integer rounding
+  [OK] ...and the rounding is the ONLY disagreement
+
+-- Scene 3: it is SHAPING, not counting characters --
+   iii = 19 px, WWW = 63 px
+  [OK] three narrow letters are narrower than three wide ones
+  [OK] ...and neither is the stub's codepoints * size/2 (36)
+   arabic joined = 59 px, the same letters apart = 163 px
+  [OK] the joined word is measurably narrower than its letters apart
+
+-- Scene 4: THE WIDTH CACHE -- the precondition, measured --
+   21 layouts: RmlUi asked 675 times, the shaper ran 26 times
+   cache hits: 649
+  [OK] RmlUi asks far more than once per string
+  [OK] ...but the shaper runs only once per distinct token
+  [OK] ...so the cache absorbed the rest
+  [OK] shaping did NOT grow with the layouts
+  [OK] ...while asking did
+
+-- Scene 5: text crosses as COMMANDS, and they SURVIVE --
+   2 text commands (one per laid-out line)
+  [OK] the wrapped paragraph became more than one line
+  [OK] a command carries its bytes
+  [OK] ...its font id
+  [OK] ...its size
+  [OK] ...and a colour with full alpha
+  [OK] re-rendering an unchanged panel keeps every command
+  [OK] ...with the same bytes
+  [OK] ...and the same baseline
+
+-- Scene 6: the lines broke at REAL widths --
+  [OK] every line fits the width it was laid out for
+  [OK] the first line starts at the origin
+  [OK] ...and the second sits a line below it
+
+-- Scene 7: font families are PROCESS-WIDE, and unknown ones fall back --
+  [OK] a panel that registered nothing still sees the family
+  [OK] ...so it is NOT the stub's 3 chars * 24/2 = 36
+  [OK] ...and it draws real text
+  [OK] an unknown family falls back to a real face, not to nothing
+  [OK] ...and its text still reaches the canvas
+
+==============================================================
+ 30 ok, 0 failed
+==============================================================

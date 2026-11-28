@@ -1,0 +1,12 @@
+SCENARIO: Backward list finders
+  GIVEN "12♥♥♥67♥♥♥12♥♥♥" (occurrences at 3, 8, 13)
+  THEN  the positions, nearest first  [PASS]
+  THEN  their sections  [PASS]
+  THEN  FindDZ is the position list  [PASS]
+  THEN  FindDZZ is the span list  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

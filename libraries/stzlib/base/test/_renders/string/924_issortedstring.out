@@ -1,0 +1,14 @@
+SCENARIO: Strings are not lists, lists are not strings
+  THEN  a list is not a sorted STRING  [PASS]
+  THEN  a string is not a sorted LIST  [PASS]
+  THEN  1:5 sorts ascending  [PASS]
+  THEN  5:1 sorts descending  [PASS]
+  THEN  abc sorts ascending  [PASS]
+  THEN  cba sorts descending  [PASS]
+  THEN  the method form too  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

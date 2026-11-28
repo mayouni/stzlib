@@ -1,0 +1,42 @@
+=== SIX THINGS SOUND DOES, DRAWN ===
+
+1. ALIASING -- what a NAIVE oscillator costs. Ours were naive until
+   plate 6; this is the picture that found it.
+   A saw is every harmonic at once. Sweep its pitch up and the upper
+   harmonics reach Nyquist (24 kHz) -- and a sampled system cannot hold
+   them, so they FOLD BACK DOWN as descending lines that were never
+   played. Listen for the shimmer moving the WRONG WAY.
+   -> temp/1_aliasing.png
+
+2. A CLICK -- SN3 measured the ramp as 480x smoother than a step.
+   Here is WHY that matters. The same tone is cut twice: once instantly
+   at 1.0 s, once over 30 ms at 2.0 s. One is a bang across every
+   frequency at once; the other is inaudible.
+   -> temp/2_click.png
+
+3. TIMBRE -- the studio found saw and triangle have the SAME crest factor
+   (57.7%), yet nobody would confuse them. Here is the difference: it was
+   never in the level, it was in the harmonics.
+   (playing each in turn)
+   -> temp/3_timbre.png
+
+4. BEATS -- 440 Hz and 443 Hz together. Neither is loud and soft, but the
+   SUM pulses three times a second, because they drift in and out of
+   phase. This is how a piano tuner hears 'not quite'.
+   -> temp/4_beats.png
+
+5. RESONANCE -- the same saw through the same 600 Hz lowpass, twice:
+   gently (Q 0.7) and sharply (Q 8). High Q does not just cut, it BOOSTS
+   the frequencies right at the corner. Listen for the whistle.
+   -> temp/5_resonance.png
+
+6. THE FIX -- a 5 kHz saw. Its harmonics are 5, 10, 15, 20 kHz and then
+   35 kHz, which cannot exist here and comes back as 13 kHz. Drawn twice:
+   the naive saw, and the engine's band-limited one. The alias lines that
+   sit BETWEEN the harmonics are the bug, and they are what went away.
+   (naive first, then band-limited -- listen for the grit going)
+   -> temp/6_fixed.png
+   alias at 13 kHz: naive -18.60 dB, band-limited -38 dB
+   -> 19.40 dB of alias removed
+
+six plates written to temp/.

@@ -1,0 +1,116 @@
+SCENARIO: init: a list of objects of two classes is accepted (the register R14 row)
+  GIVEN a library object, a Pet and a second Pet
+  THEN  the list is built, no error is raised  [PASS]
+  THEN  the holder is a stzlistofobjects  [PASS]
+  THEN  the holder has the three objects  [PASS]
+  THEN  the first keeps its class stzstring  [PASS]
+  THEN  the second keeps its class pet  [PASS]
+  THEN  the third answers its own name  [PASS]
+  THEN  the library object keeps its text  [PASS]
+  THEN  a list of one object is accepted  [PASS]
+  THEN  a list of two other library objects is accepted  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: init: the empty list is a list of no objects and is accepted
+  GIVEN the empty list
+  THEN  it is accepted  [PASS]
+  THEN  the holder is empty  [PASS]
+  THEN  and its content is still a list  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: init: one item that is not an object refuses the whole list
+  GIVEN a list of objects with one wrong item in turn
+  THEN  a number among objects is refused with the message  [PASS]
+  THEN  a text among objects is refused  [PASS]
+  THEN  a nested list among objects is refused  [PASS]
+  THEN  an empty list among objects is refused  [PASS]
+  THEN  the wrong item first is refused too  [PASS]
+  THEN  an empty text last is refused  [PASS]
+  THEN  a list of numbers is refused  [PASS]
+  THEN  a list of texts is refused  [PASS]
+  THEN  a list holding only an empty list is refused  [PASS]
+  THEN  a number, not a list, is refused  [PASS]
+  THEN  a text, not a list, is refused  [PASS]
+  THEN  a single object, not a list, is refused  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: init: the holder keeps its own copy of what the caller gave
+  GIVEN a caller list of two Pets, held
+  WHEN  the caller renames his first Pet and appends a third
+  THEN  the caller own Pet did change  [PASS]
+  THEN  the caller own list did grow  [PASS]
+  THEN  the holder still has the old name  [PASS]
+  THEN  the holder still has two objects  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Content: it hands back the list (the register empty-text row)
+  GIVEN a holder of a stzString and two Pets
+  THEN  the answer is a list  [PASS]
+  THEN  and not the empty text  [PASS]
+  THEN  with the three objects in order  [PASS]
+  THEN  the second is the Pet rex  [PASS]
+  THEN  every item of the answer is an object  [PASS]
+  GIVEN a holder built without init, as StzListOfObjectsQ() does
+  THEN  its content is a list too  [PASS]
+  THEN  and an empty one  [PASS]
+  THEN  and it is a stzlistofobjects  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Content: the list in a variable holds copies, one chained form reaches the holder
+  GIVEN a holder of two Pets
+  WHEN  a Pet is renamed in a list taken into a variable
+  THEN  the taken Pet did change  [PASS]
+  THEN  the holder Pet did not  [PASS]
+  WHEN  the taken list grows
+  THEN  the holder does not grow  [PASS]
+  THEN  the taken list did grow  [PASS]
+  WHEN  an object is taken out of the answer into a variable and renamed
+  THEN  the holder Pet is still tom  [PASS]
+  WHEN  the rename is chained on the answer, o.Content()[1].Rename(...)
+  THEN  it reaches the holder own object (the one form that does)  [PASS]
+  THEN  the other object is untouched  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Copy: an independent holder (the register raise row)
+  GIVEN a holder of a stzString and two Pets
+  THEN  Copy raises nothing  [PASS]
+  THEN  the copy is a stzlistofobjects  [PASS]
+  THEN  it has the three objects  [PASS]
+  THEN  with their classes and names  [PASS]
+  WHEN  the copy gets another object and a Pet of it is renamed
+  THEN  the copy grew to four  [PASS]
+  THEN  the original is still three  [PASS]
+  WHEN  a Pet of the copy is renamed with the chained form
+  THEN  the copy own Pet changed  [PASS]
+  THEN  the original Pet is still rex  [PASS]
+  WHEN  the original is renamed with the chained form
+  THEN  the original Pet changed  [PASS]
+  THEN  the copy Pet is still tom  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Copy: the empty holder, the copy of a copy, the alias class
+  THEN  the empty holder copies without error  [PASS]
+  THEN  and the copy is empty  [PASS]
+  THEN  a copy of a copy has the same two objects  [PASS]
+  THEN  and their names  [PASS]
+  THEN  a holder built without init copies too  [PASS]
+  THEN  the alias class builds from a list  [PASS]
+  THEN  and holds its two objects  [PASS]
+  THEN  its copy is a stzlistofobjects  [PASS]
+  THEN  the alias class refuses a list with a number  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: the inherited list methods that read the content now see the objects
+  GIVEN a holder of three objects of two classes
+  THEN  it counts three items  [PASS]
+  THEN  it is not empty  [PASS]
+  THEN  the empty holder is empty  [PASS]
+  THEN  and counts none  [PASS]
+  THEN  an object added with AddItem is held  [PASS]
+  THEN  and the holder still copies afterwards  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 68 assertions, 68 pass, 0 fail
+================================================
+STATUS: OK

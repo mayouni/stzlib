@@ -1,0 +1,33 @@
+SCENARIO: flipping an LLM's kind no longer opens the effectful gate
+  THEN  MayGrant still refuses 'effectful'  [PASS]
+  THEN  Grant still refuses it  [PASS]
+  THEN  the graph is not called sound  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: flipping a sandboxed actor's posture no longer hands it a secret
+  THEN  MayAttach still refuses  [PASS]
+  THEN  AttachSecret still refuses  [PASS]
+  THEN  the escalation audit still sees the sandboxed actor reach effectful  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: every raw edit to a sealed property is named
+  THEN  the kind flip is reported  [PASS]
+  THEN  ...naming the node, what, and both values  [PASS]
+  THEN  it joins Violations()  [PASS]
+  THEN  and CheckRules()  [PASS]
+  THEN  a capability no door granted is reported too  [PASS]
+  THEN  a posture flip is reported  [PASS]
+  THEN  it joins the security graph's Violations()  [PASS]
+  THEN  and the graph is not called sound  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: changes made through the governed doors are not tampering (negative sibling)
+  THEN  a granted capability is not flagged  [PASS]
+  THEN  a posture changed through AddActor is not flagged  [PASS]
+  THEN  and the gate follows the governed change  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 17 assertions, 17 pass, 0 fail
+================================================
+STATUS: OK

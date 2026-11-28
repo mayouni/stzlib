@@ -1,0 +1,16 @@
+SCENARIO: A hex real with underscores
+  THEN  a number  [PASS]
+  THEN  its form  [PASS]
+  THEN  hex-form indeed  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: An octal real
+  THEN  a number  [PASS]
+  THEN  its form  [PASS]
+  THEN  octal-form indeed  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

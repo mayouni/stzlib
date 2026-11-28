@@ -1,0 +1,13 @@
+SCENARIO: Turning on the @@() string-form pretty-printer with pr() and watching how it renders scala
+  THEN  atat_display example 1  [PASS]
+  THEN  atat_display example 2  [PASS]
+  THEN  atat_display example 3  [PASS]
+  THEN  atat_display example 4  [PASS]
+  THEN  atat_display example 5  [PASS]
+  THEN  atat_display example 6  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

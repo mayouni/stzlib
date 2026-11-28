@@ -1,0 +1,14 @@
+SCENARIO: Phase-tiled consecutive substrings of 4 chars
+  GIVEN "phpringringringpythonrubyruby" (29 chars)
+  THEN  their number is 29-4+1  [PASS]
+  THEN  the windows, phase-major  [PASS]
+  THEN  the Find form returns the unique phase offsets  [PASS]
+  THEN  the FindZZ form returns the spans, phase-major  [PASS]
+  THEN  the Z grouping pairs each window with its start  [PASS]
+  THEN  the ZZ grouping pairs each window with its span  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

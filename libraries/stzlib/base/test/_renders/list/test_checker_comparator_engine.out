@@ -1,0 +1,37 @@
+=== stzListChecker & stzListComparator Engine Delegation Tests ===
+
+--- ContainsCS ---
+  PASS: Contains(2) = true
+  PASS: Contains(99) = false
+  PASS: Contains('hello') = true
+
+--- ContainsAllOfThese ---
+  PASS: ContainsAllOfThese([1,3,'world']) = true
+  PASS: ContainsAllOfThese([1,99]) = false
+
+--- ContainsOneOfThese ---
+  PASS: ContainsOneOfThese([99,'hello']) = true
+
+--- IsEqualToCS (Checker) ---
+  PASS: [1,2,3].IsEqualTo([1,2,3]) = true
+  PASS: [1,2,3].IsEqualTo([1,2,4]) = false
+
+--- IsStrictlyEqualToCS ---
+  PASS: IsStrictlyEqualTo same = true
+  PASS: IsStrictlyEqualTo reversed = false
+
+--- StartsWith / EndsWith ---
+  PASS: [1..5].StartsWith([1,2]) = true
+  PASS: [1..5].StartsWith([2,3]) = false
+  PASS: [1..5].EndsWith([4,5]) = true
+  PASS: [1..5].EndsWith([3,4]) = false
+
+==========================
+Total: 14
+Passed: 14
+Failed: 0
+ALL TESTS PASSED!
+
+
+----------------
+----------------

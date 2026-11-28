@@ -1,0 +1,79 @@
+SCENARIO: the provider double really signs, and the relying party really verifies
+  THEN  it publishes a JWKS, as a provider's jwks_uri would  [PASS]
+  THEN  the relying party loaded the key  [PASS]
+  THEN  ...by its key id  [PASS]
+  WHEN  the provider issues an id-token for dana
+  THEN  it is a well-formed JWT  [PASS]
+  THEN  ...signed with ES256  [PASS]
+  THEN  ...naming the subject  [PASS]
+  THEN  ...from the right issuer  [PASS]
+  WHEN  the relying party verifies it
+  THEN  it is accepted  [PASS]
+  THEN  ...yielding the subject  [PASS]
+  THEN  ...and the asserted email  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: a signature that does not verify is refused -- with a REASON
+  WHEN  an impostor signs a token with a DIFFERENT key
+  THEN  it is refused  [PASS]
+  THEN  ...because the signature fails  [PASS]
+  WHEN  the PAYLOAD is swapped for one claiming to be admin
+  THEN  the tampering is caught  [PASS]
+  THEN  ...by the signature check, before any claim is believed  [PASS]
+  WHEN  the token names a key id we do not have
+  THEN  it is refused rather than guessed at  [PASS]
+  THEN  ...naming the unknown kid  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: a REAL signature is still not enough -- the claims must fit this login
+  WHEN  the token was minted for a DIFFERENT application
+  THEN  it is refused (audience)  [PASS]
+  THEN  ...saying so  [PASS]
+  WHEN  the token comes from a DIFFERENT issuer
+  THEN  it is refused (issuer)  [PASS]
+  THEN  ...saying so  [PASS]
+  WHEN  the token has expired
+  THEN  it is refused (expiry)  [PASS]
+  THEN  ...saying so  [PASS]
+  WHEN  a VALID token is replayed against a different login's nonce
+  THEN  the replay is refused (nonce)  [PASS]
+  THEN  ...which is exactly what makes a stolen id-token useless  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: step 1 of the flow: sending the user to the provider, safely
+  THEN  it asks for an authorization code  [PASS]
+  THEN  ...identifying this client  [PASS]
+  THEN  ...with the redirect percent-encoded  [PASS]
+  THEN  ...carrying state (redirect CSRF defense)  [PASS]
+  THEN  ...and nonce (replay defense)  [PASS]
+  THEN  ...plus a PKCE S256 challenge  [PASS]
+  THEN  the challenge is the verifier's S256 hash, so only WE can redeem the code  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: an external identity becomes a full Softanza citizen (the phase-5 tie-in)
+  WHEN  dana signs in through the provider for the first time
+  THEN  a normal session opens  [PASS]
+  THEN  ...for the identity the provider asserted  [PASS]
+  THEN  ...the account was provisioned  [PASS]
+  THEN  ...holding NO usable password (the provider is the only way in)  [PASS]
+  WHEN  the app grants that identity a role
+  THEN  the external login yields a governance ACTOR  [PASS]
+  THEN  ...carrying the role's capabilities  [PASS]
+  THEN  ...so it is effectful like any local admin  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: the local rules still apply to an external login
+  GIVEN an app that admits only pre-provisioned users
+  THEN  an unknown identity is refused  [PASS]
+  THEN  ...explaining why  [PASS]
+  GIVEN a user who enrolled a LOCAL second factor
+  THEN  the provider cannot bypass it  [PASS]
+  THEN  ...because it proved the identity, not possession of OUR factor  [PASS]
+  GIVEN no OIDC client bound at all
+  THEN  it refuses to silently no-op  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 43 assertions, 43 pass, 0 fail
+================================================
+STATUS: OK

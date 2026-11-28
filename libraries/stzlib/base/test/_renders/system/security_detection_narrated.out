@@ -1,0 +1,65 @@
+-- Scene 1: the grammar reads like the story it looks for --
+  [OK] the detection knows its shape
+  [OK] ...and what it watches
+Detection credential-stuffing [error] -- 5x auth.login.failed within 60000ms, per actor
+  repeated authentication failures against one account
+  [OK] a detection that watches nothing refuses to judge
+
+-- Scene 2: BURST -- five failures in a minute, per account --
+  [OK] four failures spread over 90s do not fire
+  [OK] five failures inside 20s fire exactly one finding
+  [OK] ...naming the account, not the installation
+  [OK] ...in the unified rule shape
+  [OK] ...at error severity
+  5 x auth.login.failed within 60000ms by 'victim' -- repeated authentication failures against one account
+  [OK] ...with the meaning attached
+  [OK] the evidence is kept for the incident to come
+
+-- Scene 3: PER ACTOR really means per actor --
+  [OK] ungrouped, the nine failures across two accounts fire once
+  [OK] ...and the grouped one still separates them
+
+-- Scene 4: SEQUENCE -- a failure THEN a reach for a secret --
+  [OK] no reach yet, so no story
+  [OK] the sequence fires once the second act arrives
+  auth.login.failed then secret.reveal.refused within 56000ms by 'victim' -- the classic shape of a stolen-credential attempt
+  [OK] ...naming the actor that did both
+  [OK] BySameActor() refuses to join two unrelated actors
+
+-- Scene 4b: one story, one finding (alert fatigue is a defect) --
+  [OK] five matching pairs report ONE finding for that actor
+
+-- Scene 5: the window is a real boundary --
+  [OK] the same two acts, 40s apart, fall outside a 1s window
+
+-- Scene 6: ANY -- one occurrence is already the story --
+  [OK] nothing yet
+  [OK] one occurrence fires
+  [OK] ...at the severity the detection declares
+
+-- Scene 7: THE CORROBORATION LAW -- one signal is a rumor --
+  [OK] a single-kind match is DOWNGRADED to warning
+  [OK] ...and says why, instead of pretending
+  [OK] a match spanning two kinds keeps error severity
+
+-- Scene 8: the set, and the house detection content --
+  the library ships 9 detections over its own catalog
+  [OK] the default set is real content, not a placeholder
+  [OK] ...and each is retrievable by name
+  fired on this ledger: 3 -- credential-stuffing
+  [OK] the set fires on the ledger we built
+  [OK] ...including the sequence one
+
+-- Scene 9: a detection can fail the SAME CI gate as a security rule --
+  [OK] the report took the findings without an adapter
+  [OK] they arrive under the security subject
+  [OK] the gate is UNSOUND -- a detection fails the build
+  Rule report 'ci': 3 finding(s), 3 error(s), 0 warning(s) -> UNSOUND (errors present)
+
+-- Scene 10: judging a quiet ledger says nothing, loudly --
+  [OK] a quiet ledger produces no findings
+  [OK] ...and the gate stays sound
+
+==========================================
+TOTAL: 33 assertions, 33 pass, 0 fail
+==========================================

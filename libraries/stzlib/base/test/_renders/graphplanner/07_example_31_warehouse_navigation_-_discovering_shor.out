@@ -1,0 +1,40 @@
+45
+[ "entrance", "receiving", "storage", "shelf_42" ]
+[
+	[ "plan", "shortcut" ],
+	[
+		"actions",
+		[
+			[
+				[ "from", "entrance" ],
+				[ "to", "receiving" ],
+				[ "cost", 10 ]
+			],
+			[
+				[ "from", "receiving" ],
+				[ "to", "storage" ],
+				[ "cost", 25 ]
+			],
+			[
+				[ "from", "storage" ],
+				[ "to", "shelf_42" ],
+				[ "cost", 10 ]
+			]
+		]
+	],
+	[ "total_cost", 45 ],
+	[
+		"route",
+		[
+			"entrance",
+			"receiving",
+			"storage",
+			"shelf_42"
+		]
+	],
+	[ "steps", 3 ]
+]
+
+
+----------------
+----------------

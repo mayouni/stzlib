@@ -1,0 +1,55 @@
+== MU11: the key signature, and the percussion staff ==
+
+-- Scene 1: a key read from the music -- the Western circle of fifths --
+   D E F# G A B C# D: D major (2 sharps) -- F+1 C+1
+  [ok]   a D major scale is read as D major: F sharp and C sharp in the key, in that order
+  [ok]   and drawn where the tradition puts them: F# on the top line, C# in the third space
+  [ok]   so no note in it needs an accidental
+  [ok]   in the bass clef the same key sits two octaves lower: F# on the fourth line, C# in the second space
+   F G A Bb C Bb A B C: F major (1 flat); the fourth note is spelled B4 -1
+  [ok]   a melody in F is read as F major, and THE KEY SPELLS: the note between A and B is B flat, not A sharp
+  [ok]   only the note that leaves the key is marked: the B natural, with a natural sign
+
+-- Scene 2: a key set by name, by fifths, or not at all --
+  [ok]   SetKey('Bb') is two flats, B then E
+  [ok]   SetKey('F#m') is three sharps: F# minor is A major's signature
+  [ok]   SetKey('Ddor') is no sharps or flats: D dorian is C major's
+  [ok]   SetKey(-3) is three flats
+  [ok]   SetKey('none') writes no signature, and every alteration on its note
+  [ok]   and a key that is no key is refused: SetKey: 'H#' is not a key -- a tonic and a mode (D, Bb, F#m, Ddor), a number of fifths, auto or none
+  [ok]   in B flat, 466 Hz is B flat with no accidental -- the key decides the letter, not the frequency
+  [ok]   in F# major, the pitch of F is written E sharp, the letter the key gives it, with no accidental
+
+-- Scene 3: the maqam key -- quarter tones IN the signature, as Arabic notation writes them --
+   the Rast series: C major (no sharps or flats), with B half-flat, E half-flat in the key (as Arabic notation writes it)
+  [ok]   Rast read from the music: B half-flat and E half-flat in the key
+  [ok]   so its half-flat third and seventh need no accidental at all
+  [ok]   Hijaz on D, from its declaration: B flat, E flat -- and F sharp
+  [ok]   Tunisian Sika, from its declaration: B half-flat, E half-flat
+  [ok]   Rasd al-Dhil, from its declaration: the half-flats, then Snoussi's F half-SHARP among the sharps
+  [ok]   a mode of five degrees has no key signature, and says so: SetKeyOfMode: a key signature needs a mode of seven degrees; gamelan / slendro has 5
+  [ok]   the signature is repeated at the head of every system (4 systems)
+
+-- Scene 4: the percussion staff --
+   staves: treble, perc1, perc5
+  [ok]   the drums get staves of their own, UNDER the pitched one
+  [ok]   a hand drum's staff is ONE line, the kit's five
+   darbouka: dum tak ka dum tak at steps 3 5 5 3 5
+  [ok]   on the darbouka's line: dum UNDER it, tak OVER it, ka over it with an x head
+  [ok]   with the syllables a darbouka player reads beneath: D T K D T
+   kit: hihat hihat snare snare kick kick at steps 9 9 5 5 1 1
+  [ok]   on the kit: the kick in the bottom space, the snare in the third, the hihat above the staff as an x
+  [ok]   a kick struck with a hihat: two voices on one staff -- the hands' stems up, the kick's down
+  [ok]   every stem on the darbouka's line points up
+  [ok]   tak and ka, two eighths on one beat, are beamed like any eighths
+  [ok]   the key signature is on the oud's staff only, never on a drum's
+  [ok]   and nothing is lost: strokes are no longer a loss
+   a Tunisian performance, btayhi on the darbouka: staves 2, key C major (no sharps or flats), with E half-flat in the key (as Arabic notation writes it)
+  [ok]   a universe's performance draws its melody on a staff and its cycle on the drum's line
+  [ok]   the page is well-formed SVG (85 elements)
+
+-- The listener's line --
+   Whether the drum line reads as a darbouka player writes btayhi, and the maqam
+   signature as an Arab musician expects it, is not a number: UNPERCEIVED.
+
+33 passed, 0 failed

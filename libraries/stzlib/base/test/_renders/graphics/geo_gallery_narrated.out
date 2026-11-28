@@ -1,0 +1,51 @@
+-- 1. THE GALLERY: sixteen became forty-four --
+   44 projections, from Equirectangular to SinuMollweide
+  ok   THE GALLERY IS FORTY-FOUR PROJECTIONS, and the Ring face reads its length from the ENGINE'S OWN ENUM rather than from a list kept here -- so a projection added in Zig is in the gallery the moment it compiles
+  ok   ...and every name is non-empty. THE BRIDGE HAD A LITERAL 15 IN IT, written when there were sixteen, so the count answered 44 while the name answered nothing past the sixteenth -- a gallery of 44 entries of which 28 were blank, reported by nobody
+
+-- 2. EVERY PROJECTION HELD TO ITS OWN CLAIM --
+   19 claim equal area, 4 claim conformality, 0 fail their claim
+  ok   EVERY PROJECTION THAT CLAIMS EQUAL AREA HOLDS IT -- areal scale 1 everywhere, to four decimal places, measured from the derivative. NINETEEN of the forty-four claim it and nineteen hold it
+  ok   ...AND EVERY PROJECTION THAT CLAIMS CONFORMALITY BENDS NO ANGLE, anywhere. Four claim it: Mercator, its transverse, Lambert's conformal conic and the stereographic
+  ok   NEGATIVE: AND THE CHECK CAN FAIL. Handed a Mollweide whose normalisation is off by the eleven per cent that caught the sinu-Mollweide, it says so -- which is what makes the sweep above a measurement and not a formality
+  ok   ...and it does not fire on the right one
+
+-- 3. SYMMETRY, WHICH CATCHES WHAT THE PROPERTIES CANNOT --
+   44 of 44 are symmetric as declared
+  ok   EVERY PROJECTION IS SYMMETRIC ABOUT THE CENTRAL MERIDIAN, and about the EQUATOR wherever it is not a cone unrolled from a pole. A transcription error breaks this far more often than it preserves it, so it reaches the projections that claim no property at all
+  ok   ...and the exceptions are DECLARED rather than tolerated: Bonne and Werner are cones, Collignon is a triangle with the pole at its apex, and the sinu-Mollweide is offset to make its two halves meet
+
+-- 4. THE ROUND TRIP, AND WHAT IT IS AND IS NOT EVIDENCE OF --
+   2088 of 2088 forward-inverse trips return their own point
+  ok   EVERY PROJECTION INVERTS, all forty-four, to five decimal places of longitude and latitude. Twenty-eight of them have NO closed-form inverse -- the Winkel tripel famously has none, nor the Eckerts, the Aitoff or the polyconic -- and are solved by Newton on the forward map
+  ok   ...AND THIS IS NOT EVIDENCE THAT A FORMULA IS THE PROJECTION IT NAMES. A generic inverse is consistent with whatever forward it was given. It tests the SOLVER, which is worth testing; the properties above test the formulas
+  ok   NEGATIVE: A POINT OFF THE MAP HAS NO PLACE, and the solver says so rather than answering with the nearest point that does -- which is what Newton would happily do if nobody checked its answer
+
+-- 5. TISSOT: the numbers behind the Greenland argument --
+   Mercator at 0 deg: h 1.0000  k 1  areal 1.0000  angular 0
+   Mercator at 45 deg: h 1.4142  k 1.4142  areal 2.0000  angular 0
+   Mercator at 70 deg: h 2.9238  k 2.9238  areal 8.5486  angular 0
+  ok   ON A CONFORMAL PROJECTION h EQUALS k AT EVERY POINT -- the scale is the same in every direction, which is what conformality MEANS, and it is why the shape survives and the size does not
+  ok   MERCATOR'S AREAL SCALE IS THE SQUARE OF THE SECANT OF THE LATITUDE -- exactly 2 at 45 degrees and 8.549 at 70. That is a closed form this engine does not know, and the measured derivative agrees with it
+   Greenland sits near 72 N: it is drawn at 10.4721 times its true area
+  ok   ...WHICH IS THE WHOLE GREENLAND ARGUMENT, as a number rather than as an opinion. The plane could say 'Mercator is not equal-area' before GE9; it can say by how much, and where, now
+   averaged over the globe by GROUND: Equal Earth bends 29.1182 deg, Mercator 0.0000 deg
+   ...and Equal Earth's areal scale runs 1.0000 to 1.0000, Mercator's 1.0019 to 58.6955
+  ok   THE TRADE IS VISIBLE IN THE TWO NUMBERS: an equal-area projection holds every area exactly and pays in bent angles; a conformal one bends nothing and pays in area, by a factor of fifty-eight across the map. Neither is better -- they are answers to different questions
+   ground-weighted mean areal scale 3.1057, unweighted 7.2010
+  ok   THE MEANS ARE WEIGHTED BY GROUND and not by grid cell, because an unweighted average counts a polar row -- a sliver -- as heavily as an equatorial one, and that flatters exactly the projections a reader most needs warned about
+  ok   TISSOT'S INDICATRIX COMES BACK AS A RING TO DRAW, in the paper's own coordinates, built by PROJECTING A SMALL CIRCLE rather than by drawing the ellipse the numbers describe -- so it shows the bending an ellipse cannot represent, which at a radius anybody can see is not nothing
+
+-- 6. UTM: sixty transverse Mercators, and two that are not tidy --
+   Paris 31U, central meridian 3
+  ok   A PLACE FALLS IN A ZONE, AND THE ZONE HAS A CENTRAL MERIDIAN AND A BAND LETTER. Paris is 31U, on the meridian of 3 east -- which is the coordinate every French survey is written in
+  ok   ...and the southern hemisphere carries a FALSE NORTHING of ten million metres so that no coordinate is ever negative, which is the whole reason the convention exists
+   SW Norway: zone 32 -- arithmetic alone would say 31
+  ok   THE EXCEPTIONS ARE REAL AND ARE NOT TIDY. Zone 32 was widened in 1950 so that south-west Norway is not cut in half, and the Svalbard zones were rearranged for the same reason. A library that computes the zone arithmetically and stops is wrong for two countries, SILENTLY
+  ok   ...and outside UTM's own latitude range the band says so rather than pretending. Below 80 south and above 84 north is where the polar stereographic takes over, which is a different projection and not a different zone
+   UTM 31 is a TransverseMercator at scale 0.9996
+  ok   A ZONE IS A TRANSVERSE MERCATOR ON ITS OWN MERIDIAN AT 0.9996, which SHARES the error between the middle of the zone and its edges rather than piling it at the edges -- one part in 2500 across the zone, which is why every survey falls back to it
+
+==========================================================
+ 22 ok, 0 failed
+==========================================================

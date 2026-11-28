@@ -1,0 +1,23 @@
+SCENARIO: Regular singulars
+  GIVEN plural nouns
+  THEN  cats -> cat  [PASS]
+  THEN  dogs -> dog  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Morphological stem rewrites (previously broken)
+  GIVEN plurals whose stem changes
+  THEN  cities -> city (ies -> y)  [PASS]
+  THEN  babies -> baby  [PASS]
+  THEN  boxes -> box (xes -> x)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Irregular singulars
+  GIVEN special plurals
+  THEN  children -> child  [PASS]
+  THEN  men -> man  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

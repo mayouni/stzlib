@@ -1,0 +1,29 @@
+╭───────────────────────╮
+│ EXPORT FOR stzDataSet │
+╰───────────────────────╯
+• Class name: stzdataset
+• Exported data structure: 4 rows
+• Sample data:
+ ─ Row 1: Alice, 25, 55000
+ ─ Row 2: Bob, 30, 60000
+ ─ Row 3: Carol, 28, 58000
+
+╭─────────────────────╮
+│ EXPORT FOR stzTable │
+╰─────────────────────╯
+• Headers: Name, Age, Salary
+• Data rows: 4
+
+╭──────────────────────╮
+│ EXPORT FOR stzMatrix │
+╰──────────────────────╯
+• Class name: stzmatrix
+• Matrix dimensions: 4 × 3
+• Sample numeric data:
+ ╭ 0, 25, 55000 ╮
+ │ 0, 30, 60000 │
+ ╰ 0, 28, 58000 ╯
+
+
+----------------
+----------------

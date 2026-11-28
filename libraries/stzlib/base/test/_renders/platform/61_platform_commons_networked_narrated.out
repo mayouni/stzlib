@@ -1,0 +1,49 @@
+SCENARIO: the body binds and exposes the Commons over HTTP
+  GIVEN a platform with a Commons store and two identities, serving
+  THEN  a real bound port is known  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: POST /session mints a token for good credentials only
+  WHEN  alice posts her real secret
+  THEN  a session token comes back  [PASS]
+  WHEN  she posts a WRONG secret
+  THEN  the body refuses with 401  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: GET /whoami resolves the caller behind a token
+  WHEN  alice presents her token to /whoami
+  THEN  the body names her  [PASS]
+  WHEN  an unknown token is presented
+  THEN  it is refused with 401  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: POST /message carries mail, authed as the sender
+  WHEN  alice (token-authed) messages bob
+  THEN  the message is accepted  [PASS]
+  WHEN  bob opens his own session
+  WHEN  bob GETs his inbox with his token
+  THEN  alice's message is really there  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: an inbox is private -- the token must match the owner
+  WHEN  alice tries to read bob's inbox with HER token
+  THEN  the body refuses with 401  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: the key/value store is session-gated and shared
+  WHEN  alice stores a preference
+  WHEN  bob reads the same key with HIS token
+  THEN  the value persisted in the shared store  [PASS]
+  WHEN  someone reads the store with NO token
+  THEN  the body refuses with 401  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: lifecycle: the body stops cleanly
+  WHEN  StopServing() runs
+  THEN  teardown completes without crash  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 11 assertions, 11 pass, 0 fail
+================================================
+STATUS: OK

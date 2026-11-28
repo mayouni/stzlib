@@ -1,0 +1,42 @@
+=== stzListClassifier Engine Delegation Tests ===
+
+--- Classify ---
+  PASS: Classes() = 3 classes
+  PASS: NumberOfClasses() = 3
+
+--- Frequencies ---
+  PASS: Frequencies() has 3 entries
+
+--- MostFrequent / LeastFrequent ---
+  PASS: MostFrequent() = a
+  PASS: LeastFrequent() = c
+
+--- FrequencyOf ---
+  PASS: FrequencyOf('a') = 3
+  PASS: FrequencyOf('c') = 1
+
+--- ItemsAppearingNTimes ---
+  PASS: ItemsAppearingNTimes(1) = 1 item
+  PASS: ItemsAppearingMoreThanNTimes(1) = 2 items
+
+--- Mode ---
+  PASS: Mode() = ['a']
+
+--- Bisect ---
+  PASS: Bisect([1..6]) = two halves of 3
+
+--- Partition ---
+  PASS: Partition(3) = 3 groups
+
+--- Chunks (engine-backed) ---
+  PASS: Chunks(2) on 6 items = 3 chunks
+
+==========================
+Total: 13
+Passed: 13
+Failed: 0
+ALL TESTS PASSED!
+
+
+----------------
+----------------

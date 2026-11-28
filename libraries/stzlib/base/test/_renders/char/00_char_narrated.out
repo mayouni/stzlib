@@ -1,0 +1,41 @@
+SCENARIO: Name and codepoint round-trip
+  THEN  char 65 is named LATIN CAPITAL LETTER A  [PASS]
+  THEN  'A' has codepoint 65  [PASS]
+  THEN  codepoint 9885 is OUTLINED WHITE STAR  [PASS]
+  THEN  the named star resolves back to 9885  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Case mapping
+  THEN  Lowercased('A') is 'a'  [PASS]
+  THEN  Uppercased('a') is 'A'  [PASS]
+  THEN  IsUppercase('A') is TRUE  [PASS]
+  THEN  IsLowercase('a') is TRUE  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Category predicates
+  THEN  'A' is a letter  [PASS]
+  THEN  'A' is not a digit  [PASS]
+  THEN  '5' is a digit  [PASS]
+  THEN  space is whitespace  [PASS]
+  THEN  '!' is punctuation  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Vowel detection
+  GIVEN the IsVowel predicate (regression: it always returned FALSE)
+  THEN  'a' is a vowel  [PASS]
+  THEN  'A' is a vowel (case-insensitive)  [PASS]
+  THEN  'e' is a vowel  [PASS]
+  THEN  'b' is not a vowel  [PASS]
+  THEN  '5' is not a vowel  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Numeric-script classification (IsMandarinNumber typo fix)
+  GIVEN a Mandarin numeral and a digit
+  THEN  '5' is not a Mandarin number (was R14 crash via Conten())  [PASS]
+  THEN  the Mandarin numeral one is a Mandarin number  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 20 assertions, 20 pass, 0 fail
+================================================
+STATUS: OK

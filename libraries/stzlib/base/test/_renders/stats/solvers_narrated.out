@@ -1,0 +1,32 @@
+-- Scene 1: NSGA-II returns a real Pareto front, not an empty one --
+  [OK] the front is NOT empty (the bug returned 0)
+  [OK] it fills the population
+  [OK] every solution is genuinely rank 1
+  [OK] the front SPREADS across the trade-off (near 0 AND near 10)
+  [OK] ... and stays inside the variable bounds
+
+-- Scene 1b: LAW 3 -- two runs agree --
+  [OK] two identical runs give an IDENTICAL front (this is what LAW 3 means)
+  [OK] ... and SetSeed genuinely varies it, so the seed is live and not ignored
+  [OK] ... and the default seed is 42, as stzNeuralNetwork uses
+
+-- Scene 2: NSGA-II REFUSES what it cannot honour --
+  [OK] a constrained problem on the NSGA path REFUSES (never a silent wrong front)
+
+-- Scene 3: the epsilon-constraint path DOES honour constraints --
+  [OK] it returns a front
+  [OK] every solution respects the x <= 5 constraint
+
+-- Scene 4: the solver guards its own preconditions --
+  [OK] no variables -> refuses
+  [OK] a SINGLE objective -> sent to stzLinearSolver, not solved as multi
+
+-- Scene 5: stzStochasticSolver -- scenarios and expectations --
+  [OK] it holds the scenarios it was given
+  [OK] probabilities summing to 1.0 pass validation
+  [OK] probabilities that do NOT sum to 1.0 are REFUSED
+  [FAIL] it solves the expected-value problem without crashing
+
+==========================================
+TOTAL: 17 assertions, 16 pass, 1 fail
+==========================================

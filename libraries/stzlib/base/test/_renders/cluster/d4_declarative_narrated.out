@@ -1,0 +1,53 @@
+SCENARIO: KILL CRITERION: declare -> describe -> redeclare, identically
+  GIVEN a topology declared fluently: nodes, handlers-as-code, inbox, supervision
+  WHEN  the app describes itself
+  THEN  the description is plain DATA (a list, printable)  [PASS]
+  THEN  it names the app and both nodes  [PASS]
+  WHEN  a SECOND app is rebuilt from that description alone
+  THEN  its description is IDENTICAL to the original  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: RunLocal: the declaration becomes real processes that serve
+  GIVEN a two-node app with handlers declared as code strings
+  WHEN  RunLocal() starts the whole topology on this machine
+  THEN  both nodes boot and answer BY NAME  [PASS]
+  THEN  the declared calc handler runs (double 21 = 42)  [PASS]
+  THEN  the declared greeter handler runs  [PASS]
+  WHEN  calc is asked for ITS OWN view of its declaration (stz.info)
+  THEN  it knows its name  [PASS]
+  THEN  it bound loopback  [PASS]
+  THEN  the DECLARED inbox reached the running process (cap 64)  [PASS]
+  THEN  with the declared policy  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: supervision is live under RunLocal: a killed node heals
+  GIVEN the running d4shop topology
+  WHEN  calc's raising handler kills it
+  THEN  the supervisor restarted it (counted once)  [PASS]
+  THEN  it answers again  [PASS]
+  THEN  with its declared behavior intact  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Deploy: ONE line moves a node; no caller changes anything
+  GIVEN the running topology, calc living on 127.0.0.1
+  WHEN  Deploy('calc', '127.0.0.2') -- the one changed line
+  THEN  the move rode supervision (a counted respawn)  [PASS]
+  THEN  the SAME Ask by name still works  [PASS]
+  THEN  and computes the same (double 50 = 100)  [PASS]
+  WHEN  calc reports its own binding
+  THEN  it now SERVES FROM the new host  [PASS]
+  THEN  the greeter never noticed  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: teardown: StopAll ends the topology and removes its artifacts
+  GIVEN the generated node scripts on disk
+  THEN  they existed while running  [PASS]
+  WHEN  the app stops
+  THEN  the generated scripts are gone  [PASS]
+  THEN  teardown completes without crash  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 21 assertions, 21 pass, 0 fail
+================================================
+STATUS: OK

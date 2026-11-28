@@ -1,0 +1,138 @@
+SCENARIO: Parsing: the type, the value and the constraints of a token
+  THEN  one token  [PASS]
+  THEN  of type cols  [PASS]
+  THEN  with the number as an exact constraint  [PASS]
+  THEN  a comparison is a constraint of its own kind  [PASS]
+  THEN  an & pattern is one conjunction  [PASS]
+  THEN  of two conditions  [PASS]
+  THEN  the second is a rows token  [PASS]
+  THEN  whose exact constraint is 3  [PASS]
+  THEN  an | pattern is an alternation  [PASS]
+  THEN  a column name keeps no trailing bracket  [PASS]
+  THEN  a negated token is marked  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Counting rows and columns
+  THEN  cols(4) is the 4 columns of the table  [PASS]
+  THEN  cols(3) is not  [PASS]
+  THEN  rows(4) is the 4 data rows  [PASS]
+  THEN  rows(5) is not  [PASS]
+  THEN  cols(>3) holds for 4 columns  [PASS]
+  THEN  cols(<3) does not  [PASS]
+  THEN  a pattern of two constraints needs both  [PASS]
+  THEN  and holds when both hold  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Columns: names, uniqueness, sorting, types
+  THEN  hascol(name)  [PASS]
+  THEN  hascol(zip) is absent  [PASS]
+  THEN  unique(id)  [PASS]
+  THEN  unique(city) has Niamey twice  [PASS]
+  THEN  sorted(id) is ascending  [PASS]
+  THEN  sorted(name) is not: Ali, Sara, Omar  [PASS]
+  THEN  numeric(age)  [PASS]
+  THEN  numeric(name) is not  [PASS]
+  THEN  alphabetic(name)  [PASS]
+  THEN  alphabetic(age) is not  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Values: contains, sums, averages, bounds
+  THEN  contains(Ali) anywhere  [PASS]
+  THEN  contains(Zed) nowhere  [PASS]
+  THEN  contains(28) finds a number cell (it used to raise)  [PASS]
+  THEN  contains(99) does not  [PASS]
+  THEN  cell(25..45) holds when a number cell lies in the range  [PASS]
+  THEN  cell(90..99) does not  [PASS]
+  THEN  cell({Ali;Zed}) holds when a cell equals one of the set  [PASS]
+  THEN  cell({Zed;Yan}) does not  [PASS]
+  THEN  sumcol(age:>100) holds: 126  [PASS]
+  THEN  sumcol(age:>200) does not  [PASS]
+  THEN  avgcol(age:>30) holds: 31.5  [PASS]
+  THEN  avgcol(age:>40) does not  [PASS]
+  THEN  mincol(age:>20) holds: 25  [PASS]
+  THEN  maxcol(age:<50) holds: 41  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: Combining: & | and @!
+  THEN  and  [PASS]
+  THEN  or: the second holds  [PASS]
+  THEN  or: neither holds  [PASS]
+  THEN  not: @!cols(3) holds for 4 columns  [PASS]
+  THEN  not: @!cols(4) does not  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The pattern as data
+  THEN  Pattern keeps the braces  [PASS]
+  THEN  a pattern of terms joined by & is ONE token, a conjunction  [PASS]
+  THEN  CountTokens agrees  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Comparisons are strict, and >= and <= are the at-least and at-most forms
+  THEN  cols(>4) is false for exactly 4 columns  [PASS]
+  THEN  cols(<4) is false for exactly 4 columns  [PASS]
+  THEN  cols(>=4) holds  [PASS]
+  THEN  cols(<=4) holds  [PASS]
+  THEN  rows(>=5) does not  [PASS]
+  THEN  rows(<=4) holds  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: A name that does not exist, and terms without parentheses, do not raise
+  THEN  sorted(zzz) is false for a missing column  [PASS]
+  THEN  unique(zzz) is false for a missing column  [PASS]
+  THEN  property(zzz) is false for an unknown property  [PASS]
+  THEN  property(nonempty) holds  [PASS]
+  THEN  {cols} with no parentheses parses and does not match  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Rows, regex columns, completeness
+  THEN  row(2,Sara,32,Paris) is a row of the table  [PASS]
+  THEN  row(2,Sara,32,Dakar) is not  [PASS]
+  THEN  row(1,ali,28,niamey) ignores the case  [PASS]
+  THEN  colpattern(name:^[A-Z][a-z]+$) holds for capitalised names  [PASS]
+  THEN  colpattern(name:^[a-z]+$) does not  [PASS]
+  THEN  completeness(name:90) holds for a full column  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: The case, and the sequence
+  THEN  unique ignores the case: a and A repeat  [PASS]
+  THEN  @cs: makes them two values  [PASS]
+  THEN  sorted ignores the case: a, A is in order  [PASS]
+  THEN  @cs: puts a after A, so a, A is not in order  [PASS]
+  THEN  terms joined by -> are one token each  [PASS]
+  THEN  and all must hold  [PASS]
+  THEN  one failing term fails the sequence  [PASS]
+  THEN  a non-text pattern raises  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: What reads as a number
+  THEN  an integer  [PASS]
+  THEN  a decimal  [PASS]
+  THEN  a negative  [PASS]
+  THEN  1-2 is not a number (a range is not one)  [PASS]
+  THEN  1.2.3 is not  [PASS]
+  THEN  a lone minus is not  [PASS]
+  THEN  empty is not  [PASS]
+  THEN  rows(2-5) is parsed without raising, as no constraint  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Building patterns from patterns
+  THEN  And_ joins with & and keeps the braces  [PASS]
+  THEN  the joined pattern matches  [PASS]
+  THEN  Or_ joins with |  [PASS]
+  THEN  Not_ puts @! in front  [PASS]
+  THEN  and negates  [PASS]
+  THEN  SplitByOperator splits outside brackets only  [PASS]
+  THEN  and keeps a bracketed part whole  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The parts of a match, and the tables that match
+  THEN  CountMatchedParts counts the recorded parts  [PASS]
+  THEN  HowManyMatchedParts agrees  [PASS]
+  THEN  MatchingTables keeps the table that matches  [PASS]
+  THEN  CountMatchingTables counts it  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 95 assertions, 95 pass, 0 fail
+================================================
+STATUS: OK

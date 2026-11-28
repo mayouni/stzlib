@@ -1,0 +1,14 @@
+SCENARIO: Prices in a receipt
+  GIVEN "book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12"
+  THEN  all numbers  [PASS]
+  THEN  the unique numbers  [PASS]
+  THEN  the starts  [PASS]
+  THEN  the sections  [PASS]
+  THEN  the Z grouping  [PASS]
+  THEN  the ZZ grouping  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,30 @@
+Input: 1
+-2
+3
+-4
+5
+MapDirect(:abs)        = 1
+2
+3
+4
+5
+MapDirect(:negate)     = -1
+2
+-3
+4
+-5
+FilterDirect(:isPos)   = 1
+3
+5
+ReduceDirect(:sum)     = 3
+ReduceDirect(:product) = 120
+CountWhereDirect(:neg) = 2
+ReduceConcatDirect('-')= a-b-c
+MapFilteredDirect      = 1
+9
+25
+
+Executed in almost 0 second(s)
+
+----------------
+----------------

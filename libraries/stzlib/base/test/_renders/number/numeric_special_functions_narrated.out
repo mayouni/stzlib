@@ -1,0 +1,60 @@
+SCENARIO: the error function, against published values
+  THEN  erf(0) is exactly 0  [PASS]
+  THEN  erf(1)  [PASS]
+  THEN  erf(2)  [PASS]
+  THEN  erf is odd: erf(-x) = -erf(x)  [PASS]
+  THEN  erfc(1) = 1 - erf(1)  [PASS]
+  THEN  1 - erf(6) collapses to zero  [PASS]
+  THEN  ...while erfc(6) keeps its digits  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: the normal distribution, and its inverse being its own inverse
+  THEN  the CDF at 0 is a half  [PASS]
+  THEN  ...at 1.96  [PASS]
+  THEN  ...at 1  [PASS]
+  THEN  the quantile every statistics table opens with  [PASS]
+  THEN  ...and the one-sided 95%  [PASS]
+  THEN  CDF(quantile(p)) = p across nine probabilities  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Student t -- the distribution the confidence interval was missing
+  THEN  t(0.975, 4 df)  [PASS]
+  THEN  t(0.975, 1 df) -- the fattest tail  [PASS]
+  THEN  t(0.975, 9 df)  [PASS]
+  THEN  t(0.975, 30 df)  [PASS]
+  THEN  ...which is 41% wider than z, exactly as phase 0's warning said  [PASS]
+  THEN  t approaches z from ABOVE -- it is always the wider one  [PASS]
+  THEN  ...and ten times the df closes the gap ten-fold, to within 1%  [PASS]
+  THEN  ...again at the next decade  [PASS]
+  THEN  the CDF is symmetric: F(t) + F(-t) = 1  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: chi-square and F, and the identities that check them
+  THEN  chi2(0.95, 1 df)  [PASS]
+  THEN  chi2(0.95, 2 df)  [PASS]
+  THEN  F(0.95; 3, 10)  [PASS]
+  THEN  F(0.95; 1, 10) = t(0.975; 10) squared  [PASS]
+  THEN  chi2 with 1 df is a squared normal  [PASS]
+  THEN  P(a,x) + Q(a,x) = 1  [PASS]
+  THEN  I_x(a,b) = 1 - I_(1-x)(b,a)  [PASS]
+  THEN  I_x(1,1) = x, the uniform case  [PASS]
+  THEN  P(1,x) = 1 - exp(-x), the exponential  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: what this bought: the confidence interval is now a t interval
+  THEN  the method reports itself as t  [PASS]
+  THEN  ...with 4 degrees of freedom  [PASS]
+  THEN  ...and the t critical value  [PASS]
+  THEN  97% is computable now  [PASS]
+  THEN  ...and so is 42%  [PASS]
+  THEN  ...and the t version of an odd level  [PASS]
+  GIVEN a level that is not a level
+  THEN  0 raises  [PASS]
+  THEN  100 raises  [PASS]
+  THEN  140 raises  [PASS]
+  -> 9 pass, 0 fail
+
+================================================
+TOTAL: 40 assertions, 40 pass, 0 fail
+================================================
+STATUS: OK

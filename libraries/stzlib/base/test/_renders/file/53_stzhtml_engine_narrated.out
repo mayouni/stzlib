@@ -1,0 +1,53 @@
+SCENARIO: HtmlQ constructs an engine-backed document
+  GIVEN a small HTML string
+  THEN  Content() round-trips the source  [PASS]
+  THEN  NumberOfElements counts html + body + p  [PASS]
+  THEN  CountByTag finds the p  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Text() extracts document text
+  GIVEN a document with multiple visible text fragments
+  THEN  Text returns the concatenated visible content  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Text() suppresses scripts and styles
+  GIVEN a document with inline script and style
+  THEN  Text drops both blocks  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Find by tag returns wrapper nodes
+  GIVEN two paragraphs
+  THEN  two nodes returned  [PASS]
+  THEN  first node text  [PASS]
+  THEN  second node text  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Find by #id selector hits a single element
+  GIVEN two divs with distinct ids
+  THEN  one match  [PASS]
+  THEN  right text  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Find by .class selector returns all matches
+  GIVEN paragraphs with shared and unique classes
+  THEN  two .foo matches  [PASS]
+  THEN  one .bar match  [PASS]
+  THEN  .bar matches second p  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Node carries id, class, attribute accessors
+  GIVEN a single anchor with id, class, and href
+  THEN  Tag() lowercases the name  [PASS]
+  THEN  Id() returns the id  [PASS]
+  THEN  Attr(href)  [PASS]
+  THEN  HasAttr is TRUE for href  [PASS]
+  THEN  HasAttr is FALSE for title  [PASS]
+  THEN  HasKlass primary  [PASS]
+  THEN  HasKlass external  [PASS]
+  THEN  HasKlass missing  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 21 assertions, 21 pass, 0 fail
+================================================
+STATUS: OK

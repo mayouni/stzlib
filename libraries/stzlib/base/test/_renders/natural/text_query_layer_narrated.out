@@ -1,0 +1,136 @@
+SCENARIO: The text domain: stzText carries meaning; stzString.TextQ() bridges to it
+  THEN  string delegates to the domain  [PASS]
+  THEN  Q(str).TextQ() reaches the same domain object  [PASS]
+  THEN  Text() (no Q) returns DATA -- the content, not an object  [PASS]
+  THEN  a stzText is the domain object itself  [PASS]
+  THEN  stzText inherits the structural layer (Words) from stzStringText  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: UAX#29 sentences keep abbreviations and decimals whole
+  THEN  three sentences, not split on 'Dr.' or '3.14'  [PASS]
+  THEN  Sentences() list agrees with the count  [PASS]
+  THEN  the middle sentence stays intact  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: POS-aware word filters
+  THEN  nouns (tags starting NN)  [PASS]
+  THEN  verbs (tags starting VB)  [PASS]
+  THEN  adjectives (tags starting JJ)  [PASS]
+  THEN  adverbs (tags starting RB)  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Sentence filters by sentiment and similarity
+  THEN  the most positive sentence  [PASS]
+  THEN  the most negative sentence  [PASS]
+  THEN  the sentence most similar to a query  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Language detection across six languages + script + unknown
+  THEN  english  [PASS]
+  THEN  french  [PASS]
+  THEN  spanish  [PASS]
+  THEN  german  [PASS]
+  THEN  italian  [PASS]
+  THEN  portuguese  [PASS]
+  THEN  arabic (by script)  [PASS]
+  THEN  no signal -> unknown  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: The Q-ladder: Q -> basic, QQ -> secondary, QQQ -> most specific
+  THEN  SentencesQ() is the BASIC object (stzList)  [PASS]
+  THEN  SentencesQQ() is the first secondary type (stzListOfStrings)  [PASS]
+  THEN  SentencesQQQ() is the most specific (stzListOfTexts)  [PASS]
+  THEN  MostSimilarByMeaning (a natural op) picks the closest sentence  [PASS]
+  THEN  ThatAre filters sentences by sentiment  [PASS]
+  THEN  chain ThatAreQ -> Joined stays fluent  [PASS]
+  THEN  ThatContain (lexical) filters by substring  [PASS]
+  THEN  NthString on the stzListOfStrings rung  [PASS]
+  THEN  WordsQ() is the BASIC object (stzList)  [PASS]
+  THEN  WordsQQ().MostSimilarTo fuzzy-matches a typo (Jaro-Winkler)  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: The Q-ladder on stzText: QQ jumps straight to stzListOfTexts
+  THEN  SentencesQ() is still the basic stzList  [PASS]
+  THEN  SentencesQQ() is stzListOfTexts immediately  [PASS]
+  THEN  meaning ops chain off QQ on a text  [PASS]
+  THEN  words stay lexical: WordsQQ() is stzListOfStrings  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Explainability: per-word valences follow the score's own rules
+  THEN  overall lands negative  [PASS]
+  THEN  'good' contributes negatively because of 'not'  [PASS]
+  THEN  no positive contributors remain  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Stylometry and comparison
+  THEN  lexical diversity is distinct/total words (8 distinct / 10)  [PASS]
+  THEN  shared content vocabulary  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Key-phrase extraction (RAKE)
+  THEN  the top phrase is the multi-word technical term  [PASS]
+  THEN  top-3 are content phrases (stopwords/punctuation delimit them)  [PASS]
+  THEN  KeyPhrasesQ() is the basic stzList  [PASS]
+  THEN  KeyPhrasesQQ chains text-list ops  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: TextRank: graph-centrality keywords + extractive summary
+  THEN  the single most central keyword  [PASS]
+  THEN  top-3 ranked keywords by PageRank centrality  [PASS]
+  THEN  summary keeps the n most central sentences  [PASS]
+  THEN  summary is joined in reading order  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: WordNet synonyms + hypernyms + language support
+  THEN  synonyms of 'happy'  [PASS]
+  THEN  'car' is a synonym of 'automobile'  [PASS]
+  THEN  'car' hypernyms include 'motor vehicle' (is-a parent)  [PASS]
+  THEN  unknown word -> no synonyms  [PASS]
+  THEN  25 Snowball stemmer languages are exposed  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Concordance / keyword in context
+  THEN  three occurrences of 'car'  [PASS]
+  THEN  the first window  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Semantic layer -- graceful lexical fallback with no model loaded
+  THEN  no model loaded here  [PASS]
+  THEN  Embedding() is empty without a model  [PASS]
+  THEN  SemanticSimilarityWith falls back to a lexical score in [-1,1]  [PASS]
+  THEN  identical text is maximally similar (lexical)  [PASS]
+  THEN  a non-string comparand is rejected  [PASS]
+  THEN  IsSemanticallySimilarTo respects the threshold  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Zero-shot classification -- rank arbitrary labels, no training
+  THEN  ClassifiedAs picks the closest label  [PASS]
+  THEN  Classify returns ranked [label, score] pairs, best first  [PASS]
+  THEN  Classify keeps all labels  [PASS]
+  THEN  ClassifyQ is the basic stzList  [PASS]
+  THEN  ClassifyQQ is stzListOfPairs  [PASS]
+  THEN  a non-list of labels is rejected  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Embedding-based entity typing -- arbitrary types by meaning
+  THEN  EntityTypeOf picks the closest type  [PASS]
+  THEN  a non-list of types is rejected  [PASS]
+  THEN  EntitiesTypedAs returns [entity, type] pairs for detected entities  [PASS]
+  THEN  EntitiesTypedAsQQ is stzListOfPairs  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Transformer NER -- token classification when a NER-head GGUF is loaded
+  THEN  NeuralEntities() is empty without a NER-head model  [PASS]
+  THEN  NamedEntities() still works via the rule-based fallback  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Cross-encoder reranking -- retrieve-then-rerank second stage
+  THEN  MostRelevantTo picks the closest doc (lexical fallback)  [PASS]
+  THEN  RankedForQuery returns [doc, score] pairs, best first  [PASS]
+  THEN  RankedForQueryQQ is stzListOfPairs  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 78 assertions, 78 pass, 0 fail
+================================================
+STATUS: OK

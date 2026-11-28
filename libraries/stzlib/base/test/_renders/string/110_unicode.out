@@ -1,0 +1,15 @@
+SCENARIO: Codepoints of strings and lists of strings
+  THEN  dotless-i is codepoint 305  [PASS]
+  THEN  dotless-j is codepoint 567  [PASS]
+  THEN  Unicodes('abc') is [97,98,99]  [PASS]
+  THEN  Unicodes([a,b,c]) is [97,98,99]  [PASS]
+  THEN  multichar items nest  [PASS]
+  THEN  the global Unicodes('abc') agrees  [PASS]
+  THEN  HexUnicode carries the 'U+' prefix  [PASS]
+  THEN  HexUnicodes prefixes every char  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

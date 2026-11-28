@@ -1,0 +1,46 @@
+SCENARIO: a read-only table still reads exactly as under Expose
+  GIVEN a ledger table exposed with ExposeReadOnly
+  WHEN  a client GETs the list, the count and one row
+  THEN  the list answers 200 with the row  [PASS]
+  THEN  the count answers 1  [PASS]
+  THEN  one row answers by id  [PASS]
+  WHEN  a client GETs an id that does not exist
+  THEN  it is still an honest 404, not a 405  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a read-only table refuses every verb that writes
+  GIVEN the same ledger with one row
+  WHEN  a client POSTs a new entry
+  THEN  it is refused with 405  [PASS]
+  THEN  and says why  [PASS]
+  THEN  no row was inserted  [PASS]
+  WHEN  a client PUTs over row 1
+  THEN  it is refused with 405  [PASS]
+  THEN  the row is unchanged in sqlite  [PASS]
+  WHEN  a client DELETEs row 1
+  THEN  it is refused with 405  [PASS]
+  THEN  the row is still in sqlite  [PASS]
+  THEN  and the delete route never ran  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: the refusal is the route's, not the verb's: Expose still writes
+  GIVEN a note table exposed with plain Expose, beside the ledger
+  WHEN  a client PUTs then DELETEs a note
+  THEN  the update is served  [PASS]
+  THEN  the change is in sqlite  [PASS]
+  THEN  the delete is served  [PASS]
+  THEN  the note is gone  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: ExposeReadOnlyWithKey reads by its key and refuses writes
+  GIVEN a tag table keyed by uuid
+  WHEN  a client GETs /api/tag/u-1
+  THEN  the row is found by uuid  [PASS]
+  WHEN  a client DELETEs /api/tag/u-1
+  THEN  it is refused with 405  [PASS]
+  THEN  the row is still there  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: teardown
+  THEN  teardown completes without crash  [PASS]
+  -> 1 pass, 0 fail

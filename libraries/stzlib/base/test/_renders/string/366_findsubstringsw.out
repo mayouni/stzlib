@@ -1,0 +1,31 @@
+SCENARIO: Finding substrings by condition
+  GIVEN "...♥♥...♥♥..."
+  THEN  the matching substrings  [PASS]
+  THEN  ... and their spans  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Counting substrings
+  GIVEN "..ONE..TWO..ONE.."
+  THEN  all substrings  [PASS]
+  THEN  unique substrings  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The SubStrings family on ABA
+  THEN  all windows (i-major order, dup A kept)  [PASS]
+  THEN  the unique set  [PASS]
+  THEN  each unique grouped with its positions  [PASS]
+  THEN  ... and with its sections  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Case-insensitive either-check and capped bounds
+  THEN  one IS either ONE or TWO, case aside  [PASS]
+  THEN  the auto-detected bounds  [PASS]
+  THEN  capped at 2 a side  [PASS]
+  THEN  capped per side  [PASS]
+  THEN  the plain-number spelling  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 13 assertions, 13 pass, 0 fail
+================================================
+STATUS: OK

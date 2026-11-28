@@ -1,0 +1,43 @@
+SCENARIO: the textbook LPs, whose optima every course states
+  THEN  x = 2  [PASS]
+  THEN  y = 6  [PASS]
+  THEN  the objective is 36  [PASS]
+  THEN  and it says so  [PASS]
+  THEN  a fractional optimum is found exactly  [PASS]
+  THEN  ...and the objective  [PASS]
+  THEN  minimisation loads the cheaper variable: x = 7  [PASS]
+  THEN  ...y sits at its floor of 3  [PASS]
+  THEN  ...for a cost of 23  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: the coefficient parser gives the same answers, cached or not
+  THEN  k*var  [PASS]
+  THEN  ...the other one  [PASS]
+  THEN  var*k reads the same  [PASS]
+  THEN  a bare variable is 1  [PASS]
+  THEN  a negative term keeps its sign  [PASS]
+  THEN  a fractional coefficient survives -- the R4 repair this parser exists for  [PASS]
+  THEN  a variable that is absent is 0  [PASS]
+  THEN  repeated terms ACCUMULATE  [PASS]
+  THEN  a short name does not match inside a longer one  [PASS]
+  THEN  ...and the longer one reads correctly  [PASS]
+  THEN  a second reading of a cached expression agrees  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: the model is solved, not merely returned
+  THEN  every variable is within its declared bounds  [PASS]
+  THEN  the preparation-time constraint holds  [PASS]
+  THEN  ...the chef-time constraint  [PASS]
+  THEN  ...and the oven constraint  [PASS]
+  THEN  the reported objective matches the solution it reports  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the speed this slice was actually about
+  THEN  a 40x30 model now solves in well under half a second  [PASS]
+  THEN  ...and it is optimal, not merely fast  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 27 assertions, 27 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,26 @@
+SCENARIO: Engine fswatch helpers exist
+  THEN  StzEngineFsWatchStart defined  [PASS]
+  THEN  StzEngineFsWatchPoll defined  [PASS]
+  THEN  StzEngineFsWatchStop defined  [PASS]
+  THEN  StzEngineFsWatchLastError defined  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Watch a fresh directory and pick up an ADD event
+  GIVEN a scratch directory
+  THEN  IsRunning is TRUE  [PASS]
+  THEN  LastError is empty  [PASS]
+  WHEN  a new file appears in the directory
+  THEN  the ADD event surfaced  [PASS]
+  THEN  IsRunning is FALSE after Stop  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Stop on a never-started watcher is a no-op
+  GIVEN a fresh watcher that never called Watch()
+  THEN  IsRunning is FALSE  [PASS]
+  THEN  IsRunning is still FALSE  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 10 assertions, 10 pass, 0 fail
+================================================
+STATUS: OK

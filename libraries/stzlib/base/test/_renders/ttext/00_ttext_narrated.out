@@ -1,0 +1,28 @@
+SCENARIO: Words and sentences over ASCII text
+  GIVEN 'The quick brown fox. It jumps!'
+  THEN  NumberOfWords is 6  [PASS]
+  THEN  Words lists them (punctuation stripped)  [PASS]
+  THEN  FirstWord is The  [PASS]
+  THEN  NumberOfSentences is 2  [PASS]
+  THEN  Sentences splits on . and !  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Words keep accented (multibyte) letters intact
+  GIVEN accented words
+  THEN  NumberOfWords is 3  [PASS]
+  THEN  Words counts 3 (no longer split at accents)  [PASS]
+  THEN  the first word is 'cafe-acute' intact  [PASS]
+  THEN  the second word is 'ecole' intact  [PASS]
+  THEN  the third word is 'naive' intact  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Sentence count keeps multibyte content
+  GIVEN a two-sentence text whose 2nd sentence has an accent
+  THEN  NumberOfSentences is 2  [PASS]
+  THEN  the 2nd sentence keeps its accented word  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

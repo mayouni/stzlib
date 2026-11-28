@@ -1,0 +1,14 @@
+-- Scene 1: reactivate a plain object (init no longer crashes) --
+  [OK] ReactivateObject returns a live wrapper
+
+-- Scene 2: watch + repeated set (the R54 crash pattern) --
+  [OK] repeated sets do NOT redefine/crash
+  [OK] a second attribute also round-trips
+  [OK] the watcher fired on every name change
+
+-- Scene 3: harvested initial values survive --
+  [OK] the wrapped object's initial value is visible
+
+==========================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+==========================================

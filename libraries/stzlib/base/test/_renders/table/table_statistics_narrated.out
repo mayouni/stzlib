@@ -1,0 +1,47 @@
+SCENARIO: A table now answers the column statistics it could not before
+  THEN  MedianCol(age) is 30  [PASS]
+  THEN  StdDevCol(age) is the sample sigma  [PASS]
+  THEN  VarianceCol(age) is 62.5  [PASS]
+  THEN  Q1Col(age) is 25  [PASS]
+  THEN  Q3Col(age) is 35  [PASS]
+  THEN  PercentileCol(age, 50) is the median  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Describe() summarises every NUMERIC column and skips the rest
+  THEN  age is a numeric column  [PASS]
+  THEN  city is NOT a numeric column  [PASS]
+  THEN  two columns are described, not three  [PASS]
+  THEN  ...and the text column is not among them  [PASS]
+  THEN  DescribeCol(income) counts all five rows  [PASS]
+  THEN  ...its mean is 53.8  [PASS]
+  THEN  ...its median is 51  [PASS]
+  THEN  ...its min and max frame the column  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Correlation and regression come through without leaving the table
+  THEN  age and income are strongly correlated  [PASS]
+  THEN  income-on-age slope is 2.48  [PASS]
+  THEN  ...intercept is -20.6  [PASS]
+  THEN  ...and r-squared is 0.9928  [PASS]
+  THEN  the matrix covers the two numeric columns  [PASS]
+  THEN  ...its diagonal is 1  [PASS]
+  THEN  ...and it is symmetric  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: It coerces numeric strings and steps over the non-numeric
+  THEN  median of the numeric part [10,20,30] is 20  [PASS]
+  THEN  the mean ignores the label and the null  [PASS]
+  THEN  ...yet the column as a whole is not numeric  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: DescribeQ() hands back a TABLE object, per the naming law
+  THEN  DescribeQ is an object  [PASS]
+  THEN  ...it is a table  [PASS]
+  THEN  ...with the eight statistics as rows  [PASS]
+  THEN  ...and a column per numeric variable  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 28 assertions, 28 pass, 0 fail
+================================================
+STATUS: OK

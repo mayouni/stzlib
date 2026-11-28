@@ -1,0 +1,99 @@
+== the convergence: heard, meant, rendered ==
+
+-- Scene 1: the four transforms all exist, and compose on ONE object --
+   The claim is not that four features exist. It is that the OUTPUT of
+   each is the INPUT of the next, with no adapter between them.
+  [ok]   text became a SOUND
+  [ok]   and it is an ordinary buffer, not a speech object
+   a spoken phrase measures -22.043 LUFS with 1 onsets
+  [ok]   SN5's loudness reads a spoken phrase
+  [ok]   and SN5's onsets find events in it
+   Neither instrument knows what speech is. That is the point: a voice
+   renders to a buffer, and a buffer is a stzSound.
+
+-- Scene 2: THE MISSING STEP, and it is named --
+   Every link existed except 'text is a meaning'. Without a face for it,
+   that step is a switch in application code: outside these faces, rewritten
+   by every caller, and drifting from the grammar it must agree with.
+  [ok]   an empty declaration is refused
+  [ok]   and counted
+  [ok]   a SIXTH semantic value is refused at declaration time
+  [ok]   and counted
+   AcceptMeanings: 'catastrophe' is not one of the five semantic values: danger, warning, info, success, muted
+   Caught here rather than at the far end of the loop, where the cause
+   is hardest to see.
+  [ok]   a row that is not [phrase, meaning] is refused
+
+-- Scene 3: THE LOOP, closed, with nothing outside these faces in it --
+
+   FIRST THE LANGUAGE IS NEGOTIATED, and this scene failed until it was.
+   The first cut spoke ENGLISH into a recognizer that hears FRENCH, and
+   got back an empty string and a confidence of 0.257. Nothing was
+   broken: this machine SPEAKS en-US and fr-FR and HEARS fr-FR only, and
+   VC0 measured that asymmetry before any of this was built. A loop that
+   assumed one language would be a loop that only closes on the author's
+   laptop.
+   speaks : fr-FR, en-US
+   hears  : fr-FR
+  [ok]   a language BOTH directions support was found
+   both   : fr-FR   <- the loop is run in this one
+  [ok]   a well-formed declaration is accepted
+  [ok]   the grammar and the meanings are ONE declaration -- four of each
+  [ok]   and the grammar really reached the recognizer
+
+   A phrase is SPOKEN by this plane's own voice and HEARD by this
+   plane's own recognizer. No microphone, no file, no hand-recorded
+   fixture -- a stzSound passed between two faces, which is the only
+   reason this is testable at all on a machine with no audio input.
+
+   disque plein  ->  'disque plein' (0.576)  ->  danger  ->  colour+earcon+phrase
+   le certificat expire  ->  'le certificat expire' (0.927)  ->  warning  ->  colour+earcon+phrase
+   indexation en cours  ->  'indexation en cours' (0.918)  ->  info  ->  colour+earcon+phrase
+   sauvegarde terminee  ->  'sauvegarde terminee' (0.917)  ->  success  ->  colour+earcon+phrase
+
+   mean confidence over the four: 0.834
+  [ok]   ALL FOUR closed the loop end to end
+  [ok]   with no step outside stzVoice, stzListener, stzEarcons and stzColor
+  [ok]   a phrase OUTSIDE the grammar yields no meaning
+  [ok]   and that is a RESULT, not a refusal -- somebody said something that is not a command
+
+-- Scene 4: where the loop does NOT close, and why that is correct --
+   The sound plane carries Rule 118's five. The colour face carries six,
+   and they are not the same six.
+   sound  : danger, warning, info, success, muted
+   colour : primary, success, warning, danger, info, muted, neutral
+   values that render in BOTH channels: 5 of 5
+   sound-only:
+  [ok]   all five render in BOTH channels -- :Muted included, since colour gave it a treatment
+  [ok]   and no value is left to one channel alone
+  [ok]   colour's :Muted is a TREATMENT, not one grey: a muted danger is not a muted success
+
+   One value, a rendering per medium: in colour, a status held at a
+   quarter of its chroma (a waiting danger stays a dusty red); in sound,
+   silence -- waiting is not an event. The VALUE is shared; how it is
+   rendered is each medium's own.
+
+   The colour face's :Primary and :Neutral have no earcon, and should not:
+   they are theme roles, not states. The overlap is the four STATES, and
+   the loop is claimed for those.
+
+-- Scene 5: a transport that says where it is --
+   Composition, not a new face: the transport already reports a position
+   and the voice already speaks. Nothing was added to either.
+   the transport stopped at 1.231 s
+   spoken as: Position, 1 point 2 seconds.
+  [ok]   the position became a phrase, and the phrase a sound
+  [ok]   a clock reading became speech with no new face
+
+-- Scene 6: an analysis, sonified AND spoken --
+   sound -> data -> both channels. The number is measured once and
+   rendered twice, which is what stops the two from disagreeing.
+   measured: -9.714 LUFS and -29.714 LUFS, a gap of 20.000 dB
+  [ok]   the two really differ
+  [ok]   the measurement became a spoken sentence
+   spoken: The second is 19 decibels quieter than the first.
+  [ok]   and an earcon, from a threshold the author stated
+   sonified as: success (the author's threshold, not the library's)
+  [ok]   one measurement, two renderings, no second measurement
+
+26 passed, 0 failed, 0 skipped

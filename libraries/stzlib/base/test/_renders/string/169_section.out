@@ -1,0 +1,12 @@
+SCENARIO: Sections forward and end-relative
+  GIVEN "1234567"
+  THEN  Section(3, 5) is '345'  [PASS]
+  THEN  Section(5, 3) auto-orders to '345'  [PASS]
+  THEN  SectionXT(3, -3) resolves -3 from the end -> '345'  [PASS]
+  THEN  SectionXT(-3, 3) resolves -3 (=5) then reverses -> '543'  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,17 @@
+SCENARIO: The ratchet: no file counts more than its baseline, and no new file counts any
+  GIVEN the library walked (1048 files) and counted by the markup-concatenation rule
+  THEN  no new file counts any line  [FAIL]
+    expected: 0
+    got:      1
+    NEW WRITER: neural/stzNeuralModel.ring (2)
+  THEN  no file counts more than its baseline  [PASS]
+    (1 file(s) count less than the baseline; lower it:)
+      data/stzRegexData.ring 10 -> 0
+  THEN  the baseline is not empty (the gate reads something)  [PASS]
+  state  190 lines in 29 files today; the baseline holds 29 files
+  -> 2 pass, 1 fail
+
+================================================
+TOTAL: 3 assertions, 2 pass, 1 fail
+================================================
+STATUS: FAILED

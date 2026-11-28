@@ -1,0 +1,83 @@
+SCENARIO: Eigenvalues agree with LAPACK, even where the matrix is nasty
+  THEN  hilbert4 eigenvalues match LAPACK to 1e-12  [PASS]
+  THEN  hilbert5 too, at kappa 4.8e5  [PASS]
+  THEN  hilbert6 too, at kappa 1.5e7  [PASS]
+  THEN  tridiag5 agrees essentially exactly  [PASS]
+  THEN  ...and so does the easy control  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Singular values and condition numbers agree with LAPACK
+  THEN  hilbert6 singular values match to 1e-9  [PASS]
+  THEN  vander4 singular values match to 1e-12  [PASS]
+  THEN  hilbert4's condition number matches LAPACK  [PASS]
+  THEN  hilbert6's does too, at 1.5e7  [PASS]
+  THEN  ...and the near-singular matrix's, at 4.0e7  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: A LINEAR SOLVE stays inside the accuracy its conditioning permits
+  THEN  hilbert4's solve is within kappa*eps  [PASS]
+  THEN  hilbert5's solve is within kappa*eps  [PASS]
+  THEN  hilbert6's solve is within kappa*eps, at kappa 1.5e7  [PASS]
+  THEN  ...and no worse than LAPACK at n=4  [PASS]
+  THEN  ...nor at n=5  [PASS]
+  THEN  ...nor at n=6  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: ...and WRITING the matrix down costs more than solving it does
+  THEN  the true Hilbert-6 solve is exactly the integers -6, 210, -1680, ...  [PASS]
+  THEN  ...yet the f64 matrix's own exact answer is NOT those integers  [PASS]
+  THEN  ...and that representation error exceeds LAPACK's algorithmic error  [PASS]
+  THEN  ...but both stay inside the conditioning bound  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Determinants, rank and a complex spectrum agree with LAPACK
+  THEN  hilbert6's determinant matches LAPACK  [PASS]
+  THEN  vander4's determinant is exactly 12  [PASS]
+  THEN  hilbert6 is full rank despite kappa 1.5e7  [PASS]
+  THEN  ...and the near-singular matrix is still full rank numerically  [PASS]
+  THEN  rot3's real parts match LAPACK  [PASS]
+  THEN  ...and the imaginary parts are +/- 1  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: ...and the inconsistency this pass uncovered, now fixed
+  THEN  Inverse() now returns the inverse as data  [PASS]
+  THEN  ...leaving the receiver untouched  [PASS]
+  THEN  ...and Inverted() reads the same  [PASS]
+  THEN  Invert() replaces the matrix by its inverse  [PASS]
+  THEN  InverseQ() chains, and inverting twice is the identity  [PASS]
+  THEN  Inverse() matches LAPACK  [PASS]
+  THEN  ...and so does PseudoInverse(), on the same untouched matrix  [PASS]
+  THEN  ...and the receiver survived both  [PASS]
+  THEN  LUInverse() matches LAPACK on hilbert4 within its conditioning  [PASS]
+  THEN  ...and Inverse() agrees with LUInverse() on that hard matrix  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Cholesky matches LAPACK across the corpus, hard cases included
+  THEN  the easy control factors to the last printed bit  [PASS]
+  THEN  tridiag5 too  [PASS]
+  THEN  hilbert4 within its conditioning  [PASS]
+  THEN  hilbert5 within its conditioning  [PASS]
+  THEN  hilbert6 within its conditioning, at kappa 1.5e7  [PASS]
+  THEN  ...and the barely-positive-definite case at kappa 4.0e7  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Least squares on a problem with a REAL residual
+  THEN  the fitted coefficients match LAPACK within the derived bound  [PASS]
+  THEN  ...and the engine's own residual norm equals LAPACK's optimum  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The inverse family built on QR and Cholesky honors conditioning
+  THEN  CholeskyInverse matches LAPACK on the easy control  [PASS]
+  THEN  QRInverse matches LAPACK on the easy control  [PASS]
+  THEN  CholeskyInverse survives hilbert4 within kappa^2 * eps  [PASS]
+  THEN  QRInverse survives hilbert4 within kappa^2 * eps  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Conditioning PREDICTS the error, not merely bounds it
+  THEN  hilbert6's solve error sits inside the kappa-predicted window  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 49 assertions, 49 pass, 0 fail
+================================================
+STATUS: OK

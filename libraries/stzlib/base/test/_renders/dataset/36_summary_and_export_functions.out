@@ -1,0 +1,23 @@
+[
+	[ "data_type", "numeric" ],
+	[ "count", 5 ],
+	[ "unique_count", 5 ],
+	[ "mean", 30 ],
+	[ "median", 30 ],
+	[ "mode", "10" ],
+	[ "standard_deviation", 15.81 ],
+	[ "variance", 250 ],
+	[ "range", 40 ],
+	[ "min", 10 ],
+	[ "max", 50 ],
+	[
+		"quartiles",
+		[ 20, 30, 40 ]
+	],
+	[ "skewness", 0 ],
+	[ "kurtosis", -1.20 ],
+	[ "outliers", [  ] ]
+]
+
+
+Line 2995 Can't proceed! The inherited template must be named by a plain name.

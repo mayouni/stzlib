@@ -1,0 +1,32 @@
+190
+190
+60.55
+
+[
+	[ "min", 100 ],
+	[ "q1", 145 ],
+	[ "median", 190 ],
+	[ "q3", 235 ],
+	[ "max", 280 ],
+	[ "whisker_low", 100 ],
+	[ "whisker_high", 280 ],
+	[ "iqr", 90 ]
+]
+
+[
+	[ "slope", 20 ],
+	[ "intercept", 80 ],
+	[ "r_squared", 1 ]
+]
+
+[
+	[ "test", "heuristic" ],
+	[ "skewness", 0 ],
+	[ "kurtosis", -1.20 ],
+	[ "p_value", 0.30 ],
+	[ "is_normal", 0 ]
+]
+
+
+----------------
+----------------

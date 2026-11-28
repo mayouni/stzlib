@@ -1,0 +1,36 @@
+-- Scene 1: six provinces coloured by people per km2, in four classes --
+   6 regions, 4 legend swatches, the edges 0, 50, 100, 200, 400
+  [OK] six regions and one swatch per class
+   'Centre' has 310 and falls in class 4
+  [OK] a value between the fourth and fifth edge falls in the fourth class -- the lower edge belongs, the upper does not
+   'North' has 35 and falls in class 1
+  [OK] the lightest class holds the smallest value
+  [OK] the legend's fourth swatch stands for the fourth class
+  [OK] and every swatch's shade is darker than the one before it
+
+-- Scene 2: four rules about a map, and a sound one passes them --
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 0
+   every_region_has_a_value, values_fall_in_the_classes, darker_means_more, every_class_has_a_region
+  [OK] the map has nothing wrong with it
+
+-- Scene 3: the same map with one of each mistake, and a legend that says why --
+   the centre at 450, above the last class; the south-west with no value;
+   the north lifted out of the first class so it colours nothing; a palette
+   whose third shade is lighter than its second.
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 4
+     every_region_has_a_value -- every region carries a value -- 'South-west' has no value -- a hole in the map, drawn as no data
+     values_fall_in_the_classes -- every value falls between the first edge and the last -- 'Centre' is 450, above the last class, which ends at 400 -- it has no colour
+     darker_means_more -- each class is darker than the one before it -- class 3 (100 - 200) is lighter than class 2 (50 - 100) -- a darker colour means more
+     every_class_has_a_region -- no class of the legend colours nothing on the map -- class 1 (0 - 50) colours no region -- the legend promises a shade the map never shows
+  [OK] the hole is named
+  [OK] the value beyond the classes is named with the edge it passes
+  [OK] the shade out of order is caught, class against class
+  [OK] the class that colours nothing is caught
+  [OK] and those four are everything the rules find
+   the legend reads: 0 - 50  (no region) / 100 - 200  (out of order) / above 400  (no class)
+  [OK] the legend says why -- the empty class, the shade out of order, the value above the classes
+
+-- Scene 4: the pictures --
+   wrote guide_choropleth.png and guide_choropleth_witness.png
+
+== 12 passed, 0 failed ==

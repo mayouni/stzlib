@@ -1,0 +1,72 @@
+SCENARIO: An implementation says where it can run
+  THEN  the floor can run English here  [PASS]
+  THEN  it cannot run Klingon here, and says why  [PASS]
+  THEN  on Linux it cannot run at all: its platforms say so before its probe is asked  [PASS]
+  THEN  the model, declared nowhere in particular, runs on Linux  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A measurement does not count what could not run
+  THEN  the floor is measured on the 4 items it can run, not on all 9  [PASS]
+  THEN  ...and scores 1 on them: no Klingon zero drags it down  [PASS]
+  THEN  ...and its note says how many were left out, and where  [PASS]
+  THEN  the model is measured on all 9  [PASS]
+  THEN  there is NO Klingon row for the floor: not measured is not zero  [PASS]
+  THEN  the court skips the 5 items the floor could not run: no gain, no loss -- 0 and 0, not 5 and 0  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: A resolution sets aside what cannot run here, and says so
+  THEN  English: the floor runs, the model does not beat it on evidence (a tie): the floor answers  [PASS]
+  THEN  Klingon: the floor cannot run it here, so the model answers  [PASS]
+  THEN  ...and the Why says the floor is unavailable and why  [PASS]
+  THEN  ...says the court had nothing to compare it with  [PASS]
+  THEN  ...and does NOT promise a fallback that cannot run  [PASS]
+  THEN  as on Linux, even English goes to the model: the floor exists only on Windows  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Nothing available is a refusal that names what is missing
+  THEN  on Linux, a faculty whose only implementation is Windows-only is a refusal  [PASS]
+  THEN  ...and the refusal says what cannot run and why  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: A model that fails never falls back to a floor that cannot run
+  THEN  Klingon goes to the model; it falls over on 'boom'; the floor cannot read Klingon: a refusal, not a wrong answer  [PASS]
+  THEN  ...naming both the failure and why the floor could not take over  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: A re-measurement replaces the old rows, the per-language ones included
+  THEN  an old Klingon row for the floor is on record  [PASS]
+  THEN  after re-measuring here, it is gone: the floor could not run Klingon here, so there is no row  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The real :ocr on this machine
+   this machine's OCR packs: [ "ar-SA", "fr-FR" ]
+   ocr [en] ->
+  THEN  English: no English pack here, so the floor is set aside and the portable model answers  [FAIL]
+    expected: "ppocr"
+    got:      ""
+  THEN  as on Linux, French goes to the model: the platform engine exists only on Windows  [FAIL]
+    expected: "ppocr"
+    got:      ""
+  THEN  and :faces to yunet, for the same reason  [FAIL]
+    expected: "yunet"
+    got:      ""
+  -> 0 pass, 3 fail
+
+SCENARIO: The report (MP1) says what the registry chooses, here and on another system
+   the report has 17 entries for the shipped faculties
+  THEN  every entry of the report names what the registry itself chooses  [PASS]
+  THEN  on Linux the report gives :faces to yunet  [FAIL]
+    expected: "yunet"
+    got:      ""
+  THEN  ...and :ocr in French to the model, the floor being unavailable there  [FAIL]
+    expected: "ppocr"
+    got:      ""
+  THEN  ...and the report sets $cStzPlacementOS back when it is done  [PASS]
+  THEN  the text names what cannot run here and why  [PASS]
+  THEN  the page is written  [PASS]
+  -> 4 pass, 2 fail
+
+================================================
+TOTAL: 31 assertions, 26 pass, 5 fail
+================================================
+STATUS: FAILED

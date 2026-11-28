@@ -1,0 +1,24 @@
+-- Scene 1: the goal declares the shape; gaps generate questions --
+  [OK] the gap is computed from the SPACE
+  [OK] the question is SYSTEM-LED and names its subject
+  [OK] the question is ACCOUNTABLE (it says why it asks)
+
+-- Scene 2: the answer protocol -- registers in, governed admission --
+  [OK] natural phrasing admits (register 4: 'X and Y')
+  [OK] a data structure admits (register 2)
+  [OK] admissions are grounded in THE SPACE the session runs in
+
+-- Scene 3: refusal is governed AND checkpointed (G7) --
+  [OK] the :Unique law refuses through the conversation
+  [OK] the refusal reaches a human checkpoint with context
+
+-- Scene 4: the session ends by WRITING the knowledgebase --
+  [OK] gaps closed
+  [OK] Conclude writes the SPACE as .zknw
+  [OK] the transcript reads as dialogue
+  [OK] the conversation persists (*.stzconv)
+  [OK] concluding with open gaps REFUSES (LAW 3)
+
+==========================================
+TOTAL: 13 assertions, 13 pass, 0 fail
+==========================================

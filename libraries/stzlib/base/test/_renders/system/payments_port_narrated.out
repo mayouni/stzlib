@@ -1,0 +1,85 @@
+SCENARIO: the happy path, and an assertable ledger
+  THEN  it is authorized  [PASS]
+  THEN  ...with a deterministic id (no randomness in a sandbox)  [PASS]
+  THEN  ...and a status  [PASS]
+  THEN  capture succeeds  [PASS]
+  THEN  ...for the full authorized amount  [PASS]
+  THEN  ...and the authorization now reads captured  [PASS]
+  THEN  a PARTIAL refund is allowed  [PASS]
+  THEN  ...and tracked per authorization  [PASS]
+  THEN  the ledger totals what was captured  [PASS]
+  THEN  ...what was refunded  [PASS]
+  THEN  ...and what the merchant actually keeps  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: the state machine refuses exactly what a real gateway refuses
+  WHEN  the same authorization is captured a second time
+  THEN  it is refused  [PASS]
+  THEN  ...saying why  [PASS]
+  WHEN  a DECLINED authorization is captured
+  THEN  the authorization itself declined  [PASS]
+  THEN  ...for a stated reason  [PASS]
+  THEN  capturing it is refused  [PASS]
+  THEN  ...explicitly  [PASS]
+  WHEN  more is refunded than was captured
+  THEN  it is refused  [PASS]
+  THEN  ...saying why  [PASS]
+  WHEN  an UNCAPTURED authorization is refunded
+  THEN  there is nothing to refund  [PASS]
+  WHEN  more is captured than was authorized
+  THEN  it is refused  [PASS]
+  WHEN  an id that does not exist is used
+  THEN  it is refused rather than invented  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: rules you write, so the FAILURE paths are testable at all
+  WHEN  an approval ceiling is set
+  THEN  below it approves  [PASS]
+  THEN  at or above it declines  [PASS]
+  WHEN  a decline ceiling is set instead
+  THEN  under it approves  [PASS]
+  THEN  over it declines  [PASS]
+  WHEN  a "test card" is nominated
+  THEN  that token always declines  [PASS]
+  THEN  ...while others still approve  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: an OUTAGE is not a decline, and the difference matters
+  THEN  the call fails  [PASS]
+  THEN  ...as REFUSED, not declined  [PASS]
+  THEN  ...because the gateway was unreachable  [PASS]
+  THEN  it is a ONE-SHOT failure, so the next call works  [PASS]
+  THEN  ...and no phantom authorization was recorded for the outage  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: money is an integer in minor units
+  THEN  4200 means 42.00 and is fine  [PASS]
+  THEN  a FLOAT is refused  [PASS]
+  THEN  ...for a stated reason  [PASS]
+  THEN  a negative amount is refused  [PASS]
+  THEN  zero is refused  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: the movement journal records what happened, in order
+  THEN  every movement is recorded  [PASS]
+  THEN  ...in order: authorize  [PASS]
+  THEN  ...then capture  [PASS]
+  THEN  ...then refund  [PASS]
+  THEN  ...then the decline  [PASS]
+  THEN  with amounts  [PASS]
+  THEN  declines are countable  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: through the registry, and refused in production
+  THEN  the registry recognises the double  [PASS]
+  WHEN  the application charges through the service the registry hands back
+  THEN  the ORIGINAL gateway recorded it -- state survived Ring's copy  [PASS]
+  WHEN  the phase becomes production with the fake gateway still bound
+  THEN  it is refused  [PASS]
+  THEN  ...naming payments  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 49 assertions, 49 pass, 0 fail
+================================================
+STATUS: OK

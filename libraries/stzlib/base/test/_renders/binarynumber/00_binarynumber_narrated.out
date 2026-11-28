@@ -1,0 +1,16 @@
+SCENARIO: Binary form to decimal
+  THEN  0b1111111 -> 127  [PASS]
+  THEN  0b1010 -> 10  [PASS]
+  THEN  0b100000 -> 32  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Decimal to binary form
+  GIVEN a binary number rebuilt from decimals
+  THEN  FromDecimal(127) -> 0b1111111  [PASS]
+  THEN  FromDecimal(255) -> 0b11111111  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,38 @@
+== MU13: metre changes, and the kit's cymbals ==
+
+-- Scene 1: the time signature changes at a barline --
+   1:4/4 3:3/4 5:6/8 -- 6 bars on 1 system
+  [ok]   4/4 for two bars, 3/4 for two, 6/8 for two: each bar the length its metre says
+  [ok]   the new signatures are drawn where they begin, inside the system
+  [ok]   in 6/8 the eighths are beamed in THREES, by the dotted quarter -- four groups in two bars
+  [ok]   a note across a barline into a shorter bar is split by the bars' OWN lengths: a half tied to a half
+  [ok]   and three beats fill a 3/4 bar as ONE dotted half, with no tie
+  [ok]   a half note begun on beat 3 of a 3/4 bar is a quarter there, tied to a quarter over the barline
+  [ok]   a change asked for inside a bar is written at the next barline, and counted
+  [ok]   and a metre that is not one is refused
+  [ok]   a key and a metre may change at the same barline: both are drawn there
+
+-- Scene 2: at the head of a system, and the courtesy signature before it --
+   a narrow page: 6 systems; signatures head courtesy head courtesy head
+  [ok]   a system that begins with a change carries the new signature in its head
+  [ok]   and the system before it ends with a COURTESY signature
+
+-- Scene 3: the cymbals, drawn --
+   strokes: ride crash ride snare ride ride ride ride snare ride ride kick
+  [ok]   the score takes the cymbals: no refusal
+  [ok]   the ride is an x on the top line, the crash an x above the staff -- on a ledger line of its own
+  [ok]   and both are the hands' -- the upper voice, stems up
+
+-- Scene 4: the cymbals, SOUNDED, and carried --
+   energy after 0.6 s, against the first 0.1 s: crash 0.990, ride 0.117, hihat 0
+  [ok]   a crash written half a beat long still RINGS -- its sound lasts at least two seconds, as cymbals do
+  [ok]   and is still sounding after 0.6 s, when the hihat has long gone
+  [ok]   a darbouka has no cymbal, and says so: that stroke is not one this instrument has
+  [ok]   MIDI carries them by General MIDI's keys (crash 49, ride 51), and reads them back
+  [ok]   the pattern language spells them cr and rd
+
+-- The listener's line --
+   Whether the crash and ride SOUND like cymbals, and the changing metres
+   read as an engraver writes them, is not a number: UNPERCEIVED.
+
+19 passed, 0 failed

@@ -1,0 +1,59 @@
+-- Scene 1: the catalog is closed --
+  [OK] a catalogued action is accepted
+  [OK] an action outside the catalog refuses, with the catalog
+
+-- Scene 2: an incident PROPOSES its own containment --
+Response plan contain-INC-9 -- 4 proposed action(s).
+  1. lockaccount 'billing-agent'
+     because incident INC-9: auth.login.failed then secret.reveal.refused within 26000ms by 'billing-agent' -- a failed sign-in followed by a reach for a secret -- the classic shape of a stolen-credential attempt
+  2. revokesession 'billing-agent'
+     because incident INC-9: auth.login.failed then secret.reveal.refused within 26000ms by 'billing-agent' -- a failed sign-in followed by a reach for a secret -- the classic shape of a stolen-credential attempt
+  3. revokecapability 'billing-agent'
+     because incident INC-9: auth.login.failed then secret.reveal.refused within 26000ms by 'billing-agent' -- a failed sign-in followed by a reach for a secret -- the classic shape of a stolen-credential attempt -- and this actor can reach an effectful capability
+  4. rotatesecret 'stripe-live'
+     because incident INC-9: auth.login.failed then secret.reveal.refused within 26000ms by 'billing-agent' -- a failed sign-in followed by a reach for a secret -- the classic shape of a stolen-credential attempt -- the secret was reached for
+  [OK] the plan derived actions from the incident's own facts
+  [OK] ...locking the account it names
+  [OK] ...revoking its sessions
+  [OK] ...revoking the capability, because the graph says it can reach effectful
+  [OK] ...and rotating the secret it reached for
+  [OK] every action carries the incident's own rationale
+
+-- Scene 3: the LLM may propose -- and may NEVER commit --
+  [OK] preflight refuses the inference-only actor
+  [OK] ...and says why in words
+  [OK] preflight admits the effectful human
+  [OK] the LLM's execution commits NOTHING
+  [OK] ...the responder was never touched
+  [OK] ...and all four actions were audited REFUSED
+  [OK] the refusals reached the LEDGER too
+
+-- Scene 4: the effectful actor commits -- in order, audited --
+  [OK] all four actions committed
+  [OK] the responder received them in the proposed order
+  [OK] ...naming the right targets
+  [OK] the audit holds both verdicts (4 refused + 4 committed)
+  [OK] the plan knows it crossed
+
+-- Scene 5: the response is IN the story, not beside it --
+  [OK] each committed action became a ledger event
+  [OK] ...naming the actor who committed it
+  [OK] the chain covers attack AND response
+  the ledger now holds 14 event(s): the attack, the refusals, the containment
+  [OK] no detection watches response kinds (no feedback loop)
+
+-- Scene 6: the incident records that it was contained --
+  [OK] the incident moved forward
+  [OK] ...and closed
+
+-- Scene 7: the full circle, in one sentence each --
+  1. the seams witnessed  : 10 refusal(s) recorded
+  2. a detection judged   : guess-then-reach
+  3. the incident said HOW: billing-agent -> ... -> effectful
+  4. the machine proposed : 4 containment action(s)
+  5. a human committed    : 4, audited and ledgered
+  [OK] the circle closed with the LLM never committing anything
+
+==========================================
+TOTAL: 27 assertions, 27 pass, 0 fail
+==========================================

@@ -1,0 +1,15 @@
+SCENARIO: Finding and splitting a tutorial sentence
+  THEN  both tutorials found  [PASS]
+  THEN  counted  [PASS]
+  THEN  the next after 20  [PASS]
+  THEN  the previous before 20  [PASS]
+  THEN  43 chars in all  [PASS]
+  THEN  12-char pieces, remainder kept (XT)  [PASS]
+  THEN  split before positions  [PASS]
+  THEN  split before each a  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,81 @@
+==============================================================
+ C3 -- contrast as a number
+==============================================================
+
+-- 1. Both metrics against their PUBLISHED anchors -----------
+   WCAG  white on black : 21   anchor 21.00
+   WCAG  white on white : 1   anchor  1.00
+   APCA  black on white : 106.04   anchor ~106
+   APCA  white on black : -107.88   anchor ~-108
+   ok   WCAG hits 21.0 exactly
+   ok   WCAG hits 1.0 for a colour against itself
+   ok   APCA reaches its published Lc for black on white
+   ok   APCA carries POLARITY (the reverse pair is negative)
+
+-- 2. THE GATE: every shipped theme, every role -------------
+   minimum : 4.50:1  (WCAG 2 body text)
+
+   theme      role         fill      on        ratio   verdict
+   --------   ----------   -------   -------   -----   -------
+   neutral    primary     #FFFFFF   black     21      ok
+   light      primary     #4D4DC9   white     6.52    ok
+   dark       primary     #E0E0FF   black     16.28   ok
+   vibrant    primary     #0000FF   white     8.59    ok
+   pro        primary     #4D4DC9   white     6.52    ok
+   access     primary     #0000FF   white     8.59    ok
+   print      primary     #FFFFFF   black     21      ok
+
+   checked 49 theme/role pairs, 0 below 4.50:1
+   ok   every shipped theme role can carry legible text  [got 0, want 0]
+
+-- 3. C2's role steps, gated the same way -------------------
+   role       .Text on white   :On<Role> on .Solid
+   --------   --------------   -------------------
+   primary    9.31            5.57
+   success    7.96            6.15
+   warning    8.60            5.63
+   danger     9.22            5.10
+   info       9.31            5.57
+   ok   every generated step pair is legible  [got 0, want 0]
+
+-- 4. The gate can REFUSE (or it is not a gate) -------------
+   ok   mid-grey on white is REFUSED
+   ok   black on white passes
+   ok   a colour on itself is refused
+   #999999 on white : 2.85:1  (below 4.50)
+   large-text minimum is lower, and named : 3:1
+   ok   the large-text minimum is a DIFFERENT, named number
+
+-- 5. WCAG and APCA are not one metric twice ----------------
+   swept 156 grey/ground pairs
+   verdicts differ on 23  (14%)
+   first disagreement : #000000 on #767676  WCAG 4.62  Lc 32.51
+   ok   the two metrics reach different verdicts somewhere
+   (WCAG 2 is known to be generous in the dark mid-tones; that band is
+    where the disagreements land, and it is why both are carried.)
+
+-- 4. :MUTED -- family one's fifth value ---------------------
+
+   value      live      muted     hue    text
+   danger    #FF0000   #D6A199   1      9.42:1
+   success   #008000   #8DA38A   1      7.74:1
+   warning   #FFA500   #E2CBB2   2      13.42:1
+   info      #0000FF   #778FC0   1      6.47:1
+   statuses whose hue drifted when muted : 0
+   ok   muting holds the hue -- a waiting danger is still a danger  [got 0, want 0]
+   muted statuses that collapsed onto each other : 0
+   ok   ...and no two of them become one grey  [got 0, want 0]
+   muted statuses that cannot carry text : 0
+   ok   a muted fill still reads  [got 0, want 0]
+   :Muted #ABABAB vs :Neutral #808080
+   ok   the fifth value resolves on its own, with no theme in force
+   ok   ...and family one's muted is not family two's neutral
+   ok   it is exactly the treatment applied to neutral -- ONE mechanism  [got #ABABAB, want #ABABAB]
+   themes with no muted role : 0 , themes where muted = neutral : 0
+   ok   every shipped theme names the fifth value  [got 0, want 0]
+   ok   ...and states it where it states a neutral at all  [got 0, want 0]
+
+==============================================================
+ VERDICT : C3 PASSES -- the themes clear the stated minimum
+ 19 ok, 0 failed
+==============================================================

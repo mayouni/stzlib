@@ -1,0 +1,50 @@
+SCENARIO: numbers that live in the engine
+  THEN  it knows how many it holds  [PASS]
+  THEN  ...and can be read one at a time, 1-based  [PASS]
+  THEN  ...to the end  [PASS]
+  THEN  a reduction comes back as a scalar  [PASS]
+  THEN  ...and another  [PASS]
+  WHEN  a chain of elementwise operations is applied
+  THEN  each was a full pass over resident memory  [PASS]
+  THEN  ...with nothing marshalled between them  [PASS]
+  THEN  the view is taken ONCE, at the end  [PASS]
+  THEN  and it can be released, since Ring has no destructors  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: two buffers, elementwise, without either leaving the engine
+  THEN  the dot product is one call and one scalar  [PASS]
+  THEN  elementwise addition lands in place  [PASS]
+  THEN  ...and subtracts back  [PASS]
+  THEN  ...and multiplies  [PASS]
+  GIVEN buffers of different lengths, where the operation is meaningless
+  THEN  it is REFUSED rather than half-applied  [PASS]
+  THEN  ...leaving the buffer untouched  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: built engine-side, so even the filling costs one call
+  THEN  a range is written straight into resident memory  [PASS]
+  THEN  ...and reduces there too  [PASS]
+  THEN  a sized buffer starts at zero  [PASS]
+  THEN  ...and fills without a list ever existing in Ring  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the sum is COMPENSATED, which matters exactly when a buffer is big
+  THEN  the compensated sum keeps the thousand ones  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: the variance convention is asked of the one authority, not decided again
+  THEN  population, by name  [PASS]
+  THEN  sample, by name  [PASS]
+  THEN  the default is sample, as everywhere else since phase 0  [PASS]
+  THEN  standard deviation follows it  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: a copy is independent, because the truth is engine-side
+  THEN  the copy moved  [PASS]
+  THEN  ...and the original did not  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 26 assertions, 26 pass, 0 fail
+================================================
+STATUS: OK

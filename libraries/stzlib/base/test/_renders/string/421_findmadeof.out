@@ -1,0 +1,12 @@
+SCENARIO: Runs made of the chars 1 and 2
+  GIVEN "...12..1212..121212..12."
+  THEN  the run starts  [PASS]
+  THEN  the run spans  [PASS]
+  THEN  the run substrings  [PASS]
+  THEN  each run paired with its span  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

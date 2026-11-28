@@ -1,0 +1,25 @@
+35
+38
+41
+44
+47
+5
+41
+delivery_1
+delivery_5
+[
+	[ "current_plan", "delivery_5" ],
+	[ "cost", 47 ],
+	[ "steps", 3 ],
+	[ "historical_average_cost", 41 ],
+	[ "historical_average_steps", 3 ],
+	[
+		"observation",
+		"✗ Current plan is 14.63% worse than average"
+	],
+	[ "best_historical_plan", "delivery_1" ]
+]
+
+
+----------------
+----------------

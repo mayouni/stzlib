@@ -1,0 +1,81 @@
+-- Scene 1: the display list learned to take TRIANGLES --
+  [OK] three triangles are ONE display-list command
+  [OK] the SVG tier draws one polygon per triangle
+  [OK] ...and it carries the per-vertex colour
+  [OK] ...including the SECOND triangle's, which differs
+  [OK] an index past the last vertex is refused
+  [OK] a vertex list that is not a multiple of 6 is refused
+  [OK] an index count that is not a multiple of 3 is refused
+  [OK] ...and none of those three was added
+
+-- Scene 2: is there a layout engine on this machine? --
+  [OK] StzGuiAvailable answers without raising
+
+-- Scene 3: a document lays itself out --
+   #bar  [ 0, 0, 640, 48 ]
+   #side [ 0, 48, 160, 352 ]
+   #main [ 160, 48, 480, 352 ]
+  [OK] the bar spans the panel's width
+  [OK] ...at its declared height
+  [OK] the sidebar keeps its declared 160px
+  [OK] ...and sits BELOW the bar, not beside it
+  [OK] main takes the rest of the row
+  [OK] ...starting where the sidebar ends
+  [OK] an element that does not exist answers []
+
+-- Scene 4: it is layout, not arithmetic done once --
+  [OK] after a resize the sidebar still holds 160
+  [OK] ...and main shrank with the panel
+  [OK] ...which is a DIFFERENT number than before
+
+-- Scene 5: the triangles come across, and the record counts --
+   triangles 8   counters [ 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+  [OK] four coloured boxes became triangles
+  [OK] every draw RmlUi asked for was recorded
+  [OK] no textured draw was dropped on this document
+  [OK] no scissor region was ignored
+  [OK] the stub font engine was never asked to draw
+  [OK] the vertex list is 6 numbers per vertex
+  [OK] ...and there are at least 3 vertices per triangle
+  [OK] every colour channel is inside 0..255
+
+-- Scene 6: a panel is a picture, on whichever tier this box has --
+  [OK] the panel draws into a canvas
+  [OK] ...as ONE display-list command
+  [OK] the SVG tier renders it with no device at all
+  [OK] ...and the bar's declared blue survived the whole seam
+  [OK] ...and the sidebar's, which is a different colour
+
+-- Scene 7: RML IS NOT HTML, and the loader is LENIENT about it --
+   unclosed <br> -> status 0
+   said: Closing tag 'body' mismatched on [document from memory]:1 was expe...
+  [OK] an unclosed <br> is a parse ERROR
+  [OK] ...and the loader still answers OK, not a refusal
+  [OK] ...so the message is the only witness -- and it names the tag
+  [OK] a div under a BLOCK parent ignores width and height
+  [OK] ...and therefore produces no geometry at all
+  [OK] the SAME markup with an explicit display: block lays out
+  [OK] ...and now it draws
+
+-- Scene 7b: handles answer by name after they die --
+  [OK] a freed panel answers STALE, not another panel's geometry
+  [OK] ...and freeing it twice still answers STALE
+
+-- Scene 8: KILL CRITERION 3 -- text in a texture, at an angle --
+  [OK] the text texture rendered
+  [OK] a LINEAR-sampled texture was created
+  [OK] ...and took the panel's pixels
+   elevation 89 deg: covered 199568 px, ink 12 per-mille, smear 9 per-mille
+   elevation 45 deg: covered 152877 px, ink 11 per-mille, smear 8 per-mille
+   elevation 20 deg: covered 79043 px, ink 10 per-mille, smear 7 per-mille
+   elevation 12 deg: covered 48962 px, ink 11 per-mille, smear 7 per-mille
+  [OK] face-on, the glyphs ink the texture
+  [OK] at a hard graze they still do
+  [OK] the ink fraction is within 20% of face-on at every angle
+  [OK] ...and so is the smear fraction -- no blurring with angle
+  [OK] coverage falls steeply with the angle (the quad really tilted)
+  [OK] ...monotonically
+
+==============================================================
+ 50 ok, 0 failed
+==============================================================

@@ -1,0 +1,14 @@
+[ "@process", "@audit" ]
+
+[
+	[ "status", "pass" ],
+	[ "rulegroup", "sox" ],
+	[ "domain", "sox" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ],
+	[ "affectednodes", [  ] ]
+]
+
+
+----------------
+----------------

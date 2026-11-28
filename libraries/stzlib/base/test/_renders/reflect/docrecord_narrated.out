@@ -1,0 +1,92 @@
+SCENARIO: The block: brief, detail, fields, continuation lines
+  THEN  the brief is the text before the first bare #  [PASS]
+  THEN  the detail is the paragraph after it  [PASS]
+  THEN  a run with a separator or a field is not legacy  [PASS]
+  THEN  there are four fields  [PASS]
+  THEN  a field named after a parameter of the def is a parameter field  [PASS]
+  THEN  an indented line continues the field above  [PASS]
+  THEN  an example keeps its lines, and its #--> promise sits inline  [PASS]
+  THEN  the same run with a def that has no such parameter has one field fewer  [PASS]
+  THEN  a one-line comment is a valid brief  [PASS]
+  THEN  and is marked legacy  [PASS]
+  THEN  a key followed by ONE space is prose, not a field  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: The scan: class extents, methods, forwards
+  THEN  three classes are found (a class inside /* */ is not)  [PASS]
+  THEN  a func inside a class is a method: the class does NOT end there  [PASS]
+  THEN  MidClassMethod is read as a method  [PASS]
+  THEN  a global func StzXxx after the class is not a method  [PASS]
+  THEN  Find forwards to FindCS with its own arguments only, so it is a PURE forward  [PASS]
+  THEN  Locate is a pure forward to Find  [PASS]
+  THEN  the doc of Find is read: brief  [PASS]
+  THEN  the section Find sits in is recorded  [PASS]
+  THEN  a comment after the def holding parentheses does not leak into the parameters  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: The harvest the library already had still answers the same way
+  THEN  a method's description is its BRIEF, not the design paragraph under it  [PASS]
+  THEN  the detail paragraph is not the description  [PASS]
+  THEN  the base form of the brief's opening verb is folded into the retrieval-only field (Returns -> return)  [PASS]
+  THEN  the detail paragraph is NOT folded in (old maintainer talk once made an unrelated method win an Ask)  [PASS]
+  THEN  a legacy one-line comment is still the description  [PASS]
+  THEN  a section title is NEVER a description  [PASS]
+  THEN  but it is still kept for retrieval  [PASS]
+  THEN  a field line is never a description  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: The export: one deterministic JSON, valid, with the derived parts
+  THEN  the file is valid JSON  [PASS]
+  THEN  two exports of the same tree are byte-identical  [PASS]
+  THEN  the schema is 1  [PASS]
+  THEN  Find carries its extensions: FindCS, FindQ and FindXT are Find, not three methods  [PASS]
+  THEN  Locate is listed as another name of Find  [PASS]
+  THEN  an empty subclass is another name of its parent class  [PASS]
+  THEN  the class block is read: receiver  [PASS]
+  THEN  a method with no doc of its own gets NO brief from its section  [PASS]
+  THEN  a predicate gets a derived brief, labelled derived  [PASS]
+  THEN  a pvt name is marked internal, derived  [PASS]
+  THEN  a private method is not in the record  [PASS]
+  THEN  the summary counts the roots  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: The findings: dead forwards, internals shown, typos
+  THEN  a public name forwarding to a method nobody defines is a finding  [PASS]
+  THEN  a forward to a method that exists is not  [PASS]
+  THEN  a pvt name not marked internal is a finding  [PASS]
+  THEN  one edit apart (a transposition) is detected  [PASS]
+  THEN  a substitution  [PASS]
+  THEN  an insertion  [PASS]
+  THEN  two edits are not  [PASS]
+  THEN  an inflection is not a typo  [PASS]
+  THEN  a different word is  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: The score: the brief checks
+  THEN  a good brief passes the form check  [PASS]
+  THEN  a comma after the first word is punctuation: Returns, for each ...  [PASS]
+  THEN  TRUE if is a valid opening  [PASS]
+  THEN  a lowercase start fails  [PASS]
+  THEN  no final period fails  [PASS]
+  THEN  under 20 characters fails  [PASS]
+  THEN  over 140 characters fails  [PASS]
+  THEN  a noun phrase fails (no verb)  [PASS]
+  THEN  a brief that only restates the name fails check 2  [PASS]
+  THEN  a brief that adds something passes check 2  [PASS]
+  THEN  a brief that repeats the signature fails check 2  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: ExplainMethod and RecordOf show what the author WROTE
+  THEN  the brief opens the explanation  [PASS]
+  THEN  the parameter role is shown  [PASS]
+  THEN  the returns line is shown  [PASS]
+  THEN  the example is shown with its inline promise  [PASS]
+  THEN  a method with no doc block shows no invented sections  [PASS]
+  THEN  RecordOf answers the written fields  [PASS]
+  THEN  RecordOf of an unknown method is empty  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 67 assertions, 67 pass, 0 fail
+================================================
+STATUS: OK

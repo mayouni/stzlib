@@ -1,0 +1,59 @@
+-- Scene 1: a quiet ledger fires nothing --
+  [OK] nothing fires on an empty ledger
+  [OK] ...and the sentinel says it is quiet
+
+-- Scene 2: an attack appears -- it fires ONCE --
+  [OK] the first pass fires the new detection
+  [OK] the callback saw it
+  [OK] ...and it names the ACCOUNT, not just the rule
+  [OK] one story is active
+
+-- Scene 3: still under attack is NOT a new story --
+  [OK] a second pass fires nothing (edge-triggered)
+  [OK] ...even as more failures arrive
+  [OK] the callback count is unchanged
+
+-- Scene 4: a SECOND account is a second story --
+  [OK] the other account fires its own detection
+  [OK] two stories are now active
+  [OK] the callback saw the second
+
+-- Scene 5: the event bus carried every transition --
+  [OK] two detections were announced on the channel
+  [OK] ...and the last payload names the story
+
+-- Scene 6: THE CASE -- photographed at the moment of firing --
+  [OK] a case was taken
+  [OK] ...naming the story
+  [OK] ...with the ledger's head digest (a commitment to the history)
+  [OK] ...how many events existed at that moment
+  [OK] ...and the events nearest the firing, for the timeline to come
+  [OK] two firings, two cases
+
+-- Scene 7: when the evidence ages out, the story CLEARS --
+  [OK] the clearing pass fires no new detections
+  [OK] both stories cleared
+  [OK] the clear callback ran for each
+  [OK] ...and the bus announced them
+
+-- Scene 8: a returning attack is a NEW story (it fires again) --
+  [OK] after a genuine clear, the same account fires again
+  [OK] the callback count moved
+  [OK] the alert log kept the whole story (fire, fire, clear, clear, fire)
+  [OK] ...and the last entry is the re-fire
+
+-- Scene 9: the cadence, and the agent-host contract --
+  [OK] Tick() is cadence-gated (the second is not due)
+  [OK] Name_() answers, as a host requires
+  the host ticked the sentinel 5 time(s)
+  [OK] a host supervises the sentinel like any agent
+  [OK] ...and the hosted copy fired on the replay
+
+-- Scene 10: it explains itself --
+Sentinel security-sentinel -- 8 check(s), 1 active detection(s).
+  FIRING: credential-stuffing/victim
+  [OK] the header counts checks and active stories
+
+==========================================
+TOTAL: 33 assertions, 33 pass, 0 fail
+==========================================

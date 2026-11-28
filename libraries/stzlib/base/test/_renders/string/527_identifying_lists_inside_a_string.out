@@ -1,0 +1,48 @@
+SCENARIO: Recognizing lists in strings
+  THEN  a normal-form list  [PASS]
+  THEN  a short-form range  [PASS]
+  THEN  a char range  [PASS]
+  THEN  an Arabic char range  [PASS]
+  THEN  the normal form named  [PASS]
+  THEN  the short form named  [PASS]
+  THEN  ... for char ranges too  [PASS]
+  THEN  ... and Arabic ones  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Contiguity of the hosted list
+  THEN  [1,3] is not contiguous  [PASS]
+  THEN  1:3 is  [PASS]
+  THEN  A:C is  [PASS]
+  THEN  the Arabic range is  [PASS]
+  THEN  IsContiguous on a real range  [PASS]
+  THEN  ... and on a char range  [PASS]
+  THEN  contiguous + normal form  [PASS]
+  THEN  contiguous + short form  [PASS]
+  THEN  ... char ranges  [PASS]
+  THEN  ... Arabic ranges  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Converting between the forms
+  THEN  normal to short  [PASS]
+  THEN  short to normal  [PASS]
+  THEN  a string list to short  [PASS]
+  THEN  an Arabic range to short  [PASS]
+  THEN  the default rendering is normal  [PASS]
+  THEN  ... whatever hosted it  [PASS]
+  THEN  ... expanding char ranges  [PASS]
+  THEN  the SF abbreviation  [PASS]
+  THEN  ... on a short host  [PASS]
+  THEN  ... on a string list  [PASS]
+  THEN  ... on an Arabic list  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: Evaluating back to a live list
+  THEN  a number range  [PASS]
+  THEN  a char range  [PASS]
+  THEN  an Arabic char range  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 32 assertions, 32 pass, 0 fail
+================================================
+STATUS: OK

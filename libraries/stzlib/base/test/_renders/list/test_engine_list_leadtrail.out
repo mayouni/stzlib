@@ -1,0 +1,33 @@
+=== Engine Delegation: RepeatedLeadingItems ===
+  RepeatedLeadingItems: [ "a", "a", "a" ]
+
+=== Engine Delegation: RepeatedLeadingItems (no repeat) ===
+  RepeatedLeadingItems: [ ]
+
+=== Engine Delegation: RepeatedTrailingItems ===
+  RepeatedTrailingItems: [ "c", "c", "c" ]
+
+=== Engine Delegation: RemoveRepeatedLeadingItems ===
+  RemoveRepeatedLeadingItems: [ "x", "a", "b" ]
+
+=== Engine Delegation: RemoveRepeatedTrailingItems ===
+  RemoveRepeatedTrailingItems: [ "a", "b", "y" ]
+
+=== Engine Delegation: StartsWith ===
+  StartsWith('hello'): 1
+
+=== Engine Delegation: StartsWith (no match) ===
+  StartsWith('world'): 0
+
+=== Engine Delegation: EndsWith ===
+  EndsWith('test'): 1
+
+=== Engine Delegation: EndsWith (no match) ===
+  EndsWith('hello'): 0
+
+=== Engine Delegation: NumberOfRepeatedLeadingItems ===
+  NumberOfRepeatedLeadingItems: 4
+
+=================================
+  PASSED: 10  FAILED: 0
+=================================

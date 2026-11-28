@@ -1,0 +1,111 @@
+[
+	[
+		[ 10, "apple" ],
+		[ 10, "apple" ]
+	],
+	[
+		[ 10, "apple" ],
+		[ 10, "apple" ]
+	],
+	[
+		[ 20, 30, "banana" ],
+		[ 50, "banana" ]
+	],
+	[
+		[ 20, 30, "banana" ],
+		[ 50, "banana" ]
+	],
+	[
+		[ 30, "banana" ],
+		[ 30, "banana" ]
+	],
+	[
+		[ 99, "optional" ],
+		[ 99, "optional" ]
+	],
+	[
+		[ 99, "optional" ],
+		[ 99, "optional" ]
+	],
+	[
+		[ 10, "apple" ],
+		[
+			"WITH_STRING",
+			[ 10, "apple" ]
+		]
+	],
+	[
+		[ 10 ],
+		[
+			"NUMBER_ONLY",
+			[ 10 ]
+		]
+	],
+	[
+		[ 10, "apple" ],
+		[
+			"WITH_STRING",
+			[ 10, "apple" ]
+		]
+	],
+	[
+		[ 20 ],
+		[
+			"NUMBER_ONLY",
+			[ 20 ]
+		]
+	],
+	[
+		[ 30 ],
+		[
+			"NUMBER_ONLY",
+			[ 30 ]
+		]
+	],
+	[
+		[ 30, "banana" ],
+		[
+			"WITH_STRING",
+			[ 30, "banana" ]
+		]
+	],
+	[
+		[ 42 ],
+		[
+			"NUMBER_ONLY",
+			[ 42 ]
+		]
+	],
+	[
+		[ 42 ],
+		[
+			"NUMBER_ONLY",
+			[ 42 ]
+		]
+	],
+	[
+		[ 99, "optional" ],
+		[
+			"WITH_STRING",
+			[ 99, "optional" ]
+		]
+	],
+	[
+		[ 99 ],
+		[
+			"NUMBER_ONLY",
+			[ 99 ]
+		]
+	],
+	[
+		[ 99, "optional" ],
+		[
+			"WITH_STRING",
+			[ 99, "optional" ]
+		]
+	]
+]
+
+
+----------------
+----------------

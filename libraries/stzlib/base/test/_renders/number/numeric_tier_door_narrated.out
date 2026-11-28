@@ -1,0 +1,26 @@
+SCENARIO: out to the engine, and back
+  THEN  the numbers arrive resident  [PASS]
+  THEN  ...and are worked on there, with no crossing per step  [PASS]
+  THEN  the return leg lands in the list tier  [PASS]
+  THEN  ...as the real class, not a raw list  [PASS]
+  THEN  or as a plain stzList, if that is what you wanted  [PASS]
+  THEN  and the ORIGINAL list is untouched -- the door copies, it does not move  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: what the door is worth, and the copy that nearly hid it
+  THEN  the same eight reductions give the same answers  [PASS]
+  THEN  ...all of them  [PASS]
+  THEN  and one crossing beats eight  [PASS]
+  THEN  what Content() hands back is a copy, as it always was  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the door is where the tiers differ, so it is where you should look
+  THEN  on the list side, a tenth can be exact  [PASS]
+  THEN  on the buffer side it is the nearest double, so the classic shows up  [PASS]
+  THEN  ...within a rounding of it  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 13 assertions, 13 pass, 0 fail
+================================================
+STATUS: OK

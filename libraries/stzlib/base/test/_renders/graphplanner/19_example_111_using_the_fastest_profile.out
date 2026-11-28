@@ -1,0 +1,31 @@
+35
+[ "warehouse", "suburb_b", "customer" ]
+
+[
+	[ "plan", "fast_delivery" ],
+	[
+		"actions",
+		[
+			[
+				[ "from", "warehouse" ],
+				[ "to", "suburb_b" ],
+				[ "cost", 20 ]
+			],
+			[
+				[ "from", "suburb_b" ],
+				[ "to", "customer" ],
+				[ "cost", 15 ]
+			]
+		]
+	],
+	[ "total_cost", 35 ],
+	[
+		"route",
+		[ "warehouse", "suburb_b", "customer" ]
+	],
+	[ "steps", 2 ]
+]
+
+
+----------------
+----------------

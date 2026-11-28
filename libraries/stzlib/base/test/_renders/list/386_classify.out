@@ -1,0 +1,29 @@
+[
+	[
+		"arabic",
+		[ 1, 2, 8 ]
+	],
+	[
+		"french",
+		[ 3 ]
+	],
+	[
+		"english",
+		[ 4, 7 ]
+	],
+	[
+		"spanish",
+		[ 5, 6 ]
+	]
+]
+
+arabic
+french
+english
+spanish
+
+4
+
+
+----------------
+----------------

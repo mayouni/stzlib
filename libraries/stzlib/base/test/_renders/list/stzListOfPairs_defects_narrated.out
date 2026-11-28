@@ -1,0 +1,126 @@
+SCENARIO: SortBy orders the pairs by a key, a function of the pair (Haro runs no text as code)
+  THEN  by the second item, ascending  [PASS]
+  THEN  by the length of the first item  [PASS]
+  THEN  a negated key gives the reverse order  [PASS]
+  THEN  SortedBy answers a sorted copy  [PASS]
+  THEN  and leaves the list as it was  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Equal keys keep their order
+  THEN  ascending: y w before x z, each in input order  [PASS]
+  THEN  descending: x z before y w, each in input order  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The descending forms order the pairs and keep each pair as it is
+  THEN  SortByInDescending, by the second item  [PASS]
+  THEN  SortByDown, by length  [PASS]
+  THEN  SortedByDown answers a copy  [PASS]
+  THEN  no pair is turned round  [PASS]
+  THEN  SortedInDescending is descending  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: A bad key expression is refused
+  THEN  a key given as text is refused, not run  [PASS]
+  THEN  ...even one naming @pair  [PASS]
+  THEN  keys mixing numbers and texts raise  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ReplacePair and UpdatePairWith reach every position
+  THEN  ReplacePair(2) replaces the second pair  [PASS]
+  THEN  UpdatePairWith(3) replaces the third pair  [PASS]
+  THEN  PairReplaced answers a copy  [PASS]
+  THEN  and leaves the list as it was  [PASS]
+  THEN  a position past the end raises  [PASS]
+  THEN  a new pair of three items raises  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: ExpandedIfPairsOfNumbers expands each pair of whole numbers, up or down
+  THEN  two ascending pairs  [PASS]
+  THEN  a descending pair counts down  [PASS]
+  THEN  and is not the ascending answer  [PASS]
+  THEN  an equal pair gives the one number  [PASS]
+  THEN  negative numbers work, up and down  [PASS]
+  THEN  the lists come in the order of the pairs  [PASS]
+  THEN  the list of pairs is left as it was  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: A pair that is not two whole numbers is left out, and the others stay
+  THEN  texts and mixed pairs are left out  [PASS]
+  THEN  a decimal pair is left out  [PASS]
+  THEN  nothing expandable gives an empty list  [PASS]
+  THEN  no pair gives an empty list  [PASS]
+  THEN  the fluent form answers a stzList of the same lists  [PASS]
+  THEN  and so does the stzListOfLists form  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: IsListOfSections is TRUE only when every pair is made of two numbers
+  THEN  two number pairs  [PASS]
+  THEN  a text pair  [PASS]
+  THEN  a mixed pair  [PASS]
+  THEN  a bad pair last  [PASS]
+  THEN  a bad pair first  [PASS]
+  THEN  a bad pair in the middle  [PASS]
+  THEN  decimals, negatives and a start above the end are numbers all the same  [PASS]
+  THEN  an empty list has no failing pair  [PASS]
+  THEN  numbers written as texts are texts  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: The sorted checks no longer accept text pairs
+  THEN  ascending sections  [PASS]
+  THEN  they are not descending  [PASS]
+  THEN  and are sorted  [PASS]
+  THEN  descending sections  [PASS]
+  THEN  overlapping sections are not sorted  [PASS]
+  THEN  text pairs are not ascending sections  [PASS]
+  THEN  nor descending  [PASS]
+  THEN  nor sorted  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: AreAnagrams: both items of a pair are the same letters in another order
+  THEN  listen and silent  [PASS]
+  THEN  abc and abd are not  [PASS]
+  THEN  the same letters, not the same counts, are not  [PASS]
+  THEN  different lengths are not  [PASS]
+  THEN  a text is an anagram of itself, as IsAnagramOf of stzString says  [PASS]
+  THEN  two empty texts are anagrams  [PASS]
+  THEN  spaces count as characters and can move  [PASS]
+  THEN  a missing space is a difference  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: AreAnagrams: case, accents and Hebrew
+  THEN  case counted by default: Listen and Silent are not  [PASS]
+  THEN  AreAnagramsCS(1) agrees  [PASS]
+  THEN  AreAnagramsCS(0) ignores the case  [PASS]
+  THEN  words with an accented letter  [PASS]
+  THEN  the accented letter is not its plain letter  [PASS]
+  THEN  e acute and E acute differ when the case counts  [PASS]
+  THEN  and are the same letter when it does not  [PASS]
+  THEN  Hebrew words of the same letters  [PASS]
+  THEN  a Hebrew word and a Latin word are not  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: AreAnagrams: several pairs, and items that are not texts
+  THEN  every pair is a pair of anagrams  [PASS]
+  THEN  one bad pair last  [PASS]
+  THEN  one bad pair first  [PASS]
+  THEN  two numbers are not texts  [PASS]
+  THEN  a text and a number are not  [PASS]
+  THEN  a text and a list are not  [PASS]
+  THEN  an empty list of pairs has no failing pair  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: ToStzSetOfSections names its cause instead of the constructor's message
+  THEN  valid sections are accepted now that the constructor builds a set  [PASS]
+  THEN  and the answer holds the pairs in order  [PASS]
+  THEN  a text pair raises a message about the numbers  [PASS]
+  THEN  and does not blame the constructor  [PASS]
+  THEN  a repeated pair raises a message about the repetition  [PASS]
+  THEN  and not the one about the numbers  [PASS]
+  THEN  ToStzListOfSections accepts the same pairs  [PASS]
+  THEN  and the list of pairs is left as it was  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 83 assertions, 83 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,15 @@
+1
+
+CLOUD
+SUN BEHIND CLOUD
+THUNDER CLOUD AND RAIN
+WHITE SUN WITH SMALL CLOUD
+WHITE SUN BEHIND CLOUD
+WHITE SUN BEHIND CLOUD WITH RAIN
+CLOUD WITH RAIN
+CLOUD WITH SNOW
+CLOUD WITH LIGHTNING
+CLOUD WITH TORNADO
+
+
+Line 617 Haro refused this statement (`Dec` reads hex text, and its name says decimal: write FromHex(t); written `Dec`, line 617 of stzUnicodeData.haro) and did not compile it -- running past it would give a wrong answer

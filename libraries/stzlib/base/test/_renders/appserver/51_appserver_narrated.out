@@ -1,0 +1,38 @@
+SCENARIO: stzAppRequest exposes the four constructor fields
+  GIVEN a GET request with one header
+  THEN  Method() returns the verb  [PASS]
+  THEN  Path() returns the path  [PASS]
+  THEN  Header() finds Host  [PASS]
+  THEN  Header() is case-insensitive  [PASS]
+  THEN  Header() returns empty on miss  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: ParseQuery splits the query string off the path
+  GIVEN a path with a two-key query string
+  THEN  path no longer carries the query  [PASS]
+  THEN  Query("q") returns "hello"  [PASS]
+  THEN  Query("page") returns "2"  [PASS]
+  THEN  Query(missing) returns empty  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: stzAppResponse supports fluent chaining and Send
+  GIVEN a fresh response over a NULL client
+  WHEN  the caller sets status 201 and a custom header
+  THEN  the header is recorded  [PASS]
+  THEN  with its value  [PASS]
+  GIVEN a fresh response
+  WHEN  Send() is called
+  THEN  bSent becomes TRUE  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: ObjectToJson handles primitives and arrays
+  THEN  strings get quoted  [PASS]
+  THEN  numbers stringify  [PASS]
+  THEN  numeric arrays format  [PASS]
+  THEN  kv-pair lists become objects  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+================================================
+STATUS: OK

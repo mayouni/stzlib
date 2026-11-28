@@ -1,0 +1,82 @@
+THE WORLD CONTRACT (C1) -- stzWorldGraph
+==========================================================================
+
+1. A LAWFUL WORLD LOADS
+--------------------------------------------------------------------------
+world             : tontine
+contract          : 1.0
+symbols           : 13
+references        : 11
+kinds present     : entity, field, type, norm, flow, actor, screen, element, state
+lawful            : 1
+diagnostics       : 0
+
+a symbol, by its id:
+  id    : field:deposit.amount
+  kind  : field
+  name  : deposit.amount
+  type  : currency
+  span  : app.zql:9
+
+2. THE PROJECTION THE ZUI VERIFIER READS
+--------------------------------------------------------------------------
+   (tools/zui --symbols FILE; without it Level 3 is SKIPPED, because
+    undecidable is silence, never a pass)
+
+entities : deposit, member, player
+actors   : member
+state    : pending_review
+elements : deposit_form
+
+3. TWO REFERENCE SITES, ONE EDGE, BOTH ROWS KEPT
+--------------------------------------------------------------------------
+   stzGraph is a SIMPLE graph -- one edge per node pair, deliberately.
+   The flow enforces the norm at TWO steps, on two different lines.
+
+reference SITES flow -> norm : 2
+   enforces at app.zql:31
+   enforces at app.zql:35
+
+graph EDGES for that pair    : 1  (label 'enforces')
+rows carried on the edge     : 2
+
+   world.json is the truth; the graph is an INDEX over it. An index
+   answers reachability, which is a property of the pair -- so the
+   collapse loses nothing, and the rows are where detail survives.
+
+4. AN ORDINARY stzGraph FROM HERE ON
+--------------------------------------------------------------------------
+nodes             : 13
+edges             : 10
+who reaches the amount field:
+   entity:deposit  --declares->
+   element:deposit_form  --shows->
+
+the gamification clause:
+   entity:player --binds-> entity:member   (arena.game:24)
+
+5. THE REFUSALS -- each with a sibling that must NOT fire
+--------------------------------------------------------------------------
+   Every one is a C2 v1.0 envelope with language 'world'.
+
+  DANGLING_REFERENCE          REFUSED : a ref to something nothing declares
+  (sibling)                   accepted: the same ref, once the norm is declared
+  DUPLICATE_SYMBOL            REFUSED : two entities differing ONLY by case -- the graph lower-cases ids
+  (sibling)                   accepted: the same name under two KINDS is not a collision
+  UNKNOWN_SYMBOL_KIND         REFUSED : a kind outside the closed ten
+  UNKNOWN_REFERENCE_KIND      REFUSED : a relation outside the closed nine
+  MALFORMED_NAME              REFUSED : a name with a space, which no node id may carry
+  CONTRACT_MISMATCH           REFUSED : a world emitted against a version we do not implement
+  MISSING_SPAN                warning, and the world is still lawful : 1
+  two bad kinds               diagnostics collected : 2
+
+the envelope a refusal travels in:
+   code     : DANGLING_REFERENCE
+   severity : error
+   span     : a.zql:7
+   cites    : [] (honest -- no pinned law applies to a structural finding)
+   language : world
+   message  : 'flow:f' enforces 'norm:nope', which nothing declares.
+
+==========================================================================
+DONE.

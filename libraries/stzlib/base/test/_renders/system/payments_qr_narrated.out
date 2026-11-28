@@ -1,0 +1,90 @@
+SCENARIO: the checksum: CRC-16/CCITT-FALSE, the one the BCEAO names
+  THEN  the published check value of the algorithm, over '123456789', is 29B1  [PASS]
+  THEN  over nothing it is the initial value, FFFF  [PASS]
+  THEN  it is always four characters, zero-padded on the left  [PASS]
+  THEN  one changed character changes it  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: four codes, each equal to what an independent builder wrote
+  THEN  a static code with no amount: the payer types it  [PASS]
+  THEN  a static code with a fixed amount (the country given in lower case)  [PASS]
+  THEN  a dynamic code, made for one sale  [PASS]
+  THEN  a Niger code with a purpose and the receiver's own tags  [PASS]
+  THEN  ...sorted by name, digits before capitals, as in the BCEAO's builder  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: what is built is read back: nothing is lost on the way
+  THEN  vector 1 is valid  [PASS]
+  THEN  ...with no error  [PASS]
+  THEN  vector 2 is valid  [PASS]
+  THEN  ...with no error  [PASS]
+  THEN  vector 3 is valid  [PASS]
+  THEN  ...with no error  [PASS]
+  THEN  vector 4 is valid  [PASS]
+  THEN  ...with no error  [PASS]
+  THEN  the alias comes back  [PASS]
+  THEN  the country comes back  [PASS]
+  THEN  the type is read from the channel  [PASS]
+  THEN  the amount is whole francs, as digits  [PASS]
+  THEN  the label comes back  [PASS]
+  THEN  a static code with no amount reads as one  [PASS]
+  THEN  the purpose comes back  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: the builder refuses what would print a bad code
+  THEN  an alias that is not the shape of a UUID  [PASS]
+  THEN  an alias of the right length with its hyphens in the wrong places  [PASS]
+  THEN  a country outside the union  [PASS]
+  THEN  a reference label over 25 characters  [PASS]
+  THEN  ...25 exactly is fine  [PASS]
+  THEN  no reference label at all  [PASS]
+  THEN  a label outside printable ASCII (a TLV length counts characters)  [PASS]
+  THEN  an amount in another currency  [PASS]
+  THEN  a zero amount  [PASS]
+  THEN  a custom tag in lower case, whose order the BCEAO's builder leaves to a locale  [PASS]
+  THEN  a custom tag of three characters  [PASS]
+  THEN  asking for a payload before saying static or dynamic  [PASS]
+  THEN  and a plain valid code does not raise  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: the reader says what is wrong, and never raises
+  THEN  a single changed digit in the amount: the CRC no longer matches  [PASS]
+  THEN  a payload cut short is not valid  [PASS]
+  THEN  ...and says it is malformed  [PASS]
+  THEN  an empty string is not valid  [PASS]
+  THEN  the invalid example the SDK's own tests use: no account named  [PASS]
+  THEN  another scheme in tag 36  [PASS]
+  THEN  a currency that is not 952  [PASS]
+  THEN  a country outside the union  [PASS]
+  THEN  an amount with a decimal point  [PASS]
+  THEN  a payload with no reference label  [PASS]
+  THEN  ...and those were caught by their OWN reason, not the CRC, since the CRC was recomputed  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: what the BCEAO's own material does that its builder does not
+  THEN  a tag 01 (point of initiation, in the portal's own validator placeholder) is accepted  [PASS]
+  THEN  ...and noted, because the builder does not emit it  [PASS]
+  THEN  channel 731, a transfer QR the PAYER presents, is read and not refused  [PASS]
+  THEN  ...and noted as one a platform reads and does not make  [PASS]
+  THEN  channel 500, which the BCEAO's worked example carries and its portal never lists, is read  [PASS]
+  THEN  ...and noted as unlisted  [PASS]
+  THEN  an unlisted channel reads as neither static nor dynamic  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: the code of the twin's own business account
+  THEN  the twin's alias is a UUID the builder accepts, and the code is valid  [PASS]
+  THEN  it is the twin's alias that the code names  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: what nobody has perceived
+  THEN  the oracle script a person runs against the BCEAO's own SDK exists beside this guard  [PASS]
+  UNPERCEIVED: no PI-SPI application has scanned a code made here, and the BCEAO's SDK has not been
+  compared with these four strings. A named person runs payments_qr_oracle.mjs (it needs the SDK:
+  npm install @pi-spi/qrcode) and scans a rendered code with a PI-SPI app, and records who and what
+  they saw. Until then every PASS above means Ring and Python agree, and nothing more.
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 58 assertions, 58 pass, 0 fail
+================================================
+STATUS: OK

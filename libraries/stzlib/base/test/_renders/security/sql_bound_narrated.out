@@ -1,0 +1,62 @@
+SCENARIO: a session whose user agent holds a quote, a tab and a newline round-trips
+  GIVEN a durable auth store
+  WHEN  a session is stored with that user agent
+  THEN  the user agent comes back byte for byte  [PASS]
+  THEN  the fields after it survive too (lastseen)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a username holding a quote, a tab and a newline is a username
+  WHEN  that user is created, given a role and a session
+  THEN  the user exists  [PASS]
+  THEN  its hash reads back  [PASS]
+  THEN  its role reads back  [PASS]
+  THEN  its session is found by user  [PASS]
+  THEN  and the session names the user exactly  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: an injection-shaped name matches nobody else
+  WHEN  the store is asked about  x' OR '1'='1
+  THEN  no such user  [PASS]
+  THEN  no hash leaks  [PASS]
+  THEN  the real user is still found (positive sibling)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a query that fails partway RAISES instead of returning partial rows
+  WHEN  row 3 overflows abs() at step time
+  THEN  the query raised  [PASS]
+  THEN  no partial rows were returned  [PASS]
+  THEN  a healthy query still answers (positive sibling)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: bound values round-trip exactly, NUL byte included
+  WHEN  text holding a NUL, a quote, a tab and a newline is bound with numbers
+  THEN  the text comes back byte for byte  [PASS]
+  THEN  the NUL byte survives (length 3)  [PASS]
+  THEN  TypedRowsWith gives an INTEGER as a number  [PASS]
+  THEN  and a REAL as a number  [PASS]
+  THEN  RowsWith keeps the text contract  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: what cannot be bound is refused, loudly
+  WHEN  too few parameters are given
+  THEN  it raises  [PASS]
+  WHEN  a parameter is a list
+  THEN  it raises  [PASS]
+  WHEN  two statements are sent as one
+  THEN  it raises  [PASS]
+  THEN  and the table is still there  [PASS]
+  THEN  and nothing was inserted  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: a transaction commits whole or rolls back whole
+  WHEN  two inserts are rolled back
+  THEN  none is kept  [PASS]
+  WHEN  one insert is committed
+  THEN  it is kept  [PASS]
+  THEN  LastInsertId names its row  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 26 assertions, 26 pass, 0 fail
+================================================
+STATUS: OK

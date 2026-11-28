@@ -1,0 +1,73 @@
+SCENARIO: derivatives you can check by hand
+  THEN  the value  [PASS]
+  THEN  d/dx  [PASS]
+  THEN  d/dy  [PASS]
+  THEN  ...and the gradient is both at once  [PASS]
+  THEN  d(exp)/dx at 0 is 1  [PASS]
+  THEN  d(log)/dx at 4 is a quarter  [PASS]
+  THEN  d(sqrt)/dx at 9 is 1/6  [PASS]
+  THEN  d(sin)/dx at 0 is 1  [PASS]
+  THEN  d(tanh)/dx at 0 is 1  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: a shared subexpression accumulates rather than overwrites
+  THEN  f(3) = 18  [PASS]
+  THEN  f'(3) = 12, not 6  [PASS]
+  THEN  both operands of a shared node get their share  [PASS]
+  THEN  ...and so does the other  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: one backward pass, every variable
+  THEN  the value  [PASS]
+  THEN  ten gradients came back  [PASS]
+  THEN  the first is 1  [PASS]
+  THEN  the fifth is 5  [PASS]
+  THEN  the tenth is 10  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: against finite differences, where they can still be trusted
+  THEN  d/dx agrees with a central difference  [PASS]
+  THEN  d/dy too  [PASS]
+  THEN  ...and they are not trivially zero  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the syntax reads the way it is written
+  THEN  multiplication binds tighter than addition  [PASS]
+  THEN  ^ is right-associative: 2^(3^2), not (2^3)^2  [PASS]
+  THEN  unary minus applies to the power  [PASS]
+  THEN  a negative exponent parses  [PASS]
+  THEN  pi is a constant, not a variable  [PASS]
+  THEN  ...and so is e  [PASS]
+  THEN  names match case-insensitively, as Ring does  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: what it refuses, and whether it says why
+  THEN  an unknown name is refused  [PASS]
+  THEN  ...naming the problem  [PASS]
+  THEN  an unknown function is refused  [PASS]
+  THEN  ...and says so  [PASS]
+  THEN  an unclosed parenthesis is refused  [PASS]
+  THEN  ...and says so  [PASS]
+  THEN  a dangling operator is refused  [PASS]
+  THEN  a stray character is refused  [PASS]
+  THEN  an empty expression is refused  [PASS]
+  THEN  no variables at all is refused  [PASS]
+  THEN  a point of the wrong size is refused  [PASS]
+  THEN  ...saying how many were wanted  [PASS]
+  THEN  asking for a variable it does not have is refused  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: THE CROSS-CHECK: the tape against the library's hand-derived backprop
+  THEN  d/dw1 agrees with backprop  [PASS]
+  THEN  d/db1 agrees  [PASS]
+  THEN  d/dw2 agrees  [PASS]
+  THEN  d/db2 agrees  [PASS]
+  THEN  ...and the gradients are not all zero  [PASS]
+  THEN  the squared-error gradient is a DIFFERENT number  [PASS]
+  THEN  ...which is why checking against it looked like a bug  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 48 assertions, 48 pass, 0 fail
+================================================
+STATUS: OK

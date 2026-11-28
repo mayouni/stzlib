@@ -1,0 +1,299 @@
+SCENARIO: A range and a section as a range
+  GIVEN the 3 x 3 and the 4 x 2 tables
+  THEN  SectionToRange gives the start and the count  [PASS]
+  THEN  a section of one position is a count of 1  [PASS]
+  THEN  Range reads a block from a corner and a size (4 x 2, columns 2 rows 3 to 4)  [PASS]
+  THEN  the whole 4 x 2 table, row by row  [PASS]
+  THEN  a block of the 3 x 3 table  [PASS]
+  THEN  a size of 0 rows gives [ ], not an error  [PASS]
+  THEN  a size that is not a pair of numbers raises  [PASS]
+  THEN  a start that is not a pair raises  [PASS]
+  THEN  a block that leaves the table raises  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Columns found by their whole content
+  GIVEN the 3 x 3 table, the 4 x 2 table and a table with a list cell
+  THEN  a column is found by its cells, top to bottom  [PASS]
+  THEN  several lists give the positions, in table order  [PASS]
+  THEN  a list that is no column gives [ ]  [PASS]
+  THEN  a list that is a column read bottom to top is no column  [PASS]
+  THEN  the same list twice gives the column once  [PASS]
+  THEN  no list at all gives [ ]  [PASS]
+  THEN  on the 4 x 2 table, text cells  [PASS]
+  THEN  the text is compared with its case  [PASS]
+  THEN  a list with too few cells is no column  [PASS]
+  THEN  a column that holds a list cell  [PASS]
+  THEN  and the same column without its list cell is not found  [PASS]
+  THEN  something that is not a list of lists raises  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: A text, a value or a number inside one cell
+  GIVEN the people table: the cell [ 2, 2 ] is Abraham, [ 1, 3 ] is Alia, [ 1, 1 ] is Andy
+  THEN  FindLastInCell gives the last place of a letter  [FAIL]
+    expected: "6"
+    got:      "RAISES"
+  THEN  FindLastInCell takes the column by its name  [FAIL]
+    expected: "6"
+    got:      "RAISES"
+  THEN  a letter that occurs once  [FAIL]
+    expected: "4"
+    got:      "RAISES"
+  THEN  the case counts: A is only the first letter of Abraham  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  a text that is absent gives 0, not an error  [FAIL]
+    expected: "0"
+    got:      "RAISES"
+  THEN  a text that is there in another case only  [FAIL]
+    expected: "0"
+    got:      "RAISES"
+  THEN  a number cell holds no text  [FAIL]
+    expected: "0"
+    got:      "RAISES"
+  THEN  on the 4 x 2 table  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  a list cell: the last place of an item  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  NumberOfOccurrencesInCell counts the places of a text  [FAIL]
+    expected: "2"
+    got:      "RAISES"
+  THEN  a text that is not in the cell counts 0  [FAIL]
+    expected: "0"
+    got:      "RAISES"
+  THEN  a whole value that equals the cell counts 1  [PASS]
+  THEN  a whole value that is only a part of the cell counts 0  [PASS]
+  THEN  [ :Cell, value ] is the whole-value form  [PASS]
+  THEN  a number cell equal to the number  [PASS]
+  THEN  a number cell that differs  [PASS]
+  THEN  a list cell equal to the list  [PASS]
+  THEN  a list cell that contains an item  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  a list cell that does not contain it  [FAIL]
+    expected: "0"
+    got:      "RAISES"
+  THEN  NumberOfOccurrencesOfValueInCell is 1 for the cell that equals the value  [PASS]
+  THEN  0 for a value that only starts the cell  [PASS]
+  THEN  0 when the case differs  [PASS]
+  THEN  a number equal to the cell  [PASS]
+  THEN  a number that is not the cell  [PASS]
+  THEN  text on the 4 x 2 table  [PASS]
+  THEN  a list value equal to a list cell  [PASS]
+  THEN  an item of the list is not the cell  [PASS]
+  THEN  NumberOfOccurrencesOfSubValueInCell counts every place of a letter  [FAIL]
+    expected: "2"
+    got:      "RAISES"
+  THEN  a capital is another letter  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  a text of two letters  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  a text that is not in the cell  [FAIL]
+    expected: "0"
+    got:      "RAISES"
+  THEN  a cell without that letter  [FAIL]
+    expected: "0"
+    got:      "RAISES"
+  THEN  text on the 4 x 2 table  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  an item inside a list cell  [FAIL]
+    expected: "1"
+    got:      "RAISES"
+  THEN  a number cell holds no text to look into  [FAIL]
+    expected: "0"
+    got:      "RAISES"
+  -> 14 pass, 21 fail
+
+SCENARIO: Several cells
+  GIVEN the people table and the 4 x 2 table
+  THEN  NumberOfOccurrencesOfSubValueInCells counts the places in the cells that contain the text  [PASS]
+  THEN  two cells, several places each  [PASS]
+  THEN  a text found inside a longer cell is counted, not only a cell equal to it  [PASS]
+  THEN  a cell without the text counts 0  [PASS]
+  THEN  the case counts  [PASS]
+  THEN  on the 4 x 2 table  [PASS]
+  THEN  no cell at all  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Rows: counting
+  GIVEN the four tables
+  THEN  NumberOfOccurrenceOfCellInRow counts the cells of the row that equal the value  [PASS]
+  THEN  a value that is in another row  [PASS]
+  THEN  text on the 4 x 2 table, row 3 is x q  [PASS]
+  THEN  row 2 is z w  [PASS]
+  THEN  a cell that only starts with the value is not counted  [PASS]
+  THEN  the case counts  [PASS]
+  THEN  a list cell equal to a list  [PASS]
+  THEN  a row that does not exist raises  [PASS]
+  THEN  NumberOfOccurrenceOfCellInRows adds the rows  [PASS]
+  THEN  one row of them  [PASS]
+  THEN  rows without the value  [PASS]
+  THEN  a value that repeats over the rows  [PASS]
+  THEN  texts that contain the text are not the text  [PASS]
+  THEN  on the 3 x 3 table  [PASS]
+  THEN  a list cell  [PASS]
+  THEN  a row that does not exist raises  [PASS]
+  -> 16 pass, 0 fail
+
+SCENARIO: Rows: the nth, the first and the last cell
+  GIVEN the four tables; the rows are read in the order given
+  THEN  FindNthInRows: the first x  [PASS]
+  THEN  the second x  [PASS]
+  THEN  the third x does not exist  [PASS]
+  THEN  the nth of a value that is in no given row  [PASS]
+  THEN  a number cell  [PASS]
+  THEN  a number that is in another row  [PASS]
+  THEN  a text inside the cells, with [ :SubValue, text ]  [PASS]
+  THEN  a list cell, wrapped as [ :Cell, list ]  [PASS]
+  THEN  :Last as the occurrence  [PASS]
+  THEN  an occurrence that is not a number raises  [PASS]
+  THEN  FindFirstInRows  [PASS]
+  THEN  the rows are read in the order given  [PASS]
+  THEN  a value that is in no given row  [PASS]
+  THEN  a number  [PASS]
+  THEN  a number in another row  [PASS]
+  THEN  a text inside the cells  [PASS]
+  THEN  a list cell  [PASS]
+  THEN  FindFirstValueInRows  [PASS]
+  THEN  FindFirstValueInRows in the order given  [PASS]
+  THEN  a value that is in no given row  [PASS]
+  THEN  a cell that only starts with the value is not a match  [PASS]
+  THEN  texts that contain the text: the whole value only  [PASS]
+  THEN  a number  [PASS]
+  THEN  a list cell is a value, as it stands  [PASS]
+  THEN  FindFirstSubValueInRows gives the cell and the place  [PASS]
+  THEN  on the 4 x 2 table  [PASS]
+  THEN  a text that is in no given row  [PASS]
+  THEN  the case counts  [PASS]
+  THEN  FindLastInRows  [PASS]
+  THEN  the last of a value that repeats  [PASS]
+  THEN  the rows are read in the order given: the last is then row 1  [PASS]
+  THEN  the first of the same  [PASS]
+  THEN  a value that is in no given row  [PASS]
+  THEN  a number  [PASS]
+  THEN  a text inside the cells  [PASS]
+  THEN  a list cell, wrapped  [PASS]
+  THEN  FindLastValueInRows  [PASS]
+  THEN  a value that is in the first row only  [PASS]
+  THEN  a value that is in no given row  [PASS]
+  THEN  a list cell is a value, as it stands  [PASS]
+  THEN  a row that does not exist raises  [PASS]
+  THEN  FindLastSubValueInRows  [PASS]
+  THEN  the last cell that holds the text, not the first  [PASS]
+  THEN  one row, two places in the cell  [PASS]
+  THEN  a text that is in no given row  [PASS]
+  -> 45 pass, 0 fail
+
+SCENARIO: One column: the first and the last cell, and the count
+  GIVEN the four tables
+  THEN  FindFirstValueInCol  [PASS]
+  THEN  in the other column  [PASS]
+  THEN  the column by its position  [PASS]
+  THEN  a value that is in the other column  [PASS]
+  THEN  a number  [PASS]
+  THEN  texts that contain the text: the whole value only  [PASS]
+  THEN  a list cell is a value, as it stands  [PASS]
+  THEN  a column that does not exist raises  [PASS]
+  THEN  FindFirstSubValueInCol  [PASS]
+  THEN  on the 4 x 2 table  [PASS]
+  THEN  a text that is in the other column  [PASS]
+  THEN  the case counts  [PASS]
+  THEN  FindLastValueInCol  [PASS]
+  THEN  a value that repeats in the other column  [PASS]
+  THEN  a number  [PASS]
+  THEN  a number that is in another column  [PASS]
+  THEN  a list cell is a value, as it stands  [PASS]
+  THEN  a column that does not exist raises  [PASS]
+  THEN  FindLastSubValueInCol gives the last place  [PASS]
+  THEN  on the 4 x 2 table  [PASS]
+  THEN  a text that is in no cell of the column  [PASS]
+  THEN  NumberOfOccurrenceOfCellInCol  [PASS]
+  THEN  the other column  [PASS]
+  THEN  a value that is in the other column only  [PASS]
+  THEN  the column by its position  [PASS]
+  THEN  a number  [PASS]
+  THEN  a cell that only starts with the value is not counted  [PASS]
+  THEN  a list cell  [PASS]
+  THEN  a column that does not exist raises  [PASS]
+  -> 29 pass, 0 fail
+
+SCENARIO: Several columns: the nth, the first and the last cell, and the count
+  GIVEN the four tables; the columns are read in the order given
+  THEN  FindNthInCols: the first y  [PASS]
+  THEN  the second y  [PASS]
+  THEN  the third y does not exist  [PASS]
+  THEN  a column that has none  [PASS]
+  THEN  names and positions alike  [PASS]
+  THEN  a number  [PASS]
+  THEN  a text inside the cells  [PASS]
+  THEN  a list cell, wrapped  [PASS]
+  THEN  FindFirstInCols  [PASS]
+  THEN  the columns are read in the order given  [PASS]
+  THEN  and in the other order  [PASS]
+  THEN  a value that only the first given column has  [PASS]
+  THEN  a value that is in no given column  [PASS]
+  THEN  a number  [PASS]
+  THEN  a text inside the cells  [PASS]
+  THEN  a list cell  [PASS]
+  THEN  FindFirstValueInCols  [PASS]
+  THEN  columns given by position  [PASS]
+  THEN  the columns are read in the order given  [PASS]
+  THEN  a value that is in no given column  [PASS]
+  THEN  texts that contain the text: the whole value only  [PASS]
+  THEN  a list cell is a value, as it stands  [PASS]
+  THEN  FindFirstSubValueInCols  [PASS]
+  THEN  texts that contain the text  [PASS]
+  THEN  the columns are read in the order given  [PASS]
+  THEN  a text that is in no given column  [PASS]
+  THEN  FindLastInCols  [PASS]
+  THEN  the columns are read in the order given: the last is then in the first column  [PASS]
+  THEN  and in the other order  [PASS]
+  THEN  a value that is in no given column  [PASS]
+  THEN  a number  [PASS]
+  THEN  a text inside the cells  [PASS]
+  THEN  a list cell, wrapped  [PASS]
+  THEN  FindLastValueInCols  [PASS]
+  THEN  a value that repeats in one column  [PASS]
+  THEN  the columns are read in the order given  [PASS]
+  THEN  a value that is in no given column  [PASS]
+  THEN  a list cell is a value, as it stands  [PASS]
+  THEN  FindLastSubValueInCols  [PASS]
+  THEN  the last place of a text  [PASS]
+  THEN  the columns are read in the order given  [PASS]
+  THEN  a text that is in no given column  [PASS]
+  THEN  the case counts  [PASS]
+  THEN  NumberOfOccurrenceOfCellInCols  [PASS]
+  THEN  a value in both columns  [PASS]
+  THEN  a column without the value adds nothing  [PASS]
+  THEN  columns by position  [PASS]
+  THEN  a number  [PASS]
+  THEN  a list cell  [PASS]
+  THEN  a column that does not exist raises  [PASS]
+  -> 50 pass, 0 fail
+
+SCENARIO: A section: counting the cells
+  GIVEN the four tables; a section is two [ column, row ] corners
+  THEN  the whole 3 x 3 table  [PASS]
+  THEN  the lower right block  [PASS]
+  THEN  a value the block leaves out  [PASS]
+  THEN  a column of the block only  [PASS]
+  THEN  the whole 4 x 2 table  [PASS]
+  THEN  one column of it  [PASS]
+  THEN  the two middle rows  [PASS]
+  THEN  a value that repeats  [PASS]
+  THEN  the case counts  [PASS]
+  THEN  the cell that only starts with the value is not counted  [PASS]
+  THEN  the same, with a case that differs  [PASS]
+  THEN  a list cell  [PASS]
+  THEN  a list cell left out of the section  [PASS]
+  THEN  a section that leaves the table raises  [PASS]
+  -> 14 pass, 0 fail
+
+================================================
+TOTAL: 217 assertions, 196 pass, 21 fail
+================================================
+STATUS: FAILED

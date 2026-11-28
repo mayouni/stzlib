@@ -1,0 +1,31 @@
+SCENARIO: Every strategy counts what it loses
+  GIVEN four items fed into a buffer of two
+  THEN  BUFFER_EXPAND keeps two  [PASS]
+  THEN  ...and admits losing two  [PASS]
+  THEN  BUFFER_REJECT_NEWEST keeps two  [PASS]
+  THEN  ...and admits losing two  [PASS]
+  THEN  BUFFER_EVICT_OLDEST keeps two  [PASS]
+  THEN  ...and admits losing two  [PASS]
+  THEN  BUFFER_BLOCK keeps two  [PASS]
+  THEN  ...and admits losing two  [PASS]
+  GIVEN two items fed into a buffer of two
+  THEN  nothing is lost  [PASS]
+  THEN  ...and both are kept  [PASS]
+  GIVEN the difference between evicting and rejecting
+  THEN  evict-oldest ends up holding the last item  [PASS]
+  THEN  ...while reject-newest holds the first  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: A stream can be spelled the way it sounds
+  GIVEN a stream fed through the correctly spelled names
+  THEN  Receive reaches the buffer  [PASS]
+  THEN  ...and so does the old Recieve  [PASS]
+  THEN  ReceiveMany takes a list  [PASS]
+  THEN  ...and both spellings agree exactly  [PASS]
+  THEN  ...and a batch loses nothing  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 17 assertions, 17 pass, 0 fail
+================================================
+STATUS: OK

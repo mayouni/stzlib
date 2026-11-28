@@ -1,0 +1,80 @@
+SCENARIO: The safe stop ends the loop at the end of the pass that asked for it
+  GIVEN a system with one repeating timer, asking for the safe stop at tick 3
+  THEN  the run raised nothing (no STOPPED banner)  [PASS]
+  THEN  the loop ended at the pass that asked: 3 ticks  [PASS]
+  THEN  ...well before the bound of 20  [PASS]
+  THEN  the system reports itself stopped  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Without the safe stop the same loop keeps ticking until the bound
+  GIVEN the same system, asking for nothing
+  THEN  the run raised nothing  [PASS]
+  THEN  the loop ran to the bound: 20 ticks  [PASS]
+  GIVEN the same system, asking for the plain Stop at tick 3
+  THEN  the plain Stop also ends it at 3 (the safe one is not the only exit)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: The five other spellings do the same
+  THEN  SafeStopLoop raised nothing  [PASS]
+  THEN  SafeStopLoop ended the loop at 4 ticks  [PASS]
+  THEN  SafeStopExecution raised nothing  [PASS]
+  THEN  SafeStopExecution ended the loop at 4 ticks  [PASS]
+  THEN  SafeStopLoopExecution raised nothing  [PASS]
+  THEN  SafeStopLoopExecution ended the loop at 4 ticks  [PASS]
+  THEN  StopNext raised nothing  [PASS]
+  THEN  StopNext ended the loop at 4 ticks  [PASS]
+  THEN  StopNextLoop raised nothing  [PASS]
+  THEN  StopNextLoop ended the loop at 4 ticks  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: A request made while no loop runs does not carry over to the next run
+  GIVEN a system asked for the safe stop BEFORE Start
+  THEN  the run raised nothing  [PASS]
+  THEN  the loop ran to the bound: the old request was dropped at Start  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: A task can ask for the safe stop before the first pass
+  GIVEN a system with a slow repeating timer and a task that asks for the safe stop
+  THEN  the run raised nothing  [PASS]
+  THEN  the loop ended at its first pass, before the timer was due: 0 ticks  [PASS]
+  GIVEN the same system with a task that asks for nothing
+  THEN  the loop ran to its bound: 2 ticks  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: BindObjects binds the reactive objects you pass
+  GIVEN a source holding name = Ann and a target without an alias
+  THEN  the target has no alias yet  [PASS]
+  WHEN  the two are bound, name to alias
+  THEN  it answers 1  [PASS]
+  THEN  the target YOU PASSED now holds the source value  [PASS]
+  THEN  ...an unrelated attribute of the target is untouched  [PASS]
+  THEN  ...the source is unchanged  [PASS]
+  WHEN  the target attribute name is left empty
+  THEN  the same name is used on the target  [PASS]
+  WHEN  the source changes afterwards
+  THEN  the source holds the new value  [PASS]
+  THEN  LIMIT: the target keeps the value of the moment of binding (BindTo keeps a copy of its target)  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: BindObjects refuses what it cannot bind, and says so
+  GIVEN two PLAIN objects (not reactive objects)
+  THEN  it answers 0  [PASS]
+  THEN  ...and the target you passed is unchanged  [PASS]
+  THEN  ...as is the source  [PASS]
+  GIVEN a reactive source and a plain target
+  THEN  it answers 0  [PASS]
+  THEN  ...and the plain target is unchanged  [PASS]
+  GIVEN something that is not an object at all
+  THEN  it answers 0  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: LIMIT: a request made on a COPY of the system is not seen by the loop
+  GIVEN a loop whose tick asks for the safe stop on a copy taken before Start
+  THEN  the run raised nothing  [PASS]
+  THEN  the loop was not stopped by the copy: it ran to the bound, 20 ticks  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 38 assertions, 38 pass, 0 fail
+================================================
+STATUS: OK

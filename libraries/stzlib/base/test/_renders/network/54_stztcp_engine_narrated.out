@@ -1,0 +1,53 @@
+SCENARIO: Engine TCP global helpers exist
+  THEN  StzEngineTcpConnect defined  [PASS]
+  THEN  StzEngineTcpSend defined  [PASS]
+  THEN  StzEngineTcpRecv defined  [PASS]
+  THEN  StzEngineTcpClose defined  [PASS]
+  THEN  StzEngineTcpListen defined  [PASS]
+  THEN  StzEngineTcpAccept defined  [PASS]
+  THEN  StzEngineTcpServerClose defined  [PASS]
+  THEN  StzEngineTcpLastError defined  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Connect to a bogus host surfaces an error
+  GIVEN a fresh client and an unreachable host
+  THEN  IsConnected stays FALSE  [PASS]
+  THEN  LastError reports failure  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Send on a never-connected client is a no-op
+  GIVEN a client that was never Connect'd
+  THEN  LastError says Not connected  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Server with an unbindable host fails to listen
+  GIVEN a server and an invalid bind host
+  THEN  IsListening stays FALSE  [PASS]
+  THEN  LastError captured  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Accept on a non-listening server returns NULL
+  GIVEN a fresh server
+  THEN  AcceptOne returns NULL  [PASS]
+  THEN  LastError = Not listening  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The error is a real reason, and success clears it
+  GIVEN a client pointed at a host that cannot resolve
+  THEN  HasError agrees with LastError  [PASS]
+  THEN  ...and the reason came from the engine, not a placeholder  [PASS]
+  WHEN  a server binds successfully
+  THEN  it is listening  [PASS]
+  THEN  ...and the error slot is CLEAR, not stale  [PASS]
+  THEN  ...so HasError is FALSE  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: stzWebSocket reports through the same inherited slot
+  GIVEN a socket that was never connected
+  THEN  Send says why  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 21 assertions, 21 pass, 0 fail
+================================================
+STATUS: OK

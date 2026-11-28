@@ -1,0 +1,15 @@
+SCENARIO: Eight glyphs by name
+  THEN  heart  [PASS]
+  THEN  smile  [PASS]
+  THEN  handshake  [PASS]
+  THEN  sun  [PASS]
+  THEN  star  [PASS]
+  THEN  check mark  [PASS]
+  THEN  dot  [PASS]
+  THEN  flower  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

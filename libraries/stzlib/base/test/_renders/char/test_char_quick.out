@@ -1,0 +1,21 @@
+=== Char Quick Test ===
+  PASS: IsChar A
+  PASS: IsChar z
+  PASS: IsChar AB=false
+  PASS: IsChar empty=false
+  PASS: IsVowel a
+  PASS: IsVowel b=false
+  PASS: Unicode A=65
+  PASS: StzChar 65=A
+  PASS: CharName A
+  PASS: IsCharName
+
+==========================
+Total: 10
+Passed: 10
+Failed: 0
+ALL TESTS PASSED!
+
+
+----------------
+----------------

@@ -1,0 +1,32 @@
+-- Scene 1: a vault-sourced secret is fetched THROUGH a resolver --
+  [OK] the secret knows it is vault-sourced
+  [OK] ...its descriptor shows the vault LOCATOR, never a value
+  [OK] RevealVia(resolver, effectful) fetches the value from the vault
+
+-- Scene 2: the reveal is GOVERNED -- the gate applies BEFORE the fetch --
+  [OK] an LLM is refused -- it never reaches the vault
+
+-- Scene 3: a vault secret cannot be revealed without a resolver --
+  [OK] Reveal(actor) on a vault secret raises (directs to RevealVia)
+  [OK] ...RevealVia without a resolver raises too
+  [OK] ...and it is not 'resolvable' the plain way (needs a resolver)
+
+-- Scene 4: the resolver is a DUCK-TYPED contract -- any Resolve(locator) --
+  [OK] a custom resolver object satisfies the contract
+
+-- Scene 5: a vault secret lives in the store -- revealed via resolver, AUDITED --
+  [OK] the store holds the vault secret (redacted)
+  [OK] store.RevealVia(name, resolver, effectful) fetches through the vault
+  [OK] ...and the store AUDITED it (one governed door)
+  [OK] ...plain store.Reveal on a vault secret raises (needs a resolver)
+  [OK] ...an LLM via the store is refused AND logged refused
+
+-- Scene 6: RevealVia is a safe SUPERSET -- non-vault secrets ignore it --
+  [OK] RevealVia on a literal secret ignores the resolver
+  [OK] ...its Reveal(actor) still works directly
+
+==========================================
+TOTAL: 15 assertions, 15 pass, 0 fail
+==========================================
+
+Executed in almost 0 second(s)

@@ -1,0 +1,27 @@
+-- Scene 1: the four native types, either spelling --
+  [OK] symbol :String
+  [OK] quoted 'String'
+  [OK] shouting 'STRING'
+  [OK] symbol :Number on 89
+  [OK] quoted 'Number' on 89
+  [OK] a list is a :List
+
+-- Scene 2: ...and they still say NO when they should --
+  [OK] 'Ring' is not a Number
+  [OK] 89 is not a String
+  [OK] a string is not a List
+
+-- Scene 3: stz traits, reached through the object's own methods --
+  [OK] 'RING' is Uppercase (quoted)
+  [OK] 'RING' is Uppercase (symbol)
+  [OK] ...but 'ring' is not
+  [OK] 'ring' is Lowercase
+
+-- Scene 4: the list form, which had never once run --
+  [OK] a list of strings AND of chars, at the same time
+  [OK] ...accepting mixed spelling too
+  [OK] ...and saying NO when one member fails
+
+==========================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+==========================================

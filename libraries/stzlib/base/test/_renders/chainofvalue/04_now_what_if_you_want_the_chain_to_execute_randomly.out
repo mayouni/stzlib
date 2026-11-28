@@ -1,0 +1,58 @@
+@content: NULL
+@cnnlwhy:
+@cnnlexpectmode:
+@pnnlexpect: 0
+@nnnlexpecttol: 0
+@onnlmain: 0
+@bnnlskip: 0
+@bnnlneither: 0
+@bnnleither: 0
+@bnnlsat: 0
+@cnnlquant:
+@annlconstraints: [This Attribute Contains A List]
+@bnnlenforce: 0
+@cvarname: v
+@cuuid:
+@chasheduuid:
+_these_: NULL
+_those_: NULL
+@noname:
+@isstzobject:
+@i:
+@islistofstrings:
+@isringtypeinplural:
+@isstztypeinplural:
+@@:
+@botharestrings:
+@memorysizeinbytes:
+@memorysizeinbytes32:
+@memorysizeinbytes64:
+@sizeinbytesxt:
+@sizeinbytes32xt:
+@sizeinbytes64xt:
+@contentsizeinbytes:
+@isnamedobject:
+@pvalue:
+@ctype: STRING
+is: Object...
+_isnot_: Object...
+_not: NULL
+_do: NULL
+_execute_: Object...
+becomes: Object...
+@bchainstopped: 1
+@awhychainstopped: [This Attribute Contains A List]
+@ccode: ? "Done! Because I am lucky ;)"
+@bcodehasbeencalled: 1
+@ccodestatus: notyetexecuted
+@awhycodenotexecuted: [This Attribute Contains A List]
+@ccodecaller: dothis
+@ccodeexecutor:
+@bnegatenext: 0
+@bbecomesisusedbeforedothis: 0
+@coneormanyloops: one
+
+
+
+----------------
+----------------

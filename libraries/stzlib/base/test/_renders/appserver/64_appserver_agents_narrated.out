@@ -1,0 +1,77 @@
+SCENARIO: the agent host IS the same host
+  GIVEN a running server
+  THEN  it hosts no agents yet  [PASS]
+  THEN  supervising before HostAgents() is refused  [PASS]
+  WHEN  HostAgents() attaches a host onto the server's own loop
+  THEN  the server is hosting  [PASS]
+  THEN  ...with no agents yet  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: requests and perceive-decide-act interleave on ONE loop
+  GIVEN a governed kitchen-bot ticking every 20ms, and an ordinary route
+  THEN  the agent is supervised  [PASS]
+  THEN  ...and nameable  [PASS]
+  THEN  it has not ticked before the loop runs  [PASS]
+  WHEN  the server runs for 300ms with no traffic at all
+  THEN  the agent TICKED anyway -- an idle socket no longer starves it  [PASS]
+  THEN  ...and every tick is traced  [PASS]
+  WHEN  a real HTTP request is served while the agents are live
+  THEN  the ordinary route still answers  [PASS]
+  THEN  ...and hosting did not break the 200  [PASS]
+  WHEN  the loop runs again
+  THEN  the agent kept ticking across the request  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: the agent surface reports the LIVE host over HTTP
+  THEN  GET /agents lists the hosted agent  [PASS]
+  THEN  ...as active and not retired  [PASS]
+  THEN  ...carrying the live tick count  [PASS]
+  THEN  GET /agents/<name> answers for one agent  [PASS]
+  THEN  GET /agents/trace exposes the perceive-act trace  [PASS]
+  THEN  an unknown agent is a clean 404  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: the surface is READ-ONLY -- an unauthenticated socket may not commit
+  WHEN  something POSTs to the agent surface
+  THEN  it is refused with 405  [PASS]
+  THEN  ...and says why: control is in-process and governed  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: EVENT-DRIVEN agents on the server's loop
+  GIVEN an order-bot supervised on the 'orders' channel, not a timer
+  THEN  it has not ticked with no events  [PASS]
+  WHEN  three orders are emitted and the SERVER runs
+  THEN  the agent reacted once per EVENT, driven by the serve loop  [PASS]
+  THEN  ...and the timer-driven bot is unaffected on the same loop  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: in-process control: pause, resume
+  THEN  a paused agent is inactive  [PASS]
+  WHEN  more events arrive while it is paused
+  THEN  it did not react  [PASS]
+  WHEN  it is resumed
+  THEN  it catches up on what it missed  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: retirement is EARNED, even on a hosted agent (R4b)
+  GIVEN a decommission obligation declared for the order-bot
+  WHEN  retirement is attempted with the obligation outstanding
+  THEN  it is REFUSED  [PASS]
+  THEN  ...with a reason  [PASS]
+  THEN  ...and it keeps running  [PASS]
+  WHEN  the obligation is fulfilled
+  THEN  retirement is granted  [PASS]
+  THEN  ...and it is retired  [PASS]
+  THEN  a retired agent stops ticking permanently  [PASS]
+  THEN  ...while the kitchen-bot carries on  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: teardown
+  THEN  the server stopped with agents attached  [PASS]
+  THEN  teardown completes without crash  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 35 assertions, 35 pass, 0 fail
+================================================
+STATUS: OK

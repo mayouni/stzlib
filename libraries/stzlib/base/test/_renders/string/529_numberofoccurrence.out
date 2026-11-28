@@ -1,0 +1,12 @@
+SCENARIO: Counting many
+  THEN  five occurrences  [PASS]
+  THEN  their positions  [PASS]
+  THEN  their sections  [PASS]
+  THEN  sections of spans give the substrings  [PASS]
+  THEN  three of them are << >>-bounded  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

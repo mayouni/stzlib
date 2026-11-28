@@ -1,0 +1,29 @@
+SCENARIO: Bogus host fails fast and sets LastError
+  GIVEN an unreachable hostname
+  THEN  LastError contains 'connect failed'  [PASS]
+  THEN  Connect returned within 10000 ms  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Listen with invalid bind host fails cleanly
+  GIVEN a non-IP host string
+  THEN  LastError contains 'listen'  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Listen on port 0 picks an ephemeral port
+  THEN  LastError is empty after successful bind  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Listen on the same port twice without close is OK in slice 2 (SO_REUSEADDR)
+  THEN  first bind OK  [PASS]
+  THEN  second bind OK after close  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Send/Recv on null handle return -1
+  THEN  send on NULL returns -1  [PASS]
+  THEN  recv on NULL returns empty body  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

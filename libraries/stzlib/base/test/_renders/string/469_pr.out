@@ -1,0 +1,16 @@
+SCENARIO: Recording off by default
+  THEN  the chain just transforms  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: KeepHistory turns recording on
+  THEN  plain Q() now captures the steps  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: DontKeepHistory turns it back off
+  THEN  the history is empty again  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 3 assertions, 3 pass, 0 fail
+================================================
+STATUS: OK

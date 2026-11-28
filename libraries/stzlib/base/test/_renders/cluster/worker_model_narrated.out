@@ -1,0 +1,88 @@
+SCENARIO: the default pool has the 4 domain profiles, grounded in the engine
+  GIVEN a worker pool seeded with the doc's four facets (from its catalog)
+  THEN  it has four profiles  [PASS]
+  THEN  nlp/math/search/vision are present  [PASS]
+  THEN  nlp/math/search are engine-native (no external tool)  [PASS]
+  THEN  vision is a POLYGLOT worker (external tool, per domain honesty)  [PASS]
+  THEN  its external tool is named  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: capabilities route to profiles (the R8.2 seam)
+  THEN  an optimization is math work  [PASS]
+  THEN  sentiment is nlp work  [PASS]
+  THEN  similarity is search work  [PASS]
+  THEN  ocr is vision work  [PASS]
+  THEN  an unknown capability routes nowhere  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: dispatch runs admitted work now and returns its result
+  GIVEN a small pool with a 2-slot math profile
+  WHEN  math work is dispatched
+  THEN  it was admitted  [PASS]
+  THEN  and ran, returning its value  [PASS]
+  THEN  the slot was released after running  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: LOAD ISOLATION: a saturated profile never starves another
+  GIVEN a pool: vision budget 1 (heavy), nlp budget 3 (light)
+  WHEN  a long-running vision job holds the ONLY vision slot
+  THEN  the vision slot is taken  [PASS]
+  THEN  vision is now saturated  [PASS]
+  WHEN  MORE vision work arrives while the slot is held
+  THEN  it is QUEUED, not run (vision over budget)  [PASS]
+  THEN  vision queue depth is 1  [PASS]
+  WHEN  light NLP work arrives at the SAME time
+  THEN  NLP is admitted immediately -- NOT blocked by vision  [PASS]
+  THEN  and the second NLP too  [PASS]
+  THEN  NLP results came back  [PASS]
+  WHEN  the heavy vision job finishes and the pool drains
+  THEN  the queued vision work now runs  [PASS]
+  THEN  vision queue is empty  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: metrics are REAL counts (not the retired random() monitor)
+  GIVEN the isolation pool after the run above
+  THEN  metrics cover every profile  [PASS]
+  THEN  vision admitted 2 (the held slot + the drained job)  [PASS]
+  THEN  vision rejected 1 (the over-budget dispatch)  [PASS]
+  THEN  vision is idle now (0 in flight)  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: FACET != MODULE: the naming law and the facet->module provenance
+  GIVEN the full facet pool with provenance populated
+  THEN  GROUNDED: :data maps to exactly one module (1:1)  [PASS]
+  THEN  and that module is 'data'  [PASS]
+  THEN  COMPOSED: :math spans several modules (1:n)  [PASS]
+  THEN  its provenance names more than one module  [PASS]
+  THEN  COMPOSED: :knowledge spans natural + graph  [PASS]
+  THEN  EXTERNAL: :vision has NO module (polyglot, 1:0)  [PASS]
+  THEN  its realizing-module list is empty  [PASS]
+  GIVEN a facet that is LOGICAL-ONLY (no dedicated module, not polyglot)
+  THEN  with no RealizedBy it is :logical  [PASS]
+  THEN  once mapped to 2+ modules it is :composed  [PASS]
+  THEN  asymmetry proves they differ: ~18 facets, far more modules  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: the facet catalog is INSTANCE-scoped, not global (per deployment)
+  GIVEN two pools, one customized with a facet the other never sees
+  THEN  pool A knows the custom :pdf facet  [PASS]
+  THEN  pool B does NOT (catalogs are independent)  [PASS]
+  WHEN  pool A adds a worker for its custom facet
+  THEN  pool A has the :pdf profile  [PASS]
+  THEN  it is polyglot via python  [PASS]
+  WHEN  pool B tries to use a facet not in ITS catalog
+  THEN  pool B refuses -- the facet is not in its own catalog  [PASS]
+  GIVEN a deployment that DROPS a standard facet it does not offer
+  THEN  its catalog no longer has vision  [PASS]
+  THEN  but a fresh pool still does (no global mutation)  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: the pre-engine class tree is GONE, not merely superseded
+  GIVEN the worker model replaced it (5.10 ruling)
+  THEN  the SCALE plane is the worker model  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 44 assertions, 44 pass, 0 fail
+================================================
+STATUS: OK

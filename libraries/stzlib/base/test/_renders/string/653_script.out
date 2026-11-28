@@ -1,0 +1,15 @@
+SCENARIO: Sisyphus in Greek
+  THEN  the script  [PASS]
+  THEN  capitalcase  [PASS]
+  THEN  uppercase  [PASS]
+  THEN  lowercased  [PASS]
+  THEN  uppercased  [PASS]
+  THEN  capitalcased  [PASS]
+  THEN  equal, case aside  [PASS]
+  THEN  not equal, case strict  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

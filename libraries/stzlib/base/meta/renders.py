@@ -185,6 +185,75 @@ BOXDRAW = re.compile('[' + ''.join(chr(c) for c in (0x2500, 0x2502, 0x250c, 0x25
                                                     0x255d, 0x2588, 0x2591)) + ']')
 
 
+NOTRUN = re.compile(r'^\s*#\s*warning\b.*\bnot run here\b', re.I)
+NOTRUN_DEF = re.compile(r'^\s*(?:def|func)\s+([A-Za-z_][A-Za-z0-9_]*)')
+
+
+def not_run_here():
+    """Methods the LIBRARY ITSELF declares must not be executed.
+
+    Each is marked in its own doc block as `warning ... not run here`, because it
+    opens a viewer, starts a second process, binds a port or waits on one. The
+    marker is the contract, and reading it is how the gate avoids the two hours
+    diagram/41_import_as_subdiagram.ring cost on 2026-11-27: the hazard was
+    already written down one line above the definition.
+
+    WHY NOT A LIST OF NAMES IN THIS FILE. It would drift from the library the
+    first time a method was added, and a stale shield is worse than none because
+    it reads as protection. This walk takes about a second and cannot be wrong.
+    A first attempt at guessing names instead matched `.Show()`, which appears in
+    239 test files and is a CONSOLE PRINT in nearly all of them -- the very
+    output this gate exists to capture. Guessing would have refused the corpus.
+
+    Returns {method name lowercased: "file:line" where it is declared}.
+    """
+    found = {}
+    for root, dirs, files in os.walk(BASE_DIR):
+        dirs[:] = [d for d in dirs if d != 'test']
+        for fn in files:
+            if not fn.endswith('.ring'):
+                continue
+            path = os.path.join(root, fn)
+            try:
+                with io.open(path, encoding='utf-8', errors='replace') as fh:
+                    lines = fh.read().split(NL)
+            except OSError:
+                continue
+            for i, line in enumerate(lines):
+                if not NOTRUN.match(line):
+                    continue
+                for j in range(i + 1, min(i + 12, len(lines))):
+                    m = NOTRUN_DEF.match(lines[j])
+                    if m:
+                        rel = os.path.relpath(path, BASE_DIR).replace(os.sep, '/')
+                        found.setdefault(m.group(1).lower(),
+                                         '%s:%d' % (rel, j + 1))
+                        break
+    return found
+
+
+def calls_declared(path, declared):
+    """(method, where) if this test file calls a not-run-here method, else None.
+
+    The receiver is deliberately not checked: `oDiag.View()` and `oChart.View()`
+    are both refused, because a false refusal costs one INFO line in a report
+    while a false admission costs the full 180-second bound and, before the pipe
+    fix, cost two hours.
+    """
+    if not declared:
+        return None
+    try:
+        with io.open(path, encoding='utf-8', errors='replace') as fh:
+            body = fh.read()
+    except OSError:
+        return None
+    for m in re.finditer(r'\.([A-Za-z_][A-Za-z0-9_]*)\s*\(', body):
+        name = m.group(1).lower()
+        if name in declared:
+            return (m.group(1), declared[name])
+    return None
+
+
 def kill_tree(pid):
     """Kill a process AND everything it spawned.
 
@@ -406,10 +475,28 @@ def main():
     seeded = refused = drifted = unchanged = skipped = 0
     timings = []
 
+    declared = not_run_here()
+
     for fn in files:
         key = '%s/%s' % (TOPIC, fn)
         stored = read_store(fn)
         known = key in manifest
+
+        # ASK THE LIBRARY BEFORE RUNNING THE FILE. 55 of the 5,522 test files
+        # call a method whose own doc block says "warning: not run here" -- it
+        # opens a viewer, starts a second process, or waits on a port. Running
+        # one costs the full 180 s bound and yields nothing; reading the marker
+        # costs nothing and says WHY. This is the rail that diagram/41 needed:
+        # stzDiagram.ring:17985 had already declared it, and the harness ran it
+        # anyway for two hours.
+        hit = calls_declared(os.path.join(ROOT, fn), declared)
+        if hit:
+            if not known:
+                finding('render-ungateable', fn, 'info',
+                        'calls %s(), which %s documents as "not run here"'
+                        % (hit[0], hit[1]))
+            skipped += 1
+            continue
 
         # A file with no baseline entry is only interesting if it is
         # render-shaped; everything else is promises.py's business.

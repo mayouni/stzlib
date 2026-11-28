@@ -1,0 +1,83 @@
+SCENARIO: The helper that checks a list of positions and names exists
+  GIVEN a 3 x 3 table
+  THEN  a list mixing a position and a name is accepted  [PASS]
+  THEN  an unknown name in the mix is refused, not raised  [PASS]
+  THEN  a position past the last column is refused  [PASS]
+  THEN  the same on the 4 x 2 table  [PASS]
+  THEN  the position and name lists convert to names  [PASS]
+  THEN  and to positions  [PASS]
+  THEN  on the 4 x 2 table the positions too  [PASS]
+  THEN  CellsInCols reads columns given as a position and a name  [PASS]
+  THEN  CellsInCols on 4 x 2  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Keeping only the given columns, by name or by position
+  GIVEN RemoveAllColsOtherThan and its three spellings, and the positional family
+  THEN  the 3 x 3 table keeps b and c  [PASS]
+  THEN  RemoveColsOtherThan keeps a  [PASS]
+  THEN  RemoveAllColumnsOtherThan keeps by position and name mixed  [PASS]
+  THEN  RemoveColumnsOtherThan on 4 x 2 keeps b with its four cells  [PASS]
+  THEN  the twelve positional spellings keep column 2 of the 3 x 3 table  [PASS]
+  THEN  and column 1 of the 4 x 2 table  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Removing the columns at the given positions
+  GIVEN RemoveColumnsAt and its three spellings
+  THEN  positions 1 and 3 leave b  [PASS]
+  THEN  the order and duplicates of the positions do not matter  [PASS]
+  THEN  RemoveNthCols works  [PASS]
+  THEN  RemoveNthColumns on 4 x 2 keeps the second column whole  [PASS]
+  THEN  a position past the last column is ignored  [PASS]
+  THEN  the engine copy follows the removal (RemoveNthCol marks it stale)  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Renaming columns
+  GIVEN RenameCol, which RenameCols called and which did not exist
+  THEN  a column is renamed by name  [PASS]
+  THEN  by position  [PASS]
+  THEN  the keyword :Last names the last column  [PASS]
+  THEN  the keyword :First names the first column  [PASS]
+  THEN  the misspelt name still works  [PASS]
+  THEN  RenameCols takes name = new name pairs  [PASS]
+  THEN  the cells go with the renamed column  [PASS]
+  THEN  RenameLastCol  [PASS]
+  THEN  RenameNthCol accepts :Last  [PASS]
+  THEN  RenameNthCol past the last column raises  [PASS]
+  THEN  RenameNthCols names several columns by position  [PASS]
+  THEN  RemnameNthCols is the same  [PASS]
+  THEN  a different count of positions and names raises  [PASS]
+  THEN  the engine copy follows the rename  [PASS]
+  -> 14 pass, 0 fail
+
+SCENARIO: Cells, positions and names
+  GIVEN a 3 x 3 and a 4 x 2 table
+  THEN  CellAndPosition pairs a cell with its [ column, row ]  [PASS]
+  THEN  CellAndItsPosition too  [PASS]
+  THEN  Cells lists every cell row by row (3 x 3)  [PASS]
+  THEN  Cells lists every cell row by row (4 x 2)  [PASS]
+  THEN  PositionsAndTheseCells pairs each given position with its own cell  [PASS]
+  THEN  CellsInRowNAndTheirPositions  [PASS]
+  THEN  CellsAndPositionsInNthRow  [PASS]
+  THEN  CellsInNthRowAndTheirPositions on the square table  [PASS]
+  THEN  ContainsColumns accepts [ name, cells ] pairs  [PASS]
+  THEN  and refuses a column with other cells  [PASS]
+  THEN  TheseColNames gives the names in ascending position  [PASS]
+  THEN  TheseColNames on 4 x 2  [PASS]
+  THEN  ColNamesToNumbers answers 0 for an unknown name  [PASS]
+  THEN  its misspelt name still answers  [PASS]
+  THEN  and a plural spelling  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: Finding columns
+  GIVEN the finders that excluded the wrong things
+  THEN  FindColsExceptAt takes a list of positions  [PASS]
+  THEN  FindColsExcept takes positions  [PASS]
+  THEN  FindColsExcept takes names  [PASS]
+  THEN  FindColsByValue finds the columns equal to any of the given lists  [PASS]
+  THEN  on the 4 x 2 table  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 55 assertions, 55 pass, 0 fail
+================================================
+STATUS: OK

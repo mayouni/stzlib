@@ -1,0 +1,54 @@
+SCENARIO: IsIncludedIn asks whether THIS string is inside the argument
+  THEN  inside a longer string  [PASS]
+  THEN  inside itself  [PASS]
+  THEN  not inside a shorter one (it used to answer TRUE for 'an')  [PASS]
+  THEN  not inside an unrelated one  [PASS]
+  THEN  a non-string is never a host  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Move puts the char AT the second position
+  THEN  forward: the b lands third  [PASS]
+  THEN  backward: the n lands first  [PASS]
+  THEN  to the end  [PASS]
+  THEN  one step back  [PASS]
+  THEN  the named form agrees  [PASS]
+  THEN  the same position changes nothing  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: LeadingCharIs and TrailingCharIs compare the first and last char
+  THEN  first char is b  [PASS]
+  THEN  first char is not a  [PASS]
+  THEN  last char is a  [PASS]
+  THEN  last char is not n  [PASS]
+  THEN  a run still counts  [PASS]
+  THEN  an empty string has neither  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: RemoveBlankLines drops the lines that hold nothing
+  THEN  only the text lines stay  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: SplitAroundCS_named splits with a case rule
+  THEN  the dashes are cut out  [PASS]
+  THEN  with case: only the lower a matches  [PASS]
+  THEN  without case: both a and A match  [PASS]
+  THEN  the named :CS form agrees  [PASS]
+  THEN  SplitAroundCS honours the rule itself  [PASS]
+  THEN  and SplitAround is case sensitive  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: SplitToPartsOfNCharsXTOpt takes the one argument it documents
+  THEN  a number of chars keeps the short last part  [PASS]
+  THEN  a list that starts with it works too  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: RemoveDuplicates keeps the first of each repeated char
+  THEN  banana becomes ban  [PASS]
+  THEN  the case rule is honoured  [PASS]
+  THEN  a text without repeats is unchanged  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 29 assertions, 29 pass, 0 fail
+================================================
+STATUS: OK

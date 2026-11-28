@@ -1,0 +1,16 @@
+SCENARIO: Deep content spans and substrings
+  GIVEN "[••[•[••]•[••]]••[••]]"
+  THEN  the nested content spans, leaves first  [PASS]
+  THEN  each substring pairs with its span  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Deep bound-inclusive spans and substrings
+  GIVEN the same string
+  THEN  the IB spans keep the brackets  [PASS]
+  THEN  each IB substring pairs with its span  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

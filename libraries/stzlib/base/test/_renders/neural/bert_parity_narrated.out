@@ -1,0 +1,30 @@
+-- Scene 0: the tiny model loads like any GGUF --
+  [OK] tiny_bert.gguf loads
+  [OK] architecture reads back as bert
+  [OK] hyperparameters read back (32 dims, 2 layers, 2 heads)
+
+-- Scene 1: the tokenizer matches the reference EXACTLY, id by id --
+  [OK] ids exact: the cat sat on the mat .
+  [OK] ids exact: hello world , a big red sun
+  [OK] ids exact: the dog runs fast
+  [OK] ids exact: walking the dog
+  [OK] ids exact: the zebra ran
+
+-- Scene 2: the forward pass matches the independent reference --
+  [OK] embeds to 32 dims: the cat sat on the mat .
+  [OK] embeds to 32 dims: hello world , a big red sun
+  [OK] embeds to 32 dims: the dog runs fast
+  [OK] embeds to 32 dims: walking the dog
+  [OK] embeds to 32 dims: the zebra ran
+  measured max |engine - reference| across 5 sentences: 0.000004231586
+  [OK] parity band: max abs diff < 2e-5 (measured 1.64e-7 with the f16-GELU mirror)
+
+-- Scene 3: deterministic, and discriminating --
+  [OK] embedding the same text twice is BYTE-identical
+  cos(sentence1, sentence2) = 0.814252909907
+  [OK] different sentences give distinct vectors (|cos| < 0.99)
+  [OK] model freed
+
+==========================================
+TOTAL: 17 assertions, 17 pass, 0 fail
+==========================================

@@ -1,0 +1,25 @@
+SCENARIO: Submit a timer and await it across the loop thread
+  GIVEN a reactor (loop running on its own thread)
+  WHEN  submitting a 30ms timer
+  THEN  a job id was returned  [PASS]
+  THEN  awaiting it returns 0 (the timer fired)  [PASS]
+  THEN  polling the drained id reports -2 (not found)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Poll reports running, then done
+  GIVEN a reactor and a 200ms timer
+  WHEN  polling immediately
+  THEN  status is -1 (still running)  [PASS]
+  WHEN  waiting past the delay (350ms)
+  THEN  status is now 0 (done)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: An unknown job id is reported as not found
+  GIVEN a fresh reactor
+  THEN  polling an unknown id returns -2  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

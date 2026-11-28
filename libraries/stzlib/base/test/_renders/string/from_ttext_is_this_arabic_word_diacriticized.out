@@ -1,0 +1,13 @@
+SCENARIO: Diacritics and script
+  THEN  the word has diacritics  [PASS]
+  THEN  a bare letter is Arabic  [PASS]
+  THEN  a lone fat7ah is Inherited  [PASS]
+  THEN  the diacriticized word is Arabic  [PASS]
+  THEN  the diacriticized greeting too  [PASS]
+  THEN  and the plain greeting  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

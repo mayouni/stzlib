@@ -1,0 +1,148 @@
+SCENARIO: The register's own example: key=value=more at =
+  THEN  Partition cuts into before, separator and after  [PASS]
+  THEN  PartitionAfter keeps the separator on the first part  [PASS]
+  THEN  RPartition cuts at the LAST separator  [PASS]
+  THEN  RPartitionAfter keeps the separator on the first part  [PASS]
+  THEN  Partition is no longer a one-item list  [PASS]
+  THEN  PartitionAfter is no longer a one-item list  [PASS]
+  THEN  RPartition is no longer a one-item list  [PASS]
+  THEN  RPartitionAfter is no longer a one-item list  [PASS]
+  THEN  the old answer (only key) is not the answer  [PASS]
+  THEN  the old answer (only value=more) is not the answer  [PASS]
+  THEN  the old answer (only key=value) is not the answer  [PASS]
+  THEN  the old answer (only more) is not the answer  [PASS]
+  THEN  the first and last cuts differ on a text holding the separator twice  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: The other cases the register confirmed: a-b, x=y=z, one two and a Hebrew text
+  THEN  a-b Partition at -  [PASS]
+  THEN  a-b RPartitionAfter at -  [PASS]
+  THEN  x=y=z PartitionAfter at =  [PASS]
+  THEN  x=y=z RPartition at =  [PASS]
+  THEN  one two Partition at a space  [PASS]
+  THEN  a Hebrew text cut at the space: before, separator, after  [PASS]
+  THEN  RPartitionAfter keeps the space on the first Hebrew word  [PASS]
+  THEN  the Hebrew cut is not the Hebrew text whole  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Python's str.partition and rpartition, on 29 ASCII (text, separator) pairs
+  THEN  Partition and RPartition agree with Python on every pair (both forms)  [PASS]
+  THEN  none of them disagrees  [PASS]
+  THEN  PartitionAfter agrees with Python's pieces on every pair  [PASS]
+  THEN  RPartitionAfter agrees with Python's pieces on every pair  [PASS]
+  THEN  the pieces of all four join back to the text on every pair  [PASS]
+  THEN  the table holds 29 pairs  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Hebrew, Arabic, accented, emoji, multi-character and regex-special separators, against a byte model
+  THEN  Partition equals the byte model on every case  [PASS]
+  THEN  PartitionAfter equals the byte model on every case  [PASS]
+  THEN  RPartition equals the byte model on every case  [PASS]
+  THEN  RPartitionAfter equals the byte model on every case  [PASS]
+  THEN  all four join back to the text on every case  [PASS]
+  THEN  the table holds 22 cases  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: The pieces of the Unicode cuts, pinned literally (the model could share a blind spot)
+  THEN  emoji Partition: before, the emoji itself, and after keeping the second emoji  [PASS]
+  THEN  emoji RPartitionAfter: first part ends on the last emoji  [PASS]
+  THEN  the text before is 1 character  [PASS]
+  THEN  the emoji separator is 1 character, 4 bytes  [PASS]
+  THEN  Hebrew RPartition: before holds the first Hebrew run, after is the last letter  [PASS]
+  THEN  Hebrew RPartition cuts at the later run, not the earlier  [PASS]
+  THEN  accented PartitionAfter keeps the accented letter on the first part  [PASS]
+  THEN  the first part is 2 characters, 3 bytes  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: A separator that is absent, an empty separator and an empty text keep the stzString shapes
+  THEN  absent: Partition gives text, empty, empty  [PASS]
+  THEN  absent: PartitionAfter gives text, empty  [PASS]
+  THEN  absent: RPartition gives empty, empty, text  [PASS]
+  THEN  absent: RPartitionAfter gives empty, text  [PASS]
+  THEN  an empty separator never matches: Partition  [PASS]
+  THEN  an empty separator never matches: PartitionAfter  [PASS]
+  THEN  an empty separator never matches: RPartition  [PASS]
+  THEN  an empty separator never matches: RPartitionAfter  [PASS]
+  THEN  an empty text: Partition  [PASS]
+  THEN  an empty text: PartitionAfter  [PASS]
+  THEN  an empty text: RPartition  [PASS]
+  THEN  an empty text: RPartitionAfter  [PASS]
+  THEN  a present separator is NOT given the absent shape (Partition)  [PASS]
+  THEN  a present separator is NOT given the absent shape (RPartitionAfter)  [PASS]
+  THEN  case matters by default: B is absent from abc  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: A separator at the very start, at the very end, or equal to the whole text
+  THEN  at the start: Partition  [PASS]
+  THEN  at the start: PartitionAfter  [PASS]
+  THEN  at the start: RPartition  [PASS]
+  THEN  at the start: RPartitionAfter  [PASS]
+  THEN  at the end: Partition  [PASS]
+  THEN  at the end: PartitionAfter  [PASS]
+  THEN  at the end: RPartition  [PASS]
+  THEN  at the end: RPartitionAfter  [PASS]
+  THEN  equal to the whole text: Partition  [PASS]
+  THEN  equal to the whole text: RPartitionAfter  [PASS]
+  THEN  at both ends: Partition cuts at the first  [PASS]
+  THEN  at both ends: RPartition cuts at the last  [PASS]
+  THEN  at both ends the first and the last cuts differ  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: Overlapping occurrences: the first starts earliest, the last starts latest
+  THEN  aaa at aa: Partition takes the occurrence at 1  [PASS]
+  THEN  aaa at aa: RPartition takes the occurrence at 2  [PASS]
+  THEN  aaa at aa: PartitionAfter  [PASS]
+  THEN  aaa at aa: RPartitionAfter  [PASS]
+  THEN  RPartition does NOT take the occurrence at 1  [PASS]
+  THEN  a===b at ==: Partition  [PASS]
+  THEN  a===b at ==: RPartition  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: stzString.Partition and RPartition give the same cut wherever the separator is present
+  THEN  every present-separator case agrees with stzString  [PASS]
+  THEN  at least 30 cases were compared  [PASS]
+  THEN  stzString does not give a deliberately wrong cut  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: The case-sensitive twins: the flag 0 ignores case and the cut keeps the text's own spelling
+  THEN  CS 1 does not find KEY  [PASS]
+  THEN  CS 0 finds KEY and returns the text's spelling  [PASS]
+  THEN  CS 0 RPartition takes the last Key  [PASS]
+  THEN  CS 1 RPartition does not find KEY  [PASS]
+  THEN  CS 0 PartitionAfter  [PASS]
+  THEN  CS 0 RPartitionAfter  [PASS]
+  THEN  CS 1 and CS 0 differ on a mismatching case  [PASS]
+  THEN  CS 1 and CS 0 agree on a matching case  [PASS]
+  THEN  the plain form is CS 1  [PASS]
+  THEN  accented capital matches the small letter when case is ignored (own spelling kept)  [PASS]
+  THEN  RPartition ignoring case takes the later capital  [PASS]
+  THEN  with case kept, the capital cuts at the capital  [PASS]
+  THEN  with case kept the capital does not cut at the small letter  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: The splitter built over a stzString, a bad separator type, and scale
+  THEN  built over a stzString: Partition  [PASS]
+  THEN  built over a stzString: RPartitionAfter  [PASS]
+  THEN  a number as separator raises  [PASS]
+  THEN  a list as separator raises  [PASS]
+  THEN  a string separator does not raise  [PASS]
+  THEN  a 250k text: Partition before is 100000 bytes  [PASS]
+  THEN  a 250k text: Partition separator is 1 byte  [PASS]
+  THEN  a 250k text: Partition after is 150001 bytes  [PASS]
+  THEN  a 250k text: RPartition before is 200001 bytes  [PASS]
+  THEN  a 250k text: RPartition after is 50000 bytes  [PASS]
+  THEN  the first and last cuts of the big text differ  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: The neighbours in the class are unchanged: Split, SplitBefore, SplitAfter, SplitByRegex
+  THEN  Split drops the separators  [PASS]
+  THEN  SplitAfter keeps them  [PASS]
+  THEN  SplitBefore keeps them  [PASS]
+  THEN  SplitByRegex matches a run  [PASS]
+  THEN  Split is not Partition  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 108 assertions, 108 pass, 0 fail
+================================================
+STATUS: OK

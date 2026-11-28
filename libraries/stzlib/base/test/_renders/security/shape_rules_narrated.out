@@ -1,0 +1,39 @@
+SCENARIO: 1. global-restored-by-hand: PHP2Shell's shape
+  THEN  fires on a save and a hand restore with no try  [PASS]
+  THEN  silent when a try stands between (negative sibling)  [PASS]
+  THEN  silent when the global is never restored from the local  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: 2. listener-binds-all: Node-RED's shape
+  THEN  fires on a literal 0.0.0.0  [PASS]
+  THEN  silent on loopback (negative sibling)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: 3. text-run-as-code: R17's shape, kept closed
+  THEN  fires on eval of a built text  [PASS]
+  THEN  silent when the body checked it (negative sibling)  [PASS]
+  THEN  silent on a literal  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: 4. last-error-read: the process-wide last error
+  THEN  fires on a read outside a catch  [PASS]
+  THEN  silent inside the catch that owns it (negative sibling)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: 5. handle-held-across-raise: KERN-07's residue
+  THEN  fires on a cell held in a local and never released  [PASS]
+  THEN  silent when the body releases it (negative sibling)  [PASS]
+  THEN  silent when the cell is kept in a member for Release() to find  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: 6. the library: PHP2Shell's shape is found where it was measured
+  NUMBER stzPIAgent.ring: 0 site(s) restoring a global by hand with no try
+  THEN  NUMBER -- SECURITY-AMBIENT-01's two sites are restored in a catch now  [PASS]
+  THEN  the secret class itself holds nothing it does not release  [PASS]
+  THEN  the five rules are in the catalogue  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+================================================
+STATUS: OK

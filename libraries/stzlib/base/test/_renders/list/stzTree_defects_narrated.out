@@ -1,0 +1,140 @@
+SCENARIO: The sample tree, before anything is removed
+  THEN  eleven items in all  [PASS]
+  THEN  five nodes, the root first  [PASS]
+  THEN  X lies in three places  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: RemoveItem takes a leaf out, at any depth, and nothing else
+  THEN  B is gone from node11  [PASS]
+  THEN  the other items are exactly the expected ones  [PASS]
+  THEN  the nodes are the same  [PASS]
+  THEN  FindItem no longer finds it  [PASS]
+  THEN  A, next to it, is still found  [PASS]
+  THEN  a sibling node is untouched  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: A repeated item goes from every place, not only the first
+  THEN  the three places are empty of X  [PASS]
+  THEN  the items are the expected ones  [PASS]
+  THEN  node1 keeps its nested node  [PASS]
+  THEN  node3 keeps the 5  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: An absent item changes nothing and raises nothing
+  THEN  no error  [PASS]
+  THEN  the tree is the same  [PASS]
+  THEN  an absent number raises nothing either  [PASS]
+  THEN  and changes nothing  [PASS]
+  THEN  while a present item does change the tree  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The case rule: exact by default, ignored on demand
+  THEN  RemoveItem is exact: x goes, X stays  [PASS]
+  THEN  X is still found  [PASS]
+  THEN  RemoveItemCS with 1 is exact too: y does not remove Y  [PASS]
+  THEN  RemoveItemCS with 0 ignores the case: Y goes  [PASS]
+  THEN  an accented capital is exact with 1: only it goes  [PASS]
+  THEN  with 0 the accented pair goes by one call, the engine folds the case  [PASS]
+  THEN  only q is left  [PASS]
+  THEN  RemoveTheseItemsCS with 0 ignores the case for every item  [PASS]
+  THEN  and with 1 it is exact  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Hebrew texts are removed whole
+  THEN  the Hebrew text goes from both nodes  [PASS]
+  THEN  its prefix, a different text, stays  [PASS]
+  THEN  two items are left  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Numbers, texts of digits and nested lists stay distinct
+  THEN  the number 2 goes, the text 2 and 2.5 stay  [PASS]
+  THEN  the text 2 goes after it  [PASS]
+  THEN  a list item goes whole, its neighbour [1,3] stays  [PASS]
+  THEN  an empty list is an item and goes  [PASS]
+  THEN  the 1 inside a list item is not an item: nothing changes  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: A text equal to a node name removes the leaf and never the node
+  THEN  the leaf text is gone  [PASS]
+  THEN  the node of that name is still there, with its item  [PASS]
+  THEN  the names are the same  [PASS]
+  THEN  so are the paths  [PASS]
+  THEN  the root name as a text removes no root  [PASS]
+  THEN  and the root still holds both nodes  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: RemoveTheseItems takes several items, whatever their order
+  THEN  the items are the expected ones  [PASS]
+  THEN  the reverse order gives the same tree  [PASS]
+  THEN  a repeated and an absent item in the list change nothing more  [PASS]
+  THEN  an empty list changes nothing  [PASS]
+  THEN  the CS form with 0 ignores the case  [PASS]
+  THEN  and leaves the others  [PASS]
+  THEN  RemoveThisItemCS does the work now  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Bad parameters are refused
+  THEN  a text is not a list of items  [PASS]
+  THEN  the CS form refuses it too  [PASS]
+  THEN  a case flag other than 1 or 0 is refused  [PASS]
+  THEN  a text flag is refused  [PASS]
+  THEN  the tree was not touched by the refusals  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: RemoveAllItems and RemoveItems empty the leaves and keep the skeleton
+  THEN  no item is left  [PASS]
+  THEN  the nodes are the same  [PASS]
+  THEN  the paths are the same  [PASS]
+  THEN  the nodes with their paths are the same  [PASS]
+  THEN  an emptied nested node is an empty list  [PASS]
+  THEN  the root is still the root  [PASS]
+  THEN  FindItems finds nothing  [PASS]
+  THEN  RemoveItems gives exactly the same tree  [PASS]
+  THEN  emptying an empty tree changes nothing  [PASS]
+  THEN  the other tree, built from the same list, was never touched  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: A tree emptied of its items is usable again
+  THEN  an item is added into an emptied node  [PASS]
+  THEN  and found at its path  [PASS]
+  THEN  ItemAt reads it back  [PASS]
+  THEN  a node is added too  [PASS]
+  THEN  its item is counted  [PASS]
+  THEN  and the new item can be removed again  [PASS]
+  THEN  an item removed earlier can be added back  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Every query agrees with an independent expectation after a removal
+  THEN  Items  [PASS]
+  THEN  AllItems  [PASS]
+  THEN  Branches, six nodes in the depth-first order  [PASS]
+  THEN  Nodes  [PASS]
+  THEN  Node n1 holds what is left of it, nested node included  [PASS]
+  THEN  Node n11  [PASS]
+  THEN  Node n2  [PASS]
+  THEN  Node n3, empty before and after  [PASS]
+  THEN  FindNode still answers the path of a node  [PASS]
+  THEN  FindItems has one path per remaining item  [PASS]
+  THEN  ItemAt of each path is one of the remaining items  [PASS]
+  THEN  no path of a removed item is left  [PASS]
+  THEN  a kept item keeps a path that reads back  [PASS]
+  THEN  ItemsZ lists the remaining items  [PASS]
+  THEN  Root keeps its name  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: Entries that Items does not count are not touched
+  THEN  Items counts the 7 and the 8 only  [PASS]
+  THEN  the entry that is a name and a non-list stays where it was  [PASS]
+  THEN  and Items agrees: nothing left to count  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: The removal goes through the list's single update point
+  THEN  Content shows the change  [PASS]
+  THEN  it is still a one-item list holding the tree  [PASS]
+  THEN  a copy taken before is not changed  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 91 assertions, 91 pass, 0 fail
+================================================
+STATUS: OK

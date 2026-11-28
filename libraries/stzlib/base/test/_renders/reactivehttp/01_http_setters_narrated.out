@@ -1,0 +1,69 @@
+SCENARIO: The reactor switch changes which path a request takes
+  GIVEN a reactive http client with no reactor
+  THEN  a request without a reactor comes back as a task object  [PASS]
+  GIVEN the same client given a reactor
+  THEN  the request comes back as a job id instead  [PASS]
+  THEN  ...and it is queued  [PASS]
+  THEN  a non-http scheme still goes the blocking way  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A failure says WHICH failure
+  GIVEN a listener on the loopback that answers 404
+  THEN  it bound a port  [PASS]
+  WHEN  a request is made and the server answers 404
+  THEN  the error callback ran, not the success one  [PASS]
+  THEN  ...and the message names the status  [PASS]
+  THEN  ...while keeping the familiar wording  [PASS]
+  GIVEN the same listener answering 200
+  THEN  the success callback ran  [PASS]
+  THEN  ...carrying the body  [PASS]
+  THEN  ...and no status is bolted onto a success  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: No status is invented when there is none
+  GIVEN a request to a port nothing is listening on
+  WHEN  the job finishes without ever reaching a server
+  THEN  the failure is reported  [PASS]
+  THEN  ...with no status attached  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: A verb the path cannot issue is refused, not quietly changed
+  GIVEN the method table
+  THEN  GET maps to its code  [PASS]
+  THEN  ...and DELETE to its own  [PASS]
+  THEN  ...and HEAD is mapped, though no Head() offers it yet  [PASS]
+  THEN  an unsupported verb is refused  [PASS]
+  THEN  ...and does NOT come back as GET  [PASS]
+  WHEN  a request is submitted with that verb
+  THEN  the submission fails  [PASS]
+  THEN  ...telling the caller which verb  [PASS]
+  THEN  ...and that it is the method at fault  [PASS]
+  THEN  ...and nothing was queued  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: SetReactor chains, and refuses what is not a reactor
+  GIVEN a client with a working reactor
+  THEN  the setter answers with the object  [PASS]
+  THEN  ...and the async path is on  [PASS]
+  WHEN  it is handed something that is not a reactor
+  THEN  the refusal keeps the working one  [PASS]
+  WHEN  it is handed NULL
+  THEN  NULL is accepted and turns the async path off  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: The switch has an off position, and it now works
+  GIVEN a client with no reactor at all
+  WHEN  a request is made to somewhere nothing answers
+  THEN  it comes back as a task, not a raise  [PASS]
+  THEN  ...which ran and failed rather than crashing  [PASS]
+  THEN  ...and says so through the inherited accessor  [PASS]
+  THEN  ...with no status attached  [PASS]
+  THEN  POST also runs  [PASS]
+  THEN  PUT also runs  [PASS]
+  THEN  DELETE also runs  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 33 assertions, 33 pass, 0 fail
+================================================
+STATUS: OK

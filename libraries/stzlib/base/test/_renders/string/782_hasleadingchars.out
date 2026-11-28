@@ -1,0 +1,14 @@
+SCENARIO: Oooo, read both ways
+  THEN  no case-sensitive run  [PASS]
+  THEN  ... so no leading char  [PASS]
+  THEN  case-blind: there is one  [PASS]
+  THEN  its char  [PASS]
+  THEN  empty CS list  [PASS]
+  THEN  the CI list  [PASS]
+  THEN  the CI run string  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

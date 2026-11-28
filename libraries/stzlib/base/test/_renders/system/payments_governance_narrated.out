@@ -1,0 +1,145 @@
+SCENARIO: a port refuses money out that skips a plan -- and the hub never hears of it
+  THEN  a port is governed by default  [PASS]
+  THEN  a payment with no committed plan is refused by the PORT  [PASS]
+  THEN  ...saying so in the words the ledger uses  [PASS]
+  THEN  ...before any request existed: the hub saw nothing  [PASS]
+  THEN  ...and not a franc moved  [PASS]
+  THEN  the ledger heard it, as an error  [PASS]
+  THEN  a bulk without a plan is refused too  [PASS]
+  THEN  ...and the hub saw no instruction  [PASS]
+  WHEN  asking for money, or declining to pay, is not money out
+  THEN  a request to pay needs no plan  [PASS]
+  THEN  rejecting a request needs no plan  [PASS]
+  THEN  moving money between the platform's own accounts needs none either  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: authorising a payout is an ADMISSION, and it is exact
+  THEN  an LLM actor cannot authorise a payout  [PASS]
+  THEN  ...and the ledger heard the attempt  [PASS]
+  THEN  nothing was authorised  [PASS]
+  THEN  an effectful, trusted actor can  [PASS]
+  THEN  ...and the authorisation is on record  [PASS]
+  THEN  the authorised payment goes  [PASS]
+  THEN  ...and the money leaves  [PASS]
+  THEN  an amount that is not the amount authorised is refused  [PASS]
+  THEN  ...naming the difference  [PASS]
+  THEN  ...and nothing more left  [PASS]
+  THEN  an authorisation is for ONE payment: another txId is refused  [PASS]
+  THEN  ...and it belongs to the port that holds it  [PASS]
+  THEN  a replay of the authorised payment answers from the journal  [PASS]
+  THEN  ...and pays nothing again  [PASS]
+  THEN  the authorisation was used once  [PASS]
+  -> 15 pass, 0 fail
+
+SCENARIO: the policy is DATA: DIKO's four visas above 100 000 FCFA, judged by the rule report
+  THEN  a payout of exactly 100 000 needs no visa: the rule says ABOVE  [PASS]
+  THEN  one franc more and it needs four visas: no visa is a finding  [PASS]
+  THEN  ...in the house shape, named for the rule  [PASS]
+  THEN  ...an error  [PASS]
+  THEN  ...pointing at the plan  [PASS]
+  THEN  ...with the subject payouts  [PASS]
+  THEN  ...saying how many it has and how many it needs  [PASS]
+  THEN  three visas are not four  [PASS]
+  THEN  the same person twice, in another case, is still three  [PASS]
+  THEN  ...the plan counts people, not signatures  [PASS]
+  THEN  a fourth person makes it four  [PASS]
+  THEN  an empty verdict is a sound report  [PASS]
+  THEN  a plan short of visas makes the ONE CI gate unsound  [PASS]
+  THEN  ...with one error  [PASS]
+  WHEN  the threshold changes, the port does not
+  THEN  another policy judges the same plan another way  [PASS]
+  THEN  ...and DIKO's still wants its four  [PASS]
+  THEN  the port's source holds no threshold  [PASS]
+  THEN  ...and never speaks of visas  [PASS]
+  THEN  a plan that pays nothing is refused outright  [PASS]
+  WHEN  a policy may also keep the proposer out of the visas
+  THEN  the proposer's own visa is a finding  [PASS]
+  -> 20 pass, 0 fail
+
+SCENARIO: an agent rehearses the payout in a workbench; the disk does not move
+  THEN  the plan is a document in the workbench  [PASS]
+  THEN  ...and NOT on the disk  [PASS]
+  THEN  the document says what would be paid  [PASS]
+  THEN  ...and who has visaed it  [PASS]
+  THEN  ...and carries the proposer  [PASS]
+  THEN  no credential, no secret is in it  [PASS]
+  THEN  it is judged from the REHEARSED document, and two visas are short  [PASS]
+  THEN  ...the report is the shared rule report  [PASS]
+  THEN  ...with one error  [PASS]
+  THEN  visas added to the plan alone do not reach the rehearsal  [PASS]
+  THEN  rehearsing again overwrites the document  [PASS]
+  THEN  ...and the disk still did not move  [PASS]
+  THEN  ...nor did the platform's balance  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: a plan is committed by an actor who may -- and only then does money leave
+  THEN  with three visas the policy refuses, whoever commits  [PASS]
+  THEN  ...saying it was the policy  [PASS]
+  THEN  ...no file was written  [PASS]
+  THEN  ...nothing was authorised at the port  [PASS]
+  THEN  ...and the money did not move  [PASS]
+  THEN  ...the refusal is on the ledger  [PASS]
+  THEN  with four visas an LLM actor still cannot commit it  [PASS]
+  THEN  ...the reason is the actor  [PASS]
+  THEN  ...and it names the missing capability  [PASS]
+  THEN  ...no file, no money  [PASS]
+  WHEN  the rehearsed document is edited in the workbench after it was visaed
+  THEN  the plan to be paid differs from the plan that was visaed: refused  [PASS]
+  THEN  ...for that reason  [PASS]
+  THEN  a human commits the visaed plan  [PASS]
+  THEN  ...the plan is now a REAL file, the durable journal of what was authorised  [PASS]
+  THEN  ...and it names the visas  [PASS]
+  THEN  ...both payments left  [PASS]
+  THEN  ...the hub's own word for the first  [PASS]
+  THEN  ...and for the second  [PASS]
+  THEN  ...350 000 FCFA is out  [PASS]
+  THEN  ...every authorisation was used  [PASS]
+  THEN  the ledger heard the commit  [PASS]
+  THEN  the desk's journal holds the four attempts, in order  [PASS]
+  THEN  ...refused, refused, refused, committed  [PASS]
+  THEN  ...each with its actor  [PASS]
+  THEN  ...and its total  [PASS]
+  THEN  committing the same plan twice is refused: it was already committed  [PASS]
+  THEN  ...for that reason  [PASS]
+  THEN  ...so the balance did not move  [PASS]
+  THEN  the ledger's detections raise no unplanned payout, there was none  [PASS]
+  -> 29 pass, 0 fail
+
+SCENARIO: every verb that moves money out is governed, and one that only asks is not
+  THEN  returning funds without a plan is refused  [PASS]
+  THEN  a plan to return it, under the threshold, commits with no visa  [PASS]
+  THEN  ...the return started  [PASS]
+  THEN  ...and the money left  [PASS]
+  THEN  accepting a request to pay (it PAYS) is refused without a plan  [PASS]
+  THEN  a plan to accept it commits  [PASS]
+  THEN  ...and the request became IRREVOCABLE  [PASS]
+  THEN  ...9 000 FCFA is out  [PASS]
+  THEN  accepting a cancellation (it RETURNS funds) is refused without a plan  [PASS]
+  THEN  ...refusing one is not money out  [PASS]
+  THEN  a plan to accept it commits  [PASS]
+  THEN  ...the cancellation was accepted  [PASS]
+  THEN  a plan whose amount is not the amount the hub holds commits as a plan  [PASS]
+  THEN  ...but the PORT refuses the movement  [PASS]
+  THEN  a bulk is one plan item with the SUM of its items  [PASS]
+  THEN  130 000 is above the threshold: the policy wants four visas  [PASS]
+  THEN  with four it commits  [PASS]
+  THEN  ...the bulk went as one instruction  [PASS]
+  THEN  ...with both items sent  [PASS]
+  THEN  confirming a bulk that no plan authorised is refused  [PASS]
+  THEN  ...cancelling it is allowed: that is not money out  [PASS]
+  -> 21 pass, 0 fail
+
+SCENARIO: an ungoverned port is a loud, named act -- and the registry refuses it in production
+  THEN  a port that was told to skip governance says so  [PASS]
+  THEN  ...a governed one says it does not  [PASS]
+  THEN  an ungoverned port pays without a plan  [PASS]
+  THEN  in development it is allowed: that is what a test of the twin does  [PASS]
+  THEN  in production the registry names it  [PASS]
+  THEN  a governed port is not named for it  [PASS]
+  THEN  the invariant is a documented one  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 116 assertions, 116 pass, 0 fail
+================================================
+STATUS: OK

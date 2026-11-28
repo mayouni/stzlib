@@ -1,0 +1,24 @@
+[
+	[ "root", "[:root]" ],
+	[ "node1", "[:root][:node1]" ],
+	[ "node11", "[:root][:node1][:node11]" ],
+	[ "node2", "[:root][:node2]" ],
+	[ "node3", "[:root][:node3]" ]
+]
+
+"[:root][:node1]"
+
+[ "[:root][:node1]", "[:root][:node3]" ]
+
+[
+	"[:root]",
+	"[:root][:node1]",
+	"[:root][:node1][:node11]",
+	"[:root][:node2]",
+	"[:root][:node3]"
+]
+
+Executed in almost 0 second(s)
+
+----------------
+----------------

@@ -1,0 +1,11 @@
+╭─────────────╮
+│ Hello Niamy │
+╰─────────────╯
+oStr = StzStringQ(" hello  ")
+oStr.Trim()
+oStr.Capitalize()
+@result = oStr.Content()
+
+
+----------------
+----------------

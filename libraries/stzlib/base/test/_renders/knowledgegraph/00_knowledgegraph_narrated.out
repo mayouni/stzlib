@@ -1,0 +1,37 @@
+SCENARIO: Add and remove facts
+  GIVEN three animal facts
+  THEN  there are 3 facts  [PASS]
+  THEN  facts store predicates lowercased  [PASS]
+  WHEN  one fact is removed
+  THEN  two facts remain  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Node existence
+  GIVEN a small graph
+  THEN  a known subject exists  [PASS]
+  THEN  a known object exists  [PASS]
+  THEN  an unknown node does not  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Pattern queries
+  GIVEN two mammals and a diet fact
+  THEN  variable subject yields all mammals  [PASS]
+  THEN  variable object yields the diet  [PASS]
+  THEN  a fully-bound query is an existence check (TRUE)  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Predicates and relations of an entity
+  GIVEN facts about Dogs
+  THEN  Predicates lists Dogs' relations  [PASS]
+  THEN  Relations pairs predicate with object  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Entity lookup folds multibyte case
+  GIVEN a fact whose subject is an UPPERCASE accented entity
+  THEN  Predicates of the lowercase accented form still match  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

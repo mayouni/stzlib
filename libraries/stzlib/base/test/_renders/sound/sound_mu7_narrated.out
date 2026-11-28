@@ -1,0 +1,80 @@
+== MU7: data -> score -> sound -> score -> data, and notation, on one object ==
+
+-- Scene 1: RENDER -- a series becomes a melody in a declared universe --
+   the series 1 3 2 5 4 7 6 8 3 11 -> Rast degrees 1 3 2 5 4 7 6 8 3 11 (top allowed: 11, the oud's range)
+  [ok]   the lowest value is degree 1, the highest the top the instrument allows, and the rest in proportion
+  [ok]   one note per value, on the score every transform shares
+  [ok]   the same series in the West keeps its contour and changes its intervals: 400 against Rast's 350
+  [ok]   a series that does not move is refused, not played as one repeated note
+
+-- Scene 2: SYNTHESISE, then RECOGNISE -- the sound becomes a score again --
+   10 notes rendered, 10 transcribed, 0 onsets without a pitch
+   worst onset 0.042 ms, worst pitch 1.869 cents, lowest confidence 0.948
+  [ok]   every note comes back: the same count
+  [ok]   each onset within 1 ms of where the score put it
+  [ok]   each pitch within 2 cents -- the half-flat third included
+  [ok]   and each carries a confidence (the pitch reader's clarity), all above 0.9
+  [ok]   noise is not music: no pitched note is transcribed from it
+
+-- Scene 3: ANALYSE -- the transcribed score becomes data --
+   maqam/rast                 tonic 261.620 Hz, 0.310 cents off on average
+   tunisian/dhil              tonic 261.620 Hz, 0.310 cents off on average
+   tunisian/sika              tonic 320.270 Hz, 0.390 cents off on average
+   tunisian/rasdaldhil        tonic 698.440 Hz, 5.300 cents off on average
+  [ok]   the contour survives the round trip: U D U D U D U D U
+  [ok]   the best-fitting declared modes are Rast and Dhil, TIED -- the same seven numbers on paper (MU4)
+   the nearest Western mode is 15.250 cents off on average
+  [ok]   and the West is far behind: the half-flat third and seventh do not fit a twelve-tone mode
+  [ok]   range and density are numbers a caller can use: 1699 cents, 0.962 notes a beat
+
+-- Scene 4: NOTATE -- ABC, MusicXML, and a MIDI file read back --
+   ABC:
+     X:1
+     T:Rast, sonified and transcribed
+     M:4/4
+     L:1/16
+     Q:1/4=96
+     K:C
+     V:1 name="oud"
+     [V:1] C4 _/E4 D4 G4 | F4 _/B4 A4 c4 | _/E4 f6  |]
+  [ok]   ABC writes Rast's half-flat third in ABC 2.1's own quarter-tone mark: _/E
+   MusicXML: 1803 characters, 88 elements, well-formed: 1
+  [ok]   MusicXML is well-formed (every element closed, one root) and carries the quarter tone as <alter>-0.5</alter>
+   MIDI: 766 bytes; read back by a reader written apart from the writer: 10 notes at 96 BPM
+  [ok]   the MIDI file holds every note, at the score's tempo
+  [ok]   and every pitch, key + bend, within 1 cent -- quarter tones and all (worst 0.062)
+   what the formats could not carry: 0 kinds
+   slendro (231, 474, 717, 955 cents): MusicXML reports 'a pitch sits 24 cents from the nearest quarter tone; written at the quarter tone'; MIDI keeps it within 0.072 cents
+  [ok]   a pitch no Western format can write is COUNTED as lost in notation, and KEPT by MIDI's bends
+
+-- Scene 5: THE KILL CRITERION -- one object, no adapter --
+   data -> SonifyQ -> stzSoundScore -> ToSound -> stzSound -> TranscribeQ ->
+   stzSoundScore -> BestModes / Contour / ToABC / ToMusicXML / ToMidiFile.
+   Every arrow above took the object the last one returned, unchanged.
+  [ok]   the four transforms compose on one stzSoundScore: every step above ran on what the last returned
+   THE MISSING STEPS, named as VC6 named its:
+     1. sound -> score cannot say WHICH drum stroke a hit was: an unpitched onset is kept
+        (Unpitched) with its time, not guessed into a dum or a tak;
+     2. the transcriber is MONOPHONIC: it hears one new note at a time, and a chord
+        comes back as its loudest new pitch;
+     3. ABC and MusicXML cannot carry slendro or a just-intoned Yaman: such pitches
+        are written at the nearest quarter tone and COUNTED (Losses) -- MIDI carries them.
+
+-- Scene 6: TEXT -> DRUM -- Niger's row --
+   "sànnu dà zuwàa" (Newman's marks: none = High, grave = Low) -> san:L1 nu:H1 da:L1 zu:H1 waa:L2
+  [ok]   the tone-marked text is read as the declared sentence's contour: LHLHL = LHLHL
+  [ok]   and 'waa', a long vowel, is heavy: two units
+   drummed: 'nu' 220.001 Hz, 'da' 165.002 Hz
+  [ok]   the kalangu speaks the contour -- 'nu' high, 'da' low, each within 1%
+  [ok]   a circumflex is a FALLING tone, which the drum glides
+  [ok]   everyday Hausa, which marks no tones, is REFUSED -- read as all-High it would lie
+   SayOnDrum: SayOnDrum is not available: plan MU7: text -> drum is SPEECH only if a Hausa speaker hears the sentence back from the drum; until one has, SayOnDrum refuses and DrumTonesQ -- the contour, honestly named -- is what is offered (verdict: UNPERCEIVED)
+  [ok]   and SayOnDrum -- the verb the plan names -- REFUSES until a Hausa speaker has heard it
+
+-- The listener's line --
+   Two things here are not numbers. Is a sonified series MUSIC to a listener
+   from its universe -- or a meter in costume? And does the drum SAY 'sannu
+   da zuwa' to a Hausa speaker? Both read UNPERCEIVED; the second one gates
+   SayOnDrum by the plan's own words.
+
+25 passed, 0 failed

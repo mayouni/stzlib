@@ -1,0 +1,12 @@
+SCENARIO: Direction-only position finders
+  GIVEN "12♥♥♥67♥♥♥12♥♥♥" (occurrences at 3, 8, 13)
+  THEN  backward-first  [PASS]
+  THEN  backward-last  [PASS]
+  THEN  backward-2nd  [PASS]
+  THEN  all positions, nearest first  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

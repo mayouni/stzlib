@@ -1,0 +1,273 @@
+SCENARIO: CaptureInsteadOfDevice: what it takes, what it refuses
+  GIVEN a new session at 240 bpm
+  THEN  it plays on a device until capture is chosen  [PASS]
+  THEN  and has captured nothing: Capture() is an empty text  [PASS]
+  WHEN  a length that is not a number is given
+  THEN  it is refused and counted  [PASS]
+  THEN  with the reason set  [PASS]
+  THEN  and the session is still on a device  [PASS]
+  WHEN  zero seconds and then a negative length are given
+  THEN  both are refused too  [PASS]
+  THEN  and the session is STILL on a device  [PASS]
+  WHEN  a length of 3 seconds is given
+  THEN  it is accepted: no new refusal  [PASS]
+  THEN  and the session is off the device  [PASS]
+  WHEN  a second call, before the start, asks for 2 seconds
+  THEN  it replaces the first: no refusal  [PASS]
+  THEN  the buffer is the second call's: 2 seconds = 96000 frames  [PASS]
+  THEN  at the session's rate  [PASS]
+  THEN  with two channels  [PASS]
+  WHEN  capture is chosen again after the loops have started
+  THEN  it is refused and counted  [PASS]
+  THEN  saying that the choice comes before the start  [PASS]
+  THEN  and the running buffer is untouched: still 96000 frames  [PASS]
+  -> 16 pass, 0 fail
+
+SCENARIO: CaptureInsteadOfDevice: the buffer is silent beyond what was heard
+  GIVEN a 2 second capture, and half a cycle (0.5 s = 24000 frames) waited
+  THEN  24000 frames were heard  [PASS]
+  THEN  the list of the first channel has the whole buffer's frames  [PASS]
+  THEN  what was heard sounds: the peak over frames 1 to 24000 is above 0.01  [PASS]
+  THEN  and the tail past what was heard is exactly silent: the peak over 24001 to 96000 is 0  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: WaitCycles: a wait longer than the capture buffer ends where the buffer ends
+  GIVEN a 3 second capture at 240 bpm (3 cycles fit) with one loop
+  THEN  two waits that fit heard 96000 frames  [PASS]
+  THEN  and neither was refused  [PASS]
+  WHEN  5 more cycles are asked, with only 1 cycle of buffer left (this used to never return)
+  THEN  it returned, within 10 s of the monotonic clock  [PASS]
+  THEN  what was heard is exactly the buffer: 144000 frames  [PASS]
+  THEN  which is the 3 cycles that fit  [PASS]
+  THEN  the cut was counted as a refusal  [PASS]
+  THEN  saying how long the buffer is and how many cycles were asked  [PASS]
+  THEN  cycle 3 was heard begin, at the very end  [PASS]
+  THEN  the buffer is a valid sound: 144000 frames  [PASS]
+  THEN  at 48000 Hz  [PASS]
+  THEN  in 2 channels  [PASS]
+  THEN  3 seconds long  [PASS]
+  THEN  it sounds where the loop plays: peak above 0.01  [PASS]
+  THEN  and never clips: peak at most 1  [PASS]
+  THEN  no note was late  [PASS]
+  WHEN  the full buffer is waited on again
+  THEN  it returns at once, hears nothing more  [PASS]
+  THEN  and is refused again  [PASS]
+  WHEN  a wait of 0 cycles is asked of the full buffer
+  THEN  it is not a cut: no new refusal  [PASS]
+  -> 18 pass, 0 fail
+
+SCENARIO: WaitCycles: waits that fit are not touched
+  GIVEN a 3 second capture and a wait of exactly 3 cycles, the whole buffer
+  THEN  144000 frames were heard  [PASS]
+  THEN  with no refusal: filling the buffer exactly is not a cut  [PASS]
+  GIVEN another session, a wait of 2 cycles in the same 3 seconds
+  THEN  96000 frames were heard  [PASS]
+  THEN  with no refusal  [PASS]
+  THEN  and the heard cycle is the last boundary crossed, cycle 2 beginning at frame 96000  [PASS]
+  THEN  the console has one line per boundary heard: cycles 0, 1 and 2  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: WaitCycles: what it refuses
+  GIVEN a session that has not started
+  THEN  a text is refused and counted  [PASS]
+  THEN  so is a negative number  [PASS]
+  THEN  and neither started the session  [PASS]
+  THEN  a valid wait then starts it  [PASS]
+  THEN  and hears 48000 frames  [PASS]
+  THEN  with the refusals unchanged  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: WaitCycles: paced capture is cut at the end of its buffer too
+  GIVEN a paced capture of 1 second at 400 bpm (a cycle is 0.6 s), 5 cycles asked
+  THEN  it returned: paced, so about the buffer's own second, never more than 10 s  [PASS]
+  THEN  and not faster than the clock it is paced by: at least 0.8 s  [PASS]
+  THEN  it heard exactly the buffer: 48000 frames  [PASS]
+  THEN  and the cut was counted  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: WaitCycles: the deadline gives up on a wait that cannot move
+  GIVEN a session whose drain does nothing (a subclass), a slack of 1 s, and 0.05 cycle asked
+  THEN  it gave up: the deadline is 1 s + 4 x the wait (0.12 s) = 1.12 s, so at least 1 s  [PASS]
+  THEN  and within 6 s, not forever  [PASS]
+  THEN  nothing was heard: the wait did not move  [PASS]
+  THEN  giving up was counted as a refusal  [PASS]
+  THEN  saying so  [PASS]
+  WHEN  a wait of 0 cycles is asked of the same stalled session
+  THEN  there is nothing to wait for: it returns, no new refusal  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Landings: the version of a loop counts its definitions and never goes back
+  GIVEN tune defined three times before the start, beat once, in a 4 second capture
+  THEN  four landings, in the order the definitions were made  [PASS]
+  THEN  tune is v1, v2 and v3  [PASS]
+  THEN  beat is v1 on its own count  [PASS]
+  THEN  every one landed on cycle 0 before the start  [PASS]
+  THEN  and the heard cycle at each call was -1  [PASS]
+  WHEN  a pattern that does not parse is defined for tune
+  THEN  it is refused  [PASS]
+  THEN  and it consumed no version: still four landings  [PASS]
+  WHEN  the session runs 1 cycle and tune is redefined while it plays
+  THEN  a fifth landing was added  [PASS]
+  THEN  it is v4, not v2: the number continues  [PASS]
+  THEN  it landed on the cycle the call returned  [PASS]
+  THEN  which is after the cycle then heard: 2 or later  [PASS]
+  THEN  the heard cycle at the call was 1  [PASS]
+  WHEN  the session runs 2 cycles more
+  THEN  the console has a line for each of the 4 cycles heard, 0 to 3  [PASS]
+  THEN  tune is named in every line  [PASS]
+  THEN  its version never goes back from one line to the next  [PASS]
+  THEN  it is v3 until the landing cycle  [PASS]
+  THEN  and v4 from the landing cycle on  [PASS]
+  THEN  beat, never redefined, is v1 on every line  [PASS]
+  -> 18 pass, 0 fail
+
+SCENARIO: Landings: a silence before the start is a version like any other
+  GIVEN tune defined, silenced by Hush, and defined again, all before the start
+  THEN  Hush landed on cycle 0  [PASS]
+  THEN  three landings: v1, v2 (the silence) and v3  [PASS]
+  THEN  a silence while running continues the count: v4  [PASS]
+  THEN  and lands on the cycle Silence returned  [PASS]
+  THEN  the console's tune versions never go back either  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Every public method, once, in capture mode
+  GIVEN a session at 240 bpm with a callback on each heard cycle
+  THEN  StzSoundLiveQ set the speed: Tempo is 240  [PASS]
+  THEN  CycleFrames at 240 bpm is 48000  [PASS]
+  THEN  FrameOfCycle(2) is 96000  [PASS]
+  THEN  SetTempo refuses a speed outside 20 to 400  [PASS]
+  THEN  and keeps the speed  [PASS]
+  THEN  Start with no loops is refused  [PASS]
+  THEN  saying there are no loops  [PASS]
+  THEN  Hush with no loops answers -1  [PASS]
+  THEN  Silence of an unknown loop answers -1  [PASS]
+  THEN  Every of an unknown loop answers -1  [PASS]
+  THEN  LiveLoop lands on cycle 0 before the start  [PASS]
+  THEN  LiveLoopOn lands on cycle 0 before the start  [PASS]
+  THEN  LiveLoopOf takes a pattern object  [PASS]
+  THEN  LiveLoopOf refuses what is not a pattern  [PASS]
+  THEN  Every with a transform the pattern refuses answers -1  [PASS]
+  THEN  Every with a valid transform lands on cycle 0 before the start  [PASS]
+  THEN  nothing runs yet  [PASS]
+  THEN  RenderFrames is 0 before the start  [PASS]
+  THEN  HeardFrames is 0 before the start  [PASS]
+  THEN  HeardCycle is -1 before the start  [PASS]
+  THEN  Ledger is empty before the start  [PASS]
+  WHEN  the session starts
+  THEN  Start answers 1  [PASS]
+  THEN  and asking again while running answers 1  [PASS]
+  THEN  IsRunning is 1  [PASS]
+  THEN  RenderFrames is past 0: the first window is posted  [PASS]
+  THEN  the unpaced Tick does not drain: nothing is heard until a wait  [PASS]
+  THEN  HeardFrames after 1.5 cycles is 72000  [PASS]
+  THEN  HeardCycle is 1  [PASS]
+  THEN  ConsoleLog has one line per boundary: 2  [PASS]
+  THEN  its first line names the versions of cycle 0  [PASS]
+  THEN  the callback was called once per line  [PASS]
+  THEN  with the same text  [PASS]
+  THEN  Ledger holds what was posted  [PASS]
+  THEN  Silence of a running loop lands on a later cycle  [PASS]
+  THEN  redefinitions while running withdrew posted notes: Cancelled is above 0 (the producer applies a withdrawal on its own thread, so it is read a cycle later)  [PASS]
+  THEN  Hush answers the cycle of the last loop's landing  [PASS]
+  THEN  and none landed mid-cycle: MidCycleChanges is 0  [PASS]
+  THEN  no note was late  [PASS]
+  THEN  NotesRenderedLive is a number  [PASS]
+  THEN  SecondsRendering is above 0: the notes were rendered  [PASS]
+  THEN  DrainShortfall is 0 outside paced capture  [PASS]
+  THEN  Underruns is 0 in capture mode  [PASS]
+  THEN  OnDevice is 0  [PASS]
+  THEN  Renderer is an object  [PASS]
+  THEN  DriveWith refuses what is not a stzReactive  [PASS]
+  THEN  Stop ends the performance  [PASS]
+  THEN  and keeps what was heard: 72000 frames plus the cycle waited after Hush  [PASS]
+  THEN  Stop on a stopped session does nothing  [PASS]
+  THEN  Release frees the graph and the notes without error  [PASS]
+  -> 49 pass, 0 fail
+
+SCENARIO: Tick drains in paced capture
+  GIVEN a paced capture at 400 bpm, started, then 0.3 s of wall time
+  THEN  some frames were drained by Tick alone  [PASS]
+  THEN  and no more than the buffer holds  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Start after Stop: a stopped session that is started again starts clean
+  GIVEN a 4 second capture at 240 bpm, with tune and beat defined, and a refusal made on purpose
+  THEN  the refusal was counted  [PASS]
+  THEN  and its reason is set  [PASS]
+  WHEN  it runs 3 cycles, tune is redefined while it plays, and it is stopped
+  THEN  run 1 heard 3 cycles of frames: 144000  [PASS]
+  THEN  the heard cycle is 3: the boundary of cycle 3 is crossed at frame 144000  [PASS]
+  THEN  the console has one line for each of the cycles 0, 1, 2 and 3  [PASS]
+  THEN  the first run's first line names the versions it posted  [PASS]
+  THEN  the refusal made before the start was not cleared by the first start  [PASS]
+  THEN  the redefinition while playing landed later than the heard cycle  [PASS]
+  THEN  it is stopped  [PASS]
+  GIVEN the stopped session, read before anything restarts it
+  THEN  the heard frames are still 144000  [PASS]
+  THEN  the heard cycle is still 3  [PASS]
+  THEN  the console still has its 4 lines  [PASS]
+  THEN  the ledger still holds what was posted  [PASS]
+  THEN  the capture buffer is still there: 192000 frames  [PASS]
+  THEN  the callback was called for the 4 cycles heard  [PASS]
+  THEN  three landings so far: tune v1, beat v1 and tune v2  [PASS]
+  THEN  tune is at v2 and the count is the loop's own  [PASS]
+  WHEN  it is started again
+  THEN  Start answers 1  [PASS]
+  THEN  it is running  [PASS]
+  THEN  the first boundary heard is cycle 0 again: the heard cycle is 0, not 3  [PASS]
+  THEN  the console was emptied and holds the line of cycle 0 only  [PASS]
+  THEN  that line names the version each loop has now: tune v2 plays from cycle 0  [PASS]
+  THEN  the ledger holds only the new run: no row for a cycle past the first window  [PASS]
+  THEN  ... and both loops were posted for cycle 0  [PASS]
+  THEN  the last error is cleared  [PASS]
+  THEN  the refusals count is the session's: kept at 1  [PASS]
+  THEN  the capture buffer is a new one of the same length  [PASS]
+  WHEN  it runs 3 cycles
+  THEN  run 2 heard frames from 0 again: 144000, not 288000  [PASS]
+  THEN  the heard cycle numbers are 0 to 3 again  [PASS]
+  THEN  the callback was called for cycles 0 to 3: the first cycles are no longer silent  [PASS]
+  THEN  ... the first with the text of cycle 0  [PASS]
+  THEN  ... the last with the text of cycle 3  [PASS]
+  THEN  the loops are posted from the first cycle: the first second of the capture sounds, peak above 0.01  [PASS]
+  THEN  no note was late  [PASS]
+  THEN  no withdrawal was refused: nothing landed mid-cycle  [PASS]
+  THEN  the landings were not touched by the restart: still 3  [PASS]
+  THEN  the refusal count is still the session's  [PASS]
+  WHEN  tune is defined again in the second run, and the session is stopped and run a third time
+  THEN  the new definition is v3: the version never goes back  [PASS]
+  THEN  run 3 heard 144000 frames from 0  [PASS]
+  THEN  with the heard cycles 0 to 3 once more  [PASS]
+  THEN  and the first line names tune v3  [PASS]
+  THEN  the callback was called 4 times in run 3  [PASS]
+  -> 42 pass, 0 fail
+
+SCENARIO: Start after Stop: the negative siblings, a stop with no restart and a start that is not a restart
+  GIVEN a stopped session that is not started again
+  THEN  the heard frames stay readable: 96000  [PASS]
+  THEN  the heard cycle stays readable: 2  [PASS]
+  THEN  the console stays readable: cycles 0, 1 and 2  [PASS]
+  THEN  the ledger stays readable and is not empty  [PASS]
+  THEN  the capture stays readable: 144000 frames  [PASS]
+  THEN  and it still sounds where it was heard: peak above 0.01  [PASS]
+  THEN  reading it twice gives the same answer  [PASS]
+  THEN  the loop's definition is still there: one landing, v1  [PASS]
+  THEN  a second Stop changes nothing  [PASS]
+  THEN  and the session is not running  [PASS]
+  GIVEN a session that is started twice without a stop in between
+  THEN  Start while running answers 1  [PASS]
+  THEN  and does not reset the run: the heard cycle is still 2  [PASS]
+  THEN  nor the frames heard: 96000  [PASS]
+  THEN  nor the console: 3 lines  [PASS]
+  GIVEN a session whose first start follows a refusal, which is not a restart
+  THEN  the first start keeps the last error: it was not stopped before  [PASS]
+  THEN  and the refusal count  [PASS]
+  GIVEN a stopped session whose loops are all silenced before it is started again
+  THEN  the restarted run hears 48000 frames from 0  [PASS]
+  THEN  and the silence is the loop's version now: the capture is silent  [PASS]
+  THEN  the heard cycles restarted too: 0 and 1  [PASS]
+  -> 19 pass, 0 fail
+
+================================================
+TOTAL: 195 assertions, 195 pass, 0 fail
+================================================
+STATUS: OK

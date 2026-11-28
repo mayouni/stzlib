@@ -1,0 +1,23 @@
+SCENARIO: Shortest path on a linear graph
+  GIVEN A --10-- B --10-- C
+  THEN  the total cost is 20  [PASS]
+  THEN  the route is a -> b -> c  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: A* picks the cheaper branch
+  GIVEN A->B->D costs 10 while A->C->D costs 21
+  THEN  Cost is the cheaper 10 (not 21)  [PASS]
+  THEN  Route goes through B, not C  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Engine A* still populates explainability data
+  GIVEN the diamond plan (A->B->D over A->C->D)
+  THEN  nodes_explored counts the engine's closed set (4: a,c,b,d)  [PASS]
+  THEN  the explained route matches the optimal a-b-d  [PASS]
+  THEN  efficiency path_length is 3  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,143 @@
+SCENARIO: a genuine, OpenSSL-signed assertion is accepted
+  THEN  it trusts nobody until told to  [PASS]
+  THEN  ...and now trusts one IdP  [PASS]
+  THEN  the assertion is accepted  [PASS]
+  THEN  ...yielding the subject  [PASS]
+  THEN  ...from the expected issuer  [PASS]
+  THEN  ...minted for us  [PASS]
+  WHEN  the very same assertion is presented again
+  THEN  it is refused  [PASS]
+  THEN  ...as a replay  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: a valid signature is NOT enough -- the assertion must be meant for us
+  WHEN  the assertion names an issuer we do not trust
+  THEN  it is refused  [PASS]
+  THEN  ...on the issuer (a valid signature from the WRONG IdP is someone else's user)  [PASS]
+  WHEN  the assertion was minted for a DIFFERENT service provider
+  THEN  it is refused  [PASS]
+  THEN  ...on the audience  [PASS]
+  WHEN  it is presented after its window closed
+  THEN  it is refused as expired  [PASS]
+  THEN  ...saying so  [PASS]
+  WHEN  it is presented before its window opened
+  THEN  it is refused as not-yet-valid  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: tampering and SIGNATURE WRAPPING are both defeated
+  WHEN  one claim is altered and the signature left untouched
+  THEN  it is refused  [PASS]
+  THEN  ...because the digest no longer matches  [PASS]
+  THEN  ...and no identity leaks out  [PASS]
+  WHEN  a FORGED assertion is injected beside the genuine one (wrapping)
+  THEN  the attacker's identity NEVER surfaces  [PASS]
+  THEN  ...only the genuinely signed subject can  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: XML that cannot be trusted is refused, not parsed
+  THEN  a DOCTYPE is refused outright (XXE closed by construction)  [PASS]
+  THEN  an unsigned document is refused  [PASS]
+  THEN  junk is refused  [PASS]
+  WHEN  the IdP's key is the wrong one
+  THEN  it is refused  [PASS]
+  GIVEN a service provider that trusts no IdP at all
+  THEN  it refuses to operate  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: an SSO login is a full Softanza citizen
+  WHEN  the employee arrives with the IdP's response
+  THEN  a normal session opens  [PASS]
+  THEN  ...for the asserted identity  [PASS]
+  THEN  ...auto-provisioned with NO usable password  [PASS]
+  WHEN  the app grants that identity a role
+  THEN  the SSO session yields the same governance ACTOR a local login would  [PASS]
+  WHEN  the same response is replayed
+  THEN  it is refused  [PASS]
+  THEN  ...explaining why  [PASS]
+  GIVEN no service provider bound
+  THEN  it refuses to silently no-op  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: SP-initiated SSO: the request we send the IdP
+  THEN  a request id does not start with a digit (SAML ids may not)  [PASS]
+  THEN  it is an AuthnRequest  [PASS]
+  THEN  ...naming us as the issuer  [PASS]
+  THEN  ...pointing back at our ACS  [PASS]
+  THEN  ...addressed to the IdP  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Softanza AS the identity provider: it issues assertions its own SP accepts
+  THEN  the service is registered  [PASS]
+  THEN  its public key is EC  [PASS]
+  THEN  the SP now trusts it  [PASS]
+  THEN  the assertion carries a signature  [PASS]
+  THEN  our SP accepts our IdP  [PASS]
+  THEN  ...with the right subject  [PASS]
+  THEN  ...issuer and audience  [PASS]
+  THEN  ...inside the window the IdP wrote  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: the IdP refuses to vouch carelessly, and its assertions cannot be edited
+  WHEN  an assertion is asked for an UNREGISTERED service
+  THEN  it refuses at issue time  [PASS]
+  WHEN  a signed assertion is edited afterwards
+  THEN  the SP refuses it  [PASS]
+  WHEN  it is presented to an SP that trusts a DIFFERENT IdP key
+  THEN  it is refused -- same issuer name, wrong key  [PASS]
+  WHEN  the IdP mints an assertion whose window has already closed
+  THEN  the SP refuses it as expired  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: the whole enterprise round trip, with no IdP account anywhere
+  WHEN  the IdP signs an employee in and POSTs the response
+  THEN  a session opens  [PASS]
+  THEN  ...for that employee  [PASS]
+  WHEN  the app gives them a role
+  THEN  the SSO session yields the governance actor  [PASS]
+  THEN  ...and the same response cannot be replayed  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: trust configured from a CERTIFICATE, which is what an IdP publishes
+  THEN  the certificate yields an RSA key  [PASS]
+  THEN  ...and says who it is for  [PASS]
+  THEN  ...with a validity window  [PASS]
+  THEN  a fingerprint is available for out-of-band pinning  [PASS]
+  THEN  garbage is not readable  [PASS]
+  WHEN  a service provider trusts the IdP by that certificate
+  THEN  it trusts an IdP  [PASS]
+  THEN  the REAL signed assertion verifies against the certificate's key  [PASS]
+  THEN  ...yielding the subject  [PASS]
+  WHEN  the certificate arrives as BARE base64, the way XML carries it
+  THEN  it works identically  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: the whole SP configured from ONE paste of IdP metadata
+  THEN  the entityID came from the metadata  [PASS]
+  THEN  ...so did the SSO endpoint  [PASS]
+  THEN  ...and the signing certificate  [PASS]
+  THEN  one paste is enough to trust it  [PASS]
+  THEN  and a real assertion from that IdP verifies  [PASS]
+  WHEN  the metadata carries an ENCRYPTION certificate as well
+  THEN  it still resolves and verifies  [PASS]
+  WHEN  the metadata has no certificate at all
+  THEN  it refuses rather than trusting nothing  [PASS]
+  WHEN  the certificate in it is unreadable
+  THEN  it refuses  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: the IdP can sign RSA-SHA256, which is what many enterprise SPs require
+  THEN  it signs RSA-SHA256  [PASS]
+  THEN  ...and publishes an RSA public key  [PASS]
+  THEN  the assertion declares the RSA signature method  [PASS]
+  THEN  our SP verifies it  [PASS]
+  THEN  ...with the right subject  [PASS]
+  WHEN  an RSA-signed assertion is edited after signing
+  THEN  the digest catches it  [PASS]
+  GIVEN an ES256 IdP alongside it
+  THEN  the ECDSA path is unaffected  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 77 assertions, 77 pass, 0 fail
+================================================
+STATUS: OK

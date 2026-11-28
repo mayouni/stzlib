@@ -1,0 +1,50 @@
+1
+matchentirecontent
+[ "dotmatchesall" ]
+[ "matchentirecontent", "dotmatchesall" ]
+
+[
+	[
+		"(a(b(c(x)(y))d(z))e)",
+		[ 1, 21 ]
+	]
+]
+
+
+---
+
+1
+
+[ "matchentirecontent", "recursivematch" ]
+
+[
+	[
+		"(a(b(c(x)(y))d(z))e)",
+		[ 1, 21 ]
+	],
+	[
+		"(b(c(x)(y))d(z))",
+		[ 3, 19 ]
+	],
+	[
+		"(c(x)(y))",
+		[ 5, 14 ]
+	],
+	[
+		"(x)",
+		[ 7, 10 ]
+	],
+	[
+		"(y)",
+		[ 10, 13 ]
+	],
+	[
+		"(z)",
+		[ 15, 18 ]
+	]
+]
+
+
+
+----------------
+----------------

@@ -1,0 +1,26 @@
+SCENARIO: Leading and trailing chars of a string
+  THEN  has leading chars  [PASS]
+  THEN  three of them  [PASS]
+  THEN  as a list  [PASS]
+  THEN  has trailing chars  [PASS]
+  THEN  two of them  [PASS]
+  THEN  as a string  [PASS]
+  THEN  leading run replaced  [PASS]
+  THEN  both runs replaced  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: The same on a char list
+  THEN  has leading items  [PASS]
+  THEN  three of them  [PASS]
+  THEN  the items  [PASS]
+  THEN  has trailing items  [PASS]
+  THEN  two of them  [PASS]
+  THEN  the items  [PASS]
+  THEN  leading replaced  [PASS]
+  THEN  both replaced  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 16 assertions, 16 pass, 0 fail
+================================================
+STATUS: OK

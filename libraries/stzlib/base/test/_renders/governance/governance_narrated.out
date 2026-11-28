@@ -1,0 +1,38 @@
+-- Scene 1: CAN is not SHOULD (the structural split) --
+  [OK] permission WITHOUT adequate authority refuses
+  why: refused: 'billing-agent' holds 'delegated' authority (level 2) but 'send-invoice' is risk tier 3 (SHOULD does not cover it)
+  [OK] adequate authority + permission proceeds
+  [OK] authority WITHOUT permission refuses
+  [OK] an UNDECLARED action never proceeds
+
+-- Scene 2: risk tiers gate by level --
+  [OK] tier 4 refuses autonomous (level 3)
+  [OK] tier 4 yields only to emergency override
+
+-- Scene 3: commitment is FORWARD-ONLY --
+  [OK] opens exploratory
+  [OK] advances to committed
+  [OK] no silent regression past committed
+
+-- Scene 4: retirement is EARNED (decommission contract) --
+  [OK] retire refuses while obligations pend
+  why: refused: obligations pending -- credential-revocation, data-removal, audit-preservation
+  [OK] all obligations fulfilled -> may retire
+  [OK] retiring WITHOUT a contract refuses
+
+-- Scene 5: decision lineage answers forever --
+  [OK] the decision carries its rationale
+  [OK] ...and the authority AT THE TIME
+  [OK] ...and the risk at the time
+
+-- Scene 6: execution trust postures (5.8) --
+  [OK] execution without a posture refuses
+  [OK] a declared posture proceeds and names itself
+
+-- Scene 7: the regime persists (*.zgov) --
+  [OK] the reloaded regime still judges
+  [OK] postures travel
+
+==========================================
+TOTAL: 19 assertions, 19 pass, 0 fail
+==========================================

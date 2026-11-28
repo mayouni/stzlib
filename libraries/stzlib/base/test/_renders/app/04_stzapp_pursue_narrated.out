@@ -1,0 +1,36 @@
+SCENARIO: a goal is a wanted graph state; the gap is measured, not scripted
+  GIVEN two client instances, one already visited
+  WHEN  the world pursues the goal
+pursuing everyclientvisited via planning -- 1 proposal(s)
+  THEN  exactly one proposal comes back  [PASS]
+  THEN  it proposes a visit (via the declared reaction)  [PASS]
+  THEN  for the unvisited client  [PASS]
+  THEN  the goal is not yet satisfied  [PASS]
+  WHEN  bilal gets visited too
+pursuing everyclientvisited via planning -- 0 proposal(s)
+  THEN  no proposals remain  [PASS]
+  THEN  the goal is satisfied on the live graph  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: an unevaluable Means is refused, never faked (LAW 3)
+  GIVEN a goal whose Means carries no evaluable pattern
+  THEN  pursuing it raises instead of pretending  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: the goal object is a readable snapshot
+  GIVEN the visits goal
+  THEN  it carries its Means  [PASS]
+  THEN  and its profile  [PASS]
+  THEN  and narrates canonically  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: the platform generates this world's shells (Generate is real)
+  GIVEN the world reaching :web, enveloped
+  WHEN  Generate(:all) runs
+  THEN  the web shell was written to disk  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 11 assertions, 11 pass, 0 fail
+================================================
+STATUS: OK

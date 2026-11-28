@@ -1,0 +1,12 @@
+SCENARIO: First and last of four
+  THEN  four marquers  [PASS]
+  THEN  the first  [PASS]
+  THEN  ... at 12  [PASS]
+  THEN  the last  [PASS]
+  THEN  ... at 66  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

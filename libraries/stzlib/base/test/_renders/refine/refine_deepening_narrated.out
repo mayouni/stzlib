@@ -1,0 +1,33 @@
+-- Scene 1: the refinement TIMELINE (rewind / redo / checkpoints) --
+  [OK] three refinements build a 3-step timeline
+  [OK] the source carries the latest value
+  [OK] a checkpoint marks the timeline; work continues past it
+  [OK] RevertToCheckpoint rewinds to the marked state
+  [OK] ... atomically (back to 3 steps)
+  [OK] and the rewound step is redoable
+  [OK] RevertTo(1) rewinds multiple steps atomically
+  [OK] the timeline is now 1 step
+  [OK] Redo re-applies the last reverted step
+  [OK] ... growing the timeline back
+  [OK] a fresh admit FORKS the timeline -- redo is cleared
+  [OK] RevertTo(0) restores the original value
+
+-- Scene 2: trust postures (origin is governed) --
+  [OK] a proposal defaults to the :trusted posture
+  [OK] an :llm-composed proposal is admitted when no floor is set
+  [OK] ... and its posture is recorded in the timeline
+  [OK] with a :trusted floor, an :llm edit is REFUSED
+  [OK] the why names the trust posture, not identity
+  [OK] the refused proposal did NOT mutate the source
+  [OK] a :trusted edit to the same floored point IS admitted
+  [OK] :external clears a :sandboxed floor (higher trust)
+  [OK] :llm still fails the :sandboxed floor (lowest trust)
+
+-- Scene 3: trust + governance are INDEPENDENT gates --
+  [OK] a governed + trusted edit passes BOTH gates
+  [OK] a governed but :llm edit is refused by the TRUST gate (governance would allow)
+  [OK] the audit lineage recorded the admitted refinement
+
+==========================================
+TOTAL: 24 assertions, 24 pass, 0 fail
+==========================================

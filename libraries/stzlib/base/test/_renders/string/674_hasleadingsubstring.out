@@ -1,0 +1,12 @@
+SCENARIO: Working the leading part of 000012.456
+  THEN  it has a leading part  [PASS]
+  THEN  four chars long  [PASS]
+  THEN  as a string  [PASS]
+  THEN  as a list of chars  [PASS]
+  THEN  and removed  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

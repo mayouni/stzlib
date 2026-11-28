@@ -1,0 +1,75 @@
+-- Scene 1: an id-token this client will not accept --
+  [OK] the client refuses it
+  [OK] ...and the refusal is now REMEMBERED, not just returned
+  [OK] ...naming the issuer that claimed to have signed it
+  the token is not a well-formed JWT
+
+-- Scene 2: a stolen authorization code, redeemed twice --
+  [OK] the first redemption succeeds
+  [OK] the second is refused
+  [OK] ...and recorded as a REPLAY, the error it is
+  [OK] a code that was never issued is NOT called a replay
+  [OK] ...it is a rejected client, the warning it is
+  the answer to both is identical -- only the ledger tells them apart
+
+-- Scene 3: the transport gate, seen once for every route --
+  [OK] a real 403 came back over a real socket
+  [OK] ...and the refusal reached the ledger from a USER's route
+  [OK] ...naming the method and path, and nothing from the headers
+  GET /vault
+  [OK] a 200 writes nothing -- a 404 is a typo and a 500 is a bug
+
+-- Scene 4: the rate limiter sheds, and says WHEN --
+  [OK] the counter says how many were shed
+  [OK] ...the ledger says when each one was
+  [OK] a shed is INFO -- the limiter working, not a failure
+
+-- Scene 5: a world reaching for a world it is not bonded to --
+  [OK] the crossing is refused
+  [OK] ...and remembered under the world that REACHED
+  [OK] ...naming the caller, so incident correlation finds it
+
+-- Scene 6: a federated call refused before it touches the wire --
+  [OK] an unbonded caller is refused
+  [OK] ...and so is an SSRF-shaped path -- the same door
+  unsafe path rejected (must start with '/', no CRLF): http://evil.example/x
+
+-- Scene 7: the production door refuses a surface that is still fake --
+  [OK] nothing was committed
+  [OK] one event per UNSOUND SERVICE, not one per refused deploy
+  [OK] ...naming the entitled actor who asked
+  service:shop/payments -- sandbox-in-production: still bound to a SANDBOX in a production phase -- a fake must never ship
+
+-- Scene 8: a reveal refused by a raise nobody may swallow --
+  [OK] the raise still fires
+  [OK] ...and the attempt survives it
+  [OK] the secret's NAME is written -- never its value
+  [OK] ...and the value appears nowhere in the exported chain
+
+-- Scene 9: the escalation audit -- a verb, not a side effect --
+  [OK] the query alone writes NOTHING -- an investigator may ask freely
+  [OK] the audit finds the sandboxed actor that reaches effectful
+  [OK] ...and records it
+  [OK] the PATH is named, not merely the risk
+  a sandboxed actor reaches effectful via billing-agent -> deploy-tool -> effectful
+
+-- Scene 10: sessions end, and the row that proved it is deleted --
+  [OK] a session exists
+  [OK] revoking it is remembered
+  [OK] the TOKEN is never written -- it is a bearer credential
+  [OK] ...the user is, because that is what an investigation asks
+
+-- Scene 11: an ending session is not a refusal --
+  [OK] its outcome is OBSERVED -- no gate ran, nobody was told no
+  [OK] ...so the ledger's own refusal pivot skips it
+  [OK] an observed event reports itself as no refusal
+  [OK] ...while a failure still is
+
+-- Scene 12: the whole chain still verifies --
+  [OK] every event this guard wrote is chained
+  15 events across ten newly-wired seams
+  [OK] the ledger holds events from all ten
+
+==========================================
+TOTAL: 41 assertions, 41 pass, 0 fail
+==========================================

@@ -1,0 +1,13 @@
+SCENARIO: HasPath: does a nested hashlist contain a given key PATH? Given a tree of nested hashlists
+  THEN  haspath example 1  [PASS]
+  THEN  haspath example 2  [PASS]
+  THEN  haspath example 3  [PASS]
+  THEN  haspath example 4  [PASS]
+  THEN  haspath example 5  [PASS]
+  THEN  haspath example 6  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

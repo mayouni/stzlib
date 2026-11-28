@@ -1,0 +1,12 @@
+SCENARIO: Editing with second thoughts
+  THEN  replaced  [PASS]
+  THEN  undone  [PASS]
+  THEN  redone  [PASS]
+  THEN  emphasized  [PASS]
+  THEN  emphasis withdrawn  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

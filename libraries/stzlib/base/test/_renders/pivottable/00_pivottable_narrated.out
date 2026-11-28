@@ -1,0 +1,84 @@
+SCENARIO: COUNT aggregation over REGION x PRODUCT
+  GIVEN 4 sales rows (North/Widget x2, South/Widget, South/Gadget)
+  THEN  North/Widget counts 2 rows  [PASS]
+  THEN  South/Widget counts 1 row  [PASS]
+  THEN  South/Gadget counts 1 row  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: SUM / AVG / MIN / MAX aggregations
+  GIVEN the same dataset
+  THEN  SUM of North/Widget is 150 (100+50)  [PASS]
+  THEN  AVG of North/Widget is 75  [PASS]
+  THEN  MIN of North/Widget is 50  [PASS]
+  THEN  MAX of North/Widget is 100  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Totals (the previously-crashing COUNT + totals path)
+  GIVEN COUNT with row/column totals enabled
+  THEN  North/Widget still counts 2  [PASS]
+  THEN  the North row total is 2  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: The presentation setters survive the engine fast path
+  GIVEN a pivot small enough for the engine to take
+  THEN  the engine really is the one answering  [PASS]
+  THEN  the totals column is named GRAND  [PASS]
+  THEN  ...and so is the totals row  [PASS]
+  THEN  ...while the default stays TOTAL  [PASS]
+  THEN  an empty cell reads n/a when asked  [PASS]
+  THEN  ...and reads 0 when not  [PASS]
+  THEN  2024 leads when the caller says so  [PASS]
+  THEN  ...and 2023 leads when they say that  [PASS]
+  THEN  ...and unasked, nothing is reordered  [PASS]
+  THEN  an order set after generating still lands  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Two column labels take the Ring path, and it runs
+  THEN  MIN generates  [PASS]
+  THEN  MAX generates  [PASS]
+╭────────┬────────┬────────┬─────╮
+│        │ Widget │ Gadget │     │
+├────────┼────────┼────────┼─────┤
+│ Region │  2023  │  2024  │ SUM │
+├────────┼────────┼────────┼─────┤
+│ North  │    150 │        │ 150 │
+│ South  │        │     70 │  70 │
+╰────────┴────────┴────────┴─────╯
+     SUM │    150 │     70 │ 220
+  THEN  ...and the table draws  [PASS]
+  THEN  North's Widget/2023 cell holds both rows (100 + 50)  [PASS]
+  THEN  ...South's Gadget/2024 is unchanged  [PASS]
+  THEN  ...and the grand total counts all three rows  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Two column labels are drawn as a grid whose rules meet the lines
+  THEN  the box of a pivot whose products hold one year each  [PASS]
+  THEN  ...a rule branches DOWN inside a group and CROSSES between groups  [PASS]
+  THEN  no stray junction in any of the four boxes  [PASS]
+  THEN  with two row labels, a rule separates the two regions (three rules begin a line)  [PASS]
+  THEN  ShowXT closes each region with its subtotal  [PASS]
+  THEN  ...and without the grand total the box is the last thing drawn  [PASS]
+  THEN  every line of the box is equally wide in characters, with a non-ASCII city  [PASS]
+  THEN  ShowXT draws a pivot with one row label (it raised R3 before)  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: A total aggregates the source rows it covers, as a cell does
+  THEN  the AVG grand total is the average of the five amounts (290 / 5)  [PASS]
+  THEN  ...not 61.25, the average of the four row averages  [PASS]
+  THEN  a COUNT row total counts the row's source rows  [PASS]
+  THEN  ...and the COUNT grand total counts them all  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Rows are sorted by their labels, whatever order the source gives them
+  THEN  one column label: the regions in order, the total row last  [PASS]
+  THEN  ...and the cities in order inside each region, without regard to case  [PASS]
+  THEN  ...and each row keeps its own amounts (Zürich sold 20 Widgets)  [PASS]
+  THEN  two column labels: the same order  [PASS]
+  THEN  ...and the grid draws Oslo before Zürich inside North  [PASS]
+  THEN  numbers sort by value: 2023 before 2024, which the source gives first  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 43 assertions, 43 pass, 0 fail
+================================================
+STATUS: OK

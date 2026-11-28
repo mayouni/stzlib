@@ -1,0 +1,147 @@
+SCENARIO: FindMatches: a match that starts where the last one ended is not skipped
+  THEN  \d on 1234 starts at 1, 2, 3, 4  [PASS]
+  THEN  ...as many positions as Matches finds matches  [PASS]
+  THEN  ...and as NumberOfMatches says  [PASS]
+  THEN  the alias FindValues agrees  [PASS]
+  THEN  the alias FindMatchingValuesZ agrees  [PASS]
+  THEN  ab on ababab starts at 1, 3, 5  [PASS]
+  THEN  separated runs were always right: 1, 4, 8  [PASS]
+  THEN  accented text: the accented e in 'e a e e' starts at byte 1, 4, 6  [PASS]
+  THEN  ...three matches, as Matches finds  [PASS]
+  THEN  Hebrew text: digit runs start at byte 10 and 13  [PASS]
+  THEN  no digit in abc: no position  [PASS]
+  THEN  no text given yet: no position  [PASS]
+  THEN  no accented e in abc: no position  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: The Z and ZZ readers walk the matches the same way
+  THEN  MatchesZ gives all four values with their positions  [PASS]
+  THEN  FindMatchesZZ gives four sections, end one past the match (as 00_regex_narrated pins)  [PASS]
+  THEN  MatchesZZ gives the values with their sections  [PASS]
+  THEN  the alias ValuesAndTheirPositions agrees with MatchesZ  [PASS]
+  THEN  accented text: two accented letters give two value-position pairs, bytes 1 and 3  [PASS]
+  THEN  separated runs were always right  [PASS]
+  THEN  no match: MatchesZ is empty  [PASS]
+  THEN  no match: FindMatchesZZ is empty  [PASS]
+  THEN  no match: MatchesZZ is empty  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: FindCapture: the start of each whole match, none skipped
+  THEN  \d on 1234 starts at 1, 2, 3, 4  [PASS]
+  THEN  the alias FindCaptures agrees  [PASS]
+  THEN  (\d)(\d) on 123456 starts at 1, 3, 5 (the old skip answered 1, 4)  [PASS]
+  THEN  a(b) on abab starts at 1 and 3, not at the group  [PASS]
+  THEN  accented text: pairs start at byte 1 and 5  [PASS]
+  THEN  no match: nothing to find  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: HasGroups: a fact about the PATTERN, not about the last match
+  THEN  abc has no group before a match  [PASS]
+  THEN  abc has no group after a match either (the whole match is not a group)  [PASS]
+  THEN  ...although the engine reports one capture, the whole match  [PASS]
+  THEN  a non-capturing (?:a) is not a group  [PASS]
+  THEN  an escaped \(a\) is not a group  [PASS]
+  THEN  a bracket in a class [(] is not a group  [PASS]
+  THEN  a lookahead (?=a) is not a group  [PASS]
+  THEN  a lookbehind (?<=a) is not a group  [PASS]
+  THEN  a negative lookbehind (?<!a) is not a group  [PASS]
+  THEN  an inline option (?i) is not a group  [PASS]
+  THEN  a quoted \Q(a)\E is not a group  [PASS]
+  THEN  a comment group (?#(x)) is not a group  [PASS]
+  THEN  a class holding a POSIX name [[:alpha:](] is not a group  [PASS]
+  THEN  (a)(b) has groups before any match  [PASS]
+  THEN  ...after a successful match  [PASS]
+  THEN  ...and after a failed match  [PASS]
+  THEN  a named (?<n>a) is a group  [PASS]
+  THEN  a named (?P<n>a) is a group  [PASS]
+  THEN  a named (?'n'a) is a group  [PASS]
+  THEN  a group after a class [(]( is still found  [PASS]
+  THEN  a group after an escaped paren \((a) is found  [PASS]
+  THEN  a group after an escaped backslash \\(a) is found  [PASS]
+  THEN  an accented pattern is a group  [PASS]
+  THEN  a pattern that does not compile has none  [PASS]
+  THEN  CaptureGroups still lists whole match then groups  [PASS]
+  THEN  CaptureGroups of a group-less pattern after a match still lists the whole match  [PASS]
+  THEN  CaptureGroups with no match yet still raises  [PASS]
+  THEN  CaptureGroups after a failed match still raises  [PASS]
+  -> 28 pass, 0 fail
+
+SCENARIO: LastError and PatternErrorOffset: placeholders, the engine does not hand the error back
+  THEN  a pattern with a missing parenthesis does not compile  [PASS]
+  THEN  ...and a good pattern does  [PASS]
+  THEN  LastError is the empty text for the bad pattern (placeholder)  [PASS]
+  THEN  ...and for the good one  [PASS]
+  THEN  PatternErrorOffset is -1 for the bad pattern (placeholder)  [PASS]
+  THEN  ...and for the good one  [PASS]
+  THEN  a bad pattern does not raise: every match call answers FALSE  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: FindPartialMatch: where a partial or complete match starts, 0 when there is none
+  THEN  12 is the beginning of an SSN: starts at 1  [PASS]
+  THEN  123-45 too  [PASS]
+  THEN  a complete SSN starts at 1  [PASS]
+  THEN  the alias FindPartialMatchZ agrees  [PASS]
+  THEN  abc cannot become an SSN: no raise  [PASS]
+  THEN  ...the answer is 0  [PASS]
+  THEN  an empty text: 0  [PASS]
+  THEN  it agrees with PartialMatchStart for a miss  [PASS]
+  THEN  it agrees with PartialMatchStart for a hit  [PASS]
+  THEN  accented text: two accented letters begin a run of three: starts at 1  [PASS]
+  THEN  ...and ab is not  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: PartialMatchLength: the length of the partial or complete match, in characters
+  THEN  12 gives 2  [PASS]
+  THEN  123- gives 4  [PASS]
+  THEN  a complete 123-45-6789 gives 11  [PASS]
+  THEN  the alias PartialMatchSize agrees  [PASS]
+  THEN  the alias PartialMatchNumberOfChars agrees  [PASS]
+  THEN  no match gives 0  [PASS]
+  THEN  ...and so does the empty text  [PASS]
+  THEN  \d{3}: 12 gives 2  [PASS]
+  THEN  \d{3}: 123 gives 3  [PASS]
+  THEN  \d{3}: 1 gives 1  [PASS]
+  THEN  accented text counts characters: two letters give 2, not their 4 bytes  [PASS]
+  THEN  ...and three letters give 3  [PASS]
+  THEN  ...and xyz gives 0  [PASS]
+  -> 13 pass, 0 fail
+
+SCENARIO: RecursiveDepth and NestedDepth: the real nesting, not the number of matches
+  THEN  an unused object has depth 0  [PASS]
+  THEN  (x) is 1 deep  [PASS]
+  THEN  ((x)) is 2 deep  [PASS]
+  THEN  (((x))) is 3 deep (3 matches, a single chain)  [PASS]
+  THEN  ((x)(y)(z)) is 2 deep, although 4 brackets match  [PASS]
+  THEN  ...NestedDepth says the same  [PASS]
+  THEN  ...the four brackets are still all listed by RecursiveSubStrings  [PASS]
+  THEN  (a(b(c)d)e) is 3 deep  [PASS]
+  THEN  ((a)(b(c))) is 3 deep, with 4 matches  [PASS]
+  THEN  ...NestedDepth says 3 too  [PASS]
+  THEN  accented text: two accented siblings in one bracket are 2 deep  [PASS]
+  THEN  accented text: three nested accented brackets are 3 deep  [PASS]
+  THEN  (abc(?R)?) over abcabcabc nests 3 deep  [PASS]
+  THEN  a text that does not match has depth 0  [PASS]
+  THEN  ...NestedDepth too  [PASS]
+  THEN  an unbalanced text does not match: depth 0  [PASS]
+  -> 16 pass, 0 fail
+
+SCENARIO: Explain: a known pattern is explained, an unknown one answers an empty text instead of raising
+  THEN  a catalogue pattern is explained  [FAIL]
+    expected: 1
+    got:      0
+  THEN  ...and ExplainXT is longer  [FAIL]
+    expected: 1
+    got:      0
+  THEN  an unknown pattern does not raise  [PASS]
+  THEN  ...Explain answers the empty text  [PASS]
+  THEN  ...ExplainXT does not raise  [PASS]
+  THEN  ...and answers the empty text  [PASS]
+  THEN  a catalogue pattern with no explanation entry does not raise  [PASS]
+  THEN  ...and answers the empty text  [PASS]
+  THEN  an accented unknown pattern answers the empty text  [PASS]
+  -> 7 pass, 2 fail
+
+================================================
+TOTAL: 112 assertions, 110 pass, 2 fail
+================================================
+STATUS: FAILED

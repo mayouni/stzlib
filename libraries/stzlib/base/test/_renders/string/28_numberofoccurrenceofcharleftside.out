@@ -1,0 +1,15 @@
+SCENARIO: Counting the leading / trailing run of a char
+  THEN  '-' on the left of ---ring is 3  [PASS]
+  THEN  '-' on the right of ring--- is 3  [PASS]
+  THEN  '-' on the left of an Arabic word is 3  [PASS]
+  THEN  '-' on the right of an Arabic word is 3  [PASS]
+  THEN  StartSide is the LeftSide alias  [PASS]
+  THEN  EndSide is the RightSide alias  [PASS]
+  THEN  EndSide of a leading-dash string is 0  [PASS]
+  THEN  StartSide of a trailing-dash string is 0  [PASS]
+  -> 8 pass, 0 fail
+
+================================================
+TOTAL: 8 assertions, 8 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,31 @@
+SCENARIO: ARandomNumberBetween stays within bounds
+  GIVEN 200 draws between 10 and 20
+  THEN  every draw was within [10,20]  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: random01 stays within the unit interval
+  GIVEN 200 draws of random01()
+  THEN  every draw was within [0,1]  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Some() returns a subset of its source
+  GIVEN a source list and 100 Some() draws
+  THEN  no drawn element came from outside the source  [PASS]
+  THEN  no draw was larger than the source  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Randomize is a true permutation
+  GIVEN the list 1..10 shuffled
+  THEN  the shuffle preserves length  [PASS]
+  THEN  the shuffle is a permutation of 1..10  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Randomize actually changes order across runs
+  GIVEN 20 independent shuffles of 1..10
+  THEN  at least one shuffle reordered the list  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

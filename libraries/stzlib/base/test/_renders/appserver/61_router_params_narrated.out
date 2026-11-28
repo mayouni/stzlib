@@ -1,0 +1,33 @@
+SCENARIO: a single path param is captured
+  WHEN  GET /user/42
+  THEN  the handler saw id=42  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: an exact route beats the param route
+  WHEN  GET /user/me
+  THEN  the exact handler answered  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: multiple params are captured in order
+  WHEN  GET /files/report/2026
+  THEN  both params bound  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: a trailing wildcard captures the rest of the path
+  WHEN  GET /static/css/app.css
+  THEN  the wildcard captured the tail  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: a non-matching path is an honest 404
+  WHEN  GET /nope/here
+  THEN  the client got a 404  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: teardown
+  THEN  stopped cleanly  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

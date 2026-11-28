@@ -1,0 +1,94 @@
+-- Scene 1: a 20k-record multilingual ticket log --
+  built in 0.02 s : 918894 bytes, 645894 codepoints
+  [OK] the log is genuinely multibyte (bytes > codepoints)
+  [OK] codepoint count matches the arithmetic total
+  [OK] Arabic customer is 4 codepoints / 8 bytes
+  [OK] CJK city is 2 codepoints / 6 bytes
+  [OK] the emoji is 1 codepoint / 4 bytes
+
+-- Scene 2: searching MULTILINGUAL text at scale --
+  found the Arabic customer 4000 times in 0 s
+  [OK] every Arabic-customer record was found
+  [OK] the search is fast at scale (< 3s)
+  [OK] a found position is a CODEPOINT index, not a byte offset
+  [OK] a customer never used is not found
+
+-- Scene 3: case folding on CASED scripts (Greek, Cyrillic) --
+  [OK] Greek lower uppercases to Greek upper
+  [OK] Greek upper lowercases to Greek lower
+  [OK] Cyrillic lower uppercases to Cyrillic upper
+  [OK] Arabic is caseless -- uppercasing changes nothing
+  [OK] CJK is caseless -- uppercasing changes nothing
+  [OK] the emoji survives uppercasing
+  Greek lower as needle: case-sensitive 0 hits, case-insensitive 4000
+  [OK] case-sensitive search does NOT match the uppercase Greek
+  [OK] case-INsensitive search finds every uppercase Greek record
+
+-- Scene 4: redaction (replace) across the whole log --
+  redacted 4000 occurrences in 0.00 s
+  [OK] redacted length is exactly right (codepoint arithmetic)
+  [OK] the redacted term is completely gone
+  [OK] the replacement count adds to the Hebrew already present
+  [OK] untouched scripts are unharmed
+  [OK] redaction is fast at scale (< 3s)
+
+-- Scene 5: slicing across multibyte boundaries --
+  [OK] the mixed sample counts codepoints, not bytes
+  [OK] slicing out the Arabic head round-trips
+  [OK] slicing out the CJK middle round-trips
+  [OK] slicing out the lone emoji round-trips
+  [OK] the emoji slice is 4 bytes -- a whole character, not a fragment
+  [OK] slicing the Hebrew tail round-trips
+
+-- Scene 6: split / re-join must be lossless --
+  split into 20000 lines in 0.01 s
+  [OK] every record came back as a line
+  [OK] the first line is a complete record
+  [OK] re-joining reproduces the log byte-for-byte
+  [OK] ...and codepoint-for-codepoint
+
+-- Scene 7: segmentation (UAX#29) on multilingual text --
+  [OK] a spaced Arabic phrase segments into 2 words
+  [OK] the Arabic word is kept whole
+  [OK] a 2-ideograph CJK run segments per ideograph (no dictionary)
+  [OK] SearchTokens emits a CJK bigram for search recall
+  [OK] the bigram is the whole 2-ideograph run
+  [OK] sentence segmentation finds all three
+
+-- Scene 8: pulling the quoted message bodies out --
+  extracted 39999 regions in 0.00 s
+  [OK] same-char bounds overlap: 2n-1 regions
+  [OK] a body carries the emoji
+  [OK] a body carries the Cyrillic word
+  [OK] a body is exactly the message (emoji + space + Cyrillic)
+  [OK] the NEXT body (odd index) is the same message
+  [OK] the between-records gap (even index) is not a message
+  [OK] the last region still decodes as text
+  [OK] odd regions are message bodies all the way through
+  [OK] extraction is linear, not quadratic (< 3s for 40k regions)
+  same extraction, case-insensitively, in 0.01 s
+  [OK] case-insensitive extraction finds the same regions
+  [OK] ...with identical content
+  [OK] ...and stays linear too (< 3s)
+  Greek lowercase bound: case-insensitive 3999 regions, case-sensitive 0
+  [OK] a lowercase Greek bound finds the UPPERCASE occurrences when folding
+  [OK] ...and finds none without folding
+  [OK] multibyte content survives case-insensitive extraction
+
+-- Scene 9: a practical question -- which city is busiest? --
+  Tokyo appears 9000 times, Beijing 5000
+  [OK] Tokyo is counted everywhere it appears, not just as a city
+  [OK] Beijing's count equals its city tally exactly
+
+-- Scene: FindMany returns FLAT positions (ruled 2026-07-19) --
+  [OK] FindMany is FLAT: 4 positions for 3 needles
+  [OK] ...ascending, merged across needles
+  [OK] FindManyAsSections is FLAT too, but sections
+  [OK] ...first section is [4, 7]
+  [OK] FindManyZZ is the GROUPED one: one entry per needle
+  [OK] ...keyed by the substring, 'name' occurring twice
+  [OK] an absent needle contributes nothing and breaks nothing
+
+==========================================
+TOTAL: 62 assertions, 62 pass, 0 fail
+==========================================

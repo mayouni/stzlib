@@ -1,0 +1,99 @@
+SCENARIO: SECURITY: a caller-controlled proxy path cannot override the host (SSRF)
+  GIVEN a cluster (no fleet needed -- the guard runs before transport)
+  WHEN  a path tries to smuggle a host via userinfo '@'
+  THEN  it is REJECTED before any request is sent  [PASS]
+  THEN  and the body is empty  [PASS]
+  THEN  the why names the unsafe path  [PASS]
+  WHEN  a path tries an absolute URL
+  THEN  rejected (does not start with '/')  [PASS]
+  WHEN  a path carries CRLF (request smuggling / header injection)
+  THEN  rejected (CRLF present)  [PASS]
+  WHEN  a legitimate path is used
+  THEN  a well-formed path passes the guard (declines only for no worker)  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: SECURITY: the federation rejects unsafe paths before transport
+  GIVEN a governed federation with a member
+  WHEN  a bonded, governed caller sends an SSRF path
+  THEN  the unsafe path is rejected even for an authorized caller  [PASS]
+  THEN  with a negative status  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: SECURITY: governance cannot be bypassed -- the full refusal matrix
+  GIVEN a federation offering :neural, with layered governance
+  THEN  no bond -> refused  [PASS]
+  THEN  bond but undeclared risk -> refused  [PASS]
+  THEN  permission but insufficient authority -> refused  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: SECURITY: caller confusion -- one caller's grant does not leak to another
+  GIVEN web is granted, evil is not
+  THEN  but evil has NO permission -> refused  [PASS]
+  THEN  the refusal is a governance decision  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: SECURITY: classification is injection-safe (content is data, never code)
+  GIVEN a classifier fed adversarial + control-char content
+  THEN  an SQL-ish payload just classifies as text, no side effect  [PASS]
+  THEN  CRLF / control chars in content do not crash the tokenizer  [PASS]
+  THEN  an empty body abstains cleanly  [PASS]
+  THEN  punctuation-only abstains cleanly  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: DATA: the worker pool survives heavy dispatch + full drain, no leak
+  GIVEN a 4-slot facet pool and 500 queued work items
+  THEN  all 500 queued behind the saturated budget  [PASS]
+  THEN  queue depth is 500  [PASS]
+  WHEN  the held slots free and the pool drains
+  THEN  every queued item ran  [PASS]
+  THEN  the queue is empty  [PASS]
+  THEN  no slot leaked (in-flight back to 0)  [PASS]
+  THEN  admitted count reflects all work  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: DATA: a large payload flows through the whole pipeline intact
+  GIVEN a 3-stage pipeline and a big input (~200k chars)
+  THEN  the pipeline completed  [PASS]
+  THEN  the final stage counted input + the two added chars  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: DATA: a large batch fans through the pipeline
+  GIVEN the pipeline and 300 inputs
+  THEN  300 results come back  [PASS]
+  THEN  each is the numeric length of its transformed doc  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: FUNCTIONAL: a pipeline stage failure is CONTAINED, not fatal
+  GIVEN a pipeline whose middle stage raises
+  THEN  Run returns NULL on failure (halted)  [PASS]
+  THEN  Failed() is set  [PASS]
+  THEN  Why() names the failing stage  [PASS]
+  THEN  the trace stops at the failed stage (2 entries)  [PASS]
+  THEN  the last trace entry is the ERROR marker  [PASS]
+  GIVEN a pool-backed faulty pipeline
+  THEN  the facet slot was RELEASED despite the failure (no leak)  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: FUNCTIONAL: routing/classification boundary conditions
+  GIVEN a fresh classifier + cluster
+  THEN  an unknown facet path with no lexical hit abstains  [PASS]
+  GIVEN a cluster with a facet declared but NOT started
+  THEN  routing before Start declines (no ready worker), cleanly  [PASS]
+  THEN  with a negative status  [PASS]
+  THEN  routing to an undeclared facet also declines  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: FUNCTIONAL: federation edge cases
+  GIVEN a federation
+  THEN  joining a duplicate host name raises  [PASS]
+  THEN  a host offering multiple facets is discoverable by each  [PASS]
+  WHEN  the only host is retired
+  THEN  it no longer appears in offerings  [PASS]
+  WHEN  revived
+  THEN  it is offered again  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 41 assertions, 41 pass, 0 fail
+================================================
+STATUS: OK

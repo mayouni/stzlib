@@ -1,0 +1,69 @@
+-- Scene 1: the SPACE holds its conversations (add, remove, review) --
+  [OK] the space holds the sessions opened in it
+  [OK] ... reachable by name
+  [OK] a duplicate name is REFUSED
+  [OK] an overview reports each session's goal state
+  [OK] a conversation can be REMOVED
+  [OK] and the space can be cleared of sessions
+
+-- Scene 2: ONE goal, handed over, then MONITORED to its end --
+  [OK] a fresh conversation carries no goal
+  [OK] asking with NO goal REFUSES (the loop is goal-driven)
+  [OK] a goal handed over -> the session is pursuing it
+  [OK] a conversation has exactly ONE goal (a second is refused)
+  [OK] the goal is MONITORED -- fulfilled the moment no gap remains
+  [OK] ... the verdict travels with the reply
+  [OK] ... and it says WHY it is fulfilled
+  [OK] REVOKED is the other way out
+  [OK] ... on the record, with its reason
+  [OK] a revoked session asks nothing more
+  [OK] ... and it cannot conclude
+  [OK] neither session is still open (one fulfilled, one revoked)
+
+-- Scene 3: the question is a FRAME -- force opens it, slots fill it --
+  [OK] with nothing known yet, the force is OPEN (:what)
+  [OK] ... so no options are offered
+  [OK] ... and the phrasing follows the force
+  [OK] the frame names its slots + why
+  [OK] once the domain KNOWS a value, the force closes to a choice (:which)
+  [OK] ... the known value is OFFERED as an option
+  [OK] ... the phrasing follows the new force
+  [OK] ... and the option is NUMBERED in the text
+
+-- Scene 4: REGISTER 1 -- answer an option by its number --
+  [OK] a NUMBER picks the offered option
+  [OK] the pick is really grounded in the space
+  [OK] both known values are now on the table
+  [OK] a LIST of numbers picks several options at once
+  [OK] an out-of-range pick REFUSES -- it never guesses a value
+  [OK] ... and the refusal reaches a human checkpoint
+
+-- Scene 5: a checkpoint has a LIFETIME (it stops haunting) --
+  [OK] the refusal is checkpointed
+  [OK] by default a checkpoint NEVER expires (TTL 0)
+  [OK] with a TTL, the stale checkpoint leaves the LIVE list
+  [OK] ... but the audit record still holds it (nothing is deleted)
+  [OK] ... and the expiry is reported
+  [OK] a negative TTL REFUSES
+
+-- Scene 6: FLUENCY upgrades honestly, or not at all --
+  [OK] the deterministic floor is the default
+  [OK] asking for neural fluency is recorded
+  [OK] but the upgrade is only CLAIMED when a model is really loaded (LAW 3)
+  [OK] an unknown fluency mode REFUSES
+
+-- Scene 7: the checkpoint lifetime, across its RANGE and back again --
+  [OK] TTL 0 never expires, however many turns pass
+  [OK] TTL 1 expires on the first turn after
+  [OK] TTL 2 survives that turn...
+  [OK] ...and expires on the second
+  [OK] TTL 3 survives two...
+  [OK] ...and expires on the third
+  [OK] with a TTL the checkpoint has left the live list
+  [OK] ...and setting the TTL back to 0 brings it back
+  [OK] ...with nothing expired any more
+  [OK] ...and the audit record never lost it
+
+==========================================
+TOTAL: 52 assertions, 52 pass, 0 fail
+==========================================

@@ -1,0 +1,22 @@
+SCENARIO: Nodes, items and a specific node
+  GIVEN a 3-branch tree with a nested node11
+  THEN  Nodes lists every named node in order  [PASS]
+  THEN  Items flattens every leaf in order  [PASS]
+  THEN  Node(:node11) returns that node's items  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Counts
+  GIVEN the same tree
+  THEN  there are 5 nodes  [PASS]
+  THEN  there are 12 items  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Branch paths
+  GIVEN the same tree
+  THEN  Branches lists each node's full path  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

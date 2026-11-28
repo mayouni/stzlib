@@ -1,0 +1,13 @@
+SCENARIO: The halves of a string, grouped with positions
+  GIVEN "123456789"
+  THEN  FirstHalfZ pairs the first half with its start  [PASS]
+  THEN  FirstHalfZZ pairs it with its span  [PASS]
+  THEN  SecondHalfZZ pairs the second half with its span  [PASS]
+  THEN  HalvesZ groups both with their starts  [PASS]
+  THEN  HalvesZZ groups both with their spans  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

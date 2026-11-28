@@ -1,0 +1,86 @@
+0
+[
+	[ "status", "fail" ],
+	[ "validatorsrun", 5 ],
+	[ "validatorsfailed", 2 ],
+	[ "totalissues", 7 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "pass" ],
+				[ "domain", "BCEAO_governance" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "segregation_of_duties" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "span_of_control" ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "vacancy" ],
+				[ "issuecount", 4 ],
+				[
+					"issues",
+					[ "Vacant positions: 4" ]
+				],
+				[
+					"affectednodes",
+					[
+						"board",
+						"cro",
+						"cto",
+						"ops_head"
+					]
+				]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "succession" ],
+				[ "issuecount", 3 ],
+				[
+					"issues",
+					[
+						"No successor: ceo",
+						"No successor: cfo",
+						"No successor: treasury_head"
+					]
+				],
+				[
+					"affectednodes",
+					[ "ceo", "cfo", "treasury_head" ]
+				]
+			]
+		]
+	],
+	[
+		"affectednodes",
+		[
+			"board",
+			"cro",
+			"cto",
+			"ops_head",
+			"ceo",
+			"cfo",
+			"treasury_head"
+		]
+	]
+]
+[
+	[ "status", "pass" ],
+	[ "domain", "BCEAO_governance" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ]
+]
+
+
+----------------
+----------------

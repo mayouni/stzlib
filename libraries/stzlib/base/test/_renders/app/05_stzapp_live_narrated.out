@@ -1,0 +1,36 @@
+SCENARIO: a live world reflects what its reactions imply
+  GIVEN two patients, neither checked up
+  WHEN  the world comes alive
+[clinic] is live -- 2 thing(s), 0 flow(s), 1 reaction(s), 0 goal(s); 2 proposal(s)
+  THEN  it is live  [PASS]
+  THEN  the reaction proposed a checkup for each patient  [PASS]
+  THEN  a proposal names the proposed thing  [PASS]
+  THEN  and the instance it is for  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: acting on the world clears the satisfied proposal
+  GIVEN the live clinic with two standing proposals
+  WHEN  alice actually gets a checkup
+  THEN  the pulse adds nothing new  [PASS]
+  THEN  only bob's proposal remains  [PASS]
+  THEN  and it is bob's  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a new instance reacts on its own event
+  GIVEN a freshly admitted patient
+  WHEN  the world reacts to carol
+  THEN  one proposal is raised for carol  [PASS]
+  THEN  the standing proposals are now bob + carol  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: the live world runs as a supervised agent on the reactor
+  GIVEN a world wrapped as an agent whose skill pulses reactions
+  WHEN  the host ticks the world on the reactor loop
+  THEN  the world-agent ticked  [PASS]
+  THEN  its pending flag was cleared by the skill  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 11 assertions, 11 pass, 0 fail
+================================================
+STATUS: OK

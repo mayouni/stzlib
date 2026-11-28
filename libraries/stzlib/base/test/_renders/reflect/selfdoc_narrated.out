@@ -1,0 +1,36 @@
+SCENARIO: Harvest + explain a class from its source (deterministic, no model)
+  THEN  resolves the class to its source file  [PASS]
+  THEN  harvests the public methods from source  [PASS]
+  THEN  knows a method it has  [PASS]
+  THEN  and rejects one it doesn't  [PASS]
+  THEN  ExplainMethod returns the real doc-comment  [PASS]
+  THEN  DescriptionOf a documented method is non-empty  [PASS]
+  THEN  a class can also be opened by source path  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Ask: near-natural method discovery
+  THEN  Ask returns up to 3 [name, score, description] triples  [PASS]
+  THEN  each answer names a real method of the class  [PASS]
+  THEN  BestMethodFor returns a single real method name  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: stzLibDoc: cross-class method discovery
+  THEN  harvests across classes (owners span the inheritance chain)  [PASS]
+  THEN  with all their methods pooled  [PASS]
+  THEN  Ask returns [class, method, score, description] quadruples  [PASS]
+  THEN  BestMethodFor returns a class.method string  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Q(obj).Ask() -- any object describes ITSELF
+  THEN  a number finds its square-root method by description  [PASS]
+  THEN  a text finds its language method  [PASS]
+  THEN  ExplainMethod works off the object  [PASS]
+  THEN  a list-of-texts finds its relevance-ranking method  [PASS]
+  THEN  a list can open its own doc  [PASS]
+  THEN  stzListOfStrings resolves (lives in stzStringList.ring)  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 20 assertions, 20 pass, 0 fail
+================================================
+STATUS: OK

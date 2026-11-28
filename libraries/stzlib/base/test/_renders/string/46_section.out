@@ -1,0 +1,18 @@
+SCENARIO: Sections of a string, forward and from the end
+  GIVEN "123456789"
+  THEN  Section(3, 5) is the 3..5 span  [PASS]
+  THEN  Section(5, 3) auto-orders to the same span  [PASS]
+  THEN  SectionXT(-4, -2) counts from the end  [PASS]
+  THEN  SectionXT(5, 3) reverses the span  [PASS]
+  THEN  SectionXT(-2, -4) reverses from the end  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: The same Section works on a stzList
+  GIVEN new stzList("1":"9")
+  THEN  Section(3, 5) is the 3..5 span  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

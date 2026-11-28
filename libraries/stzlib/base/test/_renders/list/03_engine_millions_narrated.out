@@ -1,0 +1,56 @@
+SCENARIO: Large numeric list: stats, find, membership
+  THEN  NumberOfItems is 200,000  [PASS]
+  THEN  Sum is N*(N+1)/2  [PASS]
+  THEN  FirstItem is 1  [PASS]
+  THEN  LastItem is 200,000  [PASS]
+  THEN  Contains(200000) is TRUE  [PASS]
+  THEN  Find(199999) -> [199999]  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Search & pattern matching (engine W)
+  THEN  CountW(@item > 199990) is 10  [PASS]
+  THEN  FindW(@item > 199000) finds 1000 positions  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Find returns ALL matches when there are MORE than 65536
+  THEN  FindAll(a) returns all 100,000 (> 65536 -- old buffer cap)  [PASS]
+  THEN  NumberOfOccurrences(a) is 100,000  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: A MILLION-match find (headline)
+  GIVEN a single value repeated a million times, engine-side
+  THEN  FindAll(x) returns all 1,000,000 positions  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Replace and dedup
+  THEN  after Replace, a is gone  [PASS]
+  THEN  after Replace, A is 100,000  [PASS]
+  THEN  RemoveDuplicates collapses to 2  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Nested sub-lists: native value find (no stringify)
+  GIVEN [1,2] repeated engine-side 100,000 times
+  THEN  FindAll([1,2]) finds all 100,000  [PASS]
+  THEN  RemoveDuplicates collapses to one sub-list  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Sort and reverse (engine, O(n log n))
+  THEN  Sorted(N..1) first is 1  [PASS]
+  THEN  Sorted last is N  [PASS]
+  THEN  Reversed first is N / last is 1  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Set operations at a million (hash-based, O(n+m))
+  THEN  UnionWith(1..1M, 500001..1.5M) has 1,500,000  [PASS]
+  THEN  IntersectWith has 500,000  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Classify a million items (hash grouping, native positions)
+  THEN  Classify yields 3 value groups  [PASS]
+  THEN  group 1 holds 333,334 positions  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 23 assertions, 23 pass, 0 fail
+================================================
+STATUS: OK

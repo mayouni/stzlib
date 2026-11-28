@@ -1,0 +1,63 @@
+== ducking: quieter, not gone, and never with a click ==
+
+-- Scene 1: THE KILL CRITERION -- a 10 ms ramp does not click --
+   A steady 440 Hz tone through a gain node. Its own steepest
+   sample-to-sample slope is the yardstick: any gain change that jumps
+   produces a delta far larger, and that delta IS the click.
+   the tone's own steepest step: 0.0288
+   with NO CHANGE   : worst step 0.0288   <- the instrument's own noise
+  [ok]   an unchanged gain produces no step beyond the tone's own slope
+   with NO ramp     : worst step 0.3744
+  [ok]   an unramped gain change DOES click -- the control works
+   with a 10 ms ramp: worst step 0.0288
+   the unramped jump is 13.0211x the ramped step
+  [ok]   a 10 ms ramp does NOT click -- no step exceeds the tone's own slope
+  [ok]   and it is dramatically smaller than the unramped change
+
+   VERDICT: the criterion is MET. Ducking ships ramped; it would have been
+   dropped in favour of drop-and-count if this number had gone the other way.
+   the gain the render is applying afterwards: 0.2500
+  [ok]   the ramp ARRIVES at its target rather than creeping
+   peak before 0.5000, peak after the ramp 0.1250
+  [ok]   and the SOUND is actually attenuated, not just the number
+
+-- Scene 2: the ramp is a RAMP -- it passes through the middle --
+   A gain that arrives instantly and reports the target would satisfy
+   every assertion above. Catching it in transit is what proves the ramp
+   exists rather than the bookkeeping.
+   50 ms into a 200 ms ramp the gain reads 0.7333
+  [ok]   it has LEFT 1.0
+  [ok]   and has not yet REACHED 0.0
+   and after the ramp is over: 0
+  [ok]   then it arrives
+
+-- Scene 3: the POLICY -- quieter in meaning gets out of the way --
+   Needs no device for the declarations; the buses themselves do.
+  [ok]   ducking is on by default
+   default depth: -12 dB over 10 ms
+  [ok]   the default depth is an ATTENUATION
+  [ok]   and the default ramp is SN3's 10 ms
+   -12 dB is a linear gain of 0.2512
+  [ok]   the ducked voice is still AUDIBLE, not silenced
+  [ok]   but clearly quieter
+  [ok]   a POSITIVE dB is refused -- a duck is an attenuation
+   SetDuckDepth: a duck is an attenuation -- give a NEGATIVE dB value
+  [ok]   and the depth was not changed by the refusal
+
+-- Scene 4: heard -- the buses exist and only the quieter ones move --
+  [ok]   every value has its own bus
+   before: danger=1 warning=1 info=1 success=1
+  [ok]   and every bus starts at unity
+   after a DANGER: danger=1 warning=0.2512 info=0.2512 success=0.2512
+  [ok]   the duck was COUNTED
+  [ok]   DANGER'S OWN bus is untouched -- an alert never ducks itself
+  [ok]   warning was ducked
+  [ok]   info was ducked
+  [ok]   success was ducked
+   after unducking: info=1
+  [ok]   and everything comes back to unity
+   after a SUCCESS: danger=1 warning=1
+  [ok]   a SUCCESS does not duck DANGER -- priority is one-way
+  [ok]   nor WARNING
+
+26 passed, 0 failed, 0 skipped

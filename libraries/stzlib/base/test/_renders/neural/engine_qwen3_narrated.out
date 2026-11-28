@@ -1,0 +1,15 @@
+SCENARIO: Untrusted text cannot write Qwen3's structural tags
+  THEN  no literal </think> survives  [PASS]
+  THEN  no literal <tool_call> survives  [PASS]
+  THEN  no ChatML opener survives (the existing guard)  [PASS]
+  THEN  the words stay readable  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Qwen3 -- SKIPPED (no Qwen3-0.6B-Q8_0 GGUF in libraries/stzlib/models/)
+  GIVEN drop the file in to run the real path; see models/MODELS.md
+  -> 0 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

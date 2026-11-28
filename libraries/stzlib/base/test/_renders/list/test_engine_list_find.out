@@ -1,0 +1,22 @@
+=== FindCS: case sensitive ===
+  FindFirstCS('hello', :CS=1): 1
+  FindFirstCS('Hello', :CS=1): 2
+
+=== FindAllCS ===
+  FindAll(2): [ 2, 4, 6 ]
+
+=== Contains ===
+  Contains('banana'): 1
+  Contains('mango'): 0
+
+=== Count ===
+  Count(1): 4
+
+=== UniqueItems via stzListGetter ===
+  UniqueItems [1,2,3,2,1,4,3]: [ 1, 2, 3, 4 ]
+
+All find/search tests completed.
+
+
+----------------
+----------------

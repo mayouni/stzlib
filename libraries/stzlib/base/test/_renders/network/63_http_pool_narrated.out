@@ -1,0 +1,25 @@
+SCENARIO: PoolStats exposes the four pool counters
+  GIVEN a fresh client and one GET to a host
+  WHEN  reading PoolStats
+  THEN  opens is >= 1 after the first open  [PASS]
+  THEN  idle is reported as 0 (libcurl-managed cache)  [PASS]
+  THEN  active is 0 once the request has completed  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: A second request to the same host reuses the connection
+  GIVEN the opens + reuses counters before a same-host GET
+  WHEN  issuing another GET to the same host
+  THEN  reuses incremented by exactly 1  [PASS]
+  THEN  opens did NOT increase (no new socket)  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: HTTPS uses a distinct pool key and opens its own socket
+  GIVEN the opens count before an https GET to the same host name
+  WHEN  issuing an https GET
+  THEN  opens increased (https is a separate scheme/port key)  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

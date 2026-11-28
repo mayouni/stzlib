@@ -1,0 +1,14 @@
+-- Scene 1: the gap -- StzDirDelete no-ops on a NON-empty directory --
+  [OK] StzDirDelete leaves a non-empty tree standing (the bug it works around)
+
+-- Scene 2: StzDirDeleteAll removes the WHOLE tree, dotfiles and all --
+  [OK] ...it returns TRUE
+  [OK] ...the directory is gone
+  [OK] ...every nested file is gone -- INCLUDING the dotfiles (.hidden / .stzsite / .dot)
+
+-- Scene 3: graceful on a directory that does not exist --
+  [OK] deleting a missing dir returns TRUE (no error)
+
+==========================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+==========================================

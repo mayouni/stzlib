@@ -1,0 +1,70 @@
+SCENARIO: Nulliness -- only '' and NullObject are null
+  THEN  IsNull('') is TRUE  [PASS]
+  THEN  IsNull([]) is FALSE  [PASS]
+  THEN  IsNull(0) is FALSE  [PASS]
+  THEN  IsNull(NullObject()) is TRUE  [PASS]
+  THEN  IsNull(TrueObject()) is FALSE  [PASS]
+  THEN  IsNull(FalseObject()) is FALSE  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Emptiness
+  THEN  IsEmpty('') is TRUE  [PASS]
+  THEN  IsEmpty([]) is TRUE  [PASS]
+  THEN  IsEmpty(0) is FALSE  [PASS]
+  THEN  IsEmpty(NullObject()) is TRUE  [PASS]
+  THEN  IsEmpty(FalseObject()) is FALSE  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Truthiness of primitives
+  THEN  IsTrue('') is FALSE  [PASS]
+  THEN  IsTrue(0) is FALSE  [PASS]
+  THEN  IsTrue(123) is TRUE  [PASS]
+  THEN  IsTrue(-23) is TRUE  [PASS]
+  THEN  IsTrue('text') is TRUE  [PASS]
+  THEN  IsTrue([1,2,3]) is TRUE  [PASS]
+  THEN  IsTrue([]) is FALSE (empty is falsy)  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Falsiness of primitives
+  THEN  IsFalse('') is TRUE  [PASS]
+  THEN  IsFalse(0) is TRUE  [PASS]
+  THEN  IsFalse(123) is FALSE  [PASS]
+  THEN  IsFalse('text') is FALSE  [PASS]
+  THEN  IsFalse([1,2,3]) is FALSE  [PASS]
+  THEN  IsFalse([]) is TRUE (empty is falsy)  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Extended truthiness recognises the sentinel objects
+  THEN  IsTrueXT(TrueObject()) is TRUE  [PASS]
+  THEN  IsTrueXT(FalseObject()) is FALSE  [PASS]
+  THEN  IsTrueXT(NullObject()) is FALSE  [PASS]
+  THEN  IsFalseXT(FalseObject()) is TRUE  [PASS]
+  THEN  IsFalseXT(TrueObject()) is FALSE  [PASS]
+  THEN  IsTrueXT('Hello') is TRUE  [PASS]
+  THEN  IsTrueXT('') is FALSE  [PASS]
+  THEN  IsTrueXT([]) is FALSE  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: An unconfigured falsity list means nothing marks a value false
+  GIVEN the defaults, with no substring or item configured
+  THEN  a plain string is true  [PASS]
+  THEN  a plain list is true  [PASS]
+  THEN  IsFalseXT agrees (it delegates here)  [PASS]
+  THEN  ...and the empty cases are untouched  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A CONFIGURED falsity list still bites
+  GIVEN 'no' and 'off' configured as falsity markers
+  THEN  a string carrying a marker is FALSE  [PASS]
+  THEN  ...and IsFalseXT says so  [PASS]
+  THEN  a string without one is still TRUE  [PASS]
+  WHEN  the configuration is cleared again -- [] is the DEFAULT, so the
+  WHEN  setter has to accept it; it used to refuse its own initial value
+  THEN  the marker stops biting  [PASS]
+  THEN  ...and a non-string list is still refused  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 41 assertions, 41 pass, 0 fail
+================================================
+STATUS: OK

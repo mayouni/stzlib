@@ -1,0 +1,54 @@
+SCENARIO: The recorded measurements are the registry's evidence
+  THEN  the measurement file was loaded  [PASS]
+  THEN  the golden set is the independent one: 36 held-out tickets  [PASS]
+  THEN  the floors are measured honestly: the extraction floor is far from perfect on it  [PASS]
+  THEN  retrieve: the registry's choice is the floor (word-idf)  [PASS]
+  THEN  rerank: the registry's choice is the floor (stem-overlap)  [PASS]
+  THEN  triage_extract: the registry's choice is the floor (keyword-rules)  [PASS]
+  THEN  brief: the registry's choice is the floor (first-clause)  [PASS]
+  THEN  kind: the registry's choice is the floor (keyword-rules)  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: FLOW 1 -- retrieval: embed, then rerank
+  THEN  the flow is sound  [PASS]
+  THEN  on its floors the flow answers with a ranking  [PASS]
+  THEN  the ranking covers the candidates the first stage kept (four)  [PASS]
+  THEN  it is ordered best first  [PASS]
+  THEN  the provenance is the two floors  [PASS]
+  GIVEN all-MiniLM is not installed: the embedding scenario is SKIPPED
+  -> 5 pass, 0 fail
+
+SCENARIO: FLOW 2 -- text to record, judged by C9
+  THEN  on the floor the answer is a record  [PASS]
+  THEN  ...which the C9 court accepts  [PASS]
+  THEN  ...and reads the ticket correctly (api, high)  [PASS]
+  THEN  its provenance says floor  [PASS]
+  GIVEN no generative GGUF is installed: the model scenario is SKIPPED
+  -> 4 pass, 0 fail
+
+SCENARIO: FLOW 2 again -- when the registry's own choice is a model, the flow uses it and the parcel says so
+  GIVEN no model beat the extraction floor in the recorded measurements, or it is not installed: SKIPPED
+  -> 0 pass, 0 fail
+
+SCENARIO: FLOW 3 -- three stages, one swapped for its floor, the result still validates
+  THEN  brief (text) cannot feed route (label) directly -- the check catches it before running  [PASS]
+  THEN  brief (text -> text), kind (text -> label), route (label -> record): the wiring is sound  [PASS]
+  THEN  three stages  [PASS]
+  THEN  on floors the flow ends in a routed record  [PASS]
+  THEN  a bug goes to engineering in 8 hours  [PASS]
+  THEN  the result passes the route schema (C9)  [PASS]
+  THEN  the chain is the three floors  [PASS]
+  THEN  the intermediate brief is short (at most nine words)  [PASS]
+  GIVEN no generative GGUF is installed: the model scenario is SKIPPED
+  -> 8 pass, 0 fail
+
+SCENARIO: Every implicit resolution is in the trace and one switch turns the models off
+  THEN  under the deterministic policy every stage is a floor  [PASS]
+  THEN  each resolution was traced  [PASS]
+  THEN  ...and the trace records the choice  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 28 assertions, 28 pass, 0 fail
+================================================
+STATUS: OK

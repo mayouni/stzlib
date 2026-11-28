@@ -1,0 +1,83 @@
+== one declaration, two channels ==
+
+-- Scene 1: THE CRITERION -- one string, both renderings --
+   Not 'both channels have a danger'. The same STRING, handed to two
+   faces that share no code, each returning its own medium's answer.
+   :danger  ->  colour #ff0000   earcon 0.180 s, priority 4
+   :warning  ->  colour #ffa500   earcon 0.180 s, priority 3
+   :info  ->  colour #0000ff   earcon 0.100 s, priority 2
+   :success  ->  colour #008000   earcon 0.160 s, priority 1
+  [ok]   all four states render in BOTH channels from one declaration
+  [ok]   and nothing had to be said twice -- there is no bridging verb here, because none is needed
+  [ok]   an invented value is refused by COLOUR
+  [ok]   and by SOUND
+
+-- Scene 2: :Muted -- one value, each medium's own rendering --
+   Colour renders it as a treatment of a status; sound renders it as
+   silence. Both are RENDERINGS of the same value, not a disagreement.
+  [ok]   colour renders :Muted -- as a treatment, since fa9251708
+  [ok]   sound renders :Muted as silence
+  [ok]   and sound says so rather than leaving it to be guessed
+   Muted means waiting is not an event. Sound renders that as silence;
+   colour as the status it quiets, held at a quarter of its chroma. One
+   meaning, a rendering per medium.
+
+-- Scene 3: THE STEPS ARE NOT SHARED, and they should not be --
+   Both faces spell a step the same way: value.step. But the steps
+   themselves belong to the medium.
+   colour's steps: surface, border, text, solid
+   sound's steps : cue, alert, ambient
+  [ok]   all four of colour's steps resolve in colour
+  [ok]   all three of sound's steps resolve in sound
+
+   A SURFACE is not a thing sound has, and an ALERT is not a thing colour
+   has. Sharing the step lists would force one medium to carry the other's
+   ideas, which is the opposite of what a semantic layer is for. The VALUE
+   is shared; the step is the medium's own.
+
+-- Scene 4: SO THEY MUST FAIL THE SAME WAY -- and they did not --
+   This is what SS4 actually caught. Two faces sharing a vocabulary have
+   to reject a foreign step identically, or the vocabulary is only shared
+   while nothing goes wrong.
+  [ok]   colour REFUSES sound's step (danger.alert)
+  [ok]   sound REFUSES colour's step (danger.surface)
+   'danger' is a semantic value but 'surface' is not one of this channel's steps (cue, alert, ambient) -- colour's steps are its own, and neither channel borrows the other's
+  [ok]   a TYPO in a step is refused rather than quietly becoming a cue
+   Before SS4 that returned 'cue': a mistyped ALERT became an ordinary
+   cue, losing the pre-emption that is the whole difference between them,
+   and said nothing. A setting that silently does nothing is worse than
+   one that says no -- the plane's own law, broken in its own vocabulary.
+  [ok]   a REAL step still resolves
+  [ok]   and a bare value still means the default step
+  [ok]   an alert demands more headroom than a cue
+  [ok]   and the rendering itself is the same motif -- the step is a CONTRACT, not a different sound
+
+-- Scene 5: the ORDER is sound's, and colour does not contradict it --
+   Sound needs a severity ORDER -- danger > warning > info > success --
+   because two sounds in one instant MASK rather than layer, so one has to
+   yield. Colour has no such need: two colours in one instant are simply
+   both there.
+   sound's order: danger=4 warning=3 info=2 success=1
+  [ok]   the order is strict and total over the four
+  [ok]   and muted never contends
+
+   THIS IS AN ASYMMETRY THE SHARED VOCABULARY SURVIVES, and it is worth
+   being exact about why. Priority is not a property of the MEANING; it is
+   a property of the CHANNEL -- of the fact that ears cannot look away and
+   two sounds interfere. Colour not having it is not colour missing
+   something. One declaration still serves both, and each channel brings
+   its own physics to it.
+
+-- Scene 6: the VERDICT on the criterion --
+
+   *if the two channels need separate declarations to look and sound
+   right, the shared vocabulary is decorative.*
+
+  [ok]   ONE declaration renders in both channels, for every value that has a rendering in both
+  [ok]   neither channel needs a second declaration to be correct
+   MET. :Danger is one word to both faces, and no program has to say it
+   twice. What is NOT shared -- steps, priority -- is per-medium by
+   nature rather than by omission, and the two faces now refuse each
+   other's steps identically.
+
+20 passed, 0 failed

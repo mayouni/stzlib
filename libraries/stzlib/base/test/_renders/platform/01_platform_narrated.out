@@ -1,0 +1,69 @@
+SCENARIO: GENERATION: declared Reach becomes real per-platform shells
+  GIVEN a world reaching :web and :desktop, enveloped by a platform
+  WHEN  Generate(:all) runs
+  THEN  one shell per declared reach was written  [PASS]
+  THEN  the web shell exists on disk  [PASS]
+  THEN  it embeds the world's name  [PASS]
+  THEN  and its declared screen  [PASS]
+  THEN  the desktop shell is a Ring launcher over the one engine  [PASS]
+  WHEN  a world WITHOUT any Reach asks for generation
+  THEN  the platform refuses instead of stubbing (LAW 3)  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: CAPABILITY SEAM: capabilities are governed by construction
+  GIVEN a sealed governance regime for the resto world
+  WHEN  the world admits :camera for a declared purpose
+  THEN  camera (risk 2) is granted to a delegated world  [PASS]
+  WHEN  the world admits :payments (risk tier 4)
+  THEN  payments is refused despite permission  [PASS]
+  THEN  the refusal narrates the SHOULD gap  [PASS]
+  WHEN  a capability that was never admitted is asked for
+  THEN  it is refused outright  [PASS]
+  THEN  with an honest why  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: COMMONS: identity, sessions, messaging and stores over sqlite
+  GIVEN an in-memory engine database wired as the Commons
+  WHEN  two identities register
+  THEN  mansour registers  [PASS]
+  THEN  teejan registers  [PASS]
+  THEN  a duplicate registration is refused  [PASS]
+  WHEN  mansour opens a session
+  THEN  a token is issued  [PASS]
+  THEN  the token resolves back to the identity  [PASS]
+  THEN  a wrong secret gets no session  [PASS]
+  WHEN  mansour messages teejan and a preference is stored
+  THEN  the message is in teejan's inbox  [PASS]
+  THEN  with its body  [PASS]
+  THEN  the store round-trips  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: NETWORKED BODY: the world served through the reactor host
+  GIVEN the platform serving the resto world on an ephemeral port
+  THEN  the host is live on a real port  [PASS]
+  WHEN  a client asks GET /world
+  THEN  the world names itself  [PASS]
+  THEN  and lists its things  [PASS]
+  WHEN  a client asks GET /thing?name=dish
+  THEN  the thing answers with its fields  [PASS]
+  THEN  serving stops cleanly  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: REGISTRY + ENFORCEMENT: cross-world calls are norm-gated
+  GIVEN two worlds pushed into the registry, bonded for one action
+  WHEN  the bonded action lacks governance declarations
+  THEN  the call is refused (undeclared risk never proceeds)  [PASS]
+  WHEN  the regime declares the action and grants resto the right
+  THEN  the bonded, governed call proceeds  [PASS]
+  WHEN  an unbonded action is attempted
+  THEN  it is refused  [PASS]
+  THEN  with the bond named as the reason  [PASS]
+  WHEN  the supplier world is retired
+  THEN  the previously allowed call is now refused  [PASS]
+  THEN  because the target is inactive  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 31 assertions, 31 pass, 0 fail
+================================================
+STATUS: OK

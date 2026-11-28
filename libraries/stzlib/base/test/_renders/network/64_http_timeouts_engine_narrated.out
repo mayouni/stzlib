@@ -1,0 +1,26 @@
+SCENARIO: Connect timeout fires fast on an unreachable host
+  GIVEN a client with a 400 ms connect timeout
+  THEN  ConnectTimeout() reports the configured value  [PASS]
+  WHEN  GET-ing a guaranteed-unreachable TEST-NET-1 address
+  THEN  the request failed (ResponseCode -1)  [PASS]
+  THEN  a connect-layer failure is surfaced  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: A malformed URL surfaces cleanly even with timeouts set
+  GIVEN a client with explicit connect + request timeouts
+  THEN  RequestTimeout() reports the configured value  [PASS]
+  WHEN  GET-ing a malformed URL
+  THEN  ResponseCode is -1  [PASS]
+  THEN  the response body is empty  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Process-wide engine defaults can be set and a request still runs
+  GIVEN default timeouts set via the engine
+  WHEN  a normal request runs under the new defaults
+  THEN  the request succeeds (200)  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,28 @@
+SCENARIO: Number theory
+  THEN  5! is 120  [PASS]
+  THEN  GCD(12,18) is 6  [PASS]
+  THEN  LCM(4,6) is 12  [PASS]
+  THEN  Fibonacci(10) is 55  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Primality and parity
+  THEN  17 is prime  [PASS]
+  THEN  18 is not prime  [PASS]
+  THEN  4 is even  [PASS]
+  THEN  4 is not odd  [PASS]
+  THEN  12 is a multiple of 3  [PASS]
+  THEN  12 is not a multiple of 5  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Arithmetic and sign
+  THEN  2^10 is 1024  [PASS]
+  THEN  Abs(-7) is 7  [PASS]
+  THEN  -3 is negative  [PASS]
+  THEN  -3 is not positive  [PASS]
+  THEN  Digits(1245) is [1,2,4,5]  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 15 assertions, 15 pass, 0 fail
+================================================
+STATUS: OK

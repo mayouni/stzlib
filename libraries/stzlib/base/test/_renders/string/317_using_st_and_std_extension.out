@@ -1,0 +1,18 @@
+SCENARIO: ST forms look forward from a position
+  GIVEN "12♥♥♥67♥♥♥12♥♥♥" (occurrences at 3, 8, 13)
+  THEN  the 2nd from 3  [PASS]
+  THEN  the first from 5  [PASS]
+  THEN  the last from 6  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: STD forms add a direction
+  GIVEN the same string
+  THEN  the 2nd backward from 10 (:Going spelling)  [PASS]
+  THEN  the first backward from 14 (bare :Backward)  [PASS]
+  THEN  the last backward from 6 (:Direction spelling)  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

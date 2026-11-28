@@ -1,0 +1,45 @@
+  [OK] the fixture document is clean
+-- Scene 1: the layout says where the boxes are --
+   top [ 0, 0, 400, 60 ]  mid [ 0, 60, 400, 80 ]  bot [ 0, 140, 400, 50 ]
+  [OK] three bands, stacked in order
+  [OK] ...at their declared heights
+
+-- Scene 2: the VECTOR tier, on a machine with no device --
+  [OK] the SVG tier answered
+   svg red   [ 0, 0, 400, 60 ]
+   svg green [ 0, 60, 400, 140 ]
+   svg blue  [ 0, 140, 400, 190 ]
+  [OK] the red band is in the vector output
+  [OK] the green one too
+  [OK] and the blue
+  [OK] the SVG red box is where the layout put it
+  [OK] ...and the blue one
+  [OK] a colour the document never used is absent
+
+-- Scene 3: text reached the vector tier as OUTLINES --
+  [OK] the SVG carries path data
+  [OK] ...and it is not the boxes, which are polygons
+
+-- Scene 4: the RASTER tier, and whether it agrees --
+  [OK] the GPU tier answered with a full frame
+   png red   [ 0, 0, 400, 60 ]
+   png green [ 0, 60, 400, 140 ]
+   png blue  [ 0, 140, 400, 190 ]
+  [OK] the red band rasterized
+  [OK] the green one too
+  [OK] and the blue
+  [OK] red agrees between the two tiers, to the pixel
+  [OK] green agrees
+  [OK] blue agrees
+  [OK] the three bands are genuinely different rectangles
+
+-- Scene 5: the text is in the same place on both tiers --
+   dark pixels inside the green band: 376
+  [OK] the raster tier inked the text
+  [OK] ...inside the band, not over the whole panel
+  [OK] the layout put exactly one string there
+  [OK] ...and none of it was lost
+
+==============================================================
+ 24 ok, 0 failed
+==============================================================

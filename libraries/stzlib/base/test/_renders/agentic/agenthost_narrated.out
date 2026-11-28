@@ -1,0 +1,80 @@
+SCENARIO: an agent is supervised as a job on the reactor loop
+  GIVEN a governed kitchen bot handed to the host
+  THEN  the host supervises one agent  [PASS]
+  THEN  it is active  [PASS]
+  THEN  it has not ticked yet  [PASS]
+  THEN  the host owns a real reactor  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: RunFor drives perceive-decide-act on the libuv loop
+  GIVEN the supervised bot with low stock
+  WHEN  the host runs the loop for 120ms
+  THEN  the bot ticked at least once  [PASS]
+  THEN  the governed skill fired: stock is now ordered  [PASS]
+  THEN  and low stock was cleared  [PASS]
+  THEN  the decision left a governed lineage  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: every tick is traced
+  GIVEN the host trace after the run
+  THEN  the trace has entries  [PASS]
+  THEN  each entry names the agent  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a governance refusal stops the act, not the tick
+  GIVEN a bot whose authority does NOT cover the action's risk tier
+  WHEN  the host runs the loop
+  THEN  the bot ticked  [PASS]
+  THEN  but the risk-4 act was REFUSED (stock still low)  [PASS]
+  THEN  the refusal is in the decision log  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: an agent is cancellable (reversible pause)
+  GIVEN the kitchen bot, now at fixpoint
+  WHEN  it is cancelled and the loop runs
+  THEN  it is no longer active  [PASS]
+  THEN  a cancelled agent does not tick  [PASS]
+  WHEN  it is resumed
+  THEN  it is active again  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: retirement is EARNED -- the R4b decommission gate
+  GIVEN a decommission contract declared THROUGH the host
+  WHEN  retirement is attempted with obligations pending
+  THEN  it is REFUSED  [PASS]
+  THEN  the bot keeps running (still supervised, active)  [PASS]
+  THEN  the why names pending obligations  [PASS]
+  WHEN  only one obligation is fulfilled
+  THEN  retirement is STILL refused  [PASS]
+  WHEN  the last obligation is fulfilled
+  THEN  retirement is now GRANTED  [PASS]
+  THEN  the bot is retired  [PASS]
+  WHEN  the loop runs after retirement
+  THEN  a retired agent never ticks again  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: EVENT-DRIVEN supervision -- the perceive-act loop IS an event loop
+  GIVEN a governed order-bot supervised on the 'orders' event channel
+  THEN  it is supervised on that channel  [PASS]
+  THEN  with no events yet, it has not ticked  [PASS]
+  WHEN  three orders are EMITTED on the bus and the host runs
+  THEN  the agent reacted ONCE PER EVENT (not on a timer)  [PASS]
+  THEN  it PERCEIVED the latest event off the bus  [PASS]
+  WHEN  two more orders arrive
+  THEN  the agent caught up -- 5 reactions total  [PASS]
+  WHEN  an UNsubscribed channel gets traffic
+  THEN  the order-bot ignores events on other channels (still 5)  [PASS]
+  WHEN  the bus is queried directly (the un-orphaned engine event bus)
+  THEN  it reports the events emitted on the channel  [PASS]
+  THEN  and the last payload  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: teardown releases the owned reactor
+  GIVEN the host after all runs
+  THEN  teardown completes without crash  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 32 assertions, 32 pass, 0 fail
+================================================
+STATUS: OK

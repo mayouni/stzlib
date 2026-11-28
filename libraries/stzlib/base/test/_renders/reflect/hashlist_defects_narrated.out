@@ -1,0 +1,146 @@
+SCENARIO: The class statistics on text values (IsStrictlyEqualTo was defined nowhere)
+  THEN  Classes lists the distinct values as text  [PASS]
+  THEN  Classify groups the keys by value  [PASS]
+  THEN  Klass gives the keys of a class  [PASS]
+  THEN  KlassQ gives them as a stzList  [PASS]
+  THEN  ClassifyQ wraps the classification  [PASS]
+  THEN  and a class that is absent gives none  [PASS]
+  THEN  a class matches the whole value, not a part of it  [PASS]
+  THEN  the class of a number answers by its written form  [PASS]
+  THEN  NumberOfValuesInClass counts its pairs  [PASS]
+  THEN  and counts 0 for an absent class  [PASS]
+  THEN  ClassesSizes counts every class  [PASS]
+  THEN  KlassFreq is the share of one class  [PASS]
+  THEN  and 0 for an absent class  [PASS]
+  THEN  ClassesFrequencies sums to 1  [PASS]
+  THEN  StrongestClass is the biggest  [PASS]
+  THEN  WeakestClass is not the biggest  [PASS]
+  THEN  NStrongestClasses(1) starts with the biggest  [PASS]
+  THEN  NStrongestClasses gives n classes  [PASS]
+  THEN  NWeakestClasses puts the biggest last  [PASS]
+  THEN  Top3Classes starts with the biggest  [PASS]
+  THEN  Bottom3Classes ends with the biggest  [PASS]
+  -> 21 pass, 0 fail
+
+SCENARIO: The class statistics on list values count right
+  THEN  a list class is written as its text form  [PASS]
+  THEN  Klass takes the list itself  [PASS]
+  THEN  or its written form, as Classes gives it  [PASS]
+  THEN  a list that is only part of a value is not its class  [PASS]
+  THEN  ClassesSizes counts each list once per pair  [PASS]
+  THEN  StrongestClass is the most frequent list  [PASS]
+  THEN  WeakestClass is the least frequent  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The 3-forms take no stray parameter
+  THEN  Strongest3Classes is Top3Classes  [PASS]
+  THEN  and starts with the biggest  [PASS]
+  THEN  Weakest3Classes is Bottom3Classes  [PASS]
+  THEN  and starts with the smallest  [PASS]
+  THEN  Strongest3ClassesAndTheirFrequencies pairs a class with its share  [PASS]
+  THEN  Weakest3ClassesAndTheirFrequencies starts with the smallest share  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: KlassInList finds the pairs whose list value holds an item
+  THEN  KlassInList gives the keys  [PASS]
+  THEN  and none for an absent item  [PASS]
+  THEN  KalssInListQ gives them as a stzList  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: KeysForValue and KeysByValues
+  THEN  KeysForValue matches the whole value  [PASS]
+  THEN  and finds nothing for an absent value  [PASS]
+  THEN  a number value is found  [PASS]
+  THEN  KeysByValues gathers the keys of several values, in order, a text found inside a longer one too  [PASS]
+  THEN  KeysByValue finds a number value  [PASS]
+  THEN  and not a number that differs  [PASS]
+  THEN  and none when no value occurs  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The pair accessors
+  THEN  FirstPair  [PASS]
+  THEN  LastPair  [PASS]
+  THEN  KeyInPair gives the key of a real pair  [PASS]
+  THEN  and raises for a pair that is not in the hash list  [PASS]
+  THEN  ValueInPair gives the value of a real pair  [PASS]
+  THEN  and raises for a pair that is not in the hash list  [PASS]
+  THEN  ValueInNthPairQ wraps the value  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Finding typed values: a correctly typed argument is accepted
+  THEN  FindNumber  [PASS]
+  THEN  FindNumber of an absent number  [PASS]
+  THEN  and a text argument is refused  [PASS]
+  THEN  NumberZ  [PASS]
+  THEN  FindTheseNumbers  [PASS]
+  THEN  and refuses a list holding text  [PASS]
+  THEN  TheseNumbersZ  [PASS]
+  THEN  FindString  [PASS]
+  THEN  and a number argument is refused  [PASS]
+  THEN  StringZ  [PASS]
+  THEN  FindTheseStrings  [PASS]
+  THEN  and refuses a list holding a number  [PASS]
+  THEN  TheseStringsZ  [PASS]
+  THEN  FindLastOccurrenceOfValue  [PASS]
+  THEN  and 0 for an absent value  [PASS]
+  THEN  ContainsTheseValues when all occur  [PASS]
+  THEN  and not when one is absent  [PASS]
+  -> 17 pass, 0 fail
+
+SCENARIO: Updating values and keys
+  THEN  UpdateNthOccurrenceOfValue changes only the nth  [PASS]
+  THEN  and nothing when there are fewer occurrences  [PASS]
+  THEN  UpdateFirstOccurrenceOfValue  [PASS]
+  THEN  UpdateFirstValue  [PASS]
+  THEN  UpdateLastValue changes the last occurrence  [PASS]
+  THEN  UpdateKeys renames in order, a swap included  [PASS]
+  THEN  and refuses keys that are not text  [PASS]
+  THEN  UpdateAllPairsWith on a one-pair hash list  [PASS]
+  THEN  and raises when keys would repeat  [PASS]
+  THEN  leaving the hash list as it was  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Reversing keys and values
+  THEN  the values become the keys  [PASS]
+  THEN  repeated values raise, as keys must stay distinct  [PASS]
+  THEN  a list value raises  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Inserting and removing pairs
+  THEN  InsertBefore  [PASS]
+  THEN  InsertBefore 1 puts the pair first  [PASS]
+  THEN  InsertAfter the last  [PASS]
+  THEN  and nothing past the end  [PASS]
+  THEN  the inserted pair can be found by its key  [PASS]
+  THEN  RemovePair  [PASS]
+  THEN  and a pair with another value stays  [PASS]
+  THEN  RemovePairsByKeys  [PASS]
+  THEN  and refuses keys that are not text  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Replacing values and pairs
+  THEN  ReplaceValue changes the first occurrence  [PASS]
+  THEN  and nothing for an absent value  [PASS]
+  THEN  ReplacePair  [PASS]
+  THEN  and nothing for an absent pair  [PASS]
+  THEN  ReplacePairByKey  [PASS]
+  THEN  ReplacePairsW is reserved and says so  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: Items inside list values
+  THEN  FindLastItem  [PASS]
+  THEN  and 0 for an absent item  [PASS]
+  THEN  FindFirstKeyByItemInList  [PASS]
+  THEN  FindLastKeyByItemInList  [PASS]
+  THEN  and 0 for an absent item  [PASS]
+  THEN  KeyByItemInList  [PASS]
+  THEN  and empty text for an absent item  [PASS]
+  THEN  KeysByItemInList  [PASS]
+  THEN  KeysByItem is the same  [PASS]
+  THEN  and none for an absent item  [PASS]
+  -> 10 pass, 0 fail
+
+================================================
+TOTAL: 106 assertions, 106 pass, 0 fail
+================================================
+STATUS: OK

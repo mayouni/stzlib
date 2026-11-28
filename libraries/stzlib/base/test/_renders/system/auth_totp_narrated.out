@@ -1,0 +1,75 @@
+SCENARIO: the TOTP primitive is RFC 6238-correct and tolerates clock drift
+  THEN  the known vector reproduces exactly  [PASS]
+  THEN  ...it verifies at that instant  [PASS]
+  THEN  ...still valid 29s later (same 30s step)  [PASS]
+  THEN  ...and one step earlier (skew tolerance)  [PASS]
+  THEN  ...rejected three steps out  [PASS]
+  THEN  ...a wrong code is rejected  [PASS]
+  WHEN  a provisioning URI is built for an authenticator app
+  THEN  it is an otpauth TOTP URI  [PASS]
+  THEN  ...carrying the base32 secret  [PASS]
+  THEN  ...the issuer  [PASS]
+  THEN  ...and the SHA1 algorithm (app default)  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: enrollment is two-step: a mis-scan never locks the user out
+  WHEN  2FA enrollment begins
+  THEN  a secret and a QR URI are returned  [PASS]
+  THEN  ...but nothing is enforced yet (still pending)  [PASS]
+  THEN  ...so a plain password Login still works  [PASS]
+  WHEN  the user proves a first code from their app
+  THEN  enrollment is confirmed and 10 recovery codes are handed back  [PASS]
+  THEN  ...2FA is now required for this user  [PASS]
+  WHEN  confirming with a WRONG code (a fresh enrollee)
+  THEN  confirmation fails (returns no codes)  [PASS]
+  THEN  ...and 2FA stays off  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: once 2FA is on, password alone is refused -- the second factor is the door
+  THEN  a plain Login is now REFUSED (2FA enforced)  [PASS]
+  WHEN  logging in with password AND the app code
+  THEN  a session opens  [PASS]
+  THEN  ...mapped to the right user  [PASS]
+  THEN  a wrong CODE is refused  [PASS]
+  THEN  a wrong PASSWORD is refused (even with a good code)  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: recovery codes are single-use
+  THEN  ten codes remain  [PASS]
+  WHEN  a recovery code is used to log in (phone lost)
+  THEN  it opens a session  [PASS]
+  THEN  ...one code is consumed  [PASS]
+  THEN  ...the SAME code cannot be reused  [PASS]
+  THEN  ...but a different one still works  [PASS]
+  WHEN  recovery codes are regenerated
+  THEN  a full new set is issued  [PASS]
+  THEN  ...and an OLD code no longer works  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: disabling 2FA restores the single-factor path
+  WHEN  2FA is turned off
+  THEN  it is no longer required  [PASS]
+  THEN  ...and a plain Login works again  [PASS]
+  THEN  ...no recovery codes linger  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: 2FA state is durable (survives across stzAuth instances on one database)
+  WHEN  a separate stzAuth opens the same database
+  THEN  it sees 2FA is required  [PASS]
+  THEN  ...refuses a plain Login  [PASS]
+  THEN  ...accepts the app code  [PASS]
+  THEN  ...and sees all ten recovery codes  [PASS]
+  WHEN  a recovery code is consumed through the second instance
+  THEN  the consumption persisted (nine remain)  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: a user without 2FA is completely unaffected
+  THEN  RequiresTwoFactor is false  [PASS]
+  THEN  ...plain Login works  [PASS]
+  THEN  ...and LoginTwoFactor works too (the code is ignored)  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 40 assertions, 40 pass, 0 fail
+================================================
+STATUS: OK

@@ -1,0 +1,46 @@
+Pattern structure:
+[
+	[
+		"Pattern",
+		"{@Event(Meeting) -> @Duration(30m..1h) -> @Event(Break)}"
+	],
+	[ "TokenCount", 3 ],
+	[
+		"Tokens",
+		[
+			[
+				[ "index", 1 ],
+				[ "type", "event" ],
+				[ "label", "Meeting" ]
+			],
+			[
+				[ "index", 2 ],
+				[ "type", "duration" ],
+				[ "label", "" ],
+				[
+					"constraints",
+					[
+						[
+							[ "type", "range" ],
+							[ "start", "30m" ],
+							[ "end", "1h" ],
+							[ "step", "" ]
+						]
+					]
+				]
+			],
+			[
+				[ "index", 3 ],
+				[ "type", "event" ],
+				[ "label", "Break" ]
+			]
+		]
+	],
+	[ "TargetSet", 0 ],
+	[ "LastMatch", 0 ]
+]
+
+Executed in almost 0 second(s)
+
+----------------
+----------------

@@ -1,0 +1,50 @@
+SCENARIO: Call_ calls
+  GIVEN a doubling function made reactive, and a counter to prove it ran
+  WHEN  it is called synchronously
+  THEN  the wrapped function actually ran  [PASS]
+  THEN  ...the task says it completed  [PASS]
+  THEN  ...and carries the answer  [PASS]
+  THEN  ...with no error  [PASS]
+  GIVEN a function that divides by zero
+  THEN  the failure is reported  [PASS]
+  THEN  ...with Ring's real reason  [PASS]
+  THEN  ...and it does not claim to have succeeded  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: The two ways in agree
+  GIVEN the same function reached both ways
+  THEN  the synchronous form has the answer  [PASS]
+  THEN  ...and the async form the same one  [PASS]
+  THEN  ...delivered to the handler  [PASS]
+  THEN  ...and the two agree exactly  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: A call shape that cannot work is refused in the caller's terms
+  GIVEN a function of eleven parameters
+  WHEN  eleven are passed
+  THEN  it is refused  [PASS]
+  THEN  ...saying there were too many  [PASS]
+  THEN  ...naming the count the caller passed  [PASS]
+  THEN  ...and the limit  [PASS]
+  THEN  ...and NOT the opposite complaint  [PASS]
+  GIVEN params that are not a list at all
+  THEN  that is refused too  [PASS]
+  THEN  ...saying what was expected  [PASS]
+  GIVEN the legal shapes
+  THEN  exactly ten is accepted  [PASS]
+  THEN  one is accepted  [PASS]
+  THEN  none is accepted  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: What is still not connected, pinned rather than glossed
+  GIVEN a reactive function whose engine tasks are counted
+  THEN  the engine starts with no tasks  [PASS]
+  WHEN  a call is made
+  THEN  the engine STILL has none -- AddTask reached a copy  [PASS]
+  THEN  ...yet the caller's task ran anyway  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 24 assertions, 24 pass, 0 fail
+================================================
+STATUS: OK

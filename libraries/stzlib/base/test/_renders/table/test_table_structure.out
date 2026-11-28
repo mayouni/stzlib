@@ -1,0 +1,25 @@
+=== AddColumn ===
+  After AddColumn: cols = 3
+  Cell(:city, 1): Tunis
+
+=== AddRow ===
+  After AddRow: rows = 3
+  Cell(:name, 3): Han
+
+=== RemoveColumn ===
+  After RemoveColumn(:B): cols = 2
+  HasColName(:b) after remove: 0
+
+=== RemoveRow ===
+  After RemoveNthRow(2): rows = 2
+  Cell(:x, 2) after remove: 30
+
+=== RenameCol ===
+  After RenameNthCol: HasColName(:new) = 1
+
+=== AddRow roundtrip ===
+  After AddRow: Cell(:b,3) = 6
+
+=================================
+  PASSED: 10  FAILED: 0
+=================================

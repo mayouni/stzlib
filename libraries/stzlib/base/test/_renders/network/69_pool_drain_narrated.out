@@ -1,0 +1,31 @@
+SCENARIO: Drain rejects new submissions
+  GIVEN an idle pool
+  WHEN  draining an empty pool
+  THEN  residual is 0 (nothing was in flight)  [PASS]
+  WHEN  submitting after the drain
+  THEN  the submission is refused with -4  [PASS]
+  THEN  LastError says the pool is draining  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: In-flight jobs complete within a generous drain timeout
+  GIVEN a pool with one fast-failing job in flight
+  WHEN  draining with a 5s timeout
+  THEN  everything drained (residual 0)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: A zero timeout returns a non-zero residual when work is queued
+  GIVEN one worker flooded with 8 network jobs
+  WHEN  draining with timeout 0 (no wait)
+  THEN  residual is non-zero (jobs still queued/running)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Client Shutdown drops the shared connection cache
+  GIVEN an HTTP client that has made one request (warming the cache)
+  WHEN  the client is shut down
+  THEN  shutdown completes cleanly  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

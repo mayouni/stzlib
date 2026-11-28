@@ -1,0 +1,15 @@
+=== Checker & Empty Strings Test ===
+  PASS: EachItemIsA Number
+  PASS: EachItemIsA String
+  PASS: EachItemIsA mixed=false
+  PASS: ContainsEmptyStrings
+  PASS: CountEmptyStrings=2
+  PASS: FindEmptyStrings
+  PASS: ReplaceEmptyStrings
+  PASS: RemoveEmptyStrings
+
+==========================
+Total: 8
+Passed: 8
+Failed: 0
+ALL TESTS PASSED!

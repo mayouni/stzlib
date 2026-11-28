@@ -1,0 +1,33 @@
+SCENARIO: a trailing zero LEFT of the point is a place value, not noise
+  THEN  ten point four rounds to ten  [PASS]
+  THEN  ...not to one  [PASS]
+  THEN  a hundred point four rounds to a hundred  [PASS]
+  THEN  ...and ten point oh four to ten  [PASS]
+  THEN  a value that rounds to zero says zero  [PASS]
+  THEN  rounding up past the zero still works  [PASS]
+  THEN  ...and carries  [PASS]
+  THEN  negatives keep their magnitude  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: the tidying that WAS intended still happens
+  THEN  asking for more places than exist adds none  [PASS]
+  THEN  ...however many more  [PASS]
+  THEN  asking for fewer rounds  [PASS]
+  THEN  ...and fewer still  [PASS]
+  THEN  ...down to a whole number  [PASS]
+  THEN  a value whose places are all zeros tidies to the integer  [PASS]
+  THEN  ...and 1.005 is a tie on its digits, so it goes up  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: what rounding does to ties, stated rather than assumed
+  THEN  0.5 rounds to 1  [PASS]
+  THEN  1.5 rounds to 2  [PASS]
+  THEN  2.5 rounds to 3 -- half-even would say 2  [PASS]
+  THEN  3.5 rounds to 4  [PASS]
+  THEN  and a negative tie goes away from zero too  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 20 assertions, 20 pass, 0 fail
+================================================
+STATUS: OK

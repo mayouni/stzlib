@@ -1,0 +1,16 @@
+[ "Data quality appears good" ]
+
+[ "No variance in data (all values identical)" ]
+
+[
+	"Small sample size (n=5) prone to outlier influence. Use non-parametric methods, bootstrap confidence intervals, TrimmedMean(), and interpret results cautiously.",
+	"Skewed data (skewness = 2.23) makes mean unreliable. Use Median(), IQR(), and Quartiles() for robust central tendency analysis.",
+	"Outliers detected (1 values) can distort statistics. Apply TrimmedMean(10) and RobustScale(), or investigate data quality.",
+	"Non-normal distribution violates test assumptions. Use non-parametric tests, percentile-based confidence intervals, or apply Normalize()/Standardize().",
+	"Extremely high variability (CV = 198.26%) may indicate multiple populations. Consider subgroup analysis or use MovingAverage(5) to identify patterns.",
+	"Sequential data contains temporal patterns. Apply TrendAnalysis() and MovingAverage(5) to smooth fluctuations and identify trends."
+]
+
+
+----------------
+----------------

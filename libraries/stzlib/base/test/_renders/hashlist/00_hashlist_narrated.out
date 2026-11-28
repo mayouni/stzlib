@@ -1,0 +1,38 @@
+SCENARIO: Safe key access on a flat hash
+  GIVEN a flat hash with name/email/age
+  THEN  HasKey('email') is TRUE  [PASS]
+  THEN  HasKey('none') is FALSE  [PASS]
+  THEN  HasKeys(name,age) is TRUE  [PASS]
+  THEN  HasKeys(name,none,age) is FALSE  [PASS]
+  THEN  HasKeysXT(name,none,age) -> [TRUE,FALSE,TRUE]  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: Safe deep-path access on a nested hash
+  GIVEN a nested company hash
+  THEN  HasPath(departments/teams/members) is TRUE  [PASS]
+  THEN  HasPath with a bogus leaf is FALSE  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: stzHashList keys, values and lookups
+  GIVEN a 4-pair hash list
+  THEN  NumberOfPairs is 4  [PASS]
+  THEN  Keys are [one,two,three,four]  [PASS]
+  THEN  Values are [here,and,not,there]  [PASS]
+  THEN  value at :two is 'and'  [PASS]
+  THEN  NthKey(2) is 'two'  [PASS]
+  THEN  ContainsKey('three') is TRUE  [PASS]
+  THEN  ContainsKey('zzz') is FALSE  [PASS]
+  THEN  FindValue('not') -> [3]  [PASS]
+  THEN  FindValues(here,and,there) -> [1,2,4]  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: A named hash list
+  GIVEN a hash list named :myhash
+  THEN  Name() is 'myhash'  [PASS]
+  THEN  StzType() is 'stzhashlist'  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 18 assertions, 18 pass, 0 fail
+================================================
+STATUS: OK

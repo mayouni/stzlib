@@ -1,0 +1,25 @@
+[
+	[ "plan", "explore_choices" ],
+	[
+		"decision_points",
+		[
+			[
+				[ "node", "start" ],
+				[ "chosen", "fork_left" ],
+				[ "total_options", 2 ]
+			],
+			[
+				[ "node", "fork_left" ],
+				[ "chosen", "junction_a" ],
+				[ "total_options", 2 ]
+			]
+		]
+	]
+]
+
+[ "start", "fork_left", "junction_b", "end" ]
+13
+
+
+----------------
+----------------

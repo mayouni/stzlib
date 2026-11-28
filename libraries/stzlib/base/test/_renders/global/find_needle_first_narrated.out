@@ -1,0 +1,31 @@
+-- Scene 1: StzFindFirst is needle-first for two strings --
+  [OK] the reported repro: @(:a) is found at 1
+  [OK] a plain multi-char needle
+  [OK] a single-char needle mid-string
+  [OK] a needle absent from the container
+-- Scene 2: case-insensitive multi-char (was broken by the same swap) --
+  [OK] insensitive multi-char match
+  [OK] sensitive multi-char misses on case
+-- Scene 3: item-in-list, same convention (polymorphic both ways) --
+  [OK] item first, list second
+  [OK] list first still works (backward-compatible)
+-- Scene 4: the [ :In, container ] expressive form --
+  [OK] substr in a string container via :In
+  [OK] item in a list container via :In
+-- Scene 5: StzFindLast --
+  [OK] last occurrence in a string
+  [OK] last occurrence in a list
+  [OK] case-insensitive last
+  [OK] no occurrence
+-- Scene 6: StzFindNth --
+  [OK] 2nd 'a' in banana
+  [OK] 3rd 'x'
+  [OK] nth via :In
+  [OK] n out of range
+-- Scene 7: StzFind returns ALL positions, needle-first --
+  [OK] all positions of a substr
+  [OK] all positions of an item
+
+==========================================
+TOTAL: 20 assertions, 20 pass, 0 fail
+==========================================

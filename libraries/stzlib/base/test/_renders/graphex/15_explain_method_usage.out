@@ -1,0 +1,34 @@
+=== Pattern Explanation ===
+[
+	[
+		"general",
+		[ "Graph: patterngraph", "Nodes: 3 | Edges: 2" ]
+	],
+	[
+		"bottlenecks",
+		[
+			"Bottleneck nodes: :p2",
+			"Average degree: 1.33",
+			"  :p2: degree 2 (above average)"
+		]
+	],
+	[
+		"cycles",
+		[ "No cycles - acyclic graph (DAG)" ]
+	],
+	[
+		"metrics",
+		[
+			"Density: 0.33% (sparse)",
+			"Longest path: 2 hops"
+		]
+	],
+	[
+		"rules",
+		[ "No rules applied" ]
+	]
+]
+
+
+----------------
+----------------

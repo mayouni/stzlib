@@ -1,0 +1,14 @@
+SCENARIO: Removing chars from the right of a string
+  GIVEN "ring---"
+  THEN  RightCharRemoved() drops one trailing char  [PASS]
+  THEN  ...FromRightXT('*') is a no-op when '*' is absent  [PASS]
+  THEN  ...FromRightXT('-') strips the whole trailing run  [PASS]
+  THEN  CharTrimmedFromRight('-') trims every trailing '-'  [PASS]
+  THEN  CharRemovedFromRight('*') is a no-op when '*' is not the trailing char  [PASS]
+  THEN  CharRemovedFromRight('-') drops one matching trailing char  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

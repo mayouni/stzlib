@@ -1,0 +1,57 @@
+SCENARIO: Non-2xx status codes are surfaced exactly
+  GIVEN a running loopback server
+  THEN  404 is reported  [PASS]
+  THEN  500 is reported  [PASS]
+  THEN  204 is reported  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Response headers are captured deterministically
+  GIVEN an endpoint returning a known custom header
+  THEN  status is 200  [PASS]
+  THEN  the custom header is present  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: POST echoes the request body
+  GIVEN the /echo endpoint
+  THEN  the body is echoed back  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: A large body is received intact
+  GIVEN a 100000-byte response
+  THEN  status is 200  [PASS]
+  THEN  the full body arrived  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: A body past the output cap reports overflow
+  GIVEN a 5MB response (> the 4MB engine buffer)
+  THEN  the request reports overflow (-2)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Redirects are followed by default and stoppable
+  GIVEN a 3-hop redirect chain
+  THEN  with follow on, it lands on 200  [PASS]
+  THEN  with follow off, it returns 302  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: A request timeout fires on a slow endpoint
+  GIVEN a client with a 300ms request timeout
+  WHEN  hitting an endpoint that sleeps 1500ms
+  THEN  the request failed (timed out)  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: Auth: 401 without credentials, 200 with
+  GIVEN an endpoint requiring authorization
+  THEN  unauthenticated returns 401  [PASS]
+  THEN  authenticated returns 200  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Cookies round-trip via a jar file
+  GIVEN a client with a cookie jar
+  WHEN  a Set-Cookie response is received, then a follow-up request
+  THEN  the cookie was sent back on the second request  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 15 assertions, 15 pass, 0 fail
+================================================
+STATUS: OK

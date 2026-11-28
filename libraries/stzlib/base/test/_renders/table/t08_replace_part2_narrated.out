@@ -1,0 +1,219 @@
+SCENARIO: Replacing every cell equal to a value
+  GIVEN ReplaceOccurrencesOfCellByValue, which read a parameter its body did not declare
+  THEN  on the square table, a number  [PASS]
+  THEN  on the 4 x 2 table, both x  [PASS]
+  THEN  on the 4 x 2 table, the other column is left alone  [PASS]
+  THEN  a list cell is found as a value  [PASS]
+  THEN  a value that is not there changes nothing  [PASS]
+  THEN  a list that is not there changes nothing  [PASS]
+  THEN  the case counts: X is not x  [PASS]
+  THEN  a missing new value raises  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: Replacing the cells equal to any of several values by one value
+  GIVEN ReplaceManyCellsByValue and its three spellings
+  THEN  ReplaceManyCellsByValue on the 4 x 2 table  [PASS]
+  THEN  on the square table, with numbers  [PASS]
+  THEN  with a list cell among the values  [PASS]
+  THEN  the three other spellings do the same  [PASS]
+  THEN  and leave the column without the values alone  [PASS]
+  THEN  the new value may be one of the old: no cascade  [PASS]
+  THEN  an empty list of values changes nothing  [PASS]
+  THEN  values that are not there change nothing  [PASS]
+  THEN  a value that is not a list raises  [PASS]
+  THEN  the CS form with case leaves the other case alone  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Replacing the cells equal to several values by several values
+  GIVEN ReplaceManyCellsByValueByMany and its three spellings
+  THEN  ReplaceManyCellsByValueByMany on the 4 x 2 table  [PASS]
+  THEN  a swap on the square table does not cascade  [PASS]
+  THEN  a text and a list cell, replaced by a list and a text  [PASS]
+  THEN  the three other spellings do the same  [PASS]
+  THEN  and leave the column without the values alone  [PASS]
+  THEN  more values than new values: the surplus values stay  [PASS]
+  THEN  more new values than values: the surplus new values are ignored  [PASS]
+  THEN  values that are not there change nothing  [PASS]
+  THEN  new values that are not a list raise  [PASS]
+  THEN  the case counts with the CS form  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Replacing several columns by several lists of cells
+  GIVEN the six spellings that raised Unsupported feature in this release
+  THEN  on the square table, by position and by name, the six spellings agree  [PASS]
+  THEN  on the 4 x 2 table, by name and by position, the six spellings agree  [PASS]
+  THEN  the column that is not named is left alone  [PASS]
+  THEN  an unknown column raises, in the six spellings  [PASS]
+  THEN  a column of lists  [PASS]
+  THEN  a column of texts  [PASS]
+  THEN  the new lists may be given by :With  [PASS]
+  THEN  the surplus of the columns is ignored  [PASS]
+  THEN  the new lists that are not lists of lists raise  [PASS]
+  THEN  the columns that are not a list raise  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: Setting every cell of the given rows to one value
+  GIVEN ReplaceCellsInTheseRows, which checked a name that was not its parameter
+  THEN  on the square table  [PASS]
+  THEN  on the 4 x 2 table  [PASS]
+  THEN  the value may be given by :With  [PASS]
+  THEN  a list is stored in each cell as it stands  [PASS]
+  THEN  the rows not listed are left alone  [PASS]
+  THEN  no row, nothing changes  [PASS]
+  THEN  a row that does not exist raises  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Replacing every occurrence of a cell, in its six spellings
+  GIVEN the spellings that forwarded to ReplaceCell with two arguments
+  THEN  a text on the 4 x 2 table, in the six spellings  [PASS]
+  THEN  a number on the square table, in the six spellings  [PASS]
+  THEN  the other column is left alone  [PASS]
+  THEN  a value that is not there changes nothing  [PASS]
+  THEN  the case counts  [PASS]
+  THEN  a list cell is given as [ :Cell, list ]  [PASS]
+  THEN  their CS forms ignore the case when asked  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Replacing the nth, the first and the last occurrence
+  GIVEN ox, whose x are at [1,1] [1,2] [2,2] [2,3], read column by column
+  THEN  ReplaceFirst replaces the first  [PASS]
+  THEN  ReplaceLast replaces the last  [PASS]
+  THEN  ReplaceNth(2) replaces the second  [PASS]
+  THEN  ReplaceNth(3) replaces the third, in the second column  [PASS]
+  THEN  ReplaceNth(4) replaces the fourth  [PASS]
+  THEN  ReplaceNth(5): there is no fifth, nothing changes  [PASS]
+  THEN  ReplaceNth(0) changes nothing  [PASS]
+  THEN  a position that is not a number raises  [PASS]
+  THEN  a value that is not there changes nothing, first  [PASS]
+  THEN  a value that is not there changes nothing, last  [PASS]
+  THEN  the case counts  [PASS]
+  THEN  ReplaceFirst on the square table, a number  [PASS]
+  THEN  ReplaceLast on the square table, a number  [PASS]
+  THEN  ReplaceNth on the square table, a number  [PASS]
+  THEN  ReplaceFirst on the 4 x 2 table  [PASS]
+  THEN  ReplaceLast on the 4 x 2 table  [PASS]
+  THEN  a list cell is given as [ :Cell, list ]: first  [PASS]
+  THEN  a list cell is given as [ :Cell, list ]: the second  [PASS]
+  -> 18 pass, 0 fail
+
+SCENARIO: Replacing a text found inside cells
+  GIVEN ow, whose names are Andy Ali Alia and whose jobs are Maestro Abraham Ali
+  THEN  ReplaceInCell changes the text inside one cell  [PASS]
+  THEN  and leaves the other cells alone  [PASS]
+  THEN  the case counts: LI is not li  [PASS]
+  THEN  a text that is not in the cell changes nothing  [PASS]
+  THEN  a number cell is left as it is  [PASS]
+  THEN  a list cell is left as it is  [PASS]
+  THEN  a text that is not a string raises  [PASS]
+  THEN  ReplaceInCells works on the cells it is given  [PASS]
+  THEN  a cell of a text that is not in it changes nothing  [PASS]
+  THEN  ReplaceInCells on the 4 x 2 table  [PASS]
+  THEN  ReplaceInCells leaves the cells that are not texts  [PASS]
+  THEN  the cells that are not a list of pairs raise  [PASS]
+  THEN  ReplaceInCellsByMany applies each text in turn  [PASS]
+  THEN  the texts that are not a list of strings raise  [PASS]
+  THEN  ReplaceInSection works on the block between two corners  [PASS]
+  THEN  and leaves the other column alone  [PASS]
+  THEN  a block of two columns reaches both  [PASS]
+  THEN  a block of one row  [PASS]
+  THEN  ReplaceInSectionByMany applies each text in turn  [PASS]
+  THEN  on both columns  [PASS]
+  THEN  and leaves the other column alone  [PASS]
+  THEN  texts that are not in the block change nothing  [PASS]
+  -> 22 pass, 0 fail
+
+SCENARIO: The formula column reader
+  GIVEN @, which called a list test that is defined nowhere
+  THEN  a column name gives the code that reads the cell of that column  [PASS]
+  THEN  by a symbol too  [PASS]
+  THEN  the first column  [PASS]
+  THEN  a text that names no column is given back  [PASS]
+  THEN  a list of names sets the columns, each with one empty cell  [PASS]
+  THEN  a list of pairs takes the names  [PASS]
+  THEN  a table of any shape takes it  [PASS]
+  THEN  a number raises  [PASS]
+  THEN  a list that is neither names nor pairs raises  [PASS]
+  THEN  a formula that uses it still works  [PASS]
+  -> 10 pass, 0 fail
+
+SCENARIO: The grand-total line of the grid
+  GIVEN buildGrandTotal, which read totals that are local to buildDataRows
+  THEN  the square table: the line is built  [PASS]
+  THEN  the third column adds up to 18  [PASS]
+  THEN  no other total is shown: the second column would be 15  [PASS]
+  THEN  with a row-number column, the last column is the fourth  [PASS]
+  THEN  the numbers 100 and 200 add up to 300  [PASS]
+  THEN  the second column, 30, is not shown  [PASS]
+  THEN  a table of texts shows the label  [PASS]
+  THEN  and no digit  [PASS]
+  THEN  the text is a separator line and a total line, two ends of line  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Transposing with the column names
+  GIVEN TransposeWithColNames, which called a misspelt method
+  THEN  the square table  [PASS]
+  THEN  the 4 x 2 table  [PASS]
+  THEN  the 4 x 2 table has five columns afterwards  [PASS]
+  THEN  the first column holds the old column names, on a table of lists too  [PASS]
+  THEN  the list cells survive  [PASS]
+  THEN  it does what TransposeXT does  [PASS]
+  THEN  TransposeBack restores the table  [PASS]
+  THEN  the plain Transpose drops the names, which is the difference  [PASS]
+  -> 8 pass, 0 fail
+
+SCENARIO: The table as HTML
+  GIVEN ToHtml, which read a variable named data that is never set
+  THEN  the compact form is on one line  [PASS]
+  THEN  it holds the column names  [PASS]
+  THEN  a number cell is marked by its class  [PASS]
+  THEN  a text cell has no class  [PASS]
+  THEN  and none is marked as a number  [PASS]
+  THEN  a list cell is marked by its class  [PASS]
+  THEN  the cells are in the order of the rows  [PASS]
+  THEN  the table has four rows of body  [PASS]
+  THEN  ToHtmlTable is ToHtml  [PASS]
+  THEN  the extended form is on several lines  [PASS]
+  THEN  it holds the same cells  [PASS]
+  THEN  ToHtmlTableXT is ToHtmlXT  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: The table back from HTML
+  GIVEN FromHtml, which called a method that is defined nowhere
+  THEN  the square table makes the round trip  [PASS]
+  THEN  the 4 x 2 table makes the round trip  [PASS]
+  THEN  the people table makes the round trip  [PASS]
+  THEN  the table of lists makes the round trip  [PASS]
+  THEN  the extended form makes the round trip too  [PASS]
+  THEN  a number comes back as a number  [PASS]
+  THEN  a text of digits comes back as a text  [PASS]
+  THEN  and keeps its zeros  [PASS]
+  THEN  a decimal comes back as the number Ring shows  [PASS]
+  THEN  a list inside a list comes back  [PASS]
+  THEN  an empty list comes back  [PASS]
+  THEN  a text with markup comes back as it was  [PASS]
+  THEN  the markup is written as entities in the HTML  [PASS]
+  THEN  an empty text comes back  [PASS]
+  THEN  a Hebrew text comes back  [PASS]
+  THEN  reading the HTML of the table back writes the same HTML  [PASS]
+  THEN  the number of columns is kept  [PASS]
+  THEN  the number of rows is kept  [PASS]
+  -> 18 pass, 0 fail
+
+SCENARIO: Reading HTML that ToHtml did not write
+  GIVEN tables as other tools write them
+  THEN  tags in capitals, a tag inside a cell, an entity  [PASS]
+  THEN  a cell with no class is a text, even of digits  [PASS]
+  THEN  without a row of th, the columns are named COL1, COL2  [PASS]
+  THEN  and the first row is a row of data  [PASS]
+  THEN  a short row is completed with empty texts  [PASS]
+  THEN  a table with a header and no body has columns and no cells  [PASS]
+  THEN  the spaces around a cell are dropped  [PASS]
+  THEN  a text that holds no table raises  [PASS]
+  THEN  and leaves the table as it was  [PASS]
+  THEN  a value that is not a string raises  [PASS]
+  -> 10 pass, 0 fail
+
+================================================
+TOTAL: 159 assertions, 159 pass, 0 fail
+================================================
+STATUS: OK

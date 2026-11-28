@@ -1,0 +1,36 @@
+=== Engine Delegation: Swap ===
+  Swap(1,4): [ "d", "b", "c", "a" ]
+
+=== Engine Delegation: Reverse ===
+  Reverse(): [ "z", "y", "x" ]
+
+=== Engine Delegation: Shuffle ===
+  Shuffle() length: 5
+
+=== Engine Delegation: RemoveItemAtPosition ===
+  RemoveItemAtPosition(3): [ "a", "b", "d", "e" ]
+
+=== Engine Delegation: RemoveAll ===
+  RemoveAll('x'): [ "a", "b" ]
+
+=== Engine Delegation: RemoveFirstItem ===
+  RemoveFirstItem(): [ "second", "third" ]
+
+=== Engine Delegation: RemoveLastItem ===
+  RemoveLastItem(): [ "first", "second" ]
+
+=== Engine Delegation: ReplaceAt ===
+  ReplaceAt(2, 'B'): [ "a", "B", "c" ]
+
+=== Engine Delegation: SwapItems (Inserter) ===
+  SwapItems(1,3): [ "3", "2", "1" ]
+
+=== Engine Delegation: ReplaceAll ===
+  ReplaceAll('x','Z'): [ "Z", "a", "Z", "b", "Z" ]
+
+=== Engine Delegation: RemoveAll no match ===
+  RemoveAll('z') on [a,b,c]: [ "a", "b", "c" ]
+
+=================================
+  PASSED: 11  FAILED: 0
+=================================

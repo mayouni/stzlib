@@ -1,0 +1,16 @@
+SCENARIO: Four pairs over five blocks
+  THEN  third dots block untouched  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: More news than olds
+  THEN  the extra FOUR is ignored  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: More olds than news
+  THEN  the extra old is ignored  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 3 assertions, 3 pass, 0 fail
+================================================
+STATUS: OK

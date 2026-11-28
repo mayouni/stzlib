@@ -1,0 +1,155 @@
+🗀 _t24
+├─ 🗋 test.txt
+├─🗀 docs
+├─🖿 images
+├─🗀 music
+├─🖿 tempo
+╰─🗀 videos
+
+
+📁 _t24 (6)
+├─ 🗋 test.txt
+├─🗀 docs
+├─🖿 images (4)
+├─🗀 music
+├─🖿 tempo (2)
+╰─🗀 videos
+
+
+@count
+
+📁 _t24 (1 files, 5 folders)
+├─ 🗋 test.txt
+├─🗀 docs
+├─🖿 images (2 files, 2 folders)
+├─🗀 music
+├─🖿 tempo (2 files)
+╰─🗀 videos
+
+
+📁 _t24 (1:7 files, 5:7 folders)
+├─ 🗋 test.txt
+├─🗀 docs
+├─🖿 images (2:4 files, 2:2 folders)
+├─🗀 music
+├─🖿 tempo (2:2 files)
+╰─🗀 videos
+
+
+📁 _t24 (1:7 files, 5:7 folders)
+├─ 🗋 test.txt
+├─🗀 docs
+├─🖿 images (2:4 files, 2:2 folders)
+├─🗀 music
+├─🖿 tempo (2:2 files)
+╰─🗀 videos
+
+
+🗀 _t24
+├─ 🗋 test.txt
+├─🗀 docs
+├─🗁 images
+│ ├─ 🗋 image1.png
+│ ├─ 🗋 image2.png
+│ ├─🗀 more
+│ ╰─🖿 notes
+├─🗀 music
+├─🗁 tempo
+│ ├─ 🗋 temp1.txt
+│ ╰─ 🗋 temp2.txt
+╰─🗀 videos
+
+
+🗀 _t24
+├─ 🗋 test.txt
+├─🗀 docs
+├─🗁 images
+│ ├─ 🗋 image1.png
+│ ├─ 🗋 image2.png
+│ ├─🗀 more
+│ ╰─🖿 notes
+├─🗀 music
+├─🗁 tempo
+│ ├─ 🗋 temp1.txt
+│ ╰─ 🗋 temp2.txt
+╰─🗀 videos
+
+
+🗀 _t24
+├─ 🗋 test.txt
+├─🗀 docs
+├─🖿 images
+├─🗀 music
+├─🖿 tempo
+╰─🗀 videos
+
+
+🗀 _t24
+├─ 🗋 test.txt
+├─🗀 docs
+├─🗁 images
+│ ├─ 🗋 image1.png
+│ ├─ 🗋 image2.png
+│ ├─🗁 more
+│ ╰─🗁 notes
+│   ├─ 🗋 howto.txt
+│   ╰─ 🗋 sources.txt
+├─🗀 music
+├─🖿 tempo
+╰─🗀 videos
+
+
+📁 _t24 (1:7 files, 5:7 folders)
+├─ 🗋 test.txt
+├─🗁 docs
+├─🗁 images (2:4 files, 2:2 folders)
+│ ├─ 🗋 image1.png
+│ ├─ 🗋 image2.png
+│ ├─🗁 more
+│ ╰─🗁 notes (2:2 files)
+│   ├─ 🗋 howto.txt
+│   ╰─ 🗋 sources.txt
+├─🗁 music
+├─🗁 tempo (2:2 files)
+│ ├─ 🗋 temp1.txt
+│ ╰─ 🗋 temp2.txt
+╰─🗁 videos
+
+
+📁 _t24 (1:7 files, 5:7 folders)
+├─ 🗋 test.txt
+├─🗀 docs
+├─🖿 images (2:4 files, 2:2 folders)
+├─🗀 music
+├─🖿 tempo (2:2 files)
+╰─🗀 videos
+
+
+🗀 _t24 (🎯 1 matches for '*.txt')
+├─ 🗋👉 test.txt
+├─🗀 docs
+├─📂 images (2)
+├─🗀 music
+├─📂 tempo (2)
+╰─🗀 videos
+
+🗀 _t24 (🎯5 matches for '*.txt')
+├─ 🗋👉 test.txt
+├─🗀 docs
+├─📂 images (2)
+│ ├─ 🗋 image1.png
+│ ├─ 🗋 image2.png
+│ ├─🗀 more
+│ ╰─📂 notes (2)
+│   ├─ 🗋👉 howto.txt
+│   ╰─ 🗋👉 sources.txt
+├─🗀 music
+├─📂 tempo (2)
+│ ├─ 🗋👉 temp1.txt
+│ ╰─ 🗋👉 temp2.txt
+╰─🗀 videos
+
+
+
+----------------
+----------------

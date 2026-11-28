@@ -1,0 +1,31 @@
+SCENARIO: a subprocess runs off-thread and its stdout is captured
+  GIVEN a shell command that echoes a marker
+  THEN  the child's stdout came back  [PASS]
+  THEN  its exit code is 0  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a non-zero exit code is reported
+  GIVEN a command that exits 3
+  THEN  the exit code is surfaced  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: many workers run concurrently, drained independently
+  GIVEN three echo workers submitted at once (non-blocking)
+  THEN  three job ids were issued  [PASS]
+  WHEN  each is awaited in turn
+  THEN  each returned its own output  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: a missing program surfaces an error, no crash
+  GIVEN a program that does not exist
+  THEN  the status is a non-zero (uv/spawn) error  [PASS]
+  -> 1 pass, 0 fail
+
+SCENARIO: teardown
+  THEN  teardown completes without crash  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

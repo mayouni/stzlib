@@ -1,0 +1,77 @@
+==================================================================
+ MU4 -- one phrase, "1 2 3 4 5 4 3 2", in eight universes
+==================================================================
+
+-- mu4_01_western_major   Western tonal / major / four
+   listen for: the default everyone else escapes
+   confidence: high -- this is the tradition the rest of the field defaults to
+   written: 5.2 s
+
+-- mu4_02_maqam_rast   Arabic maqam / rast / maqsum
+   listen for: the half-flat third (350 cents) -- not major, not minor
+   confidence: medium -- textbook intervals on a theorists' grid; regional intonation is not declared
+   written: 10.2 s
+
+-- mu4_03_maqam_hijaz   Arabic maqam / hijaz / maqsum
+   listen for: the augmented second between degrees 2 and 3
+   confidence: medium -- textbook intervals on a theorists' grid; regional intonation is not declared
+   written: 10.2 s
+
+-- mu4_04_tunisian_dhil   Tunisian tubu' and iqa'at / dhil / btayhi
+   listen for: Snoussi's Dhil over btayhi -- on paper Rast's skeleton; does it sound like Dhil to you, or like Rast?
+   confidence: skeletons high, cents derived not measured, strokes low where given and absent where not
+   written: 11.2 s
+
+-- mu4_05_tunisian_sika_hijaz   Tunisian tubu' and iqa'at / sika_hijaz / btayhi
+   listen for: Sika with the 'Tunisian hijaz' on top -- the documented Tunisian difference
+   confidence: skeletons high, cents derived not measured, strokes low where given and absent where not
+   written: 11.2 s
+
+-- mu4_06_tunisian_rasd_aldhil   Tunisian tubu' and iqa'at / rasdaldhil / barwal
+   listen for: Rasd al-Dhil (Snoussi's f-half-sharp) over barwal, fast
+   confidence: skeletons high, cents derived not measured, strokes low where given and absent where not
+   written: 5.7 s
+
+-- mu4_07_niger_zarma_tende   Niger -- Zarma, Tuareg, Hausa / zarma / tende
+   listen for: every note SLID into, over the tende n-emnas -- the scale is a placeholder
+   confidence: tende high; tones medium-high; scale LOW; takamba strokes absent
+   written: 6.0 s
+
+-- mu4_09_raga_yaman_teental   Hindustani raga / yaman / teental
+   listen for: Yaman, meends into Re Ga and Ma, over teental -- listen for khali's missing bass
+   confidence: see each part
+   written: 13.5 s
+
+-- mu4_10_gamelan_slendro   Javanese gamelan -- slendro / slendro / lancaran
+   listen for: slendro averaged over 30 gamelans, stretched octave, lancaran
+   confidence: tunings measured; the pairing is a declared combination
+   written: 9.8 s
+
+-- mu4_11_gamelan_kanyutmesem   Javanese gamelan -- slendro / kanyutmesem / lancaran
+   listen for: the SAME phrase on one real gamelan -- 18 cents flatter on nem
+   confidence: tunings measured; the pairing is a declared combination
+   written: 9.8 s
+
+-- mu4_12_gamelan_paired   Javanese gamelan -- slendro / slendro_paired / lancaran
+   listen for: pairs 6 Hz apart, beating -- Balinese practice on a Javanese scale, stated
+   confidence: tunings measured; the pairing is a declared combination
+   written: 9.8 s
+
+-- mu4_13_westafrican_timeline   West African 12/8 timeline /  / standard
+   listen for: the bell alone: the phrase is REFUSED, this universe declares no scale
+   (West African 12/8 timeline declares no scale -- it is a RHYTHM (standard); a phrase needs a mode that has degrees)
+   confidence: high for the pattern; the pulse layer is a teaching aid, not a tradition's part
+   written: 8.5 s
+
+-- mu4_14_flamenco_solea   Flamenco -- solea / phrygian / solea
+   listen for: solea's compas, accents 3 6 8 10 12, the third raised up and natural down
+   confidence: high for the compas, medium for the declared melodic mode
+   written: 11.2 s
+
+-- mu4_08_niger_kalangu: 'sannu da zuwa' (welcome), L H L H L, on the kalangu
+   Hausa has two tones, High and Low; Falling is High then Low on one heavy syllable, and there is no Rising (Newman 1996). NO source was found for how far a kalangu squeezes between them: the fourth (220 / 165 Hz) is this declaration's choice, stated. And one source warns a kalangu does not always follow the words' tones
+
+Tell me, for any tradition you know: is it that mode -- or which part is
+wrong? For Tunisia: does 04 sound like Dhil, or like Rast? That is the
+one question the sources could not answer, and the MU4 STATUS records
+whoever answers it, by name.

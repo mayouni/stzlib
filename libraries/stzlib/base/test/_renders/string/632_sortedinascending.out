@@ -1,0 +1,14 @@
+SCENARIO: Sorting a jumble of letters
+  THEN  ascending copy  [PASS]
+  THEN  not sorted yet  [PASS]
+  THEN  descending copy  [PASS]
+  THEN  not descending either  [PASS]
+  THEN  so unsorted  [PASS]
+  THEN  Sort() mutates ascending  [PASS]
+  THEN  and the order says so  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

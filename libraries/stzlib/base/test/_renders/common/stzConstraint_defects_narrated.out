@@ -1,0 +1,119 @@
+SCENARIO: Construction: an object and a condition text build a constraint
+  THEN  a braced condition on an object that obeys it builds  [PASS]
+  THEN  an unbraced condition builds as well  [PASS]
+  THEN  a condition the object does NOT obey still builds (the constraint is built, then checked)  [PASS]
+  THEN  the documented stzString form builds  [PASS]
+  THEN  a condition with a syntax error is refused  [PASS]
+  THEN  a condition calling a method the object lacks is refused  [PASS]
+  THEN  an empty braced condition is refused  [PASS]
+  THEN  a blank condition is refused  [PASS]
+  THEN  a plain text instead of an object is refused  [PASS]
+  THEN  a number instead of a condition text is refused  [PASS]
+  THEN  a list instead of a condition text is refused  [PASS]
+  -> 11 pass, 0 fail
+
+SCENARIO: IsConstraint and StzConstraintQ: the free functions behind the constructor
+  THEN  IsConstraint answers 1 for a condition that runs on the object  [PASS]
+  THEN  a condition that merely fails still runs, so it answers 1 too  [PASS]
+  THEN  a condition with a syntax error answers 0  [PASS]
+  THEN  a condition that raises at run time answers 0  [PASS]
+  THEN  a non-object answers 0  [PASS]
+  THEN  a non-text condition answers 0  [PASS]
+  THEN  the @-form answers the same  [PASS]
+  THEN  StzConstraintQ builds a stzConstraint  [PASS]
+  THEN  and it checks  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Content, Value, Constraint and Object: what the constraint holds
+  THEN  Content answers the condition exactly as given, braces included  [PASS]
+  THEN  Value answers the same  [PASS]
+  THEN  Constraint answers the same  [PASS]
+  THEN  Object answers the guarded object  [PASS]
+  THEN  a second constraint keeps its own condition  [PASS]
+  THEN  and the first one is not disturbed  [PASS]
+  THEN  a multi-line text is kept untouched by Content  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Name: nothing sets it until SetName does
+  THEN  an unnamed constraint answers the empty text  [PASS]
+  THEN  and is not named  [PASS]
+  THEN  SetName gives it a name that Name reads back  [PASS]
+  THEN  and it is named now  [PASS]
+  THEN  a sibling built from the same object stays unnamed  [PASS]
+  THEN  naming the sibling leaves the first name alone  [PASS]
+  THEN  and the sibling has its own  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Name: the chained form, renaming and the wrong kind of name
+  THEN  SetNameQ returns the constraint, named  [PASS]
+  THEN  a name can be replaced  [PASS]
+  THEN  an empty name clears it  [PASS]
+  THEN  a number is refused as a name  [PASS]
+  THEN  and the name is untouched by the refusal  [PASS]
+  THEN  NameQ answers the name as a stzString  [PASS]
+  THEN  the object's own variable name is a different field and stays @noname  [PASS]
+  -> 7 pass, 0 fail
+
+SCENARIO: Expression: the Ring code that tests the condition
+  THEN  a braced condition is written without its braces  [PASS]
+  THEN  an unbraced condition gives the very same code  [PASS]
+  THEN  a multi-line braced condition is trimmed to the same code  [PASS]
+  THEN  no brace is left in the code  [PASS]
+  THEN  another condition gives other code  [PASS]
+  THEN  asking twice gives the same code  [PASS]
+  -> 6 pass, 0 fail
+
+SCENARIO: CheckConstraint: obeyed and violated
+  THEN  an object that obeys the condition answers 1  [PASS]
+  THEN  an object that does not answers 0  [PASS]
+  THEN  an unbraced equality that holds answers 1  [PASS]
+  THEN  and one that does not answers 0  [PASS]
+  THEN  a lowercase string obeys the documented condition  [PASS]
+  THEN  an uppercase string violates it  [PASS]
+  THEN  so does a string with one capital  [PASS]
+  THEN  checking again gives the same answer  [PASS]
+  THEN  and the same for the violated one  [PASS]
+  -> 9 pass, 0 fail
+
+SCENARIO: Verdict and LastError: a violated condition is not a broken one
+  THEN  an obeyed condition has the verdict holds  [PASS]
+  THEN  and no error  [PASS]
+  THEN  a violated condition has the verdict violated  [PASS]
+  THEN  and no Ring error either: the condition ran and said no  [PASS]
+  THEN  when the condition itself raises, CheckConstraint still answers 0  [PASS]
+  THEN  but the verdict tells it apart: broken  [PASS]
+  THEN  and LastError keeps the Ring error  [PASS]
+  THEN  which carries the reason the object raised  [PASS]
+  THEN  and is not the violation message  [PASS]
+  THEN  once the object works again the verdict is holds  [PASS]
+  THEN  and LastError is cleared  [PASS]
+  THEN  the violated one is still violated, with LastError empty  [PASS]
+  -> 12 pass, 0 fail
+
+SCENARIO: The constraint keeps its own copy of the object
+  THEN  the original object changed  [PASS]
+  THEN  but the constraint still sees the value it was built with  [PASS]
+  THEN  Object answers the copy, with its old value  [PASS]
+  THEN  a constraint built after the change sees the new value and is violated  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Braces inside the condition are left alone
+  THEN  only the enclosing pair is taken off: a closing brace inside a quoted text survives  [PASS]
+  THEN  the code still holds the inner brace  [PASS]
+  THEN  and another value violates it  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Accented letters in the condition text
+  THEN  a condition quoting an accented word holds for that word  [PASS]
+  THEN  the accented word reaches the code intact  [PASS]
+  THEN  the code is longer in bytes than in letters, so the accent was kept as two bytes  [PASS]
+  THEN  the same condition fails for the unaccented word  [PASS]
+  THEN  a Hebrew letter in the condition holds for that letter  [PASS]
+  THEN  and fails for an accented word  [PASS]
+  THEN  a stray accented letter right after the opening brace is a broken condition, not a crash  [PASS]
+  -> 7 pass, 0 fail
+
+================================================
+TOTAL: 82 assertions, 82 pass, 0 fail
+================================================
+STATUS: OK

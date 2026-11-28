@@ -1,0 +1,50 @@
+Ring
+@content: NULL
+@cnnlwhy:
+@cnnlexpectmode:
+@pnnlexpect: 0
+@nnnlexpecttol: 0
+@onnlmain: 0
+@bnnlskip: 0
+@bnnlneither: 0
+@bnnleither: 0
+@bnnlsat: 0
+@cnnlquant:
+@annlconstraints: [This Attribute Contains A List]
+@bnnlenforce: 0
+@cvarname: @noname
+@cuuid:
+@chasheduuid:
+_these_: Object...
+_those_: Object...
+@noname:
+@isstzobject:
+@i:
+@islistofstrings:
+@isringtypeinplural:
+@isstztypeinplural:
+@@:
+@botharestrings:
+@memorysizeinbytes:
+@memorysizeinbytes32:
+@memorysizeinbytes64:
+@sizeinbytesxt:
+@sizeinbytes32xt:
+@sizeinbytes64xt:
+@contentsizeinbytes:
+@isnamedobject:
+@pengine: 85
+@aundostack: [This Attribute Contains A List]
+@aredostack: [This Attribute Contains A List]
+@bundotracking: 1
+@isstznumber:
+@islistofnumbers:
+@stzinferetypename:
+@casesensitive:
+@split:
+@invisiblechars:
+
+
+
+----------------
+----------------

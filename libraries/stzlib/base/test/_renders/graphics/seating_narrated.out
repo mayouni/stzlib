@@ -1,0 +1,33 @@
+-- Scene 1: a wedding of five tables and thirty guests --
+   5 tables, 36 seats, 30 guests
+  [OK] five tables, thirty-six seats, thirty guests -- six seats stay free
+   'Top table' seats 8 and was given 8
+  [OK] a table knows its seats and how many were given
+   the author stood it at (5, 1) m; the layout stands it at (5, 0.66) m after spreading
+  [OK] the builder keeps the author's place unless a neighbour's names would run into it
+
+-- Scene 2: four rules about hosting, and a sound plan passes them --
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 0
+   table_not_overbooked, a_guest_sits_once, kept_apart_are_apart, tables_stand_clear
+  [OK] the wedding has nothing wrong with it
+
+-- Scene 3: the same wedding with one of each mistake --
+   Table 1 given seven guests for six seats; Ann seated at two tables; Ann
+   and Fay, to be kept apart, seated together; Table 3 stood into Table 2.
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 6
+     table_not_overbooked -- no table is given more guests than it has seats -- 'Table 1' seats 6 and was given 7 -- 'Zed' found no seat
+     a_guest_sits_once -- no name is seated at two tables -- 'Ann' is seated at 'Table 1' and again at 'Table 2' -- one guest, two seats
+     a_guest_sits_once -- no name is seated at two tables -- 'Ann' is seated at 'Table 2' and again at 'Table 1' -- one guest, two seats
+     kept_apart_are_apart -- two guests the host keeps apart do not share a table -- 'Ann' and 'Fay' are to be kept apart and sit together at 'Table 1'
+     tables_stand_clear -- no two tables' seats meet -- 'Table 2' and 'Table 3' stand 2.9 m apart and their seats need 3.1 m
+     tables_stand_clear -- no two tables' seats meet -- 'Table 3' and 'Table 2' stand 2.9 m apart and their seats need 3.1 m
+  [OK] the overbooked table is named with its count
+  [OK] a guest seated twice is reported on both listings
+  [OK] the pair kept apart and seated together is caught
+  [OK] two tables that meet are reported on both
+  [OK] and those six are everything the rules find
+
+-- Scene 4: the pictures --
+   wrote guide_seating.png and guide_seating_witness.png
+
+== 9 passed, 0 failed ==

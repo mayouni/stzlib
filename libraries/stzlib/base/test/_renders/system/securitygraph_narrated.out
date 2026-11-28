@@ -1,0 +1,54 @@
+SCENARIO: a security rule IS a graph rule; the set carries the invariants
+  THEN  it constructs  [PASS]
+  THEN  ...in the security domain  [PASS]
+  THEN  the set carries the three invariants  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: THE HEADLINE: multi-hop escalation the flag check cannot see
+  GIVEN a sandboxed actor that holds NO effectful, but uses a tool that grants it
+  THEN  the graph says the llm REACHES effectful (multi-hop)  [PASS]
+  WHEN  the same actor is checked by the posture (flag) validator
+  THEN  no-sandboxed-effectful does NOT fire -- the flag check is blind to the path  [PASS]
+  WHEN  the graph rule set runs
+  THEN  sandboxed-reaches-effectful DOES fire  [PASS]
+  THEN  ...on the llm node  [PASS]
+  THEN  ...and the surface is not sound  [PASS]
+  -> 5 pass, 0 fail
+
+SCENARIO: escalation through DELEGATION, and the direct case, both caught
+  GIVEN a sandboxed actor delegating to a trusted actor that holds effectful
+  THEN  the llm reaches effectful via delegation  [PASS]
+  THEN  ...and the rule fires  [PASS]
+  GIVEN a sandboxed actor holding effectful DIRECTLY (the flag case)
+  THEN  the reachability rule subsumes the direct case too  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: a trusted actor reaching effectful is fine
+  THEN  a trusted actor may reach effectful -- no finding  [PASS]
+  THEN  ...the surface is sound  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: THE CONSTRAINT: no live secret to a sandboxed actor, refused at construction
+  THEN  MayAttach is false for the sandboxed actor  [PASS]
+  THEN  ...the attach is REFUSED  [PASS]
+  WHEN  the same secret is attached to a TRUSTED actor
+  THEN  MayAttach allows it  [PASS]
+  THEN  ...it is applied -- only the sandboxed actor is refused  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: blast radius: who reaches a secret (rotation planning)
+  THEN  both sites are in the blast radius  [PASS]
+  THEN  ...prod reaches it  [PASS]
+  THEN  ...staging reaches it  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: unstored-secret: a referenced secret that lives in no store
+  THEN  the warning fires (its reveals are uncaudited)  [PASS]
+  WHEN  the secret is placed in a store
+  THEN  the warning clears  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 22 assertions, 22 pass, 0 fail
+================================================
+STATUS: OK

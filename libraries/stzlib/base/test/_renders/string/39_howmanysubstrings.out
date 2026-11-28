@@ -1,0 +1,12 @@
+SCENARIO: Counting and classifying the substrings by occurrence
+  GIVEN "one two one three two one four five"
+  THEN  HowManySubStrings is 630  [PASS]
+  THEN  SubStringsOccuringNTimes(3) is the >=3 set  [PASS]
+  THEN  SubStringsOccurringExactlyNTimes(3) is the =3 set  [PASS]
+  THEN  SubStringsOccurringNoMoreThanNTimes(1) is empty (< 1)  [PASS]
+  -> 4 pass, 0 fail
+
+================================================
+TOTAL: 4 assertions, 4 pass, 0 fail
+================================================
+STATUS: OK

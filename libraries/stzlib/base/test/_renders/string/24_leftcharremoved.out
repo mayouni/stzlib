@@ -1,0 +1,14 @@
+SCENARIO: Removing chars from the left of a string
+  GIVEN "---ring"
+  THEN  LeftCharRemoved() drops one leading char  [PASS]
+  THEN  ...FromLeftXT('*') is a no-op when '*' is absent  [PASS]
+  THEN  ...FromLeftXT('-') strips the whole leading run  [PASS]
+  THEN  CharTrimmedFromLeft('-') trims every leading '-'  [PASS]
+  THEN  CharRemovedFromLeft('*') is a no-op when '*' is not the leading char  [PASS]
+  THEN  CharRemovedFromLeft('-') drops one matching leading char  [PASS]
+  -> 6 pass, 0 fail
+
+================================================
+TOTAL: 6 assertions, 6 pass, 0 fail
+================================================
+STATUS: OK

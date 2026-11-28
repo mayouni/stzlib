@@ -1,0 +1,23 @@
+SCENARIO: StzEngineHttpGet exists and is callable
+  GIVEN the global engine HTTP function
+  THEN  StzEngineHttpGet is a defined function  [PASS]
+  THEN  StzEngineHttpGetStatus is defined  [PASS]
+  THEN  StzEngineHttpPost is defined  [PASS]
+  THEN  StzEngineHttpLastError is defined  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: GET against an invalid URL surfaces an error
+  GIVEN a malformed URL
+  THEN  the body is empty  [PASS]
+  THEN  LastError reports the failure  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: GET status against an invalid URL is -1
+  GIVEN a malformed URL
+  THEN  status is -1 (transport error)  [PASS]
+  -> 1 pass, 0 fail
+
+================================================
+TOTAL: 7 assertions, 7 pass, 0 fail
+================================================
+STATUS: OK

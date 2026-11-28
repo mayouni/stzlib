@@ -1,0 +1,36 @@
+SCENARIO: Concatenate the strings
+  GIVEN a 3-string list
+  THEN  ConcatenatedUsing(' ') joins with spaces  [PASS]
+  THEN  an empty list concatenates to ''  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Count, membership and find
+  GIVEN the list [one, two, three]
+  THEN  NumberOfStrings is 3  [PASS]
+  THEN  Contains('two') is TRUE  [PASS]
+  THEN  Contains('zzz') is FALSE  [PASS]
+  THEN  Find('two') -> [2]  [PASS]
+  -> 4 pass, 0 fail
+
+SCENARIO: Case mapping and reversal
+  GIVEN the list [ring, prog, lang]
+  THEN  ToUpperQ uppercases each  [PASS]
+  THEN  Reversed flips the order  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Sort and deduplicate
+  GIVEN an unsorted, duplicate-bearing list
+  THEN  SortInAscendingQ orders alphabetically  [PASS]
+  THEN  RemoveDuplicates keeps first occurrences  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Sort by a custom key expression
+  GIVEN strings of varying length and a len(@string) key
+  THEN  SortBy orders by length with no spurious empty element  [PASS]
+  THEN  SortBy is stable on a 3-element list  [PASS]
+  -> 2 pass, 0 fail
+
+================================================
+TOTAL: 12 assertions, 12 pass, 0 fail
+================================================
+STATUS: OK

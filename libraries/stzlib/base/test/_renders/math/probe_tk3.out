@@ -1,0 +1,52 @@
+== scene 33: a residual-versus-fit of 5 x 3 cells: common 8, residual fourth-spread 1, 4 beyond the outside fences, 2 far out, 3 ringed on another cell's spot; nothing to lay out -- no rule minted an unknown
+   violations 0
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 0
+   findings under the check: 0
+== scene 34: a coded table of 5 x 3 residuals over a scale of 1: 9 at the fit, 0 mild, 0 notable, 3 outside, 3 far out; nothing to lay out -- no rule minted an unknown
+   violations 0
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 0
+   findings under the check: 0
+          1973 1974 1975
+    1-24     .    ^    .
+   25-74     .    v    .
+  75-199     .    *    ^
+   200++     *    .    .
+      NA     .    *    .
+  scale 1 = the residuals' fourth-spread; common 8; hinges: Tukey's fourths
+    .  |r| / scale < 0.5     at the fit
+    - +  < 1     mild, signed
+    < >  < 2     notable, signed
+    v ^  < 3     outside, signed
+    *  >= 3    far out
+
+== scene 35: a coded table of 6 x 5 residuals over a scale of 26.5375: 17 at the fit, 6 mild, 4 notable, 1 outside, 2 far out; nothing to lay out -- no rule minted an unknown
+   violations 0
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 0
+   findings under the check: 0
+       c1  c2  c3  c4  c5
+  r1    +   .   .   .   <
+  r2    .   .   .   -   <
+  r3    .   .   .   .   -
+  r4    .   .   .   .   +
+  r5    <   <   .   .   +
+  r6    v   -   .   *   *
+  scale 26.5375 = the residuals' fourth-spread; common 79.8979; hinges: Tukey's fourths
+    .  |r| / scale < 0.5     at the fit
+    - +  < 1     mild, signed
+    < >  < 2     notable, signed
+    v ^  < 3     outside, signed
+    *  >= 3    far out
+
+residual plot: scale 1, points 15, outside 4, far out 2
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 1
+tampered fit -> 1 finding(s)
+   point_is_its_cell: a point's fit is the common value plus its row's and its column's effects, it is drawn there, and a cell on another's spot is ringed, never hidden -- cell (3, 2) carries fit 99 where common + row + column is 7
+coded: a coded table of 5 x 3 residuals over a scale of 1: 9 at the fit, 0 mild, 0 notable, 3 outside, 3 far out; nothing to lay out -- no rule minted an unknown
+cell (3,2) glyph '*' band 4; cell (4,1) '*'; cell (1,2) '^'
+pictures judged: 1 (0 notation, 1 mathematical) -- findings: 1
+tampered residual under a far-out glyph -> 1 finding(s)
+   glyph_is_its_band: a cell's glyph is the glyph of its residual's band over the scale, with its sign -- cell (3, 2) shows '*' for a residual of 0, which is at the fit and should show '.'
+ragged refused: StzCodedTableFigure: row 2 does not have 2 value(s) -- the table is rectangular.
+
+glyphs refused: StzCodedTableFigure: :glyphs is :Ascii or :Symbols -- not 'emoji'. The meanings of the bands never c
+names refused: StzResidualPlotFigure: :names is [ row names, column names ] with 2 and 2 names.

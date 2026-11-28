@@ -1,0 +1,33 @@
+SCENARIO: Dimensions
+  GIVEN a 3x3 matrix
+  THEN  Rows is 3  [PASS]
+  THEN  Cols is 3  [PASS]
+  THEN  Size is [3,3]  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Scalar add / multiply (whole matrix, via engine)
+  THEN  Add(10) lifts every cell  [PASS]
+  THEN  MultiplyBy(2) doubles every cell  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Per-column and per-row add
+  THEN  AddInCol(2,100) lifts column 2  [PASS]
+  THEN  AddInRow(1,50) lifts row 1  [PASS]
+  -> 2 pass, 0 fail
+
+SCENARIO: Per-column and per-row / multi-row multiply
+  THEN  MultiplyCol(2,5) scales column 2  [PASS]
+  THEN  MultiplyRow(2,9) scales row 2  [PASS]
+  THEN  MultiplyRows([1,3],7) scales rows 1 and 3 only  [PASS]
+  -> 3 pass, 0 fail
+
+SCENARIO: Determinant (engine, read-only)
+  THEN  det [[1,2],[3,4]] is -2  [PASS]
+  THEN  det [[2,0],[0,3]] is 6  [PASS]
+  THEN  det of a 3x3 is -306  [PASS]
+  -> 3 pass, 0 fail
+
+================================================
+TOTAL: 13 assertions, 13 pass, 0 fail
+================================================
+STATUS: OK

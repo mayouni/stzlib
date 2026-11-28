@@ -1,0 +1,12 @@
+SCENARIO: Square brackets, two readings
+  THEN  a number reads the char  [PASS]
+  THEN  a substring finds its positions  [PASS]
+  THEN  ... of any length  [PASS]
+  THEN  :First and :Last as keywords  [PASS]
+  THEN  compared through Content()  [PASS]
+  -> 5 pass, 0 fail
+
+================================================
+TOTAL: 5 assertions, 5 pass, 0 fail
+================================================
+STATUS: OK

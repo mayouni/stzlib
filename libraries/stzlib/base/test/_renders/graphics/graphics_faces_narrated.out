@@ -1,0 +1,89 @@
+-- Scene 1: colours are written the way a designer writes them --
+  [OK] 6-digit hex
+  [OK] 3-digit short form expands
+  [OK] 8-digit carries alpha
+  [OK] a name works
+  [OK] case does not matter
+  [OK] transparent is fully transparent
+  [OK] a bad colour RAISES rather than turning black
+  [OK] a wrong-length hex RAISES
+
+-- Scene 2: a font is bytes you loaded, and a measuring tape --
+  [OK] font loaded
+  [OK] it knows its repertoire
+  [OK] Latin measures positive
+  [OK] Arabic measures positive (a real shaped advance)
+  [OK] Arabic is ONE visual run
+  [OK] mixed script is THREE runs
+  [OK] 8 Arabic codepoints shape to 8 glyphs
+  [OK] a missing font RAISES by name
+
+-- Scene 3: a mesh knows its own layout --
+  [OK] cube is 24 vertices, not 8 (normals stay sharp)
+  [OK] 12 triangles
+  [OK] its format is DERIVED from its attributes
+  [OK] a sphere builds to its grid
+  [OK] an OBJ quad fans into 2 triangles
+  [OK] an unknown kind RAISES
+  [OK] a broken OBJ RAISES
+
+-- Scene 4: THE NAMING LAW -- plain acts, Q returns the MAIN object --
+  [OK] the plain form does NOT return an object
+  [OK] the plain form did the act anyway
+  [OK] the Q form returns an object
+  [OK] and it is THE CANVAS ITSELF, not a shape object
+  [OK] SetBackground has no Q-less surprise
+  [OK] SetBackgroundQ chains on the canvas
+  [OK] a whole chain stays on the canvas
+
+-- Scene 5: Fill colours the LAST shape; before any shape, the default --
+  [OK] the first circle took its own fill
+  [OK] the second took ITS own fill (not the first's)
+  [OK] the background stayed
+  [OK] Fill before any Add became the canvas default
+  [OK] a stroke with no fill named is an OUTLINE, not a white disc
+  [OK]   ...and the outline itself is really there
+  [OK] a fill NAMED on the shape survives a stroke
+  [OK] a fill named as the canvas default also survives a stroke
+  [OK] a shape with NEITHER named still takes the default fill
+
+-- Scene 6: one model, two tiers --
+  [OK] the SVG tier answered
+  [OK] it carries the canvas size
+  [OK] the circle's EXACT geometry is in it
+  [OK] text became glyph OUTLINES (no font needed to view it)
+  [OK] Content() is the portable form
+  [OK] the PNG tier answered from the SAME model
+  [OK] and it is a real PNG
+  [OK] AddText without a font RAISES by name
+
+-- Scene 6b: a full glyph atlas GROWS, and never loses text in silence --
+  [OK] the atlas starts at 1024 and has lost nothing
+  [OK] the atlas GREW past its starting size rather than dropping text
+  [OK] drawn + dropped accounts for EVERY glyph asked for (1776 + 0 = 1776)
+  [OK] and at this size nothing was lost at all
+  [OK] reset returns the atlas to its starting size
+
+-- Scene 7: the 3D face keeps its manners and its door --
+  [OK] the Q chain stays on the SCENE
+  [OK] AddMesh's plain form returns no object
+  [OK] but it recorded the instance
+  [OK] AddMeshQ chains and styles the last one added
+  [OK] two instances now
+  [OK] a camera with far <= near RAISES
+  [OK] Project puts the camera target at the picture's centre
+  [OK] a point behind the camera answers NOT VISIBLE, not a NaN
+  [OK] both instances drew in ONE call (same mesh)
+  [OK] moving and rotating did NOT re-upload geometry
+  [OK] but transforms WERE re-sent
+
+-- Scene 8: the GPU-driven door (the challenge pass's gap, closed) --
+  [OK] the instance buffer is reachable once the scene has rendered
+  [OK] its stride is the shader's stride
+  [OK] a scene is CPU-driven by default
+  [OK] and can be handed to the GPU
+  [OK] once GPU-driven, the face stops overwriting what a kernel wrote
+
+==========================================
+TOTAL: 68 assertions, 68 pass, 0 fail
+==========================================

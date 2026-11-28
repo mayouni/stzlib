@@ -1,0 +1,139 @@
+[
+	[
+		[
+			"temp_readings",
+			[
+				22,
+				24,
+				21,
+				25
+			],
+			"celsius"
+		],
+		[
+			"ID: temp_readings",
+			"Stats: [min:21, max:25, avg:23]",
+			[ "Tag: celsius" ]
+		]
+	],
+	[
+		[
+			"temp_readings",
+			[
+				22,
+				24,
+				21,
+				25
+			]
+		],
+		[
+			"ID: temp_readings",
+			"Stats: [min:21, max:25, avg:23]"
+		]
+	],
+	[
+		[
+			"temp_readings",
+			[
+				22,
+				24,
+				21,
+				25
+			],
+			"celsius"
+		],
+		[
+			"ID: temp_readings",
+			"Stats: [min:21, max:25, avg:23]",
+			[ "Tag: celsius" ]
+		]
+	],
+	[
+		[
+			"stock_prices",
+			[
+				55,
+				62,
+				58,
+				63,
+				67
+			]
+		],
+		[
+			"ID: stock_prices",
+			"Stats: [min:55, max:67, avg:61]"
+		]
+	],
+	[
+		[
+			"stock_prices",
+			[
+				55,
+				62,
+				58,
+				63,
+				67
+			]
+		],
+		[
+			"ID: stock_prices",
+			"Stats: [min:55, max:67, avg:61]"
+		]
+	],
+	[
+		[
+			"test_scores",
+			[
+				85,
+				92,
+				78,
+				95,
+				88
+			],
+			"midterm"
+		],
+		[
+			"ID: test_scores",
+			"Stats: [min:78, max:95, avg:87.60]",
+			[ "Tag: midterm" ]
+		]
+	],
+	[
+		[
+			"test_scores",
+			[
+				85,
+				92,
+				78,
+				95,
+				88
+			]
+		],
+		[
+			"ID: test_scores",
+			"Stats: [min:78, max:95, avg:87.60]"
+		]
+	],
+	[
+		[
+			"test_scores",
+			[
+				85,
+				92,
+				78,
+				95,
+				88
+			],
+			"midterm"
+		],
+		[
+			"ID: test_scores",
+			"Stats: [min:78, max:95, avg:87.60]",
+			[ "Tag: midterm" ]
+		]
+	]
+]
+
+
+----------------
+----------------
