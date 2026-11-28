@@ -228,9 +228,16 @@ end
 	func ring_remove(pxList, xN) # An alternative I added to the Ring semantics
 		return ring_del(pxList, xN)
 	end
-# Finds substr in str, counting BYTES. No .haro file calls it since 2026-11-28; ten .ring modules
-# that base/stzBase.ring loads still do. New code calls StkFindFirst (core) or StzFindFirst (base),
-# which count codepoints. ring_substr2, its replace twin, is gone: use StkReplace or StzReplace.
+# Finds substr in str, counting BYTES. KEEP IT: it stays only for ten .ring modules that
+# base/stzBase.ring loads on Haro, 46 calls on 2026-11-28 -- base/stats/stzCoeffExtractor (29),
+# base/stats/stzStochasticSolver (4), base/list/stzListFunc, base/number/stzListOfNumbers,
+# base/number/stzBinaryNumber, base/string/stzStringChar, base/string/stzStringFunc (2 each),
+# base/number/stzMatrix, base/regex/stzRegex, base/stats/stzHistogram (1 each). No .haro file
+# calls it. When the Haroport ports one of these modules, it moves that module's calls to the
+# engine (StzFindFirst, needle first, counting CODEPOINTS: read each site, since a position
+# handed to Left, Right or SubStr moves on multibyte text); delete this once the count is 0.
+# New code calls StkFindFirst (core) or StzFindFirst (base). ring_substr2, its replace twin,
+# is gone: use StkReplace or StzReplace.
 func ring_substr1(xStr, xSubstr)
 	if xStr = "" or xSubstr = ''
 		return 0
