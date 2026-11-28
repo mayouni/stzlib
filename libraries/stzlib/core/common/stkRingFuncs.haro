@@ -294,7 +294,7 @@ func ring_substr(pxParams)
 	if nLen = 2
 		return ring_substr1(pxParams[1], pxParams[2])
 	elseif nLen = 3
-		return ring_substr2(pxParams[1], pxParams[2], pxParams[2])
+		return ring_substr2(pxParams[1], pxParams[2], pxParams[3])
 	end
 end
 func ring_substr1(xStr, xSubstr) # Finds substr in str
