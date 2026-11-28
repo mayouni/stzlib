@@ -1117,6 +1117,38 @@ Measured in `probe_tk6_memory.ring`; recorded in the Tukey plan's `TK6
 RESULTS, the memory half`. The panel half stays gated on GUI G5. M4 has no
 leftover now.
 
+#### Maintenance, 2026-11-28 -- every name clears 3:1 (STZLIB-MATH-READABLE-01)
+
+The graphics plane's gate counted 72 names under 3:1 on the light theme in
+ten canonical scenes (2026-10-24): tick labels and stem labels took the
+`muted` role, a grey of 2.84 to 1 on white. Reproduced here figure by
+figure, and one more class found on the dark theme: names in the `info`
+role (the jump label, the ray and arc labels, the fraction's verdict) at
+1.47 to 1 on the dark paper. Changed: nine names leave `muted` for
+`neutral` (5.82 to 1 light, 8.27 dark) and four leave `info` for the
+paper's best ink. No size changed. The SVG expectation differs in exactly
+eight fills (grey 153 to grey 101); 54 catalogue pictures re-rendered and
+four looked at, before and after.
+
+**Guard**: `base/test/math/readable_narrated.haro`, the plane's first guard
+written in Haro -- every name of all 35 scenes on both themes (586 names,
+0 under 3:1), and negatives through the same instrument: a name in `muted`
+is found on the light paper, one in `info` on the dark. 40 of 40.
+
+**Runtime**: haro.exe, engine C:/haro-engine. `math_narrated` 282 of 282,
+`motion_narrated` 57 of 57, `readable_narrated` 40 of 40 -- ALL WITH A LOCAL,
+UNCOMMITTED PATCH OF `core/number/stkListOfNumbers.haro`: on main, `FindMin`
+and `FindMax` are lettered `vi` and compare without widening, so `Min` and
+`Max` refuse a list holding a float, and no function figure, number line or
+stacked notation can be built on Haro since the core moved (2026-11-12).
+Routed to the port's desk as `MATH-FINDING-CORE-MINMAX-01`; until it lands
+these three gates stop at their first function figure on main.
+
+**Routed to graphics**: four theme roles sit under 3:1 against their own
+paper -- light `muted` 2.84 and `danger` 2.49, dark `info` 1.47 and `success`
+2.45 -- so a LINE drawn in them is faint (the number line's jump arc on the
+dark theme is one). `MATH-FINDING-THEME-ROLES-01`.
+
 ### M5 -- Deepen the core (routed)
 
 Requests, each with the oracle and the picture that would prove it, to the

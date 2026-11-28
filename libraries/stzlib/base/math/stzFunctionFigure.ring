@@ -1054,7 +1054,7 @@ func StzFunctionStyleXT(panSizes)
 	_o_.ForAll("Tick k", [
 		[ :shape, "k.icon", :line, [ :x1 = "k.x - k.dx", :y1 = "k.y - k.dy", :x2 = "k.x + k.dx", :y2 = "k.y + k.dy",
 		                             :stroke = "neutral", :strokeWidth = 1 ] ],
-		[ :shape, "k.text", :text, [ :cx = "k.lx", :cy = "k.ly", :size = _nT_, :fill = "muted" ] ] ])
+		[ :shape, "k.text", :text, [ :cx = "k.lx", :cy = "k.ly", :size = _nT_, :fill = "neutral" ] ] ])
 	# A PIECE OF THE CURVE is one polyline of its samples: a spline whose
 	# controls are the samples and whose spans carry no interpolated point
 	_n_ = len(panSizes)

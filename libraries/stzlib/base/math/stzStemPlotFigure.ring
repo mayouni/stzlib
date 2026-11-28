@@ -283,11 +283,11 @@ func StzStemPlotStyleXT(pnW, pnH)
 		[ :shape, "f.text", :text, [ :cx = "f.tx", :cy = "f.ty", :size = StzStemPlotFigureTitleSize(),
 		                             :fill = [ :on, "paper" ] ] ] ])
 	_o_.ForAll("Stem s", [
-		[ :shape, "s.text", :text, [ :cx = "s.x", :cy = "s.y", :size = _nT_, :fill = "muted" ] ] ])
+		[ :shape, "s.text", :text, [ :cx = "s.x", :cy = "s.y", :size = _nT_, :fill = "neutral" ] ] ])
 	_o_.ForAll("Leaves l", [
 		[ :shape, "l.text", :text, [ :cx = "l.x", :cy = "l.y", :size = _nT_, :fill = [ :on, "paper" ] ] ] ])
 	_o_.ForAll("Legend g", [
-		[ :shape, "g.text", :text, [ :cx = "g.x", :cy = "g.y", :size = _nT_ - 2, :fill = "muted" ] ] ])
+		[ :shape, "g.text", :text, [ :cx = "g.x", :cy = "g.y", :size = _nT_ - 2, :fill = "neutral" ] ] ])
 	return _o_
 
 #-- the rules: the display's own honesty ---------------------------------

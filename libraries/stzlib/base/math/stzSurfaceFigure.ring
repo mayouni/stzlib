@@ -326,7 +326,7 @@ func StzSurfaceStyleXT(pnN)
 	next
 	_o_.ForAll("Frame f", _aRows_)
 	_o_.ForAll("Corner k", [
-		[ :shape, "k.text", :text, [ :cx = "k.x", :cy = "k.y", :size = _nT_, :fill = "muted" ] ] ])
+		[ :shape, "k.text", :text, [ :cx = "k.x", :cy = "k.y", :size = _nT_, :fill = "neutral" ] ] ])
 	_aP_ = [ :n = pnN, :samples = 1, :stroke = [ :ramp, "l.t", 0, 1, "muted", "primary" ], :strokeWidth = 1.4 ]
 	for _v_ = 1 to pnN
 		_aP_ + [ "x" + _v_, "l.x" + _v_ ]

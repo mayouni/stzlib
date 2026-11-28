@@ -345,7 +345,7 @@ func StzResidualPlotStyle()
 	_o_.ForAll("Tick k", [
 		[ :shape, "k.icon", :line, [ :x1 = "k.x - k.dx", :y1 = "k.y - k.dy", :x2 = "k.x + k.dx", :y2 = "k.y + k.dy",
 		                             :stroke = "neutral", :strokeWidth = 1 ] ],
-		[ :shape, "k.text", :text, [ :cx = "k.lx", :cy = "k.ly", :size = _nT_, :fill = "muted" ] ] ])
+		[ :shape, "k.text", :text, [ :cx = "k.lx", :cy = "k.ly", :size = _nT_, :fill = "neutral" ] ] ])
 	_o_.ForAll("Band b", [
 		[ :shape, "b.icon", :line, [ :x1 = "b.x0", :y1 = "b.y", :x2 = "b.x1", :y2 = "b.y",
 		                             :stroke = [ :alpha, "primary", 0.35 ], :strokeWidth = 1 ] ] ])

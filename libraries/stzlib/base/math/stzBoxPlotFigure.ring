@@ -436,7 +436,7 @@ func StzBoxPlotStyleXT(pnH)
 	_o_.ForAll("Tick k", [
 		[ :shape, "k.icon", :line, [ :x1 = "k.x", :y1 = "k.y - 4", :x2 = "k.x", :y2 = "k.y + 4",
 		                             :stroke = "neutral", :strokeWidth = 1 ] ],
-		[ :shape, "k.text", :text, [ :cx = "k.x", :cy = "k.ly", :size = _nT_, :fill = "muted" ] ] ])
+		[ :shape, "k.text", :text, [ :cx = "k.x", :cy = "k.ly", :size = _nT_, :fill = "neutral" ] ] ])
 	# THE BOX: whiskers first (under), the box, the median heavier, the caps
 	_o_.ForAll("Box b", [
 		[ :shape, "b.wlo", :line, [ :x1 = "b.xwlo", :y1 = "b.y", :x2 = "b.xq1", :y2 = "b.y",

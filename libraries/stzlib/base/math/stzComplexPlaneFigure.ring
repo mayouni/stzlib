@@ -404,7 +404,7 @@ func StzComplexPlaneStyle()
 	_o_.ForAll("Tick k", [
 		[ :shape, "k.icon", :line, [ :x1 = "k.x - k.dx", :y1 = "k.y - k.dy", :x2 = "k.x + k.dx", :y2 = "k.y + k.dy",
 		                             :stroke = "neutral", :strokeWidth = 1 ] ],
-		[ :shape, "k.text", :text, [ :cx = "k.lx", :cy = "k.ly", :size = _nT_, :fill = "muted" ] ] ])
+		[ :shape, "k.text", :text, [ :cx = "k.lx", :cy = "k.ly", :size = _nT_, :fill = "neutral" ] ] ])
 	_o_.ForAll("Unit u", [
 		[ :shape, "u.icon", :circle, [ :cx = "u.x", :cy = "u.y", :r = "u.r",
 		                               :stroke = [ :alpha, "primary", 0.45 ], :strokeWidth = 1.5 ] ] ])
@@ -446,14 +446,14 @@ func StzComplexPlaneStyle()
 	_o_.ForAllWhere("Ray r; Point p", "r := Ray(p)", [
 		[ :shape, "r.icon", :line, [ :x1 = "r.x1", :y1 = "r.y1", :x2 = "r.x2", :y2 = "r.y2",
 		                             :stroke = "info", :strokeWidth = 2 ] ],
-		[ :shape, "r.text", :text, [ :cx = "r.lx", :cy = "r.ly", :size = _nT_, :fill = "info" ] ],
+		[ :shape, "r.text", :text, [ :cx = "r.lx", :cy = "r.ly", :size = _nT_, :fill = [ :on, "paper" ] ] ],
 		[ :layer, "p.icon", :above, "r.icon" ] ])
 	_o_.ForAllWhere("Arc c; Point p", "c := Arc(p)", [
 		[ :shape, "c.icon", :spline, [ :n = 7, :samples = 5,
 		    :x1 = "c.x1", :y1 = "c.y1", :x2 = "c.x2", :y2 = "c.y2", :x3 = "c.x3", :y3 = "c.y3",
 		    :x4 = "c.x4", :y4 = "c.y4", :x5 = "c.x5", :y5 = "c.y5", :x6 = "c.x6", :y6 = "c.y6",
 		    :x7 = "c.x7", :y7 = "c.y7", :stroke = "info", :strokeWidth = 1.5 ] ],
-		[ :shape, "c.text", :text, [ :cx = "c.lx", :cy = "c.ly", :size = _nT_, :fill = "info" ] ] ])
+		[ :shape, "c.text", :text, [ :cx = "c.lx", :cy = "c.ly", :size = _nT_, :fill = [ :on, "paper" ] ] ] ])
 	_o_.ForAll("Note n; Ray r", [
 		[ :ensure, "disjoint", [ "n.text", "r.icon", 4 ] ],
 		[ :ensure, "disjoint", [ "n.text", "r.text", 4 ] ] ])

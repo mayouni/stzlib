@@ -1,0 +1,160 @@
+# THE READABLE GUARD OF THE MATHEMATICS PLANE -- every name a figure writes
+# clears 3:1 against what holds it, under the light theme and under the dark
+# one. The graphics plane's adversarial gate asked this question of one scene
+# per figure family on 2026-10-24 and counted 72 names under 3:1 on the light
+# theme: the tick labels and the stem labels were filled with the "muted"
+# role, a grey of 2.85:1 on white. The rule this guard holds is the
+# Principal's: text is never de-emphasised by being made lighter; a figure's
+# hierarchy is size, weight and colour at a readable shade.
+#
+#   cd libraries/stzlib/base/test/math
+#   haro readable_narrated.haro           (STZ_ENGINE_DIR names the engine root)
+load "../../stzBase.ring"
+load "math_scenes.ring"
+
+$nPass = 0
+$nFail = 0
+
+# every scene of the catalogue, the seven deliberately wrong witnesses
+# included: a picture that is wrong about its mathematics still owes its
+# reader names that can be read
+? "-- 1. EVERY NAME OF EVERY SCENE CLEARS 3:1, LIGHT AND DARK"
+nBadLight = 0
+nBadDark = 0
+nNames = 0
+nScenes = StzMathFigSceneCount()
+for q = 1 to nScenes
+	oF = StzMathFigScene(q)
+	oF.Layout()
+	vL = _Unreadable(oF.Diagram(), 3)
+	nNames = nNames + Len(oF.Diagram().Texts())
+	oF.SetTheme("dark")
+	vD = _Unreadable(oF.Diagram(), 3)
+	nBadLight = nBadLight + Len(vL)
+	nBadDark = nBadDark + Len(vD)
+	chk("scene " + String(q) + ": every name clears 3:1, light and dark  [" + String(Len(vL)) + " and " + String(Len(vD)) + " under]", Len(vL) = 0 and Len(vD) = 0)
+	_Tell(vL)
+	_Tell(vD)
+end
+? "        scenes " + String(nScenes) + ", names judged " + String(nNames) + "; under 3:1: light " + String(nBadLight) + ", dark " + String(nBadDark)
+
+? "-- 2. THE INSTRUMENT FIRES: A NAME IN A ROLE ITS PAPER CANNOT CARRY IS FOUND"
+# a picture of one name, filled with a role: the two roles the figures used
+# for names until 2026-11-28, and the one they use now
+oMuted = _Witness("muted")
+chk("NEGATIVE: a name in the muted role is found under 3:1 on the light paper, as 72 were in the ten canonical scenes", Len(_Unreadable(oMuted, 3)) = 1)
+oMuted.SetPictureTheme("dark")
+chk("...and clears it on the dark paper, where the muted role is a light grey", Len(_Unreadable(oMuted, 3)) = 0)
+oInfo = _Witness("info")
+chk("a name in the info role clears 3:1 on the light paper", Len(_Unreadable(oInfo, 3)) = 0)
+oInfo.SetPictureTheme("dark")
+chk("NEGATIVE: ...and is found under it on the dark paper, as the jump, ray, arc and verdict names were", Len(_Unreadable(oInfo, 3)) = 1)
+oNeutral = _Witness("neutral")
+nLight = Len(_Unreadable(oNeutral, 3))
+oNeutral.SetPictureTheme("dark")
+chk("a name in the neutral role clears 3:1 on both papers", nLight = 0 and Len(_Unreadable(oNeutral, 3)) = 0)
+
+? "=============================================================="
+? " " + String($nPass) + " ok, " + String($nFail) + " failed"
+? "=============================================================="
+if $nFail > 0
+	Shutdown(1)
+end
+
+func chk(tLabel, xCond)
+	if _StzB(xCond)
+		$nPass++
+		? "   ok   " + tLabel
+	else
+		$nFail++
+		? "  FAIL  " + tLabel
+	end
+end
+
+func _Tell(vNames)
+	nN = Len(vNames)
+	for k = 1 to nN
+		? "          " + vNames[k]
+	end
+end
+
+# the names of a solved picture whose fill is under nMin against what holds
+# them: the topmost filled region under the name's centre, composited over the
+# paper, or the paper itself. Each offender is told as "path: fill on ground,
+# ratio".
+func _Unreadable(oM, nMin)
+	vOut = []
+	vT = oM.Texts()
+	nT = Len(vT)
+	if nT = 0
+		return vOut
+	end
+	vS = oM.Shapes()
+	nS = Len(vS)
+	vFilled = []
+	for j = 1 to nS
+		tQ = vS[j]
+		if oM.IsHidden(tQ) = 1
+			loop
+		end
+		if oM.FillOf(tQ) = ""
+			loop
+		end
+		vR = _MrRegion(oM, tQ)
+		if Len(vR) < 6
+			loop
+		end
+		vFilled + [ tQ, vR, oM.DrawIndexOf(tQ), oM._Opaque(oM.FillOf(tQ), oM.Background()) ]
+	end
+	nF = Len(vFilled)
+	for k = 1 to nT
+		tP = vT[k]
+		tFill = oM.FillOf(tP)
+		tGround = oM.Background()
+		xShape = oM.ShapeOf(tP)
+		nTop = -1
+		for j = 1 to nF
+			if vFilled[j][1] = tP
+				loop
+			end
+			if vFilled[j][3] > nTop
+				if _MrPointIn(xShape[:cx], xShape[:cy], vFilled[j][2]) = 1
+					nTop = vFilled[j][3]
+					tGround = vFilled[j][4]
+				end
+			end
+		end
+		fRatio = Float(StzContrastOf(tFill, tGround))
+		if fRatio < Float(nMin)
+			vOut + (tP + ": " + tFill + " on " + tGround + ", " + String(Floor(fRatio * Float(100))) + " hundredths to 1")
+		end
+	end
+	return vOut
+end
+
+# a condition as a boolean: the unmoved library answers 0 and 1
+func _StzB(xV)
+	if IsNumber(xV)
+		return xV != 0
+	end
+	return xV
+end
+
+# a picture of one name in the middle of a small paper, filled with a role
+func _Witness(tRole)
+	oD = new stzMathDomain("witness")
+	oD.AddType("Tag")
+	oS = new stzMathSubstance(oD)
+	oS.Declare("Tag", "g")
+	oS.Label("g", "a name")
+	oS.SetData("g", "x", 100)
+	oS.SetData("g", "y", 60)
+	oY = new stzMathStyle()
+	oY.SetCanvas(200, 120)
+	oY.SetMargin(4)
+	oY.ForAll("Tag g", [ [ :shape, "g.text", :text, [ [ :cx, "g.x" ], [ :cy, "g.y" ], [ :size, 16 ], [ :fill, tRole ] ] ] ])
+	oM = new stzMathDiagram(oD, oS, oY)
+	oM.SetFont(StzMathFigureFont(), 16)
+	oM.Layout()
+	return oM
+end

@@ -379,7 +379,7 @@ func StzNumberLineStyle()
 	_o_.ForAll("Tick k", [
 		[ :shape, "k.icon", :line, [ :x1 = "k.x", :y1 = "k.y - 6", :x2 = "k.x", :y2 = "k.y + 6",
 		                             :stroke = "neutral", :strokeWidth = 1.5 ] ],
-		[ :shape, "k.text", :text, [ :cx = "k.x", :cy = "k.ly", :size = _nT_, :fill = "muted" ] ] ])
+		[ :shape, "k.text", :text, [ :cx = "k.x", :cy = "k.ly", :size = _nT_, :fill = "neutral" ] ] ])
 	_o_.ForAll("Point p", [
 		[ :shape, "p.icon", :circle, [ :cx = "p.x", :cy = "p.y", :r = 6,
 		                               :fill = "primary", :stroke = "background", :strokeWidth = 1.5 ] ] ])
@@ -413,7 +413,7 @@ func StzNumberLineStyle()
 		    :x7 = "j.x7", :y7 = "j.y7", :stroke = "info", :strokeWidth = 2.5 ] ],
 		[ :shape, "j.head", :line, [ :x1 = "j.x6", :y1 = "j.y6", :x2 = "j.x7", :y2 = "j.y7",
 		                             :stroke = "info", :strokeWidth = 2.5, :arrow = "end" ] ],
-		[ :shape, "j.text", :text, [ :cx = "j.lx", :cy = "j.ly", :size = _nT_ + 2, :fill = "info" ] ],
+		[ :shape, "j.text", :text, [ :cx = "j.lx", :cy = "j.ly", :size = _nT_ + 2, :fill = [ :on, "paper" ] ] ],
 		[ :layer, "j.head", :above, "j.icon" ] ])
 	_o_.ForAll("Note n; Jump j", [
 		[ :ensure, "disjoint", [ "n.text", "j.text", 4 ] ] ])

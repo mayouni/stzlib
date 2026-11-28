@@ -402,7 +402,7 @@ func StzFractionStyleXT(pnHeight)
 	_o_.ForAllWhere("Note n; Whole w", "n := Note(w)", [
 		[ :shape, "n.text", :text, [ :cx = "w.nx", :cy = "w.ny", :size = _nT_ + 4, :fill = [ :on, "paper" ] ] ] ])
 	_o_.ForAllWhere("Verdict v; Whole a; Whole b", "v := Verdict(a, b)", [
-		[ :shape, "v.text", :text, [ :cx = "v.x", :cy = "v.y", :size = _nT_ + 6, :fill = "info" ] ] ])
+		[ :shape, "v.text", :text, [ :cx = "v.x", :cy = "v.y", :size = _nT_ + 6, :fill = [ :on, "paper" ] ] ] ])
 	return _o_
 
 #---------------------------------------------------------------------#
