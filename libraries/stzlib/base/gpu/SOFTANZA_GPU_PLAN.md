@@ -5093,7 +5093,7 @@ against its parameter's letter.
 **The gate: the 20 guards that describe kernels or grade puzzles**, on haro.exe v0.78 (its stamp the same at start
 and end), engine at stzlib `734ca49a3` sources. Guards owned 20, run 20 on each arm. Old file: 901 assertions,
 900 pass, 1 fail -- `gpu_shared`'s roofline ratio (a right answer that rereads memory must be over 1.3x slower than
-SAXPY), a timing on battery power. New file: 901 assertions, 901 pass. The same count on every guard.
+SAXPY), a timing of the device, which the old file failed in the same run. New file: 901 assertions, 901 pass. The same count on every guard.
 
 Two things made the gate shorter and are kept for steps 3 and 4:
 
@@ -5128,7 +5128,7 @@ run 43 on each arm; the 15 that stopped at `Abs()`, and `gpu_convolve`, ran agai
 | old file | 40 | 1,582 | 1,578 | 4 |
 | new file | 40 | 1,582 | 1,582 | 0 |
 
-The same count on every guard. The old file's four failures are timings on battery power (`gpu_calibration_shaped`
+The same count on every guard. The old file's four failures are timings of the device (`gpu_calibration_shaped`
 2, `gpu_foundry_matmul` 1, `gpu_shared` 1), as was one of `gpu_convolve`'s on the new file's first run, which passed
 on the second. The three probes with no total (`backbone_spine_spike`, `g6_census_bench`, `gk1_shape_probe`) end at
 the same line on both arms.
@@ -5215,10 +5215,15 @@ a second pass did what the tool cannot know, mechanically and then by hand where
 
 The same count on every guard. The one failure is `gpu_shared`'s timing check (a SAXPY rerun must be 1.3x faster than
 a rereading kernel), and the older guard fails it too in the same hour: run alternately, old, new, old, new, each gave
-59 of 60, the first SAXPY at 1.66 to 1.85 ms against 1.24 ms on the day of step 4. It is a measurement of the device
-on battery, which the conversion does not touch. The three probes with no total match line for line (`g6`, `gk1`, whose
+59 of 60, the first SAXPY at 1.66 to 1.85 ms against 1.24 ms on the day of step 4. It is a measurement of the device,
+which the conversion does not touch. The three probes with no total match line for line (`g6`, `gk1`, whose
 columns differ only by timing width), and `backbone_spine_spike` now runs to its end, where the older file stopped at a
 Rule A refusal.
+
+**A correction to steps 2, 3 and 5** (2026-11-28): they named "battery power" as the cause of their timing failures,
+from Windows' power reading. The author says that reading is unreliable on this machine (damage to its AC side) and that
+the machine is on mains. No cause of those timings is measured; what stands is that the older file failed the same
+checks in the same hour, so the conversion does not cause them.
 
 **A correction to step 4**: its third finding says a float's text keeps two places. That came from a probe evaluated
 outside the `.haro` rules; in a `.haro` file `String()` of a float writes it in full. The finding's decision stands for
