@@ -191,14 +191,12 @@ the transcripts it saved (`results/terms/`), so a change of scoring never runs t
 - **Cost basis: wall seconds on this machine**, Whisper small on the CPU, four threads, the engine built ReleaseSafe
   from stzlib c2b930b71. Tonight plain hearing took 43 to 61 s a recording, where the WHISPER-02 run of 2026-11-16 heard
   ten recordings with the list in 58 s on an engine built from 1212cb88c; `whisper.zig`'s compute did not change
-  between the two. The machine reported itself on battery at 04:04. The absolute seconds are tonight's machine; the
-  ratio is the measurement.
+  between the two. The absolute seconds are tonight's machine; the ratio is the measurement.
 - **The list's cost grows with its length.** `_rig/time_words.haro` heard the bench's eight hearing recordings plain,
   with the setting's list of 82 bytes and with the domain's of 515 bytes, the order turning with each recording:
   381 s, 538 s and 1,117 s, the short list 1.41 times plain and the long one 2.93 times (`results/words_timing.txt`).
-  Plain hearing took 48 s a recording on that run too, the machine on battery (Windows: AC line offline, 06:48), so
-  the slowdown against 2026-11-16 holds with either list and without one; the seconds on mains power are this plane's
-  next measurement.
+  Plain hearing took 48 s a recording on that run too, so the slowdown against 2026-11-16 holds with either list and
+  without one.
 - Numbers spoken as words ("douze") are written as digits ("12") in both modes; the term groups accept either, the
   word error rate counts them, equally in both modes.
 
@@ -219,6 +217,6 @@ shared engine, built from c2b930b71 (`results/engines_timing.txt`).
   the run's own spread: one recording took 50 s to 254 s plain depending on when it ran, and the only pair heard while
   the machine was quiet (en01, 15:05) agrees to a second. Every transcript is the same on both engines.
 - **So the eight- to elevenfold slowdown against 2026-11-16 is the machine's.** The engine that heard ten recordings
-  with the list in 58 s that day takes 52 s for one plain recording today. The machine reported itself on battery all
-  day (Windows: AC line offline, 98%, 15:09), and a Haro build at -j1 and a Foundry probe ran beside part of this run.
-  Hearing seconds from this machine are comparable only within one alternated run until a run on mains power is taken.
+  with the list in 58 s that day takes 52 s for one plain recording today. A Haro build at -j1 and a Foundry probe
+  ran beside part of this run; this machine's Windows power reading is not a measurement, and names no cause. Hearing seconds from this machine compare within one alternated run; the
+  machine's share of the slowdown is this plane's next measurement.
